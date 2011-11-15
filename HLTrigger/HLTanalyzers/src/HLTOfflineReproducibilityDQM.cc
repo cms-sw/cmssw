@@ -13,7 +13,7 @@
 //
 // Original Author:  Juliette Marie Alimena,40 3-A02,+41227671577,
 //         Created:  Tues Oct 11 15:46:58 CEST 2011
-// $Id: HLTOfflineReproducibility_DQM.cc,v 1.1 2011/10/11 15:30:05 jalimena Exp $
+// $Id: HLTOfflineReproducibilityDQM.cc,v 1.1 2011/11/15 11:01:33 jalimena Exp $
 //
 //
 
@@ -60,10 +60,10 @@ using namespace std;
 // class declaration
 //
 
-class HLTOfflineReproducibility_DQM : public edm::EDAnalyzer {
+class HLTOfflineReproducibilityDQM : public edm::EDAnalyzer {
 public:
-  explicit HLTOfflineReproducibility_DQM(const edm::ParameterSet&);
-  ~HLTOfflineReproducibility_DQM();
+  explicit HLTOfflineReproducibilityDQM(const edm::ParameterSet&);
+  ~HLTOfflineReproducibilityDQM();
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
@@ -133,7 +133,7 @@ private:
 //
 // constructors and destructor
 //
-HLTOfflineReproducibility_DQM::HLTOfflineReproducibility_DQM(const edm::ParameterSet& iConfig):  
+HLTOfflineReproducibilityDQM::HLTOfflineReproducibilityDQM(const edm::ParameterSet& iConfig):  
   processNameORIG_(iConfig.getParameter<std::string>("processNameORIG")),
   processNameNEW_(iConfig.getParameter<std::string>("processNameNEW"))
 
@@ -156,7 +156,7 @@ HLTOfflineReproducibility_DQM::HLTOfflineReproducibility_DQM(const edm::Paramete
 }
 
 
-HLTOfflineReproducibility_DQM::~HLTOfflineReproducibility_DQM()
+HLTOfflineReproducibilityDQM::~HLTOfflineReproducibilityDQM()
 {
  
    // do anything here that needs to be done at desctruction time
@@ -171,7 +171,7 @@ HLTOfflineReproducibility_DQM::~HLTOfflineReproducibility_DQM()
 
 // ------------ method called for each event  ------------
 void
-HLTOfflineReproducibility_DQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTOfflineReproducibilityDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
   
@@ -327,19 +327,19 @@ HLTOfflineReproducibility_DQM::analyze(const edm::Event& iEvent, const edm::Even
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-HLTOfflineReproducibility_DQM::beginJob()
+HLTOfflineReproducibilityDQM::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-HLTOfflineReproducibility_DQM::endJob() 
+HLTOfflineReproducibilityDQM::endJob() 
 {
 }
 
 // ------------ method called when starting to processes a run  ------------
 void 
-HLTOfflineReproducibility_DQM::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
+HLTOfflineReproducibilityDQM::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 {
   void init(const edm::TriggerResults &, const edm::TriggerNames & HLTNames);
 
@@ -584,7 +584,7 @@ HLTOfflineReproducibility_DQM::beginRun(edm::Run const& iRun, edm::EventSetup co
 
 // ------------ method called when ending the processing of a run  ------------
 void 
-HLTOfflineReproducibility_DQM::endRun(edm::Run const&, edm::EventSetup const&)
+HLTOfflineReproducibilityDQM::endRun(edm::Run const&, edm::EventSetup const&)
 {
   //all paths
   cout<<endl;
@@ -612,19 +612,19 @@ HLTOfflineReproducibility_DQM::endRun(edm::Run const&, edm::EventSetup const&)
 
 // ------------ method called when starting to processes a luminosity block  ------------
 void 
-HLTOfflineReproducibility_DQM::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+HLTOfflineReproducibilityDQM::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }
 
 // ------------ method called when ending the processing of a luminosity block  ------------
 void 
-HLTOfflineReproducibility_DQM::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+HLTOfflineReproducibilityDQM::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-HLTOfflineReproducibility_DQM::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+HLTOfflineReproducibilityDQM::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -633,4 +633,4 @@ HLTOfflineReproducibility_DQM::fillDescriptions(edm::ConfigurationDescriptions& 
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(HLTOfflineReproducibility_DQM);
+DEFINE_FWK_MODULE(HLTOfflineReproducibilityDQM);

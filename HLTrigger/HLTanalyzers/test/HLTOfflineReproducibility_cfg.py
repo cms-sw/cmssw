@@ -21,4 +21,4 @@ process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string(OUTPUTFILE)
                                    )
 
-process.p = cms.Path(process.hltofflinereproducibility)
+process.p = cms.Path(process.hltOfflineReproducibility)
