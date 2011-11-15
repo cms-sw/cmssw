@@ -66,7 +66,7 @@ EcalHaloData EcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
   
       if(cell)
 	{
-	  GlobalPoint globalpos = cell->getPosition();
+	  // GlobalPoint globalpos = cell->getPosition();
 	  //	  float r = TMath::Sqrt ( globalpos.y()*globalpos.y() + globalpos.x()*globalpos.x());
 	  int iPhi = EcalID.iphi();
 
