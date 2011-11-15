@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan 20 09:50:58 CST 2011
-// $Id: storageSizeForBranch.cc,v 1.2 2011/02/02 15:46:08 chrjones Exp $
 //
 
 // system include files
@@ -22,6 +21,7 @@
 
 // user include files
 #include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 
 //
@@ -35,7 +35,7 @@ static char const* const kProgramName = "edmBranchStorageSize";
 static char const* const kEntryNumberCommandOpt = "entryNumber,e";
 static char const* const kEntryNumberOpt = "entryNumber";
 
-int main(int argc, char* argv[])
+int main(int argc, char* argv[]) try
 {
    std::string descString(argv[0]);
    descString += " [options] [--";
@@ -105,6 +105,7 @@ int main(int argc, char* argv[])
    
    if(0==branch) {
       std::cerr <<"The Events TTree does not contain the branch "<<branchName;
+      return 1;
    }
    
    
@@ -139,4 +140,10 @@ int main(int argc, char* argv[])
    std::cout<<"\nNOTE: add 4 bytes for each 'has written' value because of a bug in ROOT's printout of the accounting"
    <<"\n  Each class (inheriting or as member data) has metadata an overhead of 10 bytes"<<std::endl;
    return 0;
+} catch(cms::Exception const& e) {
+  std::cerr << e.explainSelf() << std::endl;
+  return 1;
+} catch(std::exception const& e) {
+  std::cerr << e.what() << std::endl;
+  return 1;
 }
