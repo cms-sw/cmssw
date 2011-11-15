@@ -406,14 +406,15 @@ particle_flow   calibPFSCEle_endcap  1.153 -16.5975 5.668 -0.1772 16.22 7.326 0.
 //particle_flow   calibPFSCEle_endcap  0.9995 -12.313 2.8784 -1.057e-04 10.282 3.059 1.3502e-03 -2.2185 3.4206
 
 // PFPhotons
-particle_flow   usePFPhotons      0
+particle_flow   usePFPhotons      1
 particle_flow   conv_mvaCut	  0.00
 particle_flow   useReg		  0	
 // Daniele and Rishi: To be changed
-particle_flow   convID_mvaWeightFile    /afs/cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_pfConversionFeb2311.txt
+particle_flow   convID_mvaWeightFile    /afs/cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_pfConversionAug0411.txt
 particle_flow mvaWeightFileRegLC	/afs/cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFClusterCorr.root
 particle_flow mvaWeightFileRegGC        /afs/cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFGlobalCorr.root
-X0Map                                   /afs/cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/allX0histos.root
+particle_flow mvaWeightFileRegRes        /afs/cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFRes.root
+X0Map                                  /afs/cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/allX0histos.root
 particle_flow sumPtTrackIsoForPhoton   2.0
 particle_flow sumPtTrackIsoSlopeForPhoton   0.001
 

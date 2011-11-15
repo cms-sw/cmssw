@@ -1149,6 +1149,7 @@ void PFRootEventManager::readOptions(const char* file,
   string mvaWeightFileConvID = "";
   string mvaWeightFileRegLC="";
   string mvaWeightFileRegGC="";
+  string mvaWeightFileRegRes="";
   string X0Map="";
   double mvaConvCut=-1.;
   double sumPtTrackIsoForPhoton=2.0;
@@ -1159,6 +1160,7 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("particle_flow", "convID_mvaWeightFile", mvaWeightFileConvID);
   options_->GetOpt("particle_flow", "mvaWeightFileRegLC", mvaWeightFileRegLC);
   options_->GetOpt("particle_flow", "mvaWeightFileRegGC", mvaWeightFileRegGC);
+  options_->GetOpt("particle_flow", "mvaWeightFileRegRes", mvaWeightFileRegRes);
   options_->GetOpt("particle_flow", "X0Map", X0Map);
   options_->GetOpt("particle_flow","sumPtTrackIsoForPhoton",sumPtTrackIsoForPhoton);
   options_->GetOpt("particle_flow","sumPtTrackIsoSlopeForPhoton",sumPtTrackIsoSlopeForPhoton);
@@ -1175,6 +1177,7 @@ void PFRootEventManager::readOptions(const char* file,
  useReg,
  mvaWeightFileRegLC,
  mvaWeightFileRegGC,
+ mvaWeightFileRegRes,
  X0Map,
  calibration,
  sumPtTrackIsoForPhoton,
