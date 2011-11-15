@@ -319,6 +319,7 @@ vector<FreeTrajectoryState> HICFTSfromL1orL2::createFTSfromL1orL2(vector<L1MuGMT
    // cout<<" L2::Innermost state "<<pos0<<" new momentum "<<mom<<" old momentum "<<mom0<<endl;
     
     AlgebraicSymMatrix55 m;
+    /*
     double error;
     if( abs(mom.eta()) < 1. )
     {
@@ -328,6 +329,7 @@ vector<FreeTrajectoryState> HICFTSfromL1orL2::createFTSfromL1orL2(vector<L1MuGMT
     {
      error = 0.6*abs(mom.z());
     }
+    */
     m(0,0)=0.6*mom.perp(); m(1,1)=1.; m(2,2)=1.;
     m(3,3)=1.;m(4,4)=0.; 
     CurvilinearTrajectoryError cte(m);
@@ -367,6 +369,7 @@ vector<FreeTrajectoryState> HICFTSfromL1orL2::createFTSfromL1orL2(vector<L1MuGMT
     //cout<<" StandAlone::Innermost state "<<pos0<<" new momentum "<<mom<<" old momentum "<<mom0<<endl;
     
     AlgebraicSymMatrix55 m;
+    /*
     double error;
     if( abs(mom.eta()) < 1. )
     {
@@ -376,6 +379,7 @@ vector<FreeTrajectoryState> HICFTSfromL1orL2::createFTSfromL1orL2(vector<L1MuGMT
     {
      error = 0.6*abs(mom.z());
     }
+    */
     m(0,0)=0.6*mom.perp(); m(1,1)=1.; m(2,2)=1.;
     m(3,3)=1.;m(4,4)=0.; 
     CurvilinearTrajectoryError cte(m);

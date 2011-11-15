@@ -91,7 +91,8 @@ bool HICTkOuterStartingLayerFinder::findForwardLayers( const FreeTrajectoryState
   std::cout<<"HICTkOuterStartingLayerFinder::findForwardLayers::start "<<NumberOfSigm<<std::endl;
 #endif  
 
-  double outrad, zseed, rseed, theta, atrack, btrack;
+  double outrad, zseed, rseed;
+  //double theta, atrack, btrack;
   double dz, dr, a1, zdet, newzmin, newzmax;  
   std::vector<ForwardDetLayer*>::const_iterator flayer; 
   double mincoor=fabs(fts.parameters().position().z())-
@@ -106,10 +107,12 @@ bool HICTkOuterStartingLayerFinder::findForwardLayers( const FreeTrajectoryState
   dz = 3.*NumberOfSigm*fts.curvilinearError().matrix()(4,4); // ok
   dr = NumberOfSigm*fts.curvilinearError().matrix()(4,4);
   
-  theta=fts.parameters().momentum().theta();
-  atrack=tan(theta);
-  btrack=rseed-atrack*zseed;
-//  zvert=-btrack/atrack;
+  
+  //theta=fts.parameters().momentum().theta();
+  //atrack=tan(theta);
+  //btrack=rseed-atrack*zseed;
+  //zvert=-btrack/atrack;
+
 
 #ifdef DEBUG
   std::cout<<"HICTkOuterStartingLayerFinder::findForwardLayers "<<rseed<<" dr "<<dr<<" outrad "<<outrad<<std::endl;

@@ -72,7 +72,7 @@ map<DetLayer*,DiMuonSeedGeneratorHIC::SeedContainer> DiMuonSeedGeneratorHIC::pro
    
    // cout<<" Point 2 "<<endl;
  
-    double phipred=0.; double zpred=0.; double phiupd=0.;double zupd=0.;
+    double phipred=0.; double zpred=0.; //double phiupd=0.; double zupd=0.;
     
     for( vector<DetLayer* >::const_iterator ml=theDetLayer->begin(); ml != theDetLayer->end(); ml++)
     {
@@ -87,9 +87,9 @@ map<DetLayer*,DiMuonSeedGeneratorHIC::SeedContainer> DiMuonSeedGeneratorHIC::pro
       { 
        // The last layer for barrel
        phipred = (double)theHICConst->phicut[12];
-       phiupd = (double)theHICConst->phiro[12];
+       //phiupd = (double)theHICConst->phiro[12];
        zpred = (double)theHICConst->zcut[12];
-       zupd = (double)theHICConst->tetro[12];
+       //zupd = (double)theHICConst->tetro[12];
      //  cout<<" DiMuonSeedGenerator::propagate to barrel layer surface "<<bl->specificSurface().radius()<<endl;
       }
         else
@@ -99,9 +99,9 @@ map<DetLayer*,DiMuonSeedGeneratorHIC::SeedContainer> DiMuonSeedGeneratorHIC::pro
 
               // The last layer for endcap
               phipred = (double)theHICConst->phicutf[13];
-              phiupd = (double)theHICConst->phirof[13];
+              //phiupd = (double)theHICConst->phirof[13];
               zpred = (double)theHICConst->tetcutf[13];
-              zupd = (double)theHICConst->tetrof[13];
+              //zupd = (double)theHICConst->tetrof[13];
 	      
        //       cout<<" DiMuonSeedGenerator::propagate to endcap layer surface "<<fl->position().z()<<" Mult="<<
 //              theLowMult<<endl;
@@ -199,7 +199,7 @@ pair<TrajectoryMeasurement,bool> DiMuonSeedGeneratorHIC::barrelUpdateSeed (
   double phi = FTSOLD.parameters().position().phi(); 
   double pt = FTS.parameters().momentum().perp();
   double aCharge = FTS.parameters().charge();
-  AlgebraicSymMatrix55 e = FTS.curvilinearError().matrix();
+  //AlgebraicSymMatrix55 e = FTS.curvilinearError().matrix();
 
   double dptup = 0.35*pt;
   double dptdown = 0.7*pt;
@@ -362,7 +362,7 @@ pair<TrajectoryMeasurement,bool> DiMuonSeedGeneratorHIC::forwardUpdateSeed (
 
   double phi = FTSOLD.parameters().position().phi(); 
   double aCharge = FTS.parameters().charge();
-  AlgebraicSymMatrix55 e = FTS.curvilinearError().matrix();
+  //AlgebraicSymMatrix55 e = FTS.curvilinearError().matrix();
   double pt = FTS.parameters().momentum().perp();
  // double pz = FTS.parameters().momentum().z();
  // double dpt = 0.6*pt;
