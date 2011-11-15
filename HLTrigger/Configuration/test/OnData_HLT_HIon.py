@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_4_2/HIon/V32 (CMSSW_4_4_0_HLT16)
+# /dev/CMSSW_4_4_2/HIon/V33 (CMSSW_4_4_0_HLT16)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V32')
+  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V33')
 )
 
 process.streams = cms.PSet( 
@@ -7488,6 +7488,7 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
       'keep *_hltHISiPixelClusters_*_*',
       'keep *_hltHITIPTCorrectorHB_*_*',
       'keep *_hltHITIPTCorrectorHE_*_*',
+      'keep *_hltHiCorrectedIslandBarrelSuperClustersHI_*_*',
       'keep *_hltHiCorrectedIslandEndcapSuperClustersHI_*_*',
       'keep *_hltHiIslandSuperClustersHI_*_*',
       'keep *_hltIsolPixelTrackProdHB_*_*',
@@ -7741,6 +7742,7 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
       'keep *_hltHIPixel3PrimTracks_*_*',
       'keep *_hltHISelectedVertex_*_*',
       'keep *_hltHISiPixelClusters_*_*',
+      'keep *_hltHiCorrectedIslandBarrelSuperClustersHI_*_*',
       'keep *_hltHiCorrectedIslandEndcapSuperClustersHI_*_*',
       'keep *_hltHiIslandSuperClustersHI_*_*',
       'keep *_hltIterativeCone5PileupSubtractionCaloJets_*_*',
