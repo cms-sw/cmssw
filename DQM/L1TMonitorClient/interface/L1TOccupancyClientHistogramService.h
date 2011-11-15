@@ -46,8 +46,8 @@ class L1TOccupancyClientHistogramService {
     void setMaskedBins(std::string test, std::vector<edm::ParameterSet> mask); //set masked channels specified in python
     std::vector<std::pair<int,int> > getMaskedBins(std::string test);          //returns masked channels of test
 
-    uint  getNBinsMasked   (std::string test);        // Get number of masked bins in test
-    uint  getNBinsHistogram(std::string test);        // Get actual number of bins in test (i.e. nBins-nMaskedBins)
+    unsigned int  getNBinsMasked   (std::string test);        // Get number of masked bins in test
+    unsigned int  getNBinsHistogram(std::string test);        // Get actual number of bins in test (i.e. nBins-nMaskedBins)
     TH2F* getDifferentialHistogram(std::string test); // Get cumulative histogram
     TH2F* getRebinnedHistogram(std::string iHistName, std::string iHistLocation); // Get rebinned version of the hist
 

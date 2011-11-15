@@ -2,8 +2,8 @@
 /*
  * \file L1TMenuHelper.cc
  *
- * $Date: 2011/07/28 16:03:54 $
- * $Revision: 1.4 $
+ * $Date: 2011/10/28 13:24:49 $
+ * $Revision: 1.5 $
  * \author J. Pela, P. Musella
  *
 */
@@ -443,27 +443,27 @@ int L1TMenuHelper::getPrescaleByAlias(TString iCategory,TString iAlias){
     int out = -1;
 
     if(iCategory == "Mu"){ 
-      for(uint i=0 ; i<m_vTrigMu.size() ; i++){if(m_vTrigMu[i].alias==iAlias)        {return m_vTrigMu[i].prescale;}} 
+      for(unsigned int i=0 ; i<m_vTrigMu.size() ; i++){if(m_vTrigMu[i].alias==iAlias)        {return m_vTrigMu[i].prescale;}} 
     }else if(iCategory == "EG"){ 
-      for(uint i=0 ; i<m_vTrigEG.size() ; i++){if(m_vTrigEG[i].alias==iAlias)        {return m_vTrigEG[i].prescale;}} 
+      for(unsigned int i=0 ; i<m_vTrigEG.size() ; i++){if(m_vTrigEG[i].alias==iAlias)        {return m_vTrigEG[i].prescale;}} 
     }else if(iCategory == "IsoEG"){ 
-      for(uint i=0 ; i<m_vTrigIsoEG.size()  ; i++){if(m_vTrigIsoEG[i].alias==iAlias) {return m_vTrigIsoEG[i].prescale;}} 
+      for(unsigned int i=0 ; i<m_vTrigIsoEG.size()  ; i++){if(m_vTrigIsoEG[i].alias==iAlias) {return m_vTrigIsoEG[i].prescale;}} 
     }else if(iCategory == "Jet"){
-      for(uint i=0 ; i<m_vTrigJet.size()    ; i++){if(m_vTrigJet[i].alias==iAlias)   {return m_vTrigJet[i].prescale;}} 
+      for(unsigned int i=0 ; i<m_vTrigJet.size()    ; i++){if(m_vTrigJet[i].alias==iAlias)   {return m_vTrigJet[i].prescale;}} 
     }else if(iCategory == "CenJet"){ 
-      for(uint i=0 ; i<m_vTrigCenJet.size() ; i++){if(m_vTrigCenJet[i].alias==iAlias){return m_vTrigCenJet[i].prescale;}}
+      for(unsigned int i=0 ; i<m_vTrigCenJet.size() ; i++){if(m_vTrigCenJet[i].alias==iAlias){return m_vTrigCenJet[i].prescale;}}
     }else if(iCategory == "ForJet"){ 
-      for(uint i=0 ; i<m_vTrigForJet.size() ; i++){if(m_vTrigForJet[i].alias==iAlias){return m_vTrigForJet[i].prescale;}}
+      for(unsigned int i=0 ; i<m_vTrigForJet.size() ; i++){if(m_vTrigForJet[i].alias==iAlias){return m_vTrigForJet[i].prescale;}}
     }else if(iCategory == "TauJet"){ 
-      for(uint i=0 ; i<m_vTrigTauJet.size() ; i++){if(m_vTrigTauJet[i].alias==iAlias){return m_vTrigTauJet[i].prescale;}}
+      for(unsigned int i=0 ; i<m_vTrigTauJet.size() ; i++){if(m_vTrigTauJet[i].alias==iAlias){return m_vTrigTauJet[i].prescale;}}
     }else if(iCategory == "ETT"){ 
-      for(uint i=0 ; i<m_vTrigETT.size()    ; i++){if(m_vTrigETT[i].alias==iAlias)   {return m_vTrigETT[i].prescale;}}
+      for(unsigned int i=0 ; i<m_vTrigETT.size()    ; i++){if(m_vTrigETT[i].alias==iAlias)   {return m_vTrigETT[i].prescale;}}
     }else if(iCategory == "ETM"){ 
-      for(uint i=0 ; i<m_vTrigETM.size()    ; i++){if(m_vTrigETM[i].alias==iAlias)   {return m_vTrigETM[i].prescale;}}
+      for(unsigned int i=0 ; i<m_vTrigETM.size()    ; i++){if(m_vTrigETM[i].alias==iAlias)   {return m_vTrigETM[i].prescale;}}
     }else if(iCategory == "HTT"){ 
-      for(uint i=0 ; i<m_vTrigHTT.size()    ; i++){if(m_vTrigHTT[i].alias==iAlias)   {return m_vTrigHTT[i].prescale;}}
+      for(unsigned int i=0 ; i<m_vTrigHTT.size()    ; i++){if(m_vTrigHTT[i].alias==iAlias)   {return m_vTrigHTT[i].prescale;}}
     }else if(iCategory == "HTM"){ 
-      for(uint i=0 ; i<m_vTrigHTM.size()    ; i++){if(m_vTrigHTM[i].alias==iAlias)   {return m_vTrigHTM[i].prescale;}}
+      for(unsigned int i=0 ; i<m_vTrigHTM.size()    ; i++){if(m_vTrigHTM[i].alias==iAlias)   {return m_vTrigHTM[i].prescale;}}
     }
 
   return out;
@@ -471,32 +471,32 @@ int L1TMenuHelper::getPrescaleByAlias(TString iCategory,TString iAlias){
 }
 
 //__________________________________________________________________
-uint L1TMenuHelper::getEtaRangeByAlias(TString iCategory,TString iAlias){
+unsigned int L1TMenuHelper::getEtaRangeByAlias(TString iCategory,TString iAlias){
 
-    uint out = -1;
+    unsigned int out = -1;
 
     if(iCategory == "Mu"){ 
-      for(uint i=0 ; i<m_vTrigMu.size() ; i++){if(m_vTrigMu[i].alias==iAlias)        {return m_vTrigMu[i].etaRange;}} 
+      for(unsigned int i=0 ; i<m_vTrigMu.size() ; i++){if(m_vTrigMu[i].alias==iAlias)        {return m_vTrigMu[i].etaRange;}} 
     }else if(iCategory == "EG"){ 
-      for(uint i=0 ; i<m_vTrigEG.size() ; i++){if(m_vTrigEG[i].alias==iAlias)        {return m_vTrigEG[i].etaRange;}} 
+      for(unsigned int i=0 ; i<m_vTrigEG.size() ; i++){if(m_vTrigEG[i].alias==iAlias)        {return m_vTrigEG[i].etaRange;}} 
     }else if(iCategory == "IsoEG"){ 
-      for(uint i=0 ; i<m_vTrigIsoEG.size()  ; i++){if(m_vTrigIsoEG[i].alias==iAlias) {return m_vTrigIsoEG[i].etaRange;}} 
+      for(unsigned int i=0 ; i<m_vTrigIsoEG.size()  ; i++){if(m_vTrigIsoEG[i].alias==iAlias) {return m_vTrigIsoEG[i].etaRange;}} 
     }else if(iCategory == "Jet"){
-      for(uint i=0 ; i<m_vTrigJet.size()    ; i++){if(m_vTrigJet[i].alias==iAlias)   {return m_vTrigJet[i].etaRange;}} 
+      for(unsigned int i=0 ; i<m_vTrigJet.size()    ; i++){if(m_vTrigJet[i].alias==iAlias)   {return m_vTrigJet[i].etaRange;}} 
     }else if(iCategory == "CenJet"){ 
-      for(uint i=0 ; i<m_vTrigCenJet.size() ; i++){if(m_vTrigCenJet[i].alias==iAlias){return m_vTrigCenJet[i].etaRange;}} 
+      for(unsigned int i=0 ; i<m_vTrigCenJet.size() ; i++){if(m_vTrigCenJet[i].alias==iAlias){return m_vTrigCenJet[i].etaRange;}} 
     }else if(iCategory == "ForJet"){ 
-      for(uint i=0 ; i<m_vTrigForJet.size() ; i++){if(m_vTrigForJet[i].alias==iAlias){return m_vTrigForJet[i].etaRange;}} 
+      for(unsigned int i=0 ; i<m_vTrigForJet.size() ; i++){if(m_vTrigForJet[i].alias==iAlias){return m_vTrigForJet[i].etaRange;}} 
     }else if(iCategory == "TauJet"){ 
-      for(uint i=0 ; i<m_vTrigTauJet.size() ; i++){if(m_vTrigTauJet[i].alias==iAlias){return m_vTrigTauJet[i].etaRange;}} 
+      for(unsigned int i=0 ; i<m_vTrigTauJet.size() ; i++){if(m_vTrigTauJet[i].alias==iAlias){return m_vTrigTauJet[i].etaRange;}} 
     }else if(iCategory == "ETT"){ 
-      for(uint i=0 ; i<m_vTrigETT.size()    ; i++){if(m_vTrigETT[i].alias==iAlias)   {return m_vTrigETT[i].etaRange;}} 
+      for(unsigned int i=0 ; i<m_vTrigETT.size()    ; i++){if(m_vTrigETT[i].alias==iAlias)   {return m_vTrigETT[i].etaRange;}} 
     }else if(iCategory == "ETM"){ 
-      for(uint i=0 ; i<m_vTrigETM.size()    ; i++){if(m_vTrigETM[i].alias==iAlias)   {return m_vTrigETM[i].etaRange;}} 
+      for(unsigned int i=0 ; i<m_vTrigETM.size()    ; i++){if(m_vTrigETM[i].alias==iAlias)   {return m_vTrigETM[i].etaRange;}} 
     }else if(iCategory == "HTT"){ 
-      for(uint i=0 ; i<m_vTrigHTT.size()    ; i++){if(m_vTrigHTT[i].alias==iAlias)   {return m_vTrigHTT[i].etaRange;}}  
+      for(unsigned int i=0 ; i<m_vTrigHTT.size()    ; i++){if(m_vTrigHTT[i].alias==iAlias)   {return m_vTrigHTT[i].etaRange;}}  
     }else if(iCategory == "HTM"){ 
-      for(uint i=0 ; i<m_vTrigHTM.size()    ; i++){if(m_vTrigHTM[i].alias==iAlias)   {return m_vTrigHTM[i].etaRange;}} 
+      for(unsigned int i=0 ; i<m_vTrigHTM.size()    ; i++){if(m_vTrigHTM[i].alias==iAlias)   {return m_vTrigHTM[i].etaRange;}} 
     }
 
   return out;
@@ -504,32 +504,32 @@ uint L1TMenuHelper::getEtaRangeByAlias(TString iCategory,TString iAlias){
 }
 
 //__________________________________________________________________
-uint L1TMenuHelper::getQualityAlias(TString iCategory,TString iAlias){
+unsigned int L1TMenuHelper::getQualityAlias(TString iCategory,TString iAlias){
 
-    uint out = -1;
+    unsigned int out = -1;
 
     if(iCategory == "Mu"){ 
-      for(uint i=0 ; i<m_vTrigMu.size() ; i++){if(m_vTrigMu[i].alias==iAlias)        {return m_vTrigMu[i].quality;}} 
+      for(unsigned int i=0 ; i<m_vTrigMu.size() ; i++){if(m_vTrigMu[i].alias==iAlias)        {return m_vTrigMu[i].quality;}} 
     }else if(iCategory == "EG"){ 
-      for(uint i=0 ; i<m_vTrigEG.size() ; i++){if(m_vTrigEG[i].alias==iAlias)        {return m_vTrigEG[i].quality;}} 
+      for(unsigned int i=0 ; i<m_vTrigEG.size() ; i++){if(m_vTrigEG[i].alias==iAlias)        {return m_vTrigEG[i].quality;}} 
     }else if(iCategory == "IsoEG"){ 
-      for(uint i=0 ; i<m_vTrigIsoEG.size()  ; i++){if(m_vTrigIsoEG[i].alias==iAlias) {return m_vTrigIsoEG[i].quality;}} 
+      for(unsigned int i=0 ; i<m_vTrigIsoEG.size()  ; i++){if(m_vTrigIsoEG[i].alias==iAlias) {return m_vTrigIsoEG[i].quality;}} 
     }else if(iCategory == "Jet"){
-      for(uint i=0 ; i<m_vTrigJet.size()    ; i++){if(m_vTrigJet[i].alias==iAlias)   {return m_vTrigJet[i].quality;}} 
+      for(unsigned int i=0 ; i<m_vTrigJet.size()    ; i++){if(m_vTrigJet[i].alias==iAlias)   {return m_vTrigJet[i].quality;}} 
     }else if(iCategory == "CenJet"){ 
-      for(uint i=0 ; i<m_vTrigCenJet.size() ; i++){if(m_vTrigCenJet[i].alias==iAlias){return m_vTrigCenJet[i].quality;}} 
+      for(unsigned int i=0 ; i<m_vTrigCenJet.size() ; i++){if(m_vTrigCenJet[i].alias==iAlias){return m_vTrigCenJet[i].quality;}} 
     }else if(iCategory == "ForJet"){ 
-      for(uint i=0 ; i<m_vTrigForJet.size() ; i++){if(m_vTrigForJet[i].alias==iAlias){return m_vTrigForJet[i].quality;}} 
+      for(unsigned int i=0 ; i<m_vTrigForJet.size() ; i++){if(m_vTrigForJet[i].alias==iAlias){return m_vTrigForJet[i].quality;}} 
     }else if(iCategory == "TauJet"){ 
-      for(uint i=0 ; i<m_vTrigTauJet.size() ; i++){if(m_vTrigTauJet[i].alias==iAlias){return m_vTrigTauJet[i].quality;}} 
+      for(unsigned int i=0 ; i<m_vTrigTauJet.size() ; i++){if(m_vTrigTauJet[i].alias==iAlias){return m_vTrigTauJet[i].quality;}} 
     }else if(iCategory == "ETT"){ 
-      for(uint i=0 ; i<m_vTrigETT.size()    ; i++){if(m_vTrigETT[i].alias==iAlias)   {return m_vTrigETT[i].quality;}} 
+      for(unsigned int i=0 ; i<m_vTrigETT.size()    ; i++){if(m_vTrigETT[i].alias==iAlias)   {return m_vTrigETT[i].quality;}} 
     }else if(iCategory == "ETM"){ 
-      for(uint i=0 ; i<m_vTrigETM.size()    ; i++){if(m_vTrigETM[i].alias==iAlias)   {return m_vTrigETM[i].quality;}} 
+      for(unsigned int i=0 ; i<m_vTrigETM.size()    ; i++){if(m_vTrigETM[i].alias==iAlias)   {return m_vTrigETM[i].quality;}} 
     }else if(iCategory == "HTT"){ 
-      for(uint i=0 ; i<m_vTrigHTT.size()    ; i++){if(m_vTrigHTT[i].alias==iAlias)   {return m_vTrigHTT[i].quality;}}  
+      for(unsigned int i=0 ; i<m_vTrigHTT.size()    ; i++){if(m_vTrigHTT[i].alias==iAlias)   {return m_vTrigHTT[i].quality;}}  
     }else if(iCategory == "HTM"){ 
-      for(uint i=0 ; i<m_vTrigHTM.size()    ; i++){if(m_vTrigHTM[i].alias==iAlias)   {return m_vTrigHTM[i].quality;}} 
+      for(unsigned int i=0 ; i<m_vTrigHTM.size()    ; i++){if(m_vTrigHTM[i].alias==iAlias)   {return m_vTrigHTM[i].quality;}} 
     }
 
   return out;

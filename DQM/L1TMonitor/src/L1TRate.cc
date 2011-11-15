@@ -1,8 +1,8 @@
 /*
  * \file L1TRate.cc
  *
- * $Date: 2011/10/28 13:24:49 $
- * $Revision: 1.9 $
+ * $Date: 2011/11/02 12:24:57 $
+ * $Revision: 1.10 $
  * \author J. Pela, P. Musella
  *
  */
@@ -274,7 +274,7 @@ void L1TRate::endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup co
     
   for(map<int,map<TString,double> >::iterator i=m_lsRates.begin() ; i!=m_lsRates.end() ; i++){
 
-    uint ls =  (*i).first;
+    unsigned int ls =  (*i).first;
     rates   = &(*i).second;
     isDefRate=true;
 
@@ -302,7 +302,7 @@ void L1TRate::endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup co
         // If trigger name is defined we get the rate fit parameters 
         if(tTrigger != "Undefined"){
 
-          uint   trigBit      = m_algoBit[tTrigger];
+          unsigned int   trigBit      = m_algoBit[tTrigger];
           double trigPrescale = currentPrescaleFactors[trigBit];
           double trigRate     = (*rates)[tTrigger];
 
@@ -343,7 +343,7 @@ void L1TRate::analyze(const Event & iEvent, const EventSetup & eventSetup){
 
   // Integers
   int  EventRun = iEvent.id().run();
-  uint eventLS  = iEvent.id().luminosityBlock();
+  unsigned int eventLS  = iEvent.id().luminosityBlock();
 
   // Getting the trigger trigger rates from GT and buffering it
   if(triggerScalers.isValid()){
@@ -367,7 +367,7 @@ void L1TRate::analyze(const Event & iEvent, const EventSetup & eventSetup){
         // If trigger name is defined we store the rate
         if(tTrigger != "Undefined"){
 
-          uint   trigBit  = m_algoBit[tTrigger];
+          unsigned int   trigBit  = m_algoBit[tTrigger];
           double trigRate = trigRates.gtAlgoCountsRate()[trigBit]; 
   
           bufferRate[tTrigger] = trigRate;
@@ -381,7 +381,7 @@ void L1TRate::analyze(const Event & iEvent, const EventSetup & eventSetup){
   if(colLScal.isValid() && colLScal->size()){
     
     LumiScalersCollection::const_iterator itLScal = colLScal->begin();
-    uint scalLS  = itLScal->sectionNumber();
+    unsigned int scalLS  = itLScal->sectionNumber();
     
     // If we haven't got the data from this SCAL LS yet get it
     if(m_lsLuminosity.find(scalLS)==m_lsLuminosity.end()){
@@ -416,7 +416,7 @@ void L1TRate::analyze(const Event & iEvent, const EventSetup & eventSetup){
 
       // Getting the index for the fdl data for this event
       int indexFDL=0;
-      for(uint i=0; i<gtFdlVectorData.size(); i++){
+      for(unsigned int i=0; i<gtFdlVectorData.size(); i++){
         if(gtFdlVectorData[i].bxInEvent()==0){indexFDL=i; break;}
       }
       

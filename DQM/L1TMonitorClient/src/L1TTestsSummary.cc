@@ -108,7 +108,7 @@ void L1TTestsSummary::beginRun(const Run& r, const EventSetup& context){
     mL1TRateMonitor->setAxisTitle("Lumi Section" ,1);
 
     mL1TRateMonitor->setBinLabel(1,"Summary",2);
-    for(uint i=0 ; i<histToMonitor.size() ; i++){
+    for(unsigned int i=0 ; i<histToMonitor.size() ; i++){
       string name = mDBE->get(mL1TRatePath+histToMonitor[i])->getTH1()->GetName();
       mL1TRateMonitor->setBinLabel(i+2,name,2);  
     }
@@ -126,7 +126,7 @@ void L1TTestsSummary::beginRun(const Run& r, const EventSetup& context){
     mL1TSyncMonitor->setAxisTitle("Lumi Section" ,1);
 
     mL1TSyncMonitor->setBinLabel(1,"Summary",2);
-    for(uint i=0 ; i<histToMonitor.size() ; i++){
+    for(unsigned int i=0 ; i<histToMonitor.size() ; i++){
       string name = mDBE->get(mL1TSyncPath+histToMonitor[i])->getTH1()->GetName();
       mL1TSyncMonitor->setBinLabel(i+2,name,2);  
     }
@@ -145,7 +145,7 @@ void L1TTestsSummary::beginRun(const Run& r, const EventSetup& context){
     mL1TOccupancyMonitor->setAxisTitle("Lumi Section" ,1);   
 
     mL1TOccupancyMonitor->setBinLabel(1,"Summary",2);
-    for(uint i=0 ; i<histToMonitor.size() ; i++){
+    for(unsigned int i=0 ; i<histToMonitor.size() ; i++){
       string name = mDBE->get(mL1TOccupancyPath+histToMonitor[i])->getTH1()->GetName();
       mL1TOccupancyMonitor->setBinLabel(i+2,name,2);  
     } 
@@ -242,7 +242,7 @@ void L1TTestsSummary::updateL1TRateMonitor(){
   mDBE->setCurrentFolder(mL1TRatePath);
   vector<string> histToMonitor = mDBE->getMEs();
   
-  for(uint i=0 ; i<histToMonitor.size() ; i++){
+  for(unsigned int i=0 ; i<histToMonitor.size() ; i++){
 
     MonitorElement* me = mDBE->get(mL1TRatePath+histToMonitor[i]);
     if(mVerbose) {cout << "[L1TTestsSummary:] Found ME: " << me->getTH1()->GetName() << endl;}
@@ -260,14 +260,14 @@ void L1TTestsSummary::updateL1TRateMonitor(){
         cout << "[L1TTestsSummary:] Bad Channels size=" << qtBadChannels.size() << endl;
       }
 
-      for(uint i=0 ; i<mProcessedLS.size()-1 ; i++){
+      for(unsigned int i=0 ; i<mProcessedLS.size()-1 ; i++){
         int binx = mL1TRateMonitor->getTH2F()->GetXaxis()->FindBin(mProcessedLS[i]);
         int biny = mL1TRateMonitor->getTH2F()->GetYaxis()->FindBin(me->getTH1()->GetName());
         mL1TRateMonitor->setBinContent(binx,biny,100);
       }
 
-      for(uint a=0 ; a<qtBadChannels.size() ; a++){
-        for(uint b=0 ; b<mProcessedLS.size()-1 ; b++){
+      for(unsigned int a=0 ; a<qtBadChannels.size() ; a++){
+        for(unsigned int b=0 ; b<mProcessedLS.size()-1 ; b++){
    
           // Converting bin to value
           double valueBinBad = me->getTH1()->GetBinCenter(qtBadChannels[a].getBin());
@@ -309,7 +309,7 @@ void L1TTestsSummary::updateL1TSyncMonitor(){
   mDBE->setCurrentFolder(mL1TSyncPath);
   vector<string> histToMonitor = mDBE->getMEs();
   
-  for(uint i=0 ; i<histToMonitor.size() ; i++){
+  for(unsigned int i=0 ; i<histToMonitor.size() ; i++){
 
     MonitorElement* me = mDBE->get(mL1TSyncPath+histToMonitor[i]);
     if(mVerbose) {cout << "[L1TTestsSummary:] Found ME: " << me->getTH1()->GetName() << endl;}
@@ -327,14 +327,14 @@ void L1TTestsSummary::updateL1TSyncMonitor(){
         cout << "[L1TTestsSummary:] Bad Channels size=" << qtBadChannels.size() << endl;
       }
 
-      for(uint i=0 ; i<mProcessedLS.size() ; i++){
+      for(unsigned int i=0 ; i<mProcessedLS.size() ; i++){
         int binx = mL1TSyncMonitor->getTH2F()->GetXaxis()->FindBin(mProcessedLS[i]);
         int biny = mL1TSyncMonitor->getTH2F()->GetYaxis()->FindBin(me->getTH1()->GetName());
         mL1TSyncMonitor->setBinContent(binx,biny,100);
       }
 
-      for(uint a=0 ; a<qtBadChannels.size() ; a++){ 
-        for(uint b=0 ; b<mProcessedLS.size() ; b++){
+      for(unsigned int a=0 ; a<qtBadChannels.size() ; a++){ 
+        for(unsigned int b=0 ; b<mProcessedLS.size() ; b++){
 	  
 	  // Converting bin to value
 	  double valueBinBad = me->getTH1()->GetBinCenter(qtBadChannels[a].getBin());
@@ -374,7 +374,7 @@ void L1TTestsSummary::updateL1TOccupancyMonitor(){
   mDBE->setCurrentFolder(mL1TOccupancyPath);
   vector<string> histToMonitor = mDBE->getMEs();
   
-  for(uint i=0 ; i<histToMonitor.size() ; i++){
+  for(unsigned int i=0 ; i<histToMonitor.size() ; i++){
 
     MonitorElement* me = mDBE->get(mL1TOccupancyPath+histToMonitor[i]);
     if(mVerbose) {cout << "[L1TTestsSummary:] Found ME: " << me->getTH1()->GetName() << endl;}
@@ -392,14 +392,14 @@ void L1TTestsSummary::updateL1TOccupancyMonitor(){
         cout << "[L1TTestsSummary:] Bad Channels size=" << qtBadChannels.size() << endl;
       }
 
-      for(uint i=0 ; i<mProcessedLS.size() ; i++){
+      for(unsigned int i=0 ; i<mProcessedLS.size() ; i++){
         int binx = mL1TOccupancyMonitor->getTH2F()->GetXaxis()->FindBin(mProcessedLS[i]);
         int biny = mL1TOccupancyMonitor->getTH2F()->GetYaxis()->FindBin(me->getTH1()->GetName());
         mL1TOccupancyMonitor->setBinContent(binx,biny,100);
       }
 
-      for(uint a=0 ; a<qtBadChannels.size() ; a++){
-        for(uint b=0 ; b<mProcessedLS.size() ; b++){
+      for(unsigned int a=0 ; a<qtBadChannels.size() ; a++){
+        for(unsigned int b=0 ; b<mProcessedLS.size() ; b++){
           
           // Converting bin to value
           double valueBinBad = me->getTH1()->GetBinCenter(qtBadChannels[a].getBin());

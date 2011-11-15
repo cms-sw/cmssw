@@ -40,15 +40,15 @@ L1TOccupancyClientHistogramService::L1TOccupancyClientHistogramService(Parameter
 // Inputs: 
 //   * string iHistName = Name of the histogram
 // Outputs:
-//   * uint = Total number un-masked bins of histogram iHistName 
+//   * unsigned int = Total number un-masked bins of histogram iHistName 
 //____________________________________________________________________________
-uint L1TOccupancyClientHistogramService::getNBinsHistogram(string iHistName) {
+unsigned int L1TOccupancyClientHistogramService::getNBinsHistogram(string iHistName) {
 
   TH2F* pHistogram  = getDifferentialHistogram(iHistName);
   int   nBinsX      = pHistogram->GetNbinsX();
   int   nBinsY      = pHistogram->GetNbinsY();
   int   nMasked     = getNBinsMasked(iHistName);
-  uint  nBinsActive = (nBinsX*nBinsY)-nMasked;
+  unsigned int  nBinsActive = (nBinsX*nBinsY)-nMasked;
 
   return nBinsActive;
 
@@ -69,7 +69,7 @@ void L1TOccupancyClientHistogramService::setMaskedBins(string iHistName, vector<
   
   if(mVerbose){printf("Masked areas for: %s\n",iHistName.c_str());}
 
-  for(uint i=0;i<iMaskedAreas.size();i++) {
+  for(unsigned int i=0;i<iMaskedAreas.size();i++) {
 
     ParameterSet iMA        = iMaskedAreas[i];
     int          iTypeUnits = iMA.getParameter<int>("kind");
@@ -157,9 +157,9 @@ vector<pair<int,int> > L1TOccupancyClientHistogramService::getMaskedBins(string 
 // Inputs: 
 // * string iHistName = Name of the histogram
 // Outputs:
-// * uint = Total number of masked bins
+// * unsigned int = Total number of masked bins
 //____________________________________________________________________________
-uint L1TOccupancyClientHistogramService::getNBinsMasked(string iHistName) {
+unsigned int L1TOccupancyClientHistogramService::getNBinsMasked(string iHistName) {
   return mMaskedBins[iHistName]->size();
 }
 
@@ -182,7 +182,7 @@ int L1TOccupancyClientHistogramService::maskBins(string iHistName, TH2F* oHist, 
   
   // iAxis==1 : Means symmetry axis is vertical
   if(iAxis==1) {
-    for(uint i=0;i<m.size();i++) {
+    for(unsigned int i=0;i<m.size();i++) {
       pair<int,int> &p = m[i];
       if(p.first==iStrip) {
         oHist->SetBinContent(p.first,p.second,0.0);
@@ -192,7 +192,7 @@ int L1TOccupancyClientHistogramService::maskBins(string iHistName, TH2F* oHist, 
   }
   // iAxis==2 : Means symmetry axis is horizontal
   else if(iAxis==2) {
-    for(uint i=0;i<m.size();i++) {
+    for(unsigned int i=0;i<m.size();i++) {
       pair<int,int> &p = m[i];
       if(p.second==iStrip) {
         oHist->SetBinContent(p.first,p.second,0.0);
@@ -215,7 +215,7 @@ int L1TOccupancyClientHistogramService::maskBins(string iHistName, TH2F* oHist, 
 // * int    iBinX     = X coordinate of the bin to be tested
 // * int    iBinY     = Y coordinate of the bin to be tested
 // Outputs:
-// * uint = Total number of masked bins
+// * unsigned int = Total number of masked bins
 //____________________________________________________________________________
 bool L1TOccupancyClientHistogramService::isMasked(string iHistName, int iBinX, int iBinY) {
 
@@ -223,7 +223,7 @@ bool L1TOccupancyClientHistogramService::isMasked(string iHistName, int iBinX, i
 
   bool binIsMasked = false;
 
-  for(uint i=0; i<thisHistMaskedBins->size(); i++) {
+  for(unsigned int i=0; i<thisHistMaskedBins->size(); i++) {
     if((*thisHistMaskedBins)[i].first ==iBinX && 
        (*thisHistMaskedBins)[i].second==iBinY){
       binIsMasked=true;
@@ -252,7 +252,7 @@ bool L1TOccupancyClientHistogramService::isStripMasked(string iHistName, int iBi
   // If the histogram to be tested had strips defined along Y
   if(iAxis==1) {
     int count=0;
-    for(uint i=0; i<thisHistMaskedBins->size(); i++) {
+    for(unsigned int i=0; i<thisHistMaskedBins->size(); i++) {
       if((*thisHistMaskedBins)[i].first==iBinStrip){count++;}
     }
     stripIsMasked = getDifferentialHistogram(iHistName)->GetYaxis()->GetNbins()==count;
@@ -260,7 +260,7 @@ bool L1TOccupancyClientHistogramService::isStripMasked(string iHistName, int iBi
   // If the histogram to be tested had strips defined along X
   else {
     int count=0;
-    for(uint i=0; i<thisHistMaskedBins->size(); i++) {
+    for(unsigned int i=0; i<thisHistMaskedBins->size(); i++) {
       if((*thisHistMaskedBins)[i].second==iBinStrip){count++;}
     }
     stripIsMasked = getDifferentialHistogram(iHistName)->GetXaxis()->GetNbins()==count;
@@ -333,7 +333,7 @@ TH2F* L1TOccupancyClientHistogramService::getRebinnedHistogram(string iHistName,
     int rebinFactorY=1;
 
     vector<ParameterSet> testParameters = mParameters.getParameter< vector<ParameterSet> >("testParams");
-    for(uint i=0 ; i<testParameters.size() ; i++){
+    for(unsigned int i=0 ; i<testParameters.size() ; i++){
       if(testParameters[i].getParameter<string>("testName")==iHistName){
         ParameterSet algoParameters = testParameters[i].getParameter<ParameterSet>("algoParams");
         rebinFactorX = algoParameters.getUntrackedParameter<int>("rebinFactorX",1);

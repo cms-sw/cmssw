@@ -4,8 +4,8 @@
 /*
  * \file L1TMenuHelper.h
  *
- * $Date: 2011/07/28 16:03:54 $
- * $Revision: 1.4 $
+ * $Date: 2011/10/28 13:24:48 $
+ * $Revision: 1.5 $
  * \author J. Pela
  *
 */
@@ -40,9 +40,9 @@ struct SingleObjectCondition{
   L1GtConditionCategory conditionCategory;
   L1GtConditionType     conditionType;
   L1GtObject            object;
-  uint                  quality;
-  uint                  etaRange;
-  uint                  threshold;
+  unsigned int                  quality;
+  unsigned int                  etaRange;
+  unsigned int                  threshold;
 
 };
 
@@ -51,11 +51,11 @@ struct SingleObjectTrigger{
 
   L1GtObject  object;
   std::string alias;
-  uint        bit;
+  unsigned int        bit;
   int         prescale;
-  uint        threshold; //
-  uint        quality;   // Only aplicable to Muons
-  uint        etaRange;  // Only aplicable to Muons
+  unsigned int        threshold; //
+  unsigned int        quality;   // Only aplicable to Muons
+  unsigned int        etaRange;  // Only aplicable to Muons
 
   bool operator< (const SingleObjectTrigger &iSOT) const{
      
@@ -93,8 +93,8 @@ class L1TMenuHelper {
 
     // Getters
     int  getPrescaleByAlias(TString iCategory, TString iAlias);
-    uint getEtaRangeByAlias(TString iCategory, TString iAlias);    
-    uint getQualityAlias   (TString iCategory, TString iAlias);
+    unsigned int getEtaRangeByAlias(TString iCategory, TString iAlias);    
+    unsigned int getQualityAlias   (TString iCategory, TString iAlias);
 
   private:
 

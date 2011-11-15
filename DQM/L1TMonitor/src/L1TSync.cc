@@ -1,8 +1,8 @@
 /*
  * \file L1TSync.cc
  *
- * $Date: 2011/08/02 15:49:48 $
- * $Revision: 1.8 $
+ * $Date: 2011/10/28 13:24:49 $
+ * $Revision: 1.9 $
  * \author J. Pela, P. Musella
  *
  */
@@ -609,8 +609,8 @@ void L1TSync::doFractionInSync(bool iForce,bool iBad){
     string theTriggerAlias = (*i).second;
 
     // Caching frequently used values from maps
-    uint fLS = m_certFirstLS[theTriggerAlias];
-    uint lLS = m_certLastLS [theTriggerAlias];
+    unsigned int fLS = m_certFirstLS[theTriggerAlias];
+    unsigned int lLS = m_certLastLS [theTriggerAlias];
     
     // Checking validity of the trigger alias and of the LS block
     bool triggerAlias_isValid = theTriggerAlias != "Undefined" && theTriggerAlias != "Undefined (Wrong Name)";
@@ -634,7 +634,7 @@ void L1TSync::doFractionInSync(bool iForce,bool iBad){
         double CountAll  = 0;
   
         // Adding all entries for current LS block
-        for(uint ls=fLS ; ls<=lLS ; ls++){
+        for(unsigned int ls=fLS ; ls<=lLS ; ls++){
 
           CountSync += m_algoVsBunchStructure[theTriggerAlias]->getBinContent(ls+1,3);
           for(int a=1 ; a<6 ; a++){

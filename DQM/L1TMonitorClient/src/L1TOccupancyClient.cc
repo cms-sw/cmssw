@@ -243,7 +243,7 @@ void L1TOccupancyClient::endRun(const Run& r, const EventSetup& context){
         vector<int> lsCertification = hservice_->getLSCertification(test_name);
 
         // Fill fraction of dead channels
-        for(uint i=0;i<lsCertification.size();i++){
+        for(unsigned int i=0;i<lsCertification.size();i++){
           int bin = meCertification[test_name]->getTH1()->FindBin(lsCertification[i]);
           meCertification[test_name]->getTH1()->SetBinContent(bin,1-dead);
         }
@@ -260,7 +260,7 @@ void L1TOccupancyClient::endRun(const Run& r, const EventSetup& context){
         vector<int> lsCertification = hservice_->getLSCertification(test_name);
 
         // Fill fraction of dead channels
-        for(uint i=0;i<lsCertification.size();i++){
+        for(unsigned int i=0;i<lsCertification.size();i++){
           int bin = meCertification[test_name]->getTH1()->FindBin(lsCertification[i]);
           meCertification[test_name]->getTH1()->SetBinContent(bin,-1);
         }
@@ -367,7 +367,7 @@ void L1TOccupancyClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
         vector<int> lsCertification = hservice_->getLSCertification(test_name);
 
         // Fill fraction of dead channels
-        for(uint i=0;i<lsCertification.size();i++){
+        for(unsigned int i=0;i<lsCertification.size();i++){
 	  int bin = meCertification[test_name]->getTH1()->FindBin(lsCertification[i]);
 	  meCertification[test_name]->getTH1()->SetBinContent(bin,1-dead);  
 	}
@@ -463,7 +463,7 @@ double L1TOccupancyClient::xySymmetry(ParameterSet                ps,
         
     TF1* tf = new TF1("myFunc","[0]*(TMath::Log(x*[1]+[2]))+[3]",10.,11000.);
     vector<double> params = ps.getUntrackedParameter< vector<double> >("params_mu0_up",defaultMu0up);
-    for(uint i=0;i<params.size();i++) {tf->SetParameter(i,params[i]);}
+    for(unsigned int i=0;i<params.size();i++) {tf->SetParameter(i,params[i]);}
     int statsup = (int)tf->Eval(hservice_->getNBinsHistogram(iTestName));
 
     vector<double> defaultMu0low;
@@ -473,7 +473,7 @@ double L1TOccupancyClient::xySymmetry(ParameterSet                ps,
     defaultMu0low.push_back(19.388);
     
     params = ps.getUntrackedParameter<vector<double> >("params_mu0_low",defaultMu0low);
-    for(uint i=0;i<params.size();i++) {tf->SetParameter(i,params[i]);}
+    for(unsigned int i=0;i<params.size();i++) {tf->SetParameter(i,params[i]);}
     int statslow = (int)tf->Eval(hservice_->getNBinsHistogram(iTestName));
     
     if(verbose_) {
@@ -543,7 +543,7 @@ double L1TOccupancyClient::xySymmetry(ParameterSet                ps,
         
     vector<double> params = ps.getUntrackedParameter<std::vector<double> >("params_mu0_up",defaultMu0up);
     TF1* tf = new TF1("myFunc","[0]*(TMath::Log(x*[1]+[2]))+[3]",10.,11000.);
-    for(uint i=0;i<params.size();i++) {
+    for(unsigned int i=0;i<params.size();i++) {
       tf->SetParameter(i,params[i]);
     }
     int statsup = (int)tf->Eval(hservice_->getNBinsHistogram(iTestName));
@@ -555,7 +555,7 @@ double L1TOccupancyClient::xySymmetry(ParameterSet                ps,
     defaultMu0low.push_back(19.388);
 
     params = ps.getUntrackedParameter<std::vector<double> >("params_mu0_low",defaultMu0low);
-    for(uint i=0;i<params.size();i++) {
+    for(unsigned int i=0;i<params.size();i++) {
       tf->SetParameter(i,params[i]);
     }
     int statslow = (int)tf->Eval(hservice_->getNBinsHistogram(iTestName));
