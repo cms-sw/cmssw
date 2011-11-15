@@ -13,7 +13,7 @@
 //
 // Original Author:  Juliette Marie Alimena,40 3-A02,+41227671577,
 //         Created:  Tues Oct 11 15:46:58 CEST 2011
-// $Id: HLTOfflineReproducibilityDQM.cc,v 1.1 2011/11/15 11:01:33 jalimena Exp $
+// $Id: HLTOfflineReproducibilityDQM.cc,v 1.2 2011/11/15 11:10:29 jalimena Exp $
 //
 //
 
@@ -134,25 +134,38 @@ private:
 // constructors and destructor
 //
 HLTOfflineReproducibilityDQM::HLTOfflineReproducibilityDQM(const edm::ParameterSet& iConfig):  
+  triggerLabelORIG_       (iConfig.getUntrackedParameter<edm::InputTag>("triggerTagORIG")),
+  triggerLabelNEW_      (iConfig.getUntrackedParameter<edm::InputTag>("triggerTagNEW")), 
+  nPaths_               (0),
+  nDatasets_            (0),
+  triggerNames_         (),
+  moduleLabel_          (),
+  nModules_             (), 
+  nPaths_PD_            (),
+  datasetNames_         (),
+  datasetContent_       (),
+  triggerNames_matched_ (),
   processNameORIG_(iConfig.getParameter<std::string>("processNameORIG")),
-  processNameNEW_(iConfig.getParameter<std::string>("processNameNEW"))
-
+  processNameNEW_       (iConfig.getParameter<std::string>("processNameNEW")),
+  Nfiles_               (iConfig.getUntrackedParameter<int>("Nfiles",0)),
+  Normalization_        (iConfig.getUntrackedParameter<double>("Norm",40.)),
+  isRealData_           (iConfig.getUntrackedParameter<bool>("isRealData",true)),
+  LumiSecNumber_        (iConfig.getUntrackedParameter<int>("LumiSecNumber",1)),
+  path_ORIG_hist          (0),
+  path_ORIGnotNEW_hist    (0),
+  path_NEWnotORIG_hist    (0),
+  pathmodule_ORIGnotNEW_hist(0),
+  pathmodule_NEWnotORIG_hist(0),
+  path_ORIG_hist_PD       (),
+  path_ORIGnotNEW_hist_PD (),
+  path_NEWnotORIG_hist_PD (),
+  pathmodule_ORIGnotNEW_hist_PD(),
+  pathmodule_NEWnotORIG_hist_PD()
 {
   //now do what ever initialization is needed
   //define parameters
 
   dqms_ = edm::Service<DQMStore>().operator->();
-
-  nPaths_=0;
-  
-  //get parameters from cfg
-  triggerLabelORIG_ = iConfig.getUntrackedParameter<edm::InputTag>("triggerTagORIG");  
-  triggerLabelNEW_ = iConfig.getUntrackedParameter<edm::InputTag>("triggerTagNEW");  
-  Nfiles_ = iConfig.getUntrackedParameter<int>("Nfiles",0);
-  Normalization_ = iConfig.getUntrackedParameter<double>("Norm",40.);
-  isRealData_ = iConfig.getUntrackedParameter<bool>("isRealData",true);
-  LumiSecNumber_ = iConfig.getUntrackedParameter<int>("LumiSecNumber",1);
-  
 }
 
 
@@ -561,11 +574,11 @@ HLTOfflineReproducibilityDQM::beginRun(edm::Run const& iRun, edm::EventSetup con
     sprintf(folder_name,"DQMExample/DQMSource_HLTOfflineReproducibility/%s",datasetNames_.at(a).c_str());
     dqms_->setCurrentFolder(folder_name);
 
-    sprintf(path_ORIG_name,"path_ORIG_hist_%s",datasetNames_.at(a).c_str());
-    sprintf(path_ORIGnotNEW_name,"path_ORIGnotNEW_hist_%s",datasetNames_.at(a).c_str());
-    sprintf(path_NEWnotORIG_name,"path_NEWnotORIG_hist_%s",datasetNames_.at(a).c_str());
-    sprintf(pathmodule_ORIGnotNEW_name,"pathmodule_ORIGnotNEW_hist_%s",datasetNames_.at(a).c_str());
-    sprintf(pathmodule_NEWnotORIG_name,"pathmodule_NEWnotORIG_hist_%s",datasetNames_.at(a).c_str());
+    snprintf(path_ORIG_name,             100, "path_ORIG_hist_PD[%i]",              a);
+    snprintf(path_ORIGnotNEW_name,       100, "path_ORIGnotNEW_hist_PD[%i]",        a);
+    snprintf(path_NEWnotORIG_name,       100, "path_NEWnotORIG_hist_PD[%i]",        a);
+    snprintf(pathmodule_ORIGnotNEW_name, 100, "pathmodule_ORIGnotNEW_hist_PD[%i]",  a);
+    snprintf(pathmodule_NEWnotORIG_name, 100, "pathmodule_NEWnotORIG_hist_PD[%i]",  a);
 
     TString path_ORIG_title = "Total Times Path Fires ORIG (" + datasetNames_.at(a) + " dataset)";
     TString path_ORIGnotNEW_title = "Path fires in ORIG but not in NEW (" + datasetNames_.at(a) + " dataset)";
