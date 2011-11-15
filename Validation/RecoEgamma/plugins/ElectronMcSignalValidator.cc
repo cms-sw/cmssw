@@ -973,10 +973,9 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
     if (bestGsfElectron.ecalDrivenSeed())h1_scl_E5x5_eg->Fill(bestGsfElectron.scE5x5());
     if (bestGsfElectron.isEB() && bestGsfElectron.ecalDrivenSeed())h1_scl_E5x5_eg_barrel->Fill(bestGsfElectron.scE5x5());
     if (bestGsfElectron.isEE() && bestGsfElectron.ecalDrivenSeed())h1_scl_E5x5_eg_endcaps->Fill(bestGsfElectron.scE5x5());
-    float pfEnergy=0., egEnergy=0.;
-    if (!bestGsfElectron.superCluster().isNull()) egEnergy = bestGsfElectron.superCluster()->energy();
+    float pfEnergy=0. ;
     if (!bestGsfElectron.pflowSuperCluster().isNull()) pfEnergy = bestGsfElectron.pflowSuperCluster()->energy();
-    h2_scl_EoEtruePfVsEg->Fill(egEnergy/mcIter->p(),pfEnergy/mcIter->p());
+    h2_scl_EoEtruePfVsEg->Fill(bestGsfElectron.ecalEnergy()/mcIter->p(),pfEnergy/mcIter->p());
 
     // track related distributions
     h1_ele_ambiguousTracks->Fill( bestGsfElectron.ambiguousGsfTracksSize() );
