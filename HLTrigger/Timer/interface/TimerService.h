@@ -21,6 +21,16 @@ Original Author:  Christos Leonidopoulos, March 2007
 
 #include <string>
 
+#ifdef __linux
+#include <time.h>
+#else
+typedef int clockid_t;
+#define CLOCK_REALTIME               0                                                                                                                                                                                        
+#define CLOCK_MONOTONIC              1                                                                                                                                                                                        
+#define CLOCK_PROCESS_CPUTIME_ID     2                                                                                                                                                                                        
+#define CLOCK_THREAD_CPUTIME_ID      3                                                                                                                                                                                        
+#endif
+
 namespace hlt {
 
   class CPUTimer {
@@ -39,11 +49,15 @@ namespace hlt {
     }
 
     void start() {
+#ifdef __linux
       clock_gettime(timer_, & start_);
+#endif
     }
 
     void stop() {
+#ifdef __linux
       clock_gettime(timer_, & stop_);
+#endif
     }
 
   // return the delta between start and stop in seconds

@@ -1,5 +1,13 @@
 //system headers
+#ifdef __linux
 #include <time.h>
+#else
+typedef int clockid_t;
+#define CLOCK_REALTIME               0                                                                                                                                                                                        
+#define CLOCK_MONOTONIC              1                                                                                                                                                                                        
+#define CLOCK_PROCESS_CPUTIME_ID     2                                                                                                                                                                                        
+#define CLOCK_THREAD_CPUTIME_ID      3                                                                                                                                                                                        
+#endif
 
 // C++ headers
 #include <iostream>

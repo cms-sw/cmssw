@@ -2,7 +2,11 @@
 #define FastTimerService_h
 
 //system headers
+#ifdef __linux
 #include <time.h>
+#else
+typedef int clockid_t;
+#endif
 
 // C++ headers
 #include <string>
