@@ -13,7 +13,7 @@
 //
 // Original Author:  Juliette Marie Alimena,40 3-A02,+41227671577,
 //         Created:  Fri Apr 22 15:46:58 CEST 2011
-// $Id: HLTOfflineReproducibility.cc,v 1.1 2011/07/12 15:30:05 jalimena Exp $
+// $Id: HLTOfflineReproducibility.cc,v 1.4 2011/11/15 11:01:33 jalimena Exp $
 //
 //
 
@@ -539,32 +539,32 @@ HLTOfflineReproducibility::beginRun(edm::Run const& iRun, edm::EventSetup const&
   //define histograms
 
   //all paths
-  path_ON_hist = fs->make<TH1D>("path_ON_hist","Total Times Online Path Fires",nPaths_,0,nPaths_);
-  path_ONnotOFF_hist = fs->make<TH1D>("path_ONnotOFF_hist","Online Path fires but Offline does not",nPaths_,0,nPaths_);
-  path_OFFnotON_hist = fs->make<TH1D>("path_OFFnotON_hist","Offline Path fires but Online does not",nPaths_,0,nPaths_);
-  pathmodule_ONnotOFF_hist = fs->make<TH2D>("pathmodule_ONnotOFF_hist","Last run module index vs Path for Offline, when Online fired but Offline didn't",nPaths_,0,nPaths_,max_nModules_,0,max_nModules_);
-  pathmodule_OFFnotON_hist = fs->make<TH2D>("pathmodule_OFFnotON_hist","Last run module index vs Path for Online, when Offline fired but Online didn't",nPaths_,0,nPaths_,max_nModules_,0,max_nModules_);
+  path_ON_hist = fs->make<TH1D>("path_ON_hist", "Total Times Online Path Fires", nPaths_, 0, nPaths_);
+  path_ONnotOFF_hist = fs->make<TH1D>("path_ONnotOFF_hist", "Online Path fires but Offline does not", nPaths_, 0, nPaths_);
+  path_OFFnotON_hist = fs->make<TH1D>("path_OFFnotON_hist", "Offline Path fires but Online does not", nPaths_, 0, nPaths_);
+  pathmodule_ONnotOFF_hist = fs->make<TH2D>("pathmodule_ONnotOFF_hist", "Last run module index vs Path for Offline, when Online fired but Offline didn't", nPaths_, 0, nPaths_, max_nModules_, 0, max_nModules_);
+  pathmodule_OFFnotON_hist = fs->make<TH2D>("pathmodule_OFFnotON_hist", "Last run module index vs Path for Online, when Offline fired but Online didn't", nPaths_, 0, nPaths_, max_nModules_, 0, max_nModules_);
   
   //paths per dataset
   char path_ON_name[100], path_ONnotOFF_name[100], path_OFFnotON_name[100], pathmodule_ONnotOFF_name[100], pathmodule_OFFnotON_name[100];
-  for (unsigned int a=0; a<nDatasets_; a++) {
-    sprintf(path_ON_name,"path_ON_hist_PD[%i]",a);
-    sprintf(path_ONnotOFF_name,"path_ONnotOFF_hist_PD[%i]",a);
-    sprintf(path_OFFnotON_name,"path_OFFnotON_hist_PD[%i]",a);
-    sprintf(pathmodule_ONnotOFF_name,"pathmodule_ONnotOFF_hist_PD[%i]",a);
-    sprintf(pathmodule_OFFnotON_name,"pathmodule_OFFnotON_hist_PD[%i]",a);
+  for (unsigned int a = 0; a < nDatasets_; ++a) {
+    snprintf(path_ON_name,             100, "path_ON_hist_PD[%i]",              a);
+    snprintf(path_ONnotOFF_name,       100, "path_ONnotOFF_hist_PD[%i]",        a);
+    snprintf(path_OFFnotON_name,       100, "path_OFFnotON_hist_PD[%i]",        a);
+    snprintf(pathmodule_ONnotOFF_name, 100, "pathmodule_ONnotOFF_hist_PD[%i]",  a);
+    snprintf(pathmodule_OFFnotON_name, 100, "pathmodule_OFFnotON_hist_PD[%i]",  a);
 
-    TString path_ON_title = "Total Times Online Path Fires (" + datasetNames_[a] + " dataset)";
-    TString path_ONnotOFF_title = "Online Path fires but Offline does not (" + datasetNames_[a] + " dataset)";
-    TString path_OFFnotON_title = "Offline Path fires but Online does not (" + datasetNames_[a] + " dataset)";
+    TString path_ON_title             = "Total Times Online Path Fires (" + datasetNames_[a] + " dataset)";
+    TString path_ONnotOFF_title       = "Online Path fires but Offline does not (" + datasetNames_[a] + " dataset)";
+    TString path_OFFnotON_title       = "Offline Path fires but Online does not (" + datasetNames_[a] + " dataset)";
     TString pathmodule_ONnotOFF_title = "Last run module index vs Path for Offline, when Online fired but Offline didn't (" + datasetNames_[a] + " dataset)";
     TString pathmodule_OFFnotON_title = "Last run module index vs Path for Online, when Offline fired but Online didn't (" + datasetNames_[a] + " dataset)";
 
-    path_ON_hist_PD.push_back(fs->make<TH1D>(path_ON_name,path_ON_title,nPaths_PD_[a],0,nPaths_PD_[a]));
-    path_ONnotOFF_hist_PD.push_back(fs->make<TH1D>(path_ONnotOFF_name,path_ONnotOFF_title,nPaths_PD_[a],0,nPaths_PD_[a]));
-    path_OFFnotON_hist_PD.push_back(fs->make<TH1D>(path_OFFnotON_name,path_OFFnotON_title,nPaths_PD_[a],0,nPaths_PD_[a]));
-    pathmodule_ONnotOFF_hist_PD.push_back(fs->make<TH2D>(pathmodule_ONnotOFF_name,pathmodule_ONnotOFF_title,nPaths_PD_[a],0,nPaths_PD_[a],max_nModules_PD_[a],0,max_nModules_PD_[a]));
-    pathmodule_OFFnotON_hist_PD.push_back(fs->make<TH2D>(pathmodule_OFFnotON_name,pathmodule_OFFnotON_title,nPaths_PD_[a],0,nPaths_PD_[a],max_nModules_PD_[a],0,max_nModules_PD_[a]));
+    path_ON_hist_PD.push_back(fs->make<TH1D>(path_ON_name, path_ON_title, nPaths_PD_[a], 0, nPaths_PD_[a]));
+    path_ONnotOFF_hist_PD.push_back(fs->make<TH1D>(path_ONnotOFF_name, path_ONnotOFF_title, nPaths_PD_[a], 0, nPaths_PD_[a]));
+    path_OFFnotON_hist_PD.push_back(fs->make<TH1D>(path_OFFnotON_name, path_OFFnotON_title, nPaths_PD_[a], 0, nPaths_PD_[a]));
+    pathmodule_ONnotOFF_hist_PD.push_back(fs->make<TH2D>(pathmodule_ONnotOFF_name, pathmodule_ONnotOFF_title, nPaths_PD_[a], 0, nPaths_PD_[a], max_nModules_PD_[a], 0, max_nModules_PD_[a]));
+    pathmodule_OFFnotON_hist_PD.push_back(fs->make<TH2D>(pathmodule_OFFnotON_name, pathmodule_OFFnotON_title, nPaths_PD_[a], 0, nPaths_PD_[a], max_nModules_PD_[a], 0, max_nModules_PD_[a]));
   }
   
 }
