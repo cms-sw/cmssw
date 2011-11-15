@@ -32,6 +32,7 @@ PFPhotonAlgo::PFPhotonAlgo(std::string mvaweightfile,
 			   bool useReg,
 			   std::string mvaWeightFilePFClusCorr, 
 			   std::string mvaWeightFilePFPhoCorr, 
+			   std::string mvaWeightFilePFPhoRes,
 			   std::string X0_Map,
 			   const reco::Vertex& primary,
 			   const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
@@ -63,6 +64,8 @@ PFPhotonAlgo::PFPhotonAlgo(std::string mvaweightfile,
     ReaderGC  =(GBRForest*)fgbr->Get("GBRForest");
     TFile *fgbr2 = new TFile(mvaWeightFilePFClusCorr.c_str(),"READ");
     ReaderLC  = (GBRForest*)fgbr2->Get("GBRForest");
+    TFile *fgbr3 = new TFile(mvaWeightFilePFPhoRes.c_str(),"READ");
+    ReaderRes  = (GBRForest*)fgbr3->Get("GBRForest");
     //Material Map
     TFile *XO_File = new TFile(X0_Map.c_str(),"READ");
     X0_sum=(TH2D*)XO_File->Get("TrackerSum");
@@ -870,6 +873,8 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
     myExtra.setExcludedClust(excl);
     //Store regressed energy
     myExtra.setMVAGlobalCorrE(GCorr * photonEnergy_);
+    float Res=EvaluateResMVA(photonCand);
+    myExtra.SetPFPhotonRes(Res*1.253);
     for(unsigned int l=0; l<MVALCorr.size(); ++l)
       {
 	myExtra.addLCorrClusEnergy(MVALCorr[l]);
@@ -897,6 +902,158 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
   } // end of loops over all elements in block
   
   return;
+}
+
+float PFPhotonAlgo::EvaluateResMVA(reco::PFCandidate photon){
+  float BDTG=1;
+  PFPhoEta_=photon.eta();
+  PFPhoPhi_=photon.phi();
+  PFPhoEt_=photon.pt();
+  //recalculate R9 from sum PFClusterEnergy and E3x3 from Highest PFCluster Energy
+  SCPhiWidth_=photon.superClusterRef()->phiWidth();
+  SCEtaWidth_=photon.superClusterRef()->etaWidth();  
+  //get from track with min R;
+  RConv_=130;
+  float ClustSumEt=0;
+  std::vector<float>Clust_E(0);
+  std::vector<float>Clust_Et(0);
+  std::vector<float>Clust_Eta(0);
+  std::vector<float>Clust_Phi(0);
+  std::vector<reco::PFClusterRef> PFClusRef(0);
+  CaloClusterPtrVector clusters;
+  //Multimap to sort clusters by energy
+  std::multimap<float, int>Clust;
+  PFCandidate::ElementsInBlocks eleInBlocks = photon.elementsInBlocks();
+  for(unsigned i=0; i<eleInBlocks.size(); i++)
+    {
+      PFBlockRef blockRef = eleInBlocks[i].first;
+      unsigned indexInBlock = eleInBlocks[i].second;
+      const edm::OwnVector< reco::PFBlockElement >&  elements=eleInBlocks[i].first->elements();
+      const reco::PFBlockElement& element = elements[indexInBlock];
+      if(element.type()==reco::PFBlockElement::TRACK){
+	float R=sqrt(element.trackRef()->innerPosition().X()*element.trackRef()->innerPosition().X()+element.trackRef()->innerPosition().Y()*element.trackRef()->innerPosition().Y());
+	if(RConv_>R)RConv_=R;
+      }
+      
+      if(element.type()==reco::PFBlockElement::ECAL){
+	reco::PFClusterRef ClusterRef = element.clusterRef();
+	//PFClusRef.push_back(ClusterRef);
+	//clusters.push_back(ClusterRef);
+	Clust_E.push_back(ClusterRef->energy());
+	Clust_Et.push_back(ClusterRef->pt());	
+	ClustSumEt=ClustSumEt+ClusterRef->pt();
+	Clust_Eta.push_back(ClusterRef->eta());
+	Clust_Phi.push_back(ClusterRef->phi());
+      }
+      
+      if(element.type()==reco::PFBlockElement::GSF)
+	{
+	  //elements[indexInBlock].GsftrackRef();
+	  //  RConv_=sqrt(element.trackRef()->innerPosition().X()*element.trackRef()->innerPosition().X() + element.trackRef()->innerPosition().Y()*element.trackRef()->innerPosition().Y());
+	}
+      
+    }
+  
+  nPFClus_=Clust_Et.size();
+  
+  //std::vector<int>included(0);
+  //included=getPFMustacheClus(nPFClus_, Clust_Et, Clust_Eta, Clust_Phi);
+  //if(included.size()>0)excluded_=nPFClus_-included.size();
+  //else excluded_=0;
+  //cout<<"initial excluded "<<excluded_<<endl;
+  float Mustache_Et_out=0;
+  int PFClus=0;
+  CaloClusterPtrVector Caloclust;
+  reco::CaloCluster_iterator c_it=photon.superClusterRef()->clustersBegin();
+  reco::CaloCluster_iterator c_itend=photon.superClusterRef()->clustersEnd();
+  for(; c_it!=c_itend; ++c_it ){
+    Caloclust.push_back(*c_it);
+  }
+  Mustache Must;
+  Must.MustacheID(Caloclust, PFClus, Mustache_Et_out);
+  excluded_=PFClus;
+  //order the clusters by energy
+  //  float Mustache_Et=0;
+  float ClusSum=0;
+  for(unsigned int i=0; i<Clust_E.size(); ++i)
+    {
+      
+      Clust.insert(make_pair(Clust_E[i], i));
+      //Mustache_Et=Mustache_Et+Clust_Et[i];
+      ClusSum=ClusSum+Clust_E[i];
+    }
+  Mustache_EtRatio_=(Mustache_Et_out)/ClustSumEt;
+  std::multimap<float, int>::reverse_iterator it;
+  it=Clust.rbegin();
+  int max_c=(*it).second;
+  it=Clust.rend();
+  int min_c=(*it).second;
+  if(nPFClus_>1)LowClusE_=Clust_E[min_c];
+  else LowClusE_=0;
+  if(nPFClus_>1){
+    dEta_=fabs(Clust_Eta[max_c]-Clust_Eta[min_c]);
+    dPhi_=acos(cos(Clust_Phi[max_c]-Clust_Phi[min_c]));
+  }
+  else{
+    dEta_=0;
+    dPhi_=0;
+  }
+  
+  float dRmin=999;
+  float SCphi=photon.superClusterRef()->position().phi();
+  float SCeta=photon.superClusterRef()->position().eta();
+  for(unsigned i=0; i<eleInBlocks.size(); i++)
+    {
+      PFBlockRef blockRef = eleInBlocks[i].first;
+      unsigned indexInBlock = eleInBlocks[i].second;
+      const edm::OwnVector< reco::PFBlockElement >&  elements=eleInBlocks[i].first->elements();
+      const reco::PFBlockElement& element = elements[indexInBlock];
+      if(element.type()==reco::PFBlockElement::ECAL){
+	reco::PFClusterRef ClusterRef = element.clusterRef();
+	float eta=ClusterRef->position().eta();
+	float phi=ClusterRef->position().phi();
+	float dR=deltaR(SCeta, SCphi, eta, phi);
+	if(dR<dRmin){
+	  dRmin=dR;
+	  fill5x5Map(ClusterRef);
+	  PFPhoR9_=e3x3_/ClusSum;
+	}
+      }
+    } 
+  //fill Material Map:
+  int ix = X0_sum->GetXaxis()->FindBin(PFPhoEta_);
+  int iy = X0_sum->GetYaxis()->FindBin(PFPhoPhi_);
+  x0inner_= X0_inner->GetBinContent(ix,iy);
+  x0middle_=X0_middle->GetBinContent(ix,iy);
+  x0outer_=X0_outer->GetBinContent(ix,iy);
+  
+  float GC_Var[16];
+  GC_Var[0]=PFPhoEta_;
+  GC_Var[1]=PFPhoEt_;
+  GC_Var[2]=PFPhoR9_;
+  GC_Var[3]=PFPhoPhi_;
+  GC_Var[4]=SCEtaWidth_;
+  GC_Var[5]=SCPhiWidth_;
+  GC_Var[6]=x0inner_;  
+  GC_Var[7]=x0middle_;
+  GC_Var[8]=x0outer_;
+  GC_Var[9]=nPFClus_;
+  GC_Var[10]=RConv_;
+  GC_Var[11]=LowClusE_;
+  GC_Var[12]=dEta_;
+  GC_Var[13]=dPhi_;
+  GC_Var[14]=excluded_;
+  GC_Var[15]= Mustache_EtRatio_;
+  
+  BDTG=ReaderRes->GetResponse(GC_Var);
+  
+  
+  //  cout<<"BDTG Parameters X0"<<x0inner_<<", "<<x0middle_<<", "<<x0outer_<<endl;
+  // cout<<"Et, Eta, Phi "<<PFPhoEt_<<", "<<PFPhoEta_<<", "<<PFPhoPhi_<<endl;
+  // cout<<"PFPhoR9 "<<PFPhoR9_<<endl;
+  // cout<<"R "<<RConv_<<endl;
+  
+  return BDTG;
 
 }
 

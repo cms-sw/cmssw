@@ -146,6 +146,7 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   string path_mvaWeightFileGCorr;
   string path_mvaWeightFileLCorr;
   string path_X0_Map;
+  string path_mvaWeightFileRes;
   double mvaConvCut=-99.;
   double sumPtTrackIsoForPhoton = 99.;
   double sumPtTrackIsoSlopeForPhoton = 99.;
@@ -162,6 +163,8 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
       path_mvaWeightFileLCorr = edm::FileInPath( mvaWeightFileLCorr.c_str() ).fullPath();
       string mvaWeightFileGCorr=iConfig.getParameter<string>("pf_GlobC_mvaWeightFile");
       path_mvaWeightFileGCorr = edm::FileInPath( mvaWeightFileGCorr.c_str() ).fullPath();
+      string mvaWeightFileRes=iConfig.getParameter<string>("pf_Res_mvaWeightFile");
+      path_mvaWeightFileRes=edm::FileInPath(mvaWeightFileRes.c_str()).fullPath();
       string X0_Map=iConfig.getParameter<string>("X0_Map");
       path_X0_Map = edm::FileInPath( X0_Map.c_str() ).fullPath();
 
@@ -243,6 +246,7 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 				 usePhotonReg_,
 				 path_mvaWeightFileLCorr,
 				 path_mvaWeightFileGCorr,
+				 path_mvaWeightFileRes,
 				 path_X0_Map,
 				 calibration,
 				 sumPtTrackIsoForPhoton,

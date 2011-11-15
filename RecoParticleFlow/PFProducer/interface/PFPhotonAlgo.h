@@ -34,7 +34,8 @@ class PFPhotonAlgo {
 	       double mvaConvCut, 
 	       bool useReg, 
 	       std::string mvaWeightFilePFClusCorr, 
-	       std::string mvaWeightFilePFPhoCorr, 
+	       std::string mvaWeightFilePFPhoCorr,
+	       std::string mvaWeightFilePFPhoRes,
 	       std::string X0_Map,
 	       const reco::Vertex& primary,
 	       const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
@@ -116,6 +117,7 @@ private:
   TMVA::Reader *tmvaReader_;
   GBRForest *ReaderLC;
   GBRForest *ReaderGC;
+  GBRForest *ReaderRes;
   boost::shared_ptr<PFEnergyCalibration> thePFEnergyCalibration_;
   double sumPtTrackIsoForPhoton_;
   double sumPtTrackIsoSlopeForPhoton_;
@@ -136,6 +138,7 @@ private:
   //For Global Corrections:
   float PFPhoEta_, PFPhoPhi_, PFPhoR9_, SCPhiWidth_, SCEtaWidth_, PFPhoEt_, RConv_;
   float dEta_, dPhi_, LowClusE_, nPFClus_;
+  
   //for Material Map
   TH2D* X0_sum;
   TH2D* X0_inner;
@@ -167,6 +170,7 @@ private:
   void fill5x5Map(reco::PFClusterRef clusterRef);
   float EvaluateLCorrMVA(reco::PFClusterRef clusterRef );
   float EvaluateGCorrMVA(reco::PFCandidate);
+  float EvaluateResMVA(reco::PFCandidate);
   std::vector<int> getPFMustacheClus(int nClust, std::vector<float>& ClustEt, std::vector<float>& ClustEta, std::vector<float>& ClustPhi);
   void EarlyConversion(
 		       //std::auto_ptr< reco::PFCandidateCollection > 
