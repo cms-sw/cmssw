@@ -32,6 +32,7 @@ class VertexHistogramMaker {
  private:
 
   TFileDirectory* m_currdir;
+  const unsigned int m_maxLS;
   const double m_weightThreshold;
   const bool m_trueOnly;
   const bool m_runHisto;
@@ -69,6 +70,7 @@ class VertexHistogramMaker {
   TProfile** m_hvtxzvsorbrun;
   TProfile** m_hnvtxvsorbrun;
   TProfile2D** m_hnvtxvsbxvsorbrun;
+  TH2F** m_hnvtxvsorbrun2D;
 
   TProfile** m_hvtxxvsbxrun;
   TProfile** m_hvtxyvsbxrun;

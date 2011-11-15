@@ -5,6 +5,7 @@ primaryvertexanalyzer = cms.EDAnalyzer('AnotherPrimaryVertexAnalyzer',
                                        firstOnly = cms.untracked.bool(False),
                                        vHistogramMakerPSet = cms.PSet(
                                          trueOnly = cms.untracked.bool(True),
+                                         maxLSBeforeRebin = cms.uint32(100),
                                          weightThreshold = cms.untracked.double(0.5),
                                          bsConstrained = cms.bool(False),
                                          histoParameters = cms.untracked.PSet(
