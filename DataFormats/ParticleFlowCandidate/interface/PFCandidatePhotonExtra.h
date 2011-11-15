@@ -61,6 +61,8 @@ namespace reco {
     void addLCorrClusEnergy(float LCorrE);
     const std::vector<float>& LCorrClusEnergy() const {return LocalCorr_;}
 
+    void SetPFPhotonRes(float Res){Res=MVAResolution_;}
+    float PFPhotonRes()const {return MVAResolution_;}
  private:
     
     /// Ref to supercluster
@@ -83,6 +85,7 @@ namespace reco {
     std::vector<float> LocalCorr_;
     float GlobalCorr_;
     float GlobalCorrEError_;
+    float MVAResolution_;
   };
 }
 #endif
