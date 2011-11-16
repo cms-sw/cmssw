@@ -30,7 +30,7 @@ class EcalBarrelRecHitsMaker
  private:
   void clean();
   void loadPCaloHits(const edm::Event & iEvent);
-  void geVtoGainAdc(float e, unsigned index, unsigned& gain,unsigned &adc) const;
+  void geVtoGainAdc(float e, unsigned index, unsigned& gain,unsigned &adc,unsigned & ped) const;
   void noisifyTriggerTowers();
   bool noisifyTriggerTower(unsigned tthi);
   void randomNoisifier();

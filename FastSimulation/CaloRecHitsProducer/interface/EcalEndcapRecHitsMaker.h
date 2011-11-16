@@ -30,7 +30,7 @@ class EcalEndcapRecHitsMaker
  private:
   void clean();
   void loadPCaloHits(const edm::Event & iEvent);
-  void geVtoGainAdc(float e,unsigned index,unsigned & gain, unsigned &adc) const;
+  void geVtoGainAdc(float e,unsigned index,unsigned & gain, unsigned &adc, unsigned & ped) const;
   // there are 2448 TT in the barrel. 
   inline int TThashedIndexforEE(int originalhi) const {return originalhi-2448;}
   inline int TThashedIndexforEE(const EcalTrigTowerDetId &detid) const {return detid.hashedIndex()-2448;}

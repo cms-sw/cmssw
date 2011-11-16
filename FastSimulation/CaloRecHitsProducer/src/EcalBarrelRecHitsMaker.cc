@@ -134,7 +134,7 @@ void EcalBarrelRecHitsMaker::loadEcalBarrelRecHits(edm::Event &iEvent,EBRecHitCo
   
   unsigned nhit=theFiredCells_.size();
   //  std::cout << " loadEcalBarrelRecHits " << nhit << std::endl;
-  unsigned gain, adc;
+  unsigned gain, adc, ped ;
   ecalDigis.reserve(nhit);
   ecalHits.reserve(nhit);
   for(unsigned ihit=0;ihit<nhit;++ihit)
@@ -150,11 +150,11 @@ void EcalBarrelRecHitsMaker::loadEcalBarrelRecHits(edm::Event &iEvent,EBRecHitCo
 	  EBDataFrame myDataFrame( ecalDigis.back() );
 	  //	  myDataFrame.setSize(2);  // now useless - by construction fixed at 1 frame - FIXME
 	  //  The real work is in the following line
+
 	  // put the pedestal in sample 0
-	  geVtoGainAdc(0,icell,gain,adc);
-	  myDataFrame.setSample(0,EcalMGPASample(adc,gain));
+	  geVtoGainAdc(theCalorimeterHits_[icell],icell,gain,adc,ped);
+	  myDataFrame.setSample(0,EcalMGPASample(adc,ped));
 	  // put energy +pedestal in sample 1
-	  geVtoGainAdc(theCalorimeterHits_[icell],icell,gain,adc);
 	  myDataFrame.setSample(1,EcalMGPASample(adc,gain));
 	  //	  std::cout << " myDataFrame " << myDataFrame.size() << std::endl;
 	  //  std::cout << " myDataFrame " << myDataFrame.sample(0).adc() << std::endl;
@@ -567,7 +567,7 @@ void EcalBarrelRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
     }  
 }
 
-void EcalBarrelRecHitsMaker::geVtoGainAdc(float e,unsigned index, unsigned & gain, unsigned &adc) const
+void EcalBarrelRecHitsMaker::geVtoGainAdc(float e,unsigned index, unsigned & gain, unsigned &adc, unsigned & ped) const
 {
   // no negative ?
   if(e<0.) e=0.;
@@ -576,18 +576,21 @@ void EcalBarrelRecHitsMaker::geVtoGainAdc(float e,unsigned index, unsigned & gai
     {
       gain = 1; // x1 
       //      std::cout << " E " << e << std::endl;
-      adc = (*thePedestals_)[index].mean_x1 + (unsigned)(e*geVToAdc1_);
+      ped = (*thePedestals_)[index].mean_x1;
+      adc = ped  + (unsigned)(e*geVToAdc1_);
       //      std::cout << " e*geVtoAdc1_ " << e*geVToAdc1_ << " " <<(unsigned)(e*geVToAdc1_) << std::endl;
     } 
   else if (e<t2_)
     {
       gain = 2; 
-      adc = (*thePedestals_)[index].mean_x6 + (unsigned)(e*geVToAdc2_);
+      ped = (*thePedestals_)[index].mean_x6;
+      adc = ped + (unsigned)(e*geVToAdc2_);
     }
   else 
     {
-      gain = 3; 
-      adc = std::min(((int)(*thePedestals_)[index].mean_x12+(unsigned)(e*geVToAdc3_)),maxAdc_);
+      gain = 3;
+      ped = (*thePedestals_)[index].mean_x12;
+      adc = std::min(((int)ped+(unsigned)(e*geVToAdc3_)),maxAdc_);
     }
 }
 

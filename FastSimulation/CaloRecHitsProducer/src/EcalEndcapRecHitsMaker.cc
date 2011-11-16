@@ -114,7 +114,7 @@ void EcalEndcapRecHitsMaker::loadEcalEndcapRecHits(edm::Event &iEvent,EERecHitCo
   loadPCaloHits(iEvent);
 
   unsigned nhit=theFiredCells_.size();
-  unsigned gain, adc;
+  unsigned gain, adc, ped;
   ecalDigis.reserve(nhit);
   ecalHits.reserve(nhit);
   for(unsigned ihit=0;ihit<nhit;++ihit)
@@ -128,11 +128,11 @@ void EcalEndcapRecHitsMaker::loadEcalEndcapRecHits(edm::Event &iEvent,EERecHitCo
 	   EEDataFrame myDataFrame( ecalDigis.back() );
 	   // myDataFrame.setSize(1); // now useless - by construction fixed at 1 frame - FIXME
 	   //  The real work is in the following line
-	  // put the pedestal in sample 0
-	  geVtoGainAdc(0,icell,gain,adc);
-	  myDataFrame.setSample(0,EcalMGPASample(adc,gain));
+
 	  // put energy +pedestal in sample 1
-	  geVtoGainAdc(theCalorimeterHits_[icell],icell,gain,adc);
+	  geVtoGainAdc(theCalorimeterHits_[icell],icell,gain,adc,ped);
+	  // put the pedestal in sample 0
+	  myDataFrame.setSample(0,EcalMGPASample(ped,gain));
 	  myDataFrame.setSample(1,EcalMGPASample(adc,gain));
 
 	}
@@ -526,27 +526,30 @@ void EcalEndcapRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
 }
 
 
-void EcalEndcapRecHitsMaker::geVtoGainAdc(float e,unsigned index,unsigned & gain, unsigned &adc) const
+void EcalEndcapRecHitsMaker::geVtoGainAdc(float e,unsigned index,unsigned & gain, unsigned &adc, unsigned & ped) const
 {
   if (e<0.) e=0.;
   if(e<t1_)
     {
       gain = 1; // x1 
       //      std::cout << " E " << e << std::endl;
-      adc = minAdc_ + (unsigned)(e*geVToAdc1_);
+      ped = (*thePedestals_)[index].mean_x1;
+      adc = ped + (unsigned)(e*geVToAdc1_);
       //      std::cout << " e*geVtoAdc1_ " << e*geVToAdc1_ << " " <<(unsigned)(e*geVToAdc1_) << std::endl;
     } 
   else if (e<t2_)
     {
       gain = 2; // x6
-      adc = minAdc_ + (unsigned)(e*geVToAdc2_);
+      ped  = (*thePedestals_)[index].mean_x6;
+      adc = ped + (unsigned)(e*geVToAdc2_);
     }
   else 
     {
       gain = 3; // x12
-      adc = std::min(minAdc_+(unsigned)(e*geVToAdc3_),maxAdc_);
+      ped = (*thePedestals_)[index].mean_x12;
+      adc = std::min(((int)ped+(unsigned)(e*geVToAdc3_)),maxAdc_);
     }
-}
+}  
 
 bool EcalEndcapRecHitsMaker::isHighInterest(const EEDetId& detid)
 {
