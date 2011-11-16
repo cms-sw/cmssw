@@ -1247,15 +1247,23 @@ void TiXmlAttribute::Print( FILE* cfile, int /*depth*/, TIXML_STRING* str ) cons
 
 int TiXmlAttribute::QueryIntValue( int* ival ) const
 {
-	if ( TIXML_SSCANF( value.c_str(), "%d", ival ) == 1 )
+        char* endptr;
+        long lval = strtol(value.c_str(), &endptr, 10);
+        if(endptr != value.c_str()) {
+                *ival = static_cast<int>(lval);
 		return TIXML_SUCCESS;
+        }
 	return TIXML_WRONG_TYPE;
 }
 
 int TiXmlAttribute::QueryDoubleValue( double* dval ) const
 {
-	if ( TIXML_SSCANF( value.c_str(), "%lf", dval ) == 1 )
+        char* endptr;
+        double dvalue = strtod(value.c_str(), &endptr);
+        if(endptr != value.c_str()) {
+                *dval = dvalue;
 		return TIXML_SUCCESS;
+        }
 	return TIXML_WRONG_TYPE;
 }
 

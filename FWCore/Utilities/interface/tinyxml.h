@@ -77,15 +77,11 @@ so fixed them to return a reference to the object.
 		//#pragma message( "Using _sn* functions." )
 		#define TIXML_SNPRINTF _snprintf
 		#define TIXML_SNSCANF  _snscanf
-		#define TIXML_SSCANF   sscanf
 	#elif defined(__GNUC__) && (__GNUC__ >= 3 )
 		// GCC version 3 and higher.s
 		//#warning( "Using sn* functions." )
 		#define TIXML_SNPRINTF snprintf
 		#define TIXML_SNSCANF  snscanf
-		#define TIXML_SSCANF   sscanf
-	#else
-		#define TIXML_SSCANF   sscanf
 	#endif
 #endif
 
