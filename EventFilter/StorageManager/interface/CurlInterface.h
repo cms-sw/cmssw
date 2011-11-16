@@ -1,10 +1,14 @@
-// $Id: CurlInterface.h,v 1.2.6.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: CurlInterface.h,v 1.3 2011/03/07 15:31:31 mommsen Exp $
 /// @file: CurlInterface.h
 
 #ifndef EventFilter_StorageManager_CurlInterface_h
 #define EventFilter_StorageManager_CurlInterface_h
 
+#include "boost/shared_ptr.hpp"
+
 #include <curl/curl.h>
+#include <openssl/crypto.h>
+#include <pthread.h>
 #include <string>
 #include <vector>
 
@@ -15,8 +19,8 @@ namespace stor {
    * Helper class to interact with curl
    *
    * $Author: mommsen $
-   * $Revision: 1.2.6.1 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.3 $
+   * $Date: 2011/03/07 15:31:31 $
    */
  
   class CurlInterface
@@ -25,6 +29,13 @@ namespace stor {
   public:
 
     typedef std::vector<char> Content;
+
+    ~CurlInterface();
+
+    /**
+     * Return a shared pointer to the singleton
+     */
+    static boost::shared_ptr<CurlInterface> getInterface();
 
     /**
      * Get webpage content from specified URL using the user/password
@@ -46,11 +57,18 @@ namespace stor {
     
   private:
 
+    CurlInterface();
+
     CURLcode do_curl(CURL*, const std::string& url, Content& content);
     static size_t writeToString(char* data, size_t size, size_t nmemb, Content* buffer);
+    static void sslLockingFunction(int mode, int n, const char* file, int line);
+    static unsigned long sslIdFunction();
     
-    char errorBuffer_[CURL_ERROR_SIZE]; 
+    static boost::shared_ptr<CurlInterface> interface_;
+    static pthread_mutex_t* mutexes_;
   };
+
+  typedef boost::shared_ptr<CurlInterface> CurlInterfacePtr;
 
 } // namespace stor
 

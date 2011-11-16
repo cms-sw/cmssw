@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.cc,v 1.45 2011/11/08 10:48:41 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.46 2011/11/10 10:56:37 mommsen Exp $
 /// @file: ResourceMonitorCollection.cc
 
 #include <stdio.h>
@@ -519,14 +519,14 @@ namespace stor {
     const std::string& hostSuffix
   )
   {
-    CurlInterface curlInterface;
+    CurlInterfacePtr curlInterface = CurlInterface::getInterface();
     CurlInterface::Content content;
     
     // Do not try to connect if we have no user name
     if ( rmParams_.sataUser_.empty() ) return true;
     
     const CURLcode returnCode =
-      curlInterface.getContent(
+      curlInterface->getContent(
         "http://" + sataBeast + hostSuffix + "/status.asp",rmParams_.sataUser_,
         content
       );

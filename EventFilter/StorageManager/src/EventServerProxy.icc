@@ -1,4 +1,4 @@
-// $Id: EventServerProxy.icc,v 1.2 2011/03/07 15:31:32 mommsen Exp $
+// $Id: EventServerProxy.icc,v 1.3 2011/04/05 09:19:01 mommsen Exp $
 /// @file: EventServerProxy.icc
 
 #include "EventFilter/StorageManager/interface/CurlInterface.h"
@@ -82,8 +82,8 @@ namespace stor
     convert(consumerId_, bodyPtr);
 
     // send the event request
-    stor::CurlInterface curl;
-    CURLcode result = curl.postBinaryMessage(
+    stor::CurlInterfacePtr curl = stor::CurlInterface::getInterface();
+    CURLcode result = curl->postBinaryMessage(
       regInfo_.eventURL(),
       requestMessage.startAddress(),
       requestMessage.size(),
@@ -210,7 +210,7 @@ namespace stor
     );
     
     // send registration request
-    stor::CurlInterface curl;
+    stor::CurlInterfacePtr curl = stor::CurlInterface::getInterface();
     CURLcode result = CURLE_COULDNT_CONNECT;
     unsigned int tries = 0;
 
@@ -220,7 +220,7 @@ namespace stor
     while ( result != CURLE_OK && !edm::shutdown_flag )
     {
       ++tries;
-      result = curl.postBinaryMessage(
+      result = curl->postBinaryMessage(
         regInfo_.registerURL(),
         requestMessage.startAddress(),
         requestMessage.size(),

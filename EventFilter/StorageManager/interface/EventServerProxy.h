@@ -1,4 +1,4 @@
-// $Id: EventServerProxy.h,v 1.5 2011/04/05 09:19:01 mommsen Exp $
+// $Id: EventServerProxy.h,v 1.6 2011/08/31 20:11:04 wmtan Exp $
 /// @file: EventServerProxy.h
 
 #ifndef EventFilter_StorageManager_EventServerProxy_h
@@ -27,9 +27,9 @@ namespace stor {
    * event server responses with a binary octet-stream. The init message
    * is also obtained through a HTTP get.
    *
-   * $Author: mommsen $
-   * $Revision: 1.5 $
-   * $Date: 2011/04/05 09:19:01 $
+   * $Author: wmtan $
+   * $Revision: 1.6 $
+   * $Date: 2011/08/31 20:11:04 $
    */
 
   template<typename RegInfo>
@@ -100,8 +100,8 @@ namespace stor {
     convert(consumerId_, bodyPtr);
     
     // send the header request
-    stor::CurlInterface curl;
-    CURLcode result = curl.postBinaryMessage(
+    stor::CurlInterfacePtr curl = stor::CurlInterface::getInterface();
+    CURLcode result = curl->postBinaryMessage(
       regInfo_.sourceURL() + "/getregdata",
       requestMessage.startAddress(),
       requestMessage.size(),
