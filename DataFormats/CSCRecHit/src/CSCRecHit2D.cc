@@ -46,7 +46,6 @@ CSCRecHit2D::CSCRecHit2D( const CSCDetId& id,
   theLocalError( err ),
   theEnergyDeposit( energyDeposit )
 {
-  std::cout << theScaledWireTime << " time " << std::endl;
   nStrips_=channels.size();
   nWireGroups_=wgroups.size();
 

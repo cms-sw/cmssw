@@ -25,7 +25,7 @@ public:
   enum SharedInputType {all = TrackingRecHit::all, some = TrackingRecHit::some, allWires, someWires, allStrips, someStrips};
 
   static const unsigned int MAXSTRIPS=3;
-  static const unsigned int MAXWIRES=10;
+  static const unsigned int MAXWIRES=5;
   static const unsigned int MAXTIMEBINS=4;
   static const unsigned int N_ADC=MAXSTRIPS*MAXTIMEBINS;
   CSCRecHit2D();
