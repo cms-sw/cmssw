@@ -1,6 +1,7 @@
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/Common/interface/RefVector.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "boost/range.hpp"
 
@@ -172,11 +173,18 @@ DISABLE_CONST_ITR_IS_CONST(edm::RefVector<Coll>)
 DISABLE_SORT_BARE(edm::PtrVector<Dummy>)
 DISABLE_SORT_BARE(edm::RefVector<Coll>)
 
-int main(int, char**) {
+int main(int, char**) try {
    dummies_.clear();
    for(int i = 0; i < 12; ++i) dummies_.push_back(Dummy(i));
    test(vector<Dummy>());
    test(RefVector<Coll>());
    test(PtrVector<Dummy>());
    test(OwnVector<Dummy>());
+   return 0;
+} catch(cms::Exception const& e) {
+    std::cerr << e.explainSelf() << std::endl;
+    return 1;
+} catch(std::exception const& e) {
+    std::cerr << e.what() << std::endl;
+    return 1;
 }

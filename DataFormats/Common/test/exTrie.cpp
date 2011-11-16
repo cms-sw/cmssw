@@ -2,6 +2,7 @@
  */
 
 #include "DataFormats/Common/interface/Trie.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include<iostream>
 #include<string>
@@ -16,7 +17,7 @@ struct Print {
   }
 };
 
-int main(int, char**) {
+int main(int, char**) try {
   /// trie that associates a integer to strings
   /// 0 is the default value I want to receive when there is no match
   /// in trie
@@ -85,6 +86,11 @@ int main(int, char**) {
   std::cout << "\nleaves iteration" << std::endl;
   edm::iterateTrieLeaves(pr, *trie.initialNode());
   std::cout << std::endl;
-
-
+  return 0;
+} catch(cms::Exception const& e) {
+    std::cerr << e.explainSelf() << std::endl;
+    return 1;
+} catch(std::exception const& e) {
+    std::cerr << e.what() << std::endl;
+    return 1;
 }

@@ -1,4 +1,5 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include <iostream>
 #include <boost/function.hpp>
 
@@ -17,7 +18,7 @@ void print0(DST const & d) {
 }
 
 
-int main() {
+int main()  try {
   DSTV dstv;
 
   {
@@ -42,4 +43,8 @@ int main() {
   std::for_each(dstv.begin(),dstv.end(),boost::function<void(DST const&)>(print0));
 
   return 0;
+} catch(cms::Exception const& e) {
+    std::cerr << e.explainSelf() << std::endl;
+} catch(std::exception const& e) {
+    std::cerr << e.what() << std::endl;
 }
