@@ -18,7 +18,8 @@
   <class name="edm::RefProd<std::vector<reco::BaseTauTagInfo> >"/>
   <class name="edm::RefVector<std::vector<reco::BaseTauTagInfo>,reco::BaseTauTagInfo,edm::refhelper::FindUsingAdvance<std::vector<reco::BaseTauTagInfo>,reco::BaseTauTagInfo> >"/>
   
-  <class name="reco::CaloTauTagInfo" ClassVersion="10">
+  <class name="reco::CaloTauTagInfo" ClassVersion="11">
+   <version ClassVersion="11" checksum="442155907"/>
    <version ClassVersion="10" checksum="3077166108"/>
   </class>
   <class name="std::vector<reco::CaloTauTagInfo>"/>
@@ -56,9 +57,13 @@
   <class name="edm::RefVector<std::vector<reco::CaloTau>,reco::CaloTau,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloTau>,reco::CaloTau> >"/>
   <class name="edm::reftobase::Holder<reco::BaseTau, edm::Ref<std::vector<reco::CaloTau>,reco::CaloTau,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloTau>,reco::CaloTau> > >" />
   
-  <class name="reco::PFTau" ClassVersion="10">
-   <version ClassVersion="10" checksum="2369119060"/>
+  <class name="reco::PFTau" ClassVersion="11">
+    <version ClassVersion="11" checksum="2334259986"/>
+     <field name="signalPiZeroCandidates_" transient="true"/>
+     <field name="isolationPiZeroCandidates_" transient="true"/>
+    <version ClassVersion="10" checksum="2369119060"/>
   </class>
+
   <class name="std::vector<reco::PFTau>"/>
   <class name="edm::Wrapper<std::vector<reco::PFTau> >"/>
   <class name="edm::Ref<std::vector<reco::PFTau>,reco::PFTau,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTau>,reco::PFTau> >"/>

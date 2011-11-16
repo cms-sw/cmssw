@@ -90,15 +90,39 @@ void PFTau::setisolationPFGammaCands(const PFCandidateRefVector& myParts)  { sel
 
 // PiZero and decay mode information
 const std::vector<RecoTauPiZero>& PFTau::signalPiZeroCandidates() const {
-   return signalPiZeroCandidates_;
+  // Check if the signal pi zeros are already filled
+  if (signalPiZeroCandidates_.size() < signalPiZeroCandidatesRefs_.size()) {
+    // Fill them from the refs
+    for (size_t i = 0; i < signalPiZeroCandidatesRefs_.size(); ++i) {
+      signalPiZeroCandidates_.push_back(*signalPiZeroCandidatesRefs_[i]);
+    }
+  }
+  return signalPiZeroCandidates_;
 }
+
 void PFTau::setsignalPiZeroCandidates(const std::vector<RecoTauPiZero>& cands) {
    signalPiZeroCandidates_ = cands;
 }
 
-const std::vector<RecoTauPiZero>& PFTau::isolationPiZeroCandidates() const {
-   return isolationPiZeroCandidates_;
+void PFTau::setSignalPiZeroCandidatesRefs(const RecoTauPiZeroRefVector& cands) {
+   signalPiZeroCandidatesRefs_ = cands;
 }
+
+void PFTau::setIsolationPiZeroCandidatesRefs(const RecoTauPiZeroRefVector& cands) {
+   isolationPiZeroCandidatesRefs_ = cands;
+}
+
+const std::vector<RecoTauPiZero>& PFTau::isolationPiZeroCandidates() const {
+  // Check if the signal pi zeros are already filled
+  if (isolationPiZeroCandidates_.size() < isolationPiZeroCandidatesRefs_.size()) {
+    // Fill them from the refs
+    for (size_t i = 0; i < isolationPiZeroCandidatesRefs_.size(); ++i) {
+      isolationPiZeroCandidates_.push_back(*isolationPiZeroCandidatesRefs_[i]);
+    }
+  }
+  return isolationPiZeroCandidates_;
+}
+
 void PFTau::setisolationPiZeroCandidates(const std::vector<RecoTauPiZero>& cands){
    signalPiZeroCandidates_ = cands;
 }

@@ -16,6 +16,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
+#include "DataFormats/TauReco/interface/RecoTauPiZeroFwd.h"
 
 #include <iostream>
 #include <limits>
@@ -125,10 +126,12 @@ class PFTau : public BaseTau {
     /// Retrieve the association of signal region gamma candidates into candidate PiZeros
     const std::vector<RecoTauPiZero>& signalPiZeroCandidates() const;
     void setsignalPiZeroCandidates(const std::vector<RecoTauPiZero>&);
+    void setSignalPiZeroCandidatesRefs(const RecoTauPiZeroRefVector&);
 
     /// Retrieve the association of isolation region gamma candidates into candidate PiZeros
     const std::vector<RecoTauPiZero>& isolationPiZeroCandidates() const;
     void setisolationPiZeroCandidates(const std::vector<RecoTauPiZero>&);
+    void setIsolationPiZeroCandidatesRefs(const RecoTauPiZeroRefVector&);
 
     /// Retrieve the identified hadronic decay mode according to the number of
     /// charged and piZero candidates in the signal cone
@@ -182,14 +185,33 @@ class PFTau : public BaseTau {
     // check overlap with another candidate
     virtual bool overlap(const Candidate&) const;
 
-    reco::PFJetRef jetRef_;
+    bool muonDecision_;
+    bool electronPreIDDecision_;
+    // SIP
+    float leadPFChargedHadrCandsignedSipt_;
+    // Isolation variables
+    float isolationPFChargedHadrCandsPtSum_;
+    float isolationPFGammaCandsEtSum_;
+    float maximumHCALPFClusterEt_;
 
+    // Electron rejection variables
+    float emFraction_;
+    float hcalTotOverPLead_;
+    float hcalMaxOverPLead_;
+    float hcal3x3OverPLead_;
+    float ecalStripSumEOverPLead_;
+    float bremsRecoveryEOverPLead_;
+    float electronPreIDOutput_;
+
+    // Muon rejection variables
+    float caloComp_;
+    float segComp_;
+
+    reco::PFJetRef jetRef_;
     PFTauTagInfoRef PFTauTagInfoRef_;
     PFCandidateRef leadPFChargedHadrCand_;
     PFCandidateRef leadPFNeutralCand_, leadPFCand_;
-
-    // SIP
-    float leadPFChargedHadrCandsignedSipt_;
+    reco::TrackRef electronPreIDTrack_;
 
     // Signal candidates
     PFCandidateRefVector selectedSignalPFCands_,
@@ -203,30 +225,12 @@ class PFTau : public BaseTau {
                          selectedIsolationPFNeutrHadrCands_,
                          selectedIsolationPFGammaCands_;
 
-    // Isolation variables
-    float isolationPFChargedHadrCandsPtSum_;
-    float isolationPFGammaCandsEtSum_;
-    float maximumHCALPFClusterEt_;
+    RecoTauPiZeroRefVector signalPiZeroCandidatesRefs_;
+    RecoTauPiZeroRefVector isolationPiZeroCandidatesRefs_;
 
-    // Electron rejection variables
-    float emFraction_;
-    float hcalTotOverPLead_;
-    float hcalMaxOverPLead_;
-    float hcal3x3OverPLead_;
-    float ecalStripSumEOverPLead_;
-    float bremsRecoveryEOverPLead_;
-    reco::TrackRef electronPreIDTrack_;
-    float electronPreIDOutput_;
-    bool electronPreIDDecision_;
-
-    // Muon rejection variables
-    float caloComp_;
-    float segComp_;
-    bool muonDecision_;
-
-    // Association of gamma candidates into PiZeros
-    std::vector<reco::RecoTauPiZero> signalPiZeroCandidates_;
-    std::vector<reco::RecoTauPiZero> isolationPiZeroCandidates_;
+    // Association of gamma candidates into PiZeros (transient)
+    mutable std::vector<reco::RecoTauPiZero> signalPiZeroCandidates_;
+    mutable std::vector<reco::RecoTauPiZero> isolationPiZeroCandidates_;
 };
 
 std::ostream & operator<<(std::ostream& out, const PFTau& c);
