@@ -15,6 +15,7 @@
 #include "CondFormats/ESObjects/interface/ESGain.h"
 #include "CondFormats/ESObjects/interface/ESMIPToGeVConstant.h"
 #include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
+#include "CondFormats/ESObjects/interface/ESMissingEnergyCalibration.h"
 #include "CondFormats/ESObjects/interface/ESChannelStatus.h"
 
 class PreshowerClusterProducer : public edm::EDProducer {
@@ -42,7 +43,6 @@ class PreshowerClusterProducer : public edm::EDProducer {
   std::string preshClusterCollectionX_;  
   std::string preshClusterCollectionY_;  
 
-
   int preshNclust_;
   float preshClustECut;
   double etThresh_;
@@ -53,6 +53,7 @@ class PreshowerClusterProducer : public edm::EDProducer {
   edm::ESHandle<ESGain> esgain_;
   edm::ESHandle<ESMIPToGeVConstant> esMIPToGeV_;
   edm::ESHandle<ESEEIntercalibConstants> esEEInterCalib_;
+  edm::ESHandle<ESMissingEnergyCalibration> esMissingECalib_;
   edm::ESHandle<ESChannelStatus> esChannelStatus_;
   double mip_;
   double gamma0_;
@@ -63,6 +64,8 @@ class PreshowerClusterProducer : public edm::EDProducer {
   double alpha1_;
   double alpha2_;
   double alpha3_;
+  double aEta_[4];
+  double bEta_[4];
 
   PreshowerClusterAlgo * presh_algo; // algorithm doing the real work
    // The set of used DetID's
