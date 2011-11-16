@@ -1,4 +1,4 @@
-// $Id: testOwnVector.cc,v 1.9 2009/02/25 23:43:51 wmtan Exp $
+// $Id: testOwnVector.cc,v 1.10 2010/06/11 15:55:50 srappocc Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include <algorithm>
 #include <iterator>
@@ -43,7 +43,7 @@ namespace test {
 
   class ClassB : public a {
   public:
-    ClassB(int i) : ii(i) {;}
+    ClassB(int i) : ii(i) {memset(&waste, 0, sizeof(waste));}
     virtual ~ClassB() {}
     virtual int f() const { return ii;  }
     int ii;
@@ -132,7 +132,8 @@ void testOwnVector::checkAll() {
     CPPUNIT_ASSERT( data != 0);
     CPPUNIT_ASSERT( data_a != 0);
     CPPUNIT_ASSERT( data_b != 0);
-    CPPUNIT_ASSERT( data_b->f() == 3);
-
+    if(data_b != 0) { // To silence Coverity
+      CPPUNIT_ASSERT( data_b->f() == 3);
+    }
   }
 }
