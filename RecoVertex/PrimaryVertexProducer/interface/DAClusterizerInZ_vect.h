@@ -17,7 +17,7 @@
 #include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 
-#include "DataFormats/Math/interface/vdt_math.h"
+#include "DataFormats/Math/interface/VDTMath.h"
 
 // this class uses the C++11 standard
 #ifdef __GXX_EXPERIMENTAL_CXX0X__
