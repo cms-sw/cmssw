@@ -46,10 +46,8 @@ namespace edm {
       typedef ptrdiff_t difference_type;
       typedef typename base::const_iterator::iterator_category iterator_category;
       const_iterator(typename base::const_iterator const& it) : i(it) { }
-      const_iterator(const_iterator const& it) : i(it.i) { }
       const_iterator(iterator const& it) : i(it.i) { }
       const_iterator() {}
-      const_iterator& operator=(const_iterator const& it) { i = it.i; return *this; }
       const_iterator& operator++() { ++i; return *this; }
       const_iterator operator++(int) { const_iterator ci = *this; ++i; return ci; }
       const_iterator& operator--() { --i; return *this; }
@@ -77,9 +75,7 @@ namespace edm {
       typedef ptrdiff_t difference_type;
       typedef typename base::iterator::iterator_category iterator_category;
       iterator(typename base::iterator const& it) : i(it) { }
-      iterator(iterator const& it) : i(it.i) { }
       iterator() {}
-      iterator & operator=(iterator const& it) { i = it.i; return *this; }
       iterator& operator++() { ++i; return *this; }
       iterator operator++(int) { iterator ci = *this; ++i; return ci; }
       iterator& operator--() { --i; return *this; }

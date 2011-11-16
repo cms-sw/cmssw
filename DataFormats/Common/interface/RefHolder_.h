@@ -21,8 +21,6 @@ namespace edm {
     public:
       RefHolder();
       explicit RefHolder(REF const& ref);
-      RefHolder(RefHolder const& other);
-      RefHolder& operator=(RefHolder const& rhs);
       void swap(RefHolder& other);
       virtual ~RefHolder();
       virtual RefHolderBase* clone() const;
@@ -59,16 +57,6 @@ namespace edm {
       RefHolderBase(), ref_()
     { }
   
-    template <class REF>
-    RefHolder<REF>::RefHolder(RefHolder const& rhs) :
-      RefHolderBase(rhs), ref_( rhs.ref_ )
-    { }
-
-    template <class REF>
-    RefHolder<REF>& RefHolder<REF>::operator=(RefHolder const& rhs) {
-      ref_ = rhs.ref_; return *this;
-    }
-
     template <class REF>
     RefHolder<REF>::RefHolder(REF const& ref) : 
       RefHolderBase(), ref_(ref) 
