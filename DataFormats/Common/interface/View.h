@@ -43,6 +43,7 @@ namespace edm {
   protected:
     ViewBase();
     ViewBase(ViewBase const&);
+    ViewBase& operator=(ViewBase const&);
     virtual ViewBase* doClone() const = 0;
     void swap(ViewBase&) {} // Nothing to swap
   };
