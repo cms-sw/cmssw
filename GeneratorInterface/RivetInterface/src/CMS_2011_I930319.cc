@@ -11,15 +11,15 @@
 
 namespace Rivet 
 {
-  class CMS_FWD_10_011 : public Analysis 
+  class CMS_2011_I930319 : public Analysis 
   {
   
   public:
     
 
     /// Constructor    
-    CMS_FWD_10_011()
-      : Analysis("CMS_FWD_10_011")
+    CMS_2011_I930319()
+      : Analysis("CMS_2011_I930319")
       
       {
       	setBeams(PROTON,PROTON);
@@ -45,20 +45,19 @@ namespace Rivet
     addProjection(fschrgd, "fschrgd"); 
     VetoedFinalState fschrgdv(fschrgd);
     fschrgdv.vetoNeutrinos();
-    fschrgdv.addVetoPairDetail(MUON, 0.0*GeV, 99999.9*GeV);
     addProjection(fschrgdv, "fschrgdv");
     
-    evcounter_mb =0;
-    evcounter_dijet =0;
+    evcounter_mb = 0;
+    evcounter_dijet = 0;
     
     if(fuzzyEquals(sqrtS()/GeV, 900, 1E-3)){
-      _hist_CMS_FWD_10_011_mb_09 	 = bookHistogram1D(1,1,1); 	// energy flow in MB, 0.9 TeV
-      _hist_CMS_FWD_10_011_dijet_09 	 = bookHistogram1D(2,1,1); 	// energy flow in dijet events, 0.9 TeV
+      _hist_mb_09 	 = bookHistogram1D(1,1,1); // energy flow in MB, 0.9 TeV
+      _hist_dijet_09 	 = bookHistogram1D(2,1,1); // energy flow in dijet events, 0.9 TeV
     }
 
     if(fuzzyEquals(sqrtS()/GeV, 7000, 1E-3)){     
-      _hist_CMS_FWD_10_011_mb_7 	 = bookHistogram1D(3,1,1); 	// energy flow in MB, 7 TeV
-      _hist_CMS_FWD_10_011_dijet_7 	 = bookHistogram1D(4,1,1); 	// energy flow in dijet events, 7 TeV
+      _hist_mb_7 	 = bookHistogram1D(3,1,1); // energy flow in MB, 7 TeV
+      _hist_dijet_7 	 = bookHistogram1D(4,1,1); // energy flow in dijet events, 7 TeV
     }
 
   }
@@ -73,8 +72,8 @@ namespace Rivet
     
     
     // Veto diffraction according to defined hadron level.
-    double count_chrg_forward=0;
-    double count_chrg_backward=0;
+    double count_chrg_forward = 0;
+    double count_chrg_backward = 0;
     const FinalState& fschrgdv = applyProjection<FinalState>(event, "fschrgdv");
 
     foreach (const Particle& p, fschrgdv.particles()) {
@@ -99,10 +98,10 @@ namespace Rivet
     evcounter_mb += weight;
     foreach (const Particle& p, fsv.particles()) {
 
-      if(fuzzyEquals(sqrtS()/GeV, 900, 1E-3)) {_hist_CMS_FWD_10_011_mb_09 -> 
+      if(fuzzyEquals(sqrtS()/GeV, 900, 1E-3)) {_hist_mb_09 -> 
           fill(fabs(p.momentum().pseudorapidity()), weight * p.momentum().E()/GeV );}
 
-      if(fuzzyEquals(sqrtS()/GeV, 7000, 1E-3)) {_hist_CMS_FWD_10_011_mb_7 -> 
+      if(fuzzyEquals(sqrtS()/GeV, 7000, 1E-3)) {_hist_mb_7 -> 
           fill(fabs(p.momentum().pseudorapidity()), weight * p.momentum().E()/GeV );}  
 
     } 
@@ -166,7 +165,7 @@ namespace Rivet
                 
                 //  E-flow 						
                 foreach (const Particle& p, fsv.particles()){	
-                  _hist_CMS_FWD_10_011_dijet_09->
+                  _hist_dijet_09->
                     fill(fabs(p.momentum().pseudorapidity()), weight*p.momentum().E()/GeV);
                 
                 }//foreach particle        
@@ -196,7 +195,7 @@ namespace Rivet
                 
                 //E-flow																								
                 foreach (const Particle& p, fsv.particles()){								
-                  _hist_CMS_FWD_10_011_dijet_7->
+                  _hist_dijet_7->
                     fill(fabs(p.momentum().pseudorapidity()), weight*p.momentum().E()/GeV);
     
                 }//foreach particle
@@ -212,17 +211,17 @@ namespace Rivet
     
   void finalize() {      
       
-    const double norm_dijet =evcounter_dijet*2.0 ; //AK norm factor 2 for the +/- region
-    const double norm_mb =evcounter_mb*2.0 ;
+    const double norm_dijet = evcounter_dijet*2.0 ; //AK norm factor 2 for the +/- region
+    const double norm_mb = evcounter_mb*2.0 ;
     
     if(fuzzyEquals(sqrtS()/GeV, 900, 1E-3)){
-        scale(_hist_CMS_FWD_10_011_mb_09, 1.0/norm_mb);
-        scale(_hist_CMS_FWD_10_011_dijet_09, 1.0/norm_dijet);
+        scale(_hist_mb_09, 1.0/norm_mb);
+        scale(_hist_dijet_09, 1.0/norm_dijet);
     }
 
     if(fuzzyEquals(sqrtS()/GeV, 7000, 1E-3)){
-      scale(_hist_CMS_FWD_10_011_dijet_7, 1.0/norm_dijet);
-      scale(_hist_CMS_FWD_10_011_mb_7, 1.0/norm_mb);
+      scale(_hist_dijet_7, 1.0/norm_dijet);
+      scale(_hist_mb_7, 1.0/norm_mb);
     }	       
     
     getLog() << Log::INFO << " " << endl;
@@ -234,10 +233,10 @@ namespace Rivet
     
   private:
     
-    AIDA::IHistogram1D *_hist_CMS_FWD_10_011_mb_09;
-    AIDA::IHistogram1D *_hist_CMS_FWD_10_011_dijet_09;
-    AIDA::IHistogram1D *_hist_CMS_FWD_10_011_mb_7;
-    AIDA::IHistogram1D *_hist_CMS_FWD_10_011_dijet_7;
+    AIDA::IHistogram1D *_hist_mb_09;
+    AIDA::IHistogram1D *_hist_dijet_09;
+    AIDA::IHistogram1D *_hist_mb_7;
+    AIDA::IHistogram1D *_hist_dijet_7;
     
     
   };
@@ -245,7 +244,7 @@ namespace Rivet
   
   
   // This global object acts as a hook for the plugin system
-  AnalysisBuilder<CMS_FWD_10_011> plugin_CMS_FWD_10_011;
+  AnalysisBuilder<CMS_2011_I930319> plugin_CMS_2011_I930319;
   
   
 
