@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Apr  3 16:43:29 EDT 2006
-// $Id: CloningPtr.h,v 1.4 2007/12/21 22:42:30 wmtan Exp $
+// $Id: CloningPtr.h,v 1.5 2010/07/24 14:14:45 wmtan Exp $
 //
 
 // system include files
@@ -36,7 +36,7 @@ public:
     CloningPtr(std::auto_ptr<T> iPtr) : ptr_(iPtr.release()) {}
     CloningPtr(const CloningPtr<T,P>& iPtr) : ptr_(P::clone(*(iPtr.ptr_))) {}
     
-    const CloningPtr<T,P>& operator=(const CloningPtr<T,P>& iRHS) {
+    CloningPtr<T,P>& operator=(const CloningPtr<T,P>& iRHS) {
       CloningPtr<T,P> temp(iRHS);
       swap(temp);
       return *this;

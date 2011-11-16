@@ -81,7 +81,7 @@ namespace edm {
     RefToBase(boost::shared_ptr<reftobase::RefHolderBase> p);
     ~RefToBase();
 
-    RefToBase const& operator= (RefToBase const& rhs);
+    RefToBase& operator= (RefToBase const& rhs);
 
     value_type const& operator*() const;
     value_type const* operator->() const;
@@ -182,7 +182,7 @@ namespace edm {
 
   template <class T>
   inline
-  RefToBase<T> const&
+  RefToBase<T>&
   RefToBase<T>:: operator= (RefToBase<T> const& iRHS)
   {
     RefToBase<T> temp( iRHS);
