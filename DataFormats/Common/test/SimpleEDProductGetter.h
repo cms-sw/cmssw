@@ -34,7 +34,7 @@ public:
       e << "No product with ProductID "
         << id
         << " is available from this EDProductGetter\n";
-      e.raise();
+      throw e;
     }
     return edm::WrapperHolder(i->second.wrapper(), i->second.interface());
   }
