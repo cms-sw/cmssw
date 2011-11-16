@@ -27,10 +27,10 @@ namespace edm  {
     unsigned short Data3;
     unsigned char  Data4[8];
 
-    /// Standard constructor (No initialization of data for performance reasons)
-    Guid()             {                                 }
-    /// Standard constructor (With possible initialization)
-    explicit Guid(bool assign)  { if (assign) create(*this);    }
+    /// Standard constructor (With initializaton)
+    Guid() { init(); }
+    /// Standard constructor (With initialization)
+    explicit Guid(bool)  { init(); }
     /// Constructor for Guid from char*
     explicit Guid(char const* s)        { fromString(s);          }
     /// Constructor for Guid from string
@@ -72,10 +72,9 @@ namespace edm  {
     std::string const toString() const;
     /// Automatic conversion to string representation
     Guid const& fromString(std::string const& s);
-    /// NULL-Guid: static class method
-    static Guid const& null();
-    /// Create a new Guid
-    static void create(Guid& guid);
+    /// initialize a new Guid
+    private:
+    void init();
   };
 }
 #endif
