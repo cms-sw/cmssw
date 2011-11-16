@@ -152,10 +152,13 @@ namespace edm {
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   inline AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>&
   AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::operator=(self const& o) {
+    if(this == &o) {
+      return *this;
+    }
     data_ = o.data_;
     ref_ = o.ref_;
     fixed_ = false;
-    return * this;
+    return *this;
   }
 
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>

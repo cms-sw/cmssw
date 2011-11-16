@@ -59,6 +59,9 @@ namespace edm {
         const_iterator(const_iterator const& it) : i(it.isValid() ? it.i->clone() : 0) { }
         ~const_iterator() { delete i; }
         const_iterator& operator=(const_iterator const& it) {
+          if(this == &it) {
+            return *this;
+          }
           if (isInvalid()) i = it.i;
           else i->assign(it.i);
           return *this;
