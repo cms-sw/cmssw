@@ -602,10 +602,12 @@ void SimpleProfiler::doWrite() {
   curr_ = &frame_data_[0];
 }
 
-void SimpleProfiler::start() {
 #if defined(__x86_64__) || defined(__LP64__) || defined(_LP64)
+void SimpleProfiler::start() {
   throw std::logic_error("SimpleProfiler not available on 64 bit platform");
-#endif
+}
+#else
+void SimpleProfiler::start() {
   {
     boost::mutex::scoped_lock sl(lock_);
 
@@ -625,6 +627,7 @@ void SimpleProfiler::start() {
   setupTimer();
   running_ = true;
 }
+#endif
 
 void SimpleProfiler::stop() {
   if(!installed_) {
