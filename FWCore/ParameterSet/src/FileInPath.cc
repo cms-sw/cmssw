@@ -104,14 +104,14 @@ namespace edm
     initialize_();
   }
 
-  FileInPath::FileInPath(const char* r) :
-    relativePath_(r ?
-		  r :
-		  ((throw edm::Exception(edm::errors::FileInPathError)
-		    << "Relative path must not be null\n"), r)),
+  FileInPath::FileInPath(char const* r) :
+    relativePath_(r ? r : ""),
     canonicalFilename_(),
     location_(Unknown)
   {
+    if(r == 0) {
+     throw edm::Exception(edm::errors::FileInPathError) << "Relative path must not be null\n";
+    }
     getEnvironment();
     initialize_();    
   }
