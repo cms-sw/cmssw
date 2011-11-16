@@ -32,9 +32,6 @@ class ValueT : public BASE {
   // concept VALUE.
   explicit ValueT(double d) : d_(d) {}
 
-  // The compiler-generated copy c'tor seems to do the wrong thing!
-  ValueT(ValueT const& other) : d_(other.d_) {}
-
   // This access function is used for testing; it is not required by
   // the concept VALUE.
   double val() const {return d_;}
@@ -380,7 +377,7 @@ void work() {
     coll_type::reference r = c.find_or_insert(edm::det_id_type(17));
     coll_type::size_type newsize = c.size();
     assert(newsize > oldsize);
-    assert(newsize = (oldsize+1));
+    assert(newsize == (oldsize+1));
     assert(r.id == edm::det_id_type(17));
     assert(r.data.size() == 0);
     r.data.push_back(Value(10.1));

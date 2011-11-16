@@ -1,4 +1,4 @@
-// $Id: DetSetLazyVector_t.cppunit.cc,v 1.3 2007/01/19 04:29:07 wmtan Exp $
+// $Id: DetSetLazyVector_t.cppunit.cc,v 1.4 2007/01/23 00:25:53 wmtan Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Common/interface/DetSetLazyVector.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -27,9 +27,6 @@ public:
     // This constructor is used for testing; it is not required by the
     // concept VALUE.
     explicit Value(double d) : d_(d) { }
-
-    // The compiler-generated copy c'tor seems to do the wrong thing!
-    Value(Value const& other) : d_(other.d_) { }
 
     // This access function is used for testing; it is not required by
     // the concept VALUE.
