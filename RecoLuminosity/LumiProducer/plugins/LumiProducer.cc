@@ -18,7 +18,7 @@ from the configuration file, the DB is not implemented yet)
 //                   David Dagenhart
 //       
 //         Created:  Tue Jun 12 00:47:28 CEST 2007
-// $Id: LumiProducer.cc,v 1.21 2011/02/22 16:23:57 matevz Exp $
+// $Id: LumiProducer.cc,v 1.22 2011/05/05 14:58:59 vlimant Exp $
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -293,10 +293,6 @@ void LumiProducer::beginRun(edm::Run& run,edm::EventSetup const &iSetup)
 
 void LumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::EventSetup const &iSetup)
 {
-}
-
-void LumiProducer::endLuminosityBlock(edm::LuminosityBlock & iLBlock, edm::EventSetup const& iSetup)
-{
   unsigned int runnumber=iLBlock.run();
   unsigned int luminum=iLBlock.luminosityBlock();
   //if is null run, fill empty values and return
@@ -317,6 +313,10 @@ void LumiProducer::endLuminosityBlock(edm::LuminosityBlock & iLBlock, edm::Event
   }
   //here the presence of ls is guaranteed
   writeProductsForEntry(iLBlock,runnumber,luminum); 
+}
+
+void LumiProducer::endLuminosityBlock(edm::LuminosityBlock & iLBlock, edm::EventSetup const& iSetup)
+{
 }
 
 void LumiProducer::endRun(edm::Run& run,edm::EventSetup const &iSetup)
