@@ -30,12 +30,14 @@ DQMOfflineCosmicsDPG = cms.Sequence( DQMOfflineCosmicsPreDPG *
 from DQMOffline.Muon.muonCosmicMonitors_cff import *
 from DQMOffline.JetMET.jetMETDQMOfflineSourceCosmic_cff import *
 from DQMOffline.EGamma.cosmicPhotonAnalyzer_cff import *
+from DQMOffline.L1Trigger.L1TriggerDqmOffline_cff import *
 from DQMOffline.Trigger.DQMOffline_Trigger_cosmics_cff import *
 from DQM.Physics.DQMPhysics_cff import *
 
 DQMOfflineCosmicsPrePOG = cms.Sequence( muonCosmicMonitors *
                                         jetMETDQMOfflineSourceCosmic *
                                         egammaCosmicPhotonMonitors *
+                                        l1TriggerDqmOffline * 
                                         triggerCosmicOfflineDQMSource *
                                         dqmPhysics )
 

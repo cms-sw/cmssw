@@ -31,6 +31,7 @@ DQMOfflineDPG = cms.Sequence( DQMOfflinePreDPG *
 from DQMOffline.Muon.muonMonitors_cff import *
 from DQMOffline.JetMET.jetMETDQMOfflineSource_cff import *
 from DQMOffline.EGamma.egammaDQMOffline_cff import *
+from DQMOffline.L1Trigger.L1TriggerDqmOffline_cff import *
 from DQMOffline.Trigger.DQMOffline_Trigger_cff import *
 from DQMOffline.RecoB.PrimaryVertexMonitor_cff import *
 from DQMOffline.RecoB.dqmAnalyzer_cff import *
@@ -39,6 +40,7 @@ from DQM.Physics.DQMPhysics_cff import *
 DQMOfflinePrePOG = cms.Sequence( muonMonitors *
                                  jetMETDQMOfflineSource *
                                  egammaDQMOffline *
+                                 l1TriggerDqmOffline *
                                  triggerOfflineDQMSource *
                                  pvMonitor *
                                  bTagPlots *
