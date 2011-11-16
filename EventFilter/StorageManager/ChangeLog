@@ -1,3 +1,5 @@
+	* Convert CurlInterface into a singleton and setup handlers for SSL locks.
+
 2011-11-14 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V08-05-03
@@ -21,6 +23,11 @@
 	* tag V08-05-00
 	* Move FragKey struct from otherwise unused IOPool/Streamer/HLTInfo into
 	  the EventFilter/StorageManager package.
+
+2011-11-16 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-04-04
+	* Convert CurlInterface into a singleton and setup handlers for SSL locks.
 
 2011-11-08 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
