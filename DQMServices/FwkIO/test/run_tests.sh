@@ -126,12 +126,30 @@ pushd ${LOCAL_TMP_DIR}
   echo ${testConfig} ------------------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/${testConfig} || die "cmsRun ${testConfig}" $?
   cp dqm_one_run_one_lumi_run_only.root dqm_one_run_one_lumi_run_only_2.root
-
+ 
   testConfig=merge_one_run_one_lumi_run_only_cfg.py
   rm -f dqm_merged_one_run_one_lumi_run_only.root
   echo ${testConfig} ------------------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/${testConfig} || die "cmsRun ${testConfig}" $?
 
+  testConfig=merge_file1_file3_file2_filterOnRun1_cfg.py
+  rm -f dqm_merged_file1_file3_file2_filterOnRun1.root
+  echo ${testConfig} ------------------------------------------------------------
+  cmsRun -p ${LOCAL_TEST_DIR}/${testConfig} || die "cmsRun ${testConfig}" $?
+
+  checkFile=check_merged_file1_file3_file2_filterOnRun1_cfg.py
+  echo ${checkFile} ------------------------------------------------------------
+  python ${LOCAL_TEST_DIR}/${checkFile} || die "python ${checkFile}" $?
+
+  testConfig=read_write_merged_file1_file3_file2_filterOnRun1_cfg.py
+  rm -f dqm_merged_file1_file3_file2_filterOnRun1_copy.root
+  echo ${testConfig} ------------------------------------------------------------
+  cmsRun -p ${LOCAL_TEST_DIR}/${testConfig} || die "cmsRun ${testConfig}" $?
+
+  checkFile=check_merged_file1_file3_file2_filterOnRun1_copy_cfg.py
+  fileToCheck=dqm_merged_file1_file3_file2_filterOnRun1_copy.root
+  echo ${checkFile}  ${fileToCheck} ------------------------------------------------------------
+  python ${LOCAL_TEST_DIR}/${checkFile} ${fileToCheck} || die "python ${checkFile} ${fileToCheck}" $?
 
 popd
 

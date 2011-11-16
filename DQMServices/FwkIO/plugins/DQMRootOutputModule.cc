@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Apr 29 13:26:29 CDT 2011
-// $Id: DQMRootOutputModule.cc,v 1.10 2011/06/22 16:08:13 chrjones Exp $
+// $Id: DQMRootOutputModule.cc,v 1.11 2011/07/11 07:43:46 chrjones Exp $
 //
 
 // system include files
@@ -197,6 +197,7 @@ private:
   ULong64_t m_endTime;
   ULong64_t m_firstIndex;
   ULong64_t m_lastIndex;
+  unsigned int m_filterOnRun;
   
   std::string m_fullNameBuffer;
   std::string* m_fullNameBufferPtr;
@@ -259,6 +260,7 @@ m_logicalFileName(pset.getUntrackedParameter<std::string>("logicalFileName",""))
 m_file(0),
 m_treeHelpers(kNIndicies,boost::shared_ptr<TreeHelperBase>()),
 m_presentHistoryIndex(0),
+m_filterOnRun(pset.getUntrackedParameter<unsigned int>("filterOnRun",0)),
 m_fullNameBufferPtr(&m_fullNameBuffer),
 m_indicesTree(0)
 {
@@ -347,12 +349,17 @@ DQMRootOutputModule::write(edm::EventPrincipal const& ){
 }
 void 
 DQMRootOutputModule::writeLuminosityBlock(edm::LuminosityBlockPrincipal const& iLumi) {
+  //std::cout << "DQMRootOutputModule::writeLuminosityBlock"<< std::endl;
   edm::Service<DQMStore> dstore;
   m_run=iLumi.id().run();
   m_lumi = iLumi.id().value();
   m_beginTime = iLumi.beginTime().value();
   m_endTime = iLumi.endTime().value();
-  
+  bool shouldWrite = (m_filterOnRun == 0 ||
+		      (m_filterOnRun != 0 && m_filterOnRun == m_run));
+
+  if (! shouldWrite)
+    return;
   std::vector<MonitorElement *> items(dstore->getAllContents(""));
   for(std::vector<MonitorElement*>::iterator it = items.begin(), itEnd=items.end();
       it!=itEnd;
@@ -389,13 +396,20 @@ DQMRootOutputModule::writeLuminosityBlock(edm::LuminosityBlockPrincipal const& i
   jr->reportLumiSection(m_run,m_lumi);
 }
 
+
 void DQMRootOutputModule::writeRun(edm::RunPrincipal const& iRun){
+  //std::cout << "DQMRootOutputModule::writeRun"<< std::endl;
   edm::Service<DQMStore> dstore;
   m_run=iRun.id().run();
   m_lumi = 0;
   m_beginTime = iRun.beginTime().value();
   m_endTime = iRun.endTime().value();
-  
+  bool shouldWrite = (m_filterOnRun == 0 ||
+		      (m_filterOnRun != 0 && m_filterOnRun == m_run));
+
+  if (! shouldWrite)
+    return;
+
   std::vector<MonitorElement *> items(dstore->getAllContents(""));
   for(std::vector<MonitorElement*>::iterator it = items.begin(), itEnd=items.end();
       it!=itEnd;
@@ -420,10 +434,11 @@ void DQMRootOutputModule::writeRun(edm::RunPrincipal const& iRun){
   }
   
   edm::Service<edm::JobReport> jr;
-  jr->reportRunNumber(m_run);
+  jr->reportRunNumber(m_run);  
 }
 
 void DQMRootOutputModule::beginRun(edm::RunPrincipal const& iPrincipal) {
+  //std::cout << "DQMRootOutputModule::beginRun"<< std::endl;
   //The ProcessHistory for a lumi must be the same as its Run so we only need to 
   // record it at Run time
   edm::ProcessHistoryID id = iPrincipal.processHistoryID();
@@ -437,6 +452,7 @@ void DQMRootOutputModule::beginRun(edm::RunPrincipal const& iPrincipal) {
 }
 
 void DQMRootOutputModule::startEndFile() {
+  //std::cout << "DQMRootOutputModule::startEndFile"<< std::endl;
   //fill in the meta data
   m_file->cd();
   TDirectory* metaDataDirectory = m_file->mkdir(kMetaDataDirectory);
@@ -495,6 +511,7 @@ void DQMRootOutputModule::startEndFile() {
 }
 
 void DQMRootOutputModule::finishEndFile() {
+  //std::cout << "DQMRootOutputModule::finishEndFile"<< std::endl;
   m_file->Write();
   m_file->Close();
   edm::Service<edm::JobReport> jr;
