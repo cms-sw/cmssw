@@ -176,7 +176,6 @@ CSCValidation::~CSCValidation(){
 //  Analysis  //
 ////////////////
 void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
-  
   // increment counter
   nEventsAnalyzed++;
 
@@ -206,6 +205,12 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
   // Get the RecHits collection :
   Handle<CSCRecHit2DCollection> recHits;
   event.getByLabel(cscRecHitTag,recHits);
+
+  //CSCRecHit2DCollection::const_iterator recIt;
+  //for (recIt = recHits->begin(); recIt != recHits->end(); recIt++) {
+  //  recIt->print();
+  // }
+
 
   // Get the SimHits (if applicable)
   Handle<PSimHitContainer> simHits;
@@ -237,28 +242,35 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
   // this is probably outdated and needs to be looked at
   if (nEventsAnalyzed == 1 && makeCalibPlots) doCalibrations(eventSetup);
 
+
   // Look at the l1a trigger info (returns true if csc L1A present)
   bool CSCL1A = false;
   if (makeTriggerPlots || useTriggerFilter) CSCL1A = doTrigger(pCollection);
   if (!useTriggerFilter) CSCL1A = true;  // always true if not filtering on trigger
 
+
   cleanEvent = false;
   if (makeStandalonePlots || useQualityFilter) cleanEvent = filterEvents(recHits,cscSegments,saMuons);
   if (!useQualityFilter) cleanEvent = true; // always true if not filtering on event quality
+
   
   // look at various chamber occupancies
   // keep this outside of filter for diagnostics???
   if (makeOccupancyPlots && CSCL1A) doOccupancies(strips,wires,recHits,cscSegments);
 
+
   bool HLT = false;
   if (makeHLTPlots) HLT = doHLT(hlt);
 
+
   if (cleanEvent && CSCL1A){
+
     // general look at strip digis
     if (makeStripPlots && useDigis) doStripDigis(strips);
 
     // general look at wire digis
     if (makeWirePlots && useDigis) doWireDigis(wires);
+
 
     // general look at rechits
     if (makeRecHitPlots) doRecHits(recHits,cscGeom);
@@ -272,6 +284,7 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
     // look at hit resolution
     if (makeResolutionPlots) doResolution(cscSegments,cscGeom);
 
+
     // look at Pedestal Noise
     if (makePedNoisePlots && useDigis) doPedestalNoise(strips);
   
@@ -281,6 +294,7 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
     // gas gain
     if (makeGasGainPlots && useDigis) doGasGain(*wires,*strips,*recHits);
 
+
     // AFEB timing
     if (makeAFEBTimingPlots && useDigis) doAFEBTiming(*wires);
 
@@ -289,6 +303,8 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
 
     // strip ADC timing
     if (makeADCTimingPlots) doADCTiming(*recHits);
+
+
 
     // recHit Noise
     if (makeRHNoisePlots && useDigis) doNoiseHits(recHits,cscSegments,cscGeom,strips);
@@ -848,18 +864,16 @@ void CSCValidation::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::E
     float sterr = (*dRHIter).errorWithinStrip();
 
     // Find the charge associated with this hit
-    CSCRecHit2D::ADCContainer adcs = (*dRHIter).adcs();
-    int adcsize = adcs.size();
     float rHSumQ = 0;
-    float sumsides = 0;
-    for (int i = 0; i < adcsize; i++){
-      if (i != 3 && i != 7 && i != 11){
-        rHSumQ = rHSumQ + adcs[i]; 
-      }
-      if (adcsize == 12 && (i < 3 || i > 7) && i < 11){
-        sumsides = sumsides + adcs[i];
+    float sumsides=0.;
+    int adcsize=dRHIter->nStrips()*dRHIter->nTimeBins();
+    for ( unsigned int i=0; i< dRHIter->nStrips(); i++) {
+      for ( unsigned int j=0; j< dRHIter->nTimeBins()-1; j++) {
+	rHSumQ+=dRHIter->adcs(i,j); 
+	if (i!=1) sumsides+=dRHIter->adcs(i,j);
       }
     }
+
     float rHratioQ = sumsides/rHSumQ;
     if (adcsize != 12) rHratioQ = -99;
 
@@ -1084,10 +1098,8 @@ void CSCValidation::doResolution(edm::Handle<CSCSegmentCollection> cscSegments, 
       int kLayer   = idRH.layer();
 
       // Find the strip containing this hit
-      CSCRecHit2D::ChannelContainer hitstrips = (*iRH).channels();
-      int nStrips     =  hitstrips.size();
-      int centerid    =  nStrips/2 + 1;
-      int centerStrip =  hitstrips[centerid - 1];
+      int centerid     =  iRH->nStrips()/2;
+      int centerStrip =  iRH->channels(centerid);
 
       // If this segment has 6 hits, find the position of each hit on the strip in units of stripwidth and store values
       if (nRH == 6){
@@ -1823,11 +1835,8 @@ void CSCValidation::doNoiseHits(edm::Handle<CSCRecHit2DCollection> recHits, edm:
     AllRechits.insert(std::pair<CSCDetId , CSCRecHit2D>(idrec,*recIt));
 
     // Find the strip containing this hit
-    CSCRecHit2D::ChannelContainer hitstrips = (*recIt).channels();
-    int nStrips     =  hitstrips.size();
-    //std::cout << " no of strips in Rec Hit " << nStrips << std::endl;
-    int centerid    =  nStrips/2 + 1;
-    int centerStrip =  hitstrips[centerid - 1];
+    int centerid     =  recIt->nStrips()/2;
+    int centerStrip =  recIt->channels(centerid);
 
     float  rHsignal = getthisSignal(*strips, idrec, centerStrip);
     histos->fill1DHist(rHsignal,"hrHSignal", "Signal in the 4th time bin for centre strip",1100,-99,1000,"recHits");
@@ -1940,26 +1949,20 @@ void CSCValidation::findNonAssociatedRecHits(edm::ESHandle<CSCGeometry> cscGeom,
     float yreco = rhitlocal.y();
 
     // Find the strip containing this hit
-    CSCRecHit2D::ChannelContainer hitstrips = (iter->second).channels();
-    int nStrips     =  hitstrips.size();
-    int centerid    =  nStrips/2 + 1;
-    int centerStrip =  hitstrips[centerid - 1];
-
+    int centerid    =  (iter->second).nStrips()/2;
+    int centerStrip =  (iter->second).channels(centerid);
 
     // Find the charge associated with this hit
-
-    CSCRecHit2D::ADCContainer adcs = (iter->second).adcs();
-    int adcsize = adcs.size();
     float rHSumQ = 0;
-    float sumsides = 0;
-    for (int i = 0; i < adcsize; i++){
-      if (i != 3 && i != 7 && i != 11){
-        rHSumQ = rHSumQ + adcs[i]; 
-      }
-      if (adcsize == 12 && (i < 3 || i > 7) && i < 12){
-        sumsides = sumsides + adcs[i];
+    float sumsides=0.;
+    int adcsize=(iter->second).nStrips()*(iter->second).nTimeBins();
+    for ( unsigned int i=0; i< (iter->second).nStrips(); i++) {
+      for ( unsigned int j=0; j< (iter->second).nTimeBins()-1; j++) {
+	rHSumQ+=(iter->second).adcs(i,j);
+	if (i!=1) sumsides+=(iter->second).adcs(i,j);
       }
     }
+
     float rHratioQ = sumsides/rHSumQ;
     if (adcsize != 12) rHratioQ = -99;
 
@@ -2018,26 +2021,21 @@ void CSCValidation::findNonAssociatedRecHits(edm::ESHandle<CSCGeometry> cscGeom,
 	   float yreco = rhitlocal.y();
 
 	   // Find the strip containing this hit
-	   CSCRecHit2D::ChannelContainer hitstrips = (iter->second).channels();
-	   int nStrips     =  hitstrips.size();
-	   int centerid    =  nStrips/2 + 1;
-	   int centerStrip =  hitstrips[centerid - 1];
-
+	   int centerid    =  (iter->second).nStrips()/2;
+	   int centerStrip =  (iter->second).channels(centerid);
 
 	   // Find the charge associated with this hit
-	   
-	   CSCRecHit2D::ADCContainer adcs = (iter->second).adcs();
-	   int adcsize = adcs.size();
+
 	   float rHSumQ = 0;
-	   float sumsides = 0;
-	   for (int i = 0; i < adcsize; i++){
-		   if (i != 3 && i != 7 && i != 11){
-			   rHSumQ = rHSumQ + adcs[i]; 
-		   }
-		   if (adcsize == 12 && (i < 3 || i > 7) && i < 12){
-			   sumsides = sumsides + adcs[i];
-		   }
+	   float sumsides=0.;
+	   int adcsize=(iter->second).nStrips()*(iter->second).nTimeBins();
+	   for ( unsigned int i=0; i< (iter->second).nStrips(); i++) {
+	     for ( unsigned int j=0; j< (iter->second).nTimeBins()-1; j++) {
+	       rHSumQ+=(iter->second).adcs(i,j);
+    	       if (i!=1) sumsides+=(iter->second).adcs(i,j);
+	     }
 	   }
+	   
 	   float rHratioQ = sumsides/rHSumQ;
 	   if (adcsize != 12) rHratioQ = -99;
 	   
@@ -2359,7 +2357,7 @@ void CSCValidation::doGasGain(const CSCWireDigiCollection& wirecltn,
        // Looping thru rechit collection
        CSCRecHit2DCollection::const_iterator recIt;
        CSCRecHit2D::ADCContainer m_adc;
-       CSCRecHit2D::ChannelContainer m_strip;
+
        for(recIt = rechitcltn.begin(); recIt != rechitcltn.end(); ++recIt) {
           CSCDetId id = (CSCDetId)(*recIt).cscDetId();
           idlayer=indexer.dbIndex(id, channel);
@@ -2368,36 +2366,30 @@ void CSCValidation::doGasGain(const CSCWireDigiCollection& wirecltn,
           // select layer with single wire rechit
           if(m_single_wire_layer.find(idlayer) != m_single_wire_layer.end()) {
 
-            // getting strips comprising rechit
-            m_strip=(CSCRecHit2D::ChannelContainer)(*recIt).channels(); 
-            if(m_strip.size()==3)  {        
+            if(recIt->nStrips()==3)  {        
               // get 3X3 ADC Sum
-              m_adc=(CSCRecHit2D::ADCContainer)(*recIt).adcs();
-              std::vector<float> adc_left,adc_center,adc_right;
-              int binmx=0;
+              unsigned int binmx=0;
               float adcmax=0.0;
-              unsigned k=0;
  
-              for(int i=0;i<3;i++) 
-                 for(int j=0;j<4;j++){
-                    if(m_adc[k]>adcmax) {adcmax=m_adc[k]; binmx=j;}
-                    if(i==0) adc_left.push_back(m_adc[k]);
-                    if(i==1) adc_center.push_back(m_adc[k]);
-                    if(i==2) adc_right.push_back(m_adc[k]);
-                    k=k+1;
-                 }
-                float adc_3_3_sum=0.0;
-                for(int j=binmx-1;j<=binmx+1;j++) {
-                   adc_3_3_sum=adc_3_3_sum+adc_left[j]
-                                          +adc_center[j]
-                                          +adc_right[j];
-                }
+              for(unsigned int i=0;i<recIt->nStrips();i++) 
+		for(unsigned int j=0;j<recIt->nTimeBins();j++)
+		  if(recIt->adcs(i,j)>adcmax) {
+		    adcmax=recIt->adcs(i,j); 
+		    binmx=j;
+		  }
+
+	      float adc_3_3_sum=0.0;
+	      //well, this really only works for 3 strips in readout - not sure the right fix for general case
+              for(unsigned int i=0;i<recIt->nStrips();i++) 
+		for(unsigned int j=binmx-1;j<=binmx+1;j++) 
+		  adc_3_3_sum+=recIt->adcs(i,j);
+		
 
                if(adc_3_3_sum > 0.0 &&  adc_3_3_sum < 2000.0) {
 
                  // temporary fix for ME1/1a to avoid triple entries
                  int flag=0;
-                 if(id.station()==1 && id.ring()==4 &&  m_strip[1]>16)  flag=1;
+                 if(id.station()==1 && id.ring()==4 &&  recIt->channels(1)>16)  flag=1;
                  // end of temporary fix
                  if(flag==0) {
 
@@ -2568,7 +2560,7 @@ void CSCValidation::doCompTiming(const CSCComparatorDigiCollection& compars) {
 //---------------------------------------------------------------------------
 
 void CSCValidation::doADCTiming(const CSCRecHit2DCollection& rechitcltn) {
-     float  adc_3_3_sum,adc_3_3_wtbin,x,y;
+  float  adc_3_3_sum,adc_3_3_wtbin,x,y;
      int cfeb,idchamber,ring;
 
      std::string name,title,endcapstr;
@@ -2585,39 +2577,34 @@ void CSCValidation::doADCTiming(const CSCRecHit2DCollection& rechitcltn) {
        // Looping thru rechit collection
        CSCRecHit2DCollection::const_iterator recIt;
        CSCRecHit2D::ADCContainer m_adc;
-       CSCRecHit2D::ChannelContainer m_strip;
        for(recIt = rechitcltn.begin(); recIt != rechitcltn.end(); ++recIt) {
           CSCDetId id = (CSCDetId)(*recIt).cscDetId();
           // getting strips comprising rechit
-          m_strip=(CSCRecHit2D::ChannelContainer)(*recIt).channels();
-          if(m_strip.size()==3) {
+          if(recIt->nStrips()==3) {
             // get 3X3 ADC Sum
-            m_adc=(CSCRecHit2D::ADCContainer)(*recIt).adcs();
-            std::vector<float> adc_left,adc_center,adc_right;
-            int binmx=0;
-            float adcmax=0.0;
-            unsigned k=0;
-              
-            for(int i=0;i<3;i++)
-               for(int j=0;j<4;j++){
-                  if(m_adc[k]>adcmax) {adcmax=m_adc[k]; binmx=j;}
-                  if(i==0) adc_left.push_back(m_adc[k]);
-                  if(i==1) adc_center.push_back(m_adc[k]);
-                  if(i==2) adc_right.push_back(m_adc[k]);
-                  k=k+1;
-               }
+              // get 3X3 ADC Sum
+              unsigned int binmx=0;
+              float adcmax=0.0;
+ 
+              for(unsigned int i=0;i<recIt->nStrips();i++) 
+		for(unsigned int j=0;j<recIt->nTimeBins();j++)
+		  if(recIt->adcs(i,j)>adcmax) {
+		    adcmax=recIt->adcs(i,j); 
+		    binmx=j;
+		  }
 
-               adc_3_3_sum=0.0;
-               for(int j=binmx-1;j<=binmx+1;j++) { 
-                  adc_3_3_sum=adc_3_3_sum+adc_left[j]
-                                          +adc_center[j]
-                                          +adc_right[j];
-               }
+	      adc_3_3_sum=0.0;
+	      //well, this really only works for 3 strips in readout - not sure the right fix for general case
+              for(unsigned int i=0;i<recIt->nStrips();i++) 
+		for(unsigned int j=binmx-1;j<=binmx+1;j++) 
+		  adc_3_3_sum+=recIt->adcs(i,j);
+
 
                 // ADC weighted time bin
                 if(adc_3_3_sum > 100.0) {
                   
-                  int centerStrip=m_strip[1]; //take central from 3 strips;
+
+		  int centerStrip=recIt->channels(1); //take central from 3 strips;
                 // temporary fix
                   int flag=0;
                   if(id.station()==1 && id.ring()==4 &&  centerStrip>16) flag=1;

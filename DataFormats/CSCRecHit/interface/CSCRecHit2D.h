@@ -24,6 +24,10 @@ public:
   
   enum SharedInputType {all = TrackingRecHit::all, some = TrackingRecHit::some, allWires, someWires, allStrips, someStrips};
 
+  static const unsigned int MAXSTRIPS=3;
+  static const unsigned int MAXWIRES=10;
+  static const unsigned int MAXTIMEBINS=4;
+  static const unsigned int N_ADC=MAXSTRIPS*MAXTIMEBINS;
   CSCRecHit2D();
 
   CSCRecHit2D( const CSCDetId& id, 
@@ -41,34 +45,37 @@ public:
 	
   ~CSCRecHit2D();
 
+
   /// RecHit2DLocalPos base class interface
   CSCRecHit2D* clone() const { return new CSCRecHit2D( *this ); }
   LocalPoint localPosition() const { return theLocalPosition; }
   LocalError localPositionError() const { return theLocalError; }
   CSCDetId cscDetId() const { return geographicalId(); }
 
-  /// Extracting strip channel numbers comprising the rechit
-   const ChannelContainer& channels() const { return theStripsLowBits; } /// L1A
-  /// const ChannelContainer& channels() const { return theStrips; }
-  
-  /// Extract the L1A phase bits from the StripChannelContainer
-   const ChannelContainer& channelsl1a() const { return theStripsHighBits; } /// L1A
-  
   /// Container of the L1A+Channels comprising the rechit
-   const ChannelContainer& channelsTotal() const { return theStrips; } /// L1A
+  int channelsTotal(unsigned int i) const { return theStrips_[i]; } /// L1A
 
-  /// Map of strip ADCs for strips comprising the rechit
-  const ADCContainer& adcs() const { return theADCs; }
+  /// Extracting strip channel numbers comprising the rechit - low
+  int channels(unsigned int i) const { return theStrips_[i] & 0x000000FF; } /// L1A
+  unsigned int nStrips() const {return nStrips_;}
 
-  /// Container of wire groups comprising the rechit
-  //const ChannelContainer& wgroups() const { return theWireGroups; }
-  const ChannelContainer& wgroups() const { return theWgroupsLowBits; }
-
-  /// The BX number
-  ChannelContainer wgroupsBX() const { return theWgroupsHighBits; }
+  /// Extract the L1A phase bits from the StripChannelContainer - high
+  int channelsl1a(unsigned int i) const { return theStrips_[i] & 0x0000FF00; } /// L1A
 
   /// The BX + wire group number
-  ChannelContainer wgroupsBXandWire() const { return theWireGroups; }
+  int wgroupsBXandWire(unsigned int i) const { return theWireGroups_[i]; }
+
+  /// The BX number
+  int wgroupsBX(unsigned int i) const { return (theWireGroups_[i] >> 16) & 0x0000FFFF; }
+
+  /// Container of wire groups comprising the rechit
+  int wgroups(unsigned int i) const { return theWireGroups_[i] & 0x0000FFFF;  }
+  unsigned int nWireGroups() const {return nWireGroups_;}
+
+  /// Map of strip ADCs for strips comprising the rechit
+  float adcs(unsigned int strip, unsigned int timebin) const { return theADCs_[strip*MAXTIMEBINS+timebin]; }
+
+  unsigned int nTimeBins() const {return nTimeBins_;}
 
   /// Fitted peaking time
   float tpeak() const { return theTpeak; }
@@ -114,24 +121,23 @@ public:
 
 private:
 	
-  LocalPoint theLocalPosition;
-  LocalError theLocalError;
-  ChannelContainer theStrips;
-  ADCContainer theADCs;
-  ChannelContainer theWireGroups;
   float theTpeak;
   float thePositionWithinStrip; 
   float theErrorWithinStrip;
   int theQuality;
+  int theScaledWireTime;
   short int theBadStrip;
   short int theBadWireGroup;
-  int theScaledWireTime;
+
+  unsigned char nStrips_, nWireGroups_, nTimeBins_;
+  int theStrips_[MAXSTRIPS];
+  int theWireGroups_[MAXWIRES];
+  float theADCs_[N_ADC];
+
+  LocalPoint theLocalPosition;
+  LocalError theLocalError;
   float theEnergyDeposit;
-  ChannelContainer theStripsLowBits; /// L1A
-  ChannelContainer theStripsHighBits; /// L1A
-  ChannelContainer theWgroupsHighBits; /// BX
-  ChannelContainer theWgroupsLowBits; ///  BX
- 
+
 };
 
 /// Output operator for CSCRecHit2D

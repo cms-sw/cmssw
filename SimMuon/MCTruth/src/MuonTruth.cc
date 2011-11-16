@@ -122,7 +122,7 @@ std::vector<MuonTruth::SimHitIdpr> MuonTruth::associateCSCHitId(const CSCRecHit2
   std::vector<SimHitIdpr> simtrackids;
   
   theDetId = cscrechit->geographicalId().rawId();
-  int nchannels = cscrechit->channels().size();
+  int nchannels = cscrechit->nStrips();
   const CSCLayerGeometry * laygeom = cscgeom->layer(cscrechit->cscDetId())->geometry();
   
   DigiSimLinks::const_iterator layerLinks = theDigiSimLinks->find(theDetId);    
@@ -131,7 +131,7 @@ std::vector<MuonTruth::SimHitIdpr> MuonTruth::associateCSCHitId(const CSCRecHit2
     
     for(int idigi = 0; idigi < nchannels; ++idigi) {
       // strip and readout channel numbers may differ in ME1/1A
-      int istrip = cscrechit->channels()[idigi];
+      int istrip = cscrechit->channels(idigi);
       int channel = laygeom->channel(istrip);
       
       for (LayerLinks::const_iterator link=layerLinks->begin(); link!=layerLinks->end(); ++link) {
@@ -161,7 +161,7 @@ std::vector<MuonTruth::SimHitIdpr> MuonTruth::associateHitId(const TrackingRecHi
   if (cscrechit) {
     
     theDetId = cscrechit->geographicalId().rawId();
-    int nchannels = cscrechit->channels().size();
+    int nchannels = cscrechit->nStrips();
     const CSCLayerGeometry * laygeom = cscgeom->layer(cscrechit->cscDetId())->geometry();
 
     DigiSimLinks::const_iterator layerLinks = theDigiSimLinks->find(theDetId);    
@@ -170,7 +170,7 @@ std::vector<MuonTruth::SimHitIdpr> MuonTruth::associateHitId(const TrackingRecHi
       
       for(int idigi = 0; idigi < nchannels; ++idigi) {
 	// strip and readout channel numbers may differ in ME1/1A
-	int istrip = cscrechit->channels()[idigi];
+	int istrip = cscrechit->channels(idigi);
 	int channel = laygeom->channel(istrip);
 	
 	for (LayerLinks::const_iterator link=layerLinks->begin(); link!=layerLinks->end(); ++link) {
@@ -234,16 +234,15 @@ void MuonTruth::analyze(const CSCRecHit2D & recHit)
   theTotalCharge = 0.;
   theDetId = recHit.geographicalId().rawId();
 
-  int nchannels = recHit.channels().size();
-  CSCRecHit2D::ADCContainer adcContainer = recHit.adcs();
+  int nchannels = recHit.nStrips();
   const CSCLayerGeometry * laygeom = cscgeom->layer(recHit.cscDetId())->geometry();
 
   for(int idigi = 0; idigi < nchannels; ++idigi)
   {
     // strip and readout channel numbers may differ in ME1/1A
-    int istrip = recHit.channels()[idigi];
+    int istrip = recHit.channels(idigi);
     int channel = laygeom->channel(istrip);
-    float weight = adcContainer[idigi];
+    float weight = recHit.adcs(idigi,0);//DL: I think this is wrong before and after...seems to assume one time binadcContainer[idigi];
 
     DigiSimLinks::const_iterator layerLinks = theDigiSimLinks->find(theDetId);
 

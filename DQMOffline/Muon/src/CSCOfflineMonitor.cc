@@ -1222,18 +1222,16 @@ void CSCOfflineMonitor::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits,
     float sterr = (*dRHIter).errorWithinStrip();
 
     // Find the charge associated with this hit
-    CSCRecHit2D::ADCContainer adcs = (*dRHIter).adcs();
-    int adcsize = adcs.size();
+
+    int adcsize = dRHIter->nStrips()*dRHIter->nTimeBins();
     float rHSumQ = 0;
     float sumsides = 0;
-    for (int i = 0; i < adcsize; i++){
-      if (i != 3 && i != 7 && i != 11){
-        rHSumQ = rHSumQ + adcs[i]; 
-      }
-      if (adcsize == 12 && (i < 3 || i > 7) && i < 12){
-        sumsides = sumsides + adcs[i];
-      }
-    }
+    for (unsigned int i = 0; i < dRHIter->nStrips(); i++){
+      for (unsigned int j=0; j<dRHIter->nTimeBins()-1; j++) 
+	rHSumQ+=dRHIter->adcs(i,j);
+      sumsides+=dRHIter->adcs(i,dRHIter->nTimeBins()-1);
+    }	
+
     float rHratioQ = sumsides/rHSumQ;
     if (adcsize != 12) rHratioQ = -99;
 
@@ -1408,10 +1406,8 @@ void CSCOfflineMonitor::doResolution(edm::Handle<CSCSegmentCollection> cscSegmen
       int kLayer   = idRH.layer();
 
       // Find the strip containing this hit
-      CSCRecHit2D::ChannelContainer hitstrips = (*iRH).channels();
-      int nStrips     =  hitstrips.size();
-      int centerid    =  nStrips/2 + 1;
-      int centerStrip =  hitstrips[centerid - 1];
+      int centerid    =  iRH->nStrips()/2 + 1;
+      int centerStrip =  iRH->channels(centerid - 1);
 
       // If this segment has 6 hits, find the position of each hit on the strip in units of stripwidth and store values
       if (nRH == 6){

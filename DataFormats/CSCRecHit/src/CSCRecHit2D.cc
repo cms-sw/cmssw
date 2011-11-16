@@ -2,38 +2,25 @@
 #include <iostream>
 
 CSCRecHit2D::CSCRecHit2D() :
-  theLocalPosition(0.,0.), 
-  theLocalError(0.,0.,0.),
-  theStrips( ChannelContainer() ),
-  theADCs( ADCContainer() ),
-  theWireGroups( ChannelContainer() ),
   theTpeak( -999. ),  
   thePositionWithinStrip(-999.),
   theErrorWithinStrip(-999.),
-  theQuality( 0 ), theBadStrip( 0 ), theBadWireGroup( 0 ),
+  theQuality( 0 ), 
   theScaledWireTime( 0 ),
+  theBadStrip( 0 ), 
+  theBadWireGroup( 0 ),
+  nStrips_(0),
+  nWireGroups_(0),
+  nTimeBins_(0),
+  theLocalPosition(0.,0.), 
+  theLocalError(0.,0.,0.),
   theEnergyDeposit( -994. )
 {
-
-/// Extract low byte to account strip number
-theStripsLowBits.clear();
-for(int i=0; i<(int)theStrips.size(); i++){
-        theStripsLowBits.push_back(theStrips[i] & 0x000000FF);
-	}
-/// Extract middle byte to account L1A phase
-theStripsHighBits.clear();
-for(int i=0; i<(int)theStrips.size(); i++){
-        theStripsHighBits.push_back(theStrips[i] & 0x0000FF00);
-	}
-
-/// To account BX in wgroups
-theWgroupsHighBits.clear();
-for(int i=0; i<(int)theWireGroups.size(); i++)
-   theWgroupsHighBits.push_back((theWireGroups[i] >> 16) & 0x0000FFFF);
-theWgroupsLowBits.clear();
-for(int i=0; i<(int)theWireGroups.size(); i++)
-   theWgroupsLowBits.push_back(theWireGroups[i] & 0x0000FFFF);
-
+  for ( unsigned int i=0; i< MAXSTRIPS; i++) theStrips_[i]=0;
+  for ( unsigned int i=0; i< MAXWIRES; i++) theWireGroups_[i]=0;
+  for ( unsigned int i=0; i< MAXSTRIPS; i++) 
+    for ( unsigned int j=0; j< MAXTIMEBINS; j++) 
+      theADCs_[i*MAXTIMEBINS+j]=0;
 }
 
 CSCRecHit2D::CSCRecHit2D( const CSCDetId& id, 
@@ -49,38 +36,49 @@ CSCRecHit2D::CSCRecHit2D( const CSCDetId& id,
                           int scaledWireTime,
 			  float energyDeposit):
   RecHit2DLocalPos( id ), 
-  theLocalPosition( pos ), 
-  theLocalError( err ),
-  theStrips( channels ),
-  theADCs( adcs ),
-  theWireGroups( wgroups ),
   theTpeak( tpeak ),
   thePositionWithinStrip( posInStrip ),
   theErrorWithinStrip( errInStrip ),
-  theQuality( quality ), theBadStrip( badStrip ), theBadWireGroup( badWireGroup ),
+  theQuality( quality ), 
   theScaledWireTime ( scaledWireTime ),
+  theBadStrip( badStrip ), theBadWireGroup( badWireGroup ),
+  theLocalPosition( pos ), 
+  theLocalError( err ),
   theEnergyDeposit( energyDeposit )
 {
+  std::cout << theScaledWireTime << " time " << std::endl;
+  nStrips_=channels.size();
+  nWireGroups_=wgroups.size();
 
-/// Extract second byte to account strip number
-theStripsLowBits.clear();
-for(int i=0; i<(int)theStrips.size(); i++){
-        theStripsLowBits.push_back(theStrips[i] & 0x000000FF);
-	}
-/// Extract middle byte to account L1A phase
-theStripsHighBits.clear();
-for(int i=0; i<(int)theStrips.size(); i++){
-        theStripsHighBits.push_back(theStrips[i] & 0x0000FF00);
-	}
+  if ( nStrips_ > MAXSTRIPS ) {
+    std::cout << "CSCRecHit2D: not enough strips in DataFormat! " << nStrips_ <<  std::endl;
+    nStrips_=MAXSTRIPS;
+  }
+  if ( nWireGroups_ > MAXWIRES ) {
+    std::cout << "CSCRecHit2D: not enough wire groups in DataFormat! " << nWireGroups_ << std::endl;
+    nWireGroups_=MAXWIRES;
+  }
 
-/// To account BX in wgroups
-theWgroupsHighBits.clear();
-for(int i=0; i<(int)theWireGroups.size(); i++)
-   theWgroupsHighBits.push_back((theWireGroups[i] >> 16) & 0x0000FFFF);
-theWgroupsLowBits.clear();
-for(int i=0; i<(int)theWireGroups.size(); i++)
-   theWgroupsLowBits.push_back(theWireGroups[i] & 0x0000FFFF);
+  for ( unsigned int i=0; i< MAXSTRIPS; i++) theStrips_[i]=0;
+  for ( unsigned int i=0; i< MAXWIRES; i++) theWireGroups_[i]=0;
+  for ( unsigned int i=0; i< MAXSTRIPS; i++) 
+    for ( unsigned int j=0; j< MAXTIMEBINS; j++) 
+      theADCs_[i*MAXTIMEBINS+j]=0;
 
+
+  for ( unsigned int i=0; i<nStrips_; i++)
+    theStrips_[i]=channels[i];
+  for ( unsigned int i=0; i<nWireGroups_; i++)
+    theWireGroups_[i]=wgroups[i];
+
+  ADCContainer tmp(adcs); //must be a bug in RangeMap!!!???
+  nTimeBins_=tmp.size()/nStrips_;
+  unsigned int k=0;
+  for ( unsigned int i=0; i<nStrips_; i++)
+    for ( unsigned int j=0; j<nTimeBins_; j++) {
+      theADCs_[i*MAXTIMEBINS+j]=tmp[k];
+      k++;
+    }
 }
 
 CSCRecHit2D::~CSCRecHit2D() {}
@@ -105,31 +103,30 @@ bool CSCRecHit2D::sharesInput(const TrackingRecHit *other, CSCRecHit2D::SharedIn
   return sharesInput(otherRecHit, what);
 }
 
+
 bool CSCRecHit2D::sharesInput(const  CSCRecHit2D *otherRecHit, CSCRecHit2D::SharedInputType what) const {
   
   // Check to see if the geographical ID of the two are the same
   if (geographicalId() != otherRecHit->geographicalId()) return false;
   
   // Trivial cases
-  const ChannelContainer otherStrips = otherRecHit->channels();
-  const ChannelContainer otherWireGroups = otherRecHit->wgroups();
-  if (theStrips.size() == 0 && otherStrips.size() == 0 && theWireGroups.size() == 0 && otherWireGroups.size() == 0) return true;
-  if ((what == allWires || what == someWires) && theWireGroups.size() == 0 && otherWireGroups.size() == 0) return true;
-  if ((what == allStrips || what == someStrips) && theStrips.size() == 0 && otherStrips.size() == 0) return true;
+  if (nStrips() == 0 && otherRecHit->nStrips() == 0 && nWireGroups() == 0 && otherRecHit->nWireGroups() == 0) return true;
+  if ((what == allWires || what == someWires) && nWireGroups() == 0 && otherRecHit->nWireGroups() == 0) return true;
+  if ((what == allStrips || what == someStrips) && nStrips() == 0 && otherRecHit->nStrips() == 0) return true;
   
   // Check to see if the wire containers are the same length
-  if ((what == all || what == allWires) && theWireGroups.size() != otherWireGroups.size()) return false;
+  if ((what == all || what == allWires) && nWireGroups() != otherRecHit->nWireGroups()) return false;
   
   // Check to see if the strip containers are the same length
-  if ((what == all || what == allStrips) && theStrips.size() != otherStrips.size()) return false;
+  if ((what == all || what == allStrips) && nStrips() != otherRecHit->nStrips()) return false;
   
   bool foundWire = false;
   // Check to see if the wires are the same
   if (what != allStrips && what != someStrips) {
-    for (ChannelContainer::const_iterator iWire = theWireGroups.begin(); iWire != theWireGroups.end(); ++iWire) {
+    for (unsigned int i=0; i< nWireGroups(); i++) {
       bool found = false;
-      for (ChannelContainer::const_iterator jWire = otherWireGroups.begin(); jWire != otherWireGroups.end(); ++jWire) {
-	if (*iWire == *jWire) {
+      for (unsigned int j=0; j< nWireGroups(); j++) {
+	if ( wgroups(i)  == otherRecHit->wgroups(j)) {
 	  if (what == some || what == someWires) return true;
 	  else {
 	    found = true;
@@ -146,11 +143,11 @@ bool CSCRecHit2D::sharesInput(const  CSCRecHit2D *otherRecHit, CSCRecHit2D::Shar
   // Check to see if the wires are the same
   bool foundStrip = false;
   if (what != allWires && what != someWires) {
-    for (ChannelContainer::const_iterator iStrip = theStrips.begin(); iStrip != theStrips.end(); ++iStrip) {
+    for (unsigned int i=0; i< nStrips(); i++) {
       bool found = false;
-      for (ChannelContainer::const_iterator jStrip = otherStrips.begin(); jStrip != otherStrips.end(); ++jStrip) {
+      for (unsigned int j=0; j< nStrips(); j++) {
 	//a strip is a channel for all but ME1/1a chambers (where 3 ganged strips are a channel)
-	if(cscDetId().channel(*iStrip)==otherRecHit->cscDetId().channel(*jStrip)){
+	if(cscDetId().channel(channelsTotal(i))==otherRecHit->cscDetId().channel(otherRecHit->channelsTotal(j))){
 	  if (what == some || what == someStrips) return true;
 	  else {
 	    found = true;
@@ -175,106 +172,64 @@ bool CSCRecHit2D::sharesInput(const  CSCRecHit2D *otherRecHit, CSCRecHit2D::Shar
   return true;
 }
 
-/// Prefered to have this version of print() for debugging;
-/// will be removed soon
-/*
+
 void CSCRecHit2D::print() const {
-std::cout << "CSCRecHit in CSC Detector: " << cscDetId() << std::endl;
-std::cout << "  local x = " << localPosition().x() << " +/- " << sqrt( localPositionError().xx() ) <<  " y = " << localPosition().y() << " +/- " << sqrt( localPositionError().yy() ) << std::endl;
+  std::cout << "CSCRecHit in CSC Detector: " << cscDetId() << std::endl;
+  std::cout << "  local x = " << localPosition().x() << " +/- " << sqrt( localPositionError().xx() ) <<  " y = " << localPosition().y() << " +/- " << sqrt( localPositionError().yy() ) << std::endl;
 
-/// L1A
-std::cout << "  L1A+Channels: ";
-for (int i=0; i<(int)channelsTotal().size(); i++) {std::cout 
-       << std::hex << channelsTotal()[i] << " ";}
-std::cout << std::endl;
+  std::cout << " tpeak " << theTpeak << " psoInStrip " << thePositionWithinStrip << " errorinstrip " << theErrorWithinStrip << " " << " qual " << theQuality << " wiretime " << theScaledWireTime << " tbs " << theBadStrip << " bwg " << theBadWireGroup << std::endl; 
 
-std::cout << "  Channels: ";
-for (int i=0; i<(int)channels().size(); i++) {std::cout << std::dec << channels()[i] << " "
-     << " (" << "HEX: " << std::hex << channels()[i] << ")" << " ";
-      }
+  
+  /// L1A
+  std::cout << "  L1A+Channels: ";
+  for (unsigned int i=0; i<nStrips(); i++) {std::cout << std::hex << channelsTotal(i) << " ";}
   std::cout << std::endl;
-
-
-/// L1A
-std::cout << "  L1APhase: ";
-  for (int i=0; i<(int)channelsl1a().size(); i++) {
-       std::cout << "|";
-       for (int k=0; k<8 ; k++){ 
-       std::cout << ((channelsl1a()[i] >> (15-k)) & 0x1) << " ";}
-       std::cout << "| ";       
-       }           
-  std::cout << std::endl;
-
  
-std::cout << "  WireGroups: ";
-for (int i=0; i<(int)wgroups().size(); i++) {std::cout << std::dec << wgroups()[i]  
-       << " ";}
+  std::cout << "  Channels: ";
+  for (unsigned int i=0; i<nStrips(); i++) {std::cout << std::dec << channels(i) << " "
+						      << " (" << "HEX: " << std::hex << channels(i) << ")" << " ";
+  }
   std::cout << std::endl;
-}
-*/
-
-
-void CSCRecHit2D::print() const {
-std::cout << "CSCRecHit in CSC Detector: " << cscDetId() << std::endl;
-std::cout << "  local x = " << localPosition().x() << " +/- " << sqrt( localPositionError().xx() ) <<  " y = " << localPosition().y() << " +/- " << sqrt( localPositionError().yy() ) << std::endl;
-
-/// L1A
-std::cout << "  L1A+Channels: ";
-for (int i=0; i<(int)channelsTotal().size(); i++) {std::cout 
-       << std::hex << channelsTotal()[i] << " ";}
-std::cout << std::endl;
-
-std::cout << "  Channels: ";
-for (int i=0; i<(int)channels().size(); i++) {std::cout << std::dec << channels()[i] << " "
-     << " (" << "HEX: " << std::hex << channels()[i] << ")" << " ";
-      }
+  
+  
+  /// L1A
+  std::cout << "  L1APhase: ";
+  for (int i=0; i<(int)nStrips(); i++) {
+    std::cout << "|";
+    for (int k=0; k<8 ; k++){ 
+      std::cout << ((channelsl1a(i) >> (15-k)) & 0x1) << " ";}
+    std::cout << "| ";       
+  }           
   std::cout << std::endl;
-
-
-/// L1A
-std::cout << "  L1APhase: ";
-  for (int i=0; i<(int)channelsl1a().size(); i++) {
-       std::cout << "|";
-       for (int k=0; k<8 ; k++){ 
-       std::cout << ((channelsl1a()[i] >> (15-k)) & 0x1) << " ";}
-       std::cout << "| ";       
-       }           
-  std::cout << std::endl;
-
-std::cout << "  BX + WireGroups combined: ";
-   for (int i=0; i<(int)wgroupsBXandWire().size(); i++) {std::cout //std::dec << wgroups()[i] 
-        << "HEX: " << std::hex << wgroupsBXandWire()[i] << std::hex << " | ";
-   }
- 
-std::cout << "  WireGroups: ";
-for (int i=0; i<(int)wgroups().size(); i++) {std::cout << std::dec << wgroups()[i]  
-       << " | ";}
-std::cout << " BX#: ";
-   for (int i=0; i<(int)wgroupsBX().size(); i++) {std::cout << std::dec << wgroupsBX()[i] 
-       << " (" << "HEX: " << std::hex << wgroupsBX()[i] << ")" << " | ";
-   }
-
+  
+  std::cout << "  BX + WireGroups combined: ";
+  for (int i=0; i<(int)nWireGroups(); i++) {std::cout 
+      << "HEX: " << std::hex << wgroupsBXandWire(i) << std::hex << " | ";
+  }
+  
+  std::cout << "  WireGroups: ";
+  for (int i=0; i<(int)nWireGroups(); i++) {std::cout << std::dec << wgroups(i)  
+						      << " | ";}
+  std::cout << " BX#: ";
+  for (int i=0; i<(int)nWireGroups(); i++) {std::cout << std::dec << wgroupsBX(i) 
+						      << " (" << "HEX: " << std::hex << wgroupsBX(i) << ")" << " | ";
+  }
+  
   std::cout << std::endl;
 }
 
-
-/*
-void CSCRecHit2D::print() const {
-  std::cout << *this << std::endl;
-}
-*/
 
 std::ostream& operator<<(std::ostream& os, const CSCRecHit2D& rh) {
   os << "CSCRecHit2D: local x = " << rh.localPosition().x() << " +/- " << sqrt( rh.localPositionError().xx() ) <<
     " y = " << rh.localPosition().y() << " +/- " << sqrt( rh.localPositionError().yy() ) <<
     " in strip X = " << rh.positionWithinStrip() << " +/-  = " << rh.errorWithinStrip()<<" quality = "<<rh.quality()<<"\n";
   os << "             strip # : ";
-  for(size_t iS =0;iS< rh.channels().size();++iS){
-    os <<rh.channels().at(iS)<<"  ";
+  for(size_t iS =0;iS< rh.nStrips();++iS){
+    os <<rh.channels(iS)<<"  ";
   }
 os << "\n             wire # : ";
-  for(size_t iW =0;iW< rh.wgroups().size();++iW){
-    os <<rh.wgroups().at(iW)<<"  ";
+ for(size_t iW =0;iW< rh.nWireGroups();++iW){
+    os <<rh.wgroups(iW)<<"  ";
   }
   return os;
 }

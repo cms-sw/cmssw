@@ -406,10 +406,8 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 				       if( iHit->cscDetId().station() != digi_station ) continue;
 				       if( iHit->cscDetId().ring() != digi_ring ) continue;
 				       if( iHit->cscDetId().chamber() != digi_chamber ) continue;
-				       CSCRecHit2D::ChannelContainer hitwires = iHit->wgroups();
-				       int nwires = hitwires.size();
-				       int center_id = nwires/2 + 1;
-				       int hit_wire = hitwires[center_id -1 ];
+				       int center_id = iHit->nWireGroups()/2 + 1;
+				       int hit_wire = iHit->wgroups(center_id -1);
 				       dwire = dwire < TMath::Abs(hit_wire - digi_wire)? dwire : TMath::Abs(hit_wire - digi_wire );
 				     }
 				 }
