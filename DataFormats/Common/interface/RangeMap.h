@@ -16,9 +16,8 @@
  *
  * \author Tommaso Boccali, Luca Lista INFN
  *
- * \version $Revision: 1.37 $
+ * \version $Revision: 1.38 $
  *
- * $Id: RangeMap.h,v 1.37 2009/11/04 15:30:20 wmtan Exp $
  *
  */
 #include <map>
@@ -145,7 +144,6 @@ namespace edm {
       typedef typename mapType::const_iterator const_iterator;
       id_iterator() { }
       id_iterator(const_iterator o) : i(o) { }
-      id_iterator & operator=(const id_iterator & it) { i = it.i; return *this; }
       id_iterator& operator++() { ++i; return *this; }
       id_iterator operator++(int) { id_iterator ci = *this; ++i; return ci; }
       id_iterator& operator--() { --i; return *this; }
