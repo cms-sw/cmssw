@@ -32,7 +32,12 @@ shrinkingConePFTauDecayModeIndexProducer.PFTauDecayModeProducer = cms.InputTag("
 from RecoTauTag.TauTagTools.TauNeuralClassifiers_cfi import *
 
 from RecoTauTag.RecoTau.RecoTauShrinkingConeProducer_cfi import \
-        shrinkingConeRecoTaus as shrinkingConePFTauProducer
+        shrinkingConeRecoTaus as shrinkingConePFTauProducerSansRefs
+
+shrinkingConePFTauProducer = cms.EDProducer(
+    "RecoTauPiZeroUnembedder",
+    src = cms.InputTag("shrinkingConePFTauProducerSansRefs")
+)
 
 # Define the discriminators for this tau
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByIsolation_cfi import *
@@ -112,6 +117,7 @@ setTauSource(shrinkingConePFTauDiscriminationAgainstMuon,
              'shrinkingConePFTauProducer')
 
 produceAndDiscriminateShrinkingConePFTaus = cms.Sequence(
+      shrinkingConePFTauProducerSansRefs*
       shrinkingConePFTauProducer*
       shrinkingConePFTauDiscriminationByLeadingTrackFinding*
       shrinkingConePFTauDiscriminationByLeadingTrackPtCut*

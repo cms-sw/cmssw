@@ -103,7 +103,7 @@ tautagInfoModifer = cms.PSet(
 )
 
 # Add the modifier to our tau producers
-shrinkingConePFTauProducer.modifiers.append(tautagInfoModifer)
+shrinkingConePFTauProducerSansRefs.modifiers.append(tautagInfoModifer)
 combinatoricRecoTaus.modifiers.append(tautagInfoModifer)
 
 recoTauPileUpVertices = cms.EDFilter(
@@ -140,7 +140,7 @@ recoTauClassicHPSSequence = cms.Sequence(
 # Produce only classic shrinking cone taus (+ TaNC)
 recoTauClassicShrinkingConeSequence = cms.Sequence(
     recoTauCommonSequence *
-    ak5PFJetsLegacyTaNCPiZeros *
+    ak5PFJetsRecoTauPiZeros *
     produceAndDiscriminateShrinkingConePFTaus
 )
 

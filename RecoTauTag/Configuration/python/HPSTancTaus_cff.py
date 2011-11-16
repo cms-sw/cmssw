@@ -73,7 +73,7 @@ combinatoricRecoTausHPSSelector = hpsSelectionDiscriminator.clone(
 )
 
 # Clean the taus according to the transformed output
-hpsTancTaus = cms.EDProducer(
+hpsTancTausSansRefs = cms.EDProducer(
     "RecoTauCleaner",
     src = cms.InputTag("combinatoricRecoTaus"),
     cleaners = cms.VPSet(
@@ -95,6 +95,11 @@ hpsTancTaus = cms.EDProducer(
         ),
         cleaners.combinedIsolation
     )
+)
+
+hpsTancTaus = cms.EDProducer(
+    "RecoTauPiZeroUnembedder",
+    src = cms.InputTag("hpsTancTausSansRefs")
 )
 
 # Rerun the leading pion cut on our clean taus
@@ -281,12 +286,13 @@ hpsTancTauInitialSequence = cms.Sequence(
     combinatoricRecoTausDiscriminationByLeadingPionPtCut
     + combinatoricRecoTausHPSSelector
     # select & clean each decay mode
+    + hpsTancTausSansRefs
     + hpsTancTaus
     + hpsTancTausDiscriminationByLeadingTrackFinding
     + hpsTancTausDiscriminationByLeadingPionPtCut
     + hpsTancTausDiscriminationByLeadingTrackPtCut
     + hpsTancTausDiscriminationByDecayModeSelection
-    + hpsTancTausDiscriminationByFlightPath
+    #+ hpsTancTausDiscriminationByFlightPath
 )
 
 hpsTancTauDiscriminantSequence = cms.Sequence(

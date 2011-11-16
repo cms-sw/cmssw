@@ -4,9 +4,9 @@ import FWCore.ParameterSet.Config as cms
 RecoTauTagFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring(
         'keep *_ak5PFJetsRecoTauPiZeros_*_*',
-        'keep *_hpsPFTauProducer*_*_*',
+        'keep *_hpsPFTauProducer_*_*',
         'keep *_hpsPFTauDiscrimination*_*_*',
-        'keep *_shrinkingConePFTauProducer*_*_*',
+        'keep *_shrinkingConePFTauProducer_*_*',
         'keep *_shrinkingConePFTauDiscrimination*_*_*',
         'keep *_hpsTancTaus_*_*',
         'keep *_hpsTancTausDiscrimination*_*_*',
@@ -19,9 +19,9 @@ RecoTauTagFEVT = cms.PSet(
 RecoTauTagRECO = cms.PSet(
     outputCommands = cms.untracked.vstring(
         'keep *_ak5PFJetsRecoTauPiZeros_*_*',
-        'keep *_hpsPFTauProducer*_*_*',
+        'keep *_hpsPFTauProducer_*_*',
         'keep *_hpsPFTauDiscrimination*_*_*',
-        'keep *_shrinkingConePFTauProducer*_*_*',
+        'keep *_shrinkingConePFTauProducer_*_*',
         'keep *_shrinkingConePFTauDiscrimination*_*_*',
         'keep *_hpsTancTaus_*_*',
         'keep *_hpsTancTausDiscrimination*_*_*',
@@ -34,9 +34,9 @@ RecoTauTagRECO = cms.PSet(
 RecoTauTagAOD = cms.PSet(
     outputCommands = cms.untracked.vstring(
         'keep *_ak5PFJetsRecoTauPiZeros_*_*',
-        'keep *_hpsPFTauProducer*_*_*',
+        'keep *_hpsPFTauProducer_*_*',
         'keep *_hpsPFTauDiscrimination*_*_*',
-        'keep *_shrinkingConePFTauProducer*_*_*',
+        'keep *_shrinkingConePFTauProducer_*_*',
         'keep *_shrinkingConePFTauDiscrimination*_*_*',
         'keep *_hpsTancTaus_*_*',
         'keep *_hpsTancTausDiscrimination*_*_*',

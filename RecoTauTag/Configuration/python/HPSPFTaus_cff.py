@@ -263,7 +263,7 @@ hpsSelectionDiscriminator.PFTauProducer = cms.InputTag("combinatoricRecoTaus")
 
 import RecoTauTag.RecoTau.RecoTauCleanerPlugins as cleaners
 
-hpsPFTauProducer = cms.EDProducer(
+hpsPFTauProducerSansRefs = cms.EDProducer(
     "RecoTauCleaner",
     src = cms.InputTag("combinatoricRecoTaus"),
     cleaners = cms.VPSet(
@@ -281,12 +281,18 @@ hpsPFTauProducer = cms.EDProducer(
     )
 )
 
+hpsPFTauProducer = cms.EDProducer(
+    "RecoTauPiZeroUnembedder",
+    src = cms.InputTag("hpsPFTauProducerSansRefs")
+)
+
 produceHPSPFTaus = cms.Sequence(
     hpsSelectionDiscriminator
     #*hpsTightIsolationCleaner
     #*hpsMediumIsolationCleaner
     #*hpsLooseIsolationCleaner
     #*hpsVLooseIsolationCleaner
+    *hpsPFTauProducerSansRefs
     *hpsPFTauProducer
 )
 
