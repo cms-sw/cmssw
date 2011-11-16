@@ -1,6 +1,7 @@
 <lcgdict>
 
    <class name="reco::PFCandidate" ClassVersion="11">
+    <version ClassVersion="10" checksum="536762407"/>
     <version ClassVersion="11" checksum="2503588164"/>
      <field name="elementsInBlocks_" transient="true"/>
      <field name="getter_" transient="true"/>
@@ -74,7 +75,8 @@
   <class name="reco::PFCandidateElectronExtraRefVector"/>
 
   <class name="reco::PFCandidatePhotonExtra" ClassVersion="11">
-   <version ClassVersion="11" checksum="518358979"/>
+   <version ClassVersion="10" checksum="536762407"/>
+   <version ClassVersion="11" checksum="1782832559"/>
 <!-- 
   <field name="assoSingleLegRefTrack_" transient="true"/>
   <field name="assoSingleLegMva_" transient="true"/>
