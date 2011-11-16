@@ -70,19 +70,23 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
           const SiStripMatchedRecHit2D* sistripmatchedhit   = dynamic_cast<const SiStripMatchedRecHit2D*>(hit);
 
           const SiStripCluster*   Cluster = NULL;
-
+          uint32_t                DetId = 0;
 
           for(unsigned int h=0;h<2;h++){
             if(!sistripmatchedhit && h==1){
 	       continue;
             }else if(sistripmatchedhit  && h==0){
                Cluster = (sistripmatchedhit->monoHit()  ->cluster()).get();
+	       DetId = sistripmatchedhit->monoHit()->geographicalId().rawId();
             }else if(sistripmatchedhit  && h==1){
                Cluster = (sistripmatchedhit->stereoHit()->cluster()).get();
+	       DetId = sistripmatchedhit->stereoHit()->geographicalId().rawId();
             }else if(sistripsimplehit){
                Cluster = (sistripsimplehit->cluster()).get();
+	       DetId = sistripsimplehit->geographicalId().rawId();
             }else if(sistripsimple1dhit){
                Cluster = (sistripsimple1dhit->cluster()).get();
+	       DetId = sistripsimple1dhit->geographicalId().rawId();
             }else{
                continue;
             }
@@ -90,8 +94,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
             LocalVector             trackDirection = trajState.localDirection();
             double                  cosine         = trackDirection.z()/trackDirection.mag();
             const vector<uint8_t>&  Ampls          = Cluster->amplitudes();
-            uint32_t                DetId          = Cluster->geographicalId();
-            int                     FirstStrip     = Cluster->firstStrip();
+	    int                     FirstStrip     = Cluster->firstStrip();
             int                     APVId          = FirstStrip/128;
             bool                    Saturation     = false;
             bool                    Overlapping    = false;
