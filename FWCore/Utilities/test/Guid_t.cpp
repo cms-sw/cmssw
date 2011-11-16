@@ -6,7 +6,6 @@
 
 int main() {
 	edm::Guid guid;
-	edm::Guid::create(guid);
 	std::string guidString = guid.toString();
 	edm::Guid guid2;
 	guid2.fromString(guidString);
