@@ -44,6 +44,7 @@
 #pragma link C++ class RooTwoETwoMuMassRes+;
 #pragma link C++ class RooRelBW1+;
 #pragma link C++ class RooRelBWUF+;
+#pragma link C++ class RooRelBWUF_SM4+;
 #pragma link C++ class RooRelBWUFParam+;
 #pragma link C++ class RooRelBW+;
 #pragma link C++ class RooDoubleCB+;
