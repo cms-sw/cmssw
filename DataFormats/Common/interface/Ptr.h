@@ -109,11 +109,6 @@ namespace edm {
     key_(key_traits<key_type>::value)
     {}
 
-    Ptr(Ptr<T> const& iOther):
-    core_(iOther.core_),
-    key_(iOther.key_)
-    {}
-
     template<typename U>
     Ptr(Ptr<U> const& iOther, typename boost::enable_if_c<boost::is_base_of<T, U>::value>::type * = 0):
     core_(iOther.id(),

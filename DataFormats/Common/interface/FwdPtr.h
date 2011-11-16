@@ -55,10 +55,6 @@ namespace edm {
     ptr_(), backPtr_()
       {}
     
-  FwdPtr(FwdPtr<T> const& iOther) :
-    ptr_(iOther.ptr_), backPtr_(iOther.backPtr_)
-      {}
-    
     /*     template<typename U> */
     /*     FwdPtr(FwdPtr<U> const& iOther, typename boost::enable_if_c<boost::is_base_of<T, U>::value>::type * t = 0): */
     /*     ptr_(iOther.ptr_, t), backPtr_(iOther.backPtr_,t) */
