@@ -69,7 +69,7 @@ namespace edm {
 
     struct linux_proc {
       int pid; // %d
-      char comm[400]; // %s
+      std::string comm;
       char state; // %c
       int ppid; // %d
       int pgrp; // %d
@@ -105,6 +105,40 @@ namespace edm {
       unsigned int wchan; // %u
     };
 
+    class Fetcher {
+    public:
+      explicit Fetcher(char* buffer) : 
+        buffer_(buffer),
+        save_(0),
+        delims_(" \t\n\f\v\r") {
+      }
+      int getInt() {
+        return atoi(getItem());
+      }
+      unsigned int getUInt() {
+	return static_cast<unsigned int>(getInt());
+      }
+      unsigned long getULong() {
+        return static_cast<unsigned long>(atol(getItem()));
+      }
+      char getChar() {
+        return *getItem();
+      }
+      std::string getString() {
+        return std::string(getItem());
+      }
+    private:
+      char* getItem() {
+        char* item = strtok_r(buffer_, delims_, &save_); 
+        assert(item);
+        buffer_ = 0; // Null for subsequent strtok_r calls.
+        return item;
+      }
+      char* buffer_;
+      char* save_;
+      char const* const delims_; 
+    };
+
     procInfo SimpleMemoryCheck::fetch() {
       procInfo ret;
 
@@ -116,7 +150,7 @@ namespace edm {
 
       lseek(fd_, 0, SEEK_SET);
 
-      if((cnt = read(fd_, buf_, sizeof(buf_))) < 0) {
+      if((cnt = read(fd_, buf_, sizeof(buf_) - 1)) < 0) {
         perror("Read of Proc file failed:");
         return procInfo();
       }
@@ -124,45 +158,44 @@ namespace edm {
       if(cnt > 0) {
         buf_[cnt] = '\0';
 
-        sscanf(buf_,
-               "%d %s %c %d %d %d %d %d %u %u %u %u %u %d %d %d %d %d %d %u %u %d %lu %lu %lu %u %u %u %u %u %d %d %d %d %u",
-               &pinfo.pid, // %d
-               pinfo.comm, // %s
-               &pinfo.state, // %c
-               &pinfo.ppid, // %d
-               &pinfo.pgrp, // %d
-               &pinfo.session, // %d
-               &pinfo.tty, // %d
-               &pinfo.tpgid, // %d
-               &pinfo.flags, // %u
-               &pinfo.minflt, // %u
-               &pinfo.cminflt, // %u
-               &pinfo.majflt, // %u
-               &pinfo.cmajflt, // %u
-               &pinfo.utime, // %d
-               &pinfo.stime, // %d
-               &pinfo.cutime, // %d
-               &pinfo.cstime, // %d
-               &pinfo.counter, // %d
-               &pinfo.priority, // %d
-               &pinfo.timeout, // %u
-               &pinfo.itrealvalue, // %u
-               &pinfo.starttime, // %d
-               &pinfo.vsize, // %lu
-               &pinfo.rss, // %lu
-               &pinfo.rlim, // %lu
-               &pinfo.startcode, // %u
-               &pinfo.endcode, // %u
-               &pinfo.startstack, // %u
-               &pinfo.kstkesp, // %u
-               &pinfo.kstkeip, // %u
-               &pinfo.signal, // %d
-               &pinfo.blocked, // %d
-               &pinfo.sigignore, // %d
-               &pinfo.sigcatch, // %d
-               &pinfo.wchan // %u
-               );
+        Fetcher fetcher(buf_);
 
+        pinfo.pid = fetcher.getInt();
+        pinfo.comm = fetcher.getString();
+        pinfo.state = fetcher.getChar();
+        pinfo.ppid = fetcher.getInt();
+        pinfo.pgrp = fetcher.getInt();
+        pinfo.session = fetcher.getInt();
+        pinfo.tty = fetcher.getInt();
+        pinfo.tpgid = fetcher.getInt();
+        pinfo.flags = fetcher.getUInt();
+        pinfo.minflt = fetcher.getUInt();
+        pinfo.cminflt = fetcher.getUInt();
+        pinfo.majflt = fetcher.getUInt();
+        pinfo.cmajflt = fetcher.getUInt();
+        pinfo.utime = fetcher.getInt();
+        pinfo.stime = fetcher.getInt();
+        pinfo.cutime = fetcher.getInt();
+        pinfo.cstime = fetcher.getInt();
+        pinfo.counter = fetcher.getInt();
+        pinfo.priority = fetcher.getInt();
+        pinfo.timeout = fetcher.getUInt();
+        pinfo.itrealvalue = fetcher.getUInt();
+        pinfo.starttime = fetcher.getInt();
+        pinfo.vsize = fetcher.getULong();
+        pinfo.rss = fetcher.getULong();
+        pinfo.rlim = fetcher.getULong();
+        pinfo.startcode = fetcher.getUInt();
+        pinfo.endcode = fetcher.getUInt();
+        pinfo.startstack = fetcher.getUInt();
+        pinfo.kstkesp = fetcher.getUInt();
+        pinfo.kstkeip = fetcher.getUInt();
+        pinfo.signal = fetcher.getInt();
+        pinfo.blocked = fetcher.getInt();
+        pinfo.sigignore = fetcher.getInt();
+        pinfo.sigcatch = fetcher.getInt();
+        pinfo.wchan = fetcher.getUInt();
+        
         // resident set size in pages
         pr_size = (double)pinfo.vsize;
         pr_rssize = (double)pinfo.rss;
@@ -197,13 +230,11 @@ namespace edm {
         if(read > 14) {
           //Private
           if(0==strncmp("Private_",smapsLineBuffer_,8)) {
-            unsigned int value=0;
-            sscanf(smapsLineBuffer_+14,"%u",&value);
+            unsigned int value = atoi(smapsLineBuffer_+14);
             //Convert from kB to MB
             ret.private_ += static_cast<double>(value)/1024.;
           } else if(0==strncmp("Pss:",smapsLineBuffer_,4)) {
-            unsigned int value=0;
-            sscanf(smapsLineBuffer_+4,"%u",&value);
+            unsigned int value = atoi(smapsLineBuffer_+4);
             //Convert from kB to MB
             ret.pss_ += static_cast<double>(value)/1024.;            
           }
