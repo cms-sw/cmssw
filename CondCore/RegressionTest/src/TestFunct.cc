@@ -1,7 +1,41 @@
 #include "CondCore/RegressionTest/interface/TestFunct.h"
+#include "CondCore/IOVService/interface/IOVEditor.h"
+#include "CondCore/IOVService/interface/IOVProxy.h"
 
 
 TestFunct::TestFunct() {}
+
+std::pair<int,int> TestFunct::GetMetadata(std::string mappingName)
+{
+ 	cond::DbScopedTransaction trans(s);
+ 	std::pair<int,int> ret(-1,-1);
+ 	try {
+ 		trans.start(true);
+ 		
+ 		coral::ITable& mytable=s.nominalSchema().tableHandle("TEST_METADATA");
+ 		std::auto_ptr< coral::IQuery > query(mytable.newQuery());
+ 		coral::AttributeList BindVariableList;
+ 		std::string condition="NAME =:NAME";>
+ 		BindVariableList.extend("NAME",typeid(std::string));
+ 		BindVariableList["NAME"].data<std::string>()=mappingName;
+ 		query->setCondition( condition, BindVariableList );
+ 		query->addToOutputList( "SEED" );
+ 		query->addToOutputList( "RUN" );
+ 		coral::ICursor& cursor = query->execute();
+ 		while( cursor.next() ) {
+ 			const coral::AttributeList& row = cursor.currentRow();
+ 			ret.first = row[ "SEED" ].data<int>();
+ 			ret.second =row["RUN" ].data<int>();
+ 		}
+ 		trans.commit();
+ 	} catch ( const cond::Exception& exc )
+ 	{
+ 		std::cout << "ERROR: "<<exc.what()<<std::endl;
+ 		return std::pair<int,int>(-1,-1);
+ 	}
+ 	return ret;
+}
+
 bool TestFunct::Read (std::string mappingName)
 {
 	cond::DbScopedTransaction trans(s);
@@ -10,10 +44,10 @@ bool TestFunct::Read (std::string mappingName)
 	try {
 		trans.start(true);
 		
-		coral::ITable& mytable=s.nominalSchema().tableHandle("TEST_SEED");
+		coral::ITable& mytable=s.nominalSchema().tableHandle("TEST_METADATA");
 		std::auto_ptr< coral::IQuery > query(mytable.newQuery());
 		coral::AttributeList BindVariableList;
-		std::string condition="NAME =: NAME";
+		std::string condition="NAME =:NAME";
 		BindVariableList.extend("NAME",typeid(std::string));
 		BindVariableList["NAME"].data<std::string>()=mappingName;
 		query->setCondition( condition, BindVariableList );
@@ -29,7 +63,7 @@ bool TestFunct::Read (std::string mappingName)
 		TestPayloadClass tp = *readRef0;
 		TestPayloadClass tp2(refSeed);
 		if(tp != tp2)
-			std::cout <<" read failed : token "<<refSeed<<std::endl;
+			std::cout <<" read failed : seed "<<refSeed<<std::endl;
 		trans.commit();
 	} catch ( const cond::Exception& exc )
 	{
@@ -38,6 +72,37 @@ bool TestFunct::Read (std::string mappingName)
 	}
 	return 0;
 }
+
+bool TestFunct::ReadWithIOV(std::string mappingName, 
+ 			    int seed,
+ 			    int validity)
+{
+ 	cond::DbScopedTransaction trans(s);
+ 	cond::MetaData  metadata(s);
+ 	try {
+ 		trans.start(true);
+ 		std::string iovToken = metadata.getToken(mappingName);
+ 		cond::IOVProxy iov(s,iovToken);
+ 		cond::IOVProxy::const_iterator iPayload = iov.find( validity );
+ 		if( iPayload == iov.end() ){
+ 		  std::cout << "ERROR: no payload found in IOV for run="<<validity<<std::endl;
+ 		  return 1;
+ 		}
+ 		boost::shared_ptr<TestPayloadClass> readRef0 = s.getTypedObject<TestPayloadClass>( iPayload->token() ); //v4	
+ 		std::cout << "Object with id="<<iPayload->token()<<" has been read"<<std::endl;
+ 		TestPayloadClass tp = *readRef0;
+ 		TestPayloadClass tp2(seed);
+ 		if(tp != tp2)
+ 		  std::cout <<" read failed : seed="<<seed<<std::endl;
+ 		trans.commit();
+ 	} catch ( const cond::Exception& exc )
+ 	{
+ 		std::cout << "ERROR: "<<exc.what()<<std::endl;
+ 		return 1;
+ 	}
+ 	return 0;
+}
+
 bool TestFunct::ReadAll()
 {
 	cond::DbScopedTransaction trans(s);
@@ -67,22 +132,15 @@ bool TestFunct::Write (std::string mappingName, int payloadID)
 	try 
 	{
 	    trans.start();
-		coral::ITable& mytable=s.nominalSchema().tableHandle("TEST_SEED");
+		coral::ITable& mytable=s.nominalSchema().tableHandle("TEST_METADATA");
 		coral::AttributeList rowBuffer;
 		coral::ITableDataEditor& dataEditor = mytable.dataEditor();
 		dataEditor.rowBuffer( rowBuffer );
 		rowBuffer["NAME"].data<std::string>()=mappingName;
 		rowBuffer["SEED"].data<int>()=payloadID;
+                rowBuffer["RUN"].data<int>()=-1;
 		dataEditor.insertRow( rowBuffer );		
-		try 
-		{
-			s.createDatabase();
-		}
-		catch ( const std::exception& exc )
-		{
-			std::cout <<"Database already exists"<<std::endl;
-			return 1;
-		}
+		s.createDatabase();
 		boost::shared_ptr<TestPayloadClass> myRef0(new TestPayloadClass(payloadID)); //v4
 	    tok0 = s.storeObject( myRef0.get(),"cont1"); //v4
 	    metadata.addMapping(mappingName, tok0);
@@ -95,23 +153,57 @@ bool TestFunct::Write (std::string mappingName, int payloadID)
 	}
 	return 0;
 }
+
+bool TestFunct::WriteWithIOV(std::string mappingName, 
+ 			     int payloadID, 
+ 			     int runValidity ){
+   cond::DbScopedTransaction trans(s);
+   cond::MetaData  metadata(s);
+   std::string tok0("");
+   try {
+     cond::IOVEditor iov(s);
+     trans.start();
+     coral::ITable& mytable=s.nominalSchema().tableHandle("TEST_METADATA");
+     coral::AttributeList rowBuffer;
+     coral::ITableDataEditor& dataEditor = mytable.dataEditor();
+     dataEditor.rowBuffer( rowBuffer );
+     rowBuffer["NAME"].data<std::string>()=mappingName;
+     rowBuffer["SEED"].data<int>()=payloadID;
+     rowBuffer["RUN"].data<int>()= runValidity;
+     dataEditor.insertRow( rowBuffer );		
+     s.createDatabase();
+     boost::shared_ptr<TestPayloadClass> myRef0(new TestPayloadClass(payloadID)); //v4
+     std::string payloadTok = s.storeObject( myRef0.get(),"cont1"); 
+     iov.create( cond::runnumber );
+     iov.append( runValidity, payloadTok );
+     metadata.addMapping(mappingName, iov.token());
+     trans.commit();
+   } catch ( const cond::Exception& exc )
+     {
+       std::cout << "ERROR: "<<exc.what()<<std::endl;
+       return 1;
+     }
+   return 0;    
+   
+}
+
 bool TestFunct::CreateMetaTable ()
 {
 	cond::DbScopedTransaction trans(s);
-	cond::MetaDataSchemaUtility metaUt(s);
 	try
 	{
 		trans.start();
-		metaUt.create();
 		coral::ISchema& schema=s.nominalSchema();
 		coral::TableDescription description;
-		description.setName("TEST_SEED");
+		description.setName("TEST_METADATA");
 		description.insertColumn(  "NAME", coral::AttributeSpecification::typeNameForId( typeid(std::string)) );
 		description.insertColumn( "SEED", coral::AttributeSpecification::typeNameForId( typeid(int)) );
+                description.insertColumn( "RUN", coral::AttributeSpecification::typeNameForId( typeid(int)) );
 		std::vector<std::string> cols;
 		cols.push_back( "NAME" );
 		description.setPrimaryKey(cols);
 		description.setNotNullConstraint("SEED");
+                description.setNotNullConstraint("RUN");
 		coral::ITable& table=schema.createTable(description);
 		table.privilegeManager().grantToPublic( coral::ITablePrivilegeManager::Select);
 		std::cout<<"Table created"<<std::endl;
