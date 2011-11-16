@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: AssociationMap.h,v 1.40 2010/09/01 19:48:30 chrjones Exp $
+ * $Id: AssociationMap.h,v 1.41 2011/03/08 18:47:15 chrjones Exp $
  *
  */
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
@@ -53,9 +53,6 @@ namespace edm {
       const_iterator(): map_(0) { }
       const_iterator(const self * map, typename map_type::const_iterator mi) :
 	map_(map), i(mi) { }
-      const_iterator & operator=(const const_iterator & it) {
-	map_ = it.map_; i = it.i; return *this;
-      }
       const_iterator& operator++() { ++i; return *this; }
       const_iterator operator++(int) { const_iterator ci = *this; ++i; return ci; }
       const_iterator& operator--() { --i; return *this; }

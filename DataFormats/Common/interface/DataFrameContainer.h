@@ -50,7 +50,9 @@ namespace edm {
     
     typedef boost::transform_iterator<IterHelp,boost::counting_iterator<int> > const_iterator;
     
-    DataFrameContainer(){}
+    DataFrameContainer() :
+      m_subdetId(0), m_stride(0),
+      m_ids(), m_data(){}
     
     explicit DataFrameContainer(size_t istride, int isubdet=0, size_t isize=0) :
       m_subdetId(isubdet), m_stride(istride),

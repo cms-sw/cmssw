@@ -16,7 +16,7 @@ namespace edm {
     struct KeyVal {
       typedef K key_type;
       typedef V value_type;
-      KeyVal() { }
+      KeyVal() : key(), val() { }
       KeyVal(const K & k, const V & v) : key(k), val(v) { }
       K key;
       V val;
