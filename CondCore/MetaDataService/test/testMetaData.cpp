@@ -6,7 +6,6 @@
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/PluginManager/interface/SharedLibrary.h"
 
-#include "CondCore/MetaDataService/interface/MetaDataSchemaUtility.h"
 #include "CondCore/DBCommon/interface/Time.h"
 #include <string>
 #include <vector>
@@ -22,10 +21,11 @@ int main(){
     connection.configure();
     cond::DbSession coralDb = connection.createSession();
     coralDb.open("sqlite_file:meta.db");
-    cond::MetaData metadata(coralDb);
 
     //test errors
     coralDb.transaction().start(true);
+    coralDb.createDatabase();
+    cond::MetaData metadata(coralDb);
     if(metadata.hasTag("crap")) std::cout << "wrong" << std::endl;
     /**
     try {
@@ -127,12 +127,6 @@ int main(){
     std::cout<<"tag exists crap "<<metadata.hasTag("crap")<<std::endl;
     std::vector<std::string> alltags;
     metadata.listAllTags(alltags);
-    coralDb.transaction().commit();
-
-    coralDb.transaction().start(false);
-    cond::MetaDataSchemaUtility ut(coralDb);
-    ut.drop();
-    ut.drop();
     coralDb.transaction().commit();
 
     std::copy (alltags.begin(),
