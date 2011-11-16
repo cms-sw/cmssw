@@ -38,6 +38,8 @@ shrinkingConePFTauProducer = cms.EDProducer(
     "RecoTauPiZeroUnembedder",
     src = cms.InputTag("shrinkingConePFTauProducerSansRefs")
 )
+shrinkingConePFTauProducer.builders = shrinkingConePFTauProducerSansRefs.builders
+shrinkingConePFTauProducer.modifiers = shrinkingConePFTauProducerSansRefs.modifiers
 
 # Define the discriminators for this tau
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByIsolation_cfi import *
