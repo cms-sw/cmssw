@@ -10,8 +10,6 @@
 </bin>
 <bin   file="cmscond_truncate_iov.cpp" name="cmscond_truncate_iov">
 </bin>
-<bin   file="cmscond_schema_metadata.cpp" name="cmscond_schema_metadata">
-</bin>
 <bin   file="cmscond_schema_iov.cpp" name="cmscond_schema_iov">
 </bin>
 <bin   file="cmscond_schema_manager.cpp" name="cmscond_schema_manager">

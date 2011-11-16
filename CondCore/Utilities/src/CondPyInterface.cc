@@ -236,7 +236,7 @@ namespace cond {
 
   void RDBMS::setLogger(std::string const & connstr) {
     DbSession loggerSession = connection->createSession();
-    loggerSession.open( connstr );
+    loggerSession.open( connstr, true );
     logger.reset(new cond::Logger(loggerSession));
   }
 
@@ -259,7 +259,7 @@ namespace cond {
 				      std::string const & prefix, 
 				      std::string const & postfix) const {
     DbSession session = connection->createSession();
-    session.open( connstr );
+    session.open( connstr, true );
     session.transaction().start( true );
     TagCollectionRetriever gtr(session, prefix,postfix);
     const_cast<GlobalTag&>(m_globalTag).clear();

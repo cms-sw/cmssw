@@ -18,8 +18,6 @@ namespace cond {
 
   class Utilities {
     public:
-    //explicit Utilities( const std::string& commandName );
-
     Utilities( const std::string& commandName, std::string positionalParameter=std::string("") );
 
     virtual ~Utilities();
