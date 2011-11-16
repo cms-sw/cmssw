@@ -10,35 +10,31 @@
 //
 //      ====================================================================
 #include "Guid.h"
+#include <cassert>
 #include <cstdio>
 #include <cstring>
+#include <stdlib.h>
+#include <string>
 #include "uuid/uuid.h"
 
 namespace edm {
   static char const* fmt_Guid =
     "%08lX-%04hX-%04hX-%02hhX%02hhX-%02hhX%02hhX%02hhX%02hhX%02hhX%02hhX";
 
-  //{ 0x0,0x0,0x0,{0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0}};
-  static Guid const clid_null(std::string("00000000-0000-0000-0000-000000000000"));
-
   static int const bufSize = 128;
 
-  Guid const& Guid::null() {
-    return clid_null;
-  }
-
-  /// Create a new Guid
-  void Guid::create(Guid& guid)   {
+  /// Initialize a new Guid
+  void Guid::init()   {
     uuid_t me_;
     ::uuid_generate_time(me_);
     unsigned int*   d1 = reinterpret_cast<unsigned int*>(me_);
     unsigned short* d2 = reinterpret_cast<unsigned short*>(me_+4);
     unsigned short* d3 = reinterpret_cast<unsigned short*>(me_+6);
-    guid.Data1 = *d1;
-    guid.Data2 = *d2;
-    guid.Data3 = *d3;
+    Data1 = *d1;
+    Data2 = *d2;
+    Data3 = *d3;
     for(int i = 0; i < 8; ++i){
-      guid.Data4[i] = me_[i + 8];
+      Data4[i] = me_[i + 8];
     }
   }
 
@@ -52,18 +48,40 @@ namespace edm {
     return text;
   }
 
+  // fromString is used only in a unit test, so performance is not critical.
   Guid const& Guid::fromString(std::string const& source) {
-    // Note: This looks funny, but the specs for sscanf formats say
-    //       that the space of a pointer in the ellipsis may only be
-    //       integer or short. Hence one has to reserve a bit more space
-    //       otherwise the stack gets corrupted.
-    unsigned char d[8];
-    ::sscanf(source.c_str(), fmt_Guid, &Data1, &Data2, &Data3,
-              &Data4[0], &Data4[1], &Data4[2], &Data4[3], &d[0], &d[1], &d[2], &d[3]);
-    //*(int*)&Data4[4] = *(int*)d;
-    unsigned int*       p = reinterpret_cast<unsigned int*>(&Data4[4]);
-    unsigned int const* q = reinterpret_cast<unsigned int const*>(&d[0]);
-    *p = *q;
+    char const dash = '-';
+    size_t const iSize = 8;
+    size_t const sSize = 4;
+    size_t const cSize = 2;
+    size_t offset = 0;
+    Data1 = strtol(source.substr(offset, iSize).c_str(), 0, 16);
+    offset += iSize;
+    assert(dash == source[offset++]); 
+    Data2 = strtol(source.substr(offset, sSize).c_str(), 0, 16);
+    offset += sSize;
+    assert(dash == source[offset++]); 
+    Data3 = strtol(source.substr(offset, sSize).c_str(), 0, 16);
+    offset += sSize;
+    assert(dash == source[offset++]); 
+    Data4[0] = strtol(source.substr(offset, cSize).c_str(), 0, 16);
+    offset += cSize;
+    Data4[1] = strtol(source.substr(offset, cSize).c_str(), 0, 16);
+    offset += cSize;
+    assert(dash == source[offset++]);
+    Data4[2] = strtol(source.substr(offset, cSize).c_str(), 0, 16);
+    offset += cSize;
+    Data4[3] = strtol(source.substr(offset, cSize).c_str(), 0, 16);
+    offset += cSize;
+    Data4[4] = strtol(source.substr(offset, cSize).c_str(), 0, 16);
+    offset += cSize;
+    Data4[5] = strtol(source.substr(offset, cSize).c_str(), 0, 16);
+    offset += cSize;
+    Data4[6] = strtol(source.substr(offset, cSize).c_str(), 0, 16);
+    offset += cSize;
+    Data4[7] = strtol(source.substr(offset, cSize).c_str(), 0, 16);
+    offset += cSize;
+    assert(source.size() == offset);
     return *this;
   }
 
