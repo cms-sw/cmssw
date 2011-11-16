@@ -1,6 +1,6 @@
 
-#ifndef EGAMMATOOLS_GBRTree
-#define EGAMMATOOLS_GBRTree
+#ifndef EGAMMAOBJECTS_GBRTree
+#define EGAMMAOBJECTS_GBRTree
 
 //////////////////////////////////////////////////////////////////////////
 //                                                                      //
@@ -39,13 +39,14 @@
 
        GBRTree();
        GBRTree(const TMVA::DecisionTree *tree);
-       
+       GBRTree(const GBRTree &other);       
+
        virtual ~GBRTree();
        
        Double_t GetResponse(const Float_t* vector) const;
+
        
-    protected:
-      
+    protected:      
         UInt_t CountIntermediateNodes(const TMVA::DecisionTreeNode *node);
         UInt_t CountTerminalNodes(const TMVA::DecisionTreeNode *node);
       
@@ -61,7 +62,7 @@
         Float_t *fResponses;//[fNTerminalNodes]
 
         
-    ClassDef(GBRTree,1) // Node for the Decision Tree 
+    ClassDef(GBRTree,50) // Node for the Decision Tree  
   };
 
 //_______________________________________________________________________

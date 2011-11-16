@@ -6,5 +6,7 @@
   <use   name="CondCore/PluginSystem"/>
   <use   name="CondCore/DBOutputService"/>
   <use   name="CondFormats/DataRecord"/>
+  <use   name="CondFormats/EgammaObjects"/>
   <use   name="DataFormats/EgammaCandidates"/>
+  <use   name="RecoEgamma/EgammaTools"/>
 </library>

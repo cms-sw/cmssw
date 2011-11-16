@@ -1,6 +1,6 @@
 
-#ifndef EGAMMATOOLS_GBRForest
-#define EGAMMATOOLS_GBRForest
+#ifndef EGAMMAOBJECTS_GBRForest
+#define EGAMMAOBJECTS_GBRForest
 
 //////////////////////////////////////////////////////////////////////////
 //                                                                      //
@@ -31,6 +31,7 @@
 
        GBRForest();
        GBRForest(const TMVA::MethodBDT *bdt);
+       GBRForest(const GBRForest &other);
        virtual ~GBRForest();
        
        Double_t GetResponse(const Float_t* vector) const;
@@ -41,7 +42,7 @@
       Double_t             fInitialResponse;
       std::vector<GBRTree*> fTrees;
     
-    ClassDef(GBRForest,1) // Node for the Decision Tree 
+    ClassDef(GBRForest,50) // Node for the Decision Tree 
   };
 
 //_______________________________________________________________________

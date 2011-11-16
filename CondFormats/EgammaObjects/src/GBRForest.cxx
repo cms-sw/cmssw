@@ -7,7 +7,7 @@
 #include "TMVA/MethodBDT.h"
 
 
-ClassImp(GBRForest)
+//ClassImp(GBRForest)
 
 
 //_______________________________________________________________________
@@ -37,6 +37,14 @@ GBRForest::GBRForest(const TMVA::MethodBDT *bdt) :
     fTrees.push_back(tree);
   }
 }
+
+GBRForest::GBRForest(const GBRForest &other) :
+  fInitialResponse(other.fInitialResponse)
+{
+  for (std::vector<GBRTree*>::const_iterator it = other.fTrees.begin(); it!=other.fTrees.end(); ++it) {
+    fTrees.push_back(new GBRTree(**it));
+  }
+} 
 
 
 

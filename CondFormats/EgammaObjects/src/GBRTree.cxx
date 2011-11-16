@@ -1,13 +1,14 @@
 
 
 #include "../interface/GBRTree.h"
+#include "TClass.h"
 
 using namespace std;
 #include "TMVA/DecisionTreeNode.h"
 #include "TMVA/DecisionTree.h"
 
 
-ClassImp(GBRTree)
+//ClassImp(GBRTree)
 
 
 //_______________________________________________________________________
@@ -56,6 +57,30 @@ GBRTree::GBRTree(const TMVA::DecisionTree *tree) :
   
 
   
+
+}
+
+//_______________________________________________________________________
+GBRTree::GBRTree(const GBRTree &other) :
+  fNIntermediateNodes(other.fNIntermediateNodes),
+  fNTerminalNodes(other.fNTerminalNodes)
+{
+  fCutIndices = new UChar_t[fNIntermediateNodes];
+  fCutVals = new Float_t[fNIntermediateNodes];
+  fLeftIndices = new Int_t[fNIntermediateNodes];
+  fRightIndices = new Int_t[fNIntermediateNodes];
+  fResponses = new Float_t[fNTerminalNodes];
+
+  for (Int_t i=0; i<fNIntermediateNodes; ++i) {
+    fCutIndices[i]   =  other.fCutIndices[i];
+    fCutVals[i]      =  other.fCutVals[i];
+    fLeftIndices[i]  =  other.fLeftIndices[i];
+    fRightIndices[i] =  other.fRightIndices[i];
+  }
+
+  for (Int_t i=0; i<fNTerminalNodes; ++i) {
+    fResponses[i]    =  other.fResponses[i];
+  }
 
 }
 
@@ -139,4 +164,59 @@ void GBRTree::AddNode(const TMVA::DecisionTreeNode *node) {
     
   }
   
+}
+
+//-------------------------------------------------------------------------------------------------
+void GBRTree::Streamer(TBuffer &b)
+{
+   // Stream all objects in the array to or from the I/O buffer.
+   // Ugly special case handling for Double32
+
+  if (b.IsReading()) {
+
+    Version_t v = b.ReadVersion(0,0,GBRTree::Class());
+
+    if (v<=1) {
+      UInt_t start=0;
+      UInt_t count=0;
+      b.ReadClassBuffer(GBRTree::Class(),this,v,start,count);
+      return;    
+    }
+
+    b >> fNIntermediateNodes;
+    b >> fNTerminalNodes;
+
+    if (fNIntermediateNodes) {
+      fCutIndices = new UChar_t[fNIntermediateNodes];
+      fCutVals = new Float_t[fNIntermediateNodes];
+      fLeftIndices = new Int_t[fNIntermediateNodes];
+      fRightIndices = new Int_t[fNIntermediateNodes];
+     
+      b.ReadFastArray(fCutIndices,fNIntermediateNodes);
+      b.ReadFastArray(fCutVals,fNIntermediateNodes);
+      b.ReadFastArray(fLeftIndices,fNIntermediateNodes);
+      b.ReadFastArray(fRightIndices,fNIntermediateNodes);
+    }
+
+    if (fNTerminalNodes) {
+      fResponses = new Float_t[fNTerminalNodes];
+      b.ReadFastArray(fResponses,fNTerminalNodes);
+    }
+
+  } else { /*writing*/
+
+    b.WriteVersion(GBRTree::Class());
+    b << fNIntermediateNodes;
+    b << fNTerminalNodes;
+
+    if (fNIntermediateNodes) {
+      b.WriteFastArray(fCutIndices,fNIntermediateNodes);
+      b.WriteFastArray(fCutVals,fNIntermediateNodes);
+      b.WriteFastArray(fLeftIndices,fNIntermediateNodes);
+      b.WriteFastArray(fRightIndices,fNIntermediateNodes);
+    }
+    if (fNTerminalNodes) {
+      b.WriteFastArray(fResponses,fNTerminalNodes);
+    }
+  }
 }

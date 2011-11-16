@@ -26,19 +26,20 @@ class EGEnergyCorrector {
     EGEnergyCorrector();
     ~EGEnergyCorrector(); 
 
-    void Initialize(const edm::EventSetup &iSetup, std::string regweights);
+    void Initialize(const edm::EventSetup &iSetup, std::string regweights, bool weightsFromDB=false);
     Bool_t IsInitialized() const { return fIsInitialized; }
     
     std::pair<double,double> CorrectedEnergyWithError(const reco::Photon &p);
     std::pair<double,double> CorrectedEnergyWithError(const reco::GsfElectron &e, EcalClusterLazyTools &clustertools);
     
   protected:
-    GBRForest *fReadereb;
-    GBRForest *fReaderebvariance;
-    GBRForest *fReaderee;
-    GBRForest *fReadereevariance;      
+    const GBRForest *fReadereb;
+    const GBRForest *fReaderebvariance;
+    const GBRForest *fReaderee;
+    const GBRForest *fReadereevariance;      
     
     Bool_t fIsInitialized;
+    Bool_t fOwnsForests;
     Float_t *fVals;
     
     };
