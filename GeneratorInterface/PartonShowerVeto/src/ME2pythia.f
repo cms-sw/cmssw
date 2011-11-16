@@ -586,8 +586,6 @@ C...Pythia common blocks
 C   local variables
       double precision tiny
       parameter (tiny=1d-3)
-      integer icount
-      data icount/0/
       integer idbg
       data idbg/0/
 
@@ -1356,11 +1354,13 @@ C...Local variables
       DOUBLE PRECISION ptjmin,etajmax,drjmin,ptbmin,etabmax,xqcut
 
       integer icount 
-      data icount /0/
 
 C...Functions
       INTEGER iexclusive
       EXTERNAL iexclusive
+
+C...Initialize the icount counter to detect infinite loops
+      icount=0
 
 C...Need lower scale for final state radiation in e+e-
       IF(IABS(IDBMUP(1)).EQ.11.AND.IABS(IDBMUP(2)).EQ.11) then
