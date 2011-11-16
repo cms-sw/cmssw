@@ -170,8 +170,6 @@ LStoreFile::open (const char *name,
                   int flags /* = IOFlags::OpenRead */,
                   int perms /* = 066 */)
 {
-  m_name = name;
-
   // Actual open
   if ((name == 0) || (*name == 0))
     throw cms::Exception("LStoreFile::open()")
@@ -219,6 +217,7 @@ LStoreFile::open (const char *name,
       << ") => error '" << (*redd_strerror)()
       << "' (redd_errno=" << (*redd_errno)() << ")";
 
+  m_name = name;
   m_fd = newfd;
 
   m_close = true;
