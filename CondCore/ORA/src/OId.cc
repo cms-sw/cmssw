@@ -4,7 +4,7 @@
 #include <cstring>
 
 static const char* OIDFMT = "%04X-%08X";
-static const size_t OIDSIZ = 13;
+static const size_t OIDSIZ = 14;
 
 bool ora::OId::isOId( const std::string& input ){
   ora::OId tmp;
