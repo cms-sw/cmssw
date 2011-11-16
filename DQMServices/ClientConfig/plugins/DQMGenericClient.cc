@@ -2,8 +2,8 @@
  *  Class:DQMGenericClient 
  *
  *
- *  $Date: 2011/07/13 17:50:25 $
- *  $Revision: 1.27 $
+ *  $Date: 2011/07/15 08:33:35 $
+ *  $Revision: 1.28 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -582,6 +582,8 @@ void DQMGenericClient::computeResolution(const string& startDir, const string& n
   const int nBin = hSrc->GetNbinsX();
   const double xMin = hSrc->GetXaxis()->GetXmin();
   const double xMax = hSrc->GetXaxis()->GetXmax();
+  const double yMin = hSrc->GetYaxis()->GetXmin();
+  const double yMax = hSrc->GetYaxis()->GetXmax();
 
   string newDir = startDir;
   string newPrefix = namePrefix;
@@ -593,8 +595,8 @@ void DQMGenericClient::computeResolution(const string& startDir, const string& n
 
   theDQM->setCurrentFolder(newDir);
 
-  ME* meanME = theDQM->book1D(newPrefix+"_Mean", titlePrefix+" Mean", nBin, xMin, xMax);
-  ME* sigmaME = theDQM->book1D(newPrefix+"_Sigma", titlePrefix+" Sigma", nBin, xMin, xMax);
+  ME* meanME = theDQM->bookProfile(newPrefix+"_Mean", titlePrefix+" Mean", nBin, xMin, xMax, 10, yMin, yMax);
+  ME* sigmaME = theDQM->bookProfile(newPrefix+"_Sigma", titlePrefix+" Sigma", nBin, xMin, xMax, 10, yMin, yMax);
 //  ME* chi2ME  = theDQM->book1D(namePrefix+"_Chi2" , titlePrefix+" #Chi^{2}", nBin, xMin, xMax); // N/A
 
   if (! resLimitedFit_ ) {
@@ -739,11 +741,13 @@ void DQMGenericClient::limitedFit(MonitorElement * srcME, MonitorElement * meanM
       double *par = fitFcn->GetParameters();
       double *err = fitFcn->GetParErrors();
 
-      meanME->setBinContent(i,par[1]);
-      meanME->setBinError(i,err[1]);
+      meanME->setBinContent(i, par[1]);
+      meanME->setBinEntries(i, 1.);
+      meanME->setBinError(i, err[1]);
 
-      sigmaME->setBinContent(i,par[2]);
-      sigmaME->setBinError(i,err[2]);
+      sigmaME->setBinContent(i, par[2]);
+      sigmaME->setBinEntries(i, 1.);
+      sigmaME->setBinError(i, err[2]);
       if(fitFcn) delete fitFcn;
       if(histoY) delete histoY;
     }
