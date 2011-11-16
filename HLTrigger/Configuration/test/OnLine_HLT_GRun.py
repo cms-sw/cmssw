@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_4_2/GRun/V33 (CMSSW_4_4_0_HLT16)
+# /dev/CMSSW_4_4_2/GRun/V34 (CMSSW_4_4_0_HLT17)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/GRun/V33')
+  tableName = cms.string('/dev/CMSSW_4_4_2/GRun/V34')
 )
 
 process.streams = cms.PSet( 
@@ -5681,6 +5681,9 @@ process.hltCorrectedHybridSuperClustersActivity = cms.EDProducer( "EgammaSCCorre
     superClusterAlgo = cms.string( "Hybrid" ),
     applyEnergyCorrection = cms.bool( True ),
     applyCrackCorrection = cms.bool( False ),
+    energyCorrectorName = cms.string( "EcalClusterEnergyCorrection" ),
+    modeEB = cms.int32( 3 ),
+    modeEE = cms.int32( 5 ),
     sigmaElectronicNoise = cms.double( 0.15 ),
     etThresh = cms.double( 5.0 ),
     corectedSuperClusterCollection = cms.string( "" ),
@@ -5761,6 +5764,9 @@ process.hltCorrectedMulti5x5SuperClustersWithPreshowerActivity = cms.EDProducer(
     superClusterAlgo = cms.string( "Multi5x5" ),
     applyEnergyCorrection = cms.bool( True ),
     applyCrackCorrection = cms.bool( False ),
+    energyCorrectorName = cms.string( "EcalClusterEnergyCorrection" ),
+    modeEB = cms.int32( 3 ),
+    modeEE = cms.int32( 5 ),
     sigmaElectronicNoise = cms.double( 0.15 ),
     etThresh = cms.double( 5.0 ),
     corectedSuperClusterCollection = cms.string( "" ),
@@ -16591,6 +16597,9 @@ process.hltCorrectedHybridSuperClustersL1Isolated = cms.EDProducer( "EgammaSCCor
     superClusterAlgo = cms.string( "Hybrid" ),
     applyEnergyCorrection = cms.bool( True ),
     applyCrackCorrection = cms.bool( False ),
+    energyCorrectorName = cms.string( "EcalClusterEnergyCorrection" ),
+    modeEB = cms.int32( 3 ),
+    modeEE = cms.int32( 5 ),
     sigmaElectronicNoise = cms.double( 0.03 ),
     etThresh = cms.double( 1.0 ),
     corectedSuperClusterCollection = cms.string( "" ),
@@ -16677,6 +16686,9 @@ process.hltCorrectedMulti5x5EndcapSuperClustersWithPreshowerL1Isolated = cms.EDP
     superClusterAlgo = cms.string( "Multi5x5" ),
     applyEnergyCorrection = cms.bool( True ),
     applyCrackCorrection = cms.bool( False ),
+    energyCorrectorName = cms.string( "EcalClusterEnergyCorrection" ),
+    modeEB = cms.int32( 3 ),
+    modeEE = cms.int32( 5 ),
     sigmaElectronicNoise = cms.double( 0.15 ),
     etThresh = cms.double( 1.0 ),
     corectedSuperClusterCollection = cms.string( "" ),
@@ -16733,6 +16745,9 @@ process.hltCorrectedHybridSuperClustersL1NonIsolatedTemp = cms.EDProducer( "Egam
     superClusterAlgo = cms.string( "Hybrid" ),
     applyEnergyCorrection = cms.bool( True ),
     applyCrackCorrection = cms.bool( False ),
+    energyCorrectorName = cms.string( "EcalClusterEnergyCorrection" ),
+    modeEB = cms.int32( 3 ),
+    modeEE = cms.int32( 5 ),
     sigmaElectronicNoise = cms.double( 0.03 ),
     etThresh = cms.double( 1.0 ),
     corectedSuperClusterCollection = cms.string( "" ),
@@ -16824,6 +16839,9 @@ process.hltCorrectedMulti5x5EndcapSuperClustersWithPreshowerL1NonIsolatedTemp = 
     superClusterAlgo = cms.string( "Multi5x5" ),
     applyEnergyCorrection = cms.bool( True ),
     applyCrackCorrection = cms.bool( False ),
+    energyCorrectorName = cms.string( "EcalClusterEnergyCorrection" ),
+    modeEB = cms.int32( 3 ),
+    modeEE = cms.int32( 5 ),
     sigmaElectronicNoise = cms.double( 0.15 ),
     etThresh = cms.double( 1.0 ),
     corectedSuperClusterCollection = cms.string( "" ),
