@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.136 2011/08/22 14:20:16 mommsen Exp $
+// $Id: StorageManager.cc,v 1.137 2011/11/08 10:48:41 mommsen Exp $
 /// @file: StorageManager.cc
 
 #include "EventFilter/StorageManager/interface/DiskWriter.h"
@@ -123,6 +123,7 @@ void StorageManager::bindWebInterfaceCallbacks()
 {
   xgi::bind(this,&StorageManager::css,                      "styles.css");
   xgi::bind(this,&StorageManager::defaultWebPage,           "Default");
+  xgi::bind(this,&StorageManager::inputWebPage,             "input");
   xgi::bind(this,&StorageManager::storedDataWebPage,        "storedData");
   xgi::bind(this,&StorageManager::rbsenderWebPage,          "rbsenderlist");
   xgi::bind(this,&StorageManager::rbsenderDetailWebPage,    "rbsenderdetail");
@@ -348,6 +349,33 @@ throw (xgi::exception::Exception)
   try
   {
     smWebPageHelper_->defaultWebPage(out);
+  }
+  catch(std::exception &e)
+  {
+    errorMsg += ": ";
+    errorMsg += e.what();
+    
+    LOG4CPLUS_ERROR(getApplicationLogger(), errorMsg);
+    XCEPT_RAISE(xgi::exception::Exception, errorMsg);
+  }
+  catch(...)
+  {
+    errorMsg += ": Unknown exception";
+    
+    LOG4CPLUS_ERROR(getApplicationLogger(), errorMsg);
+    XCEPT_RAISE(xgi::exception::Exception, errorMsg);
+  }
+}
+
+
+void StorageManager::inputWebPage(xgi::Input *in, xgi::Output *out)
+  throw (xgi::exception::Exception)
+{
+  std::string errorMsg = "Failed to create the I2O input webpage";
+
+  try
+  {
+    smWebPageHelper_->inputWebPage(out);
   }
   catch(std::exception &e)
   {

@@ -1,4 +1,4 @@
-// $Id: SMWebPageHelper.h,v 1.1.4.2 2011/03/07 11:33:04 mommsen Exp $
+// $Id: SMWebPageHelper.h,v 1.2 2011/03/07 15:31:32 mommsen Exp $
 /// @file: SMWebPageHelper.h
 
 #ifndef EventFilter_StorageManager_SMWebPageHelper_h
@@ -36,8 +36,8 @@ namespace stor {
    * Helper class to handle web page requests
    *
    * $Author: mommsen $
-   * $Revision: 1.1.4.2 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.2 $
+   * $Date: 2011/03/07 15:31:32 $
    */
   
   class SMWebPageHelper : public WebPageHelper<SMWebPageHelper>
@@ -54,6 +54,11 @@ namespace stor {
      * Generates the default monitoring webpage
      */
     void defaultWebPage(xgi::Output*) const;
+
+    /**
+     * Generates the I2O input monitoring webpage
+     */
+    void inputWebPage(xgi::Output*) const;
 
     /**
      * Generates the output streams monitoring webpage
@@ -107,6 +112,20 @@ namespace stor {
      * Adds the links for the other hyperdaq webpages
      */
     void addDOMforHyperLinks(XHTMLMaker&, XHTMLMaker::Node* parent) const;
+
+    /**
+     * Adds the summary information to the parent DOM element
+     */
+    void addDOMforSummaryInformation
+    (
+      XHTMLMaker&,
+      XHTMLMaker::Node* parent,
+      DataSenderMonitorCollection const&,
+      StreamsMonitorCollection const&,
+      EventConsumerMonitorCollection const&,
+      DQMEventMonitorCollection const&,
+      RegistrationCollectionPtr
+    ) const;
 
     /**
      * Adds the resource table to the parent DOM element
@@ -178,7 +197,18 @@ namespace stor {
       XHTMLMaker::Node* parent,
       ThroughputMonitorCollection const&
     ) const;
-
+    
+    /**
+     * Return the aggregated bandwidth of data served to the
+     * event consumers for the given output module label
+     */
+    double getServedConsumerBandwidth
+    (
+      const std::string& label,
+      RegistrationCollectionPtr,
+      const EventConsumerMonitorCollection& eventConsumerCollection
+    ) const;
+    
     /**
      * Add table row using the snapshot values
      */

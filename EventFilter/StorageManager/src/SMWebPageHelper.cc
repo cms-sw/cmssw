@@ -1,4 +1,4 @@
-// $Id: SMWebPageHelper.cc,v 1.4 2011/07/07 09:22:45 mommsen Exp $
+// $Id: SMWebPageHelper.cc,v 1.5 2011/11/08 10:48:41 mommsen Exp $
 /// @file: SMWebPageHelper.cc
 
 #include <iomanip>
@@ -56,6 +56,32 @@ namespace stor
     addDOMforResourceUsage(maker, body, 
       statReporter->getResourceMonitorCollection(),
       statReporter->getThroughputMonitorCollection());
+    
+    // Summary
+    addDOMforSummaryInformation(maker, body,
+      statReporter->getDataSenderMonitorCollection(),
+      statReporter->getStreamsMonitorCollection(),
+      statReporter->getEventConsumerMonitorCollection(),
+      statReporter->getDQMEventMonitorCollection(),
+      sharedResources_->registrationCollection_);
+    
+    addDOMforHyperLinks(maker, body);
+    
+    // Dump the webpage to the output stream
+    maker.out(*out);
+  }
+  
+  
+  void SMWebPageHelper::inputWebPage(xgi::Output *out) const
+  {
+    XHTMLMonitor theMonitor;
+    XHTMLMaker maker;
+
+    StatisticsReporterPtr statReporter = sharedResources_->statisticsReporter_;
+    
+    // Create the body with the standard header
+    XHTMLMaker::Node* body = createWebPageBody(maker, "Input",
+      statReporter->getStateMachineMonitorCollection());
     
     // Add the received data statistics table
     addDOMforFragmentMonitor(maker, body,
@@ -269,6 +295,12 @@ namespace stor
     linkAttr[ "href" ] = url;
     link = maker.addNode("a", parent, linkAttr);
     maker.addText(link, "Main web page");
+    
+    maker.addNode("hr", parent);
+    
+    linkAttr[ "href" ] = url + "/input";
+    link = maker.addNode("a", parent, linkAttr);
+    maker.addText(link, "I2O input web page");
     
     maker.addNode("hr", parent);
     
@@ -507,6 +539,233 @@ namespace stor
         maker.addText(tableDiv, "not mounted");
       }
     }
+  }
+  
+  
+  void SMWebPageHelper::addDOMforSummaryInformation
+  (
+    XHTMLMaker& maker,
+    XHTMLMaker::Node *parent,
+    DataSenderMonitorCollection const& dsmc,
+    StreamsMonitorCollection const& smc,
+    EventConsumerMonitorCollection const& ecmc,
+    DQMEventMonitorCollection const& dmc,
+    RegistrationCollectionPtr registrationCollection
+  ) const
+  {
+    DataSenderMonitorCollection::OutputModuleResultsList resultsList =
+      dsmc.getTopLevelOutputModuleResults();
+
+    StreamsMonitorCollection::StreamRecordList streamRecords;
+    smc.getStreamRecords(streamRecords);
+
+    XHTMLMaker::AttrMap colspanAttr;
+    colspanAttr[ "colspan" ] = "6";
+
+    XHTMLMaker::AttrMap bandwidthColspanAttr;
+    bandwidthColspanAttr[ "colspan" ] = "3";
+
+    XHTMLMaker::AttrMap tableValueWidthAttr;
+    tableValueWidthAttr[ "width" ] = "15%";
+    
+    XHTMLMaker::AttrMap rowspanAttr = tableValueWidthAttr;
+    rowspanAttr[ "rowspan" ] = "2";
+    rowspanAttr[ "valign" ] = "top";
+    
+    XHTMLMaker::Node* table = maker.addNode("table", parent, tableAttr_);
+    
+    // Summary header
+    XHTMLMaker::Node* tableRow = maker.addNode("tr", table, rowAttr_);
+    XHTMLMaker::Node* tableDiv = maker.addNode("th", tableRow, colspanAttr);
+    maker.addText(tableDiv, "Data Flow Summary");
+    
+    // Parameter/Value header
+    tableRow = maker.addNode("tr", table, rowAttr_);
+    tableDiv = maker.addNode("th", tableRow, rowspanAttr);
+    maker.addText(tableDiv, "Output Module");
+    tableDiv = maker.addNode("th", tableRow, rowspanAttr);
+    maker.addText(tableDiv, "Event size (kB)");
+    tableDiv = maker.addNode("th", tableRow, rowspanAttr);
+    maker.addText(tableDiv, "Rate (Hz)");
+    tableDiv = maker.addNode("th", tableRow, bandwidthColspanAttr);
+    maker.addText(tableDiv, "Bandwidth (MB/s)");
+
+    tableRow = maker.addNode("tr", table, rowAttr_);
+    tableDiv = maker.addNode("th", tableRow, tableValueWidthAttr);
+    maker.addText(tableDiv, "Input");
+    tableDiv = maker.addNode("th", tableRow, tableValueWidthAttr);
+    maker.addText(tableDiv, "To disk");
+    tableDiv = maker.addNode("th", tableRow, tableValueWidthAttr);
+    maker.addText(tableDiv, "To consumers");
+
+    
+    if (resultsList.empty())
+    {
+      XHTMLMaker::AttrMap messageAttr = colspanAttr;
+      messageAttr[ "align" ] = "center";
+      
+      tableRow = maker.addNode("tr", table, rowAttr_);
+      tableDiv = maker.addNode("td", tableRow, messageAttr);
+      maker.addText(tableDiv, "No output modules are available yet.");
+      return;
+    }
+    else
+    {
+      double totalInputBandwidth = 0;
+      double totalDiskBandwidth = 0;
+      double totalConsumerBandwidth = 0;
+
+      for (
+        DataSenderMonitorCollection::OutputModuleResultsList::const_iterator
+          it = resultsList.begin(), itEnd = resultsList.end();
+        it != itEnd; ++it
+      )
+      {
+        const std::string outputModuleLabel = (*it)->name;
+
+        const double inputBandwidth =
+          (*it)->eventStats.getValueRate(MonitoredQuantity::RECENT)/(double)0x100000;
+        totalInputBandwidth += inputBandwidth;
+
+        StreamsMonitorCollection::StreamRecordList streamRecords;
+        double diskBandwidth = 0;
+        if ( smc.getStreamRecordsForOutputModuleLabel(outputModuleLabel, streamRecords) )
+        {
+          for (
+            StreamsMonitorCollection::StreamRecordList::const_iterator
+              it = streamRecords.begin(), itEnd = streamRecords.end();
+            it != itEnd; ++it
+          )
+          {
+            MonitoredQuantity::Stats streamBandwidthStats;
+            (*it)->bandwidth.getStats(streamBandwidthStats);
+            diskBandwidth += streamBandwidthStats.getValueRate(MonitoredQuantity::RECENT);
+          }
+          totalDiskBandwidth += diskBandwidth;
+        }
+        else
+        {
+          diskBandwidth = -1;
+        }
+
+        const double consumerBandwidth =
+          getServedConsumerBandwidth(outputModuleLabel,
+            registrationCollection, ecmc);
+        totalConsumerBandwidth += consumerBandwidth;
+
+        tableRow = maker.addNode("tr", table, rowAttr_);
+        
+        // Output module label
+        tableDiv = maker.addNode("td", tableRow);
+        maker.addText(tableDiv, outputModuleLabel);
+        
+        // event size
+        tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
+        maker.addDouble( tableDiv,
+          (*it)->eventStats.getValueAverage(MonitoredQuantity::RECENT)/(double)0x400, 1 );
+        
+        // rate
+        tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
+        maker.addDouble( tableDiv,
+          (*it)->eventStats.getSampleRate(MonitoredQuantity::RECENT), 1 );
+        
+        // input b/w
+        tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
+        maker.addDouble( tableDiv, inputBandwidth, 1 );
+        
+        // b/w to disk
+        tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
+        if ( diskBandwidth < 0 )
+          maker.addText( tableDiv, "not written" );
+        else
+          maker.addDouble( tableDiv, diskBandwidth, 1 );
+
+        // b/w to consumers
+        tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
+        maker.addDouble( tableDiv, consumerBandwidth, 1 );
+      }
+      
+      // DQM
+      DQMEventMonitorCollection::DQMEventStats dqmStats;
+      dmc.getStats(dqmStats);
+      
+      tableRow = maker.addNode("tr", table, rowAttr_);
+      tableDiv = maker.addNode("td", tableRow);
+      maker.addText(tableDiv, "DQM histograms");
+      
+      // DQM event size
+      tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
+      maker.addDouble( tableDiv,
+        dqmStats.dqmEventSizeStats.getValueAverage(MonitoredQuantity::RECENT)/(double)0x400, 1 );
+      
+      // DQM rate
+      tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
+      maker.addDouble( tableDiv,
+        dqmStats.numberOfTopLevelFoldersStats.getSampleRate(MonitoredQuantity::RECENT), 1 );
+      
+      // DQM input b/w
+      tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
+      const double dqmInputBandwidth = dqmStats.dqmEventSizeStats.getValueRate(MonitoredQuantity::RECENT);
+      totalInputBandwidth += dqmInputBandwidth;
+      maker.addDouble( tableDiv, dqmInputBandwidth, 1 );
+      
+      // DQM b/w to disk
+      tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
+      const double dqmDiskBandwidth = dqmStats.writtenDQMEventSizeStats.getValueRate(MonitoredQuantity::RECENT);
+      totalDiskBandwidth += dqmDiskBandwidth;
+      maker.addDouble( tableDiv, dqmDiskBandwidth, 1 );
+      
+      // DQM b/w to consumers
+      tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
+      const double dqmConsumerBandwidth = dqmStats.servedDQMEventSizeStats.getValueRate(MonitoredQuantity::RECENT);
+      totalConsumerBandwidth += dqmConsumerBandwidth;
+      maker.addDouble( tableDiv, dqmConsumerBandwidth, 1 );
+      
+      
+      // Totals
+      tableRow = maker.addNode("tr", table, specialRowAttr_);
+      tableDiv = maker.addNode("td", tableRow);
+      maker.addText(tableDiv, "Total");
+      tableDiv = maker.addNode("td", tableRow);
+      tableDiv = maker.addNode("td", tableRow);
+      tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
+      maker.addDouble( tableDiv, totalInputBandwidth, 1 );
+      tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
+      maker.addDouble( tableDiv, totalDiskBandwidth, 1 );
+      tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
+      maker.addDouble( tableDiv, totalConsumerBandwidth, 1 );
+    }
+  }
+  
+  
+  double SMWebPageHelper::getServedConsumerBandwidth
+  (
+    const std::string& label,
+    RegistrationCollectionPtr registrationCollection,
+    const EventConsumerMonitorCollection& eventConsumerCollection
+  ) const
+  {
+    double bandwidth = 0;
+
+    RegistrationCollection::ConsumerRegistrations consumers;
+    registrationCollection->getEventConsumers(consumers);
+
+    for( RegistrationCollection::ConsumerRegistrations::const_iterator
+           it = consumers.begin(), itEnd = consumers.end();
+         it != itEnd; ++it )
+    {
+      if ( (*it)->outputModuleLabel() == label )
+      {
+        // Events served:
+        MonitoredQuantity::Stats servedStats;
+        if ( eventConsumerCollection.getServed( (*it)->queueId(), servedStats ) )
+        {
+          bandwidth += servedStats.getValueRate(MonitoredQuantity::RECENT);
+        }
+      }
+    }
+    
+    return ( bandwidth/(double)0x100000 );
   }
   
   

@@ -1,4 +1,4 @@
-// $Id: StreamsMonitorCollection.cc,v 1.20 2011/06/20 15:55:53 mommsen Exp $
+// $Id: StreamsMonitorCollection.cc,v 1.21 2011/06/20 16:38:51 mommsen Exp $
 /// @file: StreamsMonitorCollection.cc
 
 #include <string>
@@ -17,7 +17,7 @@ namespace stor {
   ) :
   MonitorCollection(updateInterval),
   updateInterval_(updateInterval),
-  timeWindowForRecentResults_(boost::posix_time::seconds(30)),
+  timeWindowForRecentResults_(boost::posix_time::seconds(10)),
   allStreamsFileCount_(updateInterval, timeWindowForRecentResults_),
   allStreamsVolume_(updateInterval, timeWindowForRecentResults_),
   allStreamsBandwidth_(updateInterval, timeWindowForRecentResults_)
@@ -53,6 +53,31 @@ namespace stor {
     {
       list.push_back(*it);
     }
+  }
+  
+  
+  bool StreamsMonitorCollection::getStreamRecordsForOutputModuleLabel
+  (
+    const std::string& label,
+    StreamRecordList& list
+  ) const
+  {
+    boost::mutex::scoped_lock sl(streamRecordsMutex_);
+
+    list.clear();
+    list.reserve(streamRecords_.size());
+    
+    for (
+      StreamRecordList::const_iterator 
+        it = streamRecords_.begin(), itEnd = streamRecords_.end();
+      it != itEnd;
+      ++it
+    )
+    {
+      if ( (*it)->outputModuleLabel == label )
+        list.push_back(*it);
+    }
+    return ( ! list.empty() );
   }
   
 

@@ -1,4 +1,4 @@
-// $Id: StreamsMonitorCollection.h,v 1.15 2011/06/20 15:55:52 mommsen Exp $
+// $Id: StreamsMonitorCollection.h,v 1.16 2011/06/20 16:38:51 mommsen Exp $
 /// @file: StreamsMonitorCollection.h 
 
 #ifndef EventFilter_StorageManager_StreamsMonitorCollection_h
@@ -28,8 +28,8 @@ namespace stor {
    * A collection of MonitoredQuantities of output streams
    *
    * $Author: mommsen $
-   * $Revision: 1.15 $
-   * $Date: 2011/06/20 15:55:52 $
+   * $Revision: 1.16 $
+   * $Date: 2011/06/20 16:38:51 $
    */
   
   class StreamsMonitorCollection : public MonitorCollection
@@ -44,6 +44,9 @@ namespace stor {
         const utils::Duration_t& updateInterval,
         const utils::Duration_t& timeWindowForRecentResults
       ) :
+      streamName(""),
+      outputModuleLabel(""),
+      fractionToDisk(1),
       fileCount(updateInterval,timeWindowForRecentResults),
       volume(updateInterval,timeWindowForRecentResults),
       bandwidth(updateInterval,timeWindowForRecentResults),
@@ -61,6 +64,7 @@ namespace stor {
       );
       
       std::string streamName;       // name of the stream
+      std::string outputModuleLabel;// label of the associated output module
       double fractionToDisk;        // fraction of events written to disk
       MonitoredQuantity fileCount;  // number of files written for this stream
       MonitoredQuantity volume;     // data in MBytes stored in this stream
@@ -102,6 +106,8 @@ namespace stor {
     StreamRecordPtr getNewStreamRecord();
 
     void getStreamRecords(StreamRecordList&) const;
+
+    bool getStreamRecordsForOutputModuleLabel(const std::string&, StreamRecordList&) const;
 
     bool streamRecordsExist() const;
 

@@ -1,4 +1,4 @@
-// $Id: EventStreamHandler.cc,v 1.7.6.1 2011/03/07 11:33:05 mommsen Exp $
+// $Id: EventStreamHandler.cc,v 1.8 2011/03/07 15:31:32 mommsen Exp $
 /// @file: EventStreamHandler.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -20,6 +20,7 @@ namespace stor {
   initMsgCollection_(sharedResources->initMsgCollection_)
   {
     streamRecord_->streamName = streamLabel();
+    streamRecord_->outputModuleLabel = streamConfig_.outputModuleLabel();
     streamRecord_->fractionToDisk = fractionToDisk();
   }
   
