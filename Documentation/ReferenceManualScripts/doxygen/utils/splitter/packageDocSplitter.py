@@ -7,6 +7,33 @@ import sys
 from BeautifulSoup import BeautifulSoup, NavigableString
 
 SUBSYSTEMS = {}
+TAGLIST = {}
+
+def parseTagList(tagList):
+    input = open(tagList, "r")
+    source = input.read()
+    input.close()
+    lines = source.split("\n")
+    
+    for line in lines[4:-3]:
+        items = line.strip().split(" ")
+        package = items[0]
+        tag = items[-1]
+        TAGLIST[package] = tag
+        
+def addTagToPackageDoc(line, subsystem, package):
+    if (TAGLIST.has_key(subsystem+"/"+package)):
+        tag = TAGLIST[subsystem+"/"+package]
+    
+        path = line[line.find("href=\"")+6:line.find("\">")]
+        
+        input = open(PROJECT_PATH+path, "r")
+        source = input.read()
+        input.close()
+        
+        output = open(PROJECT_PATH+path, "w")
+        output.write(source.replace("@CVS_TAG@", tag).replace("(CVS tag: @)", "(CVS tag: "+tag+") "))
+        output.close()
 
 def extractList(filename):
     input = open(filename, "r")
@@ -30,6 +57,8 @@ def extractList(filename):
             if not SUBSYSTEMS.has_key(subsystem):
                 SUBSYSTEMS[subsystem] = {}
             SUBSYSTEMS[subsystem][package] = line.replace("<li>","")
+            
+            addTagToPackageDoc(line, subsystem, package)
         
         if not headerFull:
             header += line+"\n"
@@ -80,7 +109,9 @@ def createHTMLFiles(header, footer, PROJECT_PATH):
 if len(sys.argv) > 2:
     filename = sys.argv[1]
     PROJECT_PATH = sys.argv[2]+"/doc/html/"
+    tagList = sys.argv[2]+"/"+sys.argv[3]
     
+    parseTagList(tagList)
     (header, footer, html) = extractList(PROJECT_PATH+filename)
     createHTMLFiles(header, footer, PROJECT_PATH)
 
