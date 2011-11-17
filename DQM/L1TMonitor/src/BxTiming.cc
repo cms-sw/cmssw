@@ -159,7 +159,7 @@ BxTiming::beginJob(void) {
 
     lbl.clear();lbl+="BxOccyAllFed";
     hBxOccyOneFed = new MonitorElement*[nfed_];
-    dbe->setCurrentFolder(histFolder_+"SingleFed/");
+    dbe->setCurrentFolder(histFolder_+"/SingleFed");
     for(int i=0; i<nfed_; i++) {
       lbl.clear(); lbl+="BxOccyOneFed";
       char *ii = new char[1000]; std::sprintf(ii,"%d",i);lbl+=ii;
@@ -175,7 +175,7 @@ BxTiming::beginJob(void) {
       delete [] ii;
     }
 
-    dbe->setCurrentFolder(histFolder_+"SingleBit/");
+    dbe->setCurrentFolder(histFolder_+"/SingleBit");
     for(int i=0; i<NSYS; i++) {
       hBxOccyTrigBit[i] = new MonitorElement*[listGtBits_.size()];
       for(size_t j=0; j<listGtBits_.size(); j++) {
@@ -266,10 +266,19 @@ BxTiming::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   nEvt_++;
 
-  /// get the raw data
+  /// get the raw data - if not found, return
   edm::Handle<FEDRawDataCollection> rawdata;
   iEvent.getByLabel(fedSource_, rawdata);
-  //iEvent.getByType(rawdata);
+
+  if (!rawdata.isValid()) {
+
+        if (verbose())
+            std::cout
+                    << "BxTiming::analyze() | FEDRawDataCollection with input tag "
+                    << fedSource_ << " not found.";
+
+        return;
+  }
 
   // get the GT bits
   edm::Handle<L1GlobalTriggerReadoutRecord> gtdata;

@@ -11,7 +11,7 @@ L1TdeGCT::L1TdeGCT(const edm::ParameterSet& iConfig) {
     std::cout << "L1TdeGCT::L1TdeGCT()...\n" << std::flush;
   
   DEsource_ = iConfig.getParameter<edm::InputTag>("DataEmulCompareSource");
-  histFolder_ = iConfig.getUntrackedParameter<std::string>("HistFolder", "L1TEMU/GCTexpert/");
+  histFolder_ = iConfig.getUntrackedParameter<std::string>("HistFolder", "L1TEMU/GCTexpert");
   
   dbe = NULL;
   if (iConfig.getUntrackedParameter<bool>("DQMStore", false)) { 
@@ -87,7 +87,7 @@ L1TdeGCT::beginJob(void) {
     
     for(int j=0; j<nGctColl_; j++) {
       
-      dbe->setCurrentFolder(std::string(histFolder_+cLabel[j]));
+      dbe->setCurrentFolder(std::string(histFolder_+"/"+cLabel[j]));
       
       std::string lbl("");
       std::string title("");

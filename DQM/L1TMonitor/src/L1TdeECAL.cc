@@ -17,7 +17,7 @@ L1TdeECAL::L1TdeECAL(const edm::ParameterSet& iConfig) {
     std::cout << "L1TdeECAL::L1TdeECAL()...\n" << std::flush;
   
   DEsource_ = iConfig.getParameter<edm::InputTag>("DataEmulCompareSource");
-  histFolder_ = iConfig.getUntrackedParameter<std::string>("HistFolder", "L1TEMU//ECALexpert/");
+  histFolder_ = iConfig.getUntrackedParameter<std::string>("HistFolder", "L1TEMU//ECALexpert");
   
   dbe = NULL;
   if (iConfig.getUntrackedParameter<bool>("DQMStore", false)) { 

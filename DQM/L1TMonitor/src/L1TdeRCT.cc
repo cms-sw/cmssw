@@ -160,7 +160,7 @@ L1TdeRCT::L1TdeRCT(const ParameterSet & ps) :
   }
 
   histFolder_
-    = ps.getUntrackedParameter<std::string>("HistFolder", "L1TEMU/L1TdeRCT/");
+    = ps.getUntrackedParameter<std::string>("HistFolder", "L1TEMU/L1TdeRCT");
 
   if (dbe != NULL) {
     dbe->setCurrentFolder(histFolder_);
@@ -217,13 +217,13 @@ void L1TdeRCT::beginJob(void)
     rctInputTPGHcalRank_ =
   dbe->book1D("rctInputTPGHcalRank", "rctInputTPGHcalRank", TPGRANK, TPGRANKMIN, TPGRANKMAX) ;
 
-    dbe->setCurrentFolder(histFolder_+"EffCurves/NisoEm/");
+    dbe->setCurrentFolder(histFolder_+"/EffCurves/NisoEm/");
 
     trigEffThresh_ =
       dbe->book2D("trigEffThresh", "Rank occupancy >= 2x trig thresh",
 		  ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    dbe->setCurrentFolder(histFolder_+"EffCurves/NisoEm/ServiceData");
+    dbe->setCurrentFolder(histFolder_+"/EffCurves/NisoEm/ServiceData");
 
     trigEffThreshOcc_ =
       dbe->book2D("trigEffThreshOcc", "Rank occupancy >= 2x trig thresh",
@@ -232,7 +232,7 @@ void L1TdeRCT::beginJob(void)
       dbe->book2D("trigEffTriggThreshOcc", "Rank occupancy >= 2x trig thresh, triggered",
 		  ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    dbe->setCurrentFolder(histFolder_+"IsoEm");
+    dbe->setCurrentFolder(histFolder_+"/IsoEm");
 
     rctIsoEmEff1_ =
   dbe->book2D("rctIsoEmEff1", "rctIsoEmEff1", ETABINS, ETAMIN,
@@ -275,7 +275,7 @@ void L1TdeRCT::beginJob(void)
   dbe->book1D("rctIsoEmOvereff1D", "rctIsoEmOvereff1D",
                     CHNLBINS, CHNLMIN, CHNLMAX);
 
-    dbe->setCurrentFolder(histFolder_+"IsoEm/ServiceData");
+    dbe->setCurrentFolder(histFolder_+"/IsoEm/ServiceData");
 
     rctIsoEmDataOcc_ =
   dbe->book2D("rctIsoEmDataOcc", "rctIsoEmDataOcc", ETABINS, ETAMIN,
@@ -334,7 +334,7 @@ void L1TdeRCT::beginJob(void)
                     CHNLBINS, CHNLMIN, CHNLMAX);
 
 
-    dbe->setCurrentFolder(histFolder_+"NisoEm");
+    dbe->setCurrentFolder(histFolder_+"/NisoEm");
     rctNisoEmEff1_ =
   dbe->book2D("rctNisoEmEff1", "rctNisoEmEff1", ETABINS, ETAMIN,
         ETAMAX, PHIBINS, PHIMIN, PHIMAX);
@@ -376,7 +376,7 @@ void L1TdeRCT::beginJob(void)
   dbe->book1D("rctNisoEmOvereff1D", "rctNisoEmOvereff1D",
                     CHNLBINS, CHNLMIN, CHNLMAX);
 
-    dbe->setCurrentFolder(histFolder_+"NisoEm/ServiceData");
+    dbe->setCurrentFolder(histFolder_+"/NisoEm/ServiceData");
 
     rctNisoEmDataOcc_ =
   dbe->book2D("rctNisoEmDataOcc", "rctNisoEmDataOcc", ETABINS, ETAMIN,
@@ -435,7 +435,7 @@ void L1TdeRCT::beginJob(void)
                     CHNLBINS, CHNLMIN, CHNLMAX);
 
     // region information
-    dbe->setCurrentFolder(histFolder_+"RegionData");
+    dbe->setCurrentFolder(histFolder_+"/RegionData");
 
     rctRegEff1D_ =
       dbe->book1D("rctRegEff1D", "1D region efficiency",
@@ -477,7 +477,7 @@ void L1TdeRCT::beginJob(void)
       dbe->book2D("rctRegSpIneff2D", "2D region inefficiency, energy matching required",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    dbe->setCurrentFolder(histFolder_+"RegionData/ServiceData");
+    dbe->setCurrentFolder(histFolder_+"/RegionData/ServiceData");
 
     rctRegDataOcc1D_ =
       dbe->book1D("rctRegDataOcc1D", "1D region occupancy from data",
@@ -540,7 +540,7 @@ void L1TdeRCT::beginJob(void)
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
     // bit information
-    dbe->setCurrentFolder(histFolder_+"BitData");
+    dbe->setCurrentFolder(histFolder_+"/BitData");
 
     rctBitOverFlowEff2D_ =
       dbe->book2D("rctBitOverFlowEff2D", "2D overflow bit efficiency",
@@ -603,7 +603,7 @@ void L1TdeRCT::beginJob(void)
       dbe->book2D("rctBitHfPlusTauOvereff2D", "2D HfPlusTau bit overefficiency",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    dbe->setCurrentFolder(histFolder_+"BitData/ServiceData");
+    dbe->setCurrentFolder(histFolder_+"/BitData/ServiceData");
 
     rctBitEmulOverFlow2D_ =
       dbe->book2D("rctBitEmulOverFlow2D", "2D overflow bit from emulator",
@@ -743,7 +743,7 @@ void L1TdeRCT::beginJob(void)
       BITETABINS, BITETAMIN, BITETAMAX, BITPHIBINS, BITPHIMIN, BITPHIMAX);
 
 
-    dbe->setCurrentFolder(histFolder_+"DBData");
+    dbe->setCurrentFolder(histFolder_+"/DBData");
     fedVectorMonitorRUN_ = dbe->book2D("rctFedVectorMonitorRUN", "FED Vector Monitor Per Run",90,0,90,2,0,2);
     fedVectorMonitorLS_ = dbe->book2D("rctFedVectorMonitorLS", "FED Vector Monitor Per LS",90,0,90,2,0,2);
 
@@ -766,18 +766,18 @@ void L1TdeRCT::beginJob(void)
    {
     for(int m=0; m<12; m++)
     {
-    if(m==0) dbe->setCurrentFolder(histFolder_+"IsoEm/ServiceData/Eff1SnglChnls");
-    if(m==1) dbe->setCurrentFolder(histFolder_+"NisoEm/ServiceData/Eff1SnglChnls");
-    if(m==2) dbe->setCurrentFolder(histFolder_+"RegionData/ServiceData/EffSnglChnls");
-    if(m==3) dbe->setCurrentFolder(histFolder_+"IsoEm/ServiceData/IneffSnglChnls");
-    if(m==4) dbe->setCurrentFolder(histFolder_+"NisoEm/ServiceData/IneffSnglChnls");
-    if(m==5) dbe->setCurrentFolder(histFolder_+"RegionData/ServiceData/IneffSnglChnls");
-    if(m==6) dbe->setCurrentFolder(histFolder_+"IsoEm/ServiceData/OvereffSnglChnls");
-    if(m==7) dbe->setCurrentFolder(histFolder_+"NisoEm/ServiceData/OvereffSnglChnls");
-    if(m==8) dbe->setCurrentFolder(histFolder_+"RegionData/ServiceData/OvereffSnglChnls");
-    if(m==9) dbe->setCurrentFolder(histFolder_+"EffCurves/NisoEm/ServiceData/SingleChannels");
-    if(m==10) dbe->setCurrentFolder(histFolder_+"EffCurves/NisoEm/ServiceData/SingleChannels");
-    if(m==11) dbe->setCurrentFolder(histFolder_+"EffCurves/NisoEm/ServiceData/SingleChannels");
+    if(m==0) dbe->setCurrentFolder(histFolder_+"/IsoEm/ServiceData/Eff1SnglChnls");
+    if(m==1) dbe->setCurrentFolder(histFolder_+"/NisoEm/ServiceData/Eff1SnglChnls");
+    if(m==2) dbe->setCurrentFolder(histFolder_+"/RegionData/ServiceData/EffSnglChnls");
+    if(m==3) dbe->setCurrentFolder(histFolder_+"/IsoEm/ServiceData/IneffSnglChnls");
+    if(m==4) dbe->setCurrentFolder(histFolder_+"/NisoEm/ServiceData/IneffSnglChnls");
+    if(m==5) dbe->setCurrentFolder(histFolder_+"/RegionData/ServiceData/IneffSnglChnls");
+    if(m==6) dbe->setCurrentFolder(histFolder_+"/IsoEm/ServiceData/OvereffSnglChnls");
+    if(m==7) dbe->setCurrentFolder(histFolder_+"/NisoEm/ServiceData/OvereffSnglChnls");
+    if(m==8) dbe->setCurrentFolder(histFolder_+"/RegionData/ServiceData/OvereffSnglChnls");
+    if(m==9) dbe->setCurrentFolder(histFolder_+"/EffCurves/NisoEm/ServiceData/SingleChannels");
+    if(m==10) dbe->setCurrentFolder(histFolder_+"/EffCurves/NisoEm/ServiceData/SingleChannels");
+    if(m==11) dbe->setCurrentFolder(histFolder_+"/EffCurves/NisoEm/ServiceData/SingleChannels");
 
     for(int i=0; i<ETAMAX; i++)
     {

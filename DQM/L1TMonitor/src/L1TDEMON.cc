@@ -12,7 +12,7 @@ L1TDEMON::L1TDEMON(const edm::ParameterSet& iConfig) {
     std::cout << "L1TDEMON::L1TDEMON()...\n" << std::flush;
   
   DEsource_ = iConfig.getParameter<edm::InputTag>("DataEmulCompareSource");
-  histFolder_ = iConfig.getUntrackedParameter<std::string>("HistFolder", "L1TEMU/");
+  histFolder_ = iConfig.getUntrackedParameter<std::string>("HistFolder", "L1TEMU");
   histFile_ = iConfig.getUntrackedParameter<std::string>("HistFile", "");
 
   runInFF_ = iConfig.getUntrackedParameter<bool> ("RunInFilterFarm", false);
@@ -103,7 +103,7 @@ L1TDEMON::beginJob(void) {
   if(dbe) {
 
     if(!runInFF_)
-      dbe->setCurrentFolder(std::string(histFolder_+"common/"));
+      dbe->setCurrentFolder(std::string(histFolder_+"/common"));
 
     for(int j=0; j<2; j++) {
       std::string lbl("sysncand"); 
@@ -118,7 +118,7 @@ L1TDEMON::beginJob(void) {
     for(int j=0; j<DEnsys; j++) {
 
       if(!runInFF_)
-	dbe->setCurrentFolder(std::string(histFolder_+SystLabelExt[j]));
+	dbe->setCurrentFolder(std::string(histFolder_+"/"+SystLabelExt[j]));
 
       std::string lbl("");
       lbl.clear();
@@ -184,7 +184,7 @@ L1TDEMON::beginJob(void) {
 
   if(dbe && !runInFF_) {
     /// correlation (skip if running in filter farm)
-    dbe->setCurrentFolder(histFolder_+"xcorr");
+    dbe->setCurrentFolder(histFolder_+"/xcorr");
     const int ncorr = 3;
     std::string corrl[ncorr] = {"phi","eta","rank"};
     for(int i=0; i<DEnsys; i++) {
