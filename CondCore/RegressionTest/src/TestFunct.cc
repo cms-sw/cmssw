@@ -15,7 +15,7 @@ std::pair<int,int> TestFunct::GetMetadata(std::string mappingName)
  		coral::ITable& mytable=s.nominalSchema().tableHandle("TEST_METADATA");
  		std::auto_ptr< coral::IQuery > query(mytable.newQuery());
  		coral::AttributeList BindVariableList;
- 		std::string condition="NAME =:NAME";>
+ 		std::string condition="NAME =:NAME";
  		BindVariableList.extend("NAME",typeid(std::string));
  		BindVariableList["NAME"].data<std::string>()=mappingName;
  		query->setCondition( condition, BindVariableList );
