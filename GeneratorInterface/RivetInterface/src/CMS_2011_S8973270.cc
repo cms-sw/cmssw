@@ -42,6 +42,13 @@ namespace Rivet {
       _h_dsigma_dPhi_56GeV = bookHistogram1D(4,1,1); 
       _h_dsigma_dPhi_84GeV = bookHistogram1D(5,1,1); 
       _h_dsigma_dPhi_120GeV = bookHistogram1D(6,1,1); 
+      
+      _countMCDR56 = 0.; 
+      _countMCDR84 = 0.; 
+      _countMCDR120 = 0.; 
+      _countMCDPhi56 = 0.; 
+      _countMCDPhi84 = 0.; 
+      _countMCDPhi120 = 0.; 
 
     }
 
@@ -105,6 +112,14 @@ namespace Rivet {
           double dPhi = deltaPhi(phiB1, phiB2); 
           double dR = deltaR(etaB1, phiB1, etaB2, phiB2); 
           MSG_DEBUG("DR/DPhi " << dR << " " << dPhi << "\n");
+          
+          //MC counters
+          if(dR > 2.4) _countMCDR56 += weight; 
+          if(dR > 2.4 && ljpT > 84.) _countMCDR84 += weight; 
+          if(dR > 2.4 && ljpT > 120.) _countMCDR120 += weight; 
+          if(dPhi > 3.*PI/4.) _countMCDPhi56 += weight; 
+          if(dPhi > 3.*PI/4. && ljpT > 84.) _countMCDPhi84 += weight; 
+          if(dPhi > 3.*PI/4. && ljpT > 120.) _countMCDPhi120 += weight; 
 
           _h_dsigma_dR_56GeV->fill(dR, weight); 
           if(ljpT > 84) _h_dsigma_dR_84GeV->fill(dR, weight); 
@@ -120,8 +135,6 @@ namespace Rivet {
 
     /// Normalise histograms etc., after the run
     void finalize() {
-
-      /// @todo Normalise, scale and otherwise manipulate histograms here
       
       MSG_DEBUG("crossSection " << crossSection() << " sumOfWeights " 
                                 << sumOfWeights() << "\n"); 
@@ -129,12 +142,25 @@ namespace Rivet {
       //hardcoded bin widths
       double DRbin = 0.4; 
       double DPhibin = PI/8.0; 
-      scale(_h_dsigma_dR_56GeV, crossSection()/sumOfWeights()*DRbin);
-      scale(_h_dsigma_dR_84GeV, crossSection()/sumOfWeights()*DRbin);
-      scale(_h_dsigma_dR_120GeV, crossSection()/sumOfWeights()*DRbin);
-      scale(_h_dsigma_dPhi_56GeV, crossSection()/sumOfWeights()*DPhibin);
-      scale(_h_dsigma_dPhi_84GeV, crossSection()/sumOfWeights()*DPhibin);
-      scale(_h_dsigma_dPhi_120GeV, crossSection()/sumOfWeights()*DPhibin);
+      //Find out the correct numbers
+      double nDataDR56 = 25862.20; 
+      double nDataDR84 = 5675.55; 
+      double nDataDR120 = 1042.72; 
+      double nDataDPhi56 = 24220.00; 
+      double nDataDPhi84 = 4964.00; 
+      double nDataDPhi120 = 919.10; 
+      double normDR56 = (_countMCDR56 > 0.) ? nDataDR56/_countMCDR56 : crossSection()/sumOfWeights();
+      double normDR84 = (_countMCDR84 > 0.) ? nDataDR84/_countMCDR84 : crossSection()/sumOfWeights();
+      double normDR120 = (_countMCDR120 > 0.) ? nDataDR120/_countMCDR120 : crossSection()/sumOfWeights();
+      double normDPhi56 = (_countMCDPhi56 > 0.) ? nDataDPhi56/_countMCDPhi56 : crossSection()/sumOfWeights();
+      double normDPhi84 = (_countMCDPhi84 > 0.) ? nDataDPhi84/_countMCDPhi84 : crossSection()/sumOfWeights();
+      double normDPhi120 = (_countMCDPhi120 > 0.) ? nDataDPhi120/_countMCDPhi120 : crossSection()/sumOfWeights();
+      scale(_h_dsigma_dR_56GeV, normDR56*DRbin);
+      scale(_h_dsigma_dR_84GeV, normDR84*DRbin);
+      scale(_h_dsigma_dR_120GeV, normDR120*DRbin);
+      scale(_h_dsigma_dPhi_56GeV, normDPhi56*DPhibin);
+      scale(_h_dsigma_dPhi_84GeV, normDPhi84*DPhibin);
+      scale(_h_dsigma_dPhi_120GeV, normDPhi120*DPhibin);
 
     }
 
@@ -152,6 +178,12 @@ namespace Rivet {
     AIDA::IHistogram1D *_h_dsigma_dPhi_56GeV;
     AIDA::IHistogram1D *_h_dsigma_dPhi_84GeV;
     AIDA::IHistogram1D *_h_dsigma_dPhi_120GeV;
+    double _countMCDR56;
+    double _countMCDR84;
+    double _countMCDR120;
+    double _countMCDPhi56;
+    double _countMCDPhi84;
+    double _countMCDPhi120;
     //@}
 
   };
