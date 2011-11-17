@@ -1,16 +1,15 @@
 import os,commands,re,urllib2
-class checkforupdate():
+class checkforupdate:
     def __init__(self):
         self.lumiurl='http://cms-service-lumi.web.cern.ch/cms-service-lumi/publicplots/tagstatus.txt'
-    def fetchTagsHTTP(self,scriptname):
+    def fetchTagsHTTP(self):
         taglist=[]
         openurl=urllib2.build_opener()
         tagfile=openurl.open(self.lumiurl)
         tagfileStr=tagfile.read()
-        for tag in tagfileStr.split('\n'):
+        for tag in tagfileStr.lstrip('\n').strip('\n').split('\n'):
             fields=tag.split(',')
-            if fields[0]==scriptname:
-                taglist.append([fields[1],fields[2],fields[3]])
+            taglist.append([fields[0],fields[1],fields[2]])
         return taglist
     def runningVersion(self,cmsswWorkingBase,scriptname,isverbose=True):
         currentdir=os.getcwd()
@@ -30,8 +29,8 @@ class checkforupdate():
             print '  script : '+scriptname
             print '  version : '+workingversion
         return allfields[2]
-    def checkforupdate(self,scriptname,workingtag,isverbose=True):
-        newtags=self.fetchTagsHTTP(scriptname)
+    def checkforupdate(self,workingtag,isverbose=True):
+        newtags=self.fetchTagsHTTP()
         if workingtag=='(none)':#means HEAD
             return []
         w=workingtag.lstrip('V').split('-')
@@ -60,9 +59,9 @@ class checkforupdate():
                 return
             for [tag,ismajor,description] in updatetags:
                 if ismajor=='1':
-                    print '  major update, tag : ',tag+' , '+description
+                    print '  major update, tag ',tag+' , '+description
                 else:
-                    print '  minor update, tag : ',tag+' , '+description
+                    print '  minor update, tag ',tag+' , '+description
         return updatetags
         
 if __name__=='__main__':
@@ -70,6 +69,6 @@ if __name__=='__main__':
     cmsswWorkingBase=os.environ['CMSSW_BASE']    
     c=checkforupdate()
     workingversion=c.runningVersion(cmsswWorkingBase,scriptname)
-    c.checkforupdate(scriptname,'V03-03-07')
+    c.checkforupdate('V03-03-07')
    
     
