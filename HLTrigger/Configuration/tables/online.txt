@@ -435,14 +435,14 @@ AlCa_RPCMuonNormalisation_v*
 AlCa_LumiPixels_v*
 DQM_FEDIntegrity_v*
 HLTriggerFinalPath
-AOutput
+#AOutput
 ALCAP0Output
 ALCAPHISYMOutput
 ALCALUMIPIXELSOutput
 CalibrationOutput
-DQMOutput
+#DQMOutput
 EcalCalibrationOutput
-ExpressOutput
+#ExpressOutput
 HLTDQMOutput
 HLTDQMResultsOutput
 HLTMONOutput
@@ -450,3 +450,6 @@ NanoDSTOutput
 PhysicsDSTOutput
 RPCMONOutput
 TrackerCalibrationOutput
+AForPPOutput
+DQMForPPOutput
+ExpressForPPOutput
