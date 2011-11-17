@@ -32,6 +32,9 @@ class checkforupdate:
     def checkforupdate(self,workingtag,isverbose=True):
         newtags=self.fetchTagsHTTP()
         if workingtag=='(none)':#means HEAD
+            if isverbose:
+                print 'checking update for HEAD'
+                print '  no update'
             return []
         w=workingtag.lstrip('V').split('-')
         if len(w)!=3:
@@ -56,7 +59,7 @@ class checkforupdate:
             print 'checking update for '+workingtag
             if not updatetags:
                 print '  no update'
-                return
+                return []
             for [tag,ismajor,description] in updatetags:
                 if ismajor=='1':
                     print '  major update, tag ',tag+' , '+description
@@ -69,6 +72,7 @@ if __name__=='__main__':
     cmsswWorkingBase=os.environ['CMSSW_BASE']    
     c=checkforupdate()
     workingversion=c.runningVersion(cmsswWorkingBase,scriptname)
-    c.checkforupdate('V03-03-07')
+    #c.checkforupdate('V03-03-07')
+    c.checkforupdate(workingversion)
    
     
