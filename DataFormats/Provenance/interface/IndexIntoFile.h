@@ -177,6 +177,7 @@ The interface is too complex for general use.
 #include <map>
 #include <set>
 #include <vector>
+#include <iostream>
 
 namespace edm {
 
@@ -1049,7 +1050,9 @@ namespace edm {
 
   template <>
   struct value_ptr_traits<IndexIntoFile::IndexIntoFileItrImpl> {
-    static IndexIntoFile::IndexIntoFileItrImpl* clone(IndexIntoFile::IndexIntoFileItrImpl const* p) {return p->clone();}
+    static IndexIntoFile::IndexIntoFileItrImpl* clone(IndexIntoFile::IndexIntoFileItrImpl const* p) {
+      return p->clone();
+    }
   };
 
 
