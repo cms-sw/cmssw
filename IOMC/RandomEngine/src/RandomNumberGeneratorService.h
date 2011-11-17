@@ -41,6 +41,9 @@ namespace edm {
     class RandomNumberGeneratorService : public RandomNumberGenerator {
 
     public:
+      static size_t const maxSeeds = 65536U;
+
+      static size_t const maxStates = 65536U;
 
       RandomNumberGeneratorService(ParameterSet const& pset, ActivityRegistry& activityRegistry);
       virtual ~RandomNumberGeneratorService();

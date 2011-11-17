@@ -1070,6 +1070,13 @@ namespace edm {
           << "Cannot read beginning of InitialSeeds when restoring random engine states.\n";
       }
 
+      if(seedVectorSize > maxSeeds) {
+        throw Exception(errors::Configuration)
+          << "File \"" << restoreFileName_
+          << "\" is ill-structured or otherwise corrupted.\n"
+          << "The number of seeds exceeds 64K.\n";
+      }
+
       readVector(is, seedVectorSize, seedVector);
 
       is >> trailing;
@@ -1098,6 +1105,13 @@ namespace edm {
           << "File \"" << restoreFileName_
           << "\" is ill-structured or otherwise corrupted.\n"
           << "Cannot read beginning of FullState when restoring random engine states.\n";
+      }
+
+      if(stateVectorSize > maxStates) {
+        throw Exception(errors::Configuration)
+          << "File \"" << restoreFileName_
+          << "\" is ill-structured or otherwise corrupted.\n"
+          << "The number of states exceeds 64K.\n";
       }
 
       readVector(is, stateVectorSize, stateVector);
