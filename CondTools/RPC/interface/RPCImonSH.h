@@ -23,7 +23,6 @@ namespace popcon{
     std::string id() const { return m_name;}
     ~RpcDataI(); 
     RpcDataI(const edm::ParameterSet& pset);
-    RpcDataI(int suptype); 
     
     RPCObImon* Idata;
 

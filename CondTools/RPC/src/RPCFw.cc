@@ -23,7 +23,6 @@
 #include <math.h>
 #include <iostream>
 #include <sstream>
-#include <time.h>
 #include "CondFormats/RPCObjects/interface/RPCObFebmap.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
@@ -50,6 +49,7 @@ std::vector<RPCObImon::I_Item> RPCFw::createIMON(long long since, long long till
 
   coral::ISession* session = this->connect( m_connectionString,m_userName, m_password );
   session->transaction().start( true );
+  
   coral::ISchema& schema = session->nominalSchema();
   coral::IQuery* queryI = schema.newQuery();
   queryI->addToTableList( "FWCAENCHANNEL" );
@@ -79,10 +79,13 @@ std::vector<RPCObImon::I_Item> RPCFw::createIMON(long long since, long long till
       int id = static_cast<int>(idoub);
       float val = row["IMON"].data<float>();
       coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
-      Itemp.detid = this->detId(id);
-      Itemp.value = val;
-      Itemp.unixtime = this->CTtoUT(ts);
-      imonarray.push_back(Itemp);
+      int rawid = this->detId(id);
+      if (rawid>0){
+	Itemp.detid = rawid;
+	Itemp.value = val;
+	Itemp.unixtime = this->CTtoUT(ts);
+	imonarray.push_back(Itemp);
+      }
     }
   } else {
     std::cout << ">> creating IMON object..." << std::endl;
@@ -98,10 +101,13 @@ std::vector<RPCObImon::I_Item> RPCFw::createIMON(long long since, long long till
       int id = static_cast<int>(idoub);
       float val = row["IMON"].data<float>();
       coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
-      Itemp.detid = this->detId(id);
-      Itemp.value = val;
-      Itemp.unixtime = this->CTtoUT(ts);
-      imonarray.push_back(Itemp);
+      int rawid = this->detId(id);
+      if (rawid>0){
+	Itemp.detid = rawid;
+	Itemp.value = val;
+	Itemp.unixtime = this->CTtoUT(ts);
+	imonarray.push_back(Itemp);
+      }
     }
   }
 
@@ -150,10 +156,13 @@ std::vector<RPCObVmon::V_Item> RPCFw::createVMON(long long since, long long till
       int id = static_cast<int>(idoub);
       float val = row["VMON"].data<float>();
       coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
-      Vtemp.detid = this->detId(id);
-      Vtemp.value = val;
-      Vtemp.unixtime = this->CTtoUT(ts);
-      vmonarray.push_back(Vtemp);
+      int rawid = this->detId(id);
+      if (rawid>0){
+	Vtemp.detid = rawid;
+	Vtemp.value = val;
+	Vtemp.unixtime = this->CTtoUT(ts);
+	vmonarray.push_back(Vtemp);
+      }
     }
   } else {
     std::cout << ">> creating VMON object..." << std::endl;
@@ -169,10 +178,13 @@ std::vector<RPCObVmon::V_Item> RPCFw::createVMON(long long since, long long till
       int id = static_cast<int>(idoub);
       float val = row["VMON"].data<float>();
       coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
-      Vtemp.detid = this->detId(id);
-      Vtemp.value = val;
-      Vtemp.unixtime = this->CTtoUT(ts);
-      vmonarray.push_back(Vtemp);
+      int rawid = this->detId(id);
+      if (rawid>0){
+	Vtemp.detid = rawid;
+	Vtemp.value = val;
+	Vtemp.unixtime = this->CTtoUT(ts);
+	vmonarray.push_back(Vtemp);
+      }
     }
   }
 
@@ -223,10 +235,13 @@ std::vector<RPCObStatus::S_Item> RPCFw::createSTATUS(long long since, long long 
       int id = static_cast<int>(idoub);
       float val = row["STATUS"].data<float>();
       coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
-      Stemp.detid = this->detId(id);
-      Stemp.value = val;
-      Stemp.unixtime = this->CTtoUT(ts);
-      statusarray.push_back(Stemp);
+      int rawid = this->detId(id);
+      if (rawid>0){
+	Stemp.detid = rawid;
+	Stemp.value = val;
+	Stemp.unixtime = this->CTtoUT(ts);
+	statusarray.push_back(Stemp);
+      }
     } 
   }else {
     std::cout << ">> creating STATUS object..." << std::endl;
@@ -242,10 +257,13 @@ std::vector<RPCObStatus::S_Item> RPCFw::createSTATUS(long long since, long long 
       int id = static_cast<int>(idoub);
       float val = row["STATUS"].data<float>();
       coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
-      Stemp.detid = this->detId(id);
-      Stemp.value = val;
-      Stemp.unixtime = this->CTtoUT(ts);
-      statusarray.push_back(Stemp);
+      int rawid = this->detId(id);
+      if (rawid>0){
+	Stemp.detid = rawid;
+	Stemp.value = val;
+	Stemp.unixtime = this->CTtoUT(ts);
+	statusarray.push_back(Stemp);
+      }
     }
   }
 
@@ -423,10 +441,13 @@ std::vector<RPCObTemp::T_Item> RPCFw::createT(long long since, long long till)
       int id = static_cast<int>(idoub);
       float val = row["TEMPERATURE"].data<float>();
       coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
-      Ttemp.detid = this->detId(id);
-      Ttemp.value = val;
-      Ttemp.unixtime = this->CTtoUT(ts);
-      temparray.push_back(Ttemp);
+      int rawid = this->detId(id);
+      if (rawid>0){
+	Ttemp.detid = rawid;
+	Ttemp.value = val;
+	Ttemp.unixtime = this->CTtoUT(ts);
+	temparray.push_back(Ttemp);
+      }
     }
   } else {
     std::cout << ">> creating TEMPERATURE object..." << std::endl;
@@ -442,10 +463,13 @@ std::vector<RPCObTemp::T_Item> RPCFw::createT(long long since, long long till)
       int id = static_cast<int>(idoub);
       float val = row["TEMPERATURE"].data<float>();
       coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
-      Ttemp.detid = this->detId(id);
-      Ttemp.value = val;
-      Ttemp.unixtime = this->CTtoUT(ts);
-      temparray.push_back(Ttemp);
+      int rawid = this->detId(id);
+      if (rawid>0){
+	Ttemp.detid = rawid;
+	Ttemp.value = val;
+	Ttemp.unixtime = this->CTtoUT(ts);
+	temparray.push_back(Ttemp);
+      }
     }
   }
 
@@ -1280,19 +1304,29 @@ std::vector<RPCObGasMix::Item> RPCFw::createMix(long long since, long long till)
 }
 
 coral::TimeStamp RPCFw::UTtoCT(long long utime) {
-  return coral::TimeStamp(utime);
+  std::cout <<"Test unix time raw = "<<utime<<std::endl;
+  long long nsecs = utime*1000*1000*1000; 
+  coral::TimeStamp::ValueType lSecs  = nsecs/1000000000; // extract seconds     part                                                                     
+  coral::TimeStamp::ValueType lNsecs = nsecs%1000000000; // extract nanoseconds part                                                                     
+
+  // Little precision check                                                                                                                              
+  long int precision = boost::posix_time::time_duration::num_fractional_digits();
+
+  boost::posix_time::time_duration since_epoch;
+
+  if( precision > 6 )
+    since_epoch = boost::posix_time::seconds( (long)lSecs ) + coral::time::nanoseconds( lNsecs );
+  else
+    since_epoch = boost::posix_time::seconds( (long)lSecs ) + boost::posix_time::microseconds( lNsecs/1000 );
+
+  boost::posix_time::ptime time_since_epoch( boost::gregorian::date( 1970, 1, 1 ), since_epoch );
+  std::cout <<"time since epoch boost = "<<time_since_epoch<<std::endl;
+  return coral::TimeStamp(nsecs);
 }
 
 unsigned int RPCFw::CTtoUT(const coral::TimeStamp& time) 
 {
-  tm gmt;
-  gmt.tm_sec=time.second();
-  gmt.tm_min=time.minute();
-  gmt.tm_hour=time.hour();
-  gmt.tm_mday=time.day();
-  gmt.tm_mon=time.month()-1;
-  gmt.tm_year=time.year()-1900;
-  return mktime(&gmt);
+  return (time.total_nanoseconds()/1000/1000/1000);
 }
 
 
@@ -1301,7 +1335,6 @@ RPCFw::setSuptype(int test_suptype){
   _suptype = test_suptype;
 }
 
-
 unsigned int
 RPCFw::detId(int pvssId){
   //std::cout <<" Number  of items on MAP "<<pvssTodetId.size()<<std::endl;
@@ -1309,7 +1342,7 @@ RPCFw::detId(int pvssId){
     std::cout <<pvssId <<" not found in map"<<std::endl;
     std::vector<RPCObPVSSmap::Item> completeMap = this->createIDMAP();
     for(std::vector<RPCObPVSSmap::Item>::iterator iter=completeMap.begin();iter!=completeMap.end();iter++){
-      if(iter->suptype==4 || iter->suptype==_suptype){
+      if(iter->suptype==_suptype){
 	int myregion=iter->region;
 	int myring=iter->ring;
 	int mysector=iter->sector;
@@ -1337,7 +1370,7 @@ RPCFw::detId(int pvssId){
   }
   if (pvssTodetId.find(pvssId)==pvssTodetId.end()){
     //std::cout <<pvssId<<" Still not found !STOP!"<<std::endl;
-    return -1;
+    return -1*pvssId;
   }else{
     return pvssTodetId[pvssId];
   }
