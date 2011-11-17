@@ -10,13 +10,26 @@
 #include <iostream>
 #include <string.h>
 
+
+
 // dlsym isn't reentrant, need a locak around it
 pthread_mutex_t LStoreFile::m_dlopen_lock = PTHREAD_MUTEX_INITIALIZER;
 
 LStoreFile::LStoreFile (void)
-  : m_fd (NULL),
+  : m_fd (0),
     m_close (false),
-	m_is_loaded(false)
+    m_name(),
+    m_library_handle(0),
+    m_is_loaded(false),
+    redd_init(0),
+    redd_read(0),
+    redd_close(0),
+    redd_lseek(0),
+    redd_open(0),
+    redd_write(0),
+    redd_term(0),
+    redd_errno(0),
+    redd_strerror(0)
 {
 	loadLibrary();	
 }
@@ -24,7 +37,18 @@ LStoreFile::LStoreFile (void)
 LStoreFile::LStoreFile (void * fd)
   : m_fd (fd),
     m_close (true),
-	m_is_loaded(false)
+    m_name(),
+    m_library_handle(0),
+    m_is_loaded(false),
+    redd_init(0),
+    redd_read(0),
+    redd_close(0),
+    redd_lseek(0),
+    redd_open(0),
+    redd_write(0),
+    redd_term(0),
+    redd_errno(0),
+    redd_strerror(0)
 {
 	loadLibrary();	
 }

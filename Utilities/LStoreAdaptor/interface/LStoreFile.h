@@ -50,15 +50,21 @@ public:
   static pthread_mutex_t m_dlopen_lock;
 
 private:
+  // functions
+
+  void loadLibrary();
+  void closeLibrary();
+
+  //data
+
   void *		m_fd;
   bool			m_close;
   std::string		m_name;
-  void loadLibrary();
-  void closeLibrary();
   void * m_library_handle;
   bool m_is_loaded;
 
-  // Prototypes for 
+  // Prototypes for functions
+  // These are data members that are function pointers.
 
   int32_t (*redd_init)();
   int64_t (*redd_read)(void *, char*, int64_t); 
