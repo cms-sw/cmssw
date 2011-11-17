@@ -8,17 +8,8 @@ from Configuration.AlCa.autoCond import autoCond
 import os
 import socket
 from subprocess import *
-
-# Needed for loading DAS module
-# FIXME: Obsolete as soon as DAS module available vie "normal" 'import' statement (hopefully)
-import imp
-import urllib2
-import sys
-import re
-import time
 import json
-import urllib
-# from das_client import *
+import das_client
 
 
 ## ------------------------------------------------------
@@ -994,12 +985,6 @@ class PickRelValInputFiles( ConfigToolBase ):
         if debug:
             print '%s DEBUG: Running at site \'%s.%s\''%( self._label, domain[ -2 ], domain[ -1 ] )
             print '%s DEBUG: Looking for SE \'%s\''%( self._label, domainSE )
-
-        # Load DAS module
-        # FIXME: Soon available vie "normal" 'import' statement
-        das_client = imp.new_module( 'das_client' )
-        exec urllib2.urlopen( 'http://cmsweb.cern.ch/das/cli' ).read() in globals(), das_client.__dict__
-        sys.modules[ 'das_client' ] = das_client
 
         # Find files
         dasLimit = numberOfFiles
