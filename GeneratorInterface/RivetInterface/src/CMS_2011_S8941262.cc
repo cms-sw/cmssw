@@ -73,10 +73,6 @@ namespace Rivet {
     /// Normalise histograms etc., after the run
     void finalize() {
 
-      cout << "crossSection = " << crossSection() << endl;
-      cout << "sumOfWeights = " << sumOfWeights() << endl;
-      cout << "nbtot   " << nbtot << "  sigma b  =" << nbtot*crossSection()/microbarn/sumOfWeights() << "ub" << endl;
-      cout << "nbmutot " << nbmutot << "  sigma bmu=" << nbmutot*crossSection()/microbarn/sumOfWeights() << "ub" << endl;
       scale(_h_total, crossSection()/microbarn/sumOfWeights());
       scale(_h_mupt,  crossSection()/nanobarn/sumOfWeights());
       scale(_h_mueta, crossSection()/nanobarn/sumOfWeights());
