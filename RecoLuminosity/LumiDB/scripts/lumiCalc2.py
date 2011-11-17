@@ -54,7 +54,7 @@ def getValidationData(dbsession,run=None,cmsls=None):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description = "Lumi Calculation",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    allowedActions = ['overview', 'delivered', 'recorded', 'lumibyls','lumibylsXing','status']
+    allowedActions = ['overview', 'delivered', 'recorded', 'lumibyls','lumibylsXing','status','checkforupdate']
     beamModeChoices = [ "stable", "quiet", "either"]
     amodetagChoices = [ "PROTPHYS","IONPHYS",'PAPHYS' ]
     xingAlgoChoices =[ "OCC1","OCC2","ET"]
@@ -170,6 +170,13 @@ if __name__ == '__main__':
                         help='debug')
     
     options=parser.parse_args()
+    if options.action=='checkforupdate':
+        from RecoLuminosity.LumiDB import checkforupdate
+        cmsswWorkingBase=os.environ['CMSSW_BASE']
+        c=checkforupdate.checkforupdate()
+        workingversion=c.runningVersion(cmsswWorkingBase,'lumiCalc2.py')
+        c.checkforupdate(workingversion)
+        exit(0)
     if options.authpath:
         os.environ['CORAL_AUTH_PATH'] = options.authpath
         
@@ -184,7 +191,7 @@ if __name__ == '__main__':
         print '\tlumi data version: ',options.lumiversion
         print '\tsiteconfpath: ',options.siteconfpath
         print '\toutputfile: ',options.outputfile
-        print '\tscalefactor: ',options.scalefactor
+        print '\tscalefactor: ',options.scalefactor        
         if options.action=='recorded' and options.hltpath:
             print 'Action: effective luminosity in hltpath: ',options.hltpath
         else:
