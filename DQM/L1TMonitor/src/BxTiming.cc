@@ -21,10 +21,10 @@ BxTiming::BxTiming(const edm::ParameterSet& iConfig) {
   histFile_ = iConfig.getUntrackedParameter<std::string>
     ("HistFile","");
   histFolder_ = iConfig.getUntrackedParameter<std::string>
-    ("HistFolder", "L1T/BXSynch/");
+    ("HistFolder", "L1T/BXSynch");
 
   runInFF_ = iConfig.getUntrackedParameter<bool> ("RunInFilterFarm", true);
- if(runInFF_) histFolder_ = "L1T/BXSynch_EvF/";
+ if(runInFF_) histFolder_ = "L1T/BXSynch_EvF";
   if(verbose())
     std::cout << "Filter farm run setting?" << runInFF_
 	      << "\n" << std::flush;

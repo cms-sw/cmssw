@@ -53,8 +53,8 @@ const float effcombomax = 3272;
 L1THcalClient::L1THcalClient(const edm::ParameterSet& iConfig)
 {
   minEventsforFit = iConfig.getUntrackedParameter<int>("minEventsforFit",1000);
-  input_dir = "L1T/L1THCALTPGXAna/";
-  output_dir = "L1T/L1THCALTPGXAna/Tests/";
+  input_dir = "L1T/L1THCALTPGXAna";
+  output_dir = "L1T/L1THCALTPGXAna/Tests";
 
   dbe = edm::Service<DQMStore>().operator->();
   //  dbe->showDirStructure();

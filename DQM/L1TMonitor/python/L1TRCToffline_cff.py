@@ -46,7 +46,7 @@ rctEmulDigis.ecalDigis = cms.VInputTag(cms.InputTag("ecalDigis:EcalTriggerPrimit
 
 l1tderct = cms.EDAnalyzer("L1TdeRCT",
     rctSourceData = cms.InputTag("l1GctHwDigis"),
-    HistFolder = cms.untracked.string('L1TEMU/L1TdeRCT/'),
+    HistFolder = cms.untracked.string('L1TEMU/L1TdeRCT'),
     outputFile = cms.untracked.string('./L1TDQM.root'),
     verbose = cms.untracked.bool(False),
     DQMStore = cms.untracked.bool(True),

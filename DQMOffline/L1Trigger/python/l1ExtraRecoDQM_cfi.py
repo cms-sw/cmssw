@@ -15,7 +15,7 @@ l1ExtraRecoDQM = cms.EDAnalyzer("L1ExtraRecoDQM",
     # to be able include exactly the same objects for Validation/L1Trigger FIXME
     #
     DQMStore = cms.untracked.bool(True),
-    DirName=cms.untracked.string("L1T/L1ExtraReco/"),
+    DirName=cms.untracked.string("L1T/L1ExtraReco"),
     disableROOToutput = cms.untracked.bool(True),
     verbose = cms.untracked.bool(False),
     #

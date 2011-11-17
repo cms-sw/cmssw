@@ -13,7 +13,7 @@ l1ExtraDQM = cms.EDAnalyzer("L1ExtraDQM",
     L1ExtraInputTagSet,
     #
     DQMStore = cms.untracked.bool(True),
-    DirName=cms.untracked.string("L1T/L1Extra/"),
+    DirName=cms.untracked.string("L1T/L1Extra"),
     disableROOToutput = cms.untracked.bool(True),
     verbose = cms.untracked.bool(False),
     #
