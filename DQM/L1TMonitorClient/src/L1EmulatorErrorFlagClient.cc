@@ -81,7 +81,7 @@ void L1EmulatorErrorFlagClient::initialize() {
             m_systemErrorFlag.push_back("L1TEMU/" + m_systemLabel[iSys] + "/"
                     + m_systemLabelExt[iSys] + "ErrorFlag");
         } else {
-            m_systemErrorFlag.push_back(m_systemFolder[iSys]
+            m_systemErrorFlag.push_back(m_systemFolder[iSys] + "/"
                     + m_systemLabelExt[iSys] + "ErrorFlag");
         }
     }

@@ -76,7 +76,7 @@ l1EmulatorErrorFlagClient = cms.EDAnalyzer("L1EmulatorErrorFlagClient",
                         SystemLabel = cms.string("GT"),
                         HwValLabel = cms.string("GT"),
                         SystemMask  = cms.uint32(0),
-                        SystemFolder = cms.string("L1TEMU/GTexpert/")
+                        SystemFolder = cms.string("L1TEMU/GTexpert")
                         )
                         
                      )
