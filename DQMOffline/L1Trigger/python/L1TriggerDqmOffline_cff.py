@@ -29,6 +29,9 @@ from DQM.L1TMonitorClient.L1TMonitorClient_cff import *
 # DTTF to offline configuration
 l1tDttf.online = cms.untracked.bool(False) 
 
+# input tag for BXTimining
+bxTiming.FedSource = 'rawDataCollector'
+
 #
 # for offline, remove the L1TRate which is reading from cms_orcoff_prod, but also requires 
 # a hard-coded lxplus path - FIXME check if one can get rid of hard-coded path
@@ -71,7 +74,6 @@ from DQM.L1TMonitorClient.L1TEMUMonitorClient_cff import *
 
 l1TriggerOnline = cms.Sequence(
                                l1tMonitorOnline
-                                * l1tMonitorClient
                                 * dqmEnvL1T
                                )
                                     
@@ -81,19 +83,27 @@ l1TriggerOffline = cms.Sequence(
                                  * dqmEnvL1TriggerReco
                                 )
  
+#
  
 l1TriggerEmulatorOnline = cms.Sequence(
                                 l1HwValEmulatorMonitor
-                                * l1EmulatorMonitorClient
                                 * dqmEnvL1TEMU
                                 )
+
+#
                                 
 l1TriggerDqmOffline = cms.Sequence(
                                 l1TriggerOffline 
                                 * l1TriggerEmulatorOnline
                                 )                                  
 
-                                    
+# second step in offline environment
+                                 
+l1TriggerDqmOfflineClient = cms.Sequence(
+                                l1tMonitorClient
+                                * l1EmulatorMonitorClient
+                                )
+
 
 #
 # EMMERGENCY removal of modules
@@ -102,7 +112,7 @@ l1TriggerDqmOffline = cms.Sequence(
 
 # l1tMonitorOnline sequence, defined in DQM/L1TMonitor/python/L1TMonitor_cff.py
 #
-l1tMonitorOnline.remove(bxTiming)
+#l1tMonitorOnline.remove(bxTiming)
 l1tMonitorOnline.remove(l1tLtc)
 #l1tMonitorOnline.remove(l1tDttf)
 #l1tMonitorOnline.remove(l1tCsctf) 
