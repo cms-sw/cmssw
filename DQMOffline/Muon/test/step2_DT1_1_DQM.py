@@ -37,8 +37,8 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.341 $'),
-    annotation = cms.untracked.string('step2_DT1_1 nevts:10000'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
+    annotation = cms.untracked.string('step2_DT1_1 nevts:1000'),
     name = cms.untracked.string('PyReleaseValidation')
 )
 
@@ -62,14 +62,16 @@ process.DQMoutput = cms.OutputModule("PoolOutputModule",
                    
 # Other statements
 process.GlobalTag.globaltag = 'GR_R_50_V0::All'
+
 process.GlobalTag.toGet = cms.VPSet(
     cms.PSet(
        record  = cms.string( 'AlCaRecoTriggerBitsRcd' ),
        tag     = cms.string( 'MuonDQMTrigger_V00_00_01' ),
-       label   = cms.untracked.string( 'MuonDQMTrigger_V00_00_01'),
+       label   = cms.untracked.string( 'MuonDQMTrigger'),
        connect = cms.untracked.string( 'sqlite_file:MuonDQMTrigger.db')
     )
 )
+
 process.AlCaRecoTriggerBitsRcdRead = cms.EDAnalyzer( "AlCaRecoTriggerBitsRcdRead"
 , outputType  = cms.untracked.string( 'text' )
 , rawFileName = cms.untracked.string( 'MuonDQMTrigger_test' )
