@@ -1,9 +1,9 @@
-#include "CondCore/Utilities/interface/ExportIOVUtilities.h"
+#include "CondCore/Utilities/interface/Utilities.h"
 #include "CondCore/RegressionTest/interface/TestFunct.h"
 
 namespace cond_regression {
 
-  class ExportIOVTest : public cond::ExportIOVUtilities {
+  class ExportIOVTest : public cond::Utilities {
   public:
     ExportIOVTest();
     ~ExportIOVTest();
@@ -14,10 +14,12 @@ namespace cond_regression {
 }
 
 cond_regression::ExportIOVTest::ExportIOVTest():
-  cond::ExportIOVUtilities("testExport"){
+  cond::Utilities("testExport"){
+  addConnectOption("sourceConnect","s","source connection string");
+  addConnectOption("destConnect","d","destionation connection string");
+  addOption<cond::Time_t>("beginTime","b","begin time (first since)");
   addOption<std::string>("initDatabase","I","initialize the database with the specified tag");
   addOption<bool>("cleanUp","C","initialize cleanUp the database account");
-  addOption<bool>("export","E","export according to the additional parameters");
   addOption<std::string>("read","R","read and verify the specified tag");
   addOption<int>("seed","Z","input seed for data generation");
 }
@@ -47,9 +49,6 @@ int cond_regression::ExportIOVTest::execute(){
   if( hasOptionValue("cleanUp") ){
     m_tf.s = openDbSession("sourceConnect");
     return m_tf.DropTables( m_tf.s.connectionString() );
-  }
-  if( hasOptionValue("export") ){
-    return cond::ExportIOVUtilities::execute();
   }
   if( hasOptionValue("read") ){
     std::string tag = getOptionValue<std::string>("read");
