@@ -100,7 +100,7 @@ ls -lh
 time cmsRun the.cfg
 
 # clean up what has been staged in (to avoid copy mistakes...)
-rm  treeFileISN.root
+rm treeFileISN.root
 rm milleBinaryISN.dat.gz milleBinaryISN.dat
 
 # Gzip one by one in case one argument cannot be expanded:
@@ -116,9 +116,9 @@ gzip -f *.dump
 #if [ $? -eq 0 ]; then
 #    rm $RUNDIR/../job???/histograms.root
 #fi
-hadd millePedeMonitor_merge.root $RUNDIR/../job???/millePedeMonitor.root
+hadd millePedeMonitor_merge.root $RUNDIR/../job???/millePedeMonitor*.root
 if [ $? -eq 0 ]; then
-    rm $RUNDIR/../job???/millePedeMonitor.root
+    rm $RUNDIR/../job???/millePedeMonitor*.root
 fi
 
 # Macro creating millepede.his.ps with pede information hists:
