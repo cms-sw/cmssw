@@ -390,7 +390,7 @@ FWRecoGeometryESProducer::fillPoints( unsigned int id, std::vector<GlobalPoint>:
   unsigned int index( 0 );
   for( std::vector<GlobalPoint>::const_iterator i = begin; i != end; ++i )
   {
-    assert( index < 24 );
+    assert( index < 23 );
     m_fwGeometry->idToName[id].points[index] = i->x();
     m_fwGeometry->idToName[id].points[++index] = i->y();
     m_fwGeometry->idToName[id].points[++index] = i->z();

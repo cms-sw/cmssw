@@ -65,7 +65,8 @@ DumpFWTGeoRecoGeometry::analyze( const edm::Event& event, const edm::EventSetup&
       v_vertex[i] = it->second.points[i];
     for( unsigned int i = 0; i < 9; ++i )
       v_params[i] = it->second.topology[i];
-    strcpy( v_name, it->second.name.c_str());
+    assert( it->second.name.size() < 1000 );
+    strncpy( v_name, it->second.name.c_str(), 1000 );
     tree->Fill();
   }
   file.WriteTObject( &*geom );

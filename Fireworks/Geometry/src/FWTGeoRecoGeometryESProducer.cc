@@ -35,9 +35,9 @@
   const PixelGeomDetUnit* det = dynamic_cast<const PixelGeomDetUnit*>( detUnit ); \
   if( det )							\
   {      							\
-    const RectangularPixelTopology* topo = dynamic_cast<const RectangularPixelTopology*>( &det->specificTopology()); \
-    m_fwGeometry->idToName[rawid].topology[0] = topo->nrows();	\
-    m_fwGeometry->idToName[rawid].topology[1] = topo->ncolumns(); \
+    const PixelTopology& topo = det->specificTopology();        \
+    m_fwGeometry->idToName[rawid].topology[0] = topo.nrows();	\
+    m_fwGeometry->idToName[rawid].topology[1] = topo.ncolumns(); \
   }								\
 
 # define ADD_SISTRIP_TOPOLOGY( rawid, detUnit )			\
@@ -165,9 +165,9 @@ FWTGeoRecoGeometryESProducer::createShape( const GeomDet *det )
 
   // Trapezoidal
   const Bounds *b = &((det->surface ()).bounds ());
-  if( dynamic_cast<const TrapezoidalPlaneBounds *> (b))
+  const TrapezoidalPlaneBounds *b2 = dynamic_cast<const TrapezoidalPlaneBounds *> (b);
+  if( b2 )
   {
-    const TrapezoidalPlaneBounds *b2 = dynamic_cast<const TrapezoidalPlaneBounds *> (b);
     std::vector< float > par = b2->parameters ();
     
     // These parameters are half-lengths, as in CMSIM/GEANT3
@@ -206,7 +206,7 @@ FWTGeoRecoGeometryESProducer::createShape( const GeomDet *det )
       m_nameToShape[name] = shape;
     }
   }
-  if( dynamic_cast<const RectangularPlaneBounds *> (b))
+  if( dynamic_cast<const RectangularPlaneBounds *> (b) != 0 )
   {
     // Rectangular
     float length = det->surface().bounds().length();
