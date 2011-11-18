@@ -36,6 +36,9 @@
 #include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/ESEEIntercalibConstantsRcd.h"
 
+#include "CondFormats/ESObjects/interface/ESMissingEnergyCalibration.h"
+#include "CondFormats/DataRecord/interface/ESMissingEnergyCalibrationRcd.h"
+
 #include "CondFormats/ESObjects/interface/ESRecHitRatioCuts.h"
 #include "CondFormats/DataRecord/interface/ESRecHitRatioCutsRcd.h"
 
@@ -51,6 +54,7 @@ REGISTER_PLUGIN(ESADCToGeVConstantRcd,ESADCToGeVConstant);
 REGISTER_PLUGIN(ESMIPToGeVConstantRcd,ESMIPToGeVConstant);
 REGISTER_PLUGIN(ESThresholdsRcd,ESThresholds);
 REGISTER_PLUGIN(ESEEIntercalibConstantsRcd,ESEEIntercalibConstants);
+REGISTER_PLUGIN(ESMissingEnergyCalibrationRcd,ESMissingEnergyCalibration);
 REGISTER_PLUGIN(ESRecHitRatioCutsRcd,ESRecHitRatioCuts);
 REGISTER_PLUGIN(ESChannelStatusRcd,ESChannelStatus);
 
