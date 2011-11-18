@@ -393,7 +393,7 @@ void Lumi3DReWeighting::weight3D_init( std::string MCWeightFileName, std::string
   for (int i=0; i<50; i++) {  
     for(int j=0; j<50; j++) {
       for(int k=0; k<50; k++) {
-	Weight3D_[i][j][k] = DHist->GetBinContent(i,j,k)/MHist->GetBinContent(i,j,k);
+	Weight3D_[i][j][k] = DHist->GetBinContent(i+1,j+1,k+1)/MHist->GetBinContent(i+1,j+1,k+1);
       }
     }
   }
