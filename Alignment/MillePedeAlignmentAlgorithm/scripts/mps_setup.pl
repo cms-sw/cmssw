@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     08-Oct-2007
 #     A. Parenti, DESY Hamburg    16-Apr-2008
-#     $Revision: 1.23 $
-#     $Date: 2010/03/23 16:09:33 $
+#     $Revision: 1.24 $
+#     $Date: 2011/09/22 13:48:11 $
 #
 #  Setup local mps database
 #  
@@ -28,6 +28,7 @@
 #  -M pedeMem  The memory (MB) to be allocated for pede (min: 1024 MB).
 #              If not given, it is evinced from the pede executable name.
 #              Finally, it is set 2560 MB if neither of the two are available.
+#  -N name     The name to be assigned to the jobs. Whitespaces and colons are not allowed.
 
 BEGIN {
 use File::Basename;
@@ -47,11 +48,26 @@ $mssDirPool = "";
 $mssDir = "";
 $append = 0;
 
+my $confname = "";
+
 # parse the arguments
 while (@ARGV) {
-  $arg = shift(ARGV);
+  my $arg = shift(ARGV);
   if ($arg =~ /\A-/) {  # check for option 
-    if ($arg =~ "h") {
+    if ($arg =~ /-N/g) {
+      $confname = $arg;
+      $confname =~ s/-N//; # Strips away the "-N"
+      if (length($confname) == 0) {
+         $confname = shift(ARGV);
+       }
+      $confname =~ s/\s//g;
+      if($confname =~ /\:/)
+        {
+          $confname =~ s/\://g;
+          print "colons were removed in configuration name: $confname\n";
+        }
+    }
+    elsif ($arg =~ "h") {
       $helpwanted = 1;
     }
     elsif ($arg =~ "d") {
@@ -66,7 +82,7 @@ while (@ARGV) {
     }
     elsif ($arg =~ "a" && -r "mps.db") {
       $append = 1;
-      print "option sets mode to append\n";    
+      print "option sets mode to append\n";
     }
     elsif ($arg =~ "-M") {
       $pedeMem = $arg;
@@ -114,6 +130,7 @@ if ($nJobs eq 0 or $helpwanted != 0 ) {
   print "  \n -m          Setup the pede merging job.";
   print "  \n -a          Append jobs to the already existing list.";
   print "  \n -M pedeMem  The memory (MB) to be allocated for pede (min: 1024 MB).";
+  print "  \n -N name     Some arbitrary name assigned to the jobs.";
   print "  \n             If not given, it is evinced from the pede executable name.";
   print "  \n             Finally, it is set 2560 MB if neither of the two are available.";
   print "\n";
@@ -277,7 +294,7 @@ for ($j = 1; $j <= $nJobs; ++$j) {
   push @JOBREMARK,"";
   push @JOBSP1,"";
   push @JOBSP2,"";
-  push @JOBSP3,"";
+  push @JOBSP3,"$confname";
   # create the split card files
   print "mps_split.pl $infiList $j $nJobs >jobData/$theJobDir/theSplit\n";
   system "mps_split.pl $infiList $j $nJobs >jobData/$theJobDir/theSplit";
