@@ -1,4 +1,4 @@
-// $Id: SMWebPageHelper.cc,v 1.5 2011/11/08 10:48:41 mommsen Exp $
+// $Id: SMWebPageHelper.cc,v 1.6 2011/11/17 17:35:40 mommsen Exp $
 /// @file: SMWebPageHelper.cc
 
 #include <iomanip>
@@ -352,8 +352,9 @@ namespace stor
   {
     ResourceMonitorCollection::Stats rmcStats;
     rmc.getStats(rmcStats);
-    MonitoredQuantity::Stats poolUsageStats;
-    tmc.getPoolUsageMQ().getStats(poolUsageStats);
+    
+    ThroughputMonitorCollection::Stats tmcStats;
+    tmc.getStats(tmcStats,10);
     
     XHTMLMaker::AttrMap halfWidthAttr;
     halfWidthAttr[ "width" ] = "50%";
@@ -363,7 +364,7 @@ namespace stor
     XHTMLMaker::Node* tableRow = maker.addNode("tr", table, rowAttr_);
     
     XHTMLMaker::Node* tableDiv = maker.addNode("td", tableRow, halfWidthAttr);
-    addTableForResourceUsages(maker, tableDiv, rmcStats, poolUsageStats);
+    addTableForResourceUsages(maker, tableDiv, tmcStats, rmcStats);
     
     tableDiv = maker.addNode("td", tableRow, halfWidthAttr);
     addTableForDiskUsages(maker, tableDiv, rmcStats);
@@ -374,8 +375,8 @@ namespace stor
   (
     XHTMLMaker& maker,
     XHTMLMaker::Node *parent,
-    ResourceMonitorCollection::Stats const& rmcStats,
-    MonitoredQuantity::Stats const& poolUsageStats
+    ThroughputMonitorCollection::Stats const& tmcStats,
+    ResourceMonitorCollection::Stats const& rmcStats
   ) const
   {
     XHTMLMaker::AttrMap colspanAttr;
@@ -386,22 +387,19 @@ namespace stor
     XHTMLMaker::Node* tableDiv = maker.addNode("th", tableRow, colspanAttr);
     maker.addText(tableDiv, "Resource Usage");
     
-    addRowsForMemoryUsage(maker, table, poolUsageStats);
+    addRowsForThroughputUsage(maker, table, tmcStats);
     addRowsForWorkers(maker, table, rmcStats);
     addRowsForSataBeast(maker, table, rmcStats);
   }
   
   
-  void SMWebPageHelper::addRowsForMemoryUsage
+  void SMWebPageHelper::addRowsForThroughputUsage
   (
     XHTMLMaker& maker,
     XHTMLMaker::Node *table,
-    MonitoredQuantity::Stats const& stats
+    ThroughputMonitorCollection::Stats const& stats
   ) const
   {
-    XHTMLMaker::AttrMap colspanAttr;
-    colspanAttr[ "colspan" ] = "2";
-    
     XHTMLMaker::AttrMap tableLabelAttr = tableLabelAttr_;
     tableLabelAttr[ "width" ] = "54%";
     
@@ -410,19 +408,31 @@ namespace stor
     
     // Memory pool usage
     XHTMLMaker::Node* tableRow = maker.addNode("tr", table, rowAttr_);
-    XHTMLMaker::Node* tableDiv;
-    if ( stats.getSampleCount() > 0 )
-    {
-      tableDiv = maker.addNode("td", tableRow);
-      maker.addText(tableDiv, "Memory pool used (bytes)");
-      tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-      maker.addDouble( tableDiv, stats.getLastSampleValue(), 0 );
-    }
-    else
-    {
-      tableDiv = maker.addNode("td", tableRow, colspanAttr);
-      maker.addText(tableDiv, "Memory pool pointer not yet available");
-    }
+    XHTMLMaker::Node* tableDiv = maker.addNode("td", tableRow);
+    maker.addText(tableDiv, "Memory pool used (kB)");
+    tableDiv = maker.addNode("td", tableRow, tableValueAttr);
+    maker.addDouble( tableDiv, stats.average.poolUsage / (double)0x400, 0 );
+
+    // Input thread
+    tableRow = maker.addNode("tr", table, rowAttr_);
+    tableDiv = maker.addNode("td", tableRow);
+    maker.addText(tableDiv, "Input thread busy (%)");
+    tableDiv = maker.addNode("td", tableRow, tableValueAttr);
+    maker.addDouble( tableDiv, stats.average.fragmentProcessorBusy, 0 );
+
+    // Disk writing thread
+    tableRow = maker.addNode("tr", table, rowAttr_);
+    tableDiv = maker.addNode("td", tableRow);
+    maker.addText(tableDiv, "Disk writing thread busy (%)");
+    tableDiv = maker.addNode("td", tableRow, tableValueAttr);
+    maker.addDouble( tableDiv, stats.average.diskWriterBusy, 0 );
+
+    // DQM summing thread
+    tableRow = maker.addNode("tr", table, rowAttr_);
+    tableDiv = maker.addNode("td", tableRow);
+    maker.addText(tableDiv, "DQM summing thread busy (%)");
+    tableDiv = maker.addNode("td", tableRow, tableValueAttr);
+    maker.addDouble( tableDiv, stats.average.dqmEventProcessorBusy, 0 );
   }
   
   
@@ -711,9 +721,10 @@ namespace stor
       
       // DQM b/w to disk
       tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
-      const double dqmDiskBandwidth = dqmStats.writtenDQMEventSizeStats.getValueRate(MonitoredQuantity::RECENT);
-      totalDiskBandwidth += dqmDiskBandwidth;
-      maker.addDouble( tableDiv, dqmDiskBandwidth, 1 );
+      maker.addText( tableDiv, "not written" );
+      // const double dqmDiskBandwidth = dqmStats.writtenDQMEventSizeStats.getValueRate(MonitoredQuantity::RECENT);
+      // totalDiskBandwidth += dqmDiskBandwidth;
+      // maker.addDouble( tableDiv, dqmDiskBandwidth, 1 );
       
       // DQM b/w to consumers
       tableDiv = maker.addNode("td", tableRow, tableValueAttr_);

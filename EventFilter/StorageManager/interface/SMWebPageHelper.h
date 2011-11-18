@@ -1,4 +1,4 @@
-// $Id: SMWebPageHelper.h,v 1.2 2011/03/07 15:31:32 mommsen Exp $
+// $Id: SMWebPageHelper.h,v 1.3 2011/11/17 17:35:40 mommsen Exp $
 /// @file: SMWebPageHelper.h
 
 #ifndef EventFilter_StorageManager_SMWebPageHelper_h
@@ -36,8 +36,8 @@ namespace stor {
    * Helper class to handle web page requests
    *
    * $Author: mommsen $
-   * $Revision: 1.2 $
-   * $Date: 2011/03/07 15:31:32 $
+   * $Revision: 1.3 $
+   * $Date: 2011/11/17 17:35:40 $
    */
   
   class SMWebPageHelper : public WebPageHelper<SMWebPageHelper>
@@ -403,18 +403,18 @@ namespace stor {
     (
       XHTMLMaker& maker,
       XHTMLMaker::Node* parent,
-      ResourceMonitorCollection::Stats const&,
-      MonitoredQuantity::Stats const&
+      ThroughputMonitorCollection::Stats const&,
+      ResourceMonitorCollection::Stats const&
     ) const;
 
     /**
-     * Add a table row for memory usage
+     * Add a table rows for throughput usage summary
      */
-    void addRowsForMemoryUsage
+    void addRowsForThroughputUsage
     (
       XHTMLMaker& maker,
       XHTMLMaker::Node* table,
-      MonitoredQuantity::Stats const&
+      ThroughputMonitorCollection::Stats const&
     ) const;
 
     /**
