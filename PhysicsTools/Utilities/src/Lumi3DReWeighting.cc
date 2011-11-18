@@ -303,6 +303,7 @@ void Lumi3DReWeighting::weight3D_init( float ScaleFactor ) {
  
 
   for (int i=0; i<50; i++) {  
+    //if(i<5) std::cout << "i = " << i << std::endl;
     for(int j=0; j<50; j++) {
       for(int k=0; k<50; k++) {
 	if( (MC_ints[i][j][k])>0.) {
@@ -314,9 +315,9 @@ void Lumi3DReWeighting::weight3D_init( float ScaleFactor ) {
 	WHist->SetBinContent( i+1,j+1,k+1,Weight3D_[i][j][k] );
 	DHist->SetBinContent( i+1,j+1,k+1,Data_ints[i][j][k] );
 	MHist->SetBinContent( i+1,j+1,k+1,MC_ints[i][j][k] );
-	//	if(i<10 && j<10) cout << Weights[i][j][k] << " " ;
+	//	if(i<5 && j<5 && k<5) std::cout << Weight3D_[i][j][k] << " " ;
       }
-      //if(i<10 && j<10) cout << endl;
+      //      if(i<5 && j<5) std::cout << std::endl;
     }
   }
 
@@ -351,10 +352,14 @@ void Lumi3DReWeighting::weight3D_init( std::string WeightFileName ) {
   }
 
   for (int i=0; i<50; i++) {  
+    //    if(i<5) std::cout << "i = " << i << std::endl;
     for(int j=0; j<50; j++) {
       for(int k=0; k<50; k++) {
-	Weight3D_[i][j][k] = WHist->GetBinContent(i,j,k);
+	Weight3D_[i][j][k] = WHist->GetBinContent(i+1,j+1,k+1);
+	//	if(i<5 && j<5 && k<5) std::cout << Weight3D_[i][j][k] << " ";
       }
+      //      if(i<5 && j<5) std::cout << std::endl;
+
     }
   }
 
