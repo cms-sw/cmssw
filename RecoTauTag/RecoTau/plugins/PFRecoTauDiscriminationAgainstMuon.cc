@@ -85,7 +85,7 @@ double PFRecoTauDiscriminationAgainstMuon::discriminate(const PFTauRef& thePFTau
 
    //Additional : Apply HOP cut for one prongs only
    if((*thePFTauRef).leadPFChargedHadrCand().isNonnull() && discriminatorOption_ == "noAllArbitratedWithHOP" ) {
-     if(thePFTauRef->decayMode()==0 && (*thePFTauRef).leadPFChargedHadrCand()->hcalEnergy()/(*thePFTauRef).leadPFChargedHadrCand()->p()<hop_)
+     if(thePFTauRef->decayMode()==0 && ((*thePFTauRef).leadPFChargedHadrCand()->hcalEnergy()+(*thePFTauRef).leadPFChargedHadrCand()->ecalEnergy())/(*thePFTauRef).leadPFChargedHadrCand()->p()<hop_)
        decision=false;
    }
 
