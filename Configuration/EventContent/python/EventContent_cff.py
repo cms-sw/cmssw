@@ -1,20 +1,5 @@
-# The following comments couldn't be translated into the new config version:
-
-#RECOEventContent
-
-#RAWSIMEventContent
-
-#RECOSIMEventContent
-
-#RAWSIMEventContent
-
-#Additional Simulation INFO
-
-#RAWDEBUGEventContent
-
 import FWCore.ParameterSet.Config as cms
 
-#
 #
 # Event Content definition
 #
@@ -31,9 +16,11 @@ import FWCore.ParameterSet.Config as cms
 #
 #  RAWDEBUG(RAWSIM+ALL_SIM_INFO), RAWDEBUGHLT(RAWDEBUG+HLTDEBUG)
 #
+#  RAWSIMHLT (RAWSIM + HLTDEBUG)
+#
 #  FEVT (RAW+RECO), FEVTSIM (RAWSIM+RECOSIM), FEVTDEBUG (FEVTSIM+ALL_SIM_INFO), FEVTDEBUGHLT (FEVTDEBUG+HLTDEBUG)
 #
-#  $Id: EventContent_cff.py,v 1.39 2011/09/08 13:59:20 vlimant Exp $
+#  $Id: EventContent_cff.py,v 1.40 2011/09/20 09:45:51 vlimant Exp $
 #
 #
 #
@@ -153,6 +140,16 @@ AODEventContent = cms.PSet(
 #
 #
 RAWSIMEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0),
+    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
+)
+#
+#
+# RAWSIMHLT Data Tier definition
+#
+#
+RAWSIMHLTEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
@@ -425,6 +422,21 @@ RAWSIMEventContent.outputCommands.extend(DigiToRawFEVT.outputCommands)
 RAWSIMEventContent.outputCommands.extend(MEtoEDMConverterFEVT.outputCommands)
 RAWSIMEventContent.outputCommands.extend(IOMCRAW.outputCommands)
 RAWSIMEventContent.outputCommands.extend(CommonEventContent.outputCommands)
+
+RAWSIMHLTEventContent.outputCommands.extend(RAWEventContent.outputCommands)
+RAWSIMHLTEventContent.outputCommands.extend(SimG4CoreRAW.outputCommands)
+RAWSIMHLTEventContent.outputCommands.extend(SimTrackerRAW.outputCommands)
+RAWSIMHLTEventContent.outputCommands.extend(SimMuonRAW.outputCommands)
+RAWSIMHLTEventContent.outputCommands.extend(SimCalorimetryRAW.outputCommands)
+RAWSIMHLTEventContent.outputCommands.extend(SimGeneralRAW.outputCommands)
+RAWSIMHLTEventContent.outputCommands.extend(GeneratorInterfaceRAW.outputCommands)
+RAWSIMHLTEventContent.outputCommands.extend(RecoGenJetsFEVT.outputCommands)
+RAWSIMHLTEventContent.outputCommands.extend(RecoGenMETFEVT.outputCommands)
+RAWSIMHLTEventContent.outputCommands.extend(DigiToRawFEVT.outputCommands)
+RAWSIMHLTEventContent.outputCommands.extend(MEtoEDMConverterFEVT.outputCommands)
+RAWSIMHLTEventContent.outputCommands.extend(IOMCRAW.outputCommands)
+RAWSIMHLTEventContent.outputCommands.extend(CommonEventContent.outputCommands)
+RAWSIMHLTEventContent.outputCommands.extend(HLTDebugRAW.outputCommands)
 
 GENRAWEventContent.outputCommands.extend(RAWEventContent.outputCommands)
 GENRAWEventContent.outputCommands.extend(GeneratorInterfaceRECO.outputCommands)

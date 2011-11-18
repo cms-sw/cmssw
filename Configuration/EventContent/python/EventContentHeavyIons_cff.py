@@ -26,9 +26,12 @@ RECOEventContent.outputCommands.extend(RecoHIRECO.outputCommands)
 #AOD
 AODEventContent.outputCommands.extend(RecoHIAOD.outputCommands)
 
-#RAWSIM, RECOSIM, AODSIM
+#RAWSIM, RAWSIMHLT, RECOSIM, AODSIM
 RAWSIMEventContent.outputCommands.extend(HiMixRAW.outputCommands)
 RAWSIMEventContent.outputCommands.extend(RecoHIRAWOutput)
+
+RAWSIMHLTEventContent.outputCommands.extend(HiMixRAW.outputCommands)
+RAWSIMHLTEventContent.outputCommands.extend(RecoHIRAWOutput)
 
 RECOSIMEventContent.outputCommands.extend(RecoHIRECO.outputCommands)
 RECOSIMEventContent.outputCommands.extend(HiMixRECO.outputCommands)
