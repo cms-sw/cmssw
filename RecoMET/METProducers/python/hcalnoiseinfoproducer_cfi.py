@@ -98,4 +98,7 @@ hcalnoise = cms.EDProducer(
 
     # severity level
     HcalAcceptSeverityLevel = cms.uint32(9),
+
+    # which hcal calo flags to mask (HBHEIsolatedNoise=11, HBHEFlatNoise=12, HBHESpikeNoise=13, HBHETriangleNoise=14, HBHETS4TS5Noise=15)
+    HcalRecHitFlagsToBeExcluded = cms.vint32(11, 12, 13, 14, 15),
 )

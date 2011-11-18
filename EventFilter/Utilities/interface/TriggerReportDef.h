@@ -40,6 +40,8 @@ namespace evf{
     //max number of endpaths in a menu is 20
     unsigned int           lumiSection;
     unsigned int           prescaleIndex;
+    unsigned int           nbExpected;
+    unsigned int           nbReporting;
     edm::EventSummary      eventSummary;
     int                    trigPathsInMenu;
     int                    endPathsInMenu;

@@ -72,15 +72,17 @@ public:
 
   /** Analyze the Data */
   void analyze(const edm::Handle<reco::MuonCollection>                 & muon,
-               const edm::Handle<l1extra::L1MuonParticleCollection>   & mucands1, 
+               const edm::Handle<l1extra::L1MuonParticleCollection>    & mucands1, 
 	       const edm::Handle<reco::RecoChargedCandidateCollection> & mucands2,
-	       const edm::Handle<edm::ValueMap<bool> >           & isoMap2,
+	       const edm::Handle<edm::ValueMap<bool> >                 & isoMap2,
 	       const edm::Handle<reco::RecoChargedCandidateCollection> & mucands3,
-	       const edm::Handle<edm::ValueMap<bool> >           & isoMap3,
+	       const edm::Handle<edm::ValueMap<bool> >                 & isoMap3,
+	       const edm::Handle<edm::ValueMap<bool> >                 & isoTrk10Map3,
                const edm::Handle<reco::RecoChargedCandidateCollection> & oniaPixelCands,
                const edm::Handle<reco::RecoChargedCandidateCollection> & oniaTrackCands,
-	       const edm::Handle<reco::VertexCollection> & dimuvtxcands3,
+	       const edm::Handle<reco::VertexCollection>               & dimuvtxcands3,
 	       const edm::Handle<reco::RecoChargedCandidateCollection> & munovtxcands2, 
+	       const edm::Handle<reco::MuonCollection>                 & trkmucands,
                //const reco::BeamSpot::Point & BSPosition,
 	       const edm::ESHandle<MagneticField> & theMagField,
                const edm::Handle<reco::BeamSpot> & recoBeamSpotHandle,
@@ -88,6 +90,8 @@ public:
 
 
 private:
+
+  int validChambers(const reco::TrackRef & track);
 
   // Tree variables
   float *muonpt, *muonphi, *muoneta, *muonet, *muone, *muonchi2NDF, *muoncharge,
@@ -97,9 +101,12 @@ private:
   float *muonl3pt, *muonl3eta, *muonl3phi, *muonl3dr, *muonl3dz, *muonl3vtxz, *muonl3normchi2;
   float *muonl2novtxpt, *muonl2novtxeta, *muonl2novtxphi, *muonl2novtxdr, *muonl2novtxdz; 
   float *muonl2pterr, *muonl3pterr, *muonl2novtxpterr;
-  int nmuon, nmu2cand, nmu3cand, nmu2novtxcand;
-  int *muonl2chg, *muonl2iso, *muonl2nhits,*muonl2nstat, *muonl3chg, *muonl3iso, *muonl32idx, *muonl3nhits, *muonl21idx, *muonl2novtxchg, *muonl2novtxiso, *muonl2novtx1idx, *muonl2novtxnhits;
-  int *muonl3ntrackerhits, *muonl3nmuonhits;
+  int nmuon, nmu2cand, nmu3cand, nmu2novtxcand, ntrackermuoncand;
+  int *muonl2chg, *muonl2iso, *muonl2nhits, *muonl2nchambers, *muonl2nstat, *muonl3chg, *muonl3iso, *muonl32idx, *muonl3nhits, *muonl21idx, *muonl2novtxchg, *muonl2novtxiso, *muonl2novtx1idx, *muonl2novtxnhits, *muonl2novtxnchambers;
+  int *muonl3ntrackerhits, *muonl3nmuonhits, *muonl3trk10iso;
+  float *trackermuonpt, *trackermuonphi, *trackermuoneta;
+  int *trackermuonchg, *trackermuonnhits;
+
 
   int nOniaPixelCand, nOniaTrackCand;
   float *oniaPixelpt, *oniaPixeleta, *oniaPixelphi, *oniaPixeldr, *oniaPixeldz, *oniaPixelNormChi2;
@@ -117,7 +124,7 @@ private:
 
   int evtCounter;
 
-  const float etaBarrel() {return 1.4;}
+  static float etaBarrel() { return 1.4; }
 
 };
 

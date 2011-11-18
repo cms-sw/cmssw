@@ -1,6 +1,7 @@
-// $Id: Halted.cc,v 1.9 2009/09/29 07:57:56 mommsen Exp $
+// $Id: Halted.cc,v 1.10 2010/08/06 20:24:31 wmtan Exp $
 /// @file: Halted.cc
 
+#include "EventFilter/StorageManager/interface/AlarmHandler.h"
 #include "EventFilter/StorageManager/interface/Notifier.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
 #include "EventFilter/StorageManager/interface/TransitionRecord.h"
@@ -43,7 +44,7 @@ string Halted::do_stateName() const
 
 void Halted::do_moveToFailedState( xcept::Exception& exception ) const
 {
-  outermost_context().getSharedResources()->moveToFailedState( exception );
+  outermost_context().getSharedResources()->alarmHandler_->moveToFailedState( exception );
 }
 
 

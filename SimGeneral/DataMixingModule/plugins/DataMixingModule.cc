@@ -374,7 +374,6 @@ namespace edm
                 recordEventID,
                 boost::bind(&DataMixingModule::pileWorker, boost::ref(*this),
                             _1, bunchCrossing, _2, boost::cref(ES)),
-		TrueNumInteractions_[ isource ],
 		bunchCrossing
                 );
       }

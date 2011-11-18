@@ -32,7 +32,9 @@
 -->  
 
   <class name="reco::PFTrajectoryPoint">
+<!-- Removed by Patrick: avoid many useless PFTrack copies (memory+CPU) and costless for RECO/AOD
     <field name="posrep_" transient="true"/>
+-->
   </class>
   <class name="std::vector<reco::PFTrajectoryPoint>"/>
   <class name="edm::Wrapper<std::vector<reco::PFTrajectoryPoint> >"/>
@@ -60,7 +62,9 @@
   <class name="std::vector<reco::PFSimParticle>"/>
   <class name="edm::Wrapper<std::vector<reco::PFSimParticle> >"/>
 
-  <class name="reco::PFBlockElement"/>
+  <class name="reco::PFBlockElement">
+    <field name="multilinkslinks_" transient="true"/>
+  </class>
   <class name="std::vector<reco::PFBlockElement *>" />
   <class name="edm::OwnVector<reco::PFBlockElement, edm::ClonePolicy<reco::PFBlockElement> >"/>
   <class name="edm::Wrapper<edm::OwnVector<reco::PFBlockElement, edm::ClonePolicy<reco::PFBlockElement> > >" />
@@ -206,6 +210,12 @@
   <class name="reco::PFBlockElementSuperCluster"/>
   <class name="std::vector<reco::PFBlockElementSuperCluster>"/>
   <class name="edm::Wrapper<std::vector<reco::PFBlockElementSuperCluster> >"/>
+
+  <!-- // Glowinski & Gouzevitch -->
+  <class name="reco::PFMultiLinksTC"> 
+    <field name="isValid" transient="true"/>
+    <field name="linkedClusters" transient="true"/>
+  </class>
 
 </selection>
 <exclusion>

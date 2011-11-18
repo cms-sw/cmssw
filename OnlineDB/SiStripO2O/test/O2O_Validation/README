@@ -1,5 +1,46 @@
-The full SiStripO2OValidation package is described on the TWIKI, please refer to:
-https://twiki.cern.ch/twiki/bin/viewauth/CMS/O2OProcedures
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! PLEASE READ CAREFULY BEFORE EXECUTING THIS SCRIPT !!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+This folder contains all tools necessary to validate an O2O procedure
+for the following conditions: SiStripFEDCabling, Noise, Pedestal.
+To do a full validation please run the following script. 
+
+Full validation
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+./run_full_valdation.sh  "tag_orcoff" "tag_sqlite" "dbfile"
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+If You only want to da a validation of some single Objects You can run the single 
+standalone scripts.
+
+
+FEDCabling validation:
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+./fedcabling_validation.sh "sqlite_file.db" runnr "offline_tag"
+
+FEDCabling validation relys on only a sqlite file which has to be present
+in the directory You run the script. Apart from that make sure that the following
+variables are set correctly: $TNS_ADMIN, $CONFDB, also make sure that the correct 
+path to the tnsnames.ora is set and finally open a tunnel to the P5 machine where 
+the DB is running!
+Time estimation per run: ~2 minutes
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Pedestal & Noise Validation:
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+This is c++ and has to be compiled before using. ROOT 5.20/00 is mandatory!
+make
+./pednoise_validation runnr_1 runnr_2 tag_1 tag_2 > anyoutfile.txt
+
+Pedestal & Noise validation relys on the files created by DQM processes. Both files
+of a run containing old and new tags have to be present in the script folder to do 
+the validation. Since a validation for 10M strips takes its time, this procedure is 
+quite lenghty.
+Time estimation per run: ~1 1/2 hours
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
 
 
 

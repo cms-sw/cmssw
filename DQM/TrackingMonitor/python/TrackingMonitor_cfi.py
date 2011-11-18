@@ -26,7 +26,7 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     MeasurementState = cms.string('ImpactPoint'),
     
     # which plots to do
-    doAllPlots                 = cms.bool(False),
+    doAllPlots                 = cms.bool(True),
     doTrackerSpecific          = cms.bool(False),
     doBeamSpotPlots            = cms.bool(False),
     doSeedParameterHistos      = cms.bool(False),
@@ -35,8 +35,10 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     doGeneralPropertiesPlots   = cms.bool(False),
     doHitPropertiesPlots       = cms.bool(False),              
     doGoodTrackPlots           = cms.bool(False),
-    doMeasurementStatePlots    = cms.bool(False),
+    doMeasurementStatePlots    = cms.bool(True),
     doProfilesVsLS             = cms.bool(False),
+    doRecHitVsPhiVsEtaPerTrack = cms.bool(False),
+    doGoodTrackRecHitVsPhiVsEtaPerTrack = cms.bool(False),                          
 
     #which seed plots to do
     doSeedNumberHisto = cms.bool(False),
@@ -44,6 +46,7 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     doSeedPTHisto = cms.bool(False),
     doSeedETAHisto = cms.bool(False),
     doSeedPHIHisto = cms.bool(False),
+    doSeedPHIVsETAHisto = cms.bool(False),
     doSeedThetaHisto = cms.bool(False),
     doSeedQHisto = cms.bool(False),
     doSeedDxyHisto= cms.bool(False),
@@ -51,7 +54,7 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     doSeedNRecHitsHisto= cms.bool(False),
     doSeedNVsPhiProf= cms.bool(False),
     doSeedNVsEtaProf= cms.bool(False),
-                          
+
 
 
     
@@ -219,12 +222,12 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     ThetaMin = cms.double(0.0),
 
     # track eta
-    EtaBin = cms.int32(80),
-    EtaMax = cms.double(4.0),
-    EtaMin = cms.double(-4.0),
+    EtaBin = cms.int32(32),
+    EtaMax = cms.double(3.2),
+    EtaMin = cms.double(-3.2),
 
     # track phi
-    PhiBin = cms.int32(36),
+    PhiBin = cms.int32(32),
     PhiMax = cms.double(3.2),
     PhiMin = cms.double(-3.2),
 
@@ -324,8 +327,8 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     NClusPxMin = cms.double(-0.5),
 
     # NCluster Strip
-    NClusStrBin = cms.int32(750),
-    NClusStrMax = cms.double(74999.5),                      
+    NClusStrBin = cms.int32(500),
+    NClusStrMax = cms.double(99999.5),                      
     NClusStrMin = cms.double(-0.5),
 
     # NCluster Vs Tracks

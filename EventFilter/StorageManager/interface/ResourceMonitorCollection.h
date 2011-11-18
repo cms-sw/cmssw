@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.h,v 1.27.4.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: ResourceMonitorCollection.h,v 1.28 2011/03/07 15:31:32 mommsen Exp $
 /// @file: ResourceMonitorCollection.h 
 
 #ifndef EventFilter_StorageManager_ResourceMonitorCollection_h
@@ -8,8 +8,12 @@
 #include <vector>
 #include <string>
 #include <errno.h>
+
 #ifdef __APPLE__
-typedef int error_t;
+#include <sys/param.h>
+#include <sys/mount.h>
+#else
+#include <sys/statfs.h>
 #endif
 
 #include <boost/thread/mutex.hpp>
@@ -33,8 +37,8 @@ namespace stor {
    * A collection of MonitoredQuantities related to resource usages
    *
    * $Author: mommsen $
-   * $Revision: 1.27.4.1 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.28 $
+   * $Date: 2011/03/07 15:31:32 $
    */
   
   class ResourceMonitorCollection : public MonitorCollection
@@ -99,11 +103,19 @@ namespace stor {
 
     struct DiskUsage
     {
-      double absDiskUsage;
-      double relDiskUsage;
-      double diskSize;
-      std::string pathName;
-      AlarmHandler::ALARM_LEVEL alarmState;
+      double absDiskUsage_;
+      double relDiskUsage_;
+      double diskSize_;
+      std::string pathName_;
+      bool retrievingDiskSize_;
+      AlarmHandler::ALARM_LEVEL alarmState_;
+      #if __APPLE__
+      struct statfs statfs_;
+      #else
+      struct statfs64 statfs_;
+      #endif
+      int retVal_;
+      DiskUsage(const std::string& pathName);
       std::string toString();
     };
     typedef boost::shared_ptr<DiskUsage> DiskUsagePtr;
@@ -125,14 +137,15 @@ namespace stor {
 
     void addDisk(const std::string&);
     void addOtherDisks();
-    void failIfImportantDisk(DiskUsagePtr);
-    void emitDiskAlarm(DiskUsagePtr, error_t);
+    bool isImportantDisk(const std::string&);
+    void emitDiskAlarm(DiskUsagePtr);
     void emitDiskSpaceAlarm(DiskUsagePtr);
     void revokeDiskAlarm(DiskUsagePtr);
 
     void getDiskStats(Stats&) const;
     void calcDiskUsage();
     void retrieveDiskSize(DiskUsagePtr);
+    void doStatFs(DiskUsagePtr);
 
     void calcNumberOfCopyWorkers();
     void calcNumberOfInjectWorkers();

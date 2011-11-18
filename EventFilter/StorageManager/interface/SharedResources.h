@@ -1,4 +1,4 @@
-// $Id: SharedResources.h,v 1.6.12.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: SharedResources.h,v 1.7 2011/03/07 15:31:32 mommsen Exp $
 /// @file: SharedResources.h 
 
 #ifndef EventFilter_StorageManager_SharedResources_h
@@ -19,6 +19,7 @@
 
 namespace stor {
 
+  class AlarmHandler;
   class Configuration;
   class DiscardManager;
   class DiskWriterResources;
@@ -33,8 +34,8 @@ namespace stor {
    * Container for shared resources.
    *
    * $Author: mommsen $
-   * $Revision: 1.6.12.1 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.7 $
+   * $Date: 2011/03/07 15:31:32 $
    */
 
   struct SharedResources
@@ -50,6 +51,7 @@ namespace stor {
     DQMEventQueueCollectionPtr dqmEventQueueCollection_;
 
     // other
+    boost::shared_ptr<AlarmHandler> alarmHandler_;
     boost::shared_ptr<Configuration> configuration_;
     boost::shared_ptr<DiscardManager> discardManager_;
     boost::shared_ptr<DiskWriterResources> diskWriterResources_;
@@ -57,17 +59,6 @@ namespace stor {
     boost::shared_ptr<InitMsgCollection> initMsgCollection_;
     boost::shared_ptr<StatisticsReporter> statisticsReporter_;
     boost::shared_ptr<RegistrationCollection> registrationCollection_;
-
-    /**
-     * Add a Failed state-machine event to the command queue
-     */
-    void moveToFailedState( xcept::Exception& );
-
-    /**
-       Write message to a file in /tmp
-       (last resort when everything else fails)
-    */
-    void localDebug( const std::string& message ) const;
 
   };
 

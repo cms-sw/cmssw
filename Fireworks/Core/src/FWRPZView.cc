@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.43 2011/03/25 18:02:46 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.45 2011/09/08 02:18:01 amraktad Exp $
 //
 
 // system include files
@@ -42,7 +42,7 @@
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
 
-FWRPZViewGeometry* FWRPZView::s_geometryList = 0;
+
 const float FWRPZView::s_distortF = 0.001;
 const float FWRPZView::s_distortFInv = 1000;
 //
@@ -50,8 +50,18 @@ const float FWRPZView::s_distortFInv = 1000;
 //
 FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
    FWEveView(iParent, id, 7),
+   m_geometryList(0),
+   m_projMgr(0),
+   m_axes(0),
+
    m_calo(0),
-   m_shiftOrigin(this,"Shift origin to beam-spot", true),
+
+   m_showPixelBarrel(this, "Show Pixel Barrel", false ),
+   m_showPixelEndcap(this, "Show Pixel Endcap", false),
+   m_showTrackerBarrel(this, "Show Tracker Barrel", false ),
+   m_showTrackerEndcap(this, "Show Tracker Endcap", false),
+
+   m_shiftOrigin(this,"Shift origin to beam-spot", false),
    m_fishEyeDistortion(this,"Distortion",0., 0., 100.),
    m_fishEyeR(this,"FixedRadius",(double)fireworks::Context::caloR1(), 0.0, 150.0),
 
@@ -63,7 +73,6 @@ FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
    m_showHF(0),
    m_showEndcaps(0)
 {
-
    TEveProjection::EPType_e projType = (id == FWViewType::kRhoZ) ? TEveProjection::kPT_RhoZ : TEveProjection::kPT_RPhi;
 
    m_projMgr = new TEveProjectionManager(projType);
@@ -108,10 +117,11 @@ FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
       m_showHF = new FWBoolParameter(this,"Include HF", true);
       m_showHF->changed_.connect(  boost::bind(&FWRPZView::setEtaRng, this) );
    }
-
+  
    m_shiftOrigin.changed_.connect(boost::bind(&FWRPZView::doShiftOriginToBeamSpot,this));
 
    m_fishEyeDistortion.changed_.connect(boost::bind(&FWRPZView::doFishEyeDistortion,this));
+
    m_fishEyeR.changed_.connect(boost::bind(&FWRPZView::doFishEyeDistortion,this));
 
    m_caloDistortion.changed_.connect(boost::bind(&FWRPZView::doPreScaleDistortion,this));
@@ -140,12 +150,11 @@ FWRPZView::setContext(const fireworks::Context& ctx)
 {
    FWEveView::setContext(ctx);
 
-   if (!s_geometryList)
-   {
-      s_geometryList = new  FWRPZViewGeometry(ctx);
-      s_geometryList->IncDenyDestroy();
-   }
-   m_projMgr->ImportElements(s_geometryList->getGeoElements(typeId()), geoScene());
+   m_geometryList = new  FWRPZViewGeometry(ctx);
+   m_geometryList->IncDenyDestroy();
+   m_geometryList->initStdGeoElements(typeId());
+   TEveElement* p = m_projMgr->ImportElements(m_geometryList);
+   geoScene()->AddElement(p);
 
    TEveCaloData* data = context().getCaloData();
 
@@ -161,6 +170,12 @@ FWRPZView::setContext(const fireworks::Context& ctx)
    m_calo->SetEndCapPos(context().caloZ1(false));
    m_calo->SetAutoRange(false);
    m_calo->SetScaleAbs(true);
+
+   m_showPixelBarrel.changed_.connect(boost::bind(&FWRPZViewGeometry::showPixelBarrel,m_geometryList,_1));
+   m_showPixelEndcap.changed_.connect(boost::bind(&FWRPZViewGeometry::showPixelEndcap,m_geometryList,_1));
+   m_showTrackerBarrel.changed_.connect(boost::bind(&FWRPZViewGeometry::showTrackerBarrel,m_geometryList,_1));
+   m_showTrackerEndcap.changed_.connect(boost::bind(&FWRPZViewGeometry::showTrackerEndcap,m_geometryList,_1));
+
 }
 
 void
@@ -188,6 +203,13 @@ FWRPZView::eventBegin()
          cam.SetCenterVec(b.x0(), b.y0(), b.z0());
       }
    }
+}
+
+void
+FWRPZView::eventEnd()
+{
+   FWEveView::eventEnd();
+   viewerGL()->RequestDraw();
 }
 
 void
@@ -379,6 +401,12 @@ void
 FWRPZView::populateController(ViewerParameterGUI& gui) const
 {
    FWEveView::populateController(gui);   
+
+   ViewerParameterGUI& det =  gui.requestTab("Detector");;
+   det.addParam(&m_showPixelBarrel);
+   if (typeId() == FWViewType::kRhoZ) det.addParam(&m_showPixelEndcap);
+   det.addParam(&m_showTrackerBarrel);
+   if (typeId() == FWViewType::kRhoZ) det.addParam(&m_showTrackerEndcap);
 
 #ifdef TEVEPROJECTIONS_DISPLACE_ORIGIN_MODE
    gui.requestTab("Projection").addParam(&m_shiftOrigin);

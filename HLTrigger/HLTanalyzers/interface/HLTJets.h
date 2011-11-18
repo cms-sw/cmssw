@@ -19,6 +19,9 @@
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 
+#include "DataFormats/METReco/interface/PFMETCollection.h"  
+#include "DataFormats/METReco/interface/PFMET.h"   
+
 #include "DataFormats/METReco/interface/GenMET.h"
 #include "DataFormats/METReco/interface/GenMETCollection.h"
 #include "DataFormats/METReco/interface/METCollection.h"
@@ -71,6 +74,7 @@ public:
     void analyze(edm::Event const& iEvent,
 		 const edm::Handle<reco::CaloJetCollection>      & ohjets,
                  const edm::Handle<reco::CaloJetCollection>      & ohcorjets,
+		 const edm::Handle<reco::CaloJetCollection>      & ohcorL1L2L3jets,
 		 const edm::Handle<reco::CaloJetCollection>      & recojets,
 		 const edm::Handle<reco::CaloJetCollection>      & recocorjets,
                  const edm::Handle<reco::GenJetCollection>       & gjets,
@@ -91,6 +95,7 @@ public:
 		 const edm::Handle<reco::PFTauDiscriminator>     & theRecoPFTauDiscrAgainstMuon,
 		 const edm::Handle<reco::PFJetCollection>        & recoPFJets,                
 		 const edm::Handle<CaloTowerCollection>          & caloTowers,	      
+		 const edm::Handle<reco::PFMETCollection>        & pfmets,  
                  double thresholdForSavingTowers,
                  double                minPtCH,
                  double                minPtGamma,
@@ -101,6 +106,7 @@ private:
     // Tree variables
     float *jhcalpt, *jhcalphi, *jhcaleta, *jhcale, *jhcalemf, *jhcaln90, *jhcaln90hits;
     float *jhcorcalpt, *jhcorcalphi, *jhcorcaleta, *jhcorcale, *jhcorcalemf, *jhcorcaln90, *jhcorcaln90hits;
+    float *jhcorL1L2L3calpt, *jhcorL1L2L3calphi, *jhcorL1L2L3caleta, *jhcorL1L2L3cale, *jhcorL1L2L3calemf, *jhcorL1L2L3caln90, *jhcorL1L2L3caln90hits;
 
     float *jrcalpt, *jrcalphi, *jrcaleta, *jrcale, *jrcalemf, *jrcaln90, *jrcaln90hits;
     float *jrcorcalpt, *jrcorcalphi, *jrcorcaleta, *jrcorcale, *jrcorcalemf, *jrcorcaln90, *jrcorcaln90hits;
@@ -111,8 +117,10 @@ private:
     float htcalet,htcalphi,htcalsum;
     float mgenmet,mgenphi,mgensum;
 
+    float pfmet,pfsumet,pfmetphi; 
+
     int njetgen,ntowcal;
-    int nhjetcal,nhcorjetcal;
+    int nhjetcal,nhcorjetcal,nhcorL1L2L3jetcal;
     int nrjetcal,nrcorjetcal;
     
     // Taus
@@ -134,14 +142,14 @@ private:
     float pfHT;
     float pfMHT;    
     int nohPFJet;
-    float *pfJetEta, *pfJetPhi, *pfJetPt;
+    float *pfJetEta, *pfJetPhi, *pfJetPt, *pfJetE;
     //Reco PFTau
     int nRecoPFTau;
     float *recopfTauEta,*recopfTauPhi,*recopfTauPt,*recopfTauJetPt,*recopfTauLeadTrackPt,*recopfTauLeadPionPt;
     int   *recopfTauTrkIso, *recopfTauGammaIso;
     float *recopfTauDiscrByTancOnePercent,*recopfTauDiscrByTancHalfPercent, *recopfTauDiscrByTancQuarterPercent, *recopfTauDiscrByTancTenthPercent, *recopfTauDiscrByIso, *recopfTauDiscrAgainstMuon, *recopfTauDiscrAgainstElec;
     //Reco PF jets
-    float *jpfrecopt, *jpfrecophi, *jpfrecoeta, *jpfreconeutralHadronFraction, *jpfreconeutralEMFraction, *jpfrecochargedHadronFraction, *jpfrecochargedEMFraction;
+    float *jpfrecopt, *jpfrecoe,*jpfrecophi, *jpfrecoeta, *jpfreconeutralHadronFraction, *jpfreconeutralEMFraction, *jpfrecochargedHadronFraction, *jpfrecochargedEMFraction;
     int  *jpfreconeutralMultiplicity, *jpfrecochargedMultiplicity;
     int nrpj;
 
@@ -176,7 +184,7 @@ private:
     
     int evtCounter;
     
-    const float etaBarrel() {return 1.4;}
+    static float etaBarrel() { return 1.4; }
     
     //create maps linking histogram pointers to HCAL Channel hits and digis
     TString gjetpfx, rjetpfx,gmetpfx, rmetpfx,calopfx;

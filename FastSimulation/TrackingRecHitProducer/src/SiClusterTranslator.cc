@@ -165,7 +165,7 @@ SiClusterTranslator::produce(edm::Event& e, const edm::EventSetup& es)
       
       //Filling Pixel CPE with information.
       std::pair<int,int> row_col((int)pixelPos_out.first,(int)pixelPos_out.second);
-      pixelcpe.enterLocalParameters((unsigned int) det.rawId() , row_col, std::make_pair(aCluster->localPosition(),aCluster->localPositionError()));
+      pixelcpe.enterLocalParameters((unsigned int) det.rawId() , row_col, std::make_pair(position,error));
       
       unsigned int ch = PixelChannelIdentifier::pixelToChannel((int)pixelPos_out.first, (int)pixelPos_out.second);
       
@@ -219,7 +219,7 @@ SiClusterTranslator::produce(edm::Event& e, const edm::EventSetup& es)
       }
       
       //Filling Strip CPE with info.
-      stripcpe.enterLocalParameters(det.rawId(), strip_num, std::make_pair(aCluster->localPosition(),aCluster->localPositionError()));
+      stripcpe.enterLocalParameters(det.rawId(), strip_num, std::make_pair(position,error));
       
       //Creating a new strip cluster
       SiStripCluster temporaryStripCluster(det.rawId(), strip_num, digi_vec.begin(), digi_vec.end());

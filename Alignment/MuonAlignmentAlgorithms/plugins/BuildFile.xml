@@ -46,15 +46,6 @@
   <flags   EDM_PLUGIN="1"/>
 </library>
 
-<library   name="MuonAlignmentPreFilter" file="MuonAlignmentPreFilter.cc">
-  <use   name="Alignment/MuonAlignmentAlgorithms"/>
-  <use   name="DataFormats/MuonDetId"/>
-  <use   name="DataFormats/TrackReco"/>
-  <use   name="DataFormats/TrackingRecHit"/>
-  <use   name="root"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
-
 <library   name="MuonMillepedeAlgorithm" file="MuonMillepedeAlgorithm.cc,MuonMillepedeTrackRefitter.cc">
   <use   name="Geometry/CommonDetUnit"/>
   <use   name="MagneticField/Engine"/>

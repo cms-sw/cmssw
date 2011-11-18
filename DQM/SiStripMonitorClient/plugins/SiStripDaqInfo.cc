@@ -126,9 +126,8 @@ void SiStripDaqInfo::beginRun(edm::Run const& run, edm::EventSetup const& eSetup
   }
   
   float nFEDConnected = 0.0;
-  const FEDNumbering numbering;
-  const int siStripFedIdMin = numbering.MINSiStripFEDID;
-  const int siStripFedIdMax = numbering.MAXSiStripFEDID; 
+  const int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
+  const int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID; 
 
   edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
   if( eSetup.find( recordKey ) != 0) {
@@ -196,9 +195,8 @@ void SiStripDaqInfo::readFedIds(const edm::ESHandle<SiStripFedCabling>& fedcabli
 //
 void SiStripDaqInfo::readSubdetFedFractions(std::vector<int>& fed_ids) {
 
-  const FEDNumbering numbering;
-  const int siStripFedIdMin = numbering.MINSiStripFEDID;
-  const int siStripFedIdMax = numbering.MAXSiStripFEDID; 
+  const int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
+  const int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID; 
 
   // initialiase 
   for (std::map<std::string, std::vector<unsigned short> >::const_iterator it = subDetFedMap.begin();

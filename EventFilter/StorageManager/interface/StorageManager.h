@@ -1,10 +1,12 @@
-// $Id: StorageManager.h,v 1.58.6.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: StorageManager.h,v 1.59 2011/03/07 15:31:32 mommsen Exp $
 /// @file: StorageManager.h 
 
 #ifndef EventFilter_StorageManager_StorageManager_h
 #define EventFilter_StorageManager_StorageManager_h
 
 #include <string>
+
+#include "boost/scoped_ptr.hpp"
 
 #include "EventFilter/StorageManager/interface/ConsumerUtils.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
@@ -37,8 +39,8 @@ namespace stor {
    * Main class of the StorageManager XDAQ application
    *
    * $Author: mommsen $
-   * $Revision: 1.58.6.1 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.59 $
+   * $Date: 2011/03/07 15:31:32 $
    */
 
   class StorageManager: public xdaq::Application

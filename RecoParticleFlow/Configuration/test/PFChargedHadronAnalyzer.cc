@@ -233,6 +233,7 @@ PFChargedHadronAnalyzer::analyze(const Event& iEvent,
     case TrackBase::iter0:
     case TrackBase::iter1:
     case TrackBase::iter2:
+    case TrackBase::iter3:
       tobN += hp.numberOfValidStripTOBHits();
       tecN += hp.numberOfValidStripTECHits();
       tibN += hp.numberOfValidStripTIBHits();
@@ -240,9 +241,9 @@ PFChargedHadronAnalyzer::analyze(const Event& iEvent,
       pxbN += hp.numberOfValidPixelBarrelHits(); 
       pxdN += hp.numberOfValidPixelEndcapHits(); 
       break;
-    case TrackBase::iter3:
     case TrackBase::iter4:
     case TrackBase::iter5:
+    case TrackBase::iter6:
     default:
       break;
     }

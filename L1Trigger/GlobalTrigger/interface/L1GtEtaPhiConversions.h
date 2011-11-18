@@ -31,6 +31,7 @@
 
 //
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // forward declarations
 class L1CaloGeometry;

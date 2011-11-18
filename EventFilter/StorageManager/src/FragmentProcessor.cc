@@ -1,4 +1,4 @@
-// $Id: FragmentProcessor.cc,v 1.18 2011/03/07 15:31:32 mommsen Exp $
+// $Id: FragmentProcessor.cc,v 1.19 2011/03/30 15:16:48 mommsen Exp $
 /// @file: FragmentProcessor.cc
 
 #include <unistd.h>
@@ -6,6 +6,7 @@
 #include "toolbox/task/WorkLoopFactory.h"
 #include "xcept/tools.h"
 
+#include "EventFilter/StorageManager/interface/AlarmHandler.h"
 #include "EventFilter/StorageManager/interface/Exception.h"
 #include "EventFilter/StorageManager/interface/FragmentProcessor.h"
 #include "EventFilter/StorageManager/interface/I2OChain.h"
@@ -87,28 +88,28 @@ bool FragmentProcessor::processMessages(toolbox::task::WorkLoop*)
   }
   catch(stor::exception::RBLookupFailed &e)
   {
-    sharedResources_->statisticsReporter_->alarmHandler()->
+    sharedResources_->alarmHandler_->
       notifySentinel(AlarmHandler::ERROR, e);
   }
   catch(xcept::Exception &e)
   {
     XCEPT_DECLARE_NESTED( stor::exception::FragmentProcessing,
                           sentinelException, errorMsg, e );
-    sharedResources_->moveToFailedState(sentinelException);
+    sharedResources_->alarmHandler_->moveToFailedState(sentinelException);
   }
   catch(std::exception &e)
   {
     errorMsg += e.what();
     XCEPT_DECLARE(stor::exception::FragmentProcessing,
       sentinelException, errorMsg);
-    sharedResources_->moveToFailedState(sentinelException);
+    sharedResources_->alarmHandler_->moveToFailedState(sentinelException);
   }
   catch(...)
   {
     errorMsg += "Unknown exception";
     XCEPT_DECLARE(stor::exception::FragmentProcessing,
       sentinelException, errorMsg);
-    sharedResources_->moveToFailedState(sentinelException);
+    sharedResources_->alarmHandler_->moveToFailedState(sentinelException);
   }
 
   return actionIsActive_;
