@@ -57,8 +57,8 @@ hcalDigiMonitor.makeDiagnostics       = True
 # HF digis have 10 TS, just as HBHE and HO in HEAVY ION RUNNING
 
 # These settings used in tag 'HeavyIonTag_for_442p6_v2', but are disabled in current HEAD
-hcalDigiMonitor.minDigiSizeHF = 10
-hcalDigiMonitor.maxDigiSizeHF = 10
+#hcalDigiMonitor.minDigiSizeHF = 10
+#hcalDigiMonitor.maxDigiSizeHF = 10
 
 
 # Require at least 1000 events for the dead cell monitor to process at end of lumi block?  Do we
