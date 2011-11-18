@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.47 2011/08/16 01:29:42 amraktad Exp $
+// $Id: FWEventItem.h,v 1.48 2011/08/20 03:48:39 amraktad Exp $
 //
 
 // system include files
@@ -77,7 +77,7 @@ public:
                unsigned int iItemId,
                boost::shared_ptr<FWItemAccessorBase> iAccessor,
                const FWPhysicsObjectDesc& iDesc,  const FWConfiguration* pbConf = 0);
-   //virtual ~FWEventItem();
+   virtual ~FWEventItem();
 
    // ---------- const member functions ---------------------
 #if !defined(__CINT__) && !defined(__MAKECINT__)

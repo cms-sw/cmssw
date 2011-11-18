@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 13:09:53 CEST 2010
-// $Id: FWEveLegoView.cc,v 1.87 2010/11/15 19:54:29 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.88 2010/11/21 11:18:13 amraktad Exp $
 //
 
 // system include files
@@ -34,7 +34,8 @@
 // constructors and destructor
 //
 FWEveLegoView::FWEveLegoView(TEveWindowSlot* slot, FWViewType::EType typeId):
-FWLegoViewBase(slot, typeId)
+  FWLegoViewBase(slot, typeId),
+  m_boundaries(0)
 {
 }
 

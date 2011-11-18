@@ -1,7 +1,7 @@
 //
 // Package:     Electrons
 // Class  :     FWPhotonDetailView
-// $Id: FWPhotonDetailView.cc,v 1.28 2010/06/18 16:57:26 matevz Exp $
+// $Id: FWPhotonDetailView.cc,v 1.29 2010/06/22 14:03:10 matevz Exp $
 
 #include "TLatex.h"
 #include "TEveCalo.h"
@@ -25,6 +25,7 @@
 // constructors and destructor
 //
 FWPhotonDetailView::FWPhotonDetailView():
+m_data(0),
 m_builder(0)
 {
 }

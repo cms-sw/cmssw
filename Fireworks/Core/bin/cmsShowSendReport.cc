@@ -61,9 +61,14 @@ void getCompressedBuffer(const char* fname, Bytef** buffPtr, unsigned long& zipp
 
 int main(int argc, char **argv)
 {
+  if (argc != 2)
+  {
+      std::cerr << "Uasage: sendCrashReport <fileName>" << std::endl; exit(1);
+  }
+
    // socket creation
    int sd = socket(AF_INET,SOCK_DGRAM, 0);
-   if (sd  < 0) { }
+   if (sd  < 0) { return 1; }
 
    // printf("bind port\n");
    struct sockaddr_in cliAddr;

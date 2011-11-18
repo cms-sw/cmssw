@@ -11,7 +11,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb  2 16:40:52 EST 2009
-// $Id: FWTableViewTableManager.h,v 1.5 2010/04/16 19:48:14 chrjones Exp $
+// $Id: FWTableViewTableManager.h,v 1.6 2010/04/23 21:36:28 chrjones Exp $
 //
 
 // system include files
@@ -108,15 +108,15 @@ protected:
    
      std::vector<FWExpressionEvaluator> m_evaluators;
      std::vector<FWTableViewManager::TableEntry> *m_tableFormats;
-     //FWTableViewTableManager(const FWTableViewTableManager&); // stop default
-     
-     //const FWTableViewTableManager& operator=(const FWTableViewTableManager&); // stop default
      
      // ---------- member data --------------------------------
      // int m_sortColumn;
      // bool m_sortOrder;
      mutable bool m_caughtExceptionInCellRender;
 
+private:
+     FWTableViewTableManager(const FWTableViewTableManager&); // stop default     
+     const FWTableViewTableManager& operator=(const FWTableViewTableManager&); // stop default
 };
 
 

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 22 15:54:22 EST 2008
-// $Id: FWConfiguration.h,v 1.5 2009/04/03 18:34:52 amraktad Exp $
+// $Id: FWConfiguration.h,v 1.6 2010/04/23 08:57:03 eulisse Exp $
 //
 
 // system include files
@@ -41,8 +41,8 @@ public:
 
    FWConfiguration(const FWConfiguration&);    // stop default
 
-   const FWConfiguration& operator=(const FWConfiguration&);    // stop default
 
+   FWConfiguration& operator=(const FWConfiguration&);    // stop default
    typedef std::vector<std::pair< std::string, FWConfiguration> > KeyValues;
    typedef KeyValues::const_iterator KeyValuesIt;
 

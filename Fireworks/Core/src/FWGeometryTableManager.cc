@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManager.cc,v 1.41 2011/07/21 00:56:27 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.42 2011/10/29 17:33:22 gowdy Exp $
 //
 
 //#define PERFTOOL_GEO_TABLE
@@ -48,12 +48,13 @@ const char* FWGeometryTableManager::NodeInfo::name() const
    return m_node->GetName();
 }
 
+/*
 const char* FWGeometryTableManager::NodeInfo::nameIndent() const
 {
    std::string x(m_level*3 , ' ');
    x += m_node->GetName();
    return x.c_str();
-}
+   }*/
 
 FWGeometryTableManager::ColorBoxRenderer::ColorBoxRenderer():
    FWTableCellRendererBase(),

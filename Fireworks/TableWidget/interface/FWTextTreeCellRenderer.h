@@ -29,7 +29,8 @@ public:
         m_showEditor(false),
         m_isParent(false),
         m_isOpen(false),
-        m_blackIcon(true)
+        m_blackIcon(true),
+        m_editContext(0)
    {}
 
    // Where to find the icons

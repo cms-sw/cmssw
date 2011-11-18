@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.56 2011/08/10 23:41:39 amraktad Exp $
+// $Id: FWEventItem.cc,v 1.57 2011/08/20 03:48:40 amraktad Exp $
 //
 
 // system include files
@@ -96,11 +96,12 @@ FWEventItem::FWEventItem(fireworks::Context* iContext,
 // {
 //    // do actual copying here;
 // }
-/*
-   FWEventItem::~FWEventItem()
-   {
-   }
- */
+
+FWEventItem::~FWEventItem()
+{
+  delete m_proxyBuilderConfig;
+}
+ 
 //
 // assignment operators
 //
