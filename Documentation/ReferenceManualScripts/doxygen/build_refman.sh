@@ -64,7 +64,7 @@
 
 	# package documetation
 	cd src
-	showtags > ../tagList.txt
+	showtags -t> ../tagList.txt
 	cd ..
 
 	time python $SCRIPTS/splitter/packageDocSplitter.py pages.html $LOCALTOP tagList.txt
