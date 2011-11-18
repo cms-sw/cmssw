@@ -15,7 +15,7 @@
 //         Created:  Thu May 31 14:09:02 CEST 2007
 //    Code Updates:  loic Quertenmont (querten)
 //         Created:  Thu May 10 14:09:02 CEST 2008
-// $Id: DeDxEstimatorProducer.cc,v 1.32 2011/07/28 14:22:55 vlimant Exp $
+// $Id: DeDxEstimatorProducer.cc,v 1.33 2011/10/20 09:47:54 querten Exp $
 //
 //
 
@@ -24,8 +24,7 @@
 #include <memory>
 #include "DataFormats/Common/interface/ValueMap.h"
 
-#include "RecoTracker/DeDx/interface/DeDxEstimatorProducer.h"
-//#include "RecoTracker/DeDx/interface/DeDxTools.h"
+#include "RecoTracker/DeDx/plugins/DeDxEstimatorProducer.h"
 #include "DataFormats/TrackReco/interface/DeDxData.h"
 #include "DataFormats/TrackReco/interface/TrackDeDxHits.h"
 #include "DataFormats/TrackReco/interface/DeDxHit.h"

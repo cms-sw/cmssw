@@ -5,7 +5,7 @@
 *
 */
 
-#include "RecoTracker/DeDx/interface/HLTDeDxFilter.h"
+#include "RecoTracker/DeDx/plugins/HLTDeDxFilter.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 

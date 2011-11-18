@@ -15,7 +15,7 @@
 //         Created:  Thu May 31 14:09:02 CEST 2007
 //    Code Updates:  loic Quertenmont (querten)
 //         Created:  Thu May 10 14:09:02 CEST 2008
-// $Id: DeDxDiscriminatorProducer.cc,v 1.21 2011/07/28 14:22:55 vlimant Exp $
+// $Id: DeDxDiscriminatorProducer.cc,v 1.22 2011/10/20 09:47:54 querten Exp $
 //
 //
 
@@ -25,8 +25,7 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/TrackReco/interface/DeDxData.h"
 
-#include "RecoTracker/DeDx/interface/DeDxDiscriminatorProducer.h"
-//#include "RecoTracker/DeDx/interface/DeDxTools.h"
+#include "RecoTracker/DeDx/plugins/DeDxDiscriminatorProducer.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 

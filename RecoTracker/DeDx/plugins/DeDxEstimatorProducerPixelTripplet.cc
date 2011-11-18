@@ -19,8 +19,7 @@
 #include <memory>
 #include "DataFormats/Common/interface/ValueMap.h"
 
-#include "RecoTracker/DeDx/interface/DeDxEstimatorProducerPixelTripplet.h"
-//#include "RecoTracker/DeDx/interface/DeDxTools.h"
+#include "RecoTracker/DeDx/plugins/DeDxEstimatorProducerPixelTripplet.h"
 #include "DataFormats/TrackReco/interface/DeDxData.h"
 #include "DataFormats/TrackReco/interface/TrackDeDxHits.h"
 #include "DataFormats/TrackReco/interface/DeDxHit.h"

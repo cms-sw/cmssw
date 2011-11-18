@@ -1,0 +1,4 @@
+<use   name="RecoTracker/DeDx"/>
+<library   file="*.cc" name="RecoTrackerDeDxPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

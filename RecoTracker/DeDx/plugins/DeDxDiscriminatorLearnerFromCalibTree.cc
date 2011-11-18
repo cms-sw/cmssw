@@ -19,7 +19,7 @@
 // system include files
 #include <memory>
 
-#include "RecoTracker/DeDx/interface/DeDxDiscriminatorLearnerFromCalibTree.h"
+#include "RecoTracker/DeDx/plugins/DeDxDiscriminatorLearnerFromCalibTree.h"
 
 //#include "DataFormats/TrackReco/interface/DeDxData.h"
 #include "DataFormats/TrackReco/interface/Track.h"
