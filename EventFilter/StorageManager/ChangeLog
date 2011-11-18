@@ -1,4 +1,9 @@
+2011-11-18 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-06-01
 	* Convert CurlInterface into a singleton and setup handlers for SSL locks.
+	* Add a data flow summary table to the main SM hyperdaq page and
+	  move the I2O fragment monitoring on a separate page.
 
 2011-11-14 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
