@@ -3,7 +3,9 @@
    <class name="CentralityTable::BinValues"/>
    <class name="CentralityTable::CBin"/>
    <class name="std::vector<CentralityTable::CBin>"/>
-   <class name="RPFlatParams"/>
+   <class name="RPFlatParams">
+      <field name="m_table" mapping="blob" />
+   </class>
    <class name="RPFlatParams::EP"/>
    <class name="std::vector<RPFlatParams::EP>"/>
 </lcgdict>
