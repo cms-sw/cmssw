@@ -18,7 +18,7 @@ jetMETAnalyzer.DoPFJetCleaning  = cms.untracked.bool(False)
 jetMETAnalyzer.DoJPTJetCleaning = cms.untracked.bool(False)
 jetMETAnalyzer.DoJetCleaning    = cms.untracked.bool(True)
 
-jetMETAnalyzer.DoCaloMETAnalysis            = cms.untracked.bool(True)
+jetMETAnalyzer.DoCaloMETAnalysis            = cms.untracked.bool(False)
 jetMETAnalyzer.DoTcMETAnalysis              = cms.untracked.bool(False)
 jetMETAnalyzer.DoMuCorrMETAnalysis          = cms.untracked.bool(False)
 jetMETAnalyzer.DoPfMETAnalysis              = cms.untracked.bool(False)
