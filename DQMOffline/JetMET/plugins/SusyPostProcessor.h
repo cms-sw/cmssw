@@ -23,8 +23,6 @@
 #include "TH1.h"
 #include "TMath.h"
 
-using namespace std;
-
 class SusyPostProcessor : public edm::EDAnalyzer
 {
  public:
@@ -46,8 +44,8 @@ class SusyPostProcessor : public edm::EDAnalyzer
   std::string SUSYFolder;
 
   DQMStore* dqm;
-  vector <MonitorElement*> histoVector;
-  vector<std::string> Dirs;
+  std::vector<MonitorElement*> histoVector;
+  std::vector<std::string> Dirs;
   
 };
 
