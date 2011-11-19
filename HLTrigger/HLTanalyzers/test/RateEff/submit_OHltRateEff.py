@@ -7,8 +7,11 @@
 #
 # Usage: ./submit_OHltRateEff.py --help
 #
-#  Submit to condor:
-#     ./submit_RateEff.py -d filename.cfg 
+#   Run multicolumn rate:
+#     ./submit_RateEff.py -f <filename>.cfg 
+#
+#   Merge output logs:
+#     ./submitRateEff.py -m <foldername>
 #
 # Author: Michael Luk, Oct 2011
 #
@@ -18,10 +21,10 @@ import os, sys, glob
 from optparse import OptionParser
 _legend= '[OHltRateEff:]'
 
-add_help_option = './submit_OHltRateEff -d <openhlt>.cfg'
+add_help_option = './submit_OHltRateEff -f <openhlt>.cfg'
 parser = OptionParser(add_help_option)
 
-parser.add_option("-d","--file",dest="cfgfile",default="file",type="string",
+parser.add_option("-f","--file",dest="cfgfile",default="file",type="string",
                   help="config file to parse to OHltTree", metavar="INFILE")
 
 parser.add_option("-s","--submit",dest="submitjobs",default=False,
@@ -39,35 +42,45 @@ print 'done'
 
 #############################################################################
 #
-# Lumi Settings to Consider (in *e33 format) --
+# Settings to Consider  --
 #
 #####
 
-lumiScaleFactor   = [3,4,5]    #[3,4,5] can just list more , this is used in merging too!   # currently 3 is the most that fits on a page... 
-doPreScales       = True       # will we do the different prescale loop as well - in the #* [ PS1, PS2 ,...] on the same line as original 
+##################
+# Run Settings
+##################
+simulate         = True      # if True generates test to run overy only 1000ev, else run all events
+
+lumiScaleFactor  = [3,4]     # [3,4,5] can just list more , this is used in merging too!  - currently 3 is the most that fits on a page... 
+doPreScales      = True      # do the different HLT/L1 prescales as well as lumiScaleFactors (if false do only lumi) -procedure: append  "#*[ PS1, PS2 ,...]" to the line for the trigger in <file>.cfg : e.g see cfgs/2011cfgs/multicol_template.cfg
+
+# Prescales run as follows: 1) will run nominal, 2) then replace the nominal prescale with the first column PS1 for the triggers that have PS1 and runs this 3) repeats for PS2 etc until reaches the max number of columns. Note that the prescale replacement list does NOT need to be same length for different triggers 
+
+
+# one of "runlocally or submitjobs" must be to true to run the code (not important when merging)
+runlocally      = True      # run locally  
+runinparallel   = True       # relevant if running locally -- run in series or parallel, equivalent of appending ampserand to command i.e. ./OHltRateEff <filename>.cfg &
+
+# batch submission
+submitjobs      = False       
+onLPC           = True       # if False will run using LSF (on lxplus, need user area settings below)
 
 
 # important for lsf batch submission only
-currentRelease = "CMSSW_4_2_9_HLT1_hltpatch2"
-dirRelease     = "/afs/cern.ch/user/m/mmhl/scratch0/trigger/"
-submitqueue    = "8nh"     # if run in batch, then which q? 8nh is good  or 8nm if testing
+currentRelease  = "CMSSW_4_2_9_HLT1_hltpatch2"
+dirRelease      = "/afs/cern.ch/user/m/mmhl/scratch0/trigger/" 
+submitqueue     = "8nh"      # submit to which q? 8nh is good  or 8nm if testing
 
-## merge prescales? If false, will merge the lumiScaleFactors
-mergePreScale   = False
-doPreScaleQ     = 2          # how many prescales to merge | has to be <= the number of prescales run over... 
-PreScaleLumiI   = 0          # which lumi? i.e. in order [0,1,2...], 0 will select the first lumiScaleFactor originally specified
+
+####################
+# Merge Settings
+####################
+mergePreScale   = True      # merge prescales? If false, will merge the lumiScaleFactors (all of them that appear in lumiScaleFactor array) 
+doPreScaleQ     = 3          # how many prescales to merge, this must be <= the number of prescales run over (has to be >=1)... (1 is just the nominal case)
+PreScaleLumiI   = 1          # if mergePreScale is True, then need to pick one lumi to do i.e. specify place 0,1,2... in lumiScaleFactor [0,1,2...], 0 will select the first lumiSF originally specified
+
 
 #############################################################################
-# can set the following manually here or at terminal line
-#####
-
-simulate          = True      # generates test jobs with 1000ev  per LS NB -- leave true for running locally  (using submit options will override this eventually...)
-
-# one of these should be set to true to run the code
-runlocally        = False     # run all events in series on local computer (makes simulate redundent) ./submit_OHltRateEff.py -d <OHlt_cfgfile>.cfg -r True/False terminal override
-submitjobs        = True      # if both true, it will submit - overriden by -s True 
-
-
 #############################################################################
 #
 # Setup -- Shouldn't need to touch anything else below here
@@ -82,14 +95,14 @@ nPrint     = 10000
 
 #this is the directory and filename of the cfg to run or merge
 if options.mergeresults == "directory" and options.cfgfile=="file":
-    print _legend+" a file or folder needs to be inputted"
+    print _legend+" a file <ohlt>.cfg or folder to merge needs to be inputted"
     print _legend+" submit_OHltRateEff.py -h for details"
     sys.exit()
 
 if options.mergeresults != "directory":
-    print "No cfg File Inputted - You should only see this if merging result files"
+    print _legend+" a dir to merge has been inputted - you should only see this if merging result files"
     directomerge = options.mergeresults
-    runcode = False
+    runcode      = False
     mergelogs    = True
     
 if "file" != options.cfgfile and mergelogs == False :
@@ -110,7 +123,15 @@ if (runlocally or options.runlocally) and mergelogs==False:
 if simulate:
     nEv    = 1000
     nPrint = 100
-    
+
+if ((runcode == False) or ((runlocally == False or options.runlocally) and submitjobs == False  )) and (mergelogs == False):
+    print _legend+" not running or merging... EXITING... "
+    sys.exit()
+
+ampersand = ""
+if (runinparallel and (runlocally or options.runlocally)) and not mergelogs:
+    ampersand = " &"
+    print _legend+" will run in parallel on local computer i.e. append '&' to ./OHLTRateEff <cfg>.cfg & " 
     
 #################################################
 #
@@ -124,13 +145,13 @@ if runcode:
     d = datetime.now()
     dt = d.strftime("%d-%b-%Y_%H-%M-%S")
     _dir = str(options.cfgfile).replace("/","_")
+    _dir = _dir.replace('cfgs_','')
     _dir = _dir.replace(".cfg","")
     _dir = _dir+dt
     if not os.path.exists('./results/'):
         os.makedirs('./results/')
     os.system('mkdir results/'+_dir)
-    os.system("echo "+_legend+" the contents are in ...   : ./results/"+_dir)
-    
+    os.system("echo "+_legend+" the contents will appear in ...   : ./results/"+_dir)
     os.system("cp "+options.cfgfile+" ./results/"+_dir+"/temporaryOHlt_template.cfg")
     filecounter=-1
 
@@ -140,12 +161,14 @@ if runcode:
         tempOhltout = open('./results/'+_dir+'/tempOHlt_cfg_'+str(filecounter)+'_sf_0_psf.cfg','w')
         tempOhltin  = open('./results/'+_dir+'/temporaryOHlt_template.cfg')
         
+        PsExists = False
         for line in tempOhltin:
             line=line.replace('nEntries','nEntries                  = '+str(nEv)+'; ##')
             line=line.replace('nPrintStatusEvery','nPrintStatusEvery= '+str(nPrint)+'; ##')
             line=line.replace('lumiScaleFactor','lumiScaleFactor    = '+str(i/3.)+'; ##')
             #need counter of how many prescales
             if "#*" in line and "[" in line and "]" in line:
+                PsExists = True
                 psBraceB = line.find('[')
                 psBraceE = line.find(']')
                 if line[psBraceB:psBraceE].count(',') > psCounter:
@@ -155,7 +178,8 @@ if runcode:
         tempOhltout.close()
         tempOhltin.close()
         #in loop over the lumiscalefactors - but we want to do multiple prescale factors for each
-        psCounter += 1 #i.e. one more prescale factor than commas
+        if PsExists:
+            psCounter += 1 #i.e. one more prescale factor than commas (only if prescale changes [] exist)
         for psf in range(0,psCounter): # note the one extra since there are 1 more sf than commas
             tempOhltoutPS = open('./results/'+_dir+'/tempOHlt_cfg_'+str(filecounter)+'_sf_'+str(psf+1)+'_psf.cfg','w')
             tempOhltinPS  = open('./results/'+_dir+'/tempOHlt_cfg_'+str(filecounter)+'_sf_0_psf.cfg')
@@ -170,7 +194,6 @@ if runcode:
                     psBraceCE+= 1
                     psBraceCB = line[psBraceCE:].find(',')
                     psBraceCB+= psBraceCE +1
-                    #psBraceCE = line[psBraceCB:].find(',')
                     if line[:].find(')') < psBraceCE+line[psBraceCE:].find(','):
                         psBraceCB = psBraceCE
                         psBraceCE = line[:].find(')')
@@ -179,7 +202,7 @@ if runcode:
                         psBraceCE = line[psBraceCB:].find(',')
                         psBraceCE+= psBraceCB
 
-                    #need to fi this down to simulate
+                    #finds the commas ','
                     if line[psBraceB:psBraceE].count(',')+1 > psf:
                         if psf==0:
                             psBraceM = line[psBraceB+1:psBraceE].find(',') #this only finds the first one
@@ -206,42 +229,85 @@ if runcode:
                 tempOhltoutPS.write(line)
 
         if runlocally or options.runlocally:
-            print _legend," running "+str(len(lumiScaleFactor))+" lumiScaleFactors - "+str(filecounter) +"/"+str(len(lumiScaleFactor))
-            os.system("./OHltRateEff ./results/"+_dir+"/tempOHlt_cfg_"+str(filecounter)+"_sf_0_psf.cfg > results/"+_dir+"/tempOHlt_log_"+str(filecounter)+"_sf_0_psf.log")
+            print _legend,"running "+str(len(lumiScaleFactor))+" lumiScaleFactors - "+str(filecounter+1) +"/"+str(len(lumiScaleFactor))
+            os.system("./OHltRateEff ./results/"+_dir+"/tempOHlt_cfg_"+str(filecounter)+"_sf_0_psf.cfg > results/"+_dir+"/tempOHlt_log_"+str(filecounter)+"_sf_0_psf.log "+ampersand)
              
             if doPreScales:
-                print _legend+" will run n different prescale settings n = "+str(psCounter)
-                for psf in range(1,psCounter):
-                    print _legend," running "+str(len(lumiScaleFactor))+" lumiScaleFactors && "+str(psCounter)+" prescaleFactors - "+str(filecounter*psCounter+psf+1) +"/"+str(len(lumiScaleFactor)*psCounter)
+                print _legend,"will run n different prescale settings n = "+str(psCounter+1)
+                for psf in range(1,psCounter+1):
+                    print _legend,"@",str(filecounter*(psCounter+1)+psf+1) +"/"+str(len(lumiScaleFactor)*(psCounter+1))
                     
-                    os.system("./OHltRateEff ./results/"+_dir+"/tempOHlt_cfg_"+str(filecounter)+"_sf_"+str(psf)+"_psf.cfg > results/"+_dir+"/tempOHlt_log_"+str(filecounter)+"_sf_"+str(psf)+"_psf.log")
+                    os.system("./OHltRateEff ./results/"+_dir+"/tempOHlt_cfg_"+str(filecounter)+"_sf_"+str(psf)+"_psf.cfg > results/"+_dir+"/tempOHlt_log_"+str(filecounter)+"_sf_"+str(psf)+"_psf.log "+ampersand)
 
-    #########################
-    #Sumbits to condor/lsf  -- THIS IS NOT YET TESTED FULLY
-    #########################
+        #########################
+        #Sumbits to condor/lsf
+        #########################
         else:
             if doPreScales == False:
                 psCounter = 0
-                
-            tempsubmitfileP = {}
+            elif filecounter ==0:
+                print _legend+" will run n different prescale settings n = "+str(psCounter)
 
-            print _legend+" will run n different prescale settings n = "+str(psCounter)
+            tempsubmitfileP = {}
+            print _legend+" running ith lumis i = "+str(filecounter)+" @"+str(lumiScaleFactor[filecounter])+"e3*"
 
             os.system('cp OHltRateEff ./results/'+_dir)
             os.chdir ('./results/'+_dir)
 
-            for psf in range(0,psCounter):
-                tempsubmitfileP[psf] = open('tempSubmit'+str(filecounter)+'_'+str(psf)+'.job','w')
-                os.system('chmod 755 tempSubmit'+str(filecounter)+'_'+str(psf)+'.job')
-                tempsubmitfileP[psf].write("#!/bin/csh -f \n")
-                tempsubmitfileP[psf].write("set nonomatch  \n")
-                tempsubmitfileP[psf].write("setenv CMSSW_RELEASE "+currentRelease+"\nsetenv CODE_SRC "+dirRelease+"/" +currentRelease+" \n")
-                tempsubmitfileP[psf].write("cd ${WORKDIR} \n scramv1 project CMSSW ${CMSSW_RELEASE} \n cd ${CMSSW_RELEASE}/src \n eval `scramv1 runtime -csh` \n ")
-                tempsubmitfileP[psf].write("cp -rf ${CODE_SRC}/src/HLTrigger . \n  cd HLTrigger \n scram b \n cd HLTanalyzers/test/RateEff/  \n source setup.csh \n cd ./results/"+_dir+" \n")
-                tempsubmitfileP[psf].write("./OHltRateEff tempOHlt_cfg_"+str(filecounter)+"_sf_"+str(psf)+"_psf.cfg > tempOHlt_log_"+str(filecounter)+"_sf_"+str(psf)+"_psf.log \n")
-                tempsubmitfileP[psf].write("cp tempOHlt_log_"+str(filecounter)+"_sf_"+str(psf)+"_psf.log  ${CODE_SRC}/src/HLTrigger/HLTanalyzers/test/RateEff/results/"+_dir+"/tempOHlt_log_"+str(filecounter)+"_sf_"+str(psf)+"_psf.log \n")
-                os.system("bsub -q "+submitqueue+" tempSubmit"+str(filecounter)+"_"+str(psf)+".job")
-            os.chdir('../../')
+            if onLPC :
+                tempsubmitfileP = {}
+                if not os.path.exists('./notneeded'):
+                    os.mkdir('./notneeded')
+
+                submitTemplate = open('tempSubmit_template.job','w')
+                submitTemplate.write('Executable           = OHltRateEff          \nInput                = FILENAME \nArguments            = FILENAME')
+                submitTemplate.write('\nGetEnv               = true               \nUniverse             = Vanilla \nTransfer_Input_Files = /dev/null')
+                submitTemplate.write('\noutput               = ARG.log ')
+                submitTemplate.write('\nerror                = notneeded/ARG.stderr        \nLog                  = notneeded/log.ARG')
+                submitTemplate.write('\nCopy_To_Spool        = false              \nNotification         = never \nWhenToTransferOutput = On_Exit')
+                submitTemplate.write('\non_exit_remove       = (ExitBySignal == FALSE && ExitStatus == 0) \n')
+               
+                submitTemplate.write('Queue = 1 \n +UseSL5 = True \n')
+                submitTemplate.close()
+                psCounter+=1
+                for psf in range(0,psCounter):
+                    os.system("cp tempSubmit_template.job tempSub_"+str(filecounter)+'_'+str(psf)+'.job')
+                    submitTemp = open('tempSub_'+str(filecounter)+'_'+str(psf)+'.job')
+                    tempsubmitfileP[psf] = open('tempSubmit'+str(filecounter)+'_'+str(psf)+'.job','w')
+                    os.system('chmod 755 tempSubmit'+str(filecounter)+'_'+str(psf)+'.job')
+                    for line in submitTemp:
+                        line = line.replace('FILENAME','tempOHlt_cfg_'+str(filecounter)+'_sf_'+str(psf)+'_psf.cfg')
+                        line = line.replace('ARG',"tempOHlt_log_"+str(filecounter)+"_sf_"+str(psf)+"_psf")
+                        tempsubmitfileP[psf].write(line)
+                    tempsubmitfileP[psf].close()
+                    submitTemp.close()
+                    os.system('rm tempSub_'+str(filecounter)+'_'+str(psf)+'.job')
+                    os.system('condor_submit '+'tempSubmit'+str(filecounter)+"_"+str(psf)+".job")
+                os.chdir('../../')
+
+                if filecounter == len(lumiScaleFactor)-1:
+                    print 
+                    print _legend, 'Luminosity Scale Factors requested: ',len(lumiScaleFactor)
+                    print _legend, 'PreScaleFactors per Lumi requested: ',psCounter
+                    print _legend, 'TOTAL jobs submitted: ', (psCounter)*len(lumiScaleFactor)
+                    print
+                    _whoami = os.environ['USER']
+                    print _legend, 'on LPC, monitor job progress with condor_q -global -submitter',_whoami 
+
+
+            else:
+                for psf in range(0,psCounter):
+                    tempsubmitfileP[psf] = open('tempSubmit'+str(filecounter)+'_'+str(psf)+'.job','w')
+                    os.system('chmod 755 tempSubmit'+str(filecounter)+'_'+str(psf)+'.job')
+                    tempsubmitfileP[psf].write("#!/bin/csh -f \n")
+                    tempsubmitfileP[psf].write("set nonomatch  \n")
+                    tempsubmitfileP[psf].write("setenv CMSSW_RELEASE "+currentRelease+"\nsetenv CODE_SRC "+dirRelease+"/" +currentRelease+" \n")
+                    tempsubmitfileP[psf].write("cd ${WORKDIR} \n scramv1 project CMSSW ${CMSSW_RELEASE} \n cd ${CMSSW_RELEASE}/src \n eval `scramv1 runtime -csh` \n ")
+                    tempsubmitfileP[psf].write("cp -rf ${CODE_SRC}/src/HLTrigger . \n  cd HLTrigger \n scram b \n cd HLTanalyzers/test/RateEff/  \n source setup.csh \n cd ./results/"+_dir+" \n")
+                    tempsubmitfileP[psf].write("./OHltRateEff tempOHlt_cfg_"+str(filecounter)+"_sf_"+str(psf)+"_psf.cfg > tempOHlt_log_"+str(filecounter)+"_sf_"+str(psf)+"_psf.log \n")
+                    tempsubmitfileP[psf].write("cp tempOHlt_log_"+str(filecounter)+"_sf_"+str(psf)+"_psf.log  ${CODE_SRC}/src/HLTrigger/HLTanalyzers/test/RateEff/results/"+_dir+"/tempOHlt_log_"+str(filecounter)+"_sf_"+str(psf)+"_psf.log \n")
+                    os.system("bsub -q "+submitqueue+" tempSubmit"+str(filecounter)+"_"+str(psf)+".job")
+                os.chdir('../../')
                 
                 
 #######################
@@ -285,7 +351,7 @@ if mergelogs:
     mergedlog.write("Name ")
     if mergePreScale:
         for i in range(0,doPreScaleQ):
-            mergedlog.write("& ("+str(i)+") Prescale (HLT*L1) & ("+str(i)+") Indiv. ["+str(lumiScaleFactor[PreScaleLumiI])+"e33] & ("+str(i)+") Cumul. ["+str(lumiScaleFactor[PreScaleLumiI])+"e33]")
+            mergedlog.write("& ("+str(i)+") PreSc. (HLT*L1) & ("+str(i)+") Indiv. ["+str(lumiScaleFactor[PreScaleLumiI])+"e33] & ("+str(i)+") Cumul. ["+str(lumiScaleFactor[PreScaleLumiI])+"e33]")
         
     else:
         mergedlog.write(" & Prescale (HLT*L1)")
@@ -367,7 +433,7 @@ if mergelogs:
                     mergedlog.write(" & "+l[sname+1:rscale]) #then the prescale
             
             if mergePreScale:
-                mergedlog.write(" & "+l[sname+1:rscale]) #then the prescale
+                mergedlog.write(" & "+l[sname+1:rscale-1]) #then the prescale
                                 
             rindiv = l.find("|")
             mergedlog.write(" & "+l[rscale+1:rindiv])   #pure rate
