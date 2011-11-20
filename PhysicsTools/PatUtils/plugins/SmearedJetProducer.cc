@@ -31,6 +31,18 @@ namespace SmearedJetProducer_namespace
 
      metsig::SignAlgoResolutions jetResolutions_;
   };
+
+  template <>
+  class RawJetExtractorT<pat::Jet>
+  {
+    public:
+
+     reco::Candidate::LorentzVector operator()(const pat::Jet& jet) const 
+     { 
+       if ( jet.jecSetsAvailable() ) return jet.correctedP4("Uncorrected");
+       else return jet.p4();
+     } 
+  };
 }
 
 typedef SmearedJetProducerT<reco::CaloJet> SmearedCaloJetProducer;
