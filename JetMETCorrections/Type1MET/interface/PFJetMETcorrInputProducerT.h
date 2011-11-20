@@ -12,9 +12,9 @@
  *          Florent Lacroix, University of Illinois at Chicago
  *          Christian Veelken, LLR
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.4 $
  *
- * $Id: PFJetMETcorrInputProducerT.h,v 1.3 2011/09/30 10:56:07 veelken Exp $
+ * $Id: PFJetMETcorrInputProducerT.h,v 1.4 2011/10/14 10:14:35 veelken Exp $
  *
  */
 
@@ -158,16 +158,13 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
 	}
       }
 
-      edm::RefToBase<reco::Jet> rawJetRef(edm::Ref<JetCollection>(jets, jetIndex));
+      reco::Candidate::LorentzVector corrJetP4 = jetCorrExtractor_(rawJet, jetCorrLabel_, &evt, &es, jetCorrEtaMax_, &rawJetP4);
 
-      reco::Candidate::LorentzVector corrJetP4 = jetCorrExtractor_(rawJet, jetCorrLabel_, 
-								   &evt, &es, &rawJetRef, jetCorrEtaMax_, &rawJetP4);
       if ( corrJetP4.pt() > type1JetPtThreshold_ ) {
 	
 	reco::Candidate::LorentzVector rawJetP4offsetCorr = rawJetP4;
 	if ( offsetCorrLabel_ != "" ) {
-	  rawJetP4offsetCorr = jetCorrExtractor_(rawJet, offsetCorrLabel_, 
-						 &evt, &es, &rawJetRef, jetCorrEtaMax_, &rawJetP4);
+	  rawJetP4offsetCorr = jetCorrExtractor_(rawJet, offsetCorrLabel_, &evt, &es, jetCorrEtaMax_, &rawJetP4);
 	  
 	  for ( typename std::vector<type2BinningEntryType*>::iterator type2BinningEntry = type2Binning_.begin();
 		type2BinningEntry != type2Binning_.end(); ++type2BinningEntry ) {

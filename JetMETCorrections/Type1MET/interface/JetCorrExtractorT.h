@@ -12,9 +12,9 @@
  *
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: JetCorrExtractorT.h,v 1.2 2011/09/30 08:11:33 veelken Exp $
+ * $Id: JetCorrExtractorT.h,v 1.3 2011/09/30 10:56:07 veelken Exp $
  *
  */
 
@@ -31,14 +31,12 @@ namespace
 {
   template <typename T>
   double getCorrection(const T& rawJet, const std::string& jetCorrLabel, 
-		       const edm::Event& evt, const edm::EventSetup& es, 
-		       const edm::RefToBase<reco::Jet>& rawJetRef)
+		       const edm::Event& evt, const edm::EventSetup& es)
   {
     const JetCorrector* jetCorrector = JetCorrector::getJetCorrector(jetCorrLabel, es);
     if ( !jetCorrector )  
       throw cms::Exception("JetCorrExtractor")
 	<< "Failed to access Jet corrections for = " << jetCorrLabel << " !!\n";
-    //return jetCorrector->correction(rawJet, rawJetRef, evt, es);
     return jetCorrector->correction(rawJet, evt, es);
   }
 
@@ -57,13 +55,12 @@ class JetCorrExtractorT
 
   reco::Candidate::LorentzVector operator()(const T& rawJet, const std::string& jetCorrLabel, 
 					    const edm::Event* evt = 0, const edm::EventSetup* es = 0, 
-					    const edm::RefToBase<reco::Jet>* rawJetRef = 0, 
 					    double jetCorrEtaMax = 9.9, 
 					    const reco::Candidate::LorentzVector* rawJetP4_specified = 0)
   {
     // "general" implementation requires access to edm::Event and edm::EventSetup,
     // only specialization for pat::Jets doesn't
-    assert(evt && es && rawJetRef);
+    assert(evt && es);
 
     // allow to specify four-vector to be used as "raw" (uncorrected) jet momentum,
     // call 'rawJet.p4()' in case four-vector not specified explicitely
@@ -77,7 +74,7 @@ class JetCorrExtractorT
     //  https://hypernews.cern.ch/HyperNews/CMS/get/JetMET/1259/1.html
     double jetCorrFactor = 1.;
     if ( fabs(rawJetP4.eta()) < jetCorrEtaMax ) {      
-      jetCorrFactor = getCorrection(rawJet, jetCorrLabel, *evt, *es, *rawJetRef);
+      jetCorrFactor = getCorrection(rawJet, jetCorrLabel, *evt, *es);
     } else {
       reco::Candidate::PolarLorentzVector modJetPolarP4(rawJetP4);
       modJetPolarP4.SetEta(sign(rawJetP4.eta())*jetCorrEtaMax);
@@ -87,7 +84,7 @@ class JetCorrExtractorT
       T modJet(rawJet);
       modJet.setP4(modJetP4);
       
-      jetCorrFactor = getCorrection(modJet, jetCorrLabel, *evt, *es, *rawJetRef);
+      jetCorrFactor = getCorrection(modJet, jetCorrLabel, *evt, *es);
     }
 
     reco::Candidate::LorentzVector corrJetP4 = rawJetP4;

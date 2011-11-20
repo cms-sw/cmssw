@@ -10,9 +10,9 @@
  *          Florent Lacroix, University of Illinois at Chicago
  *          Christian Veelken, LLR
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: CaloJetMETcorrInputProducerT.h,v 1.2 2011/09/30 08:10:55 veelken Exp $
+ * $Id: CaloJetMETcorrInputProducerT.h,v 1.3 2011/09/30 10:56:07 veelken Exp $
  *
  */
 
@@ -133,10 +133,8 @@ class CaloJetMETcorrInputProducerT : public edm::EDProducer
       static CaloJetMETcorrInputProducer_namespace::RawJetExtractorT<T> rawJetExtractor;
       reco::Candidate::LorentzVector rawJetP4 = rawJetExtractor(rawJet);
       
-      edm::RefToBase<reco::Jet> rawJetRef(edm::Ref<JetCollection>(jets, jetIndex));
+      reco::Candidate::LorentzVector corrJetP4 = jetCorrExtractor_(rawJet, jetCorrLabel_, &evt, &es, jetCorrEtaMax_);
 
-      reco::Candidate::LorentzVector corrJetP4 = jetCorrExtractor_(rawJet, jetCorrLabel_, 
-								   &evt, &es, &rawJetRef, jetCorrEtaMax_);
       if ( corrJetP4.pt() > type1JetPtThreshold_ ) {
 	
 	unclEnergySum->mex   -= rawJetP4.px();
@@ -147,8 +145,7 @@ class CaloJetMETcorrInputProducerT : public edm::EDProducer
 	
 	reco::Candidate::LorentzVector rawJetP4offsetCorr = rawJetP4;
 	if ( offsetCorrLabel_ != "" ) {
-	  rawJetP4offsetCorr = jetCorrExtractor_(rawJet, offsetCorrLabel_, 
-						 &evt, &es, &rawJetRef, jetCorrEtaMax_);
+	  rawJetP4offsetCorr = jetCorrExtractor_(rawJet, offsetCorrLabel_, &evt, &es, jetCorrEtaMax_);
 	  
 	  offsetEnergySum->mex   += (rawJetP4.px() - rawJetP4offsetCorr.px());
 	  offsetEnergySum->mey   += (rawJetP4.py() - rawJetP4offsetCorr.py());

@@ -11,9 +11,9 @@
  *
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: PATJetCorrExtractor.h,v 1.2 2011/09/30 08:13:55 veelken Exp $
+ * $Id: PATJetCorrExtractor.h,v 1.3 2011/09/30 10:58:01 veelken Exp $
  *
  */
 
@@ -57,7 +57,6 @@ class JetCorrExtractorT<pat::Jet>
 
   reco::Candidate::LorentzVector operator()(const pat::Jet& jet, const std::string& jetCorrLabel, 
 					    const edm::Event* evt = 0, const edm::EventSetup* es = 0, 
-					    const edm::RefToBase<reco::Jet>* rawJetRef = 0, 
 					    double jetCorrEtaMax = 9.9, 
 					    const reco::Candidate::LorentzVector* rawJetP4_specified = 0)
   {
