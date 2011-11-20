@@ -1,5 +1,5 @@
-#ifndef FixTrackHitPattern_H
-#define FixTrackHitPattern_H
+#ifndef RecoTracker_DebugTools_FixTrackHitPattern_H
+#define RecoTracker_DebugTools_FixTrackHitPattern_H
 
 /*
  * Recalculate the track HitPattern's, which one would usually get instead by calling 
@@ -48,8 +48,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-
-using namespace std;
 
 class FixTrackHitPattern {
 

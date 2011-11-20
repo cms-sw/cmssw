@@ -29,11 +29,11 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-vector< GetTrackTrajInfo::Result > GetTrackTrajInfo::analyze(const edm::EventSetup& iSetup, const reco::Track& track) 
+std::vector< GetTrackTrajInfo::Result > GetTrackTrajInfo::analyze(const edm::EventSetup& iSetup, const reco::Track& track) 
 {
   // Determine the track trajectory and detLayer at each layer that the track produces a hit in.
 
-  vector< GetTrackTrajInfo::Result > results;
+  std::vector< GetTrackTrajInfo::Result > results;
 
   // Initialise Tracker geometry info (not sufficient to do this only on first call).
   edm::ESHandle<GeometricSearchTracker> tracker;
@@ -58,7 +58,7 @@ vector< GetTrackTrajInfo::Result > GetTrackTrajInfo::analyze(const edm::EventSet
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",trkTool_); // Needed for vertex fits
   reco::TransientTrack t_trk = trkTool_->build(track);
   TrajectoryStateOnSurface initTSOS = t_trk.impactPointState();
-  LogDebug("GTTI")<<"TRACK TSOS POS: x="<<initTSOS.globalPosition().x()<<" y="<<initTSOS.globalPosition().y()<<" z="<<initTSOS.globalPosition().z()<<endl;
+  LogDebug("GTTI")<<"TRACK TSOS POS: x="<<initTSOS.globalPosition().x()<<" y="<<initTSOS.globalPosition().y()<<" z="<<initTSOS.globalPosition().z();
 
   // Note if the track is going into +ve or -ve z.
   // This is only used to guess if the track is more likely to have hit a +ve rather than a -ve endcap
@@ -79,7 +79,7 @@ vector< GetTrackTrajInfo::Result > GetTrackTrajInfo::analyze(const edm::EventSet
       uint32_t subDet = hp.getSubStructure(hit);
       uint32_t layer = hp.getLayer(hit);
       // subdet: PixelBarrel=1, PixelEndcap=2, TIB=3, TID=4, TOB=5, TEC=6
-      LogDebug("GTTI")<<"    hit in subdet="<<subDet<<" layer="<<layer<<endl;
+      LogDebug("GTTI")<<"    hit in subdet="<<subDet<<" layer="<<layer;
 
       // Get corresponding DetLayer object (based on code in GeometricSearchTracker::idToLayer(...)
       const DetLayer* detLayer = 0;
@@ -102,36 +102,36 @@ vector< GetTrackTrajInfo::Result > GetTrackTrajInfo::analyze(const edm::EventSet
       result.detLayer = detLayer;
 
       // Check that the track crosses this layer, and get the track trajectory at the crossing point.
-      pair<bool, TrajectoryStateOnSurface> layCross = detLayer->compatible(initTSOS, propagator, estimator);
+      std::pair<bool, TrajectoryStateOnSurface> layCross = detLayer->compatible(initTSOS, propagator, estimator);
       if (layCross.first) {
-        LogDebug("GTTI")<<"crossed layer at "<<" x="<<layCross.second.globalPosition().x()<<" y="<<layCross.second.globalPosition().y()<<" z="<<layCross.second.globalPosition().z()<<endl;
+        LogDebug("GTTI")<<"crossed layer at "<<" x="<<layCross.second.globalPosition().x()<<" y="<<layCross.second.globalPosition().y()<<" z="<<layCross.second.globalPosition().z();
 
 	// Find the sensor in this layer which is closest to the track trajectory.
 	// And get the track trajectory at that sensor.
 	const PropagationDirection along = alongMomentum;
 	propagator.setPropagationDirection(along);
-	vector< GeometricSearchDet::DetWithState > detWithState = detLayer->compatibleDets(initTSOS, propagator, estimator);
+	std::vector< GeometricSearchDet::DetWithState > detWithState = detLayer->compatibleDets(initTSOS, propagator, estimator);
 	// Check that at least one sensor was compatible with the track trajectory.
 	if(detWithState.size() > 0) {
 	  // Store track trajectory at this sensor.
 	  result.valid    = true;
 	  result.accurate = true;
 	  result.detTSOS  = detWithState.front().second;
-	  LogDebug("GTTI")<<"      Det in this layer compatible with TSOS: subdet="<<subDet<<" layer="<<layer<<endl;
-	  LogDebug("GTTI")<<"      crossed sensor at x="<<result.detTSOS.globalPosition().x()<<" y="<<result.detTSOS.globalPosition().y()<<" z="<<result.detTSOS.globalPosition().z()<<endl;
+	  LogDebug("GTTI")<<"      Det in this layer compatible with TSOS: subdet="<<subDet<<" layer="<<layer;
+	  LogDebug("GTTI")<<"      crossed sensor at x="<<result.detTSOS.globalPosition().x()<<" y="<<result.detTSOS.globalPosition().y()<<" z="<<result.detTSOS.globalPosition().z();
 
 	} else {
 	  // Track did not cross a sensor, so store approximate result from its intercept with the layer.
 	  result.valid    = true;
           result.accurate = false;
           result.detTSOS  = layCross.second;
-	  LogDebug("GTTI")<<"      WARNING: TSOS not compatible with any det in this layer, despite having a hit in it !"<<endl;
+	  LogDebug("GTTI")<<"      WARNING: TSOS not compatible with any det in this layer, despite having a hit in it !";
 	}
 
       } else {
 	// Track trajectory did not cross layer. Pathological case.
         result.valid = false;
-	LogDebug("GTTI")<<"      WARNING: track failed to cross layer, despite having a hit in hit !"<<endl;
+	LogDebug("GTTI")<<"      WARNING: track failed to cross layer, despite having a hit in hit !";
       }
 
       results.push_back(result);

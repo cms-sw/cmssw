@@ -1,5 +1,5 @@
-#ifndef GetTrackTrajInfo_H
-#define GetTrackTrajInfo_H
+#ifndef RecoTracker_DebugTools_GetTrackTrajInfo_H
+#define RecoTracker_DebugTools_GetTrackTrajInfo_H
 
 /*
  * Determine the track trajectory and detLayer at each layer that the track produces a hit in.
@@ -35,8 +35,6 @@
 
 #include <vector>
 
-using namespace std;
-
 class DetLayer;
 
 class GetTrackTrajInfo {
@@ -69,7 +67,7 @@ public:
   // (See comments for struct Results).
   // There is a one-to-one correspondence between this vector and the hits returned by track::hitPattern().
   // i.e. They are ordered by the order in which the track crossed them. 
-  vector<Result> analyze(const edm::EventSetup& iSetup, const reco::Track& track);
+  std::vector<Result> analyze(const edm::EventSetup& iSetup, const reco::Track& track);
 
 private:
   // Create map indicating r/z values of all layers/disks.

@@ -37,6 +37,8 @@ FixTrackHitPattern::Result FixTrackHitPattern::analyze(const edm::EventSetup& iS
 
   Result result;
 
+  using namespace std;
+
   // Initialise Tracker geometry info (not sufficient to do this only on first call).
   edm::ESHandle<GeometricSearchTracker> tracker;
   iSetup.get<TrackerRecoGeometryRecord>().get( tracker );    
