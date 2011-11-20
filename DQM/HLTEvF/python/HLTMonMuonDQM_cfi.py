@@ -24,27 +24,32 @@ hltMonMuDQM = cms.EDAnalyzer("HLTMuonDQMSource",
       # HI L1 Muons
       cms.PSet(
         directoryName = cms.string('HIL1PassThrough'),
-        triggerBits = cms.vstring('HLT_HIL1DoubleMuOpen_v1', 'HLT_HIL1DoubleMu0_HighQ_v1')
+        triggerBits = cms.vstring('HLT_HIL1DoubleMuOpen_v2', 'HLT_HIL1DoubleMu0_HighQ_v2')
       ),
       # HI L2 Muons
       cms.PSet(
         directoryName = cms.string('HIL2PassThrough'),
-        triggerBits = cms.vstring('HLT_HIL2Mu3_NHitQ_v1', 'HLT_HIL2Mu7_v1', 'HLT_HIL2Mu15_v1', 'HLT_HIL2DoubleMu0_v1', 'HLT_HIL2DoubleMu3_v1'),
+        triggerBits = cms.vstring('HLT_HIL2Mu3_NHitQ_v2', 'HLT_HIL2Mu7_v2', 'HLT_HIL2Mu15_v2', 'HLT_HIL2DoubleMu0_v2', 'HLT_HIL2DoubleMu3_v2'),
       ),
       # HI L3 Muons
       cms.PSet(
         directoryName = cms.string('HIL3PassThrough'),
-        triggerBits = cms.vstring('HLT_HIL3Mu3_v1', 'HLT_HIL3DoubleMuOpen_v1', 'HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy_v1'),
+        triggerBits = cms.vstring('HLT_HIL3Mu3_v2', 'HLT_HIL3DoubleMuOpen_v2', 'HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy_v2'),
       ),
       # HI Single Mu
       cms.PSet(
         directoryName = cms.string('HISingleMu'),
-        triggerBits = cms.vstring('HLT_HIL2Mu3_NHitQ_v1', 'HLT_HIL2Mu7_v1', 'HLT_HIL2Mu15_v1', 'HLT_HIL3Mu3_v1'),
+        triggerBits = cms.vstring('HLT_HIL2Mu3_NHitQ_v2', 'HLT_HIL2Mu7_v2', 'HLT_HIL2Mu15_v2', 'HLT_HIL3Mu3_v2'),
       ),
       # HI Double Mu
       cms.PSet(
         directoryName = cms.string('HIDoubleMu'),
-        triggerBits = cms.vstring('HLT_HIL1DoubleMu0_HighQ_v1', 'HLT_HIL2DoubleMu0_v1', 'HLT_HIL2DoubleMu3_v1', 'HLT_HIL3DoubleMuOpen_v1', 'HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy_v1'),
+        triggerBits = cms.vstring('HLT_HIL1DoubleMu0_HighQ_v2', 'HLT_HIL2DoubleMu0_v2', 'HLT_HIL2DoubleMu3_v2', 'HLT_HIL3DoubleMuOpen_v2', 'HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy_v2'),
+      ),
+      # Sepecial Check
+      cms.PSet(
+          directoryName = cms.string('HLT_HIL2Mu3'),
+          triggerBits = cms.vstring('HLT_HIL2Mu3_NHitQ_v2'),
       ),
     ),
     disableROOToutput = cms.untracked.bool(True)
