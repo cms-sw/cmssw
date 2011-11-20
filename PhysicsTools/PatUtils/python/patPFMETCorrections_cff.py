@@ -6,7 +6,7 @@ from JetMETCorrections.Type1MET.pfMETCorrections_cff import *
 #--------------------------------------------------------------------------------
 # produce "raw" (uncorrected) pat::MET of PF-type
 from PhysicsTools.PatAlgos.producersLayer1.metProducer_cfi import patMETs
-patPFMETs = patMETs.clone(
+patPFMet = patMETs.clone(
     metSource = cms.InputTag('pfMet'),
     addMuonCorrections = cms.bool(False),
     genMETSource = cms.InputTag('genMetTrue')
@@ -56,7 +56,7 @@ patPFJetMETtype2Corr = patPFJetMETtype1p2Corr.clone(
 #--------------------------------------------------------------------------------
 # use MET corrections to produce Type 1 / Type 1 + 2 corrected PFMET objects
 patType1CorrectedPFMet = cms.EDProducer("CorrectedPATMETProducer",
-    src = cms.InputTag('patPFMETs'),
+    src = cms.InputTag('patPFMet'),
     applyType1Corrections = cms.bool(True),
     srcType1Corrections = cms.VInputTag(
         cms.InputTag('patPFJetMETtype1p2Corr', 'type1')
@@ -65,7 +65,7 @@ patType1CorrectedPFMet = cms.EDProducer("CorrectedPATMETProducer",
 )   
 
 patType1p2CorrectedPFMet = cms.EDProducer("CorrectedPATMETProducer",
-    src = cms.InputTag('patPFMETs'),
+    src = cms.InputTag('patPFMet'),
     applyType1Corrections = cms.bool(True),
     srcType1Corrections = cms.VInputTag(
         cms.InputTag('patPFJetMETtype1p2Corr', 'type1')
@@ -87,7 +87,7 @@ patType1p2CorrectedPFMet = cms.EDProducer("CorrectedPATMETProducer",
 #--------------------------------------------------------------------------------
 # define sequence to run all modules
 producePatPFMETCorrections = cms.Sequence(
-    patPFMETs
+    patPFMet
    * kt6PFJets
    * ak5PFJets
    * pfCandsNotInJet
