@@ -65,16 +65,16 @@ void CheckHitPattern::init(const edm::EventSetup& iSetup) {
     // Update with those of this module if it exceeds them.
     if (minRZ > r_or_z) minRZ = r_or_z; 
     if (maxRZ < r_or_z) maxRZ = r_or_z;     
-    rangeRorZ_[detInfo] = pair<double, double>(minRZ, maxRZ);
+    rangeRorZ_[detInfo] = std::pair<double, double>(minRZ, maxRZ);
   }
 
 #ifdef DEBUG_CHECKHITPATTERN
   RZrangeMap::const_iterator d;
   for (d = rangeRorZ_.begin(); d != rangeRorZ_.end(); d++) {
     DetInfo detInfo = d->first;
-    pair<double, double> rangeRZ = d->second;
-    cout<<"CHECKHITPATTERN: Tracker subdetector type="<<detInfo.first<<" layer="<<detInfo.second
-        <<" has min r (or z) ="<<rangeRZ.first<<" and max r (or z) = "<<rangeRZ.second<<endl; 
+    std::pair<double, double> rangeRZ = d->second;
+    std::std::cout<<"CHECKHITPATTERN: Tracker subdetector type="<<detInfo.first<<" layer="<<detInfo.second
+        <<" has min r (or z) ="<<rangeRZ.first<<" and max r (or z) = "<<rangeRZ.second<<std::std::endl; 
   }
 #endif
 }
@@ -124,9 +124,9 @@ CheckHitPattern::Result CheckHitPattern::analyze(const edm::EventSetup& iSetup,
   GlobalVector p3_trk = t_trk.trajectoryStateClosestToPoint(vert.position()).momentum();
   bool trkGoesInsideOut = fabs(reco::deltaPhi<const GlobalVector, const GlobalPoint>(p3_trk, vert.position())) < 0.5*M_PI;
 
-  LogDebug("CHP")<<"TRACK: in-->out ? "<<trkGoesInsideOut<<" dxy="<<track.dxy()<<" sz="<<track.dz()<<" eta="<<track.eta()<<" barrel hits="<<track.hitPattern().numberOfValidPixelHits()<<"/"<<track.hitPattern().numberOfValidStripTIBHits()<<"/"<<track.hitPattern().numberOfValidStripTOBHits()<<endl;
-  LogDebug("CHP")<<"VERT: r="<<vert.position().perp()<<" z="<<vert.position().z()<<endl;
-  //  if (vert.position().perp() < 3.5 && fabs(vert.position().z()) < 10. && fabs(track.eta()) < 1 && fabs(track.dxy()) < 2 && fabs(track.dz()) < 2 && track.hitPattern().numberOfValidPixelHits() == 0 && track.hitPattern().numberOfValidStripTIBHits() == 0) LogDebug("CHP")<<"LOOKATTHISTRACK"<<endl;
+  LogDebug("CHP")<<"TRACK: in-->out ? "<<trkGoesInsideOut<<" dxy="<<track.dxy()<<" sz="<<track.dz()<<" eta="<<track.eta()<<" barrel hits="<<track.hitPattern().numberOfValidPixelHits()<<"/"<<track.hitPattern().numberOfValidStripTIBHits()<<"/"<<track.hitPattern().numberOfValidStripTOBHits();
+  LogDebug("CHP")<<"VERT: r="<<vert.position().perp()<<" z="<<vert.position().z();
+  //  if (vert.position().perp() < 3.5 && fabs(vert.position().z()) < 10. && fabs(track.eta()) < 1 && fabs(track.dxy()) < 2 && fabs(track.dz()) < 2 && track.hitPattern().numberOfValidPixelHits() == 0 && track.hitPattern().numberOfValidStripTIBHits() == 0) LogDebug("CHP")<<"LOOKATTHISTRACK";
   // Get hit patterns of this track
   const reco::HitPattern& hp = track.hitPattern(); 
   reco::HitPattern        ip = track.trackerExpectedHitsInner(); 
@@ -191,9 +191,9 @@ void CheckHitPattern::print(const reco::Track& track) const {
   const reco::HitPattern& hp = track.hitPattern(); 
   const reco::HitPattern& ip = track.trackerExpectedHitsInner(); 
 
-  cout<<"=== Hits on Track ==="<<endl;
+  std::cout<<"=== Hits on Track ==="<<std::endl;
   this->print(hp);
-  cout<<"=== Hits before track ==="<<endl;
+  std::cout<<"=== Hits before track ==="<<std::endl;
   this->print(ip);
 }
 
@@ -203,7 +203,7 @@ void CheckHitPattern::print(const reco::HitPattern& hp) const {
     if (hp.trackerHitFilter(hit)) {
       uint32_t subdet = hp.getSubStructure(hit);
       uint32_t layer = hp.getLayer(hit);
-      cout<<"hit "<<i<<" subdet="<<subdet<<" layer="<<layer<<" type "<<hp.getHitType(hit)<<endl;
+      std::cout<<"hit "<<i<<" subdet="<<subdet<<" layer="<<layer<<" type "<<hp.getHitType(hit)<<std::endl;
     }
   } 
 }

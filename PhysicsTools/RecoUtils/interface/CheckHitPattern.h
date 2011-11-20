@@ -1,12 +1,10 @@
-#ifndef CheckHitPattern_H
-#define CheckHitPattern_H
+#ifndef PhysicsTools_RecoUtils_CheckHitPattern_H
+#define PhysicsTools_RecoUtils_CheckHitPattern_H
 
 /*
  * Determine if a track has hits in front of its assumed production point.
  * Also determine if it misses hits between its assumed production point and its innermost hit.
  */
-
-#define DEBUG_CHECKHITPATTERN
 
 // standard EDAnalyser include files
 #include <memory>
@@ -22,7 +20,6 @@
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
-using namespace std;
 #include <utility>
 #include <map>
 
@@ -61,7 +58,7 @@ private:
 
   // Return a pair<uint32, uint32> consisting of the numbers used by HitPattern to 
   // identify subdetector and layer number respectively.
-  typedef pair<uint32_t, uint32_t> DetInfo;
+  typedef std::pair<uint32_t, uint32_t> DetInfo;
   static DetInfo interpretDetId(DetId detId);
 
   // Return a bool indicating if a given subdetector is in the barrel.
@@ -75,7 +72,7 @@ private:
 
   // For a given subdetector & layer number, this stores the minimum and maximum
   // r (or z) values if it is barrel (or endcap) respectively.
-  typedef map< DetInfo, pair< double, double> > RZrangeMap;
+  typedef std::map< DetInfo, std::pair< double, double> > RZrangeMap;
   static RZrangeMap rangeRorZ_;
 
  // Makes TransientTracks needed for vertex fitting.
