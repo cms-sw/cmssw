@@ -118,7 +118,7 @@ struct stGraph{
 };
 
 double PlotMinScale = 0.0005;
-double PlotMaxScale = 6;
+double PlotMaxScale = 3;
 
 TGraph* MakePlot(FILE* pFile, FILE* talkFile, string InputPattern, string syst, string ModelName, int XSectionType=2, string Mass0="", string Mass1="", string Mass2="", string Mass3="", string Mass4="", string Mass5="", string Mass6="", string Mass7="", string Mass8="", string Mass9="",string Mass10="", string Mass11="", string Mass12="", string Mass13="");
 
@@ -541,8 +541,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    MGMu->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    
    DrawPreliminary(IntegratedLuminosity);
-   
-   TLegend* LEGMu = new TLegend(0.50,0.65,0.80,0.90);
+   TLegend* LEGMu = new TLegend(0.44,0.65,0.67,0.90);   
 //   LEGMu->SetHeader("95% C.L. Limits");
    LEGMu->SetHeader("Tk + TOF");
    LEGMu->SetFillColor(0); 
@@ -556,7 +555,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    LEGMu->AddEntry(Mu_Obs_GMStau   , "GMSB stau"       ,"LP");
    LEGMu->Draw();
 
-   TLegend* LEGTh = new TLegend(0.15,0.73,0.50,0.93);
+   TLegend* LEGTh = new TLegend(0.14,0.73,0.44,0.93);
    LEGTh->SetHeader("Theoretical Prediction");
    LEGTh->SetFillColor(0);
    LEGTh->SetBorderSize(0);
@@ -611,9 +610,9 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    
    DrawPreliminary(IntegratedLuminosity);
    
-   TLegend* LEGTk = new TLegend(0.50,0.65,0.80,0.90);
+   TLegend* LEGTk = new TLegend(0.44,0.58,0.82,0.9);
 //   LEGTk->SetHeader("95% C.L. Limits");
-   LEGTk->SetHeader("Tk + only");
+   LEGTk->SetHeader("Tracker - Only");
    LEGTk->SetFillColor(0); 
    LEGTk->SetBorderSize(0);
    LEGTk->AddEntry(Tk_Obs_GluinoF5 , "gluino; 50% #tilde{g}g"    ,"LP");
@@ -664,7 +663,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    LEGDCMu->AddEntry(Mu_Obs_DCRho16HyperK   , "Hyperk #tilde{#rho} = 1.6 TeV"       ,"LP");
    LEGDCMu->Draw();
 
-   TLegend* LEGDCTh = new TLegend(0.15,0.73,0.50,0.93);
+   TLegend* LEGDCTh = new TLegend(0.15,0.73,0.46,0.93);
    LEGDCTh->SetHeader("Theoretical Prediction");
    LEGDCTh->SetFillColor(0);
    LEGDCTh->SetBorderSize(0);
@@ -705,7 +704,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    
    TLegend* LEGDCTk = new TLegend(0.50,0.65,0.80,0.90);
 //   LEGDCTk->SetHeader("95% C.L. Limits");
-   LEGDCTk->SetHeader("Tk + only");
+   LEGDCTk->SetHeader("Tracker - Only");
    LEGDCTk->SetFillColor(0); 
    LEGDCTk->SetBorderSize(0);
    LEGDCTk->AddEntry(Tk_Obs_DCRho08HyperK   , "Hyperk #tilde{#rho} = 0.8 TeV"       ,"LP");
@@ -739,6 +738,7 @@ void CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern){
    Models.push_back("Gluino800_f1");
    Models.push_back("Gluino900_f1");
    Models.push_back("Gluino1000_f1");
+   Models.push_back("Gluino1100_f1");
    Models.push_back("Gluino300_f5");
    Models.push_back("Gluino400_f5");
    Models.push_back("Gluino500_f5");
@@ -747,6 +747,7 @@ void CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern){
    Models.push_back("Gluino800_f5");
    Models.push_back("Gluino900_f5");
    Models.push_back("Gluino1000_f5");
+   Models.push_back("Gluino1100_f5");
    Models.push_back("Gluino300N_f1");
    Models.push_back("Gluino400N_f1");
    Models.push_back("Gluino500N_f1");
@@ -755,6 +756,7 @@ void CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern){
    Models.push_back("Gluino800N_f1");
    Models.push_back("Gluino900N_f1");
    Models.push_back("Gluino1000N_f1");
+   Models.push_back("Gluino1100N_f1");
    Models.push_back("Stop130");
    Models.push_back("Stop200");
    Models.push_back("Stop300");
@@ -827,11 +829,11 @@ void CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern){
 
    if(IsTkOnly){
      fprintf(pFile, "%20s   Eff   --> PScale |  EstimScale | DiscrimScale || TotalUncertainty\n","Model");
-     fprintf(talkFile, "%20s   Eff   --> PScale |  EstimScale | DiscrimScale || TotalUncertainty\n","Model");
+     fprintf(talkFile, "\\hline\n%20s &  Eff   & PScale &  EstimScale & DiscrimScale & TotalUncertainty \\\\\n","Model");
    }
    else {
      fprintf(pFile, "%20s   Eff   --> PScale |  EstimScale | DiscrimScale | TOFScale || TotalUncertainty\n","Model");
-     fprintf(talkFile, "%20s   Eff   --> PScale |  EstimScale | DiscrimScale | TOFScale || TotalUncertainty\n","Model");
+     fprintf(talkFile, "\\hline\n%20s &  Eff   & PScale &  EstimScale & DiscrimScale & TOFScale & TotalUncertainty \\\\\n","Model");
    }
 
    for(unsigned int s=0;s<Models.size();s++){
@@ -848,9 +850,9 @@ void CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern){
 	else if(!IsNeutral) fprintf(pFile, "%20s   %7.3f --> %7.3f  |  %7.3f  | %7.3f  | %7.3f || %7.3f\n",+Models[s].c_str(), tmp.Eff, P/tmp.Eff, M/tmp.Eff, I/tmp.Eff, T/tmp.Eff, sqrt(P*P + I*I + M*M + T*T)/tmp.Eff);
 
 	if(IsTkOnly && (IsStau || (int)tmp.Mass%200==0)) {
-	  fprintf(talkFile, "%20s   %7.3f --> %7.3f  |  %7.3f  | %7.3f  || %7.3f\n",+Models[s].c_str(), tmp.Eff, P/tmp.Eff, M/tmp.Eff, I/tmp.Eff, T/tmp.Eff, sqrt(P*P + I*I + M*M + T*T)/tmp.Eff);
+	  fprintf(talkFile, "\\hline\n%20s &  %7.1f\\% & %7.1f\\%  &  %7.1f\\%  & %7.1f\\%  & %7.1f\\% \\\\\n",+Models[s].c_str(), 100.*tmp.Eff, 100.*P/tmp.Eff, 100.*M/tmp.Eff, 100.*I/tmp.Eff, 100.*sqrt(P*P + I*I + M*M + T*T)/tmp.Eff);
 	}
-        if(!IsTkOnly && !IsNeutral) fprintf(talkFile, "%20s   %7.3f --> %7.3f  |  %7.3f  | %7.3f  | %7.3f || %7.3f\n",+Models[s].c_str(), tmp.Eff, P/tmp.Eff, M/tmp.Eff, I/tmp.Eff, T/tmp.Eff, sqrt(P*P + I*I + M*M + T*T)/tmp.Eff);
+        if(!IsTkOnly && !IsNeutral) fprintf(talkFile, "\\hline\n%20s &  %7.1f\\% & %7.1f\\%  &  %7.1f\\%  & %7.1f\\%  & %7.1f\\% & %7.1f\\% \\\\\n",+Models[s].c_str(), 100.*tmp.Eff, 100.*P/tmp.Eff, 100.*M/tmp.Eff, 100.*I/tmp.Eff, 100.*T/tmp.Eff, 100.*sqrt(P*P + I*I + M*M + T*T)/tmp.Eff);
 
    }
 }
@@ -1610,7 +1612,7 @@ void DrawModelLimitWithBand(string InputPattern, string inputmodel)
    TLegend* LEG = new TLegend(0.40,0.65,0.8,0.90);
    string headerstr;
    headerstr = "95% C.L. Limits (Tk + TOF)";
-   if(IsTkOnly) headerstr = "95% C.L. Limits (Tk + only)";
+   if(IsTkOnly) headerstr = "95% C.L. Limits (Tracker - Only)";
    LEG->SetHeader(headerstr.c_str());
    LEG->SetFillColor(0); 
    LEG->SetBorderSize(0);
@@ -1931,7 +1933,7 @@ void DrawRatioBands(string InputPattern, string inputmodel)
          TLegend* LEG = new TLegend(0.11,0.01,0.7,0.99);
          string headerstr;
          headerstr = " Tk + TOF";
-         if(IsTkOnly) headerstr = " Tk + only";
+         if(IsTkOnly) headerstr = " Tracker - Only";
          LEG->SetHeader(headerstr.c_str());
          LEG->SetFillColor(0); 
          LEG->SetBorderSize(0);
@@ -1952,13 +1954,16 @@ void DrawRatioBands(string InputPattern, string inputmodel)
          MG->GetXaxis()->SetLabelSize(0.4);
       }
 
-      TPaveText *pt = new TPaveText(0.65, 0.6, 0.95, 0.9,"LBNDC");
+      TPaveText *pt;
+      if(IsTkOnly) pt = new TPaveText(0.45, 0.6, 0.95, 0.87,"LBNDC");
+      else pt = new TPaveText(0.65, 0.7, 0.95, 0.85,"LBNDC");
       pt->SetBorderSize(0);
       pt->SetLineWidth(0);
       pt->SetFillColor(kWhite);
       TText *text = pt->AddText(ModelNames[k].c_str()); 
       text ->SetTextAlign(11);
       text ->SetTextSize(0.3);
+      if(IsTkOnly) text ->SetTextSize(0.35);
       pt->Draw();
       
       MG->GetXaxis()->SetRangeUser(50,1050);    

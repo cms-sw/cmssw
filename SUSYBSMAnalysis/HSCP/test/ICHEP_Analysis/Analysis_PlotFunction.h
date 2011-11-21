@@ -59,6 +59,7 @@ void SaveCanvas(TCanvas* c, std::string path, std::string name, bool OnlyPPNG=fa
    filepath = tmppath + ".png"; c->SaveAs(filepath.c_str()); if(OnlyPPNG)return;
    filepath = tmppath +  ".eps"; c->SaveAs(filepath.c_str());
    filepath = tmppath + ".C"  ; c->SaveAs(filepath.c_str());
+   filepath = tmppath +  ".pdf"; c->SaveAs(filepath.c_str());
 }
 
 //void DrawPreliminary(int Type, double X=0.28, double Y=0.98, double W=0.85, double H=0.95){
@@ -79,7 +80,7 @@ void DrawPreliminary(double Lumi, double X=0.40, double Y=0.995, double W=0.82, 
 //      sprintf(tmp,"CMS Preliminary 2010   #sqrt{s} = 7TeV   %4.2f pb ^{-1}",Lumi*1.0); //USED FOR PAS
 //      sprintf(tmp,"CMS 2010   #sqrt{s} = 7 TeV   %4.2f pb ^{-1}",Lumi*1.0);
 //      sprintf(tmp,"CMS   #sqrt{s} = 7 TeV   %4.2f pb ^{-1}",Lumi*1.0);
-      sprintf(tmp,"CMS Preliminary   #sqrt{s} = 7 TeV   %4.0f pb ^{-1}",Lumi*1.0);
+      sprintf(tmp,"CMS Preliminary   #sqrt{s} = 7 TeV   %1.1f fb ^{-1}",Lumi*0.001);
 
       T->AddText(tmp);
    }

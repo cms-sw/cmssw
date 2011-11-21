@@ -101,7 +101,7 @@ void Analysis_Step5()
 
    InputDir = "Results/dedxASmi/combined/Eta15/PtMin45/Type0/";   CutIndex = 4;
    MassPrediction(InputDir, CutIndex, "Mass");
-//   PredictionAndControlPlot(InputDir, CutIndex);
+   PredictionAndControlPlot(InputDir, CutIndex);
 //  CutFlow(InputDir);
 //   SelectionPlot(InputDir, CutIndex, 0);
    InputDir = "Results/dedxASmi/combined/Eta15/PtMin45/Type2/";   CutIndex = 16;
@@ -117,11 +117,11 @@ void Analysis_Step5()
    return;
 
    InputDir = "Results/dedxASmi/combined/Eta15/PtMin45/Type0/";   CutIndex = 11;/*65;*//*39;*/  MassPredictionTight(InputDir, CutIndex, "Mass");
-   CutIndex=65;
+   CutIndex=50;
    GluinoCutIndex=11;   
    SelectionPlot(InputDir, CutIndex, GluinoCutIndex);   
 
-   InputDir = "Results/dedxASmi/combined/Eta15/PtMin45/Type2/";   CutIndex = 217;/*211;*//*167;95;*/  MassPredictionTight(InputDir, CutIndex, "Mass");
+   InputDir = "Results/dedxASmi/combined/Eta15/PtMin45/Type2/";   CutIndex = 275;/*211;*//*167;95;*/  MassPredictionTight(InputDir, CutIndex, "Mass");
    GluinoCutIndex=845;
    SelectionPlot(InputDir, CutIndex, GluinoCutIndex);
 //   InputDir = "Results/dedxASmi/combined/Eta25/PtMin45/Type0/";   CutIndex = 64;   Make2DPlot_Core(InputDir,CutIndex);
@@ -738,9 +738,9 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex, unsigned int Glui
 
    stPlots_DrawComparison(SavePath + "/Selection_Comp_Data" , LegendTitle, CutIndex, &DataPlots, &MCTrPlots);
    stPlots_DrawComparison(SavePath + "/Selection_Comp_Gluino" , LegendTitle, GluinoCutIndex, &DataPlots, &MCTrPlots, &SignPlots[0], &SignPlots[3], &SignPlots[5]);
-   stPlots_DrawComparison(SavePath + "/Selection_Comp_DCStau" , LegendTitle, CutIndex, &DataPlots, &SignPlots[SID_D12K182 ], &SignPlots[SID_D12K595 ], &SignPlots[SID_D12K700 ]);
+  //stPlots_DrawComparison(SavePath + "/Selection_Comp_DCStau" , LegendTitle, CutIndex, &DataPlots, &SignPlots[SID_D12K182 ], &SignPlots[SID_D12K595 ], &SignPlots[SID_D12K700 ]);
 //   stPlots_DrawComparison(SavePath + "/Selection_Comp_Stop"   , LegendTitle, CutIndex, &DataPlots, &SignPlots[24]);
-   stPlots_DrawComparison(SavePath + "/Selection_Comp_GMStau" , LegendTitle, CutIndex, &DataPlots, &SignPlots[38], &SignPlots[40], &SignPlots[42]);
+   stPlots_DrawComparison(SavePath + "/Selection_Comp_GMStau" , LegendTitle, CutIndex, &DataPlots, &MCTrPlots, &SignPlots[38], &SignPlots[40], &SignPlots[42]);
    return;
 
    stPlots_DrawComparison(SavePath + "/Selection_Comp_Gluino" , LegendTitle, CutIndex, &DataPlots, &SignPlots[SID_GL300 ], &SignPlots[SID_GL500 ], &SignPlots[SID_GL900 ]);
@@ -1439,7 +1439,7 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
       MP = MCPred->Integral( MCPred->GetXaxis()->FindBin(M),  MCPred->GetXaxis()->FindBin(2000.0));
       MDerr = 0; for(int i=MC->GetXaxis()->FindBin(M);i<MC->GetXaxis()->FindBin(2000.0);i++){ MDerr += pow(MC->GetBinError(i),2); }  MDerr = sqrt(MDerr);
       MPerr = 0; for(int i=MCPred->GetXaxis()->FindBin(M);i<MCPred->GetXaxis()->FindBin(2000.0);i++){ MPerr += pow(MCPred->GetBinError(i),2); }  MPerr = sqrt(MPerr);
-      printf("%4.0f<M<2000 --> Obs=%9.3f Data-Pred = %9.3f +- %8.3f(syst+stat)  MC=%9.3f+-%8.3f   MC-Pred = %8.3f +- %9.3f (syst+stat)\n", M, D, P, sqrt(Perr*Perr + pow(P*(2*RMS),2)), MD, MDerr, MP, sqrt(MPerr*MPerr + pow(MP*(2*RMS),2)) );
+      printf("%4.0f<M<2000 --> Obs=%9.3f Data-Pred = %9.3f +- %8.3f(syst+stat) %9.3f (syst) %9.3f (stat) MC=%9.3f+-%8.3f   MC-Pred = %8.3f +- %9.3f (syst+stat) %9.3f (syst) %9.3f (stat)\n", M, D, P, sqrt(Perr*Perr + pow(P*(2*RMS),2)), P*(2*RMS), Perr, MD, MDerr, MP, sqrt(MPerr*MPerr + pow(MP*(2*RMS),2)), MP*(2*RMS), MPerr );
    }
    printf("FullSpectrum --> D=%9.3f P = %9.3f +- %6.3f(stat) +- %6.3f(syst) (=%6.3f)\n", Data->Integral(), Pred->Integral(), 0.0, 0.0, 0.0 );
    printf("UnderFlow = %6.2f OverFlow = %6.2f\n", Pred->GetBinContent(0), Pred->GetBinContent(Pred->GetNbinsX()+1) );
@@ -1451,7 +1451,6 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    Signal->Rebin(4);
    MC->Rebin(4);
    MCPred->Rebin(4);
-
 
    double Max = 2.0 * std::max(std::max(Data->GetMaximum(), Pred->GetMaximum()), Signal->GetMaximum());
    double Min = 0.01;// 0.1 * std::min(0.01,Pred->GetMaximum());
@@ -1512,11 +1511,11 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    MCPred->SetFillColor(0);
    MCPred->Draw("same HIST P");
 
-   MC->SetFillStyle(3002);
-   MC->SetLineColor(22);
-   MC->SetFillColor(11);
-   MC->SetMarkerStyle(0);
-   MC->Draw("same HIST E1");
+   //MC->SetFillStyle(3002);
+   //MC->SetLineColor(22);
+   //MC->SetFillColor(11);
+   //MC->SetMarkerStyle(0);
+   //MC->Draw("same HIST E1");
    PredErr->Draw("same E5");
 
    Pred->SetMarkerStyle(22);
@@ -1542,12 +1541,12 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    PredLeg->SetFillColor(PredErr->GetFillColor());
    PredLeg->SetFillStyle(PredErr->GetFillStyle());
    leg->AddEntry(Data, "Data"        ,"P");
-   leg->AddEntry(PredLeg, "Data-based prediction"  ,"PF");
-   leg->AddEntry(MC, "Simulation"  ,"LF");
+   leg->AddEntry(PredLeg, "Data-based SM prediction"  ,"PF");
+   //leg->AddEntry(MC, "Simulation"  ,"LF");
    TH1D* MCPredLeg = (TH1D*) MCPred->Clone("RescMCLeg");
    MCPredLeg->SetFillColor(MCPredErr->GetFillColor());
    MCPredLeg->SetFillStyle(MCPredErr->GetFillStyle());
-   leg->AddEntry(MCPredLeg, "Data-based prediction (MC)"  ,"PF");
+   leg->AddEntry(MCPredLeg, "SM prediction (MC)"  ,"PF");
    if(IsTkOnly)leg->AddEntry(Signal, "MC - Gluino (M=600 GeV/c^{2})"        ,"F");
    else        leg->AddEntry(Signal, "MC - Stau (M=156 GeV/c^{2})"        ,"F");
    leg->Draw();
