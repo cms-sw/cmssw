@@ -62,6 +62,15 @@ def guessLumiUnit(t):
     elif  t>=1.0e12 and t<1.0e15:
         denomitor=1.0e12
         unitstring='ab$^{-1}$'
+    elif t<=1.0e-3 and t>1.0e-6: #left direction
+        denomitor=1.0e-3
+        unitstring='mb$^{-1}$'
+    elif t<=1.0e-6 and t>1.0e-9:
+        denomitor=1.0e-6
+        unitstring='b$^{-1}$'
+    elif t<=1.0e-9 and t>1.0e-12:
+        denomitor=1.0e-9
+        unitstring='kb$^{-1}$'
     return (unitstring,denomitor)
 
 class matplotRender():
