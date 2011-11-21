@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWJetProxyBuilder.cc,v 1.33 2011/08/16 21:44:05 amraktad Exp $
+// $Id: FWJetProxyBuilder.cc,v 1.34 2011/08/20 03:50:05 amraktad Exp $
 //
 
 #include "TEveJetCone.h"
@@ -57,9 +57,11 @@ public:
    virtual void setItem(const FWEventItem* iItem)
    {
       FWProxyBuilderBase::setItem(iItem);
+      if (iItem) {
       iItem->getConfig()->assertParam(kJetLabelsRhoPhiOn, false);
       iItem->getConfig()->assertParam(kJetLabelsRhoZOn, false);
       iItem->getConfig()->assertParam(kJetOffset, 2.1, 1.0, 5.0);
+      }
    }
 
    REGISTER_PROXYBUILDER_METHODS();
