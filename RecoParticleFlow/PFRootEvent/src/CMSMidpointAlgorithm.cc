@@ -342,7 +342,7 @@ void CMSMidpointAlgorithm::splitAndMerge(const InputCollection& fInput,
     GreaterByPtPtr<ProtoJet> compJets;
     sort(stableCones->begin(),stableCones->end(),compJets);
     // clean removed clusters
-    InternalCollection::const_iterator i = find (stableCones->begin(), stableCones->end(), (ProtoJet*)0);
+    //InternalCollection::const_iterator i = find (stableCones->begin(), stableCones->end(), (ProtoJet*)0);
     //    for (; i != stableCones->end(); ++i) std::cout << "CMSMidpointAlgorithm::splitAndMerge-> removing pointer " << *i << std::endl; 
     stableCones->erase (find (stableCones->begin(), stableCones->end(), (ProtoJet*)0), stableCones->end()); 
     

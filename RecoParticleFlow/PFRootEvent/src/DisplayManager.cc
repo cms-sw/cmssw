@@ -1847,18 +1847,17 @@ void DisplayManager::loadGSimParticles()
       ptc.trajectoryPoints();
       
 
-    int markerstyle;
     int indexMarker;
     switch( std::abs(ptc.pdgCode() ) ) {
-    case 22:   markerstyle = 3 ; indexMarker=0; break; // photons
-    case 11:   markerstyle = 5 ; indexMarker=1;  break; // electrons 
-    case 13:   markerstyle = 2 ; indexMarker=2;  break; // muons 
+    case 22:   indexMarker=0; break; // photons
+    case 11:   indexMarker=1;  break; // electrons 
+    case 13:   indexMarker=2;  break; // muons 
     case 130:  
-    case 321:  markerstyle = 24; indexMarker=3; break; // K
-    case 211:  markerstyle = 25; indexMarker=4; break; // pi+/pi-
-    case 2212: markerstyle = 26; indexMarker=5; break; // protons
-    case 2112: markerstyle = 27; indexMarker=6; break; // neutrons  
-    default:   markerstyle = 30; indexMarker=7; break; 
+    case 321:  indexMarker=3; break; // K
+    case 211:  indexMarker=4; break; // pi+/pi-
+    case 2212: indexMarker=5; break; // protons
+    case 2112: indexMarker=6; break; // neutrons  
+    default:   indexMarker=7; break; 
     }
 
     bool displayInitial=true;

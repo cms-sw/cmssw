@@ -66,25 +66,25 @@ FastJetFWLiteWrapper::FastJetFWLiteWrapper()
   //configuring algorithm 
   
   
-  fastjet::JetFinder jet_finder;
-  if (JetFinder=="cambridge_algorithm") jet_finder=fastjet::cambridge_algorithm;
-  else jet_finder=fastjet::kt_algorithm;
+//  fastjet::JetFinder jet_finder;
+//  if (JetFinder=="cambridge_algorithm") jet_finder=fastjet::cambridge_algorithm;
+//  else jet_finder=fastjet::kt_algorithm;
         
   //choosing search-strategy:
         
-  fastjet::Strategy strategy;
-  if (Strategy=="N2Plain") strategy=fastjet::N2Plain;
-  // N2Plain is best for N<50
-  else if (Strategy=="N2Tiled") strategy=fastjet::N2Tiled;
-  // N2Tiled is best for 50<N<400
-  else if (Strategy=="N2MinHeapTiled") strategy=fastjet::N2MinHeapTiled;
-  // N2MinHeapTiles is best for 400<N<15000
-  else if (Strategy=="NlnN") strategy=fastjet::NlnN;
-  // NlnN is best for N>15000
-  else if (Strategy=="NlnNCam") strategy=fastjet::NlnNCam;
-  // NlnNCam is best for N>6000
-  else strategy=fastjet::Best;
-  // Chooses best Strategy for every event, depending on N and ktRParam
+//  fastjet::Strategy strategy;
+//  if (Strategy=="N2Plain") strategy=fastjet::N2Plain;
+//  // N2Plain is best for N<50
+//  else if (Strategy=="N2Tiled") strategy=fastjet::N2Tiled;
+//  // N2Tiled is best for 50<N<400
+//  else if (Strategy=="N2MinHeapTiled") strategy=fastjet::N2MinHeapTiled;
+//  // N2MinHeapTiles is best for 400<N<15000
+//  else if (Strategy=="NlnN") strategy=fastjet::NlnN;
+//  // NlnN is best for N>15000
+//  else if (Strategy=="NlnNCam") strategy=fastjet::NlnNCam;
+//  // NlnNCam is best for N>6000
+//  else strategy=fastjet::Best;
+//  // Chooses best Strategy for every event, depending on N and ktRParam
         
   //additional strategies are possible, but not documented in the manual as they are experimental,
   //they are also not used by the "Best" method. Note: "NlnNCam" only works with 
@@ -145,7 +145,6 @@ void FastJetFWLiteWrapper::run(const JetReco::InputCollection& fInput, JetReco::
   std::vector<fastjet::PseudoJet> fjInputs;
   fjInputs.reserve (fInput.size());
   
-  JetReco::InputCollection::const_iterator input = fInput.begin();
   for (unsigned i = 0; i < fInput.size(); ++i) {
     const JetReco::InputItem& c = fInput[i];
     fjInputs.push_back (fastjet::PseudoJet (c->px(),c->py(),c->pz(),c->energy()));
