@@ -5,7 +5,7 @@ hcalMonitor=cms.EDAnalyzer("HcalMonitorModule",
                            online=cms.untracked.bool(False),
                            mergeRuns=cms.untracked.bool(False),
                            enableCleanup=cms.untracked.bool(False),
-                           FEDRawDataCollection=cms.untracked.InputTag("rawDataCollector"),
+                           FEDRawDataCollection=cms.untracked.InputTag("source"),
                            UnpackerReport=cms.untracked.InputTag("hcalDigis"),
                            subSystemFolder=cms.untracked.string("Hcal/"),
                            )
