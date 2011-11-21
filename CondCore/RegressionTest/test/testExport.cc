@@ -22,6 +22,7 @@ cond_regression::ExportIOVTest::ExportIOVTest():
   addOption<bool>("cleanUp","C","initialize cleanUp the database account");
   addOption<std::string>("read","R","read and verify the specified tag");
   addOption<int>("seed","Z","input seed for data generation");
+  addOption<bool>("metadata","M","initialize the database with the metadata table");
 }
 
 cond_regression::ExportIOVTest::~ExportIOVTest(){
@@ -41,7 +42,7 @@ int cond_regression::ExportIOVTest::execute(){
     int seed = getOptionValue<int>("seed");
     cond::Time_t since = getOptionValue<cond::Time_t>("beginTime");
     if(!m_tf.DropTables( m_tf.s.connectionString() )){
-      m_tf.CreateMetaTable();
+      if( hasOptionValue("metadata") ) m_tf.CreateMetaTable();
       return m_tf.WriteWithIOV(tag, seed, since);
     }
     return 1;
