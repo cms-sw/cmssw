@@ -23,7 +23,7 @@
 		rm -f $LOCALTOP/$CMSSW_xyz.index
 	endif
 
-	if (-e $LOCALTOP/taglist.txt) then
+	if (-e $LOCALTOP/tagList.txt) then
 		rm -f $LOCALTOP/tagList.txt
 	endif
 
