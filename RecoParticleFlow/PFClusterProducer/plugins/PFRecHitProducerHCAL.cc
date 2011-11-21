@@ -1132,7 +1132,6 @@ PFRecHitProducerHCAL::findRecHitNeighbours
 
   const CaloSubdetectorTopology* topology = 0;
   const CaloSubdetectorGeometry* geometry = 0;
-  const CaloSubdetectorGeometry* othergeometry = 0;
   
   switch( rh.layer() ) {
   case PFLayer::ECAL_ENDCAP: 
@@ -1146,18 +1145,15 @@ PFRecHitProducerHCAL::findRecHitNeighbours
   case PFLayer::HCAL_ENDCAP:
     topology = &endcapTopology;
     geometry = &endcapGeometry;
-    othergeometry = &barrelGeometry;
     break;
   case PFLayer::HCAL_BARREL1:
     topology = &barrelTopology;
     geometry = &barrelGeometry;
-    othergeometry = &endcapGeometry;
     break;
   case PFLayer::PS1:
   case PFLayer::PS2:
     topology = &barrelTopology;
     geometry = &barrelGeometry;
-    othergeometry = &endcapGeometry;
     break;
   default:
     assert(0);
