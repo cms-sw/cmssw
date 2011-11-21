@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWVertexProxyBuilder.cc,v 1.6 2011/08/11 03:39:51 amraktad Exp $
+// $Id: FWVertexProxyBuilder.cc,v 1.7 2011/08/16 01:16:06 amraktad Exp $
 //
 // user include files// user include files
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
@@ -40,6 +40,7 @@ public:
    virtual void setItem(const FWEventItem* iItem)
    {
       FWProxyBuilderBase::setItem(iItem);
+      if (iItem)
       iItem->getConfig()->assertParam("Draw Tracks", false);
    }
 
