@@ -17,7 +17,7 @@ zdcMonitor = cms.EDAnalyzer("ZDCMonitorModule",
                           checkNevents = cms.untracked.int32(1000),
                           subSystemFolder = cms.untracked.string("Hcal/ZDCMonitor"), # change to "ZDC" when code is finalized
                            
-                          FEDRawDataCollection = cms.untracked.InputTag("source"),
+                          FEDRawDataCollection = cms.untracked.InputTag("rawDataCollector"),
                           
                            # Turn on/off timing diagnostic info
                           showTiming			= cms.untracked.bool(False), # shows time taken by each process
