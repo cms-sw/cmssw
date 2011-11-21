@@ -34,6 +34,7 @@ class HLTDeDxFilter : public HLTFilter {
       double maxETA_;
       edm::InputTag inputTracksTag_;
       edm::InputTag inputdedxTag_;
+      edm::InputTag thisModuleTag_;
 };
 
 #endif //HLTDeDxFilter_h
