@@ -34,8 +34,7 @@ void CaloRecoTauDiscriminationAgainstHadronicJets::beginEvent(
 
 double CaloRecoTauDiscriminationAgainstHadronicJets::discriminate(
     const CaloTauRef& theCaloTauRef){
-  math::XYZTLorentzVector p4 =
-      tcTauAlgorithm->recalculateEnergy(*theCaloTauRef);
+  tcTauAlgorithm->recalculateEnergy(*theCaloTauRef);
   return ((tcTauAlgorithm->algoComponent() !=
            TCTauAlgorithm::TCAlgoHadronicJet) ? 1. : 0.);
 }

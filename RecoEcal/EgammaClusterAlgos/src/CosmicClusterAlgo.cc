@@ -243,7 +243,6 @@ void CosmicClusterAlgo::makeCluster(
      EcalRecHitCollection::const_iterator itt = recHits_->find(*it);
      // double-check that iterator can be dereferenced   
      if(itt==recHits_->end()) continue; 
-     EcalRecHit hit_p = *itt;
      // if rechit affected by features other than these, do not allow 2 crystal seeding either
      // features are hard coded, for now; add severity?
      uint32_t rhFlag = (*itt).recoFlag();
