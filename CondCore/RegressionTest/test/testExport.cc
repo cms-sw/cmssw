@@ -15,6 +15,7 @@ namespace cond_regression {
 
 cond_regression::ExportIOVTest::ExportIOVTest():
   cond::Utilities("testExport"){
+  addAuthenticationOptions();
   addConnectOption("sourceConnect","s","source connection string");
   addConnectOption("destConnect","d","destionation connection string");
   addOption<cond::Time_t>("beginTime","b","begin time (first since)");
