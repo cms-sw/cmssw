@@ -27,17 +27,18 @@ private:
   std::string              genMat;      //Name of general material
   int                      number;      //Number of ladders in phi
   double                   layerDz;     //Length of the layer
-  double                   sensorEdge;  //Distance from edge for a half sensor
   double                   coolDz;      //Length of the cooling piece
-  double                   coolWidth;   //Width                       
-  double                   coolSide;    //Side length
   double                   coolThick;   //Thickness of the shell     
+  double                   coolRadius;   //Cool tube external radius    
   double                   coolDist;    //Radial distance between centres of 2 
+  double                   cool1Offset;    //cooling pipe 1 offset for ladder at interface
+  double                   cool2Offset;    //cooling pipe 2 offset for ladder at interface
   std::string              coolMat;     //Cooling fluid material name
   std::string              tubeMat;     //Cooling piece material name
   std::string              ladder;      //Name  of ladder
   double                   ladderWidth; //Width of ladder 
   double                   ladderThick; //Thicknes of ladder 
+  double                   ladderOffset; //ladder dispacement at interface 
   int                      outerFirst;  //Controller of the placement of ladder
 };
 
