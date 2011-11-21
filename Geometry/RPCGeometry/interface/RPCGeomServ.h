@@ -27,6 +27,7 @@ protected:
   const RPCDetId* _id;
   std::string _n;
   std::string _sn;
+  std::string _cn;
   int _t;
   int _cnr;
   bool _z;

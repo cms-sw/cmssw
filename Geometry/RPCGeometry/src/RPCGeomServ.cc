@@ -7,6 +7,7 @@ RPCGeomServ::RPCGeomServ::RPCGeomServ( const RPCDetId& id )
   : _id( &id ),
     _n( "" ),
     _sn( "" ),
+    _cn( "" ),
     _t( -99 ),
     _z( true ),
     _a( true )
@@ -117,7 +118,7 @@ RPCGeomServ::name( void )
 std::string 
 RPCGeomServ::chambername()
 {
-  if( _n.size() < 1 )
+  if( _cn.size() < 1 )
   {
     int station = _id->station();
     int region = _id->region();
@@ -193,9 +194,9 @@ RPCGeomServ::chambername()
       os << "R" << ring;
       os << "_CH" << std::setw(2) << std::setfill('0') << this->segment();
     }
-    _n = os.str();
+    _cn = os.str();
   }
-  return _n;
+  return _cn;
 }
 
 std::string 
@@ -528,7 +529,7 @@ RPCGeomServ::aclockwise()
   return _a;
 }
 
-RPCGeomServ::RPCGeomServ() : _id(0), _n(""), _sn(""), _t (-99), _z(false), _a(false)
+RPCGeomServ::RPCGeomServ() : _id(0), _n(""), _sn(""), _cn(""), _t (-99), _z(false), _a(false)
 {} 
 
 
