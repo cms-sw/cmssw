@@ -8,16 +8,20 @@ muons = cms.EDProducer("MuonProducer",
                        FastLabelling = cms.untracked.bool(False),
                           
                        InputMuons = cms.InputTag("muons"),
-                       PFCandidates = cms.InputTag("particleFlow"),
+
                        FillPFMomentumAndAssociation = cms.bool(True),
-                       FillPFIsolation = cms.bool(True),                     
+                       PFCandidates = cms.InputTag("particleFlow"),
                        
+                       FillTimingInfo = cms.bool(True),
+                       
+                       FillDetectorBasedIsolation = cms.bool(True),
                        EcalIsoDeposits  = cms.InputTag("muons","ecal"),
                        HcalIsoDeposits  = cms.InputTag("muons","hcal"),
                        HoIsoDeposits    = cms.InputTag("muons","ho"),
                        TrackIsoDeposits = cms.InputTag("muons","muIsoDepositTk"),
                        JetIsoDeposits   = cms.InputTag("muons","muIsoDepositJets"),
 
+                       FillPFIsolation = cms.bool(True),                     
                        PFIsolation = cms.PSet(isolationR03 = cms.PSet(chargedParticle = cms.InputTag("muPFIsoValueChargedAll03"),
                                                                       chargedHadron = cms.InputTag("muPFIsoValueCharged03"),
                                                                       neutralHadron = cms.InputTag("muPFIsoValueNeutral03"),
@@ -53,7 +57,8 @@ muons = cms.EDProducer("MuonProducer",
                                                     cms.InputTag("muons","muidAllArbitrated"),
                                                     cms.InputTag("muons","muidGMTkKinkTight")
                                                     ),
-                       
+
+                       FillShoweringInfo = cms.bool(True),
                        ShowerInfoMap = cms.InputTag("muons","muonShowerInformation"),
 
                        FillCosmicsIdMap = cms.bool(True),

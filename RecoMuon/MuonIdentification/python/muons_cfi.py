@@ -6,16 +6,20 @@ import FWCore.ParameterSet.Config as cms
 muons = cms.EDProducer("MuonProducer",
                        ActivateDebug = cms.untracked.bool(False),
                        InputMuons = cms.InputTag("muons1stStep"),
-                       PFCandidates = cms.InputTag("particleFlowTmp"),
+
                        FillPFMomentumAndAssociation = cms.bool(True),
-                       FillPFIsolation = cms.bool(True),                     
+                       PFCandidates = cms.InputTag("particleFlowTmp"),
+
+                       FillTimingInfo = cms.bool(True),
                        
+                       FillDetectorBasedIsolation = cms.bool(True),
                        EcalIsoDeposits  = cms.InputTag("muIsoDepositCalByAssociatorTowers","ecal"),
                        HcalIsoDeposits  = cms.InputTag("muIsoDepositCalByAssociatorTowers","hcal"),
                        HoIsoDeposits    = cms.InputTag("muIsoDepositCalByAssociatorTowers","ho"),
                        TrackIsoDeposits = cms.InputTag("muIsoDepositTk"),
                        JetIsoDeposits   = cms.InputTag("muIsoDepositJets"),
 
+                       FillPFIsolation = cms.bool(True),                     
                        PFIsolation = cms.PSet(isolationR03 = cms.PSet(chargedParticle = cms.InputTag("muPFIsoValueChargedAll03"),
                                                                       chargedHadron = cms.InputTag("muPFIsoValueCharged03"),
                                                                       neutralHadron = cms.InputTag("muPFIsoValueNeutral03"),
@@ -51,7 +55,8 @@ muons = cms.EDProducer("MuonProducer",
                                                     cms.InputTag("muidAllArbitrated"),
                                                     cms.InputTag("muidGMTkKinkTight")
                                                     ),
-                       
+
+                       FillShoweringInfo = cms.bool(True),
                        ShowerInfoMap = cms.InputTag("muonShowerInformation"),
 
                        FillCosmicsIdMap = cms.bool(True),
