@@ -11,7 +11,7 @@ process.MessageLogger.cout = cms.untracked.PSet(threshold = cms.untracked.string
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
+process.load("SLHCUpgradeSimulations.Geometry.longbarrel_cmsIdealGeometryXML_cff")
 
 process.load("CalibTracker.Configuration.TrackerAlignment.TrackerAlignment_Fake_cff")
 
@@ -171,18 +171,19 @@ process.TemplateUploader = cms.EDAnalyzer("SiPixelTemplateDBObjectUploader",
 
 ###### QUALITY OBJECT MAKER #######
 process.QualityObjectMaker = cms.EDAnalyzer("SiPixelBadModuleByHandBuilder",
-    BadModuleList = cms.untracked.VPSet(cms.PSet(
-        errortype = cms.string('whole'),
-        detid = cms.uint32(302197784)
+    BadModuleList = cms.untracked.VPSet(#cms.PSet(
+#        errortype = cms.string('whole'),
+#        detid = cms.uint32(302197784)
+#         ),
+#        cms.PSet(
+#            errortype = cms.string('whole'),
+#            detid = cms.uint32(302195232)
+#        ),
+#        cms.PSet(
+#            errortype = cms.string('whole'),
+#            detid = cms.uint32(344014348)
+#        )),
          ),
-        cms.PSet(
-            errortype = cms.string('whole'),
-            detid = cms.uint32(302195232)
-        ),
-        cms.PSet(
-            errortype = cms.string('whole'),
-            detid = cms.uint32(344014348)
-        )),
     Record = cms.string('SiPixelQualityRcd'),
     SinceAppendMode = cms.bool(True),
     IOVMode = cms.string('Run'),
@@ -230,7 +231,7 @@ process.SiPixelLorentzAngleSim = cms.EDAnalyzer("SiPixelLorentzAngleDB",
 ###### OFFLINE GAIN OBJECT ######
 process.SiPixelCondObjOfflineBuilder = cms.EDAnalyzer("SiPixelCondObjOfflineBuilder",
     process.SiPixelGainCalibrationServiceParameters,
-    numberOfModules = cms.int32(2000),
+    numberOfModules = cms.int32(15000),
     deadFraction = cms.double(0.00),
     noisyFraction = cms.double(0.00),
     appendMode = cms.untracked.bool(False),
@@ -252,7 +253,7 @@ process.SiPixelCondObjOfflineBuilder = cms.EDAnalyzer("SiPixelCondObjOfflineBuil
 
 process.SiPixelCondObjOfflineBuilderSim = cms.EDAnalyzer("SiPixelCondObjOfflineBuilder",
     process.SiPixelGainCalibrationServiceParameters,
-    numberOfModules = cms.int32(2000),
+    numberOfModules = cms.int32(50000),
     deadFraction = cms.double(0.00),
     noisyFraction = cms.double(0.00),
     appendMode = cms.untracked.bool(False),
@@ -276,7 +277,7 @@ process.SiPixelCondObjOfflineBuilderSim = cms.EDAnalyzer("SiPixelCondObjOfflineB
 ##### HLT GAIN OBJECT #####
 process.SiPixelCondObjForHLTBuilder = cms.EDAnalyzer("SiPixelCondObjForHLTBuilder",
     process.SiPixelGainCalibrationServiceParameters,
-    numberOfModules = cms.int32(2000),
+    numberOfModules = cms.int32(50000),
     deadFraction = cms.double(0.00),
     noisyFraction = cms.double(0.00),
     appendMode = cms.untracked.bool(False),
@@ -293,7 +294,7 @@ process.SiPixelCondObjForHLTBuilder = cms.EDAnalyzer("SiPixelCondObjForHLTBuilde
 
 process.SiPixelCondObjForHLTBuilderSim = cms.EDAnalyzer("SiPixelCondObjForHLTBuilder",
     process.SiPixelGainCalibrationServiceParameters,
-    numberOfModules = cms.int32(2000),
+    numberOfModules = cms.int32(50000),
     deadFraction = cms.double(0.00),
     noisyFraction = cms.double(0.00),
     appendMode = cms.untracked.bool(False),
@@ -312,12 +313,12 @@ process.SiPixelCondObjForHLTBuilderSim = cms.EDAnalyzer("SiPixelCondObjForHLTBui
 process.p = cms.Path(
     process.SiPixelLorentzAngle*
     process.MapWriter*
-    process.SiPixelCondObjOfflineBuilder*
-    process.SiPixelCondObjForHLTBuilder*
-    process.TemplateUploader*
-    process.QualityObjectMaker*
-    process.SiPixelLorentzAngleSim*
-    process.SiPixelCondObjForHLTBuilderSim*
-    process.SiPixelCondObjOfflineBuilderSim
+    process.SiPixelCondObjOfflineBuilder#*
+#    process.SiPixelCondObjForHLTBuilder*
+#    process.TemplateUploader*
+#    process.QualityObjectMaker*
+#    process.SiPixelLorentzAngleSim*
+#    process.SiPixelCondObjForHLTBuilderSim*
+#    process.SiPixelCondObjOfflineBuilderSim
     )
 

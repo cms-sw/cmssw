@@ -8,11 +8,11 @@
 class HcalCoderFactory
 {
 public:
-  enum CoderType {DB, NOMINAL};
+  enum CoderType {DB, NOMINAL, UPGRADE};
 
   HcalCoderFactory(CoderType coderType);
 
-  void setDbService(const HcalDbService * service) {theDbService = service;}
+  void setDbService(const HcalDbService * service);
 
   /// user gets control of the pointer
   std::auto_ptr<HcalCoder> coder(const DetId & detId) const;

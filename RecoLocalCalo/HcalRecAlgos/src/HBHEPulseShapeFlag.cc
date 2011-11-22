@@ -31,9 +31,11 @@ HBHEPulseShapeFlagSetter::HBHEPulseShapeFlagSetter()
    // 
 
    mMinimumChargeThreshold = 99999999;
+   mTS4TS5ChargeThreshold = 99999999;
 }
 //---------------------------------------------------------------------------
 HBHEPulseShapeFlagSetter::HBHEPulseShapeFlagSetter(double MinimumChargeThreshold,
+   double TS4TS5ChargeThreshold,
    unsigned int TrianglePeakTS,
    std::vector<double> LinearThreshold, 
    std::vector<double> LinearCut,
@@ -45,6 +47,10 @@ HBHEPulseShapeFlagSetter::HBHEPulseShapeFlagSetter(double MinimumChargeThreshold
    std::vector<double> RightSlopeCut,
    std::vector<double> RightSlopeSmallThreshold, 
    std::vector<double> RightSlopeSmallCut,
+   std::vector<double> TS4TS5UpperCut,
+   std::vector<double> TS4TS5UpperThreshold,
+   std::vector<double> TS4TS5LowerCut,
+   std::vector<double> TS4TS5LowerThreshold,
    bool UseDualFit, 
    bool TriangleIgnoreSlow)
 {
@@ -56,28 +62,37 @@ HBHEPulseShapeFlagSetter::HBHEPulseShapeFlagSetter(double MinimumChargeThreshold
    //
 
    mMinimumChargeThreshold = MinimumChargeThreshold;
+   mTS4TS5ChargeThreshold = TS4TS5ChargeThreshold;
    mTrianglePeakTS = TrianglePeakTS;
    mTriangleIgnoreSlow = TriangleIgnoreSlow;
 
-   for(int i = 0; i < (int)LinearThreshold.size() && i < (int)LinearCut.size(); i++)
+   for(std::vector<double>::size_type i = 0; i < LinearThreshold.size() && i < LinearCut.size(); i++)
       mLambdaLinearCut.push_back(std::pair<double, double>(LinearThreshold[i], LinearCut[i]));
    sort(mLambdaLinearCut.begin(), mLambdaLinearCut.end());
 
-   for(int i = 0; i < (int)RMS8MaxThreshold.size() && i < (int)RMS8MaxCut.size(); i++)
+   for(std::vector<double>::size_type i = 0; i < RMS8MaxThreshold.size() && i < RMS8MaxCut.size(); i++)
       mLambdaRMS8MaxCut.push_back(std::pair<double, double>(RMS8MaxThreshold[i], RMS8MaxCut[i]));
    sort(mLambdaRMS8MaxCut.begin(), mLambdaRMS8MaxCut.end());
 
-   for(int i = 0; i < (int)LeftSlopeThreshold.size() && i < (int)LeftSlopeCut.size(); i++)
+   for(std::vector<double>::size_type i = 0; i < LeftSlopeThreshold.size() && i < LeftSlopeCut.size(); i++)
       mLeftSlopeCut.push_back(std::pair<double, double>(LeftSlopeThreshold[i], LeftSlopeCut[i]));
    sort(mLeftSlopeCut.begin(), mLeftSlopeCut.end());
 
-   for(int i = 0; i < (int)RightSlopeThreshold.size() && i < (int)RightSlopeCut.size(); i++)
+   for(std::vector<double>::size_type i = 0; i < RightSlopeThreshold.size() && i < RightSlopeCut.size(); i++)
       mRightSlopeCut.push_back(std::pair<double, double>(RightSlopeThreshold[i], RightSlopeCut[i]));
    sort(mRightSlopeCut.begin(), mRightSlopeCut.end());
 
-   for(int i = 0; i < (int)RightSlopeSmallThreshold.size() && i < (int)RightSlopeSmallCut.size(); i++)
+   for(std::vector<double>::size_type i = 0; i < RightSlopeSmallThreshold.size() && i < RightSlopeSmallCut.size(); i++)
       mRightSlopeSmallCut.push_back(std::pair<double, double>(RightSlopeSmallThreshold[i], RightSlopeSmallCut[i]));
    sort(mRightSlopeSmallCut.begin(), mRightSlopeSmallCut.end());
+   
+   for(std::vector<double>::size_type i = 0; i < TS4TS5UpperThreshold.size() && i < TS4TS5UpperCut.size(); i++)
+      mTS4TS5UpperCut.push_back(std::pair<double, double>(TS4TS5UpperThreshold[i], TS4TS5UpperCut[i]));
+   sort(mTS4TS5UpperCut.begin(), mTS4TS5UpperCut.end());
+
+   for(std::vector<double>::size_type i = 0; i < TS4TS5LowerThreshold.size() && i < TS4TS5LowerCut.size(); i++)
+      mTS4TS5LowerCut.push_back(std::pair<double, double>(TS4TS5LowerThreshold[i], TS4TS5LowerCut[i]));
+   sort(mTS4TS5LowerCut.begin(), mTS4TS5LowerCut.end());
 
    mUseDualFit = UseDualFit;
 
@@ -116,7 +131,7 @@ void HBHEPulseShapeFlagSetter::SetPulseShapeFlags(HBHERecHit &hbhe,
 
    double TotalCharge = 0;
 
-   for(int i = 0; i < (int)digi.size(); ++i)
+   for(int i = 0; i < digi.size(); ++i)
    {
       mCharge[i] = Tool[i] - calib.pedestal(digi.sample(i).capid());
       TotalCharge += mCharge[i];
@@ -151,9 +166,9 @@ void HBHEPulseShapeFlagSetter::SetPulseShapeFlags(HBHERecHit &hbhe,
      double TS4Right = 1000;
  
      // Use 'if' statements to protect against slopes that are either 0 or very small
-     if (TriangleResult.LeftSlope>1e-5)
+     if (TriangleResult.LeftSlope > 1e-5)
        TS4Left = mCharge[mTrianglePeakTS] / TriangleResult.LeftSlope;
-     if (TriangleResult.RightSlope<-1e-5)
+     if (TriangleResult.RightSlope < -1e-5)
        TS4Right = mCharge[mTrianglePeakTS] / -TriangleResult.RightSlope;
      
      if(TS4Left > 1000 || TS4Left < -1000)
@@ -172,6 +187,15 @@ void HBHEPulseShapeFlagSetter::SetPulseShapeFlags(HBHERecHit &hbhe,
      // fast-dropping ones should be checked in any case
      if(CheckPassFilter(mCharge[mTrianglePeakTS], TS4Right, mRightSlopeSmallCut, -1) == false)
        hbhe.setFlagField(1, HcalCaloFlagLabels::HBHETriangleNoise);
+   }
+
+   if(mCharge[4] + mCharge[5] > mTS4TS5ChargeThreshold && mTS4TS5ChargeThreshold>0) // silly protection against negative charge values
+   {
+      double TS4TS5 = (mCharge[4] - mCharge[5]) / (mCharge[4] + mCharge[5]);
+      if(CheckPassFilter(mCharge[4] + mCharge[5], TS4TS5, mTS4TS5UpperCut, 1) == false)
+         hbhe.setFlagField(1, HcalCaloFlagLabels::HBHETS4TS5Noise);
+      if(CheckPassFilter(mCharge[4] + mCharge[5], TS4TS5, mTS4TS5LowerCut, -1) == false)
+         hbhe.setFlagField(1, HcalCaloFlagLabels::HBHETS4TS5Noise);
    }
 }
 //---------------------------------------------------------------------------

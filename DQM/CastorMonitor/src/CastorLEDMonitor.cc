@@ -6,6 +6,7 @@
 //********** CastorLEDMonitor ***********************//
 //********** Author: Dmytro Volyanskyy   ************//
 //********** Date  : 20.11.2008 (first version) ******// 
+//---------- last revision: 31.05.2011 (Panos Katsas) 
 //***************************************************//
 
 //==================================================================//
@@ -182,7 +183,7 @@ void CastorLEDMonitor::processEvent( const CastorDigiCollection& castorDigis, co
       castHists.energyALL->Fill(energy);
       if(bs!=0) castHists.timeALL->Fill(ts/bs);
 
-     if(ievt_%1000 == 0 ){
+      //     if(ievt_%1000 == 0 ){
        for (int i=0; i<digi.size(); i++) {
 	float tmp =0;
         int j=digi.sample(i).adc();
@@ -191,9 +192,9 @@ void CastorLEDMonitor::processEvent( const CastorDigiCollection& castorDigis, co
         castHists.shapePED->Fill(i,tmp-calibs_.pedestal(digi.sample(i).capid()));
 	vals[i] = tmp-calibs_.pedestal(digi.sample(i).capid());
        }
-      }
+       //      }
       //do per channel histograms once for each 100 events
-      if(ievt_%100 == 0 && doPerChannel_) perChanHists(digi.id(),vals,castHists.shape, castHists.time, castHists.energy, baseFolder_);
+      if( doPerChannel_) perChanHists(digi.id(),vals,castHists.shape, castHists.time, castHists.energy, baseFolder_);
     }        
   } else {
     if(fVerbosity > 0) std::cout << "CastorPSMonitor::processEvent NO Castor Digis !!!" << std::endl;

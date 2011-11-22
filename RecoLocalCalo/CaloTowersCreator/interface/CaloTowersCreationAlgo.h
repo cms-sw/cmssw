@@ -35,8 +35,8 @@ class DetId;
 
 /** \class CaloTowersCreationAlgo
   *  
-  * $Date: 2010/11/24 19:52:15 $
-  * $Revision: 1.19 $
+  * $Date: 2011/03/18 19:10:07 $
+  * $Revision: 1.20 $
   * \author R. Wilkinson - Caltech
   */
 
@@ -114,13 +114,12 @@ public:
   void makeHcalDropChMap();
 
   void begin();
-  void process(const HBHERecHitCollection& hbhe);
-  void process(const HORecHitCollection& ho);
-  void process(const HFRecHitCollection& hf); 
-  void process(const EcalRecHitCollection& ecal); 
-  
-  
-  void process(const CaloTowerCollection& ctc);
+  template<class COLL>
+  void process(const COLL& coll) {
+    for(typename COLL::const_iterator itr = coll.begin();
+        itr != coll.end(); ++itr)
+      assignHit(&(*itr));
+  }
 
   void finish(CaloTowerCollection& destCollection);
 

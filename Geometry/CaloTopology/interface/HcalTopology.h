@@ -2,6 +2,7 @@
 #define GEOMETRY_CALOTOPOLOGY_HCALTOPOLOGY_H 1
 
 #include <vector>
+#include <map>
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 
@@ -17,14 +18,17 @@
    cells which would normally exist in the full CMS HCAL, but are not
    present for the specified topology.
     
-   $Date: 2007/05/08 20:40:22 $
-   $Revision: 1.7.4.1 $
+   $Date: 2011/03/14 19:01:25 $
+   $Revision: 1.8.2.3 $
    \author J. Mans - Minnesota
 */
 class HcalTopology : public CaloSubdetectorTopology {
 public:
-  HcalTopology(bool h2_mode=false);
-
+  //HcalTopology(bool h2_mode=false);
+  enum Mode { md_LHC=0, md_H2=1, md_SLHC=2 };
+  HcalTopology(Mode mode=md_LHC);
+	
+  Mode mode() const {return mode_;}
   /** Add a cell to exclusion list */
   void exclude(const HcalDetId& id);
   /** Exclude an entire subdetector */
@@ -80,6 +84,15 @@ public:
   /// how many phi segments in this ring
   int nPhiBins(int etaRing) const;
 
+  /// for each of the ~17 depth segments, specify which readout bin they belong to
+  /// if the ring is not found, the first one with a lower ring will be returned.
+  void getDepthSegmentation(unsigned ring, std::vector<int> & readoutDepths) const;
+  void setDepthSegmentation(unsigned ring, const std::vector<int> & readoutDepths);
+  /// returns the boundaries of the depth segmentation, so that the first
+  /// result is the first segment, and the second result is the first one
+  /// of the next segment.  Used for calculating physical bounds.
+  std::pair<int, int> segmentBoundaries(unsigned ring, unsigned depth) const;
+
 private:
   /** Get the neighbors of the given cell with higher absolute ieta */
   int incAIEta(const HcalDetId& id, HcalDetId neighbors[2]) const;
@@ -92,7 +105,8 @@ private:
   std::vector<HcalDetId> exclusionList_;
   bool excludeHB_, excludeHE_, excludeHO_, excludeHF_;
 
-  bool h2mode_;
+  //bool h2mode_;
+  Mode mode_;
   bool isExcluded(const HcalDetId& id) const;
 
   const int firstHBRing_;
@@ -109,6 +123,10 @@ private:
   const int firstHETripleDepthRing_;
   const int singlePhiBins_;
   const int doublePhiBins_;
+
+  // index is ring;
+  typedef std::map<unsigned, std::vector<int> > SegmentationMap;
+  SegmentationMap depthSegmentation_;
 };
 
 

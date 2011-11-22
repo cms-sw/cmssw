@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-
+#include <cassert>
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
@@ -49,6 +49,36 @@ int main(int argc, char* argv[]) {
 	}
       }
     }
+  }
+
+  // test depth segmentation
+  int e1[] = {1,2,2,2,2,3,3,3,3,4,4,4,4,4,4,4,4,5,5};
+  int e17[] = {1,1,1,2,2,2,2,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4};
+  std::vector<int> eta1(e1, e1+19);
+  std::vector<int> eta17(e17, e17+22);
+  topology.setDepthSegmentation(1, eta1);
+  topology.setDepthSegmentation(17, eta17);
+  for(int iring = 1; iring <=16; ++iring) {
+    std::pair<int, int> bounds1 =  topology.segmentBoundaries(iring, 1);
+    assert(bounds1.first == 0);
+    assert(bounds1.second == 1);
+    std::pair<int, int> bounds3 =  topology.segmentBoundaries(iring, 3);
+    assert(bounds3.first == 5);
+    assert(bounds3.second == 9);
+    std::pair<int, int> bounds5 =  topology.segmentBoundaries(iring, 5);
+    assert(bounds5.first == 17);
+    assert(bounds5.second == 19); // past the end
+  }
+  for(int iring = 17; iring <=29; ++iring) {
+    std::pair<int, int> bounds1 =  topology.segmentBoundaries(iring, 1);
+    assert(bounds1.first == 0);
+    assert(bounds1.second == 3);
+    std::pair<int, int> bounds3 =  topology.segmentBoundaries(iring, 3);
+    assert(bounds3.first == 7);
+    assert(bounds3.second == 13);
+    std::pair<int, int> bounds4 =  topology.segmentBoundaries(iring, 4);
+    assert(bounds4.first == 13);
+    assert(bounds4.second == 22);
   }
   return 0;
 }

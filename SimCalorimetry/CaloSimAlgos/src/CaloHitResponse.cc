@@ -3,7 +3,6 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVSimParameterMap.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloSimParameters.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVShape.h"
-#include "SimCalorimetry/CaloSimAlgos/interface/CaloShapes.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVHitCorrection.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVHitFilter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -24,32 +23,13 @@ CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap * parametersMap,
                                  const CaloVShape * shape)
 : theAnalogSignalMap(),
   theParameterMap(parametersMap), 
-  theShapes(0),  
-  theShape(shape),
+  theShape(shape),  
   theHitCorrection(0),
   thePECorrection(0),
   theHitFilter(0),
   theGeometry(0),
   theRandPoisson(0),
   theMinBunch(-10), 
-  theMaxBunch(10),
-  thePhaseShift_(1.)
-{
-}
-
-
-CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap * parametersMap,
-                                 const CaloShapes * shapes)
-: theAnalogSignalMap(),
-  theParameterMap(parametersMap),
-  theShapes(shapes),
-  theShape(0),
-  theHitCorrection(0),
-  thePECorrection(0),
-  theHitFilter(0),
-  theGeometry(0),
-  theRandPoisson(0),
-  theMinBunch(-10),
   theMaxBunch(10),
   thePhaseShift_(1.)
 {
@@ -122,16 +102,9 @@ void CaloHitResponse::add(const CaloSamples & signal)
   DetId id(signal.id());
   CaloSamples * oldSignal = findSignal(id);
   if (oldSignal == 0) {
-    theAnalogSignalMap[id] = signal;
+     theAnalogSignalMap[id] = signal;
   } else  {
-    // need a "+=" to CaloSamples
-    int sampleSize =  oldSignal->size();
-    assert(sampleSize == signal.size());
-    assert(signal.presamples() == oldSignal->presamples());
-
-    for(int i = 0; i < sampleSize; ++i) {
-      (*oldSignal)[i] += signal[i];
-    }
+    *oldSignal += signal;
   }
 }
 
@@ -152,12 +125,8 @@ CaloSamples CaloHitResponse::makeAnalogSignal(const PCaloHit & inputHit) const {
 
   double jitter = hit.time() - timeOfFlight(detId);
 
-  const CaloVShape * shape = theShape;
-  if(!shape) {
-    shape = theShapes->shape(detId);
-  }
   // assume bins count from zero, go for center of bin
-  const double tzero = ( shape->timeToRise()
+  const double tzero = ( theShape->timeToRise()
 			 + parameters.timePhase() 
 			 - jitter 
 			 - BUNCHSPACE*( parameters.binOfMaximum()
@@ -167,7 +136,7 @@ CaloSamples CaloHitResponse::makeAnalogSignal(const PCaloHit & inputHit) const {
   CaloSamples result(makeBlankSignal(detId));
 
   for(int bin = 0; bin < result.size(); bin++) {
-    result[bin] += (*shape)(binTime)* signal;
+    result[bin] += (*theShape)(binTime)* signal;
     binTime += BUNCHSPACE;
   }
   return result;

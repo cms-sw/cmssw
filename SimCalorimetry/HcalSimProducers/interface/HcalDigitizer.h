@@ -11,7 +11,13 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "CondFormats/HcalObjects/interface/HcalCholeskyMatrix.h"
+#include "CondFormats/HcalObjects/interface/HcalCholeskyMatrices.h"
+#include "SimCalorimetry/HcalSimProducers/src/HcalHitRelabeller.h"
 
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalUpgradeTraits.h"
+
+class CaloVShape;
 class CaloHitResponse;
 class HcalSimParameterMap;
 class HcalAmplifier;
@@ -20,7 +26,6 @@ class HcalCoderFactory;
 class HcalElectronicsSim;
 class HcalHitCorrection;
 class HcalBaseSignalGenerator;
-class HcalShapes;
 
 class HcalDigitizer
 {
@@ -30,10 +35,8 @@ public:
   virtual ~HcalDigitizer();
 
   /**Produces the EDM products,*/
-  void produce(edm::Event& e, const edm::EventSetup& c);
-  void beginRun(const edm::EventSetup & es);
-  void endRun();
-  
+  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+
   void setHBHENoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
   void setHFNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
   void setHONoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
@@ -55,9 +58,18 @@ private:
   typedef CaloTDigitizer<HODigitizerTraits> HODigitizer;
   typedef CaloTDigitizer<HFDigitizerTraits> HFDigitizer;
   typedef CaloTDigitizer<ZDCDigitizerTraits> ZDCDigitizer;
+
+  typedef CaloTDigitizer<HcalUpgradeDigitizerTraits> UpgradeDigitizer;
  
   HcalSimParameterMap * theParameterMap;
-  HcalShapes * theShapes;
+  CaloVShape * theHcalShape;
+  CaloVShape * theSiPMShape;
+  CaloVShape * theHFShape;
+  CaloVShape * theZDCShape;
+  CaloVShape * theHcalIntegratedShape;
+  CaloVShape * theSiPMIntegratedShape;
+  CaloVShape * theHFIntegratedShape;
+  CaloVShape * theZDCIntegratedShape;
 
   CaloHitResponse * theHBHEResponse;
   CaloHitResponse * theHBHESiPMResponse;
@@ -75,12 +87,15 @@ private:
 
   HPDIonFeedbackSim * theIonFeedback;
   HcalCoderFactory * theCoderFactory;
+  
+  HcalCoderFactory * theUpgradeCoderFactory;
 
   HcalElectronicsSim * theHBHEElectronicsSim;
   HcalElectronicsSim * theHFElectronicsSim;
   HcalElectronicsSim * theHOElectronicsSim;
   HcalElectronicsSim * theZDCElectronicsSim;
 
+  HcalElectronicsSim * theUpgradeElectronicsSim;
 
   HBHEHitFilter theHBHEHitFilter;
   HFHitFilter   theHFHitFilter;
@@ -99,6 +114,8 @@ private:
   HFDigitizer* theHFDigitizer;
   ZDCDigitizer* theZDCDigitizer;
 
+  UpgradeDigitizer * theUpgradeDigitizer;
+
   // need to cache some DetIds for the digitizers,
   // if they don't come straight from the geometry
   std::vector<DetId> theHBHEDetIds;
@@ -106,6 +123,8 @@ private:
   std::vector<DetId> theHOSiPMDetIds;
 
   bool isZDC,isHCAL,zdcgeo,hbhegeo,hogeo,hfgeo;
+  bool relabel_;
+  HcalHitRelabeller* theRelabeller;
 
   std::string hitsProducer_;
 

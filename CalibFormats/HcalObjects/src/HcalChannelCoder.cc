@@ -2,7 +2,7 @@
     
     Container for ADC<->fQ conversion constants for HCAL QIE
    $Author: ratnikov
-   $Revision: 1.3 by michals$
+   $Revision: 1.3.6.1 $
 */
 
 #include <iostream>
@@ -33,10 +33,10 @@ int HcalChannelCoder::adc (const QieShape& fShape, double fCharge, int fCapId) c
   // search for the range
   for (int range = 0; range < 4; range++) {
     double qieCharge = (fCharge - mOffset [fCapId][range]) * mSlope [fCapId][range];
-    double qieChargeMax = fShape.linearization (32*range+31) + 0.5 * fShape.binSize (32*range+31);
-    if (range == 3 && qieCharge > qieChargeMax) adc = 127; // overflow
+    double qieChargeMax = fShape.linearization (64*range+63) + 0.5 * fShape.binSize (64*range+63);
+    if (range == 3 && qieCharge > qieChargeMax) adc = 255; // overflow
     if (qieCharge > qieChargeMax) continue; // next range
-    for (int bin = 32*range; bin < 32*(range+1); bin++) {
+    for (int bin = 64*range; bin < 64*(range+1); bin++) {
       if (qieCharge < fShape.linearization (bin) + 0.5 * fShape.binSize (bin)) {
         adc = bin;
         break;

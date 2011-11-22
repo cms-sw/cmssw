@@ -2,6 +2,8 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="SimCalorimetry/HcalSimAlgos"/>
 <use   name="SimDataFormats/CrossingFrame"/>
+<use   name="SimDataFormats/CaloTest"/>
+
 <export>
   <lib   name="1"/>
 </export>

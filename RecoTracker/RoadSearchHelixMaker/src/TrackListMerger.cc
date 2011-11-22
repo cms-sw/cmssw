@@ -8,8 +8,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: stevew $
-// $Date: 2007/07/21 23:32:01 $
-// $Revision: 1.3 $
+// $Date: 2007/07/20 22:37:13 $
+// $Revision: 1.2 $
 //
 
 #include <memory>
@@ -90,9 +90,11 @@ namespace cms
     }
     catch (edm::Exception const& x) {
       if ( x.categoryCode() == edm::errors::ProductNotFound ) {
+	if ( x.history().size() == 1 ) {
           static const reco::TrackCollection s_empty;
           TC1 = &s_empty;
           edm::LogWarning("TrackListMerger") << "1st TrackCollection " << trackProducer1 << " not found; will only clean 2nd TrackCollection " << trackProducer2 ;
+	}
       }
     }
     const reco::TrackCollection tC1 = *TC1;
@@ -106,9 +108,11 @@ namespace cms
     }
     catch (edm::Exception const& x) {
       if ( x.categoryCode() == edm::errors::ProductNotFound ) {
+	if ( x.history().size() == 1 ) {
           static const reco::TrackCollection s_empty;
           TC2 = &s_empty;
           edm::LogWarning("TrackListMerger") << "2nd TrackCollection " << trackProducer2 << " not found; will only clean 1st TrackCollection " << trackProducer1 ;
+	}
       }
     }
     const reco::TrackCollection tC2 = *TC2;

@@ -20,7 +20,6 @@ mix = cms.EDProducer("MixingModule",
         nbPileupEvents = cms.PSet(
             averageNumber = cms.double(2.0)
         ),
-        seed = cms.int32(1234567),
         type = cms.string('poisson'),
 	sequential = cms.untracked.bool(False),                          
         fileNames = FileNames 

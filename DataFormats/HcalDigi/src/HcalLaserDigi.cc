@@ -1,14 +1,14 @@
 #include "DataFormats/HcalDigi/interface/HcalLaserDigi.h"
 
 HcalLaserDigi::HcalLaserDigi() {
-  for (int i=0; i<32; ++i) qadcraw_[i]=0;
+  for (int i=0; i<64; ++i) qadcraw_[i]=0;
   attenuator1_=0;
   attenuator2_=0;
   selector_=0;
 }
 
 void HcalLaserDigi::setQADC(const std::vector<uint16_t>& values) {
-  for (size_t  i=0; i<values.size() && i<32; ++i)
+  for (size_t  i=0; i<values.size() && i<64; ++i)
     qadcraw_[i]=values[i];
 }
 

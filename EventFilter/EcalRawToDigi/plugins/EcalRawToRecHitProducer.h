@@ -15,7 +15,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Sat Oct  6 22:39:47 CEST 2007
-// $Id: EcalRawToRecHitProducer.h,v 1.4 2008/02/15 02:37:56 vlimant Exp $
+// $Id: EcalRawToRecHitProducer.h,v 1.5 2009/04/28 12:26:19 vlimant Exp $
 //
 //
 
@@ -50,6 +50,8 @@
 
 #include "TStopwatch.h"
 
+class EcalCleaningAlgo;
+
 class EcalRawToRecHitProducer : public edm::EDProducer {
    public:
   
@@ -70,6 +72,8 @@ private:
   std::string EBrechitCollection_;
   std::string EErechitCollection_;
   std::string rechitCollection_;  
+
+  EcalCleaningAlgo * cleaningAlgo_;
 };
 
 #endif

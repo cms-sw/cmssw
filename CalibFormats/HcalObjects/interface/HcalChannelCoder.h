@@ -5,8 +5,8 @@
     
     Container for ADC<->fQ conversion constants for HCAL QIE
    $Author: ratnikov
-   $Date: 2005/10/04 18:05:54 $
-   $Revision: 1.2 $
+   $Date: 2011/01/21 22:24:37 $
+   $Revision: 1.3.6.1 $
 */
 
 class QieShape;
@@ -14,7 +14,7 @@ class QieShape;
 class HcalChannelCoder {
  public:
   HcalChannelCoder (const float fOffset [16], const float fSlope [16]); // [CapId][Range]
-  /// ADC[0..127]+capid[0..3]->fC conversion
+  /// ADC[0..255]+capid[0..3]->fC conversion
   double charge (const QieShape& fShape, int fAdc, int fCapId) const;
   /// fC + capid[0..3] -> ADC conversion
   int adc (const QieShape& fShape, double fCharge, int fCapId) const;

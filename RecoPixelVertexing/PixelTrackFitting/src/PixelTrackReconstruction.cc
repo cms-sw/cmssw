@@ -72,11 +72,25 @@ void PixelTrackReconstruction::init(const edm::EventSetup& es)
       PixelTrackFilterFactory::get()->create( filterName, filterPSet);
   }
 
+  // seedmerger & its cfg
+  edm::ParameterSet mergerPSet = theConfig.getParameter<edm::ParameterSet>( "SeedMergerPSet" );
+  std::string seedmergerTTRHBuilderLabel = mergerPSet.getParameter<std::string>( "ttrhBuilderLabel" );
+  std::string seedmergerLayerListName = mergerPSet.getParameter<std::string>( "layerListName" );
+  bool seedmergerAddTriplets = mergerPSet.getParameter<bool>( "addRemainingTriplets" );
+  bool seedmergerMergeTriplets = mergerPSet.getParameter<bool>( "mergeTriplets" );
+  theMerger_ = new QuadrupletSeedMerger( es );
+  theMerger_->setMergeTriplets( seedmergerMergeTriplets );
+  theMerger_->setAddRemainingTriplets( seedmergerAddTriplets );
+  theMerger_->setTTRHBuilderLabel( seedmergerTTRHBuilderLabel );
+  theMerger_->setLayerListName( seedmergerLayerListName );
+
   ParameterSet cleanerPSet = theConfig.getParameter<ParameterSet>("CleanerPSet");
   std::string  cleanerName = cleanerPSet.getParameter<std::string>("ComponentName");
   if (cleanerName != "none") theCleaner = PixelTrackCleanerFactory::get()->create( cleanerName, cleanerPSet);
 
 }
+
+
 
 void PixelTrackReconstruction::run(TracksWithTTRHs& tracks, edm::Event& ev, const edm::EventSetup& es)
 {
@@ -84,26 +98,34 @@ void PixelTrackReconstruction::run(TracksWithTTRHs& tracks, edm::Event& ev, cons
   typedef Regions::const_iterator IR;
   Regions regions = theRegionProducer->regions(ev,es);
 
-  if (theFilter) theFilter->update(ev);
+
 
   for (IR ir=regions.begin(), irEnd=regions.end(); ir < irEnd; ++ir) {
     const TrackingRegion & region = **ir;
 
     const OrderedSeedingHits & triplets =  theGenerator->run(region,ev,es);
-    unsigned int nTriplets = triplets.size();
+
+    ///
+    /// the new triplet merger
+    ///
+    const std::vector<SeedingHitSet> quadruplets = theMerger_->mergeTriplets( triplets, es );
 
     // producing tracks
-    for (unsigned int iTriplet = 0; iTriplet < nTriplets; ++iTriplet) {
-      const SeedingHitSet & triplet = triplets[iTriplet];
+    for( std::vector<SeedingHitSet >::const_iterator qIt = quadruplets.begin();
+    	 qIt < quadruplets.end(); ++qIt ) {
+
+    //    for (unsigned int iTriplet = 0; iTriplet < nTriplets; ++iTriplet) {
+    //      const SeedingHitSet & triplet = triplets[iTriplet];
+      const SeedingHitSet& quadruplet = (*qIt);
 
       std::vector<const TrackingRecHit *> hits;
-      for (unsigned int iHit = 0, nHits = triplet.size(); iHit < nHits; ++iHit) {
-        hits.push_back( triplet[iHit]->hit() );
-      }
 
+      for (unsigned int iHit = 0, nHits = quadruplet.size(); iHit < nHits; ++iHit) {
+	hits.push_back( quadruplet[iHit]->hit() );
+      }
+    
       // fitting
       reco::Track* track = theFitter->run(es, hits, region);
-      if (!track) continue;
 
       // decide if track should be skipped according to filter
       if (theFilter && !(*theFilter)(track, hits) ) {
@@ -112,7 +134,7 @@ void PixelTrackReconstruction::run(TracksWithTTRHs& tracks, edm::Event& ev, cons
       }
 
       // add tracks
-      tracks.push_back(TrackWithTTRHs(track, triplet));
+      tracks.push_back( TrackWithTTRHs( track, quadruplet ) );
     }
     theGenerator->clear();
   }
@@ -123,3 +145,5 @@ void PixelTrackReconstruction::run(TracksWithTTRHs& tracks, edm::Event& ev, cons
   // clean memory
   for (IR ir=regions.begin(), irEnd=regions.end(); ir < irEnd; ++ir) delete (*ir);
 }
+
+

@@ -250,43 +250,6 @@ void CaloTowersCreationAlgo::begin() {
   //hcalDropChMap.clear();
 }
 
-void CaloTowersCreationAlgo::process(const HBHERecHitCollection& hbhe) { 
-  for(HBHERecHitCollection::const_iterator hbheItr = hbhe.begin();
-      hbheItr != hbhe.end(); ++hbheItr)
-    assignHit(&(*hbheItr));
-}
-
-void CaloTowersCreationAlgo::process(const HORecHitCollection& ho) { 
-  for(HORecHitCollection::const_iterator hoItr = ho.begin();
-      hoItr != ho.end(); ++hoItr)
-    assignHit(&(*hoItr));
-}  
-
-void CaloTowersCreationAlgo::process(const HFRecHitCollection& hf) { 
-  for(HFRecHitCollection::const_iterator hfItr = hf.begin();
-      hfItr != hf.end(); ++hfItr)  
-    assignHit(&(*hfItr));
-}
-
-void CaloTowersCreationAlgo::process(const EcalRecHitCollection& ec) { 
-  for(EcalRecHitCollection::const_iterator ecItr = ec.begin();
-      ecItr != ec.end(); ++ecItr)  
-    assignHit(&(*ecItr));
-}
-
-// this method should not be used any more as the towers in the changed format
-// can not be properly rescaled with the "rescale" method.
-// "rescale was replaced by "rescaleTowers"
-// 
-void CaloTowersCreationAlgo::process(const CaloTowerCollection& ctc) {
-  for(CaloTowerCollection::const_iterator ctcItr = ctc.begin();
-      ctcItr != ctc.end(); ++ctcItr) { 
-    rescale(&(*ctcItr));
-    }
-}
-
-
-
 void CaloTowersCreationAlgo::finish(CaloTowerCollection& result) {
   // now copy this map into the final collection
   for(MetaTowerMap::const_iterator mapItr = theTowerMap.begin();
@@ -406,7 +369,6 @@ void CaloTowersCreationAlgo::rescaleTowers(const CaloTowerCollection& ctc, CaloT
 
 void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
   DetId detId = recHit->detid();
-
   unsigned int chStatusForCT = (detId.det()==DetId::Hcal)?
     hcalChanStatusForCaloTower(recHit) :
     ecalChanStatusForCaloTower(recHit);

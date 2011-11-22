@@ -11,6 +11,7 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVNoiseSignalGenerator.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include <cassert>
 
 template<class Traits>
@@ -77,6 +78,13 @@ public:
         idItr != theDetIds->end(); ++idItr)
     {
        Digi digi(*idItr);
+       
+       // if ( idItr -> det() == DetId::Hcal ) {
+       // 	 HcalDetId hcalDetId ( *idItr ) ;
+       // 	 int ieta = hcalDetId.ieta();
+       // 	 if ( abs(ieta) > 25 ) std::cout << "FOUND ONE!" << std::endl;
+       // }
+       
        CaloSamples * analogSignal = theHitResponse->findSignal(*idItr);
        bool needToDeleteSignal = false;
        // don't bother digitizing if no signal and no noise

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/03/29 12:45:30 $
- *  $Revision: 1.34 $
+ *  $Date: 2011/04/11 13:49:18 $
+ *  $Revision: 1.34.6.2 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech
  */
@@ -410,6 +410,9 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   _trig_MinBias=0;
   _trig_HighMET=0;
   _trig_LowMET=0;
+  _trig_Ele=0;
+  _trig_Muon=0;
+  _trig_PhysDec=0;
   if(&triggerResults) {   
 
     /////////// Analyzing HLT Trigger Results (TriggerResults) //////////
@@ -440,15 +443,15 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     if (HLTPathsJetMBByName_.size()==0) _trig_JetMB=triggerResults.size()-1;
 
     //
-    if (_verbose) std::cout << "triggerNames size" << " " << triggerNames.size() << std::endl;
-    if (_verbose) std::cout << _hlt_HighPtJet << " " << triggerNames.triggerIndex(_hlt_HighPtJet) << std::endl;
-    if (_verbose) std::cout << _hlt_LowPtJet  << " " << triggerNames.triggerIndex(_hlt_LowPtJet)  << std::endl;
-    if (_verbose) std::cout << _hlt_MinBias   << " " << triggerNames.triggerIndex(_hlt_MinBias)   << std::endl;
-    if (_verbose) std::cout << _hlt_HighMET   << " " << triggerNames.triggerIndex(_hlt_HighMET)   << std::endl;
-    if (_verbose) std::cout << _hlt_LowMET    << " " << triggerNames.triggerIndex(_hlt_LowMET)    << std::endl;
-    if (_verbose) std::cout << _hlt_Ele       << " " << triggerNames.triggerIndex(_hlt_Ele)       << std::endl;
-    if (_verbose) std::cout << _hlt_Muon      << " " << triggerNames.triggerIndex(_hlt_Muon)      << std::endl;
-    if (_verbose) std::cout << _hlt_PhysDec   << " " << triggerNames.triggerIndex(_hlt_PhysDec)   << std::endl;
+    //if (_verbose) std::cout << "triggerNames size" << " " << triggerNames.size() << std::endl;
+    //if (_verbose) std::cout << _hlt_HighPtJet << " " << triggerNames.triggerIndex(_hlt_HighPtJet) << std::endl;
+    //if (_verbose) std::cout << _hlt_LowPtJet  << " " << triggerNames.triggerIndex(_hlt_LowPtJet)  << std::endl;
+    //if (_verbose) std::cout << _hlt_MinBias   << " " << triggerNames.triggerIndex(_hlt_MinBias)   << std::endl;
+    //if (_verbose) std::cout << _hlt_HighMET   << " " << triggerNames.triggerIndex(_hlt_HighMET)   << std::endl;
+    //if (_verbose) std::cout << _hlt_LowMET    << " " << triggerNames.triggerIndex(_hlt_LowMET)    << std::endl;
+    //if (_verbose) std::cout << _hlt_Ele       << " " << triggerNames.triggerIndex(_hlt_Ele)       << std::endl;
+    //if (_verbose) std::cout << _hlt_Muon      << " " << triggerNames.triggerIndex(_hlt_Muon)      << std::endl;
+    //if (_verbose) std::cout << _hlt_PhysDec   << " " << triggerNames.triggerIndex(_hlt_PhysDec)   << std::endl;
 
     if ( _HighPtJetEventFlag->on() && _HighPtJetEventFlag->accept( iEvent, iSetup ) ) 
       _trig_HighPtJet=1;
@@ -853,13 +856,21 @@ void PFMETAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName,
   if (DirName.find("All")) bLumiSecPlot=true;
 
   if (_trig_JetMB) fillMonitorElement(iEvent,DirName,"",pfmet, bLumiSecPlot);
-  if (_hlt_HighPtJet.size() && _trig_HighPtJet) fillMonitorElement(iEvent,DirName,"HighPtJet",pfmet,false);
-  if (_hlt_LowPtJet.size() && _trig_LowPtJet) fillMonitorElement(iEvent,DirName,"LowPtJet",pfmet,false);
-  if (_hlt_MinBias.size() && _trig_MinBias) fillMonitorElement(iEvent,DirName,"MinBias",pfmet,false);
-  if (_hlt_HighMET.size() && _trig_HighMET) fillMonitorElement(iEvent,DirName,"HighMET",pfmet,false);
-  if (_hlt_LowMET.size() && _trig_LowMET) fillMonitorElement(iEvent,DirName,"LowMET",pfmet,false);
-  if (_hlt_Ele.size() && _trig_Ele) fillMonitorElement(iEvent,DirName,"Ele",pfmet,false);
-  if (_hlt_Muon.size() && _trig_Muon) fillMonitorElement(iEvent,DirName,"Muon",pfmet,false);
+  if (_trig_HighPtJet)
+    fillMonitorElement(iEvent,DirName,"HighPtJet",pfmet,false);
+  if (_trig_LowPtJet)
+    fillMonitorElement(iEvent,DirName,"LowPtJet",pfmet,false);
+  if (_trig_MinBias)
+    fillMonitorElement(iEvent,DirName,"MinBias",pfmet,false);
+  if (_trig_HighMET)
+    fillMonitorElement(iEvent,DirName,"HighMET",pfmet,false);
+  if (_trig_LowMET)
+    fillMonitorElement(iEvent,DirName,"LowMET",pfmet,false);
+  if (_trig_Ele)
+    fillMonitorElement(iEvent,DirName,"Ele",pfmet,false);
+  if (_trig_Muon)
+    fillMonitorElement(iEvent,DirName,"Muon",pfmet,false);
+
 }
 
 // ***********************************************************

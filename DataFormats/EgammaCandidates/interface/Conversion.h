@@ -6,7 +6,7 @@
  *
  * \author N.Marinelli  University of Notre Dame, US
  *
- * \version $Id: Conversion.h,v 1.22 2011/02/25 22:13:38 dlange Exp $
+ * \version $Id: Conversion.h,v 1.23 2011/03/04 20:02:38 bendavid Exp $
  *
  */
 

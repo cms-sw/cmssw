@@ -22,7 +22,6 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGPhysicsConst.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGCrystalStatus.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGTowerStatus.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGSpike.h"
 #include "CondFormats/DataRecord/interface/EcalTPGPedestalsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTPGLinearizationConstRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTPGSlidingWindowRcd.h"
@@ -37,7 +36,6 @@
 #include "CondFormats/DataRecord/interface/EcalTPGPhysicsConstRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTPGCrystalStatusRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTPGTowerStatusRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGSpikeRcd.h"
 
 #include "zlib.h"
 
@@ -64,15 +62,13 @@ class EcalTrigPrimESProducer : public edm::ESProducer {
   std::auto_ptr<EcalTPGPhysicsConst> producePhysicsConst(const EcalTPGPhysicsConstRcd &) ;
   std::auto_ptr<EcalTPGCrystalStatus> produceBadX(const EcalTPGCrystalStatusRcd &) ;
   std::auto_ptr<EcalTPGTowerStatus> produceBadTT(const EcalTPGTowerStatusRcd &) ;
-  std::auto_ptr<EcalTPGSpike> produceSpike(const EcalTPGSpikeRcd &) ;
-
+  
  private:
 
   void parseTextFile() ;
   std::vector<int> getRange(int subdet, int smNb, int towerNbInSm, int stripNbInTower=0, int xtalNbInStrip=0) ;
 
   // ----------member data ---------------------------
-  bool flagPrint_;
   std::string dbFilename_;
   std::map<uint32_t, std::vector<uint32_t> > mapXtal_ ;
   std::map<uint32_t, std::vector<uint32_t> > mapStrip_[2] ;
@@ -81,7 +77,6 @@ class EcalTrigPrimESProducer : public edm::ESProducer {
   std::map<uint32_t, std::vector<uint32_t> > mapFg_ ;
   std::map<uint32_t, std::vector<uint32_t> > mapLut_ ;
   std::map<uint32_t, std::vector<float> > mapPhys_ ;
-
 
 //   typedef voidp gzFile;
 //   bool getNextString(gzFile &gzf);

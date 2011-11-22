@@ -154,14 +154,6 @@ namespace spr{
     return spr::propagateCalo (vertex, momentum, charge, bfield, 319.2, 129.4, 1.479, debug);
   }
 
-  propagatedTrack propagateTrackToECAL(unsigned int thisTrk, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const MagneticField* bfield, bool debug) {
-    trackAtOrigin   trk = spr::simTrackAtOrigin(thisTrk, SimTk, SimVtx, debug);
-    propagatedTrack ptrk;
-    if (trk.ok) 
-      ptrk = spr::propagateCalo (trk.position, trk.momentum, trk.charge, bfield, 319.2, 129.4, 1.479, debug);
-    return ptrk;
-  }
-
   std::pair<math::XYZPoint,bool> propagateECAL(const reco::Track *track, const MagneticField* bfield, bool debug) {    
     GlobalPoint  vertex (track->vx(), track->vy(), track->vz());
     GlobalVector momentum (track->px(), track->py(), track->pz());
@@ -179,14 +171,6 @@ namespace spr{
     GlobalVector momentum (track->px(), track->py(), track->pz());
     int charge (track->charge());
     return spr::propagateCalo (vertex, momentum, charge, bfield, 402.7, 180.7, 1.392, debug);
-  }
-
-  propagatedTrack propagateTrackToHCAL(unsigned int thisTrk, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const MagneticField* bfield, bool debug) {
-    trackAtOrigin   trk = spr::simTrackAtOrigin(thisTrk, SimTk, SimVtx, debug);
-    propagatedTrack ptrk;
-    if (trk.ok) 
-      ptrk = spr::propagateCalo (trk.position, trk.momentum, trk.charge, bfield, 402.7, 180.7, 1.392, debug);
-    return ptrk;
   }
 
   std::pair<math::XYZPoint,bool> propagateHCAL(const reco::Track *track, const MagneticField* bfield, bool debug) {
@@ -311,36 +295,6 @@ namespace spr{
       }
     }
     return track;
-  }
-
-  trackAtOrigin simTrackAtOrigin(unsigned int thisTrk, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, bool debug) {
-
-    trackAtOrigin trk;
-
-    edm::SimTrackContainer::const_iterator itr = SimTk->end();
-    for (edm::SimTrackContainer::const_iterator simTrkItr = SimTk->begin(); simTrkItr!= SimTk->end(); simTrkItr++) {
-      if ( simTrkItr->trackId() == thisTrk ) {
-	if (debug) std::cout << "matched trackId (maximum occurance) " << thisTrk << " type " << simTrkItr->type() << std::endl;
-	itr = simTrkItr;
-	break;
-      }
-    }
-
-    if (itr != SimTk->end()) {
-      int vertIndex = itr->vertIndex();
-      if (vertIndex != -1 && vertIndex < (int)SimVtx->size()) {
-	edm::SimVertexContainer::const_iterator simVtxItr= SimVtx->begin();
-	for (int iv=0; iv<vertIndex; iv++) simVtxItr++;
-	const math::XYZTLorentzVectorD pos = simVtxItr->position();
-	const math::XYZTLorentzVectorD mom = itr->momentum();
-	trk.ok = true;
-	trk.charge   = (int)(itr->charge());
-	trk.position = GlobalPoint(pos.x(), pos.y(), pos.z());
-	trk.momentum = GlobalVector(mom.x(), mom.y(), mom.z());
-      }
-    }
-    if (debug) std::cout << "Track flag " << trk.ok << " Position " << trk.position << " Momentum " << trk.momentum << std::endl;;
-    return trk;
   }
 
 }

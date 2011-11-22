@@ -6,17 +6,16 @@ L1CaloJet::L1CaloJet()
 {
   iEta_=0;
   iPhi_=0;
-  et_=0;
+  E_=0;
 }
 
 
 
-L1CaloJet::L1CaloJet(int iEta,int iPhi,int et)
+L1CaloJet::L1CaloJet(int iEta,int iPhi)
 {
   iEta_=iEta;
   iPhi_=iPhi;
-  et_=et;
-
+  E_=0;
 }
 
 L1CaloJet::~L1CaloJet()
@@ -25,6 +24,15 @@ L1CaloJet::~L1CaloJet()
 
 }
 
+void L1CaloJet::setP4(const math::PtEtaPhiMLorentzVector& p4)
+{
+  p4_ = p4;
+}
+
+void L1CaloJet::setCentral(bool central)
+{
+  central_ = central;
+}
 
 int
 L1CaloJet::iEta() const
@@ -39,69 +47,79 @@ L1CaloJet::iPhi() const
   return iPhi_;
 } 
 
+
 int
-L1CaloJet::et() const
+L1CaloJet::E() const
 {
-  return et_;
+  return E_;
 } 
 
-
-
-void
-L1CaloJet::setIEta(int eta)
+bool
+L1CaloJet::central() const
 {
-   iEta_=eta;
-} 
-
-
-void
-L1CaloJet::setIPhi(int phi)
-{
-  iPhi_=phi;
+  return central_;
 } 
 
 
 void
-L1CaloJet::setEt(int et)
+L1CaloJet::setE(int E)
 {
-  et_=et;
-} 
-
+  E_=E;
+}
 
 math::PtEtaPhiMLorentzVector 
 L1CaloJet::p4() const
 {
-  int et = et_;
-
-
-  //Calculate float value of eta for barrel+endcap(L.Gray)
-  double eta =-1982;//an important year...
-  
-  double etaOffset=0.087/2.0;
-
-  int abs_eta = (int)fabs(iEta_);
-  const double endcapEta[8] = {0.09,0.1,0.113,0.129,0.15,0.178,0.15,0.35};
-
-  if(abs_eta <=20)
-    eta =  (abs_eta*0.0870)-etaOffset;
-  else
-    {
-      int offset = (int)fabs(iEta_) -21;
-      eta = (20*0.0870);//-etaOffset;
-      for(int i = 0;i<= offset;++i)
-	{
-	  eta+=endcapEta[i];
-	}
-      eta-=endcapEta[(int)fabs(iEta_)-21]/2.;
-    }
-
-  if(iEta_<0) eta  = -eta;
-  
-  double phi = (iPhi_*0.087)-etaOffset;
-  double Et= (double)et/2.;
-
-  return math::PtEtaPhiMLorentzVector(Et,eta,phi,0. ) ;
+  return p4_;
 }
 
 
+void 
+L1CaloJet::addConstituent(const L1CaloRegionRef& region)
+{
+  E_+=region->E();
+  constituents_.push_back(region);
+}
 
+L1CaloRegionRefVector
+L1CaloJet::getConstituents() const
+{
+  return constituents_;
+}
+
+int  
+L1CaloJet::hasConstituent(int eta,int phi)
+{
+  int pos=-1;
+  for(unsigned int i=0;i<constituents_.size();++i) {
+    L1CaloRegionRef tower = constituents_.at(i);
+    if(tower->iEta()==eta+iEta_&&tower->iPhi()==phi+iPhi_) {
+      pos = i;
+      break;
+    }
+  }
+
+  return pos;
+}
+
+void  
+L1CaloJet::removeConstituent(int eta, int phi)
+{
+  int pos = hasConstituent(eta,phi);
+  if(pos!=-1) {
+    E_=E_-constituents_.at(pos)->E(); 
+    constituents_.erase(constituents_.begin()+pos);
+  }
+}
+
+
+// pretty print
+// pretty print
+std::ostream& operator<<(std::ostream& s, const l1slhc::L1CaloJet& cand) {
+  s << "L1CaloJet ";
+  s << "iEta=" << cand.iEta() << "iPhi="<<cand.iPhi() << "\n";
+  s << "Constituents"<< "\n";
+  for(unsigned int i=0;i<cand.getConstituents().size();++i)
+    s << "---------iEta=" << cand.getConstituents().at(i)->iEta() << "iPhi="<<cand.getConstituents().at(i)->iPhi() <<"ET="<<cand.getConstituents().at(i)->E()<<"\n";
+  return s;
+}

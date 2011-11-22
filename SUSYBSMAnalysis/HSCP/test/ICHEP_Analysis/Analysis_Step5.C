@@ -76,12 +76,14 @@ void Analysis_Step5()
 //   PredictionAndControlPlot(InputDir);
 
 
-   InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type0/";
-//   InputDir = "SaveNewNe/dedxASmi/combined/Eta25/PtMin25/Type0/";
-   unsigned int CutIndex = 43;
-//   SelectionPlot(InputDir, CutIndex);
+   InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type0/";   unsigned int CutIndex = 43;//41
+//   InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type2/";   unsigned int CutIndex = 57;
+
+//   InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type0/";   unsigned int CutIndex = 84;
+//   InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type2/";   unsigned int CutIndex = 113;
+   SelectionPlot(InputDir, CutIndex);
    MassPrediction(InputDir, CutIndex);  
-//   PredictionAndControlPlot(InputDir, CutIndex);
+   PredictionAndControlPlot(InputDir, CutIndex);
    return;
 }
 
@@ -119,7 +121,7 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex){
       stPlots_Dump(SignPlots[s], pFile, CutIndex);
    }
 
-//   stPlots_Draw(DataPlots, SavePath + "/Selection_Data", LegendTitle, CutIndex);
+   stPlots_Draw(DataPlots, SavePath + "/Selection_Data", LegendTitle, CutIndex);
 //   stPlots_Draw(MCTrPlots, SavePath + "/Selection_MCTr", LegendTitle);
 
 //   stPlots_Draw(SignPlots[SID_GL600 ], SavePath + "/Selection_" +  signals[SID_GL600 ].Name, LegendTitle);
@@ -177,9 +179,9 @@ void PredictionAndControlPlot(string InputPattern, unsigned int CutIndex){
    TH1D* CtrlIs_SignTOF        = (TH1D*)GetObjectFromPath(InputFile, "CtrlIs_SignTOF"); CtrlIs_SignTOF->Rebin(1);
 
    TH1D* CtrlTOF_BckgPt        = (TH1D*)GetObjectFromPath(InputFile, "CtrlTOF_BckgPt"); CtrlTOF_BckgPt ->Rebin(1);
-   TH1D* CtrlTOF_BckgIs        = (TH1D*)GetObjectFromPath(InputFile, "CtrlTOF_BckgIs"); CtrlTOF_BckgIs ->Rebin(1);
+   TH1D* CtrlTOF_BckgIs        = (TH1D*)GetObjectFromPath(InputFile, "CtrlTOF_BckgIs"); CtrlTOF_BckgIs ->Rebin(4);
    TH1D* CtrlTOF_SignPt        = (TH1D*)GetObjectFromPath(InputFile, "CtrlTOF_SignPt"); CtrlTOF_SignPt ->Rebin(1);
-   TH1D* CtrlTOF_SignIs        = (TH1D*)GetObjectFromPath(InputFile, "CtrlTOF_SignIs"); CtrlTOF_SignIs ->Rebin(1);
+   TH1D* CtrlTOF_SignIs        = (TH1D*)GetObjectFromPath(InputFile, "CtrlTOF_SignIs"); CtrlTOF_SignIs ->Rebin(4);
 
    TH2D* Pred_P                = (TH2D*)GetObjectFromPath(InputFile, "Pred_P");
    TH2D* Pred_I                = (TH2D*)GetObjectFromPath(InputFile, "Pred_I");
@@ -366,7 +368,7 @@ void PredictionAndControlPlot(string InputPattern, unsigned int CutIndex){
       if(P<=0){continue;} //Is <=0 only when prediction failed or is not meaningful (i.e. WP=(0,0,0) )
       //if( H_B->GetBinContent(CutIndex+1)>=H_A->GetBinContent(CutIndex+1) ||  H_C->GetBinContent(CutIndex+1)>=H_A->GetBinContent(CutIndex+1))continue;
 
-      printf("Pt>%6.2f  I>%6.2f --> D=%6.2E P=%6.2E+-%6.2E  (%f Sigma)\n",HCuts_Pt->GetBinContent(CutIndex+1),HCuts_I->GetBinContent(CutIndex+1),D,P,Err,NSigma);
+      printf("CutIndex=%3i Pt>%6.2f  I>%6.2f --> D=%6.2E P=%6.2E+-%6.2E(%6.2f+%6.2f)  (%f Sigma)\n",CutIndex, HCuts_Pt->GetBinContent(CutIndex+1),HCuts_I->GetBinContent(CutIndex+1),D,P,Err,H_P->GetBinError(CutIndex+1),sqrt(D),NSigma);
       DataVsPred->SetBinContent(DataVsPred->GetXaxis()->FindBin(HCuts_Pt->GetBinContent(CutIndex+1)), DataVsPred->GetYaxis()->FindBin(HCuts_I->GetBinContent(CutIndex+1)), NSigma);
 //      DataVsPred->Fill(HCuts_Pt->GetBinContent(CutIndex+1), HCuts_I->GetBinContent(CutIndex+1), NSigma);
    }
@@ -953,6 +955,9 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
       Perr = 0; for(int i=Pred->GetXaxis()->FindBin(M);i<Pred->GetXaxis()->FindBin(2000.0);i++){ Perr += pow(Pred->GetBinError(i),2); }  Perr = sqrt(Perr);
       printf("%3.0f<M<2000 --> D=%9.3f P = %9.3f +- %6.3f(stat) +- %6.3f(syst) (=%6.3f)\n", M, D, P, Perr, P*(2*RMS),sqrt(Perr*Perr + pow(P*(2*RMS),2)));
    }
+//   for(int i=Pred->GetXaxis()->FindBin(0.0);i<Pred->GetXaxis()->FindBin(2000.0);i++){printf("MassBin=%6.2f  --> BinEntry=%6.2E +- %6.2E\n",Pred->GetXaxis()->GetBinCenter(i), Pred->GetBinContent(i), Pred->GetBinError(i));}
+
+
       printf("FullSpectrum --> D=%9.3f P = %9.3f +- %6.3f(stat) +- %6.3f(syst) (=%6.3f)\n", Data->Integral(), Pred->Integral(), 0.0, 0.0, 0.0 );
       printf("UnderFlow = %6.2f OverFlow = %6.2f\n", Pred->GetBinContent(0), Pred->GetBinContent(Pred->GetNbinsX()+1) );
 
@@ -1015,7 +1020,7 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
 
    Data->SetMarkerStyle(20);
    Data->SetMarkerColor(1);
-   Data->SetMarkerSize(1.5);
+   Data->SetMarkerSize(1.0);
    Data->SetLineColor(1);
    Data->SetFillColor(0);
    Data->Draw("E1 same");

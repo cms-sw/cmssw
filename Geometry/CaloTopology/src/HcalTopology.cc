@@ -3,15 +3,16 @@
 #include <iostream>
 #include <cassert>
 #include <algorithm>
+#include "FWCore/Utilities/interface/Exception.h"
 
 static const int IPHI_MAX=72;
 
-HcalTopology::HcalTopology(bool h2_mode) :
+HcalTopology::HcalTopology(HcalTopology::Mode mode) :
   excludeHB_(false),
   excludeHE_(false),
   excludeHO_(false),
   excludeHF_(false),
-  h2mode_(h2_mode),
+  mode_(mode),
   firstHBRing_(1),
   lastHBRing_(16),
   firstHERing_(16),
@@ -20,9 +21,9 @@ HcalTopology::HcalTopology(bool h2_mode) :
   lastHFRing_(41),
   firstHORing_(1),
   lastHORing_(15),
-  firstHEDoublePhiRing_((h2_mode)?(22):(21)),
+  firstHEDoublePhiRing_((mode==md_H2)?(22):(21)),
   firstHFQuadPhiRing_(40),
-  firstHETripleDepthRing_((h2_mode)?(24):(27)),
+  firstHETripleDepthRing_((mode==md_H2)?(24):(27)),
   singlePhiBins_(72),
   doublePhiBins_(36)
 {
@@ -192,27 +193,34 @@ bool HcalTopology::validRaw(const HcalDetId& id) const {
 
   if ((ieta==0 || iphi<=0 || iphi>IPHI_MAX) || aieta>41) return false; // outer limits
     
-  if (ok) {
-    HcalSubdetector subdet=id.subdet();
-    if (subdet==HcalBarrel) {
-      if (aieta>16 || depth>2 || (aieta<=14 && depth>1)) ok=false;	    
-    } else if (subdet==HcalEndcap) {
-      if (depth>3 || aieta<16 || aieta>lastHERing() ||
-	  (aieta==16 && depth!=3) ||
-	  (aieta==17 && depth!=1 && !h2mode_) || // special case at H2
-	  (((aieta>=17 && aieta<firstHETripleDepthRing()) || aieta==29) && depth>2) ||
-	  (aieta>=firstHEDoublePhiRing() && (iphi%2)==0)) ok=false;
-    } else if (subdet==HcalOuter) {
-      if (aieta>15 || iphi>IPHI_MAX || depth!=4) ok=false;
-    } else if (subdet==HcalForward) {
-      if (aieta<firstHFRing() || aieta>lastHFRing() ||
-	  ((iphi%2)==0) ||
-	  (depth>2) ||
-	  (aieta>=firstHFQuadPhiRing() && ((iphi+1)%4)!=0)) ok=false;
-    } else ok=false;
-  }
+    if (ok) {
+		HcalSubdetector subdet=id.subdet();
+		if (subdet==HcalBarrel) {
+	  if (mode_==md_SLHC && (aieta>16 || depth>7)) ok=false;
+	  if (mode_==md_LHC && (aieta>16 || depth>2 || (aieta<=14 && depth>1))) ok=false;	    
+		} else if (subdet==HcalEndcap) {
+	  if (mode_==md_SLHC) {
+				if (depth>7 || aieta<16 || aieta>29 ||
+					(aieta==16 && depth<3) ||
+					(aieta>=firstHEDoublePhiRing_ && (iphi%2)==0)) ok=false;
+			} else {
+				if (depth>3 || aieta<16 || aieta>29 ||
+					(aieta==16 && depth!=3) ||
+					(aieta==17 && depth!=1 && mode_!=md_H2) || // special case at H2
+					(((aieta>=17 && aieta<firstHETripleDepthRing_) || aieta==29) && depth>2) ||
+					(aieta>=firstHEDoublePhiRing_ && (iphi%2)==0)) ok=false;
+			}
+		} else if (subdet==HcalOuter) {
+			if (aieta>15 || iphi>IPHI_MAX || depth!=4) ok=false;
+		} else if (subdet==HcalForward) {
+			if (aieta<29 || aieta>41 ||
+				((iphi%2)==0) ||
+				(depth>2) ||
+				(aieta>=40 && ((iphi+1)%4)!=0)) ok=false;
+		} else ok=false;
+    }
     
-  return ok;
+    return ok;
 }
 
   
@@ -227,20 +235,20 @@ bool HcalTopology::incIPhi(const HcalDetId& id, HcalDetId &neighbor) const {
       break;
     case (HcalEndcap):
       if (id.ietaAbs()>=firstHEDoublePhiRing()) {
-	if (id.iphi()==IPHI_MAX-1) neighbor=HcalDetId(id.subdet(),id.ieta(),1,id.depth()); 
-	else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()+2,id.depth()); 
+	if (id.iphi()==IPHI_MAX-1) neighbor=HcalDetId(HcalEndcap,id.ieta(),1,id.depth()); 
+	else neighbor=HcalDetId(HcalEndcap,id.ieta(),id.iphi()+2,id.depth()); 
       } else {
-	if (id.iphi()==IPHI_MAX) neighbor=HcalDetId(id.subdet(),id.ieta(),1,id.depth()); 
-	else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()+1,id.depth()); 
+	if (id.iphi()==IPHI_MAX) neighbor=HcalDetId(HcalEndcap,id.ieta(),1,id.depth()); 
+	else neighbor=HcalDetId(HcalEndcap,id.ieta(),id.iphi()+1,id.depth()); 
       }	
       break;
     case (HcalForward):
-      if (id.ietaAbs()>=firstHFQuadPhiRing()) {
-	if (id.iphi()==IPHI_MAX-1) neighbor=HcalDetId(id.subdet(),id.ieta(),3,id.depth()); 
-	else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()+4,id.depth()); 
+      if (id.ietaAbs()>=40) {
+	if (id.iphi()==IPHI_MAX-1) neighbor=HcalDetId(HcalEndcap,id.ieta(),3,id.depth()); 
+	else neighbor=HcalDetId(HcalEndcap,id.ieta(),id.iphi()+4,id.depth()); 
       } else {
-	if (id.iphi()==IPHI_MAX-1) neighbor=HcalDetId(id.subdet(),id.ieta(),1,id.depth()); 
-	else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()+2,id.depth()); 
+	if (id.iphi()==IPHI_MAX-1) neighbor=HcalDetId(HcalEndcap,id.ieta(),1,id.depth()); 
+	else neighbor=HcalDetId(HcalEndcap,id.ieta(),id.iphi()+2,id.depth()); 
       }
       break;
     default: ok=false;
@@ -260,21 +268,21 @@ bool HcalTopology::decIPhi(const HcalDetId& id, HcalDetId &neighbor) const {
       else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()-1,id.depth()); 
       break;
     case (HcalEndcap):
-      if (id.ietaAbs()>=firstHEDoublePhiRing()) {
-	if (id.iphi()==1) neighbor=HcalDetId(id.subdet(),id.ieta(),IPHI_MAX-1,id.depth()); 
-	else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()-2,id.depth()); 
+      if (id.ietaAbs()>=21) {
+	if (id.iphi()==1) neighbor=HcalDetId(HcalEndcap,id.ieta(),IPHI_MAX-1,id.depth()); 
+	else neighbor=HcalDetId(HcalEndcap,id.ieta(),id.iphi()-2,id.depth()); 
       } else {
-	if (id.iphi()==1) neighbor=HcalDetId(id.subdet(),id.ieta(),IPHI_MAX,id.depth()); 
-	else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()-1,id.depth()); 
+	if (id.iphi()==1) neighbor=HcalDetId(HcalEndcap,id.ieta(),IPHI_MAX,id.depth()); 
+	else neighbor=HcalDetId(HcalEndcap,id.ieta(),id.iphi()-1,id.depth()); 
       }
       break;
     case (HcalForward):
-      if (id.ietaAbs()>=firstHFQuadPhiRing()) {
-	if (id.iphi()==3) neighbor=HcalDetId(id.subdet(),id.ieta(),IPHI_MAX-1,id.depth()); 
-	else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()-4,id.depth()); 
+      if (id.ietaAbs()>=40) {
+	if (id.iphi()==3) neighbor=HcalDetId(HcalEndcap,id.ieta(),IPHI_MAX-1,id.depth()); 
+	else neighbor=HcalDetId(HcalEndcap,id.ieta(),id.iphi()-4,id.depth()); 
       } else {
-	if (id.iphi()==1) neighbor=HcalDetId(id.subdet(),id.ieta(),IPHI_MAX-1,id.depth()); 
-	else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()-2,id.depth()); 
+	if (id.iphi()==1) neighbor=HcalDetId(HcalEndcap,id.ieta(),IPHI_MAX-1,id.depth()); 
+	else neighbor=HcalDetId(HcalEndcap,id.ieta(),id.iphi()-2,id.depth()); 
       }
       break;
     default: ok=false;
@@ -298,19 +306,15 @@ int HcalTopology::incAIEta(const HcalDetId& id, HcalDetId neighbors[2]) const {
   int n=1;
   int aieta=id.ietaAbs();
 
-  if (aieta==firstHEDoublePhiRing()-1 && (id.iphi()%2)==0) 
-    neighbors[0]=HcalDetId(HcalEndcap,(aieta+1)*id.zside(),id.iphi()-1,id.depth());
-  else if (aieta==firstHFQuadPhiRing()-1 && ((id.iphi()+1)%4)!=0) 
-    neighbors[0]=(id.iphi()==1)? HcalDetId(HcalForward,(aieta+1)*id.zside(),71,id.depth()) : HcalDetId(HcalForward,(aieta+1)*id.zside(),(id.iphi()-2),id.depth());
-  else if (aieta==lastHBRing()) 
-    neighbors[0]=HcalDetId(HcalEndcap,(aieta+1)*id.zside(),id.iphi(),1);
-  else if (aieta==lastHERing()) 
-    neighbors[0]=HcalDetId(HcalForward,(aieta+1)*id.zside(),id.iphi(),1);
-  else
-    neighbors[0]=HcalDetId(id.subdet(),(aieta+1)*id.zside(),id.iphi(),id.depth());
-  
-  if (!valid(neighbors[0])) n=0;
-  return n;
+    if (aieta==20 && (id.iphi()%2)==0) 
+		neighbors[0]=HcalDetId(id.subdet(),(aieta+1)*id.zside(),id.iphi()-1,id.depth());
+    else if (aieta==39 && ((id.iphi()+1)%4)!=0) 
+		neighbors[0]=HcalDetId(id.subdet(),(aieta+1)*id.zside(),((id.iphi()==1)?(71):(id.iphi()-2)),id.depth());
+    else
+		neighbors[0]=HcalDetId(id.subdet(),(aieta+1)*id.zside(),id.iphi(),id.depth());
+    
+    if (!valid(neighbors[0])) n=0;
+    return n;
 }
 
 /** Decreasing in |ieta|, there are be two neighbors of 40 and 21*/
@@ -318,23 +322,19 @@ int HcalTopology::decAIEta(const HcalDetId& id, HcalDetId neighbors[2]) const {
   int n=1;
   int aieta=id.ietaAbs();
 
-  if (aieta==firstHEDoublePhiRing()) { 
+  if (aieta==21) { 
     n=2;
-    neighbors[0]=HcalDetId(HcalEndcap,(aieta-1)*id.zside(),id.iphi(),id.depth());
-    neighbors[1]=HcalDetId(HcalEndcap,(aieta-1)*id.zside(),id.iphi()+1,id.depth());
-  } else if (aieta==firstHFQuadPhiRing()) {
-    n=2;
-    neighbors[0]=HcalDetId(HcalForward,(aieta-1)*id.zside(),id.iphi(),id.depth());
-    if (id.iphi()==IPHI_MAX-1) neighbors[1]=HcalDetId(HcalForward,(aieta-1)*id.zside(),1,id.depth());
-    else neighbors[1]=HcalDetId(HcalForward,(aieta-1)*id.zside(),id.iphi()+2,id.depth());
-  } else if (aieta==1) {
-    neighbors[0]=HcalDetId(id.subdet(),-aieta*id.zside(),id.iphi(),id.depth());
-  } else if (aieta==lastHBRing()+1) {
-    neighbors[0]=HcalDetId(HcalBarrel,(aieta-1)*id.zside(),id.iphi(),id.depth());
-  } else if (aieta==lastHERing()+1) {
-    neighbors[0]=HcalDetId(HcalEndcap,(aieta-1)*id.zside(),id.iphi(),id.depth());
-  } else
     neighbors[0]=HcalDetId(id.subdet(),(aieta-1)*id.zside(),id.iphi(),id.depth());
+    neighbors[1]=HcalDetId(id.subdet(),(aieta-1)*id.zside(),id.iphi()+1,id.depth());
+  } else if (aieta==40) {
+    n=2;
+    neighbors[0]=HcalDetId(id.subdet(),(aieta-1)*id.zside(),id.iphi(),id.depth());
+    if (id.iphi()==IPHI_MAX-1) neighbors[1]=HcalDetId(id.subdet(),(aieta-1)*id.zside(),1,id.depth());
+    else neighbors[1]=HcalDetId(id.subdet(),(aieta-1)*id.zside(),id.iphi()+2,id.depth());
+  } else if (aieta==1) {
+      neighbors[0]=HcalDetId(id.subdet(),-aieta*id.zside(),id.iphi(),id.depth());
+  } else
+      neighbors[0]=HcalDetId(id.subdet(),(aieta-1)*id.zside(),id.iphi(),id.depth());
   
   if (!valid(neighbors[0]) && n==2) {
     if (!valid(neighbors[1])) n=0;
@@ -344,7 +344,7 @@ int HcalTopology::decAIEta(const HcalDetId& id, HcalDetId neighbors[2]) const {
     }
   }
   if (n==2 && !valid(neighbors[1])) n=1;
-  if (n==1 && !valid(neighbors[0])) n=0;
+//  if (n==1 && !valid(neighbors[0])) n=0;
 
   return n;
 }
@@ -352,44 +352,68 @@ int HcalTopology::decAIEta(const HcalDetId& id, HcalDetId neighbors[2]) const {
 
 void HcalTopology::depthBinInformation(HcalSubdetector subdet, int etaRing,
                                        int & nDepthBins, int & startingBin) const {
-  if(subdet == HcalBarrel) {
-    if (etaRing<=14) {
-      nDepthBins = 1;
-      startingBin = 1;
-    } else {
-      nDepthBins = 2;
-      startingBin = 1;
-    }
-  } else if(subdet == HcalEndcap) {
-    if (etaRing==16) {
-      nDepthBins = 1;
-      startingBin = 3;
-    } else if (etaRing==17) {
-      nDepthBins = 1;
-      startingBin = 1;
-    } else if (etaRing==lastHERing()) {
-      nDepthBins = 2;
-      startingBin = 1;
-    }
-    else {
-      nDepthBins = (etaRing >= firstHETripleDepthRing()) ? 3 : 2;
-      startingBin = 1;
-    }
-  }
-
-  else if(subdet == HcalForward) {
-    nDepthBins = 2;
-    startingBin = 1;
-  }
-
-  else if(subdet == HcalOuter) {
-    nDepthBins = 1;
-    startingBin = 4;
-  }
-
-  else {
-    std::cerr << "Bad HCAL subdetector " << subdet << std::endl;
-  }
+	if (mode_==md_SLHC) {
+		if(subdet == HcalBarrel) {
+			nDepthBins = 4;
+			startingBin = 1;
+		} else if(subdet == HcalEndcap) {
+			if (etaRing==16) {
+				nDepthBins = 2;
+				startingBin = 3;
+			} else {
+				nDepthBins = 4;
+				startingBin = 1;
+			}
+		}
+		else if(subdet == HcalForward) {
+			nDepthBins = 2;
+			startingBin = 1;
+		}    
+		else if(subdet == HcalOuter) {
+			nDepthBins = 1;
+			startingBin = 4;
+		} 
+	} else {
+		
+		if(subdet == HcalBarrel) {
+			if (etaRing<=14) {
+				nDepthBins = 1;
+				startingBin = 1;
+			} else {
+				nDepthBins = 2;
+				startingBin = 1;
+			}
+		} else if(subdet == HcalEndcap) {
+			if (etaRing==16) {
+				nDepthBins = 1;
+				startingBin = 3;
+			} else if (etaRing==17) {
+				nDepthBins = 1;
+				startingBin = 1;
+			} else if (etaRing==lastHERing()) {
+				nDepthBins = 2;
+				startingBin = 1;
+			}
+			else {
+				nDepthBins = (etaRing >= firstHETripleDepthRing_) ? 3 : 2;
+				startingBin = 1;
+			}
+		}
+		
+		else if(subdet == HcalForward) {
+			nDepthBins = 2;
+			startingBin = 1;
+		}
+		
+		else if(subdet == HcalOuter) {
+			nDepthBins = 1;
+			startingBin = 4;
+		}
+		else {
+			std::cerr << "Bad HCAL subdetector " << subdet << std::endl;
+		}
+	}
+	
 }
 
 
@@ -452,5 +476,29 @@ int HcalTopology::nPhiBins(int etaRing) const {
   return lastPhiBin;
 }
 
+void HcalTopology::getDepthSegmentation(unsigned ring, std::vector<int> & readoutDepths) const
+{
+  // if it doesn't exist, return the first entry with a lower index.  So if we only
+  // have entries for 1 and 17, any input from 1-16 should return the entry for ring 1
+  SegmentationMap::const_iterator pos = depthSegmentation_.upper_bound(ring);
+  if(pos == depthSegmentation_.begin()) {
+    throw cms::Exception("HcalTopology") << "No depth segmentation found for ring" << ring;
+  }
+  --pos;
+    // pos now refers to the last element with key <= ring.
+  readoutDepths = pos->second;
+}
 
+void HcalTopology::setDepthSegmentation(unsigned ring, const std::vector<int> & readoutDepths)
+{
+  depthSegmentation_[ring] = readoutDepths;
+}
+
+std::pair<int, int> HcalTopology::segmentBoundaries(unsigned ring, unsigned depth) const {
+  std::vector<int> readoutDepths;
+  getDepthSegmentation(ring, readoutDepths);
+  int d1 = std::lower_bound(readoutDepths.begin(), readoutDepths.end(), depth) - readoutDepths.begin();
+  int d2 = std::upper_bound(readoutDepths.begin(), readoutDepths.end(), depth) - readoutDepths.begin();
+  return std::pair<int, int>(d1, d2);
+}
 

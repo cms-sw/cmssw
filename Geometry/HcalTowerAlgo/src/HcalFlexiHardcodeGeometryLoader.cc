@@ -9,7 +9,7 @@
 
 namespace {
   const int MAX_HCAL_PHI = 72;
-  const float DEGREE2RAD = M_PI / 180.;
+  const double DEGREE2RAD = M_PI / 180.;
 
   // Parameter objects
 
@@ -64,35 +64,34 @@ namespace {
 
 
   // ----------> HB <-----------
-  std::vector <HBHOCellParameters> makeHBCells () {
+  std::vector <HBHOCellParameters> makeHBCells (const HcalTopology & topology) {
     const float HBRMIN = 181.1;
     const float HBRMAX = 288.8;
     
-    HBHOCellParameters cells [] = {
-      // eta, depth, firstPhi, stepPhi, deltaPhi, rMin, rMax, etaMin, etaMax
-      HBHOCellParameters ( 1, 1, 1, 1, 5, HBRMIN, HBRMAX, 0.087*0, 0.087*1),
-      HBHOCellParameters ( 2, 1, 1, 1, 5, HBRMIN, HBRMAX, 0.087*1, 0.087*2),
-      HBHOCellParameters ( 3, 1, 1, 1, 5, HBRMIN, HBRMAX, 0.087*2, 0.087*3),
-      HBHOCellParameters ( 4, 1, 1, 1, 5, HBRMIN, HBRMAX, 0.087*3, 0.087*4),
-      HBHOCellParameters ( 5, 1, 1, 1, 5, HBRMIN, HBRMAX, 0.087*4, 0.087*5),
-      HBHOCellParameters ( 6, 1, 1, 1, 5, HBRMIN, HBRMAX, 0.087*5, 0.087*6),
-      HBHOCellParameters ( 7, 1, 1, 1, 5, HBRMIN, HBRMAX, 0.087*6, 0.087*7),
-      HBHOCellParameters ( 8, 1, 1, 1, 5, HBRMIN, HBRMAX, 0.087*7, 0.087*8),
-      HBHOCellParameters ( 9, 1, 1, 1, 5, HBRMIN, HBRMAX, 0.087*8, 0.087*9),
-      HBHOCellParameters (10, 1, 1, 1, 5, HBRMIN, HBRMAX, 0.087*9, 0.087*10),
-      HBHOCellParameters (11, 1, 1, 1, 5, HBRMIN, HBRMAX, 0.087*10, 0.087*11),
-      HBHOCellParameters (12, 1, 1, 1, 5, HBRMIN, HBRMAX, 0.087*11, 0.087*12),
-      HBHOCellParameters (13, 1, 1, 1, 5, HBRMIN, HBRMAX, 0.087*12, 0.087*13),
-      HBHOCellParameters (14, 1, 1, 1, 5, HBRMIN, HBRMAX, 0.087*13, 0.087*14),
-      HBHOCellParameters (15, 1, 1, 1, 5, HBRMIN, 258.4,  0.087*14, 0.087*15),
-      HBHOCellParameters (15, 2, 1, 1, 5, 258.4,  HBRMAX, 0.087*14, 0.087*15),
-      HBHOCellParameters (16, 1, 1, 1, 5, HBRMIN, 190.4,  0.087*15, 0.087*16),
-      HBHOCellParameters (16, 2, 1, 1, 5, 190.4,  232.6,  0.087*15, 0.087*16)
-    };
-    int nCells = sizeof(cells)/sizeof(HBHOCellParameters);
+    float normalDepths[] = {HBRMIN, HBRMAX};
+    float ring15Depths[] = {HBRMIN, 258.4, HBRMAX};
+    float ring16Depths[] = {HBRMIN, 190.4, 232.6};
+    float slhcDepths[] = {HBRMIN, 214., 239., HBRMAX};
     std::vector <HBHOCellParameters> result;
-    result.reserve (nCells);
-    for (int i = 0; i < nCells; ++i) result.push_back (cells[i]);
+    for(int iring = 1; iring <= 16; ++iring)
+    {
+      float * depths = slhcDepths;
+      if(topology.mode() != HcalTopology::md_SLHC)
+      {
+        if(iring == 15) depths = ring15Depths;
+        else if(iring == 16) depths = ring16Depths;
+        else depths = normalDepths;
+      }
+
+      int ndepth, startingDepth;
+      topology.depthBinInformation(HcalBarrel, iring, ndepth, startingDepth);
+      for(int idepth = startingDepth; idepth <= ndepth; ++idepth)
+      {
+        float rmin = depths[idepth-1];
+        float rmax = depths[idepth];
+        result.push_back(HBHOCellParameters(iring, idepth, 1, 1, 5, rmin, rmax, (iring-1)*0.087, iring*0.087));
+      }
+    }
     return result;
   }
 
@@ -128,46 +127,49 @@ namespace {
   }
 
   // ----------> HE <-----------
-  std::vector <HECellParameters> makeHECells () {
+  std::vector <HECellParameters> makeHECells (const HcalTopology & topology) {
+    std::vector <HECellParameters> result;
     const float HEZMIN = 400.458;
     const float HEZMID = 436.168;
     const float HEZMAX = 549.268;
-    
-    HECellParameters cells [] = {
-      // eta, depth, firstPhi, stepPhi, deltaPhi, zMin, zMax, etaMin, etaMax
-      HECellParameters ( 16, 3, 1, 1, 5,418.768,470.968, 0.087*15, 0.087*16),
-      HECellParameters ( 17, 1, 1, 1, 5,409.698,514.468, 0.087*16, 0.087*17),
-      HECellParameters ( 18, 1, 1, 1, 5,391.883,427.468, 0.087*17, 0.087*18),
-      HECellParameters ( 18, 2, 1, 1, 5,427.468,540.568, 0.087*17, 0.087*18),
-      HECellParameters ( 19, 1, 1, 1, 5, HEZMIN, HEZMID, 0.087*18, 0.087*19),
-      HECellParameters ( 19, 2, 1, 1, 5, HEZMID, HEZMAX, 0.087*18, 0.087*19),
-      HECellParameters ( 20, 1, 1, 1, 5, HEZMIN, HEZMID, 0.087*19, 1.74),
-      HECellParameters ( 20, 2, 1, 1, 5, HEZMID, HEZMAX, 0.087*19, 1.74),
-      HECellParameters ( 21, 1, 1, 2,10, HEZMIN, HEZMID, 1.74, 1.83),
-      HECellParameters ( 21, 2, 1, 2,10, HEZMID, HEZMAX, 1.74, 1.83),
-      HECellParameters ( 22, 1, 1, 2,10, HEZMIN, HEZMID, 1.83, 1.93),
-      HECellParameters ( 22, 2, 1, 2,10, HEZMID, HEZMAX, 1.83, 1.93),
-      HECellParameters ( 23, 1, 1, 2,10, HEZMIN, HEZMID, 1.93, 2.043),
-      HECellParameters ( 23, 2, 1, 2,10, HEZMID, HEZMAX, 1.93, 2.043),
-      HECellParameters ( 24, 1, 1, 2,10, HEZMIN, HEZMID, 2.043, 2.172),
-      HECellParameters ( 24, 2, 1, 2,10, HEZMID, HEZMAX, 2.043, 2.172),
-      HECellParameters ( 25, 1, 1, 2,10, HEZMIN, HEZMID, 2.172, 2.322),
-      HECellParameters ( 25, 2, 1, 2,10, HEZMID, HEZMAX, 2.172, 2.322),
-      HECellParameters ( 26, 1, 1, 2,10, HEZMIN, HEZMID, 2.322, 2.500),
-      HECellParameters ( 26, 2, 1, 2,10, HEZMID, HEZMAX, 2.322, 2.500),
-      HECellParameters ( 27, 1, 1, 2,10, HEZMIN,418.768, 2.500, 2.650),
-      HECellParameters ( 27, 2, 1, 2,10,418.768, HEZMID, 2.500, 2.650),
-      HECellParameters ( 27, 3, 1, 2,10, HEZMID, HEZMAX, 2.500, 2.650),
-      HECellParameters ( 28, 1, 1, 2,10, HEZMIN,418.768, 2.650, 2.868),
-      HECellParameters ( 28, 2, 1, 2,10,418.768, HEZMID, 2.650, 2.868),
-      HECellParameters ( 28, 3, 1, 2,10, HEZMID, HEZMAX, 2.650, 3.000),
-      HECellParameters ( 29, 1, 1, 2,10, HEZMIN, HEZMID, 2.868, 3.000),
-      HECellParameters ( 29, 2, 1, 2,10,418.768, HEZMID, 2.868, 3.000)
-    };
-    int nCells = sizeof(cells)/sizeof(HECellParameters);
-    std::vector <HECellParameters> result;
-    result.reserve (nCells);
-    for (int i = 0; i < nCells; ++i) result.push_back (cells[i]);
+    float normalDepths[] = {HEZMIN, HEZMID, HEZMAX};
+    float tripleDepths[] = {HEZMIN, 418.768, HEZMID, HEZMAX};
+    float slhcDepths[] = {HEZMIN, 418.768, HEZMID, 493., HEZMAX};
+    float ring16Depths[] = {418.768,470.968};
+    float ring16slhcDepths[] = {418.768, 450., 470.968};
+    float ring17Depths[] = {409.698,514.468};
+    float ring17slhcDepths[] = {409.698, 435., 460., 495., 514.468};
+    float ring18Depths[] = {391.883,427.468,540.568};
+    float ring18slhcDepths[] = {391.883, 439.,  467., 504. , 540.568};
+    float etaBounds[] = {0.087*15, 0.087*16, 0.087*17, 0.087*18,  0.087*19,
+                         1.74, 1.83,  1.93, 2.043, 2.172, 2.322, 2.500,
+                         2.650, 2.868, 3.000};
+
+    // count by ring - 16
+    bool slhc = (topology.mode() == HcalTopology::md_SLHC);
+    for(int iringm16=0; iringm16 <= 13; ++iringm16)
+    {
+      int iring = iringm16 + 16;
+      float * depths = slhcDepths;
+      if(iring == 16) depths = (slhc? ring16slhcDepths : ring16Depths);
+      else if(iring == 17) depths = (slhc ? ring17slhcDepths : ring17Depths);
+      else if(iring == 18) depths = (slhc ? ring18slhcDepths : ring18Depths);
+      else if(!slhc) depths = (iring >= topology.firstHETripleDepthRing() ? tripleDepths : normalDepths);
+      float etamin = etaBounds[iringm16];
+      float etamax = etaBounds[iringm16+1];
+      int ndepth, startingDepth;
+      topology.depthBinInformation(HcalEndcap, iring, ndepth, startingDepth);
+      for(int idepth = 0; idepth < ndepth; ++idepth)
+      {
+        int depthIndex = idepth + startingDepth;
+        float zmin = depths[idepth];
+        float zmax = depths[idepth+1];
+        int stepPhi = (iring >= topology.firstHEDoublePhiRing() ? 2 : 1);
+        int deltaPhi =  (iring >= topology.firstHEDoublePhiRing() ? 10 : 5);
+        result.push_back(HECellParameters(iring, depthIndex, 1, stepPhi, deltaPhi, zmin, zmax, etamin, etamax));
+      }
+    }
+
     return result;
   }
 
@@ -260,11 +262,11 @@ namespace {
       for (int iPhi = param.phiFirst; iPhi <= MAX_HCAL_PHI; iPhi += param.phiStep) {
 	for (int iside = -1; iside <= 1; iside += 2) { // both detector sides are identical
 	  HcalDetId hid (fHB ? HcalBarrel : HcalOuter, param.eta*iside, iPhi, param.depth);
-	  float phiCenter = ((iPhi-1)*360./MAX_HCAL_PHI + 0.5*param.dphi) * DEGREE2RAD; // middle of the cell
-	  float etaCenter = 0.5*(param.etaMin + param.etaMax);
-	  float x = param.rMin* cos (phiCenter);
-	  float y = param.rMin* sin (phiCenter);
-	  float z = iside * param.rMin * sinh(etaCenter);
+	  double phiCenter = ((iPhi-1)*360./MAX_HCAL_PHI + 0.5*param.dphi) * DEGREE2RAD; // middle of the cell
+	  double etaCenter = 0.5*(param.etaMin + param.etaMax);
+	  double x = param.rMin* cos (phiCenter);
+	  double y = param.rMin* sin (phiCenter);
+	  double z = iside * param.rMin * sinh(etaCenter);
 	  // make cell geometry
 	  GlobalPoint refPoint (x,y,z); // center of the cell's face
 	  std::vector<double> cellParams;
@@ -272,7 +274,7 @@ namespace {
 	  cellParams.push_back (0.5 * (param.etaMax - param.etaMin)); // deta_half
 	  cellParams.push_back (0.5 * param.dphi * DEGREE2RAD);  // dphi_half
 	  cellParams.push_back (0.5 * (param.rMax - param.rMin) * cosh (etaCenter)); // dr_half
-	  cellParams.push_back ( fabs( refPoint.eta()));
+	  cellParams.push_back ( fabs( refPoint.eta() ) ) ;
 	  cellParams.push_back ( fabs( refPoint.z() ) ) ;
 	  
 // 	  std::cout << "HcalFlexiHardcodeGeometryLoader::fillHBHO-> " << hid << hid.ieta() << '/' << hid.iphi() << '/' << hid.depth()
@@ -298,13 +300,13 @@ namespace {
       for (int iPhi = param.phiFirst; iPhi <= MAX_HCAL_PHI; iPhi += param.phiStep) {
 	for (int iside = -1; iside <= 1; iside += 2) { // both detector sides are identical
 	  HcalDetId hid (HcalEndcap, param.eta*iside, iPhi, param.depth);
-	  float phiCenter = ((iPhi-1)*360./MAX_HCAL_PHI + 0.5*param.dphi) * DEGREE2RAD; // middle of the cell
-	  float etaCenter = 0.5 * (param.etaMin + param.etaMax);
+	  double phiCenter = ((iPhi-1)*360./MAX_HCAL_PHI + 0.5*param.dphi) * DEGREE2RAD; // middle of the cell
+	  double etaCenter = 0.5 * (param.etaMin + param.etaMax);
 
-	  float perp = param.zMin / sinh (etaCenter);
-	  float x = perp * cos (phiCenter);
-	  float y = perp * sin (phiCenter);
-	  float z = iside * param.zMin;
+	  double perp = param.zMin / sinh (etaCenter);
+	  double x = perp * cos (phiCenter);
+	  double y = perp * sin (phiCenter);
+	  double z = iside * param.zMin;
 	  // make cell geometry
 	  GlobalPoint refPoint (x,y,z); // center of the cell's face
 	  std::vector<double> cellParams;
@@ -312,7 +314,7 @@ namespace {
 	  cellParams.push_back (0.5 * (param.etaMax - param.etaMin)); // deta_half
 	  cellParams.push_back (0.5 * param.dphi * DEGREE2RAD);  // dphi_half
 	  cellParams.push_back (-0.5 * (param.zMax - param.zMin) / tanh (etaCenter)); // dz_half, "-" means edges in Z
-	  cellParams.push_back ( fabs( refPoint.eta()));
+	  cellParams.push_back ( fabs( refPoint.eta() ) ) ;
 	  cellParams.push_back ( fabs( refPoint.z() ) ) ;
 	  
 // 	  std::cout << "HcalFlexiHardcodeGeometryLoader::fillHE-> " << hid << refPoint << '/' << cellParams [0] << '/' << cellParams [1] << '/' << cellParams [2] << std::endl;
@@ -337,25 +339,22 @@ namespace {
       for (int iPhi = param.phiFirst; iPhi <= MAX_HCAL_PHI; iPhi += param.phiStep) {
 	for (int iside = -1; iside <= 1; iside += 2) { // both detector sides are identical
 	  HcalDetId hid (HcalForward, param.eta*iside, iPhi, param.depth);
-	  float phiCenter = ((iPhi-1)*360./MAX_HCAL_PHI + 0.5*param.dphi) * DEGREE2RAD; // middle of the cell
-	  GlobalPoint inner (param.rMin, 0., param.zMin);
-	  GlobalPoint outer (param.rMax, 0., param.zMin);
-	  float iEta = inner.eta();
-	  float oEta = outer.eta();
-	  float etaCenter = 0.5 * ( iEta + oEta );
+	  double phiCenter = ((iPhi-1)*360./MAX_HCAL_PHI + 0.5*param.dphi) * DEGREE2RAD; // middle of the cell
+	  GlobalPoint inner (param.rMin, 0, param.zMin);
+	  GlobalPoint outer (param.rMax, 0, param.zMin);
+	  double etaCenter = 0.5 * (inner.eta() + outer.eta());
 
-	  float perp = param.zMin / sinh (etaCenter);
-	  float x = perp * cos (phiCenter);
-	  float y = perp * sin (phiCenter);
-	  float z = iside * param.zMin;
+	  double perp = param.zMin / sinh (etaCenter);
+	  double x = perp * cos (phiCenter);
+	  double y = perp * sin (phiCenter);
+	  double z = iside * param.zMin;
 	  // make cell geometry
 	  GlobalPoint refPoint (x,y,z); // center of the cell's face
-	  std::vector<double> cellParams;
-	  cellParams.reserve (5);
-	  cellParams.push_back (0.5 * ( iEta - oEta )); // deta_half
+	  std::vector<double> cellParams; cellParams.reserve (3);
+	  cellParams.push_back (0.5 * (inner.eta() - outer.eta())); // deta_half
 	  cellParams.push_back (0.5 * param.dphi * DEGREE2RAD);  // dphi_half
 	  cellParams.push_back (0.5 * (param.zMax - param.zMin)); // dz_half
-	  cellParams.push_back ( fabs( refPoint.eta()));
+	  cellParams.push_back ( fabs( refPoint.eta() ) ) ;
 	  cellParams.push_back ( fabs( refPoint.z() ) ) ;
 	  
 // 	  std::cout << "HcalFlexiHardcodeGeometryLoader::fillHF-> " << hid << refPoint << '/' << cellParams [0] << '/' << cellParams [1] << '/' << cellParams [2] << std::endl;
@@ -389,17 +388,16 @@ CaloSubdetectorGeometry* HcalFlexiHardcodeGeometryLoader::load(const HcalTopolog
   if( 0 == hcalGeometry->parMgr() ) hcalGeometry->allocatePar (
      HcalGeometry::k_NumberOfParametersPerShape*HcalGeometry::k_NumberOfShapes,
      HcalGeometry::k_NumberOfParametersPerShape ) ;
-  // ugly kluge to extract H2 mode from the topology 
-  if (fTopology.firstHEDoublePhiRing() < 22) { // regular geometry
-    fillHBHO (hcalGeometry, makeHBCells(), true);
-    fillHBHO (hcalGeometry, makeHOCells(), false);
-    fillHF (hcalGeometry, makeHFCells());
-    fillHE (hcalGeometry, makeHECells());
-  }
-  else { // TB geometry
-    fillHBHO (hcalGeometry, makeHBCells(), true);
+  if (fTopology.mode() == HcalTopology::md_H2) {  // TB geometry
+    fillHBHO (hcalGeometry, makeHBCells(fTopology), true);
     fillHBHO (hcalGeometry, makeHOCells(), false);
     fillHE (hcalGeometry, makeHECells_H2());
+  }
+  else { // regular geometry
+    fillHBHO (hcalGeometry, makeHBCells(fTopology), true);
+    fillHBHO (hcalGeometry, makeHOCells(), false);
+    fillHF (hcalGeometry, makeHFCells());
+    fillHE (hcalGeometry, makeHECells(fTopology));
   }
   return hcalGeometry;
 }

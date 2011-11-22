@@ -16,7 +16,7 @@
 // Original Author:  Vincenzo Chiochia
 //         Modified: Evan Friis
 //         Created:  Tue 8 12:31:25 CEST 2007
-// $Id: SiPixelGainCalibrationOffline.h,v 1.5 2009/02/10 17:26:50 rougny Exp $
+// $Id: SiPixelGainCalibrationOffline.h,v 1.6.4.1 2010/06/25 16:43:56 hcheung Exp $
 //
 //
 #include<vector>
@@ -36,7 +36,7 @@ class SiPixelGainCalibrationOffline {
     uint32_t detid;
     uint32_t ibegin;
     uint32_t iend;
-    int ncols;
+    int ncols,rocrows;
   };
   
   class StrictWeakOrdering{
@@ -54,11 +54,11 @@ class SiPixelGainCalibrationOffline {
   SiPixelGainCalibrationOffline(float minPed, float maxPed, float minGain, float maxGain);
   virtual ~SiPixelGainCalibrationOffline(){};
 
-  bool  put(const uint32_t& detID,Range input, const int& nCols);
+  bool  put(const uint32_t& detID,Range input, const int& nCols, const int& ROCRows=80);
   const Range getRange(const uint32_t& detID) const;
   void  getDetIds(std::vector<uint32_t>& DetIds_) const;
-  const int getNCols(const uint32_t& detID) const;
-  const std::pair<const Range, const int> getRangeAndNCols(const uint32_t& detID) const;
+  const int getNCols(const uint32_t& detID, int* ROCRows=0) const;
+  const std::pair<const Range, const int> getRangeAndNCols(const uint32_t& detID, int *ROCRows=0) const;
 
   // Set and get public methods
   void  setDataGain     ( float gain, const int& nRows, std::vector<char>& vped , bool thisColumnIsDead = false , bool thisColumnIsNoisy = false);
@@ -79,8 +79,8 @@ class SiPixelGainCalibrationOffline {
   void  setNoisyColumn(const int& nRows, std::vector<char>& vped) { setDataGain(0 /*dummy value, not used*/, nRows, vped,  false, true ); }
 
   // these methods SHOULD NEVER BE ACESSED BY THE USER - use the services in CondTools/SiPixel!!!!
-  float getPed   (const int& col, const int& row, const Range& range, const int& nCols, bool& isDead, bool& isNoisy) const;
-  float getGain  (const int& col, const int& row, const Range& range, const int& nCols, bool& isDeadColumn, bool& isNoisyColumn) const;
+  float getPed   (const int& col, const int& row, const Range& range, const int& nCols, bool& isDead, bool& isNoisy, const int& ROCRows=80) const;
+  float getGain  (const int& col, const int& row, const Range& range, const int& nCols, bool& isDeadColumn, bool& isNoisyColumn, const int& ROCRows=80) const;
 
 
   private:

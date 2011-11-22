@@ -8,7 +8,7 @@ class HcalLaserDigi {
 public:
   HcalLaserDigi();
   void setQADC(const std::vector<uint16_t>& values);
-  uint16_t qadc(int i) const { return ((i>=0 && i<32)?(qadcraw_[i]):(0)); }
+  uint16_t qadc(int i) const { return ((i>=0 && i<64)?(qadcraw_[i]):(0)); }
   void addTDCHit(int channel, int hittime);
   size_t tdcHits() const { return tdcraw_.size(); }
   int hitChannel(size_t ihit) const;
@@ -20,7 +20,7 @@ public:
   int selector() const { return selector_; }
 
 private:	      
-  uint16_t qadcraw_[32];
+  uint16_t qadcraw_[64];
   std::vector<uint32_t> tdcraw_;
   int32_t attenuator1_,attenuator2_;
   int32_t selector_;

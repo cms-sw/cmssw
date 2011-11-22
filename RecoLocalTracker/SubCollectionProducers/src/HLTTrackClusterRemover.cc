@@ -333,7 +333,7 @@ HLTTrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
     if (mergeOld_){
       iEvent.getByLabel(oldRemovalInfo_,oldPxlRef);
       iEvent.getByLabel(oldRemovalInfo_,oldStrRegRef);
-      edm::LogWarning("TrackClusterRemover")<<"to merge in, "<<oldStrRegRef->size()<<" strp and "<<oldPxlRef->size()<<" pxl";
+      LogDebug("TrackClusterRemover")<<"to merge in, "<<oldStrRegRef->size()<<" strp and "<<oldPxlRef->size()<<" pxl";
     }
 
     if (mergeOld_){

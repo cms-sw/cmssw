@@ -88,6 +88,7 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) :
   hbheLabel_(conf.getParameter<edm::InputTag>("hbheInput")),
   hoLabel_(conf.getParameter<edm::InputTag>("hoInput")),
   hfLabel_(conf.getParameter<edm::InputTag>("hfInput")),
+  hcalUpgradeLabel_(conf.getParameter<edm::InputTag>("hcalUpgradeInput")),
   ecalLabels_(conf.getParameter<std::vector<edm::InputTag> >("ecalInputs")),
   allowMissingInputs_(conf.getParameter<bool>("AllowMissingInputs")),
 
@@ -104,10 +105,8 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) :
   theHcalAcceptSeverityLevelForRejectedHit_(conf.getParameter<unsigned int>("HcalAcceptSeverityLevelForRejectedHit")),
   theEcalAcceptSeverityLevelForRejectedHit_(conf.getParameter<unsigned int>("EcalAcceptSeverityLevelForRejectedHit")),
   useRejectedRecoveredHcalHits_(conf.getParameter<bool>("UseRejectedRecoveredHcalHits")),
-  useRejectedRecoveredEcalHits_(conf.getParameter<bool>("UseRejectedRecoveredEcalHits"))
-
-
-
+  useRejectedRecoveredEcalHits_(conf.getParameter<bool>("UseRejectedRecoveredEcalHits")),
+  upgrade_(conf.getParameter<bool>("upgrade"))
 {
   EBEScale=EScales.EBScale; 
   EEEScale=EScales.EEScale; 
@@ -119,6 +118,14 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) :
   HF2EScale=EScales.HF2Scale; 
   if (EScales.instanceLabel=="") produces<CaloTowerCollection>();
   else produces<CaloTowerCollection>(EScales.instanceLabel);
+}
+
+template<typename COLL>
+void CaloTowersCreator::process(edm::Event& e, const edm::InputTag & label)
+{
+  edm::Handle<COLL> coll;
+  bool present=e.getByLabel(label, coll);
+  if (present || !allowMissingInputs_)  algo_.process(*coll);
 }
 
 void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
@@ -230,28 +237,17 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
 
   //-----------------------------------------------------------
 
-
-
-  bool present;
-
   // Step A/C: Get Inputs and process (repeatedly)
-  edm::Handle<HBHERecHitCollection> hbhe;
-  present=e.getByLabel(hbheLabel_,hbhe);
-  if (present || !allowMissingInputs_)  algo_.process(*hbhe);
-
-  edm::Handle<HORecHitCollection> ho;
-  present=e.getByLabel(hoLabel_,ho);
-  if (present || !allowMissingInputs_) algo_.process(*ho);
-
-  edm::Handle<HFRecHitCollection> hf;
-  present=e.getByLabel(hfLabel_,hf);
-  if (present || !allowMissingInputs_) algo_.process(*hf);
-
+  if(upgrade_) {
+    process<HcalUpgradeRecHitCollection>(e, hcalUpgradeLabel_);
+  } else {
+    process<HBHERecHitCollection>(e, hbheLabel_);
+    process<HORecHitCollection>(e, hoLabel_);
+    process<HFRecHitCollection>(e, hfLabel_);
+  }
   std::vector<edm::InputTag>::const_iterator i;
   for (i=ecalLabels_.begin(); i!=ecalLabels_.end(); i++) {
-    edm::Handle<EcalRecHitCollection> ec;
-    present=e.getByLabel(*i,ec);
-    if (present || !allowMissingInputs_) algo_.process(*ec);
+    process<EcalRecHitCollection>(e, *i);
   }
 
   // Step B: Create empty output

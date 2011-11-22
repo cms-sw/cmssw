@@ -51,11 +51,12 @@ class PixelForwardLayer : public ForwardDetLayer, public GeometricSearchDetWithG
 			const MeasurementEstimator& est,
 			const SubTurbineCrossings& crossings,
 			float window, 
-			std::vector<DetGroup>& result) const;
+			std::vector<DetGroup>& result,
+                        bool innerDisk) const;
   
   SubTurbineCrossings 
     computeCrossings( const TrajectoryStateOnSurface& startingState,
-		      PropagationDirection propDir) const;
+		      PropagationDirection propDir, bool innerDisk) const;
 
   float computeWindowSize( const GeomDet* det, 
 			   const TrajectoryStateOnSurface& tsos, 
@@ -63,7 +64,12 @@ class PixelForwardLayer : public ForwardDetLayer, public GeometricSearchDetWithG
   
  private:
   typedef PeriodicBinFinderInPhi<double>   BinFinderType;
-  BinFinderType    theBinFinder;
+  // need separate objects for inner and outer disk
+  // or a smarter bin finder class
+  BinFinderType    theBinFinder_inner;
+  BinFinderType    theBinFinder_outer;
+  unsigned int     _num_innerpanels;
+  unsigned int     _num_outerpanels;
 
   std::vector<const GeometricSearchDet*> theComps;
   std::vector<const GeomDet*> theBasicComps;

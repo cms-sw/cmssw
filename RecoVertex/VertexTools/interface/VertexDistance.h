@@ -4,6 +4,7 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 

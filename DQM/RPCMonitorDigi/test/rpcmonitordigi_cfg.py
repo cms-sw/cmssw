@@ -22,7 +22,7 @@ process.source = cms.Source("PoolSource",
                                                               '/store/data/Run2010A/Mu/RECO/v4/000/143/727/FE2C2F5F-4CAF-DF11-AA49-0030487A3C9A.root')
                             )
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10000))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 
 ################ Condition #################
 process.load("CondCore.DBCommon.CondDBSetup_cfi")

@@ -93,6 +93,7 @@ class SiPixelGainCalibrationServicePayloadGetter : public SiPixelGainCalibration
 
   uint32_t old_detID;
   int      old_cols;
+  int      old_rocrows;
   // Cache data for payloads that average over columns
   
   // these two quantities determine what column averaged block we are in - i.e. ROC 1 or ROC 2
@@ -184,12 +185,12 @@ float SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordTyp
     //&&&&&&&&&&&&&&&&&&&&
       if (detID != old_detID){
 	old_detID=detID;
-        std::pair<const typename thePayloadObject::Range, const int> rangeAndNCols = ped->getRangeAndNCols(detID);
+        std::pair<const typename thePayloadObject::Range, const int> rangeAndNCols = ped->getRangeAndNCols(detID, &old_rocrows);
 	old_range = rangeAndNCols.first;
 	old_cols  = rangeAndNCols.second;
       }
       //std::cout<<" Pedestal "<<ped->getPed(col, row, old_range, old_cols)<<std::endl;
-      return  ped->getPed(col, row, old_range, old_cols, isDead, isNoisy);
+      return  ped->getPed(col, row, old_range, old_cols, isDead, isNoisy, old_rocrows);
   } else throw cms::Exception("NullPointer")
     << "[SiPixelGainCalibrationServicePayloadGetter::getPedestalByPixel] SiPixelGainCalibrationRcd not initialized ";
 }
@@ -203,11 +204,11 @@ float SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordTyp
     //&&&&&&&&&&&&&&&&&&&&
     if (detID != old_detID){
       old_detID=detID;
-      std::pair<const typename thePayloadObject::Range, const int> rangeAndNCols = ped->getRangeAndNCols(detID);
+      std::pair<const typename thePayloadObject::Range, const int> rangeAndNCols = ped->getRangeAndNCols(detID, &old_rocrows);
       old_range = rangeAndNCols.first;
       old_cols  = rangeAndNCols.second;
     }
-    return ped->getGain(col, row, old_range, old_cols, isDead, isNoisy);
+    return ped->getGain(col, row, old_range, old_cols, isDead, isNoisy, old_rocrows);
   } else throw cms::Exception("NullPointer")
     << "[SiPixelGainCalibrationServicePayloadGetter::getGainByPixel] SiPixelGainCalibrationRcd not initialized ";
 }
@@ -221,12 +222,12 @@ float SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordTyp
     //&&&&&&&&&&&&&&&&&&&&
       // see if we are in the same averaged data block
       bool inTheSameAveragedDataBlock = false;
-      if ( row / numberOfRowsAveragedOver_ == oldAveragedBlockDataPed_ )
+      if ( row / old_rocrows == oldAveragedBlockDataPed_ )
          inTheSameAveragedDataBlock = true;
 
       if (detID != old_detID){
 	old_detID=detID;
-        std::pair<const typename thePayloadObject::Range, const int> rangeAndNCols = ped->getRangeAndNCols(detID);
+        std::pair<const typename thePayloadObject::Range, const int> rangeAndNCols = ped->getRangeAndNCols(detID, &old_rocrows);
 	old_range = rangeAndNCols.first;
 	old_cols  = rangeAndNCols.second;
       } 
@@ -238,8 +239,8 @@ float SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordTyp
       } 
 
       oldColumnIndexPed_       = col;
-      oldAveragedBlockDataPed_ = row / numberOfRowsAveragedOver_;
-      oldColumnValuePed_       = ped->getPed(col, row, old_range, old_cols, isDeadColumn, isNoisyColumn);
+      oldAveragedBlockDataPed_ = row / old_rocrows;
+      oldColumnValuePed_       = ped->getPed(col, row, old_range, old_cols, isDeadColumn, isNoisyColumn, old_rocrows);
       oldThisColumnIsDeadPed_  = isDeadColumn;
       oldThisColumnIsNoisyPed_  = isNoisyColumn;
 
@@ -257,12 +258,12 @@ float SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordTyp
     //Access from DB
     //&&&&&&&&&&&&&&&&&&&&
     bool inTheSameAveragedDataBlock = false;
-    if ( row / numberOfRowsAveragedOver_ == oldAveragedBlockDataGain_ )
+    if ( row / old_rocrows == oldAveragedBlockDataGain_ )
        inTheSameAveragedDataBlock = true;
 
     if (detID != old_detID){
       old_detID=detID;
-      std::pair<const typename thePayloadObject::Range, const int> rangeAndNCols = ped->getRangeAndNCols(detID);
+      std::pair<const typename thePayloadObject::Range, const int> rangeAndNCols = ped->getRangeAndNCols(detID, &old_rocrows);
       old_range = rangeAndNCols.first;
       old_cols  = rangeAndNCols.second;
     }
@@ -274,8 +275,8 @@ float SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordTyp
     }
 
     oldColumnIndexGain_       = col;
-    oldAveragedBlockDataGain_ = row / numberOfRowsAveragedOver_;
-    oldColumnValueGain_       = ped->getGain(col, row, old_range, old_cols, isDeadColumn, isNoisyColumn);
+    oldAveragedBlockDataGain_ = row / old_rocrows;
+    oldColumnValueGain_       = ped->getGain(col, row, old_range, old_cols, isDeadColumn, isNoisyColumn, old_rocrows);
     oldThisColumnIsDeadGain_  = isDeadColumn;
     oldThisColumnIsNoisyGain_  = isNoisyColumn;
 

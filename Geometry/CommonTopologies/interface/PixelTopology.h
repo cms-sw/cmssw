@@ -28,6 +28,10 @@ class PixelTopology : public Topology {
   virtual std::pair<float,float> pitch() const = 0;
   virtual int nrows() const = 0;
   virtual int ncolumns() const = 0;
+  virtual int rocsY() const = 0;
+  virtual int rocsX() const = 0;
+  virtual int rowsperroc() const = 0;
+  virtual int colsperroc() const = 0;
 
   virtual float localX(const float mpX) const = 0;
   virtual float localY(const float mpY) const = 0;
