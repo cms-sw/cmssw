@@ -14,7 +14,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/TrackReco/interface/DeDxData.h"
-#include "RecoTracker/DeDx/interface/DeDxEstimatorProducer.h"
 
 
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCParticle.h"
