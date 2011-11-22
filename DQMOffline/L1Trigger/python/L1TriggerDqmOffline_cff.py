@@ -32,21 +32,6 @@ l1tDttf.online = cms.untracked.bool(False)
 # input tag for BXTimining
 bxTiming.FedSource = 'rawDataCollector'
 
-#
-# for offline, remove the L1TRate which is reading from cms_orcoff_prod, but also requires 
-# a hard-coded lxplus path - FIXME check if one can get rid of hard-coded path
-# remove also the corresponding client
-#
-# L1TSync - FIXME - same problems as L1TRate
-
-l1tMonitorOnline.remove(l1tRate)
-l1tMonitorClient.remove(l1tTestsSummary)
-
-# FIXME error in l1tDttfClient
-l1tMonitorClient.remove(l1tDttfClient)
-
-
-
 # DQM offline L1 Trigger versus Reco modules
 
 import DQMServices.Components.DQMEnvironment_cfi
@@ -90,12 +75,16 @@ l1TriggerEmulatorOnline = cms.Sequence(
                                 * dqmEnvL1TEMU
                                 )
 
+l1TriggerEmulatorOffline = cms.Sequence(
+                                l1TriggerEmulatorOnline                                
+                                )
 #
                                 
 l1TriggerDqmOffline = cms.Sequence(
                                 l1TriggerOffline 
-                                * l1TriggerEmulatorOnline
+                                * l1TriggerEmulatorOffline
                                 )                                  
+
 
 # second step in offline environment
                                  
@@ -106,11 +95,34 @@ l1TriggerDqmOfflineClient = cms.Sequence(
 
 
 #
-# EMMERGENCY removal of modules
+#   EMERGENCY   removal of modules or full sequences 
+# =============
 #
-# un-comment the module line below to remove the module
+# un-comment the module line below to remove the module or the sequence
+
+#
+# NOTE: for offline, remove the L1TRate which is reading from cms_orcoff_prod, but also requires 
+# a hard-coded lxplus path - FIXME check if one can get rid of hard-coded path
+# remove also the corresponding client
+#
+# L1TSync - FIXME - same problems as L1TRate
+
+
+# DQM first step 
+#
+
+#l1TriggerDqmOffline.remove(l1TriggerOffline) 
+#l1TriggerDqmOffline.remove(l1TriggerEmulatorOffline) 
+
+#
+
+#l1TriggerOffline.remove(l1TriggerOnline)
+#l1TriggerOffline.remove(l1TriggerRecoDQM)
+
 
 # l1tMonitorOnline sequence, defined in DQM/L1TMonitor/python/L1TMonitor_cff.py
+#
+#l1TriggerOnline.remove(l1tMonitorOnline)
 #
 #l1tMonitorOnline.remove(bxTiming)
 l1tMonitorOnline.remove(l1tLtc)
@@ -126,11 +138,45 @@ l1tMonitorOnline.remove(l1tLtc)
 #l1ExtraDqmSeq.remove(l1ExtraDQM)
 #l1tMonitorOnline.remove(l1ExtraDqmSeq)
 #
-#l1tMonitorOnline.remove(l1tRate)
+l1tMonitorOnline.remove(l1tRate)
 #l1tMonitorOnline.remove(l1tRctSeq)
 #l1tMonitorOnline.remove(l1tGctSeq)
 
+#
+
+#l1TriggerEmulatorOffline.remove(l1TriggerEmulatorOnline)
+
+# l1HwValEmulatorMonitor sequence, defined in DQM/L1TMonitor/python/L1TEmulatorMonitor_cff.py 
+#
+#l1TriggerEmulatorOnline.remove(l1HwValEmulatorMonitor) 
+
 # L1HardwareValidation producers
-#l1TriggerEmulatorOnline.remove(L1HardwareValidation)                                 
+#l1HwValEmulatorMonitor.remove(L1HardwareValidation)
+#
+#l1HwValEmulatorMonitor.remove(l1EmulatorMonitor)
+
+
+# DQM second step (harvesting)
+#
+
+#l1TriggerDqmOfflineClient.remove(l1tMonitorClient)
+#l1TriggerDqmOfflineClient.remove(l1EmulatorMonitorClient)
+
+# l1tMonitorClient sequence, defined in DQM/L1TMonitorClient/python/L1tMonitorClient_cff.py
+#
+#l1tMonitorClient.remove(l1TriggerQualityTests)
+#l1tMonitorClient.remove(l1TriggerClients)
+
+# l1TriggerClients sequence, part of l1tMonitorClient sequence
+
+#l1TriggerClients.remove(l1tGctClient)
+#l1TriggerClients.remove(l1tDttfClient)
+l1TriggerClients.remove(l1tCsctfClient) 
+#l1TriggerClients.remove(l1tRpctfClient)
+l1TriggerClients.remove(l1tGmtClient)
+#l1TriggerClients.remove(l1tOccupancyClient)
+l1TriggerClients.remove(l1tTestsSummary)
+#l1TriggerClients.remove(l1tEventInfoClient)
+                              
                                     
                                     
