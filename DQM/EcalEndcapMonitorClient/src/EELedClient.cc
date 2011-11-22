@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2010/08/09 13:44:54 $
- * $Revision: 1.126 $
+ * $Date: 2011/08/30 09:29:45 $
+ * $Revision: 1.128 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -17,6 +17,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/MonLed1Dat.h"
@@ -209,7 +210,7 @@ void EELedClient::endRun(void) {
 
 void EELedClient::setup(void) {
 
-  char histo[200];
+  std::string name;
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EELedClient" );
 
@@ -219,16 +220,16 @@ void EELedClient::setup(void) {
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
       if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
-      sprintf(histo, "EELDT led quality L1 %s", Numbers::sEE(ism).c_str());
-      meg01_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+      name = "EELDT led quality L1 " + Numbers::sEE(ism);
+      meg01_[ism-1] = dqmStore_->book2D(name, name, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
       meg01_[ism-1]->setAxisTitle("ix", 1);
       if ( ism >= 1 && ism <= 9 ) meg01_[ism-1]->setAxisTitle("101-ix", 1);
       meg01_[ism-1]->setAxisTitle("iy", 2);
     }
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
       if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getName() );
-      sprintf(histo, "EELDT led quality L2 %s", Numbers::sEE(ism).c_str());
-      meg02_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+      name = "EELDT led quality L2 " + Numbers::sEE(ism);
+      meg02_[ism-1] = dqmStore_->book2D(name, name, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
       meg02_[ism-1]->setAxisTitle("ix", 1);
       if ( ism >= 1 && ism <= 9 ) meg02_[ism-1]->setAxisTitle("101-ix", 1);
       meg02_[ism-1]->setAxisTitle("iy", 2);
@@ -236,142 +237,142 @@ void EELedClient::setup(void) {
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
       if ( meg05_[ism-1] ) dqmStore_->removeElement( meg05_[ism-1]->getName() );
-      sprintf(histo, "EELDT led quality L1 PNs G01 %s", Numbers::sEE(ism).c_str());
-      meg05_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+      name = "EELDT led quality L1 PNs G01 " + Numbers::sEE(ism);
+      meg05_[ism-1] = dqmStore_->book2D(name, name, 10, 0., 10., 1, 0., 5.);
       meg05_[ism-1]->setAxisTitle("pseudo-strip", 1);
       meg05_[ism-1]->setAxisTitle("channel", 2);
     }
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
       if ( meg06_[ism-1] ) dqmStore_->removeElement( meg06_[ism-1]->getName() );
-      sprintf(histo, "EELDT led quality L2 PNs G01 %s", Numbers::sEE(ism).c_str());
-      meg06_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+      name = "EELDT led quality L2 PNs G01 " + Numbers::sEE(ism);
+      meg06_[ism-1] = dqmStore_->book2D(name, name, 10, 0., 10., 1, 0., 5.);
       meg06_[ism-1]->setAxisTitle("pseudo-strip", 1);
       meg06_[ism-1]->setAxisTitle("channel", 2);
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
       if ( meg09_[ism-1] ) dqmStore_->removeElement( meg09_[ism-1]->getName() );
-      sprintf(histo, "EELDT led quality L1 PNs G16 %s", Numbers::sEE(ism).c_str());
-      meg09_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+      name = "EELDT led quality L1 PNs G16 " + Numbers::sEE(ism);
+      meg09_[ism-1] = dqmStore_->book2D(name, name, 10, 0., 10., 1, 0., 5.);
       meg09_[ism-1]->setAxisTitle("pseudo-strip", 1);
       meg09_[ism-1]->setAxisTitle("channel", 2);
     }
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
       if ( meg10_[ism-1] ) dqmStore_->removeElement( meg10_[ism-1]->getName() );
-      sprintf(histo, "EELDT led quality L2 PNs G16 %s", Numbers::sEE(ism).c_str());
-      meg10_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+      name = "EELDT led quality L2 PNs G16 " + Numbers::sEE(ism);
+      meg10_[ism-1] = dqmStore_->book2D(name, name, 10, 0., 10., 1, 0., 5.);
       meg10_[ism-1]->setAxisTitle("pseudo-strip", 1);
       meg10_[ism-1]->setAxisTitle("channel", 2);
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
       if ( mea01_[ism-1] ) dqmStore_->removeElement( mea01_[ism-1]->getName() );;
-      sprintf(histo, "EELDT amplitude L1 %s", Numbers::sEE(ism).c_str());
-      mea01_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
+      name = "EELDT amplitude L1 " + Numbers::sEE(ism);
+      mea01_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
       mea01_[ism-1]->setAxisTitle("channel", 1);
       mea01_[ism-1]->setAxisTitle("amplitude", 2);
     }
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
       if ( mea02_[ism-1] ) dqmStore_->removeElement( mea02_[ism-1]->getName() );
-      sprintf(histo, "EELDT amplitude L2 %s", Numbers::sEE(ism).c_str());
-      mea02_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
+      name = "EELDT amplitude L2 " + Numbers::sEE(ism);
+      mea02_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
       mea02_[ism-1]->setAxisTitle("channel", 1);
       mea02_[ism-1]->setAxisTitle("amplitude", 2);
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
       if ( met01_[ism-1] ) dqmStore_->removeElement( met01_[ism-1]->getName() );
-      sprintf(histo, "EELDT led timing L1 %s", Numbers::sEE(ism).c_str());
-      met01_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
+      name = "EELDT led timing L1 " + Numbers::sEE(ism);
+      met01_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
       met01_[ism-1]->setAxisTitle("channel", 1);
       met01_[ism-1]->setAxisTitle("jitter", 2);
     }
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
       if ( met02_[ism-1] ) dqmStore_->removeElement( met02_[ism-1]->getName() );
-      sprintf(histo, "EELDT led timing L2 %s", Numbers::sEE(ism).c_str());
-      met02_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
+      name = "EELDT led timing L2 " + Numbers::sEE(ism);
+      met02_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
       met02_[ism-1]->setAxisTitle("channel", 1);
       met02_[ism-1]->setAxisTitle("jitter", 2);
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
       if ( metav01_[ism-1] ) dqmStore_->removeElement( metav01_[ism-1]->getName() );
-      sprintf(histo, "EELDT led timing mean L1 %s", Numbers::sEE(ism).c_str());
-      metav01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+      name = "EELDT led timing mean L1 " + Numbers::sEE(ism);
+      metav01_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       metav01_[ism-1]->setAxisTitle("mean", 1);
     }
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
       if ( metav02_[ism-1] ) dqmStore_->removeElement( metav02_[ism-1]->getName() );
-      sprintf(histo, "EELDT led timing mean L2 %s", Numbers::sEE(ism).c_str());
-      metav02_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+      name = "EELDT led timing mean L2 " + Numbers::sEE(ism);
+      metav02_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       metav02_[ism-1]->setAxisTitle("mean", 1);
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
       if ( metrms01_[ism-1] ) dqmStore_->removeElement( metrms01_[ism-1]->getName() );
-      sprintf(histo, "EELDT led timing rms L1 %s", Numbers::sEE(ism).c_str());
-      metrms01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
+      name = "EELDT led timing rms L1 " + Numbers::sEE(ism);
+      metrms01_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 0.5);
       metrms01_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
       if ( metrms02_[ism-1] ) dqmStore_->removeElement( metrms02_[ism-1]->getName() );
-      sprintf(histo, "EELDT led timing rms L2 %s", Numbers::sEE(ism).c_str());
-      metrms02_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
+      name = "EELDT led timing rms L2 " + Numbers::sEE(ism);
+      metrms02_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 0.5);
       metrms02_[ism-1]->setAxisTitle("rms", 1);
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
       if ( meaopn01_[ism-1] ) dqmStore_->removeElement( meaopn01_[ism-1]->getName() );
-      sprintf(histo, "EELDT amplitude over PN L1 %s", Numbers::sEE(ism).c_str());
-      meaopn01_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
+      name = "EELDT amplitude over PN L1 " + Numbers::sEE(ism);
+      meaopn01_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
       meaopn01_[ism-1]->setAxisTitle("channel", 1);
       meaopn01_[ism-1]->setAxisTitle("amplitude/PN", 2);
     }
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
       if ( meaopn02_[ism-1] ) dqmStore_->removeElement( meaopn02_[ism-1]->getName() );
-      sprintf(histo, "EELDT amplitude over PN L2 %s", Numbers::sEE(ism).c_str());
-      meaopn02_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
+      name = "EELDT amplitude over PN L2 " + Numbers::sEE(ism);
+      meaopn02_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
       meaopn02_[ism-1]->setAxisTitle("channel", 1);
       meaopn02_[ism-1]->setAxisTitle("amplitude/PN", 2);
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
       if ( mepnprms01_[ism-1] ) dqmStore_->removeElement( mepnprms01_[ism-1]->getName() );
-      sprintf(histo, "EELDT PNs pedestal rms %s G01 L1", Numbers::sEE(ism).c_str());
-      mepnprms01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+      name = "EELDT PNs pedestal rms " + Numbers::sEE(ism) + " G01 L1";
+      mepnprms01_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       mepnprms01_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
       if ( mepnprms02_[ism-1] ) dqmStore_->removeElement( mepnprms02_[ism-1]->getName() );
-      sprintf(histo, "EELDT PNs pedestal rms %s G01 L2", Numbers::sEE(ism).c_str());
-      mepnprms02_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+      name = "EELDT PNs pedestal rms " + Numbers::sEE(ism) + " G01 L2";
+      mepnprms02_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       mepnprms02_[ism-1]->setAxisTitle("rms", 1);
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
       if ( mepnprms05_[ism-1] ) dqmStore_->removeElement( mepnprms05_[ism-1]->getName() );
-      sprintf(histo, "EELDT PNs pedestal rms %s G16 L1", Numbers::sEE(ism).c_str());
-      mepnprms05_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+      name = "EELDT PNs pedestal rms " + Numbers::sEE(ism) + " G16 L1";
+      mepnprms05_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       mepnprms05_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
       if ( mepnprms06_[ism-1] ) dqmStore_->removeElement( mepnprms06_[ism-1]->getName() );
-      sprintf(histo, "EELDT PNs pedestal rms %s G16 L2", Numbers::sEE(ism).c_str());
-      mepnprms06_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+      name = "EELDT PNs pedestal rms " + Numbers::sEE(ism) + " G16 L2";
+      mepnprms06_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       mepnprms06_[ism-1]->setAxisTitle("rms", 1);
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
       if ( me_hs01_[ism-1] ) dqmStore_->removeElement( me_hs01_[ism-1]->getName() );
-      sprintf(histo, "EELDT led shape L1 %s", Numbers::sEE(ism).c_str());
-      me_hs01_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
+      name = "EELDT led shape L1 " + Numbers::sEE(ism);
+      me_hs01_[ism-1] = dqmStore_->book1D(name, name, 10, 0., 10.);
       me_hs01_[ism-1]->setAxisTitle("sample", 1);
       me_hs01_[ism-1]->setAxisTitle("amplitude", 2);
     }
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
       if ( me_hs02_[ism-1] ) dqmStore_->removeElement( me_hs02_[ism-1]->getName() );
-      sprintf(histo, "EELDT led shape L2 %s", Numbers::sEE(ism).c_str());
-      me_hs02_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
+      name = "EELDT led shape L2 " + Numbers::sEE(ism);
+      me_hs02_[ism-1] = dqmStore_->book1D(name, name, 10, 0., 10.);
       me_hs02_[ism-1]->setAxisTitle("sample", 1);
       me_hs02_[ism-1]->setAxisTitle("amplitude", 2);
     }
@@ -1042,8 +1043,6 @@ void EELedClient::analyze(void) {
   bits04 |= 1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_MEAN_ERROR;
   bits04 |= 1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_RMS_ERROR;
 
-  char histo[200];
-
   MonitorElement* me;
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
@@ -1052,121 +1051,105 @@ void EELedClient::analyze(void) {
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELedTask/Led1/EELDT amplitude %s L1").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
+      me = dqmStore_->get( prefixME_ + "/EELedTask/Led1/EELDT amplitude " + Numbers::sEE(ism) + " L1" );
+      h01_[ism-1] = UtilsClient::getHisto( me, cloneME_, h01_[ism-1] );
 
-      sprintf(histo, (prefixME_ + "/EELedTask/Led1/EELDT amplitude over PN %s L1").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
+      me = dqmStore_->get( prefixME_ + "/EELedTask/Led1/EELDT amplitude over PN " + Numbers::sEE(ism) + " L1" );
+      h02_[ism-1] = UtilsClient::getHisto( me, cloneME_, h02_[ism-1] );
 
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELedTask/Led2/EELDT amplitude %s L2").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
+      me = dqmStore_->get( prefixME_ + "/EELedTask/Led2/EELDT amplitude " + Numbers::sEE(ism) + " L2" );
+      h03_[ism-1] = UtilsClient::getHisto( me, cloneME_, h03_[ism-1] );
 
-      sprintf(histo, (prefixME_ + "/EELedTask/Led2/EELDT amplitude over PN %s L2").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h04_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h04_[ism-1] );
+      me = dqmStore_->get( prefixME_ + "/EELedTask/Led2/EELDT amplitude over PN " + Numbers::sEE(ism) + " L2" );
+      h04_[ism-1] = UtilsClient::getHisto( me, cloneME_, h04_[ism-1] );
 
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELedTask/Led1/EELDT timing %s L1").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h09_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h09_[ism-1] );
+      me = dqmStore_->get( prefixME_ + "/EELedTask/Led1/EELDT timing " + Numbers::sEE(ism) + " L1" );
+      h09_[ism-1] = UtilsClient::getHisto( me, cloneME_, h09_[ism-1] );
 
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELedTask/Led2/EELDT timing %s L2").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h10_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h10_[ism-1] );
+      me = dqmStore_->get( prefixME_ + "/EELedTask/Led2/EELDT timing " + Numbers::sEE(ism) + " L2" );
+      h10_[ism-1] = UtilsClient::getHisto( me, cloneME_, h10_[ism-1] );
 
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELedTask/Led1/EELDT shape %s L1").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      hs01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs01_[ism-1] );
+      me = dqmStore_->get( prefixME_ + "/EELedTask/Led1/EELDT shape " + Numbers::sEE(ism) + " L1" );
+      hs01_[ism-1] = UtilsClient::getHisto( me, cloneME_, hs01_[ism-1] );
 
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELedTask/Led2/EELDT shape %s L2").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      hs02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs02_[ism-1] );
+      me = dqmStore_->get( prefixME_ + "/EELedTask/Led2/EELDT shape " + Numbers::sEE(ism) + " L2" );
+      hs02_[ism-1] = UtilsClient::getHisto( me, cloneME_, hs02_[ism-1] );
 
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELedTask/Led1/PN/Gain01/EELDT PNs amplitude %s G01 L1").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      i01_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i01_[ism-1] );
+      me = dqmStore_->get( prefixME_ + "/EELedTask/Led1/PN/Gain01/EELDT PNs amplitude " + Numbers::sEE(ism) + " G01 L1" );
+      i01_[ism-1] = UtilsClient::getHisto( me, cloneME_, i01_[ism-1] );
 
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELedTask/Led2/PN/Gain01/EELDT PNs amplitude %s G01 L2").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      i02_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i02_[ism-1] );
+      me = dqmStore_->get( prefixME_ + "/EELedTask/Led2/PN/Gain01/EELDT PNs amplitude " + Numbers::sEE(ism) + " G01 L2" );
+      i02_[ism-1] = UtilsClient::getHisto( me, cloneME_, i02_[ism-1] );
 
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELedTask/Led1/PN/Gain01/EELDT PNs pedestal %s G01 L1").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      i05_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i05_[ism-1] );
+      me = dqmStore_->get( prefixME_ + "/EELedTask/Led1/PN/Gain01/EELDT PNs pedestal " + Numbers::sEE(ism) + " G01 L1" );
+      i05_[ism-1] = UtilsClient::getHisto( me, cloneME_, i05_[ism-1] );
 
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELedTask/Led2/PN/Gain01/EELDT PNs pedestal %s G01 L2").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      i06_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i06_[ism-1] );
+      me = dqmStore_->get( prefixME_ + "/EELedTask/Led2/PN/Gain01/EELDT PNs pedestal " + Numbers::sEE(ism) + " G01 L2" );
+      i06_[ism-1] = UtilsClient::getHisto( me, cloneME_, i06_[ism-1] );
 
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELedTask/Led1/PN/Gain16/EELDT PNs amplitude %s G16 L1").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      i09_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i09_[ism-1] );
+      me = dqmStore_->get( prefixME_ + "/EELedTask/Led1/PN/Gain16/EELDT PNs amplitude " + Numbers::sEE(ism) + " G16 L1" );
+      i09_[ism-1] = UtilsClient::getHisto( me, cloneME_, i09_[ism-1] );
 
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELedTask/Led2/PN/Gain16/EELDT PNs amplitude %s G16 L2").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      i10_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i10_[ism-1] );
+      me = dqmStore_->get( prefixME_ + "/EELedTask/Led2/PN/Gain16/EELDT PNs amplitude " + Numbers::sEE(ism) + " G16 L2" );
+      i10_[ism-1] = UtilsClient::getHisto( me, cloneME_, i10_[ism-1] );
 
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELedTask/Led1/PN/Gain16/EELDT PNs pedestal %s G16 L1").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      i13_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i13_[ism-1] );
+      me = dqmStore_->get( prefixME_ + "/EELedTask/Led1/PN/Gain16/EELDT PNs pedestal " + Numbers::sEE(ism) + " G16 L1" );
+      i13_[ism-1] = UtilsClient::getHisto( me, cloneME_, i13_[ism-1] );
 
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELedTask/Led2/PN/Gain16/EELDT PNs pedestal %s G16 L2").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      i14_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i14_[ism-1] );
+      me = dqmStore_->get( prefixME_ + "/EELedTask/Led2/PN/Gain16/EELDT PNs pedestal " + Numbers::sEE(ism) + " G16 L2" );
+      i14_[ism-1] = UtilsClient::getHisto( me, cloneME_, i14_[ism-1] );
 
     }
 

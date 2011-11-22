@@ -260,7 +260,7 @@ public:
    * First index: 0 for barrel, 1 for endcap
    * 2nd index: channel interest (see EcalSelectiveReadout::towerInterest_t
    */
-  int zsThreshold[2][8];
+  int zsThreshold[2][4];
 
   /** Internal unit for Zero Suppression threshold (1/4th ADC count) used by
    * the FIR.

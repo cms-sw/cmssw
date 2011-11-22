@@ -14,7 +14,7 @@ from RecoParticleFlow.PFProducer.pfGsfElectronCiCSelector_cff import *
 
 from RecoParticleFlow.PFProducer.pfLinker_cff import * 
 
-from CommonTools.ParticleFlow.ParticleSelectors.pfCandsForIsolation_cff import *
+from CommonTools.ParticleFlow.pfParticleSelection_cff import *
 
 particleFlowReco = cms.Sequence( particleFlowTrackWithDisplacedVertex*
                                  pfGsfElectronCiCSelectionSequence*
@@ -22,6 +22,6 @@ particleFlowReco = cms.Sequence( particleFlowTrackWithDisplacedVertex*
                                  particleFlowTmp*
                                  pfElectronTranslatorSequence*
                                  pfPhotonTranslatorSequence*
-                                 pfCandsForIsolationSequence)
+                                 pfParticleSelectionSequence )
 
 particleFlowLinks = cms.Sequence( particleFlow )

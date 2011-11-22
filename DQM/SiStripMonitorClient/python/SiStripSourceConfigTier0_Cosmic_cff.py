@@ -17,11 +17,38 @@ from DQM.SiStripMonitorDigi.SiStripMonitorDigi_cfi import *
 SiStripMonitorDigi.Mod_On = False
 SiStripMonitorDigi.TProfDigiApvCycle.subdetswitchon = True
 
+# APV shots monitoring
+SiStripMonitorDigi.TkHistoMapNApvShots_On = True 
+SiStripMonitorDigi.TkHistoMapNStripApvShots_On= True
+SiStripMonitorDigi.TkHistoMapMedianChargeApvShots_On= True
+
+SiStripMonitorDigi.TH1NApvShots.subdetswitchon = True
+SiStripMonitorDigi.TH1NApvShots.globalswitchon = True
+
+SiStripMonitorDigi.TH1ChargeMedianApvShots.subdetswitchon = True
+SiStripMonitorDigi.TH1ChargeMedianApvShots.globalswitchon = True
+
+SiStripMonitorDigi.TH1NStripsApvShots.subdetswitchon = True
+SiStripMonitorDigi.TH1NStripsApvShots.globalswitchon = True
+
+SiStripMonitorDigi.TH1ApvNumApvShots.subdetswitchon = True
+SiStripMonitorDigi.TH1ApvNumApvShots.globalswitchon = True
+
+SiStripMonitorDigi.TProfNShotsVsTime.subdetswitchon = True
+SiStripMonitorDigi.TProfNShotsVsTime.globalswitchon = True
+
+SiStripMonitorDigi.TProfGlobalNShots.globalswitchon = True
+
 # SiStripMonitorCluster ####
 from DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi import *
 SiStripMonitorCluster.Mod_On = False
 SiStripMonitorCluster.TProfClustersApvCycle.subdetswitchon = True
 SiStripMonitorCluster.TProfTotalNumberOfClusters.subdetswitchon = True
+SiStripMonitorCluster.TH2CStripVsCpixel.globalswitchon=True
+SiStripMonitorCluster.TH1MultiplicityRegions.globalswitchon=True
+SiStripMonitorCluster.TH1MainDiagonalPosition.globalswitchon=True
+SiStripMonitorCluster.TH1StripNoise2ApvCycle.globalswitchon=True
+SiStripMonitorCluster.TH1StripNoise3ApvCycle.globalswitchon=True
 
 # SiStripMonitorTrack ####
 # Clone for Cosmic Tracks

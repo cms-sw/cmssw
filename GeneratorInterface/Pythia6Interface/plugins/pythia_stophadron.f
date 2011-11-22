@@ -10,7 +10,6 @@ C...flavour-content-based ones.
  
 C...Double precision and integer declarations.
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
-      INTEGER PYK,PYCHGE,PYCOMP
 C...Parameter statement to help give large particle numbers
 C...(left- and righthanded SUSY, excited fermions).
       PARAMETER (KSUSY1=1000000,KSUSY2=2000000,KEXCIT=4000000)
@@ -72,7 +71,7 @@ C...by producing a new q-qbar pair.
  
 C...Double precision and integer declarations.
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
-      INTEGER PYK,PYCHGE,PYCOMP
+      INTEGER PYCOMP
 C...Parameter statement to help give large particle numbers
 C...(left- and righthanded SUSY, excited fermions).
       PARAMETER (KSUSY1=1000000,KSUSY2=2000000,KEXCIT=4000000)
@@ -88,7 +87,7 @@ C...Note that dimensions below grew from 4000 to 8000 in Pythia 6.2!
       SAVE /PYJETS/,/PYDAT1/,/PYDAT2/,/PYDAT3/,/PYPARS/,/PYINT1/,
      &/PYINT2/
 C...Local array.
-      DIMENSION PSUM(5),PSAV(5),IJOIN(2),IPOSST(10) 
+      DIMENSION PSUM(5),PSAV(5),IPOSST(10) 
 
 C...Default is no error.
       IERR=0

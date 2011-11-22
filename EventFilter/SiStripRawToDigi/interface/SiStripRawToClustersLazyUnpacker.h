@@ -14,8 +14,9 @@
 #include <vector>
 #include <list>
 
+
 namespace sistrip {
-  
+ 
   class RawToClustersLazyUnpacker : public edm::LazyUnpacker<SiStripCluster> {
     
   public:

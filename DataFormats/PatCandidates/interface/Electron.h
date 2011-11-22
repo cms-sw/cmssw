@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.33 2011/03/31 10:13:26 namapane Exp $
+// $Id: Electron.h,v 1.34 2011/06/08 20:40:18 rwolf Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Electron.h,v 1.33 2011/03/31 10:13:26 namapane Exp $
+  \version  $Id: Electron.h,v 1.34 2011/06/08 20:40:18 rwolf Exp $
 */
 
 
@@ -104,32 +104,23 @@ namespace pat {
       float electronID(const std::string & name) const;
       /// Returns true if a specific ID is available in this pat::Electron
       bool isElectronIDAvailable(const std::string & name) const;
-      /// Returns all the electron IDs in the form of <name,value> pairs
-      /// The 'default' ID is the first in the list
+      /// Returns all the electron IDs in the form of <name,value> pairs. The 'default' ID is the first in the list
       const std::vector<IdPair> &  electronIDs() const { return electronIDs_; }
-      /// Store multiple electron ID values, discarding existing ones
-      /// The first one in the list becomes the 'default' electron id
+      /// Store multiple electron ID values, discarding existing ones. The first one in the list becomes the 'default' electron id
       void setElectronIDs(const std::vector<IdPair> & ids) { electronIDs_ = ids; }
 
       // ---- overload of isolation functions ----
-      /// Overload of pat::Lepton::trackIso(); returns the value of
-      /// the summed track pt in a cone of deltaR<0.4
+      /// Overload of pat::Lepton::trackIso(); returns the value of the summed track pt in a cone of deltaR<0.4
       float trackIso() const { return dr04TkSumPt(); }
-      /// Overload of pat::Lepton::trackIso(); returns the value of
-      /// the summed Et of all recHits in the ecal in a cone of
-      /// deltaR<0.4
+      /// Overload of pat::Lepton::ecalIso(); returns the value of the summed Et of all recHits in the ecal in a cone of deltaR<0.4
       float ecalIso()  const { return dr04EcalRecHitSumEt(); }
-      /// Overload of pat::Lepton::trackIso(); returns the value of
-      /// the summed Et of all caloTowers in the hcal in a cone of
-      /// deltaR<0.4
+      /// Overload of pat::Lepton::hcalIso(); returns the value of the summed Et of all caloTowers in the hcal in a cone of deltaR<0.4
       float hcalIso()  const { return dr04HcalTowerSumEt(); }
-      /// Overload of pat::Lepton::trackIso(); returns the sum of
-      /// ecalIso() and hcalIso
+      /// Overload of pat::Lepton::caloIso(); returns the sum of ecalIso() and hcalIso
       float caloIso()  const { return ecalIso()+hcalIso(); }
 
       // ---- PF specific methods ----
-      /// reference to the source PFCandidates
-      /// null if this has been built from a standard electron
+      /// reference to the source PFCandidates; null if this has been built from a standard electron
       reco::PFCandidateRef pfCandidateRef() const;
       /// add a reference to the source IsolatedPFCandidate
       void setPFCandidateRef(const reco::PFCandidateRef& ref) {
@@ -137,7 +128,7 @@ namespace pat {
       }
       /// embed the PFCandidate pointed to by pfCandidateRef_
       void embedPFCandidate();
-      // get the number of non-null PF candidates
+      /// get the number of non-null PFCandidates
       size_t numberOfSourceCandidatePtrs() const {
         return pfCandidateRef_.isNonnull() ? 1 : 0;
       }
@@ -163,9 +154,12 @@ namespace pat {
       // IpType defines the type of the impact parameter
       // None is default and reverts to old behavior controlled by 
       // patMuons.usePV = True/False
-      typedef enum IPTYPE { None = 0, PV2D = 1, PV3D = 2, BS2D = 3, BS3D = 4 } IpType;       
+      typedef enum IPTYPE { None = 0, PV2D = 1, PV3D = 2, BS2D = 3, BS3D = 4 } IpType;
+      /// Impact parameter wrt primary vertex or beamspot
       double dB(IpType type = None) const;
+      /// Uncertainty on the corresponding impact parameter
       double edB(IpType type = None) const;
+      /// Set impact parameter of a certain type and its uncertainty
       void setDB(double dB, double edB, IpType type = None);    
       
       // ---- Momentum estimate specific methods ----
@@ -179,16 +173,25 @@ namespace pat {
       void initImpactParameters(); // init IP defaults in a constructor
 
       // ---- for content embedding ----
+      /// True if electron's gsfElectronCore is stored internally
       bool embeddedGsfElectronCore_;
+      /// Place to store electron's gsfElectronCore internally
       std::vector<reco::GsfElectronCore> gsfElectronCore_;
+      /// True if electron's gsfTrack is stored internally
       bool embeddedGsfTrack_;
+      /// Place to store electron's gsfTrack internally
       std::vector<reco::GsfTrack> gsfTrack_;
+      /// True if electron's supercluster is stored internally
       bool embeddedSuperCluster_;
+      /// Place to store electron's supercluster internally
       std::vector<reco::SuperCluster> superCluster_;
+      /// True if electron's track is stored internally
       bool embeddedTrack_;
+      /// Place to store electron's track internally
       std::vector<reco::Track> track_;
 
       // ---- electron ID's holder ----
+      /// Electron IDs
       std::vector<IdPair> electronIDs_;
 
       // ---- PF specific members ----
@@ -206,9 +209,12 @@ namespace pat {
       LorentzVector ecalDrivenMomentum_;
 
       // V+Jets group selection variables.
-      bool    cachedDB_;         // have these values been cached?
-      double  dB_;               // dB and edB are the impact parameter at the primary vertex,
-      double  edB_;              // dB and edB are the impact parameter at the primary vertex,
+      // True if impact parameter has been cached
+      bool    cachedDB_;
+      /// Impact parameter at the primary vertex
+      double  dB_;
+      /// Impact paramater uncertainty at the primary vertex
+      double  edB_;
 
       // ---- cached impact parameters ----
       std::vector<bool>    cachedIP_;  // has the IP (former dB) been cached?

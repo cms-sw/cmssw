@@ -36,22 +36,18 @@ class MTVHistoProducerAlgo{
   virtual void bookRecoHistos()=0;
   virtual void bookRecoHistosForStandaloneRunning()=0;
 
-  virtual void fill_generic_simTrack_histos(int counter,ParticleBase::Vector,ParticleBase::Point vertex, int bx)=0;
+  virtual void fill_generic_simTrack_histos(int counter,ParticleBase::Vector,ParticleBase::Point vertex)=0;
 
   virtual void fill_recoAssociated_simTrack_histos(int count,
 						   const TrackingParticle& tp,
 						   ParticleBase::Vector momentumTP,ParticleBase::Point vertexTP,
 						   double dxy, double dz, int nSimHits,
-						   const reco::Track* track,
-                           int numVertices, double vertz)=0;
+						   const reco::Track* track)=0;
 
   virtual void fill_generic_recoTrack_histos(int count,
-				     	     const reco::Track& track,
-				     	     math::XYZPoint bsPosition,
-				     	     bool isMatched,
-				     	     bool isSigMatched,
-                         	             int numVertices, 
-                         		     int tpbunchcrossing)=0;
+					     const reco::Track& track,
+					     math::XYZPoint bsPosition,
+					     bool isMatched)=0;
 
   virtual void fill_dedx_recoTrack_histos(int count, edm::RefToBase<reco::Track>& trackref, std::vector< edm::ValueMap<reco::DeDxData> > v_dEdx)=0;
   //  virtual void fill_dedx_recoTrack_histos(reco::TrackRef trackref, std::vector< edm::ValueMap<reco::DeDxData> > v_dEdx)=0;

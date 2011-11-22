@@ -51,8 +51,6 @@ bool HLTPixelIsolTrackFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
 
   //find leading L1 jet:
   double ptTriggered  = -10;
-  double etaTriggered = -100;
-  double phiTriggered = -100;
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> l1trigobj;
   iEvent.getByLabel(hltGTseedlabel_, l1trigobj);
@@ -66,32 +64,14 @@ bool HLTPixelIsolTrackFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
   l1trigobj->getObjects(trigger::TriggerL1ForJet, l1forjetobjref);
   
   for (unsigned int p=0; p<l1tauobjref.size(); p++)
-    {
-      if (l1tauobjref[p]->pt()>ptTriggered)
-	{
-	  ptTriggered  = l1tauobjref[p]->pt(); 
-	  phiTriggered = l1tauobjref[p]->phi();
-	  etaTriggered = l1tauobjref[p]->eta();
-	}
-    }
+      if (l1tauobjref[p]->pt() > ptTriggered)
+	  ptTriggered = l1tauobjref[p]->pt(); 
   for (unsigned int p=0; p<l1jetobjref.size(); p++)
-    {
-      if (l1jetobjref[p]->pt()>ptTriggered)
-	{
-	  ptTriggered  = l1jetobjref[p]->pt();
-	  phiTriggered = l1jetobjref[p]->phi();
-	  etaTriggered = l1jetobjref[p]->eta();
-	}
-    }
+      if (l1jetobjref[p]->pt() > ptTriggered)
+	  ptTriggered = l1jetobjref[p]->pt();
   for (unsigned int p=0; p<l1forjetobjref.size(); p++)
-    {
-      if (l1forjetobjref[p]->pt()>ptTriggered)
-        {
-          ptTriggered=l1forjetobjref[p]->pt();
-          phiTriggered=l1forjetobjref[p]->phi();
-          etaTriggered=l1forjetobjref[p]->eta();
-        }
-    }
+      if (l1forjetobjref[p]->pt() > ptTriggered)
+          ptTriggered = l1forjetobjref[p]->pt();
 
   int n=0;
   for (unsigned int i=0; i<recotrackcands->size(); i++)

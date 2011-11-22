@@ -1,14 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
-l1tCsctf = cms.EDAnalyzer("L1TCSCTF",
-    gmtProducer = cms.InputTag("gtDigis::DQM"),
+l1tcsctf = cms.EDAnalyzer("L1TCSCTF",
+    gmtProducer = cms.InputTag("l1GtUnpack::DQM"),
 
-    statusProducer = cms.InputTag("csctfDigis"),
+    statusProducer = cms.InputTag("csctfunpacker"),
     outputFile = cms.untracked.string(''),
-    lctProducer = cms.InputTag("csctfDigis"),
+    lctProducer = cms.InputTag("csctfunpacker"),
     verbose = cms.untracked.bool(False),
-    trackProducer = cms.InputTag("csctfDigis"),
-    mbProducer = cms.InputTag("csctfDigis:DT"),
+    trackProducer = cms.InputTag("csctfunpacker"),
+    mbProducer = cms.InputTag("csctfunpacker:DT"),
     DQMStore = cms.untracked.bool(True),
     disableROOToutput = cms.untracked.bool(True)
 )

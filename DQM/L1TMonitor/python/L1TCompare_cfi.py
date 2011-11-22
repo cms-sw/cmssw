@@ -5,8 +5,8 @@ l1tcompare = cms.EDAnalyzer("L1TCompare",
     verbose = cms.untracked.bool(True),
     DQMStore = cms.untracked.bool(True),
     disableROOToutput = cms.untracked.bool(True),
-    gctSource = cms.InputTag("gctDigis","","DQM"),
-    rctSource = cms.InputTag("gctDigis","","DQM")
+    gctSource = cms.InputTag("l1GctHwDigis","","DQM"),
+    rctSource = cms.InputTag("l1GctHwDigis","","DQM")
 )
 
 

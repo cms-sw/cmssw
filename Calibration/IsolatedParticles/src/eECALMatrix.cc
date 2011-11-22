@@ -26,7 +26,7 @@ namespace spr{
         if (vdets[i1].subdetId()==EcalBarrel) {
           spr::findHit(hitsEB,vdets[i1],hit,debug);
 
-	  ok  = (sevlv->severityLevel(vdets[i1], (*recHitsEB)) != EcalSeverityLevelAlgo::kWeird);
+	  ok  = (sevlv->severityLevel(vdets[i1], (*recHitsEB)) != EcalSeverityLevel::kWeird);
         } else if (vdets[i1].subdetId()==EcalEndcap) {
           spr::findHit(hitsEE,vdets[i1],hit,debug);
         }
@@ -88,7 +88,7 @@ namespace spr{
 	  if (vdets[i1].subdetId()==EcalBarrel) {
 	    spr::findHit(hitsEB,vdets[i1],hit,debug);
 
-	    ok  = (sevlv->severityLevel(vdets[i1], (*recHitsEB)) != EcalSeverityLevelAlgo::kWeird);
+	    ok  = (sevlv->severityLevel(vdets[i1], (*recHitsEB)) != EcalSeverityLevel::kWeird);
 	  } else if (vdets[i1].subdetId()==EcalEndcap) {
 	    spr::findHit(hitsEE,vdets[i1],hit,debug);
 	  }

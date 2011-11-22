@@ -1,3 +1,14 @@
+2011-09-27 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V00-02-00
+	* Added root tree writing functionality 
+	* Many more bug fixes and enhancements
+
+2011-09-27 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V00-01-01
+	* removed some printout and fixed parsing cpustat
+
 2011-06-09 Emilio Meschi <emilio.meschi@cern.ch>
 
 	* tag V00-01-00

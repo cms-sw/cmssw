@@ -22,7 +22,7 @@ egHLTOffDQMClient = cms.EDAnalyzer("EgHLTOfflineClient",
                                  eleSingleEffVars=cms.vstring('dEtaIn','dPhiIn','hOverE','sigmaIEtaIEta',
                                                               'hltIsolEm','hltIsolHad','hltIsoltrksEle'),
                                  eleEffTags=cms.vstring('effVsEt','effVsEta'),#'effVsPhi'), #used for vs vars and T&P, Fake rate tags
-                                 eleTrigTPEffVsVars=cms.vstring('et','eta'),#'phi','charge','etUnCut'),
+                                 eleTrigTPEffVsVars=cms.vstring('et','eta','nVertex'),#'phi','charge','etUnCut'),
                                  eleLooseTightTrigEffVsVars=cms.vstring('et','eta','hOverE','sigmaIEtaIEta','dPhiIn','dEtaIn'),
                                  #----Morse-----
                                  #phoN1EffVars=cms.vstring('hOverE','sigmaIEtaIEta','r9',

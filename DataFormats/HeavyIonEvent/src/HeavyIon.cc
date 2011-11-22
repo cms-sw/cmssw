@@ -20,7 +20,7 @@ pat::HeavyIon::HeavyIon(const reco::CentralityCollection & c, const reco::EvtPla
    b_(b), 
    npart_(npart), 
    ncoll_(ncoll), 
-   nhard_(nhard_), 
+   nhard_(nhard), 
    phi_(phi) {;}
 
 

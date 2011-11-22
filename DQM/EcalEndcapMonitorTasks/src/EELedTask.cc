@@ -1,14 +1,14 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2010/07/30 05:42:47 $
- * $Revision: 1.64 $
+ * $Date: 2010/08/08 08:46:09 $
+ * $Revision: 1.65 $
  * \author G. Della Ricca
  *
 */
 
 #include <iostream>
-#include <fstream>
+#include <sstream>
 #include <vector>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -141,102 +141,78 @@ void EELedTask::setup(void){
 
   init_ = true;
 
-  char histo[200];
+  std::string name;
+  std::stringstream LedN, LN;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EELedTask");
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/EELedTask/Led1");
+      LedN.str("");
+      LedN << "Led" << 1;
+      LN.str("");
+      LN << "L" << 1;
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELedTask/" + LedN.str());
       for (int i = 0; i < 18; i++) {
-        sprintf(histo, "EELDT shape %s L1", Numbers::sEE(i+1).c_str());
-        meShapeMapL1_[i] = dqmStore_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
+	name = "EELDT shape " + Numbers::sEE(i+1) + " " + LN.str();
+        meShapeMapL1_[i] = dqmStore_->bookProfile2D(name, name, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
         meShapeMapL1_[i]->setAxisTitle("channel", 1);
         meShapeMapL1_[i]->setAxisTitle("sample", 2);
         meShapeMapL1_[i]->setAxisTitle("amplitude", 3);
         dqmStore_->tag(meShapeMapL1_[i], i+1);
-        sprintf(histo, "EELDT amplitude %s L1", Numbers::sEE(i+1).c_str());
-        meAmplMapL1_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+
+	name = "EELDT amplitude " + Numbers::sEE(i+1) + " " + LN.str(); 
+        meAmplMapL1_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
         meAmplMapL1_[i]->setAxisTitle("ix", 1);
         if ( i+1 >= 1 && i+1 <= 9 ) meAmplMapL1_[i]->setAxisTitle("101-ix", 1);
         meAmplMapL1_[i]->setAxisTitle("iy", 2);
         dqmStore_->tag(meAmplMapL1_[i], i+1);
-        sprintf(histo, "EELDT timing %s L1", Numbers::sEE(i+1).c_str());
-        meTimeMapL1_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 250, 0., 10., "s");
+
+	name = "EELDT timing " + Numbers::sEE(i+1) + " " + LN.str(); 
+        meTimeMapL1_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 250, 0., 10., "s");
         meTimeMapL1_[i]->setAxisTitle("ix", 1);
         if ( i+1 >= 1 && i+1 <= 9 ) meTimeMapL1_[i]->setAxisTitle("101-ix", 1);
         meTimeMapL1_[i]->setAxisTitle("iy", 2);
         dqmStore_->tag(meTimeMapL1_[i], i+1);
-        sprintf(histo, "EELDT amplitude over PN %s L1", Numbers::sEE(i+1).c_str());
-        meAmplPNMapL1_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+
+	name = "EELDT amplitude over PN " + Numbers::sEE(i+1) + " " + LN.str(); 
+        meAmplPNMapL1_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
         meAmplPNMapL1_[i]->setAxisTitle("ix", 1);
         if ( i+1 >= 1 && i+1 <= 9 ) meAmplPNMapL1_[i]->setAxisTitle("101-ix", 1);
         meAmplPNMapL1_[i]->setAxisTitle("iy", 2);
         dqmStore_->tag(meAmplPNMapL1_[i], i+1);
       }
 
-    }
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELedTask/" + LedN.str() + "/PN");
 
-    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
-
-      dqmStore_->setCurrentFolder(prefixME_ + "/EELedTask/Led2");
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELedTask/" + LedN.str() + "/PN/Gain01");
       for (int i = 0; i < 18; i++) {
-        sprintf(histo, "EELDT shape %s L2", Numbers::sEE(i+1).c_str());
-        meShapeMapL2_[i] = dqmStore_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
-        meShapeMapL2_[i]->setAxisTitle("channel", 1);
-        meShapeMapL2_[i]->setAxisTitle("sample", 2);
-        meShapeMapL2_[i]->setAxisTitle("amplitude", 3);
-        dqmStore_->tag(meShapeMapL2_[i], i+1);
-        sprintf(histo, "EELDT amplitude %s L2", Numbers::sEE(i+1).c_str());
-        meAmplMapL2_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
-        meAmplMapL2_[i]->setAxisTitle("ix", 1);
-        if ( i+1 >= 1 && i+1 <= 9 ) meAmplMapL1_[i]->setAxisTitle("101-ix", 1);
-        meAmplMapL2_[i]->setAxisTitle("iy", 2);
-        dqmStore_->tag(meAmplMapL2_[i], i+1);
-        sprintf(histo, "EELDT timing %s L2", Numbers::sEE(i+1).c_str());
-        meTimeMapL2_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 250, 0., 10., "s");
-        meTimeMapL2_[i]->setAxisTitle("ix", 1);
-        if ( i+1 >= 1 && i+1 <= 9 ) meTimeMapL2_[i]->setAxisTitle("101-ix", 1);
-        meTimeMapL2_[i]->setAxisTitle("iy", 2);
-        dqmStore_->tag(meTimeMapL2_[i], i+1);
-        sprintf(histo, "EELDT amplitude over PN %s L2", Numbers::sEE(i+1).c_str());
-        meAmplPNMapL2_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
-        meAmplPNMapL2_[i]->setAxisTitle("ix", 1);
-        if ( i+1 >= 1 && i+1 <= 9 ) meAmplPNMapL2_[i]->setAxisTitle("101-ix", 1);
-        meAmplPNMapL2_[i]->setAxisTitle("iy", 2);
-        dqmStore_->tag(meAmplPNMapL2_[i], i+1);
-      }
-
-    }
-
-    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
-
-      dqmStore_->setCurrentFolder(prefixME_ + "/EELedTask/Led1/PN");
-
-      dqmStore_->setCurrentFolder(prefixME_ + "/EELedTask/Led1/PN/Gain01");
-      for (int i = 0; i < 18; i++) {
-        sprintf(histo, "EELDT PNs amplitude %s G01 L1", Numbers::sEE(i+1).c_str());
-        mePnAmplMapG01L1_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+	name = "EELDT PNs amplitude " + Numbers::sEE(i+1) + " G01 " + LN.str();
+        mePnAmplMapG01L1_[i] = dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
         mePnAmplMapG01L1_[i]->setAxisTitle("channel", 1);
         mePnAmplMapG01L1_[i]->setAxisTitle("amplitude", 2);
         dqmStore_->tag(mePnAmplMapG01L1_[i], i+1);
-        sprintf(histo, "EELDT PNs pedestal %s G01 L1", Numbers::sEE(i+1).c_str());
-        mePnPedMapG01L1_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+
+	name = "EELDT PNs pedestal " + Numbers::sEE(i+1) + " G01 " + LN.str();
+        mePnPedMapG01L1_[i] = dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
         mePnPedMapG01L1_[i]->setAxisTitle("channel", 1);
         mePnPedMapG01L1_[i]->setAxisTitle("pedestal", 2);
         dqmStore_->tag(mePnPedMapG01L1_[i], i+1);
       }
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/EELedTask/Led1/PN/Gain16");
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELedTask/" + LedN.str() + "/PN/Gain16");
+
       for (int i = 0; i < 18; i++) {
-        sprintf(histo, "EELDT PNs amplitude %s G16 L1", Numbers::sEE(i+1).c_str());
-        mePnAmplMapG16L1_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+	name = "EELDT PNs amplitude " + Numbers::sEE(i+1) + " G16 " + LN.str();
+        mePnAmplMapG16L1_[i] = dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
         mePnAmplMapG16L1_[i]->setAxisTitle("channel", 1);
         mePnAmplMapG16L1_[i]->setAxisTitle("amplitude", 2);
         dqmStore_->tag(mePnAmplMapG16L1_[i], i+1);
-        sprintf(histo, "EELDT PNs pedestal %s G16 L1", Numbers::sEE(i+1).c_str());
-        mePnPedMapG16L1_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+
+	name = "EELDT PNs pedestal " + Numbers::sEE(i+1) + " G16 " + LN.str();
+        mePnPedMapG16L1_[i] = dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
         mePnPedMapG16L1_[i]->setAxisTitle("channel", 1);
         mePnPedMapG16L1_[i]->setAxisTitle("pedestal", 2);
         dqmStore_->tag(mePnPedMapG16L1_[i], i+1);
@@ -246,31 +222,70 @@ void EELedTask::setup(void){
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/EELedTask/Led2/PN");
+      LedN.str("");
+      LedN << "Led" << 2;
+      LN.str("");
+      LN << "L" << 2;
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/EELedTask/Led2/PN/Gain01");
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELedTask/" + LedN.str());
       for (int i = 0; i < 18; i++) {
-        sprintf(histo, "EELDT PNs amplitude %s G01 L2", Numbers::sEE(i+1).c_str());
-        mePnAmplMapG01L2_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
-        mePnAmplMapG01L2_[i]->setAxisTitle("amplitude", 2);
+	name = "EELDT shape " + Numbers::sEE(i+1) + " " + LN.str();
+        meShapeMapL2_[i] = dqmStore_->bookProfile2D(name, name, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
+        meShapeMapL2_[i]->setAxisTitle("channel", 1);
+        meShapeMapL2_[i]->setAxisTitle("sample", 2);
+        meShapeMapL2_[i]->setAxisTitle("amplitude", 3);
+        dqmStore_->tag(meShapeMapL2_[i], i+1);
+
+	name = "EELDT amplitude " + Numbers::sEE(i+1) + " " + LN.str(); 
+        meAmplMapL2_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+        meAmplMapL2_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) meAmplMapL2_[i]->setAxisTitle("101-ix", 1);
+        meAmplMapL2_[i]->setAxisTitle("iy", 2);
+        dqmStore_->tag(meAmplMapL2_[i], i+1);
+
+	name = "EELDT timing " + Numbers::sEE(i+1) + " " + LN.str(); 
+        meTimeMapL2_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 250, 0., 10., "s");
+        meTimeMapL2_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) meTimeMapL2_[i]->setAxisTitle("101-ix", 1);
+        meTimeMapL2_[i]->setAxisTitle("iy", 2);
+        dqmStore_->tag(meTimeMapL2_[i], i+1);
+
+	name = "EELDT amplitude over PN " + Numbers::sEE(i+1) + " " + LN.str(); 
+        meAmplPNMapL2_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+        meAmplPNMapL2_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) meAmplPNMapL2_[i]->setAxisTitle("101-ix", 1);
+        meAmplPNMapL2_[i]->setAxisTitle("iy", 2);
+        dqmStore_->tag(meAmplPNMapL2_[i], i+1);
+      }
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELedTask/" + LedN.str() + "/PN");
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELedTask/" + LedN.str() + "/PN/Gain01");
+      for (int i = 0; i < 18; i++) {
+	name = "EELDT PNs amplitude " + Numbers::sEE(i+1) + " G01 " + LN.str();
+        mePnAmplMapG01L2_[i] = dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
         mePnAmplMapG01L2_[i]->setAxisTitle("channel", 1);
+        mePnAmplMapG01L2_[i]->setAxisTitle("amplitude", 2);
         dqmStore_->tag(mePnAmplMapG01L2_[i], i+1);
-        sprintf(histo, "EELDT PNs pedestal %s G01 L2", Numbers::sEE(i+1).c_str());
-        mePnPedMapG01L2_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+
+	name = "EELDT PNs pedestal " + Numbers::sEE(i+1) + " G01 " + LN.str();
+        mePnPedMapG01L2_[i] = dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
         mePnPedMapG01L2_[i]->setAxisTitle("channel", 1);
         mePnPedMapG01L2_[i]->setAxisTitle("pedestal", 2);
         dqmStore_->tag(mePnPedMapG01L2_[i], i+1);
       }
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/EELedTask/Led2/PN/Gain16");
+      dqmStore_->setCurrentFolder(prefixME_ + "/EELedTask/" + LedN.str() + "/PN/Gain16");
+
       for (int i = 0; i < 18; i++) {
-        sprintf(histo, "EELDT PNs amplitude %s G16 L2", Numbers::sEE(i+1).c_str());
-        mePnAmplMapG16L2_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+	name = "EELDT PNs amplitude " + Numbers::sEE(i+1) + " G16 " + LN.str();
+        mePnAmplMapG16L2_[i] = dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
         mePnAmplMapG16L2_[i]->setAxisTitle("channel", 1);
         mePnAmplMapG16L2_[i]->setAxisTitle("amplitude", 2);
         dqmStore_->tag(mePnAmplMapG16L2_[i], i+1);
-        sprintf(histo, "EELDT PNs pedestal %s G16 L2", Numbers::sEE(i+1).c_str());
-        mePnPedMapG16L2_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+
+	name = "EELDT PNs pedestal " + Numbers::sEE(i+1) + " G16 " + LN.str();
+        mePnPedMapG16L2_[i] = dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
         mePnPedMapG16L2_[i]->setAxisTitle("channel", 1);
         mePnPedMapG16L2_[i]->setAxisTitle("pedestal", 2);
         dqmStore_->tag(mePnPedMapG16L2_[i], i+1);
