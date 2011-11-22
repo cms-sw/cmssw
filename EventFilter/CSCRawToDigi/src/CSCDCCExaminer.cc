@@ -307,6 +307,7 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
 	  buf1  = &(tmpbuf[8]);  // Just for safety
 	  buf2  = &(tmpbuf[12]); // Just for safety
 	  bzero(tmpbuf,sizeof(uint16_t)*16);
+	  sync_stats();
 	  return length+12;
 	}
 
@@ -368,7 +369,7 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
 	  bERROR    |= 0x1000000;
 	}
 	DMB_Active = 0;
-    nDMBs = 0;
+    	nDMBs = 0;
 
 	// Unknown chamber denoted as -2
 	// If it still remains in any of errors - put it in error 0
@@ -388,6 +389,7 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
 	buf1  = &(tmpbuf[8]);  // Just for safety
 	buf2  = &(tmpbuf[12]); // Just for safety
 	bzero(tmpbuf,sizeof(uint16_t)*16);
+	sync_stats();
 	return length+12;
       }
 
@@ -435,8 +437,12 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
       dmbOffsets[sourceID].clear();
       dmbSize   [sourceID].clear();
 
-	  bDDU_ERR[sourceID] = 0;
-      bDDU_WRN[sourceID] = 0;
+	bDDU_ERR[sourceID] = 0;
+      	bDDU_WRN[sourceID] = 0;
+	bERROR             = 0;
+	bWARNING           = 0;
+	bzero(fERROR,   sizeof(bool)*nERRORS);
+	bzero(fWARNING, sizeof(bool)*nWARNINGS);
 
       nDMBs      = 0;
       DMB_Active = buf1[0]&0xF;
@@ -1013,7 +1019,7 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
       CFEB_SampleWordCount=0;
     }
 
-     // == If it is nither ALCT record nor TMB - probably it is CFEB record and we try to count CRC sum.
+     // == If it is neither ALCT record nor TMB - probably it is CFEB record and we try to count CRC sum.
     // It very few words of CFEB occasionaly will be misinterpreted as ALCT or TMB header the result
     // for the CRC sum will be wrong, but other errors of Trailers counting will appear as well
     if( checkCrcCFEB && fDMB_Header && !fTMB_Header && !fALCT_Header && CFEB_SampleWordCount )
@@ -1269,6 +1275,7 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
 
       bDDU_ERR[sourceID] |= bERROR;
       bDDU_WRN[sourceID] |= bWARNING;
+      sync_stats();
 
       DDU_WordsSinceLastHeader=0;
       DDU_WordsSinceLastTrailer=0;
@@ -1315,6 +1322,7 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
 	buf1  = &(tmpbuf[8]);  // Just for safety
 	buf2  = &(tmpbuf[12]); // Just for safety
 	bzero(tmpbuf, sizeof(uint16_t)*16);
+ 	sync_stats();
 	return length-4;
       }
     }
@@ -1336,6 +1344,7 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
         bERROR|=0x2000000;
 	fERROR[0]=true;
         bERROR|=0x1;
+	sync_stats();
 	return length;
        	
   }
@@ -1348,7 +1357,12 @@ void CSCDCCExaminer::clear()
 {
   bzero(fERROR,   sizeof(bool)*nERRORS);
   bzero(fWARNING, sizeof(bool)*nWARNINGS);
-  bERROR = 0; bWARNING = 0;
+  bzero(fSUM_ERROR,   sizeof(bool)*nERRORS);
+  bzero(fSUM_WARNING, sizeof(bool)*nWARNINGS);
+  bERROR = 0;
+  bWARNING = 0;
+  bSUM_ERROR = 0;
+  bSUM_WARNING = 0;
   for(int err=0; err<nERRORS;   ++err) fCHAMB_ERR[err].clear();
   for(int wrn=0; wrn<nWARNINGS; ++wrn) fCHAMB_WRN[wrn].clear();
   bCHAMB_ERR.clear();
@@ -1480,6 +1494,16 @@ if( !fALCT_Header && (ALCT_WordsSinceLastHeader!=ALCT_WordsExpected
     TMB_WordsExpected        = 0;
     fTMB_Header = false;
   }
+}
+
+inline void CSCDCCExaminer::sync_stats()
+{
+  for (int err=0; err<nERRORS; ++err)
+    fSUM_ERROR[err] |= fERROR[err];
+  for (int wrn=0; wrn<nWARNINGS; ++wrn)
+    fSUM_WARNING[wrn] |= fWARNING[wrn];
+  bSUM_ERROR            |= bERROR;
+  bSUM_WARNING  |= bWARNING;
 }
 
 inline int CSCDCCExaminer::scanbuf(const uint16_t* &buffer, int32_t length, uint16_t sig, uint16_t mask)
