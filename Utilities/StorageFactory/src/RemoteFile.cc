@@ -2,6 +2,7 @@
 #include "Utilities/StorageFactory/src/Throw.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <sys/wait.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <cerrno>
 #include <cassert>
@@ -79,6 +80,7 @@ RemoteFile::local (const std::string &tmpdir, std::string &temp)
   temp += "storage-factory-local-XXXXXX";
   temp.c_str(); // null terminate for mkstemp
 
+  umask(0x022);
   int fd = mkstemp (&temp[0]);
   if (fd == -1)
     throwStorageError("RemoteFile", "Calling RemoteFile::local()", "mkstemp()", errno);
@@ -99,9 +101,10 @@ RemoteFile::get (int localfd, const std::string &name, char **cmd, int mode)
 
   if (rc == -1)
   {
+    int errsave = errno;
     ::close (localfd);
     unlink (name.c_str());
-    throwStorageError ("RemoteFile", "Calling RemoteFile::get()", "posix_spawnp()", rc);
+    throwStorageError ("RemoteFile", "Calling RemoteFile::get()", "posix_spawnp()", errsave);
   }
 
   pid_t rcpid;
@@ -111,9 +114,10 @@ RemoteFile::get (int localfd, const std::string &name, char **cmd, int mode)
 
   if (rcpid == (pid_t) -1)
   {
+    int errsave = errno;
     ::close (localfd);
     unlink (name.c_str());
-    throwStorageError ("RemoteFile", "Calling RemoteFile::get()", "waitpid()", errno);
+    throwStorageError ("RemoteFile", "Calling RemoteFile::get()", "waitpid()", errsave);
   }
 
   if (WIFEXITED(rc) && WEXITSTATUS(rc) == 0)
