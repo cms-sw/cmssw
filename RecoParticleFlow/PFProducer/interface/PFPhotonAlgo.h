@@ -14,7 +14,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "RecoEgamma/EgammaTools/interface/GBRForest.h"
+#include "CondFormats/EgammaObjects/interface/GBRForest.h"
 #include "TMVA/Reader.h"
 #include <iostream>
 #include <TH2D.h>
