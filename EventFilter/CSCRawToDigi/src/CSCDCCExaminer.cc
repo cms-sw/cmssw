@@ -393,14 +393,7 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
 	return length+12;
       }
 
-      // Reset all Error and Warning flags to be false
-      ///bzero(fERROR,   sizeof(bool)*nERRORS);
-      ///bzero(fWARNING, sizeof(bool)*nWARNINGS);
-      ///bERROR = 0; bWARNING = 0;
-      ///for(int err=0; err<nERRORS;   err++) fCHAMB_ERR[err].clear();
-      ///for(int wrn=0; wrn<nWARNINGS; wrn++) fCHAMB_WRN[wrn].clear();
-      ///bCHAMB_ERR.clear();
-      ///bCHAMB_WRN.clear();
+
       currentChamber = -1; // Unknown yet
 
       if( fDDU_Trailer && DDU_WordsSinceLastTrailer != 4 ){
@@ -430,13 +423,14 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
          clear();
       }
 
-	  dduBuffers[sourceID] = buf_1;
-      dduOffsets[sourceID] = buf_1-buffer_start;
-      dduSize   [sourceID] = 0;
-      dmbBuffers[sourceID].clear();
-      dmbOffsets[sourceID].clear();
-      dmbSize   [sourceID].clear();
+	dduBuffers[sourceID] = buf_1;
+      	dduOffsets[sourceID] = buf_1-buffer_start;
+      	dduSize   [sourceID] = 0;
+      	dmbBuffers[sourceID].clear();
+      	dmbOffsets[sourceID].clear();
+      	dmbSize   [sourceID].clear();
 
+	// Reset all Error and Warning flags to be false
 	bDDU_ERR[sourceID] = 0;
       	bDDU_WRN[sourceID] = 0;
 	bERROR             = 0;

@@ -15,7 +15,7 @@ public:
 private:
 	std::vector<const char*> sERROR,  sWARNING, sERROR_,  sWARNING_, sDMBExpectedPayload, sDMBEventStaus;
 	ExaminerStatusType bERROR,  bWARNING;
-        ExaminerStatusType bSUM_ERROR,  bSUM_WARNING;
+        ExaminerStatusType bSUM_ERROR,  bSUM_WARNING;	// Summary flags for errors and warnings
 	bool               fERROR  [29];//[nERRORS];
 	bool               fWARNING[5]; //[nWARNINGS];
         bool               fSUM_ERROR  [29];//[nERRORS];
