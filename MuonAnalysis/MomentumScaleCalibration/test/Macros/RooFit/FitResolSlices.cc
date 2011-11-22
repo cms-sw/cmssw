@@ -1,7 +1,7 @@
 #ifndef FitResolSlices_cc
 #define FitResolSlices_cc
 
-#include "FitSlices.cc"
+#include "/home/destroyar/Desktop/MuScleFit/RooFitTest/Macros/FitSlices.cc"
 #include "TFile.h"
 #include "TH1F.h"
 #include "TROOT.h"

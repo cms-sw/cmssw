@@ -1,3 +1,30 @@
+2011-03-24  Emilio Meschi <emilio.meschi@cern.ch>
+	
+	* tag V00-19-09
+	* put back forgotten TriggerReportDef.cc
+	
+2011-03-21  Emilio Meschi <emilio.meschi@cern.ch>
+	
+	* tag V00-19-08
+	* some cleanup of TriggerReportDef and work on improving cpu and 
+	rate stat
+	* minor addition to Css.h for SMProxyServer
+
+2011-02-04  Emilio Meschi <emilio.meschi@cern.ch>
+	
+	* tag V00-19-07
+	* increased max endpaths to 20 in trs
+
+2011-02-04  Emilio Meschi <emilio.meschi@cern.ch>
+	
+	* tag V00-19-06
+	* rate stat gathering
+	
+2011-02-03  Emilio Meschi <emilio.meschi@cern.ch>
+	
+	* tag V00-19-05
+	* fix bug in ParameterSetRetriever
+
 2011-01-19  Emilio Meschi <emilio.meschi@cern.ch>
 	
 	* tag V00-19-04

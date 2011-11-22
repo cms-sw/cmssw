@@ -1,57 +1,60 @@
-// $Id: MonitorCollection.cc,v 1.8 2009/08/28 12:29:23 mommsen Exp $
+// $Id: MonitorCollection.cc,v 1.10.2.1 2011/03/07 11:33:05 mommsen Exp $
 /// @file: MonitorCollection.cc
 
 #include "EventFilter/StorageManager/interface/MonitorCollection.h"
 #include "EventFilter/StorageManager/interface/Exception.h"
 
-using namespace stor;
 
-
-MonitorCollection::MonitorCollection(const utils::duration_t& updateInterval) :
-_updateInterval(updateInterval),
-_infoSpaceUpdateNeeded(false)
-{}
-
-
-void MonitorCollection::appendInfoSpaceItems(InfoSpaceItems& items)
-{
-  // do any operations that are common for all child classes
-
-  do_appendInfoSpaceItems(items);
-}
-
-
-void MonitorCollection::calculateStatistics(const utils::time_point_t& now)
-{
-  if (_lastCalculateStatistics + _updateInterval < now)
+namespace stor {
+  
+  MonitorCollection::MonitorCollection(const utils::Duration_t& updateInterval) :
+  updateInterval_(updateInterval),
+  lastCalculateStatistics_(boost::posix_time::not_a_date_time),
+  infoSpaceUpdateNeeded_(false)
+  {}
+  
+  
+  void MonitorCollection::appendInfoSpaceItems(InfoSpaceItems& items)
   {
-    _lastCalculateStatistics = now;
-    do_calculateStatistics();
-    _infoSpaceUpdateNeeded = true;
+    // do any operations that are common for all child classes
+    
+    do_appendInfoSpaceItems(items);
   }
-}
-
-
-void MonitorCollection::updateInfoSpaceItems()
-{
-  if (_infoSpaceUpdateNeeded)
+  
+  
+  void MonitorCollection::calculateStatistics(const utils::TimePoint_t& now)
   {
-    do_updateInfoSpaceItems();
-    _infoSpaceUpdateNeeded = false;
+    if ( lastCalculateStatistics_.is_not_a_date_time() ||
+      lastCalculateStatistics_ + updateInterval_ < now )
+    {
+      lastCalculateStatistics_ = now;
+      do_calculateStatistics();
+      infoSpaceUpdateNeeded_ = true;
+    }
   }
-}
-
-
-void MonitorCollection::reset(const utils::time_point_t& now)
-{
-  do_reset();
-
-  // Assure that the first update happens early.
-  // This is important for long update intervals.
-  _lastCalculateStatistics = now - _updateInterval + boost::posix_time::seconds(1);
-  _infoSpaceUpdateNeeded = true;
-}
-
+  
+  
+  void MonitorCollection::updateInfoSpaceItems()
+  {
+    if (infoSpaceUpdateNeeded_)
+    {
+      do_updateInfoSpaceItems();
+      infoSpaceUpdateNeeded_ = false;
+    }
+  }
+  
+  
+  void MonitorCollection::reset(const utils::TimePoint_t& now)
+  {
+    do_reset();
+    
+    // Assure that the first update happens early.
+    // This is important for long update intervals.
+    lastCalculateStatistics_ = now - updateInterval_ + boost::posix_time::seconds(1);
+    infoSpaceUpdateNeeded_ = true;
+  }
+  
+} // namespace stor
 
 /// emacs configuration
 /// Local Variables: -

@@ -10,7 +10,7 @@
 #include <math.h>
 
 /**
- *   LMF_YYYY_XXX_PULSE_DAT interface
+ *   LMF_YYYY_XXX_PN_PRIM_DAT interface
  *        ^    ^
  *        |    |
  *        |    \_____ color

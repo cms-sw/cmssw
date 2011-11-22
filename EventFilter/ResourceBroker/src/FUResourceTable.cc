@@ -57,6 +57,7 @@ FUResourceTable::FUResourceTable(bool              segmentationMode,
   , shmBuffer_(0)
   , nbDqmCells_(nbDqmCells)
   , nbRawCells_(nbRawCells)
+  , nbRecoCells_(nbRecoCells)
   , acceptSMDataDiscard_(0)
   , acceptSMDqmDiscard_(0)
   , doCrcCheck_(1)
@@ -66,6 +67,7 @@ FUResourceTable::FUResourceTable(bool              segmentationMode,
   , isReadyToShutDown_(true)
   , isActive_(false)
   , isHalting_(false)
+  , isStopping_(false)
   , runNumber_(0xffffffff)
   , lock_(toolbox::BSem::FULL)
   , frb_(frb)
@@ -81,12 +83,18 @@ FUResourceTable::FUResourceTable(bool              segmentationMode,
 FUResourceTable::~FUResourceTable()
 {
   clear();
-  wlSendData_->cancel();
-  wlSendDqm_->cancel();
-  wlDiscard_->cancel();
-  toolbox::task::getWorkLoopFactory()->removeWorkLoop("SendData","waiting");
-  toolbox::task::getWorkLoopFactory()->removeWorkLoop("SendDqm","waiting");
-  toolbox::task::getWorkLoopFactory()->removeWorkLoop("Discard","waiting");
+  if(wlSendData_){
+    wlSendData_->cancel();
+    toolbox::task::getWorkLoopFactory()->removeWorkLoop("SendData","waiting");
+  }
+  if(wlSendDqm_){
+    wlSendDqm_->cancel();
+    toolbox::task::getWorkLoopFactory()->removeWorkLoop("SendDqm","waiting");
+  }
+  if(wlDiscard_){
+    wlDiscard_->cancel();
+    toolbox::task::getWorkLoopFactory()->removeWorkLoop("Discard","waiting");
+  }
   shmdt(shmBuffer_);
   if (FUShmBuffer::releaseSharedMemory())
     LOG4CPLUS_INFO(log_,"SHARED MEMORY SUCCESSFULLY RELEASED.");
@@ -126,7 +134,7 @@ void FUResourceTable::initialize(bool   segmentationMode,
   }
 
   acceptSMDataDiscard_ = new bool[nbRecoCells];
-  acceptSMDqmDiscard_  = new bool[nbDqmCells];
+  acceptSMDqmDiscard_  = new int[nbDqmCells];
   
   resetCounters();
 }
@@ -291,10 +299,9 @@ bool FUResourceTable::sendDqm(toolbox::task::WorkLoop* /* wl */)
       UInt_t   cellFUGuid      = cell->fuGuid();
       UChar_t *cellPayloadAddr = cell->payloadAddr();
       UInt_t   cellEventSize   = cell->eventSize();
-      shmBuffer_->finishReadingDqmCell(cell);      
-      nbPendingSMDqmDiscards_++;
       sendDqmEvent(cellIndex,cellRunNumber,cellEvtAtUpdate,cellFolderId,
 		   cellFUProcId,cellFUGuid,cellPayloadAddr,cellEventSize);
+      shmBuffer_->finishReadingDqmCell(cell);
     }
     catch (xcept::Exception& e) {
       LOG4CPLUS_FATAL(log_,"Failed to send DQM DATA to StorageManager: "
@@ -363,7 +370,7 @@ bool FUResourceTable::discard(toolbox::task::WorkLoop* /* wl */)
     
     if (!isHalting_) {
       sendDiscard(buResourceId);
-      sendAllocate();
+      if(!isStopping_)sendAllocate();
     }
   }
   
@@ -549,21 +556,36 @@ bool FUResourceTable::discardDqmEvent(MemRef_t* bufRef)
   I2O_FU_DQM_DISCARD_MESSAGE_FRAME *msg;
   msg=(I2O_FU_DQM_DISCARD_MESSAGE_FRAME*)bufRef->getDataLocation();
   UInt_t dqmIndex=msg->rbBufferID;
-
-  if (acceptSMDqmDiscard_[dqmIndex]) {
-    acceptSMDqmDiscard_[dqmIndex] = false;
+  unsigned int ntries = 0;
+  while(shmBuffer_->dqmState(dqmIndex)!=dqm::SENT){
+    LOG4CPLUS_WARN(log_,"DQM discard for cell "<< dqmIndex << " which is not yer in SENT state - waiting");
+    ::usleep(10000);
+    if(ntries++>10){
+      LOG4CPLUS_ERROR(log_,"DQM cell " << dqmIndex 
+		      << " discard timed out while cell still in state " << shmBuffer_->dqmState(dqmIndex) );
+      bufRef->release();
+      return true;
+    }
+  }
+  if (acceptSMDqmDiscard_[dqmIndex]>0) {
+    acceptSMDqmDiscard_[dqmIndex]--;
+    if(nbPendingSMDqmDiscards_>0){
+      nbPendingSMDqmDiscards_--;
+    }
+    else {
+      LOG4CPLUS_WARN(log_,"Spurious??? DQM discard by StorageManager, index " << dqmIndex 
+		     << " cell state " << shmBuffer_->dqmState(dqmIndex) << " accept flag " << acceptSMDqmDiscard_[dqmIndex];);
+    }
+    
     if (!isHalting_) {
       shmBuffer_->discardDqmCell(dqmIndex);
       bufRef->release();
     }
-    if(nbPendingSMDqmDiscards_>0)nbPendingSMDqmDiscards_--;
-    else {
-      LOG4CPLUS_ERROR(log_,"Spurious DQM discard by StorageManager, skip!");
-    }
 
   }
   else {
-    LOG4CPLUS_ERROR(log_,"Spurious DQM discard by StorageManager, skip!");
+    LOG4CPLUS_ERROR(log_,"Spurious DQM discard for cell " << dqmIndex 
+		    << " from StorageManager while cell is not accepting discards");
   }
   
   if (isHalting_) {
@@ -582,6 +604,7 @@ void FUResourceTable::postEndOfLumiSection(MemRef_t* bufRef)
     (I2O_EVM_END_OF_LUMISECTION_MESSAGE_FRAME *)bufRef->getDataLocation();
   //make sure to fill up the shmem so no process will miss it
   // but processes will have to handle duplicates
+
   for(unsigned int i = 0; i < nbRawCells_; i++) 
     shmBuffer_->writeRawLumiSectionEvent(msg->lumiSection);
 }
@@ -642,6 +665,7 @@ void FUResourceTable::dumpEvent(FUShmRawCell* cell)
 //______________________________________________________________________________
 void FUResourceTable::stop()
 {
+  isStopping_ = true;
   shutDownClients();
 }
 
@@ -661,6 +685,16 @@ void FUResourceTable::shutDownClients()
   isReadyToShutDown_   = false;
   
   if (nbClientsToShutDown_==0) {
+    LOG4CPLUS_INFO(log_,"No clients to shut down. Checking if there are raw cells not assigned to any process yet");
+    UInt_t n=nbResources();
+    for (UInt_t i=0;i<n;i++) {
+      evt::State_t state=shmBuffer_->evtState(i);
+      if (state!=evt::EMPTY){
+	LOG4CPLUS_WARN(log_,"Schedule discard at STOP for orphaned event in state " 
+		       << state);
+	shmBuffer_->scheduleRawCellForDiscardServerSide(i);
+      }
+    }
     shmBuffer_->scheduleRawEmptyCellForDiscard();
   }
   else {
@@ -686,8 +720,8 @@ void FUResourceTable::clear()
 void FUResourceTable::resetCounters()
 {
   if (0!=shmBuffer_) {
-    for (UInt_t i=0;i<shmBuffer_->nRecoCells();i++) acceptSMDataDiscard_[i]=false;
-    for (UInt_t i=0;i<shmBuffer_->nDqmCells();i++)  acceptSMDqmDiscard_[i] =false;
+    for (UInt_t i=0;i<shmBuffer_->nRecoCells();i++) acceptSMDataDiscard_[i]= false;
+    for (UInt_t i=0;i<shmBuffer_->nDqmCells();i++)  acceptSMDqmDiscard_[i] = 0;
   }
   
   nbAllocated_           =nbPending_;
@@ -706,6 +740,7 @@ void FUResourceTable::resetCounters()
 
   sumOfSquares_          =0;
   sumOfSizes_            =0;
+  isStopping_            =false;
 }
 
 
@@ -927,6 +962,29 @@ void FUResourceTable::sendErrorEvent(UInt_t   fuResourceId,
     sumOfSquares_+=(uint64_t)nbBytes*(uint64_t)nbBytes;
     sumOfSizes_  +=nbBytes;
   }
+
+//   if (0!=shmBuffer_) {
+//     UInt_t n=nbDqmCells_;
+
+//     for (UInt_t i=0;i<n;i++) {
+//       if(shmBuffer_->dqmCell(i)->fuProcessId()==fuProcessId)
+// 	{
+// 	  if(shmBuffer_->dqmState(i)!=dqm::SENT){
+// 	    shmBuffer_->setDqmState(i,dqm::SENT);	
+// 	    shmBuffer_->discardDqmCell(i);	
+// 	    acceptSMDqmDiscard_[i] = false;
+// 	  }  
+// 	}
+//     }
+//     n=nbRecoCells_;
+//     for (UInt_t i=0;i<n;i++) {
+//       if(shmBuffer_->recoCell(i)->fuProcessId()==fuProcessId)
+// 	{
+// 	  shmBuffer_->discardOrphanedRecoCell(i);  
+// 	}
+//     }
+
+//   }
 }
 
 
@@ -944,9 +1002,15 @@ void FUResourceTable::sendDqmEvent(UInt_t   fuDqmId,
     LOG4CPLUS_WARN(log_,"No StorageManager, DROP DQM EVENT.");
   }
   else {
-    acceptSMDqmDiscard_[fuDqmId] = true;
     sm_->sendDqmEvent(fuDqmId,runNumber,evtAtUpdate,folderId,
 		      fuProcessId,fuGuid,data,dataSize);
+
+    nbPendingSMDqmDiscards_++;
+
+    acceptSMDqmDiscard_[fuDqmId]++;
+    if(acceptSMDqmDiscard_[fuDqmId]>1)
+      LOG4CPLUS_WARN(log_,"DQM Cell " << fuDqmId << " being sent more than once for folder " 
+		     << folderId << " process " << fuProcessId << " guid " << fuGuid);
     nbSentDqm_++;
   }
 }

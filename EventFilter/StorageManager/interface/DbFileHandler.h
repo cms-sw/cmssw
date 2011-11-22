@@ -1,8 +1,8 @@
-// $Id: DbFileHandler.h,v 1.3 2010/03/25 09:55:27 mommsen Exp $
+// $Id: DbFileHandler.h,v 1.4.10.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: DbFileHandler.h 
 
-#ifndef StorageManager_DbFileHandler_h
-#define StorageManager_DbFileHandler_h
+#ifndef EventFilter_StorageManager_DbFileHandler_h
+#define EventFilter_StorageManager_DbFileHandler_h
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
 
@@ -19,8 +19,8 @@ namespace stor {
    * Handle the file used to pass information into SM database
    *
    * $Author: mommsen $
-   * $Revision: 1.3 $
-   * $Date: 2010/03/25 09:55:27 $
+   * $Revision: 1.4.10.1 $
+   * $Date: 2011/03/07 11:33:04 $
    */
 
   class DbFileHandler
@@ -39,7 +39,7 @@ namespace stor {
     /**
      * Write the string into the db file. Close the file after each write.
      */
-    void writeOld(const utils::time_point_t&, const std::string&);
+    void writeOld(const utils::TimePoint_t&, const std::string&);
 
     /**
      * Write the string into the db file and prefix it with the report header.
@@ -50,23 +50,23 @@ namespace stor {
     
   private:
     
-    void openFile(std::ofstream&, const utils::time_point_t&) const;
+    void openFile(std::ofstream&, const utils::TimePoint_t&) const;
 
-    void addReportHeader(std::ostream&, const utils::time_point_t&) const;
+    void addReportHeader(std::ostream&, const utils::TimePoint_t&) const;
 
     //Prevent copying of the DbFileHandler
     DbFileHandler(DbFileHandler const&);
     DbFileHandler& operator=(DbFileHandler const&);
     
-    DiskWritingParams _dwParams;
-    unsigned int _runNumber;
+    DiskWritingParams dwParams_;
+    unsigned int runNumber_;
   };
 
   typedef boost::shared_ptr<DbFileHandler> DbFileHandlerPtr;
   
 } // stor namespace
 
-#endif // StorageManager_DbFileHandler_h
+#endif // EventFilter_StorageManager_DbFileHandler_h
 
 
 /// emacs configuration

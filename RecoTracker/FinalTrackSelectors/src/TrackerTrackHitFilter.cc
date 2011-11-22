@@ -136,8 +136,8 @@ namespace reco { namespace modules {
     double TrackAngleCut_;
     bool checkHitAngle(const TrajectoryMeasurement &meas);
     bool checkPXLQuality_;
-    double pxlTPLProbX_;
-    double pxlTPLProbY_;
+    double pxlTPLProbXY_;
+    double pxlTPLProbXYQ_;
     std::vector<int32_t> pxlTPLqBin_;
   
     bool checkPXLCorrClustCharge(const TrajectoryMeasurement &meas);
@@ -293,8 +293,8 @@ TrackerTrackHitFilter::TrackerTrackHitFilter(const edm::ParameterSet &iConfig) :
     rejectLowAngleHits_( iConfig.getParameter<bool>("rejectLowAngleHits") ),
     TrackAngleCut_( iConfig.getParameter<double>("TrackAngleCut") ),
     checkPXLQuality_(iConfig.getParameter<bool>("usePixelQualityFlag") ),
-    pxlTPLProbX_(iConfig.getParameter<double>("PxlTemplateProbXCut")),
-    pxlTPLProbY_(iConfig.getParameter<double>("PxlTemplateProbYCut")),
+    pxlTPLProbXY_(iConfig.getParameter<double>("PxlTemplateProbXYCut")),
+    pxlTPLProbXYQ_(iConfig.getParameter<double>("PxlTemplateProbXYChargeCut")),
     pxlTPLqBin_(iConfig.getParameter<std::vector<int32_t> >("PxlTemplateqBinCut")),
     PXLcorrClusChargeCut_(iConfig.getParameter<double>("PxlCorrClusterChargeCut")),
     tagOverlaps_( iConfig.getParameter<bool>("tagOverlaps") )
@@ -797,9 +797,10 @@ bool TrackerTrackHitFilter::checkStoN(const edm::EventSetup &iSetup, const DetId
       const SiPixelRecHit* pixelhit = dynamic_cast<const SiPixelRecHit*>(therechit);
       if(pixelhit!=0){
 	//std::cout << "ClusterCharge=" <<std::flush<<pixelhit->cluster()->charge() << std::flush;
-	//	float combprob=pixelhit->clusterProbability();//x-y combined log_e probability of the pixel cluster
-	float xprob   =pixelhit->clusterProbability(1);//x  log_e( probability of the pixel cluster )
-	float yprob   =pixelhit->clusterProbability(2);//y  log_e( probability of the pixel cluster )
+       	float xyprob=pixelhit->clusterProbability(0);//x-y combined log_e probability of the pixel cluster
+	                                               //singl x- and y-prob not stored sicne CMSSW 3_9_0
+	float xychargeprob   =pixelhit->clusterProbability(1);//xy-prob * charge prob
+	//	float chargeprob   =pixelhit->clusterProbability(2);//charge prob
 	bool haspassed_tplreco= pixelhit->hasFilledProb(); //the cluster was associted to a template
 	int qbin      =pixelhit->qBin(); //R==meas_charge/pred_charge:  Qbin=0 ->R>1.5 , =1->1<R<1.5 ,=2->0.85<R<1 ,
 	                                 // Qbin=3->0.95*Qminpred<R<0.85 ,=4->, =5->meas_charge<0.95*Qminpred
@@ -809,7 +810,7 @@ bool TrackerTrackHitFilter::checkStoN(const edm::EventSetup &iSetup, const DetId
 
 	keepthishit = false;
 	//	std::cout<<"yyyyy "<<qbin<<" "<<xprob<<"  "<<yprob<<std::endl;
-	if( haspassed_tplreco && xprob>pxlTPLProbX_ && yprob>pxlTPLProbY_ && qbin>pxlTPLqBin_[0] && qbin<=pxlTPLqBin_[1] )keepthishit = true;
+	if( haspassed_tplreco && xyprob>pxlTPLProbXY_ && xychargeprob>pxlTPLProbXYQ_ && qbin>pxlTPLqBin_[0] && qbin<=pxlTPLqBin_[1] )keepthishit = true;
 
       }
       else {std::cout<<"HIT IN PIXEL ("<<subdet_cnt <<") but PixelRecHit is EMPTY!!!"<<std::endl;}

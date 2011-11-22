@@ -5,14 +5,13 @@ $string_ = $ARGV[1];
 
 
 #configure here
-#$ntpdir=  "/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2";
+$ntpdir=  "/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2";
 #$ntpdir=  "/store/data/BeamCommissioning09/ZeroBias/RECO/v2/";
 #$ntpdir=  "/store/data/BeamCommissioning09/MinimumBias/RECO/v2/";
 #$ntpdir=  "/store/data/Commissioning10/MinimumBias/RECO/v3/";
 #$ntpdir=  "/store/data/Commissioning10/MinimumBias/RECO/v5/";
 #$ntpdir=  "/store/data/Commissioning10/Cosmics/RECO/v3/";
-#$ntpdir=  "/store/express/Commissioning10/ExpressPhysics/FEVT/v6/";
-$ntpdir=  "/store/express/Commissioning10/ExpressPhysics/FEVT/v7/";
+$ntpdir=  "/store/express/Commissioning10/ExpressPhysics/FEVT/v6/";
 
 #####################
 $tempDir = "./runs";

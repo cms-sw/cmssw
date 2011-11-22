@@ -22,7 +22,12 @@ siStripOfflineAnalyser = cms.EDAnalyzer("SiStripOfflineDQM",
            Name     = cms.string("NumberOfRecHitsPerTrack_"),
                   LowerCut = cms.double(3.0),
                   UpperCut = cms.double(35.0),
-               )
+               ),
+    GoodTrackFractionPSet   = cms.PSet(
+           Name     = cms.string("FractionOfGoodTracks_"),
+                  LowerCut = cms.double(-1.),
+                  UpperCut = cms.double(1.),
+               )           
 )
 
 siStripQTester = cms.EDAnalyzer("QualityTester",

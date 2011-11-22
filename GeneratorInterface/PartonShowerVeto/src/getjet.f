@@ -124,7 +124,7 @@ C            WEIGHT BY SIN(THETA)
         ET(IY,IPHI)=ET(IY,IPHI)+EIP*STHCAL(IY)
       ENDIF
   200 CONTINUE
-  999 END
+      END
       SUBROUTINE GETJET(RJET,EJCUT,ETAJCUT)
 C                
 C          SIMPLE JET-FINDING ALGORITHM (SIMILAR TO UA1).
@@ -259,7 +259,7 @@ C...HEPEVT commonblock.
      &JMOHEP(2,NMXHEP),JDAHEP(2,NMXHEP),PHEP(5,NMXHEP),VHEP(4,NMXHEP)
       DOUBLE PRECISION PHEP,VHEP
       SAVE /HEPEVT/
-      INTEGER ISTOLD(NMXHEP),IHEP,IST,ISTLO,ISTHI,ISTOP,IMO,icount
+      INTEGER ISTLO,ISTHI
 
 C...Inputs for the matching algorithm
       double precision etcjet,rclmax,etaclmax,qcut,qfact

@@ -3,10 +3,10 @@
 # 24-Jan-2008, KAB - simple script to clean up 
 # data files in the SM development system.
 
-cutoffDays=1
+cutoffMinutes=10
 
 date
-echo "Removing data files older than ${cutoffDays} days..."
+echo "Removing data files older than ${cutoffMinutes} minutes..."
 cd $STMGR_DIR/db
 
-find mbox open closed -type f -mtime +${cutoffDays} -print -exec rm -f '{}' \;
+find mbox open closed -type f -mmin +${cutoffMinutes} -exec rm -f '{}' \; &

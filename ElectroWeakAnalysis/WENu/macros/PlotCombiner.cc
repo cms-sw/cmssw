@@ -74,7 +74,6 @@
 
 	 Nikolaos Rompotis - 29 June 09
 	 18 Sept 09:  1st updgrade: input files in a text file
-	 28 May  10:  bug in IMET corrected, thanks to Sadia Khalil
 	 Imperial College London
 	 
 	 
@@ -346,7 +345,7 @@ void abcd( vector<TString> file, vector<TString> type, vector<double> weight,
   //
   // this is calculated as a low edge bin of your input histogram
   // METCut = min + (max-min)*IMET/NBins
-  int IMET = int ((METCut - min)/(max-min) * double(NBins)); 
+  int IMET = 1 + int ((METCut - min)/(max-min) * double(NBins));
   // check whether it is indeed a low egde position
   double metCalc = min + (max-min)*double(IMET)/double(NBins);
   if (metCalc < METCut || metCalc > METCut) {

@@ -1,4 +1,4 @@
-// $Id: EventDistributor.cc,v 1.22 2010/12/15 15:29:23 mommsen Exp $
+// $Id: EventDistributor.cc,v 1.23.4.1 2011/03/07 11:33:05 mommsen Exp $
 /// @file: EventDistributor.cc
 
 #include "EventFilter/StorageManager/interface/DataSenderMonitorCollection.h"
@@ -25,7 +25,7 @@ using namespace stor;
 
 
 EventDistributor::EventDistributor(SharedResourcesPtr sr):
-  _sharedResources(sr)
+  sharedResources_(sr)
 {}
 
 
@@ -48,14 +48,14 @@ void EventDistributor::addEventToRelevantQueues( I2OChain& ioc )
       << " (rbBufferId " << ioc.rbBufferId() << ").";
     XCEPT_DECLARE( stor::exception::IncompleteEventMessage,
       xcept, msg.str());
-    _sharedResources->_statisticsReporter->alarmHandler()->
+    sharedResources_->statisticsReporter_->alarmHandler()->
       notifySentinel(AlarmHandler::ERROR, xcept);
 
     DataSenderMonitorCollection& dataSenderMonColl =
-      _sharedResources->_statisticsReporter->getDataSenderMonitorCollection();
+      sharedResources_->statisticsReporter_->getDataSenderMonitorCollection();
     dataSenderMonColl.addFaultyEventSample(ioc);
 
-    if ( !( _sharedResources->_configuration->getDiskWritingParams()._faultyEventsStream.empty() ) &&
+    if ( !( sharedResources_->configuration_->getDiskWritingParams().faultyEventsStream_.empty() ) &&
       ( ioc.i2oMessageCode() == I2O_SM_DATA || ioc.i2oMessageCode() == I2O_SM_ERROR) )
       ioc.tagForStream(0); // special stream for faulty events
   }
@@ -70,19 +70,19 @@ void EventDistributor::addEventToRelevantQueues( I2OChain& ioc )
   if( ioc.isTaggedForAnyStream() )
   {
     unexpected = false;
-    _sharedResources->_streamQueue->enq_wait( ioc );
+    sharedResources_->streamQueue_->enqWait( ioc );
   }
   
   if( ioc.isTaggedForAnyEventConsumer() )
   {
     unexpected = false;
-    _sharedResources->_eventConsumerQueueCollection->addEvent( ioc );
+    sharedResources_->eventQueueCollection_->addEvent( ioc );
   }
 
   if( unexpected && ioc.messageCode() == Header::EVENT )
   {
     RunMonitorCollection& runMonColl =
-      _sharedResources->_statisticsReporter->getRunMonitorCollection();
+      sharedResources_->statisticsReporter_->getRunMonitorCollection();
     runMonColl.addUnwantedEvent(ioc);
   }
 }
@@ -97,25 +97,25 @@ void EventDistributor::tagCompleteEventForQueues( I2OChain& ioc )
       std::vector<unsigned char> b;
       ioc.copyFragmentsIntoBuffer(b);
       InitMsgView imv( &b[0] );
-      if( _sharedResources->_initMsgCollection->addIfUnique( imv ) )
+      if( sharedResources_->initMsgCollection_->addIfUnique( imv ) )
       {
         try
         {
-          for_each(_eventStreamSelectors.begin(),_eventStreamSelectors.end(),
+          for_each(eventStreamSelectors_.begin(),eventStreamSelectors_.end(),
             boost::bind(&EventStreamSelector::initialize, _1, imv));
 
-          for_each(_eventConsumerSelectors.begin(), _eventConsumerSelectors.end(),
+          for_each(eventConsumerSelectors_.begin(), eventConsumerSelectors_.end(),
             boost::bind(&EventConsumerSelector::initialize, _1, imv));
         }
         catch( stor::exception::InvalidEventSelection& e )
         {
-          _sharedResources->_statisticsReporter->alarmHandler()->
+          sharedResources_->statisticsReporter_->alarmHandler()->
             notifySentinel(AlarmHandler::ERROR,e);
         }
       }
       
-      DataSenderMonitorCollection& dataSenderMonColl = _sharedResources->
-        _statisticsReporter->getDataSenderMonitorCollection();
+      DataSenderMonitorCollection& dataSenderMonColl = sharedResources_->
+        statisticsReporter_->getDataSenderMonitorCollection();
       dataSenderMonColl.addInitSample(ioc);
       
       break;
@@ -123,8 +123,8 @@ void EventDistributor::tagCompleteEventForQueues( I2OChain& ioc )
     
     case Header::EVENT:
     {
-      for( EvtSelList::iterator it = _eventStreamSelectors.begin(),
-             itEnd = _eventStreamSelectors.end();
+      for( EvtSelList::iterator it = eventStreamSelectors_.begin(),
+             itEnd = eventStreamSelectors_.end();
            it != itEnd;
            ++it )
       {
@@ -133,8 +133,8 @@ void EventDistributor::tagCompleteEventForQueues( I2OChain& ioc )
           ioc.tagForStream( (*it)->configInfo().streamId() );
         }
       }
-      for( ConsSelList::iterator it = _eventConsumerSelectors.begin(),
-             itEnd = _eventConsumerSelectors.end();
+      for( ConsSelList::iterator it = eventConsumerSelectors_.begin(),
+             itEnd = eventConsumerSelectors_.end();
            it != itEnd;
            ++it )
       {
@@ -144,14 +144,14 @@ void EventDistributor::tagCompleteEventForQueues( I2OChain& ioc )
         }
       }
       
-      RunMonitorCollection& runMonCollection = _sharedResources->
-        _statisticsReporter->getRunMonitorCollection();
+      RunMonitorCollection& runMonCollection = sharedResources_->
+        statisticsReporter_->getRunMonitorCollection();
       runMonCollection.getRunNumbersSeenMQ().addSampleIfLarger(ioc.runNumber());
       runMonCollection.getLumiSectionsSeenMQ().addSampleIfLarger(ioc.lumiSection());
       runMonCollection.getEventIDsReceivedMQ().addSample(ioc.eventNumber());
       
-      DataSenderMonitorCollection& dataSenderMonColl = _sharedResources->
-        _statisticsReporter->getDataSenderMonitorCollection();
+      DataSenderMonitorCollection& dataSenderMonColl = sharedResources_->
+        statisticsReporter_->getDataSenderMonitorCollection();
       dataSenderMonColl.addEventSample(ioc);
 
       break;
@@ -159,38 +159,40 @@ void EventDistributor::tagCompleteEventForQueues( I2OChain& ioc )
     
     case Header::DQM_EVENT:
     {
-      for( DQMEvtSelList::iterator it = _dqmEventSelectors.begin(),
-             itEnd = _dqmEventSelectors.end();
+      utils::TimePoint_t now = utils::getCurrentTime();
+
+      for( DQMEvtSelList::iterator it = dqmEventSelectors_.begin(),
+             itEnd = dqmEventSelectors_.end();
            it != itEnd;
            ++it)
       {
-        if( (*it)->acceptEvent( ioc ) )
+        if( (*it)->acceptEvent( ioc, now ) )
         {
           ioc.tagForDQMEventConsumer( (*it)->queueId() );
         }
       }
       
-      // Pass any DQM event to the DQM event processor, as it might write 
-      // DQM histograms to disk which are not requested by any consumer
-      // Put this here or in EventDistributor::addEventToRelevantQueues?
-      DQMEventQueue::size_type discardedDQMEvents =
-        _sharedResources->_dqmEventQueue->enq_nowait( ioc );
-
-      DQMEventMonitorCollection& dqmEventMonColl = _sharedResources->
-        _statisticsReporter->getDQMEventMonitorCollection();
-      dqmEventMonColl.getDiscardedDQMEventCountsMQ().addSample(discardedDQMEvents);
-
-      DataSenderMonitorCollection& dataSenderMonColl = _sharedResources->
-        _statisticsReporter->getDataSenderMonitorCollection();
+      DataSenderMonitorCollection& dataSenderMonColl = sharedResources_->
+        statisticsReporter_->getDataSenderMonitorCollection();
       dataSenderMonColl.addDQMEventSample(ioc);
 
+      if( ioc.isTaggedForAnyDQMEventConsumer() )
+      {
+        sharedResources_->dqmEventQueue_->enqNowait( ioc );
+      }
+      else
+      {
+        sharedResources_->statisticsReporter_->getDQMEventMonitorCollection().
+          getDroppedDQMEventCountsMQ().addSample(1);
+      }
+      
       break;
     }
     
     case Header::ERROR_EVENT:
     {
-      for( ErrSelList::iterator it = _errorStreamSelectors.begin(),
-             itEnd = _errorStreamSelectors.end();
+      for( ErrSelList::iterator it = errorStreamSelectors_.begin(),
+             itEnd = errorStreamSelectors_.end();
            it != itEnd;
            ++it )
       {
@@ -200,14 +202,14 @@ void EventDistributor::tagCompleteEventForQueues( I2OChain& ioc )
         }
       }
       
-      RunMonitorCollection& runMonCollection = _sharedResources->
-        _statisticsReporter->getRunMonitorCollection();
+      RunMonitorCollection& runMonCollection = sharedResources_->
+        statisticsReporter_->getRunMonitorCollection();
       runMonCollection.getRunNumbersSeenMQ().addSample(ioc.runNumber());
       runMonCollection.getLumiSectionsSeenMQ().addSampleIfLarger(ioc.lumiSection());
       runMonCollection.getErrorEventIDsReceivedMQ().addSample(ioc.eventNumber());
       
-      DataSenderMonitorCollection& dataSenderMonColl = _sharedResources->
-        _statisticsReporter->getDataSenderMonitorCollection();
+      DataSenderMonitorCollection& dataSenderMonColl = sharedResources_->
+        statisticsReporter_->getDataSenderMonitorCollection();
       dataSenderMonColl.addErrorEventSample(ioc);
 
       break;
@@ -220,13 +222,13 @@ void EventDistributor::tagCompleteEventForQueues( I2OChain& ioc )
         ioc.messageCode();
       XCEPT_DECLARE( stor::exception::WrongI2OMessageType,
                      xcept, msg.str());
-      _sharedResources->_statisticsReporter->
+      sharedResources_->statisticsReporter_->
         alarmHandler()->notifySentinel(AlarmHandler::ERROR, xcept);
 
       // 24-Jun-2009, KAB - this is not really the best way to track this,
       // but it's probably better than nothing in the short term.
-      DataSenderMonitorCollection& dataSenderMonColl = _sharedResources->
-        _statisticsReporter->getDataSenderMonitorCollection();
+      DataSenderMonitorCollection& dataSenderMonColl = sharedResources_->
+        statisticsReporter_->getDataSenderMonitorCollection();
       dataSenderMonColl.addFaultyEventSample(ioc);
 
       break;
@@ -236,41 +238,43 @@ void EventDistributor::tagCompleteEventForQueues( I2OChain& ioc )
 
 const bool EventDistributor::full() const
 {
-  return _sharedResources->_streamQueue->full();
+  return sharedResources_->streamQueue_->full();
 }
 
 
 void EventDistributor::registerEventConsumer
 (
-  const EventConsumerRegistrationInfo* registrationInfo
+  const EventConsRegPtr regPtr
 )
 {
-  ConsSelPtr evtSel( new EventConsumerSelector(registrationInfo) );
+  ConsSelPtr evtSel( new EventConsumerSelector(regPtr) );
 
   InitMsgSharedPtr initMsgPtr =
-    _sharedResources->_initMsgCollection->getElementForOutputModule( registrationInfo->outputModuleLabel() );
+    sharedResources_->initMsgCollection_->getElementForOutputModule(
+      regPtr->outputModuleLabel()
+    );
   if ( initMsgPtr.get() != 0 )
   {
-    uint8* regPtr = &(*initMsgPtr)[0];
-    InitMsgView initView(regPtr);
+    uint8* initPtr = &(*initMsgPtr)[0];
+    InitMsgView initView(initPtr);
     try
     {
       evtSel->initialize( initView );
     }
     catch( stor::exception::InvalidEventSelection& e )
     {
-      _sharedResources->_statisticsReporter->alarmHandler()->
+      sharedResources_->statisticsReporter_->alarmHandler()->
         notifySentinel(AlarmHandler::ERROR, e);
     }
   }
   
-  _eventConsumerSelectors.insert( evtSel );
+  eventConsumerSelectors_.insert( evtSel );
 }
 
-void EventDistributor::registerDQMEventConsumer( const DQMEventConsumerRegistrationInfo* ptr )
+void EventDistributor::registerDQMEventConsumer( const DQMEventConsRegPtr ptr )
 {
   DQMEvtSelPtr dqmEvtSel( new DQMEventSelector(ptr) );
-  _dqmEventSelectors.insert( dqmEvtSel );
+  dqmEventSelectors_.insert( dqmEvtSel );
 }
 
 void EventDistributor::registerEventStreams( const EvtStrConfigListPtr cl )
@@ -280,7 +284,7 @@ void EventDistributor::registerEventStreams( const EvtStrConfigListPtr cl )
        ++it )
   {
     EvtSelPtr evtSel( new EventStreamSelector(*it) );
-    _eventStreamSelectors.insert( evtSel );
+    eventStreamSelectors_.insert( evtSel );
   }
 }
 
@@ -292,30 +296,30 @@ void EventDistributor::registerErrorStreams( const ErrStrConfigListPtr cl )
        ++it )
   {
     ErrSelPtr errSel( new ErrorStreamSelector(*it) );
-    _errorStreamSelectors.insert( errSel );
+    errorStreamSelectors_.insert( errSel );
   }
 }
 
 
 void EventDistributor::clearStreams()
 {
-  _eventStreamSelectors.clear();
-  _errorStreamSelectors.clear();
+  eventStreamSelectors_.clear();
+  errorStreamSelectors_.clear();
 }
 
 
 unsigned int EventDistributor::configuredStreamCount() const
 {
-  return _eventStreamSelectors.size() +
-    _errorStreamSelectors.size();
+  return eventStreamSelectors_.size() +
+    errorStreamSelectors_.size();
 }
 
 
 unsigned int EventDistributor::initializedStreamCount() const
 {
   unsigned int counter = 0;
-  for (EvtSelList::const_iterator it = _eventStreamSelectors.begin(),
-         itEnd = _eventStreamSelectors.end();
+  for (EvtSelList::const_iterator it = eventStreamSelectors_.begin(),
+         itEnd = eventStreamSelectors_.end();
        it != itEnd;
        ++it)
   {
@@ -328,22 +332,22 @@ unsigned int EventDistributor::initializedStreamCount() const
 
 void EventDistributor::clearConsumers()
 {
-  _eventConsumerSelectors.clear();
-  _dqmEventSelectors.clear();
+  eventConsumerSelectors_.clear();
+  dqmEventSelectors_.clear();
 }
 
 
 unsigned int EventDistributor::configuredConsumerCount() const
 {
-  return _eventConsumerSelectors.size() + _dqmEventSelectors.size();
+  return eventConsumerSelectors_.size() + dqmEventSelectors_.size();
 }
 
 
 unsigned int EventDistributor::initializedConsumerCount() const
 {
   unsigned int counter = 0;
-  for (ConsSelList::const_iterator it = _eventConsumerSelectors.begin(),
-         itEnd = _eventConsumerSelectors.end();
+  for (ConsSelList::const_iterator it = eventConsumerSelectors_.begin(),
+         itEnd = eventConsumerSelectors_.end();
        it != itEnd;
        ++it)
   {
@@ -356,90 +360,15 @@ unsigned int EventDistributor::initializedConsumerCount() const
 
 void EventDistributor::checkForStaleConsumers()
 {
+  utils::TimePoint_t now = utils::getCurrentTime();
 
-  /////////////////////
-  // event consumers //
-  /////////////////////
+  EventQueueCollectionPtr eqc =
+    sharedResources_->eventQueueCollection_;
+  eqc->clearStaleQueues(now);
 
-  std::vector<QueueID> stale_qs;
-  _sharedResources->_eventConsumerQueueCollection->clearStaleQueues( stale_qs );
-
-  RegistrationCollection::ConsumerRegistrations cregs;
-  _sharedResources->_registrationCollection->getEventConsumers( cregs );
-
-  // Double linear search, should try to optimize...
-  for( ConsSelList::iterator i = _eventConsumerSelectors.begin();
-           i != _eventConsumerSelectors.end(); ++i )
-    {
-
-      // First, assume the consumer is active. If we find its queue in
-      // the stale list, we'll mark it stale in the inner loop.
-      (*i)->markAsActive();
-
-      for( std::vector<QueueID>::const_iterator j = stale_qs.begin();
-           j != stale_qs.end(); ++j )
-        {
-          if( (*i)->queueId() == *j )
-            {
-              (*i)->markAsStale();
-            }
-        }
-
-      // Finally, to make matters even worse, we iterate over the
-      // registrations to set the staleness flags so that it can be
-      // displayed on the web page:
-      for( RegistrationCollection::ConsumerRegistrations::iterator k = cregs.begin();
-           k != cregs.end(); ++k )
-        {
-          if( (*k)->queueId() == (*i)->queueId() )
-            {
-              (*k)->setStaleness( (*i)->isStale() );
-            }
-        }
-
-    }
-  
-  ///////////////////
-  // dqm consumers //
-  ///////////////////
-
-  stale_qs.clear();
-  _sharedResources->_dqmEventConsumerQueueCollection->clearStaleQueues( stale_qs );
-
-  RegistrationCollection::DQMConsumerRegistrations dqm_cregs;
-  _sharedResources->_registrationCollection->getDQMEventConsumers( dqm_cregs );
-
-  // Double linear search, should try to optimize...
-  for( DQMEvtSelList::iterator i = _dqmEventSelectors.begin();
-           i != _dqmEventSelectors.end(); ++i )
-    {
-
-      // First, assume the consumer is active. If we find its queue in
-      // the stale list, we'll mark it stale in the inner loop.
-      (*i)->markAsActive();
-
-      for( std::vector<QueueID>::const_iterator j = stale_qs.begin();
-           j != stale_qs.end(); ++j )
-        {
-          if( (*i)->queueId() == *j )
-            {
-              (*i)->markAsStale();
-            }
-        }
-
-      // Finally, to make matters even worse, we iterate over the
-      // registrations to set the staleness flags so that it can be
-      // displayed on the web page:
-      for( RegistrationCollection::DQMConsumerRegistrations::iterator k = dqm_cregs.begin();
-           k != dqm_cregs.end(); ++k )
-        {
-          if( (*k)->queueId() == (*i)->queueId() )
-            {
-              (*k)->setStaleness( (*i)->isStale() );
-            }
-        }
-
-    }
+  DQMEventQueueCollectionPtr dqc =
+    sharedResources_->dqmEventQueueCollection_;
+  dqc->clearStaleQueues(now);
 }
 
 

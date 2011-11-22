@@ -252,14 +252,14 @@ class ConfdbToOpenHLT:
                 else:
                     theconfdbpaths.append((thepathname,'"OpenL1_ZeroBias"'))
 
-                theintbits.append('  Int_t           ' + thepathname + ';')
-                thebranches.append('  TBranch        *b_' + thepathname + ';   //!')
-                theaddresses.append('  fChain->SetBranchAddress("' + thepathname + '", &' + thepathname + ', &b_' + thepathname + ');')
-                themaps.append('  fChain->SetBranchAddress("' + thepathname + '", &map_BitOfStandardHLTPath["' + thepathname + '"], &b_' + thepathname + ');')
-                theintprescls.append('  Int_t           ' + thepathname + '_Prescl;')
-                thepresclbranches.append('  TBranch        *b_' + thepathname + '_Prescl;   //!')
-                theprescladdresses.append('  fChain->SetBranchAddress("' + thepathname + '_Prescl", &' + thepathname + '_Prescl, &b_' + thepathname + '_Prescl);')
-                thepresclmaps.append('  fChain->SetBranchAddress("' + thepathname + '_Prescl", &map_RefPrescaleOfStandardHLTPath["' + thepathname + '"], &b_' + thepathname + '_Prescl);')
+                theintbits.append('   Int_t ' + thepathname + ';')
+                thebranches.append('   TBranch *b_' + thepathname + '; //!')
+                theaddresses.append('   fChain->SetBranchAddress("' + thepathname + '", &' + thepathname + ', &b_' + thepathname + ');')
+                themaps.append('   fChain->SetBranchAddress("' + thepathname + '", &map_BitOfStandardHLTPath["' + thepathname + '"], &b_' + thepathname + ');')
+                theintprescls.append('   Int_t ' + thepathname + '_Prescl;')
+                thepresclbranches.append('   TBranch *b_' + thepathname + '_Prescl; //!')
+                theprescladdresses.append('   fChain->SetBranchAddress("' + thepathname + '_Prescl", &' + thepathname + '_Prescl, &b_' + thepathname + '_Prescl);')
+                thepresclmaps.append('   fChain->SetBranchAddress("' + thepathname + '_Prescl", &map_RefPrescaleOfStandardHLTPath["' + thepathname + '"], &b_' + thepathname + '_Prescl);')
                 
         npaths = len(theconfdbpaths)
         pathcount = 1

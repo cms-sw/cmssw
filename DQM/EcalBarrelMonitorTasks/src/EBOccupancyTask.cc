@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2010/08/11 14:57:34 $
- * $Revision: 1.92 $
+ * $Date: 2010/08/11 14:49:01 $
+ * $Revision: 1.91 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -27,9 +27,9 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQM/EcalCommon/interface/Numbers.h"
 
@@ -497,6 +497,10 @@ void EBOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   }
 
+  // channel status
+  edm::ESHandle<EcalChannelStatus> pChannelStatus;
+  c.get<EcalChannelStatusRcd>().get(pChannelStatus);
+  const EcalChannelStatus* chStatus = pChannelStatus.product();
 
   edm::Handle<EcalRecHitCollection> rechits;
 
@@ -533,11 +537,7 @@ void EBOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
         if ( meEBRecHitOccupancyProjPhi_ ) meEBRecHitOccupancyProjPhi_->Fill( xebphi );
 
         uint32_t flag = rechitItr->recoFlag();
-	
-        edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
-	c.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
-
-        uint32_t sev = sevlv->severityLevel( id, *rechits);
+        uint32_t sev = EcalSeverityLevelAlgo::severityLevel( id, *rechits, *chStatus );
 
         if ( rechitItr->energy() > recHitEnergyMin_ && flag == EcalRecHit::kGood && sev == EcalSeverityLevelAlgo::kGood ) {
 

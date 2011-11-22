@@ -9,11 +9,7 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "RecoVertex/ConfigurableVertexReco/test/CVRTest.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 #include <iostream>
-#include "TNtuple.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackFromFTSFactory.h"
 
 using namespace std;
 using namespace reco;
@@ -76,44 +72,10 @@ CVRTest::CVRTest(const edm::ParameterSet& iconfig) :
   edm::ParameterSet vtxconfig = iconfig.getParameter<edm::ParameterSet>("vertexreco");
   vrec_ = new ConfigurableVertexReconstructor ( vtxconfig );
   cout << "[CVRTest] vtxconfig=" << vtxconfig << endl;
-
-  edm::Service<TFileService> fs;
-  tree_ = fs->make<TNtuple>("MovedVertex","MovedVertex","n:t:x:y:z:nchi2:ndf:otr");
-
 }
 
 CVRTest::~CVRTest() {
   if ( vrec_ ) delete vrec_;
-}
-
-// Function to move tracks. ChT
-
-reco::TransientTrack CVRTest::TrackMove ( const reco::TransientTrack& track, const float& dx, const 
-	float& dy, const float& dz )
-{
-
-	edm::ESHandle<TransientTrackFromFTSFactory> ftsbuilder;
-
-// Get position from original TransientTrack, then create new GlobalPoint with shifted position.
-
-	move_pos = new GlobalPoint(track.initialFreeState().position().x() + dx,
-		track.initialFreeState().position().y() + dy, track.initialFreeState().position().z() + dz);
-
-// Create GTP with shifted position, other data from original TransientTrack.
-
-	move_param = new GlobalTrajectoryParameters(*move_pos, track.initialFreeState().momentum(), track.charge(), 
-		track.field() );
-
-// Likewise, Create FTS. 
-
-	move_traj = new FreeTrajectoryState(*move_param, track.initialFreeState().cartesianError(), 
-		track.initialFreeState().curvilinearError() );
-
-// Finally, create TransientTrack via TransientTrackFromFTSFactory.
-
-	reco::TransientTrack move_track = ftsbuilder->build(*move_traj);
-
-	return move_track;
 }
 
 void CVRTest::discussPrimary( const edm::Event& iEvent ) const
@@ -131,7 +93,6 @@ void CVRTest::discussPrimary( const edm::Event& iEvent ) const
 void CVRTest::analyze( const edm::Event & iEvent,
                        const edm::EventSetup & iSetup )
 {
-
   int evt=iEvent.id().event();
   cout << "[CVRTest] next event: " << evt << endl;
   edm::ESHandle<MagneticField> magneticField;
@@ -150,28 +111,14 @@ void CVRTest::analyze( const edm::Event & iEvent,
   vector<reco::TransientTrack> ttks;
   ttks = builder->build(tks);
   cout << "[CVRTest] got " << ttks.size() << " tracks." << endl;
-  
-// Move Tracks. Here: the first 3 tracks of the vector. 
 
-  for ( unsigned int iTrack=0; iTrack < 3; ++iTrack)
-	{
-	ttks[iTrack] =  TrackMove( ttks[iTrack],1,0,0 );
-	}   
+  cout << "[CVRTest] fit w/o beamspot constraint" << endl;
+  vector < TransientVertex > vtces = vrec_->vertices ( ttks );
+  printVertices ( vtces );
 
-//  cout << "[CVRTest] fit w/o beamspot constraint" << endl;
-//  vector < TransientVertex > vtces = vrec_->vertices ( ttks );
-//  printVertices ( vtces );
-  
-cout << "[CVRTest] fit w beamspot constraint" << endl;
-vector < TransientVertex > bvtces = vrec_->vertices ( ttks, *bs );
-printVertices ( bvtces );
-
-  if (bvtces.size() >0) 
-	{
-	   for (unsigned int i=0; i!=bvtces.size(); ++i)
-		tree_ -> Fill(i, 0, bvtces[i].position().x(), bvtces[i].position().y(), bvtces[i].position().z(),
-			bvtces[i].normalisedChiSquared(), bvtces[i].degreesOfFreedom(), bvtces[i].originalTracks().size());
-	}
+  // cout << "[CVRTest] fit w beamspot constraint" << endl;
+  // vector < TransientVertex > bvtces = vrec_->vertices ( ttks, *bs );
+  // printVertices ( bvtces );
 }
 
 //define this as a plug-in

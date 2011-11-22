@@ -1,15 +1,19 @@
-// $Id: DQMEventSelector.cc,v 1.4 2010/12/16 16:35:29 mommsen Exp $
+// $Id: DQMEventSelector.cc,v 1.5.4.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: DQMEventSelector.cc
 
 #include "EventFilter/StorageManager/interface/DQMEventSelector.h"
 
 using namespace stor;
 
-bool DQMEventSelector::acceptEvent( const I2OChain& ioc )
+bool DQMEventSelector::acceptEvent
+(
+  const I2OChain& ioc,
+  const utils::TimePoint_t& now
+)
 {
-  if( _stale ) return false;
-  if( _registrationInfo.topLevelFolderName() == std::string( "*" ) ) return true;
-  if( _registrationInfo.topLevelFolderName() == ioc.topFolderName() ) return true;
+  if( registrationInfo_->isStale(now) ) return false;
+  if( registrationInfo_->topLevelFolderName() == std::string( "*" ) ) return true;
+  if( registrationInfo_->topLevelFolderName() == ioc.topFolderName() ) return true;
   return false;
 }
 
@@ -18,7 +22,7 @@ bool DQMEventSelector::operator<(const DQMEventSelector& other) const
 {
   if ( queueId() != other.queueId() )
     return ( queueId() < other.queueId() );
-  return ( _registrationInfo < other._registrationInfo );
+  return ( *(registrationInfo_) < *(other.registrationInfo_) );
 }
 
 

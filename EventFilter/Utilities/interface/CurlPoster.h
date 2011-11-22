@@ -20,12 +20,12 @@ namespace evf {
     }
     virtual ~CurlPoster(){delete [] buf_;}
     bool check(int);
-    void postBinary(const char *, size_t, unsigned int
+    void postBinary(const unsigned char *, size_t, unsigned int
 		    , const std::string& = standard_post_method_); 
     void postString(const char *, size_t, unsigned int 
 		    , mode, const std::string& = standard_post_method_); 
   private:
-    void post(const char *, size_t, unsigned int, mode, const std::string&);
+    void post(const unsigned char *, size_t, unsigned int, mode, const std::string&);
     std::string url_;
     bool active_;
     struct utsname* buf_; 

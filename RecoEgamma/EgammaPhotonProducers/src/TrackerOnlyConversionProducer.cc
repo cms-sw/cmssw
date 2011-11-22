@@ -11,9 +11,9 @@
      <Notes on implementation>
 */
 //
-// Original Authors:  Hongliang Liu
+// Original Author:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: TrackerOnlyConversionProducer.cc,v 1.42 2011/01/21 11:45:04 nancy Exp $
+// $Id: TrackerOnlyConversionProducer.cc,v 1.40 2010/11/22 02:02:08 bendavid Exp $
 //
 //
 
@@ -78,7 +78,6 @@ TrackerOnlyConversionProducer::TrackerOnlyConversionProducer(const edm::Paramete
     algoName_ = iConfig.getParameter<std::string>( "AlgorithmName" );
 
     src_ = iConfig.getParameter<edm::InputTag>("src");
-
     maxNumOfTrackInPU_ = iConfig.getParameter<int>("maxNumOfTrackInPU");
     allowTrackBC_ = iConfig.getParameter<bool>("AllowTrackBC");
     allowD0_ = iConfig.getParameter<bool>("AllowD0");
@@ -108,18 +107,10 @@ TrackerOnlyConversionProducer::TrackerOnlyConversionProducer(const edm::Paramete
 	bcBarrelCollection_     = iConfig.getParameter<edm::InputTag>("bcBarrelCollection");
 	bcEndcapCollection_     = iConfig.getParameter<edm::InputTag>("bcEndcapCollection");
 
-	scBarrelProducer_       = iConfig.getParameter<edm::InputTag>("scBarrelProducer");
-	scEndcapProducer_       = iConfig.getParameter<edm::InputTag>("scEndcapProducer");
-
-	energyBC_               = iConfig.getParameter<double>("EnergyBC");//BC energy threshold
-	energyTotalBC_          = iConfig.getParameter<double>("EnergyTotalBC");//BC energy threshold
-	minSCEt_                = iConfig.getParameter<double>("minSCEt");//super cluster energy threshold
-	dEtacutForSCmatching_     = iConfig.getParameter<double>("dEtacutForSCmatching");// dEta between conversion momentum direction and SC position
-	dPhicutForSCmatching_     = iConfig.getParameter<double>("dPhicutForSCmatching");// dPhi between conversion momentum direction and SC position
+	energyBC_ = iConfig.getParameter<double>("EnergyBC");//BC energy cut
+	energyTotalBC_ = iConfig.getParameter<double>("EnergyTotalBC");//BC energy cut
 
     }
-
-   
 
     //Track cuts on left right track: at least one leg reaches ECAL
     //Left track: must exist, must reach Ecal and match BC, so loose cut on Chi2 and tight on hits
@@ -185,27 +176,8 @@ TrackerOnlyConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup
 
     edm::Handle<reco::ConversionTrackCollection> trackCollectionHandle;
     iEvent.getByLabel(src_,trackCollectionHandle);    
-
-    // Get the Super Cluster collection in the Barrel
-    bool validBarrelSCHandle=true;
-    edm::Handle<edm::View<reco::CaloCluster> > scBarrelHandle;
-    iEvent.getByLabel(scBarrelProducer_,scBarrelHandle);
-    if (!scBarrelHandle.isValid()) {
-      edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product "<<scBarrelProducer_.label();
-      validBarrelSCHandle=false;
-    }
     
-    // Get the Super Cluster collection in the Endcap
-    bool validEndcapSCHandle=true;
-    edm::Handle<edm::View<reco::CaloCluster> > scEndcapHandle;
-    iEvent.getByLabel(scEndcapProducer_,scEndcapHandle);
-    if (!scEndcapHandle.isValid()) {
-      edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product "<<scEndcapProducer_.label();
-      validEndcapSCHandle=false;
-    }
-
-    
-    edm::Handle<edm::View<reco::CaloCluster> > bcBarrelHandle;
+    edm::Handle<edm::View<reco::CaloCluster> > bcBarrelHandle;//TODO error handling if no collection found
     edm::Handle<edm::View<reco::CaloCluster> > bcEndcapHandle;//TODO check cluster type if BasicCluster or PFCluster
     if (allowTrackBC_){
 	iEvent.getByLabel( bcBarrelCollection_, bcBarrelHandle);
@@ -233,17 +205,15 @@ TrackerOnlyConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup
     if (!vertexCollection.empty())
 	the_pvtx = *(vertexCollection.begin());
 
-    if (trackCollectionHandle->size()> maxNumOfTrackInPU_){
+    if (trackCollectionHandle->size()> maxNumOfTrackInPU_ ){
 	iEvent.put( outputConvPhotonCollection_p, ConvertedPhotonCollection_);
 	return;
     }
 
-
-    //2.0 build Super and Basic cluster geometry map to search in eta bounds for clusters
+    //2. select track by propagating
+    //2.0 build Basic cluster geometry map to search in eta bounds for clusters
     std::multimap<double, reco::CaloClusterPtr> basicClusterPtrs;
-    std::multimap<double, reco::CaloClusterPtr> superClusterPtrs;
     edm::Handle<edm::View<reco::CaloCluster> > bcHandle = bcBarrelHandle;
-    edm::Handle<edm::View<reco::CaloCluster> > scHandle = scBarrelHandle;
 
     if (allowTrackBC_){
 	for (unsigned jj = 0; jj < 2; ++jj ){
@@ -253,17 +223,9 @@ TrackerOnlyConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup
 	    }
 	    bcHandle = bcEndcapHandle;
 	}
-	for (unsigned jj = 0; jj < 2; ++jj ){
-	    for (unsigned ii = 0; ii < scHandle->size(); ++ii ) {
-		if (scHandle->ptrAt(ii)->energy()>minSCEt_)
-		    superClusterPtrs.insert(std::make_pair(scHandle->ptrAt(ii)->position().eta(), scHandle->ptrAt(ii)));
-	    }
-	    scHandle = scEndcapHandle;
-	}
-
     }
 
-    buildCollection( iEvent, iSetup, *trackCollectionHandle.product(),  superClusterPtrs, basicClusterPtrs, the_pvtx, outputConvPhotonCollection);//allow empty basicClusterPtrs
+    buildCollection( iEvent, iSetup, *trackCollectionHandle.product(), basicClusterPtrs, the_pvtx, outputConvPhotonCollection);//allow empty basicClusterPtrs
 
     outputConvPhotonCollection_p->assign(outputConvPhotonCollection.begin(), outputConvPhotonCollection.end());
     iEvent.put( outputConvPhotonCollection_p, ConvertedPhotonCollection_);
@@ -275,7 +237,6 @@ TrackerOnlyConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup
 
 void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const edm::EventSetup& iSetup,
 						    const reco::ConversionTrackCollection& allTracks,
-						    const std::multimap<double, reco::CaloClusterPtr>& superClusterPtrs,
 						    const std::multimap<double, reco::CaloClusterPtr>& basicClusterPtrs,
 						    const reco::Vertex& the_pvtx,
 						    reco::ConversionCollection & outputConvPhotonCollection){
@@ -286,117 +247,117 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
   iSetup.get<TrackerDigiGeometryRecord>().get( trackerGeomHandle );
   iSetup.get<IdealMagneticFieldRecord>().get( magFieldHandle );
   
-  const TrackerGeometry* trackerGeom = trackerGeomHandle.product();
-  const MagneticField* magField = magFieldHandle.product();
-  
-  std::vector<math::XYZPoint> trackImpactPosition;
-  trackImpactPosition.reserve(allTracks.size());//track impact position at ECAL
-  std::vector<bool> trackValidECAL;//Does this track reach ECAL basic cluster (reach ECAL && match with BC)
-  trackValidECAL.assign(allTracks.size(), false);
-  
-  std::vector<reco::CaloClusterPtr> trackMatchedBC;
-  reco::CaloClusterPtr empty_bc;
-  trackMatchedBC.assign(allTracks.size(), empty_bc);//TODO find a better way to avoid copy constructor
-  
-  std::vector<int> bcHandleId;//the associated BC handle id, -1 invalid, 0 barrel 1 endcap
-  bcHandleId.assign(allTracks.size(), -1);
-  
-  // not used    std::multimap<double, int> trackInnerEta;//Track innermost state Eta map to TrackRef index, to be used in track pair sorting
-  
-  
-  ConversionHitChecker hitChecker;
-  
-  
-  //2 propagate all tracks into ECAL, record its eta and phi
-  for (reco::ConversionTrackCollection::const_iterator tk_ref = allTracks.begin(); tk_ref != allTracks.end(); ++tk_ref ){
-    const reco::Track* tk = tk_ref->trackRef().get()  ;
+    const TrackerGeometry* trackerGeom = trackerGeomHandle.product();
+    const MagneticField* magField = magFieldHandle.product();;
 
-    //map TrackRef to Eta
-    // not used      trackInnerEta.insert(std::make_pair(tk->innerMomentum().eta(), tk_ref-allTracks.begin()));
+    std::vector<math::XYZPoint> trackImpactPosition;
+    trackImpactPosition.reserve(allTracks.size());//track impact position at ECAL
+    std::vector<bool> trackValidECAL;//Does this track reach ECAL basic cluster (reach ECAL && match with BC)
+    trackValidECAL.assign(allTracks.size(), false);
+
+    std::vector<reco::CaloClusterPtr> trackMatchedBC;
+    reco::CaloClusterPtr empty_bc;
+    trackMatchedBC.assign(allTracks.size(), empty_bc);//TODO find a better way to avoid copy constructor
+
+    std::vector<int> bcHandleId;//the associated BC handle id, -1 invalid, 0 barrel 1 endcap
+    bcHandleId.assign(allTracks.size(), -1);
+
+    std::multimap<double, int> trackInnerEta;//Track innermost state Eta map to TrackRef index, to be used in track pair sorting
+
+
+    ConversionHitChecker hitChecker;
+
+    
+    //2 propagate all tracks into ECAL, record its eta and phi
+    for (reco::ConversionTrackCollection::const_iterator tk_ref = allTracks.begin(); tk_ref != allTracks.end(); ++tk_ref ){
+      const reco::Track* tk = tk_ref->trackRef().get()  ;
+
+	//map TrackRef to Eta
+      trackInnerEta.insert(std::make_pair(tk->innerMomentum().eta(), tk_ref-allTracks.begin()));
       
-    if (allowTrackBC_){
-      //check impact position then match with BC
-      math::XYZPoint ew;
-      if ( getTrackImpactPosition(tk, trackerGeom, magField, ew) ){
-	trackImpactPosition.push_back(ew);
-	
-	reco::CaloClusterPtr closest_bc;//the closest matching BC to track
-	
-	if ( getMatchedBC(basicClusterPtrs, ew, closest_bc) ){
-	  trackMatchedBC[tk_ref-allTracks.begin()] = closest_bc;
+      if (allowTrackBC_){
+	//check impact position then match with BC
+	    math::XYZPoint ew;
+	    if ( getTrackImpactPosition(tk, trackerGeom, magField, ew) ){
+		trackImpactPosition.push_back(ew);
+
+		reco::CaloClusterPtr closest_bc;//the closest matching BC to track
+
+		if ( getMatchedBC(basicClusterPtrs, ew, closest_bc) ){
+		    trackMatchedBC[tk_ref-allTracks.begin()] = closest_bc;
 		    trackValidECAL[tk_ref-allTracks.begin()] = true;
 		    bcHandleId[tk_ref-allTracks.begin()] = (fabs(closest_bc->position().eta())>1.479)?1:0;
+		}
+	    } else {
+		trackImpactPosition.push_back(ew);
+		continue;
+	    }
+
 	}
-      } else {
-	trackImpactPosition.push_back(ew);
-	continue;
-      }
-      
     }
-  }
-  
-  
-  //3. pair up tracks: 
-  //TODO it is k-Closest pair of point problem
-  //std::cout << " allTracks.size() " <<  allTracks.size() << std::endl;
-  for(reco::ConversionTrackCollection::const_iterator ll = allTracks.begin(); ll != allTracks.end(); ++ ll ) {
-    bool track1HighPurity=true;
-    //std::cout << " Loop on allTracks " << std::endl;
-    const  edm::RefToBase<reco::Track> & left = ll->trackRef();
-    
-    //TODO: This is a workaround, should be fixed with a proper function in the TTBuilder
-    //(Note that the TrackRef and GsfTrackRef versions of the constructor are needed
-    // to properly get refit tracks in the output vertex)
-    reco::TransientTrack ttk_l;
-    if (dynamic_cast<const reco::GsfTrack*>(left.get())) {
-      ttk_l = thettbuilder_->build(left.castTo<reco::GsfTrackRef>());
-    }
-    else {
-      ttk_l = thettbuilder_->build(left.castTo<reco::TrackRef>());
-    }
-    
-    ////  Remove BC matching from track selection 
-    //      if ((allowTrackBC_ && !trackValidECAL[ll-allTracks.begin()]) )//this Left leg should have valid BC
-    // continue;
-    
-    
-    if (the_pvtx.isValid()){
-      if (!(trackD0Cut(left, the_pvtx)))   track1HighPurity=false;
-    } else {
-      if (!(trackD0Cut(left)))  track1HighPurity=false;
-    }
-    
-    std::vector<int> right_candidates;//store all right legs passed the cut (theta/approach and ref pair)
-    std::vector<double> right_candidate_theta, right_candidate_approach;
-    std::vector<std::pair<bool, reco::Vertex> > vertex_candidates;
 
 
-    for (reco::ConversionTrackCollection::const_iterator rr = ll+1; rr != allTracks.end(); ++ rr ) {
-      bool track2HighPurity = true;
-      bool highPurityPair = true;
-      
-      const  edm::RefToBase<reco::Track> & right = rr->trackRef();
+
+
+    //3. pair up : to select one track from matched EBC, and select the other track to fit cot theta and phi open angle cut
+    //TODO it is k-Closest pair of point problem
+    //std::cout << " allTracks.size() " <<  allTracks.size() << std::endl;
+    for(reco::ConversionTrackCollection::const_iterator ll = allTracks.begin(); ll != allTracks.end(); ++ ll ) {
+      bool track1HighPurity=true;
+      //std::cout << " Loop on allTracks " << std::endl;
+      const  edm::RefToBase<reco::Track> & left = ll->trackRef();
       
       //TODO: This is a workaround, should be fixed with a proper function in the TTBuilder
-      reco::TransientTrack ttk_r;
-      if (dynamic_cast<const reco::GsfTrack*>(right.get())) {
-	ttk_r = thettbuilder_->build(right.castTo<reco::GsfTrackRef>());
+      //(Note that the TrackRef and GsfTrackRef versions of the constructor are needed
+      // to properly get refit tracks in the output vertex)
+      reco::TransientTrack ttk_l;
+      if (dynamic_cast<const reco::GsfTrack*>(left.get())) {
+        ttk_l = thettbuilder_->build(left.castTo<reco::GsfTrackRef>());
       }
       else {
-	ttk_r = thettbuilder_->build(right.castTo<reco::TrackRef>());
+        ttk_l = thettbuilder_->build(left.castTo<reco::TrackRef>());
       }
-      //std::cout << " This track is " <<  right->algoName() << std::endl;
       
+
+      if ((allowTrackBC_ && !trackValidECAL[ll-allTracks.begin()]) )//this Left leg should have valid BC
+        continue;
       
-      //all vertexing preselection should go here
+      if (the_pvtx.isValid()){
+        if (!(trackD0Cut(left, the_pvtx)))   track1HighPurity=false;
+      } else {
+        if (!(trackD0Cut(left)))  track1HighPurity=false;
+      }
+
+      std::vector<int> right_candidates;//store all right legs passed the cut (theta/approach and ref pair)
+      std::vector<double> right_candidate_theta, right_candidate_approach;
+      std::vector<std::pair<bool, reco::Vertex> > vertex_candidates;
+
+
+      for (reco::ConversionTrackCollection::const_iterator rr = ll+1; rr != allTracks.end(); ++ rr ) {
+          bool track2HighPurity = true;
+          bool highPurityPair = true;
+          
+          const  edm::RefToBase<reco::Track> & right = rr->trackRef();
+       
+          //TODO: This is a workaround, should be fixed with a proper function in the TTBuilder
+          reco::TransientTrack ttk_r;
+          if (dynamic_cast<const reco::GsfTrack*>(right.get())) {
+            ttk_r = thettbuilder_->build(right.castTo<reco::GsfTrackRef>());
+          }
+          else {
+            ttk_r = thettbuilder_->build(right.castTo<reco::TrackRef>());
+          }
+          //std::cout << " This track is " <<  right->algoName() << std::endl;
+
+          
+          //all vertexing preselection should go here
 
           //check for opposite charge
           if (  allowOppCharge_ && (left->charge()*right->charge() > 0) )  
             continue; //same sign, reject pair
 
-	  ////  Remove BC matching from track selection 
-          //if ( (allowTrackBC_ && !trackValidECAL[rr-allTracks.begin()] && rightBC_) )// if right track matches ECAL
-          //  continue;
+          if ( (allowTrackBC_ && !trackValidECAL[rr-allTracks.begin()] && rightBC_) )// if right track matches ECAL
+            continue;
           
           
           double approachDist = -999.;
@@ -469,7 +430,7 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
           
           uint8_t nSharedHits = hitChecker.nSharedHits(*left.get(),*right.get());
 
-
+          reco::CaloClusterPtrVector scPtrVec;
           //if using kinematic fit, check with chi2 post cut
           if (theConversionVertex.isValid()){
             const float chi2Prob = ChiSquaredProbability(theConversionVertex.chi2(), theConversionVertex.ndof());
@@ -481,47 +442,30 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
           std::vector<reco::CaloClusterPtr> matchingBC;
 
           if (allowTrackBC_){//TODO find out the BC ptrs if not doing matching, otherwise, leave it empty
-	    const int lbc_handle = bcHandleId[ll-allTracks.begin()],
-	      rbc_handle = bcHandleId[rr-allTracks.begin()];
+              const int lbc_handle = bcHandleId[ll-allTracks.begin()],
+                    rbc_handle = bcHandleId[rr-allTracks.begin()];
 
               trkPositionAtEcal.push_back(trackImpactPosition[ll-allTracks.begin()]);//left track
               if (trackValidECAL[rr-allTracks.begin()])//second track ECAL position may be invalid
                   trkPositionAtEcal.push_back(trackImpactPosition[rr-allTracks.begin()]);
 
               matchingBC.push_back(trackMatchedBC[ll-allTracks.begin()]);//left track
-
-	      //              scPtrVec.push_back(trackMatchedBC[ll-allTracks.begin()]);//left track
+              scPtrVec.push_back(trackMatchedBC[ll-allTracks.begin()]);//left track
               if (trackValidECAL[rr-allTracks.begin()]){//second track ECAL position may be invalid
                   matchingBC.push_back(trackMatchedBC[rr-allTracks.begin()]);
-		  //  if (!(trackMatchedBC[rr-allTracks.begin()] == trackMatchedBC[ll-allTracks.begin()])//avoid 1 bc 2 tk
-		  //       && lbc_handle == rbc_handle )//avoid ptr from different collection
-		  //   scPtrVec.push_back(trackMatchedBC[rr-allTracks.begin()]);
+                  if (!(trackMatchedBC[rr-allTracks.begin()] == trackMatchedBC[ll-allTracks.begin()])//avoid 1 bc 2 tk
+                          && lbc_handle == rbc_handle )//avoid ptr from different collection
+                      scPtrVec.push_back(trackMatchedBC[rr-allTracks.begin()]);
               }
           }
-
-	  /// match the track pair with a SC. If at least one track matches, store the SC
-	  /*
-	  for ( std::vector<edm::RefToBase<reco::Track> >::iterator iTk=trackPairRef.begin();  iTk!=trackPairRef.end(); iTk++) {
-	    math::XYZPoint impPos;
-	    if ( getTrackImpactPosition(*iTk, trackerGeom, magField, impPos) ) {
-	       
-	    }
-
-	  }
-	  */
-
           const float minAppDist = approachDist;
+
           reco::Conversion::ConversionAlgorithm algo = reco::Conversion::algoByName(algoName_);
           float dummy=0;
-          reco::CaloClusterPtrVector scPtrVec;
           reco::Conversion  newCandidate(scPtrVec,  trackPairRef, trkPositionAtEcal, theConversionVertex, matchingBC, minAppDist,  trackInnPos, trackPin, trackPout, nHitsBeforeVtx, dlClosestHitToVtx, nSharedHits, dummy, algo );
-	  // Fill in scPtrVec with the macthing SC
-	  if ( matchingSC ( superClusterPtrs, newCandidate, scPtrVec) ) 
-	    newCandidate.setMatchingSuperCluster( scPtrVec);
-          
-	  
           newCandidate.setQuality(reco::Conversion::highPurity,  highPurityPair);
-	  bool generalTracksOnly = ll->isTrackerOnly() && rr->isTrackerOnly() && !dynamic_cast<const reco::GsfTrack*>(ll->trackRef().get()) && !dynamic_cast<const reco::GsfTrack*>(rr->trackRef().get());
+          
+          bool generalTracksOnly = ll->isTrackerOnly() && rr->isTrackerOnly() && !dynamic_cast<const reco::GsfTrack*>(ll->trackRef().get()) && !dynamic_cast<const reco::GsfTrack*>(rr->trackRef().get());
           bool arbitratedEcalSeeded = ll->isArbitratedEcalSeeded() && rr->isArbitratedEcalSeeded();
           bool arbitratedMerged = ll->isArbitratedMerged() && rr->isArbitratedMerged();
           bool arbitratedMergedEcalGeneral = ll->isArbitratedMergedEcalGeneral() && rr->isArbitratedMergedEcalGeneral();          
@@ -618,43 +562,6 @@ bool TrackerOnlyConversionProducer::getTrackImpactPosition(const reco::Track* tk
 	return false;
 }
 
-
-
-
-bool TrackerOnlyConversionProducer::matchingSC(const std::multimap<double, reco::CaloClusterPtr>& scMap, 
-					       reco::Conversion& aConv,
-					       // reco::CaloClusterPtr& mSC){
-					       reco::CaloClusterPtrVector& mSC) {
-
-  //  double dRMin=999.;
-  double detaMin=999.;
-  double dphiMin=999.;                 
-  reco::CaloClusterPtr match;
-  for (std::multimap<double, reco::CaloClusterPtr>::const_iterator scItr = scMap.begin();  scItr != scMap.end(); scItr++) {
-    const reco::CaloClusterPtr& sc = scItr->second; 
-    const double delta_phi = reco::deltaPhi( aConv.refittedPairMomentum().phi(), sc->phi());
-    double sceta = sc->eta();
-    double conveta = etaTransformation(aConv.refittedPairMomentum().eta(), aConv.zOfPrimaryVertexFromTracks() );
-    const double delta_eta = conveta - sceta;
-    const double dR =  sqrt( delta_eta*delta_eta +  delta_phi*delta_phi );    
-    // if ( dR < dRMin ) {
-    // dRMin = dR;
-    //  match= sc;
-    // }
-    if ( fabs(delta_eta) < detaMin && fabs(delta_phi) < dphiMin ) {
-      detaMin=  fabs(delta_eta);
-      dphiMin=  fabs(dphiMin);
-      match=sc;
-    }
-  }
-  // if ( dRMin < dRcutForSCmatching_) {
-  if ( detaMin < dEtacutForSCmatching_ && dphiMin < dPhicutForSCmatching_ ) {
-    mSC.push_back(match);
-    return true;
-  } else 
-    return false;
-}
-
 bool TrackerOnlyConversionProducer::getMatchedBC(const std::multimap<double, reco::CaloClusterPtr>& bcMap, 
 	const math::XYZPoint& trackImpactPosition,
 	reco::CaloClusterPtr& closestBC){
@@ -685,10 +592,35 @@ bool TrackerOnlyConversionProducer::getMatchedBC(const std::multimap<double, rec
 	return false;
 }
 
+bool TrackerOnlyConversionProducer::getMatchedBC(const reco::CaloClusterPtrVector& bcMap,
+	const math::XYZPoint& trackImpactPosition,
+	reco::CaloClusterPtr& closestBC){
+    const double track_eta = trackImpactPosition.eta();
+    const double track_phi = trackImpactPosition.phi();
 
+    double min_eta = 999., min_phi = 999.;
+    reco::CaloClusterPtr closest_bc;
+    for (reco::CaloClusterPtrVector::const_iterator bc = bcMap.begin();
+	    bc != bcMap.end(); ++bc){//use eta map to select possible BC collection then loop in
+	const reco::CaloClusterPtr& ebc = (*bc);
+	const double delta_eta = track_eta-(ebc->position().eta());
+	const double delta_phi = reco::deltaPhi(track_phi, (ebc->position().phi()));
+	if (fabs(delta_eta)<dEtaTkBC_ && fabs(delta_phi)<dPhiTkBC_){
+	    if (fabs(min_eta)>fabs(delta_eta) && fabs(min_phi)>fabs(delta_phi)){//take the closest to track BC
+		min_eta = delta_eta;
+		min_phi = delta_phi;
+		closest_bc = ebc;
+		//TODO check if min_eta>delta_eta but min_phi<delta_phi
+	    }
+	}
+    }
 
-
-
+    if (min_eta < 999.){
+	closestBC = closest_bc;
+	return true;
+    } else
+	return false;
+}
 
 //check track open angle of phi at vertex
 bool TrackerOnlyConversionProducer::checkPhi(const edm::RefToBase<reco::Track>& tk_l, const edm::RefToBase<reco::Track>& tk_r,
@@ -836,42 +768,5 @@ bool TrackerOnlyConversionProducer::checkVertex(const reco::TransientTrack &ttk_
 
     return found;
 }
-
-
-
-double TrackerOnlyConversionProducer::etaTransformation(  float EtaParticle , float Zvertex)  {
-
-  //---Definitions
-  const float PI    = 3.1415927;
-
-  //---Definitions for ECAL
-  const float R_ECAL           = 136.5;
-  const float Z_Endcap         = 328.0;
-  const float etaBarrelEndcap  = 1.479; 
-   
-  //---ETA correction
-
-  float Theta = 0.0  ; 
-  float ZEcal = R_ECAL*sinh(EtaParticle)+Zvertex;
-
-  if(ZEcal != 0.0) Theta = atan(R_ECAL/ZEcal);
-  if(Theta<0.0) Theta = Theta+PI ;
-  double ETA = - log(tan(0.5*Theta));
-         
-  if( fabs(ETA) > etaBarrelEndcap )
-    {
-      float Zend = Z_Endcap ;
-      if(EtaParticle<0.0 )  Zend = -Zend ;
-      float Zlen = Zend - Zvertex ;
-      float RR = Zlen/sinh(EtaParticle); 
-      Theta = atan(RR/Zend);
-      if(Theta<0.0) Theta = Theta+PI ;
-      ETA = - log(tan(0.5*Theta));		      
-    } 
-  //---Return the result
-  return ETA;
-  //---end
-}
-
 
 

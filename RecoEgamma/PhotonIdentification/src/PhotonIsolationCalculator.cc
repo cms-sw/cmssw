@@ -37,7 +37,7 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
+
 
 #include <string>
 #include <TMath.h>
@@ -161,8 +161,8 @@ void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf) {
 
   //Pick up the variables for the spike removal
   severityLevelCut_        = conf.getParameter<int>("severityLevelCut");
-  //severityRecHitThreshold_ = conf.getParameter<double>("severityRecHitThreshold");
-  //spikeIdThreshold_        = conf.getParameter<double>("spikeIdThreshold");
+  severityRecHitThreshold_ = conf.getParameter<double>("severityRecHitThreshold");
+  spikeIdThreshold_        = conf.getParameter<double>("spikeIdThreshold");
 
   const std::vector<int> &tempV(conf.getParameter<std::vector<int> >("recHitFlagsToBeExcluded"));
   v_chstatus_.clear();
@@ -171,17 +171,17 @@ void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf) {
 
 
   //Need to figure out which algo to use
-  //if(!conf.getParameter<std::string>("spikeIdString").compare("kE1OverE9") )   {
-  //  spId_ = EcalSeverityLevelAlgo::kE1OverE9;
-  //} else if(!conf.getParameter<std::string>("spikeIdString").compare("kSwissCross") ) {
-  //  spId_ = EcalSeverityLevelAlgo::kSwissCross;
-  //} else if(!conf.getParameter<std::string>("spikeIdString").compare("kSwissCrossBordersIncluded") ) {
-  //  spId_ = EcalSeverityLevelAlgo::kSwissCrossBordersIncluded;
-  //} else {
-  //  spId_ = EcalSeverityLevelAlgo::kSwissCrossBordersIncluded;
-  //   edm::LogWarning("PhotonIsolationCalculator|SpikeRemovalForIsolation")
-  //     << "Cannot find the requested method. kSwissCross set instead.";
-  //}
+  if(!conf.getParameter<std::string>("spikeIdString").compare("kE1OverE9") )   {
+    spId_ = EcalSeverityLevelAlgo::kE1OverE9;
+  } else if(!conf.getParameter<std::string>("spikeIdString").compare("kSwissCross") ) {
+    spId_ = EcalSeverityLevelAlgo::kSwissCross;
+  } else if(!conf.getParameter<std::string>("spikeIdString").compare("kSwissCrossBordersIncluded") ) {
+    spId_ = EcalSeverityLevelAlgo::kSwissCrossBordersIncluded;
+  } else {
+    spId_ = EcalSeverityLevelAlgo::kSwissCrossBordersIncluded;
+     edm::LogWarning("PhotonIsolationCalculator|SpikeRemovalForIsolation")
+       << "Cannot find the requested method. kSwissCross set instead.";
+  }
 }
 
 
@@ -550,10 +550,6 @@ double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* pho
   edm::ESHandle<EcalChannelStatus> chStatus;
   iSetup.get<EcalChannelStatusRcd>().get(chStatus);
 
-  edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
-  iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
-  const EcalSeverityLevelAlgo* sevLevel = sevlv.product();
-
   std::auto_ptr<CaloRecHitMetaCollectionV> RecHitsEE(0); 
   RecHitsEE = std::auto_ptr<CaloRecHitMetaCollectionV>(new EcalRecHitMetaCollection(*rechitsCollectionEE_));
  
@@ -562,32 +558,31 @@ double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* pho
 
   edm::ESHandle<CaloGeometry> geoHandle;
   iSetup.get<CaloGeometryRecord>().get(geoHandle);
-
+  
   EgammaRecHitIsolation phoIsoEB(RCone,
-                                 RConeInner,
-                                 etaSlice,
-                                 etMin,
-                                 eMin,
-                                 geoHandle,
-                                 &(*RecHitsEB),
-                                 sevLevel,
-                                 DetId::Ecal);
+				 RConeInner,
+				 etaSlice,
+				 etMin,
+				 eMin,
+				 geoHandle,
+				 &(*RecHitsEB),
+				 DetId::Ecal);
 
   phoIsoEB.setVetoClustered(vetoClusteredHits);
   phoIsoEB.setUseNumCrystals(useNumXtals);
-  phoIsoEB.doSpikeRemoval(ecalhitsCollEB.product(),chStatus.product(),severityLevelCut_);//,severityRecHitThreshold_,spId_,spikeIdThreshold_);
+  phoIsoEB.doSpikeRemoval(ecalhitsCollEB.product(),chStatus.product(),severityLevelCut_,severityRecHitThreshold_,spId_,spikeIdThreshold_);
+
   double ecalIsolEB = phoIsoEB.getEtSum(photon);
-  
+
   EgammaRecHitIsolation phoIsoEE(RCone,
-                                 RConeInner,
-                                 etaSlice,
-                                 etMin,
-                                 eMin,
-                                 geoHandle,
-                                 &(*RecHitsEE),
-                                 sevLevel,
-                                 DetId::Ecal);
-  
+				 RConeInner,
+				 etaSlice,
+				 etMin,
+				 eMin,
+				 geoHandle,
+				 &(*RecHitsEE),
+				 DetId::Ecal);
+
   phoIsoEE.setVetoClustered(vetoClusteredHits);
   phoIsoEE.setUseNumCrystals(useNumXtals);
 

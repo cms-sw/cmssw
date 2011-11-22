@@ -43,6 +43,11 @@ ESTrendTask::ESTrendTask(const ParameterSet& ps) {
   hESFiberErrTrend_ = 0;
   hESSLinkErrTrendHr_ = 0;
   hESFiberErrTrendHr_ = 0;
+
+  start_time_ = 0;
+  current_time_ = 0;
+  last_time_ = 0;
+
 }
 
 ESTrendTask::~ESTrendTask() {
@@ -182,9 +187,9 @@ void ESTrendTask::analyze(const Event& e, const EventSetup& c) {
 
   long int diff_current_start = current_time_ - start_time_;
   long int diff_last_start    = last_time_ - start_time_;
-  LogInfo("ESTrendTask") << "time difference is negative in " << ievt_ << " events\n"
-			 << "\tcurrent - start time = " << diff_current_start
-			 << ", \tlast - start time = " << diff_last_start << endl;
+  //LogInfo("ESTrendTask") << "time difference is negative in " << ievt_ << " events\n"
+  //<< "\tcurrent - start time = " << diff_current_start
+  //<< ", \tlast - start time = " << diff_last_start << endl;
 
   //  std::cout << "current_time : " << current_time_ << ", diff : " << diff_current_start << std::endl;
 
@@ -199,11 +204,11 @@ void ESTrendTask::analyze(const Event& e, const EventSetup& c) {
   long int hourBinDiff = diff_current_start/3600/hourBinWidth - diff_last_start/3600/hourBinWidth;
   long int hourDiff = (current_time_ - last_time_)/3600;
 
-  if(minuteDiff >= minuteBinWidth) {
-    while(minuteDiff >= minuteBinWidth) minuteDiff -= minuteBinWidth;
+  if (minuteDiff >= minuteBinWidth) {
+    while (minuteDiff >= minuteBinWidth) minuteDiff -= minuteBinWidth;
   }
-  if(hourDiff >= hourBinWidth){
-    while(hourDiff >= hourBinWidth) hourDiff -= hourBinWidth;
+  if (hourDiff >= hourBinWidth) {
+    while (hourDiff >= hourBinWidth) hourDiff -= hourBinWidth;
   }
 
   // ES DCC

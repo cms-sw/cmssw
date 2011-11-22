@@ -71,6 +71,21 @@ ls -1 ../interface/*.h | awk -F/interface/ '{print $2}' | awk -F. '{print "- " $
 
 cat >> $fileName <<@EOF
 
+
+\subsection pluginai Plugins
+<!-- List the plugins that are provided for use in other packages (if any) -->
+
+@EOF
+
+# Include list of plugins classes here, stripping of directory name and .h 
+ls -1 ../plugins/*.h | awk -F/plugins/ '{print $2}' | awk -F. '{print "- " $1}' >> $fileName
+
+# Remainder of .doc file.
+
+cat >> $fileName <<@EOF
+
+
+
 \subsection modules Modules
 <!-- Describe modules implemented in this package and their parameter set -->
 

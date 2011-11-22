@@ -254,13 +254,11 @@ C...Commonblock to transfer event-by-event matching info
       COMMON/MEMAEV/PTCLUS(20),NLJETS,IEXC,Ifile
 
 C...Local variables
-      INTEGER I,J,IBEG,NEX,KP(MAXNUP),MOTH,NUPREAD,II,iexcl
-      DOUBLE PRECISION PSUM,ESUM,PM1,PM2,A1,A2,A3,A4,A5
-      DOUBLE PRECISION SCALLOW(MAXNUP),PNONJ(4),PMNONJ!,PT2JETS
+      INTEGER I,NEX,KP(MAXNUP),MOTH,NUPREAD,II,iexcl
+      DOUBLE PRECISION PSUM,ESUM
 C...Lines to read in assumed never longer than 200 characters. 
       INTEGER MAXLEN
       PARAMETER (MAXLEN=200)
-      CHARACTER*(MAXLEN) STRING
 
 C...Functions
       INTEGER iexclusive
@@ -508,14 +506,13 @@ C
       INTEGER K(NJMAX),KP(NJMAX),kpj(njmax)
 
 C...Variables for the kT-clustering
-      INTEGER NMAX,NN,NJET,NSUB,JET,NJETM,IHARD,IP1,IP2
+      INTEGER NMAX,NN,NSUB,JET,NJETM,IHARD,IP1,IP2
       DOUBLE PRECISION PP,PJET
-      DOUBLE PRECISION ECUT,Y,YCUT,RAD
+      DOUBLE PRECISION ECUT,Y,YCUT
       PARAMETER (NMAX=512)
-      DIMENSION JET(NMAX),Y(NMAX),PP(4,NMAX),PJET(4,NMAX),
-     $   PJETM(4,NMAX)
+      DIMENSION JET(NMAX),Y(NMAX),PP(4,NMAX),PJET(4,NMAX)
       INTEGER NNM
-      DOUBLE PRECISION YM(NMAX),PPM(4,NMAX),PJETM
+      DOUBLE PRECISION YM(NMAX),PPM(4,NMAX)
 
 C...kt clustering common block
       INTEGER NMAXKT,NUM,HIST
@@ -557,7 +554,7 @@ C...Commonblock to transfer event-by-event matching info
       COMMON/HISTDAT/varev
 	  
 C...Pythia common blocks
-      INTEGER PYCOMP,KCHG,NPART,NPARTD,IPART,MAXNUR
+      INTEGER NPART,NPARTD,IPART,MAXNUR
 	  DOUBLE PRECISION PTPART
       PARAMETER (MAXNUR=1000)
       COMMON/PYPART/NPART,NPARTD,IPART(MAXNUR),PTPART(MAXNUR)
@@ -582,7 +579,6 @@ C...Pythia common blocks
      $   'Ncjets','Njets','Nfile'/
       DATA htit2/'Npart','Qjet1','Qjet2','Qjet3','Qjet4','Nfile'/
 	  
-	  CHARACTER*30 CGIVE0
 
 
 
@@ -590,15 +586,13 @@ C...Pythia common blocks
 C   local variables
       double precision tiny
       parameter (tiny=1d-3)
-      integer icount
-      data icount/0/
       integer idbg
       data idbg/0/
 
       integer i,j,ihep,nmatch,jrmin,KPT(MAXNUP),nres,ii
       double precision etajet,phijet,delr,dphi,delrmin,ptjet
       double precision p(4,10),pt(10),eta(10),phi(10)
-      INTEGER ISTOLD(NMXHEP),IST,IMO
+      INTEGER IMO
       logical norad(20)
       REAL*4 var2(nvar2)
 
@@ -1359,9 +1353,14 @@ C...Local variables
       DOUBLE PRECISION XSTOT(MAXNJ),XSECTOT
       DOUBLE PRECISION ptjmin,etajmax,drjmin,ptbmin,etabmax,xqcut
 
+      integer icount 
+
 C...Functions
       INTEGER iexclusive
       EXTERNAL iexclusive
+
+C...Initialize the icount counter to detect infinite loops
+      icount=0
 
 C...Need lower scale for final state radiation in e+e-
       IF(IABS(IDBMUP(1)).EQ.11.AND.IABS(IDBMUP(2)).EQ.11) then
@@ -1380,14 +1379,24 @@ C
       MINJ=MAXNJ
       MAXJ=0
       NREAD=0
-      
+      NUP=0  
       DO WHILE(.true.)
 C	  write(LNHOUT,*)'Launching MGEVNT'
         CALL MGEVNT()
 		write(LNHOUT,*)'NLJETS=',NLJETS
+
+	icount = icount+1
+        if (icount.gt.10) then
+          write (LNHOUT,*) 
+     &      'GeneratorInterface/PartonShowerVeto ME2phythia:'
+     &      //' Aborting, loop in set_matching above ',icount,' cycles'
+          write (LNHOUT,*) 'NUP = ',NUP,' IEXC = ',IEXC 
+          stop
+        endif  
+
         IF(NUP.eq.0) goto 20
         IF(IEXC.EQ.-1) cycle
-		
+
         if(NLJETS.GT.MAXJ) MAXJ=NLJETS
         if(NLJETS.LT.MINJ) MINJ=NLJETS
 c        XSTOT(NLJETS+1)=XSTOT(NLJETS+1)+XWGTUP
@@ -1630,7 +1639,7 @@ C-----------------------------------------------------------------------
       IR(I)=0
       J=1
    2  IF(A(I).GT.A(J)) GOTO 5
-   3  IF(IL(J).EQ.0) GOTO 4
+      IF(IL(J).EQ.0) GOTO 4
       J=IL(J)
       GOTO 2
    4  IR(I)=-J
@@ -1658,7 +1667,7 @@ C-----------------------------------------------------------------------
   30  IF(IOPT.EQ.2) RETURN
       DO 31 I=1,N
   31  A(I)=B(I)
- 999  END
+      END
 
 C-----------------------------------------------------------------------
 C----Calorimeter simulation obtained from Frank Paige 23 March 1988-----
@@ -1788,7 +1797,7 @@ C            WEIGHT BY SIN(THETA)
         ET(IY,IPHI)=ET(IY,IPHI)+EIP*STHCAL(IY)
       ENDIF
   200 CONTINUE
-  999 END
+      END
       SUBROUTINE GETJETM(RJET,EJCUT,ETAJCUT)
 C                
 C          SIMPLE JET-FINDING ALGORITHM (SIMILAR TO UA1).
@@ -1923,7 +1932,7 @@ C...HEPEVT commonblock.
      &JMOHEP(2,NMXHEP),JDAHEP(2,NMXHEP),PHEP(5,NMXHEP),VHEP(4,NMXHEP)
       DOUBLE PRECISION PHEP,VHEP
       SAVE /HEPEVT/
-      INTEGER ISTOLD(NMXHEP),IHEP,IST,ISTLO,ISTHI,ISTOP,IMO,icount
+      INTEGER ISTLO,ISTHI
 
 
       CALL CALSIMM

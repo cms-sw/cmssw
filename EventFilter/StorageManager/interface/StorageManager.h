@@ -1,16 +1,14 @@
-// $Id: StorageManager.h,v 1.57 2010/03/04 16:57:41 mommsen Exp $
+// $Id: StorageManager.h,v 1.58.6.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: StorageManager.h 
 
-#ifndef StorageManager_StorageManager_h
-#define StorageManager_StorageManager_h
+#ifndef EventFilter_StorageManager_StorageManager_h
+#define EventFilter_StorageManager_StorageManager_h
 
 #include <string>
 
 #include "EventFilter/StorageManager/interface/ConsumerUtils.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
-#include "EventFilter/StorageManager/interface/WebPageHelper.h"
-
-#include "FWCore/PluginManager/interface/ProblemTracker.h"
+#include "EventFilter/StorageManager/interface/SMWebPageHelper.h"
 
 #include "xdaq/Application.h"
 #include "xgi/exception/Exception.h"
@@ -39,8 +37,8 @@ namespace stor {
    * Main class of the StorageManager XDAQ application
    *
    * $Author: mommsen $
-   * $Revision: 1.57 $
-   * $Date: 2010/03/04 16:57:41 $
+   * $Revision: 1.58.6.1 $
+   * $Date: 2011/03/07 11:33:04 $
    */
 
   class StorageManager: public xdaq::Application
@@ -49,8 +47,6 @@ namespace stor {
   public:
   
     StorageManager( xdaq::ApplicationStub* s );
-  
-    ~StorageManager();
 
 
   private:  
@@ -217,23 +213,21 @@ namespace stor {
      */
     void startWorkerThreads();
 
-    // instantiate the plugin manager, not referenced here after!
-    edm::AssertHandler _ah;
+    SharedResourcesPtr sharedResources_;
 
-    SharedResourcesPtr _sharedResources;
+    boost::scoped_ptr<FragmentProcessor> fragmentProcessor_;
+    boost::scoped_ptr<DiskWriter> diskWriter_;
+    boost::scoped_ptr<DQMEventProcessor> dqmEventProcessor_;
 
-    FragmentProcessor *_fragmentProcessor;
-    DiskWriter *_diskWriter;
-    DQMEventProcessor *_dqmEventProcessor;
-
-    ConsumerUtils _consumerUtils;
-    WebPageHelper _webPageHelper;
+    typedef ConsumerUtils<Configuration,EventQueueCollection> ConsumerUtils_t;
+    boost::scoped_ptr<ConsumerUtils_t> consumerUtils_;
+    boost::scoped_ptr<SMWebPageHelper> smWebPageHelper_;
 
   };
 
-}
+} // namespace stor
 
-#endif // StorageManager_StorageManager_h
+#endif // EventFilter_StorageManager_StorageManager_h
 
 
 /// emacs configuration

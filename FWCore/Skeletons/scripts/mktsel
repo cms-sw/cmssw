@@ -7,7 +7,7 @@
 #  execution:  mktsel tselectorname
 # 
 #  output:  tselectorname/
-#                         Buildfile
+#                         BuildFile.xml
 #                         interface/
 #                         src/tselectorname.cc
 #                         src/tselectorname.h
@@ -26,7 +26,7 @@
 #  example:
 #  mktsel MySel 
 #        --> write  MySel/
-#                         Buildfile
+#                         BuildFile.xml
 #                         interface/
 #                         src/MySel.cc
 #                         src/MySel.h
@@ -85,7 +85,7 @@ $skeletons{"$skel_dir/TSelector/tselector.cc"} =
 $skeletons{"$skel_dir/TSelector/tselector.h"} =
     "$name/src/" . $name . '.h';
 $skeletons{"$skel_dir/TSelector/BuildFile.temp"} =
-    "$name/BuildFile";
+    "$name/BuildFile.xml";
 $skeletons{"$skel_dir/TSelector/classes.h"} =
     "$name/src/classes.h";
 $skeletons{"$skel_dir/TSelector/classes_def.xml"} =
@@ -192,7 +192,7 @@ mktsel  h:
 mktsel  h: execution:  mktsel tselectorname [options]
 mktsel  h:
 mktsel  h: output:  tselectorname/
-mktsel  h:                       BuildFile
+mktsel  h:                       BuildFile.xml
 mktsel  h:                       interface/
 mktsel  h:                       src/tselectorname.cc
 mktsel  h:                       doc/
@@ -213,7 +213,7 @@ mktsel  h:
 mktsel  h: example:
 mktsel  h: mktsel MyAnalyzer
 mktsel  h:       --> write  MyAnalyzer/
-mktsel  h:                              BuildFile
+mktsel  h:                              BuildFile.xml
 mktsel  h:                              interface/
 mktsel  h:                              src/MyAnalyzer.cc
 mktsel  h:                              doc/

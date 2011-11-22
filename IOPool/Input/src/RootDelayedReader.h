@@ -18,7 +18,7 @@ RootDelayedReader.h // used by ROOT input sources
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "Inputfwd.h"
 
-class TFile;
+class InputFile;
 class TTreeCache;
 namespace edm {
 
@@ -35,7 +35,7 @@ namespace edm {
     RootDelayedReader(EntryNumber const& entry,
       boost::shared_ptr<BranchMap const> bMap,
       boost::shared_ptr<TTreeCache> treeCache,
-      boost::shared_ptr<TFile> filePtr,
+      boost::shared_ptr<InputFile> filePtr,
       FileFormatVersion const& fileFormatVersion);
 
     virtual ~RootDelayedReader();
@@ -50,9 +50,9 @@ namespace edm {
     EntryNumber const entryNumber_;
     boost::shared_ptr<BranchMap const> branches_;
     // NOTE: filePtr_ appears to be unused, but is needed to prevent
-    // the TFile containing the branch from being reclaimed.
+    // the InputFile containing the branch from being reclaimed.
     boost::shared_ptr<TTreeCache> treeCache_;
-    boost::shared_ptr<TFile> filePtr_;
+    boost::shared_ptr<InputFile> filePtr_;
     boost::shared_ptr<DelayedReader> nextReader_;
     FileFormatVersion fileFormatVersion_;
   }; // class RootDelayedReader

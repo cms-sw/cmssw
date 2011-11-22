@@ -251,8 +251,8 @@ def crabWatch(action,project = None, threshold = 95.0):
 
 def initCrabEnvironment():
     pythonpathenv = os.environ['PYTHONPATH']
-    pythonpathbegin = pythonpathenv.split(':')[0].rstrip('/')
-    pythonpathend = pythonpathenv.split(':')[-1].rstrip('/')
+    pythonpathbegin = pythonpathenv.split(':')[0]
+    pythonpathend = pythonpathenv.split(':')[-1]
 
     indexBegin = sys.path.index(pythonpathbegin)
     if os.environ.has_key('CRABPSETPYTHON'): sys.path.insert( indexBegin, os.environ['CRABPSETPYTHON'] )

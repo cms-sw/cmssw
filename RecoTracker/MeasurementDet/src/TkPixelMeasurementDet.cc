@@ -81,10 +81,7 @@ TkPixelMeasurementDet::recHits( const TrajectoryStateOnSurface& ts ) const
   if (isActive() == false) return result; 
   for ( const_iterator ci = detSet_.begin(); ci != detSet_.end(); ++ ci ) {
     SiPixelClusterRef cluster = edmNew::makeRefTo( handle_, ci ); 
-    if (skipClusters_.find(cluster)!=skipClusters_.end())
-      edm::LogWarning("TkPixelMeasurementDet")<<"skipping this cluster from last iteration";
-    else
-      result.push_back( buildRecHit( cluster, ts.localParameters() ) );
+    result.push_back( buildRecHit( cluster, ts.localParameters() ) );
   }
   return result;
 }

@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerEvent
 //
-// $Id: TriggerEvent.h,v 1.13 2010/12/15 19:44:26 vadler Exp $
+// $Id: TriggerEvent.h,v 1.19 2011/03/08 10:48:45 vadler Exp $
 //
 /**
   \class    pat::TriggerEvent TriggerEvent.h "DataFormats/PatCandidates/interface/TriggerEvent.h"
@@ -19,11 +19,12 @@
    https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerEvent
 
   \author   Volker Adler
-  \version  $Id: TriggerEvent.h,v 1.13 2010/12/15 19:44:26 vadler Exp $
+  \version  $Id: TriggerEvent.h,v 1.19 2011/03/08 10:48:45 vadler Exp $
 */
 
 
 #include "DataFormats/PatCandidates/interface/TriggerAlgorithm.h"
+#include "DataFormats/PatCandidates/interface/TriggerCondition.h"
 #include "DataFormats/PatCandidates/interface/TriggerPath.h"
 #include "DataFormats/PatCandidates/interface/TriggerFilter.h"
 #include "DataFormats/PatCandidates/interface/TriggerObject.h"
@@ -82,6 +83,8 @@ namespace pat {
       /// Member collection related data members
       /// Reference to pat::TriggerAlgorithmCollection in event
       TriggerAlgorithmRefProd algorithms_;
+      /// Reference to pat::TriggerConditionCollection in event
+      TriggerConditionRefProd conditions_;
       /// Reference to pat::TriggerPathCollection in event
       TriggerPathRefProd paths_;
       /// Reference to pat::TriggerAlgorithmCollection in event
@@ -107,6 +110,7 @@ namespace pat {
 
       /// Methods
 
+      /// Trigger event
       /// Set the name of the L1 trigger menu
       void setNameL1Menu( const std::string & name ) { nameL1Menu_  = name; };
       /// Set the name of the HLT trigger table
@@ -172,6 +176,7 @@ namespace pat {
       /// Get the CMS magnet current averaged over run
       float bCurrentAvg() const { return bCurrentAvg_; };
 
+      /// L1 algorithms
       /// Set the reference to the pat::TriggerAlgorithmCollection in the event
       void setAlgorithms( const edm::Handle< TriggerAlgorithmCollection > & handleTriggerAlgorithms ) { algorithms_ = TriggerAlgorithmRefProd( handleTriggerAlgorithms ); };
       /// Get a pointer to all L1 algorithms,
@@ -180,20 +185,45 @@ namespace pat {
       /// Get a pointer to a certain L1 algorithm by name,
       /// returns 0 if algorithm is not found
       const TriggerAlgorithm * algorithm( const std::string & nameAlgorithm ) const;
+      /// Get the name of a certain L1 algorithm in the event collection by bit number physics or technical (default) algorithms,
+      /// returns empty string if algorithm is not found
+      std::string nameAlgorithm( const unsigned bitAlgorithm, const bool techAlgorithm = true ) const;
       /// Get the index of a certain L1 algorithm in the event collection by name,
       /// returns size of algorithm collection if algorithm is not found
       unsigned indexAlgorithm( const std::string & nameAlgorithm ) const;
       /// Get a vector of references to all succeeding L1 algorithms
       TriggerAlgorithmRefVector acceptedAlgorithms() const;
+      /// Get a vector of references to all L1 algorithms succeeding on the GTL board
+      TriggerAlgorithmRefVector acceptedAlgorithmsGtl() const;
       /// Get a vector of references to all technical L1 algorithms
       TriggerAlgorithmRefVector techAlgorithms() const;
       /// Get a vector of references to all succeeding technical L1 algorithms
       TriggerAlgorithmRefVector acceptedTechAlgorithms() const;
+      /// Get a vector of references to all technical L1 algorithms succeeding on the GTL board
+      TriggerAlgorithmRefVector acceptedTechAlgorithmsGtl() const;
       /// Get a vector of references to all physics L1 algorithms
       TriggerAlgorithmRefVector physAlgorithms() const;
       /// Get a vector of references to all succeeding physics L1 algorithms
       TriggerAlgorithmRefVector acceptedPhysAlgorithms() const;
+      /// Get a vector of references to all physics L1 algorithms succeeding on the GTL board
+      TriggerAlgorithmRefVector acceptedPhysAlgorithmsGtl() const;
 
+      /// L1 conditions
+      /// Set the reference to the pat::TriggerConditionCollection in the event
+      void setConditions( const edm::Handle< TriggerConditionCollection > & handleTriggerConditions ) { conditions_ = TriggerConditionRefProd( handleTriggerConditions ); };
+      /// Get a pointer to all L1 condition,
+      /// returns 0 if RefProd is null
+      const TriggerConditionCollection * conditions() const { return conditions_.get(); };
+      /// Get a pointer to a certain L1 condition by name,
+      /// returns 0 if condition is not found
+      const TriggerCondition * condition( const std::string & nameCondition ) const;
+      /// Get the index of a certain L1 condition in the event collection by name,
+      /// returns size of condition collection if condition is not found
+      unsigned indexCondition( const std::string & nameCondition ) const;
+      /// Get a vector of references to all succeeding L1 condition
+      TriggerConditionRefVector acceptedConditions() const;
+
+      /// HLT paths
       /// Set the reference to the pat::TriggerPathCollection in the event
       void setPaths( const edm::Handle< TriggerPathCollection > & handleTriggerPaths ) { paths_ = TriggerPathRefProd( handleTriggerPaths ); };
       /// Get a pointer to all HLT paths,
@@ -208,6 +238,7 @@ namespace pat {
       /// Get a vector of references to all succeeding HLT paths
       TriggerPathRefVector acceptedPaths() const;
 
+      /// HLT filters
       /// Set the reference to the pat::TriggerFilterCollection in the event
       void setFilters( const edm::Handle< TriggerFilterCollection > & handleTriggerFilters ) { filters_ = TriggerFilterRefProd( handleTriggerFilters ); };
       /// Get a pointer to all HLT filters,
@@ -222,13 +253,9 @@ namespace pat {
       /// Get a vector of references to all succeeding HLT filters
       TriggerFilterRefVector acceptedFilters() const;
 
+      /// Trigger objects
       /// Set the reference to the pat::TriggerObjectCollection in the event
       void setObjects( const edm::Handle< TriggerObjectCollection > & handleTriggerObjects ) { objects_ = TriggerObjectRefProd( handleTriggerObjects ); };
-      /// Add a pat::TriggerObjectMatch association
-      /// returns 'false' if 'matcher' alreadey exists
-      bool addObjectMatchResult( const TriggerObjectMatchRefProd               & trigMatches, const std::string & labelMatcher );
-      bool addObjectMatchResult( const edm::Handle< TriggerObjectMatch >       & trigMatches, const std::string & labelMatcher ) { return addObjectMatchResult( TriggerObjectMatchRefProd( trigMatches ), labelMatcher ); };
-      bool addObjectMatchResult( const edm::OrphanHandle< TriggerObjectMatch > & trigMatches, const std::string & labelMatcher ) { return addObjectMatchResult( TriggerObjectMatchRefProd( trigMatches ), labelMatcher ); };
       /// Get a pointer to all trigger objects,
       /// returns 0 if RefProd is null
       const TriggerObjectCollection * objects() const { return objects_.get(); };
@@ -236,6 +263,29 @@ namespace pat {
       TriggerObjectRefVector objects( trigger::TriggerObjectType triggerObjectType ) const;
       TriggerObjectRefVector objects( int                        triggerObjectType ) const { return objects( trigger::TriggerObjectType( triggerObjectType ) ); }; // for backward compatibility
 
+      /// L1 x-links
+      /// Get a vector of references to all conditions assigned to a certain algorithm given by name
+      TriggerConditionRefVector algorithmConditions( const std::string & nameAlgorithm ) const;
+      /// Checks, if a condition is assigned to a certain algorithm given by name
+      bool conditionInAlgorithm( const TriggerConditionRef & conditionRef, const std::string & nameAlgorithm ) const;
+      /// Get a vector of references to all algorithms, which have a certain condition assigned
+      TriggerAlgorithmRefVector conditionAlgorithms( const TriggerConditionRef & conditionRef ) const;
+      /// Get a list of all trigger object collections used in a certain condition given by name
+      std::vector< std::string > conditionCollections( const std::string & nameAlgorithm ) const;
+      /// Get a vector of references to all objects, which were used in a certain condition given by name
+      TriggerObjectRefVector conditionObjects( const std::string & nameCondition ) const;
+      /// Checks, if an object was used in a certain condition given by name
+      bool objectInCondition( const TriggerObjectRef & objectRef, const std::string & nameCondition ) const;
+      /// Get a vector of references to all conditions, which have a certain object assigned
+      TriggerConditionRefVector objectConditions( const TriggerObjectRef & objectRef ) const;
+      /// Get a vector of references to all objects, which were used in a certain algorithm given by name
+      TriggerObjectRefVector algorithmObjects( const std::string & nameAlgorithm ) const;
+      /// Checks, if an object was used in a certain algorithm given by name
+      bool objectInAlgorithm( const TriggerObjectRef & objectRef, const std::string & nameAlgorithm ) const;
+      /// Get a vector of references to all algorithms, which have a certain object assigned
+      TriggerAlgorithmRefVector objectAlgorithms( const TriggerObjectRef & objectRef  ) const;
+
+      /// HLT x-links
       /// Get a vector of references to all modules assigned to a certain path given by name,
       /// setting 'all' to 'false' returns the run filters only.
       TriggerFilterRefVector pathModules( const std::string & namePath, bool all = true ) const;
@@ -253,13 +303,18 @@ namespace pat {
       bool objectInFilter( const TriggerObjectRef & objectRef, const std::string & labelFilter ) const;
       /// Get a vector of references to all filters, which have a certain object assigned
       TriggerFilterRefVector objectFilters( const TriggerObjectRef & objectRef ) const;
-      /// Get a vector of references to all objects, which wree used in a certain path given by name
+      /// Get a vector of references to all objects, which were used in a certain path given by name
       TriggerObjectRefVector pathObjects( const std::string & namePath ) const;
       /// Checks, if an object was used in a certain path given by name
       bool objectInPath( const TriggerObjectRef & objectRef, const std::string & namePath ) const;
       /// Get a vector of references to all paths, which have a certain object assigned
       TriggerPathRefVector objectPaths( const TriggerObjectRef & objectRef  ) const;
 
+      /// Add a pat::TriggerObjectMatch association
+      /// returns 'false' if 'matcher' alreadey exists
+      bool addObjectMatchResult( const TriggerObjectMatchRefProd               & trigMatches, const std::string & labelMatcher );
+      bool addObjectMatchResult( const edm::Handle< TriggerObjectMatch >       & trigMatches, const std::string & labelMatcher ) { return addObjectMatchResult( TriggerObjectMatchRefProd( trigMatches ), labelMatcher ); };
+      bool addObjectMatchResult( const edm::OrphanHandle< TriggerObjectMatch > & trigMatches, const std::string & labelMatcher ) { return addObjectMatchResult( TriggerObjectMatchRefProd( trigMatches ), labelMatcher ); };
       /// Get a list of all linked trigger matches
       std::vector< std::string > triggerMatchers() const;
       /// Get all trigger matches

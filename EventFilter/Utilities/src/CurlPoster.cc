@@ -15,7 +15,7 @@ namespace evf{
   const std::string CurlPoster::standard_post_method_ = "/postEntry";
 
   //______________________________________________________________________________
-  void CurlPoster::post(const char *content, 
+  void CurlPoster::post(const unsigned char *content, 
 			size_t len, 
 			unsigned int run,
 			mode m, const std::string &post_method)
@@ -52,8 +52,8 @@ namespace evf{
     case bin:
       {
 	headers = curl_slist_append(headers, "Content-Type: application/octet-stream");
-	headers = curl_slist_append(headers, "Content-Transfer-Encoding: base64")
-;
+	//	headers = curl_slist_append(headers, "Content-Transfer-Encoding: base64");
+	headers = curl_slist_append(headers, "Expect:");
 	method = "trp";
 	break;
       }
@@ -69,6 +69,7 @@ namespace evf{
     curl_easy_setopt(han, CURLOPT_URL, urlp.c_str());
     //    curl_easy_setopt(han, CURLOPT_VERBOSE,"");
     curl_easy_setopt(han, CURLOPT_NOSIGNAL,"");
+    curl_easy_setopt(han, CURLOPT_HTTP_VERSION,CURL_HTTP_VERSION_1_0);
     //	curl_easy_setopt(han, CURLOPT_TIMEOUT, 60.0L);
     curl_formadd(&post, &last,
 		 CURLFORM_COPYNAME, "name",
@@ -78,7 +79,7 @@ namespace evf{
 		 CURLFORM_COPYCONTENTS, srun, CURLFORM_END);
     int retval = curl_formadd(&post, &last,
 			      CURLFORM_COPYNAME, method.c_str(),
-			      CURLFORM_PTRCONTENTS, content,
+			      CURLFORM_COPYCONTENTS, content,
 			      CURLFORM_CONTENTSLENGTH, len,
 			      CURLFORM_CONTENTHEADER, headers,
 			      CURLFORM_END);
@@ -88,9 +89,9 @@ namespace evf{
 	
     int success = curl_easy_perform(han);
     curl_formfree(post);
-    curl_slist_free_all(headers); /* free the header list */
     curl_easy_cleanup(han);
-    
+    curl_slist_free_all(headers); /* free the header list */    
+
     if(success != 0)
       {
 	std::ostringstream msg;
@@ -104,9 +105,9 @@ namespace evf{
 			      mode m, const std::string &post_method)
   {
     if(!active_) return;
-    post(content,(unsigned int)len,run,m,post_method);
+    post((unsigned char*)content,(unsigned int)len,run,m,post_method);
   }
-  void CurlPoster::postBinary(const char *content, size_t len, unsigned int run,
+  void CurlPoster::postBinary(const unsigned char *content, size_t len, unsigned int run,
 			      const std::string &post_method)
   {
     if(!active_) return;

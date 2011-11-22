@@ -2,11 +2,6 @@
   <use   name="boost"/>
   <use   name="xdaq"/>
   <use   name="EventFilter/StorageManager"/>
-  <library   file="SillyLockService.cc" name="SillyLockService">
-    <flags   EDM_PLUGIN="1"/>
-    <use   name="FWCore/Framework"/>
-    <use   name="IOPool/Streamer"/>
-  </library>
   <library   file="SMDQMSourceExample.cc" name="SMDQMServicesDaemonExample">
     <flags   EDM_PLUGIN="1"/>
     <use   name="DQMServices/Core"/>
@@ -27,16 +22,12 @@
     <use   name="FWCore/Framework"/>
     <use   name="IOPool/Streamer"/>
   </library>
-  <library   file="fsmSoap_t.cpp">
-  </library>
   <bin   file="state_machine_t.cpp">
     <use   name="cppunit"/>
   </bin>
   <bin   file="xhtmlmaker_t.cpp">
   </bin>
   <bin   file="EnquingPolicyTag_t.cpp">
-  </bin>
-  <bin   file="EventStreamConfigurationInfo_t.cpp">
   </bin>
   <bin   file="ConsumerRegistrationInfo_t.cpp">
     <use   name="cppunit"/>

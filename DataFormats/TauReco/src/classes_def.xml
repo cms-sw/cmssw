@@ -79,8 +79,6 @@
   <class name="edm::Association<std::vector<reco::PFTau> >"/>
   <class name="edm::Wrapper<edm::Association<std::vector<reco::PFTauDecayMode> > >"/>
   <class name="edm::Wrapper<edm::Association<std::vector<reco::PFTau> > >"/>
-  <class name="edm::Association<std::vector<reco::PFJet> >"/>
-  <class name="edm::Wrapper<edm::Association<std::vector<reco::PFJet> > >"/>
 
   <class name="reco::RecoTauPiZero"/>
   <class name="std::vector<reco::RecoTauPiZero>"/>

@@ -20,6 +20,8 @@ class LHEReader {
 	LHEReader(const edm::ParameterSet &params);
 	LHEReader(const std::vector<std::string> &fileNames,
 	          unsigned int skip = 0);
+	LHEReader(const std::string & inputs,
+	          unsigned int skip = 0);
 	~LHEReader();
 
 	boost::shared_ptr<LHEEvent> next();
@@ -27,9 +29,11 @@ class LHEReader {
     private:
 	class Source;
 	class FileSource;
+	class StringSource;
 	class XMLHandler;
 
 	const std::vector<std::string>	fileURLs;
+    const std::string               strName;
 	unsigned int			firstEvent;
 	int				maxEvents;
 	unsigned int			curIndex;

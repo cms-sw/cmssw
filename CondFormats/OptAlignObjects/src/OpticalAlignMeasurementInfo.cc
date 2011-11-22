@@ -1,5 +1,6 @@
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignMeasurementInfo.h"
 
+#include <iostream>
 #include <iomanip>
 
 std::ostream & operator<<(std::ostream & os, const OpticalAlignMeasurementInfo & r)
