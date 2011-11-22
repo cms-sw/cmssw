@@ -1,7 +1,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("ScriptExample")
+process = cms.Process("LHE")
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -20,8 +20,8 @@ process.externalLHEProducer.nEvents = process.maxEvents.input.value()
 process.out = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-#    outputCommands = process.RECOSIMEventContent.outputCommands,
-    fileName = cms.untracked.string('myOutputFile.root'),
+    outputCommands = process.LHEEventContent.outputCommands,
+    fileName = cms.untracked.string('lheOutputFile.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('')
