@@ -47,6 +47,10 @@ HLT_HIDiJet55_v*
 HLT_HIJet65_Jet55_v*
 HLT_HIJetE30_NoBPTX_v*
 HLT_HIJetE50_NoBPTX3BX_NoHalo_v*
+HLT_HIMET120_v*
+HLT_HIMET200_v*
+HLT_HIMET220_v*
+HLT_HIPhysics_v*
 HLT_HIActivityHF_Coincidence3_v*
 HLT_HIActivityHF_Single3_v*
 HLT_HIClusterVertexCompatibility_v*
