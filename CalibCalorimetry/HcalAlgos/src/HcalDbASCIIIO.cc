@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.63 2011/10/26 13:58:20 xiezhen Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.64 2011/11/14 13:47:54 abdullin Exp $
 //
 #include <vector>
 #include <string>
@@ -1557,18 +1557,26 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalFlagHFDigiTimeP
     // Dump out channel (ieta,iphi,depth,subdet) info
     HcalDbASCIIIO::dumpId (fOutput, *channel);
     // Dump out values for channel
-    sprintf (buffer, " %15u %15u %15u %15f",
+    sprintf (buffer, " %15u %15u %15u %15f ",
 	     fObject.getValues (*channel)->HFdigiflagFirstSample(), 
 	     fObject.getValues (*channel)->HFdigiflagSamplesToAdd(), 
 	     fObject.getValues (*channel)->HFdigiflagExpectedPeak(), 
 	     fObject.getValues (*channel)->HFdigiflagMinEThreshold() 
 	     );
 
+    fOutput<<buffer; // dump flag reco values to buffer
+    fOutput<<"               "; // simple spacer
+
     std::vector<double> coef=fObject.getValues(*channel)->HFdigiflagCoefficients();
     for (std::vector<double>::size_type x=0;x<coef.size();++x)
-      sprintf(buffer, "%f,",coef[x]); // comma-separated values
+      {
+	// dump comma-separated list of coefficients
+	fOutput<<coef[x];
+	if (x<coef.size()-1) // add commas where necessary
+	  fOutput<<",";
+      }
     sprintf(buffer,"\n");
-    fOutput << buffer;
+    fOutput<<buffer;
   }
   return true;
 }
