@@ -1,9 +1,27 @@
+# The following comments couldn't be translated into the new config version:
+
+#RECOEventContent
+
+#RAWSIMEventContent
+
+#RECOSIMEventContent
+
+#RAWSIMEventContent
+
+#Additional Simulation INFO
+
+#RAWDEBUGEventContent
+
 import FWCore.ParameterSet.Config as cms
 
+#
 #
 # Event Content definition
 #
 # Data Tiers defined:
+#
+#  LHE:
+#    include pure LHE production
 #
 #  RAW , RECO, AOD: 
 #    include reconstruction content
@@ -11,16 +29,11 @@ import FWCore.ParameterSet.Config as cms
 #  RAWSIM, RECOSIM, AODSIM: 
 #    include reconstruction and simulation
 #
-#  GENRAW
-#    slimmed-down version of RAWSIM for small transient disk size during MC production, contains Gen+Rawdata
-#
 #  RAWDEBUG(RAWSIM+ALL_SIM_INFO), RAWDEBUGHLT(RAWDEBUG+HLTDEBUG)
-#
-#  RAWSIMHLT (RAWSIM + HLTDEBUG)
 #
 #  FEVT (RAW+RECO), FEVTSIM (RAWSIM+RECOSIM), FEVTDEBUG (FEVTSIM+ALL_SIM_INFO), FEVTDEBUGHLT (FEVTDEBUG+HLTDEBUG)
 #
-#  $Id: EventContent_cff.py,v 1.40 2011/09/20 09:45:51 vlimant Exp $
+#  $Id: EventContent_cff.py,v 1.36 2011/04/26 08:18:39 dlange Exp $
 #
 #
 #
@@ -95,6 +108,16 @@ CommonEventContent = cms.PSet(
 
 #
 #
+# LHE Data Tier definition
+#
+#
+LHEEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'), 
+    splitLevel = cms.untracked.int32(0),
+    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
+)
+#
+#
 # RAW Data Tier definition
 #
 #
@@ -146,30 +169,10 @@ RAWSIMEventContent = cms.PSet(
 )
 #
 #
-# RAWSIMHLT Data Tier definition
-#
-#
-RAWSIMHLTEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *'),
-    splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
-)
-#
-#
 # RECOSIM Data Tier definition
 #
 #
 RECOSIMEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *'),
-    splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
-)
-#
-#
-# GENRAW Data Tier definition
-#
-#
-GENRAWEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
@@ -351,14 +354,12 @@ REPACKRAWSIMEventContent = cms.PSet(
     eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
 )
 
+LHEEventContent.outputCommands.extend(GeneratorInterfaceLHE.outputCommands)
+
 HLTDEBUGEventContent.outputCommands.extend(HLTDebugFEVT.outputCommands)
 
 RAWEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
 RAWEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
-
-REPACKRAWEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
-REPACKRAWEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
-
 
 RECOEventContent.outputCommands.extend(RecoLocalTrackerRECO.outputCommands)
 RECOEventContent.outputCommands.extend(RecoLocalMuonRECO.outputCommands)
@@ -422,35 +423,6 @@ RAWSIMEventContent.outputCommands.extend(DigiToRawFEVT.outputCommands)
 RAWSIMEventContent.outputCommands.extend(MEtoEDMConverterFEVT.outputCommands)
 RAWSIMEventContent.outputCommands.extend(IOMCRAW.outputCommands)
 RAWSIMEventContent.outputCommands.extend(CommonEventContent.outputCommands)
-
-RAWSIMHLTEventContent.outputCommands.extend(RAWEventContent.outputCommands)
-RAWSIMHLTEventContent.outputCommands.extend(SimG4CoreRAW.outputCommands)
-RAWSIMHLTEventContent.outputCommands.extend(SimTrackerRAW.outputCommands)
-RAWSIMHLTEventContent.outputCommands.extend(SimMuonRAW.outputCommands)
-RAWSIMHLTEventContent.outputCommands.extend(SimCalorimetryRAW.outputCommands)
-RAWSIMHLTEventContent.outputCommands.extend(SimGeneralRAW.outputCommands)
-RAWSIMHLTEventContent.outputCommands.extend(GeneratorInterfaceRAW.outputCommands)
-RAWSIMHLTEventContent.outputCommands.extend(RecoGenJetsFEVT.outputCommands)
-RAWSIMHLTEventContent.outputCommands.extend(RecoGenMETFEVT.outputCommands)
-RAWSIMHLTEventContent.outputCommands.extend(DigiToRawFEVT.outputCommands)
-RAWSIMHLTEventContent.outputCommands.extend(MEtoEDMConverterFEVT.outputCommands)
-RAWSIMHLTEventContent.outputCommands.extend(IOMCRAW.outputCommands)
-RAWSIMHLTEventContent.outputCommands.extend(CommonEventContent.outputCommands)
-RAWSIMHLTEventContent.outputCommands.extend(HLTDebugRAW.outputCommands)
-
-GENRAWEventContent.outputCommands.extend(RAWEventContent.outputCommands)
-GENRAWEventContent.outputCommands.extend(GeneratorInterfaceRECO.outputCommands)
-GENRAWEventContent.outputCommands.extend(SimG4CoreRECO.outputCommands)
-GENRAWEventContent.outputCommands.extend(SimTrackerRAW.outputCommands)
-GENRAWEventContent.outputCommands.extend(SimMuonRECO.outputCommands)
-GENRAWEventContent.outputCommands.extend(SimCalorimetryRECO.outputCommands)
-GENRAWEventContent.outputCommands.extend(SimGeneralRECO.outputCommands)
-GENRAWEventContent.outputCommands.extend(RecoGenMETFEVT.outputCommands)
-GENRAWEventContent.outputCommands.extend(RecoGenJetsFEVT.outputCommands)
-GENRAWEventContent.outputCommands.extend(MEtoEDMConverterFEVT.outputCommands)
-GENRAWEventContent.outputCommands.extend(IOMCRAW.outputCommands)
-GENRAWEventContent.outputCommands.extend(DigiToRawFEVT.outputCommands)
-GENRAWEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 
 REPACKRAWSIMEventContent.outputCommands.extend(REPACKRAWEventContent.outputCommands)
 REPACKRAWSIMEventContent.outputCommands.extend(SimG4CoreRAW.outputCommands)
@@ -611,12 +583,8 @@ ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlBeamHaloOverlaps_noDro
 ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlBeamHalo_noDrop.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECORpcCalHLT_noDrop.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECODtCalib_noDrop.outputCommands)
-ALCARECOEventContent.outputCommands.extend(OutALCARECOSiStripPCLHistos_noDrop.outputCommands)
+#ALCARECOEventContent.outputCommands.extend(OutALCARECOSiStripPCLHistos_noDrop.outputCommands)
 
 
 ALCARECOEventContent.outputCommands.append('drop *_MEtoEDMConverter_*_*')
 
-REPACKRAWSIMEventContent.outputCommands.extend(['drop FEDRawDataCollection_source_*_*',
-                                                'drop FEDRawDataCollection_rawDataCollector_*_*'])
-REPACKRAWEventContent.outputCommands.extend(['drop FEDRawDataCollection_source_*_*',
-                                                'drop FEDRawDataCollection_rawDataCollector_*_*'])
