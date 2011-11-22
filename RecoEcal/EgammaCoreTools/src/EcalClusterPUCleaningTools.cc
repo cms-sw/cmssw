@@ -107,21 +107,23 @@ reco::SuperCluster EcalClusterPUCleaningTools::CleanedSuperCluster(float xi, con
   const CaloSubdetectorGeometry *geometry_p=0;
   if (seed->seed().det() == DetId::Ecal && seed->seed().subdetId() == EcalBarrel){
     geometry_p = geometry_->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+    SuperClusterShapeAlgo  SCShape(   ebRecHits_ , geometry_p); 
+    SCShape.Calculate_Covariances( suCltmp );
+    phiWidth= SCShape.phiWidth(); 
+    etaWidth= SCShape.etaWidth(); 
   }
   else if (seed->seed().det() == DetId::Ecal && seed->seed().subdetId() == EcalEndcap){
     geometry_p = geometry_->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+    SuperClusterShapeAlgo  SCShape(   eeRecHits_ , geometry_p); 
+    SCShape.Calculate_Covariances( suCltmp );
+    phiWidth= SCShape.phiWidth(); 
+    etaWidth= SCShape.etaWidth(); 
   }
   else {
     std::cout << "The seed crystal of this SC is neither in EB nor in EE. This is a problem. Bailing out " << std::endl;
     assert(-1);
   }
-  SuperClusterShapeAlgo  SCShape(   ebRecHits_ , geometry_p); 
-  SCShape.Calculate_Covariances( suCltmp );
-
-  // how do I calculate these quantities? Make a look, and possibly don't use  geometry...
-  phiWidth= SCShape.phiWidth(); 
-  etaWidth= SCShape.etaWidth(); 
-
+  
   // return the cleaned supercluster SCluster, with covariances updated 
   return reco::SuperCluster(ClusterE, math::XYZPoint(posX, posY, posZ), seed, thissc, Epreshower, phiWidth, etaWidth);
 
