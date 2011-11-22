@@ -2,7 +2,6 @@
 #define RecoTracker_TkSeedGenerator_SeedGeneratorFromRegionHits_H
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <string>
 
 class TrackingRegion;
@@ -20,12 +19,6 @@ public:
       SeedComparitor * aComparitor = 0,
       SeedCreator * aSeedCreator = 0
     );
-
-  //ctor, OBSOLETE, FOR BACKWAR COMP. ONLY 
-  SeedGeneratorFromRegionHits(
-    OrderedHitsGenerator * aGenerator,
-    const edm::ParameterSet & cfg,
-    SeedComparitor * aComparitor = 0);
 
 
   //dtor

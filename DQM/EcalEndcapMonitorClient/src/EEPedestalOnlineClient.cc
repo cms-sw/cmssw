@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2010/08/30 13:14:08 $
- * $Revision: 1.109 $
+ * $Date: 2011/08/30 09:29:45 $
+ * $Revision: 1.113 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -17,6 +17,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/MonPedestalsOnlineDat.h"
@@ -80,6 +81,7 @@ EEPedestalOnlineClient::EEPedestalOnlineClient(const edm::ParameterSet& ps) {
   expectedMean_ = 200.0;
   discrepancyMean_ = 25.0;
   RMSThreshold_ = 4.0;
+  RMSThresholdInternal_ = 8.0;
 
 }
 
@@ -126,7 +128,7 @@ void EEPedestalOnlineClient::endRun(void) {
 
 void EEPedestalOnlineClient::setup(void) {
 
-  char histo[200];
+  std::string name;
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EEPedestalOnlineClient" );
 
@@ -135,20 +137,20 @@ void EEPedestalOnlineClient::setup(void) {
     int ism = superModules_[i];
 
     if ( meg03_[ism-1] ) dqmStore_->removeElement( meg03_[ism-1]->getName() );
-    sprintf(histo, "EEPOT pedestal quality G12 %s", Numbers::sEE(ism).c_str());
-    meg03_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+    name = "EEPOT pedestal quality G12 " + Numbers::sEE(ism);
+    meg03_[ism-1] = dqmStore_->book2D(name, name, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
     meg03_[ism-1]->setAxisTitle("ix", 1);
     if ( ism >= 1 && ism <= 9 ) meg03_[ism-1]->setAxisTitle("101-ix", 1);
     meg03_[ism-1]->setAxisTitle("iy", 2);
 
     if ( mep03_[ism-1] ) dqmStore_->removeElement( mep03_[ism-1]->getName() );
-    sprintf(histo, "EEPOT pedestal mean G12 %s", Numbers::sEE(ism).c_str());
-    mep03_[ism-1] = dqmStore_->book1D(histo, histo, 100, 150., 250.);
+    name = "EEPOT pedestal mean G12 " + Numbers::sEE(ism);
+    mep03_[ism-1] = dqmStore_->book1D(name, name, 100, 150., 250.);
     mep03_[ism-1]->setAxisTitle("mean", 1);
 
     if ( mer03_[ism-1] ) dqmStore_->removeElement( mer03_[ism-1]->getName() );
-    sprintf(histo, "EEPOT pedestal rms G12 %s", Numbers::sEE(ism).c_str());
-    mer03_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0.,  10.);
+    name = "EEPOT pedestal rms G12 " + Numbers::sEE(ism);
+    mer03_[ism-1] = dqmStore_->book1D(name, name, 100, 0.,  10.);
     mer03_[ism-1]->setAxisTitle("rms", 1);
 
   }
@@ -322,17 +324,14 @@ void EEPedestalOnlineClient::analyze(void) {
   bits03 |= 1 << EcalDQMStatusHelper::PEDESTAL_ONLINE_HIGH_GAIN_MEAN_ERROR;
   bits03 |= 1 << EcalDQMStatusHelper::PEDESTAL_ONLINE_HIGH_GAIN_RMS_ERROR;
 
-  char histo[200];
-
   MonitorElement* me;
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    sprintf(histo, (prefixME_ + "/EEPedestalOnlineTask/Gain12/EEPOT pedestal %s G12").c_str(), Numbers::sEE(ism).c_str());
-    me = dqmStore_->get(histo);
-    h03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
+    me = dqmStore_->get( prefixME_ + "/EEPedestalOnlineTask/Gain12/EEPOT pedestal " + Numbers::sEE(ism) + " G12" );
+    h03_[ism-1] = UtilsClient::getHisto( me, cloneME_, h03_[ism-1] );
 
     if ( meg03_[ism-1] ) meg03_[ism-1]->Reset();
     if ( mep03_[ism-1] ) mep03_[ism-1]->Reset();
@@ -352,6 +351,9 @@ void EEPedestalOnlineClient::analyze(void) {
           if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ix, iy, 2. );
         }
 
+        // OOT pileup affects the region near beam pipe mostly. Use higher threshold for these crystals
+        float radius = std::sqrt((jx-50.)*(jx-50.)+(jy-50.)*(jy-50.));
+
         bool update03;
 
         float num03;
@@ -367,7 +369,7 @@ void EEPedestalOnlineClient::analyze(void) {
           val = 1.;
           if ( std::abs(mean03 - expectedMean_) > discrepancyMean_ )
             val = 0.;
-          if ( rms03 > RMSThreshold_ )
+          if ( (radius >= 20. && rms03 > RMSThreshold_) || (radius < 20. && rms03 > RMSThresholdInternal_) )
             val = 0.;
           if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent(ix, iy, val);
 

@@ -1,18 +1,18 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <iostream>
-#include <string>
-#include <map>
+// #include <stdio.h>
+// #include <stdlib.h>
+// #include <iostream>
+// #include <string>
+// #include <map>
 
 
-#include <DataFormats/MuonDetId/interface/RPCDetId.h>
+//#include <DataFormats/MuonDetId/interface/RPCDetId.h>
 #include <DQM/RPCMonitorDigi/interface/RPCEfficiency.h>
-#include <DQM/RPCMonitorDigi/interface/RPCBookFolderStructure.h>
-#include "DQMServices/Core/interface/MonitorElement.h"
+//#include <DQM/RPCMonitorDigi/interface/RPCBookFolderStructure.h>
+//#include "DQMServices/Core/interface/MonitorElement.h"
 
-std::map<std::string, MonitorElement*> RPCEfficiency::bookDetUnitSeg(RPCDetId & detId,int nstrips,std::string folder) {
+void RPCEfficiency::bookDetUnitSeg(RPCDetId & detId,int nstrips,std::string folder, std::map<std::string, MonitorElement*> & meMap) {
   
-  std::map<std::string, MonitorElement*> meMap;
+  //std::map<std::string, MonitorElement*> meMap;
    
   dbe->setCurrentFolder(folder);
 
@@ -50,7 +50,7 @@ std::map<std::string, MonitorElement*> RPCEfficiency::bookDetUnitSeg(RPCDetId & 
 //     sprintf(meTitle,"BXDistribution_for_%d",rawId);
 //     meMap[meId] = dbe->book1D(meId, meTitle, 11,-5.5, 5.5);
   }
-  return meMap;
+  //return meMap;
 }
 
 

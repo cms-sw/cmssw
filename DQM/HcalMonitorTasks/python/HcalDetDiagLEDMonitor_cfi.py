@@ -16,10 +16,10 @@ hcalDetDiagLEDMonitor=cms.EDAnalyzer("HcalDetDiagLEDMonitor",
                                      # DetDiag LED Monitor-specific Info
                                      LEDMeanThreshold       = cms.untracked.double(0.1),
                                      LEDRmsThreshold        = cms.untracked.double(0.1),
-                                     UseDB                  = cms.untracked.bool(False),
-                                     ReferenceData          = cms.untracked.string(""),
+                                     LEDReferenceData       = cms.untracked.string(""),
                                      OutputFilePath         = cms.untracked.string(""),
+			             XmlFilePath            = cms.untracked.string(""),
                                      digiLabel              = cms.untracked.InputTag("hcalDigis"),
                                      calibDigiLabel         = cms.untracked.InputTag("hcalDigis"),
-                                     triggerLabel           = cms.untracked.InputTag("l1GtUnpack"),  # not yet implemented -- still using getByType!
+                                     triggerLabel           = cms.untracked.InputTag("l1GtUnpack"),
                                    )

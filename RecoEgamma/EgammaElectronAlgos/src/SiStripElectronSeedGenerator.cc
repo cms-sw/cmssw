@@ -17,19 +17,15 @@ Description: SiStrip-driven electron seed finding algorithm.
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
-#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "RecoTracker/TkSeedGenerator/interface/FastCircle.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiStripMatchedRecHit.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
@@ -38,20 +34,15 @@ Description: SiStrip-driven electron seed finding algorithm.
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 
-#include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 // files for retrieving hits using measurement tracker
 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
-#include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
-#include "TrackingTools/MeasurementDet/interface/MeasurementDet.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 
-#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/SiStripElectronSeedGenerator.h"
 

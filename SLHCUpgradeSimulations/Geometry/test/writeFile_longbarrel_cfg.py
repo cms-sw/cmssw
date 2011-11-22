@@ -4,10 +4,10 @@ process = cms.Process("ICALIB")
 #process.load("Configuration.StandardSequences.FakeConditions_cff")
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
-process.load("SLHCUpgradeSimulations.Geometry.longbarrel_cmsIdealGeometryXML_cff")
+process.load("SLHCUpgradeSimulations.Geometry.Longbarrel_cmsSimIdealGeometryXML_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'MC_31X_V8::All'
+process.GlobalTag.globaltag = 'DESIGN42_V11::All'
 process.siPixelFakeGainOfflineESSource = cms.ESSource("SiPixelFakeGainOfflineESSource",
     file = cms.FileInPath('SLHCUpgradeSimulations/Geometry/data/longbarrel/PixelSkimmedGeometry.txt')
 )
@@ -18,6 +18,9 @@ process.siPixelFakeLorentzAngleESSource = cms.ESSource("SiPixelFakeLorentzAngleE
 )
 process.es_prefer_fake_lorentz = cms.ESPrefer("SiPixelFakeLorentzAngleESSource","siPixelFakeLorentzAngleESSource")
 process.TrackerDigiGeometryESModule.applyAlignment = False
+
+print process.TrackerGeometricDetESModule.fromDDD
+print process.TrackerDigiGeometryESModule.fromDDD,process.TrackerDigiGeometryESModule.applyAlignment
 
 process.source = cms.Source("EmptyIOVSource",
     firstValue = cms.uint64(1),
@@ -32,12 +35,12 @@ process.MessageLogger.logfile = cms.untracked.PSet(threshold = cms.untracked.str
 
 process.Timing = cms.Service("Timing")
 
-#process.prodstrip = cms.EDFilter("SiStripDetInfoFileWriter",
+#process.prodstrip = cms.EDAnalyzer("SiStripDetInfoFileWriter",
 #    FilePath = cms.untracked.string('SiStripDetInfo_longbarrel.dat'),
 #)
 
-process.prodpixel = cms.EDFilter("SiPixelDetInfoFileWriter",
-    FilePath = cms.untracked.string('PixelSkimmedGeometry_longbarrel.dat'),
+process.prodpixel = cms.EDAnalyzer("SiPixelDetInfoFileWriter",
+    FilePath = cms.untracked.string('PixelSkimmedGeometry_longbarrel.txt'),
     WriteROCInfo = cms.untracked.bool(True)
 )
 

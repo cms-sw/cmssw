@@ -14,7 +14,6 @@
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/OneToValue.h"
-#include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
 //#include "DataFormats/TrackReco/interface/DeDxHitFwd.h"
@@ -34,8 +33,6 @@ namespace {
     edm::RefVector<reco::TrackExtraCollection> rv3;
 
     std::vector<edm::RefVector<std::vector<reco::Track> > > vrv3;
-    edm::Ptr<reco::Track> ptrt;
-    std::vector<edm::Ptr<reco::Track> > vptrt;
 
     reco::TrackCollection v1;
     edm::Wrapper<reco::TrackCollection> c1;

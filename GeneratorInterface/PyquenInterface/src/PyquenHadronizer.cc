@@ -2,7 +2,7 @@
  *
  * Generates PYQUEN HepMC events
  *
- * $Id: PyquenHadronizer.cc,v 1.12 2011/02/17 20:53:49 yarba Exp $
+ * $Id: PyquenHadronizer.cc,v 1.10 2009/10/15 12:25:31 yilmaz Exp $
 */
 
 #include <iostream>
@@ -48,14 +48,15 @@ docollisionalenloss_(pset.getParameter<bool>("doCollisionalEnLoss")),
 doIsospin_(pset.getParameter<bool>("doIsospin")),
 embedding_(pset.getParameter<bool>("embeddingMode")),
 evtPlane_(0),
+filterType_(pset.getUntrackedParameter<string>("filterType","None")),
+maxTries_(pset.getUntrackedParameter<int>("maxTries",1000)),
 nquarkflavor_(pset.getParameter<int>("qgpNumQuarkFlavor")),
 qgpt0_(pset.getParameter<double>("qgpInitialTemperature")),
 qgptau0_(pset.getParameter<double>("qgpProperTimeFormation")),
 maxEventsToPrint_(pset.getUntrackedParameter<int>("maxEventsToPrint",1)),
 pythiaHepMCVerbosity_(pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
 pythiaPylistVerbosity_(pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0)),
-pythia6Service_(new Pythia6Service(pset)),
-filterType_(pset.getUntrackedParameter<string>("filterType","None"))
+pythia6Service_(new Pythia6Service(pset))
 {
   // Verbosity Level
   // Valid PYLIST arguments are: 1, 2, 3, 5, 7, 11, 12, 13
@@ -72,8 +73,8 @@ filterType_(pset.getUntrackedParameter<string>("filterType","None"))
      cflag_ = 0;
      src_ = pset.getParameter<InputTag>("backgroundLabel");
   }
-  selector_ = HiGenEvtSelectorFactory::get(filterType_,pset);
 
+  selector_ = HiGenEvtSelectorFactory::get(filterType_,pset);
 }
 
 
@@ -136,30 +137,40 @@ bool PyquenHadronizer::generatePartonsAndHadronize()
       }
    }
 
-   // Generate PYQUEN event
-   // generate single partonic PYTHIA jet event
-   
-   // Take into account whether it's a nn or pp or pn interaction
-   if(doIsospin_) call_pyinit("CMS", nucleon(), nucleon(), comenergy);
-   call_pyevnt();
-   
-   // call PYQUEN to apply parton rescattering and energy loss 
-   // if doQuench=FALSE, it is pure PYTHIA
-   if( doquench_ ){
-     PYQUEN(abeamtarget_,cflag_,bfixed_,bmin_,bmax_);
-     edm::LogInfo("PYQUENinAction") << "##### Calling PYQUEN("<<abeamtarget_<<","<<cflag_<<","<<bfixed_<<") ####";
-   } else {
-     edm::LogInfo("PYQUENinAction") << "##### Calling PYQUEN: QUENCHING OFF!! This is just PYTHIA !!!! ####";
+   int counter = 0;
+   bool pass = false;
+
+   HepMC::GenEvent* evt = 0;
+   while(!pass){
+      if(counter == maxTries_) throw edm::Exception(edm::errors::Configuration,"InfiniteLoop")<<"Pyquen tried "<<counter<<" times to generate event with "<<filterType_.data()<<" ."<<endl;
+      
+      // Generate PYQUEN event
+      // generate single partonic PYTHIA jet event
+
+      // Take into account whether it's a nn or pp or pn interaction
+      if(doIsospin_) call_pyinit("CMS", nucleon(), nucleon(), comenergy);
+      call_pyevnt();
+
+      // call PYQUEN to apply parton rescattering and energy loss 
+      // if doQuench=FALSE, it is pure PYTHIA
+      if( doquench_ ){
+	 PYQUEN(abeamtarget_,cflag_,bfixed_,bmin_,bmax_);
+	 edm::LogInfo("PYQUENinAction") << "##### Calling PYQUEN("<<abeamtarget_<<","<<cflag_<<","<<bfixed_<<") ####";
+      } else {
+	 edm::LogInfo("PYQUENinAction") << "##### Calling PYQUEN: QUENCHING OFF!! This is just PYTHIA !!!! ####";
+      }
+      
+      // call PYTHIA to finish the hadronization
+      pyexec_();
+
+      // fill the HEPEVT with the PYJETS event record
+      call_pyhepc(1);
+      
+      // event information
+      evt = hepevtio.read_next_event();
+      pass = selector_->filter(evt);
+      counter++;
    }
-   
-   // call PYTHIA to finish the hadronization
-   pyexec_();
-   
-   // fill the HEPEVT with the PYJETS event record
-   call_pyhepc(1);
-   
-   // event information
-    HepMC::GenEvent* evt = hepevtio.read_next_event();
 
    evt->set_signal_process_id(pypars.msti[0]);      // type of the process
    evt->set_event_scale(pypars.pari[16]);           // Q^2
@@ -172,12 +183,10 @@ bool PyquenHadronizer::generatePartonsAndHadronize()
   return true;
 }
 
-bool PyquenHadronizer::readSettings( int )
-{
+bool PyquenHadronizer::initializeForInternalPartons(){
 
    Pythia6Service::InstanceWrapper guard(pythia6Service_);
    pythia6Service_->setGeneralParams();
-   pythia6Service_->setCSAParams();
 
    //Proton to Nucleon fraction
    pfrac_ = 1./(1.98+0.015*pow(abeamtarget_,2./3));
@@ -187,15 +196,6 @@ bool PyquenHadronizer::readSettings( int )
 
    //initilize pyquen          
    pyquen_init(pset_);
-
-   return true;
-
-}
-
-bool PyquenHadronizer::initializeForInternalPartons(){
-
-
-   Pythia6Service::InstanceWrapper guard(pythia6Service_);
 
    // Call PYTHIA              
    call_pyinit("CMS", "p", "p", comenergy);
@@ -208,11 +208,11 @@ bool PyquenHadronizer::initializeForInternalPartons(){
 bool PyquenHadronizer::pyqpythia_init(const ParameterSet & pset)
 {
 
-  //Turn Hadronization Off whether or not there is quenching  
-  // PYEXEC is called later anyway
-  string sHadOff("MSTP(111)=0");
-  gen::call_pygive(sHadOff);
-
+   //Turn Hadronization Off if there is quenching  
+   if(doquench_){
+      string sHadOff("MSTP(111)=0");
+      gen::call_pygive(sHadOff);
+   }
   return true;
 }
 

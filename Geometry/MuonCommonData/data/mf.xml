@@ -87,8 +87,8 @@
  <Trd1 name="ME_FR4Skin_2_ME11Layer" dz="81*cm " dy1="[ME11FR4SkinHalfThick]" dy2="[ME11FR4SkinHalfThick]" dx1="15.065*cm " dx2="30.45*cm " />
  <Trd1 name="MECU_1_ME11Layer" dz="81*cm " dy1="[ME11CuFoilHalfThick]" dy2="[ME11CuFoilHalfThick]" dx1="15.065*cm " dx2="30.45*cm " />
  <Trd1 name="MECU_2_ME11Layer" dz="81*cm " dy1="[ME11CuFoilHalfThick]" dy2="[ME11CuFoilHalfThick]" dx1="15.065*cm" dx2="30.45*cm " />
- <Trd1 name="ME1A_ActiveGasVol" dz="21.56*cm" dy1="[ME11ActiveGasVolHalfThick]" dy2="[ME11ActiveGasVolHalfThick]" dx1="9.35*cm" dx2="13.365*cm" />
- <Trd1 name="ME11_ActiveGasVol" dz="52.81*cm" dy1="[ME11ActiveGasVolHalfThick]" dy2="[ME11ActiveGasVolHalfThick]" dx1="13.365*cm" dx2="23.31*cm" />
+ <Trd1 name="ME1A_ActiveGasVol" dz="21.5*cm " dy1="[ME11ActiveGasVolHalfThick]" dy2="[ME11ActiveGasVolHalfThick]" dx1="9.361*cm " dx2="13.123*cm " />
+ <Trd1 name="ME11_ActiveGasVol" dz="52.75*cm " dy1="[ME11ActiveGasVolHalfThick]" dy2="[ME11ActiveGasVolHalfThick]" dx1="13.123*cm " dx2="22.353*cm " />
  <Box name="MEEQ" dx="15*cm " dy="2.5*cm " dz="30*cm "/>
  <Tubs name="AlgPinNarrowEnd" rMin="0*mm " rMax="4.06*mm " dz="18.8*mm " startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="AlgPinWideEnd" rMin="0*mm " rMax="4.06*mm " dz="18.8*mm " startPhi="0*deg" deltaPhi="360*deg"/>
@@ -279,7 +279,7 @@ RE2/1 staged volumes-->
  <Trd1 name="ME_FR4Skin_2_ME22Layer" dz="1.67095*m  " dy1="[FR4SkinHalfThick]" dy2="[FR4SkinHalfThick]" dx1="41.95*cm " dx2="73.345*cm " />
  <Trd1 name="MECU_1_ME22Layer" dz="1.67095*m  " dy1="[CuFoilHalfThick]" dy2="[CuFoilHalfThick]" dx1="41.95*cm " dx2="73.345*cm " />
  <Trd1 name="MECU_2_ME22Layer" dz="1.67095*m  " dy1="[CuFoilHalfThick]" dy2="[CuFoilHalfThick]" dx1="41.95*cm " dx2="73.345*cm " />
- <Trd1 name="ME22_ActiveGasVol" dz="1.6153*m  " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="33.230*cm" dx2="63.575*cm" />
+ <Trd1 name="ME22_ActiveGasVol" dz="1.6153*m  " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="33.955*cm " dx2="63.3*cm " />
  <Trd1 name="ME_DeadGas_1_ME22_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="57.7*cm " dx2="57.93*cm " />
  <Trd1 name="ME_DeadGas_2_ME22_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="52.18*cm " dx2="52.42*cm " />
  <Trd1 name="ME_DeadGas_3_ME22_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="46.67*cm " dx2="46.9*cm " />

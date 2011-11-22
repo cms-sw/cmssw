@@ -1,6 +1,6 @@
 /** \file HLTMuonValidator.cc
- *  $Date: 2010/11/04 12:56:22 $
- *  $Revision: 1.23 $
+ *  $Date: 2011/06/06 18:52:13 $
+ *  $Revision: 1.28 $
  */
 
 
@@ -116,7 +116,6 @@ HLTMuonValidator::initializeHists()
   sources[1] = "rec";
 
   set<string>::iterator iPath;
-  TPRegexp suffixPtCut("[0-9]+$");
 
   for (iPath = hltPaths_.begin(); iPath != hltPaths_.end(); iPath++) {
  
@@ -136,14 +135,17 @@ HLTMuonValidator::initializeHists()
       if (moduleLabels[i].find("Filtered") != string::npos)
         filterLabels_[path].push_back(moduleLabels[i]);
 
-    // Getting a reliable L1 pT measurement is impossible beyond 2.1, so most
-    // paths have no L1 beyond 2.1 except those passing kLooseL1Requirement
-    double cutMaxEta = (TString(path).Contains(kLooseL1Requirement)) ? 2.4:2.1;
+    double cutMaxEta = 2.4;
+
 
     // Choose a pT cut for gen/rec muons based on the pT cut in the path
-    unsigned int index = TString(path).Index(suffixPtCut);
     unsigned int threshold = 3;
-    if (index < path.length()) threshold = atoi(path.substr(index).c_str());
+    TPRegexp ptRegexp("Mu([0-9]*)");
+    TObjArray * regexArray = ptRegexp.MatchS(path);
+    if (regexArray->GetEntriesFast() == 2) {
+      threshold = atoi(((TObjString *)regexArray->At(1))->GetString());
+    }
+    delete regexArray;
     // We select a whole number min pT cut slightly above the path's final 
     // pt threshold, then subtract a bit to let through particle gun muons with
     // exact integer pT:
@@ -152,7 +154,10 @@ HLTMuonValidator::initializeHists()
     cutsMinPt_[path] = cutMinPt;
 
     string baseDir = "HLT/Muon/Distributions/";
-    dbe_->setCurrentFolder(baseDir + path);
+    string pathSansSuffix = path;
+    if (path.rfind("_v") < path.length())
+      pathSansSuffix = path.substr(0, path.rfind("_v"));
+    dbe_->setCurrentFolder(baseDir + pathSansSuffix);
 
     if (dbe_->get(baseDir + path + "/CutMinPt") == 0) {
 
@@ -308,7 +313,13 @@ HLTMuonValidator::analyzePath(const Event & iEvent,
   }
   else for (size_t i = 0; i < nStepsHlt; i++)
     for (size_t j = 0; j < refsHlt[i].size(); j++)
-      candsHlt[i].push_back(& * refsHlt[i][j]);
+      if (refsHlt[i][j].isAvailable()) {
+	candsHlt[i].push_back(& * refsHlt[i][j]);
+      } else {
+	LogWarning("HLTMuonValidator")
+	  << "Ref refsHlt[i][j]: product not available "
+	  << i << " " << j;
+      }
 
   // Add trigger objects to the MatchStructs
   findMatches(matches, candsL1, candsHlt);
@@ -362,9 +373,10 @@ HLTMuonValidator::analyzePath(const Event & iEvent,
           elements_[pre + "MaxPt1" + post]->Fill(pt);
         if (matchesInEtaRange.size() >= 2 && j == matchesInEtaRange[1])
           elements_[pre + "MaxPt2" + post]->Fill(pt);
-        if(fabs(eta) < maxEta && pt > cutsMinPt_[path]) {
+        if (pt > cutsMinPt_[path]) {
           elements_[pre + "Eta" + post]->Fill(eta);
-          elements_[pre + "Phi" + post]->Fill(phi);
+          if (fabs(eta) < maxEta)
+            elements_[pre + "Phi" + post]->Fill(phi);
         }
       }
     }
@@ -400,6 +412,7 @@ HLTMuonValidator::findMatches(
     double bestDeltaR = cutsDr_[0];
     size_t bestMatch = kNull;
     for (it = indicesL1.begin(); it != indicesL1.end(); it++) {
+     if (candsL1[*it].isAvailable()) {
       double dR = deltaR(cand->eta(), cand->phi(),
                          candsL1[*it]->eta(), candsL1[*it]->phi());
       if (dR < bestDeltaR) {
@@ -414,6 +427,11 @@ HLTMuonValidator::findMatches(
       //   bestMatch = *it;
       //   bestDeltaR = dR;
       // }
+     } else {
+       LogWarning("HLTMuonValidator")
+	 << "Ref candsL1[*it]: product not available "
+	 << *it;
+     }
     }
     if (bestMatch != kNull)
       matches[i].candL1 = & * candsL1[bestMatch];

@@ -6,18 +6,19 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 # input
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-        '/store/mc/Fall10/QCD_Pt_15to3000_TuneZ2_Flat_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0000/16A40D7C-63CC-DF11-A8F9-E41F13181890.root'
+    '/store/relval/CMSSW_4_2_0/RelValTTbar/GEN-SIM-RECO/MC_42_V9-v1/0054/3CBCB401-935E-E011-8345-0026189437F8.root'
+#        '/store/mc/Fall10/QCD_Pt_15to3000_TuneZ2_Flat_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0000/16A40D7C-63CC-DF11-A8F9-E41F13181890.root'
 #    '/store/relval/CMSSW_3_8_2/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/MC_38Y_V9-v1/0018/4E074A51-97AF-DF11-AED9-003048678ED2.root',
 #    '/store/relval/CMSSW_3_8_2/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/MC_38Y_V9-v1/0018/9AC16F8D-A7AF-DF11-80AC-003048D15E14.root',
 #    '/store/relval/CMSSW_3_8_2/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/MC_38Y_V9-v1/0018/9C41071C-96AF-DF11-AF18-003048679228.root',
 #    '/store/relval/CMSSW_3_8_2/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/MC_38Y_V9-v1/0018/B494B961-B0AF-DF11-8508-003048678B5E.root',
 #    '/store/relval/CMSSW_3_8_2/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/MC_38Y_V9-v1/0018/D07EF07A-9BAF-DF11-A708-003048678BAE.root',
-    ),
-    inputCommands = cms.untracked.vstring('keep *_*_*_*','drop recoTrackExtrapolations_*_*_RECO')  
+    )
+    #inputCommands = cms.untracked.vstring('keep *_*_*_*','drop recoTrackExtrapolations_*_*_RECO')  
     )
 # output
 process.load('Configuration/EventContent/EventContent_cff')
@@ -44,14 +45,14 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load('Configuration.StandardSequences.Geometry_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'START310_V4::All'
+process.GlobalTag.globaltag = 'START311_V1::All'
 
 process.load("RecoJets/Configuration/RecoPFClusterJets_cff")
 
 process.load("RecoJets/JetAssociationProducers/trackExtrapolator_cfi")
 
+#process.recoJets = cms.Path(process.trackExtrapolator+process.jetGlobalReco+process.CastorFullReco+process.jetHighLevelReco+process.recoPFClusterJets)
 process.recoJets = cms.Path(process.trackExtrapolator+process.jetGlobalReco+process.CastorFullReco+process.jetHighLevelReco+process.recoPFClusterJets)
-                                           
 
 process.out = cms.EndPath(process.output)
 

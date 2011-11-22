@@ -70,4 +70,7 @@ void CombinedHitPairGenerator::hitPairs(
     (**i).hitPairs( region, result, ev, es); 
   }
   theLayerCache.clear();
+
+  LogDebug("CombinedHitPairGenerator")<<" total number of pairs provided back CHPG : "<<result.size();
+
 }

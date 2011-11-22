@@ -34,23 +34,18 @@ namespace cms
     trackerContainers = conf.getParameter<std::vector<std::string> >("ROUList");
     
     verbosity = conf_.getUntrackedParameter<int>("VerbosityLevel");
-    dn0   = conf_.getParameter<int>("NumberFP420Detectors");
-    dh0   = conf_.getParameter<int>("NumberHPS240Detectors");
-
     if (verbosity > 0) {
-      std::cout << "Creating a TrackerizerFP420    NumberFP420Detectors =  " << dn0 << "   NumberHPS240Detectors =  " << dh0 << std::endl;
+      std::cout << "Creating a TrackerizerFP420" << std::endl;
     }
     
     // Initialization:
     sFP420TrackMain_ = new FP420TrackMain(conf_);
-    sHPS240TrackMain_ = new HPS240TrackMain(conf_);
     
   }
   
   // Virtual destructor needed.
   TrackerizerFP420::~TrackerizerFP420() {
     delete sFP420TrackMain_;
-    delete sHPS240TrackMain_;
   }  
   
   //Get at the beginning
@@ -84,15 +79,20 @@ namespace cms
     
       Handle<ClusterCollectionFP420> input;
       iEvent.getByLabel( trackerContainers[0] , input);
+
+
+       
+    
     // Step C: create empty output collection
     std::auto_ptr<TrackCollectionFP420> toutput(new TrackCollectionFP420);
-
+    
+    
+    
     //    put zero to container info from the beginning (important! because not any detID is updated with coming of new event     !!!!!!   
     // clean info of container from previous event
     
     std::vector<TrackFP420> collector;
     collector.clear();
-
     TrackCollectionFP420::Range inputRange;
     inputRange.first = collector.begin();
     inputRange.second = collector.end();
@@ -104,10 +104,6 @@ namespace cms
     toutput->putclear(inputRange,StID);
     StID = 2222;
     toutput->putclear(inputRange,StID);
-    StID = 3333;
-    toutput->putclear(inputRange,StID);
-    StID = 4444;
-    toutput->putclear(inputRange,StID);
     
     
     //                                                                                                                      !!!!!!   
@@ -116,10 +112,7 @@ namespace cms
     
     //                                RUN now:                                                                                 !!!!!!     
     //   startFP420TrackMain_.run(input, toutput);
-
-    if(dn0 != 0) sFP420TrackMain_->run(input, toutput);
-    if(dh0 != 0) sHPS240TrackMain_->run(input, toutput);
-
+    sFP420TrackMain_->run(input, toutput);
     // std::cout <<"=======           TrackerizerFP420:                    end of produce     " << std::endl;
     
 	// Step D: write output to file

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/03/11 15:14:10 $
- *  $Revision: 1.70 $
+ *  $Date: 2010/12/04 00:52:21 $
+ *  $Revision: 1.69 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -153,11 +153,6 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
     theCleanedPFJetAnalyzer = new PFJetAnalyzer(parameters.getParameter<ParameterSet>("CleanedpfJetAnalysis"));
     theCleanedPFJetAnalyzer->setSource("PFJets");
   }
-
-  if(theDiJetSelectionFlag){
-    thePFDiJetAnalyzer  = new PFJetAnalyzer(parameters.getParameter<ParameterSet>("PFDijetAnalysis"));
-    thePFDiJetAnalyzer->setSource("PFDiJets");
-  }
   //Trigger selectoin
   edm::ParameterSet highptjetparms = parameters.getParameter<edm::ParameterSet>("highPtJetTrigger");
   edm::ParameterSet lowptjetparms  = parameters.getParameter<edm::ParameterSet>("lowPtJetTrigger" );
@@ -254,9 +249,8 @@ JetMETAnalyzer::~JetMETAnalyzer() {
   if(theJPTJetAnalyzerFlag)        delete theJPTJetAnalyzer;
   if(theJPTJetCleaningFlag)        delete theCleanedJPTJetAnalyzer;
 
-  if(thePFJetAnalyzerFlag)       delete thePFJetAnalyzer;
-  if(thePFJetCleaningFlag)       delete theCleanedPFJetAnalyzer;
-  if(theDiJetSelectionFlag)      delete thePFDiJetAnalyzer;
+  if(thePFJetAnalyzerFlag)         delete thePFJetAnalyzer;
+  if(thePFJetCleaningFlag)         delete theCleanedPFJetAnalyzer;
 
   delete _HighPtJetEventFlag;
   delete _LowPtJetEventFlag;
@@ -315,7 +309,6 @@ void JetMETAnalyzer::beginJob(void) {
 
   if(thePFJetAnalyzerFlag)  thePFJetAnalyzer->beginJob(dbe);
   if(thePFJetCleaningFlag)  theCleanedPFJetAnalyzer->beginJob(dbe);
-  if(theDiJetSelectionFlag) thePFDiJetAnalyzer->beginJob(dbe); 
 
   //
   //--- MET
@@ -731,9 +724,6 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       theCleanedPFJetAnalyzer->setJetLoPass(JetLoPass);
       LogTrace(metname)<<"[JetMETAnalyzer] Call to the Cleaned PFJet analyzer";
       theCleanedPFJetAnalyzer->analyze(iEvent, iSetup, *pfJets);
-      if(theDiJetSelectionFlag){
-	thePFDiJetAnalyzer->analyze(iEvent, iSetup, *pfJets);
-      }
     } // DCS
     }  
   } else {
@@ -835,12 +825,8 @@ void JetMETAnalyzer::endJob(void) {
     if(theIConeJetAnalyzerFlag) theCleanedPtICJetAnalyzer->endJob();
   }
 
-  if(theJPTJetAnalyzerFlag)   theJPTJetAnalyzer->endJob();
-  if(theJPTJetCleaningFlag)   theCleanedJPTJetAnalyzer->endJob();
-
-  if(thePFJetAnalyzerFlag)  thePFJetAnalyzer->endJob();
-  if(thePFJetCleaningFlag)  theCleanedPFJetAnalyzer->endJob();
-  if(theDiJetSelectionFlag) thePFDiJetAnalyzer->endJob();
+  if(theJPTJetAnalyzerFlag) theJPTJetAnalyzer->endJob();
+  if(theJPTJetCleaningFlag) theCleanedJPTJetAnalyzer->endJob();
 
   if(outputMEsInRootFile){
     dbe->save(outputFileName);

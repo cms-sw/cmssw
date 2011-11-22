@@ -2,9 +2,11 @@
 
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/JetReco/interface/JetTracksAssociation.h"
-#include "TrackingTools/TrackAssociator/interface/MuonDetIdAssociator.h"
+// #include "TrackingTools/TrackAssociator/interface/MuonDetIdAssociator.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "TrackingTools/TrackAssociator/interface/DetIdAssociator.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"

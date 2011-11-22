@@ -29,11 +29,11 @@ from PhysicsTools.PatAlgos.tools.helpers import listModules, applyPostfix
 def warningIsolation():
     print "WARNING: particle based isolation must be studied"
 
-def adaptPFMuons(process,module,postfix="" ):    
+def adaptPFMuons(process,module,postfix="" ):
     print "Adapting PF Muons "
     print "***************** "
     warningIsolation()
-    print 
+    print
     module.useParticleFlow = True
     module.userIsolation   = cms.PSet()
     module.isoDeposits = cms.PSet(
@@ -54,15 +54,15 @@ def adaptPFMuons(process,module,postfix="" ):
     print module.isolationValues
     print " isodeposits: "
     print module.isoDeposits
-    print 
-    
+    print
+
 
 def adaptPFElectrons(process,module, postfix):
     # module.useParticleFlow = True
     print "Adapting PF Electrons "
     print "********************* "
     warningIsolation()
-    print 
+    print
     module.useParticleFlow = True
     module.userIsolation   = cms.PSet()
     module.isoDeposits = cms.PSet(
@@ -77,18 +77,18 @@ def adaptPFElectrons(process,module, postfix):
         )
 
     # COLIN: since we take the egamma momentum for pat Electrons, we must
-    # match the egamma electron to the gen electrons, and not the PFElectron.  
+    # match the egamma electron to the gen electrons, and not the PFElectron.
     # -> do not uncomment the line below.
     # process.electronMatch.src = module.pfElectronSource
-    # COLIN: how do we depend on this matching choice? 
+    # COLIN: how do we depend on this matching choice?
 
     print " PF electron source:", module.pfElectronSource
     print " isolation  :"
     print module.isolationValues
     print " isodeposits: "
     print module.isoDeposits
-    print 
-    
+    print
+
     print "removing traditional isolation"
 
     removeIfInSequence(process,  "patElectronIsolation",  "patDefaultSequence", postfix)
@@ -96,10 +96,10 @@ def adaptPFElectrons(process,module, postfix):
 def adaptPFPhotons(process,module):
     raise RuntimeError, "Photons are not supported yet"
 
-from RecoTauTag.RecoTau.TauDiscriminatorTools import adaptTauDiscriminator, producerIsTauTypeMapper 
+from RecoTauTag.RecoTau.TauDiscriminatorTools import adaptTauDiscriminator, producerIsTauTypeMapper
 
 def reconfigurePF2PATTaus(process,
-      tauType='shrinkingConePFTau', 
+      tauType='shrinkingConePFTau',
       pf2patSelection=["DiscriminationByIsolation", "DiscriminationByLeadingPionPtCut"],
       selectionDependsOn=["DiscriminationByLeadingTrackFinding"],
       producerFromType=lambda producer: producer+"Producer",
@@ -120,9 +120,9 @@ def reconfigurePF2PATTaus(process,
    applyPostfix(process,"pfTaus", postfix).src = producerName+postfix
    # Start our pf2pat taus base sequence
    oldTau = getattr(process,'pfTausProducer'+postfix)
-   ## copy tau and setup it properly 
+   ## copy tau and setup it properly
    newTau = getattr(process,producerName).clone()
-   ## adapted to new structure in RecoTauProducers PLEASE CHECK!!! 
+   ## adapted to new structure in RecoTauProducers PLEASE CHECK!!!
    if tauType=='shrinkingConePFTau': #Only shrCone tau has modifiers???
        # like this, it should have it already definied??
        newTau.modifiers[1] = cms.PSet(
@@ -153,11 +153,11 @@ def reconfigurePF2PATTaus(process,
    newTau.jetRegionSrc = oldTau.jetRegionSrc
    newTau.jetSrc = oldTau.jetSrc
 
-   # replace old tau producter by new one put it into baseSequence
+   # replace old tau producer by new one put it into baseSequence
    setattr(process,"pfTausBase"+postfix,newTau)
    baseSequence += getattr(process,"pfTausBase"+postfix)
    if tauType=='hpsPFTau':
-       baseSequence += getattr(process,"produceHPSPFTaus"+postfix)   
+       baseSequence += getattr(process,"produceHPSPFTaus"+postfix)
    #make custom mapper to take postfix into account (could have gone with lambda of lambda but... )
    def producerIsTauTypeMapperWithPostfix(tauProducer):
        return lambda x: producerIsTauTypeMapper(tauProducer)+x.group(1)+postfix
@@ -174,16 +174,20 @@ def reconfigurePF2PATTaus(process,
       # Register in our process
       setattr(process, clonedName, clonedDisc)
       baseSequence += getattr(process, clonedName)
+
+      tauCollectionToSelect = None
       if tauType != 'hpsPFTau' :
-          clonedDisc.PFTauProducer = cms.InputTag(clonedDisc.PFTauProducer.value()+postfix)
+          tauCollectionToSelect = "pfTausBase"+postfix
+          #cms.InputTag(clonedDisc.PFTauProducer.value()+postfix)
       else:
-          clonedDisc.PFTauProducer = cms.InputTag("hpsPFTauProducer"+postfix)
-      # Adapt this discriminator for the cloned prediscriminators 
+          tauCollectionToSelect = "hpsPFTauProducer"+postfix
+      # Adapt this discriminator for the cloned prediscriminators
       adaptTauDiscriminator(clonedDisc, newTauProducer="pfTausBase",
                             oldTauTypeMapper=recoTauTypeMapperWithGroup,
                             newTauTypeMapper=producerIsTauTypeMapperWithPostfix,
                             preservePFTauProducer=True)
-      clonedDisc.PFTauProducer = cms.InputTag("pfTausBase"+postfix)
+      clonedDisc.PFTauProducer = tauCollectionToSelect
+
    # Reconfigure the pf2pat PFTau selector discrimination sources
    applyPostfix(process,"pfTaus", postfix).discriminators = cms.VPSet()
    for selection in pf2patSelection:
@@ -193,34 +197,46 @@ def reconfigurePF2PATTaus(process,
       clonedDisc = getattr(process, originalName).clone()
       # Register in our process
       setattr(process, clonedName, clonedDisc)
+
+      tauCollectionToSelect = None
+
       if tauType != 'hpsPFTau' :
-          clonedDisc.PFTauProducer = cms.InputTag(clonedDisc.PFTauProducer.value()+postfix)
+          tauCollectionToSelect = cms.InputTag("pfTausBase"+postfix)
+          #cms.InputTag(clonedDisc.PFTauProducer.value()+postfix)
       else:
-          clonedDisc.PFTauProducer = cms.InputTag("hpsPFTauProducer"+postfix)
-      # Adapt our cloned discriminator to the new prediscriminants
+          tauCollectionToSelect = cms.InputTag("hpsPFTauProducer"+postfix)
+      #Adapt our cloned discriminator to the new prediscriminants
       adaptTauDiscriminator(clonedDisc, newTauProducer="pfTausBase",
                             oldTauTypeMapper=recoTauTypeMapperWithGroup,
                             newTauTypeMapper=producerIsTauTypeMapperWithPostfix,
                             preservePFTauProducer=True)
-      clonedDisc.PFTauProducer = cms.InputTag("pfTausBase"+postfix)
+      clonedDisc.PFTauProducer = tauCollectionToSelect
       baseSequence += clonedDisc
       # Add this selection to our pfTau selectors
       applyPostfix(process,"pfTaus", postfix).discriminators.append(cms.PSet(
          discriminator=cms.InputTag(clonedName), selectionCut=cms.double(0.5)))
-      applyPostfix(process,"pfTaus", postfix).src = "pfTausBase"+postfix
+      # Set the input of the final selector.
+      if tauType != 'hpsPFTau':
+          applyPostfix(process,"pfTaus", postfix).src = "pfTausBase"+postfix
+      else:
+          # If we are using HPS taus, we need to take the output of the clenaed
+          # collection
+          applyPostfix(process,"pfTaus", postfix).src = "hpsPFTauProducer"+postfix
+
+
 
 def adaptPFTaus(process,tauType = 'shrinkingConePFTau', postfix = ""):
-    # Set up the collection used as a preselection to use this tau type    
+    # Set up the collection used as a preselection to use this tau type
     if tauType != 'hpsPFTau' :
         reconfigurePF2PATTaus(process, tauType, postfix=postfix)
     else:
         reconfigurePF2PATTaus(process, tauType,
-                              ["DiscriminationByLooseIsolation"],
+                              ["DiscriminationByLooseChargedIsolation","DiscriminationByLooseIsolation"],
                               ["DiscriminationByDecayModeFinding"],
                               postfix=postfix)
     applyPostfix(process,"patTaus", postfix).tauSource = cms.InputTag("pfTaus"+postfix)
-    
-    redoPFTauDiscriminators(process, 
+
+    redoPFTauDiscriminators(process,
                             cms.InputTag(tauType+'Producer'),
                             applyPostfix(process,"patTaus", postfix).tauSource,
                             tauType, postfix=postfix)
@@ -235,17 +251,17 @@ def adaptPFTaus(process,tauType = 'shrinkingConePFTau', postfix = ""):
         )
 
 #helper function for PAT on PF2PAT sample
-def tauTypeInPF2PAT(process,tauType='shrinkingConePFTau', postfix = ""): 
+def tauTypeInPF2PAT(process,tauType='shrinkingConePFTau', postfix = ""):
     process.load("CommonTools.ParticleFlow.pfTaus_cff")
     applyPostfix(process, "pfTaus",postfix).src = cms.InputTag(tauType+'Producer'+postfix)
-            
+
 
 def addPFCandidates(process,src,patLabel='PFParticles',cut="",postfix=""):
     from PhysicsTools.PatAlgos.producersLayer1.pfParticleProducer_cfi import patPFParticles
     # make modules
     producer = patPFParticles.clone(pfCandidateSource = src)
-    filter   = cms.EDFilter("PATPFParticleSelector", 
-                    src = cms.InputTag("pat" + patLabel), 
+    filter   = cms.EDFilter("PATPFParticleSelector",
+                    src = cms.InputTag("pat" + patLabel),
                     cut = cms.string(cut))
     counter  = cms.EDFilter("PATCandViewCountFilter",
                     minNumber = cms.uint32(0),
@@ -264,14 +280,13 @@ def addPFCandidates(process,src,patLabel='PFParticles',cut="",postfix=""):
         applyPostfix(process, "selectedPatCandidateSummary", postfix),
         filter+applyPostfix(process, "selectedPatCandidateSummary", postfix)
     )
-
-    tmpCountPatCandidates = applyPostfix(process, "countPatCandidates", postfix)
-    tmpCountPatCandidates+=counter
+    index = len( applyPostfix( process, "patDefaultSequence", postfix ).moduleNames() )
+    applyPostfix( process, "patDefaultSequence", postfix ).insert( index, counter )
     # summary tables
     applyPostfix(process, "patCandidateSummary", postfix).candidates.append(cms.InputTag('pat' + patLabel))
     applyPostfix(process, "selectedPatCandidateSummary", postfix).candidates.append(cms.InputTag('selectedPat' + patLabel))
 
-        
+
 def switchToPFMET(process,input=cms.InputTag('pfMET'), type1=False, postfix=""):
     print 'MET: using ', input
     if( not type1 ):
@@ -294,7 +309,7 @@ def switchToPFMET(process,input=cms.InputTag('pfMET'), type1=False, postfix=""):
             applyPostfix(process, "metJESCorAK5CaloJetMuons",postfix)
             )
 
-def switchToPFJets(process, input=cms.InputTag('pfNoTau'), algo='AK5', postfix = "", jetCorrections=['L1Offset','L2Relative', 'L3Absolute']):
+def switchToPFJets(process, input=cms.InputTag('pfNoTau'), algo='AK5', postfix = "", jetCorrections=('AK5PFchs', ['L1FastJet','L2Relative', 'L3Absolute']) ):
 
     print "Switching to PFJets,  ", algo
     print "************************ "
@@ -315,23 +330,27 @@ def switchToPFJets(process, input=cms.InputTag('pfNoTau'), algo='AK5', postfix =
     inputCollection = getattr(process,"pfJets"+postfix).src
     setattr(process, "pfJets"+postfix, jetAlgo( algo ) ) # problem for cfgBrowser
     getattr(process,"pfJets"+postfix).src = inputCollection
-    inputJetCorrLabel=(algo+'PF',jetCorrections)
+    inputJetCorrLabel=jetCorrections
     switchJetCollection(process,
                         input,
                         jetIdLabel = algo,
                         doJTA=True,
                         doBTagging=True,
-                        jetCorrLabel=inputJetCorrLabel, 
+                        jetCorrLabel=inputJetCorrLabel,
                         #doType1MET=False,
                         doType1MET=True,
                         genJetCollection = genJetCollection,
                         doJetID = True,
 			postfix = postfix
                         )
-    
+    # check whether L1FastJet is in the list of correction levels or not
+    applyPostfix(process, "patJetCorrFactors", postfix).useRho  = False    
+    for corr in inputJetCorrLabel[1]:
+        if corr == 'L1FastJet':
+            applyPostfix(process, "patJetCorrFactors", postfix).useRho = True
     applyPostfix(process, "patJets", postfix).embedCaloTowers   = False
-    applyPostfix(process, "patJets", postfix).embedPFCandidates   = True
-    
+    applyPostfix(process, "patJets", postfix).embedPFCandidates = True
+
 #-- Remove MC dependence ------------------------------------------------------
 def removeMCMatchingPF2PAT( process, postfix="" ):
     from PhysicsTools.PatAlgos.tools.coreTools import removeMCMatching
@@ -339,7 +358,7 @@ def removeMCMatchingPF2PAT( process, postfix="" ):
     removeMCMatching(process, ['All'],postfix)
 
 
-def usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix = ""):
+def usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix = "", jetCorrections=('AK5PFchs', ['L1FastJet','L2Relative','L3Absolute']) ):
     # PLEASE DO NOT CLOBBER THIS FUNCTION WITH CODE SPECIFIC TO A GIVEN PHYSICS OBJECT.
     # CREATE ADDITIONAL FUNCTIONS IF NEEDED.
 
@@ -353,7 +372,7 @@ def usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix = ""
         process.patPF2PATSequence = cms.Sequence( process.PF2PAT + process.patDefaultSequence)
     else:
         process.patPF2PATSequence = cms.Sequence( process.patDefaultSequence )
-        
+
     if not postfix == "":
         from PhysicsTools.PatAlgos.tools.helpers import cloneProcessingSnippet
         cloneProcessingSnippet(process, process.patPF2PATSequence, postfix)
@@ -369,7 +388,7 @@ def usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix = ""
 
     # -------- OBJECTS ------------
     # Muons
-    adaptPFMuons(process, 
+    adaptPFMuons(process,
                  applyPostfix(process,"patMuons",postfix),
                  postfix)
 
@@ -387,15 +406,20 @@ def usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix = ""
     # Jets
     if runOnMC :
         switchToPFJets( process, cms.InputTag('pfNoTau'+postfix), jetAlgo, postfix=postfix,
-                        jetCorrections=['L1Offset','L2Relative','L3Absolute'] )
+                        jetCorrections=jetCorrections )
         applyPostfix(process,"patDefaultSequence",postfix).replace(
             applyPostfix(process,"patJetGenJetMatch",postfix),
             getattr(process,"genForPF2PATSequence") *
             applyPostfix(process,"patJetGenJetMatch",postfix)
             )
     else :
+        if not 'L2L3Residual' in jetCorrections[1]:
+            print '#################################################'
+            print 'WARNING! Not using L2L3Residual but this is data.'
+            print 'If this is okay with you, disregard this message.'
+            print '#################################################'
         switchToPFJets( process, cms.InputTag('pfNoTau'+postfix), jetAlgo, postfix=postfix,
-                        jetCorrections=['L1Offset','L2Relative','L3Absolute', 'L2L3Residual'] )
+                        jetCorrections=jetCorrections )
 
     # Taus
     adaptPFTaus( process, tauType='shrinkingConePFTau', postfix=postfix )

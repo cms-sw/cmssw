@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:12:04 EDT 2006
-// $Id: SiStripElectronAlgo.cc,v 1.31 2010/09/21 17:06:14 chamont Exp $
+// $Id: SiStripElectronAlgo.cc,v 1.36 2011/04/08 08:09:29 innocent Exp $
 //
 
 // system include files
@@ -18,9 +18,6 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/SiStripElectronAlgo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
-#include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "RecoTracker/TrackProducer/interface/TrackingRecHitLessFromGlobalPosition.h"
@@ -929,11 +926,11 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
   // now let's through out hits with a predicted chi > chi2HitMax 
   for ( unsigned int i = 0;  i < uselist.size();  i++ ) { 
     if ( uselist[i] ) { 
-      const SiStripRecHit2D* hit = hitlist[i];
       double localchi2 = (philist[i]-(rlist[i]-scr)*phiVsRSlope)*(philist[i]-(rlist[i]-scr)*phiVsRSlope)*w2list[i] ;
       if(localchi2 > chi2HitMax ) {
 #ifdef EDM_ML_DEBUG 
-	debugstr5 << " Throwing out "
+        const SiStripRecHit2D* hit = hitlist[i];
+ 	debugstr5 << " Throwing out "
 		  <<" DetID " << ((hit)->geographicalId()).rawId()
 		  << " R " << rlist[i] 
 		  << " Phi " << philist[i]
@@ -1074,9 +1071,9 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
     } // end loop over hits to calculate chi^2 and find its biggest contributer
 
     if (biggest_normresid > maxNormResid_) {
+#ifdef EDM_ML_DEBUG
       debugstr4 << "Dropping hit from fit due to Chi2 " << " \n" ;
       const SiStripRecHit2D* hit = hitlist[biggest_index];
-#ifdef EDM_ML_DEBUG 
       debugstr4 << " DetID " << ((hit)->geographicalId()).rawId()
 		<< " R " << rlist[biggest_index]
 		<< " Phi " << philist[biggest_index]
