@@ -24,7 +24,7 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('lheOutputFile.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
-        dataTier = cms.untracked.string('')
+        dataTier = cms.untracked.string('LHE')
     )
 )
 
