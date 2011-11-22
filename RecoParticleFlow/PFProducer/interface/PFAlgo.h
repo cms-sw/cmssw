@@ -82,7 +82,8 @@ class PFAlgo {
 				  double nSigmaTRACK,
 				  double ptError,
 				  std::vector<double> factors45,
-				  bool usePFMuonMomAssign);   
+				  bool usePFMuonMomAssign,
+				  bool useBestMuonTrack);   
 
   void setPFEleParameters(double mvaEleCut,
 			  std::string mvaWeightFileEleID,
@@ -403,6 +404,7 @@ class PFAlgo {
   double minSignificanceReduction_;
   double maxDeltaPhiPt_;
   double minDeltaMet_;
+  double useBestMuonTrack_;
 
   //MIKE -May19th: Add option for the vertices....
   reco::Vertex       primaryVertex_;

@@ -286,13 +286,17 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   bool usePFMuonMomAssign
     = iConfig.getParameter<bool>("usePFMuonMomAssign");
 
+  bool useBestMuonTrack
+    = iConfig.getParameter<bool>("useBestMuonTrack");
+
   // Set muon and fake track parameters
   pfAlgo_->setPFMuonAndFakeParameters(muonHCAL,
 				      muonECAL,
 				      nSigmaTRACK,
 				      ptError,
 				      factors45,
-				      usePFMuonMomAssign);
+				      usePFMuonMomAssign,
+				      useBestMuonTrack);
   
   //Post cleaning of the HF
   bool postHFCleaning
