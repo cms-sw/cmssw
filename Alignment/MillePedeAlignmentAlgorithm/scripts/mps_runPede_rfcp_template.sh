@@ -108,6 +108,9 @@ gzip -f *.log
 gzip -f *.txt
 gzip -f *.dump
 
+#Try to merge millepede monitor files. This only works successfully if names were assigned to jobs.
+mps_merge_millepedemonitor.pl $RUNDIR/../../mps.db $RUNDIR/../../
+
 # Merge possible alignment monitor and millepede monitor hists...
 # ...and remove individual histogram files after merging to save space (if success):
 # NOTE: the names "histograms.root" and "millePedeMonitor.root" must match what is in
