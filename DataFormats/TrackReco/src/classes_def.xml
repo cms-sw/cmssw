@@ -28,8 +28,6 @@
   <class name="std::vector<edm::RefVector<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> > >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> > >"/>
   <class name="std::vector<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> > >"/>
-  <class name="edm::Ptr<reco::Track>" />
-  <class name="std::vector<edm::Ptr<reco::Track> >" />
 
   <class pattern="edm::KeyVal<*>" />
   <class pattern="edm::Wrapper<edm::AssociationMap<*>" />

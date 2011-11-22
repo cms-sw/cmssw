@@ -129,8 +129,8 @@ void SiPixelRawDataErrorSource::analyze(const edm::Event& iEvent, const edm::Eve
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
     
     int numberOfModuleErrors = (*struct_iter).second->fill(*input, modOn, ladOn, bladeOn);
-    if((*struct_iter).first >= 302055684 && (*struct_iter).first <= 302197792 ) nEventBPIXModuleErrors = nEventBPIXModuleErrors + numberOfModuleErrors;
-    if((*struct_iter).first >= 343999748 && (*struct_iter).first <= 352477708 ) nEventFPIXModuleErrors = nEventFPIXModuleErrors + numberOfModuleErrors;
+    if(DetId( (*struct_iter).first ).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) nEventBPIXModuleErrors = nEventBPIXModuleErrors + numberOfModuleErrors;
+    if(DetId( (*struct_iter).first ).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) nEventFPIXModuleErrors = nEventFPIXModuleErrors + numberOfModuleErrors;
     nErrors = nErrors + numberOfModuleErrors;
   }
   for (struct_iter2 = theFEDStructure.begin() ; struct_iter2 != theFEDStructure.end() ; struct_iter2++) {

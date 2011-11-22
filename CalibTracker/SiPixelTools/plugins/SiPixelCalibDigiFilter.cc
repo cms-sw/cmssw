@@ -13,11 +13,10 @@
 //
 // Original Author:  Evan Klose Friis
 //         Created:  Tue Nov  6 16:59:50 CET 2007
-// $Id: SiPixelCalibDigiFilter.cc,v 1.3 2010/08/10 08:57:54 ursl Exp $
+// $Id: SiPixelCalibDigiFilter.cc,v 1.1 2007/12/13 15:57:59 friis Exp $
 //
 //
 
-#include "SiPixelCalibDigiFilter.h"
 
 // system include files
 #include <memory>
@@ -32,6 +31,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelDigi/interface/SiPixelCalibDigi.h"
+#include "CalibTracker/SiPixelTools/interface/SiPixelCalibDigiFilter.h"
 
 //
 // constants, enums and typedefs
@@ -89,5 +89,3 @@ void
 SiPixelCalibDigiFilter::endJob() {
 }
 
-// -- define this as a plug-in
-DEFINE_FWK_MODULE(SiPixelCalibDigiFilter);

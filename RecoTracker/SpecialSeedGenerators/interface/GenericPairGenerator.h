@@ -18,6 +18,7 @@ class GenericPairGenerator : public OrderedHitsGenerator {
 	virtual const OrderedSeedingHits& run(const TrackingRegion& region, 
 					      const edm::Event & ev, 
 					      const edm::EventSetup& es);
+        void clear() { hitPairs.clear();}
 	private:
 	ctfseeding::SeedingLayerSets init(const edm::EventSetup& es);
 	//edm::ParameterSet conf_;

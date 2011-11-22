@@ -85,7 +85,7 @@ public:
   short int badStrip() const { return theBadStrip; }
   short int badWireGroup() const { return theBadWireGroup; }
   
-  // Calculated wire time in ns
+  // Calculated wire bx to half bx level
   float wireTime() const { return (float)theScaledWireTime/100.; }
 
   /// Returns true if the two TrackingRecHits are using the same input information, false otherwise.  In this case, looks at the geographical ID and channel numbers for strips and wires.

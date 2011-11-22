@@ -15,7 +15,7 @@
 //
 // Original Author:  V.Chiochia
 //         Created:  Mon Nov 20 10:04:31 CET 2006
-// $Id: SiPixelDetInfoFileReader.h,v 1.1 2007/07/09 11:24:02 gbruno Exp $
+// $Id: SiPixelDetInfoFileReader.h,v 1.1.2.1 2010/06/25 16:41:53 hcheung Exp $
 //
 //
 
@@ -30,11 +30,12 @@ class SiPixelDetInfoFileReader  {
 
 public:
 
-  explicit SiPixelDetInfoFileReader(std::string filePath);
+  explicit SiPixelDetInfoFileReader(std::string filePath, bool readROCInfo=false);
   ~SiPixelDetInfoFileReader();
 
   const std::vector<uint32_t> & getAllDetIds() const;
   const std::pair<int, int> & getDetUnitDimensions(uint32_t detId) const;
+  const int & getROCRows(uint32_t detId) const;
 
 private:
 
@@ -43,6 +44,7 @@ private:
 
   std::map<uint32_t, std::pair<int, int> > detData_;
   std::vector<uint32_t> detIds_;
+  std::map<uint32_t, int>  theROCInfo_;
 
 };
 #endif

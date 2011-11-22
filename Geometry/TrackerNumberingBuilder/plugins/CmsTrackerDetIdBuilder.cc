@@ -111,7 +111,8 @@ void CmsTrackerDetIdBuilder::iterate(GeometricDet const * in, int level, unsigne
 	// PXB
       case 1:
 	{
-	  temp |= (((in)->components())[i]->geographicalID().rawId()<<16); // Layer Number start bit is 16 [5 unused]
+	  //temp |= (((in)->components())[i]->geographicalID().rawId()<<16); // Layer Number start bit is 16 [5 unused]
+	  temp |= (((in)->components())[i]->geographicalID().rawId()<<18); // Layer Number start bit is 16 [5 unused]
 	  break;
 	}
 	

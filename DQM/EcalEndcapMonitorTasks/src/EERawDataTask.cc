@@ -1,8 +1,8 @@
 /*
  * \file EERawDataTask.cc
  *
- * $Date: 2010/08/09 11:29:35 $
- * $Revision: 1.36 $
+ * $Date: 2010/08/11 14:57:35 $
+ * $Revision: 1.37 $
  * \author E. Di Marco
  *
 */
@@ -125,13 +125,13 @@ void EERawDataTask::setup(void){
 
   init_ = true;
 
-  char histo[200];
+  std::string name;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EERawDataTask");
 
-    sprintf(histo, "EERDT event type pre calibration BX");
-    meEEEventTypePreCalibrationBX_ = dqmStore_->book1D(histo, histo, 31, -1., 30.);
+    name = "EERDT event type pre calibration BX";
+    meEEEventTypePreCalibrationBX_ = dqmStore_->book1D(name, name, 31, -1., 30.);
     meEEEventTypePreCalibrationBX_->setBinLabel(1, "UNKNOWN", 1);
     meEEEventTypePreCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::COSMIC, "COSMIC", 1);
     meEEEventTypePreCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::BEAMH4, "BEAMH4", 1);
@@ -157,8 +157,8 @@ void EERawDataTask::setup(void){
     meEEEventTypePreCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::COSMICS_LOCAL, "COSMICS_LOCAL", 1);
     meEEEventTypePreCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::HALO_LOCAL, "HALO_LOCAL", 1);
 
-    sprintf(histo, "EERDT event type calibration BX");
-    meEEEventTypeCalibrationBX_ = dqmStore_->book1D(histo, histo, 31, -1., 30.);
+    name = "EERDT event type calibration BX";
+    meEEEventTypeCalibrationBX_ = dqmStore_->book1D(name, name, 31, -1., 30.);
     meEEEventTypeCalibrationBX_->setBinLabel(1, "UNKNOWN", 1);
     meEEEventTypeCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::COSMIC, "COSMIC", 1);
     meEEEventTypeCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::BEAMH4, "BEAMH4", 1);
@@ -184,8 +184,8 @@ void EERawDataTask::setup(void){
     meEEEventTypeCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::COSMICS_LOCAL, "COSMICS_LOCAL", 1);
     meEEEventTypeCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::HALO_LOCAL, "HALO_LOCAL", 1);
 
-    sprintf(histo, "EERDT event type post calibration BX");
-    meEEEventTypePostCalibrationBX_ = dqmStore_->book1D(histo, histo, 31, -1., 30.);
+    name = "EERDT event type post calibration BX";
+    meEEEventTypePostCalibrationBX_ = dqmStore_->book1D(name, name, 31, -1., 30.);
     meEEEventTypePostCalibrationBX_->setBinLabel(1, "UNKNOWN", 1);
     meEEEventTypePostCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::COSMIC, "COSMIC", 1);
     meEEEventTypePostCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::BEAMH4, "BEAMH4", 1);
@@ -211,86 +211,86 @@ void EERawDataTask::setup(void){
     meEEEventTypePostCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::COSMICS_LOCAL, "COSMICS_LOCAL", 1);
     meEEEventTypePostCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::HALO_LOCAL, "HALO_LOCAL", 1);
 
-    sprintf(histo, "EERDT CRC errors");
-    meEECRCErrors_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
+    name = "EERDT CRC errors";
+    meEECRCErrors_ = dqmStore_->book1D(name, name, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
       meEECRCErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
-    sprintf(histo, "EERDT run number errors");
-    meEERunNumberErrors_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
+    name = "EERDT run number errors";
+    meEERunNumberErrors_ = dqmStore_->book1D(name, name, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
       meEERunNumberErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
-    sprintf(histo, "EERDT orbit number errors");
-    meEEOrbitNumberErrors_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
+    name = "EERDT orbit number errors";
+    meEEOrbitNumberErrors_ = dqmStore_->book1D(name, name, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
       meEEOrbitNumberErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
-    sprintf(histo, "EERDT trigger type errors");
-    meEETriggerTypeErrors_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
+    name = "EERDT trigger type errors";
+    meEETriggerTypeErrors_ = dqmStore_->book1D(name, name, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
       meEETriggerTypeErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
-    sprintf(histo, "EERDT calibration event errors");
-    meEECalibrationEventErrors_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
+    name = "EERDT calibration event errors";
+    meEECalibrationEventErrors_ = dqmStore_->book1D(name, name, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
       meEECalibrationEventErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
-    sprintf(histo, "EERDT L1A DCC errors");
-    meEEL1ADCCErrors_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
+    name = "EERDT L1A DCC errors";
+    meEEL1ADCCErrors_ = dqmStore_->book1D(name, name, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
       meEEL1ADCCErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
-    sprintf(histo, "EERDT bunch crossing DCC errors");
-    meEEBunchCrossingDCCErrors_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
+    name = "EERDT bunch crossing DCC errors";
+    meEEBunchCrossingDCCErrors_ = dqmStore_->book1D(name, name, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
       meEEBunchCrossingDCCErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
-    sprintf(histo, "EERDT L1A FE errors");
-    meEEL1AFEErrors_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
+    name = "EERDT L1A FE errors";
+    meEEL1AFEErrors_ = dqmStore_->book1D(name, name, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
       meEEL1AFEErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
-    sprintf(histo, "EERDT bunch crossing FE errors");
-    meEEBunchCrossingFEErrors_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
+    name = "EERDT bunch crossing FE errors";
+    meEEBunchCrossingFEErrors_ = dqmStore_->book1D(name, name, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
       meEEBunchCrossingFEErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
-    sprintf(histo, "EERDT L1A TCC errors");
-    meEEL1ATCCErrors_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
+    name = "EERDT L1A TCC errors";
+    meEEL1ATCCErrors_ = dqmStore_->book1D(name, name, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
       meEEL1ATCCErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
-    sprintf(histo, "EERDT bunch crossing TCC errors");
-    meEEBunchCrossingTCCErrors_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
+    name = "EERDT bunch crossing TCC errors";
+    meEEBunchCrossingTCCErrors_ = dqmStore_->book1D(name, name, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
       meEEBunchCrossingTCCErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
-    sprintf(histo, "EERDT L1A SRP errors");
-    meEEL1ASRPErrors_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
+    name = "EERDT L1A SRP errors";
+    meEEL1ASRPErrors_ = dqmStore_->book1D(name, name, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
       meEEL1ASRPErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
-    sprintf(histo, "EERDT bunch crossing SRP errors");
-    meEEBunchCrossingSRPErrors_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
+    name = "EERDT bunch crossing SRP errors";
+    meEEBunchCrossingSRPErrors_ = dqmStore_->book1D(name, name, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
       meEEBunchCrossingSRPErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
-    sprintf(histo, "EERDT FE synchronization errors by lumi");
-    meEESynchronizationErrorsByLumi_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
+    name = "EERDT FE synchronization errors by lumi";
+    meEESynchronizationErrorsByLumi_ = dqmStore_->book1D(name, name, 18, 1, 19);
     meEESynchronizationErrorsByLumi_->setLumiFlag();
     for (int i = 0; i < 18; i++) {
       meEESynchronizationErrorsByLumi_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);

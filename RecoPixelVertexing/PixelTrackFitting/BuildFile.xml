@@ -18,11 +18,11 @@
 <use   name="RecoTracker/TkTrackingRegions"/>
 <use   name="TrackingTools/DetLayers"/>
 <use   name="TrackingTools/PatternTools"/>
-<use   name="TrackingTools/KalmanUpdators"/>
 <use   name="TrackingTools/Records"/>
 <use   name="TrackingTools/TrajectoryParametrization"/>
 <use   name="TrackingTools/TrajectoryState"/>
 <use   name="TrackingTools/TransientTrackingRecHit"/>
+<use   name="RecoPixelVertexing/PixelTriplets"/>
 <use   name="RecoTracker/TransientTrackingRecHit"/>
 <export>
   <lib   name="1"/>

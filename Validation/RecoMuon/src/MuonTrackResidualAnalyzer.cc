@@ -345,8 +345,8 @@ void MuonTrackResidualAnalyzer::computeResolution(Trajectory &trajectory,
     //     double errY = datum->updatedState().cartesianError().matrix()[1][1];
     //     double errZ = datum->updatedState().cartesianError().matrix()[2][2];
     //
-    double errX = datum->updatedState().localError().matrix()(3,3);
-    double errY = datum->updatedState().localError().matrix()(4,4);
+    double errX = datum->updatedState().localError().matrix_old()[3][3];
+    double errY = datum->updatedState().localError().matrix_old()[4][4];
     double errZ = 1.;
 
     map<DetId,const PSimHit*>::const_iterator it = hitIdMap.find(datum->recHit()->geographicalId());

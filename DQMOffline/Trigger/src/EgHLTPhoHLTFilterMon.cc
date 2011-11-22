@@ -15,28 +15,28 @@ PhoHLTFilterMon::PhoHLTFilterMon(const std::string& filterName,TrigCodes::TrigBi
   filterName_(filterName),
   filterBit_(filterBit)
 {
-  bool monHLTFailedPho=true;
+  bool monHLTFailedPho=false;
 
   phoMonElems_.push_back(new MonElemContainer<OffPho>());
-  phoMonElems_.push_back(new MonElemContainer<OffPho>("_cut"," cut, debug hists ",new EgHLTDQMVarCut<OffPho>(~0x0,&OffPho::cutCode)));
+  //phoMonElems_.push_back(new MonElemContainer<OffPho>("_cut"," cut, debug hists ",new EgHLTDQMVarCut<OffPho>(~0x0,&OffPho::cutCode)));
   for(size_t i=0;i<phoMonElems_.size();i++){
-    MonElemFuncs::initStdPhoHists(phoMonElems_[i]->monElems(),filterName_+"_pho_passFilter"+phoMonElems_[i]->name(),bins);
+    MonElemFuncs::initStdPhoHists(phoMonElems_[i]->monElems(),filterName_,filterName_+"_pho_passFilter"+phoMonElems_[i]->name(),bins);
   }
   
   if(monHLTFailedPho) phoFailMonElems_.push_back(new MonElemContainer<OffPho>());
   for(size_t i=0;i<phoFailMonElems_.size();i++){
-    MonElemFuncs::initStdPhoHists(phoFailMonElems_[i]->monElems(),filterName_+"_pho_failFilter"+phoMonElems_[i]->name(),bins);
+    MonElemFuncs::initStdPhoHists(phoFailMonElems_[i]->monElems(),filterName_,filterName_+"_pho_failFilter"+phoMonElems_[i]->name(),bins);
   }
   
   phoEffHists_.push_back(new MonElemContainer<OffPho>()); 
   // phoEffHists_.push_back(new MonElemContainer<OffPho>("_jetTag"," Tag and Probe ",new EgJetB2BCut<OffPho>(-M_PI/12,M_PI/12,0.3)));
   for(size_t i=0;i<phoEffHists_.size();i++){ 
-    MonElemFuncs::initStdEffHists(phoEffHists_[i]->cutMonElems(),
+    MonElemFuncs::initStdEffHists(phoEffHists_[i]->cutMonElems(),filterName_,
 				  filterName_+"_pho_effVsEt"+phoEffHists_[i]->name(),bins.et,&OffPho::et,masks);
-    MonElemFuncs::initStdEffHists(phoEffHists_[i]->cutMonElems(),
+    MonElemFuncs::initStdEffHists(phoEffHists_[i]->cutMonElems(),filterName_,
 				  filterName_+"_pho_effVsEta"+phoEffHists_[i]->name(),bins.eta,&OffPho::eta,masks); 
-    MonElemFuncs::initStdEffHists(phoEffHists_[i]->cutMonElems(),
-				  filterName_+"_pho_effVsPhi"+phoEffHists_[i]->name(),bins.phi,&OffPho::phi,masks);
+    /* MonElemFuncs::initStdEffHists(phoEffHists_[i]->cutMonElems(),filterName_,
+       filterName_+"_pho_effVsPhi"+phoEffHists_[i]->name(),bins.phi,&OffPho::phi,masks);*/
   }
 
   typedef MonElemManager<ParticlePair<OffPho>,float >  DiPhoMon;

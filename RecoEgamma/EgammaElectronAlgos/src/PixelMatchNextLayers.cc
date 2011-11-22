@@ -13,29 +13,17 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchNextLayers.cc,v 1.12 2009/05/27 07:31:22 fabiocos Exp $
+// $Id: PixelMatchNextLayers.cc,v 1.16 2011/04/08 07:55:12 innocent Exp $
 //
 //
 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
-#include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
-#include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h" 
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h" 
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/BarrelMeasurementEstimator.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/ForwardMeasurementEstimator.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchNextLayers.h"
 
-#include "DataFormats/MuonDetId/interface/DTLayerId.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
 #include <iostream> 
 #include <algorithm>

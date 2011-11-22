@@ -21,7 +21,8 @@ namespace egHLT{
       HFRecHits=10,
       BeamSpot=11,
       MagField=12,
-      CaloTowers=13
+      CaloTowers=13,
+      OffVertex=14
     };
     
   }

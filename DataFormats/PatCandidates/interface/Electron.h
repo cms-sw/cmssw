@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.32 2011/02/08 09:10:10 chamont Exp $
+// $Id: Electron.h,v 1.33 2011/03/31 10:13:26 namapane Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Electron.h,v 1.32 2011/02/08 09:10:10 chamont Exp $
+  \version  $Id: Electron.h,v 1.33 2011/03/31 10:13:26 namapane Exp $
 */
 
 
@@ -38,6 +38,10 @@ namespace pat {
   typedef edm::RefVector<ElectronCollection> ElectronRefVector;
 }
 
+namespace reco {
+  /// pipe operator (introduced to use pat::Electron with PFTopProjectors)
+  std::ostream& operator<<(std::ostream& out, const pat::Electron& obj);
+}
 
 // Class definition
 namespace pat {
@@ -167,6 +171,9 @@ namespace pat {
       // ---- Momentum estimate specific methods ----
       const LorentzVector & ecalDrivenMomentum() const {return ecalDrivenMomentum_;}
       void setEcalDrivenMomentum(const Candidate::LorentzVector& mom) {ecalDrivenMomentum_=mom;}
+
+      /// pipe operator (introduced to use pat::Electron with PFTopProjectors)
+      friend std::ostream& reco::operator<<(std::ostream& out, const pat::Electron& obj);
 
     protected:
       void initImpactParameters(); // init IP defaults in a constructor

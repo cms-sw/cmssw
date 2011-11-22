@@ -1,4 +1,4 @@
-// $Id: FRDFileHandler.cc,v 1.15.4.1 2011/03/07 11:33:05 mommsen Exp $
+// $Id: FRDFileHandler.cc,v 1.17 2011/06/01 13:49:02 mommsen Exp $
 /// @file: FRDFileHandler.cc
 
 #include <EventFilter/StorageManager/interface/FRDFileHandler.h>
@@ -43,11 +43,10 @@ namespace stor {
     {
       // if writer was reset, we already closed the stream but failed to move the file to the closed position
       writer_->stop();
-      setAdler(writer_->adler32());
+      fileRecord_->adler32 = writer_->adler32();
       writer_.reset(); // Destruct the writer to flush the file stream
     }
     moveFileToClosed(reason);
-    writeToSummaryCatalog();
     updateDatabase();
   }
   

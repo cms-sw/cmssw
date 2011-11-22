@@ -146,9 +146,14 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
   
   const PixelTopology* theSpecificTopology = &(detUnit->specificTopology());
   RectangularPixelTopology rectPixelTopology(theSpecificTopology->nrows(),
-  						theSpecificTopology->ncolumns(),
-						theSpecificTopology->pitch().first,
-						theSpecificTopology->pitch().second);
+					     theSpecificTopology->ncolumns(),
+					     theSpecificTopology->pitch().first,
+					     theSpecificTopology->pitch().second,
+					     theSpecificTopology->rocsX(),
+					     theSpecificTopology->rocsY(),
+					     theSpecificTopology->rowsperroc(),
+					     theSpecificTopology->colsperroc());
+
   const int nrows = theSpecificTopology->nrows();
   const int ncolumns = theSpecificTopology->ncolumns();
 

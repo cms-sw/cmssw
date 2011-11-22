@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2009/03/19 10:25:35 $
- *  $Revision: 1.1 $
+ *  $Date: $
+ *  $Revision: $
  *  \author N. Amapane - CERN
  */
 
@@ -12,6 +12,14 @@ MagneticField::MagneticField(){}
 MagneticField::~MagneticField(){}
 
 
+GlobalVector MagneticField::inKGauss(const GlobalPoint& gp) const {
+  return inTesla(gp) * 10.;
+}
+
+GlobalVector MagneticField::inInverseGeV(const GlobalPoint& gp) const {
+  return inTesla(gp) * 2.99792458e-3;
+}
+
 int MagneticField::nominalValue() const {
-  return int((inTesla(GlobalPoint(0.f,0.f,0.f))).z() * 10.f + 0.5f);
+  return int((inTesla(GlobalPoint(0.,0.,0.))).z() * 10. + 0.5);
 }

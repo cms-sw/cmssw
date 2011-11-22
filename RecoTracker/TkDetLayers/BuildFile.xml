@@ -3,7 +3,6 @@
 </export>
 <use   name="TrackingTools/DetLayers"/>
 <use   name="TrackingTools/GeomPropagators"/>
-<use   name="TrackingTools/PatternTools"/>
 <use   name="clhep"/>
 <use   name="Utilities/General"/>
 <use   name="DataFormats/SiStripDetId"/>

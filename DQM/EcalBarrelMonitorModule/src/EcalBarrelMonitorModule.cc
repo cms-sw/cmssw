@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2010/08/08 08:46:04 $
- * $Revision: 1.201 $
+ * $Date: 2011/06/27 08:26:29 $
+ * $Revision: 1.203 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -244,7 +244,7 @@ void EcalBarrelMonitorModule::setup(void){
 
   if ( meRunType_ ) meRunType_->Fill(-1);
 
-  char histo[20];
+  std::string name;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EcalInfo");
@@ -278,8 +278,8 @@ void EcalBarrelMonitorModule::setup(void){
     if ( enableEventDisplay_ ) {
       dqmStore_->setCurrentFolder(prefixME_ + "/EcalEvent");
       for (int i = 0; i < 36; i++) {
-        sprintf(histo, "EBMM event %s", Numbers::sEB(i+1).c_str());
-        meEvent_[i] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+	name = "EBMM event " + Numbers::sEB(i+1);
+        meEvent_[i] = dqmStore_->book2D(name, name, 85, 0., 85., 20, 0., 20.);
         meEvent_[i]->setAxisTitle("ieta", 1);
         meEvent_[i]->setAxisTitle("iphi", 2);
         dqmStore_->tag(meEvent_[i], i+1);
@@ -354,9 +354,9 @@ void EcalBarrelMonitorModule::endJob(void) {
   if ( debug_ ) std::cout << "EcalBarrelMonitorModule: endJob, ievt = " << ievt_ << std::endl;
 
   if ( dqmStore_ ) {
-    meStatus_ = dqmStore_->get(prefixME_ + "/EventInfo/STATUS");
-    meRun_ = dqmStore_->get(prefixME_ + "/EventInfo/RUN");
-    meEvt_ = dqmStore_->get(prefixME_ + "/EventInfo/EVT");
+    meStatus_ = dqmStore_->get(prefixME_ + "/EcalInfo/STATUS");
+    meRun_ = dqmStore_->get(prefixME_ + "/EcalInfo/RUN");
+    meEvt_ = dqmStore_->get(prefixME_ + "/EcalInfo/EVT");
   }
 
   // end-of-run

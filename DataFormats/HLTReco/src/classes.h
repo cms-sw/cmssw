@@ -43,6 +43,8 @@ namespace {
     std::vector<HLTPerformanceInfo::Path>::const_iterator pw11;
     //HLTPerformanceInfo::Path::const_iterator pw13;
 
+    edm::Ref<reco::CompositeCandidateCollection> rccc;
+
     std::vector<trigger::TriggerObjectType> v_t_tot;
     std::vector<trigger::TriggerObjectType>::const_iterator v_t_tot_ci;
     edm::Wrapper<std::vector<trigger::TriggerObjectType> > w_v_t_tot;

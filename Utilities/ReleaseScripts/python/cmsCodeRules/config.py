@@ -77,10 +77,24 @@ Configuration[ruleName] = {}
 
 Configuration[ruleName]['description'] = 'Search for "copyright" declaration in *.c, *.cc, *.cxx, *.h files'
 Configuration[ruleName]['filesToMatch'] = ['*.h', '*.c', '*.cc', '*.cxx']
-Configuration[ruleName]['exceptPaths'] = []#could be file name, dir, fileName:line. But path should be only from that directory in which we are searching
+Configuration[ruleName]['exceptPaths'] = [
+                                           'FWCore/Utilities/interface/math_private.h',
+                                           'FWCore/Utilities/interface/md5.h',
+                                           'FWCore/Utilities/interface/tinyxml.h',
+                                           'FWCore/Utilities/src/md5.c',
+                                           'FWCore/Utilities/src/tinyxml.cc',
+                                           'FWCore/Utilities/src/tinyxmlerror.cc',
+                                           'FWCore/Utilities/src/tinyxmlparser.cc',
+                                           'DataFormats/Common/interface/Trie.h',
+                                           'DataFormats/Math/interface/sse_mathfun.h',
+                                           'EventFilter/Processor/src/procUtils.cc',
+					   'CondCore/ORA/src/GenMD5.cc',
+                                           'PhysicsTools/JetMCUtils/interface/combination.h',
+                                         ] #could be file name, dir, fileName:line. But path should be only from that directory in which we are searching
 Configuration[ruleName]['skip']  = []
 Configuration[ruleName]['filter'] = '(\A|\W)(c|C)(o|O)(p|P)(y|Y)(r|R)(i|I)(g|G)(h|H)(t|T)\W(\+|=|\w|\"|\'|-|\s)*(\((c|C)\)|\d{4})' #should be regular expression
 Configuration[ruleName]['exceptFilter'] = []
+
 # --------------------------------------------------------------------------------
 
 # configuration for rule 5
@@ -91,7 +105,12 @@ Configuration[ruleName] = {}
 
 Configuration[ruleName]['description'] = 'Search for "pragma" statement in *.c, *.cc, *.cxx, *.h files'
 Configuration[ruleName]['filesToMatch'] = ['*.h', '*.c', '*.cc', '*.cxx']
-Configuration[ruleName]['exceptPaths'] = ['*/*LinkDef.h']#could be file name, dir, fileName:line. Path should be only from that directory in which we are searching
+Configuration[ruleName]['exceptPaths'] = ['*/*LinkDef.h',
+                                          'FWCore/Utilities/interface/tinyxml.h',
+                                          'Utilities/StorageFactory/src/LocalFileSystem.cc:.*:#\s*pragma\s+GCC\s+diagnostic\s+ignored',
+                                          'RecoVertex/BeamSpotProducer/test/scripts/BSVectorDict.h',
+                                          'FWCore/Utilities/*/*:.*:#\s*pragma\s+GCC\s+visibility\s+(push\\(default\\)|pop)\s*$',
+                                         ]#could be file name, dir, fileName:line. Path should be only from that directory in which we are searching
 Configuration[ruleName]['skip']  = [comment]
 Configuration[ruleName]['filter'] = '#\s*pragma\s' #should be regular expression
 Configuration[ruleName]['exceptFilter'] = []
@@ -104,8 +123,20 @@ Configuration[ruleName] = {}
 
 Configuration[ruleName]['description'] = 'Search for "flags" statements in BuildFile'
 Configuration[ruleName]['filesToMatch'] = ['BuildFile', 'BuildFile.xml']
-Configuration[ruleName]['exceptPaths'] = ['Utilities/RFIOAdaptor/BuildFile.xml:4',  #could be file name, dir, fileName:line. Path should be only from that directory in  which we are searching
-                                          'Utilities/RFIOAdaptor/plugins/BuildFile.xml:8']
+Configuration[ruleName]['exceptPaths'] = ['Utilities/RFIOAdaptor/*BuildFile.xml:.*:NO_LIB_CHECKING=',  #could be file name, dir, fileName:line, fileName:lineRegEx:LineRegEx:. Path should be only from that directory in  which we are searching
+					  'Utilities/RFIOAdaptor/*BuildFile.xml:.*:_FILE_OFFSET_BITS=',
+					  'Utilities/DCacheAdaptor/*BuildFile.xml:.*:_FILE_OFFSET_BITS=',
+					  'Utilities/XrdAdaptor/*BuildFile.xml:.*:_FILE_OFFSET_BITS=',
+					  'Utilities/StorageFactory/*BuildFile.xml:.*:_FILE_OFFSET_BITS=',
+                                          'Utilities/LStoreAdaptor/BuildFile.xml:.*:_FILE_OFFSET_BITS=',
+					  'DQM/EcalEndcapMonitorClient/plugins/BuildFile.xml:.*:"WITH_ECAL_COND_DB"',
+                                          'DQM/EcalBarrelMonitorClient/plugins/BuildFile.xml:.*:"WITH_ECAL_COND_DB"',
+					  'DQM/CSCMonitorModule/*BuildFile.xml:.*:="DQMGLOBAL"',
+					  'DQMServices/Core/*BuildFile.xml:.*:="-DWITHOUT_CMS_FRAMEWORK=0"',
+                                          'L1Trigger/CSCTrackFinder/BuildFile.xml:.*:ADD_SUBDIR=',
+                                          'MagneticField/Interpolation/BuildFile.xml:.*:="-Wno-format"',
+                                          'MagneticField/Interpolation/test/BuildFile.xml:.*:="-Wno-format"',
+					 ]
 Configuration[ruleName]['skip']  = [comment]
 Configuration[ruleName]['filter'] = '<\s*(f|F)(l|L)(a|A)(g|G)(s|S)\s+' #should be regular expression
 Configuration[ruleName]['exceptFilter'] = ['EDM_PLUGIN','RIVET_PLUGIN', 'GENREFLEX_ARGS', 'TEST_RUNNER_ARGS', 'INSTALL_SCRIPTS', 'NO_TESTRUN']
