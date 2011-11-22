@@ -6,6 +6,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/mman.h>
+#include <sys/stat.h>
 #include <errno.h>
 #include <sstream>
 
@@ -38,6 +39,8 @@ LocalCacheFile::LocalCacheFile(Storage *base, const std::string &tmpdir /* = "" 
   pattern += "/cmssw-shadow-XXXXXX";
 
   std::vector<char> temp(pattern.c_str(), pattern.c_str()+pattern.size()+1);
+  
+  umask(0x022);
   int fd = mkstemp(&temp[0]);
   if (fd == -1)
     throw cms::Exception("LocalCacheFile")
