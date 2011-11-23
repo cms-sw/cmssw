@@ -2,8 +2,8 @@
  * \file DQMProvInfo.cc
  * \author A.Raval / A.Meyer - DESY
  * Last Update:
- * $Date: 2010/09/17 16:16:05 $
- * $Revision: 1.28 $
+ * $Date: 2010/09/20 15:25:20 $
+ * $Revision: 1.29 $
  * $Author: lilopera $
  *
  */
@@ -27,6 +27,7 @@ DQMProvInfo::DQMProvInfo(const edm::ParameterSet& ps){
   
   dbe_ = edm::Service<DQMStore>().operator->();
   globalTag_ = "MODULE::DEFAULT"; 
+  runType_ = parameters_.getUntrackedParameter<std::string>("runType", "No run type selected") ;
   provinfofolder_ = parameters_.getUntrackedParameter<std::string>("provInfoFolder", "ProvInfo") ;
   subsystemname_ = parameters_.getUntrackedParameter<std::string>("subSystemFolder", "Info") ;
   
@@ -339,6 +340,7 @@ DQMProvInfo::makeProvInfo()
 
     //versDataset_   = dbe_->bookString("Dataset",workflow_);
     versGlobaltag_ = dbe_->bookString("Globaltag",globalTag_);
+    versRuntype_ = dbe_->bookString("Run Type",runType_);
     versTaglist_   = dbe_->bookString("Taglist",getShowTags()); 
 
     isComplete_ = dbe_->bookInt("runIsComplete"); 
