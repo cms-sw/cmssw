@@ -87,6 +87,55 @@ class RunMEtUncertainties(ConfigToolBase):
  
         return moduleName
 
+    def _addSmearedJets(self, process, jetCollection, smearedJetCollectionName_parts,
+                        jetSmearFileName, jetSmearHistogram, varyByNsigmas,
+                        shiftBy = None):
+
+        smearedJets = cms.EDProducer("SmearedPATJetProducer",
+            src = cms.InputTag(jetCollection),
+            inputFileName = cms.FileInPath(jetSmearFileName),
+            lutName = cms.string(jetSmearHistogram),
+            jetResolutions = jetResolutions.METSignificance_params
+        )
+        if shiftBy is not None:
+            setattr(smearedJets, "shiftBy", cms.double(shiftBy*varyByNsigmas))
+        smearedJetCollection = \
+          self._addModuleToSequence(process, smearedJets,
+                                    smearedJetCollectionName_parts,
+                                    process.metUncertaintySequence)
+
+        # CV: reject pat::Jets for which the jet-energy correction (JEC) factors are either very large or negative
+        #     since both cases produce unphysically large tails in the Type 1 corrected MET distribution after the smearing,
+        #
+        #     e.g. raw jet:   energy = 50 GeV, eta = 2.86, pt =  1   GeV 
+        #          corr. jet: energy = -3 GeV            , pt = -0.1 GeV (JEC factor L1fastjet*L2*L3 = -17)
+        #                     energy = 10 GeV for corrected jet after smearing
+        #         --> smeared raw jet energy = -170 GeV !!
+        #
+        #         --> (corr. - raw) jet contribution to MET = -1 (-10) GeV before (after) smearing,
+        #             even though jet energy got smeared by merely 1 GeV
+        #
+        # CV: do not apply jet smearing to jets of |eta| > 4.7,
+        #     because difference between corrected energies of reconstructed jet and generator level energies
+        #     may be unphysically large due to problem with CMSSW_4_2_x JEC factors at high eta,
+        #     cf. https://hypernews.cern.ch/HyperNews/CMS/get/jes/270.html
+        #         https://hypernews.cern.ch/HyperNews/CMS/get/JetMET/1259/1.html
+        #                         
+        smearedJetsAntiPathologicalCases = cms.EDFilter("PATJetSelector",
+            src = cms.InputTag(smearedJetCollection),
+            cut = cms.string(
+                'abs(eta) < 4.7 & ' + \
+                '(!jecSetsAvailable | ' + \
+                ' abs(energy - correctedP4("Uncorrected").energy) < (5.*min(energy, correctedP4("Uncorrected").energy)))'
+            ),                                                            
+            filter = cms.bool(False)                                                   
+        )
+        smearedJetCollectionAntiPathologicalCases = \
+          self._addModuleToSequence(process, smearedJetsAntiPathologicalCases,
+                                    [ smearedJetCollection, "AntiPathologicalCases" ],
+                                    process.metUncertaintySequence)
+        return smearedJetCollectionAntiPathologicalCases
+        
     def _propagateMEtUncertainties(self, process,
                                    particleCollection, particleType, shiftType, particleCollectionShiftUp, particleCollectionShiftDown,
                                    metProducer, sequence):
@@ -268,32 +317,20 @@ class RunMEtUncertainties(ConfigToolBase):
         jetCollectionResUp = None
         jetCollectionResDown = None
         if doSmearJets:
-            smearedJets = cms.EDProducer("SmearedPATJetProducer",
-                src = cms.InputTag(lastJetCollection),
-                inputFileName = cms.FileInPath(jetSmearFileName),
-                lutName = cms.string(jetSmearHistogram),
-                jetResolutions = jetResolutions.METSignificance_params                                     
-            )
             lastJetCollection = \
-              self._addModuleToSequence(process, smearedJets,
-                                        [ "smeared", jetCollection.value() ],
-                                        process.metUncertaintySequence)
-
-            smearedJetsResUp = smearedJets.clone(
-                shiftBy = cms.double(-1.*varyByNsigmas)                                            
-            )
+              self._addSmearedJets(process, cleanedJetCollection, [ "smeared", jetCollection.value() ],
+                                   jetSmearFileName, jetSmearHistogram, varyByNsigmas)
+                
             jetCollectionResUp = \
-              self._addModuleToSequence(process, smearedJetsResUp,
-                                        [ "smeared", jetCollection.value(), "ResUp" ],
-                                        process.metUncertaintySequence)
+              self._addSmearedJets(process, cleanedJetCollection, [ "smeared", jetCollection.value(), "ResUp" ],
+                                   jetSmearFileName, jetSmearHistogram, varyByNsigmas,
+                                   -1.)        
             collectionsToKeep.append(jetCollectionResUp)
-            smearedJetsResDown = smearedJets.clone(
-                shiftBy = cms.double(+1.*varyByNsigmas)                                            
-            )
+
             jetCollectionResDown = \
-              self._addModuleToSequence(process, smearedJetsResDown,
-                                        [ "smeared", jetCollection.value(), "ResDown" ],
-                                        process.metUncertaintySequence)
+              self._addSmearedJets(process, cleanedJetCollection, [ "smeared", jetCollection.value(), "ResDown" ],
+                                   jetSmearFileName, jetSmearHistogram, varyByNsigmas,
+                                   +1.)                
             collectionsToKeep.append(jetCollectionResDown)
 
         collectionsToKeep.append(lastJetCollection)
