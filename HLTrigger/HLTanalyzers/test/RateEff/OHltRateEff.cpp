@@ -193,9 +193,12 @@ void calcRates(
    const int ntrig = (int)menu->GetTriggerSize();
    const int nL1trig = (int)menu->GetL1TriggerSize();
    vector< vector< float> > RatePerLS;
+   vector< vector< int > > CountPerLS;
    vector< vector< int> > RefPrescalePerLS;
    vector< vector< int> > RefL1PrescalePerLS;
    vector<float> totalRatePerLS;
+   vector<int> totalCountPerLS;
+   vector<int> Count;
    vector<float> Rate, pureRate, spureRate;
    vector<float> RateErr, pureRateErr, spureRateErr;
    vector< vector<float> > coMa;
@@ -231,6 +234,7 @@ void calcRates(
       RefPrescale.push_back(1);
       weightedPrescaleRefHLT.push_back(0.);
       coDen.push_back(0.);
+      Count.push_back(0);
    }
    for (int i=0; i<nL1trig; i++)
    { // Init
@@ -260,6 +264,8 @@ void calcRates(
       {
          RatePerLS.push_back(Rate);
          totalRatePerLS.push_back(0.);
+	 CountPerLS.push_back(Count);
+	 totalCountPerLS.push_back(0);
          RefPrescalePerLS.push_back(RefPrescale);
          RefL1PrescalePerLS.push_back(RefL1Prescale);
       }
@@ -304,6 +310,7 @@ void calcRates(
          totalRatePerLS[iLS] += OHltRateCounter::eff(
                (float)rcs[i]->perLumiSectionTotCount[iLS],
                scaleddenoPerLS);
+	 totalCountPerLS[iLS] += rcs[i]->perLumiSectionTotCount[iLS];
       }
 
       for (int j=0; j<nL1trig; j++)
@@ -345,6 +352,7 @@ void calcRates(
             RateErr[j] += OHltRateCounter::errRate2(
                   (float)rcs[i]->iCount[j],
                   scaleddeno);
+	    Count[j] += rcs[i]->iCount[j];
             spureRate[j] += OHltRateCounter::eff(
                   (float)rcs[i]->sPureCount[j],
                   scaleddeno);
@@ -375,6 +383,7 @@ void calcRates(
             RateErr[j] += pow(collisionRate*mu * OHltRateCounter::effErr(
                   (float)rcs[i]->iCount[j],
                   deno), fTwo);
+	    Count[j] += rcs[i]->iCount[j];
             spureRate[j] += collisionRate*(1. - exp(-mu * OHltRateCounter::eff(
                   (float)rcs[i]->sPureCount[j],
                   deno)));
@@ -428,7 +437,9 @@ void calcRates(
          RefPrescalePerLS,
          RefL1PrescalePerLS,
          weightedPrescaleRefHLT,
-         weightedPrescaleRefL1);
+         weightedPrescaleRefL1,
+	 CountPerLS,
+	 totalCountPerLS);
 
 }
 void calcEff(
@@ -445,6 +456,7 @@ void calcEff(
    vector<float> Rate, pureRate, spureRate;
    vector<float> Eff, pureEff, spureEff;
    vector<float> EffErr, pureEffErr, spureEffErr;
+   vector<int> Count;
    vector< vector<float> > coMa;
    vector<float> coDen;
    //  float DenEff=0.;

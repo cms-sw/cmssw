@@ -27,7 +27,9 @@ void OHltRatePrinter::SetupAll(
       vector< vector<int> > tRefPrescalePerLS,
       vector< vector<int> > tRefL1PrescalePerLS,
       vector<float> tAverageRefPrescaleHLT,
-      vector<float> tAverageRefPrescaleL1)
+      vector<float> tAverageRefPrescaleL1,
+      vector< vector<int> > tCountPerLS,
+      vector<int> tTotalCountPerLS)
 {
    Rate = tRate;
    RateErr = tRateErr;
@@ -44,7 +46,9 @@ void OHltRatePrinter::SetupAll(
    prescaleL1RefPerLS = tRefL1PrescalePerLS;
    averageRefPrescaleHLT = tAverageRefPrescaleHLT;
    averageRefPrescaleL1 = tAverageRefPrescaleL1;
-
+   CountPerLS = tCountPerLS;
+   totalCountPerLS = tTotalCountPerLS;
+     
    ReorderRunLS(); // reorder messed up runids/LS
 }
 
@@ -445,6 +449,9 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu)
          RunLSn,RunLSmin,RunLSmax);
    TH2F *totalprescalePerLS = new TH2F("totalprescalePerLS","totalprescalePerLS", nTrig,1,nTrig+1,
          RunLSn,RunLSmin,RunLSmax);
+   TH2F *individualCountsPerLS = new TH2F("individualCountsPerLS","individualCountsPerLS",nTrig,1,nTrig+1,
+	 RunLSn,RunLSmin,RunLSmax);
+   TH1F *totalCountsPerLS = new TH1F("totalCountsPerLS","totalCountsPerLS",RunLSn,RunLSmin,RunLSmax);
 
    float cumulRate = 0.;
    float cumulRateErr = 0.;
@@ -472,12 +479,15 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu)
       for (int j=0; j<RunLSn; j++)
       {
          individualPerLS->SetBinContent(i+1, j+1, RatePerLS[j][i]);
+	 individualCountsPerLS->SetBinContent(i+1, j+1, CountPerLS[j][i]);
          TString tstr = "";
          tstr += runID[j];
          tstr = tstr + " - ";
          tstr += lumiSection[j];
          individualPerLS->GetYaxis()->SetBinLabel(j+1, tstr);
          individualPerLS->GetXaxis()->SetBinLabel(i+1, menu->GetTriggerName(i));
+         individualCountsPerLS->GetYaxis()->SetBinLabel(j+1, tstr);
+         individualCountsPerLS->GetXaxis()->SetBinLabel(i+1, menu->GetTriggerName(i));
       }
    }
    for (int j=0; j<RunLSn; j++)
@@ -488,6 +498,8 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu)
       tstr += lumiSection[j];
       totalPerLS->SetBinContent(j+1, totalRatePerLS[j]);
       totalPerLS->GetXaxis()->SetBinLabel(j+1, tstr);
+      totalCountsPerLS->SetBinContent(j+1, totalCountPerLS[j]);
+      totalCountsPerLS->GetXaxis()->SetBinLabel(j+1, tstr);
 
       // L1
       for (unsigned int k=0; k<menu->GetL1TriggerSize(); k++)
@@ -1183,6 +1195,11 @@ void OHltRatePrinter::ReorderRunLS()
             float swap4 = totalRatePerLS[j];
             totalRatePerLS[j] = totalRatePerLS[j+1];
             totalRatePerLS[j+1] = swap4;
+
+	    int swap5 = totalCountPerLS[j];
+	    totalCountPerLS[j] = totalCountPerLS[j+1];
+	    totalCountPerLS[j+1] = swap5;
+
             //cout<<"<<<<<< "<<runID[j]<<" "<<runID[j+1]<<" "<<endl;
             //cout<<"<<<<<< "<<lumiSection[j]<<" "<<lumiSection[j+1]<<" "<<endl;
          }

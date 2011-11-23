@@ -37,7 +37,9 @@ public:
          std::vector< std::vector<int> > tRefPrescalePerLS,
          std::vector< std::vector<int> > tRefL1PrescalePerLS,
          std::vector<float> averageRefPrescaleHLT,
-         std::vector<float> averageRefPrescaleL1);
+         std::vector<float> averageRefPrescaleL1,
+	 std::vector< std::vector<int> > CountPerLS,
+	 std::vector<int> tTotalCountPerLS);
 
    void ReorderRunLS();
 
@@ -83,6 +85,8 @@ public:
    std::vector<float> pureRate;
    std::vector<float> pureRateErr;
    std::vector< std::vector<float> > coMa;
+   std::vector< std::vector<int> > CountPerLS;
+   std::vector<int> totalCountPerLS;
 
    std::vector< std::vector<float> > RatePerLS;
    std::vector<float> totalRatePerLS;
