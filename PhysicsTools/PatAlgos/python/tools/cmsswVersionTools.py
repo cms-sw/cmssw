@@ -884,6 +884,7 @@ class PickRelValInputFiles( ConfigToolBase ):
         hltPatchId = '_hltpatch' # HLT patch releases
         dqmPatchId = '_dqmpatch' # DQM patch releases
         slhcId     = '_SLHC'     # SLHC releases
+        rootId     = '_root'     # ROOT test releases
         ibId       = '_X_'       # IBs
         if patchId in cmsswVersion:
             cmsswVersion = cmsswVersion.split( patchId )[ 0 ]
@@ -891,6 +892,8 @@ class PickRelValInputFiles( ConfigToolBase ):
             cmsswVersion = cmsswVersion.split( hltPatchId )[ 0 ]
         elif dqmPatchId in cmsswVersion:
             cmsswVersion = cmsswVersion.split( dqmPatchId )[ 0 ]
+        elif rootId in cmsswVersion:
+            cmsswVersion = cmsswVersion.split( rootId )[ 0 ]
         elif slhcId in cmsswVersion:
             cmsswVersion = cmsswVersion.split( slhcId )[ 0 ]
         elif ibId in cmsswVersion or formerVersion:
@@ -910,11 +913,9 @@ class PickRelValInputFiles( ConfigToolBase ):
             for line in outputTuple[ 0 ].splitlines():
                 version = line.split()[ 1 ]
                 if cmsswVersion.split( ibId )[ 0 ] in version or cmsswVersion.rpartition( '_' )[ 0 ] in version:
-                    if not ( patchId in version or hltPatchId in version or dqmPatchId in version or slhcId in version or ibId in version ):
+                    if not ( patchId in version or hltPatchId in version or dqmPatchId in version or slhcId in version or ibId in version or rootId in version ):
                         versions[ 'lastToLast' ] = versions[ 'last' ]
                         versions[ 'last' ]       = version
-                        print 'MYDEBUG: last       \'%s\''%( versions[ 'last' ] )
-                        print '         lastToLast \'%s\''%( versions[ 'lastToLast' ] )
                         if version == cmsswVersion:
                             break
             # FIXME: ordering of output problematic ('XYZ_pre10' before 'XYZ_pre2', no "formerVersion" for 'XYZ_pre1')
