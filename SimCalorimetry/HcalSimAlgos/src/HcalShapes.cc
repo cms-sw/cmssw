@@ -11,12 +11,20 @@
 HcalShapes::HcalShapes()
 : theMCParams(0),
   theShapes(),
-  theHcalShape(),
-  theHcalLVShape(),
-  theHFShape(),
   theZDCShape(),
-  theSiPMShape()
-{
+  theHcalShape101(),
+  theHcalShape102(),
+  theHcalShape103(),
+  theHcalShape104(),
+  theHcalShape105(),
+  theHcalShape123(),
+  theHcalShape124(),
+  theHcalShape125(),
+  theHcalShape201(),
+  theHcalShape202(),
+  theHcalShape301(),
+  theHcalShape401()
+ {
 /*
          00 - not used (reserved)
         101 - regular HPD  HB/HE/HO shape
@@ -26,20 +34,54 @@ HcalShapes::HcalShapes()
         301 - regular HF PMT shape
         401 - regular ZDC shape
   */
+
+/*  
   theShapes[HPD] = new CaloCachedShapeIntegrator(&theHcalShape);
-  theShapes[LONG] = new CaloCachedShapeIntegrator(&theHcalLVShape);
+  theShapes[LONG] = theShapes[HPD];
   theShapes[ZECOTEK] = new CaloCachedShapeIntegrator(&theSiPMShape);
   theShapes[HAMAMATSU] = theShapes[ZECOTEK];
   theShapes[HF] = new CaloCachedShapeIntegrator(&theHFShape);
+*/
+
+  theHcalShape101.setShape(101); 
+  theShapes[101] = new CaloCachedShapeIntegrator(&theHcalShape101);
+  theHcalShape102.setShape(102);                  
+  theShapes[102] = new CaloCachedShapeIntegrator(&theHcalShape102);
+  theHcalShape103.setShape(103);                  
+  theShapes[103] = new CaloCachedShapeIntegrator(&theHcalShape103);
+  theHcalShape104.setShape(104);                  
+  theShapes[104] = new CaloCachedShapeIntegrator(&theHcalShape104);
+  theHcalShape104.setShape(105);
+  theShapes[105] = new CaloCachedShapeIntegrator(&theHcalShape105); // HPD new 
+  theHcalShape123.setShape(123);                  
+  theShapes[123] = new CaloCachedShapeIntegrator(&theHcalShape123);
+  theHcalShape124.setShape(124);                  
+  theShapes[124] = new CaloCachedShapeIntegrator(&theHcalShape124);
+  theHcalShape125.setShape(125);
+  theShapes[125] = new CaloCachedShapeIntegrator(&theHcalShape125);
+  theHcalShape201.setShape(201);                  
+  theShapes[201] = new CaloCachedShapeIntegrator(&theHcalShape201);
+  theHcalShape202.setShape(202);                  
+  theShapes[202] = new CaloCachedShapeIntegrator(&theHcalShape202);
+  theHcalShape301.setShape(301);
+  theShapes[301] = new CaloCachedShapeIntegrator(&theHcalShape301);
+  //    ZDC not yet defined in CalibCalorimetry/HcalAlgos/src/HcalPulseShapes.cc
+  // theHcalShape401(401);
+  // theShapes[401] = new CaloCachedShapeIntegrator(&theHcalShape401);
   theShapes[ZDC] = new CaloCachedShapeIntegrator(&theZDCShape);
 
+
+
   // backward-compatibility with old scheme
+  /*
   theShapes[0] = theShapes[HPD];
   //FIXME "special" HB
   theShapes[1] = theShapes[LONG];
   theShapes[2] = theShapes[ZECOTEK];
   theShapes[3] = theShapes[HF];
   theShapes[4] = theShapes[ZDC];
+  */
+
 }
 
 
@@ -76,8 +118,22 @@ const CaloVShape * HcalShapes::shape(const DetId & detId) const
     return defaultShape(detId);
   }
   int shapeType = theMCParams->getValues(detId)->signalShape();
+  /*
+	  HcalDetId cell(detId);
+	  int sub     = cell.subdet();
+	  int depth   = cell.depth();
+	  int inteta  = cell.ieta();
+	  int intphi  = cell.iphi();
+	  
+	  std::cout << "(SIM)HcalShapes::shape  cell:" 
+		    << " sub, ieta, iphi, depth = " 
+		    << sub << "  " << inteta << "  " << intphi 
+		    << "  " << depth  << " => ShapeId "<<  shapeType 
+		    << std::endl;
+  */
   ShapeMap::const_iterator shapeMapItr = theShapes.find(shapeType);
   if(shapeMapItr == theShapes.end()) {
+       std::cout<<"   skdebug-  CaloVShape * HcalShapes::shape:  shapeType ? "<<shapeType<<std::endl;
     return defaultShape(detId);
   } else {
     return shapeMapItr->second;

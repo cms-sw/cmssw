@@ -8,7 +8,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloShapes.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalShape.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalLVShape.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HFShape.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/ZDCShape.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPMShape.h"
@@ -35,11 +34,24 @@ private:
   const HcalMCParams * theMCParams;
   typedef std::map<int, const CaloVShape *> ShapeMap;
   ShapeMap theShapes;
-  HcalShape theHcalShape;
-  HcalLVShape theHcalLVShape;
-  HFShape theHFShape;
+  // HcalShape theHcalShape;
+  // HFShape theHFShape;
   ZDCShape theZDCShape;
-  HcalSiPMShape theSiPMShape;
+  // HcalSiPMShape theSiPMShape;
+  //   list of vShapes.
+  HcalShape theHcalShape101;
+  HcalShape theHcalShape102;
+  HcalShape theHcalShape103;
+  HcalShape theHcalShape104;
+  HcalShape theHcalShape105;
+  HcalShape theHcalShape123;
+  HcalShape theHcalShape124;
+  HcalShape theHcalShape125;
+  HcalShape theHcalShape201;
+  HcalShape theHcalShape202;
+  HcalShape theHcalShape301;
+  HcalShape theHcalShape401;
+
 };
 
 #endif

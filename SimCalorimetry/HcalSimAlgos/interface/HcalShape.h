@@ -16,6 +16,7 @@ class HcalShape : public CaloVShape
 {
 public:
   HcalShape();
+  void setShape(int shapeType);
   virtual double operator () (double time) const;
   virtual double timeToRise() const;
 private:

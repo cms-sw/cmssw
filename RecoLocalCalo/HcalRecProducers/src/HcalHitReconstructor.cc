@@ -12,8 +12,11 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 
 #include <iostream>
+#include <fstream>
+
 
 /*  Hcal Hit reconstructor allows for CaloRecHits with status words */
 
@@ -42,6 +45,12 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   /* Important to do this!  Otherwise, if the setters are turned off,
      the "if (XSetter_) delete XSetter_;" commands can crash
   */
+
+  recoParamsFromDB_ = conf.getParameter<bool>("recoParamsFromDB");
+  //  recoParamsFromDB_ = false ; //  trun off for now.
+
+  // std::cout<<"  HcalHitReconstructor   recoParamsFromDB_ "<<recoParamsFromDB_<<std::endl;
+
   hbheFlagSetter_             = 0;
   hbheHSCPFlagSetter_         = 0;
   hbhePulseShapeFlagSetter_   = 0;
@@ -209,6 +218,10 @@ void HcalHitReconstructor::beginRun(edm::Run&r, edm::EventSetup const & es){
       edm::ESHandle<HcalRecoParams> p;
       es.get<HcalRecoParamsRcd>().get(p);
       paramTS = new HcalRecoParams(*p.product());
+
+      // std::cout<<" skdump in HcalHitReconstructor::beginRun   dupm RecoParams "<<std::endl;
+      // std::ofstream skfile("skdumpRecoParamsNewFormat.txt");
+      // HcalDbASCIIIO::dumpObject(skfile, (*paramTS) );
     }
 
   if (digiTimeFromDB_==true)
@@ -287,6 +300,51 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	HcalDetId cell = i->id();
 	DetId detcell=(DetId)cell;
 
+        if(tsFromDB_ || recoParamsFromDB_) {
+          const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
+          firstSample_ = param_ts->firstSample();
+          samplesToAdd_ = param_ts->samplesToAdd();
+          if(recoParamsFromDB_) {
+             bool correctForTimeslew=param_ts->correctForTimeslew();
+             bool correctForPhaseContainment= param_ts->correctForPhaseContainment();
+             float phaseNS=param_ts->correctionPhaseNS();
+             useLeakCorrection_= param_ts->useLeakCorrection();
+             correctTiming_ = param_ts->correctTiming();
+             firstAuxTS_ = param_ts->firstAuxTS();
+             int pileupCleaningID = param_ts->pileupCleaningID();
+
+	     /*	     
+	     int sub     = cell.subdet();
+	     int depth   = cell.depth();
+	     int inteta  = cell.ieta();
+	     int intphi  = cell.iphi();
+
+	     std::cout << "HcalHitReconstructor::produce  cell:" 
+		       << " sub, ieta, iphi, depth = " 
+		       << sub << "  " << inteta << "  " << intphi 
+		       << "  " << depth << std::endl
+		       << "    first, toadd = " << firstSample_ << ", "
+		       << samplesToAdd_ << std::endl
+		       << "    correctForTimeslew " << correctForTimeslew
+		       << std::endl
+		       << "    correctForPhaseContainment " 
+		       <<  correctForPhaseContainment << std::endl
+		       << "    phaseNS " <<  phaseNS << std::endl
+		       << "    useLeakCorrection  " << useLeakCorrection_ 
+		       << std::endl 
+		       << "    correctTiming " << correctTiming_ << std::endl
+		       << "    firstAuxTS " << firstAuxTS_  << std::endl
+		       << "    pileupCleaningID "  << pileupCleaningID
+		       << std::endl;
+	     */
+
+             reco_.setRecoParams(correctForTimeslew,correctForPhaseContainment,useLeakCorrection_,pileupCleaningID,phaseNS);
+          }
+        }
+
+        first = firstSample_;
+        toadd = samplesToAdd_;
+
 	// check on cells to be ignored and dropped: (rof,20.Feb.09)
 	const HcalChannelStatus* mydigistatus=myqual->getValues(detcell.rawId());
 	if (mySeverity->dropChannel(mydigistatus->getValue() ) ) continue;
@@ -298,11 +356,11 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	HcalCoderDb coder (*channelCoder, *shape);
 
 	// firstSample & samplesToAdd
-        if(tsFromDB_) {
-	  const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
-	  first = param_ts->firstSample();    
-	  toadd = param_ts->samplesToAdd(); 
-	}
+//        if(tsFromDB_) {
+//	  const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
+//	  first = param_ts->firstSample();    
+//	  toadd = param_ts->samplesToAdd(); 
+//	}
 
 	rec->push_back(reco_.reconstruct(*i,first,toadd,coder,calibrations));
 
@@ -379,6 +437,26 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
       for (i=digi->begin(); i!=digi->end(); i++) {
 	HcalDetId cell = i->id();
 	DetId detcell=(DetId)cell;
+        // firstSample & samplesToAdd
+        if(tsFromDB_ || recoParamsFromDB_) {
+          const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
+          firstSample_ = param_ts->firstSample();
+          samplesToAdd_ = param_ts->samplesToAdd();
+          if(recoParamsFromDB_) {
+             bool correctForTimeslew=param_ts->correctForTimeslew();
+             bool correctForPhaseContainment= param_ts->correctForPhaseContainment();
+             float phaseNS=param_ts->correctionPhaseNS();
+             useLeakCorrection_= param_ts->useLeakCorrection();
+             correctTiming_ = param_ts->correctTiming();
+             firstAuxTS_ = param_ts->firstAuxTS();
+             int pileupCleaningID = param_ts->pileupCleaningID();
+             reco_.setRecoParams(correctForTimeslew,correctForPhaseContainment,useLeakCorrection_,pileupCleaningID,phaseNS);
+          }
+        }
+
+        first = firstSample_;
+        toadd = samplesToAdd_;
+
 	// check on cells to be ignored and dropped: (rof,20.Feb.09)
 	const HcalChannelStatus* mydigistatus=myqual->getValues(detcell.rawId());
 	if (mySeverity->dropChannel(mydigistatus->getValue() ) ) continue;
@@ -390,11 +468,12 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	HcalCoderDb coder (*channelCoder, *shape);
 
 	// firstSample & samplesToAdd
-        if(tsFromDB_) {
-	  const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
-	  first = param_ts->firstSample();    
-	  toadd = param_ts->samplesToAdd();    
-	}
+//        if(tsFromDB_) {
+//	  const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
+//	  first = param_ts->firstSample();    
+//	  toadd = param_ts->samplesToAdd();    
+//	}
+
 	rec->push_back(reco_.reconstruct(*i,first,toadd,coder,calibrations));
 
 	// Set auxiliary flag
@@ -451,6 +530,26 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
       for (i=digi->begin(); i!=digi->end(); i++) {
 	HcalDetId cell = i->id();
 	DetId detcell=(DetId)cell;
+
+        if(tsFromDB_ || recoParamsFromDB_) {
+          const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
+          firstSample_ = param_ts->firstSample();
+          samplesToAdd_ = param_ts->samplesToAdd();
+          if(recoParamsFromDB_) {
+             bool correctForTimeslew=param_ts->correctForTimeslew();
+             bool correctForPhaseContainment= param_ts->correctForPhaseContainment();
+             float phaseNS=param_ts->correctionPhaseNS();
+             useLeakCorrection_= param_ts->useLeakCorrection();
+             correctTiming_ = param_ts->correctTiming();
+             firstAuxTS_ = param_ts->firstAuxTS();
+             int pileupCleaningID = param_ts->pileupCleaningID();
+             reco_.setRecoParams(correctForTimeslew,correctForPhaseContainment,useLeakCorrection_,pileupCleaningID,phaseNS);
+          }
+        }
+
+        first = firstSample_;
+        toadd = samplesToAdd_;
+
 	// check on cells to be ignored and dropped: (rof,20.Feb.09)
 	const HcalChannelStatus* mydigistatus=myqual->getValues(detcell.rawId());
 	if (mySeverity->dropChannel(mydigistatus->getValue() ) ) continue;
@@ -462,11 +561,11 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	HcalCoderDb coder (*channelCoder, *shape);
 
 	// firstSample & samplesToAdd
-        if(tsFromDB_) {
-	  const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
-	  first = param_ts->firstSample();    
-	  toadd = param_ts->samplesToAdd();    
-	}
+//        if(tsFromDB_) {
+//	  const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
+//	  first = param_ts->firstSample();    
+//	  toadd = param_ts->samplesToAdd();    
+//	}
 
 	// Set HFDigiTime flag values from digiTimeFromDB_
 	if (digiTimeFromDB_==true && hfdigibit_!=0)
