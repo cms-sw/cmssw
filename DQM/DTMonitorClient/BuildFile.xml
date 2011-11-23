@@ -16,6 +16,3 @@
 <use   name="CondFormats/RunInfo"/>
 <use   name="boost"/>
 <use   name="rootgraphics"/>
-<export>
-  <lib   name="1"/>
-</export>
