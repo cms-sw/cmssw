@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_4_2/HIon/V36 (CMSSW_4_4_0_HLT17)
+# /dev/CMSSW_4_4_2/HIon/V38 (CMSSW_4_4_0_HLT17)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V36')
+  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V38')
 )
 
 process.streams = cms.PSet( 
@@ -2757,8 +2757,17 @@ process.PrescaleService = cms.Service( "PrescaleService",
       'Cosmics',
       'Cosmics + High Random' ),
     prescaleTable = cms.VPSet( 
+      cms.PSet(  pathName = cms.string( "HLT_HIMET120_v1" ),
+        prescales = cms.vuint32( 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
+      ),
+      cms.PSet(  pathName = cms.string( "HLT_HIMET200_v1" ),
+        prescales = cms.vuint32( 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
+      ),
+      cms.PSet(  pathName = cms.string( "HLT_HIMET220_v1" ),
+        prescales = cms.vuint32( 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
+      ),
       cms.PSet(  pathName = cms.string( "HLT_HIPhysics_v1" ),
-        prescales = cms.vuint32( 1, 1, 1, 1, 600, 500, 400, 300, 200, 150, 100, 50, 200, 200, 1, 1 )
+        prescales = cms.vuint32( 0, 0, 0, 0, 600, 500, 400, 300, 200, 150, 100, 50, 200, 200, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_HIDTCalibration_v1" ),
         prescales = cms.vuint32( 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
@@ -2986,7 +2995,7 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 )
       ),
       cms.PSet(  pathName = cms.string( "ExpressForHIOutput" ),
-        prescales = cms.vuint32( 0, 0, 0, 0, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 0, 0 )
+        prescales = cms.vuint32( 0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 0, 0 )
       ),
       cms.PSet(  pathName = cms.string( "HLTMONOutput" ),
         prescales = cms.vuint32( 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100 )
