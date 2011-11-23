@@ -40,8 +40,12 @@ int cond_regression::ExportIOVTest::execute(){
       since = getOptionValue<cond::Time_t>("beginTime");
     }
     if(!m_tf.DropTables( m_tf.s.connectionString() )){
-      if( hasOptionValue("metadata") ) m_tf.CreateMetaTable();
-      return m_tf.WriteWithIOV(tag, seed, since);
+      bool withTestMetadata = false;
+      if( hasOptionValue("metadata") ) {
+	m_tf.CreateMetaTable();
+	withTestMetadata = true;
+      }
+      return m_tf.WriteWithIOV(tag, seed, since, withTestMetadata );
     }
     return 1;
   }
