@@ -1934,7 +1934,9 @@ C...HEPEVT commonblock.
       SAVE /HEPEVT/
       INTEGER ISTLO,ISTHI
 
-
+C...Avoid gcc 4.3.4 warnings.
+      ISTLO=ISTLO
+      ISTHI=ISTHI
       CALL CALSIMM
       END
 

@@ -260,14 +260,15 @@ C...HEPEVT commonblock.
       DOUBLE PRECISION PHEP,VHEP
       SAVE /HEPEVT/
       INTEGER ISTLO,ISTHI
-
 C...Inputs for the matching algorithm
       double precision etcjet,rclmax,etaclmax,qcut,qfact
       integer maxjets,minjets,iexcfile,ktsche
       common/MEMAIN/etcjet,rclmax,etaclmax,qcut,qfact,
      $   maxjets,minjets,iexcfile,ktsche
 
-
+C...Silence gcc 4.3.4 warnings.
+      ISTLO=ISTLO
+      ISTHI=ISTHI
       CALL CALSIM
       END
 C-----------------------------------------------------------------------
