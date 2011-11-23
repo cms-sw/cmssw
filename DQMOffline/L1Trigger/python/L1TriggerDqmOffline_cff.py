@@ -162,7 +162,7 @@ l1tMonitorOnline.remove(l1tRate)
 #l1TriggerDqmOfflineClient.remove(l1tMonitorClient)
 #l1TriggerDqmOfflineClient.remove(l1EmulatorMonitorClient)
 
-# l1tMonitorClient sequence, defined in DQM/L1TMonitorClient/python/L1tMonitorClient_cff.py
+# l1tMonitorClient sequence, defined in DQM/L1TMonitorClient/python/L1TMonitorClient_cff.py
 #
 #l1tMonitorClient.remove(l1TriggerQualityTests)
 #l1tMonitorClient.remove(l1TriggerClients)
@@ -170,7 +170,7 @@ l1tMonitorOnline.remove(l1tRate)
 # l1TriggerClients sequence, part of l1tMonitorClient sequence
 
 #l1TriggerClients.remove(l1tGctClient)
-#l1TriggerClients.remove(l1tDttfClient)
+l1TriggerClients.remove(l1tDttfClient)
 l1TriggerClients.remove(l1tCsctfClient) 
 #l1TriggerClients.remove(l1tRpctfClient)
 l1TriggerClients.remove(l1tGmtClient)
@@ -178,5 +178,10 @@ l1TriggerClients.remove(l1tGmtClient)
 l1TriggerClients.remove(l1tTestsSummary)
 #l1TriggerClients.remove(l1tEventInfoClient)
                               
-                                    
+# l1EmulatorMonitorClient sequence, defined in DQM/L1TMonitorClient/python/L1TEMUMonitorClient_cff.py
+#
+#l1EmulatorMonitorClient.remove(l1EmulatorQualityTests)
+l1EmulatorMonitorClient.remove(l1EmulatorErrorFlagClient)
+#l1EmulatorMonitorClient.remove(l1EmulatorEventInfoClient)
+                                  
                                     
