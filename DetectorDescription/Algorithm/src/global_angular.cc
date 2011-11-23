@@ -18,10 +18,18 @@
 
 // always the same ctor
 global_angular_0::global_angular_0(AlgoPos * a,std::string label)
- : AlgoImpl(a,label),
-   rotate_(0), center_(3), rotateSolid_(0),
-   alignSolid_(true), n_(1), startCopyNo_(1), incrCopyNo_(1),
-   startAngle_(0), rangeAngle_(360.*deg)
+  : AlgoImpl( a, label ),
+    rotate_( 0 ),
+    center_( 3 ),
+    rotateSolid_( 0 ),
+    alignSolid_( true ),
+    n_( 1 ),
+    startCopyNo_( 1 ),
+    incrCopyNo_( 1 ),
+    startAngle_( 0 ),
+    rangeAngle_( 360.*deg ),
+    radius_( 0. ),
+    delta_( 0. )
 { 
   DCOUT('A', "Creating angular label=" << label);
 }
