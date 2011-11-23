@@ -538,12 +538,12 @@ def trgLSById(schema,dataid,trgbitname=None,trgbitnamepattern=None,withL1Count=F
             prescales=[]
             trgcounts=[]
             if prescalesblob:
-                if runnum <160442: ###WORKAROUND PATCH!! because the 2010 blobs were packed as type l ###
+                if runnum <150008: ###WORKAROUND PATCH!! because the 2010 blobs were packed as type l ###
                     prescales=CommonUtil.unpackBlobtoArray(prescalesblob,'l')
                 else:
                     prescales=CommonUtil.unpackBlobtoArray(prescalesblob,'I')
             if trgcountblob:
-                if runnum <160442: ###WORKAROUND PATCH!! because the 2010 blobs were packed as type l ###
+                if runnum <150008: ###WORKAROUND PATCH!! because the 2010 blobs were packed as type l ###
                     trgcounts=CommonUtil.unpackBlobtoArray(trgcountblob,'l')
                 else:
                     trgcounts=CommonUtil.unpackBlobtoArray(trgcountblob,'I')
@@ -984,17 +984,17 @@ def hltLSById(schema,dataid,hltpathname=None,hltpathpattern=None,withL1Pass=Fals
             hltcounts=None
             hltaccepts=None
             if prescaleblob:
-                if runnum <160442: ###WORKAROUND PATCH!! because the 2010 blobs were packed as type l ###
+                if runnum <150008: ###WORKAROUND PATCH!! because the 2010 blobs were packed as type l ###
                     prescales=CommonUtil.unpackBlobtoArray(prescaleblob,'l')
                 else:
                     prescales=CommonUtil.unpackBlobtoArray(prescaleblob,'I')
             if hltcountblob:
-                if runnum <160442: ###WORKAROUND PATCH!! because the 2010 blobs were packed as type l ###
+                if runnum <150008: ###WORKAROUND PATCH!! because the 2010 blobs were packed as type l ###
                     hltcounts=CommonUtil.unpackBlobtoArray(hltcountblob,'l')
                 else:
                     hltcounts=CommonUtil.unpackBlobtoArray(hltcountblob,'I')
             if hltacceptblob:
-                if runnum <160442: ###WORKAROUND PATCH!! because the 2010 blobs were packed as type l ###
+                if runnum <150008: ###WORKAROUND PATCH!! because the 2010 blobs were packed as type l ###
                     hltaccepts=CommonUtil.unpackBlobtoArray(hltacceptblob,'l')
                 else:
                     hltaccepts=CommonUtil.unpackBlobtoArray(hltacceptblob,'I')
