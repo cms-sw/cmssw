@@ -1,7 +1,6 @@
-
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.64 2011/11/14 13:47:54 abdullin Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.63 2011/10/26 13:58:20 xiezhen Exp $
 //
 #include <vector>
 #include <string>
@@ -144,6 +143,15 @@ void HcalDbASCIIIO::dumpId (std::ostream& fOutput, DetId id) {
 	   converter.getField1 ().c_str (), converter.getField2 ().c_str (), converter.getField3 ().c_str (),converter.getFlavor ().c_str ());  
   fOutput << buffer;
 }
+
+void HcalDbASCIIIO::dumpIdShort (std::ostream& fOutput, DetId id) {
+  HcalText2DetIdConverter converter (id);
+  char buffer [1024];
+  sprintf (buffer, "  %5s %4s %4s %10s",
+           converter.getField1 ().c_str (), converter.getField2 ().c_str (), converter.getField3 ().c_str (),converter.getFlavor ().c_str ());
+  fOutput << buffer;
+}
+
 
 // ------------------------------ start templates ------------------------------
 
@@ -387,12 +395,71 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalRecoParams* fObject)
     std::vector <std::string> items = splitString (std::string (buffer));
     if (items.size()==0) continue; // blank line
     if (items.size () < 6) {
-      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 6 items: eta, phi, depth, subdet, firstSample, samplesToAdd" << std::endl;
+      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 6 items: eta, phi, depth, subdet, param1, param2" << std::endl;
       continue;
     }
     DetId id = HcalDbASCIIIO::getId (items);
-    
-    HcalRecoParam* fCondObject = new HcalRecoParam(id, atoi (items [4].c_str()), atoi (items [5].c_str()) );
+
+    int packingScheme =0;
+    if(items.size ()>22) {
+       packingScheme = atoi (items [22].c_str());
+    }
+
+    int param1=0;
+    int param2=0;
+    if(packingScheme==0) {
+       param1=atoi (items [4].c_str());
+       param2=atoi (items [5].c_str());
+    }   // packing scheme 0  (old format).
+
+    if(packingScheme==1) {
+       //             0 1 2 3 4 5 6 7 8 9
+       int aabits[6]= {1,1,  8, 4, 4,  9};
+       int aamax[ 6]= {1,1,255,15,15,511};
+
+       int bbbits[10]={1, 4,1, 4,1, 4, 4, 4, 4, 4};
+       int bbmax [10]={1,15,1,15,1,15,15,15,15,15};
+
+        // param 1
+       int j=0;
+       int aa;
+       int aashift=0;
+       for(int i=0; i<6; i++) {
+          j=i+7;
+          if(i==2) {
+            float phase=atof (items [j].c_str());
+            float xphase=(phase+32.0)*4.0;   // range of phase [-30.0,30.0] 
+            aa=xphase;
+          } else {
+            aa=atoi (items [j].c_str());
+          } 
+          if(aa>aamax[i] || aa<0) {
+              edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n value for a"<<i<<" should be less than"<<aamax[i]<< std::endl;
+          }
+          param1=param1|aa<<aashift;
+          aashift=aashift+aabits[i];
+       }
+
+       // param 2
+       int bb;
+       int bbshift=0;
+       for(int i=0; i<10; i++) {
+          j=i+13;
+          bb=atoi (items [j].c_str()); 
+          if(bb>bbmax[i]) {
+              edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n value for b"<<i<<" should be less than"<<bbmax[i]<< std::endl;
+          }
+          param2=param2|bb<<bbshift;
+          bbshift=bbshift+bbbits[i];
+       }
+    } // packing sheme 1.    
+   
+    // HcalRecoParam* fCondObject = new HcalRecoParam(id, atoi (items [4].c_str()), atoi (items [5].c_str()) );
+
+    // std::cout<<"  buffer "<<buffer<<std::endl;
+    // std::cout<<"  param1, param2 "<<param1<<"  "<<param2<<std::endl;
+
+    HcalRecoParam* fCondObject = new HcalRecoParam(id, param1, param2 );
     fObject->addValues(*fCondObject);
     delete fCondObject;
   }
@@ -401,18 +468,116 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalRecoParams* fObject)
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalRecoParams& fObject)
 {
   char buffer [1024];
-  sprintf (buffer, "# %15s %15s %15s %15s %18s %15s %10s\n", "eta", "phi", "dep", "det", "firstSample", "samplesToAdd", "DetId");
-  fOutput << buffer;
+  //  sprintf (buffer, "# %15s %15s %15s %15s %18s %15s %10s\n", "eta", "phi", "dep", "det", "firstSample", "samplesToAdd", "DetId");
+  // fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels ();
   std::sort (channels.begin(), channels.end(), DetIdLess ());
+  int  myCounter=0;
   for (std::vector<DetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
        channel++) {
-    HcalDbASCIIIO::dumpId (fOutput, *channel);
-    sprintf (buffer, " %15d %15d %16X\n",
-	     fObject.getValues (*channel)->firstSample(), fObject.getValues (*channel)->samplesToAdd(), channel->rawId ());
-    fOutput << buffer;
-  }
+    myCounter++;
+    int param1=fObject.getValues (*channel)->param1();
+    int param2=fObject.getValues (*channel)->param2();
+    int packingScheme=fObject.getValues (*channel)->packingScheme();
+
+    // std::cout<<"  Param1 "<<Param1<<"  Param2 "<<Param2<<"  packing "<<packingScheme<<std::endl;
+
+    if(packingScheme==0) {
+      // old format
+      if(myCounter==1) {
+           sprintf (buffer, "# %15s %15s %15s %15s %18s %15s %10s\n", "eta", "phi", "dep", "det", "firstSample", "samplesToAdd", "DetId");
+      }
+      HcalDbASCIIIO::dumpId(fOutput, *channel);
+      sprintf (buffer, " %15d %15d %16X\n",
+             fObject.getValues (*channel)->firstSample(), fObject.getValues (*channel)->samplesToAdd(), channel->rawId ());
+      fOutput << buffer;
+    }
+   
+    if(packingScheme==1) {
+
+       if(myCounter==1) {
+          char lineT[100],lineA[200],lineB[200];
+          //
+          sprintf (lineT, "#%50s","  ");   fOutput << lineT;
+          sprintf (lineA, " %31s","a0: correctForPhaseContainment"); fOutput << lineA;
+          sprintf (lineB, " %36s","b0: useLeakCorrection\n"); fOutput << lineB;
+          //
+          sprintf (lineT, "#%50s","  ");   fOutput << lineT;
+          sprintf (lineA, " %31s","a1: correctForLeadingEdge"); fOutput << lineA;
+          sprintf (lineB, " %36s","b1: leakCorrectionID\n"); fOutput << lineB;
+          //
+          sprintf (lineT, "#%50s","  ");   fOutput << lineT;
+          sprintf (lineA, " %31s","a2: correctionPhaseNS"); fOutput << lineA;
+          sprintf (lineB, " %36s","b2:  correctForTimeslew\n"); fOutput << lineB;
+          //
+          sprintf (lineT, "#%50s","  ");   fOutput << lineT;
+          sprintf (lineA, " %31s","a3: firstSample"); fOutput << lineA;
+          sprintf (lineB, " %36s","b3: timeslewCorrectionID\n"); fOutput << lineB;
+          //
+          sprintf (lineT, "#%50s","  ");   fOutput << lineT;
+          sprintf (lineA, " %31s","a4: samplesToAdd"); fOutput << lineA;
+          sprintf (lineB, " %36s","b4: correctTiming\n"); fOutput << lineB;
+          //
+          sprintf (lineT, "#%50s","  ");   fOutput << lineT;
+          sprintf (lineA, " %31s","a5: pulseShapeID"); fOutput << lineA;
+          sprintf (lineB, " %36s","b5: firstAuxTS\n"); fOutput << lineB;
+          //
+          sprintf (lineT, "#%50s","  ");   fOutput << lineT;
+          sprintf (lineA, " %31s","  "); fOutput << lineA;
+          sprintf (lineB, " %36s","b6: specialCaseID\n"); fOutput << lineB;
+          //
+          sprintf (lineT, "#%50s","  ");   fOutput << lineT;
+          sprintf (lineA, " %31s","  "); fOutput << lineA;
+          sprintf (lineB, " %36s","b7: noiseFlaggingID\n"); fOutput << lineB;
+          //
+         sprintf (lineT, "#%50s","  ");   fOutput << lineT;
+         sprintf (lineA, " %31s","  "); fOutput << lineA;
+         sprintf (lineB, " %36s","b8: pileupCleaningID\n"); fOutput << lineB;
+
+         sprintf (lineT, "#%50s","  ");   fOutput << lineT;
+         sprintf (lineA, " %31s","  "); fOutput << lineA;
+         sprintf (lineB, " %36s","b9: packingScheme\n"); fOutput << lineB;
+
+         //  
+         sprintf (lineT, "# %5s %4s %4s %10s %11s %10s %10s", "eta", "phi", "dep", "det", "param1", "param2", "DetId");
+         fOutput << lineT;
+
+         sprintf (lineA, " %6s %4s %6s %4s %4s %4s", "a0", "a1", "a2", "a3", "a4", "a5");
+         fOutput << lineA;
+
+         sprintf (lineB, " %6s %3s %3s %3s %3s %3s %3s %3s %3s\n", "b0", "b1", "b2", "b3", "b4", "b5", "b6",  "b7", "b8");
+         fOutput << lineB;
+       }
+
+       HcalDbASCIIIO::dumpIdShort(fOutput, *channel);
+       sprintf (buffer, " %11d %10d %10X", param1, param2, channel->rawId ());
+       fOutput << buffer;
+
+       bool  aa0=fObject.getValues (*channel)->correctForPhaseContainment();
+       bool  aa1=fObject.getValues (*channel)->correctForLeadingEdge();
+       float aa2=fObject.getValues (*channel)->correctionPhaseNS();
+       int   aa3=fObject.getValues (*channel)->firstSample();
+       int   aa4=fObject.getValues (*channel)->samplesToAdd();
+       int   aa5=fObject.getValues (*channel)->pulseShapeID();
+       sprintf (buffer, " %6d %4d %6.1f %4d %4d %4d",aa0,aa1,aa2,aa3,aa4,aa5);
+       fOutput << buffer;
+
+       bool bb0=fObject.getValues (*channel)->useLeakCorrection();
+       int  bb1=fObject.getValues (*channel)->leakCorrectionID();
+       bool bb2=fObject.getValues (*channel)->correctForTimeslew();
+       int  bb3=fObject.getValues (*channel)->timeslewCorrectionID();
+       bool bb4=fObject.getValues (*channel)->correctTiming();
+       int  bb5=fObject.getValues (*channel)->firstAuxTS();
+       int  bb6=fObject.getValues (*channel)->specialCaseID();
+       int  bb7=fObject.getValues (*channel)->noiseFlaggingID();
+       int  bb8=fObject.getValues (*channel)->pileupCleaningID();
+       int  bb9=fObject.getValues (*channel)->packingScheme();
+       sprintf(buffer," %6d %3d %3d %3d %3d %3d %3d %3d %3d %3d\n",bb0,bb1,bb2,bb3,bb4,bb5,bb6,bb7,bb8,bb9);
+       fOutput << buffer;
+     }   // packingScheme 1.
+
+  }  // loop ever channels
   return true;
 }
 
@@ -542,8 +707,42 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalMCParams* fObject)
       continue;
     }
     DetId id = HcalDbASCIIIO::getId (items);
-    
-    HcalMCParam* fCondObject = new HcalMCParam(id, atoi (items [4].c_str()) );
+
+    int packingScheme=0;
+    if(items.size ()>11) {
+       packingScheme = atoi (items [11].c_str());
+    }
+
+    int param1=0;
+    if(packingScheme==0) {
+        param1=atoi (items [4].c_str());
+    }
+
+    if(packingScheme==1) {
+       int aabits[6]={  9,1, 4,  8,5, 4};   // 4 spear bits added to aabits[5]
+       int aamax [6]={511,1,15,255,1,16};
+       int j=0;
+       int aa;
+       int aashift=0;
+       for(int i=0; i<6; i++) {
+          j=i+6;
+          if(i==3) {
+            float phase=atof (items [j].c_str());
+            float xphase=(phase+32.0)*4.0;   // range of phase [-30.0,30.0] 
+            aa=xphase;
+          } else {
+            aa=atoi (items [j].c_str());
+          }
+          if(aa>aamax[i] || aa<0) {
+              edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n value for a"<<i<<" should be less than"<<aamax[i]<< std::endl;
+          }
+
+          param1=param1|aa<<aashift;
+          aashift=aashift+aabits[i];
+       }
+    }
+
+    HcalMCParam* fCondObject = new HcalMCParam(id, param1 );
     fObject->addValues(*fCondObject);
     delete fCondObject;
   }
@@ -552,18 +751,60 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalMCParams* fObject)
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalMCParams& fObject)
 {
   char buffer [1024];
-  sprintf (buffer, "# %15s %15s %15s %15s %14s %10s\n", "eta", "phi", "dep", "det", "signalShape", "DetId");
-  fOutput << buffer;
+  // sprintf (buffer, "# %15s %15s %15s %15s %14s %10s\n", "eta", "phi", "dep", "det", "signalShape", "DetId");
+  // fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels ();
   std::sort (channels.begin(), channels.end(), DetIdLess ());
+  int  myCounter=0;
   for (std::vector<DetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
        channel++) {
-    const int value = fObject.getValues (*channel)->signalShape();
-    HcalDbASCIIIO::dumpId (fOutput, *channel);
-    sprintf (buffer, " %10d %17X\n",
-	     value, channel->rawId ());
-    fOutput << buffer;
+    myCounter++;;  
+    int packingScheme=fObject.getValues (*channel)->packingScheme();
+    if(packingScheme==0) {
+       if(myCounter==1) {
+          sprintf (buffer, "# %15s %15s %15s %15s %14s %10s\n", "eta", "phi", "dep", "det", "signalShape", "DetId");
+          fOutput << buffer;
+       }
+           const int value = fObject.getValues (*channel)->signalShape();
+       HcalDbASCIIIO::dumpId (fOutput, *channel);
+       sprintf (buffer, " %10d %17X\n", value, channel->rawId ());
+       fOutput << buffer;
+    }  // packingScheme 0
+    if(packingScheme==1) {
+      if(myCounter==1) {
+        char lineT[100],lineA[200];
+        //
+        sprintf (lineT, "#%40s","  ");   fOutput << lineT;
+        sprintf (lineA, " %31s","a0: signalShape\n"); fOutput << lineA;
+        sprintf (lineT, "#%40s","  ");   fOutput << lineT;
+        sprintf (lineA, " %31s","a1: syncPhase\n"); fOutput << lineA;
+        sprintf (lineT, "#%40s","  ");   fOutput << lineT;
+        sprintf (lineA, " %31s","a2: binOfMaximum\n"); fOutput << lineA;
+        sprintf (lineT, "#%40s","  ");   fOutput << lineT;
+        sprintf (lineA, " %31s","a3: timePhase\n"); fOutput << lineA;
+        sprintf (lineT, "#%40s","  ");   fOutput << lineT;
+        sprintf (lineA, " %31s","a4: timeSmearing\n"); fOutput << lineA;
+        sprintf (lineT, "#%40s","  ");   fOutput << lineT;
+        sprintf (lineA, " %31s","a5: packingScheme\n"); fOutput << lineA;
+        sprintf (lineT, "# %5s %4s %4s %10s %11s %10s", "eta", "phi", "dep", "det", "param1", "DetId");
+        fOutput << lineT;
+        sprintf (lineA, " %6s %4s %4s %6s %4s %4s\n", "a0", "a1", "a2", "a3", "a4", "a5");
+        fOutput << lineA;
+      }
+      int   param1 = fObject.getValues (*channel)->param1();
+      HcalDbASCIIIO::dumpIdShort (fOutput, *channel);
+      sprintf (buffer, " %11d  %10X", param1, channel->rawId ());
+      fOutput << buffer;
+     int   aa0 = fObject.getValues (*channel)->signalShape(); 
+     bool  aa1 = fObject.getValues (*channel)->syncPhase(); 
+     int   aa2 = fObject.getValues (*channel)->binOfMaximum();
+     float aa3 = fObject.getValues (*channel)->timePhase();
+     bool  aa4 = fObject.getValues (*channel)->timeSmearing() ;
+     int   aa5 = fObject.getValues (*channel)->packingScheme();
+     sprintf (buffer, "%6d %4d %4d %6.1f %4d %4d\n",aa0,aa1,aa2,aa3,aa4,aa5);
+     fOutput << buffer;
+    }
   }
   return true;
 }
@@ -929,12 +1170,13 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalQIEData* fObject) {
 	edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 33 items: SHAPE  32 x low QIE edges for first 32 bins" << std::endl;
 	continue;
       }
-      /*
+      // comment, as normally not used ----------------------- 
+      /* 
       float lowEdges [32];
       int i = 32;
       while (--i >= 0) lowEdges [i] = atof (items [i+1].c_str ());
-      //      fObject->setShape (lowEdges);
       */
+      //      fObject->setShape (lowEdges);
     }
     else { // QIE parameters
       if (items.size () < 36) {
@@ -1557,7 +1799,7 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalFlagHFDigiTimeP
     // Dump out channel (ieta,iphi,depth,subdet) info
     HcalDbASCIIIO::dumpId (fOutput, *channel);
     // Dump out values for channel
-    sprintf (buffer, " %15u %15u %15u %15f ",
+    sprintf (buffer, " %15u %15u %15u %15f",
 	     fObject.getValues (*channel)->HFdigiflagFirstSample(), 
 	     fObject.getValues (*channel)->HFdigiflagSamplesToAdd(), 
 	     fObject.getValues (*channel)->HFdigiflagExpectedPeak(), 
@@ -1576,7 +1818,7 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalFlagHFDigiTimeP
 	  fOutput<<",";
       }
     sprintf(buffer,"\n");
-    fOutput<<buffer;
+    fOutput << buffer;
   }
   return true;
 }

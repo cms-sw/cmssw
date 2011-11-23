@@ -1,6 +1,6 @@
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbHardcode.cc,v 1.25 2011/10/26 13:58:20 xiezhen Exp $
+// $Id: HcalDbHardcode.cc,v 1.26 2011/11/14 13:52:46 abdullin Exp $
 //
 #include <vector>
 #include <string>
@@ -302,7 +302,7 @@ void HcalDbHardcode::makeHardcodeMap(HcalElectronicsMap& emap) {
       {{13,-1,3},{13,-1,4},{13,-1,5}}}} 
   };
   int ic,is,ih,itb,ifb,ifc,ifwtb,iphi_loc;
-  int iside,ieta,iphi,idepth,icrate,ihtr,ihtr_fi,ifi_ch,ispigot,idcc,ifedl;
+  int iside,ieta,iphi,idepth,icrate,ihtr,ihtr_fi,ifi_ch,ispigot,idcc,ifed;
   //  int idcc_sl;
   std::string det;
   std::string fpga;

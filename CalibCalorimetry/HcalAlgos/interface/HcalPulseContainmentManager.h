@@ -7,9 +7,9 @@
 
 class HcalPulseContainmentManager {
 public:
-  HcalPulseContainmentManager(float fixedphase_ns, float  max_fracerror);
-  double correction(const HcalDetId & detId, int toAdd, double fc_ampl);
-  const HcalPulseContainmentCorrection * get(const HcalDetId & detId, int toAdd);
+  HcalPulseContainmentManager(float  max_fracerror);
+  double correction(const HcalDetId & detId, int toAdd, float fixedphase_ns, double fc_ampl);
+  const HcalPulseContainmentCorrection * get(const HcalDetId & detId, int toAdd, float fixedphase_ns);
 
   void beginRun(edm::EventSetup const & es);
   void endRun();
@@ -17,10 +17,10 @@ public:
 private:
 
   struct HcalPulseContainmentEntry {
-    HcalPulseContainmentEntry(int toAdd, const HcalPulseShape * shape, 
-                              const HcalPulseContainmentCorrection & correction)
-    : toAdd_(toAdd), shape_(shape), correction_(correction) {}
+    HcalPulseContainmentEntry(int toAdd, float fixedphase_ns, const HcalPulseShape * shape,  const HcalPulseContainmentCorrection & correction)
+      : toAdd_(toAdd), fixedphase_ns_(fixedphase_ns),shape_(shape), correction_(correction) {}
     int toAdd_;
+    float fixedphase_ns_;
     const HcalPulseShape * shape_;
     HcalPulseContainmentCorrection correction_;
   };

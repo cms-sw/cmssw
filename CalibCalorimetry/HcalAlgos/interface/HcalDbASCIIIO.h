@@ -13,7 +13,7 @@
    \class HcalDbASCIIIO
    \brief IO for ASCII instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbASCIIIO.h,v 1.19 2011/06/24 22:13:34 temple Exp $
+   $Id: HcalDbASCIIIO.h,v 1.20 2011/10/26 13:58:20 xiezhen Exp $
    
 Text file formats for different data types is as following:
 - # in first column comments the line
@@ -96,5 +96,6 @@ namespace HcalDbASCIIIO {
 
   DetId getId (const std::vector <std::string> & items);
   void dumpId (std::ostream& fOutput, DetId id);
+  void dumpIdShort (std::ostream& fOutput, DetId id);
 } 
 #endif
