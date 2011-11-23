@@ -156,21 +156,24 @@ bool TestFunct::Write (std::string mappingName, int payloadID)
 
 bool TestFunct::WriteWithIOV(std::string mappingName, 
  			     int payloadID, 
- 			     int runValidity ){
+ 			     int runValidity,
+			     bool updateTestMetadata ){
    cond::DbScopedTransaction trans(s);
    cond::MetaData  metadata(s);
    std::string tok0("");
    try {
      cond::IOVEditor iov(s);
      trans.start();
-     coral::ITable& mytable=s.nominalSchema().tableHandle("TEST_METADATA");
-     coral::AttributeList rowBuffer;
-     coral::ITableDataEditor& dataEditor = mytable.dataEditor();
-     dataEditor.rowBuffer( rowBuffer );
-     rowBuffer["NAME"].data<std::string>()=mappingName;
-     rowBuffer["SEED"].data<int>()=payloadID;
-     rowBuffer["RUN"].data<int>()= runValidity;
-     dataEditor.insertRow( rowBuffer );		
+     if( updateTestMetadata ){
+       coral::ITable& mytable=s.nominalSchema().tableHandle("TEST_METADATA");
+       coral::AttributeList rowBuffer;
+       coral::ITableDataEditor& dataEditor = mytable.dataEditor();
+       dataEditor.rowBuffer( rowBuffer );
+       rowBuffer["NAME"].data<std::string>()=mappingName;
+       rowBuffer["SEED"].data<int>()=payloadID;
+       rowBuffer["RUN"].data<int>()= runValidity;
+       dataEditor.insertRow( rowBuffer );		
+     }
      s.createDatabase();
      boost::shared_ptr<TestPayloadClass> myRef0(new TestPayloadClass(payloadID)); //v4
      std::string payloadTok = s.storeObject( myRef0.get(),"cont1"); 

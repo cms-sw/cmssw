@@ -39,7 +39,7 @@ public :
 	cond::DbSession s; 
 	TestFunct();
 	bool Write(std::string mappingName, int payloadID);
-        bool WriteWithIOV(std::string mappingName, int payloadID, int runValidity );
+        bool WriteWithIOV(std::string mappingName, int payloadID, int runValidity, bool updateTestMetadata );
         std::pair<int,int> GetMetadata(std::string mappingName);
 	bool Read(std::string mappingName);
         bool ReadWithIOV(std::string mappingName, int seed, int runValidity);

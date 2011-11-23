@@ -67,7 +67,7 @@ class Server:
 					Code +="""<td align="center" bgcolor ="#A7C942"><b>OK</b></td>
 					"""
 				else:
-					Code +="""<td bgcolor ="#FF0000"><b>Failure</b></td>
+					Code +="""<td align="center" bgcolor ="#FF0000"><b>Failure</b></td>
 					"""
 			Code += """</tr></tr>
 			"""

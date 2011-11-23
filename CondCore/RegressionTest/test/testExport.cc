@@ -1,9 +1,9 @@
-#include "CondCore/Utilities/interface/Utilities.h"
+#include "CondCore/Utilities/interface/ExportIOVUtilities.h"
 #include "CondCore/RegressionTest/interface/TestFunct.h"
 
 namespace cond_regression {
 
-  class ExportIOVTest : public cond::Utilities {
+  class ExportIOVTest : public cond::ExportIOVUtilities {
   public:
     ExportIOVTest();
     ~ExportIOVTest();
@@ -14,16 +14,13 @@ namespace cond_regression {
 }
 
 cond_regression::ExportIOVTest::ExportIOVTest():
-  cond::Utilities("testExport"){
-  addAuthenticationOptions();
-  addConnectOption("sourceConnect","s","source connection string");
-  addConnectOption("destConnect","d","destionation connection string");
-  addOption<cond::Time_t>("beginTime","b","begin time (first since)");
+  cond::ExportIOVUtilities("testExport"){
   addOption<std::string>("initDatabase","I","initialize the database with the specified tag");
   addOption<bool>("cleanUp","C","initialize cleanUp the database account");
   addOption<std::string>("read","R","read and verify the specified tag");
   addOption<int>("seed","Z","input seed for data generation");
   addOption<bool>("metadata","M","initialize the database with the metadata table");
+  addOption<bool>("export","E","start the export with the specified parameters");
 }
 
 cond_regression::ExportIOVTest::~ExportIOVTest(){
@@ -35,13 +32,13 @@ int cond_regression::ExportIOVTest::execute(){
     if(!hasOptionValue("seed")){
       throw std::runtime_error("seed parameter has not been provided.");
     }
-    if(!hasOptionValue("beginTime")){
-      throw std::runtime_error("beginTime parameter has not been provided.");
-    }
     m_tf.s = openDbSession("sourceConnect");
     std::string tag = getOptionValue<std::string>("initDatabase");
     int seed = getOptionValue<int>("seed");
-    cond::Time_t since = getOptionValue<cond::Time_t>("beginTime");
+    cond::Time_t since = 1;
+    if( hasOptionValue("beginTime") ){
+      since = getOptionValue<cond::Time_t>("beginTime");
+    }
     if(!m_tf.DropTables( m_tf.s.connectionString() )){
       if( hasOptionValue("metadata") ) m_tf.CreateMetaTable();
       return m_tf.WriteWithIOV(tag, seed, since);
@@ -64,6 +61,9 @@ int cond_regression::ExportIOVTest::execute(){
       std::cout <<"## Object from tag="<<tag<<" seed="<<metadata.first<<" validity="<<metadata.second<<" from target database READ"<<(ret?" NOT ":" ")<<"OK "<<std::endl;
     }
     return ret;
+  }
+  if( hasOptionValue("export") ){
+    return cond::ExportIOVUtilities::execute();
   }
   return 1;
 }

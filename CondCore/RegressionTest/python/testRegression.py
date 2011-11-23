@@ -63,11 +63,13 @@ def ParseXML(filename, label):
 						for command in commands:
 							if "exec" in  command.attributes.keys():
 								results.append(str(command.attributes["exec"].value))
-							if "Rname" in  command.attributes.keys():
-									global resNames
-									resNames.append(str(command.attributes["Rname"].value))
+							if "result" in  command.attributes.keys():
+                                                                global resNames
+                                                                resNames.append(str(command.attributes["result"].value))
+                                                        else: 
+                                                                resNames.append("%NONE")
 							if "env" in  command.attributes.keys():
-									env.append(str(command.attributes["env"].value))
+                                                                env.append(str(command.attributes["env"].value))
 					for final in finals:
 						commands = final.getElementsByTagName("command")
 						for command in commands:
@@ -306,7 +308,8 @@ def WriteStatusDB(runID, match):
 	curs.execute(sqlstr, ids = id , rid = runID, ts=timeStamp, labl=match[0], trel = match[1], tarc = match[2], rrel = match[3], rarc = match[4])
 	conn.commit()
 	for i in range(5, len(match)):
-		WriteResultsDB(id, label, resNames[i-5], match[i])
+                if resNames[i-5] != "%NONE":
+                        WriteResultsDB(id, label, resNames[i-5], match[i])
 def AddLogStatusDB(label, runID, logStr):
 	curs = conn.cursor()
 	sqlstr = "UPDATE TEST_STATUS SET LOG = :lstr WHERE LABEL = :labl AND RUNID = :rid"
@@ -324,6 +327,7 @@ def CheckIfOkStatusDB(runID, label):
 	curs = conn.cursor()
 	sqlstr = "SELECT ID, STATUS FROM TEST_RESULTS WHERE ID >= :mi AND ID <= :ma AND LABEL = :labl"
 	curs.prepare(sqlstr)
+        #print "ID = %d label=%s minid=%d maxid=%d" %(runID,label, min(idList),max(idList))
 	curs.execute(sqlstr, mi=min(idList), ma=max(idList), labl = label)
 	for row in curs:
 		if row[1] != 0:
@@ -447,35 +451,39 @@ def GetDate():
 	curs.execute(sqlstr)
 	for row in curs:
 		return row[0]	
-def TestCompat(label, release, arch, path, seed):
+def TestCompat(label, release, arch, path):
 	relID = extractID(release)
 	print "Testing exec "+label+" "+release+" "+arch+" from "
 	print path+" : "
 	curs = conn.cursor()
 	cmds = """
 echo ""
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "Testing """+release+""" """+arch+""" from "
-echo " """+path+""" : "
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+echo "Candidate release: """+release+""" "
+echo "Arch: """+arch+""" "
+echo "Path: """+path+""" "
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 """
 	sqlstr = "SELECT RELEASE, ARCH, PATH FROM VERSION_TABLE WHERE ID < :rid"
 	curs.prepare(sqlstr)
 	curs.execute(sqlstr, rid = relID)
 	for row in curs:
-		cmds += RunTest(label, release, arch, path, row[0], row[1], row[2], seed)
+		cmds += RunTest(label, release, arch, path, row[0], row[1], row[2])
 	return cmds
-def TestCompatRef(label, release, arch, path, seed, refRelease, refArch, refPath):
+def TestCompatRef(label, release, arch, path, refRelease, refArch, refPath):
 	relID = extractID(release)
 	print "Testing "+release+" "+arch+" from "
 	print path+" : "
 	curs = conn.cursor()
 	cmds = """
 echo ""
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "Testing """+release+""" """+arch+""" from "
-echo " """+path+""" : "
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+echo "Candidate release: """+release+""" "
+echo "Arch: """+arch+""" "
+echo "Path: """+path+""" "
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 """
-	cmds += RunTest(label, release, arch, path, refRelease, refArch, refPath, seed)
+	cmds += RunTest(label, release, arch, path, refRelease, refArch, refPath)
 	return cmds
 def WriteReleaseDB(release, arch, path):
 	curs = conn.cursor()
@@ -486,10 +494,10 @@ def WriteReleaseDB(release, arch, path):
 	conn.commit()
 	print 'TABLE WRITTEN'	
 def SetEnv(release, arch, path):
+        random.seed()
 	srcPath = os.path.join(path, release,"src")
 	cmds = """
 if [ $RETVAL = 0 ]; then
-echo "***********************************"
 echo "Setting environment variables for """+release+""" """+arch+""" "
 echo "path : """+path+""""
 	eval pushd """+srcPath+"""
@@ -513,120 +521,54 @@ echo "path : """+path+""""
 	TARCH="""+arch+"""
 	TPATH="""+path+"""
 	TMAPNAME="""+release+"""_"""+arch+"""
-	TCORALCONNSTR="""+coralConnStr+"""
+	TMAINDB="""+coralConnStr+"""
+        TAUXDB="""+"oracle://cms_orcoff_prep/CMS_COND_WEB"+"""
 	TUSERNAME="""+USERNAME+"""
 	TPASSWORD="""+PASSWORD+"""
 	TTEST=$LOCALRT/test/$TARCH
 	TBIN=$LOCALRT/bin/$TARCH
 	TAUTH="""+AUTH_PATH+"""
+        TSEED="""+str(random.randrange(1, 10))+"""
 echo "Environment variables set successfully"
 	else
 echo "Setting environment failed on """+release+""" """+arch+""" return code :  $RETVAL"
 	fi
 fi
+echo "----------------------------------------------" 
 """
-	return cmds
-def WriteData(executable, release, arch, path, seed):
-	MAPPINGNAME = release+'_'+arch
-	ARGS='-w '+MAPPINGNAME+' -s '+seed+' -a '+coralConnStr+' -u '+USERNAME+' -p '+PASSWORD
-	cmds = """
-if [ $RETVAL = 0 ]; then
-echo "***********************************"
-echo "Writing data with """+release+""" """+arch+""" seed :"""+seed+""" "
-echo "path : """+path+""""
-	$LOCALRT/test/"""+arch+"""/"""+executable+""" """+ARGS+"""
-	RETVAL=$?
-	if [ $RETVAL != 0 ]; then
-echo "Writing failed on """+release+""" """+arch+""" return code :  $RETVAL"
-	else
-echo "Writing successful"
-	fi
-fi
-"""
-
-	return cmds
-def ReadAllData(executable, release, arch, path):
-	ARGS='-R -a '+coralConnStr+' -u '+USERNAME+' -p '+PASSWORD
-	cmds = """
-if [ $RETVAL = 0 ]; then
-echo "***********************************"
-echo "Reading all elements with """+release+""" """+arch+"""" 
-echo "path : """+path+""""
-
-	$LOCALRT/test/"""+arch+"""/"""+executable+""" """+ARGS+"""
-	RETVAL=$?
-	if [ $RETVAL != 0 ]; then
-echo "Reading failed on """+release+""" """+arch+""" return code :  $RETVAL"
-	else
-echo "Reading successful"
-	fi
-fi
-"""
-	return cmds
-def CreateMetaDataTable(release, arch, path):
-	ARGS='-c -a '+coralConnStr+' -u '+USERNAME+' -p '+PASSWORD
-	cmds = """
-if [ $RETVAL = 0 ]; then
-echo "***********************************"
-echo "Creating metadata tables with """+release+""" """+arch+"""" 
-echo "path : """+path+""""
-	$LOCALRT/test/"""+arch+"""/setupDB """+ARGS+"""
-	RETVAL=$?
-	if [ $RETVAL != 0 ]; then
-echo "Creating MetaData Table failed on """+release+""" """+arch+""" return code :  $RETVAL"
-	else
-echo "MetaData table created Succesfully"
-	fi
-fi
-
-"""
-	return cmds
-def DropDataTables(release, arch, path):
-	ARGS='-D -a '+coralConnStr+' -u '+USERNAME+' -p '+PASSWORD
-	cmds = """
-if [ $RETVAL = 0 ]; then
-echo "***********************************"
-echo "Dropping all tables with """+release+""" """+arch+"""" 
-echo "path : """+path+""""
-	$LOCALRT/test/"""+arch+"""/setupDB """+ARGS+"""
-	RETVAL=$?
-	if [ $RETVAL != 0 ]; then
-echo "Dropping MetaData Tables failed on """+release+""" """+arch+""" return code :  $RETVAL"
-	else
-echo "MetaData tables dropped successfully"
-	fi
-fi
-	"""
 	return cmds
 def Command(runStr):
 	cmds = """
 if [ $RETVAL = 0 ]; then
-echo "***********************************"
 echo "Executing Command """+runStr+""" "
 echo "with $TRELEASE $TARCH :"
 	"""+runStr+"""
 	RETVAL=$?
 	if [ $RETVAL != 0 ]; then
-echo "Writing failed on $TRELEASE $TARCH return code :  $RETVAL"
+echo "Task failed on $TRELEASE $TARCH return code :  $RETVAL"
 	else
-echo "Writing successful"
+echo "Task performed successfully"
 	fi
 fi
 """
 	return cmds
-def RunTest(label, release, arch, path, refRelease, refArch, refPath, seed):
+def RunTest(label, release, arch, path, refRelease, refArch, refPath ):
 	cmds ="""
 	RETVAL=0
-echo "##################################################"
-echo "Testing """+release+""" """+arch+""" from path : "
-echo " """+path+""" "
-echo "with """+refRelease+""" """+refArch+""" from path :"
-echo " """+refPath+""" " """
+echo "*****************************************************************************************"
+echo "Reference release: """+refRelease+""" "
+echo "Arch: """+refArch+""" "
+echo "Path: """+refPath+""" "
+echo "*****************************************************************************************"
+"""
 	nr = 0
 	enr = 0
 	envType = 0
 	print "init"
 	for res in iResults:
+                cmds += """
+echo "==============================================="
+"""
 		print res
 		if setEnvs[enr] == "ref" and envType != 1:
 			cmds += SetEnv(refRelease, refArch,refPath)
@@ -638,6 +580,9 @@ echo " """+refPath+""" " """
 		enr +=1
 	print "cmd"
 	for res in pResults:
+                cmds += """
+echo "==============================================="
+"""
 		print res
 		if setEnvs[enr] == "ref" and envType != 1:
 			cmds += SetEnv(refRelease, refArch,refPath)
@@ -654,6 +599,9 @@ echo " """+refPath+""" " """
 	RETVAL=0
 	"""
 	for res in fResults:
+                cmds += """
+echo "==============================================="
+"""
 		print res
 		if setEnvs[enr] == "ref" and envType != 1:
 			cmds += SetEnv(refRelease, refArch,refPath)
@@ -666,7 +614,8 @@ echo " """+refPath+""" " """
 	global resCount
 	resCount = nr
 	cmds += """
-	echo " return code : ${RCODE[1]}"
+echo "==============================================="
+        echo "Script return code : ${RCODE[1]}"
 echo "!L!"""+label+"""!TR!"""+release+"""!TA!"""+arch+"""!RR!"""+refRelease+"""!RA!"""+refArch
 	for i in range (0, nr):
 		cmds+= "!C"+str(i)+"!${RCODE["+str(i)+"]}"
@@ -678,7 +627,7 @@ def CmdUsage():
 	print "-d drops descriptor(status) db schema. Optional : -R [release] -A [arch] to drop single entry (for descriptor db)"
 	print "-w writes data to db. Goes only with -R [release] -A [arch] -P [path]"
 	print "-r (-s) reads contents of descriptor(status) db"
-	print "-t (-o) (-i) runs test. Goes only with -L [label] -E [executable] -R [release] -A [arch] -P [path] -S [seed] " 
+	print "-t (-o) (-i) runs test. Goes only with -L [label] -R [release] -A [arch] -P [path] " 
 	print "(-o) specifies reference release. supply additional parameters --R [refRelease] --A [refArch] --P [refPath]"
 	print "(-i) argument forces candidate to test with itself as a reference"
 def CheckPath (release, arch, path):
@@ -697,7 +646,7 @@ def CheckPath (release, arch, path):
 		return False
 def ReadArgs():
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "cdwrthsoiL:R:A:P:S:", ['R=', 'A=', 'P='])
+		opts, args = getopt.getopt(sys.argv[1:], "cdwrthsoiL:R:A:P:", ['R=', 'A=', 'P='])
 	except getopt.GetoptError, err:
 		# print help information and exit:
 		print str(err) # will print something like "option -a not recognized"
@@ -706,7 +655,6 @@ def ReadArgs():
 	RELEASE = None
 	ARCH = None
 	PATH = None
-	SEED = None
 	REF_RELEASE = None
 	REF_ARCH = None
 	REF_PATH = None
@@ -745,8 +693,6 @@ def ReadArgs():
 			ARCH = a
 		elif o == "-P":
 			PATH = a
-		elif o == "-S":
-			SEED = a
 		elif o in ("-K", "--R"):
 			REF_RELEASE = a
 		elif o in ("-L", "--A"):
@@ -789,12 +735,9 @@ def ReadArgs():
 			if(RELEASE != None and ARCH != None and PATH != None):
 				if(oflag == True):
 					if(REF_RELEASE != None and REF_ARCH != None and REF_PATH != None):
-						if( SEED == None):
-							random.seed()
-							SEED = str(random.randrange(1, 10))
 						if(CheckPath(RELEASE, ARCH, PATH) == True):
 							if(CheckPath(REF_RELEASE, REF_ARCH, REF_PATH) == True):
-								cmds=TestCompatRef(LABEL, RELEASE, ARCH, PATH, SEED, REF_RELEASE, REF_ARCH, REF_PATH)
+								cmds=TestCompatRef(LABEL, RELEASE, ARCH, PATH, REF_RELEASE, REF_ARCH, REF_PATH)
 							else :
 								print "Bad reference release arguments"
 						else :
@@ -802,14 +745,11 @@ def ReadArgs():
 					else:
 						print "Bad arguments for -t"
 				else:
-					if( SEED == None):
-						random.seed()
-						SEED = str(random.randrange(1, 10))
 					if(CheckPath(RELEASE, ARCH, PATH) == True):
 						cmds = ''
 						if iflag == True:
-							cmds += TestCompatRef(LABEL, RELEASE, ARCH, PATH, SEED, RELEASE, ARCH, PATH)
-						cmds += TestCompat(LABEL, RELEASE, ARCH, PATH, SEED)
+							cmds += TestCompatRef(LABEL, RELEASE, ARCH, PATH, RELEASE, ARCH, PATH)
+						cmds += TestCompat(LABEL, RELEASE, ARCH, PATH)
 					else :
 						print "Bad test release arguments"
 		else:
@@ -827,7 +767,7 @@ runID =0
 if cmdList != "":
 	cmdList+="""
 	echo "End of test"
-	echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" """
+        echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" """
 	pipe = subprocess.Popen(cmdList, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 	stdout_value = pipe.communicate()[0]
 	
@@ -837,8 +777,10 @@ if cmdList != "":
 	stdout_value = extractErr(runID, stdout_value)	
 	print '\Output:', stdout_value
 	AddLogStatusDB(label, runID, stdout_value)
+        print "Test '%s' runID=%d" %(label, runID)
+        stat = "SUCCESS"
 	if(CheckIfOkStatusDB(runID, label) == False):
-		print "@@@@@@@@@@Test failed@@@@@@@@@@"
-	else:
-		print "@@@@@@@@@@Test successfull@@@@@@@@@@"
+                stat = "FAILURE"
+        print "Exit status=%s" %stat
+        print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 conn.close()
