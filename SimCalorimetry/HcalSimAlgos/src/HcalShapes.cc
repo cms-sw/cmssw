@@ -133,7 +133,8 @@ const CaloVShape * HcalShapes::shape(const DetId & detId) const
   */
   ShapeMap::const_iterator shapeMapItr = theShapes.find(shapeType);
   if(shapeMapItr == theShapes.end()) {
-       std::cout<<"   skdebug-  CaloVShape * HcalShapes::shape:  shapeType ? "<<shapeType<<std::endl;
+       edm::LogWarning("HcalShapes") << "HcalShapes::shape - shapeType ?  = "
+				     << shapeType << std::endl;
     return defaultShape(detId);
   } else {
     return shapeMapItr->second;
