@@ -363,15 +363,17 @@ class Server:
 					htmlCode += self.ShowTable(data, cherrypy.session['label'])
 					stCount = stCount -1
 		return htmlCode
+
 	index.exposed = True
 	def showLogs(self, **args):
 		runID = int(args['runID'])
 		label = args['label']
-		
-		logFile = open("logs/"+label+""+str(runID)+".txt", "w")
-		logFile.write('\Output:'+testRegression.WebReadLogStatusDB(label, runID))
-		raise cherrypy.HTTPRedirect("logs/"+label+""+str(runID)+".txt")
-		return args
+
+		logInfo = "<html><head></head><body><pre>\n"
+		logInfo += testRegression.WebReadLogStatusDB(label, runID)
+		logInfo += '\n</pre></body></html>'
+		return logInfo
+				
 	showLogs.exposed = True
 import os.path
 
