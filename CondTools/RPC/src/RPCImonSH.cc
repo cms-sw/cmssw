@@ -7,7 +7,6 @@
 #include "CondTools/RPC/interface/RPCImonSH.h"
 #include <sstream>
 #include <iostream>
-#include <ctime>
 
 popcon::RpcDataI::RpcDataI(const edm::ParameterSet& pset) :
   m_name(pset.getUntrackedParameter<std::string>("name","RpcData")),
@@ -139,6 +138,5 @@ void popcon::RpcDataI::getNewObjects() {
     m_since=m_till;				
     m_till=m_since+m_range;
   }
-
 }
 

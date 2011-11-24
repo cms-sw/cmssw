@@ -32,9 +32,12 @@ namespace popcon{
     std::string host;
     std::string user;
     std::string passw;
+
     bool m_first;
+    int m_test_suptype;
     unsigned long long m_since;
     unsigned long long m_range;
+    int n_IOVmax;
   };
 }
 #endif
