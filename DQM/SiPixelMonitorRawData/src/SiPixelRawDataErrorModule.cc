@@ -155,14 +155,6 @@ int SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>
 //std::cout<<"Entering SiPixelRawDataErrorModule::fill: "<<std::endl;
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
-  bool isHalfModule = false;
-  uint32_t DBladder = 0;
-  if(barrel){
-    isHalfModule = PixelBarrelName(DetId(id_)).isHalfModule(); 
-    DBladder = PixelBarrelName(DetId(id_)).ladderName();
-//    int FedId = DetId(id_).getFedId();                  // FED the error came from
-
-  }
   
   // Get DQM interface
   DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
