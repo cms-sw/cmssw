@@ -34,6 +34,7 @@ public:
   explicit HLTBitAnalyzer(edm::ParameterSet const& conf);
   virtual void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
   virtual void endJob();
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
 
   //  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions); 
 

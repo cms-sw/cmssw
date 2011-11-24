@@ -114,7 +114,7 @@ private:
 
   TString * algoBitToName;
   TString * techBitToName;
-
+  std::vector<std::string> dummyBranches_;
 
   HLTConfigProvider hltConfig_; 
   L1GtUtils m_l1GtUtils;

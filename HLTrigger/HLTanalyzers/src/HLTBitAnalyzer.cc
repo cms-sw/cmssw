@@ -148,6 +148,13 @@ void HLTBitAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iS
   HltTree->Fill();
 }
 
+// ------------ method called when starting to processes a run  ------------
+void 
+HLTBitAnalyzer::beginRun(edm::Run const& run, edm::EventSetup const& es)
+{
+   hlt_analysis_.beginRun(run, es);
+}
+
 // "endJob" is an inherited method that you may implement to do post-EOF processing and produce final output.
 void HLTBitAnalyzer::endJob() {
 	

@@ -63,6 +63,8 @@ void HLTInfo::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     if ( (*iParam) == "Debug" ) _Debug =  myHltParams.getParameter<bool>( *iParam );
   }
 
+  dummyBranches_ = pSet.getUntrackedParameter<std::vector<std::string> >("dummyBranches",std::vector<std::string>(0));
+
   HltEvtCnt = 0;
   const int kMaxTrigFlag = 10000;
   trigflag = new int[kMaxTrigFlag];
@@ -207,6 +209,24 @@ void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>                 & h
         HltTree->Branch(trigName,trigflag+itrig,trigName+"/I");
         HltTree->Branch(trigName+"_Prescl",trigPrescl+itrig,trigName+"_Prescl/I");
       }
+
+      int itdum = ntrigs;
+      for (unsigned int idum = 0; idum < dummyBranches_.size(); ++idum) {
+	TString trigName(dummyBranches_[idum].data());
+	bool addThisBranch = 1;
+	for (int itrig = 0; itrig != ntrigs; ++itrig) {
+	  TString realTrigName = triggerNames.triggerName(itrig);
+	  if(trigName == realTrigName) addThisBranch = 0;
+	}
+	if(addThisBranch){
+	  HltTree->Branch(trigName,trigflag+itdum,trigName+"/I");
+	  HltTree->Branch(trigName+"_Prescl",trigPrescl+itdum,trigName+"_Prescl/I");
+	  trigflag[itdum] = 0;
+	  trigPrescl[itdum] = 0;
+	  ++itdum;
+	}
+      }
+
       HltEvtCnt++;
     }
     // ...Fill the corresponding accepts in branch-variables
