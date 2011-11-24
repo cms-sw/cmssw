@@ -160,7 +160,6 @@ DQMFileSaver::saveForOnline(const std::string &suffix, const std::string &rewrit
     { 
       dbe_->cd();
       std::vector<MonitorElement*> pNamesVector = dbe_->getMatchingContents("^" + systems[i] + "/.*/EventInfo/processName",lat::Regexp::Perl);
-      std::cout << "pNames vector size:" << pNamesVector.size() << std::endl ;
       if (pNamesVector.size() > 0){
         doSaveForOnline(pastSavedFiles_, numKeepSavedFiles_, dbe_,
                         fileBaseName_ + systems[i] + suffix + ".root",
