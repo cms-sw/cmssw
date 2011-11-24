@@ -2,17 +2,19 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoEgamma.PhotonIdentification.isolationCalculator_cfi import *
 from RecoEgamma.PhotonIdentification.mipVariable_cfi import *
-#    
+from RecoEgamma.EgammaTools.regressionWeights_cfi import *
+
 
 #
 # producer for photons
-# $Id: photons_cfi.py,v 1.38 2011/07/22 14:40:14 nancy Exp $
+# $Id: photons_cfi.py,v 1.39 2011/11/02 19:10:59 nancy Exp $
 #
 photons = cms.EDProducer("PhotonProducer",
     photonCoreProducer = cms.InputTag("photonCore"),
  #   photonCollection = cms.string(''),
-    #energyRegressionWeightsLocation = cms.string('/afs/cern.ch/user/b/bendavid/cmspublic/regweights/gbrph.root'),
-    energyRegressionWeightsLocation = cms.string('none'),
+    regressionWeightsFromDB =   cms.bool(True),                    
+    energyRegressionWeightsFileLocation = cms.string('/afs/cern.ch/user/b/bendavid/cmspublic/regweights/gbrph.root'),
+    energyRegressionWeightsDBLocation = cms.string('wgbrph'), 
     superClusterEnergyCorrFunction =  cms.string("EcalClusterEnergyCorrection"),                  
     superClusterEnergyErrorFunction = cms.string("EcalClusterEnergyUncertainty"),
     superClusterCrackEnergyCorrFunction =  cms.string("EcalClusterCrackCorrection"),                                       
@@ -67,7 +69,13 @@ photons = cms.EDProducer("PhotonProducer",
                                   LogWeighted  = cms.bool(True),
                                   W0           = cms.double(4.2),
                                   X0           = cms.double(0.89)
-                                 )                  
+                                 ),                  
+
+
+
+
+
+
 
 )
 
