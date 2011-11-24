@@ -37,7 +37,7 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('step2_DT1_1 nevts:1000'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -66,7 +66,7 @@ process.GlobalTag.globaltag = 'GR_R_50_V0::All'
 process.GlobalTag.toGet = cms.VPSet(
     cms.PSet(
        record  = cms.string( 'AlCaRecoTriggerBitsRcd' ),
-       tag     = cms.string( 'MuonDQMTrigger_V00_00_01' ),
+       tag     = cms.string( 'MuonDQMTrigger' ),
        label   = cms.untracked.string( 'MuonDQMTrigger'),
        connect = cms.untracked.string( 'sqlite_file:MuonDQMTrigger.db')
     )
