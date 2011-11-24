@@ -288,9 +288,9 @@ namespace cscdqm {
     if(h2->GetXaxis()->GetXmin() <= 1 && h2->GetXaxis()->GetXmax() >= NTICS &&
        h2->GetYaxis()->GetXmin() <= 1 && h2->GetYaxis()->GetXmax() >= NTICS) {
   
-      float xd = 5.0 / NTICS, yd = 1.0 * (2.0 * 3.14159) / NTICS;
+      float xd = 5.0 / NTICS;
   
-      float xmin, xmax, ymin, ymax;
+      float xmin, xmax;
   
       for(unsigned int x = 0; x < NTICS; x++) {
   
@@ -303,9 +303,6 @@ namespace cscdqm {
   
           if (xmin == -2.5 || xmax == 2.5) continue;
           if (xmin >= -1 && xmax <= 1)     continue;
-  
-          ymin = yd * y;
-          ymax = ymin + yd;
   
           switch(IsPhysicsReady(x, y)) {
             case -1:
