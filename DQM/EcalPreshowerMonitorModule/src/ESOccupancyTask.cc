@@ -126,8 +126,8 @@ void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup
    eCount_++;
 
    // RecHits
-   int zside, plane, ix, iy, strip;
-   int sum_RecHits[2][2], sum_DigiHits[2][2], sum_SelHits[2][2];
+   int zside, plane, ix, iy;
+   int sum_RecHits[2][2], sum_DigiHits[2][2];
    float sum_Energy[2][2];
 
    for (int i = 0; i < 2; ++i) 
@@ -135,7 +135,6 @@ void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup
        sum_RecHits[i][j] = 0;
        sum_DigiHits[i][j] = 0;
        sum_Energy[i][j] = 0;
-       sum_SelHits[i][j] = 0;
      }
    
    Handle<ESRecHitCollection> ESRecHit;
@@ -149,7 +148,6 @@ void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup
        plane = id.plane();
        ix    = id.six();
        iy    = id.siy();
-       strip = id.strip();
  
        int i = (zside==1)? 0:1;
        int j = plane-1;

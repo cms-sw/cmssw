@@ -138,7 +138,8 @@ void ESFEDIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  int gt_L1A = 0, gt_OrbitNumber = 0, gt_BX = 0;
+  int gt_L1A = 0; 
+  // int gt_OrbitNumber = 0, gt_BX = 0;
   int esDCC_L1A_MostFreqCounts = 0;
   int esDCC_BX_MostFreqCounts = 0;
   int esDCC_OrbitNumber_MostFreqCounts = 0;
@@ -169,8 +170,8 @@ void ESFEDIntegrityTask::analyze(const Event& e, const EventSetup& c){
       FEDHeader header(gtFedData.data());
        
       gt_L1A         = header.lvl1ID();
-      gt_OrbitNumber = e.orbitNumber();
-      gt_BX          = e.bunchCrossing();
+      //gt_OrbitNumber = e.orbitNumber();
+      //gt_BX          = e.bunchCrossing();
     } else {
 
       map<int, int> esDCC_L1A_FreqMap;
@@ -193,12 +194,12 @@ void ESFEDIntegrityTask::analyze(const Event& e, const EventSetup& c){
 	  
 	  if (esDCC_BX_FreqMap[esdcc.getBX()] > esDCC_BX_MostFreqCounts) {
 	    esDCC_BX_MostFreqCounts = esDCC_BX_FreqMap[esdcc.getBX()];
-	    gt_BX = esdcc.getBX();
+	    //gt_BX = esdcc.getBX();
 	  } 
 	  
 	  if (esDCC_OrbitNumber_FreqMap[esdcc.getOrbitNumber()] > esDCC_OrbitNumber_MostFreqCounts) {
 	    esDCC_OrbitNumber_MostFreqCounts = esDCC_OrbitNumber_FreqMap[esdcc.getOrbitNumber()];
-	    gt_OrbitNumber = esdcc.getOrbitNumber();
+	    //gt_OrbitNumber = esdcc.getOrbitNumber();
 	  } 
 	  
 	}

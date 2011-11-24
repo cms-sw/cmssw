@@ -245,7 +245,7 @@ void ESTrendTask::analyze(const Event& e, const EventSetup& c) {
   hESFiberErrTrendHr_->Fill(hourDiff, fiberErr);
 
   // ES RecHits
-  int zside, plane, ix, iy, strip;
+  int zside, plane;
   int nrh[2][2];
   for (int i = 0; i < 2; i++ ) 
     for( int j = 0; j < 2; j++) {
@@ -261,9 +261,6 @@ void ESTrendTask::analyze(const Event& e, const EventSetup& c) {
       
       zside = id.zside();
       plane = id.plane();
-      ix    = id.six();
-      iy    = id.siy();
-      strip = id.strip();
       
       int i = (zside==1)? 0:1;
       int j = plane-1;
