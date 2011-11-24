@@ -36,7 +36,7 @@ class HcalRecoParam {
   bool correctForTimeslew () const {return (mParam2>>5)&0x1;}
   unsigned int timeslewCorrectionID () const {return (mParam2>>6)&0xF;}
   bool correctTiming () const {return (mParam2>>10)&0x1;}
-  bool firstAuxTS () const {return (mParam2>>11)&0xF;}
+  unsigned int firstAuxTS () const { return (mParam2>>11)&0xF;}
   unsigned int specialCaseID () const {return (mParam2>>15)&0xF;}
   unsigned int noiseFlaggingID () const {return (mParam2>>19)&0xF;}
   unsigned int pileupCleaningID () const {return (mParam2>>23)&0xF;}
