@@ -13,22 +13,24 @@
 //
 // Author:      Marcello Maggi
 // Created:     Wed Nov  2 12:09:10 CET 2011
-// $Id$
+// $Id: RPCCompDetId.h,v 1.1 2011/11/05 10:39:53 mmaggi Exp $
 //
 #include <DataFormats/DetId/interface/DetId.h>
 #include <FWCore/Utilities/interface/Exception.h>
 #include <string>
 
 class RPCCompDetId :public DetId {
-  
+
+ public:
+  enum supply_t {GAS, TEMPERATURE, HV};
  public:
       
   RPCCompDetId();
 
   /// Construct from a packed id. It is required that the Detector part of
   /// id is Muon and the SubDet part is RPC, otherwise an exception is thrown.
-  RPCCompDetId(uint32_t id);
-  RPCCompDetId(DetId id);
+  RPCCompDetId(uint32_t id, supply_t type);
+  RPCCompDetId(DetId id, supply_t type);
 
 
   /// Construct from fully qualified identifier.
@@ -38,10 +40,10 @@ class RPCCompDetId :public DetId {
 	       int sector,
 	       int layer,
 	       int subsector,
-	       int type);
+	       supply_t type);
 
   /// Construct from name stored in DB
-  RPCCompDetId(const std::string& dbname, int type);
+  RPCCompDetId(const std::string& dbname, supply_t type);
 
   /// Sort Operator based on the name
   bool operator < (const RPCCompDetId& r) const;
@@ -54,7 +56,7 @@ class RPCCompDetId :public DetId {
   int sector() const;
   int layer() const;
   int subsector() const;
-  int type() const;
+  supply_t type() const;
   std::string dbname() const; 
 
   static const int minRegionId=     -1;
@@ -125,10 +127,12 @@ class RPCCompDetId :public DetId {
 
   void init();
   void initGas();
+  void initT();
   std::string gasDBname() const;
+  std::string tDBname() const;
  private:
   std::string _dbname;
-  int _type;
+  supply_t _type;
 
 }; // RPCCompDetId
 
