@@ -50,11 +50,11 @@ CSCRecHit2D::CSCRecHit2D( const CSCDetId& id,
   nWireGroups_=wgroups.size();
 
   if ( nStrips_ > MAXSTRIPS ) {
-    std::cout << "CSCRecHit2D: not enough strips in DataFormat! " << nStrips_ <<  std::endl;
+    std::cout << "CSCRecHit2D: not enough strips in DataFormat! " << unsigned(nStrips_) <<  std::endl;
     nStrips_=MAXSTRIPS;
   }
   if ( nWireGroups_ > MAXWIRES ) {
-    std::cout << "CSCRecHit2D: not enough wire groups in DataFormat! " << nWireGroups_ << std::endl;
+    std::cout << "CSCRecHit2D: not enough wire groups in DataFormat! " << unsigned(nWireGroups_) << std::endl;
     nWireGroups_=MAXWIRES;
   }
 
