@@ -21,7 +21,7 @@
 #include <string>
 #include <vector>
 #include <map>
-
+#include "TH1F.h"
 
 class EfficiencyPlotter: public edm::EDAnalyzer{
 
@@ -79,9 +79,12 @@ private:
   double phiMax;
 
   // efficiency histograms
-  MonitorElement* ptEfficiency;
-  MonitorElement* etaEfficiency;
-  MonitorElement* phiEfficiency;
+  MonitorElement* h_eff_pt_TightMu;
+  MonitorElement* h_eff_pt_barrel_TightMu;
+  MonitorElement* h_eff_pt_endcap_TightMu;
+  MonitorElement* h_eff_eta_TightMu;
+  MonitorElement* h_eff_hp_eta_TightMu;
+  MonitorElement* h_eff_phi_TightMu;
 
 };
 
