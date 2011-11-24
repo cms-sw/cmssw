@@ -290,16 +290,10 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::Ev
 	      //RectangularPixelTopology rectTopolTest = RectangularPixelTopology(nrows, ncols, pitch.first, pitch.second);
 	      //std::pair<float,float> pixelTest = rectTopol.pixel(tsos.localPosition());
 	      //
-	      std::pair<float,float> pixel = theGeomDet->specificTopology().pixel(tsos.localPosition());
-
 	      //*************** Edge cut ********************
 	      if(applyEdgeCut_){
 	        bool passedEdgeCut = false; 
 	        double nsigma = nSigma_EdgeCut_;
-	      
-	        //transforming localX,Y coordinates into a number of rows/columns
-	        LocalPoint  actual = LocalPoint( tsos.localPosition().x(),tsos.localPosition().y() );
-	        std::pair<float,float> pixelActual = theGeomDet->specificTopology().pixel(actual);
 	      
 	        //Adding/substracting nsigma times the error position to the acual traj prediction position
 	        //Depending on the signes of localX,Y => 4 "quadrants"
