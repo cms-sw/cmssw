@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/01/22 18:45:23 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/01/05 10:15:45 $
+ *  $Revision: 1.5 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -156,8 +156,6 @@ void DTCreateSummaryHistos::endJob(){
       // Loop over the SLs
       for(; sl_it != sl_end; ++sl_it) {
 	DTSuperLayerId sl = (*sl_it)->id();
-	vector<const DTLayer*>::const_iterator l_it = (*sl_it)->layers().begin(); 
-	vector<const DTLayer*>::const_iterator l_end = (*sl_it)->layers().end();
 	stringstream superLayer; superLayer << sl.superlayer();
 	
 	string digiFolder = MainFolder + "DTDigiTask/Wheel" + wheel.str();

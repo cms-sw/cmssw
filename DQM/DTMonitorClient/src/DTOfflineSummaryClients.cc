@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/10/19 14:08:05 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/01/22 15:32:04 $
+ *  $Revision: 1.8 $
  *  \author M. Pelliccioni - INFN Torino
  */
 
@@ -110,9 +110,6 @@ void DTOfflineSummaryClients::endRun(Run const& run, EventSetup const& context) 
     theSummaryContents[ii]->Fill(0.);
   }
 
-  // protection 
-  bool efficiencyFound = true;
-
   // Fill the map using, at the moment, only the information from DT chamber efficiency
   // problems at a granularity smaller than the chamber are ignored
   for(int wheel=-2; wheel<=2; wheel++) { // loop over wheels
@@ -159,7 +156,6 @@ void DTOfflineSummaryClients::endRun(Run const& run, EventSetup const& context) 
       theSummaryContents[wheel+2]->Fill((48.-nFailingChambers)/48.);
       summaryReport->Fill(summaryReport->getFloatValue() + theSummaryContents[wheel+2]->getFloatValue()/5.);
     } else {
-      efficiencyFound = false;
       LogWarning("DTDQM|DTMonitorClient|DTOfflineSummaryClients")
 	<< " [DTOfflineSummaryClients] Segment Summary not found with name: " << str.str() << endl;
     }

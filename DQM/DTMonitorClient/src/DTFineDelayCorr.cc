@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/07 10:51:14 $
- *  $Revision: 1.3 $
+ *  $Date: 2011/03/07 11:58:15 $
+ *  $Revision: 1.4 $
  *  \author M. Giunta, C. Battilana 
  */
 
@@ -143,16 +143,13 @@ void DTFineDelayCorr::runClientDiagnostic() {
     cout <<"MG: " << getMEName(t0MeanHistoTag,"", chId) << " entries: " << t0H->GetEntries() << endl; 
     if (t0H->GetEntries() > minEntries) {
       Double_t mean;
-      Double_t sigma;
       // ** Find Mean Value of the distribution ** 
       if(gaussMean) {
 	TF1 *funct = t0H->GetFunction("gaus");
 	mean = funct->GetParameter(1);
-	sigma = funct->GetParameter(2);
       }
       else {
 	mean = t0H->GetMean();
-	sigma = t0H->GetRMS();
       }
       
       // ** Retrieve Worst Phase values **

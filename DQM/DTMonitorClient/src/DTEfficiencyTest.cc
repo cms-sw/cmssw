@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/06 14:02:08 $
- *  $Revision: 1.18 $
+ *  $Date: 2010/01/05 10:15:46 $
+ *  $Revision: 1.19 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -262,7 +262,6 @@ void DTEfficiencyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
   vector<DTChamber*>::const_iterator ch2_it = muonGeom->chambers().begin();
   vector<DTChamber*>::const_iterator ch2_end = muonGeom->chambers().end();
   for (; ch2_it != ch2_end; ++ch2_it) {
-    DTChamberId ch = (*ch2_it)->id();
     vector<const DTSuperLayer*>::const_iterator sl2_it = (*ch2_it)->superLayers().begin(); 
     vector<const DTSuperLayer*>::const_iterator sl2_end = (*ch2_it)->superLayers().end();
     // Loop over the SLs

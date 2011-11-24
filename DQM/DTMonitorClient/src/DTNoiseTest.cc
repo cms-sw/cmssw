@@ -1,7 +1,7 @@
 /*
  * 
- * $Date: 2008/12/13 10:02:28 $
- * $Revision: 1.20 $
+ * $Date: 2010/01/05 10:15:46 $
+ * $Revision: 1.21 $
  * \authors:
  *  A. Gresele - INFN Trento
  *  G. Mila - INFN Torino
@@ -211,7 +211,6 @@ void DTNoiseTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup 
     vector<const DTSuperLayer*>::const_iterator sl2_it = (*ch_it)->superLayers().begin(); 
     vector<const DTSuperLayer*>::const_iterator sl2_end = (*ch_it)->superLayers().end();
     for(; sl2_it != sl2_end; ++sl2_it) {
-      DTSuperLayerId slID = (*sl2_it)->id();
       vector<const DTLayer*>::const_iterator l_it = (*sl2_it)->layers().begin(); 
       vector<const DTLayer*>::const_iterator l_end = (*sl2_it)->layers().end();
       for(; l_it != l_end; ++l_it) {
