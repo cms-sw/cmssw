@@ -29,11 +29,10 @@ isMC = False
 
 
 GLOBAL_TAG = 'GR_R_42_V19::All'
-inputFile = '/store/data/Run2011A/SingleMu/AOD/PromptReco-v6/000/173/692/EE90CCE0-E9CF-E011-B4C7-BCAEC54DB5D6.root'
+inputFile = '/store/user/lpctlbsm/vasquez/Jet/ttbsm_v9_Run2011A-May10ReReco/f8e845a0332c56398831da6c30999af1/ttbsm_42x_data_60_1_EbE.root'
 if isMC:
-    GLOBAL_TAG = 'START42_V13::All'
-    inputFile ='/store/mc/Spring11/QCD_Pt-15_TuneZ2_7TeV-pythia6/AODSIM/PU_S2_START311_V2-v1/0007/0AD300BD-5659-E011-B47A-002618943836.root'
-
+  inputFile ='/store/user/lpctlbsm/srappocc/QCD_Pt-15to3000_TuneZ2_Flat_7TeV_pythia6/ttbsm_v8_Summer11-PU_S3_-START42_V11-v2/d870fa9b0dd695e8eb649b7e725d070f/ttbsm_42x_mc_86_2_fG3.root'
+  
 
 ##   _            _           _           
 ## (_)_ __   ___| |_   _  __| | ___  ___ 
