@@ -30,13 +30,8 @@ DTCombinatorialPatternReco4DAlgo_LinearDriftFromDB = cms.PSet(
         # Parameters for  T0 fit segment in the Updator 
         performT0SegCorrection = cms.bool(True),
         hit_afterT0_resolution = cms.double(0.03),
-<<<<<<< DTCombinatorialPatternReco4DAlgo_LinearDriftFromDB_cfi.py
         performT0_vdriftSegCorrection = cms.bool(False),
         perform_delta_rejecting = cms.bool(True)
-=======
-        performT0_vdriftSegCorrection = cms.bool(True),
-        perform_delta_rejecting = cms.bool(True)
->>>>>>> 1.9
     )
 )
 

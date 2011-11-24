@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2011/09/21 15:29:59 $
- * $Revision: 1.42 $
+ * $Date: 2011/11/11 12:49:34 $
+ * $Revision: 1.44 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  * \       A.Meneguzzo - Padova University  <anna.meneguzzo@pd.infn.it>
@@ -360,7 +360,10 @@ void DTSegmentUpdator::updateHits(DTRecSegment2D* seg, GlobalPoint &gpos,
 
     } else if (step == 4) {
 
-      const double vminf = seg->vDrift();   //  vdrift correction are recorded in the segment    
+      //const double vminf = seg->vDrift();   //  vdrift correction are recorded in the segment    
+      double vminf =0.;
+      if(vdrift_4parfit) vminf = seg->vDrift();   // use vdrift recorded in the segment only if vdrift_4parfit=True
+
       double cminf = 0.;
       if(seg->ist0Valid()) cminf = - seg->t0()*0.00543;
 
@@ -743,7 +746,7 @@ void DTSegmentUpdator::Fit4Var(const vector<float>& xfit,
 
     //***********************************
     //     cout << " vdrift_4parfit "<< vdrift_4parfit<<endl;
-    if( nptfit>=5 && vdrift_4parfit) { 
+    if( nptfit>=5) { 
       const double det = (a1*a1*(b2*v6 - b6*b6) - a1*(a2*a2*v6 - 2*a2*a6*b6 + a6*a6*b2 + b2*c6*c6 + b3*(b3*v6 - 2*b6*c6))
 			  + a2*a2*c6*c6 + 2*a2*(a3*(b3*v6 - b6*c6) - a6*b3*c6) + a3*a3*(b6*b6 - b2*v6)
 			  + a6*(2*a3*(b2*c6 - b3*b6) + a6*b3*b3)); 
@@ -791,7 +794,7 @@ void DTSegmentUpdator::Fit4Var(const vector<float>& xfit,
         else chi2fitN4	= chi2fit / (nptfit-nppar); 
       }
 
-      if (fabs(vminf) >= 0.09) {
+      if (fabs(vminf) >= 0.29) {
         // for safety and for code construction..dont accept correction on dv/vdrift greater then 0.09
         vminf = 0.;
         cminf = cminf3;
@@ -802,6 +805,16 @@ void DTSegmentUpdator::Fit4Var(const vector<float>& xfit,
       }
 
     }  //end if vdrift
+
+     if(!vdrift_4parfit){         //if not required explicitly leave the t0 and track step as at step 3
+                                  // just update vdrift value vmin for storing in the segments for monitoring
+       cminf = cminf3;
+       aminf = aminf3;
+       bminf = bminf3;
+       nppar = 3;
+       chi2fit = chi2fit3;
+     }
+
     nppar4 = nppar;
 
   }  //end nptfit >=3
