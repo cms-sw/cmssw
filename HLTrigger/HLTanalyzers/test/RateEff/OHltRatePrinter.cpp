@@ -607,6 +607,15 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu)
    l1prescalePerLS->SetZTitle("Prescale");
    l1prescalePerLS->SetTitle("L1 Prescale vs Run/LumiSection");
    l1prescalePerLS->Write();
+   individualCountsPerLS->SetStats(0);
+   individualCountsPerLS->SetZTitle("Events selected");
+   individualCountsPerLS->SetTitle("Individual trigger counts vs Run/LumiSection");
+   individualCountsPerLS->Write();
+   totalCountsPerLS->SetStats(0);
+   totalCountsPerLS->SetZTitle("Events selected");
+   totalCountsPerLS->SetTitle("Total trigger counts vs Run/LumiSection");
+   totalCountsPerLS->Write();
+
    fr->Close();
 }
 
@@ -1199,6 +1208,10 @@ void OHltRatePrinter::ReorderRunLS()
 	    int swap5 = totalCountPerLS[j];
 	    totalCountPerLS[j] = totalCountPerLS[j+1];
 	    totalCountPerLS[j+1] = swap5;
+
+	    vector<int> swap6 = CountPerLS[j];
+	    CountPerLS[j] = CountPerLS[j+1];
+	    CountPerLS[j+1] = swap6;
 
             //cout<<"<<<<<< "<<runID[j]<<" "<<runID[j+1]<<" "<<endl;
             //cout<<"<<<<<< "<<lumiSection[j]<<" "<<lumiSection[j+1]<<" "<<endl;
