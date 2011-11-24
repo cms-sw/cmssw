@@ -41,8 +41,6 @@ PhotonEnergyCorrector::PhotonEnergyCorrector( const edm::ParameterSet& config ) 
   w_file_ = config.getParameter<std::string>("energyRegressionWeightsFileLocation");
   if (weightsfromDB_) w_db_   = config.getParameter<std::string>("energyRegressionWeightsDBLocation");
   else  w_db_ == "none" ;
-
-  std::cout << " PhotonCorrector before callling Josh" << std::endl;
   regressionCorrector_ = new EGEnergyCorrector(); 
 
 
@@ -64,7 +62,6 @@ void PhotonEnergyCorrector::init (  const edm::EventSetup& theEventSetup ) {
   photonEcalEnergyCorrFunction_->init(theEventSetup);
 
   if ( weightsfromDB_ ) {
-    std::cout << " PhotonCorrector calling Josh corrector " << std::endl;
     if (!regressionCorrector_->IsInitialized()) regressionCorrector_->Initialize(theEventSetup,w_db_,weightsfromDB_);
   }
   if ( !weightsfromDB_ &&  !(w_file_ == "none")  ) {
