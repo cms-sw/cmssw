@@ -5,7 +5,7 @@
  *  
  *    DQM monitoring for dimuon mass
  *    
- *    Author:  S.Folgueras, U. Oviedo
+ *    Author:  S.Folgueras, A. Calderon
  */
 
 /* Base Class Headers */
@@ -46,25 +46,46 @@ class EfficiencyAnalyzer : public MuonAnalyzerBase {
   // STA Label
   edm::InputTag theSTACollectionLabel;
   edm::InputTag theMuonCollectionLabel;
+  edm::InputTag theTrackCollectionLabel;
+
 
   //histo binning parameters
   int etaBin_;
   int phiBin_;
   int ptBin_;
+
   double ptMin_;  
   double ptMax_;
+  
   double etaMin_;  
   double etaMax_;
+
   double phiMin_;  
   double phiMax_;
 
-  MonitorElement* Eff_Numerator_pt;
-  MonitorElement* Eff_Numerator_eta;
-  MonitorElement* Eff_Numerator_phi;
+  MonitorElement* h_passProbes_TightMu_pt;
+  MonitorElement* h_passProbes_TightMu_barrel_pt;
+  MonitorElement* h_passProbes_TightMu_endcap_pt;
+  MonitorElement* h_passProbes_TightMu_eta;
+  MonitorElement* h_passProbes_TightMu_hp_eta;
+  MonitorElement* h_passProbes_TightMu_phi;
 
-  MonitorElement* Eff_Denominator_pt;
-  MonitorElement* Eff_Denominator_eta;
-  MonitorElement* Eff_Denominator_phi;
+  MonitorElement* h_failProbes_TightMu_pt;
+  MonitorElement* h_failProbes_TightMu_eta;
+  MonitorElement* h_failProbes_TightMu_phi;
+
+  MonitorElement* h_allProbes_pt;
+  MonitorElement* h_allProbes_barrel_pt;
+  MonitorElement* h_allProbes_endcap_pt;
+  MonitorElement* h_allProbes_eta;
+  MonitorElement* h_allProbes_hp_eta;
+  MonitorElement* h_allProbes_phi;
+
+
+  MonitorElement* test_TightMu_Minv;
+
+
+
 };
 #endif 
 
