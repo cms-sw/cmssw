@@ -195,17 +195,20 @@ muonAnalyzer = cms.EDAnalyzer("MuonAnalyzer",
                               DoEfficiencyAnalysis = cms.untracked.bool(True),
                               efficiencyAnalysis = cms.PSet(
     MuonCollection = cms.InputTag("muons"),
-    etaBin = cms.int32(100),
+    TrackCollection = cms.InputTag("generalTracks"),
+
+    ptBin = cms.int32(10),
+    ptMax = cms.double(100),
+    ptMin = cms.double(10),
+    
+    etaBin = cms.int32(8),
     etaMax = cms.double(2.5),
     etaMin = cms.double(-2.5),
 
-    phiBin = cms.int32(100),
-    phiMax = cms.double(3.3),
-    phiMin = cms.double(-3.2),
+    phiBin = cms.int32(8),
+    phiMax = cms.double(3.2),
+    phiMin = cms.double(-3.2)
 
-    ptBin = cms.int32(100),
-    ptMax = cms.double(0.),
-    ptMin = cms.double(200.)
     )
                               
                               )
