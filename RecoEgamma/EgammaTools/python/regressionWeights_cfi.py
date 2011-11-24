@@ -22,7 +22,7 @@ GBRWrapperRcd  =  cms.ESSource("PoolDBESSource",
       cms.PSet(
         record = cms.string('GBRWrapperRcd'),
         tag = cms.string('wgbrph_EEUncertainty'),
-        phonlabel = cms.untracked.string('wgbrph_EEUncertainty')
+        label = cms.untracked.string('wgbrph_EEUncertainty')
       )),
      connect = cms.string('sqlite_file:GBRWrapper.db')
 )
