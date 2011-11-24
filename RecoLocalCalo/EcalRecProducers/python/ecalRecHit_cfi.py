@@ -18,6 +18,10 @@ ecalRecHit = cms.EDProducer("EcalRecHitProducer",
     EBLaserMIN = cms.double(0.5),
     EELaserMIN = cms.double(0.5),
 
+    EBLaserMAX = cms.double(2),
+    EELaserMAX = cms.double(3),
+
+
     # apply laser corrections
     laserCorrection = cms.bool(True),
     # reco flags association to DB flag

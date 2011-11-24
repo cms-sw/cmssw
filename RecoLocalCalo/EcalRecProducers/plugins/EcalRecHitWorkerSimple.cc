@@ -22,6 +22,10 @@ EcalRecHitWorkerSimple::EcalRecHitWorkerSimple(const edm::ParameterSet&ps) :
         laserCorrection_ = ps.getParameter<bool>("laserCorrection");
 	EBLaserMIN_ = ps.getParameter<double>("EBLaserMIN");
 	EELaserMIN_ = ps.getParameter<double>("EELaserMIN");
+	EBLaserMAX_ = ps.getParameter<double>("EBLaserMAX");
+	EELaserMAX_ = ps.getParameter<double>("EELaserMAX");
+
+
 
         const edm::ParameterSet & dbps= ps.getParameter< edm::ParameterSet >("flagsMapDBReco");
         std::vector<std::string> dbseverities = dbps.getParameterNames();
@@ -139,8 +143,8 @@ EcalRecHitWorkerSimple::run( const edm::Event & evt,
         // make the rechit and put in the output collection
         if (/*recoflags_ <= EcalRecHit::kLeadingEdgeRecovered*/ iscorrected || !killDeadChannels_) {
           EcalRecHit myrechit( rechitMaker_->makeRecHit(uncalibRH, icalconst * lasercalib, (itimeconst + offsetTime), /*recoflags_*/ 0) );	
-	  if (detid.subdetId() == EcalBarrel && lasercalib < EBLaserMIN_) myrechit.setFlag(EcalRecHit::kPoorCalib);
-	  if (detid.subdetId() == EcalEndcap && lasercalib < EELaserMIN_) myrechit.setFlag(EcalRecHit::kPoorCalib);
+	  if (detid.subdetId() == EcalBarrel && lasercalib < EBLaserMIN_ && lasercalib > EBLaserMAX_) myrechit.setFlag(EcalRecHit::kPoorCalib);
+	  if (detid.subdetId() == EcalEndcap && lasercalib < EELaserMIN_ && lasercalib > EELaserMAX_) myrechit.setFlag(EcalRecHit::kPoorCalib);
 	  result.push_back(myrechit);
 	}
 
