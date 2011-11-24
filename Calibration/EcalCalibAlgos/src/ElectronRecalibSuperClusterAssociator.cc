@@ -14,6 +14,8 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronCoreFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronCore.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/Math/interface/deltaR.h"
+
 #include <iostream>
 
 //#define DEBUG 
@@ -114,7 +116,7 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
 	std::cout << scIt->energy() << " " << scIt->eta() << " " << scIt->phi() << " " << eleIt->eta() << " " << eleIt->phi() << std::endl;
 #endif
 	
-	double DeltaReleSC = sqrt ( pow(  eleIt->eta() - scIt->eta(),2) + pow(eleIt->phi() - scIt->phi(),2));
+	double DeltaReleSC = reco::deltaR(eleIt->caloPosition().eta(),eleIt->caloPosition().phi(),scIt->eta(),scIt->phi());
 	
 	if(DeltaReleSC<DeltaRMineleSCbarrel)
 	  {
@@ -135,7 +137,7 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
 	std::cout << "EE " << scItEndcap->energy() << " " << scItEndcap->eta() << " " << scItEndcap->phi() << " " << eleIt->eta() << " " << eleIt->phi() << std::endl;
 #endif
 	
-	double DeltaReleSC = sqrt ( pow(  eleIt->eta() - scItEndcap->eta(),2) + pow(eleIt->phi() - scItEndcap->phi(),2));
+	double DeltaReleSC =  reco::deltaR(eleIt->caloPosition().eta(),eleIt->caloPosition().phi(),scItEndcap->eta(),scItEndcap->phi());
 	
 	if(DeltaReleSC<DeltaRMineleSCendcap)
 	  {
