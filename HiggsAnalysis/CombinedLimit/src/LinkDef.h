@@ -50,6 +50,7 @@
 #pragma link C++ class RooDoubleCB+;
 #pragma link C++ class RooCB+;
 #pragma link C++ class RooFermi+;
+#pragma link C++ class Triangle+;
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,29,99)
 #pragma link C++ class RooStats::HistFactory::FlexibleInterpVar+;
 #endif
