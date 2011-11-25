@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_4_2/HIon/V38 (CMSSW_4_4_0_HLT17)
+# /dev/CMSSW_4_4_2/HIon/V39 (CMSSW_4_4_0_HLT17)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V38')
+  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V39')
 )
 
 process.streams = cms.PSet( 
@@ -40,6 +40,7 @@ process.datasets = cms.PSet(
     'HLT_HIL3Mu3_v2' ),
   HIExpressPhysics = cms.vstring( 'HLT_HIBptxXOR_v1',
     'HLT_HICentral10_v2',
+    'HLT_HICentralityVeto_v1',
     'HLT_HIDiJet55_v1',
     'HLT_HIDoublePhoton10_v1',
     'HLT_HIDoublePhoton15_v1',
@@ -2779,7 +2780,7 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_HIZeroBias_v1" ),
-        prescales = cms.vuint32( 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1 )
+        prescales = cms.vuint32( 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_HIZeroBiasXOR_v1" ),
         prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 )
@@ -2872,40 +2873,40 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_HISinglePhoton15_v1" ),
-        prescales = cms.vuint32( 0, 0, 0, 0, 30, 25, 20, 15, 10, 5, 2, 1, 1, 1, 1, 1 )
+        prescales = cms.vuint32( 0, 0, 0, 0, 17, 13, 11, 7, 5, 3, 1, 1, 1, 1, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_HISinglePhoton20_v2" ),
-        prescales = cms.vuint32( 0, 0, 0, 0, 5, 4, 3, 2, 1, 1, 1, 1, 3, 3, 1, 1 )
+        prescales = cms.vuint32( 0, 0, 0, 0, 3, 2, 2, 1, 1, 1, 1, 1, 3, 3, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_HISinglePhoton30_v2" ),
-        prescales = cms.vuint32( 0, 0, 0, 0, 3, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
+        prescales = cms.vuint32( 0, 0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_HISinglePhoton40_v2" ),
         prescales = cms.vuint32( 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_HIPhoton10_Photon15_v1" ),
-        prescales = cms.vuint32( 0, 0, 0, 0, 100, 70, 50, 30, 20, 10, 5, 2, 1, 30, 1, 1 )
+        prescales = cms.vuint32( 0, 0, 0, 0, 33, 23, 17, 7, 3, 2, 1, 1, 1, 30, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_HIPhoton15_Photon20_v1" ),
         prescales = cms.vuint32( 0, 0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_HIDoublePhoton10_v1" ),
-        prescales = cms.vuint32( 0, 0, 0, 0, 600, 500, 400, 300, 200, 100, 50, 20, 300, 300, 1, 1 )
+        prescales = cms.vuint32( 0, 0, 0, 0, 60, 50, 40, 30, 20, 10, 5, 2, 300, 300, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_HIDoublePhoton15_v1" ),
-        prescales = cms.vuint32( 0, 0, 0, 0, 8, 6, 4, 3, 2, 1, 1, 1, 3, 3, 1, 1 )
+        prescales = cms.vuint32( 0, 0, 0, 0, 2, 2, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_HIDoublePhoton20_v1" ),
         prescales = cms.vuint32( 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_HIJet55_v1" ),
-        prescales = cms.vuint32( 0, 0, 0, 0, 15, 12, 10, 7, 5, 2, 1, 1, 5, 1, 1, 1 )
+        prescales = cms.vuint32( 0, 0, 0, 0, 8, 6, 5, 4, 3, 1, 1, 1, 5, 1, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_HIJet65_v1" ),
-        prescales = cms.vuint32( 0, 0, 0, 0, 6, 5, 3, 2, 1, 1, 1, 1, 1, 1, 1, 1 )
+        prescales = cms.vuint32( 0, 0, 0, 0, 3, 3, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_HIJet80_v1" ),
-        prescales = cms.vuint32( 0, 0, 0, 0, 4, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
+        prescales = cms.vuint32( 0, 0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_HIJet95_v1" ),
         prescales = cms.vuint32( 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
@@ -2935,16 +2936,16 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_HIFullTrack12_L1Central_v1" ),
-        prescales = cms.vuint32( 0, 0, 0, 0, 6, 10, 8, 6, 5, 3, 1, 1, 5, 1, 1, 1 )
+        prescales = cms.vuint32( 0, 0, 0, 0, 3, 5, 4, 2, 1, 1, 1, 1, 5, 1, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_HIFullTrack12_L1Peripheral_v1" ),
-        prescales = cms.vuint32( 0, 0, 0, 0, 6, 10, 8, 6, 5, 3, 1, 1, 1, 1, 1, 1 )
+        prescales = cms.vuint32( 0, 0, 0, 0, 3, 5, 4, 2, 1, 1, 1, 1, 1, 1, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_HIFullTrack14_L1Central_v1" ),
-        prescales = cms.vuint32( 0, 0, 0, 0, 2, 3, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
+        prescales = cms.vuint32( 0, 0, 0, 0, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_HIFullTrack14_L1Peripheral_v1" ),
-        prescales = cms.vuint32( 0, 0, 0, 0, 2, 3, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
+        prescales = cms.vuint32( 0, 0, 0, 0, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_HIFullTrack20_L1Central_v1" ),
         prescales = cms.vuint32( 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
@@ -2995,7 +2996,7 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 )
       ),
       cms.PSet(  pathName = cms.string( "ExpressForHIOutput" ),
-        prescales = cms.vuint32( 0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 0, 0 )
+        prescales = cms.vuint32( 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 )
       ),
       cms.PSet(  pathName = cms.string( "HLTMONOutput" ),
         prescales = cms.vuint32( 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100 )
@@ -7011,6 +7012,18 @@ process.hltPreExpressForHIOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
+process.hltPreExpressForHIOutputSmart = cms.EDFilter( "TriggerResultsFilter",
+    triggerConditions = cms.vstring( '( HLT_HIBptxXOR_v1 OR HLT_HICentral10_v2 OR HLT_HIL1Algo_BptxXOR_BSC_OR_v1 OR HLT_HIMinBiasBSC_OR_v1 OR HLT_HIMinBiasBSC_v1 OR HLT_HIMinBiasHF_v1 OR HLT_HIMinBiasHfOrBSC_v1 OR HLT_HIMinBiasHf_OR_v1 OR HLT_HIMinBiasPixel_SingleTrack_v1 OR HLT_HIMinBiasZDCPixel_SingleTrack_v1 OR HLT_HIMinBiasZDC_Calo_PlusOrMinus_v1 OR HLT_HIMinBiasZDC_Calo_v1 OR HLT_HIMinBiasZDC_PlusOrMinusPixel_SingleTrack_v1 OR HLT_HIPhysics_v1 OR HLT_HIRandom_v1 OR HLT_HIUCC010_v2 OR HLT_HIUCC015_v2 OR HLT_HIUPCNeuEG2Pixel_SingleTrack_v1 OR HLT_HIUPCNeuEG5Pixel_SingleTrack_v1 OR HLT_HIUPCNeuHcalHfEG2Pixel_SingleTrack_v1 OR HLT_HIUPCNeuHcalHfEG5Pixel_SingleTrack_v1 OR HLT_HIUPCNeuHcalHfMuPixel_SingleTrack_v1 OR HLT_HIUPCNeuMuPixel_SingleTrack_v1 OR HLT_HIZeroBiasPixel_SingleTrack_v1 OR HLT_HIZeroBiasXOR_v1 OR HLT_HIZeroBias_v1 ) / 20',
+      '( HLT_HIDiJet55_v1 OR HLT_HIDoublePhoton10_v1 OR HLT_HIDoublePhoton15_v1 OR HLT_HIDoublePhoton20_v1 OR HLT_HIFullTrack12_L1Central_v1 OR HLT_HIFullTrack12_L1Peripheral_v1 OR HLT_HIFullTrack14_L1Central_v1 OR HLT_HIFullTrack14_L1Peripheral_v1 OR HLT_HIFullTrack20_L1Central_v1 OR HLT_HIFullTrack20_L1Peripheral_v1 OR HLT_HIFullTrack25_L1Central_v1 OR HLT_HIFullTrack25_L1Peripheral_v1 OR HLT_HIJet55_v1 OR HLT_HIJet65_Jet55_v1 OR HLT_HIJet65_v1 OR HLT_HIJet80_v1 OR HLT_HIJet95_v1 OR HLT_HIJetE30_NoBPTX_v1 OR HLT_HIJetE50_NoBPTX3BX_NoHalo_v1 OR HLT_HIMET120_v1 OR HLT_HIMET200_v1 OR HLT_HIMET220_v1 OR HLT_HIPhoton10_Photon15_v1 OR HLT_HIPhoton15_Photon20_v1 OR HLT_HISinglePhoton15_v1 OR HLT_HISinglePhoton20_v2 OR HLT_HISinglePhoton30_v2 OR HLT_HISinglePhoton40_v2 ) / 20',
+      '( HLT_HIL1DoubleMu0_HighQ_v2 OR HLT_HIL1DoubleMuOpen_v2 OR HLT_HIL2DoubleMu0_L1HighQL2NHitQ_v2 OR HLT_HIL2DoubleMu0_NHitQ_v2 OR HLT_HIL2DoubleMu0_v2 OR HLT_HIL2DoubleMu3_v2 OR HLT_HIL2Mu15_v2 OR HLT_HIL2Mu3_NHitQ_v2 OR HLT_HIL2Mu3_v2 OR HLT_HIL2Mu7_v2 OR HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy_v2 OR HLT_HIL3DoubleMuOpen_Mgt2_OS_v2 OR HLT_HIL3DoubleMuOpen_Mgt2_SS_v2 OR HLT_HIL3DoubleMuOpen_Mgt2_v2 OR HLT_HIL3DoubleMuOpen_v2 OR HLT_HIL3Mu3_v2 ) / 20',
+      '( HLT_HICentralityVeto_v1 ) / 2' ),
+    hltResults = cms.InputTag( "TriggerResults" ),
+    l1tResults = cms.InputTag( "hltGtDigis" ),
+    l1tIgnoreMask = cms.bool( False ),
+    daqPartitions = cms.uint32( 1 ),
+    throw = cms.bool( True ),
+    l1techIgnorePrescales = cms.bool( False )
+)
 process.hltPreHLTDQMOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
@@ -7422,6 +7435,7 @@ process.hltOutputHIExpress = cms.OutputModule( "PoolOutputModule",
     ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_HIBptxXOR_v1',
   'HLT_HICentral10_v2',
+  'HLT_HICentralityVeto_v1',
   'HLT_HIDiJet55_v1',
   'HLT_HIDoublePhoton10_v1',
   'HLT_HIDoublePhoton15_v1',
@@ -8100,7 +8114,7 @@ process.ALCALUMIPIXELSOutput = cms.EndPath( process.hltPreALCALUMIPIXELSOutput )
 process.CalibrationOutput = cms.EndPath( process.hltPreCalibrationOutput + process.hltOutputCalibration )
 process.DQMForHIOutput = cms.EndPath( process.hltDQML1Scalers + process.hltDQML1SeedLogicScalers + process.hltDQMHLTScalers + process.hltPreDQMForHIOutput + process.hltPreDQMForHIOutputSmart + process.hltOutputDQM )
 process.EcalCalibrationOutput = cms.EndPath( process.hltPreEcalCalibrationOutput + process.hltOutputEcalCalibration )
-process.ExpressForHIOutput = cms.EndPath( process.hltPreExpressForHIOutput + process.hltOutputHIExpress )
+process.ExpressForHIOutput = cms.EndPath( process.hltPreExpressForHIOutput + process.hltPreExpressForHIOutputSmart + process.hltOutputHIExpress )
 process.HLTDQMOutput = cms.EndPath( process.hltPreHLTDQMOutput + process.hltPreHLTDQMOutputSmart + process.hltOutputHLTDQM )
 process.HLTDQMResultsOutput = cms.EndPath( process.hltPreHLTDQMResultsOutput + process.hltPreHLTDQMResultsOutputSmart + process.hltOutputHLTDQMResults )
 process.HLTMONOutput = cms.EndPath( process.hltPreHLTMONOutput + process.hltPreHLTMONOutputSmart + process.hltOutputHLTMON )

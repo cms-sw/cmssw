@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_4_2/HIon/V38 (CMSSW_4_4_0_HLT17)
+# /dev/CMSSW_4_4_2/HIon/V39 (CMSSW_4_4_0_HLT17)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V38')
+  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V39')
 )
 
 streams = cms.PSet( 
@@ -39,6 +39,7 @@ datasets = cms.PSet(
     'HLT_HIL3Mu3_v2' ),
   HIExpressPhysics = cms.vstring( 'HLT_HIBptxXOR_v1',
     'HLT_HICentral10_v2',
+    'HLT_HICentralityVeto_v1',
     'HLT_HIDiJet55_v1',
     'HLT_HIDoublePhoton10_v1',
     'HLT_HIDoublePhoton15_v1',
