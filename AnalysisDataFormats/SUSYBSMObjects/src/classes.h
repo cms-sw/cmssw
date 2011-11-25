@@ -1,6 +1,8 @@
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCParticle.h"
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCPIsolation.h"
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCPCaloInfo.h"
+#include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCPDeDxInfo.h"
+
 
 namespace {
  namespace {
@@ -47,6 +49,16 @@ namespace {
   edm::Wrapper<susybsm::HSCPCaloInfo> hscpCW;
   edm::Wrapper<susybsm::HSCPCaloInfoCollection> hscpCcW;
   edm::Wrapper<susybsm::HSCPCaloInfoValueMap> hscpCvmW;
+
+  susybsm::HSCPDeDxInfo hscpDEDX;
+  susybsm::HSCPDeDxInfoCollection hscpDEDXc;
+  susybsm::HSCPDeDxInfoRef hscpDEDXr;
+  susybsm::HSCPDeDxInfoRefProd hscpDEDXp;
+  susybsm::HSCPDeDxInfoRefVector hscpDEDXv;
+  susybsm::HSCPDeDxInfoValueMap hscpDEDXvm;
+  edm::Wrapper<susybsm::HSCPDeDxInfo> hscpDEDXW;
+  edm::Wrapper<susybsm::HSCPDeDxInfoCollection> hscpDEDXcW;
+  edm::Wrapper<susybsm::HSCPDeDxInfoValueMap> hscpDEDXvmW;
 
   
  }
