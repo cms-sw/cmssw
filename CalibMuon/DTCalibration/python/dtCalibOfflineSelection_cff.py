@@ -107,7 +107,7 @@ offlineSelectionALCARECOPt5 = cms.Sequence(muonSelectionPt5)
 offlineSelectionCosmicsPt5 = cms.Sequence(hltL1SingleMuOpen + goodCosmicTracksPt5)
 offlineSelectionHIPt5 = cms.Sequence(ALCARECODtCalibHIHLTFilter + primaryVertexFilterHI + muonSelectionPt5)
 offlineSelectionHIALCARECOPt5 = cms.Sequence(primaryVertexFilterHI + muonSelectionPt5)
-offlineSelectionHIRAWPt5 = cms.Sequence(ALCARECODtCalibHIHLTFilter + muonSelectionPt5)
+offlineSelectionHIRAWPt5 = cms.Sequence(ALCARECODtCalibHIHLTFilter)
 
 offlineSelection = cms.Sequence(scrapingEvtFilter + primaryVertexFilter + muonSelectionPt15)
 offlineSelectionALCARECO = cms.Sequence(muonSelectionPt15)
