@@ -441,7 +441,7 @@ class DTCalibrationWorker:
 	    dqm_output_dir = self.dqmOutputDir('TTrigValidation','ResidualsResidCorr',config)
 	    self.runDQMClient(run,dqm_output_dir,config)
 
-	elif input.workflowMode == 'residuals':
+	elif mode == 'residuals':
 	    residualsFirst = os.path.abspath(result_dir + '/' + 'DTResidualValidation_' + run + '.root')
 	    ttrig_residuals_db = os.path.abspath(result_dir + '/' + 'ttrig_residuals_' + run + '.db')
 	    residualsResidCorr = os.path.abspath(result_dir + '/' + 'DTResidualValidation_ResidCorr_' + run + '.root')
@@ -489,7 +489,7 @@ class DTCalibrationWorker:
 	    dqm_output_dir = self.dqmOutputDir('TTrigValidation','ResidualsResidCorr',config)
 	    self.runDQMClient(run,dqm_output_dir,config)
 
-	elif input.workflowMode == 'validation':
+	elif mode == 'validation':
 	    residualsValid = os.path.abspath(result_dir + '/' + 'DTResidualValidation_' + run + '.root')
 	    summaryResiduals = os.path.abspath(result_dir + '/' + 'SummaryResiduals_' + run + '.root')
 
