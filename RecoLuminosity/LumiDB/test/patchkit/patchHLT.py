@@ -16,6 +16,8 @@ def patchV2(dbsession,runnum,inputdata):
     existinglsdata=dataDML.hltLSById(schema,oldhltdataid)
     oldlsdata=existinglsdata[1]
     print oldlsdata.keys()
+    for (hltnameidx,hltname) in hltnamedict:
+        print hltnameidx,hltname,inputdata[hltname]
     #print existinglsdata
 def parsepresc(inputlistoflist,minlsnum,maxlsnum,lsboundaries):
     '''
