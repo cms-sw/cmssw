@@ -43,6 +43,7 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
     recoPFJets_       = conf.getParameter<edm::InputTag> ("recoPFJets"); 
     calotowers_       = conf.getParameter<edm::InputTag> ("calotowers");
     muon_             = conf.getParameter<edm::InputTag> ("muon");
+    pfmuon_           = conf.getParameter<edm::InputTag> ("pfmuon");
     mctruth_          = conf.getParameter<edm::InputTag> ("mctruth");
     genEventInfo_     = conf.getParameter<edm::InputTag> ("genEventInfo");
     simhits_          = conf.getParameter<edm::InputTag> ("simhits");
@@ -247,6 +248,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     edm::Handle<std::vector<SimTrack> >               simTracks;
     edm::Handle<std::vector<SimVertex> >              simVertices;
     edm::Handle<reco::MuonCollection>                 muon;
+    edm::Handle<reco::PFCandidateCollection>          pfmuon;
     edm::Handle<edm::TriggerResults>                  hltresults;
     edm::Handle<l1extra::L1EmParticleCollection>      l1extemi, l1extemn;
     edm::Handle<l1extra::L1MuonParticleCollection>    l1extmu;
@@ -400,6 +402,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     getCollection( iEvent, missing, ht,              ht_,                kHt );
     getCollection( iEvent, missing, recoPFJets,      recoPFJets_,        kRecoPFJets );   
     getCollection( iEvent, missing, muon,            muon_,              kMuon );
+    getCollection( iEvent, missing, pfmuon,          pfmuon_,            kpfMuon );
     getCollection( iEvent, missing, taus,            HLTTau_,            kTaus );
     getCollection( iEvent, missing, pftaus,          PFTau_,		 kPFTaus );
     getCollection( iEvent, missing, pftausTightCone, PFTauTightCone_,    kPFTausTightCone );
@@ -563,6 +566,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     
     muon_analysis_.analyze(
                            muon,
+                           pfmuon,
                            l1extmu,
                            mucands2,
                            isoMap2,

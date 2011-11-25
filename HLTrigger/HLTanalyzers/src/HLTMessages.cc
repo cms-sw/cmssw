@@ -14,6 +14,7 @@ const char * kCaloTowers                  = "calo towers";
 const char * kHt                          = "HT object";
 const char * kRecoPFJets                  = "reco particle flow jets"; 
 const char * kMuon                        = "muon candidates";
+const char * kpfMuon                      = "pf muon candidates";
 const char * kTaus                        = "tau candidates";
 const char * kPFTaus                      = "pftau candidates";
 const char * kPFTausTightCone             = "pftau candidates tight cone";

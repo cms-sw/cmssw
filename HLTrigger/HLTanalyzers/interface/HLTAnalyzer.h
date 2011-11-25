@@ -81,6 +81,7 @@ private:
   edm::InputTag recjets_,reccorjets_,genjets_,recmet_,recoPFMet_,genmet_,ht_,recoPFJets_,calotowers_,hltresults_,genEventInfo_;
   edm::InputTag hltjets_, hltcorjets_, hltcorL1L2L3jets_;
   edm::InputTag muon_;
+  edm::InputTag pfmuon_;
   std::string l1extramc_, l1extramu_;
   edm::InputTag m_l1extramu;
   edm::InputTag m_l1extraemi;

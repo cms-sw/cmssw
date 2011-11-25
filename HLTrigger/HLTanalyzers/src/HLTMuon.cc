@@ -128,6 +128,15 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   dimuvtxmu2dipsigmax = new float[kMaxDiMuVtx];
   dimuvtxmu2dipsigmin = new float[kMaxDiMuVtx];
 
+  //pf
+  const int kMaxPfmuon = 10000;
+  pfmuonpt = new float[kMaxPfmuon];
+  pfmuonphi = new float[kMaxPfmuon];
+  pfmuoneta = new float[kMaxPfmuon];
+  pfmuonet = new float[kMaxPfmuon];
+  pfmuone = new float[kMaxPfmuon];
+  pfmuoncharge = new float[kMaxPfmuon];
+
   // Muon-specific branches of the tree 
   HltTree->Branch("NrecoMuon",&nmuon,"NrecoMuon/I");
   HltTree->Branch("recoMuonPt",muonpt,"recoMuonPt[NrecoMuon]/F");
@@ -226,10 +235,21 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("ohTrackerMuonEta",trackermuoneta,"ohTrackerMuonEta[NohTrackerMuon]/F");
   HltTree->Branch("ohTrackerMuonChg",trackermuonchg,"ohTrackerMuonChg[NohTrackerMuon]/I");
   HltTree->Branch("ohTrackerMuonNhits",trackermuonnhits,"ohTrackerMuonNhits[NohTrackerMuon]/I");
+
+  HltTree->Branch("NpfMuon",&npfmuon,"NpfMuon/I");
+  HltTree->Branch("pfMuonPt",pfmuonpt,"pfMuonPt[NpfMuon]/F");
+  HltTree->Branch("pfMuonPhi",pfmuonphi,"pfMuonPhi[NpfMuon]/F");
+  HltTree->Branch("pfMuonEta",pfmuoneta,"pfMuonEta[NpfMuon]/F");
+  HltTree->Branch("pfMuonEt",pfmuonet,"pfMuonEt[NpfMuon]/F");
+  HltTree->Branch("pfMuonE",pfmuone,"pfMuonE[NpfMuon]/F");
+  HltTree->Branch("pfMuonCharge",         pfmuoncharge  ,      "pfMuonCharge[NpfMuon]/F");
+
+
 }
 
 /* **Analyze the event** */
 void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & Muon,
+		      const edm::Handle<reco::PFCandidateCollection>          & pfMuon,
 		      const edm::Handle<l1extra::L1MuonParticleCollection>    & MuCands1, 
 		      const edm::Handle<reco::RecoChargedCandidateCollection> & MuCands2,
 		      const edm::Handle<edm::ValueMap<bool> >                 & isoMap2,
@@ -691,6 +711,28 @@ void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & 
   else {ntrackermuoncand = 0;}
 
   //////////////////////////////////////////////////////////////////////////////
+
+  if (pfMuon.isValid()) {
+    reco::PFCandidateCollection mypfmuons;
+    mypfmuons = * pfMuon;
+    std::sort(mypfmuons.begin(),mypfmuons.end(),PtGreater());
+    npfmuon = mypfmuons.size();
+    typedef reco::PFCandidateCollection::const_iterator muiter;
+    int ipfmu=0;
+    for (muiter i=mypfmuons.begin(); i!=mypfmuons.end(); i++) 
+      {
+	pfmuonpt[ipfmu]         = i->pt();
+	pfmuonphi[ipfmu]        = i->phi();
+	pfmuoneta[ipfmu]        = i->eta();
+	pfmuonet[ipfmu]         = i->et();
+	pfmuone[ipfmu]          = i->energy(); 
+	pfmuoncharge[ipfmu]     = i->charge(); 
+	
+	ipfmu++;
+      }
+  }
+  else {npfmuon = 0;}
+
 }
 
 int HLTMuon::validChambers(const reco::TrackRef & track)

@@ -17,6 +17,8 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
@@ -72,7 +74,8 @@ public:
 
   /** Analyze the Data */
   void analyze(const edm::Handle<reco::MuonCollection>                 & muon,
-               const edm::Handle<l1extra::L1MuonParticleCollection>    & mucands1, 
+	       const edm::Handle<reco::PFCandidateCollection>          & pfmuon,
+	       const edm::Handle<l1extra::L1MuonParticleCollection>    & mucands1, 
 	       const edm::Handle<reco::RecoChargedCandidateCollection> & mucands2,
 	       const edm::Handle<edm::ValueMap<bool> >                 & isoMap2,
 	       const edm::Handle<reco::RecoChargedCandidateCollection> & mucands3,
@@ -96,12 +99,13 @@ private:
   // Tree variables
   float *muonpt, *muonphi, *muoneta, *muonet, *muone, *muonchi2NDF, *muoncharge,
   *muonTrkIsoR03, *muonECalIsoR03, *muonHCalIsoR03, *muonD0;
+ float *pfmuonpt, *pfmuonphi, *pfmuoneta, *pfmuonet, *pfmuone, *pfmuoncharge;
   int *muontype, *muonNValidTrkHits, *muonNValidMuonHits;
   float *muonl2pt, *muonl2eta, *muonl2phi, *muonl2dr, *muonl2dz, *muonl2vtxz;
   float *muonl3pt, *muonl3eta, *muonl3phi, *muonl3dr, *muonl3dz, *muonl3vtxz, *muonl3normchi2;
   float *muonl2novtxpt, *muonl2novtxeta, *muonl2novtxphi, *muonl2novtxdr, *muonl2novtxdz; 
   float *muonl2pterr, *muonl3pterr, *muonl2novtxpterr;
-  int nmuon, nmu2cand, nmu3cand, nmu2novtxcand, ntrackermuoncand;
+  int nmuon, nmu2cand, nmu3cand, nmu2novtxcand, ntrackermuoncand, npfmuon;
   int *muonl2chg, *muonl2iso, *muonl2nhits, *muonl2nchambers, *muonl2nstat, *muonl3chg, *muonl3iso, *muonl32idx, *muonl3nhits, *muonl21idx, *muonl2novtxchg, *muonl2novtxiso, *muonl2novtx1idx, *muonl2novtxnhits, *muonl2novtxnchambers;
   int *muonl3ntrackerhits, *muonl3nmuonhits, *muonl3trk10iso;
   float *trackermuonpt, *trackermuonphi, *trackermuoneta;
