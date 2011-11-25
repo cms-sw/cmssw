@@ -1,13 +1,10 @@
-#include<sstream>
 #include "SimG4Core/Geometry/interface/DDG4SolidConverter.h"
 #include "G4VSolid.hh"
 
-#include "FWCore/Utilities/interface/Exception.h"
-
-#include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 using namespace std;
 const vector<double> * DDG4SolidConverter::par_ = 0; 
@@ -55,10 +52,10 @@ G4VSolid * DDG4SolidConverter::convert(const DDSolid & s)
      result = it->second(s);
    } 
    else {
-     ostringstream o; 
-     o << "DDG4SolidConverter::convert: conversion failed for s=" << s << endl;
-     o << " solid.shape()=" << s.shape() << endl;
-     throw DDException(o.str());
+     throw cms::Exception("DetectorDescriptionFault") 
+       <<  "DDG4SolidConverter::convert: conversion failed for s=" << s
+       << "\n solid.shape()=" << s.shape()
+       << std::endl;
    }
    return result;
 }
@@ -385,8 +382,8 @@ G4VSolid * DDG4SolidConverter::pseudotrap(const DDSolid & s)
       }    
     }
   else {
-    throw DDException("Check parameters of the PseudoTrap! name=" + pt.name().name());   
-  }
+    throw cms::Exception("DetectorDescriptionFault", "Check parameters of the PseudoTrap! name=" + pt.name().name());
+   }
   G4ThreeVector displ(0.,0.,displacement); // displacement of the tubs w.r.t. trap
   LogDebug("SimG4CoreGeometry") << "DDSolidConverter::pseudotrap(): displacement=" << displacement 
 				<< " openingAngle=" << openingAngle/deg << " x=" << x << " h=" << h;
@@ -445,20 +442,16 @@ G4VSolid * DDG4SolidConverter::trunctubs(const DDSolid & s)
 
   // check the parameters
   if (rIn <= 0 || rOut <=0 || cutAtStart <=0 || cutAtDelta <= 0) {
-    string s = "TruncTubs " + string(tt.name().fullname()) + ": 0 <= rIn,cutAtStart,rOut,cutAtDelta,rOut violated!";
-    throw DDException(s);
+    throw cms::Exception("DetectorDescriptionFault", "TruncTubs " + string(tt.name().fullname()) + ": 0 <= rIn,cutAtStart,rOut,cutAtDelta,rOut violated!");
   }
   if (rIn >= rOut) {
-    string s = "TruncTubs " + string(tt.name().fullname()) + ": rIn<rOut violated!";
-    throw DDException(s);
+    throw cms::Exception("DetectorDescriptionFault", "TruncTubs " + string(tt.name().fullname()) + ": rIn<rOut violated!");
   }
   if (startPhi != 0.) {
-    string s= "TruncTubs " + string(tt.name().fullname()) + ": startPhi != 0 not supported!";
-    throw DDException(s);
+    throw cms::Exception("DetectorDescriptionFault", "TruncTubs " + string(tt.name().fullname()) + ": startPhi != 0 not supported!");
   }
   //     if (cutInside != false) {
-  //       string s = "TruncTubs " + string(tt.name()) + " cutInside == true not supported!";
-  //       throw DDException(s);
+  //       throw cms::Exception("DetectorDescriptionFault", "TruncTubs " + string(tt.name()) + " cutInside == true not supported!");
   //     }
 
   startPhi=0.;
