@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik, Riccardo Bellan, Michalis Bachtis
  *
- * \version $Id: Muon.h,v 1.66 2011/11/01 15:55:14 bellan Exp $
+ * \version $Id: Muon.h,v 1.67 2011/11/02 06:41:54 slava77 Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -60,9 +60,9 @@ namespace reco {
     virtual TrackRef pickyTrack() const { return muonTrackFromMap(Picky);}
     virtual TrackRef dytTrack()   const { return muonTrackFromMap(DYT);}
     
-    virtual const Track * bestTrack() const         {return muonTrackFromMap(bestTrackType_).get();}
-    virtual TrackBaseRef  bestTrackRef() const      {return reco::TrackBaseRef(muonTrackFromMap(bestTrackType_));}
-    virtual TrackRef      muonBestTrack() const     {return muonTrackFromMap(bestTrackType_);}
+    virtual const Track * bestTrack() const         {return muonTrack(bestTrackType_).get();}
+    virtual TrackBaseRef  bestTrackRef() const      {return reco::TrackBaseRef(muonTrack(bestTrackType_));}
+    virtual TrackRef      muonBestTrack() const     {return muonTrack(bestTrackType_);}
     virtual MuonTrackType muonBestTrackType() const {return bestTrackType_;}
 
 
