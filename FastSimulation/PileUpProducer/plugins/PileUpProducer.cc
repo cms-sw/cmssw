@@ -234,8 +234,9 @@ void PileUpProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
     truePUevts = (float) averageNumber_;
   }
   else {
-    PUevts = (int) hprob->GetRandom();
-    truePUevts = (float) PUevts;
+    float d = (float) hprob->GetRandom();
+    PUevts = (int) d;
+    truePUevts = d;
   }
   //  std::cout << "PUevts = " << PUevts << std::endl;
 
