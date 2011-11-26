@@ -8,6 +8,7 @@ namespace edm {
   class ParameterSet;
 }
 class TH2F;
+class TProfile;
 class TFileDirectory;
 
 class DigiVertexCorrHistogramMaker {
@@ -32,6 +33,7 @@ class DigiVertexCorrHistogramMaker {
   std::map<unsigned int, std::string> m_labels;
 
   std::map<unsigned int,TH2F*> m_nmultvsnvtx;
+  std::map<unsigned int,TProfile*> m_nmultvsnvtxprof;
   std::map<unsigned int,TFileDirectory*> m_subdirs;
 
 };

@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Venturi
 //         Created:  Mon Oct 27 17:37:53 CET 2008
-// $Id: MultiplicityInvestigator.cc,v 1.1 2011/03/10 16:15:13 venturia Exp $
+// $Id: MultiplicityInvestigator.cc,v 1.2 2011/11/15 16:59:06 venturia Exp $
 //
 //
 
@@ -42,6 +42,7 @@
 #include "DPGAnalysis/SiStripTools/interface/DigiInvestigatorHistogramMaker.h"
 #include "DPGAnalysis/SiStripTools/interface/DigiVertexCorrHistogramMaker.h"
 #include "DPGAnalysis/SiStripTools/interface/DigiLumiCorrHistogramMaker.h"
+#include "DPGAnalysis/SiStripTools/interface/DigiPileupCorrHistogramMaker.h"
 
 //
 // class decleration
@@ -65,9 +66,11 @@ private:
   const bool m_wantInvestHist;
   const bool m_wantVtxCorrHist;
   const bool m_wantLumiCorrHist;
+  const bool m_wantPileupCorrHist;
   DigiInvestigatorHistogramMaker m_digiinvesthmevent;
   DigiVertexCorrHistogramMaker m_digivtxcorrhmevent;
   DigiLumiCorrHistogramMaker m_digilumicorrhmevent;
+  DigiPileupCorrHistogramMaker m_digipileupcorrhmevent;
 
   edm::InputTag m_multiplicityMap;
   edm::InputTag m_vertexCollection;
@@ -90,18 +93,21 @@ MultiplicityInvestigator::MultiplicityInvestigator(const edm::ParameterSet& iCon
   m_wantInvestHist(iConfig.getParameter<bool>("wantInvestHist")),
   m_wantVtxCorrHist(iConfig.getParameter<bool>("wantVtxCorrHist")),
   m_wantLumiCorrHist(iConfig.getParameter<bool>("wantLumiCorrHist")),
+  m_wantPileupCorrHist(iConfig.getParameter<bool>("wantPileupCorrHist")),
   m_digiinvesthmevent(iConfig),
   m_digivtxcorrhmevent(iConfig.getParameter<edm::ParameterSet>("digiVtxCorrConfig")),
   m_digilumicorrhmevent(iConfig.getParameter<edm::ParameterSet>("digiLumiCorrConfig")),
+  m_digipileupcorrhmevent(iConfig.getParameter<edm::ParameterSet>("digiPileupCorrConfig")),
   m_multiplicityMap(iConfig.getParameter<edm::InputTag>("multiplicityMap")),
   m_vertexCollection(iConfig.getParameter<edm::InputTag>("vertexCollection"))
 {
    //now do what ever initialization is needed
 
 
-  if(m_wantInvestHist) m_digiinvesthmevent.book("EventProcs");
+  if(m_wantInvestHist)  m_digiinvesthmevent.book("EventProcs");
   if(m_wantVtxCorrHist) m_digivtxcorrhmevent.book("VtxCorr");
   if(m_wantLumiCorrHist) m_digilumicorrhmevent.book("LumiCorr");
+  if(m_wantPileupCorrHist) m_digipileupcorrhmevent.book("PileupCorr");
 
 }
 
@@ -138,6 +144,7 @@ MultiplicityInvestigator::analyze(const edm::Event& iEvent, const edm::EventSetu
   }
 
   if(m_wantLumiCorrHist) m_digilumicorrhmevent.fill(iEvent,*mults);
+  if(m_wantPileupCorrHist) m_digipileupcorrhmevent.fill(iEvent,*mults);
 
 }
 

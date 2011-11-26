@@ -11,6 +11,7 @@ namespace edm {
   class Event;
 }
 class TH2F;
+class TProfile;
 class TFileDirectory;
 
 class DigiLumiCorrHistogramMaker {
@@ -36,6 +37,7 @@ class DigiLumiCorrHistogramMaker {
   std::map<unsigned int, std::string> m_labels;
 
   std::map<unsigned int,TH2F*> m_nmultvslumi;
+  std::map<unsigned int,TProfile*> m_nmultvslumiprof;
   std::map<unsigned int,TFileDirectory*> m_subdirs;
 
 };

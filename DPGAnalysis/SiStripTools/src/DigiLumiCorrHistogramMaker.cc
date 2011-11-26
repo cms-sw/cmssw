@@ -7,19 +7,20 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/Luminosity/interface/LumiDetails.h"
 #include "TH2F.h"
+#include "TProfile.h"
 
 #include "DPGAnalysis/SiStripTools/interface/SiStripTKNumbers.h"
 
 
 DigiLumiCorrHistogramMaker::DigiLumiCorrHistogramMaker():
-  m_lumiProducer("lumiProducer"), m_hitname(), m_nbins(500), m_scalefact(), m_binmax(), m_labels(), m_nmultvslumi() { }
+  m_lumiProducer("lumiProducer"), m_hitname(), m_nbins(500), m_scalefact(), m_binmax(), m_labels(), m_nmultvslumi(), m_nmultvslumiprof(), m_subdirs() { }
 
 DigiLumiCorrHistogramMaker::DigiLumiCorrHistogramMaker(const edm::ParameterSet& iConfig):
   m_lumiProducer(iConfig.getParameter<edm::InputTag>("lumiProducer")),
   m_hitname(iConfig.getUntrackedParameter<std::string>("hitName","digi")),
   m_nbins(iConfig.getUntrackedParameter<int>("numberOfBins",500)),
   m_scalefact(iConfig.getUntrackedParameter<int>("scaleFactor",5)),
-  m_labels(), m_nmultvslumi(), m_subdirs()
+  m_labels(), m_nmultvslumi(), m_nmultvslumiprof(), m_subdirs()
 { 
 
   std::vector<edm::ParameterSet> 
@@ -93,6 +94,9 @@ void DigiLumiCorrHistogramMaker::book(const std::string dirname) {
       sprintf(title,"%s %s multiplicity vs BX lumi",slab.c_str(),m_hitname.c_str());
       m_nmultvslumi[i] = m_subdirs[i]->make<TH2F>(name,title,250,0.,10.,m_nbins,0.,m_binmax[i]/(m_scalefact*m_nbins)*m_nbins);
       m_nmultvslumi[i]->GetXaxis()->SetTitle("BX lumi [10^{30}cm^{-2}s^{-1}]");    m_nmultvslumi[i]->GetYaxis()->SetTitle("Number of Hits");
+      sprintf(name,"n%sdigivslumiprof",slab.c_str());
+      m_nmultvslumiprof[i] = m_subdirs[i]->make<TProfile>(name,title,250,0.,10.);
+      m_nmultvslumiprof[i]->GetXaxis()->SetTitle("BX lumi [10^{30}cm^{-2}s^{-1}]");    m_nmultvslumiprof[i]->GetYaxis()->SetTitle("Number of Hits");
       
     }
 
@@ -119,6 +123,7 @@ void DigiLumiCorrHistogramMaker::fill(const edm::Event& iEvent, const std::map<u
 	if(m_labels.find(digi->first) != m_labels.end()) {
 	  const unsigned int i=digi->first;
 	  m_nmultvslumi[i]->Fill(bxlumi,digi->second);
+	  m_nmultvslumiprof[i]->Fill(bxlumi,digi->second);
 	}
       }
     }

@@ -4,18 +4,19 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "TH2F.h"
+#include "TProfile.h"
 
 #include "DPGAnalysis/SiStripTools/interface/SiStripTKNumbers.h"
 
 
 DigiVertexCorrHistogramMaker::DigiVertexCorrHistogramMaker():
-  m_hitname(), m_nbins(500), m_scalefact(), m_binmax(), m_labels(), m_nmultvsnvtx() { }
+  m_hitname(), m_nbins(500), m_scalefact(), m_binmax(), m_labels(), m_nmultvsnvtx(), m_nmultvsnvtxprof(), m_subdirs() { }
 
 DigiVertexCorrHistogramMaker::DigiVertexCorrHistogramMaker(const edm::ParameterSet& iConfig):
   m_hitname(iConfig.getUntrackedParameter<std::string>("hitName","digi")),
   m_nbins(iConfig.getUntrackedParameter<int>("numberOfBins",500)),
   m_scalefact(iConfig.getUntrackedParameter<int>("scaleFactor",5)),
-  m_labels(), m_nmultvsnvtx(), m_subdirs()
+  m_labels(), m_nmultvsnvtx(), m_nmultvsnvtxprof(), m_subdirs()
 { 
 
   std::vector<edm::ParameterSet> 
@@ -89,6 +90,9 @@ void DigiVertexCorrHistogramMaker::book(const std::string dirname) {
       sprintf(title,"%s %s multiplicity vs Nvtx",slab.c_str(),m_hitname.c_str());
       m_nmultvsnvtx[i] = m_subdirs[i]->make<TH2F>(name,title,60,-0.5,59.5,m_nbins,0.,m_binmax[i]/(m_scalefact*m_nbins)*m_nbins);
       m_nmultvsnvtx[i]->GetXaxis()->SetTitle("Number of Vertices");    m_nmultvsnvtx[i]->GetYaxis()->SetTitle("Number of Hits");
+      sprintf(name,"n%sdigivsnvtxprof",slab.c_str());
+      m_nmultvsnvtxprof[i] = m_subdirs[i]->make<TProfile>(name,title,60,-0.5,59.5);
+      m_nmultvsnvtxprof[i]->GetXaxis()->SetTitle("Number of Vertices");    m_nmultvsnvtxprof[i]->GetYaxis()->SetTitle("Number of Hits");
       
     }
 
@@ -110,6 +114,7 @@ void DigiVertexCorrHistogramMaker::fill(const unsigned int nvtx, const std::map<
  
       const unsigned int i=digi->first;
       m_nmultvsnvtx[i]->Fill(nvtx,digi->second);
+      m_nmultvsnvtxprof[i]->Fill(nvtx,digi->second);
 
     }
     

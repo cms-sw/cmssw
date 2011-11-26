@@ -1,20 +1,18 @@
 import FWCore.ParameterSet.Config as cms
 
-ssdigimultlumicorr = cms.EDAnalyzer('MultiplicityInvestigator',
+ssdigimultpileupcorr = cms.EDAnalyzer('MultiplicityInvestigator',
                                     vertexCollection = cms.InputTag(""),
                                     wantInvestHist = cms.bool(False),
                                     wantVtxCorrHist = cms.bool(False),
-                                    wantLumiCorrHist = cms.bool(True),
-                                    wantPileupCorrHist = cms.bool(False),
+                                    wantLumiCorrHist = cms.bool(False),
+                                    wantPileupCorrHist = cms.bool(True),
                                     digiVtxCorrConfig = cms.PSet(),
+                                    digiLumiCorrConfig = cms.PSet(lumiProducer=cms.InputTag("")),
                                     digiPileupCorrConfig = cms.PSet(
-                                                                    pileupSummaryCollection=cms.InputTag(""),
-                                                                    useVisibleVertices = cms.bool(False)
-                                                                    ),
-                                    digiLumiCorrConfig = cms.PSet(
-    lumiProducer = cms.InputTag("lumiProducer"),
+    pileupSummaryCollection = cms.InputTag("addPileupInfo"),
+    useVisibleVertices = cms.bool(False),
     wantedSubDets = cms.untracked.VPSet(    
-    cms.PSet(detSelection = cms.uint32(0),detLabel = cms.string("TK"),  binMax = cms.int32(9523712))
+    cms.PSet(detSelection = cms.uint32(0),detLabel = cms.string("TK"),  binMax = cms.int32(9523712/64))
     ),
     hitName = cms.untracked.string("digi"),
     numberOfBins = cms.untracked.int32(100),   
