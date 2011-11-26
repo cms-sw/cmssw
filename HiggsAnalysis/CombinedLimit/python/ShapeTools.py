@@ -50,8 +50,8 @@ class ShapeBuilder(ModelBuilder):
             sum_s = ROOT.RooAddPdf("pdf_bin%s"       % b, "",   pdfs,   coeffs)
             sum_b = ROOT.RooAddPdf("pdf_bin%s_bonly" % b, "", bgpdfs, bgcoeffs)
             if b in self.pdfModes: 
-                sum_s.setAttribute('forceGenBinned' if self.pdfModes[b] == 'binned' else 'forceGenUnbinned')
-                sum_b.setAttribute('forceGenBinned' if self.pdfModes[b] == 'binned' else 'forceGenUnbinned')
+                sum_s.setAttribute('forceGen'+self.pdfModes[b].title())
+                sum_b.setAttribute('forceGen'+self.pdfModes[b].title())
             if len(self.DC.systs):
                 # rename the pdfs
                 sum_s.SetName("pdf_bin%s_nuis" % b); sum_b.SetName("pdf_bin%s_bonly_nuis" % b)
@@ -63,8 +63,8 @@ class ShapeBuilder(ModelBuilder):
                 pdf_s = ROOT.RooProdPdf("pdf_bin%s"       % b, "", sumPlusNuis_s) 
                 pdf_b = ROOT.RooProdPdf("pdf_bin%s_bonly" % b, "", sumPlusNuis_b) 
                 if b in self.pdfModes: 
-                    pdf_s.setAttribute('forceGenBinned' if self.pdfModes[b] == 'binned' else 'forceGenUnbinned')
-                    pdf_b.setAttribute('forceGenBinned' if self.pdfModes[b] == 'binned' else 'forceGenUnbinned')
+                    pdf_s.setAttribute('forceGen'+self.pdfModes[b].title())
+                    pdf_b.setAttribute('forceGen'+self.pdfModes[b].title())
                 self.out._import(pdf_s, ROOT.RooFit.RenameConflictNodes(b))
                 self.out._import(pdf_b, ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())
             else:
@@ -116,13 +116,21 @@ class ShapeBuilder(ModelBuilder):
                 elif shape.ClassName().startswith("TH1"):
                     shapeTypes.append("TH1"); shapeBins.append(shape.GetNbinsX())
                     norm = shape.Integral()
-                    if p == self.options.dataname: self.pdfModes[b] = 'binned'
+                    if p == self.options.dataname: 
+                        if self.options.poisson > 0 and norm > self.options.poisson:
+                            self.pdfModes[b] = 'poisson'
+                        else:
+                            self.pdfModes[b] = 'binned'
                 elif shape.InheritsFrom("RooDataHist"):
                     shapeTypes.append("RooDataHist"); 
                     shapeBins.append(shape.numEntries())
                     shapeObs[self.argSetToString(shape.get())] = shape.get()
                     norm = shape.sumEntries()
-                    if p == self.options.dataname: self.pdfModes[b] = 'binned'
+                    if p == self.options.dataname: 
+                        if self.options.poisson > 0 and norm > self.options.poisson:
+                            self.pdfModes[b] = 'poisson'
+                        else:
+                            self.pdfModes[b] = 'binned'
                 elif shape.InheritsFrom("RooDataSet"):
                     shapeTypes.append("RooDataSet"); 
                     shapeObs[self.argSetToString(shape.get())] = shape.get()
@@ -322,6 +330,7 @@ class ShapeBuilder(ModelBuilder):
         if shapeAlgo[-1] == "*": 
             qalgo = 100
             shapeAlgo = shapeAlgo[:-1]
+        if shapeAlgo == "shape": shapeAlgo = self.options.defMorph
         if "shapeL" in shapeAlgo: qrange = 0;
         elif "shapeN" in shapeAlgo: qalgo = -1;
         if "2" in shapeAlgo:

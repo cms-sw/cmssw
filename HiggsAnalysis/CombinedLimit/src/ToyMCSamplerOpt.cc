@@ -56,10 +56,11 @@ ToyMCSamplerOpt::~ToyMCSamplerOpt()
 toymcoptutils::SinglePdfGenInfo::SinglePdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData, int forceEvents) :
    mode_(pdf.canBeExtended() ? (preferBinned ? Binned : Unbinned) : Counting),
    pdf_(&pdf),
-   spec_(0) 
+   spec_(0),weightVar_(0)
 {
    if (pdf.canBeExtended()) {
        if (pdf.getAttribute("forceGenBinned")) mode_ = Binned;
+       else if (pdf.getAttribute("forceGenPoisson")) mode_ = Poisson;
        else if (pdf.getAttribute("forceGenUnbinned")) mode_ = Unbinned;
        //else std::cout << "Pdf " << pdf.GetName() << " has no preference" << std::endl;
    }
@@ -74,6 +75,7 @@ toymcoptutils::SinglePdfGenInfo::SinglePdfGenInfo(RooAbsPdf &pdf, const RooArgSe
 toymcoptutils::SinglePdfGenInfo::~SinglePdfGenInfo()
 {
     delete spec_;
+    delete weightVar_;
 }
 
 
@@ -92,6 +94,8 @@ toymcoptutils::SinglePdfGenInfo::generate(const RooDataSet* protoData, int force
         RooDataSet *data =  pdf_->generate(observables_, RooFit::Extended());
         ret = new RooDataHist(data->GetName(), "", *data->get(), *data);
         delete data;
+    } else if (mode_ == Poisson) {
+        return generateWithHisto(weightVar_, false);
     } else if (mode_ == Counting) {
         ret = pdf_->generate(observables_, 1);
     } else throw std::logic_error("Mode not foreseen in SinglePdfGenInfo::generate");
@@ -103,8 +107,14 @@ toymcoptutils::SinglePdfGenInfo::generate(const RooDataSet* protoData, int force
 RooDataSet *  
 toymcoptutils::SinglePdfGenInfo::generateAsimov(RooRealVar *&weightVar) 
 {
+    return generateWithHisto(weightVar, true);
+}
+
+RooDataSet *  
+toymcoptutils::SinglePdfGenInfo::generateWithHisto(RooRealVar *&weightVar, bool asimov) 
+{
     if (mode_ == Counting) return generateCountingAsimov();
-    if (observables_.getSize() > 3) throw std::invalid_argument(std::string("ERROR in SinglePdfGenInfo::generateAsimov for ") + pdf_->GetName() + ", more than 3 observable");
+    if (observables_.getSize() > 3) throw std::invalid_argument(std::string("ERROR in SinglePdfGenInfo::generateWithHisto for ") + pdf_->GetName() + ", more than 3 observable");
     RooArgList obs(observables_);
     RooRealVar *x = (RooRealVar*)obs.at(0);
     RooRealVar *y = obs.getSize() > 1 ? (RooRealVar*)obs.at(1) : 0;
@@ -123,7 +133,7 @@ toymcoptutils::SinglePdfGenInfo::generateAsimov(RooRealVar *&weightVar)
         case 1:
             for (int i = 1, n = hist->GetNbinsX(); i <= n; ++i) {
                 x->setVal(hist->GetXaxis()->GetBinCenter(i));
-                data->add(observables_, hist->GetBinContent(i));
+                data->add(observables_, asimov ? hist->GetBinContent(i) : RooRandom::randomGenerator()->Poisson(hist->GetBinContent(i)) );
             }
             break;
         case 2:
@@ -134,6 +144,7 @@ toymcoptutils::SinglePdfGenInfo::generateAsimov(RooRealVar *&weightVar)
                 x->setVal(h2.GetXaxis()->GetBinCenter(ix));
                 y->setVal(h2.GetYaxis()->GetBinCenter(iy));
                 data->add(observables_, h2.GetBinContent(ix,iy));
+                data->add(observables_, asimov ? h2.GetBinContent(ix,iy) : RooRandom::randomGenerator()->Poisson(h2.GetBinContent(ix,iy)) );
             } }
             }
             break;
@@ -146,7 +157,7 @@ toymcoptutils::SinglePdfGenInfo::generateAsimov(RooRealVar *&weightVar)
                 x->setVal(h3.GetXaxis()->GetBinCenter(ix));
                 y->setVal(h3.GetYaxis()->GetBinCenter(iy));
                 z->setVal(h3.GetYaxis()->GetBinCenter(iz));
-                data->add(observables_, h3.GetBinContent(ix,iy,iz));
+                data->add(observables_, asimov ? h3.GetBinContent(ix,iy,iz) : RooRandom::randomGenerator()->Poisson(h3.GetBinContent(ix,iy,iz)) );
             } } }
             }
     }
