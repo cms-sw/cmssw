@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Venturi
 //         Created:  Thu Dec 16 16:32:56 CEST 2010
-// $Id: MCvsRecoVerticesAnalyzer.cc,v 1.2 2011/07/22 09:46:20 venturia Exp $
+// $Id: MCvsRecoVerticesAnalyzer.cc,v 1.3 2011/11/12 16:49:19 venturia Exp $
 //
 //
 
@@ -246,7 +246,7 @@ MCvsRecoVerticesAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
 
     if(m_useweight) {
       m_hrecovsmcnvtxweightedprof->Fill(npileup,pvcoll->size(),1.-weight);
-      m_hrecovsmcnvtxweightedprof->Fill(pileupinfo->getTrueNumInteractions(),pvcoll->size(),1.-weight);
+      m_hrecovsmclumiweightedprof->Fill(pileupinfo->getTrueNumInteractions(),pvcoll->size(),1.-weight);
     }
     //
     

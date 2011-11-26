@@ -38,6 +38,7 @@ class VertexHistogramMaker {
   const bool m_runHisto;
   const bool m_runHistoProfile;
   const bool m_runHistoBXProfile;
+  const bool m_runHistoBXProfile2D;
   const bool m_runHisto2D;
   const bool m_bsConstrained;
   const edm::ParameterSet m_histoParameters;
@@ -76,6 +77,8 @@ class VertexHistogramMaker {
   TProfile** m_hvtxyvsbxrun;
   TProfile** m_hvtxzvsbxrun;
   TProfile** m_hnvtxvsbxrun;
+
+  TProfile2D** m_hnvtxvsbxvslumirun;
 
   TH2F** m_hvtxxvsbx2drun;
   TH2F** m_hvtxyvsbx2drun;
