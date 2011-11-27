@@ -8,10 +8,13 @@
 </library>
 <bin   file="testCompat.cc" name="testCompat">
   <lib   name="testDBDict"/>
+  <flags NO_TESTRUN="1"/>
 </bin>
 <bin   file="testExport.cc" name="testExport">
   <lib   name="testDBDict"/>
+  <flags NO_TESTRUN="1"/>
 </bin>
 <bin   file="setupDB.cc" name="setupDB">
   <lib   name="testDBDict"/>
+  <flags NO_TESTRUN="1"/>
 </bin>
