@@ -103,9 +103,9 @@ TGraphAsymmErrors *theBand(TFile *file, int doSyst, int whichChannel, BandType t
         dataset[iMass].push_back(limit);
         errors[iMass].push_back(limitErr);
     }
-    TGraphAsymmErrors *tge = new TGraphAsymmErrors(dataset.size());
+    TGraphAsymmErrors *tge = new TGraphAsymmErrors(); 
     int ip = 0;
-    for (std::map<int,std::vector<double> >::iterator it = dataset.begin(), ed = dataset.end(); it != ed; ++it, ++ip) {
+    for (std::map<int,std::vector<double> >::iterator it = dataset.begin(), ed = dataset.end(); it != ed; ++it) {
         std::vector<double> &data = it->second;
         int nd = data.size();
         std::sort(data.begin(), data.end());
@@ -124,7 +124,10 @@ TGraphAsymmErrors *theBand(TFile *file, int doSyst, int whichChannel, BandType t
         double mean = 0; for (int j = 0; j < nd; ++j) mean += data[j]; mean /= nd;
         double summer68 = data[floor(nd * 0.5*(1-width)+0.5)], winter68 =  data[std::min(int(floor(nd * 0.5*(1+width)+0.5)), nd-1)];
         if (use_precomputed_quantiles && type == Median) {
-            if (data.size() != 3) { std::cerr << "Error for expected quantile for mass " << it->first << ": size of data is " << data.size() << std::endl; continue; }
+            if (data.size() != 3) { 
+                std::cerr << "Error for expected quantile for mass " << it->first << ": size of data is " << data.size() << std::endl; 
+                continue; 
+            }
             mean = median = data[1]; summer68 = data[0]; winter68 = data[2];
         }
         double x = mean;
@@ -186,8 +189,10 @@ TGraphAsymmErrors *theBand(TFile *file, int doSyst, int whichChannel, BandType t
                     break;
                 }
         } // end switch
+        tge->Set(ip+1);
         tge->SetPoint(ip, it->first*0.1, x);
         tge->SetPointError(ip, 0, 0, x-summer68, winter68-x);
+        ip++;
     }
     return tge;
 }
