@@ -64,26 +64,26 @@ process:{
  names = ["minbias"];
  fnames = ["openhlt_*.root"];
 
-## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r175291/r178479__BTag_Run2011B-PromptReco-v1__20111019_1605/"];
-## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r175291/r178479__Commissioning_Run2011B-PromptReco-v1__20111019_1605/"];
-## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r175291/r178479__Cosmics_Run2011B-PromptReco-v1__20111019_1605/"];
-## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r175291/r178479__DoubleElectron_Run2011B-PromptReco-v1__20111019_1605/"];
-## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r175291/r178479__DoubleMu_Run2011B-PromptReco-v1__20111019_1605/"];
-## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r175291/r178479__ElectronHad_Run2011B-PromptReco-v1__20111019_1605/"];
-## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r175291/r178479__HT_Run2011B-PromptReco-v1__20111019_1605/"];
-## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r175291/r178479__Jet_Run2011B-PromptReco-v1__20111019_1605/"];
-## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r175291/r178479__MinimumBias_Run2011B-PromptReco-v1__20111019_1605/"];
-## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r175291/r178479__MET_Run2011B-PromptReco-v1__20111019_1605/"];
-## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r175291/r178479__MuOnia_Run2011B-PromptReco-v1__20111019_1605/"];
-## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r175291/r178479__MultiJet_Run2011B-PromptReco-v1__20111019_1605/"];
-## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r175291/r178479__MuEG_Run2011B-PromptReco-v1__20111019_1605/"];
-## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r175291/r178479__MuHad_Run2011B-PromptReco-v1__20111019_1605/"];
-## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r175291/r178479__Photon_Run2011B-PromptReco-v1__20111019_1605/"];
-## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r175291/r178479__PhotonHad_Run2011B-PromptReco-v1__20111019_1605/"];
-## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r175291/r178479__SingleElectron_Run2011B-PromptReco-v1__20111019_1605/"];
-## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r175291/r178479__SingleMu_Run2011B-PromptReco-v1__20111019_1605/"];
-## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r175291/r178479__Tau_Run2011B-PromptReco-v1__20111019_1605/"];
-## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r175291/r178479__TauPlusX_Run2011B-PromptReco-v1__20111019_1605/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r178479__BTag_Run2011B-PromptReco-v1__20111019_1605/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r178479__Commissioning_Run2011B-PromptReco-v1__20111019_1605/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r178479__Cosmics_Run2011B-PromptReco-v1__20111019_1605/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r178479__DoubleElectron_Run2011B-PromptReco-v1__20111019_1605/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r178479__DoubleMu_Run2011B-PromptReco-v1__20111019_1605/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r178479__ElectronHad_Run2011B-PromptReco-v1__20111019_1605/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r178479__HT_Run2011B-PromptReco-v1__20111019_1605/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r178479__Jet_Run2011B-PromptReco-v1__20111019_1605/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r178479__MinimumBias_Run2011B-PromptReco-v1__20111019_1605/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r178479__MET_Run2011B-PromptReco-v1__20111019_1605/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r178479__MuOnia_Run2011B-PromptReco-v1__20111019_1605/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r178479__MultiJet_Run2011B-PromptReco-v1__20111019_1605/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r178479__MuEG_Run2011B-PromptReco-v1__20111019_1605/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r178479__MuHad_Run2011B-PromptReco-v1__20111019_1605/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r178479__Photon_Run2011B-PromptReco-v1__20111019_1605/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r178479__PhotonHad_Run2011B-PromptReco-v1__20111019_1605/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r178479__SingleElectron_Run2011B-PromptReco-v1__20111019_1605/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r178479__SingleMu_Run2011B-PromptReco-v1__20111019_1605/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r178479__Tau_Run2011B-PromptReco-v1__20111019_1605/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r178479__TauPlusX_Run2011B-PromptReco-v1__20111019_1605/"];
 
 
 
@@ -672,7 +672,7 @@ menu:{
 #
 ##########################################
 branch:{
-  doSelectBranches = true; #only set to true if you really know what you do!
+  doSelectBranches = false; #only set to true if you really know what you do!
   selectBranchL1 = true; 
   selectBranchHLT = true;
   selectBranchOpenHLT = true; 
