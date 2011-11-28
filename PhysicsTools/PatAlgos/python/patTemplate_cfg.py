@@ -12,9 +12,11 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 from PhysicsTools.PatAlgos.tools.cmsswVersionTools import pickRelValInputFiles
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    pickRelValInputFiles( cmsswVersion  = 'CMSSW_5_0_0_pre5'
+    pickRelValInputFiles( cmsswVersion  = 'CMSSW_5_0_0_pre6'
                         , relVal        = 'RelValProdTTbar'
-                        , globalTag     = 'START50_V3'
+                        , globalTag     = 'START50_V5'
+                        , dataTier      = 'AODSIM'
+                        , maxVersions   = 1
                         , numberOfFiles = 1
                         )
     )
