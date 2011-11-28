@@ -281,12 +281,13 @@ def toScreenLumiByLS(lumidata,resultlines,scalefactor,isverbose):
             totOldDeliveredLS+=1
             if cmls!='0':
                 totOldSelectedLS+=1
-        dl=0.0
+        dl=rline[5]
         if rline[5]!='n/a':
             dl=float(rline[5])#delivered in /ub
             if dl>maxlslumi: maxlslumi=dl
             rline[5]=dl
             totOldDelivered+=dl
+        rl=rline[6]
         if rline[6]!='n/a':
            rl=float(rline[6])#recorded in /ub
            rline[6]=rl
@@ -307,35 +308,35 @@ def toScreenLumiByLS(lumidata,resultlines,scalefactor,isverbose):
             deliveredlumi=lsdata[5]
             if deliveredlumi>maxlslumi: maxlslumi=deliveredlumi
             recordedlumi=lsdata[6]
-            result.append([str(run),str(lumilsnum)+':'+str(cmslsnum),ts.strftime('%m/%d/%y %H:%M:%S'),bs,'%.1f'%begev,(deliveredlumi*scalefactor),(recordedlumi*scalefactor)])
+            result.append([str(run),str(lumilsnum)+':'+str(cmslsnum),ts.strftime('%m/%d/%y %H:%M:%S'),bs,'%.1f'%begev,(deliveredlumi),(recordedlumi)])
             totalDelivered+=deliveredlumi
             totalRecorded+=recordedlumi
             totalDeliveredLS+=1
             if(cmslsnum!=0):
                 totalSelectedLS+=1
     #guess ls lumi unit
-    (lsunitstring,unitdenomitor)=CommonUtil.lumiUnitForPrint(maxlslumi)
+    (lsunitstring,unitdenomitor)=CommonUtil.lumiUnitForPrint(maxlslumi*scalefactor)
     labels = [ ('Run','LS','UTCTime','Beam Status','E(GeV)','Delivered('+lsunitstring+')','Recorded('+lsunitstring+')') ]
     sortedresult=sorted(result,key=lambda x : int(x[0]))
     perlsresult=[]
     for entry in sortedresult:
         delumi=entry[5]
         if delumi!='n/a':
-            delumi='%.3f'%float(float(delumi)/float(unitdenomitor))        
+            delumi='%.3f'%float(float(delumi*scalefactor)/float(unitdenomitor))        
         reclumi=entry[6]
         if reclumi!='n/a':
-            reclumi='%.3f'%float(float(reclumi)/float(unitdenomitor))
+            reclumi='%.3f'%float(float(reclumi*scalefactor)/float(unitdenomitor))
         perlsresult.append([entry[0],entry[1],entry[2],entry[3],entry[4],delumi,reclumi])
     totdeliveredlumi=0.0
     deliveredlumiunit='/ub'
     #if (totalDelivered+totOldDelivered)!=0:
-    (totdeliveredlumi,deliveredlumiunit)=CommonUtil.guessUnit(totalDelivered+totOldDelivered)
+    (totdeliveredlumi,deliveredlumiunit)=CommonUtil.guessUnit((totalDelivered+totOldDelivered)*scalefactor)
     totrecordedlumi=0.0
     recordedlumiunit='/ub'
     #if (totalRecorded+totOldRecorded)!=0:
-    (totrecordedlumi,recordedlumiunit)=CommonUtil.guessUnit(totalRecorded+totOldRecorded)
+    (totrecordedlumi,recordedlumiunit)=CommonUtil.guessUnit((totalRecorded+totOldRecorded)*scalefactor)
     lastrowlabels = [ ('Delivered LS','Selected LS', 'Delivered('+deliveredlumiunit+')', 'Recorded('+recordedlumiunit+')')]
-    totalrow.append ([str(totalDeliveredLS+totOldDeliveredLS),str(totalSelectedLS+totOldSelectedLS),'%.3f'%(totdeliveredlumi*scalefactor),'%.3f'%(totrecordedlumi*scalefactor)])
+    totalrow.append ([str(totalDeliveredLS+totOldDeliveredLS),str(totalSelectedLS+totOldSelectedLS),'%.3f'%(totdeliveredlumi),'%.3f'%(totrecordedlumi)])
     sortedresult=sorted(result,key=lambda x : int(x[0]))
 
     print ' ==  = '
@@ -388,32 +389,36 @@ def toScreenLSEffective(lumidata,resultlines,scalefactor,isverbose):
     totalrow=[]
     totSelectedLS=0
     totRecorded=0.0
-    recordedlumiunit='/ub'
     totEffective=0
-    efflumiunit='/ub'
+    #recordedlumiunit='/ub'
+    #efflumiunit='/ub'
 
     totOldSelectedLS=0
     totOldRecorded=0.0
     totOldEffective=0.0
-    
+
+    maxlslumi = 0.0
     for rline in resultlines:
         myls=rline[1]
         if myls!='n/a':
             totOldSelectedLS+=1
         myrecorded=rline[6]
         if myrecorded!='n/a':
-            totOldRecorded+=float(myrecorded)
-            rline[6]='%.2f'%float(myrecorded)
+            myrecorded=float(rline[6])
+            if myrecorded>maxlslumi:maxlslumi=myrecorded
+            totOldRecorded+=myrecorded
+            rline[6]=myrecorded
         myeff=rline[7]
         if myeff!='n/a':
-            totOldEffective+=float(myeff)
-            rline[7]='%.2f'%float(myeff)
+            myeff=float(rline[7])
+            totOldEffective+=myeff
+            rline[7]=myeff
         result.append(rline)
         
     totrecordedlumi=0.0
     totefflumi=0.0
  
-    for run in sorted(lumidata):#loop over runs
+    for run in lumidata.keys():#loop over runs
         rundata=lumidata[run]
         if rundata is None:
             result.append([str(run),'n/a','n/a','n/a','n/a','n/a','n/a','n/a'])
@@ -427,6 +432,7 @@ def toScreenLSEffective(lumidata,resultlines,scalefactor,isverbose):
             totSelectedLS+=1
             if not recorded:
                 recorded=0.0
+            if recorded>maxlslumi:maxlslumi=recorded
             totRecorded+=recorded
             for hltpathname in sorted(efflumiDict):
                 pathdata=efflumiDict[hltpathname]
@@ -439,19 +445,30 @@ def toScreenLSEffective(lumidata,resultlines,scalefactor,isverbose):
                 hltprescale=pathdata[2]
                 lumival=pathdata[3]
                 if lumival is not None:
-                    result.append([str(run),str(cmslsnum),hltpathname,l1name,str(hltprescale),str(l1prescale),'%.2f'%(recorded*scalefactor),'%.2f'%(lumival*scalefactor)])
+                    result.append([str(run),str(cmslsnum),hltpathname,l1name,str(hltprescale),str(l1prescale),(recorded),(lumival)])
                     totEffective+=lumival
                 else:
-                    result.append([str(run),str(cmslsnum),hltpathname,l1name,str(hltprescale),str(l1prescale),'%.2f'%(recorded*scalefactor),'n/a'])
-    (totrecordedlumi,recordedlumiunit)=CommonUtil.guessUnit(totRecorded+totOldRecorded)
-    (totefflumi,efflumiunit)=CommonUtil.guessUnit(totEffective+totOldEffective)
-
-    labels = [('Run','LS','HLTpath','L1bit','HLTpresc','L1presc','Recorded(/ub)','Effective(/ub)')]
+                    result.append([str(run),str(cmslsnum),hltpathname,l1name,str(hltprescale),str(l1prescale),(recorded),'n/a'])
+    (totrecordedlumi,recordedlumiunit)=CommonUtil.guessUnit((totRecorded+totOldRecorded)*scalefactor)
+    (totefflumi,efflumiunit)=CommonUtil.guessUnit((totEffective+totOldEffective)*scalefactor)
+    #guess ls lumi unit
+    (lsunitstring,unitdenomitor)=CommonUtil.lumiUnitForPrint(maxlslumi*scalefactor)
+    labels = [('Run','LS','HLTpath','L1bit','HLTpresc','L1presc','Recorded('+lsunitstring+')','Effective('+lsunitstring+')')]
+    sortedresult=sorted(result,key=lambda x : int(x[0]))
+    perlsresult=[]
+    for entry in sortedresult:
+        reclumi=entry[6]
+        if reclumi!='n/a':
+            reclumi='%.3f'%float(float(reclumi*scalefactor)/float(unitdenomitor))        
+        efflumi=entry[7]
+        if efflumi!='n/a':
+            efflumi='%.3f'%float(float(efflumi*scalefactor)/float(unitdenomitor))
+        perlsresult.append([entry[0],entry[1],entry[2],entry[3],entry[4],entry[5],reclumi,efflumi])
     print ' ==  = '
-    print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
+    print tablePrinter.indent (labels+perlsresult, hasHeader = True, separateRows = False,
                                prefix = '| ', postfix = ' |', justify = 'right',
                                delim = ' | ', wrapfunc = lambda x: wrap_onspace_strict(x,25) )
-    totalrow.append([str(totSelectedLS+totOldSelectedLS),'%.3f'%(totrecordedlumi*scalefactor),'%.3f'%(totefflumi*scalefactor)])
+    totalrow.append([str(totSelectedLS+totOldSelectedLS),'%.3f'%(totrecordedlumi),'%.3f'%(totefflumi)])
     lastrowlabels = [ ('Selected LS','Recorded('+recordedlumiunit+')','Effective('+efflumiunit+')')]
     print ' ==  =  Total : '
     print tablePrinter.indent (lastrowlabels+totalrow, hasHeader = True, separateRows = False, prefix = '| ',
