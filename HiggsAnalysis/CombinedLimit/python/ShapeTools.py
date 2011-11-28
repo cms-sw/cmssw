@@ -98,6 +98,7 @@ class ShapeBuilder(ModelBuilder):
         shapeTypes = []; shapeBins = []; shapeObs = {}
         self.pdfModes = {}
         for ib,b in enumerate(self.DC.bins):
+            databins = {}; bgbins = {}
             for p in [self.options.dataname]+self.DC.exp[b].keys():
                 if len(self.DC.obs) == 0 and p == self.options.dataname: continue
                 if p != self.options.dataname and self.DC.exp[b][p] == 0: continue
@@ -121,6 +122,11 @@ class ShapeBuilder(ModelBuilder):
                             self.pdfModes[b] = 'poisson'
                         else:
                             self.pdfModes[b] = 'binned'
+                        for i in xrange(1, shape.GetNbinsX()+1):
+                            if shape.GetBinContent(i) > 0: databins[i] = True
+                    elif not self.DC.isSignal[p]:
+                        for i in xrange(1, shape.GetNbinsX()+1):
+                            if shape.GetBinContent(i) > 0: bgbins[i] = True
                 elif shape.InheritsFrom("RooDataHist"):
                     shapeTypes.append("RooDataHist"); 
                     shapeBins.append(shape.numEntries())
@@ -152,6 +158,9 @@ class ShapeBuilder(ModelBuilder):
                         if self.DC.exp[b][p] == -1: self.DC.exp[b][p] = norm
                         elif self.DC.exp[b][p] > 0 and abs(norm-self.DC.exp[b][p]) > 0.01*max(1,self.DC.exp[b][p]): 
                             if not self.options.noCheckNorm: raise RuntimeError, "Mismatch in normalizations for bin %s, process %s: rate %f, shape %f" % (b,p,self.DC.exp[b][p],norm)
+            if len(databins) > 0:
+                for i in databins.iterkeys():
+                    if i not in bgbins: stderr.write("Channel %s has bin %d fill in data but empty in all backgrounds\n" % (b,i))
         if shapeTypes.count("TH1"):
             self.out.maxbins = max(shapeBins)
             if self.options.verbose: stderr.write("Will use binning variable CMS_th1x with %d bins\n" % self.out.maxbins)
