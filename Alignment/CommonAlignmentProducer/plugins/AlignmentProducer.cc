@@ -1,8 +1,8 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.56 $
-///  last update: $Date: 2011/09/16 15:03:32 $
+///  Revision   : $Revision: 1.57 $
+///  last update: $Date: 2011/09/28 08:04:10 $
 ///  by         : $Author: mussgill $
 
 #include "AlignmentProducer.h"
@@ -67,6 +67,7 @@
 #include "Alignment/MuonAlignment/interface/MuonScenarioBuilder.h"
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
+#include "Alignment/CommonAlignmentParametrization/interface/BeamSpotAlignmentParameters.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmPluginFactory.h"
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorPluginFactory.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
@@ -305,26 +306,24 @@ void AlignmentProducer::endOfJob()
       uniqueRunRanges.push_back(runRange);
     }
 
-    std::vector<align::PositionType> beamSpotPositions;
-    std::vector<std::pair<double,double> > beamSpotSlopes;
+    std::vector<AlgebraicVector> beamSpotParameters;
 
     for (RunRanges::const_iterator iRunRange = uniqueRunRanges.begin();
 	 iRunRange != uniqueRunRanges.end();
 	 ++iRunRange) {
+
       theAlignmentAlgo->setParametersForRunRange(*iRunRange);
 
       // Save alignments to database
       if (saveToDB_ || saveApeToDB_ || saveDeformationsToDB_)
         this->writeForRunRange((*iRunRange).first);
-
+      
       // Deal with extra alignables, e.g. beam spot
       if (theAlignableExtras) {
 	Alignables &alis = theAlignableExtras->beamSpot();
 	if (!alis.empty()) {
-	  beamSpotPositions.push_back(alis[0]->globalPosition());
-	  align::LocalVector lv(0.0, 0.0, 1.0);
-	  align::GlobalVector gv = alis[0]->surface().toGlobal(lv);
-	  beamSpotSlopes.push_back(std::pair<double,double>(gv.x()/gv.z(), gv.y()/gv.z()));
+	  BeamSpotAlignmentParameters *beamSpotAliPars = dynamic_cast<BeamSpotAlignmentParameters*>(alis[0]->alignmentParameters());
+	  beamSpotParameters.push_back(beamSpotAliPars->parameters());
 	}
       }
     }
@@ -332,18 +331,17 @@ void AlignmentProducer::endOfJob()
     if (theAlignableExtras) {
       std::ostringstream bsOutput;
       
-      std::vector<align::PositionType>::const_iterator itPos = beamSpotPositions.begin();
-      std::vector<std::pair<double,double> >::const_iterator itSlope = beamSpotSlopes.begin();
+      std::vector<AlgebraicVector>::const_iterator itPar = beamSpotParameters.begin();
       for (RunRanges::const_iterator iRunRange = uniqueRunRanges.begin();
 	   iRunRange != uniqueRunRanges.end();
-	   ++iRunRange, ++itPos, ++itSlope) {
+	   ++iRunRange, ++itPar) {
 	bsOutput << "Run range: " << (*iRunRange).first << " - " << (*iRunRange).second << "\n";
-	bsOutput << "  Position: " << (*itPos).x() << ", " <<  (*itPos).y() << ", " <<  (*itPos).z() << "\n"; 
-	bsOutput << "  Slopes:   dx/dz = " << (*itSlope).first << " dy/dz = " <<  (*itSlope).second << "\n"; 
+	bsOutput << "  Displacement: x=" << (*itPar)[0] << ", y=" << (*itPar)[1] << "\n"; 
+	bsOutput << "  Slope: dx/dz=" << (*itPar)[2] << ", dy/dz=" << (*itPar)[3] << "\n"; 
       }
-
+      
       edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::endOfJob"
-				<< "Beamspot:\n"
+				<< "Parameters for alignable beamspot:\n"
 				<< bsOutput.str();
     }
 
