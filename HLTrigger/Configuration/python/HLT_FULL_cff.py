@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_4_2/HLT/V112 (CMSSW_4_4_0_HLT17)
+# /dev/CMSSW_4_4_2/HLT/V113 (CMSSW_4_4_0_HLT17)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/HLT/V112')
+  tableName = cms.string('/dev/CMSSW_4_4_2/HLT/V113')
 )
 
 streams = cms.PSet( 
@@ -2366,7 +2366,9 @@ EcalUnpackerWorkerESProducer = cms.ESProducer( "EcalUnpackerWorkerESProducer",
     ChannelStatusToBeExcluded = cms.vint32( 10, 11, 12, 13, 14 ),
     laserCorrection = cms.bool( False ),
     EBLaserMIN = cms.double( 0.5 ),
-    EELaserMIN = cms.double( 0.5 )
+    EELaserMIN = cms.double( 0.5 ),
+    EBLaserMAX = cms.double( 2.0 ),
+    EELaserMAX = cms.double( 3.0 )
   )
 )
 MaterialPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
