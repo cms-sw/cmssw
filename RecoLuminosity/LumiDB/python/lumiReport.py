@@ -261,7 +261,6 @@ def toScreenLumiByLS(lumidata,resultlines,scalefactor,isverbose):
     resultlines [[resultrow1],[resultrow2],...,] existing result row
     '''
     result=[]
-    labels = [ ('Run','LS','UTCTime','Beam Status','E(GeV)','Delivered(/ub)','Recorded(/ub)')]
     totalrow = []
     
     totalDeliveredLS = 0
@@ -274,6 +273,7 @@ def toScreenLumiByLS(lumidata,resultlines,scalefactor,isverbose):
     totOldDelivered = 0.0
     totOldRecorded = 0.0
 
+    maxlslumi = 0.0
     for rline in resultlines:
         myls=rline[1]
         if myls!='n/a':
@@ -283,19 +283,20 @@ def toScreenLumiByLS(lumidata,resultlines,scalefactor,isverbose):
                 totOldSelectedLS+=1
         dl=0.0
         if rline[5]!='n/a':
-            dl=float(rline[5])#delivered in /ub 
-            rline[5]='%.2f'%(dl)
+            dl=float(rline[5])#delivered in /ub
+            if dl>maxlslumi: maxlslumi=dl
+            rline[5]=dl
             totOldDelivered+=dl
         if rline[6]!='n/a':
            rl=float(rline[6])#recorded in /ub
-           rline[6]='%.2f'%(rl)
+           rline[6]=rl
            totOldRecorded+=rl
         result.append(rline)
         
     for run in lumidata.keys():
         rundata=lumidata[run]
         if rundata is None:
-            result.append([str(run),'n/a','n/a','n/a','n/a','n/a'])
+            result.append([str(run),'n/a','n/a','n/a','n/a','n/a','n/a'])
             continue
         for lsdata in rundata:
             lumilsnum=lsdata[0]
@@ -304,13 +305,27 @@ def toScreenLumiByLS(lumidata,resultlines,scalefactor,isverbose):
             bs=lsdata[3]
             begev=lsdata[4]
             deliveredlumi=lsdata[5]
+            if deliveredlumi>maxlslumi: maxlslumi=deliveredlumi
             recordedlumi=lsdata[6]
-            result.append([str(run),str(lumilsnum)+':'+str(cmslsnum),ts.strftime('%m/%d/%y %H:%M:%S'),bs,'%.1f'%begev,'%.2f'%(deliveredlumi*scalefactor),'%.2f'%(recordedlumi*scalefactor)])
+            result.append([str(run),str(lumilsnum)+':'+str(cmslsnum),ts.strftime('%m/%d/%y %H:%M:%S'),bs,'%.1f'%begev,(deliveredlumi*scalefactor),(recordedlumi*scalefactor)])
             totalDelivered+=deliveredlumi
             totalRecorded+=recordedlumi
             totalDeliveredLS+=1
             if(cmslsnum!=0):
                 totalSelectedLS+=1
+    #guess ls lumi unit
+    (lsunitstring,unitdenomitor)=CommonUtil.lumiUnitForPrint(maxlslumi)
+    labels = [ ('Run','LS','UTCTime','Beam Status','E(GeV)','Delivered('+lsunitstring+')','Recorded('+lsunitstring+')') ]
+    sortedresult=sorted(result,key=lambda x : int(x[0]))
+    perlsresult=[]
+    for entry in sortedresult:
+        delumi=entry[5]
+        if delumi!='n/a':
+            delumi='%.3f'%float(float(delumi)/float(unitdenomitor))        
+        reclumi=entry[6]
+        if reclumi!='n/a':
+            reclumi='%.3f'%float(float(reclumi)/float(unitdenomitor))
+        perlsresult.append([entry[0],entry[1],entry[2],entry[3],entry[4],delumi,reclumi])
     totdeliveredlumi=0.0
     deliveredlumiunit='/ub'
     #if (totalDelivered+totOldDelivered)!=0:
@@ -322,8 +337,9 @@ def toScreenLumiByLS(lumidata,resultlines,scalefactor,isverbose):
     lastrowlabels = [ ('Delivered LS','Selected LS', 'Delivered('+deliveredlumiunit+')', 'Recorded('+recordedlumiunit+')')]
     totalrow.append ([str(totalDeliveredLS+totOldDeliveredLS),str(totalSelectedLS+totOldSelectedLS),'%.3f'%(totdeliveredlumi*scalefactor),'%.3f'%(totrecordedlumi*scalefactor)])
     sortedresult=sorted(result,key=lambda x : int(x[0]))
+
     print ' ==  = '
-    print tablePrinter.indent (labels+sortedresult, hasHeader = True, separateRows = False, prefix = '| ',
+    print tablePrinter.indent (labels+perlsresult, hasHeader = True, separateRows = False, prefix = '| ',
                                postfix = ' |', justify = 'right', delim = ' | ',
                                wrapfunc = lambda x: wrap_onspace_strict (x, 22))
     print ' ==  =  Total : '
