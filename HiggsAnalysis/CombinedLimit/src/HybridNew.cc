@@ -485,12 +485,23 @@ bool HybridNew::runTestStatistics(RooWorkspace *w, RooStats::ModelConfig *mc_s, 
 
 std::pair<double, double> HybridNew::eval(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double rVal, bool adaptive, double clsTarget) {
     if (readHybridResults_) {
+        bool isProfile = (testStat_ == "LHC" || testStat_ == "LHCFC"  || testStat_ == "Profile");
         std::auto_ptr<RooStats::HypoTestResult> result(readToysFromFile(rVal));
         std::pair<double, double> ret(-1,-1);
         if (result.get() == 0) { 
             std::cerr << "HypoTestResults for r = " << rVal << " not found in file" << std::endl;
         } else {
-            if (expectedFromGrid_) applyExpectedQuantile(*result);
+            if (expectedFromGrid_) {
+                applyExpectedQuantile(*result);
+                result->SetTestStatisticData(result->GetTestStatisticData() + (isProfile ? -EPS : EPS));
+            } else if (!noUpdateGrid_) {
+                Setup setup;
+                std::auto_ptr<RooStats::HybridCalculator> hc = create(w, mc_s, mc_b, data, rVal, setup);
+                RooArgSet nullPOI(*setup.modelConfig_bonly.GetSnapshot());
+                if (isProfile) nullPOI.setRealValue(mc_s->GetParametersOfInterest()->first()->GetName(), rVal);
+                double testStat = setup.qvar->Evaluate(data, nullPOI);
+                result->SetTestStatisticData(testStat + (isProfile ? -EPS : EPS));
+            }
             ret = eval(*result);
         }
         return ret;
@@ -1220,10 +1231,8 @@ std::pair<double,double> HybridNew::updateGridPoint(RooWorkspace *w, RooStats::M
     RooArgSet  poi(*mc_s->GetParametersOfInterest());
     RooRealVar *r = dynamic_cast<RooRealVar *>(poi.first());
     if (expectedFromGrid_) {
-        std::vector<Double_t> btoys = point->second->GetNullDistribution()->GetSamplingDistribution();
-        std::sort(btoys.begin(), btoys.end());
-        Double_t testStat = btoys[std::min<int>(floor((1.-quantileForExpectedFromGrid_) * btoys.size()+0.5), btoys.size())];
-        point->second->SetTestStatisticData(testStat + (isProfile ? -EPS : EPS));
+        applyExpectedQuantile(*point->second);
+        point->second->SetTestStatisticData(point->second->GetTestStatisticData() + (isProfile ? -EPS : EPS));
     } else {
         Setup setup;
         std::auto_ptr<RooStats::HybridCalculator> hc = create(w, mc_s, mc_b, data, point->first, setup);
