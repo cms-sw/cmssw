@@ -182,17 +182,17 @@ if (MENU == "GRun"):
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 
-process.out = cms.OutputModule("PoolOutputModule",
-                              fileName = cms.untracked.string('test.root'),
-                               #SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('FilterPath')),
-                              outputCommands = cms.untracked.vstring('keep *_hltParticleFlow_*_*',
-                                                                     'keep *_pfAllMuons_*_*',
-                                                                     'keep *_muons_*_RECO')
-
-                              )
-
-
-process.outpath = cms.EndPath(process.out)
+#process.out = cms.OutputModule("PoolOutputModule",
+#                              fileName = cms.untracked.string('test.root'),
+#                               #SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('FilterPath')),
+#                              outputCommands = cms.untracked.vstring('keep *_hltParticleFlow_*_*',
+#                                                                     'keep *_pfAllMuons_*_*',
+#                                                                     'keep *_muons_*_RECO')
+#
+#                              )
+#
+#
+#process.outpath = cms.EndPath(process.out)
 
 
 
@@ -207,8 +207,7 @@ if (MENU == "GRun"):
         process.DoHLTTau,
         process.DoHLTBTag,
         process.DoHLTMinBiasPixelTracks,
-        process.analyzeThis,
-        process.outpath
+        process.analyzeThis
         )
         
 #########################################################################################
