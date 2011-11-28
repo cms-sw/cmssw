@@ -1072,10 +1072,10 @@ def guessTrgDataIdByRun(schema,runnum):
         del qHandle
         raise 
     del qHandle
-    if len(trgids)==0:
+    if len(trgids)>0:
+        return max(trgids)
+    else:
         return result
-    result=max(trgids)
-    return result
 
 def guessHltDataIdByRun(schema,runnum):
     result=None
@@ -1100,8 +1100,10 @@ def guessHltDataIdByRun(schema,runnum):
         del qHandle
         raise 
     del qHandle
-    result=max(hltids)
-    return result
+    if len(hltids)>0 :
+        return max(hltids)
+    else:
+        return result
 def guessAllDataIdByRun(schema,runnum):
     '''
     get dataids by runnumber, if there are duplicates, pick max(dataid).Bypass full version lookups
