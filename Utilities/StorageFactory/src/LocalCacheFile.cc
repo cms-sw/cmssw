@@ -40,7 +40,7 @@ LocalCacheFile::LocalCacheFile(Storage *base, const std::string &tmpdir /* = "" 
 
   std::vector<char> temp(pattern.c_str(), pattern.c_str()+pattern.size()+1);
   
-  mode_t previous_umask = umask(0x022);
+  mode_t previous_umask = umask(077);
   int fd = mkstemp(&temp[0]);
   umask(previous_umask);
   if (fd == -1)
