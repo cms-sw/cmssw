@@ -89,7 +89,6 @@
 <class name="EcalTPGStripStatus"/>
 <class name="EcalTPGSpike"/>
 
-
 <class name="EcalContainer<EEDetId,EcalTPGCrystalStatusCode>"/>
 <class name="EcalContainer<EBDetId,EcalTPGCrystalStatusCode>"/>
 <class name="EcalContainer<EEDetId,EcalChannelStatusCode>"/>
@@ -159,6 +158,11 @@
   <field name="dccMasks_" mapping="blob" />
   <field name="srfMasks_" mapping="blob" />
   <field name="substitutionSrfs_" mapping="blob" />
+</class>
+
+<class pattern = "EcalCondObjectContainer*">
+   <field name = "eb_" mapping = "blob"/>
+   <field name = "ee_" mapping = "blob"/>
 </class>
 
 </lcgdict>
