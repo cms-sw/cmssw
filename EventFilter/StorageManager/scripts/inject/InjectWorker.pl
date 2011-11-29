@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.76 2011/09/27 16:27:19 babar Exp $
+# $Id: InjectWorker.pl,v 1.77 2011/10/05 09:20:12 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -455,7 +455,7 @@ sub get_from_runcond {
                 error =>
                   "Could not retrieve $kind (key: $key) for run $runnumber."
                   . " Retrying ($retries left) in $delay" );
-            $kernel->delay(
+            $kernel->delay_add(
                 get_from_runcond => $delay,
                 $kind, $callback, $key, $args
             );
@@ -560,7 +560,7 @@ sub update_db {
                 $errorMessage = $invalidOracleError{$oracleError}
                   . ". Reconnecting DB & retrying ($retries left) in $delay";
                 $kernel->call( $session => 'setup_main_db' );
-                $kernel->delay(
+                $kernel->delay_add(
                     update_db => $delay,
                     $args, $handler, @params,
                 );
