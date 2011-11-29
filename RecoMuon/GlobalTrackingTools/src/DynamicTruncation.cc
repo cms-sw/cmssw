@@ -6,8 +6,8 @@
  *  compatibility degree between the extrapolated track
  *  state and the reconstructed segment in the muon chambers
  *
- *  $Date: 2011/10/30 17:43:02 $
- *  $Revision: 1.9 $
+ *  $Date: 2011/11/02 06:38:03 $
+ *  $Revision: 1.10 $
  *
  *  Authors :
  *  D. Pagano & G. Bruno - UCL Louvain
@@ -33,6 +33,15 @@
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 
+#include "CondFormats/Alignment/interface/Alignments.h"
+#include "CondFormats/Alignment/interface/AlignTransform.h"
+#include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h"
+#include "CondFormats/AlignmentRecord/interface/CSCAlignmentRcd.h"
+#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignTransformError.h"
+#include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorRcd.h"
+
 
 #define MAX_THR 1e7
 
@@ -57,7 +66,7 @@ DynamicTruncation::DynamicTruncation(const edm::Event& event, const MuonServiceP
 }
 
 
-
+ 
 DynamicTruncation::~DynamicTruncation() {
   if (navigation) delete navigation;
 }
@@ -66,6 +75,31 @@ DynamicTruncation::~DynamicTruncation() {
 
 TransientTrackingRecHit::ConstRecHitContainer DynamicTruncation::filter(const Trajectory& traj) {
   result.clear();
+
+  // Fill the map with the APE chamber by chamber (DT)
+  // IT ALSO WORKS IF APE IS 0
+  edm::ESHandle<AlignmentErrors> dtAlignmentErrors;
+  theSetup->get<DTAlignmentErrorRcd>().get( dtAlignmentErrors );
+  for ( std::vector<AlignTransformError>::const_iterator it = dtAlignmentErrors->m_alignError.begin();
+	it != dtAlignmentErrors->m_alignError.end(); it++ ) {
+    CLHEP::HepSymMatrix error = (*it).matrix();
+    GlobalError glbErr(error[0][0], error[1][0], error[1][1], error[2][0], error[2][1], error[2][2]);
+    DTChamberId DTid((*it).rawId());    
+    dtApeMap.insert( pair<DTChamberId, GlobalError> (DTid, glbErr) ); 
+  }
+  
+  // Fill the map with the APE chamber by chamber (CSC)
+  // IT ALSO WORKS IF APE IS 0
+  edm::ESHandle<AlignmentErrors> cscAlignmentErrors;
+  theSetup->get<CSCAlignmentErrorRcd>().get( cscAlignmentErrors );
+  for ( std::vector<AlignTransformError>::const_iterator it = cscAlignmentErrors->m_alignError.begin();
+        it != cscAlignmentErrors->m_alignError.end(); it++ ) {
+    CLHEP::HepSymMatrix error = (*it).matrix();
+    GlobalError glbErr(error[0][0], error[1][0], error[1][1], error[2][0], error[2][1], error[2][2]);
+    CSCDetId CSCid((*it).rawId());
+    cscApeMap.insert( pair<CSCDetId, GlobalError> (CSCid, glbErr) );
+  }
+
   // Put the tracker hits in the final vector and get the last tracker valid measure
   std::vector<TrajectoryMeasurement> muonMeasurements = traj.measurements();
   TrajectoryMeasurement lastTKm = muonMeasurements.front();
@@ -112,13 +146,8 @@ double DynamicTruncation::getBest(std::vector<CSCSegment>& segs, TrajectoryState
   double val = MAX_THR;
   std::vector<CSCSegment>::size_type sz = segs.size();
   for (i=0; i<sz; i++) {
-    AlignmentPositionError* apeObj = theG->idToDet(segs[i].cscDetId())->alignmentPositionError();
     LocalError apeLoc; //default constructor is all zeroes, OK
-    //it may be better to make this configurable
-    if (apeObj){
-      const GlobalError apeGlob = apeObj->globalError();
-      apeLoc = ErrorFrameTransformer().transform(apeGlob, theG->idToDet(segs[i].cscDetId())->surface());
-    }
+    apeLoc = ErrorFrameTransformer().transform(cscApeMap.find(segs[i].cscDetId())->second, theG->idToDet(segs[i].cscDetId())->surface());
     StateSegmentMatcher estim(&tsos, &segs[i], &apeLoc);
     double tmp = estim.value();
     if (tmp < val) {
@@ -136,13 +165,8 @@ double DynamicTruncation::getBest(std::vector<DTRecSegment4D>& segs, TrajectoryS
   double val = MAX_THR;
   std::vector<DTRecSegment4D>::size_type sz = segs.size();
   for (i=0; i<sz; i++) {
-    AlignmentPositionError* apeObj = theG->idToDet(segs[i].chamberId())->alignmentPositionError();
     LocalError apeLoc; //default constructor is all zeroes, OK
-    //it may be better to make this configurable
-    if (apeObj){
-      const GlobalError apeGlob = apeObj->globalError(); 
-      apeLoc = ErrorFrameTransformer().transform(apeGlob, theG->idToDet(segs[i].chamberId())->surface());
-    }
+    apeLoc = ErrorFrameTransformer().transform(dtApeMap.find(segs[i].chamberId())->second, theG->idToDet(segs[i].chamberId())->surface());
     StateSegmentMatcher estim(&tsos, &segs[i], &apeLoc); 
     double tmp = estim.value();                                                                                                                                              
     if (tmp < val) {

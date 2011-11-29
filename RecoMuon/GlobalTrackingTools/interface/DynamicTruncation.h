@@ -9,8 +9,8 @@
  *  compatibility degree between the extrapolated track
  *  state and the reconstructed segment in the muon chambers
  *
- *  $Date: 2011/04/21 01:45:08 $
- *  $Revision: 1.4 $
+ *  $Date: 2011/06/08 09:42:58 $
+ *  $Revision: 1.5 $
  *
  *  Authors :
  *  D. Pagano & G. Bruno - UCL Louvain
@@ -41,6 +41,7 @@
 #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/Navigation/interface/DirectMuonNavigation.h"
+#include "Alignment/MuonAlignment/interface/MuonAlignment.h"
 
 
 class DynamicTruncation {
@@ -92,6 +93,9 @@ class DynamicTruncation {
   const edm::EventSetup* theSetup;
   std::vector<double> estimators;
   TrajectoryStateOnSurface currentState;
+  
+  std::map<DTChamberId, GlobalError> dtApeMap;
+  std::map<CSCDetId, GlobalError> cscApeMap; 
 };
 
 #endif
