@@ -14,7 +14,7 @@
 //
 // Original Author:  Stephen Sanders
 //         Created:  Sat Jun 26 16:04:04 EDT 2010
-// $Id: HiEvtPlaneFlatProducer.cc,v 1.9 2011/10/07 09:41:29 yilmaz Exp $
+// $Id: HiEvtPlaneFlatProducer.cc,v 1.10 2011/11/06 23:17:46 ssanders Exp $
 //
 //
 // system include files
@@ -123,7 +123,7 @@ typedef TrackingParticleRefVector::iterator               tp_iterator;
 //
 HiEvtPlaneFlatProducer::HiEvtPlaneFlatProducer(const edm::ParameterSet& iConfig)
 {
-
+  FirstEvent = kTRUE;
   vtxCollection_  = iConfig.getParameter<edm::InputTag>("vtxCollection_");
   inputPlanes_ = iConfig.getParameter<edm::InputTag>("inputPlanes_");
   centrality_ = iConfig.getParameter<edm::InputTag>("centrality_");
@@ -171,6 +171,7 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   //Get Flattening Parameters
   //
   if(FirstEvent) {
+    FirstEvent = kFALSE;
     edm::ESHandle<RPFlatParams> flatparmsDB_;
     iSetup.get<HeavyIonRPRcd>().get(flatparmsDB_);
     int flatTableSize = flatparmsDB_->m_table.size();
