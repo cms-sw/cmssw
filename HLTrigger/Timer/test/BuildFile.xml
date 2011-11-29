@@ -8,6 +8,7 @@
 </bin>
 
 <bin name="testTimer" file="timer.cc">
+  <use   name="boost"/>
   <use   name="sockets"/>       <!-- needed for -lrt -->
   <flags CXXFLAGS="-fopenmp"/>
   <flags NO_TESTRUN="1"/>
