@@ -1,6 +1,6 @@
 // Associate jets with tracks by simple "dR" criteria
 // Fedor Ratnikov (UMd), Aug. 28, 2007
-// $Id: JetTracksAssociationDRVertexAssigned.cc,v 1.4 2010/03/18 12:17:58 bainbrid Exp $
+// $Id: JetTracksAssociationDRVertexAssigned.cc,v 1.1 2011/11/11 18:58:03 srappocc Exp $
 
 #include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationDRVertexAssigned.h"
 
@@ -72,9 +72,12 @@ void JetTracksAssociationDRVertexAssigned::produce (reco::JetTracksAssociation::
       std::map<int, double>::iterator cur  = trackvert.find(t);
       if(cur != trackvert.end()) { 
                neweta = jet->physicsEta((*cur).second,jetEta);            
-      } else {neweta = jetEta; std::cout<<" Lost track - not in map "<<std::endl;}
+      } else {
+	neweta = jetEta; 
+	//std::cout<<" Lost track - not in map "<<std::endl;
+      }
 
- std::cout<<" Old eta-new eta "<<(*cur).second<<" "<<jetEta<<" "<<neweta<<" Track "<<t<<" "<<trackP3s[t].eta()<<std::endl;
+      //std::cout<<" Old eta-new eta "<<(*cur).second<<" "<<jetEta<<" "<<neweta<<" Track "<<t<<" "<<trackP3s[t].eta()<<std::endl;
 
       double dR2 = deltaR2 (neweta, jetPhi, trackP3s[t].eta(), trackP3s[t].phi());
       if (dR2 < mDeltaR2Threshold)  assoTracks.push_back (fTracks[t]);
