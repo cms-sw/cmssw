@@ -44,6 +44,7 @@
 //#include <stdio.h>
 #include <string>
 //#include <string.h>
+#include <boost/lexical_cast.hpp>
 
 #ifdef __linux__
 #define LINUX 1
@@ -76,50 +77,69 @@ namespace edm {
       int session; // %d
       int tty; // %d
       int tpgid; // %d
-      unsigned int flags; // %u
-      unsigned int minflt; // %u
-      unsigned int cminflt; // %u
-      unsigned int majflt; // %u
-      unsigned int cmajflt; // %u
-      int utime; // %d
-      int stime; // %d
-      int cutime; // %d
-      int cstime; // %d
-      int counter; // %d
-      int priority; // %d
-      unsigned int timeout; // %u
-      unsigned int itrealvalue; // %u
+      unsigned long flags; // %lu
+      unsigned long minflt; // %lu
+      unsigned long cminflt; // %lu
+      unsigned long majflt; // %lu
+      unsigned long cmajflt; // %lu
+      unsigned long utime; // %lu
+      unsigned long stime; // %lu
+      long cutime; // %ld
+      long cstime; // %ld
+      long priority; // %ld
+      long nice; // %ld
+      long num_threads; // %ld
+      long itrealvalue; // %ld
       int starttime; // %d
       unsigned long vsize; // %lu
-      unsigned long rss; // %lu
+      long rss; // %ld
       unsigned long rlim; // %lu
-      unsigned int startcode; // %u
-      unsigned int endcode; // %u
-      unsigned int startstack; // %u
-      unsigned int kstkesp; // %u
-      unsigned int kstkeip; // %u
-      int signal; // %d
-      int blocked; // %d
-      int sigignore; // %d
-      int sigcatch; // %d
-      unsigned int wchan; // %u
+      unsigned long startcode; // %lu
+      unsigned long endcode; // %lu
+      unsigned long startstack; // %lu
+      unsigned long kstkesp; // %lu
+      unsigned long kstkeip; // %lu
+      unsigned long signal; // %lu
+      unsigned long blocked; // %lu
+      unsigned long sigignore; // %lu
+      unsigned long sigcatch; // %lu
+      unsigned long wchan; // %lu
     };
 
     class Fetcher {
     public:
+      friend Fetcher& operator>>(Fetcher&, int&);
+      friend Fetcher& operator>>(Fetcher&, long&);
+      friend Fetcher& operator>>(Fetcher&, unsigned int&);
+      friend Fetcher& operator>>(Fetcher&, unsigned long&);
+      friend Fetcher& operator>>(Fetcher&, char&);
+      friend Fetcher& operator>>(Fetcher&, std::string&);
+      
       explicit Fetcher(char* buffer) : 
         buffer_(buffer),
         save_(0),
         delims_(" \t\n\f\v\r") {
       }
+    private:
       int getInt() {
-        return atoi(getItem());
+        const char* t = getItem();
+        //std::cout <<"int '"<<t <<"'"<<std::endl;
+        return boost::lexical_cast<int>(t);
+      }
+      long getLong() {
+        const char* t = getItem();
+        //std::cout <<"long '"<<t <<"'"<<std::endl;
+        return boost::lexical_cast<long>(t);
       }
       unsigned int getUInt() {
-	return static_cast<unsigned int>(getInt());
+        const char* t = getItem();
+        //std::cout <<"uint '"<<t <<"'"<<std::endl;
+        return boost::lexical_cast<unsigned int>(t);
       }
       unsigned long getULong() {
-        return static_cast<unsigned long>(atol(getItem()));
+        const char* t = getItem();
+        //std::cout <<"ulong '"<<t <<"'"<<std::endl;
+        return boost::lexical_cast<unsigned long>(t);
       }
       char getChar() {
         return *getItem();
@@ -127,7 +147,6 @@ namespace edm {
       std::string getString() {
         return std::string(getItem());
       }
-    private:
       char* getItem() {
         char* item = strtok_r(buffer_, delims_, &save_); 
         assert(item);
@@ -138,6 +157,32 @@ namespace edm {
       char* save_;
       char const* const delims_; 
     };
+    
+    Fetcher& operator>>(Fetcher& iFetch, int& oValue) {
+      oValue = iFetch.getInt();
+      return iFetch;
+    }
+    Fetcher& operator>>(Fetcher& iFetch, long& oValue) {
+      oValue = iFetch.getLong();
+      return iFetch;
+    }
+    Fetcher& operator>>(Fetcher& iFetch, unsigned int& oValue) {
+      oValue = iFetch.getUInt();
+      return iFetch;      
+    }
+    Fetcher& operator>>(Fetcher& iFetch, unsigned long& oValue) {
+      oValue = iFetch.getULong();
+      return iFetch;      
+    }
+    Fetcher& operator>>(Fetcher& iFetch, char& oValue) {
+      oValue = iFetch.getChar();
+      return iFetch;
+    }
+    Fetcher& operator>>(Fetcher& iFetch, std::string& oValue) {
+      oValue = iFetch.getString();
+      return iFetch;
+    }
+
 
     procInfo SimpleMemoryCheck::fetch() {
       procInfo ret;
@@ -158,43 +203,48 @@ namespace edm {
       if(cnt > 0) {
         buf_[cnt] = '\0';
 
-        Fetcher fetcher(buf_);
 
-        pinfo.pid = fetcher.getInt();
-        pinfo.comm = fetcher.getString();
-        pinfo.state = fetcher.getChar();
-        pinfo.ppid = fetcher.getInt();
-        pinfo.pgrp = fetcher.getInt();
-        pinfo.session = fetcher.getInt();
-        pinfo.tty = fetcher.getInt();
-        pinfo.tpgid = fetcher.getInt();
-        pinfo.flags = fetcher.getUInt();
-        pinfo.minflt = fetcher.getUInt();
-        pinfo.cminflt = fetcher.getUInt();
-        pinfo.majflt = fetcher.getUInt();
-        pinfo.cmajflt = fetcher.getUInt();
-        pinfo.utime = fetcher.getInt();
-        pinfo.stime = fetcher.getInt();
-        pinfo.cutime = fetcher.getInt();
-        pinfo.cstime = fetcher.getInt();
-        pinfo.counter = fetcher.getInt();
-        pinfo.priority = fetcher.getInt();
-        pinfo.timeout = fetcher.getUInt();
-        pinfo.itrealvalue = fetcher.getUInt();
-        pinfo.starttime = fetcher.getInt();
-        pinfo.vsize = fetcher.getULong();
-        pinfo.rss = fetcher.getULong();
-        pinfo.rlim = fetcher.getULong();
-        pinfo.startcode = fetcher.getUInt();
-        pinfo.endcode = fetcher.getUInt();
-        pinfo.startstack = fetcher.getUInt();
-        pinfo.kstkesp = fetcher.getUInt();
-        pinfo.kstkeip = fetcher.getUInt();
-        pinfo.signal = fetcher.getInt();
-        pinfo.blocked = fetcher.getInt();
-        pinfo.sigignore = fetcher.getInt();
-        pinfo.sigcatch = fetcher.getInt();
-        pinfo.wchan = fetcher.getUInt();
+        try {
+          Fetcher fetcher(buf_);
+          fetcher >> pinfo.pid
+          >> pinfo.comm
+          >> pinfo.state
+          >> pinfo.ppid
+          >> pinfo.pgrp
+          >> pinfo.session
+          >> pinfo.tty
+          >> pinfo.tpgid
+          >> pinfo.flags
+          >> pinfo.minflt
+          >> pinfo.cminflt
+          >> pinfo.majflt
+          >> pinfo.cmajflt
+          >> pinfo.utime
+          >> pinfo.stime
+          >> pinfo.cutime
+          >> pinfo.cstime
+          >> pinfo.priority
+          >> pinfo.nice
+          >> pinfo.num_threads
+          >> pinfo.itrealvalue
+          >> pinfo.starttime
+          >> pinfo.vsize
+          >> pinfo.rss
+          >> pinfo.rlim
+          >> pinfo.startcode
+          >> pinfo.endcode
+          >> pinfo.startstack
+          >> pinfo.kstkesp
+          >> pinfo.kstkeip
+          >> pinfo.signal
+          >> pinfo.blocked
+          >> pinfo.sigignore
+          >> pinfo.sigcatch
+          >> pinfo.wchan;
+        } catch (boost::bad_lexical_cast& iE) {
+          LogWarning("MemoryCheck")<<"Parsing of Prof file failed:"<<iE.what()<<std::endl;
+          return procInfo();
+        }
         
         // resident set size in pages
         pr_size = (double)pinfo.vsize;
