@@ -27,6 +27,19 @@ jetMETAnalyzer.DoHTMHTAnalysis              = cms.untracked.bool(False)
 # prevent jetIDHelper from calculating cell based variables which don't make sense w/ HI bkg subtraction 
 jetMETAnalyzer.jetAnalysis.JetIDParams.useRecHits = False
 jetMETAnalyzer.CleanedjetAnalysis.JetIDParams.useRecHits = False
+# cleaned jet folder now uses same jet id parameters as non-cleaned
+# cleaning is controlled by PV/DCS filters
+jetMETAnalyzer.CleanedjetAnalysis.ptThreshold       = cms.double(20.)
+jetMETAnalyzer.CleanedjetAnalysis.n90HitsMin        = cms.int32(-1)
+jetMETAnalyzer.CleanedjetAnalysis.fHPDMax           = cms.double(1)
+jetMETAnalyzer.CleanedjetAnalysis.resEMFMin         = cms.double(0.)
+jetMETAnalyzer.CleanedjetAnalysis.fillJIDPassFrac   = cms.int32(1)
+
+jetMETAnalyzer.CleanedjetAnalysis.fillpfJIDPassFrac = cms.int32(0)
+jetMETAnalyzer.CleanedjetAnalysis.ThisCHFMin        = cms.double(-999.)
+jetMETAnalyzer.CleanedjetAnalysis.ThisNHFMax        = cms.double(999.)
+jetMETAnalyzer.CleanedjetAnalysis.ThisCEFMax        = cms.double(999.)
+jetMETAnalyzer.CleanedjetAnalysis.ThisNEFMax        = cms.double(999.)
 
 jetMETAnalyzer.caloMETAnalysis.allHist                = cms.bool(False)
 
