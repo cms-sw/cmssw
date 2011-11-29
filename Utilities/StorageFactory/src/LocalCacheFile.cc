@@ -40,8 +40,9 @@ LocalCacheFile::LocalCacheFile(Storage *base, const std::string &tmpdir /* = "" 
 
   std::vector<char> temp(pattern.c_str(), pattern.c_str()+pattern.size()+1);
   
-  umask(0x022);
+  mode_t previous_umask = umask(0x022);
   int fd = mkstemp(&temp[0]);
+  umask(previous_umask);
   if (fd == -1)
     throw cms::Exception("LocalCacheFile")
       << "Cannot create temporary file '" << pattern << "': "
