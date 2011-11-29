@@ -172,6 +172,7 @@ DoHLTTau = cms.Path(HLTBeginSequence +
                     TauOpenHLT+
                     HLTRecoJetSequencePrePF +
                     HLTPFJetTriggerSequence +
+                    pfAllMuons +
                     HLTPFJetTriggerSequenceForTaus +
                     HLTPFTauSequence +
                     HLTEndSequence)

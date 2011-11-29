@@ -299,3 +299,9 @@ OpenHLTL25TauTrackIsolation = cms.Sequence( openhltL25TauJetTracksAssociator + o
 
 #HLTPFTauSequence+= hltPFTausTightCone
 
+
+pfAllMuons = cms.EDFilter("PdgIdPFCandidateSelector",
+    src = cms.InputTag("hltParticleFlow"),
+    pdgId = cms.vint32( -13, 13)
+)
+
