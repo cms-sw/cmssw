@@ -1,11 +1,11 @@
-# /online/collisions/2011/5e33/v3.0/HLT/V4 (CMSSW_4_4_0_HLT17)
+# /online/collisions/2011/5e33/v3.0/HLT/V6 (CMSSW_4_4_0_HLT17)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/online/collisions/2011/5e33/v3.0/HLT/V4')
+  tableName = cms.string('/online/collisions/2011/5e33/v3.0/HLT/V6')
 )
 
 hltESSAK5CaloL1L2L3 = cms.ESSource( "JetCorrectionServiceChain",
@@ -121,7 +121,9 @@ EcalUnpackerWorkerESProducer = cms.ESProducer( "EcalUnpackerWorkerESProducer",
     ChannelStatusToBeExcluded = cms.vint32( 10, 11, 12, 13, 14 ),
     laserCorrection = cms.bool( False ),
     EBLaserMIN = cms.double( 0.5 ),
-    EELaserMIN = cms.double( 0.5 )
+    EELaserMIN = cms.double( 0.5 ),
+    EBLaserMAX = cms.double( 2.0 ),
+    EELaserMAX = cms.double( 3.0 )
   )
 )
 HcalGeometryFromDBEP = cms.ESProducer( "HcalGeometryFromDBEP",
