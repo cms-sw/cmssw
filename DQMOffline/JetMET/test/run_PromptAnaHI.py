@@ -31,7 +31,7 @@ allhist = (os.environ.get('ALL_HISTS','True'))
 print 'allhist (default=True) = '+str(allhist)
 #
 #--- [read list of input files from a text file? or not (default=False)]
-read_from_file = (os.environ.get('READ_LIST_FROM_FILE','False'))
+read_from_file = (os.environ.get('READ_LIST_FROM_FILE','True'))
 print 'read list of input files from a text file (default=False) = '+str(read_from_file)
 #
 #--- [trigger set (default=HLT)]
@@ -76,8 +76,7 @@ process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 
 ###for HI running
-process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+#process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.Geometry_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('RecoJets.JetAssociationProducers.trackExtrapolator_cfi')
@@ -87,9 +86,7 @@ process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_
 process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 
-#process.GlobalTag.globaltag ='MC_39Y_V2::All'
-#process.GlobalTag.globaltag ='MC_310_V1::All'
-process.GlobalTag.globaltag ='GR10_P_V12::All'
+process.GlobalTag.globaltag ='GR_P_V27A::All'
 
 # the task - JetMET objects
 if iscosmics =="True":
@@ -164,16 +161,16 @@ process.options = cms.untracked.PSet(
 
 if iscosmics=="True":
   process.p = cms.Path(process.jetMETDQMOfflineSourceCosmic
-                     #* process.dqmStoreStats
-                     #* process.MEtoEDMConverter
+                     * process.dqmStoreStats
+                     * process.MEtoEDMConverter
                      )
 else:
   process.p = cms.Path(process.jetMETDQMOfflineSource
-                     #* process.dqmStoreStats
-                     #* process.MEtoEDMConverter
+                     * process.dqmStoreStats
+                     * process.MEtoEDMConverter
                      )
 
-#process.outpath = cms.EndPath(process.FEVT)
+process.outpath = cms.EndPath(process.FEVT)
 process.DQM.collectorHost = ''
 
 
