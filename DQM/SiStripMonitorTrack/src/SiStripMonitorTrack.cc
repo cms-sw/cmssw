@@ -623,7 +623,7 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster, const uint32
       tkhisto_NumOnTrack->add(adet,1.);
       if(noise > 0.0) tkhisto_StoNCorrOnTrack->fill(adet,cluster->signalOverNoise()*cosRZ);
       if(noise == 0.0) 
-	edm::LogError("SiStripMonitorTrack") << "Module " << detid << " in Event " << eventNb << " noise " << noise << std::endl;
+	LogDebug("SiStripMonitorTrack") << "Module " << detid << " in Event " << eventNb << " noise " << noise << std::endl;
     }
     else if(flag==OffTrack){
       tkhisto_NumOffTrack->add(adet,1.);
@@ -657,7 +657,7 @@ void SiStripMonitorTrack::fillModMEs(SiStripClusterInfo* cluster,std::string nam
 
     float noise = cluster->noiseRescaledByGain();
     if(noise > 0.0) fillME(iModME->second.ClusterStoNCorr ,StoN*cos);
-    if(noise == 0.0) edm::LogError("SiStripMonitorTrack") << "Module " << name << " in Event " << eventNb << " noise " << noise << std::endl;
+    if(noise == 0.0) LogDebug("SiStripMonitorTrack") << "Module " << name << " in Event " << eventNb << " noise " << noise << std::endl;
     fillME(iModME->second.ClusterCharge,charge);
 
     fillME(iModME->second.ClusterChargeCorr,charge*cos);
@@ -697,7 +697,7 @@ void SiStripMonitorTrack::fillMEs(SiStripClusterInfo* cluster,uint32_t detid,flo
   if (iLayer != LayerMEsMap.end()) {
     if(flag==OnTrack){
       if(noise > 0.0) fillME(iLayer->second.ClusterStoNCorrOnTrack, StoN*cos);
-      if(noise == 0.0) edm::LogError("SiStripMonitorTrack") << "Module " << detid << " in Event " << eventNb << " noise " << cluster->noiseRescaledByGain() << std::endl;
+      if(noise == 0.0) LogDebug("SiStripMonitorTrack") << "Module " << detid << " in Event " << eventNb << " noise " << cluster->noiseRescaledByGain() << std::endl;
       fillME(iLayer->second.ClusterChargeCorrOnTrack, charge*cos);
       fillME(iLayer->second.ClusterChargeOnTrack, charge);
       fillME(iLayer->second.ClusterNoiseOnTrack, noise);
