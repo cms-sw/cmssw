@@ -83,7 +83,7 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   // watch per-path events 
   registry.watchPreProcessPath(    this, & FastTimerService::preProcessPath );
   registry.watchPostProcessPath(   this, & FastTimerService::postProcessPath );
-  // watch per-module events o if enabled
+  // watch per-module events if enabled
   if (m_enable_timing_modules) {
     registry.watchPreModuleBeginJob( this, & FastTimerService::preModuleBeginJob );
     registry.watchPreModule(         this, & FastTimerService::preModule );

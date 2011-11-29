@@ -73,6 +73,8 @@ Test results for "gettimeofday(& value, NULL)"
 
 Assuming an HLT process with ~2500 modules and ~500 paths, tracking each step 
 with clock_gettime(CLOCK_THREAD_CPUTIME_ID) gives a per-event overhead of 2 ms
+
+Detailed informations on different timers can be extracted running $CMSSW_RELEASE_BASE/test/$SCRAM_ARCH/testTimer .
 */
 
 class FastTimerService {
@@ -81,7 +83,7 @@ public:
   ~FastTimerService();
 
   // query the current module/path/event
-  // Note: these functions incur in a "timer per-call overhead" (see above), currently of the order of 340ns
+  // Note: these functions incur in a "per-call timer overhead" (see above), currently of the order of 340ns
   double currentModuleTime() const;         // return the time spent since the last preModule() event
   double currentPathTime() const;           // return the time spent since the last preProcessPath() event
   double currentEventTime() const;          // return the time spent since the last preProcessEvent() event
