@@ -34,6 +34,7 @@
 <use   name="TrackingTools/TransientTrackingRecHit"/>
 <use   name="Utilities/General"/>
 <use   name="Utilities/Timing"/>
+<use   name="Alignment/MuonAlignment"/>
 <use   name="root"/>
 <export>
   <lib   name="1"/>
