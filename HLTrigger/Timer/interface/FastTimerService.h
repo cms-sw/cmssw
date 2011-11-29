@@ -129,11 +129,14 @@ private:
   // configuration
   const clockid_t                               m_timer_id;             // the default is to use CLOCK_THREAD_CPUTIME_ID, unless useRealTimeClock is set, which will use CLOCK_REALTIME
   bool                                          m_is_cpu_bound;         // if the process is not bound to a single CPU, per-thread or per-process measuerements may be unreliable
+  bool                                          m_is_first_module;      // helper to measure the time spent between the beginning of the path and the execution of the first module
   const bool                                    m_enable_timing_modules;
   const bool                                    m_enable_timing_paths;
   const bool                                    m_enable_timing_summary;
   const bool                                    m_enable_dqm;
   const bool                                    m_enable_dqm_bylumi;
+
+  // dqm configuration 
   const double                                  m_dqm_time_range;
   const double                                  m_dqm_time_resolution;
   boost::filesystem::path                       m_dqm_path;
@@ -142,6 +145,7 @@ private:
   const std::string *                           m_last_path;            // so we emulate them keeping track of the first and last path and endpath
   const std::string *                           m_first_endpath;
   const std::string *                           m_last_endpath;
+  const std::string *                           m_current_path;         // currently running path
 
   // per-event accounting
   double                                        m_event;
@@ -149,8 +153,12 @@ private:
   double                                        m_all_paths;
   double                                        m_all_endpaths;
   PathMap<double>                               m_paths;
+  PathMap<double>                               m_paths_premodules;
+  PathMap<double>                               m_paths_intermodules;
+  PathMap<double>                               m_paths_postmodules;
   ModuleMap<double>                             m_modules;              // this assumes that ModuleDescription are stored in the same object through the whole job,
                                                                         // which is true only *after* the edm::Worker constructors have run
+
   // per-job summary
   unsigned int                                  m_summary_events;       // number of events
   double                                        m_summary_event;
@@ -158,6 +166,9 @@ private:
   double                                        m_summary_all_paths;
   double                                        m_summary_all_endpaths;
   PathMap<double>                               m_summary_paths;
+  PathMap<double>                               m_summary_paths_premodules;
+  PathMap<double>                               m_summary_paths_intermodules;
+  PathMap<double>                               m_summary_paths_postmodules;
   ModuleMap<double>                             m_summary_modules;      // see the comment for m_modules
 
   // DQM
@@ -167,6 +178,9 @@ private:
   MonitorElement *                              m_dqm_all_paths;
   MonitorElement *                              m_dqm_all_endpaths;
   PathMap<MonitorElement *>                     m_dqm_paths;
+  PathMap<MonitorElement *>                     m_dqm_paths_premodules;
+  PathMap<MonitorElement *>                     m_dqm_paths_intermodules;
+  PathMap<MonitorElement *>                     m_dqm_paths_postmodules;
   ModuleMap<MonitorElement *>                   m_dqm_modules;          // see the comment for m_modules
 
   // timers

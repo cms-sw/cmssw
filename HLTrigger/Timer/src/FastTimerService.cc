@@ -42,6 +42,7 @@ typedef int clockid_t;
 FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::ActivityRegistry & registry) :
   m_timer_id(               config.getUntrackedParameter<bool>(        "useRealTimeClock",     false) ? CLOCK_REALTIME : CLOCK_THREAD_CPUTIME_ID),
   m_is_cpu_bound(           false ),
+  m_is_first_module(        false ),
   m_enable_timing_modules(  config.getUntrackedParameter<bool>(        "enableTimingModules",  false) ),
   m_enable_timing_paths(    config.getUntrackedParameter<bool>(        "enableTimingPaths",    false) ),
   m_enable_timing_summary(  config.getUntrackedParameter<bool>(        "enableTimingSummary",  false) ), 
@@ -141,6 +142,14 @@ void FastTimerService::postBeginJob() {
       BOOST_FOREACH(PathMap<double>::value_type const & path, m_paths)
         m_dqm_paths[path.first] = m_dqms->book1D(path.first, path.first, bins, 0., m_dqm_time_range);
     }
+    if (m_enable_timing_paths and m_enable_timing_modules) {
+      m_dqms->setCurrentFolder((m_dqm_path / "Paths").generic_string());
+      BOOST_FOREACH(PathMap<double>::value_type const & path, m_paths) {
+        m_dqm_paths_premodules[path.first]   = m_dqms->book1D(path.first + "_premodules",   path.first + " pre-modules overhead",   bins, 0., m_dqm_time_range);
+        m_dqm_paths_intermodules[path.first] = m_dqms->book1D(path.first + "_intermodules", path.first + " inter-modules overhead", bins, 0., m_dqm_time_range);
+        m_dqm_paths_postmodules[path.first]  = m_dqms->book1D(path.first + "_postmodules",  path.first + " post-modules overhead",  bins, 0., m_dqm_time_range);
+      }
+    }
     if (m_enable_timing_modules) {
       m_dqms->setCurrentFolder((m_dqm_path / "Modules").generic_string());
       BOOST_FOREACH(ModuleMap<double>::value_type const & module, m_modules)
@@ -229,6 +238,10 @@ void FastTimerService::preProcessPath(std::string const & path ) {
   // time each (end)path
   start(m_timer_path);
 
+  // prepare to measure the time spent between the beginning of the path and the execution of the first module
+  m_is_first_module = true;
+  m_current_path = & path;
+
   if (& path == m_first_path) {
     // this is the first path, start the "all paths" counter
     m_timer_paths.first = m_timer_path.first;
@@ -241,6 +254,38 @@ void FastTimerService::preProcessPath(std::string const & path ) {
 void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathStatus const & status) {
   // time each (end)path
   stop(m_timer_path);
+  double path_time = delta(m_timer_path);
+
+  // if enabled, account each (end)path
+  if (m_enable_timing_paths) {
+    PathMap<double>::iterator keyval;
+    if ((keyval = m_paths.find(path)) != m_paths.end()) {
+      keyval->second = path_time;
+      if (m_enable_timing_summary)
+        m_summary_paths[path] += keyval->second;
+      if (m_dqms)
+        m_dqm_paths[path]->Fill(keyval->second * 1000.);        // convert to ms
+    
+      // measure the time spent between the execution of the last module and the end of the path
+      if (m_enable_timing_modules) {
+        double time = delta(m_timer_module.second, m_timer_path.second);
+        double inter = path_time - time - m_paths_premodules[* m_current_path];
+        m_paths_postmodules[* m_current_path] = time;
+        m_paths_intermodules[* m_current_path] = inter;
+        if (m_enable_timing_summary) {
+          m_summary_paths_postmodules[* m_current_path] += time;
+          m_summary_paths_intermodules[* m_current_path] += inter;
+        }
+        if (m_dqms) {
+          m_dqm_paths_postmodules[* m_current_path]->Fill(time * 1000.);    // convert to ms
+          m_dqm_paths_intermodules[* m_current_path]->Fill(inter * 1000.);  // convert to ms
+        }
+      }
+    } else {
+      // should never get here
+      edm::LogError("FastTimerService") << "FastTimerService::postProcessPath: unexpected path " << path;
+    }
+  }
 
   if (& path == m_last_path) {
     // this is the last path, stop and account the "all paths" counter
@@ -260,25 +305,22 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
       m_dqm_all_endpaths->Fill(m_all_endpaths * 1000.);         // convert to ms
   }
 
-  // if enabled, account each (end)path
-  if (m_enable_timing_paths) {
-    PathMap<double>::iterator keyval;
-    if ((keyval = m_paths.find(path)) != m_paths.end()) {
-      keyval->second = delta(m_timer_path);
-      if (m_enable_timing_summary)
-        m_summary_paths[path] += keyval->second;
-      if (m_dqms)
-        m_dqm_paths[path]->Fill(keyval->second * 1000.);        // convert to ms
-    } else {
-      // should never get here
-      edm::LogError("FastTimerService") << "FastTimerService::postProcessPath: unexpected path " << path;
-    }
-  }
 }
 
 void FastTimerService::preModule(edm::ModuleDescription const & module) {
   // time each module
   start(m_timer_module);
+
+  if (m_is_first_module) {
+    // measure the time spent between the beginning of the path and the execution of the first module
+    m_is_first_module = false;
+    double time = delta(m_timer_path.first, m_timer_module.first);
+    m_paths_premodules[* m_current_path] = time;
+    if (m_enable_timing_summary)
+      m_summary_paths_premodules[* m_current_path] += time;
+    if (m_dqms)
+      m_dqm_paths_premodules[* m_current_path]->Fill(time * 1000.);     // convert to ms
+  }
 }
 
 void FastTimerService::postModule(edm::ModuleDescription const & module) {
