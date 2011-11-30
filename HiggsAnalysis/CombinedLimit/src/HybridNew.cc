@@ -73,6 +73,7 @@ bool HybridNew::newToyMCSampler_        = true;
 std::string HybridNew::plot_;
 std::string HybridNew::minimizerAlgo_ = "Minuit2";
 float       HybridNew::minimizerTolerance_ = 1e-2;
+bool        HybridNew::reportPVal_ = false;
 
 #define EPS 1e-9
  
@@ -115,6 +116,7 @@ LimitAlgo("HybridNew specific options") {
         ("fullGrid", "Evaluate p-values at all grid points, without optimitations")
         ("noUpdateGrid", "Do not update test statistics at grid points")
         ("fullBToys", "Run as many B toys as S ones (default is to run 1/4 of b-only toys)")
+        ("pvalue", "Report p-value instead of significance (when running with --significance)")
     ;
 }
 
@@ -155,6 +157,7 @@ void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
     fullGrid_ = vm.count("fullGrid");
     fullBToys_ = vm.count("fullBToys");
     noUpdateGrid_ = vm.count("noUpdateGrid");
+    reportPVal_ = vm.count("pvalue");
     validateOptions(); 
 }
 
@@ -194,6 +197,7 @@ void HybridNew::validateOptions() {
         // If not generating toys, don't need to fit nuisance parameters
         fitNuisances_ = false;
     }
+    if (reportPVal_ && workingMode_ != MakeSignificance) throw std::invalid_argument("HybridNew: option --pvalue must go together with --significance");
 }
 
 bool HybridNew::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
@@ -236,12 +240,19 @@ bool HybridNew::runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s, Ro
     }
     // I don't need to flip the P-values for significances, only for limits
     hcResult->SetTestStatisticData(hcResult->GetTestStatisticData()+EPS); // issue with < vs <= in discrete models
-    limit = hcResult->Significance();
-    double sigHi = RooStats::PValueToSignificance( 1 - (hcResult->CLb() + hcResult->CLbError()) ) - limit;
-    double sigLo = RooStats::PValueToSignificance( 1 - (hcResult->CLb() - hcResult->CLbError()) ) - limit;
-    limitErr = std::max(sigHi,-sigLo);
+    double sig   = hcResult->Significance();
+    double sigHi = RooStats::PValueToSignificance( 1 - (hcResult->CLb() + hcResult->CLbError()) ) - sig;
+    double sigLo = RooStats::PValueToSignificance( 1 - (hcResult->CLb() - hcResult->CLbError()) ) - sig;
+    if (reportPVal_) {
+        limit    = hcResult->NullPValue();
+        limitErr = hcResult->NullPValueError();
+    } else {
+        limit = sig;
+        limitErr = std::max(sigHi,-sigLo);
+    }
     std::cout << "\n -- Hybrid New -- \n";
-    std::cout << "Significance: " << limit << "  " << sigLo << "/+" << sigHi << " (CLb " << hcResult->CLb() << " +/- " << hcResult->CLbError() << ")\n";
+    std::cout << "Significance: " << sig << "  " << sigLo << "/+" << sigHi << "\n";
+    std::cout << "Null p-value: " << hcResult->NullPValue() << " +/- " << hcResult->NullPValueError() << "\n";
     return isfinite(limit);
 }
 

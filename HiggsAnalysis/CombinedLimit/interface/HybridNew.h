@@ -42,6 +42,7 @@ private:
   static double clsAccuracy_, rAbsAccuracy_, rRelAccuracy_;
   static bool CLs_;
   static std::string rule_, testStat_;
+  static bool reportPVal_;
   static bool genNuisances_, genGlobalObs_, fitNuisances_;
   static double rValue_;
   static unsigned int iterations_;
