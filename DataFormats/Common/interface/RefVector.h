@@ -53,11 +53,10 @@ namespace edm {
     /// Default constructor needed for reading from persistent
     /// store. Not for direct use.
     RefVector() : refVector_() {}
+    RefVector(RefVector const& rh) : refVector_(rh.refVector_){}
 #if defined(__GXX_EXPERIMENTAL_CXX0X__)
     RefVector(RefVector && rh) : refVector_(std::move(rh.refVector_)){}
- #endif
-
-
+#endif
 
     RefVector(ProductID const& iId) : refVector_(iId) {}
     /// Add a Ref<C, T> to the RefVector
