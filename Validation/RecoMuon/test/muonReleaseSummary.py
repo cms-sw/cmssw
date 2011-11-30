@@ -261,11 +261,11 @@ for sample in samples :
             if (ValidateISO):
                 os.system('root -b -q -l '+ isolcfgFileName+'.C'+ '>  macro.'+isolcfgFileName+'.log')
                 if (NewFastSim&RefFastSim):
-                    os.system('mv MuonIsolationV_inc.pdf MuonIsolationV_inc_FS.pdf')
+                    os.system('mv '+NewRelease+'/'+NewTag+'/'+sample+'/MuonIsolationV_inc.pdf '+NewRelease+'/'+NewTag+'/'+sample+'/MuonIsolationV_inc_FS.pdf')
             if (ValidateRECO):
                 os.system('root -b -q -l '+ recomuoncfgFileName+'.C'+ '>  macro.'+recomuoncfgFileName+'.log')
                 if (NewFastSim&RefFastSim):
-                    os.system('mv RecoMuonV.pdf RecoMuonV_FS.pdf')
+                    os.system('mv '+NewRelease+'/'+NewTag+'/'+sample+'/RecoMuonV.pdf '+NewRelease+'/'+NewTag+'/'+sample+'/RecoMuonV_FS.pdf')
 
         if(Publish):
             newdir=WebRepository+'/'+NewRelease+'/'+NewTag+'/'+sample 

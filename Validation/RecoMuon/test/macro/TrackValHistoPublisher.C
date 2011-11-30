@@ -240,8 +240,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    newDir+=myName;
    gSystem->mkdir(newDir,kTRUE);
  
-   rh1 = 0;
-   sh1 = 0;
+   rh1 = 0; rh2 = 0; rh3 = 0; rh4 = 0; rh5 = 0; rh6 = 0;
+   sh1 = 0; sh2 = 0; sh3 = 0; sh4 = 0; sh5 = 0; sh6 = 0;
  
  //////////////////////////////////////
  /////////// CTF //////////////////////
@@ -337,6 +337,9 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 
    // ====== hits and pt
 
+   rh1 = 0; rh2 = 0; rh3 = 0; rh4 = 0; rh5 = 0; rh6 = 0;
+   sh1 = 0; sh2 = 0; sh3 = 0; sh4 = 0; sh5 = 0; sh6 = 0;
+
    rdir->GetObject(collname1+"/effic_vs_hit",rh1);
    if (!rh1) rdir->GetObject(collname1+"/effic_vs_hit",(TProfile*)rh1);
    sdir->GetObject(collname2+"/effic_vs_hit",sh1);
@@ -414,6 +417,9 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 
 
    //===== tuning
+   rh1 = 0; rh2 = 0; rh3 = 0; rh4 = 0; rh5 = 0; rh6 = 0;
+   sh1 = 0; sh2 = 0; sh3 = 0; sh4 = 0; sh5 = 0; sh6 = 0;
+
    rdir->GetObject(collname1+"/chi2",rh1);
    sdir->GetObject(collname2+"/chi2",sh1);
    rdir->GetObject(collname1+"/chi2_prob",rh2);
@@ -431,9 +437,9 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
      sh3 = (TH1F*) h2tmp->ProfileX();
    }
 
-   rdir->GetObject(collname1+"/ptres_vs_eta_Mean", rh4);
+   rdir->GetObject(collname1+"/ptres_vs_eta_Mean",rh4);
    if (!rh4) rdir->GetObject(collname1+"/ptres_vs_eta_Mean",(TProfile*)rh4);
-   sdir->GetObject(collname2+"/ptres_vs_eta_Mean", sh4);
+   sdir->GetObject(collname2+"/ptres_vs_eta_Mean",sh4);
    if (!sh4) sdir->GetObject(collname2+"/ptres_vs_eta_Mean",(TProfile*)sh4);
 
 
@@ -712,6 +718,9 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    
 
    //===== resolutions vs eta
+   rh1 = 0; rh2 = 0; rh3 = 0; rh4 = 0; rh5 = 0; rh6 = 0;
+   sh1 = 0; sh2 = 0; sh3 = 0; sh4 = 0; sh5 = 0; sh6 = 0;
+
    rdir->GetObject(collname1+"/phires_vs_eta_Sigma",rh1);
    if (!rh1) rdir->GetObject(collname1+"/phires_vs_eta_Sigma",(TProfile*)rh1);
    sdir->GetObject(collname2+"/phires_vs_eta_Sigma",sh1);
@@ -856,6 +865,9 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    //
    //===== mean values vs eta
    //
+   rh1 = 0; rh2 = 0; rh3 = 0; rh4 = 0; rh5 = 0; rh6 = 0;
+   sh1 = 0; sh2 = 0; sh3 = 0; sh4 = 0; sh5 = 0; sh6 = 0;
+
    rdir->GetObject(collname1+"/phires_vs_eta_Mean",rh1);
    if (!rh1) rdir->GetObject(collname1+"/phires_vs_eta_Mean",(TProfile*)rh1);
    sdir->GetObject(collname2+"/phires_vs_eta_Mean",sh1);
@@ -952,6 +964,9 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    //
    //===== resolutions vs pt
    //
+   rh1 = 0; rh2 = 0; rh3 = 0; rh4 = 0; rh5 = 0; rh6 = 0;
+   sh1 = 0; sh2 = 0; sh3 = 0; sh4 = 0; sh5 = 0; sh6 = 0;
+
    rdir->GetObject(collname1+"/phires_vs_pt_Sigma",rh1);
    if (!rh1) rdir->GetObject(collname1+"/phires_vs_pt_Sigma",(TProfile*)rh1);
    sdir->GetObject(collname2+"/phires_vs_pt_Sigma",sh1);
@@ -1556,17 +1571,18 @@ void plotResolutions(TCanvas *canvas,
   s5->SetLineColor(1);
   r5->SetLineColor(1);
 
-  s6->SetMarkerStyle(20);
-  r6->SetMarkerStyle(21);
-  s6->SetMarkerColor(2);
-  r6->SetMarkerColor(4);
-  s6->SetMarkerSize(0.7);
-  r6->SetMarkerSize(0.7);
-  s6->SetLineColor(1);
-  r6->SetLineColor(1);
-  s6->SetLineWidth(2);
-  r6->SetLineWidth(2);
-
+  if (s6&&r6) {
+    s6->SetMarkerStyle(20);
+    r6->SetMarkerStyle(21);
+    s6->SetMarkerColor(2);
+    r6->SetMarkerColor(4);
+    s6->SetMarkerSize(0.7);
+    r6->SetMarkerSize(0.7);
+    s6->SetLineColor(1);
+    r6->SetLineColor(1);
+    s6->SetLineWidth(2);
+    r6->SetLineWidth(2);
+  }
 
 
   //setStats(r1,s1, startingY, startingX, fit);
@@ -1600,10 +1616,11 @@ void plotResolutions(TCanvas *canvas,
   r5->Draw();
   s5->Draw("sames");
 
-
-  //canvas->cd(6);
-  //r6->Draw();
-  //s6->Draw("sames");
+  if (s6&&r6) {
+    canvas->cd(6);
+    r6->Draw();
+    s6->Draw("sames");
+  }
 }
 
 void plotMeanValues(TCanvas *canvas, 
@@ -1660,17 +1677,18 @@ void plotMeanValues(TCanvas *canvas,
   s5->SetLineColor(1);
   r5->SetLineColor(1);
 
-  s6->SetMarkerStyle(20);
-  r6->SetMarkerStyle(21);
-  s6->SetMarkerColor(2);
-  r6->SetMarkerColor(4);
-  s6->SetMarkerSize(0.7);
-  r6->SetMarkerSize(0.7);
-  s6->SetLineColor(1);
-  r6->SetLineColor(1);
-  s6->SetLineWidth(2);
-  r6->SetLineWidth(2);
-
+  if (s6&&r6) {
+    s6->SetMarkerStyle(20);
+    r6->SetMarkerStyle(21);
+    s6->SetMarkerColor(2);
+    r6->SetMarkerColor(4);
+    s6->SetMarkerSize(0.7);
+    r6->SetMarkerSize(0.7);
+    s6->SetLineColor(1);
+    r6->SetLineColor(1);
+    s6->SetLineWidth(2);
+    r6->SetLineWidth(2);
+  }
 
   //setStats(r1,s1, startingY, startingX, fit);
   canvas->cd(1);
@@ -1698,6 +1716,12 @@ void plotMeanValues(TCanvas *canvas,
   r5->Draw();
   s5->Draw("sames");
 
+  if (s6&&r6) {
+    canvas->cd(6);
+    setStats(s6,r6, -1, 0, false);
+    r6->Draw();
+    s6->Draw("sames");
+  }
 }
 
 
