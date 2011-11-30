@@ -45,14 +45,10 @@ void JetPlotsExample<Jet>::beginJob()
   m_HistNames1D[hname] = new TH1F(hname,hname,120,-6,6);
   hname = "JetPhi";
   m_HistNames1D[hname] = new TH1F(hname,hname,100,-M_PI,M_PI);
+  hname = "JetArea";
+  m_HistNames1D[hname] = new TH1F(hname,hname,100,0.0,5.0);
   hname = "NumberOfJets";
   m_HistNames1D[hname] = new TH1F(hname,hname,100,0,100);
-  hname = "EtaEtaMoment";
-  m_HistNames1D[hname] = new TH1F(hname,hname,100,-0.1,0.1);
-  hname = "EtaPhiMoment";
-  m_HistNames1D[hname] = new TH1F(hname,hname,100,-0.1,0.1);
-  hname = "PhiPhiMoment";
-  m_HistNames1D[hname] = new TH1F(hname,hname,100,-0.1,0.1);
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 template<class Jet>
@@ -88,12 +84,8 @@ void JetPlotsExample<Jet>::analyze(edm::Event const& evt, edm::EventSetup const&
       FillHist1D(hname,(*i_jet).eta());
       hname = "JetPhi";
       FillHist1D(hname,(*i_jet).phi());
-      hname = "EtaEtaMoment";
-      FillHist1D(hname,(*i_jet).etaetaMoment());
-      hname = "EtaPhiMoment";
-      FillHist1D(hname,(*i_jet).etaphiMoment());
-      hname = "PhiPhiMoment";
-      FillHist1D(hname,(*i_jet).phiphiMoment());
+      hname = "JetArea";
+      FillHist1D(hname,(*i_jet).jetArea());
       index++;
     }
 }

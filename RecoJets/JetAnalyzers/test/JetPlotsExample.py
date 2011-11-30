@@ -30,8 +30,9 @@ CaloJetCollection = 'ak5CaloJets'
 JPTJetCollection  = 'JetPlusTrackZSPCorJetAntiKt5'
 #GenJetCollection  = 'ak5GenJets'
 PFJetCollection   = "goodPatJetsPFlow"
-CAJetCollection   = "goodPatJetsCA8PrunedPF"
-GenJetCollection  = "caPrunedGen"
+CAJetCollection   = "goodPatJetsCA8PF"
+CAPrunedJetCollection   = "goodPatJetsCA8PrunedPF"
+GenJetCollection  = "ak5GenJetsNoNu"
 
 
 PlotSuffix = "_Data"
@@ -102,6 +103,16 @@ process.pf = cms.EDAnalyzer("PFJetPlotsExample",
     HistoFileName = cms.string('PFJetPlotsExample'+PlotSuffix+'.root'),
     NJets         = cms.int32(NJetsToKeep)
 )
+
+#############   PF Jets, No Corrections    ###########
+process.pfUncorr = cms.EDAnalyzer("PFJetPlotsExample",
+    JetAlgorithm  = cms.string(PFJetCollection),
+    HistoFileName = cms.string('PFJetUncorrPlotsExample'+PlotSuffix+'.root'),
+    NJets         = cms.int32(NJetsToKeep),
+    jecLevels     = cms.string("Uncorrected")
+)
+
+
 #############   JPT Jets    ###########################
 process.jpt = cms.EDAnalyzer("JPTJetPlotsExample",
     JetAlgorithm  = cms.string(JPTJetCollection),
@@ -122,13 +133,13 @@ process.ca = cms.EDAnalyzer("PFJetPlotsExample",
     NJets         = cms.int32(NJetsToKeep)
 )
 
-process.caUncorr = cms.EDAnalyzer("PFJetPlotsExample",
-    JetAlgorithm  = cms.string(CAJetCollection),
-    HistoFileName = cms.string('CAUncorrJetPlotsExample'+PlotSuffix+'.root'),
-    NJets         = cms.int32(NJetsToKeep),
-    jecLevels     = cms.string("Uncorrected")
-)
 
+#############   Cambridge-Aachen Jets R=0.8, With Pruning ############
+process.caPruned = cms.EDAnalyzer("PFJetPlotsExample",
+    JetAlgorithm  = cms.string(CAPrunedJetCollection),
+    HistoFileName = cms.string('CAPrunedJetPlotsExample'+PlotSuffix+'.root'),
+    NJets         = cms.int32(NJetsToKeep)
+)
 
 
 #############   Path       ###########################
@@ -139,7 +150,7 @@ process.caUncorr = cms.EDAnalyzer("PFJetPlotsExample",
 ## |_|   \__,_|\__|_| |_|
 
 ##process.myseq = cms.Sequence(process.calo*process.pf*process.jpt*process.gen)
-process.myseq = cms.Sequence(process.ca * process.gen * process.caUncorr)
+process.myseq = cms.Sequence(process.pf * process.gen * process.pfUncorr * process.ca * process.caPruned )
   
 if not isMC: 
   process.myseq.remove ( process.gen )
