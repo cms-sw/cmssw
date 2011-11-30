@@ -21,6 +21,7 @@ parser.add_option("-l", "--log",      dest="log",   default=False, action="store
 parser.add_option("-r", "--random",   dest="random",   default=False, action="store_true", help="Use random seeds for the jobs")
 parser.add_option("-P", "--priority", dest="prio",     default=False, action="store_true", help="Use PriorityUser role")
 parser.add_option("-s", "--smart",    dest="smart",     default=False, action="store_true", help="Run more toys at low edge of the band, to get better low range")
+parser.add_option("-S", "--signif",   dest="signif",     default=False, action="store_true", help="Compute significance. You should set min = 1, max = 1")
 #parser.add_option("--fork",           dest="fork",     default=1,   type="int",  help="Cores to use (leave to 1)") # no fork in batch jobs for now
 (options, args) = parser.parse_args()
 if len(args) != 3:
@@ -35,11 +36,11 @@ if workspace.endswith(".txt"):
     print "Converted workspace to binary",workspace
     
 min, max = float(args[1]), float(args[2])
-dx = (max-min)/(options.points-1)
+dx = (max-min)/(options.points-1) if options.points > 1 else 0
 points = [ min + dx*i for i in range(options.points) ]
 
 if options.log:
-    dx = log(max/min)/(options.points-1)
+    dx = log(max/min)/(options.points-1) if options.points > 1 else 0
     points = [ min * exp(dx*i) for i in range(options.points) ]
 
 print "Creating executable script ",options.out+".sh"
@@ -81,8 +82,9 @@ for i,x in enumerate(points):
             toys = "$(( 4 * $n ))";
         elif i < 0.4 * options.points:
             toys = "$(( 2 * $n ))";
-    script.write("{cond} ./combine {wsp} -M HybridNew {opts} --fork {fork} -T {T} --clsAcc 0 -v {v} -n {out} --saveHybridResult --saveToys -s {seed} -i {toys} --singlePoint {x}\n".format(
-                wsp=workspace, opts=options.options, fork=options.fork, T=options.T, seed=seed, out=options.out, x=x, v=options.v,
+    what = "--singlePoint %g " % x if options.signif == False else "--signif";
+    script.write("{cond} ./combine {wsp} -M HybridNew {opts} --fork {fork} -T {T} --clsAcc 0 -v {v} -n {out} --saveHybridResult --saveToys -s {seed} -i {toys} {what}\n".format(
+                wsp=workspace, opts=options.options, fork=options.fork, T=options.T, seed=seed, out=options.out, what=what, v=options.v,
                 cond=interleave, toys=toys
               ))
 
