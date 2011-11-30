@@ -46,3 +46,5 @@
 <bin   file="write.cpp" name="test_StorageFactory_Write">
   <flags NO_TESTRUN="1"/>
 </bin>
+<bin   file="mkstemp.cpp" name="test_StorageFactory_Mkstemp">
+</bin>
