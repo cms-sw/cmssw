@@ -38,6 +38,8 @@ distribution.
 
 #include "FWCore/Utilities/interface/tinyxml.h"
 
+#include <boost/lexical_cast.hpp>
+
 bool TiXmlBase::condenseWhiteSpace = true;
 
 // Microsoft compiler security
@@ -1247,24 +1249,22 @@ void TiXmlAttribute::Print( FILE* cfile, int /*depth*/, TIXML_STRING* str ) cons
 
 int TiXmlAttribute::QueryIntValue( int* ival ) const
 {
-        char* endptr;
-        long lval = strtol(value.c_str(), &endptr, 10);
-        if(endptr != value.c_str()) {
-                *ival = static_cast<int>(lval);
-		return TIXML_SUCCESS;
+        try {
+          *ival = boost::lexical_cast<int>(value);
+        } catch(boost::bad_lexical_cast const&) {
+	  return TIXML_WRONG_TYPE;
         }
-	return TIXML_WRONG_TYPE;
+	return TIXML_SUCCESS;
 }
 
 int TiXmlAttribute::QueryDoubleValue( double* dval ) const
 {
-        char* endptr;
-        double dvalue = strtod(value.c_str(), &endptr);
-        if(endptr != value.c_str()) {
-                *dval = dvalue;
-		return TIXML_SUCCESS;
+        try {
+          *dval = boost::lexical_cast<double>(value);
+        } catch(boost::bad_lexical_cast const&) {
+	  return TIXML_WRONG_TYPE;
         }
-	return TIXML_WRONG_TYPE;
+	return TIXML_SUCCESS;
 }
 
 void TiXmlAttribute::SetIntValue( int _value )
