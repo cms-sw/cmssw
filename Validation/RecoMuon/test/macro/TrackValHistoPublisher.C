@@ -1184,8 +1184,6 @@ void plot6histos(TCanvas *canvas,
 	       char * option, double startingY, double startingX = .1,bool fit = false){
   canvas->Divide(2,3);
 
-  if (!s1) cout << " no s1 dentro plot6histos " << endl;
-
   s1->SetMarkerStyle(20);
   r1->SetMarkerStyle(21);
   s1->SetMarkerColor(2);
