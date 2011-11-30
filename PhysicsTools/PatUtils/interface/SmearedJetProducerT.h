@@ -11,9 +11,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.4 $
+ * \version $Revision: 1.5 $
  *
- * $Id: SmearedJetProducerT.h,v 1.4 2011/11/02 14:03:07 veelken Exp $
+ * $Id: SmearedJetProducerT.h,v 1.5 2011/11/20 10:27:58 veelken Exp $
  *
  */
 
@@ -35,6 +35,7 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include "JetMETCorrections/Type1MET/interface/JetCorrExtractorT.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 #include <TFile.h>
 #include <TH2.h>
@@ -122,7 +123,8 @@ class SmearedJetProducerT : public edm::EDProducer
   explicit SmearedJetProducerT(const edm::ParameterSet& cfg)
     : moduleLabel_(cfg.getParameter<std::string>("@module_label")),
       genJetMatcher_(cfg),
-      jetResolutionExtractor_(cfg.getParameter<edm::ParameterSet>("jetResolutions"))
+      jetResolutionExtractor_(cfg.getParameter<edm::ParameterSet>("jetResolutions")),
+      skipJetSelection_(0)
   {
     src_ = cfg.getParameter<edm::InputTag>("src");
 
@@ -145,20 +147,24 @@ class SmearedJetProducerT : public edm::EDProducer
 
     shiftBy_ = ( cfg.exists("shiftBy") ) ? cfg.getParameter<double>("shiftBy") : 0.;
 
+    if ( cfg.exists("skipJetSelection") ) {
+      std::string skipJetSelection_string = cfg.getParameter<std::string>("skipJetSelection");
+      skipJetSelection_ = new StringCutObjectSelector<T>(skipJetSelection_string);
+    }
+
+    skipJetPtThreshold_ = ( cfg.exists("skipJetPtThreshold") ) ? cfg.getParameter<double>("skipJetPtThreshold") : 1.e-2;
+
     produces<JetCollection>();
   }
   ~SmearedJetProducerT()
   {
-    // nothing to be done yet...
+    delete skipJetSelection_;
   }
     
  private:
 
   virtual void produce(edm::Event& evt, const edm::EventSetup& es)
   {
-    //std::cout << "<SmearedJetProducer::produce>:" << std::endl;
-    //std::cout << " moduleLabel = " << moduleLabel_ << std::endl;
-
     std::auto_ptr<JetCollection> smearedJets(new JetCollection);
     
     edm::Handle<JetCollection> jets;
@@ -167,20 +173,12 @@ class SmearedJetProducerT : public edm::EDProducer
     int numJets = jets->size();
     for ( int jetIndex = 0; jetIndex < numJets; ++jetIndex ) {
       const T& jet = jets->at(jetIndex);
-
-      //std::cout << "jet: E = " << jet.energy() << "," 
-      //	  << " px = " << jet.px() << ", py = " << jet.py() << ", pz = " << jet.pz() << std::endl;
       
+      static SmearedJetProducer_namespace::RawJetExtractorT<T> rawJetExtractor;
+      reco::Candidate::LorentzVector rawJetP4 = rawJetExtractor(jet);
+
       reco::Candidate::LorentzVector corrJetP4 = jet.p4();
-      if ( jetCorrLabel_ != "" ) {
-	static SmearedJetProducer_namespace::RawJetExtractorT<T> rawJetExtractor;
-	reco::Candidate::LorentzVector rawJetP4 = rawJetExtractor(jet);
-
-	corrJetP4 = jetCorrExtractor_(jet, jetCorrLabel_, &evt, &es, jetCorrEtaMax_, &rawJetP4);
-
-	//std::cout << "corrJet: E = " << corrJetP4.E() << "," 
-	//	    << " px = " << corrJetP4.px() << ", py = " << corrJetP4.py() << ", pz = " << corrJetP4.pz() << std::endl;
-      }
+      if ( jetCorrLabel_ != "" ) corrJetP4 = jetCorrExtractor_(jet, jetCorrLabel_, &evt, &es, jetCorrEtaMax_, &rawJetP4);
 
       double smearFactor = 1.;
       
@@ -192,15 +190,11 @@ class SmearedJetProducerT : public edm::EDProducer
 	
 	if ( smearBy_ > 0. ) smearFactor += smearBy_*(lut_->GetBinContent(binIndex) - 1.);
 	double smearFactorErr = lut_->GetBinError(binIndex);
-	//std::cout << "x = " << x << ", y = " << y << ":" 
-	//          << " smearFactor = " << smearFactor << " +/- " << smearFactorErr << std::endl;
 
 	if ( shiftBy_ != 0. ) smearFactor += (shiftBy_*smearFactorErr);
-	//std::cout << "smearBy = " << smearBy_ << ", shiftBy = " << shiftBy_ 
-	//          << " --> final smearFactor = " << smearFactor << std::endl;
       }
 
-      double smearedJetEn = corrJetP4.E();
+      double smearedCorrJetEn = corrJetP4.E();
 
       const reco::GenJet* genJet = genJetMatcher_(jet, &evt);
       if ( genJet ) { 
@@ -208,9 +202,8 @@ class SmearedJetProducerT : public edm::EDProducer
 //            smear difference between reconstructed and "true" jet energy
 
 	double dEn = corrJetP4.E() - genJet->energy();
-	//std::cout << " case 1: dEn = " << dEn << std::endl;
 
-	smearedJetEn = genJet->energy() + smearFactor*dEn;
+	smearedCorrJetEn = genJet->energy() + smearFactor*dEn;	
       } else {
 //--- case 2: reconstructed jet **not** matched to generator level jet, 
 //            smear jet energy using MC resolution functions implemented in PFMEt significance algorithm (CMS AN-10/400)
@@ -220,24 +213,28 @@ class SmearedJetProducerT : public edm::EDProducer
 	  //     add additional Gaussian smearing of width = sqrt(smearFactor^2 - 1) 
 	  //     to account for Data/MC **difference** in jet resolutions
 	  double sigmaEn = jetResolutionExtractor_(jet)*TMath::Sqrt(smearFactor*smearFactor - 1.);
-	  //std::cout << " case 2: sigmaEn = " << sigmaEn << std::endl;
 
-	  smearedJetEn = corrJetP4.E() + rnd_.Gaus(0., sigmaEn);
+	  smearedCorrJetEn = corrJetP4.E() + rnd_.Gaus(0., sigmaEn);
 	}
       }
-	  
+
       // CV: keep minimum jet energy, in order not to loose direction information
-      const double minJetEn = 1.e-2; 
-      if ( smearedJetEn < minJetEn ) smearedJetEn = minJetEn;
-	  
+      const double minJetEn = 1.e-2;
+      if ( smearedCorrJetEn < minJetEn ) smearedCorrJetEn = minJetEn;
+
+      // CV: skip smearing in case either "raw" or "corrected" jet energy is very low
+      //     or jet passes selection configurable via python
+      //    (allows for protection against "pathological cases",
+      //     cf. PhysicsTools/PatUtils/python/tools/metUncertaintyTools.py)
       reco::Candidate::LorentzVector smearedJetP4 = jet.p4();
-      smearedJetP4 *= (smearedJetEn/corrJetP4.E());
+      if ( !((skipJetSelection_ && (*skipJetSelection_)(jet)) ||
+	     rawJetP4.pt() < skipJetPtThreshold_              ||
+	     corrJetP4.pt() < skipJetPtThreshold_             ) ) {
+	smearedJetP4 *= (smearedCorrJetEn/corrJetP4.E());
+      }
 	  
       T smearedJet = (jet);
       smearedJet.setP4(smearedJetP4);
-      
-      //std::cout << "smearedJet: E = " << smearedJet.energy() << "," 
-      //	  << " px = " << smearedJet.px() << ", py = " << smearedJet.py() << ", pz = " << smearedJet.pz() << std::endl;
       
       smearedJets->push_back(smearedJet);
     }
@@ -273,6 +270,9 @@ class SmearedJetProducerT : public edm::EDProducer
   double smearBy_; // option to "smear" jet energy by N standard-deviations, useful for template morphing
 
   double shiftBy_; // option to increase/decrease within uncertainties the jet energy resolution used for smearing 
+
+  StringCutObjectSelector<T>* skipJetSelection_; // jets passing this cut are **not** smeared 
+  double skipJetPtThreshold_; // jets with transverse momenta below this value (either on "raw" or "corrected" level) are **not** smeared 
 };
 
 #endif
