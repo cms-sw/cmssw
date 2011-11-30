@@ -139,21 +139,28 @@ void FastTimerService::postBeginJob() {
     m_dqm_all_endpaths  = m_dqms->book1D("all_endpaths", "EndPaths", bins, 0., m_dqm_time_range);
     if (m_enable_timing_paths) {
       m_dqms->setCurrentFolder((m_dqm_path / "Paths").generic_string());
-      BOOST_FOREACH(PathMap<double>::value_type const & path, m_paths)
+      BOOST_FOREACH(PathMap<double>::value_type const & path, m_paths) {
         m_dqm_paths[path.first] = m_dqms->book1D(path.first, path.first, bins, 0., m_dqm_time_range);
+        m_dqm_paths[path.first]->getTH1()->StatOverflows(true);
+      }
     }
     if (m_enable_timing_paths and m_enable_timing_modules) {
       m_dqms->setCurrentFolder((m_dqm_path / "Paths").generic_string());
       BOOST_FOREACH(PathMap<double>::value_type const & path, m_paths) {
-        m_dqm_paths_premodules[path.first]   = m_dqms->book1D(path.first + "_premodules",   path.first + " pre-modules overhead",   bins, 0., m_dqm_time_range);
+        m_dqm_paths_premodules[path.first] = m_dqms->book1D(path.first + "_premodules", path.first + " pre-modules overhead", bins, 0., m_dqm_time_range);
+        m_dqm_paths_premodules[path.first]->getTH1()->StatOverflows(true);
         m_dqm_paths_intermodules[path.first] = m_dqms->book1D(path.first + "_intermodules", path.first + " inter-modules overhead", bins, 0., m_dqm_time_range);
-        m_dqm_paths_postmodules[path.first]  = m_dqms->book1D(path.first + "_postmodules",  path.first + " post-modules overhead",  bins, 0., m_dqm_time_range);
+        m_dqm_paths_intermodules[path.first]->getTH1()->StatOverflows(true);
+        m_dqm_paths_postmodules[path.first] = m_dqms->book1D(path.first + "_postmodules", path.first + " post-modules overhead",bins, 0., m_dqm_time_range);
+        m_dqm_paths_postmodules[path.first]->getTH1()->StatOverflows(true);
       }
     }
     if (m_enable_timing_modules) {
       m_dqms->setCurrentFolder((m_dqm_path / "Modules").generic_string());
-      BOOST_FOREACH(ModuleMap<double>::value_type const & module, m_modules)
+      BOOST_FOREACH(ModuleMap<double>::value_type const & module, m_modules) {
         m_dqm_modules[module.first] = m_dqms->book1D(module.first->moduleLabel(), module.first->moduleLabel(), bins, 0., m_dqm_time_range);
+        m_dqm_modules[module.first]->getTH1()->StatOverflows(true);
+      }
     }
   }
 }
