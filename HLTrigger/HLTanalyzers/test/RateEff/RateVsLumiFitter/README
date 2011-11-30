@@ -12,7 +12,7 @@ Usage:
   takes x.icc, applies some correction
   produces x_corr.icc
 
-- runHighPU.sh:
+- runRateEffParallel.sh:
   runs OHltRateEff in parallel on a list of datasets,
   and for each dataset on several cfg files, for several runs;
   the output is just a list of the usual RateEff root files (plus log files)
