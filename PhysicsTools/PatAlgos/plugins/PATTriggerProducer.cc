@@ -1,5 +1,5 @@
 //
-// $Id: PATTriggerProducer.cc,v 1.30 2011/11/03 20:52:11 vadler Exp $
+// $Id: PATTriggerProducer.cc,v 1.31 2011/11/30 12:00:27 vadler Exp $
 //
 
 
@@ -67,6 +67,8 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
   autoProcessNameL1ExtraHTM_( false ),
   mainBxOnly_( true ),
   saveL1Refs_( false ),
+  // HLTConfigProvider
+  hltConfigInit_( false ),
   // HLT configuration parameters
   tagTriggerResults_( "TriggerResults" ),
   tagTriggerEvent_( "hltTriggerSummaryAOD" ),
