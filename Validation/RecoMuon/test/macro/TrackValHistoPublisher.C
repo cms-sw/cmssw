@@ -338,14 +338,18 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    // ====== hits and pt
 
    rdir->GetObject(collname1+"/effic_vs_hit",rh1);
+   if (!rh1) rdir->GetObject(collname1+"/effic_vs_hit",(TProfile*)rh1);
    sdir->GetObject(collname2+"/effic_vs_hit",sh1);
+   if (!sh1) sdir->GetObject(collname2+"/effic_vs_hit",(TProfile*)sh1);
    //rh1->GetXaxis()->SetRangeUser(0,30);
    //sh1->GetXaxis()->SetRangeUser(0,30);
    rh1->GetYaxis()->SetTitle("efficiency vs hit");
    rh1->GetYaxis()->SetRangeUser(0.,1.025);
    sh1->GetYaxis()->SetRangeUser(0.,1.025);
    rdir->GetObject(collname1+"/fakerate_vs_hit",rh2);
+   if (!rh2) rdir->GetObject(collname1+"/fakerate_vs_hit",(TProfile*)rh2);
    sdir->GetObject(collname2+"/fakerate_vs_hit",sh2);
+   if (!sh2) sdir->GetObject(collname2+"/fakerate_vs_hit",(TProfile*)sh2);
    rh2->GetYaxis()->SetTitle("fakerate vs hit");
    rh2->GetYaxis()->SetTitleSize(0.05);
    rh2->GetYaxis()->SetTitleOffset(1.2);
@@ -427,8 +431,10 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
      sh3 = (TH1F*) h2tmp->ProfileX();
    }
 
-   rdir->GetObject(collname1+"/ptres_vs_eta_Mean",rh4);
-   sdir->GetObject(collname2+"/ptres_vs_eta_Mean",sh4);
+   rdir->GetObject(collname1+"/ptres_vs_eta_Mean", rh4);
+   if (!rh4) rdir->GetObject(collname1+"/ptres_vs_eta_Mean",(TProfile*)rh4)
+   sdir->GetObject(collname2+"/ptres_vs_eta_Mean", sh4);
+   if (!sh4) sdir->GetObject(collname2+"/ptres_vs_eta_Mean",(TProfile*)sh4);
 
 
    NormalizeHistograms(rh1,sh1);
@@ -707,19 +713,29 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 
    //===== resolutions vs eta
    rdir->GetObject(collname1+"/phires_vs_eta_Sigma",rh1);
+   if (!rh1) rdir->GetObject(collname1+"/phires_vs_eta_Sigma",(TProfile*)rh1);
    sdir->GetObject(collname2+"/phires_vs_eta_Sigma",sh1);
+   if (!sh1) sdir->GetObject(collname2+"/phires_vs_eta_Sigma",(TProfile*)sh1);
 
    rdir->GetObject(collname1+"/cotThetares_vs_eta_Sigma",rh2);
+   if (!rh2) rdir->GetObject(collname1+"/cotThetares_vs_eta_Sigma",(TProfile*)rh2);
    sdir->GetObject(collname2+"/cotThetares_vs_eta_Sigma",sh2);
+   if (!sh2) sdir->GetObject(collname2+"/cotThetares_vs_eta_Sigma",(TProfile*)sh2);
 
    rdir->GetObject(collname1+"/dxyres_vs_eta_Sigma",rh3);
+   if (!rh3) rdir->GetObject(collname1+"/dxyres_vs_eta_Sigma",(TProfile*)rh3);
    sdir->GetObject(collname2+"/dxyres_vs_eta_Sigma",sh3);
+   if (!sh3) sdir->GetObject(collname2+"/dxyres_vs_eta_Sigma",(TProfile*)sh3);
 
    rdir->GetObject(collname1+"/dzres_vs_eta_Sigma",rh4);
+   if (!rh4) rdir->GetObject(collname1+"/dzres_vs_eta_Sigma",(TProfile*)rh4);
    sdir->GetObject(collname2+"/dzres_vs_eta_Sigma",sh4);
+   if (!sh4) sdir->GetObject(collname2+"/dzres_vs_eta_Sigma",(TProfile*)sh4);
 
    rdir->GetObject(collname1+"/ptres_vs_eta_Sigma",rh5);
+   if (!rh5) rdir->GetObject(collname1+"/ptres_vs_eta_Sigma",(TProfile*)rh5);
    sdir->GetObject(collname2+"/ptres_vs_eta_Sigma",sh5);
+   if (!sh5) sdir->GetObject(collname2+"/ptres_vs_eta_Sigma",(TProfile*)sh5);
 
 
 
@@ -841,19 +857,29 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    //===== mean values vs eta
    //
    rdir->GetObject(collname1+"/phires_vs_eta_Mean",rh1);
+   if (!rh1) rdir->GetObject(collname1+"/phires_vs_eta_Mean",(TProfile*)rh1);
    sdir->GetObject(collname2+"/phires_vs_eta_Mean",sh1);
+   if (!sh1) sdir->GetObject(collname2+"/phires_vs_eta_Mean",(TProfile*)sh1);
 
    rdir->GetObject(collname1+"/cotThetares_vs_eta_Mean",rh2);
+   if (!rh2) rdir->GetObject(collname1+"/cotThetares_vs_eta_Mean",(TProfile*)rh2);
    sdir->GetObject(collname2+"/cotThetares_vs_eta_Mean",sh2);
+   if (!sh2) sdir->GetObject(collname2+"/cotThetares_vs_eta_Mean",(TProfile*)sh2);
 
    rdir->GetObject(collname1+"/dxyres_vs_eta_Mean",rh3);
+   if (!rh3) rdir->GetObject(collname1+"/dxyres_vs_eta_Mean",(TProfile*)rh3);
    sdir->GetObject(collname2+"/dxyres_vs_eta_Mean",sh3);
+   if (!sh3) sdir->GetObject(collname2+"/dxyres_vs_eta_Mean",(TProfile*)sh3);
 
    rdir->GetObject(collname1+"/dzres_vs_eta_Mean",rh4);
+   if (!rh4) rdir->GetObject(collname1+"/dzres_vs_eta_Mean",(TProfile*)rh4);
    sdir->GetObject(collname2+"/dzres_vs_eta_Mean",sh4);
+   if (!sh4) sdir->GetObject(collname2+"/dzres_vs_eta_Mean",(TProfile*)sh4);
 
    rdir->GetObject(collname1+"/ptres_vs_eta_Mean",rh5);
+   if (!rh5) rdir->GetObject(collname1+"/ptres_vs_eta_Mean",(TProfile*)rh5);
    sdir->GetObject(collname2+"/ptres_vs_eta_Mean",sh5);
+   if (!sh5) sdir->GetObject(collname2+"/ptres_vs_eta_Mean",(TProfile*)sh5);
 
 
 
@@ -927,22 +953,29 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    //===== resolutions vs pt
    //
    rdir->GetObject(collname1+"/phires_vs_pt_Sigma",rh1);
+   if (!rh1) rdir->GetObject(collname1+"/phires_vs_pt_Sigma",(TProfile*)rh1);
    sdir->GetObject(collname2+"/phires_vs_pt_Sigma",sh1);
+   if (!sh1) sdir->GetObject(collname2+"/phires_vs_pt_Sigma",(TProfile*)sh1);
 
    rdir->GetObject(collname1+"/cotThetares_vs_pt_Sigma",rh2);
+   if (!rh2) rdir->GetObject(collname1+"/cotThetares_vs_pt_Sigma",(TProfile*)rh2);
    sdir->GetObject(collname2+"/cotThetares_vs_pt_Sigma",sh2);
-
+   if (!sh2) sdir->GetObject(collname2+"/cotThetares_vs_pt_Sigma",(TProfile*)sh2);
 
    rdir->GetObject(collname1+"/dxyres_vs_pt_Sigma",rh3);
-   //rdir->GetObject(collname1+"/sigmad0Pt",rh3);
+   if (!rh3) rdir->GetObject(collname1+"/dxyres_vs_pt_Sigma",(TProfile*)rh3);
    sdir->GetObject(collname2+"/dxyres_vs_pt_Sigma",sh3);
+   if (!sh3) sdir->GetObject(collname2+"/dxyres_vs_pt_Sigma",(TProfile*)sh3);
 
    rdir->GetObject(collname1+"/dzres_vs_pt_Sigma",rh4);
-   //rdir->GetObject(collname1+"/sigmaz0Pt",rh4);
+   if (!rh4) rdir->GetObject(collname1+"/dzres_vs_pt_Sigma",(TProfile*)rh4);
    sdir->GetObject(collname2+"/dzres_vs_pt_Sigma",sh4);
+   if (!sh4) sdir->GetObject(collname2+"/dzres_vs_pt_Sigma",(TProfile*)sh4);
 
    rdir->GetObject(collname1+"/ptres_vs_pt_Sigma",rh5);
+   if (!rh5) rdir->GetObject(collname1+"/ptres_vs_pt_Sigma",(TProfile*)rh5);
    sdir->GetObject(collname2+"/ptres_vs_pt_Sigma",sh5);
+   if (!sh5) sdir->GetObject(collname2+"/ptres_vs_pt_Sigma",(TProfile*)sh5);
 
    rh1->SetTitle("");
    rh1->GetYaxis()->SetTitleSize(0.05);
@@ -1150,6 +1183,8 @@ void plot6histos(TCanvas *canvas,
 		TText* te,
 	       char * option, double startingY, double startingX = .1,bool fit = false){
   canvas->Divide(2,3);
+
+  if (!s1) cout << " no s1 dentro plot6histos " << endl;
 
   s1->SetMarkerStyle(20);
   r1->SetMarkerStyle(21);
