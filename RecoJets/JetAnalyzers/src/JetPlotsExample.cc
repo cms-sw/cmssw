@@ -10,6 +10,7 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/JPTJet.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/JetReco/interface/JPTJetCollection.h"
 
 
@@ -27,6 +28,9 @@ JetPlotsExample<Jet>::JetPlotsExample(edm::ParameterSet const& cfg)
   JetAlgorithm  = cfg.getParameter<std::string> ("JetAlgorithm"); 
   HistoFileName = cfg.getParameter<std::string> ("HistoFileName");
   NJets         = cfg.getParameter<int> ("NJets");
+  useJecLevels  = cfg.exists("jecLevels");
+  if ( useJecLevels )
+    jecLevels     = cfg.getParameter<std::string> ("jecLevels");
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 template<class Jet>
@@ -67,8 +71,19 @@ void JetPlotsExample<Jet>::analyze(edm::Event const& evt, edm::EventSetup const&
   /////////// Fill Histograms for the leading NJet jets ///
   edm::View<reco::Jet>::const_iterator i_jet, endpjets = jets->end(); 
    for (i_jet = jets->begin();  i_jet != endpjets && index < NJets;  ++i_jet) {
+
+      double jecFactor = 1.0;
+      if ( useJecLevels ) {
+	edm::Ptr<reco::Jet> ptrToJet = jets->ptrAt( i_jet - jets->begin() );
+	if ( ptrToJet.isNonnull() && ptrToJet.isAvailable() ) {
+	  pat::Jet const * patJet = dynamic_cast<pat::Jet const *>( ptrToJet.get() );
+          if ( patJet != 0 ) {
+	    jecFactor = patJet->jecFactor( jecLevels );
+	  }
+        }
+      }
       hname = "JetPt";
-      FillHist1D(hname,(*i_jet).pt());   
+      FillHist1D(hname,(*i_jet).pt() * jecFactor );   
       hname = "JetEta";
       FillHist1D(hname,(*i_jet).eta());
       hname = "JetPhi";

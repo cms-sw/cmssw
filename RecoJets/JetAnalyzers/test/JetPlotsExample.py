@@ -122,6 +122,12 @@ process.ca = cms.EDAnalyzer("PFJetPlotsExample",
     NJets         = cms.int32(NJetsToKeep)
 )
 
+process.caUncorr = cms.EDAnalyzer("PFJetPlotsExample",
+    JetAlgorithm  = cms.string(CAJetCollection),
+    HistoFileName = cms.string('CAUncorrJetPlotsExample'+PlotSuffix+'.root'),
+    NJets         = cms.int32(NJetsToKeep),
+    jecLevels     = cms.string("Uncorrected")
+)
 
 
 
@@ -133,7 +139,7 @@ process.ca = cms.EDAnalyzer("PFJetPlotsExample",
 ## |_|   \__,_|\__|_| |_|
 
 ##process.myseq = cms.Sequence(process.calo*process.pf*process.jpt*process.gen)
-process.myseq = cms.Sequence(process.ca * process.gen)
+process.myseq = cms.Sequence(process.ca * process.gen * process.caUncorr)
   
 if not isMC: 
   process.myseq.remove ( process.gen )
