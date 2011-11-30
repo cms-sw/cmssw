@@ -557,12 +557,12 @@ void printBand(TDirectory *bands, TString who, FILE *fout, bool mean=false) {
     TGraphAsymmErrors *mean95 = (TGraphAsymmErrors*) bands->Get(who+(mean?"_mean_95":"_median_95"));
     if (mean68 == 0 && obs == 0) { std::cerr << "MISSING " << who << "_mean and " << who << "_obs" << std::endl; return; }
     if (mean68 == 0) { printLineErr(bands, who+"_obs", fout); return; }
-    fprintf(fout, "%4s \t %7s  %7s  %7s  %7s  %7s  %7s\n", "mass", " obs ", "-95%", "-68%", (mean ? "mean" : "median"), "+68%", "+95%");
-    fprintf(fout,  "%5s\t %7s  %7s  %7s  %7s  %7s  %7s\n", "-----","-----",  "-----", "-----", "-----", "-----", "-----");
+    fprintf(fout, "%4s \t %8s  %8s  %8s  %8s  %8s  %8s\n", "mass", " obs ", "-95%", "-68%", (mean ? "mean" : "median"), "+68%", "+95%");
+    fprintf(fout,  "%5s\t %8s  %8s  %8s  %8s  %8s  %8s\n", "-----","-----",  "-----", "-----", "-----", "-----", "-----");
     for (int i = 0, n = mean68->GetN(); i < n; ++i) {
         int j  = (obs    ? findBin(obs,    mean68->GetX()[i]) : -1);
         int j2 = (mean95 ? findBin(mean95, mean68->GetX()[i]) : -1);
-        fprintf(fout, who.Contains("pval") ? "%4d \t %7.5f  %7.5f  %7.5f  %7.5f  %7.5f  %7.5f\n" : "%4d \t %7.3f  %7.3f  %7.3f  %7.3f  %7.3f  %7.3f\n" , 
+        fprintf(fout, who.Contains("pval") ? "%4d \t %8.6f  %8.6f  %8.6f  %8.6f  %8.6f  %8.6f\n" : "%4d \t %8.4f  %8.4f  %8.4f  %8.4f  %8.4f  %8.4f\n" , 
             int(mean68->GetX()[i]),  
             j == -1 ? NAN : obs->GetY()[j],
             j2 == -1 ? NAN : mean95->GetY()[j2]-mean95->GetErrorYlow(j2), 
@@ -598,7 +598,7 @@ void printQuantiles(TDirectory *bands, TString who, TString fileName) {
     fclose(fout);
 
 }
-void printBand(TDirectory *bands, TString who, TString fileName, bool mean=true) {
+void printBand(TDirectory *bands, TString who, TString fileName, bool mean=false) {
     TGraph *mean68 = (TGraph*) bands->Get(who+(mean?"_mean":"_median"));
     TGraphAsymmErrors *obs  = (TGraphAsymmErrors*) bands->Get(who+"_obs");
     if (mean68 == 0 && obs == 0) { 
