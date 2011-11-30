@@ -527,22 +527,23 @@ def toScreenTotEffective(lumidata,resultlines,scalefactor,isverbose):
     input:  {run:[lumilsnum(0),triggeredls(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),recordedlumi(6),calibratedlumierror(7),{hltpath:[l1name,l1prescale,hltprescale,efflumi]},bxdata,beamdata](8)}
     screen Run,SelectedLS,Recorded,HLTPath,L1Bit,Effective
     '''
-    result=[]#[run,selectedlsStr,recorded,hltpath,l1bit,efflumi]
+    result=[]#[run,selectedlsStr,recordedofthisrun,hltpath,l1bit,efflumi]
     totdict={}#{hltpath:[nls,toteff]}
     selectedcmsls=[]
     alltotrecorded=0.0
     alleffective=0.0
-    totOldSelectedLS=0
-    totOldRecorded=0.0
-    #totOldEffective=0.0
-
+    recordedPerpathPerrun={}#{path:{run:recorded}}
+    selectedPerpathPerrun={}#{path:{run:totselected}}
     for rline in resultlines:
+        myrun=rline[0]
         myls=rline[1]
         mypath=rline[3]
         if mypath!='n/a':
             mypath=mypath.split('(')[0]
             if not totdict.has_key(mypath):
                 totdict[mypath]=[0,0.0]
+                recordedPerpathPerrun[mypath]={}
+                selectedPerpathPerrun[mypath]={}
         if myls!='n/a':
             listcomp=myls.split(', ')
             for lstr in listcomp:
@@ -550,11 +551,11 @@ def toScreenTotEffective(lumidata,resultlines,scalefactor,isverbose):
                 lsmin=int(enddigs[0])
                 lsmax=int(enddigs[1])
                 rls=lsmax-lsmin+1
-                totOldSelectedLS+=rls
-                totdict[mypath][0]+=rls
+                totdict[mypath][0]+=rls                
+            selectedPerrun[mypath].setdefault(int(myrun),totdict[mypath][0])
         myrecorded=rline[2]
         if myrecorded!='n/a':
-            totOldRecorded+=float(myrecorded)
+            recordedPerpathPerrun[mypath].setdefault(int(myrun),float(myrecorded))
             (rr,lumiu)=CommonUtil.guessUnit(float(myrecorded))
             rline[2]='%.3f'%(rr)+' ('+lumiu+')'
         myeff=rline[5]
@@ -564,7 +565,6 @@ def toScreenTotEffective(lumidata,resultlines,scalefactor,isverbose):
             rline[5]='%.3f'%(rr)+' ('+lumiu+')'
             totdict[mypath][1]+=reff
         result.append(rline)
-        
     for run in sorted(lumidata):#loop over runs
         hprescdict={}
         lprescdict={}
@@ -580,6 +580,8 @@ def toScreenTotEffective(lumidata,resultlines,scalefactor,isverbose):
         for lsdata in rundata:
             cmslsnum=lsdata[1]
             efflumiDict=lsdata[8]# this ls has no such path?
+            recordedlumi=lsdata[6]
+            totrecorded+=recordedlumi
             if not efflumiDict:
                 if cmslsnum in selectedcmsls:
                     selectedcmsls.remove(cmslsnum)
@@ -592,44 +594,44 @@ def toScreenTotEffective(lumidata,resultlines,scalefactor,isverbose):
                 l1presc=pathdata[1]
                 hltpresc=pathdata[2]
                 lumival=pathdata[3]
+                recordedPerpathPerrun.setdefault(hltpathname,{})
+                selectedPerpathPerrun.setdefault(hltpathname,{})
                 if not totdict.has_key(hltpathname):
                     totdict[hltpathname]=[0,0.0]
                 if l1presc is None or hltpresc is None:#if found all null prescales and if it is in the selectedcmsls, remove it because incomplete
                     if cmslsnum in selectedcmsls:
                         selectedcmsls.remove(cmslsnum)
-                else:
-                    recordedlumi=lsdata[6]
-                    totrecorded+=recordedlumi
-                    alltotrecorded+=recordedlumi
+                else:                    
                     if not hprescdict.has_key(hltpathname):
                         hprescdict[hltpathname]=[]
                     hprescdict[hltpathname].append(hltpresc)
                     if not lprescdict.has_key(l1name):
                         lprescdict[l1name]=[]
                     lprescdict[l1name].append(l1presc)
-                    totdict[hltpathname][0]+=1
-                    
+                    totdict[hltpathname][0]+=1                    
                     if lumival:
                         totdict[hltpathname][1]+=lumival
                         totefflumiDict[hltpathname]+=lumival
                         pathmap[hltpathname]=l1name
+                    recordedPerpathPerrun[hltpathname][run]=totrecorded
+                    selectedPerpathPerrun[hltpathname][run]=len(selectedcmsls)
         if len(selectedcmsls)==0:
             selectedlsStr='n/a'
         else:
             selectedlsStr = CommonUtil.splitlistToRangeString(selectedcmsls)
-        
+       
         for name in sorted(totefflumiDict):
             lname=pathmap[name]
             if lname=='n/a':
                 continue
-            (efflumival,efflumiunit)=CommonUtil.guessUnit(totefflumiDict[name])
-            (totrecval,totrecunit)=CommonUtil.guessUnit(totrecorded)
-            hprescs=list(set(hprescdict[hltpathname]))
+            (efflumival,efflumiunit)=CommonUtil.guessUnit(totefflumiDict[name]*scalefactor)
+            totrecordedinrun=recordedPerpathPerrun[name][run]
+            (totrecval,totrecunit)=CommonUtil.guessUnit(totrecordedinrun*scalefactor)
+            hprescs=list(set(hprescdict[name]))
             lprescs=list(set(lprescdict[lname]))
             hprescStr='('+','.join(['%d'%(x) for x in hprescs])+')'
             lprescStr='('+','.join(['%d'%(x) for x in lprescs])+')'
-            #print 'efflumival , efflumiunit ',efflumival,efflumiunit
-            result.append([str(run),selectedlsStr,'%.3f'%(totrecval*scalefactor)+'('+totrecunit+')',name+hprescStr,lname+lprescStr,'%.3f'%(efflumival*scalefactor)+'('+efflumiunit+')'])
+            result.append([str(run),selectedlsStr,'%.3f'%(totrecval)+'('+totrecunit+')',name+hprescStr,lname+lprescStr,'%.3f'%(efflumival)+'('+efflumiunit+')'])
     labels = [('Run','SelectedLS','Recorded','HLTpath','L1bit','Effective')]
     print ' ==  = '
     print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
@@ -638,12 +640,17 @@ def toScreenTotEffective(lumidata,resultlines,scalefactor,isverbose):
     print ' ==  =  Total : '
     lastrowlabels=[('HLTPath','SelectedLS','Recorded','Effective')]
     totresult=[]
-    (alltotrecval,alltotrecunit)=CommonUtil.guessUnit(alltotrecorded+totOldRecorded)
     for hname in sorted(totdict):
         hdata=totdict[hname]
         totnls=hdata[0]
-        (toteffval,toteffunit)=CommonUtil.guessUnit(hdata[1])
-        totresult.append([hname,str(totnls),'%.3f'%(alltotrecval*scalefactor)+'('+alltotrecunit+')','%.3f'%(toteffval*scalefactor)+'('+toteffunit+')'])
+        (toteffval,toteffunit)=CommonUtil.guessUnit(hdata[1]*scalefactor)
+        alltotrecorded=0.0
+        selectedThispath=selectedPerpathPerrun[hname]
+        for runnumber,nselected in selectedThispath.items():
+            if nselected==0: continue
+            alltotrecorded+=recordedPerpathPerrun[hname][runnumber]
+        (alltotrecordedVal,alltotrecordedunit)=CommonUtil.guessUnit(alltotrecorded*scalefactor)                                                   
+        totresult.append([hname,str(totnls),'%.3f'%(alltotrecordedVal)+'('+alltotrecordedunit+')','%.3f'%(toteffval)+'('+toteffunit+')'])
     print tablePrinter.indent (lastrowlabels+totresult, hasHeader = True, separateRows = False,
                                prefix = '| ', postfix = ' |', justify = 'right',
                                delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,20) )
@@ -665,8 +672,8 @@ def toCSVTotEffective(lumidata,filename,resultlines,scalefactor,isverbose):
             result.append([str(run),'n/a','n/a','n/a','n/a','n/a'])
             continue
         selectedcmsls=[x[1] for x in rundata if x[1]!=0]
+        
         totefflumiDict={}
-        totrecorded=0.0
         pathmap={}#{hltpathname:1lname}
         for lsdata in rundata:
             cmslsnum=lsdata[1]
@@ -687,8 +694,8 @@ def toCSVTotEffective(lumidata,filename,resultlines,scalefactor,isverbose):
                     if cmslsnum in selectedcmsls:
                         selectedcmsls.remove(cmslsnum)
                 else:
-                    recordedlumi=lsdata[6]
-                    totrecorded+=recordedlumi
+                    #recordedlumi=lsdata[6]
+                    #totrecorded+=recordedlumi
                     if not hprescdict.has_key(hltpathname):
                         hprescdict[hltpathname]=[]
                     hprescdict[hltpathname].append(hltpresc)
