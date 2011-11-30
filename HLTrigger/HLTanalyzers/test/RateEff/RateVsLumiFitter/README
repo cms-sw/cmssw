@@ -1,0 +1,22 @@
+RateEff/RateVsLumiFitter
+========================
+
+This module contains Roberto Rossin's rate vs. luminosity fitter.
+
+Usage:
+
+- lumiByLS_maker.sh:
+  produces a lumi-vs-LS table for a given run (output: x.icc)
+
+- correctLumiMap.C:
+  takes x.icc, applies some correction
+  produces x_corr.icc
+
+- runHighPU.sh:
+  runs OHltRateEff in parallel on a list of datasets,
+  and for each dataset on several cfg files, for several runs;
+  the output is just a list of the usual RateEff root files (plus log files)
+
+- FitRatesPerLS.C:
+  runs on the root files produces by runHighPU.sh;
+  produces fit plots for the paths belonging to a given "dataset" (cfg file tuple)
