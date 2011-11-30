@@ -138,6 +138,8 @@ TtSemiLepKinFitProducer<LeptonCollection>::TtSemiLepKinFitProducer(const edm::Pa
   produces< std::vector<double> >("Chi2");
   produces< std::vector<double> >("Prob");
   produces< std::vector<int> >("Status");
+
+  produces<int>("NumberOfConsideredJets");
 }
 
 template<typename LeptonCollection>
@@ -180,6 +182,8 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
   std::auto_ptr< std::vector<double>            > pProb  ( new std::vector<double> );
   std::auto_ptr< std::vector<int>               > pStatus( new std::vector<int> );
 
+  std::auto_ptr<int> pJetsConsidered(new int);
+
   edm::Handle<std::vector<pat::Jet> > jets;
   evt.getByLabel(jets_, jets);
 
@@ -189,11 +193,12 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
   edm::Handle<LeptonCollection> leps;
   evt.getByLabel(leps_, leps);
 
-  unsigned int nPartons = 4;
+  const unsigned int nPartons = 4;
 
   std::vector<int> match;
   bool invalidMatch = false;
   if(useOnlyMatch_) {
+    *pJetsConsidered = nPartons;
     edm::Handle<std::vector<std::vector<int> > > matchHandle;
     evt.getByLabel(match_, matchHandle);
     match = *(matchHandle->begin());
@@ -233,6 +238,8 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
     pProb->push_back( -1. );
     // status of the fitter
     pStatus->push_back( -1 );
+    // number of jets
+    *pJetsConsidered = jets->size();
     // feed out all products
     evt.put(pCombi);
     evt.put(pPartonsHadP, "PartonsHadP");
@@ -244,6 +251,7 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
     evt.put(pChi2       , "Chi2"       );
     evt.put(pProb       , "Prob"       );
     evt.put(pStatus     , "Status"     );
+    evt.put(pJetsConsidered, "NumberOfConsideredJets");
     return;
   }
 
@@ -255,7 +263,10 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
   std::vector<int> jetIndices;
   if(!useOnlyMatch_) {
     for(unsigned int i=0; i<jets->size(); ++i){
-      if(maxNJets_ >= (int) nPartons && maxNJets_ == (int) i) break;
+      if(maxNJets_ >= (int) nPartons && maxNJets_ == (int) i) {
+	*pJetsConsidered = i;
+	break;
+      }
       jetIndices.push_back(i);
     }
   }
@@ -370,6 +381,7 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
   evt.put(pChi2       , "Chi2"       );
   evt.put(pProb       , "Prob"       );
   evt.put(pStatus     , "Status"     );
+  evt.put(pJetsConsidered, "NumberOfConsideredJets");
 }
  
 template<typename LeptonCollection>

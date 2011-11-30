@@ -98,9 +98,10 @@ TtJetPartonMatch<C>::TtJetPartonMatch(const edm::ParameterSet& cfg):
   //  * TtFullHadEvtPartons
   //  * TtFullLepEvtPartons
   // and vectors of the corresponding quality parameters
-  produces< std::vector<std::vector<int> > >();
-  produces< std::vector<double> >("SumPt");
-  produces< std::vector<double> >("SumDR");
+  produces<std::vector<std::vector<int> > >();
+  produces<std::vector<double> >("SumPt");
+  produces<std::vector<double> >("SumDR");
+  produces<int>("NumberOfConsideredJets");
 }
 
 template<typename C>
@@ -112,6 +113,17 @@ template<typename C>
 void
 TtJetPartonMatch<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
 {
+  // will write 
+  // * parton match 
+  // * sumPt 
+  // * sumDR
+  // to the event
+  std::auto_ptr<std::vector<std::vector<int> > > match(new std::vector<std::vector<int> >);
+  std::auto_ptr<std::vector<double> > sumPt(new std::vector<double>);
+  std::auto_ptr<std::vector<double> > sumDR(new std::vector<double>);
+  std::auto_ptr<int> pJetsConsidered(new int);
+
+  // get TtGenEvent and jet collection from the event
   edm::Handle<TtGenEvent> genEvt;
   evt.getByLabel("genEvt", genEvt);
   
@@ -141,6 +153,7 @@ TtJetPartonMatch<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
     }
     jets.push_back( (const reco::Candidate*) &(*topJets)[ij] );
   }
+  *pJetsConsidered = jets.size();
 
   // do the matching with specified parameters
   JetPartonMatching jetPartonMatch(partons, jets, algorithm_, useMaxDist_, useDeltaR_, maxDist_);
@@ -149,15 +162,6 @@ TtJetPartonMatch<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
   // if corresponding verbosity level set
   if(verbosity_>0)
     jetPartonMatch.print();
-
-  // write 
-  // * parton match 
-  // * sumPt 
-  // * sumDR
-  // to the event
-  std::auto_ptr< std::vector<std::vector<int> > > match(new std::vector<std::vector<int> >);
-  std::auto_ptr< std::vector<double> > sumPt(new std::vector<double>);
-  std::auto_ptr< std::vector<double> > sumDR(new std::vector<double>);
 
   for(unsigned int ic=0; ic<jetPartonMatch.getNumberOfAvailableCombinations(); ++ic) {
     if((int)ic>=maxNComb_ && maxNComb_>=0) break;
@@ -170,6 +174,7 @@ TtJetPartonMatch<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
   evt.put(match);
   evt.put(sumPt, "SumPt");
   evt.put(sumDR, "SumDR");
+  evt.put(pJetsConsidered, "NumberOfConsideredJets");
 }
 
 template<typename C>
