@@ -371,7 +371,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    sdir->GetObject(collname2+"/num_reco_pT",sh6);
    
    rh3->GetYaxis()->SetRangeUser(0,74);
-   sh4->GetYaxis()->SetRangeUser(0,74);
+   sh3->GetYaxis()->SetRangeUser(0,74);
    rh4->GetXaxis()->SetRangeUser(0,74);
    sh4->GetXaxis()->SetRangeUser(0,74);
    
