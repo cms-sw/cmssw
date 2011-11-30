@@ -6,7 +6,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/mman.h>
-#include <sys/stat.h>
 #include <errno.h>
 #include <sstream>
 
@@ -39,10 +38,7 @@ LocalCacheFile::LocalCacheFile(Storage *base, const std::string &tmpdir /* = "" 
   pattern += "/cmssw-shadow-XXXXXX";
 
   std::vector<char> temp(pattern.c_str(), pattern.c_str()+pattern.size()+1);
-  
-  mode_t previous_umask = umask(077);
   int fd = mkstemp(&temp[0]);
-  umask(previous_umask);
   if (fd == -1)
     throw cms::Exception("LocalCacheFile")
       << "Cannot create temporary file '" << pattern << "': "

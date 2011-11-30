@@ -2,7 +2,6 @@
 #include "Utilities/StorageFactory/src/Throw.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <sys/wait.h>
-#include <sys/stat.h>
 #include <sys/types.h>
 #include <cerrno>
 #include <cassert>
@@ -80,9 +79,7 @@ RemoteFile::local (const std::string &tmpdir, std::string &temp)
   temp += "storage-factory-local-XXXXXX";
   temp.c_str(); // null terminate for mkstemp
 
-  mode_t previous_umask = umask(077);
   int fd = mkstemp (&temp[0]);
-  umask(previous_umask);
   if (fd == -1)
     throwStorageError("RemoteFile", "Calling RemoteFile::local()", "mkstemp()", errno);
 
