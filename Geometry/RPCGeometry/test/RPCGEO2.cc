@@ -13,7 +13,7 @@
 //
 // Original Author:  pts/91
 //         Created:  Wed Sep 26 17:08:29 CEST 2007
-// $Id: RPCGEO2.cc,v 1.8 2011/10/18 13:23:18 yana Exp $
+// $Id: RPCGEO2.cc,v 1.1 2011/11/14 15:53:36 carrillo Exp $
 //
 //
 
@@ -112,12 +112,12 @@ RPCGEO2::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
        
        for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
 	 RPCDetId rpcId = (*r)->id();
-	 int stripsinthisroll=(*r)->nstrips();
+	 //int stripsinthisroll=(*r)->nstrips();
 	 RPCGeomServ rpcsrv(rpcId);
 	 if (rpcId.region()==0){ 
-	   const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&((*r)->topology()));
-	   float stripl = top_->stripLength();
-	   float stripw = top_->pitch();
+	   //	   const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&((*r)->topology()));
+	   //	   float stripl = top_->stripLength();
+	   //	   float stripw = top_->pitch();
 	   const BoundPlane & RPCSurface = (*r)->surface();
 	   GlobalPoint CenterPointRollGlobal = RPCSurface.toGlobal(LocalPoint(0,0,0));
 	   std::cout<<rpcsrv.name()<<" "<<CenterPointRollGlobal.x()<<" "<<CenterPointRollGlobal.y()<<" "<<CenterPointRollGlobal.z()<<std::endl;
@@ -129,9 +129,9 @@ RPCGEO2::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
 	   
 
 	 }else{
-	   const TrapezoidalStripTopology* top_= dynamic_cast<const TrapezoidalStripTopology*> (&((*r)->topology()));
-	   float stripl = top_->stripLength();
-	   float stripw = top_->pitch();
+	   //	   const TrapezoidalStripTopology* top_= dynamic_cast<const TrapezoidalStripTopology*> (&((*r)->topology()));
+	   //	   float stripl = top_->stripLength();
+	   //float stripw = top_->pitch();
 	   const BoundPlane & RPCSurface = (*r)->surface();
 	   GlobalPoint CenterPointRollGlobal = RPCSurface.toGlobal(LocalPoint(0,0,0));
 	   std::cout<<rpcsrv.name()<<" "<<CenterPointRollGlobal.x()<<" "<<CenterPointRollGlobal.y()<<" "<<CenterPointRollGlobal.z()<<std::endl;

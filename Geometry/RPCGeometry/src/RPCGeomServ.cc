@@ -38,9 +38,10 @@ RPCGeomServ::name( void )
 	 << std::setfill(' ') << "_";
 
       os << "RB" << station;
-      ( station <= 2 && layer == 1 ) ? os << "in" : os << "out";
+      if ( station <= 2){
+	(layer == 1 ) ? os << "in" : os << "out";
 	
-      if( station > 2 )
+      }else if( station > 2 )
       {
 	if( sector == 4 && station == 4 )
 	{
@@ -137,9 +138,11 @@ RPCGeomServ::chambername()
 	 << std::setfill(' ') << "_";
 
       os << "RB" << station;
-      ( station <= 2 && layer == 1 ) ? os << "in" : os << "out";
+      if ( station <= 2 ) {
 	
-      if( station > 2 )
+	(layer == 1 ) ? os << "in" : os << "out";
+	
+      }else if( station > 2 )
       {
 	if( sector == 4 && station == 4 )
 	{
@@ -217,15 +220,10 @@ RPCGeomServ::shortname( void )
     if( region == 0 )
     {
       os << "RB" << station;
-      if( station <= 2 )
-      {
-	if( layer == 1 ){
-	  os << "in";
-	}
-	else
-	{
-	  os << "out";
-	}
+      if( station <= 2 ){
+
+	(layer == 1 ) ? os << "in" : os << "out";
+
       }
       else
       {
