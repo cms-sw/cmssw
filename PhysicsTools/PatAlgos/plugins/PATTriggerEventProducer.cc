@@ -1,5 +1,5 @@
 //
-// $Id: PATTriggerEventProducer.cc,v 1.14 2010/11/27 15:16:20 vadler Exp $
+// $Id: PATTriggerEventProducer.cc,v 1.15 2011/02/22 18:29:50 vadler Exp $
 //
 
 
@@ -33,11 +33,19 @@ PATTriggerEventProducer::PATTriggerEventProducer( const ParameterSet & iConfig )
   tagsTriggerMatcher_(),
   // L1 configuration parameters
   tagL1Gt_(),
+  // HLTConfigProvide
+  hltConfig_(),
+  hltConfigInit_( false ),
   // HLT configuration parameters
   tagTriggerResults_( "TriggerResults" ),
   tagTriggerEvent_( "hltTriggerSummaryAOD" ),
   // Conditions configuration parameters
-  tagCondGt_()
+  tagCondGt_(),
+  // Conditions
+  condRun_(),
+  condLumi_(),
+  gtCondRunInit_( false ),
+  gtCondLumiInit_( false )
 {
 
   if ( iConfig.exists( "triggerResults" ) )     tagTriggerResults_  = iConfig.getParameter< InputTag >( "triggerResults" );
