@@ -16846,7 +16846,7 @@ public:
 
     bool OpenHltNPFJetPassed(const int N, const double& pt, const double& eta);
 
-    bool OpenHltNTowCalEtPassed(int N, const double& Et);
+    bool OpenHltNTowerEtPassed(int N, const double& Et);
 
    int readRefPrescaleFromFile(TString st);
 

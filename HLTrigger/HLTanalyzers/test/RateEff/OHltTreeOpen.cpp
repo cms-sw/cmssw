@@ -2247,9 +2247,9 @@ bool isNJetPtTrigger(TString triggerName, vector<double> &thresholds)
 }
 
 
-bool isNTowCalEt0pTrigger(TString triggerName, vector<double> &thresholds)
+bool isNTowerEt0pTrigger(TString triggerName, vector<double> &thresholds)
 {
-    TString pattern = "(OpenHLT_([0-9]+)TowCal0p([0-9]+))(_v[0-9]+)?$";
+    TString pattern = "(OpenHLT_([0-9]+)Tower0p([0-9]+))(_v[0-9]+)?$";
     TPRegexp matchThreshold(pattern);
 
     if (matchThreshold.MatchB(triggerName))
@@ -11998,12 +11998,12 @@ else if (triggerName.CompareTo("OpenHLT_Ele32_WP70_PFMT50_v1")  == 0)
         }
     }
 
-    else if (isNTowCalEt0pTrigger(triggerName, thresholds)) {
+    else if (isNTowerEt0pTrigger(triggerName, thresholds)) {
         if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
             if (prescaleResponse(menu,cfg,rcounter,it)) {
                 int N= int(thresholds[0]);
                 double Et= thresholds[1];
-                if(OpenHltNTowCalEtPassed(N, Et)) {
+                if(OpenHltNTowerEtPassed(N, Et)) {
                     //cout << triggerName << " (" << N << ", " << Et << ") passed" << endl;
                     triggerBit[it] = true;
                 }
@@ -22635,7 +22635,7 @@ bool OHltTree::OpenHltNPFJetPassed(const int N, const double& pt, const double& 
     return Npass >= N;
 }
 
-bool OHltTree::OpenHltNTowCalEtPassed(int N, const double& Et)
+bool OHltTree::OpenHltNTowerEtPassed(int N, const double& Et)
 {
     Int_t NpassEt= 0;
     for (int i= 0; i < NrecoTowCal; ++i)
