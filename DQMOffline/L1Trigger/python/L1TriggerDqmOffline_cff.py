@@ -124,7 +124,7 @@ l1TriggerDqmOfflineClient = cms.Sequence(
 #
 #l1TriggerOnline.remove(l1tMonitorOnline)
 #
-#l1tMonitorOnline.remove(bxTiming)
+l1tMonitorOnline.remove(bxTiming)
 l1tMonitorOnline.remove(l1tLtc)
 #l1tMonitorOnline.remove(l1tDttf)
 #l1tMonitorOnline.remove(l1tCsctf) 
