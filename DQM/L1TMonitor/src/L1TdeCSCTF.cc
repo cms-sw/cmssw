@@ -49,6 +49,7 @@ L1TdeCSCTF::L1TdeCSCTF(ParameterSet const& pset):EDAnalyzer(){
 	m_dirName         = pset.getUntrackedParameter("DQMFolder", string("L1TEMU/CSCTFexpert"));
 
 	ts=0;
+	ptLUT_ = 0;
 	
 	ptLUTset = pset.getParameter<ParameterSet>("PTLUT");
 	
