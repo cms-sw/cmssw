@@ -34,7 +34,7 @@
 
 // empty constructor, all members set to zero;
 L1GtfeExtWord::L1GtfeExtWord() :
-    L1GtfeWord() {
+    L1GtfeWord(), m_bstSource(0) {
 
     // empty
 
@@ -42,7 +42,7 @@ L1GtfeExtWord::L1GtfeExtWord() :
 
 // all members set to zero, m_bst has bstSizeBytes zero elements
 L1GtfeExtWord::L1GtfeExtWord(int bstSizeBytes) :
-    L1GtfeWord() {
+    L1GtfeWord(), m_bstSource(0) {
 
     m_bst.resize(bstSizeBytes);
 
@@ -531,54 +531,61 @@ void L1GtfeExtWord::reset()
 }
 
 // pretty print the content of a L1GtfeWord
-void L1GtfeExtWord::print(std::ostream& myCout) const
-{
+void L1GtfeExtWord::print(std::ostream& myCout) const {
 
     myCout << "\n L1GtfeExtWord::print \n" << std::endl;
 
-    int sizeW64 = 64;
-    int dataBlocksPerLine = sizeW64/8; // 8x8 bits per line
+    unsigned int sizeW64 = 64;
+    unsigned int dataBlocksPerLine = sizeW64 / 8; // 8x8 bits per line
 
     L1GtfeWord::print(myCout);
 
-    int NumberBstBlocks = m_bst.size();
+    unsigned int numberBstBlocks = m_bst.size();
 
     myCout << "\n  BST ";
-    for (int iB = 0; iB < NumberBstBlocks; ++iB) {
+
+    if (numberBstBlocks == 0) {
+
+        myCout << "\n  BST source [hex]: " << std::hex << std::setw(4)
+                << std::setfill('0') << m_bstSource << std::setfill(' ')
+                << std::dec << std::endl;
+
+        return;
+    }
+
+    for (unsigned int iB = 0; iB < numberBstBlocks; iB += dataBlocksPerLine) {
 
         myCout << "\n" << std::hex << " hex: ";
 
-        for (int jB = iB; jB < dataBlocksPerLine + iB; ++jB) {
+        for (unsigned int jB = iB; jB < dataBlocksPerLine + iB; ++jB) {
 
-            if (jB >= NumberBstBlocks) {
+            if (jB >= numberBstBlocks) {
                 break;
             }
 
-            myCout
-            << std::setw(2) << std::setfill('0') << m_bst[jB]
-            << "   " << std::setfill(' ');
+            myCout << std::setw(2) << std::setfill('0') << m_bst[jB] << "   "
+                    << std::setfill(' ');
         }
 
-        myCout << "\n"<< std::dec << " dec: " ;
+        myCout << "\n" << std::dec << " dec: ";
 
-        for (int jB = iB; jB < dataBlocksPerLine + iB; ++jB) {
+        for (unsigned int jB = iB; jB < dataBlocksPerLine + iB; ++jB) {
 
-            if (jB >= NumberBstBlocks) {
+            if (jB >= numberBstBlocks) {
                 break;
             }
 
-            myCout
-            << std::setw(3) << std::setfill('0') << m_bst[jB]
-            << "  " << std::setfill(' ');
+            myCout << std::setw(3) << std::setfill('0') << m_bst[jB] << "  "
+                    << std::setfill(' ');
         }
 
         myCout << std::endl;
 
-        iB += dataBlocksPerLine - 1;
     }
 
-    myCout << "\n  BST source [hex]: " << std::hex << std::setw(4) << std::setfill('0')
-        << m_bstSource << std::endl;
+    myCout << "\n  BST source [hex]: " << std::hex << std::setw(4)
+            << std::setfill('0') << m_bstSource << std::setfill(' ')
+            << std::dec << std::endl;
 
 }
 
