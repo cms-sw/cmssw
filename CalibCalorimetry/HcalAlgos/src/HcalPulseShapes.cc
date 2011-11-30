@@ -61,7 +61,7 @@ Reco  MC
   computeHPDShape(ts1,ts2,ts3,thpd,tpre,wd1,wd2,wd3, hpdShape_v3);
   theShapes[105] = &hpdShape_v3;
 
-  ts1=8. ; ts2=10. ; ts3=29.3; thpd=4.0; tpre=3.0; wd1=2.0; wd2=0.7; wd3=0.26;
+  ts1=8. ; ts2=10. ; ts3=22.3; thpd=4.0; tpre=7.0; wd1=2.0; wd2=0.7; wd3=1.0;
   computeHPDShape(ts1,ts2,ts3,thpd,tpre,wd1,wd2,wd3, hpdShapeMC_v3);
   theShapes[125] = &hpdShapeMC_v3;
 
