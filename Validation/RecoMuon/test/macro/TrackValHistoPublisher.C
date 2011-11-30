@@ -432,7 +432,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    }
 
    rdir->GetObject(collname1+"/ptres_vs_eta_Mean", rh4);
-   if (!rh4) rdir->GetObject(collname1+"/ptres_vs_eta_Mean",(TProfile*)rh4)
+   if (!rh4) rdir->GetObject(collname1+"/ptres_vs_eta_Mean",(TProfile*)rh4);
    sdir->GetObject(collname2+"/ptres_vs_eta_Mean", sh4);
    if (!sh4) sdir->GetObject(collname2+"/ptres_vs_eta_Mean",(TProfile*)sh4);
 
