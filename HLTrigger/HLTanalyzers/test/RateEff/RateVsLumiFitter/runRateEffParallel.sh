@@ -11,13 +11,18 @@ LOG_FILE_DIR=$DATA_DIR/logs
 ROOT_FILE_DIR=$DATA_DIR/root
 
 # set list of datasets (RateEff cfg file name stubs)
-DS_ARR=("AlphaT" "DoubleMu" "EleHadEG12" "HTMHT" "MET" "MuHad" "MultiJet" "PhotonDoubleEle" "PhotonDoublePhoton" "PhotonHad" "PhotonPhoton" "RMR" "SingleMu")
+
+#DS_ARR=("AlphaT" "DoubleMu" "EleHadEG12" "HTMHT" "MET" "MuHad" "MultiJet" "PhotonDoubleEle" "PhotonDoublePhoton" "PhotonHad" "PhotonPhoton" "RMR" "SingleMu")
+
+#DS_ARR=("Tau")
+
+DS_ARR=("Jet")
 
 # set list of config file name prefixes (one per run)
 FILE_PREFIX_ARR=("hltmenu_HighPU_r179828_" "hltmenu_3E33_r178479_")
 
 # set list of config file lumi scale factors (one per run)
-LUMI_SCALE_FACTOR_ARR=("1" "131.8")
+LUMI_SCALE_FACTOR_ARR=("131.8" "1")
 
 # set file postfixes
 CFG_FILE_POSTFIX="_forHighPU.cfg"
