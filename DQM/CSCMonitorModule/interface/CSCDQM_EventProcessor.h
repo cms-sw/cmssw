@@ -142,6 +142,7 @@ namespace cscdqm {
       void calcEMUFractionHisto(const HistoId& result, const HistoId& set, const HistoId& subset);
 
       const bool getEMUHisto(const HistoId& histo, MonitorObject*& me);
+      const bool getFEDHisto(const HistoId& histo, const HwId& fedID, MonitorObject*& me);
       const bool getDDUHisto(const HistoId& histo, const HwId& dduID, MonitorObject*& me);
       const bool getCSCHisto(const HistoId& histo, const HwId& crateID, const HwId& dmbSlot, MonitorObject*& me);
       const bool getCSCHisto(const HistoId& histo, const HwId& crateID, const HwId& dmbSlot, const HwId& adId, MonitorObject*& me);
@@ -162,6 +163,12 @@ namespace cscdqm {
       std::map<uint32_t, bool> fNotFirstEvent;
       uint32_t L1ANumber;
       uint32_t BXN;
+      uint32_t cntDMBs; 	/// Total Number of DMBs per event from DDU Header DAV
+      uint32_t cntCFEBs;	/// Total Number of CFEBs per event from DMB DAV 
+      uint32_t cntALCTs;	/// Total Number of ALCTs per event from DMB DAV 
+      uint32_t cntTMBs;		/// Total Number of TMBs per event from DMB DAV
+      
+	
       // bool fFirstEvent;
       bool fCloseL1As; // Close L1A bit from DDU Trailer
       bool EmuEventDisplayWasReset;

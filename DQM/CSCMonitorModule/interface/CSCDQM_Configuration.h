@@ -105,6 +105,7 @@
   (( double, EFF_NODATA_THRESHOLD, 0.1 , "threshold in fraction to check for not reporting elements in HW (EventProcessor)" )) \
   (( double, EFF_NODATA_SIGFAIL,   5.0 , "statistical significance for not reportingelements in HW (EventProcessor)" )) \
   (( unsigned int, EVENTS_ECHO, 1000, "frequency in events to print echo message (EventProcessor)" )) \
+  (( std::string, FOLDER_FED, "" , "root file folder name to be used for FED histograms (EventProcessor)" )) \
   \
   \
 
@@ -249,6 +250,7 @@ namespace cscdqm {
 
       /** Pointers to Cache Functions */
       boost::function< bool (const HistoId id, MonitorObject*& mo) > fnGetCacheEMUHisto;
+      boost::function< bool (const HistoId id, const HwId& id1, MonitorObject*& mo) > fnGetCacheFEDHisto;
       boost::function< bool (const HistoId id, const HwId& id1, MonitorObject*& mo) > fnGetCacheDDUHisto;
       boost::function< bool (const HistoId id, const HwId& id1, const HwId& id2, const HwId& id3, MonitorObject*& mo) > fnGetCacheCSCHisto;
       boost::function< bool (const HistoId id, MonitorObject*& mo) > fnGetCacheParHisto;
@@ -256,6 +258,7 @@ namespace cscdqm {
       boost::function< bool (unsigned int&, unsigned int&, unsigned int&) > fnNextBookedCSC;
       boost::function< bool (unsigned int&, unsigned int&) > fnIsBookedCSC;
       boost::function< bool (unsigned int&) > fnIsBookedDDU;
+      boost::function< bool (unsigned int&) > fnIsBookedFED;
 
       /** Pointer to Collection Book Function */
       boost::function< MonitorObject* (const HistoBookRequest&) > fnBook;

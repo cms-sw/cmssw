@@ -419,6 +419,15 @@ namespace h {
   (( PAR_DCS_SIDEPLUS_STATION04, "CSC_SidePlus_Station04" )) \
   (( PAR_DCS_SIDEPLUS_STATION04_RING01, "CSC_SidePlus_Station04_Ring01" )) \
   (( PAR_DCS_SIDEPLUS_STATION04_RING02, "CSC_SidePlus_Station04_Ring02" )) \
+  (( EMU_FED_BUFFER_SIZE, "FEDBufferSize" )) \
+  (( EMU_FED_DDU_L1A_MISMATCH, "FED_DDU_L1A_mismatch" )) \
+  (( EMU_FED_EVENT_SIZE, "FEDTotalEventSize" )) \
+  (( EMU_FED_TOTAL_CSC_NUMBER, "FEDTotalCSCs" )) \
+  (( EMU_FED_TOTAL_CFEB_NUMBER, "FEDTotalCFEBs" )) \
+  (( EMU_FED_TOTAL_ALCT_NUMBER, "FEDTotalALCTs" )) \
+  (( EMU_FED_TOTAL_TMB_NUMBER, "FEDTotalTMBs" )) \
+  (( FED_BUFFER_SIZE, "DCCBufferSize" )) \
+  (( EMU_FED_FORMAT_ERRORS,"FEDFormat_Errors" )) \
   \
   \
 

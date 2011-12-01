@@ -80,6 +80,9 @@ namespace cscdqm {
     >
   > CSCMapType;
   
+  /** FED List definition (static MO list) */
+  typedef std::map<HwId, MonitorObject**> FEDMapType;
+
   /** DDU List definition (static MO list) */
   typedef std::map<HwId, MonitorObject**> DDUMapType;
 
@@ -113,6 +116,14 @@ namespace cscdqm {
       /** EMU and PAR MO static List */
       MonitorObject* data[h::namesSize];
 
+     /** FED MO List */
+      FEDMapType fedData;
+      /** Pointer to the Last FED object used (cached) */
+      FEDMapType::const_iterator fedPointer;
+      /** Last FED id used (cached) */
+      HwId fedPointerValue;
+
+
       /** DDU MO List */
       DDUMapType dduData;
       /** Pointer to the Last DDU object used (cached) */
@@ -136,6 +147,10 @@ namespace cscdqm {
         /** Initialize EMU and PAR static array with zero's */
         for (unsigned int i = 0; i < h::namesSize; i++) data[i] = 0;
 
+	/** Initialize FED cached pointers */
+        fedPointer = fedData.end();
+        fedPointerValue = 0;
+
         /** Initialize DDU and CSC cached pointers */
         dduPointer = dduData.end();
         dduPointerValue = 0;
@@ -144,6 +159,14 @@ namespace cscdqm {
 
       /** Destructor */
       ~Cache() {
+        /** Clear FED MO static arrays */
+        while (fedData.begin() != fedData.end()) {
+          if (fedData.begin()->second) {
+            delete [] fedData.begin()->second;
+          }
+          fedData.erase(fedData.begin());
+        }
+
         /** Clear DDU MO static arrays */
         while (dduData.begin() != dduData.end()) {
           if (dduData.begin()->second) {
@@ -157,6 +180,7 @@ namespace cscdqm {
 
       const bool get(const HistoDef& histo, MonitorObject*& mo);
       const bool getEMU(const HistoId& id, MonitorObject*& mo);
+      const bool getFED(const HistoId& id, const HwId& fedId, MonitorObject*& mo);
       const bool getDDU(const HistoId& id, const HwId& dduId, MonitorObject*& mo);
       const bool getCSC(const HistoId& id, const HwId& crateId, const HwId& dmbId, const HwId& addId, MonitorObject*& mo);
       const bool getPar(const HistoId& id, MonitorObject*& mo);
@@ -164,10 +188,12 @@ namespace cscdqm {
 
       /** Utility methods */
 
+      const bool nextBookedFED(unsigned int& n, unsigned int& fedId) const;
       const bool nextBookedDDU(unsigned int& n, unsigned int& dduId) const;
       const bool nextBookedCSC(unsigned int& n, unsigned int& crateId, unsigned int& dmbId) const;
       const bool isBookedCSC(const HwId& crateId, const HwId& dmbId) const;
       const bool isBookedDDU(const HwId& dduId) const;
+      const bool isBookedFED(const HwId& fedId) const;
 
   };
 

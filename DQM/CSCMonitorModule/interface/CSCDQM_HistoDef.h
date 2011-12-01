@@ -41,6 +41,9 @@ namespace cscdqm {
     /** Histogram value that implies to skip the histogram */
     const HistoName HISTO_SKIP = "0";
   }
+  
+  /** DDU path pattern. Argument is FED ID */
+  static const char PATH_FED[]     = "FED_%03d";
 
   /** DDU path pattern. Argument is DDU ID */
   static const char PATH_DDU[]     = "DDU_%02d";
@@ -116,6 +119,7 @@ namespace cscdqm {
        */
       const bool operator== (const HistoDef& t) const {
         if (getId()      != t.getId())      return false;
+        if (getFEDId()   != t.getFEDId())   return false;
         if (getDDUId()   != t.getDDUId())   return false;
         if (getCrateId() != t.getCrateId()) return false;
         if (getDMBId()   != t.getDMBId())   return false;
@@ -140,6 +144,7 @@ namespace cscdqm {
        */
       const bool operator< (const HistoDef& t) const {
         if (getId()      < t.getId())       return true; 
+        if (getFEDId()   < t.getFEDId())    return true;
         if (getDDUId()   < t.getDDUId())    return true;
         if (getCrateId() < t.getCrateId())  return true;
         if (getDMBId()   < t.getDMBId())    return true;
@@ -181,6 +186,12 @@ namespace cscdqm {
        * @return CSC Additional ID
        */
       virtual const HwId getAddId() const { return  0; }
+
+      /**
+       * @brief  Get FED ID
+       * @return FED ID
+       */
+      virtual const HwId getFEDId() const { return  0; }
 
       /**
        * @brief  Get DDU ID
@@ -253,6 +264,57 @@ namespace cscdqm {
       EMUHistoDef(const HistoId p_id) : HistoDef(p_id) { }
 
   };
+
+ /**
+   * @class FEDHistoDef
+   * @brief FED Level Histogram Definition
+   */
+  class FEDHistoDef : public HistoDef {
+      
+    private:
+      
+      HwId fedId;
+
+    public:
+
+      /**
+       * @brief  Constructor. It calls Base constructor inline
+       * @param  p_id Histogram ID (to be passed to Base class)
+       * @param  p_fedId FED ID
+       * @return 
+       */
+      FEDHistoDef(const HistoId p_id, const HwId p_fedId) : HistoDef(p_id), fedId(p_fedId) { }
+      const HwId getFEDId() const { return fedId; }
+      const std::string getPath() const { return getPath(fedId); }
+
+      /**
+       * @brief  Static FED path formatter
+       * @param  p_fedId FED ID
+       * @return formatted FED path 
+       */   
+      static const std::string getPath(const HwId p_fedId) {
+        return Form(PATH_FED, p_fedId);
+      } 
+      
+      /**
+       * @brief  Assignment (=) operator. Calls base assignment operator and
+       * assigns FEd-related data
+       * @param  t Histogram to be taken data from
+       * @return resulting histogram (this)
+       */
+      const FEDHistoDef& operator= (const FEDHistoDef& t) {
+        HistoDef *h1 = const_cast<FEDHistoDef*>(this);
+        const HistoDef *h2 = &t;
+        *h1 = *h2;
+        fedId   = t.getFEDId();
+        return *this;
+      }
+
+      const std::string processTitle(const std::string& p_title) const {
+        return processName(p_title.c_str(), getFEDId());
+      }
+        
+  };      
 
   /**
    * @class DDUHistoDef
@@ -410,6 +472,7 @@ namespace cscdqm {
   };
 
   static const std::type_info& EMUHistoDefT = typeid(cscdqm::EMUHistoDef);
+  static const std::type_info& FEDHistoDefT = typeid(cscdqm::FEDHistoDef);
   static const std::type_info& DDUHistoDefT = typeid(cscdqm::DDUHistoDef);
   static const std::type_info& CSCHistoDefT = typeid(cscdqm::CSCHistoDef);
   static const std::type_info& ParHistoDefT = typeid(cscdqm::ParHistoDef);

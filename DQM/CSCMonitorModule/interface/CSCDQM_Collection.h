@@ -86,6 +86,7 @@ namespace cscdqm {
       void load();
 
       void bookEMUHistos() const;
+      void bookFEDHistos(const HwId fedId) const;
       void bookDDUHistos(const HwId dduId) const;
       void bookCSCHistos(const HwId crateId, const HwId dmbId) const;
       void bookCSCHistos(const HistoId hid, const HwId crateId, const HwId dmbId, const HwId addId) const;
