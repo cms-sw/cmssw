@@ -140,35 +140,37 @@ public:
 
 private:
 
+  detset detSet_;
+  edm::Handle<edmNew::DetSetVector<SiStripCluster> > handle_;
+
+  const StripGeomDetUnit*               theStripGDU;
+  const StripClusterParameterEstimator* theCPE;
+
+  std::vector<BadStripBlock> badStripBlocks_;  
+
+  const std::vector<bool>* skipClusters_;
+
+  // --- regional unpacking
+  edm::Handle<edm::LazyGetter<SiStripCluster> > regionalHandle_;
+  unsigned int beginClusterI_;
+  unsigned int endClusterI_;
+
+
+  unsigned int id_;
+
+  int totalStrips_;
+  BadStripCuts badStripCuts_;
+  bool bad128Strip_[6];
+  bool hasAny128StripBad_, maskBad128StripBlocks_;
+ 
   bool isRegional;
 
   bool empty;
 
   bool activeThisEvent_,activeThisPeriod_;
 
-  unsigned int id_;
-
-  detset detSet_;
-  edm::Handle<edmNew::DetSetVector<SiStripCluster> > handle_;
 
 
-  const StripGeomDetUnit*               theStripGDU;
-  const StripClusterParameterEstimator* theCPE;
-
-
-
-  bool bad128Strip_[6];
-  bool hasAny128StripBad_, maskBad128StripBlocks_;
-
-  std::vector<BadStripBlock> badStripBlocks_;  
-  int totalStrips_;
-  BadStripCuts badStripCuts_;
- 
-
-  // --- regional unpacking
-  edm::Handle<edm::LazyGetter<SiStripCluster> > regionalHandle_;
-  unsigned int beginClusterI_;
-  unsigned int endClusterI_;
 
   inline bool isMasked(const SiStripCluster &cluster) const {
       if ( bad128Strip_[cluster.firstStrip() >> 7] ) {
@@ -191,30 +193,30 @@ private:
 			    std::vector<SiStripRecHit2D>& res) const;
   
   
-  std::set<SiStripClusterRef> skipClusters_;
-  std::set<SiStripRegionalClusterRef> skipRegClusters_;
   
  public:
   inline bool accept(SiStripClusterRef & r) const {
-    return (skipClusters_.find(r) == skipClusters_.end());
+    if(0==skipClusters_ || skipClusters_->empty()) return true;
+    assert(r.key()< skipClusters_->size());
+    return (not (*skipClusters_)[r.key()]);
   }
   inline bool accept(SiStripRegionalClusterRef &r) const{
-    return (skipRegClusters_.find(r) == skipRegClusters_.end());
+    if(0==skipClusters_ || skipClusters_->empty()) return true;
+    assert(r.key()<skipClusters_->size());
+    return not (*skipClusters_)[r.key()];
   }
 
   void unset(){
-    skipClusters_.clear();
-    skipRegClusters_.clear();
+    //skipClusters_ = 0;
+    //skipRegClusters_.clear();
+  }
+
+  void setClusterToSkip(const std::vector<bool>* toSkip){
+    skipClusters_ = toSkip;
   }
   template <typename IT>
-    void setClusterToSkip(IT begin, IT end){
-    skipClusters_.clear();
-    skipClusters_.insert(begin,end);
-  }
-  template <typename IT>
-    void setRegionalClustersToSkip(IT begin, IT end){
-    skipRegClusters_.clear();
-    skipRegClusters_.insert(begin,end);
+    void setRegionalClustersToSkip(const std::vector<bool>* toSkip){
+    skipClusters_ = toSkip;
   }
   
 };

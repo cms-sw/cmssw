@@ -15,6 +15,7 @@ TkPixelMeasurementDet::TkPixelMeasurementDet( const GeomDet* gdet,
 					      const PixelClusterParameterEstimator* cpe) : 
     MeasurementDet (gdet),
     theCPE(cpe),
+    skipClusters_(0),
     empty(true),
     activeThisEvent_(true), activeThisPeriod_(true)
   {
@@ -78,12 +79,23 @@ TkPixelMeasurementDet::recHits( const TrajectoryStateOnSurface& ts ) const
 {
   RecHitContainer result;
   if (empty == true ) return result;
-  if (isActive() == false) return result; 
+  if (isActive() == false) return result;
+  const SiPixelCluster* begin=0;
+  if(0!=handle_->data().size()) {
+     begin = &(handle_->data().front());
+  }
+  result.reserve(detSet_.size());
   for ( const_iterator ci = detSet_.begin(); ci != detSet_.end(); ++ ci ) {
-    SiPixelClusterRef cluster = edmNew::makeRefTo( handle_, ci ); 
-    if (skipClusters_.find(cluster)==skipClusters_.end())
-      result.push_back( buildRecHit( cluster, ts.localParameters() ) );
-    else LogDebug("TkPixelMeasurementDet")<<"skipping this cluster from last iteration on "<<geomDet().geographicalId().rawId()<<" key: "<<cluster.key();
+    
+     assert(ci >= begin);
+     unsigned int index = ci-begin;
+     assert(0==skipClusters_ or skipClusters_->empty() or index < skipClusters_->size());
+     if(0==skipClusters_ or skipClusters_->empty() or (not (*skipClusters_)[index]) ) {
+        SiPixelClusterRef cluster = edmNew::makeRefTo( handle_, ci );
+        result.push_back( buildRecHit( cluster, ts.localParameters() ) );
+     }else{   
+        LogDebug("TkPixelMeasurementDet")<<"skipping this cluster from last iteration on "<<geomDet().geographicalId().rawId()<<" key: "<<index;
+     }
   }
   return result;
 }

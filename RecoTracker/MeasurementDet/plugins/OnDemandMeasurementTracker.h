@@ -5,6 +5,7 @@
 #include "MeasurementTrackerImpl.h"
 #include "DataFormats/Common/interface/RefGetter.h" 
 #include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
+#include "DataFormats/Common/interface/ContainerMask.h"
 
 #include "TkStripMeasurementDet.h"
 
@@ -62,7 +63,8 @@ public:
   mutable edm::Handle< edm::RefGetter<SiStripCluster> > theRefGetterH;
   mutable edm::Handle< edm::LazyGetter<SiStripCluster> > theLazyGetterH;
   mutable bool theSkipClusterRefs;
-  mutable edm::Handle< edmNew::DetSetVector<TkStripMeasurementDet::SiStripRegionalClusterRef> > theStripClusterRefs;
+  mutable edm::Handle< edm::ContainerMask<edm::LazyGetter<SiStripCluster> > > theStripClusterMask;
+  mutable std::vector<bool> theClustersToSkip;
   /// a class that holds flags, region_range (in RefGetter) for a given MeasurementDet
   class DetODStatus {
   public:

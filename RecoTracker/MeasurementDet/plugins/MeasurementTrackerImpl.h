@@ -90,6 +90,9 @@ public:
   mutable std::vector<TkStripMeasurementDet*> theStripDets;
   mutable std::vector<TkPixelMeasurementDet*> thePixelDets;
   mutable std::vector<TkGluedMeasurementDet*> theGluedDets;
+  
+  mutable std::vector<bool> thePixelsToSkip;
+  mutable std::vector<bool> theStripsToSkip;
 
   const PixelClusterParameterEstimator* thePixelCPE;
   const StripClusterParameterEstimator* theStripCPE;

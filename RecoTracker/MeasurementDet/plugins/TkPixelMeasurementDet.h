@@ -70,29 +70,31 @@ private:
 
   const PixelGeomDetUnit*               thePixelGDU;
   const PixelClusterParameterEstimator* theCPE;
-  detset detSet_;
   edm::Handle<edmNew::DetSetVector<SiPixelCluster> > handle_;
+  detset detSet_;
+  std::vector< LocalPoint > badRocPositions_;
+  const std::vector<bool>* skipClusters_;
   unsigned int id_;
   bool empty;
   bool activeThisEvent_, activeThisPeriod_;
-  std::vector< LocalPoint > badRocPositions_;
   
   static const float theRocWidth, theRocHeight;
 
-  std::set<SiPixelClusterRef> skipClusters_;
  public:
 
   inline bool accept(SiPixelClusterRefNew & r) const {
-    return skipClusters_.find(r) == skipClusters_.end();
+    
+    if(0==skipClusters_ || skipClusters_->empty()) return true;
+    assert(r.key()<skipClusters_->size());
+    return not (*skipClusters_)[r.key()];
   }
   inline void unset(){
-    skipClusters_.clear();
+    //skipClusters_= 0;
   }
-  template <typename IT>
-    void setClusterToSkip(IT begin, IT end){
-    skipClusters_.clear();
-    skipClusters_.insert(begin,end);
-      }
+
+  void setClusterToSkip(const std::vector<bool>*skip ){
+     skipClusters_ = skip;
+  }
 };
 
 #endif

@@ -15,6 +15,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
+#include "DataFormats/Common/interface/ContainerMask.h"
 
 #include "TrackingTools/MeasurementDet/interface/MeasurementDetException.h"
 
@@ -197,8 +198,11 @@ void OnDemandMeasurementTracker::updateStrips( const edm::Event& event) const
 
       //get the skip clusters
       if (selfUpdateSkipClusters_){
-	theSkipClusterRefs=true;
-	event.getByLabel(pset_.getParameter<edm::InputTag>("skipClusters"),theStripClusterRefs);
+        theSkipClusterRefs=true;
+        event.getByLabel(pset_.getParameter<edm::InputTag>("skipClusters"),theStripClusterMask);
+        theStripClusterMask->copyMaskTo(theClustersToSkip);
+      } else {
+        theClustersToSkip.clear();
       }
 
       //get the detid that are inactive
@@ -313,11 +317,7 @@ void OnDemandMeasurementTracker::assign(const TkStripMeasurementDet * csmdet,
 			   <<"\n"<<dumpCluster(range.first,range.second);
 	if (selfUpdateSkipClusters_){
 	  //assign skip clusters
-	  edmNew::DetSetVector<TkStripMeasurementDet::SiStripRegionalClusterRef>::const_iterator f=theStripClusterRefs->find(id);
-	  if (f!=theStripClusterRefs->end())
-	    smdet->setRegionalClustersToSkip(f->begin(),f->end());
-	  else
-	    smdet->unset();
+	  smdet->setClusterToSkip(&theClustersToSkip);
 	}
 	//and you are done
 	return;}

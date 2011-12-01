@@ -18,10 +18,11 @@ TkStripMeasurementDet::TkStripMeasurementDet( const GeomDet* gdet,
 					      const StripClusterParameterEstimator* cpe,
 					      bool regional) : 
     MeasurementDet (gdet),
+    theCPE(cpe),
+    skipClusters_(0),
     isRegional(regional),
     empty(true),
-    activeThisEvent_(true), activeThisPeriod_(true),
-    theCPE(cpe)
+    activeThisEvent_(true), activeThisPeriod_(true)
   {
     theStripGDU = dynamic_cast<const StripGeomDetUnit*>(gdet);
     if (theStripGDU == 0) {
