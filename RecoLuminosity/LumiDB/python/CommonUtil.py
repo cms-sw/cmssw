@@ -78,6 +78,7 @@ def guessUnit(inverseubval):
         denomitor=1.0e12
         unitstring='/ab'
         return (float(inverseubval)/float(denomitor),unitstring)
+    return (float(inverseubval),'/ub')
 def pairwise(lst):
     """
     yield item i and item i+1 in lst. e.g.
