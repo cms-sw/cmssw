@@ -13,7 +13,11 @@
 #include <TVectorT.h>
 #include <TFile.h>
 #include <TGraph.h>
+#include <TGraphErrors.h>
 #include <TMath.h>
+#include <TRandom3.h>
+#include <TVirtualFitter.h>
+#include <TFitterMinuit.h>
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -50,6 +54,14 @@ void FitRatesPerLS (TString DS="AlphaT", double L=5000, size rebin=30, double lo
   gStyle->SetMarkerStyle(20);
   gStyle->SetMarkerSize(0.5);
 
+// fitter magic from roberto
+
+ TVirtualFitter::SetDefaultFitter("Minuit2");
+ TVirtualFitter::Fitter(0,50);
+ TFitterMinuit* fitter =
+ dynamic_cast<TFitterMinuit*>(TVirtualFitter::GetFitter());
+ fitter->SetStrategy(2);
+ gRandom = new TRandom3();
 
  	double lumiByLS(int runNumber, int LS);
 
@@ -57,67 +69,78 @@ void FitRatesPerLS (TString DS="AlphaT", double L=5000, size rebin=30, double lo
 	TFile* f[10];
 	TH1F* hTotalPerLS     [10];
 	TH2F* hIndividualPerLS[10];
+	TH2F* hIndividualCountsPerLS[10];
 	TH2F* hTotalPSPerLS   [10];
 	double vlumiSFperFile [10]; 
 	size fileCounter=0;
 
 
-if (DS=="AlphaT") {
-    f[fileCounter] = new TFile("HighPU/root/hltmenu_7TeV_3.0e33_20111107_r178479_3e33_AlphaT_forHighPU.root"); vlumiSFperFile[fileCounter++]=1;
-    f[fileCounter] = new TFile("HighPU/root/hltmenu_7TeV_3.0e33_20111107_r179828_HighPU_AlphaT_forHighPU.root"); vlumiSFperFile[fileCounter++]=131.8;
-}
-if (DS=="DoubleMu") {
-    f[fileCounter] = new TFile("HighPU/root/hltmenu_7TeV_3.0e33_20111107_r178479_3e33_DoubleMu_forHighPU.root"); vlumiSFperFile[fileCounter++]=1;
-    f[fileCounter] = new TFile("HighPU/root/hltmenu_7TeV_3.0e33_20111107_r179828_HighPU_DoubleMu_forHighPU.root"); vlumiSFperFile[fileCounter++]=131.8;
-}
-if (DS=="EleHadEG12") {
-    f[fileCounter] = new TFile("HighPU/root/hltmenu_7TeV_3.0e33_20111107_r178479_3e33_EleHadEG12_forHighPU.root"); vlumiSFperFile[fileCounter++]=1;
-    f[fileCounter] = new TFile("HighPU/root/hltmenu_7TeV_3.0e33_20111107_r179828_HighPU_EleHadEG12_forHighPU.root"); vlumiSFperFile[fileCounter++]=131.8;
-}
-if (DS=="HTMHT") {
-    f[fileCounter] = new TFile("HighPU/root/hltmenu_7TeV_3.0e33_20111107_r178479_3e33_HTMHT_forHighPU.root"); vlumiSFperFile[fileCounter++]=1;
-    f[fileCounter] = new TFile("HighPU/root/hltmenu_7TeV_3.0e33_20111107_r179828_HighPU_HTMHT_forHighPU.root"); vlumiSFperFile[fileCounter++]=131.8;
-}
-if (DS=="MET") {
-    f[fileCounter] = new TFile("HighPU/root/hltmenu_7TeV_3.0e33_20111107_r178479_3e33_MET_forHighPU.root"); vlumiSFperFile[fileCounter++]=1;
-    f[fileCounter] = new TFile("HighPU/root/hltmenu_7TeV_3.0e33_20111107_r179828_HighPU_MET_forHighPU.root"); vlumiSFperFile[fileCounter++]=131.8;
-}
-if (DS=="MuHad") {
-    f[fileCounter] = new TFile("HighPU/root/hltmenu_7TeV_3.0e33_20111107_r178479_3e33_MuHad_forHighPU.root"); vlumiSFperFile[fileCounter++]=1;
-    f[fileCounter] = new TFile("HighPU/root/hltmenu_7TeV_3.0e33_20111107_r179828_HighPU_MuHad_forHighPU.root"); vlumiSFperFile[fileCounter++]=131.8;
-}
-if (DS=="MultiJet") {
-    f[fileCounter] = new TFile("HighPU/root/hltmenu_7TeV_3.0e33_20111107_r178479_3e33_MultiJet_forHighPU.root"); vlumiSFperFile[fileCounter++]=1;
-    f[fileCounter] = new TFile("HighPU/root/hltmenu_7TeV_3.0e33_20111107_r179828_HighPU_MultiJet_forHighPU.root"); vlumiSFperFile[fileCounter++]=131.8;
-}
-if (DS=="PhotonDoubleEle") {
-    f[fileCounter] = new TFile("HighPU/root/hltmenu_7TeV_3.0e33_20111107_r178479_3e33_PhotonDoubleEle_forHighPU.root"); vlumiSFperFile[fileCounter++]=1;
-    f[fileCounter] = new TFile("HighPU/root/hltmenu_7TeV_3.0e33_20111107_r179828_HighPU_PhotonDoubleEle_forHighPU.root"); vlumiSFperFile[fileCounter++]=131.8;
-}
-if (DS=="PhotonDoublePhoton") {
-    f[fileCounter] = new TFile("HighPU/root/hltmenu_7TeV_3.0e33_20111107_r178479_3e33_PhotonDoublePhoton_forHighPU.root"); vlumiSFperFile[fileCounter++]=1;
-    f[fileCounter] = new TFile("HighPU/root/hltmenu_7TeV_3.0e33_20111107_r179828_HighPU_PhotonDoublePhoton_forHighPU.root"); vlumiSFperFile[fileCounter++]=131.8;
-}
-if (DS=="PhotonHad") {
-    f[fileCounter] = new TFile("HighPU/root/hltmenu_7TeV_3.0e33_20111107_r178479_3e33_PhotonHad_forHighPU.root"); vlumiSFperFile[fileCounter++]=1;
-    f[fileCounter] = new TFile("HighPU/root/hltmenu_7TeV_3.0e33_20111107_r179828_HighPU_PhotonHad_forHighPU.root"); vlumiSFperFile[fileCounter++]=131.8;
-}
-if (DS=="PhotonPhoton") {
-    f[fileCounter] = new TFile("HighPU/root/hltmenu_7TeV_3.0e33_20111107_r178479_3e33_PhotonPhoton_forHighPU.root"); vlumiSFperFile[fileCounter++]=1;
-    f[fileCounter] = new TFile("HighPU/root/hltmenu_7TeV_3.0e33_20111107_r179828_HighPU_PhotonPhoton_forHighPU.root"); vlumiSFperFile[fileCounter++]=131.8;
-}
-if (DS=="RMR") {
-    f[fileCounter] = new TFile("HighPU/root/hltmenu_7TeV_3.0e33_20111107_r178479_3e33_RMR_forHighPU.root"); vlumiSFperFile[fileCounter++]=1;
-    f[fileCounter] = new TFile("HighPU/root/hltmenu_7TeV_3.0e33_20111107_r179828_HighPU_RMR_forHighPU.root"); vlumiSFperFile[fileCounter++]=131.8;
-}
-if (DS=="SingleMu") {
-    f[fileCounter] = new TFile("HighPU/root/hltmenu_7TeV_3.0e33_20111107_r178479_3e33_SingleMu_forHighPU.root"); vlumiSFperFile[fileCounter++]=1;
-    f[fileCounter] = new TFile("HighPU/root/hltmenu_7TeV_3.0e33_20111107_r179828_HighPU_SingleMu_forHighPU.root"); vlumiSFperFile[fileCounter++]=131.8;
-}
-
+  if (DS=="AlphaT") {
+    f[fileCounter] = new TFile("/1TB/hartl/ratesVsLumiHighPileup/root/hltmenu_HighPU_r179828_AlphaT_forHighPU.root"); vlumiSFperFile[fileCounter++]=131.8;
+    f[fileCounter] = new TFile("/1TB/hartl/ratesVsLumiHighPileup/root/hltmenu_3e33_r178479_AlphaT_forHighPU.root"); vlumiSFperFile[fileCounter++]=1;
+  };
+  if (DS=="DoubleMu") {
+    f[fileCounter] = new TFile("/1TB/hartl/ratesVsLumiHighPileup/root/hltmenu_HighPU_r179828_DoubleMu_forHighPU.root"); vlumiSFperFile[fileCounter++]=131.8;
+    f[fileCounter] = new TFile("/1TB/hartl/ratesVsLumiHighPileup/root/hltmenu_3e33_r178479_DoubleMu_forHighPU.root"); vlumiSFperFile[fileCounter++]=1;
+  };
+  if (DS=="EleHadEG12") {
+    f[fileCounter] = new TFile("/1TB/hartl/ratesVsLumiHighPileup/root/hltmenu_HighPU_r179828_EleHadEG12_forHighPU.root"); vlumiSFperFile[fileCounter++]=131.8;
+    f[fileCounter] = new TFile("/1TB/hartl/ratesVsLumiHighPileup/root/hltmenu_3e33_r178479_EleHadEG12_forHighPU.root"); vlumiSFperFile[fileCounter++]=1;
+  };
+  if (DS=="HTMHT") {
+    f[fileCounter] = new TFile("/1TB/hartl/ratesVsLumiHighPileup/root/hltmenu_HighPU_r179828_HTMHT_forHighPU.root"); vlumiSFperFile[fileCounter++]=131.8;
+    f[fileCounter] = new TFile("/1TB/hartl/ratesVsLumiHighPileup/root/hltmenu_3e33_r178479_HTMHT_forHighPU.root"); vlumiSFperFile[fileCounter++]=1;
+  };
+  if (DS=="MET") {
+    f[fileCounter] = new TFile("/1TB/hartl/ratesVsLumiHighPileup/root/hltmenu_HighPU_r179828_MET_forHighPU.root"); vlumiSFperFile[fileCounter++]=131.8;
+    f[fileCounter] = new TFile("/1TB/hartl/ratesVsLumiHighPileup/root/hltmenu_3e33_r178479_MET_forHighPU.root"); vlumiSFperFile[fileCounter++]=1;
+  };
+  if (DS=="MuHad") {
+    f[fileCounter] = new TFile("/1TB/hartl/ratesVsLumiHighPileup/root/hltmenu_HighPU_r179828_MuHad_forHighPU.root"); vlumiSFperFile[fileCounter++]=131.8;
+    f[fileCounter] = new TFile("/1TB/hartl/ratesVsLumiHighPileup/root/hltmenu_3e33_r178479_MuHad_forHighPU.root"); vlumiSFperFile[fileCounter++]=1;
+  };
+  if (DS=="MultiJet") {
+    f[fileCounter] = new TFile("/1TB/hartl/ratesVsLumiHighPileup/root/hltmenu_HighPU_r179828_MultiJet_forHighPU.root"); vlumiSFperFile[fileCounter++]=131.8;
+    f[fileCounter] = new TFile("/1TB/hartl/ratesVsLumiHighPileup/root/hltmenu_3e33_r178479_MultiJet_forHighPU.root"); vlumiSFperFile[fileCounter++]=1;
+  };
+  if (DS=="PhotonDoubleEle") {
+    f[fileCounter] = new TFile("/1TB/hartl/ratesVsLumiHighPileup/root/hltmenu_HighPU_r179828_PhotonDoubleEle_forHighPU.root"); vlumiSFperFile[fileCounter++]=131.8;
+    f[fileCounter] = new TFile("/1TB/hartl/ratesVsLumiHighPileup/root/hltmenu_3e33_r178479_PhotonDoubleEle_forHighPU.root"); vlumiSFperFile[fileCounter++]=1;
+  };
+  if (DS=="PhotonDoublePhoton") {
+    f[fileCounter] = new TFile("/1TB/hartl/ratesVsLumiHighPileup/root/hltmenu_HighPU_r179828_PhotonDoublePhoton_forHighPU.root"); vlumiSFperFile[fileCounter++]=131.8;
+    f[fileCounter] = new TFile("/1TB/hartl/ratesVsLumiHighPileup/root/hltmenu_3e33_r178479_PhotonDoublePhoton_forHighPU.root"); vlumiSFperFile[fileCounter++]=1;
+  };
+  if (DS=="PhotonHad") {
+    f[fileCounter] = new TFile("/1TB/hartl/ratesVsLumiHighPileup/root/hltmenu_HighPU_r179828_PhotonHad_forHighPU.root"); vlumiSFperFile[fileCounter++]=131.8;
+    f[fileCounter] = new TFile("/1TB/hartl/ratesVsLumiHighPileup/root/hltmenu_3e33_r178479_PhotonHad_forHighPU.root"); vlumiSFperFile[fileCounter++]=1;
+  };
+  if (DS=="PhotonPhoton") {
+    f[fileCounter] = new TFile("/1TB/hartl/ratesVsLumiHighPileup/root/hltmenu_HighPU_r179828_PhotonPhoton_forHighPU.root"); vlumiSFperFile[fileCounter++]=131.8;
+    f[fileCounter] = new TFile("/1TB/hartl/ratesVsLumiHighPileup/root/hltmenu_3e33_r178479_PhotonPhoton_forHighPU.root"); vlumiSFperFile[fileCounter++]=1;
+  };
+  if (DS=="RMR") {
+    f[fileCounter] = new TFile("/1TB/hartl/ratesVsLumiHighPileup/root/hltmenu_HighPU_r179828_RMR_forHighPU.root"); vlumiSFperFile[fileCounter++]=131.8;
+    f[fileCounter] = new TFile("/1TB/hartl/ratesVsLumiHighPileup/root/hltmenu_3e33_r178479_RMR_forHighPU.root"); vlumiSFperFile[fileCounter++]=1;
+  };
+  if (DS=="SingleMu") {
+    f[fileCounter] = new TFile("/1TB/hartl/ratesVsLumiHighPileup/root/hltmenu_HighPU_r179828_SingleMu_forHighPU.root"); vlumiSFperFile[fileCounter++]=131.8;
+    f[fileCounter] = new TFile("/1TB/hartl/ratesVsLumiHighPileup/root/hltmenu_3e33_r178479_SingleMu_forHighPU.root"); vlumiSFperFile[fileCounter++]=1;
+  };
+  if (DS=="Tau") {
+    f[fileCounter] = new TFile("/1TB/hartl/ratesVsLumiHighPileup/root/hltmenu_HighPU_r179828_Tau_forHighPU.root"); vlumiSFperFile[fileCounter++]=131.8;
+    f[fileCounter] = new TFile("/1TB/hartl/ratesVsLumiHighPileup/root/hltmenu_3e33_r178479_Tau_forHighPU.root"); vlumiSFperFile[fileCounter++]=1;
+  };
+  if (DS=="Jet") {
+    f[fileCounter] = new TFile("/1TB/hartl/ratesVsLumiHighPileup/root/hltmenu_HighPU_r179828_Jet_forHighPU.root"); vlumiSFperFile[fileCounter++]=131.8;
+    f[fileCounter] = new TFile("/1TB/hartl/ratesVsLumiHighPileup/root/hltmenu_3e33_r178479_Jet_forHighPU.root"); vlumiSFperFile[fileCounter++]=1;
+  };
 
 	gStyle->SetPalette(1);
 
+
+  // get vector of trigger names
+  // for each file, get histograms for rate,counts, prescale
 	size nPaths=0;
 	vector <TString> vTriggerNames;
 	for (size iFile=0; iFile<fileCounter; ++iFile) {
@@ -128,14 +151,16 @@ if (DS=="SingleMu") {
 	// Open DS VS LS rate
 		hTotalPerLS     [iFile] = (TH1F*) f[iFile]->Get("totalPerLS");	
 	// Open paths VS LS rate
-		hIndividualPerLS[iFile] = (TH2F*) f[iFile]->Get("individualPerLS");
-		hTotalPSPerLS   [iFile] = (TH2F*) f[iFile]->Get("totalprescalePerLS");
+		hIndividualPerLS[iFile]       = (TH2F*) f[iFile]->Get("individualPerLS");
+		hIndividualCountsPerLS[iFile] = (TH2F*) f[iFile]->Get("individualCountsPerLS");
+		hTotalPSPerLS   [iFile]       = (TH2F*) f[iFile]->Get("totalprescalePerLS");
 
 		if (iFile==0) nPaths = hIndividualPerLS     [iFile]->GetNbinsX();
 		if (nPaths != (size)hIndividualPerLS     [iFile]->GetNbinsX()) {
 			printf("Number of paths do not match for file [%d]. Exiting...\n" ,iFile);
 			return;
 		}
+    // TODO: CHECK: shouldn't this be applied only once (i.e. for one file)
 		for (size iPath=0; iPath<nPaths; ++iPath) {
 			vTriggerNames.push_back(TString(hIndividualPerLS[0]->GetXaxis()->GetBinLabel(iPath+1)));
 		}
@@ -145,27 +170,12 @@ if (DS=="SingleMu") {
 	cout << "# of Paths= " << nPaths << endl;
 
 
-// 	for (size iPath=0; iPath<vg.size(); ++iPath) {
-// 		cout << vg.at(iPath)->GetName() << endl;
-// 		for (size ils=1; ils<=nB1; ++ils) {
-// 			double iLumi = lumiByLS(runNumber1, vLS.at(ils));
-// 			double rate  = hAllPaths1->GetBinContent(iPath,ils);
-// 			cout << ils << " " << iLumi <<  endl;
-// 			vg.at(iPath)->SetPoint((ils), iLumi, rate);
-// 		}
-// 		for (size ils=1; ils<=nB2; ++ils) {
-// 			double iLumi = lumiByLS(runNumber1, vLS.at(ils+nB1));
-// 			double rate  = hAllPaths2->GetBinContent(iPath,ils);
-// 			cout << ils << " " << iLumi <<  endl;
-// 			vg.at(iPath)->SetPoint((ils), iLumi, rate);
-// 		}
-// 	}
-
 	vector <pair<int, double> > vLumiLSindex;// contains the sorted index Lumi per LS for the whole data. 
 	vector <double> vLumi;       // contains the inst Lumi per LS for the whole data. same size of vLS
 	vector <double> vLumiRebin;  // contains the inst Lumi per LS for the whole data. same size of vLS
-// 	vector <double> vRates;      // contains the DS rate per LS
+
 	vector <vector <double> > vvRates;      // contains vectors of path rates per LS, one vector per path.
+	vector <vector <double> > vvCounts;     // contains vectors of path rates per LS, one vector per path.
 	vector <vector <double> > vvRatesRebin; // contains vectors of path rates per LS, one vector per path.
 	vector <vector <double> > vvTotalPrescales;    // contains vectors of L1*HLT PS per LS, one vector per path.
 
@@ -175,7 +185,7 @@ if (DS=="SingleMu") {
 	for (size iFile=0; iFile<fileCounter; ++iFile) {//looping over files
 		for (int iLS=0; iLS<hIndividualPerLS     [iFile]->GetNbinsY(); ++iLS) {//looping over file LS
 		TString tS =        hIndividualPerLS     [iFile]->GetYaxis()->GetBinLabel(iLS+1);
-// 		cout << tS << endl;
+
 		TObjArray* tokens = tS.Tokenize("-");
 		int nTokens = tokens->GetEntries();
 		if (nTokens==2) {
@@ -189,7 +199,6 @@ if (DS=="SingleMu") {
 		}
 		double Lumi = lumiByLS_( runNumber,  LS)*vlumiSFperFile[iFile];
 		vLumi.push_back(Lumi);
-//  		printf("Run[%d], LS[%d]: Lumi=%4.2lf\n",runNumber, LS, Lumi);
 		
 		}// end looping on file LS
 	}//end looping over files
@@ -198,68 +207,71 @@ if (DS=="SingleMu") {
 // Fill vectors of PS and Rates
 	for (size iPath=0; iPath<nPaths; ++iPath) {//looping over paths
 		vector <double> vRates;
+		vector <double> vCounts;
 		vector <double> vTotalPrescales;
 		for (size iFile=0; iFile<fileCounter; ++iFile) {//looping over files
-//  			double dLumi = 0;
-//  			double dRate  = 0;
-//  			size iRebin = 0;
-// 			for (int iLS=0; iLS<hIndividualPerLS     [iFile]->GetNbinsY(); ) {//looping over file LS
-//  			for (iRebin=0; iRebin<rebin && iLS<hIndividualPerLS     [iFile]->GetNbinsY(); ++iRebin) {
-//  				iLumi += (iLS);
-// 				rate  += (vvRates.at(iPath)).at(ils);
-// 				++ils;
-// // 				cout << ils << " " << iLumi <<  endl;
-// 			}
-// 			iLumi /=iRebin;
-// 			rate  /=iRebin;
-// 			vr.push_back(rate);
-// 			if (isFirst) vLumiRebin.push_back(iLumi);
 
 			for (int iLS=0; iLS<hIndividualPerLS     [iFile]->GetNbinsY(); ++iLS) {//looping over file LS
-				vRates.push_back         (hIndividualPerLS     [iFile]->GetBinContent(iPath+1,iLS+1));
-				vTotalPrescales.push_back(hTotalPSPerLS        [iFile]->GetBinContent(iPath+1,iLS+1));
+				vRates.push_back         (hIndividualPerLS      [iFile]->GetBinContent(iPath+1,iLS+1));
+				vCounts.push_back        (hIndividualCountsPerLS[iFile]->GetBinContent(iPath+1,iLS+1));
+				vTotalPrescales.push_back(hTotalPSPerLS         [iFile]->GetBinContent(iPath+1,iLS+1));
 			}// end looping on file LS
 		}//end looping over files
 		vvRates         .push_back(vRates         );
+		vvCounts        .push_back(vCounts        );
 		vvTotalPrescales.push_back(vTotalPrescales);
 	}//end looping over paths
 
-
-	vector <TGraph*> vGraph;
+	vector <TGraphErrors*> vGraph;
 
 	for (size iLS=0; iLS<vLumi.size(); ++iLS) {
 		vLumiLSindex.push_back(make_pair(iLS,vLumi.at(iLS)));
 	}
 	sort (vLumiLSindex.begin(), vLumiLSindex.end(), sortPairs); //sorting the vector of lumi. keep trak of the index.
-// 		printf("iLS[%d]: Lumi=%4.2lf\n",vLumiLSindex.at(iLS).first,vLumiLSindex.at(iLS).second);
-// 	}
+
 	for (size iPath=0; iPath<nPaths; ++iPath) {//looping over paths
+
 		vector <double> vRatesUnprescaled; //temp vector containing unprescaled rates 
-		vector <double> vLumiSorted;         //temp vector containing decreasing inst lumis 
+		vector <double> vCounts;           //temp vector containing counts for each bin of the final TGraph (rebinning...)
+
+		vector <double> vRateUncertainty;  //temp vector containing the uncertainties of the unprescaled rates
+		vector <double> vXAxisUncertainty;  //dummy
+
+		vector <double> vLumiSorted;       //temp vector containing decreasing inst lumis 
 		for (size iLS=0; iLS<vLumiLSindex.size();) {//looping over the entire set of data
 
  			double lumi = 0;
  			double rate  = 0;
+      double count = 0;
  			size iRebin = 0;
  			for (iRebin=0; iRebin<rebin && iLS<vLumiLSindex.size(); ++iRebin) {
 				int idx= vLumiLSindex.at(iLS).first;
  				lumi += vLumiLSindex.at(iLS).second;
+        
  				rate  += vvRates.at(iPath).at(idx)*vvTotalPrescales.at(iPath).at(idx);
+ 				count += vvCounts.at(iPath).at(idx);
  				++iLS;
-// // 				cout << ils << " " << iLumi <<  endl;
  			}
+			//std::cout << "iLS = " << iLS << ": vLumiLSindex.at(iLS).second = " << vLumiLSindex.at(iLS).second << endl;
  			lumi /=iRebin;
  			rate  /=iRebin;
 			if (vLumiLSindex.at(iLS).second<lowLumiCutoff) break;
 
+      // calculation of the uncertainty of the final unprescaled rate:
+      // A) r = g*c  ==>  g = r/c
+      // B) u(r) = g*u(c) = (r/c)*u(c) = r/sqrt(c)
+			double rateUncertainty = rate / sqrt(count);
 			vRatesUnprescaled.push_back(rate);
-			vLumiSorted        .push_back(lumi);
+			vCounts          .push_back(count);
+      vXAxisUncertainty.push_back(0.0);
+      vRateUncertainty.push_back(rateUncertainty);
+			vLumiSorted      .push_back(lumi);
 		}//end looping over the entire set of data
-		TGraph* g = new TGraph(vLumiSorted.size(), &vLumiSorted[0], &vRatesUnprescaled[0]);
+
+		TGraphErrors* g = new TGraphErrors(vLumiSorted.size(), &vLumiSorted[0], &vRatesUnprescaled[0], 0, &vRateUncertainty[0]); //&vXAxisUncertainty[0]
 		g->SetTitle(vTriggerNames.at(iPath));
 		vGraph.push_back(g);
 	}//end looping over paths
-
 
 	double FitPars[4];
 
@@ -278,14 +290,20 @@ if (DS=="SingleMu") {
 	TF1* fExpExp = new TF1("fExpExp",ExpoExpo,0,10000,3);
 
 	// Finally. Plot!
- 	size ix = TMath::Floor(sqrt(nPaths)); //Choose the proper canvas division
- 	size iy = ix;
-	if (ix*iy==nPaths);
- 	else if (sqrt(nPaths)*(iy+1)>nPaths) ++iy;
-	else {++ix; ++iy;}// end of canvas division
+
+ 	size nx = TMath::Floor(sqrt(nPaths)); //Choose the proper canvas division
+ 	size ny = nPaths/nx;
+  if (nx*ny < nPaths) ny++;
+
  	TCanvas* c = new TCanvas("c","c",0,0,1200,1000);
- 	c->Divide(ix,iy);
- 	for (size iPath=0; iPath<nPaths; ++iPath) {//looping over paths
+ 	c->Divide(nx,ny);
+
+//	if (ix*iy==nPaths);
+// 	else if (sqrt(nPaths)*(iy+1)>nPaths) ++iy;
+//	else {++ix; ++iy;}// end of canvas division
+
+ 	for (size iPath=0; iPath<nPaths; ++iPath)
+  {//looping over paths
  		c->cd(iPath+1);
  		vGraph.at(iPath)->Draw("ap");
  		vGraph.at(iPath)->Fit("fp1","Q","",1000, 3000); // Fitting only the region 1E33 - 3E33 for the linear trend
@@ -325,14 +343,6 @@ double ExpoExpo(double* x, double* p) {
 }
 
 double lumiByLS_(int runNumber, int LS) {
-
-	// //      bool operator<(const pair<int,int>&x, const pair<int,int>)&y)  {
-	// //              if (x.first  < y.first ) return true ;
-	// //              if (x.first  > y.first ) return false;
-	// //              if (x.second < y.second) return true ;
-	// //              return false;
-	// //      }
-
 
 	typedef std::map < pair<int, int>, double > mapLS;
 	mapLS lumiByLS;
