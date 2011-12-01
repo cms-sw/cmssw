@@ -1045,13 +1045,17 @@ void PFRootEventManager::readOptions(const char* file,
   bool usePFMuonMomAssign = false;
   options_->GetOpt("particle_flow", "usePFMuonMomAssign", usePFMuonMomAssign);
  
+  bool useBestMuonTrack = false;
+  options_->GetOpt("particle_flow", "useBestMuonTrack", useBestMuonTrack);
+
   try { 
     pfAlgo_.setPFMuonAndFakeParameters(muonHCAL,
 				       muonECAL,
 				       nSigmaTRACK,
 				       ptError,
 				       factors45,
-				       usePFMuonMomAssign);
+				       usePFMuonMomAssign,
+				       useBestMuonTrack);
   }
   catch( std::exception& err ) {
     cerr<<"exception setting PFAlgo Muon and Fake parameters: "

@@ -449,6 +449,7 @@ particle_flow	useEGammaElectrons      1
 
 //PF Muon Momentum Assignment
 particle_flow   usePFMuonMomAssign      0
+particle_flow   useBestMuonTrack	0
 
 //Use tracking at HLT
 particle_flow   useAtHLT                0
