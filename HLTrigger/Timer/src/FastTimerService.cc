@@ -222,10 +222,10 @@ void FastTimerService::postEndJob() {
   std::ostringstream out;
   out << std::fixed << std::setprecision(6);
   out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ") << '\n';
-  out << "FastReport              " << std::right << std::setw(10) << m_summary_source       / (double) m_summary_events << " Source"        << '\n';
-  out << "FastReport              " << std::right << std::setw(10) << m_summary_event        / (double) m_summary_events << " Event"         << '\n';
-  out << "FastReport              " << std::right << std::setw(10) << m_summary_all_paths    / (double) m_summary_events << " all Paths"     << '\n';
-  out << "FastReport              " << std::right << std::setw(10) << m_summary_all_endpaths / (double) m_summary_events << " all EndPaths"  << '\n';
+  out << "FastReport              " << std::right << std::setw(10) << m_summary_source       / (double) m_summary_events << "  Source"        << '\n';
+  out << "FastReport              " << std::right << std::setw(10) << m_summary_event        / (double) m_summary_events << "  Event"         << '\n';
+  out << "FastReport              " << std::right << std::setw(10) << m_summary_all_paths    / (double) m_summary_events << "  all Paths"     << '\n';
+  out << "FastReport              " << std::right << std::setw(10) << m_summary_all_endpaths / (double) m_summary_events << "  all EndPaths"  << '\n';
   if (m_enable_timing_paths and not m_enable_timing_modules) {
     out << '\n';
     out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active Path" << '\n';
@@ -367,10 +367,10 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
           else
             other   += m_modules[module];
         }
-        // time spent after the last module
+        // time spent after the last active module
         double post  = delta(m_timer_module.second, m_timer_path.second);
         // time spent between modules
-        double inter = time - m_paths_premodules[* m_current_path] - current - post;
+        double inter = time - current;
         // total per-path time, including modules already run as part of other paths
         double total = time + other;
 
