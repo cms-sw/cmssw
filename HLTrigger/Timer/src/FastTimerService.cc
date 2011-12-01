@@ -221,27 +221,27 @@ void FastTimerService::postEndJob() {
   // spacing is set to mimic TimeReport
   std::ostringstream out;
   out << std::fixed << std::setprecision(6);
-  out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time)" : "(CPU time) ") << '\n';
+  out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ") << '\n';
   out << "FastReport              " << std::right << std::setw(10) << m_summary_source       / (double) m_summary_events << " Source"        << '\n';
   out << "FastReport              " << std::right << std::setw(10) << m_summary_event        / (double) m_summary_events << " Event"         << '\n';
   out << "FastReport              " << std::right << std::setw(10) << m_summary_all_paths    / (double) m_summary_events << " all Paths"     << '\n';
   out << "FastReport              " << std::right << std::setw(10) << m_summary_all_endpaths / (double) m_summary_events << " all EndPaths"  << '\n';
   if (m_enable_timing_paths and not m_enable_timing_modules) {
     out << '\n';
-    out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time)" : "(CPU time) ")    << "     Active Path" << '\n';
+    out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active Path" << '\n';
     BOOST_FOREACH(std::string const & name, tns.getTrigPaths())
       out << "FastReport              " 
           << std::right << std::setw(10) << m_summary_paths[name]  / (double) m_summary_events << "  " 
           << name << '\n';
     out << '\n';
-    out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time)" : "(CPU time) ")    << "     Active EndPath" << '\n';
+    out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active EndPath" << '\n';
     BOOST_FOREACH(std::string const & name, tns.getEndPaths())
       out << "FastReport              " 
           << std::right << std::setw(10) << m_summary_paths[name]  / (double) m_summary_events << "  " 
           << name << '\n';
   } else if (m_enable_timing_paths and m_enable_timing_modules) {
     out << '\n';
-    out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time)" : "(CPU time) ")    << "   Pre-mods Inter-mods  Post-mods     Active      Total  Path"          << '\n';
+    out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "   Pre-mods Inter-mods  Post-mods     Active      Total  Path" << '\n';
     BOOST_FOREACH(std::string const & name, tns.getTrigPaths())
       out << "FastReport              " 
           << std::right << std::setw(10) << m_summary_paths_premodules[name]    / (double) m_summary_events << " "
@@ -251,7 +251,7 @@ void FastTimerService::postEndJob() {
           << std::right << std::setw(10) << m_summary_paths_total[name]         / (double) m_summary_events << "  "
           << name << '\n';
     out << '\n';
-    out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "   Pre-mods Inter-mods  Post-mods     Active      Total  EndPath"          << '\n';
+    out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "   Pre-mods Inter-mods  Post-mods     Active      Total  EndPath" << '\n';
     BOOST_FOREACH(std::string const & name, tns.getEndPaths())
       out << "FastReport              " 
           << std::right << std::setw(10) << m_summary_paths_premodules[name]    / (double) m_summary_events << " "
