@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 hbheprereco = cms.EDProducer(
     "HcalHitReconstructor",
-    correctionPhaseNS = cms.double(9.0),
+    correctionPhaseNS = cms.double(6.0),
     digiLabel = cms.InputTag("hcalDigis"),
     Subdetector = cms.string('HBHE'),
     correctForPhaseContainment = cms.bool(True),
