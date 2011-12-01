@@ -17,6 +17,7 @@ namespace {
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "DataFormats/Common/interface/ContainerMask.h"
 namespace {
   struct dictionary2 {
     edm::Wrapper< SiStripCluster > dummy0;
@@ -27,6 +28,9 @@ namespace {
     edm::Wrapper< std::vector< std::vector < edm::DetSet<SiStripCluster> > > > dummy5;
 
     edm::Wrapper< edmNew::DetSetVector<SiStripCluster> > dummy4_bis;
+
+    edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > dummy_cm1;
+    edm::Wrapper<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > dummy_w_cm1;
 
     std::vector<edm::Ref<edmNew::DetSetVector<SiStripCluster>,SiStripCluster,edmNew::DetSetVector<SiStripCluster>::FindForDetSetVector> > dummy_v;
     edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<SiStripCluster>,SiStripCluster,edmNew::DetSetVector<SiStripCluster>::FindForDetSetVector> > dumm_dtvr;
@@ -53,6 +57,10 @@ namespace {
     edm::Wrapper< std::vector<edm::Ref<edm::LazyGetter<SiStripCluster>,edm::RegionIndex<SiStripCluster>,edm::FindRegion<SiStripCluster> > > > dummy12;
     edm::Wrapper< edm::RefGetter<SiStripCluster> > dummy13;
     edm::Wrapper< edm::Ref< edm::LazyGetter<SiStripCluster>, SiStripCluster, edm::FindValue<SiStripCluster> > > dummy14;
+    
+    edm::ContainerMask<edm::LazyGetter<SiStripCluster> > dummy_cm1;
+    edm::Wrapper<edm::ContainerMask<edm::LazyGetter<SiStripCluster> > > dummy_w_cm1;
+    
   };
 }
 

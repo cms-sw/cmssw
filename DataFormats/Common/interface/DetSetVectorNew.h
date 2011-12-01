@@ -480,6 +480,20 @@ namespace edmNew {
   }
 }
 
+#include "DataFormats/Common/interface/ContainerMaskTraits.h"
+
+namespace edm {
+   template<typename T>
+   class ContainerMaskTraits<edmNew::DetSetVector<T> > {
+     public:
+        typedef T value_type;
+
+        static size_t size(const edmNew::DetSetVector<T>* iContainer) { return iContainer->dataSize();}
+        static unsigned int indexFor(const value_type* iElement, const edmNew::DetSetVector<T>* iContainer) {
+           return iElement-&(iContainer->data().front());
+        }
+   };
+}
 
 #endif
   

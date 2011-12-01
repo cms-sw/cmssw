@@ -534,6 +534,21 @@ namespace edm {
   //------------------------------------------------------------
 
 }
+#include "DataFormats/Common/interface/ContainerMaskTraits.h"
+
+namespace edm {
+   template<typename T>
+   class ContainerMaskTraits<edm::LazyGetter<T> > {
+     public:
+        typedef T value_type;
+
+        static size_t size(const edm::LazyGetter<T>* iContainer) { return iContainer->size();}
+        static unsigned int indexFor(const value_type* iElement, const edm::LazyGetter<T>* iContainer) {
+           return iElement-&(*(iContainer->begin_record()));
+        }
+   };
+}
+
 
 #endif
 
