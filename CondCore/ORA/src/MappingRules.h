@@ -85,7 +85,7 @@ namespace ora {
       static std::string nameForSchema( const std::string& variableName );
       static std::string shortNameByUpperCase( const std::string& className, size_t maxLength );
       static std::string shortScopedName( const std::string& scopedClassName, size_t maxLength );
-      static std::string nameFromTemplate( const std::string templateClassName, size_t maxLength );
+      static std::string nameFromTemplate( const std::string& templateClassName, size_t maxLength );
       
       static std::string newMappingVersion( const std::string& itemName, int iteration, char versionTrailer );
 

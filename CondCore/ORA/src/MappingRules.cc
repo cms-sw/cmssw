@@ -357,15 +357,28 @@ std::string ora::MappingRules::shortScopedName( const std::string& scopedClassNa
   return ret;
 }
 
-std::string ora::MappingRules::nameFromTemplate( const std::string templateClassName,
+std::string ora::MappingRules::nameFromTemplate( const std::string& templateClassName,
                                                  size_t maxLength ){
   if( !maxLength ) return "";
+  std::string tempClassName(templateClassName);
+  size_t indComas = tempClassName.find(',',0);
+  std::vector<size_t> vComas;
+  while(indComas != std::string::npos) {
+    vComas.push_back(indComas);
+    indComas = tempClassName.find(',',indComas+1);
+  }
+  typedef std::vector<size_t>::const_iterator vSizeIter;
+  vSizeIter vBegin = vComas.begin();
+  vSizeIter vEnd = vComas.end();
+  for(vSizeIter i = vBegin; i != vEnd; ++i) {
+    tempClassName.replace(*i, 1, 1, '_');
+  }
   std::string newName("");
-  size_t ind0 = templateClassName.find('<',0);
+  size_t ind0 = tempClassName.find('<',0);
   if( ind0 != std::string::npos ){
-    size_t ind1 = templateClassName.rfind('>');
-    std::string templArg = templateClassName.substr( ind0+1, ind1-ind0-1 );
-    std::string prefix = shortScopedName( templateClassName.substr( 0, ind0 ), maxLength );
+    size_t ind1 = tempClassName.rfind('>');
+    std::string templArg = tempClassName.substr( ind0+1, ind1-ind0-1 );
+    std::string prefix = shortScopedName( tempClassName.substr( 0, ind0 ), maxLength );
     size_t currSize = templArg.size()+prefix.size()+1;
     if( currSize > maxLength+1 ){
       // a cut is required...
@@ -378,7 +391,7 @@ std::string ora::MappingRules::nameFromTemplate( const std::string templateClass
     templArg = nameFromTemplate( templArg,  templMaxSize );
     newName = prefix+"_"+ templArg;
   } else {
-    newName = shortScopedName( templateClassName, maxLength );
+    newName = shortScopedName( tempClassName, maxLength );
   }
   //checkString( newName, 3 );
   return newName;
