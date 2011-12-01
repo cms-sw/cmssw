@@ -1,5 +1,5 @@
 <use   name="GeneratorInterface/Pythia6Interface"/>
-<architecture name="slc._amd64_gcc4[5-9]">                                                                                                  
+<architecture name="slc._[^_]*_gcc4[5-9]">                                                                                                  
     <flags LDFLAGS="$(PYTHIA6_BASE)/lib/pydata.o"/>
 </architecture>
 <library   file="*Filter.cc,Pythia6Hadronizer.cc,*hadron.f" name="GeneratorInterfacePythia6Filters">
