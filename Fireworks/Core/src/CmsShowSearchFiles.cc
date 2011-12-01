@@ -26,7 +26,7 @@ const  char* getFireworksSamplePath( bool isUCSD)
     if (strncmp(gSystem->Getenv("CMSSW_VERSION"), "CMSSW_4_4", 9) == 0)  
       return isUCSD ? "http://fireworks.web.cern.ch/fireworks/samples-4.2/ " :  "http://uaf-2.t2.ucsd.edu/fireworks-4.2/";
     else 
-      return isUCSD ? "http://fireworks.web.cern.ch/fireworks/samples-5.0/ " :  "http://ww-higgs.ucsd.edu/fireworks-5.0/";
+      return isUCSD ? "http://fireworks.web.cern.ch/fireworks/samples-5.0/ " :  "http://uaf-2.t2.ucsd.edu/fireworks/5.0/";
   }
   else
   {
@@ -40,7 +40,7 @@ const  char* getFireworksSamplePath( bool isUCSD)
     if (strncmp(gSystem->Getenv("CMSSW_VERSION"), "4.4", 3) == 0) 
       return isUCSD ? "http://fireworks.web.cern.ch/fireworks/samples-4.2/ " :  "http://uaf-2.t2.ucsd.edu/fireworks-4.2/";
     else 
-      return isUCSD ? "http://fireworks.web.cern.ch/fireworks/samples-5.0/" : "http://ww-higgs.ucsd.edu/fireworks-5.0/";
+      return isUCSD ? "http://fireworks.web.cern.ch/fireworks/samples-5.0/" : "http://uaf-2.t2.ucsd.edu/fireworks/5.0/";
   }
 }
 
