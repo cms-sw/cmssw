@@ -23,6 +23,7 @@ dqmCSCClient = cms.EDAnalyzer("CSCMonitorModule",
     FRAEFF_AUTO_UPDATE  = cms.untracked.bool(False),
     FRAEFF_SEPARATE_THREAD  = cms.untracked.bool(False),
     FOLDER_EMU = cms.untracked.string('CSC/Summary/'),
+    FOLDER_FED = cms.untracked.string('CSC/FED/'),
     FOLDER_DDU = cms.untracked.string('CSC/DDU/'),
     FOLDER_CSC = cms.untracked.string('CSC/CSC/'),
     FOLDER_PAR = cms.untracked.string('CSC/EventInfo/reportSummaryContents/'),
@@ -42,7 +43,6 @@ dqmCSCClient = cms.EDAnalyzer("CSCMonitorModule",
     EVENTS_ECHO = cms.untracked.uint32(1000),
     MO_FILTER = cms.untracked.vstring(
       '+/^.*$/',
-      '-/DDU_[0-9]+/',
       '-/CSC_[0-9]+_[0-9]+/'
     )
   )
