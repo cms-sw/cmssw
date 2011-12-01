@@ -355,13 +355,6 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	HcalCoderDb coder (*channelCoder, *shape);
 
-	// firstSample & samplesToAdd
-//        if(tsFromDB_) {
-//	  const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
-//	  first = param_ts->firstSample();    
-//	  toadd = param_ts->samplesToAdd(); 
-//	}
-
 	rec->push_back(reco_.reconstruct(*i,first,toadd,coder,calibrations));
 
 	// Set auxiliary flag
@@ -467,13 +460,6 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	HcalCoderDb coder (*channelCoder, *shape);
 
-	// firstSample & samplesToAdd
-//        if(tsFromDB_) {
-//	  const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
-//	  first = param_ts->firstSample();    
-//	  toadd = param_ts->samplesToAdd();    
-//	}
-
 	rec->push_back(reco_.reconstruct(*i,first,toadd,coder,calibrations));
 
 	// Set auxiliary flag
@@ -559,13 +545,6 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	HcalCoderDb coder (*channelCoder, *shape);
-
-	// firstSample & samplesToAdd
-//        if(tsFromDB_) {
-//	  const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
-//	  first = param_ts->firstSample();    
-//	  toadd = param_ts->samplesToAdd();    
-//	}
 
 	// Set HFDigiTime flag values from digiTimeFromDB_
 	if (digiTimeFromDB_==true && hfdigibit_!=0)
