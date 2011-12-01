@@ -337,6 +337,7 @@ void calcRates(
             RatePerLS[iLS][j] += OHltRateCounter::eff(
                   (float)rcs[i]->perLumiSectionCount[iLS][j],
                   scaleddenoPerLS);
+	    CountPerLS[iLS][j] += rcs[i]->perLumiSectionCount[iLS][j];
             RefPrescalePerLS[iLS][j]
                   = (float)rcs[i]->perLumiSectionRefPrescale[iLS][j];
             prescaleSum += RefPrescalePerLS[iLS][j];
