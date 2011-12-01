@@ -155,6 +155,34 @@ double Lumi3DReWeighting::weight3D( const edm::EventBase &e ) {
  
 }
 
+void Lumi3DReWeighting::weight3D_set( std::string generatedFile, std::string dataFile, std::string GenHistName, std::string DataHistName)
+{
+ 
+  generatedFileName_ = generatedFile;
+  dataFileName_ = dataFile ; 
+  GenHistName_ = GenHistName ; 
+  DataHistName_= DataHistName ;
+    
+  std::cout<< " seting values: " << generatedFileName_ << " " << dataFileName_ << " " << GenHistName_ << " " << DataHistName_ << std::endl;
+
+  generatedFile_ = boost::shared_ptr<TFile>( new TFile(generatedFileName_.c_str()) ); //MC distribution
+  dataFile_      = boost::shared_ptr<TFile>( new TFile(dataFileName_.c_str()) );      //Data distribution
+  
+  boost::shared_ptr<TH1> Data_temp = boost::shared_ptr<TH1>(  (static_cast<TH1*>(dataFile_->Get( DataHistName_.c_str() )->Clone() )) );
+  
+  boost::shared_ptr<TH1> MC_temp = boost::shared_ptr<TH1>(  (static_cast<TH1*>(generatedFile_->Get( GenHistName_.c_str() )->Clone() )) );
+  
+  
+  MC_distr_ = boost::shared_ptr<TH1>(  (static_cast<TH1*>(generatedFile_->Get( GenHistName_.c_str() )->Clone() )) );
+  Data_distr_ = boost::shared_ptr<TH1>(  (static_cast<TH1*>(dataFile_->Get( DataHistName_.c_str() )->Clone() )) );
+  
+  // MC * data/MC = data, so the weights are data/MC:
+  
+  // normalize both histograms first
+  
+  Data_distr_->Scale( 1.0/ Data_distr_->Integral() );
+  MC_distr_->Scale( 1.0/ MC_distr_->Integral() );
+}
 
 void Lumi3DReWeighting::weight3D_init( float ScaleFactor ) { 
 
