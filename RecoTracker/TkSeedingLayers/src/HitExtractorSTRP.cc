@@ -10,6 +10,8 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 
+#include "DataFormats/Common/interface/ContainerMask.h"
+
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
@@ -26,8 +28,7 @@ HitExtractorSTRP::HitExtractorSTRP( const DetLayer* detLayer,
     SeedingLayer::Side & side, int idLayer)
   : theLayer(detLayer), theSide(side), theIdLayer(idLayer),
     hasMatchedHits(false), hasRPhiHits(false), hasStereoHits(false),
-    hasRingSelector(false), theMinRing(1), theMaxRing(0), hasSimpleRphiHitsCleaner(true),
-    lastId_(0)
+    hasRingSelector(false), theMinRing(1), theMaxRing(0), hasSimpleRphiHitsCleaner(true)
 { }
 
 void HitExtractorSTRP::useRingSelector(int minRing, int maxRing) 
@@ -45,17 +46,10 @@ bool HitExtractorSTRP::ringRange(int ring) const
 }
 
 bool HitExtractorSTRP::skipThis(const SiStripRecHit2D * hit,
-				edm::Handle<edmNew::DetSetVector<SiStripClusterRef> > & stripClusterRefs) const {
-  if (hit->geographicalId()!=lastId_){
-    lastId_=hit->geographicalId();
-    f_=stripClusterRefs->find(lastId_.rawId());
-  }  
-  if (f_==stripClusterRefs->end()) return false;
+				edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > & stripClusterMask) const {
   if (!hit->isValid())  return false;
 
-  bool skipping=(find(f_->begin(),f_->end(),hit->cluster())!=f_->end());
-  //if (skipping) LogDebug("HitExtractorSTRP")<<"skipping a hit on :"<<hit->geographicalId().rawId()<<" key: "<<hit->cluster().key();
-  return skipping;
+  return stripClusterMask->mask(hit->cluster().key());
 }
 
 
@@ -71,13 +65,13 @@ void HitExtractorSTRP::project(TransientTrackingRecHit::ConstRecHitPointer & ptr
 }
 
 bool HitExtractorSTRP::skipThis(TransientTrackingRecHit::ConstRecHitPointer & ptr,
-				edm::Handle<edmNew::DetSetVector<SiStripClusterRef> > & stripClusterRefs,
+				edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > & stripClusterMask,
 				TransientTrackingRecHit::ConstRecHitPointer & replaceMe) const {
   const SiStripMatchedRecHit2D * hit = (SiStripMatchedRecHit2D *) ptr->hit();
 
   bool rejectSt=false,rejectMono=false;
-  if (skipThis(hit->stereoHit(),stripClusterRefs))  rejectSt=true;
-  if (skipThis(hit->monoHit(),stripClusterRefs))    rejectMono=true;
+  if (skipThis(hit->stereoHit(),stripClusterMask))  rejectSt=true;
+  if (skipThis(hit->monoHit(),stripClusterMask))    rejectMono=true;
 
   if (rejectSt&&rejectMono){
     //only skip if both hits are done
@@ -101,10 +95,8 @@ void HitExtractorSTRP::cleanedOfClusters( const edm::Event& ev, HitExtractor::Hi
 					  bool matched,
 					  unsigned int cleanFrom)const{
   LogDebug("HitExtractorPIX")<<"getting: "<<hits.size()<<" in input.";
-  edm::Handle<edmNew::DetSetVector<SiStripClusterRef> > stripClusterRefs;
-  ev.getByLabel(theSkipClusters,stripClusterRefs);
-  lastId_=0;
-  f_=stripClusterRefs->end();
+  edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > stripClusterMask;
+  ev.getByLabel(theSkipClusters,stripClusterMask);
   HitExtractor::Hits newHits;
   unsigned int skipped=0;
   unsigned int projected=0;
@@ -112,12 +104,12 @@ void HitExtractorSTRP::cleanedOfClusters( const edm::Event& ev, HitExtractor::Hi
   TransientTrackingRecHit::ConstRecHitPointer replaceMe;
   for (unsigned int iH=cleanFrom;iH<hits.size();++iH){
     replaceMe=hits[iH];
-    if (matched && skipThis(hits[iH],stripClusterRefs,replaceMe)){
+    if (matched && skipThis(hits[iH],stripClusterMask,replaceMe)){
       LogDebug("HitExtractorSTRP")<<"skipping a matched hit on :"<<hits[iH]->hit()->geographicalId().rawId();
       skipped++;
       continue;
     }
-    if (!matched && skipThis((const SiStripRecHit2D*) hits[iH]->hit(),stripClusterRefs)){
+    if (!matched && skipThis((const SiStripRecHit2D*) hits[iH]->hit(),stripClusterMask)){
 	LogDebug("HitExtractorSTRP")<<"skipping a hit on :"<<hits[iH]->hit()->geographicalId().rawId()<<" key: ";
 	skipped++;
 	continue;
