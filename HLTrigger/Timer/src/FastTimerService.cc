@@ -221,44 +221,44 @@ void FastTimerService::postEndJob() {
   // spacing is set to mimic TimeReport
   std::ostringstream out;
   out << std::fixed << std::setprecision(6);
-  out << "FastReport            " << std::right << std::setw(10) << (m_timer_id == CLOCK_REALTIME ? "Real" : "CPU") << '\n';
-  out << "FastReport            " << std::right << std::setw(10) << m_summary_source       / (double) m_summary_events << " Source"        << '\n';
-  out << "FastReport            " << std::right << std::setw(10) << m_summary_event        / (double) m_summary_events << " Event"         << '\n';
-  out << "FastReport            " << std::right << std::setw(10) << m_summary_all_paths    / (double) m_summary_events << " all Paths"     << '\n';
-  out << "FastReport            " << std::right << std::setw(10) << m_summary_all_endpaths / (double) m_summary_events << " all EndPaths"  << '\n';
+  out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time)" : "(CPU time) ") << '\n';
+  out << "FastReport              " << std::right << std::setw(10) << m_summary_source       / (double) m_summary_events << " Source"        << '\n';
+  out << "FastReport              " << std::right << std::setw(10) << m_summary_event        / (double) m_summary_events << " Event"         << '\n';
+  out << "FastReport              " << std::right << std::setw(10) << m_summary_all_paths    / (double) m_summary_events << " all Paths"     << '\n';
+  out << "FastReport              " << std::right << std::setw(10) << m_summary_all_endpaths / (double) m_summary_events << " all EndPaths"  << '\n';
   if (m_enable_timing_paths and not m_enable_timing_modules) {
     out << '\n';
-    out << "FastReport " << std::right << std::setw(10) << (m_timer_id == CLOCK_REALTIME ? "Real" : "CPU")    << "     Active Path"          << '\n';
+    out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time)" : "(CPU time) ")    << "     Active Path" << '\n';
     BOOST_FOREACH(std::string const & name, tns.getTrigPaths())
-      out << "FastReport            " 
-          << std::right << std::setw(10) << m_summary_paths[name]  / (double) m_summary_events << " " 
+      out << "FastReport              " 
+          << std::right << std::setw(10) << m_summary_paths[name]  / (double) m_summary_events << "  " 
           << name << '\n';
     out << '\n';
-    out << "FastReport " << std::right << std::setw(10) << (m_timer_id == CLOCK_REALTIME ? "Real" : "CPU")    << "     Active EndPath"       << '\n';
+    out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time)" : "(CPU time) ")    << "     Active EndPath" << '\n';
     BOOST_FOREACH(std::string const & name, tns.getEndPaths())
-      out << "FastReport            " 
-          << std::right << std::setw(10) << m_summary_paths[name]  / (double) m_summary_events << " " 
+      out << "FastReport              " 
+          << std::right << std::setw(10) << m_summary_paths[name]  / (double) m_summary_events << "  " 
           << name << '\n';
   } else if (m_enable_timing_paths and m_enable_timing_modules) {
     out << '\n';
-    out << "FastReport " << std::right << std::setw(10) << (m_timer_id == CLOCK_REALTIME ? "Real" : "CPU")    << "   Pre-mods Inter-mods  Post-mods    Active      Total Path"          << '\n';
+    out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time)" : "(CPU time) ")    << "   Pre-mods Inter-mods  Post-mods     Active      Total  Path"          << '\n';
     BOOST_FOREACH(std::string const & name, tns.getTrigPaths())
-      out << "FastReport            " 
+      out << "FastReport              " 
           << std::right << std::setw(10) << m_summary_paths_premodules[name]    / (double) m_summary_events << " "
           << std::right << std::setw(10) << m_summary_paths_intermodules[name]  / (double) m_summary_events << " "
           << std::right << std::setw(10) << m_summary_paths_postmodules[name]   / (double) m_summary_events << " "
           << std::right << std::setw(10) << m_summary_paths[name]               / (double) m_summary_events << " "
-          << std::right << std::setw(10) << m_summary_paths_total[name]         / (double) m_summary_events << " "
+          << std::right << std::setw(10) << m_summary_paths_total[name]         / (double) m_summary_events << "  "
           << name << '\n';
     out << '\n';
-    out << "FastReport " << std::right << std::setw(10) << (m_timer_id == CLOCK_REALTIME ? "Real" : "CPU")    << "   Pre-mods Inter-mods  Post-mods    Active      Total EndPath"          << '\n';
+    out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "   Pre-mods Inter-mods  Post-mods     Active      Total  EndPath"          << '\n';
     BOOST_FOREACH(std::string const & name, tns.getEndPaths())
-      out << "FastReport            " 
+      out << "FastReport              " 
           << std::right << std::setw(10) << m_summary_paths_premodules[name]    / (double) m_summary_events << " "
           << std::right << std::setw(10) << m_summary_paths_intermodules[name]  / (double) m_summary_events << " "
           << std::right << std::setw(10) << m_summary_paths_postmodules[name]   / (double) m_summary_events << " "
           << std::right << std::setw(10) << m_summary_paths[name]               / (double) m_summary_events << " "
-          << std::right << std::setw(10) << m_summary_paths_total[name]         / (double) m_summary_events << " "
+          << std::right << std::setw(10) << m_summary_paths_total[name]         / (double) m_summary_events << "  "
           << name << '\n';
   }
   edm::LogVerbatim("FastReport") << out.str();
@@ -359,6 +359,7 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
         double other   = 0.;                // time spent in modules part of this path, but active in other paths
         std::vector<edm::ModuleDescription const *> const & modules = m_pathmap[path];
         size_t last_run = status.index();   // index of the last module run in this path
+        if (not modules.empty())            // FIXME EndPaths will appear empty until the TriggerNamesService is fixed
         for (size_t i = 0; i <= last_run; ++i) {
           edm::ModuleDescription const * module = modules[i];
           if (m_has_just_run[module])
