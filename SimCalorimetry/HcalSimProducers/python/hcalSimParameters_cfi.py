@@ -59,7 +59,7 @@ hcalSimParameters = cms.PSet(
             125.83, 127.01, 126.82, 129.73, 131.83,
             143.52),            
         syncPhase = cms.bool(True),
-        timePhase = cms.double(5.0),
+        timePhase = cms.double(6.0),
         timeSmearing = cms.bool(True),
         siPMCells = cms.vint32()
     ),
@@ -75,7 +75,7 @@ hcalSimParameters = cms.PSet(
             190.28, 189.61, 189.60, 190.12, 191.22,
             190.90, 193.06, 188.42, 188.42),
         syncPhase = cms.bool(True),
-        timePhase = cms.double(5.0),
+        timePhase = cms.double(6.0),
         timeSmearing = cms.bool(True)
     ),
     zdc = cms.PSet(
