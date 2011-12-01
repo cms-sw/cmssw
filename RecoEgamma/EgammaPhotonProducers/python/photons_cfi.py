@@ -1,12 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoEgamma.PhotonIdentification.isolationCalculator_cfi import *
-from RecoEgamma.PhotonIdentification.mipVariable_cfi
-
+from RecoEgamma.PhotonIdentification.mipVariable_cfi import *
 
 #
 # producer for photons
-# $Id: photons_cfi.py,v 1.40 2011/11/24 18:24:17 nancy Exp $
+# $Id: photons_cfi.py,v 1.41 2011/12/01 17:37:41 nancy Exp $
 #
 photons = cms.EDProducer("PhotonProducer",
     photonCoreProducer = cms.InputTag("photonCore"),
