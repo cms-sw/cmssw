@@ -1,5 +1,5 @@
 <use   name="GeneratorInterface/HydjetInterface"/>
-<architecture name="slc5_amd64_gcc4[5-9]">
+<architecture name="slc5_[^_]*_gcc4[5-9]">
     <flags LDFLAGS="$(PYTHIA6_BASE)/lib/pydata.o"/>
 </architecture>
 <library   file="*.cc" name="GeneratorInterfaceHydjetInterfacePlugins">
