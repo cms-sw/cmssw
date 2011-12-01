@@ -53,6 +53,20 @@ namespace cscdqm {
     return false;
   }
 
+  /** 
+   * @brief  Get FED Level Monitoring Object
+   * @param  histo MO identification
+   * @param  fedID FED identifier
+   * @param  me MO to return
+   * @return true if MO was found, false - otherwise
+   */
+  const bool EventProcessor::getFEDHisto(const HistoId& histo, const HwId& fedID, MonitorObject*& me) {
+    if (config->fnGetCacheFEDHisto(histo, fedID, me)) return (me != NULL);
+    FEDHistoDef histoD(histo, fedID);
+    if (config->fnGetHisto(histoD, me)) return (me != NULL);
+    return false;
+  }
+
   /**
    * @brief  Get DDU Level Monitoring Object
    * @param  histo MO identification

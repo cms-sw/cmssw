@@ -31,6 +31,9 @@ namespace cscdqm {
     if (typeid(histo) == EMUHistoDefT) {
       return getEMU(histo.getId(), mo);
     } else
+    if (typeid(histo) == FEDHistoDefT) {
+      return getFED(histo.getId(), histo.getFEDId(), mo);
+    } else
     if (typeid(histo) == DDUHistoDefT) {
       return getDDU(histo.getId(), histo.getDDUId(), mo);
     } else
@@ -57,6 +60,35 @@ namespace cscdqm {
     }
     return false;
   }
+
+  /**
+   * @brief  Get FED MO on Histogram Id and FED Id
+   * @param  id Histogram identifier
+   * @param  fedId FED identifier
+   * @param  mo Monitoring Object to return
+   * @return true if MO was found in cache and false otherwise
+   */
+  const bool Cache::getFED(const HistoId& id, const HwId& fedId, MonitorObject*& mo) {
+
+    /** If not cached (last FED) - find FED */
+    if (fedPointerValue != fedId) {
+      fedPointer = fedData.find(fedId);
+      if (fedPointer == fedData.end()) {
+        fedPointerValue = 0;
+        return false;
+      }
+      fedPointerValue  = fedId;
+    }
+
+    /** Get MO from static array */
+    if (fedPointer->second[id]) {
+      mo = fedPointer->second[id];
+      return true;
+    }
+    return false;
+
+  }
+
 
   /**
    * @brief  Get DDU MO on Histogram Id and DDU Id
@@ -141,6 +173,26 @@ namespace cscdqm {
       data[id] = mo;
     } else
 
+    /** FED MO */
+    if (typeid(histo) == FEDHistoDefT) {
+      
+      HwId fedId = histo.getFEDId();
+        
+      if (fedPointerValue != fedId) {
+        fedPointer = fedData.find(fedId);
+      }
+
+      if (fedPointer == fedData.end()) {
+        MonitorObject** mos = new MonitorObject*[h::namesSize];
+        for (unsigned int i = 0; i < h::namesSize; i++) mos[i] = 0;
+        fedPointer = fedData.insert(fedData.end(), std::make_pair(fedId, mos));
+      }
+    
+      fedPointer->second[id] = mo;
+      fedPointerValue = fedId;
+
+    } else
+
     /** DDU MO */
     if (typeid(histo) == DDUHistoDefT) {
 
@@ -216,6 +268,24 @@ namespace cscdqm {
   }
 
   /**
+   * @brief  Iterator to get booked FED identifier on enumerator
+   * @param  n iterator (0 and up)
+   * @param  fedId FED Id returned
+   * @return true if FED on n found, false - otherwise
+   */
+  const bool Cache::nextBookedFED(unsigned int& n, unsigned int& fedId) const {
+    if (n < fedData.size()) {
+      FEDMapType::const_iterator iter = fedData.begin();
+      for (unsigned int i = n; i > 0; i--) iter++;
+      fedId = iter->first;
+      n++;
+      return true;
+    }
+    return false;
+  }
+
+
+  /**
    * @brief  Iterator to get booked DDU identifier on enumerator
    * @param  n iterator (0 and up)
    * @param  dduId DDU Id returned
@@ -244,6 +314,16 @@ namespace cscdqm {
       return true;
     }
     return false;
+  }
+
+  /**
+   * @brief  Check if FED was booked on given identifier 
+   * @param  fedId FED Id
+   * @return true if FED was booked, false - otherwise
+   */
+  const bool Cache::isBookedFED(const HwId& fedId) const {
+    FEDMapType::const_iterator iter = fedData.find(fedId);
+    return (iter != fedData.end());
   }
 
   /**

@@ -35,6 +35,7 @@ namespace cscdqm {
 
     /** Link/share Cache methods to function pointers in configuration */
     config->fnGetCacheEMUHisto = boost::bind(&Cache::getEMU, &cache, _1, _2);
+    config->fnGetCacheFEDHisto = boost::bind(&Cache::getFED, &cache, _1, _2, _3);
     config->fnGetCacheDDUHisto = boost::bind(&Cache::getDDU, &cache, _1, _2, _3);
     config->fnGetCacheCSCHisto = boost::bind(&Cache::getCSC, &cache, _1, _2, _3, _4, _5);
     config->fnGetCacheParHisto = boost::bind(&Cache::getPar, &cache, _1, _2);
@@ -42,6 +43,7 @@ namespace cscdqm {
     config->fnNextBookedCSC = boost::bind(&Cache::nextBookedCSC, &cache, _1, _2, _3);
     config->fnIsBookedCSC = boost::bind(&Cache::isBookedCSC, &cache, _1, _2);
     config->fnIsBookedDDU = boost::bind(&Cache::isBookedDDU, &cache, _1);
+    config->fnIsBookedFED = boost::bind(&Cache::isBookedFED, &cache, _1);
 
     /** Link/share local functions */
     config->fnGetHisto = boost::bind(&Dispatcher::getHisto, this, _1, _2);
@@ -80,6 +82,12 @@ namespace cscdqm {
    * @return true if me found and filled, false - otherwise
    */
   const bool Dispatcher::getHisto(const HistoDef& histoD, MonitorObject*& me) {
+
+    /** For the first FED - book general */
+    if (typeid(histoD) == FEDHistoDefT && !cache.isBookedFED(histoD.getFEDId())) {
+      collection.bookFEDHistos(histoD.getFEDId());
+      if (cache.get(histoD, me)) return true;
+    }
 
     /** For the first DDU - book general */
     if (typeid(histoD) == DDUHistoDefT && !cache.isBookedDDU(histoD.getDDUId())) {

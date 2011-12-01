@@ -44,11 +44,17 @@ namespace cscdqm {
 
     std::string dduTag = DDUHistoDef::getPath(dduID);
 
-    if (getDDUHisto(h::DDU_BUFFER_SIZE, dduID, mo)) mo->Fill(dduData.size());
+    uint32_t dduEvtSize = dduData.sizeInWords()*2; 
+
+    // if (dduEvtSize > 48) 
+    { 
 
     /**  DDU word counter */
     int trl_word_count = 0;
     trl_word_count = dduTrailer.wordcount();
+
+    if (getDDUHisto(h::DDU_BUFFER_SIZE, dduID, mo)) mo->Fill(dduEvtSize);
+
     if (getDDUHisto(h::DDU_WORD_COUNT, dduID, mo)) mo->Fill(trl_word_count );
   
     /** LOG4CPLUS_DEBUG(logger_,dduTag << " Trailer Word (64 bits) Count = " << std::dec << trl_word_count); */
@@ -58,8 +64,11 @@ namespace cscdqm {
         mo->Fill(dduID, log10((double)trl_word_count));
       }
     }
+
     if (getEMUHisto(h::EMU_ALL_DDUS_AVERAGE_EVENT_SIZE, mo)) {
       mo->Fill(dduID, trl_word_count);
+    }
+
     }
 
     fCloseL1As = dduTrailer.reserved() & 0x1; // Get status if Close L1As bit
@@ -175,10 +184,13 @@ namespace cscdqm {
     if (getEMUHisto(h::EMU_ALL_DDUS_AVERAGE_LIVE_INPUTS, mo)) {
       mo->Fill(dduID, ddu_connected_inputs_cnt);
     }
-  
+ 
+   // if (dduEvtSize > 48) 
+   {   
     if (getEMUHisto(h::EMU_ALL_DDUS_AVERAGE_INPUTS_WITH_DATA, mo)) {
       mo->Fill(dduID, dmb_dav_header_cnt);
     }
+   }
   
     if (getEMUHisto(h::EMU_ALL_DDUS_INPUTS_ERRORS, mo)) {
       if (csc_error_state > 0) {

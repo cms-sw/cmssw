@@ -49,8 +49,12 @@ namespace cscdqm {
       }
 
     }
-  	
-    if ((binErrorStatus & config->getDDU_BINCHECK_MASK()) > 0) {
+  
+    // =VB= We want to use DCC level check mask as in CSCDCCUnpacker and not DDU mask
+    // 	    Otherwise whole DCC event could be skipped because of a single chamber error
+    unsigned long dccBinCheckMask = 0x06080016;
+//    if ((binErrorStatus & config->getDDU_BINCHECK_MASK()) > 0) {
+    if ((binErrorStatus & dccBinCheckMask) > 0) {
       eventAccepted = false;
     }
 
@@ -82,6 +86,7 @@ namespace cscdqm {
         config->incChamberCounter(DMB_EVENTS, crateID, dmbSlot);
         long DMBEvents = config->getChamberCounterValue(DMB_EVENTS, crateID, dmbSlot);
         config->copyChamberCounterValue(DMB_EVENTS, DMB_TRIGGERS, crateID, dmbSlot);
+	cntDMBs++;
 
         if (getEMUHisto(h::EMU_DMB_REPORTING, mo)) {
           mo->Fill(crateID, dmbSlot);
@@ -129,7 +134,21 @@ namespace cscdqm {
             mo->Fill(crateID, dmbSlot);
           }
         }
-      
+
+	/** Increment total number of CFEBs, ALCTs, TMBs **/
+        for (int i=0; i<5;i++) {
+            if ((cfeb_dav>>i) & 0x1) cntCFEBs++;
+        }
+	
+        if (alct_dav > 0) {
+            cntALCTs++;
+        }
+
+        if (tmb_dav > 0) {
+            cntTMBs++;
+        }
+
+ 
         MonitorObject *mof = 0, *mo1 = 0, *mo2 = 0;
         if (getCSCHisto(h::CSC_ACTUAL_DMB_CFEB_DAV_RATE, crateID, dmbSlot, mo)
           && getCSCHisto(h::CSC_ACTUAL_DMB_CFEB_DAV_FREQUENCY, crateID, dmbSlot, mof)) {

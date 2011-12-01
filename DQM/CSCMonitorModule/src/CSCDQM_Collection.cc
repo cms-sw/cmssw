@@ -311,6 +311,28 @@ namespace cscdqm {
     }
   }
 
+/**
+   * @brief  Book FED histograms
+   * @param  fedId FED Id
+   * @return 
+   */
+  void Collection::bookFEDHistos(const HwId fedId) const {
+    CoHistoMap::const_iterator i = collection.find("FED");
+    if (i != collection.end()) {
+      const CoHisto hs = i->second;
+      for (CoHisto::const_iterator j = hs.begin(); j != hs.end(); j++) {
+        std::string s = "";
+        if (getHistoValue(j->second, XML_BOOK_ONDEMAND, s, XML_BOOK_ONDEMAND_FALSE) == XML_BOOK_ONDEMAND_FALSE) {
+          HistoId hid = 0;
+          if (HistoDef::getHistoIdByName(j->first, hid)) {
+            FEDHistoDef hdef(hid, fedId);
+            book(hdef, j->second, config->getFOLDER_FED());
+          }
+        }
+      }
+    }
+  }   
+
   /**
    * @brief  Book DDU histograms
    * @param  dduId DDU Id
@@ -445,6 +467,11 @@ namespace cscdqm {
     } else
     if(type == "hp") {
       me = config->fnBook(
+	HistoBookRequest(h, PROFILE, type, folder, title,
+          getHistoValue(p, "XBins", i1, 1),
+          getHistoValue(p, "XMin",  d1, 0),
+          getHistoValue(p, "XMax",  d2, 1)));
+	/*
         HistoBookRequest(h, PROFILE, type, folder, title,
           getHistoValue(p, "XBins", i1, 1),
           getHistoValue(p, "XMin",  d1, 0),
@@ -452,6 +479,7 @@ namespace cscdqm {
           getHistoValue(p, "YBins", i2, 1),
           getHistoValue(p, "YMin",  d3, 0),
           getHistoValue(p, "YMax",  d4, 1)));
+	*/
     } else
     if(type == "hp2") {
       me = config->fnBook(
