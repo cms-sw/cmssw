@@ -312,10 +312,14 @@ class ShapeBuilder(ModelBuilder):
         morphs = []; shapeAlgo = None
         for (syst,nofloat,pdf,args,errline) in self.DC.systs:
             if not "shape" in pdf: continue
+            if errline[channel][process] == 0: continue
             allowNoSyst = (pdf[-1] == "?")
             pdf = pdf.replace("?","")
             if shapeAlgo == None:  shapeAlgo = pdf
-            elif pdf != shapeAlgo: raise RuntimeError, "You can use only one morphing algorithm for a given shape"
+            elif pdf != shapeAlgo: 
+                errmsg =  "ERROR for channel %s, process %s. " % (channel,process)
+                errmsg += "Requesting morphing %s  for systematic %s after having requested %s. " % (pdf, syst, shapeAlgo)
+                raise RuntimeError, errmsg+" One can use only one morphing algorithm for a given shape";
             if errline[channel][process] != 0:
                 if allowNoSyst and not self.isShapeSystematic(channel,process,syst): continue
                 shapeUp   = self.getShape(channel,process,syst+"Up")
