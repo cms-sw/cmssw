@@ -741,6 +741,24 @@ bool isDiCentralPFJetX_PFMHTXTrigger(TString triggerName, vector<double> &thresh
     return false;
 }
 
+bool isPFJetXTrigger(TString triggerName, vector<double> &thresholds)
+{
+	
+  TString pattern = "(OpenHLT_PFJet([0-9]+))$";
+  TPRegexp matchThreshold(pattern);
+	
+  if (matchThreshold.MatchB(triggerName))
+    {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdPFJet  = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      thresholds.push_back(thresholdPFJet);
+      delete subStrL;
+      return true;
+    }
+  else
+    return false;
+}
+
 bool isPFHTX_PFMHTX_OrHTX_OrMHTXTrigger(TString triggerName, vector<double> &thresholds)
 {
 	
@@ -13329,7 +13347,19 @@ else if (triggerName.CompareTo("OpenHLT_Ele32_WP70_PFMT50_v1")  == 0)
 	}
     }
 
-
+  else if (isPFJetXTrigger(triggerName, thresholds))
+  {
+    if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+    {
+      if (prescaleResponse(menu, cfg, rcounter, it))
+      {
+        if  ( OpenHltNPFJetPassed(1, thresholds[0], 2.6) )
+        {
+          triggerBit[it] = true;
+        }
+      }
+    }
+  }
 
  else if (isPFHTX_PFMHTX_OrHTX_OrMHTXTrigger(triggerName, thresholds))
     {
