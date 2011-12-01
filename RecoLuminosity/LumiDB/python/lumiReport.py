@@ -661,7 +661,10 @@ def toCSVTotEffective(lumidata,filename,resultlines,scalefactor,isverbose):
     screen Run,SelectedLS,Recorded,HLTPath,L1Bit,Effective
     '''
     result=[]#[run,selectedlsStr,recorded,hltpath,l1bitname,efflumi]
+    totdict={}#{hltpath:[nls,toteff]}
     selectedcmsls=[]
+    recordedPerpathPerrun={}#{path:{run:recorded}}
+    selectedPerpathPerrun={}#{path:{run:totselected}}
     for rline in resultlines:
         result.append(rline)
     for run in sorted(lumidata):#loop over runs
@@ -672,12 +675,15 @@ def toCSVTotEffective(lumidata,filename,resultlines,scalefactor,isverbose):
             result.append([str(run),'n/a','n/a','n/a','n/a','n/a'])
             continue
         selectedcmsls=[x[1] for x in rundata if x[1]!=0]
-        
         totefflumiDict={}
+        totrecorded=0.0
+        toteffective=0.0
         pathmap={}#{hltpathname:1lname}
         for lsdata in rundata:
             cmslsnum=lsdata[1]
             efflumiDict=lsdata[8]# this ls has no such path?
+            recordedlumi=lsdata[6]
+            totrecorded+=recordedlumi
             if not efflumiDict:
                 if cmslsnum in selectedcmsls:
                     selectedcmsls.remove(cmslsnum)
@@ -690,6 +696,10 @@ def toCSVTotEffective(lumidata,filename,resultlines,scalefactor,isverbose):
                 l1presc=pathdata[1]
                 hltpresc=pathdata[2]
                 lumival=pathdata[3]
+                recordedPerpathPerrun.setdefault(hltpathname,{})
+                selectedPerpathPerrun.setdefault(hltpathname,{})
+                if not totdict.has_key(hltpathname):
+                    totdict[hltpathname]=[0,0.0]
                 if l1presc is None or hltpresc is None:#if found all null prescales and if it is in the selectedcmsls, remove it because incomplete
                     if cmslsnum in selectedcmsls:
                         selectedcmsls.remove(cmslsnum)
@@ -702,9 +712,13 @@ def toCSVTotEffective(lumidata,filename,resultlines,scalefactor,isverbose):
                     if not lprescdict.has_key(l1name):
                         lprescdict[l1name]=[]
                     lprescdict[l1name].append(l1presc)
+                    totdict[hltpathname][0]+=1
                     if lumival:
+                        totdict[hltpathname][1]+=lumival
                         totefflumiDict[hltpathname]+=lumival
                         pathmap[hltpathname]=l1name.replace('\"','')
+                    recordedPerpathPerrun[hltpathname][run]=totrecorded
+                    selectedPerpathPerrun[hltpathname][run]=len(selectedcmsls)
         if len(selectedcmsls)==0:
             selectedlsStr='n/a'
         else:
@@ -714,11 +728,12 @@ def toCSVTotEffective(lumidata,filename,resultlines,scalefactor,isverbose):
             lname=pathmap[name]
             if lname=='n/a':
                 continue
-            hprescs=list(set(hprescdict[hltpathname]))
+            totrecordedinrun=recordedPerpathPerrun[name][run]
+            hprescs=list(set(hprescdict[name]))
             lprescs=list(set(lprescdict['"'+lname+'"']))
             hprescStr='('+','.join(['%d'%(x) for x in hprescs])+')'
             lprescStr='('+','.join(['%d'%(x) for x in lprescs])+')'
-            result.append([run,selectedlsStr,totrecorded*scalefactor,name+hprescStr,lname+lprescStr,totefflumiDict[name]*scalefactor])
+            result.append([run,selectedlsStr,totrecordedinrun*scalefactor,name+hprescStr,lname+lprescStr,totefflumiDict[name]*scalefactor])
     fieldnames=['Run','SelectedLS','Recorded','HLTpath','L1bit','Effective(/ub)']
     assert(filename)
     if filename.upper()=='STDOUT':
