@@ -79,20 +79,122 @@
 
         <!-- FED Data Integrity Histograms -->
 
+         <Histogram>
+                <Prefix>EMU</Prefix>
+                <SetGridx>1</SetGridx>
+                <SetGridy>1</SetGridy>
+                <SetLabelSizeX>0.015</SetLabelSizeX>
+                <SetLabelSizeY>0.03</SetLabelSizeY>
+                <SetLabelSizeZ>0.02</SetLabelSizeZ>
+                <SetLeftMargin>0.3</SetLeftMargin>
+                <SetNdivisionsX>40</SetNdivisionsX>
+                <SetOption>colz</SetOption>
+                <SetOptStat>e</SetOptStat>
+                <SetStats>0</SetStats>
+                <SetYLabels>1='No Errors'|2=' Any errors: 00'|3=' DDU Trailer Missing: 01'|4=' DDU Header Missing: 02'|5=' DDU CRC Error: 03'|6=' DDU Word Count Error: 04'|7=' DMB Trailer Missing: 05'|8=' DMB Header Missing: 06'|9=' ALCT Trailer Missing: 07'|10=' ALCT Header Missing: 08'|11=' ALCT Word Count Error: 09'|12='ALCT CRC Error: 10'|13='ALCT Trailer Bit Error: 11'|14='TMB Trailer Missing: 12'|15='TMB Header Missing: 13'|16='TMB Word Count Error: 14'|17='TMB CRC Error: 15'|18='CFEB Word Count Per Sample Error: 16'|19='CFEB Sample Count Error: 17'|20='CFEB CRC Error: 18'|21='DDU Event Size Limit Error: 19'|22='C-Words: 20'|23='ALCT DAV Error: 21'|24='TMB DAV Error: 22'|25='CFEB DAV Error: 23'|26='DMB Active Error: 24'|27='DCC Trailer Missing: 25'|28='DCC Header Missing: 26'|29='DMB DAV vs. DMB Active mismatch Error: 27'|30='Extra words between DDU Hdr and 1st DMB Hdr: 28'|</SetYLabels>
+                <Title>FED/DCC Data Format Errors</Title>
+                <Type>h2</Type>
+                <XBins>8</XBins>
+                <XMax>758</XMax>
+                <XMin>750</XMin>
+                <XTitle>FED IDs</XTitle>
+                <YBins>30</YBins>
+                <YMax>30</YMax>
+                <YMin>0</YMin>
+                <Name>FEDFormat_Errors</Name>
+        </Histogram>
+
+	<Histogram>
+                <Prefix>EMU</Prefix>
+                <SetLabelSizeX>0.03</SetLabelSizeX>
+                <SetLabelSizeZ>0.02</SetLabelSizeZ>
+                <SetNdivisionsX>40</SetNdivisionsX>
+                <SetOption>colz</SetOption>
+                <SetOptStat>e</SetOptStat>
+                <SetStats>0</SetStats>
+                <Title>FED/DCC Buffer Size</Title>
+                <Type>h2</Type>
+                <XBins>8</XBins>
+                <XMax>758</XMax>
+                <XMin>750</XMin>
+                <XTitle>FED IDs</XTitle>
+                <YBins>60</YBins>
+                <YMax>6</YMax>
+                <YMin>0</YMin>
+                <YTitle>log(DCC size) in bytes</YTitle>
+                <Name>FEDBufferSize</Name>
+        </Histogram>
+
+ 	<Histogram>
+                <Prefix>EMU</Prefix>
+                <SetOption>bar1</SetOption>
+                <SetOptStat>emro</SetOptStat>
+                <Title>Total CSC Event Size</Title>
+                <Type>h1</Type>
+                <XBins>100</XBins>
+                <XMax>100</XMax>
+                <XMin>0</XMin>
+                <XTitle>Event Size in KBytes</XTitle>
+                <YTitle># of Events</YTitle>
+                <Name>FEDTotalEventSize</Name>
+        </Histogram>
+
 	<Histogram>
                 <Prefix>EMU</Prefix>
                 <SetOption>bar1</SetOption>
                 <SetOptStat>emro</SetOptStat>
-                <Title>FED/DCC Buffer Size</Title>
+                <Title>Total Number of CSCs in Event</Title>
                 <Type>h1</Type>
-                <XBins>128</XBins>
-                <XMax>65536</XMax>
+                <XBins>25</XBins>
+                <XMax>25</XMax>
                 <XMin>0</XMin>
-                <XTitle>Buffer Size in bytes</XTitle>
+                <XTitle># of CSCs</XTitle>
                 <YTitle># of Events</YTitle>
-                <Name>FEDBufferSize</Name>
+                <Name>FEDTotalCSCs</Name>
         </Histogram>
 
+	<Histogram>
+                <Prefix>EMU</Prefix>
+                <SetOption>bar1</SetOption>
+                <SetOptStat>emro</SetOptStat>
+                <Title>Total Number of CFEBs in Event</Title>
+                <Type>h1</Type>
+                <XBins>25</XBins>
+                <XMax>25</XMax>
+                <XMin>0</XMin>
+                <XTitle># of CFEBs</XTitle>
+                <YTitle># of Events</YTitle>
+                <Name>FEDTotalCFEBs</Name>
+        </Histogram>
+	
+	<Histogram>
+                <Prefix>EMU</Prefix>
+                <SetOption>bar1</SetOption>
+                <SetOptStat>emro</SetOptStat>
+                <Title>Total Number of ALCTs in Event</Title>
+                <Type>h1</Type>
+                <XBins>25</XBins>
+                <XMax>25</XMax>
+                <XMin>0</XMin>
+                <XTitle># of TMBs</XTitle>
+                <YTitle># of Events</YTitle>
+                <Name>FEDTotalALCTs</Name>
+        </Histogram>
+	
+	<Histogram>
+                <Prefix>EMU</Prefix>
+                <SetOption>bar1</SetOption>
+                <SetOptStat>emro</SetOptStat>
+                <Title>Total Number of TMBs in Event</Title>
+                <Type>h1</Type>
+                <XBins>25</XBins>
+                <XMax>25</XMax>
+                <XMin>0</XMin>
+                <XTitle># of TMBs</XTitle>
+                <YTitle># of Events</YTitle>
+                <Name>FEDTotalTMBs</Name>
+        </Histogram>
+	
 
 	<Histogram ref="FEDIntegrityMap">
 		<Title>CSC FED Entries</Title>
@@ -113,6 +215,28 @@
 		<Title>CSC FED Format Fatal Errors</Title>
 		<Name>FEDFormatFatal</Name>
 	</Histogram>
+
+	<Histogram ref="FEDIntegrityMap">
+                <Title>CSC FED-DDUs L1A mismatch</Title>
+                <Name>FED_DDU_L1A_mismatch</Name>
+        </Histogram>
+
+
+	<!-- FED Histograms -->
+
+	<Histogram>
+                <Prefix>FED</Prefix>
+                <SetOption>bar1</SetOption>
+                <SetOptStat>emro</SetOptStat>
+                <Title>FED/DCC Buffer Size</Title>
+                <Type>h1</Type>
+                <XBins>96</XBins>
+                <XMax>49152</XMax>
+                <XMin>0</XMin>
+                <XTitle>Buffer Size in bytes</XTitle>
+                <YTitle># of Events</YTitle>
+                <Name>DCCBufferSize</Name>
+        </Histogram>
 
 	<!-- Shifter Stats Histograms -->
 	
@@ -444,14 +568,14 @@
 		<Descr>Number of Events in DDU. %BR% %ICON{"warning"}% All DDUs should give exactly the same number of events.</Descr>
 		<Prefix>EMU</Prefix>
 		<SetLabelSizeX>0.03</SetLabelSizeX>
-		<SetNdivisionsX>44</SetNdivisionsX>
+		<SetNdivisionsX>36</SetNdivisionsX>
 		<SetOption>bar1text</SetOption>
 		<SetOptStat>em</SetOptStat>
 		<SetStats>0</SetStats>
 		<Title>DDUs in Readout</Title>
 		<Type>h1</Type>
-		<XBins>44</XBins>
-		<XMax>45</XMax>
+		<XBins>36</XBins>
+		<XMax>37</XMax>
 		<XMin>1</XMin>
 		<XTitle>DDU IDs</XTitle>
 		<YTitle>DDU Events</YTitle>
@@ -479,8 +603,8 @@
 		<SetYLabels>1='0'|2='1'|3='2'|4='3'|5='4'|6='5'|7='6'|8='7'|9='8'|10='9'|11='10'|12='11-30'|13='31-100'|14='101-300'|15='301-1000'|16='1k-3k'|17='3k-10k'|18='10k-30k'|19='30k-100k'|20='&gt;100k'|</SetYLabels>
 		<Title>L1A Increment</Title>
 		<Type>h2</Type>
-		<XBins>44</XBins>
-		<XMax>45</XMax>
+		<XBins>36</XBins>
+		<XMax>37</XMax>
 		<XMin>1</XMin>
 		<XTitle>DDU IDs</XTitle>
 		<YBins>20</YBins>
@@ -508,8 +632,8 @@
 		<SetYLabels>1='No Errors'|2='Any Error'|3='DMB or CFEB CRC error: 01'|4='DMB or CFEB L1A Match error: 02'|5='Fiber Connection changed: 03'|6='Sync Lost was detected by DDU: 04'|7='Two Single Bit-Vote Errors: 05'|8='TMB or ALCT CRC error: 06'|9='Timeout Error: 07'|10='Lost CSC End of Data occurred: 08'|11='Lost Control word in event: 09'|12='CSC Error detected: 10'|13='DDU Clock-DLL error: 11'|14='64-bit alignment error: 12'|15='DAQ FIFO Near Full: 13'|16='DDU Single Event Warning: 14'|17='DDU Single Event Error: 15'|18='DDU Critical Error: 16'|19='TMB/ALCT-DDU L1A Mismatch: 17'|20='TMB/ALCT Word Count Error: 18'|21='ALCT Error: 19'|22='TMB Error: 20'|23='S-Link Not Ready: 21'|24='S-Link Full Bit Present: 22'|25='DDU Input Detected error: 23'|26='One Single Bit-Vote Error: 24'|27='No Live Fibers: 25'|28='Data Stuck in FIFO: 26'|29='L1A-FIFO Full: 27'|30='Wrong First Word: 28'|31='CFEB Count Error occurred: 29'|32='No Good DMB CRC: 30'|33='DDU-CFEB L1 Number Mismatch occurred: 31'|34='CSC LCT/DAV Mismatch occurred: 32'|</SetYLabels>
 		<Title>DDU Trailer Status Errors</Title>
 		<Type>h2</Type>
-		<XBins>44</XBins>
-		<XMax>45</XMax>
+		<XBins>36</XBins>
+		<XMax>37</XMax>
 		<XMin>1</XMin>
 		<XTitle>DDU IDs</XTitle>
 		<YBins>34</YBins>
@@ -532,8 +656,8 @@
 		<SetYLabels>1='No Errors'|2=' Any errors: 00'|3=' DDU Trailer Missing: 01'|4=' DDU Header Missing: 02'|5=' DDU CRC Error: 03'|6=' DDU Word Count Error: 04'|7=' DMB Trailer Missing: 05'|8=' DMB Header Missing: 06'|9=' ALCT Trailer Missing: 07'|10=' ALCT Header Missing: 08'|11=' ALCT Word Count Error: 09'|12='ALCT CRC Error: 10'|13='ALCT Trailer Bit Error: 11'|14='TMB Trailer Missing: 12'|15='TMB Header Missing: 13'|16='TMB Word Count Error: 14'|17='TMB CRC Error: 15'|18='CFEB Word Count Per Sample Error: 16'|19='CFEB Sample Count Error: 17'|20='CFEB CRC Error: 18'|21='DDU Event Size Limit Error: 19'|22='C-Words: 20'|23='ALCT DAV Error: 21'|24='TMB DAV Error: 22'|25='CFEB DAV Error: 23'|26='DMB Active Error: 24'|27='DCC Trailer Missing: 25'|28='DCC Header Missing: 26'|29='DMB DAV vs. DMB Active mismatch Error: 27'|30='Extra words between DDU Hdr and 1st DMB Hdr: 28'|</SetYLabels>
 		<Title>DDU Data Format Errors</Title>
 		<Type>h2</Type>
-		<XBins>44</XBins>
-		<XMax>45</XMax>
+		<XBins>36</XBins>
+		<XMax>37</XMax>
 		<XMin>1</XMin>
 		<XTitle>DDU IDs</XTitle>
 		<YBins>30</YBins>
@@ -551,8 +675,8 @@
 		<SetStats>0</SetStats>
 		<Title>DDU Event Size (from DDU Trailer)</Title>
 		<Type>h2</Type>
-		<XBins>44</XBins>
-		<XMax>45</XMax>
+		<XBins>36</XBins>
+		<XMax>37</XMax>
 		<XMin>1</XMin>
 		<XTitle>DDU IDs</XTitle>
 		<YBins>44</YBins>
@@ -570,8 +694,8 @@
 		<SetStats>0</SetStats>
 		<Title>Average Number of DDU 64-bit words</Title>
 		<Type>hp</Type>
-		<XBins>44</XBins>
-		<XMax>45</XMax>
+		<XBins>36</XBins>
+		<XMax>37</XMax>
 		<XMin>1</XMin>
 		<XTitle>DDU IDs</XTitle>
 		<YTitle>DDU Words</YTitle>
@@ -596,8 +720,8 @@
 		<SetYLabels>1='1'|2='2'|3='3'|4='4'|5='5'|6='6'|7='7'|8='8'|9='9'|10='10'|11='11'|12='12'|13='13'|14='14'|15='15'|</SetYLabels>
 		<Title>DDU Live Inputs</Title>
 		<Type>h2</Type>
-		<XBins>44</XBins>
-		<XMax>45</XMax>
+		<XBins>36</XBins>
+		<XMax>37</XMax>
 		<XMin>1</XMin>
 		<XTitle>DDU IDs</XTitle>
 		<YBins>15</YBins>
@@ -616,8 +740,8 @@
 		<SetStats>0</SetStats>
 		<Title>Average Number of DDU Live Inputs</Title>
 		<Type>hp</Type>
-		<XBins>44</XBins>
-		<XMax>45</XMax>
+		<XBins>36</XBins>
+		<XMax>37</XMax>
 		<XMin>1</XMin>
 		<XTitle>DDU IDs</XTitle>
 		<YBins>15</YBins>
@@ -643,8 +767,8 @@
 		<SetYLabels>1='1'|2='2'|3='3'|4='4'|5='5'|6='6'|7='7'|8='8'|9='9'|10='10'|11='11'|12='12'|13='13'|14='14'|15='15</SetYLabels>
 		<Title>DDU Inputs with data (DAV)</Title>
 		<Type>h2</Type>
-		<XBins>44</XBins>
-		<XMax>45</XMax>
+		<XBins>36</XBins>
+		<XMax>37</XMax>
 		<XMin>1</XMin>
 		<XTitle>DDU IDs</XTitle>
 		<YBins>15</YBins>
@@ -662,8 +786,8 @@
 		<SetStats>0</SetStats>
 		<Title>Average Number of DDU Inputs with Data (DAV)</Title>
 		<Type>hp</Type>
-		<XBins>44</XBins>
-		<XMax>45</XMax>
+		<XBins>36</XBins>
+		<XMax>37</XMax>
 		<XMin>1</XMin>
 		<XTitle>DDU IDs</XTitle>
 		<YBins>15</YBins>
@@ -687,8 +811,8 @@
 		<SetYLabels>1='No Errors'|2='Any Input'|3='1'|4='2'|5='3'|6='4'|7='5'|8='6'|9='7'|10='8'|11='9'|12='10'|13='11'|14='12'|15='13'|16='14'|17='15'|</SetYLabels>
 		<Title>DDU Inputs in ERROR State</Title>
 		<Type>h2</Type>
-		<XBins>44</XBins>
-		<XMax>45</XMax>
+		<XBins>36</XBins>
+		<XMax>37</XMax>
 		<XMin>1</XMin>
 		<XTitle>DDU IDs</XTitle>
 		<YBins>17</YBins>
@@ -716,8 +840,8 @@
 		<SetYLabels>1='No Warnings'|2='Any Input'|3='1'|4='2'|5='3'|6='4'|7='5'|8='6'|9='7'|10='8'|11='9'|12='10'|13='11'|14='12'|15='13'|16='14'|17='15'|</SetYLabels>
 		<Title>DDU Inputs in WARNING State</Title>
 		<Type>h2</Type>
-		<XBins>44</XBins>
-		<XMax>45</XMax>
+		<XBins>36</XBins>
+		<XMax>37</XMax>
 		<XMin>1</XMin>
 		<XTitle>DDU IDs</XTitle>
 		<YBins>17</YBins>
@@ -983,8 +1107,8 @@
                 <SetOption>bar1</SetOption>
                 <SetOptStat>e</SetOptStat>
                 <Type>h1</Type>
-                <XBins>512</XBins>
-                <XMax>4096</XMax>
+                <XBins>891</XBins>
+                <XMax>3564</XMax>
                 <XMin>0</XMin>
                 <XTitle>BXN Counter Number</XTitle>
                 <YTitle>Number of Events</YTitle>
@@ -1830,9 +1954,9 @@
                 <XMax>160</XMax>
                 <XMin>0</XMin>
                 <XTitle>Key Half Strip</XTitle>
-                <YBins>32</YBins>
-                <YMax>16</YMax>
-                <YMin>-16</YMin>
+		<YBins>30</YBins>
+                <YMax>-140</YMax>
+                <YMin>-170</YMin>
                 <YTitle>Average (CLCT%d BXN - L1A BXN)</YTitle>
                 <Name from="0" to="1">CLCT%d_dTime_Profile</Name>
         </Histogram>
@@ -2384,9 +2508,9 @@
 		<SetOptStat>emuo</SetOptStat>
 		<Title>CLCT%d BXN - TMB_L1A BXN Difference</Title>
 		<Type>h1</Type>
-		<XBins>8</XBins>
-		<XMax>4</XMax>
-		<XMin>-4</XMin>
+		<XBins>30</XBins>
+                <XMax>-140</XMax>
+                <XMin>-170</XMin>
 		<XTitle>CLCT%d BXN - TMB_L1A BXN</XTitle>
 		<YTitle>Number of events</YTitle>
 		<Name from="0" to="1">CLCT%d_dTime</Name>
@@ -2402,9 +2526,9 @@
 		<XMax>160</XMax>
 		<XMin>0</XMin>
 		<XTitle>Key DiStrip</XTitle>
-		<YBins>8</YBins>
-		<YMax>4</YMax>
-		<YMin>-4</YMin>
+		<YBins>30</YBins>
+                <YMax>-140</YMax>
+                <YMin>-170</YMin>
 		<YTitle>CLCT%d BXN - TMB_L1A BXN</YTitle>
 		<Name from="0" to="1">CLCT%d_dTime_vs_DiStrip</Name>
 	</Histogram>
@@ -2419,9 +2543,9 @@
 		<XMax>160</XMax>
 		<XMin>0</XMin>
 		<XTitle>Key Half Strip</XTitle>
-		<YBins>8</YBins>
-		<YMax>4</YMax>
-		<YMin>-4</YMin>
+		<YBins>30</YBins>
+                <YMax>-140</YMax>
+                <YMin>-170</YMin>
 		<YTitle>CLCT%d BXN - TMB_L1A BXN</YTitle>
 		<Name from="0" to="1">CLCT%d_dTime_vs_Half_Strip</Name>
 	</Histogram>

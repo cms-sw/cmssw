@@ -54,6 +54,7 @@
             <xs:enumeration value="CSC"/>
             <xs:enumeration value="DDU"/>
             <xs:enumeration value="EMU"/>
+	    <xs:enumeration value="FED"/>
           </xs:restriction>
         </xs:simpleType>
       </xs:element>
