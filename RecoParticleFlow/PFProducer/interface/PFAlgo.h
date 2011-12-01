@@ -369,6 +369,7 @@ class PFAlgo {
 
   // Option to let PF decide the muon momentum
   bool usePFMuonMomAssign_;
+  bool useBestMuonTrack_;
 
   /// Flags to use the protection against fakes 
   /// and not reconstructed displaced vertices
@@ -404,7 +405,6 @@ class PFAlgo {
   double minSignificanceReduction_;
   double maxDeltaPhiPt_;
   double minDeltaMet_;
-  double useBestMuonTrack_;
 
   //MIKE -May19th: Add option for the vertices....
   reco::Vertex       primaryVertex_;
