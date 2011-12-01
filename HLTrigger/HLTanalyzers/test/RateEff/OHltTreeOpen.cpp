@@ -741,6 +741,28 @@ bool isDiCentralPFJetX_PFMHTXTrigger(TString triggerName, vector<double> &thresh
     return false;
 }
 
+// 2011-12-01 Len
+bool isCaloJetX_PFJetTrigger(TString triggerName, vector<double> &thresholds)
+{
+	
+  TString pattern = "(OpenHLT_CaloJet([0-9]+)_PFJet([0-9]+))$";
+  TPRegexp matchThreshold(pattern);
+	
+  if (matchThreshold.MatchB(triggerName))
+    {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdCaloJet  = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdPFJet    = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      thresholds.push_back(thresholdCaloJet);
+      thresholds.push_back(thresholdPFJet);
+      delete subStrL;
+      return true;
+    }
+  else
+    return false;
+}
+
+// 2011-12-01 Christian
 bool isPFJetXTrigger(TString triggerName, vector<double> &thresholds)
 {
 	
@@ -13346,6 +13368,20 @@ else if (triggerName.CompareTo("OpenHLT_Ele32_WP70_PFMT50_v1")  == 0)
 	    }
 	}
     }
+
+  else if (isCaloJetX_PFJetTrigger(triggerName, thresholds))
+  {
+    if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+    {
+      if (prescaleResponse(menu, cfg, rcounter, it))
+      {
+        if  ( OpenHlt1CorJetPassed(thresholds[0]) && OpenHltNPFJetPassed(1, thresholds[1], 5.1)==1)
+        {
+          triggerBit[it] = true;
+        }
+      }
+    }
+  }
 
   else if (isPFJetXTrigger(triggerName, thresholds))
   {
