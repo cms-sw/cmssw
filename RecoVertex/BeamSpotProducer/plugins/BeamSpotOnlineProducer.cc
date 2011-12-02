@@ -19,12 +19,7 @@ using namespace edm;
 BeamSpotOnlineProducer::BeamSpotOnlineProducer(const ParameterSet& iconf)
 {
   
-  if (iconf.exists("label")){
-    edm::LogError("Deprecation")<<"please migrate to using src = cms.InputTag instead of label = cms.InputTag";
-    scalertag_ = iconf.getParameter<InputTag>("label");
-  }
-  else
-    scalertag_ = iconf.getParameter<InputTag>("src");
+  scalertag_ = iconf.getParameter<InputTag>("src");
 
   changeFrame_ = iconf.getParameter<bool>("changeToCMSCoordinates");
 
