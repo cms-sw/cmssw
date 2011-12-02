@@ -36258,6 +36258,13 @@ HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_Activity_Ecal_SC7_v9, HLT_
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 
+# from CMSSW_5_0_0_pre7: new ParticleFlow parameters
+if cmsswVersion > "CMSSW_5_0":
+    if 'hltParticleFlow' in locals():
+        hltParticleFlow.useBestMuonTrack = cms.bool ( False )
+    if 'hltParticleFlowForTaus' in locals():
+        hltParticleFlowForTaus.useBestMuonTrack = cms.bool ( False )
+
 # from CMSSW_5_0_0_pre6: ESSource -> ESProducer in JetMETCorrections/Modules
 if cmsswVersion > "CMSSW_5_0":
     if 'hltESSAK5CaloL2L3' in locals():
@@ -36278,18 +36285,18 @@ if cmsswVersion > "CMSSW_5_0":
     if 'hltESSL1FastJetCorrectionService' in locals():
         hltESSL1FastJetCorrectionService = cms.ESProducer( "L1FastjetCorrectionESProducer",
             appendToDataLabel = cms.string( "" ),
-#           era = cms.string( "Jec10V1" ),
             level = cms.string( "L1FastJet" ),
             algorithm = cms.string( "AK5Calo" ),
+            srcRho = cms.InputTag( 'hltKT6CaloJets','rho' ),
 #           section = cms.string( "" ),
-            srcRho = cms.InputTag( 'hltKT6CaloJets','rho' )#,
+#           era = cms.string( "Jec10V1" ),
 #           useCondDB = cms.untracked.bool( True )
         )
     if 'hltESSL2RelativeCorrectionService' in locals():
         hltESSL2RelativeCorrectionService = cms.ESProducer( "LXXXCorrectionESProducer",
             appendToDataLabel = cms.string( "" ),
             level = cms.string( "L2Relative" ),
-            algorithm = cms.string( "AK5Calo" )#,
+            algorithm = cms.string( "AK5Calo" ),
 #           section = cms.string( "" ),
 #           era = cms.string( "" ),
 #           useCondDB = cms.untracked.bool( True )
@@ -36298,8 +36305,8 @@ if cmsswVersion > "CMSSW_5_0":
         hltESSL3AbsoluteCorrectionService = cms.ESProducer( "LXXXCorrectionESProducer",
             appendToDataLabel = cms.string( "" ),
             level = cms.string( "L3Absolute" ),
-            algorithm = cms.string( "AK5Calo" )#,
-#           section = cms.string( "" )#,
+            algorithm = cms.string( "AK5Calo" ),
+#           section = cms.string( "" ),
 #           era = cms.string( "" ),
 #           useCondDB = cms.untracked.bool( True )
         )
