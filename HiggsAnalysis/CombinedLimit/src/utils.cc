@@ -391,7 +391,7 @@ utils::makePlots(const RooAbsPdf &pdf, const RooAbsData &data, const char *signa
     RooAbsPdf *facpdf = factorizePdf(*data.get(0), const_cast<RooAbsPdf &>(pdf), constraints);
 
     const std::type_info & id = typeid(*facpdf);
-    if (id == typeid(RooSimultaneous)) {
+    if (id == typeid(RooSimultaneous) || id == typeid(RooSimultaneousOpt)) {
         const RooSimultaneous *sim  = dynamic_cast<const RooSimultaneous *>(&pdf);
         const RooAbsCategoryLValue &cat = (RooAbsCategoryLValue &) sim->indexCat();
         TList *datasets = data.split(cat, true);
@@ -418,6 +418,8 @@ utils::makePlots(const RooAbsPdf &pdf, const RooAbsData &data, const char *signa
             ret.push_back(x->frame());
             ret.back()->SetName("data");
             data.plotOn(ret.back());
+            if (signalSel && strlen(signalSel))         pdf.plotOn(ret.back(), RooFit::LineColor(209), RooFit::Components(signalSel));
+            if (backgroundSel && strlen(backgroundSel)) pdf.plotOn(ret.back(), RooFit::LineColor(206), RooFit::Components(backgroundSel));
             pdf.plotOn(ret.back());
         }
     }
