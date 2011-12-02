@@ -468,8 +468,6 @@ void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & 
       muonl3eta[imu3c] = candref->eta();
       muonl3phi[imu3c] = candref->phi();
 
-      std::cout << "JH: tk pT = " << tk->pt() << ", candref pT = " << candref->pt() << ", candref track pT = " << candref->track()->pt() << std::endl;
-
       //       // Dr (transverse distance to (0,0,0))
       //       // For baseline triggers, we do no cut at L2 (|dr|<9999 cm)
       //       // However, we use |dr|<300 microns at L3, which it probably too tough for LHC startup
