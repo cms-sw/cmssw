@@ -19,5 +19,8 @@ DoHLTHIMuon = cms.Path(HLTBeginSequence +
 DoHLTHIPhoton = cms.Path(
     HLTBeginSequence +
     HLTDoCaloSequence +
-    HLTDoHIEcalClusSequence +
+# FIXME
+#    HLTDoHIEcalClusSequence +
+    HLTDoHIEcalClusWithCleaningSequence +
+#
     HLTEndSequence )
