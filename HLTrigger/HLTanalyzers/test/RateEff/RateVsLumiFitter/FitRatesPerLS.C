@@ -49,7 +49,7 @@ void FitRatesPerLS (TString DS="AlphaT", double L=5000, size rebin=30, double lo
   gStyle->SetTitleFontSize(0.08);
 // For the axis labels:
 	gStyle->SetLabelFont(42, "XYZ");
-  gStyle->SetLabelSize(0.08, "XYZ");
+  gStyle->SetLabelSize(0.06, "XYZ");
 
   gStyle->SetMarkerStyle(20);
   gStyle->SetMarkerSize(0.5);
@@ -248,7 +248,8 @@ void FitRatesPerLS (TString DS="AlphaT", double L=5000, size rebin=30, double lo
 				int idx= vLumiLSindex.at(iLS).first;
  				lumi += vLumiLSindex.at(iLS).second;
         
- 				rate  += vvRates.at(iPath).at(idx)*vvTotalPrescales.at(iPath).at(idx);
+// 				rate  += vvRates.at(iPath).at(idx)*vvTotalPrescales.at(iPath).at(idx); // TODO : fix me
+ 				rate  += vvRates.at(iPath).at(idx)*1.0; // since for emulations and strange RMR stuff it doesn't work
  				count += vvCounts.at(iPath).at(idx);
  				++iLS;
  			}
@@ -305,6 +306,8 @@ void FitRatesPerLS (TString DS="AlphaT", double L=5000, size rebin=30, double lo
  	for (size iPath=0; iPath<nPaths; ++iPath)
   {//looping over paths
  		c->cd(iPath+1);
+ 		vGraph.at(iPath)->SetMarkerSize(1.0);
+ 		vGraph.at(iPath)->SetMarkerColor(kRed);
  		vGraph.at(iPath)->Draw("ap");
  		vGraph.at(iPath)->Fit("fp1","Q","",1000, 3000); // Fitting only the region 1E33 - 3E33 for the linear trend
  		fp1->GetParameters(FitPars);
@@ -316,12 +319,16 @@ void FitRatesPerLS (TString DS="AlphaT", double L=5000, size rebin=30, double lo
  		vGraph.at(iPath)->Fit("fLinExp","R");
  		fLinExp->GetParameters(FitPars);
  		fp1->DrawCopy("same");
+		
 
 //  		printf("Linear + Exponential extrapolation. Path: % 40s\tLumi = %2.2lfE30\tRate = %5.1lf\n", vGraph.at(iPath)->GetTitle(), L,fLinExp->Eval(L));
 // 		vGraph.at(iPath)->Fit("fExpExp","R");
 // 		fExpExp->GetParameters(FitPars);
 // 		printf("Cubic rate extrapolation. Path: %s\tLumi = %2.2lfE30\tRate = %5.1lf\n", vGraph.at(iPath)->GetTitle(), L,fExpExp->Eval(L));
  	}
+	char text[100];
+	sprintf(text,"/1TB/hartl/ratesVsLumiHighPileup/plots/%s.png",DS.Data());
+	c->SaveAs(text);
 
 	return;
 }
