@@ -40,7 +40,10 @@ RooDataSet *CombDataSetFactory::doneUnbinned(const char *name, const char *title
     using namespace RooFit; 
     RooDataSet *ret = 0;
     if (weight_) {
-        // must back-fill weight for datasets which didn't have it
+#if 0   // This works most of the time, but sometimes weights end up wrong.
+        // I don't knopw why the @$^#&^# this happens, but it nevertheless 
+        // means that I can't use the constructor with the map directly
+        //
         for (std::map<std::string, RooDataSet *>::iterator it = mapUB_.begin(), ed = mapUB_.end(); it != ed; ++it) {
             RooDataSet *data = it->second;
             if (!data->isWeighted()) {
@@ -48,9 +51,30 @@ RooDataSet *CombDataSetFactory::doneUnbinned(const char *name, const char *title
                 data->addColumn(*weight_);
                 it->second = new RooDataSet(data->GetName(), data->GetTitle(), data, *data->get(), /*cut=*/(char*)0, weight_->GetName());
             }
+            //std::cout << "\n\n\n========== DATASET " << it->first << " =============" << std::endl;
+            //utils::printRDH(it->second);
         }
         RooArgSet varsPlusWeight(vars_); varsPlusWeight.add(*weight_);
         ret = new RooDataSet(name,title,varsPlusWeight,Index(*cat_),Import(mapUB_),WeightVar(*weight_));
+        //std::cout << "\n\n\n========== COMBINED DATASET =============" << std::endl;
+        //utils::printRDH(ret);
+#else
+        RooArgSet varsPlusCat(vars_); varsPlusCat.add(*cat_);
+        RooArgSet varsPlusWeight(varsPlusCat); varsPlusWeight.add(*weight_);
+        ret = new RooDataSet(name,title,varsPlusWeight,WeightVar(*weight_));
+        for (std::map<std::string, RooDataSet *>::iterator it = mapUB_.begin(), ed = mapUB_.end(); it != ed; ++it) {
+            //std::cout << "\n\n\n========== DATASET " << it->first << " =============" << std::endl;
+            //utils::printRDH(it->second);
+            cat_->setLabel(it->first.c_str());
+            RooDataSet *data = it->second;
+            for (unsigned int i = 0, n = data->numEntries(); i < n; ++i) {
+                varsPlusCat = *data->get(i);
+                ret->add(varsPlusCat, data->weight());
+            }
+        }
+        //std::cout << "\n\n\n========== COMBINED DATASET =============" << std::endl;
+        //utils::printRDH(ret);
+#endif
     } else {
         ret = new RooDataSet(name,title,vars_,Index(*cat_),Import(mapUB_));
     }
