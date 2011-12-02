@@ -30,9 +30,6 @@ using namespace reco;
 PFPhotonAlgo::PFPhotonAlgo(std::string mvaweightfile,  
 			   double mvaConvCut, 
 			   bool useReg,
-			   std::string mvaWeightFilePFClusCorr, 
-			   std::string mvaWeightFilePFPhoCorr, 
-			   std::string mvaWeightFilePFPhoRes,
 			   std::string X0_Map,
 			   const reco::Vertex& primary,
 			   const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
@@ -59,13 +56,7 @@ PFPhotonAlgo::PFPhotonAlgo(std::string mvaweightfile,
     tmvaReader_->AddVariable("STIP",&STIP);  
     tmvaReader_->AddVariable("nlost", &nlost);  
     tmvaReader_->BookMVA("BDT",mvaweightfile.c_str());  
-    
-    TFile *fgbr = new TFile(mvaWeightFilePFPhoCorr.c_str(),"READ");
-    ReaderGC  =(GBRForest*)fgbr->Get("GBRForest");
-    TFile *fgbr2 = new TFile(mvaWeightFilePFClusCorr.c_str(),"READ");
-    ReaderLC  = (GBRForest*)fgbr2->Get("GBRForest");
-    TFile *fgbr3 = new TFile(mvaWeightFilePFPhoRes.c_str(),"READ");
-    ReaderRes  = (GBRForest*)fgbr3->Get("GBRForest");
+
     //Material Map
     TFile *XO_File = new TFile(X0_Map.c_str(),"READ");
     X0_sum=(TH2D*)XO_File->Get("TrackerSum");
@@ -1045,8 +1036,8 @@ float PFPhotonAlgo::EvaluateResMVA(reco::PFCandidate photon){
   GC_Var[14]=excluded_;
   GC_Var[15]= Mustache_EtRatio_;
   
-  BDTG=ReaderRes->GetResponse(GC_Var);
-  
+  BDTG=ReaderRes_->GetResponse(GC_Var);
+  //  cout<<"Res "<<BDTG<<endl;
   
   //  cout<<"BDTG Parameters X0"<<x0inner_<<", "<<x0middle_<<", "<<x0outer_<<endl;
   // cout<<"Et, Eta, Phi "<<PFPhoEt_<<", "<<PFPhoEta_<<", "<<PFPhoPhi_<<endl;
@@ -1151,7 +1142,6 @@ float PFPhotonAlgo::EvaluateGCorrMVA(reco::PFCandidate photon){
     dEta_=0;
     dPhi_=0;
   }
-  
   float dRmin=999;
   float SCphi=photon.superClusterRef()->position().phi();
   float SCeta=photon.superClusterRef()->position().eta();
@@ -1173,13 +1163,14 @@ float PFPhotonAlgo::EvaluateGCorrMVA(reco::PFCandidate photon){
 	}
       }
     } 
+
   //fill Material Map:
   int ix = X0_sum->GetXaxis()->FindBin(PFPhoEta_);
   int iy = X0_sum->GetYaxis()->FindBin(PFPhoPhi_);
   x0inner_= X0_inner->GetBinContent(ix,iy);
   x0middle_=X0_middle->GetBinContent(ix,iy);
   x0outer_=X0_outer->GetBinContent(ix,iy);
-  
+
   float GC_Var[16];
   GC_Var[0]=PFPhoEta_;
   GC_Var[1]=PFPhoEt_;
@@ -1198,8 +1189,9 @@ float PFPhotonAlgo::EvaluateGCorrMVA(reco::PFCandidate photon){
   GC_Var[14]=excluded_;
   GC_Var[15]= Mustache_EtRatio_;
   
-  BDTG=ReaderGC->GetResponse(GC_Var);
-  
+
+  BDTG=ReaderGC_->GetResponse(GC_Var);
+  //  cout<<"GC "<<BDTG<<endl;  
   
   //  cout<<"BDTG Parameters X0"<<x0inner_<<", "<<x0middle_<<", "<<x0outer_<<endl;
   // cout<<"Et, Eta, Phi "<<PFPhoEt_<<", "<<PFPhoEta_<<", "<<PFPhoPhi_<<endl;
@@ -1242,7 +1234,8 @@ float PFPhotonAlgo::EvaluateLCorrMVA(reco::PFClusterRef clusterRef ){
    LC_Var[8]=PFCrysEtaCrack_;
    LC_Var[9]=CrysEta_;
    LC_Var[10]=CrysPhi_;
-   BDTG=ReaderLC->GetResponse(LC_Var);   
+   BDTG=ReaderLC_->GetResponse(LC_Var);   
+   //   cout<<"LC "<<BDTG<<endl;  
    return BDTG;
   
 }

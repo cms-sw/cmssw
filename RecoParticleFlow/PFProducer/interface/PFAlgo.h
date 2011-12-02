@@ -5,6 +5,7 @@
 
 
 // #include "FWCore/Framework/interface/Handle.h"
+#include "CondFormats/EgammaObjects/interface/GBRForest.h"
 #include "DataFormats/Common/interface/Handle.h"
 // #include "FWCore/Framework/interface/OrphanHandle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
@@ -106,15 +107,18 @@ class PFAlgo {
 			     std::string mvaWeightFileConvID,
 			     double mvaConvCut,
 			     bool useReg,
-			     std::string mvaWeightFilePFClusCorr, 
-			     std::string mvaWeightFilePFPhoCorr,
-			     std::string mvaWeightFileRes,
 			     std::string X0_Map,
 			     const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
 			     double sumPtTrackIsoForPhoton,
 			     double sumPtTrackIsoSlopeForPhoton
 );  
 
+  void setPFPhotonRegWeights(
+			     const GBRForest *LCorrForest,
+			     const GBRForest *GCorrForest,
+			     const GBRForest *ResForest
+			     
+			     ); 
   void setPostHFCleaningParameters(bool postHFCleaning,
 				   double minHFCleaningPt,
 				   double minSignificance,
@@ -369,7 +373,6 @@ class PFAlgo {
 
   // Option to let PF decide the muon momentum
   bool usePFMuonMomAssign_;
-  bool useBestMuonTrack_;
 
   /// Flags to use the protection against fakes 
   /// and not reconstructed displaced vertices
@@ -405,6 +408,7 @@ class PFAlgo {
   double minSignificanceReduction_;
   double maxDeltaPhiPt_;
   double minDeltaMet_;
+  double useBestMuonTrack_;
 
   //MIKE -May19th: Add option for the vertices....
   reco::Vertex       primaryVertex_;

@@ -1,5 +1,6 @@
 #include "RecoParticleFlow/PFProducer/plugins/PFProducer.h"
 #include "RecoParticleFlow/PFProducer/interface/PFAlgo.h"
+
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -8,6 +9,8 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFSCEnergyCalibration.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTFormula.h"
 #include "CondFormats/DataRecord/interface/PFCalibrationRcd.h"
+#include "CondFormats/EgammaObjects/interface/GBRWrapper.h"
+#include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
@@ -244,9 +247,6 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 				 path_mvaWeightFileConvID,
 				 mvaConvCut,
 				 usePhotonReg_,
-				 path_mvaWeightFileLCorr,
-				 path_mvaWeightFileGCorr,
-				 path_mvaWeightFileRes,
 				 path_X0_Map,
 				 calibration,
 				 sumPtTrackIsoForPhoton,
@@ -403,7 +403,17 @@ PFProducer::beginRun(edm::Run & run,
     
   }
   */
-
+  
+  edm::ESHandle<GBRWrapper> readerPFLC;
+  edm::ESHandle<GBRWrapper> readerPFGC;
+  edm::ESHandle<GBRWrapper> readerPFRes;
+  es.get<GBRWrapperRcd>().get("GBR_PFLCCorrection",readerPFLC);
+  es.get<GBRWrapperRcd>().get("GBR_PFGlobalCorrection",readerPFGC);
+  es.get<GBRWrapperRcd>().get("GBR_PFResolution",readerPFRes);
+  const GBRForest* LCorrForest= &readerPFLC->GetForest();
+  const GBRForest* GCorrForest= &readerPFGC->GetForest();
+  const GBRForest* ResForest= &readerPFRes->GetForest();
+  pfAlgo_->setPFPhotonRegWeights(LCorrForest, GCorrForest, ResForest);
 }
 
 

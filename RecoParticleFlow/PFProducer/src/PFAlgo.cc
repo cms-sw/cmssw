@@ -153,9 +153,6 @@ PFAlgo::setPFPhotonParameters(bool usePFPhotons,
 			      std::string mvaWeightFileConvID, 
 			      double mvaConvCut,
 			      bool useReg,
-			      std::string mvaWeightFilePFClusCorr, 
-			      std::string mvaWeightFilePFPhoCorr, 
-			      std::string mvaWeightFileRes,
 			      std::string X0_Map,
 			      const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
 			      double sumPtTrackIsoForPhoton,
@@ -196,9 +193,6 @@ PFAlgo::setPFPhotonParameters(bool usePFPhotons,
   pfpho_ = new PFPhotonAlgo(mvaWeightFileConvID, 
 			    mvaConvCut, 
 			    useReg,
-			    mvaWeightFilePFClusCorr, 
-			    mvaWeightFilePFPhoCorr, 
-			    mvaWeightFileRes,
 			    X0_Map,  
 			    *pv,
 			    thePFEnergyCalibration,
@@ -208,6 +202,16 @@ PFAlgo::setPFPhotonParameters(bool usePFPhotons,
   return;
 }
 
+void PFAlgo::setPFPhotonRegWeights(
+		  const GBRForest *LCorrForest,
+		  const GBRForest *GCorrForest,
+		  const GBRForest *ResForest
+		  
+		  )
+{
+  pfpho_->setGBRForest(LCorrForest, GCorrForest, ResForest);
+  
+} 
 void 
 PFAlgo::setPFMuonAndFakeParameters(std::vector<double> muonHCAL,
 				   std::vector<double> muonECAL,
@@ -1842,6 +1846,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
 	    double muonMomentum = bestMuTrack->p();
 	    double muonPtError  = bestMuTrack->ptError();
+
 	    double staMomentum = elements[it->second.first].muonRef()->standAloneMuon()->p();
 	    double staPtError = elements[it->second.first].muonRef()->standAloneMuon()->ptError();
 	    double trackPtError = elements[it->second.first].trackRef()->ptError();
@@ -2689,18 +2694,20 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
     if(debug_)if(!trackRef->quality(trackQualityHighPurity))cout<<" Low Purity Track "<<endl;
 
     if(muonRef->isGlobalMuon() && !usePFMuonMomAssign_){
+      
       reco::TrackRef bestMuTrack =  muonRef->muonBestTrack();
-
       if(!useBestMuonTrack_)
 	bestMuTrack = muonRef->combinedMuon(); 
+
       // take the global fit instead under special circumstances
       bool useGlobalFit = false;
       
-      if(thisIsAnIsolatedMuon && (!muonRef->isTrackerMuon() || (muonRef->pt() > muonRef->combinedMuon()->pt() && track.ptError() > 5.0*muonRef->combinedMuon()->ptError()))) useGlobalFit = true;
+      if(thisIsAnIsolatedMuon && (!muonRef->isTrackerMuon() || (muonRef->pt() > bestMuTrack->pt() && track.ptError() > 5.0*bestMuTrack->ptError()))) useGlobalFit = true;
       else if(!trackRef->quality(trackQualityHighPurity)) useGlobalFit = true;
-      else if(muonRef->pt() > muonRef->combinedMuon()->pt() &&
+      else if(muonRef->pt() > bestMuTrack->pt() &&
 	      (track.hitPattern().numberOfValidTrackerHits() < 8 || track.hitPattern().numberOfValidPixelHits() == 0 ) &&
-	      track.ptError() > 5.0*muonRef->combinedMuon()->ptError()) useGlobalFit = true;
+	      track.ptError() > 5.0*bestMuTrack->ptError()) useGlobalFit = true;
+
       if(useGlobalFit){
 	px = bestMuTrack->px();
 	py = bestMuTrack->py();
@@ -2730,7 +2737,7 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
 	  }   // If it's not a tracker muon, choose between the global pT and the STA pT
 	  else{ 
 	    
-	    reco::TrackRef bestMuTrack = muonRef->muonBestTrack()->normalizedChi2() < muonRef->standAloneMuon()->normalizedChi2() ?
+	    reco::TrackRef bestMuTrack = muonRef->combinedMuon()->normalizedChi2() < muonRef->standAloneMuon()->normalizedChi2() ?
 	      muonRef->muonBestTrack() : 
 	      muonRef->standAloneMuon() ;
 	    

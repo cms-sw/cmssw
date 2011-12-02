@@ -33,9 +33,6 @@ class PFPhotonAlgo {
   PFPhotonAlgo(std::string mvaweightfile,  
 	       double mvaConvCut, 
 	       bool useReg, 
-	       std::string mvaWeightFilePFClusCorr, 
-	       std::string mvaWeightFilePFPhoCorr,
-	       std::string mvaWeightFilePFPhoRes,
 	       std::string X0_Map,
 	       const reco::Vertex& primary,
 	       const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
@@ -45,7 +42,16 @@ class PFPhotonAlgo {
 
   //destructor
   ~PFPhotonAlgo(){delete tmvaReader_;   };
-  
+
+  void setGBRForest(const GBRForest *LCorrForest,
+		 const GBRForest *GCorrForest,
+		 const GBRForest *ResForest
+		 )
+  {
+    ReaderLC_=LCorrForest;
+    ReaderGC_=GCorrForest;
+    ReaderRes_=ResForest;
+  }  
   //check candidate validity
   bool isPhotonValidCandidate(const reco::PFBlockRef&  blockRef,
 			      std::vector< bool >&  active,
@@ -115,9 +121,9 @@ private:
   bool useReg_;
   reco::Vertex       primaryVertex_;
   TMVA::Reader *tmvaReader_;
-  GBRForest *ReaderLC;
-  GBRForest *ReaderGC;
-  GBRForest *ReaderRes;
+  const GBRForest *ReaderLC_;
+  const GBRForest *ReaderGC_;
+  const GBRForest *ReaderRes_;
   boost::shared_ptr<PFEnergyCalibration> thePFEnergyCalibration_;
   double sumPtTrackIsoForPhoton_;
   double sumPtTrackIsoSlopeForPhoton_;
