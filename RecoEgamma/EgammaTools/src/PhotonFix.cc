@@ -1123,7 +1123,7 @@ bool PhotonFix::initialiseGeometry(const edm::EventSetup &iSetup) {
       }
     }
   }
-  std::cout << "GG valid " << val_count << std::endl;
+  //  std::cout << "GG valid " << val_count << std::endl;
   double c[2];
   for(unsigned iz(0);iz<2;iz++) {
     unsigned nC(0),nS(0);
@@ -1148,8 +1148,8 @@ bool PhotonFix::initialiseGeometry(const edm::EventSetup &iSetup) {
 	      }
       }
     }
-    std::cout << "Endcap number of crystal, submodule boundaries = "
-	      << nC << ", " << nS << std::endl;
+    //    std::cout << "Endcap number of crystal, submodule boundaries = "
+    //	      << nC << ", " << nS << std::endl;
   }
   
   // Hardcode EE D-module gap to 0,0
