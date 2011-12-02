@@ -148,8 +148,11 @@ HLTTrackClusterRemover::HLTTrackClusterRemover(const ParameterSet& iConfig):
         }
     }
 
-    produces<edmNew::DetSetVector<SiPixelClusterRefNew> >();
-    produces<edmNew::DetSetVector<SiStripRecHit1D::ClusterRegionalRef> >();
+    //produces<edmNew::DetSetVector<SiPixelClusterRefNew> >();
+    //produces<edmNew::DetSetVector<SiStripRecHit1D::ClusterRegionalRef> >();
+    
+    produces< edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > >();
+    produces< edm::ContainerMask<edm::LazyGetter<SiStripCluster> > >();
 
 }
 

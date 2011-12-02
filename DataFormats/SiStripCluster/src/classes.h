@@ -60,7 +60,7 @@ namespace {
     
     edm::ContainerMask<edm::LazyGetter<SiStripCluster> > dummy_cm1;
     edm::Wrapper<edm::ContainerMask<edm::LazyGetter<SiStripCluster> > > dummy_w_cm1;
-    
+    edm::RefProd<edm::LazyGetter<SiStripCluster> > dummy_rp_l_ssc1;
   };
 }
 
