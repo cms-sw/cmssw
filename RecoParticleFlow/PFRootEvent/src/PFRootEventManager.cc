@@ -1172,23 +1172,25 @@ void PFRootEventManager::readOptions(const char* file,
 
   if( usePFPhotons ) { 
     // PFPhoton options -----------------------------
-    
+    TFile *fgbr = new TFile(mvaWeightFileRegGC.c_str(),"READ");
+    const GBRForest * ReaderGC  =(const GBRForest*)fgbr->Get("GBRForest");
+    TFile *fgbr2 = new TFile(mvaWeightFileRegLC.c_str(),"READ");
+    const GBRForest* ReaderLC  = (const GBRForest*)fgbr2->Get("GBRForest");
+    TFile *fgbr3 = new TFile(mvaWeightFileRegRes.c_str(),"READ");
+    const GBRForest* ReaderRes  = (const GBRForest*)fgbr3->Get("GBRForest");
     try { 
       pfAlgo_.setPFPhotonParameters
-(usePFPhotons,
- mvaWeightFileConvID,
- mvaConvCut,
- useReg,
- mvaWeightFileRegLC,
- mvaWeightFileRegGC,
- mvaWeightFileRegRes,
- X0Map,
- calibration,
- sumPtTrackIsoForPhoton,
- sumPtTrackIsoSlopeForPhoton
-);
+	(usePFPhotons,
+	 mvaWeightFileConvID,
+	 mvaConvCut,
+	 useReg,
+	 X0Map,
+	 calibration,
+	 sumPtTrackIsoForPhoton,
+	 sumPtTrackIsoSlopeForPhoton
+	 );
+      pfAlgo_.setPFPhotonRegWeights(ReaderLC, ReaderGC, ReaderRes);
     }
-
     catch( std::exception& err ) {
       cerr<<"exception setting PFAlgo Photon parameters: "
 	  <<err.what()<<". terminating."<<endl;
