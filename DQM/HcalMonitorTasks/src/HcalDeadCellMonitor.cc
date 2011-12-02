@@ -34,6 +34,7 @@ HcalDeadCellMonitor::HcalDeadCellMonitor(const edm::ParameterSet& ps)
   minDeadEventCount_    = ps.getUntrackedParameter<int>("minDeadEventCount",1000);
   excludeHORing2_       = ps.getUntrackedParameter<bool>("excludeHORing2",false);
   excludeHO1P02_        = ps.getUntrackedParameter<bool>("excludeHO1P02",false);
+  endLumiProcessed_     = false;
 
   // Set which dead cell checks will be performed
   /* Dead cells can be defined in the following ways:
