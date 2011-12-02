@@ -51,7 +51,7 @@ process.options = cms.untracked.PSet(
 ## For running on RAW only 
 process.source = cms.Source("PoolSource",
                              fileNames = cms.untracked.vstring(
-'rfio:/castor/cern.ch/user/j/jjhollar/HighPUr179828reHLTAOD/EG/outputAForPP_14_1_0yJ.root'
+'rfio:/castor/cern.ch/cms/store/data/Run2011B/SingleMu/RAW/v1/000/178/479/E074D5E7-0FF6-E011-8C78-001D09F2B30B.root'
                                  )
                                  )
 
@@ -125,21 +125,6 @@ if (MENU == "GRun"):
                                                                                                             
 # pdt, if running on MC
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-
-
-#process.out = cms.OutputModule("PoolOutputModule",
-#                              fileName = cms.untracked.string('test.root'),
-#                               #SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('FilterPath')),
-#                              outputCommands = cms.untracked.vstring('keep *_hltParticleFlow_*_*',
-#                                                                     'keep *_pfAllMuons_*_*',
-#                                                                     'keep *_muons_*_RECO')
-#
-#                              )
-#
-#
-#process.outpath = cms.EndPath(process.out)
-
-
 
 
 # Schedule the whole thing

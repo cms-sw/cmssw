@@ -76,6 +76,14 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   muonl3ntrackerhits = new int[kMaxMuonL3];
   muonl3nmuonhits = new int[kMaxMuonL3];
   muonl32idx = new int[kMaxMuonL3];
+  muonl3globalpt = new float[kMaxMuonL3]; 
+  muonl3globaleta = new float[kMaxMuonL3];
+  muonl3globalphi = new float[kMaxMuonL3];
+  muonl3globaldr = new float[kMaxMuonL3];
+  muonl3globaldz = new float[kMaxMuonL3];
+  muonl3globalvtxz = new float[kMaxMuonL3];
+  muonl3globalchg = new int[kMaxMuonL3];
+  muonl3global2idx = new int[kMaxMuonL3];
   const int kMaxTrackerMuon = 500;
   trackermuonpt = new float[kMaxTrackerMuon];
   trackermuonphi = new float[kMaxTrackerMuon];
@@ -184,6 +192,14 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("ohMuL3Ntrackerhits", muonl3ntrackerhits, "ohMuL3Ntrackerhits[NohMuL3]/I"); 
   HltTree->Branch("ohMuL3Nmuonhits", muonl3nmuonhits, "ohMuL3Nmuonhits[NohMuL3]/I"); 
   HltTree->Branch("ohMuL3L2idx",muonl32idx,"ohMuL3L2idx[NohMuL3]/I");
+  HltTree->Branch("ohMuL3globalPt",muonl3globalpt,"ohMuL3globalPt[NohMuL3]/F");
+  HltTree->Branch("ohMuL3globalEta",muonl3globaleta,"ohMuL3globalEta[NohMuL3]/F");
+  HltTree->Branch("ohMuL3globalPhi",muonl3globalphi,"ohMuL3globalPhi[NohMuL3]/F");
+  HltTree->Branch("ohMuL3globalDr",muonl3globaldr,"ohMuL3globalDr[NohMuL3]/F");
+  HltTree->Branch("ohMuL3globalDz",muonl3globaldz,"ohMuL3globalDz[NohMuL3]/F");
+  HltTree->Branch("ohMuL3globalVtxZ",muonl3vtxz,"ohMuL3globalVtxZ[NohMuL3]/F");
+  HltTree->Branch("ohMuL3globalL2idx",muonl3global2idx,"ohMuL3globalL2idx[NohMuL3]/I");
+
   HltTree->Branch("NohOniaPixel",&nOniaPixelCand,"NohOniaPixel/I");
   HltTree->Branch("ohOniaPixelPt",oniaPixelpt,"ohOniaPixelPt[NohOniaPixel]/F");
   HltTree->Branch("ohOniaPixelPhi",oniaPixelphi,"ohOniaPixelPhi[NohOniaPixel]/F");
@@ -383,7 +399,6 @@ void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & 
       }
       else {muonl2iso[imu2c] = -999;}
 
-      //JH
       l1extra::L1MuonParticleRef l1; 
       int il2 = 0; 
       //find the corresponding L1 
@@ -405,7 +420,6 @@ void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & 
       } 
       else {imu1idx = -999;} 
       muonl21idx[imu2c] = imu1idx; // Index of the L1 muon having matched with the L2 muon with index imu2c 
-      //end JH
 
       imu2c++;
     }
@@ -415,6 +429,7 @@ void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & 
   // Dealing with L3 muons
   reco::RecoChargedCandidateCollection myMucands3;
   if (MuCands3.isValid()) {
+    int k = 0; 
     myMucands3 = * MuCands3;
     std::sort(myMucands3.begin(),myMucands3.end(),PtGreater());
     nmu3cand = myMucands3.size();
@@ -423,6 +438,8 @@ void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & 
     int idimuc=0;
     for (cand i=myMucands3.begin(); i!=myMucands3.end(); i++) {
       reco::TrackRef tk = i->get<reco::TrackRef>();
+
+      reco::RecoChargedCandidateRef candref = reco::RecoChargedCandidateRef(MuCands3,k);
 
       reco::TrackRef staTrack;
       typedef reco::MuonTrackLinksCollection::const_iterator l3muon;
@@ -440,12 +457,18 @@ void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & 
 	}
       }
       else {imu2idx = -999;}
-      muonl32idx[imu3c] = imu2idx; // Index of the L2 muon having matched with the L3 muon with index imu3c
+      muonl3global2idx[imu3c] = imu2idx; // Index of the L2 muon having matched with the L3 muon with index imu3c
+      muonl32idx[imu3c] = imu2idx;
 
-      muonl3pt[imu3c] = tk->pt();
+      muonl3globalpt[imu3c] = tk->pt();
+      muonl3pt[imu3c] = candref->pt();
       // eta (we require |eta|<2.5 in all filters
-      muonl3eta[imu3c] = tk->eta();
-      muonl3phi[imu3c] = tk->phi();
+      muonl3globaleta[imu3c] = tk->eta();
+      muonl3globalphi[imu3c] = tk->phi();
+      muonl3eta[imu3c] = candref->eta();
+      muonl3phi[imu3c] = candref->phi();
+
+      std::cout << "JH: tk pT = " << tk->pt() << ", candref pT = " << candref->pt() << ", candref track pT = " << candref->track()->pt() << std::endl;
 
       //       // Dr (transverse distance to (0,0,0))
       //       // For baseline triggers, we do no cut at L2 (|dr|<9999 cm)
@@ -479,7 +502,8 @@ void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & 
       // Charge
       // We use the charge in some dimuon paths
       muonl3pterr[imu3c] = l3_err0/l3_abspar0;
-      muonl3chg[imu3c] = tk->charge();
+      muonl3globalchg[imu3c] = tk->charge();
+      muonl3chg[imu3c] = candref->charge();
 
       muonl3normchi2[imu3c] = tk->normalizedChi2();
       muonl3ntrackerhits[imu3c] = tk->hitPattern().numberOfValidTrackerHits();
@@ -522,7 +546,7 @@ void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & 
       }
 
       imu3c++;
-
+      k++; 
     }
     nDiMu = idimuc;
   }
