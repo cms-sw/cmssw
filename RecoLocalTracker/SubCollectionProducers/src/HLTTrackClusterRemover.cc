@@ -218,7 +218,10 @@ void HLTTrackClusterRemover::process(const SiStripRecHit2D *hit, uint32_t subdet
   if (clusterReg.id() != stripSourceProdID) throw cms::Exception("Inconsistent Data") <<
     "HLTTrackClusterRemover: strip cluster ref from Product ID = " << clusterReg.id() <<
     " does not match with source cluster collection (ID = " << stripSourceProdID << ")\n.";
-  assert(collectedRegStrips_.size()>clusterReg.key());
+  if (collectedRegStrips_.size()<=clusterReg.key()){
+    edm::LogError("BadCollectionSize")<<collectedRegStrips_.size()<<" is smaller than "<<clusterReg.key();
+    assert(collectedRegStrips_.size()>clusterReg.key());
+  }
   collectedRegStrips_[clusterReg.key()]=true;
 }
 
@@ -227,7 +230,10 @@ void HLTTrackClusterRemover::process(const SiStripRecHit1D *hit, uint32_t subdet
   if (clusterReg.id() != stripSourceProdID) throw cms::Exception("Inconsistent Data") << 
     "HLTTrackClusterRemover: strip cluster ref from Product ID = " << clusterReg.id() << 
     " does not match with source cluster collection (ID = " << stripSourceProdID << ")\n.";
-  assert(collectedRegStrips_.size()>clusterReg.key());
+  if (collectedRegStrips_.size()<=clusterReg.key()){
+    edm::LogError("BadCollectionSize")<<collectedRegStrips_.size()<<" is smaller than "<<clusterReg.key();
+    assert(collectedRegStrips_.size()>clusterReg.key());
+  }
   collectedRegStrips_[clusterReg.key()]=true;
 }
 
@@ -329,6 +335,7 @@ HLTTrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
       LogDebug("TrackClusterRemover")<<"to merge in, "<<oldStrMask->size()<<" strp and "<<oldPxlMask->size()<<" pxl";
       oldStrMask->copyMaskTo(collectedRegStrips_);
       oldPxlMask->copyMaskTo(collectedPixels_);
+      collectedRegStrips_.resize(stripClusters->size());
     }else {
       collectedRegStrips_.resize(stripClusters->size()); fill(collectedRegStrips_.begin(), collectedRegStrips_.end(), false);
       collectedPixels_.resize(pixelClusters->dataSize()); fill(collectedPixels_.begin(), collectedPixels_.end(), false);
