@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_4_2/HLT/V113 (CMSSW_4_4_0_HLT17)
+# /dev/CMSSW_4_4_2/HLT/V117 (CMSSW_4_4_0_HLT21)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/HLT/V113')
+  tableName = cms.string('/dev/CMSSW_4_4_2/HLT/V117')
 )
 
 streams = cms.PSet( 
@@ -3149,6 +3149,26 @@ hltESPMuonCkfTrajectoryBuilder = cms.ESProducer( "MuonCkfTrajectoryBuilderESProd
   intermediateCleaning = cms.bool( False ),
   alwaysUseInvalidHits = cms.bool( True )
 )
+hltESPMuonCkfTrajectoryBuilderSeedHit = cms.ESProducer( "MuonCkfTrajectoryBuilderESProducer",
+  ComponentName = cms.string( "hltESPMuonCkfTrajectoryBuilderSeedHit" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  propagatorProximity = cms.string( "SteppingHelixPropagatorAny" ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
+  trajectoryFilterName = cms.string( "hltESPMuonCkfTrajectoryFilter" ),
+  useSeedLayer = cms.bool( True ),
+  rescaleErrorIfFail = cms.double( 1.0 ),
+  deltaEta = cms.double( 0.1 ),
+  deltaPhi = cms.double( 0.1 ),
+  appendToDataLabel = cms.string( "" ),
+  maxCand = cms.int32( 5 ),
+  lostHitPenalty = cms.double( 30.0 ),
+  intermediateCleaning = cms.bool( False ),
+  alwaysUseInvalidHits = cms.bool( True )
+)
 hltESPMuonCkfTrajectoryFilter = cms.ESProducer( "TrajectoryFilterESProducer",
   ComponentName = cms.string( "hltESPMuonCkfTrajectoryFilter" ),
   appendToDataLabel = cms.string( "" ),
@@ -4275,7 +4295,6 @@ hltScalersRawToDigi = cms.EDProducer( "ScalersRawToDigi",
     scalersInputTag = cms.InputTag( "rawDataCollector" )
 )
 hltOnlineBeamSpot = cms.EDProducer( "BeamSpotOnlineProducer",
-    label = cms.InputTag( "hltScalersRawToDigi" ),
     src = cms.InputTag( "hltScalersRawToDigi" ),
     changeToCMSCoordinates = cms.bool( False ),
     maxRadius = cms.double( 2.0 ),
@@ -4592,6 +4611,7 @@ hltHbhereco = cms.EDProducer( "HcalHitReconstructor",
     tsFromDB = cms.bool( True ),
     useLeakCorrection = cms.bool( False ),
     Subdetector = cms.string( "HBHE" ),
+    recoParamsFromDB = cms.bool( True ),
     setTimingShapedCutsFlags = cms.bool( False ),
     digiTimeFromDB = cms.bool( False ),
     hfTimingTrustParameters = cms.PSet( 
@@ -4687,6 +4707,7 @@ hltHfreco = cms.EDProducer( "HcalHitReconstructor",
     tsFromDB = cms.bool( True ),
     useLeakCorrection = cms.bool( False ),
     Subdetector = cms.string( "HF" ),
+    recoParamsFromDB = cms.bool( False ),
     setTimingShapedCutsFlags = cms.bool( False ),
     digiTimeFromDB = cms.bool( False ),
     hfTimingTrustParameters = cms.PSet( 
@@ -4795,6 +4816,7 @@ hltHoreco = cms.EDProducer( "HcalHitReconstructor",
     tsFromDB = cms.bool( True ),
     useLeakCorrection = cms.bool( False ),
     Subdetector = cms.string( "HO" ),
+    recoParamsFromDB = cms.bool( True ),
     setTimingShapedCutsFlags = cms.bool( False ),
     digiTimeFromDB = cms.bool( False ),
     hfTimingTrustParameters = cms.PSet( 
@@ -6190,7 +6212,7 @@ hltL3TrajSeedOIState = cms.EDProducer( "TSGFromL2Muon",
 hltL3TrackCandidateFromL2OIState = cms.EDProducer( "CkfTrajectoryMaker",
     trackCandidateAlso = cms.bool( True ),
     src = cms.InputTag( "hltL3TrajSeedOIState" ),
-    TrajectoryBuilder = cms.string( "hltESPMuonCkfTrajectoryBuilder" ),
+    TrajectoryBuilder = cms.string( "hltESPMuonCkfTrajectoryBuilderSeedHit" ),
     TrajectoryCleaner = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
     RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
@@ -6202,7 +6224,8 @@ hltL3TrackCandidateFromL2OIState = cms.EDProducer( "CkfTrajectoryMaker",
     ),
     doSeedingRegionRebuilding = cms.bool( False ),
     cleanTrajectoryAfterInOut = cms.bool( False ),
-    maxNSeeds = cms.uint32( 100000 )
+    maxNSeeds = cms.uint32( 100000 ),
+    reverseTrajectories = cms.bool( True )
 )
 hltL3TkTracksFromL2OIState = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
@@ -6457,7 +6480,8 @@ hltL3TrackCandidateFromL2OIHit = cms.EDProducer( "CkfTrajectoryMaker",
     ),
     doSeedingRegionRebuilding = cms.bool( False ),
     cleanTrajectoryAfterInOut = cms.bool( False ),
-    maxNSeeds = cms.uint32( 100000 )
+    maxNSeeds = cms.uint32( 100000 ),
+    reverseTrajectories = cms.bool( True )
 )
 hltL3TkTracksFromL2OIHit = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
@@ -6704,7 +6728,8 @@ hltL3TrackCandidateFromL2IOHit = cms.EDProducer( "CkfTrajectoryMaker",
     ),
     doSeedingRegionRebuilding = cms.bool( False ),
     cleanTrajectoryAfterInOut = cms.bool( False ),
-    maxNSeeds = cms.uint32( 100000 )
+    maxNSeeds = cms.uint32( 100000 ),
+    reverseTrajectories = cms.bool( False )
 )
 hltL3TkTracksFromL2IOHit = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
@@ -9580,7 +9605,6 @@ hltPFTauTightIsoIsolationDiscriminator = cms.EDProducer( "PFRecoTauDiscriminatio
     maximumOccupancy = cms.uint32( 0 ),
     relativeSumPtCut = cms.double( 0.0 ),
     ApplyDiscriminationByECALIsolation = cms.bool( True ),
-    PVProducer = cms.InputTag( "hltPixelVertices" ),
     applyOccupancyCut = cms.bool( True ),
     applyRelativeSumPtCut = cms.bool( False ),
     applySumPtCut = cms.bool( False ),
@@ -23355,7 +23379,6 @@ hltPFTauMediumIsoIsolationDiscriminator = cms.EDProducer( "PFRecoTauDiscriminati
     maximumOccupancy = cms.uint32( 0 ),
     relativeSumPtCut = cms.double( 0.0 ),
     ApplyDiscriminationByECALIsolation = cms.bool( False ),
-    PVProducer = cms.InputTag( "hltPixelVertices" ),
     applyOccupancyCut = cms.bool( True ),
     applyRelativeSumPtCut = cms.bool( False ),
     applySumPtCut = cms.bool( False ),
@@ -26154,7 +26177,6 @@ hltPFTauLooseIsolationDiscriminator = cms.EDProducer( "PFRecoTauDiscriminationBy
     maximumOccupancy = cms.uint32( 0 ),
     relativeSumPtCut = cms.double( 0.0 ),
     ApplyDiscriminationByECALIsolation = cms.bool( False ),
-    PVProducer = cms.InputTag( "hltPixelVertices" ),
     applyOccupancyCut = cms.bool( True ),
     applyRelativeSumPtCut = cms.bool( False ),
     applySumPtCut = cms.bool( False ),
@@ -32038,7 +32060,8 @@ hltL3TrackCandidateFromL2NoVtx = cms.EDProducer( "CkfTrajectoryMaker",
     ),
     doSeedingRegionRebuilding = cms.bool( False ),
     cleanTrajectoryAfterInOut = cms.bool( False ),
-    maxNSeeds = cms.uint32( 100000 )
+    maxNSeeds = cms.uint32( 100000 ),
+    reverseTrajectories = cms.bool( False )
 )
 hltL3TkTracksFromL2NoVtx = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( False ),
@@ -33361,7 +33384,8 @@ hltHIL3TrackCandidateFromL2OIState = cms.EDProducer( "CkfTrajectoryMaker",
     ),
     doSeedingRegionRebuilding = cms.bool( False ),
     cleanTrajectoryAfterInOut = cms.bool( False ),
-    maxNSeeds = cms.uint32( 100000 )
+    maxNSeeds = cms.uint32( 100000 ),
+    reverseTrajectories = cms.bool( False )
 )
 hltHIL3TkTracksFromL2OIState = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
@@ -33616,7 +33640,8 @@ hltHIL3TrackCandidateFromL2OIHit = cms.EDProducer( "CkfTrajectoryMaker",
     ),
     doSeedingRegionRebuilding = cms.bool( False ),
     cleanTrajectoryAfterInOut = cms.bool( False ),
-    maxNSeeds = cms.uint32( 100000 )
+    maxNSeeds = cms.uint32( 100000 ),
+    reverseTrajectories = cms.bool( False )
 )
 hltHIL3TkTracksFromL2OIHit = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
@@ -33863,7 +33888,8 @@ hltHIL3TrackCandidateFromL2IOHit = cms.EDProducer( "CkfTrajectoryMaker",
     ),
     doSeedingRegionRebuilding = cms.bool( False ),
     cleanTrajectoryAfterInOut = cms.bool( False ),
-    maxNSeeds = cms.uint32( 100000 )
+    maxNSeeds = cms.uint32( 100000 ),
+    reverseTrajectories = cms.bool( False )
 )
 hltHIL3TkTracksFromL2IOHit = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
