@@ -87,14 +87,20 @@ TkPixelMeasurementDet::recHits( const TrajectoryStateOnSurface& ts ) const
   result.reserve(detSet_.size());
   for ( const_iterator ci = detSet_.begin(); ci != detSet_.end(); ++ ci ) {
     
-     assert(ci >= begin);
+    if (ci < begin){
+      edm::LogError("IndexMisMatch")<<"TkPixelMeasurementDet cannot create hit because of index mismatch.";
+      return result;
+    }
      unsigned int index = ci-begin;
-     assert(0==skipClusters_ or skipClusters_->empty() or index < skipClusters_->size());
+     if (skipClusters_!=0 and index>=skipClusters_->size()){
+       edm::LogError("IndexMisMatch")<<"TkPixelMeasurementDet cannot create hit because of index mismatch. i.e "<<index<<" >= "<<skipClusters_->size();
+       return result;
+     }
      if(0==skipClusters_ or skipClusters_->empty() or (not (*skipClusters_)[index]) ) {
-        SiPixelClusterRef cluster = edmNew::makeRefTo( handle_, ci );
-        result.push_back( buildRecHit( cluster, ts.localParameters() ) );
+       SiPixelClusterRef cluster = edmNew::makeRefTo( handle_, ci );
+       result.push_back( buildRecHit( cluster, ts.localParameters() ) );
      }else{   
-        LogDebug("TkPixelMeasurementDet")<<"skipping this cluster from last iteration on "<<geomDet().geographicalId().rawId()<<" key: "<<index;
+       LogDebug("TkPixelMeasurementDet")<<"skipping this cluster from last iteration on "<<geomDet().geographicalId().rawId()<<" key: "<<index;
      }
   }
   return result;

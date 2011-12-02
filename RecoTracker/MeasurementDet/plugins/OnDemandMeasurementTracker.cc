@@ -200,9 +200,9 @@ void OnDemandMeasurementTracker::updateStrips( const edm::Event& event) const
       if (selfUpdateSkipClusters_){
         theSkipClusterRefs=true;
         event.getByLabel(pset_.getParameter<edm::InputTag>("skipClusters"),theStripClusterMask);
-        theStripClusterMask->copyMaskTo(theClustersToSkip);
+        theStripClusterMask->copyMaskTo(theStripsToSkip);
       } else {
-        theClustersToSkip.clear();
+        theStripsToSkip.clear();
       }
 
       //get the detid that are inactive
@@ -315,10 +315,12 @@ void OnDemandMeasurementTracker::assign(const TkStripMeasurementDet * csmdet,
 	LogDebug(category_)<<"Valid clusters for: "<<id.rawId()
 			   <<"\nnumber of regions defined here: "<< indexes.second-indexes.first
 			   <<"\n"<<dumpCluster(range.first,range.second);
-	if (selfUpdateSkipClusters_){
+	/* since theStripsToSkip is a "static" pointer of the MT, no need to set it at all time.
+	  if (selfUpdateSkipClusters_){
 	  //assign skip clusters
-	  smdet->setClusterToSkip(&theClustersToSkip);
+	  smdet->setClusterToSkip(&theStripsToSkip);
 	}
+	*/
 	//and you are done
 	return;}
     }//loop over regions, between indexes

@@ -85,11 +85,11 @@ private:
   inline bool accept(SiPixelClusterRefNew & r) const {
     
     if(0==skipClusters_ || skipClusters_->empty()) return true;
-    assert(r.key()<skipClusters_->size());
+    if (r.key()>=skipClusters_->size()){
+      edm::LogError("IndexMisMatch")<<r.key()<<" is larger than: "<<skipClusters_->size()<<" no skipping done";
+      return true;
+    }
     return not (*skipClusters_)[r.key()];
-  }
-  inline void unset(){
-    //skipClusters_= 0;
   }
 
   void setClusterToSkip(const std::vector<bool>*skip ){

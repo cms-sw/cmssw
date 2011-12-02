@@ -257,6 +257,10 @@ void MeasurementTrackerImpl::update( const edm::Event& event) const
 }
 void MeasurementTrackerImpl::setClusterToSkip(const edm::InputTag & cluster, const edm::Event& event) const
 {
+  //method called by user of the measurement tracker to tell what needs to be skiped from the event.
+  //there it is incompatible with a configuration in which the measurement tracker already knows what to skip
+  // i.e selfUpdateSkipClusters_=True
+
   LogDebug("MeasurementTracker")<<"setClusterToSkip";
   if (selfUpdateSkipClusters_)
     edm::LogError("MeasurementTracker")<<"this mode of operation is not supported, either the measurement tracker is set to skip clusters, or is being told to skip clusters. not both";
@@ -268,38 +272,25 @@ void MeasurementTrackerImpl::setClusterToSkip(const edm::InputTag & cluster, con
   thePixelsToSkip.resize(pixelClusterMask->size());
   pixelClusterMask->copyMaskTo(thePixelsToSkip);
     
-  //for (std::vector<TkPixelMeasurementDet*>::const_iterator i=thePixelDets.begin();
-  //     i!=thePixelDets.end(); i++) {
-  //     (**i).setClusterToSkip(&thePixelsToSkip);
-  //}
-
   edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > stripClusterMask;
   event.getByLabel(cluster,stripClusterMask);
 
   theStripsToSkip.resize(stripClusterMask->size());
   stripClusterMask->copyMaskTo(theStripsToSkip);
   
-  //for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
-  //     i!=theStripDets.end(); i++){
-  //    (**i).setClusterToSkip(&theStripsToSkip);
-  //}
 }
 
 void MeasurementTrackerImpl::unsetClusterToSkip() const {
+  //method called by user of the measurement tracker to tell what needs to be skiped from the event.
+  //there it is incompatible with a configuration in which the measurement tracker already knows what to skip
+  // i.e selfUpdateSkipClusters_=True
+  
   LogDebug("MeasurementTracker")<<"unsetClusterToSkip";
   if (selfUpdateSkipClusters_)
     edm::LogError("MeasurementTracker")<<"this mode of operation is not supported, either the measurement tracker is set to skip clusters, or is being told to skip clusters. not both";
 
-  //for (std::vector<TkPixelMeasurementDet*>::const_iterator i=thePixelDets.begin();
-  //     i!=thePixelDets.end(); i++) {
-  //  (**i).unset();
-  //}
   thePixelsToSkip.clear();
   theStripsToSkip.clear();
-  for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
-       i!=theStripDets.end(); i++){
-    (**i).unset();
-  }
 }
 
 void MeasurementTrackerImpl::updatePixels( const edm::Event& event) const
@@ -363,8 +354,10 @@ void MeasurementTrackerImpl::updatePixels( const edm::Event& event) const
          event.getByLabel(pset_.getParameter<edm::InputTag>("skipClusters"),pixelClusterMask);
          LogDebug("MeasurementTracker")<<"getting pxl refs to skip";
          if (pixelClusterMask.failedToGet())edm::LogError("MeasurementTracker")<<"not getting the pixel clusters to skip";
-           assert(pixelClusterMask->refProd().id()==pixelClusters.id());
-           pixelClusterMask->copyMaskTo(thePixelsToSkip);
+	 if (pixelClusterMask->refProd().id()!=pixelClusters.id()){
+	   edm::LogError("ProductIdMismatch")<<"The pixel masking does not point to the proper collection of clusters: "<<pixelClusterMask->refProd().id()<<"!="<<pixelClusters.id();
+	 }
+	 pixelClusterMask->copyMaskTo(thePixelsToSkip);
        }
           
        for (std::vector<TkPixelMeasurementDet*>::const_iterator i=thePixelDets.begin();
@@ -444,14 +437,10 @@ void MeasurementTrackerImpl::updateStrips( const edm::Event& event) const
         LogDebug("MeasurementTracker")<<"getting strp refs to skip";
         event.getByLabel(pset_.getParameter<edm::InputTag>("skipClusters"),stripClusterMask);
         if (stripClusterMask.failedToGet())edm::LogError("MeasurementTracker")<<"not getting the strip clusters to skip";
-        
-        assert(stripClusterMask->refProd().id() == clusterHandle.id());
-        //std::cout <<" selfUpdateSkipClusters_ is true"<<std::endl;
+        if (stripClusterMask->refProd().id()!=clusterHandle.id()){
+	  edm::LogError("ProductIdMismatch")<<"The strip masking does not point to the proper collection of clusters: "<<stripClusterMask->refProd().id()<<"!="<<clusterHandle.id();
+	}
         stripClusterMask->copyMaskTo(theStripsToSkip);
-      } else {
-        theStripsToSkip.clear();
-      //theStripsToSkip.resize(clusterCollection->dataSize());
-      //std::fill(theStripsToSkip.begin(),theStripsToSkip.end(),false);
       }
 
       std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
@@ -476,18 +465,6 @@ void MeasurementTrackerImpl::updateStrips( const edm::Event& event) const
       }
     }else{
 
-      if(selfUpdateSkipClusters_){
-        edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > stripClusterMask;
-        LogDebug("MeasurementTracker")<<"getting reg strp refs to skip";
-        event.getByLabel(pset_.getParameter<edm::InputTag>("skipClusters"),stripClusterMask);
-        if (stripClusterMask.failedToGet())edm::LogError("MeasurementTracker")<<"not getting the strip clusters to skip";
-        //assert(stripClusterMask->refProd().id() == clusterHandle.id());
-        //std::cout <<" selfUpdateSkipClusters_ is true"<<std::endl;
-        stripClusterMask->copyMaskTo(theStripsToSkip);
-      } else {
-        theStripsToSkip.clear();
-      }
-
       //then set the not-empty ones only
       edm::Handle<edm::RefGetter<SiStripCluster> > refClusterHandle;
       event.getByLabel(stripClusterProducer, refClusterHandle);
@@ -495,6 +472,17 @@ void MeasurementTrackerImpl::updateStrips( const edm::Event& event) const
       std::string lazyGetter = pset_.getParameter<std::string>("stripLazyGetterProducer");
       edm::Handle<edm::LazyGetter<SiStripCluster> > lazyClusterHandle;
       event.getByLabel(lazyGetter,lazyClusterHandle);
+
+      if(selfUpdateSkipClusters_){
+        edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > stripClusterMask;
+        LogDebug("MeasurementTracker")<<"getting reg strp refs to skip";
+        event.getByLabel(pset_.getParameter<edm::InputTag>("skipClusters"),stripClusterMask);
+        if (stripClusterMask.failedToGet())edm::LogError("MeasurementTracker")<<"not getting the strip clusters to skip";
+        if (stripClusterMask->refProd().id()!=lazyClusterHandle.id()){
+	  edm::LogError("ProductIdMismatch")<<"The strip masking does not point to the proper collection of clusters: "<<stripClusterMask->refProd().id()<<"!="<<lazyClusterHandle.id();
+	}       
+        stripClusterMask->copyMaskTo(theStripsToSkip);
+      }
 
       uint32_t tmpId=0;
       vector<SiStripCluster>::const_iterator beginIterator;

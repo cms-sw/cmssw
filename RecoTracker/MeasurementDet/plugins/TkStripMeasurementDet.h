@@ -197,25 +197,23 @@ private:
  public:
   inline bool accept(SiStripClusterRef & r) const {
     if(0==skipClusters_ || skipClusters_->empty()) return true;
-    assert(r.key()< skipClusters_->size());
+    if (r.key()>=skipClusters_->size()){
+      edm::LogError("WrongStripMasking")<<r.key()<<" is larger than: "<<skipClusters_->size()<<" no skipping done";
+      return true;
+    }
     return (not (*skipClusters_)[r.key()]);
   }
   inline bool accept(SiStripRegionalClusterRef &r) const{
     if(0==skipClusters_ || skipClusters_->empty()) return true;
-    assert(r.key()<skipClusters_->size());
-    return not (*skipClusters_)[r.key()];
-  }
-
-  void unset(){
-    //skipClusters_ = 0;
-    //skipRegClusters_.clear();
+    if (r.key()>=skipClusters_->size()){
+      LogDebug("TkStripMeasurementDet")<<r.key()<<" is larger than: "<<skipClusters_->size()
+				       <<"\n This must be a new cluster, and therefore should not be skiped most likely.";
+      return true;
+    }
+    return (not (*skipClusters_)[r.key()]);
   }
 
   void setClusterToSkip(const std::vector<bool>* toSkip){
-    skipClusters_ = toSkip;
-  }
-  template <typename IT>
-    void setRegionalClustersToSkip(const std::vector<bool>* toSkip){
     skipClusters_ = toSkip;
   }
   

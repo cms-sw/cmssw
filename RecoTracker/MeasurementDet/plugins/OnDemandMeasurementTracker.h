@@ -64,7 +64,7 @@ public:
   mutable edm::Handle< edm::LazyGetter<SiStripCluster> > theLazyGetterH;
   mutable bool theSkipClusterRefs;
   mutable edm::Handle< edm::ContainerMask<edm::LazyGetter<SiStripCluster> > > theStripClusterMask;
-  mutable std::vector<bool> theClustersToSkip;
+  //mutable std::vector<bool> theClustersToSkip;
   /// a class that holds flags, region_range (in RefGetter) for a given MeasurementDet
   class DetODStatus {
   public:
