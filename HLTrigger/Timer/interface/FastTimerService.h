@@ -71,11 +71,12 @@ Test results for "gettimeofday(& value, NULL)"
  - average time per call:  65 ns
  - resolution:              1 us
 
-Assuming an HLT process with ~2500 modules and ~500 paths, tracking each step 
+Assuming an HLT process with ~2500 modules and ~500 paths, tracking each step
 with clock_gettime(CLOCK_THREAD_CPUTIME_ID) gives a per-event overhead of 2 ms
 
 Detailed informations on different timers can be extracted running $CMSSW_RELEASE_BASE/test/$SCRAM_ARCH/testTimer .
 */
+
 
 class FastTimerService {
 public:
@@ -123,6 +124,61 @@ private:
   void postModule( edm::ModuleDescription const & );
 
 private:
+
+  struct ModuleInfo {
+    double                      time_active;
+    double                      summary_active;
+    MonitorElement *            dqm_active;
+    bool                        has_just_run;
+
+  public:
+    ModuleInfo() :
+      time_active(0.),
+      summary_active(0.),
+      dqm_active(0),
+      has_just_run(false)
+    { }
+  };
+
+  struct PathInfo {
+    std::vector<ModuleInfo *>   modules;
+    double                      time_active;
+    double                      time_premodules;
+    double                      time_intermodules;
+    double                      time_postmodules;
+    double                      time_total;
+    double                      summary_active;
+    double                      summary_premodules;
+    double                      summary_intermodules;
+    double                      summary_postmodules;
+    double                      summary_total;
+    MonitorElement *            dqm_active;
+    MonitorElement *            dqm_premodules;
+    MonitorElement *            dqm_intermodules;
+    MonitorElement *            dqm_postmodules;
+    MonitorElement *            dqm_total;
+
+  public:
+    PathInfo() :
+      modules(),
+      time_active(0.),
+      time_premodules(0.),
+      time_intermodules(0.),
+      time_postmodules(0.),
+      time_total(0.),
+      summary_active(0.),
+      summary_premodules(0.),
+      summary_intermodules(0.),
+      summary_postmodules(0.),
+      summary_total(0.),
+      dqm_active(0),
+      dqm_premodules(0),
+      dqm_intermodules(0),
+      dqm_postmodules(0),
+      dqm_total(0)
+    { }
+  };
+
   template <typename T> class PathMap   : public std::map<std::string, T> {};
   template <typename T> class ModuleMap : public std::map<edm::ModuleDescription const *, T> {};
 
@@ -135,7 +191,7 @@ private:
   const bool                                    m_enable_dqm;
   const bool                                    m_enable_dqm_bylumi;
 
-  // dqm configuration 
+  // dqm configuration
   const double                                  m_dqm_time_range;
   const double                                  m_dqm_time_resolution;
   boost::filesystem::path                       m_dqm_path;
@@ -145,10 +201,6 @@ private:
   std::string const *                           m_last_path;            // so we emulate them keeping track of the first and last path and endpath
   std::string const *                           m_first_endpath;
   std::string const *                           m_last_endpath;
-  std::string const *                           m_current_path;         // currently running path
-  PathMap< std::vector<edm::ModuleDescription const *> >
-                                                m_pathmap;              // list of modules in each path
-  ModuleMap<bool>                               m_has_just_run;         // keep track of the modules that were actually run in the current path
   bool                                          m_is_first_module;      // helper to measure the time spent between the beginning of the path and the execution of the first module
 
   // per-event accounting
@@ -156,25 +208,13 @@ private:
   double                                        m_source;
   double                                        m_all_paths;
   double                                        m_all_endpaths;
-  PathMap<double>                               m_paths;
-  PathMap<double>                               m_paths_premodules;
-  PathMap<double>                               m_paths_intermodules;
-  PathMap<double>                               m_paths_postmodules;
-  PathMap<double>                               m_paths_total;
-  ModuleMap<double>                             m_modules;              // this assumes that ModuleDescription are stored in the same object through the whole job,
-                                                                        // which is true only *after* the edm::Worker constructors have run
+
   // per-job summary
   unsigned int                                  m_summary_events;       // number of events
   double                                        m_summary_event;
   double                                        m_summary_source;
   double                                        m_summary_all_paths;
   double                                        m_summary_all_endpaths;
-  PathMap<double>                               m_summary_paths;
-  PathMap<double>                               m_summary_paths_premodules;
-  PathMap<double>                               m_summary_paths_intermodules;
-  PathMap<double>                               m_summary_paths_postmodules;
-  PathMap<double>                               m_summary_paths_total;
-  ModuleMap<double>                             m_summary_modules;      // see the comment for m_modules
 
   // DQM
   DQMStore *                                    m_dqms;
@@ -182,12 +222,13 @@ private:
   MonitorElement *                              m_dqm_source;
   MonitorElement *                              m_dqm_all_paths;
   MonitorElement *                              m_dqm_all_endpaths;
-  PathMap<MonitorElement *>                     m_dqm_paths;
-  PathMap<MonitorElement *>                     m_dqm_paths_premodules;
-  PathMap<MonitorElement *>                     m_dqm_paths_intermodules;
-  PathMap<MonitorElement *>                     m_dqm_paths_postmodules;
-  PathMap<MonitorElement *>                     m_dqm_paths_total;
-  ModuleMap<MonitorElement *>                   m_dqm_modules;          // see the comment for m_modules
+
+  // per-path and per-module accounting
+  PathInfo *                                    m_current_path;
+  PathMap<PathInfo>                             m_paths;
+  ModuleMap<ModuleInfo>                         m_modules;              // this assumes that ModuleDescription are stored in the same object through the whole job,
+                                                                        // which is true only *after* the edm::Worker constructors have run
+
 
   // timers
   std::pair<struct timespec, struct timespec>   m_timer_event;          // track time spent in each event

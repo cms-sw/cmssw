@@ -15,6 +15,7 @@ typedef int clockid_t;
 #include <iomanip>
 #include <string>
 #include <sstream>
+#include <set>
 #include <map>
 
 // boost headers
@@ -57,44 +58,28 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   m_last_path(0),           // to make sure we cache the correct pointers
   m_first_endpath(0),
   m_last_endpath(0),
-  m_current_path(0),
-  m_has_just_run(),
   m_is_first_module(false),
   // per-event accounting
   m_event(0.),
   m_source(0.),
   m_all_paths(0.),
   m_all_endpaths(0.),
-  m_paths(),
-  m_paths_premodules(),
-  m_paths_intermodules(),
-  m_paths_postmodules(),
-  m_paths_total(),
-  m_modules(),
   // per-job summary
   m_summary_events(0),
   m_summary_event(0.),
   m_summary_source(0.),
   m_summary_all_paths(0.),
   m_summary_all_endpaths(0.),
-  m_summary_paths(),
-  m_summary_paths_premodules(),
-  m_summary_paths_intermodules(),
-  m_summary_paths_postmodules(),
-  m_summary_paths_total(),
-  m_summary_modules(),
   // DQM
   m_dqms(0),                // these are initialized at postBeginJob(),
-  m_dqm_event(0),           // to make sure the DQM services have been loaded
+  m_dqm_event(0),           // to make sure the DQM service has been loaded
   m_dqm_source(0),
   m_dqm_all_paths(0),
   m_dqm_all_endpaths(0),
-  m_dqm_paths(),
-  m_dqm_paths_premodules(),
-  m_dqm_paths_intermodules(),
-  m_dqm_paths_postmodules(),
-  m_dqm_paths_total(),
-  m_dqm_modules()
+  // per-path and per-module accounting
+  m_current_path(0),
+  m_paths(),
+  m_modules()
 {
   registry.watchPostBeginJob(      this, & FastTimerService::postBeginJob );
   registry.watchPostEndJob(        this, & FastTimerService::postEndJob );
@@ -128,22 +113,24 @@ void FastTimerService::postBeginJob() {
 
   edm::service::TriggerNamesService & tns = * edm::Service<edm::service::TriggerNamesService>();
   BOOST_FOREACH(std::string const & name, tns.getTrigPaths())
-    m_paths[name] = 0.;
+    m_paths[name];
   BOOST_FOREACH(std::string const & name, tns.getEndPaths())
-    m_paths[name] = 0.;
+    m_paths[name];
 
   // fill pathmap
   if (m_enable_timing_modules) {
     for (size_t i = 0; i < tns.getTrigPaths().size(); ++i) {
-      std::string               const & name    = tns.getTrigPath(i);
-      std::vector<std::string>  const & modules = tns.getTrigPathModules(i);
-      std::vector<edm::ModuleDescription const *> & pathmap = m_pathmap[name];
+      std::string              const & name    = tns.getTrigPath(i);
+      std::vector<std::string> const & modules = tns.getTrigPathModules(i);
+      std::vector<ModuleInfo *>      & pathmap = m_paths[name].modules;
       pathmap.reserve( modules.size() );
+      std::set<edm::ModuleDescription const *> pool;        // keep track of modules already inserted
       BOOST_FOREACH( std::string const & module, modules) {
         edm::ModuleDescription const * md = findModuleDescription(module);
-        if (std::find(pathmap.begin(), pathmap.end(), md) == pathmap.end()) {
+        if (pool.find(md) != pool.end()) {
           // new module
-          pathmap.push_back( md );
+          pool.insert(md);
+          pathmap.push_back( & m_modules[md] );
         } else {
           // duplicate module
           pathmap.push_back( 0 );
@@ -151,15 +138,17 @@ void FastTimerService::postBeginJob() {
       }
     }
     for (size_t i = 0; i < tns.getEndPaths().size(); ++i) {
-      std::string               const & name    = tns.getEndPath(i);
-      std::vector<std::string>  const & modules = tns.getEndPathModules(i);
-      std::vector<edm::ModuleDescription const *> & pathmap = m_pathmap[name];
+      std::string              const & name    = tns.getEndPath(i);
+      std::vector<std::string> const & modules = tns.getEndPathModules(i);
+      std::vector<ModuleInfo *>      & pathmap = m_paths[name].modules;
       pathmap.reserve( modules.size() );
+      std::set<edm::ModuleDescription const *> pool;        // keep track of modules already inserted
       BOOST_FOREACH( std::string const & module, modules) {
         edm::ModuleDescription const * md = findModuleDescription(module);
-        if (std::find(pathmap.begin(), pathmap.end(), md) == pathmap.end()) {
+        if (pool.find(md) != pool.end()) {
           // new module
-          pathmap.push_back( md );
+          pool.insert(md);
+          pathmap.push_back( & m_modules[md] );
         } else {
           // duplicate module
           pathmap.push_back( 0 );
@@ -198,29 +187,35 @@ void FastTimerService::postBeginJob() {
     m_dqm_all_endpaths  = m_dqms->book1D("all_endpaths", "EndPaths", bins, 0., m_dqm_time_range);
     if (m_enable_timing_paths) {
       m_dqms->setCurrentFolder((m_dqm_path / "Paths").generic_string());
-      BOOST_FOREACH(PathMap<double>::value_type const & path, m_paths) {
-        m_dqm_paths[path.first] = m_dqms->book1D(path.first, path.first, bins, 0., m_dqm_time_range);
-        m_dqm_paths[path.first]->getTH1()->StatOverflows(true);
+      BOOST_FOREACH(PathMap<PathInfo>::value_type & keyval, m_paths) {
+        std::string const & pathname = keyval.first;
+        PathInfo          & pathinfo = keyval.second;
+        pathinfo.dqm_active = m_dqms->book1D(pathname, pathname, bins, 0., m_dqm_time_range);
+        pathinfo.dqm_active->getTH1()->StatOverflows(true);
       }
     }
     if (m_enable_timing_paths and m_enable_timing_modules) {
       m_dqms->setCurrentFolder((m_dqm_path / "Paths").generic_string());
-      BOOST_FOREACH(PathMap<double>::value_type const & path, m_paths) {
-        m_dqm_paths_premodules  [path.first] = m_dqms->book1D(path.first + "_premodules",   path.first + " pre-modules overhead",   bins, 0., m_dqm_time_range);
-        m_dqm_paths_premodules  [path.first]->getTH1()->StatOverflows(true);
-        m_dqm_paths_intermodules[path.first] = m_dqms->book1D(path.first + "_intermodules", path.first + " inter-modules overhead", bins, 0., m_dqm_time_range);
-        m_dqm_paths_intermodules[path.first]->getTH1()->StatOverflows(true);
-        m_dqm_paths_postmodules [path.first] = m_dqms->book1D(path.first + "_postmodules",  path.first + " post-modules overhead",  bins, 0., m_dqm_time_range);
-        m_dqm_paths_postmodules [path.first]->getTH1()->StatOverflows(true);
-        m_dqm_paths_total       [path.first] = m_dqms->book1D(path.first + "_total",        path.first + " total time",             bins, 0., m_dqm_time_range);
-        m_dqm_paths_total       [path.first]->getTH1()->StatOverflows(true);
+      BOOST_FOREACH(PathMap<PathInfo>::value_type & keyval, m_paths) {
+        std::string const & pathname = keyval.first;
+        PathInfo          & pathinfo = keyval.second;
+        pathinfo.dqm_premodules   = m_dqms->book1D(pathname + "_premodules",   pathname + " pre-modules overhead",   bins, 0., m_dqm_time_range);
+        pathinfo.dqm_premodules  ->getTH1()->StatOverflows(true);
+        pathinfo.dqm_intermodules = m_dqms->book1D(pathname + "_intermodules", pathname + " inter-modules overhead", bins, 0., m_dqm_time_range);
+        pathinfo.dqm_intermodules->getTH1()->StatOverflows(true);
+        pathinfo.dqm_postmodules  = m_dqms->book1D(pathname + "_postmodules",  pathname + " post-modules overhead",  bins, 0., m_dqm_time_range);
+        pathinfo.dqm_postmodules ->getTH1()->StatOverflows(true);
+        pathinfo.dqm_total        = m_dqms->book1D(pathname + "_total",        pathname + " total time",             bins, 0., m_dqm_time_range);
+        pathinfo.dqm_total       ->getTH1()->StatOverflows(true);
       }
     }
     if (m_enable_timing_modules) {
       m_dqms->setCurrentFolder((m_dqm_path / "Modules").generic_string());
-      BOOST_FOREACH(ModuleMap<double>::value_type const & module, m_modules) {
-        m_dqm_modules[module.first] = m_dqms->book1D(module.first->moduleLabel(), module.first->moduleLabel(), bins, 0., m_dqm_time_range);
-        m_dqm_modules[module.first]->getTH1()->StatOverflows(true);
+      BOOST_FOREACH(ModuleMap<ModuleInfo>::value_type & keyval, m_modules) {
+        std::string const & label  = keyval.first->moduleLabel();
+        ModuleInfo        & module = keyval.second;
+        module.dqm_active = m_dqms->book1D(label, label, bins, 0., m_dqm_time_range);
+        module.dqm_active->getTH1()->StatOverflows(true);
       }
     }
   }
@@ -244,44 +239,45 @@ void FastTimerService::postEndJob() {
     out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active Path" << '\n';
     BOOST_FOREACH(std::string const & name, tns.getTrigPaths())
       out << "FastReport              " 
-          << std::right << std::setw(10) << m_summary_paths[name]  / (double) m_summary_events << "  " 
+          << std::right << std::setw(10) << m_paths[name].summary_active  / (double) m_summary_events << "  " 
           << name << '\n';
     out << '\n';
     out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active EndPath" << '\n';
     BOOST_FOREACH(std::string const & name, tns.getEndPaths())
       out << "FastReport              " 
-          << std::right << std::setw(10) << m_summary_paths[name]  / (double) m_summary_events << "  " 
+          << std::right << std::setw(10) << m_paths[name].summary_active  / (double) m_summary_events << "  " 
           << name << '\n';
   } else if (m_enable_timing_paths and m_enable_timing_modules) {
     out << '\n';
     out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "   Pre-mods Inter-mods  Post-mods     Active      Total  Path" << '\n';
     BOOST_FOREACH(std::string const & name, tns.getTrigPaths())
       out << "FastReport              " 
-          << std::right << std::setw(10) << m_summary_paths_premodules[name]    / (double) m_summary_events << " "
-          << std::right << std::setw(10) << m_summary_paths_intermodules[name]  / (double) m_summary_events << " "
-          << std::right << std::setw(10) << m_summary_paths_postmodules[name]   / (double) m_summary_events << " "
-          << std::right << std::setw(10) << m_summary_paths[name]               / (double) m_summary_events << " "
-          << std::right << std::setw(10) << m_summary_paths_total[name]         / (double) m_summary_events << "  "
+          << std::right << std::setw(10) << m_paths[name].summary_premodules    / (double) m_summary_events << " "
+          << std::right << std::setw(10) << m_paths[name].summary_intermodules  / (double) m_summary_events << " "
+          << std::right << std::setw(10) << m_paths[name].summary_postmodules   / (double) m_summary_events << " "
+          << std::right << std::setw(10) << m_paths[name].summary_active        / (double) m_summary_events << " "
+          << std::right << std::setw(10) << m_paths[name].summary_total         / (double) m_summary_events << "  "
           << name << '\n';
     out << '\n';
     out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "   Pre-mods Inter-mods  Post-mods     Active      Total  EndPath" << '\n';
     BOOST_FOREACH(std::string const & name, tns.getEndPaths())
       out << "FastReport              " 
-          << std::right << std::setw(10) << m_summary_paths_premodules[name]    / (double) m_summary_events << " "
-          << std::right << std::setw(10) << m_summary_paths_intermodules[name]  / (double) m_summary_events << " "
-          << std::right << std::setw(10) << m_summary_paths_postmodules[name]   / (double) m_summary_events << " "
-          << std::right << std::setw(10) << m_summary_paths[name]               / (double) m_summary_events << " "
-          << std::right << std::setw(10) << m_summary_paths_total[name]         / (double) m_summary_events << "  "
+          << std::right << std::setw(10) << m_paths[name].summary_premodules    / (double) m_summary_events << " "
+          << std::right << std::setw(10) << m_paths[name].summary_intermodules  / (double) m_summary_events << " "
+          << std::right << std::setw(10) << m_paths[name].summary_postmodules   / (double) m_summary_events << " "
+          << std::right << std::setw(10) << m_paths[name].summary_active        / (double) m_summary_events << " "
+          << std::right << std::setw(10) << m_paths[name].summary_total         / (double) m_summary_events << "  "
           << name << '\n';
   }
   edm::LogVerbatim("FastReport") << out.str();
 }
 
-// this is ever called only if m_enable_timing_modules = true
 void FastTimerService::preModuleBeginJob(edm::ModuleDescription const & module) {
+  // this is ever called only if m_enable_timing_modules = true
+  assert(m_enable_timing_modules);
+
   // allocate a counter for each module
-  m_modules.insert(      std::make_pair(& module, (double) 0.) );
-  m_has_just_run.insert( std::make_pair(& module, false) );
+  m_modules[& module];
 }
 
 void FastTimerService::preProcessEvent(edm::EventID const & id, edm::Timestamp const & stamp) {
@@ -293,26 +289,23 @@ void FastTimerService::preProcessEvent(edm::EventID const & id, edm::Timestamp c
   m_source       = 0;
   m_all_paths    = 0;
   m_all_endpaths = 0;
-  BOOST_FOREACH(PathMap<double>::value_type & keyval, m_paths)
-    keyval.second = 0.;
-  BOOST_FOREACH(PathMap<double>::value_type & keyval, m_paths_premodules)
-    keyval.second = 0.;
-  BOOST_FOREACH(PathMap<double>::value_type & keyval, m_paths_intermodules)
-    keyval.second = 0.;
-  BOOST_FOREACH(PathMap<double>::value_type & keyval, m_paths_postmodules)
-    keyval.second = 0.;
-  BOOST_FOREACH(PathMap<double>::value_type & keyval, m_paths_total)
-    keyval.second = 0.;
-  BOOST_FOREACH(ModuleMap<double>::value_type & keyval, m_modules)
-    keyval.second = 0.;
+  for (PathMap<PathInfo>::iterator path = m_paths.begin(); path != m_paths.end(); ++path) {
+    path->second.time_active       = 0.;
+    path->second.time_premodules   = 0.;
+    path->second.time_intermodules = 0.;
+    path->second.time_postmodules  = 0.;
+    path->second.time_total        = 0.;
+  }
+  for (ModuleMap<ModuleInfo>::iterator module = m_modules.begin(); module != m_modules.end(); ++module) {
+    module->second.time_active     = 0.;
+  }
 }
 
 void FastTimerService::postProcessEvent(edm::Event const & event, edm::EventSetup const & setup) {
   // stop the per-event timer, and account event time
   stop(m_timer_event);
   m_event = delta(m_timer_event);
-  if (m_enable_timing_summary)
-    m_summary_event += m_event;
+  m_summary_event += m_event;
   if (m_dqms)
     m_dqm_event->Fill(m_event * 1000.);     // convert to ms
 }
@@ -327,8 +320,7 @@ void FastTimerService::preSource() {
 void FastTimerService::postSource() {
   stop(m_timer_source);
   m_source = delta(m_timer_source);
-  if (m_enable_timing_summary)
-    m_summary_source += m_source;
+  m_summary_source += m_source;
   if (m_dqms)
     m_dqm_source->Fill(m_source * 1000.);                       // convert to ms
 }
@@ -349,7 +341,22 @@ void FastTimerService::prePathBeginRun(std::string const & path ) {
 void FastTimerService::preProcessPath(std::string const & path ) {
   // prepare to measure the time spent between the beginning of the path and the execution of the first module
   m_is_first_module = true;
-  m_current_path = & path;
+
+  PathMap<PathInfo>::iterator keyval = m_paths.find(path);
+  if (keyval != m_paths.end()) {
+    m_current_path = & keyval->second;
+
+    if (m_enable_timing_modules) {
+      // reset the status of this path's modules
+      BOOST_FOREACH(ModuleInfo * module, m_current_path->modules)
+        if (module)
+          module->has_just_run = false;
+    }
+  } else {
+    // should never get here
+    m_current_path = 0; 
+    edm::LogError("FastTimerService") << "FastTimerService::preProcessPath: unexpected path " << path;
+  }
 
   // time each (end)path
   start(m_timer_path);
@@ -361,12 +368,6 @@ void FastTimerService::preProcessPath(std::string const & path ) {
     // this is the first endpath, start the "all paths" counter
     m_timer_endpaths.first = m_timer_path.first;
   }
-
-  // reset the status of the modules
-  if (m_enable_timing_modules) {
-  BOOST_FOREACH(ModuleMap<bool>::value_type & value, m_has_just_run)
-    value.second = false;
-  }
 }
 
 void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathStatus const & status) {
@@ -376,72 +377,63 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
 
   // if enabled, account each (end)path
   if (m_enable_timing_paths) {
-    PathMap<double>::iterator keyval;
-    if ((keyval = m_paths.find(path)) != m_paths.end()) {
-      keyval->second = active;
-      if (m_enable_timing_summary)
-        m_summary_paths[path] += active;
-      if (m_dqms)
-        m_dqm_paths[path]->Fill(active * 1000.);    // convert to ms
-    
-      // measure the time spent between the execution of the last module and the end of the path
-      if (m_enable_timing_modules) {
-        double post    = 0.;                // time spent after the last active module
-        double inter   = 0.;                // time spent between modules
-        double current = 0.;                // time spent in modules active in the current path
-        double other   = 0.;                // time spent in modules part of this path, but active in other paths
-        double total   = 0.;                // total per-path time, including modules already run as part of other paths
+    PathInfo & pathinfo = * m_current_path;
+    pathinfo.time_active = active;
+    pathinfo.summary_active += active;
+    if (m_dqms)
+      pathinfo.dqm_active->Fill(active * 1000.);        // convert to ms
+  
+    // measure the time spent between the execution of the last module and the end of the path
+    if (m_enable_timing_modules) {
+      double post    = 0.;                // time spent after the last active module
+      double inter   = 0.;                // time spent between modules
+      double current = 0.;                // time spent in modules active in the current path
+      double other   = 0.;                // time spent in modules part of this path, but active in other paths
+      double total   = 0.;                // total per-path time, including modules already run as part of other paths
 
-        std::vector<edm::ModuleDescription const *> const & modules = m_pathmap[path];
-        size_t last_run = status.index();   // index of the last module run in this path
-        for (size_t i = 0; i <= last_run; ++i) {
-          edm::ModuleDescription const * module = modules[i];
-          if (module == 0)
-            // this is a module occurring more than once in the same path, skip it after the first occurrence
-            continue;
-          if (m_has_just_run[module]) {
-            current += m_modules[module];
-          } else {
-            other   += m_modules[module];
-          }
-        }
-        
-        if (m_is_first_module) {
-          // no modules were active duruing this path, assign all the path time as "post-modules"
-          m_paths_premodules[* m_current_path] = 0.;
-          if (m_dqms)
-            m_dqm_paths_premodules[* m_current_path]->Fill(0.);
-          post  = active;
-          inter = 0.;
+      size_t last_run = status.index();   // index of the last module run in this path
+      for (size_t i = 0; i <= last_run; ++i) {
+        ModuleInfo * module = pathinfo.modules[i];
+        if (module == 0)
+          // this is a module occurring more than once in the same path, skip it after the first occurrence
+          continue;
+        if (module->has_just_run) {
+          current += module->time_active;
         } else {
-          // time spent after the last active module
-          post  = delta(m_timer_module.second, m_timer_path.second);
-          // time spent between modules
-          inter = active - m_paths_premodules[* m_current_path] - current - post;
-          if (std::abs(inter) < 1e-9)
-            // take care of numeric precision and rounding errors - no timer is more precise than nanosecond resolution
-            inter = 0.;
-        }
-        // total per-path time, including modules already run as part of other paths
-        total = active + other;
-
-        m_paths_intermodules[* m_current_path] = inter;
-        m_paths_postmodules [* m_current_path] = post;
-        m_paths_total       [* m_current_path] = total;
-        if (m_enable_timing_summary) {
-          m_summary_paths_intermodules[* m_current_path] += inter;
-          m_summary_paths_postmodules [* m_current_path] += post;
-          m_summary_paths_total       [* m_current_path] += total;
-        }
-        if (m_dqms) {
-          m_dqm_paths_intermodules[* m_current_path]->Fill(inter * 1000.);  // convert to ms
-          m_dqm_paths_postmodules [* m_current_path]->Fill(post  * 1000.);  // convert to ms
-          m_dqm_paths_total       [* m_current_path]->Fill(total * 1000.);  // convert to ms
+          other   += module->time_active;
         }
       }
-    } else {
-      // should never get here
-      edm::LogError("FastTimerService") << "FastTimerService::postProcessPath: unexpected path " << path;
+      
+      if (m_is_first_module) {
+        // no modules were active duruing this path, account all the time as "post-modules"
+        pathinfo.time_premodules = 0.;
+        if (m_dqms)
+          pathinfo.dqm_premodules ->Fill(0.);
+        post  = active;
+        inter = 0.;
+      } else {
+        // time spent after the last active module
+        post  = delta(m_timer_module.second, m_timer_path.second);
+        // time spent between modules
+        inter = active - pathinfo.time_premodules - current - post;
+        if (std::abs(inter) < 1e-9)
+          // take care of numeric precision and rounding errors - the timer is less precise than nanosecond resolution
+          inter = 0.;
+      }
+      // total per-path time, including modules already run as part of other paths
+      total = active + other;
+
+      pathinfo.time_intermodules     = inter;
+      pathinfo.time_postmodules      = post;
+      pathinfo.time_total            = total;
+      pathinfo.summary_intermodules += inter;
+      pathinfo.summary_postmodules  += post;
+      pathinfo.summary_total        += total;
+      if (m_dqms) {
+        pathinfo.dqm_intermodules->Fill(inter * 1000.);   // convert to ms
+        pathinfo.dqm_postmodules ->Fill(post  * 1000.);   // convert to ms
+        pathinfo.dqm_total       ->Fill(total * 1000.);   // convert to ms
+      }
     }
   }
 
@@ -449,16 +441,14 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
     // this is the last path, stop and account the "all paths" counter
     m_timer_paths.second = m_timer_path.second;
     m_all_paths = delta(m_timer_paths);
-    if (m_enable_timing_summary)
-      m_summary_all_paths += m_all_paths;
+    m_summary_all_paths += m_all_paths;
     if (m_dqms)
       m_dqm_all_paths->Fill(m_all_paths * 1000.);               // convert to ms
   } else if (& path == m_last_endpath) {
     // this is the last endpath, stop and account the "all endpaths" counter
     m_timer_endpaths.second = m_timer_path.second;
     m_all_endpaths = delta(m_timer_endpaths);
-    if (m_enable_timing_summary)
-      m_summary_all_endpaths += m_all_endpaths;
+    m_summary_all_endpaths += m_all_endpaths;
     if (m_dqms)
       m_dqm_all_endpaths->Fill(m_all_endpaths * 1000.);         // convert to ms
   }
@@ -476,11 +466,10 @@ void FastTimerService::preModule(edm::ModuleDescription const & module) {
     // measure the time spent between the beginning of the path and the execution of the first module
     m_is_first_module = false;
     double time = delta(m_timer_path.first, m_timer_module.first);
-    m_paths_premodules[* m_current_path] = time;
-    if (m_enable_timing_summary)
-      m_summary_paths_premodules[* m_current_path] += time;
+    m_current_path->time_premodules     = time;
+    m_current_path->summary_premodules += time;
     if (m_dqms)
-      m_dqm_paths_premodules[* m_current_path]->Fill(time * 1000.);     // convert to ms
+      m_current_path->dqm_premodules->Fill(time * 1000.);       // convert to ms
   }
 }
 
@@ -491,14 +480,15 @@ void FastTimerService::postModule(edm::ModuleDescription const & module) {
   // time and account each module
   stop(m_timer_module);
 
-  ModuleMap<double>::iterator keyval = m_modules.find(& module);
+  ModuleMap<ModuleInfo>::iterator keyval = m_modules.find(& module);
   if (keyval != m_modules.end()) {
-    keyval->second = delta(m_timer_module);
-    m_has_just_run[& module] = true;
-    if (m_enable_timing_summary)
-      m_summary_modules[& module] += keyval->second;
+    ModuleInfo & module = keyval->second;
+    double time = delta(m_timer_module);
+    module.has_just_run    = true;
+    module.time_active     = time;
+    module.summary_active += time;
     if (m_dqms)
-      m_dqm_modules[& module]->Fill(keyval->second * 1000.);    // convert to ms
+      module.dqm_active->Fill(time * 1000.);                    // convert to ms
   } else {
     // should never get here
     edm::LogError("FastTimerService") << "FastTimerService::postModule: unexpected module " << module.moduleLabel();
@@ -507,7 +497,7 @@ void FastTimerService::postModule(edm::ModuleDescription const & module) {
   
 // find the module description associated to a module, by label
 edm::ModuleDescription const * FastTimerService::findModuleDescription(const std::string & label) const {
-  BOOST_FOREACH(ModuleMap<double>::value_type const & keyval, m_modules)
+  BOOST_FOREACH(ModuleMap<ModuleInfo>::value_type const & keyval, m_modules)
     if (keyval.first->moduleLabel() == label)
       return keyval.first;
   // not found
