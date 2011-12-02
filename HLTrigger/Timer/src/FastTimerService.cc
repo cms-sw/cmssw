@@ -141,31 +141,29 @@ void FastTimerService::postBeginJob() {
       pathmap.reserve( modules.size() );
       BOOST_FOREACH( std::string const & module, modules) {
         edm::ModuleDescription const * md = findModuleDescription(module);
-        if (std::find(pathmap.begin(), pathmap.end(), md) == pathmap.end())
+        if (std::find(pathmap.begin(), pathmap.end(), md) == pathmap.end()) {
           // new module
           pathmap.push_back( md );
-        else
+        } else {
           // duplicate module
           pathmap.push_back( 0 );
+        }
       }
     }
     for (size_t i = 0; i < tns.getEndPaths().size(); ++i) {
       std::string               const & name    = tns.getEndPath(i);
-      std::vector<std::string>  const & modules = std::vector<std::string>();
-    /*
-      FIXME this requires a change to the TriggerNamesService
       std::vector<std::string>  const & modules = tns.getEndPathModules(i);
-    */
       std::vector<edm::ModuleDescription const *> & pathmap = m_pathmap[name];
       pathmap.reserve( modules.size() );
       BOOST_FOREACH( std::string const & module, modules) {
         edm::ModuleDescription const * md = findModuleDescription(module);
-        if (std::find(pathmap.begin(), pathmap.end(), md) == pathmap.end())
+        if (std::find(pathmap.begin(), pathmap.end(), md) == pathmap.end()) {
           // new module
           pathmap.push_back( md );
-        else
+        } else {
           // duplicate module
           pathmap.push_back( 0 );
+        }
       }
     }
 
@@ -234,7 +232,6 @@ void FastTimerService::postEndJob() {
 
   edm::service::TriggerNamesService & tns = * edm::Service<edm::service::TriggerNamesService>();
 
-  // spacing is set to mimic TimeReport
   std::ostringstream out;
   out << std::fixed << std::setprecision(6);
   out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ") << '\n';
@@ -397,7 +394,6 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
 
         std::vector<edm::ModuleDescription const *> const & modules = m_pathmap[path];
         size_t last_run = status.index();   // index of the last module run in this path
-        if (not modules.empty())            // FIXME EndPaths will appear empty until the TriggerNamesService is fixed
         for (size_t i = 0; i <= last_run; ++i) {
           edm::ModuleDescription const * module = modules[i];
           if (module == 0)
