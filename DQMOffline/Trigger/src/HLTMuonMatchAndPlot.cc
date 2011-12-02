@@ -1,8 +1,8 @@
  /** \file DQMOffline/Trigger/HLTMuonMatchAndPlot.cc
  *
- *  $Author: rovere $
- *  $Date: 2011/10/07 09:32:10 $
- *  $Revision: 1.29 $
+ *  $Author: klukas $
+ *  $Date: 2011/10/19 19:58:52 $
+ *  $Revision: 1.30 $
  */
 
 
@@ -462,39 +462,54 @@ HLTMuonMatchAndPlot::selectedTriggerObjects(
 
 
 
-void
-HLTMuonMatchAndPlot::book1D(string name, string binningType, string title) {
-  
-  size_t nBins;
-  float * edges;
+void HLTMuonMatchAndPlot::book1D(string name, string binningType, string title)
+{
+  /* Properly delete the array of floats that has been allocated on
+   * the heap by fillEdges.  Avoid multiple copies and internal ROOT
+   * clones by simply creating the histograms directly in the DQMStore
+   * using the appropriate book1D method to handle the variable bins
+   * case. */ 
+
+  size_t nBins; 
+  float * edges = 0; 
   fillEdges(nBins, edges, binParams_[binningType]);
 
-  TH1F * h = new TH1F(name.c_str(), title.c_str(), nBins, edges);
-  h->Sumw2();
-  hists_[name] = dbe_->book1D(name, h);
-  delete h;
-
+  hists_[name] = dbe_->book1D(name, title, nBins, edges);
+  if (hists_[name])
+    hists_[name]->getTH1F()->Sumw2();
+  if (edges)
+    delete [] edges;
 }
 
 
 
 void
 HLTMuonMatchAndPlot::book2D(string name, string binningTypeX, 
-                            string binningTypeY, string title) {
+                            string binningTypeY, string title) 
+{
   
+  /* Properly delete the arrays of floats that have been allocated on
+   * the heap by fillEdges.  Avoid multiple copies and internal ROOT
+   * clones by simply creating the histograms directly in the DQMStore
+   * using the appropriate book2D method to handle the variable bins
+   * case. */ 
+
   size_t  nBinsX;
-  float * edgesX;
+  float * edgesX = 0;
   fillEdges(nBinsX, edgesX, binParams_[binningTypeX]);
 
   size_t  nBinsY;
-  float * edgesY;
+  float * edgesY = 0;
   fillEdges(nBinsY, edgesY, binParams_[binningTypeY]);
 
-  TH2F * h = new TH2F(name.c_str(), title.c_str(), 
-                      nBinsX, edgesX, nBinsY, edgesY);
-  h->Sumw2();
-  hists_[name] = dbe_->book2D(name, h);
-  delete h;
+  hists_[name] = dbe_->book2D(name.c_str(), title.c_str(),
+			      nBinsX, edgesX, nBinsY, edgesY);
+  if (hists_[name])
+    hists_[name]->getTH2F()->Sumw2();
 
+  if (edgesX)
+    delete [] edgesX;
+  if (edgesY)
+    delete [] edgesY;
 }
 
