@@ -1,4 +1,4 @@
-// $Id: EGEnergyCorrector.cc,v 1.2 2011/11/16 17:32:28 bendavid Exp $
+// $Id: EGEnergyCorrector.cc,v 1.3 2011/12/03 13:39:47 bendavid Exp $
 
 #include <TFile.h>
 #include "../interface/EGEnergyCorrector.h"
@@ -10,6 +10,7 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 using namespace reco;
 
@@ -265,7 +266,7 @@ std::pair<double,double> EGEnergyCorrector::CorrectedEnergyWithErrorV2(const Pho
     }
   }
   
-  Bool_t isbarrel = std::abs(s->eta())<1.5;
+  Bool_t isbarrel =  b->hitsAndFractions().at(0).first.subdetId()==EcalBarrel;
   Bool_t hasbc2 = b2.isNonnull() && b2->energy()>0.;
   Bool_t hasbclast = bclast.isNonnull() && bclast->energy()>0.;
   Bool_t hasbclast2 = bclast2.isNonnull() && bclast2->energy()>0.;
@@ -464,7 +465,7 @@ std::pair<double,double> EGEnergyCorrector::CorrectedEnergyWithErrorV2(const Gsf
     }
   }
   
-  Bool_t isbarrel = std::abs(s->eta())<1.5;
+  Bool_t isbarrel =  b->hitsAndFractions().at(0).first.subdetId()==EcalBarrel;
   Bool_t hasbc2 = b2.isNonnull() && b2->energy()>0.;
   Bool_t hasbclast = bclast.isNonnull() && bclast->energy()>0.;
   Bool_t hasbclast2 = bclast2.isNonnull() && bclast2->energy()>0.;

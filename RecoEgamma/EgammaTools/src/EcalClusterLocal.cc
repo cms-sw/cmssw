@@ -22,7 +22,7 @@ EcalClusterLocal::~EcalClusterLocal()
 void EcalClusterLocal::localCoordsEB( const reco::BasicCluster &bclus, const edm::EventSetup &es, float &etacry, float &phicry, int &ieta, int &iphi, float &thetatilt, float &phitilt) const
 {
   
-  assert(TMath::Abs(bclus.eta()) < 1.48 );
+  assert(bclus.hitsAndFractions().at(0).first.subdetId()==EcalBarrel);
   
   edm::ESHandle<CaloGeometry> pG;
   es.get<CaloGeometryRecord>().get(pG); 
@@ -92,7 +92,7 @@ void EcalClusterLocal::localCoordsEB( const reco::BasicCluster &bclus, const edm
 void EcalClusterLocal::localCoordsEE( const reco::BasicCluster &bclus, const edm::EventSetup &es, float &xcry, float &ycry, int &ix, int &iy, float &thetatilt, float &phitilt) const
 {
   
-  assert(TMath::Abs(bclus.eta()) > 1.48 );
+  assert(bclus.hitsAndFractions().at(0).first.subdetId()==EcalEndcap);
   
   edm::ESHandle<CaloGeometry> pG;
   es.get<CaloGeometryRecord>().get(pG); 
