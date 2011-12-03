@@ -16,7 +16,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "RecoEgamma/EgammaTools/interface/EcalClusterLocal.h"
 
 class GBRForest;
 class EcalClusterLazyTools;
@@ -31,6 +32,10 @@ class EGEnergyCorrector {
     
     std::pair<double,double> CorrectedEnergyWithError(const reco::Photon &p);
     std::pair<double,double> CorrectedEnergyWithError(const reco::GsfElectron &e, EcalClusterLazyTools &clustertools);
+
+    std::pair<double,double> CorrectedEnergyWithErrorV2(const reco::Photon &p, const reco::VertexCollection& vtxcol, EcalClusterLazyTools &clustertools, const edm::EventSetup &es);
+    std::pair<double,double> CorrectedEnergyWithErrorV2(const reco::GsfElectron &e, const reco::VertexCollection& vtxcol, EcalClusterLazyTools &clustertools, const edm::EventSetup &es);
+    
     
   protected:
     const GBRForest *fReadereb;
@@ -41,6 +46,8 @@ class EGEnergyCorrector {
     Bool_t fIsInitialized;
     Bool_t fOwnsForests;
     Float_t *fVals;
+    
+    EcalClusterLocal _ecalLocal;
     
     };
 
