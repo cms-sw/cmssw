@@ -128,7 +128,7 @@ private:
   struct ModuleInfo {
     double                      time_active;
     double                      summary_active;
-    MonitorElement *            dqm_active;
+    TH1F *                      dqm_active;
     bool                        has_just_run;
 
   public:
@@ -152,11 +152,11 @@ private:
     double                      summary_intermodules;
     double                      summary_postmodules;
     double                      summary_total;
-    MonitorElement *            dqm_active;
-    MonitorElement *            dqm_premodules;
-    MonitorElement *            dqm_intermodules;
-    MonitorElement *            dqm_postmodules;
-    MonitorElement *            dqm_total;
+    TH1F *                      dqm_active;
+    TH1F *                      dqm_premodules;
+    TH1F *                      dqm_intermodules;
+    TH1F *                      dqm_postmodules;
+    TH1F *                      dqm_total;
 
   public:
     PathInfo() :
@@ -218,10 +218,10 @@ private:
 
   // DQM
   DQMStore *                                    m_dqms;
-  MonitorElement *                              m_dqm_event;
-  MonitorElement *                              m_dqm_source;
-  MonitorElement *                              m_dqm_all_paths;
-  MonitorElement *                              m_dqm_all_endpaths;
+  TH1F *                                        m_dqm_event;
+  TH1F *                                        m_dqm_source;
+  TH1F *                                        m_dqm_all_paths;
+  TH1F *                                        m_dqm_all_endpaths;
 
   // per-path and per-module accounting
   PathInfo *                                    m_current_path;
