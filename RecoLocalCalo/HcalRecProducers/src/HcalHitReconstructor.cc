@@ -213,7 +213,7 @@ HcalHitReconstructor::~HcalHitReconstructor() {
 
 void HcalHitReconstructor::beginRun(edm::Run&r, edm::EventSetup const & es){
 
-  if ( tsFromDB_==true)
+  if ( tsFromDB_== true || recoParamsFromDB_ == true )
     {
       edm::ESHandle<HcalRecoParams> p;
       es.get<HcalRecoParamsRcd>().get(p);
