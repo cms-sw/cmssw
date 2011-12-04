@@ -99,7 +99,7 @@ int main(int argc, char *argv[]){
    
    std::string fname; 
    if (argc!=2){
-      fname = "/tmp/fruboes/muons.txt";
+      fname = "muons.txt";
       std::cout<< " Trying to use defualt: " << fname << std::endl;
    } else {
       fname = argv[1];
@@ -116,7 +116,7 @@ int main(int argc, char *argv[]){
    double etaGen;
    double phiGen;
    double ptGen;
-   int towerRec, phiRec, ptCodeRec, qual, muonsFound;
+   int towerRec, phiRec, ptCodeRec, qual;//, muonsFound;
    TEffMap effMap;
    TEffMap effMapMC;
    int read = 0;
@@ -356,7 +356,7 @@ void rateVsTower(TEffMap & effMap,int ptCodeCut){
    
    for(;it!=itend;++it){
       int tower = it->first.m_tower;
-      double oldR = rateVsTower.at(tower);
+      //      double oldR = rateVsTower.at(tower);
       rateVsTower.at(tower)+=it->second.m_rate*it->second.m_stats.eff(ptCodeCut);
       /*
       if (rateVsTower.at(tower)/oldR > 10 ) {

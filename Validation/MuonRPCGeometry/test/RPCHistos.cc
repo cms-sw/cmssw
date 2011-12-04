@@ -142,7 +142,7 @@ void RPCHistos::go(){
     m_tower2pt[towerGen]->Fill(ptCodeGen, ptCodeRec);
     
     // PhiEff plot, rate plot
-    float etaGenAbs = etaGen > 0 ? etaGen : -etaGen;
+    //    float etaGenAbs = etaGen > 0 ? etaGen : -etaGen;
     //m_phiEffAll->Fill(etaGenAbs);
     m_phiEffAll->Fill(etaGen);
     if(ghost== 0 && ptCodeRec != 0){
