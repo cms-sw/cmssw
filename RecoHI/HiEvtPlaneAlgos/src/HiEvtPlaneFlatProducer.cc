@@ -14,7 +14,7 @@
 //
 // Original Author:  Stephen Sanders
 //         Created:  Sat Jun 26 16:04:04 EDT 2010
-// $Id: HiEvtPlaneFlatProducer.cc,v 1.10 2011/11/06 23:17:46 ssanders Exp $
+// $Id: HiEvtPlaneFlatProducer.cc,v 1.11 2011/11/29 21:01:19 ssanders Exp $
 //
 //
 // system include files
@@ -248,7 +248,7 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     
   }
   iEvent.put(evtplaneOutput);
-  storeNames_ = 0;  
+  //storeNames_ = 0;  
 }
 
 // ------------ method called once each job just before starting event loop  ------------
