@@ -15,24 +15,26 @@ void FreeTrajectoryState::missingError() {
 // Warning: these methods violate constness
 
 // convert curvilinear errors to cartesian
-void FreeTrajectoryState::createCartesianError() const{
+void FreeTrajectoryState::createCartesianError(CartesianTrajectoryError & aCartesianError) const{
   
   JacobianCurvilinearToCartesian curv2Cart(theGlobalParameters);
   const AlgebraicMatrix65& jac = curv2Cart.jacobian();
 
-  theCartesianError = 
+  aCartesianError = 
     ROOT::Math::Similarity(jac, theCurvilinearError.matrix());
+#ifdef ENABLE_CACHE_CARTESIAN
   theCartesianErrorValid = true;
+#endif
 }
 
 // convert cartesian errors to curvilinear
-void FreeTrajectoryState::createCurvilinearError() const{
+void FreeTrajectoryState::createCurvilinearError(aCartesianError) const{
   
   JacobianCartesianToCurvilinear cart2Curv(theGlobalParameters);
   const AlgebraicMatrix56& jac = cart2Curv.jacobian();
   
   theCurvilinearError = 
-    ROOT::Math::Similarity(jac, theCartesianError.matrix());
+    ROOT::Math::Similarity(jac, aCartesianError.matrix());
   theCurvilinearErrorValid = true;
 } 
 
