@@ -9,9 +9,10 @@ typedef int clockid_t;
 #endif
 
 // C++ headers
+#include <cmath>
 #include <string>
 #include <map>
-#include <cmath>
+#include <tr1/unordered_map>
 
 // boost headers
 // for forward compatibility with boost 1.47
@@ -179,8 +180,8 @@ private:
     { }
   };
 
-  template <typename T> class PathMap   : public std::map<std::string, T> {};
-  template <typename T> class ModuleMap : public std::map<edm::ModuleDescription const *, T> {};
+  template <typename T> class PathMap   : public std::tr1::unordered_map<std::string, T> {};
+  template <typename T> class ModuleMap : public std::tr1::unordered_map<edm::ModuleDescription const *, T> {};
 
   // configuration
   const clockid_t                               m_timer_id;             // the default is to use CLOCK_THREAD_CPUTIME_ID, unless useRealTimeClock is set, which will use CLOCK_REALTIME

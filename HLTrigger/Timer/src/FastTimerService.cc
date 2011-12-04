@@ -3,10 +3,10 @@
 #include <time.h>
 #else
 typedef int clockid_t;
-#define CLOCK_REALTIME               0                                                                                                                                                                                        
-#define CLOCK_MONOTONIC              1                                                                                                                                                                                        
-#define CLOCK_PROCESS_CPUTIME_ID     2                                                                                                                                                                                        
-#define CLOCK_THREAD_CPUTIME_ID      3                                                                                                                                                                                        
+#define CLOCK_REALTIME               0
+#define CLOCK_MONOTONIC              1
+#define CLOCK_PROCESS_CPUTIME_ID     2
+#define CLOCK_THREAD_CPUTIME_ID      3
 #endif
 
 // C++ headers
@@ -15,8 +15,8 @@ typedef int clockid_t;
 #include <iomanip>
 #include <string>
 #include <sstream>
-#include <set>
-#include <map>
+#include <tr1/unordered_set>
+#include <tr1/unordered_map>
 
 // boost headers
 #include <boost/foreach.hpp>
@@ -46,15 +46,15 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   m_is_cpu_bound(           false ),
   m_enable_timing_modules(  config.getUntrackedParameter<bool>(        "enableTimingModules",  false) ),
   m_enable_timing_paths(    config.getUntrackedParameter<bool>(        "enableTimingPaths",    false) ),
-  m_enable_timing_summary(  config.getUntrackedParameter<bool>(        "enableTimingSummary",  false) ), 
-  m_enable_dqm(             config.getUntrackedParameter<bool>(        "enableDQM",            false) ), 
-  m_enable_dqm_bylumi(      config.getUntrackedParameter<bool>(        "enableDQMbyLumi",      false) ), 
-  // dqm configuration 
+  m_enable_timing_summary(  config.getUntrackedParameter<bool>(        "enableTimingSummary",  false) ),
+  m_enable_dqm(             config.getUntrackedParameter<bool>(        "enableDQM",            false) ),
+  m_enable_dqm_bylumi(      config.getUntrackedParameter<bool>(        "enableDQMbyLumi",      false) ),
+  // dqm configuration
   m_dqm_time_range(         config.getUntrackedParameter<double>(      "dqmTimeRange",         1000.) ),   // ms
   m_dqm_time_resolution(    config.getUntrackedParameter<double>(      "dqmTimeResolution",       5.) ),   // ms
   m_dqm_path(               config.getUntrackedParameter<std::string>( "dqmPath",     "TimerService") ),
   // caching
-  m_first_path(0),          // these are initialized at prePathBeginRun(), 
+  m_first_path(0),          // these are initialized at prePathBeginRun(),
   m_last_path(0),           // to make sure we cache the correct pointers
   m_first_endpath(0),
   m_last_endpath(0),
@@ -88,7 +88,7 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   registry.watchPostProcessEvent(  this, & FastTimerService::postProcessEvent );
   registry.watchPreSource(         this, & FastTimerService::preSource );
   registry.watchPostSource(        this, & FastTimerService::postSource );
-  // watch per-path events 
+  // watch per-path events
   registry.watchPreProcessPath(    this, & FastTimerService::preProcessPath );
   registry.watchPostProcessPath(   this, & FastTimerService::postProcessPath );
   // watch per-module events if enabled
@@ -124,7 +124,7 @@ void FastTimerService::postBeginJob() {
       std::vector<std::string> const & modules = tns.getTrigPathModules(i);
       std::vector<ModuleInfo *>      & pathmap = m_paths[name].modules;
       pathmap.reserve( modules.size() );
-      std::set<edm::ModuleDescription const *> pool;        // keep track of modules already inserted
+      std::tr1::unordered_set<edm::ModuleDescription const *> pool;        // keep track of modules already inserted
       BOOST_FOREACH( std::string const & module, modules) {
         edm::ModuleDescription const * md = findModuleDescription(module);
         if (pool.find(md) != pool.end()) {
@@ -142,7 +142,7 @@ void FastTimerService::postBeginJob() {
       std::vector<std::string> const & modules = tns.getEndPathModules(i);
       std::vector<ModuleInfo *>      & pathmap = m_paths[name].modules;
       pathmap.reserve( modules.size() );
-      std::set<edm::ModuleDescription const *> pool;        // keep track of modules already inserted
+      std::tr1::unordered_set<edm::ModuleDescription const *> pool;        // keep track of modules already inserted
       BOOST_FOREACH( std::string const & module, modules) {
         edm::ModuleDescription const * md = findModuleDescription(module);
         if (pool.find(md) != pool.end()) {
@@ -164,7 +164,7 @@ void FastTimerService::postBeginJob() {
 
   if (m_dqms) {
     if (m_enable_dqm_bylumi) {
-      // by-lumi plots use a different second-level directory: 
+      // by-lumi plots use a different second-level directory:
       //    TimerService   --> TimerService/EventInfo
       //    HLT/Timer      --> HLT/EventInfo/Timer
       // etc.
@@ -242,20 +242,20 @@ void FastTimerService::postEndJob() {
     out << '\n';
     out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active Path" << '\n';
     BOOST_FOREACH(std::string const & name, tns.getTrigPaths())
-      out << "FastReport              " 
-          << std::right << std::setw(10) << m_paths[name].summary_active  / (double) m_summary_events << "  " 
+      out << "FastReport              "
+          << std::right << std::setw(10) << m_paths[name].summary_active  / (double) m_summary_events << "  "
           << name << '\n';
     out << '\n';
     out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active EndPath" << '\n';
     BOOST_FOREACH(std::string const & name, tns.getEndPaths())
-      out << "FastReport              " 
-          << std::right << std::setw(10) << m_paths[name].summary_active  / (double) m_summary_events << "  " 
+      out << "FastReport              "
+          << std::right << std::setw(10) << m_paths[name].summary_active  / (double) m_summary_events << "  "
           << name << '\n';
   } else if (m_enable_timing_paths and m_enable_timing_modules) {
     out << '\n';
     out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "   Pre-mods Inter-mods  Post-mods     Active      Total  Path" << '\n';
     BOOST_FOREACH(std::string const & name, tns.getTrigPaths())
-      out << "FastReport              " 
+      out << "FastReport              "
           << std::right << std::setw(10) << m_paths[name].summary_premodules    / (double) m_summary_events << " "
           << std::right << std::setw(10) << m_paths[name].summary_intermodules  / (double) m_summary_events << " "
           << std::right << std::setw(10) << m_paths[name].summary_postmodules   / (double) m_summary_events << " "
@@ -265,7 +265,7 @@ void FastTimerService::postEndJob() {
     out << '\n';
     out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "   Pre-mods Inter-mods  Post-mods     Active      Total  EndPath" << '\n';
     BOOST_FOREACH(std::string const & name, tns.getEndPaths())
-      out << "FastReport              " 
+      out << "FastReport              "
           << std::right << std::setw(10) << m_paths[name].summary_premodules    / (double) m_summary_events << " "
           << std::right << std::setw(10) << m_paths[name].summary_intermodules  / (double) m_summary_events << " "
           << std::right << std::setw(10) << m_paths[name].summary_postmodules   / (double) m_summary_events << " "
@@ -293,15 +293,15 @@ void FastTimerService::preProcessEvent(edm::EventID const & id, edm::Timestamp c
   m_source       = 0;
   m_all_paths    = 0;
   m_all_endpaths = 0;
-  for (PathMap<PathInfo>::iterator path = m_paths.begin(); path != m_paths.end(); ++path) {
-    path->second.time_active       = 0.;
-    path->second.time_premodules   = 0.;
-    path->second.time_intermodules = 0.;
-    path->second.time_postmodules  = 0.;
-    path->second.time_total        = 0.;
+  BOOST_FOREACH(PathMap<PathInfo>::value_type & path, m_paths) {
+    path.second.time_active       = 0.;
+    path.second.time_premodules   = 0.;
+    path.second.time_intermodules = 0.;
+    path.second.time_postmodules  = 0.;
+    path.second.time_total        = 0.;
   }
-  for (ModuleMap<ModuleInfo>::iterator module = m_modules.begin(); module != m_modules.end(); ++module) {
-    module->second.time_active     = 0.;
+  BOOST_FOREACH(ModuleMap<ModuleInfo>::value_type & module, m_modules) {
+    module.second.time_active     = 0.;
   }
 }
 
@@ -358,7 +358,7 @@ void FastTimerService::preProcessPath(std::string const & path ) {
     }
   } else {
     // should never get here
-    m_current_path = 0; 
+    m_current_path = 0;
     edm::LogError("FastTimerService") << "FastTimerService::preProcessPath: unexpected path " << path;
   }
 
@@ -386,7 +386,7 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
     pathinfo.summary_active += active;
     if (m_dqms)
       pathinfo.dqm_active->Fill(active * 1000.);        // convert to ms
-  
+
     // measure the time spent between the execution of the last module and the end of the path
     if (m_enable_timing_modules) {
       double post    = 0.;                // time spent after the last active module
@@ -407,7 +407,7 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
           other   += module->time_active;
         }
       }
-      
+
       if (m_is_first_module) {
         // no modules were active duruing this path, account all the time as "post-modules"
         pathinfo.time_premodules = 0.;
@@ -498,7 +498,7 @@ void FastTimerService::postModule(edm::ModuleDescription const & module) {
     edm::LogError("FastTimerService") << "FastTimerService::postModule: unexpected module " << module.moduleLabel();
   }
 }
-  
+
 // find the module description associated to a module, by label
 edm::ModuleDescription const * FastTimerService::findModuleDescription(const std::string & label) const {
   BOOST_FOREACH(ModuleMap<ModuleInfo>::value_type const & keyval, m_modules)
