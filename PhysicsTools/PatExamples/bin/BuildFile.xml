@@ -12,6 +12,8 @@
 <use   name="PhysicsTools/PatExamples"/>
 <use   name="PhysicsTools/SelectorUtils"/>
 <environment>
+  <bin   file="PatMuonEDMAnalyzer.cc"></bin>
+  <bin   file="PatMuonFWLiteAnalyzer.cc"></bin>
   <bin   file="PatBasicFWLiteAnalyzer.cc"></bin>
   <bin   file="PatBasicFWLiteJetAnalyzer.cc"></bin>
   <bin   file="PatBasicFWLiteJetAnalyzer_Selector.cc"></bin>
