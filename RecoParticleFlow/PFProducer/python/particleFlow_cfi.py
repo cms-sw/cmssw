@@ -28,6 +28,7 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     # Use Photon identification in PFAlgo (for now this has NO impact, algo is swicthed off hard-coded
     usePFPhotons = cms.bool(True),
     usePhotonReg=cms.bool(False),
+    useRegressionFromDB=cms.bool(False),                                 
     pf_convID_mvaWeightFile = cms.string('RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_pfConversionAug0411.txt'),        
     pf_conv_mvaCut=cms.double(0.0),                                 
     pf_locC_mvaWeightFile=cms.string('RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFClusterCorr.root'),

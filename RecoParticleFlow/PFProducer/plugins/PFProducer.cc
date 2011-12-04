@@ -19,6 +19,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"
 #include <sstream>
 
+#include "TFile.h"
+
 using namespace std;
 
 using namespace boost;
@@ -64,6 +66,8 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   usePhotonReg_
     = (usePFPhotons_) ? iConfig.getParameter<bool>("usePhotonReg") : false ;
 
+  useRegressionFromDB_
+    = (usePFPhotons_) ? iConfig.getParameter<bool>("useRegressionFromDB") : false; 
 
   useEGammaElectrons_
     = iConfig.getParameter<bool>("useEGammaElectrons");    
@@ -153,7 +157,7 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   double mvaConvCut=-99.;
   double sumPtTrackIsoForPhoton = 99.;
   double sumPtTrackIsoSlopeForPhoton = 99.;
-  if(usePFPhotons_)
+  if(usePFPhotons_ && !useRegressionFromDB_)
     {
       mvaWeightFileConvID =iConfig.getParameter<string>("pf_convID_mvaWeightFile");
       
@@ -170,6 +174,14 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
       path_mvaWeightFileRes=edm::FileInPath(mvaWeightFileRes.c_str()).fullPath();
       string X0_Map=iConfig.getParameter<string>("X0_Map");
       path_X0_Map = edm::FileInPath( X0_Map.c_str() ).fullPath();
+      
+      TFile *fgbr = new TFile(path_mvaWeightFileGCorr.c_str(),"READ");
+      ReaderGC_  =(const GBRForest*)fgbr->Get("GBRForest");
+      TFile *fgbr2 = new TFile(path_mvaWeightFileLCorr.c_str(),"READ");
+      ReaderLC_  = (const GBRForest*)fgbr2->Get("GBRForest");
+      TFile *fgbr3 = new TFile(path_mvaWeightFileRes.c_str(),"READ");
+      ReaderRes_  = (const GBRForest*)fgbr3->Get("GBRForest");
+      LogDebug("PFProducer")<<"Will set regressions from binary files " <<endl;
 
     }
   
@@ -404,16 +416,21 @@ PFProducer::beginRun(edm::Run & run,
   }
   */
   
-  edm::ESHandle<GBRWrapper> readerPFLC;
-  edm::ESHandle<GBRWrapper> readerPFGC;
-  edm::ESHandle<GBRWrapper> readerPFRes;
-  es.get<GBRWrapperRcd>().get("GBR_PFLCCorrection",readerPFLC);
-  es.get<GBRWrapperRcd>().get("GBR_PFGlobalCorrection",readerPFGC);
-  es.get<GBRWrapperRcd>().get("GBR_PFResolution",readerPFRes);
-  const GBRForest* LCorrForest= &readerPFLC->GetForest();
-  const GBRForest* GCorrForest= &readerPFGC->GetForest();
-  const GBRForest* ResForest= &readerPFRes->GetForest();
-  pfAlgo_->setPFPhotonRegWeights(LCorrForest, GCorrForest, ResForest);
+  if(useRegressionFromDB_) {
+    edm::ESHandle<GBRWrapper> readerPFLC;
+    edm::ESHandle<GBRWrapper> readerPFGC;
+    edm::ESHandle<GBRWrapper> readerPFRes;
+    es.get<GBRWrapperRcd>().get("GBR_PFLCCorrection",readerPFLC);
+    es.get<GBRWrapperRcd>().get("GBR_PFGlobalCorrection",readerPFGC);
+    es.get<GBRWrapperRcd>().get("GBR_PFResolution",readerPFRes);
+    ReaderLC_ = &readerPFLC->GetForest();
+    ReaderGC_ = &readerPFGC->GetForest();
+    ReaderRes_ = &readerPFRes->GetForest();
+    LogDebug("PFProducer")<<"setting regressions from DB "<<endl;
+  } 
+
+  pfAlgo_->setPFPhotonRegWeights(ReaderLC_, ReaderGC_, ReaderRes_);
+
 }
 
 

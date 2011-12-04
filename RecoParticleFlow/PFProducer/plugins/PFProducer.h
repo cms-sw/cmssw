@@ -16,6 +16,7 @@
 
 class PFAlgo;
 class PFEnergyCalibrationHF;
+class GBRForest;
 
 /**\class PFProducer 
 \brief Producer for particle flow reconstructed particles (PFCandidates)
@@ -60,6 +61,10 @@ class PFProducer : public edm::EDProducer {
   
   // Use photon regression
   bool usePhotonReg_;
+  bool useRegressionFromDB_;
+  const GBRForest * ReaderGC_;
+  const GBRForest* ReaderLC_;
+  const GBRForest* ReaderRes_;
   // what about e/g electrons ?
   bool useEGammaElectrons_;
 
