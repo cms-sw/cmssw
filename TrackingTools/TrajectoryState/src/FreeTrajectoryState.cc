@@ -28,7 +28,7 @@ void FreeTrajectoryState::createCartesianError(CartesianTrajectoryError & aCarte
 }
 
 // convert cartesian errors to curvilinear
-void FreeTrajectoryState::createCurvilinearError(aCartesianError) const{
+void FreeTrajectoryState::createCurvilinearError(CartesianTrajectoryError sonst& aCartesianError) const{
   
   JacobianCartesianToCurvilinear cart2Curv(theGlobalParameters);
   const AlgebraicMatrix56& jac = cart2Curv.jacobian();
@@ -39,6 +39,7 @@ void FreeTrajectoryState::createCurvilinearError(aCartesianError) const{
 } 
 
 
+#ifdef ENABLE_CACHE_CARTESIAN
 void FreeTrajectoryState::rescaleError(double factor) {
   bool zeroField = parameters().magneticFieldInInverseGeV(GlobalPoint(0,0,0)).mag2()==0;
   if unlikely(zeroField) {
@@ -57,7 +58,19 @@ void FreeTrajectoryState::rescaleError(double factor) {
     }
   }
 }
+#else
+void FreeTrajectoryState::rescaleError(double factor) {
+  bool zeroField = parameters().magneticFieldInInverseGeV(GlobalPoint(0,0,0)).mag2()==0;
+  if unlikely(zeroField) {
+      if (theCurvilinearErrorValid) theCurvilinearError.zeroFieldScaling(factor*factor);
+  } else{
+    if (theCurvilinearErrorValid){
+      theCurvilinearError *= (factor*factor);
+    }
+  }
+}
 
+#endif
 
 // check if trajectory can reach given radius
 

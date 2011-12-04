@@ -54,6 +54,17 @@ public:
   {
   }
 
+
+  FreeTrajectoryState(const GlobalTrajectoryParameters& aGlobalParameters,
+                      const CurvilinearTrajectoryError& aCurvilinearError) :
+    theGlobalParameters(aGlobalParameters),
+    theCurvilinearError(aCurvilinearError),
+    theCartesianErrorValid(false),
+    theCurvilinearErrorValid(true)
+  {
+  }
+
+
 #ifdef ENABLE_CACHE_CARTESIAN
   FreeTrajectoryState(const GlobalTrajectoryParameters& aGlobalParameters,
                       const CartesianTrajectoryError& aCartesianError) :
@@ -71,14 +82,6 @@ public:
   { createCurvilinearError(aCartesianError);  }
 #endif
 
-  FreeTrajectoryState(const GlobalTrajectoryParameters& aGlobalParameters,
-                      const CurvilinearTrajectoryError& aCurvilinearError) :
-    theGlobalParameters(aGlobalParameters),
-    theCurvilinearError(aCurvilinearError),
-    theCartesianErrorValid(false),
-    theCurvilinearErrorValid(true)
-  {
-  }
 
 #ifdef ENABLE_CACHE_CARTESIAN
   FreeTrajectoryState(const GlobalTrajectoryParameters& aGlobalParameters,
@@ -101,6 +104,7 @@ public:
     theCurvilinearErrorValid(true)
   {
   }
+#endif
 
 // access
 // propagate access to parameters
@@ -138,7 +142,7 @@ public:
   const CartesianTrajectoryError& cartesianError() const {
     if unlikely(!hasError()) missingError();
     if  unlikely(!theCartesianErrorValid)
-      createCartesianError();
+      createCartesianError(theCartesianError);
     return theCartesianError;
   }
 
