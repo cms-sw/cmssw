@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_4_2/HIon/V45 (CMSSW_4_4_0_HLT21)
+# /dev/CMSSW_4_4_2/HIon/V46 (CMSSW_4_4_0_HLT22)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V45')
+  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V46')
 )
 
 process.streams = cms.PSet( 
@@ -8159,13 +8159,6 @@ if 'MessageLogger' in process.__dict__:
 # version specific customizations
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
-
-# from CMSSW_5_0_0_pre7: new ParticleFlow parameters
-if cmsswVersion > "CMSSW_5_0":
-    if 'hltParticleFlow' in process.__dict__:
-        hltParticleFlow.useBestMuonTrack = cms.bool ( False )
-    if 'hltParticleFlowForTaus' in process.__dict__:
-        hltParticleFlowForTaus.useBestMuonTrack = cms.bool ( False )
 
 # from CMSSW_5_0_0_pre6: ESSource -> ESProducer in JetMETCorrections/Modules
 if cmsswVersion > "CMSSW_5_0":

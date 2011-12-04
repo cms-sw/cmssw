@@ -1,11 +1,11 @@
-# /online/collisions/2011/5e33/v3.1/HLT/V5 (CMSSW_4_4_0_HLT21)
+# /online/collisions/2011/5e33/v3.1/HLT/V6 (CMSSW_4_4_0_HLT22)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/online/collisions/2011/5e33/v3.1/HLT/V5')
+  tableName = cms.string('/online/collisions/2011/5e33/v3.1/HLT/V6')
 )
 
 process.streams = cms.PSet( 
@@ -8694,6 +8694,7 @@ process.hltParticleFlow = cms.EDProducer( "PFProducer",
     postMuonCleaning = cms.bool( True ),
     usePFElectrons = cms.bool( False ),
     usePFPhotons = cms.bool( False ),
+    usePhotonReg = cms.bool( False ),
     useEGammaElectrons = cms.bool( False ),
     egammaElectrons = cms.InputTag( "" ),
     pf_electron_output_col = cms.string( "electrons" ),
@@ -8711,10 +8712,14 @@ process.hltParticleFlow = cms.EDProducer( "PFProducer",
     pf_electron_mvaCut = cms.double( -0.1 ),
     pf_electronID_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_PfElectrons23Jan_IntToFloat.txt" ),
     pf_electronID_crackCorrection = cms.bool( False ),
-    pf_convID_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_pfConversionFeb2311.txt" ),
+    pf_convID_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_pfConversionAug0411.txt" ),
     pf_conv_mvaCut = cms.double( 0.0 ),
     sumPtTrackIsoForPhoton = cms.double( -1.0 ),
     sumPtTrackIsoSlopeForPhoton = cms.double( -1.0 ),
+    pf_locC_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFClusterCorr.root" ),
+    pf_GlobC_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFGlobalCorr.root" ),
+    pf_Res_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFRes.root" ),
+    X0_Map = cms.string( "RecoParticleFlow/PFProducer/data/allX0histos.root" ),
     rejectTracks_Bad = cms.bool( False ),
     rejectTracks_Step45 = cms.bool( False ),
     usePFNuclearInteractions = cms.bool( False ),
@@ -8726,6 +8731,7 @@ process.hltParticleFlow = cms.EDProducer( "PFProducer",
     nsigma_TRACK = cms.double( 1.0 ),
     pt_Error = cms.double( 1.0 ),
     usePFMuonMomAssign = cms.bool( False ),
+    useBestMuonTrack = cms.bool( False ),
     postHFCleaning = cms.bool( False ),
     minHFCleaningPt = cms.double( 5.0 ),
     minSignificance = cms.double( 2.5 ),
@@ -9710,6 +9716,7 @@ process.hltParticleFlowForTaus = cms.EDProducer( "PFProducer",
     postMuonCleaning = cms.bool( True ),
     usePFElectrons = cms.bool( False ),
     usePFPhotons = cms.bool( False ),
+    usePhotonReg = cms.bool( False ),
     useEGammaElectrons = cms.bool( False ),
     egammaElectrons = cms.InputTag( "" ),
     pf_electron_output_col = cms.string( "electrons" ),
@@ -9727,10 +9734,14 @@ process.hltParticleFlowForTaus = cms.EDProducer( "PFProducer",
     pf_electron_mvaCut = cms.double( -0.1 ),
     pf_electronID_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_PfElectrons23Jan_IntToFloat.txt" ),
     pf_electronID_crackCorrection = cms.bool( False ),
-    pf_convID_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_pfConversionFeb2311.txt" ),
+    pf_convID_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_pfConversionAug0411.txt" ),
     pf_conv_mvaCut = cms.double( 0.0 ),
     sumPtTrackIsoForPhoton = cms.double( -1.0 ),
     sumPtTrackIsoSlopeForPhoton = cms.double( -1.0 ),
+    pf_locC_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFClusterCorr.root" ),
+    pf_GlobC_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFGlobalCorr.root" ),
+    pf_Res_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFRes.root" ),
+    X0_Map = cms.string( "RecoParticleFlow/PFProducer/data/allX0histos.root" ),
     rejectTracks_Bad = cms.bool( False ),
     rejectTracks_Step45 = cms.bool( False ),
     usePFNuclearInteractions = cms.bool( False ),
@@ -9742,6 +9753,7 @@ process.hltParticleFlowForTaus = cms.EDProducer( "PFProducer",
     nsigma_TRACK = cms.double( 1.0 ),
     pt_Error = cms.double( 1.0 ),
     usePFMuonMomAssign = cms.bool( False ),
+    useBestMuonTrack = cms.bool( False ),
     postHFCleaning = cms.bool( False ),
     minHFCleaningPt = cms.double( 5.0 ),
     minSignificance = cms.double( 2.5 ),
@@ -36737,13 +36749,6 @@ if 'MessageLogger' in process.__dict__:
 # version specific customizations
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
-
-# from CMSSW_5_0_0_pre7: new ParticleFlow parameters
-if cmsswVersion > "CMSSW_5_0":
-    if 'hltParticleFlow' in process.__dict__:
-        hltParticleFlow.useBestMuonTrack = cms.bool ( False )
-    if 'hltParticleFlowForTaus' in process.__dict__:
-        hltParticleFlowForTaus.useBestMuonTrack = cms.bool ( False )
 
 # from CMSSW_5_0_0_pre6: ESSource -> ESProducer in JetMETCorrections/Modules
 if cmsswVersion > "CMSSW_5_0":

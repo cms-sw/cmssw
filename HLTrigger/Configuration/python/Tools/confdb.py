@@ -184,13 +184,6 @@ cmsswVersion = os.environ['CMSSW_VERSION']
 """
 
     self.data += """
-# from CMSSW_5_0_0_pre7: new ParticleFlow parameters
-if cmsswVersion > "CMSSW_5_0":
-    if 'hltParticleFlow' in %(dict)s:
-        hltParticleFlow.useBestMuonTrack = cms.bool ( False )
-    if 'hltParticleFlowForTaus' in %(dict)s:
-        hltParticleFlowForTaus.useBestMuonTrack = cms.bool ( False )
-
 # from CMSSW_5_0_0_pre6: ESSource -> ESProducer in JetMETCorrections/Modules
 if cmsswVersion > "CMSSW_5_0":
     if 'hltESSAK5CaloL2L3' in %(dict)s:
