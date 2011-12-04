@@ -259,9 +259,9 @@ void FastTimerService::postEndJob() {
   } else if (m_enable_timing_paths and m_enable_timing_modules) {
     out << '\n';
 #ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
-    out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active   Overhead      Total  Path" << '\n';
-#else
     out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active   Pre-mods Inter-mods  Post-mods      Total  Path" << '\n';
+#else
+    out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active   Overhead      Total  Path" << '\n';
 #endif
     BOOST_FOREACH(std::string const & name, tns.getTrigPaths())
       out << "FastReport              "
@@ -277,9 +277,9 @@ void FastTimerService::postEndJob() {
           << name << '\n';
     out << '\n';
 #ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
-    out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active   Overhead      Total  Path" << '\n';
-#else
     out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active   Pre-mods Inter-mods  Post-mods      Total  Path" << '\n';
+#else
+    out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active   Overhead      Total  Path" << '\n';
 #endif
     BOOST_FOREACH(std::string const & name, tns.getEndPaths())
       out << "FastReport              "
