@@ -203,12 +203,17 @@ void FastTimerService::postBeginJob() {
       BOOST_FOREACH(PathMap<PathInfo>::value_type & keyval, m_paths) {
         std::string const & pathname = keyval.first;
         PathInfo          & pathinfo = keyval.second;
+#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
         pathinfo.dqm_premodules   = m_dqms->book1D(pathname + "_premodules",   pathname + " pre-modules overhead",   bins, 0., m_dqm_time_range)->getTH1F();
         pathinfo.dqm_premodules  ->StatOverflows(true);
         pathinfo.dqm_intermodules = m_dqms->book1D(pathname + "_intermodules", pathname + " inter-modules overhead", bins, 0., m_dqm_time_range)->getTH1F();
         pathinfo.dqm_intermodules->StatOverflows(true);
         pathinfo.dqm_postmodules  = m_dqms->book1D(pathname + "_postmodules",  pathname + " post-modules overhead",  bins, 0., m_dqm_time_range)->getTH1F();
         pathinfo.dqm_postmodules ->StatOverflows(true);
+#else
+        pathinfo.dqm_overhead     = m_dqms->book1D(pathname + "_overhead",     pathname + " overhead time",          bins, 0., m_dqm_time_range)->getTH1F();
+        pathinfo.dqm_overhead    ->StatOverflows(true);
+#endif
         pathinfo.dqm_total        = m_dqms->book1D(pathname + "_total",        pathname + " total time",             bins, 0., m_dqm_time_range)->getTH1F();
         pathinfo.dqm_total       ->StatOverflows(true);
       }
@@ -253,23 +258,39 @@ void FastTimerService::postEndJob() {
           << name << '\n';
   } else if (m_enable_timing_paths and m_enable_timing_modules) {
     out << '\n';
-    out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "   Pre-mods Inter-mods  Post-mods     Active      Total  Path" << '\n';
+#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
+    out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active   Overhead      Total  Path" << '\n';
+#else
+    out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active   Pre-mods Inter-mods  Post-mods      Total  Path" << '\n';
+#endif
     BOOST_FOREACH(std::string const & name, tns.getTrigPaths())
       out << "FastReport              "
+          << std::right << std::setw(10) << m_paths[name].summary_active        / (double) m_summary_events << " "
+#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
           << std::right << std::setw(10) << m_paths[name].summary_premodules    / (double) m_summary_events << " "
           << std::right << std::setw(10) << m_paths[name].summary_intermodules  / (double) m_summary_events << " "
           << std::right << std::setw(10) << m_paths[name].summary_postmodules   / (double) m_summary_events << " "
-          << std::right << std::setw(10) << m_paths[name].summary_active        / (double) m_summary_events << " "
+#else
+          << std::right << std::setw(10) << m_paths[name].summary_overhead      / (double) m_summary_events << "  "
+#endif
           << std::right << std::setw(10) << m_paths[name].summary_total         / (double) m_summary_events << "  "
           << name << '\n';
     out << '\n';
-    out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "   Pre-mods Inter-mods  Post-mods     Active      Total  EndPath" << '\n';
+#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
+    out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active   Overhead      Total  Path" << '\n';
+#else
+    out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active   Pre-mods Inter-mods  Post-mods      Total  Path" << '\n';
+#endif
     BOOST_FOREACH(std::string const & name, tns.getEndPaths())
       out << "FastReport              "
+          << std::right << std::setw(10) << m_paths[name].summary_active        / (double) m_summary_events << " "
+#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
           << std::right << std::setw(10) << m_paths[name].summary_premodules    / (double) m_summary_events << " "
           << std::right << std::setw(10) << m_paths[name].summary_intermodules  / (double) m_summary_events << " "
           << std::right << std::setw(10) << m_paths[name].summary_postmodules   / (double) m_summary_events << " "
-          << std::right << std::setw(10) << m_paths[name].summary_active        / (double) m_summary_events << " "
+#else
+          << std::right << std::setw(10) << m_paths[name].summary_overhead      / (double) m_summary_events << "  "
+#endif
           << std::right << std::setw(10) << m_paths[name].summary_total         / (double) m_summary_events << "  "
           << name << '\n';
   }
@@ -295,9 +316,11 @@ void FastTimerService::preProcessEvent(edm::EventID const & id, edm::Timestamp c
   m_all_endpaths = 0;
   BOOST_FOREACH(PathMap<PathInfo>::value_type & path, m_paths) {
     path.second.time_active       = 0.;
+#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
     path.second.time_premodules   = 0.;
     path.second.time_intermodules = 0.;
     path.second.time_postmodules  = 0.;
+#endif
     path.second.time_total        = 0.;
   }
   BOOST_FOREACH(ModuleMap<ModuleInfo>::value_type & module, m_modules) {
@@ -389,13 +412,18 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
 
     // measure the time spent between the execution of the last module and the end of the path
     if (m_enable_timing_modules) {
-      double post    = 0.;                // time spent after the last active module
-      double inter   = 0.;                // time spent between modules
-      double current = 0.;                // time spent in modules active in the current path
-      double other   = 0.;                // time spent in modules part of this path, but active in other paths
-      double total   = 0.;                // total per-path time, including modules already run as part of other paths
+#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
+      double pre      = 0.;                 // time spent before the first active module
+      double inter    = 0.;                 // time spent between active modules
+      double post     = 0.;                 // time spent after the last active module
+#else
+      double overhead = 0.;                 // time spent before, between, or after modules
+#endif
+      double current  = 0.;                 // time spent in modules active in the current path
+      double other    = 0.;                 // time spent in modules part of this path, but active in other paths
+      double total    = 0.;                 // total per-path time, including modules already run as part of other paths
 
-      size_t last_run = status.index();   // index of the last module run in this path
+      size_t last_run = status.index();     // index of the last module run in this path
       for (size_t i = 0; i <= last_run; ++i) {
         ModuleInfo * module = pathinfo.modules[i];
         if (module == 0)
@@ -409,34 +437,58 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
       }
 
       if (m_is_first_module) {
-        // no modules were active duruing this path, account all the time as "post-modules"
-        pathinfo.time_premodules = 0.;
-        if (m_dqms)
-          pathinfo.dqm_premodules ->Fill(0.);
-        post  = active;
-        inter = 0.;
+        // no modules were active duruing this path, account all the time as overhead
+#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
+        pre      = 0.;
+        inter    = 0.;
+        post     = active;
+#else
+        overhead = active;
+#endif
       } else {
-        // time spent after the last active module
-        post  = delta(m_timer_module.second, m_timer_path.second);
-        // time spent between modules
-        inter = active - pathinfo.time_premodules - current - post;
+        // extract overhead information
+#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
+        pre      = delta(m_timer_path.first, m_timer_first_module);
+        post     = delta(m_timer_module.second, m_timer_path.second);
+        inter    = active - pre - current - post;
+        // take care of numeric precision and rounding errors - the timer is less precise than nanosecond resolution
         if (std::abs(inter) < 1e-9)
-          // take care of numeric precision and rounding errors - the timer is less precise than nanosecond resolution
           inter = 0.;
+#else
+        overhead = active - current;
+        // take care of numeric precision and rounding errors - the timer is less precise than nanosecond resolution
+        if (std::abs(overhead) < 1e-9)
+          overhead = 0.;
+#endif
       }
       // total per-path time, including modules already run as part of other paths
       total = active + other;
 
+#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
+      pathinfo.time_premodules       = pre;
       pathinfo.time_intermodules     = inter;
       pathinfo.time_postmodules      = post;
+#else
+      pathinfo.time_overhead         = overhead;
+#endif
       pathinfo.time_total            = total;
+#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
+      pathinfo.summary_premodules   += pre;
       pathinfo.summary_intermodules += inter;
       pathinfo.summary_postmodules  += post;
+#else
+      pathinfo.summary_overhead     += overhead;
+#endif
       pathinfo.summary_total        += total;
       if (m_dqms) {
-        pathinfo.dqm_intermodules->Fill(inter * 1000.);   // convert to ms
-        pathinfo.dqm_postmodules ->Fill(post  * 1000.);   // convert to ms
-        pathinfo.dqm_total       ->Fill(total * 1000.);   // convert to ms
+#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
+        pathinfo.dqm_premodules  ->Fill(pre      * 1000.);      // convert to ms
+        pathinfo.dqm_intermodules->Fill(inter    * 1000.);      // convert to ms
+        pathinfo.dqm_postmodules ->Fill(post     * 1000.);      // convert to ms
+#else
+        pathinfo.dqm_overhead    ->Fill(overhead * 1000.);      // convert to ms
+#endif
+        pathinfo.dqm_total       ->Fill(total    * 1000.);      // convert to ms
       }
     }
   }
@@ -463,18 +515,30 @@ void FastTimerService::preModule(edm::ModuleDescription const & module) {
   // this is ever called only if m_enable_timing_modules = true
   assert(m_enable_timing_modules);
 
+#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
   // time each module
   start(m_timer_module);
 
   if (m_is_first_module) {
-    // measure the time spent between the beginning of the path and the execution of the first module
     m_is_first_module = false;
-    double time = delta(m_timer_path.first, m_timer_module.first);
-    m_current_path->time_premodules     = time;
-    m_current_path->summary_premodules += time;
-    if (m_dqms)
-      m_current_path->dqm_premodules->Fill(time * 1000.);       // convert to ms
+
+    // measure the time spent between the beginning of the path and the execution of the first module
+    m_timer_first_module = m_timer_module.first;
+  } 
+#else
+  if (m_is_first_module) {
+    m_is_first_module = false;
+
+    // track the start of the first module of the path
+    start(m_timer_module);
+
+    // measure the time spent between the beginning of the path and the execution of the first module
+    m_timer_first_module = m_timer_module.first;
+  } else {
+    // use the end time of the previous module (assume no inter-module overhead)
+    m_timer_module.first = m_timer_module.second;
   }
+#endif
 }
 
 void FastTimerService::postModule(edm::ModuleDescription const & module) {

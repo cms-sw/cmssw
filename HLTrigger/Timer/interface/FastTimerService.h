@@ -144,38 +144,56 @@ private:
   struct PathInfo {
     std::vector<ModuleInfo *>   modules;
     double                      time_active;
+#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
     double                      time_premodules;
     double                      time_intermodules;
     double                      time_postmodules;
+#endif // FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
+    double                      time_overhead;
     double                      time_total;
     double                      summary_active;
+#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
     double                      summary_premodules;
     double                      summary_intermodules;
     double                      summary_postmodules;
+#endif // FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
+    double                      summary_overhead;
     double                      summary_total;
     TH1F *                      dqm_active;
+#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
     TH1F *                      dqm_premodules;
     TH1F *                      dqm_intermodules;
     TH1F *                      dqm_postmodules;
+#endif // FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
+    TH1F *                      dqm_overhead;
     TH1F *                      dqm_total;
 
   public:
     PathInfo() :
       modules(),
       time_active(0.),
+#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
       time_premodules(0.),
       time_intermodules(0.),
       time_postmodules(0.),
+#endif // FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
+      time_overhead(0.),
       time_total(0.),
       summary_active(0.),
+#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
       summary_premodules(0.),
       summary_intermodules(0.),
       summary_postmodules(0.),
+#endif // FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
+      summary_overhead(0.),
       summary_total(0.),
       dqm_active(0),
+#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
       dqm_premodules(0),
       dqm_intermodules(0),
       dqm_postmodules(0),
+#endif // FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
+      dqm_overhead(0),
       dqm_total(0)
     { }
   };
@@ -238,6 +256,7 @@ private:
   std::pair<struct timespec, struct timespec>   m_timer_endpaths;       // track time spent in all endpaths
   std::pair<struct timespec, struct timespec>   m_timer_path;           // track time spent in each path
   std::pair<struct timespec, struct timespec>   m_timer_module;         // track time spent in each module
+  struct timespec                               m_timer_first_module;   // record the start of the first active module in a path, if any
 
   void gettime(struct timespec & stamp)
   {
