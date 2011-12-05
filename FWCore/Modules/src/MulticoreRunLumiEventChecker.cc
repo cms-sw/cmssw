@@ -43,6 +43,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <errno.h>
+#include <stdio.h>
 
 #include <boost/thread/thread.hpp>
 //
