@@ -8,7 +8,7 @@
 #include <iosfwd>
 
 class DDExpandedView;
-class DDPosData;
+struct DDPosData;
 
 //! represents one node in the DDExpandedView
 class DDExpandedNode

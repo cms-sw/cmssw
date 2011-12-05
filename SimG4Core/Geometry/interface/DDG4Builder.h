@@ -14,7 +14,7 @@
  
 #include "boost/signals.hpp"
 
-class DDPosData;
+struct DDPosData;
 class DDG4SolidConverter;
 class G4LogicalVolume;
 class G4VPhysicalVolume;

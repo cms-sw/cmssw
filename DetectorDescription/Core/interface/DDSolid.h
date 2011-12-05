@@ -15,7 +15,7 @@ namespace DDI { class Reflection; }
 namespace DDI { class BooleanSolid; }
 
 class DDSolid;
-class DDSolidFactory;
+struct DDSolidFactory;
 class DDStreamer;
 
 std::ostream & operator<<( std::ostream &, const DDSolid & );
@@ -35,7 +35,7 @@ std::ostream & operator<<( std::ostream &, const DDSolid & );
 class DDSolid : public DDBase<DDName, DDI::Solid*>
 {
   friend std::ostream & operator<<( std::ostream &, const DDSolid & );
-  friend class DDSolidFactory;
+  friend struct DDSolidFactory;
   friend class DDDToPersFactory;
   friend class DDPersToDDDFactory;
   friend class DDStreamer;
