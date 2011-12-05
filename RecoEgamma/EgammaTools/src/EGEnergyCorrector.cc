@@ -1,4 +1,4 @@
-// $Id: EGEnergyCorrector.cc,v 1.3 2011/12/03 13:39:47 bendavid Exp $
+// $Id: EGEnergyCorrector.cc,v 1.4 2011/12/03 18:31:17 bendavid Exp $
 
 #include <TFile.h>
 #include "../interface/EGEnergyCorrector.h"
@@ -431,6 +431,10 @@ std::pair<double,double> EGEnergyCorrector::CorrectedEnergyWithErrorV2(const Gsf
   
   //apply v2 regression to electrons
   //mostly duplicated from photon function above //TODO, make common underlying function
+  
+  //protection, this doesn't work properly on non-egamma-seeded electrons
+  if (!e.ecalDrivenSeed()) return std::pair<double,double>(0.,0.);
+  
   
   const SuperClusterRef s = e.superCluster();
   const CaloClusterPtr b = s->seed();
