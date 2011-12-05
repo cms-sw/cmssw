@@ -168,7 +168,9 @@ namespace {
   std::vector<std::string> dummy5;
   std::vector<std::string>::iterator itstring;
   std::vector<std::vector<double> > v_v_d;
-  std::vector<std::vector<int> > dummy4v;
+  std::vector<std::vector<float> > v_v_f;
+  std::vector<std::vector<int> > v_v_i;
+  std::vector<std::vector<short> > v_v_s;
   std::vector<std::vector<std::pair<int,double> > > v_v_p_i_d;
   std::vector<std::vector<std::vector<int> > > dummy16_6;
   std::vector<std::vector<unsigned int> > dummy2v;
