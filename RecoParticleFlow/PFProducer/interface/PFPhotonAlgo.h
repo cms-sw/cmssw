@@ -44,9 +44,9 @@ class PFPhotonAlgo {
   ~PFPhotonAlgo(){delete tmvaReader_;   };
 
   void setGBRForest(const GBRForest *LCorrForest,
-		 const GBRForest *GCorrForest,
-		 const GBRForest *ResForest
-		 )
+		    const GBRForest *GCorrForest,
+		    const GBRForest *ResForest
+		    )
   {
     ReaderLC_=LCorrForest;
     ReaderGC_=GCorrForest;

@@ -206,12 +206,11 @@ void PFAlgo::setPFPhotonRegWeights(
 		  const GBRForest *LCorrForest,
 		  const GBRForest *GCorrForest,
 		  const GBRForest *ResForest
-		  
-		  )
-{
-  pfpho_->setGBRForest(LCorrForest, GCorrForest, ResForest);
-  
+		  ) {								
+  if(usePFPhotons_) 
+    pfpho_->setGBRForest(LCorrForest, GCorrForest, ResForest);
 } 
+
 void 
 PFAlgo::setPFMuonAndFakeParameters(std::vector<double> muonHCAL,
 				   std::vector<double> muonECAL,

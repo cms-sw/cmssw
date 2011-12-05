@@ -429,7 +429,8 @@ PFProducer::beginRun(edm::Run & run,
     LogDebug("PFProducer")<<"setting regressions from DB "<<endl;
   } 
 
-  pfAlgo_->setPFPhotonRegWeights(ReaderLC_, ReaderGC_, ReaderRes_);
+  if(usePFPhotons_)
+    pfAlgo_->setPFPhotonRegWeights(ReaderLC_, ReaderGC_, ReaderRes_);
 
 }
 
