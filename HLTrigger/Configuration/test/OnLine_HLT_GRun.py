@@ -1,11 +1,11 @@
-# /online/collisions/2011/5e33/v3.1/HLT/V6 (CMSSW_4_4_0_HLT22)
+# /online/collisions/2011/5e33/v3.1/HLT/V7 (CMSSW_4_4_0_HLT23)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/online/collisions/2011/5e33/v3.1/HLT/V6')
+  tableName = cms.string('/online/collisions/2011/5e33/v3.1/HLT/V7')
 )
 
 process.streams = cms.PSet( 
@@ -8695,6 +8695,7 @@ process.hltParticleFlow = cms.EDProducer( "PFProducer",
     usePFElectrons = cms.bool( False ),
     usePFPhotons = cms.bool( False ),
     usePhotonReg = cms.bool( False ),
+    useRegressionFromDB = cms.bool( False ),
     useEGammaElectrons = cms.bool( False ),
     egammaElectrons = cms.InputTag( "" ),
     pf_electron_output_col = cms.string( "electrons" ),
@@ -9717,6 +9718,7 @@ process.hltParticleFlowForTaus = cms.EDProducer( "PFProducer",
     usePFElectrons = cms.bool( False ),
     usePFPhotons = cms.bool( False ),
     usePhotonReg = cms.bool( False ),
+    useRegressionFromDB = cms.bool( False ),
     useEGammaElectrons = cms.bool( False ),
     egammaElectrons = cms.InputTag( "" ),
     pf_electron_output_col = cms.string( "electrons" ),

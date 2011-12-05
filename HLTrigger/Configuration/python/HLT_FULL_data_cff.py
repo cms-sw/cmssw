@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_4_2/HLT/V119 (CMSSW_4_4_0_HLT22)
+# /dev/CMSSW_4_4_2/HLT/V120 (CMSSW_4_4_0_HLT23)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/HLT/V119')
+  tableName = cms.string('/dev/CMSSW_4_4_2/HLT/V120')
 )
 
 streams = cms.PSet( 
@@ -8361,6 +8361,7 @@ hltParticleFlow = cms.EDProducer( "PFProducer",
     usePFElectrons = cms.bool( False ),
     usePFPhotons = cms.bool( False ),
     usePhotonReg = cms.bool( False ),
+    useRegressionFromDB = cms.bool( False ),
     useEGammaElectrons = cms.bool( False ),
     egammaElectrons = cms.InputTag( "" ),
     pf_electron_output_col = cms.string( "electrons" ),
@@ -9383,6 +9384,7 @@ hltParticleFlowForTaus = cms.EDProducer( "PFProducer",
     usePFElectrons = cms.bool( False ),
     usePFPhotons = cms.bool( False ),
     usePhotonReg = cms.bool( False ),
+    useRegressionFromDB = cms.bool( False ),
     useEGammaElectrons = cms.bool( False ),
     egammaElectrons = cms.InputTag( "" ),
     pf_electron_output_col = cms.string( "electrons" ),
