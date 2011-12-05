@@ -160,7 +160,7 @@
   <field name="substitutionSrfs_" mapping="blob" />
 </class>
 
-<class pattern = "EcalCondObjectContainer*">
+<class pattern = "EcalCondObjectContainer<*>">
    <field name = "eb_" mapping = "blob"/>
    <field name = "ee_" mapping = "blob"/>
 </class>
