@@ -253,6 +253,8 @@ private:
   PathMap<PathInfo>                             m_paths;
   ModuleMap<ModuleInfo>                         m_modules;              // this assumes that ModuleDescription are stored in the same object through the whole job,
                                                                         // which is true only *after* the edm::Worker constructors have run
+  std::vector<PathInfo *>                       m_cache_paths;
+  std::vector<ModuleInfo *>                     m_cache_modules;
 
 
   // timers

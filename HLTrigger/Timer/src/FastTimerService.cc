@@ -79,7 +79,9 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   // per-path and per-module accounting
   m_current_path(0),
   m_paths(),
-  m_modules()
+  m_modules(),
+  m_cache_paths(),
+  m_cache_modules()
 {
   registry.watchPostBeginJob(      this, & FastTimerService::postBeginJob );
   registry.watchPostEndJob(        this, & FastTimerService::postEndJob );
@@ -117,12 +119,23 @@ void FastTimerService::postBeginJob() {
   BOOST_FOREACH(std::string const & name, tns.getEndPaths())
     m_paths[name];
 
+  // cache all pathinfo objects
+  if (m_enable_timing_paths) {
+    m_cache_paths.reserve(m_paths.size());
+    BOOST_FOREACH(PathMap<PathInfo>::value_type & keyval, m_paths)
+      m_cache_paths.push_back(& keyval.second);
+  }
+
   // associate to each path all the modules it contains
-  if (m_enable_timing_modules) {
+  if (m_enable_timing_paths and m_enable_timing_modules) {
     for (size_t i = 0; i < tns.getTrigPaths().size(); ++i)
       fillPathMap( tns.getTrigPath(i), tns.getTrigPathModules(i) );
     for (size_t i = 0; i < tns.getEndPaths().size(); ++i)
       fillPathMap( tns.getEndPath(i), tns.getEndPathModules(i) );
+    // cache all moduleinfo objects
+    m_cache_modules.reserve(m_modules.size());
+    BOOST_FOREACH(ModuleMap<ModuleInfo>::value_type & keyval, m_modules)
+      m_cache_modules.push_back(& keyval.second);
   }
 
   if (m_enable_dqm)
@@ -294,20 +307,19 @@ void FastTimerService::preProcessEvent(edm::EventID const & id, edm::Timestamp c
 
   // clear the event counters
   m_event        = 0;
-  m_source       = 0;
   m_all_paths    = 0;
   m_all_endpaths = 0;
-  BOOST_FOREACH(PathMap<PathInfo>::value_type & path, m_paths) {
-    path.second.time_active       = 0.;
+  BOOST_FOREACH(PathInfo * path, m_cache_paths) {
+    path->time_active       = 0.;
 #ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
-    path.second.time_premodules   = 0.;
-    path.second.time_intermodules = 0.;
-    path.second.time_postmodules  = 0.;
+    path->time_premodules   = 0.;
+    path->time_intermodules = 0.;
+    path->time_postmodules  = 0.;
 #endif
-    path.second.time_total        = 0.;
+    path->time_total        = 0.;
   }
-  BOOST_FOREACH(ModuleMap<ModuleInfo>::value_type & module, m_modules) {
-    module.second.time_active     = 0.;
+  BOOST_FOREACH(ModuleInfo * module, m_cache_modules) {
+    module->time_active     = 0.;
   }
 }
 
@@ -322,6 +334,9 @@ void FastTimerService::postProcessEvent(edm::Event const & event, edm::EventSetu
 
 void FastTimerService::preSource() {
   start(m_timer_source);
+
+  // clear the event counters
+  m_source = 0;
 
   // keep track of the total number of events
   ++m_summary_events;
