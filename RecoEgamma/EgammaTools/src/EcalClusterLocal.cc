@@ -22,7 +22,16 @@ EcalClusterLocal::~EcalClusterLocal()
 void EcalClusterLocal::localCoordsEB( const reco::BasicCluster &bclus, const edm::EventSetup &es, float &etacry, float &phicry, int &ieta, int &iphi, float &thetatilt, float &phitilt) const
 {
   
-  assert(bclus.hitsAndFractions().at(0).first.subdetId()==EcalBarrel);
+  if (bclus.hitsAndFractions().at(0).first.subdetId()!=EcalBarrel) {
+    etacry = 0.;
+    phicry = 0.;
+    ieta = 0;
+    iphi = 0;
+    thetatilt = 0.;
+    phitilt = 0.;
+    
+    return;
+  }
   
   edm::ESHandle<CaloGeometry> pG;
   es.get<CaloGeometryRecord>().get(pG); 
@@ -91,8 +100,17 @@ void EcalClusterLocal::localCoordsEB( const reco::BasicCluster &bclus, const edm
 
 void EcalClusterLocal::localCoordsEE( const reco::BasicCluster &bclus, const edm::EventSetup &es, float &xcry, float &ycry, int &ix, int &iy, float &thetatilt, float &phitilt) const
 {
-  
-  assert(bclus.hitsAndFractions().at(0).first.subdetId()==EcalEndcap);
+    
+  if (bclus.hitsAndFractions().at(0).first.subdetId()!=EcalEndcap) {
+    xcry = 0.;
+    ycry = 0.;
+    ix = 0;
+    iy = 0;
+    thetatilt = 0.;
+    phitilt = 0.;
+    
+    return;
+  }  
   
   edm::ESHandle<CaloGeometry> pG;
   es.get<CaloGeometryRecord>().get(pG); 
