@@ -548,12 +548,20 @@ void FastTimerService::postModule(edm::ModuleDescription const & module) {
 
 // find the module description associated to a module, by label
 edm::ModuleDescription const * FastTimerService::findModuleDescription(const std::string & label) const {
+  // no descriptions are associated to an empty label
+  if (label.empty())
+    return 0;
+
+  // fix the name of negated or ignored modules
+  std::string const & target = (label[0] == '!' or label[0] == '-') ? label.substr(1) : label;
+
   BOOST_FOREACH(ModuleMap<ModuleInfo>::value_type const & keyval, m_modules) {
     if (keyval.first == 0) {
       // this should never happen, but it would cause a segmentation fault to insert a null pointer in the path map, se we explicitly check for it and skip it
+      edm::LogError("FastTimerService") << "FastTimerService::findModuleDescription: invalid entry detected in ModuleMap<ModuleInfo> m_modules, skipping";
       continue;
     }
-    if (keyval.first->moduleLabel() == label) {
+    if (keyval.first->moduleLabel() == target) {
       return keyval.first;
     }
   }
@@ -566,23 +574,17 @@ void FastTimerService::fillPathMap(std::string const & name, std::vector<std::st
   std::vector<ModuleInfo *> & pathmap = m_paths[name].modules;
   pathmap.reserve( modules.size() );
   std::tr1::unordered_set<edm::ModuleDescription const *> pool;        // keep track of inserted modules
-  std::cerr << name << std::endl;
   BOOST_FOREACH( std::string const & module, modules) {
-    std::cerr << '\t' << "(\?\?\?) " << module << std::endl;
     edm::ModuleDescription const * md = findModuleDescription(module);
     if (md == 0) {
       // no matching module was found
       pathmap.push_back( 0 );
-      std::cerr << '\t' << "      " << "(not found)" << std::endl;
-    } else
-    if (pool.insert(md).second) {
+    } else if (pool.insert(md).second) {
       // new module
       pathmap.push_back( & m_modules[md] );
-      std::cerr << '\t' << "      " << md->moduleLabel() << std::endl;
     } else {
       // duplicate module
       pathmap.push_back( 0 );
-      std::cerr << '\t' << "(dup) " << md->moduleLabel() << std::endl;
     }
   }
 }
