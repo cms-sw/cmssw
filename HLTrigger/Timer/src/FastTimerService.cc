@@ -540,19 +540,16 @@ void FastTimerService::postModule(edm::ModuleDescription const & module) {
 
 // find the module description associated to a module, by label
 edm::ModuleDescription const * FastTimerService::findModuleDescription(const std::string & label) const {
-  //std::cerr << "*** looking for module label: " << label << std::endl;
   BOOST_FOREACH(ModuleMap<ModuleInfo>::value_type const & keyval, m_modules) {
     if (keyval.first == 0) {
-      std::cerr << "*** found invalid entry in ModuleMap, skipping" << std::endl;
+      // this should never happen, but it would cause a segmentation fault to insert a null pointer in the path map, se we explicitly check for it and skip it
       continue;
     }
     if (keyval.first->moduleLabel() == label) {
-      //std::cerr << "*** found at " << keyval.first << std::endl;
       return keyval.first;
     }
   }
   // not found
-  //std::cerr << "*** no matching entry found" << std::endl;
   return 0;
 }
 
