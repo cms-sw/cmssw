@@ -303,6 +303,9 @@ private:
   // find the module description associated to a module, by name
   edm::ModuleDescription const * findModuleDescription(const std::string & module) const;
 
+  // associate to a path all the modules it contains
+  void fillPathMap(std::string const & name, std::vector<std::string> const & modules);
+
 };
 
 #endif // ! FastTimerService_h

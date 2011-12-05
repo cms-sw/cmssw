@@ -117,43 +117,12 @@ void FastTimerService::postBeginJob() {
   BOOST_FOREACH(std::string const & name, tns.getEndPaths())
     m_paths[name];
 
-  // fill pathmap
+  // associate to each path all the modules it contains
   if (m_enable_timing_modules) {
-    for (size_t i = 0; i < tns.getTrigPaths().size(); ++i) {
-      std::string              const & name    = tns.getTrigPath(i);
-      std::vector<std::string> const & modules = tns.getTrigPathModules(i);
-      std::vector<ModuleInfo *>      & pathmap = m_paths[name].modules;
-      pathmap.reserve( modules.size() );
-      std::tr1::unordered_set<edm::ModuleDescription const *> pool;        // keep track of modules already inserted
-      BOOST_FOREACH( std::string const & module, modules) {
-        edm::ModuleDescription const * md = findModuleDescription(module);
-        if (pool.insert(md).second) {
-          // new module
-          pathmap.push_back( & m_modules[md] );
-        } else {
-          // duplicate module
-          pathmap.push_back( 0 );
-        }
-      }
-    }
-    for (size_t i = 0; i < tns.getEndPaths().size(); ++i) {
-      std::string              const & name    = tns.getEndPath(i);
-      std::vector<std::string> const & modules = tns.getEndPathModules(i);
-      std::vector<ModuleInfo *>      & pathmap = m_paths[name].modules;
-      pathmap.reserve( modules.size() );
-      std::tr1::unordered_set<edm::ModuleDescription const *> pool;        // keep track of modules already inserted
-      BOOST_FOREACH( std::string const & module, modules) {
-        edm::ModuleDescription const * md = findModuleDescription(module);
-        if (pool.insert(md).second) {
-          // new module
-          pathmap.push_back( & m_modules[md] );
-        } else {
-          // duplicate module
-          pathmap.push_back( 0 );
-        }
-      }
-    }
-
+    for (size_t i = 0; i < tns.getTrigPaths().size(); ++i)
+      fillPathMap( tns.getTrigPath(i), tns.getTrigPathModules(i) );
+    for (size_t i = 0; i < tns.getEndPaths().size(); ++i)
+      fillPathMap( tns.getEndPath(i), tns.getEndPathModules(i) );
   }
 
   if (m_enable_dqm)
@@ -571,13 +540,47 @@ void FastTimerService::postModule(edm::ModuleDescription const & module) {
 
 // find the module description associated to a module, by label
 edm::ModuleDescription const * FastTimerService::findModuleDescription(const std::string & label) const {
-  BOOST_FOREACH(ModuleMap<ModuleInfo>::value_type const & keyval, m_modules)
-    if (keyval.first->moduleLabel() == label)
+  //std::cerr << "*** looking for module label: " << label << std::endl;
+  BOOST_FOREACH(ModuleMap<ModuleInfo>::value_type const & keyval, m_modules) {
+    if (keyval.first == 0) {
+      std::cerr << "*** found invalid entry in ModuleMap, skipping" << std::endl;
+      continue;
+    }
+    if (keyval.first->moduleLabel() == label) {
+      //std::cerr << "*** found at " << keyval.first << std::endl;
       return keyval.first;
+    }
+  }
   // not found
+  //std::cerr << "*** no matching entry found" << std::endl;
   return 0;
 }
 
+// associate to a path all the modules it contains
+void FastTimerService::fillPathMap(std::string const & name, std::vector<std::string> const & modules) {
+  std::vector<ModuleInfo *> & pathmap = m_paths[name].modules;
+  pathmap.reserve( modules.size() );
+  std::tr1::unordered_set<edm::ModuleDescription const *> pool;        // keep track of inserted modules
+  std::cerr << name << std::endl;
+  BOOST_FOREACH( std::string const & module, modules) {
+    std::cerr << '\t' << "(\?\?\?) " << module << std::endl;
+    edm::ModuleDescription const * md = findModuleDescription(module);
+    if (md == 0) {
+      // no matching module was found
+      pathmap.push_back( 0 );
+      std::cerr << '\t' << "      " << "(not found)" << std::endl;
+    } else
+    if (pool.insert(md).second) {
+      // new module
+      pathmap.push_back( & m_modules[md] );
+      std::cerr << '\t' << "      " << md->moduleLabel() << std::endl;
+    } else {
+      // duplicate module
+      pathmap.push_back( 0 );
+      std::cerr << '\t' << "(dup) " << md->moduleLabel() << std::endl;
+    }
+  }
+}
 
 // declare FastTimerService as a framework Service
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
