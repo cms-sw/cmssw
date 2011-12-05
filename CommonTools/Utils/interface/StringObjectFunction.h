@@ -4,12 +4,13 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: StringObjectFunction.h,v 1.1 2009/02/24 14:10:19 llista Exp $
+ * $Id: StringObjectFunction.h,v 1.2 2009/07/09 10:47:23 gpetrucc Exp $
  */
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "CommonTools/Utils/src/ExpressionPtr.h"
 #include "CommonTools/Utils/src/ExpressionBase.h"
 #include "CommonTools/Utils/interface/expressionParser.h"
+#include "Reflex/Object.h"
 
 template<typename T, bool DefaultLazyness=false>
 struct StringObjectFunction {
