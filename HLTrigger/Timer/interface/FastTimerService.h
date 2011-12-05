@@ -148,24 +148,27 @@ private:
     double                      time_premodules;
     double                      time_intermodules;
     double                      time_postmodules;
-#endif // FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
+#else
     double                      time_overhead;
+#endif
     double                      time_total;
     double                      summary_active;
 #ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
     double                      summary_premodules;
     double                      summary_intermodules;
     double                      summary_postmodules;
-#endif // FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
+#else
     double                      summary_overhead;
+#endif
     double                      summary_total;
     TH1F *                      dqm_active;
 #ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
     TH1F *                      dqm_premodules;
     TH1F *                      dqm_intermodules;
     TH1F *                      dqm_postmodules;
-#endif // FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
+#else
     TH1F *                      dqm_overhead;
+#endif
     TH1F *                      dqm_total;
 
   public:
@@ -176,24 +179,27 @@ private:
       time_premodules(0.),
       time_intermodules(0.),
       time_postmodules(0.),
-#endif // FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
+#else
       time_overhead(0.),
+#endif
       time_total(0.),
       summary_active(0.),
 #ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
       summary_premodules(0.),
       summary_intermodules(0.),
       summary_postmodules(0.),
-#endif // FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
+#else
       summary_overhead(0.),
+#endif
       summary_total(0.),
       dqm_active(0),
 #ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
       dqm_premodules(0),
       dqm_intermodules(0),
       dqm_postmodules(0),
-#endif // FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
+#else
       dqm_overhead(0),
+#endif
       dqm_total(0)
     { }
   };
