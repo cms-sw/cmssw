@@ -5,7 +5,7 @@
 // 
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.48 2010/07/20 19:31:39 wmtan Exp $
+// $Id: DataCertificationJetMET.cc,v 1.49 2010/09/28 15:42:41 sturdy Exp $
 //
 
 #include "DQMOffline/JetMET/interface/DataCertificationJetMET.h"
@@ -847,16 +847,16 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   //----------------------------------------------------------------------------
   //--- Extract quality test results and fill data certification results for MET
   //----------------------------------------------------------------------------
-
-  float qr_CT_Occ[3] = {-2.};
+  // Commenting out unused but initialized variables. [Suchandra Dutta]
+  //  float qr_CT_Occ[3] = {-2.};
   float dc_CT[3]     = {-2.};
   dc_CT[0]  = -2.;
   dc_CT[1]  = -2.;
   dc_CT[2]  = -2.;
 
-  qr_CT_Occ[0]  = dc_CT[0];
-  qr_CT_Occ[1]  = dc_CT[1];
-  qr_CT_Occ[2]  = dc_CT[2];
+  //  qr_CT_Occ[0]  = dc_CT[0];
+  //  qr_CT_Occ[1]  = dc_CT[1];
+  //  qr_CT_Occ[2]  = dc_CT[2];
 
   for (int cttyp = 0; cttyp < 3; ++cttyp) {
     

@@ -149,7 +149,8 @@ void SUSYDQMAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSet
 void SUSYDQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   //std::cout<<"here 7!"<<std::endl;
-  EventID TheEvent = iEvent.id();
+  // Commenting out unused but initialized variables. [Suchandra Dutta]
+//  EventID TheEvent = iEvent.id();
   //int BXN = iEvent.bunchCrossing() ;
   //bool Dump = TextFileName.size();
   //int TheEventNumber = TheEvent.event();
