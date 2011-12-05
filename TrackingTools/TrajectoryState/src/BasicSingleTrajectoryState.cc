@@ -265,10 +265,10 @@ void BasicSingleTrajectoryState::createLocalParameters() const {
 }
 
 void BasicSingleTrajectoryState::createLocalError() const {
-  if(theFreeState->hasCartesianError())
-    createLocalErrorFromCartesianError();
-  else if(theFreeState->hasCurvilinearError())
+  if(theFreeState->hasCurvilinearError())
     createLocalErrorFromCurvilinearError();
+  else if(theFreeState->hasCartesianError())
+    createLocalErrorFromCartesianError();
   else
     theLocalErrorValid = false;
 }
@@ -368,7 +368,7 @@ BasicSingleTrajectoryState::freeTrajectoryState(bool withErrors) const {
   checkGlobalParameters();
   //if(hasError()) { // let's start like this to see if we alloc less
   if(withErrors && hasError()) { // this is the right thing
-    checkCartesianError();
+    // checkCartesianError();
     checkCurvilinError();
   }
   return &(*theFreeState);
