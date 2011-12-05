@@ -210,8 +210,14 @@ void FastTimerService::postEndJob() {
   out << "FastReport              " << std::right << std::setw(10) << m_summary_event        / (double) m_summary_events << "  Event"         << '\n';
   out << "FastReport              " << std::right << std::setw(10) << m_summary_all_paths    / (double) m_summary_events << "  all Paths"     << '\n';
   out << "FastReport              " << std::right << std::setw(10) << m_summary_all_endpaths / (double) m_summary_events << "  all EndPaths"  << '\n';
+  if (m_enable_timing_modules) {
+    double modules_total = 0.;
+    BOOST_FOREACH(ModuleMap<ModuleInfo>::value_type & keyval, m_modules)
+      modules_total += keyval.second.summary_active;
+    out << "FastReport              " << std::right << std::setw(10) << modules_total          / (double) m_summary_events << "  all Modules"   << '\n';
+  }
+  out << '\n';
   if (m_enable_timing_paths and not m_enable_timing_modules) {
-    out << '\n';
     out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active Path" << '\n';
     BOOST_FOREACH(std::string const & name, tns.getTrigPaths())
       out << "FastReport              "
@@ -224,7 +230,6 @@ void FastTimerService::postEndJob() {
           << std::right << std::setw(10) << m_paths[name].summary_active  / (double) m_summary_events << "  "
           << name << '\n';
   } else if (m_enable_timing_paths and m_enable_timing_modules) {
-    out << '\n';
 #ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
     out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active   Pre-mods Inter-mods  Post-mods      Total  Path" << '\n';
 #else
@@ -262,13 +267,16 @@ void FastTimerService::postEndJob() {
           << name << '\n';
   }
   out << '\n';
-  out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
-  BOOST_FOREACH(ModuleMap<ModuleInfo>::value_type & keyval, m_modules) {
-    std::string const & label  = keyval.first->moduleLabel();
-    ModuleInfo  const & module = keyval.second;
-    out << "FastReport              " << std::right << std::setw(10) << module.summary_active  / (double) m_summary_events << "  " << label << '\n';
+  if (m_enable_timing_modules) {
+    out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
+    BOOST_FOREACH(ModuleMap<ModuleInfo>::value_type & keyval, m_modules) {
+      std::string const & label  = keyval.first->moduleLabel();
+      ModuleInfo  const & module = keyval.second;
+      out << "FastReport              " << std::right << std::setw(10) << module.summary_active  / (double) m_summary_events << "  " << label << '\n';
+    }
+    out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
   }
-  out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
+  out << '\n';
   edm::LogVerbatim("FastReport") << out.str();
 }
 
