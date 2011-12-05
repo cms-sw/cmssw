@@ -157,31 +157,34 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   double mvaConvCut=-99.;
   double sumPtTrackIsoForPhoton = 99.;
   double sumPtTrackIsoSlopeForPhoton = 99.;
-  if(usePFPhotons_ && !useRegressionFromDB_)
+
+  if(usePFPhotons_ )
     {
       mvaWeightFileConvID =iConfig.getParameter<string>("pf_convID_mvaWeightFile");
-      
       mvaConvCut = iConfig.getParameter<double>("pf_conv_mvaCut");
       path_mvaWeightFileConvID = edm::FileInPath ( mvaWeightFileConvID.c_str() ).fullPath();  
-      
       sumPtTrackIsoForPhoton = iConfig.getParameter<double>("sumPtTrackIsoForPhoton");
       sumPtTrackIsoSlopeForPhoton = iConfig.getParameter<double>("sumPtTrackIsoSlopeForPhoton");
-      string mvaWeightFileLCorr=iConfig.getParameter<string>("pf_locC_mvaWeightFile");
-      path_mvaWeightFileLCorr = edm::FileInPath( mvaWeightFileLCorr.c_str() ).fullPath();
-      string mvaWeightFileGCorr=iConfig.getParameter<string>("pf_GlobC_mvaWeightFile");
-      path_mvaWeightFileGCorr = edm::FileInPath( mvaWeightFileGCorr.c_str() ).fullPath();
-      string mvaWeightFileRes=iConfig.getParameter<string>("pf_Res_mvaWeightFile");
-      path_mvaWeightFileRes=edm::FileInPath(mvaWeightFileRes.c_str()).fullPath();
+
       string X0_Map=iConfig.getParameter<string>("X0_Map");
       path_X0_Map = edm::FileInPath( X0_Map.c_str() ).fullPath();
-      
-      TFile *fgbr = new TFile(path_mvaWeightFileGCorr.c_str(),"READ");
-      ReaderGC_  =(const GBRForest*)fgbr->Get("GBRForest");
-      TFile *fgbr2 = new TFile(path_mvaWeightFileLCorr.c_str(),"READ");
-      ReaderLC_  = (const GBRForest*)fgbr2->Get("GBRForest");
-      TFile *fgbr3 = new TFile(path_mvaWeightFileRes.c_str(),"READ");
-      ReaderRes_  = (const GBRForest*)fgbr3->Get("GBRForest");
-      LogDebug("PFProducer")<<"Will set regressions from binary files " <<endl;
+
+      if(!useRegressionFromDB_) {
+	string mvaWeightFileLCorr=iConfig.getParameter<string>("pf_locC_mvaWeightFile");
+	path_mvaWeightFileLCorr = edm::FileInPath( mvaWeightFileLCorr.c_str() ).fullPath();
+	string mvaWeightFileGCorr=iConfig.getParameter<string>("pf_GlobC_mvaWeightFile");
+	path_mvaWeightFileGCorr = edm::FileInPath( mvaWeightFileGCorr.c_str() ).fullPath();
+	string mvaWeightFileRes=iConfig.getParameter<string>("pf_Res_mvaWeightFile");
+	path_mvaWeightFileRes=edm::FileInPath(mvaWeightFileRes.c_str()).fullPath();
+
+	TFile *fgbr = new TFile(path_mvaWeightFileGCorr.c_str(),"READ");
+	ReaderGC_  =(const GBRForest*)fgbr->Get("GBRForest");
+	TFile *fgbr2 = new TFile(path_mvaWeightFileLCorr.c_str(),"READ");
+	ReaderLC_  = (const GBRForest*)fgbr2->Get("GBRForest");
+	TFile *fgbr3 = new TFile(path_mvaWeightFileRes.c_str(),"READ");
+	ReaderRes_  = (const GBRForest*)fgbr3->Get("GBRForest");
+	LogDebug("PFProducer")<<"Will set regressions from binary files " <<endl;
+      }
 
     }
   
