@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Fruboes
 //         Created:  Wed Mar  7 08:31:57 CET 2007
-// $Id: RPCPhiEff.cc,v 1.3 2009/05/22 08:04:07 fruboes Exp $
+// $Id: RPCPhiEff.cc,v 1.4 2009/07/22 12:38:23 fruboes Exp $
 //
 //
 
@@ -157,7 +157,7 @@ void
             int ptCodeRec = 0;
             int towerRec = 0;
             int phiRec = 0;
-            int muonsFound=0;
+            //int muonsFound=0;
             int qual = 0;
             int ghost = 0; // number of ghost for montecarlo muon
 
@@ -335,7 +335,7 @@ std::string RPCPhiEff::fromRaw(const edm::Event & iEvent){
         const RPCDetId& id = (*detUnitIt).first;
         int station = id.station();
         int layer = id.layer();
-        int region = id.region();
+        //int region = id.region();
 
           if (station == 3)
             hwPlanes.insert(5);
