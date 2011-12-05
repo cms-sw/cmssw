@@ -7,16 +7,27 @@
 
 namespace Rivet {
 
-  // Inclusive jet pT
+  // This analysis is a derived from the class Analysis:
   class CMS_2011_S9086218 : public Analysis {
+
+ 
+  private:
+    BinnedHistogram<double> _hist_sigma;
+
   public:
+    // @name Constructors, init, analyze, finalize
+    // @{
 
     // Constructor
-    CMS_2011_S9086218() : Analysis("CMS_2011_S9086218") {}
-
+    CMS_2011_S9086218()
+      : Analysis("CMS_2011_S9086218") {
+      setBeams(PROTON, PROTON);
+      setNeedsCrossSection(true);
+    }
 
     // Book histograms and initialize projections:
     void init() {
+      
       const FinalState fs;
 
       // Initialize the projectors:
@@ -29,13 +40,16 @@ namespace Rivet {
       _hist_sigma.addHistogram(1.5, 2.0, bookHistogram1D(4, 1, 1));
       _hist_sigma.addHistogram(2.0, 2.5, bookHistogram1D(5, 1, 1));
       _hist_sigma.addHistogram(2.5, 3.0, bookHistogram1D(6, 1, 1));
+
+
     }
 
     // Analysis
     void analyze(const Event &event) {
-      const double weight = event.weight();
-      const FastJets &fj = applyProjection<FastJets>(event,"Jets");
-      const Jets& jets = fj.jets(18.0*GeV, 1100.0*GeV, -4.7, 4.7, RAPIDITY);
+
+      const double weight = event.weight();      
+      const FastJets &fj = applyProjection<FastJets>(event,"Jets");      
+      const Jets& jets = fj.jets(18*GeV, 1100*GeV, -4.7, 4.7, RAPIDITY);
 
       // Fill the relevant histograms:
       foreach(const Jet &j, jets) {
@@ -45,14 +59,15 @@ namespace Rivet {
 
     // Finalize
     void finalize() {
-      _hist_sigma.scale(crossSection()/sumOfWeights()/0.5/2.0, this);
-    }
 
-  private:
-    BinnedHistogram<double> _hist_sigma;
+      _hist_sigma.scale(crossSection()/sumOfWeights()/0.5/2, this);
+    }
+    //@}
+
+
   };
 
-  // This global object acts as a hook for the plugin system.
- //AK DECLARE_RIVET_PLUGIN(CMS_2011_S9086218);
+  // This global object acts as a hook for the plugin system. 
   AnalysisBuilder<CMS_2011_S9086218> plugin_CMS_2011_S9086218;
+
 }
