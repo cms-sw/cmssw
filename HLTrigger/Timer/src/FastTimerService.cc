@@ -127,9 +127,8 @@ void FastTimerService::postBeginJob() {
       std::tr1::unordered_set<edm::ModuleDescription const *> pool;        // keep track of modules already inserted
       BOOST_FOREACH( std::string const & module, modules) {
         edm::ModuleDescription const * md = findModuleDescription(module);
-        if (pool.find(md) != pool.end()) {
+        if (pool.insert(md).second) {
           // new module
-          pool.insert(md);
           pathmap.push_back( & m_modules[md] );
         } else {
           // duplicate module
@@ -145,9 +144,8 @@ void FastTimerService::postBeginJob() {
       std::tr1::unordered_set<edm::ModuleDescription const *> pool;        // keep track of modules already inserted
       BOOST_FOREACH( std::string const & module, modules) {
         edm::ModuleDescription const * md = findModuleDescription(module);
-        if (pool.find(md) != pool.end()) {
+        if (pool.insert(md).second) {
           // new module
-          pool.insert(md);
           pathmap.push_back( & m_modules[md] );
         } else {
           // duplicate module
