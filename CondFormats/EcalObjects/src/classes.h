@@ -153,8 +153,8 @@ namespace{
     EcalTPGCrystalStatus tpgCrystalStatus;
 
     EcalSRSettings ecalSRSettings;
-    std::vector<std::vector<short> > ecalSRSettings_srpMasksFromConfig;
-    std::vector<std::vector<float> > ecalSRSettings_dccNormalizedWeights_0;
+    //    std::vector<std::vector<short> > ecalSRSettings_srpMasksFromConfig;
+    //    std::vector<std::vector<float> > ecalSRSettings_dccNormalizedWeights_0;
     //    std::vector<float> ecalSRSettings_dccNormalizedWeights_1;
     //    float ecalSRSettings_dccNormalizedWeights_elt_2;
     

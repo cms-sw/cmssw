@@ -142,8 +142,6 @@
 <class name="EcalContainer<EcalTrigTowerDetId,EcalDQMStatusCode>"/>
 <class name="EcalContainer<EcalScDetId,EcalDQMStatusCode>"/>
 
-<class name="std::vector<std::vector<short> >" />
-<class name="std::vector<std::vector<float> >" />
 <class name="EcalSRSettings" class_version="0">
   <field name="deltaEta_" mapping="blob" />
   <field name="deltaPhi_" mapping="blob" />
