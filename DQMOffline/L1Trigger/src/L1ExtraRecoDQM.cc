@@ -9,8 +9,8 @@
  *
  * \author: Vasile Mihai Ghete   - HEPHY Vienna
  *
- * $Date$
- * $Revision$
+ * $Date: 2011/11/15 15:49:46 $
+ * $Revision: 1.1 $
  *
  */
 
@@ -112,6 +112,15 @@ void L1ExtraRecoDQM::beginRun(const edm::Run& iRun,
 
 }
 
+void L1ExtraRecoDQM::beginLuminosityBlock(const edm::LuminosityBlock& iLumi,
+        const edm::EventSetup& evSetup) {
+
+    //
+
+
+}
+
+
 //
 void L1ExtraRecoDQM::analyze(const edm::Event& iEvent,
         const edm::EventSetup& evSetup) {
@@ -121,6 +130,14 @@ void L1ExtraRecoDQM::analyze(const edm::Event& iEvent,
 
     //
     m_retrieveL1Extra.retrieveL1ExtraObjects(iEvent, evSetup);
+
+}
+
+// end section
+void L1ExtraRecoDQM::endLuminosityBlock(const edm::LuminosityBlock& iLumi,
+        const edm::EventSetup& evSetup) {
+
+    // empty
 
 }
 
