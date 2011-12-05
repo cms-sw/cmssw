@@ -294,6 +294,14 @@ void FastTimerService::postEndJob() {
           << std::right << std::setw(10) << m_paths[name].summary_total         / (double) m_summary_events << "  "
           << name << '\n';
   }
+  out << '\n';
+  out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
+  BOOST_FOREACH(ModuleMap<ModuleInfo>::value_type & keyval, m_modules) {
+    std::string const & label  = keyval.first->moduleLabel();
+    ModuleInfo  const & module = keyval.second;
+    out << "FastReport              " << std::right << std::setw(10) << module.summary_active  / (double) m_summary_events << "  " << label << '\n';
+  }
+  out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
   edm::LogVerbatim("FastReport") << out.str();
 }
 
@@ -550,8 +558,8 @@ void FastTimerService::postModule(edm::ModuleDescription const & module) {
 
   ModuleMap<ModuleInfo>::iterator keyval = m_modules.find(& module);
   if (keyval != m_modules.end()) {
-    ModuleInfo & module = keyval->second;
     double time = delta(m_timer_module);
+    ModuleInfo & module = keyval->second;
     module.has_just_run    = true;
     module.time_active     = time;
     module.summary_active += time;
