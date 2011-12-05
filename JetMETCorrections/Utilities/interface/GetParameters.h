@@ -26,7 +26,7 @@ void setParameters(std::string alg, int recom, int it, std::string threshold)
 {
   theAlgType = alg; 
   if(recom == 1) {theRecomSchema = "EScheme";} else {theRecomSchema = "EtScheme";};
-  if (it == 0) {iTime == "Jets873_2x1033PU_qcd";} else {iTime == "None";}
+  if (it == 0) {iTime = "Jets873_2x1033PU_qcd";} else {iTime = "None";}
   theThreshold = threshold;
 }
 
