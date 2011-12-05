@@ -51,7 +51,7 @@ process.options = cms.untracked.PSet(
 ## For running on RAW only 
 process.source = cms.Source("PoolSource",
                              fileNames = cms.untracked.vstring(
-'rfio:/castor/cern.ch/cms/store/data/Run2011B/SingleMu/RAW/v1/000/178/479/E074D5E7-0FF6-E011-8C78-001D09F2B30B.root'
+                    '/store/data/Run2011B/DoubleMu/RAW/v1/000/178/479/2875F9DE-1AF6-E011-94BC-001D09F2983F.root'
                                  )
                                  )
 
