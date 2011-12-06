@@ -754,14 +754,15 @@ def toCSVLumiByLSXing(lumidata,scalefactor,filename):
     '''
     result=[]
     assert(filename)
-    fieldnames=['run','ls','delivered(/ub)','recorded(/ub)','bx']
+    fieldnames=['run','ls','UTCTime','delivered(/ub)','recorded(/ub)','bx']
     for run in sorted(lumidata):
         rundata=lumidata[run]
         if rundata is None:
-            result.append([run,'n/a','n/a','n/a','n/a'])
+            result.append([run,'n/a','n/a','n/a','n/a','n/a'])
             continue
         for lsdata in rundata:
             cmslsnum=lsdata[1]
+            ts=lsdata[2]
             if cmslsnum==0:
                 continue
             deliveredlumi=lsdata[5]
@@ -770,10 +771,10 @@ def toCSVLumiByLSXing(lumidata,scalefactor,filename):
             bxresult=[]
             if bxidxlist and bxvaluelist:
                 bxinfo=CommonUtil.transposed([bxidxlist,bxvaluelist])
-                bxresult=CommonUtil.flatten([run,cmslsnum,deliveredlumi*scalefactor,recordedlumi*scalefactor,bxinfo])
+                bxresult=CommonUtil.flatten([run,cmslsnum,ts.strftime('%m/%d/%y %H:%M:%S'),deliveredlumi*scalefactor,recordedlumi*scalefactor,bxinfo])
                 result.append(bxresult)
             else:
-                result.append([run,cmslsnum,deliveredlumi*scalefactor,recordedlumi*scalefactor])
+                result.append([run,cmslsnum,ts.strftime('%m/%d/%y %H:%M:%S'),deliveredlumi*scalefactor,recordedlumi*scalefactor])
     r=None
     if filename.upper()=='STDOUT':
         r=sys.stdout
