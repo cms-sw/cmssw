@@ -129,6 +129,7 @@ private:
   float      getSignal(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
   int        typeIndex(CSCDetId id, int flag = 1);
   int        chamberSerial(CSCDetId id);
+  void 	     applyCSClabels(MonitorElement *meHisto);
 
   // for efficiency calculation
   // these functions handle Stoyan's efficiency code

@@ -43,143 +43,23 @@ void CSCOfflineMonitor::beginJob(void){
       hCSCOccupancy->setBinLabel(10,"# Events with Rechits");
       hCSCOccupancy->setBinLabel(12,"# Events with Segments");
       hOWiresAndCLCT = dbe->book2D("hOWiresAndCLCT","Wire and CLCT Digi Occupancy ",36,0.5,36.5,20,0.5,20.5);
-      hOWiresAndCLCT->setAxisTitle("Chamber #");
-      hOWiresAndCLCT->setBinLabel(1,"ME -4/2",2);
-      hOWiresAndCLCT->setBinLabel(2,"ME -4/1",2);
-      hOWiresAndCLCT->setBinLabel(3,"ME -3/2",2);
-      hOWiresAndCLCT->setBinLabel(4,"ME -2/1",2);
-      hOWiresAndCLCT->setBinLabel(5,"ME -2/2",2);
-      hOWiresAndCLCT->setBinLabel(6,"ME -2/1",2);
-      hOWiresAndCLCT->setBinLabel(7,"ME -1/3",2);
-      hOWiresAndCLCT->setBinLabel(8,"ME -1/2",2);
-      hOWiresAndCLCT->setBinLabel(9,"ME -1/1b",2);
-      hOWiresAndCLCT->setBinLabel(10,"ME -1/1a",2);
-      hOWiresAndCLCT->setBinLabel(11,"ME +1/1a",2);
-      hOWiresAndCLCT->setBinLabel(12,"ME +1/1b",2);
-      hOWiresAndCLCT->setBinLabel(13,"ME +1/2",2);
-      hOWiresAndCLCT->setBinLabel(14,"ME +1/3",2);
-      hOWiresAndCLCT->setBinLabel(15,"ME +2/1",2);
-      hOWiresAndCLCT->setBinLabel(16,"ME +2/2",2);
-      hOWiresAndCLCT->setBinLabel(17,"ME +3/1",2);
-      hOWiresAndCLCT->setBinLabel(18,"ME +3/2",2);
-      hOWiresAndCLCT->setBinLabel(19,"ME +4/1",2);
-      hOWiresAndCLCT->setBinLabel(20,"ME +4/2",2);
+      applyCSClabels(hOWiresAndCLCT);
       hOWires = dbe->book2D("hOWires","Wire Digi Occupancy",36,0.5,36.5,20,0.5,20.5);
-      hOWires->setAxisTitle("Chamber #");
-      hOWires->setBinLabel(1,"ME -4/2",2);
-      hOWires->setBinLabel(2,"ME -4/1",2);
-      hOWires->setBinLabel(3,"ME -3/2",2);
-      hOWires->setBinLabel(4,"ME -2/1",2);
-      hOWires->setBinLabel(5,"ME -2/2",2);
-      hOWires->setBinLabel(6,"ME -2/1",2);
-      hOWires->setBinLabel(7,"ME -1/3",2);
-      hOWires->setBinLabel(8,"ME -1/2",2);
-      hOWires->setBinLabel(9,"ME -1/1b",2);
-      hOWires->setBinLabel(10,"ME -1/1a",2);
-      hOWires->setBinLabel(11,"ME +1/1a",2);
-      hOWires->setBinLabel(12,"ME +1/1b",2);
-      hOWires->setBinLabel(13,"ME +1/2",2);
-      hOWires->setBinLabel(14,"ME +1/3",2);
-      hOWires->setBinLabel(15,"ME +2/1",2);
-      hOWires->setBinLabel(16,"ME +2/2",2);
-      hOWires->setBinLabel(17,"ME +3/1",2);
-      hOWires->setBinLabel(18,"ME +3/2",2);
-      hOWires->setBinLabel(19,"ME +4/1",2);
-      hOWires->setBinLabel(20,"ME +4/2",2);
+      applyCSClabels(hOWires);
       hOWireSerial = dbe->book1D("hOWireSerial","Wire Occupancy by Chamber Serial",601,-0.5,600.5);
       hOWireSerial->setAxisTitle("Chamber Serial Number");
       hOStrips = dbe->book2D("hOStrips","Strip Digi Occupancy",36,0.5,36.5,20,0.5,20.5);
-      hOStrips->setAxisTitle("Chamber #");
-      hOStrips->setBinLabel(1,"ME -4/2",2);
-      hOStrips->setBinLabel(2,"ME -4/1",2);
-      hOStrips->setBinLabel(3,"ME -3/2",2);
-      hOStrips->setBinLabel(4,"ME -2/1",2);
-      hOStrips->setBinLabel(5,"ME -2/2",2);
-      hOStrips->setBinLabel(6,"ME -2/1",2);
-      hOStrips->setBinLabel(7,"ME -1/3",2);
-      hOStrips->setBinLabel(8,"ME -1/2",2);
-      hOStrips->setBinLabel(9,"ME -1/1b",2);
-      hOStrips->setBinLabel(10,"ME -1/1a",2);
-      hOStrips->setBinLabel(11,"ME +1/1a",2);
-      hOStrips->setBinLabel(12,"ME +1/1b",2);
-      hOStrips->setBinLabel(13,"ME +1/2",2);
-      hOStrips->setBinLabel(14,"ME +1/3",2);
-      hOStrips->setBinLabel(15,"ME +2/1",2);
-      hOStrips->setBinLabel(16,"ME +2/2",2);
-      hOStrips->setBinLabel(17,"ME +3/1",2);
-      hOStrips->setBinLabel(18,"ME +3/2",2);
-      hOStrips->setBinLabel(19,"ME +4/1",2);
-      hOStrips->setBinLabel(20,"ME +4/2",2);
+      applyCSClabels(hOStrips);
       hOStripSerial = dbe->book1D("hOStripSerial","Strip Occupancy by Chamber Serial",601,-0.5,600.5);
       hOStripSerial->setAxisTitle("Chamber Serial Number");
       hOStripsAndWiresAndCLCT = dbe->book2D("hOStripsAndWiresAndCLCT","Strip And Wire And CLCT Digi Occupancy",36,0.5,36.5,20,0.5,20.5);
-      hOStripsAndWiresAndCLCT->setAxisTitle("Chamber #");
-      hOStripsAndWiresAndCLCT->setBinLabel(1,"ME -4/2",2);
-      hOStripsAndWiresAndCLCT->setBinLabel(2,"ME -4/1",2);
-      hOStripsAndWiresAndCLCT->setBinLabel(3,"ME -3/2",2);
-      hOStripsAndWiresAndCLCT->setBinLabel(4,"ME -2/1",2);
-      hOStripsAndWiresAndCLCT->setBinLabel(5,"ME -2/2",2);
-      hOStripsAndWiresAndCLCT->setBinLabel(6,"ME -2/1",2);
-      hOStripsAndWiresAndCLCT->setBinLabel(7,"ME -1/3",2);
-      hOStripsAndWiresAndCLCT->setBinLabel(8,"ME -1/2",2);
-      hOStripsAndWiresAndCLCT->setBinLabel(9,"ME -1/1b",2);
-      hOStripsAndWiresAndCLCT->setBinLabel(10,"ME -1/1a",2);
-      hOStripsAndWiresAndCLCT->setBinLabel(11,"ME +1/1a",2);
-      hOStripsAndWiresAndCLCT->setBinLabel(12,"ME +1/1b",2);
-      hOStripsAndWiresAndCLCT->setBinLabel(13,"ME +1/2",2);
-      hOStripsAndWiresAndCLCT->setBinLabel(14,"ME +1/3",2);
-      hOStripsAndWiresAndCLCT->setBinLabel(15,"ME +2/1",2);
-      hOStripsAndWiresAndCLCT->setBinLabel(16,"ME +2/2",2);
-      hOStripsAndWiresAndCLCT->setBinLabel(17,"ME +3/1",2);
-      hOStripsAndWiresAndCLCT->setBinLabel(18,"ME +3/2",2);
-      hOStripsAndWiresAndCLCT->setBinLabel(19,"ME +4/1",2);
-      hOStripsAndWiresAndCLCT->setBinLabel(20,"ME +4/2",2);
+      applyCSClabels(hOStripsAndWiresAndCLCT);
       hORecHits = dbe->book2D("hORecHits","RecHit Occupancy",36,0.5,36.5,20,0.5,20.5);
-      hORecHits->setAxisTitle("Chamber #");
-      hORecHits->setBinLabel(1,"ME -4/2",2);
-      hORecHits->setBinLabel(2,"ME -4/1",2);
-      hORecHits->setBinLabel(3,"ME -3/2",2);
-      hORecHits->setBinLabel(4,"ME -2/1",2);
-      hORecHits->setBinLabel(5,"ME -2/2",2);
-      hORecHits->setBinLabel(6,"ME -2/1",2);
-      hORecHits->setBinLabel(7,"ME -1/3",2);
-      hORecHits->setBinLabel(8,"ME -1/2",2);
-      hORecHits->setBinLabel(9,"ME -1/1b",2);
-      hORecHits->setBinLabel(10,"ME -1/1a",2);
-      hORecHits->setBinLabel(11,"ME +1/1a",2);
-      hORecHits->setBinLabel(12,"ME +1/1b",2);
-      hORecHits->setBinLabel(13,"ME +1/2",2);
-      hORecHits->setBinLabel(14,"ME +1/3",2);
-      hORecHits->setBinLabel(15,"ME +2/1",2);
-      hORecHits->setBinLabel(16,"ME +2/2",2);
-      hORecHits->setBinLabel(17,"ME +3/1",2);
-      hORecHits->setBinLabel(18,"ME +3/2",2);
-      hORecHits->setBinLabel(19,"ME +4/1",2);
-      hORecHits->setBinLabel(20,"ME +4/2",2);
+      applyCSClabels(hORecHits);
       hORecHitsSerial = dbe->book1D("hORecHitSerial","RecHit Occupancy by Chamber Serial",601,-0.5,600.5);
       hORecHitsSerial->setAxisTitle("Chamber Serial Number");
       hOSegments = dbe->book2D("hOSegments","Segment Occupancy",36,0.5,36.5,20,0.5,20.5);
-      hOSegments->setAxisTitle("Chamber #");
-      hOSegments->setBinLabel(1,"ME -4/2",2);
-      hOSegments->setBinLabel(2,"ME -4/1",2);
-      hOSegments->setBinLabel(3,"ME -3/2",2);
-      hOSegments->setBinLabel(4,"ME -2/1",2);
-      hOSegments->setBinLabel(5,"ME -2/2",2);
-      hOSegments->setBinLabel(6,"ME -2/1",2);
-      hOSegments->setBinLabel(7,"ME -1/3",2);
-      hOSegments->setBinLabel(8,"ME -1/2",2);
-      hOSegments->setBinLabel(9,"ME -1/1b",2);
-      hOSegments->setBinLabel(10,"ME -1/1a",2);
-      hOSegments->setBinLabel(11,"ME +1/1a",2);
-      hOSegments->setBinLabel(12,"ME +1/1b",2);
-      hOSegments->setBinLabel(13,"ME +1/2",2);
-      hOSegments->setBinLabel(14,"ME +1/3",2);
-      hOSegments->setBinLabel(15,"ME +2/1",2);
-      hOSegments->setBinLabel(16,"ME +2/2",2);
-      hOSegments->setBinLabel(17,"ME +3/1",2);
-      hOSegments->setBinLabel(18,"ME +3/2",2);
-      hOSegments->setBinLabel(19,"ME +4/1",2);
-      hOSegments->setBinLabel(20,"ME +4/2",2);
+      applyCSClabels(hOSegments);
       hOSegmentsSerial = dbe->book1D("hOSegmentSerial","Segment Occupancy by Chamber Serial",601,-0.5,600.5);
       hOSegmentsSerial->setAxisTitle("Chamber Serial Number");
 
@@ -502,6 +382,7 @@ void CSCOfflineMonitor::beginJob(void){
       hSResid.push_back(dbe->book1D("hSResidp42","Fitted Position on Strip - Reconstructed for Layer 3 (ME +4/2); Strip Widths",100,-0.5,0.5));
 
       // Efficiency
+      
       dbe->setCurrentFolder("CSC/CSCOfflineMonitor/Efficiency");
       hSSTE = new TH1F("hSSTE","hSSTE",40,0.5,40.5);
       hRHSTE = new TH1F("hRHSTE","hRHSTE",40,0.5,40.5);
@@ -556,7 +437,7 @@ void CSCOfflineMonitor::beginJob(void){
       hSEff2->setAxisTitle("Chamber #");
       hSEff2->setBinLabel(1,"ME -4/1",2);
       hSEff2->setBinLabel(2,"ME -3/2",2);
-      hSEff2->setBinLabel(3,"ME -2/1",2);
+      hSEff2->setBinLabel(3,"ME -3/1",2);
       hSEff2->setBinLabel(4,"ME -2/2",2);
       hSEff2->setBinLabel(5,"ME -2/1",2);
       hSEff2->setBinLabel(6,"ME -1/3",2);
@@ -576,7 +457,7 @@ void CSCOfflineMonitor::beginJob(void){
       hRHEff2->setAxisTitle("Chamber #");
       hRHEff2->setBinLabel(1,"ME -4/1",2);
       hRHEff2->setBinLabel(2,"ME -3/2",2);
-      hRHEff2->setBinLabel(3,"ME -2/1",2);
+      hRHEff2->setBinLabel(3,"ME -3/1",2);
       hRHEff2->setBinLabel(4,"ME -2/2",2);
       hRHEff2->setBinLabel(5,"ME -2/1",2);
       hRHEff2->setBinLabel(6,"ME -1/3",2);
@@ -593,32 +474,12 @@ void CSCOfflineMonitor::beginJob(void){
       hRHEff2->setBinLabel(17,"ME +3/2",2);
       hRHEff2->setBinLabel(18,"ME +4/1",2);
       hStripReadoutEff2 = dbe->book2D("hStripReadoutEff2","strip readout ratio [(strip+clct+wires)/(clct+wires)] 2D",36,0.5,36.5, 20, 0.5, 20.5);
-      hStripReadoutEff2->setAxisTitle("Chamber #");
-      hStripReadoutEff2->setBinLabel(1,"ME -4/2",2);
-      hStripReadoutEff2->setBinLabel(2,"ME -4/1",2);
-      hStripReadoutEff2->setBinLabel(3,"ME -3/2",2);
-      hStripReadoutEff2->setBinLabel(4,"ME -2/1",2);
-      hStripReadoutEff2->setBinLabel(5,"ME -2/2",2);
-      hStripReadoutEff2->setBinLabel(6,"ME -2/1",2);
-      hStripReadoutEff2->setBinLabel(7,"ME -1/3",2);
-      hStripReadoutEff2->setBinLabel(8,"ME -1/2",2);
-      hStripReadoutEff2->setBinLabel(9,"ME -1/1b",2);
-      hStripReadoutEff2->setBinLabel(10,"ME -1/1a",2);
-      hStripReadoutEff2->setBinLabel(11,"ME +1/1a",2);
-      hStripReadoutEff2->setBinLabel(12,"ME +1/1b",2);
-      hStripReadoutEff2->setBinLabel(13,"ME +1/2",2);
-      hStripReadoutEff2->setBinLabel(14,"ME +1/3",2);
-      hStripReadoutEff2->setBinLabel(15,"ME +2/1",2);
-      hStripReadoutEff2->setBinLabel(16,"ME +2/2",2);
-      hStripReadoutEff2->setBinLabel(17,"ME +3/1",2);
-      hStripReadoutEff2->setBinLabel(18,"ME +3/2",2);
-      hStripReadoutEff2->setBinLabel(19,"ME +4/1",2);
-      hStripReadoutEff2->setBinLabel(20,"ME +4/2",2);
+      applyCSClabels(hStripReadoutEff2);
       hStripEff2 = dbe->book2D("hStripEff2","strip Efficiency 2D",36,0.5,36.5, 18, 0.5, 18.5);
       hStripEff2->setAxisTitle("Chamber #");
       hStripEff2->setBinLabel(1,"ME -4/1",2);
       hStripEff2->setBinLabel(2,"ME -3/2",2);
-      hStripEff2->setBinLabel(3,"ME -2/1",2);
+      hStripEff2->setBinLabel(3,"ME -3/1",2);
       hStripEff2->setBinLabel(4,"ME -2/2",2);
       hStripEff2->setBinLabel(5,"ME -2/1",2);
       hStripEff2->setBinLabel(6,"ME -1/3",2);
@@ -638,7 +499,7 @@ void CSCOfflineMonitor::beginJob(void){
       hWireEff2->setAxisTitle("Chamber #");
       hWireEff2->setBinLabel(1,"ME -4/1",2);
       hWireEff2->setBinLabel(2,"ME -3/2",2);
-      hWireEff2->setBinLabel(3,"ME -2/1",2);
+      hWireEff2->setBinLabel(3,"ME -3/1",2);
       hWireEff2->setBinLabel(4,"ME -2/2",2);
       hWireEff2->setBinLabel(5,"ME -2/1",2);
       hWireEff2->setBinLabel(6,"ME -1/3",2);
@@ -658,7 +519,7 @@ void CSCOfflineMonitor::beginJob(void){
       hSensitiveAreaEvt->setAxisTitle("Chamber #");
       hSensitiveAreaEvt->setBinLabel(1,"ME -4/1",2);
       hSensitiveAreaEvt->setBinLabel(2,"ME -3/2",2);
-      hSensitiveAreaEvt->setBinLabel(3,"ME -2/1",2);
+      hSensitiveAreaEvt->setBinLabel(3,"ME -3/1",2);
       hSensitiveAreaEvt->setBinLabel(4,"ME -2/2",2);
       hSensitiveAreaEvt->setBinLabel(5,"ME -2/1",2);
       hSensitiveAreaEvt->setBinLabel(6,"ME -1/3",2);
@@ -684,27 +545,8 @@ void CSCOfflineMonitor::beginJob(void){
       hALCTgetBX2DNumerator = new TH2F("hALCTgetBX2DNumerator","ALCT position in ALCT-L1A match window [BX] (sum)",36,0.5,36.5,20,0.5,20.5);
       hALCTgetBX2DMeans = dbe->book2D("hALCTgetBX2DMeans","ALCT position in ALCT-L1A match window [BX]",36,0.5,36.5,20,0.5,20.5);
       hALCTgetBX2Denominator = dbe->book2D("hALCTgetBX2Denominator","Number of ALCT Digis checked",36,0.5,36.5,20,0.5,20.5);
-      hALCTgetBX2DMeans->setAxisTitle("Chamber #");
-      hALCTgetBX2DMeans->setBinLabel(1,"ME -4/2",2);
-      hALCTgetBX2DMeans->setBinLabel(2,"ME -4/1",2);
-      hALCTgetBX2DMeans->setBinLabel(3,"ME -3/2",2);
-      hALCTgetBX2DMeans->setBinLabel(4,"ME -2/1",2);
-      hALCTgetBX2DMeans->setBinLabel(5,"ME -2/2",2);
-      hALCTgetBX2DMeans->setBinLabel(6,"ME -2/1",2);
-      hALCTgetBX2DMeans->setBinLabel(7,"ME -1/3",2);
-      hALCTgetBX2DMeans->setBinLabel(8,"ME -1/2",2);
-      hALCTgetBX2DMeans->setBinLabel(9,"ME -1/1b",2);
-      hALCTgetBX2DMeans->setBinLabel(10,"ME -1/1a",2);
-      hALCTgetBX2DMeans->setBinLabel(11,"ME +1/1a",2);
-      hALCTgetBX2DMeans->setBinLabel(12,"ME +1/1b",2);
-      hALCTgetBX2DMeans->setBinLabel(13,"ME +1/2",2);
-      hALCTgetBX2DMeans->setBinLabel(14,"ME +1/3",2);
-      hALCTgetBX2DMeans->setBinLabel(15,"ME +2/1",2);
-      hALCTgetBX2DMeans->setBinLabel(16,"ME +2/2",2);
-      hALCTgetBX2DMeans->setBinLabel(17,"ME +3/1",2);
-      hALCTgetBX2DMeans->setBinLabel(18,"ME +3/2",2);
-      hALCTgetBX2DMeans->setBinLabel(19,"ME +4/1",2);
-      hALCTgetBX2DMeans->setBinLabel(20,"ME +4/2",2);
+      applyCSClabels(hALCTgetBX2DMeans);
+      applyCSClabels(hALCTgetBX2Denominator);
       hALCTMatch = dbe->book1D("hALCTMatch","ALCT position in ALCT-CLCT match window [BX]",7,-0.5,6.5);
       hALCTMatchChamberMeans = dbe->book1D("hALCTMatchChamberMeans","Chamber Mean ALCT position in ALCT-CLCT match window [BX]",60,0,6);
       hALCTMatchSerial = dbe->book2D("hALCTMatchSerial","ALCT position in ALCT-CLCT match window [BX]",601,-0.5,600.5,7,-0.5,6.5);
@@ -712,27 +554,8 @@ void CSCOfflineMonitor::beginJob(void){
       hALCTMatch2DNumerator = new TH2F("hALCTMatch2DNumerator","ALCT position in ALCT-CLCT match window [BX] (sum)",36,0.5,36.5,20,0.5,20.5);
       hALCTMatch2DMeans = dbe->book2D("hALCTMatch2DMeans","ALCT position in ALCT-CLCT match window [BX]",36,0.5,36.5,20,0.5,20.5);
       hALCTMatch2Denominator = dbe->book2D("hALCTMatch2Denominator","Number of ALCT-CLCT matches checked",36,0.5,36.5,20,0.5,20.5);
-      hALCTMatch2DMeans->setAxisTitle("Chamber #");
-      hALCTMatch2DMeans->setBinLabel(1,"ME -4/2",2);
-      hALCTMatch2DMeans->setBinLabel(2,"ME -4/1",2);
-      hALCTMatch2DMeans->setBinLabel(3,"ME -3/2",2);
-      hALCTMatch2DMeans->setBinLabel(4,"ME -2/1",2);
-      hALCTMatch2DMeans->setBinLabel(5,"ME -2/2",2);
-      hALCTMatch2DMeans->setBinLabel(6,"ME -2/1",2);
-      hALCTMatch2DMeans->setBinLabel(7,"ME -1/3",2);
-      hALCTMatch2DMeans->setBinLabel(8,"ME -1/2",2);
-      hALCTMatch2DMeans->setBinLabel(9,"ME -1/1b",2);
-      hALCTMatch2DMeans->setBinLabel(10,"ME -1/1a",2);
-      hALCTMatch2DMeans->setBinLabel(11,"ME +1/1a",2);
-      hALCTMatch2DMeans->setBinLabel(12,"ME +1/1b",2);
-      hALCTMatch2DMeans->setBinLabel(13,"ME +1/2",2);
-      hALCTMatch2DMeans->setBinLabel(14,"ME +1/3",2);
-      hALCTMatch2DMeans->setBinLabel(15,"ME +2/1",2);
-      hALCTMatch2DMeans->setBinLabel(16,"ME +2/2",2);
-      hALCTMatch2DMeans->setBinLabel(17,"ME +3/1",2);
-      hALCTMatch2DMeans->setBinLabel(18,"ME +3/2",2);
-      hALCTMatch2DMeans->setBinLabel(19,"ME +4/1",2);
-      hALCTMatch2DMeans->setBinLabel(20,"ME +4/2",2);
+      applyCSClabels(hALCTMatch2DMeans);
+      applyCSClabels(hALCTMatch2Denominator);
       hCLCTL1A = dbe->book1D("hCLCTL1A","L1A - CLCTpreTrigger at TMB [BX]",10,149.5,159.5);
       hCLCTL1AChamberMeans = dbe->book1D("hCLCTL1AChamberMeans","Chamber Mean L1A - CLCTpreTrigger at TMB [BX]",90,150,159);
       hCLCTL1ASerial = dbe->book2D("hCLCTL1ASerial","L1A - CLCTpreTrigger at TMB [BX]",601,-0.5,600.5,10,149.5,159.5);
@@ -740,27 +563,8 @@ void CSCOfflineMonitor::beginJob(void){
       hCLCTL1A2DNumerator = new TH2F("hCLCTL1A2DNumerator","L1A - CLCTpreTrigger at TMB [BX] (sum)",36,0.5,36.5,20,0.5,20.5);
       hCLCTL1A2DMeans = dbe->book2D("hCLCTL1A2DMeans","L1A - CLCTpreTrigger at TMB [BX]",36,0.5,36.5,20,0.5,20.5);
       hCLCTL1A2Denominator = dbe->book2D("hCLCTL1A2Denominator","Number of TMB CLCTs checked",36,0.5,36.5,20,0.5,20.5);
-      hCLCTL1A2DMeans->setAxisTitle("Chamber #");
-      hCLCTL1A2DMeans->setBinLabel(1,"ME -4/2",2);
-      hCLCTL1A2DMeans->setBinLabel(2,"ME -4/1",2);
-      hCLCTL1A2DMeans->setBinLabel(3,"ME -3/2",2);
-      hCLCTL1A2DMeans->setBinLabel(4,"ME -2/1",2);
-      hCLCTL1A2DMeans->setBinLabel(5,"ME -2/2",2);
-      hCLCTL1A2DMeans->setBinLabel(6,"ME -2/1",2);
-      hCLCTL1A2DMeans->setBinLabel(7,"ME -1/3",2);
-      hCLCTL1A2DMeans->setBinLabel(8,"ME -1/2",2);
-      hCLCTL1A2DMeans->setBinLabel(9,"ME -1/1b",2);
-      hCLCTL1A2DMeans->setBinLabel(10,"ME -1/1a",2);
-      hCLCTL1A2DMeans->setBinLabel(11,"ME +1/1a",2);
-      hCLCTL1A2DMeans->setBinLabel(12,"ME +1/1b",2);
-      hCLCTL1A2DMeans->setBinLabel(13,"ME +1/2",2);
-      hCLCTL1A2DMeans->setBinLabel(14,"ME +1/3",2);
-      hCLCTL1A2DMeans->setBinLabel(15,"ME +2/1",2);
-      hCLCTL1A2DMeans->setBinLabel(16,"ME +2/2",2);
-      hCLCTL1A2DMeans->setBinLabel(17,"ME +3/1",2);
-      hCLCTL1A2DMeans->setBinLabel(18,"ME +3/2",2);
-      hCLCTL1A2DMeans->setBinLabel(19,"ME +4/1",2);
-      hCLCTL1A2DMeans->setBinLabel(20,"ME +4/2",2);
+      applyCSClabels(hCLCTL1A2DMeans);
+      applyCSClabels(hCLCTL1A2Denominator);
 
 }
 
@@ -1221,8 +1025,8 @@ void CSCOfflineMonitor::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits,
     float stpos = (*dRHIter).positionWithinStrip();
     float sterr = (*dRHIter).errorWithinStrip();
 
-    // Find the charge associated with this hit
-
+    /// Find the charge associated with this hit
+    
     int adcsize = dRHIter->nStrips()*dRHIter->nTimeBins();
     float rHSumQ = 0;
     float sumsides = 0;
@@ -1231,6 +1035,21 @@ void CSCOfflineMonitor::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits,
 	rHSumQ+=dRHIter->adcs(i,j);
       sumsides+=dRHIter->adcs(i,dRHIter->nTimeBins()-1);
     }	
+
+    /*
+    CSCRecHit2D::ADCContainer adcs = (*dRHIter).adcs();
+    int adcsize = adcs.size();
+    float rHSumQ = 0;
+    float sumsides = 0;
+    for (int i = 0; i < adcsize; i++){
+      if (i != 3 && i != 7 && i != 11){
+        rHSumQ = rHSumQ + adcs[i]; 
+      }
+      if (adcsize == 12 && (i < 3 || i > 7) && i < 12){
+        sumsides = sumsides + adcs[i];
+      }
+    }
+    */
 
     float rHratioQ = sumsides/rHSumQ;
     if (adcsize != 12) rHratioQ = -99;
@@ -1405,9 +1224,16 @@ void CSCOfflineMonitor::doResolution(edm::Handle<CSCSegmentCollection> cscSegmen
       //int kChamber = idRH.chamber();
       int kLayer   = idRH.layer();
 
-      // Find the strip containing this hit
+      /// Find the strip containing this hit
       int centerid    =  iRH->nStrips()/2 + 1;
       int centerStrip =  iRH->channels(centerid - 1);
+
+      /*
+      CSCRecHit2D::ChannelContainer hitstrips = (*iRH).channels();
+      int nStrips     =  hitstrips.size();
+      int centerid    =  nStrips/2 + 1;
+      int centerStrip =  hitstrips[centerid - 1];
+      */      
 
       // If this segment has 6 hits, find the position of each hit on the strip in units of stripwidth and store values
       if (nRH == 6){
@@ -2207,6 +2033,32 @@ int CSCOfflineMonitor::chamberSerial( CSCDetId id ) {
 }
 
 
+void CSCOfflineMonitor::applyCSClabels( MonitorElement* me ) {
+  if (me != NULL)
+   {
+      me->setAxisTitle("Chamber #");
+      me->setBinLabel(1,"ME -4/2",2);
+      me->setBinLabel(2,"ME -4/1",2);
+      me->setBinLabel(3,"ME -3/2",2);
+      me->setBinLabel(4,"ME -3/1",2);
+      me->setBinLabel(5,"ME -2/2",2);
+      me->setBinLabel(6,"ME -2/1",2);
+      me->setBinLabel(7,"ME -1/3",2);
+      me->setBinLabel(8,"ME -1/2",2);
+      me->setBinLabel(9,"ME -1/1b",2);
+      me->setBinLabel(10,"ME -1/1a",2);
+      me->setBinLabel(11,"ME +1/1a",2);
+      me->setBinLabel(12,"ME +1/1b",2);
+      me->setBinLabel(13,"ME +1/2",2);
+      me->setBinLabel(14,"ME +1/3",2);
+      me->setBinLabel(15,"ME +2/1",2);
+      me->setBinLabel(16,"ME +2/2",2);
+      me->setBinLabel(17,"ME +3/1",2);
+      me->setBinLabel(18,"ME +3/2",2);
+      me->setBinLabel(19,"ME +4/1",2);
+      me->setBinLabel(20,"ME +4/2",2);
+   }
+}
 
 DEFINE_FWK_MODULE(CSCOfflineMonitor);
 
