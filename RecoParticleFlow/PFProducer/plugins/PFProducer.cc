@@ -423,9 +423,9 @@ PFProducer::beginRun(edm::Run & run,
     edm::ESHandle<GBRWrapper> readerPFLC;
     edm::ESHandle<GBRWrapper> readerPFGC;
     edm::ESHandle<GBRWrapper> readerPFRes;
-    es.get<GBRWrapperRcd>().get("GBR_PFLCCorrection",readerPFLC);
-    es.get<GBRWrapperRcd>().get("GBR_PFGlobalCorrection",readerPFGC);
-    es.get<GBRWrapperRcd>().get("GBR_PFResolution",readerPFRes);
+    es.get<GBRWrapperRcd>().get("PFLCCorrection",readerPFLC);
+    es.get<GBRWrapperRcd>().get("PFGlobalCorrection",readerPFGC);
+    es.get<GBRWrapperRcd>().get("PFResolution",readerPFRes);
     ReaderLC_ = &readerPFLC->GetForest();
     ReaderGC_ = &readerPFGC->GetForest();
     ReaderRes_ = &readerPFRes->GetForest();
