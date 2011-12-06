@@ -1,5 +1,5 @@
 #ifndef FWCore_Framework_InputSourceFactory_h
-#define FWCOre_Framework_InputSourceFactory_h
+#define FWCore_Framework_InputSourceFactory_h
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "FWCore/Framework/interface/InputSource.h"
