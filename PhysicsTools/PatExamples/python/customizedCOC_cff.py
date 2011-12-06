@@ -50,7 +50,7 @@ cocPatJets = cms.EDProducer("PATJetCleaner",
            pairCut             = cms.string(""),
            requireNoOverlaps   = cms.bool(False), # overlaps don't cause the jet to be discared
         ),
-        isolateduons = cms.PSet(
+        isolatedMuons = cms.PSet(
            src       = cms.InputTag("isolatedPatMuons"),
            algorithm = cms.string("byDeltaR"),
            preselection        = cms.string(""),

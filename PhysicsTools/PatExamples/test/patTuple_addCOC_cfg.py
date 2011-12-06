@@ -10,7 +10,7 @@ process.source = cms.Source("PoolSource",
 )
 
 ## Maximal Number of Events
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
                                 
 ## let it run
 process.load("PhysicsTools.PatExamples.customizedSelection_cff")
@@ -30,7 +30,7 @@ process.out = cms.OutputModule("PoolOutputModule",
                                # unpack the list of commands 'patEventContent'
                                outputCommands = cms.untracked.vstring(
                                    'keep *',
-                                   'drop *_selectedPatElectrons_*_*',
+                                  #'drop *_selectedPatElectrons_*_*',
                                    'drop *_selectedPatJets_*_*',
                                    'keep *_*_caloTowers_*',
                                    'keep *_*_genJets_*')
