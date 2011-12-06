@@ -22,7 +22,7 @@
 #include <TFile.h>
 #include <iomanip>
 #include <algorithm>
-
+#include <TMath.h>
 using namespace std;
 using namespace reco;
 
@@ -131,6 +131,7 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
     std::vector<reco::TrackRef>singleLegRef;
     std::vector<float>MVA_values(0);
     std::vector<float>MVALCorr;
+    std::vector<const CaloCluster*>PFClusters;
     reco::ConversionRefVector ConversionsRef_;
     isActive = *(actIter);
     //cout << " Found a SuperCluster.  Energy " ;
@@ -590,7 +591,8 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 	  elemsToLock.push_back(AddClusters[i]);  
 	}  
       AddClusters.clear();
-      float EE=thePFEnergyCalibration_->energyEm(*clusterRef,ps1Ene,ps2Ene,false)+addedCalibEne; 
+      float EE=thePFEnergyCalibration_->energyEm(*clusterRef,ps1Ene,ps2Ene,false)+addedCalibEne;
+      PFClusters.push_back(&*clusterRef);
       if(useReg_){
 	if(clusterRef->layer()==PFLayer::ECAL_BARREL){
 	  float LocCorr=EvaluateLCorrMVA(clusterRef);
@@ -705,6 +707,7 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 	      //energy calibration 
 		float EE=thePFEnergyCalibration_->
 		  energyEm(*clusterRef,AddedPS1,AddedPS2,false);
+		PFClusters.push_back(&*clusterRef);
 		if(useReg_){
 		  if(clusterRef->layer()==PFLayer::ECAL_BARREL){
 		    float LocCorr=EvaluateLCorrMVA(clusterRef);
@@ -850,16 +853,10 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
     // here add the extra information
     PFCandidatePhotonExtra myExtra(sc->superClusterRef());
     //Mustache ID variables
-    CaloClusterPtrVector Caloclust;
-    reco::CaloCluster_iterator c_it=photonCand.superClusterRef()->clustersBegin();
-    reco::CaloCluster_iterator c_itend=photonCand.superClusterRef()->clustersEnd();
-    for(; c_it!=c_itend; ++c_it ){
-      Caloclust.push_back(*c_it);
-    }
     int excl=0;
     float Mustache_et_out=0; 
     Mustache Must;
-    Must.MustacheID(Caloclust, excl, Mustache_et_out);
+    Must.MustacheID(PFClusters, excl, Mustache_et_out);
     myExtra.setMustache_Et(Mustache_et_out);
     myExtra.setExcludedClust(excl);
     //Store regressed energy
@@ -911,7 +908,7 @@ float PFPhotonAlgo::EvaluateResMVA(reco::PFCandidate photon){
   std::vector<float>Clust_Eta(0);
   std::vector<float>Clust_Phi(0);
   std::vector<reco::PFClusterRef> PFClusRef(0);
-  CaloClusterPtrVector clusters;
+  std::vector<const CaloCluster*> PFclusters;
   //Multimap to sort clusters by energy
   std::multimap<float, int>Clust;
   PFCandidate::ElementsInBlocks eleInBlocks = photon.elementsInBlocks();
@@ -954,14 +951,8 @@ float PFPhotonAlgo::EvaluateResMVA(reco::PFCandidate photon){
   //cout<<"initial excluded "<<excluded_<<endl;
   float Mustache_Et_out=0;
   int PFClus=0;
-  CaloClusterPtrVector Caloclust;
-  reco::CaloCluster_iterator c_it=photon.superClusterRef()->clustersBegin();
-  reco::CaloCluster_iterator c_itend=photon.superClusterRef()->clustersEnd();
-  for(; c_it!=c_itend; ++c_it ){
-    Caloclust.push_back(*c_it);
-  }
   Mustache Must;
-  Must.MustacheID(Caloclust, PFClus, Mustache_Et_out);
+  Must.MustacheID(PFclusters, PFClus, Mustache_Et_out);
   excluded_=PFClus;
   //order the clusters by energy
   //  float Mustache_Et=0;
@@ -1064,7 +1055,7 @@ float PFPhotonAlgo::EvaluateGCorrMVA(reco::PFCandidate photon){
   std::vector<float>Clust_Eta(0);
   std::vector<float>Clust_Phi(0);
   std::vector<reco::PFClusterRef> PFClusRef(0);
-  CaloClusterPtrVector clusters;
+  std::vector<const CaloCluster*> PFclusters;
   //Multimap to sort clusters by energy
   std::multimap<float, int>Clust;
   PFCandidate::ElementsInBlocks eleInBlocks = photon.elementsInBlocks();
@@ -1107,14 +1098,8 @@ float PFPhotonAlgo::EvaluateGCorrMVA(reco::PFCandidate photon){
   //cout<<"initial excluded "<<excluded_<<endl;
   float Mustache_Et_out=0;
   int PFClus=0;
-  CaloClusterPtrVector Caloclust;
-  reco::CaloCluster_iterator c_it=photon.superClusterRef()->clustersBegin();
-  reco::CaloCluster_iterator c_itend=photon.superClusterRef()->clustersEnd();
-  for(; c_it!=c_itend; ++c_it ){
-    Caloclust.push_back(*c_it);
-  }
   Mustache Must;
-  Must.MustacheID(Caloclust, PFClus, Mustache_Et_out);
+  Must.MustacheID(PFclusters, PFClus, Mustache_Et_out);
   excluded_=PFClus;
   //order the clusters by energy
   //  float Mustache_Et=0;
@@ -1274,7 +1259,7 @@ void PFPhotonAlgo::GetCrysCoordinates(reco::PFClusterRef clusterRef){
   CrysIPhi_=EBidSeed.iphi();
   
   //Crystal Coordinates:
-  double Pi=3.14159265358979323846;
+  double Pi=TMath::Pi();
   float Phi=clusterRef->position().phi(); 
   //  float Eta=clusterRef->position().eta();
   double Theta = -(clusterRef->position().theta())+0.5* Pi;
