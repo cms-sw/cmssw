@@ -171,7 +171,8 @@ private:
 #endif
     TH1F *                      dqm_total;
     TH1F *                      dqm_module_counter;     // for each module in the path, track how many times it ran
-    TH1F *                      dqm_module_runtime;     // for each module in the path, track the total time spent 
+    TH1F *                      dqm_module_active;      // for each module in the path, track the active time spent 
+    TH1F *                      dqm_module_total;       // for each module in the path, track the total time spent 
 
   public:
     PathInfo() :
@@ -204,7 +205,8 @@ private:
 #endif
       dqm_total(0),
       dqm_module_counter(0),
-      dqm_module_runtime(0)
+      dqm_module_active(0),
+      dqm_module_total(0)
     { }
   };
 

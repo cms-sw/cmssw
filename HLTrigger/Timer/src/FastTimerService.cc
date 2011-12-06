@@ -1,4 +1,4 @@
-//system headers
+// system headers
 #ifdef __linux
 #include <time.h>
 #else
@@ -217,16 +217,19 @@ void FastTimerService::postBeginJob() {
         std::vector<std::string> const & modules = ((id = tns.findTrigPath(pathname)) != tns.getTrigPaths().size()) ? tns.getTrigPathModules(id) :
                                                    ((id = tns.findEndPath(pathname))  != tns.getEndPaths().size())  ? tns.getEndPathModules(id)  :
                                                    std::vector<std::string>();
-        pathinfo.dqm_module_counter = m_dqms->book1D(pathname + "_module_counter", pathname + " module counter", modules.size(), 0, modules.size())->getTH1F();
-        pathinfo.dqm_module_runtime = m_dqms->book1D(pathname + "_module_runtime", pathname + " module runtime", modules.size(), 0, modules.size())->getTH1F();
+        pathinfo.dqm_module_counter = m_dqms->book1D(pathname + "_module_counter", pathname + " module counter", modules.size(), -0.5, modules.size() - 0.5)->getTH1F();
+        pathinfo.dqm_module_active  = m_dqms->book1D(pathname + "_module_active",  pathname + " module active",  modules.size(), -0.5, modules.size() - 0.5)->getTH1F();
+        pathinfo.dqm_module_total   = m_dqms->book1D(pathname + "_module_total",   pathname + " module total",   modules.size(), -0.5, modules.size() - 0.5)->getTH1F();
         // find module labels
         for (size_t i = 0; i < modules.size(); ++i) {
           if (pathinfo.modules[i]) {
             pathinfo.dqm_module_counter->GetXaxis()->SetBinLabel( i+1, modules[i].c_str() );
-            pathinfo.dqm_module_runtime->GetXaxis()->SetBinLabel( i+1, modules[i].c_str() );
+            pathinfo.dqm_module_active ->GetXaxis()->SetBinLabel( i+1, modules[i].c_str() );
+            pathinfo.dqm_module_total  ->GetXaxis()->SetBinLabel( i+1, modules[i].c_str() );
           } else {
             pathinfo.dqm_module_counter->GetXaxis()->SetBinLabel( i+1, "(dup.)" );
-            pathinfo.dqm_module_runtime->GetXaxis()->SetBinLabel( i+1, "(dup.)" );
+            pathinfo.dqm_module_active ->GetXaxis()->SetBinLabel( i+1, "(dup.)" );
+            pathinfo.dqm_module_total  ->GetXaxis()->SetBinLabel( i+1, "(dup.)" );
           }
         }
       }
@@ -443,21 +446,24 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
       double overhead = 0.;                 // time spent before, between, or after modules
 #endif
       double current  = 0.;                 // time spent in modules active in the current path
-      double other    = 0.;                 // time spent in modules part of this path, but active in other paths
-      double total    = 0.;                 // total per-path time, including modules already run as part of other paths
+      double total    = active;             // total per-path time, including modules already run as part of other paths
 
       size_t last_run = status.index();     // index of the last module run in this path
       for (size_t i = 0; i <= last_run; ++i) {
         ModuleInfo * module = pathinfo.modules[i];
+        // fill the counter also for duplicate modules (to properly extract rejection information)
         pathinfo.dqm_module_counter->Fill(i);
         if (module == 0)
           // this is a module occurring more than once in the same path, skip it after the first occurrence
           continue;
-        pathinfo.dqm_module_runtime->Fill(i, module->time_active);
+        // fill the total time for all non-duplicate modules
+        pathinfo.dqm_module_total->Fill(i, module->time_active);
         if (module->has_just_run) {
+          // fill the active time only for module actually running in this path
+          pathinfo.dqm_module_active->Fill(i, module->time_active);
           current += module->time_active;
         } else {
-          other   += module->time_active;
+          total   += module->time_active;
         }
       }
 
@@ -486,8 +492,6 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
           overhead = 0.;
 #endif
       }
-      // total per-path time, including modules already run as part of other paths
-      total = active + other;
 
 #ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
       pathinfo.time_premodules       = pre;
