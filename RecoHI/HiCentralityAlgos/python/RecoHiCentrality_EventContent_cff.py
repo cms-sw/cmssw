@@ -7,13 +7,13 @@ RecoHiCentralityFEVT = cms.PSet(
     )
 
 RecoHiCentralityRECO = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep recoCentrality*_hiCentrality_*_*'
+    outputCommands = cms.untracked.vstring('keep recoCentrality*_hiCentrality_*_*',
                                            'keep *_centralityBin_*_*',                                           
                                            )
     )
 
 RecoHiCentralityAOD = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep recoCentrality*_hiCentrality_*_*'
+    outputCommands = cms.untracked.vstring('keep recoCentrality*_hiCentrality_*_*',
                                            'keep *_centralityBin_*_*',                                           
                                            )
     )
