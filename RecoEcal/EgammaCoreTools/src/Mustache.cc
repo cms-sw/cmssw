@@ -1,5 +1,5 @@
 #include "RecoEcal/EgammaCoreTools/interface/Mustache.h"
-
+#include "TMath.h"
 using namespace std;
 using namespace reco;
 
@@ -14,20 +14,28 @@ void Mustache::MustacheID(const reco::SuperCluster& sc, int & nclusters, float &
   MustacheID(clusters, nclusters, EoutsideMustache);
 }
 
+void Mustache::MustacheID(CaloClusterPtrVector& clusters, int & nclusters, float & EoutsideMustache) {
+  std::vector<const CaloCluster*> myClusters;
+  unsigned myNclusters(clusters.size());
+  for(unsigned icluster=0;icluster<myNclusters;++icluster) {
+    myClusters.push_back(&(*clusters[icluster]));
+  }
+  MustacheID(myClusters,nclusters,EoutsideMustache);
+}
 
-void Mustache::MustacheID(CaloClusterPtrVector& clusters, int & nclusters, float & EoutsideMustache)
+void Mustache::MustacheID(std::vector<const CaloCluster*>clusters, int & nclusters, float & EoutsideMustache)
 {
 
   nclusters = 0;
   EoutsideMustache = 0;
-
-  int ncl = clusters.size();
-  if(ncl) return;
+  
+  unsigned int ncl = clusters.size();
+  if(!ncl) return;
 
   //loop over all clusters to find the one with highest energy
   float emax = 0;
   int imax = -1;
-  for(int i=0; i<ncl; ++i){
+  for(unsigned int i=0; i<ncl; ++i){
     float e = (*clusters[i]).energy();
     if(e > emax){
       emax = e;
@@ -36,7 +44,6 @@ void Mustache::MustacheID(CaloClusterPtrVector& clusters, int & nclusters, float
   }
 
   if(imax<0) return;
-
   float eta0 = (*clusters[imax]).eta();
   float phi0 = (*clusters[imax]).phi();
   
@@ -60,7 +67,7 @@ void Mustache::MustacheID(CaloClusterPtrVector& clusters, int & nclusters, float
   float curv_low, curv_up;
   float midpoint;
 
-  for(int k=0; k<ncl; k++){
+  for(unsigned int k=0; k<ncl; k++){
     deta = 0.0; 
     dphi = 0.0; 
     upper_cut = 0.0;
@@ -75,8 +82,9 @@ void Mustache::MustacheID(CaloClusterPtrVector& clusters, int & nclusters, float
 
     deta = sin(phi0)*((*clusters[k]).eta()-eta0);	
     dphi = (*clusters[k]).phi()-phi0;
-    if(dphi> 3.1415927) dphi -= 6.2832;
-    if(dphi<-3.1415927) dphi += 6.2832;
+    //if(dphi> 3.1415927) dphi -= 6.2832;
+    if(dphi> TMath::Pi()) dphi -= 2* TMath::Pi();
+    if(dphi<-1* TMath::Pi()) dphi +=2* TMath::Pi();
     
     //2 parabolas (upper and lower) 
     //of the form: y = a*x*x + b      
@@ -111,5 +119,4 @@ void Mustache::MustacheID(CaloClusterPtrVector& clusters, int & nclusters, float
     }
     
   }
-
 }

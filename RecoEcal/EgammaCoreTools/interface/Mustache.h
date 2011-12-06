@@ -11,6 +11,7 @@ namespace reco {
   class Mustache {
   public:
     void MustacheID(CaloClusterPtrVector& clusters, int & nclusters, float & EoutsideMustache);
+    void MustacheID(std::vector<const CaloCluster*>, int & nclusers,float & EoutsideMustache); 
     void MustacheID(const reco::SuperCluster& sc, int & nclusters, float & EoutsideMustache);
     
   };
