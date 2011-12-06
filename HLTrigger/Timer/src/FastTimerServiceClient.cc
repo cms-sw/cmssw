@@ -84,7 +84,7 @@ FastTimerServiceClient::endRun(edm::Run const & run, edm::EventSetup const & set
     return;
   
   MonitorElement * me;
-  me = dqm->get( (m_dqm_path / "Paths" / "events").generic_string() );
+  me = dqm->get( (m_dqm_path / "events").generic_string() );
   if (me == 0)
     // no FastTimerService DQM information
     return;
