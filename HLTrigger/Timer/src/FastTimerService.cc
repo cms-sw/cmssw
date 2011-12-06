@@ -466,6 +466,8 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
           total   += module->time_active;
         }
       }
+      if (status.accept())
+        pathinfo.dqm_module_counter->Fill(pathinfo.modules.size());
 
       if (m_is_first_module) {
         // no modules were active duruing this path, account all the time as overhead
