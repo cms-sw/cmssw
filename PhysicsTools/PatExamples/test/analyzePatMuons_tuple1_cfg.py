@@ -38,7 +38,7 @@ process.patMuonAnalyzer = cms.EDProducer(
 process.p = cms.Path(process.patMuonAnalyzer)
 
 process.out = cms.OutputModule("PoolOutputModule",
-                               fileName = cms.untracked.string('emdTuple.root'),
+                               fileName = cms.untracked.string('edmTuple.root'),
                                # save only events passing the full path
                                SelectEvents   = cms.untracked.PSet( SelectEvents = cms.vstring('p') ),
                                # save PAT Layer 1 output; you need a '*' to
