@@ -36,7 +36,7 @@ private:
   boost::filesystem::path   m_dqm_path;
   std::string               m_hlt_name;
 
-  void analyze(const edm::Event & event, const edm::EventSetup & setup);                            // this must be implemented
+  void analyze(const edm::Event & event, const edm::EventSetup & setup);
   void beginJob();
   void endJob();
   void beginRun(edm::Run const & run, edm::EventSetup const & setup);
@@ -84,7 +84,7 @@ FastTimerServiceClient::endRun(edm::Run const & run, edm::EventSetup const & set
     return;
   
   MonitorElement * me;
-  me = dqm->get( (m_dqm_path / "events").generic_string() );
+  me = dqm->get( (m_dqm_path / "event").generic_string() );
   if (me == 0)
     // no FastTimerService DQM information
     return;
