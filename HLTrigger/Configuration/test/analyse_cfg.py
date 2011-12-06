@@ -12,6 +12,10 @@ process.MessageLogger.categories.append('HLTrigReport')
 process.MessageLogger.categories.append('HLTSummaryFilter')
 process.MessageLogger.categories.append('HLTConfigProvider')
 
+from Configuration.AlCa.autoCond import autoCond
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.GlobalTag.globaltag = autoCond['startup']
+
 # process.Timing = cms.Service("Timing")
 
 # process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
