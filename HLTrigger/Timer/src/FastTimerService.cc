@@ -126,16 +126,19 @@ void FastTimerService::postBeginJob() {
       m_cache_paths.push_back(& keyval.second);
   }
 
+  // cache all moduleinfo objects
+  if (m_enable_timing_modules) {
+    m_cache_modules.reserve(m_modules.size());
+    BOOST_FOREACH(ModuleMap<ModuleInfo>::value_type & keyval, m_modules)
+      m_cache_modules.push_back(& keyval.second);
+  }
+
   // associate to each path all the modules it contains
   if (m_enable_timing_paths and m_enable_timing_modules) {
     for (size_t i = 0; i < tns.getTrigPaths().size(); ++i)
       fillPathMap( tns.getTrigPath(i), tns.getTrigPathModules(i) );
     for (size_t i = 0; i < tns.getEndPaths().size(); ++i)
       fillPathMap( tns.getEndPath(i), tns.getEndPathModules(i) );
-    // cache all moduleinfo objects
-    m_cache_modules.reserve(m_modules.size());
-    BOOST_FOREACH(ModuleMap<ModuleInfo>::value_type & keyval, m_modules)
-      m_cache_modules.push_back(& keyval.second);
   }
 
   if (m_enable_dqm)
@@ -169,15 +172,27 @@ void FastTimerService::postBeginJob() {
     m_dqm_all_paths     ->StatOverflows(true);
     m_dqm_all_endpaths  = m_dqms->book1D("all_endpaths", "EndPaths", bins, 0., m_dqm_time_range)->getTH1F();
     m_dqm_all_endpaths  ->StatOverflows(true);
+
     if (m_enable_timing_paths) {
       m_dqms->setCurrentFolder((m_dqm_path / "Paths").generic_string());
       BOOST_FOREACH(PathMap<PathInfo>::value_type & keyval, m_paths) {
         std::string const & pathname = keyval.first;
         PathInfo          & pathinfo = keyval.second;
-        pathinfo.dqm_active = m_dqms->book1D(pathname, pathname, bins, 0., m_dqm_time_range)->getTH1F();
+        pathinfo.dqm_active = m_dqms->book1D(pathname + "_active", pathname + " active time", bins, 0., m_dqm_time_range)->getTH1F();
         pathinfo.dqm_active->StatOverflows(true);
       }
     }
+
+    if (m_enable_timing_modules) {
+      m_dqms->setCurrentFolder((m_dqm_path / "Modules").generic_string());
+      BOOST_FOREACH(ModuleMap<ModuleInfo>::value_type & keyval, m_modules) {
+        std::string const & label  = keyval.first->moduleLabel();
+        ModuleInfo        & module = keyval.second;
+        module.dqm_active = m_dqms->book1D(label, label, bins, 0., m_dqm_time_range)->getTH1F();
+        module.dqm_active->StatOverflows(true);
+      }
+    }
+
     if (m_enable_timing_paths and m_enable_timing_modules) {
       m_dqms->setCurrentFolder((m_dqm_path / "Paths").generic_string());
       BOOST_FOREACH(PathMap<PathInfo>::value_type & keyval, m_paths) {
@@ -196,20 +211,22 @@ void FastTimerService::postBeginJob() {
 #endif
         pathinfo.dqm_total        = m_dqms->book1D(pathname + "_total",        pathname + " total time",             bins, 0., m_dqm_time_range)->getTH1F();
         pathinfo.dqm_total       ->StatOverflows(true);
-        size_t const & modules = pathinfo.modules.size();
-        pathinfo.dqm_module_counter = m_dqms->book1D(pathname + "_module_counter", pathname + " module counter", modules, 0, modules)->getTH1F();
-        pathinfo.dqm_module_runtime = m_dqms->book1D(pathname + "_module_runtime", pathname + " module runtime", modules, 0, modules)->getTH1F();
+        
+        // book histograms for modules-in-paths statistics
+        size_t id;
+        std::vector<std::string> const & modules = ((id = tns.findTrigPath(pathname)) != tns.getTrigPaths().size()) ? tns.getTrigPathModules(id) :
+                                                   ((id = tns.findEndPath(pathname))  != tns.getEndPaths().size())  ? tns.getEndPathModules(id)  :
+                                                   std::vector<std::string>();
+        pathinfo.dqm_module_counter = m_dqms->book1D(pathname + "_module_counter", pathname + " module counter", modules.size(), 0, modules.size())->getTH1F();
+        pathinfo.dqm_module_runtime = m_dqms->book1D(pathname + "_module_runtime", pathname + " module runtime", modules.size(), 0, modules.size())->getTH1F();
+        for (size_t i = 0; i < modules.size(); ++i) {
+          // find module labels
+          pathinfo.dqm_module_counter->GetXaxis()->SetBinLabel( i+1, modules[i].c_str() );
+          pathinfo.dqm_module_runtime->GetXaxis()->SetBinLabel( i+1, modules[i].c_str() );
+        }
       }
     }
-    if (m_enable_timing_modules) {
-      m_dqms->setCurrentFolder((m_dqm_path / "Modules").generic_string());
-      BOOST_FOREACH(ModuleMap<ModuleInfo>::value_type & keyval, m_modules) {
-        std::string const & label  = keyval.first->moduleLabel();
-        ModuleInfo        & module = keyval.second;
-        module.dqm_active = m_dqms->book1D(label, label, bins, 0., m_dqm_time_range)->getTH1F();
-        module.dqm_active->StatOverflows(true);
-      }
-    }
+
   }
 }
 
