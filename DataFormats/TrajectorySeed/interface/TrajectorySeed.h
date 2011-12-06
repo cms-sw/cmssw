@@ -29,6 +29,14 @@ class TrajectorySeed {
 		 PropagationDirection  dir) : 
     hits_(rh),  tsos_(ptsos), dir_(dir) {}
   
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+  TrajectorySeed(PTrajectoryStateOnDet const & ptsos, 
+		 recHitContainer && rh, 
+		 PropagationDirection  dir) : 
+    hits_(std::move(rh)),  tsos_(ptsos), dir_(dir) {}
+#endif
+
+
   void swap(PTrajectoryStateOnDet & ptsos, 
 		 recHitContainer & rh, 
 	    PropagationDirection & dir) { 
