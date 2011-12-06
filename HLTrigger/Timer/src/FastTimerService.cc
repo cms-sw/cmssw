@@ -219,10 +219,15 @@ void FastTimerService::postBeginJob() {
                                                    std::vector<std::string>();
         pathinfo.dqm_module_counter = m_dqms->book1D(pathname + "_module_counter", pathname + " module counter", modules.size(), 0, modules.size())->getTH1F();
         pathinfo.dqm_module_runtime = m_dqms->book1D(pathname + "_module_runtime", pathname + " module runtime", modules.size(), 0, modules.size())->getTH1F();
+        // find module labels
         for (size_t i = 0; i < modules.size(); ++i) {
-          // find module labels
-          pathinfo.dqm_module_counter->GetXaxis()->SetBinLabel( i+1, modules[i].c_str() );
-          pathinfo.dqm_module_runtime->GetXaxis()->SetBinLabel( i+1, modules[i].c_str() );
+          if (pathinfo.modules[i]) {
+            pathinfo.dqm_module_counter->GetXaxis()->SetBinLabel( i+1, modules[i].c_str() );
+            pathinfo.dqm_module_runtime->GetXaxis()->SetBinLabel( i+1, modules[i].c_str() );
+          } else {
+            pathinfo.dqm_module_counter->GetXaxis()->SetBinLabel( i+1, "(dup.)" );
+            pathinfo.dqm_module_runtime->GetXaxis()->SetBinLabel( i+1, "(dup.)" );
+          }
         }
       }
     }
