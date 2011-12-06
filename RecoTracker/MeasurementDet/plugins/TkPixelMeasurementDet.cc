@@ -92,7 +92,7 @@ TkPixelMeasurementDet::recHits( const TrajectoryStateOnSurface& ts ) const
       return result;
     }
      unsigned int index = ci-begin;
-     if (skipClusters_!=0 and index>=skipClusters_->size()){
+     if (skipClusters_!=0 && skipClusters_->size()!=0 &&  index>=skipClusters_->size()){
        edm::LogError("IndexMisMatch")<<"TkPixelMeasurementDet cannot create hit because of index mismatch. i.e "<<index<<" >= "<<skipClusters_->size();
        return result;
      }
