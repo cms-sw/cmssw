@@ -1033,14 +1033,16 @@ void MuonAssociatorByHits::getMatchedIds
 	
 	if(!SimTrackIds.empty()) {
 	  n_tracker_matched_valid++;
-	  tracker_matchedIds_valid[iH] = SimTrackIds;
+	  //tracker_matchedIds_valid[iH] = SimTrackIds;
+          tracker_matchedIds_valid.push_back( new uint_SimHitIdpr_pair(iH, SimTrackIds));
 	}
       } else {
 	n_tracker_INVALID++;
 
 	if(!SimTrackIds.empty()) {
 	  n_tracker_matched_INVALID++;
-	  tracker_matchedIds_INVALID[iH] = SimTrackIds;
+	  //tracker_matchedIds_INVALID[iH] = SimTrackIds;
+          tracker_matchedIds_INVALID.push_back( new uint_SimHitIdpr_pair(iH, SimTrackIds));
 	}
       }
     }  
@@ -1067,14 +1069,16 @@ void MuonAssociatorByHits::getMatchedIds
 
 	    if (!SimTrackIds.empty()) {
 	      n_dt_matched_valid++;
-	      muon_matchedIds_valid[iH] = SimTrackIds;
+	      //muon_matchedIds_valid[iH] = SimTrackIds;
+              muon_matchedIds_valid.push_back (new uint_SimHitIdpr_pair(iH,SimTrackIds));
 	    }
 	  } else {
 	    n_dt_INVALID++;
 	    
 	    if (!SimTrackIds.empty()) {
 	      n_dt_matched_INVALID++;
-	      muon_matchedIds_INVALID[iH] = SimTrackIds;
+	      //muon_matchedIds_INVALID[iH] = SimTrackIds;
+              muon_matchedIds_INVALID.push_back (new uint_SimHitIdpr_pair(iH,SimTrackIds));
 	    }
 	  }
 
@@ -1137,14 +1141,17 @@ void MuonAssociatorByHits::getMatchedIds
 
 		  if (!i_SimTrackIds.empty()) {
 		    n_dt_matched_valid++;
-		    muon_matchedIds_valid[iH] = i_SimTrackIds;
+		    //muon_matchedIds_valid[iH] = i_SimTrackIds;
+                    muon_matchedIds_valid.push_back (new uint_SimHitIdpr_pair(iH,i_SimTrackIds));
 		  }
 		} else {
 		  n_dt_INVALID++;
 		  
 		  if (!i_SimTrackIds.empty()) {
 		    n_dt_matched_INVALID++;
-		    muon_matchedIds_INVALID[iH] = i_SimTrackIds;
+		    //muon_matchedIds_INVALID[iH] = i_SimTrackIds;
+                    muon_matchedIds_INVALID.push_back (new uint_SimHitIdpr_pair(iH,i_SimTrackIds));
+                    
 		  } 
 		}
 	      } else if (printRtS) edm::LogWarning("MuonAssociatorByHits")
@@ -1192,14 +1199,16 @@ void MuonAssociatorByHits::getMatchedIds
 	    
 	    if (!SimTrackIds.empty()) {
 	      n_csc_matched_valid++;
-	      muon_matchedIds_valid[iH] = SimTrackIds;
+	      //muon_matchedIds_valid[iH] = SimTrackIds;
+              muon_matchedIds_valid.push_back (new uint_SimHitIdpr_pair(iH,SimTrackIds));
 	    }
 	  } else {
 	    n_csc_INVALID++;
 	    
 	    if (!SimTrackIds.empty()) {
 	      n_csc_matched_INVALID++;
-	      muon_matchedIds_INVALID[iH] = SimTrackIds;
+	      //muon_matchedIds_INVALID[iH] = SimTrackIds;
+              muon_matchedIds_INVALID.push_back (new uint_SimHitIdpr_pair(iH,SimTrackIds));
 	    }
 	  }
 	}
@@ -1233,14 +1242,16 @@ void MuonAssociatorByHits::getMatchedIds
 
 		  if (!i_SimTrackIds.empty()) {
 		    n_csc_matched_valid++;
-		    muon_matchedIds_valid[iH] =  i_SimTrackIds;
+		    //muon_matchedIds_valid[iH] =  i_SimTrackIds;
+                    muon_matchedIds_valid.push_back (new uint_SimHitIdpr_pair(iH,i_SimTrackIds));
 		  }
 		} else {
 		  n_csc_INVALID++;
 		  
 		  if (!i_SimTrackIds.empty()) {
 		    n_csc_matched_INVALID++;
-		    muon_matchedIds_INVALID[iH] =  i_SimTrackIds;
+		    //muon_matchedIds_INVALID[iH] =  i_SimTrackIds;
+                    muon_matchedIds_INVALID.push_back (new uint_SimHitIdpr_pair(iH,i_SimTrackIds));
 		  }
 		}
 	      } else if (printRtS) edm::LogWarning("MuonAssociatorByHits")
@@ -1284,14 +1295,17 @@ void MuonAssociatorByHits::getMatchedIds
 
 	  if (!SimTrackIds.empty()) {
 	    n_rpc_matched_valid++;
-	    muon_matchedIds_valid[iH] = SimTrackIds;
+	    //muon_matchedIds_valid[iH] = SimTrackIds;
+            muon_matchedIds_valid.push_back (new uint_SimHitIdpr_pair(iH,SimTrackIds));
+            
 	  }
 	} else {
 	  n_rpc_INVALID++;
 	  
 	  if (!SimTrackIds.empty()) {
 	    n_rpc_matched_INVALID++;
-	    muon_matchedIds_INVALID[iH] = SimTrackIds;
+	    //muon_matchedIds_INVALID[iH] = SimTrackIds;
+            muon_matchedIds_INVALID.push_back (new uint_SimHitIdpr_pair(iH,SimTrackIds));
 	  }
 	}
 	
@@ -1316,11 +1330,12 @@ void MuonAssociatorByHits::getMatchedIds
 int MuonAssociatorByHits::getShared(MapOfMatchedIds & matchedIds, TrackingParticleCollection::const_iterator trpart) const {
   int nshared = 0;
 
+
   // map is indexed over the rechits of the reco::Track (no double-countings allowed)
   for (MapOfMatchedIds::const_iterator iRecH=matchedIds.begin(); iRecH!=matchedIds.end(); ++iRecH) {
 
     // vector of associated simhits associated to the current rechit
-    std::vector<SimHitIdpr> SimTrackIds = (*iRecH).second;
+    std::vector<SimHitIdpr> const & SimTrackIds = (*iRecH).second;
     
     bool found = false;
     

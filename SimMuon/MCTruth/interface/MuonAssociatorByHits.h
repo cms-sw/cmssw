@@ -20,12 +20,17 @@
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 
+
+#include <boost/ptr_container/ptr_vector.hpp>
+
 class MuonAssociatorByHits : public TrackAssociatorBase {
   
  public:
   typedef std::pair <uint32_t, EncodedEventId> SimHitIdpr;
-  typedef std::map<unsigned int, std::vector<SimHitIdpr> > MapOfMatchedIds;
-
+  //typedef std::map<unsigned int, std::vector<SimHitIdpr> > MapOfMatchedIds;
+  typedef std::pair<unsigned int,std::vector<SimHitIdpr> > uint_SimHitIdpr_pair;
+  typedef boost::ptr_vector<uint_SimHitIdpr_pair> MapOfMatchedIds;
+  
   MuonAssociatorByHits( const edm::ParameterSet& );  
   ~MuonAssociatorByHits();
   
