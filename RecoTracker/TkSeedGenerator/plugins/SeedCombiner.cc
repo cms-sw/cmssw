@@ -82,7 +82,7 @@ void SeedCombiner::produce(edm::Event& ev, const edm::EventSetup& es)
 	    refSetter.reKey(&newRecHitContainer.back());
 	  }
 	  result->push_back(TrajectorySeed(iS->startingState(),
-					   newRecHitContainer,
+					   std::move(newRecHitContainer),
 					   iS->direction()));
 	}
       }else{
