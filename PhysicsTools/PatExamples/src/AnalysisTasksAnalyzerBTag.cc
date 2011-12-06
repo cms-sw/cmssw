@@ -11,8 +11,11 @@ AnalysisTasksAnalyzerBTag::AnalysisTasksAnalyzerBTag(const edm::ParameterSet& cf
   bTagAlgo_(cfg.getParameter<std::string>("bTagAlgo")),
   bins_(cfg.getParameter<uint>("bins")),
   lowerbin_(cfg.getParameter<double>("lowerbin")),
-  upperbin_(cfg.getParameter<double>("upperbin"))
+  upperbin_(cfg.getParameter<double>("upperbin")),
+  softMuonTagInfoLabel_(cfg.getParameter<std::string>("softMuonTagInfoLabel")),
+  skip_(cfg.getParameter<bool>("skip"))
 {
+  hists_["NumSoftMuons"] = fs.make<TH1F>("NumSoftMuons"  , "NumSoftMuons"  ,4,  -0.5, 3.5);
   hists_["BTag_b"] = fs.make<TH1F>("BTag_b"  , "BTag_b"  ,  bins_,  lowerbin_, upperbin_);
   hists_["BTag_g"] = fs.make<TH1F>("BTag_g" , "BTag_g" ,  bins_, lowerbin_,   upperbin_);
   hists_["BTag_c"] = fs.make<TH1F>("BTag_c" , "BTag_c" ,  bins_, lowerbin_,   upperbin_); 
@@ -29,9 +32,9 @@ AnalysisTasksAnalyzerBTag::~AnalysisTasksAnalyzerBTag()
   for(uint i=0; i< bins_; ++i){
    hists_["effBTag_b"]->SetBinContent(i,hists_["BTag_b"]->Integral(i,hists_["BTag_b"]->GetNbinsX()+1)/hists_["BTag_b"]->Integral(0,hists_["BTag_b"]->GetNbinsX()+1) );
    hists_["effBTag_g"]->SetBinContent(i,hists_["BTag_g"]->Integral(i,hists_["BTag_g"]->GetNbinsX()+1)/hists_["BTag_g"]->Integral(0,hists_["BTag_g"]->GetNbinsX()+1) );
-  hists_["effBTag_c"]->SetBinContent(i,hists_["BTag_c"]->Integral(i,hists_["BTag_c"]->GetNbinsX()+1)/hists_["BTag_c"]->Integral(0,hists_["BTag_c"]->GetNbinsX()+1) );
-  hists_["effBTag_uds"]->SetBinContent(i,hists_["BTag_uds"]->Integral(i,hists_["BTag_uds"]->GetNbinsX()+1)/hists_["BTag_uds"]->Integral(0,hists_["BTag_uds"]->GetNbinsX()+1) );
-  hists_["effBTag_other"]->SetBinContent(i,hists_["BTag_other"]->Integral(i,hists_["BTag_other"]->GetNbinsX()+1)/hists_["BTag_other"]->Integral(0,hists_["BTag_other"]->GetNbinsX()+1) );
+   hists_["effBTag_c"]->SetBinContent(i,hists_["BTag_c"]->Integral(i,hists_["BTag_c"]->GetNbinsX()+1)/hists_["BTag_c"]->Integral(0,hists_["BTag_c"]->GetNbinsX()+1) );
+   hists_["effBTag_uds"]->SetBinContent(i,hists_["BTag_uds"]->Integral(i,hists_["BTag_uds"]->GetNbinsX()+1)/hists_["BTag_uds"]->Integral(0,hists_["BTag_uds"]->GetNbinsX()+1) );
+   hists_["effBTag_other"]->SetBinContent(i,hists_["BTag_other"]->Integral(i,hists_["BTag_other"]->GetNbinsX()+1)/hists_["BTag_other"]->Integral(0,hists_["BTag_other"]->GetNbinsX()+1) );
   } 
 }
 /// everything that needs to be done during the event loop
@@ -51,7 +54,13 @@ AnalysisTasksAnalyzerBTag::analyze(const edm::EventBase& event)
   
     pat::Jet Jet(*Jet_it);
 
-   //Categorize the Jets
+    if(!skip_ ){
+         std::cout << "has taginfo: "<<Jet.hasTagInfo(softMuonTagInfoLabel_)<<std::endl;
+         if(Jet.hasTagInfo(softMuonTagInfoLabel_)){
+            hists_["NumSoftMuons"]->Fill(Jet.tagInfoSoftLepton(softMuonTagInfoLabel_)->leptons());
+         }
+    }
+    //Categorize the Jets
     if( abs(Jet.partonFlavour())==5){
       hists_["BTag_b"]->Fill(Jet.bDiscriminator(bTagAlgo_));
     }
