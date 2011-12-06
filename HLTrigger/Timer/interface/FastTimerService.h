@@ -127,10 +127,10 @@ private:
 private:
 
   struct ModuleInfo {
-    double                      time_active;
+    double                      time_active;        // per-event timer: time actually spent in this module
     double                      summary_active;
     TH1F *                      dqm_active;
-    bool                        has_just_run;
+    bool                        has_just_run;       // flag sed to check if a module was active inside a particular path, or not
 
   public:
     ModuleInfo() :
@@ -142,16 +142,16 @@ private:
   };
 
   struct PathInfo {
-    std::vector<ModuleInfo *>   modules;
-    double                      time_active;
+    std::vector<ModuleInfo *>   modules;            // list of all modules contributing to the path (duplicate modules stored as null pointers)
+    double                      time_active;        // per-event timer: time actually spent in this path
 #ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
-    double                      time_premodules;
-    double                      time_intermodules;
-    double                      time_postmodules;
+    double                      time_premodules;    // per-event timer: time spent between "begin path" and the first "begin module"
+    double                      time_intermodules;  // per-event timer: time spent between modules
+    double                      time_postmodules;   // per-event timer: time spent between the last "end module" and "end path"
 #else
-    double                      time_overhead;
+    double                      time_overhead;      // per-event timer: sum of time_premodules, time_intermodules, time_postmodules
 #endif
-    double                      time_total;
+    double                      time_total;         // per-event timer: sum of the time spent in all modules which would have run in this path (plus overhead)
     double                      summary_active;
 #ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
     double                      summary_premodules;
@@ -170,6 +170,8 @@ private:
     TH1F *                      dqm_overhead;
 #endif
     TH1F *                      dqm_total;
+    TH1F *                      dqm_module_counter;     // for each module in the path, track how many times it ran
+    TH1F *                      dqm_module_runtime;     // for each module in the path, track the total time spent 
 
   public:
     PathInfo() :
@@ -200,7 +202,9 @@ private:
 #else
       dqm_overhead(0),
 #endif
-      dqm_total(0)
+      dqm_total(0),
+      dqm_module_counter(0),
+      dqm_module_runtime(0)
     { }
   };
 

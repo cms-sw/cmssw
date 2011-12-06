@@ -196,6 +196,9 @@ void FastTimerService::postBeginJob() {
 #endif
         pathinfo.dqm_total        = m_dqms->book1D(pathname + "_total",        pathname + " total time",             bins, 0., m_dqm_time_range)->getTH1F();
         pathinfo.dqm_total       ->StatOverflows(true);
+        size_t const & modules = pathinfo.modules.size();
+        pathinfo.dqm_module_counter = m_dqms->book1D(pathname + "_module_counter", pathname + " module counter", modules, 0, modules)->getTH1F();
+        pathinfo.dqm_module_runtime = m_dqms->book1D(pathname + "_module_runtime", pathname + " module runtime", modules, 0, modules)->getTH1F();
       }
     }
     if (m_enable_timing_modules) {
@@ -424,9 +427,11 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
       size_t last_run = status.index();     // index of the last module run in this path
       for (size_t i = 0; i <= last_run; ++i) {
         ModuleInfo * module = pathinfo.modules[i];
+        pathinfo.dqm_module_counter->Fill(i);
         if (module == 0)
           // this is a module occurring more than once in the same path, skip it after the first occurrence
           continue;
+        pathinfo.dqm_module_runtime->Fill(i, module->time_active);
         if (module->has_just_run) {
           current += module->time_active;
         } else {
