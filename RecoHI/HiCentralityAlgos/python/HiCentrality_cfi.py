@@ -29,7 +29,7 @@ hiCentrality = cms.EDFilter("reco::CentralityProducer",
                             srcPixelTracks = cms.InputTag("hiPixel3PrimTracks"),
                             
                             doPixelCut = cms.bool(True),
-                            pixelBarrelOnly = cms.bool(True),
+                            pixelBarrelOnly = cms.bool(False),
                             trackEtaCut = cms.double(2),
                             trackPtCut = cms.double(1),
                             midRapidityRange = cms.double(1),
