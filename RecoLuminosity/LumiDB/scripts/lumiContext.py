@@ -31,7 +31,7 @@ def parseInputFiles(inputfilename,dbrunlist,optaction):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description = "Additional information needed in the lumi calculation",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    allowedActions = ['hltbyls','hltconf','trgconf','trgbyls', 'beambyls']
+    allowedActions = ['hltbyls','hltconf','trgconf','trgbyls', 'beambyls','runsummary']
     amodetagChoices = [ "PROTPHYS","IONPHYS" ]
     beamModeChoices = ["stable"]
     #
@@ -238,5 +238,22 @@ if __name__ == '__main__':
             lumiReport.toScreenLSBeam(result,iresults=iresults,dumpIntensity=False)
         else:
             lumiReport.toCSVLSBeam(result,options.outputfile,resultlines=iresults,dumpIntensity=options.withbeamintensity,isverbose=options.verbose)
+    if options.action == 'runsummary':
+        session.transaction().start(True)
+        result=lumiCalcAPI.runsummary(session.nominalSchema(),irunlsdict)
+        session.transaction().commit()
+        for r in result:
+            run=r[0]
+            fill=r[5]
+            starttime=r[7]
+            stoptime=r[8]
+            l1key=r[1]
+            hltkey=r[4]
+            amodetag=r[2]
+            egev=r[3]
+            sequence=r[6]
+            print 'Run ',run,' Fill ',fill,' Amodetag ',amodetag,' egev ',egev
+            print '\tStart ',starttime,' Stop ',stoptime
+            print '\tL1key ',l1key,' HLTkey ',hltkey
     del session
     del svc 

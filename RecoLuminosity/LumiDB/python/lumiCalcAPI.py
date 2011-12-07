@@ -26,6 +26,16 @@ def _decidenormForRun(schema,run):
     normresult=dataDML.luminormById(schema,normdataid)
     return normresult[2]
 #public functions
+def runsummary(schema,irunlsdict):
+    '''
+    output  [[l1key,amodetag,egev,hltkey,fillnum,sequence,starttime,stoptime]]
+    '''
+    result=[]
+    for run in sorted(irunlsdict):
+        runinfo=dataDML.runsummary(schema,run)
+        runinfo.insert(0,run)
+        result.append(runinfo)
+    return result
 def fillInRange(schema,fillmin=1000,fillmax=9999,amodetag='PROTPHYS',startT=None,stopT=None):
     '''
     output [fill]
