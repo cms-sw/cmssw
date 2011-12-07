@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 VERSION='2.00'
 import os,sys,time
-from RecoLuminosity.LumiDB import sessionManager,lumiTime,inputFilesetParser,csvSelectionParser,csvReporter,argparse,CommonUtil,lumiCalcAPI,lumiReport
+from RecoLuminosity.LumiDB import sessionManager,lumiTime,inputFilesetParser,csvSelectionParser,csvReporter,argparse,CommonUtil,lumiCalcAPI,lumiReport,lumiTime
 
 def parseInputFiles(inputfilename,dbrunlist,optaction):
     '''
@@ -242,18 +242,25 @@ if __name__ == '__main__':
         session.transaction().start(True)
         result=lumiCalcAPI.runsummary(session.nominalSchema(),irunlsdict)
         session.transaction().commit()
+        c=lumiTime.lumiTime()
         for r in result:
             run=r[0]
-            fill=r[5]
-            starttime=r[7]
-            stoptime=r[8]
+            fill='n/a'
+            if r[5]:
+                fill=str(r[5])
+            starttime=c.StrToDatetime(r[7])
+            starttime=starttime.strftime('%m/%d/%y %H:%M:%S')
+            stoptime=c.StrToDatetime(r[8])
+            stoptime=stoptime.strftime('%m/%d/%y %H:%M:%S')
             l1key=r[1]
             hltkey=r[4]
             amodetag=r[2]
-            egev=r[3]
+            egev='n/a'
+            if r[3]:
+                egev=str(r[3])
             sequence=r[6]
-            print 'Run ',run,' Fill ',fill,' Amodetag ',amodetag,' egev ',egev
-            print '\tStart ',starttime,' Stop ',stoptime
+            print 'Run ',str(run),' Fill ',fill,' Amodetag ',amodetag,' egev ',egev
+            print '\tStart '+starttime,'                  ',' Stop ',stoptime
             print '\tL1key ',l1key,' HLTkey ',hltkey
     del session
     del svc 
