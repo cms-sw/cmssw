@@ -5,7 +5,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/BaseSiTrackerRecHit2DLocalPos.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 
-class SiStripMatchedRecHit2D : public BaseSiTrackerRecHit2DLocalPos{
+class SiStripMatchedRecHit2D : public BaseSiTrackerRecHit2DLocalPos {
  public:
   SiStripMatchedRecHit2D(): BaseSiTrackerRecHit2DLocalPos(){}
   ~SiStripMatchedRecHit2D(){}
@@ -28,7 +28,7 @@ class SiStripMatchedRecHit2D : public BaseSiTrackerRecHit2DLocalPos{
 
     
  private:
-  SiStripRecHit2D componentMono_,componentStereo_;
+  SiStripRecHit2D componentMono_, componentStereo_;
 };
 
 
