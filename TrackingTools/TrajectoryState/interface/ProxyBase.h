@@ -3,6 +3,8 @@
 
 #include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
 #include "TrackingTools/TrajectoryState/interface/CopyUsingNew.h"
+#include "FWCore/Utilities/interface/Visibility.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 /** A base class for reference counting proxies.
  *  The class to which this one is proxy must inherit from
@@ -31,7 +33,7 @@ protected:
   }
 
   ProxyBase& operator=( const ProxyBase& other) {
-    if ( theData != other.theData) { 
+    if  likely( theData != other.theData) { 
       destroy();
       theData = other.theData;
       if (theData) theData->addReference();
@@ -52,7 +54,7 @@ protected:
   }
   
   ProxyBase& operator=(ProxyBase&& other) {
-    if ( theData != other.theData) { 
+    if  likely( theData != other.theData) { 
       destroy();
       theData = other.theData;
       other.theData=0;
@@ -78,11 +80,11 @@ protected:
   bool isValid() const { return theData != 0;}
 
   void check() const {
-    if (theData == 0)
+    if  unlikely(theData == 0)
       throw TrajectoryStateException("Error: uninitialized ProxyBase used");
   }
 
-  void destroy() { if (isValid()) theData->removeReference();}
+  void destroy() { if  likely(isValid()) theData->removeReference();}
 
   int  references() const {return theData->references();}  
 

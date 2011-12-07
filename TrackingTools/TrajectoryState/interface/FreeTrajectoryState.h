@@ -117,9 +117,6 @@ public:
     if  unlikely(!hasError()) missingError();
     return theCurvilinearError;
   }
-#endif
-
-
 
   void rescaleError(double factor);
 
