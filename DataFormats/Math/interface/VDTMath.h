@@ -44,8 +44,8 @@ static const double QX3exp = 2.27265548208155028766E-1;
 static const double QX4exp = 2.00000000000000000009E0;
 
 // logarithm
-static const double LOG_UPPER_LIMIT = 5e307;
-static const double LOG_LOWER_LIMIT = 5e-307;
+static const double LOG_UPPER_LIMIT = 1e307;
+static const double LOG_LOWER_LIMIT = 1e-307;
 static const double PX1log = 1.01875663804580931796E-4;
 static const double PX2log = 4.97494994976747001425E-1;
 static const double PX3log = 4.70579119878881725854E0;
@@ -59,6 +59,28 @@ static const double QX3log = 8.29875266912776603211E1;
 static const double QX4log = 7.11544750618563894466E1;
 static const double QX5log = 2.31251620126765340583E1;
 
+// Sin
+static const double SIN_LIMIT = 1.073741824e9;
+static const double C1sin = 1.58962301576546568060E-10;
+static const double C2sin =-2.50507477628578072866E-8;
+static const double C3sin = 2.75573136213857245213E-6;
+static const double C4sin =-1.98412698295895385996E-4;
+static const double C5sin = 8.33333333332211858878E-3;
+static const double C6sin =-1.66666666666666307295E-1;
+
+//Cos
+static const double C1cos =-1.13585365213876817300E-11;
+static const double C2cos = 2.08757008419747316778E-9;
+static const double C3cos =-2.75573141792967388112E-7;
+static const double C4cos = 2.48015872888517045348E-5;
+static const double C5cos =-1.38888888888730564116E-3;
+static const double C6cos = 4.16666666666665929218E-2;
+ 
+// Sin and cos
+static const double DP1 =   7.85398125648498535156E-1;
+static const double DP2 =   3.77489470793079817668E-8;
+static const double DP3 =   2.69515142907905952645E-15;
+static const double PIO4 =  7.85398163397448309616E-1;
 
 typedef union {
 	double d;
@@ -162,27 +184,37 @@ double fast_log(double x){
     double y, z;
     double px,qx;
 
-    /* separate mantissa from exponent
-    */
+    /* separate mantissa from exponent */    
+
+//     int fd;
+//     double xd = frexp( x, &fd );
+//     std::cout << "frexp " << xd << " " << fd << std::endl;
+    
     
     unsigned long long n = d2ll(x);
 
     unsigned long long le = ((n >> 52) & 0x7ffL);
-    double fe = (le-1023);
+    int fe = (le-1023) +1 ; // the plus one to make the result identical to frexp
     n &=0xfffffffffffffLL;
     const unsigned long long p05 = d2ll(0.5);
     n |= p05;
     x = ll2d(n);
 
+//     std::cout << "maison " << x << " " << fe << std::endl;
+    
     /* logarithm using log(x) = z + z**3 P(z)/Q(z),
     * where z = 2(x-1)/x+1)
     */
     /* logarithm using log(1+x) = x - .5x**2 + x**3 P(x)/Q(x) */
 
-    // blending   
-    if( x > SQRTH ) fe+=1.;
-    if( x < SQRTH )   x += x;
-    x =   x - 1.0;
+
+    // blending      
+    if( x < SQRTH ) {
+      fe-=1;
+      x = 2 * x - 1.0;
+      }
+    else
+      x = x - 1.0;
     
     
     /* rational form */
@@ -255,6 +287,158 @@ void __future_fast_log_vect(double* input,
                             double* outupt, 
                             const unsigned int arr_size) CMS_VECTORIZE_VERBOSE;
 
+//------------------------------------------------------------------------------                            
+
+inline double fast_sin(double x){
+
+  int sign = 1;
+  if( x < 0 ){
+    x = -x;
+    sign = -1;
+    }
+
+  double y = int( x/PIO4 ); // integer part of x/PIO4 
+
+  // strip high bits of integer part to prevent integer overflow 
+  double z = y * 6.25000000000000000e-02; // divide by 16
+  z = int(z);           // integer part of y/16 
+  z = y - z * 16;  
+
+  int j = z; // convert to integer for tests on the phase angle
+  // map zeros to origin 
+  if( j & 1 ){
+    j += 1;
+    y += 1.;
+    }
+  j &= 07; // octant modulo 360 degrees 
+  /* reflect in x axis */
+  if( j > 3){
+    sign = -sign;
+    j -= 4;
+    }
+
+  /* Extended precision modular arithmetic */
+  z = ((x - y * DP1) - y * DP2) - y * DP3;
+
+  double zz = z * z;
+
+  double px=0;
+  
+  if( (j==1) || (j==2) ){
+    px  = C1cos;
+    px *= zz;
+    px += C2cos;
+    px *= zz;
+    px += C3cos;
+    px *= zz;
+    px += C4cos;
+    px *= zz;
+    px += C5cos;
+    px *= zz;
+    px += C6cos;         
+    y = 1.0 - zz * .5 + zz * zz * px;
+    }
+  else{
+    px  = C1sin;
+    px *= zz;
+    px += C2sin;
+    px *= zz;
+    px += C3sin;
+    px *= zz;
+    px += C4sin;
+    px *= zz;
+    px += C5sin;
+    px *= zz;
+    px += C6sin;          
+    y = z  +  z * zz * px;
+    }
+
+  y *= sign;
+
+  return y;
+  }                            
+//------------------------------------------------------------------------------
+// Will vectorise only with gcc 4.7
+void __future_fast_sin_vect(double* input, 
+                            double* outupt, 
+                            const unsigned int arr_size) CMS_VECTORIZE_VERBOSE;
+
+//------------------------------------------------------------------------------                            
+
+inline double fast_cos(double x){
+
+  int sign = 1;
+  if( x < 0 )
+    x = -x;
+
+  double y = int( x/PIO4 ); // integer part of x/PIO4 
+
+  // strip high bits of integer part to prevent integer overflow 
+  double z = y * 6.25000000000000000e-02; // divide by 16
+  z = int(z);           // integer part of y/16 
+  z = y - z * 16;  
+
+  int j = z; // convert to integer for tests on the phase angle
+  // map zeros to origin 
+  if( j & 1 ){
+    j += 1;
+    y += 1.;
+    }
+  j &= 07; // octant modulo 360 degrees 
+  /* reflect in x axis */
+  if( j > 3){
+    sign = -sign;
+    j -= 4;
+    }
+
+  if( j > 1 )
+    sign = -sign;
+
+  /* Extended precision modular arithmetic */
+  z = ((x - y * DP1) - y * DP2) - y * DP3;
+
+  double zz = z * z;
+
+  double px=0;
+  if( (j==1) || (j==2) ){
+    px  = C1sin;
+    px *= zz;
+    px += C2sin;
+    px *= zz;
+    px += C3sin;
+    px *= zz;
+    px += C4sin;
+    px *= zz;
+    px += C5sin;
+    px *= zz;
+    px += C6sin;                 
+    y = z  +  z * zz * px;    
+    }
+  else{
+    px  = C1cos;
+    px *= zz;
+    px += C2cos;
+    px *= zz;
+    px += C3cos;
+    px *= zz;
+    px += C4cos;
+    px *= zz;
+    px += C5cos;
+    px *= zz;
+    px += C6cos;  
+    y = 1. - zz * .5 + zz * zz * px;  
+    }
+  
+  y *= sign;
+  
+  return y;
+  }
+
+//------------------------------------------------------------------------------
+// Will vectorise only with gcc 4.7
+void __future_fast_cos_vect(double* input, 
+                            double* outupt, 
+                            const unsigned int arr_size) CMS_VECTORIZE_VERBOSE;  
 // Service----------------------------------------------------------------------
 
 void print_instructions_info();

@@ -123,11 +123,12 @@ void vdt::fast_log_vect(double* original_input,
 
   double* input = new double [arr_size];
   double* x_arr = new double [arr_size];
-  double* fe_arr = new double [arr_size];
+  int* fe_arr = new int [arr_size];
   
   double y, z;
   double px,qx;
-  double x, fe;
+  double x;
+  int fe;
 
   for (unsigned int i = 0; i < arr_size; ++i) {
     input[i] = original_input[i];
@@ -140,7 +141,7 @@ void vdt::fast_log_vect(double* original_input,
     unsigned long long n = d2ll(x);
 
     unsigned long long le = ((n >> 52) & 0x7ffL);
-    double fe = (le-1023);
+    fe = (le-1023);
     n &=0xfffffffffffffLL;
     const unsigned long long p05 = d2ll(0.5);
     n |= p05;
@@ -230,16 +231,43 @@ void vdt::std_log_vect(double* input, double* output,const unsigned int arr_size
 
 //------------------------------------------------------------------------------
 
-void vdt::__future_fast_log_vect(double* input, double* outupt, const unsigned int arr_size) {
+void vdt::__future_fast_log_vect(double* input, double* output, const unsigned int arr_size) {
   
   for (unsigned int i=0;i<arr_size;++i)
-    outupt[0] = vdt::fast_log( input[i] );
+    output[i] = vdt::fast_log( input[i] );
   
 }
 
 
 //------------------------------------------------------------------------------
 
+/*******************************************************************************
+ *
+ * SIN COS IMPLEMENTATIONS
+ *
+ ******************************************************************************/
+    
+//------------------------------------------------------------------------------
+    
+    
+void vdt::__future_fast_sin_vect(double* input, double* outupt, const unsigned int arr_size) {
+    
+  for (unsigned int i=0;i<arr_size;++i)
+    outupt[0] = vdt::fast_sin( input[i] );
+    
+}     
+    
+//------------------------------------------------------------------------------
+      
+void vdt::__future_fast_cos_vect(double* input, double* outupt, const unsigned int arr_size) {
+    
+  for (unsigned int i=0;i<arr_size;++i)
+    outupt[0] = vdt::fast_cos( input[i] );
+    
+}
+
+
+                            
 void vdt::print_instructions_info(){
 /**
  * Check and print which instructions sets are enabled.
