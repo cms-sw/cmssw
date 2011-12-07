@@ -60,7 +60,7 @@ namespace edm {
         // a Strings parameter named "trigger_paths".
         // We do not want to throw an exception if it is not there
         // for reasons of backward compatibility
-        Strings psetNames = pset->getParameterNamesForType<Strings>();
+        Strings const & psetNames = pset->getParameterNamesForType<Strings>();
         std::string name("@trigger_paths");
 	if (search_all(psetNames, name)) {
           // It is there, get it
