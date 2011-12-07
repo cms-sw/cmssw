@@ -40,9 +40,6 @@ triggerSelectionMC   = triggerSelection_Summer11
 
 ### Muon selection
 
-# PF2PAT top projection settings
-pfMuonIsoConeR = 0.4 # for mu+jets, default: 0.4
-
 # Minimal selection for all muons, also basis for signal and veto muons
 muonCutBase  =     'pt > 10.'                                                    # transverse momentum
 muonCutBase += ' && abs(eta) < 2.5'                                              # pseudo-rapisity range
