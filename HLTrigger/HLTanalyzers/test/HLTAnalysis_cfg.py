@@ -11,6 +11,9 @@ NEVTS=100
 MENU="GRun" # GRun for data or MC with >= CMSSW_3_8_X
 isRelval=0 # =0 for running on MC RelVals, =0 for standard production MC, no effect for data 
 
+isRaw=1 #  =1 changes the path to run lumiProducer from dbs on RAW, =0 if RAW+RECO will get lumi info from file intself
+
+
 #WhichHLTProcess="HLT"
 WhichHLTProcess="HLT"
 
@@ -50,12 +53,19 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(False)
 )
 
+
 ## For running on RAW only 
 process.source = cms.Source("PoolSource",
                              fileNames = cms.untracked.vstring(
+<<<<<<< HLTAnalysis_cfg.py
+    '/store/data/Run2011B/DoubleMu/RAW/v1/000/178/479/2875F9DE-1AF6-E011-94BC-001D09F2983F.root'
+=======
                             '/store/data/Run2011B/DoubleMu/RAW/v1/000/176/304/9A59C03B-C2DE-E011-A854-BCAEC53296F3.root'
                                  )
+>>>>>>> 1.56
                                  )
+                            )
+
 
 ## For running on RAW+RECO
 ##process.source = cms.Source("PoolSource",
@@ -67,16 +77,28 @@ process.source = cms.Source("PoolSource",
 ##  )
 ##)
 
+<<<<<<< HLTAnalysis_cfg.py
+
+=======
 # from CMSSW_5_0_0_pre6: RawDataLikeMC=False (to keep "source")
 if cmsswVersion > "CMSSW_5_0":
     process.source.labelRawDataLikeMC = cms.untracked.bool( False )
 
+>>>>>>> 1.56
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32( NEVTS ),
     skipBadFiles = cms.bool(True)
     )
 
+<<<<<<< HLTAnalysis_cfg.py
+process.load('Configuration/StandardSequences/GeometryExtended_cff')
+process.load('Configuration/StandardSequences/MagneticField_38T_cff')
+process.load('Configuration.StandardSequences.Reconstruction_cff')
+
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+=======
 process.load("HLTrigger.HLTanalyzers.HLT_ES_cff")
+>>>>>>> 1.56
 process.GlobalTag.globaltag = GLOBAL_TAG
 process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
 process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
@@ -92,7 +114,14 @@ process.DQMStore = cms.Service( "DQMStore",)
 
 # Define the analyzer modules
 process.load("HLTrigger.HLTanalyzers.HLTAnalyser_cfi")
-process.analyzeThis = cms.Path( process.HLTBeginSequence + process.hltanalysis )
+if (isRaw):
+    process.analyzeThis = cms.Path(process.lumiProducer + process.HLTBeginSequence + process.hltanalysis )   
+else:
+    process.analyzeThis = cms.Path( process.HLTBeginSequence + process.hltanalysis )
+
+
+
+
 
 process.hltanalysis.RunParameters.HistogramFile=OUTPUT_HIST
 process.hltanalysis.xSection=XSECTION
