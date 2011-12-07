@@ -34,34 +34,30 @@ public:
 //default constructor - needed for Persistency
 
   FreeTrajectoryState():  
-    theCurvilinearError(InvalidError) {}
-
+    theCurvilinearError(InvalidError()) {}
+  
   FreeTrajectoryState(const GlobalTrajectoryParameters& aGlobalParameters) :
-    theGlobalParameters(aGlobalParameters),  
-    theCurvilinearError(InvalidError)
-
-  {
-  }
-
+  theGlobalParameters(aGlobalParameters),  
+  theCurvilinearError(InvalidError())
+  {}
+  
   FreeTrajectoryState(const GlobalPoint& aX,
                       const GlobalVector& aP,
                       TrackCharge aCharge, 
                       const MagneticField* fieldProvider) :
     theGlobalParameters(aX, aP, aCharge, fieldProvider),  
-    theCurvilinearError(InvalidError)
-  {
-  }
-
-
+    theCurvilinearError(InvalidError())
+  {}
+  
+  
   FreeTrajectoryState(const GlobalTrajectoryParameters& aGlobalParameters,
                       const CurvilinearTrajectoryError& aCurvilinearError) :
     theGlobalParameters(aGlobalParameters),
     theCurvilinearError(aCurvilinearError)
-  {
-  }
-
-
-
+  {}
+  
+  
+  
   FreeTrajectoryState(const GlobalTrajectoryParameters& aGlobalParameters,
                       const CartesianTrajectoryError& aCartesianError) :
     theGlobalParameters(aGlobalParameters)
@@ -71,9 +67,9 @@ public:
                       const CartesianTrajectoryError&,
                       const CurvilinearTrajectoryError& aCurvilinearError) :
     theGlobalParameters(aGlobalParameters),
-    theCurvilinearError(aCurvilinearError)  {
-  }
-
+    theCurvilinearError(aCurvilinearError)  
+  {}
+  
 // access
 // propagate access to parameters
   GlobalPoint position() const {
@@ -94,7 +90,7 @@ public:
 
 // direct access
 
-  bool hasCurvilinearError() const {return theCurvilinearError.isValid();}
+  bool hasCurvilinearError() const {return theCurvilinearError.valid();}
 
   bool hasError() const {
     return hasCurvilinearError();

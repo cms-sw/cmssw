@@ -12,13 +12,10 @@ BasicSingleTrajectoryState( const FreeTrajectoryState& fts,
 			    const Surface& aSurface,
 			    const SurfaceSide side) :
   theFreeState( new FreeTrajectoryState(fts)),
-  theLocalError(),
+  theLocalError(InvalidError()),
   theLocalParameters(),
   theLocalParametersValid(false),
-  theLocalErrorValid(false),
   theGlobalParamsUp2Date(true),
-  theCartesianErrorUp2Date(fts.hasCartesianError()),
-  theCurvilinErrorUp2Date(fts.hasCurvilinearError()),
   theSurfaceSide(side), 
   theSurfaceP( &aSurface), 
   theWeight(1.),
@@ -30,13 +27,10 @@ BasicSingleTrajectoryState( const GlobalTrajectoryParameters& par,
 			    const Surface& aSurface,
 			    const SurfaceSide side) :
   theFreeState( new FreeTrajectoryState(par)),
-  theLocalError(),
+  theLocalError(InvalidError()),
   theLocalParameters(),
   theLocalParametersValid(false),
-  theLocalErrorValid(false),
-  theGlobalParamsUp2Date(true),
-  theCartesianErrorUp2Date(false),
-  theCurvilinErrorUp2Date(false),
+   theGlobalParamsUp2Date(true),
   theSurfaceSide(side), 
   theSurfaceP( &aSurface), 
   theWeight(1.),
@@ -49,13 +43,10 @@ BasicSingleTrajectoryState( const GlobalTrajectoryParameters& par,
 			    const Surface& aSurface,
 			    const SurfaceSide side) :
   theFreeState( new FreeTrajectoryState(par, err)),
-  theLocalError(),
+  theLocalError((InvalidError()),
   theLocalParameters(),
   theLocalParametersValid(false),
-  theLocalErrorValid(false),
   theGlobalParamsUp2Date(true),
-  theCartesianErrorUp2Date(true),
-  theCurvilinErrorUp2Date(false),
   theSurfaceSide(side), 
   theSurfaceP( &aSurface), 
   theWeight(1.),
@@ -69,13 +60,10 @@ BasicSingleTrajectoryState( const GlobalTrajectoryParameters& par,
 			    const SurfaceSide side,
 			    double weight) :
   theFreeState( new FreeTrajectoryState(par, err)),
-  theLocalError(),
+  theLocalError((InvalidError()),
   theLocalParameters(),
   theLocalParametersValid(false),
-  theLocalErrorValid(false),
   theGlobalParamsUp2Date(true),
-  theCartesianErrorUp2Date(false),
-  theCurvilinErrorUp2Date(true),
   theSurfaceSide(side), 
   theSurfaceP( &aSurface), 
   theWeight(weight),
@@ -88,13 +76,10 @@ BasicSingleTrajectoryState( const GlobalTrajectoryParameters& par,
 			    const Surface& aSurface,
 			    double weight) :
   theFreeState( new FreeTrajectoryState(par, err)),
-  theLocalError(),
+  theLocalError((InvalidError()),
   theLocalParameters(),
   theLocalParametersValid(false),
-  theLocalErrorValid(false),
   theGlobalParamsUp2Date(true),
-  theCartesianErrorUp2Date(false),
-  theCurvilinErrorUp2Date(true),
   theSurfaceSide(SurfaceSideDefinition::atCenterOfSurface), 
   theSurfaceP( &aSurface), 
   theWeight(weight),
@@ -107,14 +92,11 @@ BasicSingleTrajectoryState( const LocalTrajectoryParameters& par,
 			    const MagneticField* field,
 			    const SurfaceSide side) :
   theFreeState(0),
-  theLocalError(),
+  theLocalError((InvalidError()),
   theLocalParameters(par),
   theLocalParametersValid(true),
-  theLocalErrorValid(false),
   theGlobalParamsUp2Date(false),
-  theCartesianErrorUp2Date(false),
-  theCurvilinErrorUp2Date(false),
-  theSurfaceSide(side),
+   theSurfaceSide(side),
   theSurfaceP( &aSurface), 
   theWeight(1.),
   theField(field) 
@@ -131,10 +113,7 @@ BasicSingleTrajectoryState( const LocalTrajectoryParameters& par,
   theLocalError(err),
   theLocalParameters(par),
   theLocalParametersValid(true),
-  theLocalErrorValid(true),
   theGlobalParamsUp2Date(false),
-  theCartesianErrorUp2Date(false),
-  theCurvilinErrorUp2Date(false),
   theSurfaceSide(side), 
   theSurfaceP( &aSurface),
   theWeight(weight),
@@ -151,10 +130,7 @@ BasicSingleTrajectoryState( const LocalTrajectoryParameters& par,
   theLocalError(err),
   theLocalParameters(par),
   theLocalParametersValid(true),
-  theLocalErrorValid(true),
   theGlobalParamsUp2Date(false),
-  theCartesianErrorUp2Date(false),
-  theCurvilinErrorUp2Date(false),
   theSurfaceSide(SurfaceSideDefinition::atCenterOfSurface),
   theSurfaceP( &aSurface), 
   theWeight(weight),
@@ -164,9 +140,8 @@ BasicSingleTrajectoryState( const LocalTrajectoryParameters& par,
 BasicSingleTrajectoryState::
 BasicSingleTrajectoryState(const Surface& aSurface) :
   theFreeState(0),
-  theLocalError(),
+  theLocalError((InvalidError()),
   theLocalParameters(),
-  theLocalError(InvalidError),
   theLocalParametersValid(false),
   theGlobalParamsUp2Date(false),
   theSurfaceSide(SurfaceSideDefinition::atCenterOfSurface), 
@@ -195,32 +170,31 @@ void BasicSingleTrajectoryState::missingError(char const * where) const{
 
 
 void BasicSingleTrajectoryState::checkGlobalParameters() const {
-  if(!theGlobalParamsUp2Date){
-    //    cout<<"!theGlobalParamsUp2Date"<<endl;
-    theGlobalParamsUp2Date = true;
-    // calculate global parameters from local
-    GlobalPoint  x = surface().toGlobal(theLocalParameters.position());
-    GlobalVector p = surface().toGlobal(theLocalParameters.momentum());
-    // replace in place
-    FreeTrajectoryState * fts = &(*theFreeState);
-    if (fts) { 
-        fts->~FreeTrajectoryState();
-        new(fts) FreeTrajectoryState(x, p, theLocalParameters.charge(), theField);
-    }else {
-      theFreeState.replaceWith(new FreeTrajectoryState(x, p,
-                                                       theLocalParameters.charge(),
-                                                       theField));
-    } 
-  }
+  if likely(theGlobalParamsUp2Date) return;
+ 
+  //    cout<<"!theGlobalParamsUp2Date"<<endl;
+  theGlobalParamsUp2Date = true;
+  // calculate global parameters from local
+  GlobalPoint  x = surface().toGlobal(theLocalParameters.position());
+  GlobalVector p = surface().toGlobal(theLocalParameters.momentum());
+  // replace in place
+  FreeTrajectoryState * fts = &(*theFreeState);
+  if (fts) { 
+    fts->~FreeTrajectoryState();
+    new(fts) FreeTrajectoryState(x, p, theLocalParameters.charge(), theField);
+  }else {
+    theFreeState.replaceWith(new FreeTrajectoryState(x, p,
+						     theLocalParameters.charge(),
+						     theField));
+  } 
 }
 
 void BasicSingleTrajectoryState::checkCurvilinError() const {
   if likely(theFreeState->hasCurvilinearError()) return;
 
-  if(!theLocalParametersValid) createLocalParameters();
-  // after createLocalParameters we can be sure theFreeState is not null
-    if(!theLocalErrorValid) createLocalError();
-    JacobianLocalToCurvilinear loc2Curv(surface(), localParameters(), *theField);
+  if unlikely(!theLocalParametersValid) createLocalParameters();
+  
+  JacobianLocalToCurvilinear loc2Curv(surface(), localParameters(), *theField);
     const AlgebraicMatrix55& jac = loc2Curv.jacobian();
     
     const AlgebraicSymMatrix55 &cov = ROOT::Math::Similarity(jac, theLocalError.matrix());
