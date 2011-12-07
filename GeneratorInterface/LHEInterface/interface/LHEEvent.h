@@ -43,6 +43,7 @@ class LHEEvent {
 	const HEPRUP *getHEPRUP() const { return runInfo->getHEPRUP(); }
 	const PDF *getPDF() const { return pdf.get(); }
 	const std::vector<std::string> &getComments() const { return comments; }
+	const int getReadAttempts() { return readAttemptCounter; }
 
 	void setPDF(std::auto_ptr<PDF> pdf) { this->pdf = pdf; }
 
@@ -54,6 +55,8 @@ class LHEEvent {
 	void count(LHERunInfo::CountMode count,
 	           double weight = 1.0, double matchWeight = 1.0);
 
+	void attempted() { readAttemptCounter++; return; }
+	
 	void fillPdfInfo(HepMC::PdfInfo *info) const;
 	void fillEventInfo(HepMC::GenEvent *hepmc) const;
 
@@ -74,6 +77,7 @@ class LHEEvent {
 	std::auto_ptr<PDF>			pdf;
 	std::vector<std::string>		comments;
 	bool					counted;
+	int                                     readAttemptCounter;
 };
 
 } // namespace lhef

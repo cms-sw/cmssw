@@ -24,7 +24,7 @@ dedxHarm2 = cms.EDProducer("DeDxEstimatorProducer",
 
     UseStrip       = cms.bool(True),
     UsePixel       = cms.bool(True),
-    MeVperADCStrip = cms.double(3.61e-06*250),
+    MeVperADCStrip = cms.double(3.61e-06*265),
     MeVperADCPixel = cms.double(3.61e-06),
 
     MisCalib_Mean      = cms.untracked.double(1.0),
@@ -32,7 +32,7 @@ dedxHarm2 = cms.EDProducer("DeDxEstimatorProducer",
 
     UseCalibration  = cms.bool(False),
     calibrationPath = cms.string(""),
-    ShapeTest       = cms.bool(False),
+    ShapeTest       = cms.bool(True),
 )
 
 dedxTru40 = cms.EDProducer("DeDxEstimatorProducer",
@@ -44,7 +44,7 @@ dedxTru40 = cms.EDProducer("DeDxEstimatorProducer",
 
     UseStrip       = cms.bool(True),
     UsePixel       = cms.bool(True),
-    MeVperADCStrip = cms.double(3.61e-06*250),
+    MeVperADCStrip = cms.double(3.61e-06*265),
     MeVperADCPixel = cms.double(3.61e-06),
 
     MisCalib_Mean      = cms.untracked.double(1.0),
@@ -52,46 +52,21 @@ dedxTru40 = cms.EDProducer("DeDxEstimatorProducer",
 
     UseCalibration  = cms.bool(False),
     calibrationPath = cms.string(""),
-    ShapeTest       = cms.bool(False),
+    ShapeTest       = cms.bool(True),
 )
 
+dedxNPHarm2                  = dedxHarm2.clone()
+dedxNPHarm2.UsePixel         = cms.bool(False)
 
-dedxMed = cms.EDProducer("DeDxEstimatorProducer",
-    tracks                     = cms.InputTag("TrackRefitter"),
-    trajectoryTrackAssociation = cms.InputTag("TrackRefitter"),
+dedxNPTru40                  = dedxTru40.clone()
+dedxNPTru40.UsePixel         = cms.bool(False)
 
-    estimator      = cms.string('median'),
+dedxNSHarm2                  = dedxHarm2.clone()
+dedxNSHarm2.UseStrip         = cms.bool(False)
 
-    UseStrip       = cms.bool(True),
-    UsePixel       = cms.bool(True),
-    MeVperADCStrip = cms.double(3.61e-06*250),
-    MeVperADCPixel = cms.double(3.61e-06),
+dedxNSTru40                  = dedxTru40.clone()
+dedxNSTru40.UseStrip         = cms.bool(False)
 
-    MisCalib_Mean      = cms.untracked.double(1.0),
-    MisCalib_Sigma     = cms.untracked.double(0.00),
-
-    UseCalibration  = cms.bool(False),
-    calibrationPath = cms.string(""),
-    ShapeTest       = cms.bool(False),
-)
-
-dedxCNPHarm2                  = dedxHarm2.clone()
-dedxCNPHarm2.UsePixel         = cms.bool(False)
-
-dedxCNPTru40                  = dedxTru40.clone()
-dedxCNPTru40.UsePixel         = cms.bool(False)
-
-dedxCNPMed                    = dedxMed.clone()
-dedxCNPMed.UsePixel           = cms.bool(False)
-
-dedxSTCNPHarm2                = dedxCNPHarm2.clone()
-dedxSTCNPHarm2.ShapeTest      = cms.bool(True)
-
-dedxSTCNPTru40                = dedxCNPTru40.clone()
-dedxSTCNPTru40.ShapeTest      = cms.bool(True)
-
-dedxSTCNPMed                  = dedxCNPMed.clone()
-dedxSTCNPMed.ShapeTest        = cms.bool(True)
 
 ####################################################################################
 #   DEDX DISCRIMINATORS 
@@ -109,7 +84,7 @@ dedxProd               = cms.EDProducer("DeDxDiscriminatorProducer",
 
     UseStrip           = cms.bool(True),
     UsePixel           = cms.bool(True),
-    MeVperADCStrip     = cms.double(3.61e-06*250),
+    MeVperADCStrip     = cms.double(3.61e-06*265),
     MeVperADCPixel     = cms.double(3.61e-06),
 
     MisCalib_Mean      = cms.untracked.double(1.0),
@@ -117,27 +92,19 @@ dedxProd               = cms.EDProducer("DeDxDiscriminatorProducer",
 
     UseCalibration  = cms.bool(False),
     calibrationPath = cms.string("file:Gains.root"),
-    ShapeTest          = cms.bool(False),
+    ShapeTest          = cms.bool(True),
 
     MaxNrStrips        = cms.untracked.uint32(255)
 )
 
-dedxSmi = dedxProd.clone()
-dedxSmi.Formula = cms.untracked.uint32(2)
-
 dedxASmi = dedxProd.clone()
 dedxASmi.Formula = cms.untracked.uint32(3)
 
+dedxNPProd = dedxProd.clone()
+dedxNPProd.UsePixel = cms.bool(False)
 
-dedxSTProd                  = dedxProd.clone()
-dedxSTProd.ShapeTest        = cms.bool(True)
-
-dedxSTSmi                   = dedxSmi.clone()
-dedxSTSmi.ShapeTest         = cms.bool(True)
-
-dedxSTASmi                  = dedxASmi.clone()
-dedxSTASmi.ShapeTest        = cms.bool(True)
-
+dedxNPASmi = dedxASmi.clone()
+dedxNPASmi.UsePixel = cms.bool(False)
 
 
 ####################################################################################
@@ -146,6 +113,7 @@ dedxSTASmi.ShapeTest        = cms.bool(True)
 
 from RecoMuon.MuonIdentification.muonTiming_cfi import *
 muontiming.MuonCollection = cms.InputTag("muons")
+muontiming.TimingFillerParameters.UseECAL=False
 
 ####################################################################################
 #   HSCParticle Producer
@@ -195,8 +163,8 @@ HSCParticleProducer = cms.EDFilter("HSCParticleProducer",
    rpcRecHits         = cms.InputTag("rpcRecHits"),
 
    #TRACK SELECTION FOR THE HSCP SEED
-   minMuP             = cms.double(5),
-   minTkP             = cms.double(5),
+   minMuP             = cms.double(25),
+   minTkP             = cms.double(25),
    maxTkChi2          = cms.double(5),
    minTkHits          = cms.uint32(3),
 
@@ -229,6 +197,6 @@ HSCParticleSelector = cms.EDFilter("HSCParticleSelector",
 #   HSCP Candidate Sequence
 ####################################################################################
 
-HSCParticleProducerSeq = cms.Sequence(offlineBeamSpot + TrackRefitter + dedxCNPHarm2 + dedxCNPTru40 + dedxCNPMed + dedxSTCNPHarm2 + dedxSTCNPTru40 + dedxSTCNPMed + dedxProd + dedxSmi + dedxASmi + dedxSTProd + dedxSTSmi + dedxSTASmi + muontiming + HSCParticleProducer)
+HSCParticleProducerSeq = cms.Sequence(offlineBeamSpot + TrackRefitter + dedxHarm2 + dedxTru40 + dedxNPHarm2 + dedxNPTru40 + dedxNSHarm2 + dedxNSTru40 + dedxProd + dedxASmi + dedxNPProd + dedxNPASmi + muontiming + HSCParticleProducer)
 
 

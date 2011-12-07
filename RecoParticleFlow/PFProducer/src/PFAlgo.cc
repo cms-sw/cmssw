@@ -522,7 +522,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       bool isPrimaryTrack = elements[iEle].displacedVertexRef(PFBlockElement::T_TO_DISP)->displacedVertexRef()->isTherePrimaryTracks();
       if (isPrimaryTrack) {
 	if (debug_) cout << "Primary Track reconstructed alone" << endl;
-	reconstructTrack(elements[iEle]);
+	unsigned tmpi=reconstructTrack(elements[iEle]);
+	(*pfCandidates_)[tmpi].addElementInBlock(blockref,iEle);
 	active[iTrack] = false;
       }
     }

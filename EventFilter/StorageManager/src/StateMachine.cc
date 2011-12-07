@@ -1,4 +1,4 @@
-// $Id: StateMachine.cc,v 1.4 2009/07/20 13:07:28 mommsen Exp $
+// $Id: StateMachine.cc,v 1.6 2011/03/07 15:31:32 mommsen Exp $
 /// @file: StateMachine.cc
 
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
@@ -12,61 +12,62 @@
 #include <typeinfo>
 #include <fstream>
 
-using namespace stor;
-using namespace std;
 
+namespace stor {
+  
+  StateMachine::StateMachine
+  ( 
+    EventDistributor* ed,
+    FragmentStore* fs,
+    Notifier* n,
+    SharedResourcesPtr sr
+  ):
+  eventDistributor_(ed),
+  fragmentStore_(fs),
+  notifier_(n),
+  sharedResources_(sr)
+  {}
+  
+  Operations const&
+  StateMachine::getCurrentState() const
+  {
+    return state_cast<Operations const&>();
+  }
+  
+  std::string StateMachine::getCurrentStateName() const
+  {
+    return getCurrentState().stateName();
+  }
+  
+  void StateMachine::updateHistory( const TransitionRecord& tr )
+  {
+    sharedResources_->statisticsReporter_->
+      getStateMachineMonitorCollection().updateHistory(tr);
+    // std::ostringstream msg;
+    // msg << tr;
+    // LOG4CPLUS_WARN(sharedResources_->statisticsReporter_->alarmHandler()->getLogger(), msg.str());
+  }
+  
+  void StateMachine::unconsumed_event( bsc::event_base const &event )
+  {
+    
+    std::cerr << "The " << 
+      //event.dynamic_type()
+      typeid(event).name()
+      << " event is not supported from the "
+      << getCurrentStateName() << " state!" << std::endl;
+    
+    // Tell run control not to wait:
+    notifier_->reportNewState( "Unchanged" );
+  }
+  
+  void StateMachine::setExternallyVisibleState( const std::string& s )
+  {
+    sharedResources_->statisticsReporter_->
+      getStateMachineMonitorCollection().setExternallyVisibleState( s );
+  }
 
-StateMachine::StateMachine
-( 
-  EventDistributor* ed,
-  FragmentStore* fs,
-  Notifier* n,
-  SharedResourcesPtr sr
-):
-_eventDistributor(ed),
-_fragmentStore(fs),
-_notifier(n),
-_sharedResources(sr)
-{
-}
-
-Operations const&
-StateMachine::getCurrentState() const
-{
-  return state_cast<Operations const&>();
-}
-
-string StateMachine::getCurrentStateName() const
-{
-  return getCurrentState().stateName();
-}
-
-void StateMachine::updateHistory( const TransitionRecord& tr )
-{
-  _sharedResources->_statisticsReporter->
-    getStateMachineMonitorCollection().updateHistory(tr);
-}
-
-void StateMachine::unconsumed_event( bsc::event_base const &event )
-{
-
-  std::cerr << "The " << 
-    //event.dynamic_type()
-    typeid(event).name()
-    << " event is not supported from the "
-    << getCurrentStateName() << " state!" << std::endl;
-
-  // Tell run control not to wait:
-  _notifier->reportNewState( "Unchanged" );
-
-}
-
-void StateMachine::setExternallyVisibleState( const std::string& s )
-{
-  _sharedResources->_statisticsReporter->
-    getStateMachineMonitorCollection().setExternallyVisibleState( s );
-}
-
+} // namespace stor
 
 /// emacs configuration
 /// Local Variables: -

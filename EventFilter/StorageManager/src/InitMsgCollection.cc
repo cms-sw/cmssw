@@ -1,4 +1,4 @@
-// $Id: InitMsgCollection.cc,v 1.13 2010/05/17 15:59:10 mommsen Exp $
+// $Id: InitMsgCollection.cc,v 1.15 2011/03/07 15:31:32 mommsen Exp $
 /// @file: InitMsgCollection.cc
 
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
@@ -19,17 +19,12 @@ using namespace edm;
 
 InitMsgCollection::InitMsgCollection()
 {
-  FDEBUG(5) << "Executing constructor for InitMsgCollection" << std::endl;
-  initMsgList_.clear();
-  outModNameTable_.clear();
-  serializedFullSet_.reset(new InitMsgBuffer(2 * sizeof(Header)));
-  OtherMessageBuilder fullSetMsg(&(*serializedFullSet_)[0], Header::INIT_SET);
+  clear();
 }
 
 
 InitMsgCollection::~InitMsgCollection()
 {
-  FDEBUG(5) << "Executing destructor for InitMsgCollection" << std::endl;
 }
 
 
@@ -169,14 +164,14 @@ void InitMsgCollection::clear()
 }
 
 
-int InitMsgCollection::size() const
+size_t InitMsgCollection::size() const
 {
   boost::mutex::scoped_lock sl(listLock_);
   return initMsgList_.size();
 }
 
 
-uint32_t InitMsgCollection::initMsgCount(const std::string& outputModuleLabel) const
+size_t InitMsgCollection::initMsgCount(const std::string& outputModuleLabel) const
 {
   boost::mutex::scoped_lock sl(listLock_);
 
@@ -198,11 +193,11 @@ uint32_t InitMsgCollection::initMsgCount(const std::string& outputModuleLabel) c
 }
 
 
-uint32_t InitMsgCollection::maxMsgCount() const
+size_t InitMsgCollection::maxMsgCount() const
 {
   boost::mutex::scoped_lock sl(listLock_);
 
-  uint32_t maxCount = 0;
+  size_t maxCount = 0;
 
   for (InitMsgList::const_iterator msgIter = initMsgList_.begin(),
          msgIterEnd = initMsgList_.end();
@@ -315,24 +310,6 @@ void InitMsgCollection::add(InitMsgView const& initMsgView)
   // add the module ID name to the name map
   outModNameTable_[initMsgView.outputModuleId()] =
     initMsgView.outputModuleLabel();
-
-  // calculate various sizes needed for adding the message to
-  // the serialized version of the full set
-  OtherMessageView fullSetView(&(*serializedFullSet_)[0]);
-  unsigned int oldBodySize = fullSetView.bodySize();
-  unsigned int oldBufferSize = serializedFullSet_->size();
-  unsigned int newBodySize = oldBodySize + initMsgView.size();
-  unsigned int newBufferSize = oldBufferSize + initMsgView.size();
-
-  // add the message to the serialized full set of messages
-  serializedFullSet_->resize(newBufferSize);
-  OtherMessageBuilder fullSetMsg(&(*serializedFullSet_)[0],
-                                 Header::INIT_SET,
-                                 newBodySize);
-  uint8 *copyPtr = fullSetMsg.msgBody() + oldBodySize;
-  std::copy(initMsgView.startAddress(),
-            initMsgView.startAddress()+initMsgView.size(),
-            copyPtr);
 }
 
 

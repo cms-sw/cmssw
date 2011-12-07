@@ -20,7 +20,6 @@ process.RECOSIMoutput.outputCommands = cms.untracked.vstring('drop *',
   'keep recoGsfTrack*_*_*_*', 
   'keep *_iterativeCone5GenJets_*_*', 
   'keep *_iterativeCone5CaloJets_*_*', 
-  'keep *_ecalDrivenGsfElectronCores_*_*', 
   'keep *_gsfElectronCores_*_*', 
   'keep *_gsfElectrons_*_*'
 )

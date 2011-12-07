@@ -181,7 +181,7 @@ class AddJetCollection(ConfigToolBase):
         self.addParameter(self._defaultParameters,'typeLabel',self._defaultValue, "label to indicate the type of constituents (e.g. 'Calo', 'Pflow', 'Jpt', ...)",str)
         self.addParameter(self._defaultParameters,'doJTA',True, "run b tagging sequence for new jet collection and add it to the new pat jet collection")
         self.addParameter(self._defaultParameters,'doBTagging',True, 'run JetTracksAssociation and JetCharge and add it to the new pat jet collection (will autom. be true if doBTagging is set to true)')        
-        self.addParameter(self._defaultParameters,'jetCorrLabel',None, "payload and list of new jet correction labels, such as [\'L2Relative\', \'L3Absolute\']", tuple,acceptNoneValue=True )
+        self.addParameter(self._defaultParameters,'jetCorrLabel',None, "payload and list of new jet correction labels, such as (\'AK5Calo\',[\'L2Relative\', \'L3Absolute\'])", tuple,acceptNoneValue=True )
         self.addParameter(self._defaultParameters,'doType1MET',True, "if jetCorrLabel is not 'None', set this to 'True' to redo the Type1 MET correction for the new jet colllection; at the moment it must be 'False' for non CaloJets otherwise the JetMET POG module crashes. ")
         self.addParameter(self._defaultParameters,'doL1Cleaning',True, "copy also the producer modules for cleanLayer1 will be set to 'True' automatically when doL1Counters is 'True'")
         self.addParameter(self._defaultParameters,'doL1Counters',False, "copy also the filter modules that accept/reject the event looking at the number of jets")
@@ -359,7 +359,7 @@ class AddJetCollection(ConfigToolBase):
             ## add jet track association module to processes
             jtaLabel = 'jetTracksAssociatorAtVertex'+algoLabel+typeLabel
             setattr( process, jtaLabel, ak5JetTracksAssociatorAtVertex.clone(jets = jetCollection) )
-            process.makePatJets.replace(process.patJetCharge, getattr(process,jtaLabel)+process.patJetCharge)
+            process.patDefaultSequence.replace(process.patJetCharge, getattr(process,jtaLabel)+process.patJetCharge)
             l1Jets.trackAssociationSource = cms.InputTag(jtaLabel)
             addClone('patJetCharge', src=cms.InputTag(jtaLabel)),
             fixInputTag(l1Jets.jetChargeSource)
@@ -375,7 +375,7 @@ class AddJetCollection(ConfigToolBase):
             ## add b tagging sequence
             (btagSeq, btagLabels) = runBTagging(process, jetCollection, postfixLabel)
             ## add b tagging sequence before running the allLayer1Jets modules
-            process.makePatJets.replace(getattr(process,jtaLabel), getattr(process,jtaLabel)+btagSeq)
+            process.patDefaultSequence.replace(getattr(process,jtaLabel), getattr(process,jtaLabel)+btagSeq)
             ## replace corresponding tags for pat jet production
             l1Jets.trackAssociationSource = cms.InputTag(btagLabels['jta'])
             l1Jets.tagInfoSources = cms.VInputTag( *[ cms.InputTag(x) for x in btagLabels['tagInfos'] ] )
@@ -464,7 +464,7 @@ class SwitchJetCollection(ConfigToolBase):
         self.addParameter(self._defaultParameters,'jetCollection',self._defaultValue,'Input jet collection', cms.InputTag)
         self.addParameter(self._defaultParameters,'doJTA',True, "run b tagging sequence for new jet collection and add it to the new pat jet collection")
         self.addParameter(self._defaultParameters,'doBTagging',True, 'run JetTracksAssociation and JetCharge and add it to the new pat jet collection (will autom. be true if doBTagging is set to true)')
-        self.addParameter(self._defaultParameters,'jetCorrLabel',None, "payload and list of new jet correction labels, such as [\'L2Relative\', \'L3Absolute\']", tuple,acceptNoneValue=True )
+        self.addParameter(self._defaultParameters,'jetCorrLabel',None, "payload and list of new jet correction labels, such as (\'AK5Calo\',[\'L2Relative\', \'L3Absolute\'])", tuple,acceptNoneValue=True )
         self.addParameter(self._defaultParameters,'doType1MET',True, "if jetCorrLabel is not 'None', set this to 'True' to redo the Type1 MET correction for the new jet colleection; at the moment it must be 'False' for non CaloJets otherwise the JetMET POG module crashes. ")
         self.addParameter(self._defaultParameters,'genJetCollection',cms.InputTag("ak5GenJets"), "GenJet collection to match to")
         self.addParameter(self._defaultParameters,'doJetID',True, "add jetId variables to the added jet collection")
@@ -487,8 +487,8 @@ class SwitchJetCollection(ConfigToolBase):
                  genJetCollection   = None,
                  doJetID            = None,
                  jetIdLabel         = None,
-                 outputModule       = None,
-                 postfix            = None):
+                 postfix            = None,
+                 outputModule       = None):
                  
         if jetCollection  is None:
             jetCollection=self._defaultParameters['jetCollection'].value
@@ -539,11 +539,16 @@ class SwitchJetCollection(ConfigToolBase):
         ## save label of old input jet collection
         oldLabel = applyPostfix(process, "patJets", postfix).jetSource;
     
-        ## replace input jet collection for generator matches
-	applyPostfix(process, "patJetPartonMatch", postfix).src = jetCollection
-	applyPostfix(process, "patJetGenJetMatch", postfix).src = jetCollection
-	applyPostfix(process, "patJetGenJetMatch", postfix).matched = genJetCollection
-	applyPostfix(process, "patJetPartonAssociation", postfix).jets = jetCollection
+        ## replace input jet collection for generator matches if the
+        ## genJetCollection is no empty
+        if (process.patJets.addGenPartonMatch):
+            applyPostfix(process, "patJetPartonMatch", postfix).src = jetCollection
+        if (process.patJets.addGenJetMatch):
+            applyPostfix(process, "patJetGenJetMatch", postfix).src = jetCollection
+            applyPostfix(process, "patJetGenJetMatch", postfix).matched = genJetCollection
+        if (process.patJets.getJetMCFlavour):
+            applyPostfix(process, "patJetPartonAssociation", postfix).jets = jetCollection
+            
         ## replace input jet collection for pat jet production
 	applyPostfix(process, "patJets", postfix).jetSource = jetCollection
     

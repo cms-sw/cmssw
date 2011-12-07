@@ -1,11 +1,12 @@
-// $Id: QueueID.h,v 1.2 2009/06/10 08:15:23 dshpakov Exp $
+// $Id: QueueID.h,v 1.3.16.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: QueueID.h 
 
-#ifndef StorageManager_QueueID_h
-#define StorageManager_QueueID_h
+#ifndef EventFilter_StorageManager_QueueID_h
+#define EventFilter_StorageManager_QueueID_h
 
 #include <cstddef>
 #include <iostream>
+#include <vector>
 
 #include "EventFilter/StorageManager/interface/EnquingPolicyTag.h"
 
@@ -14,16 +15,17 @@ namespace stor {
   /**
    * Uniquely identifies the consumer queues 
    *
-   * $Author: dshpakov $
-   * $Revision: 1.2 $
-   * $Date: 2009/06/10 08:15:23 $
+   * $Author: mommsen $
+   * $Revision: 1.3.16.1 $
+   * $Date: 2011/03/07 11:33:04 $
    */
 
   class QueueID
     {
     public:
-      typedef std::size_t size_type;
-      typedef enquing_policy::PolicyTag policy_type;
+
+      typedef enquing_policy::PolicyTag PolicyType;
+
       /**
          A default-constructed QueueID is invalid; it can not be used
          to identify an actual queue.
@@ -34,12 +36,12 @@ namespace stor {
          Create a QueueID used to identify a queue with enquing policy
          denoted by policy and with identifier index.
        */
-      QueueID(policy_type policy, size_t index);
+      QueueID(PolicyType policy, size_t index);
 
       /**
          Return the tag for the queing policy of *this.
        */
-      policy_type policy() const;
+      PolicyType policy() const;
 
       /**
          Return the index for this queue.
@@ -70,58 +72,60 @@ namespace stor {
       bool operator!= (QueueID const& other) const;
 
     private:
-      size_type   _index;
-      policy_type _policy;
+      size_t   index_;
+      PolicyType policy_;
 
     };
 
+  typedef std::vector<QueueID> QueueIDs;
+
   inline
   QueueID::QueueID() :
-    _index(0),
-    _policy(enquing_policy::Max)
+    index_(0),
+    policy_(enquing_policy::Max)
   { }
 
   inline 
-  QueueID::QueueID(policy_type policy, size_t index) :
-    _index(index),
-    _policy(policy)
+  QueueID::QueueID(PolicyType policy, size_t index) :
+    index_(index),
+    policy_(policy)
   { }
 
   inline 
-  QueueID::policy_type
+  QueueID::PolicyType
   QueueID::policy() const
   {
-    return _policy;
+    return policy_;
   }
 
   inline
-  QueueID::size_type
+  size_t
   QueueID::index() const
   {
-    return _index;
+    return index_;
   }
 
   inline
   bool
   QueueID::isValid() const
   {
-    return _policy != enquing_policy::Max;
+    return policy_ != enquing_policy::Max;
   }
 
   inline
   bool
   QueueID::operator< (QueueID const& other) const
   {
-    return _policy == other._policy
-      ? _index < other._index
-      : _policy < other._policy;
+    return policy_ == other.policy_
+      ? index_ < other.index_
+      : policy_ < other.policy_;
   }
 
   inline
   bool
   QueueID::operator== (QueueID const& other) const
   {
-    return _policy == other._policy && _index == other._index;
+    return policy_ == other.policy_ && index_ == other.index_;
   }
 
   inline
@@ -142,7 +146,7 @@ namespace stor {
 
 } // namespace stor
 
-#endif // StorageManager_QueueID_h 
+#endif // EventFilter_StorageManager_QueueID_h 
 
 
 /// emacs configuration

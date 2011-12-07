@@ -1,4 +1,4 @@
-// $Id: DiskWriterResources.cc,v 1.6 2010/03/19 13:24:05 mommsen Exp $
+// $Id: DiskWriterResources.cc,v 1.7.4.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: DiskWriterResources.cc
 
 #include "EventFilter/StorageManager/interface/DiskWriterResources.h"
@@ -6,11 +6,11 @@
 namespace stor
 {
   DiskWriterResources::DiskWriterResources() :
-    _configurationIsNeeded(false),
-    _streamChangeIsNeeded(false),
-    _fileClosingTestIsNeeded(false),
-    _diskWriterIsBusy(false),
-    _streamChangeInProgress(false)
+    configurationIsNeeded_(false),
+    streamChangeIsNeeded_(false),
+    fileClosingTestIsNeeded_(false),
+    diskWriterIsBusy_(false),
+    streamChangeInProgress_(false)
   {
   }
 
@@ -23,22 +23,22 @@ namespace stor
     boost::posix_time::time_duration const& timeoutValue
   )
   {
-    boost::mutex::scoped_lock sl(_streamChangeMutex);
+    boost::mutex::scoped_lock sl(streamChangeMutex_);
 
-    _requestedEventStreamConfig = evtStrConfig;
-    _requestedErrorStreamConfig = errStrConfig;
-    _requestedDiskWritingParams = dwParams;
-    _requestedRunNumber = runNumber;
-    _requestedTimeout = timeoutValue;
-    _configurationIsNeeded = true;
-    _streamChangeIsNeeded = true;
+    requestedEventStreamConfig_ = evtStrConfig;
+    requestedErrorStreamConfig_ = errStrConfig;
+    requestedDiskWritingParams_ = dwParams;
+    requestedRunNumber_ = runNumber;
+    requestedTimeout_ = timeoutValue;
+    configurationIsNeeded_ = true;
+    streamChangeIsNeeded_ = true;
   }
 
   void DiskWriterResources::requestStreamDestruction()
   {
-    boost::mutex::scoped_lock sl(_streamChangeMutex);
-    _configurationIsNeeded = false;
-    _streamChangeIsNeeded = true;
+    boost::mutex::scoped_lock sl(streamChangeMutex_);
+    configurationIsNeeded_ = false;
+    streamChangeIsNeeded_ = true;
   }
 
   bool DiskWriterResources::streamChangeRequested
@@ -51,63 +51,63 @@ namespace stor
     boost::posix_time::time_duration& timeoutValue
   )
   {
-    boost::mutex::scoped_lock sl(_streamChangeMutex);
+    boost::mutex::scoped_lock sl(streamChangeMutex_);
 
-    if (! _streamChangeIsNeeded) {return false;}
+    if (! streamChangeIsNeeded_) {return false;}
 
-    _streamChangeIsNeeded = false;
+    streamChangeIsNeeded_ = false;
 
-    doConfig = _configurationIsNeeded;
-    if (_configurationIsNeeded)
+    doConfig = configurationIsNeeded_;
+    if (configurationIsNeeded_)
     {
-      _configurationIsNeeded = false;
-      evtStrConfig = _requestedEventStreamConfig;
-      errStrConfig = _requestedErrorStreamConfig;
-      dwParams = _requestedDiskWritingParams;
-      runNumber = _requestedRunNumber;
-      timeoutValue = _requestedTimeout;
+      configurationIsNeeded_ = false;
+      evtStrConfig = requestedEventStreamConfig_;
+      errStrConfig = requestedErrorStreamConfig_;
+      dwParams = requestedDiskWritingParams_;
+      runNumber = requestedRunNumber_;
+      timeoutValue = requestedTimeout_;
     }
 
-    _streamChangeInProgress = true;
+    streamChangeInProgress_ = true;
 
     return true;
   }
 
   void DiskWriterResources::waitForStreamChange()
   {
-    boost::mutex::scoped_lock sl(_streamChangeMutex);
-    if (_streamChangeIsNeeded || _streamChangeInProgress)
+    boost::mutex::scoped_lock sl(streamChangeMutex_);
+    if (streamChangeIsNeeded_ || streamChangeInProgress_)
       {
-        _streamChangeCondition.wait(sl);
+        streamChangeCondition_.wait(sl);
       }
   }
 
   bool DiskWriterResources::streamChangeOngoing()
   {
-    boost::mutex::scoped_lock sl(_streamChangeMutex);
-    return (_streamChangeIsNeeded || _streamChangeInProgress);
+    boost::mutex::scoped_lock sl(streamChangeMutex_);
+    return (streamChangeIsNeeded_ || streamChangeInProgress_);
   }
 
   void DiskWriterResources::streamChangeDone()
   {
-    boost::mutex::scoped_lock sl(_streamChangeMutex);
-    if (_streamChangeInProgress)
+    boost::mutex::scoped_lock sl(streamChangeMutex_);
+    if (streamChangeInProgress_)
       {
-        _streamChangeCondition.notify_one();
+        streamChangeCondition_.notify_one();
       }
-    _streamChangeInProgress = false;
+    streamChangeInProgress_ = false;
   }
 
   void DiskWriterResources::setBusy(bool isBusyFlag)
   {
-    //boost::mutex::scoped_lock sl(_generalMutex);
-    _diskWriterIsBusy = isBusyFlag;
+    //boost::mutex::scoped_lock sl(generalMutex_);
+    diskWriterIsBusy_ = isBusyFlag;
   }
 
   bool DiskWriterResources::isBusy()
   {
-    //boost::mutex::scoped_lock sl(_generalMutex);
-    return _diskWriterIsBusy;
+    //boost::mutex::scoped_lock sl(generalMutex_);
+    return diskWriterIsBusy_;
   }
 
 } // namespace stor

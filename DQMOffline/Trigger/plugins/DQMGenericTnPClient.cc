@@ -11,13 +11,8 @@
 
 #include "DQMOffline/Trigger/plugins/GenericTnPFitter.h"
 
-#include<TString.h>
-#include<TPRegexp.h>
-
 using namespace edm;
 using namespace dqmTnP;
-
-typedef std::vector<std::string> vstring;
 
 class DQMGenericTnPClient : public edm::EDAnalyzer{
   public:
@@ -25,12 +20,10 @@ class DQMGenericTnPClient : public edm::EDAnalyzer{
     virtual ~DQMGenericTnPClient();
     virtual void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {};
     virtual void endRun(const edm::Run &run, const edm::EventSetup &setup);
-  void calculateEfficiency(std::string dirName, const ParameterSet& pset);
-    void findAllSubdirectories (std::string dir, std::set<std::string> * myList, TString pattern);
+    void calculateEfficiency(const ParameterSet& pset);
   private:
     DQMStore * dqmStore;
     TFile * plots;
-    vstring subDirs;
     string myDQMrootFolder;
     bool verbose;
     const VParameterSet efficiencies;
@@ -39,8 +32,7 @@ class DQMGenericTnPClient : public edm::EDAnalyzer{
 };
 
 DQMGenericTnPClient::DQMGenericTnPClient(const edm::ParameterSet& pset):
-  subDirs( pset.getUntrackedParameter<vstring>("subDirs", vstring()) ),
-  myDQMrootFolder( pset.getUntrackedParameter<string>("MyDQMrootFolder", "") ),
+  myDQMrootFolder( pset.getUntrackedParameter<string>("MyDQMrootFolder") ),
   verbose( pset.getUntrackedParameter<bool>("Verbose",false) ),
   efficiencies( pset.getUntrackedParameter<VParameterSet>("Efficiencies") )
 {
@@ -51,52 +43,22 @@ DQMGenericTnPClient::DQMGenericTnPClient(const edm::ParameterSet& pset):
 }
 
 void DQMGenericTnPClient::endRun(const edm::Run &run, const edm::EventSetup &setup){
-
-  TPRegexp metacharacters("[\\^\\$\\.\\*\\+\\?\\|\\(\\)\\{\\}\\[\\]]");
-
   dqmStore = Service<DQMStore>().operator->();
   if( !dqmStore ){
     LogError("DQMGenericTnPClient")<<"Could not find DQMStore service\n";
     return;
   }
   dqmStore->setCurrentFolder(myDQMrootFolder);
-
-  set<string> subDirSet;
-  
-  if (myDQMrootFolder != "")
-    subDirSet.insert(myDQMrootFolder);
-  else {
-    for(vstring::const_iterator iSubDir = subDirs.begin(); 
-        iSubDir != subDirs.end(); ++iSubDir) {
-      string subDir = *iSubDir;
-      if ( subDir[subDir.size()-1] == '/' ) subDir.erase(subDir.size()-1);
-      if ( TString(subDir).Contains(metacharacters) ) {
-        const string::size_type shiftPos = subDir.rfind('/');
-        const string searchPath = subDir.substr(0, shiftPos);
-        const string pattern    = subDir.substr(shiftPos + 1, subDir.length());
-        findAllSubdirectories (searchPath, &subDirSet, pattern);
-      }
-      else {
-        subDirSet.insert(subDir);
-      }
-    }
+  //loop over all efficiency tasks
+  for(VParameterSet::const_iterator pset = efficiencies.begin(); pset!=efficiencies.end(); pset++){
+    calculateEfficiency(*pset);
   }
-
-  for(set<string>::const_iterator iSubDir = subDirSet.begin();
-      iSubDir != subDirSet.end(); ++iSubDir) {
-    const string& dirName = *iSubDir;
-    for(VParameterSet::const_iterator pset = efficiencies.begin(); 
-        pset != efficiencies.end(); ++pset) {
-      calculateEfficiency(dirName, *pset);
-    }
-  }
-
 }
   
-void DQMGenericTnPClient::calculateEfficiency(std::string dirName, const ParameterSet& pset){
+void DQMGenericTnPClient::calculateEfficiency(const ParameterSet& pset){
   //get hold of numerator and denominator histograms
-  string allMEname = dirName+"/"+pset.getUntrackedParameter<string>("DenominatorMEname");
-  string passMEname = dirName+"/"+pset.getUntrackedParameter<string>("NumeratorMEname");
+  string allMEname = myDQMrootFolder+"/"+pset.getUntrackedParameter<string>("DenominatorMEname");
+  string passMEname = myDQMrootFolder+"/"+pset.getUntrackedParameter<string>("NumeratorMEname");
   MonitorElement *allME = dqmStore->get(allMEname);
   MonitorElement *passME = dqmStore->get(passMEname);
   if(allME==0 || passME==0){
@@ -138,7 +100,7 @@ void DQMGenericTnPClient::calculateEfficiency(std::string dirName, const Paramet
   }
   //figure out directory and efficiency names  
   string effName = pset.getUntrackedParameter<string>("EfficiencyMEname");
-  string effDir = dirName;
+  string effDir = myDQMrootFolder;
   string::size_type slashPos = effName.rfind('/');
   if ( string::npos != slashPos ) {
     effDir += "/"+effName.substr(0, slashPos);
@@ -181,36 +143,6 @@ DQMGenericTnPClient::~DQMGenericTnPClient(){
     plots->Close();
   }
 }
-
-void DQMGenericTnPClient::findAllSubdirectories (std::string dir, std::set<std::string> * myList, TString pattern = "") {
-
-  TPRegexp nonPerlWildcard("\\w\\*|^\\*");
-
-  if (pattern != "") {
-    if (pattern.Contains(nonPerlWildcard)) pattern.ReplaceAll("*",".*");
-    TPRegexp regexp(pattern);
-    dqmStore->cd(dir);
-    vector <string> foundDirs = dqmStore->getSubdirs();
-    for(vector<string>::const_iterator iDir = foundDirs.begin();
-        iDir != foundDirs.end(); ++iDir) {
-      TString dirName = iDir->substr(iDir->rfind('/') + 1, iDir->length());
-      if (dirName.Contains(regexp))
-        findAllSubdirectories ( *iDir, myList);
-    }
-  }
-  else if (dqmStore->dirExists(dir)){
-    myList->insert(dir);
-    dqmStore->cd(dir);
-    findAllSubdirectories (dir, myList, "*");
-  } else {
-    
-    LogInfo ("DQMGenericClient") << "Trying to find sub-directories of " << dir
-                                 << " failed because " << dir  << " does not exist";
-                                 
-  }
-  return;
-}
-
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(DQMGenericTnPClient);

@@ -3,7 +3,7 @@
 # 24-Jan-2008, KAB - simple script to clean up 
 # log files in the SM development system.
 
-cutoffDays=7
+cutoffDays=1
 
 date
 cd $STMGR_DIR/log

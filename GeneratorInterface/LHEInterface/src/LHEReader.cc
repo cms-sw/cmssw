@@ -61,6 +61,28 @@ class LHEReader::FileSource : public LHEReader::Source {
 	std::auto_ptr<StorageWrap>	fileStream;
 };
 
+class LHEReader::StringSource : public LHEReader::Source {
+    public:
+	StringSource(const std::string &inputs)
+	{
+		if (inputs == "")
+			throw cms::Exception("StreamOpenError")
+				<< "Empty LHE file string name \""
+				<< std::endl;
+
+        std::stringstream * tmpis = new std::stringstream(inputs);
+        fileStream.reset(tmpis);
+	}
+
+	~StringSource() {}
+
+	XMLDocument *createReader(XMLDocument::Handler &handler)
+	{ return new XMLDocument(fileStream, handler); }
+
+    private:
+  std::auto_ptr<std::istream>	fileStream;
+};
+
 class LHEReader::XMLHandler : public XMLDocument::Handler {
     public:
 	XMLHandler() :
@@ -286,6 +308,7 @@ void LHEReader::XMLHandler::comment(const XMLCh *const data_,
 
 LHEReader::LHEReader(const edm::ParameterSet &params) :
 	fileURLs(params.getUntrackedParameter< std::vector<std::string> >("fileNames")),
+    strName(""),
 	firstEvent(params.getUntrackedParameter<unsigned int>("skipEvents", 0)),
 	maxEvents(params.getUntrackedParameter<int>("limitEvents", -1)),
 	curIndex(0), handler(new XMLHandler())
@@ -294,8 +317,15 @@ LHEReader::LHEReader(const edm::ParameterSet &params) :
 
 LHEReader::LHEReader(const std::vector<std::string> &fileNames,
                      unsigned int firstEvent) :
-	fileURLs(fileNames), firstEvent(firstEvent), maxEvents(-1),
+  fileURLs(fileNames), strName(""), firstEvent(firstEvent), maxEvents(-1),
 	curIndex(0), handler(new XMLHandler())
+{
+}
+
+  LHEReader::LHEReader(const std::string &inputs,
+                     unsigned int firstEvent) :
+    strName(inputs), firstEvent(firstEvent), maxEvents(-1),
+  curIndex(0), handler(new XMLHandler())
 {
 }
 
@@ -303,69 +333,74 @@ LHEReader::~LHEReader()
 {
 }
 
-boost::shared_ptr<LHEEvent> LHEReader::next()
-{
-	while(curDoc.get() || curIndex < fileURLs.size()) {
-		if (!curDoc.get()) {
-			curSource.reset(new FileSource(fileURLs[curIndex++]));
-			handler->reset();
-			curDoc.reset(curSource->createReader(*handler));
-			curRunInfo.reset();
-		}
+  boost::shared_ptr<LHEEvent> LHEReader::next()
+  {
 
-		XMLHandler::Object event = handler->gotObject;
-		handler->gotObject = XMLHandler::kNone;
+    while(curDoc.get() || curIndex < fileURLs.size() || (fileURLs.size() == 0 && strName != "" ) ) {
+      if (!curDoc.get()) {
+        if ( fileURLs.size() > 0 ) 
+          curSource.reset(new FileSource(fileURLs[curIndex++]));
+        else if ( strName != "" ) 
+          curSource.reset(new StringSource(strName));
+        handler->reset();
+        curDoc.reset(curSource->createReader(*handler));
+        curRunInfo.reset();
+      }
+    
+      XMLHandler::Object event = handler->gotObject;
+      handler->gotObject = XMLHandler::kNone;
+    
+      std::istringstream data;
+      if (event != XMLHandler::kNone) {
+        data.str(handler->buffer);
+        handler->buffer.clear();
+      }
+      
+      switch(event) {
+      case XMLHandler::kNone:
+        if (!curDoc->parse())
+          curDoc.reset();
+        break;
+        
+      case XMLHandler::kHeader:
+        break;
+        
+      case XMLHandler::kInit:
+        curRunInfo.reset(new LHERunInfo(data));
+		
+        std::for_each(handler->headers.begin(),
+                      handler->headers.end(),
+                      boost::bind(&LHERunInfo::addHeader,
+                                  curRunInfo.get(), _1));
+        handler->headers.clear();
+        break;
+        
+      case XMLHandler::kComment:
+        break;
+        
+      case XMLHandler::kEvent:
+        if (!curRunInfo.get())
+          throw cms::Exception("InvalidState")
+            << "Got LHE event without"
+            " initialization." << std::endl;
 
-		std::istringstream data;
-		if (event != XMLHandler::kNone) {
-			data.str(handler->buffer);
-			handler->buffer.clear();
-		}
-
-		switch(event) {
-		    case XMLHandler::kNone:
-			if (!curDoc->parse())
-				curDoc.reset();
-			break;
-
-		    case XMLHandler::kHeader:
-			break;
-
-		    case XMLHandler::kInit:
-			curRunInfo.reset(new LHERunInfo(data));
-			
-			std::for_each(handler->headers.begin(),
-			              handler->headers.end(),
-			              boost::bind(&LHERunInfo::addHeader,
-			                          curRunInfo.get(), _1));
-			handler->headers.clear();
-			break;
-
-		    case XMLHandler::kComment:
-			break;
-
-		    case XMLHandler::kEvent:
-			if (!curRunInfo.get())
-				throw cms::Exception("InvalidState")
-					<< "Got LHE event without"
-					   " initialization." << std::endl;
-
-			if (firstEvent > 0) {
-				firstEvent--;
-				continue;
-			}
-
-			if (maxEvents == 0)
-				return boost::shared_ptr<LHEEvent>();
-			else if (maxEvents > 0)
-				maxEvents--;
-
-			return boost::shared_ptr<LHEEvent>(
-					new LHEEvent(curRunInfo, data));
-		}
+        if (firstEvent > 0) {
+          firstEvent--;
+          continue;
+        }
+        
+        if (maxEvents == 0)
+          return boost::shared_ptr<LHEEvent>();
+        else if (maxEvents > 0)
+          maxEvents--;
+        
+        return boost::shared_ptr<LHEEvent>(
+                                           new LHEEvent(curRunInfo, data));
+      }
 	}
-
+    
 	return boost::shared_ptr<LHEEvent>();
-}
-
+  }
+  
 } // namespace lhef
+  

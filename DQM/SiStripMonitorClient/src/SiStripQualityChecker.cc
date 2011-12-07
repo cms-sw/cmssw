@@ -314,6 +314,7 @@ void SiStripQualityChecker::fillTrackingStatus(DQMStore* dqm_store) {
     std::vector<QReport *> qt_reports = me->getQReports();          
     if (qt_reports.size() == 0) continue;
     std::string name = me->getName();
+
     float status = 1.0; 
 
     int ibin = 0;
@@ -371,20 +372,27 @@ void SiStripQualityChecker::fillSubDetStatus(DQMStore* dqm_store,
 	 it != meVec.end(); it++) {
       MonitorElement * me = (*it);
       if (!me) continue;
-      if (me->getQReports().size() == 0) continue;
+      std::vector<QReport *> reports = me->getQReports();
+
+      if (reports.size() == 0) continue;
       std::string name = me->getName();
       
       if( name.find("Summary_ClusterStoNCorr__OnTrack") != std::string::npos){
 	int istat =  SiStripUtility::getMEStatus((*it)); 
-	if (me->getEntries() > 100 && istat == dqm::qstatus::ERROR) ston_stat = 0;
+        if (reports[0]->getQTresult() == -1) {
+	  ston_stat =-1;
+        } else {
+          if (istat == dqm::qstatus::ERROR) ston_stat = 0;
+          else if (istat == dqm::qstatus::STATUS_OK) ston_stat = 1;
+        }
       }
     }
     if (ndet > 0) {
       float eff_fac = 1 - (errdet*1.0/ndet);
       fillStatusHistogram(SToNReportMap,        xbin, ybin, ston_stat);
       fillStatusHistogram(DetFractionReportMap, xbin, ybin, eff_fac);
-      if (ston_stat > 0) fillStatusHistogram(SummaryReportMap, xbin, ybin, eff_fac);
-      else               fillStatusHistogram(SummaryReportMap, xbin, ybin, 0.0);
+      if (ston_stat < 0) fillStatusHistogram(SummaryReportMap, xbin, ybin, eff_fac);
+      else       fillStatusHistogram(SummaryReportMap, xbin, ybin, ston_stat*eff_fac);
 
       tot_ndet      += ndet;
       tot_errdet    += errdet;
@@ -596,6 +604,7 @@ void SiStripQualityChecker::fillTrackingStatusAtLumi(DQMStore* dqm_store){
     MonitorElement * me = (*it);     
     if (!me) continue;     
     std::string name = me->getName();
+
     float status = -1.0; 
     int ibin = 0;
     for (std::map<std::string, TrackingMEs>::const_iterator it = TrackingMEsMap.begin();

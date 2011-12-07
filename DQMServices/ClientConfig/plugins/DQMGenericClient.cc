@@ -2,8 +2,8 @@
  *  Class:DQMGenericClient 
  *
  *
- *  $Date: 2010/12/02 17:51:07 $
- *  $Revision: 1.21 $
+ *  $Date: 2011/02/24 04:51:41 $
+ *  $Revision: 1.25 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -440,13 +440,13 @@ void DQMGenericClient::computeEfficiency(const string& startDir, const string& e
       if ( nSim == 0 || nReco > nSim ) continue;
       const double effVal = nReco/nSim;
 
-      const double errLo = TEfficiency::ClopperPearson((int)hReco->GetBinContent(i), 
-						       (int)hSim->GetBinContent(i),
+      const double errLo = TEfficiency::ClopperPearson((int)hSim->GetBinContent(i), 
+						       (int)hReco->GetBinContent(i),
 						       0.683,false);
-      const double errUp = TEfficiency::ClopperPearson((int)hReco->GetBinContent(i), 
-						       (int)hSim->GetBinContent(i),
+      const double errUp = TEfficiency::ClopperPearson((int)hSim->GetBinContent(i), 
+						       (int)hReco->GetBinContent(i),
 						       0.683,true);
-      const double errVal = (effVal - errLo > errUp - effVal) ? effVal - errLo : errLo - effVal;
+      const double errVal = (effVal - errLo > errUp - effVal) ? effVal - errLo : errUp - effVal;
       efficHist->SetBinContent(i, effVal);
       efficHist->SetBinEntries(i, 1);
       efficHist->SetBinError(i, sqrt(effVal * effVal + errVal * errVal));

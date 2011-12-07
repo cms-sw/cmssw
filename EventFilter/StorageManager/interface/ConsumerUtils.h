@@ -1,15 +1,17 @@
-// $Id: ConsumerUtils.h,v 1.7 2010/04/16 14:39:05 mommsen Exp $
+// $Id: ConsumerUtils.h,v 1.8.4.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: ConsumerUtils.h 
 
-#ifndef StorageManager_ConsumerUtils_h
-#define StorageManager_ConsumerUtils_h
+#ifndef EventFilter_StorageManager_ConsumerUtils_h
+#define EventFilter_StorageManager_ConsumerUtils_h
 
+#include "EventFilter/SMProxyServer/interface/EventMsg.h"
+#include "EventFilter/StorageManager/interface/AlarmHandler.h"
 #include "EventFilter/StorageManager/interface/DQMEventConsumerRegistrationInfo.h"
 #include "EventFilter/StorageManager/interface/EnquingPolicyTag.h"
 #include "EventFilter/StorageManager/interface/EventConsumerRegistrationInfo.h"
 #include "EventFilter/StorageManager/interface/InitMsgCollection.h"
 #include "EventFilter/StorageManager/interface/RegistrationCollection.h"
-#include "EventFilter/StorageManager/interface/SharedResources.h"
+#include "EventFilter/StorageManager/interface/StatisticsReporter.h"
 #include "EventFilter/StorageManager/interface/Utils.h"
 
 #include "IOPool/Streamer/interface/DQMEventMessage.h"
@@ -25,24 +27,32 @@ namespace xgi
 namespace stor
 {
   class ConsumerID;
-  class I2OChain;
 
 
   /**
      Handles consumer requests and responses
 
      $Author: mommsen $
-     $Revision: 1.7 $
-     $Date: 2010/04/16 14:39:05 $
+     $Revision: 1.8.4.1 $
+     $Date: 2011/03/07 11:33:04 $
   */
 
+  template<typename Configuration_t, typename EventQueueCollection_t>
   class ConsumerUtils
   {
     
   public:
 
-    void setSharedResources(SharedResourcesPtr sr)
-    { _sharedResources = sr; };
+    ConsumerUtils
+    (
+      boost::shared_ptr<Configuration_t>,
+      RegistrationCollectionPtr,
+      RegistrationQueuePtr,
+      InitMsgCollectionPtr,
+      boost::shared_ptr<EventQueueCollection_t>,
+      DQMEventQueueCollectionPtr,
+      AlarmHandlerPtr
+    );
 
     /**
       Process registration request from an event consumer
@@ -151,7 +161,8 @@ namespace stor
     /**
       Send event to consumer:
     */
-    void writeConsumerEvent(xgi::Output*, const I2OChain&) const;
+    void writeConsumerEvent(xgi::Output*, const stor::I2OChain&) const;
+    void writeConsumerEvent(xgi::Output*, const smproxy::EventMsg&) const;
 
     /**
       Send DQM event to DQM consumer:
@@ -159,12 +170,18 @@ namespace stor
     void writeDQMConsumerEvent(xgi::Output*, const DQMEventMsgView&) const;
 
 
-    SharedResourcesPtr _sharedResources;
-
+    boost::shared_ptr<Configuration_t> configuration_;
+    RegistrationCollectionPtr registrationCollection_;
+    RegistrationQueuePtr registrationQueue_;
+    InitMsgCollectionPtr initMsgCollection_;
+    boost::shared_ptr<EventQueueCollection_t> eventQueueCollection_;
+    DQMEventQueueCollectionPtr dqmEventQueueCollection_;
+    AlarmHandlerPtr alarmHandler_;
   };
-}
 
-#endif // StorageManager_ConsumerUtils_h
+} // namespace stor
+
+#endif // EventFilter_StorageManager_ConsumerUtils_h
 
 
 /// emacs configuration

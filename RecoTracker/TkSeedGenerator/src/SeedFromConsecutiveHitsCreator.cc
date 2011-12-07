@@ -16,7 +16,6 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
-
 template <class T> T sqr( T t) {return t*t;}
 
 const TrajectorySeed * SeedFromConsecutiveHitsCreator::trajectorySeed(
@@ -42,17 +41,24 @@ GlobalTrajectoryParameters SeedFromConsecutiveHitsCreator::initialKinematic(
       const TrackingRegion & region, 
       const edm::EventSetup& es) const
 {
+  edm::ESHandle<MagneticField> bfield;
+  es.get<IdealMagneticFieldRecord>().get(bfield);
+
   GlobalTrajectoryParameters kine;
 
   TransientTrackingRecHit::ConstRecHitPointer tth1 = hits[0];
   TransientTrackingRecHit::ConstRecHitPointer tth2 = hits[1];
-
   const GlobalPoint& vertexPos = region.origin();
-  FastHelix helix(tth2->globalPosition(), tth1->globalPosition(), vertexPos, es);
-  kine = helix.stateAtVertex().parameters();
 
-  edm::ESHandle<MagneticField> bfield;
-  es.get<IdealMagneticFieldRecord>().get(bfield);
+  FastHelix helix(tth2->globalPosition(), tth1->globalPosition(), vertexPos, es);
+  if (helix.isValid()) {
+    kine = helix.stateAtVertex().parameters();
+  } else {
+    GlobalVector initMomentum(tth2->globalPosition() - vertexPos);
+    initMomentum *= (100./initMomentum.perp()); 
+    kine = GlobalTrajectoryParameters(vertexPos, initMomentum, 1, &*bfield);
+  } 
+
   bool isBOFF = ( std::abs(bfield->inTesla(GlobalPoint(0,0,0)).z()) < 1e-3 );
   if (isBOFF && (theBOFFMomentum > 0)) {
     kine = GlobalTrajectoryParameters(kine.position(),

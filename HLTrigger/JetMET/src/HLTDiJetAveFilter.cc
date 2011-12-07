@@ -20,13 +20,17 @@
 
 #include "DataFormats/Math/interface/deltaPhi.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
 //
 // constructors and destructor
 //
 HLTDiJetAveFilter::HLTDiJetAveFilter(const edm::ParameterSet& iConfig)
 {
    inputJetTag_ = iConfig.getParameter< edm::InputTag > ("inputJetTag");
-   saveTag_     = iConfig.getUntrackedParameter<bool>("saveTag",false);
+   saveTag_     = iConfig.getUntrackedParameter<bool>("saveTag");
    minPtAve_    = iConfig.getParameter<double> ("minPtAve"); 
    minPtJet3_   = iConfig.getParameter<double> ("minPtJet3"); 
    minDphi_     = iConfig.getParameter<double> ("minDphi"); 
@@ -36,6 +40,16 @@ HLTDiJetAveFilter::HLTDiJetAveFilter(const edm::ParameterSet& iConfig)
 
 HLTDiJetAveFilter::~HLTDiJetAveFilter(){}
 
+void
+HLTDiJetAveFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("inputJetTag",edm::InputTag("hltIterativeCone5CaloJets"));
+  desc.addUntracked<bool>("saveTag",false);
+  desc.add<double>("minPtAve",100.0);
+  desc.add<double>("minPtJet3",99999.0);
+  desc.add<double>("minDphi",-1.0);
+  descriptions.add("hltDiJetAveFilter",desc);
+}
 
 // ------------ method called to produce the data  ------------
 bool

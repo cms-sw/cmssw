@@ -8,7 +8,7 @@ UEAnalysisWeight::UEAnalysisWeight()
   fakeTable.clear();
 }
 
-std::vector<float> UEAnalysisWeight::calculate(std::string tkPt, std::string trigger, float lumi)
+std::vector<float> UEAnalysisWeight::calculate(string tkPt, std::string trigger, float lumi)
 {
   //This method will be filled once we start analyze the data
 }

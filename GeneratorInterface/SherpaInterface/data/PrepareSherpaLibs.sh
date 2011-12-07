@@ -6,10 +6,10 @@
 #  uses:        SHERPA datacards, libs and cross sections
 #
 #  author:      Markus Merschmeyer, RWTH Aachen
-#  date:        2009/12/09
-#  version:     2.8
-#  changed: 	Martin Niegel, KIT, 2009/02/24
-#		Fix for CMSSW_3X
+#  date:        8th July 2011
+#  version:     3.1
+#  changed: 	Martin Niegel, KIT, 2011/06/07
+#		Fix for Sherpa 1.3.0
 
 
 # +-----------------------------------------------------------------------------------------------+
@@ -18,7 +18,7 @@
 
 function print_help() {
     echo "" && \
-    echo "PrepareSherpaLibs version 2.8" && echo && \
+    echo "PrepareSherpaLibs version 3.1" && echo && \
     echo "options: -i  path       path to SHERPA datacard, library & cross section files" && \
     echo "                         can also be in WWW (http://...) or SE (srm://...)" && \
     echo "                         -> ( "${datadir}" )" && \
@@ -26,7 +26,6 @@ function print_help() {
     echo "         -m  mode       CMSSW running mode ( "${imode}" )" && \
     echo "                         [ 'LOCAL'  : local running of CMSSW         ]" && \
     echo "                         [ 'CRAB'   : prepare crab files in addition ]" && \
-    echo "                         [ 'VAL'    : for validation puposes         ]" && \
     echo "                         [ 'PROD'   : for production validation      ]" && \
     echo "         -c  condition  running conditions ( "${MYCONDITIONS}" )" && \
     echo "         -a  path       user analysis path inside CMSSW ( "${MYANADIR}" )" && \
@@ -49,17 +48,20 @@ function build_python_cfi() {
   if [ -e ${shpacfifile} ]; then rm ${shpacfifile}; fi
   touch ${shpacfifile}
 
-  echo "import FWCore.ParameterSet.Config as cms"             >> ${shpacfifile}
-  echo ""                                                     >> ${shpacfifile}
-  echo "source = cms.Source(\"EmptySource\")"                 >> ${shpacfifile}
-  echo ""                                                     >> ${shpacfifile}
-  echo "generator = cms.EDFilter(\"SherpaGeneratorFilter\","  >> ${shpacfifile}
-  echo "  maxEventsToPrint = cms.untracked.int32(0),"           >> ${shpacfifile}
-  echo "  filterEfficiency = cms.untracked.double(1.0),"        >> ${shpacfifile}
-  echo "  crossSection = cms.untracked.double(-1),"             >> ${shpacfifile}
-  echo "  libDir    = cms.untracked.string('"${MYLIBDIR}"')," >> ${shpacfifile}
-  echo "  resultDir = cms.untracked.string('Result'),"        >> ${shpacfifile}
-  echo "  SherpaParameters = cms.PSet(parameterSets = cms.vstring(" >> ${shpacfifile}
+  echo "import FWCore.ParameterSet.Config as cms"                          >> ${shpacfifile}
+  echo "import os"                                                         >> ${shpacfifile} 
+  echo ""                                                                  >> ${shpacfifile}
+  echo "source = cms.Source(\"EmptySource\")"                              >> ${shpacfifile}
+  echo ""                                                                  >> ${shpacfifile}
+  echo "generator = cms.EDFilter(\"SherpaGeneratorFilter\","               >> ${shpacfifile}
+  echo "  maxEventsToPrint = cms.untracked.int32(0),"                      >> ${shpacfifile}
+  echo "  filterEfficiency = cms.untracked.double(1.0),"                   >> ${shpacfifile}
+  echo "  crossSection = cms.untracked.double(-1),"                        >> ${shpacfifile}
+  echo "  Path = cms.untracked.string(os.getcwd()+'/"${MYLIBDIR}"'),"      >> ${shpacfifile}
+  echo "  PathPiece = cms.untracked.string(os.getcwd()+'/"${MYLIBDIR}"')," >> ${shpacfifile}
+  echo "  ResultDir = cms.untracked.string('Result'),"                     >> ${shpacfifile}
+  echo "  default_weight = cms.untracked.double(1.0),"                     >> ${shpacfifile}
+  echo "  SherpaParameters = cms.PSet(parameterSets = cms.vstring("        >> ${shpacfifile}
   fcnt=0
   for file in `ls *.dat`; do
     let fcnt=${fcnt}+1
@@ -85,7 +87,7 @@ function build_python_cfi() {
     mv ${file}.tmp2 ${file}.tmp1
     sed -e 's/^/ /g;s/ (/(/;s/ }/}/' < ${file}.tmp1 > ${file}.tmp2 # add single space in front of parameters
     mv ${file}.tmp2 ${file}.tmp1
-### (cleanup for Sherpa commands inside python file)
+###
     sed -e 's/\"/\\"/g' < ${file}.tmp1 > ${file}.tmp2              # protect existing '"' by '\"'
     mv ${file}.tmp2 ${file}.tmp1
 ###
@@ -104,15 +106,15 @@ function build_python_cfi() {
   echo "ProductionFilterSequence = cms.Sequence(generator)"   >> ${shpacfifile}
   echo ""                                                     >> ${shpacfifile}
 
-  cat > sherpa_custom_cff.py << EOF
-import FWCore.ParameterSet.Config as cms
-
-def customise(process):
-
-	process.genParticles.abortOnUnknownPDGCode = False
-
-	return(process)
-EOF
+#  cat > sherpa_custom_cff.py << EOF
+#import FWCore.ParameterSet.Config as cms
+#
+#def customise(process):
+#
+#	process.genParticles.abortOnUnknownPDGCode = False
+#
+#	return(process)
+#EOF
 
 }
 
@@ -429,17 +431,7 @@ echo "  -> CMSSW user analysis path: '"${MYANADIR}"'"
 
 
 # set up 
-if [ "${imode}" = "VAL" ]; then
-  MYCMSSWTEST=${HDIR}
-  MYCMSSWPYTH=${HDIR}
-  MYCMSSWSHPA=${HDIR}/${MYLIBDIR}
-  MYANADIR2="Configuration/GenProduction"
-  if [ ! -e ${CMSSWDIR}/src/${MYANADIR2} ]; then
-    echo " <E> validation path "${MYANADIR2}" does not exist,"
-    echo " <E> stopping... (please check it out)"
-    exit 1
-  fi
-elif [ "${imode}" = "PROD" ] || [ "${imode}" = "GRID" ]; then
+if [ "${imode}" = "PROD" ] || [ "${imode}" = "GRID" ]; then
   MYCMSSWTEST=${HDIR}
   MYCMSSWPYTH=${HDIR}
   MYCMSSWSHPA=${HDIR}/${MYLIBDIR}
@@ -516,7 +508,7 @@ if [ "${imode}" = "LOCAL" ] || [ "${imode}" = "CRAB" ]; then
   build_python_cfi ${shpacfifile}
  rm *.dat
   mv ${shpacfifile}   ${MYCMSSWPYTH}
-  mv sherpa_custom_cff.py ${MYCMSSWPYTH}
+#  mv sherpa_custom_cff.py ${MYCMSSWPYTH}
   cd ${MYCMSSWTEST}
   shpacfgfile="sherpa_cfg.py"
   shpaoutfile="sherpa_out.root"
@@ -533,95 +525,18 @@ if [ "${imode}" = "PROD" ]; then
   build_python_cfi ${shpacfffile}
  rm *.dat
   mv ${shpacfffile}   ${HDIR}
-  mv sherpa_custom_cff.py ${HDIR}
+#  mv sherpa_custom_cff.py ${HDIR}
   cd ${HDIR}
-  tar -czf sherpa_${dataset}_MASTER.tgz ${shpacfffile} sherpa_custom_cff.py ${MYLIBDIR}
+#  tar -czf sherpa_${dataset}_MASTER.tgz ${shpacfffile} sherpa_custom_cff.py ${MYLIBDIR}
+  tar -czf sherpa_${dataset}_MASTER.tgz ${shpacfffile} ${MYLIBDIR}
+#
 #  rm -rf ${shpacfffile} sherpa_custom_cff.py
+  rm -rf ${shpacfffile}
+#
   rm -rf ${MYLIBDIR}
 fi
 
-if [ "${imode}" = "VAL" ]; then
-  cd ${MYCMSSWSHPA}
-  shpacfffile="sherpa_"${dataset}"_cff.py"
-  build_python_cfi ${shpacfffile}
-  mv ${shpacfffile}   ${CMSSWDIR}/src/${MYANADIR2}/python/
-  mv sherpa_custom_cff.py ${CMSSWDIR}/src/${MYANADIR2}/python/
-  cd ${HDIR}
-  scramv1 b
 
-  cmd1="cmsDriver.py ${MYANADIR2}/python/${shpacfffile} \
-                     -s GEN --eventcontent RAWSIM --datatier GEN \
-                     --conditions FrontierConditions_GlobalTag,${MYCONDITIONS}::All \
-                     -n 1000 --no_exec \
-                     --customise ${MYANADIR2}/sherpa_custom_cff.py"
-  echo " VAL command 1: "${cmd1}
-  ${cmd1}
-
-## cmsDriver.py ${MYANADIR2}/python/${shpacfffile} \
-#               -s GEN:ProductionFilterSequence \
-#               --eventcontent RAWSIM \
-#               --datatier GEN \
-#               --conditions FrontierConditions_GlobalTag,${MYCONDITIONS}::All \
-#               -n 1000 \
-#               --no_exec \
-#               --customise ${MYANADIR2}/sherpa_custom_cff.py
-
-  cmd2="cmsDriver.py ${MYANADIR2}/python/${shpacfffile} \
-                     -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT --eventcontent RAWSIM --datatier GEN-SIM-RAW \
-                     --conditions FrontierConditions_GlobalTag,${MYCONDITIONS}::All \
-                     -n 10 --no_exec \
-                     --customise ${MYANADIR2}/sherpa_custom_cff.py"
-  echo " VAL command 2: "${cmd2}
-  ${cmd2}
-
-## cmsDriver.py ${MYANADIR2}/python/${shpacfffile} \
-#               -s GEN:ProductionFilterSequence,SIM,DIGI,L1,DIGI2RAW,HLT \
-#               --eventcontent RAWSIM \
-#               --datatier GEN-SIM-RAW \
-#               --conditions FrontierConditions_GlobalTag,${MYCONDITIONS}::All \
-#               -n 10 \
-#               --no_exec \
-#               --customise ${MYANADIR2}/sherpa_custom_cff.py
-
-## --filein file:sherpa_out.root
-## --fileout HLT.root
-## --magField 3.8T
-## --beamspot=Early10TeVCollision
-## --pileup=NoPileUp
-## -s GEN:ProductionFilterSequence,FASTSIM
-
-## cmsDriver.py Reconstruction.py \
-#               -s RAW2DIGI,RECO \
-#               --filein file:gensimraw.root \
-#               --eventcontent RECOSIM \
-#               --datatier GEN-SIM-RECO \
-#               --conditions FrontierConditions_GlobalTag,${MYCONDITIONS}::All \
-#               -n -1 \
-#               --no_exec
-
-
-  cmd3="cmsDriver.py ${MYANADIR2}/python/${shpacfffile} \
-                     -s GEN,FASTSIM --eventcontent AODSIM --datatier GEN-SIM-DIGI-RECO \
-                     --conditions FrontierConditions_GlobalTag,${MYCONDITIONS}::All \
-                     -n 1000 --pileup=NoPileUp --beamspot=Early10TeVCollision --no_exec \
-                     --customise ${MYANADIR2}/sherpa_custom_cff.py"
-  echo " VAL command 3: "${cmd3}
-  ${cmd3}
-
-
-# cmsDriver.py fastsim \
-# -s GEN,FASTSIM --eventcontent AODSIM datatier GEN-SIM-DIGI-RECO \
-# --filein sherpa_out.root \ 
-# --fileout fastsim.root \
-# --conditions FrontierConditions_GlobalTag,MC_31X_V3::All \
-# -n 1000 --pileup=NoPileUp --beamspot=Early10TeVCollision --magField 3.8T \
-# --no_exec \
-# --customise A/B/sherpa_custom_cff.py
-
-##cmsDriver.py reco --filein file:HLT.root --fileout RECO.root -s RAW2DIGI,RECO --eventcontent RECOSIM --conditions FrontierConditions_GlobalTag,MC_31X_V3::All -n -1 --magField 3.8T --no_exec
-
-
-fi
 
 if [ "${imode}" = "CRAB" ]; then
 
@@ -646,8 +561,9 @@ if [ "${imode}" = "CRAB" ]; then
   CMD="cmsDriver.py ${MYANADIR}/python/${shpacfifile} -s ${cmsdrvanaseq1} \
                 --eventcontent ${cmsdrvevtcnt1} --fileout ${cmsdrvoutfil1} \
                 --conditions FrontierConditions_GlobalTag,${MYCONDITIONS}::All \
-                -n ${nevts} --python_filename ${cmsdrvpyfile1} --no_exec \
-                --customise ${MYANADIR}/sherpa_custom_cff.py"
+                -n ${nevts} --python_filename ${cmsdrvpyfile1} --no_exec"
+#                -n ${nevts} --python_filename ${cmsdrvpyfile1} --no_exec \
+#                --customise ${MYANADIR}/sherpa_custom_cff.py"
   echo "command: "${CMD}
   ${CMD}
 

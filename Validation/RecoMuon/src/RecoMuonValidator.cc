@@ -10,8 +10,6 @@
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
 
-#include "SimMuon/MCTruth/interface/MuonAssociatorByHits.h"
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -29,28 +27,23 @@ using namespace reco;
 typedef TrajectoryStateOnSurface TSOS;
 typedef FreeTrajectoryState FTS;
 
-//
-//struct for histogram dimensions
-//
 struct HistoDimensions {
-  //p
   unsigned int nBinP;
   double minP, maxP;
-  //pt
+
   unsigned int nBinPt;
   double minPt, maxPt;
-  //if abs eta
+
   bool doAbsEta;
-  //eta
   unsigned int nBinEta;
   double minEta, maxEta;
-  //phi
+
   unsigned int nBinPhi;
   double minPhi, maxPhi;
-  //pulls
+
   unsigned int nBinPull;
   double wPull;
-  //resolustions
+
   unsigned int nBinErr;
   double minErrP, maxErrP;
   double minErrPt, maxErrPt;
@@ -59,58 +52,12 @@ struct HistoDimensions {
   double minErrPhi, maxErrPhi;
   double minErrDxy, maxErrDxy;
   double minErrDz, maxErrDz;
-  //track multiplicities
+
   unsigned int nTrks, nAssoc;
   unsigned int nDof;
 };
 
-//
-//Struct containing all histograms definitions
-//
 struct RecoMuonValidator::MuonME {
-  typedef MonitorElement* MEP;
-
-//general kinematics
-  MEP hSimP_, hSimPt_, hSimEta_, hSimPhi_;
-  MEP hP_, hPt_, hEta_, hPhi_;
-  MEP hNSim_, hNMuon_;
-
-//misc vars
-  MEP hNTrks_, hNTrksEta_,  hNTrksPt_;
-  MEP hMisQPt_, hMisQEta_;
-
-//resolutions
-  MEP hErrP_, hErrPt_, hErrEta_, hErrPhi_;
-  MEP hErrPBarrel_, hErrPOverlap_, hErrPEndcap_;
-  MEP hErrPtBarrel_, hErrPtOverlap_, hErrPtEndcap_;
-  MEP hErrDxy_, hErrDz_;
-
-  MEP hErrP_vs_Eta_, hErrPt_vs_Eta_, hErrQPt_vs_Eta_;
-  MEP hErrP_vs_P_, hErrPt_vs_Pt_, hErrQPt_vs_Pt_, hErrEta_vs_Eta_;
-
-//hit pattern
-  MEP hNSimHits_;
-  MEP hNSimToReco_, hNRecoToSim_;
-
-  MEP hNHits_, hNLostHits_, hNTrackerHits_, hNMuonHits_;
-  MEP hNHits_vs_Pt_, hNHits_vs_Eta_;
-  MEP hNLostHits_vs_Pt_, hNLostHits_vs_Eta_;
-  MEP hNTrackerHits_vs_Pt_, hNTrackerHits_vs_Eta_;
-  MEP hNMuonHits_vs_Pt_, hNMuonHits_vs_Eta_;
-
-//pulls
-  MEP hPullPt_, hPullEta_, hPullPhi_, hPullQPt_, hPullDxy_, hPullDz_;
-  MEP hPullPt_vs_Eta_, hPullPt_vs_Pt_, hPullEta_vs_Eta_, hPullPhi_vs_Eta_, hPullEta_vs_Pt_;
-
-//chi2, ndof
-  MEP hNDof_, hChi2_, hChi2Norm_, hChi2Prob_;
-  MEP hNDof_vs_Eta_, hChi2_vs_Eta_, hChi2Norm_vs_Eta_, hChi2Prob_vs_Eta_;
-
-  bool doAbsEta_;
-
-//
-//books histograms
-//
   void bookHistograms(DQMStore* dqm, const string& dirName, const HistoDimensions& hDim)
   {
     dqm->cd();
@@ -118,27 +65,10 @@ struct RecoMuonValidator::MuonME {
 
     doAbsEta_ = hDim.doAbsEta;
 
-    //basic kinematics
     hP_   = dqm->book1D("P"  , "p of recoTracks"    , hDim.nBinP  , hDim.minP  , hDim.maxP  );
     hPt_  = dqm->book1D("Pt" , "p_{T} of recoTracks", hDim.nBinPt , hDim.minPt , hDim.maxPt );
     hEta_ = dqm->book1D("Eta", "#eta of recoTracks" , hDim.nBinEta, hDim.minEta, hDim.maxEta);
     hPhi_ = dqm->book1D("Phi", "#phi of recoTracks" , hDim.nBinPhi, hDim.minPhi, hDim.maxPhi);
-
-    hSimP_   = dqm->book1D("SimP"  , "p of simTracks"    , hDim.nBinP  , hDim.minP  , hDim.maxP  );
-    hSimPt_  = dqm->book1D("SimPt" , "p_{T} of simTracks", hDim.nBinPt , hDim.minPt , hDim.maxPt );
-    hSimEta_ = dqm->book1D("SimEta", "#eta of simTracks" , hDim.nBinEta, hDim.minEta, hDim.maxEta);
-    hSimPhi_ = dqm->book1D("SimPhi", "#phi of simTracks" , hDim.nBinPhi, hDim.minPhi, hDim.maxPhi);
-
-    hNSim_  = dqm->book1D("NSim" , "Number of particles per event", hDim.nTrks, 0, hDim.nTrks);
-    hNMuon_ = dqm->book1D("NMuon", "Number of muons per event"    , hDim.nTrks, 0, hDim.nTrks);
-
-    // - Misc. variables
-    hNTrks_ = dqm->book1D("NTrks", "Number of reco tracks per event", hDim.nTrks, 0, hDim.nTrks);
-    hNTrksEta_ = dqm->book1D("NTrksEta", "Number of reco tracks vs #eta", hDim.nBinEta, hDim.minEta, hDim.maxEta);
-    hNTrksPt_ = dqm->book1D("NTrksPt", "Number of reco tracks vs p_{T}", hDim.nBinPt, hDim.minPt, hDim.maxPt);
-
-    hMisQPt_  = dqm->book1D("MisQPt" , "Charge mis-id vs Pt" , hDim.nBinPt , hDim.minPt , hDim.maxPt );
-    hMisQEta_ = dqm->book1D("MisQEta", "Charge mis-id vs Eta", hDim.nBinEta, hDim.minEta, hDim.maxEta);
 
     // - Resolutions
     hErrP_   = dqm->book1D("ErrP"  , "#Delta(p)/p"        , hDim.nBinErr, hDim.minErrP  , hDim.maxErrP  );
@@ -167,10 +97,12 @@ struct RecoMuonValidator::MuonME {
     // -- Resolutions vs momentum
     hErrP_vs_P_    = dqm->book2D("ErrP_vs_P", "#Delta(p)/p vs p",
                                  hDim.nBinP, hDim.minP, hDim.maxP, hDim.nBinErr, hDim.minErrP, hDim.maxErrP);
+
     hErrPt_vs_Pt_  = dqm->book2D("ErrPt_vs_Pt", "#Delta(p_{T})/p_{T} vs p_{T}",
                                  hDim.nBinPt, hDim.minPt, hDim.maxPt, hDim.nBinErr, hDim.minErrPt, hDim.maxErrPt);
     hErrQPt_vs_Pt_ = dqm->book2D("ErrQPt_vs_Pt", "#Delta(q/p_{T})/(q/p_{T}) vs p_{T}",
                                  hDim.nBinPt, hDim.minPt, hDim.maxPt, hDim.nBinErr, hDim.minErrQPt, hDim.maxErrQPt);
+
 
     // - Pulls
     hPullPt_  = dqm->book1D("PullPt" , "Pull(#p_{T})" , hDim.nBinPull, -hDim.wPull, hDim.wPull);
@@ -194,13 +126,22 @@ struct RecoMuonValidator::MuonME {
     hPullEta_vs_Pt_ = dqm->book2D("PullEta_vs_Pt", "Pull(#eta) vs p_{T}",
                                   hDim.nBinPt, hDim.minPt, hDim.maxPt, hDim.nBinPull, -hDim.wPull, hDim.wPull);
 
+    // - Misc. variables
+    hNTrks_ = dqm->book1D("NTrks", "Number of reco tracks per event", hDim.nTrks, 0, hDim.nTrks);
+    hNTrksEta_ = dqm->book1D("NTrksEta", "Number of reco tracks vs #eta", hDim.nBinEta, hDim.minEta, hDim.maxEta);
+    hNTrksPt_ = dqm->book1D("NTrksPt", "Number of reco tracks vs p_{T}", hDim.nBinPt, hDim.minPt, hDim.maxPt);
+
+    hMisQPt_  = dqm->book1D("MisQPt" , "Charge mis-id vs Pt" , hDim.nBinPt , hDim.minPt , hDim.maxPt );
+    hMisQEta_ = dqm->book1D("MisQEta", "Charge mis-id vs Eta", hDim.nBinEta, hDim.minEta, hDim.maxEta);
+
     // -- Number of Hits
-    const int nHits = 201;
+    const int nHits = 80;
     hNHits_ = dqm->book1D("NHits", "Number of hits", nHits, 0, nHits);
     hNHits_vs_Pt_  = dqm->book2D("NHits_vs_Pt", "Number of hits vs p_{T}",
                                  hDim.nBinPt, hDim.minPt, hDim.maxPt, nHits/4, 0, nHits);
     hNHits_vs_Eta_ = dqm->book2D("NHits_vs_Eta", "Number of hits vs #eta",
                                  hDim.nBinEta, hDim.minEta, hDim.maxEta, nHits/4, 0, nHits);
+
     hNSimHits_ = dqm->book1D("NSimHits", "Number of simHits", nHits, 0, nHits);
 
     const int nLostHits = 5;
@@ -240,12 +181,8 @@ struct RecoMuonValidator::MuonME {
 
     hNSimToReco_ = dqm->book1D("NSimToReco", "Number of associated reco tracks", hDim.nAssoc, 0, hDim.nAssoc);
     hNRecoToSim_ = dqm->book1D("NRecoToSim", "Number of associated sim TP's", hDim.nAssoc, 0, hDim.nAssoc);
-
   };
 
-//
-//Fill hists booked, simRef and recoRef are associated by hits
-//
   void fill(const TrackingParticle* simRef, const Track* recoRef)
   {
     const double simP   = simRef->p();
@@ -263,10 +200,10 @@ struct RecoMuonValidator::MuonME {
     const unsigned int nSimHits = simRef->pSimHit_end() - simRef->pSimHit_begin();
 
     // Histograms for efficiency plots
-    hSimP_  ->Fill(simP  );
-    hSimPt_ ->Fill(simPt );
-    hSimEta_->Fill(simEta);
-    hSimPhi_->Fill(simPhi);
+    hP_  ->Fill(simP  );
+    hPt_ ->Fill(simPt );
+    hEta_->Fill(simEta);
+    hPhi_->Fill(simPhi);
     hNSimHits_->Fill(nSimHits);
 
     // Number of reco-hits
@@ -302,10 +239,10 @@ struct RecoMuonValidator::MuonME {
       hMisQEta_->Fill(simEta);
     }
 
-    const double recoP   = recoRef->p(); 
-    const double recoPt  = recoRef->pt();
-    const double recoEta = recoRef->eta();
-    const double recoPhi = recoRef->phi();
+    const double recoP   = sqrt(recoRef->momentum().mag2());
+    const double recoPt  = sqrt(recoRef->momentum().perp2());
+    const double recoEta = recoRef->momentum().eta();
+    const double recoPhi = recoRef->momentum().phi();
     const double recoQPt = recoQ/recoPt;
 
     const double recoDxy = recoRef->dxy();
@@ -319,11 +256,6 @@ struct RecoMuonValidator::MuonME {
 
     const double errDxy = (recoDxy-simDxy)/simDxy;
     const double errDz  = (recoDz-simDz)/simDz;
-
-    hP_  ->Fill(recoP);
-    hPt_ ->Fill(recoPt );
-    hEta_->Fill(recoEta);   
-    hPhi_->Fill(recoPhi);
 
     hErrP_  ->Fill(errP  );
     hErrPt_ ->Fill(errPt );
@@ -374,39 +306,62 @@ struct RecoMuonValidator::MuonME {
     hPullPhi_vs_Eta_->Fill(simEta, pullPhi);
 
     hPullEta_vs_Pt_->Fill(simPt, pullEta);
+
+
   };
+
+  bool doAbsEta_;
+
+  typedef MonitorElement* MEP;
+
+  MEP hP_, hPt_, hEta_, hPhi_;
+  MEP hErrP_, hErrPt_, hErrEta_, hErrPhi_;
+  MEP hErrPBarrel_, hErrPOverlap_, hErrPEndcap_;
+  MEP hErrPtBarrel_, hErrPtOverlap_, hErrPtEndcap_;
+  MEP hErrDxy_, hErrDz_;
+
+  MEP hErrP_vs_Eta_, hErrPt_vs_Eta_, hErrQPt_vs_Eta_;
+  MEP hErrP_vs_P_, hErrPt_vs_Pt_, hErrQPt_vs_Pt_, hErrEta_vs_Eta_;
+
+  MEP hPullPt_, hPullEta_, hPullPhi_, hPullQPt_, hPullDxy_, hPullDz_;
+  MEP hPullPt_vs_Eta_, hPullPt_vs_Pt_, hPullEta_vs_Eta_, hPullPhi_vs_Eta_, hPullEta_vs_Pt_;
+
+  MEP hNDof_, hChi2_, hChi2Norm_, hChi2Prob_;
+  MEP hNDof_vs_Eta_, hChi2_vs_Eta_, hChi2Norm_vs_Eta_, hChi2Prob_vs_Eta_;
+
+  MEP hNTrks_, hNTrksEta_,  hNTrksPt_;
+
+  MEP hMisQPt_, hMisQEta_;
+
+  MEP hNSimHits_;
+  MEP hNHits_, hNLostHits_, hNTrackerHits_, hNMuonHits_;
+  MEP hNHits_vs_Pt_, hNHits_vs_Eta_;
+  MEP hNLostHits_vs_Pt_, hNLostHits_vs_Eta_;
+  MEP hNTrackerHits_vs_Pt_, hNTrackerHits_vs_Eta_;
+  MEP hNMuonHits_vs_Pt_, hNMuonHits_vs_Eta_;
+
+  MEP hNSimToReco_, hNRecoToSim_;
 };
 
-//
-//struct defininiong histograms
-//
 struct RecoMuonValidator::CommonME {
   typedef MonitorElement* MEP;
 
-//diffs
+  MEP hSimP_, hSimPt_, hSimEta_, hSimPhi_;
+  MEP hNSim_, hNMuon_;
+  MEP hNSimHits_;
+
   MEP hTrkToGlbDiffNTrackerHits_, hStaToGlbDiffNMuonHits_;
   MEP hTrkToGlbDiffNTrackerHitsEta_, hStaToGlbDiffNMuonHitsEta_;
   MEP hTrkToGlbDiffNTrackerHitsPt_, hStaToGlbDiffNMuonHitsPt_;
-
-//global muon hit pattern
-  MEP hNInvalidHitsGTHitPattern_, hNInvalidHitsITHitPattern_, hNInvalidHitsOTHitPattern_;
-  MEP hNDeltaInvalidHitsHitPattern_;
-
-//muon fractions
-  MEP hNTrackerMuon_, hNStandAloneMuon_, hNGlobalMuon_, hNGlobalNotStAMuon_,hNGlobalNotTrkMuon_, hNCaloMuon_;
-
 };
 
-//
-//Constructor
-//
 RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
 {
   verbose_ = pset.getUntrackedParameter<unsigned int>("verbose", 0);
 
   outputFileName_ = pset.getUntrackedParameter<string>("outputFileName", "");
 
-  // Set histogram dimensions from config
+  // Set histogram dimensions
   HistoDimensions hDim;
 
   hDim.nBinP = pset.getUntrackedParameter<unsigned int>("nBinP");
@@ -459,20 +414,16 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
 
   // Labels for simulation and reconstruction tracks
   simLabel_  = pset.getParameter<InputTag>("simLabel" );
+  trkMuLabel_ = pset.getParameter<InputTag>("trkMuLabel");
+  staMuLabel_ = pset.getParameter<InputTag>("staMuLabel");
+  glbMuLabel_ = pset.getParameter<InputTag>("glbMuLabel");
   muonLabel_ = pset.getParameter<InputTag>("muonLabel");
 
   // Labels for sim-reco association
   doAssoc_ = pset.getUntrackedParameter<bool>("doAssoc", true);
-  muAssocLabel_ = pset.getParameter<InputTag>("muAssocLabel");
-  muonSelection_ = pset.getParameter<std::string>("muonSelection");
-
-  //type of track
-  std::string trackType = pset.getParameter< std::string >("trackType");
-  if (trackType == "inner") trackType_ = MuonAssociatorByHits::InnerTk;
-  else if (trackType == "outer") trackType_ = MuonAssociatorByHits::OuterTk;
-  else if (trackType == "global") trackType_ = MuonAssociatorByHits::GlobalTk;
-  else if (trackType == "segments") trackType_ = MuonAssociatorByHits::Segments;
-  else throw cms::Exception("Configuration") << "Track type '" << trackType << "' not supported.\n";
+  trkMuAssocLabel_ = pset.getParameter<InputTag>("trkMuAssocLabel");
+  staMuAssocLabel_ = pset.getParameter<InputTag>("staMuAssocLabel");
+  glbMuAssocLabel_ = pset.getParameter<InputTag>("glbMuAssocLabel");
 
 //  seedPropagatorName_ = pset.getParameter<string>("SeedPropagator");
 
@@ -508,15 +459,24 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
   // book histograms
   theDQM->cd();
 
-  theDQM->setCurrentFolder(subDir_);
+  theDQM->setCurrentFolder(subDir_+"/Muons");
 
   commonME_ = new CommonME;
-  muonME_  = new MuonME;
+  trkMuME_ = new MuonME;
+  staMuME_ = new MuonME;
+  glbMuME_ = new MuonME;
 
-  //commonME
+  commonME_->hSimP_   = theDQM->book1D("SimP"  , "p of simTracks"    , hDim.nBinP  , hDim.minP  , hDim.maxP  );
+  commonME_->hSimPt_  = theDQM->book1D("SimPt" , "p_{T} of simTracks", hDim.nBinPt , hDim.minPt , hDim.maxPt );
+  commonME_->hSimEta_ = theDQM->book1D("SimEta", "#eta of simTracks" , hDim.nBinEta, hDim.minEta, hDim.maxEta);
+  commonME_->hSimPhi_ = theDQM->book1D("SimPhi", "#phi of simTracks" , hDim.nBinPhi, hDim.minPhi, hDim.maxPhi);
+
+  commonME_->hNSim_  = theDQM->book1D("NSim" , "Number of particles per event", hDim.nTrks, 0, hDim.nTrks);
+  commonME_->hNMuon_ = theDQM->book1D("NMuon", "Number of muons per event"    , hDim.nTrks, 0, hDim.nTrks);
+
   const int nHits = 201;
+  commonME_->hNSimHits_ = theDQM->book1D("NSimHits", "Number of simHits", nHits, -100.5, 100.5);
 
-  // - diffs
   commonME_->hTrkToGlbDiffNTrackerHits_ = theDQM->book1D("TrkGlbDiffNTrackerHits", "Difference of number of tracker hits (tkMuon - globalMuon)", nHits, -100.5, 100.5);
   commonME_->hStaToGlbDiffNMuonHits_ = theDQM->book1D("StaGlbDiffNMuonHits", "Difference of number of muon hits (staMuon - globalMuon)", nHits, -100.5, 100.5);
 
@@ -526,60 +486,59 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
   commonME_->hTrkToGlbDiffNTrackerHitsPt_ = theDQM->book2D("TrkGlbDiffNTrackerHitsPt", "Difference of number of tracker hits (tkMuon - globalMuon)",  hDim.nBinPt, hDim.minPt, hDim.maxPt,nHits, -100.5, 100.5);
   commonME_->hStaToGlbDiffNMuonHitsPt_ = theDQM->book2D("StaGlbDiffNMuonHitsPt", "Difference of number of muon hits (staMuon - globalMuon)",  hDim.nBinPt, hDim.minPt, hDim.maxPt,nHits, -100.5, 100.5);
 
- // -global muon hit pattern
-  commonME_->hNInvalidHitsGTHitPattern_ = theDQM->book1D("NInvalidHitsGTHitPattern", "Number of invalid hits on a global track", nHits, 0, nHits);
-  commonME_->hNInvalidHitsITHitPattern_ = theDQM->book1D("NInvalidHitsITHitPattern", "Number of invalid hits on an inner track", nHits, 0, nHits);
-  commonME_->hNInvalidHitsOTHitPattern_ = theDQM->book1D("NInvalidHitsOTHitPattern", "Number of invalid hits on an outer track", nHits, 0, nHits);
-  commonME_->hNDeltaInvalidHitsHitPattern_ = theDQM->book1D("hNDeltaInvalidHitsHitPattern", "The discrepancy for Number of invalid hits on an global track and inner and outer tracks", nHits, 0, nHits);
+  // - histograms on tracking variables
+  theDQM->setCurrentFolder(subDir_+"/Trk");
+  theDQM->bookString("TrackLabel", trkMuLabel_.label()+"_"+trkMuLabel_.instance());
+  theDQM->bookString("AssocLabel", trkMuAssocLabel_.label());
 
-  // - Muon fractions          
-  commonME_->hNTrackerMuon_ = theDQM->book1D("NTrackerMuon", "Fraction of tracker muons per event"    , hDim.nTrks, 0, hDim.nTrks);
-  commonME_->hNStandAloneMuon_ = theDQM->book1D("NStandAloneMuon", "Fraction of standalone muons per event"    , hDim.nTrks, 0, hDim.nTrks);
-  commonME_->hNGlobalMuon_ = theDQM->book1D("NGlobalMuon", "Fraction of global muons per event"    , hDim.nTrks, 0, hDim.nTrks);
-  commonME_->hNGlobalNotStAMuon_ = theDQM->book1D("NGlobalNotStAMuon", "Fraction of global muons but not standalone per event"    , hDim.nTrks, 0, hDim.nTrks);
-  commonME_->hNGlobalNotTrkMuon_ = theDQM->book1D("NGlobalNotTrkMuon", "Fraction of global muons but not tracker per event"    , hDim.nTrks, 0, hDim.nTrks);
-  commonME_->hNCaloMuon_ = theDQM->book1D("NCaloMuon", "Fraction of calo muons per event"    , hDim.nTrks, 0, hDim.nTrks);
+  theDQM->setCurrentFolder(subDir_+"/Sta");
+  theDQM->bookString("TrackLabel", staMuLabel_.label()+"_"+staMuLabel_.instance());
+  theDQM->bookString("AssocLabel", staMuAssocLabel_.label());
 
-  muonME_->bookHistograms(theDQM, subDir_, hDim);
+  theDQM->setCurrentFolder(subDir_+"/Glb");
+  theDQM->bookString("TrackLabel", glbMuLabel_.label()+"_"+glbMuLabel_.instance());
+  theDQM->bookString("AssocLabel", glbMuAssocLabel_.label());
+  
+  trkMuME_->bookHistograms(theDQM, subDir_+"/Trk", hDim);
+  staMuME_->bookHistograms(theDQM, subDir_+"/Sta", hDim);
+  glbMuME_->bookHistograms(theDQM, subDir_+"/Glb", hDim);
 
   if ( verbose_ > 0 ) theDQM->showDirStructure();
+
 }
 
-//
-//Destructor
-//
 RecoMuonValidator::~RecoMuonValidator()
 {
   if ( theMuonService ) delete theMuonService;
 }
 
-//
-//Begin run
-//
 void RecoMuonValidator::beginRun(const edm::Run& , const EventSetup& eventSetup)
 {
   if ( theMuonService ) theMuonService->update(eventSetup);
 
+  trkMuAssociator_ = 0;
+  staMuAssociator_ = 0;
+  glbMuAssociator_ = 0;
   if ( doAssoc_ ) {
-    edm::ESHandle<TrackAssociatorBase> associatorBase;
-    eventSetup.get<TrackAssociatorRecord>().get(muAssocLabel_.label(), associatorBase);
-    assoByHits = dynamic_cast<const MuonAssociatorByHits *>(associatorBase.product());
-    if (assoByHits == 0) throw cms::Exception("Configuration") << "The Track Associator with label '" << muAssocLabel_.label() << "' is not a MuonAssociatorByHits.\n";
-    }
+    ESHandle<TrackAssociatorBase> trkMuAssocHandle;
+    eventSetup.get<TrackAssociatorRecord>().get(trkMuAssocLabel_.label(), trkMuAssocHandle);
+    trkMuAssociator_ = const_cast<TrackAssociatorBase*>(trkMuAssocHandle.product());
 
+    ESHandle<TrackAssociatorBase> staMuAssocHandle;
+    eventSetup.get<TrackAssociatorRecord>().get(staMuAssocLabel_.label(), staMuAssocHandle);
+    staMuAssociator_ = const_cast<TrackAssociatorBase*>(staMuAssocHandle.product());
+
+    ESHandle<TrackAssociatorBase> glbMuAssocHandle;
+    eventSetup.get<TrackAssociatorRecord>().get(glbMuAssocLabel_.label(), glbMuAssocHandle);
+    glbMuAssociator_ = const_cast<TrackAssociatorBase*>(glbMuAssocHandle.product());
+  }
 }
 
-//
-//End run
-//
 void RecoMuonValidator::endRun()
 {
   if ( theDQM && ! outputFileName_.empty() ) theDQM->save(outputFileName_);
 }
 
-//
-//Analyze
-//
 void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup)
 {
   if ( ! theDQM ) {
@@ -592,208 +551,199 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
   event.getByLabel(simLabel_, simHandle);
   const TrackingParticleCollection simColl = *(simHandle.product());
 
+  // Get Muon Tracks
+  Handle<View<Track> > trkMuHandle;
+  event.getByLabel(trkMuLabel_, trkMuHandle);
+  View<Track> trkMuColl = *(trkMuHandle.product());
+
+  Handle<View<Track> > staMuHandle;
+  event.getByLabel(staMuLabel_, staMuHandle);
+  View<Track> staMuColl = *(staMuHandle.product());
+
+  Handle<View<Track> > glbMuHandle;
+  event.getByLabel(glbMuLabel_, glbMuHandle);
+  View<Track> glbMuColl = *(glbMuHandle.product());
+
   // Get Muons
   Handle<View<Muon> > muonHandle;
   event.getByLabel(muonLabel_, muonHandle);
   View<Muon> muonColl = *(muonHandle.product());
 
-  const TrackingParticleCollection::size_type nSim = simColl.size();
+  // Get Association maps
+  SimToRecoCollection simToTrkMuColl;
+  SimToRecoCollection simToStaMuColl;
+  SimToRecoCollection simToGlbMuColl;
 
-  edm::RefToBaseVector<reco::Muon> Muons;
-  Muons = muonHandle->refVector();
-
-  edm::RefVector<TrackingParticleCollection> allTPs;
-  for (size_t i = 0; i < nSim; ++i) {
-      allTPs.push_back(TrackingParticleRef(simHandle,i));
-  }
-
-  muonME_->hNSim_->Fill(nSim);
-  muonME_->hNMuon_->Fill(muonColl.size());
-
-  MuonAssociatorByHits::MuonToSimCollection muonToSimColl;
-  MuonAssociatorByHits::SimToMuonCollection simToMuonColl;
+  RecoToSimCollection trkMuToSimColl;
+  RecoToSimCollection staMuToSimColl;
+  RecoToSimCollection glbMuToSimColl;
 
   if ( doAssoc_ ) {
-  assoByHits->associateMuons(muonToSimColl, simToMuonColl, Muons, trackType_, allTPs, &event, &eventSetup);
-  } else {
-/*
-    // SimToMuon associations
-    Handle<reco::RecoToSimCollection> simToTrkMuHandle;
+    // SimToReco associations
+    simToTrkMuColl = trkMuAssociator_->associateSimToReco(trkMuHandle, simHandle, &event);
+    simToStaMuColl = staMuAssociator_->associateSimToReco(staMuHandle, simHandle, &event);
+    simToGlbMuColl = glbMuAssociator_->associateSimToReco(glbMuHandle, simHandle, &event);
+
+    // // RecoToSim associations
+    trkMuToSimColl = trkMuAssociator_->associateRecoToSim(trkMuHandle, simHandle, &event);
+    staMuToSimColl = staMuAssociator_->associateRecoToSim(staMuHandle, simHandle, &event);
+    glbMuToSimColl = glbMuAssociator_->associateRecoToSim(glbMuHandle, simHandle, &event);
+  }
+  else {
+    // SimToReco associations
+    Handle<SimToRecoCollection> simToTrkMuHandle;
     event.getByLabel(trkMuAssocLabel_, simToTrkMuHandle);
-    trkSimRecColl = *(simToTrkMuHandle.product());
+    simToTrkMuColl = *(simToTrkMuHandle.product());
 
-    Handle<reco::RecoToSimCollection> simToStaMuHandle;
+    Handle<SimToRecoCollection> simToStaMuHandle;
     event.getByLabel(staMuAssocLabel_, simToStaMuHandle);
-    staSimRecColl = *(simToStaMuHandle.product());
+    simToStaMuColl = *(simToStaMuHandle.product());
 
-    Handle<reco::RecoToSimCollection> simToGlbMuHandle;
+    Handle<SimToRecoCollection> simToGlbMuHandle;
     event.getByLabel(glbMuAssocLabel_, simToGlbMuHandle);
-    glbSimRecColl = *(simToGlbMuHandle.product());
+    simToGlbMuColl = *(simToGlbMuHandle.product());
 
-    // MuonToSim associations
-    Handle<reco::SimToRecoCollection> trkMuToSimHandle;
+    // RecoToSim associations
+    Handle<RecoToSimCollection> trkMuToSimHandle;
     event.getByLabel(trkMuAssocLabel_, trkMuToSimHandle);
-    trkRecSimColl = *(trkMuToSimHandle.product());
+    trkMuToSimColl = *(trkMuToSimHandle.product());
 
-    Handle<reco::SimToRecoCollection> staMuToSimHandle;
+    Handle<RecoToSimCollection> staMuToSimHandle;
     event.getByLabel(staMuAssocLabel_, staMuToSimHandle);
-    staRecSimColl = *(staMuToSimHandle.product());
+    staMuToSimColl = *(staMuToSimHandle.product());
 
-    Handle<reco::SimToRecoCollection> glbMuToSimHandle;
+    Handle<RecoToSimCollection> glbMuToSimHandle;
     event.getByLabel(glbMuAssocLabel_, glbMuToSimHandle);
-    glbRecSimColl = *(glbMuToSimHandle.product());
-*/
+    glbMuToSimColl = *(glbMuToSimHandle.product());
   }
 
+  const TrackingParticleCollection::size_type nSim = simColl.size();
+  commonME_->hNSim_->Fill(nSim);
+
+  commonME_->hNMuon_->Fill(muonColl.size());
+
+  trkMuME_->hNTrks_->Fill(trkMuColl.size());
+  staMuME_->hNTrks_->Fill(staMuColl.size());
+  glbMuME_->hNTrks_->Fill(glbMuColl.size());
+
+  // Analyzer reco::Muon
+  for(View<Muon>::const_iterator iMuon = muonColl.begin();
+      iMuon != muonColl.end(); ++iMuon) {
     int trkNTrackerHits = 0, glbNTrackerHits = 0;
     int staNMuonHits = 0, glbNMuonHits = 0;
 
-    // for muon fractions
-    int nTrackerMu = 0, nStandAloneMu = 0;
-    int nGlobalMu = 0, nCaloMu = 0;
-    int nGlobalNotStAMu = 0, nGlobalNotTrkMu = 0;
+    if ( iMuon->isTrackerMuon() ) {
+      const TrackRef trkTrack = iMuon->track();
 
-  // Analyzer reco::Muon  
-  for(View<Muon>::const_iterator iMuon = muonColl.begin();
-      iMuon != muonColl.end(); ++iMuon) {
+      trkNTrackerHits = countTrackerHits(*trkTrack);
 
-    if ( iMuon->isTrackerMuon()) {
-      nTrackerMu++;
-
-      if (muonSelection_ == "isTrackerMuon") {
-          const TrackRef trkTrack = iMuon->track();
-
-          trkNTrackerHits = countTrackerHits(*trkTrack);
-     
-          muonME_->hNTrackerHits_->Fill(trkNTrackerHits);
-          muonME_->hNTrackerHits_vs_Pt_->Fill(trkTrack->pt(), trkNTrackerHits);
-          muonME_->hNTrackerHits_vs_Eta_->Fill(trkTrack->eta(), trkNTrackerHits);
-
-//      muonME_->hNTrks_->Fill();
-          muonME_->hNTrksEta_->Fill(trkTrack->eta());
-          muonME_->hNTrksPt_->Fill(trkTrack->pt());
-       }
+      trkMuME_->hNTrackerHits_->Fill(trkNTrackerHits);
+      trkMuME_->hNTrackerHits_vs_Pt_->Fill(trkTrack->pt(), trkNTrackerHits);
+      trkMuME_->hNTrackerHits_vs_Eta_->Fill(trkTrack->eta(), trkNTrackerHits);
     }
 
-    if ( iMuon->isStandAloneMuon()) {
-      nStandAloneMu++;
+    if ( iMuon->isStandAloneMuon() ) {
+      const TrackRef staTrack = iMuon->standAloneMuon();
 
-      if (muonSelection_ == "isStandaloneMuon") {
-          const TrackRef staTrack = iMuon->standAloneMuon();
+      staNMuonHits = countMuonHits(*staTrack);
 
-          staNMuonHits = countMuonHits(*staTrack);
+      staMuME_->hNMuonHits_->Fill(staNMuonHits);
+      staMuME_->hNMuonHits_vs_Pt_->Fill(staTrack->pt(), staNMuonHits);
+      staMuME_->hNMuonHits_vs_Eta_->Fill(staTrack->eta(), staNMuonHits);
 
-          muonME_->hNMuonHits_->Fill(staNMuonHits);
-          muonME_->hNMuonHits_vs_Pt_->Fill(staTrack->pt(), staNMuonHits);
-          muonME_->hNMuonHits_vs_Eta_->Fill(staTrack->eta(), staNMuonHits);
-
-//      muonME_->hNTrks_->Fill();
-          muonME_->hNTrksEta_->Fill(staTrack->eta());
-          muonME_->hNTrksPt_->Fill(staTrack->pt());
-       }
-    }
-
-    if ( iMuon->isGlobalMuon()) {
-      nGlobalMu++;
-
-      if (!iMuon->isTrackerMuon()) nGlobalNotTrkMu++; 
-      if (!iMuon->isStandAloneMuon()) nGlobalNotStAMu++;
-
-      if (muonSelection_ == "isGlobalMuon") {
-          const TrackRef glbTrack = iMuon->combinedMuon();
-
-          double gtHitPat = iMuon->globalTrack()->hitPattern().numberOfHits() - iMuon->globalTrack()->hitPattern().numberOfValidHits();
-          double itHitPat = iMuon->innerTrack()->hitPattern().numberOfHits() - iMuon->innerTrack()->hitPattern().numberOfValidHits();
-          double otHitPat = iMuon->outerTrack()->hitPattern().numberOfHits() - iMuon->outerTrack()->hitPattern().numberOfValidHits();
-
-          commonME_->hNInvalidHitsGTHitPattern_->Fill(gtHitPat);
-          commonME_->hNInvalidHitsITHitPattern_->Fill(itHitPat);
-          commonME_->hNInvalidHitsOTHitPattern_->Fill(otHitPat);
-          commonME_->hNDeltaInvalidHitsHitPattern_->Fill(gtHitPat - itHitPat - otHitPat);
-
-          glbNTrackerHits = countTrackerHits(*glbTrack);
-          glbNMuonHits = countMuonHits(*glbTrack);
-
-          muonME_->hNTrackerHits_->Fill(glbNTrackerHits);
-          muonME_->hNTrackerHits_vs_Pt_->Fill(glbTrack->pt(), glbNTrackerHits);
-          muonME_->hNTrackerHits_vs_Eta_->Fill(glbTrack->eta(), glbNTrackerHits);
-
-          muonME_->hNMuonHits_->Fill(glbNMuonHits);
-          muonME_->hNMuonHits_vs_Pt_->Fill(glbTrack->pt(), glbNMuonHits);
-          muonME_->hNMuonHits_vs_Eta_->Fill(glbTrack->eta(), glbNMuonHits);
-
-//      muonME_->hNTrks_->Fill();
-         muonME_->hNTrksEta_->Fill(glbTrack->eta());
-         muonME_->hNTrksPt_->Fill(glbTrack->pt());
+      staMuME_->hNTrksEta_->Fill(staTrack->eta());
+      staMuME_->hNTrksPt_->Fill(staTrack->pt());
       
-         commonME_->hTrkToGlbDiffNTrackerHitsEta_->Fill(glbTrack->eta(),trkNTrackerHits-glbNTrackerHits);
-         commonME_->hStaToGlbDiffNMuonHitsEta_->Fill(glbTrack->eta(),staNMuonHits-glbNMuonHits);
-      
-         commonME_->hTrkToGlbDiffNTrackerHitsPt_->Fill(glbTrack->pt(),trkNTrackerHits-glbNTrackerHits);
-         commonME_->hStaToGlbDiffNMuonHitsPt_->Fill(glbTrack->pt(),staNMuonHits-glbNMuonHits);
-      
-         commonME_->hTrkToGlbDiffNTrackerHits_->Fill(trkNTrackerHits-glbNTrackerHits);
-         commonME_->hStaToGlbDiffNMuonHits_->Fill(staNMuonHits-glbNMuonHits);
-        }
-    }
-   
-    if ( iMuon->isCaloMuon() && muonSelection_ == "isCaloMuon") {    
-      nCaloMu++;
-       }
     }
 
-    if (muonSelection_ == "isGlobalMuon") {
-    //muon fractions per event
-      commonME_->hNTrackerMuon_->Fill(double(nTrackerMu/muonColl.size()));
-      commonME_->hNStandAloneMuon_->Fill(double(nStandAloneMu/muonColl.size())); 
-      commonME_->hNGlobalMuon_->Fill(double(nGlobalMu/muonColl.size()));
-      commonME_->hNGlobalNotStAMuon_->Fill(double(nGlobalNotStAMu/muonColl.size()));
-      commonME_->hNGlobalNotTrkMuon_->Fill(double(nGlobalNotTrkMu/muonColl.size()));
-      commonME_->hNCaloMuon_->Fill(double(nCaloMu/muonColl.size())); 
+    if ( iMuon->isGlobalMuon() ) {
+      const TrackRef glbTrack = iMuon->combinedMuon();
+
+      glbNTrackerHits = countTrackerHits(*glbTrack);
+      glbNMuonHits = countMuonHits(*glbTrack);
+
+      glbMuME_->hNTrackerHits_->Fill(glbNTrackerHits);
+      glbMuME_->hNTrackerHits_vs_Pt_->Fill(glbTrack->pt(), glbNTrackerHits);
+      glbMuME_->hNTrackerHits_vs_Eta_->Fill(glbTrack->eta(), glbNTrackerHits);
+
+      glbMuME_->hNMuonHits_->Fill(glbNMuonHits);
+      glbMuME_->hNMuonHits_vs_Pt_->Fill(glbTrack->pt(), glbNMuonHits);
+      glbMuME_->hNMuonHits_vs_Eta_->Fill(glbTrack->eta(), glbNMuonHits);
+
+      glbMuME_->hNTrksEta_->Fill(glbTrack->eta());
+      glbMuME_->hNTrksPt_->Fill(glbTrack->pt());
+      
+      commonME_->hTrkToGlbDiffNTrackerHitsEta_->Fill(glbTrack->eta(),trkNTrackerHits-glbNTrackerHits);
+      commonME_->hStaToGlbDiffNMuonHitsEta_->Fill(glbTrack->eta(),staNMuonHits-glbNMuonHits);
+      
+      commonME_->hTrkToGlbDiffNTrackerHitsPt_->Fill(glbTrack->pt(),trkNTrackerHits-glbNTrackerHits);
+      commonME_->hStaToGlbDiffNMuonHitsPt_->Fill(glbTrack->pt(),staNMuonHits-glbNMuonHits);
+      
+      commonME_->hTrkToGlbDiffNTrackerHits_->Fill(trkNTrackerHits-glbNTrackerHits);
+      commonME_->hStaToGlbDiffNMuonHits_->Fill(staNMuonHits-glbNMuonHits);
+
+    }
+
   }
 
-  // Associate by hits
+  // Analyzer reco::Track
   for(TrackingParticleCollection::size_type i=0; i<nSim; i++) {
     TrackingParticleRef simRef(simHandle, i);
     const TrackingParticle* simTP = simRef.get();
     if ( ! tpSelector_(*simTP) ) continue;
 
+    const double simP   = simRef->p();
+    const double simPt  = simRef->pt();
+    const double simEta = doAbsEta_ ? fabs(simRef->eta()) : simRef->eta();
+    const double simPhi = simRef->phi();
+
+    const unsigned int nSimHits = simRef->pSimHit_end() - simRef->pSimHit_begin();
+
+    commonME_->hSimP_  ->Fill(simP  );
+    commonME_->hSimPt_ ->Fill(simPt );
+    commonME_->hSimEta_->Fill(simEta);
+    commonME_->hSimPhi_->Fill(simPhi);
+
+    commonME_->hNSimHits_->Fill(nSimHits);
+
     // Get sim-reco association for a simRef
-    vector<pair<RefToBase<Muon>, double> > trkMuRefV, staMuRefV, glbMuRefV;
-    if ( simToMuonColl.find(simRef) != simToMuonColl.end() ) {
-      trkMuRefV = simToMuonColl[simRef];
-      staMuRefV = simToMuonColl[simRef];
-      glbMuRefV = simToMuonColl[simRef];
+    vector<pair<RefToBase<Track>, double> > trkMuRefV, staMuRefV, glbMuRefV;
+    if ( simToTrkMuColl.find(simRef) != simToTrkMuColl.end() ) {
+      trkMuRefV = simToTrkMuColl[simRef];
 
-      if ( !trkMuRefV.empty() && muonSelection_ == "isTrackerMuon") {
-        muonME_->hNSimToReco_->Fill(trkMuRefV.size());
-        const Muon* trkMu = trkMuRefV.begin()->first.get();
-        if (trkMu->isTrackerMuon()) { 
-            reco::TrackRef muonTrack = trkMu->innerTrack();
-            muonME_->fill(&*simTP, &*muonTrack);
-        }
+      trkMuME_->hNSimToReco_->Fill(trkMuRefV.size());
+      if ( ! trkMuRefV.empty() ) {
+        const Track* trkMuTrack = trkMuRefV.begin()->first.get();
+//        const double assocQuality = trkMuRefV.begin()->second;
+
+        trkMuME_->fill(simTP, trkMuTrack);
       }
+    }
 
-      if ( !staMuRefV.empty() && muonSelection_ == "isStandAloneMuon") {
-        muonME_->hNSimToReco_->Fill(staMuRefV.size());
-        const Muon* staMu = staMuRefV.begin()->first.get();
-        if (staMu->isStandAloneMuon()) {
-            reco::TrackRef muonTrack = staMu->outerTrack();
-            muonME_->fill(&*simTP, &*muonTrack);
-         }
+    if ( simToStaMuColl.find(simRef) != simToStaMuColl.end() ) {
+      staMuRefV = simToStaMuColl[simRef];
+
+      staMuME_->hNSimToReco_->Fill(staMuRefV.size());
+      if ( ! staMuRefV.empty() ) {
+        const Track* staMuTrack = staMuRefV.begin()->first.get();
+//        const double assocQuality = staMuRefV.begin().second;
+
+        staMuME_->fill(simTP, staMuTrack);
       }
+    }
 
-      if ( !glbMuRefV.empty() && muonSelection_ == "isGlobalMuon") {
-        muonME_->hNSimToReco_->Fill(glbMuRefV.size());
-        const Muon* glbMu = glbMuRefV.begin()->first.get();
-        if (glbMu->isGlobalMuon()) {
-            reco::TrackRef muonTrack = glbMu->globalTrack();
-            muonME_->fill(&*simTP, &*muonTrack);
-        } 
+    if ( simToGlbMuColl.find(simRef) != simToGlbMuColl.end() ) {
+      glbMuRefV = simToGlbMuColl[simRef];
+
+      glbMuME_->hNSimToReco_->Fill(glbMuRefV.size());
+      if ( ! glbMuRefV.empty() ) {
+        const Track* glbMuTrack = glbMuRefV.begin()->first.get();
+//        const double assocQuality = glbMuRefV.begin().second;
+
+        glbMuME_->fill(simTP, glbMuTrack);
       }
     }
   }
-
 }
 
 int
@@ -825,4 +775,5 @@ RecoMuonValidator::countTrackerHits(const reco::Track& track) const {
   }
   return count;
 }
+
 /* vim:set ts=2 sts=2 sw=2 expandtab: */

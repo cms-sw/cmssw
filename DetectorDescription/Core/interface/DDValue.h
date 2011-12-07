@@ -1,6 +1,5 @@
 #ifndef DDValue_h
 #define DDValue_h
-
 #include <iostream>
 #include <string>
 #include <vector>
@@ -8,6 +7,7 @@
 #include <memory>
 
 #include "DetectorDescription/Core/interface/DDValuePair.h"
+#include "DetectorDescription/Base/interface/Ptr.h"
 
 #include "boost/shared_ptr.hpp"
 
@@ -52,6 +52,10 @@ public:
   explicit DDValue(const std::string & name, const std::string & val);
   
   explicit DDValue(unsigned int);
+  //~DDValue() { destroy(); }
+  //DDValue(const DDValue &);
+  //DDValue & operator=(const DDValue &);
+  //const DDValuePair &  
   
   ~DDValue();
   
@@ -94,22 +98,56 @@ public:
   /** If the DDValue::isEvalued() == true, the numerical representation is taken for comparison,
       else the std::string representation */
   bool operator==(const DDValue & v) const;
+  /* {
+    return id()==v.id() 
+      && ( 
+	  vecPair_ == v.vecPair_ || 
+	  (
+	   vecPair_ && v.vecPair_ &&
+	   ( (vecPair_->first) ? (vecPair_->second.second == v.vecPair_->second.second) 
+	     : (vecPair_->second.first == v.vecPair_->second.first) 
+	     )
+	   )
+	   )
+  }
+  */
   
   //! A DDValue a is smaller than a DDValue b if (a.id()<b.id()) OR (a.id()==b.id() and value(a)<value(b))
   bool operator<(const DDValue &) const;
+  /*{
+    return id()<v.id() || 
+      (
+       id()==v.id() && 
+       vecPair_ && v.vecPair_ &&
+       ( (vecPair_->first) ? (vecPair_->second.second < v.vecPair_->second.second) 
+	 : (vecPair_->second.first < v.vecPair_->second.first)
+	 )
+       )
+  }
+  */
   
 private:  
   typedef std::pair<bool, std::pair<std::vector<std::string>, std::vector<double> > >vecpair_type;
   static std::vector<std::string>& names();
   static std::map<std::string,unsigned int>& indexer();
   static std::vector<boost::shared_ptr<vecpair_type> >& mem(vecpair_type*);
-
+  //DDValue(const DDValue &);
+  //DDValue & operator=(const DDValue &);
+  //void destroy() { delete vecPair_;} //delete valPairs_; }
+  
+  //static std::vector<std::map<std::string,unsigned int>::const_iterator> names_;
   unsigned int id_;
   
+  //Ptr<vecpair_type>  vecPair_;
 public:  
   vecpair_type* vecPair_;
+
+public:  
+  //bool isEvaluated_;
+  //auto_ptr<vecpair_type> vecPair_;
+  //std::vector<DDValuePair> * valPairs_;
 };
 
-std::ostream & operator<<(std::ostream & o, const DDValue & v);
 
+std::ostream & operator<<(std::ostream & o, const DDValue & v);
 #endif // DDValue_h

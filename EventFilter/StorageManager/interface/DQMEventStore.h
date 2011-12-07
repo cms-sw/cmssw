@@ -1,27 +1,32 @@
-// $Id: DQMEventStore.h,v 1.7 2010/03/06 08:38:37 mommsen Exp $
+// $Id: DQMEventStore.h,v 1.11 2011/04/04 12:03:30 mommsen Exp $
 /// @file: DQMEventStore.h 
 
-#ifndef StorageManager_DQMEventStore_h
-#define StorageManager_DQMEventStore_h
+#ifndef EventFilter_StorageManager_DQMEventStore_h
+#define EventFilter_StorageManager_DQMEventStore_h
 
 #include <map>
 #include <queue>
 
-#include "boost/shared_ptr.hpp"
+#include <boost/thread/mutex.hpp>
+
+#include "TThread.h"
+
+#include "xcept/Exception.h"
+#include "xdaq/ApplicationDescriptor.h"
 
 #include "IOPool/Streamer/interface/HLTInfo.h"
 
+#include "EventFilter/StorageManager/interface/AlarmHandler.h"
 #include "EventFilter/StorageManager/interface/Configuration.h"
-#include "EventFilter/StorageManager/interface/DQMEventRecord.h"
+#include "EventFilter/StorageManager/interface/DQMTopLevelFolder.h"
 #include "EventFilter/StorageManager/interface/DQMKey.h"
+#include "EventFilter/StorageManager/interface/InitMsgCollection.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
 
 
 namespace stor {
   
   class DQMEventMonitorCollection;
-  class I2OChain;
-  class InitMsgCollection;
 
 
   /**
@@ -31,15 +36,26 @@ namespace stor {
    * into DQMEventMsgViews.
    *
    * $Author: mommsen $
-   * $Revision: 1.7 $
-   * $Date: 2010/03/06 08:38:37 $
+   * $Revision: 1.11 $
+   * $Date: 2011/04/04 12:03:30 $
    */
-  
+
+  template<class EventType, class ConnectionType, class StateMachineType>  
   class DQMEventStore
   {
   public:
     
-    explicit DQMEventStore(SharedResourcesPtr);
+    DQMEventStore
+    (
+      xdaq::ApplicationDescriptor*,
+      DQMEventQueueCollectionPtr,
+      DQMEventMonitorCollection&,
+      ConnectionType*,
+      size_t (ConnectionType::*getExpectedUpdatesCount)() const,
+      StateMachineType*,
+      void (StateMachineType::*moveToFailedState)(xcept::Exception&),
+      AlarmHandlerPtr
+    );
 
     ~DQMEventStore();
 
@@ -50,26 +66,19 @@ namespace stor {
     void setParameters(DQMProcessingParams const&);
 
     /**
-     * Adds the DQM event found in the I2OChain to
-     * the store. If a matching DQMEventRecord is found,
+     * Adds the DQM event found in EventType to the store.
+     * If a matching DQMEventRecord is found,
      * the histograms are added unless collateDQM is false.
      */
-    void addDQMEvent(I2OChain const&);
+    void addDQMEvent(EventType const&);
 
     /**
-     * Returns true if there is a complete group
-     * ready to be served to consumers. In this case
-     * DQMEventRecord::GroupRecord holds this record.
+     * Process completed top level folders, then clear the DQM event store
      */
-    bool getCompletedDQMGroupRecordIfAvailable(DQMEventRecord::GroupRecord&);
+    void purge();
 
     /**
-     * Writes and purges all DQMEventRecords hold by the store
-     */
-    void writeAndPurgeAllDQMInstances();
-
-    /**
-     * Clears all DQMEventRecords hold by the DQM store
+     * Clears all data hold by the DQM event store
      */
     void clear();
 
@@ -77,8 +86,14 @@ namespace stor {
      * Checks if the DQM event store is empty
      */
     bool empty()
-    { return ( _store.empty() && _recordsReadyToServe.empty() ); }
+    { return store_.empty(); }
 
+    void moveToFailedState(xcept::Exception& sentinelException)
+    { (stateMachineType_->*moveToFailedState_)(sentinelException); }
+
+    bool doProcessCompletedTopLevelFolders()
+    { return processCompletedTopLevelFolders_; }
+    
     
   private:
 
@@ -86,37 +101,39 @@ namespace stor {
     DQMEventStore(DQMEventStore const&);
     DQMEventStore& operator=(DQMEventStore const&);
 
-    void addDQMEventToStore(I2OChain const&);
+    void addDQMEventToStore(EventType const&);
+    void addDQMEventToReadyToServe(EventType const&);
+    DQMTopLevelFolderPtr makeDQMTopLevelFolder(EventType const&);
+    DQMEventMsgView getDQMEventView(EventType const&);
+    bool getNextReadyTopLevelFolder(DQMTopLevelFolderPtr&);
+    static void processCompletedTopLevelFolders(void* arg);
+    bool handleNextCompletedTopLevelFolder();
+    void stopProcessingCompletedTopLevelFolders();
 
-    void addDQMEventToReadyToServe(I2OChain const&);
+    xdaq::ApplicationDescriptor* appDescriptor_;
+    DQMProcessingParams dqmParams_;
+    DQMEventQueueCollectionPtr dqmEventQueueCollection_;
+    DQMEventMonitorCollection& dqmEventMonColl_;
+    ConnectionType* connectionType_;
+    size_t (ConnectionType::*getExpectedUpdatesCount_)() const;
+    StateMachineType* stateMachineType_;
+    void (StateMachineType::*moveToFailedState_)(xcept::Exception&);
+    AlarmHandlerPtr alarmHandler_;
 
-    void addNextAvailableDQMGroupToReadyToServe(const std::string groupName);
+    typedef std::map<DQMKey, DQMTopLevelFolderPtr> DQMTopLevelFolderMap;
+    DQMTopLevelFolderMap store_;
+    static boost::mutex storeMutex_;
 
-    DQMEventRecordPtr makeDQMEventRecord(I2OChain const&);
+    TThread* completedFolderThread_;
+    bool processCompletedTopLevelFolders_;
 
-    DQMEventMsgView getDQMEventView(I2OChain const&);
+    std::vector<unsigned char> tempEventArea_;
 
-    DQMEventRecordPtr getNewestReadyDQMEventRecord(const std::string groupName) const;
-
-    void writeAndPurgeStaleDQMInstances();
-
-    void writeLatestReadyDQMInstance() const;
-
-
-    DQMProcessingParams _dqmParams;
-    DQMEventMonitorCollection& _dqmEventMonColl;
-    boost::shared_ptr<InitMsgCollection> _initMsgColl;
-
-    typedef std::map<DQMKey, DQMEventRecordPtr> DQMEventRecordMap;
-    DQMEventRecordMap _store;
-    std::queue<DQMEventRecord::GroupRecord> _recordsReadyToServe;
-    
-    std::vector<unsigned char> _tempEventArea;
   };
   
 } // namespace stor
 
-#endif // StorageManager_DQMEventStore_h 
+#endif // EventFilter_StorageManager_DQMEventStore_h 
 
 
 /// emacs configuration

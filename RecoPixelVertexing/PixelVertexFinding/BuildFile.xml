@@ -1,3 +1,4 @@
+<flags   EDM_PLUGIN="1"/>
 <use   name="DataFormats/VertexReco"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
@@ -9,10 +10,6 @@
 <use   name="DataFormats/TrackReco"/>
 <use   name="RecoPixelVertexing/PixelTriplets"/>
 <use   name="RecoPixelVertexing/PixelTrackFitting"/>
-<use   name="MagneticField/Records"/>
-<use   name="MagneticField/Engine"/>
-<use   name="TrackingTools/TransientTrack"/>
-<use   name="RecoVertex/KalmanVertexFit"/>
 <export>
   <lib   name="1"/>
 </export>
