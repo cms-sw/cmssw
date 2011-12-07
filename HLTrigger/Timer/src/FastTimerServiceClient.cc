@@ -21,7 +21,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -40,14 +42,19 @@ private:
   void beginJob();
   void endJob();
   void beginRun(edm::Run const & run, edm::EventSetup const & setup);
-  void endRun(  edm::Run const & run, edm::EventSetup const & setup);
+  void endRun  (edm::Run const & run, edm::EventSetup const & setup);
   void beginLuminosityBlock(edm::LuminosityBlock const & lumi, edm::EventSetup const & setup);
-  void endLuminosityBlock(  edm::LuminosityBlock const & lumi, edm::EventSetup const & setup);
+  void endLuminosityBlock  (edm::LuminosityBlock const & lumi, edm::EventSetup const & setup);
+
+  // access the list of paths or endpahs, either from the current process or from a previous one
+  // Note: these cannot return a (const) reference, because a ParameterSet returns objects by value 
+  std::vector<std::string> getTrigPaths(edm::ProcessHistory const & history) const;
+  std::vector<std::string> getEndPaths (edm::ProcessHistory const & history) const;
 };
 
 FastTimerServiceClient::FastTimerServiceClient(edm::ParameterSet const & config) :
   m_dqm_path( config.getUntrackedParameter<std::string>( "dqmPath",         "TimerService") ),
-  m_hlt_name( config.getUntrackedParameter<std::string>( "hltProcessName",  "HLT") )                // XXX unused
+  m_hlt_name( config.getUntrackedParameter<std::string>( "hltProcessName",  "HLT") )
 {
 }
 
@@ -75,6 +82,69 @@ FastTimerServiceClient::beginRun(edm::Run const & run, edm::EventSetup const & s
 {
 }
 
+// Note: this cannot return a (const) reference, because a ParameterSet returns objects by value 
+std::vector<std::string> 
+FastTimerServiceClient::getTrigPaths(edm::ProcessHistory const & history) const {
+  static const std::vector<std::string> empty;
+
+  if (m_hlt_name.empty()) {
+    // access the trigger configuration for the *current job*
+    edm::service::TriggerNamesService & tns = * edm::Service<edm::service::TriggerNamesService>();
+    return tns.getTrigPaths();
+  } else {
+    // access the processing history and retrieve the trigger cofiguration from a previous job
+    for (edm::ProcessHistory::const_iterator hi = history.begin(); hi != history.end(); ++hi) {
+      if (hi->processName() != m_hlt_name)
+        continue;
+      // process name found
+      edm::ParameterSetID const & parameterSetID = hi->parameterSetID();
+      if (parameterSetID.isValid()) {
+        edm::ParameterSet const * processPSet = edm::pset::Registry::instance()->getMapped(parameterSetID);
+        if (processPSet->exists("@trigger_paths"))
+          // this returns a copy by value
+          return processPSet->getParameterSet("@trigger_paths").getParameter<std::vector<std::string> >("@trigger_paths");
+        else
+          return empty;
+      } else {
+        return empty;
+      }
+    }
+    // process name not found in the processing history
+    return empty;
+  }
+}
+
+// Note: this cannot return a (const) reference, because a ParameterSet returns objects by value 
+std::vector<std::string>
+FastTimerServiceClient::getEndPaths(edm::ProcessHistory const & history) const {
+  static const std::vector<std::string> empty;
+
+  if (m_hlt_name.empty()) {
+    // access the trigger configuration for the *current job*
+    edm::service::TriggerNamesService & tns = * edm::Service<edm::service::TriggerNamesService>();
+    return tns.getEndPaths();
+  } else {
+    // access the processing history and retrieve the trigger cofiguration from a previous job
+    for (edm::ProcessHistory::const_iterator hi = history.begin(); hi != history.end(); ++hi) {
+      if (hi->processName() != m_hlt_name)
+        continue;
+      // process name found
+      edm::ParameterSetID const & parameterSetID = hi->parameterSetID();
+      if (parameterSetID.isValid()) {
+        edm::ParameterSet const * processPSet = edm::pset::Registry::instance()->getMapped(parameterSetID);
+        if (processPSet->exists("@end_paths"))
+          return processPSet->getParameter<std::vector<std::string> >("@end_paths");
+        else
+          return empty;
+      } else {
+        return empty;
+      }
+    }
+    // process name not found in the processing history
+    return empty;
+  }
+}
+
 void
 FastTimerServiceClient::endRun(edm::Run const & run, edm::EventSetup const & setup)
 {
@@ -90,10 +160,8 @@ FastTimerServiceClient::endRun(edm::Run const & run, edm::EventSetup const & set
     return;
   double events = me->getTH1F()->GetEntries();
 
-  // access the trigger configuration for the *current job*
-  edm::service::TriggerNamesService & tns = * edm::Service<edm::service::TriggerNamesService>();
-  std::vector<std::string> const & paths = tns.getTrigPaths();
-  std::vector<std::string> const & endps = tns.getEndPaths();
+  std::vector<std::string> const & paths = getTrigPaths(run.processHistory());
+  std::vector<std::string> const & endps = getEndPaths(run.processHistory());
   size_t size_p = paths.size();
   size_t size_e = endps.size();
   size_t size = size_p + size_e;
@@ -110,7 +178,6 @@ FastTimerServiceClient::endRun(edm::Run const & run, edm::EventSetup const & set
       path_total ->Fill(i, me->getTH1F()->GetMean());
     if (( me = dqm->get( (m_dqm_path / "Paths" / (label + "_active")).generic_string() ) ))
       path_active->Fill(i, me->getTH1F()->GetMean());
-
   }
   for (size_t i = 0; i < size_e; ++i) {
     std::string const & label = endps[i];
