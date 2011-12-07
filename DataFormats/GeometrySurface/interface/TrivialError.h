@@ -7,9 +7,9 @@
 
 
 struct InvalidError{};
-struct ZeroError();
+struct ZeroError{};
 // diagonal error with all value equal
-Struct TrivialError {
+struct TrivialError {
   double m_value;
   TrivialError(double v) : m_value(v){}
   double value() const { return m_value;}
