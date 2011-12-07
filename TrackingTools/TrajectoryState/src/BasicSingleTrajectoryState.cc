@@ -162,7 +162,7 @@ void BasicSingleTrajectoryState::missingError(char const * where) const{
   std::stringstream form;
   form<<"TrajectoryStateOnSurface: attempt to access errors when none available "
       <<where<<".\nfreestate pointer: "
-      <<theFreeState<<"\nlocal error valid :"<<theLocalErrorValid ;
+      <<theFreeState<<"\nlocal error valid :"<< localError.valid() ;
   throw TrajectoryStateException(form.str());
 }
 
@@ -278,7 +278,7 @@ BasicSingleTrajectoryState::rescaleError(double factor) {
   if (theFreeState)
     theFreeState->rescaleError(factor);
   
-  if (theLocalError.valid(){
+  if (theLocalError.valid()){
     //do it by hand if the free state is not around.
     bool zeroField =theField->inInverseGeV(GlobalPoint(0,0,0)).mag2()==0;
     if unlikely(zeroField){
