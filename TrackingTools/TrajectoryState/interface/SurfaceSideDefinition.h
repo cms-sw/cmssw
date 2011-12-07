@@ -5,6 +5,6 @@
  *  and related classes
  */
 namespace SurfaceSideDefinition {
-  enum SurfaceSide : signed short { beforeSurface, afterSurface, atCenterOfSurface };
+  enum SurfaceSide /*: signed short*/ { beforeSurface, afterSurface, atCenterOfSurface };
 }
 #endif
