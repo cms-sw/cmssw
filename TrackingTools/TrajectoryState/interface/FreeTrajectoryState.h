@@ -33,14 +33,13 @@ public:
 // construst
 //default constructor - needed for Persistency
 
-  FreeTrajectoryState():
-    theCartesianErrorValid(false),
-    theCurvilinearErrorValid(false) {};
+  FreeTrajectoryState():  
+    theCurvilinearError(InvalidError) {}
 
   FreeTrajectoryState(const GlobalTrajectoryParameters& aGlobalParameters) :
-    theGlobalParameters(aGlobalParameters),
-    theCartesianErrorValid(false),
-    theCurvilinearErrorValid(false)
+    theGlobalParameters(aGlobalParameters),  
+    theCurvilinearError(InvalidError)
+
   {
   }
 
@@ -48,9 +47,8 @@ public:
                       const GlobalVector& aP,
                       TrackCharge aCharge, 
                       const MagneticField* fieldProvider) :
-    theGlobalParameters(aX, aP, aCharge, fieldProvider),
-    theCartesianErrorValid(false),
-    theCurvilinearErrorValid(false)
+    theGlobalParameters(aX, aP, aCharge, fieldProvider),  
+    theCurvilinearError(InvalidError)
   {
   }
 
@@ -58,53 +56,23 @@ public:
   FreeTrajectoryState(const GlobalTrajectoryParameters& aGlobalParameters,
                       const CurvilinearTrajectoryError& aCurvilinearError) :
     theGlobalParameters(aGlobalParameters),
-    theCurvilinearError(aCurvilinearError),
-    theCartesianErrorValid(false),
-    theCurvilinearErrorValid(true)
+    theCurvilinearError(aCurvilinearError)
   {
   }
 
 
-#ifdef ENABLE_CACHE_CARTESIAN
+
   FreeTrajectoryState(const GlobalTrajectoryParameters& aGlobalParameters,
                       const CartesianTrajectoryError& aCartesianError) :
-    theGlobalParameters(aGlobalParameters),
-    theCartesianError(aCartesianError),
-    theCartesianErrorValid(true),
-    theCurvilinearErrorValid(false)
-  {  }
-#else 
-  FreeTrajectoryState(const GlobalTrajectoryParameters& aGlobalParameters,
-                      const CartesianTrajectoryError& aCartesianError) :
-    theGlobalParameters(aGlobalParameters),
-    theCartesianErrorValid(false),
-    theCurvilinearErrorValid(false)
+    theGlobalParameters(aGlobalParameters)
   { createCurvilinearError(aCartesianError);  }
-#endif
 
-
-#ifdef ENABLE_CACHE_CARTESIAN
-  FreeTrajectoryState(const GlobalTrajectoryParameters& aGlobalParameters,
-                      const CartesianTrajectoryError& aCartesianError,
-                      const CurvilinearTrajectoryError& aCurvilinearError) :
-    theGlobalParameters(aGlobalParameters),
-    theCartesianError(aCartesianError),
-    theCurvilinearError(aCurvilinearError),
-    theCartesianErrorValid(true),
-    theCurvilinearErrorValid(true)
-  {
-  }
-#else
   FreeTrajectoryState(const GlobalTrajectoryParameters& aGlobalParameters,
                       const CartesianTrajectoryError&,
                       const CurvilinearTrajectoryError& aCurvilinearError) :
     theGlobalParameters(aGlobalParameters),
-    theCurvilinearError(aCurvilinearError),
-    theCartesianErrorValid(false),
-    theCurvilinearErrorValid(true)
-  {
+    theCurvilinearError(aCurvilinearError)  {
   }
-#endif
 
 // access
 // propagate access to parameters
@@ -125,12 +93,11 @@ public:
   }
 
 // direct access
-  bool hasCartesianError() const {return theCartesianErrorValid;}
 
-  bool hasCurvilinearError() const {return theCurvilinearErrorValid;}
+  bool hasCurvilinearError() const {return theCurvilinearError.isValid();}
 
   bool hasError() const {
-    return theCurvilinearErrorValid || theCartesianErrorValid;
+    return hasCurvilinearError();
   }
 
 
@@ -138,21 +105,7 @@ public:
     return theGlobalParameters;
   }
 
-#ifdef ENABLE_CACHE_CARTESIAN
-  const CartesianTrajectoryError& cartesianError() const {
-    if unlikely(!hasError()) missingError();
-    if  unlikely(!theCartesianErrorValid)
-      createCartesianError(theCartesianError);
-    return theCartesianError;
-  }
 
-  const CurvilinearTrajectoryError& curvilinearError() const {
-    if  unlikely(!hasError()) missingError();
-    if  unlikely(!theCurvilinearErrorValid)
-      createCurvilinearError();
-    return theCurvilinearError;
-  }
-#else
   CartesianTrajectoryError cartesianError() const {
     if unlikely(!hasError()) missingError();
     CartesianTrajectoryError aCartesianError;
@@ -170,27 +123,19 @@ public:
 
   void rescaleError(double factor);
 
-#ifdef ENABLE_CACHE_CARTESIAN
-  void setCartesianError(const CartesianTrajectoryError &err) {
-        theCartesianError = err; theCartesianErrorValid = true;
-  }
-  void setCartesianError(const AlgebraicSymMatrix66 &err) {
-        theCartesianError = CartesianTrajectoryError(err); theCartesianErrorValid = true;
-  }
-#else
+
   void setCartesianError(const CartesianTrajectoryError &err) {
     createCurvilinearError(err);
   }
   void setCartesianError(const AlgebraicSymMatrix66 &err) {
     createCurvilinearError(CartesianTrajectoryError(err)); 
   }
-#endif
 
   void setCurvilinearError(const CurvilinearTrajectoryError &err) {
-        theCurvilinearError = err; theCurvilinearErrorValid = true;
+        theCurvilinearError = err;
   }
   void setCurvilinearError(const AlgebraicSymMatrix55 &err) {
-        theCurvilinearError = CurvilinearTrajectoryError(err); theCurvilinearErrorValid = true;
+        theCurvilinearError = CurvilinearTrajectoryError(err); 
   }
 
 
@@ -211,13 +156,8 @@ private:
 private:
 
   GlobalTrajectoryParameters  theGlobalParameters;
-#ifdef ENABLE_CACHE_CARTESIAN
-  mutable CartesianTrajectoryError    theCartesianError;
-#endif
   mutable CurvilinearTrajectoryError  theCurvilinearError;
-  mutable bool                        theCartesianErrorValid;
-  mutable bool                        theCurvilinearErrorValid;
-
+ 
 };
 
 std::ostream& operator<<(std::ostream& os, const FreeTrajectoryState& fts);

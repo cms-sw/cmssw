@@ -22,8 +22,14 @@ class LocalTrajectoryError {
 public:
   // construct
   LocalTrajectoryError(){}
+  LocalTrajectoryError(InvalidError) {theCovarianceMatrix(0,0)=-1.;}
   // destruct
   ~LocalTrajectoryError(){}
+
+
+  bool invalid() const { return theCovarianceMatrix(0,0)<0;}
+  bool valid() const { return !invalid();}
+
 
   /** Constructing class from a full covariance matrix. The sequence of the parameters is
    *  the same as the one described above.

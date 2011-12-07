@@ -155,8 +155,7 @@ public:
 
   const LocalTrajectoryError& localError() const {
     if unlikely(!hasError()) missingError(" accessing local error.");
-    if unlikely(!theLocalErrorValid)
-      createLocalError();
+    if unlikely(theLocalError.invalid()) createLocalError();
     return theLocalError;
   }
 
@@ -179,6 +178,7 @@ public:
   }
 
   virtual bool canUpdateLocalParameters() const { return true; }
+
   virtual void update( const LocalTrajectoryParameters& p,
                        const Surface& aSurface,
                        const MagneticField* field,
@@ -204,13 +204,11 @@ private:
 // create global parameters and errors from local
   void checkGlobalParameters() const dso_internal;
   void checkCurvilinError() const  dso_internal;
-  void checkCartesianError() const  dso_internal;
 
 // create local parameters and errors from global
   void createLocalParameters() const  dso_internal;
   // create local errors from global
   void createLocalError() const  dso_internal;
-  void createLocalErrorFromCartesianError() const  dso_internal;
   void createLocalErrorFromCurvilinearError() const  dso_internal;
 
 private:
@@ -219,12 +217,9 @@ private:
 
   mutable LocalTrajectoryError      theLocalError;
   mutable LocalTrajectoryParameters theLocalParameters;
-  mutable bool                      theLocalParametersValid;
-  mutable bool                      theLocalErrorValid;
 
+  mutable bool theLocalParametersValid;
   mutable bool theGlobalParamsUp2Date;
-  mutable bool theCartesianErrorUp2Date;
-  mutable bool theCurvilinErrorUp2Date;
 
  
   SurfaceSide theSurfaceSide;

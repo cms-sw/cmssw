@@ -1,6 +1,7 @@
 #ifndef _TRACKER_CURVILINEARTRAJECTORYERROR_H_
 #define _TRACKER_CURVILINEARTRAJECTORYERROR_H_
 
+#include "DataFormats/GeometrySurface/interface/TrivialError.h"
 #include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 #include "DataFormats/Math/interface/Error.h"
 
@@ -34,12 +35,16 @@ public:
 // construct
   CurvilinearTrajectoryError() {}
 
+  CurvilinearTrajectoryError(InvalidError) {theCovarianceMatrix(0,0)=-1.;}
+
   /** Constructing class from a full covariance matrix. The sequence of the parameters is
    *  the same as the one described above.
    */
   CurvilinearTrajectoryError(const AlgebraicSymMatrix55& aCovarianceMatrix) :
     theCovarianceMatrix(aCovarianceMatrix) { }
 
+  bool invalid() const { return theCovarianceMatrix(0,0)<0;}
+  bool valid() const { return !invalid();}
 
 // access
 

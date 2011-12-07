@@ -5,16 +5,21 @@
  *  used for the local frame.
  */
 
+#include "DataFormats/GeometrySurface/interface/TrivialError.h"
 #include <cmath>
 #include <iosfwd>
 
 class LocalError {
 public:
-
   LocalError() : thexx(0), thexy(0), theyy(0) {}
+  LocalError(InvalidError) : thexx(-1.f), thexy(0), theyy(-1.f) {}
 
   LocalError( float xx, float xy, float yy) :
     thexx(xx), thexy(xy), theyy(yy) {}
+
+  bool invalid() const { return thexx<0;}
+  bool valid() const { return !invalid();}
+
 
   float xx() const { return thexx;}
   float xy() const { return thexy;}
