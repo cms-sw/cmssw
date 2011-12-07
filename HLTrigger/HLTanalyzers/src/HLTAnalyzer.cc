@@ -367,17 +367,17 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     edm::InputTag BSProducer_(std::string("hltOnlineBeamSpot"));
     
     // get EventSetup stuff needed for the AlCa pi0 path
-    edm::ESHandle< EcalElectronicsMapping > ecalmapping;
-    iSetup.get< EcalMappingRcd >().get(ecalmapping);
+    //    edm::ESHandle< EcalElectronicsMapping > ecalmapping;
+    //    iSetup.get< EcalMappingRcd >().get(ecalmapping);
     
-    edm::ESHandle<CaloGeometry> geoHandle;
-    iSetup.get<CaloGeometryRecord>().get(geoHandle); 
+    //    edm::ESHandle<CaloGeometry> geoHandle;
+    //    iSetup.get<CaloGeometryRecord>().get(geoHandle); 
     
-    edm::ESHandle<CaloTopology> pTopology;
-    iSetup.get<CaloTopologyRecord>().get(pTopology);
+    //    edm::ESHandle<CaloTopology> pTopology;
+    //    iSetup.get<CaloTopologyRecord>().get(pTopology);
     
-    edm::ESHandle<L1CaloGeometry> l1CaloGeom ;
-    iSetup.get<L1CaloGeometryRecord>().get(l1CaloGeom) ;
+    //    edm::ESHandle<L1CaloGeometry> l1CaloGeom ;
+    //    iSetup.get<L1CaloGeometryRecord>().get(l1CaloGeom) ;
     
     
     // extract the collections from the event, check their validity and log which are missing

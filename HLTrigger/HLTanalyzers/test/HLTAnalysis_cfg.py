@@ -7,7 +7,7 @@ isData=1 # =1 running on real data, =0 running on MC
 
 
 OUTPUT_HIST='openhlt.root'
-NEVTS=-1
+NEVTS=100
 MENU="GRun" # GRun for data or MC with >= CMSSW_3_8_X
 isRelval=0 # =0 for running on MC RelVals, =0 for standard production MC, no effect for data 
 
@@ -32,11 +32,13 @@ if (isData):
 # Which AlCa condition for what. 
 
 if (isData):
-    GLOBAL_TAG='GR_R_44_V11::All' # 2011 Collisions data, CMSSW_4_4_X
+    GLOBAL_TAG='GR_R_50_V3::All' # 2011 Collisions data, CMSSW_5_0_X
 else:
     GLOBAL_TAG='START42_V12::All' # CMSSW_4_2_X MC, STARTUP Conditions
     
 ##################################################################
+import os
+cmsswVersion = os.environ['CMSSW_VERSION']
 
 process = cms.Process("ANALYSIS")
 
@@ -51,7 +53,7 @@ process.options = cms.untracked.PSet(
 ## For running on RAW only 
 process.source = cms.Source("PoolSource",
                              fileNames = cms.untracked.vstring(
-                    '/store/data/Run2011B/DoubleMu/RAW/v1/000/178/479/2875F9DE-1AF6-E011-94BC-001D09F2983F.root'
+                            '/store/data/Run2011B/DoubleMu/RAW/v1/000/176/304/9A59C03B-C2DE-E011-A854-BCAEC53296F3.root'
                                  )
                                  )
 
@@ -65,19 +67,19 @@ process.source = cms.Source("PoolSource",
 ##  )
 ##)
 
+# from CMSSW_5_0_0_pre6: RawDataLikeMC=False (to keep "source")
+if cmsswVersion > "CMSSW_5_0":
+    process.source.labelRawDataLikeMC = cms.untracked.bool( False )
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32( NEVTS ),
     skipBadFiles = cms.bool(True)
     )
 
-process.load('Configuration/StandardSequences/GeometryExtended_cff')
-process.load('Configuration/StandardSequences/MagneticField_38T_cff')
-
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("HLTrigger.HLTanalyzers.HLT_ES_cff")
 process.GlobalTag.globaltag = GLOBAL_TAG
 process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
 process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
-
 
 process.load('Configuration/StandardSequences/SimL1Emulator_cff')
 
@@ -102,9 +104,9 @@ process.hltanalysis.ht = "hltJet40Ht"
 process.hltanalysis.genmet = "genMetTrue"
 
 # Switch on ECAL alignment to be consistent with full HLT Event Setup
-process.EcalBarrelGeometryEP.applyAlignment = True
-process.EcalEndcapGeometryEP.applyAlignment = True
-process.EcalPreshowerGeometryEP.applyAlignment = True
+#process.EcalBarrelGeometryEP.applyAlignment = True
+#process.EcalEndcapGeometryEP.applyAlignment = True
+#process.EcalPreshowerGeometryEP.applyAlignment = True
 
 # Add tight isolation PF taus
 process.HLTPFTauSequence += process.hltPFTausTightIso
@@ -150,6 +152,7 @@ if (isData):  # replace all instances of "rawDataCollector" with "source" in Inp
                 if isinstance(parameter, cms.InputTag):
                     if parameter.moduleLabel == 'rawDataCollector':
                         parameter.moduleLabel = 'source'
+                
 else:
     if (MENU == "GRun"):
         from FWCore.ParameterSet import Mixins
@@ -160,8 +163,5 @@ else:
                         if parameter.moduleLabel == 'rawDataCollector':
                             if(isRelval == 0):
                                 parameter.moduleLabel = 'rawDataCollector::HLT'
-
-
-
 
 
