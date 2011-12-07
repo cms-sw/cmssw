@@ -162,7 +162,7 @@ void BasicSingleTrajectoryState::missingError(char const * where) const{
   std::stringstream form;
   form<<"TrajectoryStateOnSurface: attempt to access errors when none available "
       <<where<<".\nfreestate pointer: "
-      <<theFreeState<<"\nlocal error valid :"<< localError.valid() ;
+      <<theFreeState<<"\nlocal error valid :"<< theLocalError.valid() ;
   throw TrajectoryStateException(form.str());
 }
 
