@@ -60,7 +60,7 @@ public:
   }
   
   bool isValid() const { return !(index_ & 0x80000000); }
-  bool isPixel() const { !isStrip(); }
+  bool isPixel() const { return !isStrip(); }
   bool isStrip() const { return index_ & 0x20000000; }
   bool isRegional() const { return index_ & 0x60000000; }
   
