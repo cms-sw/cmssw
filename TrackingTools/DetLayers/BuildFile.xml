@@ -4,6 +4,7 @@
 <use   name="FWCore/Utilities"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="DataFormats/GeometrySurface"/>
+<use   name="TrackingTools/TrajectoryState"/>
 <use   name="TrackingTools/TrajectoryParametrization"/>
 <use   name="boost"/>
 <use   name="clhep"/>
