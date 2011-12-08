@@ -4,8 +4,8 @@
 /** \class GeomDet
  *  Base class for GeomDetUnit and for composite GeomDet s. 
  *
- *  $Date: 2011/09/27 09:16:36 $
- *  $Revision: 1.13 $
+ *  $Date: 2011/12/08 17:38:36 $
+ *  $Revision: 1.14 $
  */
 
 
@@ -34,10 +34,10 @@ public:
   virtual ~GeomDet();
 
   /// The nominal surface of the GeomDet
-  virtual const BoundPlane& surface() const {return *thePlane;}
+  const BoundPlane& surface() const {return *thePlane;}
 
   /// Same as surface(), kept for backward compatibility
-  virtual const BoundPlane& specificSurface() const {return *thePlane;}
+  const BoundPlane& specificSurface() const {return *thePlane;}
   
   /// The position (origin of the R.F.)
   const Surface::PositionType& position() const {return surface().position();} 

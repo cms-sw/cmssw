@@ -3,10 +3,10 @@
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 
 GeomDet::GeomDet( BoundPlane* plane):
-  thePlane(plane), theAlignmentPositionError(0), theLocalError(InvalidError) {}
+  thePlane(plane), theAlignmentPositionError(0), theLocalError(InvalidError()) {}
 
 GeomDet::GeomDet( const ReferenceCountingPointer<BoundPlane>& plane) :
-  thePlane(plane), theAlignmentPositionError(0), theLocalError(InvalidError) {}
+  thePlane(plane), theAlignmentPositionError(0), theLocalError(InvalidError()) {}
 
 GeomDet::~GeomDet() 
 {
