@@ -210,6 +210,10 @@ public:
     return theSurfaceSide;
   }
 
+  bool hasError() const {
+  return (theFreeState && theFreeState->hasError()) || theLocalError.valid();
+  }
+
 
   virtual BasicTrajectoryState* clone() const=0;
 
@@ -233,11 +237,6 @@ public:
 private:
 
   static void notValid() dso_internal;
-
-  bool hasError() const;
-  //bool hasError() const {
-  //  return (theFreeState && theFreeState->hasError()) || theLocalErrorValid;
-  //}
 
   
   void missingError(char const * where) const; // dso_internal;

@@ -1,4 +1,4 @@
-#include "TrackingTools/TrajectoryState/interface/SingleTrajectoryState.h"
+#include "TrackingTools/TrajectoryState/interface/BasicTrajectoryState.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianLocalToCurvilinear.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianCurvilinearToLocal.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianLocalToCartesian.h"
@@ -306,10 +306,6 @@ BasicTrajectoryState::freeTrajectoryState(bool withErrors) const {
 }
 
 
-bool 
-BasicTrajectoryState::hasError() const {
-  return (theFreeState && theFreeState->hasError()) || theLocalError.valid();
-}
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 std::vector<TrajectoryStateOnSurface> 
