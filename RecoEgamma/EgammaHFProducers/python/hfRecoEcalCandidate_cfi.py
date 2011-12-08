@@ -10,7 +10,8 @@ hfRecoEcalCandidate = cms.EDProducer("HFRecoEcalCandidateProducer",
                                      e1e9Cut= cms.vdouble(-1,99),
                                      eCOREe9Cut= cms.vdouble(-1,99),
                                      eSeLCut= cms.vdouble(-1,99),
-                                     era= cms.int32(4)
+                                     era= cms.int32(4),
+                                     CorrectForPileup= cms.bool(False)
                                      )
 
 #

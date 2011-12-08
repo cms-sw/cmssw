@@ -27,16 +27,18 @@ public:
 			  const std::vector<double>& e1e9Cut,
 			  const std::vector<double>& eCOREe9Cut,
 			  const std::vector<double>& eSeLCut,
-			  int era);
+			  int era,
+			  bool correctForPileup);
   
   /** Analyze the hits */
   void produce(const edm::Handle<reco::SuperClusterCollection>& SuperClusters,
 	       const reco::HFEMClusterShapeAssociationCollection& AssocShapes,
-	       reco::RecoEcalCandidateCollection& RecoECand);
+	       reco::RecoEcalCandidateCollection& RecoECand,
+	       int nvtx);
   
   
  private:
-  reco::RecoEcalCandidate correctEPosition(const reco::SuperCluster& original, const reco::HFEMClusterShape& shape);
+  reco::RecoEcalCandidate correctEPosition(const reco::SuperCluster& original, const reco::HFEMClusterShape& shape, int nvtx);
   
   bool m_correct;
   double m_e9e25Cut;
@@ -49,6 +51,7 @@ public:
   double m_eCOREe9Cutlo;
   double m_eSeLCutlo;
   int m_era;
+  bool m_correctForPileup;
 };
 
 #endif 
