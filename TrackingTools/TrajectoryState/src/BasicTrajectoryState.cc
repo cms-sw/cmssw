@@ -245,6 +245,7 @@ BasicTrajectoryState::update( const LocalTrajectoryParameters& p,
 {
     theLocalParameters = p;
     if (&aSurface != &*theSurfaceP) theSurfaceP.reset(&aSurface);
+    theField=field;
     theSurfaceSide = side;
     theWeight      = 1.0; 
     theLocalError = InvalidError();
@@ -264,6 +265,7 @@ BasicTrajectoryState::update( const LocalTrajectoryParameters& p,
     theLocalParameters = p;
     theLocalError      = err;
     if (&aSurface != &*theSurfaceP) theSurfaceP.reset(&aSurface);
+    theField=field;
     theSurfaceSide = side;
     theWeight      = weight; 
 
