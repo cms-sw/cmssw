@@ -2,7 +2,7 @@
  *
  *  \author Roberto Covarelli (CERN)
  * 
- * $Id: EgammaHLTElectronDetaDphiProducer.cc,v 1.1 2009/01/15 14:28:28 covarell Exp $
+ * $Id: EgammaHLTElectronDetaDphiProducer.cc,v 1.2 2009/01/28 15:10:18 covarell Exp $
  *
  */
 
@@ -47,7 +47,7 @@ EgammaHLTElectronDetaDphiProducer::EgammaHLTElectronDetaDphiProducer(const edm::
 
   electronProducer_             = conf_.getParameter<edm::InputTag>("electronProducer");
   BSProducer_                   = conf_.getParameter<edm::InputTag>("BSProducer");
-  useTrackProjectionToEcal_     = conf_.getUntrackedParameter<bool>("useTrackProjectionToEcal",false);
+  useTrackProjectionToEcal_     = conf_.getParameter<bool>("useTrackProjectionToEcal");
 
   //register your products
   produces < reco::ElectronIsolationMap >( "Deta" ).setBranchAlias( "deta" );
