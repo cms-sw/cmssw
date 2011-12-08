@@ -53,7 +53,7 @@ void BasicMultiTrajectoryState::rescaleError(double factor) {
   combine();
 }
 
-
+void
 BasicMultiTrajectoryState::combine()  {
   const std::vector<TrajectoryStateOnSurface>& tsos = theStates;
 
