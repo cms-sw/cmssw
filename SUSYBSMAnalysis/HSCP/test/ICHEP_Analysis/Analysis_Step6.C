@@ -50,6 +50,7 @@ struct stAllInfo{
    double Eff_SYSTI;
    double Eff_SYSTM;
    double Eff_SYSTT;
+   double Eff_SYSTPU;
    double Significance;
    double Index;
    double WP_Pt;
@@ -61,7 +62,7 @@ struct stAllInfo{
    float  NSign;
 
    stAllInfo(string path=""){
-      Mass=-1; XSec_Th=-1; XSec_Err=-1; XSec_Exp=-1; XSec_ExpUp=-1;XSec_ExpDown=-1;XSec_Exp2Up=-1;XSec_Exp2Down=-1; XSec_Obs=-1; Eff=-1; Eff_SYSTP=-1; Eff_SYSTI=-1;  Eff_SYSTM=-1; Eff_SYSTT=-1;
+     Mass=-1; XSec_Th=-1; XSec_Err=-1; XSec_Exp=-1; XSec_ExpUp=-1;XSec_ExpDown=-1;XSec_Exp2Up=-1;XSec_Exp2Down=-1; XSec_Obs=-1; Eff=-1; Eff_SYSTP=-1; Eff_SYSTI=-1;  Eff_SYSTM=-1; Eff_SYSTT=-1; Eff_SYSTPU=-1;
       if(path=="")return;
       FILE* pFile = fopen(path.c_str(),"r");
       if(!pFile){printf("Can't open %s\n",path.c_str()); return;}
@@ -78,6 +79,7 @@ struct stAllInfo{
       fscanf(pFile,"Eff_SystI    : %lf\n",&Eff_SYSTI);
       fscanf(pFile,"Eff_SystM    : %lf\n",&Eff_SYSTM);
       fscanf(pFile,"Eff_SystT    : %lf\n",&Eff_SYSTT);
+      fscanf(pFile,"Eff_SystPU   : %lf\n",&Eff_SYSTPU);
       fscanf(pFile,"Signif       : %lf\n",&Significance);
       fscanf(pFile,"XSec_Th      : %lf\n",&XSec_Th);
       fscanf(pFile,"XSec_Exp     : %lf\n",&XSec_Exp);
@@ -541,7 +543,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    MGMu->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    
    DrawPreliminary(IntegratedLuminosity);
-   TLegend* LEGMu = new TLegend(0.44,0.65,0.67,0.90);   
+   TLegend* LEGMu = new TLegend(0.42,0.65,0.63,0.90);   
 //   LEGMu->SetHeader("95% C.L. Limits");
    LEGMu->SetHeader("Tk + TOF");
    LEGMu->SetFillColor(0); 
@@ -555,7 +557,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    LEGMu->AddEntry(Mu_Obs_GMStau   , "GMSB stau"       ,"LP");
    LEGMu->Draw();
 
-   TLegend* LEGTh = new TLegend(0.14,0.73,0.44,0.93);
+   TLegend* LEGTh = new TLegend(0.15,0.7,0.42,0.9);
    LEGTh->SetHeader("Theoretical Prediction");
    LEGTh->SetFillColor(0);
    LEGTh->SetBorderSize(0);
@@ -610,9 +612,9 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    
    DrawPreliminary(IntegratedLuminosity);
    
-   TLegend* LEGTk = new TLegend(0.44,0.58,0.82,0.9);
+   TLegend* LEGTk = new TLegend(0.42,0.58,0.77,0.9);
 //   LEGTk->SetHeader("95% C.L. Limits");
-   LEGTk->SetHeader("Tracker - Only");
+   LEGTk->SetHeader("Tk - Only");
    LEGTk->SetFillColor(0); 
    LEGTk->SetBorderSize(0);
    LEGTk->AddEntry(Tk_Obs_GluinoF5 , "gluino; 50% #tilde{g}g"    ,"LP");
@@ -654,7 +656,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    
    DrawPreliminary(IntegratedLuminosity);
    
-   TLegend* LEGDCMu = new TLegend(0.50,0.65,0.80,0.90);
+   TLegend* LEGDCMu = new TLegend(0.50,0.65,0.77,0.9);
    LEGDCMu->SetHeader("Tk + TOF");
    LEGDCMu->SetFillColor(0); 
    LEGDCMu->SetBorderSize(0);
@@ -663,7 +665,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    LEGDCMu->AddEntry(Mu_Obs_DCRho16HyperK   , "Hyperk #tilde{#rho} = 1.6 TeV"       ,"LP");
    LEGDCMu->Draw();
 
-   TLegend* LEGDCTh = new TLegend(0.15,0.73,0.46,0.93);
+   TLegend* LEGDCTh = new TLegend(0.15,0.7,0.46,0.9);
    LEGDCTh->SetHeader("Theoretical Prediction");
    LEGDCTh->SetFillColor(0);
    LEGDCTh->SetBorderSize(0);
@@ -702,9 +704,9 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    MGDCTk->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    DrawPreliminary(IntegratedLuminosity);
    
-   TLegend* LEGDCTk = new TLegend(0.50,0.65,0.80,0.90);
+   TLegend* LEGDCTk = new TLegend(0.50,0.65,0.77,0.90);
 //   LEGDCTk->SetHeader("95% C.L. Limits");
-   LEGDCTk->SetHeader("Tracker - Only");
+   LEGDCTk->SetHeader("Tk - Only");
    LEGDCTk->SetFillColor(0); 
    LEGDCTk->SetBorderSize(0);
    LEGDCTk->AddEntry(Tk_Obs_DCRho08HyperK   , "Hyperk #tilde{#rho} = 0.8 TeV"       ,"LP");
@@ -828,31 +830,36 @@ void CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern){
    
 
    if(IsTkOnly){
-     fprintf(pFile, "%20s   Eff   --> PScale |  EstimScale | DiscrimScale || TotalUncertainty\n","Model");
-     fprintf(talkFile, "\\hline\n%20s &  Eff   & PScale &  EstimScale & DiscrimScale & TotalUncertainty \\\\\n","Model");
+     fprintf(pFile, "%20s   Eff   --> PScale |  DeDxScale | PUScale || TotalUncertainty\n","Model");
+     fprintf(talkFile, "\\hline\n%20s &  Eff   & PScale &  DeDxScale & PUScale & TotalUncertainty \\\\\n","Model");
    }
    else {
-     fprintf(pFile, "%20s   Eff   --> PScale |  EstimScale | DiscrimScale | TOFScale || TotalUncertainty\n","Model");
-     fprintf(talkFile, "\\hline\n%20s &  Eff   & PScale &  EstimScale & DiscrimScale & TOFScale & TotalUncertainty \\\\\n","Model");
+     fprintf(pFile, "%20s   Eff   --> PScale |  DeDxScale | PUScale | TOFScale || TotalUncertainty\n","Model");
+     fprintf(talkFile, "\\hline\n%20s &  Eff   & PScale &  DeDxScale & PUScale & TOFScale & TotalUncertainty \\\\\n","Model");
    }
 
    for(unsigned int s=0;s<Models.size();s++){
         stAllInfo tmp(InputPattern+"/EXCLUSION" + "/"+Models[s]+".txt");
         double P = tmp.Eff - tmp.Eff_SYSTP;
         double I = tmp.Eff - tmp.Eff_SYSTI;
-        double M = tmp.Eff - tmp.Eff_SYSTM;
+        double PU = tmp.Eff - tmp.Eff_SYSTPU;
         double T = tmp.Eff - tmp.Eff_SYSTT;
         bool IsStau = (Models[s].find("Stau",0)<std::string::npos);
         bool IsNeutral = (Models[s].find("N",0)<std::string::npos);
 
-	if(IsTkOnly) fprintf(pFile, "%20s   %7.3f --> %7.3f  |  %7.3f  | %7.3f || %7.3f\n",+Models[s].c_str(), tmp.Eff, P/tmp.Eff, M/tmp.Eff, I/tmp.Eff, sqrt(P*P + I*I + M*M + T*T)/tmp.Eff);        
+	double Ptemp=max(P, 0.0);
+        double Itemp=max(I, 0.0);
+        double PUtemp=max(PU, 0.0);
+        double Ttemp=max(T, 0.0);
 
-	else if(!IsNeutral) fprintf(pFile, "%20s   %7.3f --> %7.3f  |  %7.3f  | %7.3f  | %7.3f || %7.3f\n",+Models[s].c_str(), tmp.Eff, P/tmp.Eff, M/tmp.Eff, I/tmp.Eff, T/tmp.Eff, sqrt(P*P + I*I + M*M + T*T)/tmp.Eff);
+	if(IsTkOnly) fprintf(pFile, "%20s   %7.3f --> %7.3f  |  %7.3f  | %7.3f || %7.3f\n",+Models[s].c_str(), tmp.Eff, P/tmp.Eff, I/tmp.Eff, PU/tmp.Eff, sqrt(Ptemp*Ptemp + Itemp*Itemp + PUtemp*PUtemp + Ttemp*Ttemp)/tmp.Eff);        
+
+	else if(!IsNeutral) fprintf(pFile, "%20s   %7.3f --> %7.3f  |  %7.3f  | %7.3f  | %7.3f || %7.3f\n",+Models[s].c_str(), tmp.Eff, P/tmp.Eff, I/tmp.Eff, PU/tmp.Eff, T/tmp.Eff, sqrt(Ptemp*Ptemp + Itemp*Itemp + PUtemp*PUtemp + Ttemp*Ttemp)/tmp.Eff);
 
 	if(IsTkOnly && (IsStau || (int)tmp.Mass%200==0)) {
-	  fprintf(talkFile, "\\hline\n%20s &  %7.1f\\% & %7.1f\\%  &  %7.1f\\%  & %7.1f\\%  & %7.1f\\% \\\\\n",+Models[s].c_str(), 100.*tmp.Eff, 100.*P/tmp.Eff, 100.*M/tmp.Eff, 100.*I/tmp.Eff, 100.*sqrt(P*P + I*I + M*M + T*T)/tmp.Eff);
+	  fprintf(talkFile, "\\hline\n%20s &  %7.1f\\% & %7.1f\\%  &  %7.1f\\%  & %7.1f\\%  & %7.1f\\% \\\\\n",+Models[s].c_str(), 100.*tmp.Eff, 100.*P/tmp.Eff, 100.*I/tmp.Eff, 100.*PU/tmp.Eff, 100.*sqrt(Ptemp*Ptemp + Itemp*Itemp + PUtemp*PUtemp + Ttemp*Ttemp)/tmp.Eff);
 	}
-        if(!IsTkOnly && !IsNeutral) fprintf(talkFile, "\\hline\n%20s &  %7.1f\\% & %7.1f\\%  &  %7.1f\\%  & %7.1f\\%  & %7.1f\\% & %7.1f\\% \\\\\n",+Models[s].c_str(), 100.*tmp.Eff, 100.*P/tmp.Eff, 100.*M/tmp.Eff, 100.*I/tmp.Eff, 100.*T/tmp.Eff, 100.*sqrt(P*P + I*I + M*M + T*T)/tmp.Eff);
+        if(!IsTkOnly && !IsNeutral) fprintf(talkFile, "\\hline\n%20s &  %7.1f\\% & %7.1f\\%  &  %7.1f\\%  & %7.1f\\%  & %7.1f\\% & %7.1f\\% \\\\\n",+Models[s].c_str(), 100.*tmp.Eff, 100.*P/tmp.Eff, 100.*I/tmp.Eff, 100.*PU/tmp.Eff, 100.*T/tmp.Eff, 100.*sqrt(Ptemp*Ptemp + Itemp*Itemp + PUtemp*PUtemp + Ttemp*Ttemp)/tmp.Eff);
 
    }
 }
@@ -926,6 +933,7 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
    GetSignalDefinition(signals);
    CurrentSampleIndex        = JobIdToIndex(signal); if(CurrentSampleIndex<0){  printf("There is no signal corresponding to the JobId Given\n");  return stAllInfo();  } 
 
+
    stAllInfo toReturn;
    toReturn.Mass      = signals[JobIdToIndex(signal)].Mass;
    toReturn.MassMean  = 0;
@@ -991,9 +999,13 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
    TH2D*  MassSignI[4];
    TH2D*  MassSignM[4];
    TH2D*  MassSignT[4];
+   TH2D*  MassSignPU[4];
 
    string InputPathSign     = pattern + "Histos.root";
    TFile* InputFileSign     = new TFile(InputPathSign.c_str());
+
+   TH1D* TotalE          = (TH1D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "/TotalE" + syst);
+   double norm=signals[CurrentSampleIndex].XSec*IntegratedLuminosity/TotalE->Integral();
 
    MassSign[0]          = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "/Mass" + syst);
    MassSign[1]          = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC0/Mass" + syst);
@@ -1020,12 +1032,20 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
    MassSignT[2]         = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC1/Mass_SystT");
    MassSignT[3]         = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC2/Mass_SystT");
 
+   TH1D* TotalEPU          = (TH1D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "/TotalEPU" + syst);
+   double normPU=signals[CurrentSampleIndex].XSec*IntegratedLuminosity/TotalEPU->Integral();
+
+   MassSignPU[0]          = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "/Mass_SystPU" + syst);
+   MassSignPU[1]          = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC0/Mass_SystPU" + syst);
+   MassSignPU[2]          = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC1/Mass_SystPU" + syst);
+   MassSignPU[3]          = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC2/Mass_SystPU" + syst);
 
    TH1D* MassSignProj[4];
    TH1D* MassSignPProj[4];
    TH1D* MassSignIProj[4];
    TH1D* MassSignMProj[4];
    TH1D* MassSignTProj[4];
+   TH1D* MassSignPUProj[4];
    ///##############################################################################"
    MassSignProj[0] = MassSign[0]->ProjectionY("MassSignProj0",1,1);
    double Mean  = MassSignProj[0]->GetMean();
@@ -1046,28 +1066,31 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
       GetSignalMeanHSCPPerEvent(pattern,CutIndex, MinRange, MaxRange);
       TH1D* MassDataProj = MassData->ProjectionY("MassDataProj",CutIndex+1,CutIndex+1);
       TH1D* MassPredProj = MassPred->ProjectionY("MassPredProj",CutIndex+1,CutIndex+1);
-      MassSignProj[0]    = MassSign [0]->ProjectionY("MassSignProj0",CutIndex+1,CutIndex+1);
-      MassSignProj[1]    = MassSign [1]->ProjectionY("MassSignProj1",CutIndex+1,CutIndex+1);
-      MassSignProj[2]    = MassSign [2]->ProjectionY("MassSignProj2",CutIndex+1,CutIndex+1);
-      MassSignProj[3]    = MassSign [3]->ProjectionY("MassSignProj3",CutIndex+1,CutIndex+1);
+      MassSignProj[0]    = MassSign [0]->ProjectionY("MassSignProj0",CutIndex+1,CutIndex+1); MassSignProj[0]->Scale(norm);
+      MassSignProj[1]    = MassSign [1]->ProjectionY("MassSignProj1",CutIndex+1,CutIndex+1); MassSignProj[1]->Scale(norm);
+      MassSignProj[2]    = MassSign [2]->ProjectionY("MassSignProj2",CutIndex+1,CutIndex+1); MassSignProj[2]->Scale(norm);
+      MassSignProj[3]    = MassSign [3]->ProjectionY("MassSignProj3",CutIndex+1,CutIndex+1); MassSignProj[3]->Scale(norm);
 
-      MassSignPProj[0]   = MassSignP[0]->ProjectionY("MassSignProP0",CutIndex+1,CutIndex+1);
-      MassSignPProj[1]   = MassSignP[1]->ProjectionY("MassSignProP1",CutIndex+1,CutIndex+1);
-      MassSignPProj[2]   = MassSignP[2]->ProjectionY("MassSignProP2",CutIndex+1,CutIndex+1);
-      MassSignPProj[3]   = MassSignP[3]->ProjectionY("MassSignProP3",CutIndex+1,CutIndex+1);
-      MassSignIProj[0]   = MassSignI[0]->ProjectionY("MassSignProI0",CutIndex+1,CutIndex+1);
-      MassSignIProj[1]   = MassSignI[1]->ProjectionY("MassSignProI1",CutIndex+1,CutIndex+1);
-      MassSignIProj[2]   = MassSignI[2]->ProjectionY("MassSignProI2",CutIndex+1,CutIndex+1);
-      MassSignIProj[3]   = MassSignI[3]->ProjectionY("MassSignProI3",CutIndex+1,CutIndex+1);
-      MassSignMProj[0]   = MassSignM[0]->ProjectionY("MassSignProM0",CutIndex+1,CutIndex+1);
-      MassSignMProj[1]   = MassSignM[1]->ProjectionY("MassSignProM1",CutIndex+1,CutIndex+1);
-      MassSignMProj[2]   = MassSignM[2]->ProjectionY("MassSignProM2",CutIndex+1,CutIndex+1);
-      MassSignMProj[3]   = MassSignM[3]->ProjectionY("MassSignProM3",CutIndex+1,CutIndex+1);
-      MassSignTProj[0]   = MassSignT[0]->ProjectionY("MassSignProT0",CutIndex+1,CutIndex+1);
-      MassSignTProj[1]   = MassSignT[1]->ProjectionY("MassSignProT1",CutIndex+1,CutIndex+1);
-      MassSignTProj[2]   = MassSignT[2]->ProjectionY("MassSignProT2",CutIndex+1,CutIndex+1);
-      MassSignTProj[3]   = MassSignT[3]->ProjectionY("MassSignProT3",CutIndex+1,CutIndex+1);
-
+      MassSignPProj[0]   = MassSignP[0]->ProjectionY("MassSignProP0",CutIndex+1,CutIndex+1); MassSignPProj[0]->Scale(norm);
+      MassSignPProj[1]   = MassSignP[1]->ProjectionY("MassSignProP1",CutIndex+1,CutIndex+1); MassSignPProj[1]->Scale(norm);
+      MassSignPProj[2]   = MassSignP[2]->ProjectionY("MassSignProP2",CutIndex+1,CutIndex+1); MassSignPProj[2]->Scale(norm);
+      MassSignPProj[3]   = MassSignP[3]->ProjectionY("MassSignProP3",CutIndex+1,CutIndex+1); MassSignPProj[3]->Scale(norm);
+      MassSignIProj[0]   = MassSignI[0]->ProjectionY("MassSignProI0",CutIndex+1,CutIndex+1); MassSignIProj[0]->Scale(norm);
+      MassSignIProj[1]   = MassSignI[1]->ProjectionY("MassSignProI1",CutIndex+1,CutIndex+1); MassSignIProj[1]->Scale(norm);
+      MassSignIProj[2]   = MassSignI[2]->ProjectionY("MassSignProI2",CutIndex+1,CutIndex+1); MassSignIProj[2]->Scale(norm);
+      MassSignIProj[3]   = MassSignI[3]->ProjectionY("MassSignProI3",CutIndex+1,CutIndex+1); MassSignIProj[3]->Scale(norm);
+      MassSignMProj[0]   = MassSignM[0]->ProjectionY("MassSignProM0",CutIndex+1,CutIndex+1); MassSignMProj[0]->Scale(norm);
+      MassSignMProj[1]   = MassSignM[1]->ProjectionY("MassSignProM1",CutIndex+1,CutIndex+1); MassSignMProj[1]->Scale(norm);
+      MassSignMProj[2]   = MassSignM[2]->ProjectionY("MassSignProM2",CutIndex+1,CutIndex+1); MassSignMProj[2]->Scale(norm);
+      MassSignMProj[3]   = MassSignM[3]->ProjectionY("MassSignProM3",CutIndex+1,CutIndex+1); MassSignMProj[3]->Scale(norm);
+      MassSignTProj[0]   = MassSignT[0]->ProjectionY("MassSignProT0",CutIndex+1,CutIndex+1); MassSignTProj[0]->Scale(norm);
+      MassSignTProj[1]   = MassSignT[1]->ProjectionY("MassSignProT1",CutIndex+1,CutIndex+1); MassSignTProj[1]->Scale(norm);
+      MassSignTProj[2]   = MassSignT[2]->ProjectionY("MassSignProT2",CutIndex+1,CutIndex+1); MassSignTProj[2]->Scale(norm);
+      MassSignTProj[3]   = MassSignT[3]->ProjectionY("MassSignProT3",CutIndex+1,CutIndex+1); MassSignTProj[3]->Scale(norm);
+      MassSignPUProj[0]   = MassSignPU[0]->ProjectionY("MassSignProPU0",CutIndex+1,CutIndex+1); MassSignPUProj[0]->Scale(normPU);
+      MassSignPUProj[1]   = MassSignPU[1]->ProjectionY("MassSignProPU1",CutIndex+1,CutIndex+1); MassSignPUProj[1]->Scale(normPU);
+      MassSignPUProj[2]   = MassSignPU[2]->ProjectionY("MassSignProPU2",CutIndex+1,CutIndex+1); MassSignPUProj[2]->Scale(normPU);
+      MassSignPUProj[3]   = MassSignPU[3]->ProjectionY("MassSignProPU3",CutIndex+1,CutIndex+1); MassSignPUProj[3]->Scale(normPU);
 
       double NData       = MassDataProj->Integral(MassDataProj->GetXaxis()->FindBin(MinRange), MassDataProj->GetXaxis()->FindBin(MaxRange));
       double NPred       = MassPredProj->Integral(MassPredProj->GetXaxis()->FindBin(MinRange), MassPredProj->GetXaxis()->FindBin(MaxRange));
@@ -1084,6 +1107,7 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
       double EffI      = 0;
       double EffM      = 0;
       double EffT      = 0;
+      double EffPU      = 0;
       if(RatioValue[0]<0 && RatioValue[1]<0 && RatioValue[2]<0){
             CurrentSampleIndex        = JobIdToIndex(signal); if(CurrentSampleIndex<0){  printf("There is no signal corresponding to the JobId Given\n");  return toReturn;  } 
             double INTERN_ESign       = MassSignProj[0]->Integral(MassSignProj[0]            ->GetXaxis()->FindBin(MinRange), MassSignProj[0]      ->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent      [0]; 
@@ -1106,6 +1130,10 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
             double INTERN_ESignT      = MassSignTProj[0]->Integral(MassSignTProj[0]            ->GetXaxis()->FindBin(MinRange), MassSignTProj[0]      ->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent      [0];
             double INTERN_EffT        = INTERN_ESignT      / (signals[CurrentSampleIndex].XSec*IntegratedLuminosity);
             EffT                      = INTERN_EffT;
+
+            double INTERN_ESignPU      = MassSignPUProj[0]->Integral(MassSignPUProj[0]            ->GetXaxis()->FindBin(MinRange), MassSignPUProj[0]      ->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent      [0];
+            double INTERN_EffPU        = INTERN_ESignPU      / (signals[CurrentSampleIndex].XSec*IntegratedLuminosity);
+            EffPU                      = INTERN_EffPU;
       }else{
          for(unsigned int i=0;i<3;i++){
             CurrentSampleIndex        = JobIdToIndex(signal); if(CurrentSampleIndex<0){  printf("There is no signal corresponding to the JobId Given\n");  return toReturn;  }
@@ -1128,6 +1156,10 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
             double INTERN_ESignT      = MassSignTProj[i+1]->Integral(MassSignTProj[i+1]            ->GetXaxis()->FindBin(MinRange), MassSignTProj[i+1]      ->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent      [1+i];
             double INTERN_EffT        = INTERN_ESignT      / (signals[CurrentSampleIndex].XSec*IntegratedLuminosity);
             EffT                     += INTERN_EffT  * RatioValue[i];
+
+            double INTERN_ESignPU      = MassSignPUProj[i+1]->Integral(MassSignPUProj[i+1]            ->GetXaxis()->FindBin(MinRange), MassSignPUProj[i+1]      ->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent      [i+1];
+            double INTERN_EffPU        = INTERN_ESignPU      / (signals[CurrentSampleIndex].XSec*IntegratedLuminosity);
+            EffPU                     += INTERN_EffPU  * RatioValue[i];
          }
       }
       if(Eff==0)continue;
@@ -1156,6 +1188,7 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
      toReturn.Eff_SYSTI = EffI;
      toReturn.Eff_SYSTM = EffM;
      toReturn.Eff_SYSTT = EffT;
+     toReturn.Eff_SYSTPU= EffPU;
      toReturn.NData     = NData;
      toReturn.NPred     = NPred;
      toReturn.NPredErr  = NPredErr;
@@ -1205,14 +1238,14 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
    }
 
    LimitResult CLMResults;
-   double signalUncertainty=0.10;
-   if (signals[JobIdToIndex(signal)].Mass<450) signalUncertainty=0.15;
+   double signalUncertainty=0.11;
+   if (signals[JobIdToIndex(signal)].FileName.find("neutral")!=string::npos) signalUncertainty=0.21;
    double NPred=toReturn.NPred;
    double NPredErr=toReturn.NPredErr;
    double Eff=toReturn.Eff;
    double NData=toReturn.NData;
 
-   CLMResults =  roostats_limit(IntegratedLuminosity, IntegratedLuminosity*0.06, Eff, Eff*signalUncertainty,NPred, NPredErr, NData, false, 1, "cls", "", 12345);
+   CLMResults =  roostats_limit(IntegratedLuminosity, IntegratedLuminosity*0.045, Eff, Eff*signalUncertainty,NPred, NPredErr, NData, false, 1, "cls", "", 12345);
 
    double ExpLimit=CLMResults.GetExpectedLimit();
    double ExpLimitup    = CLMResults.GetOneSigmaHighRange();
@@ -1244,6 +1277,7 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
      fprintf(pFile2,"Eff_SystI    : %f\n",toReturn.Eff_SYSTI);
      fprintf(pFile2,"Eff_SystM    : %f\n",toReturn.Eff_SYSTM);
      fprintf(pFile2,"Eff_SystT    : %f\n",toReturn.Eff_SYSTT);
+     fprintf(pFile2,"Eff_SystPU   : %f\n",toReturn.Eff_SYSTPU);
      fprintf(pFile2,"Signif       : %f\n",toReturn.Significance);
      fprintf(pFile2,"XSec_Th      : %f\n",toReturn.XSec_Th);
      fprintf(pFile2,"XSec_Exp     : %f\n",toReturn.XSec_Exp);
@@ -1861,12 +1895,20 @@ void DrawRatioBands(string InputPattern, string inputmodel)
    TGraph** graphAexp =  new TGraph*[TModels.size()];
    TCutG**  ExpAErr = new TCutG*[TModels.size()];
    TCutG**  Exp2SigmaAErr= new TCutG*[TModels.size()];
-   TPad** padA= new  TPad*[TModels.size()+1];
+   TPad** padA= new  TPad*[TModels.size()];
    string  ModelNames[TModels.size()];
    double step= 1.0/(TModels.size()+2);
    for(int k=0;k<TModels.size();k++){
-      TPad* pad = new TPad(Form("pad%i",k),Form("ExpErr%i",k),0.1,1-(k+2)*step,0.9,1-step*(k+1));//lower left x, y, topright x, y
-      if(k<(TModels.size()-1)) pad->SetBottomMargin(0.);
+     TPad* pad;
+     //TPad* pad = new TPad(Form("pad%i",k),Form("ExpErr%i",k),0.1,1-(k+2)*step,0.9,1-step*(k+1));//lower left x, y, topright x, y
+     if(k<(TModels.size()-1)) {
+       pad = new TPad(Form("pad%i",k),Form("ExpErr%i",k),0.1,1-(k+2)*step,0.9,1-step*(k+1));//lower left x, y, topright x, y
+       pad->SetBottomMargin(0.);
+     }
+     else {
+       pad = new TPad(Form("pad%i",k),Form("ExpErr%i",k),0.1,1-(k+3)*step,0.9,1-step*(k+1));//lower left x, y, topright x, y
+       pad->SetBottomMargin(0.5);
+     }
       pad->SetLeftMargin(0.1);
       pad->SetRightMargin(0.);
       pad->SetTopMargin(0.);
@@ -1933,7 +1975,7 @@ void DrawRatioBands(string InputPattern, string inputmodel)
          TLegend* LEG = new TLegend(0.11,0.01,0.7,0.99);
          string headerstr;
          headerstr = " Tk + TOF";
-         if(IsTkOnly) headerstr = " Tracker - Only";
+         if(IsTkOnly) headerstr = " Tk - Only";
          LEG->SetHeader(headerstr.c_str());
          LEG->SetFillColor(0); 
          LEG->SetBorderSize(0);
@@ -1950,13 +1992,19 @@ void DrawRatioBands(string InputPattern, string inputmodel)
       MG->SetTitle("");
       if(k==TModels.size()-1) {
          MG->GetXaxis()->SetTitle("Mass (GeV/c^{2})");
-         MG->GetXaxis()->SetTitleSize(0.4);
-         MG->GetXaxis()->SetLabelSize(0.4);
+         MG->GetXaxis()->SetTitleSize(0.2);
+         MG->GetXaxis()->SetLabelSize(0.2);
       }
 
       TPaveText *pt;
-      if(IsTkOnly) pt = new TPaveText(0.45, 0.6, 0.95, 0.87,"LBNDC");
-      else pt = new TPaveText(0.65, 0.7, 0.95, 0.85,"LBNDC");
+      if(IsTkOnly) {
+	if(k!=TModels.size()-1) pt = new TPaveText(0.45, 0.6, 0.95, 0.87,"LBNDC");
+	else pt = new TPaveText(0.45, 0.8, 0.95, 0.935,"LBNDC");
+      }
+      else {
+	  if(k!=TModels.size()-1) pt = new TPaveText(0.65, 0.7, 0.95, 0.85,"LBNDC");
+	  else pt = new TPaveText(0.65, 0.85, 0.95, 0.925,"LBNDC");
+	}
       pt->SetBorderSize(0);
       pt->SetLineWidth(0);
       pt->SetFillColor(kWhite);
@@ -1964,6 +2012,7 @@ void DrawRatioBands(string InputPattern, string inputmodel)
       text ->SetTextAlign(11);
       text ->SetTextSize(0.3);
       if(IsTkOnly) text ->SetTextSize(0.35);
+      if(k==TModels.size()-1) text ->SetTextSize(0.5*text ->GetTextSize());
       pt->Draw();
       
       MG->GetXaxis()->SetRangeUser(50,1050);    
@@ -1972,7 +2021,10 @@ void DrawRatioBands(string InputPattern, string inputmodel)
       MG->GetYaxis()->SetRangeUser(0.5,2.5);
       MG->GetYaxis()->SetNdivisions(202,"Z");
       MG->GetYaxis()->SetLabelSize(0.2);
- 
+      if(k==(TModels.size()-1)) {
+	MG->GetYaxis()->SetLabelSize(0.1);
+
+      }
 
    }
    c1->cd();

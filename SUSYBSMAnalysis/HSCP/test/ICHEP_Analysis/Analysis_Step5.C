@@ -105,16 +105,16 @@ void Analysis_Step5()
 //  CutFlow(InputDir);
 //   SelectionPlot(InputDir, CutIndex, 0);
    InputDir = "Results/dedxASmi/combined/Eta15/PtMin45/Type2/";   CutIndex = 16;
-   MassPrediction(InputDir, CutIndex, "Mass");
+    MassPrediction(InputDir, CutIndex, "Mass");
 //   CutFlow(InputDir);
 //   SelectionPlot(InputDir, CutIndex, 0);return;
-   //GetSystematicOnPrediction(InputDir);
+   GetSystematicOnPrediction(InputDir);
    //PredictionAndControlPlot(InputDir, CutIndex);
 
    //SelectionPlot(InputDir, CutIndex);
    //PredictionAndControlPlot(InputDir, CutIndex);
    //GetSystematicOnPrediction(InputDir);
-   return;
+   //return;
 
    InputDir = "Results/dedxASmi/combined/Eta15/PtMin45/Type0/";   CutIndex = 11;/*65;*//*39;*/  MassPredictionTight(InputDir, CutIndex, "Mass");
    CutIndex=50;
@@ -722,6 +722,7 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex, unsigned int Glui
    stPlots_InitFromFile(InputFile, MCTrPlots,"MCTr", InputFileMC);
 
    for(unsigned int s=0;s<signals.size();s++){
+      if (signals[s].Name!="Gluino300" && signals[s].Name!="Gluino600" && signals[s].Name!="Gluino800" && signals[s].Name!="GMStau247" && signals[s].Name!="GMStau370" && signals[s].Name!="GMStau494") continue;
       stPlots_InitFromFile(InputFile, SignPlots[s],signals[s].Name, InputFile);
       if(!signals[s].MakePlot)continue;
 //      stPlots_Draw(SignPlots[s], SavePath + "/Selection_" +  signals[s].Name, LegendTitle, CutIndex);
