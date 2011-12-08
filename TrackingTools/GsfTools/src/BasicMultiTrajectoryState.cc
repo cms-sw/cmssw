@@ -6,8 +6,8 @@
 using namespace SurfaceSideDefinition;
 
 BasicMultiTrajectoryState::BasicMultiTrajectoryState( const std::vector<TSOS>& tsvec) :
-  theCombinedStateUp2Date( false)
-{
+  BasicTrajectoryState(tsvec.front().surface()) {
+
   theStates.reserve(tsvec.size());
   for (std::vector<TSOS>::const_iterator i=tsvec.begin(); i!=tsvec.end(); i++) {
     if (!i->isValid()) {
@@ -35,31 +35,9 @@ BasicMultiTrajectoryState::BasicMultiTrajectoryState( const std::vector<TSOS>& t
     }
     theStates.push_back( *i);
   }
+  combine();
 }
 
-void BasicMultiTrajectoryState::checkCombinedState() const
-{
-  if (theCombinedStateUp2Date) return;
-
-  theCombinedState = theCombiner.combine( theStates);
-  theCombinedStateUp2Date = true;
-  
-}
-
-double BasicMultiTrajectoryState::weight() const {
-
-  if (theStates.empty()) {
-    edm::LogError("BasicMultiTrajectoryState") 
-      << "Asking for weight of empty MultiTrajectoryState, returning zero!";
-    return 0.;
-  }
-
-  double sumw = 0.;
-  for (std::vector<TSOS>::const_iterator it = theStates.begin(); it != theStates.end(); it++) {
-    sumw += it->weight();
-  }
-  return sumw;
-}
 
 
 void BasicMultiTrajectoryState::rescaleError(double factor) {
@@ -72,37 +50,64 @@ void BasicMultiTrajectoryState::rescaleError(double factor) {
   for (std::vector<TSOS>::iterator it = theStates.begin(); it != theStates.end(); it++) {
     it->rescaleError(factor);
   }
-  theCombinedStateUp2Date = false;
+  combine();
 }
 
-const MagneticField*
-BasicMultiTrajectoryState::magneticField () const
-{
-  //
-  // Magnetic field should be identical in all components:
-  // avoid forcing the combination of states and take value from 1st component!
-  //
-  if (theStates.empty()) {
-    edm::LogError("BasicMultiTrajectoryState") 
-      << "Asking for magneticField of empty MultiTrajectoryState, returning null pointer!";
-    return 0;
-  }
-  return theStates.front().magneticField();
-}
 
-SurfaceSide
-BasicMultiTrajectoryState::surfaceSide () const
-{
-  //
-  // SurfaceSide should be identical in all components:
-  // avoid forcing the combination of states and take value from 1st component!
-  //
-  if (theStates.empty()) {
-    edm::LogError("BasicMultiTrajectoryState") 
-      << "Asking for magneticField of empty MultiTrajectoryState, returning atCenterOfSurface!";
-    return atCenterOfSurface;
+BasicMultiTrajectoryState::combine() const {
+  const std::vector<TrajectoryStateOnSurface>& tsos = theStates;
+
+  if (tsos.empty()) {
+    edm::LogError("MultiTrajectoryStateCombiner") 
+      << "Trying to collapse empty set of trajectory states!";
+    return TrajectoryStateOnSurface();
   }
-  return theStates.front().surfaceSide();
+
+  double pzSign = tsos.front().localParameters().pzSign();
+  for (std::vector<TrajectoryStateOnSurface>::const_iterator it = tsos.begin(); 
+       it != tsos.end(); it++) {
+    if (it->localParameters().pzSign() != pzSign) {
+      edm::LogError("MultiTrajectoryStateCombiner") 
+	<< "Trying to collapse trajectory states with different signs on p_z!";
+      return TrajectoryStateOnSurface();
+    }
+  }
+  
+  if (tsos.size() == 1) {
+    return TrajectoryStateOnSurface(tsos.front());
+  }
+  
+  double sumw = 0.;
+  //int dim = tsos.front().localParameters().vector().num_row();
+  AlgebraicVector5 mean;
+  AlgebraicSymMatrix55 covarPart1, covarPart2;
+  for (std::vector<TrajectoryStateOnSurface>::const_iterator it1 = tsos.begin(); 
+       it1 != tsos.end(); it1++) {
+    double weight = it1->weight();
+    AlgebraicVector5 param = it1->localParameters().vector();
+    sumw += weight;
+    mean += weight * param;
+    covarPart1 += weight * it1->localError().matrix();
+    for (std::vector<TrajectoryStateOnSurface>::const_iterator it2 = it1 + 1; 
+	 it2 != tsos.end(); it2++) {
+      AlgebraicVector5 diff = param - it2->localParameters().vector();
+      AlgebraicSymMatrix11 s = AlgebraicMatrixID(); //stupid trick to make CLHEP work decently
+      covarPart2 += weight * it2->weight() * 
+      				ROOT::Math::Similarity(AlgebraicMatrix51(diff.Array(), 5), s);
+                        //FIXME: we can surely write this thing in a better way
+    }   
+  }
+  double sumwI = 1.0/sumw;
+  mean *= sumwI;
+  covarPart1 *= sumwI; covarPart2 *= (sumwI*sumwI);
+  AlgebraicSymMatrix55 covar = covarPart1 + covarPart2;
+
+  BasicTrajectoryState::update(LocalTrajectoryParameters(mean, pzSign), 
+			       LocalTrajectoryError(covar), 
+			       tsos.front().surface(), 
+			       &(tsos.front().globalParameters().magneticField()),
+			       tsos.front().surfaceSide(), 
+			       sumw);
 }
 
 void
