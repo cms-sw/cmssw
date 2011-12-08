@@ -7,32 +7,32 @@ using namespace SurfaceSideDefinition;
 
 BasicMultiTrajectoryState::BasicMultiTrajectoryState( const std::vector<TSOS>& tsvec) :
   BasicTrajectoryState(tsvec.front().surface()) {
-
+ 
+  // only accept planes!!
+  const BoundPlane* bp = dynamic_cast<const BoundPlane*>(&tsvec.begin()->surface());
+  if unlikely( bp==0 )
+	       throw cms::Exception("LogicError") << "MultiTrajectoryState constructed on cylinder";
+   
   theStates.reserve(tsvec.size());
   for (std::vector<TSOS>::const_iterator i=tsvec.begin(); i!=tsvec.end(); i++) {
-    if (!i->isValid()) {
+    if unlikely(!i->isValid()) {
       throw cms::Exception("LogicError") << "MultiTrajectoryState constructed with invalid state";
     }
-    if (i->hasError() != tsvec.front().hasError()) {
+    if unlikely(i->hasError() != tsvec.front().hasError()) {
       throw cms::Exception("LogicError") << "MultiTrajectoryState mixes states with and without errors";
     }
-    if ( &i->surface() != &tsvec.front().surface()) {
+    if unlikely( &i->surface() != &tsvec.front().surface()) {
       throw cms::Exception("LogicError") << "MultiTrajectoryState mixes states with different surfaces";
     }
-    if ( i->surfaceSide() != tsvec.front().surfaceSide()) {
+    if unlikely( i->surfaceSide() != tsvec.front().surfaceSide()) {
       throw cms::Exception("LogicError") 
 	<< "MultiTrajectoryState mixes states defined before and after material";
     }
-    if ( i->localParameters().pzSign()*tsvec.front().localParameters().pzSign()<0. ) {
+    if unlikely( i->localParameters().pzSign()*tsvec.front().localParameters().pzSign()<0. ) {
       throw cms::Exception("LogicError") 
 	<< "MultiTrajectoryState mixes states with different signs of local p_z";
     }
-    if ( i==tsvec.begin() ) {
-      // only accept planes!!
-      const BoundPlane* bp = dynamic_cast<const BoundPlane*>(&i->surface());
-      if ( bp==0 )
-	throw cms::Exception("LogicError") << "MultiTrajectoryState constructed on cylinder";
-    }
+
     theStates.push_back( *i);
   }
   combine();
@@ -42,7 +42,7 @@ BasicMultiTrajectoryState::BasicMultiTrajectoryState( const std::vector<TSOS>& t
 
 void BasicMultiTrajectoryState::rescaleError(double factor) {
 
-  if (theStates.empty()) {
+  if unlikely(theStates.empty()) {
     edm::LogError("BasicMultiTrajectoryState") << "Trying to rescale errors of empty MultiTrajectoryState!";
     return;
   }
@@ -57,24 +57,30 @@ void
 BasicMultiTrajectoryState::combine()  {
   const std::vector<TrajectoryStateOnSurface>& tsos = theStates;
 
-  if (tsos.empty()) {
+  if unlikely(tsos.empty()) {
     edm::LogError("MultiTrajectoryStateCombiner") 
       << "Trying to collapse empty set of trajectory states!";
-    return TrajectoryStateOnSurface();
+    return;
   }
 
   double pzSign = tsos.front().localParameters().pzSign();
   for (std::vector<TrajectoryStateOnSurface>::const_iterator it = tsos.begin(); 
        it != tsos.end(); it++) {
-    if (it->localParameters().pzSign() != pzSign) {
+    if unlikely(it->localParameters().pzSign() != pzSign) {
       edm::LogError("MultiTrajectoryStateCombiner") 
 	<< "Trying to collapse trajectory states with different signs on p_z!";
-      return TrajectoryStateOnSurface();
+      return;
     }
   }
   
-  if (tsos.size() == 1) {
-    return TrajectoryStateOnSurface(tsos.front());
+  if unlikely(tsos.size() == 1) {
+    BasicTrajectoryState::update(tsos.front().localParameters(), 
+				 tsos.front().localError(), 
+				 tsos.front().surface(), 
+				 &(tsos.front().globalParameters().magneticField()),
+				 tsos.front().surfaceSide(), 
+				 tsos.front().weight());
+    return;
   }
   
   double sumw = 0.;
