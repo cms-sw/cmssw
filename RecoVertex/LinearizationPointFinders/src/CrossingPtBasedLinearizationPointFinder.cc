@@ -292,7 +292,7 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::getLinearizationPoint(
             TwoTrackMinimumDistance ttmd;
             bool status = ttmd.calculate( rt1.impactPointState(), rt2.impactPointState() );
             if (status) {
-              pair < GlobalPoint, GlobalPoint > pts = ttmd.points();
+              std::pair < GlobalPoint, GlobalPoint > pts = ttmd.points();
               PointAndDistance v ( ( pts.second + pts.first ) / 2. ,
                                    ( pts.second - pts.first ).mag() );
               vgp.push_back( v );
