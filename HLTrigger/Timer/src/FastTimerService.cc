@@ -652,7 +652,3 @@ void FastTimerService::fillPathMap(std::string const & name, std::vector<std::st
     }
   }
 }
-
-// declare FastTimerService as a framework Service
-#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
-DEFINE_FWK_SERVICE(FastTimerService);
