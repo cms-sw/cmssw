@@ -357,6 +357,7 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
   XYZTLorentzVector mom;
   XYZTLorentzVector pos;
 
+
   // Loop over the tracks
   for( int fsimi=0; fsimi < (int)nTracks() ; ++fsimi) {
 
@@ -400,14 +401,30 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
       if ( myTrack.notYetToEndVertex(myPart.vertex()) )
 	myTrack.setHcal(myPart,myPart.getSuccess());
       
-      // Propagate to VFCAL entrance
-      myPart.propagateToVFcalEntrance(false);
-      if ( myTrack.notYetToEndVertex(myPart.vertex()) )
-	myTrack.setVFcal(myPart,myPart.getSuccess());
-    }
- 
-  }
+      //GMA put this number from 
+      //bool BaseParticlePropagator::propagateToVFcalEntrance(bool first) {
+      if (myPart.cos2ThetaV()>0.99014) {
+	// Propagate to VFCAL entrance
+	myPart.propagateToVFcalEntrance(false);
+	if ( myTrack.notYetToEndVertex(myPart.vertex()) )
+ 	myTrack.setVFcal(myPart,myPart.getSuccess());
 
+	
+      } else if (mom.T()>2) { 
+	// Propagate to HCAL exit
+	myPart.propagateToHcalExit(false);
+	if ( myTrack.notYetToEndVertex(myPart.vertex()) )
+	  myTrack.setHcalExit(myPart,myPart.getSuccess());     
+	if (isHOinUse) {
+	  // Propagate to HOLayer entrance
+	  myPart.setMagneticField(0);
+	  myPart.propagateToHOLayer(false);
+	  if ( myTrack.notYetToEndVertex(myPart.vertex()) )
+	    myTrack.setHO(myPart,myPart.getSuccess());
+	}
+      } 
+    }
+  }
 }
 
 

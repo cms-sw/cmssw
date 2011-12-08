@@ -581,6 +581,28 @@ BaseParticlePropagator::propagateToHcalExit(bool first) {
 }
 
 bool
+BaseParticlePropagator::propagateToHOLayer(bool first) {
+  //
+  // Propagation to Layer0 of HO (Ring-0)
+  // TODO: include proper geometry
+  // Geometry taken from CMSSW_3_1_X xml (Sunanda)
+  //
+
+  // Approximate it to a single cylinder as it is not that crucial.
+  setPropagationConditions(387.6, 1000.0, first); //Dia is the middle of HO \sqrt{384.8**2+46.2**2}
+  //  setPropagationConditions(410.2, 1000.0, first); //sqrt{406.6**2+54.2**2} //for outer layer
+  //  this->rawPart().setCharge(0.0); ?? Shower Propagation ??
+  propDir = 0;
+  bool done = propagate();
+  propDir = 1;
+  
+  if ( done && abs(Z()) > 700.25) success = 0;
+  
+  return done;
+}
+
+
+bool
 BaseParticlePropagator::propagateToNominalVertex(const XYZTLorentzVector& v) 
 {
 

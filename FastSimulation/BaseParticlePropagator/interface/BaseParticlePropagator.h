@@ -113,6 +113,7 @@ public:
       Z axis, to the preshower layer 1 & 2, to the ECAL entrance, to the 
       HCAL entrance, the HCAL 2nd and 3rd layer (not coded yet), the VFCAL 
       entrance, or any BoundSurface(disk or cylinder)*/
+
   bool propagateToClosestApproach(double x0=0.,double y0=0,bool first=true);
   bool propagateToEcal(bool first=true);
   bool propagateToPreshowerLayer1(bool first=true);
@@ -121,6 +122,7 @@ public:
   bool propagateToHcalEntrance(bool first=true);
   bool propagateToVFcalEntrance(bool first=true);
   bool propagateToHcalExit(bool first=true);
+  bool propagateToHOLayer(bool first=true);
   bool propagateToNominalVertex(const XYZTLorentzVector& hit2=XYZTLorentzVector(0.,0.,0.,0.));
   bool propagateToBeamCylinder(const XYZTLorentzVector& v, double radius=0.); 
   /// Set the propagation characteristics (rCyl, zCyl and first loop only)

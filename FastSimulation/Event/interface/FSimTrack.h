@@ -109,6 +109,16 @@ class FSimTrack : public SimTrack {
   /// 2 : on the EndCaps (No VFCAL Barrel); 3 : no propagation possible
   /// 0 : not yet propagated
   inline int onVFcal() const { return vfcal; }
+  
+  /// The particle was propagated to the HCAL back face
+  /// 1 : on the barrel; 2 : on the EndCaps; 3 : no propagation possible
+  /// 0 : not yet propagated
+  inline int outHcal() const { return hcalexit; }
+
+  //The particle was propagated to the HO front face
+  /// 1 : on the barrel; 2 : on the EndCaps; 3 : no propagation possible
+  /// 0 : not yet propagated
+  inline int onHO() const { return hoentr; }
 
   /// The particle was tentatively propagated to calorimeters
   inline bool propagated() const { return prop; }
@@ -127,6 +137,12 @@ class FSimTrack : public SimTrack {
 
   /// The particle at VFCAL entrance
   inline const RawParticle& vfcalEntrance() const { return VFCAL_Entrance; }
+
+  /// The particle at HCAL exir
+  inline const RawParticle& hcalExit() const { return HCAL_Exit; }
+
+  /// The particle at HCAL exir
+  inline const RawParticle& hoEntrance() const { return HO_Entrance; }
 
   /// Set the end vertex
   inline void setEndVertex(int endv) { endv_ = endv; } 
@@ -148,6 +164,12 @@ class FSimTrack : public SimTrack {
 
   /// Set the hcal variables
   void setVFcal(const RawParticle& pp, int success);
+
+  /// Set the hcal exit variables
+  void setHcalExit(const RawParticle& pp, int success);
+
+  /// Set the ho variables
+  void setHO(const RawParticle& pp, int success);
 
   /// Add a RecHit for a track on a layer
   //  void addRecHit(const FamosBasicRecHit* hit, unsigned layer);
@@ -191,6 +213,9 @@ class FSimTrack : public SimTrack {
   int ecal;  // 1 if the particle was propagated to ECAL/HCAL barrel
   int hcal;  // 2 if the particle was propagated to ECAL/HCAL endcap 
   int vfcal; // 1 if the particle was propagated to VFCAL 
+  int hcalexit;  // 2 if the particle was propagated to HCAL Exit point
+  int hoentr; // 1 if the particle was propagated to HO 
+
 
   bool prop;     // true if the propagation to the calorimeters was done
 
@@ -199,6 +224,9 @@ class FSimTrack : public SimTrack {
   RawParticle ECAL_Entrance;   // the particle at ECAL entrance
   RawParticle HCAL_Entrance;   // the particle at HCAL entrance
   RawParticle VFCAL_Entrance;  // the particle at VFCAL entrance
+  RawParticle HCAL_Exit;       // the particle at HCAL ezit point
+  RawParticle HO_Entrance;     // the particle at HO entrance
+
 
   std::vector<int> daugh_; // The indices of the daughters in FSimTrack
   int closestDaughterId_; // The index of the closest daughter id
