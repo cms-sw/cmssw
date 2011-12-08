@@ -211,7 +211,7 @@ public:
   }
 
   bool hasError() const {
-  return (theFreeState && theFreeState->hasError()) || theLocalError.valid();
+    return (theFreeState && theFreeState->hasError()) || theLocalError.valid();
   }
 
 
@@ -236,7 +236,7 @@ public:
 
 private:
 
-  static void notValid() dso_internal;
+  static void notValid();
 
   
   void missingError(char const * where) const; // dso_internal;
@@ -246,9 +246,9 @@ private:
   void checkCurvilinError() const  dso_internal;
 
 // create local parameters and errors from global
-  void createLocalParameters() const  dso_internal;
+  void createLocalParameters() const;
   // create local errors from global
-  void createLocalError() const  dso_internal;
+  void createLocalError() const;
   void createLocalErrorFromCurvilinearError() const  dso_internal;
 
 private:
