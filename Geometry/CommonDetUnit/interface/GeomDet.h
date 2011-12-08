@@ -4,8 +4,8 @@
 /** \class GeomDet
  *  Base class for GeomDetUnit and for composite GeomDet s. 
  *
- *  $Date: 2010/04/09 12:17:26 $
- *  $Revision: 1.12 $
+ *  $Date: 2011/09/27 09:16:36 $
+ *  $Revision: 1.13 $
  */
 
 
@@ -16,7 +16,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
-
+#include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
 
 #include <vector>
@@ -78,7 +78,8 @@ public:
 
   /// Return pointer to alignment errors. 
   /// Defaults to "null" if not reimplemented in the derived classes.
-  virtual AlignmentPositionError* alignmentPositionError() const { return theAlignmentPositionError;}
+  AlignmentPositionError* alignmentPositionError() const { return theAlignmentPositionError;}
+  LocalError const & localError() const { return theLocalError;}
 
   /// Returns direct components, if any
   virtual std::vector< const GeomDet*> components() const = 0;
@@ -98,6 +99,7 @@ private:
 
   ReferenceCountingPointer<BoundPlane>  thePlane;
   AlignmentPositionError*               theAlignmentPositionError;
+  LocalError                            theLocalError;
   DetId m_detId;
 
 
@@ -124,7 +126,7 @@ private:
   /// +=,-=  methods of the AlignmentPositionError
   /// Does not affect the AlignmentPositionError of components (if any).
   
-  virtual void setAlignmentPositionError (const AlignmentPositionError& ape); 
+  void setAlignmentPositionError (const AlignmentPositionError& ape); 
 
 };
   

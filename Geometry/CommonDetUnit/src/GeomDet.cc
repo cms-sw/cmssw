@@ -3,10 +3,10 @@
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 
 GeomDet::GeomDet( BoundPlane* plane):
-  thePlane(plane), theAlignmentPositionError(0) {}
+  thePlane(plane), theAlignmentPositionError(0), theLocalError(InvalidError) {}
 
 GeomDet::GeomDet( const ReferenceCountingPointer<BoundPlane>& plane) :
-  thePlane(plane), theAlignmentPositionError(0) {}
+  thePlane(plane), theAlignmentPositionError(0), theLocalError(InvalidError) {}
 
 GeomDet::~GeomDet() 
 {
@@ -36,6 +36,7 @@ void GeomDet::setPosition( const Surface::PositionType& position,
 									  rotation);
 }
 
+#include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 void GeomDet::setAlignmentPositionError (const AlignmentPositionError& ape) 
 {
   if (!theAlignmentPositionError) {
@@ -43,4 +44,8 @@ void GeomDet::setAlignmentPositionError (const AlignmentPositionError& ape)
   } 
   else *theAlignmentPositionError = ape;
 
+  theLocalError =
+    ErrorFrameTransformer().transform( alignmentPositionError()->globalError(),
+                                       surface()
+				       );
 }
