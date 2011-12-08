@@ -46,7 +46,9 @@ def toScreenTotDelivered(lumidata,resultlines,scalefactor,isverbose):
             if isverbose:
                 result.extend(['n/a'])
             continue
-        nls=len(lsdata)
+        nls=0
+        if len(lsdata):
+            nls=len(lsdata)
         totls+=nls
         totlumi=sum([x[5] for x in lsdata])
         totdelivered+=totlumi
@@ -55,12 +57,20 @@ def toScreenTotDelivered(lumidata,resultlines,scalefactor,isverbose):
         avgbeamenergy=0.0
         if len(beamenergyPerLS):
             avgbeamenergy=sum(beamenergyPerLS)/len(beamenergyPerLS)
-        runstarttime=lsdata[0][2]
+        runstarttime='n/a'
+        if nls!=0:
+            runstarttime=lsdata[0][2]
+            runstarttime=runstarttime.strftime("%m/%d/%y %H:%M:%S")
         if isverbose:
-            selectedls=[(x[0],x[1]) for x in lsdata]
-            result.append([str(run),str(nls),'%.3f'%(totlumival*scalefactor)+' ('+lumiunit+')',runstarttime.strftime("%m/%d/%y %H:%M:%S"),'%.1f'%(avgbeamenergy), str(selectedls)])
+            selectedls='n/a'
+            if nls:
+                selectedls=[(x[0],x[1]) for x in lsdata]
+            result.append([str(run),str(nls),'%.3f'%(totlumival*scalefactor)+' ('+lumiunit+')',runstarttime,'%.1f'%(avgbeamenergy), str(selectedls)])
         else:
-            result.append([str(run),str(nls),'%.3f'%(totlumival*scalefactor)+' ('+lumiunit+')',runstarttime.strftime("%m/%d/%y %H:%M:%S"),'%.1f'%(avgbeamenergy)])
+            if runstarttime!='n/a':
+                result.append([str(run),str(nls),'%.3f'%(totlumival*scalefactor)+' ('+lumiunit+')',runstarttime,'%.1f'%(avgbeamenergy)])
+            else:
+                result.append([str(run),str(nls),'%.3f'%(totlumival*scalefactor)+' ('+lumiunit+')','n/a','%.1f'%(avgbeamenergy)])
     sortedresult=sorted(result,key=lambda x : int(x[0]))
     #print 'sortedresult ',sortedresult
     print ' ==  = '
@@ -106,12 +116,17 @@ def toCSVTotDelivered(lumidata,filename,resultlines,scalefactor,isverbose):
         avgbeamenergy=0.0
         if len(beamenergyPerLS):
             avgbeamenergy=sum(beamenergyPerLS)/len(beamenergyPerLS)
-        runstarttime=lsdata[0][2]
+        runstarttime='n/a'
+        if nls!=0:
+            runstarttime=lsdata[0][2]
+            runstarttime=runstarttime.strftime("%m/%d/%y %H:%M:%S")
         if isverbose:
-            selectedls=[(x[0],x[1]) for x in lsdata]
-            result.append([run,nls,totlumival*scalefactor,runstarttime.strftime("%m/%d/%y %H:%M:%S"),avgbeamenergy, str(selectedls)])
+            selectedls='n/a'
+            if nls:
+                selectedls=[(x[0],x[1]) for x in lsdata]
+            result.append([run,nls,totlumival*scalefactor,runstarttime,avgbeamenergy, str(selectedls)])
         else:
-            result.append([run,nls,totlumival*scalefactor,runstarttime.strftime("%m/%d/%y %H:%M:%S"),avgbeamenergy])
+            result.append([run,nls,totlumival*scalefactor,runstarttime,avgbeamenergy])
     sortedresult=sorted(result,key=lambda x : int(x[0]))
     r=None
     assert(filename)
