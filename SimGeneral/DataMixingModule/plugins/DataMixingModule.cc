@@ -365,16 +365,28 @@ namespace edm
   void DataMixingModule::doPileUp(edm::Event &e, const edm::EventSetup& ES)
   {
     std::vector<edm::EventID> recordEventID;
+    std::vector<int> PileupList;
+    PileupList.clear();
+    TrueNumInteractions_.clear();
+
     for (int bunchCrossing=minBunch_;bunchCrossing<=maxBunch_;++bunchCrossing) {
       for (unsigned int isource=0;isource<maxNbSources_;++isource) {
         boost::shared_ptr<PileUp> source = inputSources_[isource];
         if (!source || !source->doPileUp()) continue;
 
+	if(isource==0) source->CalculatePileup(minBunch_, maxBunch_, PileupList, TrueNumInteractions_);
+
+	int NumPU_Events = 0;
+
+	if(isource ==0) { NumPU_Events = PileupList[bunchCrossing - minBunch_];}
+	else { NumPU_Events = 1;}  // non-minbias pileup only gets one event for now. Fix later if desired.
+
+
         inputSources_[isource]->readPileUp(
                 recordEventID,
                 boost::bind(&DataMixingModule::pileWorker, boost::ref(*this),
                             _1, bunchCrossing, _2, boost::cref(ES)),
-		bunchCrossing
+		NumPU_Events
                 );
       }
     }
