@@ -17,7 +17,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -36,7 +35,6 @@ public:
 
 private:
   boost::filesystem::path   m_dqm_path;
-  std::string               m_hlt_name;
 
   void analyze(const edm::Event & event, const edm::EventSetup & setup);
   void beginJob();
@@ -45,16 +43,10 @@ private:
   void endRun  (edm::Run const & run, edm::EventSetup const & setup);
   void beginLuminosityBlock(edm::LuminosityBlock const & lumi, edm::EventSetup const & setup);
   void endLuminosityBlock  (edm::LuminosityBlock const & lumi, edm::EventSetup const & setup);
-
-  // access the list of paths or endpahs, either from the current process or from a previous one
-  // Note: these cannot return a (const) reference, because a ParameterSet returns objects by value 
-  std::vector<std::string> getTrigPaths(edm::ProcessHistory const & history) const;
-  std::vector<std::string> getEndPaths (edm::ProcessHistory const & history) const;
 };
 
 FastTimerServiceClient::FastTimerServiceClient(edm::ParameterSet const & config) :
-  m_dqm_path( config.getUntrackedParameter<std::string>( "dqmPath",         "TimerService") ),
-  m_hlt_name( config.getUntrackedParameter<std::string>( "hltProcessName",  "HLT") )
+  m_dqm_path( config.getUntrackedParameter<std::string>( "dqmPath", "TimerService") )
 {
 }
 
@@ -82,69 +74,6 @@ FastTimerServiceClient::beginRun(edm::Run const & run, edm::EventSetup const & s
 {
 }
 
-// Note: this cannot return a (const) reference, because a ParameterSet returns objects by value 
-std::vector<std::string> 
-FastTimerServiceClient::getTrigPaths(edm::ProcessHistory const & history) const {
-  static const std::vector<std::string> empty;
-
-  if (m_hlt_name.empty()) {
-    // access the trigger configuration for the *current job*
-    edm::service::TriggerNamesService & tns = * edm::Service<edm::service::TriggerNamesService>();
-    return tns.getTrigPaths();
-  } else {
-    // access the processing history and retrieve the trigger cofiguration from a previous job
-    for (edm::ProcessHistory::const_iterator hi = history.begin(); hi != history.end(); ++hi) {
-      if (hi->processName() != m_hlt_name)
-        continue;
-      // process name found
-      edm::ParameterSetID const & parameterSetID = hi->parameterSetID();
-      if (parameterSetID.isValid()) {
-        edm::ParameterSet const * processPSet = edm::pset::Registry::instance()->getMapped(parameterSetID);
-        if (processPSet->exists("@trigger_paths"))
-          // this returns a copy by value
-          return processPSet->getParameterSet("@trigger_paths").getParameter<std::vector<std::string> >("@trigger_paths");
-        else
-          return empty;
-      } else {
-        return empty;
-      }
-    }
-    // process name not found in the processing history
-    return empty;
-  }
-}
-
-// Note: this cannot return a (const) reference, because a ParameterSet returns objects by value 
-std::vector<std::string>
-FastTimerServiceClient::getEndPaths(edm::ProcessHistory const & history) const {
-  static const std::vector<std::string> empty;
-
-  if (m_hlt_name.empty()) {
-    // access the trigger configuration for the *current job*
-    edm::service::TriggerNamesService & tns = * edm::Service<edm::service::TriggerNamesService>();
-    return tns.getEndPaths();
-  } else {
-    // access the processing history and retrieve the trigger cofiguration from a previous job
-    for (edm::ProcessHistory::const_iterator hi = history.begin(); hi != history.end(); ++hi) {
-      if (hi->processName() != m_hlt_name)
-        continue;
-      // process name found
-      edm::ParameterSetID const & parameterSetID = hi->parameterSetID();
-      if (parameterSetID.isValid()) {
-        edm::ParameterSet const * processPSet = edm::pset::Registry::instance()->getMapped(parameterSetID);
-        if (processPSet->exists("@end_paths"))
-          return processPSet->getParameter<std::vector<std::string> >("@end_paths");
-        else
-          return empty;
-      } else {
-        return empty;
-      }
-    }
-    // process name not found in the processing history
-    return empty;
-  }
-}
-
 void
 FastTimerServiceClient::endRun(edm::Run const & run, edm::EventSetup const & setup)
 {
@@ -160,29 +89,14 @@ FastTimerServiceClient::endRun(edm::Run const & run, edm::EventSetup const & set
     return;
   double events = me->getTH1F()->GetEntries();
 
-  std::vector<std::string> const & paths = getTrigPaths(run.processHistory());
-  std::vector<std::string> const & endps = getEndPaths(run.processHistory());
-  size_t size_p = paths.size();
-  size_t size_e = endps.size();
-  size_t size = size_p + size_e;
-
   // fill summary histograms with the average (total and active) time spent in each path
   dqm->setCurrentFolder(m_dqm_path.generic_string());
-  TH1F * path_active = dqm->book1D("path_active_time", "Additional time spent in each path", size, -0.5, size-0.5)->getTH1F();
-  TH1F * path_total  = dqm->book1D("path_total_time",  "Total time spent in each path", size, -0.5, size-0.5)->getTH1F();
-  for (size_t i = 0; i < size_p; ++i) {
-    std::string const & label = paths[i];
-    path_active->GetXaxis()->SetBinLabel( i + 1, label.c_str() );
-    path_total ->GetXaxis()->SetBinLabel( i + 1, label.c_str() );
-    if (( me = dqm->get( (m_dqm_path / "Paths" / (label + "_total")).generic_string() ) ))
-      path_total ->Fill(i, me->getTH1F()->GetMean());
-    if (( me = dqm->get( (m_dqm_path / "Paths" / (label + "_active")).generic_string() ) ))
-      path_active->Fill(i, me->getTH1F()->GetMean());
-  }
-  for (size_t i = 0; i < size_e; ++i) {
-    std::string const & label = endps[i];
-    path_active->GetXaxis()->SetBinLabel( i + 1, label.c_str() );
-    path_total ->GetXaxis()->SetBinLabel( i + 1, label.c_str() );
+  TH1F * path_active = dqm->get((m_dqm_path / "path_active_time").generic_string())->getTH1F();
+  TH1F * path_total  = dqm->get((m_dqm_path / "path_total_time").generic_string())->getTH1F();
+  size_t size = path_total->GetXaxis()->GetNbins();
+  for (size_t i = 0; i < size; ++i) {
+    // extract the list of Paths and EndPaths from the bin labels of "path_total_time"
+    std::string label = path_total->GetXaxis()->GetBinLabel(i+1);   // bin count from 1 (bin 0 is underflow)
     if (( me = dqm->get( (m_dqm_path / "Paths" / (label + "_total")).generic_string() ) ))
       path_total ->Fill(i, me->getTH1F()->GetMean());
     if (( me = dqm->get( (m_dqm_path / "Paths" / (label + "_active")).generic_string() ) ))
@@ -194,34 +108,9 @@ FastTimerServiceClient::endRun(edm::Run const & run, edm::EventSetup const & set
   //  - the running time spent in each module (total time spent in that module, averaged over the events where that module actually ran)
   //  - the "efficiency" of each module (number of time a module succeded divided by the number of times the has run)
   dqm->setCurrentFolder((m_dqm_path / "Paths").generic_string());
-  BOOST_FOREACH(std::string const & label, paths) {
-    TH1F * counter = dqm->get( (m_dqm_path / "Paths" / (label+"_module_counter")).generic_string() )->getTH1F();
-    TH1F * total   = dqm->get( (m_dqm_path / "Paths" / (label+"_module_total"  )).generic_string() )->getTH1F();
-    if (counter == 0 or total == 0)
-      continue;
-    size_t bins = counter->GetXaxis()->GetNbins();
-    double min  = counter->GetXaxis()->GetXmin();
-    double max  = counter->GetXaxis()->GetXmax();
-    TH1F * average    = dqm->book1D(label + "_module_average",    label + " module average",    bins, min, max)->getTH1F();
-    TH1F * running    = dqm->book1D(label + "_module_running",    label + " module running",    bins, min, max)->getTH1F();
-    TH1F * efficiency = dqm->book1D(label + "_module_efficiency", label + " module efficiency", bins, min, max)->getTH1F();
-    for (size_t i = 1; i <= bins; ++i) {
-      const char * module = counter->GetXaxis()->GetBinLabel(i);
-      average   ->GetXaxis()->SetBinLabel(i, module);
-      running   ->GetXaxis()->SetBinLabel(i, module);
-      efficiency->GetXaxis()->SetBinLabel(i, module);
-      double x = total  ->GetBinContent(i);
-      double n = counter->GetBinContent(i);
-      double p = counter->GetBinContent(i+1);
-      average   ->SetBinContent(i, x / events);
-      if (n) {
-        running   ->SetBinContent(i, x / n);
-        efficiency->SetBinContent(i, p / n);
-      }
-    }
-  }
-  // XXX move this to a function and call it twice, instead of duplicating the code
-  BOOST_FOREACH(std::string const & label, endps) {
+  for (size_t p = 1; p <= size; ++p) {
+    // extract the list of Paths and EndPaths from the bin labels of "path_total_time"
+    std::string label = path_total->GetXaxis()->GetBinLabel(p);
     TH1F * counter = dqm->get( (m_dqm_path / "Paths" / (label+"_module_counter")).generic_string() )->getTH1F();
     TH1F * total   = dqm->get( (m_dqm_path / "Paths" / (label+"_module_total"  )).generic_string() )->getTH1F();
     if (counter == 0 or total == 0)

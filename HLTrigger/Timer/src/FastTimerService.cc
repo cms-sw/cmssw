@@ -172,6 +172,22 @@ void FastTimerService::postBeginJob() {
     m_dqm_all_paths     ->StatOverflows(true);
     m_dqm_all_endpaths  = m_dqms->book1D("all_endpaths", "EndPaths", bins, 0., m_dqm_time_range)->getTH1F();
     m_dqm_all_endpaths  ->StatOverflows(true);
+    // these are actually filled in the harvesting step - but that may happen in a separate step, which no longer has all the information about the endpaths
+    size_t size_p = tns.getTrigPaths().size();
+    size_t size_e = tns.getEndPaths().size();
+    size_t size = size_p + size_e;
+    TH1F * path_active_time = m_dqms->book1D("path_active_time", "Additional time spent in each path", size, -0.5, size-0.5)->getTH1F();
+    TH1F * path_total_time  = m_dqms->book1D("path_total_time",  "Total time spent in each path",      size, -0.5, size-0.5)->getTH1F();
+    for (size_t i = 0; i < size_p; ++i) {
+      std::string const & label = tns.getTrigPath(i);
+      path_active_time->GetXaxis()->SetBinLabel(i + 1, label.c_str());
+      path_total_time ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
+    }
+    for (size_t i = 0; i < size_e; ++i) {
+      std::string const & label = tns.getEndPath(i);
+      path_active_time->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
+      path_total_time ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
+    }
 
     if (m_enable_timing_paths) {
       m_dqms->setCurrentFolder((m_dqm_path / "Paths").generic_string());
