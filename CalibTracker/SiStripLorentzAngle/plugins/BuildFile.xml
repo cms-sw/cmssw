@@ -17,6 +17,7 @@
 <use   name="MagneticField/Engine"/>
 <use   name="MagneticField/Records"/>
 <use   name="DataFormats/SiStripCluster"/>
+<use   name="TrackingTools/TrajectoryState"/>
 <use   name="clhep"/>
 <use   name="rootcore"/>
 <use   name="FWCore/Framework"/>

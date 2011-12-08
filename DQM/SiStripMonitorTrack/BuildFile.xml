@@ -12,5 +12,6 @@
 <use   name="DataFormats/RecoCandidate"/>
 <use   name="RecoLocalTracker/SiStripClusterizer"/>
 <use   name="DataFormats/TrackReco"/>
+<use   name="TrackingTools/TrajectoryState"/>
 <use   name="CommonTools/TriggerUtils"/>
 

@@ -3,7 +3,7 @@
 <use   name="RecoVertex/VertexPrimitives"/>
 <use   name="RecoVertex/VertexTools"/>
 <use   name="TrackingTools/PatternTools"/>
-<use   name="TrackingTools/TrajectorySate"/>
+<use   name="TrackingTools/TrajectoryState"/>
 <use   name="TrackingTools/TransientTrack"/>
 <export>
   <lib   name="1"/>
