@@ -10,6 +10,7 @@
 <use   name="CondCore/DBOutputService"/>
 <use   name="CondFormats/PhysicsToolsObjects"/>
 <use   name="CondFormats/DataRecord"/>
+<use   name="TrackingTools/TrajectoryState"/>
 <use   name="PhysicsTools/UtilAlgos"/>
 <use   name="HLTrigger/HLTcore"/>
 <use   name="rootcore"/>
