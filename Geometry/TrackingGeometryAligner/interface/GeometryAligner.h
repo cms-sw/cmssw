@@ -110,35 +110,11 @@ void GeometryAligner::applyAlignments( C* geometry,
 
 	  // Alignment Position Error only if non-zero to save memory
 	  GlobalError error( asSMatrix<3>((*iAlignError).matrix()) );
-	  if ( error.cxx() || error.cyy() || error.czz() ||
-	       error.cyx() || error.czx() || error.czy() ||
-               iGeomDet->alignmentPositionError() ) {
 
-	    // FIXME (AM): The check on the existence of a pointer to an AlignmentPositionError
-	    // in iGoemDet is needed to make sure that a previously set APE is reset to all zeros
-	    // in case the new APE is all zero. Ideally the checking of an all zero value APE
-	    // should go into GeomDet::setAlignmentPositionError.
-	    
-	    // Apply transformation to APE
-	    //
-	    //AlgebraicSymMatrix as(3,0);
-	    //as[0][0] = error.cxx();
-	    //as[1][0] = error.cyx(); as[1][1] = error.cyy();
-	    //as[2][0] = error.czx(); as[2][1] = error.czy(); as[2][2] = error.czz();
-	    
-	    //AlgebraicMatrix am(3,3);
-	    //am[0][0] = globalRotation.xx(); am[0][1] = globalRotation.xy(); am[0][2] = globalRotation.xz();
-	    //am[1][0] = globalRotation.yx(); am[1][1] = globalRotation.yy(); am[1][2] = globalRotation.yz();
-	    //am[2][0] = globalRotation.zx(); am[2][1] = globalRotation.zy(); am[2][2] = globalRotation.zz();
-	    //as = as.similarityT( am );
-	    
-	    //GlobalError newError( as );
-	    //AlignmentPositionError ape( newError );
-
-	    AlignmentPositionError ape( error );
-	    this->setAlignmentPositionError( *iGeomDet, ape );
+	  AlignmentPositionError ape( error );
+	  if (this->setAlignmentPositionError( *iGeomDet, ape ))
 	    ++nAPE;
-	  }
+	  
 	}
 
   edm::LogInfo("Alignment") << "@SUB=GeometryAligner::applyAlignments" 

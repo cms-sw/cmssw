@@ -19,6 +19,11 @@ class AlignmentPositionError {
 
   ~AlignmentPositionError(){};
   
+
+  bool valid() const {
+    return ( theGlobalError.cxx()>0 || theGlobalError.cyy()>0 || theGlobalError.czz()>0 );
+  }
+
   const GlobalError & globalError() const { return theGlobalError; };
 
   AlignmentPositionError operator+ (const AlignmentPositionError& ape) const {

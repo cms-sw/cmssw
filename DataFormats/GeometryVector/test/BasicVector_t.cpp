@@ -12,6 +12,10 @@ void addScaleddiff(Basic3DVectorF&res, float s,  Basic3DVectorF const & a, Basic
   res += s*(a-b);
 } 
 
+void addScaleddiff2(Basic3DVectorF&res, float s,  Basic3DVectorF const & a, Basic3DVectorF const & b) {
+  res = res + s*(a-b);
+}
+
 void addScaleddiff(Basic3DVectorD&res, float s,  Basic3DVectorD const & a, Basic3DVectorD const & b) {
   res += s*(a-b);
 } 

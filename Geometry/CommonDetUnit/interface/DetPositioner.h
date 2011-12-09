@@ -43,9 +43,9 @@ protected:
    *  +=,-=  methods of the AlignmentPositionError
    *  Does not affect the AlignmentPositionError of components (if any).
    */
-  void setAlignmentPositionError (GeomDet& det, 
+  bool setAlignmentPositionError (GeomDet& det, 
 				  const AlignmentPositionError& ape) {
-    det.setAlignmentPositionError( ape);
+    return det.setAlignmentPositionError( ape);
   }
 
   /** set the SurfaceDeformation for this DetUnit.

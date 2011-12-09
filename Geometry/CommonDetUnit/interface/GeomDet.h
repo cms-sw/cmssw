@@ -4,8 +4,6 @@
 /** \class GeomDet
  *  Base class for GeomDetUnit and for composite GeomDet s. 
  *
- *  $Date: 2011/12/08 17:38:36 $
- *  $Revision: 1.14 $
  */
 
 
@@ -76,10 +74,8 @@ public:
   /// Which subdetector
   virtual SubDetector subDetector() const = 0;  
 
-  /// Return pointer to alignment errors. 
-  /// Defaults to "null" if not reimplemented in the derived classes.
-  AlignmentPositionError* alignmentPositionError() const { return theAlignmentPositionError;}
-  LocalError const & localError() const { return theLocalError;}
+  /// Return local alligment error
+  LocalError const & localAlignmentError() const { return theLocalError;}
 
   /// Returns direct components, if any
   virtual std::vector< const GeomDet*> components() const = 0;
@@ -98,7 +94,6 @@ public:
 private:
 
   ReferenceCountingPointer<BoundPlane>  thePlane;
-  AlignmentPositionError*               theAlignmentPositionError;
   LocalError                            theLocalError;
   DetId m_detId;
 
@@ -126,7 +121,7 @@ private:
   /// +=,-=  methods of the AlignmentPositionError
   /// Does not affect the AlignmentPositionError of components (if any).
   
-  void setAlignmentPositionError (const AlignmentPositionError& ape); 
+  bool setAlignmentPositionError (const AlignmentPositionError& ape); 
 
 };
   

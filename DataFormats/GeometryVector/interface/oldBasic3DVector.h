@@ -41,12 +41,12 @@ public:
 
   /// Copy constructor from same type. Should not be needed but for gcc bug 12685
   Basic3DVector( const Basic3DVector & p) : 
-    theX(p.x()), theY(p.y()), theZ(p.z()), theW(0) {}
+    theX(p.x()), theY(p.y()), theZ(p.z()), theW(p.w()) {}
 
   /// Copy constructor and implicit conversion from Basic3DVector of different precision
   template <class U>
   Basic3DVector( const Basic3DVector<U> & p) : 
-    theX(p.x()), theY(p.y()), theZ(p.z()), theW(0) {}
+    theX(p.x()), theY(p.y()), theZ(p.z()), theW(p.w()) {}
 
   /// constructor from 2D vector (X and Y from 2D vector, z set to zero)
   Basic3DVector( const Basic2DVector<T> & p) : 
@@ -73,8 +73,8 @@ public:
 #endif  
 
   /// construct from cartesian coordinates
-  Basic3DVector( const T& x, const T& y, const T& z) : 
-    theX(x), theY(y), theZ(z), theW(0) {}
+  Basic3DVector( const T& x, const T& y, const T& z, const T& w=0) : 
+    theX(x), theY(y), theZ(z), theW(w) {}
 
   /** Deprecated construct from polar coordinates, use 
    *  <BR> Basic3DVector<T>( Basic3DVector<T>::Polar( theta, phi, r))
@@ -95,6 +95,9 @@ public:
 
   /// Cartesian z coordinate
   T z() const { return theZ;}
+
+  T w() const { return theW;}
+
 
   Basic2DVector<T> xy() const { return  Basic2DVector<T>(theX,theY);}
 
@@ -157,6 +160,7 @@ public:
     theX += p.x();
     theY += p.y();
     theZ += p.z();
+    theW += p.w();
     return *this;
   } 
 
@@ -167,6 +171,7 @@ public:
     theX -= p.x();
     theY -= p.y();
     theZ -= p.z();
+    theW -= p.w();
     return *this;
   } 
 
@@ -178,6 +183,7 @@ public:
     theX *= t;
     theY *= t;
     theZ *= t;
+    theW *= t;;
     return *this;
   } 
 
@@ -187,6 +193,7 @@ public:
     theX *= t;
     theY *= t;   
     theZ *= t;
+    theW *= t;;
     return *this;
   } 
 
@@ -254,14 +261,14 @@ template <class T, class U>
 inline Basic3DVector<typename PreciseFloatType<T,U>::Type>
 operator+( const Basic3DVector<T>& a, const Basic3DVector<U>& b) {
   typedef Basic3DVector<typename PreciseFloatType<T,U>::Type> RT;
-  return RT(a.x()+b.x(), a.y()+b.y(), a.z()+b.z());
+  return RT(a.x()+b.x(), a.y()+b.y(), a.z()+b.z(), a.w()+b.w());
 }
 
 template <class T, class U>
 inline Basic3DVector<typename PreciseFloatType<T,U>::Type>
 operator-( const Basic3DVector<T>& a, const Basic3DVector<U>& b) {
   typedef Basic3DVector<typename PreciseFloatType<T,U>::Type> RT;
-  return RT(a.x()-b.x(), a.y()-b.y(), a.z()-b.z());
+  return RT(a.x()-b.x(), a.y()-b.y(), a.z()-b.z(), a.w()-b.w());
 }
 
 /// scalar product of vectors of same precision
@@ -282,13 +289,13 @@ inline typename PreciseFloatType<T,U>::Type operator*( const Basic3DVector<T>& v
  */
 template <class T>
 inline Basic3DVector<T> operator*( const Basic3DVector<T>& v, T t) {
-  return Basic3DVector<T>(v.x()*t, v.y()*t, v.z()*t);
+  return Basic3DVector<T>(v.x()*t, v.y()*t, v.z()*t, v.w()*t);
 }
 
 /// Same as operator*( Vector, Scalar)
 template <class T>
 inline Basic3DVector<T> operator*(T t, const Basic3DVector<T>& v) {
-  return Basic3DVector<T>(v.x()*t, v.y()*t, v.z()*t);
+  return Basic3DVector<T>(v.x()*t, v.y()*t, v.z()*t, v.w()*t);
 }
 
 template <class T, typename S>
