@@ -84,6 +84,9 @@ public:
   // FIXME: must become pure virtual
   virtual const GeomDet* component(DetId /*id*/) const {return 0;}
 
+  /// Return pointer to alignment errors. 
+  AlignmentPositionError* alignmentPositionError() const { return theAlignmentPositionError;}
+
 
   protected:
 
@@ -94,6 +97,7 @@ public:
 private:
 
   ReferenceCountingPointer<BoundPlane>  thePlane;
+  AlignmentPositionError*               theAlignmentPositionError;
   LocalError                            theLocalAlignmentError;
   DetId m_detId;
 

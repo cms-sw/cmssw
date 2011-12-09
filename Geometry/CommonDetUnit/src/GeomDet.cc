@@ -36,6 +36,11 @@ void GeomDet::setPosition( const Surface::PositionType& position,
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 bool GeomDet::setAlignmentPositionError (const AlignmentPositionError& ape) 
 {
+  if (!theAlignmentPositionError) {
+    if (ape.valid()) theAlignmentPositionError = new AlignmentPositionError(ape);
+  } 
+  else *theAlignmentPositionError = ape;
+
   theLocalAlignmentError = ape.valid() ?
     ErrorFrameTransformer().transform( ape.globalError(),
                                        surface()
