@@ -227,4 +227,4 @@ create table INTGLUMI(
   startrun uint32,
   intglumi float
 )
-create table INTGLUMI(RUNNUM NUMBER(10),STARTRUN NUMBER(10), INTGLUMI BINARY_FLOAT constraint PK_INTGKUMI primary key(RUNNUM,STARTRUN));
+create table INTGLUMI(RUNNUM NUMBER(10),STARTRUN NUMBER(10), INTGLUMI BINARY_FLOAT , constraint PK_INTGLUMI primary key(RUNNUM,STARTRUN));
