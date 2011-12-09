@@ -339,7 +339,7 @@ step1['Z2Jets_Pt-0To100_TuneZ2_7TeV_alpgen_tauola']=genvalid('Hadronizer_Et20Exc
 step1['Z3Jets-Pt_0To100_TuneZ2_7TeV_alpgen_tauola']=genvalid('Hadronizer_Et20ExclTuneZ2_7TeV_alpgen_tauola_cff',step1GenDefaults,'dy',443)
 step1['ZJetsLNu_Tune4C_7TeV_madgraph-pythia8']=genvalid('Hadronizer_MgmMatchTune4C_7TeV_madgraph_pythia8_cff',step1GenDefaults,'dy',2925)
 
-PU={'--pileup':'E7TeV_FlatDist10_2011EarlyData_50ns_PoissonOOT','--pileup_input':'dbs:/RelValMinBias/CMSSW_5_0_0_pre4-START50_V3-v1/GEN-SIM-DIGI-RAW-HLTDEBUG'}
+PU={'--pileup':'E7TeV_FlatDist10_2011EarlyData_50ns_PoissonOOT','--pileup_input':'dbs:/RelValProdMinBias/CMSSW_5_0_0_pre6-START50_V5-v1/GEN-SIM-RAW'}
 step1['ZmumuJets_Pt_20_300PU1']=merge([gen('ZmumuJets_Pt_20_300_GEN_7TeV_cfg',K250by100),PU])
 step1['TTbarPU2']=merge([step1['TTbar'],PU])
 
