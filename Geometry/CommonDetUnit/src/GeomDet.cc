@@ -3,12 +3,12 @@
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 
 GeomDet::GeomDet( BoundPlane* plane):
-  thePlane(plane), theLocalAlignmentError(InvalidError()) {}
+  thePlane(plane), theAlignmentPositionError(0), theLocalAlignmentError(InvalidError()) {}
 
 GeomDet::GeomDet( const ReferenceCountingPointer<BoundPlane>& plane) :
-  thePlane(plane), theLocalAlignmentError(InvalidError()) {}
+  thePlane(plane), theAlignmentPositionError(0), theLocalAlignmentError(InvalidError()) {}
 
-GeomDet::~GeomDet() {}
+GeomDet::~GeomDet() {delete theAlignmentPositionError;}
 
 void GeomDet::move( const GlobalVector& displacement)
 {
