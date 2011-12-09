@@ -75,7 +75,7 @@ public:
   virtual SubDetector subDetector() const = 0;  
 
   /// Return local alligment error
-  LocalError const & localAlignmentError() const { return theLocalError;}
+  LocalError const & localAlignmentError() const { return theLocalAlignmentError;}
 
   /// Returns direct components, if any
   virtual std::vector< const GeomDet*> components() const = 0;
