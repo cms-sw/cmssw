@@ -12,7 +12,7 @@
 class LocalError {
 public:
   LocalError() : thexx(0), thexy(0), theyy(0) {}
-  LocalError(InvalidError) : thexx(-1.f), thexy(0), theyy(-1.f) {}
+  LocalError(InvalidError) : thexx(-99999.f), thexy(0), theyy(-99999.f) {}
 
   LocalError( float xx, float xy, float yy) :
     thexx(xx), thexy(xy), theyy(yy) {}
