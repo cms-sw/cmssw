@@ -339,10 +339,9 @@ step1['Z2Jets_Pt-0To100_TuneZ2_7TeV_alpgen_tauola']=genvalid('Hadronizer_Et20Exc
 step1['Z3Jets-Pt_0To100_TuneZ2_7TeV_alpgen_tauola']=genvalid('Hadronizer_Et20ExclTuneZ2_7TeV_alpgen_tauola_cff',step1GenDefaults,'dy',443)
 step1['ZJetsLNu_Tune4C_7TeV_madgraph-pythia8']=genvalid('Hadronizer_MgmMatchTune4C_7TeV_madgraph_pythia8_cff',step1GenDefaults,'dy',2925)
 
-#PU1={'--pileup':'E7TeV_FlatDist10_2011EarlyData_inTimeOnly'}
-PU1={'--pileup':'E7TeV_FlatDist10_2011EarlyData_50ns_PoissonOOT'}
-step1['ZmumuJets_Pt_20_300PU1']=merge([gen('ZmumuJets_Pt_20_300_GEN_7TeV_cfg',K250by100),PU1])
-step1['TTbarPU2']=merge([step1['TTbar'],PU1])
+PU={'--pileup':'E7TeV_FlatDist10_2011EarlyData_50ns_PoissonOOT','--pileup_input':'dbs:/RelValMinBias/CMSSW_5_0_0_pre4-START50_V3-v1/GEN-SIM-DIGI-RAW-HLTDEBUG'}
+step1['ZmumuJets_Pt_20_300PU1']=merge([gen('ZmumuJets_Pt_20_300_GEN_7TeV_cfg',K250by100),PU])
+step1['TTbarPU2']=merge([step1['TTbar'],PU])
 
 step1['TTbarFSPU']=merge([{'--pileup':'FlatDist10_2011EarlyData_50ns'},step1['TTbarFS']])
 ##########################
@@ -366,7 +365,7 @@ step2['DIGI']=merge([step2Defaults,step2DropSchemaNoPU])
 #step2['DIGI2']=merge([stCond,step2Defaults,step2DropSchemaNoPU])
 step2['DIGICOS']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW'},stCond,step2Defaults,step2DropSchemaNoPU])
 
-step2['DIGIPU1']=merge([step2Defaults,PU1])
+step2['DIGIPU1']=merge([step2Defaults,PU])
 
 step2['DIGIHI']=merge([{'--inputCommands':'"keep *","drop *_simEcalPreshowerDigis_*_*"','-n':10},hiDefaults,step2Defaults])
 
@@ -454,7 +453,7 @@ step3['RECOCOS']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu,DQM',
 step3['RECOMIN']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiStripCalMinBias+EcalCalPhiSym+EcalCalPi0Calib+EcalCalEtaCalib,VALIDATION,DQM'},stCond,step3Defaults])
 step3['RECOQCD']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:@QCD,VALIDATION,DQM'},stCond,step3Defaults])
 
-step3['RECOPU1']=merge([step3['RECO'],PU1])
+step3['RECOPU1']=merge([step3['RECO'],PU])
 
 step3['RECOHI']=merge([hiDefaults,step3Defaults])
 step3['DIGIHISt3']=step2['DIGIHI']
