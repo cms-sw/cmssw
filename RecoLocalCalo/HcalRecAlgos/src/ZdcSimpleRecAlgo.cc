@@ -13,6 +13,7 @@ ZdcSimpleRecAlgo::ZdcSimpleRecAlgo(bool correctForTimeslew, bool correctForPulse
   recoMethod_(recoMethod),
   correctForTimeslew_(correctForTimeslew),
   correctForPulse_(correctForPulse),
+  phaseNS_(phaseNS),
   lowGainOffset_(lowGainOffset),
   lowGainFrac_(lowGainFrac)
   {
