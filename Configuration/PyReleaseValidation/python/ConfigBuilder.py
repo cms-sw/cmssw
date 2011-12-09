@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.343 $"
+__version__ = "$Revision: 1.344 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -553,7 +553,7 @@ class ConfigBuilder(object):
 		mixingDict.pop('file')
 		if self._options.pileup_input:
 			if self._options.pileup_input.startswith('dbs'):
-				mixingDict['F']=','.join(filesFromDBSQuery('find file where dataset = %s'%(self._options.pileup_input[4:],))[0])
+				mixingDict['F']=filesFromDBSQuery('find file where dataset = %s'%(self._options.pileup_input[4:],))[0]
 			else:
 				mixingDict['F']=self._options.pileup_input.split(',')
 		specialization=defineMixing(mixingDict,'FASTSIM' in self.stepMap)
@@ -1602,7 +1602,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.343 $"),
+                                            (version=cms.untracked.string("$Revision: 1.344 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
