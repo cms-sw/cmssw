@@ -14,7 +14,7 @@ def parselumifile(ifilename):
                 runnumber=int(runnumber)
             except ValueError:
                 continue
-            delivered=float(row[3])
+            delivered=float(row[2])
             result.append((runnumber,delivered))
     except Exception,e:
         raise RuntimeError(str(e))
@@ -33,7 +33,7 @@ def lumiuptorun(irunlumi):
     return intlumiuptorun
 
 if __name__=='__main__':
-   irunlumimap= parselumifile('/afs/cern.ch/cms/lumi/www/publicplots/totallumivstime-2011.csv')
+   irunlumimap= parselumifile('/afs/cern.ch/cms/lumi/pp7TeVstable-2011delivered-zerocorrection.csv')
    intlumitorun=lumiuptorun(irunlumimap)
    print intlumitorun
 
