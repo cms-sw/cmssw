@@ -1,4 +1,4 @@
-// $Id: EGEnergyCorrector.cc,v 1.4 2011/12/03 18:31:17 bendavid Exp $
+// $Id: EGEnergyCorrector.cc,v 1.5 2011/12/05 13:12:12 bendavid Exp $
 
 #include <TFile.h>
 #include "../interface/EGEnergyCorrector.h"
@@ -11,6 +11,7 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
 using namespace reco;
 
