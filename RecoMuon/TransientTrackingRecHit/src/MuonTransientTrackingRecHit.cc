@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/07/03 10:08:58 $
- *  $Revision: 1.13 $
+ *  $Date: 2007/07/19 15:53:25 $
+ *  $Revision: 1.14 $
  */
 
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
@@ -58,9 +58,8 @@ AlgebraicSymMatrix MuonTransientTrackingRecHit::parametersError() const {
   
   AlgebraicSymMatrix err = GenericTransientTrackingRecHit::parametersError();
  
-  if (det()->alignmentPositionError() != 0) {
-
-    LocalError lape = ErrorFrameTransformer().transform(det()->alignmentPositionError()->globalError(), det()->surface());
+    LocalError lape = det()->localAlignmentError();
+    if (lape.valid()) {
 
     // Just for speed up the code, the "else" branch can handle also the case of dim = 1.
     if(err.num_row() == 1) err[0][0] += lape.xx();
