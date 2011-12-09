@@ -1,5 +1,38 @@
 import os,coral,re
 from RecoLuminosity.LumiDB import nameDealer
+def driftcorrection(schema,runnum,startrun=160403):
+    '''
+    select intglumi from intglumi where runnum=:runnum and startrun=:startrun
+    output: dritcorrection for this run
+    '''
+    result=1.0
+    lint=0.0
+    qHandle=schema.newQuery()
+    intglumi=0.0
+    try:
+        qHandle.addToTableList('INTGLUMI')
+        qResult=coral.AttributeList()
+        qResult.extend('INTGLUMI','float')
+        qHandle.addToOutputList('INTGLUMI')
+        qConditionStr='RUNNUM=:runnum AND STARTRUN=:startrun'
+        qCondition=coral.AttributeList()
+        qCondition.extend('runnum','unsigned int')
+        qCondition.extend('startrun','unsigned int')
+        qCondition['runnum'].setData(int(runnum))
+        qCondition['startrun'].setData(int(startrun))
+        qHandle.setCondition(qConditionStr,qCondition)
+        qHandle.defineOutput(qResult)
+        cursor=qHandle.execute()
+        while cursor.next():
+            intglumi=cursor.currentRow()['INTGLUMI'].data()
+        lint=intglumi*1.0e-9 #(convert to /fb)
+    except :
+        del qHandle
+        raise
+    del qHandle
+    result=result+0.01258*lint
+    #print 'lint ',lint,' result ',result
+    return result
 def applyfinecorrectionBX(bxlumi,avglumi,norm,constfactor,afterglowfactor,nonlinearfactor):
     if bxlumi<=0:
         return bxlumi
@@ -120,13 +153,16 @@ def afterglowByFillscheme(fillscheme,afterglowPatterns):
 
 if __name__ == "__main__":
     import sessionManager
-    myconstr='oracle://cms_orcoff_prod/cms_lumi_prod'
+    #myconstr='oracle://cms_orcoff_prod/cms_lumi_prod'
+    myconstr='oracle://cms_orcoff_prep/cms_lumi_dev_offline'
     svc=sessionManager.sessionManager(myconstr,authpath='/afs/cern.ch/user/x/xiezhen',debugON=False)
-    session=svc.openSession(isReadOnly=False,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
-    runrange=[163337,163387,163385,163664,163757,163269,1234,152611]
+    session=svc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
+    #runrange=[163337,163387,163385,163664,163757,163269,1234,152611]
     schema=session.nominalSchema()
     session.transaction().start(True)
-    result=correctionsForRange(schema,runrange)
+    driftcorrection(schema,160467)
+    #result=correctionsForRange(schema,runrange)
     session.transaction().commit()
     del session
-    print result
+    #print result
+    
