@@ -4,9 +4,6 @@
 
 // boost headers
 #include <boost/foreach.hpp>
-// for forward compatibility with boost 1.47
-#define BOOST_FILESYSTEM_VERSION 3
-#include <boost/filesystem/path.hpp>
 
 // Root headers
 #include <TH1F.h>
@@ -34,7 +31,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-  boost::filesystem::path   m_dqm_path;
+  std::string m_dqm_path;
 
   void analyze(const edm::Event & event, const edm::EventSetup & setup);
   void beginJob();
@@ -83,23 +80,23 @@ FastTimerServiceClient::endRun(edm::Run const & run, edm::EventSetup const & set
     return;
   
   MonitorElement * me;
-  me = dqm->get( (m_dqm_path / "event").generic_string() );
+  me = dqm->get(m_dqm_path + "/event");
   if (me == 0)
     // no FastTimerService DQM information
     return;
   double events = me->getTH1F()->GetEntries();
 
   // fill summary histograms with the average (total and active) time spent in each path
-  dqm->setCurrentFolder(m_dqm_path.generic_string());
-  TH1F * path_active = dqm->get((m_dqm_path / "path_active_time").generic_string())->getTH1F();
-  TH1F * path_total  = dqm->get((m_dqm_path / "path_total_time").generic_string())->getTH1F();
+  dqm->setCurrentFolder(m_dqm_path);
+  TH1F * path_active = dqm->get(m_dqm_path + "/path_active_time")->getTH1F();
+  TH1F * path_total  = dqm->get(m_dqm_path + "/path_total_time")->getTH1F();
   size_t size = path_total->GetXaxis()->GetNbins();
   for (size_t i = 0; i < size; ++i) {
     // extract the list of Paths and EndPaths from the bin labels of "path_total_time"
     std::string label = path_total->GetXaxis()->GetBinLabel(i+1);   // bin count from 1 (bin 0 is underflow)
-    if (( me = dqm->get( (m_dqm_path / "Paths" / (label + "_total")).generic_string() ) ))
+    if (( me = dqm->get(m_dqm_path + "/Paths/" + label + "_total") ))
       path_total ->Fill(i, me->getTH1F()->GetMean());
-    if (( me = dqm->get( (m_dqm_path / "Paths" / (label + "_active")).generic_string() ) ))
+    if (( me = dqm->get(m_dqm_path + "/Paths/" + label + "_active") ))
       path_active->Fill(i, me->getTH1F()->GetMean());
   }
 
@@ -107,12 +104,12 @@ FastTimerServiceClient::endRun(edm::Run const & run, edm::EventSetup const & set
   //  - the average time spent in each module (total time spent in that module, averaged over all events)
   //  - the running time spent in each module (total time spent in that module, averaged over the events where that module actually ran)
   //  - the "efficiency" of each module (number of time a module succeded divided by the number of times the has run)
-  dqm->setCurrentFolder((m_dqm_path / "Paths").generic_string());
+  dqm->setCurrentFolder(m_dqm_path + "/Paths");
   for (size_t p = 1; p <= size; ++p) {
     // extract the list of Paths and EndPaths from the bin labels of "path_total_time"
     std::string label = path_total->GetXaxis()->GetBinLabel(p);
-    TH1F * counter = dqm->get( (m_dqm_path / "Paths" / (label+"_module_counter")).generic_string() )->getTH1F();
-    TH1F * total   = dqm->get( (m_dqm_path / "Paths" / (label+"_module_total"  )).generic_string() )->getTH1F();
+    TH1F * counter = dqm->get( m_dqm_path + "/Paths/" + label + "_module_counter" )->getTH1F();
+    TH1F * total   = dqm->get( m_dqm_path + "/Paths/" + label + "_module_total"   )->getTH1F();
     if (counter == 0 or total == 0)
       continue;
     size_t bins = counter->GetXaxis()->GetNbins();

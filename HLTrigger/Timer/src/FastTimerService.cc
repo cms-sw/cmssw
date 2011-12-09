@@ -153,17 +153,18 @@ void FastTimerService::postBeginJob() {
       // etc.
 
       // assume the path to be relative, and to have at least an item
-      boost::filesystem::path::iterator item = m_dqm_path.begin();
+      boost::filesystem::path dqm_path(m_dqm_path);
+      boost::filesystem::path::iterator item = dqm_path.begin();
       boost::filesystem::path path = * item++;
       path /= "EventInfo";
-      while (item != m_dqm_path.end())
+      while (item != dqm_path.end())
         path /= * item++;
-      m_dqm_path = path;
+      m_dqm_path = path.generic_string();
     }
 
     // book MonitorElement's
     int bins = (int) std::ceil(m_dqm_time_range / m_dqm_time_resolution);
-    m_dqms->setCurrentFolder(m_dqm_path.generic_string());
+    m_dqms->setCurrentFolder(m_dqm_path);
     m_dqm_event         = m_dqms->book1D("event",        "Event",    bins, 0., m_dqm_time_range)->getTH1F();
     m_dqm_event         ->StatOverflows(true);
     m_dqm_source        = m_dqms->book1D("source",       "Source",   bins, 0., m_dqm_time_range)->getTH1F();
@@ -190,7 +191,7 @@ void FastTimerService::postBeginJob() {
     }
 
     if (m_enable_timing_paths) {
-      m_dqms->setCurrentFolder((m_dqm_path / "Paths").generic_string());
+      m_dqms->setCurrentFolder((m_dqm_path + "/Paths"));
       BOOST_FOREACH(PathMap<PathInfo>::value_type & keyval, m_paths) {
         std::string const & pathname = keyval.first;
         PathInfo          & pathinfo = keyval.second;
@@ -200,7 +201,7 @@ void FastTimerService::postBeginJob() {
     }
 
     if (m_enable_timing_modules) {
-      m_dqms->setCurrentFolder((m_dqm_path / "Modules").generic_string());
+      m_dqms->setCurrentFolder((m_dqm_path + "/Modules"));
       BOOST_FOREACH(ModuleMap<ModuleInfo>::value_type & keyval, m_modules) {
         std::string const & label  = keyval.first->moduleLabel();
         ModuleInfo        & module = keyval.second;
@@ -210,7 +211,7 @@ void FastTimerService::postBeginJob() {
     }
 
     if (m_enable_timing_paths and m_enable_timing_modules) {
-      m_dqms->setCurrentFolder((m_dqm_path / "Paths").generic_string());
+      m_dqms->setCurrentFolder((m_dqm_path + "/Paths"));
       BOOST_FOREACH(PathMap<PathInfo>::value_type & keyval, m_paths) {
         std::string const & pathname = keyval.first;
         PathInfo          & pathinfo = keyval.second;
