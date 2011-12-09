@@ -97,4 +97,66 @@ namespace edm {
     delete poissonDistr_OOT_ ;
   }
 
+  void PileUp::CalculatePileup(int MinBunch, int MaxBunch, std::vector<int>& PileupSelection, std::vector<float>& TrueNumInteractions) {
+
+    // if we are managing the distribution of out-of-time pileup separately, select the distribution for bunch
+    // crossing zero first, save it for later.
+
+    int nzero_crossing = -1;
+    double Fnzero_crossing = -1;
+
+    if(manage_OOT_) {
+      if (none_){
+	nzero_crossing = 0;
+      }else if (poisson_){
+	nzero_crossing =  poissonDistribution_->fire() ;
+      }else if (fixed_){
+	nzero_crossing =  intAverage_ ;
+      }else if (histoDistribution_ || probFunctionDistribution_){
+	double d = histo_->GetRandom();
+	//n = (int) floor(d + 0.5);  // incorrect for bins with integer edges
+	Fnzero_crossing =  d;
+      }
+
+    }
+
+    for(int bx = MinBunch; bx < MaxBunch+1; ++bx) {
+
+      if(manage_OOT_) {
+	if(bx==0 && !poisson_OOT_) { 
+	  PileupSelection.push_back(nzero_crossing) ;
+	  TrueNumInteractions.push_back( nzero_crossing );
+	}
+	else{
+	  if(poisson_OOT_) {
+	    PileupSelection.push_back(poissonDistr_OOT_->fire(Fnzero_crossing)) ;
+	    TrueNumInteractions.push_back( Fnzero_crossing );
+	  }
+	  else {
+	    PileupSelection.push_back(intFixed_OOT_) ;
+	    TrueNumInteractions.push_back( intFixed_OOT_ );
+	  }  
+	}
+      }
+      else {
+	if (none_){
+	  PileupSelection.push_back(0);
+	  TrueNumInteractions.push_back( 0. );
+	}else if (poisson_){
+	  PileupSelection.push_back(poissonDistribution_->fire());
+	  TrueNumInteractions.push_back( averageNumber_ );
+	}else if (fixed_){
+	  PileupSelection.push_back(intAverage_);
+	  TrueNumInteractions.push_back( intAverage_ );
+	}else if (histoDistribution_ || probFunctionDistribution_){
+	  double d = histo_->GetRandom();
+	  PileupSelection.push_back(int(d));
+	  TrueNumInteractions.push_back( d );
+	}
+      }
+    
+    }
+  }
+
+
 } //namespace edm

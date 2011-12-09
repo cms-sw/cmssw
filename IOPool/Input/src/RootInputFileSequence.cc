@@ -163,6 +163,20 @@ namespace edm {
     }
     closeFile_();
 
+    // Check if the logical file name was found.
+    if(fileIter_->fileName().empty()) {
+      // LFN not found in catalog.
+      InputFile::reportSkippedFile(fileIter_->fileName(), fileIter_->logicalFileName());
+      if(!skipBadFiles) {
+        throw cms::Exception("LogicalFileNameNotFound", "RootInputFileSequence::initFile()\n")
+          << "Logical file name '" << fileIter_->logicalFileName() << "' was not found in the file catalog.\n"
+          << "If you wanted a local file, you forgot the 'file:' prefix\n"
+          << "before the file name in your configuration file.\n";
+      }
+      LogWarning("") << "Input logical file: " << fileIter_->logicalFileName() << " was not found in the catalog, and will be skipped.\n";
+      return;
+    }
+
     // Determine whether we have a fallback URL specified; if so, prepare it;
     // Only valid if it is non-empty and differs from the original filename.
     std::string fallbackName = fileIter_->fallbackFileName();
@@ -175,7 +189,8 @@ namespace edm {
       filePtr.reset(new InputFile(gSystem->ExpandPathName(fileIter_->fileName().c_str()), "  Initiating request to open file "));
     }
     catch (cms::Exception const& e) {
-      if(!skipBadFiles  && !hasFallbackUrl) {
+      if(!skipBadFiles && !hasFallbackUrl) {
+        InputFile::reportSkippedFile(fileIter_->fileName(), fileIter_->logicalFileName());
         Exception ex(errors::FileOpenError, "", e);
         ex.addContext("Calling RootInputFileSequence::initFile()");
         ex.clearMessage();
@@ -191,6 +206,7 @@ namespace edm {
       }
       catch (cms::Exception const& e) {
         if(!skipBadFiles) {
+          InputFile::reportSkippedFile(fileIter_->fileName(), fileIter_->logicalFileName());
           Exception ex(errors::FileOpenError, "", e);
           ex.addContext("Calling RootInputFileSequence::initFile()");
           ex.clearMessage();
@@ -225,6 +241,7 @@ namespace edm {
       }
       rootFile_->reportOpened(inputType);
     } else {
+      InputFile::reportSkippedFile(fileIter_->fileName(), fileIter_->logicalFileName());
       if(!skipBadFiles) {
         throw Exception(errors::FileOpenError) <<
            "RootInputFileSequence::initFile(): Input file " << fileIter_->fileName() << " was not found or could not be opened.\n";

@@ -13,7 +13,9 @@ allConversions = cms.EDProducer('ConversionProducer',
 
     primaryVertexProducer = cms.string('offlinePrimaryVerticesWithBS'),
 
-    HalfwayEta = cms.double(.1),# Track pairing search range on Eta
+    deltaEta = cms.double(0.4), #track pair search range in eta (applied even in case of preselection bypass)
+
+    HalfwayEta = cms.double(.1),# Track-bc matching search range on Eta
     maxNumOfTrackInPU =  cms.int32(999999),
     maxTrackRho =  cms.double(120.),
     maxTrackZ =  cms.double(300.),                                    
@@ -48,7 +50,7 @@ allConversions = cms.EDProducer('ConversionProducer',
     
     AllowD0 = cms.bool(True), #Allow d0*charge cut
     AllowDeltaPhi = cms.bool(False),
-    AllowTrackBC = cms.bool(True), #Allow to match track-basic cluster
+    AllowTrackBC = cms.bool(False), #Allow to match track-basic cluster
     AllowDeltaCot = cms.bool(True), #Allow pairing using delta cot theta cut
     AllowMinApproach = cms.bool(True), #Allow pairing using min approach cut
     AllowOppCharge = cms.bool(True), #use opposite charge tracks to pair

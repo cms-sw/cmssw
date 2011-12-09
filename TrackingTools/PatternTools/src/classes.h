@@ -57,16 +57,6 @@ namespace {
     TrackVtxConstraintAssociationRefProd ii5;
     TrackVtxConstraintAssociationRefVector ii6;
   
-    std::vector<TrackParamConstraint> jjj2;
-    edm::Wrapper<std::vector<TrackParamConstraint> > jjj3;
-  
-    TrackParamConstraintAssociationCollection iii1;
-    edm::Wrapper<TrackParamConstraintAssociationCollection> iii2;
-    TrackParamConstraintAssociation iii3;
-    TrackParamConstraintAssociationRef iii4;
-    TrackParamConstraintAssociationRefProd iii5;
-    TrackParamConstraintAssociationRefVector iii6;
-
     edm::helpers::KeyVal<edm::RefProd<std::vector<Trajectory> >,edm::RefProd<std::vector<Trajectory> > > x1;
     edm::AssociationMap<edm::OneToOne<std::vector<Trajectory>,std::vector<Trajectory>,unsigned int> > x2;
     edm::Wrapper<edm::AssociationMap<edm::OneToOne<std::vector<Trajectory>,std::vector<Trajectory>,unsigned int> > > x3;

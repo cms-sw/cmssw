@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# last update: $Date: 2010/09/28 10:40:17 $ by $Author: argiro $
+# last update: $Date: 2011/10/11 12:42:35 $ by $Author: cerminar $
 
 # AlCaReco sequence definitions:
 
@@ -74,7 +74,7 @@ from CalibMuon.RPCCalibration.ALCARECORpcCalHLT_cff import *
 ###############################################################
 # DT calibration
 ###############################################################
-from CalibMuon.DTCalibration.ALCARECODtCalib_cff import *
+from CalibMuon.DTCalibration.ALCARECODtCalibHI_cff import *
 
 
 ###############################################################
@@ -88,7 +88,7 @@ from Alignment.CommonAlignmentProducer.ALCARECOMuAlBeamHaloOverlaps_cff import *
 ###############################################################
 # stream for prompt-calibration @ Tier0
 ###############################################################
-from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProd_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdHI_cff import *
 
 
 
@@ -119,7 +119,7 @@ pathALCARECOMuAlCalIsolatedMu = cms.Path(seqALCARECOMuAlCalIsolatedMu*ALCARECOMu
 pathALCARECOMuAlZMuMu = cms.Path(seqALCARECOMuAlZMuMu*ALCARECOMuAlZMuMuDQM)
 pathALCARECOMuAlOverlaps = cms.Path(seqALCARECOMuAlOverlaps*ALCARECOMuAlOverlapsDQM)
 pathALCARECORpcCalHLT = cms.Path(seqALCARECORpcCalHLT)
-pathALCARECODtCalib = cms.Path(seqALCARECODtCalib*ALCARECODTCalibSynchDQM)
+pathALCARECODtCalibHI = cms.Path(seqALCARECODtCalibHI*ALCARECODTCalibSynchDQM)
 pathALCARECOTkAlBeamHalo = cms.Path(seqALCARECOTkAlBeamHalo*ALCARECOTkAlBeamHaloDQM)
 pathALCARECOMuAlBeamHaloOverlaps = cms.Path(seqALCARECOMuAlBeamHaloOverlaps*ALCARECOMuAlBeamHaloOverlapsDQM)
 pathALCARECOMuAlBeamHalo = cms.Path(seqALCARECOMuAlBeamHalo*ALCARECOMuAlBeamHaloDQM)
@@ -320,12 +320,12 @@ ALCARECOStreamRpcCalHLT = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECOStreamDtCalib = cms.FilteredStream(
-	responsible = 'Mario Pelliccioni',
-	name = 'DtCalib',
-	paths  = (pathALCARECODtCalib),
-	content = OutALCARECODtCalib.outputCommands,
-	selectEvents = OutALCARECODtCalib.SelectEvents,
+ALCARECOStreamDtCalibHI = cms.FilteredStream(
+	responsible = 'Antonio Vileila',
+	name = 'DtCalibHI',
+	paths  = (pathALCARECODtCalibHI),
+	content = OutALCARECODtCalibHI.outputCommands,
+	selectEvents = OutALCARECODtCalibHI.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 

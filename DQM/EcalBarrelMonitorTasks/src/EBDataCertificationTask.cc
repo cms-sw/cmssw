@@ -1,8 +1,8 @@
 /*
  * \file EBDataCertificationTask.cc
  *
- * $Date: 2010/08/30 13:14:07 $
- * $Revision: 1.27 $
+ * $Date: 2011/08/30 09:30:32 $
+ * $Revision: 1.29 $
  * \author E. Di Marco
  *
 */
@@ -59,26 +59,26 @@ EBDataCertificationTask::~EBDataCertificationTask() {
 
 void EBDataCertificationTask::beginJob(void){
 
-  char histo[200];
+  std::string name;
 
   if ( dqmStore_ ) {
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo");
 
-    sprintf(histo, "CertificationSummary");
-    meEBDataCertificationSummary_ = dqmStore_->bookFloat(histo);
+    name = "CertificationSummary";
+    meEBDataCertificationSummary_ = dqmStore_->bookFloat(name);
     meEBDataCertificationSummary_->Fill(-1.0);
 
-    sprintf(histo, "CertificationSummaryMap");
-    meEBDataCertificationSummaryMap_ = dqmStore_->book2D(histo,histo, 72, 0., 72., 34, 0., 34.);
+    name = "CertificationSummaryMap";
+    meEBDataCertificationSummaryMap_ = dqmStore_->book2D(name, name, 72, 0., 72., 34, 0., 34.);
     meEBDataCertificationSummaryMap_->setAxisTitle("jphi", 1);
     meEBDataCertificationSummaryMap_->setAxisTitle("jeta", 2);
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/CertificationContents");
 
     for (int i = 0; i < 36; i++) {
-      sprintf(histo, "EcalBarrel_%s", Numbers::sEB(i+1).c_str());
-      meEBDataCertification_[i] = dqmStore_->bookFloat(histo);
+      name = "EcalBarrel_" + Numbers::sEB(i+1);
+      meEBDataCertification_[i] = dqmStore_->bookFloat(name);
       meEBDataCertification_[i]->Fill(-1.0);
     }
 
@@ -157,10 +157,8 @@ void EBDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
 
     me = dqmStore_->get((prefixME_ + "/EventInfo/reportSummary"));
     if( me ) me->Fill(totDQMVal);
-    char histo[200];
     for ( int i=0; i<36; i++) {
-      sprintf(histo, "EcalBarrel_%s", Numbers::sEB(i+1).c_str());
-      me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
+      me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/EcalBarrel_" + Numbers::sEB(i+1) ) ;
       if( me ) me->Fill(DQMVal[i]);
 
       me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");

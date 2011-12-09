@@ -54,6 +54,9 @@ private:
   MonitorElement* hCT_hadEt_ieta_iphi;
   MonitorElement* hCT_outerEt_ieta_iphi;
   MonitorElement* hCT_Occ_ieta_iphi;
+  MonitorElement* hCT_Occ_EM_Et_ieta_iphi;
+  MonitorElement* hCT_Occ_HAD_Et_ieta_iphi;
+  MonitorElement* hCT_Occ_Outer_Et_ieta_iphi;
   MonitorElement* hCT_etvsieta;
   MonitorElement* hCT_Minetvsieta;
   MonitorElement* hCT_Maxetvsieta;

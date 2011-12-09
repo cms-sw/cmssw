@@ -1,7 +1,6 @@
 <flags   GENREFLEX_ARGS="--"/>
 <use   name="CondFormats/Common"/>
 <use   name="FWCore/Utilities"/>
-<use   name="CoralBase"/>
 <use   name="rootrflx"/>
 <export>
   <lib   name="1"/>

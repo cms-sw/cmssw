@@ -26,5 +26,5 @@ namespace cond {
     else m_comment = icomment;
     return m_revision;
   }
-    
+
 }

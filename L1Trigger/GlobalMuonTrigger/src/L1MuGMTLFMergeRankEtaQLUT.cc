@@ -3,8 +3,8 @@
 //   Class: L1MuGMTLFMergeRankEtaQLUT
 //
 // 
-//   $Date: 2007/04/02 15:45:38 $
-//   $Revision: 1.3 $
+//   $Date: 2010/03/19 14:33:15 $
+//   $Revision: 1.4 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -74,6 +74,8 @@ unsigned L1MuGMTLFMergeRankEtaQLUT::TheLookupFunction (int idx, unsigned eta, un
 
   // use local quality as rank
   unsigned rank_etaq = q;
+  // add 1 to RPC in order to promote it in case of equality (should go with the fix in L1MuGMTMerger.cc)
+  if( idx==1 || idx==3 ) rank_etaq++;
   // in the overlap region promote RPC
   if( (idx==1 || idx==3) && (fabs(etaValue)>1. && fabs(etaValue)<1.23) ) rank_etaq=7;
 

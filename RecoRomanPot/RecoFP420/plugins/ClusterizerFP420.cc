@@ -23,10 +23,11 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 //#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
+
 #include "RecoRomanPot/RecoFP420/interface/ClusterizerFP420.h"
 #include "DataFormats/FP420Digi/interface/DigiCollectionFP420.h"
 #include "DataFormats/FP420Cluster/interface/ClusterCollectionFP420.h"
-//#include "RecoRomanPot/RecoFP420/interface/ClusterNoiseFP420.h"
+#include "RecoRomanPot/RecoFP420/interface/ClusterNoiseFP420.h"
 
 //Random Number
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -36,12 +37,13 @@
 
 #include <cstdlib> 
 #include <iostream> 
-
 using namespace std;
+
 namespace cms
 {
   ClusterizerFP420::ClusterizerFP420(const edm::ParameterSet& conf):
     conf_(conf) {
+    
     
     std::string alias ( conf.getParameter<std::string>("@module_label") );
     
@@ -49,28 +51,18 @@ namespace cms
     
     trackerContainers.clear();
     trackerContainers = conf.getParameter<std::vector<std::string> >("ROUList");
-    //    
+    
     verbosity = conf_.getUntrackedParameter<int>("VerbosityLevel");
-    //
     dn0   = conf_.getParameter<int>("NumberFP420Detectors");
     sn0   = conf_.getParameter<int>("NumberFP420Stations");
     pn0 = conf_.getParameter<int>("NumberFP420SPlanes");
     rn0 = 7;
-    //
-    dh0   = conf_.getParameter<int>("NumberHPS240Detectors");
-    sh0   = conf_.getParameter<int>("NumberHPS240Stations");
-    ph0 = conf_.getParameter<int>("NumberHPS240SPlanes");
-    rh0 = 7;
-    //
-    //
     if (verbosity > 0) {
       std::cout << "Creating a ClusterizerFP420" << std::endl;
       std::cout << "ClusterizerFP420: dn0=" << dn0 << " sn0=" << sn0 << " pn0=" << pn0 <<  " rn0=" << rn0 << std::endl;
-      std::cout << "ClusterizerFP420: dh0=" << dh0 << " sh0=" << sh0 << " ph0=" << ph0 <<  " rh0=" << rh0 << std::endl;
     }
     
-    sClusterizerFP420_ = new FP420ClusterMain(conf_,dn0,sn0,pn0,rn0,dh0,sh0,ph0,rh0);
-
+    sClusterizerFP420_ = new FP420ClusterMain(conf_,dn0,sn0,pn0,rn0);
   }
   
   // Virtual destructor needed.
@@ -97,6 +89,8 @@ namespace cms
     // 	  std::cout << "detid " <<  detid << " # Electrode " << (*mapit).second.size()<<std::endl;
     // 	  //ElectrodNoiseVector theElectrodVector =  (*mapit).second;     
     // 	  const ElectrodNoiseVector theElectrodVector =  noise->getElectrodNoiseVector(detid);
+    
+    
     // 	  int electrode=0;
     // 	  ElectrodNoiseVectorIterator iter=theElectrodVector.begin();
     // 	  //for(; iter!=theElectrodVector.end(); iter++)
@@ -125,21 +119,21 @@ namespace cms
     //A
     //   edm::Handle<DigiCollectionFP420> icf_simhit;
     /*    
-	  Handle<DigiCollectionFP420> cf_simhit;
-	  std::vector<const DigiCollectionFP420 *> cf_simhitvec;
-	  for(uint32_t i = 0; i< trackerContainers.size();i++){
-	  iEvent.getByLabel( trackerContainers[i], cf_simhit);
-	  cf_simhitvec.push_back(cf_simhit.product());   }
-	  std::auto_ptr<DigiCollectionFP420 > digis(new DigiCollectionFP420(cf_simhitvec));
-	  
-	  std::vector<HDigiFP420> input;
-	  DigiCollectionFP420::iterator isim;
-	  for (isim=digis->begin(); isim!= digis->end();isim++) {
-	  input.push_back(*isim);
-	  }
-    */    
+    Handle<DigiCollectionFP420> cf_simhit;
+    std::vector<const DigiCollectionFP420 *> cf_simhitvec;
+    for(uint32_t i = 0; i< trackerContainers.size();i++){
+      iEvent.getByLabel( trackerContainers[i], cf_simhit);
+      cf_simhitvec.push_back(cf_simhit.product());   }
+    std::auto_ptr<DigiCollectionFP420 > digis(new DigiCollectionFP420(cf_simhitvec));
+
+    std::vector<HDigiFP420> input;
+    DigiCollectionFP420::iterator isim;
+    for (isim=digis->begin(); isim!= digis->end();isim++) {
+      input.push_back(*isim);
+     }
+*/    
     //B
-    
+	   
     Handle<DigiCollectionFP420> input;
     try{
       //      iEvent.getByLabel( "FP420Digi" , digis);
@@ -154,66 +148,62 @@ namespace cms
     if (verbosity > 0) {
       std::cout << "ClusterizerFP420: OK1" << std::endl;
     }
-    
+
     // Step C: create empty output collection
     std::auto_ptr<ClusterCollectionFP420> soutput(new ClusterCollectionFP420);
     ///////////////////////////////////////////////////////////////////////////////////////////// 
-
     /*    
-	  std::vector<SimVertex> input;
-	  Handle<DigiCollectionFP420> digis;
-	  iEvent.getByLabel("FP420Digi",digis);
-	  input.insert(input.end(),digis->begin(),digis->end());
-	  std::vector<HDigiFP420> input;
-	  for(std::vector<HDigiFP420>::const_iterator vsim=digis->begin();
-	  vsim!=digis->end(); ++vsim){
-	  input.push_back(*vsim);
-	  }
-	  theSimTracks.insert(theSimTracks.end(),SimTk->begin(),SimTk->end());
-    */
+   std::vector<SimVertex> input;
+   Handle<DigiCollectionFP420> digis;
+   iEvent.getByLabel("FP420Digi",digis);
+   input.insert(input.end(),digis->begin(),digis->end());
+
+
+
+    std::vector<HDigiFP420> input;
+    for(std::vector<HDigiFP420>::const_iterator vsim=digis->begin();
+	vsim!=digis->end(); ++vsim){
+      input.push_back(*vsim);
+    }
+   theSimTracks.insert(theSimTracks.end(),SimTk->begin(),SimTk->end());
+*/
     //     std::vector<HDigiFP420> input;
     //   DigiCollectionFP420  input;
-    //input.push_back(digis);
-    //   input.insert(input.end(), digis->begin(), digis->end());
-    
+       //input.push_back(digis);
+	//   input.insert(input.end(), digis->begin(), digis->end());
+
     /*
-      std::vector<HDigiFP420> input;
-      input.clear();
-      DigiCollectionFP420::ContainerIterator sort_begin = digis->begin();
-      DigiCollectionFP420::ContainerIterator sort_end = digis->end();
-      for ( ;sort_begin != sort_end; ++sort_begin ) {
+    std::vector<HDigiFP420> input;
+    input.clear();
+    DigiCollectionFP420::ContainerIterator sort_begin = digis->begin();
+    DigiCollectionFP420::ContainerIterator sort_end = digis->end();
+    for ( ;sort_begin != sort_end; ++sort_begin ) {
       input.push_back(*sort_begin);
-      } // for
-    */
+    } // for
+*/
     
-        
+    
     //    put zero to container info from the beginning (important! because not any detID is updated with coming of new event     !!!!!!   
     // clean info of container from previous event
-    // det = 1 for +FP420 , = 2 for -FP420
-    // det = 3 for +HPS240 , = 4 for -HPS240 
-    int sn_end=0, pn_end=0, rn_end=0;
-    int det_start = 1, det_finish = 5;
-    if(dn0 < 1) det_start = 3;
-    if(dh0 < 1) det_finish = 3;
-    for (int det=det_start; det<det_finish; det++) {
-      if(det<3) {sn_end=sn0; pn_end=pn0; rn_end=rn0;}
-      else if(det<5) {sn_end=sh0; pn_end=ph0; rn_end=rh0;}
-      for (int sector=1; sector<sn_end; sector++) {
-	for (int zmodule=1; zmodule<pn_end; zmodule++) {
-	  for (int zside=1; zside<rn_end; zside++) {
-	    // intindex is a continues numbering of FP420
-	    //	    unsigned int detID = theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(rn0, pn0, sn0, det, zside, sector, zmodule);
-	    unsigned int detID = theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(rn_end, pn_end, sn_end, det, zside, sector, zmodule);
-	    std::vector<ClusterFP420> collector;
-	    collector.clear();
-	    ClusterCollectionFP420::Range inputRange;
-	    inputRange.first = collector.begin();
-	    inputRange.second = collector.end();
-	    soutput->putclear(inputRange,detID);
+      for (int det=1; det<dn0; det++) {
+	for (int sector=1; sector<sn0; sector++) {
+	  for (int zmodule=1; zmodule<pn0; zmodule++) {
+	    for (int zside=1; zside<rn0; zside++) {
+	      // intindex is a continues numbering of FP420
+	      unsigned int detID = theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(rn0, pn0, sn0, det, zside, sector, zmodule);
+	      std::vector<ClusterFP420> collector;
+	      collector.clear();
+	      ClusterCollectionFP420::Range inputRange;
+	      inputRange.first = collector.begin();
+	      inputRange.second = collector.end();
+	      
+	      soutput->putclear(inputRange,detID);
+	      
+	    }//for
 	  }//for
 	}//for
       }//for
-    }//for
+      
     
     //                                                                                                                      !!!!!!   
     // if we want to keep Cluster container/Collection for one event --->   uncomment the line below and vice versa
@@ -221,24 +211,21 @@ namespace cms
     
     //                                RUN now:                                                                                 !!!!!!     
     //  sClusterizerFP420_.run(input, soutput, noise);
-
     if (verbosity > 0) {
       std::cout << "ClusterizerFP420: OK2" << std::endl;
     }
+      sClusterizerFP420_->run(input, soutput, noise);
 
-    //  sClusterizerFP420_->run(input, soutput, noise);
-    sClusterizerFP420_->run(input, soutput);
-    
-   if (verbosity > 0) {
+    if (verbosity > 0) {
       std::cout << "ClusterizerFP420: OK3" << std::endl;
     }
-    
+
     //	if(collectorZS.data.size()>0){
-    
+
     //  std::cout <<"=======           ClusterizerFP420:                    end of produce     " <<  std::endl;
     
-    // Step D: write output to file
-    iEvent.put(soutput);
+	// Step D: write output to file
+	iEvent.put(soutput);
     if (verbosity > 0) {
       std::cout << "ClusterizerFP420: OK4" << std::endl;
     }

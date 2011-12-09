@@ -6,9 +6,9 @@
  * 
  * \author David Lange
  *
- * \version $Revision: 1.1.2.1 $
+ * \version $Revision: 1.6 $
  *
- * $Id: MultiTrackSelector.h,v 1.1.2.1 2011/06/18 09:13:46 gpetrucc Exp $
+ * $Id: MultiTrackSelector.h,v 1.6 2011/09/29 19:07:40 sungho Exp $
  *
  */
 
@@ -39,26 +39,32 @@ namespace reco { namespace modules {
         private:
         public:
             /// constructor 
+	    explicit MultiTrackSelector() { }
             explicit MultiTrackSelector( const edm::ParameterSet & cfg ) ;
             /// destructor
             virtual ~MultiTrackSelector() ;
 
-        private:
+        protected:
             typedef math::XYZPoint Point;
             /// process one event
-            void produce( edm::Event& evt, const edm::EventSetup& es ) ;
+            virtual void produce( edm::Event& evt, const edm::EventSetup& es ) ;
             /// return class, or -1 if rejected
             bool select (unsigned tsNum,
 			 const reco::BeamSpot &vertexBeamSpot, 
 			 const reco::Track &tk, 
-			 const std::vector<Point> &points);
+			 const std::vector<Point> &points,
+			 std::vector<double> &vterr,
+			 std::vector<double> &vzerr);
             void selectVertices ( unsigned int tsNum,
 				  const reco::VertexCollection &vtxs, 
-				  std::vector<Point> &points);
+				  std::vector<Point> &points,
+				  std::vector<double> &vterr,
+				  std::vector<double> &vzerr);
             /// source collection label
             edm::InputTag src_;
             edm::InputTag beamspot_;
             bool          useVertices_;
+            bool          useVtxError_;
             edm::InputTag vertices_;
             
             /// do I have to set a quality bit?
@@ -72,6 +78,7 @@ namespace reco { namespace modules {
 	    //  parameters for adapted optimal cuts on chi2 and primary vertex compatibility
 	    std::vector< std::vector<double> > res_par_;
 	    std::vector< double > chi2n_par_;
+	    std::vector< double > chi2n_no1Dmod_par_;
 	    std::vector< std::vector<double> > d0_par1_;
 	    std::vector< std::vector<double> > dz_par1_;
 	    std::vector< std::vector<double> > d0_par2_;
@@ -88,6 +95,10 @@ namespace reco { namespace modules {
 	    std::vector<uint32_t> min_layers_;
 	    std::vector<uint32_t> min_3Dlayers_;
 	    std::vector<uint32_t> max_lostLayers_;
+
+	    // pterror and nvalid hits cuts
+	    std::vector<double> max_relpterr_;
+	    std::vector<uint32_t> min_nhits_;
 	    
 	    // Flag and absolute cuts if no PV passes the selection
 	    std::vector<double> max_d0NoPV_;

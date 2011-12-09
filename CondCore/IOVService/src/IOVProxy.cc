@@ -1,6 +1,7 @@
 #include "CondCore/IOVService/interface/IOVProxy.h"
 
-#include "CondCore/DBCommon/interface/Time.h"
+#include "CondFormats/Common/interface/Time.h"
+#include "CondFormats/Common/interface/TimeConversions.h"
 #include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/DBCommon/interface/DbScopedTransaction.h"
 
@@ -45,9 +46,33 @@ namespace cond {
       set(cond::invalidTime, cond::invalidTime,"");
       return;
     }
-    m_since =  v.iovs()[i].sinceTime();
-    m_till  =  (i+1==v.iovs().size()) ? v.lastTill() : v.iovs()[i+1].sinceTime()-1;
     m_token = v.iovs()[i].token();
+    m_since =  v.iovs()[i].sinceTime();
+    if(i+1==v.iovs().size()) {
+      m_till = v.lastTill();
+      return;
+    }
+    cond::UnpackedTime unpackedTime;
+    cond::Time_t totalNanoseconds;
+    cond::Time_t totalSecondsInNanoseconds;
+    switch (v.timeType()) {
+    case timestamp:
+      //unpacking
+      unpackedTime = cond::time::unpack(v.iovs()[i+1].sinceTime());
+      //number of seconds in nanoseconds (avoid multiply and divide by 1e09)
+      totalSecondsInNanoseconds = ((cond::Time_t)unpackedTime.first)*1000000000;
+      //total number of nanoseconds
+      totalNanoseconds = totalSecondsInNanoseconds + ((cond::Time_t)(unpackedTime.second));
+      //now decrementing of 1 nanosecond
+      totalNanoseconds--;
+      //now repacking (just change the value of the previous pair)
+      unpackedTime.first = (unsigned int) (totalNanoseconds/1000000000);
+      unpackedTime.second = (unsigned int)(totalNanoseconds - (cond::Time_t)unpackedTime.first*1000000000);
+      m_till = cond::time::pack(unpackedTime);
+      break;
+    default:
+      m_till = v.iovs()[i+1].sinceTime()-1;
+    }
   }
 
   IOVProxy::IterHelp::IterHelp(impl::IOVImpl & impl) :

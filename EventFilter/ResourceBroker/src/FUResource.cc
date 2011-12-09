@@ -144,7 +144,7 @@ void FUResource::release()
 void FUResource::process(MemRef_t* bufRef)
 {
   if (fatalError()) {
-    LOG4CPLUS_WARN(log_,"THIS SHOULD *NEVER* HAPPEN!."); // DEBUG
+    LOG4CPLUS_ERROR(log_,"THIS SHOULD *NEVER* HAPPEN!."); // DEBUG
     bufRef->release();
     return;
   }
@@ -161,6 +161,7 @@ void FUResource::process(MemRef_t* bufRef)
 		      <<xcept::stdformat_exception_history(e));
       fatalError_=true;
       itBufRef->setNextReference(next); 
+      itBufRef->release();
     }
     
     itBufRef=next;
@@ -341,7 +342,17 @@ void FUResource::processDataBlock(MemRef_t* bufRef)
     
     // ... fill the FED buffers contained in the superfragment
     try {
-      superFragSize();
+      superFragSize(); // if event exceeds size an exception is thrown here, keep it distinct from SF corruption
+    }
+    catch (xcept::Exception& e) {
+      oss<<"Invalid super fragment size."
+	 <<" evtNumber:"<<evtNumber_
+	 <<" buResourceId:"<<buResourceId_
+	 <<" iSuperFrag:"<<iSuperFrag_;
+      removeLastAppendedBlockFromSuperFrag();
+      XCEPT_RETHROW(evf::Exception,oss.str(),e);
+    }
+    try{
       fillSuperFragPayload();
       findFEDs();
     }
@@ -505,6 +516,7 @@ void FUResource::removeLastAppendedBlockFromSuperFrag()
     MemRef_t *next = 0;
     MemRef_t *current = superFragHead_;
     while((next=current->getNextReference()) != superFragTail_){
+      current = next;
       //get to the next-to-last block
     }
     superFragTail_ = current;

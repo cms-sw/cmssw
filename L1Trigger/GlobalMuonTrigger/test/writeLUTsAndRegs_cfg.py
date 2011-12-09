@@ -19,8 +19,8 @@ process.source = cms.Source('EmptySource')
 # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
  
-#process.GlobalTag.globaltag = 'START42_V12::All'
-process.GlobalTag.globaltag = 'GR_R_42_V13::All'
+process.GlobalTag.globaltag = 'START42_V13::All'
+#process.GlobalTag.globaltag = 'GR_R_42_V18::All'
 
 ######################
 # GMT emulator setup #
@@ -40,7 +40,12 @@ process.gmtDigis.RPCbCandidates = cms.InputTag("none", "")
 process.gmtDigis.RPCfCandidates = cms.InputTag("none", "")
 
 # GMT emulator debugging
-process.gmtDigis.Debug = cms.untracked.int32(1)
+process.gmtDigis.Debug = cms.untracked.int32(9)
+
+process.load('L1TriggerConfig.GMTConfigProducers.L1MuGMTParameters_cfi')
+process.L1MuGMTParameters.MergeMethodPtBrl=cms.string("byRank")
+process.L1MuGMTParameters.MergeMethodPtFwd=cms.string("byRank")
+process.L1MuGMTParameters.VersionSortRankEtaQLUT = cms.uint32(275)
 
 # Tell the emulator to generate LUTs
 process.gmtDigis.WriteLUTsAndRegs = cms.untracked.bool(True)

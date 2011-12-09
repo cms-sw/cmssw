@@ -1,4 +1,4 @@
-// $Id: RunMonitorCollection.cc,v 1.15 2011/03/07 15:31:32 mommsen Exp $
+// $Id: RunMonitorCollection.cc,v 1.16 2011/04/19 11:10:34 mommsen Exp $
 /// @file: RunMonitorCollection.cc
 
 #include <string>
@@ -19,7 +19,6 @@ namespace stor {
   RunMonitorCollection::RunMonitorCollection
   (
     const utils::Duration_t& updateInterval,
-    AlarmHandlerPtr ah,
     SharedResourcesPtr sr
   ) :
   MonitorCollection(updateInterval),
@@ -29,7 +28,6 @@ namespace stor {
   runNumbersSeen_(updateInterval, boost::posix_time::seconds(1)),
   lumiSectionsSeen_(updateInterval, boost::posix_time::seconds(1)),
   eolsSeen_(updateInterval, boost::posix_time::seconds(1)),
-  alarmHandler_(ah),
   sharedResources_(sr)
   {}
   
@@ -151,11 +149,11 @@ namespace stor {
       msg << "Received " << count << " error events in the last "
         << stats.getDuration(MonitoredQuantity::RECENT).total_seconds() << "s.";
       XCEPT_DECLARE( stor::exception::ErrorEvents, xcept, msg.str() );
-      alarmHandler_->raiseAlarm( alarmName, AlarmHandler::ERROR, xcept );
+      sharedResources_->alarmHandler_->raiseAlarm( alarmName, AlarmHandler::ERROR, xcept );
     }
     else
     {
-      alarmHandler_->revokeAlarm( alarmName );
+      sharedResources_->alarmHandler_->revokeAlarm( alarmName );
     }
   }
   
@@ -192,14 +190,14 @@ namespace stor {
       }
       
       XCEPT_DECLARE( stor::exception::UnwantedEvents, xcept, msg.str() );
-      alarmHandler_->raiseAlarm( val.second.alarmName, AlarmHandler::ERROR, xcept );
+      sharedResources_->alarmHandler_->raiseAlarm( val.second.alarmName, AlarmHandler::ERROR, xcept );
       
       val.second.previousCount = val.second.count;
     }
     else if (val.second.count == val.second.previousCount)
       // no more unwanted events arrived
     {
-      alarmHandler_->revokeAlarm( val.second.alarmName );
+      sharedResources_->alarmHandler_->revokeAlarm( val.second.alarmName );
     }
   }
   

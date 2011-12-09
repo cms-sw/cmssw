@@ -17,7 +17,3 @@
 <bin   file="TestLMF2010-getPrimitives.cpp">
   <flags NO_TESTRUN="1"/>
 </bin>
-<bin   file="DumpLaserDB.cpp">
-  <flags NO_TESTRUN="1"/>
-  <use   name="boost_program_options" />
-</bin>

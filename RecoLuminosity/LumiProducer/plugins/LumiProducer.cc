@@ -18,7 +18,7 @@ from the configuration file, the DB is not implemented yet)
 //                   David Dagenhart
 //       
 //         Created:  Tue Jun 12 00:47:28 CEST 2007
-// $Id: LumiProducer.cc,v 1.21 2011/02/22 16:23:57 matevz Exp $
+// $Id: LumiProducer.cc,v 1.18 2011/01/17 11:01:50 xiezhen Exp $
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -27,7 +27,6 @@ from the configuration file, the DB is not implemented yet)
 #include "FWCore/Framework/interface/Run.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
-#include "DataFormats/Luminosity/interface/LumiSummaryRunHeader.h"
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 #include "DataFormats/Luminosity/interface/LumiDetails.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -89,9 +88,8 @@ public:
     unsigned int ratecount;
   };
   struct PerRunData{
-    std::map<unsigned int, unsigned int> TRGBitNumToIndex;
-    std::vector<std::string>             TRGBitNames;
-    std::vector<std::string>             HLTPathNames;
+    std::map< unsigned int,std::string > TRGBitNames;
+    std::map< unsigned int,std::string > HLTPathNames;
   };
   struct PerLSData{
     float lumivalue;
@@ -123,9 +121,6 @@ private:
 				    edm::EventSetup const& iSetup);
   virtual void endLuminosityBlock(edm::LuminosityBlock& lumiBlock, 
 				  edm::EventSetup const& c);
-
-  virtual void endRun(edm::Run&, edm::EventSetup const &);
-
   //void fillDefaultLumi(edm::LuminosityBlock & iLBlock);
   bool fillLumi(edm::LuminosityBlock & iLBlock);
   void fillRunCache(unsigned int runnumber);
@@ -231,7 +226,6 @@ LumiProducer::
 LumiProducer::LumiProducer(const edm::ParameterSet& iConfig):m_cachedrun(0),m_isNullRun(false),m_cachesize(0)
 {
   // register your products
-  produces<LumiSummaryRunHeader, edm::InRun>();
   produces<LumiSummary, edm::InLumi>();
   produces<LumiDetails, edm::InLumi>();
   // set up cache
@@ -276,27 +270,19 @@ LumiProducer::LumiProducer(const edm::ParameterSet& iConfig):m_cachedrun(0),m_is
 
 LumiProducer::~LumiProducer(){ 
 }
-
 //
 // member functions
 //
-void LumiProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
-{ 
+void LumiProducer::produce(edm::Event& e, const edm::EventSetup& iSetup){ 
 }
-
-void LumiProducer::beginRun(edm::Run& run,edm::EventSetup const &iSetup)
-{
+void LumiProducer::beginRun(edm::Run& run,edm::EventSetup const &iSetup){
   unsigned int runnumber=run.run();
   m_cachedrun=runnumber;
   fillRunCache(runnumber);
 }
-
-void LumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::EventSetup const &iSetup)
-{
+void LumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::EventSetup const &iSetup){  
 }
-
-void LumiProducer::endLuminosityBlock(edm::LuminosityBlock & iLBlock, edm::EventSetup const& iSetup)
-{
+void LumiProducer::endLuminosityBlock(edm::LuminosityBlock & iLBlock, edm::EventSetup const& iSetup){
   unsigned int runnumber=iLBlock.run();
   unsigned int luminum=iLBlock.luminosityBlock();
   //if is null run, fill empty values and return
@@ -318,17 +304,6 @@ void LumiProducer::endLuminosityBlock(edm::LuminosityBlock & iLBlock, edm::Event
   //here the presence of ls is guaranteed
   writeProductsForEntry(iLBlock,runnumber,luminum); 
 }
-
-void LumiProducer::endRun(edm::Run& run,edm::EventSetup const &iSetup)
-{
-  std::auto_ptr<LumiSummaryRunHeader> lsrh(new LumiSummaryRunHeader());
-  lsrh->swapL1Names(m_runcache.TRGBitNames);
-  lsrh->swapHLTNames(m_runcache.HLTPathNames);
-  run.put(lsrh);
-
-  m_runcache.TRGBitNumToIndex.clear();
-}
-
 void 
 LumiProducer::fillRunCache(unsigned int runnumber){
   //queries once per run
@@ -362,16 +337,9 @@ LumiProducer::fillRunCache(unsigned int runnumber){
     trgQuery->defineOutput(trgOutput);
     coral::ICursor& trgcursor=trgQuery->execute();
     unsigned int rowcounter=0;
-    // Note, Matevz Tadel, 2011-02-18:
-    // Here we fill bitnumber - index map used later to determine index into the trigger-name
-    // vector. This is not needed if the triggers are always returned in ascending order with
-    // no gaps.
-    // This seemed to be the case on two files I have tested but I do not know if this
-    // is true in general.
     while( trgcursor.next() ){
       const coral::AttributeList& row=trgcursor.currentRow();
-      m_runcache.TRGBitNames.push_back(row["bitname"].data<std::string>());
-      m_runcache.TRGBitNumToIndex.insert(std::make_pair(row["bitnum"].data<unsigned int>(), rowcounter));
+      m_runcache.TRGBitNames.insert(std::make_pair(row["bitnum"].data<unsigned int>(),row["bitname"].data<std::string>()));
       ++rowcounter;
     }
     delete trgQuery;
@@ -381,14 +349,6 @@ LumiProducer::fillRunCache(unsigned int runnumber){
       mydbservice->disconnect(session);
       return;
     }
-    /*
-      printf("Dumping bitnum -> dborder mapping!\n");
-    for (std::map<unsigned int, unsigned int>::iterator i = m_runcache.TRGBitNumToIndex.begin();
-	 i != m_runcache.TRGBitNumToIndex.end(); ++i)
-    {
-      printf("  %3u -- %3u\n", i->first, i->second);
-    }
-    */
     //
     //select pathname from from hlt where  runnum=:runnum and cmslsnum=:1 order by pathname;
     //
@@ -407,9 +367,11 @@ LumiProducer::fillRunCache(unsigned int runnumber){
     hltQuery->defineOutput(hltOutput);
     coral::ICursor& hltcursor=hltQuery->execute();
     rowcounter=0;
+    unsigned int pathcount=0;
     while( hltcursor.next() ){
       const coral::AttributeList& row=hltcursor.currentRow();
-      m_runcache.HLTPathNames.push_back(row["pathname"].data<std::string>());
+      m_runcache.HLTPathNames.insert(std::make_pair(pathcount,row["pathname"].data<std::string>()));
+      ++pathcount;
       ++rowcounter;
     }
     delete hltQuery;   
@@ -707,28 +669,24 @@ LumiProducer::writeProductsForEntry(edm::LuminosityBlock & iLBlock,unsigned int 
   }
   PerLSData& lsdata=m_lscache[luminum];
   pIn1->setLumiData(lsdata.lumivalue,lsdata.lumierror,lsdata.lumiquality);
-  pIn1->setDeadCount(lsdata.deadcount);
-  if(!lsdata.l1data.empty()){
-    pIn1->setBitZeroCount((unsigned long long)lsdata.l1data.front().ratecount*
-			  (unsigned long long)lsdata.l1data.front().prescale);
-  }
+  pIn1->setDeadtime(lsdata.deadcount);
   pIn1->setlsnumber(luminum);
   pIn1->setOrbitData(lsdata.startorbit,lsdata.numorbit);
   std::vector<LumiSummary::L1> l1temp;
   for(std::vector< L1Data >::iterator it=lsdata.l1data.begin();it!=lsdata.l1data.end();++it){
     LumiSummary::L1 trgtmp;
-    // trgtmp.ratecount=it->ratecount;
-    trgtmp.triggernameidx=m_runcache.TRGBitNumToIndex[it->bitnum];
     trgtmp.prescale=it->prescale;
+    trgtmp.ratecount=it->ratecount;
+    trgtmp.triggername=m_runcache.TRGBitNames[it->bitnum];
     l1temp.push_back(trgtmp);
   }
   std::vector<LumiSummary::HLT> hlttemp;
   for(std::vector< HLTData >::iterator it=lsdata.hltdata.begin();it!=lsdata.hltdata.end();++it){
     LumiSummary::HLT hlttmp;
-    // hlttmp.ratecount=it->acceptcount;
-    // hlttmp.inputcount=it->l1passcount;
-    hlttmp.pathnameidx=it->pathnum;
     hlttmp.prescale=it->prescale;
+    hlttmp.ratecount=it->acceptcount;
+    hlttmp.inputcount=it->l1passcount;
+    hlttmp.pathname=m_runcache.HLTPathNames[it->pathnum];
     hlttemp.push_back(hlttmp);
   }
   pIn1->swapL1Data(l1temp);

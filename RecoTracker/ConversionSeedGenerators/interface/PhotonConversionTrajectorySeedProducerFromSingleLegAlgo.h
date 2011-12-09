@@ -10,7 +10,7 @@
 #include "RecoTracker/ConversionSeedGenerators/interface/SeedForPhotonConversion1Leg.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 
-#include "RecoTracker/ConversionSeedGenerators/interface/TrackManipulator.h"
+#include "RecoTracker/ConversionSeedGenerators/interface/IdealHelixParameters.h"
 
 #include "RecoTracker/ConversionSeedGenerators/interface/PrintRecoObjects.h"
 
@@ -41,7 +41,7 @@ class PhotonConversionTrajectorySeedProducerFromSingleLegAlgo{
   void clear();
 
   void analyze(const edm::Event & event, const edm::EventSetup & setup);
-  TrackManipulator* getTrackManipulator(){return &Manipulator;}
+  IdealHelixParameters* getIdealHelixParameters(){return &_IdealHelixParameters;}
   TrajectorySeedCollection* getTrajectorySeedCollection(){return seedCollection;}
   TrajectorySeedCollection* getTrajectorySeedCollectionOfSourceTracks(){return seedCollectionOfSourceTracks;}
 
@@ -90,7 +90,7 @@ class PhotonConversionTrajectorySeedProducerFromSingleLegAlgo{
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   const reco::BeamSpot * theBeamSpot;
 
-  TrackManipulator Manipulator;
+  IdealHelixParameters _IdealHelixParameters;
 
   edm::Handle<reco::VertexCollection> vertexHandle;
   reco::VertexCollection vertexCollection;

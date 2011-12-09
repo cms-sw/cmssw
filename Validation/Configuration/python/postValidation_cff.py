@@ -6,6 +6,7 @@ from Validation.MuonIsolation.PostProcessor_cff import *
 from Validation.CaloTowers.CaloTowersPostProcessor_cff import *
 from Validation.HcalRecHits.hcalRecHitsPostProcessor_cff import *
 from Validation.EventGenerator.PostProcessor_cff import *
+from Validation.RecoEgamma.photonPostProcessor_cff import *
 from Validation.RecoEgamma.electronPostValidationSequence_cff import *
 from Validation.RecoParticleFlow.PFValidationClient_cff import *
 from Validation.RPCRecHits.postValidation_cfi import *
@@ -18,7 +19,7 @@ postValidation = cms.Sequence(
     + MuIsoValPostProcessor
     + calotowersPostProcessor
     + hcalrechitsPostProcessor
-    + electronPostValidationSequence
+    + electronPostValidationSequence + photonPostProcessor
     + pfJetClient + pfMETClient
     + rpcRecHitPostValidation_step
     + runTauEff + makeBetterPlots

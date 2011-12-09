@@ -6,7 +6,7 @@
 
  Original Author:  Jim Kowalkowski 26-01-06
 
- $Id: TriggerNamesService.h,v 1.9 2007/07/16 21:30:03 wdd Exp $
+ $Id: TriggerNamesService.h,v 1.10 2007/09/27 14:30:24 paterno Exp $
 
  This service makes the trigger names available.  They are provided
  in the same order that the pass/fail status of these triggers is
@@ -94,6 +94,19 @@ namespace edm {
 	return (modulenames_.at(i)).at(j);
       }
 
+      Strings const& getEndPathModules(std::string const& name) const {
+	return end_modulenames_.at(find(end_pos_,name));
+      }
+      Strings const& getEndPathModules(size_type const i) const {
+	return end_modulenames_.at(i);
+      }
+      std::string const&  getEndPathModule (std::string const& name, size_type const j) const {
+	return (end_modulenames_.at(find(end_pos_,name))).at(j);
+      }
+      std::string const&  getEndPathModule (size_type const i, size_type const j) const {
+	return (end_modulenames_.at(i)).at(j);
+      }
+
       size_type find (PosMap const& posmap, std::string const& name) const {
 	PosMap::const_iterator const pos(posmap.find(name));
         if (pos == posmap.end()) {
@@ -125,7 +138,8 @@ namespace edm {
       Strings end_names_;
       PosMap  end_pos_;
 
-      std::vector<Strings> modulenames_; // of modules on trigger paths
+      std::vector<Strings> modulenames_;        // modules on trigger paths
+      std::vector<Strings> end_modulenames_;    // modules on endpaths
 
       std::string process_name_;
       bool wantSummary_;

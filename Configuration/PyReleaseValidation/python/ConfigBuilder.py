@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.333 $"
+__version__ = "$Revision: 1.340 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -57,6 +57,7 @@ defaultOptions.inputEventContent = None
 defaultOptions.relval = None
 defaultOptions.slhc = None
 defaultOptions.profile = None
+defaultOptions.isRepacked = False
 
 # some helper routines
 def dumpPython(process,name):
@@ -132,6 +133,11 @@ def filesFromDBSQuery(query,s=None):
 		print "found parent files:",sec
 	return (prim,sec)
 
+def MassReplaceInputTag(aProcess,oldT="source",newT="rawDataRepacker"):
+	from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag
+	for s in aProcess.paths_().keys():
+		massSearchReplaceAnyInputTag(getattr(aProcess,s),oldT,newT)
+
 
 class ConfigBuilder(object):
     """The main building routines """
@@ -148,6 +154,9 @@ class ConfigBuilder(object):
         if not self._options.conditions:
                 raise Exception("ERROR: No conditions given!\nPlease specify conditions. E.g. via --conditions=IDEAL_30X::All")
 
+	if hasattr(self._options,"datatier") and 'DQMROOT' in self._options.datatier and 'ENDJOB' in self._options.step:
+		self._options.step=self._options.step.replace(',ENDJOB','')
+		
         # what steps are provided by this class?
         stepList = [re.sub(r'^prepare_', '', methodName) for methodName in ConfigBuilder.__dict__ if methodName.startswith('prepare_')]
         self.stepMap={}
@@ -291,9 +300,9 @@ class ConfigBuilder(object):
 		for entry in self._options.filein.split(','):
 			print "entry",entry
 			if entry.startswith("filelist:"):
-				filesFromList(entry[9:],s)
+				filesFromList(entry[9:],self.process.source)
 			elif entry.startswith("dbs:"):
-				filesFromDBSQuery(entry[4:],s)
+				filesFromDBSQuery(entry[4:],self.process.source)
 			else:
 				self.process.source.fileNames.append(self._options.dirin+entry)
 		if self._options.secondfilein:
@@ -319,11 +328,23 @@ class ConfigBuilder(object):
 		   filesFromOption(self)
            elif self._options.filetype == "LHE":
 		   self.process.source=cms.Source("LHESource", fileNames = cms.untracked.vstring())
-		   filesFromOption(self)
-           elif self._options.filetype == "MCDB":
-               self.process.source=cms.Source("MCDBSource",
-					      articleID = cms.uint32(int(self._options.filein.replace('mcdb:',''))),
-					      supportedProtocols = cms.untracked.vstring("rfio"))
+		   if self._options.filein.startswith("lhe:"):
+			   #list the article directory automatically
+			   args=self._options.filein.split(':')
+			   article=args[1]
+			   print 'LHE input from article ',article
+			   location='/store/lhe/'
+			   import os
+			   textOfFiles=os.popen('cmsLHEtoEOSManager.py -l '+article)
+			   for line in textOfFiles:
+				   for fileName in [x for x in line.split() if '.lhe' in x]:
+					   self.process.source.fileNames.append(location+article+'/'+fileName)
+			   if len(args)>2:
+				   self.process.source.skipEvents = cms.untracked.uint32(int(args[2]))
+		   else:
+			   filesFromOption(self)
+
+		   
 	   elif self._options.filetype == "DQM":
 		   self.process.source=cms.Source("DQMRootSource",
 						  fileNames = cms.untracked.vstring())
@@ -417,6 +438,7 @@ class ConfigBuilder(object):
 				theFileName+='.root'
 			if len(outDefDict.keys()):
 				raise Exception("unused keys from --output options: "+','.join(outDefDict.keys()))
+			if theStreamType=='DQMROOT': theStreamType=='DQM'
 			if theStreamType=='ALL':
 				theEventContent = cms.PSet(outputCommands = cms.untracked.vstring('keep *'))
 			else:
@@ -424,7 +446,10 @@ class ConfigBuilder(object):
 				
 			if theStreamType=='ALCARECO' and not theFilterName:
 				theFilterName='StreamALCACombined'
-			output = cms.OutputModule("PoolOutputModule",
+
+			CppType='PoolOutputModule'
+			if theStreamType=='DQM' and theTier=='DQMROOT': CppType='DQMRootOutputModule'
+			output = cms.OutputModule(CppType,			
 						  theEventContent.clone(),
 						  fileName = cms.untracked.string(theFileName),
 						  dataset = cms.untracked.PSet(
@@ -468,6 +493,7 @@ class ConfigBuilder(object):
 
         for i,(streamType,tier) in enumerate(zip(streamTypes,tiers)):
 		if streamType=='': continue
+		if streamType=='DQMROOT': streamType='DQM'
                 theEventContent = getattr(self.process, streamType+"EventContent")
                 if i==0:
                         theFileName=self._options.outfile_name
@@ -477,7 +503,6 @@ class ConfigBuilder(object):
                         theFilterName=self._options.filtername
 		CppType='PoolOutputModule'
 		if streamType=='DQM' and tier=='DQMROOT': CppType='DQMRootOutputModule'
-		if tier =='DQMROOT': tier='DQM'
                 output = cms.OutputModule(CppType,
                                           theEventContent,
                                           fileName = cms.untracked.string(theFileName),
@@ -794,9 +819,6 @@ class ConfigBuilder(object):
                 self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_cff"
                 self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineMC_cff"
                 self.ALCADefaultCFF="Configuration/StandardSequences/AlCaRecoStreamsMC_cff"
-
-        if hasattr(self._options,"isRepacked") and self._options.isRepacked:
-                self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_Repacked_cff"
 
         # now for #%#$#! different scenarios
 
@@ -1231,7 +1253,9 @@ class ConfigBuilder(object):
 
     def prepare_RAW2DIGI(self, sequence = "RawToDigi"):
             self.loadDefaultOrSpecifiedCFF(sequence,self.RAW2DIGIDefaultCFF)
-	    self.scheduleSequence(sequence.split('.')[-1],'raw2digi_step')
+	    self.scheduleSequence(sequence,'raw2digi_step')
+	    #	    if self._options.isRepacked:
+	    #self.renameInputTagsInSequence(sequence)
             return
 
     def prepare_L1HwVal(self, sequence = 'L1HwVal'):
@@ -1407,6 +1431,16 @@ class ConfigBuilder(object):
             def leave(self,visitee):
                     pass
 
+    #visit a sequence to repalce all input tags
+    def renameInputTagsInSequence(self,sequence,oldT="source",newT="rawDataRepacker"):
+	    print "Replacing all InputTag %s => %s"%(oldT,newT)
+	    from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag
+	    massSearchReplaceAnyInputTag(getattr(self.process,sequence),oldT,newT)
+	    loadMe='from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag'
+	    if not loadMe in self.additionalCommands:
+		    self.additionalCommands.append(loadMe)
+	    self.additionalCommands.append('massSearchReplaceAnyInputTag(process.%s,"%s","%s",False)'%(sequence,oldT,newT))
+
     #change the process name used to address HLT results in any sequence
     def renameHLTprocessInSequence(self,sequence,proc=None,HLTprocess='HLT'):
 	    if self._options.hltProcess:
@@ -1439,6 +1473,8 @@ class ConfigBuilder(object):
                 # schedule DQM as a standard Path
                 self.process.dqmoffline_step = cms.Path( getattr(self.process, sequence) )
         self.schedule.append(self.process.dqmoffline_step)
+	#if self._options.isRepacked:
+	#	self.renameInputTagsInSequence(sequence)
 
     def prepare_HARVESTING(self, sequence = None):
         """ Enrich the process with harvesting step """
@@ -1555,7 +1591,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.333 $"),
+                                            (version=cms.untracked.string("$Revision: 1.340 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
@@ -1639,6 +1675,7 @@ class ConfigBuilder(object):
         for path in self.process.paths:
             if getattr(self.process,path) not in self.blacklist_paths:
                 self.pythonCfgCode += dumpPython(self.process,path)
+		
         for endpath in self.process.endpaths:
             if getattr(self.process,endpath) not in self.blacklist_paths:
                 self.pythonCfgCode += dumpPython(self.process,endpath)
@@ -1669,6 +1706,13 @@ class ConfigBuilder(object):
 
         self.pythonCfgCode += result
 
+	#repacked version
+	if self._options.isRepacked:
+		self.pythonCfgCode +="\n"
+		self.pythonCfgCode +="from Configuration.PyReleaseValidation.ConfigBuilder import MassReplaceInputTag\n"
+		self.pythonCfgCode +="MassReplaceInputTag(process)\n"
+		MassReplaceInputTag(self.process)
+		
         # special treatment in case of production filter sequence 2/2
         if self.productionFilterSequence:
                 self.pythonCfgCode +='# filter all path with the production filter sequence\n'

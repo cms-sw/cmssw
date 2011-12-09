@@ -7,27 +7,15 @@ import FWCore.ParameterSet.Config as cms
 mixedTripletStepClusters = cms.EDProducer("TrackClusterRemover",
     clusterLessSolution = cms.bool(True),
     oldClusterRemovalInfo = cms.InputTag("detachedTripletStepClusters"),
-    TrackQuality = cms.string('highPurity'),
     trajectories = cms.InputTag("detachedTripletStepTracks"),
     overrideTrkQuals = cms.InputTag('detachedTripletStep'),
+    TrackQuality = cms.string('highPurity'),
     pixelClusters = cms.InputTag("siPixelClusters"),
     stripClusters = cms.InputTag("siStripClusters"),
     Common = cms.PSet(
-        maxChi2 = cms.double(30.0)
+        maxChi2 = cms.double(9.0)
     )
 )
-
-# Propagator taking into account momentum uncertainty in multiple scattering calculation.
-import TrackingTools.MaterialEffects.MaterialPropagator_cfi
-MaterialPropagatorPtMin01 = TrackingTools.MaterialEffects.MaterialPropagator_cfi.MaterialPropagator.clone(
-    ComponentName = 'PropagatorWithMaterialPtMin01',
-    ptMin = 0.1
-    )
-import TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi
-OppositeMaterialPropagatorPtMin01 = TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi.OppositeMaterialPropagator.clone(
-    ComponentName = 'PropagatorWithMaterialOppositePtMin01',
-    ptMin = 0.1
-    )
 
 # SEEDING LAYERS
 mixedTripletStepSeedLayersA = cms.ESProducer("SeedingLayersESProducer",
@@ -76,10 +64,9 @@ mixedTripletStepSeedsA.SeedCreatorPSet.ComponentName = 'SeedFromConsecutiveHitsT
 mixedTripletStepSeedsA.RegionFactoryPSet.RegionPSet.ptMin = 0.35
 mixedTripletStepSeedsA.RegionFactoryPSet.RegionPSet.originHalfLength = 10.0
 mixedTripletStepSeedsA.RegionFactoryPSet.RegionPSet.originRadius = 2.0
-mixedTripletStepSeedsA.ClusterCheckPSet.PixelClusterCollectionLabel = 'siPixelClusters'
-mixedTripletStepSeedsA.ClusterCheckPSet.ClusterCollectionLabel = 'siStripClusters'
 
 
+# SEEDING LAYERS
 mixedTripletStepSeedLayersB = cms.ESProducer("SeedingLayersESProducer",
     ComponentName = cms.string('mixedTripletStepSeedLayersB'),
     layerList = cms.vstring('BPix2+BPix3+TIB1', 
@@ -111,8 +98,6 @@ mixedTripletStepSeedsB.SeedCreatorPSet.ComponentName = 'SeedFromConsecutiveHitsT
 mixedTripletStepSeedsB.RegionFactoryPSet.RegionPSet.ptMin = 0.50
 mixedTripletStepSeedsB.RegionFactoryPSet.RegionPSet.originHalfLength = 10.0
 mixedTripletStepSeedsB.RegionFactoryPSet.RegionPSet.originRadius = 2.0
-mixedTripletStepSeedsB.ClusterCheckPSet.PixelClusterCollectionLabel = 'siPixelClusters'
-mixedTripletStepSeedsB.ClusterCheckPSet.ClusterCollectionLabel = 'siStripClusters'
 
 import RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi
 mixedTripletStepSeeds = RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi.globalCombinedSeeds.clone()
@@ -120,15 +105,6 @@ mixedTripletStepSeeds.seedCollections = cms.VInputTag(
         cms.InputTag('mixedTripletStepSeedsA'),
         cms.InputTag('mixedTripletStepSeedsB'),
         )
-
-# TRACKER DATA CONTROL
-import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
-mixedTripletStepMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone(
-    ComponentName = 'mixedTripletStepMeasurementTracker',
-    pixelClusterProducer = 'siPixelClusters',
-    stripClusterProducer = 'siStripClusters',
-    skipClusters = cms.InputTag('mixedTripletStepClusters')
-    )
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
@@ -141,15 +117,36 @@ mixedTripletStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryF
     )
     )
 
+# Propagator taking into account momentum uncertainty in multiple scattering calculation.
+import TrackingTools.MaterialEffects.MaterialPropagator_cfi
+mixedTripletStepPropagator = TrackingTools.MaterialEffects.MaterialPropagator_cfi.MaterialPropagator.clone(
+    ComponentName = 'mixedTripletStepPropagator',
+    ptMin = 0.1
+    )
+import TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi
+mixedTripletStepPropagatorOpposite = TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi.OppositeMaterialPropagator.clone(
+    ComponentName = 'mixedTripletStepPropagatorOpposite',
+    ptMin = 0.1
+    )
+
+import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
+mixedTripletStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
+    ComponentName = cms.string('mixedTripletStepChi2Est'),
+    nSigma = cms.double(3.0),
+    MaxChi2 = cms.double(16.0)
+)
+
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
 mixedTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone(
     ComponentName = 'mixedTripletStepTrajectoryBuilder',
     MeasurementTrackerName = '',
     trajectoryFilterName = 'mixedTripletStepTrajectoryFilter',
-    propagatorAlong = cms.string('PropagatorWithMaterialPtMin01'),
-    propagatorOpposite = cms.string('PropagatorWithMaterialOppositePtMin01'),
-    clustersToSkip = cms.InputTag('mixedTripletStepClusters')
+    propagatorAlong = cms.string('mixedTripletStepPropagator'),
+    propagatorOpposite = cms.string('mixedTripletStepPropagatorOpposite'),
+    clustersToSkip = cms.InputTag('mixedTripletStepClusters'),
+    maxCand = 2,
+    estimator = cms.string('mixedTripletStepChi2Est')
     )
 
 # MAKING OF TRACK CANDIDATES

@@ -5,7 +5,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.74 2010/05/06 08:24:37 dutta Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.77 2011/09/28 21:28:17 fiori Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -54,11 +54,11 @@ SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig) :
 
   // Detector Partitions
   SubDetPhasePartMap["TIB"]        = "TI";
-  SubDetPhasePartMap["TID_side_1"] = "TI";
-  SubDetPhasePartMap["TID_side_2"] = "TI";
+  SubDetPhasePartMap["TID__side__1"] = "TI";
+  SubDetPhasePartMap["TID__side__2"] = "TI";
   SubDetPhasePartMap["TOB"]        = "TO";
-  SubDetPhasePartMap["TEC_side_1"] = "TM";
-  SubDetPhasePartMap["TEC_side_2"] = "TP";
+  SubDetPhasePartMap["TEC__side__1"] = "TM";
+  SubDetPhasePartMap["TEC__side__2"] = "TP";
 
   //get on/off option for every cluster from cfi
   edm::ParameterSet ParametersnClusters =  conf_.getParameter<edm::ParameterSet>("TH1nClusters");
@@ -139,6 +139,9 @@ SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig) :
 
   edm::ParameterSet ParametersNoiseStrip3ApvCycle = conf_.getParameter<edm::ParameterSet>("TH1StripNoise3ApvCycle");
   globalswitchstripnoise3apvcycle = ParametersNoiseStrip3ApvCycle.getParameter<bool>("globalswitchon");
+
+  edm::ParameterSet ParametersMainDiagonalPosition = conf_.getParameter<edm::ParameterSet>("TH1MainDiagonalPosition");
+  globalswitchmaindiagonalposition= ParametersMainDiagonalPosition.getParameter<bool>("globalswitchon");
 
   edm::ParameterSet ClusterMultiplicityRegions = conf_.getParameter<edm::ParameterSet>("MultiplicityRegions");
   k0 = ClusterMultiplicityRegions.getParameter<double>("k0");
@@ -342,8 +345,19 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es){
       PixVsStripMultiplicityRegions->setBinLabel(3,"High Strip Noise");
       PixVsStripMultiplicityRegions->setBinLabel(4,"Beam Background");
       PixVsStripMultiplicityRegions->setBinLabel(5,"No Strip Clusters");
-
     } 
+
+    if (globalswitchmaindiagonalposition){
+      dqmStore_->setCurrentFolder(topFolderName_+"/MechanicalView/");
+      edm::ParameterSet GlobalTH1Parameters =  conf_.getParameter<edm::ParameterSet>("TH1MainDiagonalPosition");
+      std::string HistoName = "MainDiagonal Position";
+      GlobalMainDiagonalPosition = dqmStore_->book1D(HistoName,HistoName,
+					     GlobalTH1Parameters.getParameter<int32_t>("Nbinsx"),
+					     GlobalTH1Parameters.getParameter<double>("xmin"),
+					     GlobalTH1Parameters.getParameter<double>("xmax"));
+      GlobalMainDiagonalPosition->setAxisTitle("atan(NPix/(k*NStrip))");
+    }
+
 
     if (globalswitchstripnoise2apvcycle){
       dqmStore_->setCurrentFolder(topFolderName_+"/MechanicalView/");
@@ -355,6 +369,7 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es){
 					     GlobalTH1Parameters.getParameter<double>("xmax"));
       StripNoise2Cycle->setAxisTitle("APV Cycle");
     }
+
     if (globalswitchstripnoise3apvcycle){
       dqmStore_->setCurrentFolder(topFolderName_+"/MechanicalView/");
       edm::ParameterSet GlobalTH1Parameters =  conf_.getParameter<edm::ParameterSet>("TH1StripNoise3ApvCycle");
@@ -407,13 +422,14 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
   const edmNew::DetSetVector<SiStripCluster> * StrC= cluster_detsetvektor.product();
   NStripClusters= StrC->data().size(); 
 
+  
   if (cluster_detsetvektor_pix.isValid()){
     const edmNew::DetSetVector<SiPixelCluster> * PixC= cluster_detsetvektor_pix.product();
     NPixClusters= PixC->data().size();
     isPixValid=true;
-
     MultiplicityRegion=FindRegion(NStripClusters,NPixClusters);  
     if (globalswitchcstripvscpix) GlobalCStripVsCpix->Fill(NStripClusters,NPixClusters);
+    if (globalswitchmaindiagonalposition) GlobalMainDiagonalPosition->Fill(atan(NPixClusters/(k0*NStripClusters)));
     if (globalswitchMultiRegions) PixVsStripMultiplicityRegions->Fill(MultiplicityRegion);
     
   }
@@ -590,10 +606,12 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     long long tbx        = event_history->absoluteBX();    
 
     bool global_histo_filled = false;
+    bool MultiplicityRegion_Vs_APVcycle_filled=false;
+
     for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin();
        it != SubDetMEsMap.end(); it++) {
       std::string sdet = it->first;
-      //      std::string sdet = sdet_tag.substr(0,sdet_tag.find_first_of("_"));
+      //std::string sdet = sdet_tag.substr(0,sdet_tag.find_first_of("_"));
       SubDetMEs sdetmes = it->second;
 
       int the_phase = APVCyclePhaseCollection::invalid;
@@ -602,17 +620,23 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
       if (SubDetPhasePartMap.find(sdet) != SubDetPhasePartMap.end()) the_phase = apv_phase_collection->getPhase(SubDetPhasePartMap[sdet]);
       if(the_phase==APVCyclePhaseCollection::nopartition ||
          the_phase==APVCyclePhaseCollection::multiphase ||
-         the_phase==APVCyclePhaseCollection::invalid) the_phase=30;
+         the_phase==APVCyclePhaseCollection::invalid) {
+	the_phase=30;
+	//std::cout << " subdet " << it->first << " not valid" << " MR " << MultiplicityRegion <<std::endl;
+      }
       tbx_corr  -= the_phase;
       long long dbxincycle = event_history->deltaBXinCycle(the_phase);
       if (globalswitchapvcycledbxth2on && !global_histo_filled) { 
         GlobalApvCycleDBxTH2->Fill(tbx_corr%70,dbx);
         global_histo_filled = true;
       }
-      if (isPixValid){
-	if (globalswitchstripnoise2apvcycle && MultiplicityRegion==2) StripNoise2Cycle->Fill(tbx_corr%70);
-	if (globalswitchstripnoise3apvcycle && MultiplicityRegion==3) StripNoise3Cycle->Fill(tbx_corr%70);
+
+      if (isPixValid && !MultiplicityRegion_Vs_APVcycle_filled){	
+	if (globalswitchstripnoise2apvcycle && MultiplicityRegion==2) {StripNoise2Cycle->Fill(tbx_corr%70);}
+	if (globalswitchstripnoise3apvcycle && MultiplicityRegion==3) {StripNoise3Cycle->Fill(tbx_corr%70);}
+	MultiplicityRegion_Vs_APVcycle_filled=true;
       }
+
       if (subdetswitchtotclusth1on) sdetmes.SubDetTotClusterTH1->Fill(sdetmes.totNClusters);
       if (subdetswitchtotclusprofon) sdetmes.SubDetTotClusterProf->Fill(iOrbitSec,sdetmes.totNClusters);
       if (subdetswitchapvcycleprofon) sdetmes.SubDetClusterApvProf->Fill(tbx_corr%70,sdetmes.totNClusters);
@@ -889,7 +913,7 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label) {
 						    h2ymax);
     subdetMEs.SubDetClusterApvTH2->setAxisTitle("Apv Cycle (Corrected Absolute Bx % 70))",1);
     subdetMEs.SubDetClusterApvTH2->setAxisTitle("Total # of Clusters",2);
-    
+   
   }
   // Total Number of Cluster vs DeltaBxCycle - Profile
   if(subdetswitchdbxcycleprofon){

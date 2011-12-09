@@ -278,6 +278,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
             favorite_capid = k;
       }
 
+      int toaddMem = 0;
       int first = firstSample_;
       int toadd = samplesToAdd_;
 
@@ -300,6 +301,10 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	  const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
 	  first = param_ts->firstSample();    
 	  toadd = param_ts->samplesToAdd(); 
+	}
+	if(toaddMem != toadd) {
+	  reco_.initPulseCorr(toadd);
+          toaddMem = toadd;
 	}
 
 	rec->push_back(reco_.reconstruct(*i,first,toadd,coder,calibrations));
@@ -371,6 +376,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
             favorite_capid = k;
       }
 
+      int toaddMem = 0;
       int first = firstSample_;
       int toadd = samplesToAdd_;
 
@@ -392,6 +398,10 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	  const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
 	  first = param_ts->firstSample();    
 	  toadd = param_ts->samplesToAdd();    
+	}
+        if(toaddMem != toadd) {
+	  reco_.initPulseCorr(toadd);
+          toaddMem = toadd;
 	}
 	rec->push_back(reco_.reconstruct(*i,first,toadd,coder,calibrations));
 
@@ -443,6 +453,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
             favorite_capid = k;
       }
 
+      int toaddMem = 0;
       int first = firstSample_;
       int toadd = samplesToAdd_;
 
@@ -465,7 +476,11 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	  first = param_ts->firstSample();    
 	  toadd = param_ts->samplesToAdd();    
 	}
-
+        if(toaddMem != toadd) {
+	  reco_.initPulseCorr(toadd);
+          toaddMem = toadd;
+	}
+	
 	// Set HFDigiTime flag values from digiTimeFromDB_
 	if (digiTimeFromDB_==true && hfdigibit_!=0)
 	  {
@@ -577,6 +592,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
       std::auto_ptr<HcalCalibRecHitCollection> rec(new HcalCalibRecHitCollection);
       rec->reserve(digi->size());
       // run the algorithm
+      int toaddMem = 0;
       int first = firstSample_;
       int toadd = samplesToAdd_;
 
@@ -600,6 +616,10 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	  const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
 	  first = param_ts->firstSample();    
 	  toadd = param_ts->samplesToAdd();    
+	}
+        if(toaddMem != toadd) {
+	  reco_.initPulseCorr(toadd);
+          toaddMem = toadd;
 	}
 	rec->push_back(reco_.reconstruct(*i,first,toadd,coder,calibrations));
 

@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 HBHENoiseFilterResultProducer = cms.EDProducer(
     'HBHENoiseFilterResultProducer',
-    label = cms.InputTag('hcalnoise'),
+    noiselabel = cms.InputTag('hcalnoise'),
     minRatio = cms.double(-999),
     maxRatio = cms.double(999),
     minHPDHits = cms.int32(17),

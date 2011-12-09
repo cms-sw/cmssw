@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.243 2011/07/16 02:51:48 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.249 2011/09/12 22:56:09 amraktad Exp $
 
 
 //
@@ -396,12 +396,6 @@ FWGUIManager::clearStatus()
 }
 
 void
-FWGUIManager::processGUIEvents()
-{
-   gSystem->ProcessEvents();
-}
-
-void
 FWGUIManager::newItem(const FWEventItem* iItem)
 {
 #if defined(THIS_WILL_NEVER_BE_DEFINED)
@@ -457,14 +451,13 @@ FWGUIManager::getSwapCandidate()
       }
       if (swapCandidate == 0)
       {
-         // no eve window found in primary check secondary
+         // no eve window found in primary, check secondary
          TGPack* sp = m_viewSecPack->GetPack();
-         Int_t nf = sp->GetList()->GetSize();
          TIter frame_iterator(sp->GetList());
-         for (Int_t i=0; i<nf; ++i) {
-            pel = (TGFrameElementPack*)frame_iterator();
+         while ((pel = (TGFrameElementPack*)frame_iterator())) 
+         {
             pef = dynamic_cast<TEveCompositeFrame*>(pel->fFrame);
-            if ( pef && pef->GetEveWindow())
+            if ( pef && pef->GetEveWindow() && pel->fState)
             {
                swapCandidate =  pef->GetEveWindow() ;
                break;
@@ -472,7 +465,6 @@ FWGUIManager::getSwapCandidate()
          }
       }
    }
-
    return swapCandidate;
 }
 
@@ -834,9 +826,16 @@ FWGUIManager::promptForSaveConfigurationFile()
 void
 FWGUIManager::exportImageOfMainView()
 {
-   TGFrameElementPack* frameEL = (TGFrameElementPack*) m_viewPrimPack->GetPack()->GetList()->At(1);
-   TEveCompositeFrame* ef = dynamic_cast<TEveCompositeFrame*>(frameEL->fFrame);
-   m_viewMap[ef->GetEveWindow()]->promptForSaveImageTo(m_cmsShowMainFrame);
+   if (m_viewPrimPack->GetPack()->GetList()->GetSize() > 2)
+   {
+      TGFrameElementPack* frameEL = (TGFrameElementPack*) m_viewPrimPack->GetPack()->GetList()->At(1);
+      TEveCompositeFrame* ef = dynamic_cast<TEveCompositeFrame*>(frameEL->fFrame);
+      m_viewMap[ef->GetEveWindow()]->promptForSaveImageTo(m_cmsShowMainFrame);
+   }
+   else
+   {
+      fwLog(fwlog::kError) << "Main view has been destroyed." << std::endl; 
+   }
 }
 
 void
@@ -866,7 +865,7 @@ FWGUIManager::exportImagesOfAllViews()
          if (name.find(ext) == name.npos)
             name += ext;
          // now add format trailing before the extension
-         name.insert(name.rfind('.'), "-%d_%d_%d_%s");
+         name.insert(name.rfind('.'), "-%u_%u_%u_%s");
          exportAllViews(name);
       }
    }
@@ -977,7 +976,7 @@ class areaInfo
 public:
    areaInfo (TGFrameElementPack* frameElement)
    {
-      eveWindow          = 0;
+      eveWindow         = 0;
       originalSlot      = 0;
       undockedMainFrame = 0;
       weight = frameElement->fWeight;
@@ -992,11 +991,11 @@ public:
          originalSlot = eveFrame->GetEveWindow();
    }
 
-   areaInfo () {}
+  areaInfo () : weight(0), undocked(false) {}
 
-   Float_t     weight;
-   Bool_t      undocked;
-   TEveWindow *eveWindow;
+   Float_t      weight;
+   Bool_t       undocked;
+   TEveWindow  *eveWindow;
    TGMainFrame *undockedMainFrame;// cached to help find original slot for undocked windows
    TEveWindow  *originalSlot;
 };
@@ -1076,10 +1075,10 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
          wpacked.push_back(areaInfo(frameEL));
    }
    TGPack* sp = m_viewSecPack->GetPack();
-   Int_t nf = sp->GetList()->GetSize();
+   TGFrameElementPack *seFE;
    TIter frame_iterator(sp->GetList());
-   for (Int_t i=0; i<nf; ++i) {
-      TGFrameElementPack *seFE = (TGFrameElementPack*)frame_iterator();
+   while ((seFE = (TGFrameElementPack*)frame_iterator() ))
+   {
       if (seFE->fWeight)
          wpacked.push_back(areaInfo(seFE));
    }
@@ -1225,11 +1224,15 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
             TEveWindow* lastWindow = lastViewIt->first;
             lastWindow->UndockWindow();
             TEveCompositeFrameInMainFrame* emf = dynamic_cast<TEveCompositeFrameInMainFrame*>(lastWindow->GetEveFrame());
-            const TGMainFrame* mf =  dynamic_cast<const TGMainFrame*>(emf->GetParent());
-            m_cmsShowMainFrame->bindCSGActionKeys(mf);
-            TGMainFrame* mfp = (TGMainFrame*)mf;
-            const FWConfiguration* mwc = (areaIt->second).valueForKey("UndockedWindowPos");
-            setWindowInfoFrom(*mwc, mfp);
+            if (emf ) {
+               const TGMainFrame* mf =  dynamic_cast<const TGMainFrame*>(emf->GetParent());
+               if (mf) {
+                  m_cmsShowMainFrame->bindCSGActionKeys(mf);
+                  TGMainFrame* mfp = (TGMainFrame*)mf; // have to cast in non-const
+                  const FWConfiguration* mwc = (areaIt->second).valueForKey("UndockedWindowPos");
+                  setWindowInfoFrom(*mwc, mfp);
+               }
+            }
          }
          areaIt++;
       }

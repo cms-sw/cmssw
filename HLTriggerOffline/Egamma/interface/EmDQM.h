@@ -64,6 +64,8 @@ private:
   unsigned int numOfHLTCollectionLabels;  // Will be size of above vector
   bool useHumanReadableHistTitles;
   bool mcMatchedOnly;
+  bool noPhiPlots;
+  bool noIsolationPlots;
   std::vector<std::string> theHLTCollectionHumanNames; // Human-readable names for the collections
   edm::InputTag theL1Seed;
   std::vector<int> theHLTOutputTypes;

@@ -232,7 +232,7 @@ TkGluedMeasurementDet::testStrips(const TrajectoryStateOnSurface& tsos,
    const GeomDet &det = mdet.geomDet();
    const BoundPlane &stripPlane = det.surface();
 
-   LocalPoint glp = tsos.localPosition();
+   //LocalPoint glp = tsos.localPosition();
    LocalError  err = tsos.localError().positionError();
    /*LogDebug("TkStripMeasurementDet") << 
       "Testing local pos glued: " << glp << 

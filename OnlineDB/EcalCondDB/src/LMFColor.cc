@@ -49,8 +49,7 @@ LMFColor::~LMFColor()
 }
 
 std::string LMFColor::fetchAllSql(Statement *stmt) const {
-  std::string sql = "SELECT COLOR_ID FROM " 
-    "CMS_ECAL_LASER_COND.LMF_COLOR_DEF";
+  std::string sql = "SELECT COLOR_ID FROM LMF_COLOR_DEF";
   stmt->setSQL(sql);
   return sql;
 }
@@ -65,18 +64,18 @@ std::string LMFColor::fetchIdSql(Statement *stmt) {
   // the query depends on the object status
   std::string sql;
   if ((getInt("color") >= 0) && (getString("sname") != "none")) {
-    sql = "SELECT COLOR_ID FROM CMS_ECAL_LASER_COND.LMF_COLOR_DEF "
+    sql = "SELECT COLOR_ID FROM LMF_COLOR_DEF "
           "WHERE SNAME   = :1 AND COLOR_INDEX = :2";
     stmt->setSQL(sql);
     stmt->setString(1, getShortName());
     stmt->setInt(2, getColorIndex());
   } else if (getInt("color") >= 0) {
-    sql = "SELECT COLOR_ID FROM CMS_ECAL_LASER_COND.LMF_COLOR_DEF "
+    sql = "SELECT COLOR_ID FROM LMF_COLOR_DEF "
           "WHERE COLOR_INDEX = :1";
     stmt->setSQL(sql);
     stmt->setInt(1, getColorIndex());
   } else if (getString("sname") != "") {
-    sql = "SELECT COLOR_ID FROM CMS_ECAL_LASER_COND.LMF_COLOR_DEF "
+    sql = "SELECT COLOR_ID FROM LMF_COLOR_DEF "
           "WHERE SNAME   = :1";
     stmt->setSQL(sql);
     stmt->setString(1, getShortName());
@@ -86,7 +85,7 @@ std::string LMFColor::fetchIdSql(Statement *stmt) {
 
 std::string LMFColor::setByIDSql(Statement *stmt, int id) { 
   std::string sql = "SELECT COLOR_INDEX, SNAME, LNAME "
-    "FROM CMS_ECAL_LASER_COND.LMF_COLOR_DEF WHERE COLOR_ID = :1";
+    "FROM LMF_COLOR_DEF WHERE COLOR_ID = :1";
   stmt->setSQL(sql);
   stmt->setInt(1, id);
   return sql;

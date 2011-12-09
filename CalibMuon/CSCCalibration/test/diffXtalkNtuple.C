@@ -4,7 +4,7 @@ gROOT->Reset();
 
 ifstream in;
 
-in.open("diff_Xtalk_FileName");
+in.open("diffXtalkOct_Aug3.dat");
 
 Int_t index;
 Float_t diffXtalkR;
@@ -13,7 +13,7 @@ Float_t diffIntL;
 Float_t diffIntR;
 int i=0;
 Int_t nlines = 0;
-TFile *f = new TFile("RootFile","RECREATE");
+TFile *f = new TFile("diffXtalkOct_109890.dat.root","RECREATE");
 
 TNtuple *ntuple = new TNtuple("DiffXtalk","data from new ascii file","index:diffXtalkR:diffIntR:diffXtalkL:diffIntL");
 

@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.cc,v 1.44.4.1 2011/03/07 12:01:12 mommsen Exp $
+// $Id: SMProxyServer.cc,v 1.46 2011/03/07 15:41:55 mommsen Exp $
 /// @file: SMProxyServer.cc
 
 #include "EventFilter/SMProxyServer/interface/Exception.h"
@@ -372,6 +372,20 @@ SMProxyServer::processDQMConsumerEventRequest( xgi::Input* in, xgi::Output* out 
   throw( xgi::exception::Exception )
 {
   consumerUtils_->processDQMConsumerEventRequest(in,out);
+}
+
+namespace stor {
+  //////////////////////////////////////
+  // Specialization for ConsumerUtils //
+  //////////////////////////////////////
+  template<>
+  void
+  ConsumerUtils<smproxy::Configuration,smproxy::EventQueueCollection>::
+  writeConsumerEvent(xgi::Output* out, const smproxy::EventMsg& evt) const
+  {
+    writeHTTPHeaders( out );
+    out->write( (char*)evt.dataLocation(), evt.totalDataSize() );
+  }
 }
 
 
