@@ -53,9 +53,23 @@ pfCandMETcorr = cms.EDProducer("PFCandMETcorrInputProducer",
 #--------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------
+# produce Type 0 MET corrections for selected vertices
+pfchsMETcorr = cms.EDProducer("PFchsMETcorrInputProducer",
+    src = cms.InputTag('offlinePrimaryVertices'),
+    goodVtxNdof = cms.uint32(4),
+    goodVtxZ = cms.double(24)
+)   
+#--------------------------------------------------------------------------------
+
+#--------------------------------------------------------------------------------
 # use MET corrections to produce Type 1 / Type 1 + 2 corrected PFMET objects
 pfType1CorrectedMet = cms.EDProducer("CorrectedPFMETProducer",
     src = cms.InputTag('pfMet'),
+    applyType0Corrections = cms.bool(True),
+    srcCHSSums = cms.VInputTag(
+        cms.InputTag('pfchsMETcorr', 'type0')
+    ),
+    type0Rsoft = cms.double(0.6),
     applyType1Corrections = cms.bool(True),
     srcType1Corrections = cms.VInputTag(
         cms.InputTag('pfJetMETcorr', 'type1')
@@ -65,6 +79,11 @@ pfType1CorrectedMet = cms.EDProducer("CorrectedPFMETProducer",
 
 pfType1p2CorrectedMet = cms.EDProducer("CorrectedPFMETProducer",
     src = cms.InputTag('pfMet'),
+    applyType0Corrections = cms.bool(True),
+    srcCHSSums = cms.VInputTag(
+        cms.InputTag('pfchsMETcorr', 'type0')
+    ),
+    type0Rsoft = cms.double(0.6),
     applyType1Corrections = cms.bool(True),
     srcType1Corrections = cms.VInputTag(
         cms.InputTag('pfJetMETcorr', 'type1')
@@ -90,6 +109,7 @@ producePFMETCorrections = cms.Sequence(
    * pfCandsNotInJet
    * pfJetMETcorr
    * pfCandMETcorr
+   * pfchsMETcorr
    * pfType1CorrectedMet
    * pfType1p2CorrectedMet
 )
