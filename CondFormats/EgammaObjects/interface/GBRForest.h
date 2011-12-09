@@ -36,20 +36,19 @@
        
        Double_t GetResponse(const Float_t* vector) const;
       
-       std::vector<GBRTree*> &Trees() { return fTrees; }
+       std::vector<GBRTree> &Trees() { return fTrees; }
        
     protected:
       Double_t             fInitialResponse;
-      std::vector<GBRTree*> fTrees;
+      std::vector<GBRTree> fTrees;
     
-    ClassDef(GBRForest,50) // Node for the Decision Tree 
   };
 
 //_______________________________________________________________________
 inline Double_t GBRForest::GetResponse(const Float_t* vector) const {
   Double_t response = fInitialResponse;
-  for (std::vector<GBRTree*>::const_iterator it=fTrees.begin(); it!=fTrees.end(); ++it) {
-    response += (*it)->GetResponse(vector);
+  for (std::vector<GBRTree>::const_iterator it=fTrees.begin(); it!=fTrees.end(); ++it) {
+    response += it->GetResponse(vector);
   }
   return response;
 }

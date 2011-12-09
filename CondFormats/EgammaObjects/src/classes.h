@@ -17,5 +17,6 @@ namespace {
     GBRTree e1;
     GBRForest e2;
     GBRWrapper e3;
+
   };
 }

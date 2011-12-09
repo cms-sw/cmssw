@@ -39,12 +39,13 @@
 
        GBRTree();
        GBRTree(const TMVA::DecisionTree *tree);
-       GBRTree(const GBRTree &other);       
+       //       GBRTree(const GBRTree &other);       
 
        virtual ~GBRTree();
        
        Double_t GetResponse(const Float_t* vector) const;
 
+       //       virtual void Streamer(TBuffer &b);
        
     protected:      
         UInt_t CountIntermediateNodes(const TMVA::DecisionTreeNode *node);
@@ -55,14 +56,13 @@
         Int_t    fNIntermediateNodes;
         Int_t    fNTerminalNodes;
       
-        UChar_t *fCutIndices;//[fNIntermediateNodes]
-        Float_t *fCutVals;//[fNIntermediateNodes]
-        Int_t   *fLeftIndices;//[fNIntermediateNodes]
-        Int_t   *fRightIndices;//[fNIntermediateNodes]        
-        Float_t *fResponses;//[fNTerminalNodes]
+	std::vector<UChar_t> fCutIndices;//[fNIntermediateNodes]
+	std::vector<Float_t> fCutVals;//[fNIntermediateNodes]
+	std::vector<Int_t> fLeftIndices;//[fNIntermediateNodes]
+	std::vector<Int_t> fRightIndices;//[fNIntermediateNodes]        
+	std::vector<Float_t> fResponses;//[fNTerminalNodes]
 
         
-    ClassDef(GBRTree,50) // Node for the Decision Tree  
   };
 
 //_______________________________________________________________________

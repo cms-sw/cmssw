@@ -1,6 +1,6 @@
 
 
-#include "../interface/GBRTree.h"
+#include "CondFormats/EgammaObjects/interface/GBRTree.h"
 #include "TClass.h"
 
 using namespace std;
@@ -36,30 +36,41 @@ GBRTree::GBRTree(const TMVA::DecisionTree *tree) :
   
   //special case, root node is terminal
   if (nIntermediate==0) nIntermediate = 1;
-  
+
+  /*  
   fCutIndices = new UChar_t[nIntermediate];
   fCutVals = new Float_t[nIntermediate];
   fLeftIndices = new Int_t[nIntermediate];
   fRightIndices = new Int_t[nIntermediate];
   fResponses = new Float_t[nTerminal];
+  */
   
+  fCutIndices.resize(nIntermediate);
+  fCutVals.resize(nIntermediate);
+  fLeftIndices.resize(nIntermediate);
+  fRightIndices.resize(nIntermediate);
+  fResponses.resize(nTerminal);
+
   AddNode((TMVA::DecisionTreeNode*)tree->GetRoot());
-  
+
   //special case, root node is terminal, create fake intermediate node at root
   if (fNIntermediateNodes==0) {
+    fNIntermediateNodes=1;
+    fCutIndices.resize(nIntermediate);
+    fCutVals.resize(nIntermediate);
+    fLeftIndices.resize(nIntermediate);
+    fRightIndices.resize(nIntermediate);
+    fResponses.resize(nTerminal);
+    
     fCutIndices[0] = 0;
     fCutVals[0] = 0.;
     fLeftIndices[0] = 0;
     fRightIndices[0] = 0;
-    ++fNIntermediateNodes;
   }
-  
-  
-
-  
 
 }
 
+/*
 //_______________________________________________________________________
 GBRTree::GBRTree(const GBRTree &other) :
   fNIntermediateNodes(other.fNIntermediateNodes),
@@ -83,14 +94,17 @@ GBRTree::GBRTree(const GBRTree &other) :
   }
 
 }
+*/
 
 //_______________________________________________________________________
 GBRTree::~GBRTree() {
-  delete [] fCutIndices;
-  delete [] fCutVals;
-  delete [] fLeftIndices;
-  delete [] fRightIndices;
-  delete [] fResponses;
+  /*
+    delete [] fCutIndices;
+    delete [] fCutVals;
+    delete [] fLeftIndices;
+    delete [] fRightIndices;
+    delete [] fResponses;
+  */
 }
 
 //_______________________________________________________________________
@@ -166,7 +180,9 @@ void GBRTree::AddNode(const TMVA::DecisionTreeNode *node) {
   
 }
 
+
 //-------------------------------------------------------------------------------------------------
+/*
 void GBRTree::Streamer(TBuffer &b)
 {
    // Stream all objects in the array to or from the I/O buffer.
@@ -203,7 +219,7 @@ void GBRTree::Streamer(TBuffer &b)
       b.ReadFastArray(fResponses,fNTerminalNodes);
     }
 
-  } else { /*writing*/
+  } else { //writing
 
     b.WriteVersion(GBRTree::Class());
     b << fNIntermediateNodes;
@@ -220,3 +236,4 @@ void GBRTree::Streamer(TBuffer &b)
     }
   }
 }
+*/
