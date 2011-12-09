@@ -94,7 +94,7 @@ public:
 private:
 
   ReferenceCountingPointer<BoundPlane>  thePlane;
-  LocalError                            theLocalError;
+  LocalError                            theLocalAlignmentError;
   DetId m_detId;
 
 
@@ -116,9 +116,7 @@ private:
   void setPosition( const Surface::PositionType& position, 
 		    const Surface::RotationType& rotation);
 
-  /// create the AlignmentPositionError for this Det if not existing yet,
-  /// or replace the existing one by the given one. For adding, use the
-  /// +=,-=  methods of the AlignmentPositionError
+  /// set the LocalAlignmentError properly trasforming the ape 
   /// Does not affect the AlignmentPositionError of components (if any).
   
   bool setAlignmentPositionError (const AlignmentPositionError& ape); 

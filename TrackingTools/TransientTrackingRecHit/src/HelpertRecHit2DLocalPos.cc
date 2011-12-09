@@ -5,7 +5,7 @@
 
 void
 HelpertRecHit2DLocalPos::updateWithAPE(LocalError& le, const GeomDet& det) {
-    LocalError lape = det.localError();
+    LocalError lape = det.localAlignmentError();
     if (lape.valid())
       le = LocalError(le.xx()+lape.xx(),
 		      le.xy()+lape.xy(),
@@ -17,7 +17,7 @@ AlgebraicSymMatrix HelpertRecHit2DLocalPos::parError( const LocalError& le,
 						      const GeomDet& det)
 {
   AlgebraicSymMatrix m(2);
-    LocalError lape = det.localError();
+    LocalError lape = det.localAlignmentError();
     if (lape.valid()) {
       m[0][0] = le.xx()+lape.xx();
       m[0][1] = le.xy()+lape.xy();
@@ -36,7 +36,7 @@ HelpertRecHit2DLocalPos::getKfComponents(KfComponentsHolder & holder,
 					 const GeomDet& det)
 {
     hit2dLocalPos.getKfComponents(holder);
-    LocalError lape = det.localError();
+    LocalError lape = det.localAlignmentError();
     if (lape.valid()) {
       AlgebraicSymMatrix22 &m = holder.errors<2>();
       m(0, 0) += lape.xx();
@@ -51,7 +51,7 @@ HelpertRecHit2DLocalPos::getKfComponents(KfComponentsHolder & holder,
 					 const GeomDet& det)
 {
     hit1D.getKfComponents(holder);
-    LocalError lape =det.localError();
+    LocalError lape =det.localAlignmentError();
     if (lape.valid()) {
       AlgebraicSymMatrix11 &m = holder.errors<1>();
       m(0, 0) += lape.xx();
