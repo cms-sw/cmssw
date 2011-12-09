@@ -28,9 +28,7 @@ void PFchsMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSetup& 
   for (unsigned i = 1; i < recVtxs->size(); ++i)
     {
       const reco::Vertex& v = recVtxs->at(i);
-      std::cout << v.z() << std::endl;
       if (v.isFake() && v.ndof() >= goodVtxNdof_ && fabs(v.z()) <= goodVtxZ_) continue;
-      std::cout << v.z() << std::endl;
 
       for (reco::Vertex::trackRef_iterator track = v.tracks_begin(); track != v.tracks_end(); ++track)
 	{
