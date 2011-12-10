@@ -137,7 +137,7 @@ public:
 private:
 
 
-  static void missingError(); // dso_internal;
+  void missingError(); // dso_internal;
 
 // convert curvilinear errors to cartesian
   void createCartesianError(CartesianTrajectoryError & aCartesianError) const; // dso_internal;
