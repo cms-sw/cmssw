@@ -1,6 +1,7 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianCurvilinearToCartesian.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianCartesianToCurvilinear.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 
 #include <cmath>
 #include<sstream>
