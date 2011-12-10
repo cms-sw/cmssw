@@ -5,13 +5,15 @@
  *
  *  Base class for the different implementation of magnetic field engines.
  *
- *  $Date: 2009/05/23 22:57:42 $
- *  $Revision: 1.8 $
+ *  $Date: 2010/12/25 16:23:18 $
+ *  $Revision: 1.9 $
  *  \author N. Amapane - CERN
  */
 
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "FWCore/Utilities/interface/Visibility.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 class MagneticField
 {
@@ -52,9 +54,18 @@ class MagneticField
   }
   
   /// The nominal field value for this map in kGauss
-  // This generic implementation can be replaced by concrete engines
-  virtual int nominalValue() const;
-  
+  int nominalValue() const {
+    if unlikely(!nominalValueCompiuted) { 
+      theNominalValue = computeNominalValue();
+      nominalValueCompiuted=true;
+    }
+    return theNominalValue;
+  }
+private:
+  //nominal field value 
+  virtual int computeNominalValue() const;
+  bool nominalValueCompiuted;
+  mutable int theNominalValue;
 };
 
 #endif
