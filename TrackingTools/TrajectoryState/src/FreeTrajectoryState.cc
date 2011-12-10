@@ -6,7 +6,7 @@
 #include<sstream>
 
 
-void FreeTrajectoryState::missingError() {
+void FreeTrajectoryState::missingError() const {
   std::stringstream form;
   form<< "FreeTrajectoryState: attempt to access errors when none available" <<
     "\nCurvilinear error valid/values :"<< theCurvilinearError.valid() << "\n" 
