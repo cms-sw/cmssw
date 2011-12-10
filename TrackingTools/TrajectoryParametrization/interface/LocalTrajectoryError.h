@@ -22,13 +22,18 @@ class LocalTrajectoryError {
 public:
   // construct
   LocalTrajectoryError(){}
-  LocalTrajectoryError(InvalidError) {theCovarianceMatrix(0,0)=-1.;}
+  LocalTrajectoryError(InvalidError) {theCovarianceMatrix(0,0)=-99999.;}
   // destruct
   ~LocalTrajectoryError(){}
 
-
   bool invalid() const { return theCovarianceMatrix(0,0)<0;}
   bool valid() const { return !invalid();}
+
+  // not really full check of posedef
+  bool posDef() const { 
+    return (!theCovarianceMatrix(0,0)<0) && (!theCovarianceMatrix(1,1)<0) && 
+      (!theCovarianceMatrix(2,2)<0) &&(!theCovarianceMatrix(3,3)<0) && (!theCovarianceMatrix(4,4)<0);
+  }
 
 
   /** Constructing class from a full covariance matrix. The sequence of the parameters is
