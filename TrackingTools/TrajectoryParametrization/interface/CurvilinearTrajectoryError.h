@@ -35,7 +35,7 @@ public:
 // construct
   CurvilinearTrajectoryError() {}
 
-  CurvilinearTrajectoryError(InvalidError) {theCovarianceMatrix(0,0)=-1.;}
+  CurvilinearTrajectoryError(InvalidError) {theCovarianceMatrix(0,0)=-99999.e10;}
 
   /** Constructing class from a full covariance matrix. The sequence of the parameters is
    *  the same as the one described above.
@@ -43,8 +43,15 @@ public:
   CurvilinearTrajectoryError(const AlgebraicSymMatrix55& aCovarianceMatrix) :
     theCovarianceMatrix(aCovarianceMatrix) { }
 
-  bool invalid() const { return theCovarianceMatrix(0,0)<0;}
+  bool invalid() const { return theCovarianceMatrix(0,0)<-1.e10;}
   bool valid() const { return !invalid();}
+
+  // not really full check of posdef
+  bool posDef() const { 
+    return (!theCovarianceMatrix(0,0)<0) && (!theCovarianceMatrix(1,1)<0) && 
+      (!theCovarianceMatrix(2,2)<0) &&(!theCovarianceMatrix(3,3)<0) && (!theCovarianceMatrix(4,4)<0);
+  }
+
 
 // access
 
