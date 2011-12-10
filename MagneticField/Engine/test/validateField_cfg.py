@@ -10,6 +10,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.load("MagneticField.Engine.volumeBasedMagneticField_1103l_cfi")	
+# process.load("MagneticField.Engine.uniformMagneticField_cfi")
 
 process.testMagneticField = cms.EDAnalyzer("testMagneticField",
 
