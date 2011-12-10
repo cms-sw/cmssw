@@ -10,7 +10,7 @@ void FreeTrajectoryState::missingError() {
   std::stringstream form;
   form<< "FreeTrajectoryState: attempt to access errors when none available" <<
     "\nCurvilinear error valid/values :"<< theCurvilinearError.valid() << "\n" 
-      <<  theLocalError.matrix();
+      <<  theCurvilinearError.matrix();
   throw TrajectoryStateException(form.str());
 }
 
