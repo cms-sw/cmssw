@@ -3,6 +3,7 @@
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianCartesianToCurvilinear.h"
 
 #include <cmath>
+#include<sstream>
 
 
 void FreeTrajectoryState::missingError() {
@@ -10,7 +11,7 @@ void FreeTrajectoryState::missingError() {
   form<< "FreeTrajectoryState: attempt to access errors when none available" <<
     "\nCurvilinear error valid/values :"<< theCurvilinearError.valid() << "\n" 
       <<  theLocalError.matrix();
- throw TrajectoryStateException(form);
+  throw TrajectoryStateException(form.str());
 }
 
 // implementation of non-trivial methods of FreeTrajectoryState
