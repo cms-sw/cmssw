@@ -205,8 +205,8 @@ void Pythia6Service::setGeneralParams()
 
 void Pythia6Service::setCSAParams()
 {
-      
-   char buf[514];
+#define SETCSAPARBUFSIZE 514
+   char buf[SETCSAPARBUFSIZE];
    
    txgive_init_();
    for(std::vector<std::string>::const_iterator iter = fParamCSA.begin();
@@ -214,13 +214,13 @@ void Pythia6Service::setCSAParams()
    {
       // Null pad the string should not be needed because it uses
       // read, which will look for \n, but just in case...
-      for (size_t i = 0; i < 515; ++i)
+      for (size_t i = 0; i < SETCSAPARBUFSIZE; ++i)
         buf[i] = ' ';
       // Skip empty parameters.
       if (iter->length() <= 0)
         continue;
       // Limit the size of the string to something which fits the buffer.
-      size_t maxSize = iter->length() > 512 ? 512 : iter->length();
+      size_t maxSize = iter->length() > (SETCSAPARBUFSIZE-2) ? (SETCSAPARBUFSIZE-2) : iter->length();
       strncpy(buf, iter->c_str(), maxSize);
       // Add extra \n if missing, otherwise "read" continues reading. 
       if (buf[maxSize-1] != '\n')
@@ -234,6 +234,7 @@ void Pythia6Service::setCSAParams()
    }   
    
    return ;
+#undef SETCSAPARBUFSIZE
 }
 
 void Pythia6Service::openSLHA( const char* file )
