@@ -42,7 +42,7 @@ void FreeTrajectoryState::createCurvilinearError(CartesianTrajectoryError const&
 
 void FreeTrajectoryState::rescaleError(double factor) {
   if unlikely(!hasError()) return;
-  bool zeroField = (theField->nominalValue()==0);  
+  bool zeroField = (parameters().magneticField().nominalValue()==0);  
   if unlikely(zeroField)  theCurvilinearError.zeroFieldScaling(factor*factor);
   else theCurvilinearError *= (factor*factor);
 }
