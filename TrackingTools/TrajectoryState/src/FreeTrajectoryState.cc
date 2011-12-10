@@ -42,7 +42,7 @@ void FreeTrajectoryState::createCurvilinearError(CartesianTrajectoryError const&
 
 void FreeTrajectoryState::rescaleError(double factor) {
   if unlikely(!hasError()) return;
-  bool zeroField = parameters().magneticFieldInInverseGeV(GlobalPoint(0,0,0)).mag2()==0;
+  bool zeroField = (theField->nominalValue()==0);  
   if unlikely(zeroField)  theCurvilinearError.zeroFieldScaling(factor*factor);
   else theCurvilinearError *= (factor*factor);
 }

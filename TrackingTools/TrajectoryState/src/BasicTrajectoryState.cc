@@ -284,7 +284,7 @@ BasicTrajectoryState::rescaleError(double factor) {
   
   if (theLocalError.valid()){
     //do it by hand if the free state is not around.
-    bool zeroField =theField->inInverseGeV(GlobalPoint(0,0,0)).mag2()==0;
+    bool zeroField = (theField->nominalValue()==0);
     if unlikely(zeroField){
       AlgebraicSymMatrix55 errors=theLocalError.matrix();
       //scale the 0 indexed covariance by the square root of the factor
