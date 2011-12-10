@@ -161,8 +161,8 @@ void BasicTrajectoryState::notValid() {
 void BasicTrajectoryState::missingError(char const * where) const{
   std::stringstream form;
   form<<"BasicTrajectoryState: attempt to access errors when none available "
-      <<where<<".\nfreestate pointer: "
-      <<theFreeState <<"\nlocal error valid/values :"<< theLocalError.valid() << " " 
+      <<where<<".\nfreestate pointer: " <<theFreeState
+      <<"\nlocal error valid/values :"<< theLocalError.valid() << "\n" 
       <<  theLocalError.matrix();
 
   throw TrajectoryStateException(form.str());
