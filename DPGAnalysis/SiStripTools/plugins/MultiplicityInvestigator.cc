@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Venturi
 //         Created:  Mon Oct 27 17:37:53 CET 2008
-// $Id: MultiplicityInvestigator.cc,v 1.2 2011/11/15 16:59:06 venturia Exp $
+// $Id: MultiplicityInvestigator.cc,v 1.3 2011/11/26 00:37:34 venturia Exp $
 //
 //
 
@@ -140,7 +140,7 @@ MultiplicityInvestigator::analyze(const edm::Event& iEvent, const edm::EventSetu
     Handle<reco::VertexCollection> vertices;
     iEvent.getByLabel(m_vertexCollection,vertices);
 
-    m_digivtxcorrhmevent.fill(vertices->size(),*mults);
+    m_digivtxcorrhmevent.fill(iEvent,vertices->size(),*mults);
   }
 
   if(m_wantLumiCorrHist) m_digilumicorrhmevent.fill(iEvent,*mults);
@@ -160,6 +160,7 @@ void
 MultiplicityInvestigator::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
 
   m_digiinvesthmevent.beginRun(iRun.run());
+  m_digivtxcorrhmevent.beginRun(iRun);
 
 }
 
