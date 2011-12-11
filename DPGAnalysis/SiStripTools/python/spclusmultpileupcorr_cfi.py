@@ -12,7 +12,7 @@ spclusmultpileupcorr = cms.EDAnalyzer('MultiplicityInvestigator',
     pileupSummaryCollection = cms.InputTag("addPileupInfo"),
     useVisibleVertices = cms.bool(False),
     wantedSubDets = cms.untracked.VPSet(    
-    cms.PSet(detSelection = cms.uint32(0),detLabel = cms.string("TK"),  binMax = cms.int32(9523712/64))
+    cms.PSet(detSelection = cms.uint32(0),detLabel = cms.string("Pixel"), binMax = cms.int32(200000))
     ),
     hitName = cms.untracked.string("cluster"),
     numberOfBins = cms.untracked.int32(100),
