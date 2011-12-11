@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Venturi
 //         Created:  Mon Oct 27 17:37:53 CET 2008
-// $Id: AnotherPrimaryVertexAnalyzer.cc,v 1.4 2010/11/30 09:07:06 venturia Exp $
+// $Id: AnotherPrimaryVertexAnalyzer.cc,v 1.1 2011/03/08 17:11:26 venturia Exp $
 //
 //
 
@@ -150,7 +150,7 @@ AnotherPrimaryVertexAnalyzer::beginJob()
 void
 AnotherPrimaryVertexAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
 
-  _vhm.beginRun(iRun.run());
+  _vhm.beginRun(iRun);
 
   if(_weightprov) _weightprov->initRun(iRun,iSetup);
 

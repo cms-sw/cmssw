@@ -9,6 +9,7 @@
 namespace edm {
   class ParameterSet;
   class Event;
+  class Run;
 }
 
 class TH1F;
@@ -25,11 +26,12 @@ class VertexHistogramMaker {
   ~VertexHistogramMaker();
 
   void book(const std::string dirname="");
-  void beginRun(const unsigned int nrun);
-  void fill(const unsigned int orbit, const int bx, const float bxlumi, const reco::VertexCollection& vertices, const double weight=1.);
+  void beginRun(const edm::Run& iRun);
   void fill(const edm::Event& iEvent, const reco::VertexCollection& vertices, const double weight=1.);
 
  private:
+
+  void fill(const unsigned int orbit, const int bx, const float bxlumi, const reco::VertexCollection& vertices, const double weight=1.);
 
   TFileDirectory* m_currdir;
   const unsigned int m_maxLS;
@@ -44,6 +46,7 @@ class VertexHistogramMaker {
   const edm::ParameterSet m_histoParameters;
 
   RunHistogramManager m_rhm;
+  RunHistogramManager m_fhm;
   TH1F* m_hnvtx;
   TH1F* m_hntruevtx;
   TProfile* m_hntruevtxvslumi;

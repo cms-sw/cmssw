@@ -2,6 +2,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -30,7 +31,7 @@ VertexHistogramMaker::VertexHistogramMaker(const edm::ParameterSet& iConfig):
   m_runHisto2D(iConfig.getUntrackedParameter<bool>("runHisto2D",false)),
   m_bsConstrained(iConfig.getParameter<bool>("bsConstrained")),
   m_histoParameters(iConfig.getUntrackedParameter<edm::ParameterSet>("histoParameters",edm::ParameterSet())),
-  m_rhm()
+  m_rhm(false),m_fhm(true)
 { }
 
 
@@ -165,24 +166,25 @@ void VertexHistogramMaker::book(const std::string dirname) {
     }
 
     if(m_runHistoBXProfile) {
-      m_hvtxxvsbxrun = m_rhm.makeTProfile("vtxxvsbxrun","Vertex X position vs BX number",3564,-0.5,3563.5);
-      m_hvtxyvsbxrun = m_rhm.makeTProfile("vtxyvsbxrun","Vertex Y position vs BX number",3564,-0.5,3563.5);
-      m_hvtxzvsbxrun = m_rhm.makeTProfile("vtxzvsbxrun","Vertex Z position vs BX number",3564,-0.5,3563.5);
+      m_hvtxxvsbxrun = m_fhm.makeTProfile("vtxxvsbxrun","Vertex X position vs BX number",3564,-0.5,3563.5);
+      m_hvtxyvsbxrun = m_fhm.makeTProfile("vtxyvsbxrun","Vertex Y position vs BX number",3564,-0.5,3563.5);
+      m_hvtxzvsbxrun = m_fhm.makeTProfile("vtxzvsbxrun","Vertex Z position vs BX number",3564,-0.5,3563.5);
+
       m_hnvtxvsbxrun = m_rhm.makeTProfile("nvtxvsbxrun","Number of true vertices vs BX number",3564,-0.5,3563.5);
 
       if(m_runHistoBXProfile2D) {
-	m_hnvtxvsbxvslumirun = m_rhm.makeTProfile2D("nvtxvsbxvslumirun","Number of vertices vs BX and BX lumi",3564,-0.5,3563.5,250,0.,10.);
+	m_hnvtxvsbxvslumirun = m_fhm.makeTProfile2D("nvtxvsbxvslumirun","Number of vertices vs BX and BX lumi",3564,-0.5,3563.5,250,0.,10.);
       }
       if(m_runHisto2D) {
-	m_hvtxxvsbx2drun = m_rhm.makeTH2F("vtxxvsbx2drun","Vertex X position vs BX number",3564,-0.5,3563.5,
+	m_hvtxxvsbx2drun = m_fhm.makeTH2F("vtxxvsbx2drun","Vertex X position vs BX number",3564,-0.5,3563.5,
 					m_histoParameters.getUntrackedParameter<unsigned int>("nBinX",200),
 					m_histoParameters.getUntrackedParameter<double>("xMin",-1.),
 					m_histoParameters.getUntrackedParameter<double>("xMax",1.));
-	m_hvtxyvsbx2drun = m_rhm.makeTH2F("vtxyvsbx2drun","Vertex Y position vs BX number",3564,-0.5,3563.5,
+	m_hvtxyvsbx2drun = m_fhm.makeTH2F("vtxyvsbx2drun","Vertex Y position vs BX number",3564,-0.5,3563.5,
 					m_histoParameters.getUntrackedParameter<unsigned int>("nBinY",200),
 					m_histoParameters.getUntrackedParameter<double>("yMin",-1.),
 					m_histoParameters.getUntrackedParameter<double>("yMax",1.));
-	m_hvtxzvsbx2drun = m_rhm.makeTH2F("vtxzvsbx2drun","Vertex Z position vs BX number",3564,-0.5,3563.5,
+	m_hvtxzvsbx2drun = m_fhm.makeTH2F("vtxzvsbx2drun","Vertex Z position vs BX number",3564,-0.5,3563.5,
 					m_histoParameters.getUntrackedParameter<unsigned int>("nBinZ",200),
 					m_histoParameters.getUntrackedParameter<double>("zMin",-20.),
 					m_histoParameters.getUntrackedParameter<double>("zMax",20.));
@@ -193,7 +195,7 @@ void VertexHistogramMaker::book(const std::string dirname) {
   }
 }
 
-void VertexHistogramMaker::beginRun(const unsigned int nrun) {
+void VertexHistogramMaker::beginRun(const edm::Run& iRun) {
 
   TFileDirectory* currdir = m_currdir;
   if(currdir==0) {
@@ -201,7 +203,9 @@ void VertexHistogramMaker::beginRun(const unsigned int nrun) {
     currdir = &(*tfserv);
   }
 
-  m_rhm.beginRun(nrun,*currdir);
+  m_rhm.beginRun(iRun,*currdir);
+  m_fhm.beginRun(iRun,*currdir);
+
 
   if(m_runHisto) {
     (*m_hvtxxrun)->GetXaxis()->SetTitle("X [cm]");   (*m_hvtxxrun)->GetYaxis()->SetTitle("Vertices"); 
@@ -347,6 +351,13 @@ void VertexHistogramMaker::fill(const unsigned int orbit, const int bx, const fl
 }
 
 void VertexHistogramMaker::fill(const edm::Event& iEvent, const reco::VertexCollection& vertices, const double weight) {
+
+  TFileDirectory* currdir = m_currdir;
+  if(currdir==0) {
+    edm::Service<TFileService> tfserv;
+    currdir = &(*tfserv);
+  }
+
 
   // get luminosity
 
