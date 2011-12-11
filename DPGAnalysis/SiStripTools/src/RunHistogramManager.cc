@@ -3,6 +3,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "DataFormats/Common/interface/ConditionsInEdm.h"
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TProfile.h"
@@ -12,17 +13,18 @@ BaseHistoParams::BaseHistoParams() { }
 
 BaseHistoParams::~BaseHistoParams() { }
 
+/*
 void BaseHistoParams::beginRun(const edm::Run& iRun, TFileDirectory& subrun) {
   
   beginRun(iRun.run(),subrun);
 
 }
+*/
 
 
 
-
-RunHistogramManager::RunHistogramManager():
-  _histograms() { }
+RunHistogramManager::RunHistogramManager(const bool fillHistograms):
+  _fillHistograms(fillHistograms), _histograms() { }
 
 TH1F** RunHistogramManager::makeTH1F(const char* name, const char* title, const unsigned int nbinx, const double xmin, const double xmax) {
 
@@ -85,10 +87,24 @@ TProfile2D** RunHistogramManager::makeTProfile2D(const char* name, const char* t
   return pointer;
 }
 
-void  RunHistogramManager::beginRun(const edm::Run& iRun) {
+void  RunHistogramManager::beginRun(const edm::Run&  iRun) {
 
-  beginRun(iRun.run());
+  edm::Service<TFileService> tfserv;
+  beginRun(iRun,*tfserv);
 
+}
+
+void  RunHistogramManager::beginRun(const edm::Run& iRun, TFileDirectory& subdir) {
+
+  if(!_fillHistograms) {
+    beginRun(iRun.run(),subdir);
+  }
+  else {
+    edm::Handle<edm::ConditionsInRunBlock> cirb;
+    iRun.getByLabel("conditionsInEdm",cirb);
+
+    beginRun(cirb->lhcFillNumber,subdir);
+  }
 }
 
 void  RunHistogramManager::beginRun(const unsigned int irun) {
@@ -102,15 +118,24 @@ void  RunHistogramManager::beginRun(const unsigned int irun, TFileDirectory& sub
   
   // create/go to the run subdirectory
   
+  char fillrun[30];
+
+  if(!_fillHistograms) {
+    sprintf(fillrun,"%s","run");
+  }
+  else {
+    sprintf(fillrun,"%s","fill");
+  }
+
   char dirname[300];
-  sprintf(dirname,"run_%d",irun);
+  sprintf(dirname,"%s_%d",fillrun,irun);
   TFileDirectory subrun = subdir.mkdir(dirname);
   
   // loop on the histograms and update the pointer references
   
   for(unsigned int ih=0;ih<_histograms.size();++ih) {
     
-    _histograms[ih]->beginRun(irun,subrun);
+    _histograms[ih]->beginRun(irun,subrun,fillrun);
     
   }
 }

@@ -19,8 +19,8 @@ class TProfile;
    BaseHistoParams();
    virtual ~BaseHistoParams();
 
-   virtual void beginRun(const edm::Run& iRun, TFileDirectory& subrun);
-   virtual void beginRun(const unsigned int irun, TFileDirectory& subrun) = 0;
+   //   virtual void beginRun(const edm::Run& iRun, TFileDirectory& subrun);
+   virtual void beginRun(const unsigned int irun, TFileDirectory& subrun, const char* fillrun) = 0;
 
  };
 
@@ -44,7 +44,7 @@ template <class T>
 
     }
 
-    virtual void beginRun(const unsigned int irun, TFileDirectory& subrun) {
+    virtual void beginRun(const unsigned int irun, TFileDirectory& subrun, const char* fillrun) {
       
       if(_runpointers.find(irun)!=_runpointers.end()) {
 	*_pointer = _runpointers[irun];
@@ -54,7 +54,7 @@ template <class T>
       else {
 
 	char title[400];
-	sprintf(title,"%s run %d",_title.c_str(),irun);
+	sprintf(title,"%s %s %d",_title.c_str(),fillrun,irun);
 	
 	_runpointers[irun] = subrun.make<T>(_name.c_str(),
 						  title,
@@ -104,7 +104,7 @@ template <>
 
     }
 
-    virtual void beginRun(const unsigned int irun, TFileDirectory& subrun) {
+    virtual void beginRun(const unsigned int irun, TFileDirectory& subrun, const char* fillrun) {
       
       if(_runpointers.find(irun)!=_runpointers.end()) {
 	*_pointer = _runpointers[irun];
@@ -114,7 +114,7 @@ template <>
       else {
 	
 	char title[400];
-	sprintf(title,"%s run %d",_title.c_str(),irun);
+	sprintf(title,"%s %s %d",_title.c_str(),fillrun,irun);
 	
 	_runpointers[irun] = subrun.make<TH2F>(_name.c_str(),
 						  title,
@@ -168,7 +168,7 @@ template <>
 
     }
 
-    virtual void beginRun(const unsigned int irun, TFileDirectory& subrun) {
+    virtual void beginRun(const unsigned int irun, TFileDirectory& subrun, const char* fillrun) {
       
       if(_runpointers.find(irun)!=_runpointers.end()) {
 	*_pointer = _runpointers[irun];
@@ -178,7 +178,7 @@ template <>
       else {
 	
 	char title[400];
-	sprintf(title,"%s run %d",_title.c_str(),irun);
+	sprintf(title,"%s %s %d",_title.c_str(),fillrun,irun);
 	
 	_runpointers[irun] = subrun.make<TProfile2D>(_name.c_str(),
 						  title,
@@ -216,7 +216,7 @@ class RunHistogramManager {
 
  public:
   
-  RunHistogramManager();
+  RunHistogramManager(const bool fillHistograms=false);
   ~RunHistogramManager();
   
   TH1F**  makeTH1F(const char* name, const char* title, const unsigned int nbinx, const double xmin, const double xmax);
@@ -225,12 +225,14 @@ class RunHistogramManager {
   TProfile2D**  makeTProfile2D(const char* name, const char* title, const unsigned int nbinx, const double xmin, const double xmax, const unsigned int nbiny, const double ymin, const double ymax);
   
   void  beginRun(const edm::Run& iRun);
+  void  beginRun(const edm::Run& iRun, TFileDirectory& subdir);
   void  beginRun(const unsigned int irun);
   void  beginRun(const unsigned int irun, TFileDirectory& subdir);
   
   
  private:
   
+  bool _fillHistograms;
   std::vector<BaseHistoParams*> _histograms;
   
 };
