@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Venturi
 //         Created:  Mon Oct 27 17:37:53 CET 2008
-// $Id: MultiplicityCorrelator.cc,v 1.1 2011/03/10 16:15:13 venturia Exp $
+// $Id: MultiplicityCorrelator.cc,v 1.2 2011/11/15 16:55:41 venturia Exp $
 //
 //
 
@@ -140,7 +140,7 @@ MultiplicityCorrelator::analyze(const edm::Event& iEvent, const edm::EventSetup&
     if(xmult!=xMults->end() && ymult!=yMults->end()) {
 
 
-      m_mchms[i]->fill(xmult->second,ymult->second,iEvent.bunchCrossing());
+      m_mchms[i]->fill(iEvent,xmult->second,ymult->second);
 
     }
     else {
@@ -164,7 +164,7 @@ void
 MultiplicityCorrelator::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
 
   for(unsigned int i=0;i<m_mchms.size();++i) {
-    m_mchms[i]->beginRun(iRun.run());
+    m_mchms[i]->beginRun(iRun);
   }
 }
 
