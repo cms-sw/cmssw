@@ -314,7 +314,7 @@ def instLumiForRange(schema,inputRange,beamstatusfilter=None,withBXInfo=False,bx
         result[run]=lsresult
     return result
 
-def instCalibratedLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withBXInfo=False,bxAlgo=None,xingMinLum=0.0,withBeamIntensity=False,norm=None,datatag=None,finecorrections=None):
+def instCalibratedLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withBXInfo=False,bxAlgo=None,xingMinLum=0.0,withBeamIntensity=False,norm=None,datatag=None,finecorrections=None,driftcorrections=None):
     '''
     Inst luminosity after calibration, not time integrated
     input:
@@ -329,6 +329,8 @@ def instCalibratedLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,e
            withBeamIntensity: get beam intensity info (optional)
            norm: if norm is a float, use it directly; if it is a string, consider it norm factor name to use (optional)
            datatag: data version
+           finecorrections: const and non-linear corrections
+           driftcorrections: driftcorrections
     output:
            result {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),calibratedlumi(5),calibratedlumierr(6),startorbit(7),numorbit(8),(bxvalues,bxerrs)(9),(bxidx,b1intensities,b2intensities)(10)]}}
            lumi unit: HZ/ub
@@ -363,7 +365,10 @@ def instCalibratedLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,e
             beamenergy=perlsdata[4]
             calibratedlumi=perlsdata[5]*normval
             if finecorrections and finecorrections[run]:
-                calibratedlumi=lumiCorrections.applyfinecorrection(calibratedlumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])           
+                if driftcorrections and driftcorrections[run]:
+                    calibratedlumi=lumiCorrections.applyfinecorrectionV2(calibratedlumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],driftcorrections[run])
+                else:
+                    calibratedlumi=lumiCorrections.applyfinecorrectionV2(calibratedlumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],1.0)                
             calibratedlumierr=perlsdata[6]*normval
             startorbit=perlsdata[7]
             numorbit=perlsdata[8]
@@ -381,7 +386,7 @@ def instCalibratedLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,e
             del perlsdata[:]
     return result
          
-def deliveredLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withBXInfo=False,bxAlgo=None,xingMinLum=0.0,withBeamIntensity=False,norm=None,datatag=None,finecorrections=None):
+def deliveredLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withBXInfo=False,bxAlgo=None,xingMinLum=0.0,withBeamIntensity=False,norm=None,datatag=None,finecorrections=None,driftcorrections=None):
     '''
     delivered lumi (including calibration,time integral)
     input:
@@ -429,9 +434,12 @@ def deliveredLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=N
             timestamp=perlsdata[2]
             bs=perlsdata[3]
             beamenergy=perlsdata[4]
-            calibratedlumi=perlsdata[5]*normval
+            calibratedlumi=perlsdata[5]*normval#inst lumi
             if finecorrections and finecorrections[run]:
-                calibratedlumi=lumiCorrections.applyfinecorrection(calibratedlumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])    
+                if driftcorrections and driftcorrections[run]:
+                    calibratedlumi=lumiCorrections.applyfinecorrectionV2(calibratedlumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],driftcorrections[run])
+                else:
+                    calibratedlumi=lumiCorrections.applyfinecorrectionV2(calibratedlumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],1.0)                                
             calibratedlumierr=perlsdata[6]*normval
             numorbit=perlsdata[8]
             numbx=3564
@@ -451,7 +459,7 @@ def deliveredLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=N
             del perlsdata[:]
     return result
                        
-def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withBXInfo=False,bxAlgo=None,xingMinLum=0.0,withBeamIntensity=False,norm=None,datatag=None,finecorrections=None):
+def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withBXInfo=False,bxAlgo=None,xingMinLum=0.0,withBeamIntensity=False,norm=None,datatag=None,finecorrections=None,driftcorrections=None):
     '''
     delivered/recorded lumi
     input:
@@ -524,8 +532,12 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
             instlumierror=perlsdata[2]
             avglumi=instlumi*normval
             calibratedlumi=avglumi
+
             if finecorrections and finecorrections[run]:
-                calibratedlumi=lumiCorrections.applyfinecorrection(avglumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])
+                if driftcorrections and driftcorrections[run]:
+                    calibratedlumi=lumiCorrections.applyfinecorrectionV2(calibratedlumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],driftcorrections[run])
+                else:
+                    calibratedlumi=lumiCorrections.applyfinecorrectionV2(calibratedlumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],1.0)                               
             calibratedlumierror=instlumierror*normval
             bstatus=perlsdata[4]
             begev=perlsdata[5]
@@ -564,9 +576,12 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
                     bxerrArray=bxinfo[1]
                     #if cmslsnum==1:
                     #    print 'bxvalueArray ',bxvalueArray
-                    for idx,bxval in enumerate(bxvalueArray):
+                    for idx,bxval in enumerate(bxvalueArray):                    
                         if finecorrections and finecorrections[run]:
-                            mybxval=lumiCorrections.applyfinecorrectionBX(bxval,avglumi,perbunchnormval,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])
+                            if driftcorrections and driftcorrections[run]:
+                                mybxval=lumiCorrections.applyfinecorrectionBXV2(bxval,avglumi,perbunchnormval,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],driftcorrections[run])
+                            else:
+                                mybxval=lumiCorrections.applyfinecorrectionBXV2(bxval,avglumi,perbunchnormval,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],1.0)
                         else:
                             mybxval=bxval*perbunchnormval
                         if mybxval>xingMinLum:
@@ -598,7 +613,7 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
         result[run]=perrunresult    
     return result
        
-def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None,amodetag=None,beamstatus=None,egev=None,withBXInfo=False,xingMinLum=0.0,bxAlgo=None,withBeamIntensity=False,norm=None,datatag=None,finecorrections=None):
+def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None,amodetag=None,beamstatus=None,egev=None,withBXInfo=False,xingMinLum=0.0,bxAlgo=None,withBeamIntensity=False,norm=None,datatag=None,finecorrections=None,driftcorrections=None):
     '''
     input:
            inputRange  {run:[cmsls]} (required)
@@ -668,7 +683,10 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
             instlumierror=perlsdata[2]
             calibratedlumi=instlumi*normval
             if finecorrections and finecorrections[run]:
-                calibratedlumi=lumiCorrections.applyfinecorrection(calibratedlumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])
+                if driftcorrections and driftcorrections[run]:
+                    calibratedlumi=lumiCorrections.applyfinecorrectionV2(calibratedlumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],driftcorrections[run])
+                else:
+                    calibratedlumi=lumiCorrections.applyfinecorrectionV2(calibratedlumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],1.0)    
             calibratedlumierror=instlumierror*normval
             bstatus=perlsdata[4]
             begev=perlsdata[5]
