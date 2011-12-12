@@ -145,8 +145,7 @@ def correctionsForRange(schema,inputRange):
             if ncollidingbunches and ncollidingbunches!=0:
                 nonlinearPerBX=float(1)/float(ncollidingbunches)
             nonlinear=nonlinearPerBX*nonlinear
-            if not result.has_key(runnum):
-                result[runnum]=(constfactor,afterglow,nonlinear)#those not 2010 runs
+            result[runnum]=(constfactor,afterglow,nonlinear)#those not 2010 runs
     except :
         del qHandle
         raise
