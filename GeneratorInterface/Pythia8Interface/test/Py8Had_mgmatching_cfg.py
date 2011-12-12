@@ -6,7 +6,9 @@ process.load("Configuration.StandardSequences.SimulationRandomNumberGeneratorSee
 
 process.source = cms.Source("LHESource",
     fileNames = cms.untracked.vstring('file:../../Pythia6Interface/test/ttbar_5flavours_xqcut20_10TeV.lhe')
-
+    # fileNames = cms.untracked.vstring('file:/storage/local/data1/condor/mrenna/lhe/7TeV_Zbb_run45040_unweighted_events_qcut13_mgPostv2.lhe')
+    # fileNames = cms.untracked.vstring('file:/storage/local/data1/condor/mrenna/lhe/7TeV_ttbarjets_run621_unweighted_events_qcut40_mgPost.lhe')
+    # fileNames = cms.untracked.vstring('file:/storage/local/data1/condor/mrenna/lhe/7TeV_avjets_run50000_unweighted_events_qcut15_mgPost.lhe')
 )
 
 process.generator = cms.EDFilter("Pythia8HadronizerFilter",
@@ -52,7 +54,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
     ),
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 process.GEN = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('Py8Had_mgmatching.root')
