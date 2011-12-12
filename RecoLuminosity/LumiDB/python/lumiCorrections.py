@@ -30,6 +30,8 @@ def driftcorrection(schema,runnum,startrun=160403):
         del qHandle
         raise
     del qHandle
+    if not lint:
+        print '[WARNING] null intglumi for run ',runnum,' '
     result=result+0.01258*lint
     #print 'lint ',lint,' result ',result
     return result
@@ -54,6 +56,14 @@ def applyfinecorrection(avglumi,constfactor,afterglowfactor,nonlinearfactor):
     #print 'avglumi,const,after,nonlinear,instlumi ',avglumi,constfactor,afterglowfactor,nonlinearfactor,instlumi
     return instlumi
 
+def applyfinecorrectionV2(avglumi,constfactor,afterglowfactor,ncollidingbx):
+    instlumi=avglumi*afterglowfactor*constfactor
+    if ncollidingbx!=0:
+        nonlinearTerm=1+alpha1*avglumi
+        instlumi=instlumi/nonlinearTerm
+    #print 'avglumi,const,after,nonlinear,instlumi ',avglumi,constfactor,afterglowfactor,nonlinearfactor,instlumi
+    return instlumi
+    
 def correctionsForRange(schema,inputRange):
     '''
     select fillschemepattern,correctionfactor from fillscheme; 
@@ -70,9 +80,10 @@ def correctionsForRange(schema,inputRange):
     else:
         runs=inputRange
     for r in runs:
-        if r<160442 :
+        if r<150008 :
             result[r]=(1.0,1.0,0.0)
     afterglows=[]
+    constfactor=1.141
     s=nameDealer.fillschemeTableName()
     r=nameDealer.cmsrunsummaryTableName()
     qHandle=schema.newQuery()
@@ -120,7 +131,6 @@ def correctionsForRange(schema,inputRange):
             if runnum not in runs or result.has_key(runnum):
                 continue
             fillnum=cursor.currentRow()['fillnum'].data()
-            constfactor=1.141
             afterglow=1.0
             nonlinear=0.076
             nonlinearPerBX=0.0
@@ -134,15 +144,16 @@ def correctionsForRange(schema,inputRange):
                 afterglow=afterglowByFillscheme(fillscheme,afterglows)
             if ncollidingbunches and ncollidingbunches!=0:
                 nonlinearPerBX=float(1)/float(ncollidingbunches)
-            nonlinear=nonlinearPerBX*nonlinear           
-            result[runnum]=(constfactor,afterglow,nonlinear)
+            nonlinear=nonlinearPerBX*nonlinear
+            if not result.has_key(runnum):
+                result[runnum]=(constfactor,afterglow,nonlinear)#those not 2010 runs
     except :
         del qHandle
         raise
     del qHandle
     for run in runs:
         if run not in result.keys():
-            result[run]=(1.0,1.0,0.0)
+            result[run]=(constfactor,1.0,0.0) #those have no fillscheme 2011 runs
     return result
 
 def afterglowByFillscheme(fillscheme,afterglowPatterns):
