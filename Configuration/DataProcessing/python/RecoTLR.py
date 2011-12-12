@@ -108,3 +108,68 @@ def customisePromptHI(process):
     return process
 
 ##############################################################################
+
+def planBTracking(process):
+
+    # stuff from LowPtTripletStep_cff
+    process.lowPtTripletStepSeeds.RegionFactoryPSet.RegionPSet.ptMin=0.3
+
+    # stuff from PixelLessStep_cff
+    process.pixelLessStepClusters.oldClusterRemovalInfo=cms.InputTag("tobTecStepClusters")
+    process.pixelLessStepClusters.trajectories= cms.InputTag("tobTecStepTracks")
+    process.pixelLessStepClusters.overrideTrkQuals=cms.InputTag('tobTecStepSelector','tobTecStep')
+    process.pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.7
+    process.pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 1.5
+
+    # stuff from PixelPairStep_cff
+    process.pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.6
+
+    # stuff from TobTecStep_cff
+    process.tobTecStepClusters.oldClusterRemovalInfo=cms.InputTag("detachedTripletStepClusters")
+    process.tobTecStepClusters.trajectories= cms.InputTag("detachedTripletStepTracks")
+    process.tobTecStepClusters.overrideTrkQuals=cms.InputTag('detachedTripletStep')
+    process.tobTecStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 5.0
+
+    # stuff from DetachedTripletStep_cff
+    process.detachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.ptMin=0.35
+
+    # stuff from iterativeTk_cff
+    process.iterTracking = cms.Sequence(process.InitialStep*
+                                        process.LowPtTripletStep*
+                                        process.PixelPairStep*
+                                        process.DetachedTripletStep*
+                                        process.TobTecStep*
+                                        process.PixelLessStep*
+                                        process.generalTracks*
+                                        process.ConvStep*
+                                        process.conversionStepTracks
+                                        )
+    
+    
+    # stuff from RecoTracker_cff
+    process.newCombinedSeeds.seedCollections=cms.VInputTag(
+        cms.InputTag('initialStepSeeds'),
+        cms.InputTag('pixelPairStepSeeds'),
+    #    cms.InputTag('mixedTripletStepSeeds'),
+        cms.InputTag('pixelLessStepSeeds')
+        )
+
+    # stuff from Kevin's fragment
+    process.generalTracks.TrackProducers = (cms.InputTag('initialStepTracks'),
+                                            cms.InputTag('lowPtTripletStepTracks'),
+                                            cms.InputTag('pixelPairStepTracks'),
+                                            cms.InputTag('detachedTripletStepTracks'),
+                                            cms.InputTag('pixelLessStepTracks'),
+                                            cms.InputTag('tobTecStepTracks'))
+    process.generalTracks.hasSelector=cms.vint32(1,1,1,1,1,1)
+    process.generalTracks.selectedTrackQuals = cms.VInputTag(cms.InputTag("initialStepSelector","initialStep"),
+                                                             cms.InputTag("lowPtTripletStepSelector","lowPtTripletStep"),
+                                                             cms.InputTag("pixelPairStepSelector","pixelPairStep"),
+                                                             cms.InputTag("detachedTripletStep"),
+                                                             cms.InputTag("pixelLessStepSelector","pixelLessStep"),
+                                                             cms.InputTag("tobTecStepSelector","tobTecStep")
+                                                             )
+    process.generalTracks.setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3,4,5), pQual=cms.bool(True) ) )
+    
+    
+    return process
