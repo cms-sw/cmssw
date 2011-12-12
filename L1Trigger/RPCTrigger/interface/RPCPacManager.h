@@ -51,12 +51,15 @@ public:
       }
   }
 
+
+
   /** Gets data for PACs. @param patFilesDirectory The directory where files defining
     * PACs are stored. The files should be named acording to special convencion.
     * @param  _PACsCnt The configuration version.
     * Should be caled once, before using PACs
     */
   void init(std::string patFilesDirectory, L1RpcPACsCntEnum _PACsCnt)  {
+    destroy(); 
     m_PACsCnt = _PACsCnt;
     if(m_PACsCnt == ONE_PAC_PER_TOWER) {
       m_SectorsCnt = 1;
@@ -90,7 +93,7 @@ public:
 
   
   void init(const L1RPCConfig *rpcconf)  {
-  
+    destroy(); 
     switch (rpcconf->getPPT()){
       case 1:
         m_PACsCnt = ONE_PAC_PER_TOWER;
@@ -202,6 +205,18 @@ public:
     int m_SegmentCnt; //!< Count of used differnt segments.
 
     L1RpcPACsCntEnum m_PACsCnt; //Used configuration version.
+
+    void destroy(){
+      for (int tower = 0; tower < RPCConst::m_TOWER_COUNT; tower++) {
+        for (int logSector = 0; logSector < m_SectorsCnt; logSector++) {
+          for (int logSegment = 0; logSegment < m_SegmentCnt; logSegment++) {
+            TPacType* pac = m_PacTab[tower][logSector][logSegment];
+            delete pac;
+          }
+        }
+      }
+      m_PacTab.clear();
+    }
 };
 
 #endif
