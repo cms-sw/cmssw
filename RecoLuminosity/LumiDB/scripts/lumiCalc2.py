@@ -162,6 +162,8 @@ if __name__ == '__main__':
     #
     parser.add_argument('--without-correction',dest='withoutFineCorrection',action='store_true',
                         help='without fine correction on calibration' )
+    parser.add_argument('--correctionv2',dest='correctionv2',action='store_true',
+                        help='apply correction v2' )
     parser.add_argument('--verbose',dest='verbose',action='store_true',
                         help='verbose mode for printing' )
     parser.add_argument('--nowarning',dest='nowarning',action='store_true',
@@ -255,15 +257,20 @@ if __name__ == '__main__':
         rruns=irunlsdict.keys()
         schema=session.nominalSchema()
         session.transaction().start(True)
-        finecorrections=lumiCorrections.correctionsForRangeV2(schema,rruns)#constant+nonlinear corrections
-#        driftcorrections=None
-        driftcorrections=lumiCorrections.driftcorrectionsForRange(schema,rruns)
+        if options.correctionv2:
+            finecorrections=lumiCorrections.correctionsForRangeV2(schema,rruns)#constant+nonlinear corrections
+            driftcorrections=lumiCorrections.driftcorrectionsForRange(schema,rruns)
+            if options.verbose:
+                print finecorrections,driftcorrections
+        else:
+            finecorrections=lumiCorrections.correctionsForRange(schema,rruns)
+            driftcorrections=None
         session.transaction().commit()
         
     if options.action == 'delivered':
         session.transaction().start(True)
         #print irunlsdict
-        result=lumiCalcAPI.deliveredLumiForRange(session.nominalSchema(),irunlsdict,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,finecorrections=finecorrections,driftcorrections=driftcorrections)
+        result=lumiCalcAPI.deliveredLumiForRange(session.nominalSchema(),irunlsdict,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,finecorrections=finecorrections,driftcorrections=driftcorrections,usecorrectionv2=options.correctionv2)
         session.transaction().commit()
         if not options.outputfile:
             lumiReport.toScreenTotDelivered(result,iresults,options.scalefactor,options.verbose)
@@ -271,7 +278,7 @@ if __name__ == '__main__':
             lumiReport.toCSVTotDelivered(result,options.outputfile,iresults,options.scalefactor,options.verbose)           
     if options.action == 'overview':
        session.transaction().start(True)
-       result=lumiCalcAPI.lumiForRange(session.nominalSchema(),irunlsdict,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,finecorrections=finecorrections,driftcorrections=driftcorrections)
+       result=lumiCalcAPI.lumiForRange(session.nominalSchema(),irunlsdict,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,finecorrections=finecorrections,driftcorrections=driftcorrections,usecorrectionv2=options.correctionv2)
        session.transaction().commit()
        if not options.outputfile:
            lumiReport.toScreenOverview(result,iresults,options.scalefactor,options.verbose)
@@ -280,7 +287,7 @@ if __name__ == '__main__':
     if options.action == 'lumibyls':
        if not options.hltpath:
            session.transaction().start(True)
-           result=lumiCalcAPI.lumiForRange(session.nominalSchema(),irunlsdict,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,finecorrections=finecorrections,driftcorrections=driftcorrections)
+           result=lumiCalcAPI.lumiForRange(session.nominalSchema(),irunlsdict,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,finecorrections=finecorrections,driftcorrections=driftcorrections,usecorrectionv2=options.correctionv2)
            session.transaction().commit()
            if not options.outputfile:
                lumiReport.toScreenLumiByLS(result,iresults,options.scalefactor,options.verbose)
@@ -295,7 +302,7 @@ if __name__ == '__main__':
               hltpat=hltname
               hltname=None
            session.transaction().start(True)
-           result=lumiCalcAPI.effectiveLumiForRange(session.nominalSchema(),irunlsdict,hltpathname=hltname,hltpathpattern=hltpat,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,finecorrections=finecorrections,driftcorrections=driftcorrections)
+           result=lumiCalcAPI.effectiveLumiForRange(session.nominalSchema(),irunlsdict,hltpathname=hltname,hltpathpattern=hltpat,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,finecorrections=finecorrections,driftcorrections=driftcorrections,usecorrectionv2=options.correctionv2)
            session.transaction().commit()
            if not options.outputfile:
                lumiReport.toScreenLSEffective(result,iresults,options.scalefactor,options.verbose)
@@ -311,7 +318,7 @@ if __name__ == '__main__':
           elif 1 in [c in hltname for c in '*?[]']: #is a fnmatch pattern
               hltpat=hltname
               hltname=None
-       result=lumiCalcAPI.effectiveLumiForRange(session.nominalSchema(),irunlsdict,hltpathname=hltname,hltpathpattern=hltpat,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,finecorrections=finecorrections,driftcorrections=driftcorrections)
+       result=lumiCalcAPI.effectiveLumiForRange(session.nominalSchema(),irunlsdict,hltpathname=hltname,hltpathpattern=hltpat,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,finecorrections=finecorrections,driftcorrections=driftcorrections,usecorrectionv2=options.correctionv2)
        session.transaction().commit()
        if not options.outputfile:
            lumiReport.toScreenTotEffective(result,iresults,options.scalefactor,options.verbose)
@@ -319,7 +326,7 @@ if __name__ == '__main__':
            lumiReport.toCSVTotEffective(result,options.outputfile,iresults,options.scalefactor,options.verbose)
     if options.action == 'lumibylsXing':
        session.transaction().start(True)
-       result=lumiCalcAPI.lumiForRange(session.nominalSchema(),irunlsdict,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,xingMinLum=options.xingMinLum,withBeamIntensity=False,withBXInfo=True,bxAlgo=options.xingAlgo,finecorrections=finecorrections,driftcorrections=driftcorrections)
+       result=lumiCalcAPI.lumiForRange(session.nominalSchema(),irunlsdict,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,xingMinLum=options.xingMinLum,withBeamIntensity=False,withBXInfo=True,bxAlgo=options.xingAlgo,finecorrections=finecorrections,driftcorrections=driftcorrections,usecorrectionv2=options.correctionv2)
        session.transaction().commit()           
        if not options.outputfile:
            lumiReport.toScreenLumiByLS(result,iresults,options.scalefactor,options.verbose)
