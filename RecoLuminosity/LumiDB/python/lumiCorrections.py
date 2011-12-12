@@ -7,7 +7,9 @@ def afterglowByFillscheme(fillscheme,afterglowPatterns):
         if re.match(apattern,fillscheme):
             return cfactor
     return 1.0
-
+#=======================================================================================================
+#below : version_2
+#======================================================================================================
 def driftcorrectionsForRange(schema,inputRange,startrun=160403):
     '''
     select intglumi from intglumi where runnum=:runnum and startrun=:startrun
