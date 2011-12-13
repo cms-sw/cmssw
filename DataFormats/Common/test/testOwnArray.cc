@@ -1,4 +1,4 @@
-// $Id: testOwnArray.cc,v 1.3 2011/12/13 15:37:44 innocent Exp $
+// 
 #include <cppunit/extensions/HelperMacros.h>
 #include <algorithm>
 #include <iterator>
@@ -22,7 +22,7 @@ namespace testOA {
     Dummy(int n, bool * r) : value(n), ref(r) { }
     ~Dummy() { * ref = true; }
     int value;
-    bool operator<(const test::Dummy & o) const {
+    bool operator<(const Dummy & o) const {
       return value < o.value;
     }
   private:
