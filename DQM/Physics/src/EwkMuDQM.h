@@ -32,37 +32,46 @@ private:
   edm::InputTag muonTag_;
   edm::InputTag metTag_;
   edm::InputTag jetTag_;
+  edm::InputTag phoTag_;
+  edm::InputTag pfPhoTag_; 
   edm::InputTag vertexTag_;
-  std::vector <std::string>  trigPathNames_;
+  std::vector <std::string> trigPathNames_;
+
+  bool   isAlsoTrackerMuon_;
+  double dxyCut_;
+  double normalizedChi2Cut_;
+  int    trackerHitsCut_;
+  int    pixelHitsCut_;
+  int    muonHitsCut_;
+  int    nMatchesCut_;  
+
+  bool   isRelativeIso_;
+  bool   isCombinedIso_;
+  double isoCut03_;
+
+  double acopCut_;
+  double metMin_;
+  double metMax_;
+  double mtMin_;
+  double mtMax_;
 
   double ptCut_;
   double etaCut_;
-  bool isRelativeIso_;
-  bool isCombinedIso_;
-  double isoCut03_;
-  double mtMin_;
-  double mtMax_;
-  double metMin_;
-  double metMax_;
-  double acopCut_;
-
-  double dxyCut_;
-  double normalizedChi2Cut_;
-  int trackerHitsCut_;
-  int pixelHitsCut_;
-  int muonHitsCut_;
-  bool isAlsoTrackerMuon_;
-  int nMatchesCut_;  
 
   double ptThrForZ1_;
   double ptThrForZ2_;
 
+  double dimuonMassMin_;
+  double dimuonMassMax_; 
+
   double eJetMin_;
-  int nJetMax_;
+  int    nJetMax_;
+
+  double ptThrForPhoton_; 
+  int    nPhoMax_ ; 
 
   bool isValidHltConfig_;
   HLTConfigProvider  hltConfigProvider_;
-
 
   unsigned int nall;
   unsigned int nrec;
@@ -70,80 +79,73 @@ private:
   unsigned int nhlt;
   unsigned int nmet;
   unsigned int nsel;
-
+  unsigned int nz  ; 
 
   DQMStore* theDbe;
 
   MonitorElement* pt_before_;
   MonitorElement* pt_after_;
-
-  MonitorElement* eta_before_;
+  MonitorElement* eta_before_; 
   MonitorElement* eta_after_;
-
   MonitorElement* dxy_before_;
   MonitorElement* dxy_after_;
-
-  MonitorElement* chi2_before_;
-  MonitorElement* chi2_after_;
-
-  MonitorElement* nhits_before_;
-  MonitorElement* nhits_after_;
-
-  MonitorElement* muonhits_before_;
-  MonitorElement* muonhits_after_;
-
   MonitorElement* goodewkmuon_before_;
   MonitorElement* goodewkmuon_after_;
-
-  MonitorElement* tkmu_before_;
-  MonitorElement* tkmu_after_;
-
   MonitorElement* iso_before_;
   MonitorElement* iso_after_;
-
-  MonitorElement* trig_before_;
+  MonitorElement* trig_before_; 
   MonitorElement* trig_after_;
-
   MonitorElement* mt_before_;
   MonitorElement* mt_after_;
-
   MonitorElement* met_before_;
   MonitorElement* met_after_;
-
-  MonitorElement* acop_before_;
+  MonitorElement* acop_before_;  
   MonitorElement* acop_after_;
 
-/*
-  MonitorElement* nz1_before_;
-  MonitorElement* nz1_after_;
+  MonitorElement* njets_before_;
+  MonitorElement* njets_after_;
+  MonitorElement* njets_afterZ_;
+  MonitorElement* leadingjet_pt_before_; 
+  MonitorElement* leadingjet_pt_after_;
+  MonitorElement* leadingjet_pt_afterZ_;
+  MonitorElement* leadingjet_eta_before_;
+  MonitorElement* leadingjet_eta_after_;
+  MonitorElement* leadingjet_eta_afterZ_;
 
-  MonitorElement* nz2_before_;
-  MonitorElement* nz2_after_;
-*/
+  MonitorElement* met_afterZ_;
+  MonitorElement* pt1_afterZ_;
+  MonitorElement* eta1_afterZ_;
+  MonitorElement* dxy1_afterZ_;
+  MonitorElement* goodewkmuon1_afterZ_;
+  MonitorElement* iso1_afterZ_;
+  MonitorElement* pt2_afterZ_;
+  MonitorElement* eta2_afterZ_;
+  MonitorElement* dxy2_afterZ_;
+  MonitorElement* goodewkmuon2_afterZ_;
+  MonitorElement* iso2_afterZ_;  
+
+  MonitorElement* ztrig_afterZ_;
+  MonitorElement* dimuonmass_before_;
+  MonitorElement* dimuonmass_afterZ_;
+
+  MonitorElement* npvs_before_;
+  MonitorElement* npvs_after_;
+  MonitorElement* npvs_afterZ_;
+
+  MonitorElement* muoncharge_before_;
+  MonitorElement* muoncharge_after_;
+  MonitorElement* muoncharge_afterZ_;
 
   MonitorElement* nmuons_;
   MonitorElement* ngoodmuons_;
 
+  MonitorElement* npfph_;
+  MonitorElement* nph_; 
+  MonitorElement* pfphPt_;
+  MonitorElement* phPt_;
+  MonitorElement* pfphEta_;
+  MonitorElement* phEta_;
 
-  MonitorElement* njets_before_;
-  MonitorElement* njets_after_;
-
-  MonitorElement* dimuonmass_before_;
-  MonitorElement* dimuonmass_after_;
-
-  MonitorElement* dimuonSAmass_before_;
-  MonitorElement* dimuonSAmass_after_;
-
-  MonitorElement* dimuonSASAmass_before_;
-  MonitorElement* dimuonSASAmass_after_;
-
-  MonitorElement* npvs_before_;
-  MonitorElement* npvs_after_;
-
-  MonitorElement* muoncharge_before_;
-  MonitorElement* muoncharge_after_;
-
-  MonitorElement* ptmuonZ_after_;
 };
 
 #endif
