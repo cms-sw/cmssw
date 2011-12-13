@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Sep 10 14:50:32 CEST 2010
-// $Id: CmsShowCommon.cc,v 1.13 2011/03/07 20:57:03 amraktad Exp $
+// $Id: CmsShowCommon.cc,v 1.14 2011/03/08 09:36:05 amraktad Exp $
 //
 
 // system include files
@@ -31,7 +31,7 @@ CmsShowCommon::CmsShowCommon(fireworks::Context* c):
    FWConfigurableParameterizable(2),
    m_context(c),  
    m_trackBreak(this, "     ", 2l, 0l, 2l), // do not want to render text at setter
-   m_drawBreakPoints(this, "Show y=0 points as markers", true),
+   m_drawBreakPoints(this, "Show y=0 points as markers", false),
    m_backgroundColor(this, "backgroundColIdx", 1l, 0l, 1000l),
    m_gamma(this, "Brightness", 0l, -15l, 15l),
    m_geomTransparency2D(this, "Transparency 2D", long(colorManager()->geomTransparency(true)), 0l, 100l),
