@@ -347,13 +347,13 @@ namespace edm {
   
   template<typename T, unsigned int M, typename P>
   inline void OwnArray<T, M, P>::destroy() {
-    pointer * b = data_, e = data_+size();
+    pointer * b = data_, * e = data_+size();
     for(pointer * i = b; i != e; ++ i)
       delete * i;
   }
   
   template<typename T, unsigned int M, typename P>
-  inline OwnArray<T, M, P>::pointer const& OwnArray<T, M, P>::data() const {
+  inline typename OwnArray<T, M, P>::pointer const& OwnArray<T, M, P>::data() const {
     return data_;
   }
 
@@ -368,16 +368,16 @@ namespace edm {
     pointer * b = pos.i;
     delete *b;
     pointer * e = data_+size();
-    for(typename  pointer * i = b; i != e-1; ++ i) i = i+1;
+    for(pointer * i = b; i != e-1; ++ i) i = i+1;
     return iterator(b);
   }
 
    template<typename T, unsigned int M, typename P>
   typename OwnArray<T, M, P>::iterator OwnArray<T, M, P>::erase(iterator first, iterator last) {
-     pointer * b = first.i, e = last.i;
-    for(typename  pointer * i = b; i != e; ++ i) delete * i;
-    pinter * l = data_+size();
-    for(typename  pointer * i = e; i != l; ++i)  b++ = i;
+     pointer * b = first.i, * e = last.i;
+    for(pointer * i = b; i != e; ++ i) delete * i;
+    pointer * l = data_+size();
+    for(pointer * i = e; i != l; ++i)  b++ = i;
     return iterator(b-1);
   }
 
@@ -492,7 +492,7 @@ namespace edm {
 
 
   template <typename T, unsigned int M, typename P>
-   struct has_setPtr<edm::OwnArray<T,P> > {
+  struct has_setPtr<edm::OwnArray<T,M,P> > {
      static bool const value = true;
    };
 
