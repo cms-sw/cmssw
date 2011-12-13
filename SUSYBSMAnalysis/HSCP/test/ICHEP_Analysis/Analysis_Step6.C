@@ -1238,8 +1238,7 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
    }
 
    LimitResult CLMResults;
-   double signalUncertainty=0.11;
-   if (signals[JobIdToIndex(signal)].FileName.find("neutral")!=string::npos) signalUncertainty=0.21;
+   double signalUncertainty=0.07;
    double NPred=toReturn.NPred;
    double NPredErr=toReturn.NPredErr;
    double Eff=toReturn.Eff;
