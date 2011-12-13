@@ -378,9 +378,10 @@ namespace edm {
      pointer * b = first.i, * e = last.i;
     for(pointer * i = b; i != e; ++ i) delete * i;
     pointer * l = data_+size();
-    for(pointer * i = e; i != l; ++i)  *(b++) = *i;
+    auto ib=b;
+    for(pointer * i = e; i != l; ++i)  *(ib++) = *i;
     size_ -= (e-b);
-    return iterator(b-1);
+    return iterator(b);
   }
 
    template<typename T, unsigned int M, typename P> template<typename S>
