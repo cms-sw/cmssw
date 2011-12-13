@@ -9,7 +9,7 @@ bool SiPixelRecHit::sharesInput( const TrackingRecHit* other,
 
   const SiPixelRecHit* otherCast = static_cast<const SiPixelRecHit*>(other);
 
-  return cluster_ == otherCast->cluster();
+  return cluster_ == otherCast->cluster_;
 }
 
 //--- The overall probability.  flags is the 32-bit-packed set of flags that

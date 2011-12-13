@@ -34,8 +34,8 @@ public:
 
   ~SiPixelRecHit() {}
   
-  SiPixelRecHit( const LocalPoint&, const LocalError&,
-		 const DetId&, 
+  SiPixelRecHit( const LocalPoint& pos , const LocalError& er,
+		 const DetId& id, 
 		 ClusterRef const&  cluster) :
   BaseSiTrackerRecHit2DLocalPos(pos,err,id),
   qualWord_(0), 
