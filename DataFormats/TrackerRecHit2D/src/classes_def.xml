@@ -8,7 +8,7 @@
    <version ClassVersion="10" checksum="2474445311"/>
   </class>
   <class name="OmniClusterRef"  ClassVersion="10">
-   <version ClassVersion="10" checksum="2949673211"/>
+   <version ClassVersion="10" checksum="735211426"/>
   </class>
   <class name="SiStripRecHit2D"  ClassVersion="11">
    <version ClassVersion="11" checksum="2157674799"/>
@@ -85,7 +85,8 @@
   <class name="ProjectedSiStripRecHit2D" ClassVersion="10">
    <version ClassVersion="10" checksum="1058168814"/>
   </class>
-  <class name="SiPixelRecHit" ClassVersion="10">
+  <class name="SiPixelRecHit" ClassVersion="11">
+   <version ClassVersion="11" checksum="790601993"/>
    <version ClassVersion="10" checksum="414205262"/>
   </class>
   <class name="std::vector<SiPixelRecHit*>"/>
