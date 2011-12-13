@@ -16,7 +16,7 @@ public:
   typedef edm::Ref<edmNew::DetSetVector<SiStripCluster>,SiStripCluster > ClusterRef;
   typedef edm::Ref< edm::LazyGetter<SiStripCluster>, SiStripCluster, edm::FindValue<SiStripCluster> >  ClusterRegionalRef;
   
-  OmniClusterRef() : me(RefCore(),0x80000000) {}
+  OmniClusterRef() : me(edm::RefCore(),0x80000000) {}
   explicit OmniClusterRef(ClusterPixelRef const & ref) : me(ref.refCore(),ref.key()){}
   explicit OmniClusterRef(ClusterRef const & ref) : me(ref.refCore(),ref.key() | 0x20000000){}  // bit 29 on
   explicit OmniClusterRef(ClusterRegionalRef const & ref) : me(ref.refCore(),ref.key() | 0x60000000){} // bit 30 and 29 on (bit 31 on = invalid...)

@@ -42,7 +42,7 @@ public:
   }
 
   void setClusterRef(ClusterRef const & ref) {  cluster_ = OmniClusterRef(ref); }
-  void setClusterRegionalRef(ClusterRegionalRef const & ref) { cluster_ = OmniClusterRef((ref); }
+  void setClusterRegionalRef(ClusterRegionalRef const & ref) { cluster_ = OmniClusterRef(ref); }
 
 
 
