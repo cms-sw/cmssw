@@ -1,8 +1,11 @@
 #include "../interface/th1fmorph.h"
 #include "TROOT.h"
+#include "TAxis.h"
+#include "TArrayD.h"
 
 #include <iostream>
 #include <cmath>
+#include <set>
 
 using namespace std;
 
@@ -82,19 +85,33 @@ TH1_t *th1fmorph_(const char *chname,
     return(0);
   }
   
-  // Extract bin parameters of input histograms 1 and 2. We haven't implemented
-  // nonuniform binning (yet?).
+  // Extract bin parameters of input histograms 1 and 2. 
+  // Supports the cases of non-equidistant as well as equidistant binning
+  // and also the case that binning of histograms 1 and 2 is different.
+  TAxis* axis1 = hist1->GetXaxis();
+  Int_t nb1 = axis1->GetNbins();
+  TAxis* axis2 = hist2->GetXaxis();
+  Int_t nb2 = axis2->GetNbins();
 
-  Int_t nb1 = hist1->GetNbinsX();
-  Int_t nb2 = hist2->GetNbinsX();
-  Double_t xmin1 = hist1->GetXaxis()->GetXmin();
-  Double_t xmin2 = hist2->GetXaxis()->GetXmin();
-  Double_t xmax1 = hist1->GetXaxis()->GetXmax();
-  Double_t xmax2 = hist2->GetXaxis()->GetXmax();
-  if (idebug > 0) {
-    cout << nb1 << " " << xmin1 << " " << xmax1 << endl;
-    cout << nb2 << " " << xmin2 << " " << xmax2 << endl;
+  std::set<Double_t> bedgesn_tmp;
+  for(Int_t i = 1; i <= nb1; ++i){
+    bedgesn_tmp.insert(axis1->GetBinLowEdge(i));
+    bedgesn_tmp.insert(axis1->GetBinUpEdge(i));
   }
+  for(Int_t i = 1; i <= nb2; ++i){
+    bedgesn_tmp.insert(axis2->GetBinLowEdge(i));
+    bedgesn_tmp.insert(axis2->GetBinUpEdge(i));
+  }
+  Int_t nbn = bedgesn_tmp.size() - 1;
+  TArrayD bedgesn(nbn+1);
+  Int_t idx = 0;
+  for (std::set<Double_t>::const_iterator bedge = bedgesn_tmp.begin();
+       bedge != bedgesn_tmp.end(); ++bedge){
+    bedgesn[idx]=(*bedge);
+    ++idx;
+  }
+  Double_t xminn = bedgesn[0];
+  Double_t xmaxn = bedgesn[nbn];
 
   // ......The weights (wt1,wt2) are the complements of the "distances" between 
   //       the values of the parameters at the histograms and the desired 
@@ -122,45 +139,6 @@ TH1_t *th1fmorph_(const char *chname,
   }
   if (idebug >= 1) cout << "th1morph - Weights: " << wt1 << " " << wt2 << endl;
 
-  //
-  //......Perform the interpolation of histogram bin parameters. Use
-  //      assignments instead of computation when input binnings
-  //      are identical to assure best possible precision.
-
-  Double_t xminn=0;
-  Double_t xmaxn=0;
-  Int_t nbn=0;
-  Double_t wtmin;
-
-  wtmin = wt1; if (wt2 < wt1) wtmin = wt2;
-
-  if (wtmin >= 0) {
-    if (xmin1 == xmin2) {
-      xminn = xmin1;
-    } else {
-      xminn = wt1*xmin1 + wt2*xmin2;
-    }
-    if (xmax1 == xmax2) {
-      xmaxn = xmax1;
-    } else {
-      xmaxn = wt1*xmax1 + wt2*xmax2;
-    }
-    if (nb1 == nb2) {
-      nbn = nb1;
-    } else {
-      nbn   = wt1*nb1   + wt2*nb2;
-    }
-  }
-  //......If one of the weights is zero, then use the binnings of the
-  //      histogram with nonzero weight.
-  //      but reasonable with the histogram bin parameters.
-  else {
-    if (wt1 == 0) {
-      xminn = xmin2; xmaxn = xmax2; nbn = nb2;
-    } else if (wt2 == 0) {
-      xminn = xmin1; xmaxn = xmax1; nbn = nb1;
-    }
-  }
   if (idebug >= 1) cout << "New hist: " << nbn << " " << xminn << " " 
                         << xmaxn << endl;
 
@@ -211,8 +189,8 @@ TH1_t *th1fmorph_(const char *chname,
     for(Int_t i=0;i<nb1+1;i++) {
       cout << i << " dist1" << dist1[i] << endl;
     }
-    for(Int_t i=0;i<nb1+1;i++) {
-      cout << i << " dist2" << dist1[i] << endl;
+    for(Int_t i=0;i<nb2+1;i++) {
+      cout << i << " dist2" << dist2[i] << endl;
     }
   }
   
@@ -275,18 +253,12 @@ TH1_t *th1fmorph_(const char *chname,
     cout << "   " << sigdis2[ix2] << " " << sigdis2[ix2+1] << endl;
   }
 
-  //.......Need bin widths
-
-  Double_t dx1=(xmax1-xmin1)/double(nb1);
-  Double_t dx2=(xmax2-xmin2)/double(nb2);
-  Double_t dx=(xmaxn-xminn)/double(nbn);
-
   //......The first interpolated point should be computed now.
 
   Int_t nx3 = 0;
   Double_t x1,x2,x;
-  x1 = xmin1 + double(ix1)*dx1;
-  x2 = xmin2 + double(ix2)*dx2;
+  x1 = axis1->GetBinLowEdge(ix1+1); 
+  x2 = axis2->GetBinLowEdge(ix2+1); 
   x = wt1*x1 + wt2*x2;
   xdisn[nx3] = x;
   sigdisn[nx3] = 0;
@@ -338,10 +310,10 @@ TH1_t *th1fmorph_(const char *chname,
         cout << "Pair for i12type=1: " << sigdis2[ix2] << " " 
              << sigdis1[ix1] << " " << sigdis2[ix2+1] << endl;
       }
-      x1 = xmin1 + double(ix1)*dx1 ;
+      x1 = axis1->GetBinLowEdge(ix1+1);
       y = sigdis1[ix1];
-      Double_t x20 = double(ix2)*dx2 + xmin2;
-      Double_t x21 = x20 + dx2;
+      Double_t x20 = axis2->GetBinLowEdge(ix2+1);
+      Double_t x21 = axis2->GetBinUpEdge(ix2+1);
       Double_t y20 = sigdis2[ix2];
       Double_t y21 = sigdis2[ix2+1];
 
@@ -360,10 +332,10 @@ TH1_t *th1fmorph_(const char *chname,
         cout << "Pair for i12type=2: " << sigdis1[ix1] << " " << sigdis2[ix2] 
              << " " << sigdis1[ix1+1] << endl;
       }
-      x2 = xmin2 + double(ix2)*dx2 ;
+      x2 = axis2->GetBinLowEdge(ix2+1);
       y = sigdis2[ix2];
-      Double_t x10 = double(ix1)*dx1 + xmin1;
-      Double_t x11 = x10 + dx1;
+      Double_t x10 = axis1->GetBinLowEdge(ix1+1);
+      Double_t x11 = axis1->GetBinUpEdge(ix1+1);
       Double_t y10 = sigdis1[ix1];
       Double_t y11 = sigdis1[ix1+1];
 
@@ -416,7 +388,7 @@ TH1_t *th1fmorph_(const char *chname,
   // *......We set all the bins following the final edge to the value
   // *      of the final edge.
 
-  x = xminn + double(nbn)*dx;
+  x = xmaxn;
   Int_t ix = nbn;
 
   if (idebug >= 1) cout << "------> Any final bins to set? " << x << " " 
@@ -426,7 +398,7 @@ TH1_t *th1fmorph_(const char *chname,
     if (idebug >= 2) cout << "   Setting final bins" << ix << " " << x 
                           << " " << sigdisf[ix] << endl;
     ix = ix-1;
-    x = xminn + double(ix)*dx;
+    x = bedgesn[ix];
   }
   Int_t ixl = ix + 1;
   if (idebug >= 1) cout << " Now ixl=" << ixl << " ix=" << ix << endl;
@@ -440,14 +412,14 @@ TH1_t *th1fmorph_(const char *chname,
   // *
 
   ix = 0;
-  x = xminn + double(ix+1)*dx;
+  x = bedgesn[ix+1];
   if (idebug >= 1) cout << "Start setting initial bins at x=" << x << endl;
   while(x <= xdisn[0]) {
     sigdisf[ix] = sigdisn[0];
     if (idebug >= 1) cout << "   Setting initial bins " << ix << " " << x 
                           << " " << xdisn[1] << " " << sigdisf[ix] << endl;
     ix = ix+1;
-    x = xminn + double(ix+1)*dx;
+    x = bedgesn[ix+1];
   }
   Int_t ixf = ix;
 
@@ -459,7 +431,7 @@ TH1_t *th1fmorph_(const char *chname,
 
   Int_t ix3 = 0; // Problems with initial edge!!!
   for(ix=ixf;ix<ixl;ix++) {
-    x = xminn + double(ix)*dx;
+    x = bedgesn[ix];
     if (x < xdisn[0]) {
       y = 0;
     } else if (x > xdisn[nx3]) {
@@ -468,6 +440,7 @@ TH1_t *th1fmorph_(const char *chname,
       while(xdisn[ix3+1] <= x && ix3 < 2*nbn) {
         ix3 = ix3 + 1;
       }
+      Double_t dx2=axis2->GetBinWidth(axis2->FindBin(x));
       if (xdisn[ix3+1]-x > 1.1*dx2) { // Empty bin treatment
         y = sigdisn[ix3+1];
       }
@@ -495,11 +468,10 @@ TH1_t *th1fmorph_(const char *chname,
 
   TH1_t *morphedhist = (TH1_t *)gROOT->FindObject(chname);
   if (morphedhist) delete morphedhist;
-  morphedhist = new TH1_t(chname,chtitle,nbn,xminn,xmaxn);
+  morphedhist = new TH1_t(chname,chtitle,nbn,bedgesn.GetArray());
 
   for(ix=nbn-1;ix>-1;ix--) {
-    x = xminn + double(ix)*dx;
-    y =  sigdisf[ix+1]-sigdisf[ix];
+    y = sigdisf[ix+1]-sigdisf[ix];
     morphedhist->SetBinContent(ix+1,y*morphedhistnorm);
   }
   
