@@ -140,7 +140,7 @@ namespace edm {
     void sort(S s);
     void sort();
     
-    void swap(OwnArray<T, M, P>& other);
+    void swap(self& other);
     
     void fillView(ProductID const& id,
                   std::vector<void const*>& pointers,
@@ -299,17 +299,17 @@ namespace edm {
   inline void OwnArray<T, M, P>::pop_back() {
     // We have to delete the pointed-to thing, before we squeeze it
     // out of the vector...
-    delete data_[size_--];
+    delete data_[--size_];
   }
   
-  template <typename T, typename P>
+  template <typename T, unsigned int M, typename P>
   inline bool OwnArray<T, M, P>::is_back_safe() const {
-    return data_[size_] != 0;
+    return data_[size_-1] != 0;
   }
   
   template<typename T, unsigned int M, typename P>
   inline typename OwnArray<T, M, P>::reference OwnArray<T, M, P>::back() {
-    pointer result = data_[size_];
+    pointer result = data_[size_-1];
     if (result == 0) {
       Exception::throwThis(errors::NullPointerError,
 			   "In OwnArray::back() we have intercepted an attempt to dereference a null pointer\n"
@@ -323,7 +323,7 @@ namespace edm {
   
   template<typename T, unsigned int M, typename P>
   inline typename OwnArray<T, M, P>::const_reference OwnArray<T, M, P>::back() const {
-    pointer const * result = data_[size_];
+    pointer const * result = data_[size_-1];
     if (result == 0) {
       Exception::throwThis(errors::NullPointerError,
 			   "In OwnArray::back() we have intercepted an attempt to dereference a null pointer\n"
@@ -353,14 +353,14 @@ namespace edm {
   }
   
   template<typename T, unsigned int M, typename P>
-  inline pointer const& OwnArray<T, M, P>::data() const {
+  inline OwnArray<T, M, P>::pointer const& OwnArray<T, M, P>::data() const {
     return data_;
   }
 
    template<typename T, unsigned int M, typename P>
   inline void OwnArray<T, M, P>::clear() {
     destroy();
-    size_t=0;
+    size_=0;
   }
 
    template<typename T, unsigned int M, typename P>
