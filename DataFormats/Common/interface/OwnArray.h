@@ -132,7 +132,7 @@ namespace edm {
     const_reference back() const;
     reference front();
     const_reference front() const;
-    base const& data() const;
+    pointer const * data() const;
     void clear();
     iterator erase(iterator pos);
     iterator erase(iterator first, iterator last);
@@ -353,7 +353,7 @@ namespace edm {
   }
   
   template<typename T, unsigned int M, typename P>
-  inline typename OwnArray<T, M, P>::pointer const& OwnArray<T, M, P>::data() const {
+  inline typename OwnArray<T, M, P>::pointer const * OwnArray<T, M, P>::data() const {
     return data_;
   }
 
