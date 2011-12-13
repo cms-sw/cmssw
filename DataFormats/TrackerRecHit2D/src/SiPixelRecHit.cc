@@ -1,13 +1,5 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 
-SiPixelRecHit::SiPixelRecHit( const LocalPoint& pos, const LocalError& err,
-			      const DetId& id,
-			      SiPixelClusterRefNew const&  cluster): 
-  BaseSiTrackerRecHit2DLocalPos(pos,err,id),
-  qualWord_(0), 
-  cluster_(cluster) 
-{
-}
 
 bool SiPixelRecHit::sharesInput( const TrackingRecHit* other, 
 				 SharedInputType what) const

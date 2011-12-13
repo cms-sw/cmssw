@@ -21,6 +21,7 @@
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
 
 
 
@@ -35,12 +36,16 @@ public:
   
   SiPixelRecHit( const LocalPoint&, const LocalError&,
 		 const DetId&, 
-		 ClusterRef const&  cluster);  
+		 ClusterRef const&  cluster) :
+  BaseSiTrackerRecHit2DLocalPos(pos,err,id),
+  qualWord_(0), 
+  cluster_(cluster) 
+{}
 
   virtual SiPixelRecHit * clone() const {return new SiPixelRecHit( * this); }
   
-  ClusterRef const& cluster() const { return cluster_;}
-  void setClusterRef(const ClusterRef &ref) { cluster_  = ref; }
+  ClusterRef const& cluster() const { return cluster_.cluster_pixel();}
+  void setClusterRef(const ClusterRef &ref) { cluster_  =  OmniClusterRef(ref); }
 
   virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const;
 
@@ -143,7 +148,7 @@ public:
 
 private:
 
-  SiPixelClusterRefNew cluster_;
+   OmniClusterRef  cluster_;
 
 };
 
