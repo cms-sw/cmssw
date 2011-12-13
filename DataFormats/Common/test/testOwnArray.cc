@@ -1,4 +1,4 @@
-// $Id: testOwnArray.cc,v 1.2 2011/12/13 15:34:16 innocent Exp $
+// $Id: testOwnArray.cc,v 1.3 2011/12/13 15:37:44 innocent Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include <algorithm>
 #include <iterator>
@@ -17,7 +17,7 @@ public:
 
 CPPUNIT_TEST_SUITE_REGISTRATION(testOwnArray);
 
-namespace test {
+namespace testOA {
   struct Dummy {
     Dummy(int n, bool * r) : value(n), ref(r) { }
     ~Dummy() { * ref = true; }
@@ -58,27 +58,27 @@ namespace test {
     }
   };
   
-  std::ostream& operator<<(std::ostream& os, const a & aa) {
+  inline std::ostream& operator<<(std::ostream& os, const a & aa) {
     os << aa.f();
     return os;
   }
 }
 
 void testOwnArray::checkAll() {
-  edm::OwnArray<test::Dummy,5> v;
+  edm::OwnArray<testOA::Dummy,5> v;
   CPPUNIT_ASSERT(v.size() == 0);
   CPPUNIT_ASSERT(v.empty());
   bool deleted[4] = { false, false, false, false };
-  v.push_back(new test::Dummy(0, deleted + 0));
-  v.push_back(new test::Dummy(1, deleted + 1));
-  v.push_back(new test::Dummy(2, deleted + 2));
-  v.push_back(new test::Dummy(3, deleted + 3));
+  v.push_back(new testOA::Dummy(0, deleted + 0));
+  v.push_back(new testOA::Dummy(1, deleted + 1));
+  v.push_back(new testOA::Dummy(2, deleted + 2));
+  v.push_back(new testOA::Dummy(3, deleted + 3));
   CPPUNIT_ASSERT(v.size() == 4);
   auto i = v.begin();
   auto ci = i;
   * ci;
   v.sort();
-  v.sort(test::DummyComp());
+  v.sort(testOA::DummyComp());
   CPPUNIT_ASSERT(!v.empty());
   CPPUNIT_ASSERT(v[0].value == 0);
   CPPUNIT_ASSERT(v[1].value == 1);
@@ -109,25 +109,25 @@ void testOwnArray::checkAll() {
   CPPUNIT_ASSERT(deleted[2]);
   CPPUNIT_ASSERT(deleted[3]);
   {
-    edm::OwnArray<test::a,5> v;
-    test::a * aa = new test::ClassB(2);
+    edm::OwnArray<testOA::a,5> v;
+    testOA::a * aa = new testOA::ClassB(2);
     v.push_back(aa);
-    aa = new test::ClassB(1);
+    aa = new testOA::ClassB(1);
     v.push_back(aa);
-    aa = new test::ClassB(3);
+    aa = new testOA::ClassB(3);
     v.push_back(aa);
-    v.sort(test::ss());
+    v.sort(testOA::ss());
     std::cout << "OwnArray : dumping contents" << std::endl;
     std::copy(v.begin(), 
 	      v.end(), 
-	      std::ostream_iterator<test::a>(std::cout, "\t"));
+	      std::ostream_iterator<testOA::a>(std::cout, "\t"));
 
-    edm::Ptr<test::a> ptr_v;
+    edm::Ptr<testOA::a> ptr_v;
     unsigned long index(0);
     void const * data = &v[0];
-    v.setPtr( typeid(test::a), index, data );
-    test::a const * data_a = static_cast<test::a const *>(data);
-    test::ClassB const * data_b = dynamic_cast<test::ClassB const *>(data_a);
+    v.setPtr( typeid(testOA::a), index, data );
+    testOA::a const * data_a = static_cast<testOA::a const *>(data);
+    testOA::ClassB const * data_b = dynamic_cast<testOA::ClassB const *>(data_a);
     CPPUNIT_ASSERT( data != 0);
     CPPUNIT_ASSERT( data_a != 0);
     CPPUNIT_ASSERT( data_b != 0);
