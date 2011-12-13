@@ -26,7 +26,7 @@ import FWCore.ParameterSet.Config as cms
 ##  \___\___/|_| |_|___/\__\__,_|_| |_|\__|___/
 ##                                              
 ################################################
-MC_flag = False
+MC_flag = True
 GLOBAL_TAG = 'GR_R_42_V12::All'
 if MC_flag:
     GLOBAL_TAG = 'START42_V12::All'
@@ -76,6 +76,15 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 #process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
+
+
+############# Needed for pileup re-weighting ##########
+process.pileupReweightingProducer = cms.EDProducer("PileupWeightProducer",
+                                                   FirstTime = cms.untracked.bool(True),
+                                                   PileupMCFile = cms.untracked.string("PUMC_dist_flat10.root"),
+                                                   PileupDataFile = cms.untracked.string("PUData_finebin_dist.root")
+)
+#########
 ##   ____             _ ____                           
 ##  |  _ \ ___   ___ | / ___|  ___  _   _ _ __ ___ ___ 
 ##  | |_) / _ \ / _ \| \___ \ / _ \| | | | '__/ __/ _ \
@@ -85,26 +94,26 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.source = cms.Source("PoolSource", 
     fileNames = cms.untracked.vstring(
 
-       '/store/data/Run2011A/SingleElectron/RECO/PromptReco-v4/000/167/283/BC0BDDDF-829D-E011-89EE-0030487CF41E.root',
-       '/store/data/Run2011A/SingleElectron/RECO/PromptReco-v4/000/167/282/F0A7CE51-AE9D-E011-9C9E-003048D374F2.root',
-       '/store/data/Run2011A/SingleElectron/RECO/PromptReco-v4/000/167/282/B2D25F4E-A79D-E011-94AD-003048F024DC.root',
-       '/store/data/Run2011A/SingleElectron/RECO/PromptReco-v4/000/167/282/A89EC329-979D-E011-92F3-001D09F24DDF.root',
-       '/store/data/Run2011A/SingleElectron/RECO/PromptReco-v4/000/167/282/5831779B-989D-E011-995A-0019B9F730D2.root',
-       '/store/data/Run2011A/SingleElectron/RECO/PromptReco-v4/000/167/282/5021FAFB-AE9D-E011-B07F-003048D37538.root',
-       '/store/data/Run2011A/SingleElectron/RECO/PromptReco-v4/000/167/282/34B74172-A99D-E011-8CD1-003048D2BDD8.root',
+##        '/store/data/Run2011A/SingleElectron/RECO/PromptReco-v4/000/167/283/BC0BDDDF-829D-E011-89EE-0030487CF41E.root',
+##        '/store/data/Run2011A/SingleElectron/RECO/PromptReco-v4/000/167/282/F0A7CE51-AE9D-E011-9C9E-003048D374F2.root',
+##        '/store/data/Run2011A/SingleElectron/RECO/PromptReco-v4/000/167/282/B2D25F4E-A79D-E011-94AD-003048F024DC.root',
+##        '/store/data/Run2011A/SingleElectron/RECO/PromptReco-v4/000/167/282/A89EC329-979D-E011-92F3-001D09F24DDF.root',
+##        '/store/data/Run2011A/SingleElectron/RECO/PromptReco-v4/000/167/282/5831779B-989D-E011-995A-0019B9F730D2.root',
+##        '/store/data/Run2011A/SingleElectron/RECO/PromptReco-v4/000/167/282/5021FAFB-AE9D-E011-B07F-003048D37538.root',
+##        '/store/data/Run2011A/SingleElectron/RECO/PromptReco-v4/000/167/282/34B74172-A99D-E011-8CD1-003048D2BDD8.root',
 
-##        '/store/mc/Summer11/ZJetToEE_Pt-30to50_TuneZ2_7TeV_pythia6/AODSIM/PU_S3_START42_V11-v2/0000/F6082563-6C7F-E011-9730-00215E222790.root',
-##        '/store/mc/Summer11/ZJetToEE_Pt-30to50_TuneZ2_7TeV_pythia6/AODSIM/PU_S3_START42_V11-v2/0000/F4B4B87C-927F-E011-9805-00215E21D786.root',
-##        '/store/mc/Summer11/ZJetToEE_Pt-30to50_TuneZ2_7TeV_pythia6/AODSIM/PU_S3_START42_V11-v2/0000/E673A7C3-927F-E011-B8C0-00215E2205AC.root',
-##        '/store/mc/Summer11/ZJetToEE_Pt-30to50_TuneZ2_7TeV_pythia6/AODSIM/PU_S3_START42_V11-v2/0000/D0725463-6C7F-E011-9285-00215E222790.root',
-##        '/store/mc/Summer11/ZJetToEE_Pt-30to50_TuneZ2_7TeV_pythia6/AODSIM/PU_S3_START42_V11-v2/0000/BC3E4618-BC80-E011-8AB8-E41F13181A50.root',
-##        '/store/mc/Summer11/ZJetToEE_Pt-30to50_TuneZ2_7TeV_pythia6/AODSIM/PU_S3_START42_V11-v2/0000/A60D2563-6C7F-E011-84A1-00215E222790.root',
+       '/store/mc/Summer11/ZJetToEE_Pt-30to50_TuneZ2_7TeV_pythia6/AODSIM/PU_S3_START42_V11-v2/0000/F6082563-6C7F-E011-9730-00215E222790.root',
+       '/store/mc/Summer11/ZJetToEE_Pt-30to50_TuneZ2_7TeV_pythia6/AODSIM/PU_S3_START42_V11-v2/0000/F4B4B87C-927F-E011-9805-00215E21D786.root',
+       '/store/mc/Summer11/ZJetToEE_Pt-30to50_TuneZ2_7TeV_pythia6/AODSIM/PU_S3_START42_V11-v2/0000/E673A7C3-927F-E011-B8C0-00215E2205AC.root',
+       '/store/mc/Summer11/ZJetToEE_Pt-30to50_TuneZ2_7TeV_pythia6/AODSIM/PU_S3_START42_V11-v2/0000/D0725463-6C7F-E011-9285-00215E222790.root',
+       '/store/mc/Summer11/ZJetToEE_Pt-30to50_TuneZ2_7TeV_pythia6/AODSIM/PU_S3_START42_V11-v2/0000/BC3E4618-BC80-E011-8AB8-E41F13181A50.root',
+       '/store/mc/Summer11/ZJetToEE_Pt-30to50_TuneZ2_7TeV_pythia6/AODSIM/PU_S3_START42_V11-v2/0000/A60D2563-6C7F-E011-84A1-00215E222790.root',
 
 
        
     )
 )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )    
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )    
 process.source.inputCommands = cms.untracked.vstring("keep *","drop *_MEtoEDMConverter_*_*")
 
 ##   ____                         ____ _           _            
@@ -373,7 +382,6 @@ process.PassingHLT = cms.EDProducer("trgMatchedGsfElectronProducer",
     triggerResultsTag = cms.untracked.InputTag("TriggerResults","",HLTProcessName)   
 )
 
-
 ##    _____      _                        _  __     __             
 ##   | ____|_  _| |_ ___ _ __ _ __   __ _| | \ \   / /_ _ _ __ ___ 
 ##   |  _| \ \/ / __/ _ \ '__| '_ \ / _` | |  \ \ / / _` | '__/ __|
@@ -425,7 +433,8 @@ process.ext_ToNearestJet_sequence = cms.Sequence(
 ##     |_|\__,_|\__, | |____/ \___|_| |_|_| |_|_|\__|_|\___/|_| |_|
 ##              |___/
 ## 
-process.Tag = process.PassingHLT.clone()
+#process.Tag = process.PassingHLT.clone()
+process.Tag = process.PassingWP80.clone()
 process.Tag.InputProducer = cms.InputTag( "PassingWP80" )
 process.TagMatchedSuperClusterCandsClean = cms.EDProducer("ElectronMatchedCandidateProducer",
    src     = cms.InputTag("goodSuperClustersClean"),
@@ -1038,7 +1047,8 @@ process.SuperClusterToGsfElectron.tagVariables.eidCicHyperTight2 = cms.InputTag(
 process.SuperClusterToGsfElectron.tagVariables.eidCicHyperTight3 = cms.InputTag("eidHyperTight3")
 process.SuperClusterToGsfElectron.tagVariables.eidCicHyperTight4 = cms.InputTag("eidHyperTight4")
 process.SuperClusterToGsfElectron.tagVariables.eidLikelihood = cms.InputTag("eidLikelihoodExt")
-
+if MC_flag:
+    process.SuperClusterToGsfElectron.PUWeightSrc = cms.InputTag("pileupReweightingProducer","pileupWeights")
 
 
 ## good photon --> gsf electron
@@ -1153,6 +1163,8 @@ process.GsfElectronPlusGsfElectron.tagMatches = cms.InputTag("McMatchGsf")
 process.GsfElectronPlusGsfElectron.pairVariables.costheta = cms.InputTag("CSVarsGsfGsf","costheta")
 process.GsfElectronPlusGsfElectron.pairVariables.sin2theta = cms.InputTag("CSVarsGsfGsf","sin2theta")
 process.GsfElectronPlusGsfElectron.pairVariables.tanphi = cms.InputTag("CSVarsGsfGsf","tanphi")
+if MC_flag:
+    process.GsfElectronPlusGsfElectron.PUWeightSrc = cms.InputTag("pileupReweightingProducer","pileupWeights")
 
 
 process.GsfElectronPlusMet = process.GsfElectronToId.clone()
@@ -1218,6 +1230,9 @@ process.WP95ToHLT = cms.EDAnalyzer("TagProbeFitTreeProducer",
     probeMatches  = cms.InputTag("McMatchWP95"),
     allProbes     = cms.InputTag("PassingWP95")
 )
+if MC_flag:
+    process.WP95ToHLT.PUWeightSrc = cms.InputTag("pileupReweightingProducer","pileupWeights")
+
 
 ##  WP90 --> HLT
 process.WP90ToHLT = process.WP95ToHLT.clone()
@@ -1338,7 +1353,7 @@ if MC_flag:
     process.tagAndProbe = cms.Path(
         process.sc_sequence + process.eIDSequence + process.ele_sequence + 
         process.ext_ToNearestJet_sequence + 
-        process.allTagsAndProbes +
+        process.allTagsAndProbes + process.pileupReweightingProducer + 
         process.mc_sequence + 
         process.tree_sequence
         )

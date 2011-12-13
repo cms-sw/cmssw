@@ -18,9 +18,8 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 ################################################
 
 
-isMC = False
-## InputFileName = "testNewWrite.root"
-InputFileName = "/uscms_data/d2/kalanand/allTPtrees_35invpb_Dec22ReReco.root"
+isMC = True
+InputFileName = "testNewWrite.root"
 OutputFilePrefix = "efficiency-data-"
 
 
@@ -30,7 +29,6 @@ HLTDef = "probe_passingHLT"
 PDFName = "pdfSignalPlusBackground"
 
 if isMC:
-    InputFileName = "/uscms_data/d2/kalanand/allTPtrees_mc_39.root"
     PDFName = ""
     OutputFilePrefix = "efficiency-mc-"
 ################################################
@@ -190,6 +188,7 @@ process.GsfElectronToId = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
 
     # defines all the discrete variables of the probes available in the input tree and intended for use in the efficiency calculations
     Categories = cms.PSet(
+        weight = cms.vstring("weight", "0.0", "10.0", ""),
         mcTrue = cms.vstring("MC true", "dummy[true=1,false=0]"),
         probe_passConvRej = cms.vstring("probe_passConvRej", "dummy[pass=1,fail=0]"), 
 ##         probe_isWP95 = cms.vstring("probe_isWP95", "dummy[pass=1,fail=0]"),
@@ -300,6 +299,8 @@ process.GsfElectronToId = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
 ############################################################################################
     )
 )
+if isMC:
+    process.GsfElectronToId.WeightVariable = cms.string("PUweight")
 
 
 ############################################################################################
