@@ -22,9 +22,9 @@ process.load('FastSimulation.Configuration.CommonInputs_cff')
 process.load('FastSimulation.Configuration.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('PYTHIA6-MinBias at 2200GeV'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/GenProduction/python/PYTHIA6_MinBias_2360GeV_cff.py,v $')
+    name = cms.untracked.string('$Source: /cvs/CMSSW/CMSSW/FastSimulation/Configuration/python/PYTHIA6_MinBias_2360GeV_cff_py_GEN_FASTSIM.py,v $')
 )
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
@@ -89,11 +89,8 @@ process.HLTEndSequence = cms.Sequence(process.reconstructionWithFamos)
 process.Early900GeVCollisionVtxSmearingParameters.type = cms.string("BetaFunc")
 process.famosSimHits.VertexGenerator = process.Early900GeVCollisionVtxSmearingParameters
 process.famosPileUp.VertexGenerator = process.Early900GeVCollisionVtxSmearingParameters
-# Apply ECAL/HCAL miscalibration
+# Apply ECAL miscalibration
 process.ecalRecHit.doMiscalib = True
-process.hbhereco.doMiscalib = True
-process.horeco.doMiscalib = True
-process.hfreco.doMiscalib = True
 # Apply Tracker and Muon misalignment
 process.famosSimHits.ApplyAlignment = True
 process.misalignedTrackerGeometry.applyAlignment = True

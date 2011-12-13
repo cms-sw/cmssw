@@ -30,7 +30,7 @@ public:
   void useRingSelector(int minRing, int maxRing);
   void useSimpleRphiHitsCleaner(bool use) {hasSimpleRphiHitsCleaner = use;}
 
-  void cleanedOfClusters( const edm::Event& ev, HitExtractor::Hits & hits, bool matched) const;
+  void cleanedOfClusters( const edm::Event& ev, HitExtractor::Hits & hits, bool matched, unsigned int cleanFrom=0) const;
   bool skipThis(TransientTrackingRecHit::ConstRecHitPointer & ptr,edm::Handle<edmNew::DetSetVector<SiStripClusterRef> > & stripClusterRefs,
 		TransientTrackingRecHit::ConstRecHitPointer & replaceMe) const;
   bool skipThis(const SiStripRecHit2D * hit,edm::Handle<edmNew::DetSetVector<SiStripClusterRef> > & stripClusterRefs) const;
@@ -51,6 +51,8 @@ private:
   bool hasRingSelector; int theMinRing, theMaxRing; 
   bool hasSimpleRphiHitsCleaner;
   mutable bool failProjection;
+  mutable DetId lastId_;
+  mutable edmNew::DetSetVector<SiStripClusterRef>::const_iterator f_;
 };
 
 }

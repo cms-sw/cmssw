@@ -1,4 +1,4 @@
-// $Id: EventDistributor.cc,v 1.23.4.1 2011/03/07 11:33:05 mommsen Exp $
+// $Id: EventDistributor.cc,v 1.24 2011/03/07 15:31:32 mommsen Exp $
 /// @file: EventDistributor.cc
 
 #include "EventFilter/StorageManager/interface/DataSenderMonitorCollection.h"
@@ -48,7 +48,7 @@ void EventDistributor::addEventToRelevantQueues( I2OChain& ioc )
       << " (rbBufferId " << ioc.rbBufferId() << ").";
     XCEPT_DECLARE( stor::exception::IncompleteEventMessage,
       xcept, msg.str());
-    sharedResources_->statisticsReporter_->alarmHandler()->
+    sharedResources_->alarmHandler_->
       notifySentinel(AlarmHandler::ERROR, xcept);
 
     DataSenderMonitorCollection& dataSenderMonColl =
@@ -109,7 +109,7 @@ void EventDistributor::tagCompleteEventForQueues( I2OChain& ioc )
         }
         catch( stor::exception::InvalidEventSelection& e )
         {
-          sharedResources_->statisticsReporter_->alarmHandler()->
+          sharedResources_->alarmHandler_->
             notifySentinel(AlarmHandler::ERROR,e);
         }
       }
@@ -222,8 +222,8 @@ void EventDistributor::tagCompleteEventForQueues( I2OChain& ioc )
         ioc.messageCode();
       XCEPT_DECLARE( stor::exception::WrongI2OMessageType,
                      xcept, msg.str());
-      sharedResources_->statisticsReporter_->
-        alarmHandler()->notifySentinel(AlarmHandler::ERROR, xcept);
+      sharedResources_->
+        alarmHandler_->notifySentinel(AlarmHandler::ERROR, xcept);
 
       // 24-Jun-2009, KAB - this is not really the best way to track this,
       // but it's probably better than nothing in the short term.
@@ -263,7 +263,7 @@ void EventDistributor::registerEventConsumer
     }
     catch( stor::exception::InvalidEventSelection& e )
     {
-      sharedResources_->statisticsReporter_->alarmHandler()->
+      sharedResources_->alarmHandler_->
         notifySentinel(AlarmHandler::ERROR, e);
     }
   }

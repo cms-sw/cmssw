@@ -1,8 +1,12 @@
-<use   name="DataFormats/HLTReco"/>
-<use   name="DataFormats/Provenance"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/ServiceRegistry"/>
-<use   name="FWCore/Utilities"/>
-<use   name="sigcpp"/>
-<flags   EDM_PLUGIN="1"/>
+<use name="DataFormats/HLTReco"/>
+<use name="DataFormats/Provenance"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
+<use name="DQMServices/Core"/>
+<use name="sigcpp"/>
+<use name="sockets"/>       <!-- needed for -lrt -->
+<export>
+  <lib   name="1"/>
+</export>

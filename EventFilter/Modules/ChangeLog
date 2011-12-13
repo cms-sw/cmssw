@@ -1,3 +1,8 @@
+2011-08-17 Emilio Meschi <Remigius.Mommsen@cern.ch>
+
+	* tag V00-08-07
+	* remove circular dependency with Utilties
+
 2011-06-08 Emilio Meschi <Remigius.Mommsen@cern.ch>
 
 	* tag V00-08-06

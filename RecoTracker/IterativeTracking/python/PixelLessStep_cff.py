@@ -14,7 +14,7 @@ pixelLessStepClusters = cms.EDProducer("TrackClusterRemover",
     pixelClusters = cms.InputTag("siPixelClusters"),
     stripClusters = cms.InputTag("siStripClusters"),
     Common = cms.PSet(
-        maxChi2 = cms.double(30.0)
+        maxChi2 = cms.double(9.0)
     )
 )
 
@@ -57,17 +57,7 @@ pixelLessStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'pixelLessStepSeedLaye
 pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.6
 pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 10.0
 pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 2.0
-pixelLessStepSeeds.ClusterCheckPSet.PixelClusterCollectionLabel = 'siPixelClusters'
-pixelLessStepSeeds.ClusterCheckPSet.ClusterCollectionLabel = 'siStripClusters'
 
-# TRACKER DATA CONTROL
-import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
-pixelLessStepMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone(
-    ComponentName = 'pixelLessStepMeasurementTracker',
-    pixelClusterProducer = 'siPixelClusters',
-    stripClusterProducer = 'siStripClusters',
-    skipClusters = cms.InputTag('pixelLessStepClusters')
-    )
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
@@ -80,6 +70,13 @@ pixelLessStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilt
     )
     )
 
+import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
+pixelLessStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
+    ComponentName = cms.string('pixelLessStepChi2Est'),
+    nSigma = cms.double(3.0),
+    MaxChi2 = cms.double(16.0)
+)
+
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
 pixelLessStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone(
@@ -87,7 +84,9 @@ pixelLessStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuil
     MeasurementTrackerName = '',
     clustersToSkip = cms.InputTag('pixelLessStepClusters'),
     trajectoryFilterName = 'pixelLessStepTrajectoryFilter',
-    minNrOfHitsForRebuild = 4
+    minNrOfHitsForRebuild = 4,
+    maxCand = 2,
+    estimator = cms.string('pixelLessStepChi2Est')
     )
 
 # MAKING OF TRACK CANDIDATES

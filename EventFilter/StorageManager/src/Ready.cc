@@ -1,6 +1,7 @@
-// $Id: Ready.cc,v 1.16.6.1 2011/03/07 11:33:05 mommsen Exp $
+// $Id: Ready.cc,v 1.17 2011/03/07 15:31:32 mommsen Exp $
 /// @file: Ready.cc
 
+#include "EventFilter/StorageManager/interface/AlarmHandler.h"
 #include "EventFilter/StorageManager/interface/Configuration.h"
 #include "EventFilter/StorageManager/interface/ErrorStreamConfigurationInfo.h"
 #include "EventFilter/StorageManager/interface/EventStreamConfigurationInfo.h"
@@ -41,7 +42,7 @@ void Ready::do_entryActionWork()
   {
     XCEPT_DECLARE_NESTED(stor::exception::Configuration,
       sentinelException, errorMsg, e);
-    sharedResources->moveToFailedState( sentinelException );
+    sharedResources->alarmHandler_->moveToFailedState( sentinelException );
     return;
   }
   catch( std::exception &e )
@@ -51,7 +52,7 @@ void Ready::do_entryActionWork()
 
     XCEPT_DECLARE(stor::exception::Configuration,
       sentinelException, errorMsg);
-    sharedResources->moveToFailedState( sentinelException );
+    sharedResources->alarmHandler_->moveToFailedState( sentinelException );
     return;
   }
   catch(...)
@@ -60,7 +61,7 @@ void Ready::do_entryActionWork()
 
     XCEPT_DECLARE(stor::exception::Configuration,
       sentinelException, errorMsg);
-    sharedResources->moveToFailedState( sentinelException );
+    sharedResources->alarmHandler_->moveToFailedState( sentinelException );
     return;
   }
 
@@ -95,6 +96,9 @@ void Ready::do_entryActionWork()
                            errCfgList);
   sharedResources->configuration_->setCurrentEventStreamConfig(evtCfgList);
   sharedResources->configuration_->setCurrentErrorStreamConfig(errCfgList);
+
+  // reset all alarms
+  sharedResources->alarmHandler_->clearAllAlarms();
 
   // configure the disk monitoring
   ResourceMonitorCollection& rmc =
@@ -134,7 +138,7 @@ string Ready::do_stateName() const
 
 void Ready::do_moveToFailedState( xcept::Exception& exception ) const
 {
-  outermost_context().getSharedResources()->moveToFailedState( exception );
+  outermost_context().getSharedResources()->alarmHandler_->moveToFailedState( exception );
 }
 
 

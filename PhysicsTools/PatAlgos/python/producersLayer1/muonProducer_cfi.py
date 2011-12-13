@@ -8,11 +8,6 @@ patMuons = cms.EDProducer("PATMuonProducer",
     useParticleFlow =  cms.bool( False ),
     pfMuonSource    = cms.InputTag("pfIsolatedMuons"),          
 
-    # add TeV refit tracks
-    addTeVRefits    = cms.bool(True),
-    pickySrc        = cms.InputTag("tevMuons", "picky"),
-    tpfmsSrc        = cms.InputTag("tevMuons", "firstHit"),
-
     # add user data
     userData = cms.PSet(
       # add custom classes here
@@ -42,6 +37,7 @@ patMuons = cms.EDProducer("PATMuonProducer",
     embedStandAloneMuon = cms.bool(True),  ## embed in AOD externally stored standalone muon track
     embedPickyMuon      = cms.bool(True),  ## embed in AOD externally stored TeV-refit picky muon track
     embedTpfmsMuon      = cms.bool(True),  ## embed in AOD externally stored TeV-refit TPFMS muon track
+    embedDytMuon        = cms.bool(True),  ## embed in AOD externally stored TeV-refit DYT muon track
     embedPFCandidate    = cms.bool(True),  ## embed in AOD externally stored particle flow candidate
 
     # embedding of muon MET corrections for caloMET

@@ -1,0 +1,11 @@
+#! /bin/bash
+#
+# generate HLT tables from master table in ConfDB
+#
+
+MASTER="/dev/CMSSW_4_4_2/HLT"                       # no version, take the latest one
+TARGET="/online/collisions/2011/5e33/v3.0/HLT"      # where to store the online-compliant menu
+TABLES="online_grun"
+
+source subtables.sh
+createSubtables "hltdev" "$MASTER" "$TARGET" "$TABLES"

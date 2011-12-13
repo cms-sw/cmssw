@@ -76,13 +76,13 @@ HLTAcoFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   double etjet2=0.;
   double phijet1=0.;
   double phijet2=0.;
-  double etmiss=0.;
+  //double etmiss=0.;
   double phimiss=0.;
    
   VRcalomet vrefMET; 
   metcal->getObjects(TriggerMET,vrefMET);
   CaloMETRef metRef=vrefMET.at(0);
-  etmiss  = vrefMET.at(0)->et();
+  //etmiss  = vrefMET.at(0)->et();
   phimiss = vrefMET.at(0)->phi();
 
   CaloJetRef ref1,ref2;

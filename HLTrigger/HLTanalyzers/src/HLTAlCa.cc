@@ -105,17 +105,10 @@ void HLTAlCa::analyze(const edm::Handle<EBRecHitCollection>               & ebre
   ohHighestEnergyHORecHit = -1.0; 
   ohHighestEnergyHFRecHit = -1.0; 
 
-  int neerechits = 0;
-  int nebrechits = 0;
-  int nhbherechits = 0; 
-  int nhorechits = 0; 
-  int nhfrechits = 0; 
-
   if (ebrechits.isValid()) {
     EBRecHitCollection myebrechits;
     myebrechits = * ebrechits;
     
-    nebrechits = myebrechits.size();
     float ebrechitenergy = -1.0;
 
     typedef EBRecHitCollection::const_iterator ebrechititer;
@@ -126,13 +119,11 @@ void HLTAlCa::analyze(const edm::Handle<EBRecHitCollection>               & ebre
 	ohHighestEnergyEBRecHit = ebrechitenergy;
     }
   }
-  else {nebrechits = 0;}
 
   if (eerechits.isValid()) { 
     EERecHitCollection myeerechits; 
     myeerechits = * eerechits; 
  
-    neerechits = myeerechits.size(); 
     float eerechitenergy = -1.0; 
 
     typedef EERecHitCollection::const_iterator eerechititer; 
@@ -143,13 +134,11 @@ void HLTAlCa::analyze(const edm::Handle<EBRecHitCollection>               & ebre
         ohHighestEnergyEERecHit = eerechitenergy; 
     } 
   } 
-  else {neerechits = 0;} 
 
   if (hbherechits.isValid()) {  
     HBHERecHitCollection myhbherechits;  
     myhbherechits = * hbherechits;  
   
-    nhbherechits = myhbherechits.size();  
     float hbherechitenergy = -1.0;  
  
     typedef HBHERecHitCollection::const_iterator hbherechititer;  
@@ -160,13 +149,11 @@ void HLTAlCa::analyze(const edm::Handle<EBRecHitCollection>               & ebre
         ohHighestEnergyHBHERecHit = hbherechitenergy;  
     }  
   }  
-  else {nhbherechits = 0;}  
 
   if (horechits.isValid()) {   
     HORecHitCollection myhorechits;   
     myhorechits = * horechits;   
    
-    nhorechits = myhorechits.size();   
     float horechitenergy = -1.0;   
   
     typedef HORecHitCollection::const_iterator horechititer;   
@@ -177,13 +164,11 @@ void HLTAlCa::analyze(const edm::Handle<EBRecHitCollection>               & ebre
         ohHighestEnergyHORecHit = horechitenergy;   
     }   
   }   
-  else {nhorechits = 0;}   
 
   if (hfrechits.isValid()) {   
     HFRecHitCollection myhfrechits;   
     myhfrechits = * hfrechits;   
    
-    nhfrechits = myhfrechits.size();   
     float hfrechitenergy = -1.0;   
   
     typedef HFRecHitCollection::const_iterator hfrechititer;   
@@ -194,7 +179,6 @@ void HLTAlCa::analyze(const edm::Handle<EBRecHitCollection>               & ebre
         ohHighestEnergyHFRecHit = hfrechitenergy;   
     }   
   }   
-  else {nhfrechits = 0;}   
 
   //////////////////////////////////////////////////////////////////////////////
   // Start of AlCa pi0 trigger variables here

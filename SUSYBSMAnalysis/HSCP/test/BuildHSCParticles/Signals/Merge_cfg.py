@@ -3,7 +3,6 @@ process = cms.Process("Merge")
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 50000
 process.source = cms.Source("PoolSource",
@@ -15,35 +14,44 @@ XXX_INPUT_XXX
 process.HSCPHLTDuplicate = cms.EDFilter("HSCPHLTFilter",
    RemoveDuplicates = cms.bool(True),
    TriggerProcess   = cms.string("HLT"),
-   MuonTrigger1Mask    = cms.int32(1),  #Activated
-   PFMetTriggerMask    = cms.int32(1),  #Activated
+   MuonTriggerMask  = cms.int32(1),  #Ignored
+   METTriggerMask   = cms.int32(1),  #Ignored
+   JetTriggerMask   = cms.int32(1),  #Ignored
 )
 
-process.HSCPHLTFilterPFMET = cms.EDFilter("HSCPHLTFilter",
+process.HSCPHLTFilterMET = cms.EDFilter("HSCPHLTFilter",
    RemoveDuplicates = cms.bool(False),
    TriggerProcess   = cms.string("HLT"),
-   MuonTrigger1Mask    = cms.int32(0),  #Activated
-   PFMetTriggerMask    = cms.int32(1),  #Activated
+   MuonTriggerMask  = cms.int32(0),  #Ignored
+   METTriggerMask   = cms.int32(1),  #Activated
+   JetTriggerMask   = cms.int32(0),  #Ignored
 )
 
-process.HSCPHLTFilterSingleMU = cms.EDFilter("HSCPHLTFilter",
+process.HSCPHLTFilterMU = cms.EDFilter("HSCPHLTFilter",
    RemoveDuplicates = cms.bool(False),
    TriggerProcess  = cms.string("HLT"),
-   MuonTrigger1Mask    = cms.int32(1),  #Activated
-   PFMetTriggerMask    = cms.int32(0),  #Activated
+   MuonTriggerMask = cms.int32(1),  #Activated
+   METTriggerMask  = cms.int32(0), #Ignored
+   JetTriggerMask  = cms.int32(0),  #Ignored
+)
+
+process.HSCPHLTFilterJET = cms.EDFilter("HSCPHLTFilter",
+   RemoveDuplicates = cms.bool(False),
+   TriggerProcess  = cms.string("HLT"),
+   MuonTriggerMask = cms.int32(0), #Ignored
+   METTriggerMask  = cms.int32(0), #Ignored
+   JetTriggerMask  = cms.int32(1), #Activated
 )
 
 process.Filter      = cms.Path(process.HSCPHLTDuplicate   )
-process.HscpPathPFMet = cms.Path(process.HSCPHLTFilterPFMET   )
-process.HscpPathSingleMu  = cms.Path(process.HSCPHLTFilterSingleMU    )
+process.HscpPathMet = cms.Path(process.HSCPHLTFilterMET   )
+process.HscpPathMu  = cms.Path(process.HSCPHLTFilterMU    )
+process.HscpPathJet = cms.Path(process.HSCPHLTFilterJET   )
 
 
 process.Out = cms.OutputModule("PoolOutputModule",
      outputCommands = cms.untracked.vstring(
          "drop *",
-         'keep EventAux_*_*_*',
-         'keep LumiSummary_*_*_*',
-         'keep edmMergeableCounter_*_*_*',
          "keep *_genParticles_*_*",
          "keep GenEventInfoProduct_generator_*_*",
          "keep *_offlinePrimaryVertices_*_*",
@@ -64,7 +72,6 @@ process.Out = cms.OutputModule("PoolOutputModule",
          "keep edmTriggerResults_TriggerResults_*_*",
          "keep recoPFJets_ak5PFJets__*", #
          "keep recoPFMETs_pfMet__*",     #
-         "keep recoCaloJets_ak5CaloJets__*",
          "keep *_HSCParticleProducer_*_*",
          "keep *_HSCPIsolation01__*",
          "keep *_HSCPIsolation03__*",
@@ -72,13 +79,12 @@ process.Out = cms.OutputModule("PoolOutputModule",
          "keep *_dedx*_*_HSCPAnalysis",
          "keep *_muontiming_*_HSCPAnalysis",
          "keep triggerTriggerEvent_hltTriggerSummaryAOD_*_*",
-		 "keep PileupSummaryInfos_addPileupInfo_*_*"
     ),
     fileName = cms.untracked.string('XXX_OUTPUT_XXX.root'),
 )
 
 process.endPath = cms.EndPath(process.Out)
 
-process.schedule = cms.Schedule(process.Filter, process.HscpPathPFMet, process.HscpPathSingleMu, process.endPath)
+process.schedule = cms.Schedule(process.Filter, process.HscpPathMet, process.HscpPathMu, process.HscpPathJet, process.endPath)
 
 

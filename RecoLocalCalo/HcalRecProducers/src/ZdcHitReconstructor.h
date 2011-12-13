@@ -25,8 +25,8 @@
 
     /** \class ZdcHitReconstructor
 	
-    $Date: 2011/02/23 22:51:18 $
-    $Revision: 1.3 $
+    $Date: 2011/05/20 17:17:30 $
+    $Revision: 1.4 $
     \author E. Garcia - CSU
     ** Based on HcalSimpleReconstructor.h by J. Mans
     */
@@ -60,6 +60,9 @@
 
       bool dropZSmarkedPassed_; // turn on/off dropping of zero suppression marked and passed digis
       std::vector<int> AuxTSvec_;
+    // new lowGainEnergy variables
+      int lowGainOffset_;
+      double lowGainFrac_;
       
       HcalLongRecoParams* myobject; //noiseTS and signalTS from db
     };

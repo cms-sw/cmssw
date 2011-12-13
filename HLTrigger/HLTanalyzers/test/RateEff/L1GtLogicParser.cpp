@@ -15,8 +15,8 @@
  *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  *
- * $Date: 2009/05/25 14:12:28 $
- * $Revision: 1.2 $
+ * $Date: 2009/12/02 16:13:04 $
+ * $Revision: 1.3 $
  *
  */
 
@@ -138,7 +138,7 @@ L1GtLogicParser::L1GtLogicParser(const std::string logicalExpressionVal,
 //   from a logical and a numerical expression
 //   no checks for correctness - use it only after the correctness was tested
 L1GtLogicParser::L1GtLogicParser(const std::string& logicalExpressionVal,
-    const std::string& numericalExpressionVal, const bool dummy) {
+    const std::string& numericalExpressionVal, bool dummy) {
 
     clearRpnVector();
     if ( !buildRpnVector(logicalExpressionVal) ) {
@@ -690,7 +690,7 @@ bool L1GtLogicParser::operandResult(const int tokenNumberVal) const {
 
 // return the result for the logical expression
 // require a proper operand token vector
-const bool L1GtLogicParser::expressionResult() const
+bool L1GtLogicParser::expressionResult() const
 {
 
     //LogTrace("L1GtLogicParser")
@@ -953,7 +953,7 @@ void L1GtLogicParser::buildOperandTokenVectorNumExp()
 
 
 // return the result for the logical expression
-const bool L1GtLogicParser::expressionResultNumExp() const
+bool L1GtLogicParser::expressionResultNumExp() const
 {
 
     //LogTrace("L1GtLogicParser")

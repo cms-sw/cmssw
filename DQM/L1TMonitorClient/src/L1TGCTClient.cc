@@ -60,42 +60,34 @@ void L1TGCTClient::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const Ev
 
 void L1TGCTClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) 
 {
-  MonitorElement* Input;
-
-  Input = dbe_->get("L1T/L1TGCT/IsoEmOccEtaPhi");
-  if (Input!=NULL){
-    makeXProjection(Input->getTH2F(),l1GctIsoEmOccEta_);
-    makeYProjection(Input->getTH2F(),l1GctIsoEmOccPhi_);
+  if (dbe_->get("L1T/L1TGCT/IsoEmOccEtaPhi")!=NULL){
+    makeXProjection(dbe_->get("L1T/L1TGCT/IsoEmOccEtaPhi")->getTH2F(),l1GctIsoEmOccEta_);
+    makeYProjection(dbe_->get("L1T/L1TGCT/IsoEmOccEtaPhi")->getTH2F(),l1GctIsoEmOccPhi_);
   }
 
-  Input = dbe_->get("L1T/L1TGCT/NonIsoEmOccEtaPhi");
-  if (Input!=NULL){
-    makeXProjection(Input->getTH2F(),l1GctNonIsoEmOccEta_);
-    makeYProjection(Input->getTH2F(),l1GctNonIsoEmOccPhi_);
+  if (dbe_->get("L1T/L1TGCT/NonIsoEmOccEtaPhi")!=NULL){
+    makeXProjection(dbe_->get("L1T/L1TGCT/NonIsoEmOccEtaPhi")->getTH2F(),l1GctNonIsoEmOccEta_);
+    makeYProjection(dbe_->get("L1T/L1TGCT/NonIsoEmOccEtaPhi")->getTH2F(),l1GctNonIsoEmOccPhi_);
   }
 
-  Input = dbe_->get("L1T/L1TGCT/AllJetsOccEtaPhi");
-  if (Input!=NULL){
-    makeXProjection(Input->getTH2F(),l1GctAllJetsOccEta_);
-    makeYProjection(Input->getTH2F(),l1GctAllJetsOccPhi_);
+  if (dbe_->get("L1T/L1TGCT/AllJetsOccEtaPhi")!=NULL){
+    makeXProjection(dbe_->get("L1T/L1TGCT/AllJetsOccEtaPhi")->getTH2F(),l1GctAllJetsOccEta_);
+    makeYProjection(dbe_->get("L1T/L1TGCT/AllJetsOccEtaPhi")->getTH2F(),l1GctAllJetsOccPhi_);
   }
 
-  Input = dbe_->get("L1T/L1TGCT/CenJetsOccEtaPhi");
-  if (Input!=NULL){
-    makeXProjection(Input->getTH2F(),l1GctCenJetsOccEta_);
-    makeYProjection(Input->getTH2F(),l1GctCenJetsOccPhi_);
+  if (dbe_->get("L1T/L1TGCT/CenJetsOccEtaPhi")!=NULL){
+    makeXProjection(dbe_->get("L1T/L1TGCT/CenJetsOccEtaPhi")->getTH2F(),l1GctCenJetsOccEta_);
+    makeYProjection(dbe_->get("L1T/L1TGCT/CenJetsOccEtaPhi")->getTH2F(),l1GctCenJetsOccPhi_);
   }
 
-  Input = dbe_->get("L1T/L1TGCT/ForJetsOccEtaPhi");
-  if (Input!=NULL){
-    makeXProjection(Input->getTH2F(),l1GctForJetsOccEta_);
-    makeYProjection(Input->getTH2F(),l1GctForJetsOccPhi_);
+  if (dbe_->get("L1T/L1TGCT/ForJetsOccEtaPhi")!=NULL){
+    makeXProjection(dbe_->get("L1T/L1TGCT/ForJetsOccEtaPhi")->getTH2F(),l1GctForJetsOccEta_);
+    makeYProjection(dbe_->get("L1T/L1TGCT/ForJetsOccEtaPhi")->getTH2F(),l1GctForJetsOccPhi_);
   }
   
-  Input = dbe_->get("L1T/L1TGCT/TauJetsOccEtaPhi"); 
-  if (Input!=NULL){
-    makeXProjection(Input->getTH2F(),l1GctTauJetsOccEta_);
-    makeYProjection(Input->getTH2F(),l1GctTauJetsOccPhi_);
+  if (dbe_->get("L1T/L1TGCT/TauJetsOccEtaPhi")!=NULL){
+    makeXProjection(dbe_->get("L1T/L1TGCT/TauJetsOccEtaPhi")->getTH2F(),l1GctTauJetsOccEta_);
+    makeYProjection(dbe_->get("L1T/L1TGCT/TauJetsOccEtaPhi")->getTH2F(),l1GctTauJetsOccPhi_);
   }
 }
 
@@ -103,42 +95,34 @@ void L1TGCTClient::analyze(const Event& e, const EventSetup& context){}
 
 void L1TGCTClient::endRun(const Run& r, const EventSetup& context)
 {
-  MonitorElement* Input;
-
-  Input = dbe_->get("L1T/L1TGCT/IsoEmOccEtaPhi");
-  if (Input!=NULL){
-    makeXProjection(Input->getTH2F(),l1GctIsoEmOccEta_);
-    makeYProjection(Input->getTH2F(),l1GctIsoEmOccPhi_);
+  if (dbe_->get("L1T/L1TGCT/IsoEmOccEtaPhi")!=NULL){
+    makeXProjection(dbe_->get("L1T/L1TGCT/IsoEmOccEtaPhi")->getTH2F(),l1GctIsoEmOccEta_);
+    makeYProjection(dbe_->get("L1T/L1TGCT/IsoEmOccEtaPhi")->getTH2F(),l1GctIsoEmOccPhi_);
   }
 
-  Input = dbe_->get("L1T/L1TGCT/NonIsoEmOccEtaPhi");
-  if (Input!=NULL){
-    makeXProjection(Input->getTH2F(),l1GctNonIsoEmOccEta_);
-    makeYProjection(Input->getTH2F(),l1GctNonIsoEmOccPhi_);
+  if (dbe_->get("L1T/L1TGCT/NonIsoEmOccEtaPhi")!=NULL){
+    makeXProjection(dbe_->get("L1T/L1TGCT/NonIsoEmOccEtaPhi")->getTH2F(),l1GctNonIsoEmOccEta_);
+    makeYProjection(dbe_->get("L1T/L1TGCT/NonIsoEmOccEtaPhi")->getTH2F(),l1GctNonIsoEmOccPhi_);
   }
 
-  Input = dbe_->get("L1T/L1TGCT/AllJetsOccEtaPhi");
-  if (Input!=NULL){
-    makeXProjection(Input->getTH2F(),l1GctAllJetsOccEta_);
-    makeYProjection(Input->getTH2F(),l1GctAllJetsOccPhi_);
+  if (dbe_->get("L1T/L1TGCT/AllJetsOccEtaPhi")!=NULL){
+    makeXProjection(dbe_->get("L1T/L1TGCT/AllJetsOccEtaPhi")->getTH2F(),l1GctAllJetsOccEta_);
+    makeYProjection(dbe_->get("L1T/L1TGCT/AllJetsOccEtaPhi")->getTH2F(),l1GctAllJetsOccPhi_);
   }
 
-  Input = dbe_->get("L1T/L1TGCT/CenJetsOccEtaPhi");
-  if (Input!=NULL){
-    makeXProjection(Input->getTH2F(),l1GctCenJetsOccEta_);
-    makeYProjection(Input->getTH2F(),l1GctCenJetsOccPhi_);
+  if (dbe_->get("L1T/L1TGCT/CenJetsOccEtaPhi")!=NULL){
+    makeXProjection(dbe_->get("L1T/L1TGCT/CenJetsOccEtaPhi")->getTH2F(),l1GctCenJetsOccEta_);
+    makeYProjection(dbe_->get("L1T/L1TGCT/CenJetsOccEtaPhi")->getTH2F(),l1GctCenJetsOccPhi_);
   }
 
-  Input = dbe_->get("L1T/L1TGCT/ForJetsOccEtaPhi");
-  if (Input!=NULL){
-    makeXProjection(Input->getTH2F(),l1GctForJetsOccEta_);
-    makeYProjection(Input->getTH2F(),l1GctForJetsOccPhi_);
+  if (dbe_->get("L1T/L1TGCT/ForJetsOccEtaPhi")!=NULL){
+    makeXProjection(dbe_->get("L1T/L1TGCT/ForJetsOccEtaPhi")->getTH2F(),l1GctForJetsOccEta_);
+    makeYProjection(dbe_->get("L1T/L1TGCT/ForJetsOccEtaPhi")->getTH2F(),l1GctForJetsOccPhi_);
   }
   
-  Input = dbe_->get("L1T/L1TGCT/TauJetsOccEtaPhi"); 
-  if (Input!=NULL){
-    makeXProjection(Input->getTH2F(),l1GctTauJetsOccEta_);
-    makeYProjection(Input->getTH2F(),l1GctTauJetsOccPhi_);
+  if (dbe_->get("L1T/L1TGCT/TauJetsOccEtaPhi")!=NULL){
+    makeXProjection(dbe_->get("L1T/L1TGCT/TauJetsOccEtaPhi")->getTH2F(),l1GctTauJetsOccEta_);
+    makeYProjection(dbe_->get("L1T/L1TGCT/TauJetsOccEtaPhi")->getTH2F(),l1GctTauJetsOccPhi_);
   }
 }
 

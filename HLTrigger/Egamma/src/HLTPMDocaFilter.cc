@@ -3,7 +3,7 @@
  *  Original Author: Jeremy Werner                          
  *  Institution: Princeton University, USA                                                                 *  Contact: Jeremy.Werner@cern.ch 
  *  Date: February 21, 2007     
- * $Id: HLTPMDocaFilter.cc,v 1.6 2007/12/06 21:12:28 ghezzi Exp $
+ * $Id: HLTPMDocaFilter.cc,v 1.7 2007/12/07 09:32:56 ghezzi Exp $
  *
  */
 
@@ -61,21 +61,14 @@ HLTPMDocaFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
  
   int n = 0;
 
-  double vx[66];
-  double vy[66];
-  double vz[66];
-
   unsigned int size = electrons.size();
-  if(size>66) size=66;
+  std::vector<double> vx(size);
+  std::vector<double> vy(size);
 
   for (unsigned int i=0; i< size; i++) {
-    
     ref = electrons[i];
-
     vx[i]=ref->vx();
     vy[i]=ref->vy();
-    vz[i]=ref->vz();
-    
   }
 
   for(unsigned int jj=0;jj<size;jj++){

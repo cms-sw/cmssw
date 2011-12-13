@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai
 //      Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: ConeIsolation.cc,v 1.29 2008/03/17 16:35:12 gennai Exp $
+// $Id: ConeIsolation.cc,v 1.1 2008/12/19 12:53:03 gennai Exp $
 //
 //
 
@@ -125,10 +125,7 @@ if (not jetTracksAssociation->empty()) {
 	 }else{
 	   myPV = myPVtmp;
 	 }
-
-
    
-   JetTracksAssociationCollection::const_iterator it = jetTracksAssociation->begin();
    for (unsigned int i = 0; i < jetTracksAssociation->size(); ++i)
      {
        pair<float,IsolatedTauTagInfo> myPair =m_algo->tag(edm::Ref<JetTracksAssociationCollection>(jetTracksAssociation,i),myPV); 
@@ -138,8 +135,6 @@ if (not jetTracksAssociation->empty()) {
 
    iEvent.put(extCollection);
    iEvent.put(tagCollection);
-
-
 
 }
 

@@ -13,7 +13,8 @@ class LinkByRecHit {
 
   /// computes a chisquare
   static double computeDist( double eta1, double phi1, 
-			     double eta2, double phi2 ) ;
+			     double eta2, double phi2,
+			     bool etaPhi = true) ;
   
   //tests association between a track and a cluster by rechit
   static double testTrackAndClusterByRecHit( const reco::PFRecTrack& track, 

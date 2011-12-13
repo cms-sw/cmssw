@@ -65,10 +65,6 @@ namespace xuti{
   const std::string DCSTowerStatus_tag("EcalDCSTowerStatus");
   const std::string DCSStatusCode_tag("DCSStatusCode");
 
-  const std::string TPGTowerStatus_tag("EcalTPGTowerStatus");
-  const std::string TPGCrystalStatus_tag("EcalTPGCrystalStatus");
-  const std::string TPGStripStatus_tag("EcalTPGStripStatus");
-
   const  std::string ADCToGeVConstant_tag("EcalADCToGeVConstant");
   const  std::string Barrel_tag("BarrelValue");
   const  std::string Endcap_tag("EndcapValue");

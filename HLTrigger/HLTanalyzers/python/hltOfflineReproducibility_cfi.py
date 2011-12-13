@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hltofflinereproducibility = cms.EDAnalyzer('HLTOfflineReproducibility',
+hltOfflineReproducibility = cms.EDAnalyzer('HLTOfflineReproducibility',
                                            processNameON = cms.string("HLT"),
                                            processNameOFF = cms.string("TEST"),
                                            triggerTagON  = cms.untracked.InputTag('TriggerResults::HLT'),

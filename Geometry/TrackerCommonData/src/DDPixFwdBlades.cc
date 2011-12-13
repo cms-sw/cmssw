@@ -25,6 +25,33 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
+  // -- Input geometry parameters :  -----------------------------------------------------
+
+const int DDPixFwdBlades::nBlades = 24;                     // Number of blades
+const double DDPixFwdBlades::bladeAngle = 20.*CLHEP::deg;   // Angle of blade rotation around its axis
+const double DDPixFwdBlades::zPlane = 0.;                   // Common shift in Z for all blades (with respect to disk center plane)
+const double DDPixFwdBlades::bladeZShift = 6.*CLHEP::mm;    // Shift in Z between the axes of two adjacent blades
+  
+const double DDPixFwdBlades::ancorRadius = 54.631*CLHEP::mm;// Distance from beam line to ancor point defining center of "blade frame"
+  
+// Coordinates of Nipple ancor points J and K in "blade frame" :
+
+const double DDPixFwdBlades::jX = -16.25*CLHEP::mm;
+const double DDPixFwdBlades::jY = 96.50*CLHEP::mm;
+const double DDPixFwdBlades::jZ = 1.25*CLHEP::mm;
+const double DDPixFwdBlades::kX = 16.25*CLHEP::mm;
+const double DDPixFwdBlades::kY = 96.50*CLHEP::mm;
+ const double DDPixFwdBlades::kZ = -1.25*CLHEP::mm;
+  
+// -- Static initialization :  -----------------------------------------------------------
+
+CLHEP::HepRotation* DDPixFwdBlades::nippleRotationZPlus = 0;
+CLHEP::HepRotation* DDPixFwdBlades::nippleRotationZMinus = 0;
+double DDPixFwdBlades::nippleTranslationX = 0.;
+double DDPixFwdBlades::nippleTranslationY = 0.;
+double DDPixFwdBlades::nippleTranslationZ = 0.;
+
+std::map<std::string, int> DDPixFwdBlades::copyNumbers;
 
 // -- Constructors & Destructor :  -------------------------------------------------------
 
@@ -72,35 +99,6 @@ void DDPixFwdBlades::initialize(const DDNumericArguments & nArgs,
   }
 
   idNameSpace = DDCurrentNamespace::ns();
-
-  // -- Input geometry parameters :  -----------------------------------------------------
-
-  nBlades = 24;                     // Number of blades
-  bladeAngle = 20.*CLHEP::deg;   // Angle of blade rotation around its axis
-  zPlane = 0.;                   // Common shift in Z for all blades (with respect to disk center plane)
-  bladeZShift = 6.*CLHEP::mm;    // Shift in Z between the axes of two adjacent blades
-  
-  ancorRadius = 54.631*CLHEP::mm;// Distance from beam line to ancor point defining center of "blade frame"
-  
-  // Coordinates of Nipple ancor points J and K in "blade frame" :
-
-  jX = -16.25*CLHEP::mm;
-  jY = 96.50*CLHEP::mm;
-  jZ = 1.25*CLHEP::mm;
-  kX = 16.25*CLHEP::mm;
-  kY = 96.50*CLHEP::mm;
-  kZ = -1.25*CLHEP::mm;
-  
-  // -- Static initialization :  -----------------------------------------------------------
-
-  nippleRotationZPlus = 0;
-  nippleRotationZMinus = 0;
-  nippleTranslationX = 0.;
-  nippleTranslationY = 0.;
-  nippleTranslationZ = 0.;
-
-  copyNumbers.clear();
-
 }
   
 // Execution :  --------------------------------------------------------------------------
@@ -186,7 +184,7 @@ void DDPixFwdBlades::execute(DDCompactView& cpv) {
     // create DDRotation for placing the child if not already existent :
 
     DDRotation rotation;   
-    std::string rotstr = DDSplit(mother).first + DDSplit(childName).first + int_to_string(copy);
+    std::string rotstr = DDSplit(childName).first + int_to_string(copy);
     rotation = DDRotation(DDName(rotstr, idNameSpace));
 
     if (!rotation) {

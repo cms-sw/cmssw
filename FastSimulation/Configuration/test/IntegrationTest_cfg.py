@@ -38,9 +38,6 @@ process.load('CalibTracker/Configuration/Tracker_DependentRecords_forGlobalTag_n
 
 # Apply ECAL miscalibration
 process.ecalRecHit.doMiscalib = True
-process.hbhereco.doMiscalib = True
-process.horeco.doMiscalib = True
-process.hfreco.doMiscalib = True
 
 # Apply Tracker misalignment
 process.famosSimHits.ApplyAlignment = True

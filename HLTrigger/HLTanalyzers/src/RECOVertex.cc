@@ -23,11 +23,15 @@ RECOVertex::RECOVertex() {
   VertexCand_tracks     = new int[kMaxVrt];
   VertexCand_chi2       = new float[kMaxVrt];
   VertexCand_ndof       = new float[kMaxVrt];
-
 }
 
 RECOVertex::~RECOVertex() {
-
+  delete[] VertexCand_x;
+  delete[] VertexCand_y;
+  delete[] VertexCand_z;
+  delete[] VertexCand_tracks;
+  delete[] VertexCand_chi2;
+  delete[] VertexCand_ndof;
 }
 
 void RECOVertex::clear() 

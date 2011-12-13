@@ -232,7 +232,6 @@ process.generation_step = cms.Path(cms.SequencePlaceholder("randomEngineStatePro
 process.reconstruction = cms.Path(process.famosWithTrackerHits+process.siClusterTranslator+process.siPixelRecHits+
                                   process.siStripMatchedRecHits+process.recopixelvertexing+
                                   process.iterTracking+
-                                  process.trackCollectionMerging+
                                   process.zeroStepHighPurity+
                                   process.firstStepHighPurity+
                                   process.fifthStepHighPurity

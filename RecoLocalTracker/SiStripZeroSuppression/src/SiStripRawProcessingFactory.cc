@@ -18,7 +18,19 @@ create(const edm::ParameterSet& conf) {
 						      create_SubtractorPed(conf),
 						      create_SubtractorCMN(conf),
 						      create_Suppressor(conf),
-                                                      create_Restorer(conf) ));
+                                                      create_Restorer(conf),
+						      create_doAPVRestorer(conf),
+						      create_useCMMeanMap(conf)));
+}
+
+bool SiStripRawProcessingFactory::create_doAPVRestorer(const edm::ParameterSet& conf){
+   bool doAPVRestore = conf.getParameter<bool>("doAPVRestore");
+   return doAPVRestore; 
+}
+  
+bool SiStripRawProcessingFactory::create_useCMMeanMap(const edm::ParameterSet&conf){
+   bool useCMMeanMap = conf.getParameter<bool>("useCMMeanMap");
+   return useCMMeanMap; 
 }
 
 std::auto_ptr<SiStripPedestalsSubtractor> SiStripRawProcessingFactory::
