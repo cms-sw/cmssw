@@ -80,6 +80,7 @@ void RPCPointVsRecHit::analyze(const edm::Event& event, const edm::EventSetup& e
   typedef RPCRecHitCollection::const_iterator RecHitIter;
 
   // Loop over refHits, fill histograms which does not need associations
+  int nRefHitBarrel = 0, nRefHitEndcap = 0;
   for ( RecHitIter refHitIter = refHitHandle->begin();
         refHitIter != refHitHandle->end(); ++refHitIter )
   {
@@ -96,20 +97,23 @@ void RPCPointVsRecHit::analyze(const edm::Event& event, const edm::EventSetup& e
 
     if ( region == 0 )
     {
-      h_.nRefHit_W->Fill(ring);
-      h_.nRefHit_WvsR->Fill(ring, station);
+      h_.refHitBarrelOccupancy_wheel->Fill(ring);
+      h_.refHitBarrelOccupancy_station->Fill(station);
+      h_.refHitBarrelOccupancy_wheel_station->Fill(ring, station);
     }
     else
     {
-      h_.nRefHit_D->Fill(region*station);
-      h_.nRefHit_DvsR->Fill(region*station, ring);
+      h_.refHitEndcapOccupancy_disk->Fill(region*station);
+      h_.refHitEndcapOccupancy_disk_ring->Fill(region*station, ring);
     }
 
-    const GlobalPoint pos = roll->toGlobal(refHitIter->localPosition());
-    //h_[HName::RefHitEta]->Fill(pos.eta());
   }
+  h_.nRefHitBarrel->Fill(nRefHitBarrel);
+  h_.nRefHitEndcap->Fill(nRefHitEndcap);
 
   // Loop over recHits, fill histograms which does not need associations
+  int sumClusterSizeBarrel = 0, sumClusterSizeEndcap = 0;
+  int nRecHitBarrel = 0, nRecHitEndcap = 0;
   for ( RecHitIter recHitIter = recHitHandle->begin();
         recHitIter != recHitHandle->end(); ++recHitIter )
   {
@@ -128,18 +132,39 @@ void RPCPointVsRecHit::analyze(const edm::Event& event, const edm::EventSetup& e
 
     if ( region == 0 )
     {
-      h_.nRecHit_W->Fill(ring);
-      h_.nRecHit_WvsR->Fill(ring, station);
+      ++nRecHitBarrel;
+      sumClusterSizeBarrel += recHitIter->clusterSize();
+      h_.clusterSizeBarrel->Fill(recHitIter->clusterSize());
+      h_.recHitBarrelOccupancy_wheel->Fill(ring);
+      h_.recHitBarrelOccupancy_station->Fill(station);
+      h_.recHitBarrelOccupancy_wheel_station->Fill(ring, station);
     }
     else
     {
-      h_.nRecHit_D->Fill(region*station);
-      h_.nRecHit_DvsR->Fill(ring, region*station);
+      ++nRecHitEndcap;
+      sumClusterSizeEndcap += recHitIter->clusterSize();
+      h_.clusterSizeEndcap->Fill(recHitIter->clusterSize());
+      h_.recHitEndcapOccupancy_disk->Fill(region*station);
+      h_.recHitEndcapOccupancy_disk_ring->Fill(ring, region*station);
     }
 
+  }
+  const double nRecHit = nRecHitBarrel+nRecHitEndcap;
+  h_.nRecHitBarrel->Fill(nRecHitBarrel);
+  h_.nRecHitEndcap->Fill(nRecHitEndcap);
+  if ( nRecHit > 0 )
+  {
+    const int sumClusterSize = sumClusterSizeBarrel+sumClusterSizeEndcap;
+    h_.avgClusterSize->Fill(double(sumClusterSize)/nRecHit);
 
-    const GlobalPoint pos = roll->toGlobal(recHitIter->localPosition());
-    //h_[HName::RecHitEta]->Fill(pos.eta());
+    if ( nRecHitBarrel > 0 )
+    {
+      h_.avgClusterSizeBarrel->Fill(double(sumClusterSizeBarrel)/nRecHitBarrel);
+    }
+    if ( nRecHitEndcap > 0 )
+    {
+      h_.avgClusterSizeEndcap->Fill(double(sumClusterSizeEndcap)/nRecHitEndcap);
+    }
   }
 
   // Start matching RefHits to RecHits
@@ -205,35 +230,41 @@ void RPCPointVsRecHit::analyze(const edm::Event& event, const edm::EventSetup& e
 
     const double refX = refHitIter->localPosition().x();
     const double recX = recHitIter->localPosition().x();
-    const double errX = recHitIter->localPositionError().xx();
+    const double errX = sqrt(recHitIter->localPositionError().xx());
     const double dX = recX - refX;
     const double pull = errX == 0 ? -999 : dX/errX;
 
-    const GlobalPoint refPos = roll->toGlobal(refHitIter->localPosition());
-    const GlobalPoint recPos = roll->toGlobal(recHitIter->localPosition());
+    //const GlobalPoint refPos = roll->toGlobal(refHitIter->localPosition());
+    //const GlobalPoint recPos = roll->toGlobal(recHitIter->localPosition());
 
     if ( region == 0 )
     {
-      h_.res_W->Fill(dX);
-      h_.pull_W->Fill(pull);
-      h_.nMatchedRefHit_W->Fill(ring);
-      h_.nMatchedRefHit_WvsR->Fill(ring, station);
+      h_.resBarrel->Fill(dX);
+      h_.pullBarrel->Fill(pull);
+      h_.matchBarrelOccupancy_wheel->Fill(ring);
+      h_.matchBarrelOccupancy_station->Fill(station);
+      h_.matchBarrelOccupancy_wheel_station->Fill(ring, station);
 
-      h_.res2_W->Fill(ring, dX);
-      h_.pull2_W->Fill(ring, pull);
+      h_.res_wheel_res->Fill(ring, dX);
+      h_.res_station_res->Fill(station, dX);
+      h_.pull_wheel_pull->Fill(ring, pull);
+      h_.pull_station_pull->Fill(station, pull);
     }
     else
     {
-      h_.res_D->Fill(dX);
-      h_.pull_D->Fill(pull);
-      h_.nMatchedRefHit_D->Fill(region*station);
-      h_.nMatchedRefHit_DvsR->Fill(region*station, ring);
+      h_.resEndcap->Fill(dX);
+      h_.pullEndcap->Fill(pull);
+      h_.matchEndcapOccupancy_disk->Fill(region*station);
+      h_.matchEndcapOccupancy_disk_ring->Fill(region*station, ring);
 
-      h_.res2_D->Fill(region*station, dX);
-      h_.pull2_D->Fill(region*station, pull);
+      h_.res_disk_res->Fill(region*station, dX);
+      h_.res_ring_res->Fill(ring, dX);
+      h_.pull_disk_pull->Fill(region*station, pull);
+      h_.pull_ring_pull->Fill(ring, pull);
     }
   }
 
+/*
   // Find Lost hits
   for ( RecHitIter refHitIter = refHitHandle->begin();
         refHitIter != refHitHandle->end(); ++refHitIter )
@@ -263,16 +294,17 @@ void RPCPointVsRecHit::analyze(const edm::Event& event, const edm::EventSetup& e
     {
       if ( region == 0 )
       {
-        h_.nUnMatchedRefHit_W->Fill(ring);
-        h_.nUnMatchedRefHit_WvsR->Fill(ring, station);
+        h_.nUrefHitBarrelOccupancy_wheel->Fill(ring);
+        h_.nUrefHitBarrelOccupancy_wheel_ring->Fill(ring, station);
       }
       else
       {
-        h_.nUnMatchedRefHit_D->Fill(region*station);
-        h_.nUnMatchedRefHit_DvsR->Fill(region*station, ring);
+        h_.nUnMatchedRefHit_disk->Fill(region*station);
+        h_.nUnMatchedRefHit_disk_ring->Fill(region*station, ring);
       }
     }
   }
+*/
 
   // Find Noisy hits
   for ( RecHitIter recHitIter = recHitHandle->begin();
@@ -303,16 +335,17 @@ void RPCPointVsRecHit::analyze(const edm::Event& event, const edm::EventSetup& e
     {
       if ( region == 0 )
       {
-        h_.nUnMatchedRecHit_W->Fill(ring);
-        h_.nUnMatchedRecHit_WvsR->Fill(ring, station);
+        h_.umBarrelOccupancy_wheel->Fill(ring);
+        h_.umBarrelOccupancy_station->Fill(station);
+        h_.umBarrelOccupancy_wheel_station->Fill(ring, station);
       }
       else
       {
-        h_.nUnMatchedRecHit_D->Fill(region*station);
-        h_.nUnMatchedRecHit_DvsR->Fill(region*station, ring);
+        h_.umEndcapOccupancy_disk->Fill(region*station);
+        h_.umEndcapOccupancy_disk_ring->Fill(region*station, ring);
       }
 
-      const GlobalPoint pos = roll->toGlobal(recHitIter->localPosition());
+      //const GlobalPoint pos = roll->toGlobal(recHitIter->localPosition());
       //h_[HName::NoisyHitEta]->Fill(pos.eta());
     }
   }

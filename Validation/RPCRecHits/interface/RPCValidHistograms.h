@@ -18,36 +18,33 @@ struct RPCValidHistograms
 
   void bookHistograms(DQMStore* dbe, const std::string subDir);
 
-  MEP clusterSize;
+  // Hit properties
+  MEP clusterSize, clusterSizeBarrel, clusterSizeEndcap;
+  MEP avgClusterSize, avgClusterSizeBarrel, avgClusterSizeEndcap;
 
-  // Number of hits
-  MEP nRefHit_W, nRefHit_D;
-  MEP nRecHit_W, nRecHit_D;
+  MEP nRefHitBarrel, nRefHitEndcap;
+  MEP nRecHitBarrel, nRecHitEndcap;
+  MEP nMatchHitBarrel, nMatchHitEndcap;
 
-  MEP nRefHit_WvsR, nRefHit_DvsR;
-  MEP nRecHit_WvsR, nRecHit_DvsR;
+  // Occupancy 1D
+  MEP refHitBarrelOccupancy_wheel, refHitEndcapOccupancy_disk, refHitBarrelOccupancy_station;
+  MEP recHitBarrelOccupancy_wheel, recHitEndcapOccupancy_disk, recHitBarrelOccupancy_station;
+  MEP matchBarrelOccupancy_wheel, matchEndcapOccupancy_disk, matchBarrelOccupancy_station;
+  MEP umBarrelOccupancy_wheel, umEndcapOccupancy_disk, umBarrelOccupancy_station;
 
-  MEP nMatchedRefHit_W, nMatchedRefHit_D;
-//  MEP nMatchedRecHit_W, nMatchedRecHit_D;
-
-  MEP nMatchedRefHit_WvsR;//, nMatchedRecHit_WvsR;
-  MEP nMatchedRefHit_DvsR;//, nMatchedRecHit_DvsR;
-
-  MEP nUnMatchedRefHit_W, nUnMatchedRefHit_D;
-  MEP nUnMatchedRecHit_W, nUnMatchedRecHit_D;
-
-  MEP nUnMatchedRefHit_WvsR, nUnMatchedRecHit_WvsR;
-  MEP nUnMatchedRefHit_DvsR, nUnMatchedRecHit_DvsR;
+  // Occupancy 2D
+  MEP refHitBarrelOccupancy_wheel_station, refHitEndcapOccupancy_disk_ring;
+  MEP recHitBarrelOccupancy_wheel_station, recHitEndcapOccupancy_disk_ring;
+  MEP matchBarrelOccupancy_wheel_station, matchEndcapOccupancy_disk_ring;
+  MEP umBarrelOccupancy_wheel_station, umEndcapOccupancy_disk_ring;
 
   // Residuals
-  MEP res_W, res_D;
-  MEP res2_W, res2_D;
-  MEP res2_WR, res2_DR;
-
+  MEP resBarrel, resEndcap;
+  MEP res_wheel_res, res_disk_res, res_station_res, res_ring_res;
+  
   // Pulls
-  MEP pull_W, pull_D;
-  MEP pull2_W, pull2_D;
-  MEP pull2_WR, pull2_DR;
+  MEP pullBarrel, pullEndcap;
+  MEP pull_wheel_pull, pull_disk_pull, pull_station_pull, pull_ring_pull;
 
 private:
   bool booked_;

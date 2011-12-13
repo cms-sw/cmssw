@@ -4,6 +4,7 @@ rpcRecHitV = cms.EDAnalyzer("RPCRecHitValid",
     subDir = cms.string("RPC/RPCRecHitV/SimVsReco"),
     simHit = cms.InputTag("g4SimHits", "MuonRPCHits"),
     recHit = cms.InputTag("rpcRecHits"),
+    simTrack = cms.InputTag("mergedtruth", "MergedTrackTruth"),
     standAloneMode = cms.untracked.bool(False),
     rootFileName = cms.untracked.string("")
 )
