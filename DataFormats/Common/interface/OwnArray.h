@@ -20,7 +20,7 @@
 
 namespace edm {
   class ProductID;
-  template <typename T, usigned int MAX_SIZE, typename P = ClonePolicy<T> >
+  template <typename T, unsigned int MAX_SIZE, typename P = ClonePolicy<T> >
   class OwnArray {
   private:
     typedef std::vector<T*> base;
@@ -60,7 +60,7 @@ namespace edm {
       const_iterator & operator -=(difference_type d) { i -= d; return *this; }
       reference operator[](difference_type d) const { return *const_iterator(i+d); } // for boost::iterator_range []
     private:
-      typename pointer const * i;
+      pointer const * i;
     };
     class iterator {
     public:
@@ -346,13 +346,13 @@ namespace edm {
   
   template<typename T, unsigned int M, typename P>
   inline void OwnArray<T, M, P>::destroy() {
-    typename pointer * b = data_, e = data_+size();
-    for(typename pointer * i = b; i != e; ++ i)
+    pointer * b = data_, e = data_+size();
+    for(pointer * i = b; i != e; ++ i)
       delete * i;
   }
   
   template<typename T, unsigned int M, typename P>
-  inline typename pointer const& OwnArray<T, M, P>::data() const {
+  inline pointer const& OwnArray<T, M, P>::data() const {
     return data_;
   }
 
@@ -364,16 +364,16 @@ namespace edm {
 
    template<typename T, unsigned int M, typename P>
   typename OwnArray<T, M, P>::iterator OwnArray<T, M, P>::erase(iterator pos) {
-    typename pointer * b = pos.i;
+    pointer * b = pos.i;
     delete *b;
-    typename pointer * e = data_+size();
+    pointer * e = data_+size();
     for(typename  pointer * i = b; i != e-1; ++ i) i = i+1;
     return iterator(b);
   }
 
    template<typename T, unsigned int M, typename P>
   typename OwnArray<T, M, P>::iterator OwnArray<T, M, P>::erase(iterator first, iterator last) {
-     typename pointer * b = first.i, e = last.i;
+     pointer * b = first.i, e = last.i;
     for(typename  pointer * i = b; i != e; ++ i) delete * i;
     pinter * l = data_+size();
     for(typename  pointer * i = e; i != l; ++i)  b++ = i;
