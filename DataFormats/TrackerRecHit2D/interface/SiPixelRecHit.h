@@ -44,7 +44,7 @@ public:
 
   virtual SiPixelRecHit * clone() const {return new SiPixelRecHit( * this); }
   
-  ClusterRef const& cluster() const { return cluster_.cluster_pixel();}
+  ClusterRef cluster() const { return cluster_.cluster_pixel();}
   void setClusterRef(const ClusterRef &ref) { cluster_  =  OmniClusterRef(ref); }
 
   virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const;
