@@ -1,187 +1,139 @@
+// $Id: testOwnVector.cc,v 1.11 2011/11/16 22:22:45 wmtan Exp $
+#include <cppunit/extensions/HelperMacros.h>
 #include <algorithm>
-#include <cassert>
-#include <memory>
-
+#include <iterator>
+#include <iostream>
 #include "DataFormats/Common/interface/OwnArray.h"
 
-
-struct Base
-{
-  virtual ~Base();
-  virtual Base* clone() const = 0;
+class testOwnArray : public CppUnit::TestFixture {
+  CPPUNIT_TEST_SUITE(testOwnArray);
+  CPPUNIT_TEST(checkAll);
+  CPPUNIT_TEST_SUITE_END();
+public:
+  void setUp() {}
+  void tearDown() {}
+  void checkAll(); 
 };
 
-Base::~Base() {}
+CPPUNIT_TEST_SUITE_REGISTRATION(testOwnArray);
 
-struct Derived : Base
-{
-  explicit Derived(int n);
-  Derived(Derived const& other);
-  Derived& operator=(Derived const& other);
-  virtual ~Derived();
-  void swap(Derived& other);
-  virtual Derived* clone() const;
-
-  int*  pointer;
-};
-
-Derived::Derived(int n) : pointer(new int(n)) { }
-
-Derived::Derived(Derived const& other) : pointer(new int(*other.pointer)) { }
-
-Derived& Derived::operator=(Derived const& other) 
-{
-  Derived temp(other);
-  swap(temp);
-  return *this;
-}
-
-void Derived::swap(Derived& other)
-{
-  std::swap(pointer, other.pointer);
-}
-
-void swap(Derived& a, Derived& b)
-{
-  a.swap(b);
-}
-
-Derived::~Derived()
-{
-  delete pointer;
-}
-
-Derived*
-Derived::clone() const
-{
-  return new Derived(*this); 
-}
-
-
-
-void same_guy_twice()
-{
-  edm::OwnArray<Base,3> vec;
-  Base* p = new Derived(1);
-
-  vec.push_back(p);
-  vec.push_back(p);
-}
-
-void two_different_owners()
-{
-  edm::OwnArray<Base,3> v1,v2;
-  Base* p = new Derived(1);
-  v1.push_back(p);
-  v2.push_back(p);
-}
-
-// void guy_on_stack()
-// {
-//   edm::OwnArray<Base> v;
-//   Derived d(10);
-//   v.push_back(&d);  
-// }
-
-void copy_good_vec()
-{
-  // v1 is perfectly fine...
-  edm::OwnArray<Base,5> v1;
-  Base* p = new Derived(100);
-  v1.push_back(p);
-  //v1.push_back(new Derived(100));
-
-  // But what if we copy him?
-  edm::OwnArray<Base,5> v2(v1);
-}
-
-void assign_to_other()
-{
-  edm::OwnArray<Base,3> v1;
-  Base* p = new Derived(100);
-  v1.push_back(p);
-
-  edm::OwnArray<Base,3> v2;
-  v2 = v1;
-}
-
-void assign_to_self()
-{
-  // Self-assignment happens, often by accident...
-  edm::OwnArray<Base,3> v1;
-  v1.push_back(new Derived(100));
-  v1 = v1;
-}
-
-void pop_one()
-{
-  edm::OwnArray<Base,3> v1;
-  v1.push_back(new Derived(100));
-  v1.pop_back();
-}
-
-void back_with_null_pointer()
-{
-  edm::OwnArray<Base,3> v;
-  Base* p = 0;
-  v.push_back(p);
-  try
-    {
-      v.back();
-      assert("Failed to throw a required exception in OwnArray_t"==0);
+namespace test {
+  struct Dummy {
+    Dummy(int n, bool * r) : value(n), ref(r) { }
+    ~Dummy() { * ref = true; }
+    int value;
+    bool operator<(const test::Dummy & o) const {
+      return value < o.value;
     }
-  catch (edm::Exception& x)
-    {
-      // this is expected.
+  private:
+    bool * ref;
+  };
+
+  struct DummyComp {
+    bool operator()(const Dummy& d1, const Dummy& d2) const {
+      return d1.value < d2.value;
+    } 
+  };
+
+  class a {
+  public:
+    virtual ~a() {}
+    virtual int f() const = 0;
+  };
+
+  class ClassB : public a {
+  public:
+    ClassB(int i) : ii(i) {memset(&waste, 0, sizeof(waste));}
+    virtual ~ClassB() {}
+    virtual int f() const { return ii;  }
+    int ii;
+  private:
+    char waste[1024*1024];    
+  };
+
+  class ss {
+  public:
+    bool operator() (const a & a1, const a & a2) const { 
+      return (a1.f() > a2.f());
     }
-  catch (...)
-    {
-      throw;
+  };
+  
+  std::ostream& operator<<(std::ostream& os, const a & aa) {
+    os << aa.f();
+    return os;
+  }
+}
+
+void testOwnArray::checkAll() {
+  edm::OwnArray<test::Dummy,5> v;
+  CPPUNIT_ASSERT(v.size() == 0);
+  CPPUNIT_ASSERT(v.empty());
+  bool deleted[4] = { false, false, false, false };
+  v.push_back(new test::Dummy(0, deleted + 0));
+  v.push_back(new test::Dummy(1, deleted + 1));
+  v.push_back(new test::Dummy(2, deleted + 2));
+  v.push_back(new test::Dummy(3, deleted + 3));
+  CPPUNIT_ASSERT(v.size() == 4);
+  edm::OwnArray<test::Dummy>::iterator i;
+  i = v.begin();
+  edm::OwnArray<test::Dummy>::const_iterator ci = i;
+  * ci;
+  v.sort();
+  v.sort(test::DummyComp());
+  CPPUNIT_ASSERT(!v.empty());
+  CPPUNIT_ASSERT(v[0].value == 0);
+  CPPUNIT_ASSERT(v[1].value == 1);
+  CPPUNIT_ASSERT(v[2].value == 2);
+  CPPUNIT_ASSERT(v[3].value == 3);
+  i = v.begin() + 1;
+  v.erase( i );
+  CPPUNIT_ASSERT(!deleted[0]);
+  CPPUNIT_ASSERT(deleted[1]);
+  CPPUNIT_ASSERT(!deleted[2]);
+  CPPUNIT_ASSERT(!deleted[3]);
+  CPPUNIT_ASSERT(v.size() == 3);
+  CPPUNIT_ASSERT(v[0].value == 0);
+  CPPUNIT_ASSERT(v[1].value == 2);
+  CPPUNIT_ASSERT(v[2].value == 3);
+  edm::OwnArray<test::Dummy>::iterator b = v.begin(), e = b + 1;
+  v.erase(b, e);
+  CPPUNIT_ASSERT(v.size() == 2);
+  CPPUNIT_ASSERT(deleted[0]);
+  CPPUNIT_ASSERT(deleted[1]);
+  CPPUNIT_ASSERT(!deleted[2]);
+  CPPUNIT_ASSERT(!deleted[3]);
+  v.clear();
+  CPPUNIT_ASSERT(v.size() == 0);
+  CPPUNIT_ASSERT(v.empty());
+  CPPUNIT_ASSERT(deleted[0]);
+  CPPUNIT_ASSERT(deleted[1]);
+  CPPUNIT_ASSERT(deleted[2]);
+  CPPUNIT_ASSERT(deleted[3]);
+  {
+    edm::OwnArray<test::a,5> v;
+    test::a * aa = new test::ClassB(2);
+    v.push_back(aa);
+    aa = new test::ClassB(1);
+    v.push_back(aa);
+    aa = new test::ClassB(3);
+    v.push_back(aa);
+    v.sort(test::ss());
+    std::cout << "OwnArray : dumping contents" << std::endl;
+    std::copy(v.begin(), 
+	      v.end(), 
+	      std::ostream_iterator<test::a>(std::cout, "\t"));
+
+    edm::Ptr<test::a> ptr_v;
+    unsigned long index(0);
+    void const * data = &v[0];
+    v.setPtr( typeid(test::a), index, data );
+    test::a const * data_a = static_cast<test::a const *>(data);
+    test::ClassB const * data_b = dynamic_cast<test::ClassB const *>(data_a);
+    CPPUNIT_ASSERT( data != 0);
+    CPPUNIT_ASSERT( data_a != 0);
+    CPPUNIT_ASSERT( data_b != 0);
+    if(data_b != 0) { // To silence Coverity
+      CPPUNIT_ASSERT( data_b->f() == 3);
     }
-}
-
-void take_an_rvalue()
-{
-  edm::OwnArray<Base,3> v;
-  v.push_back(new Derived(101));
-  Derived d(102);
-  v.push_back(d.clone());
-}
-
-void take_an_lvalue()
-{
-  edm::OwnArray<Base,5> v1;
-  Base* p = new Derived(100);
-  v1.push_back(p);
-
-  assert(p == 0);
-}
-
-void take_an_auto_ptr()
-{
-  edm::OwnArray<Base,3> v1;
-  std::auto_ptr<Base> p(new Derived(100));
-  v1.push_back(p);
-  assert(p.get() == 0);
-}
-
-int main()
-{
-  edm::OwnArray<Base,3> vec;
-  vec.push_back(new Derived(100));
-  edm::OwnArray<Base,3>* p = new edm::OwnArray<Base,3>;
-  p->push_back(new Derived(2));
-  delete p;
-  //   same_guy_twice();
-  //   two_different_owners();
-  //   guy_on_stack();  
-  copy_good_vec();
-  assign_to_other();
-  assign_to_self();
-  pop_one();
-  back_with_null_pointer();
-
-  take_an_rvalue();
-  take_an_lvalue();
-  take_an_auto_ptr();
+  }
 }
