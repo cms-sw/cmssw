@@ -23,6 +23,7 @@ namespace edm {
   template <typename T, unsigned int MAX_SIZE, typename P = ClonePolicy<T> >
   class OwnArray {
   private:
+    typedef OwnArray<T,MAX_SIZE,P> self;
     typedef std::vector<T*> base;
   public:
     typedef unsigned int size_type;
@@ -91,7 +92,7 @@ namespace edm {
     private:
       pointer * i;
       friend class const_iterator;
-      friend class OwnArray<T, P>;
+      friend class OwnArray<T, MAX_SIZE, P>;
     };
     
     
@@ -113,9 +114,9 @@ namespace edm {
     reference operator[](size_type);
     const_reference operator[](size_type) const;
     
-    OwnArray<T, P>& operator=(OwnArray<T,M, P> const&);
+    self& operator=(self const&);
 #if defined(__GXX_EXPERIMENTAL_CXX0X__)
-    OwnArray<T, P>& operator=(OwnArray<T,M, P>&&);
+    self& operator=(self&&);
 #endif
     
     
