@@ -38,12 +38,12 @@ public:
   }
 
   ClusterRef cluster()  const { 
-    return cluster_.cluster();
+    return cluster_.cluster_strip();
   }
 
-  void setClusterRef(ClusterRef const & ref) { cluster_.setRef(ref); }
-  void setClusterRegionalRef(ClusterRegionalRef const & ref) { cluster_.setRef(ref); }
- 
+  void setClusterRef(ClusterRef const & ref) {  cluster_ = OmniClusterRef(ref); }
+  void setClusterRegionalRef(ClusterRegionalRef const & ref) { cluster_ = OmniClusterRef((ref); }
+
 
 
   virtual void getKfComponents( KfComponentsHolder & holder ) const ; 
