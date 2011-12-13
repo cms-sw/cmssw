@@ -1,4 +1,4 @@
-// $Id: testOwnVector.cc,v 1.11 2011/11/16 22:22:45 wmtan Exp $
+// $Id: testOwnArray.cc,v 1.2 2011/12/13 15:34:16 innocent Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include <algorithm>
 #include <iterator>
@@ -74,9 +74,8 @@ void testOwnArray::checkAll() {
   v.push_back(new test::Dummy(2, deleted + 2));
   v.push_back(new test::Dummy(3, deleted + 3));
   CPPUNIT_ASSERT(v.size() == 4);
-  edm::OwnArray<test::Dummy>::iterator i;
-  i = v.begin();
-  edm::OwnArray<test::Dummy>::const_iterator ci = i;
+  auto i = v.begin();
+  auto ci = i;
   * ci;
   v.sort();
   v.sort(test::DummyComp());
@@ -95,7 +94,7 @@ void testOwnArray::checkAll() {
   CPPUNIT_ASSERT(v[0].value == 0);
   CPPUNIT_ASSERT(v[1].value == 2);
   CPPUNIT_ASSERT(v[2].value == 3);
-  edm::OwnArray<test::Dummy>::iterator b = v.begin(), e = b + 1;
+  auto b = v.begin(), e = b + 1;
   v.erase(b, e);
   CPPUNIT_ASSERT(v.size() == 2);
   CPPUNIT_ASSERT(deleted[0]);

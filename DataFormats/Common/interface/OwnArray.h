@@ -368,7 +368,7 @@ namespace edm {
     pointer * b = pos.i;
     delete *b;
     pointer * e = data_+size();
-    for(pointer * i = b; i != e-1; ++ i) i = i+1;
+    for(pointer * i = b; i != e-1; ++ i) *i = *(i+1);
     return iterator(b);
   }
 
@@ -377,7 +377,7 @@ namespace edm {
      pointer * b = first.i, * e = last.i;
     for(pointer * i = b; i != e; ++ i) delete * i;
     pointer * l = data_+size();
-    for(pointer * i = e; i != l; ++i)  b++ = i;
+    for(pointer * i = e; i != l; ++i)  *(b++) = *i;
     return iterator(b-1);
   }
 
