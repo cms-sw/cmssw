@@ -25,7 +25,7 @@
     class MethodBDT;
   }
 
-  class GBRForest : public TNamed {
+  class GBRForest {
 
     public:
 
@@ -40,8 +40,8 @@
        
     protected:
       Double_t             fInitialResponse;
-      std::vector<GBRTree> fTrees;
-    
+      std::vector<GBRTree> fTrees;  
+      
   };
 
 //_______________________________________________________________________

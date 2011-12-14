@@ -44,8 +44,6 @@
        virtual ~GBRTree();
        
        Double_t GetResponse(const Float_t* vector) const;
-
-       //       virtual void Streamer(TBuffer &b);
        
     protected:      
         UInt_t CountIntermediateNodes(const TMVA::DecisionTreeNode *node);
@@ -56,12 +54,11 @@
         Int_t    fNIntermediateNodes;
         Int_t    fNTerminalNodes;
       
-	std::vector<UChar_t> fCutIndices;//[fNIntermediateNodes]
-	std::vector<Float_t> fCutVals;//[fNIntermediateNodes]
-	std::vector<Int_t> fLeftIndices;//[fNIntermediateNodes]
-	std::vector<Int_t> fRightIndices;//[fNIntermediateNodes]        
-	std::vector<Float_t> fResponses;//[fNTerminalNodes]
-
+	std::vector<UChar_t> fCutIndices;
+	std::vector<Float_t> fCutVals;
+	std::vector<Int_t> fLeftIndices;
+	std::vector<Int_t> fRightIndices;
+	std::vector<Float_t> fResponses;  
         
   };
 

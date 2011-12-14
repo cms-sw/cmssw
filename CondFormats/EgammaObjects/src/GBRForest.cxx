@@ -19,7 +19,6 @@ GBRForest::~GBRForest()
 
 //_______________________________________________________________________
 GBRForest::GBRForest(const TMVA::MethodBDT *bdt) : 
-  TNamed("GBRForest","GBRForest"),
   fInitialResponse(bdt->GetBoostWeights().front())
 {
   

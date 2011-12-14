@@ -8,5 +8,5 @@
     <field name="m_forest" mapping="blob"/>  
   </class>     
   <class name="GBRForest"/>
-  <class name="GBRTree" class_version="50"/>
+  <class name="GBRTree"/>
 </lcgdict>   
