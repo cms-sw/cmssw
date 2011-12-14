@@ -177,6 +177,7 @@ if [ -f $tard ]; then
 fi
 mkdir $tard
 
+origd=$PWD
 getExternals
 getCmssw
 getSources
