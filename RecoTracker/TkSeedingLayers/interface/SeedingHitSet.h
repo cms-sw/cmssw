@@ -8,10 +8,10 @@ public:
 
   typedef  TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
 
-  SeedingHitSet() : m_size[0] {}
+  SeedingHitSet() : m_size(0) {}
   SeedingHitSet(ConstRecHitPointer const & one, ConstRecHitPointer const & two) : theRecHits{{one,two,ConstRecHitPointer()}},m_size(2){}
   SeedingHitSet(ConstRecHitPointer const & one, ConstRecHitPointer const & two, 
-		ConstRecHitPointer const & three) : theRecHits{{one,two,tree}},m_size(3){}
+		ConstRecHitPointer const & three) : theRecHits{{one,two,three}},m_size(3){}
 
   ~SeedingHitSet(){}
 
