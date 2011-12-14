@@ -1,6 +1,8 @@
 #!/bin/bash
 #set -xv
 
+build=full
+
 if [ $# -lt 1 ]; then
   echo "Usage: $0  [tar-dir]"
   exit 1
@@ -74,18 +76,28 @@ echo "=========================================================="
 mkdir -p ${tard}/lib
 
 # cms libraries
- echo "getting libs from $CMSSW_RELEASE_BASE/lib/*/* ${tard}/lib/"
-cp -a $CMSSW_RELEASE_BASE/lib/*/* ${tard}/lib/
- echo "getting libs from -f ${tard}/lib"
+
+
+if [ $build != "full" ]; then
+   echo "getting libs from $CMSSW_RELEASE_BASE/lib/*/* ${tard}/lib/"
+   cp -a $CMSSW_RELEASE_BASE/lib/*/* ${tard}/lib/
+fi
+
+echo "getting libs from $CMSSW_BASE/lib/*/ "
 cp -f $CMSSW_BASE/lib/*/* ${tard}/lib/
 
 # plugins cache file
-echo "get $CMSSW_RELEASE_BASE/lib/*/.edmplugincache > ${tard}/lib/.edmplugincache"
-touch ${tard}/lib/.edmplugincache
-cat  $CMSSW_RELEASE_BASE/lib/*/.edmplugincache | grep -v Fireworks > /tmp/.edmplugincache
-cat  $CMSSW_BASE/lib/*/.edmplugincache >> /tmp/.edmplugincache
-cat /tmp/.edmplugincache | sort -u >  ${tard}/lib/.edmplugincache
 
+if [ $build != "full" ]; then
+   echo "get $CMSSW_RELEASE_BASE/lib/*/.edmplugincache > ${tard}/lib/.edmplugincache"
+   touch ${tard}/lib/.edmplugincache
+   cat  $CMSSW_RELEASE_BASE/lib/*/.edmplugincache | grep -v Fireworks > /tmp/.edmplugincache
+   cat  $CMSSW_BASE/lib/*/.edmplugincache >> /tmp/.edmplugincache
+   cat /tmp/.edmplugincache | sort -u >  ${tard}/lib/.edmplugincache
+else
+   echo "cp $CMSSW_BASE/lib/*/.edmplugincache  ${tard}/lib/.edmplugincache"
+   cp $CMSSW_BASE/lib/*/.edmplugincache  ${tard}/lib/.edmplugincache
+fi
 
 #----------------------------------------------------------------
 echo "=========================================================="
