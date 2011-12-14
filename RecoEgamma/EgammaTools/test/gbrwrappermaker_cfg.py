@@ -27,7 +27,7 @@ process.gbrwrappermaker = cms.EDAnalyzer('GBRWrapperMaker'
 
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 # output database (in this case local sqlite file)
-process.CondDBCommon.connect = 'sqlite_file:/tmp/rpatel/GBRWrapper.db'
+process.CondDBCommon.connect = 'sqlite_file:GBRWrapper.db'
 
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
@@ -50,18 +50,18 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
         record = cms.string('wgbrph_EEUncertainty'),
         tag = cms.string('wgbrph_EEUncertainty')
       ),
-      cms.PSet(
-    record = cms.string('wgbrph_PFLCCorrection'),
-    tag = cms.string('wgbrph_PFLCCorrection')
-    ),
-            cms.PSet(
-    record = cms.string('wgbrph_PFGlobalCorrection'),
-    tag = cms.string('wgbrph_PFGlobalCorrection')
-    ),
-                  cms.PSet(
-    record = cms.string('wgbrph_PFResolution'),
-    tag = cms.string('wgbrph_PFResolution')
-    ),
+      #cms.PSet(
+    #record = cms.string('wgbrph_PFLCCorrection'),
+    #tag = cms.string('wgbrph_PFLCCorrection')
+    #),
+            #cms.PSet(
+    #record = cms.string('wgbrph_PFGlobalCorrection'),
+    #tag = cms.string('wgbrph_PFGlobalCorrection')
+    #),
+                  #cms.PSet(
+    #record = cms.string('wgbrph_PFResolution'),
+    #tag = cms.string('wgbrph_PFResolution')
+    #),
   )
 )
             

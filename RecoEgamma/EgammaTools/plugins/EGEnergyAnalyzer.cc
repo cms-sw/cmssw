@@ -13,7 +13,7 @@
 //
 // Original Author:  Josh Bendavid
 //         Created:  Tue Nov  8 22:26:45 CET 2011
-// $Id$
+// $Id: EGEnergyAnalyzer.cc,v 1.1 2011/11/16 17:32:28 bendavid Exp $
 //
 //
 
@@ -38,7 +38,9 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "RecoEgamma/EgammaTools/interface/EGEnergyCorrector.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
 
 
 //
@@ -108,7 +110,7 @@ EGEnergyAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    using namespace edm;
 
   if (!corfile.IsInitialized()) {
-    corfile.Initialize(iSetup,"/afs/cern.ch/user/b/bendavid/cmspublic/regweights/gbrph.root");
+    corfile.Initialize(iSetup,"/afs/cern.ch/user/b/bendavid/cmspublic/gbrv3ph.root");
     //corfile.Initialize(iSetup,"wgbrph",true);
   }
 
@@ -121,13 +123,19 @@ EGEnergyAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   Handle<reco::PhotonCollection> hPhotonProduct;
   iEvent.getByLabel("photons",hPhotonProduct);
   
+  EcalClusterLazyTools lazyTools(iEvent, iSetup, edm::InputTag("reducedEcalRecHitsEB"), 
+                                 edm::InputTag("reducedEcalRecHitsEE"));  
+  
+  Handle<reco::VertexCollection> hVertexProduct;
+  iEvent.getByLabel("offlinePrimaryVerticesWithBS", hVertexProduct);      
+  
   for (reco::PhotonCollection::const_iterator it = hPhotonProduct->begin(); it!=hPhotonProduct->end(); ++it) {
-    std::pair<double,double> corsfile = corfile.CorrectedEnergyWithError(*it);
-    std::pair<double,double> corsdb = cordb.CorrectedEnergyWithError(*it);
+    std::pair<double,double> corsfile = corfile.CorrectedEnergyWithError(*it, *hVertexProduct, lazyTools, iSetup);
+    std::pair<double,double> corsdb = cordb.CorrectedEnergyWithError(*it, *hVertexProduct, lazyTools, iSetup);
 
 
-    printf("file: correction = %5f, uncertainty = %5f\n", corsfile.first,corsfile.second);
-    printf("db:   correction = %5f, uncertainty = %5f\n", corsdb.first,corsdb.second);
+    printf("file: default = %5f, correction = %5f, uncertainty = %5f\n", it->energy(),corsfile.first,corsfile.second);
+    printf("db:   default = %5f, correction = %5f, uncertainty = %5f\n", it->energy(),corsdb.first,corsdb.second);
 
   }  
 

@@ -14,7 +14,7 @@
 //
 // Original Author:  Josh Bendavid
 //         Created:  Tue Nov  8 22:26:45 CET 2011
-// $Id: GBRWrapperMaker.cc,v 1.1 2011/11/16 17:32:28 bendavid Exp $
+// $Id: GBRWrapperMaker.cc,v 1.2 2011/11/22 11:19:44 rpatel Exp $
 //
 //
 
@@ -117,7 +117,7 @@ GBRWrapperMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 //    iSetup.get<SetupRecord>().get(pSetup);
 // #endif
 //from Josh:
-  TFile *infile = new TFile("/afs/cern.ch/user/b/bendavid/cmspublic/regweights/gbrph.root","READ");
+  TFile *infile = new TFile("/afs/cern.ch/user/b/bendavid/cmspublic/gbrv3ph.root","READ");
 
   printf("load forest\n");
 
@@ -134,10 +134,7 @@ GBRWrapperMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   GBRWrapper *wgbree = new GBRWrapper(*gbree);
   GBRWrapper *wgbreevar = new GBRWrapper(*gbreevar);
 
-//   GBRWrapper *wgbreb = new GBRWrapper();
-//   GBRWrapper *wgbrebvar = new GBRWrapper();
-//   GBRWrapper *wgbree = new GBRWrapper();
-//   GBRWrapper *wgbreevar = new GBRWrapper();
+
 //from Rishi
   
   TFile *infile_PFLC = new TFile("/afs/cern.ch/user/r/rpatel/ConvXml/TMVARegression_BDTG_PFClusterCorr.root","READ");
