@@ -20,5 +20,6 @@ goodOfflinePrimaryVertexFilter = cms.EDFilter(
 # , filter = cms.bool( True )
   "PrimaryVertexFilter" # checks for fake PVs automatically
 , pvSelection
+, NPV   = cms.int32( 1 )
 , pvSrc = cms.InputTag( 'goodOfflinePrimaryVertices' )
 )
