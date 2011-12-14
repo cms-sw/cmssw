@@ -14,7 +14,12 @@ using namespace std;
 //_______________________________________________________________________
 GBRTree::GBRTree() : 
   fNIntermediateNodes(0),
-  fNTerminalNodes(0)
+  fNTerminalNodes(0),
+  fCutIndices(0),
+  fCutVals(0),
+  fLeftIndices(0),
+  fRightIndices(0),
+  fResponses(0)
 {
 
 }
@@ -26,36 +31,56 @@ GBRTree::GBRTree(const TMVA::DecisionTree *tree) :
 {
   
   //printf("boostweights size = %i, forest size = %i\n",bdt->GetBoostWeights().size(),bdt->GetForest().size());
-  Int_t nIntermediate = CountIntermediateNodes((TMVA::DecisionTreeNode*)tree->GetRoot());
-  Int_t nTerminal = CountTerminalNodes((TMVA::DecisionTreeNode*)tree->GetRoot());
+  int nIntermediate = CountIntermediateNodes((TMVA::DecisionTreeNode*)tree->GetRoot());
+  int nTerminal = CountTerminalNodes((TMVA::DecisionTreeNode*)tree->GetRoot());
   
   //special case, root node is terminal
   if (nIntermediate==0) nIntermediate = 1;
   
-  fCutIndices.resize(nIntermediate);
-  fCutVals.resize(nIntermediate);
-  fLeftIndices.resize(nIntermediate);
-  fRightIndices.resize(nIntermediate);
-  fResponses.resize(nTerminal);
+  fCutIndices.reserve(nIntermediate);
+  fCutVals.reserve(nIntermediate);
+  fLeftIndices.reserve(nIntermediate);
+  fRightIndices.reserve(nIntermediate);
+  fResponses.reserve(nTerminal);
 
   AddNode((TMVA::DecisionTreeNode*)tree->GetRoot());
 
   //special case, root node is terminal, create fake intermediate node at root
   if (fNIntermediateNodes==0) {
     fNIntermediateNodes=1;
-    fCutIndices.resize(nIntermediate);
-    fCutVals.resize(nIntermediate);
-    fLeftIndices.resize(nIntermediate);
-    fRightIndices.resize(nIntermediate);
-    fResponses.resize(nTerminal);
     
-    fCutIndices[0] = 0;
-    fCutVals[0] = 0.;
-    fLeftIndices[0] = 0;
-    fRightIndices[0] = 0;
+    fCutIndices.push_back(0);
+    fCutVals.push_back(0.);
+    fLeftIndices.push_back(0);
+    fRightIndices.push_back(0);
   }
 
 }
+
+/*
+//_______________________________________________________________________
+GBRTreeDB::GBRTreeDB(GBRTreeDB const & other) :
+  fNIntermediateNodes(other.fNIntermediateNodes)
+  ,fNTerminalNodes(other.fNTerminalNodes)
+  ,fCutIndices(other.fCutIndices)
+  ,fCutVals(other.fCutVals)
+  ,fLeftIndices(other.fLeftIndices)
+  ,fRightIndices(other.fRightIndices)
+  ,fResponses(other.fResponses)
+{}
+
+//_______________________________________________________________________
+GBRTreeDB & GBRTreeDB::operator=(GBRTreeDB const & other) {
+  fNIntermediateNodes = other.fNIntermediateNodes;
+  fNTerminalNodes = other.fNTerminalNodes;
+  fCutIndices = other.fCutIndices;
+  fCutVals = other.fCutVals;
+  fLeftIndices = other.fLeftIndices;
+  fRightIndices = other.fRightIndices;
+  fResponses = other.fResponses;
+  return *this;
+}
+*/
 
 //_______________________________________________________________________
 GBRTree::~GBRTree() {
@@ -63,7 +88,7 @@ GBRTree::~GBRTree() {
 }
 
 //_______________________________________________________________________
-UInt_t GBRTree::CountIntermediateNodes(const TMVA::DecisionTreeNode *node) {
+unsigned int GBRTree::CountIntermediateNodes(const TMVA::DecisionTreeNode *node) {
   
   if (!node->GetLeft() || !node->GetRight() || node->IsTerminal()) {
     return 0;
@@ -75,7 +100,7 @@ UInt_t GBRTree::CountIntermediateNodes(const TMVA::DecisionTreeNode *node) {
 }
 
 //_______________________________________________________________________
-UInt_t GBRTree::CountTerminalNodes(const TMVA::DecisionTreeNode *node) {
+unsigned int GBRTree::CountTerminalNodes(const TMVA::DecisionTreeNode *node) {
   
   if (!node->GetLeft() || !node->GetRight() || node->IsTerminal()) {
     return 1;
@@ -96,7 +121,7 @@ void GBRTree::AddNode(const TMVA::DecisionTreeNode *node) {
     return;
   }
   else {    
-    Int_t thisindex = fNIntermediateNodes;
+    int thisindex = fNIntermediateNodes;
     ++fNIntermediateNodes;
     
     fCutIndices[thisindex] = node->GetSelector();

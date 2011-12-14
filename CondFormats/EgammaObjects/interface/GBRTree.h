@@ -25,7 +25,7 @@
 
 #include <vector>
 #include <map>
-#include "Rtypes.h"
+//#include "Rtypes.h"
 
 
   namespace TMVA {
@@ -39,36 +39,39 @@
 
        GBRTree();
        GBRTree(const TMVA::DecisionTree *tree);
-       //       GBRTree(const GBRTree &other);       
+    /*
+       GBRTree(const GBRTree &other);
+       GBRTree & operator=(GBRTree const & other);
+    */
 
        virtual ~GBRTree();
        
-       Double_t GetResponse(const Float_t* vector) const;
+       double GetResponse(const float* vector) const;
        
     protected:      
-        UInt_t CountIntermediateNodes(const TMVA::DecisionTreeNode *node);
-        UInt_t CountTerminalNodes(const TMVA::DecisionTreeNode *node);
+        unsigned int CountIntermediateNodes(const TMVA::DecisionTreeNode *node);
+        unsigned int CountTerminalNodes(const TMVA::DecisionTreeNode *node);
       
         void AddNode(const TMVA::DecisionTreeNode *node);
         
-        Int_t    fNIntermediateNodes;
-        Int_t    fNTerminalNodes;
+        int    fNIntermediateNodes;
+        int    fNTerminalNodes;
       
-	std::vector<UChar_t> fCutIndices;
-	std::vector<Float_t> fCutVals;
-	std::vector<Int_t> fLeftIndices;
-	std::vector<Int_t> fRightIndices;
-	std::vector<Float_t> fResponses;  
+	std::vector<unsigned char> fCutIndices;
+	std::vector<float> fCutVals;
+	std::vector<int> fLeftIndices;
+	std::vector<int> fRightIndices;
+	std::vector<float> fResponses;  
         
   };
 
 //_______________________________________________________________________
-inline Double_t GBRTree::GetResponse(const Float_t* vector) const {
+inline double GBRTree::GetResponse(const float* vector) const {
   
-  Int_t index = 0;
+  int index = 0;
   
-  UChar_t cutindex = fCutIndices[0];
-  Float_t cutval = fCutVals[0];
+  unsigned char cutindex = fCutIndices[0];
+  float cutval = fCutVals[0];
   
   while (true) {
     if (vector[cutindex] > cutval) {
