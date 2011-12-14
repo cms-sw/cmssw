@@ -14,7 +14,7 @@
 //
 // Original Author:  Josh Bendavid
 //         Created:  Tue Nov  8 22:26:45 CET 2011
-// $Id: GBRWrapperMaker.cc,v 1.4 2011/12/14 14:50:03 bendavid Exp $
+// $Id: GBRWrapperMaker.cc,v 1.5 2011/12/14 20:16:56 bendavid Exp $
 //
 //
 
@@ -31,7 +31,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TFile.h"
-#include "CondFormats/EgammaObjects/interface/GBRWrapper.h"
+#include "CondFormats/EgammaObjects/interface/GBRForest.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 //#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 //#include "CondCore/DBCommon/interface/CoralServiceManager.h"
