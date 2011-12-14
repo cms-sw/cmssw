@@ -1,4 +1,4 @@
- //
+//
 // Original Authors: Fabian Stoeckli: fabian.stoeckli@cern.ch
 //                   Nicholas Wardle: nckw@cern.ch
 //                   Rishi Patel rpatel@cern.ch
@@ -1168,7 +1168,7 @@ float PFPhotonAlgo::EvaluateGCorrMVA(reco::PFCandidate photon){
   GC_Var[8]=x0outer_;
   GC_Var[9]=nPFClus_;
   GC_Var[10]=RConv_;
-  GC_Var[11]=LowClusE_;
+  GC_Var[11]=LowClusE_/photon.energy();
   GC_Var[12]=dEta_;
   GC_Var[13]=dPhi_;
   GC_Var[14]=excluded_;
@@ -1197,28 +1197,27 @@ float PFPhotonAlgo::EvaluateLCorrMVA(reco::PFClusterRef clusterRef ){
   ClusEta_=fabs(clusterRef->position().eta());
   EB=fabs(clusterRef->position().eta())/clusterRef->position().eta();
   logPFClusE_=log(clusterRef->energy());
-  /*
-  cout<<"BDTG Parameters "<<" Crys Eta, Phi "<<CrysEta_<<", "<<CrysPhi_<<endl;
-  cout<<"BDTG Parameters "<<" Crys Eta, Phi Index "<<CrysIEta_<<", "<<CrysIPhi_<<endl;
-  cout<<"BDTG Parameters "<<" Clus Eta, Phi "<<ClusEta_<<", "<<ClusPhi_<<endl;
-  cout<<"BDTG Parameters "<<" EB "<<EB<<endl;
-  cout<<"BDTG Parameters "<<" Z "<<VtxZ_<<endl;
-  cout<<"BDTG Parameters "<<" log E "<<logPFClusE_<<endl;
-  cout<<"BDTG Parameters "<<" R9 & 5x5 "<<ClusR9_<<", "<<Clus5x5ratio_<<endl;
-  */
-  
-   float LC_Var[11];
+   float LC_Var[20];
    LC_Var[0]=VtxZ_;
    LC_Var[1]=EB;
    LC_Var[2]=ClusEta_;
    LC_Var[3]=ClusPhi_;
    LC_Var[4]=logPFClusE_;
-   LC_Var[5]=ClusR9_;
-   LC_Var[6]=Clus5x5ratio_;
-   LC_Var[7]=PFCrysPhiCrack_;
-   LC_Var[8]=PFCrysEtaCrack_;
-   LC_Var[9]=CrysEta_;
-   LC_Var[10]=CrysPhi_;
+   LC_Var[5]=eSeed_;
+   LC_Var[6]=ClusR9_;
+   LC_Var[7]=e1x3_;
+   LC_Var[8]=e3x1_;
+   LC_Var[9]=Clus5x5ratio_;
+   LC_Var[10]=e1x5_;
+   LC_Var[11]=e2x5Max_;
+   LC_Var[12]=e2x5Top_;
+   LC_Var[13]=e2x5Bottom_;
+   LC_Var[14]=e2x5Left_;
+   LC_Var[15]=e2x5Right_;
+   LC_Var[16]=CrysEta_;
+   LC_Var[17]=CrysPhi_;
+   LC_Var[18]=PFCrysPhiCrack_;
+   LC_Var[19]=PFCrysEtaCrack_;
    BDTG=ReaderLC_->GetResponse(LC_Var);   
    //   cout<<"LC "<<BDTG<<endl;  
    return BDTG;
@@ -1417,7 +1416,37 @@ void PFPhotonAlgo::fill5x5Map(reco::PFClusterRef clusterRef){
   e3x3_=E3x3;
   ClusR9_=E3x3/clusterRef->energy();
   Clus5x5ratio_=E5x5/clusterRef->energy();
-  //cout<<"E5x5 "<<E5x5<<" Clus Energy "<< clusterRef->energy();
+  eSeed_= e5x5Map[2][2]/clusterRef->energy();
+  e1x3_=(e5x5Map[2][2]+e5x5Map[1][2]+e5x5Map[3][2])/clusterRef->energy();
+  e3x1_=(e5x5Map[2][2]+e5x5Map[2][1]+e5x5Map[2][3])/clusterRef->energy();
+  e1x5_=e5x5Map[2][2]+e5x5Map[2][0]+e5x5Map[2][1]+e5x5Map[2][3]+e5x5Map[2][4];
+  e2x5Top_=(e5x5Map[0][4]+e5x5Map[1][4]+e5x5Map[2][4]
+	    +e5x5Map[3][4]+e5x5Map[4][4]
+    +e5x5Map[0][3]+e5x5Map[1][3]+e5x5Map[2][3]
+	    +e5x5Map[3][3]+e5x5Map[4][3])/clusterRef->energy();
+  
+  e2x5Bottom_=(e5x5Map[0][0]+e5x5Map[1][0]+e5x5Map[2][0]
+	       +e5x5Map[3][0]+e5x5Map[4][0]
+	       +e5x5Map[0][1]+e5x5Map[1][1]
+	       +e5x5Map[2][1]+e5x5Map[3][1]+e5x5Map[4][1])/clusterRef->energy();
+  e2x5Left_= ( e5x5Map[0][1]+e5x5Map[0][1]
+	       +e5x5Map[0][2]+e5x5Map[0][3]+e5x5Map[0][4]
+	       +e5x5Map[1][0]+e5x5Map[1][1]+e5x5Map[1][2]
+	       +e5x5Map[1][3]+e5x5Map[1][4])/clusterRef->energy();
+  
+  e2x5Right_ =(e5x5Map[4][0]+e5x5Map[4][1]
+	       +e5x5Map[4][2]+e5x5Map[4][3]+e5x5Map[4][4]
+	       +e5x5Map[3][0]+e5x5Map[3][1]+e5x5Map[3][2]
+	       +e5x5Map[3][3]+e5x5Map[3][4])/clusterRef->energy(); 
+  float centerstrip=e5x5Map[2][2]+e5x5Map[2][0]
+    +e5x5Map[2][1]+e5x5Map[2][3]+e5x5Map[2][4];
+  float rightstrip=e5x5Map[3][2]+e5x5Map[3][0]
+    +e5x5Map[3][1]+e5x5Map[3][3]+e5x5Map[3][4];
+  float leftstrip=e5x5Map[1][2]+e5x5Map[1][0]+e5x5Map[1][1]
+    +e5x5Map[1][3]+e5x5Map[1][4];
+  if(rightstrip>leftstrip)e2x5Max_=rightstrip+centerstrip;
+  else e2x5Max_=leftstrip+centerstrip;
+  e2x5Max_=e2x5Max_/clusterRef->energy();
 }
 
 
