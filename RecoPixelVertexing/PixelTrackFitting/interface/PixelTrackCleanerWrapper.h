@@ -30,11 +30,7 @@ public:
 
     for (pixeltrackfitting::TracksWithRecHits::const_iterator it = finalT_TRHs.begin(), iend = finalT_TRHs.end(); it < iend; ++it) {
        const std::vector<const TrackingRecHit *> & trhs = it->second; 
-       SeedingHitSet ttrhs;
-       for (unsigned int i=0, n=trhs.size(); i < n; ++i) {
-         const TrackingRecHit * trh = trhs[i];
-         ttrhs.add( hitMap[trh]);
-       }
+       SeedingHitSet ttrhs( hitMap[trhs[0]], hitMap[trhs[1]], trhs.size()>2 ? hitMap[trhs[2]] : SeedingHitSet::nullPtr()); 
        finalT_TTRHs.push_back( pixeltrackfitting::TrackWithTTRHs(it->first, ttrhs));
     }
     return finalT_TTRHs;

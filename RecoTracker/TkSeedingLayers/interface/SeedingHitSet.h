@@ -8,7 +8,9 @@ public:
 
   typedef  TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
 
-  SeedingHitSet() : m_size(0) {}
+  static ConstRecHitPointer nullPtr() { return ConstRecHitPointer();}
+
+  // SeedingHitSet() : m_size(0) {}
   SeedingHitSet(ConstRecHitPointer const & one, ConstRecHitPointer const & two) : 
     //theRecHits{{one,two,ConstRecHitPointer()}},
     m_size(2){
@@ -18,15 +20,16 @@ public:
   SeedingHitSet(ConstRecHitPointer const & one, ConstRecHitPointer const & two, 
 		ConstRecHitPointer const & three) : 
     // theRecHits{{one,two,three}},
-    m_size(3){
+    m_size(3) {
     theRecHits[0]=one;
     theRecHits[1]=two;
     theRecHits[2]=three;
+    if (!three.get()) m_size=2;
    }
 
   ~SeedingHitSet(){}
 
-  void add(ConstRecHitPointer pHit) { theRecHits[m_size++]=pHit; }
+  // void add(ConstRecHitPointer pHit) { theRecHits[m_size++]=pHit; }
 
   unsigned int size() const { return m_size; }
 
