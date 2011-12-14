@@ -30,10 +30,9 @@
 
        GBRForest();
        explicit GBRForest(const TMVA::MethodBDT *bdt);
-       GBRForest(const GBRForest &other);
        virtual ~GBRForest();
        
-       double GetResponse(const float * vector) const;
+       double GetResponse(const float* vector) const;
       
        std::vector<GBRTree> &Trees() { return fTrees; }
        

@@ -25,7 +25,6 @@
 
 #include <vector>
 #include <map>
-//#include "Rtypes.h"
 
 
   namespace TMVA {
@@ -38,12 +37,7 @@
     public:
 
        GBRTree();
-       GBRTree(const TMVA::DecisionTree *tree);
-    /*
-       GBRTree(const GBRTree &other);
-       GBRTree & operator=(GBRTree const & other);
-    */
-
+       explicit GBRTree(const TMVA::DecisionTree *tree);
        virtual ~GBRTree();
        
        double GetResponse(const float* vector) const;
@@ -54,9 +48,6 @@
       
         void AddNode(const TMVA::DecisionTreeNode *node);
         
-        int    fNIntermediateNodes;
-        int    fNTerminalNodes;
-      
 	std::vector<unsigned char> fCutIndices;
 	std::vector<float> fCutVals;
 	std::vector<int> fLeftIndices;

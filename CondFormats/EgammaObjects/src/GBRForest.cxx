@@ -7,8 +7,7 @@
 
 //_______________________________________________________________________
 GBRForest::GBRForest() : 
-  fInitialResponse(0.),
-  fTrees(0)
+  fInitialResponse(0.)
 {
 
 }
@@ -25,26 +24,13 @@ GBRForest::GBRForest(const TMVA::MethodBDT *bdt) :
   
   const std::vector<TMVA::DecisionTree*> &forest = bdt->GetForest();
   fTrees.reserve(forest.size());
-  std::vector<TMVA::DecisionTree*>::const_iterator fBegin = forest.begin();
-  std::vector<TMVA::DecisionTree*>::const_iterator fEnd = forest.end();
-  for (std::vector<TMVA::DecisionTree*>::const_iterator it=fBegin; it!=fEnd; ++it) {
+  unsigned int there=0;
+  for (std::vector<TMVA::DecisionTree*>::const_iterator it=forest.begin(); it!=forest.end(); ++it) {
     fTrees.push_back(GBRTree(*it));
   }
   
 }
 
-GBRForest::GBRForest(const GBRForest &other) :
-  fInitialResponse(other.fInitialResponse)
-{
-  
-  fTrees.reserve(other.fTrees.size());
-  std::vector<GBRTree>::const_iterator fBegin = other.fTrees.begin();
-  std::vector<GBRTree>::const_iterator fEnd = other.fTrees.end();
-  for (std::vector<GBRTree>::const_iterator it=fBegin; it!=fEnd; ++it) {
-    fTrees.push_back(GBRTree(*it));
-  }
-  
-} 
 
 
 
