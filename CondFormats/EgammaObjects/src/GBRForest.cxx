@@ -24,7 +24,6 @@ GBRForest::GBRForest(const TMVA::MethodBDT *bdt) :
   
   const std::vector<TMVA::DecisionTree*> &forest = bdt->GetForest();
   fTrees.reserve(forest.size());
-  unsigned int there=0;
   for (std::vector<TMVA::DecisionTree*>::const_iterator it=forest.begin(); it!=forest.end(); ++it) {
     fTrees.push_back(GBRTree(*it));
   }
