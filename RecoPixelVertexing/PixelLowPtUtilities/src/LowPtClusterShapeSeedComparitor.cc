@@ -117,7 +117,7 @@ vector<GlobalPoint> LowPtClusterShapeSeedComparitor::getGlobalPoss
 namespace {
   vector<GlobalPoint> getGlobalPos(const SeedingHitSet &hits)
   {
-    vector<GlobalPoint> globalPoss.reserve(hits.size());
+    vector<GlobalPoint> globalPoss; globalPoss.reserve(hits.size());
     
     for(unsigned int i=0; i!=hits.size(); ++i)
       {

@@ -95,7 +95,7 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
       if (hits.size() > 1) {
         double mom_perp = sqrt(proto.momentum().x()*proto.momentum().x()+proto.momentum().y()*proto.momentum().y());
 	GlobalTrackingRegion region(mom_perp, vtx, 0.2, 0.2);
-	SeedFromConsecutiveHitsCreator().trajectorySeed(*result, SeedingHitSet(hits[0], hits[1], hits.size() >2 : hits[2] : SeedingHitSet::nullPtr() ), region, es);
+	SeedFromConsecutiveHitsCreator().trajectorySeed(*result, SeedingHitSet(hits[0], hits[1], hits.size() >2 ? hits[2] : SeedingHitSet::nullPtr() ), region, es);
       }
     }
   } 
