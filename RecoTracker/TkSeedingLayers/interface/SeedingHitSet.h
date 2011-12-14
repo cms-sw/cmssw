@@ -10,36 +10,32 @@ public:
 
   static ConstRecHitPointer nullPtr() { return ConstRecHitPointer();}
 
-  // SeedingHitSet() : m_size(0) {}
-  SeedingHitSet(ConstRecHitPointer const & one, ConstRecHitPointer const & two) : 
-    //theRecHits{{one,two,ConstRecHitPointer()}},
-    m_size(2){
+  SeedingHitSet(ConstRecHitPointer const & one, ConstRecHitPointer const & two) 
+  // : theRecHits{{one,two,ConstRecHitPointer()}}
+  {
     theRecHits[0]=one;
     theRecHits[1]=two;
   }
   SeedingHitSet(ConstRecHitPointer const & one, ConstRecHitPointer const & two, 
-		ConstRecHitPointer const & three) : 
-    // theRecHits{{one,two,three}},
-    m_size(3) {
+		ConstRecHitPointer const & three) 
+  // : theRecHits{{one,two,three}},
+  {
     theRecHits[0]=one;
     theRecHits[1]=two;
     theRecHits[2]=three;
-    if (!three.get()) m_size=2;
-   }
-
+  }
+  
   ~SeedingHitSet(){}
-
-  // void add(ConstRecHitPointer pHit) { theRecHits[m_size++]=pHit; }
-
-  unsigned int size() const { return m_size; }
-
+  
+  
+  unsigned int size() const { theRecHits[2] ? 3 : 2; }
+  
   ConstRecHitPointer const &  get(unsigned int i) const { return theRecHits[i]; }
   ConstRecHitPointer const & operator[](unsigned int i) const { return theRecHits[i]; }
-
- 
+  
+  
 private:
   ConstRecHitPointer theRecHits[3];
-  unsigned char m_size;
 };
 
 
