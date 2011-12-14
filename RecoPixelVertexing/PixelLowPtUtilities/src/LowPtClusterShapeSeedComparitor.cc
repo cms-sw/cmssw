@@ -125,9 +125,7 @@ bool LowPtClusterShapeSeedComparitor::compatible(const SeedingHitSet &hits,
   es.get<CkfComponentsRecord>().get("ClusterShapeHitFilter",shape);
   theFilter = shape.product();
 
-  const TransientTrackingRecHit::ConstRecHitContainer & thits = hits.container();
-
-  // Get global positions
+   // Get global positions
   vector<GlobalPoint>  globalPoss = getGlobalPoss(thits);
 
   // Get global directions
@@ -141,7 +139,7 @@ bool LowPtClusterShapeSeedComparitor::compatible(const SeedingHitSet &hits,
   if (globalDirs.size()!=globalPoss.size() || globalDirs.size()!=thits.size())
     {
       LogDebug("LowPtClusterShapeSeedComparitor")<<"not enough global dir calculated:"
-						 <<"\nnHits: "<<thits.size()
+						 <<"\nnHits: "<<hits.size()
 						 <<"\nnPos: "<<globalPoss.size()
 						 <<"\nnDir: "<<globalDirs.size()
 						 <<" will say the seed is good anyway.";
@@ -151,7 +149,7 @@ bool LowPtClusterShapeSeedComparitor::compatible(const SeedingHitSet &hits,
   for(int i = 0; i < 3; i++)
   {
     const SiPixelRecHit* pixelRecHit =
-      dynamic_cast<const SiPixelRecHit *>(thits[i]->hit());
+      dynamic_cast<const SiPixelRecHit *>(hits[i]->hit());
 
     if (!pixelRecHit){
       edm::LogError("LowPtClusterShapeSeedComparitor")<<"this is not a pixel cluster";
