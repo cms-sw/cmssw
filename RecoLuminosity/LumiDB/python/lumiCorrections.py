@@ -46,7 +46,8 @@ def driftcorrectionsForRange(schema,inputRange,startrun=160403):
             cursor=qHandle.execute()
             while cursor.next():
                 intglumi=cursor.currentRow()['INTGLUMI'].data()
-            lint=intglumi*1.0e-9 #(convert to /fb)
+            lint=intglumi*6.37*1.0e-9 #(convert to /fb)
+            #print lint
         except :
             del qHandle
             raise
