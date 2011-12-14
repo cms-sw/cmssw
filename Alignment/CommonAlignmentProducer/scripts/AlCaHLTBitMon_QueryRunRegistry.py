@@ -2,8 +2,8 @@
 
 #-----------------------------------------------------
 # original author: Andrea Lucaroni
-# Revision:        $Revision: 1.53 $
-# Last update:     $Date: 2011/06/28 19:01:36 $
+# Revision:        $Revision: 1.1 $
+# Last update:     $Date: 2011/06/28 19:34:22 $
 # by:              $Author: mussgill $
 #-----------------------------------------------------
 
@@ -50,6 +50,7 @@ def printLumi(file,namefile):
 
 ###file  dbs
 def DBSquery(dataset,site,run):
+
     url = "http://cmsdbsprod.cern.ch/cms_dbs_prod_global/servlet/DBSServlet"
     args = {}
     args['url']     = url
@@ -137,9 +138,9 @@ def defineOptions():
 
     
 def serverQuery(workspaceName,regexp):
-    
+
     # get handler to RR XML-RPC server
-    server = xmlrpclib.ServerProxy('http://pccmsdqm04.cern.ch/runregistry/xmlrpc')
+    server = xmlrpclib.ServerProxy('http://cms-service-runregistry-api.web.cern.ch/cms-service-runregistry-api/xmlrpc')
     if DEBUG:
         print regexp
     data = server.RunDatasetTable.export(workspaceName,'xml_all' ,regexp)
@@ -162,8 +163,7 @@ def printObj(obj,name):
 
 
 def getData(doc,options,dataset,site):
-    
-    server = xmlrpclib.ServerProxy('http://pccmsdqm04.cern.ch/runregistry/xmlrpc')
+    server = xmlrpclib.ServerProxy('http://cms-service-runregistry-api.web.cern.ch/cms-service-runregistry-api/xmlrpc')
     runs = getElement(doc,'RUN')
     txtLongData=""
     txtkey=""
