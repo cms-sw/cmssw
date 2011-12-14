@@ -86,15 +86,9 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::seedFromTriplet(const SeedingHitSe
 			<< middle.x() << ", " 
                         << middle.y() << ", " 
                         << middle.z() << ")";
-		SeedingHitSet newSet;
-		if (seedDir == outsideIn){
-			newSet.add(hits[1]);
-			newSet.add(hits[2]);
-		} else {
-			newSet.add(hits[0]);
-                        newSet.add(hits[1]);
-		}
 		if (!qualityFilter(hits)) return 0;
+		bool sdir = (seedDir == outsideIn);
+                SeedingHitSet newSet(sdir ? hits[1] : hits[0], sdir ? hits[2] : (hits[1]); 
 		TrajectorySeed* seed = seedFromPair(newSet, dir, seedDir, charge);
 		return seed;
 						
