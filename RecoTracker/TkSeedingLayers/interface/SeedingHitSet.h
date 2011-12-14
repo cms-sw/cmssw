@@ -6,20 +6,26 @@
 class SeedingHitSet {
 public:
 
-  typedef TransientTrackingRecHit::ConstRecHitContainer RecHits;
+  typedef  TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
 
-  SeedingHitSet() {}
-  explicit SeedingHitSet(const RecHits & hits) : theRecHits(hits) {}
-  virtual ~SeedingHitSet(){}
+  SeedingHitSet() : m_size[0] {}
+  SeedingHitSet(ConstRecHitPointer const & one, ConstRecHitPointer const & two) : theRecHits{{one,two,ConstRecHitPointer()}},m_size(2){}
+  SeedingHitSet(ConstRecHitPointer const & one, ConstRecHitPointer const & two, 
+		ConstRecHitPointer const & three) : theRecHits{{one,two,tree}},m_size(3){}
 
-  unsigned int size() const { return theRecHits.size(); }
-  void add(TransientTrackingRecHit::ConstRecHitPointer pHit) { theRecHits.push_back(pHit); }
-  TransientTrackingRecHit::ConstRecHitPointer operator[](unsigned int i) const { return theRecHits[i]; }
+  ~SeedingHitSet(){}
 
-  const RecHits & container() const  { return theRecHits; }
+  void add(ConstRecHitPointer pHit) { theRecHits[m_size++]=pHit; }
 
-protected:
-  RecHits theRecHits;
+  unsigned int size() const { return m_size; }
+
+  ConstRecHitPointer const &  get(unsigned int i) const { return theRecHits[i]; }
+  ConstRecHitPointer const & operator[](unsigned int i) const { return theRecHits[i]; }
+
+ 
+private:
+  ConstRecHitPointer theRecHits[3];
+  unsigned char m_size;
 };
 
 

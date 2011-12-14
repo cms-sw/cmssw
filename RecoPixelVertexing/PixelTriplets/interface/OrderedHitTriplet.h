@@ -13,18 +13,16 @@ class OrderedHitTriplet : public SeedingHitSet {
 
 public:
 
-  typedef OrderedHitPair::InnerRecHit InnerRecHit;
-  typedef OrderedHitPair::OuterRecHit OuterRecHit;
-  typedef TransientTrackingRecHit::ConstRecHitPointer MiddleRecHit;
+  typedef SeedingHitSet::ConstRecHitPointer InnerRecHit;
+  typedef SeedingHitSet::ConstRecHitPointer OuterRecHit;
+  typedef SeedingHitSet::ConstRecHitPointer MiddleRecHit;
 
 
-  OrderedHitTriplet( const InnerRecHit & ih, const MiddleRecHit & mh, const OuterRecHit & oh) {
-    add(ih); add(mh); add(oh);
-  }
+  OrderedHitTriplet( const InnerRecHit & ih, const MiddleRecHit & mh, const OuterRecHit & oh) : SeedingHitSet(ih,mh,oh){}
 
-  const InnerRecHit  &  inner() const { return theRecHits[0]; }
-  const MiddleRecHit & middle() const { return theRecHits[1]; }
-  const OuterRecHit  &  outer() const { return theRecHits[2]; }
+  const InnerRecHit  &  inner() const { return get[0]; }
+  const MiddleRecHit & middle() const { return get[1]; }
+  const OuterRecHit  &  outer() const { return get[2]; }
 
 };
 

@@ -7,20 +7,13 @@
 class OrderedHitPair : public SeedingHitSet {
 public:
 
-  typedef TransientTrackingRecHit::ConstRecHitPointer OuterRecHit; 
-  typedef TransientTrackingRecHit::ConstRecHitPointer InnerRecHit; 
+  typedef SeedingHitSet::ConstRecHitPointer OuterRecHit; 
+  typedef SeedingHitSet::ConstRecHitPointer InnerRecHit; 
 
-  OrderedHitPair( const InnerRecHit & ih, const OuterRecHit & oh) 
-  {
-    theRecHits.reserve(2);
-    theRecHits.push_back(ih);
-    theRecHits.push_back(oh);
-  }
-
-  virtual ~OrderedHitPair() {}
-
-  const InnerRecHit & inner() const { return theRecHits.front(); }
-  const OuterRecHit & outer() const { return theRecHits.back(); } 
+  OrderedHitPair( const InnerRecHit & ih, const OuterRecHit & oh) : SeedingHitSet(one, two){}
+ 
+  const InnerRecHit & inner() const { return get[0] }
+  const OuterRecHit & outer() const { return get[1]; } 
 };
 
 #endif
