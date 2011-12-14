@@ -170,7 +170,7 @@ bool LowPtClusterShapeSeedComparitor::compatible(const SeedingHitSet &hits,
     {
       LogTrace("LowPtClusterShapeSeedComparitor")
          << " clusShape is not compatible"
-         << HitInfo::getInfo(*thits[i]->hit());
+         << HitInfo::getInfo(*hits[i]->hit());
 
       ok = false; break;
     }
