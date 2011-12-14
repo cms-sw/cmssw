@@ -28,7 +28,7 @@ public:
   ~SeedingHitSet(){}
   
   
-  unsigned int size() const { theRecHits[2] ? 3 : 2; }
+  unsigned int size() const { return theRecHits[2].get() ? 3 : 2; }
   
   ConstRecHitPointer const &  get(unsigned int i) const { return theRecHits[i]; }
   ConstRecHitPointer const & operator[](unsigned int i) const { return theRecHits[i]; }
