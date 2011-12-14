@@ -13,7 +13,7 @@
 //
 // Original Author:  Josh Bendavid
 //         Created:  Tue Nov  8 22:26:45 CET 2011
-// $Id: EGEnergyAnalyzer.cc,v 1.1 2011/11/16 17:32:28 bendavid Exp $
+// $Id: EGEnergyAnalyzer.cc,v 1.2 2011/12/14 14:43:38 bendavid Exp $
 //
 //
 
@@ -30,7 +30,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TFile.h"
-#include "CondFormats/EgammaObjects/interface/GBRWrapper.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 //#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 //#include "CondCore/DBCommon/interface/CoralServiceManager.h"
