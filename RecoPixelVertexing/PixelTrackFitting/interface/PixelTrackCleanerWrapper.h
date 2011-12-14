@@ -4,6 +4,7 @@
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleaner.h"
 #include  "RecoPixelVertexing/PixelTrackFitting/interface/TracksWithHits.h"
 #include <map>
+#include <cassert>
 
 class PixelTrackCleanerWrapper {
 public: 
@@ -29,7 +30,9 @@ public:
     pixeltrackfitting::TracksWithTTRHs finalT_TTRHs;
 
     for (pixeltrackfitting::TracksWithRecHits::const_iterator it = finalT_TRHs.begin(), iend = finalT_TRHs.end(); it < iend; ++it) {
-       const std::vector<const TrackingRecHit *> & trhs = it->second; 
+       const std::vector<const TrackingRecHit *> & trhs = it->second;
+       assert(!(trhs.size()<2));
+       if (trhs.size()<2) continue;
        SeedingHitSet ttrhs( hitMap[trhs[0]], hitMap[trhs[1]], trhs.size()>2 ? hitMap[trhs[2]] : SeedingHitSet::nullPtr()); 
        finalT_TTRHs.push_back( pixeltrackfitting::TrackWithTTRHs(it->first, ttrhs));
     }
