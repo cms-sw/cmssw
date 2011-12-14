@@ -114,6 +114,22 @@ vector<GlobalPoint> LowPtClusterShapeSeedComparitor::getGlobalPoss
   return globalPoss;
 }
 
+namespace {
+  inline vector<GlobalPoint> getGlobalPos(const SeedingHitSet &hits)
+  {
+    vector<GlobalPoint> globalPoss.reserve(hits.size());
+    
+    for(unsigned int i=0; i!=hits.size(); ++i)
+      {
+	GlobalPoint gpos = hits[i]->globalPosition();
+	
+	globalPoss.push_back(gpos);
+      }
+    
+    return globalPoss;
+  }
+}
+
 /*****************************************************************************/
 bool LowPtClusterShapeSeedComparitor::compatible(const SeedingHitSet &hits,
 					    const edm::EventSetup &es)
@@ -126,7 +142,7 @@ bool LowPtClusterShapeSeedComparitor::compatible(const SeedingHitSet &hits,
   theFilter = shape.product();
 
    // Get global positions
-  vector<GlobalPoint>  globalPoss = getGlobalPoss(thits);
+  vector<GlobalPoint>  globalPoss = getGlobalPos(hits);
 
   // Get global directions
   vector<GlobalVector> globalDirs = getGlobalDirs(globalPoss);
