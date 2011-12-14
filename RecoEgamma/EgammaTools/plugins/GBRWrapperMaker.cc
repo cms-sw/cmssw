@@ -14,7 +14,7 @@
 //
 // Original Author:  Josh Bendavid
 //         Created:  Tue Nov  8 22:26:45 CET 2011
-// $Id: GBRWrapperMaker.cc,v 1.2 2011/11/22 11:19:44 rpatel Exp $
+// $Id: GBRWrapperMaker.cc,v 1.4 2011/12/14 14:50:03 bendavid Exp $
 //
 //
 
@@ -127,12 +127,7 @@ GBRWrapperMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   GBRForest *gbree = (GBRForest*)infile->Get("EECorrection");
   GBRForest *gbreevar = (GBRForest*)infile->Get("EEUncertainty");
 
-  printf("make wrapper\n");
 
-  GBRWrapper *wgbreb = new GBRWrapper(*gbreb);
-  GBRWrapper *wgbrebvar = new GBRWrapper(*gbrebvar);
-  GBRWrapper *wgbree = new GBRWrapper(*gbree);
-  GBRWrapper *wgbreevar = new GBRWrapper(*gbreevar);
 
 
 //from Rishi
@@ -146,29 +141,26 @@ GBRWrapperMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   GBRForest *gbrRes = (GBRForest*)infile_PFRes->Get("GBRForest");
   
   
-  GBRWrapper *wgbrLC = new GBRWrapper(*gbrLC);
-  GBRWrapper *wgbrGC = new GBRWrapper(*gbrGC);
-  GBRWrapper *wgbrRes = new GBRWrapper(*gbrRes);
   
   
   printf("made objects\n");
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable()) {
        
- poolDbService->writeOne( wgbreb, poolDbService->beginOfTime(),
+ poolDbService->writeOne( gbreb, poolDbService->beginOfTime(),
                                                 "wgbrph_EBCorrection"  );
-    poolDbService->writeOne( wgbrebvar, poolDbService->beginOfTime(),
+    poolDbService->writeOne( gbrebvar, poolDbService->beginOfTime(),
                                                 "wgbrph_EBUncertainty"  );
-    poolDbService->writeOne( wgbree, poolDbService->beginOfTime(),
+    poolDbService->writeOne( gbree, poolDbService->beginOfTime(),
                                               "wgbrph_EECorrection"  );
-    poolDbService->writeOne( wgbreevar, poolDbService->beginOfTime(),
+    poolDbService->writeOne( gbreevar, poolDbService->beginOfTime(),
                                                 "wgbrph_EEUncertainty"  );
     
-    poolDbService->writeOne( wgbrLC, poolDbService->beginOfTime(),
+    poolDbService->writeOne( gbrLC, poolDbService->beginOfTime(),
 			     "wgbrph_PFLCCorrection"  );
-    poolDbService->writeOne( wgbrGC, poolDbService->beginOfTime(),
+    poolDbService->writeOne( gbrGC, poolDbService->beginOfTime(),
 			     "wgbrph_PFGlobalCorrection"  );
-    poolDbService->writeOne( wgbrRes, poolDbService->beginOfTime(),
+    poolDbService->writeOne( gbrRes, poolDbService->beginOfTime(),
 			     "wgbrph_PFResolution"  );
   
   }

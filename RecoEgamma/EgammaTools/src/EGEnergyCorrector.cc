@@ -1,9 +1,8 @@
-// $Id: EGEnergyCorrector.cc,v 1.6 2011/12/09 17:19:27 bendavid Exp $
+// $Id: EGEnergyCorrector.cc,v 1.7 2011/12/14 14:43:39 bendavid Exp $
 
 #include <TFile.h>
 #include "../interface/EGEnergyCorrector.h"
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
-#include "CondFormats/EgammaObjects/interface/GBRWrapper.h"
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h" 
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -60,20 +59,20 @@ void EGEnergyCorrector::Initialize(const edm::EventSetup &iSetup, std::string re
     
     if (weightsFromDB) { //weights from event setup
       
-      edm::ESHandle<GBRWrapper> readereb;
-      edm::ESHandle<GBRWrapper> readerebvar;
-      edm::ESHandle<GBRWrapper> readeree;
-      edm::ESHandle<GBRWrapper> readereevar;
+      edm::ESHandle<GBRForest> readereb;
+      edm::ESHandle<GBRForest> readerebvar;
+      edm::ESHandle<GBRForest> readeree;
+      edm::ESHandle<GBRForest> readereevar;
 
       iSetup.get<GBRWrapperRcd>().get(std::string(TString::Format("%s_EBCorrection",regweights.c_str())),readereb);
       iSetup.get<GBRWrapperRcd>().get(std::string(TString::Format("%s_EBUncertainty",regweights.c_str())),readerebvar);
       iSetup.get<GBRWrapperRcd>().get(std::string(TString::Format("%s_EECorrection",regweights.c_str())),readeree);
       iSetup.get<GBRWrapperRcd>().get(std::string(TString::Format("%s_EEUncertainty",regweights.c_str())),readereevar);
 
-      fReadereb = &readereb->GetForest();
-      fReaderebvariance = &readerebvar->GetForest();
-      fReaderee = &readeree->GetForest();
-      fReadereevariance = &readereevar->GetForest();
+      fReadereb = readereb.product();
+      fReaderebvariance = readerebvar.product();
+      fReaderee = readeree.product();
+      fReadereevariance = readereevar.product();
 
     }
     else { //weights from root file
