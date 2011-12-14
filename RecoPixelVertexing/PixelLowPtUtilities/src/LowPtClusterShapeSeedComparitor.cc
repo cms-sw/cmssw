@@ -152,7 +152,7 @@ bool LowPtClusterShapeSeedComparitor::compatible(const SeedingHitSet &hits,
   // Check whether shape of pixel cluster is compatible
   // with local track direction
 
-  if (globalDirs.size()!=globalPoss.size() || globalDirs.size()!=thits.size())
+  if (globalDirs.size()!=globalPoss.size() || globalDirs.size()!=hits.size())
     {
       LogDebug("LowPtClusterShapeSeedComparitor")<<"not enough global dir calculated:"
 						 <<"\nnHits: "<<hits.size()
