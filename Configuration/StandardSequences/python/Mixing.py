@@ -76,6 +76,9 @@ addMixingScenario("mix_E7TeV_Fall2011ReDigi_50ns_PoissonOOT_cfi",{'file': 'SimGe
 addMixingScenario("mix_E7TeV_Fall2011ReDigi_25ns_PoissonOOT_cfi",{'file': 'SimGeneral.MixingModule.mix_E7TeV_Fall2011ReDigi_25ns_PoissonOOT_cfi'})
 addMixingScenario("mix_E7TeV_Fall2011_Reprocess_50ns_PoissonOOTPU_cfi",{'file': 'SimGeneral.MixingModule.mix_E7TeV_Fall2011_Reprocess_50ns_PoissonOOTPU_cfi'})
 addMixingScenario("mix_E7TeV_Chamonix2012_50ns_PoissonOOT",{'file': 'SimGeneral.MixingModule.mix_E7TeV_Chamonix2012_50ns_PoissonOOT_cfi'})
+addMixingScenario("2012_lumiLevel_15_20_50ns_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2012_lumiLevel_15_20_50ns_PoissonOOTPU_cfi'})
+addMixingScenario("2012_peak11_25ns_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2012_peak11_25ns_PoissonOOTPU_cfi'})
+addMixingScenario("2012_peak26_50ns_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2012_peak26_50ns_PoissonOOTPU_cfi'})
 addMixingScenario("ProdStep2",{'file': 'SimGeneral.MixingModule.mixProdStep2_cfi'})
 
 ##fastsim section
