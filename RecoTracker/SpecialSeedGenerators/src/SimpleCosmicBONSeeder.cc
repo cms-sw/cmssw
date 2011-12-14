@@ -513,11 +513,7 @@ bool SimpleCosmicBONSeeder::seeds(TrajectorySeedCollection &output, const edm::E
         }
        
         edm::OwnVector<TrackingRecHit> hits;
-//      OrderedHitTriplet::Hits seedHits;
-        OrderedHitTriplet::RecHits seedHits;
-        seedHits.push_back(trip.outer());
-        seedHits.push_back(trip.middle());
-        seedHits.push_back(trip.inner());
+        OrderedHitTriplet seedHits(trip.outer(),trip.middle(),trip.inner());
         TSOS propagated, updated;
         bool fail = false;
         for (size_t ih = 0; ih < 3; ++ih) {
