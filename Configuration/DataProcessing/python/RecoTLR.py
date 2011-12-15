@@ -174,6 +174,6 @@ def planBTracking(process):
 
     if hasattr(process,'dqmoffline_step'):
         process.dqmoffline_step.remove(process.TrackMonStep4)
-        process.dqmoffline_step.remove(process.TrackMonStep5)
+        #process.dqmoffline_step.remove(process.TrackMonStep5)
         
     return process
