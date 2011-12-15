@@ -1,4 +1,5 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/PhotonEnergyCorrector.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 
 
 PhotonEnergyCorrector::PhotonEnergyCorrector( const edm::ParameterSet& config ) {
@@ -72,7 +73,7 @@ void PhotonEnergyCorrector::init (  const edm::EventSetup& theEventSetup ) {
 }
 
 
-void PhotonEnergyCorrector::calculate(reco::Photon & thePhoton, int subdet) {
+void PhotonEnergyCorrector::calculate(edm::Event& evt, reco::Photon & thePhoton, int subdet, const reco::VertexCollection& vtxcol, const edm::EventSetup& iSetup  ) {
   
   double phoEcalEnergy = -9999.;
   double phoEcalEnergyError = -9999.;
@@ -87,6 +88,10 @@ void PhotonEnergyCorrector::calculate(reco::Photon & thePhoton, int subdet) {
   } else if  (subdet==EcalEndcap) {
     minR9=minR9Endcap_;
   }
+
+  EcalClusterLazyTools lazyTools(evt, iSetup, edm::InputTag("reducedEcalRecHitsEB"), 
+                                 edm::InputTag("reducedEcalRecHitsEE"));  
+
 
 
   ////////////// Here default Ecal corrections based on electrons  ////////////////////////
@@ -124,7 +129,7 @@ void PhotonEnergyCorrector::calculate(reco::Photon & thePhoton, int subdet) {
   //////////  Energy  Regression ////////////////////// 
   //
   if ( weightsfromDB_  || ( !weightsfromDB_ && !(w_file_ == "none") ) ) {
-    std::pair<double,double> cor = regressionCorrector_->CorrectedEnergyWithError(thePhoton);
+    std::pair<double,double> cor = regressionCorrector_->CorrectedEnergyWithError(thePhoton, vtxcol, lazyTools, iSetup);
     phoRegr1Energy = cor.first;
     phoRegr1EnergyError = cor.second;
     // store the value in the Photon.h

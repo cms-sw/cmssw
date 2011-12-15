@@ -3,13 +3,13 @@
 /** \class PhotonEnergyCorrector
  **  
  **
- **  $Id: PhotonEnergyCorrector.h,v 1.1 2011/11/02 19:03:08 nancy Exp $ 
- **  $Date: 2011/11/02 19:03:08 $ 
- **  $Revision: 1.1 $
+ **  $Id: PhotonEnergyCorrector.h,v 1.2 2011/11/24 18:13:56 nancy Exp $ 
+ **  $Date: 2011/11/24 18:13:56 $ 
+ **  $Revision: 1.2 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
-
+#include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -40,10 +40,11 @@ class PhotonEnergyCorrector
    ~PhotonEnergyCorrector();
 
    void init(const edm::EventSetup& theEventSetup );
-   void calculate( reco::Photon &, int subdet ) ;
+   void calculate( edm::Event& evt, reco::Photon &, int subdet,const reco::VertexCollection& vtxcol,const edm::EventSetup& iSetup) ;
 
 
   private:
+ 
    bool weightsfromDB_;
    std::string w_file_;
    std::string w_db_;
