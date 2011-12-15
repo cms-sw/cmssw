@@ -38,6 +38,7 @@ int main(int argc, char **argv) {
   string toysFile;
 
   vector<string> librariesToLoad;
+  vector<string> runtime_defines;
 
   Combine combiner;
 
@@ -81,6 +82,7 @@ int main(int argc, char **argv) {
     ("igpMem", "Setup support for memory profiling using IgProf")
     ("perfCounters", "Dump performance counters at end of job")
     ("LoadLibrary,L", po::value<vector<string> >(&librariesToLoad), "Load library through gSystem->Load(...). Can specify multiple libraries using this option multiple times")
+    ("X-rtd",  po::value<vector<string> >(&runtime_defines), "Define some constants to be used at runtime (for debugging purposes). The syntax is --X-rtd identifier[=value], where value is an integer and defaults to 1. Can specify multiple times")
     ;
   desc.add(combiner.statOptions());
   desc.add(combiner.ioOptions());
@@ -220,6 +222,23 @@ int main(int argc, char **argv) {
   }
 
   if (vm.count("igpMem")) setupIgProfDumpHook();
+
+  // if you have libraries, it's time to load them now
+  for (vector<string>::const_iterator rtdp = runtime_defines.begin(), endrtdp = runtime_defines.end(); rtdp != endrtdp; ++rtdp) {
+    std::string::size_type idx = rtdp->find('=');
+    if (idx == std::string::npos) {
+        runtimedef::set(*rtdp, 1); 
+        if (verbose > 1) std::cout << "Turning on runtime-define " << *rtdp << std::endl;
+    } else {
+        std::string name  = rtdp->substr(0, idx-1);
+        std::string svalue = rtdp->substr(idx+1);
+        int ivalue = atoi( svalue.c_str() );
+        if (verbose > 1) std::cout << "Setting runtime-define " << name << " to " << ivalue << std::endl;
+        runtimedef::set(*rtdp, ivalue);
+    }
+  }
+
+
 
   try {
      combiner.run(datacard, dataset, limit, limitErr, iToy, t, runToys);

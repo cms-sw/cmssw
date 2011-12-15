@@ -49,3 +49,23 @@ void PerfCounter::printAll()
     }
 }
 
+// we define them by string value, but we lookup them by const char *
+namespace runtimedef {
+    boost::unordered_map<const char *, std::pair<int,int> > defines_;
+    boost::unordered_map<std::string,  int>                 definesByString_;
+    int get(const char *name) {
+        std::pair<int,int> & ret = defines_[name];
+        if (ret.second == 0) {
+            ret.first = definesByString_[name];
+            ret.second = 1;
+        }
+        return ret.first;
+    }
+    int get(const std::string & name) {
+        return definesByString_[name];
+    }
+    void set(const std::string & name, int value) {
+        definesByString_[name] = value;
+    }
+}
+

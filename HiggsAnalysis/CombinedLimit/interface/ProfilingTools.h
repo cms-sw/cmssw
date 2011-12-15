@@ -1,5 +1,7 @@
 #ifndef HiggsAnalysis_CombinedLimit_ProfilingTools_
 #define HiggsAnalysis_CombinedLimit_ProfilingTools_
+#include <string>
+
 bool setupIgProfDumpHook() ;
 
 //#include <boost/unordered_map.hpp>
@@ -18,4 +20,14 @@ class PerfCounter {
         double value_;
 };
 
+namespace runtimedef {
+    // get the flag. name MUST BE a compile-time string
+    int  get(const char *name);
+
+    // get the flag, with a run-time name
+    int  get(const std::string & name);
+
+    /// set the flag, with a run-time name
+    void set(const std::string & name, int value);
+}
 #endif
