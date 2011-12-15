@@ -22,7 +22,9 @@
 using namespace RooStats;
 
 std::string ProfileLikelihood::minimizerAlgo_ = "Minuit2";
+std::string ProfileLikelihood::minimizerAlgoForBF_ = "Minuit2,simplex";
 float       ProfileLikelihood::minimizerTolerance_ = 1e-2;
+float       ProfileLikelihood::minimizerToleranceForBF_ = 1e-4;
 int         ProfileLikelihood::tries_ = 1;
 int         ProfileLikelihood::maxTries_ = 1;
 float       ProfileLikelihood::maxRelDeviation_ = 0.05;
@@ -48,11 +50,13 @@ ProfileLikelihood::ProfileLikelihood() :
         ("signalForSignificance", boost::program_options::value<float>(&signalForSignificance_)->default_value(signalForSignificance_), "Signal strength used when computing significances (default is zero, just background)")
         ("maxOutliers",        boost::program_options::value<int>(&maxOutliers_)->default_value(maxOutliers_),      "Stop trying after finding N outliers")
         ("plot",   boost::program_options::value<std::string>(&plot_)->default_value(plot_), "Save a plot of the negative log of the profiled likelihood into the specified file")
+        ("pvalue", "Report p-value instead of significance (when running with --significance)")
         ("preFit", "Attept a fit before running the ProfileLikelihood calculator")
         ("usePLC",   "Compute PL limit using the ProfileLikelihoodCalculator (not default)")
         ("useMinos", "Compute PL limit using Minos directly, bypassing the ProfileLikelihoodCalculator (default)")
         ("bruteForce", "Compute PL limit by brute force, bypassing the ProfileLikelihoodCalculator and Minos")
-        ("pvalue", "Report p-value instead of significance (when running with --significance)")
+        ("minimizerAlgoForBF",      boost::program_options::value<std::string>(&minimizerAlgoForBF_)->default_value(minimizerAlgoForBF_), "Choice of minimizer for brute-force search")
+        ("minimizerToleranceForBF", boost::program_options::value<float>(&minimizerToleranceForBF_)->default_value(minimizerToleranceForBF_),  "Tolerance for minimizer when doing brute-force search")
     ;
 }
 
@@ -296,6 +300,7 @@ std::pair<double,double> ProfileLikelihood::upperLimitBruteForce(RooAbsPdf &pdf,
     if (rval >= rhigh || rval <= rlow) rval = 0.5*(rlow + rhigh);
     double target = minnll + 0.5*TMath::ChisquareQuantile(cl,1);
     //minim.setPrintLevel(verbose-2);
+    MinimizerSentry minimizerConfig(minimizerAlgoForBF_, minimizerToleranceForBF_);
     bool fail = false;
     do {
         poi.setVal(rval);
@@ -372,6 +377,7 @@ double ProfileLikelihood::significanceBruteForce(RooAbsPdf &pdf, RooAbsData &dat
     } else if (verbose > 0) {
         printf("Minimum found at %s = %8.5f\n", poi.GetName(), poi.getVal());
     }
+    MinimizerSentry minimizerConfig(minimizerAlgoForBF_, minimizerToleranceForBF_);
     std::auto_ptr<RooFitResult> start(minim.save());
     double minnll = nll->getVal(), thisnll = minnll;
     double rval = poi.getVal();
