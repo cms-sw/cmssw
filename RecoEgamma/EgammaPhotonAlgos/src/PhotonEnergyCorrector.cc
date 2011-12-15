@@ -89,8 +89,8 @@ void PhotonEnergyCorrector::calculate(edm::Event& evt, reco::Photon & thePhoton,
     minR9=minR9Endcap_;
   }
 
-  EcalClusterLazyTools lazyTools(evt, iSetup, edm::InputTag("reducedEcalRecHitsEB"), 
-                                 edm::InputTag("reducedEcalRecHitsEE"));  
+  EcalClusterLazyTools lazyTools(evt, iSetup, edm::InputTag("ecalRecHit","EcalRecHitsEB"), 
+                                 edm::InputTag("ecalRecHit","EcalRecHitsEE"));  
 
 
 
