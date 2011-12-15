@@ -10,6 +10,15 @@
 #include <Math/ProbFunc.h>
 #include <Math/QuantFuncMathCore.h>
 
+double band_safety_crop = 0; 
+bool use_precomputed_quantiles = false; 
+bool zero_is_valid = false;
+bool seed_is_channel = false;
+bool halfint_masses  = false; // find the halfling!
+enum ObsAvgMode { MeanObs, LogMeanObs, MedianObs };
+ObsAvgMode obs_avg_mode = MeanObs;
+
+
 // Maritz-Jarrett, JASA vol. 73 (1978)
 // http://www.itl.nist.gov/div898/software/dataplot/refman2/auxillar/quantse.htm
 double quantErr(size_t n, double *vals, double q) {
@@ -29,28 +38,15 @@ double quantErr(size_t n, double *vals, double q) {
     return sqrt(c2 - c1*c1);
 }
 
-enum BandType { Mean, Median, Quantile, Observed, Asimov, CountToys, MeanCPUTime, AdHoc, ObsQuantile };
-double band_safety_crop = 0; 
-bool use_precomputed_quantiles = false; 
-bool zero_is_valid = false;
-bool lands_is_pvalue = false;
-enum ObsAvgMode { MeanObs, LogMeanObs, MedianObs };
-ObsAvgMode obs_avg_mode = MeanObs;
+enum BandType { Mean, Median, Quantile, Observed, Asimov, CountToys, MeanCPUTime, MeanRealTime, AdHoc, ObsQuantile };
 TGraphAsymmErrors *theBand(TFile *file, int doSyst, int whichChannel, BandType type, double width=0.68) {
-    bool isLandS = false;
     if (file == 0) return 0;
     TTree *t = (TTree *) file->Get("limit");
     if (t == 0) t = (TTree *) file->Get("test"); // backwards compatibility
-    if (t == 0) { 
-        if ((t = (TTree *) file->Get("T")) != 0) { 
-            isLandS = true; 
-            std::cerr << "Reading L&S tree from " << file->GetName() << std::endl; 
-        }
-    }
     if (t == 0) { std::cerr << "TFile " << file->GetName() << " does not contain the tree" << std::endl; return 0; }
     Double_t mass, limit, limitErr = 0; Float_t t_cpu, t_real; Int_t syst, iChannel, iToy, iMass; Float_t quant = -1;
-    t->SetBranchAddress((isLandS ? "mH" : "mh"), &mass);
-    t->SetBranchAddress((isLandS && lands_is_pvalue ? "pvalue" : "limit"), &limit);
+    t->SetBranchAddress("mh", &mass);
+    t->SetBranchAddress("limit", &limit);
     if (t->GetBranch("limitErr")) t->SetBranchAddress("limitErr", &limitErr);
     if (t->GetBranch("t_cpu") != 0) {
         t->SetBranchAddress("t_cpu", &t_cpu);
@@ -60,13 +56,9 @@ TGraphAsymmErrors *theBand(TFile *file, int doSyst, int whichChannel, BandType t
         if (t->GetBranch("quantileExpected") == 0) { std::cerr << "TFile " << file->GetName() << " does not have precomputed quantiles" << std::endl; return 0; }
         t->SetBranchAddress("quantileExpected", &quant);
     }
-    if (!isLandS) {
-        t->SetBranchAddress("syst", &syst);
-        t->SetBranchAddress("iChannel", &iChannel);
-        t->SetBranchAddress("iToy", &iToy);
-    } else {
-        syst = 1; iChannel = 0; iToy = 0;
-    }
+    t->SetBranchAddress("syst", &syst);
+    t->SetBranchAddress((seed_is_channel ? "iSeed" : "iChannel"), &iChannel);
+    t->SetBranchAddress("iToy", &iToy);
 
     std::map<int,std::vector<double> >  dataset;
     std::map<int,std::vector<double> >  errors;
@@ -85,6 +77,10 @@ TGraphAsymmErrors *theBand(TFile *file, int doSyst, int whichChannel, BandType t
         if (type == MeanCPUTime) { 
             if (limit < 0) continue; 
             limit = t_cpu; 
+        }
+        if (type == MeanRealTime) { 
+            if (limit < 0) continue; 
+            limit = t_real; 
         }
         if (use_precomputed_quantiles) {
             if (type == CountToys)   return 0;
@@ -133,6 +129,7 @@ TGraphAsymmErrors *theBand(TFile *file, int doSyst, int whichChannel, BandType t
         double x = mean;
         switch (type) {
             case MeanCPUTime:
+            case MeanRealTime:
             case Mean: x = mean; break;
             case Median: x = median; break;
             case CountToys: x = summer68 = winter68 = nd; break;
@@ -208,6 +205,7 @@ void makeBand(TDirectory *bands, TString name, TFile *file, int doSyst, int whic
         case Median:    suffix = "_median"; break;
         case CountToys: suffix = "_ntoys"; break;
         case MeanCPUTime: suffix = "_cputime"; break;
+        case MeanRealTime: suffix = "_realtime"; break;
         case AdHoc:       suffix = ""; break;
         case Quantile:    suffix = ""; break;
         case ObsQuantile:    suffix = "_qobs"; break;
@@ -251,8 +249,11 @@ void makeLine(TDirectory *bands, TString name, TString filename,  int doSyst, in
 
 bool do_bands_nosyst = true;
 bool do_bands_mean = true;
+bool do_bands_median = true;
 bool do_bands_ntoys = true;
 bool do_bands_asimov = true;
+bool do_bands_cputime = false;
+bool do_bands_realtime = false;
 void makeBands(TDirectory *bands, TString name, TString filename, int channel=0, bool quantiles=false) {
     TFile *in = TFile::Open(filename);
     if (in == 0) { std::cerr << "Filename " << filename << " missing" << std::endl; return; }
@@ -262,6 +263,8 @@ void makeBands(TDirectory *bands, TString name, TString filename, int channel=0,
         makeBand(bands, name, in, s, channel, Observed);
         if (do_bands_ntoys)  makeBand(bands, name, in, s, channel, CountToys);
         if (do_bands_asimov) makeBand(bands, name, in, s, channel, Asimov);
+        if (do_bands_cputime)  makeBand(bands, name, in, s, channel, MeanCPUTime);
+        if (do_bands_realtime) makeBand(bands, name, in, s, channel, MeanRealTime);
     }
     if (quantiles) {
         double quants[5] = { 0.025, 0.16, 0.5, 0.84, 0.975 };
@@ -281,6 +284,16 @@ void makeBands(TDirectory *bands, TString name, TString filename, int channel=0,
     in->Close();
 }
 
+int findBin(TGraph *g, double x, double tolerance) {
+    if (g == 0) return -1;
+    for (int i = 0; i < g->GetN(); ++i) {
+        double xi = g->GetX()[i];
+        if (fabs(xi -  x) < tolerance) {
+            return i;
+        }
+    }
+    return -1;
+}
 int findBin(TGraphAsymmErrors *g, double x) {
     if (g == 0) return -1;
     for (int i = 0; i < g->GetN(); ++i) {
@@ -496,8 +509,13 @@ void printLine(TDirectory *bands, TString who, FILE *fout, TString header="value
     if (mean == 0) { std::cerr << "MISSING " << who << std::endl; return; }
     fprintf(fout, "%4s \t %7s\n", "mass",  header.Data());
     fprintf(fout,  "%5s\t %7s\n", "-----", "-----");
+    TString fmtstring = TString() +
+                        (halfint_masses ? "%5.1f" : "%4.0f ") +
+                        "\t " +
+                        (who.Contains("pval")  || who.Contains("smcls")  ? "%7.5f" : "%7.3f") +
+                        "\n";
     for (int i = 0, n = mean->GetN(); i < n; ++i) {
-        fprintf(fout, who.Contains("pval") ? "%4d \t %7.5f\n" : "%4d \t %7.3f\n",  int(mean->GetX()[i]), mean->GetY()[i]);  
+        fprintf(fout, fmtstring.Data(),  mean->GetX()[i], mean->GetY()[i]);  
     }
 }
 void printLine(TDirectory *bands, TString who, TString fileName, TString header="value") {
@@ -513,9 +531,14 @@ void printLineErr(TDirectory *bands, TString who, FILE *fout, TString header="va
     if (mean == 0) { std::cerr << "MISSING " << who << std::endl; return; }
     fprintf(fout, "%4s \t %7s +/- %6s\n", "mass",  header.Data()," error");
     fprintf(fout,  "%5s\t %7s-----%6s-\n", "-----", " ------","------");
+    TString fmtstring = TString() +
+                        (halfint_masses ? "%5.1f" : "%4.0f ") + 
+                        "\t " +
+                        (who.Contains("pval")  || who.Contains("smcls")  ? "%7.5f +/- %7.5f" : "%7.3f +/- %6.3f") + 
+                        "\n";
     for (int i = 0, n = mean->GetN(); i < n; ++i) {
-        fprintf(fout, who.Contains("pval") ? "%4d \t %7.5f +/- %7.5f\n" : "%4d \t %7.3f +/- %6.3f\n",  
-            int(mean->GetX()[i]), 
+        fprintf(fout, fmtstring.Data(),  
+            mean->GetX()[i], 
             mean->GetY()[i], 
             TMath::Max(mean->GetErrorYlow(i),mean->GetErrorYhigh(i)));  
     }
@@ -533,10 +556,15 @@ void printLineAErr(TDirectory *bands, TString who, FILE *fout, TString header="v
     TGraphAsymmErrors *mean = (TGraphAsymmErrors*) bands->Get(who);
     if (mean == 0) { std::cerr << "MISSING " << who << std::endl; return; }
     fprintf(fout, "%4s \t %7s  -%6s   +%6s\n",  "mass",  header.Data(),"error"," error");
-    fprintf(fout,  "%5s\t %7s------%6s----%6s-\n", "-----", " ------","------","------");
+    TString fmtstring = TString() +
+                        (halfint_masses ? "%5.1f" : "%4.0f ") + 
+                        "\t " +
+                        (who.Contains("pval") || who.Contains("smcls")   ? "%7.5f  -%7.5f / +%7.5f" : "%7.3f  -%6.3f / +%6.3f") + 
+                        "\n";
+   fprintf(fout,  "%5s\t %7s------%6s----%6s-\n", "-----", " ------","------","------");
     for (int i = 0, n = mean->GetN(); i < n; ++i) {
-        fprintf(fout, who.Contains("pval") ? "%4d \t %7.5f  -%7.5f / +%7.5f\n" : "%4d \t %7.3f  -%6.3f / +%6.3f\n",  
-            int(mean->GetX()[i]), 
+        fprintf(fout, fmtstring.Data(),  
+            mean->GetX()[i], 
             mean->GetY()[i], 
             mean->GetErrorYlow(i),mean->GetErrorYhigh(i));  
     }
@@ -559,11 +587,16 @@ void printBand(TDirectory *bands, TString who, FILE *fout, bool mean=false) {
     if (mean68 == 0) { printLineErr(bands, who+"_obs", fout); return; }
     fprintf(fout, "%4s \t %8s  %8s  %8s  %8s  %8s  %8s\n", "mass", " obs ", "-95%", "-68%", (mean ? "mean" : "median"), "+68%", "+95%");
     fprintf(fout,  "%5s\t %8s  %8s  %8s  %8s  %8s  %8s\n", "-----","-----",  "-----", "-----", "-----", "-----", "-----");
+    TString fmtstring = TString() +
+                        (halfint_masses ? "%5.1f" : "%4.0f ") + 
+                        "\t " +
+                        (who.Contains("pval") || who.Contains("smcls")  ? "%8.6f  %8.6f  %8.6f  %8.6f  %8.6f  %8.6f" : "%8.4f  %8.4f  %8.4f  %8.4f  %8.4f  %8.4f") + 
+                        "\n";
     for (int i = 0, n = mean68->GetN(); i < n; ++i) {
         int j  = (obs    ? findBin(obs,    mean68->GetX()[i]) : -1);
         int j2 = (mean95 ? findBin(mean95, mean68->GetX()[i]) : -1);
-        fprintf(fout, who.Contains("pval") ? "%4d \t %8.6f  %8.6f  %8.6f  %8.6f  %8.6f  %8.6f\n" : "%4d \t %8.4f  %8.4f  %8.4f  %8.4f  %8.4f  %8.4f\n" , 
-            int(mean68->GetX()[i]),  
+        fprintf(fout, fmtstring.Data() , 
+            mean68->GetX()[i],  
             j == -1 ? NAN : obs->GetY()[j],
             j2 == -1 ? NAN : mean95->GetY()[j2]-mean95->GetErrorYlow(j2), 
             mean68->GetY()[i]-mean68->GetErrorYlow(i), 
@@ -651,6 +684,82 @@ void importBands(TDirectory *bands, TString name, const char *fileName, bool has
     if (has95) bands->WriteTObject(in95);
     if (hasObs) bands->WriteTObject(inObs);
     fclose(in);
+}
+
+void importLandS(TDirectory *bands, TString name, TFile *file, bool doObserved=true, bool doExpected=true) {
+    if (file == 0) return ;
+    TTree *t = (TTree *) file->Get("T");
+    if (t == 0) { std::cerr << "TFile " << file->GetName() << " does not contain the tree" << std::endl; return; }
+    bool isML = (name.Index("ml") == 0), isPVal = (name.Index("pval") == 0);
+    Double_t mass, limit, limitErr, rmedian, rm1s, rp1s, rm2s, rp2s;
+
+    t->SetBranchAddress("mH", &mass);
+    t->SetBranchAddress("rmedian", &rmedian);
+    t->SetBranchAddress("rm1s", &rm1s);
+    t->SetBranchAddress("rm2s", &rm2s);
+    t->SetBranchAddress("rp2s", &rp2s);
+    t->SetBranchAddress("rp1s", &rp1s);
+    TString what = "limit";
+    if (isPVal) what = "pvalue";
+    if (isML)   what = "rmean";
+    std::cout << "For " << name << " will read " << what.Data() << std::endl;
+    t->SetBranchAddress(what.Data(), &limit);
+    t->SetBranchAddress("limitErr", &limitErr);
+    TGraphAsymmErrors *obs       = new TGraphAsymmErrors(); obs->SetName(name+"_obs");             int nobs = 0;
+    TGraphAsymmErrors *median    = new TGraphAsymmErrors(); median->SetName(name+"_median");       int nmedian = 0;
+    TGraphAsymmErrors *median_95 = new TGraphAsymmErrors(); median_95->SetName(name+"_median_95"); int nmedian_95 = 0;
+    for (size_t i = 0, n = t->GetEntries(); i < n; ++i) {
+        t->GetEntry(i);
+        if (doObserved) {
+            if (isML) {
+                obs->Set(nobs+1);
+                obs->SetPoint(nobs, mass, limit);
+                obs->SetPointError(nobs, 0, 0, limit-rm1s, rp1s-limit);
+                nobs++; 
+            } else if (limit != 0) {
+                obs->Set(nobs+1);
+                obs->SetPoint(nobs, mass, limit);
+                obs->SetPointError(nobs, 0, 0, limitErr, limitErr);
+                nobs++; 
+            }
+        }
+        if (!isML && doExpected) {
+            if (isPVal) { 
+                if (limit != 0) {
+                    median->Set(nmedian+1);
+                    median->SetPoint(nmedian, mass, limit);
+                    median->SetPointError(nmedian, 0, 0, 0, 0);
+                    nmedian++; 
+                } 
+            } else {
+                if (limit != 0) {
+                    median->Set(nmedian+1);
+                    median->SetPoint(nmedian, mass, rmedian);
+                    if (rm1s != 0 && rp1s != 0) {
+                        median->SetPointError(nmedian, 0, 0, rmedian - rm1s, rp1s - rmedian);
+                    } else {
+                        median->SetPointError(nmedian, 0, 0, 0, 0);
+                    }
+                    nmedian++; 
+                }
+                if (limit != 0 && rm2s != 0 && rp2s != 0) {
+                    median_95->Set(nmedian_95+1);
+                    median_95->SetPoint(nmedian_95, mass, rmedian);
+                    median_95->SetPointError(nmedian_95, 0, 0, rmedian - rm2s, rp2s - rmedian);
+                    nmedian_95++;
+                }
+            }
+        }
+    }
+    if (obs->GetN()) { bands->WriteTObject(obs); std::cout << " imported " << obs->GetName() << " with " << obs->GetN() << " points." << std::endl; }
+    if (median->GetN()) { bands->WriteTObject(median); std::cout << " imported " << median->GetName() << " with " << median->GetN() << " points." << std::endl; }
+    if (median_95->GetN()) { bands->WriteTObject(median_95); std::cout << " imported " << median_95->GetName() << " with " << median_95->GetN() << " points." << std::endl; }
+}
+void importLandS(TDirectory *bands, TString name, TString fileName, bool doObserved=true, bool doExpected=true) {
+    TFile *in = TFile::Open(fileName);
+    if (in == 0) { std::cerr << "Cannot open " << fileName << std::endl; return;  }
+    importLandS(bands, name, in, doObserved, doExpected);
+    in->Close();
 }
 
 void array_sort(double *begin, double *end) { std::sort(begin, end); }
