@@ -63,13 +63,9 @@ namespace {
       p[i] =  g[i].basicVector().xy() -c;
  
 
-    float rad2 = p[0].mag2();
     float area = std::abs(areaParallelogram(p[1] - p[0], p[1]));
     
-    float a12;
-    const float pi2 = M_PI/2;
-    if(area >= rad2) a12 = pi2;
-    else a12 = std::asin(area / rad2);
+    float a12 = std::asin(std::min(area*curvature*curvature,1.f));
     
     float slope = (g[1].z() - g[0].z()) / a12;
  
