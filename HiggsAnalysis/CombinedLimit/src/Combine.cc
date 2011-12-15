@@ -162,13 +162,13 @@ bool Combine::mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::Mo
     std::cerr << "Caught exception " << ex.what() << std::endl;
     return false;
   }
-  if ((ret == false) && (verbose > 2)) {
+  /* if ((ret == false) && (verbose > 3)) {
     std::cout << "Failed for method " << algo->name() << "\n";
     std::cout << "  --- DATA ---\n";
     utils::printRAD(&data);
     std::cout << "  --- MODEL ---\n";
     w->Print("V");
-  }
+  } */
   timer.Stop(); t_cpu_ = timer.CpuTime()/60.; t_real_ = timer.RealTime()/60.;
   printf("Done in %.2f min (cpu), %.2f min (real)\n", t_cpu_, t_real_);
   return ret;
@@ -228,11 +228,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 
   if (getenv("CMSSW_BASE")) {
       gSystem->AddIncludePath(TString::Format(" -I%s/src ", getenv("CMSSW_BASE")));
-      if (verbose > 2) std::cout << "Adding " << getenv("CMSSW_BASE") << "/src to include path" << std::endl;
+      if (verbose > 3) std::cout << "Adding " << getenv("CMSSW_BASE") << "/src to include path" << std::endl;
   }
   if (getenv("ROOFITSYS")) {
       gSystem->AddIncludePath(TString::Format(" -I%s/include ", getenv("ROOFITSYS")));
-      if (verbose > 2) std::cout << "Adding " << getenv("ROOFITSYS") << "/include to include path" << std::endl;
+      if (verbose > 3) std::cout << "Adding " << getenv("ROOFITSYS") << "/include to include path" << std::endl;
   }
 
   if (verbose <= 2) RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
@@ -248,7 +248,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         std::cerr << "Could not find workspace '" << workspaceName_ << "' in file " << fileToLoad << std::endl; fIn->ls(); 
         throw std::invalid_argument("Missing Workspace"); 
     }
-    if (verbose > 2) { std::cout << "Input workspace '" << workspaceName_ << "': \n"; w->Print("V"); }
+    if (verbose > 3) { std::cout << "Input workspace '" << workspaceName_ << "': \n"; w->Print("V"); }
     RooRealVar *MH = w->var("MH");
     if (MH!=0) {
       if (verbose > 2) std::cerr << "Setting variable 'MH' in workspace to the higgs mass " << mass_ << std::endl;
@@ -259,8 +259,8 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     if (mc == 0) {  
         std::cerr << "Could not find ModelConfig '" << modelConfigName_ << "' in workspace '" << workspaceName_ << "' in file " << fileToLoad << std::endl;
         throw std::invalid_argument("Missing ModelConfig"); 
-    } else if (verbose > 2) { std::cout << "Workspace has a ModelConfig for signal called '" << modelConfigName_ << "', with contents:\n"; mc->Print("V"); }
-    if (verbose > 2) { std::cout << "Input ModelConfig '" << modelConfigName_ << "': \n"; mc->Print("V"); }
+    } else if (verbose > 3) { std::cout << "Workspace has a ModelConfig for signal called '" << modelConfigName_ << "', with contents:\n"; mc->Print("V"); }
+    if (verbose > 3) { std::cout << "Input ModelConfig '" << modelConfigName_ << "': \n"; mc->Print("V"); }
     const RooArgSet *POI = mc->GetParametersOfInterest();
     if (POI == 0 || POI->getSize() == 0) throw std::invalid_argument("ModelConfig '"+modelConfigName_+"' does not define parameters of interest.");
     if (POI->getSize() > 1) std::cerr << "ModelConfig '" << modelConfigName_ << "' defines more than one parameter of interest. This is not supported in some statistical methods." << std::endl;
@@ -443,7 +443,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       return;
     }
     std::cout << "Computing limit starting from " << (iToy == 0 ? "observation" : "expected outcome") << std::endl;
-    if (verbose > (isExtended ? 2 : 1)) utils::printRAD(dobs);
+    if (verbose > (isExtended ? 3 : 2)) utils::printRAD(dobs);
     if (mklimit(w,mc,mc_bonly,*dobs,limit,limitErr)) tree->Fill();
   }
   
@@ -477,11 +477,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       RooAbsData *absdata_toy = 0;
       if (readToysFromHere == 0) {
 	w->loadSnapshot("clean");
-	if (verbose > 2) utils::printPdf(*mc_bonly);
+	if (verbose > 3) utils::printPdf(*mc_bonly);
 	if (withSystematics && !toysNoSystematics_) {
 	  *vars = *systDs->get(iToy-1);
           if (toysFrequentist_) w->saveSnapshot("clean", w->allVars());
-	  if (verbose > 2) utils::printPdf(*mc_bonly);
+	  if (verbose > 3) utils::printPdf(*mc_bonly);
 	}
         if (expectSignal_) ((RooRealVar*)POI->first())->setVal(expectSignal_);
 	std::cout << "Generate toy " << iToy << "/" << nToys << std::endl;
@@ -508,7 +508,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	  return;
 	}
       }
-      if (verbose > (isExtended ? 2 : 1)) utils::printRAD(absdata_toy);
+      if (verbose > (isExtended ? 3 : 2)) utils::printRAD(absdata_toy);
       w->loadSnapshot("clean");
       //if (verbose > 1) utils::printPdf(w, "model_b");
       if (mklimit(w,mc,mc_bonly,*absdata_toy,limit,limitErr)) {
