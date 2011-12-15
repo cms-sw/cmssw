@@ -8,13 +8,11 @@
  *
  *
  */
-#include "../interface/LimitAlgo.h"
-#include "../interface/ProfileLikelihood.h"
+#include "../interface/FitterAlgoBase.h"
 
-class MaxLikelihoodFit : public LimitAlgo {
+class MaxLikelihoodFit : public FitterAlgoBase {
 public:
   MaxLikelihoodFit() ;
-  virtual bool run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
   virtual const std::string & name() const {
     static const std::string name("MaxLikelihoodFit");
     return name;
@@ -22,14 +20,11 @@ public:
   virtual void applyOptions(const boost::program_options::variables_map &vm) ;
 
 protected:
+  virtual bool runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
+
   static std::string name_;
 
-  static std::string minimizerAlgo_;
-  static float       minimizerTolerance_;
-  static int         minimizerStrategy_;
   static std::string minos_;
-
-  static float preFitValue_;
 
   static std::string out_; 
   static bool        makePlots_;

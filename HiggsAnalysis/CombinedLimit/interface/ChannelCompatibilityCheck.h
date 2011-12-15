@@ -8,13 +8,11 @@
  *
  *
  */
-#include "../interface/LimitAlgo.h"
-#include "../interface/ProfileLikelihood.h"
+#include "../interface/FitterAlgoBase.h"
 
-class ChannelCompatibilityCheck : public LimitAlgo {
+class ChannelCompatibilityCheck : public FitterAlgoBase {
 public:
   ChannelCompatibilityCheck() ;
-  virtual bool run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
   virtual const std::string & name() const {
     static const std::string name("ChannelCompatibilityCheck");
     return name;
@@ -24,16 +22,15 @@ public:
 protected:
   std::string nameForLabel(const char *label) ;
 
-  static std::string minimizerAlgo_;
-  static float       minimizerTolerance_;
-  static int         minimizerStrategy_;
-
   static float mu_;
   static bool  fixedMu_;
 
+  static bool runMinos_;
   static bool saveFitResult_;
 
   static std::vector<std::string> groups_;
+
+  virtual bool runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
 };
 
 
