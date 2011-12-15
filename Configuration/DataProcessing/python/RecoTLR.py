@@ -170,6 +170,10 @@ def planBTracking(process):
                                                              cms.InputTag("tobTecStepSelector","tobTecStep")
                                                              )
     process.generalTracks.setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3,4,5), pQual=cms.bool(True) ) )
-    
-    
+
+
+    if hasattr(process,'dqmoffline_step'):
+        process.dqmoffline_step.remove(process.TrackMonStep4)
+        process.dqmoffline_step.remove(process.TrackMonStep5)
+        
     return process
