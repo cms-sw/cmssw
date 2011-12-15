@@ -33,8 +33,8 @@ public:
   };
 
 protected:
-  static std::string minimizerAlgo_;
-  static float       minimizerTolerance_;
+  static std::string minimizerAlgo_, minimizerAlgoForBF_,;
+  static float       minimizerTolerance_, minimizerToleranceForBF_;
 
   static bool useMinos_, bruteForce_;
 
