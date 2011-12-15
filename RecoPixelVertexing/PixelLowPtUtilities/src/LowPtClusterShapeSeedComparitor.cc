@@ -83,7 +83,7 @@ namespace {
     if (areaParallelogram(p[0] - c, p[1] - c) < 0) curvature = -curvature;
         
     for(int ip = 0; ip!=3;  ip++) {
-      Global2DVector v = (p[ip] - c)*(curavture*sinTheta);
+      Global2DVector v = (p[ip] - c)*(curvature*sinTheta);
       globalDirs[ip] = GlobalVector(-v.y(),
 				    v.x(),
 				    cosTheta
