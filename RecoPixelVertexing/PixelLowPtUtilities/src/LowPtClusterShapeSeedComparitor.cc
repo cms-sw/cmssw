@@ -40,7 +40,7 @@ namespace {
   /*****************************************************************************/
 
   inline 
-  bool getGlobalDirs(GlobalPoint const g *,GlobalVector * globalDirs)
+  bool getGlobalDirs(GlobalPoint const * g,GlobalVector * globalDirs)
   {
     
     
