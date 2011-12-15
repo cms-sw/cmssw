@@ -40,7 +40,8 @@ ElectronMcSignalValidator/h_scl_EoEtrue_barrel_new_etagap   1 1 0 0
 ElectronMcSignalValidator/h_scl_EoEtrue_barrel_new_phigap   1 1 1 0
 ElectronMcSignalValidator/h_scl_EoEtrue_ebeegap_new         1 1 1 0
 ElectronMcSignalValidator/h_scl_EoEtrue_endcaps_new         1 1 0 0
-ElectronMcSignalValidator/h_scl_EoEtrue_endcaps_new_deegap  1 1 1 0
+ElectronMcSignalValidator/h_scl_EoEtrue_endcaps_new_deegap  1 1 0 0
+ElectronMcSignalValidator/h_scl_EoEtrue_endcaps_new_ringgap 1 1 1 0
 ElectronMcSignalValidator/h_ele_EtaMnEtaTrue                1 1 0 0
 ElectronMcSignalValidator/h_ele_EtaMnEtaTrue_barrel         1 1 0 0
 ElectronMcSignalValidator/h_ele_EtaMnEtaTrue_endcaps        1 1 1 0

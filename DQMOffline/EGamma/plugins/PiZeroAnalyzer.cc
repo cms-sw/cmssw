@@ -11,7 +11,7 @@
  **
  **
  **  $Id: PiZeroAnalyzer
- **  $Date: 2011/04/08 15:55:00 $
+ **  $Date: 2010/11/23 17:28:00 $
  **  authors:
  **   Nancy Marinelli, U. of Notre Dame, US
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -253,7 +253,7 @@ void PiZeroAnalyzer::makePizero ( const edm::EventSetup& es, const edm::Handle<E
     double simple_energy = 0;
 
     for (std::vector<DetId>::iterator det=clus_v.begin(); det!=clus_v.end(); det++) {
-      // EBDetId EBdet = *det;
+      EBDetId EBdet = *det;
       //      cout<<" det "<< EBdet<<" ieta "<<EBdet.ieta()<<" iphi "<<EBdet.iphi()<<endl;
       bool  HitAlreadyUsed=false;
       for(usedIds=usedXtals.begin(); usedIds!=usedXtals.end(); usedIds++){

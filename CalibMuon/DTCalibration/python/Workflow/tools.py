@@ -12,14 +12,6 @@ def replaceTemplate(template,**opts):
 
     return result
  
-def getDatasetStr(datasetpath):
-    datasetstr = datasetpath
-    datasetstr.strip()
-    if datasetstr[0] == '/': datasetstr = datasetstr[1:]
-    datasetstr = datasetstr.replace('/','_')
-
-    return datasetstr
-
 def dqmWorkflowName(datasetpath,type,rev=1):
     workflowName = datasetpath
     sections = workflowName.split('/')[1:]
@@ -146,9 +138,7 @@ def loadCmsProcess(psetPath):
     process = sys.modules[psetPath].process
 
     import copy 
-    #FIXME: clone process
-    #processNew = copy.deepcopy(process)
-    processNew = copy.copy(process) 
+    processNew = copy.copy(process)
     return processNew
 
 def prependPaths(process,seqname):
@@ -183,7 +173,7 @@ def loadCrabCfg(cfgName=None):
 def addCrabInputFile(crabCfg,inputFile):
     additionalInputFiles = ''
     if crabCfg.has_option('USER','additional_input_files'):
-        additionalInputFiles = crabCfg.get('USER','additional_input_files')
+        additionalInputFiles = crab_cfg_parser.get('USER','additional_input_files')
 
     if additionalInputFiles: additionalInputFiles += ',%s' % inputFile
     else: additionalInputFiles = inputFile

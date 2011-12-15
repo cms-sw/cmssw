@@ -17,14 +17,10 @@
   \author Salvatore Rappoccio, modified by Mike Hildreth
   
 */
-#include "TRandom1.h"
-#include "TRandom2.h"
-#include "TRandom3.h"
-#include "TStopwatch.h"
+
 #include "TH1.h"
 #include "TFile.h"
 #include <string>
-#include <algorithm>
 #include <boost/shared_ptr.hpp>
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h" 
 #include "PhysicsTools/Utilities/interface/LumiReWeighting.h"
@@ -47,23 +43,18 @@ LumiReWeighting::LumiReWeighting( std::string generatedFile,
 	generatedFile_ = boost::shared_ptr<TFile>( new TFile(generatedFileName_.c_str()) ); //MC distribution
 	dataFile_      = boost::shared_ptr<TFile>( new TFile(dataFileName_.c_str()) );      //Data distribution
 
-	Data_distr_ = boost::shared_ptr<TH1>(  (static_cast<TH1*>(dataFile_->Get( DataHistName_.c_str() )->Clone() )) );
-	MC_distr_ = boost::shared_ptr<TH1>(  (static_cast<TH1*>(generatedFile_->Get( GenHistName_.c_str() )->Clone() )) );
+	weights_ = boost::shared_ptr<TH1F> ( new TH1F( *(static_cast<TH1F*>(dataFile_->Get( DataHistName_.c_str() )->Clone() ))));
 
 	// MC * data/MC = data, so the weights are data/MC:
 
 	// normalize both histograms first
 
-	Data_distr_->Scale( 1.0/ Data_distr_->Integral() );
-	MC_distr_->Scale( 1.0/ MC_distr_->Integral() );
-
-	weights_ = boost::shared_ptr<TH1>( static_cast<TH1*>(Data_distr_->Clone()) );
-
+	weights_->Scale( 1.0/ weights_->Integral() );
 	weights_->SetName("lumiWeights");
 
-	TH1* den = dynamic_cast<TH1*>(MC_distr_->Clone());
+	TH1F* den = dynamic_cast<TH1F*>(generatedFile_->Get( GenHistName_.c_str() ));
 
-	//den->Scale(1.0/ den->Integral());
+	den->Scale(1.0/ den->Integral());
 
 	weights_->Divide( den );  // so now the average weight should be 1.0
 
@@ -98,17 +89,12 @@ LumiReWeighting::LumiReWeighting( std::vector< float > MC_distr, std::vector< fl
 
   Int_t NBins = MC_distr.size();
 
-  MC_distr_ = boost::shared_ptr<TH1> ( new TH1F("MC_distr","MC dist",NBins,-0.5, float(NBins)-0.5) );
-  Data_distr_ = boost::shared_ptr<TH1> ( new TH1F("Data_distr","Data dist",NBins,-0.5, float(NBins)-0.5) );
-
-  weights_ = boost::shared_ptr<TH1> ( new TH1F("luminumer","luminumer",NBins,-0.5, float(NBins)-0.5) );
-  TH1* den = new TH1F("lumidenom","lumidenom",NBins,-0.5, float(NBins)-0.5) ;
+  weights_ = boost::shared_ptr<TH1F> ( new TH1F("luminumer","luminumer",NBins,-0.5, float(NBins)-0.5) );
+  TH1F* den = new TH1F("lumidenom","lumidenom",NBins,-0.5, float(NBins)-0.5) ;
 
   for(int ibin = 1; ibin<NBins+1; ++ibin ) {
     weights_->SetBinContent(ibin, Lumi_distr[ibin-1]);
-    Data_distr_->SetBinContent(ibin, Lumi_distr[ibin-1]);
     den->SetBinContent(ibin,MC_distr[ibin-1]);
-    MC_distr_->SetBinContent(ibin,MC_distr[ibin-1]);
   }
 
   // check integrals, make sure things are normalized
@@ -116,12 +102,10 @@ LumiReWeighting::LumiReWeighting( std::vector< float > MC_distr, std::vector< fl
   float deltaH = weights_->Integral();
   if(fabs(1.0 - deltaH) > 0.02 ) { //*OOPS*...
     weights_->Scale( 1.0/ weights_->Integral() );
-    Data_distr_->Scale( 1.0/ Data_distr_->Integral() );
   }
   float deltaMC = den->Integral();
   if(fabs(1.0 - deltaMC) > 0.02 ) {
     den->Scale(1.0/ den->Integral());
-    MC_distr_->Scale(1.0/ MC_distr_->Integral());
   }
 
   weights_->Divide( den );  // so now the average weight should be 1.0    
@@ -142,17 +126,6 @@ double LumiReWeighting::weight( int npv ) {
   int bin = weights_->GetXaxis()->FindBin( npv );
   return weights_->GetBinContent( bin );
 }
-
-double LumiReWeighting::weight( float npv ) {
-  int bin = weights_->GetXaxis()->FindBin( npv );
-  return weights_->GetBinContent( bin );
-}
-
-double LumiReWeighting::weight3BX( float ave_npv ) {
-  int bin = weights_->GetXaxis()->FindBin( ave_npv );
-  return weights_->GetBinContent( bin );
-}
-
 
 // This version of weight does all of the work for you, assuming you want to re-weight
 // using the true number of interactions in the in-time beam crossing.
@@ -204,33 +177,6 @@ double LumiReWeighting::weight( const edm::EventBase &e ) {
   if(npv < 0) std::cerr << " no in-time beam crossing found\n! " ;
 
   int bin = weights_->GetXaxis()->FindBin( npv );
-
-  return weights_->GetBinContent( bin );
- 
-}
-
-double LumiReWeighting::weight3BX( const edm::EventBase &e ) {
-
-
-  // get pileup summary information
-
-  Handle<std::vector< PileupSummaryInfo > >  PupInfo;
-  e.getByLabel(edm::InputTag("addPileupInfo"), PupInfo);
-
-  std::vector<PileupSummaryInfo>::const_iterator PVI;
-
-  int sum_npv = 0;
-
-  for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
-
-    sum_npv += PVI->getPU_NumInteractions();
-
-  }
-
-  float ave_npv = float(sum_npv)/3.;
-
-
-  int bin = weights_->GetXaxis()->FindBin( ave_npv );
 
   return weights_->GetBinContent( bin );
  

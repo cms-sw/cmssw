@@ -2,7 +2,7 @@
 // Description:  see TauMETAlgo.h
 // Authors: Alfredo Gurrola, C.N.Nguyen
 
-#include "JetMETCorrections/Type1MET/interface/TauMETAlgo.h"
+#include "JetMETCorrections/Type1MET/src/TauMETAlgo.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
 using namespace std;

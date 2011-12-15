@@ -9,12 +9,6 @@ import copy
 from HLTrigger.HLTfilters.hltHighLevel_cfi import *
 hltL1SingleMuOpen = copy.deepcopy(hltHighLevel)
 hltL1SingleMuOpen.HLTPaths = ['HLT_L1SingleMuOpen_AntiBPTX_v*']
-hltDtCalibTest = copy.deepcopy(hltHighLevel)
-hltDtCalibTest.HLTPaths = ['HLT_Mu40_v*', 'HLT_IsoMu*', 'HLT_Mu13_Mu8_v*', 'HLT_Mu17_Mu8_v*']
-
-ALCARECODtCalibHIHLTFilter = copy.deepcopy(hltHighLevel)
-ALCARECODtCalibHIHLTFilter.throw = False
-ALCARECODtCalibHIHLTFilter.eventSetupPathsKey = 'MuAlcaDtCalibHI'
 
 from HLTrigger.HLTfilters.hltLevel1GTSeed_cfi import *
 l1tech = hltLevel1GTSeed.clone()
@@ -43,12 +37,6 @@ primaryVertexFilter = cms.EDFilter("VertexSelector",
     src = cms.InputTag("offlinePrimaryVertices"),
     cut = cms.string("!isFake && ndof > 4 && abs(z) <= 15 && position.Rho <= 2"),
     filter = cms.bool(True),   # otherwise it won't filter the events, just produce an empty vertex collection.
-)
-
-primaryVertexFilterHI = cms.EDFilter("VertexSelector",
-    src = cms.InputTag("hiSelectedVertex"),
-    cut = cms.string("!isFake && ndof > 4 && abs(z) <= 15 && position.Rho <= 2"),
-    filter = cms.bool(True),
 )
 
 scrapingEvtFilter = cms.EDFilter("FilterOutScraping",
@@ -105,31 +93,17 @@ offlineSelectionALCARECOPt15 = cms.Sequence(muonSelectionPt15)
 offlineSelectionPt5 = cms.Sequence(scrapingEvtFilter + primaryVertexFilter + muonSelectionPt5)
 offlineSelectionALCARECOPt5 = cms.Sequence(muonSelectionPt5)
 offlineSelectionCosmicsPt5 = cms.Sequence(hltL1SingleMuOpen + goodCosmicTracksPt5)
-offlineSelectionHIPt5 = cms.Sequence(ALCARECODtCalibHIHLTFilter + primaryVertexFilterHI + muonSelectionPt5)
-offlineSelectionHIALCARECOPt5 = cms.Sequence(primaryVertexFilterHI + muonSelectionPt5)
-offlineSelectionHIRAWPt5 = cms.Sequence(ALCARECODtCalibHIHLTFilter)
 
 offlineSelection = cms.Sequence(scrapingEvtFilter + primaryVertexFilter + muonSelectionPt15)
 offlineSelectionALCARECO = cms.Sequence(muonSelectionPt15)
-offlineSelectionALCARECODtCalibTest = cms.Sequence(hltDtCalibTest + muonSelectionPt15)
 offlineSelectionCosmics = cms.Sequence(hltL1SingleMuOpen)
-offlineSelectionHI = cms.Sequence(offlineSelectionHIPt5)
-offlineSelectionHIALCARECO = cms.Sequence(offlineSelectionHIALCARECOPt5)
-offlineSelectionHIRAW = cms.Sequence(offlineSelectionHIRAWPt5)
 
 dtCalibOfflineSelectionPt15 = cms.Sequence(offlineSelectionPt15)
 dtCalibOfflineSelectionALCARECOPt15 = cms.Sequence(offlineSelectionALCARECOPt15)
 dtCalibOfflineSelectionPt5 = cms.Sequence(offlineSelectionPt5)
 dtCalibOfflineSelectionALCARECOPt5 = cms.Sequence(offlineSelectionALCARECOPt5)
 dtCalibOfflineSelectionCosmicsPt5 = cms.Sequence(offlineSelectionCosmicsPt5)
-dtCalibOfflineSelectionHIPt5 = cms.Sequence(offlineSelectionHIPt5)
-dtCalibOfflineSelectionHIALCARECOPt5 = cms.Sequence(offlineSelectionHIALCARECOPt5)
-dtCalibOfflineSelectionHIRAWPt5 = cms.Sequence(offlineSelectionHIRAWPt5)
 
 dtCalibOfflineSelection = cms.Sequence(offlineSelection)
 dtCalibOfflineSelectionALCARECO = cms.Sequence(offlineSelectionALCARECO)
-dtCalibOfflineSelectionALCARECODtCalibTest = cms.Sequence(offlineSelectionALCARECODtCalibTest)
 dtCalibOfflineSelectionCosmics = cms.Sequence(offlineSelectionCosmics)
-dtCalibOfflineSelectionHI = cms.Sequence(offlineSelectionHI)
-dtCalibOfflineSelectionHIALCARECO = cms.Sequence(offlineSelectionHIALCARECO)
-dtCalibOfflineSelectionHIRAW = cms.Sequence(offlineSelectionHIRAW)

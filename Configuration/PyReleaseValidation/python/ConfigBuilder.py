@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.341 $"
+__version__ = "$Revision: 1.344 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -552,7 +552,10 @@ class ConfigBuilder(object):
 		self.loadAndRemember(mixingDict['file'])
 		mixingDict.pop('file')
 		if self._options.pileup_input:
-			mixingDict['F']=self._options.pileup_input.split(',')
+			if self._options.pileup_input.startswith('dbs'):
+				mixingDict['F']=filesFromDBSQuery('find file where dataset = %s'%(self._options.pileup_input[4:],))[0]
+			else:
+				mixingDict['F']=self._options.pileup_input.split(',')
 		specialization=defineMixing(mixingDict,'FASTSIM' in self.stepMap)
 		for command in specialization:
 			self.executeAndRemember(command)
@@ -865,6 +868,8 @@ class ConfigBuilder(object):
 
         self.RAW2RECODefaultSeq=','.join([self.RAW2DIGIDefaultSeq,self.RECODefaultSeq])
 
+	self.USERDefaultSeq='user'
+	self.USERDefaultCFF=None
 
         # the magnetic field
         self.magFieldCFF = 'Configuration/StandardSequences/MagneticField_'+self._options.magField.replace('.','')+'_cff'
@@ -1328,6 +1333,12 @@ class ConfigBuilder(object):
                 print 'WARNING, possible typo with SKIM:'+'+'.join(skimlist)
                 raise Exception('WARNING, possible typo with SKIM:'+'+'.join(skimlist))
 
+    def prepare_USER(self, sequence = None):
+        ''' Enrich the schedule with a user defined sequence '''
+        self.loadDefaultOrSpecifiedCFF(sequence,self.USERDefaultCFF)
+	self.scheduleSequence(sequence.split('.')[-1],'user_step')
+        return
+
     def prepare_POSTRECO(self, sequence = None):
         """ Enrich the schedule with the postreco step """
         self.loadAndRemember(self.POSTRECODefaultCFF)
@@ -1591,7 +1602,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.341 $"),
+                                            (version=cms.untracked.string("$Revision: 1.344 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )

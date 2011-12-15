@@ -14,8 +14,8 @@
 #include <iostream>
 int main(){
   edmplugin::PluginManager::Config config;
+  edmplugin::PluginManager::configure(edmplugin::standard::config());
   try{
-    edmplugin::PluginManager::configure(edmplugin::standard::config());
     cond::DbConnection connection;
     connection.configuration().setPoolAutomaticCleanUp( false );
     connection.configure();

@@ -715,7 +715,6 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
 	for (int i=0;i < hl; i++) {
 	++word_numbering;
 	  for(int j=-1; j<4; j++){
-               
 	       sprintf(tempbuf_short,"%04x%04x%04x%04x",buf[i+4*(j-1)+3],buf[i+4*(j-1)+2],buf[i+4*(j-1)+1],buf[i+4*(j-1)]);
 
                // WARNING in 5_0_X for time being
@@ -789,12 +788,13 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
 				 (tempbuf_short[12]==ddu_trailer1_bit[12])&&(tempbuf_short[13]==ddu_trailer1_bit[13])&&
 		                 (tempbuf_short[14]==ddu_trailer1_bit[14])&&(tempbuf_short[15]==ddu_trailer1_bit[15]));	
 	  }
-
+	  
+	  
 	  // DDU Header 2 next to Header 1
 	  ddu_h2_h1=ddu_h2_check[2];
 	  
 	  sprintf(tempbuf_short,"%04x%04x%04x%04x",buf[i+3],buf[i+2],buf[i+1],buf[i]);
-	   
+	  
 	  // Looking for DDU Header 1
 	  ddu_h1_12_13=(buf[i]>>8);
 	  for (int kk=0; kk<36; kk++){	      
@@ -811,9 +811,7 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
 		cfeb_sample=0;
 	      }
 	  }
-
-         	 
-
+	 
 	 // Looking for DCC Header 1
 	 dcc_h1_id=(((buf[i+1]<<12)&0xF000)>>4)+(buf[i]>>8);
 	 for(int dcci=0;dcci<16;dcci++){
@@ -824,7 +822,7 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
 		 std::cout << tempbuf1 << std::endl;
 		 } 
 	     }      
-
+		 
 	  // Looking for DCC Header 2 and trailers
 	  if(((word_numbering-1)==dcc_h1_check)&&((buf[i+3]&0xFF00)==0xD900)) {
 	     sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s",word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],
@@ -841,13 +839,11 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
 	     sign1,dcc_trail2);
 	     std::cout << tempbuf1 << std::endl; w=0;
 	       }
-
+     
 	     // DDU Header 2
 	  else if(ddu_h2_check[1]){
                ddu_inst_i = ddu_h1_n_coll.size(); //ddu_inst_n=ddu_h1_n_coll[0];
-               if(ddu_inst_i>0){ 
-	         ddu_inst_n=ddu_h1_n_coll[ddu_inst_i-1];
-               }
+	       ddu_inst_n=ddu_h1_n_coll[ddu_inst_i-1];
 	       sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s%i %s",
 	       word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],sign1,ddu_common,
 	       ddu_inst_n, ddu_header2);
@@ -858,10 +854,7 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
 	       
 	     // DDU Header 3 (either between DDU Header 2 DMB Header or DDU Header 2 DDU Trailer1)  
 	  else if((ddu_h2_check[0]&&dmb_h1_check[2])||(ddu_h2_check[0]&&ddu_tr1_check[2])){
-	     ddu_inst_i = ddu_h1_n_coll.size(); 
-             if(ddu_inst_i>0){ 
-	         ddu_inst_n=ddu_h1_n_coll[ddu_inst_i-1];
-               }
+	     ddu_inst_i = ddu_h1_n_coll.size(); ddu_inst_n=ddu_h1_n_coll[ddu_inst_i-1];
 	     sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s%i %s",word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],
 	     sign1,ddu_common,ddu_inst_n,ddu_header3);
 	     ddu_h3_coll.push_back(word_numbering);
@@ -902,15 +895,10 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
 	       }
 	       
 	     //DDU Trailer 1
-
 	   else if(ddu_tr1_check[1]){
-	         ddu_inst_i = ddu_h1_n_coll.size(); 
-                 if(ddu_inst_i>0){ 
-	            ddu_inst_n=ddu_h1_n_coll[ddu_inst_i-1];
-                  }
-                 //ddu_inst_n=ddu_h1_n_coll[ddu_inst_i-1];
+	         ddu_inst_i = ddu_h1_n_coll.size(); ddu_inst_n=ddu_h1_n_coll[ddu_inst_i-1];
 		 sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s%i %s",
-	         word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],sign1,ddu_common,ddu_inst_n,ddu_trail1); 
+	         word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],sign1,ddu_common,ddu_inst_n,ddu_trail1);
 		 ddu_t1_coll.push_back(word_numbering);
 	         std::cout << tempbuf1 << std::endl; w=0;
 		 }
@@ -959,11 +947,7 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
 		 //DDU Trailer 3
 	  else if((ddu_tr1_check[-1])&&(tempbuf_short[0]==ddu_trailer3_bit[0])){
 	  //&&(tempbuf_short[0]==ddu_trailer3_bit[0])){
-                 ddu_inst_i = ddu_h1_n_coll.size();
-                 if(ddu_inst_i>0){ 
-	            ddu_inst_n=ddu_h1_n_coll[ddu_inst_i-1];
-                 } 
-                 //ddu_inst_n=ddu_h1_n_coll[ddu_inst_i-1];         
+                 ddu_inst_i = ddu_h1_n_coll.size(); ddu_inst_n=ddu_h1_n_coll[ddu_inst_i-1];         
 		 sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s%i %s",
 	         word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],sign1,ddu_common,ddu_inst_n,ddu_trail3);
 		 ddu_t3_coll.push_back(word_numbering);
@@ -972,17 +956,12 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
 		 //DDU Trailer 2
 	  else if((ddu_tr1_check[0])&&(tempbuf_short[0]!=ddu_trailer3_bit[0])){
 	  //&&(tempbuf_short[0]==ddu_trailer3_bit[0])){
-	         ddu_inst_i = ddu_h1_n_coll.size(); 
-                 if(ddu_inst_i>0){ 
-	           ddu_inst_n=ddu_h1_n_coll[ddu_inst_i-1];
-                 }
-                 //ddu_inst_n=ddu_h1_n_coll[ddu_inst_i-1];
+	         ddu_inst_i = ddu_h1_n_coll.size(); ddu_inst_n=ddu_h1_n_coll[ddu_inst_i-1];
 		 sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s%i %s",
 	         word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],sign1,ddu_common,ddu_inst_n,ddu_trail2);
 		 ddu_t2_coll.push_back(word_numbering);
 	         std::cout << tempbuf1 << std::endl; w=0;
 		 } 
-
 	         //DMB Trailer 1,2
          else if(dmb_tr1_check[1]){
 		 sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s %s",
@@ -1039,9 +1018,7 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
 	         word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],sign1,cfeb_common,cfeb_b);
 	         std::cout << tempbuf1 << std::endl; w=0;
 		 }	 	  
-
-	//ERRORS ddu_tr1_bad_check
-        	 
+	//ERRORS ddu_tr1_bad_check	 
 	else if(ddu_tr1_bad_check[1]){
 	         ddu_inst_i = ddu_h1_n_coll.size(); ddu_inst_n=ddu_h1_n_coll[ddu_inst_i-1];
 		 sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s%i %s %s",

@@ -24,7 +24,7 @@
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TRecHit2DPosConstraint.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TRecHit1DMomConstraint.h"
-// #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
+#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 #include "TrackingTools/TrackFitters/interface/RecHitSorter.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"

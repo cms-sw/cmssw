@@ -43,19 +43,11 @@ process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
 ## std sequence to produce the kinematic fit for semi-leptonic events
 process.load("TopQuarkAnalysis.TopKinFitter.TtSemiLepKinFitProducer_Muons_cfi")
-process.kinFitTtSemiLepEvent.constraints = [1,2]
 
 ## process path
 process.p = cms.Path(process.patDefaultSequence *
                      process.kinFitTtSemiLepEvent
                      )
-
-## use object resolutions from a specific config file
-#from TopQuarkAnalysis.TopObjectResolutions.stringResolutions_etEtaPhi_Summer11_cff import *
-#process.kinFitTtSemiLepEvent.udscResolutions = udscResolutionPF.functions
-#process.kinFitTtSemiLepEvent.bResolutions    = bjetResolutionPF.functions
-#process.kinFitTtSemiLepEvent.lepResolutions  = muonResolution  .functions
-#process.kinFitTtSemiLepEvent.metResolutions  = metResolutionPF .functions
 
 ## configure output module
 process.out = cms.OutputModule("PoolOutputModule",

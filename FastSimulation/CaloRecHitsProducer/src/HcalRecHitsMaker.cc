@@ -350,35 +350,29 @@ void HcalRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
       HcalDetId detid(it->id());
       int hashedindex=detid.hashed_index();
 
-      // apply ToF correction
-      int time_slice=0; // temporary
-      double fTOF=1.;
-      if (detid.subdet()==HcalForward) fTOF = (time_slice==0) ? 1. : 0.;	
-      else fTOF = fractionOOT(time_slice);
-
       switch(detid.subdet())
 	{
 	case HcalBarrel: 
 	  {
 	    if(det_==4)
-	      Fill(hashedindex,fTOF*(it->energy()),firedCells_,noise_[0]);
+	      Fill(hashedindex,it->energy(),firedCells_,noise_[0]);
 	  }
 	  break;
 	case HcalEndcap: 
 	  {	  
 	    if(det_==4)
-	      Fill(hashedindex,fTOF*(it->energy()),firedCells_,noise_[1]);
+	      Fill(hashedindex,it->energy(),firedCells_,noise_[1]);
 	  }
 	  break;
 	case HcalOuter: 
 	  {
 	    if(det_==5)
-	      Fill(hashedindex,fTOF*(it->energy()),firedCells_,noise_[0]);
+	      Fill(hashedindex,it->energy(),firedCells_,noise_[0]);
 	  }
 	  break;		     
 	case HcalForward: 
 	  {
-	    if(det_==6 && time_slice==0) // skip the HF hit if out-of-time
+	    if(det_==6)
 	      Fill(hashedindex,it->energy(),firedCells_,noise_[0]);
 	  }
 	  break;
@@ -743,20 +737,3 @@ double HcalRecHitsMaker::noiseInfCfromDB(const HcalDbService * conditions,const 
   return noise_rms_fC;
 }
 
-// fraction of energy collected as a function of ToF (for out-of-time particles; use case is out-of-time pileup)
-double HcalRecHitsMaker::fractionOOT(int time_slice)// in units of 25 ns; 0 means in-time
-{
-  if (abs(time_slice)>=5) return 0.;
-  double f[5]={0.7, 0.18, 0.06, 0.04, 0.02}; // numbers provided by Salavat
-  double fraction_observed=0.;
-  if (time_slice>=0) {
-    for(int i=time_slice; i<5; i++) fraction_observed+=f[i];
-  } else {
-    for(int i=0; i<5+time_slice; i++) fraction_observed+=f[i];
-  }
-  return fraction_observed;
-
-  // Note (by Andrea G): actually one can just tabulate these numbers instead of doing sums
-  // but this is error-prone and I prefer to delay that until the next update, after some validation.
-  // (one can put the tabulation macro in /test, in order to recalculate the scaling factors quickly in case the TS fractions change)
-}

@@ -364,9 +364,6 @@ LMFCorrCoefDat::getCorrections(const Tm &t, const Tm &t2, int max) {
   // sextuple p1, p2, p3, t1, t2, t3 as value.
   // Crystal corrections, then, are organized by sequences
   // First of all, checks that the connection is active (TODO)
-  // 
-  // For fixed-time IOV's sequence ID's are always 0. In that case
-  // use the LMR_SUB_IOV_ID as a key
   if (m_conn == NULL) {
     throw std::runtime_error("[LMFCorrCoefDat::getCorrections] ERROR:  "
 			     "Connection not set");
@@ -383,8 +380,8 @@ LMFCorrCoefDat::getCorrections(const Tm &t, const Tm &t2, int max) {
   // we must define some criteria to select the right rows 
   std::map<int, std::map<int, LMFSextuple> > ret;
   std::string sql = "SELECT * FROM (SELECT LOGIC_ID, T1, T2, T3, P1, P2, P3, "
-    "SEQ_ID, D.LMR_SUB_IOV_ID FROM LMF_LMR_SUB_IOV JOIN LMF_CORR_COEF_DAT D ON "  
-    "D.LMR_SUB_IOV_ID = LMF_LMR_SUB_IOV.LMR_SUB_IOV_ID "
+    "SEQ_ID FROM LMF_LMR_SUB_IOV JOIN LMF_CORR_COEF_DAT ON "  
+    "LMF_CORR_COEF_DAT.LMR_SUB_IOV_ID = LMF_LMR_SUB_IOV.LMR_SUB_IOV_ID "
     "WHERE T1 > TO_DATE(:1, 'YYYY-MM-DD HH24:MI:SS') AND "
     "T1 <= TO_DATE(:2, 'YYYY-MM-DD HH24:MI:SS') ORDER BY T1) WHERE ROWNUM <= :3";
   try {
@@ -414,68 +411,44 @@ LMFCorrCoefDat::getCorrections(const Tm &t, const Tm &t2, int max) {
     std::map<int, LMFSextuple> theMap;
     int lastSeqId = 0;
     int previousSeqId = 0;
-    int startingSeqId = -1; // this variable contains the very first SEQ_ID
     LMFSextuple s;
-    bool proceed = true;
     while (rset->next()) {
       int logic_id = rset->getInt(1);
       int seq_id   = rset->getInt(8);
-      if (startingSeqId < 0) {
-	startingSeqId = seq_id;
+      if (seq_id != lastSeqId) {
+	if (m_debug) {
+	  if (lastSeqId != 0) {
+	    std::cout << "    Triplets in sequences: " << c 
+		      << std::endl;
+	    std::cout << "    T1: " << s.t[0].str() << " T2: " << s.t[1].str() 
+		      << " T3: " << s.t[2].str() << std::endl;
+ 	  }
+	  c = 0;
+	  std::cout << "    Found new sequence: " << seq_id
+		    << std::endl; 
+	}
+	// the triplet of dates is equal for all rows in a sequence:
+	// get them once
+	for (int i = 0; i < 3; i++) {
+	  oracle::occi::Date d = rset->getDate(i + 2);
+	  s.t[i] = dh.dateToTm(d);
+	}
+	if (lastSeqId > 0) {
+	  ret[lastSeqId] = theMap;
+	}
+	theMap.clear();
+	previousSeqId = lastSeqId;
+	lastSeqId = seq_id;
       }
-      if ((seq_id == 0) && (startingSeqId == 0)) {
-	// check if we are in fixed-time IOV mode or not.
-	// In any case do not mix the modes.
-	if (c == 0) {
-	  std::cout << "[LMFCorrCoefDat::getCorrections] Using fixed-time IOV"
-		    << std::endl;
-	}
-	seq_id = rset->getInt(9); // for fixed-time intervals use LMR_SUB_IOV_ID
-      } else if ((startingSeqId == 0) && (proceed = true)) {
-	std::cout << "[LMFCorrCoefDat::getCorrections] Switch to normal (sequence based) mode. "
-		  << "Exiting..." << std::endl;
-	proceed = false;
-      } else if ((seq_id == 0) && (proceed = true)) {
-	std::cout << "[LMFCorrCoefDat::getCorrections] Switch to fixed-time IOV mode. "
-		  << "Exiting..." << std::endl;
-	proceed = false;
+      for (int i = 0; i <3; i++) {
+	s.p[i] = rset->getDouble(i + 5);
       }
-      if (proceed) {
-	if (seq_id != lastSeqId) {
-	  if (m_debug) {
-	    if (lastSeqId != 0) {
-	      std::cout << "    Triplets in sequences: " << c 
-			<< std::endl;
-	      std::cout << "    T1: " << s.t[0].str() << " T2: " << s.t[1].str() 
-			<< " T3: " << s.t[2].str() << std::endl;
-	    }
-	    c = 0;
-	    std::cout << "    Found new sequence: " << seq_id
-		      << std::endl; 
-	  }
-	  // the triplet of dates is equal for all rows in a sequence:
-	  // get them once
-	  for (int i = 0; i < 3; i++) {
-	    oracle::occi::Date d = rset->getDate(i + 2);
-	    s.t[i] = dh.dateToTm(d);
-	  }
-	  if (lastSeqId > 0) {
-	    ret[lastSeqId] = theMap;
-	  }
-	  theMap.clear();
-	  previousSeqId = lastSeqId;
-	  lastSeqId = seq_id;
-	}
-	for (int i = 0; i <3; i++) {
-	  s.p[i] = rset->getDouble(i + 5);
-	}
-	theMap[logic_id] = s;
-	// verify that the sequence of time is correct
-	if (ret.size() > 0) {
-	  checkTriplets(logic_id, s, ret[previousSeqId]); 
-	}
-	c++;
+      theMap[logic_id] = s;
+      // verify that the sequence of time is correct
+      if (ret.size() > 0) {
+	checkTriplets(logic_id, s, ret[previousSeqId]); 
       }
+      c++;
     }
     // insert the last map in the outer map
     ret[lastSeqId] = theMap;

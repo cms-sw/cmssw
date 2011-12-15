@@ -15,11 +15,8 @@ public:
 private:
 	std::vector<const char*> sERROR,  sWARNING, sERROR_,  sWARNING_, sDMBExpectedPayload, sDMBEventStaus;
 	ExaminerStatusType bERROR,  bWARNING;
-        ExaminerStatusType bSUM_ERROR,  bSUM_WARNING;	// Summary flags for errors and warnings
 	bool               fERROR  [29];//[nERRORS];
 	bool               fWARNING[5]; //[nWARNINGS];
-        bool               fSUM_ERROR  [29];//[nERRORS];
-        bool               fSUM_WARNING[5]; //[nWARNINGS];
 
 	std::set<CSCIdType>      fCHAMB_ERR[29]; // Set of chambers which contain particular error
 	std::set<CSCIdType>      fCHAMB_WRN[5];  // Set of chambers which contain particular warning
@@ -92,7 +89,6 @@ public:
 private:
         void clear();
         void zeroCounts();
-        void sync_stats();
         /// checks DAV_ALCT, DAV_TMB, and DAV_CFEB
         void checkDAVs();
         void checkTriggerHeadersAndTrailers();
@@ -153,8 +149,8 @@ public:
 	void setMask(ExaminerMaskType mask) {examinerMask=mask;}
         ExaminerMaskType getMask() const {return examinerMask;}
 
-	ExaminerStatusType errors  (void) const { return bSUM_ERROR;   }
-	ExaminerStatusType warnings(void) const { return bSUM_WARNING; }
+	ExaminerStatusType errors  (void) const { return bERROR;   }
+	ExaminerStatusType warnings(void) const { return bWARNING; }
 
 	const char* errName(int num) const { if(num>=0&&num<nERRORS)   return sERROR[num];   else return ""; }
 	const char* wrnName(int num) const { if(num>=0&&num<nWARNINGS) return sWARNING[num]; else return ""; }
@@ -165,8 +161,8 @@ public:
 	const char* payloadName(int num) const { if(num>=0&&num<nPAYLOADS) return sDMBExpectedPayload[num]; else return ""; }
 	const char* statusName (int num) const { if(num>=0&&num<nSTATUSES) return sDMBEventStaus     [num]; else return ""; }
 
-	bool error  (int num) const { if(num>=0&&num<nERRORS)   return fSUM_ERROR  [num]; else return 0; }
-	bool warning(int num) const { if(num>=0&&num<nWARNINGS) return fSUM_WARNING[num]; else return 0; }
+	bool error  (int num) const { if(num>=0&&num<nERRORS)   return fERROR  [num]; else return 0; }
+	bool warning(int num) const { if(num>=0&&num<nWARNINGS) return fWARNING[num]; else return 0; }
 
 	std::set<CSCIdType> chambersWithError  (int num) const { if(num>=0&&num<nERRORS)   return fCHAMB_ERR[num]; else return std::set<int>(); }
 	std::set<CSCIdType> chambersWithWarning(int num) const { if(num>=0&&num<nWARNINGS) return fCHAMB_WRN[num]; else return std::set<int>(); }

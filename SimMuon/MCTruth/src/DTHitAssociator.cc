@@ -176,7 +176,6 @@ DTHitAssociator::DTHitAssociator(const edm::Event& iEvent, const edm::EventSetup
 	for (vector<DTDigi>::const_iterator hitIT = mapOfDigi[wireid].begin(); 
 	     hitIT != mapOfDigi[wireid].end(); 
 	     hitIT++ , ihit++) {
-	  DTDigi digi = *hitIT;
 	  edm::LogVerbatim("DTHitAssociator")
 	    <<"DTDigi "<<ihit<<", wire "<<wireid<<", number = "<<hitIT->number()<<", TDC counts = "<<hitIT->countsTDC();
 	}	

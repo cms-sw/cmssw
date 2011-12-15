@@ -3,9 +3,9 @@
 /** \class PhotonEnergyCorrector
  **  
  **
- **  $Id: PhotonEnergyCorrector.h,v 1.1 2011/11/02 19:03:08 nancy Exp $ 
- **  $Date: 2011/11/02 19:03:08 $ 
- **  $Revision: 1.1 $
+ **  $Id:  PhotonEnergyCorrector$ 
+ **  $Date:  $ 
+ **  $Revision: $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -36,17 +36,14 @@ class PhotonEnergyCorrector
  {
   public:
 
-   PhotonEnergyCorrector(const edm::ParameterSet& config);
+   PhotonEnergyCorrector(const edm::ParameterSet& config,const edm::EventSetup& theEventSetup );
    ~PhotonEnergyCorrector();
 
-   void init(const edm::EventSetup& theEventSetup );
    void calculate( reco::Photon &, int subdet ) ;
 
 
   private:
-   bool weightsfromDB_;
    std::string w_file_;
-   std::string w_db_;
    std::string candidateP4type_; 
    EGEnergyCorrector*       regressionCorrector_;
    EcalClusterFunctionBaseClass * scEnergyFunction_;

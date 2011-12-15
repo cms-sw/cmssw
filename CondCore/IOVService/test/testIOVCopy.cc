@@ -12,11 +12,11 @@
 
 int main(){
   edmplugin::PluginManager::Config config;
-  try{
-    edmplugin::PluginManager::configure(edmplugin::standard::config());
+  edmplugin::PluginManager::configure(edmplugin::standard::config());
 
-    std::string sourceConnect("sqlite_file:source.db");
-    std::string destConnect("sqlite_file:dest.db");
+  std::string sourceConnect("sqlite_file:source.db");
+  std::string destConnect("sqlite_file:dest.db");
+  try{
     cond::DbConnection connection;
     connection.configuration().setMessageLevel(coral::Debug);
     connection.configuration().setPoolAutomaticCleanUp( false );

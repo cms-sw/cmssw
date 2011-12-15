@@ -481,7 +481,7 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
 
   nevent++;
 
-  // bool     MC = false; // UNUSED
+  bool     MC = false;
   double   phi_MC = 9999.;
   double   eta_MC = 9999.;
   
@@ -492,7 +492,7 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
     if (!evtMC.isValid()) {
       std::cout << "no HepMCProduct found" << std::endl;    
     } else {
-      // MC=true; // UNUSED
+      MC=true;
       //    std::cout << "*** source HepMCProduct found"<< std::endl;
     }  
 

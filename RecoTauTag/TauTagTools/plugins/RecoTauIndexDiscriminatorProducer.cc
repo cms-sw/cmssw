@@ -10,7 +10,6 @@
  */
 
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
-#include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
 
 class RecoTauIndexDiscriminatorProducer : public PFTauDiscriminationProducerBase {
   public:

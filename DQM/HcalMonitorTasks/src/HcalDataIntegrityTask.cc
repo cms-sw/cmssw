@@ -25,8 +25,8 @@ HcalDataIntegrityTask::HcalDataIntegrityTask(const edm::ParameterSet& ps)
   makeDiagnostics_       = ps.getUntrackedParameter<bool>("makeDiagnostics",false);
 
   // Specific Data Integrity Task parameters
-  inputLabelRawData_     = ps.getUntrackedParameter<edm::InputTag>("RawDataLabel",edm::InputTag("source"));
-  inputLabelReport_      = ps.getUntrackedParameter<edm::InputTag>("UnpackerReportLabel",edm::InputTag("hcalDigis"));
+  inputLabelRawData_     = ps.getUntrackedParameter<edm::InputTag>("RawDataLabel");
+  inputLabelReport_      = ps.getUntrackedParameter<edm::InputTag>("UnpackerReportLabel");
 
 } // HcalDataIntegrityTask::HcalDataIntegrityTask()
 

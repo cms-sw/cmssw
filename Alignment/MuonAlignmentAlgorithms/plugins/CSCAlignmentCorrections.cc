@@ -90,7 +90,7 @@ void CSCAlignmentCorrections::applyAlignment(AlignableNavigator *alignableNaviga
       cov[4][4] = 1e-6;
     }
     else if (mode == CSCPairResidualsConstraint::kModePhiPos) {
-      align::GlobalPoint center = alignable->surface().toGlobal(align::LocalPoint(0., 0., 0.));
+      GlobalPoint center = alignable->surface().toGlobal(LocalPoint(0., 0., 0.));
       double radius = sqrt(center.x()*center.x() + center.y()*center.y());
 
       double phi_correction = m_value[i];

@@ -7,7 +7,7 @@
  * \author original version: Chris Jones, Cornell, 
  *         extended by Luca Lista, INFN
  *
- * \version $Revision: 1.11 $
+ * \version $Revision: 1.10 $
  *
  */
 #include "boost/spirit/include/classic_core.hpp"
@@ -232,7 +232,7 @@ namespace reco {
 ;
 	  cut = logical_expression [ cut_s ];
 	  fun = expression [ expr_s ];
-	  this->start_parsers(cut, fun);
+	  start_parsers(cut, fun);
 	}
       };
     };

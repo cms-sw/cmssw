@@ -24,10 +24,8 @@ class CSCDDUHeader {
   int event_type() const { return event_type_;}
   int ncsc() const { return ncsc_;}
   int dmb_dav() const { return dmb_dav_;}
-  int dmb_full() const { return dmb_full_;}
   void setDMBDAV(int dduInput);
   int live_cscs() const {return live_cscs_;}
-  int output_path_status() const {return output_path_;}
   static unsigned sizeInWords() {return 12;}
   void setSourceId(unsigned sourceId) {source_id_ = sourceId;}
   unsigned short * data() {return (unsigned short *) this;}

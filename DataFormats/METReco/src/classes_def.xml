@@ -3,9 +3,7 @@
   <class name="CorrMETData" ClassVersion="10">
    <version ClassVersion="10" checksum="1727583300"/>
   </class>
-  <class name="edm::Wrapper<CorrMETData>"/> 
   <class name="std::vector<CorrMETData>"/> 
-  <class name="edm::Wrapper<std::vector<CorrMETData> >"/> 
 
   <class name="SpecificCaloMETData" ClassVersion="10">
    <version ClassVersion="10" checksum="3022746385"/>
@@ -105,6 +103,9 @@
   <class name="edm::RefVector<std::vector<reco::GenMET>,reco::GenMET,edm::refhelper::FindUsingAdvance<std::vector<reco::GenMET>,reco::GenMET> >"/>
   <class name="edm::Ref<std::vector<reco::GenMET>,reco::GenMET,edm::refhelper::FindUsingAdvance<std::vector<reco::GenMET>,reco::GenMET> >"/>
 
+
+
+
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::MET>,reco::MET,edm::refhelper::FindUsingAdvance<std::vector<reco::MET>,reco::MET> > >" />
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::CaloMET>,reco::CaloMET,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloMET>,reco::CaloMET> > >" />
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::PFMET>,reco::PFMET,edm::refhelper::FindUsingAdvance<std::vector<reco::PFMET>,reco::PFMET> > >" />
@@ -117,42 +118,46 @@
   <class name="edm::reftobase::RefHolder<reco::PFClusterMETRef>" />
   <class name="edm::reftobase::RefHolder<reco::GenMETRef>" />
 
-  <class name="reco::PhiWedge" ClassVersion="10">
-   <version ClassVersion="10" checksum="2763792428"/>
-  </class>
-  <class name="edm::Wrapper<reco::PhiWedge>"/>
-  <class name="std::vector<reco::PhiWedge>"/>
-  <class name="std::vector<reco::PhiWedge>::iterator"/>
 
-  <class name="reco::EcalHaloData" ClassVersion="10">
-   <version ClassVersion="10" checksum="520399124"/>
-  </class>
-  <class name="edm::Wrapper<reco::EcalHaloData>"/>
 
-  <class name="reco::HcalHaloData" ClassVersion="10">
-   <version ClassVersion="10" checksum="3928363167"/>
-  </class>
-  <class name="edm::Wrapper<reco::HcalHaloData>"/>
 
-  <class name="reco::CSCHaloData" ClassVersion="10">
-   <version ClassVersion="10" checksum="3522217120"/>
-  </class>
-  <class name="edm::Wrapper<reco::CSCHaloData>"/>
+   <class name="reco::PhiWedge" ClassVersion="10">
+    <version ClassVersion="10" checksum="2763792428"/>
+   </class>
+ <class name="edm::Wrapper<reco::PhiWedge>"/>
+ <class name="std::vector<reco::PhiWedge>"/>
+ <class name="std::vector<reco::PhiWedge>::iterator"/>
 
-  <class name="reco::GlobalHaloData" ClassVersion="10">
-   <version ClassVersion="10" checksum="4148277690"/>
-  </class>
-  <class name="edm::Wrapper<reco::GlobalHaloData>"/>
+ <class name="reco::EcalHaloData" ClassVersion="10">
+  <version ClassVersion="10" checksum="520399124"/>
+ </class>
+ <class name="edm::Wrapper<reco::EcalHaloData>"/>
 
-  <class name="reco::BeamHaloSummary" ClassVersion="10">
-   <version ClassVersion="10" checksum="1514181401"/>
-  </class>
-  <class name="edm::Wrapper<reco::BeamHaloSummary>"/>
+ <class name="reco::HcalHaloData" ClassVersion="10">
+  <version ClassVersion="10" checksum="3928363167"/>
+ </class>
+ <class name="edm::Wrapper<reco::HcalHaloData>"/>
 
-  <class name="std::vector<Point3DBase<float,GlobalTag> >"/>
-  <class name="edm::Wrapper<std::vector<Point3DBase<float,GlobalTag> > >"/>
+ <class name="reco::CSCHaloData" ClassVersion="10">
+  <version ClassVersion="10" checksum="3522217120"/>
+ </class>
+ <class name="edm::Wrapper<reco::CSCHaloData>"/>
 
-  <class name="edm::Ptr<reco::MET>" />
-  <class name="edm::PtrVector<reco::MET>" />
+ <class name="reco::GlobalHaloData" ClassVersion="10">
+  <version ClassVersion="10" checksum="4148277690"/>
+ </class>
+ <class name="edm::Wrapper<reco::GlobalHaloData>"/>
+
+ <class name="reco::BeamHaloSummary" ClassVersion="10">
+  <version ClassVersion="10" checksum="1514181401"/>
+ </class>
+ <class name="edm::Wrapper<reco::BeamHaloSummary>"/>
+
+ <class name="std::vector<Point3DBase<float,GlobalTag> >"/>
+ <class name="edm::Wrapper<std::vector<Point3DBase<float,GlobalTag> > >"/>
+
+ <class name="edm::Ptr<reco::MET>" />
+ <class name="edm::PtrVector<reco::MET>" />
+
 
 </lcgdict>

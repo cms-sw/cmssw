@@ -14,7 +14,7 @@ alias MergeGridJob 'cmsRun ${VALTOOLS}/MergeFilesAndCalculateEfficiencies_cfg.py
 alias Compare 'cmsRun ${VALTOOLS}/Compare_cfg.py'
 alias Summarize 'cmsRun ${VALTOOLS}/SummaryPlots_cfg.py'
 alias PerformanceCurves 'python ${VALTOOLS}/PlotPerformanceCurves.py'
-alias MultipleCompare '${VALTOOLS}/MultipleCompare.py'
+alias MultipleCompare 'python ${VALTOOLS}/MultipleCompare.py'
 alias BuildWebpage 'python ${VALTOOLS}/BuildWebpage.py'
 alias SubmitResults 'python ${PFVALTOOLS}/submit.py'
 alias getZTTRecoFiles 'dbs search --query="find dataset where release = CMSSW_3_1_0_pre10 and primds = RelValZTT and tier like *RECO* and dataset not like *FastSim*" --createCFF=tempZTTRecoFiles'

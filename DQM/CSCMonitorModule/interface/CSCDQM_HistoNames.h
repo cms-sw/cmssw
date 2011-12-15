@@ -428,7 +428,6 @@ namespace h {
   (( EMU_FED_TOTAL_TMB_NUMBER, "FEDTotalTMBs" )) \
   (( FED_BUFFER_SIZE, "DCCBufferSize" )) \
   (( EMU_FED_FORMAT_ERRORS,"FEDFormat_Errors" )) \
-  (( EMU_FED_DDU_L1A_MISMATCH_FRACT, "FED_DDU_L1A_mismatch_fract" )) \
   \
   \
 

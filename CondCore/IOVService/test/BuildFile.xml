@@ -20,4 +20,7 @@
 <bin   file="testIOVCopy.cc" name="testIOVCopy">
   <lib   name="testPayloadDict"/>
 </bin>
+<bin   file="testIOV.cc" name="testIOV">
+</bin>
+<use   name="cppunit"/>
 <use   name="boost"/>

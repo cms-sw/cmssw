@@ -54,7 +54,14 @@ public:
   {
   }
 
-
+  FreeTrajectoryState(const GlobalTrajectoryParameters& aGlobalParameters,
+                      const CartesianTrajectoryError& aCartesianError) :
+    theGlobalParameters(aGlobalParameters),
+    theCartesianError(aCartesianError),
+    theCartesianErrorValid(true),
+    theCurvilinearErrorValid(false)
+  {
+  }
   FreeTrajectoryState(const GlobalTrajectoryParameters& aGlobalParameters,
                       const CurvilinearTrajectoryError& aCurvilinearError) :
     theGlobalParameters(aGlobalParameters),
@@ -63,27 +70,6 @@ public:
     theCurvilinearErrorValid(true)
   {
   }
-
-
-#ifdef ENABLE_CACHE_CARTESIAN
-  FreeTrajectoryState(const GlobalTrajectoryParameters& aGlobalParameters,
-                      const CartesianTrajectoryError& aCartesianError) :
-    theGlobalParameters(aGlobalParameters),
-    theCartesianError(aCartesianError),
-    theCartesianErrorValid(true),
-    theCurvilinearErrorValid(false)
-  {  }
-#else 
-  FreeTrajectoryState(const GlobalTrajectoryParameters& aGlobalParameters,
-                      const CartesianTrajectoryError& aCartesianError) :
-    theGlobalParameters(aGlobalParameters),
-    theCartesianErrorValid(false),
-    theCurvilinearErrorValid(false)
-  { createCurvilinearError(aCartesianError);  }
-#endif
-
-
-#ifdef ENABLE_CACHE_CARTESIAN
   FreeTrajectoryState(const GlobalTrajectoryParameters& aGlobalParameters,
                       const CartesianTrajectoryError& aCartesianError,
                       const CurvilinearTrajectoryError& aCurvilinearError) :
@@ -94,18 +80,6 @@ public:
     theCurvilinearErrorValid(true)
   {
   }
-#else
-  FreeTrajectoryState(const GlobalTrajectoryParameters& aGlobalParameters,
-                      const CartesianTrajectoryError&,
-                      const CurvilinearTrajectoryError& aCurvilinearError) :
-    theGlobalParameters(aGlobalParameters),
-    theCurvilinearError(aCurvilinearError),
-    theCartesianErrorValid(false),
-    theCurvilinearErrorValid(true)
-  {
-  }
-#endif
-
 // access
 // propagate access to parameters
   GlobalPoint position() const {
@@ -126,7 +100,6 @@ public:
 
 // direct access
   bool hasCartesianError() const {return theCartesianErrorValid;}
-
   bool hasCurvilinearError() const {return theCurvilinearErrorValid;}
 
   bool hasError() const {
@@ -137,63 +110,33 @@ public:
   const GlobalTrajectoryParameters& parameters() const {
     return theGlobalParameters;
   }
-
-#ifdef ENABLE_CACHE_CARTESIAN
   const CartesianTrajectoryError& cartesianError() const {
     if unlikely(!hasError()) missingError();
     if  unlikely(!theCartesianErrorValid)
-      createCartesianError(theCartesianError);
+      createCartesianError();
     return theCartesianError;
   }
-
   const CurvilinearTrajectoryError& curvilinearError() const {
     if  unlikely(!hasError()) missingError();
     if  unlikely(!theCurvilinearErrorValid)
       createCurvilinearError();
     return theCurvilinearError;
   }
-#else
-  CartesianTrajectoryError cartesianError() const {
-    if unlikely(!hasError()) missingError();
-    CartesianTrajectoryError aCartesianError;
-    createCartesianError(aCartesianError);
-    return aCartesianError;
-  }
-
-  const CurvilinearTrajectoryError& curvilinearError() const {
-    if  unlikely(!hasError()) missingError();
-    return theCurvilinearError;
-  }
-#endif
-
-
 
   void rescaleError(double factor);
 
-#ifdef ENABLE_CACHE_CARTESIAN
   void setCartesianError(const CartesianTrajectoryError &err) {
         theCartesianError = err; theCartesianErrorValid = true;
   }
   void setCartesianError(const AlgebraicSymMatrix66 &err) {
         theCartesianError = CartesianTrajectoryError(err); theCartesianErrorValid = true;
   }
-#else
-  void setCartesianError(const CartesianTrajectoryError &err) {
-    createCurvilinearError(err);
-  }
-  void setCartesianError(const AlgebraicSymMatrix66 &err) {
-    createCurvilinearError(CartesianTrajectoryError(err)); 
-  }
-#endif
-
   void setCurvilinearError(const CurvilinearTrajectoryError &err) {
         theCurvilinearError = err; theCurvilinearErrorValid = true;
   }
   void setCurvilinearError(const AlgebraicSymMatrix55 &err) {
         theCurvilinearError = CurvilinearTrajectoryError(err); theCurvilinearErrorValid = true;
   }
-
-
 // properties
   bool canReach(double radius) const;
 private:
@@ -202,18 +145,14 @@ private:
   static void missingError(); // dso_internal;
 
 // convert curvilinear errors to cartesian
-  void createCartesianError(CartesianTrajectoryError & aCartesianError) const; // dso_internal;
-
-
+  void createCartesianError() const; // dso_internal;
 // convert cartesian errors to curvilinear
-  void createCurvilinearError(CartesianTrajectoryError const & aCartesianError) const; // dso_internal;
+  void createCurvilinearError() const; // dso_internal;
 
 private:
 
   GlobalTrajectoryParameters  theGlobalParameters;
-#ifdef ENABLE_CACHE_CARTESIAN
   mutable CartesianTrajectoryError    theCartesianError;
-#endif
   mutable CurvilinearTrajectoryError  theCurvilinearError;
   mutable bool                        theCartesianErrorValid;
   mutable bool                        theCurvilinearErrorValid;

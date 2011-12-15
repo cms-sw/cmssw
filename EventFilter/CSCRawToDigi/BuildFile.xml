@@ -6,7 +6,6 @@
 <use   name="FWCore/Utilities"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="DataFormats/L1CSCTrackFinder"/>
-<flags   CXXFLAGS="-O0 -g3 -fno-inline"/>
 <export>
   <lib   name="1"/>
 </export>
