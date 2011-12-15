@@ -21,6 +21,8 @@
 #include "../interface/RooFitGlobalKillSentry.h"
 #include "../interface/JacknifeQuantile.h"
 
+#include "../interface/ProfilingTools.h"
+
 using namespace RooStats;
 
 std::string MarkovChainMC::proposalTypeName_ = "ortho";
@@ -362,7 +364,7 @@ RooStats::MarkovChain *MarkovChainMC::mergeChains(const RooArgSet &poi, const st
          other = (RooStats::MarkovChain *) iter.Next(), ++index) {
         if (limits[index] < lmin || limits[index] > lmax) continue;
         int burninSteps = adaptiveBurnIn_ ? guessBurnInSteps(*other) : max<int>(burnInSteps_, other->Size() * burnInFraction_);
-        if (verbose > 1) std::cout << "Adding chain of " << other->Size() << " (individual limit " << limits[index] << ") << entries skipping the first " <<  burninSteps << std::endl;
+        if (verbose > 1) std::cout << "Adding chain of " << other->Size() << " entries, skipping the first " <<  burninSteps << "; individual limit " << limits[index] << std::endl;
         for (int i = burninSteps, n = other->Size(); i < n; ++i) {
             RooArgSet point(*other->Get(i));
             double nllval = other->NLL();
@@ -389,6 +391,15 @@ void MarkovChainMC::readChains(const RooArgSet &poi, std::vector<double> &limits
         RooStats::MarkovChain *toy = dynamic_cast<RooStats::MarkovChain *>(toyDir->Get(k->GetName()));
         if (toy == 0) continue;
         limitFromChain(mylim, myerr, poi, *toy);
+        if (verbose > 1) std::cout << " limit " << mylim << " +/- " << myerr << std::endl;
+        // vvvvv ---- begin convergence test, still being developed, not recommended yet.
+        if (runtimedef::get("MCMC_STATIONARITY")) {
+            if (!stationarityTest(*toy, poi, 30)) {
+                if (verbose > 1) std::cout << " ---> rejecting chain!" << std::endl; 
+                continue;
+            }
+        }
+        // ^^^^^ ---- end of convergence test
         chains_.Add(toy);
         limits.push_back(mylim);
     }
@@ -398,15 +409,19 @@ void MarkovChainMC::readChains(const RooArgSet &poi, std::vector<double> &limits
 void 
 MarkovChainMC::limitFromChain(double &limit, double &limitErr, const RooArgSet &poi, RooStats::MarkovChain &chain, int burnInSteps) 
 {
+    if (burnInSteps < 0) {
+        if (adaptiveBurnIn_) burnInSteps = guessBurnInSteps(chain);
+        else burnInSteps = max<int>(burnInSteps_, chain.Size() * burnInFraction_);
+    }
+#if 1   // This is much faster and gives the same result
+    QuantileCalculator qc(*chain.GetAsConstDataSet(), poi.first()->GetName(), burnInSteps);
+    limit = qc.quantileAndError(cl, QuantileCalculator::Simple).first;
+#else
     MCMCInterval interval("",poi,chain);
     RooArgList axes(poi);
     interval.SetConfidenceLevel(cl);
     interval.SetIntervalType(MCMCInterval::kTailFraction);
     interval.SetLeftSideTailFraction(0);
-    if (burnInSteps < 0) {
-        if (adaptiveBurnIn_) burnInSteps = guessBurnInSteps(chain);
-        else burnInSteps = max<int>(burnInSteps_, chain.Size() * burnInFraction_);
-    }
     interval.SetNumBurnInSteps(burnInSteps);
     interval.SetAxes(axes);
     limit = interval.UpperLimit((RooRealVar&)*poi.first());
@@ -414,16 +429,6 @@ MarkovChainMC::limitFromChain(double &limit, double &limitErr, const RooArgSet &
         // must avoid that MCMCInterval deletes the chain
         interval.SetChain(*(RooStats::MarkovChain *)0);
     }
-#if 0
-    std::cout << "Limit from chain (naive):    " << limit << std::endl;
-    QuantileCalculator qc(*chain.GetAsConstDataSet(), poi.first()->GetName(), burnInSteps);
-    qc.randomizePoints();
-    std::pair<double,double> qn = qc.quantileAndError(0.95, QuantileCalculator::Simple);
-    std::pair<double,double> qs = qc.quantileAndError(0.95, QuantileCalculator::Sectioning);
-    std::pair<double,double> qj = qc.quantileAndError(0.95, QuantileCalculator::Jacknife);
-    std::cout << "Limit from chain (simple):     " << qn.first << " +/- " << qn.second << std::endl;
-    std::cout << "Limit from chain (sectioning): " << qs.first << " +/- " << qs.second << std::endl;
-    std::cout << "Limit from chain (jacknife):   " << qj.first << " +/- " << qj.second << std::endl;
 #endif
 }
 
@@ -466,4 +471,55 @@ MarkovChainMC::guessBurnInSteps(const RooStats::MarkovChain &chain) const
        if (nll[start] > maxcut) break;
     }
     return start;
+}
+
+int 
+MarkovChainMC::stationarityTest(const RooStats::MarkovChain &chain, const RooArgSet &poi, int nchunks) const 
+{
+    std::vector<int>    entries(nchunks, 0);
+    std::vector<double> mean(nchunks, .0);
+    const RooDataSet *data = chain.GetAsConstDataSet();
+    const RooRealVar *r = dynamic_cast<const RooRealVar *>(data->get()->find(poi.first()->GetName()));
+    int  n = data->numEntries(), chunksize = ceil(n/double(nchunks));
+    for (int i = 0, chunk = 0; i < n; i++) {
+        data->get(i);
+        if (i > 0 && i % chunksize == 0) chunk++;
+        entries[chunk]++;
+        mean[chunk] += r->getVal();
+    }
+    for (int c = 0; c < nchunks; ++c) { mean[c] /= entries[c]; }
+
+    std::vector<double> dists, dists25;
+    for (int c = 0; c < nchunks; ++c) {
+        for (int c2 = 0; c2 < nchunks; ++c2) {
+            if (c2 != c) dists.push_back(fabs(mean[c]-mean[c2]));
+        }
+        std::sort(dists.begin(), dists.end());
+        dists25.push_back(dists[ceil(0.25*nchunks)]/mean[c]);
+        dists.clear();
+        //printf("chunk %3d: mean  %9.5f  dist25 %9.5f abs, %9.5f real\n", c, mean[c], mean[c]*dists25.back(), dists25.back());
+    }
+    std::sort(dists25.begin(), dists25.end());
+    double tolerance = 10*dists25[ceil(0.25*nchunks)];
+    //printf("Q(25) is %9.5f\n", dists25[ceil(0.25*nchunks)]);
+    //printf("Q(50) is %9.5f\n", dists25[ceil(0.50*nchunks)]);
+    //printf("Tolerance set to %9.5f\n", tolerance);
+    bool converged = true;
+    std::vector<int> friends(nchunks, 0), foes(nchunks, 0);
+    for (int c = 0; c < nchunks; ++c) {
+        for (int c2 = c+1; c2 < nchunks; ++c2) {
+            if (c2 == c) continue;
+            if (fabs(mean[c] - mean[c2]) < tolerance*mean[c]) {
+                friends[c]++;
+            } else {
+                foes[c]++;
+            }
+        }   
+        //printf("chunk %3d: mean  %9.5f  friends %3d  foes %3d \n", c, mean[c], friends[c], foes[c]);
+        if (friends[c] >= 2 && foes[c] > 1) {
+            converged = false;
+        }
+        //fflush(stdout);
+    }
+    return converged;
 }

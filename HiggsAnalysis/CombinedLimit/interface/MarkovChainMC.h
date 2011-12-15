@@ -74,6 +74,9 @@ private:
   void limitAndError(double &limit, double &limitErr, const std::vector<double> &limits) const ;
   RooStats::MarkovChain *slimChain(const RooArgSet &poi, const RooStats::MarkovChain &chain) const;
   int  guessBurnInSteps(const RooStats::MarkovChain &chain) const;
+
+  /// note: this is still being developed
+  int stationarityTest(const RooStats::MarkovChain &chain, const RooArgSet &poi, int nchunks) const ;
 };
 
 #endif
