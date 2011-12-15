@@ -136,7 +136,7 @@ void QuantileCalculator::quantiles(double quantile, bool doJacknife)
         int ilow = 0, ihigh = n-1;
         for (int i = 0; i < n; ++i) {
             if ((points_[i].set == j) == doJacknife) continue; // if jacknife, cut away just one piece, otherwise cut away everthing else
-            std::cout << "\t\t\t" << points_[i].x << std::endl;;
+            //std::cout << "\t\t\t" << points_[i].x << std::endl;;
             if (runningSum + points_[i].w <= threshold) { 
                 runningSum += points_[i].w;
                 ilow = i;
@@ -152,7 +152,7 @@ void QuantileCalculator::quantiles(double quantile, bool doJacknife)
         }
     }
     for (int j = 0; j <= m; ++j) {  
-        printf("   ... quantile of section %d: %6.3f\n", j, quantiles_[j]);
+        //printf("   ... quantile of section %d: %6.3f\n", j, quantiles_[j]);
     }
     if (doJacknife) {
         // now compute the pseudo-values alpha_[j] = m * quantile[m] - (m-1) * quantile[j]
