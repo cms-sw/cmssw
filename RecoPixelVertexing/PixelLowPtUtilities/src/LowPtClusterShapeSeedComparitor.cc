@@ -13,26 +13,26 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
+
+
+
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/Basic2DVector.h"
+
 #include<cmath>
 
-/*****************************************************************************/
-LowPtClusterShapeSeedComparitor::LowPtClusterShapeSeedComparitor
-  (const edm::ParameterSet&)
-{
-}
 
-/*****************************************************************************/
-LowPtClusterShapeSeedComparitor::~LowPtClusterShapeSeedComparitor()
-{
-}
 
 namespace {
+  typedef Basic2DVector<float>   Vector2D;
+
   inline float sqr(float x) { return x*x; }
 
   /*****************************************************************************/
   inline
   float areaParallelogram
-  (const Global2DVector& a, const Global2DVector& b)
+  (const Vector2D& a, const Vector2D& b)
   {  
     return a.x() * b.y() - a.y() * b.x();
   }
@@ -57,14 +57,16 @@ namespace {
     }
 
    // Get 2d points
-    Global2DVector p[3];
-    for(int i=0; i<3; i++)
-      p[i] = Global2DVector(g[i].x(), g[i].y());
+    Vector2D p[3], v[3];
+    for(int i=0; i!=3; i++)
+      p[i] =  g[i].basicVector().xy();
  
-    Global2DVector c (circle.center().x(), circle.center().y());
-    
-    float rad2 = (p[0] - c).mag2();
-    float area = std::abs(areaParallelogram(p[1] - p[0], p[1] - c));
+    Vector2D c  = circle.center();
+    for(int ip = 0; ip!=3;  ip++)
+      v[ip] = p[ip] - c;    
+
+    float rad2 = v[0].mag2();
+    float area = std::abs(areaParallelogram(p[1] - p[0], v[1]));
     
     float a12;
     const float pi2 = M_PI/2;
@@ -72,20 +74,19 @@ namespace {
     else a12 = std::asin(area / rad2);
     
     float slope = (g[1].z() - g[0].z()) / a12;
-    
-    float cotTheta = slope * curvature; // == sinhEta
-    float coshEta  = std::sqrt(1.f + sqr(cotTheta));    // == 1/sinTheta
-    
+ 
     // Calculate globalDirs
-    float sinTheta =       1. / coshEta;
-    float cosTheta = cotTheta * sinTheta;
+   
+    float cotTheta = slope * curvature; 
+    float sinTheta = 1.f/std::sqrt(1.f + sqr(cotTheta));
+    float cosTheta = cotTheta*sinTheta;
     
-    if (areaParallelogram(p[0] - c, p[1] - c) < 0) curvature = -curvature;
+    if (areaParallelogram(v[0], v[1] ) < 0)  sinTheta = - sinTheta;
         
-    for(int ip = 0; ip!=3;  ip++) {
-      Global2DVector v = (p[ip] - c)*(curvature*sinTheta);
-      globalDirs[ip] = GlobalVector(-v.y(),
-				    v.x(),
+    for(int i = 0; i!=3;  i++) {
+      Vector2D vl = v[i]*(curvature*sinTheta);
+      globalDirs[i] = GlobalVector(-vl.y(),
+				    vl.x(),
 				    cosTheta
 				    );
     }
