@@ -2,6 +2,7 @@
 #define HiggsAnalysis_CombinedLimit_CachingNLL_h
 
 #include <memory>
+#include <map>
 #include <RooAbsPdf.h>
 #include <RooAddPdf.h>
 #include <RooRealSumPdf.h>
@@ -107,6 +108,8 @@ class CachingSimNLL  : public RooAbsReal {
         virtual RooArgSet* getObservables(const RooArgSet* depList, Bool_t valueOnly = kTRUE) const ;
         virtual RooArgSet* getParameters(const RooArgSet* depList, Bool_t stripDisconnected = kTRUE) const ;
         void splitWithWeights(const RooAbsData &data, const RooAbsCategory& splitCat, Bool_t createEmptyDataSets) ;
+        static void setNoDeepLogEvalError(bool noDeep) { noDeepLEE_ = noDeep; }
+        friend class CachingAddNLL;
     private:
         void setup_();
         RooSimultaneous   *pdfOriginal_;
@@ -119,6 +122,8 @@ class CachingSimNLL  : public RooAbsReal {
         std::vector<CachingAddNLL*>     pdfs_;
         std::auto_ptr<TList>            dataSets_;
         std::vector<RooDataSet *>       datasets_;
+        static bool noDeepLEE_;
+        static bool hasError_;
 };
 
 }

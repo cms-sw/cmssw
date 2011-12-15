@@ -4,15 +4,23 @@
 #include <RooCategory.h>
 #include <RooDataSet.h>
 #include <RooProduct.h>
+#include "../interface/ProfilingTools.h"
 
 //---- Uncomment this to get a '.' printed every some evals
 //#define TRACE_NLL_EVALS
 
 //---- Uncomment this and run with --perfCounters to get cache statistics
 //#define DEBUG_CACHE
-#ifdef DEBUG_CACHE
+
+//---- Uncomment to enable Kahan's summation (if enabled at runtime with --X-rtd = ...
+// http://en.wikipedia.org/wiki/Kahan_summation_algorithm
+//#define ADDNLL_KAHAN_SUM
+//#define SIMNLL_KAHAN_SUM
 #include "../interface/ProfilingTools.h"
-#endif
+
+//std::map<std::string,double> cacheutils::CachingAddNLL::offsets_;
+bool cacheutils::CachingSimNLL::noDeepLEE_ = false;
+bool cacheutils::CachingSimNLL::hasError_  = false;
 
 cacheutils::ArgSetChecker::ArgSetChecker(const RooAbsCollection &set) 
 {
@@ -323,17 +331,38 @@ cacheutils::CachingAddNLL::evaluate() const
     }
     // then get the final nll
     double ret = 0;
+    #ifdef ADDNLL_KAHAN_SUM
+    double compensation = 0;
+    #endif
     for ( its = bgs, itw = bgw ; its != eds ; ++its, ++itw ) {
-        if (*itw != 0 && *its == 0) { std::cerr << "WARNING: underflow to zero" << std::endl; logEvalError("Number of events is negative"); }
-        if (*itw) ret += (*itw) * (*its == 0 ? -9e9 : log( ((*its) / sumCoeff) ));
+        if (*itw == 0) continue;
+        if (!isnormal(*its) || *its <= 0) {
+            std::cerr << "WARNING: underflow to " << *its << " in " << GetName() << std::endl; 
+            if (!CachingSimNLL::noDeepLEE_) logEvalError("Number of events is negative or error"); else CachingSimNLL::hasError_ = true;
+        }
+        double thispiece = (*itw) * (*its <= 0 ? -9e9 : log( ((*its) / sumCoeff) ));
+        #ifdef ADDNLL_KAHAN_SUM
+        static bool do_kahan = runtimedef::get("ADDNLL_KAHAN_SUM");
+        if (do_kahan) {
+            double kahan_y = thispiece  - compensation;
+            double kahan_t = ret + kahan_y;
+            double kahan_d = (kahan_t - ret);
+            compensation = kahan_d - kahan_y;
+            ret  = kahan_t;
+        } else {
+            ret += thispiece;
+        }
+        #else
+        ret += thispiece;
+        #endif
     }
     // then flip sign
     ret = -ret;
     // std::cout << "AddNLL for " << pdf_->GetName() << ": " << ret << std::endl;
     // and add extended term: expected - observed*log(expected);
     double expectedEvents = (isRooRealSum_ ? pdf_->getNorm(data_->get()) : sumCoeff);
-    if (expectedEvents < 0) {
-        logEvalError("Expected number of events is negative");
+    if (expectedEvents <= 0) {
+        if (!CachingSimNLL::noDeepLEE_) logEvalError("Expected number of events is negative"); else CachingSimNLL::hasError_ = true;
         expectedEvents = 1e-6;
     }
     //ret += expectedEvents - UInt_t(sumWeights_) * log(expectedEvents); // no, doesn't work with Asimov dataset
@@ -353,10 +382,26 @@ cacheutils::CachingAddNLL::setData(const RooAbsData &data)
     weights_.resize(data.numEntries());
     partialSum_.resize(data.numEntries());
     std::vector<Double_t>::iterator itw = weights_.begin();
+    #ifdef ADDNLL_KAHAN_SUM
+    double compensation = 0;
+    #endif
     for (int i = 0, n = data.numEntries(); i < n; ++i, ++itw) {
         data.get(i);
         *itw = data.weight();
+        #ifdef ADDNLL_KAHAN_SUM
+        static bool do_kahan = runtimedef::get("ADDNLL_KAHAN_SUM");
+        if (do_kahan) {
+            double kahan_y = *itw - compensation;
+            double kahan_t = sumWeights_ + kahan_y;
+            double kahan_d = (kahan_t - sumWeights_);
+            compensation = kahan_d - kahan_y;
+            sumWeights_  = kahan_t;
+        } else {
+            sumWeights_ += *itw;
+        }
+        #else
         sumWeights_ += *itw;
+        #endif
     }
     for (std::vector<CachingPdf>::iterator itp = pdfs_.begin(), edp = pdfs_.end(); itp != edp; ++itp) {
         itp->setDataDirty();
@@ -403,6 +448,9 @@ cacheutils::CachingSimNLL::clone(const char *name) const
 void
 cacheutils::CachingSimNLL::setup_() 
 {
+    // Allow runtime-flag to switch off logEvalErrors
+    noDeepLEE_ = runtimedef::get("SIMNLL_NO_LEE");
+
     RooAbsPdf *pdfclone = utils::fullClonePdf(pdfOriginal_, piecesForCloning_);
     std::auto_ptr<RooArgSet> params(pdfclone->getParameters(*dataOriginal_));
     params_.add(*params);
@@ -460,19 +508,53 @@ cacheutils::CachingSimNLL::evaluate() const
     PerfCounter::add("CachingSimNLL::evaluate called");
 #endif
     double ret = 0;
+    #ifdef SIMNLL_KAHAN_SUM
+    double compensation = 0;
+    #endif
     for (std::vector<CachingAddNLL*>::const_iterator it = pdfs_.begin(), ed = pdfs_.end(); it != ed; ++it) {
         if (*it != 0) {
             double nllval = (*it)->getVal();
             // what sanity check could I put here?
+            #ifdef SIMNLL_KAHAN_SUM
+            static bool do_kahan = runtimedef::get("SIMNLL_KAHAN_SUM");
+            if (do_kahan) {
+                double kahan_y = nllval - compensation;
+                double kahan_t = ret + kahan_y;
+                double kahan_d = (kahan_t - ret);
+                compensation = kahan_d - kahan_y;
+                ret  = kahan_t;
+            } else {
+                ret += nllval;
+            }
+            #else
             ret += nllval;
+            #endif
         }
     }
     if (!constrainPdfs_.empty()) {
+        #ifdef SIMNLL_KAHAN_SUM
+        compensation = 0;
+        #endif
         for (std::vector<RooAbsPdf *>::const_iterator it = constrainPdfs_.begin(), ed = constrainPdfs_.end(); it != ed; ++it) { 
             double pdfval = (*it)->getVal(nuis_);
-            if (pdfval == 0) logEvalError((std::string("Constraint pdf ")+(*it)->GetName()+" evaluated to zero").c_str());
-            //ret -= (pdfval > 1e-7 ? log(pdfval) : log(1e-7)-pdfval);
+            if (!isnormal(pdfval) || pdfval <= 0) {
+                if (!noDeepLEE_) logEvalError((std::string("Constraint pdf ")+(*it)->GetName()+" evaluated to zero, negative or error").c_str());
+                pdfval = 1e-9;
+            }
+            #ifdef SIMNLL_KAHAN_SUM
+            static bool do_kahan = runtimedef::get("SIMNLL_KAHAN_SUM");
+            if (do_kahan) {
+                double kahan_y = -log(pdfval) - compensation;
+                double kahan_t = ret + kahan_y;
+                double kahan_d = (kahan_t - ret);
+                compensation = kahan_d - kahan_y;
+                ret  = kahan_t;
+            } else {
+                ret -= log(pdfval);
+            }
+            #else
             ret -= log(pdfval);
+            #endif
         }
     }
 #ifdef TRACE_NLL_EVALS
