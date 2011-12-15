@@ -30,14 +30,14 @@ const  char* getFireworksSamplePath( bool isUCSD)
   }
   else
   {
-    TString versionFileName("data/version.txt");
-    fireworks::setPath(versionFileName);
+    TString versionFileName = gSystem->Getenv("CMSSW_BASE");
+    versionFileName += "/src/Fireworks/Core/data/version.txt";
     ifstream fs(versionFileName);
     TString infoText;
     infoText.ReadLine(fs);
     fs.close();
 
-    if (strncmp(gSystem->Getenv("CMSSW_VERSION"), "4.4", 3) == 0) 
+    if (strncmp(infoText.Data(), "4.4", 3) == 0) 
       return isUCSD ? "http://fireworks.web.cern.ch/fireworks/samples-4.2/ " :  "http://uaf-2.t2.ucsd.edu/fireworks-4.2/";
     else 
       return isUCSD ? "http://fireworks.web.cern.ch/fireworks/samples-5.0/" : "http://uaf-2.t2.ucsd.edu/fireworks/5.0/";
