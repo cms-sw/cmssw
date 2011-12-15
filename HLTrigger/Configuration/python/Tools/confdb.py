@@ -580,6 +580,10 @@ process = HLTrigger.Configuration.customizeHLTforL1Emulator.%(CustomHLT)s( proce
 %(process)shltOutputFULL = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputFULL.root" ),
     fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        dataTier = cms.untracked.string( 'RECO' ),
+        filterName = cms.untracked.string( '' )
+    ),
     outputCommands = cms.untracked.vstring( 'keep *' )
 )
 %(process)sFULLOutput = cms.EndPath( %(process)shltOutputFULL )
