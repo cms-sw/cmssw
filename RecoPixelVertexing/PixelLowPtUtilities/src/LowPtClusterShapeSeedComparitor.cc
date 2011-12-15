@@ -40,7 +40,7 @@ namespace {
   /*****************************************************************************/
 
   inline 
-  bool getGlobalDirs(GlobalPoint const * g,GlobalVector * globalDirs)
+  bool getGlobalDirs(GlobalPoint const * g, GlobalVector * globalDirs)
   {
     
     
@@ -48,7 +48,7 @@ namespace {
     CircleFromThreePoints circle(g[0],g[1],g[2]);
     
     float curvature = circle.curvature();
-    if(curvature = 0.) {
+    if(0.f == curvature) {
       LogDebug("LowPtClusterShapeSeedComparitor")<<"the curvature is null:"
 						 <<"\n point1: "<<g[0]
 						 <<"\n point2: "<<g[1]
@@ -80,10 +80,10 @@ namespace {
     float sinTheta =       1. / coshEta;
     float cosTheta = cotTheta * sinTheta;
     
-    flot dir = (areaParallelogram(p[0] - c, p[1] - c) > 0) ? 1 : -1;
+    if (areaParallelogram(p[0] - c, p[1] - c) < 0) curvature = -curvature;
         
     for(int ip = 0; ip!=3;  ip++) {
-      Global2DVector v = (p[ip] - c)*(curvature*dir*sinTheta);
+      Global2DVector v = (p[ip] - c)*(curavture*sinTheta);
       globalDirs[ip] = GlobalVector(-v.y(),
 				    v.x(),
 				    cosTheta
