@@ -2,8 +2,8 @@
  *  Class:DQMGenericClient 
  *
  *
- *  $Date: 2011/07/15 08:33:35 $
- *  $Revision: 1.28 $
+ *  $Date: 2011/11/16 08:13:09 $
+ *  $Revision: 1.29 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -743,11 +743,12 @@ void DQMGenericClient::limitedFit(MonitorElement * srcME, MonitorElement * meanM
 
       meanME->setBinContent(i, par[1]);
       meanME->setBinEntries(i, 1.);
-      meanME->setBinError(i, err[1]);
+      meanME->setBinError(i,sqrt(err[1]*err[1]+par[1]*par[1]));
 
       sigmaME->setBinContent(i, par[2]);
       sigmaME->setBinEntries(i, 1.);
-      sigmaME->setBinError(i, err[2]);
+      sigmaME->setBinError(i,sqrt(err[2]*err[2]+par[2]*par[2]));
+
       if(fitFcn) delete fitFcn;
       if(histoY) delete histoY;
     }
