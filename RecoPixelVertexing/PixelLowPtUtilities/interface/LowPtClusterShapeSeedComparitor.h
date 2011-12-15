@@ -16,10 +16,6 @@ typedef Vector2DBase<float,GlobalTag> Global2DVector;
 
 namespace edm { class ParameterSet; class EventSetup; }
 
-class TrackerGeometry;
-class TrackingRecHit;
-class ClusterShapeHitFilter;
-
 class LowPtClusterShapeSeedComparitor : public SeedComparitor
 {
  public:
@@ -28,14 +24,6 @@ class LowPtClusterShapeSeedComparitor : public SeedComparitor
   virtual bool compatible(const SeedingHitSet &hits, const edm::EventSetup &es);
 
  private:
-  float areaParallelogram(const Global2DVector & a,
-                          const Global2DVector & b);
-  std::vector<GlobalVector>
-    getGlobalDirs(const std::vector<GlobalPoint> & globalPoss);
-  std::vector<GlobalPoint>
-    getGlobalPoss(const TransientTrackingRecHit::ConstRecHitContainer & recHits);
- 
-   const ClusterShapeHitFilter * theFilter;
 };
 
 #endif
