@@ -57,16 +57,14 @@ namespace {
     }
 
    // Get 2d points
-    Vector2D p[3], v[3];
-    for(int i=0; i!=3; i++)
-      p[i] =  g[i].basicVector().xy();
- 
+    Vector2D p[3];
     Vector2D c  = circle.center();
-    for(int ip = 0; ip!=3;  ip++)
-      v[ip] = p[ip] - c;    
+    for(int i=0; i!=3; i++)
+      p[i] =  g[i].basicVector().xy() -c;
+ 
 
-    float rad2 = v[0].mag2();
-    float area = std::abs(areaParallelogram(p[1] - p[0], v[1]));
+    float rad2 = p[0].mag2();
+    float area = std::abs(areaParallelogram(p[1] - p[0], p[1]));
     
     float a12;
     const float pi2 = M_PI/2;
@@ -81,10 +79,10 @@ namespace {
     float sinTheta = 1.f/std::sqrt(1.f + sqr(cotTheta));
     float cosTheta = cotTheta*sinTheta;
     
-    if (areaParallelogram(v[0], v[1] ) < 0)  sinTheta = - sinTheta;
+    if (areaParallelogram(p[0], p[1] ) < 0)  sinTheta = - sinTheta;
         
     for(int i = 0; i!=3;  i++) {
-      Vector2D vl = v[i]*(curvature*sinTheta);
+      Vector2D vl = p[i]*(curvature*sinTheta);
       globalDirs[i] = GlobalVector(-vl.y(),
 				    vl.x(),
 				    cosTheta
