@@ -46,18 +46,18 @@
   <use name="DetectorDescription/RegressionTest"/>
 </bin>
 
-#<bin name=test_DDD_dump_const file=const_dump.cpp">
-# <use name=DetectorDescription/Core>
-# <use name=DetectorDescription/ExprAlgo>
-# <use name=DetectorDescription/Algorithm>
-# <use name=DetectorDescription/RegressionTest>
-# <use name=DetectorDescription/Parser>
-# <use name=xerces-c>
-# <use name=FWCore/Framework>
-# <use name=FWCore/Utilities>
-# <use name=FWCore/PluginManager>
-# <use name=FWCore/ParameterSet>
-# <use name=FWCore/PythonParameterSet>
-# <use name=FWCore/ServiceRegistry>
-# <use name=FWCore/MessageLogger>
-#</bin>
+<bin file="const_dump.cpp">
+ <use name="DetectorDescription/Core"/>
+ <use name="DetectorDescription/ExprAlgo"/>
+ <use name="DetectorDescription/Algorithm"/>
+ <use name="DetectorDescription/RegressionTest"/>
+ <use name="DetectorDescription/Parser"/>
+ <use name="xerces-c"/>
+ <use name="FWCore/Framework"/>
+ <use name="FWCore/Utilities"/>
+ <use name="FWCore/PluginManager"/>
+ <use name="FWCore/ParameterSet"/>
+ <use name="FWCore/PythonParameterSet"/>
+ <use name="FWCore/ServiceRegistry"/>
+ <use name="FWCore/MessageLogger"/>
+</bin>

@@ -4,7 +4,9 @@
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/FIPConfiguration.h"
 #include "DetectorDescription/Core/src/DDCheck.h"
-#include "DetectorDescription/Core/interface/DDD.h"
+#include "DetectorDescription/Core/interface/DDConstant.h"
+#include "DetectorDescription/Core/interface/DDVector.h"
+//#include "DetectorDescription/Core/interface/DDD.h"
 //#include "FWCore/PluginManager/interface/PluginManager.h"
 //#include "FWCore/PluginManager/interface/standard.h"
 // DDD Interface in CARF
@@ -89,7 +91,7 @@ int main(int argc, char *argv[])
 
     boost::shared_ptr<std::vector<edm::ParameterSet> > pServiceSets;
     boost::shared_ptr<edm::ParameterSet>          params_;
-    edm::makeParameterSets(config, params_, pServiceSets);
+    edm::makeParameterSets(config, params_);
 
     // D.  Create the services.
     edm::ServiceToken tempToken(edm::ServiceRegistry::createSet(*pServiceSets.get()));
@@ -120,7 +122,8 @@ int main(int argc, char *argv[])
     // Initialize a DDL Schema aware parser for DDL-documents
     // (DDL ... Detector Description Language)
     cout << "initialize DDL parser" << endl;
-    DDLParser* myP = DDLParser::instance();
+    DDCompactView cpv;
+    DDLParser myP(cpv);// = DDLParser::instance();
 
     //     cout << "about to set configuration" << endl;
     /* The configuration file tells the parser what to parse.
@@ -138,9 +141,10 @@ int main(int argc, char *argv[])
       configfile = argv[1];
     }
     //    GeometryConfiguration documentProvider("configuration.xml");
-    FIPConfiguration fp;
+    //    FIPConfiguration fp;
+    FIPConfiguration fp(cpv);
     fp.readConfig(configfile);
-    int parserResult = myP->parse(fp);
+    int parserResult = myP.parse(fp);
     cout << "done parsing" << std::endl;
     cout.flush();
     if (parserResult != 0) {
@@ -151,18 +155,18 @@ int main(int argc, char *argv[])
   
     cout << endl << endl << "Start checking!" << endl << endl;
  
-    DDErrorDetection ed;
-    ed.scan();
-    ed.report(cout);
+    DDErrorDetection ed(cpv);
+    //ed.scan();
+    ed.report( cpv, std::cout);//cout);
 
-    Constant::createConstantsFromEvaluator();  // DDConstants are not being created by anyone... it confuses me!
-    Constant::iterator<Constant> cit(Constant::begin()), ced(Constant::end());
+    DDConstant::createConstantsFromEvaluator();  // DDConstants are not being created by anyone... it confuses me!
+    DDConstant::iterator<DDConstant> cit(DDConstant::begin()), ced(DDConstant::end());
     for(; cit != ced; ++cit) {
       cout << *cit << endl;
     }
 
-    Vector::iterator<Vector> vit;
-    Vector::iterator<Vector> ved(Vector::end());
+    DDVector::iterator<DDVector> vit;
+    DDVector::iterator<DDVector> ved(DDVector::end());
     if ( vit == ved ) std::cout << "No DDVectors found." << std::endl;
     for (; vit != ved; ++vit) {
       if (vit->isDefined().second) {
