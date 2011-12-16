@@ -12,9 +12,9 @@
  *          Florent Lacroix, University of Illinois at Chicago
  *          Christian Veelken, LLR
  *
- * \version $Revision: 1.4 $
+ * \version $Revision: 1.5 $
  *
- * $Id: PFJetMETcorrInputProducerT.h,v 1.4 2011/10/14 10:14:35 veelken Exp $
+ * $Id: PFJetMETcorrInputProducerT.h,v 1.5 2011/11/20 10:25:47 veelken Exp $
  *
  */
 
@@ -143,7 +143,8 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
       static PFJetMETcorrInputProducer_namespace::InputTypeCheckerT<T> checkInputType;
       checkInputType(rawJet);
       
-      if ( skipEM_ && rawJet.photonEnergyFraction() > skipEMfractionThreshold_ ) continue;
+      double emEnergyFraction = rawJet.chargedEmEnergyFraction() + rawJet.neutralEmEnergyFraction();
+      if ( skipEM_ && emEnergyFraction > skipEMfractionThreshold_ ) continue;
       
       static PFJetMETcorrInputProducer_namespace::RawJetExtractorT<T> rawJetExtractor;
       reco::Candidate::LorentzVector rawJetP4 = rawJetExtractor(rawJet);
