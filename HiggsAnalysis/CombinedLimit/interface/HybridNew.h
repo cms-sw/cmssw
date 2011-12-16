@@ -91,6 +91,7 @@ private:
   std::pair<double,double> eval(RooStats::HypoTestResult &hcres) ;
   void applyExpectedQuantile(RooStats::HypoTestResult &hcres);
   void applyClsQuantile(RooStats::HypoTestResult &hcres);
+  void applySignalQuantile(RooStats::HypoTestResult &hcres);
   RooStats::HypoTestResult *evalGeneric(RooStats::HybridCalculator &hc, bool forceNoFork=false);
   RooStats::HypoTestResult *evalWithFork(RooStats::HybridCalculator &hc);
   // RooStats::HypoTestResult *evalFrequentist(RooStats::HybridCalculator &hc);  // cross-check implementation, 

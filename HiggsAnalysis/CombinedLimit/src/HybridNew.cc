@@ -20,6 +20,7 @@
 #include "RooRandom.h"
 #include "RooAddPdf.h"
 #include "RooConstVar.h"
+#include "RooMsgService.h"
 #include <RooStats/ModelConfig.h>
 #include <RooStats/HybridCalculator.h>
 #include <RooStats/SimpleLikelihoodRatioTestStat.h>
@@ -99,6 +100,7 @@ LimitAlgo("HybridNew specific options") {
         ("readHybridResults", "Read and merge results from file (requires 'toysFile' or 'grid')")
         ("grid",    boost::program_options::value<std::string>(&gridFile_),            "Use the specified file containing a grid of SamplingDistributions for the limit (implies readHybridResults).\n For --singlePoint or --signif use --toysFile=x.root --readHybridResult instead of this.")
         ("expectedFromGrid", boost::program_options::value<float>(&quantileForExpectedFromGrid_)->default_value(0.5), "Use the grid to compute the expected limit for this quantile")
+        ("signalForSignificance", boost::program_options::value<float>()->default_value(1.0), "Use this value of signal when generating signal toys for expected significance")
         ("clsQuantiles", boost::program_options::value<bool>(&clsQuantiles_)->default_value(clsQuantiles_), "Compute correct quantiles of CLs or CLsplusb instead of assuming they're the same as CLb ones")
         //("importanceSamplingNull", boost::program_options::value<bool>(&importanceSamplingNull_)->default_value(importanceSamplingNull_),  
         //                           "Enable importance sampling for null hypothesis (background only)") 
@@ -147,6 +149,7 @@ void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
         else throw std::invalid_argument("HybridNew: --onlyTestStat works only with --singlePoint or --significance");
     } else if (doSignificance_) {
         workingMode_ = MakeSignificance;
+        rValue_ = vm["signalForSignificance"].as<float>();
     } else {
         workingMode_ = MakeLimit;
     }
@@ -217,7 +220,7 @@ bool HybridNew::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::Mode
 
 bool HybridNew::runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
     HybridNew::Setup setup;
-    std::auto_ptr<RooStats::HybridCalculator> hc(create(w, mc_s, mc_b, data, 1.0, setup));
+    std::auto_ptr<RooStats::HybridCalculator> hc(create(w, mc_s, mc_b, data, rValue_, setup));
     std::auto_ptr<HypoTestResult> hcResult;
     if (readHybridResults_) {
         hcResult.reset(readToysFromFile());
@@ -238,6 +241,7 @@ bool HybridNew::runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s, Ro
         writeToysHere->WriteTObject(new HypoTestResult(*hcResult), name);
         if (verbose) std::cout << "Hybrid result saved as " << name << " in " << writeToysHere->GetFile()->GetName() << " : " << writeToysHere->GetPath() << std::endl;
     }
+    if (expectedFromGrid_) applyExpectedQuantile(*hcResult);
     // I don't need to flip the P-values for significances, only for limits
     hcResult->SetTestStatisticData(hcResult->GetTestStatisticData()+EPS); // issue with < vs <= in discrete models
     double sig   = hcResult->Significance();
@@ -545,12 +549,11 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
 
   RooArgSet  poi(*mc_s->GetParametersOfInterest());
   RooRealVar *r = dynamic_cast<RooRealVar *>(poi.first());
- 
+
   r->setMax(rVal); r->setVal(rVal); 
   if (testStat_ == "LHC" || testStat_ == "Profile") {
     r->setConstant(false); r->setMin(0); 
     if (workingMode_ == MakeSignificance || workingMode_ == MakeSignificanceTestStatistics) {
-        rVal = 0;
         r->setVal(0);
         r->removeMax(); 
     }
@@ -641,8 +644,13 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
   if (fitNuisances_) poiZero.addClone(fitZero->floatParsFinal());
   setup.modelConfig.SetSnapshot(poi);
   setup.modelConfig_bonly.SetSnapshot(poiZero);
-  (const_cast<RooArgSet&>(*setup.modelConfig.GetSnapshot())) = poi;           // make sure we reset the values
-  (const_cast<RooArgSet&>(*setup.modelConfig_bonly.GetSnapshot())) = poiZero; // make sure we reset the values
+  TString poiSnapName  = TString::Format("%s_%s_snapshot", setup.modelConfig.GetName(), poi.GetName());
+  TString poiZSnapName = TString::Format("%s__snapshot",   setup.modelConfig_bonly.GetName());
+  RooFit::MsgLevel level = RooMsgService::instance().globalKillBelow();
+  RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
+  w->defineSet(poiSnapName,  poi ,    true);
+  w->defineSet(poiZSnapName, poiZero ,true);
+  RooMsgService::instance().setGlobalKillBelow(level);
 
   // Create pdfs without nusiances terms, can be used for LEP tests statistics and
   // for generating toys when not generating global observables
@@ -688,7 +696,9 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
           ProfiledLikelihoodTestStatOpt::OneSidedness side = ProfiledLikelihoodTestStatOpt::oneSidedDef;
           if (testStat_ == "LHCFC")   side = ProfiledLikelihoodTestStatOpt::signFlipDef;
           if (testStat_ == "Profile") side = ProfiledLikelihoodTestStatOpt::twoSidedDef;
-          setup.qvar.reset(new ProfiledLikelihoodTestStatOpt(*mc_s->GetObservables(), *mc_s->GetPdf(), mc_s->GetNuisanceParameters(),  *setup.modelConfig.GetSnapshot(),gobsParams,gobs, verbose, side));
+          if (workingMode_ == MakeSignificance) r->setVal(0.0);
+          RooArgSet snapS(poi); 
+          setup.qvar.reset(new ProfiledLikelihoodTestStatOpt(*mc_s->GetObservables(), *mc_s->GetPdf(), mc_s->GetNuisanceParameters(),  snapS, gobsParams,gobs, verbose, side));
       } else {
           setup.qvar.reset(new ProfileLikelihoodTestStat(*mc_s->GetPdf()));
           if (testStat_ == "LHC") {
@@ -731,6 +741,9 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
   if (workingMode_ == MakeSignificance) {
       // need only B toys. just keep a few S+B ones to avoid possible divide-by-zero errors somewhere
       hc->SetToys(nToys_, int(0.01*nToys_)+1);
+      if (fullBToys_) {
+        hc->SetToys(nToys_, nToys_);
+      }      
   } else if (!CLs_) {
       // we need only S+B toys to compute CLs+b
       hc->SetToys(fullBToys_ ? nToys_ : int(0.01*nToys_)+1, nToys_);
@@ -889,7 +902,9 @@ std::pair<double,double> HybridNew::eval(RooStats::HypoTestResult &hcres)
 
 void HybridNew::applyExpectedQuantile(RooStats::HypoTestResult &hcres) {
   if (expectedFromGrid_) {
-      if (clsQuantiles_) {
+      if (workingMode_ == MakeSignificance) {
+          applySignalQuantile(hcres); 
+      } else if (clsQuantiles_) {
           applyClsQuantile(hcres);
       } else {
           std::vector<Double_t> btoys = hcres.GetNullDistribution()->GetSamplingDistribution();
@@ -971,6 +986,14 @@ void HybridNew::applyClsQuantile(RooStats::HypoTestResult &hcres) {
     std::cout << "CLs quantile = " << (CLs_ ? hcres.CLs() : hcres.CLsplusb()) << " for test stat = " << values[index].second << std::endl;
     std::cout << "Computed quantiles in " << timer.RealTime() << " s" << std::endl; 
 #endif
+}
+
+void HybridNew::applySignalQuantile(RooStats::HypoTestResult &hcres) {
+    std::vector<Double_t> stoys = hcres.GetAltDistribution()->GetSamplingDistribution();
+    std::sort(stoys.begin(), stoys.end());
+    Double_t testStat = stoys[std::min<int>(floor(quantileForExpectedFromGrid_ * stoys.size()+0.5), stoys.size())];
+    if (verbose > 0) std::cout << "Text statistics for " << quantileForExpectedFromGrid_ << " quantile: " << testStat << std::endl;
+    hcres.SetTestStatisticData(testStat);
 }
 
 RooStats::HypoTestResult * HybridNew::evalGeneric(RooStats::HybridCalculator &hc, bool noFork) {
