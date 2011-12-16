@@ -33,12 +33,6 @@ GBRTree::GBRTree(const TMVA::DecisionTree *tree)
 
   //special case, root node is terminal, create fake intermediate node at root
   if (fCutIndices.size()==0) {
-    fCutIndices.reserve(nIntermediate);
-    fCutVals.reserve(nIntermediate);
-    fLeftIndices.reserve(nIntermediate);
-    fRightIndices.reserve(nIntermediate);
-    fResponses.reserve(nTerminal);
-    
     fCutIndices.push_back(0);
     fCutVals.push_back(0);
     fLeftIndices.push_back(0);
