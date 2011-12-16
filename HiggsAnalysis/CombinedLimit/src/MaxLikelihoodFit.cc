@@ -30,8 +30,9 @@ std::string MaxLikelihoodFit::name_ = "";
 std::string MaxLikelihoodFit::minos_ = "poi";
 std::string MaxLikelihoodFit::out_ = ".";
 bool        MaxLikelihoodFit::makePlots_ = false;
-std::string MaxLikelihoodFit::signalPdfNames_     = "*signal*";
-std::string MaxLikelihoodFit::backgroundPdfNames_ = "*background*";
+float       MaxLikelihoodFit::rebinFactor_ = 1.0;
+std::string MaxLikelihoodFit::signalPdfNames_     = "shapeSig*";
+std::string MaxLikelihoodFit::backgroundPdfNames_ = "shapeBkg*";
 bool        MaxLikelihoodFit::saveNormalizations_ = false;
 
 
@@ -42,6 +43,7 @@ MaxLikelihoodFit::MaxLikelihoodFit() :
         ("minos",              boost::program_options::value<std::string>(&minos_)->default_value(minos_), "Compute MINOS errors for: 'none', 'poi', 'all'")
         ("out",                boost::program_options::value<std::string>(&out_)->default_value(out_), "Directory to put output in")
         ("plots",              "Make plots")
+        ("rebinFactor",        boost::program_options::value<float>(&rebinFactor_)->default_value(rebinFactor_), "Rebin by this factor before plotting (does not affect fitting!)")
         ("signalPdfNames",     boost::program_options::value<std::string>(&signalPdfNames_)->default_value(signalPdfNames_), "Names of signal pdfs in plots (separated by ,)")
         ("backgroundPdfNames", boost::program_options::value<std::string>(&backgroundPdfNames_)->default_value(backgroundPdfNames_), "Names of background pdfs in plots (separated by ',')")
         ("saveNormalizations",  "Save post-fit normalizations of all components of the pdfs")
@@ -70,7 +72,7 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
   // Make pre-plots before the fit
   r->setVal(preFitValue_);
   if (makePlots_) {
-      std::vector<RooPlot *> plots = utils::makePlots(*mc_s->GetPdf(), data, signalPdfNames_.c_str(), backgroundPdfNames_.c_str());
+      std::vector<RooPlot *> plots = utils::makePlots(*mc_s->GetPdf(), data, signalPdfNames_.c_str(), backgroundPdfNames_.c_str(), rebinFactor_);
       for (std::vector<RooPlot *>::iterator it = plots.begin(), ed = plots.end(); it != ed; ++it) {
           (*it)->Draw(); 
           c1->Print((out_+"/"+(*it)->GetName()+"_prefit.png").c_str());
@@ -127,7 +129,7 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
       fitOut->WriteTObject(res_b, "fit_b");
 
       if (makePlots_) {
-          std::vector<RooPlot *> plots = utils::makePlots(*mc_b->GetPdf(), data, signalPdfNames_.c_str(), backgroundPdfNames_.c_str());
+          std::vector<RooPlot *> plots = utils::makePlots(*mc_b->GetPdf(), data, signalPdfNames_.c_str(), backgroundPdfNames_.c_str(), rebinFactor_);
           for (std::vector<RooPlot *>::iterator it = plots.begin(), ed = plots.end(); it != ed; ++it) {
               c1->cd(); (*it)->Draw(); 
               c1->Print((out_+"/"+(*it)->GetName()+"_fit_b.png").c_str());
@@ -178,7 +180,7 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
       fitOut->WriteTObject(res_s, "fit_s");
 
       if (makePlots_) {
-          std::vector<RooPlot *> plots = utils::makePlots(*mc_s->GetPdf(), data, signalPdfNames_.c_str(), backgroundPdfNames_.c_str());
+          std::vector<RooPlot *> plots = utils::makePlots(*mc_s->GetPdf(), data, signalPdfNames_.c_str(), backgroundPdfNames_.c_str(), rebinFactor_);
           for (std::vector<RooPlot *>::iterator it = plots.begin(), ed = plots.end(); it != ed; ++it) {
               c1->cd(); (*it)->Draw(); 
               c1->Print((out_+"/"+(*it)->GetName()+"_fit_s.png").c_str());

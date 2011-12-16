@@ -28,6 +28,7 @@ protected:
 
   static std::string out_; 
   static bool        makePlots_;
+  static float       rebinFactor_;
   static std::string signalPdfNames_, backgroundPdfNames_;
   static bool        saveNormalizations_;
 
