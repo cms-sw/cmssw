@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# This cfi contains everything needed to use the VolumeBased magnetic
+# This cfi contains everything needed to use the OBSOLETE VolumeBased magnetic
 # field engine version 090322 (based on 2007 geometry, model with extended R and Z)
 
 magfield = cms.ESSource("XMLIdealGeometryESSource",
