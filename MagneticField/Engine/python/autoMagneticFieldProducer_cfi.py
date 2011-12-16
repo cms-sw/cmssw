@@ -54,7 +54,7 @@ VBF0 = cms.ESProducer("VolumeBasedMagneticFieldESProducer",
     useParametrizedTrackerField = cms.bool(True),
     paramLabel = cms.string('slave_0'),
     version = cms.string('grid_1103l_071212_2t'),
-    geometryVersion = cms.int32(90322),
+    geometryVersion = cms.int32(71212),
     debugBuilder = cms.untracked.bool(False),
     cacheLastVolume = cms.untracked.bool(True),
     overrideMasterSector = cms.bool(True),
@@ -81,6 +81,7 @@ VBF35.label = '071212_3_5t'
 from MagneticField.Engine.ScalingFactors_090322_2pi_090520_cfi import *
 VBF38 = VBF0.clone()
 VBF38.version = 'grid_1103l_090322_3_8t'
+VBF38.geometryVersion = 90322
 VBF38.paramLabel = 'slave_38'
 VBF38.label = '090322_3_8t'
 VBF38.overrideMasterSector = False
