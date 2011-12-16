@@ -207,10 +207,10 @@ public:
     L1RpcPACsCntEnum m_PACsCnt; //Used configuration version.
 
     void destroy(){
-      for (int tower = 0; tower < RPCConst::m_TOWER_COUNT; tower++) {
-        for (int logSector = 0; logSector < m_SectorsCnt; logSector++) {
-          for (int logSegment = 0; logSegment < m_SegmentCnt; logSegment++) {
-            TPacType* pac = m_PacTab[tower][logSector][logSegment];
+      for (size_t tower = 0; tower < m_PacTab.size() ; ++tower) {
+        for (size_t logSector = 0; logSector < m_PacTab.at(tower).size(); logSector++) {
+          for (size_t logSegment = 0; logSegment < m_PacTab.at(tower).at(logSector).size() ; logSegment++) {
+            TPacType* pac = m_PacTab.at(tower).at(logSector).at(logSegment);
             delete pac;
           }
         }
