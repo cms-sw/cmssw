@@ -4,6 +4,58 @@ getExternals()
 {
    mkdir  ${tard}/external
 
+   # external libraries
+   extdl=${tard}/external/lib
+   mkdir $extdl
+   
+
+ 
+
+  ext=`dirname ${CMSSW_DATA_PATH}`/external
+   ls -l $CMSSW_RELEASE_BASE/external/$SCRAM_ARCH/lib/* > $HOME/extlist
+
+     echo "=========================================================="
+   echo "=========================================================="
+    # on linux ship compiler
+   gccd=${tard}/external
+   if [ `uname` = "Linux" ]; then
+      export gcmd=`which gcc`
+      gv=`perl -e ' if ($ENV{gcmd} =~ /\/gcc\/(.*)\/bin\/gcc/) { print $1;}'`
+      printf "gcc version $gv"
+      if [ -z "$gv" ]; then
+            echo "can't get gcc version"
+            exit;
+	fi
+      echo "Copy gcc from  $ext/gcc/${gv}/ to ${gccd}"
+      cp -a $ext/gcc/${gv}/ ${gccd}/gcc
+   fi
+  
+   echo "=========================================================="
+   echo "=========================================================="
+
+
+   echo "Copying external libraries from $ext to $extdl."
+   # cp -a $ext/*/*/lib/*  ${tard}/external/lib
+   for i in boost bz2lib castor clhep dcap db4 dcap \
+        expat fftw3 gdbm gsl hepmc\
+   	libjpg libpng libtiff libungif \
+   	openldap openssl pcre \
+   	sigcpp sqlite xrootd zlib
+   do
+        export i;
+        ever=`grep $i $HOME/extlist |  perl -ne 'if ($_ =~ /$ENV{i}\/(.*)\/lib\/(.*)/ ) {print "$1\n"; last;}'`
+        echo "copy $i $ever"
+        if [ -z "$ever" ]; then
+            echo "can't get externals fro $i"
+            exit;
+	fi
+        echo "cp -a $ext/$i/$ever/lib/* === ${extdl}"
+        cp -a $ext/$i/$ever/lib/* ${extdl}
+   done
+
+
+   echo "=========================================================="
+   echo "=========================================================="
    # can be linked or installed at $ROOTSYS   
    ROOTSYS=`echo $ROOTSYS |  sed 's/\/$//'` # remove '/' character  at end of string, becuse it invalidates symblic link interpretation
    origr=$ROOTSYS
@@ -19,33 +71,9 @@ getExternals()
    echo "copy root from $origr to ${tard}/external/root"
    cp -a $origr  ${tard}/external/root
    
+ 
    
-   # external libraries
-   echo "=========================================================="
-   echo "=========================================================="
-   extdl=${tard}/external/lib
-   mkdir $extdl
-   
-   ext=`dirname ${CMSSW_DATA_PATH}`/external
-   
-   # on linux ship compiler
-   gccd=${tard}/external
-   if [ `uname` = "Linux" ]; then
-      echo "Copy gcc from  $ext/gcc/4.3.4-cms/ to ${gccd}"
-      cp -a $ext/gcc/4.3.4-cms/ ${gccd}/gcc
-   fi
-   
-   echo "Copying external libraries from $ext to $extdl."
-   # cp -a $ext/*/*/lib/*  ${tard}/external/lib
-   for i in boost bz2lib castor clhep dcap db4 dcap \
-   	elementtree expat fftw3 gdbm gsl hepmc\
-   	libjpg libpng libtiff libungif \
-   	openldap openssl pcre \
-   	sigcpp sqlite xrootd zlib
-   do
-   	echo "cp -a $ext/$i/*/lib/* === ${extdl}"
-   	cp -a $ext/$i/*/lib/* ${extdl}
-   done
+   rm $HOME/extlist;
    
 }
    
