@@ -37,7 +37,7 @@ public:
   typedef TwoBodyDecayTrajectory::ConstRecHitCollection ConstRecHitCollection;
 
   TwoBodyDecayTrajectoryFactory(const edm::ParameterSet &config);
-  ~TwoBodyDecayTrajectoryFactory() {}
+  ~TwoBodyDecayTrajectoryFactory();
 
   /// Produce the trajectories.
   virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
@@ -93,6 +93,10 @@ TwoBodyDecayTrajectoryFactory::TwoBodyDecayTrajectoryFactory( const edm::Paramet
   theConstructTsosWithErrorsFlag = config.getParameter< bool >( "ConstructTsosWithErrors" );
 }
 
+TwoBodyDecayTrajectoryFactory::~TwoBodyDecayTrajectoryFactory()
+{
+  delete theFitter;
+}
 
 const TrajectoryFactoryBase::ReferenceTrajectoryCollection
 TwoBodyDecayTrajectoryFactory::trajectories(const edm::EventSetup &setup,
