@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_4_2/HIon/V48 (CMSSW_4_4_0_HLT23)
+# /dev/CMSSW_5_0_0/HIon/V1 (CMSSW_4_4_0_HLT23)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V48')
+  tableName = cms.string('/dev/CMSSW_5_0_0/HIon/V1')
 )
 
 streams = cms.PSet( 
@@ -810,7 +810,7 @@ hltESPESUnpackerWorker = cms.ESProducer( "ESUnpackerWorkerESProducer",
 )
 hltESPEcalRegionCablingESProducer = cms.ESProducer( "EcalRegionCablingESProducer",
   appendToDataLabel = cms.string( "" ),
-  esMapping = cms.PSet(  LookupTable = cms.FileInPath( "EventFilter/ESDigiToRaw/data/ES_lookup_table.dat" ) )
+  esMapping = cms.PSet(  LookupTable = cms.untracked.FileInPath( "EventFilter/ESDigiToRaw/data/ES_lookup_table.dat" ) )
 )
 hltESPFastSteppingHelixPropagatorAny = cms.ESProducer( "SteppingHelixPropagatorESProducer",
   ComponentName = cms.string( "hltESPFastSteppingHelixPropagatorAny" ),
@@ -2460,13 +2460,19 @@ hltEcalRegionalRestFEDs = cms.EDProducer( "EcalRawToRecHitRoI",
     type = cms.string( "all" ),
     doES = cms.bool( False ),
     sourceTag_es = cms.InputTag( "NotNeededoESfalse" ),
-    MuJobPSet = cms.PSet(  ),
+    MuJobPSet = cms.PSet( 
+      regionEtaMargin = cms.double( 1.0 ),
+      regionPhiMargin = cms.double( 1.0 ),
+      Ptmin = cms.double( 0.0 ),
+      Source = cms.InputTag( "l1extraParticles" )
+    ),
     JetJobPSet = cms.VPSet( 
     ),
     EmJobPSet = cms.VPSet( 
     ),
     CandJobPSet = cms.VPSet( 
-    )
+    ),
+    MuonJobPSet = cms.PSet(  )
 )
 hltEcalRecHitAll = cms.EDProducer( "EcalRawToRecHitProducer",
     lazyGetterTag = cms.InputTag( "hltEcalRawToRecHitFacility" ),
@@ -5822,7 +5828,8 @@ hltHIPrimTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
       numberMeasurementsForFit = cms.int32( 4 )
     ),
     cleanTrajectoryAfterInOut = cms.bool( True ),
-    maxNSeeds = cms.uint32( 100000 )
+    maxNSeeds = cms.uint32( 100000 ),
+    maxSeedsBeforeCleaning = cms.uint32( 1000 )
 )
 hltHIGlobalPrimTracks = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
