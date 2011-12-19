@@ -13,7 +13,7 @@
 //
 // Original Author:  Jason Michael Slaunwhite,512 1-008,`+41227670494,
 //         Created:  Fri Aug  5 10:34:47 CEST 2011
-// $Id: OccupancyPlotter.cc,v 1.8 2011/10/26 13:13:45 abrinke1 Exp $
+// $Id: OccupancyPlotter.cc,v 1.9 2011/12/19 16:18:33 abrinke1 Exp $
 //
 //
 
@@ -231,7 +231,7 @@ OccupancyPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 		 fillHltMatrix(datasetNames[iPD],pathName,foundObject.eta(),foundObject.phi(),first_count);
 		      
 		 keyTracker[iKey] = iKey;
-		 }
+		 
 
                }// end for each key               
              }// end if filter in aodTriggerEvent
