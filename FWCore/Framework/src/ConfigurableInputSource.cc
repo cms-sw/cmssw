@@ -14,17 +14,17 @@
 
 namespace edm {
   //used for defaults
-  static unsigned int const kNanoSecPerSec = 1000000000U;
-  static unsigned int const kAveEventPerSec = 200U;
+  static unsigned long long const kNanoSecPerSec = 1000000000ULL;
+  static unsigned long long const kAveEventPerSec = 200ULL;
   
   ConfigurableInputSource::ConfigurableInputSource(ParameterSet const& pset,
 				       InputSourceDescription const& desc, bool realData) :
     InputSource(pset, desc),
     numberEventsInRun_(pset.getUntrackedParameter<unsigned int>("numberEventsInRun", remainingEvents())),
     numberEventsInLumi_(pset.getUntrackedParameter<unsigned int>("numberEventsInLuminosityBlock", remainingEvents())),
-    presentTime_(pset.getUntrackedParameter<unsigned int>("firstTime", 1)),  //time in ns
+    presentTime_(pset.getUntrackedParameter<unsigned long long>("firstTime", 1ULL)),  //time in ns
     origTime_(presentTime_),
-    timeBetweenEvents_(pset.getUntrackedParameter<unsigned int>("timeBetweenEvents", kNanoSecPerSec/kAveEventPerSec)),
+    timeBetweenEvents_(pset.getUntrackedParameter<unsigned long long>("timeBetweenEvents", kNanoSecPerSec/kAveEventPerSec)),
     eventCreationDelay_(pset.getUntrackedParameter<unsigned int>("eventCreationDelay", 0)),
     numberEventsInThisRun_(0),
     numberEventsInThisLumi_(0),
@@ -296,8 +296,8 @@ namespace edm {
   ConfigurableInputSource::fillDescription(ParameterSetDescription& desc) {
     desc.addOptionalUntracked<unsigned int>("numberEventsInRun")->setComment("Number of events to generate in each run.");
     desc.addOptionalUntracked<unsigned int>("numberEventsInLuminosityBlock")->setComment("Number of events to generate in each lumi.");
-    desc.addUntracked<unsigned int>("firstTime", 1)->setComment("Time before first event (ns) (for timestamp).");
-    desc.addUntracked<unsigned int>("timeBetweenEvents", kNanoSecPerSec/kAveEventPerSec)->setComment("Time between consecutive events (ns) (for timestamp).");
+    desc.addUntracked<unsigned long long>("firstTime", 1)->setComment("Time before first event (ns) (for timestamp).");
+    desc.addUntracked<unsigned long long>("timeBetweenEvents", kNanoSecPerSec/kAveEventPerSec)->setComment("Time between consecutive events (ns) (for timestamp).");
     desc.addUntracked<unsigned int>("eventCreationDelay", 0)->setComment("Real time delay between generation of consecutive events (ms).");
     desc.addUntracked<unsigned int>("firstEvent", 1)->setComment("Event number of first event to generate.");
     desc.addUntracked<unsigned int>("firstLuminosityBlock", 1)->setComment("Luminosity block number of first lumi to generate.");

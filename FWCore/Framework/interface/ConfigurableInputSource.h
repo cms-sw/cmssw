@@ -68,7 +68,7 @@ namespace edm {
     unsigned int numberEventsInLumi_;
     TimeValue_t presentTime_;
     TimeValue_t origTime_;
-    unsigned int timeBetweenEvents_;
+    TimeValue_t timeBetweenEvents_;
     unsigned int eventCreationDelay_;  /* microseconds */
 
     unsigned int numberEventsInThisRun_;

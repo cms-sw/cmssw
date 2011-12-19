@@ -11,8 +11,8 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(3)
 )
 process.source = cms.Source("EmptySource",
-    timeBetweenEvents = cms.untracked.uint32(10),
-    firstTime = cms.untracked.uint32(1000000)
+    timeBetweenEvents = cms.untracked.uint64(10),
+    firstTime = cms.untracked.uint64(1000000)
 )
 
 process.double = cms.EDProducer("ToyDoubleProducer", 
