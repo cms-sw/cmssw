@@ -39,7 +39,8 @@ public:
          std::vector<float> averageRefPrescaleHLT,
          std::vector<float> averageRefPrescaleL1,
 	 std::vector< std::vector<int> > CountPerLS,
-	 std::vector<int> tTotalCountPerLS);
+	 std::vector<int> tTotalCountPerLS,
+	 std::vector<double> tLumiPerLS);
 
    void ReorderRunLS();
 
@@ -96,6 +97,7 @@ public:
    std::vector<int> lumiSection;
    std::vector<float> averageRefPrescaleHLT;
    std::vector<float> averageRefPrescaleL1;
+   std::vector<double> LumiPerLS;
 };
 
 #endif

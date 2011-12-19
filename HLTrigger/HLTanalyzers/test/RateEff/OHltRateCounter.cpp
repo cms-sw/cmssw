@@ -36,10 +36,12 @@ bool OHltRateCounter::isNewRunLS(int Run, int LumiBlock)
    return true;
 }
 
-void OHltRateCounter::addRunLS(int Run, int LumiBlock)
+void OHltRateCounter::addRunLS(int Run, int LumiBlock, double AvgInstDelLumi)
 {
    runID.push_back(Run);
    lumiSection.push_back(LumiBlock);
+   perLumiSectionLumi.push_back(AvgInstDelLumi);
+
    vector< int> vtmp;
    vector< int> vtmpl1;
    for (unsigned int i=0; i<iCount.size(); i++)

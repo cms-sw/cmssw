@@ -29,7 +29,8 @@ void OHltRatePrinter::SetupAll(
       vector<float> tAverageRefPrescaleHLT,
       vector<float> tAverageRefPrescaleL1,
       vector< vector<int> > tCountPerLS,
-      vector<int> tTotalCountPerLS)
+      vector<int> tTotalCountPerLS,
+      vector<double> tLumiPerLS)
 {
    Rate = tRate;
    RateErr = tRateErr;
@@ -48,7 +49,8 @@ void OHltRatePrinter::SetupAll(
    averageRefPrescaleL1 = tAverageRefPrescaleL1;
    CountPerLS = tCountPerLS;
    totalCountPerLS = tTotalCountPerLS;
-     
+   LumiPerLS = tLumiPerLS;
+
    ReorderRunLS(); // reorder messed up runids/LS
 }
 
@@ -1213,6 +1215,10 @@ void OHltRatePrinter::ReorderRunLS()
 	    CountPerLS[j] = CountPerLS[j+1];
 	    CountPerLS[j+1] = swap6;
 
+	    double swap7 = LumiPerLS[j];
+	    LumiPerLS[j] = LumiPerLS[j+1];
+	    LumiPerLS[j+1] = swap7;
+	    
             //cout<<"<<<<<< "<<runID[j]<<" "<<runID[j+1]<<" "<<endl;
             //cout<<"<<<<<< "<<lumiSection[j]<<" "<<lumiSection[j+1]<<" "<<endl;
          }
