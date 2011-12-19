@@ -47,6 +47,7 @@ EgammaHLTEcalRecIsolationProducer::EgammaHLTEcalRecIsolationProducer(const edm::
   ecalBarrelRecHitCollection_     = conf_.getParameter<edm::InputTag>("ecalBarrelRecHitCollection");
   ecalEndcapRecHitProducer_       = conf_.getParameter<edm::InputTag>("ecalEndcapRecHitProducer");
   ecalEndcapRecHitCollection_     = conf_.getParameter<edm::InputTag>("ecalEndcapRecHitCollection");
+  rhoProducer_                    = config.getParameter<edm::InputTag>("rhoProducer");
 
   //vetos
   egIsoPtMinBarrel_               = conf_.getParameter<double>("etMinBarrel");
@@ -55,10 +56,11 @@ EgammaHLTEcalRecIsolationProducer::EgammaHLTEcalRecIsolationProducer(const edm::
   egIsoEMinEndcap_                = conf_.getParameter<double>("eMinEndcap");
   egIsoConeSizeInBarrel_          = conf_.getParameter<double>("intRadiusBarrel");
   egIsoConeSizeInEndcap_          = conf_.getParameter<double>("intRadiusEndcap");
-  egIsoConeSizeOut_         = conf_.getParameter<double>("extRadius");
-  egIsoJurassicWidth_       = conf_.getParameter<double>("jurassicWidth");
-
-
+  egIsoConeSizeOut_               = conf_.getParameter<double>("extRadius");
+  egIsoJurassicWidth_             = conf_.getParameter<double>("jurassicWidth");
+  effectiveAreaBarrel_            = config.getParameter<double>("effectiveAreaBarrel");
+  effectiveAreaEndcap_            = config.getParameter<double>("effectiveAreaEndcap");
+  
   // options
   useIsolEt_ = conf_.getParameter<bool>("useIsolEt");
   tryBoth_   = conf_.getParameter<bool>("tryBoth");
@@ -66,8 +68,7 @@ EgammaHLTEcalRecIsolationProducer::EgammaHLTEcalRecIsolationProducer(const edm::
   useNumCrystals_ = conf_.getParameter<bool>("useNumCrystals");
 
   //register your products
-  produces < reco::RecoEcalCandidateIsolationMap >();
-  
+  produces < reco::RecoEcalCandidateIsolationMap >();  
 }
 
 EgammaHLTEcalRecIsolationProducer::~EgammaHLTEcalRecIsolationProducer(){}
@@ -101,6 +102,10 @@ void EgammaHLTEcalRecIsolationProducer::produce(edm::Event& iEvent, const edm::E
   edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
   iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
   const EcalSeverityLevelAlgo* sevLevel = sevlv.product();
+  
+  edm::Handle<double> rhoHandle;
+  iEvent.getByLabel(rhoProducer_, rhoHandle);
+  double rho = *(rhoHandle.product());
 
   //prepare product
   reco::RecoEcalCandidateIsolationMap isoMap;
@@ -145,11 +150,13 @@ void EgammaHLTEcalRecIsolationProducer::produce(edm::Event& iEvent, const edm::E
     else           subtractVal = superClus.get()->rawEnergy();
 
     if(subtract_) isol-= subtractVal;
-
-
-
+    
+    if (fabs(superClus->eta()) < 1.442) 
+      isol = isol - rho*effectiveAreaBarrel_;
+    else
+      isol = isol - rho*effectiveAreaEndcap_;
+    
     isoMap.insert(recoecalcandref, isol);
-
   }
 
   std::auto_ptr<reco::RecoEcalCandidateIsolationMap> isolMap(new reco::RecoEcalCandidateIsolationMap(isoMap));

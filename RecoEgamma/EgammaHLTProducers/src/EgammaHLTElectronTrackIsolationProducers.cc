@@ -2,7 +2,7 @@
  *
  *  \author Monica Vazquez Acosta (CERN)
  * 
- * $Id: EgammaHLTElectronTrackIsolationProducers.cc,v 1.7 2009/10/14 14:33:58 covarell Exp $
+ * $Id: EgammaHLTElectronTrackIsolationProducers.cc,v 1.8 2010/08/12 15:17:31 sharper Exp $
  *
  */
 
@@ -27,13 +27,10 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
-
-
-
 EgammaHLTElectronTrackIsolationProducers::EgammaHLTElectronTrackIsolationProducers(const edm::ParameterSet& config) : conf_(config)
 {
 
-  electronProducer_         = conf_.getParameter<edm::InputTag>("electronProducer");
+  electronProducer_             = conf_.getParameter<edm::InputTag>("electronProducer");
   trackProducer_                = conf_.getParameter<edm::InputTag>("trackProducer");
 
   egTrkIsoPtMin_                = conf_.getParameter<double>("egTrkIsoPtMin");
@@ -51,7 +48,6 @@ EgammaHLTElectronTrackIsolationProducers::EgammaHLTElectronTrackIsolationProduce
 
   //register your products
   produces < reco::ElectronIsolationMap >();
-
 }
 
 
@@ -90,10 +86,8 @@ EgammaHLTElectronTrackIsolationProducers::produce(edm::Event& iEvent, const edm:
     } else {
       isol = test_->electronPtSum(&(*electrontrackref),electronHandle.product(),trackCollection);
     }
-    //if(electronref->pt() != 0. ) isol = isol/electronref->pt();
-    
+
     isoMap.insert(electronref, isol);
-      
   }
 
   std::auto_ptr<reco::ElectronIsolationMap> isolMap(new reco::ElectronIsolationMap(isoMap));
