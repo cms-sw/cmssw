@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.344 $"
+__version__ = "$Revision: 1.345 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -1228,16 +1228,14 @@ class ConfigBuilder(object):
                         #case where HLT:something:something was provided
                         self.executeAndRemember('import HLTrigger.Configuration.Utilities')
                         optionsForHLT = {}
-                        optionsForHLT['data'] = self._options.isData
-                        optionsForHLT['type'] = 'GRun'
-                        if self._options.scenario == 'HeavyIons': optionsForHLT['type'] = 'HIon'
+                        if self._options.scenario == 'HeavyIons':
+                          optionsForHLT['type'] = 'HIon'
+                        else:
+                          optionsForHLT['type'] = 'GRun'
                         optionsForHLTConfig = ', '.join('%s=%s' % (key, repr(val)) for (key, val) in optionsForHLT.iteritems())
                         self.executeAndRemember('process.loadHltConfiguration("%s",%s)'%(sequence.replace(',',':'),optionsForHLTConfig))
                 else:
-                        dataSpec=''
-                        if self._options.isData:
-                                dataSpec='_data'
-                        self.loadAndRemember('%s/Configuration/HLT_%s%s_cff'%(loadDir,sequence,dataSpec))
+                        self.loadAndRemember('%s/Configuration/HLT_%s_cff' % (loadDir, sequence))
 
         self.schedule.append(self.process.HLTSchedule)
         [self.blacklist_paths.append(path) for path in self.process.HLTSchedule if isinstance(path,(cms.Path,cms.EndPath))]
@@ -1602,7 +1600,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.344 $"),
+                                            (version=cms.untracked.string("$Revision: 1.345 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
