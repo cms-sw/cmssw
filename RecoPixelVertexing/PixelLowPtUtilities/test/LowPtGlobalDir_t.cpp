@@ -3,7 +3,7 @@
 
 #ifdef OLDCODE
 void go(std::vector<GlobalPoint>  g) {
-  std::vector<GlobalVector> v = LowPtClusterShapeSeedComparitor:getGlobalDirs(g);
+  std::vector<GlobalVector> v = LowPtClusterShapeSeedComparitor::getGlobalDirs(g);
   for(int i=0; i!=3; i++)
     std::cout << g[i] << std::endl;
   if (v.empty()) std::cout << "failed"  << std::endl;
@@ -23,7 +23,7 @@ int main() {
 	GlobalPoint(1., -1., 2.)
 	});
   
-  std::vectorGlobalPoint g2({
+  std::vector<GlobalPoint> g2({
       GlobalPoint(1., -1., 0.),
 	GlobalPoint(-1., 1., 1.),
 	GlobalPoint(1., -3., 2.)
