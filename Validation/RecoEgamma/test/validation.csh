@@ -24,21 +24,21 @@ setenv STARTUP True
 
 
 
-setenv CMSSWver1 4_4_2
-setenv CMSSWver2 4_4_2
-setenv OLDRELEASE 4_4_2
-setenv NEWRELEASE 4_4_2
-setenv OLDPRERELEASE 
-setenv NEWPRERELEASE patch7
->>>>>>> 1.97
+setenv CMSSWver1 5_0_0
+setenv CMSSWver2 5_0_0
+setenv OLDRELEASE 5_0_0
+setenv NEWRELEASE 5_0_0
+setenv OLDPRERELEASE pre4
+setenv NEWPRERELEASE pre6
+
 
 
 if ( $STARTUP == True) then
-setenv OLDGLOBALTAG START44_V7-v1
-setenv NEWGLOBALTAG START44_V9_special_111126-v1
+setenv OLDGLOBALTAG START50_V3-v1
+setenv NEWGLOBALTAG START50_V5-v1
 else
-setenv OLDGLOBALTAG START44_V7-v1
-setenv NEWGLOBALTAG START44_V9_special_111126-v1
+setenv OLDGLOBALTAG START50_V3-v1d
+setenv NEWGLOBALTAG START50_V5-v1
 endif
 
 
@@ -116,6 +116,7 @@ else if ( $RUNTYPE == Central ) then
 
 setenv OLDFILE ${WorkDir1}/DQM_V0002_R000000001__RelValSingleGammaPt35__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__DQM.root
 setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValSingleGammaPt35__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
+
 
 endif
 
