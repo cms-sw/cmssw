@@ -11,6 +11,6 @@
 <use   name="SimTracker/TrackerHitAssociation"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
-<bin  file=LowPtGlobalDir_t.cpp">
+<bin  file="LowPtGlobalDir_t.cpp">
 <use   name="RecoPixelVertexing/PixelLowPtUtilities"/>
 </bin>

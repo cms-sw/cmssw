@@ -8,10 +8,10 @@ void go(GlobalPoint const * g) {
     std::cout << g[i] << std::endl;
   if (!ok) std::cout << "failed"  << std::endl;
   else 
-  for(int i=0; i!=3; i++)
-    std::cout << v[i] << std::endl;
-  std::cout << "norm" << v.mag2() << std::endl;
-
+  for(int i=0; i!=3; i++) {
+    std::cout << v[i];
+    std::cout << " norm " << v[i].mag2() << std::endl;
+  }
 }
 
 
@@ -31,7 +31,7 @@ int main() {
 
   GlobalPoint g3[3] = {
     GlobalPoint(1., 3., 0.),
-    GlobalPoint(1., 1., -1.),
+    GlobalPoint(4., 1., -1.),
     GlobalPoint(1., -1., -2.)
   };
 
