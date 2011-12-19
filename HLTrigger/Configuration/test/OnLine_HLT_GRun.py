@@ -33549,8 +33549,7 @@ process.hltDQML1SeedLogicScalers = cms.EDAnalyzer( "HLTSeedL1LogicScalers",
       'HLT_Mu3',
       'HLT_L1SingleForJet',
       'HLT_SingleLooseIsoTau20',
-      'HLT_MinBiasEcal' ),
-    l1GtLabel = cms.InputTag( 'l1GtUnpack','','HLT' )
+      'HLT_MinBiasEcal' )
 )
 process.hltDQMHLTScalers = cms.EDAnalyzer( "HLTScalers",
     processname = cms.string( "HLT" ),
