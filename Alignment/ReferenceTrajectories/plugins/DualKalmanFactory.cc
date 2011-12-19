@@ -9,9 +9,9 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2008
-///  $Revision: 1.2 $
-///  $Date: 2010/01/14 16:14:04 $
-///  (last update by $Author: flucke $)
+///  $Revision: 1.3 $
+///  $Date: 2010/09/10 13:25:45 $
+///  (last update by $Author: mussgill $)
 
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryBase.h"
 
@@ -130,61 +130,6 @@ DualKalmanFactory::trajectories(const edm::EventSetup &setup,
 
   edm::LogError("Alignment") << "@SUB=DualKalmanFactory::trajectories" 
 			     << "Not implemented with ExternalPrediction.";
-  return trajectories;
-
-  // copy paste from DualTrajectoryFactory:
-  if (tracks.size() != external.size()) {
-    edm::LogInfo("ReferenceTrajectories") << "@SUB=DualKalmanFactory::trajectories"
-					  << "Inconsistent input:\n"
-					  << "\tnumber of tracks = " << tracks.size()
-					  << "\tnumber of external predictions = " << external.size();
-    return trajectories;
-  }
-  /*
-  edm::ESHandle<MagneticField> magneticField;
-  setup.get<IdealMagneticFieldRecord>().get(magneticField);
-
-  ConstTrajTrackPairCollection::const_iterator itTracks = tracks.begin();
-  ExternalPredictionCollection::const_iterator itExternal = external.begin();
-
-  while (itTracks != tracks.end()) {
-    const DualKalmanInput input = this->referenceStateAndRecHits(*itTracks);
-    // Check input: If all hits were rejected, the TSOS is initialized as invalid.
-    if (input.refTsos.isValid()) {
-      if ((*itExternal).isValid()) {
-	TrajectoryStateOnSurface propExternal =
-	  this->propagateExternal(*itExternal, input.refTsos.surface(), magneticField.product());
-	if (!propExternal.isValid()) continue;
-	
-	// set the flag for reversing the RecHits to false, since they are already in the correct order.
-	ReferenceTrajectoryPtr ptr(new DualKalmanTrajectory(propExternal,
-							    input.fwdRecHits,
-							    input.bwdRecHits,
-							    magneticField.product(),
-							    materialEffects(),
-							    propagationDirection(),
-							    theMass, theResidMethod));
-	
-	AlgebraicSymMatrix externalParamErrors(asHepMatrix<5>(propExternal.localError().matrix()));
-	ptr->setParameterErrors(externalParamErrors);
-	trajectories.push_back(ptr);
-      } else {
-	ReferenceTrajectoryPtr ptr(new DualKalmanTrajectory(input.refTsos,
-							    input.fwdRecHits,
-							    input.bwdRecHits,
-							    magneticField.product(),
-							    materialEffects(),
-							    propagationDirection(),
-							    theMass, theResidMethod));
-	trajectories.push_back(ptr);
-      }
-    }
-
-    ++itTracks;
-    ++itExternal;
-  }
-  */
-
   return trajectories;
 }
 
