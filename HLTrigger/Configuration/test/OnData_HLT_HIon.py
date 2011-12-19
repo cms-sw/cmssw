@@ -1125,7 +1125,7 @@ process.hltESPESUnpackerWorker = cms.ESProducer( "ESUnpackerWorkerESProducer",
 )
 process.hltESPEcalRegionCablingESProducer = cms.ESProducer( "EcalRegionCablingESProducer",
   appendToDataLabel = cms.string( "" ),
-  esMapping = cms.PSet(  LookupTable = cms.untracked.FileInPath( "EventFilter/ESDigiToRaw/data/ES_lookup_table.dat" ) )
+  esMapping = cms.PSet(  LookupTable = cms.FileInPath( "EventFilter/ESDigiToRaw/data/ES_lookup_table.dat" ) )
 )
 process.hltESPEcalTrigTowerConstituentsMapBuilder = cms.ESProducer( "EcalTrigTowerConstituentsMapBuilder",
   MapFile = cms.untracked.string( "Geometry/EcalMapping/data/EndCap_TTMap.txt" ),
@@ -3129,19 +3129,13 @@ process.hltEcalRegionalRestFEDs = cms.EDProducer( "EcalRawToRecHitRoI",
     type = cms.string( "all" ),
     doES = cms.bool( False ),
     sourceTag_es = cms.InputTag( "NotNeededoESfalse" ),
-    MuJobPSet = cms.PSet( 
-      regionEtaMargin = cms.double( 1.0 ),
-      regionPhiMargin = cms.double( 1.0 ),
-      Ptmin = cms.double( 0.0 ),
-      Source = cms.InputTag( "l1extraParticles" )
-    ),
+    MuJobPSet = cms.PSet(  ),
     JetJobPSet = cms.VPSet( 
     ),
     EmJobPSet = cms.VPSet( 
     ),
     CandJobPSet = cms.VPSet( 
-    ),
-    MuonJobPSet = cms.PSet(  )
+    )
 )
 process.hltEcalRecHitAll = cms.EDProducer( "EcalRawToRecHitProducer",
     lazyGetterTag = cms.InputTag( "hltEcalRawToRecHitFacility" ),
@@ -6497,8 +6491,7 @@ process.hltHIPrimTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
       numberMeasurementsForFit = cms.int32( 4 )
     ),
     cleanTrajectoryAfterInOut = cms.bool( True ),
-    maxNSeeds = cms.uint32( 100000 ),
-    maxSeedsBeforeCleaning = cms.uint32( 1000 )
+    maxNSeeds = cms.uint32( 100000 )
 )
 process.hltHIGlobalPrimTracks = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
