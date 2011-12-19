@@ -10,7 +10,9 @@ class TagName
 {
 public:
   
-  TagName() {}
+  TagName()
+    : id_(count())
+    {}
   
   explicit TagName(const std::string & name) 
     : name_(regName(name)), id_(count()) 
