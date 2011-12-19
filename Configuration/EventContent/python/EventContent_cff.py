@@ -23,7 +23,7 @@ import FWCore.ParameterSet.Config as cms
 #
 #  FEVT (RAW+RECO), FEVTSIM (RAWSIM+RECOSIM), FEVTDEBUG (FEVTSIM+ALL_SIM_INFO), FEVTDEBUGHLT (FEVTDEBUG+HLTDEBUG)
 #
-#  $Id: EventContent_cff.py,v 1.41 2011/11/18 16:00:59 fwyzard Exp $
+#  $Id: EventContent_cff.py,v 1.43 2011/11/22 10:18:24 fabiocos Exp $
 #
 #
 #
@@ -330,9 +330,10 @@ DATAMIXEREventContent = cms.PSet(
                                                'keep HBHEDataFramesSorted_hcalDigis_*_*',
                                                'keep HFDataFramesSorted_hcalDigis_*_*',
                                                'keep HODataFramesSorted_hcalDigis_*_*',
+                                               'keep ZDCDataFramesSorted_hcalDigis_*_*',
                                                'keep EBDigiCollection_ecalDigis_*_*',
                                                'keep EEDigiCollection_ecalDigis_*_*',
-                                               'keep ESDataFramesSorted_ecalPreshowerDigis_*_*'),
+                                               'keep ESDigiCollection_ecalPreshowerDigis_*_*'),
         splitLevel = cms.untracked.int32(0),
         eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
         )
