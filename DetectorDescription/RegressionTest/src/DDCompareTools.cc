@@ -278,14 +278,23 @@ DDCompareDBLVEC::DDCompareDBLVEC() : tol_(0.0004) { }
 
 DDCompareDBLVEC::DDCompareDBLVEC(double tol) : tol_(tol) { }
 
-bool DDCompareDBLVEC::operator() ( const std::vector<double>& lhs, const std::vector<double>& rhs ) const {
+bool
+DDCompareDBLVEC::operator() ( const std::vector<double>& lhs, const std::vector<double>& rhs ) const
+{
   bool ret(true);
-  if ( lhs.size() != rhs.size() ) {
+  std::ios_base::fmtflags originalFlags = std::cout.flags();
+  int originalPrecision = std::cout.precision();
+  if( lhs.size() != rhs.size())
+  {
     ret = false;
     std::cout << "Size of vectors do not match." << std::endl;
-  } else {
-    for ( size_t i = 0; i < lhs.size() ; ++i ) {
-      if ( std::fabs( lhs[i] - rhs[i] ) > tol_ ) {
+  }
+  else
+  {
+    for( size_t i = 0; i < lhs.size() ; ++i )
+    {
+      if( std::fabs( lhs[i] - rhs[i] ) > tol_ )
+      {
 	ret = false;
 	std::cout << "Vector content at index " << i << " does not match " ;
 	std::cout << std::setw(12) << std::fixed << std::setprecision(4) << lhs[i] << " != " << rhs[i] << std::endl;
@@ -293,6 +302,9 @@ bool DDCompareDBLVEC::operator() ( const std::vector<double>& lhs, const std::ve
       }
     }
   }
+  // Now set everything back to defaults
+  std::cout.flags( originalFlags );
+  std::cout.precision( originalPrecision );
   return ret;
 }
 
