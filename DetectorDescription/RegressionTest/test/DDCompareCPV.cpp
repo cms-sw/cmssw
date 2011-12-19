@@ -8,6 +8,7 @@
 #include "DetectorDescription/RegressionTest/interface/DDErrorDetection.h"
 
 #include <boost/program_options.hpp>
+#include <boost/exception/all.hpp>
 
 #include <string>
 #include <iostream>
@@ -15,8 +16,16 @@
 
 int main(int argc, char *argv[])
 {
+  try
+  {
     edmplugin::PluginManager::configure(edmplugin::standard::config());
-
+  }
+  catch (cms::Exception& e)
+  {
+    edm::LogInfo("DDCompareCPV") << "Attempting to configure the plugin manager. Exception message: " << e.what();
+    return 1;
+  }
+  
     // Process the command line arguments
     std::string descString("DDCompareCPV");
     descString += " [options] configurationFileName1 configurationFileName2 Compares two DDCompactViews\n";
@@ -69,27 +78,36 @@ int main(int argc, char *argv[])
     //    double dtol(0.0004), rottol(0.0004);
     // bool usrns(false), comprot(false);
     bool usrns(false);
-    if (vm.count("file1")) {
-      configfile = vm["file1"].as<std::string>();
-      if (vm.count("file2")) {
-	configfile2 = vm["file2"].as<std::string>();
+    try {
+      if (vm.count("file1")) {
+	configfile = vm["file1"].as<std::string>();
+	if (vm.count("file2")) {
+	  configfile2 = vm["file2"].as<std::string>();
+	}
       }
+      if (vm.count("dist-tolerance"))
+	ddco.distTol_ = vm["dist-tolerance"].as<double>();
+      if (vm.count("rot-tolerance"))
+	ddco.rotTol_ = vm["rot-tolerance"].as<double>();
+      if (vm.count("spec-tolerance"))
+	ddco.rotTol_ = vm["spec-tolerance"].as<double>();
+      if (vm.count("user-ns")) 
+	usrns = true;
+      if (vm.count("comp-rot")) 
+	ddco.compRotName_ = true;
+      if (vm.count("continue-on-error")) 
+	ddco.contOnError_ = true;
+      if (vm.count("attempt-resync"))
+	ddco.attResync_ = true;
     }
-    if (vm.count("dist-tolerance"))
-      ddco.distTol_ = vm["dist-tolerance"].as<double>();
-    if (vm.count("rot-tolerance"))
-      ddco.rotTol_ = vm["rot-tolerance"].as<double>();
-    if (vm.count("spec-tolerance"))
-      ddco.rotTol_ = vm["spec-tolerance"].as<double>();
-    if (vm.count("user-ns")) 
-      usrns = true;
-    if (vm.count("comp-rot")) 
-      ddco.compRotName_ = true;
-    if (vm.count("continue-on-error")) 
-      ddco.contOnError_ = true;
-    if (vm.count("attempt-resync"))
-      ddco.attResync_ = true;
+    catch(boost::exception& e)
+    {
+      edm::LogInfo("DDCompareCPV") << "Attempting to parse the options. Exception message: " << boost::diagnostic_information(e);
+      return 1;
+    }
 
+    std::ios_base::fmtflags originalFlags = std::cout.flags();
+    
     std::cout << "Settings are: " << std::endl;
     std::cout << "Configuration file 1: " << configfile << std::endl;
     std::cout << "Configuration file 2: " << configfile2 << std::endl;
@@ -100,6 +118,9 @@ int main(int argc, char *argv[])
     std::cout << "Compare Rotation names? " << ddco.compRotName_ << std::endl;
     std::cout << "Continue on error (data mismatch)? " << ddco.contOnError_ << std::endl;
     std::cout << "Attempt resyncronization of disparate graphs? " << ddco.attResync_ << std::endl;
+
+    // Now set everything back to defaults
+    std::cout.flags( originalFlags );
 
     DDCompactView cpv1;
     DDLParser myP(cpv1);
@@ -115,7 +136,16 @@ int main(int argc, char *argv[])
 
     // Use the File-In-Path configuration document provider.
     FIPConfiguration fp(cpv1);
-    fp.readConfig(configfile, fullPath);
+    try
+    {
+      fp.readConfig(configfile, fullPath);
+    }
+    catch (cms::Exception& e)
+    {
+      edm::LogInfo("DDCompareCPV") << "Attempting to read config. Exception message: " << e.what();
+      return 1;
+    }
+    
     std::cout << "FILE 1: " << configfile << std::endl;
     if ( fp.getFileList().size() == 0 ) {
       std::cout << "FILE 1: configuration file has no DDD xml files in it!" << std::endl;
