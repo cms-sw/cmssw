@@ -75,7 +75,7 @@ mixData = cms.EDProducer("DataMixingModule",
     HBHEdigiCollectionSig  = cms.InputTag("hcalDigis"),
     HOdigiCollectionSig    = cms.InputTag("hcalDigis"),
     HFdigiCollectionSig    = cms.InputTag("hcalDigis"),
-    ZDCdigiCollectionSig   = cms.InputTag("hcalDigis"),
+    ZDCdigiCollectionSig   = cms.InputTag(""),
 #                         ZDCdigiCollectionSig   = cms.InputTag("hcalDigis"),          
     #
     EBPileInputTag = cms.InputTag("ecalDigis","ebDigis"),
