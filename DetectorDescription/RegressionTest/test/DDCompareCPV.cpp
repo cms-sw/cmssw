@@ -119,9 +119,6 @@ int main(int argc, char *argv[])
     std::cout << "Continue on error (data mismatch)? " << ddco.contOnError_ << std::endl;
     std::cout << "Attempt resyncronization of disparate graphs? " << ddco.attResync_ << std::endl;
 
-    // Now set everything back to defaults
-    std::cout.flags( originalFlags );
-
     DDCompactView cpv1;
     DDLParser myP(cpv1);
     myP.getDDLSAX2FileHandler()->setUserNS(usrns);
@@ -208,5 +205,9 @@ int main(int argc, char *argv[])
     } else {
       std::cout << "DDCompactView graphs do NOT match" << std::endl;
     }
+
+    // Now set everything back to defaults
+    std::cout.flags( originalFlags );
+
     return 0;
 }
