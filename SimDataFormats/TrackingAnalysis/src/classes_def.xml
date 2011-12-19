@@ -1,11 +1,12 @@
 <lcgdict>
 
-  <class name="ParticleBase" ClassVersion="11">
+  <class name="ParticleBase" ClassVersion="12">
    <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" />
    <field name="p4Polar_" transient="true" />
    <field name="p4Cartesian_" transient="true" />
-   <field name="p4PolarFixed_" transient="true" />
-   <field name="p4CartesianFixed_" transient="true" />
+   <field name="cachePolarFixed_" transient="true" />
+   <field name="cacheCartesianFixed_" transient="true" />
+   <version ClassVersion="12" checksum="342077122"/>
    <version ClassVersion="11" checksum="3838809954"/>
    <version ClassVersion="10" checksum="1390413442"/>
   </class>
