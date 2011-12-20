@@ -23,8 +23,11 @@ GlobalMuonRefitter = cms.PSet(
     PropDirForCosmics = cms.bool(False),
     RefitRPCHits = cms.bool(True),
  
-    # only the first two are used
-    DYTthrs =  cms.vint32(10, 5),
+    # DYT thresholds:
+    #  first int --> DT threshold
+    # second int --> CSC threshold
+    #  third int --> if 1 APEs are used
+    DYTthrs = cms.vint32(25, 10, 1),
 
     # muon station to be skipped
     SkipStation		= cms.int32(-1),
