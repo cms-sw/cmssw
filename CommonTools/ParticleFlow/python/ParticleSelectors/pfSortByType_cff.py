@@ -10,7 +10,7 @@ from CommonTools.ParticleFlow.ParticleSelectors.pfAllChargedParticles_cfi import
 
 from CommonTools.ParticleFlow.ParticleSelectors.pfAllNeutralHadronsAndPhotons_cfi import *
 
-pfPileUpAllChargedParticles = pfAllChargedParticles.clone( src = 'pfPileUp' )
+pfPileUpAllChargedParticles = pfAllChargedParticles.clone( src = 'pfPileUpIso' )
 
 
 pfSortByTypeSequence = cms.Sequence(
