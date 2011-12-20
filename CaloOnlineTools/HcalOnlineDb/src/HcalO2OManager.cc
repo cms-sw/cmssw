@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Sun Aug 16 20:44:05 CEST 2009
-// $Id: HcalO2OManager.cc,v 1.40 2011/05/24 20:15:43 cerminar Exp $
+// $Id: HcalO2OManager.cc,v 1.41 2011/06/07 08:40:49 gowdy Exp $
 //
 
 
@@ -269,8 +269,6 @@ int HcalO2OManager::getListOfNewIovs(std::vector<uint32_t> & iovs,
 
   bool enforce_strict_matching = false; // set to true if the strict IOV matching is desired, see description in the comments below
 
- // use this to keep track of how well the existing OMDS and offline IOV sets match
-  unsigned int _sync_status = 0;
   for (std::vector<uint32_t>::const_iterator _iov = orcon_iovs.begin();
        _iov != orcon_iovs.end();
        ++_iov){
@@ -305,8 +303,6 @@ int HcalO2OManager::getListOfNewIovs(std::vector<uint32_t> & iovs,
       std::cout << "HcalO2OManager: As an interim solution, I will still copy to the offline tag" << std::endl;
       std::cout << "HcalO2OManager: those IOV from the OMDS tag that are newer than the last IOV" << std::endl;
       std::cout << "HcalO2OManager: currently in the offline tag. " << std::endl;
-
-      _sync_status = 1; // dunno what for, may be handy in future
 
       // existing IOVs do not match
 

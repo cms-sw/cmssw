@@ -82,12 +82,7 @@ void RooGKCounter::count( void ){
 
   if ( printCount ){
     if ( fmod( _number, _freq ) < _limit ){
-      double averageTimeSinceLastPrint = 0.0;
       double averageTimeSinceFirstTick = 0.0;
-      if ( lastPrintTime > 1 )
-	{
-	  averageTimeSinceLastPrint = ( time( NULL ) - lastPrintTime ) / (double)_divider;
-	}
       if ( _count > _firstCount )
 	{
 	  averageTimeSinceFirstTick = ( time( NULL ) - firstTickTime ) / (double)( _count - _firstCount );

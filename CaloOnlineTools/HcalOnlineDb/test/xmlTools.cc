@@ -617,10 +617,9 @@ int main( int argc, char **argv )
   //int digit_optind = 0;
   
   // default parameter values
-  bool luts = false;
+  // bool luts = false;
   bool rbx = false;
   bool tag_b = false;
-  bool comment_b = false;
   //bool testdb_b = false;
   bool lmaptest_b = false;
   bool hardware_b = false;
@@ -752,7 +751,6 @@ int main( int argc, char **argv )
 	  char _buf[1024];
 	  sprintf( _buf, "%s", optarg );
 	  comment . append( _buf );
-	  comment_b = true;
 	}
       else
 	{
@@ -810,7 +808,7 @@ int main( int argc, char **argv )
       break;
 
     case 70:
-      luts = true;
+      //luts = true;
       break;
       
     case 1000: // testocci
@@ -1486,7 +1484,6 @@ int test_db_access( void )
   oracle::occi::Connection * _connection = db -> getConnection();  
 
   unsigned int _version, _crate, _slot, _fiber, _channel;
-  hcal::ConfigurationDatabase::FPGASelection _fpga;
 
   int side   = -1;
   int etaAbs =  1;
@@ -1513,8 +1510,6 @@ int test_db_access( void )
       _crate    = rs -> getInt(2);
       _slot     = rs -> getInt(3);
       std::string fpga_ = rs -> getString(4);
-      if ( fpga_ == "top" ) _fpga = hcal::ConfigurationDatabase::Top;
-      else _fpga  = hcal::ConfigurationDatabase::Bottom;
       _fiber    = rs -> getInt(5);
       _channel  = rs -> getInt(6);
       
