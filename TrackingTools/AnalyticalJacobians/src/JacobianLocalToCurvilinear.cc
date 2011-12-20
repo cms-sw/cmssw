@@ -28,7 +28,7 @@ JacobianLocalToCurvilinear(const Surface& surface,
 
 JacobianLocalToCurvilinear(const Surface& surface, 
 			   const LocalTrajectoryParameters& localParameters,
-			   const GlobalTrajectoryParameterss& globalParameters,
+			   const GlobalTrajectoryParameters& globalParameters,
 			   const MagneticField& magField) : theJacobian() {
 
   GlobalPoint  x =  globalParameters.position();

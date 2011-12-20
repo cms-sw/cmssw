@@ -10,6 +10,7 @@
 class LocalTrajectoryParameters;
 class GlobalTrajectoryParameters;
 class MagneticField;
+class GlobalVector;
 
 /** Class which calculates the Jacobian matrix of the transformation
  *  from the curvilinear to the local frame. The Jacobian is calculated
