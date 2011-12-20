@@ -12,7 +12,7 @@ JacobianCurvilinearToLocal(const Surface& surface,
  
   GlobalPoint  x = surface.toGlobal(localParameters.position());
   GlobalVector h  = magField.inInverseGeV(x);
-  GlobalVector hq = h*localParameters.signedInverseMomentum();  // changed sign
+  GlobalVector qh = h*localParameters.signedInverseMomentum();  // changed sign
 
 
   //  GlobalVector  hdir =  h.unit();
@@ -36,7 +36,7 @@ JacobianCurvilinearToLocal(const Surface& surface,
  
   GlobalPoint  x =  globalParameters.position();
   GlobalVector h  = magField.inInverseGeV(x);
-  GlobalVector hq = h*globalParameters.signedInverseMomentum();  // changed sign
+  GlobalVector qh = h*globalParameters.signedInverseMomentum();  // changed sign
 
   //GlobalVector  hdir =  h.unit();
   //double q = -h.mag() * localParameters.signedInverseMomentum();
