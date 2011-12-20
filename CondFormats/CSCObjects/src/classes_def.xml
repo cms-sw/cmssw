@@ -11,7 +11,9 @@
  <class name="CSCDBChipSpeedCorrection::Item"/>
  <class name="std::vector<CSCDBChipSpeedCorrection::Item>"/>
  
- <class name="CSCDBGasGainCorrection"/>
+ <class name="CSCDBGasGainCorrection">
+   <field name = "gasGainCorr" mapping = "blob"/>
+ </class>
  <class name="CSCDBGasGainCorrection::Item"/>
  <class name="std::vector<CSCDBGasGainCorrection::Item>"/>
  
@@ -64,7 +66,9 @@
  <class name="CSCChamberIndex"/>
  <class name="std::vector< CSCMapItem::MapItem >"/>
 
- <class name="CSCChamberTimeCorrections"/>
+ <class name="CSCChamberTimeCorrections">
+   <field name = "chamberCorrections" mapping = "blob"/>
+ </class>
  <class name="CSCChamberTimeCorrections::ChamberTimeCorrections"/>
  <class name="std::vector< CSCChamberTimeCorrections::ChamberTimeCorrections >"/>
 
