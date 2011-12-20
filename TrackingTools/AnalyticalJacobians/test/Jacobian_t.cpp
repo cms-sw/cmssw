@@ -81,6 +81,10 @@ int main() {
   std::cout << plane.toGlobal(tnl) << std::endl;
   std::cout << gp.direction()<< std::endl;
 
+  // verify cart to curv and back....
+  // AlgebraicMatrixID();
+
+
   // L ->Cart
   {
     std::cout << "L ->Cart" << std::endl;
