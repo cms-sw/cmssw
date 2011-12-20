@@ -13,7 +13,7 @@
 //
 // Original Author:  Nhan Tran
 //         Created:  Mon Jul 16m 16:56:34 CDT 2007
-// $Id: CosmicSplitterValidation.cc,v 1.10 2010/02/20 20:54:53 wmtan Exp $
+// $Id: CosmicSplitterValidation.cc,v 1.11 2010/03/29 13:18:43 mussgill Exp $
 //
 //
 
@@ -107,8 +107,10 @@ private:
 	double ddxy_spl_, ddz_spl_, dtheta_spl_, dphi_spl_;
 	double pt1_spl_, pt2_spl_, dpt_spl_, p1_spl_, p2_spl_;
 	double eta1_spl_, eta2_spl_, deta_spl_;
-	double nHits1_spl_, nHitsPXB1_spl_, nHitsPXF1_spl_, nHitsTIB1_spl_, nHitsTOB1_spl_, nHitsTID1_spl_, nHitsTEC1_spl_;
-	double nHits2_spl_, nHitsPXB2_spl_, nHitsPXF2_spl_, nHitsTIB2_spl_, nHitsTOB2_spl_, nHitsTID2_spl_, nHitsTEC2_spl_;
+        double nHits1_spl_, nHitsPXB1_spl_, nHitsPXF1_spl_, nHitsTIB1_spl_;
+        double nHitsTOB1_spl_, nHitsTID1_spl_, nHitsTEC1_spl_;
+        double nHits2_spl_, nHitsPXB2_spl_, nHitsPXF2_spl_, nHitsTIB2_spl_;
+        double nHitsTOB2_spl_, nHitsTID2_spl_, nHitsTEC2_spl_;
 	// spl_it track errors
 	double pt1Err_spl_, pt2Err_spl_;
 	double theta1Err_spl_, theta2Err_spl_;
@@ -176,7 +178,62 @@ CosmicSplitterValidation::CosmicSplitterValidation(const edm::ParameterSet& iCon
 	originalTracks_(iConfig.getParameter<edm::InputTag>("originalTracks")),
 	originalGlobalMuons_(iConfig.getParameter<edm::InputTag>("originalGlobalMuons")),
 	checkIfGolden_(iConfig.getParameter<bool>("checkIfGolden")),
-	splitMuons_(iConfig.getParameter<bool> ("ifSplitMuons"))
+	splitMuons_(iConfig.getParameter<bool> ("ifSplitMuons")),
+	totalTracksToAnalyzer_(0),
+	goldenCtr(0),
+	twoTracksCtr(0),
+	goldenPlusTwoTracksCtr(0),
+	_passesTracksPlusMuonsCuts(0),
+	splitterTree_(0),
+	dcaX1_spl_(0), dcaY1_spl_(0), dcaZ1_spl_(0),
+	dcaX2_spl_(0), dcaY2_spl_(0), dcaZ2_spl_(0),
+	dxy1_spl_(0), dxy2_spl_(0), dz1_spl_(0), dz2_spl_(0),
+	theta1_spl_(0), theta2_spl_(0), phi1_spl_(0), phi2_spl_(0),
+	ddxy_spl_(0), ddz_spl_(0), dtheta_spl_(0), dphi_spl_(0),
+	pt1_spl_(0), pt2_spl_(0), dpt_spl_(0), p1_spl_(0), p2_spl_(0),
+	eta1_spl_(0), eta2_spl_(0), deta_spl_(0),
+	nHits1_spl_(0), nHitsPXB1_spl_(0), nHitsPXF1_spl_(0), nHitsTIB1_spl_(0),
+	nHitsTOB1_spl_(0), nHitsTID1_spl_(0), nHitsTEC1_spl_(0),
+	nHits2_spl_(0), nHitsPXB2_spl_(0), nHitsPXF2_spl_(0), nHitsTIB2_spl_(0),
+	nHitsTOB2_spl_(0), nHitsTID2_spl_(0), nHitsTEC2_spl_(0),
+	pt1Err_spl_(0), pt2Err_spl_(0),
+	theta1Err_spl_(0), theta2Err_spl_(0),
+	phi1Err_spl_(0), phi2Err_spl_(0),
+	d01Err_spl_(0), d02Err_spl_(0),
+	dz1Err_spl_(0), dz2Err_spl_(0),
+	dcaX_org_(0), dcaY_org_(0), dcaZ_org_(0),
+	dxy_org_(0), dz_org_(0),
+	theta_org_(0), phi_org_(0), eta_org_(0), pt_org_(0), p_org_(0),
+	norchi2_org_(0),
+	dcaX1_sta_(0), dcaY1_sta_(0), dcaZ1_sta_(0),
+	dcaX2_sta_(0), dcaY2_sta_(0), dcaZ2_sta_(0),
+	dxy1_sta_(0), dxy2_sta_(0), dz1_sta_(0), dz2_sta_(0),
+	theta1_sta_(0), theta2_sta_(0), phi1_sta_(0), phi2_sta_(0),
+	ddxy_sta_(0), ddz_sta_(0), dtheta_sta_(0), dphi_sta_(0),
+	pt1_sta_(0), pt2_sta_(0), dpt_sta_(0), p1_sta_(0), p2_sta_(0),
+	eta1_sta_(0), eta2_sta_(0), deta_sta_(0),
+	pt1Err_sta_(0), pt2Err_sta_(0),
+	theta1Err_sta_(0), theta2Err_sta_(0),
+	phi1Err_sta_(0), phi2Err_sta_(0),
+	d01Err_sta_(0), d02Err_sta_(0),
+	dz1Err_sta_(0), dz2Err_sta_(0),
+	dcaX1_glb_(0), dcaY1_glb_(0), dcaZ1_glb_(0),
+	dcaX2_glb_(0), dcaY2_glb_(0), dcaZ2_glb_(0),
+	dxy1_glb_(0), dxy2_glb_(0), dz1_glb_(0), dz2_glb_(0),
+	theta1_glb_(0), theta2_glb_(0), phi1_glb_(0), phi2_glb_(0),
+	ddxy_glb_(0), ddz_glb_(0), dtheta_glb_(0), dphi_glb_(0),
+	pt1_glb_(0), pt2_glb_(0), dpt_glb_(0), p1_glb_(0), p2_glb_(0),
+	eta1_glb_(0), eta2_glb_(0), deta_glb_(0),
+	norchi1_glb_(0), norchi2_glb_(0),
+	pt1Err_glb_(0), pt2Err_glb_(0),
+	theta1Err_glb_(0), theta2Err_glb_(0),
+	phi1Err_glb_(0), phi2Err_glb_(0),
+	d01Err_glb_(0), d02Err_glb_(0),
+	dz1Err_glb_(0), dz2Err_glb_(0),
+	dcaX_orm_(0), dcaY_orm_(0), dcaZ_orm_(0),
+	dxy_orm_(0), dz_orm_(0),
+	theta_orm_(0), phi_orm_(0), eta_orm_(0), pt_orm_(0), p_orm_(0),
+	norchi2_orm_(0)
 {
 	
 }

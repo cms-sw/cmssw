@@ -13,7 +13,7 @@
 //
 // Original Author:  Johannes Hauk
 //         Created:  Sat Aug 22 10:31:34 CEST 2009
-// $Id: TrackerOfflineValidationSummary.cc,v 1.4 2009/11/13 16:57:05 hauk Exp $
+// $Id: TrackerOfflineValidationSummary.cc,v 1.5 2009/12/11 19:10:32 hauk Exp $
 //
 //
 
@@ -199,7 +199,6 @@ TrackerOfflineValidationSummary::analyze(const edm::Event& iEvent, const edm::Ev
       throw cms::Exception("Geometry Error")
         << "[TrackerOfflineValidationSummary] Error, tried to get reference for non-tracker subdet " << subdetId 
         << " from detector " << detId.det();
-      mPxbResiduals_[0];
     }
   }
   moduleMapsInitialized = true;

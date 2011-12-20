@@ -13,7 +13,7 @@
 //
 // Original Author:  Nhan Tran
 //         Created:  Mon Jul 16m 16:56:34 CDT 2007
-// $Id: TrackerGeometryIntoNtuples.cc,v 1.6 2011/09/04 17:40:58 mussgill Exp $
+// $Id: TrackerGeometryIntoNtuples.cc,v 1.7 2011/09/15 08:03:31 mussgill Exp $
 //
 //
 
@@ -90,7 +90,12 @@ private:
 // constructors and destructor
 //
 TrackerGeometryIntoNtuples::TrackerGeometryIntoNtuples(const edm::ParameterSet& iConfig) :
-  theCurrentTracker(0)
+  theCurrentTracker(0),
+  m_rawid(0),
+  m_x(0.), m_y(0.), m_z(0.),
+  m_alpha(0.), m_beta(0.), m_gamma(0.),
+  m_subdetid(0),
+  m_xx(0.), m_xy(0.), m_yy(0.), m_xz(0.), m_yz(0.), m_zz(0.)
 {
 	m_outputFile = iConfig.getUntrackedParameter< std::string > ("outputFile");
 	m_outputTreename = iConfig.getUntrackedParameter< std::string > ("outputTreename");

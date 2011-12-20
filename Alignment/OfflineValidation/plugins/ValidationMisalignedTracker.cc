@@ -13,7 +13,7 @@
 //
 // Original Author:  Nicola De Filippis
 //         Created:  Thu Dec 14 13:13:32 CET 2006
-// $Id: ValidationMisalignedTracker.cc,v 1.5 2010/09/23 12:06:42 mussgill Exp $
+// $Id: ValidationMisalignedTracker.cc,v 1.6 2011/10/31 09:45:47 mussgill Exp $
 //
 //
 
@@ -70,9 +70,9 @@ ValidationMisalignedTracker::ValidationMisalignedTracker(const edm::ParameterSet
 
   eventCount_ = 0; 
 
-  selection_eff    = iConfig.getUntrackedParameter<bool>("selection_eff","false");
-  selection_fake   = iConfig.getUntrackedParameter<bool>("selection_fake","true");
-  ZmassSelection_  = iConfig.getUntrackedParameter<bool>("ZmassSelection","false");
+  selection_eff    = iConfig.getUntrackedParameter<bool>("selection_eff", false);
+  selection_fake   = iConfig.getUntrackedParameter<bool>("selection_fake", true);
+  ZmassSelection_  = iConfig.getUntrackedParameter<bool>("ZmassSelection", false);
   simobject        = iConfig.getUntrackedParameter<std::string>("simobject","g4SimHits");
   trackassociator  = iConfig.getUntrackedParameter<std::string>("TrackAssociator","ByHits");
   associators      = iConfig.getParameter< std::vector<std::string> >("associators");
