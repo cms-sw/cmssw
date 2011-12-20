@@ -66,8 +66,15 @@ ResidualRefitting::ResidualRefitting( const edm::ParameterSet & cfg ) :
   muonsNoTOBLayer4_			( cfg.getParameter<edm::InputTag>("muonsNoTOBLayer4"	) ),
   muonsNoTOBLayer5_			( cfg.getParameter<edm::InputTag>("muonsNoTOBLayer5"	) ),
   muonsNoTOBLayer6_			( cfg.getParameter<edm::InputTag>("muonsNoTOBLayer6"	) ),*/
-  debug_				( cfg.getUntrackedParameter<bool>("doDebug"	) )
+  debug_				( cfg.getUntrackedParameter<bool>("doDebug"	) ),
+  outputFile_(0),
+  outputTree_(0),
+  outputBranch_(0),
+  theField(0)
 {
+        eventInfo_.evtNum_ = 0;
+        eventInfo_.evtNum_ = 0;
+
 // service parameters
 	edm::ParameterSet serviceParameters = cfg.getParameter<edm::ParameterSet>("ServiceParameters");
   
@@ -265,6 +272,7 @@ void ResidualRefitting::analyze(const edm::Event& event, const edm::EventSetup& 
 // 
 ResidualRefitting::~ResidualRefitting() {
   delete outputFile_;
+  delete theService;
 }
 //
 // Track Collection Analysis
@@ -684,10 +692,10 @@ void ResidualRefitting::muonInfo(ResidualRefitting::storage_muon& storeMuon, rec
 // 
 // Fill a track extrapolation 
 // 
-void ResidualRefitting::trkExtrap(DetId detid, int iTrk, int iTrkLink, int iRec,
-									FreeTrajectoryState freeTrajState,
-									LocalPoint recPoint,
-									storage_trackExtrap& storeTemp){
+void ResidualRefitting::trkExtrap(const DetId& detid, int iTrk, int iTrkLink, int iRec,
+				  const FreeTrajectoryState& freeTrajState,
+				  const LocalPoint& recPoint,
+				  storage_trackExtrap& storeTemp){
 
 	bool dump_ = debug_;
 	

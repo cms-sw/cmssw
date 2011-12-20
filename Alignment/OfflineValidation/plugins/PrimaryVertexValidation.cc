@@ -67,12 +67,17 @@
 
 PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfig)
   : theConfig(iConfig), 
-    theTrackFilter_(iConfig.getParameter<edm::ParameterSet>("TkFilterParameters"))
+    Nevt_(0),
+    theTrackFilter_(iConfig.getParameter<edm::ParameterSet>("TkFilterParameters")),
+    rootFile_(0),
+    rootTree_(0)
 {
   //now do what ever initialization is needed
   debug_    = iConfig.getParameter<bool>       ("Debug");  
   TrackCollectionTag_      = iConfig.getParameter<edm::InputTag>("TrackCollectionTag");  
-  filename_ = iConfig.getParameter<std::string>("OutputFileName"); 
+  filename_ = iConfig.getParameter<std::string>("OutputFileName");
+
+  SetVarToZero();
 }
    
 // Destructor
