@@ -432,18 +432,13 @@ void SiPixelHistoPlotter::setSubDetAxisDrawing(string detector, TH1F * histo) {
   histo->GetXaxis()->SetLabelColor(0);
 
   string ownName = "";
-  int    ownNOModules = 0;
   if(detector.find("Barrel") != string::npos || detector.find("Endcap") != string::npos){ 
     if(detector.find("Barrel") != string::npos){
       ownName      = "Shell";
-      ownNOModules = 192;
     }
     if(detector.find("Endcap") != string::npos){
       ownName = "HalfCylinder";
-      ownNOModules = 168;
     }
-    
-    //cout << "ownName: " << ownName << " ownNOModules: " << ownNOModules << endl;
     
     TText tt;
     tt.SetTextSize(0.04);

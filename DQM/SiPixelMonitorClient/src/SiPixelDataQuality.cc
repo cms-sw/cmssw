@@ -963,9 +963,6 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
 	}
         SummaryReportMap = bei->get("Pixel/EventInfo/reportSummaryMap");
         if(SummaryReportMap){ 
-	  MonitorElement * me = bei->get("Pixel/EventInfo/processedEvents");
-	  int nevents = 0;
-	  if(me) nevents = me->getIntValue();
           float contents=0.;
           for(int i=1; i!=41; i++){
 	    //Dynamically subtracting previous (integrated) lumi section values
@@ -974,7 +971,6 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
             float myerrs  = errmodsVec->GetBinContent(i) - lasterrmods_[i-1];
 	    if ((mydigis + myerrs) > 0.){
 	      contents = mydigis/(mydigis + myerrs);
-	      //std::cout<<"Fed: "<<i-1<<" , nevents: "<<nevents<<" , ndigis: "<< mydigis <<" , nerrors: "<< myerrs << " , contents: " << contents << std::endl;
             }else{
 	      //Changed so that dynamic zooming will still
 	      //advance over these bins(in renderplugins)
