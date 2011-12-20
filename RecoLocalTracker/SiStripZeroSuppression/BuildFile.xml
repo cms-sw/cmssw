@@ -11,7 +11,7 @@
 <use   name="CalibFormats/SiStripObjects"/>
 <use   name="CalibTracker/Records"/>
 <use   name="CommonTools/UtilAlgos"/>
-<usa   name="root"/>
+<use   name="root"/>
 <export>
   <lib   name="1"/>
 </export>

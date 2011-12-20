@@ -49,6 +49,7 @@ void OffHelper::setup(const edm::ParameterSet& conf)
   beamSpotTag_ = conf.getParameter<edm::InputTag>("BeamSpotProducer");
   caloTowersTag_ = conf.getParameter<edm::InputTag>("CaloTowers");
   trigResultsTag_ = conf.getParameter<edm::InputTag>("TrigResults");
+  vertexTag_ = conf.getParameter<edm::InputTag>("VertexCollection");
 
   eleCuts_.setup(conf.getParameter<edm::ParameterSet>("eleCuts"));
   eleLooseCuts_.setup(conf.getParameter<edm::ParameterSet>("eleLooseCuts"));
@@ -155,10 +156,11 @@ int OffHelper::makeOffEvt(const edm::Event& edmEvent,const edm::EventSetup& setu
   if(errCode==0) errCode = getHandles(edmEvent,setup);
   if(errCode==0) errCode = fillOffEleVec(offEvent.eles());
   if(errCode==0) errCode = fillOffPhoVec(offEvent.phos());
-  if(errCode==0) errCode =  setTrigInfo(edmEvent, offEvent);
+  if(errCode==0) errCode = setTrigInfo(edmEvent, offEvent);
   if(errCode==0) offEvent.setJets(recoJets_);
   return errCode;
 }
+
 
 int OffHelper::getHandles(const edm::Event& event,const edm::EventSetup& setup)
 {
@@ -181,6 +183,7 @@ int OffHelper::getHandles(const edm::Event& event,const edm::EventSetup& setup)
   if(!getHandle(event,electronsTag_,recoEles_)) return errCodes::OffEle; //need for electrons
   if(!getHandle(event,photonsTag_, recoPhos_)) return errCodes::OffPho; //need for photons
   if(!getHandle(event,caloJetsTag_,recoJets_)) return errCodes::OffJet; //need for electrons and photons
+  if(!getHandle(event,vertexTag_,recoVertices_)) return errCodes::OffVertex; //need for eff vs nVertex
 
   //need for HLT isolations (rec hits also need for sigmaIPhiIPhi (ele/pho) and r9 pho)
   if(!getHandle(event,ecalRecHitsEBTag_,ebRecHits_)) return errCodes::EBRecHits;
@@ -203,6 +206,17 @@ int OffHelper::fillOffEleVec(std::vector<OffEle>& egHLTOffEles)
   for(reco::GsfElectronCollection::const_iterator gsfIter=recoEles_->begin(); gsfIter!=recoEles_->end();++gsfIter){
     if(!gsfIter->ecalDrivenSeed()) continue; //avoid PF electrons (this is Eg HLT validation and HLT is ecal driven)
 
+    int nVertex=0;
+    for(reco::VertexCollection::const_iterator nVit=recoVertices_->begin(); nVit!=recoVertices_->end();++nVit){
+      if( !nVit->isFake() 
+	  && nVit->ndof()>4  
+	  && std::fabs( nVit->z()<24.0) 
+	  && sqrt(nVit->x()*nVit->x() + nVit->y()*nVit->y())<2.0){nVertex++;}
+    }
+    //if(nVertex>20)std::cout<<"nVertex: "<<nVertex<<std::endl;
+    OffEle::EventData eventData;
+    eventData.NVertex=nVertex;
+
     OffEle::IsolData isolData;   
     fillIsolData(*gsfIter,isolData);
     
@@ -212,7 +226,7 @@ int OffHelper::fillOffEleVec(std::vector<OffEle>& egHLTOffEles)
     OffEle::HLTData hltData;
     fillHLTData(*gsfIter,hltData);
 
-    egHLTOffEles.push_back(OffEle(*gsfIter,clusShapeData,isolData,hltData));
+    egHLTOffEles.push_back(OffEle(*gsfIter,clusShapeData,isolData,hltData,eventData));
     
     //now we would like to set the cut results
     OffEle& ele =  egHLTOffEles.back();

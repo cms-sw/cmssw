@@ -18,10 +18,19 @@ public:
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
 private:
-  HcalTriggerPrimitiveAlgo theAlgo;
+
+  HcalTriggerPrimitiveAlgo theAlgo_;
+
+  /// input tags for HCAL digis
   std::vector<edm::InputTag> inputLabel_;
-  bool runFrontEndFormatError;
-  bool runZS;
+
+  /// input tag for FEDRawDataCollection
+  edm::InputTag inputTagFEDRaw_;
+
+  bool runZS_;
+
+  bool runFrontEndFormatError_;
+
 };
 
 #endif

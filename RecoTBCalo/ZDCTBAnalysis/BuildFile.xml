@@ -3,5 +3,4 @@
 <use   name="FWCore/Framework"/>
 <use   name="DataFormats/HcalRecHit"/>
 <use   name="TBDataFormats/HcalTBObjects"/>
-<export>
-</export>
+

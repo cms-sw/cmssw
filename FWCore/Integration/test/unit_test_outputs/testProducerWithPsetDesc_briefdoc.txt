@@ -669,8 +669,8 @@
         noDefault23 untracked EventRange            optional none (do not write to cfi)
         noDefault24 untracked VEventRange           optional none (do not write to cfi)
   1.2 testLabel1
-    Description allows anything and requires nothing.
-    The configured PSet will not be validated.
+    Description allows anything. If the configured PSet contains illegal parameters,
+    then validation will ignore them instead of throwing an exception.
     p_int          int32  1
     noDefaultPset1 PSet   see Section 1.2.1
     noDefaultPset2 PSet   see Section 1.2.2

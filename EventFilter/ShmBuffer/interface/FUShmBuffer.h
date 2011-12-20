@@ -77,7 +77,7 @@ namespace evf {
     time_t         evtTimeStamp(unsigned int index);
     pid_t          clientPrcId(unsigned int index);
     
-    int            nbRawCellsToWrite()  const;
+    unsigned int   nbRawCellsToWrite()  const;
     int            nbRawCellsToRead()   const;
     
     FUShmRawCell*  rawCellToWrite();
@@ -212,9 +212,9 @@ namespace evf {
   public:
     bool           setEvtState(unsigned int index,evt::State_t state);
     bool           setDqmState(unsigned int index,dqm::State_t state);
-  private:
     bool           setEvtDiscard(unsigned int index,unsigned int discard);
     int            incEvtDiscard(unsigned int index);
+  private:
     bool           setEvtNumber(unsigned int index,unsigned int evtNumber);
     bool           setEvtPrcId(unsigned int index,pid_t prcId);
     bool           setEvtTimeStamp(unsigned int index,time_t timeStamp);
@@ -244,7 +244,7 @@ namespace evf {
     void           lock()             { sem_wait(0); }
     void           unlock()           { sem_post(0); }
   private:
-    void           waitRawWrite()     { sem_wait(1); }
+    int            waitRawWrite()     { return sem_wait(1); }
     void           postRawWrite()     { sem_post(1); }
     void           waitRawRead()      { sem_wait(2); }
     void           postRawRead()      { sem_post(2); }

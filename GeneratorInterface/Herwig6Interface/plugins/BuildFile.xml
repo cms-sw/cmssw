@@ -5,7 +5,7 @@
 <use name="boost"/>
 <use name="heppdt"/>
 <use name="clhep"/>
-<library name="GeneratorInterfaceHerwig6Hadronizer" file="Herwig6Hadronizer.cc">
+<library name="GeneratorInterfaceHerwig6Hadronizer" file="Herwig6Hadronizer.cc hwudat.F">
 	<use name="GeneratorInterface/Core"/>
 	<use name="GeneratorInterface/Herwig6Interface"/>
 	<use name="GeneratorInterface/ExternalDecays"/>

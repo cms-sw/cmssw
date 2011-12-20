@@ -55,6 +55,9 @@ public:
   virtual LocalPoint localPosition() const = 0;
   
   virtual LocalError localPositionError() const = 0;
+
+  /// to be redefined by daughter class
+  virtual bool hasPositionAndError() const {return true;}; 
   
   virtual float weight() const {return 1.;}
   

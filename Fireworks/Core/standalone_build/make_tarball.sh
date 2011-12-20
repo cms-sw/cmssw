@@ -91,7 +91,8 @@ cat /tmp/.edmplugincache | sort -u >  ${tard}/lib/.edmplugincache
 echo "=========================================================="
 echo "getting sources."
 # binary 
-cp $CMSSW_BASE/bin/*/cmsShow.exe ${tard}
+mkdir ${tard}/libexec
+cp $CMSSW_BASE/bin/*/cmsShow.exe ${tard}/libexec
 
 # src
 srcDir="${tard}/src/Fireworks/Core"

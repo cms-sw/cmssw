@@ -129,6 +129,7 @@ void PFJetBenchmark::setup(
   BOOK2D(NCH4vsEta,"N_{Charged} vs #eta, iter 4",200, -5., 5., 200,0.,200.);
   BOOK2D(NCH5vsEta,"N_{Charged} vs #eta, iter 5",200, -5., 5., 200,0.,200.);
   BOOK2D(NCH6vsEta,"N_{Charged} vs #eta, iter 6",200, -5., 5., 200,0.,200.);
+  BOOK2D(NCH7vsEta,"N_{Charged} vs #eta, iter 7",200, -5., 5., 200,0.,200.);
   // delta Pt or E quantities for Barrel
   DBOOK1D(RPt,#DeltaP_{T}/P_{T},80,-1,1);
   DBOOK1D(RCHE,#DeltaE/E (charged had),80,-2,2);
@@ -149,6 +150,7 @@ void PFJetBenchmark::setup(
   DBOOK2D(NCH4vsPt, N_{charged} vs P_{T} iter 4,250,0,500,200,0.,200.);
   DBOOK2D(NCH5vsPt, N_{charged} vs P_{T} iter 5,250,0,500,200,0.,200.);
   DBOOK2D(NCH6vsPt, N_{charged} vs P_{T} iter 6,250,0,500,200,0.,200.);
+  DBOOK2D(NCH7vsPt, N_{charged} vs P_{T} iter 7,250,0,500,200,0.,200.);
   
 
   DBOOK2D(RNEUTvsP,#DeltaE/E (ECAL+HCAL) vs P,250, 0, 1000, 150,-1.5,1.5);
@@ -301,7 +303,7 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
       double rec_NeutralEnergy = rec_NeutralHadEnergy + rec_NeutralEmEnergy;
       double rec_ChargedMultiplicity = pfj.chargedMultiplicity();
       std::vector <PFCandidatePtr> constituents = pfj.getPFConstituents ();
-      std::vector <unsigned int> chMult(7, static_cast<unsigned int>(0)); 
+      std::vector <unsigned int> chMult(9, static_cast<unsigned int>(0)); 
       for (unsigned ic = 0; ic < constituents.size (); ++ic) {
 	if ( constituents[ic]->particleId() > 3 ) continue;
 	reco::TrackRef trackRef = constituents[ic]->trackRef();
@@ -332,9 +334,18 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
 	case TrackBase::iter5:
 	  iter = 5;
 	  break;
-	default:
+	case TrackBase::iter6:
 	  iter = 6;
-	  std::cout << "Warning in entry " << entry_ << " : iter = 6... " << std::endl;
+	  break;
+	case TrackBase::iter8:
+	  iter = 7;
+	  //std::cout << "Warning in entry " << entry_ << " : iter = " << trackRef->algo() << std::endl;
+	  //std::cout << ic << " " << *(constituents[ic]) << std::endl;
+	  break;
+	default:
+	  iter = 8;
+	  std::cout << "Warning in entry " << entry_ << " : iter = " << trackRef->algo() << std::endl;
+	  std::cout << ic << " " << *(constituents[ic]) << std::endl;
 	  break;
 	}
 	++(chMult[iter]);
@@ -494,6 +505,7 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
 	hNCH4vsEta->Fill(true_eta,chMult[4]);
 	hNCH5vsEta->Fill(true_eta,chMult[5]);
 	hNCH6vsEta->Fill(true_eta,chMult[6]);
+	hNCH7vsEta->Fill(true_eta,chMult[7]);
       }
       if(plot2)hRCHEvsEta->Fill(true_eta, resChargedHadEnergy);
       if(plot5)hRNeutvsEta->Fill(true_eta, resNeutralEnergy);
@@ -533,6 +545,7 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
 	  hBNCH4vsPt->Fill(pt_denom,chMult[4]);
 	  hBNCH5vsPt->Fill(pt_denom,chMult[5]);
 	  hBNCH6vsPt->Fill(pt_denom,chMult[6]);
+	  hBNCH7vsPt->Fill(pt_denom,chMult[7]);
 	  hBNCHvsPt->Fill(pt_denom,rec_ChargedMultiplicity);
 	  if ( rec_eta > 0. ) 
 	    hBDEtavsPt->Fill(pt_denom,rec_eta-true_eta);
@@ -586,6 +599,7 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
 	  hENCH4vsPt->Fill(pt_denom,chMult[4]);
 	  hENCH5vsPt->Fill(pt_denom,chMult[5]);
 	  hENCH6vsPt->Fill(pt_denom,chMult[6]);
+	  hENCH7vsPt->Fill(pt_denom,chMult[7]);
 	  if ( rec_eta > 0. ) 
 	    hEDEtavsPt->Fill(pt_denom,rec_eta-true_eta);
 	  else

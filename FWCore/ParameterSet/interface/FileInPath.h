@@ -118,6 +118,7 @@ namespace edm
     /// Reading errors are reflected in the state of the stream.
     void read(std::istream& is);
 
+    void readFromParameterSetBlob(std::istream& is);
   private:
     std::string    relativePath_;
     std::string    canonicalFilename_;

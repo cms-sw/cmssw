@@ -1,5 +1,5 @@
 //
-// $Id: GenericTriggerEventFlag.cc,v 1.5 2010/07/19 14:43:33 vadler Exp $
+// $Id: GenericTriggerEventFlag.cc,v 1.6 2011/04/30 19:13:48 vadler Exp $
 //
 
 
@@ -43,6 +43,7 @@ GenericTriggerEventFlag::GenericTriggerEventFlag( const edm::ParameterSet & conf
   , onL1_( true )
   , onHlt_( true )
   , configError_( "CONFIG_ERROR" )
+  , emptyKeyError_( "EMPTY_KEY_ERROR" )
 {
 
   // General switch(es)
@@ -491,24 +492,6 @@ bool GenericTriggerEventFlag::acceptHltLogicalExpression( const edm::Handle< edm
 
 
 
-/// Reads and returns logical expressions from DB
-std::vector< std::string > GenericTriggerEventFlag::expressionsFromDB( const std::string & key, const edm::EventSetup & setup )
-{
-
-  edm::ESHandle< AlCaRecoTriggerBits > logicalExpressions;
-  setup.get< AlCaRecoTriggerBitsRcd >().get( dbLabel_, logicalExpressions );
-  const std::map< std::string, std::string > & expressionMap = logicalExpressions->m_alcarecoToTrig;
-  std::map< std::string, std::string >::const_iterator listIter = expressionMap.find( key );
-  if ( listIter == expressionMap.end() ) {
-    if ( verbose_ > 0 ) edm::LogWarning( "GenericTriggerEventFlag" ) << "No logical expressions found under key " << key << " in 'AlCaRecoTriggerBitsRcd'";
-    return std::vector< std::string >( 1, configError_ );
-  }
-  return logicalExpressions->decompose( listIter->second );
-
-}
-
-
-
 /// Checks for negated words
 bool GenericTriggerEventFlag::negate( std::string & word ) const
 {
@@ -519,5 +502,24 @@ bool GenericTriggerEventFlag::negate( std::string & word ) const
     word.erase( 0, 1 );
   }
   return negate;
+
+}
+
+
+
+/// Reads and returns logical expressions from DB
+std::vector< std::string > GenericTriggerEventFlag::expressionsFromDB( const std::string & key, const edm::EventSetup & setup )
+{
+
+  if ( key.size() == 0 ) return std::vector< std::string >( 1, emptyKeyError_ );
+  edm::ESHandle< AlCaRecoTriggerBits > logicalExpressions;
+  setup.get< AlCaRecoTriggerBitsRcd >().get( dbLabel_, logicalExpressions );
+  const std::map< std::string, std::string > & expressionMap = logicalExpressions->m_alcarecoToTrig;
+  std::map< std::string, std::string >::const_iterator listIter = expressionMap.find( key );
+  if ( listIter == expressionMap.end() ) {
+    if ( verbose_ > 0 ) edm::LogWarning( "GenericTriggerEventFlag" ) << "No logical expressions found under key " << key << " in 'AlCaRecoTriggerBitsRcd'";
+    return std::vector< std::string >( 1, configError_ );
+  }
+  return logicalExpressions->decompose( listIter->second );
 
 }

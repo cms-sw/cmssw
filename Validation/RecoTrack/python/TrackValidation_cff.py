@@ -31,9 +31,6 @@ cutsRecoTracksFourth.algorithm=cms.vstring("iter4")
 cutsRecoTracksFifth = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSelector.clone()
 cutsRecoTracksFifth.algorithm=cms.vstring("iter5")
 
-cutsRecoTracksSixth = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSelector.clone()
-cutsRecoTracksSixth.algorithm=cms.vstring("iter6")
-
 # high purity
 cutsRecoTracksHp = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSelector.clone()
 cutsRecoTracksHp.quality=cms.vstring("highPurity")
@@ -62,10 +59,6 @@ cutsRecoTracksFifthHp = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSe
 cutsRecoTracksFifthHp.algorithm=cms.vstring("iter5")
 cutsRecoTracksFifthHp.quality=cms.vstring("highPurity")
 
-cutsRecoTracksSixthHp = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSelector.clone()
-cutsRecoTracksSixthHp.algorithm=cms.vstring("iter6")
-cutsRecoTracksSixthHp.quality=cms.vstring("highPurity")
-
 trackValidator= Validation.RecoTrack.MultiTrackValidator_cfi.multiTrackValidator.clone()
 
 trackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
@@ -81,9 +74,7 @@ trackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
                                    cms.InputTag("cutsRecoTracksFourth"),
                                    cms.InputTag("cutsRecoTracksFourthHp"),
                                    cms.InputTag("cutsRecoTracksFifth"),
-                                   cms.InputTag("cutsRecoTracksFifthHp"),
-                                   cms.InputTag("cutsRecoTracksSixth"),
-                                   cms.InputTag("cutsRecoTracksSixthHp")
+                                   cms.InputTag("cutsRecoTracksFifthHp")
                                    )
 trackValidator.skipHistoFit=cms.untracked.bool(True)
 trackValidator.useLogPt=cms.untracked.bool(True)
@@ -104,9 +95,7 @@ tracksValidationSelectors = cms.Sequence( cutsRecoTracksHp*
                                 cutsRecoTracksFourth*
                                 cutsRecoTracksFourthHp*
                                 cutsRecoTracksFifth*
-                                cutsRecoTracksFifthHp*
-                                cutsRecoTracksSixth*
-                                cutsRecoTracksSixthHp )
+                                cutsRecoTracksFifthHp )
 
 # selectors go into separate "prevalidation" sequence
 tracksValidation = cms.Sequence( trackValidator)

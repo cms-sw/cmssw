@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg      3-Jul-2007
 #     A. Parenti, DESY Hamburg    21-Apr-2008
-#     $Revision: 1.24 $ by $Author: jbehr $
-#     $Date: 2011/06/30 11:16:05 $
+#     $Revision: 1.23 $ by $Author: jbehr $
+#     $Date: 2011/06/15 14:24:52 $
 #
 #  Submit jobs that are setup in local mps database
 #  
@@ -79,7 +79,6 @@ if ($fireMerge == 0) {
         $queue = $resources;
         $queue =~ s/cmscafspec/cmscaf/;
  	$resources = "-q ".$queue." -R cmscafspec";
-        $resources = "-q cmscafalcamille";
     } elsif ($resources =~ "cmscaf") { # "cmscaf" found in $resources
 	# g_cmscaf for ordinary caf queues, keeping 'cmscafspec' free for pede jobs: 
  	$resources = "-q ".$resources." -m g_cmscaf";
@@ -120,7 +119,6 @@ if ($fireMerge == 0) {
         $queue = $resources;
         $queue =~ s/cmscafspec/cmscaf/;
  	$resources = "-q ".$queue." -R cmscafspec";
-        $resources = "-q cmscafalcamille";
     } else {
 	$resources = "-q ".$resources;
     }

@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2011/06/29 20:36:10 $
+// last change    : $Date: 2010/10/26 21:34:25 $
 // by             : $Author: flucke $
 
 #include "TTree.h"
@@ -508,8 +508,9 @@ TString MillePedeTrees::DeformValue(UInt_t i, const TString &whichOne) const
 {
   //start,result,diff
   if (whichOne == "diff") {
-    return Parenth((PosT() += Form("DeformValues[%u]", i)) += Min()
-		   += MisPosT() += Form("DeformValues[%u]", i));
+    ::Error("MillePedeTrees::DeformValue",
+	    "whichOne == diff not yet implemented!");
+    return "2";
   } else {
     TString tree;
     if (whichOne == "result") tree = PosT();
@@ -528,7 +529,9 @@ TString MillePedeTrees::NumDeformValues(const TString &whichOne) const
 {
   //start,result,diff
   if (whichOne == "diff") {
-    return Fun("TMath::Min", (PosT() += "NumDeform,") += MisPosT() += "NumDeform");
+    ::Error("MillePedeTrees::NumDeformValues",
+	    "whichOne == diff not yet implemented!");
+    return "0";
   } else {
     TString tree;
     if (whichOne == "result") tree = PosT();
@@ -804,20 +807,6 @@ TString MillePedeTrees::Name(const TString &pos) const
     ::Error("MillePedeTrees::Name", "unknown position %s", pos.Data());
     return "";
   }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-TString MillePedeTrees::NamePos(UInt_t iPos) const
-{
-  switch (iPos) {
-  case 0: return "x";
-  case 1: return "y";
-  case 2: return "z";
-  }
-
-  ::Error("MillePedeTrees::NamePos", "unknown position %d", iPos);
-  return "";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

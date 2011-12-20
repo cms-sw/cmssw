@@ -4,6 +4,11 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.recoLayer0.pfCandidateIsoDepositSelection_cff import *
 from PhysicsTools.PatAlgos.recoLayer0.tauIsolation_cff import *
 #from PhysicsTools.PatAlgos.recoLayer0.tauDiscriminators_cff import *
+# CV: do **not** load PhysicsTools/PatAlgos/python/recoLayer0/tauJetCorrections_cff
+#     in order to avoid triggering FileInPath to SQLlite file
+#       CondFormats/JetMETObjects/data/TauJec11_V1.db
+#    (which is not included in all _4_2_x/4_3_x/4_4_x CMSSW releases yet)
+#from PhysicsTools.PatAlgos.recoLayer0.tauJetCorrections_cff import *
 
 # add PAT specifics
 from PhysicsTools.JetMCAlgos.TauGenJets_cfi import *
@@ -17,6 +22,7 @@ makePatTaus = cms.Sequence(
     # reco pre-production
     patPFCandidateIsoDepositSelection *
     patPFTauIsolation *
+    #patTauJetCorrections *
     # pat specifics
     tauMatch *
     tauGenJets *
@@ -24,4 +30,4 @@ makePatTaus = cms.Sequence(
     tauGenJetMatch *
     # object production
     patTaus
-    )
+)

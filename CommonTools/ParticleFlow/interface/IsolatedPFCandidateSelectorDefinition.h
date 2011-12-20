@@ -15,59 +15,80 @@ namespace pf2pat {
     typedef edm::ValueMap<double> IsoMap;
 
     IsolatedPFCandidateSelectorDefinition ( const edm::ParameterSet & cfg ) :
-      isolationValueMapLabels_(cfg.getParameter< std::vector<edm::InputTag> >("isolationValueMaps") ),
+      isolationValueMapChargedLabels_(cfg.getParameter< std::vector<edm::InputTag> >("isolationValueMapsCharged") ),
+      isolationValueMapNeutralLabels_(cfg.getParameter< std::vector<edm::InputTag> >("isolationValueMapsNeutral") ),
+      doDeltaBetaCorrection_(cfg.getParameter<bool>("doDeltaBetaCorrection")),
+      deltaBetaIsolationValueMap_(cfg.getParameter< edm::InputTag >("deltaBetaIsolationValueMap") ),
+      deltaBetaFactor_(cfg.getParameter<double>("deltaBetaFactor")),
       isRelative_(cfg.getParameter<bool>("isRelative")),
-      isCombined_(cfg.getParameter<bool>("isCombined")),
-      isolationCuts_(cfg.getParameter< std::vector<double> >("isolationCuts")),
-      combinedIsolationCut_(cfg.getParameter<double>("combinedIsolationCut")) { 
+      isolationCut_(cfg.getParameter<double>("isolationCut")) {}
     
 
-      if( isolationCuts_.size() != isolationValueMapLabels_.size() )
-	throw cms::Exception("BadConfiguration")<<"the vector of isolation ValueMaps and the vector of the corresponding cuts must have the same size."<<std::endl;
-    }
 
     void select( const HandleToCollection & hc, 
 		 const edm::EventBase & e,
 		 const edm::EventSetup& s) {
       selected_.clear();
     
-      /*     assert( hc.isValid() ); */
 
-      // read all isolation value maps
+      // read all charged isolation value maps
       std::vector< edm::Handle<IsoMap> > 
-	isoMaps(isolationValueMapLabels_.size());
-      for(unsigned iMap = 0; iMap<isolationValueMapLabels_.size(); ++iMap) {
-	e.getByLabel(isolationValueMapLabels_[iMap], isoMaps[iMap]);
+	isoMapsCharged(isolationValueMapChargedLabels_.size());
+      for(unsigned iMap = 0; iMap<isolationValueMapChargedLabels_.size(); ++iMap) {
+	e.getByLabel(isolationValueMapChargedLabels_[iMap], isoMapsCharged[iMap]);
+      }
+
+
+      // read all neutral isolation value maps
+      std::vector< edm::Handle<IsoMap> > 
+	isoMapsNeutral(isolationValueMapNeutralLabels_.size());
+      for(unsigned iMap = 0; iMap<isolationValueMapNeutralLabels_.size(); ++iMap) {
+	e.getByLabel(isolationValueMapNeutralLabels_[iMap], isoMapsNeutral[iMap]);
+      }
+
+      edm::Handle<IsoMap> dBetaH;
+      if(doDeltaBetaCorrection_) {
+	e.getByLabel(deltaBetaIsolationValueMap_, dBetaH);
       }
 
       unsigned key=0;
-      //    for( unsigned i=0; i<collection->size(); i++ ) {
       for( collection::const_iterator pfc = hc->begin(); 
 	   pfc != hc->end(); ++pfc, ++key) {
 	reco::PFCandidateRef candidate(hc,key);
 
 	bool passed = true;
-	double isoSum=0.0;
-	for(unsigned iMap = 0; iMap<isoMaps.size(); ++iMap) {
-	
-	  const IsoMap & isoMap = *(isoMaps[iMap]);
-	
-	  double val = isoMap[candidate];
-	  double cut = isolationCuts_[iMap];
-	  if(isRelative_ && candidate->pt()>0.0) val/=candidate->pt();
-	  isoSum+=val;
-	  //std::cout << "val " << iMap << " = " << val << std::endl;
+	double isoSumCharged=0.0;
+	double isoSumNeutral=0.0;
 
-	  if ( !isCombined_ && val>cut ) {
-	    passed = false;
-	    break; 	  
-	  }
+	for(unsigned iMap = 0; iMap<isoMapsCharged.size(); ++iMap) {
+	  const IsoMap & isoMap = *(isoMapsCharged[iMap]);
+	  double val = isoMap[candidate];
+	  isoSumCharged+=val;
 	}
 
-	if ( isCombined_ && isoSum>combinedIsolationCut_ )
-	  {
-	    passed = false;
-	  }
+	for(unsigned iMap = 0; iMap<isoMapsNeutral.size(); ++iMap) {
+	  const IsoMap & isoMap = *(isoMapsNeutral[iMap]);
+	  double val = isoMap[candidate];
+	  isoSumNeutral+=val;
+	}
+	
+
+	if ( doDeltaBetaCorrection_ ) {
+	  const IsoMap& isoMap = *dBetaH;
+	  double dBetaVal = isoMap[candidate];
+	  double dBetaCorIsoSumNeutral = isoSumNeutral + deltaBetaFactor_*dBetaVal; 
+	  isoSumNeutral = dBetaCorIsoSumNeutral>0 ? dBetaCorIsoSumNeutral : isoSumNeutral;
+	}
+
+	double isoSum=isoSumCharged+isoSumNeutral;
+
+	if( isRelative_ ) {
+	  isoSum /= candidate->pt();
+	}
+
+	if ( isoSum>isolationCut_ ) {
+	  passed = false;
+	}
 
 	if(passed) {
 	  // passed all cuts, selected
@@ -77,12 +98,16 @@ namespace pf2pat {
 	}
       }
     }
+    
 
-    private:
-    std::vector<edm::InputTag> isolationValueMapLabels_;
-    bool isRelative_, isCombined_;
-    std::vector<double> isolationCuts_;
-    double combinedIsolationCut_;
+  private:
+    std::vector<edm::InputTag> isolationValueMapChargedLabels_;
+    std::vector<edm::InputTag> isolationValueMapNeutralLabels_;
+    bool                       doDeltaBetaCorrection_;
+    edm::InputTag              deltaBetaIsolationValueMap_;
+    double                     deltaBetaFactor_;
+    bool                       isRelative_; 
+    double                     isolationCut_;
   };
 
 }

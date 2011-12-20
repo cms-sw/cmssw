@@ -77,8 +77,7 @@ int main(int argc, char ** argv)
   AnalyzeTiming * tt = 0;
 
   char tmp_name[1024];
-  sprintf(tmp_name, "edmEventTime_myTimer__%s.obj", 
-	  process_name.c_str());
+  snprintf(tmp_name, 1024, "edmEventTime_myTimer__%s.obj", process_name.c_str());
   TBevtTime = events->GetBranch(tmp_name);
   assert(TBevtTime);
   TBevtTime->SetAddress((void*)&evtTime);

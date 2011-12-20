@@ -64,9 +64,11 @@ class HIProtoTrackSelector
 				     << "\n   vz = " << vtxPoint.Z()  
 				     << "\n   " << nSigmaZ_ << " vz sigmas = " << vzErr*nSigmaZ_
 				     << "\n   cut at = " << std::max(vzErr*nSigmaZ_,minZCut_);
-      } else {
-	edm::LogError("HeavyIonVertexing") << "No vertex found in collection '" << vertexCollection_ << "'";
-      }
+      } 
+      // Supress this warning, since events w/ no vertex are expected 
+      //else {
+	//edm::LogError("HeavyIonVertexing") << "No vertex found in collection '" << vertexCollection_ << "'";
+      //}
       
       // Get beamspot
       reco::BeamSpot beamSpot;

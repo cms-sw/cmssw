@@ -10,18 +10,15 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: bendavid $
-// $Date: 2010/09/27 09:27:14 $
-// $Revision: 1.2 $
+// $Author: wmtan $
+// $Date: 2011/05/20 17:17:28 $
+// $Revision: 1.3 $
 //
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
-
-
 
 #include "DataFormats/EgammaTrackReco/interface/ConversionTrack.h"
 #include "DataFormats/EgammaTrackReco/interface/ConversionTrackFwd.h"
@@ -32,8 +29,17 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+
+//--------------------------------------------------
+//Added by D. Giordano
+// 2011/08/05
+// Reduction of the track sample based on geometric hypothesis for conversion tracks
+#include "RecoTracker/ConversionSeedGenerators/interface/IdealHelixParameters.h"
+//--------------------------------------------------
+
   class ConversionTrackProducer : public edm::EDProducer
   {
+
   public:
 
     explicit ConversionTrackProducer(const edm::ParameterSet& conf);
@@ -43,7 +49,26 @@
     virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
   private:
+
     edm::ParameterSet conf_;
+
+    std::string trackProducer;
+    bool useTrajectory;
+    bool setTrackerOnly;
+    bool setArbitratedEcalSeeded;
+    bool setArbitratedMerged;
+    bool setArbitratedMergedEcalGeneral;
+
+    //--------------------------------------------------
+    //Added by D. Giordano
+    // 2011/08/05
+    // Reduction of the track sample based on geometric hypothesis for conversion tracks
+
+    edm::InputTag beamSpotInputTag;
+    bool filterOnConvTrackHyp;
+    double minConvRadius;
+    IdealHelixParameters ConvTrackPreSelector;
+    //--------------------------------------------------
 
     std::auto_ptr<reco::ConversionTrackCollection> outputTrks;
   };

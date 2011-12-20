@@ -31,7 +31,7 @@ if (isData):
 # Which AlCa condition for what. 
 
 if (isData):
-    GLOBAL_TAG='GR_H_V20::All' # 2011 Collisions data, CMSSW_4_2_X
+    GLOBAL_TAG='GR_H_V22::All' # 2011 Collisions data, CMSSW_4_2_X
 else:
     GLOBAL_TAG='START42_V12::All' # CMSSW_4_2_X MC, STARTUP Conditions
     
@@ -48,23 +48,23 @@ process.options = cms.untracked.PSet(
 )
 
 ## For running on RAW only 
-##process.source = cms.Source("PoolSource",
-##                            fileNames = cms.untracked.vstring(
-##                                '/store/data/Run2011A/MuOnia/RAW/v1/000/165/364/1C94C2CB-9382-E011-9913-0030487CD6E8.root'
-##                                )
-##                            )
+process.source = cms.Source("PoolSource",
+                            fileNames = cms.untracked.vstring(
+                                '/store/data/Run2011A/MultiJet/RAW/v1/000/173/243/E2ACC2F2-5EC5-E011-964F-003048F118AA.root'
+                                )
+                            )
 
 ## For running on RAW+RECO
-process.source = cms.Source("PoolSource",
-   fileNames = cms.untracked.vstring(
-    '/store/data/Run2011A/MuOnia/RECO/PromptReco-v4/000/165/205/86911218-C782-E011-81F3-0019B9F72CE5.root',
-    ),
-   secondaryFileNames =  cms.untracked.vstring(
-    '/store/data/Run2011A/MuOnia/RAW/v1/000/165/205/800B07D2-F680-E011-B2C3-003048F117B4.root',
-    '/store/data/Run2011A/MuOnia/RAW/v1/000/165/205/1C677B58-FA80-E011-A39D-003048F11CF0.root',
-    '/store/data/Run2011A/MuOnia/RAW/v1/000/165/205/0E702227-0281-E011-8081-000423D98950.root'
-   )
-)
+##process.source = cms.Source("PoolSource",
+##   fileNames = cms.untracked.vstring(
+##    '/store/data/Run2011A/MuOnia/RECO/PromptReco-v4/000/165/205/86911218-C782-E011-81F3-0019B9F72CE5.root',
+##    ),
+##   secondaryFileNames =  cms.untracked.vstring(
+##    '/store/data/Run2011A/MuOnia/RAW/v1/000/165/205/800B07D2-F680-E011-B2C3-003048F117B4.root',
+##    '/store/data/Run2011A/MuOnia/RAW/v1/000/165/205/1C677B58-FA80-E011-A39D-003048F11CF0.root',
+##    '/store/data/Run2011A/MuOnia/RAW/v1/000/165/205/0E702227-0281-E011-8081-000423D98950.root'
+##   )
+##)
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32( NEVTS ),

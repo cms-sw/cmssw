@@ -47,6 +47,15 @@ EcalSelectiveReadoutSuppressor::EcalSelectiveReadoutSuppressor(const edm::Parame
     defaultTtf_ = (EcalSelectiveReadout::ttFlag_t) defTtf; 
   }
 
+  //online configuration has only 4 actions flags, the 4 'forced' flags being the same with the force
+  //bit set to 1. Extends the actions vector for case of online-type configuration:
+  if(actions_.size()==4){
+     for(int i = 0; i < 4; ++i){
+        actions_.push_back(actions_[i] | 0x4);
+     }
+  }
+
+
   bool actionValid = actions_.size()==8;
   for(size_t i = 0; i < actions_.size(); ++i){
     if(actions_[i] < 0 || actions_[i] > 7) actionValid = false;

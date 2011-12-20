@@ -63,10 +63,11 @@ private:
   edm::InputTag gctBitCounts_,gctRingSums_;
 
   int errCnt;
-  const int errMax(){return 100;}
+  static int errMax() { return 100; }
 
   std::string _HistName; // Name of histogram file
   double _EtaMin,_EtaMax;
   TFile* m_file; // pointer to Histogram file
+	bool _UseTFileService;
 
 };

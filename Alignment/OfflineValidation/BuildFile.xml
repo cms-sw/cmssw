@@ -1,3 +1,6 @@
+<use   name="Alignment/CommonAlignment"/>
+<use   name="Alignment/TrackerAlignment"/>
+<use   name="CondCore/DBOutputService"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/Framework"/>

@@ -1,8 +1,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2011/01/17 11:22:40 $
- *  $Revision: 1.43 $
+ *  $Date: 2009/05/11 10:15:45 $
+ *  $Revision: 1.42 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author Stefano Lacaprara - INFN Legnaro
  *  \author D. Trocino - INFN Torino <daniele.trocino@to.infn.it>
@@ -162,13 +162,6 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
     lastTSOS = theSeedTransformer->seedTransientState(seed);
     lastDetId = seed.startingState().detId();
   }
-
-  LogTrace(metname) << "Trajectory State on Surface before the extrapolation"<<endl;
-  LogTrace(metname) << debug.dumpTSOS(lastTSOS);
-  
-  // Segment layer
-  LogTrace(metname) << "The RecSegment relies on: "<<endl;
-  LogTrace(metname) << debug.dumpMuonId(lastDetId);
 
   DetLayerWithState inputFromSeed = propagateTheSeedTSOS(lastTSOS, lastDetId);
 

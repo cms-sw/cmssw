@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.73 $
- *  $Date: 2011/05/23 21:12:36 $
+ *  $Revision: 1.72 $
+ *  $Date: 2011/02/18 17:08:13 $
  *  (last update by $Author: mussgill $)
  */
 
@@ -95,7 +95,18 @@ MillePedeAlignmentAlgorithm::MillePedeAlignmentAlgorithm(const edm::ParameterSet
 //____________________________________________________
 MillePedeAlignmentAlgorithm::~MillePedeAlignmentAlgorithm()
 {
-
+  delete theAlignableNavigator;
+  theAlignableNavigator = 0;
+  delete theMille;
+  theMille = 0;
+  delete theMonitor;
+  theMonitor = 0;
+  delete thePedeSteer;
+  thePedeSteer = 0;
+  delete thePedeLabels;
+  thePedeLabels = 0;
+  delete theTrajectoryFactory;
+  theTrajectoryFactory = 0;
 }
 
 // Call at beginning of job ---------------------------------------------------
@@ -267,20 +278,6 @@ void MillePedeAlignmentAlgorithm::terminate()
   if (this->isMode(myMilleBit)) { // if mille was run, we store trees with suffix _1...
     this->doIO(1);
   }
-
-  // clean up everything constructed in 'MillePedeAlignmentAlgorithm::initialize'
-  delete theTrajectoryFactory;
-  theTrajectoryFactory = 0;
-  delete theMonitor;
-  theMonitor = 0;
-  delete theMille;
-  theMille = 0;
-  delete thePedeSteer;
-  thePedeSteer = 0;
-  delete thePedeLabels;
-  thePedeLabels = 0;
-  delete theAlignableNavigator;
-  theAlignableNavigator = 0;
 }
 
 // Run the algorithm on trajectories and tracks -------------------------------

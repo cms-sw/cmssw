@@ -11,6 +11,7 @@ MultiTrackSelector::MultiTrackSelector( const edm::ParameterSet & cfg ) :
   src_( cfg.getParameter<edm::InputTag>( "src" ) ),
   beamspot_( cfg.getParameter<edm::InputTag>( "beamspot" ) ),
   useVertices_( cfg.getParameter<bool>( "useVertices" ) ),
+  useVtxError_( cfg.getParameter<bool>( "useVtxError" ) ),
   vertices_( useVertices_ ? cfg.getParameter<edm::InputTag>( "vertices" ) : edm::InputTag("NONE"))
   // now get the pset for each selector
 {
@@ -21,6 +22,7 @@ MultiTrackSelector::MultiTrackSelector( const edm::ParameterSet & cfg ) :
   vertexCut_.reserve(trkSelectors.size());
   res_par_.reserve(trkSelectors.size());
   chi2n_par_.reserve(trkSelectors.size());
+  chi2n_no1Dmod_par_.reserve(trkSelectors.size());
   d0_par1_.reserve(trkSelectors.size());
   dz_par1_.reserve(trkSelectors.size());
   d0_par2_.reserve(trkSelectors.size());
@@ -36,6 +38,8 @@ MultiTrackSelector::MultiTrackSelector( const edm::ParameterSet & cfg ) :
   max_d0NoPV_.reserve(trkSelectors.size());
   max_z0NoPV_.reserve(trkSelectors.size());
   preFilter_.reserve(trkSelectors.size());
+  max_relpterr_.reserve(trkSelectors.size());
+  min_nhits_.reserve(trkSelectors.size());
 
   for ( unsigned int i=0; i<trkSelectors.size(); i++) {
 
@@ -46,6 +50,7 @@ MultiTrackSelector::MultiTrackSelector( const edm::ParameterSet & cfg ) :
     //  parameters for adapted optimal cuts on chi2 and primary vertex compatibility
     res_par_.push_back(trkSelectors[i].getParameter< std::vector<double> >("res_par") );
     chi2n_par_.push_back( trkSelectors[i].getParameter<double>("chi2n_par") );
+    chi2n_no1Dmod_par_.push_back( trkSelectors[i].getParameter<double>("chi2n_no1Dmod_par") );
     d0_par1_.push_back(trkSelectors[i].getParameter< std::vector<double> >("d0_par1"));
     dz_par1_.push_back(trkSelectors[i].getParameter< std::vector<double> >("dz_par1"));
     d0_par2_.push_back(trkSelectors[i].getParameter< std::vector<double> >("d0_par2"));
@@ -63,6 +68,9 @@ MultiTrackSelector::MultiTrackSelector( const edm::ParameterSet & cfg ) :
     // Flag to apply absolute cuts if no PV passes the selection
     applyAbsCutsIfNoPV_.push_back(trkSelectors[i].getParameter<bool>("applyAbsCutsIfNoPV"));
     keepAllTracks_.push_back( trkSelectors[i].getParameter<bool>("keepAllTracks")); 
+    max_relpterr_.push_back(trkSelectors[i].getParameter<double>("max_relpterr"));
+    min_nhits_.push_back(trkSelectors[i].getParameter<uint32_t>("min_nhits"));
+
   
     setQualityBit_.push_back( false );
     std::string qualityStr = trkSelectors[i].getParameter<std::string>("qualityBit");
@@ -139,7 +147,9 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
     edm::ValueMap<int>::Filler filler(*selTracksValueMap);
 
     std::vector<Point> points;
-    if (useVertices_) selectVertices(i,*hVtx, points);
+    std::vector<double> vterr;
+    std::vector<double> vzerr;
+    if (useVertices_) selectVertices(i,*hVtx, points, vterr, vzerr);
 
     // Loop over tracks
     size_t current = 0;
@@ -158,7 +168,7 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
 	  continue;
       }
       else {
-	ok = select(i,vertexBeamSpot, trk, points);
+	ok = select(i,vertexBeamSpot, trk, points, vterr, vzerr);
 	if (!ok) { 
 	  LogTrace("TrackSelection") << "track with pt="<< trk.pt() << " NOT selected";
 	  if (!keepAllTracks_[i]) { 
@@ -201,7 +211,9 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
  bool MultiTrackSelector::select(unsigned int tsNum, 
 				 const reco::BeamSpot &vertexBeamSpot, 
 				 const reco::Track &tk, 
-				 const std::vector<Point> &points) {
+				 const std::vector<Point> &points,
+				 std::vector<double> &vterr,
+				 std::vector<double> &vzerr) {
   // Decide if the given track passes selection cuts.
 
   using namespace std; 
@@ -221,6 +233,7 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
   LogTrace("TrackSelection") << "cuts on nlayers passed";
 
   double chi2n =  tk.normalizedChi2();
+  double chi2n_no1Dmod = chi2n;
 
   int count1dhits = 0;
   for (trackingRecHit_iterator ith = tk.recHitsBegin(), edh = tk.recHitsEnd(); ith != edh; ++ith) {
@@ -239,8 +252,19 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
   // the same normalized chi^2 distribution as with 2D rechits.
   if (chi2n > chi2n_par_[tsNum]*nlayers) return false;
 
+  if (chi2n_no1Dmod > chi2n_no1Dmod_par_[tsNum]*nlayers) return false;
+
   // Get track parameters
   double pt = tk.pt(), eta = tk.eta();
+
+  //cuts on relative error on pt and number of valid hits
+  double relpterr = tk.ptError()/max(pt,1e-9);
+  uint32_t nhits = tk.numberOfValidHits();
+  if(relpterr > max_relpterr_[tsNum]) return false;
+  if(nhits < min_nhits_[tsNum]) return false;
+
+
+  //other track parameters
   double d0 = -tk.dxy(vertexBeamSpot.position()), d0E =  tk.d0Error(),
     dz = tk.dz(vertexBeamSpot.position()), dzE =  tk.dzError();
 
@@ -266,13 +290,26 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
     if (abs(d0) < d0Cut) primaryVertexD0Compatibility = true;     
   }
 
+  int iv=0;
   for (std::vector<Point>::const_iterator point = points.begin(), end = points.end(); point != end; ++point) {
     LogTrace("TrackSelection") << "Test track w.r.t. vertex with z position " << point->z();
     if(primaryVertexZCompatibility && primaryVertexD0Compatibility) break;
     double dzPV = tk.dz(*point); //re-evaluate the dz with respect to the vertex position
     double d0PV = tk.dxy(*point); //re-evaluate the dxy with respect to the vertex position
-    if (abs(dzPV) < dzCut)  primaryVertexZCompatibility = true;
-    if (abs(d0PV) < d0Cut) primaryVertexD0Compatibility = true;     
+    if(useVtxError_){
+       double dzErrPV = sqrt(dzE*dzE+vzerr[iv]*vzerr[iv]); // include vertex error in z
+       double d0ErrPV = sqrt(d0E*d0E+vterr[iv]*vterr[iv]); // include vertex error in xy
+       iv++;
+       if (abs(dzPV) < dz_par1_[tsNum][0]*pow(nlayers,dz_par1_[tsNum][1])*nomdzE &&
+	   abs(dzPV) < dz_par2_[tsNum][0]*pow(nlayers,dz_par2_[tsNum][1])*dzErrPV &&
+	   abs(dzPV) < max_z0_[tsNum])  primaryVertexZCompatibility = true;
+       if (abs(d0PV) < d0_par1_[tsNum][0]*pow(nlayers,d0_par1_[tsNum][1])*nomd0E &&
+	   abs(d0PV) < d0_par2_[tsNum][0]*pow(nlayers,d0_par2_[tsNum][1])*d0ErrPV &&
+	   abs(d0PV) < max_d0_[tsNum]) primaryVertexD0Compatibility = true; 
+    }else{
+       if (abs(dzPV) < dzCut)  primaryVertexZCompatibility = true;
+       if (abs(d0PV) < d0Cut) primaryVertexD0Compatibility = true;     
+    }
     LogTrace("TrackSelection") << "distances " << dzPV << " " << d0PV << " vs " << dzCut << " " << d0Cut;
   }
 
@@ -301,7 +338,9 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
 
  void MultiTrackSelector::selectVertices(unsigned int tsNum, 
 					 const reco::VertexCollection &vtxs, 
-					 std::vector<Point> &points) {
+					 std::vector<Point> &points,
+					 std::vector<double> &vterr, 
+					 std::vector<double> &vzerr) {
   // Select good primary vertices
   using namespace reco;
   int32_t toTake = vtxNumber_[tsNum]; 
@@ -313,6 +352,8 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
     bool pass = vertexCut_[tsNum]( vtx );
     if( pass ) { 
       points.push_back(it->position()); 
+      vterr.push_back(sqrt(it->yError()*it->xError()));
+      vzerr.push_back(it->zError());
       LogTrace("SelectVertex") << " SELECTED vertex with z position " << it->z();
       toTake--; if (toTake == 0) break;
     }

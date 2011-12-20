@@ -137,62 +137,24 @@ def detailForRun(dbsession,c,runnum,algos=['OCC1']):
         print str(e)
         dbsession.transaction().rollback()
         del dbsession
-        
-def detailForRunLumisummaryV2(dbsession,c,runnum):
-    '''select cmslsnum,bxlumivalue_occ1 from lumisummaryv2 where runnum=:runnum
-     
-    '''
-    try:
-        dbsession.transaction().start(True)
-        schema=dbsession.schema(c.lumischema)
-        if not schema:
-            raise 'cannot connect to schema ',c.lumischema
-        detailOutput=coral.AttributeList()
-        detailOutput.extend('cmslsnum','unsigned int')
-        detailOutput.extend('bxlumivalue','blob')
-        detailCondition=coral.AttributeList()
-        detailCondition.extend('runnum','unsigned int')
-        detailCondition['runnum'].setData(runnum)
-        query=schema.newQuery()
-        query.addToTableList('LUMISUMMARYV2')
-        query.addToOutputList('CMSLSNUM','cmslsnum')
-        query.addToOutputList('BXLUMIVALUE_OCC1','bxlumivalue')
-        query.setCondition('RUNNUM=:runnum',detailCondition)
-        query.defineOutput(detailOutput)
-        cursor=query.execute()
-        
-        while cursor.next():
-            cmslsnum=cursor.currentRow()['cmslsnum'].data()
-            bxlumivalue=cursor.currentRow()['bxlumivalue'].data()
-            a=array.array('f')
-            a.fromstring(bxlumivalue.readline())
-            if cmslsnum==1:
-                print '   bxindex, bxlumivalue,calibbxlumivalue'
-                for index,lum in enumerate(a):
-                    if lum*6.37>0.001:
-                        print "  %4d,%.3e,%.3e"%(index,lum,lum*6.37)
-        del query
-        dbsession.transaction().commit()
-        
-    except Exception,e:
-        print str(e)
-        dbsession.transaction().rollback()
-        del dbsession
-        
+
 def main():
     c=constants()
-    os.environ['CORAL_AUTH_PATH']='/afs/cern.ch/user/x/xiezhen'
+    os.environ['CORAL_AUTH_PATH']='/afs/cern.ch/cms/DB/lumi'
     svc=coral.ConnectionService()
     session=svc.connect(c.lumidb,accessMode=coral.access_ReadOnly)
     session.typeConverter().setCppTypeForSqlType("unsigned int","NUMBER(10)")
     session.typeConverter().setCppTypeForSqlType("unsigned long long","NUMBER(20)")
     msg=coral.MessageStream('')
     msg.setMsgVerbosity(coral.message_Level_Error)
-    runnum=161119
+<<<<<<< testUnpackBlob.py
+    runnum=149294
+=======
+    runnum=149011
+>>>>>>> 1.6
     ##here arg 4 is default to ['OCC1'], if you want to see all the algorithms do
     ##  detailForRun(session,c,runnum,['OCC1','OCC2','ET']) then modify detailForRun adding an outer loop on algos argument. I'm lazy
     #detailForRun(session,c,runnum)
-    detailForRunLumisummaryV2(session,c,runnum)
-    #beamintensityForRun(session,c,runnum)
+    beamintensityForRun(session,c,runnum)
 if __name__=='__main__':
     main()
