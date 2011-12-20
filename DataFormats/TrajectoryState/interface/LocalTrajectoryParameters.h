@@ -89,11 +89,17 @@ public:
   LocalVector momentum() const {
     double p = 1./fabs(theQbp);
     if ( p>1.e9 )  p = 1.e9;
+    return p*direction();
+  }
+
+ /// Momentum vector unit in the local frame. 
+  LocalVector direction() const {
     double dz = thePzSign/sqrt(1. + theDxdz*theDxdz + theDydz*theDydz);
     double dx = dz*theDxdz;
     double dy = dz*theDydz;
-    return LocalVector(dx*p, dy*p, dz*p);
+    return LocalVector(dx, dy, dz);
   }
+
 
   /// Charge (-1, 0 or 1)
   TrackCharge charge() const {return theCharge;}
@@ -160,7 +166,7 @@ private:
   double theX;      ///< local x position
   double theY;      ///< local y position
 
-  double thePzSign; ///< sign of local pz
+  float thePzSign; ///< sign of local pz
 
   TrackCharge theCharge; ///< charge
 
