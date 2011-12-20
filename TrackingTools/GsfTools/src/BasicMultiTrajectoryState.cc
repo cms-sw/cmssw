@@ -77,7 +77,7 @@ BasicMultiTrajectoryState::combine()  {
     BasicTrajectoryState::update(tsos.front().localParameters(), 
 				 tsos.front().localError(), 
 				 tsos.front().surface(), 
-				 &(tsos.front().globalParameters().magneticField()),
+				 tsos.front().magneticField()),
 				 tsos.front().surfaceSide(), 
 				 tsos.front().weight());
     return;
@@ -111,7 +111,7 @@ BasicMultiTrajectoryState::combine()  {
   BasicTrajectoryState::update(LocalTrajectoryParameters(mean, pzSign), 
 			       LocalTrajectoryError(covar), 
 			       tsos.front().surface(), 
-			       &(tsos.front().globalParameters().magneticField()),
+			       tsos.front().magneticField(),
 			       tsos.front().surfaceSide(), 
 			       sumw);
 }

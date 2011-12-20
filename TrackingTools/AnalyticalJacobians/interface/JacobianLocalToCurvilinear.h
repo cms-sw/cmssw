@@ -2,9 +2,13 @@
 #define JacobianLocalToCurvilinear_H
 
 #include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
+#include "DataFormats/GeometrySurface/interface/Surface.h"
 
-class Surface;
+#include "FWCore/Utilities/interface/Visibility.h"
+
+// class Surface;
 class LocalTrajectoryParameters;
+class GlobalTrajectoryParameters;
 class MagneticField;
 
 /** Class which calculates the Jacobian matrix of the transformation
@@ -24,6 +28,14 @@ class JacobianLocalToCurvilinear {
   JacobianLocalToCurvilinear(const Surface& surface, 
 			     const LocalTrajectoryParameters& localParameters,
 			     const MagneticField& magField);
+
+  /** Constructor from local and global trajectory parameters and surface defining the local frame. 
+   */
+  
+  JacobianLocalToCurvilinear(const Surface& surface, 
+			     const LocalTrajectoryParameters& localParameters,
+			     const GlobalTrajectoryParameterss& globalParameters,
+			     const MagneticField& magField);
   
   /** Access to Jacobian.
    */
@@ -32,7 +44,8 @@ class JacobianLocalToCurvilinear {
 
 
  private:
-  
+  void compute(Surface::RotationType const & rot, LocalVector const & tnl,  GlobalVector  const & tn, GlobalVector const & hq)  dso_internal;
+
   AlgebraicMatrix55 theJacobian;
 
 };  

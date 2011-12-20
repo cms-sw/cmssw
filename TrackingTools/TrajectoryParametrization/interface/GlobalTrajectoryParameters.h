@@ -61,6 +61,10 @@ public:
     return theP;
   }
 
+  GlobalVector direction() const {
+    return theP.unit();
+  }
+
   /** Charge q of particle, either +1 or -1.
    */
 

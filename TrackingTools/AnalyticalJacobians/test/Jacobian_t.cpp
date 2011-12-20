@@ -6,6 +6,8 @@
 
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryParameters.h"
+#include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
+
 
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 
@@ -67,15 +69,17 @@ int main() {
        rot.zz() != Rsub(2,2) )
     std::cout << " wrong assumption!" << std::endl;
 
-
+  M5T const m;
   LocalTrajectoryParameters tp(1., 1.,1., 0.,0.,1.);
   GlobalVector tn = plane.toGlobal(tp.momentum()).unit();
+  GlobalTrajectoryParameters gp(plane.toGlobal(tp.position()), plane.toGlobal(tp.momentum()),tp.charge(),&m); 
   LocalVector tnl = plane.toLocal(tn);
   std::cout << tp.momentum().unit() << std::endl;
+  std::cout << tp.direction() << std::endl;
   std::cout << tnl << std::endl;
   std::cout << tn << std::endl;
-  std::cout <<  plane.toGlobal(tnl) << std::endl;
-
+  std::cout << plane.toGlobal(tnl) << std::endl;
+  std::cout << gp.direction()<< std::endl;
 
   // L ->Cart
   {
@@ -91,11 +95,21 @@ int main() {
 
   // L -> Curv
   {
-    std::cout << "L ->Curv" << std::endl;
-    M5T const m;
+    std::cout << "L ->Curv from loc" << std::endl;
     edm::HRTimeType s= edm::hrRealTime();
     st();	
     JacobianLocalToCurvilinear  __attribute__ ((aligned (16))) jl2c(plane,tp,m);
+    en();
+    edm::HRTimeType e = edm::hrRealTime();
+    std::cout << e-s << std::endl;
+    std::cout << jl2c.jacobian() << std::endl;
+  }
+
+  {
+    std::cout << "L ->Curv from loc+glob" << std::endl;
+    edm::HRTimeType s= edm::hrRealTime();
+    st();	
+    JacobianLocalToCurvilinear  __attribute__ ((aligned (16))) jl2c(plane,tp,gp,m);
     en();
     edm::HRTimeType e = edm::hrRealTime();
     std::cout << e-s << std::endl;
@@ -117,11 +131,21 @@ int main() {
 
   // Curv -> Loc
   {
-    std::cout << "Curv -> Loc" << std::endl;
-    M5T const m;
+    std::cout << "Curv -> Loc from loc" << std::endl;
     edm::HRTimeType s= edm::hrRealTime();
     st();	
     JacobianCurvilinearToLocal  __attribute__ ((aligned (16))) jl2c(plane,tp,m);
+    en();
+    edm::HRTimeType e = edm::hrRealTime();
+    std::cout << e-s << std::endl;
+    std::cout << jl2c.jacobian() << std::endl;
+  }
+
+  {
+    std::cout << "Curv -> Loc from glob" << std::endl;
+    edm::HRTimeType s= edm::hrRealTime();
+    st();	
+    JacobianCurvilinearToLocal  __attribute__ ((aligned (16))) jl2c(plane,gp,m);
     en();
     edm::HRTimeType e = edm::hrRealTime();
     std::cout << e-s << std::endl;
