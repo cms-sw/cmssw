@@ -48,15 +48,15 @@ int main() {
   cout << "ts.localMomentum()  " << ts.localMomentum() << endl;
   cout << "ts.transverseCurvature()  " << ts.transverseCurvature() << endl;
   cout << "ts inversePtErr " << TrajectoryStateAccessor(*ts.freeState()).inversePtError() << std::endl;
-  cout << "ts curv err\n" << ts.curvilinearError() << std::endl;					   
-  cout << "ts cart err\n" << ts.cartesianError() << std::endl;					   
+  cout << "ts curv err\n" << ts.curvilinearError().matrix() << std::endl;					   
+  cout << "ts cart err\n" << ts.cartesianError().matrix() << std::endl;					   
   {
     JacobianCartesianToCurvilinear cart2Curv(ts.globalParameters());
     const AlgebraicMatrix56& jac = cart2Curv.jacobian();
     
     CurvilinearTrajectoryError theCurvilinearError = 
       ROOT::Math::Similarity(jac, ts.cartesianError().matrix());
-    cout << "curv from cart \n" <<  theCurvilinearError << std::endl;
+    cout << "curv from cart \n" <<  theCurvilinearError.matrix() << std::endl;
   }
 
   LocalPoint lp(0,0,0);
@@ -68,15 +68,15 @@ int main() {
   cout << "ts2.localMomentum()  " << ts2.localMomentum() << endl;
   cout << "ts2.transverseCurvature()  " << ts2.transverseCurvature() << endl;
   cout << "ts2 inversePtErr " << TrajectoryStateAccessor(*ts2.freeState()).inversePtError() << std::endl; 
-  cout << "ts2 curv err\n" << ts2.curvilinearError() << std::endl;					   
-  cout << "ts2 cart err\n" << ts2.cartesianError() << std::endl;					   
+  cout << "ts2 curv err\n" << ts2.curvilinearError().matrix() << std::endl;					   
+  cout << "ts2 cart err\n" << ts2.cartesianError().matrix() << std::endl;					   
   {
     JacobianCartesianToCurvilinear cart2Curv(ts2.globalParameters());
     const AlgebraicMatrix56& jac = cart2Curv.jacobian();
     
     CurvilinearTrajectoryError theCurvilinearError = 
       ROOT::Math::Similarity(jac, ts2.cartesianError().matrix());
-    cout << "curv from cart \n" <<  theCurvilinearError << std::endl;
+    cout << "curv from cart \n" <<  theCurvilinearError.matrix() << std::endl;
   }
 
 }
