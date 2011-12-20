@@ -31,13 +31,22 @@ if (isData):
     MENU="GRun"
 
 #####  Global Tag ###############################################
+
+import os
+cmsswVersion = os.environ['CMSSW_VERSION']
     
 # Which AlCa condition for what. 
+if cmsswVersion > "CMSSW_5_0" :
+    if (isData) :
+        GLOBAL_TAG='GR_R_50_V3::All' # 2011 Collisions data, CMSSW_5_0_X
+    else :
+        GLOBAL_TAG='START50_V9::All'
 
-if (isData):
-    GLOBAL_TAG='GR_R_50_V3::All' # 2011 Collisions data, CMSSW_5_0_X
-else:
-    GLOBAL_TAG='START42_V12::All' # CMSSW_4_2_X MC, STARTUP Conditions
+else : # == if 44X
+    if (isData):
+        GLOBAL_TAG='GR_R_44_V11::All' # 2011 Collisions data, CMSSW_5_0_X
+    else:
+        GLOBAL_TAG='START44_V5::All' # CMSSW_4_2_X MC, STARTUP Conditions
     
 ##################################################################
 import os
@@ -57,14 +66,11 @@ process.options = cms.untracked.PSet(
 ## For running on RAW only 
 process.source = cms.Source("PoolSource",
                              fileNames = cms.untracked.vstring(
-<<<<<<< HLTAnalysis_cfg.py
-    '/store/data/Run2011B/DoubleMu/RAW/v1/000/178/479/2875F9DE-1AF6-E011-94BC-001D09F2983F.root'
-=======
-                            '/store/data/Run2011B/DoubleMu/RAW/v1/000/176/304/9A59C03B-C2DE-E011-A854-BCAEC53296F3.root'
+    '/store/data/Run2011B/SingleMu/RAW/v1/000/180/250/041B0376-FA02-E111-B0C0-003048F1110E.root'
+#'/store/relval/CMSSW_4_4_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START44_V5-v2/0044/063F2082-D2E5-E011-99C8-00248C0BE018.root'
                                  )
->>>>>>> 1.56
                                  )
-                            )
+
 
 
 ## For running on RAW+RECO
@@ -77,28 +83,21 @@ process.source = cms.Source("PoolSource",
 ##  )
 ##)
 
-<<<<<<< HLTAnalysis_cfg.py
-
-=======
 # from CMSSW_5_0_0_pre6: RawDataLikeMC=False (to keep "source")
 if cmsswVersion > "CMSSW_5_0":
     process.source.labelRawDataLikeMC = cms.untracked.bool( False )
 
->>>>>>> 1.56
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32( NEVTS ),
     skipBadFiles = cms.bool(True)
     )
 
-<<<<<<< HLTAnalysis_cfg.py
-process.load('Configuration/StandardSequences/GeometryExtended_cff')
-process.load('Configuration/StandardSequences/MagneticField_38T_cff')
-process.load('Configuration.StandardSequences.Reconstruction_cff')
+##LUMI CODE
+##process.load('Configuration.StandardSequences.Reconstruction_cff')
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-=======
 process.load("HLTrigger.HLTanalyzers.HLT_ES_cff")
->>>>>>> 1.56
+
 process.GlobalTag.globaltag = GLOBAL_TAG
 process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
 process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
@@ -114,14 +113,11 @@ process.DQMStore = cms.Service( "DQMStore",)
 
 # Define the analyzer modules
 process.load("HLTrigger.HLTanalyzers.HLTAnalyser_cfi")
-if (isRaw):
-    process.analyzeThis = cms.Path(process.lumiProducer + process.HLTBeginSequence + process.hltanalysis )   
-else:
-    process.analyzeThis = cms.Path( process.HLTBeginSequence + process.hltanalysis )
-
-
-
-
+##LUMI CODE
+## if (isRaw):
+##     process.analyzeThis = cms.Path(process.lumiProducer + process.HLTBeginSequence + process.hltanalysis )   
+## else:
+process.analyzeThis = cms.Path( process.HLTBeginSequence + process.hltanalysis )
 
 process.hltanalysis.RunParameters.HistogramFile=OUTPUT_HIST
 process.hltanalysis.xSection=XSECTION
@@ -140,6 +136,20 @@ process.hltanalysis.genmet = "genMetTrue"
 # Add tight isolation PF taus
 process.HLTPFTauSequence += process.hltPFTausTightIso
 
+####### L1 jets - probably would be cleaner to move this to an external config file...
+process.hltGctDigis.hltMode = cms.bool( False )
+
+# to run the emulator on the output of the unpacker (which we run as part of HLTBeginSequence, independant of the emulator per se)
+process.load('L1Trigger.GlobalCaloTrigger.gctDigis_cfi')
+process.gctDigis.writeInternalData = cms.bool(True)
+process.gctDigis.inputLabel = cms.InputTag("hltGctDigis")
+
+# Create the uncorrected intermediate jets
+process.load("EventFilter.GctRawToDigi.gctInternJetProd_cfi")
+process.gctInternJetProducer.internalJetSource = cms.InputTag("gctDigis")
+process.L1Jets = cms.Path(process.gctDigis + process.gctInternJetProducer)
+
+
 if (MENU == "GRun"):
     # get the objects associated with the menu
     process.hltanalysis.IsoPixelTracksL3 = "hltHITIPTCorrector8E29"
@@ -157,6 +167,18 @@ if (MENU == "GRun"):
 # pdt, if running on MC
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
+## may be useful for debugging purposes
+## process.out = cms.OutputModule("PoolOutputModule",
+##                              fileName = cms.untracked.string('test.root'),
+##                               #SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('FilterPath')),
+##                              outputCommands = cms.untracked.vstring('keep *_hltParticleFlow_*_*',
+##                                                                     'keep *_hltL1extraParticles_*_*',
+##                                                                     'keep *_whatever_*_*'
+##                                                                     )
+##                             )
+## process.outpath = cms.EndPath(process.out)
+
+
 
 # Schedule the whole thing
 if (MENU == "GRun"):
@@ -168,7 +190,9 @@ if (MENU == "GRun"):
         process.DoHLTTau,
         process.DoHLTBTag,
         process.DoHLTMinBiasPixelTracks,
-        process.analyzeThis
+        process.L1Jets,
+        process.analyzeThis## ,
+##         process.outpath
         )
         
 #########################################################################################

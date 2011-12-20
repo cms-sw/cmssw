@@ -75,7 +75,7 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     jhcorL1L2L3calemf = new float[kMaxJetCal]; 
     jhcorL1L2L3caln90 = new float[kMaxJetCal]; 
     jhcorL1L2L3caln90hits = new float[kMaxJetCal]; 
-    
+   
     jrcalpt = new float[kMaxJetCal];
     jrcalphi = new float[kMaxJetCal];
     jrcaleta = new float[kMaxJetCal];
@@ -254,7 +254,8 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     HltTree->Branch("ohJetCorL1L2L3CalEMF",jhcorL1L2L3calemf,"ohJetCorL1L2L3CalEMF[NohJetCorL1L2L3Cal]/F");
     HltTree->Branch("ohJetCorL1L2L3CalN90",jhcorL1L2L3caln90,"ohJetCorL1L2L3CalN90[NohJetCorL1L2L3Cal]/F");
     HltTree->Branch("ohJetCorL1L2L3CalN90hits",jhcorL1L2L3caln90hits,"ohJetCorL1L2L3CalN90hits[NohJetCorL1L2L3Cal]/F");
-
+    HltTree->Branch("rho",&jrho,"rho/D");
+   
     //ccla GenJets
     HltTree->Branch("recoJetGenPt",jgenpt,"recoJetGenPt[NrecoJetGen]/F");
     HltTree->Branch("recoJetGenPhi",jgenphi,"recoJetGenPhi[NrecoJetGen]/F");
@@ -369,6 +370,7 @@ void HLTJets::analyze(edm::Event const& iEvent,
 		      const edm::Handle<reco::CaloJetCollection>      & ohcalojets,
                       const edm::Handle<reco::CaloJetCollection>      & ohcalocorjets,
 		      const edm::Handle<reco::CaloJetCollection>      & ohcalocorL1L2L3jets,
+		      const edm::Handle< double >                     & rho,
 		      const edm::Handle<reco::CaloJetCollection>      & rcalojets,
 		      const edm::Handle<reco::CaloJetCollection>      & rcalocorjets,
                       const edm::Handle<reco::GenJetCollection>       & genjets,
@@ -399,6 +401,7 @@ void HLTJets::analyze(edm::Event const& iEvent,
     
     //initialize branch variables
     nhjetcal=0; nhcorjetcal=0;nhcorL1L2L3jetcal=0; njetgen=0;ntowcal=0;
+    jrho = 0;
     mcalmet=0.; mcalphi=0.;
     mgenmet=0.; mgenphi=0.;
     htcalet=0.,htcalphi=0.,htcalsum=0.;
@@ -528,8 +531,17 @@ void HLTJets::analyze(edm::Event const& iEvent,
             
         }
         nhcorL1L2L3jetcal = jhcorL1L2L3cal;
-    }
-    else {nhcorL1L2L3jetcal = 0;}
+   }
+ else {nhcorL1L2L3jetcal = 0;}
+
+ if (rho.isValid()){
+   jrho = *rho;
+ }
+ else {
+
+   if (_Debug) std::cout << "rho not found" << std::endl;
+ }
+
 
     if (caloTowers.isValid()) {
         //    ntowcal = caloTowers->size();

@@ -18,6 +18,7 @@ bool getCollection(const edm::Event & event, std::vector<MissingCollectionInfo> 
     if (not valid) {
         missing.push_back( std::make_pair(description, & name) );
         handle.clear();
+	std::cout << "not valid "<< description << " " << name << std::endl;
     }
     return valid;
 }
@@ -33,6 +34,7 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
     hltjets_          = conf.getParameter<edm::InputTag> ("hltjets");
     hltcorjets_       = conf.getParameter<edm::InputTag> ("hltcorjets");    
     hltcorL1L2L3jets_ = conf.getParameter<edm::InputTag> ("hltcorL1L2L3jets");    
+    rho_              = edm::InputTag("hltKT6CaloJets", "rho");    
     recjets_          = conf.getParameter<edm::InputTag> ("recjets");
     reccorjets_       = conf.getParameter<edm::InputTag> ("reccorjets");
     genjets_          = conf.getParameter<edm::InputTag> ("genjets");
@@ -67,6 +69,7 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
     m_l1extraemn      = edm::InputTag(l1extramc_, "NonIsolated");
     m_l1extrajetc     = edm::InputTag(l1extramc_, "Central");
     m_l1extrajetf     = edm::InputTag(l1extramc_, "Forward");
+    m_l1extrajet      = edm::InputTag("gctInternJetProducer","Internal","ANALYSIS");
     m_l1extrataujet   = edm::InputTag(l1extramc_, "Tau");
     m_l1extramet      = edm::InputTag(l1extramc_, "MET");
     m_l1extramht      = edm::InputTag(l1extramc_, "MHT");
@@ -234,6 +237,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     edm::Handle<reco::CaloJetCollection>              hltjets;
     edm::Handle<reco::CaloJetCollection>              hltcorjets;
     edm::Handle<reco::CaloJetCollection>              hltcorL1L2L3jets;
+    edm::Handle<double>                               rho;
     edm::Handle<reco::CaloJetCollection>              recjets;
     edm::Handle<reco::CaloJetCollection>              reccorjets;
     edm::Handle<reco::GenJetCollection>               genjets;
@@ -252,7 +256,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     edm::Handle<edm::TriggerResults>                  hltresults;
     edm::Handle<l1extra::L1EmParticleCollection>      l1extemi, l1extemn;
     edm::Handle<l1extra::L1MuonParticleCollection>    l1extmu;
-    edm::Handle<l1extra::L1JetParticleCollection>     l1extjetc, l1extjetf, l1exttaujet;
+    edm::Handle<l1extra::L1JetParticleCollection>     l1extjetc, l1extjetf, l1extjet, l1exttaujet;
+    //edm::Handle<l1extra::L1JetParticleCollection>     l1extjetc, l1extjetf, l1exttaujet;
     edm::Handle<l1extra::L1EtMissParticleCollection>  l1extmet,l1extmht;
     edm::Handle<L1GlobalTriggerReadoutRecord>         l1GtRR;
     edm::Handle< L1GctHFBitCountsCollection >         gctBitCounts ;
@@ -392,6 +397,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     getCollection( iEvent, missing, hltjets,         hltjets_,           kHLTjets );
     getCollection( iEvent, missing, hltcorjets,      hltcorjets_,        kHLTCorjets );
     getCollection( iEvent, missing, hltcorL1L2L3jets,hltcorL1L2L3jets_,  kHLTCorL1L2L3jets );
+    getCollection( iEvent, missing, rho,             rho_,               kRho );
     getCollection( iEvent, missing, recjets,         recjets_,           kRecjets );
     getCollection( iEvent, missing, reccorjets,      reccorjets_,        kRecCorjets );
     getCollection( iEvent, missing, genjets,         genjets_,           kGenjets );
@@ -421,6 +427,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     getCollection( iEvent, missing, l1extmu,         m_l1extramu,        kL1extmu );
     getCollection( iEvent, missing, l1extjetc,       m_l1extrajetc,      kL1extjetc );
     getCollection( iEvent, missing, l1extjetf,       m_l1extrajetf,      kL1extjetf );
+    getCollection( iEvent, missing, l1extjet,        m_l1extrajet,       kL1extjet );
     getCollection( iEvent, missing, l1exttaujet,     m_l1extrataujet,    kL1exttaujet );
     getCollection( iEvent, missing, l1extmet,        m_l1extramet,       kL1extmet );
     getCollection( iEvent, missing, l1extmht,        m_l1extramht,       kL1extmht );
@@ -538,6 +545,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
 			  hltjets,
 			  hltcorjets,
                     	  hltcorL1L2L3jets,
+                    	  rho,
                           recjets,
                           reccorjets,
                           genjets,
@@ -650,6 +658,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
                           l1extmu,
                           l1extjetc,
                           l1extjetf,
+			  l1extjet,
                           l1exttaujet,
                           l1extmet,
                           l1extmht,

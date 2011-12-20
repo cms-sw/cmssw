@@ -56,6 +56,7 @@ private:
   edm::InputTag m_l1extraemn;
   edm::InputTag m_l1extrajetc;
   edm::InputTag m_l1extrajetf;
+  edm::InputTag m_l1extrajet;
   edm::InputTag m_l1extrataujet;
   edm::InputTag m_l1extramet;
   edm::InputTag m_l1extramht;

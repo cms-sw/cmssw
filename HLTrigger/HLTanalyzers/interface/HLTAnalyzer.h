@@ -79,7 +79,7 @@ private:
   double xSection_, filterEff_, treeWeight;
 
   edm::InputTag recjets_,reccorjets_,genjets_,recmet_,recoPFMet_,genmet_,ht_,recoPFJets_,calotowers_,hltresults_,genEventInfo_;
-  edm::InputTag hltjets_, hltcorjets_, hltcorL1L2L3jets_;
+  edm::InputTag hltjets_, hltcorjets_, hltcorL1L2L3jets_, rho_;
   edm::InputTag muon_;
   edm::InputTag pfmuon_;
   std::string l1extramc_, l1extramu_;
@@ -88,6 +88,7 @@ private:
   edm::InputTag m_l1extraemn;
   edm::InputTag m_l1extrajetc;
   edm::InputTag m_l1extrajetf;
+  edm::InputTag m_l1extrajet;
   edm::InputTag m_l1extrataujet;
   edm::InputTag m_l1extramet;
   edm::InputTag m_l1extramht;
