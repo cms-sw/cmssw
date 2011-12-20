@@ -42,7 +42,9 @@ EgammaHLTHcalIsolationProducersRegional::EgammaHLTHcalIsolationProducersRegional
   recoEcalCandidateProducer_ = config.getParameter<edm::InputTag>("recoEcalCandidateProducer");
   hbheRecHitProducer_        = config.getParameter<edm::InputTag>("hbheRecHitProducer");
   rhoProducer_               = config.getParameter<edm::InputTag>("rhoProducer");
-
+  doRhoCorrection_           = config.getParameter<bool>("doRhoCorrection");
+  rhoMax_                    = config.getParameter<double>("rhoMax"); 
+  rhoScale_                  = config.getParameter<double>("rhoScale"); 
   
   double eMinHB              = config.getParameter<double>("eMinHB");
   double eMinHE              = config.getParameter<double>("eMinHE");
@@ -95,7 +97,11 @@ EgammaHLTHcalIsolationProducersRegional::produce(edm::Event& iEvent, const edm::
   edm::Handle<double> rhoHandle;
   iEvent.getByLabel(rhoProducer_, rhoHandle);
   double rho = *(rhoHandle.product());
+  if (rho > rhoMax_)
+    rho = rhoMax_;
   
+  rho = rho*rhoScale_;
+
   edm::ESHandle<CaloGeometry> caloGeomHandle;
   iSetup.get<CaloGeometryRecord>().get(caloGeomHandle);
   const CaloGeometry* caloGeom = caloGeomHandle.product();
@@ -112,11 +118,13 @@ EgammaHLTHcalIsolationProducersRegional::produce(edm::Event& iEvent, const edm::
       isol = isolAlgo_->getEtSum(recoEcalCandRef->superCluster()->eta(),
 				 recoEcalCandRef->superCluster()->phi(),hbheRecHitCollection,caloGeom,
 				 hcalSevLvlComp.product(),hcalChStatus.product());      
-      
-      if (fabs(recoEcalCandRef->superCluster()->eta()) < 1.442) 
-	isol = isol - rho*effectiveAreaBarrel_;
-      else
-	isol = isol - rho*effectiveAreaEndcap_;
+     
+      if (doRhoCorrection_) {
+	if (fabs(recoEcalCandRef->superCluster()->eta()) < 1.442) 
+	  isol = isol - rho*effectiveAreaBarrel_;
+	else
+	  isol = isol - rho*effectiveAreaEndcap_;
+      }
     } else {
       isol = isolAlgo_->getESum(recoEcalCandRef->superCluster()->eta(),recoEcalCandRef->superCluster()->phi(),
 				hbheRecHitCollection,caloGeom,

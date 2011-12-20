@@ -36,6 +36,9 @@ private:
   edm::InputTag caloTowerProducer_;
   edm::InputTag rhoProducer_;
 
+  bool doRhoCorrection_;
+  float rhoScale_;
+  float rhoMax_;
   bool doEtSum_;
   float etMin_;
   float innerCone_;

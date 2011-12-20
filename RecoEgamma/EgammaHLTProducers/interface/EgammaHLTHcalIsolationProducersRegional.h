@@ -8,7 +8,7 @@
 //
 // Original Author:  Monica Vazquez Acosta (CERN)
 //         Created:  Tue Jun 13 14:48:33 CEST 2006
-// $Id: EgammaHLTHcalIsolationProducersRegional.h,v 1.2 2010/08/12 15:17:28 sharper Exp $
+// $Id: EgammaHLTHcalIsolationProducersRegional.h,v 1.3 2011/12/19 11:17:28 sani Exp $
 //
 //
 
@@ -50,7 +50,9 @@ private:
   edm::InputTag recoEcalCandidateProducer_;
   edm::InputTag hbheRecHitProducer_;
   edm::InputTag rhoProducer_;
-
+  bool doRhoCorrection_;
+  float rhoScale_;
+  float rhoMax_;
   bool doEtSum_;
   float effectiveAreaBarrel_;
   float effectiveAreaEndcap_;

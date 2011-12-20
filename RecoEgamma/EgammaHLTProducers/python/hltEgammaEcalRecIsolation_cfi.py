@@ -6,6 +6,10 @@ hltEgammaEcalRecIsolationProducer= cms.EDProducer( "EgammaHLTEcalRecIsolationPro
                                                    ecalBarrelRecHitCollection = cms.InputTag( "EcalRecHitsEB" ),
                                                    ecalEndcapRecHitProducer = cms.InputTag( "hltEcalRegionalEgammaRecHit" ),
                                                    ecalEndcapRecHitCollection = cms.InputTag( "EcalRecHitsEE" ),
+                                                   rhoProducer = cms.InputTag("hltKT6CaloJets", "rho"),
+                                                   doRhoCorrection           = cms.bool(True),
+                                                   rhoScale                  = cms.double(1.),
+                                                   rhoMax                    = cms.double(99999999.)
                                                    intRadiusBarrel = cms.double( 0.045 ),
                                                    intRadiusEndcap = cms.double( 0.07 ),
                                                    extRadius = cms.double( 0.4 ),
@@ -20,5 +24,5 @@ hltEgammaEcalRecIsolationProducer= cms.EDProducer( "EgammaHLTEcalRecIsolationPro
                                                    useNumCrystals = cms.bool( False ),
                                                    effectiveAreaBarrel       = cms.double(0.101),
                                                    effectiveAreaEndcap       = cms.double(0.046)
-)
+                                                   )
 

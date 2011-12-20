@@ -38,7 +38,10 @@ EgammaHLTBcHcalIsolationProducersRegional::EgammaHLTBcHcalIsolationProducersRegi
   recoEcalCandidateProducer_ = config.getParameter<edm::InputTag>("recoEcalCandidateProducer");
   caloTowerProducer_         = config.getParameter<edm::InputTag>("caloTowerProducer");
   rhoProducer_               = config.getParameter<edm::InputTag>("rhoProducer");
-  
+  doRhoCorrection_           = config.getParameter<bool>("doRhoCorrection");
+  rhoMax_                    = config.getParameter<double>("rhoMax"); 
+  rhoScale_                  = config.getParameter<double>("rhoScale"); 
+
   etMin_                     = config.getParameter<double>("etMin");  
   innerCone_                 = config.getParameter<double>("innerCone");
   outerCone_                 = config.getParameter<double>("outerCone");
@@ -73,7 +76,11 @@ void EgammaHLTBcHcalIsolationProducersRegional::produce(edm::Event& iEvent, cons
   edm::Handle<double> rhoHandle;
   iEvent.getByLabel(rhoProducer_, rhoHandle);
   double rho = *(rhoHandle.product());
-
+  if (rho > rhoMax_)
+    rho = rhoMax_;
+  
+  rho = rho*rhoScale_;
+  
   hcalHelper->checkSetup(iSetup);
   hcalHelper->readEvent(iEvent);
 
@@ -91,10 +98,12 @@ void EgammaHLTBcHcalIsolationProducersRegional::produce(edm::Event& iEvent, cons
       isoAlgo_ = new EgammaTowerIsolation(outerCone_, innerCone_, etMin_, depth_, caloTowersHandle.product());
       isol = isoAlgo_->getTowerEtSum(&(*recoEcalCandRef), &(towersToExclude));
       
-      if (fabs(recoEcalCandRef->superCluster()->eta()) < 1.442) 
-	isol = isol - rho*effectiveAreaBarrel_;
-      else
-	isol = isol - rho*effectiveAreaEndcap_;
+      if (doRhoCorrection_) {
+	if (fabs(recoEcalCandRef->superCluster()->eta()) < 1.442) 
+	  isol = isol - rho*effectiveAreaBarrel_;
+	else
+	  isol = isol - rho*effectiveAreaEndcap_;
+      }
     } else {
       isol = hcalHelper->hcalESumDepth1BehindClusters(towersToExclude) + hcalHelper->hcalESumDepth2BehindClusters(towersToExclude); 
     }

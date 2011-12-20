@@ -58,6 +58,10 @@ class EgammaHLTEcalRecIsolationProducer : public edm::EDProducer {
   float effectiveAreaBarrel_;
   float effectiveAreaEndcap_;
 
+  bool doRhoCorrection_;
+  float rhoScale_;
+  float rhoMax_;
+
   bool useIsolEt_; //switch for isolEt rather than isolE
   bool tryBoth_ ; // use rechits from barrel + endcap
   bool subtract_ ; // subtract SC energy (allows veto cone of zero size)

@@ -42,12 +42,15 @@ EgammaHLTEcalRecIsolationProducer::EgammaHLTEcalRecIsolationProducer(const edm::
 {
   // use configuration file to setup input/output collection names
   //inputs
-  recoEcalCandidateProducer_    = conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer");
+  recoEcalCandidateProducer_      = conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer");
   ecalBarrelRecHitProducer_       = conf_.getParameter<edm::InputTag>("ecalBarrelRecHitProducer");
   ecalBarrelRecHitCollection_     = conf_.getParameter<edm::InputTag>("ecalBarrelRecHitCollection");
   ecalEndcapRecHitProducer_       = conf_.getParameter<edm::InputTag>("ecalEndcapRecHitProducer");
   ecalEndcapRecHitCollection_     = conf_.getParameter<edm::InputTag>("ecalEndcapRecHitCollection");
   rhoProducer_                    = config.getParameter<edm::InputTag>("rhoProducer");
+  doRhoCorrection_                = config.getParameter<bool>("doRhoCorrection");
+  rhoMax_                         = config.getParameter<double>("rhoMax"); 
+  rhoScale_                       = config.getParameter<double>("rhoScale"); 
 
   //vetos
   egIsoPtMinBarrel_               = conf_.getParameter<double>("etMinBarrel");
@@ -106,6 +109,10 @@ void EgammaHLTEcalRecIsolationProducer::produce(edm::Event& iEvent, const edm::E
   edm::Handle<double> rhoHandle;
   iEvent.getByLabel(rhoProducer_, rhoHandle);
   double rho = *(rhoHandle.product());
+  if (rho > rhoMax_)
+    rho = rhoMax_;
+  
+  rho = rho*rhoScale_;
 
   //prepare product
   reco::RecoEcalCandidateIsolationMap isoMap;
@@ -151,11 +158,13 @@ void EgammaHLTEcalRecIsolationProducer::produce(edm::Event& iEvent, const edm::E
 
     if(subtract_) isol-= subtractVal;
     
-    if (fabs(superClus->eta()) < 1.442) 
-      isol = isol - rho*effectiveAreaBarrel_;
-    else
-      isol = isol - rho*effectiveAreaEndcap_;
-    
+    if (doRhoCorrection_) {
+      if (fabs(superClus->eta()) < 1.442) 
+	isol = isol - rho*effectiveAreaBarrel_;
+      else
+	isol = isol - rho*effectiveAreaEndcap_;
+    }
+
     isoMap.insert(recoecalcandref, isol);
   }
 
