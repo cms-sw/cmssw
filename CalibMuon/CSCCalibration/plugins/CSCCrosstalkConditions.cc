@@ -5,7 +5,7 @@
 CSCcrosstalk * CSCCrosstalkConditions::prefillCrosstalk() {
 
   float mean,min,minchi;
-  int seed;long int M;
+  int seed;
   int old_chamber_id,old_strip,new_chamber_id,new_strip;
   float old_slope_right,old_slope_left,old_intercept_right;
   float old_intercept_left, old_chi2_right,old_chi2_left;
@@ -38,7 +38,7 @@ CSCcrosstalk * CSCCrosstalkConditions::prefillCrosstalk() {
   unsigned int new_nrlines=0;
   seed = 10000;	
   srand(seed);
-  mean=-0.0009, min=0.035, minchi=1.5, M=1000;
+  mean=-0.0009, min=0.035, minchi=1.5;
  
   //endcap=1 to 2,station=1 to 4, ring=1 to 4,chamber=1 to 36,layer=1 to 6 
   std::ifstream olddata; 

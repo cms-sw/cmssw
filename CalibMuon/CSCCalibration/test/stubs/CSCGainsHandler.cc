@@ -16,7 +16,6 @@ void popcon::CSCDBGainsImpl::getNewObjects()
 {
 
   std::cout << "CSCGainsHandler - time before filling object:"<< std::endl;
-  int id=system("date");
   std::cout << "------- CSC src - > getNewObjects\n"<<m_name;
   
   // fill object from file
@@ -24,7 +23,6 @@ void popcon::CSCDBGainsImpl::getNewObjects()
   //std::cout << "crosstalk size " << cngains->gains.size() << std::endl;
   
   std::cout << "CSCGainsHandler - time after filling object:"<< std::endl;
-  id=system("date");
   
   //check whats already inside of database
   std::cerr<<"got offlineInfo"<<std::endl;
@@ -37,11 +35,9 @@ void popcon::CSCDBGainsImpl::getNewObjects()
   std::cin >> snc;
  
   
-  id=system("date");
   m_to_transfer.push_back(std::make_pair(cngains,snc));
   
   std::cout << "------- " << m_name << "CSC src - > getNewObjects -----------\n"<< std::endl;
   
   std::cout << "CSCGainsHandler - time before writing into DB:"<< std::endl;
-  id=system("date");
 }

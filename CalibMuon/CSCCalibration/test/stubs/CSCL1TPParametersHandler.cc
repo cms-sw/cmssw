@@ -18,7 +18,6 @@ popcon::CSCL1TPParametersImpl::~CSCL1TPParametersImpl()
 void popcon::CSCL1TPParametersImpl::getNewObjects() {
 
   std::cout << "CSCL1TPParametersHandler - time before filling object:"<< std::endl;
-  int id=system("date");
   std::cout << "------- CSC src - > getNewObjects\n"<<m_name;
 	
 
@@ -26,7 +25,6 @@ void popcon::CSCL1TPParametersImpl::getNewObjects() {
   CSCL1TPParameters * cnl1tp = CSCL1TPParametersConditions::prefillCSCL1TPParameters();
  
   std::cout << "CSCL1TPParametersHandler - time after filling object:"<< std::endl;
-  id=system("date");
 
   //check whats already inside of database
   
@@ -40,10 +38,8 @@ void popcon::CSCL1TPParametersImpl::getNewObjects() {
   std::cin >> snc;
 
   
-  id=system("date");
   m_to_transfer.push_back(std::make_pair(cnl1tp,snc));
   
   std::cout << "------- " << m_name << "CSC src - > getNewObjects -----------\n" << std::endl;
   std::cout << "CSCL1TPParametersHandler - time before writing into DB:"<< std::endl;
-  id=system("date");
 }

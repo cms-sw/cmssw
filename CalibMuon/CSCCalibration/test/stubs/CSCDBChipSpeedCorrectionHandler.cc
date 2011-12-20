@@ -18,7 +18,6 @@ void popcon::CSCDBChipSpeedCorrectionImpl::getNewObjects()
 {
 
   std::cout << "CSCChipSpeedCorrectionHandler - time before filling object:"<< std::endl;
-  int id=system("date");
   std::cout << "------- CSC src - > getNewObjects\n"<<m_name;
   
   // fill object from file
@@ -28,7 +27,6 @@ void popcon::CSCDBChipSpeedCorrectionImpl::getNewObjects()
   //std::cout << "chipspeed size " << cnchipspeed->chipspeed.size() << std::endl;
 
   std::cout << "CSCChipSpeedCorrectionHandler - time after filling object:"<< std::endl;
-  id=system("date");
 
   //check whats already inside of database
 
@@ -42,10 +40,8 @@ void popcon::CSCDBChipSpeedCorrectionImpl::getNewObjects()
   std::cout << "getNewObjects : enter till ? \n";
   
    
-  id=system("date");
   m_to_transfer.push_back(std::make_pair(cnchipspeed,snc));
    
   std::cout << "------- " << m_name << "CSC src - > getNewObjects -----------\n" << std::endl;
   std::cout << "CSCChipSpeedCorrectionHandler - time before writing into DB:"<< std::endl;
-  id=system("date");
 }

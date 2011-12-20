@@ -18,7 +18,6 @@ popcon::CSCDBCrosstalkImpl::~CSCDBCrosstalkImpl()
 void popcon::CSCDBCrosstalkImpl::getNewObjects() {
 
   std::cout << "CSCCrosstalkHandler - time before filling object:"<< std::endl;
-  int id=system("date");
   std::cout << "------- CSC src - > getNewObjects\n"<<m_name;
 	
 
@@ -27,7 +26,6 @@ void popcon::CSCDBCrosstalkImpl::getNewObjects() {
   //std::cout << "crosstalk size " << cncrosstalk->crosstalk.size() << std::endl;
  
   std::cout << "CSCCrosstalkHandler - time after filling object:"<< std::endl;
-  id=system("date");
 
   //check whats already inside of database
   
@@ -41,10 +39,8 @@ void popcon::CSCDBCrosstalkImpl::getNewObjects() {
   std::cin >> snc;
 
   
-  id=system("date");
   m_to_transfer.push_back(std::make_pair(cncrosstalk,snc));
   
   std::cout << "------- " << m_name << "CSC src - > getNewObjects -----------\n" << std::endl;
   std::cout << "CSCCrosstalkHandler - time before writing into DB:"<< std::endl;
-  id=system("date");
 }

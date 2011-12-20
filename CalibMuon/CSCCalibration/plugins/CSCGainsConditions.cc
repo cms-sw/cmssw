@@ -5,7 +5,7 @@
 CSCGains * CSCGainsConditions::prefillGains(){
 
   float mean,min,minchi;
-  int seed;long int M;
+  int seed;
   int old_chamber_id,old_strip,new_chamber_id,new_strip;
   float old_gainslope,old_intercpt, old_chisq;
   std::vector<int> old_cham_id;
@@ -28,7 +28,7 @@ CSCGains * CSCGainsConditions::prefillGains(){
   unsigned int new_nrlines=0;
   seed = 10000;	
   srand(seed);
-  mean=6.8, min=-10.0, minchi=1.0, M=1000;
+  mean=6.8, min=-10.0, minchi=1.0;
 
   std::ifstream olddata; 
   olddata.open("old_gains.dat",std::ios::in); 

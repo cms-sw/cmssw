@@ -13,7 +13,6 @@ void popcon::CSCDBNoiseMatrixImpl::getNewObjects()
 {
 
   std::cout << "CSCNoiseMatrixHandler - time before filling object:"<< std::endl;
-  int id=system("date");
   std::cout << "------- CSC src - > getNewObjects\n"<<m_name;
   
   // fill object from file
@@ -21,7 +20,6 @@ void popcon::CSCDBNoiseMatrixImpl::getNewObjects()
   //std::cout << "crosstalk size " << cndbmatrix->matrix.size() << std::endl;
   
   std::cout << "CSCNoiseMatrixHandler - time after filling object:"<< std::endl;
-  id=system("date");
 
   //check whats already inside of database
 
@@ -34,10 +32,8 @@ void popcon::CSCDBNoiseMatrixImpl::getNewObjects()
   std::cerr << "Source implementation test ::getNewObjects : enter since ? \n";
   std::cin >> snc;
     
-  id=system("date");
   m_to_transfer.push_back(std::make_pair(cndbmatrix,snc));
   
   std::cout << "------- " << m_name << "CSC src - > getNewObjects -----------\n"<< std::endl;
   std::cout << "CSCNoiseMatrixHandler - time before writing into DB:"<< std::endl;
-  id=system("date");
 }

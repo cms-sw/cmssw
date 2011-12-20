@@ -44,7 +44,6 @@ class CSCFakeDBPedestals: public edm::ESProducer, public edm::EventSetupRecordIn
 inline CSCDBPedestals *  CSCFakeDBPedestals::prefillDBPedestals()
 {
   int seed;
-  long int M;
   float meanped,meanrms;
   const int MAX_SIZE = 217728; //or 252288 for ME4/2 chambers
   const int PED_FACTOR=10;
@@ -55,7 +54,7 @@ inline CSCDBPedestals *  CSCFakeDBPedestals::prefillDBPedestals()
 
   seed = 10000;	
   srand(seed);
-  meanped=600.0, meanrms=1.5, M=1000;
+  meanped=600.0, meanrms=1.5;
   cndbpedestals->factor_ped = int (PED_FACTOR);
   cndbpedestals->factor_rms = int (RMS_FACTOR);
  

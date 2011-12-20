@@ -45,8 +45,7 @@ class CSCFakeDBGains: public edm::ESProducer, public edm::EventSetupRecordInterv
 inline CSCDBGains* CSCFakeDBGains::prefillDBGains()
 {
   int seed;
-  long int M;
-  float mean,min, minchi;
+  float mean;
   const int MAX_SIZE = 217728; //or 252288 for ME4/2 chambers
   const int FACTOR=1000;
   
@@ -55,7 +54,7 @@ inline CSCDBGains* CSCFakeDBGains::prefillDBGains()
 
   seed = 10000; 
   srand(seed);
-  mean=6.8, min=-10.0, minchi=1.0, M=1000;
+  mean=6.8;
   cndbgains->factor_gain = int (FACTOR);
   
   for(int i=0; i<MAX_SIZE;i++){

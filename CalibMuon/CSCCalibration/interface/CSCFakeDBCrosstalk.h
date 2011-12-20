@@ -44,8 +44,7 @@ class CSCFakeDBCrosstalk: public edm::ESProducer, public edm::EventSetupRecordIn
 inline CSCDBCrosstalk *  CSCFakeDBCrosstalk::prefillDBCrosstalk()
 {
   int seed;
-  long int M;
-  float mean,min, minchi;
+  float mean,min;
   int ii,jj,iii,jjj;
   const int MAX_SIZE = 217728; //or 252288 for ME4/2 chambers
   const int SLOPE_FACTOR=10000000;
@@ -56,8 +55,8 @@ inline CSCDBCrosstalk *  CSCFakeDBCrosstalk::prefillDBCrosstalk()
 
   seed = 10000;	
   srand(seed);
-  mean=-0.0009, min=0.035, minchi=1.5, M=1000;
-  ii=0,jj=0,iii=0,jjj=0; 
+  mean=-0.0009, min=0.035;
+  ii=0,jj=0,iii=0,jjj=0;
   
   cndbcrosstalk->factor_slope = int (SLOPE_FACTOR);
   cndbcrosstalk->factor_intercept = int (INTERCEPT_FACTOR);

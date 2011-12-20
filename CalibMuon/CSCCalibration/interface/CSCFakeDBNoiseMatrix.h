@@ -44,8 +44,6 @@ class CSCFakeDBNoiseMatrix: public edm::ESProducer, public edm::EventSetupRecord
 inline CSCDBNoiseMatrix *  CSCFakeDBNoiseMatrix::prefillDBNoiseMatrix()
 {
   int seed;
-  long int M;
-  float mean,min, minchi;
   const int MAX_SIZE = 252288; //or 252288 for ME4/2 chambers
   const int FACTOR=1000;
   
@@ -54,7 +52,6 @@ inline CSCDBNoiseMatrix *  CSCFakeDBNoiseMatrix::prefillDBNoiseMatrix()
 
   seed = 10000;	
   srand(seed);
-  mean=6.8, min=-10.0, minchi=1.0, M=1000;
   cndbmatrix->factor_noise = int (FACTOR);
   
   for(int i=0; i<MAX_SIZE;i++){
