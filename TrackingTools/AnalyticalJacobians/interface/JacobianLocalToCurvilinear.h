@@ -4,14 +4,13 @@
 #include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 
+#include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryParameters.h"
+#include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
+
 #include "FWCore/Utilities/interface/Visibility.h"
 
 // class Surface;
-class LocalTrajectoryParameters;
-class GlobalTrajectoryParameters;
 class MagneticField;
-class GlobalVector;
-class LocalVector;
 
 
 /** Class which calculates the Jacobian matrix of the transformation
