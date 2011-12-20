@@ -3,14 +3,12 @@
 
 #include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
+#include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryParameters.h"
+#include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 
 #include "FWCore/Utilities/interface/Visibility.h"
 
-
-class LocalTrajectoryParameters;
-class GlobalTrajectoryParameters;
 class MagneticField;
-class GlobalVector;
 
 /** Class which calculates the Jacobian matrix of the transformation
  *  from the curvilinear to the local frame. The Jacobian is calculated
