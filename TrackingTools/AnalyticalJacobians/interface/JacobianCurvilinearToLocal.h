@@ -30,7 +30,7 @@ class JacobianCurvilinearToLocal {
 			     const MagneticField& magField);
   
   JacobianCurvilinearToLocal(const Surface& surface, 
-			     const GlobalTrajectoryParameterss& globalParameters,
+			     const GlobalTrajectoryParameters& globalParameters,
 			     const MagneticField& magField) : theJacobian() 
 
   /** Access to Jacobian.
