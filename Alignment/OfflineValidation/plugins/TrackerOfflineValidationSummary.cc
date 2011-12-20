@@ -199,7 +199,6 @@ TrackerOfflineValidationSummary::analyze(const edm::Event& iEvent, const edm::Ev
       throw cms::Exception("Geometry Error")
         << "[TrackerOfflineValidationSummary] Error, tried to get reference for non-tracker subdet " << subdetId 
         << " from detector " << detId.det();
-      mPxbResiduals_[0];
     }
   }
   moduleMapsInitialized = true;

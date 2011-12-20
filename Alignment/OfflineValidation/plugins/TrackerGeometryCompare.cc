@@ -50,7 +50,18 @@
 #include <fstream>
 
 TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg) :
-  theSurveyIndex(0), _commonTrackerLevel(align::invalid), firstEvent_(true)
+  referenceTracker(0),
+  dummyTracker(0),
+  currentTracker(0),
+  theSurveyIndex(0),
+  theSurveyValues(0),
+  theSurveyErrors(0),
+  _commonTrackerLevel(align::invalid),
+  _inputRootFile1(0),
+  _inputRootFile2(0),
+  _inputTree1(0),
+  _inputTree2(0),
+  firstEvent_(true)
 {
 	
 	//input is ROOT
@@ -305,7 +316,10 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 	}
 	currentTracker = new AlignableTracker(&(*theCurTracker));
 	
-	
+	delete alignments1;
+	delete alignmentErrors1;
+	delete alignments2;
+	delete alignmentErrors2;
 }
 
 void TrackerGeometryCompare::compareGeometries(Alignable* refAli, Alignable* curAli){
