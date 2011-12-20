@@ -51,10 +51,10 @@ int main() {
   cout << "ts curv err\n" << ts.curvilinearError() << std::endl;					   
   cout << "ts cart err\n" << ts.cartesianError() << std::endl;					   
   {
-    JacobianCartesianToCurvilinear cart2Curv(ts.globalParameter());
+    JacobianCartesianToCurvilinear cart2Curv(ts.globalParameters());
     const AlgebraicMatrix56& jac = cart2Curv.jacobian();
     
-    theCurvilinearError = 
+    CurvilinearTrajectoryError theCurvilinearError = 
       ROOT::Math::Similarity(jac, ts.cartesianError().matrix());
     cout << "curv from cart \n" <<  theCurvilinearError << std::endl;
   }
@@ -71,10 +71,10 @@ int main() {
   cout << "ts2 curv err\n" << ts2.curvilinearError() << std::endl;					   
   cout << "ts2 cart err\n" << ts2.cartesianError() << std::endl;					   
   {
-    JacobianCartesianToCurvilinear cart2Curv(ts2.globalParameter());
+    JacobianCartesianToCurvilinear cart2Curv(ts2.globalParameters());
     const AlgebraicMatrix56& jac = cart2Curv.jacobian();
     
-    theCurvilinearError = 
+    CurvilinearTrajectoryError theCurvilinearError = 
       ROOT::Math::Similarity(jac, ts2.cartesianError().matrix());
     cout << "curv from cart \n" <<  theCurvilinearError << std::endl;
   }
