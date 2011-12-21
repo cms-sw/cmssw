@@ -87,12 +87,12 @@ public:
 
   /// Momentum vector in the local frame. 
   LocalVector momentum() const {
-    double p = 1./fabs(theQbp);
-    if ( p>1.e9 )  p = 1.e9;
-    double dz = thePzSign/sqrt(1. + theDxdz*theDxdz + theDydz*theDydz);
-    double dx = dz*theDxdz;
-    double dy = dz*theDydz;
-    return LocalVector(p*dx, p*dy, p*dz);
+    double op = fabs(theQbp);
+    if ( op<1.e-9 )  op = 1.e-9;
+    double pz = thePzSign/(op*sqrt(1. + theDxdz*theDxdz + theDydz*theDydz));
+    double px = pz*theDxdz;
+    double py = pz*theDydz;
+    return LocalVector(px, py, pz);
   }
 
  /// Momentum vector unit in the local frame. 
