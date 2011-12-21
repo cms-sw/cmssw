@@ -5,8 +5,7 @@ rpcRecHitV = cms.EDAnalyzer("RPCRecHitValid",
     simHit = cms.InputTag("g4SimHits", "MuonRPCHits"),
     recHit = cms.InputTag("rpcRecHits"),
     simTrack = cms.InputTag("mergedtruth", "MergedTrackTruth"),
-    standAloneMode = cms.untracked.bool(False),
-    rootFileName = cms.untracked.string("")
+    muon = cms.InputTag("muons"),
 )
 
 rpcRecHitValidation_step = cms.Sequence(rpcRecHitV)
