@@ -5,7 +5,6 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "TrackingTools/GsfTools/interface/MultiTrajectoryStateCombiner.h"
 
 /** Class which combines a set of components of a Gaussian mixture
  *  into a single component. Given all the components of a mixture, it
