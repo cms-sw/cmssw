@@ -71,6 +71,8 @@ int main() {
 
   M5T const m;
   LocalTrajectoryParameters tp(1., 1.,1., 0.,0.,1.);
+  std::cout << tp.vector() << std::endl;
+  std::cout << tp.charge() << " " << tp.signedInverseMomentum() << std::endl;
   GlobalVector tn = plane.toGlobal(tp.momentum()).unit();
   GlobalTrajectoryParameters gp(plane.toGlobal(tp.position()), plane.toGlobal(tp.momentum()),tp.charge(),&m); 
   LocalVector tnl = plane.toLocal(tn);
