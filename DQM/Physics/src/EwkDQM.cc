@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/03/12 10:25:45 $
- *  $Revision: 1.15 $
+ *  $Date: 2011/02/18 13:57:46 $
+ *  $Revision: 1.16 $
  *  \author Michael B. Anderson, University of Wisconsin-Madison
  *  \author Will Parker, University of Wisconsin-Madison
  */
@@ -280,12 +280,12 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   if ( !caloJetCollection.isValid() ) return;
 
   float jet_et    = -8.0;
-  float jet_eta   = -8.0;
-  float jet_phi   = -8.0;
+  //  float jet_eta   = -8.0; // UNUSED
+  //  float jet_phi   = -8.0; // UNUSED
   int   jet_count = 0;
   float jet2_et   = -9.0;
-  float jet2_eta  = -9.0;
-  float jet2_phi  = -9.0;
+  //  float jet2_eta  = -9.0; // UNUSED
+  //  float jet2_phi  = -9.0; // UNUSED
   for (CaloJetCollection::const_iterator i_calojet = caloJetCollection->begin(); i_calojet != caloJetCollection->end(); i_calojet++) {
 
     float jet_current_et = i_calojet->et();
@@ -300,15 +300,15 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
     jet_count++;
     if (jet_current_et > jet_et) {
       jet2_et  = jet_et;  // 2nd highest jet get's et from current highest
-      jet2_eta = jet_eta;
-      jet2_phi = jet_phi;
+      //      jet2_eta = jet_eta; // UNUSED
+      //      jet2_phi = jet_phi; // UNUSED
       jet_et   = i_calojet->et(); // current highest jet gets et from the new highest
-      jet_eta  = i_calojet->eta();
-      jet_phi  = i_calojet->phi();
+      //      jet_eta  = i_calojet->eta(); // UNUSED
+      //      jet_phi  = i_calojet->phi(); // UNUSED
     } else if (jet_current_et > jet2_et) {
       jet2_et  = i_calojet->et();
-      jet2_eta = i_calojet->eta();
-      jet2_phi = i_calojet->phi();
+      //      jet2_eta = i_calojet->eta(); // UNUSED
+      //      jet2_phi = i_calojet->phi(); // UNUSED
     }
   }
   ////////////////////////////////////////////////////////////////////////////////

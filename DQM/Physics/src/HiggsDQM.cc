@@ -431,12 +431,12 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup){
   e.getByLabel (theCaloJetCollectionLabel,caloJetCollection);
   if ( caloJetCollection.isValid() ){
     float jet_et    = -8.0;
-    float jet_eta   = -8.0;
-    float jet_phi   = -8.0;
+    //    float jet_eta   = -8.0; // UNUSED
+    //    float jet_phi   = -8.0; // UNUSED
     int   jet_count = 0;
     float jet2_et   = -9.0;
-    float jet2_eta  = -9.0;
-    float jet2_phi  = -9.0;
+    //    float jet2_eta  = -9.0; // UNUSED
+    //    float jet2_phi  = -9.0; // UNUSED
     for (CaloJetCollection::const_iterator i_calojet = caloJetCollection->begin(); i_calojet != caloJetCollection->end(); i_calojet++) {
       float jet_current_et = i_calojet->et();
       // if it overlaps with electron, it is not a jet
@@ -447,15 +447,15 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup){
       jet_count++;
       if (jet_current_et > jet_et) {
         jet2_et  = jet_et;  // 2nd highest jet get's et from current highest
-        jet2_eta = jet_eta;
-        jet2_phi = jet_phi;
+	//        jet2_eta = jet_eta; // UNUSED
+	//        jet2_phi = jet_phi; // UNUSED
         jet_et   = i_calojet->et(); // current highest jet gets et from the new highest
-        jet_eta  = i_calojet->eta();
-        jet_phi  = i_calojet->phi();
+	//        jet_eta  = i_calojet->eta(); // UNUSED
+	//        jet_phi  = i_calojet->phi(); // UNUSED
       } else if (jet_current_et > jet2_et) {
         jet2_et  = i_calojet->et();
-        jet2_eta = i_calojet->eta();
-        jet2_phi = i_calojet->phi();
+	//        jet2_eta = i_calojet->eta(); // UNUSED
+	//        jet2_phi = i_calojet->phi(); // UNUSED
       }
     }
     if (jet_et>0.0) {

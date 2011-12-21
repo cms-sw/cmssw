@@ -283,11 +283,11 @@ void EwkMuDQM::endRun(const Run& r, const EventSetup& iSet) {
 void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
       
       // Reset global event selection flags
-      bool rec_sel = false;
-      bool iso_sel = false;
-      bool hlt_sel = false;
-      bool met_sel = false;
-      bool all_sel = false;
+  //      bool rec_sel = false; // UNUSED
+  //      bool iso_sel = false; // UNUSED
+  //      bool hlt_sel = false; // UNUSED
+  //      bool met_sel = false; // UNUSED
+  //      bool all_sel = false; // UNUSED
 
       // Muon collection
       Handle<View<Muon> > muonCollection;
@@ -594,30 +594,30 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
 
             // Collect necessary flags "per muon"
             int flags_passed = 0;
-            bool rec_sel_this = true;
-            bool iso_sel_this = true;
-            bool hlt_sel_this = true;
-            bool met_sel_this = true;
-            bool all_sel_this = true;
+	    //            bool rec_sel_this = true; // UNUSED
+	    //            bool iso_sel_this = true; // UNUSED
+	    //            bool hlt_sel_this = true; // UNUSED
+	    //            bool met_sel_this = true; // UNUSED
+	    //            bool all_sel_this = true; // UNUSED
             for (int j=0; j<NFLAGS; ++j) {
                   if (muon_sel[j]) flags_passed += 1;
-                  if (j<4 && !muon_sel[j]) rec_sel_this = false;
-                  if (j<5 && !muon_sel[j]) iso_sel_this = false;
-                  if (j<6 && !muon_sel[j]) hlt_sel_this = false;
-                  if (j<8 && !muon_sel[j]) met_sel_this = false;
-                  if (!muon_sel[j]) all_sel_this = false;
+		  //                  if (j<4 && !muon_sel[j]) rec_sel_this = false; // UNUSED
+		  //                  if (j<5 && !muon_sel[j]) iso_sel_this = false; // UNUSED
+		  //                  if (j<6 && !muon_sel[j]) hlt_sel_this = false; // UNUSED
+		  //                  if (j<8 && !muon_sel[j]) met_sel_this = false; // UNUSED
+		  //                  if (!muon_sel[j]) all_sel_this = false; // UNUSED
             }
 
             // "rec" => pt,eta and quality cuts are satisfied
-            if (rec_sel_this) rec_sel = true;
+	    //            if (rec_sel_this) rec_sel = true; // UNUSED
             // "iso" => "rec" AND "muon is isolated"
-            if (iso_sel_this) iso_sel = true;
+	    //            if (iso_sel_this) iso_sel = true; // UNUSED
             // "hlt" => "iso" AND "event is triggered"
-            if (hlt_sel_this) hlt_sel = true;
+	    //            if (hlt_sel_this) hlt_sel = true; // UNUSED
             // "met" => "hlt" AND "MET/MT and acoplanarity cuts"
-            if (met_sel_this) met_sel = true;
+	    //            if (met_sel_this) met_sel = true; // UNUSED
             // "all" => "met" AND "Z/top rejection cuts"
-            if (all_sel_this) all_sel = true;
+	    //            if (all_sel_this) all_sel = true; // UNUSED
 
             // Do N-1 histograms now (and only once for global event quantities)
             if (flags_passed >= (NFLAGS-1)) {
@@ -718,22 +718,22 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
 
                                // start filling histos: N-1 plots
 			       int  flags_passed_z = 0;
-			       bool rec1_sel_z      = true;
-			       bool iso1_sel_z      = true;
-			       bool rec2_sel_z      = true;
-			       bool iso2_sel_z      = true;
-			       bool hlt_sel_z      = true;
-			       bool zmu_sel_z      = true;
-			       bool all_sel_z      = true;
+			       // bool rec1_sel_z      = true; // UNUSED
+			       // bool iso1_sel_z      = true; // UNUSED
+			       // bool rec2_sel_z      = true; // UNUSED
+			       // bool iso2_sel_z      = true; // UNUSED
+			       // bool hlt_sel_z      = true; // UNUSED
+			       // bool zmu_sel_z      = true; // UNUSED
+			       // bool all_sel_z      = true; // UNUSED
 			       for (int jj=0; jj<NFLAGSZ; ++jj) {
 				       if (zmuon_sel[jj]) ++flags_passed_z ;
-				       if (jj<4 && !zmuon_sel[jj]) rec1_sel_z = false;
-				       if (jj<5 && !zmuon_sel[jj]) iso1_sel_z = false;
-				       if (jj<9 && !zmuon_sel[jj]) rec2_sel_z = false;
-				       if (jj<10&& !zmuon_sel[jj]) iso2_sel_z = false;
-				       if (jj<11&& !zmuon_sel[jj]) hlt_sel_z  = false;
-				       if (jj<12&& !zmuon_sel[jj]) zmu_sel_z  = false;
-				       if (!zmuon_sel[jj]) all_sel_z  = false; 
+				       // if (jj<4 && !zmuon_sel[jj]) rec1_sel_z = false; // UNUSED
+				       // if (jj<5 && !zmuon_sel[jj]) iso1_sel_z = false; // UNUSED
+				       // if (jj<9 && !zmuon_sel[jj]) rec2_sel_z = false; // UNUSED
+				       // if (jj<10&& !zmuon_sel[jj]) iso2_sel_z = false; // UNUSED
+				       // if (jj<11&& !zmuon_sel[jj]) hlt_sel_z  = false; // UNUSED
+				       // if (jj<12&& !zmuon_sel[jj]) zmu_sel_z  = false; // UNUSED
+				       // if (!zmuon_sel[jj]) all_sel_z  = false;  // UNUSED
 
 			       }
 

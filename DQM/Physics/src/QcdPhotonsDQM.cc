@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/08/31 19:29:45 $
- *  $Revision: 1.26 $
+ *  $Date: 2011/01/21 10:21:39 $
+ *  $Revision: 1.27 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
@@ -258,14 +258,14 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
     //  Ignore ECAL Spikes
     const reco::CaloClusterPtr  seed = recoPhoton->superCluster()->seed();
     DetId id = lazyTool.getMaximum(*seed).first; // Cluster shape variables
-    float time  = -999., outOfTimeChi2 = -999., chi2 = -999.;
+    //    float time  = -999., outOfTimeChi2 = -999., chi2 = -999.;  // UNUSED
     int   flags=-1, severity = -1; 
     const EcalRecHitCollection & rechits = ( recoPhoton->isEB() ? *EBReducedRecHits : *EEReducedRecHits); 
     EcalRecHitCollection::const_iterator it = rechits.find( id );
     if( it != rechits.end() ) {
-      time = it->time(); 
-      outOfTimeChi2 = it->outOfTimeChi2();
-      chi2 = it->chi2();
+      //      time = it->time(); // UNUSED
+      //      outOfTimeChi2 = it->outOfTimeChi2(); // UNUSED
+      //      chi2 = it->chi2(); // UNUSED
       flags = it->recoFlag();
 
       edm::ESHandle<EcalSeverityLevelAlgo> sevlv;

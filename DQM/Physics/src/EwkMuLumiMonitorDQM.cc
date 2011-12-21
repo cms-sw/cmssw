@@ -226,7 +226,7 @@ void EwkMuLumiMonitorDQM::endRun(const Run& r, const EventSetup&) {
 
 void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
       nall++;  
-      bool iso_sel = false;
+      //      bool iso_sel = false; // UNUSED
       bool hlt_sel = false;
       double iso1=-1;
       double iso2=-1;
@@ -449,7 +449,7 @@ void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
 
 		if (  isMu1Iso &&  isMu2Iso  ){
 		  niso++;
-		  iso_sel=true;
+		  //  iso_sel=true; // UNUSED
 		  if (isZGolden2HLT_) {
 		    n2hlt++; 
 		    mass2HLT_->Fill(mass);

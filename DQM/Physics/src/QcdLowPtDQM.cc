@@ -1,4 +1,4 @@
-// $Id: QcdLowPtDQM.cc,v 1.16 2010/12/14 15:57:39 olzem Exp $
+// $Id: QcdLowPtDQM.cc,v 1.17 2011/01/21 21:17:20 elmer Exp $
 
 #include "DQM/Physics/src/QcdLowPtDQM.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -587,8 +587,8 @@ void QcdLowPtDQM::filldNdeta(const TH3F *AlphaTracklets,
   const int netabins = AlphaTracklets->GetNbinsX();
   const int nhitbins = AlphaTracklets->GetNbinsY();
   const int nvzbins  = AlphaTracklets->GetNbinsZ();
-  const int zvlbin   = AlphaTracklets->GetZaxis()->FindFixBin(-ZVVtxRegion_)-1;          
-  const int zvhbin   = AlphaTracklets->GetZaxis()->FindFixBin(+ZVVtxRegion_)+1;          
+  //  const int zvlbin   = AlphaTracklets->GetZaxis()->FindFixBin(-ZVVtxRegion_)-1; // UNUSED
+  //  const int zvhbin   = AlphaTracklets->GetZaxis()->FindFixBin(+ZVVtxRegion_)+1; // UNUSED
 
   for(size_t i=0;i<hdNdEtaRawTrkl.size();++i) {
     MonitorElement *mrawtrk = hdNdEtaRawTrkl.at(i);
@@ -611,13 +611,13 @@ void QcdLowPtDQM::filldNdeta(const TH3F *AlphaTracklets,
       if (!events)
         continue;
 
-      int zvbin1 = 1;
-      int zvbin2 = nvzbins;
-      if (zvetabin==0) { // reduced phase space
-        zvbin1 = zvhbin;
-      } else if (zvetabin==2) {
-        zvbin2 = zvlbin;
-      }
+//       int zvbin1 = 1; // UNUSED
+//       int zvbin2 = nvzbins; // UNUSED
+//       if (zvetabin==0) { // reduced phase space
+//         zvbin1 = zvhbin;
+//       } else if (zvetabin==2) {
+//         zvbin2 = zvlbin;
+//       }
 
       double dndetaraw     = 0;
       double dndetasub     = 0;

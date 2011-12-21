@@ -355,7 +355,7 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
       bool eid_sel = false;
       bool iso_sel = false;
 //       bool hlt_sel = false;
-      bool met_sel = false;
+//      bool met_sel = false; // UNUSED
       bool all_sel = false;
 
 //       // Muon collection
@@ -494,11 +494,11 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
 
       float jet_et    = -8.0;
       float jet_eta   = -8.0;
-      float jet_phi   = -8.0;
+      //      float jet_phi   = -8.0; // UNUSED
       int   jet_count = 0;
       float jet2_et   = -9.0;
-      float jet2_eta  = -9.0;
-      float jet2_phi  = -9.0;
+      //      float jet2_eta  = -9.0; // UNUSED
+      //      float jet2_phi  = -9.0; // UNUSED
       unsigned int jetCollectionSize = jetCollection->size();
       int njets = 0;
       for (unsigned int i=0; i<jetCollectionSize; i++) {
@@ -525,17 +525,17 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
 	if (jet_current_et > jet_et) 
 	  {
 	    jet2_et  = jet_et;  // 2nd highest jet get's et from current highest
-	    jet2_eta = jet_eta;
-	    jet2_phi = jet_phi;
+	    //	    jet2_eta = jet_eta; // UNUSED
+	    //	    jet2_phi = jet_phi; // UNUSED
 	    jet_et   = jet.et(); // current highest jet gets et from the new highest
 	    jet_eta  = jet.eta();
-	    jet_phi  = jet.phi();
+	    //	    jet_phi  = jet.phi(); // UNUSED
 	  } 
 	else if (jet_current_et > jet2_et) 
 	  {
 	    jet2_et  = jet.et();
-	    jet2_eta = jet.eta();
-	    jet2_phi = jet.phi();
+	    //	    jet2_eta = jet.eta(); // UNUSED
+	    //	    jet2_phi = jet.phi(); // UNUSED
 	  }
       }
 
@@ -775,7 +775,7 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
 	  bool rec_sel_this = true;
 	  bool eid_sel_this = true;
 	  bool iso_sel_this = true;
-	  bool met_sel_this = true;
+	  //	  bool met_sel_this = true; // UNUSED
 	  bool all_sel_this = true;
 	  for (int j=0; j<NFLAGS; ++j) 
 	    {
@@ -783,7 +783,7 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
 	      if (j<2  && !electron_sel[j]) rec_sel_this = false;
 	      if (j<4  && !electron_sel[j]) eid_sel_this = false;
 	      if (j<7  && !electron_sel[j]) iso_sel_this = false;
-	      if (j<9 && !electron_sel[j]) met_sel_this = false;
+	      //	      if (j<9 && !electron_sel[j]) met_sel_this = false; // UNUSED
 	      if (!electron_sel[j]) all_sel_this = false;
 	    }
 	  
@@ -817,7 +817,7 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
 	  // "iso" => "eid" AND "electron is isolated"
 	  if (iso_sel_this) iso_sel = true;
 	  // "met" => "iso" AND "MET/MT"
-	  if (met_sel_this) met_sel = true;
+	  //	  if (met_sel_this) met_sel = true; // UNUSED (met_sel)
 	  // "all" => "met" AND "event is triggered"
 	  if (all_sel_this) all_sel = true;
 

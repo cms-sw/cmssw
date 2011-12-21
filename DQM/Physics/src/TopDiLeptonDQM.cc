@@ -1,6 +1,6 @@
 /*
- *  $Date: 2010/02/25 17:09:49 $
- *  $Revision: 1.10 $
+ *  $Date: 2010/05/12 15:49:56 $
+ *  $Revision: 1.12 $
  *  \author M. Marienfeld - DESY Hamburg
  */
 
@@ -173,7 +173,7 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
   int N_leptons = 0;
   int N_iso_mu  = 0;
   int N_iso_el  = 0;
-  int N_iso_lep = 0;
+  //  int N_iso_lep = 0; // UNUSED
 
   double DilepMass = 0.;
 
@@ -425,7 +425,7 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
 
   }
 
-  N_iso_lep = N_iso_el + N_iso_mu;
+  //  N_iso_lep = N_iso_el + N_iso_mu; // UNUSED
 
   // --------------------
   //  TWO Isolated MUONS
