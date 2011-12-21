@@ -5,7 +5,7 @@
 
 
 #include "DataFormats/GeometrySurface/interface/Surface.h"
-#include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryParameters.h"
+#include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 
 
@@ -76,6 +76,8 @@ int main() {
   GlobalVector tn = plane.toGlobal(tp.momentum()).unit();
   GlobalTrajectoryParameters gp(plane.toGlobal(tp.position()), plane.toGlobal(tp.momentum()),tp.charge(),&m); 
   LocalVector tnl = plane.toLocal(tn);
+  std::cout << tp.position() << std::endl;
+  std::cout << tp.momentum() << std::endl;
   std::cout << tp.momentum().unit() << std::endl;
   std::cout << tp.direction() << std::endl;
   std::cout << tnl << std::endl;
