@@ -4,13 +4,20 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
-#include "Geometry/RPCGeometry/interface/RPCRoll.h"
-#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
+#include "Geometry/RPCGeometry/interface/RPCRoll.h"
+#include "Geometry/RPCGeometry/interface/RPCRollSpecs.h"
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 using namespace std;
 
@@ -18,12 +25,10 @@ typedef MonitorElement* MEP;
 
 RPCRecHitValid::RPCRecHitValid(const edm::ParameterSet& pset)
 {
-  rootFileName_ = pset.getUntrackedParameter<string>("rootFileName", "");
   simHitLabel_ = pset.getParameter<edm::InputTag>("simHit");
   recHitLabel_ = pset.getParameter<edm::InputTag>("recHit");
   simTrackLabel_ = pset.getParameter<edm::InputTag>("simTrack");
-
-  isStandAloneMode_ = pset.getUntrackedParameter<bool>("standAloneMode", false);
+  muonLabel_ = pset.getParameter<edm::InputTag>("muon");
 
   dbe_ = edm::Service<DQMStore>().operator->();
   if ( !dbe_ )
@@ -33,13 +38,13 @@ RPCRecHitValid::RPCRecHitValid(const edm::ParameterSet& pset)
   }
 
   // Book MonitorElements
-  const std::string subDir = pset.getParameter<std::string>("subDir");
-  h_.bookHistograms(dbe_, subDir);
+  subDir_ = pset.getParameter<std::string>("subDir");
+  h_.bookHistograms(dbe_, subDir_);
 
   // SimHit plots, not compatible to RPCPoint-RPCRecHit comparison
-  dbe_->setCurrentFolder(subDir+"/HitProperty");
-  h_simHitPType = dbe_->book1D("SimHitPType", "SimHit particle type", 11, 0, 11);
-  if ( TH1F* h = h_simHitPType->getTH1F() )
+  dbe_->setCurrentFolder(subDir_+"/HitProperty");
+  h_simTrackPType = dbe_->book1D("SimHitPType", "SimHit particle type", 11, 0, 11);
+  if ( TH1* h = h_simTrackPType->getTH1() )
   {
     h->GetXaxis()->SetBinLabel(1 , "#mu^{-}");
     h->GetXaxis()->SetBinLabel(2 , "#mu^{+}");
@@ -54,12 +59,17 @@ RPCRecHitValid::RPCRecHitValid(const edm::ParameterSet& pset)
     h->GetXaxis()->SetBinLabel(11, "Other"  );
   }
 
-  dbe_->setCurrentFolder(subDir+"/Track");
+  dbe_->setCurrentFolder(subDir_+"/Track");
   
   h_nRPCHitPerSimMuon        = dbe_->book1D("NRPCHitPerSimMuon"       , "Number of RPC SimHit per SimMuon", 11, -0.5, 10.5);
   h_nRPCHitPerSimMuonBarrel  = dbe_->book1D("NRPCHitPerSimMuonBarrel" , "Number of RPC SimHit per SimMuon", 11, -0.5, 10.5);
   h_nRPCHitPerSimMuonOverlap = dbe_->book1D("NRPCHitPerSimMuonOverlap", "Number of RPC SimHit per SimMuon", 11, -0.5, 10.5);
   h_nRPCHitPerSimMuonEndcap  = dbe_->book1D("NRPCHitPerSimMuonEndcap" , "Number of RPC SimHit per SimMuon", 11, -0.5, 10.5);
+
+  h_nRPCHitPerRecoMuon        = dbe_->book1D("NRPCHitPerRecoMuon"       , "Number of RPC RecHit per RecoMuon", 11, -0.5, 10.5);
+  h_nRPCHitPerRecoMuonBarrel  = dbe_->book1D("NRPCHitPerRecoMuonBarrel" , "Number of RPC RecHit per RecoMuon", 11, -0.5, 10.5);
+  h_nRPCHitPerRecoMuonOverlap = dbe_->book1D("NRPCHitPerRecoMuonOverlap", "Number of RPC RecHit per RecoMuon", 11, -0.5, 10.5);
+  h_nRPCHitPerRecoMuonEndcap  = dbe_->book1D("NRPCHitPerRecoMuonEndcap" , "Number of RPC RecHit per RecoMuon", 11, -0.5, 10.5); 
 
   float ptBins[] = {0, 1, 2, 5, 10, 20, 30, 50, 100, 200, 300, 500};
   const int nPtBins = sizeof(ptBins)/sizeof(float)-1;
@@ -71,95 +81,89 @@ RPCRecHitValid::RPCRecHitValid(const edm::ParameterSet& pset)
   h_simMuonOverlap_eta = dbe_->book1D("SimMuonOverlap_eta", "SimMuon RPCHit in Overlap #eta;#eta", 50, -2.5, 2.5);
   h_simMuonEndcap_eta  = dbe_->book1D("SimMuonEndcap_eta" , "SimMuon RPCHit in Endcap  #eta;#eta", 50, -2.5, 2.5);
   h_simMuonNoRPC_eta = dbe_->book1D("SimMuonNoRPC_eta", "SimMuon without RPCHit #eta;#eta", 50, -2.5, 2.5);
+  h_simMuonBarrel_phi = dbe_->book1D("SimMuonBarrel_phi" , "SimMuon RPCHit in Barrel  #phi;#phi", 36, -TMath::Pi(), TMath::Pi());
+  h_simMuonOverlap_phi = dbe_->book1D("SimMuonOverlap_phi", "SimMuon RPCHit in Overlap #phi;#phi", 36, -TMath::Pi(), TMath::Pi());
+  h_simMuonEndcap_phi  = dbe_->book1D("SimMuonEndcap_phi" , "SimMuon RPCHit in Endcap  #phi;#phi", 36, -TMath::Pi(), TMath::Pi());
+  h_simMuonNoRPC_phi = dbe_->book1D("SimMuonNoRPC_phi", "SimMuon without RPCHit #phi;#phi", 36, -TMath::Pi(), TMath::Pi());
 
-  dbe_->setCurrentFolder(subDir+"/Occupancy");
+  h_recoMuonBarrel_pt   = dbe_->book1D("RecoMuonBarrel_pt"  , "RecoMuon RPCHit in Barrel  p_{T};p_{T} [GeV/c^{2}]", nPtBins, ptBins);
+  h_recoMuonOverlap_pt  = dbe_->book1D("RecoMuonOverlap_pt" , "RecoMuon RPCHit in Overlap p_{T};p_{T} [GeV/c^{2}]", nPtBins, ptBins);
+  h_recoMuonEndcap_pt   = dbe_->book1D("RecoMuonEndcap_pt"  , "RecoMuon RPCHit in Endcap  p_{T};p_{T} [GeV/c^{2}]", nPtBins, ptBins);
+  h_recoMuonNoRPC_pt  = dbe_->book1D("RecoMuonNoRPC_pt" , "RecoMuon without RPCHit p_{T};p_{T} [GeV/c^{2}]", nPtBins, ptBins);
+  h_recoMuonBarrel_eta  = dbe_->book1D("RecoMuonBarrel_eta" , "RecoMuon RPCHit in Barrel  #eta;#eta", 50, -2.5, 2.5);
+  h_recoMuonOverlap_eta = dbe_->book1D("RecoMuonOverlap_eta", "RecoMuon RPCHit in Overlap #eta;#eta", 50, -2.5, 2.5);
+  h_recoMuonEndcap_eta  = dbe_->book1D("RecoMuonEndcap_eta" , "RecoMuon RPCHit in Endcap  #eta;#eta", 50, -2.5, 2.5);
+  h_recoMuonNoRPC_eta = dbe_->book1D("RecoMuonNoRPC_eta", "RecoMuon without RPCHit #eta;#eta", 50, -2.5, 2.5);
+  h_recoMuonBarrel_phi = dbe_->book1D("RecoMuonBarrel_phi" , "RecoMuon RPCHit in Barrel  #phi;#phi", 36, -TMath::Pi(), TMath::Pi());
+  h_recoMuonOverlap_phi = dbe_->book1D("RecoMuonOverlap_phi", "RecoMuon RPCHit in Overlap #phi;#phi", 36, -TMath::Pi(), TMath::Pi());
+  h_recoMuonEndcap_phi  = dbe_->book1D("RecoMuonEndcap_phi" , "RecoMuon RPCHit in Endcap  #phi;#phi", 36, -TMath::Pi(), TMath::Pi());
+  h_recoMuonNoRPC_phi = dbe_->book1D("RecoMuonNoRPC_phi", "RecoMuon without RPCHit #phi;#phi", 36, -TMath::Pi(), TMath::Pi());
+
+  dbe_->setCurrentFolder(subDir_+"/Occupancy");
+
+  h_eventCount = dbe_->book1D("EventCount", "Event count", 3, 0, 3);
+  if ( h_eventCount )
+  {
+    TH1* h = h_eventCount->getTH1();
+    h->GetXaxis()->SetBinLabel(1, "eventBegin");
+    h->GetXaxis()->SetBinLabel(2, "eventEnd");
+    h->GetXaxis()->SetBinLabel(3, "run");
+  }
   
-  h_refBkgBarrelOccupancy_wheel   = dbe_->book1D("BkgBarrelOccupancy_wheel"  , "Bkg occupancy", 5, -2.5, 2.5);
-  h_refBkgEndcapOccupancy_disk    = dbe_->book1D("BkgEndcapOccupancy_disk"   , "Bkg occupancy", 7, -3.5, 3.5);
-  h_refBkgBarrelOccupancy_station = dbe_->book1D("BkgBarrelOccupancy_station", "Bkg occupancy", 4,  0.5, 4.5);
-  h_refPunchBarrelOccupancy_wheel   = dbe_->book1D("RefPunchBarrelOccupancy_wheel"  , "RefPunchthrough occupancy", 5, -2.5, 2.5);
-  h_refPunchEndcapOccupancy_disk    = dbe_->book1D("RefPunchEndcapOccupancy_disk"   , "RefPunchthrough occupancy", 7, -3.5, 3.5);
-  h_refPunchBarrelOccupancy_station = dbe_->book1D("RefPunchBarrelOccupancy_station", "RefPunchthrough occupancy", 4,  0.5, 4.5);
-  h_recPunchBarrelOccupancy_wheel   = dbe_->book1D("RecPunchBarrelOccupancy_wheel"  , "Punchthrough recHit occupancy", 5, -2.5, 2.5);
-  h_recPunchEndcapOccupancy_disk    = dbe_->book1D("RecPunchEndcapOccupancy_disk"   , "Punchthrough recHit occupancy", 7, -3.5, 3.5);
-  h_recPunchBarrelOccupancy_station = dbe_->book1D("RecPunchBarrelOccupancy_station", "Punchthrough recHit occupancy", 4,  0.5, 4.5);
-  h_noiseBarrelOccupancy_wheel   = dbe_->book1D("NoiseBarrelOccupancy_wheel"  , "Noise recHit occupancy", 5, -2.5, 2.5);
-  h_noiseEndcapOccupancy_disk    = dbe_->book1D("NoiseEndcapOccupancy_disk"   , "Noise recHit occupancy", 7, -3.5, 3.5);
-  h_noiseBarrelOccupancy_station = dbe_->book1D("NoiseBarrelOccupancy_station", "Noise recHit occupancy", 4,  0.5, 4.5);
+  h_refPunchOccupancyBarrel_wheel   = dbe_->book1D("RefPunchOccupancyBarrel_wheel"  , "RefPunchthrough occupancy", 5, -2.5, 2.5);
+  h_refPunchOccupancyEndcap_disk    = dbe_->book1D("RefPunchOccupancyEndcap_disk"   , "RefPunchthrough occupancy", 7, -3.5, 3.5);
+  h_refPunchOccupancyBarrel_station = dbe_->book1D("RefPunchOccupancyBarrel_station", "RefPunchthrough occupancy", 4,  0.5, 4.5);
+  h_recPunchOccupancyBarrel_wheel   = dbe_->book1D("RecPunchOccupancyBarrel_wheel"  , "Punchthrough recHit occupancy", 5, -2.5, 2.5);
+  h_recPunchOccupancyEndcap_disk    = dbe_->book1D("RecPunchOccupancyEndcap_disk"   , "Punchthrough recHit occupancy", 7, -3.5, 3.5);
+  h_recPunchOccupancyBarrel_station = dbe_->book1D("RecPunchOccupancyBarrel_station", "Punchthrough recHit occupancy", 4,  0.5, 4.5);
 
-  h_refBkgBarrelOccupancy_wheel_station = dbe_->book2D("BkgBarrelOccupancy_wheel_station", "Bkg occupancy", 5, -2.5, 2.5, 4, 0.5, 4.5);
-  h_refBkgEndcapOccupancy_disk_ring     = dbe_->book2D("BkgEndcapOccupancy_disk_ring"    , "Bkg occupancy", 7, -3.5, 3.5, 4, 0.5, 4.5);
-  h_refPunchBarrelOccupancy_wheel_station = dbe_->book2D("RefPunchBarrelOccupancy_wheel_station", "RefPunchthrough occupancy", 5, -2.5, 2.5, 4, 0.5, 4.5);
-  h_refPunchEndcapOccupancy_disk_ring     = dbe_->book2D("RefPunchEndcapOccupancy_disk_ring"    , "RefPunchthrough occupancy", 7, -3.5, 3.5, 4, 0.5, 4.5);
-  h_recPunchBarrelOccupancy_wheel_station = dbe_->book2D("RecPunchBarrelOccupancy_wheel_station", "Punchthrough recHit occupancy", 5, -2.5, 2.5, 4, 0.5, 4.5);
-  h_recPunchEndcapOccupancy_disk_ring     = dbe_->book2D("RecPunchEndcapOccupancy_disk_ring"    , "Punchthrough recHit occupancy", 7, -3.5, 3.5, 4, 0.5, 4.5);
-  h_noiseBarrelOccupancy_wheel_station = dbe_->book2D("NoiseBarrelOccupancy_wheel_station", "Noise recHit occupancy", 5, -2.5, 2.5, 4, 0.5, 4.5);
-  h_noiseEndcapOccupancy_disk_ring     = dbe_->book2D("NoiseEndcapOccupancy_disk_ring"    , "Noise recHit occupancy", 7, -3.5, 3.5, 4, 0.5, 4.5);
+  h_refPunchOccupancyBarrel_wheel_station = dbe_->book2D("RefPunchOccupancyBarrel_wheel_station", "RefPunchthrough occupancy", 5, -2.5, 2.5, 4, 0.5, 4.5);
+  h_refPunchOccupancyEndcap_disk_ring     = dbe_->book2D("RefPunchOccupancyEndcap_disk_ring"    , "RefPunchthrough occupancy", 7, -3.5, 3.5, 4, 0.5, 4.5);
+  h_recPunchOccupancyBarrel_wheel_station = dbe_->book2D("RecPunchOccupancyBarrel_wheel_station", "Punchthrough recHit occupancy", 5, -2.5, 2.5, 4, 0.5, 4.5);
+  h_recPunchOccupancyEndcap_disk_ring     = dbe_->book2D("RecPunchOccupancyEndcap_disk_ring"    , "Punchthrough recHit occupancy", 7, -3.5, 3.5, 4, 0.5, 4.5);
 
-  h_refBkgBarrelOccupancy_wheel_station->getTH2F()->SetOption("COLZ");
-  h_refBkgEndcapOccupancy_disk_ring    ->getTH2F()->SetOption("COLZ");
-  h_refPunchBarrelOccupancy_wheel_station->getTH2F()->SetOption("COLZ");
-  h_refPunchEndcapOccupancy_disk_ring    ->getTH2F()->SetOption("COLZ");
-  h_recPunchBarrelOccupancy_wheel_station->getTH2F()->SetOption("COLZ");
-  h_recPunchEndcapOccupancy_disk_ring    ->getTH2F()->SetOption("COLZ");
-  h_noiseBarrelOccupancy_wheel_station->getTH2F()->SetOption("COLZ");
-  h_noiseEndcapOccupancy_disk_ring    ->getTH2F()->SetOption("COLZ");
+  h_refPunchOccupancyBarrel_wheel_station->getTH2F()->SetOption("COLZ");
+  h_refPunchOccupancyEndcap_disk_ring    ->getTH2F()->SetOption("COLZ");
+  h_recPunchOccupancyBarrel_wheel_station->getTH2F()->SetOption("COLZ");
+  h_recPunchOccupancyEndcap_disk_ring    ->getTH2F()->SetOption("COLZ");
 
   for ( int i=1; i<=5; ++i )
   {
     TString binLabel = Form("Wheel %d", i-3);
-    h_refBkgBarrelOccupancy_wheel->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
-    h_refBkgBarrelOccupancy_wheel_station->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
-    h_refPunchBarrelOccupancy_wheel->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
-    h_refPunchBarrelOccupancy_wheel_station->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
-    h_recPunchBarrelOccupancy_wheel->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
-    h_recPunchBarrelOccupancy_wheel_station->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
-    h_noiseBarrelOccupancy_wheel->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
-    h_noiseBarrelOccupancy_wheel_station->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
+    h_refPunchOccupancyBarrel_wheel->getTH1()->GetXaxis()->SetBinLabel(i, binLabel);
+    h_refPunchOccupancyBarrel_wheel_station->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
+    h_recPunchOccupancyBarrel_wheel->getTH1()->GetXaxis()->SetBinLabel(i, binLabel);
+    h_recPunchOccupancyBarrel_wheel_station->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
   }
 
   for ( int i=1; i<=7; ++i )
   {
     TString binLabel = Form("Disk %d", i-4);
-    h_refBkgEndcapOccupancy_disk  ->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
-    h_refBkgEndcapOccupancy_disk_ring  ->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
-    h_refPunchEndcapOccupancy_disk  ->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
-    h_refPunchEndcapOccupancy_disk_ring  ->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
-    h_recPunchEndcapOccupancy_disk  ->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
-    h_recPunchEndcapOccupancy_disk_ring  ->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
-    h_noiseEndcapOccupancy_disk  ->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
-    h_noiseEndcapOccupancy_disk_ring  ->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
+    h_refPunchOccupancyEndcap_disk  ->getTH1()->GetXaxis()->SetBinLabel(i, binLabel);
+    h_refPunchOccupancyEndcap_disk_ring  ->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
+    h_recPunchOccupancyEndcap_disk  ->getTH1()->GetXaxis()->SetBinLabel(i, binLabel);
+    h_recPunchOccupancyEndcap_disk_ring  ->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
   }
 
   for ( int i=1; i<=4; ++i )
   {
     TString binLabel = Form("Station %d", i);
-    h_refBkgBarrelOccupancy_station  ->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
-    h_refBkgBarrelOccupancy_wheel_station  ->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
-    h_refPunchBarrelOccupancy_station  ->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
-    h_refPunchBarrelOccupancy_wheel_station  ->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
-    h_recPunchBarrelOccupancy_station  ->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
-    h_recPunchBarrelOccupancy_wheel_station  ->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
-    h_noiseBarrelOccupancy_station  ->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
-    h_noiseBarrelOccupancy_wheel_station  ->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
+    h_refPunchOccupancyBarrel_station  ->getTH1()->GetXaxis()->SetBinLabel(i, binLabel);
+    h_refPunchOccupancyBarrel_wheel_station  ->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
+    h_recPunchOccupancyBarrel_station  ->getTH1()->GetXaxis()->SetBinLabel(i, binLabel);
+    h_recPunchOccupancyBarrel_wheel_station  ->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
   }
 
   for ( int i=1; i<=4; ++i )
   {
     TString binLabel = Form("Ring %d", i);
-    h_refBkgEndcapOccupancy_disk_ring  ->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
-    h_refPunchEndcapOccupancy_disk_ring  ->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
-    h_recPunchEndcapOccupancy_disk_ring  ->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
-    h_noiseEndcapOccupancy_disk_ring  ->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
+    h_refPunchOccupancyEndcap_disk_ring  ->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
+    h_recPunchOccupancyEndcap_disk_ring  ->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
   }
 }
 
 RPCRecHitValid::~RPCRecHitValid()
 {
-  if ( dbe_ )
-  {
-    if ( !rootFileName_.empty() ) dbe_->save(rootFileName_);
-  }
 }
 
 void RPCRecHitValid::beginJob()
@@ -170,13 +174,90 @@ void RPCRecHitValid::endJob()
 {
 }
 
+void RPCRecHitValid::beginRun(const edm::Run& run, const edm::EventSetup& eventSetup)
+{
+  if ( !dbe_ ) return;
+  h_eventCount->Fill(2);
+
+  // Book roll-by-roll histograms
+  edm::ESHandle<RPCGeometry> rpcGeom;
+  eventSetup.get<MuonGeometryRecord>().get(rpcGeom);
+
+  int nRPCRollBarrel = 0, nRPCRollEndcap = 0;
+  std::vector<float> rollAreaBarrel, rollAreaEndcap;
+  rollAreaBarrel.reserve(1300);
+  rollAreaEndcap.reserve(1300);
+
+  TrackingGeometry::DetContainer rpcDets = rpcGeom->dets();
+  for ( TrackingGeometry::DetContainer::const_iterator detIter = rpcDets.begin();
+        detIter != rpcDets.end(); ++detIter )
+  {
+    RPCChamber* rpcCh = dynamic_cast<RPCChamber*>(*detIter);
+    if ( !rpcCh ) continue;
+
+    std::vector<const RPCRoll*> rolls = rpcCh->rolls();
+    for ( std::vector<const RPCRoll*>::const_iterator rollIter = rolls.begin();
+          rollIter != rolls.end(); ++rollIter )
+    {
+      const RPCRoll* roll = *rollIter;
+      if ( !roll ) continue;
+      //RPCGeomServ rpcSrv(roll.id());
+      const int rawId = roll->geographicalId().rawId();
+      //const StripTopology& topol = roll->specificTopology();
+      const double area = 1.0;//topol->stripLength()*topol->nstrips()*topol->pitch();
+      if ( roll->isBarrel() )
+      {
+        detIdToIndexMapBarrel_[rawId] = nRPCRollBarrel;
+        //rollIdToNameMapBarrel_[rawId] = rpcSrv.name();
+        rollAreaBarrel.push_back(area);
+        ++nRPCRollBarrel;
+      }
+      else
+      {
+        detIdToIndexMapEndcap_[rawId] = nRPCRollEndcap;
+        //rollIdToNameMapEndcap_[rawId] = rpcSrv.name();
+        rollAreaEndcap.push_back(area);
+        ++nRPCRollEndcap;
+      }
+    }
+  }
+
+  dbe_->setCurrentFolder(subDir_+"/Occupancy");
+  h_matchOccupancyBarrel_detId = dbe_->book1D("MatchOccupancyBarrel_detId", "Matched hit occupancy;roll index (can be arbitrary)", nRPCRollBarrel, 0, nRPCRollBarrel);
+  h_matchOccupancyEndcap_detId = dbe_->book1D("MatchOccupancyEndcap_detId", "Matched hit occupancy;roll index (can be arbitrary)", nRPCRollEndcap, 0, nRPCRollEndcap);
+  h_refOccupancyBarrel_detId = dbe_->book1D("RefOccupancyBarrel_detId", "Reference hit occupancy;roll index (can be arbitrary)", nRPCRollBarrel, 0, nRPCRollBarrel);
+  h_refOccupancyEndcap_detId = dbe_->book1D("RefOccupancyEndcap_detId", "Reference hit occupancy;roll index (can be arbitrary)", nRPCRollEndcap, 0, nRPCRollEndcap);
+  h_noiseOccupancyBarrel_detId = dbe_->book1D("NoiseOccupancyBarrel_detId", "Noise occupancy;roll index (can be arbitrary)", nRPCRollBarrel, 0, nRPCRollBarrel);
+  h_noiseOccupancyEndcap_detId = dbe_->book1D("NoiseOccupancyEndcap_detId", "Noise occupancy;roll index (can be arbitrary)", nRPCRollEndcap, 0, nRPCRollEndcap);
+
+  h_rollAreaBarrel_detId = dbe_->book1D("RollAreaBarrel_detId", "Roll area;roll index", nRPCRollBarrel, 0, nRPCRollBarrel);
+  h_rollAreaEndcap_detId = dbe_->book1D("RollAreaEndcap_detId", "Roll area;roll index", nRPCRollEndcap, 0, nRPCRollEndcap);
+
+  TH1* h = 0;
+
+  h = h_rollAreaBarrel_detId->getTH1();
+  h->SetBit(TH1::kIsAverage);
+  for ( int i = 0; i < nRPCRollBarrel; ++i )
+  {
+    h->SetBinContent(i+1, rollAreaBarrel[i]);
+  }
+
+  h = h_rollAreaEndcap_detId->getTH1();
+  h->SetBit(TH1::kIsAverage);
+  for ( int i = 0; i < nRPCRollEndcap; ++i )
+  {
+    h->SetBinContent(i+1, rollAreaEndcap[i]);
+  }
+}
+
+void RPCRecHitValid::endRun()
+{
+}
+
 void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eventSetup)
 {
-  if ( !dbe_ )
-  {
-    edm::LogError("RPCRecHitValid") << "No DQMStore instance\n";
-    return;
-  }
+  if ( !dbe_ ) return;
+  h_eventCount->Fill(0);
 
   // Get the RPC Geometry
   edm::ESHandle<RPCGeometry> rpcGeom;
@@ -206,71 +287,119 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
     return;
   }
 
+  // Get RecoMuons
+  edm::Handle<edm::View<reco::Muon> > muonHandle;
+  if ( !event.getByLabel(muonLabel_, muonHandle) )
+  {
+    edm::LogInfo("RPCRecHitValid") << "Cannot find muon collection\n";
+    return;
+  }
+
   typedef edm::PSimHitContainer::const_iterator SimHitIter;
   typedef RPCRecHitCollection::const_iterator RecHitIter;
 
+  std::vector<const PSimHit*> muonSimHits;
+  std::vector<const PSimHit*> pthrSimHits;
   for ( edm::View<TrackingParticle>::const_iterator simTrack = simTrackHandle->begin();
         simTrack != simTrackHandle->end(); ++simTrack )
   {
-    if ( abs(simTrack->pdgId()) != 13 ) continue;
-    int nRPCBarrelHit = 0;
-    int nRPCEndcapHit = 0;
-
-    for ( SimHitIter simHit = simTrack->pSimHit_begin();
-          simHit != simTrack->pSimHit_end(); ++simHit )
+    bool hasRPCHit = false;
+    if ( abs(simTrack->pdgId()) == 13 )
     {
-      const DetId detId(simHit->detUnitId());
-      if ( detId.det() != DetId::Muon or detId.subdetId() != MuonSubdetId::RPC ) continue;
-      const RPCDetId rpcDetId = static_cast<const RPCDetId>(simHit->detUnitId());
-      const RPCRoll* roll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(rpcDetId()));
-      if ( !roll ) continue;
+      int nRPCHitBarrel = 0;
+      int nRPCHitEndcap = 0;
 
-      const int region = roll->id().region();
-      //const int ring = roll->id().ring();
-      //const int sector = roll->id().sector();
-      //const int station = roll->id().station();
-      //const int layer = roll->id().layer();
-      //const int subSector = roll->id().subsector();
+      for ( SimHitIter simHit = simTrack->pSimHit_begin();
+            simHit != simTrack->pSimHit_end(); ++simHit )
+      {
+        const DetId detId(simHit->detUnitId());
+        if ( detId.det() != DetId::Muon or detId.subdetId() != MuonSubdetId::RPC ) continue;
+        const RPCDetId rpcDetId = static_cast<const RPCDetId>(simHit->detUnitId());
+        const RPCRoll* roll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(rpcDetId));
+        if ( !roll ) continue;
 
-      if ( region == 0 ) ++nRPCBarrelHit;
-      else ++nRPCEndcapHit;
-    }
+        if ( rpcDetId.region() == 0 ) ++nRPCHitBarrel;
+        else ++nRPCHitEndcap;
 
-    int nRPCHit = nRPCBarrelHit+nRPCEndcapHit;
-    h_nRPCHitPerSimMuon->Fill(nRPCHit);
-    if ( nRPCBarrelHit and nRPCEndcapHit )
-    {
-      h_nRPCHitPerSimMuonOverlap->Fill(nRPCHit);
-      h_simMuonOverlap_pt->Fill(simTrack->pt());
-      h_simMuonOverlap_eta->Fill(simTrack->eta());
-    }
-    else if ( nRPCBarrelHit )
-    {
-      h_nRPCHitPerSimMuonBarrel->Fill(nRPCHit);
-      h_simMuonBarrel_pt->Fill(simTrack->pt());
-      h_simMuonBarrel_eta->Fill(simTrack->eta());
-    }
-    else if ( nRPCEndcapHit )
-    {
-      h_nRPCHitPerSimMuonEndcap->Fill(nRPCHit);
-      h_simMuonEndcap_pt->Fill(simTrack->pt());
-      h_simMuonEndcap_eta->Fill(simTrack->eta());
+        muonSimHits.push_back(&*simHit);
+      }
+
+      const int nRPCHit = nRPCHitBarrel+nRPCHitEndcap;
+      hasRPCHit = nRPCHit > 0;
+      h_nRPCHitPerSimMuon->Fill(nRPCHit);
+      if ( nRPCHitBarrel and nRPCHitEndcap )
+      {
+        h_nRPCHitPerSimMuonOverlap->Fill(nRPCHit);
+        h_simMuonOverlap_pt->Fill(simTrack->pt());
+        h_simMuonOverlap_eta->Fill(simTrack->eta());
+        h_simMuonOverlap_phi->Fill(simTrack->phi());
+      }
+      else if ( nRPCHitBarrel )
+      {
+        h_nRPCHitPerSimMuonBarrel->Fill(nRPCHit);
+        h_simMuonBarrel_pt->Fill(simTrack->pt());
+        h_simMuonBarrel_eta->Fill(simTrack->eta());
+        h_simMuonBarrel_phi->Fill(simTrack->phi());
+      }
+      else if ( nRPCHitEndcap )
+      {
+        h_nRPCHitPerSimMuonEndcap->Fill(nRPCHit);
+        h_simMuonEndcap_pt->Fill(simTrack->pt());
+        h_simMuonEndcap_eta->Fill(simTrack->eta());
+        h_simMuonEndcap_phi->Fill(simTrack->phi());
+      }
+      else
+      {
+        h_simMuonNoRPC_pt->Fill(simTrack->pt());
+        h_simMuonNoRPC_eta->Fill(simTrack->eta());
+        h_simMuonNoRPC_phi->Fill(simTrack->phi());
+      }
     }
     else
     {
-      h_simMuonNoRPC_pt->Fill(simTrack->pt());
-      h_simMuonNoRPC_eta->Fill(simTrack->eta());
+      int nRPCHit = 0;
+      for ( SimHitIter simHit = simTrack->pSimHit_begin();
+            simHit != simTrack->pSimHit_end(); ++simHit )
+      {
+        const DetId detId(simHit->detUnitId());
+        if ( detId.det() != DetId::Muon or detId.subdetId() != MuonSubdetId::RPC ) continue;
+        const RPCDetId rpcDetId = static_cast<const RPCDetId>(simHit->detUnitId());
+        const RPCRoll* roll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(rpcDetId()));
+        if ( !roll ) continue;
+
+        ++nRPCHit;
+        pthrSimHits.push_back(&*simHit);
+      }
+      hasRPCHit = nRPCHit > 0;
+    }
+
+    if ( hasRPCHit )
+    {
+      switch ( simTrack->pdgId() )
+      {
+        case    13: h_simTrackPType->Fill( 0); break;
+        case   -13: h_simTrackPType->Fill( 1); break;
+        case    11: h_simTrackPType->Fill( 2); break;
+        case   -11: h_simTrackPType->Fill( 3); break;
+        case   211: h_simTrackPType->Fill( 4); break;
+        case  -211: h_simTrackPType->Fill( 5); break;
+        case   321: h_simTrackPType->Fill( 6); break;
+        case  -321: h_simTrackPType->Fill( 7); break;
+        case  2212: h_simTrackPType->Fill( 8); break;
+        case -2212: h_simTrackPType->Fill( 9); break;
+        default:    h_simTrackPType->Fill(10); break;
+      }
     }
   }
 
-  // Loop over simHits, fill histograms which does not need associations
+  // Loop over muon simHits, fill histograms which does not need associations
   int nRefHitBarrel = 0, nRefHitEndcap = 0;
-  for ( SimHitIter simHitIter = simHitHandle->begin();
-        simHitIter != simHitHandle->end(); ++simHitIter )
+  for ( std::vector<const PSimHit*>::const_iterator simHitP = muonSimHits.begin();
+        simHitP != muonSimHits.end(); ++simHitP )
   {
-    const RPCDetId detId = static_cast<const RPCDetId>(simHitIter->detUnitId());
-    const RPCRoll* roll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(detId()));
-    if ( !roll ) continue;
+    const PSimHit* simHit = *simHitP;
+    const RPCDetId detId = static_cast<const RPCDetId>(simHit->detUnitId());
+    const RPCRoll* roll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(detId));
 
     const int region = roll->id().region();
     const int ring = roll->id().ring();
@@ -279,90 +408,57 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
     //const int layer = roll->id().layer();
     //const int subSector = roll->id().subsector();
 
-    const int simHitPType = simHitIter->particleType();
-    switch ( simHitPType )
+    if ( region == 0 )
     {
-      case  13:
-        h_simHitPType->Fill(0);
-        break;
-      case -13:
-        h_simHitPType->Fill(1);
-        break;
-      case  11:
-        h_simHitPType->Fill(2);
-        break;
-      case -11:
-        h_simHitPType->Fill(3);
-        break;
-      case  211:
-        h_simHitPType->Fill(4);
-        break;
-      case -211:
-        h_simHitPType->Fill(5);
-        break;
-      case  321:
-        h_simHitPType->Fill(6);
-        break;
-      case -321:
-        h_simHitPType->Fill(7);
-        break;
-      case  2212:
-        h_simHitPType->Fill(8);
-        break;
-      case -2212:
-        h_simHitPType->Fill(9);
-        break;
-      default:
-        h_simHitPType->Fill(10);
-        break;
-    }
+      ++nRefHitBarrel;
+      h_.refHitOccupancyBarrel_wheel->Fill(ring);
+      h_.refHitOccupancyBarrel_station->Fill(station);
+      h_.refHitOccupancyBarrel_wheel_station->Fill(ring, station);
 
-    const int absSimHitPType = abs(simHitPType);
-    if ( absSimHitPType == 13 )
-    {
-      if ( region == 0 ) 
-      {
-        ++nRefHitBarrel;
-        h_.refHitBarrelOccupancy_wheel->Fill(ring);
-        h_.refHitBarrelOccupancy_station->Fill(station);
-        h_.refHitBarrelOccupancy_wheel_station->Fill(ring, station);
-      }
-      else 
-      {
-        ++nRefHitEndcap;
-        h_.refHitEndcapOccupancy_disk->Fill(region*station);
-        h_.refHitEndcapOccupancy_disk_ring->Fill(region*station, ring);
-      }
+      h_refOccupancyBarrel_detId->Fill(detIdToIndexMapBarrel_[simHit->detUnitId()]);
     }
-    else if ( absSimHitPType == 211 or absSimHitPType == 321 or absSimHitPType == 2212 )
+    else 
     {
-      if ( region == 0 )
-      {
-        h_refPunchBarrelOccupancy_wheel->Fill(ring);
-        h_refPunchBarrelOccupancy_station->Fill(station);
-        h_refPunchBarrelOccupancy_wheel_station->Fill(ring, station);
-      }
-      else
-      {
-        h_refPunchEndcapOccupancy_disk->Fill(region*station);
-        h_refPunchEndcapOccupancy_disk_ring->Fill(region*station, ring);
-      }
-    }
-    else
-    {
-      if ( region == 0 )
-      {
-        h_refBkgBarrelOccupancy_wheel->Fill(ring);
-        h_refBkgBarrelOccupancy_station->Fill(station);
-        h_refBkgBarrelOccupancy_wheel_station->Fill(ring, station);
-      }
-      else
-      {
-        h_refBkgEndcapOccupancy_disk->Fill(region*station);
-        h_refBkgEndcapOccupancy_disk_ring->Fill(region*station, ring);
-      }
-    }
+      ++nRefHitEndcap;
+      h_.refHitOccupancyEndcap_disk->Fill(region*station);
+      h_.refHitOccupancyEndcap_disk_ring->Fill(region*station, ring);
 
+      h_refOccupancyEndcap_detId->Fill(detIdToIndexMapEndcap_[simHit->detUnitId()]);
+    }
+  }
+
+  // Loop over punch-through simHits, fill histograms which does not need associations
+  for ( std::vector<const PSimHit*>::const_iterator simHitP = pthrSimHits.begin();
+        simHitP != pthrSimHits.end(); ++simHitP )
+  {
+    const PSimHit* simHit = *simHitP;
+    const RPCDetId detId = static_cast<const RPCDetId>(simHit->detUnitId());
+    const RPCRoll* roll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(detId()));
+
+    const int region = roll->id().region();
+    const int ring = roll->id().ring();
+    //const int sector = roll->id().sector();
+    const int station = roll->id().station();
+    //const int layer = roll->id().layer();
+    //const int subSector = roll->id().subsector();
+
+    if ( region == 0 )
+    {
+      ++nRefHitBarrel;
+      h_refPunchOccupancyBarrel_wheel->Fill(ring);
+      h_refPunchOccupancyBarrel_station->Fill(station);
+      h_refPunchOccupancyBarrel_wheel_station->Fill(ring, station);
+
+      h_refOccupancyBarrel_detId->Fill(detIdToIndexMapBarrel_[simHit->detUnitId()]);
+    }
+    else 
+    {
+      ++nRefHitEndcap;
+      h_refPunchOccupancyEndcap_disk->Fill(region*station);
+      h_refPunchOccupancyEndcap_disk_ring->Fill(region*station, ring);
+
+      h_refOccupancyEndcap_detId->Fill(detIdToIndexMapEndcap_[simHit->detUnitId()]);
+    }
   }
   h_.nRefHitBarrel->Fill(nRefHitBarrel);
   h_.nRefHitEndcap->Fill(nRefHitEndcap);
@@ -391,17 +487,17 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
       ++nRecHitBarrel;
       sumClusterSizeBarrel += recHitIter->clusterSize();
       h_.clusterSizeBarrel->Fill(recHitIter->clusterSize());
-      h_.recHitBarrelOccupancy_wheel->Fill(ring);
-      h_.recHitBarrelOccupancy_station->Fill(station);
-      h_.recHitBarrelOccupancy_wheel_station->Fill(ring, station);
+      h_.recHitOccupancyBarrel_wheel->Fill(ring);
+      h_.recHitOccupancyBarrel_station->Fill(station);
+      h_.recHitOccupancyBarrel_wheel_station->Fill(ring, station);
     }
     else
     {
       ++nRecHitEndcap;
       sumClusterSizeEndcap += recHitIter->clusterSize();
       h_.clusterSizeEndcap->Fill(recHitIter->clusterSize());
-      h_.recHitEndcapOccupancy_disk->Fill(region*station);
-      h_.recHitEndcapOccupancy_disk_ring->Fill(region*station, ring);
+      h_.recHitOccupancyEndcap_disk->Fill(region*station);
+      h_.recHitOccupancyEndcap_disk_ring->Fill(region*station, ring);
     }
 
   }
@@ -424,19 +520,17 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
   }
 
   // Start matching SimHits to RecHits
-  typedef std::map<SimHitIter, RecHitIter> SimToRecHitMap;
+  typedef std::map<const PSimHit*, RecHitIter> SimToRecHitMap;
   SimToRecHitMap simToRecHitMap;
 
-  for ( SimHitIter simHitIter = simHitHandle->begin();
-        simHitIter != simHitHandle->end(); ++simHitIter )
+  for ( std::vector<const PSimHit*>::const_iterator simHitP = muonSimHits.begin();
+        simHitP != muonSimHits.end(); ++simHitP )
   {
-    if ( abs(simHitIter->particleType()) != 13 ) continue;
+    const PSimHit* simHit = *simHitP;
+    const RPCDetId simDetId = static_cast<const RPCDetId>(simHit->detUnitId());
+    //const RPCRoll* simRoll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(simDetId));
 
-    const RPCDetId simDetId = static_cast<const RPCDetId>(simHitIter->detUnitId());
-    const RPCRoll* simRoll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(simDetId));
-    if ( !simRoll ) continue;
-
-    const double simX = simHitIter->localPosition().x();
+    const double simX = simHit->localPosition().x();
 
     for ( RecHitIter recHitIter = recHitHandle->begin();
           recHitIter != recHitHandle->end(); ++recHitIter )
@@ -451,10 +545,10 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
       const double newDx = fabs(recX - simX);
 
       // Associate SimHit to RecHit
-      SimToRecHitMap::const_iterator prevSimToReco = simToRecHitMap.find(simHitIter);
+      SimToRecHitMap::const_iterator prevSimToReco = simToRecHitMap.find(simHit);
       if ( prevSimToReco == simToRecHitMap.end() )
       {
-        simToRecHitMap.insert(std::make_pair(simHitIter, recHitIter));
+        simToRecHitMap.insert(std::make_pair(simHit, recHitIter));
       }
       else
       {
@@ -462,7 +556,7 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
 
         if ( newDx < oldDx )
         {
-          simToRecHitMap[simHitIter] = recHitIter;
+          simToRecHitMap[simHit] = recHitIter;
         }
       }
     }
@@ -474,10 +568,10 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
   for ( SimToRecHitMap::const_iterator match = simToRecHitMap.begin();
         match != simToRecHitMap.end(); ++match )
   {
-    SimHitIter simHitIter = match->first;
+    const PSimHit* simHit = match->first;
     RecHitIter recHitIter = match->second;
 
-    const RPCDetId detId = static_cast<const RPCDetId>(simHitIter->detUnitId());
+    const RPCDetId detId = static_cast<const RPCDetId>(simHit->detUnitId());
     const RPCRoll* roll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(detId));
 
     const int region = roll->id().region();
@@ -487,7 +581,7 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
     //const int layer = roll->id().layer();
     //const int subsector = roll->id().subsector();
 
-    const double simX = simHitIter->localPosition().x();
+    const double simX = simHit->localPosition().x();
     const double recX = recHitIter->localPosition().x();
     const double errX = sqrt(recHitIter->localPositionError().xx());
     const double dX = recX - simX;
@@ -501,73 +595,89 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
       ++nMatchHitBarrel;
       h_.resBarrel->Fill(dX);
       h_.pullBarrel->Fill(pull);
-      h_.matchBarrelOccupancy_wheel->Fill(ring);
-      h_.matchBarrelOccupancy_station->Fill(station);
-      h_.matchBarrelOccupancy_wheel_station->Fill(ring, station);
+      h_.matchOccupancyBarrel_wheel->Fill(ring);
+      h_.matchOccupancyBarrel_station->Fill(station);
+      h_.matchOccupancyBarrel_wheel_station->Fill(ring, station);
 
       h_.res_wheel_res->Fill(ring, dX);
       h_.res_station_res->Fill(station, dX);
       h_.pull_wheel_pull->Fill(ring, pull);
       h_.pull_station_pull->Fill(station, pull);
+
+      h_matchOccupancyBarrel_detId->Fill(detIdToIndexMapBarrel_[detId.rawId()]);
     }
     else
     {
       ++nMatchHitEndcap;
       h_.resEndcap->Fill(dX);
       h_.pullEndcap->Fill(pull);
-      h_.matchEndcapOccupancy_disk->Fill(region*station);
-      h_.matchEndcapOccupancy_disk_ring->Fill(region*station, ring);
+      h_.matchOccupancyEndcap_disk->Fill(region*station);
+      h_.matchOccupancyEndcap_disk_ring->Fill(region*station, ring);
 
       h_.res_disk_res->Fill(region*station, dX);
       h_.res_ring_res->Fill(ring, dX);
       h_.pull_disk_pull->Fill(region*station, pull);
       h_.pull_ring_pull->Fill(ring, pull);
+
+      h_matchOccupancyEndcap_detId->Fill(detIdToIndexMapEndcap_[detId.rawId()]);
     }
 
   }
   h_.nMatchHitBarrel->Fill(nMatchHitBarrel);
   h_.nMatchHitEndcap->Fill(nMatchHitEndcap);
-/*
-  // Find Lost hits
-  for ( SimHitIter simHitIter = simHitHandle->begin();
-        simHitIter != simHitHandle->end(); ++simHitIter )
+
+  // Reco Muon hits
+  for ( edm::View<reco::Muon>::const_iterator muon = muonHandle->begin();
+        muon != muonHandle->end(); ++muon )
   {
-    const RPCDetId detId = static_cast<const RPCDetId>(simHitIter->detUnitId());
-    const RPCRoll* roll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(detId));
+    if ( !muon->isGlobalMuon() ) continue;
 
-    const int region = roll->id().region();
-    const int ring = roll->id().ring();
-    //const int sector = roll->id().sector();
-    const int station = roll->id().station();
-    //const int layer = roll->id().layer();
-    //const int subsector = roll->id().subsector();
-
-    bool matched = false;
-    for ( SimToRecHitMap::const_iterator match = simToRecHitMap.begin();
-          match != simToRecHitMap.end(); ++match )
+    int nRPCHitBarrel = 0;
+    int nRPCHitEndcap = 0;
+    
+    const reco::TrackRef glbTrack = muon->globalTrack();
+    for ( trackingRecHit_iterator recHit = glbTrack->recHitsBegin();
+          recHit != glbTrack->recHitsEnd(); ++recHit )
     {
-      if ( simHitIter == match->first )
-      {
-        matched = true;
-        break;
-      }
+      if ( !(*recHit)->isValid() ) continue;
+      const DetId detId = (*recHit)->geographicalId();
+      if ( detId.det() != DetId::Muon or detId.subdetId() != MuonSubdetId::RPC ) continue;
+      const RPCDetId rpcDetId = static_cast<const RPCDetId>(detId);
+
+      if ( rpcDetId.region() == 0 ) ++nRPCHitBarrel;
+      else ++nRPCHitEndcap;
     }
 
-    if ( !matched )
+    const int nRPCHit = nRPCHitBarrel + nRPCHitEndcap;
+    h_nRPCHitPerRecoMuon->Fill(nRPCHit);
+    if ( nRPCHitBarrel and nRPCHitEndcap )
     {
-      if ( region == 0 )
-      {
-        h_.nUmatchBarrelOccupancy_wheel->Fill(ring);
-        h_.nUmatchBarrelOccupancy_wheelvsR->Fill(ring, station);
-      }
-      else
-      {
-        h_.nUmatchBarrelOccupancy_disk->Fill(region*station);
-        h_.nUmatchBarrelOccupancy_diskvsR->Fill(region*station, ring);
-      }
+      h_nRPCHitPerRecoMuonOverlap->Fill(nRPCHit);
+      h_recoMuonOverlap_pt->Fill(muon->pt());
+      h_recoMuonOverlap_eta->Fill(muon->eta());
+      h_recoMuonOverlap_phi->Fill(muon->phi());
+    }
+    else if ( nRPCHitBarrel )
+    {
+      h_nRPCHitPerRecoMuonBarrel->Fill(nRPCHit);
+      h_recoMuonBarrel_pt->Fill(muon->pt());
+      h_recoMuonBarrel_eta->Fill(muon->eta());
+      h_recoMuonBarrel_phi->Fill(muon->phi());
+    }
+    else if ( nRPCHitEndcap )
+    {
+      h_nRPCHitPerRecoMuonEndcap->Fill(nRPCHit);
+      h_recoMuonEndcap_pt->Fill(muon->pt());
+      h_recoMuonEndcap_eta->Fill(muon->eta());
+      h_recoMuonEndcap_phi->Fill(muon->phi());
+    }
+    else
+    {
+      h_recoMuonNoRPC_pt->Fill(muon->pt());
+      h_recoMuonNoRPC_eta->Fill(muon->eta());
+      h_recoMuonNoRPC_phi->Fill(muon->phi());
     }
   }
-*/
 
   // Find Non-muon hits
   for ( RecHitIter recHitIter = recHitHandle->begin();
@@ -596,80 +706,62 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
 
     if ( !matched )
     {
+      // FIXME : kept for backward compatibility //
       if ( region == 0 ) 
       {
-        h_.umBarrelOccupancy_wheel->Fill(ring);
-        h_.umBarrelOccupancy_station->Fill(station);
-        h_.umBarrelOccupancy_wheel_station->Fill(ring, station);
+        h_.umOccupancyBarrel_wheel->Fill(ring);
+        h_.umOccupancyBarrel_station->Fill(station);
+        h_.umOccupancyBarrel_wheel_station->Fill(ring, station);
       }
       else
       {
-        h_.umEndcapOccupancy_disk->Fill(region*station);
-        h_.umEndcapOccupancy_disk_ring->Fill(region*station, ring);
+        h_.umOccupancyEndcap_disk->Fill(region*station);
+        h_.umOccupancyEndcap_disk_ring->Fill(region*station, ring);
       }
-
-//      const GlobalPoint pos = roll->toGlobal(recHitIter->localPosition());
-//      h_[HName::NoisyHitEta]->Fill(pos.eta());
+      // End of FIXME //
 
       int nPunchMatched = 0;
-      int nNonMuMatched = 0;
       // Check if this recHit came from non-muon simHit
-      for ( SimHitIter simHitIter = simHitHandle->begin();
-            simHitIter != simHitHandle->end(); ++simHitIter )
+      for ( std::vector<const PSimHit*>::const_iterator pthrSimHitP = pthrSimHits.begin();
+            pthrSimHitP != pthrSimHits.end(); ++pthrSimHitP )
       {
-        const int absSimHitPType = abs(simHitIter->particleType());
+        const PSimHit* simHit = *pthrSimHitP;
+        const int absSimHitPType = abs(simHit->particleType());
         if ( absSimHitPType == 13 ) continue;
 
-        const RPCDetId simDetId = static_cast<const RPCDetId>(simHitIter->detUnitId());
-        if ( simDetId == detId )
-        {
-          if ( absSimHitPType == 211 or absSimHitPType == 321 or absSimHitPType == 2212 )
-          {
-            ++nPunchMatched;
-          }
-          ++nNonMuMatched;
-        }
+        const RPCDetId simDetId = static_cast<const RPCDetId>(simHit->detUnitId());
+        if ( simDetId == detId ) ++nPunchMatched;
       }
 
       if ( nPunchMatched > 0 )
       {
         if ( region == 0 )
         {
-          h_recPunchBarrelOccupancy_wheel->Fill(ring);
-          h_recPunchBarrelOccupancy_station->Fill(station);
-          h_recPunchBarrelOccupancy_wheel_station->Fill(ring, station);
+          h_recPunchOccupancyBarrel_wheel->Fill(ring);
+          h_recPunchOccupancyBarrel_station->Fill(station);
+          h_recPunchOccupancyBarrel_wheel_station->Fill(ring, station);
         }
         else
         {
-          h_recPunchEndcapOccupancy_disk->Fill(region*station);
-          h_recPunchEndcapOccupancy_disk_ring->Fill(region*station, ring);
+          h_recPunchOccupancyEndcap_disk->Fill(region*station);
+          h_recPunchOccupancyEndcap_disk_ring->Fill(region*station, ring);
         }
       }
-      else if ( nNonMuMatched == 0 ) // No matches found
+      else // No matches found
       {
         if ( region == 0 )
         {
-          h_noiseBarrelOccupancy_wheel->Fill(ring);
-          h_noiseBarrelOccupancy_station->Fill(station);
-          h_noiseBarrelOccupancy_wheel_station->Fill(ring, station);
+          h_noiseOccupancyBarrel_detId->Fill(detIdToIndexMapBarrel_[detId.rawId()]);
         }
         else
         {
-          h_noiseEndcapOccupancy_disk->Fill(region*station);
-          h_noiseEndcapOccupancy_disk_ring->Fill(region*station, ring);
+          h_noiseOccupancyEndcap_detId->Fill(detIdToIndexMapEndcap_[detId.rawId()]);
         }
       }
-
-/*
-      if ( nPunchMatched > 1 or nNonMuMatched > 1 ) 
-      {
-        cout << nPunchMatched << ' ' << nNonMuMatched << endl;
-        cout << region << ' ' << ring << ' ' << station << endl;
-        cout << "----" << endl;
-      }
-*/
     }
   }
+
+  h_eventCount->Fill(1);
 }
 
 DEFINE_FWK_MODULE(RPCRecHitValid);

@@ -24,32 +24,49 @@ public:
   ~RPCRecHitValid();
 
   void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
+  void beginRun(const edm::Run& run, const edm::EventSetup& eventSetup);
+  void endRun();
   void beginJob();
   void endJob();
 
 private:
+  std::string subDir_;
   edm::InputTag simHitLabel_, recHitLabel_;
   edm::InputTag simTrackLabel_;
+  edm::InputTag muonLabel_;
 
   DQMStore* dbe_;
-  std::string rootFileName_;
-  bool isStandAloneMode_;
 
   typedef MonitorElement* MEP;
   RPCValidHistograms h_;
+
+  MEP h_eventCount;
+
   MEP h_nRPCHitPerSimMuon, h_nRPCHitPerSimMuonBarrel, h_nRPCHitPerSimMuonOverlap, h_nRPCHitPerSimMuonEndcap;
+  MEP h_nRPCHitPerRecoMuon, h_nRPCHitPerRecoMuonBarrel, h_nRPCHitPerRecoMuonOverlap, h_nRPCHitPerRecoMuonEndcap;
   MEP h_simMuonBarrel_pt, h_simMuonOverlap_pt, h_simMuonEndcap_pt, h_simMuonNoRPC_pt;
   MEP h_simMuonBarrel_eta, h_simMuonOverlap_eta, h_simMuonEndcap_eta, h_simMuonNoRPC_eta;
-  MEP h_simHitPType, h_simHitPTypeBarrel, h_simHitPTypeEndcap;
-  MEP h_refBkgBarrelOccupancy_wheel, h_refBkgEndcapOccupancy_disk, h_refBkgBarrelOccupancy_station;
-  MEP h_refBkgBarrelOccupancy_wheel_station, h_refBkgEndcapOccupancy_disk_ring;
-  MEP h_refPunchBarrelOccupancy_wheel, h_refPunchEndcapOccupancy_disk, h_refPunchBarrelOccupancy_station;
-  MEP h_refPunchBarrelOccupancy_wheel_station, h_refPunchEndcapOccupancy_disk_ring;
-  MEP h_recPunchBarrelOccupancy_wheel, h_recPunchEndcapOccupancy_disk, h_recPunchBarrelOccupancy_station;
-  MEP h_recPunchBarrelOccupancy_wheel_station, h_recPunchEndcapOccupancy_disk_ring;
-  MEP h_noiseBarrelOccupancy_wheel, h_noiseEndcapOccupancy_disk, h_noiseBarrelOccupancy_station;
-  MEP h_noiseBarrelOccupancy_wheel_station, h_noiseEndcapOccupancy_disk_ring;
-  
+  MEP h_simMuonBarrel_phi, h_simMuonOverlap_phi, h_simMuonEndcap_phi, h_simMuonNoRPC_phi;
+  MEP h_recoMuonBarrel_pt, h_recoMuonOverlap_pt, h_recoMuonEndcap_pt, h_recoMuonNoRPC_pt;
+  MEP h_recoMuonBarrel_eta, h_recoMuonOverlap_eta, h_recoMuonEndcap_eta, h_recoMuonNoRPC_eta;
+  MEP h_recoMuonBarrel_phi, h_recoMuonOverlap_phi, h_recoMuonEndcap_phi, h_recoMuonNoRPC_phi;
+  MEP h_simTrackPType, h_simTrackPTypeBarrel, h_simTrackPTypeEndcap;
+
+  MEP h_refPunchOccupancyBarrel_wheel, h_refPunchOccupancyEndcap_disk, h_refPunchOccupancyBarrel_station;
+  MEP h_refPunchOccupancyBarrel_wheel_station, h_refPunchOccupancyEndcap_disk_ring;
+  MEP h_recPunchOccupancyBarrel_wheel, h_recPunchOccupancyEndcap_disk, h_recPunchOccupancyBarrel_station;
+  MEP h_recPunchOccupancyBarrel_wheel_station, h_recPunchOccupancyEndcap_disk_ring;
+
+  MEP h_matchOccupancyBarrel_detId;
+  MEP h_matchOccupancyEndcap_detId;
+  MEP h_refOccupancyBarrel_detId;
+  MEP h_refOccupancyEndcap_detId;
+  MEP h_noiseOccupancyBarrel_detId;
+  MEP h_noiseOccupancyEndcap_detId;
+  MEP h_rollAreaBarrel_detId;
+  MEP h_rollAreaEndcap_detId;
+
+  std::map<int, int> detIdToIndexMapBarrel_, detIdToIndexMapEndcap_;
 };
 
 #endif
