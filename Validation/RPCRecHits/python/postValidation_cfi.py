@@ -2,6 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMServices.ClientConfig.genericClientPSetHelper_cff import *
 
+rpcRecHitSimRecoClient = cms.EDAnalyzer("RPCRecHitValidClient",
+    subDir = cms.string("RPC/RPCRecHitV/SimVsReco"),
+)
+
 rpcRecHitPostValidation = cms.EDAnalyzer("DQMGenericClient",
     subDirs = cms.untracked.vstring("RPC/RPCRecHitV/SimVsReco",),
     #subDirs = cms.untracked.vstring("RPC/RPCRecHitV/SimVsReco",
@@ -121,5 +125,5 @@ rpcPointVsRecHitPostValidation = cms.EDAnalyzer("DQMGenericClient",
     outputFileName = cms.untracked.string("")
 )
 
-rpcRecHitPostValidation_step = cms.Sequence(rpcRecHitPostValidation)
+rpcRecHitPostValidation_step = cms.Sequence(rpcRecHitPostValidation+rpcRecHitSimRecoClient)
 rpcPointVsRecHitPostValidation_step = cms.Sequence(rpcPointVsRecHitPostValidation)
