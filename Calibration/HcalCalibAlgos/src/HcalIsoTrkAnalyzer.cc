@@ -14,7 +14,7 @@
 // Original Authors: Andrey Pozdnyakov, Sergey Petrushanko,
 //                   Grigory Safronov, Olga Kodolova
 //         Created:  Thu Jul 12 18:12:19 CEST 2007
-// $Id: HcalIsoTrkAnalyzer.cc,v 1.23 2010/03/16 23:25:49 andrey Exp $
+// $Id: HcalIsoTrkAnalyzer.cc,v 1.25 2010/03/17 19:43:12 wmtan Exp $
 //
 //
 
@@ -309,7 +309,6 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       if (xTrkEcal==0 && yTrkEcal==0&& zTrkEcal==0) {cout<<"zero point at Ecal"<<endl; continue;}
       if (xTrkHcal==0 && yTrkHcal==0&& zTrkHcal==0) {cout<<"zero point at Hcal"<<endl; continue;}	
       
-      GlobalVector trackMomAtEcal = info.trkMomAtEcal;
       GlobalVector trackMomAtHcal = info.trkMomAtHcal;
 	
       PxTrkHcal = trackMomAtHcal.x();

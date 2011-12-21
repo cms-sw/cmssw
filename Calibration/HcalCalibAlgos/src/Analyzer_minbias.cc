@@ -409,9 +409,7 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 // Noise part for HB HE
 
      double tmpNSFillDetMapPl1[5][5][73][43]; 
-     double tmpNSFillDetMapPl2[5][5][73][43];
      double tmpNSFillDetMapMin1[5][5][73][43]; 
-     double tmpNSFillDetMapMin2[5][5][73][43];
 
    for (int i=0; i<5;i++)
    {
@@ -422,9 +420,7 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
        for (int l=0; l<43;l++)
        {
         tmpNSFillDetMapPl1[i][j][k][l] = 0.;
-        tmpNSFillDetMapPl2[i][j][k][l] = 0.;
         tmpNSFillDetMapMin1[i][j][k][l] = 0.;
-        tmpNSFillDetMapMin2[i][j][k][l] = 0.;
        }
      }  
     }
@@ -532,7 +528,6 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
          theNSFillDetMapPl4[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theNSFillDetMapPl4[mysu][hid.depth()][hid.iphi()][hid.ieta()]+pow(energyhit,4);
 	 
          tmpNSFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()] = energyhit;
-	 tmpNSFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()] = pow(energyhit,2);
 	 
 	 
          } else {
@@ -543,7 +538,6 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
          tmpNSFillDetMapMin1[mysu][hid.depth()][hid.iphi()][hid.ieta()] = energyhit;
-	 tmpNSFillDetMapMin2[mysu][hid.depth()][hid.iphi()][hid.ieta()] = pow(energyhit,2);
 	 
 	 }  
 	 
@@ -652,7 +646,6 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
          theNSFillDetMapPl4[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theNSFillDetMapPl4[mysu][hid.depth()][hid.iphi()][hid.ieta()]+pow(energyhit,4);
 	 
          tmpNSFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()] = energyhit;
-	 tmpNSFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()] = pow(energyhit,2);
 	 
 	 
          } else {
@@ -663,7 +656,6 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
  
          tmpNSFillDetMapMin1[mysu][hid.depth()][hid.iphi()][hid.ieta()] = energyhit;
-	 tmpNSFillDetMapMin2[mysu][hid.depth()][hid.iphi()][hid.ieta()] = pow(energyhit,2);
 	 
 	 }  
 	 
