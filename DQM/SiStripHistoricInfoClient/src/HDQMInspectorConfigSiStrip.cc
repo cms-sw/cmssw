@@ -28,7 +28,6 @@ std::string HDQMInspectorConfigSiStrip::translateDetId(const uint32_t id) const
   SiStripDetId stripdet = SiStripDetId(rawdetid);
 
   if(stripdet.subDetector() == SiStripDetId::TIB) {
-    TIBDetId tib1 = TIBDetId(rawdetid);
     Name << "TIB";
   } else if(stripdet.subDetector() == SiStripDetId::TID) {
     TIDDetId tid1 = TIDDetId(rawdetid);
@@ -42,7 +41,6 @@ std::string HDQMInspectorConfigSiStrip::translateDetId(const uint32_t id) const
       Name << "???";
     }
   } else if(stripdet.subDetector() == SiStripDetId::TOB) {
-    TOBDetId tob1 = TOBDetId(rawdetid);
     Name << "TOB";
   } else if( stripdet.subDetector() == SiStripDetId::TEC) {
     TECDetId tec1 = TECDetId(rawdetid);
