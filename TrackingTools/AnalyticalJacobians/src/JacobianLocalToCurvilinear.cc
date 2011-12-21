@@ -26,6 +26,7 @@ JacobianLocalToCurvilinear(const Surface& surface,
   compute(rot, tnl, tn, hq);
 }
 
+JacobianLocalToCurvilinear::
 JacobianLocalToCurvilinear(const Surface& surface, 
 			   const LocalTrajectoryParameters& localParameters,
 			   const GlobalTrajectoryParameters& globalParameters,
@@ -47,7 +48,7 @@ JacobianLocalToCurvilinear(const Surface& surface,
 }
  
 
-void compute(Surface::RotationType const & rot, LocalVector const & tnl,  GlobalVector  const & tn, GlobalVector const & hq) {
+void JacobianLocalToCurvilinear::compute(Surface::RotationType const & rot, LocalVector const & tnl,  GlobalVector  const & tn, GlobalVector const & hq) {
   // Origin: TRSDSC
 
   GlobalVector dj(rot.x());

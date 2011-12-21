@@ -29,6 +29,7 @@ class JacobianCurvilinearToLocal {
 			     const MagneticField& magField);
   
   JacobianCurvilinearToLocal(const Surface& surface, 
+			     const LocalTrajectoryParameters& localParameters,
 			     const GlobalTrajectoryParameters& globalParameters,
 			     const MagneticField& magField);
 
@@ -40,7 +41,7 @@ class JacobianCurvilinearToLocal {
 
  private:
 
-  void compute(Surface::RotationType const & rot, GlobalVector  const & tn, GlobalVector const & qh)  dso_internal;  
+  void compute(Surface::RotationType const & rot, GlobalVector  const & tn, GlobalVector const & qh, double lz)  dso_internal;  
 
   AlgebraicMatrix55 theJacobian;
 

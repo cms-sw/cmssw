@@ -18,7 +18,7 @@ JacobianCurvilinearToLocal(const Surface& surface,
   //  GlobalVector  hdir =  h.unit();
   //double q = -h.mag() * localParameters.signedInverseMomentum();
   
-  LocalVector tnl = localParameters.momentum().unit();
+  LocalVector tnl = localParameters.direction();
   GlobalVector tn = surface.toGlobal(tnl);
 
   // GlobalVector dj = surface.toGlobal(LocalVector(1., 0., 0.));
@@ -31,6 +31,7 @@ JacobianCurvilinearToLocal(const Surface& surface,
 
 JacobianCurvilinearToLocal::
 JacobianCurvilinearToLocal(const Surface& surface, 
+			   const LocalTrajectoryParameters& localParameters,
 			   const GlobalTrajectoryParameters& globalParameters,
 			   const MagneticField& magField) : theJacobian() {
  
@@ -42,16 +43,21 @@ JacobianCurvilinearToLocal(const Surface& surface,
   //double q = -h.mag() * localParameters.signedInverseMomentum();
 
  
-  GlobalVector tn = globalParameters.momentum().unit();
+  //  GlobalVector tn = globalParameters.momentum().unit();
+  L//ocalVector tnl = localParameters.momentum().unit();
+
+  LocalVector tnl = localParameters.direction();
+  GlobalVector tn = surface.toGlobal(tnl);
+  double t1r = 1./tnl.z();
  
  
   Surface::RotationType const & rot = surface.rotation();
 
-  compute(rot, tn, qh);
+  compute(rot, tn, qh, tr1);
 }
 
 
-void compute(Surface::RotationType const & rot, GlobalVector  const & tn, GlobalVector const & qh) {
+void JacobianCurvilinearToLocal::compute(Surface::RotationType const & rot, GlobalVector  const & tn, GlobalVector const & qh, double tr1) {
   // Origin: TRSCSD
 
   GlobalVector dj(rot.x());
@@ -69,7 +75,6 @@ void compute(Surface::RotationType const & rot, GlobalVector  const & tn, Global
   double vk = vn.dot(dk);
 
   //  double t1r = 1./tvw.x();
-  double t1r = 1./tnl.z();
   double t2r = t1r*t1r;
   double t3r = t1r*t2r;
 

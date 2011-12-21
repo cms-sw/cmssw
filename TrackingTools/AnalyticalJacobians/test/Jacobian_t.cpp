@@ -146,10 +146,10 @@ int main() {
   }
 
   {
-    std::cout << "Curv -> Loc from glob" << std::endl;
+    std::cout << "Curv -> Loc from loc + glob" << std::endl;
     edm::HRTimeType s= edm::hrRealTime();
     st();	
-    JacobianCurvilinearToLocal  __attribute__ ((aligned (16))) jl2c(plane,gp,m);
+    JacobianCurvilinearToLocal  __attribute__ ((aligned (16))) jl2c(plane,tp, gp,m);
     en();
     edm::HRTimeType e = edm::hrRealTime();
     std::cout << e-s << std::endl;
