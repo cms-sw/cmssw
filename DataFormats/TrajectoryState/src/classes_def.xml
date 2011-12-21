@@ -2,7 +2,8 @@
   <class name="PTrajectoryStateOnDet"  ClassVersion="10">
    <version ClassVersion="10" checksum="569579863"/>
   </class>
-  <class name="LocalTrajectoryParameters"  ClassVersion="10">
+  <class name="LocalTrajectoryParameters"  ClassVersion="11">
    <version ClassVersion="10" checksum="1521038602"/>
+   <version ClassVersion="10" checksum="1957420259"/>
   </class>
 </lcgdict>                                                                                                                                                        
