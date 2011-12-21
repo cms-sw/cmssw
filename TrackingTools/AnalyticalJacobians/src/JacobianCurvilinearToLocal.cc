@@ -45,7 +45,7 @@ JacobianCurvilinearToLocal(const Surface& surface,
 
  
   //  GlobalVector tn = globalParameters.momentum().unit();
-  L//ocalVector tnl = localParameters.momentum().unit();
+  //  LocalVector tnl = localParameters.momentum().unit();
 
   LocalVector tnl = localParameters.direction();
   GlobalVector tn = surface.toGlobal(tnl);
