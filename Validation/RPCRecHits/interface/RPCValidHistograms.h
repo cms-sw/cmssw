@@ -27,16 +27,16 @@ struct RPCValidHistograms
   MEP nMatchHitBarrel, nMatchHitEndcap;
 
   // Occupancy 1D
-  MEP refHitBarrelOccupancy_wheel, refHitEndcapOccupancy_disk, refHitBarrelOccupancy_station;
-  MEP recHitBarrelOccupancy_wheel, recHitEndcapOccupancy_disk, recHitBarrelOccupancy_station;
-  MEP matchBarrelOccupancy_wheel, matchEndcapOccupancy_disk, matchBarrelOccupancy_station;
-  MEP umBarrelOccupancy_wheel, umEndcapOccupancy_disk, umBarrelOccupancy_station;
+  MEP refHitOccupancyBarrel_wheel, refHitOccupancyEndcap_disk, refHitOccupancyBarrel_station;
+  MEP recHitOccupancyBarrel_wheel, recHitOccupancyEndcap_disk, recHitOccupancyBarrel_station;
+  MEP matchOccupancyBarrel_wheel, matchOccupancyEndcap_disk, matchOccupancyBarrel_station;
+  MEP umOccupancyBarrel_wheel, umOccupancyEndcap_disk, umOccupancyBarrel_station;
 
   // Occupancy 2D
-  MEP refHitBarrelOccupancy_wheel_station, refHitEndcapOccupancy_disk_ring;
-  MEP recHitBarrelOccupancy_wheel_station, recHitEndcapOccupancy_disk_ring;
-  MEP matchBarrelOccupancy_wheel_station, matchEndcapOccupancy_disk_ring;
-  MEP umBarrelOccupancy_wheel_station, umEndcapOccupancy_disk_ring;
+  MEP refHitOccupancyBarrel_wheel_station, refHitOccupancyEndcap_disk_ring;
+  MEP recHitOccupancyBarrel_wheel_station, recHitOccupancyEndcap_disk_ring;
+  MEP matchOccupancyBarrel_wheel_station, matchOccupancyEndcap_disk_ring;
+  MEP umOccupancyBarrel_wheel_station, umOccupancyEndcap_disk_ring;
 
   // Residuals
   MEP resBarrel, resEndcap;

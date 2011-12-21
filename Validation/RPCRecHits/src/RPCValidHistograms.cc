@@ -39,34 +39,34 @@ void RPCValidHistograms::bookHistograms(DQMStore* dbe, const std::string subDir)
 
   // Occupancy 1D
   dbe->setCurrentFolder(subDir+"/Occupancy");
-  refHitBarrelOccupancy_wheel   = dbe->book1D("RefHitBarrelOccupancy_wheel"  , "Reference Hit occupancy", 5, -2.5, 2.5);
-  refHitEndcapOccupancy_disk    = dbe->book1D("RefHitEndcapOccupancy_disk"   , "Reference Hit occupancy", 7, -3.5, 3.5);
-  refHitBarrelOccupancy_station = dbe->book1D("RefHitBarrelOccupancy_station", "Reference Hit occupancy", 4,  0.5, 4.5);
+  refHitOccupancyBarrel_wheel   = dbe->book1D("RefHitOccupancyBarrel_wheel"  , "Reference Hit occupancy", 5, -2.5, 2.5);
+  refHitOccupancyEndcap_disk    = dbe->book1D("RefHitOccupancyEndcap_disk"   , "Reference Hit occupancy", 7, -3.5, 3.5);
+  refHitOccupancyBarrel_station = dbe->book1D("RefHitOccupancyBarrel_station", "Reference Hit occupancy", 4,  0.5, 4.5);
 
-  recHitBarrelOccupancy_wheel   = dbe->book1D("RecHitBarrelOccupancy_wheel"  , "RecHit occupancy", 5, -2.5, 2.5);
-  recHitEndcapOccupancy_disk    = dbe->book1D("RecHitEndcapOccupancy_disk"   , "RecHit occupancy", 7, -3.5, 3.5);
-  recHitBarrelOccupancy_station = dbe->book1D("RecHitBarrelOccupancy_station", "RecHit occupancy", 4,  0.5, 4.5);
+  recHitOccupancyBarrel_wheel   = dbe->book1D("RecHitOccupancyBarrel_wheel"  , "RecHit occupancy", 5, -2.5, 2.5);
+  recHitOccupancyEndcap_disk    = dbe->book1D("RecHitOccupancyEndcap_disk"   , "RecHit occupancy", 7, -3.5, 3.5);
+  recHitOccupancyBarrel_station = dbe->book1D("RecHitOccupancyBarrel_station", "RecHit occupancy", 4,  0.5, 4.5);
 
-  matchBarrelOccupancy_wheel   = dbe->book1D("MatchBarrelOccupancy_wheel"  , "Matched hit occupancy", 5, -2.5, 2.5);
-  matchEndcapOccupancy_disk    = dbe->book1D("MatchEndcapOccupancy_disk"   , "Matched hit occupancy", 7, -3.5, 3.5);
-  matchBarrelOccupancy_station = dbe->book1D("MatchBarrelOccupancy_station", "Matched hit occupancy", 4,  0.5, 4.5);
+  matchOccupancyBarrel_wheel   = dbe->book1D("MatchOccupancyBarrel_wheel"  , "Matched hit occupancy", 5, -2.5, 2.5);
+  matchOccupancyEndcap_disk    = dbe->book1D("MatchOccupancyEndcap_disk"   , "Matched hit occupancy", 7, -3.5, 3.5);
+  matchOccupancyBarrel_station = dbe->book1D("MatchOccupancyBarrel_station", "Matched hit occupancy", 4,  0.5, 4.5);
 
-  umBarrelOccupancy_wheel   = dbe->book1D("UmBarrelOccupancy_wheel"  , "Un-matched hit occupancy", 5, -2.5, 2.5);
-  umEndcapOccupancy_disk    = dbe->book1D("UmEndcapOccupancy_disk"   , "Un-matched hit occupancy", 7, -3.5, 3.5);
-  umBarrelOccupancy_station = dbe->book1D("UmBarrelOccupancy_station", "Un-matched hit occupancy", 4,  0.5, 4.5);
+  umOccupancyBarrel_wheel   = dbe->book1D("UmOccupancyBarrel_wheel"  , "Un-matched hit occupancy", 5, -2.5, 2.5);
+  umOccupancyEndcap_disk    = dbe->book1D("UmOccupancyEndcap_disk"   , "Un-matched hit occupancy", 7, -3.5, 3.5);
+  umOccupancyBarrel_station = dbe->book1D("UmOccupancyBarrel_station", "Un-matched hit occupancy", 4,  0.5, 4.5);
 
   // Occupancy 2D
-  refHitBarrelOccupancy_wheel_station = dbe->book2D("RefHitBarrelOccupancy_wheel_station", "Reference hit occupancy", 5, -2.5, 2.5, 4, 0.5, 4.5);
-  refHitEndcapOccupancy_disk_ring     = dbe->book2D("RefHitEndcapOccupancy_disk_ring"    , "Reference hit occupancy", 7, -3.5, 3.5, 4, 0.5, 4.5);
+  refHitOccupancyBarrel_wheel_station = dbe->book2D("RefHitOccupancyBarrel_wheel_station", "Reference hit occupancy", 5, -2.5, 2.5, 4, 0.5, 4.5);
+  refHitOccupancyEndcap_disk_ring     = dbe->book2D("RefHitOccupancyEndcap_disk_ring"    , "Reference hit occupancy", 7, -3.5, 3.5, 4, 0.5, 4.5);
 
-  recHitBarrelOccupancy_wheel_station = dbe->book2D("RecHitBarrelOccupancy_wheel_station", "RecHit occupancy", 5, -2.5, 2.5, 4, 0.5, 4.5);
-  recHitEndcapOccupancy_disk_ring     = dbe->book2D("RecHitEndcapOccupancy_disk_ring"    , "RecHit occupancy", 7, -3.5, 3.5, 4, 0.5, 4.5);
+  recHitOccupancyBarrel_wheel_station = dbe->book2D("RecHitOccupancyBarrel_wheel_station", "RecHit occupancy", 5, -2.5, 2.5, 4, 0.5, 4.5);
+  recHitOccupancyEndcap_disk_ring     = dbe->book2D("RecHitOccupancyEndcap_disk_ring"    , "RecHit occupancy", 7, -3.5, 3.5, 4, 0.5, 4.5);
 
-  matchBarrelOccupancy_wheel_station = dbe->book2D("MatchBarrelOccupancy_wheel_station", "Matched hit occupancy", 5, -2.5, 2.5, 4, 0.5, 4.5);
-  matchEndcapOccupancy_disk_ring     = dbe->book2D("MatchEndcapOccupancy_disk_ring"    , "Matched hit occupancy", 7, -3.5, 3.5, 4, 0.5, 4.5);
+  matchOccupancyBarrel_wheel_station = dbe->book2D("MatchOccupancyBarrel_wheel_station", "Matched hit occupancy", 5, -2.5, 2.5, 4, 0.5, 4.5);
+  matchOccupancyEndcap_disk_ring     = dbe->book2D("MatchOccupancyEndcap_disk_ring"    , "Matched hit occupancy", 7, -3.5, 3.5, 4, 0.5, 4.5);
 
-  umBarrelOccupancy_wheel_station = dbe->book2D("UmBarrelOccupancy_wheel_station", "Un-matched hit occupancy", 5, -2.5, 2.5, 4, 0.5, 4.5);
-  umEndcapOccupancy_disk_ring     = dbe->book2D("UmEndcapOccupancy_disk_ring"    , "Un-matched hit occupancy", 7, -3.5, 3.5, 4, 0.5, 4.5);
+  umOccupancyBarrel_wheel_station = dbe->book2D("UmOccupancyBarrel_wheel_station", "Un-matched hit occupancy", 5, -2.5, 2.5, 4, 0.5, 4.5);
+  umOccupancyEndcap_disk_ring     = dbe->book2D("UmOccupancyEndcap_disk_ring"    , "Un-matched hit occupancy", 7, -3.5, 3.5, 4, 0.5, 4.5);
 
   // Residuals
   dbe->setCurrentFolder(subDir+"/Residual");
@@ -88,14 +88,14 @@ void RPCValidHistograms::bookHistograms(DQMStore* dbe, const std::string subDir)
   pull_ring_pull    = dbe->book2D("Pull_ring_pull"   , "Pull vs Ring;;Pull"   , 4,  0.5, 4.5, 50, -3, 3);
 
   // Set plot options
-  refHitBarrelOccupancy_wheel_station->getTH2F()->SetOption("COLZ");
-  refHitEndcapOccupancy_disk_ring    ->getTH2F()->SetOption("COLZ");
-  recHitBarrelOccupancy_wheel_station->getTH2F()->SetOption("COLZ");
-  recHitEndcapOccupancy_disk_ring    ->getTH2F()->SetOption("COLZ");
-  matchBarrelOccupancy_wheel_station ->getTH2F()->SetOption("COLZ");
-  matchEndcapOccupancy_disk_ring     ->getTH2F()->SetOption("COLZ");
-  umBarrelOccupancy_wheel_station    ->getTH2F()->SetOption("COLZ");
-  umEndcapOccupancy_disk_ring        ->getTH2F()->SetOption("COLZ");
+  refHitOccupancyBarrel_wheel_station->getTH2F()->SetOption("COLZ");
+  refHitOccupancyEndcap_disk_ring    ->getTH2F()->SetOption("COLZ");
+  recHitOccupancyBarrel_wheel_station->getTH2F()->SetOption("COLZ");
+  recHitOccupancyEndcap_disk_ring    ->getTH2F()->SetOption("COLZ");
+  matchOccupancyBarrel_wheel_station ->getTH2F()->SetOption("COLZ");
+  matchOccupancyEndcap_disk_ring     ->getTH2F()->SetOption("COLZ");
+  umOccupancyBarrel_wheel_station    ->getTH2F()->SetOption("COLZ");
+  umOccupancyEndcap_disk_ring        ->getTH2F()->SetOption("COLZ");
 
   res_wheel_res  ->getTH2F()->SetOption("COLZ");
   res_disk_res   ->getTH2F()->SetOption("COLZ");
@@ -112,15 +112,15 @@ void RPCValidHistograms::bookHistograms(DQMStore* dbe, const std::string subDir)
   {
     TString binLabel = Form("Wheel %d", i-3);
 
-    refHitBarrelOccupancy_wheel->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
-    recHitBarrelOccupancy_wheel->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
-    matchBarrelOccupancy_wheel ->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
-    umBarrelOccupancy_wheel    ->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
+    refHitOccupancyBarrel_wheel->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
+    recHitOccupancyBarrel_wheel->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
+    matchOccupancyBarrel_wheel ->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
+    umOccupancyBarrel_wheel    ->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
 
-    refHitBarrelOccupancy_wheel_station->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
-    recHitBarrelOccupancy_wheel_station->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
-    matchBarrelOccupancy_wheel_station ->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
-    umBarrelOccupancy_wheel_station    ->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
+    refHitOccupancyBarrel_wheel_station->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
+    recHitOccupancyBarrel_wheel_station->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
+    matchOccupancyBarrel_wheel_station ->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
+    umOccupancyBarrel_wheel_station    ->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
 
     res_wheel_res  ->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
     pull_wheel_pull->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
@@ -130,15 +130,15 @@ void RPCValidHistograms::bookHistograms(DQMStore* dbe, const std::string subDir)
   {
     TString binLabel = Form("Disk %d", i-4);
 
-    refHitEndcapOccupancy_disk->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
-    recHitEndcapOccupancy_disk->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
-    matchEndcapOccupancy_disk ->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
-    umEndcapOccupancy_disk    ->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
+    refHitOccupancyEndcap_disk->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
+    recHitOccupancyEndcap_disk->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
+    matchOccupancyEndcap_disk ->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
+    umOccupancyEndcap_disk    ->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
 
-    refHitEndcapOccupancy_disk_ring->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
-    recHitEndcapOccupancy_disk_ring->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
-    matchEndcapOccupancy_disk_ring ->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
-    umEndcapOccupancy_disk_ring    ->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
+    refHitOccupancyEndcap_disk_ring->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
+    recHitOccupancyEndcap_disk_ring->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
+    matchOccupancyEndcap_disk_ring ->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
+    umOccupancyEndcap_disk_ring    ->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
 
     res_disk_res  ->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
     pull_disk_pull->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
@@ -148,15 +148,15 @@ void RPCValidHistograms::bookHistograms(DQMStore* dbe, const std::string subDir)
   {
     TString binLabel = Form("Station %d", i);
 
-    refHitBarrelOccupancy_station->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
-    recHitBarrelOccupancy_station->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
-    matchBarrelOccupancy_station ->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
-    umBarrelOccupancy_station    ->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
+    refHitOccupancyBarrel_station->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
+    recHitOccupancyBarrel_station->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
+    matchOccupancyBarrel_station ->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
+    umOccupancyBarrel_station    ->getTH1F()->GetXaxis()->SetBinLabel(i, binLabel);
 
-    refHitBarrelOccupancy_wheel_station->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
-    recHitBarrelOccupancy_wheel_station->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
-    matchBarrelOccupancy_wheel_station ->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
-    umBarrelOccupancy_wheel_station    ->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
+    refHitOccupancyBarrel_wheel_station->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
+    recHitOccupancyBarrel_wheel_station->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
+    matchOccupancyBarrel_wheel_station ->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
+    umOccupancyBarrel_wheel_station    ->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
 
     res_station_res  ->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
     pull_station_pull->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
@@ -166,10 +166,10 @@ void RPCValidHistograms::bookHistograms(DQMStore* dbe, const std::string subDir)
   {
     TString binLabel = Form("Ring %d", i);
 
-    refHitEndcapOccupancy_disk_ring->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
-    recHitEndcapOccupancy_disk_ring->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
-    matchEndcapOccupancy_disk_ring ->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
-    umEndcapOccupancy_disk_ring    ->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
+    refHitOccupancyEndcap_disk_ring->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
+    recHitOccupancyEndcap_disk_ring->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
+    matchOccupancyEndcap_disk_ring ->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
+    umOccupancyEndcap_disk_ring    ->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
   }
 
   dbe->setCurrentFolder(pwd);

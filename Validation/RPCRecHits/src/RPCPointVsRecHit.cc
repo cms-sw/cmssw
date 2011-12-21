@@ -97,14 +97,14 @@ void RPCPointVsRecHit::analyze(const edm::Event& event, const edm::EventSetup& e
 
     if ( region == 0 )
     {
-      h_.refHitBarrelOccupancy_wheel->Fill(ring);
-      h_.refHitBarrelOccupancy_station->Fill(station);
-      h_.refHitBarrelOccupancy_wheel_station->Fill(ring, station);
+      h_.refHitOccupancyBarrel_wheel->Fill(ring);
+      h_.refHitOccupancyBarrel_station->Fill(station);
+      h_.refHitOccupancyBarrel_wheel_station->Fill(ring, station);
     }
     else
     {
-      h_.refHitEndcapOccupancy_disk->Fill(region*station);
-      h_.refHitEndcapOccupancy_disk_ring->Fill(region*station, ring);
+      h_.refHitOccupancyEndcap_disk->Fill(region*station);
+      h_.refHitOccupancyEndcap_disk_ring->Fill(region*station, ring);
     }
 
   }
@@ -135,17 +135,17 @@ void RPCPointVsRecHit::analyze(const edm::Event& event, const edm::EventSetup& e
       ++nRecHitBarrel;
       sumClusterSizeBarrel += recHitIter->clusterSize();
       h_.clusterSizeBarrel->Fill(recHitIter->clusterSize());
-      h_.recHitBarrelOccupancy_wheel->Fill(ring);
-      h_.recHitBarrelOccupancy_station->Fill(station);
-      h_.recHitBarrelOccupancy_wheel_station->Fill(ring, station);
+      h_.recHitOccupancyBarrel_wheel->Fill(ring);
+      h_.recHitOccupancyBarrel_station->Fill(station);
+      h_.recHitOccupancyBarrel_wheel_station->Fill(ring, station);
     }
     else
     {
       ++nRecHitEndcap;
       sumClusterSizeEndcap += recHitIter->clusterSize();
       h_.clusterSizeEndcap->Fill(recHitIter->clusterSize());
-      h_.recHitEndcapOccupancy_disk->Fill(region*station);
-      h_.recHitEndcapOccupancy_disk_ring->Fill(ring, region*station);
+      h_.recHitOccupancyEndcap_disk->Fill(region*station);
+      h_.recHitOccupancyEndcap_disk_ring->Fill(ring, region*station);
     }
 
   }
@@ -241,9 +241,9 @@ void RPCPointVsRecHit::analyze(const edm::Event& event, const edm::EventSetup& e
     {
       h_.resBarrel->Fill(dX);
       h_.pullBarrel->Fill(pull);
-      h_.matchBarrelOccupancy_wheel->Fill(ring);
-      h_.matchBarrelOccupancy_station->Fill(station);
-      h_.matchBarrelOccupancy_wheel_station->Fill(ring, station);
+      h_.matchOccupancyBarrel_wheel->Fill(ring);
+      h_.matchOccupancyBarrel_station->Fill(station);
+      h_.matchOccupancyBarrel_wheel_station->Fill(ring, station);
 
       h_.res_wheel_res->Fill(ring, dX);
       h_.res_station_res->Fill(station, dX);
@@ -254,8 +254,8 @@ void RPCPointVsRecHit::analyze(const edm::Event& event, const edm::EventSetup& e
     {
       h_.resEndcap->Fill(dX);
       h_.pullEndcap->Fill(pull);
-      h_.matchEndcapOccupancy_disk->Fill(region*station);
-      h_.matchEndcapOccupancy_disk_ring->Fill(region*station, ring);
+      h_.matchOccupancyEndcap_disk->Fill(region*station);
+      h_.matchOccupancyEndcap_disk_ring->Fill(region*station, ring);
 
       h_.res_disk_res->Fill(region*station, dX);
       h_.res_ring_res->Fill(ring, dX);
@@ -294,8 +294,8 @@ void RPCPointVsRecHit::analyze(const edm::Event& event, const edm::EventSetup& e
     {
       if ( region == 0 )
       {
-        h_.nUrefHitBarrelOccupancy_wheel->Fill(ring);
-        h_.nUrefHitBarrelOccupancy_wheel_ring->Fill(ring, station);
+        h_.nUrefHitOccupancyBarrel_wheel->Fill(ring);
+        h_.nUrefHitOccupancyBarrel_wheel_ring->Fill(ring, station);
       }
       else
       {
@@ -335,14 +335,14 @@ void RPCPointVsRecHit::analyze(const edm::Event& event, const edm::EventSetup& e
     {
       if ( region == 0 )
       {
-        h_.umBarrelOccupancy_wheel->Fill(ring);
-        h_.umBarrelOccupancy_station->Fill(station);
-        h_.umBarrelOccupancy_wheel_station->Fill(ring, station);
+        h_.umOccupancyBarrel_wheel->Fill(ring);
+        h_.umOccupancyBarrel_station->Fill(station);
+        h_.umOccupancyBarrel_wheel_station->Fill(ring, station);
       }
       else
       {
-        h_.umEndcapOccupancy_disk->Fill(region*station);
-        h_.umEndcapOccupancy_disk_ring->Fill(region*station, ring);
+        h_.umOccupancyEndcap_disk->Fill(region*station);
+        h_.umOccupancyEndcap_disk_ring->Fill(region*station, ring);
       }
 
       //const GlobalPoint pos = roll->toGlobal(recHitIter->localPosition());
