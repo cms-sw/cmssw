@@ -2,8 +2,8 @@
 
 /** \class TSGFromPropagation
  *
- *  $Date: 2010/09/06 18:44:33 $
- *  $Revision: 1.37 $
+ *  $Date: 2011/04/15 15:44:23 $
+ *  $Revision: 1.38 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -48,7 +48,6 @@ TSGFromPropagation::~TSGFromPropagation()
   if ( theUpdator ) delete theUpdator;
   if ( theEstimator ) delete theEstimator;
   if ( theTkLayerMeasurements ) delete theTkLayerMeasurements;
-  if ( theTSTransformer ) delete  theTSTransformer;
   if ( theErrorMatrixAdjuster ) delete theErrorMatrixAdjuster;
 
 }
@@ -174,8 +173,6 @@ void TSGFromPropagation::init(const MuonServiceProxy* service) {
 
   theUpdator = new KFUpdator();
 
-  theTSTransformer = new TrajectoryStateTransform();
-
   theSigmaZ = theConfig.getParameter<double>("SigmaZ");
 
   theBeamSpotInputTag = theConfig.getParameter<edm::InputTag>("beamSpot");
@@ -246,14 +243,14 @@ TrajectoryStateOnSurface TSGFromPropagation::innerState(const TrackCand& staMuon
       innerTS = staMuon.first->lastMeasurement().updatedState();
     }
   } else {
-    innerTS = theTSTransformer->innerStateOnSurface(*(staMuon.second),*theService->trackingGeometry(), &*theService->magneticField());
+    innerTS = trajectoryStateTransform::innerStateOnSurface(*(staMuon.second),*theService->trackingGeometry(), &*theService->magneticField());
   }
   //rescale the error
   adjust(innerTS);
 
   return  innerTS;
 
-//    return theTSTransformer->innerStateOnSurface(*(staMuon.second),*theService->trackingGeometry(), &*theService->magneticField());
+//    return trajectoryStateTransform::innerStateOnSurface(*(staMuon.second),*theService->trackingGeometry(), &*theService->magneticField());
 }
 
 TrajectoryStateOnSurface TSGFromPropagation::outerTkState(const TrackCand& staMuon) const {
@@ -261,7 +258,7 @@ TrajectoryStateOnSurface TSGFromPropagation::outerTkState(const TrackCand& staMu
   TrajectoryStateOnSurface result;
 
   if ( theUseVertexStateFlag && staMuon.second->pt() > 1.0 ) {
-    FreeTrajectoryState iniState = theTSTransformer->initialFreeState(*(staMuon.second), &*theService->magneticField());
+    FreeTrajectoryState iniState = trajectoryStateTransform::initialFreeState(*(staMuon.second), &*theService->magneticField());
     //rescale the error at IP
     adjust(iniState); 
 
@@ -283,8 +280,8 @@ TrajectorySeed TSGFromPropagation::createSeed(const TrajectoryStateOnSurface& ts
 
 TrajectorySeed TSGFromPropagation::createSeed(const TrajectoryStateOnSurface& tsos, const edm::OwnVector<TrackingRecHit>& container, const DetId& id) const {
 
-  PTrajectoryStateOnDet* seedTSOS = theTSTransformer->persistentState(tsos,id.rawId());
-  return TrajectorySeed(*seedTSOS,container,oppositeToMomentum);
+  PTrajectoryStateOnDet const & seedTSOS = trajectoryStateTransform::persistentState(tsos,id.rawId());
+  return TrajectorySeed(seedTSOS,container,oppositeToMomentum);
 
 }
 
