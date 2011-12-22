@@ -16,7 +16,7 @@
 // Original Author:  Alexandre Spiridonov
 //         Created:  Fri Oct 16 15:59:05 CEST 2009
 //
-// $Id: GlobalTrackerMuonAlignment.cc,v 1.7 2011/09/14 09:03:15 mussgill Exp $
+// $Id: GlobalTrackerMuonAlignment.cc,v 1.8 2011/10/31 07:49:49 mussgill Exp $
 //
 
 // system include files
@@ -2980,11 +2980,11 @@ GlobalTrackerMuonAlignment::trackFitter(reco::TrackRef alongTr, reco::TransientT
   CovLoc(4,4) = 100. * firstTSOS.localError().matrix()(4,4);
   TrajectoryStateOnSurface initialTSOS(firstTSOS.localParameters(), LocalTrajectoryError(CovLoc),
 				       firstTSOS.surface(), &*magneticField_);
-  TrajectoryStateTransform transformer;
-  PTrajectoryStateOnDet* PTraj = 
-    transformer.persistentState(initialTSOS, trackDetId.rawId());
+  
+  PTrajectoryStateOnDet  PTraj = 
+    trajectoryStateTransform::persistentState(initialTSOS, trackDetId.rawId());
   //const TrajectorySeed seedT(*PTraj, recHit, alongMomentum);  
-  const TrajectorySeed seedT(*PTraj, recHit, direction);  
+  const TrajectorySeed seedT(PTraj, recHit, direction);  
 
   std::vector<Trajectory> trajVec;
   if(direction == alongMomentum) trajVec = theFitter->fit(seedT, recHitMu, initialTSOS);
@@ -3077,11 +3077,11 @@ GlobalTrackerMuonAlignment::muonFitter(reco::TrackRef alongTr, reco::TransientTr
   CovLoc(4,4) = 100. * firstTSOS.localError().matrix()(4,4);
   TrajectoryStateOnSurface initialTSOS(firstTSOS.localParameters(), LocalTrajectoryError(CovLoc),
 				       firstTSOS.surface(), &*magneticField_);
-  TrajectoryStateTransform transformer;
-  PTrajectoryStateOnDet* PTraj = 
-    transformer.persistentState(initialTSOS, trackDetId.rawId());
+  
+  PTrajectoryStateOnDet PTraj = 
+    trajectoryStateTransform::persistentState(initialTSOS, trackDetId.rawId());
   //const TrajectorySeed seedT(*PTraj, recHit, alongMomentum);  
-  const TrajectorySeed seedT(*PTraj, recHit, direction);  
+  const TrajectorySeed seedT(PTraj, recHit, direction);  
 
   std::vector<Trajectory> trajVec;
   if(direction == alongMomentum) trajVec = theFitter->fit(seedT, recHitMu, initialTSOS);

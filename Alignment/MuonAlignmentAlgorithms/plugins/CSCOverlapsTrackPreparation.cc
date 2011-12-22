@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Wed Dec 12 13:31:55 CST 2007
-// $Id: CSCOverlapsTrackPreparation.cc,v 1.7 2010/05/04 01:16:05 pivarski Exp $
+// $Id: CSCOverlapsTrackPreparation.cc,v 1.8 2011/03/22 09:49:50 innocent Exp $
 //
 //
 
@@ -120,7 +120,7 @@ CSCOverlapsTrackPreparation::produce(edm::Event& iEvent, const edm::EventSetup& 
   edm::ESHandle<GlobalTrackingGeometry> globalGeometry;
   iSetup.get<GlobalTrackingGeometryRecord>().get(globalGeometry);
 
-  TrajectoryStateTransform transformer;
+  
   MuonTransientTrackingRecHitBuilder muonTransBuilder;
 
   // Create a collection of Trajectories, to put in the Event
@@ -167,8 +167,8 @@ CSCOverlapsTrackPreparation::produce(edm::Event& iEvent, const edm::EventSetup& 
 
     // build the trajectory
     if (clonedHits.size() > 0) {
-      PTrajectoryStateOnDet *PTraj = transformer.persistentState(*(TSOSes.begin()), clonedHits.begin()->geographicalId().rawId());
-      TrajectorySeed trajectorySeed(*PTraj, clonedHits, alongMomentum);
+      PTrajectoryStateOnDet const PTraj = trajectoryStateTransform::persistentState(*(TSOSes.begin()), clonedHits.begin()->geographicalId().rawId());
+      TrajectorySeed trajectorySeed(PTraj, clonedHits, alongMomentum);
       Trajectory trajectory(trajectorySeed, alongMomentum);
 
       edm::OwnVector<TrackingRecHit>::const_iterator clonedHit = clonedHits.begin();
