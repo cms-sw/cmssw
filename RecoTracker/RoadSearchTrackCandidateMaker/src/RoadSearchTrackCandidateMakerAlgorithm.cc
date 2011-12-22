@@ -10,8 +10,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: innocent $
-// $Date: 2011/12/22 20:38:29 $
-// $Revision: 1.71 $
+// $Date: 2011/12/22 20:42:00 $
+// $Revision: 1.72 $
 //
 
 #include <vector>
@@ -1447,7 +1447,7 @@ Trajectory RoadSearchTrackCandidateMakerAlgorithm::createSeedTrajectory(FreeTraj
 					     newHitsTwo,
 					     alongMomentum);
   if (thePropagator->propagationDirection()==oppositeToMomentum) {
-    tmpseedTwo = TrajectorySeed(*pFirstStateTwo, 
+    tmpseedTwo = TrajectorySeed(pFirstStateTwo, 
 				newHitsTwo,
 				oppositeToMomentum);
   }
