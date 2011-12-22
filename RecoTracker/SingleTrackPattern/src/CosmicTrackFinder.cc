@@ -179,10 +179,10 @@ namespace cms
 	  return;
 	}
 
-	PTrajectoryStateOnDet* state = TrajectoryStateTransform().persistentState( startingState, firstId);
+	PTrajectoryStateOnDet const &  state = trajectoryStateTransform::persistentState( startingState, firstId);
 	
 	
-	output->push_back(TrackCandidate(recHits,theTraj.seed(),*state,theTraj.seedRef() ) );
+	output->push_back(TrackCandidate(recHits,theTraj.seed(),state,theTraj.seedRef() ) );
 	
 	delete state;
       }

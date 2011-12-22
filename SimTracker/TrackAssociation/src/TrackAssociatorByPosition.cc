@@ -56,9 +56,8 @@ TrajectoryStateOnSurface TrackAssociatorByPosition::getState(const TrackingParti
 }
 
 FreeTrajectoryState TrackAssociatorByPosition::getState(const reco::Track & track)const{
-  static TrajectoryStateTransform transformer;
   //may be you want to do more than that if track does not go to IP
-  return transformer. initialFreeState(track,thePropagator->magneticField());
+  return trajectoryStateTransform::initialFreeState(track,thePropagator->magneticField());
 }
 
 double TrackAssociatorByPosition::quality(const TrajectoryStateOnSurface & tr, const TrajectoryStateOnSurface & sim) const {

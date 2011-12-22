@@ -408,7 +408,7 @@ namespace reco { namespace modules {
 		for ( ; hitsBegin != hitsEnd; ++hitsBegin) { ownHits.push_back( *hitsBegin ); }
 		
 		TrackCandidate cand(ownHits, seed, state, tk.seedRef());
-		delete state;
+		
 		
 		LogDebug("CosmicTrackSplitter") << "   dumping the hits now: ";
 		for (TrackCandidate::range hitR = cand.recHits(); hitR.first != hitR.second; ++hitR.first) {

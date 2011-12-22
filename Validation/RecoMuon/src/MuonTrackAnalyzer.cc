@@ -1,8 +1,8 @@
 /** \class MuonTrackAnalyzer
  *  Analyzer of the Muon tracks
  *
- *  $Date: 2008/08/11 12:09:39 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/05/08 09:56:38 $
+ *  $Revision: 1.8 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -485,13 +485,13 @@ TrajectoryStateOnSurface MuonTrackAnalyzer::getSeedTSOS(const TrajectorySeed& se
   PTrajectoryStateOnDet pTSOD = seed.startingState();
 
   // Transform it in a TrajectoryStateOnSurface
-  TrajectoryStateTransform tsTransform;
+  
 
   DetId seedDetId(pTSOD.detId());
 
   const GeomDet* gdet = theService->trackingGeometry()->idToDet( seedDetId );
 
-  TrajectoryStateOnSurface initialState = tsTransform.transientState(pTSOD, &(gdet->surface()), &*theService->magneticField());
+  TrajectoryStateOnSurface initialState = trajectoryStateTransform::transientState(pTSOD, &(gdet->surface()), &*theService->magneticField());
 
   // Get the layer on which the seed relies
   const DetLayer *initialLayer = theService->detLayerGeometry()->idToLayer( seedDetId );

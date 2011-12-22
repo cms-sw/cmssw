@@ -97,8 +97,8 @@
  **
  **
  **  $Id: TkConvValidator
- **  $Date: 2011/07/11 17:53:34 $
- **  $Revision: 1.2 $
+ **  $Date: 2011/07/20 16:57:32 $
+ **  $Revision: 1.3 $
  **  \author N.Marinelli - Univ. of Notre Dame
  **
  ***/
@@ -1806,8 +1806,8 @@ math::XYZVector TkConvValidator::recalculateMomentumAtFittedVertex ( const Magne
   ReferenceCountingPointer<BoundDisk>      theDisk_(new BoundDisk( Surface::PositionType( 0, 0, vtx.position().z()), rot,
 								   SimpleDiskBounds( 0,  sqrt(vtx.position().perp2()), -0.001, 0.001)));
 
-  TrajectoryStateTransform transformer;
-  const TrajectoryStateOnSurface myTSOS = transformer.innerStateOnSurface(*tk, trackerGeom, &mf);
+  
+  const TrajectoryStateOnSurface myTSOS = trajectoryStateTransform::innerStateOnSurface(*tk, trackerGeom, &mf);
   PropagatorWithMaterial propag( anyDirection, 0.000511, &mf );
   TrajectoryStateOnSurface  stateAtVtx;
   stateAtVtx = propag.propagate(myTSOS, *theBarrel_);

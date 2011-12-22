@@ -237,7 +237,7 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 					 << ": " << seedCollection->size() << "\n";
       int at=0;
       int rT=0;
-      TrajectoryStateTransform tsTransform;
+      
       TSCBLBuilderNoMaterial tscblBuilder;
       PerigeeConversions tspConverter;
       for(TrajectorySeedCollection::size_type i=0; i<seedCollection->size(); ++i){
@@ -246,7 +246,7 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 
 	//get parameters and errors from the seed state
 	TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder->build(&*(seed->recHits().second-1));
-	TrajectoryStateOnSurface state = tsTransform.transientState( seed->startingState(), recHit->surface(), theMF.product());
+	TrajectoryStateOnSurface state = trajectoryStateTransform::transientState( seed->startingState(), recHit->surface(), theMF.product());
 	TrajectoryStateClosestToBeamLine tsAtClosestApproachSeed = tscblBuilder(*state.freeState(),bs);//as in TrackProducerAlgorithm
 	if(!(tsAtClosestApproachSeed.isValid())){
 	  edm::LogVerbatim("SeedValidator")<<"TrajectoryStateClosestToBeamLine not valid";

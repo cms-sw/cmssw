@@ -241,7 +241,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
     // state on last det
     const GeomDet *det=0;
     for (TrackingRecHitCollection::const_iterator rhits=r.first; rhits!=r.second; rhits++) det = pDD->idToDet(((*rhits)).geographicalId());
-    TrajectoryStateOnSurface t= transformer_.transientState((*MyS).startingState(), &(det->surface()), &(*theMagField));
+    TrajectoryStateOnSurface t=  trajectoryStateTransform::transientState((*MyS).startingState(), &(det->surface()), &(*theMagField));
 
     // debug
 
@@ -539,7 +539,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
         range r=gsfIter->recHits();
         const GeomDet *det=0;
         for (TrackingRecHitCollection::const_iterator rhits=r.first; rhits!=r.second; rhits++) det = pDD->idToDet(((*rhits)).geographicalId());
-         TrajectoryStateOnSurface t= transformer_.transientState(gsfIter->startingState(), &(det->surface()), &(*theMagField));
+         TrajectoryStateOnSurface t= trajectoryStateTransform::transientState(gsfIter->startingState(), &(det->surface()), &(*theMagField));
 
 	float eta = t.globalMomentum().eta();
 	float phi = t.globalMomentum().phi();
@@ -587,7 +587,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
         range r=gsfIter->recHits();
         const GeomDet *det=0;
         for (TrackingRecHitCollection::const_iterator rhits=r.first; rhits!=r.second; rhits++) det = pDD->idToDet(((*rhits)).geographicalId());
-         TrajectoryStateOnSurface t= transformer_.transientState(gsfIter->startingState(), &(det->surface()), &(*theMagField));
+         TrajectoryStateOnSurface t= trajectoryStateTransform::transientState(gsfIter->startingState(), &(det->surface()), &(*theMagField));
 
 	float eta = t.globalMomentum().eta();
 	float phi = t.globalMomentum().phi();
@@ -630,7 +630,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
         range r=gsfIter->recHits();
         const GeomDet *det=0;
         for (TrackingRecHitCollection::const_iterator rhits=r.first; rhits!=r.second; rhits++) det = pDD->idToDet(((*rhits)).geographicalId());
-         TrajectoryStateOnSurface t= transformer_.transientState(gsfIter->startingState(), &(det->surface()), &(*theMagField));
+         TrajectoryStateOnSurface t= trajectoryStateTransform::transientState(gsfIter->startingState(), &(det->surface()), &(*theMagField));
 
 	float eta = t.globalMomentum().eta();
 	float phi = t.globalMomentum().phi();
