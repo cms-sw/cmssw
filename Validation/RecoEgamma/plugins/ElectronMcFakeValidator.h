@@ -5,7 +5,6 @@
 #include "DQMOffline/EGamma/interface/ElectronDqmAnalyzerBase.h"
 //#include "Validation/RecoEgamma/interface/ElectronValidator.h"
 
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 class MagneticField;
 
@@ -42,7 +41,6 @@ class ElectronMcFakeValidator : public ElectronDqmAnalyzerBase
     edm::InputTag isoFromDepsHcal03Tag_ ;
     edm::InputTag isoFromDepsHcal04Tag_ ;
 
-    TrajectoryStateTransform transformer_ ;
     edm::ESHandle<TrackerGeometry> pDD ;
     edm::ESHandle<MagneticField> theMagField ;
 
