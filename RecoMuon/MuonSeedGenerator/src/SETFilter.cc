@@ -193,9 +193,6 @@ bool SETFilter::transform(Trajectory::DataContainer &measurements_segments,
   }
 
   CLHEP::Hep3Vector p3_propagated,r3_propagated;
-  AlgebraicSymMatrix66 cov_propagated, covT;//---- how to disable error propagation?
-  covT *= 1e-20;
-  cov_propagated *= 1e-20;
   // this is the last segment state
   FreeTrajectoryState ftsStart = *(measurements_segments.at(measurements_segments.size()-1).forwardPredictedState().freeState());
 
@@ -261,9 +258,12 @@ FreeTrajectoryState SETFilter::getFromCLHEP(const CLHEP::Hep3Vector& p3, const C
 
   GlobalVector p3GV(p3.x(), p3.y(), p3.z());
   GlobalPoint r3GP(r3.x(), r3.y(), r3.z());
+  /*
   // FIXME waiting for invalid state (also persistent...)
   AlgebraicSymMatrix55 cov; cov*=1e-20;
   return FreeTrajectoryState( GlobalTrajectoryParameters(r3GP, p3GV, charge, field), CurvilinearTrajectoryError(cov)) ;
+  */
+  return FreeTrajectoryState(r3GP, p3GV, charge, field);
 }
 
 double SETFilter::findChi2(double pX, double pY, double pZ,
