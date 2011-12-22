@@ -386,22 +386,22 @@ namespace reco { namespace modules {
 		
 		LogDebug("CosmicTrackSplitter") << "Making a candidate!";
 		
-		TrajectoryStateTransform transform;
+		
 		PropagationDirection   pdir = tk.seedDirection();
-		PTrajectoryStateOnDet *state;
+		PTrajectoryStateOnDet state;
 		if ( pdir == anyDirection ) throw cms::Exception("UnimplementedFeature") << "Cannot work with tracks that have 'anyDirecton' \n";
 		//if ( (pdir == alongMomentum) == ( tk.p() >= tk.outerP() ) ) {
 		if ( (pdir == alongMomentum) == (  (tk.outerPosition()-tk.innerPosition()).Dot(tk.momentum()) >= 0    ) ) {
 			// use inner state
-			TrajectoryStateOnSurface originalTsosIn(transform.innerStateOnSurface(tk, *theGeometry, &*theMagField));
-			state = transform.persistentState( originalTsosIn, DetId(tk.innerDetId()) );
+			TrajectoryStateOnSurface originalTsosIn(trajectoryStateTransform::innerStateOnSurface(tk, *theGeometry, &*theMagField));
+			state = trajectoryStateTransform::persistentState( originalTsosIn, DetId(tk.innerDetId()) );
 		} else { 
 			// use outer state
-			TrajectoryStateOnSurface originalTsosOut(transform.outerStateOnSurface(tk, *theGeometry, &*theMagField));
-			state = transform.persistentState( originalTsosOut, DetId(tk.outerDetId()) );
+			TrajectoryStateOnSurface originalTsosOut(trajectoryStateTransform::outerStateOnSurface(tk, *theGeometry, &*theMagField));
+			state = trajectoryStateTransform::persistentState( originalTsosOut, DetId(tk.outerDetId()) );
 		}
 		
-		TrajectorySeed seed(*state, TrackCandidate::RecHitContainer(), pdir);
+		TrajectorySeed seed(state, TrackCandidate::RecHitContainer(), pdir);
 		
 		TrackCandidate::RecHitContainer ownHits;
 		ownHits.reserve(hitsEnd - hitsBegin);
