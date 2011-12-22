@@ -226,8 +226,6 @@ bool RPCRecHitFilter::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
       std::map < int,  bool >vectorEndcapCandsPositive;
       std::map < int, bool >vectorEndcapCandsNegative;
  
-      bool veto = false; 
-      
       // barrel
       for ( std::map <pair < int , int > , std::vector < RPCDetId> >::const_iterator iter = numberOfRecHitsSameWheelSameSector.begin();iter != numberOfRecHitsSameWheelSameSector.end();++iter){
 
@@ -238,7 +236,7 @@ bool RPCRecHitFilter::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  for(size_t i = 0; i < iter->second.size(); ++i){
 	    if(iter->second[i].layer()==1 && iter->second[i].station() == 1)vectorBarrelCands[0] = true; 
 	    if(iter->second[i].layer()==2 && iter->second[i].station() == 1)vectorBarrelCands[1] = true; 
-	    if(cosmicsVeto_)if(iter->second[i].station() > 2){ veto = true; 
+	    if(cosmicsVeto_)if(iter->second[i].station() > 2){
 	    vectorBarrelCands[1] = false;vectorBarrelCands[2] = false ;
 	    break;
 	    } 

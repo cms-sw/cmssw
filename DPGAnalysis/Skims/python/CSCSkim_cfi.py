@@ -5,7 +5,6 @@ import FWCore.ParameterSet.Config as cms
 #------------------------------------------
 cscSkim = cms.EDFilter(
     "CSCSkim",
-    isSimulation       = cms.untracked.bool(False),
     typeOfSkim         = cms.untracked.int32(1),
     rootFileName       = cms.untracked.string('outputDummy.root'),
     histogramFileName  = cms.untracked.string('CSCSkim_histos.root'),

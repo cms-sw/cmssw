@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Schmitt
 //         Created:  Sat Jul 12 17:43:33 CEST 2008
-// $Id: CSCSkim.cc,v 1.9 2009/12/18 00:03:10 wmtan Exp $
+// $Id: CSCSkim.cc,v 1.10 2010/08/07 14:55:55 wmtan Exp $
 //
 //
 //======================================================================
@@ -61,8 +61,6 @@ CSCSkim::CSCSkim(const edm::ParameterSet& pset)
   trackTag      = pset.getParameter<edm::InputTag>("trackTag");
 
   // Get the various input parameters
-  bool isSimulation = false;
-  isSimulation       = pset.getUntrackedParameter<bool>("isSimulation",false);
   outputFileName     = pset.getUntrackedParameter<std::string>("outputFileName","outputSkim.root");
   histogramFileName  = pset.getUntrackedParameter<std::string>("histogramFileName","histos.root");
   typeOfSkim              = pset.getUntrackedParameter<int>("typeOfSkim",1);
@@ -234,13 +232,13 @@ CSCSkim::filter(edm::Event& event, const edm::EventSetup& eventSetup)
   edm::Handle<CSCWireDigiCollection> wires;
   edm::Handle<CSCStripDigiCollection> strips;
 
-  if (isSimulation){
-    event.getByLabel("simMuonCSCDigis","MuonCSCWireDigi",wires);
-    event.getByLabel("simMuonCSCDigis","MuonCSCStripDigi",strips);
-  }
-  else {
+  if (event.eventAuxiliary().isRealData()){
     event.getByLabel("muonCSCDigis","MuonCSCWireDigi",wires);
     event.getByLabel("muonCSCDigis","MuonCSCStripDigi",strips);
+  }
+  else {
+    event.getByLabel("simMuonCSCDigis","MuonCSCWireDigi",wires);
+    event.getByLabel("simMuonCSCDigis","MuonCSCStripDigi",strips);
   }
 
   // Get the RecHits collection :

@@ -49,10 +49,11 @@ bool DetStatus::filter( edm::Event & evt, edm::EventSetup const& es) {
 
   if (dcsStatus.isValid()) 
     {
-      if ((*dcsStatus).size()==0)
+      if (dcsStatus->empty())
 	{
-	  // it's probably a MC event, accepet it in any case
-	  edm::LogError("DetStatus") << "Error! dcsStatus has size 0, accept in any case" ;
+          // Only complain in case it's real data. Accept in any case.
+          if (evt.eventAuxiliary().isRealData())
+	    edm::LogError("DetStatus") << "Error! dcsStatus has size 0, accept in any case" ;
 	  accepted=true;
 	}
       else 

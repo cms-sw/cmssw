@@ -247,27 +247,6 @@ WZInterestingEventSelector::filter(edm::Event& iEvent, const edm::EventSetup& iS
 	}
     }
 
-  event thisEvent;
-  thisEvent.run=iEvent.run();
-  thisEvent.event=iEvent.eventAuxiliary().event();
-  thisEvent.ls=iEvent.getLuminosityBlock().luminosityBlock();
-  thisEvent.nEle=goodElectrons.size();
-
-  if (ptMaxEle)
-    {
-      thisEvent.maxPt=ptMax;
-      thisEvent.maxPtEleEta=ptMaxEle->eta();
-      thisEvent.maxPtElePhi=ptMaxEle->phi();
-
-    }
-
-  if (pfMET.isValid())
-    {
-      thisEvent.met=pfMET->begin()->et();
-      thisEvent.metPhi=pfMET->begin()->phi();
-    }
-
-
   float maxInv=-999.;
   TLorentzVector v1;
   if (ptMaxEle)
@@ -283,9 +262,6 @@ WZInterestingEventSelector::filter(edm::Event& iEvent, const edm::EventSetup& iS
 	      maxInv = (v1+v2).M();
 	  }
     }
-
-  if (maxInv > invMassCut_)
-    thisEvent.invMass = maxInv;
 
   //Z filt: Retain event if more then 1 good ele and invMass above threshold (zee)
   if (goodElectrons.size()>1 && maxInv > invMassCut_)
