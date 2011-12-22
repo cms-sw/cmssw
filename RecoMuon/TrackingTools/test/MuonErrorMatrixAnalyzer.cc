@@ -162,12 +162,12 @@ void
   edm::Handle<reco::TrackCollection> tracks;
   iEvent.getByLabel(theTrackLabel,tracks);
   
-  TrajectoryStateTransform transformer;
+  
   //loop over them
   for (unsigned int it=0;it!=tracks->size();++it){
 
      //   take their initial free state
-    FreeTrajectoryState PCAstate = transformer.initialFreeState((*tracks)[it],theField.product());
+    FreeTrajectoryState PCAstate = trajectoryStateTransform::initialFreeState((*tracks)[it],theField.product());
     if (PCAstate.position().mag()==0)
       {edm::LogError(theCategory)<<"invalid state from track initial state. skipping.\n"<<PCAstate;continue;}
     
@@ -224,7 +224,7 @@ MuonErrorMatrixAnalyzer::analyze_from_pull(const edm::Event& iEvent, const edm::
   reco::RecoToSimCollection recSimColl = theAssociator->associateRecoToSim(tracks,TPtracks, &iEvent);
 
   LogDebug(theCategory)<<"I have found: "<<recSimColl.size()<<" associations in total.";
-  TrajectoryStateTransform transformer;
+  
    
   int it = 0;
   for (reco::RecoToSimCollection::const_iterator RtSit=recSimColl.begin();RtSit!=recSimColl.end();++RtSit){
@@ -264,7 +264,7 @@ MuonErrorMatrixAnalyzer::analyze_from_pull(const edm::Event& iEvent, const edm::
 	sim_fts = FreeTrajectoryState(par_sim);
 	   
 	//	   work on the reco::Track
-	trackPCAstate = transformer.initialFreeState((*tracks)[it],theField.product());
+	trackPCAstate = trajectoryStateTransform::initialFreeState((*tracks)[it],theField.product());
 	if (trackPCAstate.position().mag()==0)
 	  {edm::LogError(theCategory)<<"invalid state from track initial state. skipping.\n"<<trackPCAstate;continue;}
 

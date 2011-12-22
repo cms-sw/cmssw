@@ -181,12 +181,12 @@ MuonErrorMatrixAdjuster::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   theRefprodRH =iEvent.getRefBeforePut<TrackingRecHitCollection>();
   theRHi=0;
   
-  TrajectoryStateTransform transformer;
+  
   
   for(unsigned int it=0;it!=tracks->size();it++)
     {
       const reco::Track & recotrack_orig = (*tracks)[it];
-      FreeTrajectoryState PCAstate = transformer.initialFreeState(recotrack_orig, theField.product());
+      FreeTrajectoryState PCAstate = trajectoryStateTransform::initialFreeState(recotrack_orig, theField.product());
       if (PCAstate.position().mag()==0)
 	{edm::LogError( theCategory)<<"invalid state from track initial state in "<< theTrackLabel <<". skipping.";continue;}
 

@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2011/03/20 11:15:20 $
- *  $Revision: 1.2 $
+ *  $Date: 2011/07/26 16:27:00 $
+ *  $Revision: 1.3 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -103,20 +103,18 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
   //LogTrace(metname) << debug.dumpTSOS(tsos);
 
   // Transform it in a TrajectoryStateOnSurface
-  TrajectoryStateTransform tsTransform;
   
-  PTrajectoryStateOnDet *seedTSOS =
-    tsTransform.persistentState( tsos ,id.rawId());
+  
+  PTrajectoryStateOnDet const & seedTSOS =
+    trajectoryStateTransform::persistentState( tsos ,id.rawId());
   
   edm::OwnVector<TrackingRecHit> container;
   for (unsigned l=0; l<theRhits.size(); l++) {
       container.push_back( theRhits[l]->hit()->clone() );
   }
 
-  TrajectorySeed theSeed(*seedTSOS,container,alongMomentum);
-
-  delete seedTSOS;
-    
+  TrajectorySeed theSeed(seedTSOS,container,alongMomentum);
+   
   return theSeed;
 }
 
