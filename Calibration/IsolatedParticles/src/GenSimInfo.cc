@@ -11,7 +11,22 @@ namespace spr{
     
     if (debug) std::cout << "eGenSimInfo:: For track " << (*trkItr)->momentum().rho() << "/" << (*trkItr)->momentum().eta() << "/" << (*trkItr)->momentum().phi() << " with ieta:iphi " << ieta << ":" << iphi << std::endl;
 
-    std::vector<DetId> vdets = spr::matrixECALIds(coreDet, ieta, iphi, geo, caloTopology, debug);
+    std::vector<DetId> vdets = spr::matrixECALIds(coreDet, ieta, iphi, geo, caloTopology, false);
+    if (debug) {
+      for (unsigned int i=0; i<vdets.size(); ++i) {
+	std::cout << "Cell [" << i << "] 0x";
+        if (vdets[i].subdetId() == EcalBarrel) {
+	  EBDetId id = vdets[i];
+	  std::cout << std::hex << vdets[i]() << std::dec << " " << id;
+        } else if (vdets[i].subdetId() == EcalEndcap) {
+          EEDetId id = vdets[i];
+	  std::cout << std::hex << vdets[i]() << std::dec << " " << id;
+        } else {
+	  std::cout << std::hex << vdets[i]() << std::dec << " Unknown Type";
+        }
+	std::cout << std::endl;
+      }
+    }
     spr::cGenSimInfo(vdets, trkItr, trackIds, true, info, debug);
   }
 
@@ -19,7 +34,22 @@ namespace spr{
 
     if (debug) std::cout << "eGenSimInfo:: For track " << (*trkItr)->momentum().rho() << "/" << (*trkItr)->momentum().eta() << "/" << (*trkItr)->momentum().phi() << " with dR,tMom " << dR << " " << trackMom << std::endl;
 
-    std::vector<DetId> vdets = spr::matrixECALIds(coreDet, dR, trackMom, geo, caloTopology, debug);
+    std::vector<DetId> vdets = spr::matrixECALIds(coreDet, dR, trackMom, geo, caloTopology, false);
+    if (debug){
+      for (unsigned int i=0; i<vdets.size(); ++i) {
+	std::cout << "Cell [" << i << "] 0x";
+        if (vdets[i].subdetId() == EcalBarrel) {
+	  EBDetId id = vdets[i];
+	  std::cout << std::hex << vdets[i]() << std::dec << " " << id;
+        } else if (vdets[i].subdetId() == EcalEndcap) {
+          EEDetId id = vdets[i];
+	  std::cout << std::hex << vdets[i]() << std::dec << " " << id;
+        } else {
+	  std::cout << std::hex << vdets[i]() << std::dec << " Unknown Type";
+        }
+	std::cout << std::endl;
+      }
+    }
     spr::cGenSimInfo(vdets, trkItr, trackIds, true, info, debug);
   }
 
@@ -27,7 +57,22 @@ namespace spr{
     
     if (debug) std::cout << "eGenSimInfo:: For track " << trkItr->momentum().R() << "/" << trkItr->momentum().eta() << "/" << trkItr->momentum().phi() << " with ieta:iphi " << ieta << ":" << iphi << std::endl;
 
-    std::vector<DetId> vdets = spr::matrixECALIds(coreDet, ieta, iphi, geo, caloTopology, debug);
+    std::vector<DetId> vdets = spr::matrixECALIds(coreDet, ieta, iphi, geo, caloTopology, false);
+    if (debug) {
+      for (unsigned int i=0; i<vdets.size(); ++i) {
+	std::cout << "Cell [" << i << "] 0x";
+        if (vdets[i].subdetId() == EcalBarrel) {
+	  EBDetId id = vdets[i];
+	  std::cout << std::hex << vdets[i]() << std::dec << " " << id;
+        } else if (vdets[i].subdetId() == EcalEndcap) {
+          EEDetId id = vdets[i];
+	  std::cout << std::hex << vdets[i]() << std::dec << " " << id;
+        } else {
+	  std::cout << std::hex << vdets[i]() << std::dec << " Unknown Type";
+        }
+	std::cout << std::endl;
+      }
+    }
     spr::cGenSimInfo(vdets, trkItr, trackIds, true, info, debug);
   }
 
@@ -35,7 +80,22 @@ namespace spr{
 
     if (debug) std::cout << "eGenSimInfo:: For track " << trkItr->momentum().R() << "/" << trkItr->momentum().eta() << "/" << trkItr->momentum().phi() << " with dR,tMom " << dR << " " << trackMom << std::endl;
 
-    std::vector<DetId> vdets = spr::matrixECALIds(coreDet, dR, trackMom, geo, caloTopology, debug);
+    std::vector<DetId> vdets = spr::matrixECALIds(coreDet, dR, trackMom, geo, caloTopology, false);
+    if (debug) {
+      for (unsigned int i=0; i<vdets.size(); ++i) {
+	std::cout << "Cell [" << i << "] 0x";
+        if (vdets[i].subdetId() == EcalBarrel) {
+	  EBDetId id = vdets[i];
+	  std::cout << std::hex << vdets[i]() << std::dec << " " << id;
+        } else if (vdets[i].subdetId() == EcalEndcap) {
+          EEDetId id = vdets[i];
+	  std::cout << std::hex << vdets[i]() << std::dec << " " << id;
+        } else {
+	  std::cout << std::hex << vdets[i]() << std::dec << " Unknown Type";
+        }
+	std::cout << std::endl;
+      }
+    }
     spr::cGenSimInfo(vdets, trkItr, trackIds, true, info, debug);
   }
 
@@ -45,7 +105,13 @@ namespace spr{
 
     std::vector<DetId> dets;
     dets.push_back(coreDet);
-    std::vector<DetId> vdets = spr::matrixHCALIds(dets, topology, ieta, iphi, includeHO, debug);
+    std::vector<DetId> vdets = spr::matrixHCALIds(dets, topology, ieta, iphi, includeHO, false);
+    if (debug) {
+      for (unsigned int i=0; i<vdets.size(); ++i) {
+	HcalDetId id = vdets[i];
+	std::cout << "Cell [" << i << "] 0x" << std::hex << vdets[i]() << std::dec << " " << id << std::endl;;
+      }
+    }
     spr::cGenSimInfo(vdets, trkItr, trackIds, false, info, debug);
   }
 
@@ -53,7 +119,13 @@ namespace spr{
     
     if (debug) std::cout << "hGenSimInfo:: For track " << (*trkItr)->momentum().rho() << "/" << (*trkItr)->momentum().eta() << "/" << (*trkItr)->momentum().phi() << " with dR,tMom " << dR << " " << trackMom << std::endl;
 
-    std::vector<DetId> vdets = spr::matrixHCALIds(coreDet, geo, topology, dR, trackMom, includeHO, debug);
+    std::vector<DetId> vdets = spr::matrixHCALIds(coreDet, geo, topology, dR, trackMom, includeHO, false);
+    if (debug) {
+      for (unsigned int i=0; i<vdets.size(); ++i) {
+	HcalDetId id = vdets[i];
+	std::cout << "Cell [" << i << "] 0x" << std::hex << vdets[i]() << std::dec << " " << id << std::endl;;
+      }
+    }
     spr::cGenSimInfo(vdets, trkItr, trackIds, false, info, debug);
   }
 
@@ -63,7 +135,13 @@ namespace spr{
 
     std::vector<DetId> dets;
     dets.push_back(coreDet);
-    std::vector<DetId> vdets = spr::matrixHCALIds(dets, topology, ieta, iphi, includeHO, debug);
+    std::vector<DetId> vdets = spr::matrixHCALIds(dets, topology, ieta, iphi, includeHO, false);
+    if (debug) {
+      for (unsigned int i=0; i<vdets.size(); ++i) {
+	HcalDetId id = vdets[i];
+	std::cout << "Cell [" << i << "] 0x" << std::hex << vdets[i]() << std::dec << " " << id << std::endl;;
+      }
+    }
     spr::cGenSimInfo(vdets, trkItr, trackIds, false, info, debug);
   }
 
@@ -71,12 +149,22 @@ namespace spr{
     
     if (debug) std::cout << "hGenSimInfo:: For track " << trkItr->momentum().R() << "/" << trkItr->momentum().eta() << "/" << trkItr->momentum().phi() << " with dR,tMom " << dR << " " << trackMom << std::endl;
 
-    std::vector<DetId> vdets = spr::matrixHCALIds(coreDet, geo, topology, dR, trackMom, includeHO, debug);
+    std::vector<DetId> vdets = spr::matrixHCALIds(coreDet, geo, topology, dR, trackMom, includeHO, false);
+    if (debug) {
+      for (unsigned int i=0; i<vdets.size(); ++i) {
+	HcalDetId id = vdets[i];
+	std::cout << "Cell [" << i << "] 0x" << std::hex << vdets[i]() << std::dec << " " << id << std::endl;;
+      }
+    }
     spr::cGenSimInfo(vdets, trkItr, trackIds, false, info, debug);
   }
 
   void cGenSimInfo(std::vector<DetId>& vdets, HepMC::GenEvent::particle_const_iterator trkItr, std::vector<spr::propagatedGenTrackID>& trackIds, bool ifECAL, spr::genSimInfo & info, bool debug) {
 
+    info.maxNearP=-1.0;
+    info.cHadronEne=info.nHadronEne=info.eleEne=info.muEne=info.photonEne=0.0;
+    info.isChargedIso=true;
+    for (int i=0; i<3; ++i) info.cHadronEne_[i]=0.0;
     for (unsigned int i=0; i<trackIds.size(); ++i) {
       HepMC::GenEvent::particle_const_iterator trkItr2 = trackIds[i].trkItr;
       // avoid the track under consideration
@@ -108,6 +196,10 @@ namespace spr{
 
   void cGenSimInfo(std::vector<DetId>& vdets, reco::GenParticleCollection::const_iterator trkItr, std::vector<spr::propagatedGenParticleID>& trackIds, bool ifECAL, spr::genSimInfo & info, bool debug) {
 
+    info.maxNearP=-1.0;
+    info.cHadronEne=info.nHadronEne=info.eleEne=info.muEne=info.photonEne=0.0;
+    info.isChargedIso=true;
+    for (int i=0; i<3; ++i) info.cHadronEne_[i]=0.0;
     for (unsigned int i=0; i<trackIds.size(); ++i) {
       reco::GenParticleCollection::const_iterator trkItr2 = trackIds[i].trkItr;
       // avoid the track under consideration
