@@ -42,11 +42,11 @@ TrajectoryStateTransform::transientState( const PTrajectoryStateOnDet& ts,
 					  const MagneticField* field) const
 {
   const std::vector<float> &errs = ts.errorMatrix();
+  AlgebraicSymMatrix55 m;
   bool errInv=true;
-  if (errs[0]> -1.e10) {
+  if ((!err.empty()) && errs[0]> -1.e10) {
     errInv = false;
     int dim = 5;
-    AlgebraicSymMatrix55 m;
     int k = 0;
     for (int i=0; i<dim; i++) {
       for (int j=0; j<=i; j++) {
