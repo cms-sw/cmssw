@@ -57,7 +57,7 @@ TrajectoryStateTransform::transientState( const PTrajectoryStateOnDet& ts,
   
 
   return TrajectoryStateOnSurface( ts.parameters(),
-				   errInv ? LocalTrajectoryError(InvalidError()) : LocalTrajectoryError(m) 
+				   errInv ? LocalTrajectoryError(InvalidError()) : LocalTrajectoryError(m),
 				   *surface, field,
 				   static_cast<SurfaceSide>(ts.surfaceSide()));
 
