@@ -14,7 +14,7 @@ namespace trajectoryStateTransform {
   
   PTrajectoryStateOnDet 
   persistentState( const TrajectoryStateOnSurface& ts,
-		   unsigned int detid) const
+		   unsigned int detid)
   {
     int surfaceSide = static_cast<int>(ts.surfaceSide());
     
@@ -42,7 +42,7 @@ namespace trajectoryStateTransform {
   TrajectoryStateOnSurface 
   transientState( const PTrajectoryStateOnDet& ts,
 		  const Surface* surface,
-		  const MagneticField* field) const
+		  const MagneticField* field)
   {
     AlgebraicSymMatrix55 m;
     bool errInv=true;
@@ -52,7 +52,7 @@ namespace trajectoryStateTransform {
       int k = 0;
       for (int i=0; i<dim; i++) {
 	for (int j=0; j<=i; j++) {
-	  m(i,j) = ts.errors[k++];       // NOTE: here we do a cast float => double.     
+	  m(i,j) = ts.error(k++);       // NOTE: here we do a cast float => double.     
 	}
       }
     }
@@ -66,7 +66,7 @@ namespace trajectoryStateTransform {
 }
   
   FreeTrajectoryState initialFreeState( const reco::Track& tk,
-					const MagneticField* field) const
+					const MagneticField* field) 
   {
     Basic3DVector<float> pos( tk.vertex());
     GlobalPoint gpos( pos);
@@ -78,7 +78,7 @@ namespace trajectoryStateTransform {
   }
   
   FreeTrajectoryState innerFreeState( const reco::Track& tk,
-				      const MagneticField* field) const
+				      const MagneticField* field)
   {
     Basic3DVector<float> pos( tk.innerPosition());
     GlobalPoint gpos( pos);
@@ -91,7 +91,7 @@ namespace trajectoryStateTransform {
 
   
   FreeTrajectoryState outerFreeState( const reco::Track& tk,
-				      const MagneticField* field) const
+				      const MagneticField* field)
   {
     Basic3DVector<float> pos( tk.outerPosition());
     GlobalPoint gpos( pos);
@@ -105,7 +105,7 @@ namespace trajectoryStateTransform {
   
   TrajectoryStateOnSurface innerStateOnSurface( const reco::Track& tk, 
 						const TrackingGeometry& geom,
-						const MagneticField* field) const
+						const MagneticField* field)
   {
     const Surface& surface = geom.idToDet( DetId( tk.extra()->innerDetId()))->surface();
     return TrajectoryStateOnSurface( innerFreeState( tk, field), surface);
@@ -113,7 +113,7 @@ namespace trajectoryStateTransform {
   
   TrajectoryStateOnSurface outerStateOnSurface( const reco::Track& tk, 
 						const TrackingGeometry& geom,
-						const MagneticField* field) const
+						const MagneticField* field)
   {
     const Surface& surface = geom.idToDet( DetId( tk.extra()->outerDetId()))->surface();
     return TrajectoryStateOnSurface( outerFreeState( tk, field), surface);
