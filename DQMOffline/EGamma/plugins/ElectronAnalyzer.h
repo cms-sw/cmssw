@@ -126,7 +126,6 @@ class ElectronAnalyzer : public ElectronDqmAnalyzerBase
 //    unsigned int nAfterTrigger_;
 //    std::vector<unsigned int> HLTPathsByIndex_;
 
-    TrajectoryStateTransform transformer_ ;
     edm::ESHandle<TrackerGeometry> pDD;
     edm::ESHandle<MagneticField> theMagField;
 
