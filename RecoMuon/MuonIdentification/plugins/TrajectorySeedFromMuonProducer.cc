@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id$
+// $Id: TrajectorySeedFromMuonProducer.cc,v 1.1 2010/06/22 13:19:57 dmytro Exp $
 //
 // Authors: Y.Gao (FNAL)
 //
@@ -82,7 +82,7 @@ void TrajectorySeedFromMuonProducer::produce(edm::Event& iEvent, const edm::Even
   edm::ESHandle<TrackerGeometry> trackerGeometry;
   iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometry);
   
-  TrajectoryStateTransform transformer;
+  
   
   edm::Handle<edm::View<Muon> > muonCollectionHandle;
   iEvent.getByLabel(muonCollectionTag_, muonCollectionHandle);
@@ -117,8 +117,8 @@ void TrajectorySeedFromMuonProducer::produce(edm::Event& iEvent, const edm::Even
     trackHits.push_back(track->recHit(0)->clone() );
     
     // Make TrajectorySeed
-    PTrajectoryStateOnDet *PTraj = transformer.persistentState(tracker_tsos, innerDetId.rawId());
-    TrajectorySeed trajectorySeed(*PTraj, trackHits, oppositeToMomentum);
+    PTrajectoryStateOnDet const & PTraj = trajectoryStateTransform::persistentState(tracker_tsos, innerDetId.rawId());
+    TrajectorySeed trajectorySeed(PTraj, trackHits, oppositeToMomentum);
     LogTrace("MuonIdentification")<<"Trajectory Seed Direction: "<< trajectorySeed.direction()<<endl;
     result->push_back(trajectorySeed);
   }

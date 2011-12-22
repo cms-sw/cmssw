@@ -1,8 +1,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2011/01/17 11:22:40 $
- *  $Revision: 1.43 $
+ *  $Date: 2011/07/26 16:34:06 $
+ *  $Revision: 1.44 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author Stefano Lacaprara - INFN Legnaro
  *  \author D. Trocino - INFN Torino <daniele.trocino@to.infn.it>
@@ -278,14 +278,14 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   }
   else if(theBWSeedType == "fromFWFit") {
 
-    TrajectoryStateTransform tsTransform;
     
-    PTrajectoryStateOnDet *seedTSOS =
-      tsTransform.persistentState( tsosAfterRefit, trajectoryFW.lastMeasurement().recHit()->geographicalId().rawId());
+    
+    PTrajectoryStateOnDet seedTSOS =
+      trajectoryStateTransform::persistentState( tsosAfterRefit, trajectoryFW.lastMeasurement().recHit()->geographicalId().rawId());
     
     edm::OwnVector<TrackingRecHit> recHitsContainer;
     PropagationDirection seedDirection = (theSeedPosition == recoMuon::in) ?  oppositeToMomentum : alongMomentum;
-    TrajectorySeed fwFit(*seedTSOS,recHitsContainer,seedDirection);
+    TrajectorySeed fwFit(seedTSOS,recHitsContainer,seedDirection);
 
     seedForBW = fwFit;
   }
