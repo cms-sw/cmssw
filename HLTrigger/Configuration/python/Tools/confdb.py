@@ -37,7 +37,6 @@ class HLTProcess(object):
     "HLT_JetE50_NoBPTX3BX_NoHalo_v*",
 
   # TODO: paths not supported by FastSim, but for which a recovery should be attempted
-    "HLT_Mu3_Track3_Jpsi_v*",
     "HLT_Mu5_TkMu0_OST_Jpsi_Tight_B5Q7_v*",
     "HLT_Mu5_Track0_Jpsi_B5Q7_v*",
     "HLT_Mu5_Track2_Jpsi_v*",
@@ -45,11 +44,6 @@ class HLTProcess(object):
     "HLT_Mu7_Track5_Jpsi_v*",
     "HLT_Mu7_Track7_Jpsi_v*",
 
-    "HLT_HT250_DoubleDisplacedJet60_v*",
-    "HLT_HT250_DoubleDisplacedJet60_PromptTrack_v*",
-
-    # new in "5e33"
-    "HLT_Mu17_TkMu8_v*",
   )
 
   def __init__(self, configuration):
@@ -917,6 +911,8 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltCtf3HitL1NonIsoWithMaterialTracks" )
       self.options['modules'].append( "-hltCkf3HitActivityTrackCandidates" )
       self.options['modules'].append( "-hltCtf3HitActivityWithMaterialTracks" )
+      self.options['modules'].append( "-hltMuCkfTrackCandidates" )
+      self.options['modules'].append( "-hltMuCtfTracks" )
       self.options['modules'].append( "-hltESRegionalEgammaRecHit" )
       self.options['modules'].append( "-hltEcalRegionalJetsFEDs" )
       self.options['modules'].append( "-hltEcalRegionalMuonsFEDs" )
