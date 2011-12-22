@@ -440,7 +440,7 @@ void TSGForRoadSearch::pushTrajectorySeed(const reco::Track & muon, std::vector<
 	  if (!aBareTS){
 	    aBareTS=true;
 	    
-	    PTrajectoryStateOnDet & PTSOD = *trajectoryStateTransform::persistentState(predState,gd->geographicalId().rawId());
+	    PTrajectoryStateOnDet comnst & PTSOD = trajectoryStateTransform::persistentState(predState,gd->geographicalId().rawId());
 	    LogDebug(theCategory)<<"state used to build a bare trajectory seed: \n"<<predState
 			       <<"on detector: "<<gd->geographicalId().rawId();
     
