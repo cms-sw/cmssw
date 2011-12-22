@@ -192,7 +192,6 @@ bool SETFilter::transform(Trajectory::DataContainer &measurements_segments,
     hitContainer.insert(hitContainer.end(),sortedHits.begin(),sortedHits.end());    
   }
 
-  CLHEP::Hep3Vector p3_propagated,r3_propagated;
   // this is the last segment state
   FreeTrajectoryState ftsStart = *(measurements_segments.at(measurements_segments.size()-1).forwardPredictedState().freeState());
 
@@ -200,9 +199,9 @@ bool SETFilter::transform(Trajectory::DataContainer &measurements_segments,
   TransientTrackingRecHit::ConstRecHitPointer muonRecHit =  hitContainer[0];
   DetId detId_last = hitContainer[0]->hit()->geographicalId();
   const GeomDet* layer_last = theService->trackingGeometry()->idToDet(detId_last);
-  TrajectoryStateOnSurface tSOSDest;
+
   // get the last rechit TSOS
-  tSOSDest = propagator()->propagate(ftsStart, layer_last->surface());
+  TrajectoryStateOnSurface tSOSDest = propagator()->propagate(ftsStart, layer_last->surface());
   firstTSOS = tSOSDest;
   // ftsStart should be at the last rechit surface
   if (!tSOSDest.isValid()){
@@ -237,20 +236,6 @@ bool SETFilter::transformLight(Trajectory::DataContainer &measurements_segments,
 }
 
 
-
-void SETFilter::getFromFTS(const FreeTrajectoryState& fts,
-                                      CLHEP::Hep3Vector& p3, CLHEP::Hep3Vector& r3,
-                                      int& charge){
-
-  GlobalVector p3GV = fts.momentum();
-  GlobalPoint r3GP = fts.position();
-
-  p3.set(p3GV.x(), p3GV.y(), p3GV.z());
-  r3.set(r3GP.x(), r3GP.y(), r3GP.z());
-
-  charge = fts.charge();
-
-}
 
 FreeTrajectoryState SETFilter::getFromCLHEP(const CLHEP::Hep3Vector& p3, const CLHEP::Hep3Vector& r3,
                                                        int charge,
@@ -305,7 +290,6 @@ double SETFilter::findChi2(double pX, double pY, double pZ,
     if (tSOSDest.isValid()){
       //---- start next step ("adding" measurement) from the last TSOS
       ftsStart = *tSOSDest.freeState();
-      //getFromFTS(ftsStart, p3_propagated, r3_propagated, charge, cov_propagated);
     } else{
       //std::cout<<"... not valid TSOS"<<std::endl;
       chi2_loc = 9999999999.;
@@ -313,12 +297,9 @@ double SETFilter::findChi2(double pX, double pY, double pZ,
     }
     //}
 
-    getFromFTS(ftsStart, p3_propagated, r3_propagated, charge);
-
-    //    GlobalPoint globPos = muonRecHit->globalPosition();
     LocalPoint locHitPos = muonRecHit->localPosition();
     LocalError locHitErr = muonRecHit->localPositionError();
-    const GlobalPoint globPropPos(r3_propagated.x(), r3_propagated.y(), r3_propagated.z());
+    const GlobalPoint globPropPos = ftsStart.position();
     LocalPoint locPropPos = layer->toLocal(globPropPos);
 
     //
@@ -360,6 +341,12 @@ double SETFilter::findChi2(double pX, double pY, double pZ,
       const DetLayer *layer = theService->detLayerGeometry()->idToLayer( detId);
       //std::cout<<"    seg pos in traj : "<<lastUpdatedTSOS.globalPosition()<<std::endl;
       // put the measurement into the set
+      // VI set the error as the fit needs it... (it is nonsense anyhow...)
+      if (!lastUpdatedTSOS.hasError()){
+	AlgebraicSymMatrix55 cov; cov*=1e6;
+	lastUpdatedTSOS.freeTrajectoryState().setCurvilinearError(cov);
+      }
+
       trajectoryMeasurementsInTheSet.push_back( TrajectoryMeasurement
 						( lastUpdatedTSOS,
 						  muonRecHit.get(),

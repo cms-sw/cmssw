@@ -128,10 +128,6 @@ private:
 
   //---- SET
   // FTS <-> parameters
-  void getFromFTS(const FreeTrajectoryState& fts,
-                  CLHEP::Hep3Vector& p3, CLHEP::Hep3Vector& r3,
-                  int& charge);
-
   FreeTrajectoryState getFromCLHEP(const CLHEP::Hep3Vector& p3, const CLHEP::Hep3Vector& r3,
                                    int charge,
                                    const MagneticField* field);
