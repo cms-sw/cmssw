@@ -10,8 +10,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: innocent $
-// $Date: 2011/12/22 20:33:37 $
-// $Revision: 1.70 $
+// $Date: 2011/12/22 20:38:29 $
+// $Revision: 1.71 $
 //
 
 #include <vector>
@@ -41,7 +41,7 @@
 
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "TrackingTools/TrajectoryState/interface/trajectoryStateTransform.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h" 
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
 
