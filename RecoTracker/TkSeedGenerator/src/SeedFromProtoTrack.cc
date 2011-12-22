@@ -78,9 +78,7 @@ void SeedFromProtoTrack::init(const reco::Track & proto, const edm::EventSetup& 
   }
   theValid = true;
 
-  TrajectoryStateTransform transformer;
-  thePTraj = boost::shared_ptr<PTrajectoryStateOnDet>(
-      transformer.persistentState(outerState, lastHit.geographicalId().rawId()) );
+  thePTraj = trajectoryStateTransform::persistentState(outerState, lastHit.geographicalId().rawId());
 
 
 }

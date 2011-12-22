@@ -135,7 +135,7 @@ private:
   const edm::EventSetup *theSetup;
   
   PRecHitContainer recHits_;
-  PTrajectoryStateOnDet* pts_;
+  PTrajectoryStateOnDet pts_;
 
   // member vectors to hold the good hits found between hit selection and combinatorics
   std::vector<const SiStripMatchedRecHit2D*> layer1Hits_;

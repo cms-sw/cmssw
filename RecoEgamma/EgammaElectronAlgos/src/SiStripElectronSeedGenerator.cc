@@ -49,7 +49,7 @@ Description: SiStrip-driven electron seed finding algorithm.
 SiStripElectronSeedGenerator::SiStripElectronSeedGenerator(const edm::ParameterSet &pset)
  : beamSpotTag_("offlineBeamSpot"),
    theUpdator(0),thePropagator(0),theMeasurementTracker(0),
-   theSetup(0),pts_(0),theMatcher_(0),
+   theSetup(0), theMatcher_(0),
    cacheIDMagField_(0),cacheIDCkfComp_(0),cacheIDTrkGeom_(0),
    tibOriginZCut_(pset.getParameter<double>("tibOriginZCut")),
    tidOriginZCut_(pset.getParameter<double>("tidOriginZCut")),
@@ -445,13 +445,11 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster
 	    recHits_.push_back(hit);
 
 	    PropagationDirection dir = alongMomentum;
-	    reco::ElectronSeed seed(*pts_,recHits_,dir) ;
+	    reco::ElectronSeed seed(pts_,recHits_,dir) ;
 	    reco::ElectronSeed::CaloClusterRef caloCluster(seedCluster) ;
 	    seed.setCaloCluster(caloCluster) ;
 	    result.push_back(seed);
 
-	    delete pts_;
-	    pts_=0;
 	  }
 
 	}
@@ -485,13 +483,11 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster
 	    recHits_.push_back(outerHit);
 
 	    PropagationDirection dir = alongMomentum;
-	    reco::ElectronSeed seed(*pts_,recHits_,dir) ;
+	    reco::ElectronSeed seed(pts_,recHits_,dir) ;
 	    reco::ElectronSeed::CaloClusterRef caloCluster(seedCluster) ;
 	    seed.setCaloCluster(caloCluster) ;
 	    result.push_back(seed);
 
-	    delete pts_;
-	    pts_=0;
 	  }
 
 	}
@@ -572,7 +568,6 @@ bool SiStripElectronSeedGenerator::checkHitsAndTSOS(std::vector<const SiStripMat
 
   // seed checks borrowed from pixel-based algoritm
 
-  pts_=0;
 
   /* Some of this code could be better optimized.  The Pixel algorithm natively
      takes Transient rec hits, so to recycle code we have to build them.
@@ -604,7 +599,7 @@ bool SiStripElectronSeedGenerator::checkHitsAndTSOS(std::vector<const SiStripMat
 
   TSOS updatedState_out = theUpdator->update(propagatedState_out, *hit2Trans);
 
-  pts_ =  trajectoryStateTransform::.persistentState(updatedState_out, hit2Trans->geographicalId().rawId());
+  pts_ =  trajectoryStateTransform::persistentState(updatedState_out, hit2Trans->geographicalId().rawId());
 
   return true;
 }
@@ -648,7 +643,7 @@ bool SiStripElectronSeedGenerator::altCheckHitsAndTSOS(std::vector<const SiStrip
 
   // seed checks borrowed from pixel-based algoritm
 
-  pts_=0;
+ 
 
   /* Some of this code could be better optimized.  The Pixel algorithm natively
      takes Transient rec hits, so to recycle code we have to build them.
@@ -680,7 +675,7 @@ bool SiStripElectronSeedGenerator::altCheckHitsAndTSOS(std::vector<const SiStrip
 
   TSOS updatedState_out = theUpdator->update(propagatedState_out, *hit2Trans);
 
-  pts_ =  trajectoryStateTransform::.persistentState(updatedState_out, hit2Trans->geographicalId().rawId());
+  pts_ =  trajectoryStateTransform::persistentState(updatedState_out, hit2Trans->geographicalId().rawId());
 
   return true;
 }

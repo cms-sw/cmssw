@@ -30,7 +30,7 @@ private:
 
   PropagationDirection direction() const { return alongMomentum; }
 
-  PTrajectoryStateOnDet trajectoryState() const { return *thePTraj; }
+  PTrajectoryStateOnDet const & trajectoryState() const { return thePTraj; }
 
 
   typedef edm::OwnVector<TrackingRecHit> RecHitContainer;
@@ -40,7 +40,7 @@ private:
 
   bool theValid;
   RecHitContainer theHits;
-  boost::shared_ptr<PTrajectoryStateOnDet> thePTraj;
+  PTrajectoryStateOnDet thePTraj;
 
 };
 #endif

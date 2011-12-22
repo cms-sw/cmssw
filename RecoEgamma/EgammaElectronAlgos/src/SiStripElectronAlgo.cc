@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:12:04 EDT 2006
-// $Id: SiStripElectronAlgo.cc,v 1.37 2011/04/08 08:54:09 innocent Exp $
+// $Id: SiStripElectronAlgo.cc,v 1.38 2011/12/22 19:00:57 innocent Exp $
 //
 
 // system include files
@@ -229,9 +229,9 @@ bool SiStripElectronAlgo::findElectron(reco::SiStripElectronCollection& electron
 				   tracker_p_->idToDet(innerhit_neg_->geographicalId())->surface());
     
     
-    PTrajectoryStateOnDet* PTraj = trajectoryStateTransform::persistentState(state, innerhit_neg_->geographicalId().rawId());
-    TrajectorySeed trajectorySeed(*PTraj, hits, alongMomentum);
-    trackCandidateOut.push_back(TrackCandidate(hits, trajectorySeed, *PTraj));
+    PTrajectoryStateOnDet const & PTraj = trajectoryStateTransform::persistentState(state, innerhit_neg_->geographicalId().rawId());
+    TrajectorySeed trajectorySeed(PTraj, hits, alongMomentum);
+    trackCandidateOut.push_back(TrackCandidate(hits, trajectorySeed, PTraj));
     
     electronOut.push_back(reco::SiStripElectron(superclusterIn,
 						-1,
@@ -248,8 +248,6 @@ bool SiStripElectronAlgo::findElectron(reco::SiStripElectronCollection& electron
 						numberOfStereoHits_neg_,
 						numberOfBarrelRphiHits_neg_,
 						numberOfEndcapZphiHits_neg_));
-    
-    delete PTraj; // ShR: fix memory leak reported per perfrmance task force
     
     return true;
   }
@@ -325,9 +323,9 @@ bool SiStripElectronAlgo::findElectron(reco::SiStripElectronCollection& electron
 				   tracker_p_->idToDet(innerhit_pos_->geographicalId())->surface());
     
     
-    PTrajectoryStateOnDet* PTraj = trajectoryStateTransform::persistentState(state, innerhit_pos_->geographicalId().rawId());
-    TrajectorySeed trajectorySeed(*PTraj, hits, alongMomentum);
-    trackCandidateOut.push_back(TrackCandidate(hits, trajectorySeed, *PTraj));
+    PTrajectoryStateOnDet const & PTraj = trajectoryStateTransform::persistentState(state, innerhit_pos_->geographicalId().rawId());
+    TrajectorySeed trajectorySeed(PTraj, hits, alongMomentum);
+    trackCandidateOut.push_back(TrackCandidate(hits, trajectorySeed, PTraj));
     
     electronOut.push_back(reco::SiStripElectron(superclusterIn,
 						1,
@@ -344,8 +342,6 @@ bool SiStripElectronAlgo::findElectron(reco::SiStripElectronCollection& electron
 						numberOfStereoHits_pos_,
 						numberOfBarrelRphiHits_pos_,
 						numberOfEndcapZphiHits_pos_));
-    
-    delete PTraj; // JED: fix of 2nd memory leak reported per perfrmance task force
     
     return true;
   }

@@ -141,9 +141,9 @@ const TrajectorySeed * SeedFromConsecutiveHitsCreator::buildSeed(
     seedHits.push_back(newtth->hit()->clone());
   } 
 
-  TrajectoryStateTransform transformer;
+  
   boost::shared_ptr<PTrajectoryStateOnDet> PTraj(
-      transformer.persistentState(updatedState, hit->geographicalId().rawId()));
+      trajectoryStateTransform::persistentState(updatedState, hit->geographicalId().rawId()));
   
   seedCollection.push_back( TrajectorySeed(*PTraj,std::move(seedHits),alongMomentum));
   return &seedCollection.back();
