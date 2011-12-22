@@ -284,10 +284,10 @@ namespace cms{
             // 2) make a seed
             TrajectoryStateOnSurface initState = it->lastMeasurement().updatedState();
             DetId                    initDetId = it->lastMeasurement().recHit()->geographicalId();
-            std::auto_ptr<PTrajectoryStateOnDet> state(TrajectoryStateTransform().persistentState( initState, initDetId.rawId()));
+            PTrajectoryStateOnDet state = trajectoryStateTransform::persistentState( initState, initDetId.rawId());
             TrajectorySeed::recHitContainer hits; 
             hits.push_back(*it->lastMeasurement().recHit()->hit());
-            boost::shared_ptr<const TrajectorySeed> seed(new TrajectorySeed(*state, hits, direction));
+            boost::shared_ptr<const TrajectorySeed> seed(new TrajectorySeed(state, hits, direction));
             // 3) make a trajectory
             Trajectory trajectory(seed, direction);
             trajectory.setSeedRef(it->seedRef());
@@ -341,21 +341,18 @@ namespace cms{
 	   continue;
 	 }
 	 
-	 PTrajectoryStateOnDet* state =0 ;
+	 PTrajectoryStateOnDet state;
 	 if(useSplitting && (initState.second != thits.front()->det()) && thits.front()->det() ){	 
 	   LogDebug("CkfPattern") << "propagating to hit front in case of splitting.";
 	   TrajectoryStateOnSurface propagated = thePropagator->propagate(initState.first,thits.front()->det()->surface());
 	   if (!propagated.isValid()) continue;
-	   state = TrajectoryStateTransform().persistentState(propagated,
-							      thits.front()->det()->geographicalId().rawId());
+	   state = trajectoryStateTransform::persistentState(propagated,
+								      thits.front()->det()->geographicalId().rawId());
 	 }
-	 
-	 if(!state) state = TrajectoryStateTransform().persistentState( initState.first,
+	 else state = trajectoryStateTransform::persistentState( initState.first,
 									initState.second->geographicalId().rawId());
 	 LogDebug("CkfPattern") << "pushing a TrackCandidate.";
-	 output->push_back(TrackCandidate(recHits,it->seed(),*state,it->seedRef() ) );
-	 
-	 delete state;
+	 output->push_back(TrackCandidate(recHits,it->seed(),state,it->seedRef() ) );
        }
       }//output trackcandidates
 
