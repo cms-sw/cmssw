@@ -201,10 +201,13 @@ void RPCRecHitValid::beginRun(const edm::Run& run, const edm::EventSetup& eventS
     {
       const RPCRoll* roll = *rollIter;
       if ( !roll ) continue;
-      //RPCGeomServ rpcSrv(roll.id());
+
+      //RPCGeomServ rpcSrv(roll->id());
       const int rawId = roll->geographicalId().rawId();
-      //const StripTopology& topol = roll->specificTopology();
-      const double area = 1.0;//topol->stripLength()*topol->nstrips()*topol->pitch();
+      //if ( !roll->specs()->isRPC() ) { cout << "\nNoRPC : " << rpcSrv.name() << ' ' << rawId << endl; continue; }
+
+      const StripTopology& topol = roll->specificTopology();
+      const double area = topol.stripLength()*topol.nstrips()*topol.pitch();
       if ( roll->isBarrel() )
       {
         detIdToIndexMapBarrel_[rawId] = nRPCRollBarrel;
