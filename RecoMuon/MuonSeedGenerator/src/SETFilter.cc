@@ -243,7 +243,7 @@ bool SETFilter::transformLight(Trajectory::DataContainer &measurements_segments,
 
 void SETFilter::getFromFTS(const FreeTrajectoryState& fts,
                                       CLHEP::Hep3Vector& p3, CLHEP::Hep3Vector& r3,
-                                      int& charge, AlgebraicSymMatrix66& cov){
+                                      int& charge){
 
   GlobalVector p3GV = fts.momentum();
   GlobalPoint r3GP = fts.position();
@@ -252,21 +252,16 @@ void SETFilter::getFromFTS(const FreeTrajectoryState& fts,
   r3.set(r3GP.x(), r3GP.y(), r3GP.z());
 
   charge = fts.charge();
-  cov = fts.hasError() ? fts.cartesianError().matrix() : AlgebraicSymMatrix66();
 
 }
 
 FreeTrajectoryState SETFilter::getFromCLHEP(const CLHEP::Hep3Vector& p3, const CLHEP::Hep3Vector& r3,
-                                                       int charge, const AlgebraicSymMatrix66& cov,
+                                                       int charge,
                                                        const MagneticField* field){
 
   GlobalVector p3GV(p3.x(), p3.y(), p3.z());
   GlobalPoint r3GP(r3.x(), r3.y(), r3.z());
-  GlobalTrajectoryParameters tPars(r3GP, p3GV, charge, field);
-
-  CartesianTrajectoryError tCov(cov);
-
-  return cov.kRows == 6 ? FreeTrajectoryState(tPars, tCov) : FreeTrajectoryState(tPars) ;
+  return FreeTrajectoryState(r3GP, p3GV, charge, field) ;
 }
 
 double SETFilter::findChi2(double pX, double pY, double pZ,
@@ -286,11 +281,9 @@ double SETFilter::findChi2(double pX, double pY, double pZ,
   int charge =  muonCandidate.charge;
   CLHEP::Hep3Vector p3T(pX,pY,pZ);
   CLHEP::Hep3Vector p3_propagated,r3_propagated;
-  AlgebraicSymMatrix66 cov_propagated, covT;//---- how to disable error propagation?
-  covT *= 1e-20;
-  cov_propagated *= 1e-20;
-    
-  FreeTrajectoryState ftsStart = getFromCLHEP(p3T, r3T, charge, covT, &*(theService->magneticField()));
+  //---- how to disable error propagation?
+  // VI: just not set it!
+  FreeTrajectoryState ftsStart = getFromCLHEP(p3T, r3T, charge, &*(theService->magneticField()));
   TrajectoryStateOnSurface tSOSDest;
     
   double chi2_loc = 0.;
@@ -318,7 +311,7 @@ double SETFilter::findChi2(double pX, double pY, double pZ,
     }
     //}
 
-    getFromFTS(ftsStart, p3_propagated, r3_propagated, charge, cov_propagated);
+    getFromFTS(ftsStart, p3_propagated, r3_propagated, charge);
 
     //    GlobalPoint globPos = muonRecHit->globalPosition();
     LocalPoint locHitPos = muonRecHit->localPosition();
