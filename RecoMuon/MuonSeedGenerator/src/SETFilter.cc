@@ -47,7 +47,7 @@ using namespace edm;
 using namespace std;
 
 SETFilter::SETFilter(const ParameterSet& par,
-					       const MuonServiceProxy* service)
+		     const MuonServiceProxy* service)
   :theService(service)//,
  //theOverlappingChambersFlag(true)
 {
@@ -236,27 +236,12 @@ bool SETFilter::transformLight(Trajectory::DataContainer &measurements_segments,
 }
 
 
-
-FreeTrajectoryState SETFilter::getFromCLHEP(const CLHEP::Hep3Vector& p3, const CLHEP::Hep3Vector& r3,
-                                                       int charge,
-                                                       const MagneticField* field){
-
-  GlobalVector p3GV(p3.x(), p3.y(), p3.z());
-  GlobalPoint r3GP(r3.x(), r3.y(), r3.z());
-  /*
-  // FIXME waiting for invalid state (also persistent...)
-  AlgebraicSymMatrix55 cov; cov*=1e-20;
-  return FreeTrajectoryState( GlobalTrajectoryParameters(r3GP, p3GV, charge, field), CurvilinearTrajectoryError(cov)) ;
-  */
-  return FreeTrajectoryState(r3GP, p3GV, charge, field);
-}
-
 double SETFilter::findChi2(double pX, double pY, double pZ,
-                                      const CLHEP::Hep3Vector& r3T,
-                                      SeedCandidate & muonCandidate,
-                                      TrajectoryStateOnSurface  &lastUpdatedTSOS,
+			   const CLHEP::Hep3Vector& r3T,
+			   SeedCandidate & muonCandidate,
+			   TrajectoryStateOnSurface  &lastUpdatedTSOS,
 			   Trajectory::DataContainer & trajectoryMeasurementsInTheSet,
-                                      bool detailedOutput){
+			   bool detailedOutput){
   //---- actual chi2 calculations; only the measurement error is taken into accout!
   //---- chi2 is to compare an extrapolated point to various measurements so
   //---- the extrapolation error is not an issue (is it?)
@@ -266,11 +251,21 @@ double SETFilter::findChi2(double pX, double pY, double pZ,
   }
 
   int charge =  muonCandidate.charge;
-  CLHEP::Hep3Vector p3T(pX,pY,pZ);
-  CLHEP::Hep3Vector p3_propagated,r3_propagated;
+  GlobalVector p3GV(pX,pY,pZ);
+  GlobalPoint r3GP(r3.x(), r3.y(), r3.z());
   //---- how to disable error propagation?
   // VI: just not set it!
-  FreeTrajectoryState ftsStart = getFromCLHEP(p3T, r3T, charge, &*(theService->magneticField()));
+  /*
+  // FIXME waiting for invalid state (also persistent...)
+  AlgebraicSymMatrix55 cov; cov*=1e-20;
+  return FreeTrajectoryState( GlobalTrajectoryParameters(r3GP, p3GV, charge, field), CurvilinearTrajectoryError(cov)) ;
+  */
+  FreeTrajectoryState ftsStart(r3GP, p3GV, charge, field);
+  // VI let's be backward compatible...
+  if(detailedOutput) {
+    ftsStart.setCurvilinearError(cov);
+    AlgebraicSymMatrix55 cov; cov*=1e-20;
+  }
   TrajectoryStateOnSurface tSOSDest;
     
   double chi2_loc = 0.;
@@ -341,12 +336,14 @@ double SETFilter::findChi2(double pX, double pY, double pZ,
       const DetLayer *layer = theService->detLayerGeometry()->idToLayer( detId);
       //std::cout<<"    seg pos in traj : "<<lastUpdatedTSOS.globalPosition()<<std::endl;
       // put the measurement into the set
-      // VI set the error as the fit needs it... (it is nonsense anyhow...)
+      // VI set the error as the fit needs it... (it is nonsense anyhow...)   
+      // (do it on the tsos)
+      /*
       if (!lastUpdatedTSOS.hasError()){
 	AlgebraicSymMatrix55 cov; cov*=1e6;
 	lastUpdatedTSOS.freeTrajectoryState().setCurvilinearError(cov);
       }
-
+      */
       trajectoryMeasurementsInTheSet.push_back( TrajectoryMeasurement
 						( lastUpdatedTSOS,
 						  muonRecHit.get(),

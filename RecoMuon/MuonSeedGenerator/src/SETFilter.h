@@ -126,12 +126,6 @@ private:
   const Propagator *propagator() const;
   
 
-  //---- SET
-  // FTS <-> parameters
-  FreeTrajectoryState getFromCLHEP(const CLHEP::Hep3Vector& p3, const CLHEP::Hep3Vector& r3,
-                                   int charge,
-                                   const MagneticField* field);
-
   // chi2 functions (calculate chi2)
   double findChi2(double pX, double pY, double pZ,
                     const CLHEP::Hep3Vector& r3T,
