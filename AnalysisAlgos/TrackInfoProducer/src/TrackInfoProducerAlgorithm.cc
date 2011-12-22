@@ -53,11 +53,11 @@ void TrackInfoProducerAlgorithm::run(const edm::Ref<std::vector<Trajectory> > tr
 	    break;
 	  }
       }
-      TrajectoryStateTransform tsostransform;
-      PTrajectoryStateOnDet* fwdptsod=tsostransform.persistentState( fwdtsos,detid);
-      PTrajectoryStateOnDet* bwdptsod=tsostransform.persistentState( bwdtsos,detid);
-      PTrajectoryStateOnDet* updatedptsod=tsostransform.persistentState( updatedtsos,detid);
-      PTrajectoryStateOnDet* combinedptsod=tsostransform.persistentState( combinedtsos,detid);
+      
+      PTrajectoryStateOnDet const & fwdptsod=trajectoryStateTransform::persistentState( fwdtsos,detid);
+      PTrajectoryStateOnDet const &  bwdptsod=trajectoryStateTransform::persistentState( bwdtsos,detid);
+      PTrajectoryStateOnDet const &  updatedptsod=trajectoryStateTransform::persistentState( updatedtsos,detid);
+      PTrajectoryStateOnDet const &  combinedptsod=trajectoryStateTransform::persistentState( combinedtsos,detid);
       
 
       const ProjectedSiStripRecHit2D* phit=dynamic_cast<const ProjectedSiStripRecHit2D*>( &*(thehitref));
@@ -77,10 +77,10 @@ void TrackInfoProducerAlgorithm::run(const edm::Ref<std::vector<Trajectory> > tr
 	type=Matched;
 	GluedGeomDet * gdet=(GluedGeomDet *)tracker->idToDet(matchedhit->geographicalId());
 	
-	GlobalVector gtrkdirfwd=gdet->toGlobal(fwdptsod->parameters().momentum());
-	GlobalVector gtrkdirbwd=gdet->toGlobal(bwdptsod->parameters().momentum());
-	GlobalVector gtrkdirup=gdet->toGlobal(updatedptsod->parameters().momentum());
-	GlobalVector gtrkdirco=gdet->toGlobal(combinedptsod->parameters().momentum());
+	GlobalVector gtrkdirfwd=gdet->toGlobal(fwdptsod.parameters().momentum());
+	GlobalVector gtrkdirbwd=gdet->toGlobal(bwdptsod.parameters().momentum());
+	GlobalVector gtrkdirup=gdet->toGlobal(updatedptsod.parameters().momentum());
+	GlobalVector gtrkdirco=gdet->toGlobal(combinedptsod.parameters().momentum());
 	
 
 	
@@ -91,10 +91,10 @@ void TrackInfoProducerAlgorithm::run(const edm::Ref<std::vector<Trajectory> > tr
 	monoup=monodet->toLocal(gtrkdirup);
 	monoco=monodet->toLocal(gtrkdirco);
 
-	pmonofwd=project(gdet,monodet,fwdptsod->parameters().position(),monofwd);
-	pmonobwd=project(gdet,monodet,bwdptsod->parameters().position(),monobwd);
-	pmonoup=project(gdet,monodet,updatedptsod->parameters().position(),monoup);
-	pmonoco=project(gdet,monodet,combinedptsod->parameters().position(),monoco);
+	pmonofwd=project(gdet,monodet,fwdptsod.parameters().position(),monofwd);
+	pmonobwd=project(gdet,monodet,bwdptsod.parameters().position(),monobwd);
+	pmonoup=project(gdet,monodet,updatedptsod.parameters().position(),monoup);
+	pmonoco=project(gdet,monodet,combinedptsod.parameters().position(),monoco);
 
 
 	const GeomDetUnit * stereodet=gdet->stereoDet();
@@ -104,10 +104,10 @@ void TrackInfoProducerAlgorithm::run(const edm::Ref<std::vector<Trajectory> > tr
 	stereoup=stereodet->toLocal(gtrkdirup);
 	stereoco=stereodet->toLocal(gtrkdirco);
 
-	pstereofwd=project(gdet,stereodet,fwdptsod->parameters().position(),stereofwd);
-	pstereobwd=project(gdet,stereodet,bwdptsod->parameters().position(),stereobwd);
-	pstereoup=project(gdet,stereodet,updatedptsod->parameters().position(),stereoup);
-	pstereoco=project(gdet,stereodet,combinedptsod->parameters().position(),stereoco);
+	pstereofwd=project(gdet,stereodet,fwdptsod.parameters().position(),stereofwd);
+	pstereobwd=project(gdet,stereodet,bwdptsod.parameters().position(),stereobwd);
+	pstereoup=project(gdet,stereodet,updatedptsod.parameters().position(),stereoup);
+	pstereoco=project(gdet,stereodet,combinedptsod.parameters().position(),stereoco);
 
 
       }
@@ -115,10 +115,10 @@ void TrackInfoProducerAlgorithm::run(const edm::Ref<std::vector<Trajectory> > tr
 	type=Projected;
 	GluedGeomDet * gdet=(GluedGeomDet *)tracker->idToDet(phit->geographicalId());
 	
-	GlobalVector gtrkdirfwd=gdet->toGlobal(fwdptsod->parameters().momentum());
-	GlobalVector gtrkdirbwd=gdet->toGlobal(bwdptsod->parameters().momentum());
-	GlobalVector gtrkdirup=gdet->toGlobal(updatedptsod->parameters().momentum());
-	GlobalVector gtrkdirco=gdet->toGlobal(combinedptsod->parameters().momentum());
+	GlobalVector gtrkdirfwd=gdet->toGlobal(fwdptsod.parameters().momentum());
+	GlobalVector gtrkdirbwd=gdet->toGlobal(bwdptsod.parameters().momentum());
+	GlobalVector gtrkdirup=gdet->toGlobal(updatedptsod.parameters().momentum());
+	GlobalVector gtrkdirco=gdet->toGlobal(combinedptsod.parameters().momentum());
 	const SiStripRecHit2D&  originalhit=phit->originalHit();
 	const GeomDetUnit * det;
 	if(!StripSubdetector(originalhit.geographicalId().rawId()).stereo()){
@@ -127,10 +127,10 @@ void TrackInfoProducerAlgorithm::run(const edm::Ref<std::vector<Trajectory> > tr
 	  monobwd= det->toLocal(gtrkdirbwd);
 	  monoup=  det->toLocal(gtrkdirup);
 	  monoco=  det->toLocal(gtrkdirco);
-	  pmonofwd=project(gdet,det,fwdptsod->parameters().position(),monofwd);
-	  pmonobwd=project(gdet,det,bwdptsod->parameters().position(),monobwd);
-	  pmonoup=project(gdet,det,updatedptsod->parameters().position(),monoup);
-	  pmonoco=project(gdet,det,combinedptsod->parameters().position(),monoco);
+	  pmonofwd=project(gdet,det,fwdptsod.parameters().position(),monofwd);
+	  pmonobwd=project(gdet,det,bwdptsod.parameters().position(),monobwd);
+	  pmonoup=project(gdet,det,updatedptsod.parameters().position(),monoup);
+	  pmonoco=project(gdet,det,combinedptsod.parameters().position(),monoco);
 	}
 	else{
 	  det=gdet->stereoDet();
@@ -138,10 +138,10 @@ void TrackInfoProducerAlgorithm::run(const edm::Ref<std::vector<Trajectory> > tr
 	  stereobwd= det->toLocal(gtrkdirbwd);
 	  stereoup=  det->toLocal(gtrkdirup);
 	  stereoco=  det->toLocal(gtrkdirco);
-	  pstereofwd=project(gdet,det,fwdptsod->parameters().position(),stereofwd);
-	  pstereobwd=project(gdet,det,bwdptsod->parameters().position(),stereobwd);
-	  pstereoup=project(gdet,det,updatedptsod->parameters().position(),stereoup);
-	  pstereoco=project(gdet,det,combinedptsod->parameters().position(),stereoco);
+	  pstereofwd=project(gdet,det,fwdptsod.parameters().position(),stereofwd);
+	  pstereobwd=project(gdet,det,bwdptsod.parameters().position(),stereobwd);
+	  pstereoup=project(gdet,det,updatedptsod.parameters().position(),stereoup);
+	  pstereoco=project(gdet,det,combinedptsod.parameters().position(),stereoco);
 	}
       }
       TrackingRecHitInfo::TrackingStates states;
@@ -149,7 +149,7 @@ void TrackInfoProducerAlgorithm::run(const edm::Ref<std::vector<Trajectory> > tr
       if(backwardPredictedStateTag_!="")states.insert(std::make_pair(BwPredicted, TrackingStateInfo(std::make_pair(monobwd,stereobwd), std::make_pair(pmonobwd,pstereobwd), *bwdptsod)));
       if(updatedStateTag_!="")states.insert(std::make_pair(Updated, TrackingStateInfo(std::make_pair(monoup,stereoup), std::make_pair(pmonoup,pstereoup), *updatedptsod)));
       if(combinedStateTag_!="")states.insert(std::make_pair(Combined, TrackingStateInfo(std::make_pair(monoco,stereoco), std::make_pair(pmonoco,pstereoco), *combinedptsod)));
-      
+     
       TrackingRecHitInfo  tkRecHitInfo(type, states);
       
       
