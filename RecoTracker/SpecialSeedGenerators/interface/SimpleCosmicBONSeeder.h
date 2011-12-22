@@ -76,7 +76,7 @@ class SimpleCosmicBONSeeder : public edm::EDProducer
   KFUpdator               *theUpdator;
   PropagatorWithMaterial  *thePropagatorAl;
   PropagatorWithMaterial  *thePropagatorOp;
-  TrajectoryStateTransform transformer;
+  
 
   ClusterChecker check_;
   int32_t        maxTriplets_, maxSeeds_;

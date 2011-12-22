@@ -41,7 +41,7 @@ class SeedGeneratorForCRack{
   CosmicHitPairGenerator* thePairGenerator;
   edm::ESHandle<MagneticField> magfield;
   edm::ESHandle<TrackerGeometry> tracker;
-  TrajectoryStateTransform transformer;
+  
   KFUpdator *theUpdator;
   PropagatorWithMaterial  *thePropagatorAl;
   PropagatorWithMaterial  *thePropagatorOp;

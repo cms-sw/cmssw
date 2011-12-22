@@ -6,8 +6,8 @@
  *  inner layer of the tracker detector, no RecHit is required on the TrajectorySeed.
  *  Combinatorics between RecHits is made. RecHits are accessed via the MeasurementTracker
  *  
- *  $Date: 2008/03/20 09:52:16 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/09/10 21:44:37 $
+ *  $Revision: 1.4 $
  *  \author Adam Evertt, Jean-Roch Vlimant
  */
 
@@ -165,7 +165,7 @@ class MuonRoadTrajectoryBuilder :public TrajectoryBuilder {
    KFTrajectorySmoother * theSmoother;
    
    ////trajectory transformer
-   TrajectoryStateTransform theTransformer;
+   
    
    ////magnetic field handle
    const MagneticField * theField;

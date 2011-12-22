@@ -133,7 +133,7 @@ private:
   std::string theMeasurementTrackerName;
   const MeasurementTracker* theMeasurementTracker;
   const edm::EventSetup *theSetup;
-  TrajectoryStateTransform transformer_;
+  
   PRecHitContainer recHits_;
   PTrajectoryStateOnDet* pts_;
 

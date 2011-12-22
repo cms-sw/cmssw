@@ -4,8 +4,8 @@
 /** \class SeedGeneratorForLaserBeams
  *  seed finding algorithm for the LAS
  *
- *  $Date: 2007/06/27 06:28:16 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/12/04 23:51:42 $
+ *  $Revision: 1.7 $
  *  \author Maarten Thomas
  */
 
@@ -56,7 +56,7 @@ class SeedGeneratorForLaserBeams
   LaserHitPairGenerator * thePairGenerator;
   edm::ESHandle<MagneticField> magfield;
   edm::ESHandle<TrackerGeometry> tracker;
-  TrajectoryStateTransform transformer;
+  
   KFUpdator * theUpdator;
   PropagatorWithMaterial * thePropagatorMaterialAl;
   PropagatorWithMaterial * thePropagatorMaterialOp;

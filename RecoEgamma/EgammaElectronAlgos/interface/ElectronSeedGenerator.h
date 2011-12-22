@@ -115,7 +115,7 @@ class ElectronSeedGenerator
   const NavigationSchool*       theNavigationSchool;
 
   const edm::EventSetup *theSetup;
-  TrajectoryStateTransform transformer_;
+  
 
   PRecHitContainer recHits_;
   PTrajectoryStateOnDet* pts_;

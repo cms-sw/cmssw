@@ -71,7 +71,7 @@ class SeedFromGenericPairOrTriplet{
 	const TransientTrackingRecHitBuilder* theBuilder;
 	const Propagator* thePropagatorAlong;
 	const Propagator* thePropagatorOpposite;
-        TrajectoryStateTransform theTransformer;
+        
 	float theP;
 	bool theSetMomentum;
 	std::vector<int> theCharges;

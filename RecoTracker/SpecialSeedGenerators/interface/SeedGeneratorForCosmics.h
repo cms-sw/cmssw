@@ -48,7 +48,7 @@ class SeedGeneratorForCosmics{
   CosmicHitTripletGenerator* theTripletGenerator; 
   edm::ESHandle<MagneticField> magfield;
   edm::ESHandle<TrackerGeometry> tracker;
-  TrajectoryStateTransform transformer;
+  
   KFUpdator *theUpdator;
   PropagatorWithMaterial  *thePropagatorAl;
   PropagatorWithMaterial  *thePropagatorOp;

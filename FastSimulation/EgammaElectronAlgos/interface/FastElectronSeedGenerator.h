@@ -127,7 +127,7 @@ public:
 
   const edm::EventSetup *theSetup;
   const edm::InputTag theBeamSpot;
-  TrajectoryStateTransform transformer_;
+  
   PRecHitContainer recHits_;
   PTrajectoryStateOnDet* pts_;
 

@@ -120,7 +120,7 @@ class CosmicTrajectoryBuilder
    edm::ESHandle<MagneticField> magfield;
    edm::ESHandle<TrackerGeometry> tracker;
    edm::ParameterSet conf_;
-   TrajectoryStateTransform tsTransform;
+   
    PropagatorWithMaterial  *thePropagator;
    PropagatorWithMaterial  *thePropagatorOp;
    KFUpdator *theUpdator;
