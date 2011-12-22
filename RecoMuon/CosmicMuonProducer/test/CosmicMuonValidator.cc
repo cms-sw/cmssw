@@ -4,8 +4,8 @@
  *
  *  the validator assumes single muon events
  *
- *  $Date: 2009/10/31 05:19:43 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/12/29 23:18:38 $
+ *  $Revision: 1.10 $
  *  \author Chang Liu   -  Purdue University <Chang.Liu@cern.ch>
  */
 
@@ -290,9 +290,9 @@ void CosmicMuonValidator::analyze(const edm::Event& iEvent, const edm::EventSetu
 
      GlobalVector simmom = theService->trackingGeometry()->idToDet(idSim)->surface().toGlobal(msimh.front().momentumAtEntry());
 
-     TrajectoryStateTransform tsTrans;
+     
 
-     TrajectoryStateOnSurface innerTSOS = tsTrans.innerStateOnSurface(muon,*theService->trackingGeometry(),&*theService->magneticField());
+     TrajectoryStateOnSurface innerTSOS = trajectoryStateTransform::innerStateOnSurface(muon,*theService->trackingGeometry(),&*theService->magneticField());
   
      TrajectoryStateOnSurface stateAH = updatedState(innerTSOS,msimh.front());
      if (!stateAH.isValid()) return;
