@@ -215,13 +215,11 @@ FreeTrajectoryState ConversionFastHelix::straightLineStateAtVertex() {
     
     TrackCharge q = 1;
  
-    AlgebraicSymMatrix66 C = AlgebraicMatrixID();
-    //MP
-    atVertex = FTS(GlobalTrajectoryParameters(GlobalPoint(v.x(), v.y(), z_0),
-						  GlobalVector(px, py, pz),
-						  q,
-						  mField),
-		       CartesianTrajectoryError(C));
+    atVertex = FTS(GlobalPoint(v.x(), v.y(), z_0),
+		   GlobalVector(px, py, pz),
+		   q,
+		   mField
+		   );
 
     //    std::cout << "  ConversionFastHelix::straightLineStateAtVertex curvature " << atVertex.transverseCurvature() << "   signedInverseMomentum " << atVertex.signedInverseMomentum() << std::endl;
     if ( atVertex.transverseCurvature() == -0 ) {
