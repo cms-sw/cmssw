@@ -261,7 +261,9 @@ FreeTrajectoryState SETFilter::getFromCLHEP(const CLHEP::Hep3Vector& p3, const C
 
   GlobalVector p3GV(p3.x(), p3.y(), p3.z());
   GlobalPoint r3GP(r3.x(), r3.y(), r3.z());
-  return FreeTrajectoryState(r3GP, p3GV, charge, field) ;
+  // FIXME waiting for invalid state (also persistent...)
+  AlgebraicSymMatrix55 cov; cov*=1e-20;
+  return FreeTrajectoryState( GlobalTrajectoryParameters(r3GP, p3GV, charge, field), CurvilinearTrajectoryError(cov)) ;
 }
 
 double SETFilter::findChi2(double pX, double pY, double pZ,
