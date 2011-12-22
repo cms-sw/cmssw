@@ -22,8 +22,8 @@ GsfTransientTrack::GsfTransientTrack( const GsfTrack & tk , const MagneticField*
   tkr_(), theField(field), initialTSOSAvailable(false),
   initialTSCPAvailable(false), blStateAvailable(false)
 {
-  TrajectoryStateTransform theTransform;
-  initialFTS = theTransform.initialFreeState(tk, field);
+  
+  initialFTS = trajectoryStateTransform::initialFreeState(tk, field);
 }
 
 
@@ -33,8 +33,8 @@ GsfTransientTrack::GsfTransientTrack( const GsfTrackRef & tk , const MagneticFie
   initialTSCPAvailable(false), blStateAvailable(false),
   theTIPExtrapolator(AnalyticalPropagator(field, alongMomentum))
 {
-  TrajectoryStateTransform theTransform;
-  initialFTS = theTransform.initialFreeState(*tk, field);
+  
+  initialFTS = trajectoryStateTransform::initialFreeState(*tk, field);
 }
 
 GsfTransientTrack::GsfTransientTrack( const GsfTrack & tk , const MagneticField* field,
@@ -44,8 +44,8 @@ GsfTransientTrack::GsfTransientTrack( const GsfTrack & tk , const MagneticField*
   initialTSCPAvailable(false), blStateAvailable(false), theTrackingGeometry(tg),
   theTIPExtrapolator(AnalyticalPropagator(field, alongMomentum))
 {
-  TrajectoryStateTransform theTransform;
-  initialFTS = theTransform.initialFreeState(tk, field);
+  
+  initialFTS = trajectoryStateTransform::initialFreeState(tk, field);
 }
 
 GsfTransientTrack::GsfTransientTrack( const GsfTrackRef & tk , const MagneticField* field, 
@@ -55,8 +55,8 @@ GsfTransientTrack::GsfTransientTrack( const GsfTrackRef & tk , const MagneticFie
   initialTSCPAvailable(false), blStateAvailable(false), theTrackingGeometry(tg),
   theTIPExtrapolator(AnalyticalPropagator(field, alongMomentum))
 {
-  TrajectoryStateTransform theTransform;
-  initialFTS = theTransform.initialFreeState(*tk, field);
+  
+  initialFTS = trajectoryStateTransform::initialFreeState(*tk, field);
 }
 
 
@@ -115,14 +115,14 @@ TrajectoryStateClosestToPoint GsfTransientTrack::impactPointTSCP() const
 
 TrajectoryStateOnSurface GsfTransientTrack::outermostMeasurementState() const
 {
-    MultiTrajectoryStateTransform theTransform;
-    return theTransform.outerStateOnSurface((*this),*theTrackingGeometry,theField);
+    MultiTrajectoryStateTransform theMTransform;
+    return theMTransform.outerStateOnSurface((*this),*theTrackingGeometry,theField);
 }
 
 TrajectoryStateOnSurface GsfTransientTrack::innermostMeasurementState() const
 {
-    MultiTrajectoryStateTransform theTransform;
-    return theTransform.innerStateOnSurface((*this),*theTrackingGeometry,theField);
+    MultiTrajectoryStateTransform theMTransform;   
+    return theMTransform.innerStateOnSurface((*this),*theTrackingGeometry,theField);
 }
 
 void GsfTransientTrack::calculateTSOSAtVertex() const

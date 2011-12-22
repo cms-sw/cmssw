@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.cc,v 1.48 2011/06/15 12:12:54 dmytro Exp $
+// $Id: TrackDetectorAssociator.cc,v 1.49 2011/10/02 21:44:16 dmytro Exp $
 //
 //
 
@@ -1007,7 +1007,7 @@ TrackDetMatchInfo TrackDetectorAssociator::associate( const edm::Event& iEvent,
 						      Direction direction /*= Any*/ )
 {
    double currentStepSize = cachedTrajectory_.getPropagationStep();
-   TrajectoryStateTransform tsTransform;
+   
    edm::ESHandle<MagneticField> bField;
    iSetup.get<IdealMagneticFieldRecord>().get(bField);
 
@@ -1017,14 +1017,14 @@ TrackDetMatchInfo TrackDetectorAssociator::associate( const edm::Event& iEvent,
 	"No TrackExtra information is available and association is done with something else than InsideOut track.\n" <<
 	"Either change the parameter or provide needed data!\n";
      LogTrace("TrackAssociator") << "Track Extras not found\n";
-     FreeTrajectoryState initialState = tsTransform.initialFreeState(track,&*bField);
+     FreeTrajectoryState initialState = trajectoryStateTransform::initialFreeState(track,&*bField);
      return associate(iEvent, iSetup, parameters, &initialState); // 5th argument is null pointer
    }
    
    LogTrace("TrackAssociator") << "Track Extras found\n";
-   FreeTrajectoryState innerState = tsTransform.innerFreeState(track,&*bField);
-   FreeTrajectoryState outerState = tsTransform.outerFreeState(track,&*bField);
-   FreeTrajectoryState referenceState = tsTransform.initialFreeState(track,&*bField);
+   FreeTrajectoryState innerState = trajectoryStateTransform::innerFreeState(track,&*bField);
+   FreeTrajectoryState outerState = trajectoryStateTransform::outerFreeState(track,&*bField);
+   FreeTrajectoryState referenceState = trajectoryStateTransform::initialFreeState(track,&*bField);
    
    LogTrace("TrackAssociator") << "inner track state (rho, z, phi):" << 
      track.innerPosition().Rho() << ", " << track.innerPosition().z() <<

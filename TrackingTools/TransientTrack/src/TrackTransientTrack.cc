@@ -17,8 +17,8 @@ TrackTransientTrack::TrackTransientTrack( const Track & tk , const MagneticField
   Track(tk), tkr_(), theField(field), initialTSOSAvailable(false),
   initialTSCPAvailable(false), blStateAvailable(false)
 {
-  TrajectoryStateTransform theTransform;
-  initialFTS = theTransform.initialFreeState(tk, field);
+  
+  initialFTS = trajectoryStateTransform::initialFreeState(tk, field);
 }
 
 
@@ -26,24 +26,24 @@ TrackTransientTrack::TrackTransientTrack( const TrackRef & tk , const MagneticFi
   Track(*tk), tkr_(tk), theField(field), initialTSOSAvailable(false),
   initialTSCPAvailable(false), blStateAvailable(false)
 {
-  TrajectoryStateTransform theTransform;
-  initialFTS = theTransform.initialFreeState(*tk, field);
+  
+  initialFTS = trajectoryStateTransform::initialFreeState(*tk, field);
 }
 
 TrackTransientTrack::TrackTransientTrack( const Track & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& tg) :
   Track(tk), tkr_(), theField(field), initialTSOSAvailable(false),
   initialTSCPAvailable(false), blStateAvailable(false), theTrackingGeometry(tg)
 {
-  TrajectoryStateTransform theTransform;
-  initialFTS = theTransform.initialFreeState(tk, field);
+  
+  initialFTS = trajectoryStateTransform::initialFreeState(tk, field);
 }
 
 TrackTransientTrack::TrackTransientTrack( const TrackRef & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& tg) :
   Track(*tk), tkr_(tk), theField(field), initialTSOSAvailable(false),
   initialTSCPAvailable(false), blStateAvailable(false), theTrackingGeometry(tg)
 {
-  TrajectoryStateTransform theTransform;
-  initialFTS = theTransform.initialFreeState(*tk, field);
+  
+  initialFTS = trajectoryStateTransform::initialFreeState(*tk, field);
 }
 
 
@@ -97,14 +97,14 @@ TrajectoryStateClosestToPoint TrackTransientTrack::impactPointTSCP() const
 
 TrajectoryStateOnSurface TrackTransientTrack::outermostMeasurementState() const
 {
-    TrajectoryStateTransform theTransform;
-    return theTransform.outerStateOnSurface((*this),*theTrackingGeometry,theField);
+    
+    return trajectoryStateTransform::outerStateOnSurface((*this),*theTrackingGeometry,theField);
 }
 
 TrajectoryStateOnSurface TrackTransientTrack::innermostMeasurementState() const
 {
-    TrajectoryStateTransform theTransform;
-    return theTransform.innerStateOnSurface((*this),*theTrackingGeometry,theField);
+    
+    return trajectoryStateTransform::innerStateOnSurface((*this),*theTrackingGeometry,theField);
 }
 
 void TrackTransientTrack::calculateTSOSAtVertex() const
