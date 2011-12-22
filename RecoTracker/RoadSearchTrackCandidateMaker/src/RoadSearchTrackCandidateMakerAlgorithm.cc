@@ -9,9 +9,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: elmer $
-// $Date: 2010/10/04 17:34:58 $
-// $Revision: 1.68 $
+// $Author: gpetrucc $
+// $Date: 2011/10/27 13:02:58 $
+// $Revision: 1.69 $
 //
 
 #include <vector>
@@ -41,7 +41,7 @@
 
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/TrajectoryState/interface/trajectoryStateTransform.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h" 
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
 
@@ -77,7 +77,7 @@ RoadSearchTrackCandidateMakerAlgorithm::RoadSearchTrackCandidateMakerAlgorithm(c
   
   theEstimator = new Chi2MeasurementEstimator(theChi2Cut);
   theUpdator = new KFUpdator();
-  theTransformer = new TrajectoryStateTransform;
+  theTransformer = new trajectoryStateTransform;
   theTrajectoryCleaner = new TrajectoryCleanerBySharedHits;
   
   CosmicReco_  = conf_.getParameter<bool>("StraightLineNoBeamSpotCloud");
@@ -576,7 +576,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
         } 
         else {
           
-          Trajectory temptraj = *i;
+          Trajectory temWptraj = *i;
           Trajectory::DataContainer tmv = (*i).measurements();
           if (tmv.size()+skipped_layer_detmap.size() < theNumHitCut) continue;          
 
@@ -636,19 +636,18 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
              std::cout<< "First hit for fresh start on det " << rh->det() << ", r/phi/z = " << rh->globalPosition().perp() << " " << rh->globalPosition().phi() << " " << rh->globalPosition().z();
           }
           
-          PTrajectoryStateOnDet* pFirstState = TrajectoryStateTransform().persistentState(NewFirstTsos,
+          PTrajectoryStateOnDet const & pFirstState = trajectoryStateTransform::persistentState(NewFirstTsos,
                                                                                           rh->geographicalId().rawId());
           edm::OwnVector<TrackingRecHit> newHits;
           newHits.push_back(rh->hit()->clone());
           
-          TrajectorySeed tmpseed = TrajectorySeed(*pFirstState, 
+          TrajectorySeed tmpseed = TrajectorySeed(pFirstState, 
                                                   newHits,
                                                   i->direction());
 
 	  thePropagator = theAloPropagator;
 	  if (i->direction()==oppositeToMomentum) thePropagator = theRevPropagator;
 
-          delete pFirstState;
           
           
           Trajectory newTrajectory(tmpseed,tmpseed.direction());
@@ -1441,12 +1440,12 @@ Trajectory RoadSearchTrackCandidateMakerAlgorithm::createSeedTrajectory(FreeTraj
   }
   TrajectoryMeasurement tm = TrajectoryMeasurement(innerState, innerUpdated, &(*intrhit),est.second,theInnerHitLayer);
   
-  PTrajectoryStateOnDet* pFirstStateTwo = theTransformer->persistentState(innerUpdated,
+  PTrajectoryStateOnDet pFirstStateTwo = trajectoryStateTransform::persistentState(innerUpdated,
 									  intrhit->geographicalId().rawId());
   edm::OwnVector<TrackingRecHit> newHitsTwo;
   newHitsTwo.push_back(intrhit->hit()->clone());
   
-  TrajectorySeed tmpseedTwo = TrajectorySeed(*pFirstStateTwo, 
+  TrajectorySeed tmpseedTwo = TrajectorySeed(pFirstStateTwo, 
 					     newHitsTwo,
 					     alongMomentum);
   if (thePropagator->propagationDirection()==oppositeToMomentum) {
@@ -1455,7 +1454,6 @@ Trajectory RoadSearchTrackCandidateMakerAlgorithm::createSeedTrajectory(FreeTraj
 				oppositeToMomentum);
   }
 
-  delete pFirstStateTwo;
   
   //Trajectory seedTraj(tmpseedTwo, alongMomentum);
   theSeedTrajectory = Trajectory(tmpseedTwo, tmpseedTwo.direction());
@@ -1883,20 +1881,18 @@ TrackCandidateCollection RoadSearchTrackCandidateMakerAlgorithm::PrepareTrackCan
 	const GeomDet* det = trackerGeom->idToDet(FirstHitId);
 	firstState = theAnalyticalPropagator->propagate(maxYMeasurement.updatedState(),det->surface());
 	if (firstState.isValid() == false) continue;    
-	PTrajectoryStateOnDet *state = theTransformer->persistentState(firstState,FirstHitId.rawId());
+	PTrajectoryStateOnDet const & state = trajectoryStateTransform::persistentState(firstState,FirstHitId.rawId());
 	
 	//generate new trajectory seed
 	TrajectoryStateOnSurface firstTSOS = freshStartTrajectory.lastMeasurement().updatedState();
 	if(debugCosmics_) std::cout << "generate new trajectory seed with hit (x/y/z): " << firstTSOS.globalPosition().x() << ", " << firstTSOS.globalPosition().y() << ", " << firstTSOS.globalPosition().z() << ", " << std::endl;
 	TransientTrackingRecHit::ConstRecHitPointer rhit = freshStartTrajectory.lastMeasurement().recHit();
-	PTrajectoryStateOnDet* pFirstState = TrajectoryStateTransform().persistentState(NewFirstTsos,rhit->geographicalId().rawId());
+	PTrajectoryStateOnDet const & pFirstState = trajectoryStateTransform::persistentState(NewFirstTsos,rhit->geographicalId().rawId());
 	edm::OwnVector<TrackingRecHit> newHits;
 	newHits.push_back(rhit->hit()->clone());
 	TrajectorySeed tmpseed = TrajectorySeed(*pFirstState,newHits,alongMomentum);
 	
-	theCollection.push_back(TrackCandidate(goodHits,freshStartTrajectory.seed(),*state));
-	delete state;
-	delete pFirstState;
+	theCollection.push_back(TrackCandidate(goodHits,freshStartTrajectory.seed(),state));
 	
 	//trajectory usage
 	trajUsed[i]=true;

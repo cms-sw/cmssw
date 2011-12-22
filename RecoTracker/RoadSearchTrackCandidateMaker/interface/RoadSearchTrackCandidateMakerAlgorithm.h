@@ -13,8 +13,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: burkett $
-// $Date: 2008/07/21 08:41:51 $
-// $Revision: 1.20 $
+// $Date: 2008/10/28 13:15:48 $
+// $Revision: 1.22 $
 //
 
 #include <string>
@@ -145,7 +145,6 @@ class RoadSearchTrackCandidateMakerAlgorithm
   SiStripRecHitMatcher* theHitMatcher;
   KFTrajectorySmoother* theSmoother;
 
-  TrajectoryStateTransform* theTransformer;
   TrajectoryCleanerBySharedHits* theTrajectoryCleaner;
 
     bool lstereo[128];
