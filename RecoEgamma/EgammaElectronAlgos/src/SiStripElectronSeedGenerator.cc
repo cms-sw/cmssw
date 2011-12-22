@@ -604,7 +604,7 @@ bool SiStripElectronSeedGenerator::checkHitsAndTSOS(std::vector<const SiStripMat
 
   TSOS updatedState_out = theUpdator->update(propagatedState_out, *hit2Trans);
 
-  pts_ =  transformer_.persistentState(updatedState_out, hit2Trans->geographicalId().rawId());
+  pts_ =  trajectoryStateTransform::.persistentState(updatedState_out, hit2Trans->geographicalId().rawId());
 
   return true;
 }
@@ -680,7 +680,7 @@ bool SiStripElectronSeedGenerator::altCheckHitsAndTSOS(std::vector<const SiStrip
 
   TSOS updatedState_out = theUpdator->update(propagatedState_out, *hit2Trans);
 
-  pts_ =  transformer_.persistentState(updatedState_out, hit2Trans->geographicalId().rawId());
+  pts_ =  trajectoryStateTransform::.persistentState(updatedState_out, hit2Trans->geographicalId().rawId());
 
   return true;
 }

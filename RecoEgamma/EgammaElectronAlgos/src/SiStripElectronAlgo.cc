@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:12:04 EDT 2006
-// $Id: SiStripElectronAlgo.cc,v 1.36 2011/04/08 08:09:29 innocent Exp $
+// $Id: SiStripElectronAlgo.cc,v 1.37 2011/04/08 08:54:09 innocent Exp $
 //
 
 // system include files
@@ -228,8 +228,8 @@ bool SiStripElectronAlgo::findElectron(reco::SiStripElectronCollection& electron
 				   CurvilinearTrajectoryError(errors),
 				   tracker_p_->idToDet(innerhit_neg_->geographicalId())->surface());
     
-    TrajectoryStateTransform transformer;
-    PTrajectoryStateOnDet* PTraj = transformer.persistentState(state, innerhit_neg_->geographicalId().rawId());
+    
+    PTrajectoryStateOnDet* PTraj = trajectoryStateTransform::persistentState(state, innerhit_neg_->geographicalId().rawId());
     TrajectorySeed trajectorySeed(*PTraj, hits, alongMomentum);
     trackCandidateOut.push_back(TrackCandidate(hits, trajectorySeed, *PTraj));
     
@@ -324,8 +324,8 @@ bool SiStripElectronAlgo::findElectron(reco::SiStripElectronCollection& electron
 				   CurvilinearTrajectoryError(errors),
 				   tracker_p_->idToDet(innerhit_pos_->geographicalId())->surface());
     
-    TrajectoryStateTransform transformer;
-    PTrajectoryStateOnDet* PTraj = transformer.persistentState(state, innerhit_pos_->geographicalId().rawId());
+    
+    PTrajectoryStateOnDet* PTraj = trajectoryStateTransform::persistentState(state, innerhit_pos_->geographicalId().rawId());
     TrajectorySeed trajectorySeed(*PTraj, hits, alongMomentum);
     trackCandidateOut.push_back(TrackCandidate(hits, trajectorySeed, *PTraj));
     

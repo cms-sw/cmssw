@@ -60,7 +60,7 @@ ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset)
    myMatchEle(0), myMatchPos(0),
    thePropagator(0),
    theMeasurementTracker(0),
-   theSetup(0), pts_(0),
+   theSetup(0), 
    cacheIDMagField_(0),/*cacheIDGeom_(0),*/cacheIDNavSchool_(0),cacheIDCkfComp_(0),cacheIDTrkGeom_(0)
  {
   // so that deltaPhi1 = deltaPhi1Coef1_ + deltaPhi1Coef2_/clusterEnergyT
@@ -439,11 +439,9 @@ void ElectronSeedGenerator::seedsFromRecHits
      { (*v).first.invert() ; }
     if (!prepareElTrackSeed((*v).first.recHit(),(*v).second,vertexPos))
      { continue ; }
-    reco::ElectronSeed seed(*pts_,recHits_,dir) ;
+    reco::ElectronSeed seed(pts_,recHits_,dir) ;
     seed.setCaloCluster(cluster) ;
     addSeed(seed,0,positron,out) ;
-    delete pts_;
-    pts_=0;
    }
  }
 
@@ -577,7 +575,6 @@ bool ElectronSeedGenerator::prepareElTrackSeed
   LogDebug("") <<"[ElectronSeedGenerator::prepareElTrackSeed] inner PixelHit   x,y,z "<<innerhit->globalPosition();
   LogDebug("") <<"[ElectronSeedGenerator::prepareElTrackSeed] outer PixelHit   x,y,z "<<outerhit->globalPosition();
 
-  pts_=0;
   recHits_.clear();
 
   SiPixelRecHit *pixhit=0;
@@ -619,7 +616,7 @@ bool ElectronSeedGenerator::prepareElTrackSeed
   // debug prints
   LogDebug("") <<"[ElectronSeedGenerator::prepareElTrackSeed] final TSOS, position: "<<updatedState_out.globalPosition()<<" momentum: "<<updatedState_out.globalMomentum();
   LogDebug("") <<"[ElectronSeedGenerator::prepareElTrackSeed] final TSOS Pt: "<<updatedState_out.globalMomentum().perp();
-  pts_ =  transformer_.persistentState(updatedState_out, outerhit->geographicalId().rawId());
+  pts_ =  trajectoryStateTransform::persistentState(updatedState_out, outerhit->geographicalId().rawId());
 
   return true;
  }

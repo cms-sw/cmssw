@@ -118,7 +118,7 @@ class ElectronSeedGenerator
   
 
   PRecHitContainer recHits_;
-  PTrajectoryStateOnDet* pts_;
+  PTrajectoryStateOnDet pts_;
 
   // keep cacheIds to get records only when necessary
   unsigned long long cacheIDMagField_;
