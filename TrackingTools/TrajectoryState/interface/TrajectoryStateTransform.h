@@ -38,6 +38,6 @@ namespace trajectoryStateTransform {
 						const TrackingGeometry& geom,
 						const MagneticField* field);
 
-};
+}
 
 #endif
