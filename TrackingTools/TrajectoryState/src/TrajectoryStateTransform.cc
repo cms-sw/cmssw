@@ -44,7 +44,7 @@ TrajectoryStateTransform::transientState( const PTrajectoryStateOnDet& ts,
   const std::vector<float> &errs = ts.errorMatrix();
   AlgebraicSymMatrix55 m;
   bool errInv=true;
-  if ((!err.empty()) && errs[0]> -1.e10) {
+  if ((!errs.empty()) && errs[0]> -1.e10) {
     errInv = false;
     int dim = 5;
     int k = 0;
