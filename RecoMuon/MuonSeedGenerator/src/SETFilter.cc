@@ -252,19 +252,14 @@ double SETFilter::findChi2(double pX, double pY, double pZ,
 
   int charge =  muonCandidate.charge;
   GlobalVector p3GV(pX,pY,pZ);
-  GlobalPoint r3GP(r3.x(), r3.y(), r3.z());
+  GlobalPoint r3GP(r3T.x(), r3T.y(), r3T.z());
   //---- how to disable error propagation?
   // VI: just not set it!
-  /*
-  // FIXME waiting for invalid state (also persistent...)
-  AlgebraicSymMatrix55 cov; cov*=1e-20;
-  return FreeTrajectoryState( GlobalTrajectoryParameters(r3GP, p3GV, charge, field), CurvilinearTrajectoryError(cov)) ;
-  */
-  FreeTrajectoryState ftsStart(r3GP, p3GV, charge, field);
+  FreeTrajectoryState ftsStart(r3GP, p3GV, charge, &*(theService->magneticField()));
   // VI let's be backward compatible...
   if(detailedOutput) {
-    ftsStart.setCurvilinearError(cov);
     AlgebraicSymMatrix55 cov; cov*=1e-20;
+    ftsStart.setCurvilinearError(cov);
   }
   TrajectoryStateOnSurface tSOSDest;
     
