@@ -8,7 +8,7 @@
  *
  * \author Chiara Genta
  *
- * \version $Id: TrackingStateInfo.h,v 1.2 2007/04/12 14:06:05 genta Exp $
+ * \version $Id: TrackingStateInfo.h,v 1.1 2007/04/16 13:25:06 genta Exp $
  *
  */
 
@@ -26,7 +26,7 @@ namespace reco {
     //enum RecHitType { Single=0, Matched=1, Projected=2};
     
     TrackingStateInfo(){}
-    TrackingStateInfo(std::pair<LocalVector, LocalVector> trackdirections ,std::pair<LocalPoint, LocalPoint> trackpositions , PTrajectoryStateOnDet &trajstate ): 
+    TrackingStateInfo(std::pair<LocalVector, LocalVector> trackdirections ,std::pair<LocalPoint, LocalPoint> trackpositions , PTrajectoryStateOnDet const &trajstate ): 
       trackdirections_(trackdirections),  trackpositions_(trackpositions), trajstate_(trajstate) {}
       //const RecHitType  type() const {return type_;}
       //const StateType  statetype() const {return statetype_;}
