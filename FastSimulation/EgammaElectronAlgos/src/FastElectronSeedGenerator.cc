@@ -70,7 +70,7 @@ FastElectronSeedGenerator::FastElectronSeedGenerator(
   theUpdator(0), thePropagator(0),
   //   theMeasurementTracker(0),
   //   theNavigationSchool(0)
-  theSetup(0), theBeamSpot(beamSpot), pts_(0)
+  theSetup(0), theBeamSpot(beamSpot), 
 {
 
 #ifdef FAMOS_DEBUG
@@ -372,11 +372,9 @@ FastElectronSeedGenerator::addASeedToThisCluster(edm::Ref<reco::SuperClusterColl
 
 		bool valid = prepareElTrackSeed(v->first,v->second, theVertex);
 		if (valid) {
-		  reco::ElectronSeed s(*pts_,recHits_,dir) ;
+		  reco::ElectronSeed s(pts_,recHits_,dir) ;
 		  s.setCaloCluster(reco::ElectronSeed::CaloClusterRef(seedCluster)) ;
 		  result.push_back(s);
-		  delete pts_;
-		  pts_=0;
 	    }
 
       }
@@ -414,7 +412,6 @@ bool FastElectronSeedGenerator::prepareElTrackSeed(ConstRecHitPointer innerhit,
   LogDebug("") <<"[FastElectronSeedGenerator::prepareElTrackSeed] "
 	       << "outer PixelHit   x,y,z "<<outerhit->globalPosition();
 
-  pts_=0;
   // make a spiral from the two hits and the vertex position
   FastHelix helix(outerhit->globalPosition(),innerhit->globalPosition(),vertexPos,*theSetup);
   if ( !helix.isValid()) return false;
@@ -429,7 +426,7 @@ bool FastElectronSeedGenerator::prepareElTrackSeed(ConstRecHitPointer innerhit,
   if (!propagatedState.isValid()) return false;
 
   // The persitent trajectory state
-  pts_ =  transformer_.persistentState(propagatedState, innerhit->geographicalId().rawId());
+  pts_ =  trajectoryStateTransform::persistentState(propagatedState, innerhit->geographicalId().rawId());
 
   // The corresponding rechits
   recHits_.clear();

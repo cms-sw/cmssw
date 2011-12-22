@@ -129,7 +129,7 @@ public:
   const edm::InputTag theBeamSpot;
   
   PRecHitContainer recHits_;
-  PTrajectoryStateOnDet* pts_;
+  PTrajectoryStateOnDet pts_;
 
 };
 

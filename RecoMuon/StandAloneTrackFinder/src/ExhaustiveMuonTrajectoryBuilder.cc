@@ -27,7 +27,7 @@ ExhaustiveMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed)
   // homemade local-to-global
   double pt = (isBarrel) ? -p.z() : p.perp();
   pt *= localTrajectoryParameters.charge();
-  float err00 = seed.startingState().errorMatrix()[0];
+  float err00 = seed.startingState().error(0);
   //   float p_err = sqr(sptmean/(ptmean*ptmean));
   //  mat[0][0]= p_err;
   float sigmapt = sqrt(err00)*pt*pt;
