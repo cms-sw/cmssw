@@ -20,7 +20,6 @@ TtFullHadKinFitter::TtFullHadKinFitter():
   jetParam_(kEMom)
 {
   setupFitter();
-  covM_=0;
 }
 
 /// used to convert vector of int's to vector of constraints (just used in TtFullHadKinFitter(int, int, double, double, std::vector<unsigned int>))
@@ -47,7 +46,6 @@ TtFullHadKinFitter::TtFullHadKinFitter(int jetParam, int maxNrIter, double maxDe
   jetParam_((Param)jetParam), constraints_(intToConstraint(constraints))
 {
   setupFitter();
-  covM_=0;
 }
 
 /// constructor initialized with build-in types and class enum's custom parameters
@@ -61,7 +59,6 @@ TtFullHadKinFitter::TtFullHadKinFitter(Param jetParam, int maxNrIter, double max
   jetParam_(jetParam), constraints_(constraints)
 {
   setupFitter();
-  covM_=0;
 }
 
 /// default destructor
@@ -195,20 +192,20 @@ TtFullHadKinFitter::fit(const std::vector<pat::Jet>& jets, const double energyRe
   }
 
   // get jets in right order
-  pat::Jet b         = jets[TtFullHadEvtPartons::B        ];
-  pat::Jet bBar      = jets[TtFullHadEvtPartons::BBar     ];
-  pat::Jet lightQ    = jets[TtFullHadEvtPartons::LightQ   ];
-  pat::Jet lightQBar = jets[TtFullHadEvtPartons::LightQBar];
-  pat::Jet lightP    = jets[TtFullHadEvtPartons::LightP   ];
-  pat::Jet lightPBar = jets[TtFullHadEvtPartons::LightPBar];
+  const pat::Jet& b         = jets[TtFullHadEvtPartons::B        ];
+  const pat::Jet& bBar      = jets[TtFullHadEvtPartons::BBar     ];
+  const pat::Jet& lightQ    = jets[TtFullHadEvtPartons::LightQ   ];
+  const pat::Jet& lightQBar = jets[TtFullHadEvtPartons::LightQBar];
+  const pat::Jet& lightP    = jets[TtFullHadEvtPartons::LightP   ];
+  const pat::Jet& lightPBar = jets[TtFullHadEvtPartons::LightPBar];
  
   // initialize particles
-  TLorentzVector p4B( b.px(), b.py(), b.pz(), b.energy() );
-  TLorentzVector p4BBar( bBar.px(), bBar.py(), bBar.pz(), bBar.energy() );
-  TLorentzVector p4LightQ( lightQ.px(), lightQ.py(), lightQ.pz(), lightQ.energy() );
-  TLorentzVector p4LightQBar( lightQBar.px(), lightQBar.py(), lightQBar.pz(), lightQBar.energy() );
-  TLorentzVector p4LightP( lightP.px(), lightP.py(), lightP.pz(), lightP.energy() );
-  TLorentzVector p4LightPBar( lightPBar.px(), lightPBar.py(), lightPBar.pz(), lightPBar.energy() );
+  const TLorentzVector p4B( b.px(), b.py(), b.pz(), b.energy() );
+  const TLorentzVector p4BBar( bBar.px(), bBar.py(), bBar.pz(), bBar.energy() );
+  const TLorentzVector p4LightQ( lightQ.px(), lightQ.py(), lightQ.pz(), lightQ.energy() );
+  const TLorentzVector p4LightQBar( lightQBar.px(), lightQBar.py(), lightQBar.pz(), lightQBar.energy() );
+  const TLorentzVector p4LightP( lightP.px(), lightP.py(), lightP.pz(), lightP.energy() );
+  const TLorentzVector p4LightPBar( lightPBar.px(), lightPBar.py(), lightPBar.pz(), lightPBar.energy() );
 
   // initialize covariance matrices
   TMatrixD m1 = covM_->setupMatrix(lightQ,    jetParam_);
