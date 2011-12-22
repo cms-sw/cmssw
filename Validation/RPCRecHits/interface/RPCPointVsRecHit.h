@@ -30,7 +30,6 @@ private:
 
   DQMStore* dbe_;
   std::string rootFileName_;
-  bool isStandAloneMode_;
 
   RPCValidHistograms h_;
 };

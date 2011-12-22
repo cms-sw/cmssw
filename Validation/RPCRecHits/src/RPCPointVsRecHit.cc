@@ -19,8 +19,6 @@ RPCPointVsRecHit::RPCPointVsRecHit(const edm::ParameterSet& pset)
   refHitLabel_ = pset.getParameter<edm::InputTag>("refHit");
   recHitLabel_ = pset.getParameter<edm::InputTag>("recHit");
 
-  isStandAloneMode_ = pset.getUntrackedParameter<bool>("standAloneMode", false);
-
   dbe_ = edm::Service<DQMStore>().operator->();
   if ( !dbe_ )
   {
