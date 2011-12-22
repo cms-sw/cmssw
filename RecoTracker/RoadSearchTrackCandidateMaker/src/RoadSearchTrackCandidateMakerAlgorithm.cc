@@ -9,9 +9,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: gpetrucc $
-// $Date: 2011/10/27 13:02:58 $
-// $Revision: 1.69 $
+// $Author: innocent $
+// $Date: 2011/12/22 20:33:37 $
+// $Revision: 1.70 $
 //
 
 #include <vector>
@@ -77,7 +77,6 @@ RoadSearchTrackCandidateMakerAlgorithm::RoadSearchTrackCandidateMakerAlgorithm(c
   
   theEstimator = new Chi2MeasurementEstimator(theChi2Cut);
   theUpdator = new KFUpdator();
-  theTransformer = new trajectoryStateTransform;
   theTrajectoryCleaner = new TrajectoryCleanerBySharedHits;
   
   CosmicReco_  = conf_.getParameter<bool>("StraightLineNoBeamSpotCloud");
@@ -100,7 +99,6 @@ RoadSearchTrackCandidateMakerAlgorithm::RoadSearchTrackCandidateMakerAlgorithm(c
 RoadSearchTrackCandidateMakerAlgorithm::~RoadSearchTrackCandidateMakerAlgorithm() {
   delete theEstimator;
   delete theUpdator;
-  delete theTransformer;
   delete theTrajectoryCleaner;
   // delete theMeasurementTracker;
 
