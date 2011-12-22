@@ -193,13 +193,10 @@ void SETMuonSeedProducer::produce(edm::Event& event, const edm::EventSetup& even
 	if(useSegmentsInTrajectory){
 	  dir = alongMomentum;// why forward (for rechits) later?
 	}
-	TrajectoryStateTransform tsTransform;
-	//PTrajectoryStateOnDet *seedTSOS =
-	  //tsTransform.persistentState( firstTSOS, hitContainer.at(0)->geographicalId().rawId());
-	std::auto_ptr<PTrajectoryStateOnDet> 
-	   seedTSOS(tsTransform.persistentState( firstTSOS, hitContainer.at(0)->geographicalId().rawId()));  
-	TrajectorySeed seed(*seedTSOS,recHitsContainer,dir);
-	//UNUSED:	TrajectorySeed::range range = seed.recHits();
+	
+	PTrajectoryStateOnDet seedTSOS =
+	 trajectoryStateTransform::persistentState( firstTSOS, hitContainer.at(0)->geographicalId().rawId());
+	TrajectorySeed seed(seedTSOS,recHitsContainer,dir);
 	
 	//MuonPatternRecoDumper debug;
 	//std::cout<<"  firstTSOS (not IP) = "<<debug.dumpTSOS(firstTSOS)<<std::endl;
