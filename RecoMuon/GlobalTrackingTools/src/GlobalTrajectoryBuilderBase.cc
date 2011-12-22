@@ -12,10 +12,10 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2011/10/28 22:10:34 $
- *  $Revision: 1.54 $
- *  $Date: 2011/10/28 22:10:34 $
- *  $Revision: 1.54 $
+ *  $Date: 2011/10/29 00:48:39 $
+ *  $Revision: 1.55 $
+ *  $Date: 2011/10/29 00:48:39 $
+ *  $Revision: 1.55 $
  *
  *  \author N. Neumeister        Purdue University
  *  \author C. Liu               Purdue University
@@ -527,9 +527,9 @@ GlobalTrajectoryBuilderBase::getTransientRecHits(const reco::Track& track) const
 
   TransientTrackingRecHit::ConstRecHitContainer result;
   
-  TrajectoryStateTransform tsTrans;
+  
 
-  TrajectoryStateOnSurface currTsos = tsTrans.innerStateOnSurface(track, *theService->trackingGeometry(), &*theService->magneticField());
+  TrajectoryStateOnSurface currTsos = trajectoryStateTransform::innerStateOnSurface(track, *theService->trackingGeometry(), &*theService->magneticField());
 
   for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
     if((*hit)->isValid()) {
