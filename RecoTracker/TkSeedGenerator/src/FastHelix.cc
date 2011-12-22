@@ -85,27 +85,30 @@ FreeTrajectoryState FastHelix::helixStateAtVertex() const {
   //get sign of particle
 
   GlobalVector magvtx=pSetup->inTesla(v);
+  /*
   TrackCharge q = 
     ((theCircle.x0()*py - theCircle.y0()*px) / 
      (magvtx.z()) < 0.) ? 
     -1 : 1;
-  ROOT::Math::SMatrixIdentity id;
-  AlgebraicSymMatrix55 C(id);
-  //MP
+  */
+  TrackCharge q = 1;
+  if (theCircle.x0()*py - theCircle.y0()*px < 0) q =-q;
+  if (magvtx.z() < 0.) q =-q;
 
+  //VI
   if ( useBasisVertex ) {
-    return FTS(GlobalTrajectoryParameters(basisVertex, 
-						  GlobalVector(px, py, pz),
-						  q, 
-						  &(*pSetup)), 
-		       CurvilinearTrajectoryError(C));
+    return FTS(basisVertex, 
+	       GlobalVector(px, py, pz),
+	       q, 
+	       &(*pSetup)
+	       );
   } else {
     double z_0 = -flfit.c()/flfit.n2();
-    return FTS(GlobalTrajectoryParameters(GlobalPoint(v.x(),v.y(),z_0), 
-						  GlobalVector(px, py, pz),
-						  q, 
-						  &(*pSetup)), 
-		       CurvilinearTrajectoryError(C));
+    return FTS(GlobalPoint(v.x(),v.y(),z_0), 
+	       GlobalVector(px, py, pz),
+	       q, 
+	       &(*pSetup)
+	       );
   }
   
 }
@@ -145,21 +148,20 @@ FreeTrajectoryState FastHelix::straightLineStateAtVertex() const {
   double pz = pt*dzdr; 
   
   TrackCharge q = 1;
-  AlgebraicSymMatrix66 C = AlgebraicMatrixID();
-  //MP
+  //VI
 
   if ( useBasisVertex ) {
-    return FTS(GlobalTrajectoryParameters(basisVertex, 
-						  GlobalVector(px, py, pz),
-						  q, 
-						  &(*pSetup)), 
-		       CartesianTrajectoryError(C));
+    return FTS(basisVertex, 
+	       GlobalVector(px, py, pz),
+	       q, 
+	       &(*pSetup)
+	       );
   } else {
   double z_0 = -flfit.c()/flfit.n2();
-  return FTS(GlobalTrajectoryParameters(GlobalPoint(v.x(), v.y(), z_0),
-						GlobalVector(px, py, pz),
-						q,
-						&(*pSetup)),
-		     CartesianTrajectoryError());
+  return FTS(GlobalPoint(v.x(), v.y(), z_0),
+	     GlobalVector(px, py, pz),
+	     q,
+	     &(*pSetup)
+	     );
   }
 }
