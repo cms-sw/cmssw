@@ -29,7 +29,6 @@ private:
   edm::InputTag refHitLabel_, recHitLabel_;
 
   DQMStore* dbe_;
-  std::string rootFileName_;
 
   RPCValidHistograms h_;
 };

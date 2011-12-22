@@ -15,7 +15,6 @@ typedef MonitorElement* MEP;
 
 RPCPointVsRecHit::RPCPointVsRecHit(const edm::ParameterSet& pset)
 {
-  rootFileName_ = pset.getUntrackedParameter<string>("rootFileName", "");
   refHitLabel_ = pset.getParameter<edm::InputTag>("refHit");
   recHitLabel_ = pset.getParameter<edm::InputTag>("recHit");
 
@@ -33,10 +32,6 @@ RPCPointVsRecHit::RPCPointVsRecHit(const edm::ParameterSet& pset)
 
 RPCPointVsRecHit::~RPCPointVsRecHit()
 {
-  if ( dbe_ )
-  {
-    if ( !rootFileName_.empty() ) dbe_->save(rootFileName_);
-  }
 }
 
 void RPCPointVsRecHit::beginJob()
