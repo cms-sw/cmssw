@@ -96,8 +96,8 @@ bool TSGForRoadSearch::notAtIPtsos(TrajectoryStateOnSurface & state){
 }
 
 bool TSGForRoadSearch::IPfts(const reco::Track & muon, FreeTrajectoryState & fts){
-  TrajectoryStateTransform transform; 
-  fts = transform.initialFreeState(muon,&*theProxyService->magneticField());
+  
+  fts = trajectoryStateTransform::initialFreeState(muon,&*theProxyService->magneticField());
   LogDebug(theCategory)<<"pure L2 state: "<<fts;
   if (fts.position().mag()==0 && fts.momentum().mag()==0){ edm::LogError(theCategory)<<"initial state of muon is (0,0,0)(0,0,0). no seed."; 
     return false;}
@@ -400,7 +400,7 @@ void TSGForRoadSearch::pushTrajectorySeed(const reco::Track & muon, std::vector<
     return;}
 
   if (theManySeeds){
-    TrajectoryStateTransform tsTransform;    
+    
 
     //finf out every compatible measurements
     for (std::vector<DetLayer::DetWithState >::iterator DWSit = compatible.begin(); DWSit!=compatible.end();++DWSit){
@@ -424,7 +424,7 @@ void TSGForRoadSearch::pushTrajectorySeed(const reco::Track & muon, std::vector<
 	if ( hit->isValid()) {
 	  TrajectoryStateOnSurface upState(theUpdator->update(predState,*hit));
 	  
-	  PTrajectoryStateOnDet & PTSOD = *tsTransform.persistentState(upState,gd->geographicalId().rawId());
+	  PTrajectoryStateOnDet const & PTSOD = trajectoryStateTransform::persistentState(upState,gd->geographicalId().rawId());
 	  LogDebug(theCategory)<<"state used to build a trajectory seed: \n"<<upState
 			     <<"on detector: "<<gd->geographicalId().rawId();
 	  //add the tracking rechit
@@ -440,7 +440,7 @@ void TSGForRoadSearch::pushTrajectorySeed(const reco::Track & muon, std::vector<
 	  if (!aBareTS){
 	    aBareTS=true;
 	    
-	    PTrajectoryStateOnDet & PTSOD = *tsTransform.persistentState(predState,gd->geographicalId().rawId());
+	    PTrajectoryStateOnDet & PTSOD = *trajectoryStateTransform::persistentState(predState,gd->geographicalId().rawId());
 	    LogDebug(theCategory)<<"state used to build a bare trajectory seed: \n"<<predState
 			       <<"on detector: "<<gd->geographicalId().rawId();
     
@@ -455,8 +455,8 @@ void TSGForRoadSearch::pushTrajectorySeed(const reco::Track & muon, std::vector<
   }
   else{
     //transform it into a PTrajectoryStateOnDet
-    TrajectoryStateTransform tsTransform;
-    PTrajectoryStateOnDet & PTSOD = *tsTransform.persistentState(compatible.front().second,compatible.front().first->geographicalId().rawId());
+    
+    PTrajectoryStateOnDet & PTSOD = *trajectoryStateTransform::persistentState(compatible.front().second,compatible.front().first->geographicalId().rawId());
     LogDebug(theCategory)<<"state used to build a bare trajectory seed: \n"<<compatible.front().second
 		       <<"on detector: "<<compatible.front().first->geographicalId().rawId();
     
