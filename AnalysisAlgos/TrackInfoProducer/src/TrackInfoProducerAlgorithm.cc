@@ -145,10 +145,10 @@ void TrackInfoProducerAlgorithm::run(const edm::Ref<std::vector<Trajectory> > tr
 	}
       }
       TrackingRecHitInfo::TrackingStates states;
-      if(forwardPredictedStateTag_!="") states.insert(std::make_pair(FwPredicted, TrackingStateInfo(std::make_pair(monofwd,stereofwd), std::make_pair(pmonofwd,pstereofwd), *fwdptsod)));
-      if(backwardPredictedStateTag_!="")states.insert(std::make_pair(BwPredicted, TrackingStateInfo(std::make_pair(monobwd,stereobwd), std::make_pair(pmonobwd,pstereobwd), *bwdptsod)));
-      if(updatedStateTag_!="")states.insert(std::make_pair(Updated, TrackingStateInfo(std::make_pair(monoup,stereoup), std::make_pair(pmonoup,pstereoup), *updatedptsod)));
-      if(combinedStateTag_!="")states.insert(std::make_pair(Combined, TrackingStateInfo(std::make_pair(monoco,stereoco), std::make_pair(pmonoco,pstereoco), *combinedptsod)));
+      if(forwardPredictedStateTag_!="") states.insert(std::make_pair(FwPredicted, TrackingStateInfo(std::make_pair(monofwd,stereofwd), std::make_pair(pmonofwd,pstereofwd), fwdptsod)));
+      if(backwardPredictedStateTag_!="")states.insert(std::make_pair(BwPredicted, TrackingStateInfo(std::make_pair(monobwd,stereobwd), std::make_pair(pmonobwd,pstereobwd), bwdptsod)));
+      if(updatedStateTag_!="")states.insert(std::make_pair(Updated, TrackingStateInfo(std::make_pair(monoup,stereoup), std::make_pair(pmonoup,pstereoup), updatedptsod)));
+      if(combinedStateTag_!="")states.insert(std::make_pair(Combined, TrackingStateInfo(std::make_pair(monoco,stereoco), std::make_pair(pmonoco,pstereoco), combinedptsod)));
      
       TrackingRecHitInfo  tkRecHitInfo(type, states);
       
