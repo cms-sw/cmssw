@@ -12,8 +12,6 @@
 
 #include "GeneratorInterface/PartonShowerVeto/interface/JetMatching.h"
 
-#include "HepMCInterface.h"
-
 class JetMatchingHook : public Pythia8::UserHooks
 {
 
@@ -55,14 +53,10 @@ private:
      int                     fEventNumber;
      Pythia8::Info*          fInfoPtr;
      gen::JetMatching*       fJetMatching;
-     
-     // service stuff, for setting moth/dau links in hepevt
-     //
-     HepMC::I_Pythia8	     f2HepMC;
-     HepMC::GenEvent         fHepMCEvt; 
-     
+          
      void setHEPEVT( const Pythia8::Event& );
      // void setHEPEVT();
+     int getAncestor( int, const Pythia8::Event& );
  
 };
 

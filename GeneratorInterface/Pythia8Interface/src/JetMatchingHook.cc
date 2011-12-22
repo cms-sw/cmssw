@@ -33,8 +33,6 @@ JetMatchingHook::JetMatchingHook( const edm::ParameterSet& ps, Info* info )
       " specified for parton-shower matching."
       << std::endl;
  
-   f2HepMC.set_freepartonwarnings(false);
-
 }
 
 JetMatchingHook::~JetMatchingHook()
@@ -153,20 +151,10 @@ void JetMatchingHook::setHEPEVT()
 }
 */
 
-/* Oct.2011 - Note from JY:
-   This is an attempt to mimic Py6 routine PYVETO, including boost along Z and mother-daughter links.
-   It's unclear if we'll ever need thsoe details, but for now I keep the commented code here, just in case...
-*/
-
 void JetMatchingHook::setHEPEVT( const Event& event )
 {
-     
-   
+        
    HepMC::HEPEVT_Wrapper::zero_everything();   
-
-   fHepMCEvt.clear();
-
-   f2HepMC.fill_next_event( (Event&)event, &fHepMCEvt );
       
    // service container for further mother-daughters links
    //
@@ -268,36 +256,22 @@ void JetMatchingHook::setHEPEVT( const Event& event )
       HepMC::HEPEVT_Wrapper::set_children( index, 0, 0 );
 
       // now refine mother-daughters links, where applicable
-      // Note (JY): maybe use of HepMC/"ancestor" machinery would be more efficient, need to double check...
-      //
-      bool found = false;
+      
+      int parentId = getAncestor( part.daughter1(), event );
+      
+      if ( parentId <= 0 ) continue;
+
       for ( int idx=0; idx<(int)IndexContainer.size(); idx++ )
       {
-         HepMC::GenParticle* p = fHepMCEvt.barcode_to_particle( IndexContainer[idx] ); // in this case, particle barcode 
-	                                                                               // seems to start from 0...
-         if ( p->end_vertex() )
-         {
-            found = false;
-	    for ( HepMC::GenVertex::particle_iterator desc=p->end_vertex()->particles_begin(HepMC::descendants);
-	                                           desc!=p->end_vertex()->particles_end(HepMC::descendants); ++desc )
-	    {
-	       if ( (*desc)->barcode() == part.daughter1() )
-	       {
-		  found = true;
-		  //
-		  // idx is shifted by 2 - 1 due to "system particle" + another 1 due to fortran indexing
-		  //
-		  HepMC::HEPEVT_Wrapper::set_parents( index, idx+2, idx+2 );
-		  break;
-	       }
-	    }
-	    if ( found ) break;
-         }
-         
+         if ( parentId == IndexContainer[idx] )
+	 {
+	    HepMC::HEPEVT_Wrapper::set_parents( index, idx+2, idx+2 ); 
+	    break;
+	 }
       }
-            
-   }   
-   
+
+   }  
+     
    HepMC::HEPEVT_Wrapper::set_number_entries( index );
    
    HepMC::HEPEVT_Wrapper::set_event_number( fEventNumber ); // well, if you know it... well, it's one of the counters...
@@ -308,3 +282,63 @@ void JetMatchingHook::setHEPEVT( const Event& event )
 
 }
 
+int JetMatchingHook::getAncestor( int pos, const Event& fullEvent )
+{
+
+   int parentId = fullEvent[pos].mother1();
+   int parentPrevId = 0;
+   int counter = pos;
+   
+   while ( parentId > 0 )
+   {               
+         if ( parentId == fullEvent[counter].mother2() ) // carbon copy, keep walking up
+	 {
+	    parentPrevId = parentId;
+	    counter = parentId;
+	    parentId = fullEvent[parentPrevId].mother1();
+	    continue;
+	 }
+	 
+	 // we get here if not a carbon copy
+	 
+	 // let's check if it's a normal process, etc.
+	 //
+	 if ( (parentId < parentPrevId) || parentId < fullEvent[counter].mother2() ) // normal process
+	 {
+	    
+	    // first of all, check if hard block
+	    if ( abs(fullEvent[counter].status()) == 22 || abs(fullEvent[counter].status()) == 23 )
+	    {
+	       // yes, it's the hard block
+	       // we got what we want, and can exit now !
+	       parentId = counter;
+	       break;
+	    }
+	    else
+	    {
+	       parentPrevId = parentId;
+	       parentId = fullEvent[parentPrevId].mother1();
+	    }
+	 }
+	 else if ( parentId > parentPrevId || parentId > pos ) // "circular"/"forward-pointing parent" - intermediate process
+	 {
+	    parentId = -1;
+	    break;
+	 }
+
+         // additional checks... although we shouldn't be geeting here all that much...
+	 //	 
+	 if ( abs(fullEvent[parentId].status()) == 22 || abs(fullEvent[parentId].status())== 23 ) // hard block
+	 {
+	    break;
+	 } 	 
+	 if ( abs(fullEvent[parentId].status()) < 22 ) // incoming
+	 {
+	    parentId = -1;
+	    break;
+	 } 
+   }
+   
+   return parentId;
+
+}
