@@ -99,7 +99,7 @@ BasicMultiTrajectoryState::combine()  {
 	 it2 != tsos.end(); it2++) {
       AlgebraicVector5 diff = param - it2->localParameters().vector();
       AlgebraicSymMatrix11 s = AlgebraicMatrixID(); //stupid trick to make CLHEP work decently
-      covarPart2 += weight * it2->weight() * 
+      covarPart2 += (weight * it2->weight()) * 
       				ROOT::Math::Similarity(AlgebraicMatrix51(diff.Array(), 5), s);
                         //FIXME: we can surely write this thing in a better way
     }   

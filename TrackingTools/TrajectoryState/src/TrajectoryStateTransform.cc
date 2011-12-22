@@ -13,19 +13,24 @@ PTrajectoryStateOnDet*
 TrajectoryStateTransform::persistentState( const TrajectoryStateOnSurface& ts,
 					   unsigned int detid) const
 {
-  AlgebraicSymMatrix55 m = ts.localError().matrix();
-  
-  int dim = 5; /// should check if corresponds to m
 
   float localErrors[15];
-  int k = 0;
-  for (int i=0; i<dim; i++) {
-    for (int j=0; j<=i; j++) {
-      localErrors[k++] = m(i,j);
+  if (ts.hasError()) {
+    AlgebraicSymMatrix55 m = ts.localError().matrix();
+    
+    int dim = 5; /// should check if corresponds to m
+    
+    int k = 0;
+    for (int i=0; i<dim; i++) {
+      for (int j=0; j<=i; j++) {
+	localErrors[k++] = m(i,j);
+      }
     }
   }
+  else localErrors[0]=-99999.e10;
+  
   int surfaceSide = static_cast<int>(ts.surfaceSide());
-
+  
   return new PTrajectoryStateOnDet( ts.localParameters(),
 				    localErrors, detid,
 				    surfaceSide);
@@ -36,19 +41,23 @@ TrajectoryStateTransform::transientState( const PTrajectoryStateOnDet& ts,
 					  const Surface* surface,
 					  const MagneticField* field) const
 {
-  int dim = 5;
-  AlgebraicSymMatrix55 m;
-  const std::vector<float> &errs = ts.errorMatrix();  
-  int k = 0;
-  for (int i=0; i<dim; i++) {
-    for (int j=0; j<=i; j++) {
-      m(i,j) = errs[k++];       // NOTE: here we do a cast float => double.     
+  const std::vector<float> &errs = ts.errorMatrix();
+  bool errInv=true;
+  if (errs[0]> -1.e10) {
+    errInv = false;
+    int dim = 5;
+    AlgebraicSymMatrix55 m;
+    int k = 0;
+    for (int i=0; i<dim; i++) {
+      for (int j=0; j<=i; j++) {
+	m(i,j) = errs[k++];       // NOTE: here we do a cast float => double.     
+      }
     }
   }
   
 
   return TrajectoryStateOnSurface( ts.parameters(),
-				   LocalTrajectoryError(m), 
+				   errInv ? LocalTrajectoryError(InvalidError()) : LocalTrajectoryError(m) 
 				   *surface, field,
 				   static_cast<SurfaceSide>(ts.surfaceSide()));
 
