@@ -2,8 +2,8 @@
 
 /** \file RecoMuon/
  *
- *  $Date: 2010/09/10 21:44:37 $
- *  $Revision: 1.3 $
+ *  $Date: 2011/10/29 00:48:40 $
+ *  $Revision: 1.4 $
  *  \author Adam Evertt, Jean-Roch Vlimant
  */
 
@@ -158,7 +158,7 @@ void MuonRoadTrajectoryBuilder::makeTrajectories_0(const TrajectorySeed & seed, 
   DetId detId(PTstart.detId());
   const BoundPlane * surface =(&theMeasurementTracker->geomTracker()->idToDet(detId)->surface());
   //start from this point
-  TrajectoryStateOnSurface TSOS = theTransformer.transientState(PTstart,surface,theField);
+  TrajectoryStateOnSurface TSOS = trajectoryStateTransform::transientState(PTstart,surface,theField);
   if (!TSOS.isValid())/*/abort*/{ edm::LogError(theCategory)<<"TSOS from PTSOD is not valid.";return ;}
   
   LogDebug(theCategory) <<"(detId.rawId()) "<<(detId.rawId())<<"(detId.subdetId()) "<<(detId.subdetId())

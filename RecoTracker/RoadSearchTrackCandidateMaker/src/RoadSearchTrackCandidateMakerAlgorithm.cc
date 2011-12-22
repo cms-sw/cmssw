@@ -10,8 +10,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: innocent $
-// $Date: 2011/12/22 20:42:00 $
-// $Revision: 1.72 $
+// $Date: 2011/12/22 20:48:13 $
+// $Revision: 1.73 $
 //
 
 #include <vector>
@@ -1888,7 +1888,7 @@ TrackCandidateCollection RoadSearchTrackCandidateMakerAlgorithm::PrepareTrackCan
 	PTrajectoryStateOnDet const & pFirstState = trajectoryStateTransform::persistentState(NewFirstTsos,rhit->geographicalId().rawId());
 	edm::OwnVector<TrackingRecHit> newHits;
 	newHits.push_back(rhit->hit()->clone());
-	TrajectorySeed tmpseed = TrajectorySeed(*pFirstState,newHits,alongMomentum);
+	TrajectorySeed tmpseed = TrajectorySeed(pFirstState,newHits,alongMomentum);
 	
 	theCollection.push_back(TrackCandidate(goodHits,freshStartTrajectory.seed(),state));
 	

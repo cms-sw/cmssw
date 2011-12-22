@@ -2,8 +2,8 @@
 /**
  *  CosmicMuonSeedGenerator
  *
- *  $Date: 2011/03/21 13:39:43 $
- *  $Revision: 1.5 $
+ *  $Date: 2011/10/28 22:10:34 $
+ *  $Revision: 1.6 $
  *
  *  \author Chang Liu - Purdue University 
  *
@@ -62,8 +62,6 @@ CosmicMuonSeedGenerator::CosmicMuonSeedGenerator(const edm::ParameterSet& pset){
   theMaxDTChi2 = pset.getParameter<double>("MaxDTChi2");
   theMaxCSCChi2 = pset.getParameter<double>("MaxCSCChi2");
 
-  theTSTransform = new TrajectoryStateTransform();
-
   // pre-determined parameters for seed pt calculation ( pt * dphi )
   theParameters["topmb41"] = 0.87;
   theParameters["bottommb41"] = 1.2;
@@ -82,7 +80,6 @@ CosmicMuonSeedGenerator::CosmicMuonSeedGenerator(const edm::ParameterSet& pset){
 
 // Destructor
 CosmicMuonSeedGenerator::~CosmicMuonSeedGenerator(){
-  delete theTSTransform;
 }
 
 
@@ -515,12 +512,10 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(const CosmicMuon
 
 TrajectorySeed CosmicMuonSeedGenerator::tsosToSeed(const TrajectoryStateOnSurface& tsos, uint32_t id) const {
 
-  PTrajectoryStateOnDet *seedTSOS =
-    theTSTransform->persistentState(tsos, id);
+  PTrajectoryStateOnDet const & trajectoryStateTransform::seedTSOS = persistentState(tsos, id);
 
   edm::OwnVector<TrackingRecHit> container;
-  TrajectorySeed seed(*seedTSOS,container,alongMomentum);
-  delete seedTSOS;
+  TrajectorySeed seed(seedTSOS,container,alongMomentum);
   return seed;
 }
 
