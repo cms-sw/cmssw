@@ -56,10 +56,9 @@ TrackProducerAlgorithm<T>::runWithCandidate(const TrackingGeometry * theG,
       const TrajectorySeed& seed = theTC->seed();
 
       //convert PTrajectoryStateOnDet to TrajectoryStateOnSurface
-      TrajectoryStateTransform transformer;
   
       DetId  detId(state.detId());
-      TrajectoryStateOnSurface theTSOS = transformer.transientState( state,
+      TrajectoryStateOnSurface theTSOS = trajectoryStateTransform::transientState( state,
 								     &(theG->idToDet(detId)->surface()), 
 								     theMF);
 
@@ -413,10 +412,9 @@ TrackProducerAlgorithm<T>::getInitialState(const T * theT,
 
   TrajectoryStateOnSurface theInitialStateForRefitting;
   //the starting state is the state closest to the first hit along seedDirection.
-  TrajectoryStateTransform transformer;
   //avoiding to use transientTrack, it should be faster;
-  TrajectoryStateOnSurface innerStateFromTrack=transformer.innerStateOnSurface(*theT,*theG,theMF);
-  TrajectoryStateOnSurface outerStateFromTrack=transformer.outerStateOnSurface(*theT,*theG,theMF);
+  TrajectoryStateOnSurface innerStateFromTrack=trajectoryStateTransform::innerStateOnSurface(*theT,*theG,theMF);
+  TrajectoryStateOnSurface outerStateFromTrack=trajectoryStateTransform::outerStateOnSurface(*theT,*theG,theMF);
   TrajectoryStateOnSurface initialStateFromTrack = 
     ( (innerStateFromTrack.globalPosition()-hits.front()->det()->position()).mag2() <
       (outerStateFromTrack.globalPosition()-hits.front()->det()->position()).mag2() ) ? 
