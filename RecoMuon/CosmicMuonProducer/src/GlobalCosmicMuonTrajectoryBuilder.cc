@@ -1,8 +1,8 @@
 /**
  *  Class: GlobalCosmicMuonTrajectoryBuilder
  *
- *  $Date: 2009/09/16 16:37:03 $
- *  $Revision: 1.24 $
+ *  $Date: 2009/10/20 04:22:32 $
+ *  $Revision: 1.25 $
  *  \author Chang Liu  -  Purdue University <Chang.Liu@cern.ch>
  *
  **/
@@ -133,13 +133,13 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
 //  LogTrace(category_) <<utilities()->print(hits)<<endl;
 //  LogTrace(category_) << "== End of Used RecHits == "<<endl;
 
-  TrajectoryStateTransform tsTrans;
+  
 
-  TrajectoryStateOnSurface muonState1 = tsTrans.innerStateOnSurface(*muTrack, *theService->trackingGeometry(), &*theService->magneticField());
-  TrajectoryStateOnSurface tkState1 = tsTrans.innerStateOnSurface(*tkTrack, *theService->trackingGeometry(), &*theService->magneticField());
+  TrajectoryStateOnSurface muonState1 = trajectoryStateTransform::innerStateOnSurface(*muTrack, *theService->trackingGeometry(), &*theService->magneticField());
+  TrajectoryStateOnSurface tkState1 = trajectoryStateTransform::innerStateOnSurface(*tkTrack, *theService->trackingGeometry(), &*theService->magneticField());
 
-  TrajectoryStateOnSurface muonState2 = tsTrans.outerStateOnSurface(*muTrack, *theService->trackingGeometry(), &*theService->magneticField());
-  TrajectoryStateOnSurface tkState2 = tsTrans.outerStateOnSurface(*tkTrack, *theService->trackingGeometry(), &*theService->magneticField());
+  TrajectoryStateOnSurface muonState2 = trajectoryStateTransform::outerStateOnSurface(*muTrack, *theService->trackingGeometry(), &*theService->magneticField());
+  TrajectoryStateOnSurface tkState2 = trajectoryStateTransform::outerStateOnSurface(*tkTrack, *theService->trackingGeometry(), &*theService->magneticField());
 
   TrajectoryStateOnSurface firstState1 =
    ( muonState1.globalPosition().y() > tkState1.globalPosition().y() )? muonState1 : tkState1;
@@ -155,8 +155,8 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
       back=hits.back()->globalPosition();
       if ( (front.perp()<130 && fabs(front.z())<300)|| (back.perp() <130 && fabs(back.z())<300)){
 	if (hits.front()->globalPosition().perp()>hits.back()->globalPosition().perp()) reverse(hits.begin(), hits.end());
-	tkState1 = tsTrans.innerStateOnSurface(*tkTrack, *theService->trackingGeometry(), &*theService->magneticField());
-	tkState2 = tsTrans.outerStateOnSurface(*tkTrack, *theService->trackingGeometry(), &*theService->magneticField());
+	tkState1 = trajectoryStateTransform::innerStateOnSurface(*tkTrack, *theService->trackingGeometry(), &*theService->magneticField());
+	tkState2 = trajectoryStateTransform::outerStateOnSurface(*tkTrack, *theService->trackingGeometry(), &*theService->magneticField());
 	firstState =( tkState1.globalPosition().perp() < tkState2.globalPosition().perp() )? tkState1 : tkState2;
       }
     }
@@ -302,9 +302,9 @@ GlobalCosmicMuonTrajectoryBuilder::getTransientRecHits(const reco::Track& track)
 
   TransientTrackingRecHit::ConstRecHitContainer result;
 
-  TrajectoryStateTransform tsTrans;
+  
 
-  TrajectoryStateOnSurface currTsos = tsTrans.innerStateOnSurface(track, *theService->trackingGeometry(), &*theService->magneticField());
+  TrajectoryStateOnSurface currTsos = trajectoryStateTransform::innerStateOnSurface(track, *theService->trackingGeometry(), &*theService->magneticField());
   for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
     if((*hit)->isValid()) {
       DetId recoid = (*hit)->geographicalId();
@@ -329,9 +329,9 @@ std::vector<GlobalCosmicMuonTrajectoryBuilder::TrackCand> GlobalCosmicMuonTrajec
    
    std::vector<TrackCand> result;
 
-   TrajectoryStateTransform tsTrans;
-   TrajectoryStateOnSurface innerTsos = tsTrans.innerStateOnSurface(*(mu.second), *theService->trackingGeometry(), &*theService->magneticField());
-   TrajectoryStateOnSurface outerTsos = tsTrans.outerStateOnSurface(*(mu.second), *theService->trackingGeometry(), &*theService->magneticField());
+   
+   TrajectoryStateOnSurface innerTsos =trajectoryStateTransform::innerStateOnSurface(*(mu.second), *theService->trackingGeometry(), &*theService->magneticField());
+   TrajectoryStateOnSurface outerTsos = trajectoryStateTransform::outerStateOnSurface(*(mu.second), *theService->trackingGeometry(), &*theService->magneticField());
    //build tracker TrackCands and pick the best match if size greater than 2
    vector<TrackCand> tkTrackCands;
    for(reco::TrackCollection::size_type i=0; i<theTrackerTracks->size(); ++i){
