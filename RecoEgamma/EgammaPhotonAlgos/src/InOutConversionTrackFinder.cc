@@ -172,14 +172,14 @@ std::vector<Trajectory> InOutConversionTrackFinder::tracks(const TrajectorySeedC
       continue;
     }
     
-    PTrajectoryStateOnDet* state = 0;
+    PTrajectoryStateOnDet state;
     if(useSplitHits_ && (initState.second != thits.front()->det()) && thits.front()->det() ){ 
       TrajectoryStateOnSurface propagated = thePropagator_->propagate(initState.first,thits.front()->det()->surface());
       if (!propagated.isValid()) continue;
-      state = TrajectoryStateTransform().persistentState(propagated,
+      state = trajectoryStateTransform::persistentState(propagated,
 							 thits.front()->det()->geographicalId().rawId());
     }
-    if(!state) state = TrajectoryStateTransform().persistentState( initState.first,
+    else state = trajectoryStateTransform::persistentState( initState.first,
 								   initState.second->geographicalId().rawId());
     
     LogDebug("InOutConversionTrackFinder") << "  InOutConversionTrackFinder::track Making the result: seed position " << it->seed().startingState().parameters().position()  << " seed momentum " <<  it->seed().startingState().parameters().momentum() << " charge " <<  it->seed().startingState().parameters().charge () << "\n";
@@ -189,8 +189,7 @@ std::vector<Trajectory> InOutConversionTrackFinder::tracks(const TrajectorySeedC
     
     result.push_back(*it);  
     
-    output_p.push_back(TrackCandidate(recHits, it->seed(),*state ) );
-    delete state;
+    output_p.push_back(TrackCandidate(recHits, it->seed(),state ) );
   }
   
   LogDebug("InOutConversionTrackFinder") << "  InOutConversionTrackFinder::track Returning " << result.size() << " valid In Out Trajectories " << "\n";
