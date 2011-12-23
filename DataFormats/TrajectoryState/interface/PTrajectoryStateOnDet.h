@@ -11,15 +11,15 @@ class PTrajectoryStateOnDet {
 private:
   // we assume that id cannot be calo! (i.e. det<4)
   static const unsigned int idMask = 0x3fffffff;
-
+  // little endian...
   struct Packing {
-    unsigned char ss : 2;
     unsigned int rest : 30;
+    unsigned char ss : 2;
   };
   struct DetPack {
-    unsigned char det : 4;
-    unsigned char sub : 3;
     unsigned int  loc : 25;
+    unsigned char sub : 3;
+    unsigned char det : 4;
   };
   union Pack {
     Pack(){}
