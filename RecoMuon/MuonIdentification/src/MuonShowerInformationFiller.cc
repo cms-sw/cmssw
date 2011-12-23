@@ -3,8 +3,8 @@
  *  \class: MuonShowerInformationFiller
  *  Description: class for muon shower identification
  *
- *  $Date: 2011/03/21 22:41:25 $
- *  $Revision: 1.5 $
+ *  $Date: 2011/10/28 22:10:34 $
+ *  $Revision: 1.6 $
  
  *
  *  \author: A. Svyatkovskiy, Purdue University
@@ -366,9 +366,9 @@ vector<const GeomDet*> MuonShowerInformationFiller::getCompatibleDets(const reco
 
   LogTrace(category_)  << "Consider a track " << track.p() << " eta: " << track.eta() << " phi " << track.phi() << endl;
 
-  TrajectoryStateTransform tsTrans;
-  TrajectoryStateOnSurface innerTsos = tsTrans.innerStateOnSurface(track, *theService->trackingGeometry(), &*theService->magneticField());
-  TrajectoryStateOnSurface outerTsos = tsTrans.outerStateOnSurface(track, *theService->trackingGeometry(), &*theService->magneticField());
+  
+  TrajectoryStateOnSurface innerTsos = trajectoryStateTransform::innerStateOnSurface(track, *theService->trackingGeometry(), &*theService->magneticField());
+  TrajectoryStateOnSurface outerTsos = trajectoryStateTransform::outerStateOnSurface(track, *theService->trackingGeometry(), &*theService->magneticField());
 
   GlobalPoint innerPos = innerTsos.globalPosition();
   GlobalPoint outerPos = outerTsos.globalPosition();
