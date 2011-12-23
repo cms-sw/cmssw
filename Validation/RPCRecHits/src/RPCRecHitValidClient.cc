@@ -23,9 +23,9 @@ void RPCRecHitValidClient::endRun(const edm::Run& run, const edm::EventSetup& ev
   MEP me_rollEfficiencyBarrel_eff = dbe->book1D("RollEfficiencyBarrel_eff", "Roll efficiency in Barrel;Efficiency [%]", 50, 0, 100);
   MEP me_rollEfficiencyEndcap_eff = dbe->book1D("RollEfficiencyEndcap_eff", "Roll efficiency in Endcap;Efficiency [%]", 50, 0, 100);
 
-  const double maxNoise = 0.01;
-  MEP me_rollNoiseBarrel_noise = dbe->book1D("RollNoiseBarrel_noise", "Roll noise in Barrel;Noise level [Event^{-1}]", 25+1, 0, maxNoise+maxNoise/25);
-  MEP me_rollNoiseEndcap_noise = dbe->book1D("RollNoiseEndcap_noise", "Roll noise in Endcap;Noise level [Event^{-1}]", 25+1, 0, maxNoise+maxNoise/25);
+  const double maxNoise = 1e-7;
+  MEP me_rollNoiseBarrel_noise = dbe->book1D("RollNoiseBarrel_noise", "Roll noise in Barrel;Noise level [Event^{-1}cm^{-2}]", 25+2, -maxNoise/25, maxNoise+maxNoise/25);
+  MEP me_rollNoiseEndcap_noise = dbe->book1D("RollNoiseEndcap_noise", "Roll noise in Endcap;Noise level [Event^{-1}cm^{-2}]", 25+2, -maxNoise/25, maxNoise+maxNoise/25);
   
   MEP me_matchOccupancyBarrel_detId = dbe->get(subDir_+"/Occupancy/MatchOccupancyBarrel_detId");
   MEP me_matchOccupancyEndcap_detId = dbe->get(subDir_+"/Occupancy/MatchOccupancyEndcap_detId");
@@ -78,7 +78,8 @@ void RPCRecHitValidClient::endRun(const edm::Run& run, const edm::EventSetup& ev
       const double noiseCount = h_noiseOccupancyBarrel_detId->GetBinContent(bin);
       const double area = h_rollAreaBarrel_detId->GetBinContent(bin);
       const double noiseLevel = area > 0 ? noiseCount/area/nEvent : 0;
-      me_rollNoiseBarrel_noise->Fill(std::min(noiseLevel, maxNoise));
+      if ( noiseLevel == 0. ) me_rollNoiseBarrel_noise->Fill(-maxNoise/50); // Fill underflow bin if noise is exactly zero
+      else me_rollNoiseBarrel_noise->Fill(std::min(noiseLevel, maxNoise));
     }
   }
 
@@ -94,7 +95,8 @@ void RPCRecHitValidClient::endRun(const edm::Run& run, const edm::EventSetup& ev
       const double noiseCount = h_noiseOccupancyEndcap_detId->GetBinContent(bin);
       const double area = h_rollAreaEndcap_detId->GetBinContent(bin);
       const double noiseLevel = area > 0 ? noiseCount/area/nEvent : 0;
-      me_rollNoiseEndcap_noise->Fill(std::min(noiseLevel, maxNoise));
+      if ( noiseLevel == 0 ) me_rollNoiseEndcap_noise->Fill(-maxNoise/50); // Fill underflow bin if noise if exactly zero
+      else me_rollNoiseEndcap_noise->Fill(std::min(noiseLevel, maxNoise));
     }
   }
   
