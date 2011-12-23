@@ -7,8 +7,8 @@
  *   L2 muon reconstruction
  *
  *
- *   $Date: 2009/05/27 08:07:23 $
- *   $Revision: 1.12 $
+ *   $Date: 2011/03/21 13:39:43 $
+ *   $Revision: 1.13 $
  *
  *   \author  A.Everett, R.Bellan, J. Alcaraz
  *
@@ -254,7 +254,7 @@ void L2MuonSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 						  *theService->propagator(thePropagatorName), 
 						  *theEstimator);   
       if (detsWithStates.size()){
-	TrajectoryStateTransform tsTransform;
+	
 	
 	TrajectoryStateOnSurface newTSOS = detsWithStates.front().second;
 	const GeomDet *newTSOSDet = detsWithStates.front().first;
@@ -268,11 +268,11 @@ void L2MuonSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 	  LogTrace(metname) << debug.dumpTSOS(newTSOS);
 	  
 	  // convert the TSOS into a PTSOD
-	  PTrajectoryStateOnDet *seedTSOS = tsTransform.persistentState( newTSOS,newTSOSDet->geographicalId().rawId());
+	  PTrajectoryStateOnDet const & seedTSOS = trajectoryStateTransform::persistentState( newTSOS,newTSOSDet->geographicalId().rawId());
 	  
 	  edm::OwnVector<TrackingRecHit> container;
 	  
-	  output->push_back(L2MuonTrajectorySeed(*seedTSOS,container,alongMomentum,
+	  output->push_back(L2MuonTrajectorySeed(seedTSOS,container,alongMomentum,
 						 L1MuonParticleRef(muColl,l1ParticleIndex)));
 	}
       }
