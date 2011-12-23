@@ -7,7 +7,7 @@
 PFchsMETcorrInputProducer::PFchsMETcorrInputProducer(const edm::ParameterSet& cfg)
   : moduleLabel_(cfg.getParameter<std::string>("@module_label")),
     src_(cfg.getParameter<edm::InputTag>("src")),
-    goodVtxNdof_(cfg.getParameter<uint>("goodVtxNdof")),
+    goodVtxNdof_(cfg.getParameter<unsigned int>("goodVtxNdof")),
     goodVtxZ_(cfg.getParameter<double>("goodVtxZ"))
 {
   produces<CorrMETData>("type0");
