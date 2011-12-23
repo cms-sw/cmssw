@@ -37,7 +37,7 @@ public :
   /// Fill all data members from 1 TSOS and 2 rec Hits and using the circle associated to the primary track as constraint
   void setMeasurements(TangentHelix& primHelix, const TSOS& inner_TSOS, ConstRecHitPointer ihit, ConstRecHitPointer ohit);
 
-  PTrajectoryStateOnDet trajectoryState() const { return *pTraj; }
+  PTrajectoryStateOnDet const & trajectoryState() const { return pTraj; }
 
   FreeTrajectoryState* stateWithError() const;
 
@@ -82,7 +82,7 @@ private :
   
   boost::shared_ptr<FreeTrajectoryState>       freeTS_;          /**< Initial FreeTrajectoryState */
 
-  boost::shared_ptr<PTrajectoryStateOnDet> pTraj;           /**< the final persistent TSOS */
+  PTrajectoryStateOnDet pTraj;           /**< the final persistent TSOS */
 
 
   // input parameters

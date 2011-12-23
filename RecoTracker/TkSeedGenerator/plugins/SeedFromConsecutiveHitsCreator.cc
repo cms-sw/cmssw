@@ -142,7 +142,7 @@ const TrajectorySeed * SeedFromConsecutiveHitsCreator::buildSeed(
   } 
 
   
-  PTrajectoryStateOnDet const & PTraj(
+  PTrajectoryStateOnDet const & PTraj = 
       trajectoryStateTransform::persistentState(updatedState, hit->geographicalId().rawId());
   
   seedCollection.push_back( TrajectorySeed(PTraj,std::move(seedHits),alongMomentum));

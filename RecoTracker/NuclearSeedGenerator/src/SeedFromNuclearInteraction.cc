@@ -18,7 +18,6 @@ SeedFromNuclearInteraction::SeedFromNuclearInteraction(const Propagator* prop, c
          initialTSOS_ = boost::shared_ptr<TrajectoryStateOnSurface>(new TrajectoryStateOnSurface());
          updatedTSOS_ = boost::shared_ptr<TrajectoryStateOnSurface>(new TrajectoryStateOnSurface());
          freeTS_ = boost::shared_ptr<FreeTrajectoryState>(new FreeTrajectoryState());
-         pTraj = boost::shared_ptr<PTrajectoryStateOnDet>(new PTrajectoryStateOnDet());
     }
 
 //----------------------------------------------------------------------
@@ -144,11 +143,11 @@ bool SeedFromNuclearInteraction::construct() {
 
    }
 
-   TrajectoryStateTransform transformer;
+   
 
    LogDebug("NuclearSeedGenerator") << "Seed ** updated state " << updatedTSOS_->cartesianError().matrix();
 
-   pTraj = boost::shared_ptr<PTrajectoryStateOnDet>( transformer.persistentState(*updatedTSOS_, outerHitDetId().rawId()) );
+   pTraj = trajectoryStateTransform::persistentState(*updatedTSOS_, outerHitDetId().rawId());
    return true;
 }
 

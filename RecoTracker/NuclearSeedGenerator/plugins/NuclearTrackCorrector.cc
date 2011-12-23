@@ -13,7 +13,7 @@
 //
 // Original Author:  Loic QUERTENMONT, Vincent ROBERFROID
 //         Created:  Tue Sep 18 14:22:48 CEST 2007
-// $Id: NuclearTrackCorrector.cc,v 1.11 2009/07/03 00:35:22 mangano Exp $
+// $Id: NuclearTrackCorrector.cc,v 1.12 2010/03/10 16:43:16 vlimant Exp $
 //
 //
 
@@ -322,10 +322,10 @@ TrajectoryStateOnSurface NuclearTrackCorrector::getInitialState(const reco::Trac
 
   TrajectoryStateOnSurface theInitialStateForRefitting;
   //the starting state is the state closest to the first hit along seedDirection.
-  TrajectoryStateTransform transformer;
+  
   //avoiding to use transientTrack, it should be faster;
-  TrajectoryStateOnSurface innerStateFromTrack=transformer.innerStateOnSurface(*theT,*theG,theMF);
-  TrajectoryStateOnSurface outerStateFromTrack=transformer.outerStateOnSurface(*theT,*theG,theMF);
+  TrajectoryStateOnSurface innerStateFromTrack=trajectoryStateTransform::innerStateOnSurface(*theT,*theG,theMF);
+  TrajectoryStateOnSurface outerStateFromTrack=trajectoryStateTransform::outerStateOnSurface(*theT,*theG,theMF);
   TrajectoryStateOnSurface initialStateFromTrack = 
     ( (innerStateFromTrack.globalPosition()-hits.front()->globalPosition()).mag2() <
       (outerStateFromTrack.globalPosition()-hits.front()->globalPosition()).mag2() ) ? 
