@@ -198,11 +198,10 @@ TrajectorySeed* MCMuonSeedGenerator2::createSeedFromHit(const PSimHit* innerSimH
   LogTrace(metname) << debug.dumpTSOS(tsos);
   
   // convert the TSOS into a PTSOD
-  TrajectoryStateTransform tsTransform;
-  PTrajectoryStateOnDet *seedTSOS = tsTransform.persistentState(tsos,geomDet->geographicalId().rawId());
+  PTrajectoryStateOnDet seedTSOS = trajectoryStateTransform::persistentState(tsos,geomDet->geographicalId().rawId());
   
   edm::OwnVector<TrackingRecHit> container;
-  TrajectorySeed* seed = new TrajectorySeed(*seedTSOS,container,alongMomentum);
+  TrajectorySeed* seed = new TrajectorySeed(seedTSOS,container,alongMomentum);
 
   return seed;  
 }
@@ -248,14 +247,13 @@ TrajectorySeed* MCMuonSeedGenerator2::createSeedFromTrack(const SimTrack &simTra
   }
 
   // convert the TSOS into a PTSOD
-  TrajectoryStateTransform tsTransform;
-  PTrajectoryStateOnDet *seedTSOS = tsTransform.persistentState(simSeedTSOS,geomDet->geographicalId().rawId());
+  PTrajectoryStateOnDet const & seedTSOS = trajectoryStateTransform::persistentState(simSeedTSOS,geomDet->geographicalId().rawId());
 
   LogTrace(metname) << "State on: "<<debug.dumpMuonId(detId);
   LogTrace(metname) << debug.dumpTSOS(simSeedTSOS);
 
   edm::OwnVector<TrackingRecHit> container;
-  seed = new TrajectorySeed(*seedTSOS,container,alongMomentum);
+  seed = new TrajectorySeed(seedTSOS,container,alongMomentum);
   
   return seed;  
 }

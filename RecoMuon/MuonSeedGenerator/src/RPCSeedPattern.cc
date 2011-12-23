@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2011/03/21 13:39:43 $
- *  $Revision: 1.3 $
+ *  $Date: 2011/10/29 00:48:40 $
+ *  $Revision: 1.4 $
  *  \author Haiyun.Teng - Peking University
  *
  */
@@ -1095,20 +1095,19 @@ RPCSeedPattern::weightedTrajectorySeed RPCSeedPattern::createFakeSeed(int& isGoo
     TrajectoryStateOnSurface tsos(param, error, best->det()->surface(), &*Field);
 
     DetId id = best->geographicalId();
-    TrajectoryStateTransform tsTransform;
-    PTrajectoryStateOnDet *seedTSOS = tsTransform.persistentState(tsos, id.rawId());
+    
+    PTrajectoryStateOnDet seedTSOS = trajectoryStateTransform::persistentState(tsos, id.rawId());
 
     edm::OwnVector<TrackingRecHit> container;
     for(ConstMuonRecHitContainer::const_iterator iter=theRecHits.begin(); iter!=theRecHits.end(); iter++)
         container.push_back((*iter)->hit()->clone());
 
-    TrajectorySeed theSeed(*seedTSOS, container, alongMomentum);
+    TrajectorySeed theSeed(seedTSOS, container, alongMomentum);
     weightedTrajectorySeed theweightedSeed;
     theweightedSeed.first = theSeed;
     theweightedSeed.second = meanSpt;
     isGoodSeed = isGoodPattern;
 
-    delete seedTSOS;
     return theweightedSeed;
 }
 
@@ -1186,8 +1185,8 @@ RPCSeedPattern::weightedTrajectorySeed RPCSeedPattern::createSeed(int& isGoodSee
     cout << "The RecSegment relies on: " << endl;
     cout << debug.dumpMuonId(id);
     cout << debug.dumpTSOS(tsos);
-    TrajectoryStateTransform tsTransform;
-    PTrajectoryStateOnDet *seedTSOS = tsTransform.persistentState(tsos, id.rawId());
+    
+    PTrajectoryStateOnDet const & seedTSOS = trajectoryStateTransform::persistentState(tsos, id.rawId());
 
     edm::OwnVector<TrackingRecHit> container;
     for(ConstMuonRecHitContainer::const_iterator iter=theRecHits.begin(); iter!=theRecHits.end(); iter++)
@@ -1199,13 +1198,12 @@ RPCSeedPattern::weightedTrajectorySeed RPCSeedPattern::createSeed(int& isGoodSee
         container.push_back((*iter)->hit()->clone());
     }
 
-    TrajectorySeed theSeed(*seedTSOS, container, alongMomentum);
+    TrajectorySeed theSeed(seedTSOS, container, alongMomentum);
     weightedTrajectorySeed theweightedSeed;
     theweightedSeed.first = theSeed;
     theweightedSeed.second = meanSpt;
     isGoodSeed = isGoodPattern;
 
-    delete seedTSOS;
     return theweightedSeed;
 }
 

@@ -2,8 +2,8 @@
 /**
  *  CosmicMuonSeedGenerator
  *
- *  $Date: 2011/10/28 22:10:34 $
- *  $Revision: 1.6 $
+ *  $Date: 2011/12/22 21:12:27 $
+ *  $Revision: 1.7 $
  *
  *  \author Chang Liu - Purdue University 
  *
@@ -512,7 +512,7 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(const CosmicMuon
 
 TrajectorySeed CosmicMuonSeedGenerator::tsosToSeed(const TrajectoryStateOnSurface& tsos, uint32_t id) const {
 
-  PTrajectoryStateOnDet const & trajectoryStateTransform::seedTSOS = persistentState(tsos, id);
+  PTrajectoryStateOnDet const & seedTSOS = trajectoryStateTransform::persistentState(tsos, id);
 
   edm::OwnVector<TrackingRecHit> container;
   TrajectorySeed seed(seedTSOS,container,alongMomentum);

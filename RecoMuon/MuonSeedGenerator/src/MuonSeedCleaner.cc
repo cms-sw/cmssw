@@ -452,12 +452,12 @@ int MuonSeedCleaner::SeedLength( TrajectorySeed seed ) {
 
 GlobalPoint MuonSeedCleaner::SeedPosition( TrajectorySeed seed ) {
 
-  TrajectoryStateTransform tsTransform;
+  
 
   PTrajectoryStateOnDet pTSOD = seed.startingState();
   DetId SeedDetId(pTSOD.detId());
   const GeomDet* geoDet = theService->trackingGeometry()->idToDet( SeedDetId );
-  TrajectoryStateOnSurface SeedTSOS = tsTransform.transientState(pTSOD, &(geoDet->surface()), &*theService->magneticField());
+  TrajectoryStateOnSurface SeedTSOS = trajectoryStateTransform::transientState(pTSOD, &(geoDet->surface()), &*theService->magneticField());
   GlobalPoint  pos  = SeedTSOS.globalPosition();
 
   return pos ;
@@ -466,12 +466,12 @@ GlobalPoint MuonSeedCleaner::SeedPosition( TrajectorySeed seed ) {
 
 GlobalVector MuonSeedCleaner::SeedMomentum( TrajectorySeed seed ) {
 
-  TrajectoryStateTransform tsTransform;
+  
 
   PTrajectoryStateOnDet pTSOD = seed.startingState();
   DetId SeedDetId(pTSOD.detId());
   const GeomDet* geoDet = theService->trackingGeometry()->idToDet( SeedDetId );
-  TrajectoryStateOnSurface SeedTSOS = tsTransform.transientState(pTSOD, &(geoDet->surface()), &*theService->magneticField());
+  TrajectoryStateOnSurface SeedTSOS = trajectoryStateTransform::transientState(pTSOD, &(geoDet->surface()), &*theService->magneticField());
   GlobalVector  mom  = SeedTSOS.globalMomentum();
 
   return mom ;

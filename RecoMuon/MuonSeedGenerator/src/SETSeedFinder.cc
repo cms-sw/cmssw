@@ -661,9 +661,9 @@ TrajectorySeed SETSeedFinder::makeSeed(const TrajectoryStateOnSurface & firstTSO
   if(useSegmentsInTrajectory){
     dir = alongMomentum;// why forward (for rechits) later?
   }
-  TrajectoryStateTransform tsTransform;
+  
   PTrajectoryStateOnDet *seedTSOS =
-  tsTransform.persistentState( firstTSOS, hits.at(0)->geographicalId().rawId());
+  trajectoryStateTransform::persistentState( firstTSOS, hits.at(0)->geographicalId().rawId());
   TrajectorySeed seed(*seedTSOS,recHitsContainer,dir);
   //unused  TrajectorySeed::range range = seed.recHits();
 

@@ -812,10 +812,9 @@ void MuonSeedValidator::RecSeedReader( Handle<TrajectorySeedCollection> rec_seed
 
          nSegInSeed.push_back( (*seed_it).nHits() );
          // Get the tsos of the seed
-         TrajectoryStateTransform tsTransform;
          DetId seedDetId(pTSOD.detId());
          const GeomDet* gdet = theService->trackingGeometry()->idToDet( seedDetId );
-         TrajectoryStateOnSurface seedTSOS = tsTransform.transientState(pTSOD, &(gdet->surface()), &*theService->magneticField());
+         TrajectoryStateOnSurface seedTSOS = trajectoryStateTransform::transientState(pTSOD, &(gdet->surface()), &*theService->magneticField());
          // seed global position and momentum(direction)
          seed_gp.push_back( seedTSOS.globalPosition() );
          seed_gm.push_back( seedTSOS.globalMomentum() );
@@ -881,10 +880,9 @@ void MuonSeedValidator::SegOfRecSeed( Handle<TrajectorySeedCollection> rec_seeds
          if (seed_idx != (idx-1) ) continue;
  
          PTrajectoryStateOnDet pTSOD = (*seed_it).startingState();
-         TrajectoryStateTransform tsTransform;
          DetId seedDetId(pTSOD.detId());
          const GeomDet* seedDet = theService->trackingGeometry()->idToDet( seedDetId );
-         TrajectoryStateOnSurface seedTSOS = tsTransform.transientState(pTSOD, &(seedDet->surface()), &*theService->magneticField());
+         TrajectoryStateOnSurface seedTSOS = trajectoryStateTransform::transientState(pTSOD, &(seedDet->surface()), &*theService->magneticField());
          GlobalPoint seedgp = seedTSOS.globalPosition();
 
          for (edm::OwnVector<TrackingRecHit>::const_iterator rh_it = seed_it->recHits().first; rh_it != seed_it->recHits().second; rh_it++) {
