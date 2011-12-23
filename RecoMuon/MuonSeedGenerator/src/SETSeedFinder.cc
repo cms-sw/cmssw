@@ -662,10 +662,9 @@ TrajectorySeed SETSeedFinder::makeSeed(const TrajectoryStateOnSurface & firstTSO
     dir = alongMomentum;// why forward (for rechits) later?
   }
   
-  PTrajectoryStateOnDet *seedTSOS =
+  PTrajectoryStateOnDet const & seedTSOS =
   trajectoryStateTransform::persistentState( firstTSOS, hits.at(0)->geographicalId().rawId());
-  TrajectorySeed seed(*seedTSOS,recHitsContainer,dir);
-  //unused  TrajectorySeed::range range = seed.recHits();
+  TrajectorySeed seed(seedTSOS,recHitsContainer,dir);
 
   //MuonPatternRecoDumper debug;
   //std::cout<<" firstTSOS = "<<debug.dumpTSOS(firstTSOS)<<std::endl;

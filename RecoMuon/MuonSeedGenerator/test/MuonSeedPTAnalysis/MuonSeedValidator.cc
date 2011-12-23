@@ -825,15 +825,11 @@ void MuonSeedValidator::RecSeedReader( Handle<TrajectorySeedCollection> rec_seed
 
          // the error_vector v[15]-> [0] , [2] , [5] , [9] , [14]
          //                          q/p   dx    dy     x      y
-         std::vector<float> err_mx = pTSOD.errorMatrix();
-         err_qbp.push_back( sqrt(err_mx[0]) );
-         err_dx.push_back( sqrt(err_mx[2])  );
-         err_dy.push_back( sqrt(err_mx[5])  );
-         err_x.push_back(  sqrt(err_mx[9])  );
-         err_y.push_back(  sqrt(err_mx[14]) );
-         //for (unsigned i=0; i< err_mx.size(); i++) {
-         //    cout <<"Err"<<i<<" = "<<err_mx[i]<<"  -> "<<sqrt(err_mx[i])<<endl;
-         //}
+         err_qbp.push_back( sqrt(pTSOD.error(0)) );
+         err_dx.push_back( sqrt(pTSOD.error(2))  );
+         err_dy.push_back( sqrt(pTSOD.error(5))  );
+         err_x.push_back(  sqrt(pTSOD.error(9))  );
+         err_y.push_back(  sqrt(pTSOD.error(14)) );
 
          // seed layer
          DetId pdid(pTSOD.detId()); 
