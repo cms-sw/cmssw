@@ -179,8 +179,8 @@ const TrajectorySeed * SeedForPhotonConversion1Leg::buildSeed(
   } 
   
   
-  PTrajectoryStateOnDet const * PTraj(
-      trajectoryStateTransform::persistentState(updatedState, hit->geographicalId().rawId()));
+  PTrajectoryStateOnDet const & PTraj =
+      trajectoryStateTransform::persistentState(updatedState, hit->geographicalId().rawId());
   
   seedCollection.push_back( TrajectorySeed(PTraj,seedHits,alongMomentum));
   return &seedCollection.back();
