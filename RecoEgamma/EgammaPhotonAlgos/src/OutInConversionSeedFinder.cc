@@ -470,19 +470,18 @@ void OutInConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1,
 
         if ( nSeedsPerBC_ >= maxNumberOfOutInSeedsPerBC_ ) return;
    
-	TrajectoryStateTransform tsTransform;
-	PTrajectoryStateOnDet* ptsod= tsTransform.persistentState(state2, meas2.recHit()->hit()->geographicalId().rawId()  );
+	
+	PTrajectoryStateOnDet  ptsod= trajectoryStateTransform::persistentState(state2, meas2.recHit()->hit()->geographicalId().rawId()  );
 
 	LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::createSeed new seed  from state " << state2.globalPosition()  <<  "\n";
-	LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::createSeed new seed  ptsod " <<  ptsod->parameters().position() << " R " << ptsod->parameters().position().perp() << " phi " << ptsod->parameters().position().phi() << " eta " << ptsod->parameters().position().eta() << "\n" ;
+	LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::createSeed new seed  ptsod " <<  ptsod.parameters().position() << " R " 
+                                              << ptsod.parameters().position().perp() << " phi " << ptsod.parameters().position().phi() << " eta " 
+                                              << ptsod.parameters().position().eta() << "\n";
 	
 
 
-	theSeeds_.push_back(TrajectorySeed( *ptsod, myHits, oppositeToMomentum ));
+	theSeeds_.push_back(TrajectorySeed( ptsod, myHits, oppositeToMomentum ));
         nSeedsPerBC_++;
- 
-        delete ptsod;  
-        
 
       }
     }
