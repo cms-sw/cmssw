@@ -13,11 +13,11 @@ namespace{
 
 namespace {
   void verify(DetId id,
-	      sn::Side sn) {
+	      sn::Side ss) {
     LocalTrajectoryParameters tp;
     PTrajectoryStateOnDet p(tp, id, ss);
     assert(p.detId()==id);
-    assert(surfaceSide()=ss);
+    assert(p.surfaceSide()==ss);
   }
 }
 
