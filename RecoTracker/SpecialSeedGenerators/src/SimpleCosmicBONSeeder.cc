@@ -585,9 +585,9 @@ bool SimpleCosmicBONSeeder::seeds(TrajectorySeedCollection &output, const edm::E
                 std::cout << "    Cartesian error (X,P) = \n" << updated.cartesianError().matrix() << std::endl;
             }
             
-            std::auto_ptr<PTrajectoryStateOnDet> PTraj(trajectoryStateTransform::persistentState(updated, 
-                                                            (*(seedOnMiddle_ ? trip.middle() : trip.inner())).geographicalId().rawId()));
-            output.push_back(TrajectorySeed(*PTraj,hits,
+            PTrajectoryStateOnDet const &  PTraj = trajectoryStateTransform::persistentState(updated, 
+                                                            (*(seedOnMiddle_ ? trip.middle() : trip.inner())).geographicalId().rawId());
+            output.push_back(TrajectorySeed(PTraj,hits,
                                                 ( (outer.y()-inner.y()>0) ? alongMomentum : oppositeToMomentum) ));
             if ((maxSeeds_ > 0) && (output.size() > size_t(maxSeeds_))) { 
                 output.clear(); 
