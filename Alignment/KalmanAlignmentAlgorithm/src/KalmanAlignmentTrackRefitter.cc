@@ -272,8 +272,8 @@ KalmanAlignmentTrackRefitter::refitSingleTracklet( const TrackingGeometry* geome
   TrajectorySeed seed( PTrajectoryStateOnDet(), recHits, propagator->propagationDirection() );
 
   // Generate track candidate.
-  TrajectoryStateTransform stateTransform;
-  PTrajectoryStateOnDet state = *stateTransform.persistentState( tsos, firstHit->det()->geographicalId().rawId() );
+  
+  PTrajectoryStateOnDet state = trajectoryStateTransform::persistentState( tsos, firstHit->det()->geographicalId().rawId() );
   TrackCandidate candidate( recHits, seed, state );
 
   AlgoProductCollection algoResult;
