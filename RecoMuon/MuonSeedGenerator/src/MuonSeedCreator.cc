@@ -305,10 +305,9 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
   DetId id = seg[last]->geographicalId();
 
   // Transform it in a TrajectoryStateOnSurface
-  TrajectoryStateTransform tsTransform;
   
-  //PTrajectoryStateOnDet *seedTSOS = tsTransform.persistentState( tsos, id.rawId());
-  std::auto_ptr<PTrajectoryStateOnDet> seedTSOS(tsTransform.persistentState( tsos, id.rawId()));  
+  
+  PTrajectoryStateOnDet seedTSOS = trajectoryStateTransform::persistentState( tsos, id.rawId());
 
   edm::OwnVector<TrackingRecHit> container;
   for (unsigned l=0; l<seg.size(); l++) {
@@ -316,7 +315,7 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
       //container.push_back(seg[l]->hit()); 
   }
 
-  TrajectorySeed theSeed(*seedTSOS,container,alongMomentum);
+  TrajectorySeed theSeed(seedTSOS,container,alongMomentum);
   return theSeed;
 }
 
