@@ -40,4 +40,8 @@ namespace trajectoryStateTransform {
 
 }
 
+// backward compatibility
+struct TrajectoryStateTransform {};
+
+
 #endif
