@@ -10,7 +10,7 @@
 class PTrajectoryStateOnDet {
 private:
   // we assume that id cannot be calo! (i.e. det<4)
-  static const idMask = 0x3fffffff;
+  static const unsigned int idMask = 0x3fffffff;
 
   struct Packing {
     unsigned char ss : 2;
@@ -24,7 +24,8 @@ private:
   union Pack {
     Pack(){}
     Pack(unsigned int pack) : packed(pack){}
-    Pack(unsigned int id, int surfaceSide) : packed(id), bytes.ss(surfaceSide) {
+    Pack(unsigned int id, int surfaceSide) : packed(id) {
+      bytes.ss=surfaceSide;
       assert(surfaceSide<3);
       assert((id>>28)<4);
     }
