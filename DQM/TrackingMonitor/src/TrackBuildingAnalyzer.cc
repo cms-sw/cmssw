@@ -268,12 +268,12 @@ void TrackBuildingAnalyzer::analyze
 )
 {
 
-    TrajectoryStateTransform tsTransform;
+    
     TSCBLBuilderNoMaterial tscblBuilder;
 
     //get parameters and errors from the candidate state
     TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder->build(&*(candidate.recHits().second-1));
-    TrajectoryStateOnSurface state = tsTransform.transientState( candidate.startingState(), recHit->surface(), theMF.product());
+    TrajectoryStateOnSurface state = trajectoryStateTransform::transientState( candidate.startingState(), recHit->surface(), theMF.product());
     TrajectoryStateClosestToBeamLine tsAtClosestApproachSeed = tscblBuilder(*state.freeState(),bs);//as in TrackProducerAlgorithm
     if(!(tsAtClosestApproachSeed.isValid())) {
         edm::LogVerbatim("TrackBuilding") << "TrajectoryStateClosestToBeamLine not valid";
@@ -323,12 +323,12 @@ void TrackBuildingAnalyzer::analyze
 )
 {
 
-    TrajectoryStateTransform tsTransform;
+    
     TSCBLBuilderNoMaterial tscblBuilder;
 
     //get parameters and errors from the candidate state
     TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder->build(&*(candidate.recHits().second-1));
-    TrajectoryStateOnSurface state = tsTransform.transientState( candidate.trajectoryStateOnDet(), recHit->surface(), theMF.product());
+    TrajectoryStateOnSurface state = trajectoryStateTransform::transientState( candidate.trajectoryStateOnDet(), recHit->surface(), theMF.product());
     TrajectoryStateClosestToBeamLine tsAtClosestApproachTrackCand = tscblBuilder(*state.freeState(),bs);//as in TrackProducerAlgorithm
     if(!(tsAtClosestApproachTrackCand.isValid())) {
         edm::LogVerbatim("TrackBuilding") << "TrajectoryStateClosestToBeamLine not valid";

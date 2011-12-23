@@ -44,13 +44,13 @@
 using namespace std;
 
 
-FastTSGFromPropagation::FastTSGFromPropagation(const edm::ParameterSet & iConfig) :theTkLayerMeasurements (0), theTracker(0), theNavigation(0), theService(0), theEstimator(0), theTSTransformer(0), theSigmaZ(0), theConfig (iConfig)
+FastTSGFromPropagation::FastTSGFromPropagation(const edm::ParameterSet & iConfig) :theTkLayerMeasurements (0), theTracker(0), theNavigation(0), theService(0), theEstimator(0),  theSigmaZ(0), theConfig (iConfig)
 {
   theCategory = "FastSimulation|Muons||FastTSGFromPropagation";
 
 }
 
-FastTSGFromPropagation::FastTSGFromPropagation(const edm::ParameterSet & iConfig, const MuonServiceProxy* service) : theTkLayerMeasurements (0), theTracker(0), theNavigation(0), theService(service),theUpdator(0), theEstimator(0), theTSTransformer(0), theSigmaZ(0), theConfig (iConfig)
+FastTSGFromPropagation::FastTSGFromPropagation(const edm::ParameterSet & iConfig, const MuonServiceProxy* service) : theTkLayerMeasurements (0), theTracker(0), theNavigation(0), theService(service),theUpdator(0), theEstimator(0), theSigmaZ(0), theConfig (iConfig)
 {
   theCategory = "FastSimulation|Muons|FastTSGFromPropagation";
 }
@@ -63,7 +63,6 @@ FastTSGFromPropagation::~FastTSGFromPropagation()
   if ( theUpdator ) delete theUpdator;
   if ( theEstimator ) delete theEstimator;
   if ( theTkLayerMeasurements ) delete theTkLayerMeasurements;
-  if ( theTSTransformer ) delete  theTSTransformer;
   if ( theErrorMatrixAdjuster ) delete theErrorMatrixAdjuster;
 
 }
@@ -173,9 +172,9 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 			   // check direction
 			   const BasicTrajectorySeed* aSeed = &ts;
 			   PTrajectoryStateOnDet PTSOD = aSeed->startingState();
-			   TrajectoryStateTransform tsTransform;
+			   
 			   const GeomDet *g = theGeometry->idToDet(PTSOD.detId());
-			   TrajectoryStateOnSurface tsos = tsTransform.transientState(PTSOD, &(g->surface()),  &*theService->magneticField().product());
+			   TrajectoryStateOnSurface tsos = trajectoryStateTransform::transientState(PTSOD, &(g->surface()),  &*theService->magneticField().product());
 			   if( tsos.globalMomentum().basicVector()*seedState.globalMomentum().basicVector() < 0. ) continue;
 			   result.push_back(ts);
 			   isMatch = true;
@@ -235,9 +234,9 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 			   // check direction
 			   const BasicTrajectorySeed* aSeed = &ts;
 			   PTrajectoryStateOnDet PTSOD = aSeed->startingState();
-			   TrajectoryStateTransform tsTransform;
+			   
 			   const GeomDet *g = theGeometry->idToDet(PTSOD.detId());
-			   TrajectoryStateOnSurface tsos = tsTransform.transientState(PTSOD, &(g->surface()),  &*theService->magneticField().product());
+			   TrajectoryStateOnSurface tsos = trajectoryStateTransform::transientState(PTSOD, &(g->surface()),  &*theService->magneticField().product());
 			   if( tsos.globalMomentum().basicVector()*seedState.globalMomentum().basicVector() < 0. ) continue;
 			   result.push_back(ts);
 		       }
@@ -251,10 +250,10 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
        for( unsigned ir = 0; ir < tmpTS.size(); ir++ ) {
 	 const BasicTrajectorySeed* aSeed = &((tmpTS)[ir]);
 	 PTrajectoryStateOnDet PTSOD = aSeed->startingState();
-	 TrajectoryStateTransform tsTransform;
+	 
 	 DetId seedDetId(PTSOD.detId());
 	 const GeomDet * g = theGeometry->idToDet(seedDetId);
-	 TrajectoryStateOnSurface tsos = tsTransform.transientState(PTSOD, &(g->surface()),  &*theService->magneticField().product());
+	 TrajectoryStateOnSurface tsos = trajectoryStateTransform::transientState(PTSOD, &(g->surface()),  &*theService->magneticField().product());
 		 cout << "tsos3 = " << tsos.globalMomentum() << endl;
 	 if( _index == ir ) {
 		 cout << "tsos4 = " << tsos.globalMomentum() << endl;
@@ -326,8 +325,6 @@ void FastTSGFromPropagation::init(const MuonServiceProxy* service) {
   theHitProducer = theConfig.getParameter<edm::InputTag>("HitProducer");
 
   theUpdator = new KFUpdator();
-
-  theTSTransformer = new TrajectoryStateTransform();
 
   theSigmaZ = theConfig.getParameter<double>("SigmaZ");
 
@@ -407,14 +404,13 @@ TrajectoryStateOnSurface FastTSGFromPropagation::innerState(const TrackCand& sta
       innerTS = staMuon.first->lastMeasurement().updatedState();
     }
   } else {
-    innerTS = theTSTransformer->innerStateOnSurface(*(staMuon.second),*theService->trackingGeometry(), &*theService->magneticField());
+    innerTS = trajectoryStateTransform::innerStateOnSurface(*(staMuon.second),*theService->trackingGeometry(), &*theService->magneticField());
   }
   //rescale the error
   adjust(innerTS);
 
   return  innerTS;
 
-//    return theTSTransformer->innerStateOnSurface(*(staMuon.second),*theService->trackingGeometry(), &*theService->magneticField());
 }
 
 TrajectoryStateOnSurface FastTSGFromPropagation::outerTkState(const TrackCand& staMuon) const {
@@ -422,7 +418,7 @@ TrajectoryStateOnSurface FastTSGFromPropagation::outerTkState(const TrackCand& s
   TrajectoryStateOnSurface result;
 
   if ( theUseVertexStateFlag && staMuon.second->pt() > 1.0 ) {
-    FreeTrajectoryState iniState = theTSTransformer->initialFreeState(*(staMuon.second), &*theService->magneticField());
+    FreeTrajectoryState iniState = trajectoryStateTransform::initialFreeState(*(staMuon.second), &*theService->magneticField());
     //rescale the error at IP
     adjust(iniState); 
 
@@ -444,8 +440,8 @@ TrajectorySeed FastTSGFromPropagation::createSeed(const TrajectoryStateOnSurface
 
 TrajectorySeed FastTSGFromPropagation::createSeed(const TrajectoryStateOnSurface& tsos, const edm::OwnVector<TrackingRecHit>& container, const DetId& id) const {
 
-  PTrajectoryStateOnDet* seedTSOS = theTSTransformer->persistentState(tsos,id.rawId());
-  return TrajectorySeed(*seedTSOS,container,oppositeToMomentum);
+  PTrajectoryStateOnDet seedTSOS = trajectoryStateTransform::persistentState(tsos,id.rawId());
+  return TrajectorySeed(seedTSOS,container,oppositeToMomentum);
 
 }
 

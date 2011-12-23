@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Dec 12 09:55:42 CET 2007
-// $Id: HLTMuonDQMSource.cc,v 1.43 2011/03/29 14:19:52 hdyoo Exp $
+// $Id: HLTMuonDQMSource.cc,v 1.44 2011/11/08 17:57:23 hdyoo Exp $
 // Modification:  Sanghyeon Song (Chonnam National University)
 // contact: sanghyeon.song@cern.ch
 //
@@ -1432,10 +1432,10 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
       for (l2seed=l2seeds->begin() ; l2seed != l2seeds->end();++l2seed){
         PTrajectoryStateOnDet state=l2seed->startingState();
         // Transform Trajectory State on Det to a TSOS
-        TrajectoryStateTransform tsTransform;
+        
         DetId seedDetId(state.detId());
         const GeomDet* gdet = glbTrackingGeometry->idToDet( seedDetId );
-        TrajectoryStateOnSurface tsos = tsTransform.transientState(state, &(gdet->surface()), magField.product());
+        TrajectoryStateOnSurface tsos = trajectoryStateTransform::transientState(state, &(gdet->surface()), magField.product());
         float pt = tsos.globalMomentum().perp();
         float eta = tsos.globalPosition().eta();
         float phi = tsos.globalPosition().phi();
@@ -1569,10 +1569,10 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
       L3MuonTrajectorySeedCollection::const_iterator l3seedOIState;
       for(l3seedOIState=l3seedsOIState->begin(); l3seedOIState != l3seedsOIState->end(); ++l3seedOIState){
         PTrajectoryStateOnDet state=l3seedOIState->startingState();
-        TrajectoryStateTransform tsTransform;
+        
         DetId seedDetId(state.detId());
         const GeomDet* gdet = glbTrackingGeometry->idToDet( seedDetId );
-        TrajectoryStateOnSurface tsos = tsTransform.transientState(state, &(gdet->surface()), magField.product());
+        TrajectoryStateOnSurface tsos = trajectoryStateTransform::transientState(state, &(gdet->surface()), magField.product());
 
         float pt = tsos.globalMomentum().perp();
         float eta = tsos.globalPosition().eta();
@@ -1601,10 +1601,10 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
       L3MuonTrajectorySeedCollection::const_iterator l3seedOIHit;
       for(l3seedOIHit=l3seedsOIHit->begin(); l3seedOIHit != l3seedsOIHit->end(); ++l3seedOIHit){
         PTrajectoryStateOnDet state=l3seedOIHit->startingState();
-        TrajectoryStateTransform tsTransform;
+        
         DetId seedDetId(state.detId());
         const GeomDet* gdet = glbTrackingGeometry->idToDet( seedDetId );
-        TrajectoryStateOnSurface tsos = tsTransform.transientState(state, &(gdet->surface()), magField.product());
+        TrajectoryStateOnSurface tsos = trajectoryStateTransform::transientState(state, &(gdet->surface()), magField.product());
 
         float pt = tsos.globalMomentum().perp();
         float eta = tsos.globalPosition().eta();
@@ -1631,10 +1631,10 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
       L3MuonTrajectorySeedCollection::const_iterator l3seedIOHit;
       for(l3seedIOHit=l3seedsIOHit->begin(); l3seedIOHit != l3seedsIOHit->end(); ++l3seedIOHit){
         PTrajectoryStateOnDet state=l3seedIOHit->startingState();
-        TrajectoryStateTransform tsTransform;
+        
         DetId seedDetId(state.detId());
         const GeomDet* gdet = glbTrackingGeometry->idToDet( seedDetId );
-        TrajectoryStateOnSurface tsos = tsTransform.transientState(state, &(gdet->surface()), magField.product());
+        TrajectoryStateOnSurface tsos = trajectoryStateTransform::transientState(state, &(gdet->surface()), magField.product());
 
         float pt = tsos.globalMomentum().perp();
         float eta = tsos.globalPosition().eta();
@@ -1662,10 +1662,10 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
       for (l3seed=l3seeds->begin() ; l3seed != l3seeds->end();++l3seed){
         PTrajectoryStateOnDet state=l3seed->startingState();
         // Transform Trajectory State on Det to a TSOS
-        TrajectoryStateTransform tsTransform;
+        
         DetId seedDetId(state.detId());
         const GeomDet* gdet = glbTrackingGeometry->idToDet( seedDetId );
-        TrajectoryStateOnSurface tsos = tsTransform.transientState(state, &(gdet->surface()), magField.product());
+        TrajectoryStateOnSurface tsos = trajectoryStateTransform::transientState(state, &(gdet->surface()), magField.product());
 
         float pt = tsos.globalMomentum().perp();
         float eta = tsos.globalPosition().eta();

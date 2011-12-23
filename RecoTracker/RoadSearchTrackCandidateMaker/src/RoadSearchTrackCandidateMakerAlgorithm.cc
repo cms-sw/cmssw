@@ -10,8 +10,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: innocent $
-// $Date: 2011/12/22 20:48:13 $
-// $Revision: 1.73 $
+// $Date: 2011/12/22 21:14:29 $
+// $Revision: 1.74 $
 //
 
 #include <vector>
@@ -1922,9 +1922,8 @@ TrackCandidateCollection RoadSearchTrackCandidateMakerAlgorithm::PrepareTrackCan
       const GeomDet* det = trackerGeom->idToDet(FirstHitId);
       firstState = theAnalyticalPropagator->propagate(firstMeasurement.updatedState(), det->surface());	  
       if (firstState.isValid()) {
-	PTrajectoryStateOnDet *state = theTransformer->persistentState(firstState,FirstHitId.rawId());
-	theCollection.push_back(TrackCandidate(goodHits,traj[i].seed(),*state));
-	delete state;
+	PTrajectoryStateOnDet state = trajectoryStateTransform::persistentState(firstState,FirstHitId.rawId());
+	theCollection.push_back(TrackCandidate(goodHits,traj[i].seed(),state));
       }
     }
     if (debugCosmics_) std::cout << "Original collection had " << theTrajectories.size() 
@@ -1953,10 +1952,8 @@ TrackCandidateCollection RoadSearchTrackCandidateMakerAlgorithm::PrepareTrackCan
            const GeomDet* det = trackerGeom->idToDet(FirstHitId);
            firstState = theAnalyticalPropagator->propagate(firstMeasurement.updatedState(), det->surface());	  
            if (firstState.isValid() == false) continue;    
-           PTrajectoryStateOnDet *state = theTransformer->persistentState(firstState,FirstHitId.rawId());
-           theCollection.push_back(TrackCandidate(goodHits,it->seed(),*state));
-           delete state;
-
+           PTrajectoryStateOnDet state = trajectoryStateTransform::persistentState(firstState,FirstHitId.rawId());
+           theCollection.push_back(TrackCandidate(goodHits,it->seed(),state));
         }
      }
   }

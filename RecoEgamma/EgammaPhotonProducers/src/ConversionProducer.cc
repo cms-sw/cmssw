@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Authors:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: ConversionProducer.cc,v 1.12 2011/08/17 16:41:24 nancy Exp $
+// $Id: ConversionProducer.cc,v 1.13 2011/08/17 16:59:16 nancy Exp $
 //
 //
 
@@ -621,7 +621,7 @@ bool ConversionProducer::getTrackImpactPosition(const reco::Track* tk_ref,
                                                 math::XYZPointF& ew){
 
   PropagatorWithMaterial propag( alongMomentum, 0.000511, magField );
-  TrajectoryStateTransform transformer;
+  
   ReferenceCountingPointer<Surface> ecalWall(
                                              new  BoundCylinder( GlobalPoint(0.,0.,0.), TkRotation<float>(),
                                                                  SimpleCylinderBounds( 129, 129, -320.5, 320.5 ) ) );
@@ -640,8 +640,8 @@ bool ConversionProducer::getTrackImpactPosition(const reco::Track* tk_ref,
                                                                  new BoundDisk( Surface::PositionType( 0, 0, endcapZ), rot,
                                                                                 SimpleDiskBounds( 0, endcapRadius, -epsilon, epsilon)));
 
-  //const TrajectoryStateOnSurface myTSOS = transformer.innerStateOnSurface(*(*ref), *trackerGeom, magField);
-  const TrajectoryStateOnSurface myTSOS = transformer.outerStateOnSurface(*tk_ref, *trackerGeom, magField);
+  //const TrajectoryStateOnSurface myTSOS = trajectoryStateTransform::innerStateOnSurface(*(*ref), *trackerGeom, magField);
+  const TrajectoryStateOnSurface myTSOS = trajectoryStateTransform::outerStateOnSurface(*tk_ref, *trackerGeom, magField);
   TrajectoryStateOnSurface  stateAtECAL;
   stateAtECAL = propag.propagate(myTSOS, *theBarrel_);
   if (!stateAtECAL.isValid() || ( stateAtECAL.isValid() && fabs(stateAtECAL.globalPosition().eta() ) >1.479 )  ) {
@@ -740,7 +740,7 @@ bool ConversionProducer::checkPhi(const edm::RefToBase<reco::Track>& tk_l, const
     double iphi1 = tk_l->innerMomentum().phi(), iphi2 = tk_r->innerMomentum().phi();
     if (vtx.isValid()){
 	    PropagatorWithMaterial propag( anyDirection, 0.000511, magField );
-	    TrajectoryStateTransform transformer;
+	    
 	    double recoPhoR = vtx.position().Rho();
 	    Surface::RotationType rot;
 	    ReferenceCountingPointer<BoundCylinder>  theBarrel_(new BoundCylinder( Surface::PositionType(0,0,0), rot,
@@ -749,8 +749,8 @@ bool ConversionProducer::checkPhi(const edm::RefToBase<reco::Track>& tk_l, const
                                                         new BoundDisk( Surface::PositionType( 0, 0, vtx.position().z()), rot,
                                                                        SimpleDiskBounds( 0, recoPhoR, -0.001, 0.001)));
 
-	    const TrajectoryStateOnSurface myTSOS1 = transformer.innerStateOnSurface(*tk_l, *trackerGeom, magField);
-	    const TrajectoryStateOnSurface myTSOS2 = transformer.innerStateOnSurface(*tk_r, *trackerGeom, magField);
+	    const TrajectoryStateOnSurface myTSOS1 = trajectoryStateTransform::innerStateOnSurface(*tk_l, *trackerGeom, magField);
+	    const TrajectoryStateOnSurface myTSOS2 = trajectoryStateTransform::innerStateOnSurface(*tk_r, *trackerGeom, magField);
 	    TrajectoryStateOnSurface  stateAtVtx1, stateAtVtx2;
 	    stateAtVtx1 = propag.propagate(myTSOS1, *theBarrel_);
 	    if (!stateAtVtx1.isValid() ) {

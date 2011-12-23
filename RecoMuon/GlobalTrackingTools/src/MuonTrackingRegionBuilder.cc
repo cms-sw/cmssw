@@ -3,8 +3,8 @@
  *
  *  Build a TrackingRegion around a standalone muon 
  *
- *  $Date: 2010/09/06 18:41:59 $
- *  $Revision: 1.18 $
+ *  $Date: 2011/08/25 19:50:26 $
+ *  $Revision: 1.19 $
  *
  *  \author A. Everett - Purdue University
  *  \author A. Grelli -  Purdue University, Pavia University
@@ -109,8 +109,8 @@ MuonTrackingRegionBuilder::region(const reco::Track& staTrack) const {
 
   // get the free trajectory state of the muon updated at vertex
   TSCPBuilderNoMaterial tscpBuilder; 
-  TrajectoryStateTransform tsTransform;
-  FreeTrajectoryState muFTS = tsTransform.initialFreeState(staTrack,&*theService->magneticField());
+  
+  FreeTrajectoryState muFTS = trajectoryStateTransform::initialFreeState(staTrack,&*theService->magneticField());
 
   LogDebug("MuonTrackingRegionBuilder")<<"from state: "<<muFTS;
 

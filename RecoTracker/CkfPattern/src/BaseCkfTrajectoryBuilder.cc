@@ -55,7 +55,7 @@ BaseCkfTrajectoryBuilder::~BaseCkfTrajectoryBuilder(){
 void
 BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed,  std::vector<TrajectoryMeasurement> & result) const
 {
-  TrajectoryStateTransform tsTransform;
+  
 
   TrajectorySeed::range hitRange = seed.recHits();
   for (TrajectorySeed::const_iterator ihit = hitRange.first; 
@@ -77,14 +77,14 @@ BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed,  std::vec
 	return; // FIXME: should throw exception
       }
 
-      TSOS updatedState = tsTransform.transientState( pState, &(gdet->surface()), 
+      TSOS updatedState = trajectoryStateTransform::transientState( pState, &(gdet->surface()), 
 						      theForwardPropagator->magneticField());
       result.push_back(TM( invalidState, updatedState, recHit, 0, hitLayer));
     }
     else {
       PTrajectoryStateOnDet pState( seed.startingState());
 
-      TSOS outerState = tsTransform.transientState(pState,
+      TSOS outerState = trajectoryStateTransform::transientState(pState,
 						   &((theMeasurementTracker->geomTracker()->idToDet(
 										     (hitRange.second - 1)->geographicalId()))->surface()),  
 						   theForwardPropagator->magneticField());
@@ -203,9 +203,9 @@ BaseCkfTrajectoryBuilder::findStateAndLayers(const TempTrajectory& traj) const
       DetId id(ptod.detId());
       const GeomDet * g = theMeasurementTracker->geomTracker()->idToDet(id);                    
       const Surface * surface=&g->surface();
-      TrajectoryStateTransform tsTransform;
       
-      TSOS currentState = TrajectoryStateOnSurface(tsTransform.transientState(ptod,surface,theForwardPropagator->magneticField()));      
+      
+      TSOS currentState = TrajectoryStateOnSurface(trajectoryStateTransform::transientState(ptod,surface,theForwardPropagator->magneticField()));      
       const DetLayer* lastLayer = theMeasurementTracker->geometricSearchTracker()->detLayer(id);      
       return StateAndLayers(currentState,lastLayer->nextLayers( *currentState.freeState(), traj.direction()) );
     }

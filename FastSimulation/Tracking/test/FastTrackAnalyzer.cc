@@ -686,7 +686,7 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
     for(TrackCandidateCollection::const_iterator it = theTrackCandColl->begin(); it!= theTrackCandColl->end(); it++){
       PTrajectoryStateOnDet state = it->trajectoryStateOnDet();
       //convert PTrajectoryStateOnDet to TrajectoryStateOnSurface
-      TrajectoryStateTransform transformer;
+      
       DetId  detId(state.detId());
       TrajectoryStateOnSurface theTSOS = transformer.transientState( state,
 								     &(theG->idToDet(detId)->surface()), 

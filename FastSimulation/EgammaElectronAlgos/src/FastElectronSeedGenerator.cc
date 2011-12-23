@@ -70,7 +70,7 @@ FastElectronSeedGenerator::FastElectronSeedGenerator(
   theUpdator(0), thePropagator(0),
   //   theMeasurementTracker(0),
   //   theNavigationSchool(0)
-  theSetup(0), theBeamSpot(beamSpot), 
+  theSetup(0), theBeamSpot(beamSpot)
 {
 
 #ifdef FAMOS_DEBUG

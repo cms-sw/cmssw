@@ -260,7 +260,7 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::buildSeed(const GlobalVector& mome
 	LogDebug("SeedFromGenericPairOrTriplet") << "starting TSOS " << seedTSOS ;
 	seedTSOS.rescaleError(theErrorRescaling);
 	PTrajectoryStateOnDet PTraj=
-		theTransformer.persistentState(seedTSOS, trHits[1]->geographicalId().rawId());
+		trajectoryStateTransform::persistentState(seedTSOS, trHits[1]->geographicalId().rawId());
 	edm::OwnVector<TrackingRecHit> seed_hits;
 	//build the transientTrackingRecHit for the starting hit, then call the method clone to rematch if needed
 	std::vector<const TrackingRecHit*>::const_iterator ihits;

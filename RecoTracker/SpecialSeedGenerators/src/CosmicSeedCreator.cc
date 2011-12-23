@@ -122,7 +122,7 @@ const TrajectorySeed * CosmicSeedCreator::trajectorySeed(TrajectorySeedCollectio
     TrajectoryStateOnSurface tsos(freeState, *usedHit->surface());
     
     
-    PTrajectoryStateOnDet const & PTraj = trajectoryStateTransform::persistentState(tsos, usedHit->hit()->geographicalId().rawId()));
+    PTrajectoryStateOnDet const & PTraj = trajectoryStateTransform::persistentState(tsos, usedHit->hit()->geographicalId().rawId());
     seedCollection.push_back( TrajectorySeed(PTraj,seedHits,seedDirection));
     
   }//end charge loop

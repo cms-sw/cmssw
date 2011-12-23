@@ -208,11 +208,11 @@ void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     const TrackCandidate::range& recHitVec=theTC->recHits();
 
     //convert PTrajectoryStateOnDet to TrajectoryStateOnSurface
-    TrajectoryStateTransform transformer;
+    
     
     DetId  detId(state.detId());
     TrajectoryStateOnSurface theTSOS=
-      transformer.transientState(state, &(theG->idToDet(detId)->surface()),theMF.product());
+      trajectoryStateTransform::transientState(state, &(theG->idToDet(detId)->surface()),theMF.product());
 
     if (theTSOS.globalMomentum().eta()>maxeta || theTSOS.globalMomentum().eta()<mineta) continue;
     

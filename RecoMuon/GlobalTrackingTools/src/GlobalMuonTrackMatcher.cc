@@ -2,8 +2,8 @@
  *  Class: GlobalMuonTrackMatcher
  *
  * 
- *  $Date: 2010/09/10 21:43:56 $
- *  $Revision: 1.25 $
+ *  $Date: 2010/11/19 22:06:13 $
+ *  $Revision: 1.26 $
  *  
  *  \author Chang Liu - Purdue University
  *  \author Norbert Neumeister - Purdue University
@@ -379,8 +379,8 @@ GlobalMuonTrackMatcher::convertToTSOSTk(const TrackCand& staCand,
   if (tkCand.second.isNonnull()) {
     // make sure the tracker track has enough momentum to reach the muon chambers
     if ( !(tkCand.second->p() < theMinP || tkCand.second->pt() < theMinPt )) {
-      TrajectoryStateTransform tsTransform;
-      outerTkTsos = tsTransform.outerStateOnSurface(*tkCand.second,*theService->trackingGeometry(),&*theService->magneticField());
+      
+      outerTkTsos = trajectoryStateTransform::outerStateOnSurface(*tkCand.second,*theService->trackingGeometry(),&*theService->magneticField());
     }
   }
   
@@ -434,9 +434,9 @@ GlobalMuonTrackMatcher::convertToTSOSMuHit(const TrackCand& staCand,
     // make sure the tracker track has enough momentum to reach the muon chambers
     if ( !(tkCand.second->p() < theMinP || tkCand.second->pt() < theMinPt ) ) {
       TrajectoryStateOnSurface innerTkTsos;
-      TrajectoryStateTransform tsTransform;
-      outerTkTsos = tsTransform.outerStateOnSurface(*tkCand.second,*theService->trackingGeometry(),&*theService->magneticField());
-      innerTkTsos = tsTransform.innerStateOnSurface(*tkCand.second,*theService->trackingGeometry(),&*theService->magneticField());
+      
+      outerTkTsos = trajectoryStateTransform::outerStateOnSurface(*tkCand.second,*theService->trackingGeometry(),&*theService->magneticField());
+      innerTkTsos = trajectoryStateTransform::innerStateOnSurface(*tkCand.second,*theService->trackingGeometry(),&*theService->magneticField());
       // for cosmics, outer-most referst to last traversed layer
       if ( (innerMuTSOS.globalPosition() -  outerTkTsos.globalPosition()).mag() > (innerMuTSOS.globalPosition() -  innerTkTsos.globalPosition()).mag() )
 	outerTkTsos = innerTkTsos;
@@ -481,9 +481,9 @@ GlobalMuonTrackMatcher::convertToTSOSTkHit(const TrackCand& staCand,
   if ( tkCand.second.isNonnull() ) {
     // make sure the tracker track has enough momentum to reach the muon chambers
     if ( !(tkCand.second->p() < theMinP || tkCand.second->pt() < theMinPt )) {
-      TrajectoryStateTransform tsTransform;
-      outerTkTsos = tsTransform.outerStateOnSurface(*tkCand.second,*theService->trackingGeometry(),&*theService->magneticField());
-      innerTkTsos = tsTransform.innerStateOnSurface(*tkCand.second,*theService->trackingGeometry(),&*theService->magneticField());
+      
+      outerTkTsos = trajectoryStateTransform::outerStateOnSurface(*tkCand.second,*theService->trackingGeometry(),&*theService->magneticField());
+      innerTkTsos = trajectoryStateTransform::innerStateOnSurface(*tkCand.second,*theService->trackingGeometry(),&*theService->magneticField());
       
       // for cosmics, outer-most referst to last traversed layer
       if ( (innerMuTSOS.globalPosition() -  outerTkTsos.globalPosition()).mag() > (innerMuTSOS.globalPosition() -  innerTkTsos.globalPosition()).mag() )

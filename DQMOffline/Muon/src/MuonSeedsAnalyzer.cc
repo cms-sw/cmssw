@@ -4,7 +4,7 @@
  *
  *  $Date: 2008/03/25
  18:37:05 $
- *  $Revision: 1.13 $
+ *  $Revision: 1.14 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -239,10 +239,10 @@ TrajectoryStateOnSurface MuonSeedsAnalyzer::getSeedTSOS(const TrajectorySeed& se
   // Get the Trajectory State on Det (persistent version of a TSOS) from the seed
   PTrajectoryStateOnDet pTSOD = seed.startingState();
   // Transform it in a TrajectoryStateOnSurface
-  TrajectoryStateTransform tsTransform;
+  
   DetId seedDetId(pTSOD.detId());
   const GeomDet* gdet = service()->trackingGeometry()->idToDet( seedDetId );
-  TrajectoryStateOnSurface initialState = tsTransform.transientState(pTSOD, &(gdet->surface()), &*(service())->magneticField());
+  TrajectoryStateOnSurface initialState = trajectoryStateTransform::transientState(pTSOD, &(gdet->surface()), &*(service())->magneticField());
 
   return initialState;
 

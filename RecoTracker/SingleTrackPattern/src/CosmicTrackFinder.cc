@@ -184,7 +184,6 @@ namespace cms
 	
 	output->push_back(TrackCandidate(recHits,theTraj.seed(),state,theTraj.seedRef() ) );
 	
-	delete state;
       }
 
     }

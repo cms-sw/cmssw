@@ -355,10 +355,10 @@ ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	      updatedState =  kfUpdator_->update(state, *glob_hits[ih]);
 	      loc_hits.push_back(glob_hits[ih]->hit()->clone());
 	      if (ih==2){
-		PTrajectoryStateOnDet *PTraj= 
-		  transformer_->persistentState(updatedState,tripl[i][2]);
-		//		output->push_back(Trajectoryseed(*PTraj,loc_hits,alongMomentum));
-		unclean.push_back(make_pair(TrajectorySeed(*PTraj,loc_hits,alongMomentum), 
+		PTrajectoryStateOnDet const & PTraj= 
+		  trajectoryStateTransform::persistentState(updatedState,tripl[i][2]);
+		//		output->push_back(Trajectoryseed(PTraj,loc_hits,alongMomentum));
+		unclean.push_back(make_pair(TrajectorySeed(PTraj,loc_hits,alongMomentum), 
  					    make_pair(gv_corr,ch)));
 	      }
 	      //    }
@@ -416,14 +416,12 @@ ConvBremSeedProducer::beginRun(edm::Run& run,
 
   propagator_  =    new PropagatorWithMaterial(alongMomentum,0.0005,&(*magfield) );
   kfUpdator_   =    new KFUpdator();
-  transformer_ =    new TrajectoryStateTransform();
 }
 
 void 
 ConvBremSeedProducer::endRun() {
   delete propagator_;
   delete kfUpdator_;
-  delete transformer_;
 }
 
 void 

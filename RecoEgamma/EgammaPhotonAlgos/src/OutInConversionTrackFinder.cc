@@ -229,19 +229,18 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
       continue;
     }
 
-    PTrajectoryStateOnDet* state = 0;
+    PTrajectoryStateOnDet state;
     if(useSplitHits_ && (initState.second != thits.front()->det()) && thits.front()->det() ){ 
       TrajectoryStateOnSurface propagated = thePropagator_->propagate(initState.first,thits.front()->det()->surface());
       if (!propagated.isValid()) continue;
-      state = TrajectoryStateTransform().persistentState(propagated,
+      state = trajectoryStateTransform::persistentState(propagated,
 							 thits.front()->det()->geographicalId().rawId());
     }
-    if(!state) state = TrajectoryStateTransform().persistentState( initState.first,
+    else  state = trajectoryStateTransform::persistentState( initState.first,
 								   initState.second->geographicalId().rawId());
 
     LogDebug("OutInConversionTrackFinder")<< "OutInConversionTrackFinder  Number of hits for the track candidate " << recHits.size() << " TSOS charge " << initState.first.charge() << "\n";  
-    output_p.push_back(TrackCandidate(recHits, it->seed(),*state ) );
-    delete state;
+    output_p.push_back(TrackCandidate(recHits, it->seed(),state ) );
   }  
   
   

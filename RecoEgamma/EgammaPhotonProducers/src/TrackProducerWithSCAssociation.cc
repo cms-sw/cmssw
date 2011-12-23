@@ -132,10 +132,10 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
 	  const TrajectorySeed& seed = theTC->seed();
 	  
 	  //convert PTrajectoryStateOnDet to TrajectoryStateOnSurface
-	  TrajectoryStateTransform transformer;
+	  
 	  
 	  DetId  detId(state.detId());
-	  TrajectoryStateOnSurface theTSOS = transformer.transientState( state,
+	  TrajectoryStateOnSurface theTSOS = trajectoryStateTransform::transientState( state,
 									 &(theG.product()->idToDet(detId)->surface()), 
 									 theMF.product());
 	  

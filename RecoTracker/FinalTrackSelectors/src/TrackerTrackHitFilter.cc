@@ -528,9 +528,9 @@ TrackerTrackHitFilter::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
 TrackCandidate
 TrackerTrackHitFilter::makeCandidate(const reco::Track &tk, std::vector<TrackingRecHit *>::iterator hitsBegin, std::vector<TrackingRecHit *>::iterator hitsEnd) {
 
-    TrajectoryStateTransform transform;
+    
     PropagationDirection   pdir = tk.seedDirection();
-    PTrajectoryStateOnDet *state;
+    PTrajectoryStateOnDet state;
     if ( pdir == anyDirection ) throw cms::Exception("UnimplementedFeature") << "Cannot work with tracks that have 'anyDirecton' \n";
 
     //  double innerP=sqrt( pow(tk.innerMomentum().X(),2)+pow(tk.innerMomentum().Y(),2)+pow(tk.innerMomentum().Z(),2) );
@@ -538,14 +538,14 @@ TrackerTrackHitFilter::makeCandidate(const reco::Track &tk, std::vector<Tracking
 
     if ( (pdir == alongMomentum) == (  (tk.outerPosition()-tk.innerPosition()).Dot(tk.momentum()) >= 0    ) ) {
         // use inner state
-        TrajectoryStateOnSurface originalTsosIn(transform.innerStateOnSurface(tk, *theGeometry, &*theMagField));
-        state = transform.persistentState( originalTsosIn, DetId(tk.innerDetId()) );
+        TrajectoryStateOnSurface originalTsosIn(trajectoryStateTransform::innerStateOnSurface(tk, *theGeometry, &*theMagField));
+        state = trajectoryStateTransform::persistentState( originalTsosIn, DetId(tk.innerDetId()) );
     } else { 
         // use outer state
-        TrajectoryStateOnSurface originalTsosOut(transform.outerStateOnSurface(tk, *theGeometry, &*theMagField));
-        state = transform.persistentState( originalTsosOut, DetId(tk.outerDetId()) );
+        TrajectoryStateOnSurface originalTsosOut(trajectoryStateTransform::outerStateOnSurface(tk, *theGeometry, &*theMagField));
+        state = trajectoryStateTransform::persistentState( originalTsosOut, DetId(tk.outerDetId()) );
     }
-    TrajectorySeed seed(*state, TrackCandidate::RecHitContainer(), pdir);
+    TrajectorySeed seed(state, TrackCandidate::RecHitContainer(), pdir);
     TrackCandidate::RecHitContainer ownHits;
     ownHits.reserve(hitsEnd - hitsBegin);
     for ( ; hitsBegin != hitsEnd; ++hitsBegin) { 
@@ -553,8 +553,7 @@ TrackerTrackHitFilter::makeCandidate(const reco::Track &tk, std::vector<Tracking
       ownHits.push_back( *hitsBegin ); 
     }
         
-    TrackCandidate cand(ownHits, seed, *state, tk.seedRef());
-    delete state;
+    TrackCandidate cand(ownHits, seed, state, tk.seedRef());
 
     return cand;
 }

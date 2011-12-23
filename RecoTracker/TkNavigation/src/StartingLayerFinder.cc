@@ -131,8 +131,8 @@ StartingLayerFinder::startingLayers(const TrajectorySeed& aSeed) const {
   
   const GeomDet* gdet = theMeasurementTracker->geomTracker()->idToDet( DetId( aSeed.startingState().detId()));
   
-  TrajectoryStateTransform tsTransform;
-  TrajectoryStateOnSurface tsos = tsTransform.transientState( aSeed.startingState(), &(gdet->surface()), 
+  
+  TrajectoryStateOnSurface tsos = trajectoryStateTransform::transientState( aSeed.startingState(), &(gdet->surface()), 
 							      thePropagator->magneticField());
 
 

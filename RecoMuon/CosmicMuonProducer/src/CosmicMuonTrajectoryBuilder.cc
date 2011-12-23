@@ -4,8 +4,8 @@
  *  class to build trajectories of cosmic muons and beam-halo muons
  *
  *
- *  $Date: 2010/04/15 21:47:41 $
- *  $Revision: 1.54 $
+ *  $Date: 2010/08/11 00:42:19 $
+ *  $Revision: 1.55 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 
@@ -134,13 +134,13 @@ MuonTrajectoryBuilder::TrajectoryContainer
 CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed) {
 
   vector<Trajectory*> trajL = vector<Trajectory*>();
-  TrajectoryStateTransform tsTransform;
+  
   MuonPatternRecoDumper debug;
 
   PTrajectoryStateOnDet ptsd1(seed.startingState());
   DetId did(ptsd1.detId());
   const BoundPlane& bp = theService->trackingGeometry()->idToDet(did)->surface();
-  TrajectoryStateOnSurface lastTsos = tsTransform.transientState(ptsd1,&bp,&*theService->magneticField());
+  TrajectoryStateOnSurface lastTsos = trajectoryStateTransform::transientState(ptsd1,&bp,&*theService->magneticField());
   LogTrace(category_) << "Seed: mom "<<lastTsos.globalMomentum()
       			  <<"pos: " <<lastTsos.globalPosition();
   LogTrace(category_)  << "Seed: mom eta "<<lastTsos.globalMomentum().eta()

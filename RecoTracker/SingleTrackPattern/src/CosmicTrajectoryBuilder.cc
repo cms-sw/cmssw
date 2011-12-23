@@ -250,7 +250,7 @@ CosmicTrajectoryBuilder::startingTSOS(const TrajectorySeed& seed)const
 {
   PTrajectoryStateOnDet pState( seed.startingState());
   const GeomDet* gdet  = (&(*tracker))->idToDet(DetId(pState.detId()));
-  TSOS  State= tsTransform.transientState( pState, &(gdet->surface()), 
+  TSOS  State= trajectoryStateTransform::transientState( pState, &(gdet->surface()), 
 					   &(*magfield));
   return State;
 

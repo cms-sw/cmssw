@@ -144,8 +144,8 @@ MuonCkfTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj
       DetId id(ptod.detId());
       const GeomDet * g = theMeasurementTracker->geomTracker()->idToDet(id);
       const Surface * surface=&g->surface();
-      TrajectoryStateTransform tsTransform;
-      TrajectoryStateOnSurface currentState(tsTransform.transientState(ptod,surface,theForwardPropagator->magneticField()));
+      
+      TrajectoryStateOnSurface currentState(trajectoryStateTransform::transientState(ptod,surface,theForwardPropagator->magneticField()));
 
       //set the next layers to be that one the state is on
       const DetLayer * l=theMeasurementTracker->geometricSearchTracker()->detLayer(id);

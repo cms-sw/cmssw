@@ -10,7 +10,7 @@
 */
 //
 // Original Author:  Monica Vazquez Acosta (CERN)
-// $Id: EgammaHLTPixelMatchElectronAlgo.cc,v 1.13 2009/01/28 17:08:22 ghezzi Exp $
+// $Id: EgammaHLTPixelMatchElectronAlgo.cc,v 1.14 2009/10/14 14:18:31 covarell Exp $
 //
 //
 #include "RecoEgamma/EgammaHLTAlgos/interface/EgammaHLTPixelMatchElectronAlgo.h"
@@ -103,8 +103,8 @@ void EgammaHLTPixelMatchElectronAlgo::process(edm::Handle<TrackCollection> track
     
         // Get the momentum at vertex (not at the innermost layer)
     TSCPBuilderNoMaterial tscpBuilder;
-    TrajectoryStateTransform tsTransform;
-    FreeTrajectoryState fts = tsTransform.innerFreeState(t,theMagField.product());
+    
+    FreeTrajectoryState fts = trajectoryStateTransform::innerFreeState(t,theMagField.product());
     TrajectoryStateClosestToPoint tscp = tscpBuilder(fts, bs );
     
     float scale = scRef->energy()/tscp.momentum().mag();

@@ -291,8 +291,8 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       DetId id(ptod.detId());
       const GeomDet * g = theGeometry->idToDet(id);
       const Surface * surface=&g->surface();
-      TrajectoryStateTransform tsTransform;
-      TrajectoryStateOnSurface seedState(tsTransform.transientState(ptod,surface,theMagField));
+      
+      TrajectoryStateOnSurface seedState(trajectoryStateTransform::transientState(ptod,surface,theMagField));
       
       edm::ESHandle<Propagator> propagator;
       es.get<TrackingComponentsRecord>().get("AnyDirectionAnalyticalPropagator",propagator);
@@ -571,11 +571,8 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     if (aSeed->nHits()==0){
       //stabilize the fit with the true simtrack state
       //in case of zero hits
-      TrajectoryStateTransform tsTransform;
-      //PTSOD = *tsTransform.persistentState(seedStates[simTrackId],aSeed->startingState().detId());
-      PTrajectoryStateOnDet * aPointer = tsTransform.persistentState(seedStates[simTrackId],aSeed->startingState().detId()); 
-      PTSOD = *aPointer;
-      delete aPointer;
+      
+      PTSOD = trajectoryStateTransform::persistentState(seedStates[simTrackId],aSeed->startingState().detId());
  
     } else {
       //create the initial state from the SimTrack
@@ -606,11 +603,9 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       //      const TrajectoryStateOnSurface initialTSOS(initialFTS, initialLayer->surface());      
        const TrajectoryStateOnSurface initialTSOS = thePropagator->propagate(initialFTS,initialLayer->surface()) ;
        if (!initialTSOS.isValid()) continue; 
-       TrajectoryStateTransform tsTransform;
+       
 
-       PTrajectoryStateOnDet * aPointer = tsTransform.persistentState(initialTSOS,recHits.front().geographicalId().rawId()); 
-       PTSOD = *aPointer;
-       delete aPointer;
+       PTSOD = trajectoryStateTransform::persistentState(initialTSOS,recHits.front().geographicalId().rawId()); 
     }
     
     TrackCandidate  

@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.54 2011/03/15 23:04:47 drell Exp $
+// $Id: V0Fitter.cc,v 1.55 2011/11/12 01:39:27 drell Exp $
 //
 //
 
@@ -155,8 +155,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     if( tmpRef->normalizedChi2() < tkChi2Cut &&
         tmpRef->numberOfValidHits() >= tkNhitsCut ) {
       TransientTrack tmpTk( *tmpRef, &(*bFieldHandle), globTkGeomHandle );
-      TrajectoryStateTransform theTransform;
-      FreeTrajectoryState initialFTS = theTransform.initialFreeState(*tmpRef, magField);
+      
+      FreeTrajectoryState initialFTS = trajectoryStateTransform::initialFreeState(*tmpRef, magField);
       TSCBLBuilderNoMaterial blsBuilder;
       TrajectoryStateClosestToBeamLine tscb( blsBuilder(initialFTS, *theBeamSpotHandle) );
       

@@ -98,10 +98,9 @@ void SeedGeneratorForCRack::seeds(TrajectorySeedCollection &output,
 	  if ( outerUpdated.isValid()) {
 	    LogDebug("CosmicSeedFinder") <<"outerUpdated "<<outerUpdated;
 	    
-	    PTrajectoryStateOnDet *PTraj=  
+	    PTrajectoryStateOnDet PTraj=  
 	      trajectoryStateTransform::persistentState(outerUpdated, (*(HitPairs[is].outer())).geographicalId().rawId());
-	    output.push_back(TrajectorySeed(*PTraj,hits,alongMomentum));
-            delete PTraj;
+	    output.push_back(TrajectorySeed(PTraj,hits,alongMomentum));
 	    
 	  }else      edm::LogWarning("CosmicSeedFinder") << " SeedForCosmics first update failed ";
 	}else      edm::LogWarning("CosmicSeedFinder") << " SeedForCosmics first propagation failed ";
@@ -132,10 +131,9 @@ void SeedGeneratorForCRack::seeds(TrajectorySeedCollection &output,
 	  outerUpdated.rescaleError( multipleScatteringFactor);
 	  if ( outerUpdated.isValid()) {
 	  LogDebug("CosmicSeedFinder") <<"outerUpdated "<<outerUpdated;
-	  PTrajectoryStateOnDet *PTraj=  
+	  PTrajectoryStateOnDet PTraj=  
 	    trajectoryStateTransform::persistentState(outerUpdated,(*(HitPairs[is].outer())).geographicalId().rawId());
-          output.push_back(TrajectorySeed(*PTraj,hits,oppositeToMomentum));
-          delete PTraj;
+          output.push_back(TrajectorySeed(PTraj,hits,oppositeToMomentum));
 	
 	  }else      edm::LogWarning("CosmicSeedFinder") << " SeedForCosmics first update failed ";
 	}else      edm::LogWarning("CosmicSeedFinder") << " SeedForCosmics first propagation failed ";

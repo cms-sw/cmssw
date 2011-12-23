@@ -227,11 +227,10 @@ bool SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 	  if ( outerUpdated.isValid()) {
 	    LogDebug("CosmicSeedFinder") <<"outerUpdated "<<outerUpdated;
 	    
-            std::auto_ptr<PTrajectoryStateOnDet> PTraj(
-	      trajectoryStateTransform::persistentState(outerUpdated, (*(HitPairs[is].outer())).geographicalId().rawId())
-            );
+            PTrajectoryStateOnDet const &  PTraj =
+	      trajectoryStateTransform::persistentState(outerUpdated, (*(HitPairs[is].outer())).geographicalId().rawId());
 	    
-	    output.push_back( TrajectorySeed(*PTraj,hits,alongMomentum));
+	    output.push_back( TrajectorySeed(PTraj,hits,alongMomentum));
 
             if ((maxSeeds_ > 0) && (output.size() > size_t(maxSeeds_))) {
               edm::LogError("TooManySeeds") << "Found too many seeds, bailing out.\n";
@@ -263,10 +262,10 @@ bool SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 	  if ( outerUpdated.isValid()) {
 	  LogDebug("CosmicSeedFinder") <<"outerUpdated "<<outerUpdated;
 
-	  std::auto_ptr<PTrajectoryStateOnDet> PTraj(
-	    trajectoryStateTransform::persistentState(outerUpdated,(*(HitPairs[is].outer())).geographicalId().rawId())
-          );
-	  output.push_back(TrajectorySeed(*PTraj,hits,oppositeToMomentum));
+	  PTrajectoryStateOnDet const &  PTraj = 
+	    trajectoryStateTransform::persistentState(outerUpdated,(*(HitPairs[is].outer())).geographicalId().rawId());
+          
+	  output.push_back(TrajectorySeed(PTraj,hits,oppositeToMomentum));
 
           if ((maxSeeds_ > 0) && (output.size() > size_t(maxSeeds_))) {
             edm::LogError("TooManySeeds") << "Found too many seeds, bailing out.\n";

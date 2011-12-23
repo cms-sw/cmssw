@@ -70,8 +70,8 @@ void BetaCalculatorECAL::addInfoToCandidate(HSCParticle& candidate, edm::Handle<
    // do a custom propagation through Ecal
    std::map<int,GlobalPoint> trackExitPositionMap; // rawId to exit position (subtracting cry center)
    std::map<int,float> trackCrossedXtalCurvedMap; // rawId to trackLength
-   TrajectoryStateTransform tsTransform;
-   FreeTrajectoryState tkInnerState = tsTransform.innerFreeState(track, &*bField_);
+   
+   FreeTrajectoryState tkInnerState = trajectoryStateTransform::innerFreeState(track, &*bField_);
    // Build set of points in Ecal (necklace) using the propagator
    std::vector<SteppingHelixStateInfo> neckLace;
    neckLace = calcEcalDeposit(&tkInnerState,*ecalDetIdAssociator_);
