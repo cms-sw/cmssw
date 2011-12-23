@@ -145,10 +145,8 @@ bool SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 	if ( outerUpdated.isValid()) {
 	  LogDebug("CosmicSeedFinder") <<"outerUpdated "<<outerUpdated;
 	  
-	  std::auto_ptr<PTrajectoryStateOnDet> PTraj(
-	    transformer.persistentState(outerUpdated,(*(HitTriplets[it].outer())).geographicalId().rawId())
-          );
-	  output.push_back(TrajectorySeed(*PTraj,hits,alongMomentum));
+         output.push_back(TrajectorySeed(trajectoryStateTransform::persistentState(outerUpdated,(*(HitTriplets[it].outer())).geographicalId().rawId())
+         ,hits,alongMomentum));
 
           if ((maxSeeds_ > 0) && (output.size() > size_t(maxSeeds_))) {
             edm::LogError("TooManySeeds") << "Found too many seeds, bailing out.\n";
@@ -167,10 +165,8 @@ bool SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 	if ( outerUpdated.isValid()) {
 	  LogDebug("CosmicSeedFinder") <<"outerUpdated "<<outerUpdated;
 	  
-	  std::auto_ptr<PTrajectoryStateOnDet> PTraj(
-	        transformer.persistentState(outerUpdated, (*(HitTriplets[it].outer())).geographicalId().rawId())
-          );
-	  output.push_back(TrajectorySeed(*PTraj,hits,oppositeToMomentum));
+	  output.push_back(TrajectorySeed(trajectoryStateTransform::persistentState(outerUpdated, 
+                            (*(HitTriplets[it].outer())).geographicalId().rawId()),hits,oppositeToMomentum));
 
           if ((maxSeeds_ > 0) && (output.size() > size_t(maxSeeds_))) {
             edm::LogError("TooManySeeds") << "Found too many seeds, bailing out.\n";
@@ -232,7 +228,7 @@ bool SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 	    LogDebug("CosmicSeedFinder") <<"outerUpdated "<<outerUpdated;
 	    
             std::auto_ptr<PTrajectoryStateOnDet> PTraj(
-	      transformer.persistentState(outerUpdated, (*(HitPairs[is].outer())).geographicalId().rawId())
+	      trajectoryStateTransform::persistentState(outerUpdated, (*(HitPairs[is].outer())).geographicalId().rawId())
             );
 	    
 	    output.push_back( TrajectorySeed(*PTraj,hits,alongMomentum));
@@ -268,7 +264,7 @@ bool SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 	  LogDebug("CosmicSeedFinder") <<"outerUpdated "<<outerUpdated;
 
 	  std::auto_ptr<PTrajectoryStateOnDet> PTraj(
-	    transformer.persistentState(outerUpdated,(*(HitPairs[is].outer())).geographicalId().rawId())
+	    trajectoryStateTransform::persistentState(outerUpdated,(*(HitPairs[is].outer())).geographicalId().rawId())
           );
 	  output.push_back(TrajectorySeed(*PTraj,hits,oppositeToMomentum));
 

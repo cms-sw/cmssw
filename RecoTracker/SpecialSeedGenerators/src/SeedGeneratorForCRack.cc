@@ -99,7 +99,7 @@ void SeedGeneratorForCRack::seeds(TrajectorySeedCollection &output,
 	    LogDebug("CosmicSeedFinder") <<"outerUpdated "<<outerUpdated;
 	    
 	    PTrajectoryStateOnDet *PTraj=  
-	      transformer.persistentState(outerUpdated, (*(HitPairs[is].outer())).geographicalId().rawId());
+	      trajectoryStateTransform::persistentState(outerUpdated, (*(HitPairs[is].outer())).geographicalId().rawId());
 	    output.push_back(TrajectorySeed(*PTraj,hits,alongMomentum));
             delete PTraj;
 	    
@@ -133,7 +133,7 @@ void SeedGeneratorForCRack::seeds(TrajectorySeedCollection &output,
 	  if ( outerUpdated.isValid()) {
 	  LogDebug("CosmicSeedFinder") <<"outerUpdated "<<outerUpdated;
 	  PTrajectoryStateOnDet *PTraj=  
-	    transformer.persistentState(outerUpdated,(*(HitPairs[is].outer())).geographicalId().rawId());
+	    trajectoryStateTransform::persistentState(outerUpdated,(*(HitPairs[is].outer())).geographicalId().rawId());
           output.push_back(TrajectorySeed(*PTraj,hits,oppositeToMomentum));
           delete PTraj;
 	

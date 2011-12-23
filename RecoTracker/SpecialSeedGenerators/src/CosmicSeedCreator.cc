@@ -121,9 +121,9 @@ const TrajectorySeed * CosmicSeedCreator::trajectorySeed(TrajectorySeedCollectio
 
     TrajectoryStateOnSurface tsos(freeState, *usedHit->surface());
     
-    TrajectoryStateTransform transformer;
-    boost::shared_ptr<PTrajectoryStateOnDet> PTraj(transformer.persistentState(tsos, usedHit->hit()->geographicalId().rawId()));
-    seedCollection.push_back( TrajectorySeed(*PTraj,seedHits,seedDirection));
+    
+    PTrajectoryStateOnDet const & PTraj = trajectoryStateTransform::persistentState(tsos, usedHit->hit()->geographicalId().rawId()));
+    seedCollection.push_back( TrajectorySeed(PTraj,seedHits,seedDirection));
     
   }//end charge loop
   

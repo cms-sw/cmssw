@@ -185,7 +185,8 @@ std::vector<Trajectory> InOutConversionTrackFinder::tracks(const TrajectorySeedC
     LogDebug("InOutConversionTrackFinder") << "  InOutConversionTrackFinder::track Making the result: seed position " << it->seed().startingState().parameters().position()  << " seed momentum " <<  it->seed().startingState().parameters().momentum() << " charge " <<  it->seed().startingState().parameters().charge () << "\n";
     LogDebug("InOutConversionTrackFinder") << "  InOutConversionTrackFinder::track TSOS charge  " << initState.first.charge() << "\n";
     
-    LogDebug("InOutConversionTrackFinder") <<   " InOutConversionTrackFinder::track  PTrajectoryStateOnDet* state position  " << state->parameters().position() << " momentum " << state->parameters().momentum() << " charge " <<   state->parameters().charge () << "\n";
+    LogDebug("InOutConversionTrackFinder") <<   " InOutConversionTrackFinder::track  PTrajectoryStateOnDet* state position  " 
+     << state.parameters().position() << " momentum " << state.parameters().momentum() << " charge " <<   state.parameters().charge () << "\n";
     
     result.push_back(*it);  
     

@@ -281,9 +281,9 @@ bool CtfSpecialSeedGenerator::preliminaryCheck(const SeedingHitSet& shs){
 
 bool CtfSpecialSeedGenerator::postCheck(const TrajectorySeed& seed){
 	if (!useScintillatorsConstraint) return true; 
-	TrajectoryStateTransform transformer;
+	
         PTrajectoryStateOnDet pstate = seed.startingState();
-        TrajectoryStateOnSurface theTSOS = transformer.transientState(pstate,
+        TrajectoryStateOnSurface theTSOS = trajectoryStateTransform::transientState(pstate,
 								      &(theTracker->idToDet(DetId(pstate.detId()))->surface()),
 								      &(*theMagfield));	
 	FreeTrajectoryState* state = theTSOS.freeState();	
