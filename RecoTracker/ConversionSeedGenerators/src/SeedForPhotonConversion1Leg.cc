@@ -178,11 +178,11 @@ const TrajectorySeed * SeedForPhotonConversion1Leg::buildSeed(
 #endif
   } 
   
-  TrajectoryStateTransform transformer;
-  boost::shared_ptr<PTrajectoryStateOnDet> PTraj(
-      transformer.persistentState(updatedState, hit->geographicalId().rawId()));
   
-  seedCollection.push_back( TrajectorySeed(*PTraj,seedHits,alongMomentum));
+  PTrajectoryStateOnDet const * PTraj(
+      trajectoryStateTransform::persistentState(updatedState, hit->geographicalId().rawId()));
+  
+  seedCollection.push_back( TrajectorySeed(PTraj,seedHits,alongMomentum));
   return &seedCollection.back();
 }
 

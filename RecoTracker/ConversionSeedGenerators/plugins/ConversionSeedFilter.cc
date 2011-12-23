@@ -13,7 +13,7 @@
 //
 // Original Author:  Giuseppe Cerati & Domenico Giordano
 //         Created:  Thu Mar 11 10:48:48 CET 2010
-// $Id: ConversionSeedFilter.cc,v 1.3 2010/10/25 12:10:31 giordano Exp $
+// $Id: ConversionSeedFilter.cc,v 1.1 2011/08/01 13:20:53 vlimant Exp $
 //
 //
 
@@ -62,7 +62,7 @@ private:
   edm::InputTag inputCollTkNeg, inputCollSeedNeg;
   edm::InputTag inputTrajectory;
   double deltaPhiCut, deltaCotThetaCut, deltaRCut, deltaZCut;
-  TrajectoryStateTransform transformer;
+  
   edm::ESHandle<TrackerGeometry> theG;
   edm::ESHandle<MagneticField> theMF;
   uint32_t maxInputSeeds;
@@ -233,12 +233,12 @@ getTSOS(const TrajectorySeed& ts){
 
   PTrajectoryStateOnDet state = ts.startingState();
   DetId detId(state.detId());
-  return transformer.transientState( state, &(theG->idToDet(detId)->surface()), theMF.product());
+  return trajectoryStateTransform::transientState( state, &(theG->idToDet(detId)->surface()), theMF.product());
 }
 
 TrajectoryStateOnSurface ConversionSeedFilter::
 getTSOS(const reco::Track& tk){
-  return transformer.innerStateOnSurface( tk, *theG.product(), theMF.product());
+  return trajectoryStateTransform::innerStateOnSurface( tk, *theG.product(), theMF.product());
 }
 
 TrajectoryStateOnSurface ConversionSeedFilter::

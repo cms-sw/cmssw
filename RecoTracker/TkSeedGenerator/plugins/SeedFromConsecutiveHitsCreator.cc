@@ -142,10 +142,10 @@ const TrajectorySeed * SeedFromConsecutiveHitsCreator::buildSeed(
   } 
 
   
-  boost::shared_ptr<PTrajectoryStateOnDet> PTraj(
-      trajectoryStateTransform::persistentState(updatedState, hit->geographicalId().rawId()));
+  PTrajectoryStateOnDet const & PTraj(
+      trajectoryStateTransform::persistentState(updatedState, hit->geographicalId().rawId());
   
-  seedCollection.push_back( TrajectorySeed(*PTraj,std::move(seedHits),alongMomentum));
+  seedCollection.push_back( TrajectorySeed(PTraj,std::move(seedHits),alongMomentum));
   return &seedCollection.back();
 }
 

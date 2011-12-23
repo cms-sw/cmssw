@@ -13,7 +13,7 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Thu Mar 11 10:48:48 CET 2010
-// $Id: ConversionSeedFilterCharge.cc,v 1.3 2010/10/25 12:10:31 giordano Exp $
+// $Id: ConversionSeedFilterCharge.cc,v 1.1 2011/08/01 13:20:53 vlimant Exp $
 //
 //
 
@@ -47,7 +47,7 @@ private:
   edm::InputTag inputCollPos;
   edm::InputTag inputCollNeg;
   double deltaPhiCut, deltaCotThetaCut, deltaRCut, deltaZCut;
-  TrajectoryStateTransform transformer;
+  
   edm::ESHandle<TrackerGeometry> theG;
   edm::ESHandle<MagneticField> theMF;
   uint32_t maxInputSeeds;
@@ -91,7 +91,7 @@ void ConversionSeedFilterCharge::produce(edm::Event& iEvent, const edm::EventSet
      for (TrajectorySeedCollection::const_iterator iS1=pInPos->begin(); iS1!=pInPos->end(); ++iS1){
        PTrajectoryStateOnDet state1 = iS1->startingState();
        DetId detId1(state1.detId());
-       TrajectoryStateOnSurface tsos1 = transformer.transientState( state1, &(theG->idToDet(detId1)->surface()), theMF.product());
+       TrajectoryStateOnSurface tsos1 = trajectoryStateTransform::transientState( state1, &(theG->idToDet(detId1)->surface()), theMF.product());
        double phi1 = tsos1.globalMomentum().phi();
        double cotTheta1 = 1/tan(tsos1.globalMomentum().theta());
        double r1 = tsos1.globalPosition().perp();
@@ -102,7 +102,7 @@ void ConversionSeedFilterCharge::produce(edm::Event& iEvent, const edm::EventSet
        for (TrajectorySeedCollection::const_iterator iS2=pInNeg->begin(); iS2!=pInNeg->end(); ++iS2){
 	 PTrajectoryStateOnDet state2 = iS2->startingState();
 	 DetId detId2(state2.detId());
-	 TrajectoryStateOnSurface tsos2 = transformer.transientState( state2, &(theG->idToDet(detId2)->surface()), theMF.product());
+	 TrajectoryStateOnSurface tsos2 = trajectoryStateTransform::transientState( state2, &(theG->idToDet(detId2)->surface()), theMF.product());
 	 
 	 double deltaPhi = fabs(reco::deltaPhi(phi1,tsos2.globalMomentum().phi()));
 	 double deltaCotTheta = fabs(cotTheta1-1/tan(tsos2.globalMomentum().theta()));

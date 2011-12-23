@@ -30,9 +30,8 @@ PrintRecoObjects::print(std::stringstream& ss, const TrajectorySeed& tjS){
      << " pt " << sqrt(tjS.startingState().parameters().momentum().mag2()-tjS.startingState().parameters().momentum().y()*tjS.startingState().parameters().momentum().y())
      << " charge " << tjS.startingState().parameters().charge()
      << "\n\t error ";
-  std::vector<float> errors=tjS.startingState().errorMatrix();
-  for(size_t ie=0;ie<errors.size();++ie)
-    ss << "\t " << errors[ie];
+  for(size_t ie=0;ie<15;++ie)
+    ss << "\t " << tjS.startingState().error(ie);
   for(TrajectorySeed::const_iterator iter=tjS.recHits().first;iter!=tjS.recHits().second;++iter)
     ss << "\n\t TrackingRecHit on detid " << iter->geographicalId().rawId() << " \t localPos " << iter->localPosition();
   
