@@ -23,12 +23,14 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
 
 #include <map>
+#include <unordered_map>
 #include <vector>
 
 class StrictWeakOrdering{
  public:
   bool operator() ( uint32_t p,const uint32_t& i) const {return p < i;}
 };
+
 class TkStripMeasurementDet;
 class TkPixelMeasurementDet;
 class TkGluedMeasurementDet;
@@ -71,7 +73,7 @@ public:
   /// MeasurementDetSystem interface
   virtual const MeasurementDet*       idToDet(const DetId& id) const;
 
-  typedef std::map<DetId,MeasurementDet*>   DetContainer;
+  typedef std::unordered_map<unsigned int,MeasurementDet*>   DetContainer;
 
   /// For debug only 
   const DetContainer& allDets() const {return theDetMap;}
