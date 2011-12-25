@@ -552,7 +552,7 @@ void MeasurementTrackerImpl::updateStrips( const edm::Event& event) const
 const MeasurementDet* 
 MeasurementTrackerImpl::idToDet(const DetId& id) const
 {
-  std::map<DetId,MeasurementDet*>::const_iterator it = theDetMap.find(id);
+  auto it = theDetMap.find(id);
   if(it !=theDetMap.end()) {
     return it->second;
   }else{
