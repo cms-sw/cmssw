@@ -67,7 +67,7 @@ public:
   /// a class that holds flags, region_range (in RefGetter) for a given MeasurementDet
   class DetODStatus {
   public:
-    DetODStatus(MeasurementDet * m):: mdet(m), region_range(0,0), defined(false),updated(false) {}
+    DetODStatus(MeasurementDet * m): mdet(m), region_range(0,0), defined(false),updated(false) {}
     MeasurementDet * mdet;
     std::pair<unsigned int, unsigned int> region_range;
     bool defined;

@@ -106,7 +106,7 @@ OnDemandMeasurementTracker::OnDemandMeasurementTracker(const edm::ParameterSet& 
 	  GlobalPoint center = it->second->geomDet().position();
 	  double eta = center.eta();
 	  double phi = center.phi();
-	  uint32_t id = it->first.rawId();
+	  uint32_t id = it->first;
 	  SiStripRegionCabling::ElementIndex eIndex = theStripRegionCabling->elementIndex(SiStripRegionCabling::Position(eta,phi),
 											  SiStripRegionCabling::subdetFromDetId(id),
 											  SiStripRegionCabling::layerFromDetId(id));
@@ -128,7 +128,7 @@ OnDemandMeasurementTracker::OnDemandMeasurementTracker(const edm::ParameterSet& 
 	}//strip module
       else{
 	//abort
-	edm::LogError(category_)<<"not a tracker geomdet in constructor: "<<it->first.rawId();
+	edm::LogError(category_)<<"not a tracker geomdet in constructor: "<<it->first;
 	throw MeasurementDetException("OnDemandMeasurementTracker dealing with a non tracker GeomDet.");
       }//abort
     }//loop over DetMap
@@ -181,7 +181,7 @@ void OnDemandMeasurementTracker::define( const edm::Handle< LazyGetter> & theLaz
 	 dIt!=eIt->second.end();++dIt){
       (*dIt)->second.region_range = region_range;
       (*dIt)->second.defined=true;
-      LogDebug(category_)<<"detId: "<<(*dIt)->first.rawId()<<" in region range: "<<region_range.first<<" "<<region_range.second;
+      LogDebug(category_)<<"detId: "<<(*dIt)->first<<" in region range: "<<region_range.first<<" "<<region_range.second;
     }//loop over MeasurementDet attached to that elementIndex
   }//loop over know elementindex
 }
