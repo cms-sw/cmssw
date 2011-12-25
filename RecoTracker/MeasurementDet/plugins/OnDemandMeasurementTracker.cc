@@ -179,7 +179,7 @@ void OnDemandMeasurementTracker::define( const edm::Handle< LazyGetter> & theLaz
     //now assign to each measurement det for that element index
     for (auto dIt=eIt->second.begin();
 	 dIt!=eIt->second.end();++dIt){
-      DetODStatus & elem = const_cast<DetODStatus &>((*dIt)->second));
+      DetODStatus & elem = const_cast<DetODStatus &>((*dIt)->second);
       elem.region_range = region_range;
       elem.defined=true;
       LogDebug(category_)<<"detId: "<<(*dIt)->first<<" in region range: "<<region_range.first<<" "<<region_range.second;
