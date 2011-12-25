@@ -79,7 +79,7 @@ public:
   mutable DetODContainer theDetODMap;
 
   /// mapping of elementIndex -> iterator to the DetODMap: to know what are the regions that needs to be defined in the ref getter
-  typedef std::vector<std::pair<const SiStripRegionCabling::ElementIndex, std::vector<DetODContainer::const_iterator> > > RegionalMap;
+  typedef std::vector<std::pair<SiStripRegionCabling::ElementIndex, std::vector<DetODContainer::const_iterator> > > RegionalMap;
   RegionalMap region_mapping;
 
   /// assigne the cluster iterator to the TkStipMeasurementDet (const_cast in the way)
