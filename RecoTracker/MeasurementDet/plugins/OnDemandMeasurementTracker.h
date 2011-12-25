@@ -8,7 +8,7 @@
 #include "DataFormats/Common/interface/ContainerMask.h"
 
 #include "TkStripMeasurementDet.h"
-
+#include<unordered_map>
  
 class OnDemandMeasurementTracker : public MeasurementTrackerImpl {
 public:
@@ -50,7 +50,6 @@ public:
   std::string category_;
   /// internal flag to avoid unpacking things with LogDebug on
   bool StayPacked_;
-
   /// internal flag to do strip on demand (not configurable) true by default
   bool StripOnDemand_;
   /// internal flag to do pixel on demand (not configurable) false by default
@@ -68,19 +67,20 @@ public:
   /// a class that holds flags, region_range (in RefGetter) for a given MeasurementDet
   class DetODStatus {
   public:
-    DetODStatus(MeasurementDet * m):defined(false),updated(false),mdet(m){ region_range = std::pair<unsigned int,unsigned int>(0,0);}
-      bool defined;
-      bool updated;
-      std::pair<unsigned int, unsigned int> region_range;
-      MeasurementDet * mdet;
+    DetODStatus(MeasurementDet * m):: mdet(m), region_range(0,0), defined(false),updated(false) {}
+    MeasurementDet * mdet;
+    std::pair<unsigned int, unsigned int> region_range;
+    bool defined;
+    bool updated;
   };
 
-  typedef std::map<DetId, DetODStatus> DetODContainer;
+  typedef std::unordered_map<unsigned int, DetODStatus> DetODContainer;
   /// mapping of detid -> MeasurementDet+flags+region_range
   mutable DetODContainer theDetODMap;
 
   /// mapping of elementIndex -> iterator to the DetODMap: to know what are the regions that needs to be defined in the ref getter
-  mutable std::map<SiStripRegionCabling::ElementIndex, std::vector< DetODContainer::iterator> > region_mapping;
+  typedef std::vector<std::pair<SiStripRegionCabling::ElementIndex, std::vector< DetODContainer::iterator>> > RegionalMap;
+  RegionalMap region_mapping;
 
   /// assigne the cluster iterator to the TkStipMeasurementDet (const_cast in the way)
     void assign(const  TkStripMeasurementDet * csmdet,

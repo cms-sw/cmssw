@@ -80,6 +80,8 @@ OnDemandMeasurementTracker::OnDemandMeasurementTracker(const edm::ParameterSet& 
   //  then a smart copy of the DetMap is made into DetODMap: this could be avoided with modification to MeasurementDet interface
   //  the elementIndex to be defined in the refgetter is mapped to the detId
   //  flags are set to initialize the DetODMap
+  
+  std::map<SiStripRegionCabling::ElementIndex, std::vector< DetODContainer::iterator> > local_mapping;
 
   for (DetContainer::iterator it=theDetMap.begin(); it!= theDetMap.end();++it)
     {
@@ -122,7 +124,7 @@ OnDemandMeasurementTracker::OnDemandMeasurementTracker(const edm::ParameterSet& 
 
 	  //	  register those in a map
 	  //to be able to know what are the detid in a given elementIndex
-	  region_mapping[eIndex].push_back(inserted);
+	  local_mapping[eIndex].push_back(inserted);
 	}//strip module
       else{
 	//abort
@@ -132,6 +134,12 @@ OnDemandMeasurementTracker::OnDemandMeasurementTracker(const edm::ParameterSet& 
     }//loop over DetMap
   if (theInactiveStripDetectorLabels.size()!=0)
     theRawInactiveStripDetIds.reserve(200);
+
+  //move into a vector
+  region_mapping.reserve(local_mapping.size());
+  for( std::map<SiStripRegionCabling::ElementIndex, std::vector<DetODContainer::iterator> >::iterator eIt= local_mapping.begin();
+       eIt!=local_mapping.end();++eIt)
+    region_mapping.push_back(std::move(*eIt));
 }
 
 
@@ -154,7 +162,7 @@ void OnDemandMeasurementTracker::define( const edm::Handle< LazyGetter> & theLaz
     }
 
   //define all the elementindex in the refgetter
-  for( std::map<SiStripRegionCabling::ElementIndex, std::vector<DetODContainer::iterator> >::iterator eIt= region_mapping.begin();
+  for(auto eIt= region_mapping.begin();
        eIt!=region_mapping.end();++eIt){
     std::pair<unsigned int, unsigned int> region_range; 
     
