@@ -137,7 +137,7 @@ OnDemandMeasurementTracker::OnDemandMeasurementTracker(const edm::ParameterSet& 
 
   //move into a vector
   region_mapping.reserve(local_mapping.size());
-  for( std::map<SiStripRegionCabling::ElementIndex, std::vector<DetODContainer::iterator> >::iterator eIt= local_mapping.begin();
+  for( auto eIt= local_mapping.begin();
        eIt!=local_mapping.end();++eIt)
     region_mapping.push_back(*eIt);
 }
