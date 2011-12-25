@@ -81,7 +81,7 @@ OnDemandMeasurementTracker::OnDemandMeasurementTracker(const edm::ParameterSet& 
   //  the elementIndex to be defined in the refgetter is mapped to the detId
   //  flags are set to initialize the DetODMap
   
-  std::map<SiStripRegionCabling::ElementIndex, std::vector< DetODContainer::iterator> > local_mapping;
+  std::map<SiStripRegionCabling::ElementIndex, std::vector< DetODContainer::const_iterator> > local_mapping;
 
   for (DetContainer::iterator it=theDetMap.begin(); it!= theDetMap.end();++it)
     {
@@ -139,7 +139,7 @@ OnDemandMeasurementTracker::OnDemandMeasurementTracker(const edm::ParameterSet& 
   region_mapping.reserve(local_mapping.size());
   for( auto eIt= local_mapping.begin();
        eIt!=local_mapping.end();++eIt)
-    region_mapping.push_back(*eIt);
+    region_mapping.push_back(std::make_pair((*eIt).first,(*eIt).second));
 }
 
 
