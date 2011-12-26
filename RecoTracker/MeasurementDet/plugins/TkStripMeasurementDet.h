@@ -44,18 +44,17 @@ public:
 	       unsigned int id ) { 
     detSet_ = detSet; 
     handle_ = h;
-    id_ = id;
+    id_ = id; //FIXME: surely not needed
     empty = false;
     isRegional = false;
   }
 
   void update( std::vector<SiStripCluster>::const_iterator begin ,std::vector<SiStripCluster>::const_iterator end, 
-	       const edm::Handle<edm::LazyGetter<SiStripCluster> > h,
-	       unsigned int id ) { 
+	       const edm::Handle<edm::LazyGetter<SiStripCluster> > h ) { 
     regionalHandle_ = h;
     beginClusterI_ = begin - regionalHandle_->begin_record();
     endClusterI_ = end - regionalHandle_->begin_record();
-    id_ = id;
+
     empty = false;
     activeThisEvent_ = true;
     isRegional = true;

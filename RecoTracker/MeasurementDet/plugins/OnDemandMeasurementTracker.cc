@@ -288,7 +288,7 @@ void OnDemandMeasurementTracker::assign(const TkStripMeasurementDet * csmdet,
   //  assign is using the handle to the refgetter and the region index range to update the MeasurementDet with their clusters
   
   TkStripMeasurementDet * smdet = const_cast<TkStripMeasurementDet *>(csmdet);
-  DetId id = smdet->geomDet().geographicalId();
+  DetId id = smdet->rawId();
   
   LogDebug(category_)<<"assigning: "<<id.rawId();
 
@@ -320,7 +320,7 @@ void OnDemandMeasurementTracker::assign(const TkStripMeasurementDet * csmdet,
       if (range.first!=range.second){
 	//	found something not empty
 	//update the measurementDet
-	smdet->update(range.first, range.second, theLazyGetterH, id);
+	smdet->update(range.first, range.second, theLazyGetterH);
 	LogDebug(category_)<<"Valid clusters for: "<<id.rawId()
 			   <<"\nnumber of regions defined here: "<< indexes.second-indexes.first
 			   <<"\n"<<dumpCluster(range.first,range.second);
@@ -366,7 +366,7 @@ OnDemandMeasurementTracker::idToDet(const DetId& id) const
       //check glued or single
       if (it->second.glued){
 	//glued det
-	LogDebug(category_)<<"updating glued id: "<<id.rawId()<<" ("<<comp.size()<<").";
+	LogDebug(category_)<<"updating glued id: "<<id.rawId();
 	//cast to specific type
 	TkGluedMeasurementDet*  theConcreteDet = static_cast<TkGluedMeasurementDet*>(it->second.mdet);
 		
