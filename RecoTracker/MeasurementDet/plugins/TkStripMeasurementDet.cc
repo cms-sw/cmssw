@@ -24,8 +24,7 @@ TkStripMeasurementDet::TkStripMeasurementDet( const GeomDet* gdet,
     empty(true),
     activeThisEvent_(true), activeThisPeriod_(true)
   {
-    theStripGDU = dynamic_cast<const StripGeomDetUnit*>(gdet);
-    if (theStripGDU == 0) {
+    if (dynamic_cast<const StripGeomDetUnit*>(gdet) == 0) {
       throw MeasurementDetException( "TkStripMeasurementDet constructed with a GeomDet which is not a StripGeomDetUnit");
     }
 
@@ -52,13 +51,13 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
     return result;
   }
  
-  float utraj =  theStripGDU->specificTopology().measurementPosition( stateOnThisDet.localPosition()).x();
+  float utraj =  specificGeomDet().specificTopology().measurementPosition( stateOnThisDet.localPosition()).x();
   float uerr;
   //  if (theClusterRange.first == theClusterRange.second) { // empty
   if (empty  == true){
     LogDebug("TkStripMeasurementDet") << " DetID " << id_ << " empty ";
     if (stateOnThisDet.hasError()){
-    uerr= sqrt(theStripGDU->specificTopology().measurementError(stateOnThisDet.localPosition(),stateOnThisDet.localError().positionError()).uu());
+    uerr= sqrt(specificGeomDet().specificTopology().measurementError(stateOnThisDet.localPosition(),stateOnThisDet.localError().positionError()).uu());
      if (testStrips(utraj,uerr)) {
         result.push_back( TrajectoryMeasurement( stateOnThisDet, InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::missing), 0.F));
      } else { 
@@ -171,7 +170,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
   if ( result.empty()) {
     // create a TrajectoryMeasurement with an invalid RecHit and zero estimate
     if (stateOnThisDet.hasError()){
-    uerr= sqrt(theStripGDU->specificTopology().measurementError(stateOnThisDet.localPosition(),stateOnThisDet.localError().positionError()).uu());
+    uerr= sqrt(specificGeomDet().specificTopology().measurementError(stateOnThisDet.localPosition(),stateOnThisDet.localError().positionError()).uu());
      if (testStrips(utraj,uerr)) {
        //LogDebug("TkStripMeasurementDet") << " DetID " << id_ << " empty after search, but active ";
        result.push_back( TrajectoryMeasurement( stateOnThisDet, InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::missing), 0.F));

@@ -79,7 +79,7 @@ public:
 		    const Propagator&, 
 		    const MeasurementEstimator&) const;
 
-  const StripGeomDetUnit& specificGeomDet() const {return static_cast<StripGeomDetUnit const &>(fastGeomeDet();}
+  const StripGeomDetUnit& specificGeomDet() const {return static_cast<StripGeomDetUnit const &>(fastGeomDet();}
 
   TransientTrackingRecHit::RecHitPointer
   buildRecHit( const SiStripClusterRef&, const TrajectoryStateOnSurface& ltp) const;
@@ -151,6 +151,7 @@ private:
 
   // --- regional unpacking
   edm::Handle<edm::LazyGetter<SiStripCluster> > regionalHandle_;
+
   unsigned int beginClusterI_;
   unsigned int endClusterI_;
 
