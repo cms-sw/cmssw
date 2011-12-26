@@ -24,7 +24,7 @@ public:
 
   virtual RecHitContainer recHits( const TrajectoryStateOnSurface&) const;
 
-  const GluedGeomDet& specificGeomDet() const {return *theGeomDet;}
+  const GluedGeomDet& specificGeomDet() const {return static_cast<GluedGeomDet const&>(fastGeomDet());}
 
   virtual std::vector<TrajectoryMeasurement> 
   fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet, 
@@ -43,7 +43,6 @@ public:
     return (monoDet()->hasBadComponents(tsos) || stereoDet()->hasBadComponents(tsos));}
 
 private:
-  const GluedGeomDet*         theGeomDet;
   const SiStripRecHitMatcher*       theMatcher;
   const TkStripMeasurementDet*       theMonoDet;
   const TkStripMeasurementDet*       theStereoDet;

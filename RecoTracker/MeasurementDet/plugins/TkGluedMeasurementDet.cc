@@ -24,7 +24,7 @@ TkGluedMeasurementDet::TkGluedMeasurementDet( const GluedGeomDet* gdet,
 					      const SiStripRecHitMatcher* matcher,
 					      const MeasurementDet* monoDet,
 					      const MeasurementDet* stereoDet) :
-  MeasurementDet(gdet), theGeomDet(gdet), 
+  MeasurementDet(gdet), 
   theMatcher(matcher), 
   theMonoDet( dynamic_cast<const TkStripMeasurementDet *>(monoDet)), 
   theStereoDet( dynamic_cast<const TkStripMeasurementDet *>(stereoDet))
@@ -40,7 +40,7 @@ TkGluedMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
 {
 
   RecHitContainer result;
-  HitCollectorForRecHits collector( &geomDet(), theMatcher, result );
+  HitCollectorForRecHits collector( &fastGeomDet(), theMatcher, result );
   collectRecHits(ts, collector);
   return result;
 }
@@ -116,7 +116,7 @@ TkGluedMeasurementDet::fastMeasurements( const TrajectoryStateOnSurface& stateOn
    std::vector<TrajectoryMeasurement> result;
    if (theMonoDet->isActive() || theStereoDet->isActive()) {
 
-      HitCollectorForFastMeasurements collector( &geomDet(), theMatcher, stateOnThisDet, est, result);
+      HitCollectorForFastMeasurements collector( fastGeomDet(), theMatcher, stateOnThisDet, est, result);
       collectRecHits(stateOnThisDet, collector);
        
       if ( result.empty()) {
@@ -229,7 +229,7 @@ TkGluedMeasurementDet::testStrips(const TrajectoryStateOnSurface& tsos,
                                   const BoundPlane &gluedPlane,
                                   const TkStripMeasurementDet &mdet) const {
    // from TrackingRecHitProjector
-   const GeomDet &det = mdet.geomDet();
+   const GeomDet &det = mdet.fastGeomDet();
    const BoundPlane &stripPlane = det.surface();
 
    //LocalPoint glp = tsos.localPosition();

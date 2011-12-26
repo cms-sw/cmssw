@@ -79,7 +79,7 @@ public:
 		    const Propagator&, 
 		    const MeasurementEstimator&) const;
 
-  const StripGeomDetUnit& specificGeomDet() const {return *theStripGDU;}
+  const StripGeomDetUnit& specificGeomDet() const {return static_cast<StripGeomDetUnit const &>(fastGeomeDet();}
 
   TransientTrackingRecHit::RecHitPointer
   buildRecHit( const SiStripClusterRef&, const TrajectoryStateOnSurface& ltp) const;
@@ -95,12 +95,12 @@ public:
   buildRecHits( const SiStripRegionalClusterRef&, const TrajectoryStateOnSurface& ltp) const;
 
 
-  bool  isEmpty() {return empty;}
+  bool  isEmpty() const {return empty;}
 
   unsigned int rawId() const { return id_; }
 
 
-  const detset& theSet() {return detSet_;}
+  const detset& theSet() const {return detSet_;}
   int  size() const {return endClusterI_ - beginClusterI_ ; }
 
   /** \brief Turn on/off the module for reconstruction, for the full run or lumi (using info from DB, usually).
@@ -143,7 +143,6 @@ private:
   detset detSet_;
   edm::Handle<edmNew::DetSetVector<SiStripCluster> > handle_;
 
-  const StripGeomDetUnit*               theStripGDU;
   const StripClusterParameterEstimator* theCPE;
 
   std::vector<BadStripBlock> badStripBlocks_;  
