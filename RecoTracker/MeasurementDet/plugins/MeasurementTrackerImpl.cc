@@ -461,7 +461,7 @@ void MeasurementTrackerImpl::updateStrips( const edm::Event& event) const
         }
         // push cluster range in det
 
-        (**i).update( detSet, clusterHandle, id );
+        (**i).update( detSet, clusterHandle);
       }
     }else{
 
@@ -514,8 +514,8 @@ void MeasurementTrackerImpl::updateStrips( const edm::Event& event) const
 	      throw MeasurementDetException("failed casting to TkStripMeasurementDet*");	    
 	    TkStripMeasurementDet*  theConcreteDetUpdatable = 
 	      const_cast<TkStripMeasurementDet*>(theConcreteDet);
-	    theConcreteDetUpdatable->update(beginIterator,icluster,lazyClusterHandle,tmpId);
-	    //cannot we avoid to update the det with detId of itself??
+	    theConcreteDetUpdatable->update(beginIterator,icluster,lazyClusterHandle);
+	    //cannot we avoid to update the det with detId of itself??  (sure we can!)
 
 	    tmpId = icluster->geographicalId();
 	    beginIterator = icluster;
@@ -527,7 +527,7 @@ void MeasurementTrackerImpl::updateStrips( const edm::Event& event) const
 	      throw MeasurementDetException("failed casting to TkStripMeasurementDet*");	    
 	      TkStripMeasurementDet*  theConcreteDetUpdatable = 
 	      const_cast<TkStripMeasurementDet*>(theConcreteDet);
-	      theConcreteDetUpdatable->update(icluster,endIterator,lazyClusterHandle,tmpId);
+	      theConcreteDetUpdatable->update(icluster,endIterator,lazyClusterHandle);
 	    }   
 	  }else if( icluster == (endIterator-1)){	   
 	    const TkStripMeasurementDet* theConcreteDet = 
@@ -539,7 +539,7 @@ void MeasurementTrackerImpl::updateStrips( const edm::Event& event) const
 	      const_cast<TkStripMeasurementDet*>(theConcreteDet);
 	    //std::cout << "=== option3. fill det with id,#clust: " << tmpId  << " , " 
 	    //      << iregion->end() - beginIterator << std::endl;
-	    theConcreteDetUpdatable->update(beginIterator,endIterator,lazyClusterHandle,tmpId);	 
+	    theConcreteDetUpdatable->update(beginIterator,endIterator,lazyClusterHandle);	 
 	  }
 	}//end loop cluster in one ragion
       }

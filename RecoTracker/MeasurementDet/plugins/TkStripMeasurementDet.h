@@ -40,11 +40,10 @@ public:
 			 bool regional);
 
   void update( const detset &detSet, 
-	       const edm::Handle<edmNew::DetSetVector<SiStripCluster> > h,
-	       unsigned int id ) { 
+	       const edm::Handle<edmNew::DetSetVector<SiStripCluster> > h ) { 
     detSet_ = detSet; 
     handle_ = h;
-    id_ = id; //FIXME: surely not needed
+
     empty = false;
     isRegional = false;
   }
