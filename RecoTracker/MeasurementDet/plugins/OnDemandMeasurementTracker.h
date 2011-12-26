@@ -68,18 +68,18 @@ public:
   class DetODStatus {
   public:
     // FIXME shall surely exits a better way to distinguish glued from single!
-    DetODStatus(MeasurementDet * m): mdet(m), region_range(0,0), defined(false),updated(false),glued(!m->fastGeomDet().components().empty()) {
+    DetODStatus(MeasurementDet * m): mdet(m), region_range(0,0), defined(false),updated(false),glued(!m->fastGeomDet().components().empty()) {}
     MeasurementDet * mdet;
     std::pair<unsigned int, unsigned int> region_range;
     bool defined;
     bool updated;
     bool glued;
   };
-
+  
   typedef std::unordered_map<unsigned int, DetODStatus> DetODContainer;
   /// mapping of detid -> MeasurementDet+flags+region_range
   mutable DetODContainer theDetODMap;
-
+  
   /// mapping of elementIndex -> iterator to the DetODMap: to know what are the regions that needs to be defined in the ref getter
   typedef std::vector<std::pair<SiStripRegionCabling::ElementIndex, std::vector<DetODContainer::const_iterator> > > RegionalMap;
   RegionalMap region_mapping;

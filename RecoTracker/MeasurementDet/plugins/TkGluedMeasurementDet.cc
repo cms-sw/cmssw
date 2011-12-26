@@ -116,7 +116,7 @@ TkGluedMeasurementDet::fastMeasurements( const TrajectoryStateOnSurface& stateOn
    std::vector<TrajectoryMeasurement> result;
    if (theMonoDet->isActive() || theStereoDet->isActive()) {
 
-      HitCollectorForFastMeasurements collector( fastGeomDet(), theMatcher, stateOnThisDet, est, result);
+      HitCollectorForFastMeasurements collector( &fastGeomDet(), theMatcher, stateOnThisDet, est, result);
       collectRecHits(stateOnThisDet, collector);
        
       if ( result.empty()) {

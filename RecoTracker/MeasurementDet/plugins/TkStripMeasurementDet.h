@@ -79,7 +79,7 @@ public:
 		    const Propagator&, 
 		    const MeasurementEstimator&) const;
 
-  const StripGeomDetUnit& specificGeomDet() const {return static_cast<StripGeomDetUnit const &>(fastGeomDet();}
+  const StripGeomDetUnit& specificGeomDet() const {return static_cast<StripGeomDetUnit const &>(fastGeomDet());}
 
   TransientTrackingRecHit::RecHitPointer
   buildRecHit( const SiStripClusterRef&, const TrajectoryStateOnSurface& ltp) const;
