@@ -19,7 +19,7 @@ TkStripMeasurementDet::TkStripMeasurementDet( const GeomDet* gdet,
 					      bool regional) : 
     MeasurementDet (gdet),
     theCPE(cpe),
-    skipClusters_(0),
+    // skipClusters_(0),
     isRegional(regional),
     empty(true),
     activeThisEvent_(true), activeThisPeriod_(true)

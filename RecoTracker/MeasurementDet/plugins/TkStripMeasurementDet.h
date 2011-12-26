@@ -145,7 +145,8 @@ private:
 
   std::vector<BadStripBlock> badStripBlocks_;  
 
-  const std::vector<bool>* skipClusters_;
+  // what is this???
+  // const std::vector<bool>* skipClusters_;
 
   // --- regional unpacking
   edm::Handle<edm::LazyGetter<SiStripCluster> > regionalHandle_;
