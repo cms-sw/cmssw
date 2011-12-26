@@ -528,7 +528,7 @@ TkStripMeasurementDet * MeasurementTrackerImpl::concreteDetUpdatable(DetId id) c
   if(theConcreteDet == 0)
     throw MeasurementDetException("failed casting to TkStripMeasurementDet*");	    
 #endif
-  return const_cast<TkStripMeasurementDet*>(static_cast<const TkStripMeasurementDet*>(idToDet(id))));
+  return const_cast<TkStripMeasurementDet*>(static_cast<const TkStripMeasurementDet*>(idToDet(id)));
 }
 
 const MeasurementDet* 
