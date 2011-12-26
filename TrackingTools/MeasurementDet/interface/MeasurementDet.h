@@ -36,6 +36,7 @@ public:
 		    const MeasurementEstimator&) const = 0;
   
 
+  const GeomDet& fastGeomDet() const { return *theGeomDet;}
   virtual const GeomDet& geomDet() const { return *theGeomDet;}
 
   const BoundSurface& surface() const {return  geomDet().surface();}

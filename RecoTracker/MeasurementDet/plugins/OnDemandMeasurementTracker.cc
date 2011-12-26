@@ -357,12 +357,14 @@ OnDemandMeasurementTracker::idToDet(const DetId& id) const
   if ( it != theDetODMap.end()) {
     
     //it has already been queried. and so already updated: nothing to be done here (valid for pixels too)
-    if (it->second.updated){LogDebug(category_)<<"found id: "<<id.rawId()<<" as aleardy updated."; return it->second.mdet;}
+    if (it->second.updated){
+      LogDebug(category_)<<"found id: "<<id.rawId()<<" as aleardy updated."; 
+      return it->second.mdet;
+    }
     
     if (StripOnDemand_){
       //check glued or single
-      std::vector< const GeomDet*> comp = it->second.mdet->geomDet().components();
-      if (!comp.empty()){
+      if (it->second.glued){
 	//glued det
 	LogDebug(category_)<<"updating glued id: "<<id.rawId()<<" ("<<comp.size()<<").";
 	//cast to specific type
