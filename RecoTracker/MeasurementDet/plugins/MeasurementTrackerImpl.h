@@ -73,6 +73,8 @@ public:
   /// MeasurementDetSystem interface
   virtual const MeasurementDet*       idToDet(const DetId& id) const;
 
+  TkStripMeasurementDet * concreteDetUpdatable(DetId id) const;
+
   typedef std::unordered_map<unsigned int,MeasurementDet*>   DetContainer;
 
   /// For debug only 

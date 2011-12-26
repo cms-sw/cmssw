@@ -521,7 +521,7 @@ void MeasurementTrackerImpl::updateStrips( const edm::Event& event) const
   }
 }
 
-TkStripMeasurementDet * concreteDetUpdatable(DetId id) const {
+TkStripMeasurementDet * MeasurementTrackerImpl::concreteDetUpdatable(DetId id) const {
 #ifdef EDM_DEBUG //or similar
   const TkStripMeasurementDet* theConcreteDet = 
     dynamic_cast<const TkStripMeasurementDet*>(idToDet(id));
