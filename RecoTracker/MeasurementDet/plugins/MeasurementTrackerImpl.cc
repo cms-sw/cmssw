@@ -73,7 +73,7 @@ namespace {
 
   struct CmpTKD {
     bool operator()(MeasurementDet* rh, MeasurementDet* lh) {
-      return rh->geomDet().geographicalId().rawId() < lh->geomDet().geographicalId().rawId();
+      return rh->fastGeomDet().geographicalId().rawId() < lh->fastGeomDet().geographicalId().rawId();
     }
   };
 
@@ -493,9 +493,9 @@ void MeasurementTrackerImpl::updateStrips( const edm::Event& event) const
 	const vector<SiStripCluster>::const_iterator endIterator = region.end();
 	tmpId = icluster->geographicalId();
 	beginIterator = icluster;
-
+	
 	//std::cout << "== tmpId ad inizio loop dentro region: " << tmpId << std::endl;
-
+	
 	for (;icluster!=endIterator;icluster++) {
 	  //std::cout << "===== cluster id,pos " 
 	  //  << icluster->geographicalId() << " , " << icluster->barycenter()
@@ -503,43 +503,17 @@ void MeasurementTrackerImpl::updateStrips( const edm::Event& event) const
 	  //std::cout << "=====making ref in recHits() " << std::endl;
 	  if( icluster->geographicalId() != tmpId){ 
 	    //std::cout << "geo!=tmpId" << std::endl;
-	    //we should find a way to avoid this casting. it is slow
-	    //create also another map for TkStripMeasurementDet ??
-
-	    // the following castings are really ugly. To be corrected ASAP
-	    const TkStripMeasurementDet* theConcreteDet = 
-	      dynamic_cast<const TkStripMeasurementDet*>(idToDet(DetId(tmpId)));
 	    
-	    if(theConcreteDet == 0)
-	      throw MeasurementDetException("failed casting to TkStripMeasurementDet*");	    
-	    TkStripMeasurementDet*  theConcreteDetUpdatable = 
-	      const_cast<TkStripMeasurementDet*>(theConcreteDet);
-	    theConcreteDetUpdatable->update(beginIterator,icluster,lazyClusterHandle);
-	    //cannot we avoid to update the det with detId of itself??  (sure we can!)
-
+	    //cannot we avoid to update the det with detId of itself??  (sure we can!, done!)
+	    concreteDetUpdatable(tmpId)->update(beginIterator,icluster,lazyClusterHandle);
+	    
 	    tmpId = icluster->geographicalId();
 	    beginIterator = icluster;
 	    if( icluster == (endIterator-1)){
-	      const TkStripMeasurementDet* theConcreteDet = 
-	      dynamic_cast<const TkStripMeasurementDet*>(idToDet(DetId(tmpId)));
-	      
-	      if(theConcreteDet == 0)
-	      throw MeasurementDetException("failed casting to TkStripMeasurementDet*");	    
-	      TkStripMeasurementDet*  theConcreteDetUpdatable = 
-	      const_cast<TkStripMeasurementDet*>(theConcreteDet);
-	      theConcreteDetUpdatable->update(icluster,endIterator,lazyClusterHandle);
+  	    concreteDetUpdatable(tmpId)->update(icluster,endIterator,lazyClusterHandle);
 	    }   
 	  }else if( icluster == (endIterator-1)){	   
-	    const TkStripMeasurementDet* theConcreteDet = 
-	      dynamic_cast<const TkStripMeasurementDet*>(idToDet(DetId(tmpId)));
-	    
-	    if(theConcreteDet == 0)
-	      throw MeasurementDetException("failed casting to TkStripMeasurementDet*");	    
-	    TkStripMeasurementDet*  theConcreteDetUpdatable = 
-	      const_cast<TkStripMeasurementDet*>(theConcreteDet);
-	    //std::cout << "=== option3. fill det with id,#clust: " << tmpId  << " , " 
-	    //      << iregion->end() - beginIterator << std::endl;
-	    theConcreteDetUpdatable->update(beginIterator,endIterator,lazyClusterHandle);	 
+	    concreteDetUpdatable(tmpId)->update(beginIterator,endIterator,lazyClusterHandle);	 
 	  }
 	}//end loop cluster in one ragion
       }
@@ -547,7 +521,15 @@ void MeasurementTrackerImpl::updateStrips( const edm::Event& event) const
   }
 }
 
-
+TkStripMeasurementDet * concreteDetUpdatable(DetId id) const {
+#ifdef EDM_DEBUG //or similar
+  const TkStripMeasurementDet* theConcreteDet = 
+    dynamic_cast<const TkStripMeasurementDet*>(idToDet(id));
+  if(theConcreteDet == 0)
+    throw MeasurementDetException("failed casting to TkStripMeasurementDet*");	    
+#endif
+  return const_cast<TkStripMeasurementDet*>(static_cast<const TkStripMeasurementDet*>(idToDet(id))));
+}
 
 const MeasurementDet* 
 MeasurementTrackerImpl::idToDet(const DetId& id) const
