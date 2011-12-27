@@ -95,11 +95,9 @@ namespace rpcdqm{
 	  } 
 	}
       }else{//Endcap
-	int nseg=36;
 	int nsub=6;
 	if ( _id.ring()==1 &&  _id.station() > 1) {
 	  nsub=3;
-	  nseg=18;
 	}
 	  _cnr = (_id.subsector()-1)*3+_id.roll()+(_id.ring()-1)*nsub*3; 
       }
