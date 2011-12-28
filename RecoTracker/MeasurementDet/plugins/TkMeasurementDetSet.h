@@ -36,50 +36,78 @@ public:
   TkMeasurementDetSet(const SiStripRecHitMatcher* matcher,
 		      const StripClusterParameterEstimator* cpe,
 		      bool regional):
-    theMatcher(matcher), theCPE(cpe), skipClusters_(0),isRegional(regional){}
+    theMatcher(matcher), theCPE(cpe), skipClusters_(0), regional_(regional){}
   
 
   void init() {
+    // assume vector is full and ordered!
+    int size = theStripDets.size();
 
-    
-    //intialize the detId !
-    id_[i] = mdet->gdet->geographicalId().rawId();
-    //initalize the total number of strips
-    totalStrips_[i] =  mdet->specificGeomDet().specificTopology().nstrips();
+    empty_.resize(size,true);
+    activeThisEvent_.resize(size,true);
+    activeThisPeriod_.resize(size,true);
+    id_.resize(size);
+    subId_.resize(size);
+    totalStrips_.resize[size];
 
+    bad128Strip_.resize(size*6);
+    hasAny128StripBad_.resize(size);
+    maskBad128StripBlocks_.resize(size);
+
+    if (isRegional()) {
+      detset_.resize(size);
+    }  else {
+    beginClusterI_.resize(size);
+    endClusterI_.resize(size);
+    }
+
+    for (int i=0; i!=size; ++i) {
+      auto & mdet =  *theStripDets[i]; 
+      mdet.setIndex(i);
+      //intialize the detId !
+      id_[i] = mdet->gdet->geographicalId().rawId();
+      subId_[i]=SiStripDetId(id_[i]).subdetId()-3;
+      //initalize the total number of strips
+      totalStrips_[i] =  mdet->specificGeomDet().specificTopology().nstrips();
+    }
   }
-
 
   const std::vector<TkStripMeasurementDet*>& stripDets() const {return  theStripDets;}
 
-  void setClusterToSkip(const std::vector<bool>* toSkip){
-    skipClusters_ = toSkip;
-  }
+
+  std::vector<bool> const & clusterToSkip() const { return theStripsToSkip; }
+ 
 
   void update(int i,
-	      const detset &detSet, 
-	       const edm::Handle<edmNew::DetSetVector<SiStripCluster> > h ) { 
+	      const detset &detSet ) { 
     detSet_[i] = detSet; 
-    handle_[i] = h;
 
-    empty[i] = false;
+    empty_[i] = false;
   }
 
   void update(int i,
-	      std::vector<SiStripCluster>::const_iterator begin ,std::vector<SiStripCluster>::const_iterator end, 
-	       const edm::Handle<edm::LazyGetter<SiStripCluster> > h ) { 
-    regionalHandle_[i] = h;
+	      std::vector<SiStripCluster>::const_iterator begin ,std::vector<SiStripCluster>::const_iterator end) { 
     beginClusterI_[i] = begin - regionalHandle_->begin_record();
     endClusterI_[i] = end - regionalHandle_->begin_record();
 
-    empty[i] = false;
+    empty_[i] = false;
     activeThisEvent_[i] = true;
   }
 
+  edm::Handle<edmNew::DetSetVector<SiStripCluster> > & handle() {  return handle_;}
+  edm::Handle<edm::LazyGetter<SiStripCluster> > & regionalHandle() { return regionalHandle_;}
 
+
+
+  bool isRegional() const { return regional_;}
   bool empty(int i) const { return empty_[i];}  
   bool isActive(int i) const { return activeThisEvent_[i] && activeThisPeriod_[i]; }
   void setEmpty(int i) {empty_[i] = true; activeThisEvent_[i] = true; }
+
+  void setEmpty() {
+    std::fill(empty_.begin(),empty_.end(),true;);
+    std::fill(activeThisEvent_.begin(),activeThisEvent_.end(),true;);
+  }
 
   /** \brief Turn on/off the module for reconstruction, for the full run or lumi (using info from DB, usually).
              This also resets the 'setActiveThisEvent' to true */
@@ -144,8 +172,12 @@ private:
   // globals
   const SiStripRecHitMatcher*       theMatcher;
   const StripClusterParameterEstimator* theCPE;
-  const std::vector<bool> * skipClusters_;
-  bool isRegional;
+
+  edm::Handle<edmNew::DetSetVector<SiStripCluster> > handle_;
+  edm::Handle<edm::LazyGetter<SiStripCluster> > regionalHandle_;
+
+  mutable std::vector<bool> theStripsToSkip;
+  bool regional_;
 
   BadStripCuts badStripCuts[4];
 
@@ -165,12 +197,9 @@ private:
 
   // full reco
   std::vector<detset> detSet_;
-  std::vector<edm::Handle<edmNew::DetSetVector<SiStripCluster>> > handle_;
-
-
+\
   // --- regional unpacking
-  std::vector<edm::Handle<edm::LazyGetter<SiStripCluster>> > regionalHandle_;
-
+\
   std::vector<unsigned int> beginClusterI_;
   std::vector<unsigned int> endClusterI_;
 

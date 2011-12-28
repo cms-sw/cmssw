@@ -39,15 +39,14 @@ public:
   TkStripMeasurementDet( const GeomDet* gdet, TkMeasurementDetSet & dets);
   void setIndex(int i) { index=i;}
 
-  void update( const detset &detSet, 
-	       const edm::Handle<edmNew::DetSetVector<SiStripCluster> > h ) { 
-    theDets.update(index,detSet,h);
+  void update( const detset &detSet ) { 
+    theDets.update(index,detSet);
   }
-  void update( std::vector<SiStripCluster>::const_iterator begin ,std::vector<SiStripCluster>::const_iterator end, 
-	       const edm::Handle<edm::LazyGetter<SiStripCluster> > h ) { 
-    theDets.update(index, begin, end, h);
+  void update( std::vector<SiStripCluster>::const_iterator begin ,std::vector<SiStripCluster>::const_iterator end ) { 
+    theDets.update(index, begin, end);
   }
 
+  bool isRegional() const { return theDets.isRegional();}
 
   void setEmpty(){ theDets.setEmpy(index); }
 
@@ -131,12 +130,13 @@ private:
   TkMeasurementDetSet & theDets;
   int index;
   
-  edm::Handle<edmNew::DetSetVector<SiStripCluster> > & handle()  { return theDets.handle(index);}
-  
+  edm::Handle<edmNew::DetSetVector<SiStripCluster> > & handle()  { return theDets.handle();}
+  edm::Handle<edm::LazyGetter<SiStripCluster> > & regionalHandle() { return theDets.regionalHandle();}
+
   const StripClusterParameterEstimator* cpe() const { return  theDets.stripCpe(); }
   
   
-  const std::vector<bool>* skipClusters() const {  return  theDets.skipClusters();}
+  const std::vector<bool> & skipClusters() const {  return  theDets.skipClusters();}
   
   // --- regional unpacking
   
@@ -162,21 +162,21 @@ private:
   
  public:
   inline bool accept(SiStripClusterRef & r) const {
-    if(0==skipClusters() || skipClusters()->empty()) return true;
-    if (r.key()>=skipClusters()->size()){
-      edm::LogError("WrongStripMasking")<<r.key()<<" is larger than: "<<skipClusters_->size()<<" no skipping done";
+    if(skipClusters().empty()) return true;
+    if (r.key()>=skipClusters().size()){
+      edm::LogError("WrongStripMasking")<<r.key()<<" is larger than: "<<skipClusters().size()<<" no skipping done";
       return true;
     }
-    return (not (*skipClusters())[r.key()]);
+    return (not (skipClusters())[r.key()]);
   }
   inline bool accept(SiStripRegionalClusterRef &r) const{
-    if(0==skipClusters() || skipClusters()->empty()) return true;
-    if (r.key()>=skipClusters()->size()){
-      LogDebug("TkStripMeasurementDet")<<r.key()<<" is larger than: "<<skipClusters_->size()
+    if(0==skipClusters() || skipClusters().empty()) return true;
+    if (r.key()>=skipClusters().size()){
+      LogDebug("TkStripMeasurementDet")<<r.key()<<" is larger than: "<<skipClusters().size()
 				       <<"\n This must be a new cluster, and therefore should not be skiped most likely.";
       return true;
     }
-    return (not (*skipClusters())[r.key()]);
+    return (not (skipClusters())[r.key()]);
   }
 
 

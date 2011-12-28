@@ -101,6 +101,7 @@ MeasurementTrackerImpl::MeasurementTrackerImpl(const edm::ParameterSet&         
   MeasurementTracker(trackerGeom,geometricSearchTracker),
   pset_(conf),
   name_(conf.getParameter<std::string>("ComponentName")),
+  theDets(hitMatcher,stripCPE,isRegional),
   thePixelCPE(pixelCPE),theStripCPE(stripCPE),theHitMatcher(hitMatcher),
   theInactivePixelDetectorLabels(conf.getParameter<std::vector<edm::InputTag> >("inactivePixelDetectorLabels")),
   theInactiveStripDetectorLabels(conf.getParameter<std::vector<edm::InputTag> >("inactiveStripDetectorLabels")),
@@ -147,8 +148,11 @@ void MeasurementTrackerImpl::initialize() const
   addStripDets( theTrackerGeom->detsTEC());  
 
   sortTKD(theStripDets);
+  theDets.init();
   sortTKD(thePixelDets);
   sortTKD(theGluedDets);
+
+
 
 }
 
@@ -187,12 +191,11 @@ void MeasurementTrackerImpl::addStripDets( const TrackingGeometry::DetContainer&
 }
 
 void MeasurementTrackerImpl::addStripDet( const GeomDet* gd,
-				      const StripClusterParameterEstimator* cpe) const
+				      const StripClusterParameterEstimator*) const
 {
   try {
-    TkStripMeasurementDet* det = new TkStripMeasurementDet( gd, cpe,isRegional_);
+    TkStripMeasurementDet* det = new TkStripMeasurementDet( gd, theDets);
     theStripDets.push_back(det);
-    det->setClusterToSkip(&theStripsToSkip);
     theDetMap[gd->geographicalId()] = det;
   }
   catch(MeasurementDetException& err){
@@ -275,8 +278,8 @@ void MeasurementTrackerImpl::setClusterToSkip(const edm::InputTag & cluster, con
   edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > stripClusterMask;
   event.getByLabel(cluster,stripClusterMask);
 
-  theStripsToSkip.resize(stripClusterMask->size());
-  stripClusterMask->copyMaskTo(theStripsToSkip);
+  theDets.theStripsToSkip.resize(stripClusterMask->size());
+  stripClusterMask->copyMaskTo(theDets.theStripsToSkip);
   
 }
 
@@ -290,7 +293,7 @@ void MeasurementTrackerImpl::unsetClusterToSkip() const {
     edm::LogError("MeasurementTracker")<<"this mode of operation is not supported, either the measurement tracker is set to skip clusters, or is being told to skip clusters. not both";
 
   thePixelsToSkip.clear();
-  theStripsToSkip.clear();
+   theDets.theStripsToSkip.clear();
 }
 
 void MeasurementTrackerImpl::updatePixels( const edm::Event& event) const
@@ -408,20 +411,9 @@ void MeasurementTrackerImpl::updateStrips( const edm::Event& event) const
   // Strip Clusters
   std::string stripClusterProducer = pset_.getParameter<std::string>("stripClusterProducer");
   //first clear all of them
+  theDets.setEmpty();
 
-  {
-    std::vector<TkStripMeasurementDet*>::const_iterator end = theStripDets.end()-200;
-    for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
-         i!=end; i++) {
-      (**i).setEmpty();
-#ifdef __SSE2__
-      _mm_prefetch(((char *)(*(i+200))),_MM_HINT_T0); 
-#endif
-    }
-   for (std::vector<TkStripMeasurementDet*>::const_iterator i=end;
-         i!=theStripDets.end(); i++)
-      (**i).setEmpty();
-  }
+
   if( !stripClusterProducer.compare("") ) { //clusters have not been produced
   }else{
     //=========  actually load cluster =============
@@ -436,32 +428,33 @@ void MeasurementTrackerImpl::updateStrips( const edm::Event& event) const
         //and get the collection of pixel ref to skip
         LogDebug("MeasurementTracker")<<"getting strp refs to skip";
         event.getByLabel(pset_.getParameter<edm::InputTag>("skipClusters"),stripClusterMask);
-        if (stripClusterMask.failedToGet())edm::LogError("MeasurementTracker")<<"not getting the strip clusters to skip";
+        if (stripClusterMask.failedToGet())  edm::LogError("MeasurementTracker")<<"not getting the strip clusters to skip";
         if (stripClusterMask->refProd().id()!=clusterHandle.id()){
 	  edm::LogError("ProductIdMismatch")<<"The strip masking does not point to the proper collection of clusters: "<<stripClusterMask->refProd().id()<<"!="<<clusterHandle.id();
 	}
-        stripClusterMask->copyMaskTo(theStripsToSkip);
+        stripClusterMask->copyMaskTo(theDets.theStripsToSkip);
       }
 
-      std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
-      std::vector<TkStripMeasurementDet*>::const_iterator endDet=theStripDets.end();
+      theDets.handle_ = clusterHandle;
+      int i=0;
+      int endDet = theDets.id_.size();
       edmNew::DetSetVector<SiStripCluster>::const_iterator it = (*clusterCollection).begin();
       edmNew::DetSetVector<SiStripCluster>::const_iterator endColl = (*clusterCollection).end();
       // cluster and det and in order (both) and unique so let's use set intersection
       for (;it!=endColl; ++it) {
         StripDetSet detSet = *it;
         unsigned int id = detSet.id();
-        while ( id != (**i).rawId()) { // eventually change to lower_range
+        while ( id != theDets.rawId(i)) { // eventually change to lower_range
           ++i;
           if (i==endDet) throw "we have a problem!!!!";
         }
 
         if (!rawInactiveDetIds.empty() && std::binary_search(rawInactiveDetIds.begin(), rawInactiveDetIds.end(), id)) {
-            (**i).setActiveThisEvent(false); continue;
+	  theDets.setActiveThisEvent(i,false); continue;
         }
         // push cluster range in det
 
-        (**i).update( detSet, clusterHandle);
+        theDets.update(i,detSet);
       }
     }else{
 
@@ -481,9 +474,10 @@ void MeasurementTrackerImpl::updateStrips( const edm::Event& event) const
         if (stripClusterMask->refProd().id()!=lazyClusterHandle.id()){
 	  edm::LogError("ProductIdMismatch")<<"The strip masking does not point to the proper collection of clusters: "<<stripClusterMask->refProd().id()<<"!="<<lazyClusterHandle.id();
 	}       
-        stripClusterMask->copyMaskTo(theStripsToSkip);
+        stripClusterMask->copyMaskTo(theDets.theStripsToSkip);
       }
 
+      theDets.regionalHandle_ =  refClusterHandle;
       uint32_t tmpId=0;
       vector<SiStripCluster>::const_iterator beginIterator;
       edm::RefGetter<SiStripCluster>::const_iterator iregion = refClusterHandle->begin();
@@ -505,15 +499,15 @@ void MeasurementTrackerImpl::updateStrips( const edm::Event& event) const
 	    //std::cout << "geo!=tmpId" << std::endl;
 	    
 	    //cannot we avoid to update the det with detId of itself??  (sure we can!, done!)
-	    concreteDetUpdatable(tmpId)->update(beginIterator,icluster,lazyClusterHandle);
+	    theDets.update(concreteDetUpdatable(tmpId)->index(),beginIterator,icluster);
 	    
 	    tmpId = icluster->geographicalId();
 	    beginIterator = icluster;
 	    if( icluster == (endIterator-1)){
-  	    concreteDetUpdatable(tmpId)->update(icluster,endIterator,lazyClusterHandle);
+	      theDets.update(concreteDetUpdatable(tmpId)->index(),icluster,endIterator);
 	    }   
 	  }else if( icluster == (endIterator-1)){	   
-	    concreteDetUpdatable(tmpId)->update(beginIterator,endIterator,lazyClusterHandle);	 
+	    theDets.update(concreteDetUpdatable(tmpId)->index(),beginIterator,endIterator);	 
 	  }
 	}//end loop cluster in one ragion
       }
@@ -524,34 +518,22 @@ void MeasurementTrackerImpl::updateStrips( const edm::Event& event) const
 TkStripMeasurementDet * MeasurementTrackerImpl::concreteDetUpdatable(DetId id) const {
 #ifdef EDM_DEBUG //or similar
   const TkStripMeasurementDet* theConcreteDet = 
-    dynamic_cast<const TkStripMeasurementDet*>(idToDet(id));
+    dynamic_cast<const TkStripMeasurementDet*>(findDet(id));
   if(theConcreteDet == 0)
     throw MeasurementDetException("failed casting to TkStripMeasurementDet*");	    
 #endif
+  // will trigger ondemand unpacking
   return const_cast<TkStripMeasurementDet*>(static_cast<const TkStripMeasurementDet*>(idToDet(id)));
 }
 
-const MeasurementDet* 
-MeasurementTrackerImpl::idToDet(const DetId& id) const
-{
-  auto it = theDetMap.find(id);
-  if(it !=theDetMap.end()) {
-    return it->second;
-  }else{
-    //throw exception;
-  }
-  
-  return 0; //to avoid compile warning
-}
 
 void MeasurementTrackerImpl::initializeStripStatus(const SiStripQuality *quality, int qualityFlags, int qualityDebugFlags) const {
-  TkStripMeasurementDet::BadStripCuts badStripCuts[4];
   if (qualityFlags & BadStrips) {
      edm::ParameterSet cutPset = pset_.getParameter<edm::ParameterSet>("badStripCuts");
-     badStripCuts[SiStripDetId::TIB-3] = TkStripMeasurementDet::BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TIB"));
-     badStripCuts[SiStripDetId::TOB-3] = TkStripMeasurementDet::BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TOB"));
-     badStripCuts[SiStripDetId::TID-3] = TkStripMeasurementDet::BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TID"));
-     badStripCuts[SiStripDetId::TEC-3] = TkStripMeasurementDet::BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TEC"));
+     theDets.badStripCuts[SiStripDetId::TIB-3] = TkStripMeasurementDet::BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TIB"));
+     theDets.badStripCuts[SiStripDetId::TOB-3] = TkStripMeasurementDet::BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TOB"));
+     theDets.badStripCuts[SiStripDetId::TID-3] = TkStripMeasurementDet::BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TID"));
+     theDets.badStripCuts[SiStripDetId::TEC-3] = TkStripMeasurementDet::BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TEC"));
   }
 
   if ((quality != 0) && (qualityFlags != 0))  {

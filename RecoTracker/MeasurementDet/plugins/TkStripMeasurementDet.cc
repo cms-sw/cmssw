@@ -190,8 +190,8 @@ TkStripMeasurementDet::buildRecHit( const SiStripClusterRef& cluster,
 				    const TrajectoryStateOnSurface& ltp) const
 {
   const GeomDetUnit& gdu( specificGeomDet());
-  LocalValues lv = theCPE()->localParameters( *cluster, gdu, ltp);
-  return TSiStripRecHit2DLocalPos::build( lv.first, lv.second, &geomDet(), cluster, theCPE);
+  LocalValues lv = cpe()->localParameters( *cluster, gdu, ltp);
+  return TSiStripRecHit2DLocalPos::build( lv.first, lv.second, &geomDet(), cluster, cpe);
 }
 
 TransientTrackingRecHit::RecHitPointer
@@ -199,8 +199,8 @@ TkStripMeasurementDet::buildRecHit( const SiStripRegionalClusterRef& cluster,
 				    const TrajectoryStateOnSurface& ltp) const
 {
   const GeomDetUnit& gdu( specificGeomDet());
-  LocalValues lv = theCPE()->localParameters( *cluster, gdu, ltp);
-  return TSiStripRecHit2DLocalPos::build( lv.first, lv.second, &geomDet(), cluster, theCPE);
+  LocalValues lv = cpe()->localParameters( *cluster, gdu, ltp);
+  return TSiStripRecHit2DLocalPos::build( lv.first, lv.second, &geomDet(), cluster, cpe);
 }
 
 
@@ -210,10 +210,10 @@ TkStripMeasurementDet::buildRecHits( const SiStripClusterRef& cluster,
 				     const TrajectoryStateOnSurface& ltp) const
 {
   const GeomDetUnit& gdu( specificGeomDet());
-  VLocalValues vlv = theCPE()->localParametersV( *cluster, gdu, ltp);
+  VLocalValues vlv = cpe()->localParametersV( *cluster, gdu, ltp);
   RecHitContainer res;
   for(VLocalValues::const_iterator it=vlv.begin();it!=vlv.end();++it){
-    res.push_back(TSiStripRecHit2DLocalPos::build( it->first, it->second, &geomDet(), cluster, theCPE));
+    res.push_back(TSiStripRecHit2DLocalPos::build( it->first, it->second, &geomDet(), cluster, cpe));
   }
   return res; 
 }
@@ -224,10 +224,10 @@ TkStripMeasurementDet::buildRecHits( const SiStripRegionalClusterRef& cluster,
 				     const TrajectoryStateOnSurface& ltp) const
 {
   const GeomDetUnit& gdu( specificGeomDet());
-  VLocalValues vlv = theCPE()->localParametersV( *cluster, gdu, ltp);
+  VLocalValues vlv = cpe()->localParametersV( *cluster, gdu, ltp);
   RecHitContainer res;
   for(VLocalValues::const_iterator it=vlv.begin();it!=vlv.end();++it){
-    res.push_back(TSiStripRecHit2DLocalPos::build( it->first, it->second, &geomDet(), cluster, theCPE));
+    res.push_back(TSiStripRecHit2DLocalPos::build( it->first, it->second, &geomDet(), cluster, cpe));
   }
   return res; 
 }
@@ -272,7 +272,7 @@ TkStripMeasurementDet::buildSimpleRecHit( const ClusterRefT& cluster,
 					  std::vector<SiStripRecHit2D>& res ) const
 {
   const GeomDetUnit& gdu( specificGeomDet());
-  VLocalValues vlv = theCPE()->localParametersV( *cluster, gdu, ltp);
+  VLocalValues vlv = cpe()->localParametersV( *cluster, gdu, ltp);
   for(VLocalValues::const_iterator it=vlv.begin();it!=vlv.end();++it){
     res.push_back(SiStripRecHit2D( it->first, it->second, rawId(), cluster));
   }

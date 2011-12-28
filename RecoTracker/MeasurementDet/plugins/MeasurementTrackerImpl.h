@@ -72,8 +72,24 @@ public:
 
   const GeometricSearchTracker* geometricSearchTracker() const {return theGeometricSearchTracker;}
 
-  /// MeasurementDetSystem interface
-  virtual const MeasurementDet*       idToDet(const DetId& id) const;
+  /// MeasurementDetSystem interface  (can be overloaded!)
+  virtual const MeasurementDet*       idToDet(const DetId& id) const {
+    return findDet(id);
+  }
+
+  const MeasurementDet* 
+  MeasurementTrackerImpl::findDet(const DetId& id) const
+  {
+    auto it = theDetMap.find(id);
+    if(it !=theDetMap.end()) {
+      return it->second;
+    }else{
+      //throw exception;
+    }
+    
+    return 0; //to avoid compile warning
+  }
+
 
   TkStripMeasurementDet * concreteDetUpdatable(DetId id) const;
 
@@ -81,7 +97,7 @@ public:
 
   /// For debug only 
   const DetContainer& allDets() const {return theDetMap;}
-  const std::vector<TkStripMeasurementDet*>& stripDets() const {return theStripDets;}
+  const std::vector<TkStripMeasurementDet*>& stripDets() const {return theDets.stripDets();}
   const std::vector<TkPixelMeasurementDet*>& pixelDets() const {return thePixelDets;}
   const std::vector<TkGluedMeasurementDet*>& gluedDets() const {return theGluedDets;}
 
