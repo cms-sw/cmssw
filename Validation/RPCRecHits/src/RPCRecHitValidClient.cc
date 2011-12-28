@@ -19,9 +19,9 @@ void RPCRecHitValidClient::endRun(const edm::Run& run, const edm::EventSetup& ev
   DQMStore* dbe = edm::Service<DQMStore>().operator->();
   if ( !dbe ) return;
 
-  dbe->setCurrentFolder(subDir_+"/SummaryHistograms");
-  MEP me_rollEfficiencyBarrel_eff = dbe->book1D("RollEfficiencyBarrel_eff", "Roll efficiency in Barrel;Efficiency [%]", 50, 0, 100);
-  MEP me_rollEfficiencyEndcap_eff = dbe->book1D("RollEfficiencyEndcap_eff", "Roll efficiency in Endcap;Efficiency [%]", 50, 0, 100);
+  dbe->setCurrentFolder(subDir_);
+  MEP me_rollEfficiencyBarrel_eff = dbe->book1D("RollEfficiencyBarrel_eff", "Roll efficiency in Barrel;Efficiency [%]", 50+1, 0, 100+2);
+  MEP me_rollEfficiencyEndcap_eff = dbe->book1D("RollEfficiencyEndcap_eff", "Roll efficiency in Endcap;Efficiency [%]", 50+1, 0, 100+2);
 
   const double maxNoise = 1e-7;
   MEP me_rollNoiseBarrel_noise = dbe->book1D("RollNoiseBarrel_noise", "Roll noise in Barrel;Noise level [Event^{-1}cm^{-2}]", 25+2, -maxNoise/25, maxNoise+maxNoise/25);
