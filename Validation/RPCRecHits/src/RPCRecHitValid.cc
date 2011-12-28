@@ -306,6 +306,8 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
   for ( edm::View<TrackingParticle>::const_iterator simTrack = simTrackHandle->begin();
         simTrack != simTrackHandle->end(); ++simTrack )
   {
+    if ( simTrack->pt() < 1.0 or simTrack->p() < 2.5 ) continue; // globalMuon acceptance
+
     bool hasRPCHit = false;
     if ( abs(simTrack->pdgId()) == 13 )
     {
@@ -750,16 +752,55 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
           h_recPunchOccupancyEndcap_disk_ring->Fill(region*station, ring);
         }
       }
-      else // No matches found
+    }
+  }
+
+  // Find noise recHits : RecHits without SimHit match
+  for ( RecHitIter recHitIter = recHitHandle->begin();
+        recHitIter != recHitHandle->end(); ++recHitIter )
+  {
+    const RPCDetId recDetId = static_cast<const RPCDetId>(recHitIter->rpcId());
+    const RPCRoll* roll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(recDetId));
+
+    const int region = roll->id().region();
+    const int ring = roll->id().ring();
+    //const int sector = roll->id().sector();
+    const int station = roll->id().station();
+    //const int layer = roll->id().layer();
+    //const int subsector = roll->id().subsector();
+
+    const double recX = recHitIter->localPosition().x();
+    const double recErrX = sqrt(recHitIter->localPositionError().xx());
+
+    bool matched = false;
+    for ( SimHitIter simHitIter = simHitHandle->begin();
+          simHitIter != simHitHandle->end(); ++simHitIter )
+    {
+      const RPCDetId simDetId = static_cast<const RPCDetId>(simHitIter->detUnitId());
+      const RPCRoll* simRoll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(simDetId));
+      if ( !simRoll ) continue;
+
+      if ( simDetId != recDetId ) continue;
+
+      const double simX = simHitIter->localPosition().x();
+      const double dX = fabs(recX-simX);
+
+      if ( dX/recErrX < 5 )
       {
-        if ( region == 0 )
-        {
-          h_noiseOccupancyBarrel_detId->Fill(detIdToIndexMapBarrel_[detId.rawId()]);
-        }
-        else
-        {
-          h_noiseOccupancyEndcap_detId->Fill(detIdToIndexMapEndcap_[detId.rawId()]);
-        }
+        matched = true;
+        break;
+      }
+    }
+
+    if ( !matched )
+    {
+      if ( region == 0 )
+      {
+        h_noiseOccupancyBarrel_detId->Fill(detIdToIndexMapBarrel_[recDetId.rawId()]);
+      }
+      else
+      {
+        h_noiseOccupancyEndcap_detId->Fill(detIdToIndexMapEndcap_[recDetId.rawId()]);
       }
     }
   }
