@@ -149,7 +149,7 @@ public:
 private:
   
   friend class  MeasurementTrackerImpl;
-  mutable vector<TkStripMeasurementDet*> theStripDets;
+  mutable std::vector<TkStripMeasurementDet*> theStripDets;
   
   // globals
   const SiStripRecHitMatcher*       theMatcher;
@@ -171,7 +171,7 @@ private:
   
   std::vector<int> totalStrips_;
   
-  const int nbad128 = 6;
+  static const int nbad128 = 6;
   std::vector<bool> bad128Strip_;
   std::vector<bool> hasAny128StripBad_;
   
