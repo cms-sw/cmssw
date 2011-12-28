@@ -78,8 +78,8 @@ public:
   void setEmpty(int i) {empty_[i] = true; activeThisEvent_[i] = true; }
   
   void setEmpty() {
-    std::fill(empty_.begin(),empty_.end(),true;);
-    std::fill(activeThisEvent_.begin(),activeThisEvent_.end(),true;);
+    std::fill(empty_.begin(),empty_.end(),true);
+    std::fill(activeThisEvent_.begin(),activeThisEvent_.end(),true);
   }
   
   /** \brief Turn on/off the module for reconstruction, for the full run or lumi (using info from DB, usually).
@@ -99,12 +99,12 @@ public:
   
   int totalStrips(int) const { return totalStrips_[i];}
   
-
-
+  
+  
   void setMaskBad128StripBlocks(bool maskThem) { maskBad128StripBlocks_ = maskThem; }
   BadStripCuts & badStripCuts(int i) { return  badStripCuts_[subId_[i]};}
   
-
+  
   bool maskBad128StripBlocks() const { return bool maskBad128StripBlocks_;}
   bool hasAny128StripBad(int i) const { return  hasAny128StripBad_[i];}
   
