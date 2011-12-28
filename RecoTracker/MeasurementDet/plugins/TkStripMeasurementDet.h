@@ -171,7 +171,7 @@ public:
     return (not (skipClusters()[r.key()]));
   }
   inline bool accept(SiStripRegionalClusterRef &r) const{
-    if(0==skipClusters() || skipClusters().empty()) return true;
+    if(skipClusters().empty()) return true;
     if (r.key()>=skipClusters().size()){
       LogDebug("TkStripMeasurementDet")<<r.key()<<" is larger than: "<<skipClusters().size()
 				       <<"\n This must be a new cluster, and therefore should not be skiped most likely.";

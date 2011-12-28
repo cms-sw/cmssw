@@ -199,4 +199,4 @@ private:
 };
 
 
-#endif
+#endif // TkMeasurementDetSet_H
