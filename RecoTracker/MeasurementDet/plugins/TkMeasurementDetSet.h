@@ -1,4 +1,4 @@
-#ifndef TKMeasurementDetSet_H
+#ifndef TkMeasurementDetSet_H
 #define TkMeasurementDetSet_H
 
 #include<vector>
