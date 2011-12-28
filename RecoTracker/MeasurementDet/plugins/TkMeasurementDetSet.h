@@ -11,6 +11,10 @@ class StripClusterParameterEstimator;
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/RefGetter.h"
+
+#include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 /* Struct of arrays supporting "members of Tk...MeasurementDet
