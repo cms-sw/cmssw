@@ -1,4 +1,4 @@
-#ifndef TMeasurementDetSet_H
+#ifndef TKMeasurementDetSet_H
 #define TkMeasurementDetSet_H
 
 #include<vector>
@@ -103,10 +103,10 @@ public:
   StripDetset & detSet(int i) { return detSet_[i];}
   
   edm::Handle<edm::LazyGetter<SiStripCluster> > & regionalHandle() { return regionalHandle_;}
-  unsigned int beginClusterI(int i) const {return beginClusterI[i];}
-  unsigned int endClusterI(int i) const {return endClusterI[i];}
+  unsigned int beginClusterI(int i) const {return beginClusterI_[i];}
+  unsigned int endClusterI(int i) const {return endClusterI_[i];}
   
-  int totalStrips(int) const { return totalStrips_[i];}
+  int totalStrips(int i) const { return totalStrips_[i];}
   
   
   
@@ -120,13 +120,13 @@ public:
   bool isMasked(int i, const SiStripCluster &cluster) const {
     int offset =  nbad128*i;
     if ( bad128Strip_[offset+cluster.firstStrip() >> 7] ) {
-      if ( bad128Strip_[offset+(cluster.firstStrip()+cluster.amplitudes().size())  >> 7] ||
-	   bad128Strip_[offset+static_cast<int32_t>(cluster.barycenter()-0.499999) >> 7] ) {
+      if ( bad128Strip_[offset+( (cluster.firstStrip()+cluster.amplitudes().size())  >> 7)] ||
+	   bad128Strip_[offset+( static_cast<int32_t>(cluster.barycenter()-0.499999) >> 7)] ) {
 	return true;
       }
     } else {
-      if ( bad128Strip_[offset+(cluster.firstStrip()+cluster.amplitudes().size())  >> 7] &&
-	   bad128Strip_[offset+static_cast<int32_t>(cluster.barycenter()-0.499999) >> 7] ) {
+      if ( bad128Strip_[offset+( (cluster.firstStrip()+cluster.amplitudes().size())  >> 7)] &&
+	   bad128Strip_[offset+( static_cast<int32_t>(cluster.barycenter()-0.499999) >> 7)] ) {
 	return true;
       }
     }

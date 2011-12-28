@@ -73,12 +73,13 @@ public:
   const GeometricSearchTracker* geometricSearchTracker() const {return theGeometricSearchTracker;}
 
   /// MeasurementDetSystem interface  (can be overloaded!)
-  virtual const MeasurementDet*       idToDet(const DetId& id) const {
+  virtual const MeasurementDet* 
+  idToDet(const DetId& id) const {
     return findDet(id);
   }
 
   const MeasurementDet* 
-  MeasurementTrackerImpl::findDet(const DetId& id) const
+  findDet(const DetId& id) const
   {
     auto it = theDetMap.find(id);
     if(it !=theDetMap.end()) {
@@ -116,7 +117,6 @@ public:
   mutable std::vector<TkGluedMeasurementDet*> theGluedDets;
   
   mutable std::vector<bool> thePixelsToSkip;
-  mutable std::vector<bool> theStripsToSkip;
 
   const PixelClusterParameterEstimator* thePixelCPE;
   const SiPixelFedCabling*              thePixelCabling;

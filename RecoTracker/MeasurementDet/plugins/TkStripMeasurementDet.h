@@ -168,7 +168,7 @@ public:
       edm::LogError("WrongStripMasking")<<r.key()<<" is larger than: "<<skipClusters().size()<<" no skipping done";
       return true;
     }
-    return (not (skipClusters()[r.key()]);
+    return (not (skipClusters()[r.key()]));
   }
   inline bool accept(SiStripRegionalClusterRef &r) const{
     if(0==skipClusters() || skipClusters().empty()) return true;
@@ -177,11 +177,9 @@ public:
 				       <<"\n This must be a new cluster, and therefore should not be skiped most likely.";
       return true;
     }
-    return (not (skipClusters()[r.key()]);
+    return (not (skipClusters()[r.key()]));
   }
-  
-  
-  
+
 };
 
 #endif
