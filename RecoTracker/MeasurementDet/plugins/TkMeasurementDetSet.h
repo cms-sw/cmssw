@@ -43,10 +43,11 @@ public:
   TkMeasurementDetSet(const SiStripRecHitMatcher* matcher,
 		      const StripClusterParameterEstimator* cpe,
 		      bool regional):
-    theMatcher(matcher), theCPE(cpe), skipClusters_(0), regional_(regional){}
+    theMatcher(matcher), theCPE(cpe), regional_(regional){}
   
   
- 
+  void init();
+
   const std::vector<TkStripMeasurementDet*> & stripDets() const {return  theStripDets;}
   
   
@@ -102,7 +103,7 @@ public:
   
   
   void setMaskBad128StripBlocks(bool maskThem) { maskBad128StripBlocks_ = maskThem; }
-  BadStripCuts & badStripCuts(int i) { return  badStripCuts_[subId_[i]};}
+  BadStripCuts & badStripCuts(int i) { return  badStripCuts_[subId_[i]];}
   
   
   bool maskBad128StripBlocks() const { return bool maskBad128StripBlocks_;}
