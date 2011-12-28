@@ -530,10 +530,10 @@ TkStripMeasurementDet * MeasurementTrackerImpl::concreteDetUpdatable(DetId id) c
 void MeasurementTrackerImpl::initializeStripStatus(const SiStripQuality *quality, int qualityFlags, int qualityDebugFlags) const {
   if (qualityFlags & BadStrips) {
      edm::ParameterSet cutPset = pset_.getParameter<edm::ParameterSet>("badStripCuts");
-     theDets.badStripCuts[SiStripDetId::TIB-3] = TkStripMeasurementDet::BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TIB"));
-     theDets.badStripCuts[SiStripDetId::TOB-3] = TkStripMeasurementDet::BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TOB"));
-     theDets.badStripCuts[SiStripDetId::TID-3] = TkStripMeasurementDet::BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TID"));
-     theDets.badStripCuts[SiStripDetId::TEC-3] = TkStripMeasurementDet::BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TEC"));
+     theDets.badStripCuts_[SiStripDetId::TIB-3] = TkStripMeasurementDet::BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TIB"));
+     theDets.badStripCuts_[SiStripDetId::TOB-3] = TkStripMeasurementDet::BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TOB"));
+     theDets.badStripCuts_[SiStripDetId::TID-3] = TkStripMeasurementDet::BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TID"));
+     theDets.badStripCuts_[SiStripDetId::TEC-3] = TkStripMeasurementDet::BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TEC"));
   }
 
   if ((quality != 0) && (qualityFlags != 0))  {
@@ -582,7 +582,6 @@ void MeasurementTrackerImpl::initializeStripStatus(const SiStripQuality *quality
             for (SiStripBadStrip::ContainerIterator bit = range.first; bit != range.second; ++bit) {
                 badStrips.push_back(quality->decode(*bit));
             }
-            (*i)->setBadStripCuts(badStripCuts[SiStripDetId(detid).subdetId()-3]);
        }
     }
     if (qualityDebugFlags & BadModules) {

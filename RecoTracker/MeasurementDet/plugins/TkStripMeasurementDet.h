@@ -120,8 +120,9 @@ public:
   typedef TkMeasurementDetSet::BadStripBlock BadStripBlock;
   
   std::vector<BadStripBlock> & getBadStripBlocks() { return badStripBlocks_; }
+  bool maskBad128StripBlocks() const { return bool theDets.maskBad128StripBlocks();}
   
-  void setMaskBad128StripBlocks(bool maskThem) { maskBad128StripBlocks_ = maskThem; }
+
   
 private:
   

@@ -98,8 +98,13 @@ public:
   
   int totalStrips(int) const { return totalStrips_[i];}
   
-  BadStripCuts & badStripCuts(int i) { return  badStripCuts(subId_[i]);}
+
+
+  void setMaskBad128StripBlocks(bool maskThem) { maskBad128StripBlocks_ = maskThem; }
+  BadStripCuts & badStripCuts(int i) { return  badStripCuts_[subId_[i]};}
   
+
+  bool maskBad128StripBlocks() const { return bool maskBad128StripBlocks_;}
   bool hasAny128StripBad(int i) const { return  hasAny128StripBad_[i];}
   
   bool isMasked(int i, const SiStripCluster &cluster) const {
@@ -154,8 +159,9 @@ private:
   mutable std::vector<bool> theStripsToSkip;
   
   bool regional_;
-  
-  BadStripCuts badStripCuts[4];
+
+  bool maskBad128StripBlocks_;
+  BadStripCuts badStripCuts_[4];
   
   // members of TkStripMeasurementDet
   std::vector<unsigned int> id_;
@@ -165,7 +171,7 @@ private:
   
   const int nbad128 = 6;
   std::vector<bool> bad128Strip_;
-  std::vector<bool> hasAny128StripBad_, maskBad128StripBlocks_;
+  std::vector<bool> hasAny128StripBad_;
   
   std::vector<bool> empty_;
   
