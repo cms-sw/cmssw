@@ -119,7 +119,7 @@ public:
   
   bool isMasked(int i, const SiStripCluster &cluster) const {
     int offset =  nbad128*i;
-    if ( bad128Strip_[offset+cluster.firstStrip() >> 7] ) {
+    if ( bad128Strip_[offset+( cluster.firstStrip() >> 7)] ) {
       if ( bad128Strip_[offset+( (cluster.firstStrip()+cluster.amplitudes().size())  >> 7)] ||
 	   bad128Strip_[offset+( static_cast<int32_t>(cluster.barycenter()-0.499999) >> 7)] ) {
 	return true;
