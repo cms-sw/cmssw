@@ -16,6 +16,13 @@ class StripClusterParameterEstimator;
  */
 class TkMeasurementDetSet {
 public:
+
+  typedef edmNew::DetSet<SiStripCluster> StripDetset;
+  typedef detset::const_iterator new_const_iterator;
+  
+  typedef std::vector<SiStripCluster>::const_iterator const_iterator;
+
+
   struct BadStripCuts {
     BadStripCuts() : maxBad(9999), maxConsecutiveBad(9999) {}
     BadStripCuts(const edm::ParameterSet &pset) :
@@ -37,45 +44,15 @@ public:
     theMatcher(matcher), theCPE(cpe), skipClusters_(0), regional_(regional){}
   
   
-  void init() {
-    // assume vector is full and ordered!
-    int size = theStripDets.size();
-    
-    empty_.resize(size,true);
-    activeThisEvent_.resize(size,true);
-    activeThisPeriod_.resize(size,true);
-    id_.resize(size);
-    subId_.resize(size);
-    totalStrips_.resize[size];
-    
-    bad128Strip_.resize(size*6);
-    hasAny128StripBad_.resize(size);
-    maskBad128StripBlocks_.resize(size);
-    
-    if (isRegional()) {
-      detset_.resize(size);
-    }  else {
-      beginClusterI_.resize(size);
-      endClusterI_.resize(size);
-    }
-    
-    for (int i=0; i!=size; ++i) {
-      auto & mdet =  *theStripDets[i]; 
-      mdet.setIndex(i);
-      //intialize the detId !
-      id_[i] = mdet->gdet->geographicalId().rawId();
-      subId_[i]=SiStripDetId(id_[i]).subdetId()-3;
-      //initalize the total number of strips
-      totalStrips_[i] =  mdet->specificGeomDet().specificTopology().nstrips();
-    }
-  }
-  
+ 
   const std::vector<TkStripMeasurementDet*>& stripDets() const {return  theStripDets;}
   
   
   std::vector<bool> const & clusterToSkip() const { return theStripsToSkip; }
   
   
+
+
   void update(int i,
 	      const detset &detSet ) { 
     detSet_[i] = detSet; 
@@ -91,9 +68,6 @@ public:
     empty_[i] = false;
     activeThisEvent_[i] = true;
   }
-  
-  edm::Handle<edmNew::DetSetVector<SiStripCluster> > & handle() {  return handle_;}
-  edm::Handle<edm::LazyGetter<SiStripCluster> > & regionalHandle() { return regionalHandle_;}
   
   
   
@@ -115,7 +89,10 @@ public:
   void setActiveThisEvent(int i, bool active) { activeThisEvent_[i] = active;  if (!active) empty[i] = true; }
   
   
+  edm::Handle<edmNew::DetSetVector<SiStripCluster> > & handle() {  return handle_;}
+  StripDetset & detSet(int i) { return detset_[i];}
   
+  edm::Handle<edm::LazyGetter<SiStripCluster> > & regionalHandle() { return regionalHandle_;}
   unsigned int beginClusterI(int i) const {return beginClusterI[i];}
   unsigned int endClusterI(int i) const {return endClusterI[i];}
   
@@ -195,7 +172,7 @@ private:
   std::vector<bool> activeThisEvent_,activeThisPeriod_;
   
   // full reco
-  std::vector<detset> detSet_;
+  std::vector<StripDetset> detSet_;
   
   // --- regional unpacking
   
