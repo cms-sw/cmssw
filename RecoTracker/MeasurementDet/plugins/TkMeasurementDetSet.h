@@ -2,9 +2,11 @@
 #define TkMeasurementDetSet_H
 
 #include<vector>
+class TkStripMeasurementDet;
 class TkGluedMeasurementDet;
 class SiStripRecHitMatcher;
 class StripClusterParameterEstimator;
+
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
@@ -45,16 +47,15 @@ public:
   
   
  
-  const std::vector<TkStripMeasurementDet*>& stripDets() const {return  theStripDets;}
+  const std::vector<TkStripMeasurementDet*> & stripDets() const {return  theStripDets;}
   
   
   std::vector<bool> const & clusterToSkip() const { return theStripsToSkip; }
   
   
-
-
+ 
   void update(int i,
-	      const detset &detSet ) { 
+	      const StripDetset &detSet ) { 
     detSet_[i] = detSet; 
     
     empty_[i] = false;
@@ -159,7 +160,7 @@ private:
   mutable std::vector<bool> theStripsToSkip;
   
   bool regional_;
-
+  
   bool maskBad128StripBlocks_;
   BadStripCuts badStripCuts_[4];
   
