@@ -177,6 +177,7 @@ private:
   edm::Handle<edm::LazyGetter<SiStripCluster> > regionalHandle_;
 
   mutable std::vector<bool> theStripsToSkip;
+
   bool regional_;
 
   BadStripCuts badStripCuts[4];
@@ -197,13 +198,14 @@ private:
 
   // full reco
   std::vector<detset> detSet_;
-\
+
   // --- regional unpacking
-\
+
   std::vector<unsigned int> beginClusterI_;
   std::vector<unsigned int> endClusterI_;
 
- 
-
 
 };
+
+
+#endif
