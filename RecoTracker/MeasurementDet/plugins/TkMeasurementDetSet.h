@@ -20,7 +20,7 @@ class TkMeasurementDetSet {
 public:
 
   typedef edmNew::DetSet<SiStripCluster> StripDetset;
-  typedef detset::const_iterator new_const_iterator;
+  typedef StripDetset::const_iterator new_const_iterator;
   
   typedef std::vector<SiStripCluster>::const_iterator const_iterator;
 
@@ -85,7 +85,7 @@ public:
   
   /** \brief Turn on/off the module for reconstruction, for the full run or lumi (using info from DB, usually).
       This also resets the 'setActiveThisEvent' to true */
-  void setActive(int it, bool active) { activeThisPeriod_[i] = active; activeThisEvent_[i] = true; if (!active) empty_[i] = true; }
+  void setActive(int i, bool active) { activeThisPeriod_[i] = active; activeThisEvent_[i] = true; if (!active) empty_[i] = true; }
   /** \brief Turn on/off the module for reconstruction for one events.
       This per-event flag is cleared by any call to 'update' or 'setEmpty'  */
   void setActiveThisEvent(int i, bool active) { activeThisEvent_[i] = active;  if (!active) empty[i] = true; }
