@@ -15,24 +15,15 @@
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 
 TkStripMeasurementDet::TkStripMeasurementDet( const GeomDet* gdet,
-					      const StripClusterParameterEstimator* cpe,
-					      bool regional) : 
-    MeasurementDet (gdet),
-    theCPE(cpe),
-    skipClusters_(0),
-    isRegional(regional),
-    empty(true),
-    activeThisEvent_(true), activeThisPeriod_(true)
+					      TkMeasurementDetSet & dets
+					      ) : 
+  MeasurementDet (gdet),theDets(dets), index(-1)
   {
     if (dynamic_cast<const StripGeomDetUnit*>(gdet) == 0) {
       throw MeasurementDetException( "TkStripMeasurementDet constructed with a GeomDet which is not a StripGeomDetUnit");
     }
-
-    //intialize the detId !
-    id_ = gdet->geographicalId().rawId();
-    //initalize the total number of strips
-    totalStrips_ =  specificGeomDet().specificTopology().nstrips();
   }
+
 
 std::vector<TrajectoryMeasurement> 
 TkStripMeasurementDet::
@@ -44,7 +35,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
   std::vector<TrajectoryMeasurement> result;
 
   if (isActive() == false) {
-    LogDebug("TkStripMeasurementDet")<<" found an inactive module "<<id_;
+    LogDebug("TkStripMeasurementDet")<<" found an inactive module "<<rawId();
     result.push_back( TrajectoryMeasurement( stateOnThisDet, 
     		InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 
 		0.F));
@@ -54,8 +45,8 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
   float utraj =  specificGeomDet().specificTopology().measurementPosition( stateOnThisDet.localPosition()).x();
   float uerr;
   //  if (theClusterRange.first == theClusterRange.second) { // empty
-  if (empty  == true){
-    LogDebug("TkStripMeasurementDet") << " DetID " << id_ << " empty ";
+  if (empty()  == true){
+    LogDebug("TkStripMeasurementDet") << " DetID " << rawId() << " empty ";
     if (stateOnThisDet.hasError()){
     uerr= sqrt(specificGeomDet().specificTopology().measurementError(stateOnThisDet.localPosition(),stateOnThisDet.localError().positionError()).uu());
      if (testStrips(utraj,uerr)) {
@@ -69,16 +60,16 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
     return result;
   }
   
-  if(!isRegional){//old implemetation with DetSet
+  if(isRegional()){//old implemetation with DetSet
     new_const_iterator rightCluster = 
-      std::find_if( detSet_.begin(), detSet_.end(), StripClusterAboveU( utraj)); //FIXME
+      std::find_if( detSet().begin(), detSet().end(), StripClusterAboveU( utraj)); //FIXME
 
-    if ( rightCluster != detSet_.begin()) {
+    if ( rightCluster != detSet().begin()) {
       // there are hits on the left of the utraj
       new_const_iterator leftCluster = rightCluster;
-      while ( --leftCluster >=  detSet_.begin()) {
+      while ( --leftCluster >=  detSet().begin()) {
         if (isMasked(*leftCluster)) continue;
-	SiStripClusterRef clusterref = edmNew::makeRefTo( handle_, leftCluster ); 
+	SiStripClusterRef clusterref = edmNew::makeRefTo( handle(), leftCluster ); 
 	if (accept(clusterref)){
 	RecHitContainer recHits = buildRecHits(clusterref,stateOnThisDet); 
 	bool isCompatible(false);
@@ -92,13 +83,14 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
 	}
 	if(!isCompatible) break; // exit loop on first incompatible hit
 	}
-	else LogDebug("TkStripMeasurementDet")<<"skipping this str from last iteration on"<<geomDet().geographicalId().rawId()<<" key: "<<clusterref.key();
+	else LogDebug("TkStripMeasurementDet")<<"skipping this str from last iteration on"<<rawId()<<" key: "<<clusterref.key();
       }
     }
     
+
     for ( ; rightCluster != detSet_.end(); rightCluster++) {
       if (isMasked(*rightCluster)) continue;
-      SiStripClusterRef clusterref = edmNew::makeRefTo( handle_, rightCluster ); 
+      SiStripClusterRef clusterref = edmNew::makeRefTo( handle(), rightCluster ); 
       if (accept(clusterref)){
       RecHitContainer recHits = buildRecHits(clusterref,stateOnThisDet); 
       bool isCompatible(false);
@@ -112,22 +104,22 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
       }
       if(!isCompatible) break; // exit loop on first incompatible hit
       }
-      else LogDebug("TkStripMeasurementDet")<<"skipping this str from last iteration on"<<geomDet().geographicalId().rawId()<<" key: "<<clusterref.key();
+      else LogDebug("TkStripMeasurementDet")<<"skipping this str from last iteration on"< rawId()<<" key: "<<clusterref.key();
     }
   }// end block with DetSet
   else{
     LogDebug("TkStripMeasurementDet")<<" finding left/ right";
     result.reserve(size());
-    unsigned int rightCluster = beginClusterI_;
-    for (; rightCluster!= endClusterI_;++rightCluster){
-      SiStripRegionalClusterRef clusterref = edm::makeRefToLazyGetter(regionalHandle_,rightCluster);
+    unsigned int rightCluster = beginClusterI();
+    for (; rightCluster!= endClusterI();++rightCluster){
+      SiStripRegionalClusterRef clusterref = edm::makeRefToLazyGetter(regionalHandle(),rightCluster);
       if (clusterref->barycenter() > utraj) break;
     }
 
     unsigned int leftCluster = 1;
-    for (unsigned int iReadBackWard=1; iReadBackWard<=(rightCluster-beginClusterI_) ; ++iReadBackWard){
+    for (unsigned int iReadBackWard=1; iReadBackWard<=(rightCluster-beginClusterI()) ; ++iReadBackWard){
 	leftCluster=rightCluster-iReadBackWard;
-	SiStripRegionalClusterRef clusterref = edm::makeRefToLazyGetter(regionalHandle_,leftCluster);
+	SiStripRegionalClusterRef clusterref = edm::makeRefToLazyGetter(regionalHandle(),leftCluster);
         if (isMasked(*clusterref)) continue;
 	if (accept(clusterref)){
 	RecHitContainer recHits = buildRecHits(clusterref,stateOnThisDet); 
@@ -142,12 +134,12 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
 	}
 	if(!isCompatible) break; // exit loop on first incompatible hit
 	}
-	else LogDebug("TkStripMeasurementDet")<<"skipping this reg str from last iteration on"<<geomDet().geographicalId().rawId()<<" key: "<<clusterref.key();
+	else LogDebug("TkStripMeasurementDet")<<"skipping this reg str from last iteration on"<<rawId()<<" key: "<<clusterref.key();
     }
     
     
-    for ( ; rightCluster != endClusterI_; ++rightCluster) {
-      SiStripRegionalClusterRef clusterref = edm::makeRefToLazyGetter(regionalHandle_,rightCluster);
+    for ( ; rightCluster != endClusterI(); ++rightCluster) {
+      SiStripRegionalClusterRef clusterref = edm::makeRefToLazyGetter(regionalHandle(),rightCluster);
       if (isMasked(*clusterref)) continue;
       if (accept(clusterref)){
       RecHitContainer recHits = buildRecHits(clusterref,stateOnThisDet); 
@@ -162,7 +154,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
       }
       if(!isCompatible) break; // exit loop on first incompatible hit
       }
-      else LogDebug("TkStripMeasurementDet")<<"skipping this reg str from last iteration on"<<geomDet().geographicalId().rawId()<<" key: "<<clusterref.key();
+      else LogDebug("TkStripMeasurementDet")<<"skipping this reg str from last iteration on"<<rawId()<<" key: "<<clusterref.key();
     }
   }
 
@@ -198,7 +190,7 @@ TkStripMeasurementDet::buildRecHit( const SiStripClusterRef& cluster,
 				    const TrajectoryStateOnSurface& ltp) const
 {
   const GeomDetUnit& gdu( specificGeomDet());
-  LocalValues lv = theCPE->localParameters( *cluster, gdu, ltp);
+  LocalValues lv = theCPE()->localParameters( *cluster, gdu, ltp);
   return TSiStripRecHit2DLocalPos::build( lv.first, lv.second, &geomDet(), cluster, theCPE);
 }
 
@@ -207,7 +199,7 @@ TkStripMeasurementDet::buildRecHit( const SiStripRegionalClusterRef& cluster,
 				    const TrajectoryStateOnSurface& ltp) const
 {
   const GeomDetUnit& gdu( specificGeomDet());
-  LocalValues lv = theCPE->localParameters( *cluster, gdu, ltp);
+  LocalValues lv = theCPE()->localParameters( *cluster, gdu, ltp);
   return TSiStripRecHit2DLocalPos::build( lv.first, lv.second, &geomDet(), cluster, theCPE);
 }
 
@@ -218,7 +210,7 @@ TkStripMeasurementDet::buildRecHits( const SiStripClusterRef& cluster,
 				     const TrajectoryStateOnSurface& ltp) const
 {
   const GeomDetUnit& gdu( specificGeomDet());
-  VLocalValues vlv = theCPE->localParametersV( *cluster, gdu, ltp);
+  VLocalValues vlv = theCPE()->localParametersV( *cluster, gdu, ltp);
   RecHitContainer res;
   for(VLocalValues::const_iterator it=vlv.begin();it!=vlv.end();++it){
     res.push_back(TSiStripRecHit2DLocalPos::build( it->first, it->second, &geomDet(), cluster, theCPE));
@@ -232,7 +224,7 @@ TkStripMeasurementDet::buildRecHits( const SiStripRegionalClusterRef& cluster,
 				     const TrajectoryStateOnSurface& ltp) const
 {
   const GeomDetUnit& gdu( specificGeomDet());
-  VLocalValues vlv = theCPE->localParametersV( *cluster, gdu, ltp);
+  VLocalValues vlv = theCPE()->localParametersV( *cluster, gdu, ltp);
   RecHitContainer res;
   for(VLocalValues::const_iterator it=vlv.begin();it!=vlv.end();++it){
     res.push_back(TSiStripRecHit2DLocalPos::build( it->first, it->second, &geomDet(), cluster, theCPE));
@@ -246,27 +238,27 @@ TkStripMeasurementDet::RecHitContainer
 TkStripMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
 {
   RecHitContainer result;
-  if (empty == true) return result;
+  if (empty() == true) return result;
   if (isActive() == false) return result; // GIO
 
-  if(!isRegional){//old implemetation with DetSet
+  if(!isRegional()){//old implemetation with DetSet
     result.reserve(detSet_.size());
-    for ( new_const_iterator ci = detSet_.begin(); ci != detSet_.end(); ++ ci ) {
+    for ( new_const_iterator ci = detSet().begin(); ci != detSet().end(); ++ ci ) {
       if (isMasked(*ci)) continue;
       // for ( ClusterIterator ci=theClusterRange.first; ci != theClusterRange.second; ci++) {
-      SiStripClusterRef  cluster = edmNew::makeRefTo( handle_, ci ); 
+      SiStripClusterRef  cluster = edmNew::makeRefTo( handle(), ci ); 
       if (accept(cluster))
 	result.push_back( buildRecHit( cluster, ts));
-      else LogDebug("TkStripMeasurementDet")<<"skipping this str from last iteration on"<<geomDet().geographicalId().rawId()<<" key: "<<cluster.key();
+      else LogDebug("TkStripMeasurementDet")<<"skipping this str from last iteration on"<<rawId()<<" key: "<<cluster.key();
     }
   }else{
     result.reserve(size());
-    for (unsigned int ci = beginClusterI_ ; ci!= endClusterI_;++ci){
-      SiStripRegionalClusterRef clusterRef = edm::makeRefToLazyGetter(regionalHandle_,ci);
+    for (unsigned int ci = beginClusterI() ; ci!= endClusterI();++ci){
+      SiStripRegionalClusterRef clusterRef = edm::makeRefToLazyGetter(regionalHandle(),ci);
       if (isMasked(*clusterRef)) continue;
       if (accept(clusterRef))
 	result.push_back( buildRecHit( clusterRef, ts));
-      else LogDebug("TkStripMeasurementDet")<<"skipping this reg str from last iteration on"<<geomDet().geographicalId().rawId()<<" key: "<<clusterRef.key();
+      else LogDebug("TkStripMeasurementDet")<<"skipping this reg str from last iteration on"<<rawId()<<" key: "<<clusterRef.key();
       }
   }
   return result;
@@ -280,9 +272,9 @@ TkStripMeasurementDet::buildSimpleRecHit( const ClusterRefT& cluster,
 					  std::vector<SiStripRecHit2D>& res ) const
 {
   const GeomDetUnit& gdu( specificGeomDet());
-  VLocalValues vlv = theCPE->localParametersV( *cluster, gdu, ltp);
+  VLocalValues vlv = theCPE()->localParametersV( *cluster, gdu, ltp);
   for(VLocalValues::const_iterator it=vlv.begin();it!=vlv.end();++it){
-    res.push_back(SiStripRecHit2D( it->first, it->second, geomDet().geographicalId(), cluster));
+    res.push_back(SiStripRecHit2D( it->first, it->second, rawId(), cluster));
   }
 }
 
@@ -290,56 +282,36 @@ TkStripMeasurementDet::buildSimpleRecHit( const ClusterRefT& cluster,
 void 
 TkStripMeasurementDet::simpleRecHits( const TrajectoryStateOnSurface& ts, std::vector<SiStripRecHit2D> &result) const
 {
-  if (empty || !isActive()) return;
+  if (empty() || !isActive()) return;
 
-  if(!isRegional){//old implemetation with DetSet
-    result.reserve(detSet_.size());
-    for ( new_const_iterator ci = detSet_.begin(); ci != detSet_.end(); ++ ci ) {
+  if(!isRegional()){//old implemetation with DetSet
+    result.reserve(detSet().size());
+    for ( new_const_iterator ci = detSet().begin(); ci != detSet().end(); ++ ci ) {
       if (isMasked(*ci)) continue;
       // for ( ClusterIterator ci=theClusterRange.first; ci != theClusterRange.second; ci++) {
-      SiStripClusterRef  cluster = edmNew::makeRefTo( handle_, ci ); 
+      SiStripClusterRef  cluster = edmNew::makeRefTo( handle(), ci ); 
       if (accept(cluster))
 	buildSimpleRecHit( cluster, ts,result);
-      else LogDebug("TkStripMeasurementDet")<<"skipping this str from last iteration on"<<geomDet().geographicalId().rawId()<<" key: "<<cluster.key();
+      else LogDebug("TkStripMeasurementDet")<<"skipping this str from last iteration on"<<rawId()<<" key: "<<cluster.key();
     }
   }else{
     result.reserve(size());
-    for (unsigned int ci = beginClusterI_ ; ci!= endClusterI_;++ci){
-      SiStripRegionalClusterRef clusterRef = edm::makeRefToLazyGetter(regionalHandle_,ci);
+    for (unsigned int ci = beginClusterI() ; ci!= endClusterI();++ci){
+      SiStripRegionalClusterRef clusterRef = edm::makeRefToLazyGetter(regionalHandle(),ci);
       if (isMasked(*clusterRef)) continue;
       if (accept(clusterRef))
 	buildSimpleRecHit( clusterRef, ts,result);
-      else LogDebug("TkStripMeasurementDet")<<"skipping this reg str from last iteration on"<<geomDet().geographicalId().rawId()<<" key: "<<clusterRef.key();
+      else LogDebug("TkStripMeasurementDet")<<"skipping this reg str from last iteration on"<<rawId()<<" key: "<<clusterRef.key();
     }
   }
 }
 
 
-void
-TkStripMeasurementDet::set128StripStatus(bool good, int idx) { 
-   if (idx == -1) {
-       std::fill(bad128Strip_, bad128Strip_+6, !good);
-       hasAny128StripBad_ = !good;
-   } else {
-       bad128Strip_[idx] = !good;
-       if (good == false) {
-            hasAny128StripBad_ = false;
-       } else { // this should not happen, as usually you turn on all fibers
-                // and then turn off the bad ones, and not vice-versa,
-                // so I don't care if it's not optimized
-            hasAny128StripBad_ = true;
-            for (int i = 0; i < (totalStrips_ >> 7); i++) {
-                if (bad128Strip_[i] == false) hasAny128StripBad_ = false;
-            }
-       }    
-   }
-    
-}
 
 bool
 TkStripMeasurementDet::testStrips(float utraj, float uerr) const {
     int16_t start = (int16_t) std::max<float>(utraj - 3*uerr, 0);
-    int16_t end   = (int16_t) std::min<float>(utraj + 3*uerr, totalStrips_);
+    int16_t end   = (int16_t) std::min<float>(utraj + 3*uerr, totalStrips());
 
     if (start >= end) { // which means either end <=0 or start >= totalStrips_
         /* LogDebug("TkStripMeasurementDet") << "Testing module " << id_ <<","<<
@@ -363,8 +335,8 @@ TkStripMeasurementDet::testStrips(float utraj, float uerr) const {
     }
 
     bool ok = (bad < (end-start)) && 
-              (uint16_t(bad) <= badStripCuts_.maxBad) && 
-              (uint16_t(largestBadBlock) <= badStripCuts_.maxConsecutiveBad);
+      (uint16_t(bad) <= badStripCuts().maxBad) && 
+      (uint16_t(largestBadBlock) <= badStripCuts().maxConsecutiveBad);
 
 //    if (bad) {   
 //       edm::LogWarning("TkStripMeasurementDet") << "Testing module " << id_ <<" (subdet: "<< SiStripDetId(id_).subdetId() << ")" <<

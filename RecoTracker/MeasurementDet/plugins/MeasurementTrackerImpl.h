@@ -2,6 +2,8 @@
 #define MeasurementTrackerImpl_H
 
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+#include "TkMeasurementDetSet.h"
+
 #include "DataFormats/DetId/interface/DetId.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
@@ -90,8 +92,10 @@ public:
   const edm::ParameterSet& pset_;
   const std::string name_;
 
+  TkMeasurementDetSet theDets;
+
   mutable DetContainer                        theDetMap;
-  mutable std::vector<TkStripMeasurementDet*> theStripDets;
+
   mutable std::vector<TkPixelMeasurementDet*> thePixelDets;
   mutable std::vector<TkGluedMeasurementDet*> theGluedDets;
   
@@ -99,14 +103,11 @@ public:
   mutable std::vector<bool> theStripsToSkip;
 
   const PixelClusterParameterEstimator* thePixelCPE;
-  const StripClusterParameterEstimator* theStripCPE;
-  const SiStripRecHitMatcher*           theHitMatcher;
   const SiPixelFedCabling*              thePixelCabling;
 
   const std::vector<edm::InputTag>      theInactivePixelDetectorLabels;
   const std::vector<edm::InputTag>      theInactiveStripDetectorLabels;
 
-  bool isRegional_;
   bool selfUpdateSkipClusters_;
 
   void initialize() const;
