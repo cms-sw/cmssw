@@ -56,7 +56,7 @@ public:
   
  
   void update(int i,
-	      const StripDetset &detSet ) { 
+	      const StripDetset & detSet ) { 
     detSet_[i] = detSet; 
     
     empty_[i] = false;
@@ -72,15 +72,20 @@ public:
   }
   
   
+  const SiStripRecHitMatcher*  matcher() const { return theMatcher;}
+  const StripClusterParameterEstimator*  stripCPE() const { return theCPE;}
+
+
   
   bool isRegional() const { return regional_;}
   bool empty(int i) const { return empty_[i];}  
   bool isActive(int i) const { return activeThisEvent_[i] && activeThisPeriod_[i]; }
+
   void setEmpty(int i) {empty_[i] = true; activeThisEvent_[i] = true; }
   
   void setEmpty() {
     std::fill(empty_.begin(),empty_.end(),true);
-    std::fill(activeThisEvent_.begin(),activeThisEvent_.end(),true);
+    std::fill(activeThisEvent_.begin(), activeThisEvent_.end(),true);
   }
   
   /** \brief Turn on/off the module for reconstruction, for the full run or lumi (using info from DB, usually).
@@ -88,11 +93,11 @@ public:
   void setActive(int i, bool active) { activeThisPeriod_[i] = active; activeThisEvent_[i] = true; if (!active) empty_[i] = true; }
   /** \brief Turn on/off the module for reconstruction for one events.
       This per-event flag is cleared by any call to 'update' or 'setEmpty'  */
-  void setActiveThisEvent(int i, bool active) { activeThisEvent_[i] = active;  if (!active) empty[i] = true; }
+  void setActiveThisEvent(int i, bool active) { activeThisEvent_[i] = active;  if (!active) empty_[i] = true; }
   
   
   edm::Handle<edmNew::DetSetVector<SiStripCluster> > & handle() {  return handle_;}
-  StripDetset & detSet(int i) { return detset_[i];}
+  StripDetset & detSet(int i) { return detSet_[i];}
   
   edm::Handle<edm::LazyGetter<SiStripCluster> > & regionalHandle() { return regionalHandle_;}
   unsigned int beginClusterI(int i) const {return beginClusterI[i];}
@@ -106,7 +111,7 @@ public:
   BadStripCuts & badStripCuts(int i) { return  badStripCuts_[subId_[i]];}
   
   
-  bool maskBad128StripBlocks() const { return bool maskBad128StripBlocks_;}
+  bool maskBad128StripBlocks() const { return maskBad128StripBlocks_;}
   bool hasAny128StripBad(int i) const { return  hasAny128StripBad_[i];}
   
   bool isMasked(int i, const SiStripCluster &cluster) const {
@@ -140,7 +145,7 @@ public:
 	// so I don't care if it's not optimized
 	hasAny128StripBad_[i] = true;
 	for (int j = 0; i < (totalStrips_[j] >> 7); j++) {
-	  if (bad128Strip_[j+offset] == false) hasAny128StripBad_[i] = false;
+	  if (bad128Strip_[j+offset] == false) hasAny128StripBad_[i] = false; break;
 	}
       }    
     } 
