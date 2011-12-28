@@ -419,7 +419,7 @@ void HLTJets::analyze(edm::Event const& iEvent,
       int jrcal=0;
       for ( cjiter i=mycalojets.begin(); i!=mycalojets.end(); i++) {
     
-    	if (i->pt()>_CalJetMin){
+    	if (i->pt()>_CalJetMin && i->energy()>0.){
     	  jrcalpt[jrcal] = i->pt();
     	  jrcalphi[jrcal] = i->phi();
     	  jrcaleta[jrcal] = i->eta();
@@ -443,7 +443,7 @@ void HLTJets::analyze(edm::Event const& iEvent,
       int jrcal=0;
       for ( cjiter i=mycalojets.begin(); i!=mycalojets.end(); i++) {
     
-    	if (i->pt()>_CalJetMin){
+    	if (i->pt()>_CalJetMin && i->energy()>0.){
     	  jrcorcalpt[jrcal] = i->pt();
     	  jrcorcalphi[jrcal] = i->phi();
     	  jrcorcaleta[jrcal] = i->eta();
@@ -467,7 +467,7 @@ void HLTJets::analyze(edm::Event const& iEvent,
         int jhcal=0;
         for ( cjiter i=mycalojets.begin(); i!=mycalojets.end(); i++) {
             
-            if (i->pt()>_CalJetMin){
+            if (i->pt()>_CalJetMin && i->energy()>0.){
                 jhcalpt[jhcal] = i->pt();
                 jhcalphi[jhcal] = i->phi();
                 jhcaleta[jhcal] = i->eta();
@@ -492,7 +492,7 @@ void HLTJets::analyze(edm::Event const& iEvent,
         int jhcorcal=0;
         for ( ccorjiter i=mycalocorjets.begin(); i!=mycalocorjets.end(); i++) {
             
-            if (i->pt()>_CalJetMin){
+            if (i->pt()>_CalJetMin && i->energy()>0.){
                 jhcorcalpt[jhcorcal] = i->pt();
                 jhcorcalphi[jhcorcal] = i->phi();
                 jhcorcaleta[jhcorcal] = i->eta();
@@ -517,7 +517,7 @@ void HLTJets::analyze(edm::Event const& iEvent,
         int jhcorL1L2L3cal=0;
         for ( ccorL1L2L3jiter i=mycalocorL1L2L3jets.begin(); i!=mycalocorL1L2L3jets.end(); i++) {
             
-            if (i->pt()>_CalJetMin){
+            if (i->pt()>_CalJetMin && i->energy()>0.){
                 jhcorL1L2L3calpt[jhcorL1L2L3cal] = i->pt();
                 jhcorL1L2L3calphi[jhcorL1L2L3cal] = i->phi();
                 jhcorL1L2L3caleta[jhcorL1L2L3cal] = i->eta();
