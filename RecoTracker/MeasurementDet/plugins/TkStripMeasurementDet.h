@@ -48,7 +48,7 @@ public:
   
   bool isRegional() const { return theDets.isRegional();}
   
-  void setEmpty(){ theDets.setEmpy(index); }
+  void setEmpty(){ theDets.setEmpty(index); }
   
   bool  isEmpty() const {return theDets.empty(index);}
   
@@ -134,10 +134,10 @@ private:
   edm::Handle<edmNew::DetSetVector<SiStripCluster> > & handle()  { return theDets.handle();}
   edm::Handle<edm::LazyGetter<SiStripCluster> > & regionalHandle() { return theDets.regionalHandle();}
   
-  const StripClusterParameterEstimator* cpe() const { return  theDets.stripCpe(); }
+  const StripClusterParameterEstimator* cpe() const { return  theDets.stripCPE(); }
   
   
-  const std::vector<bool> & skipClusters() const {  return  theDets.skipClusters();}
+  const std::vector<bool> & skipClusters() const {  return  theDets.clusterToSkip();}
   
   // --- regional unpacking
   
@@ -151,7 +151,7 @@ private:
   
   
   inline bool isMasked(const SiStripCluster &cluster) const {
-    return theDets.isMasked(int, cluster);
+    return theDets.isMasked(index, cluster);
   }
   
   template<class ClusterRefT>

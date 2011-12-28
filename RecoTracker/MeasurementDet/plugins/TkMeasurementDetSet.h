@@ -75,6 +75,9 @@ public:
   const SiStripRecHitMatcher*  matcher() const { return theMatcher;}
   const StripClusterParameterEstimator*  stripCPE() const { return theCPE;}
 
+  unsigned int id(int i) const { return id_[i]; }
+  unsigned char subId(int i) const { return subId_[i];}
+
 
   
   bool isRegional() const { return regional_;}
