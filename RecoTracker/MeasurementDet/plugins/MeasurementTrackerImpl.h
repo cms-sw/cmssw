@@ -98,7 +98,7 @@ public:
 
   /// For debug only 
   const DetContainer& allDets() const {return theDetMap;}
-  const std::vector<TkStripMeasurementDet*>& stripDets() const {return theDets.stripDets();}
+  const std::vector<TkStripMeasurementDet*>& stripDets() const {return theStDets.stripDets();}
   const std::vector<TkPixelMeasurementDet*>& pixelDets() const {return thePixelDets;}
   const std::vector<TkGluedMeasurementDet*>& gluedDets() const {return theGluedDets;}
 
@@ -109,7 +109,7 @@ public:
   const edm::ParameterSet& pset_;
   const std::string name_;
 
-  TkMeasurementDetSet theDets;
+  StMeasurementDetSet theStDets;
 
   mutable DetContainer                        theDetMap;
 
@@ -128,12 +128,11 @@ public:
 
   void initialize() const;
 
-  void addStripDet( const GeomDet* gd,
-		    const StripClusterParameterEstimator* cpe) const;
+  void addStripDet( const GeomDet* gd) const;
   void addPixelDet( const GeomDet* gd,
 		    const PixelClusterParameterEstimator* cpe) const;
 
-  void addGluedDet( const GluedGeomDet* gd, const SiStripRecHitMatcher* matcher) const;
+  void addGluedDet( const GluedGeomDet* gd) const;
 
   void addPixelDets( const TrackingGeometry::DetContainer& dets) const;
 

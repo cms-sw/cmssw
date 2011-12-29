@@ -15,7 +15,7 @@
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 
 TkStripMeasurementDet::TkStripMeasurementDet( const GeomDet* gdet,
-					      TkMeasurementDetSet & dets
+					      StMeasurementDetSet & dets
 					      ) : 
   MeasurementDet (gdet),theDets(dets), index(-1)
   {
@@ -50,12 +50,12 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
     if (stateOnThisDet.hasError()){
     uerr= sqrt(specificGeomDet().specificTopology().measurementError(stateOnThisDet.localPosition(),stateOnThisDet.localError().positionError()).uu());
      if (testStrips(utraj,uerr)) {
-        result.push_back( TrajectoryMeasurement( stateOnThisDet, InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::missing), 0.F));
+        result.push_back( TrajectoryMeasurement( stateOnThisDet, InvalidTransientRecHit::build(&fastGeomDet(), TrackingRecHit::missing), 0.F));
      } else { 
-        result.push_back( TrajectoryMeasurement( stateOnThisDet, InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 0.F));
+        result.push_back( TrajectoryMeasurement( stateOnThisDet, InvalidTransientRecHit::build(&fastGeomDet(), TrackingRecHit::inactive), 0.F));
      }
     }else{
-      result.push_back( TrajectoryMeasurement( stateOnThisDet, InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::missing), 0.F));
+      result.push_back( TrajectoryMeasurement( stateOnThisDet, InvalidTransientRecHit::build(&fastGeomDet(), TrackingRecHit::missing), 0.F));
     }
     return result;
   }
@@ -165,13 +165,13 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
     uerr= sqrt(specificGeomDet().specificTopology().measurementError(stateOnThisDet.localPosition(),stateOnThisDet.localError().positionError()).uu());
      if (testStrips(utraj,uerr)) {
        //LogDebug("TkStripMeasurementDet") << " DetID " << id_ << " empty after search, but active ";
-       result.push_back( TrajectoryMeasurement( stateOnThisDet, InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::missing), 0.F));
+       result.push_back( TrajectoryMeasurement( stateOnThisDet, InvalidTransientRecHit::build(&fastGeomDet(), TrackingRecHit::missing), 0.F));
      } else { 
        //LogDebug("TkStripMeasurementDet") << " DetID " << id_ << " empty after search, and inactive ";
-       result.push_back( TrajectoryMeasurement( stateOnThisDet, InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 0.F));
+       result.push_back( TrajectoryMeasurement( stateOnThisDet, InvalidTransientRecHit::build(&fastGeomDet(), TrackingRecHit::inactive), 0.F));
      }
     }else{
-      result.push_back( TrajectoryMeasurement( stateOnThisDet, InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::missing), 0.F));
+      result.push_back( TrajectoryMeasurement( stateOnThisDet, InvalidTransientRecHit::build(&fastGeomDet(), TrackingRecHit::missing), 0.F));
     }
   }
   else {
@@ -191,7 +191,7 @@ TkStripMeasurementDet::buildRecHit( const SiStripClusterRef& cluster,
 {
   const GeomDetUnit& gdu( specificGeomDet());
   LocalValues lv = cpe()->localParameters( *cluster, gdu, ltp);
-  return TSiStripRecHit2DLocalPos::build( lv.first, lv.second, &geomDet(), cluster, cpe);
+  return TSiStripRecHit2DLocalPos::build( lv.first, lv.second, &fastGeomDet(), cluster, cpe);
 }
 
 TransientTrackingRecHit::RecHitPointer
@@ -200,7 +200,7 @@ TkStripMeasurementDet::buildRecHit( const SiStripRegionalClusterRef& cluster,
 {
   const GeomDetUnit& gdu( specificGeomDet());
   LocalValues lv = cpe()->localParameters( *cluster, gdu, ltp);
-  return TSiStripRecHit2DLocalPos::build( lv.first, lv.second, &geomDet(), cluster, cpe);
+  return TSiStripRecHit2DLocalPos::build( lv.first, lv.second, &fastGeomDet(), cluster, cpe);
 }
 
 
@@ -213,7 +213,7 @@ TkStripMeasurementDet::buildRecHits( const SiStripClusterRef& cluster,
   VLocalValues vlv = cpe()->localParametersV( *cluster, gdu, ltp);
   RecHitContainer res;
   for(VLocalValues::const_iterator it=vlv.begin();it!=vlv.end();++it){
-    res.push_back(TSiStripRecHit2DLocalPos::build( it->first, it->second, &geomDet(), cluster, cpe));
+    res.push_back(TSiStripRecHit2DLocalPos::build( it->first, it->second, &fastGeomDet(), cluster, cpe));
   }
   return res; 
 }
@@ -227,7 +227,7 @@ TkStripMeasurementDet::buildRecHits( const SiStripRegionalClusterRef& cluster,
   VLocalValues vlv = cpe()->localParametersV( *cluster, gdu, ltp);
   RecHitContainer res;
   for(VLocalValues::const_iterator it=vlv.begin();it!=vlv.end();++it){
-    res.push_back(TSiStripRecHit2DLocalPos::build( it->first, it->second, &geomDet(), cluster, cpe));
+    res.push_back(TSiStripRecHit2DLocalPos::build( it->first, it->second, &fastGeomDet(), cluster, cpe));
   }
   return res; 
 }

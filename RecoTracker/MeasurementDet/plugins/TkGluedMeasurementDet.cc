@@ -138,10 +138,10 @@ TkGluedMeasurementDet::fastMeasurements( const TrajectoryStateOnSurface& stateOn
                ) /* State has errors */
               ) {
               result.push_back( TrajectoryMeasurement( stateOnThisDet, 
-                          InvalidTransientRecHit::build(&geomDet()), 0.F)); 
+                          InvalidTransientRecHit::build(&fastGeomDet()), 0.F)); 
           } else {
               result.push_back( TrajectoryMeasurement(stateOnThisDet, 
-                         InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 0.F));
+                         InvalidTransientRecHit::build(&fastGeomDet(), TrackingRecHit::inactive), 0.F));
           }
       } else {
           // sort results according to estimator value
@@ -152,7 +152,7 @@ TkGluedMeasurementDet::fastMeasurements( const TrajectoryStateOnSurface& stateOn
    } else {
      //     LogDebug("TkStripMeasurementDet") << " DetID " << geomDet().geographicalId().rawId() << " (glued) fully inactive";
       result.push_back( TrajectoryMeasurement( stateOnThisDet, 
-               InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 
+               InvalidTransientRecHit::build(&fatsGeomDet(), TrackingRecHit::inactive), 
                0.F));
    }
    return result;	
@@ -167,7 +167,7 @@ TkGluedMeasurementDet::projectOnGluedDet( const RecHitContainer& hits,
   TrackingRecHitProjector<ProjectedRecHit2D> proj;
   RecHitContainer result;
   for ( RecHitContainer::const_iterator ihit = hits.begin(); ihit!=hits.end(); ihit++) {
-    result.push_back( proj.project( **ihit, geomDet(), ts));
+    result.push_back( proj.project( **ihit, fastGeomDet(), ts));
   }
   return result;
 }
@@ -188,10 +188,10 @@ void TkGluedMeasurementDet::checkProjection(const TrajectoryStateOnSurface& ts,
 					    const RecHitContainer& stereoHits) const
 {
   for (RecHitContainer::const_iterator i=monoHits.begin(); i != monoHits.end(); ++i) {
-    checkHitProjection( **i, ts, geomDet());
+    checkHitProjection( **i, ts, fastGeomDet());
   }
   for (RecHitContainer::const_iterator i=stereoHits.begin(); i != stereoHits.end(); ++i) {
-    checkHitProjection( **i, ts, geomDet());
+    checkHitProjection( **i, ts, fastGeomDet());
   }
 }
 

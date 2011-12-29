@@ -8,8 +8,11 @@
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 #include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
 
-const float TkPixelMeasurementDet::theRocWidth  = 8.1;
-const float TkPixelMeasurementDet::theRocHeight = 8.1;
+
+namespace {
+  const float theRocWidth  = 8.1;
+  const float theRocHeight = 8.1;
+}
 
 TkPixelMeasurementDet::TkPixelMeasurementDet( const GeomDet* gdet,
 					      const PixelClusterParameterEstimator* cpe) : 
@@ -19,8 +22,7 @@ TkPixelMeasurementDet::TkPixelMeasurementDet( const GeomDet* gdet,
     empty(true),
     activeThisEvent_(true), activeThisPeriod_(true)
   {
-    thePixelGDU = dynamic_cast<const PixelGeomDetUnit*>(gdet);
-    if (thePixelGDU == 0) {
+    if ( dynamic_cast<const PixelGeomDetUnit*>(gdet) == 0) {
       throw MeasurementDetException( "TkPixelMeasurementDet constructed with a GeomDet which is not a PixelGeomDetUnit");
     }
   }
@@ -35,7 +37,7 @@ TkPixelMeasurementDet::fastMeasurements( const TrajectoryStateOnSurface& stateOn
 
   if (isActive() == false) {
     result.push_back( TrajectoryMeasurement( stateOnThisDet, 
-    		InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 
+    		InvalidTransientRecHit::build(&fastGeomDet(), TrackingRecHit::inactive), 
 		0.F));
     return result;
   }
@@ -54,7 +56,7 @@ TkPixelMeasurementDet::fastMeasurements( const TrajectoryStateOnSurface& stateOn
     // create a TrajectoryMeasurement with an invalid RecHit and zero estimate
     TrackingRecHit::Type type = (hasBadComponents(stateOnThisDet) ? TrackingRecHit::inactive : TrackingRecHit::missing);
     result.push_back( TrajectoryMeasurement( stateOnThisDet, 
-					     InvalidTransientRecHit::build(&geomDet(), type), 0.F)); 
+					     InvalidTransientRecHit::build(&fastGeomDet(), type), 0.F)); 
   }
   else {
     // sort results according to estimator value
@@ -71,7 +73,7 @@ TkPixelMeasurementDet::buildRecHit( const SiPixelClusterRef & cluster,
 {
   const GeomDetUnit& gdu( specificGeomDet());
   LocalValues lv = theCPE->localParameters( * cluster, gdu, ltp );
-  return TSiPixelRecHit::build( lv.first, lv.second, &geomDet(), cluster, theCPE);
+  return TSiPixelRecHit::build( lv.first, lv.second, &fastGeomDet(), cluster, theCPE);
 }
 
 TkPixelMeasurementDet::RecHitContainer 
@@ -100,7 +102,7 @@ TkPixelMeasurementDet::recHits( const TrajectoryStateOnSurface& ts ) const
        SiPixelClusterRef cluster = edmNew::makeRefTo( handle_, ci );
        result.push_back( buildRecHit( cluster, ts.localParameters() ) );
      }else{   
-       LogDebug("TkPixelMeasurementDet")<<"skipping this cluster from last iteration on "<<geomDet().geographicalId().rawId()<<" key: "<<index;
+       LogDebug("TkPixelMeasurementDet")<<"skipping this cluster from last iteration on "<<fastGeomDet().geographicalId().rawId()<<" key: "<<index;
      }
   }
   return result;

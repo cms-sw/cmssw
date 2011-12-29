@@ -1,5 +1,5 @@
-#ifndef TkMeasurementDetSet_H
-#define TkMeasurementDetSet_H
+#ifndef StMeasurementDetSet_H
+#define StMeasurementDetSet_H
 
 #include<vector>
 class TkStripMeasurementDet;
@@ -20,13 +20,16 @@ class StripClusterParameterEstimator;
 /* Struct of arrays supporting "members of Tk...MeasurementDet
  * implemented with vectors, to be optimized...
  */
-class TkMeasurementDetSet {
+class StMeasurementDetSet {
 public:
 
   typedef edmNew::DetSet<SiStripCluster> StripDetset;
   typedef StripDetset::const_iterator new_const_iterator;
   
   typedef std::vector<SiStripCluster>::const_iterator const_iterator;
+
+ typedef edm::LazyGetter<SiStripCluster> LazyGetter;
+  typedef edm::RefGetter<SiStripCluster> RefGetter;
 
 
   struct BadStripCuts {
@@ -44,7 +47,7 @@ public:
   };
   
   
-  TkMeasurementDetSet(const SiStripRecHitMatcher* matcher,
+  StMeasurementDetSet(const SiStripRecHitMatcher* matcher,
 		      const StripClusterParameterEstimator* cpe,
 		      bool regional):
     theMatcher(matcher), theCPE(cpe), regional_(regional){}
@@ -57,7 +60,7 @@ public:
   
   std::vector<bool> const & clusterToSkip() const { return theStripsToSkip; }
   
-  
+  void setLazyGetter( edm::Handle<LazyGetter> const & lg) { regionalHandle_=lg;}
  
   void update(int i,
 	      const StripDetset & detSet ) { 
@@ -68,8 +71,8 @@ public:
   
   void update(int i,
 	      std::vector<SiStripCluster>::const_iterator begin ,std::vector<SiStripCluster>::const_iterator end) { 
-    beginClusterI_[i] = begin - regionalHandle_->begin_record();
-    endClusterI_[i] = end - regionalHandle_->begin_record();
+    clusterI_[2*i] = begin - regionalHandle_->begin_record();
+    clusterI_[2*i+1] = end - regionalHandle_->begin_record();
     
     empty_[i] = false;
     activeThisEvent_[i] = true;
@@ -107,8 +110,8 @@ public:
   StripDetset & detSet(int i) { return detSet_[i];}
   
   edm::Handle<edm::LazyGetter<SiStripCluster> > & regionalHandle() { return regionalHandle_;}
-  unsigned int beginClusterI(int i) const {return beginClusterI_[i];}
-  unsigned int endClusterI(int i) const {return endClusterI_[i];}
+  unsigned int beginClusterI(int i) const {return clusterI_[2*i];}
+  unsigned int endClusterI(int i) const {return clusterI_[2*i+1];}
   
   int totalStrips(int i) const { return totalStrips_[i];}
   
@@ -141,7 +144,7 @@ public:
   void set128StripStatus(int i, bool good, int idx) { 
     int offset =  nbad128*i;
     if (idx == -1) {
-      std::fill(bad128Strip_[offset], bad128Strip_[offset+6], !good);
+      std::fill(bad128Strip_.begin()+offset, bad128Strip_.begin()+offset+6, !good);
       hasAny128StripBad_[i] = !good;
     } else {
       bad128Strip_[offset+idx] = !good;
@@ -195,12 +198,12 @@ private:
   std::vector<StripDetset> detSet_;
   
   // --- regional unpacking
-  
-  std::vector<unsigned int> beginClusterI_;
-  std::vector<unsigned int> endClusterI_;
+
+  // begin,end "pairs"
+  std::vector<unsigned int> clusterI_;
   
   
 };
 
 
-#endif // TkMeasurementDetSet_H
+#endif // StMeasurementDetSet_H

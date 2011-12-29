@@ -3,7 +3,7 @@
 
 
 
-void TkMeasurementDetSet::init() {
+void StMeasurementDetSet::init() {
   // assume vector is full and ordered!
   int size = theStripDets.size();
   
@@ -21,8 +21,7 @@ void TkMeasurementDetSet::init() {
   if (isRegional()) {
     detset_.resize(size);
   }  else {
-    beginClusterI_.resize(size);
-    endClusterI_.resize(size);
+    clusterI_.resize(2*size);
   }
   
   for (int i=0; i!=size; ++i) {

@@ -25,7 +25,7 @@ public:
 			 const PixelClusterParameterEstimator* cpe);
 
   void update( const detset & detSet, 
-	       const edm::Handle<edmNew::DetSetVector<SiPixelCluster> > h,
+	       const edm::Handle<edmNew::DetSetVector<SiPixelCluster> > & h,
 	       unsigned int id ) { 
     detSet_ = detSet; 
     handle_ = h;
@@ -33,6 +33,7 @@ public:
     empty = false;
     activeThisEvent_ = true;
   }
+
   void setEmpty(){empty = true; activeThisEvent_ = true; }
 
   virtual ~TkPixelMeasurementDet() { }
@@ -45,7 +46,7 @@ public:
 		    const Propagator&, 
 		    const MeasurementEstimator&) const;
 
-  const PixelGeomDetUnit& specificGeomDet() const {return *thePixelGDU;}
+  const PixelGeomDetUnit& specificGeomDet() const {return static_cast<PixelGeomDetUnit const &>(fastGeomDet());}
 
   TransientTrackingRecHit::RecHitPointer 
   buildRecHit( const SiPixelClusterRef & cluster,
@@ -68,7 +69,6 @@ public:
   void clearBadRocPositions() { badRocPositions_.clear(); }
 private:
 
-  const PixelGeomDetUnit*               thePixelGDU;
   const PixelClusterParameterEstimator* theCPE;
   edm::Handle<edmNew::DetSetVector<SiPixelCluster> > handle_;
   detset detSet_;
@@ -78,8 +78,6 @@ private:
   bool empty;
   bool activeThisEvent_, activeThisPeriod_;
   
-  static const float theRocWidth, theRocHeight;
-
  public:
 
   inline bool accept(SiPixelClusterRefNew & r) const {

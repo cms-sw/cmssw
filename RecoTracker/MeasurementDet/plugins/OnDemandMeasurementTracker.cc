@@ -143,8 +143,8 @@ OnDemandMeasurementTracker::OnDemandMeasurementTracker(const edm::ParameterSet& 
 }
 
 
-void OnDemandMeasurementTracker::define( const edm::Handle< LazyGetter> & theLazyGetterH,
-					 std::auto_ptr< RefGetter > &  theGetter ) const
+void OnDemandMeasurementTracker::define( const edm::Handle< LazyGetter> & aLazyGetterH,
+					 std::auto_ptr< RefGetter > & aGetter ) const
 {
   //  define is supposed to be call by an EDProducer module, which wil put the RefGetter in the event
   //  so that reference can be made to it.
@@ -161,6 +161,10 @@ void OnDemandMeasurementTracker::define( const edm::Handle< LazyGetter> & theLaz
       it->second.updated = false;
     }
 
+  // nedeed??
+  theDets.setLazyGetter(theLazyGetterH);
+
+
   //define all the elementindex in the refgetter
   for(auto eIt= region_mapping.begin();
        eIt!=region_mapping.end();++eIt){
@@ -169,12 +173,12 @@ void OnDemandMeasurementTracker::define( const edm::Handle< LazyGetter> & theLaz
     //before update of the refgetter
     region_range.first = theGetter->size();
     //update the refegetter with the elementindex
-    theStripRegionCabling->updateSiStripRefGetter<SiStripCluster> (*theGetter, theLazyGetterH, eIt->first);
+    theStripRegionCabling->updateSiStripRefGetter<SiStripCluster> (*aGetter, aLazyGetterH, eIt->first);
     //after update of the refgetter
     region_range.second = theGetter->size();
 
     LogDebug(category_)<<"between index: "<<region_range.first<<" "<<region_range.second
-		       <<"\n"<<dumpRegion(region_range,*theGetter,StayPacked_);
+		       <<"\n"<<dumpRegion(region_range,*aGetter,StayPacked_);
     
     //now assign to each measurement det for that element index
     for (auto dIt=eIt->second.begin();
@@ -205,13 +209,16 @@ void OnDemandMeasurementTracker::updateStrips( const edm::Event& event) const
       std::string stripLazyGetter = pset_.getParameter<std::string>("stripLazyGetterProducer");
       event.getByLabel(stripLazyGetter,theLazyGetterH);
 
+      theDets.setLazyGetter(theLazyGetterH);
+
+
       //get the skip clusters
       if (selfUpdateSkipClusters_){
         theSkipClusterRefs=true;
         event.getByLabel(pset_.getParameter<edm::InputTag>("skipClusters"),theStripClusterMask);
-        theStripClusterMask->copyMaskTo(theStripsToSkip);
+        theStripClusterMask->copyMaskTo(theDets.theStripsToSkip);
       } else {
-        theStripsToSkip.clear();
+        theDets.theStripsToSkip.clear();
       }
 
       //get the detid that are inactive
@@ -320,7 +327,7 @@ void OnDemandMeasurementTracker::assign(const TkStripMeasurementDet * csmdet,
       if (range.first!=range.second){
 	//	found something not empty
 	//update the measurementDet
-	smdet->update(range.first, range.second, theLazyGetterH);
+	smdet->update(range.first, range.second);
 	LogDebug(category_)<<"Valid clusters for: "<<id.rawId()
 			   <<"\nnumber of regions defined here: "<< indexes.second-indexes.first
 			   <<"\n"<<dumpCluster(range.first,range.second);

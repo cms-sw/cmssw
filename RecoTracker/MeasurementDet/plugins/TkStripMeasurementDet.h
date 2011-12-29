@@ -36,7 +36,7 @@ public:
   
   virtual ~TkStripMeasurementDet(){}
   
-  TkStripMeasurementDet( const GeomDet* gdet, TkMeasurementDetSet & dets);
+  TkStripMeasurementDet( const GeomDet* gdet, StMeasurementDetSet & dets);
   void setIndex(int i) { index=i;}
   
   void update( const detset &detSet ) { 
@@ -112,12 +112,12 @@ public:
     theDets.set128StripStatus(index,good,idx);
   }
   
-  typedef TkMeasurementDetSet::BadStripCuts BadStripCuts;
+  typedef StMeasurementDetSet::BadStripCuts BadStripCuts;
   
   /** \brief return true if there are 'enough' good strips in the utraj +/- 3 uerr range.*/
   bool testStrips(float utraj, float uerr) const;
   
-  typedef TkMeasurementDetSet::BadStripBlock BadStripBlock;
+  typedef StMeasurementDetSet::BadStripBlock BadStripBlock;
   
   std::vector<BadStripBlock> & getBadStripBlocks() { return badStripBlocks_; }
   bool maskBad128StripBlocks() const { return theDets.maskBad128StripBlocks();}
@@ -128,7 +128,7 @@ private:
   
   std::vector<BadStripBlock> badStripBlocks_;  
   
-  TkMeasurementDetSet & theDets;
+  StMeasurementDetSet & theDets;
   int index;
   
   edm::Handle<edmNew::DetSetVector<SiStripCluster> > & handle()  { return theDets.handle();}
