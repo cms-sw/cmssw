@@ -106,8 +106,8 @@ void EcalTBDigiProducer::produce( edm::Event&            event      ,
    event.put( barrelReadout, m_EBdigiFinalTag ) ;
    event.put( TDCproduct ) ;
 
-   m_ebDigis.release() ; // release memory
-   m_eeDigis.release() ; // release memory
+   m_ebDigis.reset() ; // release memory
+   m_eeDigis.reset() ; // release memory
 }
 
 void 
@@ -158,8 +158,7 @@ EcalTBDigiProducer::fillTBTDCRawInfo( EcalTBTDCRawInfo& theTBTDCRawInfo )
 void 
 EcalTBDigiProducer::cacheEBDigis( const EBDigiCollection* ebDigiPtr ) const
 {
-   m_ebDigis.release() ;
-   m_ebDigis = std::auto_ptr<EBDigiCollection>( new EBDigiCollection ) ;
+   m_ebDigis.reset( new EBDigiCollection ) ;
    *m_ebDigis = *ebDigiPtr ;
 }
 
