@@ -23,7 +23,7 @@ import FWCore.ParameterSet.Config as cms
 #
 #  FEVT (RAW+RECO), FEVTSIM (RAWSIM+RECOSIM), FEVTDEBUG (FEVTSIM+ALL_SIM_INFO), FEVTDEBUGHLT (FEVTDEBUG+HLTDEBUG)
 #
-#  $Id: EventContent_cff.py,v 1.43 2011/11/22 10:18:24 fabiocos Exp $
+#  $Id: EventContent_cff.py,v 1.44 2011/12/19 04:15:05 mikeh Exp $
 #
 #
 #
@@ -331,6 +331,7 @@ DATAMIXEREventContent = cms.PSet(
                                                'keep HFDataFramesSorted_hcalDigis_*_*',
                                                'keep HODataFramesSorted_hcalDigis_*_*',
                                                'keep ZDCDataFramesSorted_hcalDigis_*_*',
+                                               'keep CastorDataFramesSorted_castorDigis_*_*',
                                                'keep EBDigiCollection_ecalDigis_*_*',
                                                'keep EEDigiCollection_ecalDigis_*_*',
                                                'keep ESDigiCollection_ecalPreshowerDigis_*_*'),
