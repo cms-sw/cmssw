@@ -4,8 +4,8 @@
 /*
  * \file L1TCSCTF.h
  *
- * $Date: 2009/11/19 14:30:24 $
- * $Revision: 1.14 $
+ * $Date: 2009/12/01 09:13:44 $
+ * $Revision: 1.15 $
  * \author J. Berryhill
  *
 */
@@ -84,12 +84,17 @@ class L1TCSCTF : public edm::EDAnalyzer {
   // KK_end
   
   // JAG
-  MonitorElement* haloDelEta23;
+  //MonitorElement* haloDelEta23;
+  MonitorElement* haloDelEta112;
+  MonitorElement* haloDelEta12;
+  MonitorElement* haloDelEta113;
+  MonitorElement* haloDelEta13;
   MonitorElement* csctfChamberOccupancies;
   MonitorElement* csctfTrackPhi;
   MonitorElement* csctfTrackEta;
   MonitorElement* cscTrackStubNumbers;
-  MonitorElement* csctfTrackQ;
+  MonitorElement* csctfTrackM;
+  MonitorElement* trackModeVsQ;
   MonitorElement* csctfAFerror;
   // JAG
 
