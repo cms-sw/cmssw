@@ -73,14 +73,13 @@ HcalShapes::HcalShapes()
 
 
   // backward-compatibility with old scheme
-  /*
+
   theShapes[0] = theShapes[HPD];
   //FIXME "special" HB
   theShapes[1] = theShapes[LONG];
   theShapes[2] = theShapes[ZECOTEK];
   theShapes[3] = theShapes[HF];
   theShapes[4] = theShapes[ZDC];
-  */
 
 }
 
