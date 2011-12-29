@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2011/01/24 17:41:34 $
- *  $Revision: 1.3 $
+ *  $Date: 2011/01/24 18:27:40 $
+ *  $Revision: 1.4 $
  */
  
 #include "Validation/EventGenerator/interface/DrellYanValidation.h"
@@ -17,7 +17,8 @@
 
 using namespace edm;
 
-DrellYanValidation::DrellYanValidation(const edm::ParameterSet& iPSet):  
+DrellYanValidation::DrellYanValidation(const edm::ParameterSet& iPSet): 
+  _wmanager(iPSet),
   hepmcCollection_(iPSet.getParameter<edm::InputTag>("hepmcCollection")),
   _flavor(iPSet.getParameter<int>("decaysTo")),
   _name(iPSet.getParameter<std::string>("name")) 
@@ -85,7 +86,11 @@ void DrellYanValidation::analyze(const edm::Event& iEvent,const edm::EventSetup&
   //Get EVENT
   const HepMC::GenEvent *myGenEvent = evt->GetEvent();
 
-  nEvt->Fill(0.5);
+  double weight = _wmanager.weight(iEvent);
+
+  //std::cout << "weight: " << weight << std::endl;
+
+  nEvt->Fill(0.5,weight);
 
   std::vector<const HepMC::GenParticle*> allproducts; 
 
@@ -124,7 +129,7 @@ void DrellYanValidation::analyze(const edm::Event& iEvent,const edm::EventSetup&
   //if we did not find any opposite charge pair there is nothing to do
   if (products.size() < 2) return; 
 
-  assert(products[0]->momentum().perp() > products[1]->momentum().perp()); 
+  assert(products[0]->momentum().perp() >= products[1]->momentum().perp()); 
 
   //leading lepton with pt > 20.
   if (products[0]->momentum().perp() < 20.) return;
@@ -142,35 +147,35 @@ void DrellYanValidation::analyze(const edm::Event& iEvent,const edm::EventSetup&
   std::vector<const HepMC::GenParticle*> fsrphotons;
   HepMCValidationHelper::findFSRPhotons(products, myGenEvent, 0.1, fsrphotons);
   
-  Zdaughters->Fill(products[0]->pdg_id()); 
-  Zdaughters->Fill(products[1]->pdg_id()); 
+  Zdaughters->Fill(products[0]->pdg_id(),weight); 
+  Zdaughters->Fill(products[1]->pdg_id(),weight); 
 
   std::vector<TLorentzVector> gammasMomenta;
   for (unsigned int ipho = 0; ipho < fsrphotons.size(); ++ipho){
     TLorentzVector phomom(fsrphotons[ipho]->momentum().x(), fsrphotons[ipho]->momentum().y(), fsrphotons[ipho]->momentum().z(), fsrphotons[ipho]->momentum().t()); 
     dilepton_andphoton_mom += phomom;
-    Zdaughters->Fill(fsrphotons[ipho]->pdg_id());
+    Zdaughters->Fill(fsrphotons[ipho]->pdg_id(),weight);
     gammasMomenta.push_back(phomom);
   }  
   //Fill Z histograms
-  Zmass->Fill(dilepton_andphoton_mom.M());
-  ZmassPeak->Fill(dilepton_andphoton_mom.M());
-  Zpt->Fill(dilepton_andphoton_mom.Pt());
-  ZptLog->Fill(log10(dilepton_andphoton_mom.Pt())); 
-  Zrap->Fill(dilepton_andphoton_mom.Rapidity());
+  Zmass->Fill(dilepton_andphoton_mom.M(),weight);
+  ZmassPeak->Fill(dilepton_andphoton_mom.M(),weight);
+  Zpt->Fill(dilepton_andphoton_mom.Pt(),weight);
+  ZptLog->Fill(log10(dilepton_andphoton_mom.Pt()),weight); 
+  Zrap->Fill(dilepton_andphoton_mom.Rapidity(),weight);
 
   //Fill dilepton histograms
-  dilep_mass->Fill(dilepton_mom.M());
-  dilep_massPeak->Fill(dilepton_mom.M());
-  dilep_pt->Fill(dilepton_mom.Pt());
-  dilep_ptLog->Fill(log10(dilepton_mom.Pt()));
-  dilep_rap->Fill(dilepton_mom.Rapidity()); 
+  dilep_mass->Fill(dilepton_mom.M(),weight);
+  dilep_massPeak->Fill(dilepton_mom.M(),weight);
+  dilep_pt->Fill(dilepton_mom.Pt(),weight);
+  dilep_ptLog->Fill(log10(dilepton_mom.Pt()),weight);
+  dilep_rap->Fill(dilepton_mom.Rapidity(),weight); 
 
   //Fill lepton histograms 
-  leadpt->Fill(lep1.Pt());
-  secpt->Fill(lep2.Pt());
-  leadeta->Fill(lep1.Eta());
-  seceta->Fill(lep2.Eta());
+  leadpt->Fill(lep1.Pt(),weight);
+  secpt->Fill(lep2.Pt(),weight);
+  leadeta->Fill(lep1.Eta(),weight);
+  seceta->Fill(lep2.Eta(),weight);
 
   //boost everything in the Z frame
   TVector3 boost = dilepton_andphoton_mom.BoostVector();
@@ -184,10 +189,10 @@ void DrellYanValidation::analyze(const edm::Event& iEvent,const edm::EventSetup&
 
   //fill gamma histograms
   if (gammasMomenta.size() != 0 && dilepton_andphoton_mom.M() > 50.) {
-    gamma_energy->Fill(gammasMomenta.front().E());
+    gamma_energy->Fill(gammasMomenta.front().E(),weight);
     double dphi = lep1.DeltaR(gammasMomenta.front()) <  lep2.DeltaR(gammasMomenta.front()) ?
                   lep1.DeltaPhi(gammasMomenta.front()) : lep2.DeltaPhi(gammasMomenta.front());
-    cos_theta_gamma_lepton->Fill(cos(dphi));
+    cos_theta_gamma_lepton->Fill(cos(dphi),weight);
   } 
 
 }//analyze

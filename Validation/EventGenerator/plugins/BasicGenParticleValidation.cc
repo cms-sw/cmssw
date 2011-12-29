@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2010/05/25 16:50:50 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/07/02 13:34:23 $
+ *  $Revision: 1.2 $
  */
  
 #include "Validation/EventGenerator/interface/BasicGenParticleValidation.h"
@@ -13,7 +13,8 @@
 
 using namespace edm;
 
-BasicGenParticleValidation::BasicGenParticleValidation(const edm::ParameterSet& iPSet):  
+BasicGenParticleValidation::BasicGenParticleValidation(const edm::ParameterSet& iPSet): 
+  _wmanager(iPSet),
   hepmcCollection_(iPSet.getParameter<edm::InputTag>("hepmcCollection")),
   genparticleCollection_(iPSet.getParameter<edm::InputTag>("genparticleCollection")),
   genjetCollection_(iPSet.getParameter<edm::InputTag>("genjetsCollection")),
@@ -85,7 +86,9 @@ void BasicGenParticleValidation::analyze(const edm::Event& iEvent,const edm::Eve
   //Get HepMC EVENT
   HepMC::GenEvent *myGenEvent = new HepMC::GenEvent(*(evt->GetEvent()));
 
-  nEvt->Fill(0.5);
+  double weight = _wmanager.weight(iEvent);
+
+  nEvt->Fill(0.5, weight);
 
   std::vector<const HepMC::GenParticle*> hepmcGPCollection;
   std::vector<int> barcodeList;
@@ -124,7 +127,7 @@ void BasicGenParticleValidation::analyze(const edm::Event& iEvent,const edm::Eve
   unsigned int nReco = particles.size();
   unsigned int nHepMC = hepmcGPCollection.size();
 
-  genPMultiplicity->Fill(std::log10(nReco));
+  genPMultiplicity->Fill(std::log10(nReco), weight);
 
   // Define vector containing index of hepmc corresponding to the reco::GenParticle
   std::vector<int> hepmcMatchIndex;
@@ -150,7 +153,7 @@ void BasicGenParticleValidation::analyze(const edm::Event& iEvent,const edm::Eve
             std::cout << "Matching momentum: reco = " << particles[i]->p() << " HepMC = " 
                       << hepmcGPCollection[j]->momentum().rho() << " resoultion = " << reso << std::endl;
           }
-          matchedResolution->Fill(std::log10(std::fabs(reso))); }
+          matchedResolution->Fill(std::log10(std::fabs(reso)),weight); }
         continue; 
       }
     }
@@ -163,7 +166,7 @@ void BasicGenParticleValidation::analyze(const edm::Event& iEvent,const edm::Eve
   if ( nMatched != nReco ) {
     edm::LogWarning("IncorrectMatching") << "Incorrect number of matched indexes: GenParticle = " << nReco << " matched indexes = " << nMatched;
   }
-  genMatched->Fill(int(nReco-nMatched));
+  genMatched->Fill(int(nReco-nMatched),weight);
 
   unsigned int nWrMatch = 0;
 
@@ -176,7 +179,7 @@ void BasicGenParticleValidation::analyze(const edm::Event& iEvent,const edm::Eve
       }
     }
   }
-  multipleMatching->Fill(int(nWrMatch));
+  multipleMatching->Fill(int(nWrMatch),weight);
 
   // Gather information in the GenJet collection
   edm::Handle<reco::GenJetCollection> genJets;
@@ -203,19 +206,19 @@ void BasicGenParticleValidation::analyze(const edm::Event& iEvent,const edm::Eve
     if ( std::fabs(eta) < 2.5 ) nJetsCentral++;
     jetEta.push_back(eta);
 
-    genJetEnergy->Fill(std::log10((*iter).energy()));
-    genJetPt->Fill(std::log10(pt));
-    genJetEta->Fill(eta);
-    genJetPhi->Fill((*iter).phi()/CLHEP::degree);
+    genJetEnergy->Fill(std::log10((*iter).energy()),weight);
+    genJetPt->Fill(std::log10(pt),weight);
+    genJetEta->Fill(eta,weight);
+    genJetPhi->Fill((*iter).phi()/CLHEP::degree,weight);
   }
 
-  genJetMult->Fill(nJets);
-  genJetPto1->Fill(nJetso1);
-  genJetPto10->Fill(nJetso10);
-  genJetPto100->Fill(nJetso100);
-  genJetCentral->Fill(nJetsCentral);
+  genJetMult->Fill(nJets,weight);
+  genJetPto1->Fill(nJetso1,weight);
+  genJetPto10->Fill(nJetso10,weight);
+  genJetPto100->Fill(nJetso100,weight);
+  genJetCentral->Fill(nJetsCentral,weight);
 
-  genJetTotPt->Fill(std::log10(totPt));
+  genJetTotPt->Fill(std::log10(totPt),weight);
 
   double deltaEta = 999.;
   if ( jetEta.size() > 1 ) {
@@ -226,7 +229,7 @@ void BasicGenParticleValidation::analyze(const edm::Event& iEvent,const edm::Eve
     }
   }
 
-  genJetDeltaEtaMin->Fill(deltaEta);
+  genJetDeltaEtaMin->Fill(deltaEta,weight);
 
   delete myGenEvent;
 }//analyze
