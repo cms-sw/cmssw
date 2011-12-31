@@ -17,11 +17,11 @@ void StMeasurementDetSet::init() {
   bad128Strip_.resize(size*6);
   hasAny128StripBad_.resize(size);
   
-  if (isRegional()) {
+  //  if (isRegional()) {
     clusterI_.resize(2*size);
-  }  else {
+    //}  else {
     detSet_.resize(size);
-  }
+    // }
   
   for (int i=0; i!=size; ++i) {
     auto & mdet =  *theStripDets[i]; 

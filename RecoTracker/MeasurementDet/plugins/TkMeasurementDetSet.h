@@ -27,8 +27,8 @@ public:
   typedef StripDetset::const_iterator new_const_iterator;
   
   typedef std::vector<SiStripCluster>::const_iterator const_iterator;
-
- typedef edm::LazyGetter<SiStripCluster> LazyGetter;
+  
+  typedef edm::LazyGetter<SiStripCluster> LazyGetter;
   typedef edm::RefGetter<SiStripCluster> RefGetter;
 
 
