@@ -17,7 +17,7 @@
 TkStripMeasurementDet::TkStripMeasurementDet( const GeomDet* gdet,
 					      StMeasurementDetSet & dets
 					      ) : 
-  MeasurementDet (gdet),theDets(dets), index(-1)
+  MeasurementDet (gdet),theDets(dets), index_(-1)
   {
     if (dynamic_cast<const StripGeomDetUnit*>(gdet) == 0) {
       throw MeasurementDetException( "TkStripMeasurementDet constructed with a GeomDet which is not a StripGeomDetUnit");
@@ -34,7 +34,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
 { 
   std::vector<TrajectoryMeasurement> result;
 
-  if (isActive() == false) {
+  if (!isActive()) {
     LogDebug("TkStripMeasurementDet")<<" found an inactive module "<<rawId();
     result.push_back( TrajectoryMeasurement( stateOnThisDet, 
     		InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 
@@ -45,7 +45,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
   float utraj =  specificGeomDet().specificTopology().measurementPosition( stateOnThisDet.localPosition()).x();
   float uerr;
   //  if (theClusterRange.first == theClusterRange.second) { // empty
-  if (empty()  == true){
+  if (isEmpty()){
     LogDebug("TkStripMeasurementDet") << " DetID " << rawId() << " empty ";
     if (stateOnThisDet.hasError()){
     uerr= sqrt(specificGeomDet().specificTopology().measurementError(stateOnThisDet.localPosition(),stateOnThisDet.localError().positionError()).uu());
@@ -61,7 +61,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
   }
   
   if(isRegional()){//old implemetation with DetSet
-    new_const_iterator rightCluster = 
+    auto rightCluster = 
       std::find_if( detSet().begin(), detSet().end(), StripClusterAboveU( utraj)); //FIXME
 
     if ( rightCluster != detSet().begin()) {
@@ -88,7 +88,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
     }
     
 
-    for ( ; rightCluster != detSet_.end(); rightCluster++) {
+    for ( ; rightCluster != detSet().end(); rightCluster++) {
       if (isMasked(*rightCluster)) continue;
       SiStripClusterRef clusterref = edmNew::makeRefTo( handle(), rightCluster ); 
       if (accept(clusterref)){
@@ -178,7 +178,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
     //LogDebug("TkStripMeasurementDet") << " DetID " << id_ << " full: " << (result.size()) << " compatible hits";
     // sort results according to estimator value
     if ( result.size() > 1) {
-      sort( result.begin(), result.end(), TrajMeasLessEstim());
+      std::sort( result.begin(), result.end(), TrajMeasLessEstim());
     }
   }
   return result;
@@ -191,7 +191,7 @@ TkStripMeasurementDet::buildRecHit( const SiStripClusterRef& cluster,
 {
   const GeomDetUnit& gdu( specificGeomDet());
   LocalValues lv = cpe()->localParameters( *cluster, gdu, ltp);
-  return TSiStripRecHit2DLocalPos::build( lv.first, lv.second, &fastGeomDet(), cluster, cpe);
+  return TSiStripRecHit2DLocalPos::build( lv.first, lv.second, &fastGeomDet(), cluster, cpe());
 }
 
 TransientTrackingRecHit::RecHitPointer
@@ -200,7 +200,7 @@ TkStripMeasurementDet::buildRecHit( const SiStripRegionalClusterRef& cluster,
 {
   const GeomDetUnit& gdu( specificGeomDet());
   LocalValues lv = cpe()->localParameters( *cluster, gdu, ltp);
-  return TSiStripRecHit2DLocalPos::build( lv.first, lv.second, &fastGeomDet(), cluster, cpe);
+  return TSiStripRecHit2DLocalPos::build( lv.first, lv.second, &fastGeomDet(), cluster, cpe());
 }
 
 
@@ -213,7 +213,7 @@ TkStripMeasurementDet::buildRecHits( const SiStripClusterRef& cluster,
   VLocalValues vlv = cpe()->localParametersV( *cluster, gdu, ltp);
   RecHitContainer res;
   for(VLocalValues::const_iterator it=vlv.begin();it!=vlv.end();++it){
-    res.push_back(TSiStripRecHit2DLocalPos::build( it->first, it->second, &fastGeomDet(), cluster, cpe));
+    res.push_back(TSiStripRecHit2DLocalPos::build( it->first, it->second, &fastGeomDet(), cluster, cpe()));
   }
   return res; 
 }
@@ -227,7 +227,7 @@ TkStripMeasurementDet::buildRecHits( const SiStripRegionalClusterRef& cluster,
   VLocalValues vlv = cpe()->localParametersV( *cluster, gdu, ltp);
   RecHitContainer res;
   for(VLocalValues::const_iterator it=vlv.begin();it!=vlv.end();++it){
-    res.push_back(TSiStripRecHit2DLocalPos::build( it->first, it->second, &fastGeomDet(), cluster, cpe));
+    res.push_back(TSiStripRecHit2DLocalPos::build( it->first, it->second, &fastGeomDet(), cluster, cpe()));
   }
   return res; 
 }
@@ -310,8 +310,8 @@ TkStripMeasurementDet::simpleRecHits( const TrajectoryStateOnSurface& ts, std::v
 
 bool
 TkStripMeasurementDet::testStrips(float utraj, float uerr) const {
-    int16_t start = (int16_t) std::max<float>(utraj - 3*uerr, 0);
-    int16_t end   = (int16_t) std::min<float>(utraj + 3*uerr, totalStrips());
+    int16_t start = (int16_t) std::max<float>(utraj - 3.f*uerr, 0);
+    int16_t end   = (int16_t) std::min<float>(utraj + 3.f*uerr, totalStrips());
 
     if (start >= end) { // which means either end <=0 or start >= totalStrips_
         /* LogDebug("TkStripMeasurementDet") << "Testing module " << id_ <<","<<

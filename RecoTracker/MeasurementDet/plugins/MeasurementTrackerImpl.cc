@@ -532,16 +532,17 @@ void MeasurementTrackerImpl::initializeStripStatus(const SiStripQuality *quality
      theStDets.badStripCuts_[SiStripDetId::TID-3] = TkStripMeasurementDet::BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TID"));
      theStDets.badStripCuts_[SiStripDetId::TEC-3] = TkStripMeasurementDet::BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TEC"));
   }
-  thedeDets.setMaskBad128StripBlocks((qualityFlags & MaskBad128StripBlocks) != 0);
+  theStDets.setMaskBad128StripBlocks((qualityFlags & MaskBad128StripBlocks) != 0);
 
 
+  //Fixme (move to DetSet)
   if ((quality != 0) && (qualityFlags != 0))  {
     edm::LogInfo("MeasurementTracker") << "qualityFlags = " << qualityFlags;
     unsigned int on = 0, tot = 0; 
     unsigned int foff = 0, ftot = 0, aoff = 0, atot = 0; 
-    for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
-	 i!=theStripDets.end(); i++) {
-      uint32_t detid = ((**i).geomDet().geographicalId()).rawId();
+    for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStDets.theStripDets.begin();
+	 i!=theStDets.theStripDets.end(); i++) {
+      uint32_t detid = ((**i).rawId();
       if (qualityFlags & BadModules) {
           bool isOn = quality->IsModuleUsable(detid);
           (*i)->setActive(isOn);
@@ -593,8 +594,8 @@ void MeasurementTrackerImpl::initializeStripStatus(const SiStripQuality *quality
             " Total Fibers: " << ftot << ", active " << (ftot-foff) <<", inactive " << (foff);
     }
   } else {
-    for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
-	 i!=theStripDets.end(); i++) {
+    for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStDets.theStripDets.begin();
+	 i!=theStDets.theStripDets.end(); i++) {
       (*i)->setActive(true);          // module ON
       (*i)->set128StripStatus(true);  // all APVs and fibers ON
     }

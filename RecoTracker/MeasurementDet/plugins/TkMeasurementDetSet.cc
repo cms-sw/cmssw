@@ -1,6 +1,6 @@
 #include "TkMeasurementDetSet.h"
 #include "TkStripMeasurementDet.h"
-
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 
 
 void StMeasurementDetSet::init() {
@@ -12,11 +12,10 @@ void StMeasurementDetSet::init() {
   activeThisPeriod_.resize(size,true);
   id_.resize(size);
   subId_.resize(size);
-  totalStrips_.resize[size];
+  totalStrips_.resize(size);
   
   bad128Strip_.resize(size*6);
   hasAny128StripBad_.resize(size);
-  maskBad128StripBlocks_.resize(size);
   
   if (isRegional()) {
     detset_.resize(size);
@@ -28,9 +27,9 @@ void StMeasurementDetSet::init() {
     auto & mdet =  *theStripDets[i]; 
     mdet.setIndex(i);
     //intialize the detId !
-    id_[i] = mdet->gdet->geographicalId().rawId();
+    id_[i] = mdet.gdet->geographicalId().rawId();
     subId_[i]=SiStripDetId(id_[i]).subdetId()-3;
     //initalize the total number of strips
-    totalStrips_[i] =  mdet->specificGeomDet().specificTopology().nstrips();
+    totalStrips_[i] =  mdet.specificGeomDet().specificTopology().nstrips();
   }
 }
