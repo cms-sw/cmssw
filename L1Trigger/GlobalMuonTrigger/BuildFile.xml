@@ -7,6 +7,3 @@
 <use   name="DataFormats/L1CaloTrigger"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/L1TObjects"/>
-<export>
-  <lib   name="1"/>
-</export>

@@ -7,8 +7,8 @@
  * 
 */ 
 //
-//   $Date: 2006/11/17 08:25:34 $
-//   $Revision: 1.4 $
+//   $Date: 2007/03/23 18:51:35 $
+//   $Revision: 1.5 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -192,7 +192,6 @@ void L1MuGMTLUT::Set (int idx, unsigned address, unsigned value) {
 
 void L1MuGMTLUT::Load(const char* path) {
   string lf_name("");
-  int lf_NLUTS=0; 
   vector <string> lf_InstNames;
   vector <port> lf_Inputs;
   vector <port> lf_Outputs;
@@ -224,7 +223,7 @@ void L1MuGMTLUT::Load(const char* path) {
       tok[1].erase(tok[1].find_last_not_of(" ")+1); // skip trailing spaces
             
       if (tok[0] == "NAME") lf_name = tok[1];
-      else if (tok[0] == "INSTANCES") { lf_InstNames = L1MuGMTLUTHelpers::Tokenizer(" ",tok[1]); lf_NLUTS = lf_InstNames.size();}
+      else if (tok[0] == "INSTANCES") { lf_InstNames = L1MuGMTLUTHelpers::Tokenizer(" ",tok[1]); }
       else if (tok[0] == "LUT_INPUTS") lf_Inputs = PortDecoder(tok[1]);
       else if (tok[0] == "LUT_OUTPUTS") lf_Outputs = PortDecoder(tok[1]); 
       else if (tok[0] == "VME_ADDR_WIDTH") lf_vme_addr_width = atoi(tok[1].c_str()); 
