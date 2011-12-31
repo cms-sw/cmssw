@@ -162,7 +162,7 @@ void OnDemandMeasurementTracker::define( const edm::Handle< LazyGetter> & aLazyG
     }
 
   // nedeed??
-  theDets.setLazyGetter(theLazyGetterH);
+  theStDets.setLazyGetter(aLazyGetterH);
 
 
   //define all the elementindex in the refgetter
@@ -175,7 +175,7 @@ void OnDemandMeasurementTracker::define( const edm::Handle< LazyGetter> & aLazyG
     //update the refegetter with the elementindex
     theStripRegionCabling->updateSiStripRefGetter<SiStripCluster> (*aGetter, aLazyGetterH, eIt->first);
     //after update of the refgetter
-    region_range.second = theGetter->size();
+    region_range.second = aGetter->size();
 
     LogDebug(category_)<<"between index: "<<region_range.first<<" "<<region_range.second
 		       <<"\n"<<dumpRegion(region_range,*aGetter,StayPacked_);
@@ -209,7 +209,7 @@ void OnDemandMeasurementTracker::updateStrips( const edm::Event& event) const
       std::string stripLazyGetter = pset_.getParameter<std::string>("stripLazyGetterProducer");
       event.getByLabel(stripLazyGetter,theLazyGetterH);
 
-      theDets.setLazyGetter(theLazyGetterH);
+      theSrDets.setLazyGetter(theLazyGetterH);
 
 
       //get the skip clusters

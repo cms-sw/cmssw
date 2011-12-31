@@ -184,7 +184,7 @@ void MeasurementTrackerImpl::addStripDets( const TrackingGeometry::DetContainer&
       if (gluedDet == 0) {
 	throw MeasurementDetException("MeasurementTracker ERROR: GeomDet neither DetUnit nor GluedDet");
       }
-      addGluedDet(gluedDet, theStDets.matcher());
+      addGluedDet(gluedDet);
     }  
   }
 }
@@ -414,7 +414,7 @@ void MeasurementTrackerImpl::updateStrips( const edm::Event& event) const
   if( !stripClusterProducer.compare("") ) { //clusters have not been produced
   }else{
     //=========  actually load cluster =============
-    if(!isRegional_){
+    if(!isRegional()){
       edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusterHandle;
       event.getByLabel(stripClusterProducer, clusterHandle);
       const edmNew::DetSetVector<SiStripCluster>* clusterCollection = clusterHandle.product();
@@ -434,16 +434,16 @@ void MeasurementTrackerImpl::updateStrips( const edm::Event& event) const
 
       theStDets.handle_ = clusterHandle;
       int i=0;
-      int endDet = theStDets.id_.size();
+      const int endDet = theStDets.id_.size();
       edmNew::DetSetVector<SiStripCluster>::const_iterator it = (*clusterCollection).begin();
       edmNew::DetSetVector<SiStripCluster>::const_iterator endColl = (*clusterCollection).end();
       // cluster and det and in order (both) and unique so let's use set intersection
       for (;it!=endColl; ++it) {
         StripDetSet detSet = *it;
         unsigned int id = detSet.id();
-        while ( id != theStDets.rawId(i)) { // eventually change to lower_range
+        while ( id != theStDets.id(i)) { // eventually change to lower_range
           ++i;
-          if (i==endDet) throw "we have a problem!!!!";
+          if (endDet==i) throw "we have a problem!!!!";
         }
 
         if (!rawInactiveDetIds.empty() && std::binary_search(rawInactiveDetIds.begin(), rawInactiveDetIds.end(), id)) {
@@ -474,7 +474,8 @@ void MeasurementTrackerImpl::updateStrips( const edm::Event& event) const
         stripClusterMask->copyMaskTo(theStDets.theStripsToSkip);
       }
 
-      theStDets.regionalHandle_ =  refClusterHandle;
+      theStDets.regionalHandle_ =  lazyClusterHandle;
+
       uint32_t tmpId=0;
       vector<SiStripCluster>::const_iterator beginIterator;
       edm::RefGetter<SiStripCluster>::const_iterator iregion = refClusterHandle->begin();
