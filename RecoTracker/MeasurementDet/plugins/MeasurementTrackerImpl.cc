@@ -414,7 +414,7 @@ void MeasurementTrackerImpl::updateStrips( const edm::Event& event) const
   if( !stripClusterProducer.compare("") ) { //clusters have not been produced
   }else{
     //=========  actually load cluster =============
-    if(!isRegional()){
+    if(!theStDets.isRegional()){
       edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusterHandle;
       event.getByLabel(stripClusterProducer, clusterHandle);
       const edmNew::DetSetVector<SiStripCluster>* clusterCollection = clusterHandle.product();

@@ -171,7 +171,7 @@ void OnDemandMeasurementTracker::define( const edm::Handle< LazyGetter> & aLazyG
     std::pair<unsigned int, unsigned int> region_range; 
     
     //before update of the refgetter
-    region_range.first = theGetter->size();
+    region_range.first = aGetter->size();
     //update the refegetter with the elementindex
     theStripRegionCabling->updateSiStripRefGetter<SiStripCluster> (*aGetter, aLazyGetterH, eIt->first);
     //after update of the refgetter
@@ -209,16 +209,16 @@ void OnDemandMeasurementTracker::updateStrips( const edm::Event& event) const
       std::string stripLazyGetter = pset_.getParameter<std::string>("stripLazyGetterProducer");
       event.getByLabel(stripLazyGetter,theLazyGetterH);
 
-      theSrDets.setLazyGetter(theLazyGetterH);
+      theStDets.setLazyGetter(theLazyGetterH);
 
 
       //get the skip clusters
       if (selfUpdateSkipClusters_){
         theSkipClusterRefs=true;
         event.getByLabel(pset_.getParameter<edm::InputTag>("skipClusters"),theStripClusterMask);
-        theStripClusterMask->copyMaskTo(theDets.theStripsToSkip);
+        theStripClusterMask->copyMaskTo(theStDets.theStripsToSkip);
       } else {
-        theDets.theStripsToSkip.clear();
+        theStDets.theStripsToSkip.clear();
       }
 
       //get the detid that are inactive
