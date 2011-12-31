@@ -18,9 +18,9 @@ void StMeasurementDetSet::init() {
   hasAny128StripBad_.resize(size);
   
   if (isRegional()) {
-    detSet_.resize(size);
-  }  else {
     clusterI_.resize(2*size);
+  }  else {
+    detSet_.resize(size);
   }
   
   for (int i=0; i!=size; ++i) {
