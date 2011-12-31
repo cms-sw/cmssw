@@ -661,12 +661,8 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
 
     size=(cluster->amplitudes()).size();
     
-    const LocalPoint position = hit->localPosition();    
     StripSubdetector detid=(StripSubdetector)hit->geographicalId();  
     
-    const GeomDetUnit * StripDet=dynamic_cast<const GeomDetUnit*>(tracker->idToDet(detid));
-    const GlobalPoint gposition = (StripDet->surface()).toGlobal(position);
-      
     float tangent = hitsiter->second.second;
 	  
     //Sign and XZ plane projection correction applied in TrackLocalAngle (TIB|TOB layers)
