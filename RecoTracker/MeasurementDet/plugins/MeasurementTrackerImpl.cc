@@ -184,7 +184,7 @@ void MeasurementTrackerImpl::addStripDets( const TrackingGeometry::DetContainer&
       if (gluedDet == 0) {
 	throw MeasurementDetException("MeasurementTracker ERROR: GeomDet neither DetUnit nor GluedDet");
       }
-      addGluedDet(gluedDet, theHitMatcher);
+      addGluedDet(gluedDet, theStDets.matcher());
     }  
   }
 }
@@ -193,7 +193,7 @@ void MeasurementTrackerImpl::addStripDet( const GeomDet* gd)
 {
   try {
     TkStripMeasurementDet* det = new TkStripMeasurementDet( gd, theStDets);
-    theStripDets.push_back(det);
+    theStDets.theStripDets.push_back(det);
     theDetMap[gd->geographicalId()] = det;
   }
   catch(MeasurementDetException& err){
@@ -220,7 +220,7 @@ void MeasurementTrackerImpl::addGluedDet( const GluedGeomDet* gd)
 
   const MeasurementDet* stereoDet = findDet( gd->stereoDet()->geographicalId());
   if (stereoDet == 0) {
-    addStripDet(gd->stereoDet();  // in case glued det comes before components
+    addStripDet(gd->stereoDet());  // in case glued det comes before components
     stereoDet = idToDet( gd->stereoDet()->geographicalId());
   }
 

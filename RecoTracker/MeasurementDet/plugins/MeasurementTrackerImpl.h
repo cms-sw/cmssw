@@ -109,7 +109,7 @@ public:
   const edm::ParameterSet& pset_;
   const std::string name_;
 
-  StMeasurementDetSet theStDets;
+  mutable StMeasurementDetSet theStDets;
 
   mutable DetContainer                        theDetMap;
 
