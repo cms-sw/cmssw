@@ -220,7 +220,6 @@ DTTrigGeom::getGeom() {
   // superlayer positions and number of cells
   DTSuperLayer* sl[3];
   DTLayer* l1[3];
-  DTLayer* l3[3];
   int i = 0;
   for(i=0; i<3; i++) {
     if(station()==4&&i==1) { // No theta SL in MB4
@@ -229,13 +228,11 @@ DTTrigGeom::getGeom() {
     } else {
       sl[i] = (DTSuperLayer*) _stat->superLayer(DTSuperLayerId(statId(),i+1));
       l1[i] = (DTLayer*) sl[i]->layer(DTLayerId(statId(),i+1,1));
-      l3[i] = (DTLayer*) sl[i]->layer(DTLayerId(statId(),i+1,3));
       _ZSL[i] = _stat->surface().toLocal(sl[i]->position()).z(); // - 1.5 * _H;
       //LocalPoint posInLayer=l1[i]->layType()->getWire(1)->positionInLayer();
       const DTTopology& tp=l1[i]->specificTopology();
       float  posX=tp.wirePosition(tp.firstChannel());
       LocalPoint posInLayer(posX,0,0);
-      LocalPoint posInChamber=_stat->surface().toLocal(l1[i]->surface().toGlobal(posInLayer));
       _NCELL[i] = l1[i]->specificTopology().channels();
     }
   }
