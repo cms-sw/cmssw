@@ -1,4 +1,4 @@
-// $Id: L1Scalers.cc,v 1.24 2010/05/31 15:43:06 wteo Exp $
+// $Id: L1Scalers.cc,v 1.26 2010/07/20 19:55:57 wmtan Exp $
 #include <iostream>
 
 
@@ -187,7 +187,7 @@ void L1Scalers::analyze(const edm::Event &e, const edm::EventSetup &iSetup)
 
   LogDebug("Status") << "L1Scalers::analyze  event " << nev_ ;
 
-  int myGTFEbx = -1;
+  // int myGTFEbx = -1;
   // get Global Trigger decision and the decision word
   // these are locally derived
   edm::Handle<L1GlobalTriggerReadoutRecord> gtRecord;
@@ -206,7 +206,7 @@ void L1Scalers::analyze(const edm::Event &e, const edm::EventSetup &iSetup)
     L1GtfeWord gtfeWord = gtRecord->gtfeWord();
     int gtfeBx = gtfeWord.bxNr();
     bxNum_->Fill(gtfeBx);
-    myGTFEbx = gtfeBx;
+    // myGTFEbx = gtfeBx;
     
     bool tfBitGood = false;
 
