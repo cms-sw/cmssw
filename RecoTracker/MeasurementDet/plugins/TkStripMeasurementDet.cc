@@ -60,10 +60,10 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
     return result;
   }
   
-  if(isRegional()){//old implemetation with DetSet
+  if(!isRegional()){//old implemetation with DetSet
     auto rightCluster = 
       std::find_if( detSet().begin(), detSet().end(), StripClusterAboveU( utraj)); //FIXME
-
+    
     if ( rightCluster != detSet().begin()) {
       // there are hits on the left of the utraj
       new_const_iterator leftCluster = rightCluster;
@@ -71,6 +71,27 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
         if (isMasked(*leftCluster)) continue;
 	SiStripClusterRef clusterref = edmNew::makeRefTo( handle(), leftCluster ); 
 	if (accept(clusterref)){
+	  RecHitContainer recHits = buildRecHits(clusterref,stateOnThisDet); 
+	  bool isCompatible(false);
+	  for(RecHitContainer::const_iterator recHit=recHits.begin();recHit!=recHits.end();++recHit){	  
+	    std::pair<bool,double> diffEst = est.estimate(stateOnThisDet, **recHit);
+	    if ( diffEst.first ) {
+	      result.push_back( TrajectoryMeasurement( stateOnThisDet, *recHit, 
+						       diffEst.second));
+	      isCompatible = true;
+	    }
+	  }
+	  if(!isCompatible) break; // exit loop on first incompatible hit
+	}
+	else LogDebug("TkStripMeasurementDet")<<"skipping this str from last iteration on"<<rawId()<<" key: "<<clusterref.key();
+      }
+    }
+    
+
+    for ( ; rightCluster != detSet().end(); rightCluster++) {
+      if (isMasked(*rightCluster)) continue;
+      SiStripClusterRef clusterref = edmNew::makeRefTo( handle(), rightCluster ); 
+      if (accept(clusterref)){
 	RecHitContainer recHits = buildRecHits(clusterref,stateOnThisDet); 
 	bool isCompatible(false);
 	for(RecHitContainer::const_iterator recHit=recHits.begin();recHit!=recHits.end();++recHit){	  
@@ -82,27 +103,6 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
 	  }
 	}
 	if(!isCompatible) break; // exit loop on first incompatible hit
-	}
-	else LogDebug("TkStripMeasurementDet")<<"skipping this str from last iteration on"<<rawId()<<" key: "<<clusterref.key();
-      }
-    }
-    
-
-    for ( ; rightCluster != detSet().end(); rightCluster++) {
-      if (isMasked(*rightCluster)) continue;
-      SiStripClusterRef clusterref = edmNew::makeRefTo( handle(), rightCluster ); 
-      if (accept(clusterref)){
-      RecHitContainer recHits = buildRecHits(clusterref,stateOnThisDet); 
-      bool isCompatible(false);
-      for(RecHitContainer::const_iterator recHit=recHits.begin();recHit!=recHits.end();++recHit){	  
-	std::pair<bool,double> diffEst = est.estimate(stateOnThisDet, **recHit);
-	if ( diffEst.first ) {
-	  result.push_back( TrajectoryMeasurement( stateOnThisDet, *recHit, 
-						   diffEst.second));
-	  isCompatible = true;
-	}
-      }
-      if(!isCompatible) break; // exit loop on first incompatible hit
       }
       else LogDebug("TkStripMeasurementDet")<<"skipping this str from last iteration on" << rawId()<<" key: "<<clusterref.key();
     }
@@ -115,13 +115,13 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
       SiStripRegionalClusterRef clusterref = edm::makeRefToLazyGetter(regionalHandle(),rightCluster);
       if (clusterref->barycenter() > utraj) break;
     }
-
+    
     unsigned int leftCluster = 1;
     for (unsigned int iReadBackWard=1; iReadBackWard<=(rightCluster-beginClusterI()) ; ++iReadBackWard){
-	leftCluster=rightCluster-iReadBackWard;
-	SiStripRegionalClusterRef clusterref = edm::makeRefToLazyGetter(regionalHandle(),leftCluster);
-        if (isMasked(*clusterref)) continue;
-	if (accept(clusterref)){
+      leftCluster=rightCluster-iReadBackWard;
+      SiStripRegionalClusterRef clusterref = edm::makeRefToLazyGetter(regionalHandle(),leftCluster);
+      if (isMasked(*clusterref)) continue;
+      if (accept(clusterref)){
 	RecHitContainer recHits = buildRecHits(clusterref,stateOnThisDet); 
 	bool isCompatible(false);
 	for(RecHitContainer::const_iterator recHit=recHits.begin();recHit!=recHits.end();++recHit){	  
@@ -133,8 +133,8 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
 	  }
 	}
 	if(!isCompatible) break; // exit loop on first incompatible hit
-	}
-	else LogDebug("TkStripMeasurementDet")<<"skipping this reg str from last iteration on"<<rawId()<<" key: "<<clusterref.key();
+      }
+      else LogDebug("TkStripMeasurementDet")<<"skipping this reg str from last iteration on"<<rawId()<<" key: "<<clusterref.key();
     }
     
     
@@ -142,22 +142,22 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
       SiStripRegionalClusterRef clusterref = edm::makeRefToLazyGetter(regionalHandle(),rightCluster);
       if (isMasked(*clusterref)) continue;
       if (accept(clusterref)){
-      RecHitContainer recHits = buildRecHits(clusterref,stateOnThisDet); 
-      bool isCompatible(false);
-      for(RecHitContainer::const_iterator recHit=recHits.begin();recHit!=recHits.end();++recHit){	  
-	std::pair<bool,double> diffEst = est.estimate(stateOnThisDet, **recHit);
-	if ( diffEst.first ) {
-	  result.push_back( TrajectoryMeasurement( stateOnThisDet, *recHit, 
-						   diffEst.second));
-	  isCompatible = true;
+	RecHitContainer recHits = buildRecHits(clusterref,stateOnThisDet); 
+	bool isCompatible(false);
+	for(RecHitContainer::const_iterator recHit=recHits.begin();recHit!=recHits.end();++recHit){	  
+	  std::pair<bool,double> diffEst = est.estimate(stateOnThisDet, **recHit);
+	  if ( diffEst.first ) {
+	    result.push_back( TrajectoryMeasurement( stateOnThisDet, *recHit, 
+						     diffEst.second));
+	    isCompatible = true;
+	  }
 	}
-      }
-      if(!isCompatible) break; // exit loop on first incompatible hit
+	if(!isCompatible) break; // exit loop on first incompatible hit
       }
       else LogDebug("TkStripMeasurementDet")<<"skipping this reg str from last iteration on"<<rawId()<<" key: "<<clusterref.key();
     }
   }
-
+  
 
   if ( result.empty()) {
     // create a TrajectoryMeasurement with an invalid RecHit and zero estimate
