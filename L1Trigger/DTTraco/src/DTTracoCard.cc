@@ -463,10 +463,6 @@ DTTracoCard::localDirection(const DTTrigData* tr) const {
 DTConfigTraco* 
 DTTracoCard::config_traco(const DTTracoId& tracoid) const
 {
-
-  // the traco identifier
-  DTChamberId sid = geom()->statId();
- 
   //loop on map to find traco
   ConfTracoMap::const_iterator titer = _conf_traco_map.find(tracoid);
   if (titer == _conf_traco_map.end()){
