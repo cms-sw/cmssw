@@ -58,7 +58,7 @@ public:
   const std::vector<TkStripMeasurementDet*> & stripDets() const {return  theStripDets;}
   
   
-  std::vector<bool> const & clusterToSkip() const { return theStripsToSkip; }
+  std::vector<bool>  & clusterToSkip() const { return theStripsToSkip; }
   
   void setLazyGetter( edm::Handle<LazyGetter> const & lg) { regionalHandle_=lg;}
  

@@ -216,9 +216,9 @@ void OnDemandMeasurementTracker::updateStrips( const edm::Event& event) const
       if (selfUpdateSkipClusters_){
         theSkipClusterRefs=true;
         event.getByLabel(pset_.getParameter<edm::InputTag>("skipClusters"),theStripClusterMask);
-        theStripClusterMask->copyMaskTo(theStDets.theStripsToSkip);
+        theStripClusterMask->copyMaskTo(theStDets.clusterToSkip());
       } else {
-        theStDets.theStripsToSkip.clear();
+        theStDets.clusterToSkip().clear();
       }
 
       //get the detid that are inactive
