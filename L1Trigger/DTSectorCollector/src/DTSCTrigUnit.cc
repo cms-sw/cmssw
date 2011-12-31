@@ -34,7 +34,7 @@
 //----------------
 DTSCTrigUnit::DTSCTrigUnit(DTChamber *stat) {
 
-  DTChamberId chambid = stat->id();
+  // DTChamberId chambid = stat->id();
   // bool geom_debug = conf_manager->getDTConfigTrigUnit(chambid)->debug();
 
   // create the geometry from the station
