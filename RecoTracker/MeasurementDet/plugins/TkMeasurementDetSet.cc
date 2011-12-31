@@ -18,7 +18,7 @@ void StMeasurementDetSet::init() {
   hasAny128StripBad_.resize(size);
   
   if (isRegional()) {
-    detset_.resize(size);
+    detSet_.resize(size);
   }  else {
     clusterI_.resize(2*size);
   }
@@ -27,7 +27,7 @@ void StMeasurementDetSet::init() {
     auto & mdet =  *theStripDets[i]; 
     mdet.setIndex(i);
     //intialize the detId !
-    id_[i] = mdet.gdet->geographicalId().rawId();
+    id_[i] = mdet.specificGeomDet().geographicalId().rawId();
     subId_[i]=SiStripDetId(id_[i]).subdetId()-3;
     //initalize the total number of strips
     totalStrips_[i] =  mdet.specificGeomDet().specificTopology().nstrips();

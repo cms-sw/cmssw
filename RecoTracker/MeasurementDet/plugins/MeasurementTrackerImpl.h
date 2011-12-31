@@ -126,21 +126,21 @@ public:
 
   bool selfUpdateSkipClusters_;
 
-  void initialize() const;
+  void initialize();
 
-  void addStripDet( const GeomDet* gd) const;
+  void addStripDet( const GeomDet* gd);
   void addPixelDet( const GeomDet* gd,
-		    const PixelClusterParameterEstimator* cpe) const;
+		    const PixelClusterParameterEstimator* cpe);
 
-  void addGluedDet( const GluedGeomDet* gd) const;
+  void addGluedDet( const GluedGeomDet* gd);
 
-  void addPixelDets( const TrackingGeometry::DetContainer& dets) const;
+  void addPixelDets( const TrackingGeometry::DetContainer& dets);
 
-  void addStripDets( const TrackingGeometry::DetContainer& dets) const;
+  void addStripDets( const TrackingGeometry::DetContainer& dets);
 
-  void initializeStripStatus (const SiStripQuality *stripQuality, int qualityFlags, int qualityDebugFlags) const;
+  void initializeStripStatus (const SiStripQuality *stripQuality, int qualityFlags, int qualityDebugFlags);
 
-  void initializePixelStatus (const SiPixelQuality *stripQuality, const SiPixelFedCabling *pixelCabling, int qualityFlags, int qualityDebugFlags) const;
+  void initializePixelStatus (const SiPixelQuality *stripQuality, const SiPixelFedCabling *pixelCabling, int qualityFlags, int qualityDebugFlags);
 
   void getInactiveStrips(const edm::Event& event,std::vector<uint32_t> & rawInactiveDetIds) const;
 };

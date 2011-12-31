@@ -127,7 +127,7 @@ MeasurementTrackerImpl::~MeasurementTrackerImpl()
     delete *it;
   }
 
-  for(vector<TkStripMeasurementDet*>::const_iterator it=theStripDets.begin(); it!=theStripDets.end(); ++it){
+  for(vector<TkStripMeasurementDet*>::const_iterator it=theStDets.theStripDets.begin(); it!=theStDets.theStripDets.end(); ++it){
     delete *it;
   }
 
@@ -137,7 +137,7 @@ MeasurementTrackerImpl::~MeasurementTrackerImpl()
 }
 
 
-void MeasurementTrackerImpl::initialize() const
+void MeasurementTrackerImpl::initialize()
 {  
   addPixelDets( theTrackerGeom->detsPXB());
   addPixelDets( theTrackerGeom->detsPXF());
@@ -146,7 +146,7 @@ void MeasurementTrackerImpl::initialize() const
   addStripDets( theTrackerGeom->detsTOB());
   addStripDets( theTrackerGeom->detsTEC());  
 
-  sortTKD(theStripDets);
+  sortTKD(theStDets.theStripDets);
   theStDets.init();
   sortTKD(thePixelDets);
   sortTKD(theGluedDets);
@@ -156,7 +156,7 @@ void MeasurementTrackerImpl::initialize() const
 }
 
 
-void MeasurementTrackerImpl::addPixelDets( const TrackingGeometry::DetContainer& dets) const
+void MeasurementTrackerImpl::addPixelDets( const TrackingGeometry::DetContainer& dets)
 {
   for (TrackerGeometry::DetContainer::const_iterator gd=dets.begin();
        gd != dets.end(); gd++) {
@@ -164,7 +164,7 @@ void MeasurementTrackerImpl::addPixelDets( const TrackingGeometry::DetContainer&
   }  
 }
 
-void MeasurementTrackerImpl::addStripDets( const TrackingGeometry::DetContainer& dets) const
+void MeasurementTrackerImpl::addStripDets( const TrackingGeometry::DetContainer& dets)
 {
   for (TrackerGeometry::DetContainer::const_iterator gd=dets.begin();
        gd != dets.end(); gd++) {
@@ -189,7 +189,7 @@ void MeasurementTrackerImpl::addStripDets( const TrackingGeometry::DetContainer&
   }
 }
 
-void MeasurementTrackerImpl::addStripDet( const GeomDet* gd) const
+void MeasurementTrackerImpl::addStripDet( const GeomDet* gd)
 {
   try {
     TkStripMeasurementDet* det = new TkStripMeasurementDet( gd, theStDets);
@@ -202,7 +202,7 @@ void MeasurementTrackerImpl::addStripDet( const GeomDet* gd) const
 }
 
 void MeasurementTrackerImpl::addPixelDet( const GeomDet* gd,
-				      const PixelClusterParameterEstimator* cpe) const
+				      const PixelClusterParameterEstimator* cpe)
 {
   TkPixelMeasurementDet* det = new TkPixelMeasurementDet( gd, cpe);
   thePixelDets.push_back(det);
@@ -210,7 +210,7 @@ void MeasurementTrackerImpl::addPixelDet( const GeomDet* gd,
   theDetMap[gd->geographicalId()] = det;
 }
 
-void MeasurementTrackerImpl::addGluedDet( const GluedGeomDet* gd) const
+void MeasurementTrackerImpl::addGluedDet( const GluedGeomDet* gd)
 {
   const MeasurementDet* monoDet = findDet( gd->monoDet()->geographicalId());
   if (monoDet == 0) {
@@ -524,7 +524,7 @@ TkStripMeasurementDet * MeasurementTrackerImpl::concreteDetUpdatable(DetId id) c
 }
 
 
-void MeasurementTrackerImpl::initializeStripStatus(const SiStripQuality *quality, int qualityFlags, int qualityDebugFlags) const {
+void MeasurementTrackerImpl::initializeStripStatus(const SiStripQuality *quality, int qualityFlags, int qualityDebugFlags) {
   if (qualityFlags & BadStrips) {
      edm::ParameterSet cutPset = pset_.getParameter<edm::ParameterSet>("badStripCuts");
      theStDets.badStripCuts_[SiStripDetId::TIB-3] = TkStripMeasurementDet::BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TIB"));
@@ -542,7 +542,7 @@ void MeasurementTrackerImpl::initializeStripStatus(const SiStripQuality *quality
     unsigned int foff = 0, ftot = 0, aoff = 0, atot = 0; 
     for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStDets.theStripDets.begin();
 	 i!=theStDets.theStripDets.end(); i++) {
-      uint32_t detid = ((**i).rawId();
+      uint32_t detid = (**i).rawId();
       if (qualityFlags & BadModules) {
           bool isOn = quality->IsModuleUsable(detid);
           (*i)->setActive(isOn);
@@ -602,7 +602,7 @@ void MeasurementTrackerImpl::initializeStripStatus(const SiStripQuality *quality
   }
 }
 
-void MeasurementTrackerImpl::initializePixelStatus(const SiPixelQuality *quality, const SiPixelFedCabling *pixelCabling, int qualityFlags, int qualityDebugFlags) const {
+void MeasurementTrackerImpl::initializePixelStatus(const SiPixelQuality *quality, const SiPixelFedCabling *pixelCabling, int qualityFlags, int qualityDebugFlags) {
   if ((quality != 0) && (qualityFlags != 0))  {
     edm::LogInfo("MeasurementTracker") << "qualityFlags = " << qualityFlags;
     unsigned int on = 0, tot = 0, badrocs = 0; 

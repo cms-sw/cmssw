@@ -177,7 +177,7 @@ private:
   
   bool regional_;
   
-  bool maskBad128StripBlocks_;
+  mutable bool maskBad128StripBlocks_;
   BadStripCuts badStripCuts_[4];
   
   // members of TkStripMeasurementDet

@@ -152,7 +152,7 @@ TkGluedMeasurementDet::fastMeasurements( const TrajectoryStateOnSurface& stateOn
    } else {
      //     LogDebug("TkStripMeasurementDet") << " DetID " << geomDet().geographicalId().rawId() << " (glued) fully inactive";
       result.push_back( TrajectoryMeasurement( stateOnThisDet, 
-               InvalidTransientRecHit::build(&fatsGeomDet(), TrackingRecHit::inactive), 
+               InvalidTransientRecHit::build(&fastGeomDet(), TrackingRecHit::inactive), 
                0.F));
    }
    return result;	

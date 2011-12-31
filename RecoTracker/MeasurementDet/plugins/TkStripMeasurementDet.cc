@@ -104,7 +104,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
       }
       if(!isCompatible) break; // exit loop on first incompatible hit
       }
-      else LogDebug("TkStripMeasurementDet")<<"skipping this str from last iteration on"< rawId()<<" key: "<<clusterref.key();
+      else LogDebug("TkStripMeasurementDet")<<"skipping this str from last iteration on" << rawId()<<" key: "<<clusterref.key();
     }
   }// end block with DetSet
   else{
@@ -238,11 +238,11 @@ TkStripMeasurementDet::RecHitContainer
 TkStripMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
 {
   RecHitContainer result;
-  if (empty() == true) return result;
+  if (isEmpty() == true) return result;
   if (isActive() == false) return result; // GIO
 
   if(!isRegional()){//old implemetation with DetSet
-    result.reserve(detSet_.size());
+    result.reserve(detSet().size());
     for ( new_const_iterator ci = detSet().begin(); ci != detSet().end(); ++ ci ) {
       if (isMasked(*ci)) continue;
       // for ( ClusterIterator ci=theClusterRange.first; ci != theClusterRange.second; ci++) {
@@ -282,7 +282,7 @@ TkStripMeasurementDet::buildSimpleRecHit( const ClusterRefT& cluster,
 void 
 TkStripMeasurementDet::simpleRecHits( const TrajectoryStateOnSurface& ts, std::vector<SiStripRecHit2D> &result) const
 {
-  if (empty() || !isActive()) return;
+  if (isEmpty() || !isActive()) return;
 
   if(!isRegional()){//old implemetation with DetSet
     result.reserve(detSet().size());
