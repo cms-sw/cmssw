@@ -485,7 +485,6 @@ void ECALRecHitAnalyzer::WriteECALRecHits(const edm::Event& iEvent, const edm::E
     double x = -999;
     double y = -999;
     double z = -999;
-    double eta = -999;
     double theta = -999;
     double phi = -999;
 
@@ -508,7 +507,6 @@ void ECALRecHitAnalyzer::WriteECALRecHits(const edm::Event& iEvent, const edm::E
     TVector3 pos_vector(x,y,z);
     phi = pos_vector.Phi();
     theta = pos_vector.Theta();
-    eta = pos_vector.Eta();
     double ET = Energy*TMath::Sin(theta);
     TLorentzVector v_;
 

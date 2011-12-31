@@ -183,8 +183,6 @@ void JetMETDQMOfflineClient::runClient_()
    
   dbe_->setCurrentFolder(dirName_+"/"+dirNameJet_);
 
-  MonitorElement *hPassFraction;
-
   // Look at all folders (JetMET/Jet/AntiKtJets,JetMET/Jet/CleanedAntiKtJets, etc)
   fullPathDQMFolders.clear();
   fullPathDQMFolders = dbe_->getSubdirs();
@@ -213,8 +211,6 @@ void JetMETDQMOfflineClient::runClient_()
 	    tPassFraction->SetBinContent(ibin+1,epsilon);                        // 
 	    if(nentries>0) tPassFraction->SetBinError(ibin+1,pow(epsilon*(1.-epsilon)/nentries,0.5));
 	  }
-	  hPassFraction      = dbe_->book1D(tPassFraction->GetName(),tPassFraction);
-	  delete tPassFraction;
 	} // me->getRootObject()
 	} // me
       } // if find
