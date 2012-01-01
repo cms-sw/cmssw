@@ -110,7 +110,7 @@ public:
   void setActiveThisEvent(bool active) {  theDets().setActiveThisEvent(index(),active); }
   
   /** \brief does this module have at least one bad strip, APV or channel? */
-  bool hasAllGoodChannels() const { return ( (!hasAny128StripBad()) && badStripBlocks().empty(); }
+  bool hasAllGoodChannels() const { return (!hasAny128StripBad()) && badStripBlocks().empty(); }
   
   /** \brief Sets the status of a block of 128 strips (or all blocks if idx=-1) */
   void set128StripStatus(bool good, int idx=-1) {
@@ -133,8 +133,8 @@ public:
   
 private:
   
-  StMeasurementDetSet & theDets() { return theDets_;}
-  StMeasurementDetSet const & theDets() const { return theDets_;}
+  StMeasurementDetSet  & theDets() { return *theDets_;}
+  StMeasurementDetSet  & theDets() const { return *theDets_;}
   
   StMeasurementDetSet * theDets_;
   int index_;
