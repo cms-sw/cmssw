@@ -15,6 +15,15 @@ std::ostream & operator<< <double>( std::ostream& s, const TkRotation<double>& r
 	   << " (" << rtmp.zx() << ',' << rtmp.zy() << ',' << rtmp.zz() << ") ";
 } 
 
+template<>
+std::ostream & operator<< <float>( std::ostream& s, const TkRotation2D<float>& rtmp) {
+  return s << rtmp.x() << "\n" << rtmp.y();
+}
+
+template<>
+std::ostream & operator<< <double>( std::ostream& s, const TkRotation2D<double>& rtmp) {
+  return s << rtmp.x() << "\n" << rtmp.y();
+}
 
 namespace geometryDetails {
   void TkRotationErr1() {
