@@ -156,7 +156,7 @@ void MeasurementTrackerImpl::initialize()
   
   // now the glued dets
   sortTKD(theGluedDets);
-  for (unsigend int i=0; i!=theGluedDets.size(); ++i)
+  for (unsigned int i=0; i!=theGluedDets.size(); ++i)
     initGluedDet(theGluedDets[i]);
 
   sortTKD(thePixelDets);

@@ -136,7 +136,7 @@ public:
 		    const PixelClusterParameterEstimator* cpe);
 
   void addGluedDet( const GluedGeomDet* gd);
-  void initGluedDet( TkGluedMeasurementDet & det)
+  void initGluedDet( TkGluedMeasurementDet & det);
 
   void addPixelDets( const TrackingGeometry::DetContainer& dets);
 

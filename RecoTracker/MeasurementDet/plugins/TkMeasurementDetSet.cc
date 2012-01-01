@@ -128,7 +128,7 @@ void StMeasurementDetSet::initializeStripStatus(const SiStripQuality *quality, i
   } else {
     for (int i=0; i!=nDet(); i++) {
       setActive(i,true);          // module ON
-      set128StripStatus(u,true);  // all APVs and fibers ON
+      set128StripStatus(i,true);  // all APVs and fibers ON
     }
   }
 }

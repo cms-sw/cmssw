@@ -148,7 +148,7 @@ public:
   }
   
   
-  void set128StripStatus(int i, bool good, int idx);  
+  void set128StripStatus(int i, bool good, int idx=-1);  
 
   void initializeStripStatus(const SiStripQuality *quality, int qualityFlags, int qualityDebugFlags, edm::ParameterSet cutPset);
 
