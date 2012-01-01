@@ -98,9 +98,78 @@ inline  mathSSE::Rot3<T>  operator *(mathSSE::Rot3<T> const & rh, mathSSE::Rot3<
   return lh.rotateBack(rh);
 }
 
+namespace mathSSE {
+
+  template<typename T>
+  struct Rot2 {
+    Vec2<T>  axis[2];
+
+    Rot2() {
+      axis[0].arr[0]=1;
+      axis[1].arr[1]=1;
+    }
+    
+    Rot2( Vec2<T> ix,  Vec2<T> iy) {
+      axis[0] =ix;
+      axis[1] =iy;
+    }
+
+    Rot2( T xx, T xy, T yx, T yy) {
+      axis[0].set(xx,xy);
+      axis[1].set(yx,yy);
+    }
+
+    Rot2 transpose() const {
+      return Rot2( axis[0].arr[0], axis[1].arr[0],
+		   axis[0].arr[1], axis[1].arr[1]
+		   );
+    }
+
+    Vec2<T> x() { return axis[0];}
+    Vec2<T> y() { return axis[1];}
+
+    // toLocal...
+    Vec2<T> rotate(Vec2<T> v) const {
+      return transpose().rotateBack(v);
+    }
+
+
+    // toGlobal...
+    Vec2<T> rotateBack(Vec2<T> v) const {
+      return v.template get1<0>()*axis[0] +  v.template get1<1>()*axis[1];
+    }
+
+    Rot2 rotate(Rot2 const& r) const {
+      Rot2 tr = transpose();
+      return Rot2(tr.rotateBack(r.axis[0]),tr.rotateBack(r.axis[1]));
+    }
+
+    Rot2 rotateBack(Rot2 const& r) const {
+      return Rot2(rotateBack(r.axis[0]),rotateBack(r.axis[1]));
+    }
+
+
+  };
+
+  typedef Rot2<float> Rot2F;
+
+  typedef Rot2<double> Rot2D;
+
+  
+}
+
+template<typename T>
+inline  mathSSE::Rot2<T>  operator *(mathSSE::Rot2<T> const & rh, mathSSE::Rot2<T> const & lh) {
+  return lh.rotateBack(rh);
+}
+
+
+
 #include <iosfwd>
 std::ostream & operator<<(std::ostream & out, mathSSE::Rot3F const & v);
 std::ostream & operator<<(std::ostream & out, mathSSE::Rot3D const & v);
+std::ostream & operator<<(std::ostream & out, mathSSE::Rot2F const & v);
+std::ostream & operator<<(std::ostream & out, mathSSE::Rot2D const & v);
 
 
 #endif //  DataFormat_Math_SSERot_H

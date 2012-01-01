@@ -30,3 +30,11 @@ std::ostream & operator<<(std::ostream & out, mathSSE::Rot3D const & r){
   return out <<  as3D(r.axis[0]) << '\n' <<  as3D(r.axis[1]) << '\n' <<  as3D(r.axis[2]);
 }
 
+std::ostream & operator<<(std::ostream & out, mathSSE::Rot2F const & r){
+  return out << r.axis[0] << '\n' << r.axis[1];
+}
+
+std::ostream & operator<<(std::ostream & out, mathSSE::Rot2D const & r){
+  return out << r.axis[0] << '\n' << r.axis[1];
+}
+

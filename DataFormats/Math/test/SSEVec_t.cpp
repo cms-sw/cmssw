@@ -188,27 +188,58 @@ void go() {
 	      -sa, ca, 0,
 	      0,  0, 1);
 
+  Rot2<T> r21( ca, sa,
+	       -sa, ca);
+
   Rot3<T> r2(Vec( 0, 1 ,0), Vec( 0, 0, 1), Vec( 1, 0, 0));
+  Rot2<T> r22(Vec2D( 0, 1), Vec2D( 1, 0));
 
-  Vec xr = r1.rotate(x);
-  std::cout << x << std::endl;
-  std::cout << xr << std::endl;
-  std::cout << r1.rotateBack(xr) << std::endl;
+  {
+    std::cout << "\n3D rot" << std::endl;
+    Vec xr = r1.rotate(x);
+    std::cout << x << std::endl;
+    std::cout << xr << std::endl;
+    std::cout << r1.rotateBack(xr) << std::endl;
+    
+    Rot3<T> rt = r1.transpose();
+    Vec xt = rt.rotate(xr);
+    std::cout << x << std::endl;
+    std::cout << xt << std::endl;
+    std::cout << rt.rotateBack(xt) << std::endl;
+    
+    std::cout << r1 << std::endl;
+    std::cout << rt << std::endl;
+    std::cout << r1*rt << std::endl;
+    std::cout << r2 << std::endl;
+    std::cout << r1*r2 << std::endl;
+    std::cout << r2*r1 << std::endl;
+    std::cout << r1*r2.transpose() << std::endl;
+    std::cout << r1.transpose()*r2 << std::endl;
+  }
 
-  Rot3<T> rt = r1.transpose();
-  Vec xt = rt.rotate(xr);
-  std::cout << x << std::endl;
-  std::cout << xt << std::endl;
-  std::cout << rt.rotateBack(xt) << std::endl;
+  {
+    std::cout << "\n2D rot" << std::endl;
+    Vec2D xr = r21.rotate(x.xy());
+    std::cout << x.xy() << std::endl;
+    std::cout << xr << std::endl;
+    std::cout << r21.rotateBack(xr) << std::endl;
+    
+    Rot2<T> rt = r21.transpose();
+    Vec2D xt = rt.rotate(xr);
+    std::cout << x.xy() << std::endl;
+    std::cout << xt << std::endl;
+    std::cout << rt.rotateBack(xt) << std::endl;
+    
+    std::cout << r21 << std::endl;
+    std::cout << rt << std::endl;
+    std::cout << r21*rt << std::endl;
+    std::cout << r22 << std::endl;
+    std::cout << r21*r22 << std::endl;
+    std::cout << r22*r21 << std::endl;
+    std::cout << r21*r22.transpose() << std::endl;
+    std::cout << r21.transpose()*r22 << std::endl;
+  }
 
-  std::cout << r1 << std::endl;
-  std::cout << rt << std::endl;
-  std::cout << r1*rt << std::endl;
-  std::cout << r2 << std::endl;
-  std::cout << r1*r2 << std::endl;
-  std::cout << r2*r1 << std::endl;
-  std::cout << r1*r2.transpose() << std::endl;
-  std::cout << r1.transpose()*r2 << std::endl;
 
 }
 
