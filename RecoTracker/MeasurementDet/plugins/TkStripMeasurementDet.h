@@ -110,7 +110,7 @@ public:
   void setActiveThisEvent(bool active) {  theDets().setActiveThisEvent(index(),active); }
   
   /** \brief does this module have at least one bad strip, APV or channel? */
-  bool hasAllGoodChannels() const { return !theDets().hasAny128StripBad(index()) && badStripBlock().empty(); }
+  bool hasAllGoodChannels() const { return ( (!hasAny128StripBad()) && badStripBlocks().empty(); }
   
   /** \brief Sets the status of a block of 128 strips (or all blocks if idx=-1) */
   void set128StripStatus(bool good, int idx=-1) {

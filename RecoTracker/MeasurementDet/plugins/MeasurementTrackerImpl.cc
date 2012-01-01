@@ -219,14 +219,14 @@ void MeasurementTrackerImpl::addPixelDet( const GeomDet* gd,
 
 void MeasurementTrackerImpl::addGluedDet( const GluedGeomDet* gd)
 {
-  theGluedDets.push_back(TkGluedMeasurementDet( gd, theStDets.matcher());
+  theGluedDets.push_back(TkGluedMeasurementDet( gd, theStDets.matcher()));
 }
 
 void MeasurementTrackerImpl::initGluedDet( TkGluedMeasurementDet & det)
 {
   const GluedGeomDet& gd = det.specificGeomDet()
   const MeasurementDet* monoDet = findDet( gd.monoDet()->geographicalId());
-  const MeasurementDet* stereoDet = findDet( gd->stereoDet()->geographicalId());
+  const MeasurementDet* stereoDet = findDet( gd.stereoDet()->geographicalId());
   if (monoDet == 0 || stereoDet == 0) {
     edm::LogError("MeasurementDet") << "MeasurementTracker ERROR: GluedDet components not found as MeasurementDets ";
     throw MeasurementDetException("MeasurementTracker ERROR: GluedDet components not found as MeasurementDets");
@@ -530,7 +530,7 @@ TkStripMeasurementDet * MeasurementTrackerImpl::concreteDetUpdatable(DetId id) c
 
 void MeasurementTrackerImpl::initializeStripStatus(const SiStripQuality *quality, int qualityFlags, int qualityDebugFlags) {
   edm::ParameterSet cutPset = pset_.getParameter<edm::ParameterSet>("badStripCuts");
-   theStDets.initializeStripStatus(quality, qualityFlags, qualityDebugFlag, cutPset);
+   theStDets.initializeStripStatus(quality, qualityFlags, qualityDebugFlags, cutPset);
 }
 
 void MeasurementTrackerImpl::initializePixelStatus(const SiPixelQuality *quality, const SiPixelFedCabling *pixelCabling, int qualityFlags, int qualityDebugFlags) {
