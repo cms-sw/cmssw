@@ -17,7 +17,7 @@
 TkStripMeasurementDet::TkStripMeasurementDet( const GeomDet* gdet,
 					      StMeasurementDetSet & dets
 					      ) : 
-  MeasurementDet (gdet),theDets(dets), index_(-1)
+  MeasurementDet (gdet),theDets_(&dets), index_(-1)
   {
     if (dynamic_cast<const StripGeomDetUnit*>(gdet) == 0) {
       throw MeasurementDetException( "TkStripMeasurementDet constructed with a GeomDet which is not a StripGeomDetUnit");

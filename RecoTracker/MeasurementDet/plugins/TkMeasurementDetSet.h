@@ -14,7 +14,7 @@ class StripClusterParameterEstimator;
 #include "DataFormats/Common/interface/RefGetter.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -31,6 +31,9 @@ public:
   
   typedef edm::LazyGetter<SiStripCluster> LazyGetter;
   typedef edm::RefGetter<SiStripCluster> RefGetter;
+
+   enum QualityFlags { BadModules=1, // for everybody
+                       /* Strips: */ BadAPVFibers=2, BadStrips=4, MaskBad128StripBlocks=8 }; 
 
 
   struct BadStripCuts {

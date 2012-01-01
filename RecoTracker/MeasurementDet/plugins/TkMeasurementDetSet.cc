@@ -61,8 +61,7 @@ void StMeasurementDetSet::set128StripStatus(int i, bool good, int idx) {
 
 void StMeasurementDetSet::initializeStripStatus(const SiStripQuality *quality, int qualityFlags, int qualityDebugFlags, edm::ParameterSet cutPset) {
   if (qualityFlags & BadStrips) {
-    edm::ParameterSet cutPset = pset_.getParameter<edm::ParameterSet>("badStripCuts");
-    badStripCuts_[SiStripDetId::TIB-3] = BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TIB"));
+     badStripCuts_[SiStripDetId::TIB-3] = BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TIB"));
     badStripCuts_[SiStripDetId::TOB-3] = BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TOB"));
     badStripCuts_[SiStripDetId::TID-3] = BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TID"));
     badStripCuts_[SiStripDetId::TEC-3] = BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TEC"));
