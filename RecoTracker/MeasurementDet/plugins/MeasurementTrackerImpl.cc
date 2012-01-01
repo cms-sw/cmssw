@@ -134,7 +134,7 @@ MeasurementTrackerImpl::~MeasurementTrackerImpl()
   for(vector<TkPixelMeasurementDet*>::const_iterator it=thePixelDets.begin(); it!=thePixelDets.end(); ++it){
     delete *it;
   }
-
+  
 }
 
 
@@ -151,13 +151,13 @@ void MeasurementTrackerImpl::initialize()
   // fist all stripdets
   sortTKD(theStripDets);
   theStDets.init(theStripDets);
-  for (int i=0; i!=theStripDets.size(); ++i)
-    theDetMap[theStripDets.id(i)] = &theStripDets[i];
-
+  for (unsigned int i=0; i!=theStripDets.size(); ++i)
+    theDetMap[theStDets.id(i)] = &theStripDets[i];
+  
   // now the glued dets
   sortTKD(theGluedDets);
-  for (int i=0; i!=theGluedDets.size(); ++i)
-    init(theGluedDets[i]);
+  for (unsigend int i=0; i!=theGluedDets.size(); ++i)
+    initGluedDet(theGluedDets[i]);
 
   sortTKD(thePixelDets);
 
@@ -224,7 +224,7 @@ void MeasurementTrackerImpl::addGluedDet( const GluedGeomDet* gd)
 
 void MeasurementTrackerImpl::initGluedDet( TkGluedMeasurementDet & det)
 {
-  const GluedGeomDet& gd = det.specificGeomDet()
+  const GluedGeomDet& gd = det.specificGeomDet();
   const MeasurementDet* monoDet = findDet( gd.monoDet()->geographicalId());
   const MeasurementDet* stereoDet = findDet( gd.stereoDet()->geographicalId());
   if (monoDet == 0 || stereoDet == 0) {
