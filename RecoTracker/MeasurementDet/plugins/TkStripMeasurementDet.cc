@@ -326,7 +326,7 @@ TkStripMeasurementDet::testStrips(float utraj, float uerr) const {
     typedef std::vector<BadStripBlock>::const_iterator BSBIT;
 
     int16_t bad = 0, largestBadBlock = 0;
-    for (BSBIT bsbc = badStripBlocks_.begin(), bsbe = badStripBlocks_.end(); bsbc != bsbe; ++bsbc) {
+    for (BSBIT bsbc = badStripBlocks().begin(), bsbe = badStripBlocks().end(); bsbc != bsbe; ++bsbc) {
         if (bsbc->last  < start) continue;
         if (bsbc->first > end)   break;
         int16_t thisBad = std::min(bsbc->last, end) - std::max(bsbc->first, start);

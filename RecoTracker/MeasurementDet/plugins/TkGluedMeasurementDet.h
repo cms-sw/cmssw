@@ -18,9 +18,9 @@ class GluedGeomDet;
 class TkGluedMeasurementDet : public MeasurementDet {
 public:
 
-  TkGluedMeasurementDet( const GluedGeomDet* gdet,const SiStripRecHitMatcher* matcher,
-			 const MeasurementDet* monoDet,
-			 const MeasurementDet* stereoDet);
+  TkGluedMeasurementDet( const GluedGeomDet* gdet,const SiStripRecHitMatcher* matcher);
+  void init(const MeasurementDet* monoDet,
+	    const MeasurementDet* stereoDet);
 
   virtual RecHitContainer recHits( const TrajectoryStateOnSurface&) const;
 

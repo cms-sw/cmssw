@@ -14,6 +14,7 @@ class StripClusterParameterEstimator;
 #include "DataFormats/Common/interface/RefGetter.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -53,24 +54,20 @@ public:
     theMatcher(matcher), theCPE(cpe), regional_(regional){}
   
   
-  void init();
+  void init(std::vector<TkStripMeasurementDet> & stripDets);
 
-  const std::vector<TkStripMeasurementDet*> & stripDets() const {return  theStripDets;}
-  
-  
+   
   std::vector<bool>  & clusterToSkip() const { return theStripsToSkip; }
   
   void setLazyGetter( edm::Handle<LazyGetter> const & lg) { regionalHandle_=lg;}
  
-  void update(int i,
-	      const StripDetset & detSet ) { 
+  void update(int i,const StripDetset & detSet ) { 
     detSet_[i] = detSet; 
     
     empty_[i] = false;
   }
   
-  void update(int i,
-	      std::vector<SiStripCluster>::const_iterator begin ,std::vector<SiStripCluster>::const_iterator end) { 
+  void update(int i, std::vector<SiStripCluster>::const_iterator begin ,std::vector<SiStripCluster>::const_iterator end) { 
     clusterI_[2*i] = begin - regionalHandle_->begin_record();
     clusterI_[2*i+1] = end - regionalHandle_->begin_record();
     
@@ -81,6 +78,9 @@ public:
   
   const SiStripRecHitMatcher*  matcher() const { return theMatcher;}
   const StripClusterParameterEstimator*  stripCPE() const { return theCPE;}
+
+
+  int nDet() const { return id_.size();}
 
   unsigned int id(int i) const { return id_[i]; }
   unsigned char subId(int i) const { return subId_[i];}
@@ -124,6 +124,10 @@ public:
   bool maskBad128StripBlocks() const { return maskBad128StripBlocks_;}
   bool hasAny128StripBad(int i) const { return  hasAny128StripBad_[i];}
   
+  std::vector<BadStripBlock> & getBadStripBlocks(int i) { return badStripBlocks_[i]; }
+  std::vector<BadStripBlock> const & badStripBlocks(int i) const {return badStripBlocks_[i]; }
+
+
   bool isMasked(int i, const SiStripCluster &cluster) const {
     int offset =  nbad128*i;
     if ( bad128Strip_[offset+( cluster.firstStrip() >> 7)] ) {
@@ -141,30 +145,13 @@ public:
   }
   
   
-  void set128StripStatus(int i, bool good, int idx) { 
-    int offset =  nbad128*i;
-    if (idx == -1) {
-      std::fill(bad128Strip_.begin()+offset, bad128Strip_.begin()+offset+6, !good);
-      hasAny128StripBad_[i] = !good;
-    } else {
-      bad128Strip_[offset+idx] = !good;
-      if (good == false) {
-	hasAny128StripBad_[i] = false;
-      } else { // this should not happen, as usually you turn on all fibers
-	// and then turn off the bad ones, and not vice-versa,
-	// so I don't care if it's not optimized
-	hasAny128StripBad_[i] = true;
-	for (int j = 0; i < (totalStrips_[j] >> 7); j++) {
-	  if (bad128Strip_[j+offset] == false) hasAny128StripBad_[i] = false; break;
-	}
-      }    
-    } 
-  }
-  
+  void set128StripStatus(int i, bool good, int idx);  
+
+  void initializeStripStatus(const SiStripQuality *quality, int qualityFlags, int qualityDebugFlags, edm::ParameterSet cutPset);
+
 private:
   
   friend class  MeasurementTrackerImpl;
-  mutable std::vector<TkStripMeasurementDet*> theStripDets;
   
   // globals
   const SiStripRecHitMatcher*       theMatcher;
@@ -190,6 +177,9 @@ private:
   std::vector<bool> bad128Strip_;
   std::vector<bool> hasAny128StripBad_;
   
+  std::vector<std::vector<BadStripBlock>> badStripBlocks_;  
+
+
   std::vector<bool> empty_;
   
   std::vector<bool> activeThisEvent_,activeThisPeriod_;

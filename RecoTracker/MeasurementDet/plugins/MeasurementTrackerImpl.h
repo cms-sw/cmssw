@@ -98,9 +98,9 @@ public:
 
   /// For debug only 
   const DetContainer& allDets() const {return theDetMap;}
-  const std::vector<TkStripMeasurementDet*>& stripDets() const {return theStDets.stripDets();}
+  const std::vector<TkStripMeasurementDet>& stripDets() const {return theStripDets;}
   const std::vector<TkPixelMeasurementDet*>& pixelDets() const {return thePixelDets;}
-  const std::vector<TkGluedMeasurementDet*>& gluedDets() const {return theGluedDets;}
+  const std::vector<TkGluedMeasurementDet>& gluedDets() const {return theGluedDets;}
 
   void setClusterToSkip(const edm::InputTag & cluster, const edm::Event& event) const;
   void unsetClusterToSkip() const;
@@ -113,8 +113,11 @@ public:
 
   mutable DetContainer                        theDetMap;
 
+
   mutable std::vector<TkPixelMeasurementDet*> thePixelDets;
-  mutable std::vector<TkGluedMeasurementDet*> theGluedDets;
+
+  mutable std::vector<TkStripMeasurementDet> theStripDets;
+  mutable std::vector<TkGluedMeasurementDet> theGluedDets;
   
   mutable std::vector<bool> thePixelsToSkip;
 
@@ -133,6 +136,7 @@ public:
 		    const PixelClusterParameterEstimator* cpe);
 
   void addGluedDet( const GluedGeomDet* gd);
+  void initGluedDet( TkGluedMeasurementDet & det)
 
   void addPixelDets( const TrackingGeometry::DetContainer& dets);
 

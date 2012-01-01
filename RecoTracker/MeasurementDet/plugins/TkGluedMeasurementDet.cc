@@ -21,18 +21,20 @@
 using namespace std;
 
 TkGluedMeasurementDet::TkGluedMeasurementDet( const GluedGeomDet* gdet, 
-					      const SiStripRecHitMatcher* matcher,
-					      const MeasurementDet* monoDet,
-					      const MeasurementDet* stereoDet) :
+					      const SiStripRecHitMatcher* matcher) :
   MeasurementDet(gdet), 
-  theMatcher(matcher), 
-  theMonoDet( dynamic_cast<const TkStripMeasurementDet *>(monoDet)), 
-  theStereoDet( dynamic_cast<const TkStripMeasurementDet *>(stereoDet))
-{
-  if ((theMonoDet == 0) || (theStereoDet == 0)) {
-	throw MeasurementDetException("TkGluedMeasurementDet ERROR: Trying to glue a det which is not a TkStripMeasurementDet");
-  }
+  theMatcher(matcher),
+  theMonoDet(nullptr), theStereoDet(nullptr)
+{}
+
+void TkGluedMeasurementDet::init(const MeasurementDet* monoDet,
+				 const MeasurementDet* stereoDet) {
+  theMonoDet = dynamic_cast<const TkStripMeasurementDet *>(monoDet);
+  theStereoDet = dynamic_cast<const TkStripMeasurementDet *>(stereoDet);
   
+  if ((theMonoDet == 0) || (theStereoDet == 0)) {
+    throw MeasurementDetException("TkGluedMeasurementDet ERROR: Trying to glue a det which is not a TkStripMeasurementDet");
+  }
 }
 
 TkGluedMeasurementDet::RecHitContainer 

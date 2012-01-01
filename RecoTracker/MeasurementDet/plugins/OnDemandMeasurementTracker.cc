@@ -291,7 +291,7 @@ std::string OnDemandMeasurementTracker::dumpRegion(std::pair<unsigned int,unsign
 }
 
 void OnDemandMeasurementTracker::assign(const TkStripMeasurementDet * csmdet,
-				  DetODContainer::iterator * alreadyFound)const {
+				  DetODContainer::iterator * alreadyFound) const {
   //  assign is using the handle to the refgetter and the region index range to update the MeasurementDet with their clusters
   
   TkStripMeasurementDet * smdet = const_cast<TkStripMeasurementDet *>(csmdet);

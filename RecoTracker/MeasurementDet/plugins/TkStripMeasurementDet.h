@@ -122,18 +122,21 @@ public:
   
   typedef StMeasurementDetSet::BadStripBlock BadStripBlock;
   
-  std::vector<BadStripBlock> & getBadStripBlocks() { return badStripBlocks_; }
+  std::vector<BadStripBlock> & getBadStripBlocks() { return theDets.getBadStripBlocks(index()); }
+  std::vector<BadStripBlock> const & badStripBlocks() const { return theDets.badStripBlocks(index()); }
+
   bool maskBad128StripBlocks() const { return theDets.maskBad128StripBlocks();}
   
 
   
 private:
   
-  std::vector<BadStripBlock> badStripBlocks_;  
   
   StMeasurementDetSet & theDets;
   int index_;
   
+
+
   edm::Handle<edmNew::DetSetVector<SiStripCluster> > const & handle() const { return theDets.handle();}
   edm::Handle<edm::LazyGetter<SiStripCluster> > const & regionalHandle() const { return theDets.regionalHandle();}
   

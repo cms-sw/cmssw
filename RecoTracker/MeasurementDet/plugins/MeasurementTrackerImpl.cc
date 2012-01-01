@@ -72,8 +72,11 @@ using namespace std;
 namespace {
 
   struct CmpTKD {
-    bool operator()(MeasurementDet* rh, MeasurementDet* lh) {
+    bool operator()(MeasurementDet const* rh, MeasurementDet const * lh) {
       return rh->fastGeomDet().geographicalId().rawId() < lh->fastGeomDet().geographicalId().rawId();
+    }
+    bool operator()(MeasurementDet const & rh, MeasurementDet const &  lh) {
+      return rh.fastGeomDet().geographicalId().rawId() < lh.fastGeomDet().geographicalId().rawId();
     }
   };
 
@@ -81,6 +84,11 @@ namespace {
   void sortTKD( std::vector<TKD*> & det) {
     std::sort(det.begin(),det.end(),CmpTKD());
   }
+  template<typename TKD>
+  void sortTKD( std::vector<TKD> & det) {
+    std::sort(det.begin(),det.end(),CmpTKD());
+  }
+
 }
 
 
@@ -127,13 +135,6 @@ MeasurementTrackerImpl::~MeasurementTrackerImpl()
     delete *it;
   }
 
-  for(vector<TkStripMeasurementDet*>::const_iterator it=theStDets.theStripDets.begin(); it!=theStDets.theStripDets.end(); ++it){
-    delete *it;
-  }
-
-  for(vector<TkGluedMeasurementDet*>::const_iterator it=theGluedDets.begin(); it!=theGluedDets.end(); ++it){
-    delete *it;
-  }
 }
 
 
@@ -141,16 +142,24 @@ void MeasurementTrackerImpl::initialize()
 {  
   addPixelDets( theTrackerGeom->detsPXB());
   addPixelDets( theTrackerGeom->detsPXF());
+
   addStripDets( theTrackerGeom->detsTIB());
   addStripDets( theTrackerGeom->detsTID());
   addStripDets( theTrackerGeom->detsTOB());
   addStripDets( theTrackerGeom->detsTEC());  
 
-  sortTKD(theStDets.theStripDets);
-  theStDets.init();
-  sortTKD(thePixelDets);
-  sortTKD(theGluedDets);
+  // fist all stripdets
+  sortTKD(theStripDets);
+  theStDets.init(theStripDets);
+  for (int i=0; i!=theStripDets.size(); ++i)
+    theDetMap[theStripDets.id(i)] = &theStripDets[i];
 
+  // now the glued dets
+  sortTKD(theGluedDets);
+  for (int i=0; i!=theGluedDets.size(); ++i)
+    init(theGluedDets[i]);
+
+  sortTKD(thePixelDets);
 
 
 }
@@ -192,9 +201,7 @@ void MeasurementTrackerImpl::addStripDets( const TrackingGeometry::DetContainer&
 void MeasurementTrackerImpl::addStripDet( const GeomDet* gd)
 {
   try {
-    TkStripMeasurementDet* det = new TkStripMeasurementDet( gd, theStDets);
-    theStDets.theStripDets.push_back(det);
-    theDetMap[gd->geographicalId()] = det;
+    theStripDets.push_back(TkStripMeasurementDet( gd, theStDets));
   }
   catch(MeasurementDetException& err){
     edm::LogError("MeasurementDet") << "Oops, got a MeasurementDetException: " << err.what() ;
@@ -212,28 +219,22 @@ void MeasurementTrackerImpl::addPixelDet( const GeomDet* gd,
 
 void MeasurementTrackerImpl::addGluedDet( const GluedGeomDet* gd)
 {
-  const MeasurementDet* monoDet = findDet( gd->monoDet()->geographicalId());
-  if (monoDet == 0) {
-    addStripDet(gd->monoDet());  // in case glued det comes before components
-    monoDet = idToDet( gd->monoDet()->geographicalId());
-  }
+  theGluedDets.push_back(TkGluedMeasurementDet( gd, theStDets.matcher());
+}
 
+void MeasurementTrackerImpl::initGluedDet( TkGluedMeasurementDet & det)
+{
+  const GluedGeomDet& gd = det.specificGeomDet()
+  const MeasurementDet* monoDet = findDet( gd.monoDet()->geographicalId());
   const MeasurementDet* stereoDet = findDet( gd->stereoDet()->geographicalId());
-  if (stereoDet == 0) {
-    addStripDet(gd->stereoDet());  // in case glued det comes before components
-    stereoDet = idToDet( gd->stereoDet()->geographicalId());
-  }
-
   if (monoDet == 0 || stereoDet == 0) {
     edm::LogError("MeasurementDet") << "MeasurementTracker ERROR: GluedDet components not found as MeasurementDets ";
     throw MeasurementDetException("MeasurementTracker ERROR: GluedDet components not found as MeasurementDets");
   }
-
-    TkGluedMeasurementDet* det = new TkGluedMeasurementDet( gd, theStDets.matcher(),
-							  monoDet, stereoDet);
-  theGluedDets.push_back( det);
-  theDetMap[gd->geographicalId()] = det;
+  det.init(monoDet,stereoDet);
+  theDetMap[gd.geographicalId()] = &det;
 }
+
 
 void MeasurementTrackerImpl::update( const edm::Event& event) const
 {
@@ -241,16 +242,16 @@ void MeasurementTrackerImpl::update( const edm::Event& event) const
   updateStrips(event);
   
   /*
-  for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
+  for (std::vector<TkStripMeasurementDet>::const_iterator i=theStripDets.begin();
        i!=theStripDets.end(); i++) {
-    if( (*i)->isEmpty()){
+    if( (*i).isEmpty()){
       std::cout << "stripDet id, #hits: " 
-		<<  (*i)->geomDet().geographicalId().rawId() << " , "
+		<<  (*i).geomDet().geographicalId().rawId() << " , "
 		<< 0 << std::endl;
     }else{
       std::cout << "stripDet id, #hits: " 
-		<<  (*i)->geomDet().geographicalId().rawId() << " , "
-		<< (*i)->size() << std::endl;
+		<<  (*i).geomDet().geographicalId().rawId() << " , "
+		<< (*i).size() << " " << (*i).detSet().size() std::endl;
     }
   }
   */
@@ -454,7 +455,8 @@ void MeasurementTrackerImpl::updateStrips( const edm::Event& event) const
       
       theStDets.update(i,detSet);
     }
-  }else{
+
+  }else{   // regional
     
     //then set the not-empty ones only
     edm::Handle<edm::RefGetter<SiStripCluster> > refClusterHandle;
@@ -527,81 +529,8 @@ TkStripMeasurementDet * MeasurementTrackerImpl::concreteDetUpdatable(DetId id) c
 
 
 void MeasurementTrackerImpl::initializeStripStatus(const SiStripQuality *quality, int qualityFlags, int qualityDebugFlags) {
-  if (qualityFlags & BadStrips) {
-     edm::ParameterSet cutPset = pset_.getParameter<edm::ParameterSet>("badStripCuts");
-     theStDets.badStripCuts_[SiStripDetId::TIB-3] = TkStripMeasurementDet::BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TIB"));
-     theStDets.badStripCuts_[SiStripDetId::TOB-3] = TkStripMeasurementDet::BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TOB"));
-     theStDets.badStripCuts_[SiStripDetId::TID-3] = TkStripMeasurementDet::BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TID"));
-     theStDets.badStripCuts_[SiStripDetId::TEC-3] = TkStripMeasurementDet::BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TEC"));
-  }
-  theStDets.setMaskBad128StripBlocks((qualityFlags & MaskBad128StripBlocks) != 0);
-
-
-  //Fixme (move to DetSet)
-  if ((quality != 0) && (qualityFlags != 0))  {
-    edm::LogInfo("MeasurementTracker") << "qualityFlags = " << qualityFlags;
-    unsigned int on = 0, tot = 0; 
-    unsigned int foff = 0, ftot = 0, aoff = 0, atot = 0; 
-    for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStDets.theStripDets.begin();
-	 i!=theStDets.theStripDets.end(); i++) {
-      uint32_t detid = (**i).rawId();
-      if (qualityFlags & BadModules) {
-          bool isOn = quality->IsModuleUsable(detid);
-          (*i)->setActive(isOn);
-          tot++; on += (unsigned int) isOn;
-          if (qualityDebugFlags & BadModules) {
-	    edm::LogInfo("MeasurementTracker")<< "MeasurementTrackerImpl::initializeStripStatus : detid " << detid << " is " << (isOn ?  "on" : "off");
-          }
-       } else {
-          (*i)->setActive(true);
-       }
-       // first turn all APVs and fibers ON
-       (*i)->set128StripStatus(true); 
-       if (qualityFlags & BadAPVFibers) {
-          short badApvs   = quality->getBadApvs(detid);
-          short badFibers = quality->getBadFibers(detid);
-          for (int j = 0; j < 6; j++) {
-             atot++;
-             if (badApvs & (1 << j)) {
-                (*i)->set128StripStatus(false, j);
-                aoff++;
-             }
-          }
-          for (int j = 0; j < 3; j++) {
-             ftot++;
-             if (badFibers & (1 << j)) {
-                (*i)->set128StripStatus(false, 2*j);
-                (*i)->set128StripStatus(false, 2*j+1);
-                foff++;
-             }
-          }
-       } 
-       std::vector<TkStripMeasurementDet::BadStripBlock> &badStrips = (*i)->getBadStripBlocks();
-       badStrips.clear();
-       if (qualityFlags & BadStrips) {
-            SiStripBadStrip::Range range = quality->getRange(detid);
-            for (SiStripBadStrip::ContainerIterator bit = range.first; bit != range.second; ++bit) {
-                badStrips.push_back(quality->decode(*bit));
-            }
-       }
-    }
-    if (qualityDebugFlags & BadModules) {
-        edm::LogInfo("MeasurementTracker StripModuleStatus") << 
-            " Total modules: " << tot << ", active " << on <<", inactive " << (tot - on);
-    }
-    if (qualityDebugFlags & BadAPVFibers) {
-        edm::LogInfo("MeasurementTracker StripAPVStatus") << 
-            " Total APVs: " << atot << ", active " << (atot-aoff) <<", inactive " << (aoff);
-        edm::LogInfo("MeasurementTracker StripFiberStatus") << 
-            " Total Fibers: " << ftot << ", active " << (ftot-foff) <<", inactive " << (foff);
-    }
-  } else {
-    for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStDets.theStripDets.begin();
-	 i!=theStDets.theStripDets.end(); i++) {
-      (*i)->setActive(true);          // module ON
-      (*i)->set128StripStatus(true);  // all APVs and fibers ON
-    }
-  }
+  edm::ParameterSet cutPset = pset_.getParameter<edm::ParameterSet>("badStripCuts");
+   theStDets.initializeStripStatus(quality, qualityFlags, qualityDebugFlag, cutPset);
 }
 
 void MeasurementTrackerImpl::initializePixelStatus(const SiPixelQuality *quality, const SiPixelFedCabling *pixelCabling, int qualityFlags, int qualityDebugFlags) {
