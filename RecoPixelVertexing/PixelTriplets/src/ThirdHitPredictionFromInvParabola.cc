@@ -35,7 +35,7 @@ void ThirdHitPredictionFromInvParabola::
 //  GlobalVector aX = GlobalVector( P2.x()-P1.x(), P2.y()-P1.y(), 0.).unit();
  
   theRotation = Rotation(P1.basicVector().xy());
-  Point2D p1(1.,0); //  = transform(P1.basicVector().xy());
+  Point2D p1 = transform(P1.basicVector().xy());  // (1./P1.xy().mag(),0); 
   Point2D p2 = transform(P2.basicVector().xy());
 
  
