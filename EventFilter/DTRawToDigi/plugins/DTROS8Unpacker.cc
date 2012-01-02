@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/05/07 16:16:39 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/01/22 18:46:41 $
+ *  $Revision: 1.4 $
  *  \author  M. Zanetti - INFN Padova 
  * FRC 140906
  */
@@ -32,8 +32,6 @@ void DTROS8Unpacker::interpretRawData(const unsigned int* index, int datasize,
   int numberOfWords = datasize / wordLength;
   int robID = 0;
   int rosID = 0;
-  int eventID = 0;
-  int bunchID = 0;
 
   map<int,int> hitOrder;
 
@@ -51,12 +49,6 @@ void DTROS8Unpacker::interpretRawData(const unsigned int* index, int datasize,
       robID =   word        & 0x7;
       rosID = ( word >> 3 ) & 0xFF;
     } 
-
-    // TDC Header/Trailer
-    else if ( type <= 3 ) {
-      eventID = ( word >> 12 ) & 0xFFF;
-      bunchID =   word &         0xFFF; 
-    }
 
     // TDC Measurement
     else if ( type >= 4 && type <= 5 ) {
