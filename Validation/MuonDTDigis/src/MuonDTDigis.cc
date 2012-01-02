@@ -1,8 +1,8 @@
 /** \class MuonDTDigis
  *  Analyse the the muon-drift-tubes digitizer. 
  *  
- *  $Date: 2008/10/29 11:13:47 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/06/15 11:49:19 $
+ *  $Revision: 1.9 $
  *  \authors: R. Bellan
  */
 
@@ -271,7 +271,6 @@ void  MuonDTDigis::analyze(const Event & event, const EventSetup& eventSetup){
 //     event.getByLabel("SimG4Object","MuonDTHits",simHits);
 
 
-  int num_simhits;
   int num_mudigis;
   int num_musimhits;
   int num_digis;
@@ -283,9 +282,6 @@ void  MuonDTDigis::analyze(const Event & event, const EventSetup& eventSetup){
   num_musimhits = 0;
   DTWireIdMap wireMap;     
  
-   num_simhits = simHits->size();
-  //  cout << "num simhits " << num_simhits << endl;
-
   for(vector<PSimHit>::const_iterator hit = simHits->begin();
       hit != simHits->end(); hit++){    
     // Create the id of the wire, the simHits in the DT known also the wireId
