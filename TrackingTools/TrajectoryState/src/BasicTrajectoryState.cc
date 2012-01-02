@@ -163,12 +163,12 @@ void BasicTrajectoryState::notValid() {
 namespace {
   void verifyLocalErr(LocalTrajectoryError const & err ) {
     if unlikely(!err.posDef())
-		 edm::LogWarning("BasicTrajectoryState") << "local error not pos-def\n" << 
+		 edm::LogWarning("BasicTrajectoryState") << "local error not pos-def\n"
 							 <<  err.matrix();
   }
   void verifyCurvErr(CurvilinearTrajectoryError const & err ) {
     if unlikely(!err.posDef())
-		 edm::LogWarning("BasicTrajectoryState") << "local error not pos-def\n" << 
+		 edm::LogWarning("BasicTrajectoryState") << "local error not pos-def\n" 
 							 <<  err.matrix();
   }
 
