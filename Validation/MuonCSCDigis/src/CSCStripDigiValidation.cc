@@ -64,7 +64,7 @@ void CSCStripDigiValidation::analyze(const edm::Event& e,
     theNDigisPerLayerPlot->Fill(nDigis);
 
     double maxAmplitude = 0.;
-    int maxStrip = 0;
+    // int maxStrip = 0;
 
     for( ; digiItr != last; ++digiItr) {
       // average up the pedestals
@@ -75,7 +75,7 @@ void CSCStripDigiValidation::analyze(const edm::Event& e,
       float pedestal = thePedestalSum/thePedestalCount;
       if(adcCounts[4]-pedestal > maxAmplitude)
       {
-        maxStrip = digiItr->getStrip();
+      //  maxStrip = digiItr->getStrip();
         maxAmplitude = adcCounts[4]-pedestal;
       }
 
