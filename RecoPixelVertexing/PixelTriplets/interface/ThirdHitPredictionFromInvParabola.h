@@ -48,7 +48,7 @@ private:
   inline double predV(double u, double  ip, int charge) const;
   inline double ipFromCurvature(double  curvature, int charge) const;
 
-  Point2D trasform(Point2D const & p) const {
+  Point2D transform(Point2D const & p) const {
     return theRotation.rotate(p)/p.mag2();
   }
 

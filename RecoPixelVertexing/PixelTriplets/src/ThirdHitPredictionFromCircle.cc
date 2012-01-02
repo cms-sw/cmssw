@@ -55,7 +55,7 @@ double ThirdHitPredictionFromCircle::phi(double curvature, double radius) const
     Basic2DVector<double> lcenter = center - sign * orthog * axis;
     double rc2 = lcenter.mag2();
     double cos = (rc2 + sqr(radius) - radius2) /
-      (2. * sqrt(rc2) * radius);
+      (2. *std:: sqrt(rc2) * radius);
     phi = lcenter.phi() + sign * clamped_acos(cos);
  }
 
