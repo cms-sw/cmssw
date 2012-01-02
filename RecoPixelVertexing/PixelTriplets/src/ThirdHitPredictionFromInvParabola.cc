@@ -94,7 +94,7 @@ ThirdHitPredictionFromInvParabola::Range ThirdHitPredictionFromInvParabola::rang
   Point2D pred_tmp1 = findPointAtCurve(radius,charge,ip.min());
   Point2D pred_tmp2 = findPointAtCurve(radius,charge,ip.max());
 
-  double phi1 = transformBack(pred_tmp1).phi();
+  double phi1 = theRotation.rotateBack(pred_tmp1).phi();
   double phi2 = phi1+radius*(pred_tmp2.y()-pred_tmp1.y()); 
   
   if (ip.empty()) {
