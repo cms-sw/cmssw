@@ -4,6 +4,9 @@
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianLocalToCartesian.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianCartesianToLocal.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+
 #include <cmath>
 #include<sstream>
 
@@ -157,6 +160,19 @@ void BasicTrajectoryState::notValid() {
   throw TrajectoryStateException("TrajectoryStateOnSurface is invalid and cannot return any parameters");
 }
 
+namespace {
+  void verifyLocalErr(LocalTrajectoryError const & err ) {
+    if unlikely(!err.posDef())
+		 edm::LogWarning("BasicTrajectoryState") << "local error not pos-def\n" << 
+							 <<  err.matrix();
+  }
+  void verifyCurvErr(CurvilinearTrajectoryError const & err ) {
+    if unlikely(!err.posDef())
+		 edm::LogWarning("BasicTrajectoryState") << "local error not pos-def\n" << 
+							 <<  err.matrix();
+  }
+
+}
 
 void BasicTrajectoryState::missingError(char const * where) const{
   std::stringstream form;
@@ -165,7 +181,9 @@ void BasicTrajectoryState::missingError(char const * where) const{
       <<"\nlocal error valid/values :"<< theLocalError.valid() << "\n" 
       <<  theLocalError.matrix();
 
-  throw TrajectoryStateException(form.str());
+  edm::LogWarning("BasicTrajectoryState") << form.str();
+
+  // throw TrajectoryStateException(form.str());
 }
 
 
@@ -191,18 +209,23 @@ void BasicTrajectoryState::checkGlobalParameters() const {
   } 
 }
 
+
+
 void BasicTrajectoryState::checkCurvilinError() const {
   if likely(theFreeState->hasCurvilinearError()) return;
 
   if unlikely(!theLocalParametersValid) createLocalParameters();
   
-  JacobianLocalToCurvilinear loc2Curv(surface(), localParameters(), *theField);
-    const AlgebraicMatrix55& jac = loc2Curv.jacobian();
-    
-    const AlgebraicSymMatrix55 &cov = ROOT::Math::Similarity(jac, theLocalError.matrix());
-
-    theFreeState->setCurvilinearError( cov );
   
+  JacobianLocalToCurvilinear loc2Curv(surface(), localParameters(), *theField);
+  const AlgebraicMatrix55& jac = loc2Curv.jacobian();
+  
+  const AlgebraicSymMatrix55 &cov = ROOT::Math::Similarity(jac, theLocalError.matrix());
+
+   theFreeState->setCurvilinearError( cov );
+ 
+   verifyLocalErr(theLocalError);
+   verifyCurvErr(cov); 
 }
 
 
@@ -235,6 +258,10 @@ BasicTrajectoryState::createLocalErrorFromCurvilinearError() const {
     ROOT::Math::Similarity(jac, theFreeState->curvilinearError().matrix());
   //    cout<<"Clocal via curvilinear error"<<endl;
   theLocalError = LocalTrajectoryError(cov);
+
+  verifyCurvErr(theFreeState->curvilinearError());
+  verifyLocalErr(theLocalError);
+
 }
  
 
