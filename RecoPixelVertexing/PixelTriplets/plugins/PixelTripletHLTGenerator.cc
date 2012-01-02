@@ -68,57 +68,57 @@ void PixelTripletHLTGenerator::hitTriplets(
   OrderedHitPairs::const_iterator ip;
   
   thePairGenerator->hitPairs(region,pairs,ev,es);
-  
+
   if (pairs.empty()) return;
-  
+
   int size = theLayers.size();
-  
+
   typedef std::vector<ThirdHitRZPrediction<PixelRecoLineRZ> >  Preds;
   Preds preds(size);
-  
+
   std::vector<const RecHitsSortedInPhi *> thirdHitMap(size);
   typedef RecHitsSortedInPhi::Hit Hit;
   vector<Hit> thirdHits;
-  
+
   // fill the prediciton vetor
   for (int il=0; il!=size; ++il) {
-    thirdHitMap[il] = &(*theLayerCache)(&theLayers[il], region, ev, es);
-    ThirdHitRZPrediction<PixelRecoLineRZ> & pred = preds[il];
-    pred.initLayer(theLayers[il].detLayer());
-    pred.initTolerance(extraHitRZtolerance);
+     thirdHitMap[il] = &(*theLayerCache)(&theLayers[il], region, ev, es);
+     ThirdHitRZPrediction<PixelRecoLineRZ> & pred = preds[il];
+     pred.initLayer(theLayers[il].detLayer());
+     pred.initTolerance(extraHitRZtolerance);
   }
-  
-  
+
+
   double imppar = region.originRBound();
   double curv = PixelRecoUtilities::curvature(1/region.ptMin(), es);
-  
+
   for (ip = pairs.begin(); ip != pairs.end(); ip++) {
-    
+  
     GlobalPoint gp1tmp = (*ip).inner()->globalPosition();
     GlobalPoint gp2tmp = (*ip).outer()->globalPosition();
     GlobalPoint gp1(gp1tmp.x()-region.origin().x(), gp1tmp.y()-region.origin().y(), gp1tmp.z());
     GlobalPoint gp2(gp2tmp.x()-region.origin().x(), gp2tmp.y()-region.origin().y(), gp2tmp.z());
-    
+
     PixelRecoPointRZ point1(gp1.perp(), gp1.z());
     PixelRecoPointRZ point2(gp2.perp(), gp2.z());
     PixelRecoLineRZ  line(point1, point2);
     ThirdHitPredictionFromInvParabola predictionRPhi(gp1,gp2,imppar,curv,extraHitRPhitolerance);
     ThirdHitPredictionFromInvParabola predictionRPhitmp(gp1tmp,gp2tmp,imppar+region.origin().perp(),curv,extraHitRPhitolerance);
-    
-    
+
+
     for (int il=0; il!=size; ++il) {
       const DetLayer * layer = theLayers[il].detLayer();
-      //      bool pixelLayer = (    layer->subDetector() == GeomDetEnumerators::PixelBarrel 
-      //                          || layer->subDetector() == GeomDetEnumerators::PixelEndcap); 
+//      bool pixelLayer = (    layer->subDetector() == GeomDetEnumerators::PixelBarrel 
+//                          || layer->subDetector() == GeomDetEnumerators::PixelEndcap); 
       bool barrelLayer = (layer->location() == GeomDetEnumerators::barrel);
-      
+
       ThirdHitCorrection correction(es, region.ptMin(), layer, line, point2, useMScat, useBend); 
       
       ThirdHitRZPrediction<PixelRecoLineRZ> & predictionRZ =  preds[il];
-      
+
       predictionRZ.initPropagator(&line);
       Range rzRange = predictionRZ();
-      
+
       correction.correctRZRange(rzRange);
       Range phiRange;
       if (useFixedPreFiltering) { 
@@ -131,8 +131,8 @@ void PixelTripletHLTGenerator::hitTriplets(
           radius =  predictionRZ.detRange();
         } else {
           radius = Range(
-			 max(rzRange.min(), predictionRZ.detSize().min()),
-			 min(rzRange.max(), predictionRZ.detSize().max()) );
+              max(rzRange.min(), predictionRZ.detSize().min()),
+              min(rzRange.max(), predictionRZ.detSize().max()) );
         }
         if (radius.empty()) continue;
         Range rPhi1m = predictionRPhitmp(radius.max(), -1);
@@ -150,47 +150,36 @@ void PixelTripletHLTGenerator::hitTriplets(
         phiRange = mergePhiRanges(rPhi1,rPhi2);
       }
       
-      //      LayerHitMapLoop thirdHits = 
-      //          pixelLayer ? thirdHitMap[il]->loop(phiRange, rzRange) : 
-      //          thirdHitMap[il]->loop();
-      
+//      LayerHitMapLoop thirdHits = 
+//          pixelLayer ? thirdHitMap[il]->loop(phiRange, rzRange) : 
+//          thirdHitMap[il]->loop();
+
       thirdHits.clear();
       thirdHitMap[il]->hits(phiRange.min(),phiRange.max(), thirdHits);
-      
+  
       static float nSigmaRZ = std::sqrt(12.f);
       static float nSigmaPhi = 3.f;
-      
+   
       typedef vector<Hit>::const_iterator IH;
       for (IH th=thirdHits.begin(), eh=thirdHits.end(); th !=eh; ++th) {
-	
+
         if (theMaxElement!=0 && result.size() >= theMaxElement){
 	  result.clear();
 	  edm::LogError("TooManyTriplets")<<" number of triples exceed maximum. no triplets produced.";
 	  return;
 	}
         const Hit& hit = (*th);
-	
-	// try to check compatibily first
-	OrderedHitTriplet hittriplet( (*ip).inner(), (*ip).outer(), hit);
-	if(theComparitor && !theComparitor->compatible(hittriplet,es) ) {
-	  LogDebug("RejectedTriplet") << "rejected triplet from comparitor " 
-				      << hittriplet.outer()->globalPosition().x() << " "
-				      << hittriplet.outer()->globalPosition().y() << " "
-				      << hittriplet.outer()->globalPosition().z();
-	  continue;
-	}
-	
         GlobalPoint point(hit->globalPosition().x()-region.origin().x(),
                           hit->globalPosition().y()-region.origin().y(),
                           hit->globalPosition().z() ); 
         float p3_r = point.perp();
         float p3_z = point.z();
         float p3_phi = point.phi();
-	
+ 
         if (barrelLayer) {
           Range allowedZ = predictionRZ(p3_r);
           correction.correctRZRange(allowedZ);
-	  
+
           float zErr = nSigmaRZ * hit->errorGlobalZ();
           Range hitRange(p3_z-zErr, p3_z+zErr);
           Range crossingRange = allowedZ.intersection(hitRange);
@@ -203,20 +192,29 @@ void PixelTripletHLTGenerator::hitTriplets(
           Range crossingRange = allowedR.intersection(hitRange);
           if (crossingRange.empty())  continue;
         }
-	
+
 	float phiErr = nSigmaPhi*hit->errorGlobalRPhi()/p3_r;
         for (int icharge=-1; icharge <=1; icharge+=2) {
           Range rangeRPhi = predictionRPhi(p3_r, icharge);
           correction.correctRPhiRange(rangeRPhi);
           if (checkPhiInRange(p3_phi, rangeRPhi.first/p3_r-phiErr, rangeRPhi.second/p3_r+phiErr)) {
-	    // insert here check with comparitor (if not better above)
-	    result.push_back( hittriplet );
+	    // insert here check with comparitor 
+	    OrderedHitTriplet hittriplet( (*ip).inner(), (*ip).outer(), hit);
+	    if(!theComparitor  || theComparitor->compatible(hittriplet,es) ) {
+	      result.push_back( hittriplet ); 
+	    } else {
+	      LogDebug("RejectedTriplet") << "rejected triplet from comparitor " 
+					  << hittriplet.outer()->globalPosition().x() << " "
+					  << hittriplet.outer()->globalPosition().y() << " "
+					  << hittriplet.outer()->globalPosition().z();
+	    }
 	    break;
-	  } 
-	}
+          } 
+        }
       } 
     }
   }
+
 }
 
 bool PixelTripletHLTGenerator::checkPhiInRange(float phi, float phi1, float phi2) const
