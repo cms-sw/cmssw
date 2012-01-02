@@ -57,7 +57,7 @@ void oldCode(const GlobalPoint & P1, const GlobalPoint & P2) {
 }
 
 inline
-Basic2DVector<double>  transform( Basic2DVector<double>  const & p, TkRotation2D<double> const &  theRotation) const {
+Basic2DVector<double>  transform( Basic2DVector<double>  const & p, TkRotation2D<double> const &  theRotation) {
   return theRotation.rotate(p)/p.mag2();
 }
 
