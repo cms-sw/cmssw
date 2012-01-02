@@ -1,3 +1,4 @@
+<library   file="HitTripletProducer.cc" name="HitTripletProducer">
 <use   name="boost"/>
 <use   name="root"/>
 <use   name="FWCore/Framework"/>
@@ -10,6 +11,8 @@
 <use   name="RecoTracker/TkHitPairs"/>
 <use   name="RecoTracker/TkTrackingRegions"/>
 <use   name="RecoPixelVertexing/PixelTriplets"/>
-<library   file="HitTripletProducer.cc" name="HitTripletProducer">
   <flags   EDM_PLUGIN="1"/>
 </library>
+<bin file="PixelTriplets_InvPrbl_t.cpp">
+  <use   name="RecoPixelVertexing/PixelTriplets"/>
+</bin>

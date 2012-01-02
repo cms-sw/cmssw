@@ -16,7 +16,6 @@ namespace {
 }
 
 
-typedef Basic3DVector<double> Point3D;
 typedef Basic2DVector<double> Point2D;
 typedef PixelRecoRange<double> Ranged;
 
@@ -26,7 +25,7 @@ ThirdHitPredictionFromInvParabola::ThirdHitPredictionFromInvParabola(
     const GlobalPoint& P1, const GlobalPoint& P2,double ip, double curv, double torlerance)
   : theTolerance(torlerance)
 {
-  init(P1,P2,ip,fabs(curv));
+  init(P1,P2,ip,std::abs(curv));
 }
 
 
@@ -34,26 +33,24 @@ void ThirdHitPredictionFromInvParabola::
     init( const GlobalPoint & P1, const GlobalPoint & P2, double ip, double curv)
 {
 //  GlobalVector aX = GlobalVector( P2.x()-P1.x(), P2.y()-P1.y(), 0.).unit();
-  GlobalVector aX = GlobalVector( P1.x(), P1.y(), 0.).unit();
-  GlobalVector aY( -aX.y(), aX.x(), 0.); 
-  GlobalVector aZ( 0., 0., 1.);
-  theRotation = Rotation(aX,aY,aZ); 
+ 
+  theRotation = Rotation(P1.xy());
+  Point2D p1(1.,0); //  = transform(P1.xy());
+  Point2D p2 = transform(P2.xy());
 
-  PointUV p1(Point2D(P1.x(),P1.y()), &theRotation);
-  PointUV p2(Point2D(P2.x(),P2.y()), &theRotation);
-
-  u1u2 = p1.u()*p2.u();
-  overDu = 1./(p2.u() - p1.u());
-  pv = p1.v()*p2.u() - p2.v()*p1.u();
-  dv = p2.v() - p1.v();
-  su = p2.u() + p1.u();
+ 
+  u1u2 = p1.x()*p2.x();
+  overDu = 1./(p2.x() - p1.x());
+  pv = p1.y()*p2.x() - p2.y()*p1.x();
+  dv = p2.y() - p1.y();
+  su = p2.x() + p1.x();
 
   Range ipRange(-ip, ip); 
   ipRange.sort();
   
   double ipIntyPlus = ipFromCurvature(0.,1);
-  double ipCurvPlus = ipFromCurvature(std::abs(curv), 1);
-  double ipCurvMinus = ipFromCurvature(std::abs(curv), -1);
+  double ipCurvPlus = ipFromCurvature(curv, 1);
+  double ipCurvMinus = ipFromCurvature(curv, -1);
 
   
   Range ipRangePlus = Range(ipIntyPlus, ipCurvPlus); ipRangePlus.sort();
@@ -64,7 +61,7 @@ void ThirdHitPredictionFromInvParabola::
 }
     
 
-ThirdHitPredictionFromInvParabola::PointUV ThirdHitPredictionFromInvParabola::findPointAtCurve(
+ThirdHitPredictionFromInvParabola::Point2D ThirdHitPredictionFromInvParabola::findPointAtCurve(
     double r, int c, double ip) const
 {
   //
@@ -85,43 +82,44 @@ ThirdHitPredictionFromInvParabola::PointUV ThirdHitPredictionFromInvParabola::fi
   double d2 = overR*overR - v*v;
   double u = (d2 > 0) ? std::sqrt(d2) : 0.;
 
-  return PointUV(u,v,&theRotation);
+  return Point2D(u,v); // not rotated!
 }
+
 
 ThirdHitPredictionFromInvParabola::Range ThirdHitPredictionFromInvParabola::rangeRPhi(
     double radius, int charge) const
 {
-  Range predRPhi(1.,-1.);
   Range ip = (charge > 0) ? theIpRangePlus : theIpRangeMinus;
 
   PointUV pred_tmp1 = findPointAtCurve(radius,charge,ip.min());
   PointUV pred_tmp2 = findPointAtCurve(radius,charge,ip.max());
 
-  double phi1 = pred_tmp1.unmap().phi();
+  double phi1 = pred_tmp1.phi();
   while ( phi1 >= M_PI) phi1 -= 2*M_PI;
   while ( phi1 < -M_PI) phi1 += 2*M_PI;
-  double phi2 = phi1+radius*(pred_tmp2.v()-pred_tmp1.v()); 
+  pred_tmp1 = tansform(pred_tmp1);
+  pred_tmp2 = tansform(pred_tmp2);
+  double phi2 = phi1+radius*(pred_tmp2.y()-pred_tmp1.y()); 
   
   if (ip.empty()) {
     Range r1(phi1*radius-theTolerance, phi1*radius+theTolerance); 
     Range r2(phi2*radius-theTolerance, phi2*radius+theTolerance); 
-    predRPhi = r1.intersection(r2);
-  } else {
-    Range r(phi1, phi2); 
-    r.sort();
-    predRPhi= Range(radius*r.min()-theTolerance, radius*r.max()+theTolerance);
+    return r1.intersection(r2);
   }
 
-  return predRPhi;
+  Range r(phi1, phi2); 
+  r.sort();
+  return Range(radius*r.min()-theTolerance, radius*r.max()+theTolerance);
+  
 }
 
-
+/*
 ThirdHitPredictionFromInvParabola::Range ThirdHitPredictionFromInvParabola::rangeRPhiSlow(
     double radius, int charge, int nIter) const
 {
   Range predRPhi(1.,-1.);
 
-  double invr2 = 1/radius/radius;
+  double invr2 = 1/(radius*radius);
   double u = sqrt(invr2);
   double v = 0.;
 
@@ -132,8 +130,8 @@ ThirdHitPredictionFromInvParabola::Range ThirdHitPredictionFromInvParabola::rang
     double d2 = invr2-sqr(v);
     u = (d2 > 0) ? sqrt(d2) : 0.;
   }
-  PointUV  pred_tmp1(u, v,  &theRotation);
-  double phi1 = pred_tmp1.unmap().phi(); 
+  Point2D  pred_tmp1(u, v);
+  double phi1 = pred_tmp1.phi(); 
   while ( phi1 >= M_PI) phi1 -= 2*M_PI;
   while ( phi1 < -M_PI) phi1 += 2*M_PI;
 
@@ -145,8 +143,8 @@ ThirdHitPredictionFromInvParabola::Range ThirdHitPredictionFromInvParabola::rang
     double d2 = invr2-sqr(v);
     u = (d2 > 0) ? sqrt(d2) : 0.;
   }
-  PointUV  pred_tmp2(u, v,  &theRotation);
-  double phi2 = pred_tmp2.unmap().phi(); 
+  Point2D  pred_tmp2(u, v);
+  double phi2 = pred_tmp2.phi(); 
   while ( phi2-phi1 >= M_PI) phi2 -= 2*M_PI;
   while ( phi2-phi1 < -M_PI) phi2 += 2*M_PI;
 
@@ -165,10 +163,5 @@ ThirdHitPredictionFromInvParabola::Range ThirdHitPredictionFromInvParabola::rang
   return predRPhi;
 
 }
+*/
 
-
-double ThirdHitPredictionFromInvParabola::
-    predV( double u, double ip, int charge) const
-{
-  return -charge*( coeffA(ip,charge) - coeffB(ip,charge)*u - ip*sqr(u));
-}
