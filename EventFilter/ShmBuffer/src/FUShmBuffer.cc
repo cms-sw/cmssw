@@ -1110,12 +1110,12 @@ int FUShmBuffer::shm_create(key_t key,int size)
   if(shmid!=-1){
     // an existing segment was found, remove it
     shmid_ds shmstat;
-    int result=shmctl(shmid,IPC_STAT,&shmstat);
+    shmctl(shmid,IPC_STAT,&shmstat);
     cout << "FUShmBuffer found segment for key 0x " << hex << key << dec
 	 << " created by process " << shmstat.shm_cpid << " owned by "
 	 << shmstat.shm_perm.uid << " permissions " 
 	 << hex << shmstat.shm_perm.mode << dec << endl;
-    result=shmctl(shmid,IPC_RMID,&shmstat);
+    shmctl(shmid,IPC_RMID,&shmstat);
   }
   shmid=shmget(key,size,IPC_CREAT|0644);
   if (shmid==-1) {
