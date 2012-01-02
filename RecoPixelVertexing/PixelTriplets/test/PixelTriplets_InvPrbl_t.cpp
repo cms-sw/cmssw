@@ -68,8 +68,8 @@ void newCode(const GlobalPoint & P1, const GlobalPoint & P2) {
   typedef Basic2DVector<double> Point2D;
 
   Rotation theRotation = Rotation(P1.basicVector().xy());
-  Point2D p1(1.,0); //  = transform(P1.xy());
-  Point2D p2 = transform(P2.xy(), theRotation);
+  Point2D p1(1.,0); //  = transform(P1.basicVector().xy());
+  Point2D p2 = transform(P2.basicVector().xy(), theRotation);
 
   std::cout << "\nnew for " << P1 <<", " << P2 << std::endl;
   std::cout << theRotation << std::endl;
