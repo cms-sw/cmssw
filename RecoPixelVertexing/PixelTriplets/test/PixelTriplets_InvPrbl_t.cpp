@@ -80,8 +80,8 @@ void newCode(const GlobalPoint & P1, const GlobalPoint & P2) {
   std::cout << theRotation << std::endl;
   std::cout << p1.x() << " " << p1.y() << std::endl;
   std::cout << p2.x() << " " << p2.y() << std::endl;
-  std::cout << transformBack(p1) << std::endl;
-  std::cout << transformBack(p2) << std::endl;
+  std::cout << transformBack(p1, theRotation) << std::endl;
+  std::cout << transformBack(p2, theRotation) << std::endl;
 
 }
 
