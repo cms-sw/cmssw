@@ -2,6 +2,7 @@
 #define Geom_BoundDisk_H
 
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
 
 /** \class BoundDisk
  *
