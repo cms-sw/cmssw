@@ -94,9 +94,7 @@ ThirdHitPredictionFromInvParabola::Range ThirdHitPredictionFromInvParabola::rang
   Point2D pred_tmp1 = findPointAtCurve(radius,charge,ip.min());
   Point2D pred_tmp2 = findPointAtCurve(radius,charge,ip.max());
 
-  double phi1 = pred_tmp1.phi();
-  pred_tmp1 = transform(pred_tmp1);
-  pred_tmp2 = transform(pred_tmp2);
+  double phi1 = transformBack(pred_tmp1).phi();
   double phi2 = phi1+radius*(pred_tmp2.y()-pred_tmp1.y()); 
   
   if (ip.empty()) {
@@ -129,7 +127,7 @@ ThirdHitPredictionFromInvParabola::Range ThirdHitPredictionFromInvParabola::rang
     u = (d2 > 0) ? sqrt(d2) : 0.;
   }
   Point2D  pred_tmp1(u, v);
-  double phi1 = pred_tmp1.phi(); 
+  double phi1 = transformBack(pred_tmp1).phi(); 
   while ( phi1 >= M_PI) phi1 -= 2*M_PI;
   while ( phi1 < -M_PI) phi1 += 2*M_PI;
 
@@ -142,7 +140,7 @@ ThirdHitPredictionFromInvParabola::Range ThirdHitPredictionFromInvParabola::rang
     u = (d2 > 0) ? sqrt(d2) : 0.;
   }
   Point2D  pred_tmp2(u, v);
-  double phi2 = pred_tmp2.phi(); 
+  double phi2 = transformBack(pred_tmp2).phi(); 
   while ( phi2-phi1 >= M_PI) phi2 -= 2*M_PI;
   while ( phi2-phi1 < -M_PI) phi2 += 2*M_PI;
 

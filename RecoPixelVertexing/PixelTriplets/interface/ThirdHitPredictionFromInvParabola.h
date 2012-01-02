@@ -52,6 +52,10 @@ private:
     return theRotation.rotate(p)/p.mag2();
   }
 
+  Point2D transformBack(Point2D const & p) const {
+    return theRotation.rotateBack(p)/p.mag2();
+  }
+
 private:
 
   Rotation theRotation;

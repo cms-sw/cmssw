@@ -61,6 +61,11 @@ Basic2DVector<double>  transform( Basic2DVector<double>  const & p, TkRotation2D
   return theRotation.rotate(p)/p.mag2();
 }
 
+inline
+Basic2DVector<double>  transformBack( Basic2DVector<double>  const & p, TkRotation2D<double> const &  theRotation) {
+  return theRotation.rotateBack(p)/p.mag2();
+}
+
 
 void newCode(const GlobalPoint & P1, const GlobalPoint & P2) {
 
@@ -75,6 +80,8 @@ void newCode(const GlobalPoint & P1, const GlobalPoint & P2) {
   std::cout << theRotation << std::endl;
   std::cout << p1.x() << " " << p1.y() << std::endl;
   std::cout << p2.x() << " " << p2.y() << std::endl;
+  std::cout << transformBack(p1) << std::endl;
+  std::cout << transformBack(p2) << std::endl;
 
 }
 
