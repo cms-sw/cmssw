@@ -13,8 +13,8 @@
  *  using the static build() method. 
  *  (The normal constructor will become private in the future).
  *
- *  $Date: 2006/08/18 11:02:36 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/01/17 20:58:43 $
+ *  $Revision: 1.1 $
  */
 
 class BoundDisk : public BoundPlane {
@@ -68,10 +68,10 @@ public:
   // -- Extension of the Surface interface for disk
 
   /// The inner radius of the disk
-  float innerRadius() const;
+  float innerRadius() const { return static_cast<const SimpleDiskBounds&>(bounds()).innerRadius();}
 
   /// The outer radius of the disk
-  float outerRadius() const;
+  float outerRadius() const  { return static_cast<const SimpleDiskBounds&>(bounds()).outerRadius();}
 
  protected:
   // Private constructor - use build() instead
