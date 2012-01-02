@@ -38,7 +38,6 @@ void SiStripModuleTimer::analyze( const Event& iEvent, const EventSetup& iSetup 
   auto_ptr<HLTPerformanceInfo> hltinfo = Service<service::PathTimerService>().operator->()->getInfo();
   HLTPerformanceInfo::Modules::const_iterator imodule = hltinfo->beginModules();
   for (;imodule != hltinfo->endModules(); imodule++) {
-    vector<string>::const_iterator iunpacking = moduleLabels_.begin();
     for (unsigned short i=0; i<moduleLabels_.size(); i++) {
       if (imodule->name() == moduleLabels_[i]) times_[i]=imodule->time();
     }
