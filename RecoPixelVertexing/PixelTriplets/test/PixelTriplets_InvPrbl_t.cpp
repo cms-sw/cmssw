@@ -36,6 +36,9 @@ typedef  MappedPoint<double> PointUV;
 
 void oldCode(const GlobalPoint & P1, const GlobalPoint & P2) {
 
+  typedef TkRotation<double> Rotation;
+  typedef Basic2DVector<double> Point2D;
+
   GlobalVector aX = GlobalVector( P1.x(), P1.y(), 0.).unit();
   GlobalVector aY( -aX.y(), aX.x(), 0.); 
   GlobalVector aZ( 0., 0., 1.);
@@ -54,9 +57,9 @@ void oldCode(const GlobalPoint & P1, const GlobalPoint & P2) {
 }
 
 inline
-Point2D trasform(Point2D const & p,TkRotation2D<double> const &  theRotation) const {
+Point2D transform(Point2D const & p,TkRotation2D<double> const &  theRotation) const {
   return theRotation.rotate(p)/p.mag2();
-  }
+}
 
 
 void newCode(const GlobalPoint & P1, const GlobalPoint & P2) {
@@ -64,7 +67,7 @@ void newCode(const GlobalPoint & P1, const GlobalPoint & P2) {
   typedef TkRotation2D<double> Rotation;
   typedef Basic2DVector<double> Point2D;
 
-  Rotation theRotation = Rotation(P1.xy());
+  Rotation theRotation = Rotation(P1.basicVector().xy());
   Point2D p1(1.,0); //  = transform(P1.xy());
   Point2D p2 = transform(P2.xy(), theRotation);
 
