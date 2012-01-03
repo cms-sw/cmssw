@@ -11,15 +11,13 @@
 #include <vector>
 #include <cstring>
 
-//#define MaxSize 20
 
 /*****************************************************************************/
-class PixelKeys
-{
+class PixelKeys {
 public:
   PixelKeys(int part, int dx, int dy) key( (part==0) ? barrelPacking(dx,dy) : endcapPaking(dx,dy)){}
   
-  operator unsigned int() const { return key};
+  operator unsigned int() const { return key;}
   
   static unsigned char endcapPaking(int dx, int dy) {
     if ( dx<0 || dy<0 ) return N;
@@ -38,11 +36,11 @@ public:
   bool isValid() const { return key<N;}
 
 
-  static const offset_endcap_dy=5;
-  static const offset_endcap_dx=10;
-  static const N_endcap=55; 
-  static const N_barrel=137; 
-  static const N = N_barrel+N_endcap;
+  static const int offset_endcap_dy=5;
+  static const int offset_endcap_dx=10;
+  static const int N_endcap=55; 
+  static const int N_barrel=137; 
+  static const int N = N_barrel+N_endcap;
 
   bool operator<(const PixelKeys & right) const{ return key< right.key;  }
  
@@ -54,11 +52,11 @@ class StripKeys
 {
  public:
 
-  static const N=40;
+  static const  int N=40;
 
   StripKeys(int width) : key(width>0 ? width-1 : N) { }
   
-  operator unsigned int() const { return key};
+  operator unsigned int() const { return key;}
 
   bool isValid() const { return key<N;}
 
@@ -74,12 +72,12 @@ class StripKeys
 struct PixelLimits {
   PixelLimits() {
     // init to make sure inside is true;
-    float const * * limit = data[0];
+    float  * limit = data[0];
     limit[0][0] = -10e10;
     limit[0][1] =  10e10;
     limit[1][0] = -10e10;
     limit[1][1] =  10e10;
-    float const * * limit = data[1];
+    float  * limit = data[1];
     limit[0][0] = -10e10;
     limit[0][1] =  10e10;
     limit[1][0] = -10e10;
@@ -89,11 +87,11 @@ struct PixelLimits {
   float data[2][2][2];
 
   bool isInside( const std::pair<float,float> & pred) const {
-    float const * * limit = data[0];
+    float const * limit = data[0];
     bool one = (pred.first  > limit[0][0]) && ( pred.first  < limit[0][1] ) 
 						&& (pred.second > limit[1][0]) && (pred.second < limit[1][1]);
 
-    float const * * limit = data[1];
+    limit = data[1];
     bool two = (pred.first  > limit[0][0]) && ( pred.first  < limit[0][1] ) 
 						&& (pred.second > limit[1][0]) && (pred.second < limit[1][1]);
     
@@ -110,7 +108,7 @@ struct StripLimits {
   bool isInside( float pred) const {
     float const * limit = data[0];
     bool one = pred > limit[0] && pred < limit[1];
-    float const * limit = data[1];
+     limit = data[1];
     bool two = pred > limit[0] && pred < limit[1];
 
     return one || two;
@@ -185,7 +183,7 @@ class ClusterShapeHitFilter
 
   
 
-  PixelLimits pixelLimits[PixelKeys::N+1}; // [2][2][2]
+  PixelLimits pixelLimits[PixelKeys::N+1]; // [2][2][2]
 
   StripLimits stripLimits[StripKeys::N+1]; // [2][2]
 
