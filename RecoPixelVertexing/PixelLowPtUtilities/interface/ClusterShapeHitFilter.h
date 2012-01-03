@@ -103,14 +103,21 @@ struct PixelLimits {
 
 
 struct StripLimits {
+  StripLimits() {
+      data[0][0] = -10e10;
+      data[0][1] =  10e10;
+      data[1][0] = -10e10;
+      data[1][1] =  10e10;
+  }
+
   float data[2][2];
 
   bool isInside( float pred) const {
     float const * limit = data[0];
     bool one = pred > limit[0] && pred < limit[1];
-     limit = data[1];
+    limit = data[1];
     bool two = pred > limit[0] && pred < limit[1];
-
+    
     return one || two;
 
   }
