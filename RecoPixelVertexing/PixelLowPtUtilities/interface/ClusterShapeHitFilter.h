@@ -16,40 +16,108 @@
 /*****************************************************************************/
 class PixelKeys
 {
- public:
-  PixelKeys(int part, int dx, int dy) : key1(part), key2(dx), key3(dy) { }
-
-  bool operator<(const PixelKeys & right) const
-  {
-    if(key1 < right.key1) return true;
-    if(key1 > right.key1) return false;
-
-    if(key2 < right.key2) return true;
-    if(key2 > right.key2) return false;
-
-    if(key3 < right.key3) return true;
-                     else return false;
+public:
+  PixelKeys(int part, int dx, int dy) key( (part==0) ? barrelPacking(dx,dy) : endcapPaking(dx,dy)){}
+  
+  operator unsigned int() const { return key};
+  
+  static unsigned char endcapPaking(int dx, int dy) {
+    if ( dx<0 || dy<0 ) return N;
+    if ( dx>10 || dy>4 ) return N;
+  return N_barrel + dx*offset_endcap_dy+dy;  // max 11*5 = 55
   }
+
+  static unsigned char barrelPaking(int dx, int dy) {
+    if ( dx<0 || dy<0 ) return N;
+    if ( dx>10 || dy>15 ) return N;
+    if (dx<8) return dx*16+dy;  // max 8*16=128
+    if (dy>2) return N;
+    return 128 + (dx-8)*3+dy; // max = 128+9 = 137
+  }
+
+  bool isValid() const { return key<N;}
+
+
+  static const offset_endcap_dy=5;
+  static const offset_endcap_dx=10;
+  static const N_endcap=55; 
+  static const N_barrel=137; 
+  static const N = N_barrel+N_endcap;
+
+  bool operator<(const PixelKeys & right) const{ return key< right.key;  }
  
  private:
-  unsigned int key1, key2, key3;
+  unsigned char key;
 };
 
-/*****************************************************************************/
 class StripKeys
 {
  public:
-  StripKeys(int width) : key1(width) { }
+
+  static const N=40;
+
+  StripKeys(int width) : key(width>0 ? width-1 : N) { }
   
+  operator unsigned int() const { return key};
+
+  bool isValid() const { return key<N;}
+
   bool operator<(const StripKeys & right) const
   { 
-    if(key1 < right.key1) return true;
-                     else return false;
+    return key < right.key;
   }
  
  private:
-  unsigned int key1;
+  unsigned  chat key;  // max 40;
 };
+
+struct PixelLimits {
+  PixelLimits() {
+    // init to make sure inside is true;
+    float const * * limit = data[0];
+    limit[0][0] = -10e10;
+    limit[0][1] =  10e10;
+    limit[1][0] = -10e10;
+    limit[1][1] =  10e10;
+    float const * * limit = data[1];
+    limit[0][0] = -10e10;
+    limit[0][1] =  10e10;
+    limit[1][0] = -10e10;
+    limit[1][1] =  10e10;
+  }
+
+  float data[2][2][2];
+
+  bool isInside( const std::pair<float,float> & pred) const {
+    float const * * limit = data[0];
+    bool one = (pred.first  > limit[0][0]) && ( pred.first  < limit[0][1] ) 
+						&& (pred.second > limit[1][0]) && (pred.second < limit[1][1]);
+
+    float const * * limit = data[1];
+    bool two = (pred.first  > limit[0][0]) && ( pred.first  < limit[0][1] ) 
+						&& (pred.second > limit[1][0]) && (pred.second < limit[1][1]);
+    
+    return one || two;
+  }
+
+
+};
+
+
+struct StripLimits {
+  float data[2][2];
+
+  bool isInside( float pred) const {
+    float const * limit = data[0];
+    bool one = pred > limit[0] && pred < limit[1];
+    float const * limit = data[1];
+    bool two = pred > limit[0] && pred < limit[1];
+
+    return one || two;
+
+  }
+};
+
 
 /*****************************************************************************/
 namespace edm { class EventSetup; }
@@ -100,10 +168,6 @@ class ClusterShapeHitFilter
   void loadPixelLimits();
   void loadStripLimits();
   
-  bool isInside(const std::vector<std::vector<float> > & limit ,
-                const std::pair<float,float> & pred) const;
-  bool isInside(const std::vector<float> & limit ,
-                const float & pred) const;
 
   std::pair<float,float> getCotangent(const PixelGeomDetUnit * pixelDet) const;
                    float getCotangent(const StripGeomDetUnit * stripDet) const;
@@ -119,11 +183,11 @@ class ClusterShapeHitFilter
   const SiPixelLorentzAngle * theSiPixelLorentzAngle;
   const SiStripLorentzAngle * theSiStripLorentzAngle;
 
-  typedef std::map<PixelKeys, std::vector<std::vector<std::vector<float> > > > PixelLimitsMap;
-  PixelLimitsMap pixelLimits; // [2][2][2]
+  
 
-  typedef std::map<StripKeys, std::vector<std::vector<float> > > StripLimitsMap;
-  StripLimitsMap stripLimits; // [2][2]
+  PixelLimits pixelLimits[PixelKeys::N+1}; // [2][2][2]
+
+  StripLimits stripLimits[StripKeys::N+1]; // [2][2]
 
   float theAngle[6];
 };

@@ -14,3 +14,6 @@
 <bin  file="LowPtGlobalDir_t.cpp">
 <use   name="RecoPixelVertexing/PixelLowPtUtilities"/>
 </bin>
+<bin  file="ClusterShapeHitFilter_t.cpp">
+<use   name="RecoPixelVertexing/PixelLowPtUtilities"/>
+</bin>

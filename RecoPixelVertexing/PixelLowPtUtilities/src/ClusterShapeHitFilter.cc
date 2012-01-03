@@ -72,25 +72,24 @@ void ClusterShapeHitFilter::loadPixelLimits()
     fileInPath("RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape.par");
   ifstream inFile(fileInPath.fullPath().c_str());
 
-                vector<float>     v1(2,0);
-         vector<vector<float> >   v2(2,v1);
-  vector<vector<vector<float> > > v3(2,v2);
+  PixelLimits pl;
+  float * v = pl.data;
 
   while(inFile.eof() == false)
   {
     int part,dx,dy;
 
-    inFile >> part;
-    inFile >> dx;
-    inFile >> dy;
+    inFile >> part; // 0or 1
+    inFile >> dx;   // 0 to 10
+    inFile >> dy;   // 0 to 15 ...
 
     for(int b = 0; b<2 ; b++) // branch
     for(int d = 0; d<2 ; d++) // direction
     for(int k = 0; k<2 ; k++) // lower and upper
-      inFile >> v3[b][d][k];
+      inFile >> v[b][d][k];
 
     const PixelKeys key(part,dx,dy);
-    pixelLimits[key] = v3;
+    pixelLimits[key] = pl;
 
     double f;
     int d;
@@ -115,8 +114,9 @@ void ClusterShapeHitFilter::loadStripLimits()
     fileInPath("RecoPixelVertexing/PixelLowPtUtilities/data/stripShape.par");
   ifstream inFile(fileInPath.fullPath().c_str());
 
-           vector<float> v1(2,0);
-  vector<vector<float> > v2(2,v1);
+  StripLimits sl;
+  float * v = sl.data;
+
   
   while(inFile.eof() == false)
   {
@@ -125,10 +125,10 @@ void ClusterShapeHitFilter::loadStripLimits()
 
     for(int b = 0; b<2 ; b++) // branch
     for(int k = 0; k<2 ; k++) // lower and upper
-      inFile >> v2[b][k];
+      inFile >> v[b][k];
 
     StripKeys key(dx);
-    stripLimits[key] = v2;
+    stripLimits[key] = sl;
   } 
   
   inFile.close();
@@ -139,7 +139,7 @@ void ClusterShapeHitFilter::loadStripLimits()
 
 /*****************************************************************************/
 bool ClusterShapeHitFilter::isInside
-  (const vector<vector<float> > & limit, const pair<float,float> & pred) const
+  (const float *  limit, const pair<float,float> & pred)
 { // pixel
   return (pred.first  > limit[0][0] && pred.first  < limit[0][1] &&
           pred.second > limit[1][0] && pred.second < limit[1][1]);
@@ -147,7 +147,7 @@ bool ClusterShapeHitFilter::isInside
 
 /*****************************************************************************/
 bool ClusterShapeHitFilter::isInside
-  (const vector<float> & limit, const float & pred) const
+  (const float * limit, const float & pred)
 { // strip
   return (pred > limit[0] && pred < limit[1]);
 }  
@@ -333,30 +333,14 @@ bool ClusterShapeHitFilter::isCompatible
                                                m!= meas.end(); m++)
     {
       PixelKeys key(part, (*m).first, (*m).second);
-
-      PixelLimitsMap::const_iterator i = pixelLimits.find(key);
-      if(i != pixelLimits.end())
-      { 
-        // inside one of the boxes
-        if (isInside((i->second)[0], pred) ||
-  	    isInside((i->second)[1], pred))
-          return true;
-      }
-      else
-      {
-        // out of the map
-        return true;
-      }
+      if (!key.isValid()) return true; // FIXME original logic
+      if (pixelLimits[key].inside(pred)) return true;
     }
-
     // none of the choices worked
     return false;
   }
-  else
-  {
-    // not usable
-    return true;
-  }
+  // not usable
+  return true;
 }
 
 /*****************************************************************************/
@@ -369,12 +353,8 @@ bool ClusterShapeHitFilter::isCompatible
   if(getSizes(recHit, ldir, meas, pred))
   {
     StripKeys key(meas);
-
-    StripLimitsMap::const_iterator i=stripLimits.find(key);
-    if (i!=stripLimits.end())
-      return (isInside((i->second)[0], pred) ||
-              isInside((i->second)[1], pred));
-    
+    if (key.isValid())
+      return stripLimits[key].inside(pred);
   }
 
   // Not usable or no limits
