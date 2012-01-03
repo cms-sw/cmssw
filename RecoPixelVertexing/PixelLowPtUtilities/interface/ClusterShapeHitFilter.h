@@ -15,17 +15,17 @@
 /*****************************************************************************/
 class PixelKeys {
 public:
-  PixelKeys(int part, int dx, int dy) key( (part==0) ? barrelPacking(dx,dy) : endcapPaking(dx,dy)){}
+  PixelKeys(int part, int dx, int dy) : key( (part==0) ? barrelPacking(dx,dy) : endcapPacking(dx,dy)) {}
   
   operator unsigned int() const { return key;}
   
-  static unsigned char endcapPaking(int dx, int dy) {
+  static unsigned char endcapPacking(int dx, int dy) {
     if ( dx<0 || dy<0 ) return N;
     if ( dx>10 || dy>4 ) return N;
   return N_barrel + dx*offset_endcap_dy+dy;  // max 11*5 = 55
   }
 
-  static unsigned char barrelPaking(int dx, int dy) {
+  static unsigned char barrelPacking(int dx, int dy) {
     if ( dx<0 || dy<0 ) return N;
     if ( dx>10 || dy>15 ) return N;
     if (dx<8) return dx*16+dy;  // max 8*16=128
@@ -54,7 +54,7 @@ class StripKeys
 
   static const  int N=40;
 
-  StripKeys(int width) : key(width>0 ? width-1 : N) { }
+  StripKeys(int width) : key(width>0 ? width-1 : N) {}
   
   operator unsigned int() const { return key;}
 
@@ -66,7 +66,7 @@ class StripKeys
   }
  
  private:
-  unsigned  chat key;  // max 40;
+  unsigned char key;  // max 40;
 };
 
 struct PixelLimits {
