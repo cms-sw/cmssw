@@ -31,8 +31,8 @@ public:
 
   // not really full check of posdef
   bool posDef() const { 
-    return (theCovarianceMatrix(0,0)>0) && (theCovarianceMatrix(1,1)>0) && 
-      (theCovarianceMatrix(2,2)>0) && (theCovarianceMatrix(3,3)>0) && (theCovarianceMatrix(4,4)>0);
+    return (theCovarianceMatrix(0,0)>=0) && (theCovarianceMatrix(1,1)>=0) && 
+      (theCovarianceMatrix(2,2)>=0) && (theCovarianceMatrix(3,3)>=0) && (theCovarianceMatrix(4,4)>=0);
   }
 
 
