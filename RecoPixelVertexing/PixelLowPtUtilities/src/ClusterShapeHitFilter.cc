@@ -72,8 +72,6 @@ void ClusterShapeHitFilter::loadPixelLimits()
     fileInPath("RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape.par");
   ifstream inFile(fileInPath.fullPath().c_str());
 
-  PixelLimits pl;
-  float * v = pl.data;
 
   while(inFile.eof() == false)
   {
@@ -83,13 +81,14 @@ void ClusterShapeHitFilter::loadPixelLimits()
     inFile >> dx;   // 0 to 10
     inFile >> dy;   // 0 to 15 ...
 
+    const PixelKeys key(part,dx,dy);
+    auto & pl = pixelLimits[key];
+
     for(int b = 0; b<2 ; b++) // branch
     for(int d = 0; d<2 ; d++) // direction
     for(int k = 0; k<2 ; k++) // lower and upper
-      inFile >> v[b][d][k];
+      inFile >> pl.data[b][d][k];
 
-    const PixelKeys key(part,dx,dy);
-    pixelLimits[key] = pl;
 
     double f;
     int d;
@@ -114,21 +113,19 @@ void ClusterShapeHitFilter::loadStripLimits()
     fileInPath("RecoPixelVertexing/PixelLowPtUtilities/data/stripShape.par");
   ifstream inFile(fileInPath.fullPath().c_str());
 
-  StripLimits sl;
-  float * v = sl.data;
-
   
   while(inFile.eof() == false)
   {
     int dx;
     inFile >> dx;
 
+    StripKeys key(dx);
+    auto & sl = stripLimits[key];
+
     for(int b = 0; b<2 ; b++) // branch
     for(int k = 0; k<2 ; k++) // lower and upper
-      inFile >> v[b][k];
+      inFile >> sl.data[b][k];
 
-    StripKeys key(dx);
-    stripLimits[key] = sl;
   } 
   
   inFile.close();

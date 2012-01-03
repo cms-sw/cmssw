@@ -72,12 +72,12 @@ class StripKeys
 struct PixelLimits {
   PixelLimits() {
     // init to make sure inside is true;
-    float  * limit = data[0];
+    auto limit = data[0];
     limit[0][0] = -10e10;
     limit[0][1] =  10e10;
     limit[1][0] = -10e10;
     limit[1][1] =  10e10;
-    float  * limit = data[1];
+    limit = data[1];
     limit[0][0] = -10e10;
     limit[0][1] =  10e10;
     limit[1][0] = -10e10;
@@ -87,7 +87,7 @@ struct PixelLimits {
   float data[2][2][2];
 
   bool isInside( const std::pair<float,float> & pred) const {
-    float const * limit = data[0];
+    auto limit = data[0];
     bool one = (pred.first  > limit[0][0]) && ( pred.first  < limit[0][1] ) 
 						&& (pred.second > limit[1][0]) && (pred.second < limit[1][1]);
 
