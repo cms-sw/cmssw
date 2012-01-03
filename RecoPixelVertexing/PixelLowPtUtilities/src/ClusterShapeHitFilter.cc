@@ -137,20 +137,7 @@ void ClusterShapeHitFilter::loadStripLimits()
     << " [ClusterShapeHitFilter] strip-cluster-width filter loaded";
 }
 
-/*****************************************************************************/
-bool ClusterShapeHitFilter::isInside
-  (const float *  limit, const pair<float,float> & pred)
-{ // pixel
-  return (pred.first  > limit[0][0] && pred.first  < limit[0][1] &&
-          pred.second > limit[1][0] && pred.second < limit[1][1]);
-}  
 
-/*****************************************************************************/
-bool ClusterShapeHitFilter::isInside
-  (const float * limit, const float & pred)
-{ // strip
-  return (pred > limit[0] && pred < limit[1]);
-}  
 
 /*****************************************************************************/
 pair<float,float> ClusterShapeHitFilter::getCotangent
@@ -334,7 +321,7 @@ bool ClusterShapeHitFilter::isCompatible
     {
       PixelKeys key(part, (*m).first, (*m).second);
       if (!key.isValid()) return true; // FIXME original logic
-      if (pixelLimits[key].inside(pred)) return true;
+      if (pixelLimits[key].isInside(pred)) return true;
     }
     // none of the choices worked
     return false;
@@ -354,7 +341,7 @@ bool ClusterShapeHitFilter::isCompatible
   {
     StripKeys key(meas);
     if (key.isValid())
-      return stripLimits[key].inside(pred);
+      return stripLimits[key].isInside(pred);
   }
 
   // Not usable or no limits
