@@ -11,18 +11,22 @@
 
 class OmniClusterRef {
 
+  static const unsigned int kInvalid = 0x80000000; // bit 31 on
+  static const unsigned int kIsStrip = 0x20000000; // bit 29 on
+  static const unsigned int kIsRegional = 0x60000000; // bit 30 and 29 on
+
 public:
   typedef edm::Ref<edmNew::DetSetVector<SiPixelCluster>,SiPixelCluster > ClusterPixelRef;
   typedef edm::Ref<edmNew::DetSetVector<SiStripCluster>,SiStripCluster > ClusterRef;
   typedef edm::Ref< edm::LazyGetter<SiStripCluster>, SiStripCluster, edm::FindValue<SiStripCluster> >  ClusterRegionalRef;
   
-  OmniClusterRef() : me(edm::RefCore(),0x80000000) {}
-  explicit OmniClusterRef(ClusterPixelRef const & ref) : me(ref.refCore(),ref.key()){}
-  explicit OmniClusterRef(ClusterRef const & ref) : me(ref.refCore(),ref.key() | 0x20000000){}  // bit 29 on
-  explicit OmniClusterRef(ClusterRegionalRef const & ref) : me(ref.refCore(),ref.key() | 0x60000000){} // bit 30 and 29 on (bit 31 on = invalid...)
+  OmniClusterRef() : me(edm::RefCore(),kInvalid) {}
+  explicit OmniClusterRef(ClusterPixelRef const & ref) : me(ref.refCore(), (ref.isNonnull() ? ref.key() : kInvalid) ){}
+  explicit OmniClusterRef(ClusterRef const & ref) : me(ref.refCore(), (ref.isNonnull() ? ref.key() | kIsStrip : kInvalid) ){}
+  explicit OmniClusterRef(ClusterRegionalRef const & ref) : me(ref.refCore(), (ref.isNonnull() ? ref.key() | kIsRegional : kInvalid)){}
   
   ClusterPixelRef cluster_pixel()  const { 
-    return isPixel() ?  ClusterPixelRef(me.toRefCore(),index()) : ClusterPixelRef();
+    return (isPixel() && isValid()) ?  ClusterPixelRef(me.toRefCore(),index()) : ClusterPixelRef();
   }
   
   ClusterRegionalRef cluster_regional()  const { 
@@ -32,7 +36,7 @@ public:
   ClusterRef cluster()  const { return  cluster_strip();}
 
   ClusterRef cluster_strip()  const { 
-    return (isPixel() || isRegional()) ? ClusterRef() : ClusterRef(me.toRefCore(),index());
+    return isNonRegionalStrip() ? ClusterRef(me.toRefCore(),index()) : ClusterRef();
   }
   
   bool operator==(OmniClusterRef const & lh) const { 
@@ -43,14 +47,15 @@ public:
 
   unsigned int rawIndex() const { return me.index();}
   
-  unsigned int index() const { return rawIndex() & (~0x60000000);}
+  unsigned int index() const { return rawIndex() & (~kIsRegional);}
   
 
-  bool isValid() const { return !(rawIndex() & 0x80000000); }
-  bool isPixel() const { return !isStrip(); }
-  bool isStrip() const { return rawIndex() & 0x20000000; }
-  bool isRegional() const { return (rawIndex() & 0x60000000)==0x60000000; }
-  
+  bool isValid() const { return !(rawIndex() & kInvalid); }
+  bool isPixel() const { return !isStrip(); } //NOTE: non-valid will also show up as a pixel
+  bool isStrip() const { return rawIndex() & kIsStrip; }
+  bool isRegional() const { return (rawIndex() & kIsRegional)==kIsRegional; }
+  bool isNonRegionalStrip() const {return (rawIndex() & kIsRegional)==kIsStrip;}
+
   edm::RefCoreWithIndex me;
  
   

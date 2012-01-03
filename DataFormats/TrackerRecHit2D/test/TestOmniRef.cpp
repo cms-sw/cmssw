@@ -2,6 +2,16 @@
 #include <iostream>
 #include <cassert>
 
+static void testForInvalid( const OmniClusterRef& iInvalid)
+{
+  assert(!iInvalid.isValid());
+
+  assert(iInvalid.cluster_strip().isNull());
+  assert(iInvalid.cluster().isNull());
+  assert(iInvalid.cluster_regional().isNull());
+  assert(iInvalid.cluster_pixel().isNull());
+}
+
 int main() {
 
   edm::ProductID pid;
@@ -33,16 +43,39 @@ int main() {
   assert(opixel.isPixel());
   assert(!opixel.isStrip());
   assert(!opixel.isRegional());
+  assert(opixel.cluster_strip().isNull());
+  assert(opixel.cluster_pixel().isNonnull());
+  assert(opixel.cluster_regional().isNull());
 
   assert(ostrip.isValid());
   assert(!ostrip.isPixel());
   assert(ostrip.isStrip());
   assert(!ostrip.isRegional());
+  assert(ostrip.cluster_strip().isNonnull());
+  assert(ostrip.cluster_pixel().isNull());
+  assert(ostrip.cluster_regional().isNull());
 
 
   assert(oregional.isValid());
   assert(!oregional.isPixel());
   assert(oregional.isStrip());
   assert(oregional.isRegional());
+  assert(oregional.cluster_strip().isNull());
+  assert(oregional.cluster_pixel().isNull());
+  assert(oregional.cluster_regional().isNonnull());
+
+  testForInvalid(invalid);
+  {
+    OmniClusterRef invalid{ClusterPixelRef()};
+    testForInvalid(invalid);
+  }
+  {
+    OmniClusterRef invalid{ClusterRef()};
+    testForInvalid(invalid);
+  }
+  {
+    OmniClusterRef invalid{ClusterRegionalRef()};
+    testForInvalid(invalid);
+  }
 
 }
