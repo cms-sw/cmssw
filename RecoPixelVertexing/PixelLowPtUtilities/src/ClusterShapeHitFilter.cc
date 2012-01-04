@@ -251,7 +251,7 @@ bool ClusterShapeHitFilter::isNormalOriented
 bool ClusterShapeHitFilter::getSizes
   (const SiPixelRecHit & recHit, const LocalVector & ldir,
    int & part, vector<pair<int,int> > & meas, pair<float,float> & pred,
-   PixelData const * ipd=nullptr) const
+   PixelData const * ipd) const
 {
   // Get detector
   const PixelData & pd = getpd(recHit,ipd);
@@ -273,15 +273,15 @@ bool ClusterShapeHitFilter::getSizes
 
     if(data.size.front().second < 0)
       pred.second = - pred.second;
-    meas.reserve(data.size.size();
+    meas.reserve(data.size.size());
     for(vector<pair<int,int> >::const_iterator s = data.size.begin();
-                                               s!= data.size.end(); s++)
-    {
-      meas.push_back(*s);
-
-      if(data.size.front().second < 0)
-        meas.back().second = - meas.back().second;
-    }
+	s!= data.size.end(); s++)
+      {
+	meas.push_back(*s);
+	
+	if(data.size.front().second < 0)
+	  meas.back().second = - meas.back().second;
+      }
 
     // Take out drift 
     std::pair<float,float> const & drift = pd.drift;
@@ -300,7 +300,7 @@ bool ClusterShapeHitFilter::getSizes
 
 bool ClusterShapeHitFilter::isCompatible
   (const SiPixelRecHit & recHit, const LocalVector & ldir,
-		    PixelData const * ipd=nullptr) const
+		    PixelData const * ipd) const
 {
  // Get detector
   const PixelData & pd = getpd(recHit,ipd);
@@ -327,7 +327,7 @@ bool ClusterShapeHitFilter::isCompatible
 
 bool ClusterShapeHitFilter::isCompatible
   (const SiPixelRecHit & recHit, const GlobalVector & gdir,
-		    PixelData const * ipd=nullptr) const
+		    PixelData const * ipd) const
 {
  // Get detector
   const PixelData & pd = getpd(recHit,ipd);
@@ -378,8 +378,7 @@ bool ClusterShapeHitFilter::getSizes
 
 /*****************************************************************************/
 bool ClusterShapeHitFilter::isCompatible
-  (const SiStripRecHit2D & recHit, const LocalVector & ldirr,
-		    PixelData const * pd=nullptr) const
+  (const SiStripRecHit2D & recHit, const LocalVector & ldir) const
 {
   int meas;
   float pred;
@@ -398,8 +397,7 @@ bool ClusterShapeHitFilter::isCompatible
 
 /*****************************************************************************/
 bool ClusterShapeHitFilter::isCompatible
-  (const SiStripRecHit2D & recHit, const GlobalVector & gdirr,
-		    PixelData const * pd=nullptr) const
+  (const SiStripRecHit2D & recHit, const GlobalVector & gdir) const
 {
   LocalVector ldir =
     theTracker->idToDet(recHit.geographicalId())->toLocal(gdir);
