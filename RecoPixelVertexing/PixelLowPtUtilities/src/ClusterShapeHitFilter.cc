@@ -283,12 +283,12 @@ bool ClusterShapeHitFilter::getSizes
     }
 
     // Take out drift 
-    pair<float,float> const & drift = pd.drift();
+    std::pair<float,float> const & drift = pd.drift;
     pred.first  += drift.first;
     pred.second += drift.second;
 
     // Apply cotangent
-    pair<float,float> const & cotangent = pd.contangent();
+    std::pair<float,float> const & cotangent = pd.cotangent;
     pred.first  *= cotangent.first;
     pred.second *= cotangent.second;
   }
