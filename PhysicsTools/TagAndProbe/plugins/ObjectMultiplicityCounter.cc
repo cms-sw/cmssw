@@ -65,7 +65,6 @@ ObjectMultiplicityCounter<T>::produce(edm::Event & iEvent, const edm::EventSetup
     
     // fill
     float count = 0.0;
-    View<reco::Candidate>::const_iterator probe, endprobes = probes->end(); 
     typename View<T>::const_iterator object, endobjects = objects->end();
     for (object = objects->begin(); object != endobjects; ++object) {
       if ( !(objCut_(*object)) ) continue;
