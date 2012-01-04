@@ -110,7 +110,7 @@ bool LowPtClusterShapeSeedComparitor::compatible(const SeedingHitSet &hits,
   // Get cluster shape hit filter
   edm::ESHandle<ClusterShapeHitFilter> shape;
   es.get<CkfComponentsRecord>().get("ClusterShapeHitFilter",shape);
-   const ClusterShapeHitFilter * theFilter = shape.product();
+  const ClusterShapeHitFilter * theFilter = shape.product();
 
    // Get global positions
    GlobalPoint  globalPoss[3];

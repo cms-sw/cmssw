@@ -6,6 +6,12 @@
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
+
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+
+
 #include <utility>
 #include <unordered_map>
 #include <vector>
@@ -140,6 +146,15 @@ class StripGeomDetUnit;
 class ClusterShapeHitFilter
 {
  public:
+
+  struct PixelData {
+    const PixelGeomDetUnit * det;
+    unsigned int part;
+    std::pair<float,float> drift;
+    std::pair<float,float> cotangent;
+
+  };
+
   typedef TrajectoryFilter::Record Record;
   //  typedef CkfComponentsRecord Record;
 
@@ -151,33 +166,35 @@ class ClusterShapeHitFilter
   ~ClusterShapeHitFilter();
 
   bool getSizes
-    (const SiPixelRecHit & recHit, const LocalVector & ldir,
-     int & part, std::vector<std::pair<int,int> > & meas,
-     std::pair<float,float> & pred) const;
+  (const SiPixelRecHit & recHit, const LocalVector & ldir,
+   int & part, std::vector<std::pair<int,int> > & meas,
+   std::pair<float,float> & predr,
+   PixelData const * pd=nullptr) const;
+  bool isCompatible(const SiPixelRecHit   & recHit,
+                    const LocalVector & ldir,
+		    PixelData const * pd=nullptr) const;
+  bool isCompatible(const SiPixelRecHit   & recHit,
+                    const GlobalVector & gdir,
+		    PixelData const * pd=nullptr ) const;
+
 
   bool getSizes
     (const SiStripRecHit2D & recHit, const LocalVector & ldir,
      int & meas, float & pred) const;
-
-  bool isCompatible(const SiPixelRecHit   & recHit,
-                    const LocalVector & ldir) const;
   bool isCompatible(const SiStripRecHit2D & recHit,
                     const LocalVector & ldir) const;
-
-  bool isCompatible(const SiPixelRecHit   & recHit,
-                    const GlobalVector & gdir) const;
   bool isCompatible(const SiStripRecHit2D & recHit,
-                    const GlobalVector & gdir) const;
+                    const GlobalVector & gdir ) const;
 
  private:
 
-  struct PixelData {
-    const PixelGeomDetUnit * det;
-    unsigned int part;
-    std::pair<float,float> drift;
-    std::pair<float,float> cotangent;
-
-  };
+  const PixelData & getpd(const SiPixelRecHit   & recHit, PixelData const * pd=nullptr) const{
+    if (pd) return *pd;
+    // Get detector
+    DetId id = recHit.geographicalId();
+    auto p = pixelData.find(id);
+    return (*p).second;
+  }
 
   void loadPixelLimits();
   void loadStripLimits();

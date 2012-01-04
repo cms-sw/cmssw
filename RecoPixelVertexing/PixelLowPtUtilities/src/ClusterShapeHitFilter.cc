@@ -246,14 +246,15 @@ bool ClusterShapeHitFilter::isNormalOriented
 }
 
 /*****************************************************************************/
+/*****************************************************************************/
+
 bool ClusterShapeHitFilter::getSizes
   (const SiPixelRecHit & recHit, const LocalVector & ldir,
-   int & part, vector<pair<int,int> > & meas, pair<float,float> & pred) const
+   int & part, vector<pair<int,int> > & meas, pair<float,float> & pred,
+   PixelData const * ipd=nullptr) const
 {
   // Get detector
-  DetId id = recHit.geographicalId();
-  auto p = pixelData.find(id);
-  const PixelData & pd = (*p).second;
+  const PixelData & pd = getpd(recHit,ipd);
 
   // Get shape information
   ClusterData data;
@@ -272,7 +273,7 @@ bool ClusterShapeHitFilter::getSizes
 
     if(data.size.front().second < 0)
       pred.second = - pred.second;
-
+    meas.reserve(data.size.size();
     for(vector<pair<int,int> >::const_iterator s = data.size.begin();
                                                s!= data.size.end(); s++)
     {
@@ -297,6 +298,47 @@ bool ClusterShapeHitFilter::getSizes
   return usable;
 }
 
+bool ClusterShapeHitFilter::isCompatible
+  (const SiPixelRecHit & recHit, const LocalVector & ldir,
+		    PixelData const * ipd=nullptr) const
+{
+ // Get detector
+  const PixelData & pd = getpd(recHit,ipd);
+
+  int part;
+  vector<pair<int,int> > meas;
+  pair<float,float> pred;
+
+  if(getSizes(recHit, ldir, part,meas, pred,&pd))
+  {
+    for(vector<pair<int,int> >::const_iterator m = meas.begin();
+                                               m!= meas.end(); m++)
+    {
+      PixelKeys key(part, (*m).first, (*m).second);
+      if (!key.isValid()) return true; // FIXME original logic
+      if (pixelLimits[key].isInside(pred)) return true;
+    }
+    // none of the choices worked
+    return false;
+  }
+  // not usable
+  return true;
+}
+
+bool ClusterShapeHitFilter::isCompatible
+  (const SiPixelRecHit & recHit, const GlobalVector & gdir,
+		    PixelData const * ipd=nullptr) const
+{
+ // Get detector
+  const PixelData & pd = getpd(recHit,ipd);
+
+  LocalVector ldir =pd.det->toLocal(gdir);
+
+  return isCompatible(recHit, ldir,&pd);
+}
+
+
+/*****************************************************************************/
 /*****************************************************************************/
 bool ClusterShapeHitFilter::getSizes
   (const SiStripRecHit2D & recHit, const LocalVector & ldir,
@@ -333,33 +375,11 @@ bool ClusterShapeHitFilter::getSizes
   return usable;
 }   
 
-/*****************************************************************************/
-bool ClusterShapeHitFilter::isCompatible
-  (const SiPixelRecHit & recHit, const LocalVector & ldir) const
-{
-  int part;
-  vector<pair<int,int> > meas;
-  pair<float,float> pred;
-
-  if(getSizes(recHit, ldir, part,meas, pred))
-  {
-    for(vector<pair<int,int> >::const_iterator m = meas.begin();
-                                               m!= meas.end(); m++)
-    {
-      PixelKeys key(part, (*m).first, (*m).second);
-      if (!key.isValid()) return true; // FIXME original logic
-      if (pixelLimits[key].isInside(pred)) return true;
-    }
-    // none of the choices worked
-    return false;
-  }
-  // not usable
-  return true;
-}
 
 /*****************************************************************************/
 bool ClusterShapeHitFilter::isCompatible
-  (const SiStripRecHit2D & recHit, const LocalVector & ldir) const
+  (const SiStripRecHit2D & recHit, const LocalVector & ldirr,
+		    PixelData const * pd=nullptr) const
 {
   int meas;
   float pred;
@@ -375,19 +395,11 @@ bool ClusterShapeHitFilter::isCompatible
   return true;
 }
 
-/*****************************************************************************/
-bool ClusterShapeHitFilter::isCompatible
-  (const SiPixelRecHit & recHit, const GlobalVector & gdir) const
-{
-  LocalVector ldir =
-    theTracker->idToDet(recHit.geographicalId())->toLocal(gdir);
-
-  return isCompatible(recHit, ldir);
-}
 
 /*****************************************************************************/
 bool ClusterShapeHitFilter::isCompatible
-  (const SiStripRecHit2D & recHit, const GlobalVector & gdir) const
+  (const SiStripRecHit2D & recHit, const GlobalVector & gdirr,
+		    PixelData const * pd=nullptr) const
 {
   LocalVector ldir =
     theTracker->idToDet(recHit.geographicalId())->toLocal(gdir);

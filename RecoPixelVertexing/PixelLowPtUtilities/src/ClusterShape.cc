@@ -178,6 +178,7 @@ void ClusterShape::determineShape
   }
   // else
   { // FIXME do it
+    data.size.reserve(px*py);
     for(int ax = 0; ax <= px; ax++)
     for(int ay = 0; ay <= py; ay++)
     {
