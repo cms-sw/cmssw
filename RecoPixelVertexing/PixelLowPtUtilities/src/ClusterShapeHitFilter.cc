@@ -25,25 +25,23 @@
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
-#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
-#include "CondFormats/DataRecord/interface/SiPixelLorentzAngleRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
 
-#include "CondFormats/DataRecord/interface/SiStripLorentzAngleRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
 
 #include <fstream>
+#include<cassert>
+
 using namespace std;
 
 
 /*****************************************************************************/
 ClusterShapeHitFilter::ClusterShapeHitFilter
-  (const GlobalTrackingGeometry * theTracker_,
+  (const TrackerGeometry * theTracker_,
    const MagneticField          * theMagneticField_,
    const SiPixelLorentzAngle    * theSiPixelLorentzAngle_,
    const SiStripLorentzAngle    * theSiStripLorentzAngle_)
@@ -55,6 +53,7 @@ ClusterShapeHitFilter::ClusterShapeHitFilter
 {
   // Load pixel limits
   loadPixelLimits();
+  fillPixelData();
 
   // Load strip limits
   loadStripLimits();
@@ -134,6 +133,37 @@ void ClusterShapeHitFilter::loadStripLimits()
     << " [ClusterShapeHitFilter] strip-cluster-width filter loaded";
 }
 
+
+
+void ClusterShapeHitFilter::fillPixelData() {
+
+  //barrel
+  for (auto det : theTrackerG->detsPXB()) {
+    // better not to fail..
+    const PixelGeomDetUnit * pixelDet =
+      dynamic_cast<const PixelGeomDetUnit*>(det);
+    assert(pixelDet);
+    PixelData & pd = pixelData[pixelDet->geographicalId()];
+    pd.det = pixelDet;
+    pd.part=0;
+    pd.cotangent=getCotangent(pixelDet);
+    pd.drift=getDrift(pixelDet);
+  }
+
+  //endcap
+  for (auto det : theTrackerG->detsPXF()) {
+    // better not to fail..
+    const PixelGeomDetUnit * pixelDet =
+      dynamic_cast<const PixelGeomDetUnit*>(det);
+    assert(pixelDet);
+    PixelData & pd = pixelData[pixelDet->geographicalId()];
+    pd.det = pixelDet;
+    pd.part=1;
+    pd.cotangent=getCotangent(pixelDet);
+    pd.drift=getDrift(pixelDet);
+  }
+
+}
 
 
 /*****************************************************************************/
@@ -222,19 +252,19 @@ bool ClusterShapeHitFilter::getSizes
 {
   // Get detector
   DetId id = recHit.geographicalId();
-  const PixelGeomDetUnit* pixelDet =
-    dynamic_cast<const PixelGeomDetUnit*> (theTracker->idToDet(id));
+  auto p = pixelData.find(id);
+  const PixelData & pd = (*p).second;
 
   // Get shape information
   ClusterData data;
   ClusterShape theClusterShape;
-  theClusterShape.determineShape(*pixelDet, recHit, data);
+  theClusterShape.determineShape(*pd.det, recHit, data);
   bool usable = (data.isStraight && data.isComplete);
  
   // Usable?
   //if(usable)
   {
-    part = (pixelDet->type().isBarrel() ? 0 : 1);
+    part = pd.part;
 
     // Predicted size
     pred.first  = ldir.x() / ldir.z();
@@ -253,12 +283,12 @@ bool ClusterShapeHitFilter::getSizes
     }
 
     // Take out drift 
-    pair<float,float> drift = getDrift(pixelDet);
+    pair<float,float> const & drift = pd.drift();
     pred.first  += drift.first;
     pred.second += drift.second;
 
     // Apply cotangent
-    pair<float,float> cotangent = getCotangent(pixelDet);
+    pair<float,float> const & cotangent = pd.contangent();
     pred.first  *= cotangent.first;
     pred.second *= cotangent.second;
   }

@@ -7,7 +7,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 #include <utility>
-#include <map>
+#include <unordered_map>
 #include <vector>
 #include <cstring>
 
@@ -129,7 +129,7 @@ namespace edm { class EventSetup; }
 
 class SiPixelRecHit;
 class SiStripRecHit2D;
-class GlobalTrackingGeometry;
+class TrackerGeometry;
 class MagneticField;
 class SiPixelLorentzAngle;
 class SiStripLorentzAngle;
@@ -143,7 +143,7 @@ class ClusterShapeHitFilter
   typedef TrajectoryFilter::Record Record;
   //  typedef CkfComponentsRecord Record;
 
-  ClusterShapeHitFilter(const GlobalTrackingGeometry * theTracker_,
+  ClusterShapeHitFilter(const TrackerGeometry * theTracker_,
                         const MagneticField          * theMagneticField_,
                         const SiPixelLorentzAngle    * theSiPixelLorentzAngle_,
                         const SiStripLorentzAngle    * theSiStripLorentzAngle_);
@@ -170,9 +170,18 @@ class ClusterShapeHitFilter
                     const GlobalVector & gdir) const;
 
  private:
+
+  struct PixelData {
+    const PixelGeomDetUnit * det;
+    unsigned int part;
+    pair<float,float> drift;
+    pair<float,float> cotangent;
+
+  };
+
   void loadPixelLimits();
   void loadStripLimits();
-  
+  void fillPixelData();
 
   std::pair<float,float> getCotangent(const PixelGeomDetUnit * pixelDet) const;
                    float getCotangent(const StripGeomDetUnit * stripDet) const;
@@ -182,13 +191,13 @@ class ClusterShapeHitFilter
 
   bool isNormalOriented(const GeomDetUnit * geomDet) const;
 
-  const GlobalTrackingGeometry * theTracker;
+  const TrackerGeometry * theTracker;
   const MagneticField * theMagneticField;
 
   const SiPixelLorentzAngle * theSiPixelLorentzAngle;
   const SiStripLorentzAngle * theSiStripLorentzAngle;
 
-  
+  std::unordered_map<unsigned int, PixelData> pixelData;
 
   PixelLimits pixelLimits[PixelKeys::N+1]; // [2][2][2]
 
