@@ -524,7 +524,7 @@ L25:
 	dbl err = 0;
 	int il, in1, in, itest2;
 	dbl deriv, deriv1, deriv2, deriv3, deriv4, pond;
-	dbl eta, eps, epseta;
+	dbl eta, eps;
 	register dbl a, b, dd, a1, a2, a3, a4;
 	dbl *pout, *pdelta, *pw1, *pw2, *pw3, *pw4;
 	dbl ***weights;
@@ -539,7 +539,6 @@ L25:
 		
 	eta = -LEARN.eta;
 	eps = LEARN.epsilon;
-	epseta = eps/eta;
 	
 /* loop on the examples */		
 	for(ipat=0;ipat<PAT.Npat[0];ipat++)
@@ -709,13 +708,12 @@ L2:				NET.Delta[il][in] = a*deriv;
    
 /* extern "C"Dllexport */dbl MLP_Epoch(int iepoch, dbl *alpmin, int *Ntest)
 {
-	dbl err, Norm, ONorm, beta, prod, ddir;	
+	dbl err, ONorm, beta, prod, ddir;	
 /*	int *index;*/
 	int Nweights, Nlinear, ipat, ierr;
 	int nn;
 	
 	err = 0;
-	Norm = 0;
 	*alpmin = 0.;
 	
 	Nweights = NET.Nweights;
@@ -1616,8 +1614,8 @@ int LineSearch(dbl *alpmin, int *Ntest, dbl Err0)
 int DecreaseSearch(dbl *alpmin, int *Ntest, dbl Err0)
 {
 	dbl ***w0;
-	dbl alpha1, alpha2, alpha3;
-	dbl err1, err2, err3;
+	dbl alpha2;
+	dbl err1, err2;
 	dbl tau;
 	int icount, il, in, jn;
 	
@@ -1650,7 +1648,6 @@ int DecreaseSearch(dbl *alpmin, int *Ntest, dbl Err0)
 	if(NET.Debug>=4) printf("err depart= %f\n",err1);   
 	
 	*alpmin = 0;
-	alpha1 = 0;
 	alpha2 = 0.05;
 	MLP_Line(w0,alpha2);
 	err2 = MLP_Test(0,0);
@@ -1662,8 +1659,6 @@ int DecreaseSearch(dbl *alpmin, int *Ntest, dbl Err0)
 		}
 	else
 		{	
-		alpha3 = alpha2;
-		err3 = err2;
 	
    
   		for(icount=1;icount<=100;icount++)
@@ -1673,8 +1668,6 @@ int DecreaseSearch(dbl *alpmin, int *Ntest, dbl Err0)
 			err2 = MLP_Test(0,0);
 			(*Ntest) ++;
 			if(err1>err2) break;
-			alpha3 = alpha2;
-			err3 = err2;
 			}
 		if(icount>=100) 		/* line search fails */
 			{
@@ -1981,7 +1974,7 @@ void MLP_ResLin()
 	double err,lambda,lambda2;
 	integer Nl,M,Nhr,khr,nrhs,iret,ierr;
 	int   il, in, inl, ipat;
-	register dbl a;
+	/*register dbl a;*/ //a unused
 	char Trans = 'N';
 
 	
@@ -2016,10 +2009,10 @@ void MLP_ResLin()
 
 		MLP_Out(PAT.Rin[0][ipat],NET.Outn[NET.Nlayer-1]);
 /*		MLP_Out(rrin,rrout);*/
-		for(in=0; in<NET.Nneur[NET.Nlayer-1]; in++)
+		/*for(in=0; in<NET.Nneur[NET.Nlayer-1]; in++)
 			{ 
-			a = (dbl) PAT.Rans[0][ipat][in];
-			}
+			  a = (dbl) PAT.Rans[0][ipat][in]; //a was not used
+			} */
 		il = NET.Nlayer-2;
 		dpat[ipat] = (dbl) PAT.Rans[0][ipat][0]*sqrt(PAT.Pond[0][ipat]);
 		khr = ipat;
@@ -3081,7 +3074,7 @@ int LoadWeights(char *filename, int *iepoch)
 
 /* extern "C"Dllexport */int AllocPatterns(int ifile, int npat, int nin, int nout, int iadd)
 {
-	int j, ierr;
+	int j;
 	type_pat *tmp, *tmp3;
 	type_pat **tmp2;
 	int ntot;
@@ -3103,7 +3096,7 @@ int LoadWeights(char *filename, int *iepoch)
 /* if iadd=0, check that memory not already allocated. Otherwise free it */
 	if(iadd==0 && PatMemory[ifile]!=0)
 		{
-		ierr = FreePatterns(ifile);
+		 FreePatterns(ifile);
 		}
 
 /* allocate memory and initialize ponderations */
