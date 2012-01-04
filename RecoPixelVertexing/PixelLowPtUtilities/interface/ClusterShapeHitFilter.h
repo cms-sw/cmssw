@@ -174,8 +174,8 @@ class ClusterShapeHitFilter
   struct PixelData {
     const PixelGeomDetUnit * det;
     unsigned int part;
-    pair<float,float> drift;
-    pair<float,float> cotangent;
+    std::pair<float,float> drift;
+    std::pair<float,float> cotangent;
 
   };
 

@@ -138,7 +138,7 @@ void ClusterShapeHitFilter::loadStripLimits()
 void ClusterShapeHitFilter::fillPixelData() {
 
   //barrel
-  for (auto det : theTrackerG->detsPXB()) {
+  for (auto det : theTracker->detsPXB()) {
     // better not to fail..
     const PixelGeomDetUnit * pixelDet =
       dynamic_cast<const PixelGeomDetUnit*>(det);
@@ -151,7 +151,7 @@ void ClusterShapeHitFilter::fillPixelData() {
   }
 
   //endcap
-  for (auto det : theTrackerG->detsPXF()) {
+  for (auto det : theTracker->detsPXF()) {
     // better not to fail..
     const PixelGeomDetUnit * pixelDet =
       dynamic_cast<const PixelGeomDetUnit*>(det);
