@@ -1002,8 +1002,12 @@ class PickRelValInputFiles( ConfigToolBase ):
             if debug:
                 print '%s DEBUG: Querying dataset \'%s\''%( self._label, dataset )
             # partially stolen from das_client.py for option '--format=plain', needs filter ("grep") in the query
+            dasQuery = 'file dataset=%s | grep file.name'%( dataset )
             dasData     = das_client.get_data( 'https://cmsweb.cern.ch', 'file dataset=%s | grep file.name'%( dataset ), 0, dasLimit, False )
             jsondict    = json.loads( dasData )
+            if jsondict["status"] != "ok":
+              print "There was a problem while querying DAS with query \"%s\". Server reply was:\n %s" % (dasQuery, dasData)
+              exit(1)
             mongo_query = jsondict[ 'mongo_query' ]
             filters     = mongo_query[ 'filters' ]
             data        = jsondict[ 'data' ]
