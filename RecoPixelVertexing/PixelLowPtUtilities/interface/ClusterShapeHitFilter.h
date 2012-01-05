@@ -133,13 +133,10 @@ struct StripLimits {
 /*****************************************************************************/
 namespace edm { class EventSetup; }
 
-class SiPixelRecHit;
-class SiStripRecHit2D;
 class TrackerGeometry;
 class MagneticField;
 class SiPixelLorentzAngle;
 class SiStripLorentzAngle;
-class GeomDetUnit;
 class PixelGeomDetUnit;
 class StripGeomDetUnit;
 
