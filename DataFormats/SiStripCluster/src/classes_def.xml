@@ -2,6 +2,7 @@
 
  <class name="SiStripCluster" ClassVersion="10">
   <version ClassVersion="10" checksum="3791198690"/>
+  <field name="error_x" transient="true"/>
  </class>
  <class name="std::vector<SiStripCluster>"/>
  <class name="SiStripClusterCollection" ClassVersion="10">
