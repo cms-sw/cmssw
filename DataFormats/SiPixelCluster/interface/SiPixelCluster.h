@@ -68,7 +68,7 @@ class SiPixelCluster {
    */
   
   // &&& Decide the fate of the two strip-like constructors below:
-  SiPixelCluster() : detId_(0) {}  // needed by vector::push_back()!
+  SiPixelCluster() : detId_(0), err_x(-99999.9), err_y(-99999.9) {}  // needed by vector::push_back()!
   // SiPixelCluster( unsigned int detid, const PixelDigiRange& range)
     
   SiPixelCluster( const PixelPos& pix, int adc);
@@ -161,22 +161,41 @@ class SiPixelCluster {
   // typedef vector<Digi::ChannelType>    ChannelContainer;
   // ChannelContainer  channels() const;
   
+  // ggiurgiu@fnal.gov, 01/05/12 
+  // Getters and setters for the newly added data members (err_x and err_y). See below. 
+  void setSplitClusterErrorX( float errx ) { err_x = errx; }
+  void setSplitClusterErrorY( float erry ) { err_y = erry; }
+  float getSplitClusterErrorX() const { return err_x; }
+  float getSplitClusterErrorY() const { return err_y; }
+  
+
  private:
   unsigned int         detId_;
   
   std::vector<uint8_t>  thePixelOffset;
-	std::vector<uint16_t> thePixelADC;
+  std::vector<uint16_t> thePixelADC;
+  
+  /*  float theSumX;  // Sum of charge weighted pixel positions.
+      float theSumY;
+      float theCharge;  // Total charge
+      uint8_t  theMaxPixelRow; // Maximum pixel index in the x direction (top edge).
+      uint16_t theMaxPixelCol; // Maximum pixel index in the y direction (right edge).
+  */
+  uint8_t  theMinPixelRow; // Minimum pixel index in the x direction (low edge).
+  uint16_t theMinPixelCol; // Minimum pixel index in the y direction (left edge).
+  // Need 9 bits for Col information. Use 1 bit for whether larger
+  // cluster than 9x33. Other 6 bits for quality information.
 
-	/*  float theSumX;  // Sum of charge weighted pixel positions.
-  float theSumY;
-  float theCharge;  // Total charge
-	uint8_t  theMaxPixelRow; // Maximum pixel index in the x direction (top edge).
-	uint16_t theMaxPixelCol; // Maximum pixel index in the y direction (right edge).
-	*/
-	uint8_t  theMinPixelRow; // Minimum pixel index in the x direction (low edge).
-	uint16_t theMinPixelCol; // Minimum pixel index in the y direction (left edge).
-	                         // Need 9 bits for Col information. Use 1 bit for whether larger
-	                         // cluster than 9x33. Other 6 bits for quality information.
+  // ggiurgiu@fnal.gov, 01/05/12
+  // Add cluster errors to be used by rechits from split clusters. 
+  // A rechit from a split cluster has larger errors than rechits from normal clusters. 
+  // However, when presented with a cluster, the CPE does not know if the cluster comes 
+  // from a splitting procedure or not. That's why we have to instruct the CPE to use 
+  // appropriate errors for split clusters.
+  // To avoid increase of data size on disk,these new data members are set as transient in: 
+  // DataFormats/SiPixelCluster/src/classes_def.xml
+  float err_x;
+  float err_y;
   
 };
 
