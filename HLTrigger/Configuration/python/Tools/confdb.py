@@ -177,61 +177,6 @@ import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 """
 
-    self.data += """
-# from CMSSW_5_0_0_pre6: ESSource -> ESProducer in JetMETCorrections/Modules
-if cmsswVersion > "CMSSW_5_0":
-    if 'hltESSAK5CaloL2L3' in %(dict)s:
-        %(process)shltESSAK5CaloL2L3 = cms.ESProducer( "JetCorrectionESChain",
-            appendToDataLabel = cms.string( "" ),
-            correctors = cms.vstring( 'hltESSL2RelativeCorrectionService',
-                'hltESSL3AbsoluteCorrectionService' ),
-            label = cms.string( "hltESSAK5CaloL2L3" )
-        )
-    if 'hltESSAK5CaloL1L2L3' in %(dict)s:
-        %(process)shltESSAK5CaloL1L2L3 = cms.ESProducer( "JetCorrectionESChain",
-            appendToDataLabel = cms.string( "" ),
-            correctors = cms.vstring( 'hltESSL1FastJetCorrectionService',
-                'hltESSL2RelativeCorrectionService',
-                'hltESSL3AbsoluteCorrectionService' ),
-            label = cms.string( "hltESSAK5CaloL1L2L3" )
-        )
-    if 'hltESSL1FastJetCorrectionService' in %(dict)s:
-        %(process)shltESSL1FastJetCorrectionService = cms.ESProducer( "L1FastjetCorrectionESProducer",
-            appendToDataLabel = cms.string( "" ),
-            level = cms.string( "L1FastJet" ),
-            algorithm = cms.string( "AK5Calo" ),
-            srcRho = cms.InputTag( 'hltKT6CaloJets','rho' ),
-#           section = cms.string( "" ),
-#           era = cms.string( "Jec10V1" ),
-#           useCondDB = cms.untracked.bool( True )
-        )
-    if 'hltESSL2RelativeCorrectionService' in %(dict)s:
-        %(process)shltESSL2RelativeCorrectionService = cms.ESProducer( "LXXXCorrectionESProducer",
-            appendToDataLabel = cms.string( "" ),
-            level = cms.string( "L2Relative" ),
-            algorithm = cms.string( "AK5Calo" ),
-#           section = cms.string( "" ),
-#           era = cms.string( "" ),
-#           useCondDB = cms.untracked.bool( True )
-        )
-    if 'hltESSL3AbsoluteCorrectionService' in %(dict)s:
-        %(process)shltESSL3AbsoluteCorrectionService = cms.ESProducer( "LXXXCorrectionESProducer",
-            appendToDataLabel = cms.string( "" ),
-            level = cms.string( "L3Absolute" ),
-            algorithm = cms.string( "AK5Calo" ),
-#           section = cms.string( "" ),
-#           era = cms.string( "" ),
-#           useCondDB = cms.untracked.bool( True )
-        )
-"""
-    if self.config.data:
-      self.data += """
-# from CMSSW_5_0_0_pre6: RawDataLikeMC=False (to keep "source")
-if cmsswVersion > "CMSSW_5_0":
-    if 'source' in %(dict)s:
-        %(process)ssource.labelRawDataLikeMC = cms.untracked.bool( False )
-"""        
-
   # customize the configuration according to the options
   def customize(self):
 
@@ -249,26 +194,13 @@ if 'hltHfreco' in %(dict)s:
     %(process)shltHfreco.setNoiseFlags = cms.bool( False )
 """
 
-## Use L1 menu from xml file
-#  ...removed in favor of sqlite file    
-#%(process)sl1GtTriggerMenuXml = cms.ESProducer("L1GtTriggerMenuXmlProducer",
-#    TriggerMenuLuminosity = cms.string('startup'),
-#    DefXmlFile = cms.string('L1Menu_CollisionsHeavyIons2011_v0_L1T_Scales_20101224_Imp0_0x1026.xml'),
-#    VmeXmlFile = cms.string('')
-#)
-#%(process)sL1GtTriggerMenuRcdSource = cms.ESSource("EmptyESSource",
-#    recordName = cms.string('L1GtTriggerMenuRcd'),
-#    iovIsRunNotTime = cms.bool(True),
-#    firstValid = cms.vuint32(1)
-#)
-
-#    # untracked parameter with no default in the code
-#    if not self.config.data:
-#      self.data += """
-## untracked parameter with no default in the code
-#if 'hltHcalDataIntegrityMonitor' in %(dict)s:
-#    %(process)shltHcalDataIntegrityMonitor.RawDataLabel = cms.untracked.InputTag("rawDataCollector")
-#"""
+    self.data += """
+# untracked parameters with NO default in the code
+if 'hltHcalDataIntegrityMonitor' in %(dict)s:
+    %(process)shltHcalDataIntegrityMonitor.RawDataLabel = cms.untracked.InputTag("rawDataCollector")
+if 'hltDt4DSegments' in %(dict)s:
+    %(process)shltDt4DSegments.debug = cms.untracked.bool( False )
+"""
 
     if self.config.fragment:
       # if running on MC, adapt the configuration accordingly
@@ -375,9 +307,10 @@ if 'hltHfreco' in %(dict)s:
 
   def fixForMC(self):
     if not self.config.data:
-      # override the raw data collection label
-      self._fix_parameter(type = 'InputTag', value = 'source', replace = 'rawDataCollector')
-      self._fix_parameter(type = 'string',   value = 'source', replace = 'rawDataCollector')
+      pass # No longer needed!
+#      # override the raw data collection label
+#      self._fix_parameter(type = 'InputTag', value = 'source', replace = 'rawDataCollector')
+#      self._fix_parameter(type = 'string',   value = 'source', replace = 'rawDataCollector')
 
 
   def fixForFastSim(self):
