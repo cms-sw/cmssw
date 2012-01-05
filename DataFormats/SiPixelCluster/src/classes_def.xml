@@ -1,5 +1,7 @@
 <lcgdict>
   <class name="SiPixelCluster" ClassVersion="10">
+   <field name="err_x" transient="true"/>
+   <field name="err_y" transient="true"/>
    <version ClassVersion="10" checksum="2468063768"/>
   </class>
   <class name="SiPixelCluster::Pixel" ClassVersion="10">
