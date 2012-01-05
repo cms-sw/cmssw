@@ -16,7 +16,7 @@ public:
    *  a DetID. The range is assumed to be non-empty.
    */
   
-  SiStripCluster() : detId_(0) {}
+  SiStripCluster() : detId_(0), error_x( -99999.9 ) {}
 
   SiStripCluster( uint32_t detid, const SiStripDigiRange& range);
 
@@ -57,11 +57,27 @@ public:
    */
   float barycenter() const;
 
+  float getSplitClusterError () const    {  return error_x;  }
+  void  setSplitClusterError ( float errx ) { error_x = errx; }
+
+
 private:
 
   uint32_t                detId_;
   uint16_t                firstStrip_;
+
   std::vector<uint8_t>   amplitudes_;
+
+  // ggiurgiu@fnal.gov, 01/05/12
+  // Add cluster errors to be used by rechits from split clusters. 
+  // A rechit from a split cluster has larger errors than rechits from normal clusters. 
+  // However, when presented with a cluster, the CPE does not know if the cluster comes 
+  // from a splitting procedure or not. That's why we have to instruct the CPE to use 
+  // appropriate errors for split clusters.
+  // To avoid increase of data size on disk,these new data members are set as transient in: 
+  // DataFormats/SiStripCluster/src/classes_def.xml
+  float error_x;
+  
 };
 
 // Comparison operators

@@ -4,7 +4,8 @@
 SiStripCluster::SiStripCluster( uint32_t detid, const SiStripDigiRange& range) :
   //detId_(detid),
   detId_(0),
-  firstStrip_(range.first->strip())
+  firstStrip_(range.first->strip()),
+  error_x(-99999.9)
 {
 
   amplitudes_.reserve( range.second - range.first);
@@ -34,7 +35,14 @@ SiStripCluster::SiStripCluster(const uint32_t& detid,
   //  detId_(detid),
   detId_(0),
   firstStrip_(firstStrip),
-  amplitudes_(begin,end)
+  amplitudes_(begin,end),
+
+  // ggiurgiu@fnal.gov, 01/05/12
+  // Initialize the split cluster errors to un-physical values.
+  // The CPE will check these errors and if they are not un-physical,
+  // it will recognize the clusters as split and assign these (increased)
+  // errors to the corresponding rechit.
+  error_x(-99999.9)
 {}
 
 float SiStripCluster::barycenter() const{
