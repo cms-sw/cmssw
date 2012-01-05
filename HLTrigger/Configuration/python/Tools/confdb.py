@@ -206,10 +206,11 @@ if 'hltDt4DSegments' in %(dict)s:
       
       self.data += """
 # dummyfy hltGetConditions in cff's
-if 'hltGetConditions' in %(dict)s:
-    %(process)shltGetConditions = cms.EDFilter( "HLTBool",
+if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
+    %(process)shltDummyConditions = cms.EDFilter( "HLTBool",
         result = cms.bool( True )
     )
+    %(process)sHLTriggerFirstPath.replace(hltGetConditions,hltDummyConditions)
 """
       # if running on MC, adapt the configuration accordingly
       self.fixForMC()

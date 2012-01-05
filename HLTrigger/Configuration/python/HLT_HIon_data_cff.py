@@ -6357,10 +6357,11 @@ if 'hltDt4DSegments' in locals():
     hltDt4DSegments.debug = cms.untracked.bool( False )
 
 # dummyfy hltGetConditions in cff's
-if 'hltGetConditions' in locals():
-    hltGetConditions = cms.EDFilter( "HLTBool",
+if 'hltGetConditions' in locals() and 'HLTriggerFirstPath' in locals() :
+    hltDummyConditions = cms.EDFilter( "HLTBool",
         result = cms.bool( True )
     )
+    HLTriggerFirstPath.replace(hltGetConditions,hltDummyConditions)
 
 # version specific customizations
 import os
