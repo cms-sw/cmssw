@@ -228,13 +228,13 @@ int main(int argc, char **argv) {
     std::string::size_type idx = rtdp->find('=');
     if (idx == std::string::npos) {
         runtimedef::set(*rtdp, 1); 
-        if (verbose > 1) std::cout << "Turning on runtime-define " << *rtdp << std::endl;
+        if (verbose > 0) std::cout << "Turning on runtime-define " << *rtdp << std::endl;
     } else {
-        std::string name  = rtdp->substr(0, idx-1);
+        std::string name  = rtdp->substr(0, idx);
         std::string svalue = rtdp->substr(idx+1);
         int ivalue = atoi( svalue.c_str() );
-        if (verbose > 1) std::cout << "Setting runtime-define " << name << " to " << ivalue << std::endl;
-        runtimedef::set(*rtdp, ivalue);
+        if (verbose > 0) std::cout << "Setting runtime-define " << name << " to " << ivalue << std::endl;
+        runtimedef::set(name, ivalue);
     }
   }
 
