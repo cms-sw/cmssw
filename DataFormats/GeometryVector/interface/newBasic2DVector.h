@@ -207,26 +207,45 @@ inline typename PreciseFloatType<T,U>::Type operator*( const Basic2DVector<T>& v
 /** Multiplication by scalar, does not change the precision of the vector.
  *  The return type is the same as the type of the vector argument.
  */
+template <class T>
+inline Basic2DVector<T> operator*( const Basic2DVector<T>& v, T t) {
+  return v.v*t;
+}
+
+/// Same as operator*( Vector, Scalar)
+template <class T>
+inline Basic2DVector<T> operator*(T t, const Basic2DVector<T>& v) {
+  return v.v*t;
+}
+
+
+
 template <class T, class Scalar>
 inline Basic2DVector<T> operator*( const Basic2DVector<T>& v, const Scalar& s) {
   T t = static_cast<T>(s);
-  return Basic2DVector<T>(v.v*t);
+  return v*t;
 }
 
 /// Same as operator*( Vector, Scalar)
 template <class T, class Scalar>
 inline Basic2DVector<T> operator*( const Scalar& s, const Basic2DVector<T>& v) {
   T t = static_cast<T>(s);
-  return Basic2DVector<T>(v.v*t);
+  return v*t;
 }
 
 /** Division by scalar, does not change the precision of the vector.
  *  The return type is the same as the type of the vector argument.
  */
+template <class T>
+inline Basic2DVector<T> operator/(const Basic2DVector<T>& v, T t) {
+  return v.v/t;
+}
+
 template <class T, class Scalar>
 inline Basic2DVector<T> operator/( const Basic2DVector<T>& v, const Scalar& s) {
-  T t = static_cast<T>(1/s);
-  return Basic2DVector<T>(v.v*t);
+  //   T t = static_cast<T>(Scalar(1)/s); return v*t;
+   T t = static_cast<T>(s);
+  return v/t;
 }
 
 typedef Basic2DVector<float> Basic2DVectorF;

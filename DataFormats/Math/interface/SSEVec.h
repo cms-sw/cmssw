@@ -642,6 +642,10 @@ inline mathSSE::Vec4F operator*(mathSSE::Vec4F b,float a) {
   return  _mm_mul_ps(_mm_set1_ps(a),b.vec);
 }
 
+inline mathSSE::Vec4F operator/(mathSSE::Vec4F b,float a) {
+  return  _mm_div_ps(b.vec,_mm_set1_ps(a));
+}
+
 
 inline float dot(mathSSE::Vec4F a, mathSSE::Vec4F b) {
   using  mathSSE::_mm_dot_ps;
@@ -699,8 +703,12 @@ inline mathSSE::Vec4F operator*(mathSSE::Vec2F a, float s) {
   return  s*mathSSE::Vec4F(a);
 }
 
-inline mathSSE::Vec4F operator*(float s,mathSSE::Vec2F a) {
+inline mathSSE::Vec4F operator*(float s, mathSSE::Vec2F a) {
   return  s*mathSSE::Vec4F(a);
+}
+
+inline mathSSE::Vec4F operator/(mathSSE::Vec2F a, float s) {
+  return  mathSSE::Vec4F(a)/s;
 }
 
 
@@ -782,6 +790,10 @@ inline mathSSE::Vec2D operator*(mathSSE::Vec2D b,double a) {
   return  _mm_mul_pd(_mm_set1_pd(a),b.vec);
 }
 
+inline mathSSE::Vec2D operator/(mathSSE::Vec2D b,double a) {
+  return  _mm_div_pd(b.vec,_mm_set1_pd(a);
+}
+
 inline double dot(mathSSE::Vec2D a, mathSSE::Vec2D b)  __attribute__((always_inline)) __attribute__ ((pure));
 
 inline double dot(mathSSE::Vec2D a, mathSSE::Vec2D b){
@@ -855,6 +867,11 @@ inline mathSSE::Vec4D operator*(double a, mathSSE::Vec4D b) {
 inline mathSSE::Vec4D operator*(mathSSE::Vec4D b, double a) {
   __m128d res = _mm_set1_pd(a);
   return  mathSSE::Vec4D(_mm_mul_pd(res,b.vec[0]),_mm_mul_pd(res,b.vec[1]));
+}
+
+inline mathSSE::Vec4D operator/(mathSSE::Vec4D b, double a) {
+  a = 1./a;
+  return a*b;
 }
 
 // mix algebra (creates ambiguities...)
