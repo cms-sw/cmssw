@@ -73,18 +73,18 @@ ThirdHitPredictionFromInvParabola::Point2D ThirdHitPredictionFromInvParabola::fi
   double A = coeffA(ip,c);
   double B = coeffB(ip,c);
 
-  double overR = 1./r;
-  double ipOverR = ip*overR;
+  // double overR = 1./r;
+  double ipOverR = ip/r; // *overR;
 
   double delta = 1-4*(0.5*B+ipOverR)*(-B+A*r-ipOverR);
   double sqrtdelta = (delta > 0) ? std::sqrt(delta) : 0.;
   double alpha = (c>0)?  (-c+sqrtdelta)/(B+2*ipOverR) :  (-c-sqrtdelta)/(B+2*ipOverR);
 
-  double v = alpha*overR;
-  double d2 = overR*overR - v*v;
+  double v = alpha;  // *overR
+  double d2 = 1. - v*v;  // overR*overR - v*v
   double u = (d2 > 0) ? std::sqrt(d2) : 0.;
 
-  return Point2D(u,v); // not rotated!
+  return Point2D(u,v); // not rotated! not multiplied by 1/r
 }
 
 
@@ -96,8 +96,8 @@ ThirdHitPredictionFromInvParabola::Range ThirdHitPredictionFromInvParabola::rang
   Point2D pred_tmp1 = findPointAtCurve(radius,charge,ip.min());
   Point2D pred_tmp2 = findPointAtCurve(radius,charge,ip.max());
 
-  double phi1 = theRotation.rotateBack(pred_tmp1).phi();
-  double phi2 = phi1+radius*(pred_tmp2.y()-pred_tmp1.y()); 
+  double phi1 = theRotation.rotateBack(pred_tmp1).barePhi();
+  double phi2 = phi1+(pred_tmp2.y()-pred_tmp1.y()); 
   
   if (ip.empty()) {
     Range r1(phi1*radius-theTolerance, phi1*radius+theTolerance); 
