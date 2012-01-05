@@ -38,7 +38,7 @@
 #include <fastjet/JetDefinition.hh>
 #include <fastjet/PseudoJet.hh>
 #include <fastjet/ClusterSequence.hh>
-#include <fastjet/ActiveAreaSpec.hh>
+#include <fastjet/GhostedAreaSpec.hh>
 #include <fastjet/ClusterSequenceArea.hh>
 
 class CATopJetAlgorithm{
@@ -62,7 +62,7 @@ class CATopJetAlgorithm{
 		    double etFrac,
 		    boost::shared_ptr<fastjet::JetDefinition> fjJetDefinition,
 		    bool doAreaFastjet,
-		    boost::shared_ptr<fastjet::ActiveAreaSpec> fjActiveArea,
+		    boost::shared_ptr<fastjet::GhostedAreaSpec> fjActiveArea,
 		    double voronoiRfact) :
     mSrc_          (mSrc          ),
     verbose_   	   (verbose       ),
@@ -115,7 +115,7 @@ class CATopJetAlgorithm{
   std::string         jetType_;       			//<! CaloJets or GenJets - NOT USED
   boost::shared_ptr<fastjet::JetDefinition> fjJetDefinition_; //<! jet definition to use
   bool                doAreaFastjet_; //<! whether or not to use the fastjet area
-  boost::shared_ptr<fastjet::ActiveAreaSpec> fjActiveArea_; //<! fastjet area spec
+  boost::shared_ptr<fastjet::GhostedAreaSpec> fjActiveArea_; //<! fastjet area spec
   double              voronoiRfact_;  //<! fastjet voronoi area R factor
 
   // Decide if the two jets are in adjacent cells    

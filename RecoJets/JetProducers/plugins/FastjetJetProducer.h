@@ -37,6 +37,11 @@ protected:
   int minVtxNdof_;
   float maxVtxZ_;
 
+  // jet trimming parameters
+  bool useTrimming_;
+  double rFilt_;
+  double trimPtFracMin_;
+
 };
 
 

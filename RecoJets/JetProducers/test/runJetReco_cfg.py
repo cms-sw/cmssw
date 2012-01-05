@@ -6,18 +6,16 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 # input
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-     '/store/data/Run2011A/Jet/RECO/PromptReco-v4/000/165/121/4C12EC82-7481-E011-8499-0030487C8CB8.root'
-#    '/store/relval/CMSSW_4_2_0/RelValTTbar/GEN-SIM-RECO/MC_42_V9-v1/0054/3CBCB401-935E-E011-8345-0026189437F8.root'
-#        '/store/mc/Fall10/QCD_Pt_15to3000_TuneZ2_Flat_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0000/16A40D7C-63CC-DF11-A8F9-E41F13181890.root'
-#    '/store/relval/CMSSW_3_8_2/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/MC_38Y_V9-v1/0018/4E074A51-97AF-DF11-AED9-003048678ED2.root',
-#    '/store/relval/CMSSW_3_8_2/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/MC_38Y_V9-v1/0018/9AC16F8D-A7AF-DF11-80AC-003048D15E14.root',
-#    '/store/relval/CMSSW_3_8_2/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/MC_38Y_V9-v1/0018/9C41071C-96AF-DF11-AF18-003048679228.root',
-#    '/store/relval/CMSSW_3_8_2/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/MC_38Y_V9-v1/0018/B494B961-B0AF-DF11-8508-003048678B5E.root',
-#    '/store/relval/CMSSW_3_8_2/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/MC_38Y_V9-v1/0018/D07EF07A-9BAF-DF11-A708-003048678BAE.root',
+        '/store/relval/CMSSW_5_0_0/RelValTTbar/GEN-SIM-RECO/START50_V8-v3/0074/182BA6EB-BD2A-E111-801C-003048678A88.root',
+        '/store/relval/CMSSW_5_0_0/RelValTTbar/GEN-SIM-RECO/START50_V8-v3/0074/8E79DF51-B92A-E111-A9B4-00261894396E.root',
+        '/store/relval/CMSSW_5_0_0/RelValTTbar/GEN-SIM-RECO/START50_V8-v3/0074/AE46DE36-C02A-E111-AF78-003048FF9AC6.root',
+        '/store/relval/CMSSW_5_0_0/RelValTTbar/GEN-SIM-RECO/START50_V8-v3/0082/5893EB84-542B-E111-AFDF-002618943915.root',
+        '/store/relval/CMSSW_5_0_0/RelValTTbar/GEN-SIM-RECO/START50_V8-v3/0082/8C111086-542B-E111-AA93-002618943983.root',
+        '/store/relval/CMSSW_5_0_0/RelValTTbar/GEN-SIM-RECO/START50_V8-v3/0082/E0196E85-542B-E111-AA08-0030486791DC.root'
     )
     #inputCommands = cms.untracked.vstring('keep *_*_*_*','drop recoTrackExtrapolations_*_*_RECO')  
     )
@@ -37,7 +35,7 @@ process.output.outputCommands.append('drop *_*_*_RECO')
 #process.output.outputCommands.append('keep recoPFJets_*_*_*')
 #process.output.outputCommands.append('keep recoGenJets_*_*_*')
 #process.output.outputCommands.append('keep recoBasicJets_*_*_*')
-#process.output.outputCommands.append('keep *_*_*_JETRECO')
+process.output.outputCommands.append('keep *_*_*_JETRECO')
 #process.output.outputCommands.append('keep *_trackRefsForJets_*_*')
 #process.output.outputCommands.append('keep *_generalTracks_*_*')
 
@@ -47,19 +45,31 @@ process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'GR_R_44_V1::All'
+process.GlobalTag.globaltag = 'START50_V10::All'
 
 process.load("RecoJets/Configuration/RecoPFClusterJets_cff")
 process.load("RecoMET/METProducers/PFClusterMET_cfi")
 
 process.load("RecoJets/JetAssociationProducers/trackExtrapolator_cfi")
 
+#process.kt6PFJets.voronoiRfact = cms.double(0.9)
+process.ak5PFJetsTrimmed.doAreaFastjet = True
+
 #process.recoJets = cms.Path(process.trackExtrapolator+process.jetGlobalReco+process.CastorFullReco+process.jetHighLevelReco+process.recoPFClusterJets)
-process.recoJets = cms.Path(process.trackExtrapolator+process.jetGlobalReco+process.CastorFullReco+process.jetHighLevelReco+process.recoPFClusterJets+process.pfClusterMet)
+process.recoJets = cms.Path(process.trackExtrapolator+process.jetGlobalReco+process.CastorFullReco+process.jetHighLevelReco+process.recoPFClusterJets+process.pfClusterMet+process.ak5PFJetsTrimmed)
+
+# Since we don't want to re-run all of the PF "top projection" sequences,
+# turn off a few modules which depend on them in RECO
+process.recoJets.remove( process.kt6PFJetsCentralChargedPileUp )
+process.recoJets.remove( process.kt6PFJetsCentralNeutral )
+process.recoJets.remove( process.kt6PFJetsCentralNeutralTight )
 
 #process.recoJets = cms.Path(process.pfClusterRefsForJetsHCAL+process.pfClusterRefsForJetsECAL+
 #                            process.pfClusterRefsForJets+
 #                            process.pfClusterMet)
+
+
+
 
 process.out = cms.EndPath(process.output)
 

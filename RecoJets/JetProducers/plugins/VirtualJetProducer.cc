@@ -213,8 +213,10 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
     int    activeAreaRepeats = iConfig.getParameter<int> ("Active_Area_Repeats");
     // default GhostArea 0.01
     double ghostArea = iConfig.getParameter<double> ("GhostArea");
-    if (voronoiRfact_ <= 0)
+    if (voronoiRfact_ <= 0) {
       fjActiveArea_     = ActiveAreaSpecPtr(new fastjet::ActiveAreaSpec(ghostEtaMax,activeAreaRepeats,ghostArea));
+      fjActiveArea_->set_fj2_placement(true);
+    }
     fjRangeDef_ = RangeDefPtr( new fastjet::RangeDefinition(rhoEtaMax) );
   } 
 
@@ -544,13 +546,17 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
     T jet;
     // get the fastjet jet
     const fastjet::PseudoJet& fjJet = fjJets_[ijet];
+    // get the constituents from fastjet
+    std::vector<fastjet::PseudoJet> fjConstituents = fastjet::sorted_by_pt(fjJet.constituents());
+    // convert them to CandidatePtr vector
+    std::vector<CandidatePtr> constituents =
+      getConstituents(fjConstituents);
+
 
     // calcuate the jet area
     double jetArea=0.0;
-    if ( doAreaFastjet_ ) {
-      fastjet::ClusterSequenceAreaBase const * clusterSequenceWithArea =
-        dynamic_cast<fastjet::ClusterSequenceAreaBase const *>(&*fjClusterSeq_);
-      jetArea = clusterSequenceWithArea->area(fjJet);
+    if ( doAreaFastjet_ && fjJet.has_area() ) {
+      jetArea = fjJet.area();
     }
     else if ( doAreaDiskApprox_ ) {
       // Here it is assumed that fjJets_ is in decreasing order of pT, 
@@ -570,13 +576,6 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
       jetArea  *= rParam_;
       jetArea  *= rParam_;
     }  
-    
-    // get the constituents from fastjet
-    std::vector<fastjet::PseudoJet> fjConstituents =
-      sorted_by_pt(fjClusterSeq_->constituents(fjJet));
-    // convert them to CandidatePtr vector
-    std::vector<CandidatePtr> constituents =
-      getConstituents(fjConstituents);
 
     // write the specifics to the jet (simultaneously sets 4-vector, vertex).
     // These are overridden functions that will call the appropriate

@@ -35,7 +35,7 @@
 #include "fastjet/CMSIterativeConePlugin.hh"
 #include "fastjet/ATLASConePlugin.hh"
 #include "fastjet/CDFMidPointPlugin.hh"
-
+#include "fastjet/tools/Filter.hh"
 
 #include <iostream>
 #include <memory>
@@ -83,6 +83,16 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
     maxVtxZ_ = iConfig.getParameter<double>("MaxVtxZ");
   else
     maxVtxZ_ = 15;
+  if ( iConfig.exists("useTrimming") ) {
+    useTrimming_ = true;
+    rFilt_ = iConfig.getParameter<double>("rFilt");
+    trimPtFracMin_ = iConfig.getParameter<double>("trimPtFracMin");
+  }
+  else {
+    useTrimming_ = false;
+    rFilt_ = -1.0;
+    trimPtFracMin_ = -1.0;
+  }
 
 }
 
@@ -267,15 +277,24 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
   } else {
     fjClusterSeq_ = ClusterSequencePtr( new fastjet::ClusterSequenceVoronoiArea( fjInputs_, *fjJetDefinition_ , fastjet::VoronoiAreaSpec(voronoiRfact_) ) );
   }
-  /*
-    std::cout << "using " << fjInputs_.size() << " particles.\n";
-    std::cout.precision(16);//std::numeric_limits< double >::digits10);
-    std::cout << "dumping input px py pz E:\n";
-    for(std::vector<fastjet::PseudoJet>::const_iterator i = fjInputs_.begin() ; i != fjInputs_.end(); ++i) {
-    std::cout << i->px() << " " << i->py() << " " << i->pz() << " " << i->E() << '\n';
+
+
+  if ( !useTrimming_ ) {
+    fjJets_ = fastjet::sorted_by_pt(fjClusterSeq_->inclusive_jets(jetPtMin_));
+  }
+  else {
+    fjJets_.clear();
+    fastjet::Filter trimmer( fastjet::Filter(fastjet::JetDefinition(fastjet::kt_algorithm, rFilt_), fastjet::SelectorPtFractionMin(trimPtFracMin_)));
+    std::vector<fastjet::PseudoJet> tempJets = fastjet::sorted_by_pt(fjClusterSeq_->inclusive_jets(jetPtMin_));
+
+    for ( std::vector<fastjet::PseudoJet>::const_iterator ijet = tempJets.begin(),
+	    ijetEnd = tempJets.end(); ijet != ijetEnd; ++ijet ) {
+      fastjet::PseudoJet trimmedJet = trimmer(*ijet);
+      fjJets_.push_back( trimmedJet );
+
     }
-  */
-  fjJets_ = fastjet::sorted_by_pt(fjClusterSeq_->inclusive_jets(jetPtMin_));
+  }
+
 }
 
 

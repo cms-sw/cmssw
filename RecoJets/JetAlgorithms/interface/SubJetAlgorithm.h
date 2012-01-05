@@ -9,7 +9,7 @@
 #include <fastjet/JetDefinition.hh>
 #include <fastjet/PseudoJet.hh>
 #include <fastjet/ClusterSequence.hh>
-#include <fastjet/ActiveAreaSpec.hh>
+#include <fastjet/GhostedAreaSpec.hh>
 
 
 class SubJetAlgorithm{
@@ -20,7 +20,7 @@ class SubJetAlgorithm{
 		  double rcut_factor,
 		  boost::shared_ptr<fastjet::JetDefinition> fjJetDefinition,
 		  bool doAreaFastjet,
-		  boost::shared_ptr<fastjet::ActiveAreaSpec> fjActiveArea,
+		  boost::shared_ptr<fastjet::GhostedAreaSpec> fjActiveArea,
 		  double voronoiRfact
 		  ) :
     ptMin_         (ptMin         ),
@@ -53,7 +53,7 @@ class SubJetAlgorithm{
   double              rcut_factor_;   //<! r-cut factor (see arXiv:0903.5081).
   boost::shared_ptr<fastjet::JetDefinition> fjJetDefinition_; //<! jet definition to use
   bool                doAreaFastjet_; //<! whether or not to use the fastjet area
-  boost::shared_ptr<fastjet::ActiveAreaSpec> fjActiveArea_; //<! fastjet area spec
+  boost::shared_ptr<fastjet::GhostedAreaSpec> fjActiveArea_; //<! fastjet area spec
   double              voronoiRfact_;  //<! fastjet voronoi area R factor
 };
 
