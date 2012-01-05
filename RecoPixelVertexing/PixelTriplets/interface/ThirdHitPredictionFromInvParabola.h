@@ -28,6 +28,7 @@ public:
 
   typedef TkRotation2D<double> Rotation;
   typedef PixelRecoRange<float> Range;
+  typedef PixelRecoRange<double> RangeD;
   typedef Basic2DVector<double> Point2D;
 
 
@@ -63,7 +64,7 @@ private:
 
   Point2D findPointAtCurve(double radius, int charge, double ip) const dso_internal;
 
-  Range theIpRangePlus, theIpRangeMinus; 
+  RangeD theIpRangePlus, theIpRangeMinus; 
   double theTolerance;
 
 };

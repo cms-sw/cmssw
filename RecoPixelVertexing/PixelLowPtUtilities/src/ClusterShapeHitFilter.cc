@@ -273,6 +273,7 @@ bool ClusterShapeHitFilter::getSizes
 
     if(data.size.front().second < 0)
       pred.second = - pred.second;
+
     meas.reserve(data.size.size());
     for(vector<pair<int,int> >::const_iterator s = data.size.begin();
 	s!= data.size.end(); s++)

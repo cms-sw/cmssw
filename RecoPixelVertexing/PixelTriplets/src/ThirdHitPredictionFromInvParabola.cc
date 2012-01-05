@@ -34,9 +34,11 @@ void ThirdHitPredictionFromInvParabola::
 {
 //  GlobalVector aX = GlobalVector( P2.x()-P1.x(), P2.y()-P1.y(), 0.).unit();
  
-  theRotation = Rotation(P1.basicVector().xy());
-  Point2D p1 = transform(P1.basicVector().xy());  // (1./P1.xy().mag(),0); 
-  Point2D p2 = transform(P2.basicVector().xy());
+  Point2D p1 = P1.basicVector().xy();
+  Point2D p2 = P2.basicVector().xy();
+  theRotation = Rotation(p1);
+  Point2D p1 = transform(p1);  // (1./P1.xy().mag(),0); 
+  Point2D p2 = transform(p2);
 
  
   u1u2 = p1.x()*p2.x();
@@ -45,7 +47,7 @@ void ThirdHitPredictionFromInvParabola::
   dv = p2.y() - p1.y();
   su = p2.x() + p1.x();
 
-  Range ipRange(-ip, ip); 
+  RangeD ipRange(-ip, ip); 
   ipRange.sort();
   
   double ipIntyPlus = ipFromCurvature(0.,1);
@@ -53,8 +55,8 @@ void ThirdHitPredictionFromInvParabola::
   double ipCurvMinus = ipFromCurvature(curv, -1);
 
   
-  Range ipRangePlus = Range(ipIntyPlus, ipCurvPlus); ipRangePlus.sort();
-  Range ipRangeMinus = Range(-ipIntyPlus, ipCurvMinus); ipRangeMinus.sort();
+  RangeD ipRangePlus(ipIntyPlus, ipCurvPlus); ipRangePlus.sort();
+  RangeD ipRangeMinus(-ipIntyPlus, ipCurvMinus); ipRangeMinus.sort();
 
   theIpRangePlus  = ipRangePlus.intersection(ipRange);
   theIpRangeMinus = ipRangeMinus.intersection(ipRange);
@@ -89,7 +91,7 @@ ThirdHitPredictionFromInvParabola::Point2D ThirdHitPredictionFromInvParabola::fi
 ThirdHitPredictionFromInvParabola::Range ThirdHitPredictionFromInvParabola::rangeRPhi(
     double radius, int charge) const
 {
-  Range ip = (charge > 0) ? theIpRangePlus : theIpRangeMinus;
+  RangeD ip = (charge > 0) ? theIpRangePlus : theIpRangeMinus;
 
   Point2D pred_tmp1 = findPointAtCurve(radius,charge,ip.min());
   Point2D pred_tmp2 = findPointAtCurve(radius,charge,ip.max());
@@ -103,9 +105,8 @@ ThirdHitPredictionFromInvParabola::Range ThirdHitPredictionFromInvParabola::rang
     return r1.intersection(r2);
   }
 
-  Range r(phi1, phi2); 
-  r.sort();
-  return Range(radius*r.min()-theTolerance, radius*r.max()+theTolerance);
+  if (phi2<phi1) std::swap(phi1, phi2); 
+  return Range(radius*phi1-theTolerance, radius*phi2+theTolerance);
   
 }
 
