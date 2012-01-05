@@ -68,8 +68,8 @@ public:
   Basic3DVector(mathSSE::Vec4<U> const& iv) : v(iv){}
 
   /// construct from cartesian coordinates
-  Basic3DVector( const T& x, const T& y, const T& z) : 
-    v(x,y,z){}
+  Basic3DVector( const T& x, const T& y, const T& z, const T&w=0) : 
+    v(x,y,z,w){}
 
   /** Deprecated construct from polar coordinates, use 
    *  <BR> Basic3DVector<T>( Basic3DVector<T>::Polar( theta, phi, r))
@@ -90,6 +90,8 @@ public:
 
   /// Cartesian z coordinate
   T z() const { return v.o.theZ;}
+
+  T w() const { return v.o.theW;}
 
   Basic2DVector<T> xy() const { return v.xy();}
 
