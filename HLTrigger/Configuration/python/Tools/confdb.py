@@ -203,6 +203,14 @@ if 'hltDt4DSegments' in %(dict)s:
 """
 
     if self.config.fragment:
+      
+      self.data += """
+# dummyfy hltGetConditions in cff's
+if 'hltGetConditions' in %(dict)s:
+    %(process)shltGetConditions = cms.EDFilter( "HLTBool",
+        result = cms.bool( True )
+    )
+"""
       # if running on MC, adapt the configuration accordingly
       self.fixForMC()
 

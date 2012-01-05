@@ -32456,6 +32456,12 @@ if 'hltHcalDataIntegrityMonitor' in locals():
 if 'hltDt4DSegments' in locals():
     hltDt4DSegments.debug = cms.untracked.bool( False )
 
+# dummyfy hltGetConditions in cff's
+if 'hltGetConditions' in locals():
+    hltGetConditions = cms.EDFilter( "HLTBool",
+        result = cms.bool( True )
+    )
+
 # version specific customizations
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
