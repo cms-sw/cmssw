@@ -169,8 +169,8 @@ public:
 
   /// Scaling by a scalar value (division)
   Basic3DVector& operator/= ( T t) {
-    t = T(1)/t;
-    v = t*v;
+    //t = T(1)/t;
+    v = v/t;
     return *this;
   } 
 
@@ -277,6 +277,8 @@ inline Basic3DVector<T> operator*(T t, const Basic3DVector<T>& v) {
   return v.v*t;
 }
 
+
+
 template <class T, typename S>
 inline Basic3DVector<T> operator*(S t,  const Basic3DVector<T>& v) {
   return static_cast<T>(t)*v;
@@ -291,10 +293,16 @@ inline Basic3DVector<T> operator*(const Basic3DVector<T>& v, S t) {
 /** Division by scalar, does not change the precision of the vector.
  *  The return type is the same as the type of the vector argument.
  */
+template <class T>
+inline Basic3DVector<T> operator/(const Basic3DVector<T>& v, T t) {
+  return v.v/t;
+}
+
 template <class T, typename S>
 inline Basic3DVector<T> operator/( const Basic3DVector<T>& v, S s) {
-  T t = T(1)/s;
-  return v*t;
+  //  T t = S(1)/s; return v*t;
+  T t = s;
+  return v/t;
 }
 
 

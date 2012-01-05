@@ -791,7 +791,7 @@ inline mathSSE::Vec2D operator*(mathSSE::Vec2D b,double a) {
 }
 
 inline mathSSE::Vec2D operator/(mathSSE::Vec2D b,double a) {
-  return  _mm_div_pd(b.vec,_mm_set1_pd(a);
+  return  _mm_div_pd(b.vec,_mm_set1_pd(a));
 }
 
 inline double dot(mathSSE::Vec2D a, mathSSE::Vec2D b)  __attribute__((always_inline)) __attribute__ ((pure));
