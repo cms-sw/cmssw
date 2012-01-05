@@ -120,6 +120,7 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
   , restrictInputs_(false)
   , maxInputs_(99999999)
   , doAreaFastjet_ (iConfig.getParameter<bool>         ("doAreaFastjet"))
+  , useExplicitGhosts_(false)
   , doAreaDiskApprox_       (false)
   , doRhoFastjet_  (iConfig.getParameter<bool>         ("doRhoFastjet"))
   , voronoiRfact_           (-9)
@@ -189,6 +190,11 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
      }
   }
 
+  // use explicit ghosts in the fastjet clustering sequence?
+  if ( iConfig.exists("useExplicitGhosts") ) {
+    useExplicitGhosts_ = iConfig.getParameter<bool>("useExplicitGhosts");
+  }
+
   // do approximate disk-based area calculation => warn if conflicting request
   if (iConfig.exists("doAreaDiskApprox")) {
     doAreaDiskApprox_ = iConfig.getParameter<bool>("doAreaDiskApprox");
@@ -214,8 +220,13 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
     // default GhostArea 0.01
     double ghostArea = iConfig.getParameter<double> ("GhostArea");
     if (voronoiRfact_ <= 0) {
-      fjActiveArea_     = ActiveAreaSpecPtr(new fastjet::ActiveAreaSpec(ghostEtaMax,activeAreaRepeats,ghostArea));
+      fjActiveArea_     = ActiveAreaSpecPtr(new fastjet::GhostedAreaSpec(ghostEtaMax,activeAreaRepeats,ghostArea));
       fjActiveArea_->set_fj2_placement(true);
+      if ( ! useExplicitGhosts_ ) {
+	fjAreaDefinition_ = AreaDefinitionPtr( new fastjet::AreaDefinition(fastjet::active_area, *fjActiveArea_ ) );
+      } else {
+	fjAreaDefinition_ = AreaDefinitionPtr( new fastjet::AreaDefinition(fastjet::active_area_explicit_ghosts, *fjActiveArea_ ) );
+      }
     }
     fjRangeDef_ = RangeDefPtr( new fastjet::RangeDefinition(rhoEtaMax) );
   } 
@@ -422,8 +433,11 @@ bool VirtualJetProducer::isAnomalousTower(reco::CandidatePtr input)
 void VirtualJetProducer::copyConstituents(const vector<fastjet::PseudoJet>& fjConstituents,
                                           reco::Jet* jet)
 {
-  for (unsigned int i=0;i<fjConstituents.size();++i)
-    jet->addDaughter(inputs_[fjConstituents[i].user_index()]);
+  for (unsigned int i=0;i<fjConstituents.size();++i) { 
+    int index = fjConstituents[i].user_index();
+    if ( index >= 0 && static_cast<unsigned int>(index) < inputs_.size() )
+      jet->addDaughter(inputs_[index]);
+  }
 }
 
 
@@ -434,8 +448,10 @@ VirtualJetProducer::getConstituents(const vector<fastjet::PseudoJet>&fjConstitue
   vector<reco::CandidatePtr> result;
   for (unsigned int i=0;i<fjConstituents.size();i++) {
     int index = fjConstituents[i].user_index();
-    reco::CandidatePtr candidate = inputs_[index];
-    result.push_back(candidate);
+    if ( index >= 0 && static_cast<unsigned int>(index) < inputs_.size() ) {
+      reco::CandidatePtr candidate = inputs_[index];
+      result.push_back(candidate);
+    }
   }
   return result;
 }

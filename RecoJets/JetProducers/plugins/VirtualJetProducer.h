@@ -80,6 +80,7 @@ public:
   typedef boost::shared_ptr<fastjet::JetDefinition::Plugin>  PluginPtr;
   typedef boost::shared_ptr<fastjet::JetDefinition>          JetDefPtr;
   typedef boost::shared_ptr<fastjet::GhostedAreaSpec>        ActiveAreaSpecPtr;
+  typedef boost::shared_ptr<fastjet::AreaDefinition>         AreaDefinitionPtr;
   typedef boost::shared_ptr<fastjet::RangeDefinition>        RangeDefPtr;
   
   //
@@ -158,6 +159,7 @@ protected:
 
   // for fastjet jet area calculation
   bool                  doAreaFastjet_;             // calculate area w/ fastjet?
+  bool                  useExplicitGhosts_;         // use explicit ghosts in fastjet clustering sequence
   bool                  doAreaDiskApprox_;          // calculate area w/ disk approximation (only makes sense for anti-KT)?
   // for fastjet rho calculation
   bool                  doRhoFastjet_;              // calculate rho w/ fastjet?
@@ -175,6 +177,7 @@ protected:
   JetDefPtr                       fjJetDefinition_; // fastjet jet definition
   PluginPtr                       fjPlugin_;        // fastjet plugin
   ActiveAreaSpecPtr               fjActiveArea_;    // fastjet active area definition
+  AreaDefinitionPtr               fjAreaDefinition_;// fastjet area definition
   RangeDefPtr                     fjRangeDef_;      // range definition
   std::vector<fastjet::PseudoJet> fjInputs_;        // fastjet inputs
   std::vector<fastjet::PseudoJet> fjJets_;          // fastjet jets
