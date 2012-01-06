@@ -71,10 +71,10 @@ ThirdHitPredictionFromInvParabola::Range ThirdHitPredictionFromInvParabola::rang
 
 
   //  it will vectorize with gcc 4.7 (with -O3 -fno-math-errno)
-  double ip[2]={ip.min(),ip.max()};
+  double ipv[2]={ip.min(),ip.max()};
   double u[2], v[2];
   for (int i=0; i!=2; ++i)
-    findPointAtCurve(r,c, ip[i],u[i],v[i]);
+    findPointAtCurve(radius, charge, ipv[i],u[i],v[i]);
 
  
   double phi1 = theRotation.rotateBack(Point2D(u[0],v[0])).barePhi();
