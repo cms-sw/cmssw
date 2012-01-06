@@ -52,6 +52,7 @@ private:
   static float quantileForExpectedFromGrid_;
   static bool fullBToys_; 
   static bool fullGrid_; 
+  static bool saveGrid_; 
   static bool noUpdateGrid_; 
   static unsigned int nCpu_, fork_;
   static bool importanceSamplingNull_, importanceSamplingAlt_;
@@ -101,8 +102,9 @@ private:
 
   void readAllToysFromFile(); 
   void clearGrid(); 
-  void readGrid(TDirectory *directory); 
+  void readGrid(TDirectory *directory, double rMin, double rMax); 
   void updateGridData(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, bool smart, double clsTarget); 
+  void updateGridDataFC(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, bool smart, double clsTarget); 
   std::pair<double,double> updateGridPoint(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, std::map<double, RooStats::HypoTestResult *>::iterator point);
   void useGrid();
 

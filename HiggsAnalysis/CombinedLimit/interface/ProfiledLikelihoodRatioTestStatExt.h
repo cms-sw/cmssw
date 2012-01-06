@@ -2,6 +2,7 @@
 #define HiggsAnalysis_CombinedLimit_ProfiledLikelihoodRatioTestStatExt_h
 
 #include <memory>
+#include <vector>
 
 class RooMinimizer;
 #include <RooAbsPdf.h>
@@ -56,6 +57,7 @@ class ProfiledLikelihoodTestStatOpt : public RooStats::TestStatistic {
                 const RooArgSet & params, const RooArgList &gobsParams, const RooArgList &gobs, int verbosity=0, OneSidedness oneSided = oneSidedDef) ; 
 
         virtual Double_t Evaluate(RooAbsData& data, RooArgSet& nullPOI) ;
+        virtual std::vector<Double_t> Evaluate(RooAbsData& data, RooArgSet& nullPOI, const std::vector<Double_t> &rVals) ;
 
         virtual const TString GetVarName() const { return "- log (#lambda)"; }
 
