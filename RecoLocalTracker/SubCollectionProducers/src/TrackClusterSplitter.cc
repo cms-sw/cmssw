@@ -249,20 +249,22 @@ TrackClusterSplitter::TrackClusterSplitter(const edm::ParameterSet& iConfig):
 
   useStraightTracks_ = (iConfig.getParameter<bool>("useStraightTracks"));
 
-  cout << "TrackClusterSplitter : " << endl;
-  cout << endl << endl << endl;
-  cout << "(int)simSplitPixel_   = " << (int)simSplitPixel_  << endl;
-  cout << "(int)simSplitStrip_   = " << (int)simSplitStrip_  << endl;
-  cout << "(int)tmpSplitPixel_   = " << (int)tmpSplitPixel_  << endl;
-  cout << "(int)tmpSplitStrip_   = " << (int)tmpSplitStrip_  << endl;
-  cout << "stripClusters_        = " << stripClusters_        << endl;
-  cout << "pixelClusters_        = " << pixelClusters_        << endl;
-  cout << "(int)useTrajectories_ = " << (int)useTrajectories_ << endl;
-  cout << "trajectories_         = " << trajectories_         << endl;
-  cout << "propagatorName_       = " << propagatorName_       << endl;
-  cout << "vertices_             = " << vertices_             << endl;
-  cout << "useStraightTracks_    = " << useStraightTracks_    << endl;
-  cout << endl << endl << endl;
+  /*
+    cout << "TrackClusterSplitter : " << endl;
+    cout << endl << endl << endl;
+    cout << "(int)simSplitPixel_   = " << (int)simSplitPixel_  << endl;
+    cout << "(int)simSplitStrip_   = " << (int)simSplitStrip_  << endl;
+    cout << "(int)tmpSplitPixel_   = " << (int)tmpSplitPixel_  << endl;
+    cout << "(int)tmpSplitStrip_   = " << (int)tmpSplitStrip_  << endl;
+    cout << "stripClusters_        = " << stripClusters_        << endl;
+    cout << "pixelClusters_        = " << pixelClusters_        << endl;
+    cout << "(int)useTrajectories_ = " << (int)useTrajectories_ << endl;
+    cout << "trajectories_         = " << trajectories_         << endl;
+    cout << "propagatorName_       = " << propagatorName_       << endl;
+    cout << "vertices_             = " << vertices_             << endl;
+    cout << "useStraightTracks_    = " << useStraightTracks_    << endl;
+    cout << endl << endl << endl;
+  */
 
   // Load template; 40 for barrel and 41 for endcaps
   templ_.pushfile( 40 );
