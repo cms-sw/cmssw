@@ -1,4 +1,5 @@
 #include <map>
+#include <cmath>
 #include <algorithm>
 #include <vector>
 #include <iostream>
@@ -6,7 +7,12 @@
 #include <cstdio>
 #include <TTree.h>
 #include <TFile.h>
+#include <TF1.h>
+#include <TMatrixDSym.h>
+#include <TDecompBK.h>
+#include <TVectorD.h>
 #include <TGraphAsymmErrors.h>
+#include <TGraphErrors.h>
 #include <Math/ProbFunc.h>
 #include <Math/QuantFuncMathCore.h>
 
@@ -37,6 +43,30 @@ double quantErr(size_t n, double *vals, double q) {
     }
     return sqrt(c2 - c1*c1);
 }
+
+TVectorD polyFit(double x0, double y0, int npar, int n, double *xi, double *yi) {
+    //std::cout << "smoothWithPolyFit(x = " << x <<", npar = " << npar << ", n = " << n << ", xi = {" << xi[0] << ", " << xi[1] << ", ...}, yi = {" << yi[0] << ", " << yi[1] << ", ...})" << std::endl;
+    TMatrixDSym mat(npar);
+    TVectorD    vec(npar);
+    for (int j = 0; j < npar; ++j) {
+        for (int j2 = j; j2 < npar; ++j2) {
+            mat(j,j2) = 0;
+        }
+        vec(j) = 0;
+    }
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < npar; ++j) {
+            for (int j2 = j; j2 < npar; ++j2) {
+                mat(j,j2) += std::pow(xi[i]-x0, j+j2);
+            }
+            vec(j) += (yi[i]-y0)*std::pow(xi[i]-x0, j);
+        }
+    }
+    TDecompBK bk(mat);
+    bk.Solve(vec);
+    return vec;
+}
+
 
 enum BandType { Mean, Median, Quantile, Observed, Asimov, CountToys, MeanCPUTime, MeanRealTime, AdHoc, ObsQuantile };
 TGraphAsymmErrors *theBand(TFile *file, int doSyst, int whichChannel, BandType type, double width=0.68) {
@@ -190,6 +220,149 @@ TGraphAsymmErrors *theBand(TFile *file, int doSyst, int whichChannel, BandType t
         tge->SetPoint(ip, it->first*0.1, x);
         tge->SetPointError(ip, 0, 0, x-summer68, winter68-x);
         ip++;
+    }
+    return tge;
+}
+
+TGraphAsymmErrors *theFcBelt(TFile *file, int doSyst, int whichChannel, BandType type, double width=0.68) {
+    if (file == 0) return 0;
+    TTree *t = (TTree *) file->Get("limit");
+    if (t == 0) t = (TTree *) file->Get("test"); // backwards compatibility
+    if (t == 0) { std::cerr << "TFile " << file->GetName() << " does not contain the tree" << std::endl; return 0; }
+    Double_t mass, limit, limitErr = 0; Int_t syst, iChannel, iToy, iMass; Float_t quant = -1;
+    t->SetBranchAddress("mh", &mass);
+    t->SetBranchAddress("limit", &limit);
+    t->SetBranchAddress("limitErr", &limitErr);
+    t->SetBranchAddress("quantileExpected", &quant);
+    t->SetBranchAddress("syst", &syst);
+    t->SetBranchAddress((seed_is_channel ? "iSeed" : "iChannel"), &iChannel);
+    t->SetBranchAddress("iToy", &iToy);
+
+    TF1 fitExp("fitExp","[0]*exp([1]*(x-[2]))", 0, 1);
+    TF1 fitErf("fitErf","[0]*TMath::Erfc([1]*abs(x-[2]))", 0, 1);
+    std::map<int,TGraphErrors*>  dataset;
+    for (size_t i = 0, n = t->GetEntries(); i < n; ++i) {
+        t->GetEntry(i);
+        iMass = int(mass*10);
+        //printf("%6d mh=%.1f  limit=%8.3f +/- %8.3f toy=%5d quant=% .3f\n", i, mass, limit, limitErr, iToy, quant);
+        if (syst != doSyst)           continue;
+        if (iChannel != whichChannel) continue;
+        if      (type == Asimov)   { if (iToy != -1) continue; }
+        else if (type == Observed) { if (iToy !=  0) continue; }
+        if (quant < 0) continue;
+        TGraphErrors *& graph = dataset[iMass];
+        if (graph == 0) graph = new TGraphErrors();
+        int ipoint = graph->GetN(); graph->Set(ipoint+1);
+        graph->SetPoint(ipoint, limit, quant); 
+        graph->SetPointError(ipoint, 0, limitErr);
+    }
+    std::cout << "Loaded " << dataset.size() << " masses " << std::endl;
+    TGraphAsymmErrors *tge = new TGraphAsymmErrors(); int ip = 0; 
+    for (std::map<int,TGraphErrors*>::iterator it = dataset.begin(), ed = dataset.end(); it != ed; ++it) {
+        TGraphErrors *graph = it->second; graph->Sort();
+        int n = graph->GetN(); if (n < 3) continue;
+        std::cout << "For mass " << it->first/10 << " I have " << n << " points" << std::endl;
+
+        double blow, bhigh, bmid;
+
+        int imax = 0; double ymax = graph->GetY()[0];
+        for (int i = 0; i < n; ++i) {
+            printf(" i = %2d mH = %.1f, r = %6.3f, pval = %8.6f +/- %8.6f\n", i, it->first/10., graph->GetX()[i], graph->GetY()[i], graph->GetEY()[i]);
+            if (graph->GetY()[i] > ymax) {
+                imax = i; ymax = graph->GetY()[i];
+            }
+        }
+        if (imax == 0) {
+            bmid = graph->GetX()[0];
+        } else if (imax == n-1) {
+            bmid = graph->GetX()[n-1];
+        } else {
+            // ad hoc method
+            double sumxmax = 0, sumwmax = 0;
+            for (int i = std::max<int>(0, imax-5); i < std::max<int>(n-1,imax+5); ++i) {
+                double y4 = pow(graph->GetY()[i],4);
+                sumxmax += graph->GetX()[i] * y4; sumwmax += y4;
+            }
+            bmid = sumxmax/sumwmax;
+        }
+
+        std::cout << "band center for " << it->first/10 << " is at " << bmid << " (imax = " << imax << ")\n" << std::endl;
+
+        if (graph->GetY()[0] > 1-width || imax == 0) {
+            blow = graph->GetX()[0];
+        } else {
+            int ilo = 0, ihi = 0;
+            for (ilo = 1;  ilo < imax; ++ilo) {
+                if (graph->GetEY()[ilo] == 0) continue;
+                if (graph->GetY()[ilo]  >= 0.05*(1-width)) break;
+            }
+            ilo -= 1;
+            for (ihi = imax; ihi > ilo+1; --ihi) {
+                if (graph->GetEY()[ihi] == 0) continue;
+                if (graph->GetY()[ihi] <= 3*(1-width)) break;
+            }
+            double xmin = graph->GetX()[ilo], xmax = graph->GetX()[ihi];
+            if (ilo <= 1) xmin = 0.0001;
+            fitErf.SetRange(xmin,xmax); fitErf.SetNpx(1000);
+            fitErf.SetParameters(0.6,bmid,2.0/bmid);
+            graph->Fit(&fitErf,"WNR EX0","",xmin,xmax);
+            fitErf.SetNpx(4);
+            blow = fitErf.GetX(1-width,xmin,xmax);
+            if (blow <= 2*0.0001) blow = 0;
+            std::cout << width << " band low end " << it->first/10 << " is at " << blow << " (xmin = " << xmin << ", xmax = " << xmax << ")\n" << std::endl;
+        }
+        
+        if (graph->GetY()[n-1] > 1-width || imax == n-1) {
+            bhigh = graph->GetX()[n-1];
+        } else if (imax == 0 && graph->GetY()[1] < 1-width) {
+            double xmin = graph->GetX()[1], xmax = graph->GetX()[2];
+            for (int i = 3; i <= std::max<int>(5,n); ++i) {
+                 if (graph->GetY()[i] < 0.5*(1-width)) break;
+                 xmax = graph->GetX()[i];
+            }
+            fitExp.SetRange(xmin,xmax); fitExp.SetNpx(1000);
+            fitExp.SetParameters(1-width, -2.0/(xmax-xmin), 0.5*(xmax-xmin));
+            fitExp.FixParameter(0,1-width);
+            graph->Fit(&fitExp,"WNR EX0","",xmin,xmax);
+            bhigh = fitExp.GetParameter(2);
+            if (bhigh < graph->GetX()[0]) {
+                bhigh = graph->GetX()[0] + ((1-width)-graph->GetY()[0])*(graph->GetX()[1]-graph->GetX()[0])/(graph->GetY()[1]-graph->GetY()[0]);
+                std::cout << width << " band high end forces stupid linear interpolation" << std::endl;
+            }
+            std::cout << width << " band high end " << it->first/10 << " is at " << bhigh << " (xmin = " << xmin << ", xmax = " << xmax << ")\n" << std::endl;
+        } else {
+            int ilo = 0, ihi = 0;
+            for (ilo = imax+1;  ilo < n-2; ++ilo) {
+                if (graph->GetEY()[ilo] == 0) continue;
+                if (graph->GetY()[ilo]  <= 3*(1-width)) break;
+            }
+            if (ilo > 0 && graph->GetEY()[ilo-1] != 0) ilo--;
+            for (ihi = ilo+1; ihi < n; ++ihi) {
+                if (graph->GetEY()[ihi] == 0) { ihi--; break; }
+                if (graph->GetY()[ihi] >= 0.05*(1-width)) break;
+            }
+            if (ihi - ilo <= 1) { 
+                double xmin = graph->GetX()[ilo], xmax = graph->GetX()[ihi];
+                bhigh = 0.5*(xmin+xmax);
+                std::cout << width << " band high end " << it->first/10 << " is " << bhigh << " (xmin = " << xmin << ", xmax = " << xmax << ", no fit)\n" << std::endl;
+            } else {
+                double xmin = graph->GetX()[ilo], xmax = graph->GetX()[ihi];
+                fitExp.SetRange(xmin,xmax); fitExp.SetNpx(1000);
+                fitExp.SetParameters(1-width, -2.0/(xmax-xmin), 0.5*(xmax-xmin));
+                fitExp.FixParameter(0,1-width);
+                graph->Fit(&fitExp,"WNR EX0","",xmin,xmax);
+                bhigh = fitExp.GetParameter(2);
+                std::cout << width << " band high end " << it->first/10 << " is at " << bhigh << " (xmin = " << xmin << ", xmax = " << xmax << ")\n" << std::endl;
+            }
+        }
+
+        tge->Set(ip+1);
+        tge->SetPoint(ip, it->first*0.1, bmid);
+        tge->SetPointError(ip, 0, 0, bmid-blow, bhigh-bmid);
+        ip++;
+
+        continue;
+        delete graph;
     }
     return tge;
 }
@@ -606,6 +779,50 @@ void printBand(TDirectory *bands, TString who, FILE *fout, bool mean=false) {
         );
     }
 }
+void printFcBand(TDirectory *bands, TString who, FILE *fout, int npostfix, char **postfixes) {
+    TGraphAsymmErrors *bs[99]; char *names[99]; int nbands = 0;
+    for (int i = 0; i < npostfix; ++i) {
+        bs[nbands] = (TGraphAsymmErrors*) bands->Get(who+"_"+postfixes[i]);
+        if (bs[nbands] != 0) { names[nbands] = postfixes[i]; nbands++; }
+    }
+    if (nbands == 0) return;
+    printf("Found %d bands\n", nbands);
+
+    fprintf(fout, "%4s \t ", "mass");
+    for (int i = 0; i < nbands; ++i) fprintf(fout, " -%-5s  ", names[nbands-i-1]);
+    fprintf(fout, "  %8s  ", "  mid.  ");
+    for (int i = 0; i < nbands; ++i) fprintf(fout, "   +%-5s", names[i]);
+    fprintf(fout, "\n");
+
+    for (int i = 0, n = bs[0]->GetN(); i < n; ++i) {
+        double xi = bs[0]->GetX()[i]; 
+        fprintf(fout, (halfint_masses ? "%5.1f\t" : "%4.0f \t"), xi);
+
+        for (int j = nbands-1; j >= 0; --j) {
+            int ij = findBin(bs[j], xi);
+            double y = (ij == -1 ? NAN : bs[j]->GetY()[ij] - bs[j]->GetErrorYlow(ij));
+            fprintf(fout, "%7.5f  ", y);
+        }
+
+        fprintf(fout, "  %7.5f  ", bs[0]->GetY()[i]);
+
+        for (int j = 0; j < nbands; ++j) {
+            int ij = findBin(bs[j], xi);
+            double y = (ij == -1 ? NAN : bs[j]->GetY()[ij] + bs[j]->GetErrorYhigh(ij));
+            fprintf(fout, "  %7.5f", y);
+        }
+
+        fprintf(fout, "\n");
+    }
+}
+void printFcBand(TDirectory *bands, TString who, TString fileName, int npostfix, char **postfixes) {
+    TGraph *first = (TGraph*) bands->Get(who+"_"+postfixes[0]); 
+    if (first == 0) { std::cerr << "MISSING " << who << "_" << postfixes[0] << std::endl; return; }
+    FILE *fout = fopen(fileName.Data(), "w");
+    printFcBand(bands, who, fout, npostfix, postfixes);
+    fclose(fout);
+}
+
 void printQuantiles(TDirectory *bands, TString who, FILE *fout) {
     double quants[5] = { 0.025, 0.16, 0.5, 0.84, 0.975 };
     TGraphAsymmErrors *graphs[5];
@@ -760,6 +977,11 @@ void importLandS(TDirectory *bands, TString name, TString fileName, bool doObser
     if (in == 0) { std::cerr << "Cannot open " << fileName << std::endl; return;  }
     importLandS(bands, name, in, doObserved, doExpected);
     in->Close();
+}
+
+double smoothWithPolyFit(double x, int npar, int n, double *xi, double *yi) {
+    TVectorD fitRes = polyFit(x, yi[n/2], npar, n, xi, yi);
+    return fitRes(0)+yi[n/2];
 }
 
 void array_sort(double *begin, double *end) { std::sort(begin, end); }
