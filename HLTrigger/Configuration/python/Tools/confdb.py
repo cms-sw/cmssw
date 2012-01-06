@@ -172,7 +172,7 @@ class HLTProcess(object):
   def releaseSpecificCustomize(self):
     # version specific customizations
     self.data += """
-# version specific customizations
+# CMSSW version specific customizations
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 """
@@ -194,13 +194,13 @@ if 'hltHfreco' in %(dict)s:
     %(process)shltHfreco.setNoiseFlags = cms.bool( False )
 """
 
-    self.data += """
-# untracked parameters with NO default in the code
-if 'hltHcalDataIntegrityMonitor' in %(dict)s:
-    %(process)shltHcalDataIntegrityMonitor.RawDataLabel = cms.untracked.InputTag("rawDataCollector")
-if 'hltDt4DSegments' in %(dict)s:
-    %(process)shltDt4DSegments.debug = cms.untracked.bool( False )
-"""
+#    self.data += """
+## untracked parameters with NO default in the code
+#if 'hltHcalDataIntegrityMonitor' in %(dict)s:
+#    %(process)shltHcalDataIntegrityMonitor.RawDataLabel = cms.untracked.InputTag("rawDataCollector")
+#if 'hltDt4DSegments' in %(dict)s:
+#    %(process)shltDt4DSegments.debug = cms.untracked.bool( False )
+#"""
 
     if self.config.fragment:
       

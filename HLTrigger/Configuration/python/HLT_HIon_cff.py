@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_0_0/HIon/V5 (CMSSW_5_0_0)
+# /dev/CMSSW_5_0_0/HIon/V7 (CMSSW_5_0_0_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_0_0/HIon/V5')
+  tableName = cms.string('/dev/CMSSW_5_0_0/HIon/V7')
 )
 
 streams = cms.PSet( 
@@ -2602,7 +2602,7 @@ hltHfreco = cms.EDProducer( "HcalHitReconstructor",
     correctionPhaseNS = cms.double( 13.0 ),
     digiLabel = cms.InputTag( "hltHcalDigis" ),
     correctTiming = cms.bool( False ),
-    setNoiseFlags = cms.bool( False ),
+    setNoiseFlags = cms.bool( True ),
     setHSCPFlags = cms.bool( False ),
     setSaturationFlags = cms.bool( False ),
     setTimingTrustFlags = cms.bool( False ),
@@ -6350,12 +6350,6 @@ HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_HIMET120_v1, HLT_HIMET200_
 if 'hltHfreco' in locals():
     hltHfreco.setNoiseFlags = cms.bool( False )
 
-# untracked parameters with NO default in the code
-if 'hltHcalDataIntegrityMonitor' in locals():
-    hltHcalDataIntegrityMonitor.RawDataLabel = cms.untracked.InputTag("rawDataCollector")
-if 'hltDt4DSegments' in locals():
-    hltDt4DSegments.debug = cms.untracked.bool( False )
-
 # dummyfy hltGetConditions in cff's
 if 'hltGetConditions' in locals() and 'HLTriggerFirstPath' in locals() :
     hltDummyConditions = cms.EDFilter( "HLTBool",
@@ -6363,7 +6357,7 @@ if 'hltGetConditions' in locals() and 'HLTriggerFirstPath' in locals() :
     )
     HLTriggerFirstPath.replace(hltGetConditions,hltDummyConditions)
 
-# version specific customizations
+# CMSSW version specific customizations
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 

@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_0_0/GRun/V5 (CMSSW_5_0_0)
+# /dev/CMSSW_5_0_0/GRun/V7 (CMSSW_5_0_0_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_0_0/GRun/V5')
+  tableName = cms.string('/dev/CMSSW_5_0_0/GRun/V7')
 )
 
 streams = cms.PSet( 
@@ -4226,7 +4226,7 @@ hltHfreco = cms.EDProducer( "HcalHitReconstructor",
     correctionPhaseNS = cms.double( 13.0 ),
     digiLabel = cms.InputTag( "hltHcalDigis" ),
     correctTiming = cms.bool( False ),
-    setNoiseFlags = cms.bool( False ),
+    setNoiseFlags = cms.bool( True ),
     setHSCPFlags = cms.bool( False ),
     setSaturationFlags = cms.bool( False ),
     setTimingTrustFlags = cms.bool( False ),
@@ -15238,6 +15238,10 @@ hltL1IsolatedPhotonEcalIsol = cms.EDProducer( "EgammaHLTEcalRecIsolationProducer
     ecalBarrelRecHitCollection = cms.InputTag( "EcalRecHitsEB" ),
     ecalEndcapRecHitProducer = cms.InputTag( "hltEcalRegionalEgammaRecHit" ),
     ecalEndcapRecHitCollection = cms.InputTag( "EcalRecHitsEE" ),
+    rhoProducer = cms.InputTag( 'hltKT6CaloJets','rho' ),
+    doRhoCorrection = cms.bool( False ),
+    rhoMax = cms.double( 9.9999999E7 ),
+    rhoScale = cms.double( 1.0 ),
     etMinBarrel = cms.double( -9999.0 ),
     eMinBarrel = cms.double( 0.08 ),
     etMinEndcap = cms.double( 0.1 ),
@@ -15246,6 +15250,8 @@ hltL1IsolatedPhotonEcalIsol = cms.EDProducer( "EgammaHLTEcalRecIsolationProducer
     intRadiusEndcap = cms.double( 3.0 ),
     extRadius = cms.double( 0.3 ),
     jurassicWidth = cms.double( 3.0 ),
+    effectiveAreaBarrel = cms.double( 0.101 ),
+    effectiveAreaEndcap = cms.double( 0.046 ),
     useIsolEt = cms.bool( True ),
     tryBoth = cms.bool( True ),
     subtract = cms.bool( False ),
@@ -15257,6 +15263,10 @@ hltL1NonIsolatedPhotonEcalIsol = cms.EDProducer( "EgammaHLTEcalRecIsolationProdu
     ecalBarrelRecHitCollection = cms.InputTag( "EcalRecHitsEB" ),
     ecalEndcapRecHitProducer = cms.InputTag( "hltEcalRegionalEgammaRecHit" ),
     ecalEndcapRecHitCollection = cms.InputTag( "EcalRecHitsEE" ),
+    rhoProducer = cms.InputTag( 'hltKT6CaloJets','rho' ),
+    doRhoCorrection = cms.bool( False ),
+    rhoMax = cms.double( 9.9999999E7 ),
+    rhoScale = cms.double( 1.0 ),
     etMinBarrel = cms.double( -9999.0 ),
     eMinBarrel = cms.double( 0.08 ),
     etMinEndcap = cms.double( 0.1 ),
@@ -15265,6 +15275,8 @@ hltL1NonIsolatedPhotonEcalIsol = cms.EDProducer( "EgammaHLTEcalRecIsolationProdu
     intRadiusEndcap = cms.double( 3.0 ),
     extRadius = cms.double( 0.3 ),
     jurassicWidth = cms.double( 3.0 ),
+    effectiveAreaBarrel = cms.double( 0.101 ),
+    effectiveAreaEndcap = cms.double( 0.046 ),
     useIsolEt = cms.bool( True ),
     tryBoth = cms.bool( True ),
     subtract = cms.bool( False ),
@@ -15291,6 +15303,10 @@ hltPhoton20CaloIdVLIsoLEcalIsoFilter = cms.EDFilter( "HLTEgammaGenericQuadraticF
 hltL1IsolatedPhotonHcalForHE = cms.EDProducer( "EgammaHLTHcalIsolationProducersRegional",
     recoEcalCandidateProducer = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     hbheRecHitProducer = cms.InputTag( "hltHbhereco" ),
+    rhoProducer = cms.InputTag( 'hltKT6CaloJets','rho' ),
+    doRhoCorrection = cms.bool( False ),
+    rhoMax = cms.double( 9.9999999E7 ),
+    rhoScale = cms.double( 1.0 ),
     eMinHB = cms.double( 0.7 ),
     eMinHE = cms.double( 0.8 ),
     etMinHB = cms.double( -1.0 ),
@@ -15298,11 +15314,17 @@ hltL1IsolatedPhotonHcalForHE = cms.EDProducer( "EgammaHLTHcalIsolationProducersR
     innerCone = cms.double( 0.0 ),
     outerCone = cms.double( 0.14 ),
     depth = cms.int32( -1 ),
-    doEtSum = cms.bool( False )
+    doEtSum = cms.bool( False ),
+    effectiveAreaBarrel = cms.double( 0.021 ),
+    effectiveAreaEndcap = cms.double( 0.04 )
 )
 hltL1NonIsolatedPhotonHcalForHE = cms.EDProducer( "EgammaHLTHcalIsolationProducersRegional",
     recoEcalCandidateProducer = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" ),
     hbheRecHitProducer = cms.InputTag( "hltHbhereco" ),
+    rhoProducer = cms.InputTag( 'hltKT6CaloJets','rho' ),
+    doRhoCorrection = cms.bool( False ),
+    rhoMax = cms.double( 9.9999999E7 ),
+    rhoScale = cms.double( 1.0 ),
     eMinHB = cms.double( 0.7 ),
     eMinHE = cms.double( 0.8 ),
     etMinHB = cms.double( -1.0 ),
@@ -15310,7 +15332,9 @@ hltL1NonIsolatedPhotonHcalForHE = cms.EDProducer( "EgammaHLTHcalIsolationProduce
     innerCone = cms.double( 0.0 ),
     outerCone = cms.double( 0.14 ),
     depth = cms.int32( -1 ),
-    doEtSum = cms.bool( False )
+    doEtSum = cms.bool( False ),
+    effectiveAreaBarrel = cms.double( 0.021 ),
+    effectiveAreaEndcap = cms.double( 0.04 )
 )
 hltPhoton20CaloIdVLIsoLHEFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     candTag = cms.InputTag( "hltPhoton20CaloIdVLIsoLEcalIsoFilter" ),
@@ -15333,6 +15357,10 @@ hltPhoton20CaloIdVLIsoLHEFilter = cms.EDFilter( "HLTEgammaGenericFilter",
 hltL1IsolatedPhotonHcalIsol = cms.EDProducer( "EgammaHLTHcalIsolationProducersRegional",
     recoEcalCandidateProducer = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     hbheRecHitProducer = cms.InputTag( "hltHbhereco" ),
+    rhoProducer = cms.InputTag( 'hltKT6CaloJets','rho' ),
+    doRhoCorrection = cms.bool( False ),
+    rhoMax = cms.double( 9.9999999E7 ),
+    rhoScale = cms.double( 1.0 ),
     eMinHB = cms.double( 0.7 ),
     eMinHE = cms.double( 0.8 ),
     etMinHB = cms.double( -1.0 ),
@@ -15340,11 +15368,17 @@ hltL1IsolatedPhotonHcalIsol = cms.EDProducer( "EgammaHLTHcalIsolationProducersRe
     innerCone = cms.double( 0.16 ),
     outerCone = cms.double( 0.29 ),
     depth = cms.int32( -1 ),
-    doEtSum = cms.bool( True )
+    doEtSum = cms.bool( True ),
+    effectiveAreaBarrel = cms.double( 0.021 ),
+    effectiveAreaEndcap = cms.double( 0.04 )
 )
 hltL1NonIsolatedPhotonHcalIsol = cms.EDProducer( "EgammaHLTHcalIsolationProducersRegional",
     recoEcalCandidateProducer = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" ),
     hbheRecHitProducer = cms.InputTag( "hltHbhereco" ),
+    rhoProducer = cms.InputTag( 'hltKT6CaloJets','rho' ),
+    doRhoCorrection = cms.bool( False ),
+    rhoMax = cms.double( 9.9999999E7 ),
+    rhoScale = cms.double( 1.0 ),
     eMinHB = cms.double( 0.7 ),
     eMinHE = cms.double( 0.8 ),
     etMinHB = cms.double( -1.0 ),
@@ -15352,7 +15386,9 @@ hltL1NonIsolatedPhotonHcalIsol = cms.EDProducer( "EgammaHLTHcalIsolationProducer
     innerCone = cms.double( 0.16 ),
     outerCone = cms.double( 0.29 ),
     depth = cms.int32( -1 ),
-    doEtSum = cms.bool( True )
+    doEtSum = cms.bool( True ),
+    effectiveAreaBarrel = cms.double( 0.021 ),
+    effectiveAreaEndcap = cms.double( 0.04 )
 )
 hltPhoton20CaloIdVLIsoLHcalIsoFilter = cms.EDFilter( "HLTEgammaGenericQuadraticFilter",
     candTag = cms.InputTag( "hltPhoton20CaloIdVLIsoLHEFilter" ),
@@ -15568,6 +15604,10 @@ hltDoubleIsoEG18EtFilterUnseeded = cms.EDFilter( "HLTEgammaEtFilter",
 hltActivityPhotonHcalForHE = cms.EDProducer( "EgammaHLTHcalIsolationProducersRegional",
     recoEcalCandidateProducer = cms.InputTag( "hltRecoEcalSuperClusterActivityCandidate" ),
     hbheRecHitProducer = cms.InputTag( "hltHbhereco" ),
+    rhoProducer = cms.InputTag( 'hltKT6CaloJets','rho' ),
+    doRhoCorrection = cms.bool( False ),
+    rhoMax = cms.double( 9.9999999E7 ),
+    rhoScale = cms.double( 1.0 ),
     eMinHB = cms.double( 0.7 ),
     eMinHE = cms.double( 0.8 ),
     etMinHB = cms.double( -1.0 ),
@@ -15575,7 +15615,9 @@ hltActivityPhotonHcalForHE = cms.EDProducer( "EgammaHLTHcalIsolationProducersReg
     innerCone = cms.double( 0.0 ),
     outerCone = cms.double( 0.14 ),
     depth = cms.int32( -1 ),
-    doEtSum = cms.bool( False )
+    doEtSum = cms.bool( False ),
+    effectiveAreaBarrel = cms.double( 0.021 ),
+    effectiveAreaEndcap = cms.double( 0.04 )
 )
 hltDoubleIsoEG18HEFilterUnseeded = cms.EDFilter( "HLTEgammaGenericFilter",
     candTag = cms.InputTag( "hltDoubleIsoEG18EtFilterUnseeded" ),
@@ -15786,6 +15828,10 @@ hltActivityPhotonEcalIsol = cms.EDProducer( "EgammaHLTEcalRecIsolationProducer",
     ecalBarrelRecHitCollection = cms.InputTag( "EcalRecHitsEB" ),
     ecalEndcapRecHitProducer = cms.InputTag( "hltEcalRecHitAll" ),
     ecalEndcapRecHitCollection = cms.InputTag( "EcalRecHitsEE" ),
+    rhoProducer = cms.InputTag( 'hltKT6CaloJets','rho' ),
+    doRhoCorrection = cms.bool( False ),
+    rhoMax = cms.double( 9.9999999E7 ),
+    rhoScale = cms.double( 1.0 ),
     etMinBarrel = cms.double( -9999.0 ),
     eMinBarrel = cms.double( 0.08 ),
     etMinEndcap = cms.double( 0.1 ),
@@ -15794,6 +15840,8 @@ hltActivityPhotonEcalIsol = cms.EDProducer( "EgammaHLTEcalRecIsolationProducer",
     intRadiusEndcap = cms.double( 3.0 ),
     extRadius = cms.double( 0.3 ),
     jurassicWidth = cms.double( 3.0 ),
+    effectiveAreaBarrel = cms.double( 0.101 ),
+    effectiveAreaEndcap = cms.double( 0.046 ),
     useIsolEt = cms.bool( True ),
     tryBoth = cms.bool( True ),
     subtract = cms.bool( False ),
@@ -15838,6 +15886,10 @@ hltEle8CaloIdLCaloIsoVLNoL1SeedHEFilter = cms.EDFilter( "HLTEgammaGenericFilter"
 hltActivityPhotonHcalIsol = cms.EDProducer( "EgammaHLTHcalIsolationProducersRegional",
     recoEcalCandidateProducer = cms.InputTag( "hltRecoEcalSuperClusterActivityCandidate" ),
     hbheRecHitProducer = cms.InputTag( "hltHbhereco" ),
+    rhoProducer = cms.InputTag( 'hltKT6CaloJets','rho' ),
+    doRhoCorrection = cms.bool( False ),
+    rhoMax = cms.double( 9.9999999E7 ),
+    rhoScale = cms.double( 1.0 ),
     eMinHB = cms.double( 0.7 ),
     eMinHE = cms.double( 0.8 ),
     etMinHB = cms.double( -1.0 ),
@@ -15845,7 +15897,9 @@ hltActivityPhotonHcalIsol = cms.EDProducer( "EgammaHLTHcalIsolationProducersRegi
     innerCone = cms.double( 0.16 ),
     outerCone = cms.double( 0.29 ),
     depth = cms.int32( -1 ),
-    doEtSum = cms.bool( True )
+    doEtSum = cms.bool( True ),
+    effectiveAreaBarrel = cms.double( 0.021 ),
+    effectiveAreaEndcap = cms.double( 0.04 )
 )
 hltEle8CaloIdLCaloIsoVLNoL1SeedHcalIsolFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     candTag = cms.InputTag( "hltEle8CaloIdLCaloIsoVLNoL1SeedHEFilter" ),
@@ -18711,11 +18765,13 @@ hltEle8CaloIdLTrkIdVLOneOEMinusOneOPFilter = cms.EDFilter( "HLTElectronOneOEMinu
 )
 hltElectronL1IsoDetaDphi = cms.EDProducer( "EgammaHLTElectronDetaDphiProducer",
     electronProducer = cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
-    BSProducer = cms.InputTag( "hltOnlineBeamSpot" )
+    BSProducer = cms.InputTag( "hltOnlineBeamSpot" ),
+    useTrackProjectionToEcal = cms.bool( False )
 )
 hltElectronL1NonIsoDetaDphi = cms.EDProducer( "EgammaHLTElectronDetaDphiProducer",
     electronProducer = cms.InputTag( "hltPixelMatchElectronsL1NonIso" ),
-    BSProducer = cms.InputTag( "hltOnlineBeamSpot" )
+    BSProducer = cms.InputTag( "hltOnlineBeamSpot" ),
+    useTrackProjectionToEcal = cms.bool( False )
 )
 hltEle8CaloIdLTrkIdVLDetaFilter = cms.EDFilter( "HLTElectronGenericFilter",
     candTag = cms.InputTag( "hltEle8CaloIdLTrkIdVLOneOEMinusOneOPFilter" ),
@@ -18916,11 +18972,13 @@ hltEle8TightIdLooseIsoOneOEMinusOneOPFilter = cms.EDFilter( "HLTElectronOneOEMin
 )
 hlt3HitElectronL1IsoDetaDphi = cms.EDProducer( "EgammaHLTElectronDetaDphiProducer",
     electronProducer = cms.InputTag( "hltPixelMatch3HitElectronsL1Iso" ),
-    BSProducer = cms.InputTag( "hltOnlineBeamSpot" )
+    BSProducer = cms.InputTag( "hltOnlineBeamSpot" ),
+    useTrackProjectionToEcal = cms.bool( False )
 )
 hlt3HitElectronL1NonIsoDetaDphi = cms.EDProducer( "EgammaHLTElectronDetaDphiProducer",
     electronProducer = cms.InputTag( "hltPixelMatch3HitElectronsL1NonIso" ),
-    BSProducer = cms.InputTag( "hltOnlineBeamSpot" )
+    BSProducer = cms.InputTag( "hltOnlineBeamSpot" ),
+    useTrackProjectionToEcal = cms.bool( False )
 )
 hltEle8TightIdLooseIsoDetaFilter = cms.EDFilter( "HLTElectronGenericFilter",
     candTag = cms.InputTag( "hltEle8TightIdLooseIsoOneOEMinusOneOPFilter" ),
@@ -19742,7 +19800,8 @@ hltEle17TightIdLooseIsoEle8TightIdLooseIsoOneOEMinusOneOPDoubleFilter = cms.EDFi
 )
 hlt3HitElectronActivityDetaDphi = cms.EDProducer( "EgammaHLTElectronDetaDphiProducer",
     electronProducer = cms.InputTag( "hltPixelMatch3HitElectronsActivity" ),
-    BSProducer = cms.InputTag( "hltOnlineBeamSpot" )
+    BSProducer = cms.InputTag( "hltOnlineBeamSpot" ),
+    useTrackProjectionToEcal = cms.bool( False )
 )
 hltEle17TightIdLooseIsoEle8TightIdLooseIsoDetaDoubleFilter = cms.EDFilter( "HLTElectronGenericFilter",
     candTag = cms.InputTag( "hltEle17TightIdLooseIsoEle8TightIdLooseIsoOneOEMinusOneOPDoubleFilter" ),
@@ -23082,7 +23141,8 @@ hltEle5NoL1SeedOneOEMinusOneOPFilterforDR = cms.EDFilter( "HLTElectronOneOEMinus
 )
 hltElectronActivityDetaDphi = cms.EDProducer( "EgammaHLTElectronDetaDphiProducer",
     electronProducer = cms.InputTag( "hltPixelMatchElectronsActivity" ),
-    BSProducer = cms.InputTag( "hltOnlineBeamSpot" )
+    BSProducer = cms.InputTag( "hltOnlineBeamSpot" ),
+    useTrackProjectionToEcal = cms.bool( False )
 )
 hltEle5NoL1SeedDetaFilterforDR = cms.EDFilter( "HLTElectronGenericFilter",
     candTag = cms.InputTag( "hltEle5NoL1SeedOneOEMinusOneOPFilterforDR" ),
@@ -31751,6 +31811,7 @@ hltESFEDIntegrityTask = cms.EDAnalyzer( "ESFEDIntegrityTask",
 )
 hltHcalDataIntegrityMonitor = cms.EDAnalyzer( "HcalDataIntegrityTask",
     TaskFolder = cms.untracked.string( "FEDIntegrity_EvF" ),
+    RawDataLabel = cms.untracked.InputTag( "rawDataCollector" ),
     UnpackerReportLabel = cms.untracked.InputTag( "hltHcalDigis" ),
     AllowedCalibTypes = cms.untracked.vint32( 0, 1, 2, 3, 4, 5, 6, 7 )
 )
@@ -32450,12 +32511,6 @@ HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_Activity_Ecal_SC7_v9, HLT_
 if 'hltHfreco' in locals():
     hltHfreco.setNoiseFlags = cms.bool( True )
 
-# untracked parameters with NO default in the code
-if 'hltHcalDataIntegrityMonitor' in locals():
-    hltHcalDataIntegrityMonitor.RawDataLabel = cms.untracked.InputTag("rawDataCollector")
-if 'hltDt4DSegments' in locals():
-    hltDt4DSegments.debug = cms.untracked.bool( False )
-
 # dummyfy hltGetConditions in cff's
 if 'hltGetConditions' in locals() and 'HLTriggerFirstPath' in locals() :
     hltDummyConditions = cms.EDFilter( "HLTBool",
@@ -32463,7 +32518,7 @@ if 'hltGetConditions' in locals() and 'HLTriggerFirstPath' in locals() :
     )
     HLTriggerFirstPath.replace(hltGetConditions,hltDummyConditions)
 
-# version specific customizations
+# CMSSW version specific customizations
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 

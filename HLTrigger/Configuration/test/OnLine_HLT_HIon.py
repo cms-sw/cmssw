@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_0_0/HIon/V5 (CMSSW_5_0_0)
+# /dev/CMSSW_5_0_0/HIon/V7 (CMSSW_5_0_0_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_0_0/HIon/V5')
+  tableName = cms.string('/dev/CMSSW_5_0_0/HIon/V7')
 )
 
 process.streams = cms.PSet( 
@@ -3263,7 +3263,7 @@ process.hltHfreco = cms.EDProducer( "HcalHitReconstructor",
     correctionPhaseNS = cms.double( 13.0 ),
     digiLabel = cms.InputTag( "hltHcalDigis" ),
     correctTiming = cms.bool( False ),
-    setNoiseFlags = cms.bool( False ),
+    setNoiseFlags = cms.bool( True ),
     setHSCPFlags = cms.bool( False ),
     setSaturationFlags = cms.bool( False ),
     setTimingTrustFlags = cms.bool( False ),
@@ -8069,12 +8069,6 @@ process.RPCMONOutput = cms.EndPath( process.hltPreRPCMONOutput )
 if 'hltHfreco' in process.__dict__:
     process.hltHfreco.setNoiseFlags = cms.bool( False )
 
-# untracked parameters with NO default in the code
-if 'hltHcalDataIntegrityMonitor' in process.__dict__:
-    process.hltHcalDataIntegrityMonitor.RawDataLabel = cms.untracked.InputTag("rawDataCollector")
-if 'hltDt4DSegments' in process.__dict__:
-    process.hltDt4DSegments.debug = cms.untracked.bool( False )
-
 # override the process name
 process.setName_('HLTHIon')
 
@@ -8149,7 +8143,7 @@ if 'MessageLogger' in process.__dict__:
     process.MessageLogger.categories.append('L1GtTrigReport')
     process.MessageLogger.categories.append('HLTrigReport')
 
-# version specific customizations
+# CMSSW version specific customizations
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 
