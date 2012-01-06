@@ -62,7 +62,7 @@ private:
   Rotation theRotation;
   double u1u2, overDu, pv, dv, su;
 
-  Point2D findPointAtCurve(double radius, int charge, double ip) const dso_internal;
+  inline void findPointAtCurve(double radius, int charge, double ip, double &u, double &v) const;
 
   RangeD theIpRangePlus, theIpRangeMinus; 
   double theTolerance;
@@ -95,6 +95,32 @@ double ThirdHitPredictionFromInvParabola::
 predV( double u, double ip, int charge) const
 {
   return -charge*( coeffA(ip,charge) - coeffB(ip,charge)*u - ip*u*u);
+}
+
+void ThirdHitPredictionFromInvParabola::findPointAtCurve(double r, int c, double ip, 
+							 double & u, double & v) const
+{
+  //
+  // assume u=(1-alpha^2/2)/r v=alpha/r
+  // solve qudratic equation neglecting aplha^4 term
+  //
+  double A = coeffA(ip,c);
+  double B = coeffB(ip,c);
+
+  // double overR = 1./r;
+  double ipOverR = ip/r; // *overR;
+
+  double delta = 1-4*(0.5*B+ipOverR)*(-B+A*r-ipOverR);
+  double sqrtdelta = (delta > 0) ? std::sqrt(delta) : 0.;
+  //  double sqrtdelta = std::sqrt(delta);
+  double alpha = (c>0)?  (-c+sqrtdelta)/(B+2*ipOverR) :  (-c-sqrtdelta)/(B+2*ipOverR);
+
+  v = alpha;  // *overR
+  double d2 = 1. - v*v;  // overR*overR - v*v
+  u = (d2 > 0) ? std::sqrt(d2) : 0.;
+  // u = std::sqrt(d2);
+
+  // u,v not rotated! not multiplied by 1/r
 }
 
 

@@ -63,41 +63,22 @@ void ThirdHitPredictionFromInvParabola::
 }
     
 
-ThirdHitPredictionFromInvParabola::Point2D ThirdHitPredictionFromInvParabola::findPointAtCurve(
-    double r, int c, double ip) const
-{
-  //
-  // assume u=(1-alpha^2/2)/r v=alpha/r
-  // solve qudratic equation neglecting aplha^4 term
-  //
-  double A = coeffA(ip,c);
-  double B = coeffB(ip,c);
-
-  // double overR = 1./r;
-  double ipOverR = ip/r; // *overR;
-
-  double delta = 1-4*(0.5*B+ipOverR)*(-B+A*r-ipOverR);
-  double sqrtdelta = (delta > 0) ? std::sqrt(delta) : 0.;
-  double alpha = (c>0)?  (-c+sqrtdelta)/(B+2*ipOverR) :  (-c-sqrtdelta)/(B+2*ipOverR);
-
-  double v = alpha;  // *overR
-  double d2 = 1. - v*v;  // overR*overR - v*v
-  double u = (d2 > 0) ? std::sqrt(d2) : 0.;
-
-  return Point2D(u,v); // not rotated! not multiplied by 1/r
-}
-
 
 ThirdHitPredictionFromInvParabola::Range ThirdHitPredictionFromInvParabola::rangeRPhi(
     double radius, int charge) const
 {
   RangeD ip = (charge > 0) ? theIpRangePlus : theIpRangeMinus;
 
-  Point2D pred_tmp1 = findPointAtCurve(radius,charge,ip.min());
-  Point2D pred_tmp2 = findPointAtCurve(radius,charge,ip.max());
 
-  double phi1 = theRotation.rotateBack(pred_tmp1).barePhi();
-  double phi2 = phi1+(pred_tmp2.y()-pred_tmp1.y()); 
+  //  it will vectorize with gcc 4.7 (with -O3 -fno-math-errno)
+  double ip[2]={ip.min(),ip.max()};
+  double u[2], v[2];
+  for (int i=0; i!=2; ++i)
+    findPointAtCurve(r,c, ip[i],u[i],v[i]);
+
+ 
+  double phi1 = theRotation.rotateBack(Point2D(u[0],v[0])).barePhi();
+  double phi2 = phi1+(v[1]-v[0]); 
   
   if (ip.empty()) {
     Range r1(phi1*radius-theTolerance, phi1*radius+theTolerance); 
