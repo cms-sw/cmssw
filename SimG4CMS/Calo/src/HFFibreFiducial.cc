@@ -1526,10 +1526,9 @@ int HFFibreFiducial::PMTNumber(G4ThreeVector pe_effect)
   static const int B18[nS]={0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0};
   */
 
-  bool lft=true;          // by defauld the lft (-X) is true (use tLXXX: widgets  1-13)
   static const double cellSize = 0.5*CLHEP::cm;  // 0.5 cm is the cell size
-  if (xl > 0.) lft=false; // change the lft to the right (X+)(use tRXXX: widgets 12-24)
-  else       xl=-xl;      // make x positive (@@ x=0. belongs to the left, negative X)
+  if (!(xl > 0.))
+    xl=-xl;
   double     fx=xl/cellSize;
   int ny=static_cast<int>((yl-yMin)/cellSize);   // Layer number (starting from 0)
   if (ny < 0 || ny >= nLay) // Sould never happen as was checked beforehand
