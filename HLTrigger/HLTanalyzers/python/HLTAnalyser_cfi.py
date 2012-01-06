@@ -142,7 +142,7 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     PixelClusters               = cms.InputTag("hltSiPixelClusters"),
                              
     ### Calo tower settings
-    caloTowerThreshold          = cms.double( 2.0 ),
+    caloTowerThreshold          = cms.double( 5.0 ),
 
     ### AlCa pi0 settings
     clusSeedThr                 = cms.double( 0.5 ),

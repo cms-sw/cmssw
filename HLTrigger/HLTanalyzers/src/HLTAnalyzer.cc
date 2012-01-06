@@ -18,7 +18,7 @@ bool getCollection(const edm::Event & event, std::vector<MissingCollectionInfo> 
     if (not valid) {
         missing.push_back( std::make_pair(description, & name) );
         handle.clear();
-	std::cout << "not valid "<< description << " " << name << std::endl;
+	//	std::cout << "not valid "<< description << " " << name << std::endl;
     }
     return valid;
 }
