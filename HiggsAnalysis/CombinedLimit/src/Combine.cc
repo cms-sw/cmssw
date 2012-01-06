@@ -551,7 +551,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 
 void Combine::commitPoint(bool expected, float quantile) {
     Float_t saveQuantile =  g_quantileExpected_;
-    g_quantileExpected_ = expected ? quantile : -1.0;
+    g_quantileExpected_ = quantile;
     tree_->Fill();
     g_quantileExpected_ = saveQuantile;
 }
