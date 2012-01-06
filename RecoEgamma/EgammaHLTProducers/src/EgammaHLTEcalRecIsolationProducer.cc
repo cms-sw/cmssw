@@ -107,11 +107,12 @@ void EgammaHLTEcalRecIsolationProducer::produce(edm::Event& iEvent, const edm::E
   const EcalSeverityLevelAlgo* sevLevel = sevlv.product();
   
   edm::Handle<double> rhoHandle;
-  iEvent.getByLabel(rhoProducer_, rhoHandle);
-  double rho = *(rhoHandle.product());
-  if (rho > rhoMax_)
-    rho = rhoMax_;
-  
+  double rho(0.0);
+  if (doRhoCorrection_) {
+    iEvent.getByLabel(rhoProducer_, rhoHandle);
+    rho = *(rhoHandle.product());
+  }
+  if (rho > rhoMax_) rho = rhoMax_;
   rho = rho*rhoScale_;
 
   //prepare product
