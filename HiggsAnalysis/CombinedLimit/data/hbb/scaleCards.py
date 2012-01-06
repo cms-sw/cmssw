@@ -57,7 +57,7 @@ if options.xsbr:
     xsbrR['ZH'] = zhXS[options.refmass]['XS_pb'] * br[options.refmass]['H_bb']
     xsbr ['ZH'] = zhXS[mass           ]['XS_pb'] * br[mass           ]['H_bb']
     print "Will interpolate %g from %g (XS*BR ratio: %.3f for WH, %.3f for ZH)" % (mass, options.refmass, xsbr['WH']/xsbrR['WH'], xsbr['ZH']/xsbrR['ZH'])
-else
+else:
     print "Will copy %g from %g" % (mass, options.refmass)
 
 fileR = options.ddir+"/%g/vhbb_DC_ALL_%s.%.1f.txt" % (options.refmass, options.flavour, options.refmass)
