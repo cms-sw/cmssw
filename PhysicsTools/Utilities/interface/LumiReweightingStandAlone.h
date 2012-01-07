@@ -330,110 +330,183 @@ namespace reweight {
 
       }
 
-      void weight3D_init() { 
+      void weight3D_init( float ScaleFactor, std::string WeightOutputFile="") { 
 
 	//create histogram to write output weights, save pain of generating them again...
 
-	TH3D* WHist = new TH3D("WHist","3D weights",35,-.5,34.5,35,-.5,34.5,35,-.5,34.5 );
+	TH3D* WHist = new TH3D("WHist","3D weights",50,0.,50.,50,0.,50.,50,0.,50. );
+	TH3D* DHist = new TH3D("DHist","3D weights",50,0.,50.,50,0.,50.,50,0.,50. );
+	TH3D* MHist = new TH3D("MHist","3D weights",50,0.,50.,50,0.,50.,50,0.,50. );
 
 
 	using std::min;
-
-	int Npoints = 100000000;
 
 	if( MC_distr_->GetEntries() == 0 ) {
 	  std::cout << " MC and Data distributions are not initialized! You must call the LumiReWeighting constructor. " << std::endl;
 	}
 
-	std::cout << " Generating 100M 3-D Weights.  This will take a while..." << std::endl;
-
 	// arrays for storing number of interactions
 
-	double MC_ints[35][35][35];
-	double Data_ints[35][35][35];
+	double MC_ints[50][50][50];
+	double Data_ints[50][50][50];
 
-	for (int i=0; i<35; i++) {
-	  for(int j=0; j<35; j++) {
-	    for(int k=0; k<35; k++) {
+	for (int i=0; i<50; i++) {
+	  for(int j=0; j<50; j++) {
+	    for(int k=0; k<50; k++) {
 	      MC_ints[i][j][k] = 0.;
 	      Data_ints[i][j][k] = 0.;
 	    }
 	  }
 	}
 
-	// initialize random numbers
+	double factorial[50];
+	double PowerSer[50];
+	double base = 1.;
 
-	TRandom *r1 = new TRandom1();
+	factorial[0] = 1.;
+	PowerSer[0]=1.;
 
-	double x,y;
-	double xint, yint;
-	int xi;
-
-	// Get entries randomly for Data, MC, fill arrays:
-
-	for (int j=0;j<Npoints;j++) {       
-
-	  if(j%1000000==0) std::cout << " ." << std::endl;
-
-	  x =  MC_distr_->GetRandom();
-
-	  //for Summer 11, we have this int feature that generates the spike at zero int.
-	  xi = int(x);
-	  xint = r1->Poisson(xi);
-
-	  int x0 = min(int(xint),34);
-	  xint = r1->Poisson(xi);
-	  int x1 = min(int(xint),34);
-	  xint = r1->Poisson(xi);
-	  int x2 = min(int(xint),34);
-     
-	  // cout << x0 << "  " << x1 << " " << x2 << endl;
-
-	  MC_ints[x0][x1][x2] =  MC_ints[x0][x1][x2]+1.0;
-
-	  y =  Data_distr_->GetRandom();
-
-	  yint = r1->Poisson(y);
-
-	  int y0 = min(int(yint),34);
-	  yint = r1->Poisson(y);
-	  int y1 = min(int(yint),34);
-	  yint = r1->Poisson(y);
-	  int y2 = min(int(yint),34);
-
-	  Data_ints[y0][y1][y2] = Data_ints[y0][y1][y2]+1.0;
+	for (int i = 1; i<50; ++i) {
+	  base = base*float(i);
+	  factorial[i] = base;
 	}
 
-	for (int i=0; i<35; i++) {  
-	  for(int j=0; j<35; j++) {
-	    for(int k=0; k<35; k++) {
+
+	double x;
+	double xweight;
+	double probi, probj, probk;
+	double Expval, mean;
+	int xi;
+
+	// Get entries for Data, MC, fill arrays:                                                                                                 
+	int NMCbin = MC_distr_->GetNbinsX();
+
+	for (int jbin=1;jbin<NMCbin+1;jbin++) {
+	  x =  MC_distr_->GetBinCenter(jbin);
+	  xweight = MC_distr_->GetBinContent(jbin); //use as weight for matrix         
+
+	  //for Summer 11, we have this int feature:                      
+	  xi = int(x);
+
+	  // Generate Poisson distribution for each value of the mean     
+	  mean = double(xi);
+
+	  if(mean<0.) {
+	    std::cout << "LumiReweighting:BadInputValue" << " Your histogram generates MC luminosity values less than zero!"
+						  << " Please Check.  Terminating." << std::endl;
+	  }
+
+
+	  if(mean==0.){
+	    Expval = 1.;
+	  }
+	  else {
+	    Expval = exp(-1.*mean);
+	  }
+
+	  base = 1.;
+
+	  for (int i = 1; i<50; ++i) {
+	    base = base*mean;
+	    PowerSer[i] = base; // PowerSer is mean^i                        
+	  }
+
+	  // compute poisson probability for each Nvtx in weight matrix      
+	  for (int i=0; i<50; i++) {
+	    probi = PowerSer[i]/factorial[i]*Expval;
+	    for(int j=0; j<50; j++) {
+	      probj = PowerSer[j]/factorial[j]*Expval;
+	      for(int k=0; k<50; k++) {
+		probk = PowerSer[k]/factorial[k]*Expval;
+		// joint probability is product of event weights multiplied by weight of input distribution bin                                   
+		MC_ints[i][j][k] = MC_ints[i][j][k]+probi*probj*probk*xweight;
+	      }
+	    }
+	  }
+
+	}
+
+	int NDatabin = Data_distr_->GetNbinsX();
+
+	for (int jbin=1;jbin<NDatabin+1;jbin++) {
+	  mean =  (Data_distr_->GetBinCenter(jbin))*ScaleFactor;
+	  xweight = Data_distr_->GetBinContent(jbin);
+
+	  // Generate poisson distribution for each value of the mean
+	  if(mean<0.) {
+	    std::cout << "LumiReweighting:BadInputValue" << " Your histogram generates MC luminosity values less than zero!"
+						  << " Please Check.  Terminating." << std::endl;
+	  }
+
+	  if(mean==0.){
+	    Expval = 1.;
+	  }
+	  else {
+	    Expval = exp(-1.*mean);
+	  }
+
+	  base = 1.;
+
+	  for (int i = 1; i<50; ++i) {
+	    base = base*mean;
+	    PowerSer[i] = base;
+	  }
+
+	  // compute poisson probability for each Nvtx in weight matrix                                                                           
+
+	  for (int i=0; i<50; i++) {
+	    probi = PowerSer[i]/factorial[i]*Expval;
+	    for(int j=0; j<50; j++) {
+	      probj = PowerSer[j]/factorial[j]*Expval;
+	      for(int k=0; k<50; k++) {
+		probk = PowerSer[k]/factorial[k]*Expval;
+		// joint probability is product of event weights multiplied by weight of input distribution bin                                   
+		Data_ints[i][j][k] = Data_ints[i][j][k]+probi*probj*probk*xweight;
+	      }
+	    }
+	  }
+
+	}
+
+
+	for (int i=0; i<50; i++) {
+	  //if(i<5) std::cout << "i = " << i << std::endl;                       
+	  for(int j=0; j<50; j++) {
+	    for(int k=0; k<50; k++) {
 	      if( (MC_ints[i][j][k])>0.) {
 		Weight3D_[i][j][k]  =  Data_ints[i][j][k]/MC_ints[i][j][k];
 	      }
 	      else {
 		Weight3D_[i][j][k]  = 0.;
 	      }
-	      WHist->SetBinContent( i,j,k,Weight3D_[i][j][k] );
+	      WHist->SetBinContent( i+1,j+1,k+1,Weight3D_[i][j][k] );
+	      DHist->SetBinContent( i+1,j+1,k+1,Data_ints[i][j][k] );
+	      MHist->SetBinContent( i+1,j+1,k+1,MC_ints[i][j][k] );
+	      //      if(i<5 && j<5 && k<5) std::cout << Weight3D_[i][j][k] << " " ;    
 	    }
+	    //      if(i<5 && j<5) std::cout << std::endl;        
 	  }
 	}
 
-	std::cout << " 3D Weight Matrix initialized! " << std::endl;
-	std::cout << " Writing weights to file Weight3D.root for re-use...  " << std::endl;
-
-	TFile * outfile = new TFile("Weight3D.root","RECREATE");
-	WHist->Write();
-	outfile->Write();
-	outfile->Close();
-	outfile->Delete();              
+	if(! WeightOutputFile.empty() ) {
+	  std::cout << " 3D Weight Matrix initialized! " << std::endl;
+	  std::cout << " Writing weights to file " << WeightOutputFile << " for re-use...  " << std::endl;
 
 
+	  TFile * outfile = new TFile(WeightOutputFile.c_str(),"RECREATE");
+	  WHist->Write();
+	  MHist->Write();
+	  DHist->Write();
+	  outfile->Write();
+	  outfile->Close();
+	  outfile->Delete();
+	}
+	
 	return;
-
-
       }
 
-      void weight3D_init( std::string WeightFileName ) { 
+
+      void weight3D_set( std::string WeightFileName ) { 
 
 	TFile *infile = new TFile(WeightFileName.c_str());
 	TH1F *WHist = (TH1F*)infile->Get("WHist");
@@ -445,9 +518,9 @@ namespace reweight {
 	  return;
 	}
 
-	for (int i=0; i<35; i++) {  
-	  for(int j=0; j<35; j++) {
-	    for(int k=0; k<35; k++) {
+	for (int i=0; i<50; i++) {  
+	  for(int j=0; j<50; j++) {
+	    for(int k=0; k<50; k++) {
 	      Weight3D_[i][j][k] = WHist->GetBinContent(i,j,k);
 	    }
 	  }
@@ -1330,7 +1403,7 @@ namespace reweight {
       TH1*      Data_distr_;
 
       double WeightOOTPU_[25][25];
-      double Weight3D_[35][35][35];
+      double Weight3D_[50][50][50];
 
 
       bool FirstWarning_;

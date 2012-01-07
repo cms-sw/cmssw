@@ -196,10 +196,9 @@ void Lumi3DReWeighting::weight3D_init( float ScaleFactor ) {
 
   //create histogram to write output weights, save pain of generating them again...
 
-  TH3D* WHist = new TH3D("WHist","3D weights",50,-.5,49.5,50,-.5,49.5,50,-.5,49.5 );
-  TH3D* DHist = new TH3D("DHist","3D weights",50,-.5,49.5,50,-.5,49.5,50,-.5,49.5 );
-  TH3D* MHist = new TH3D("MHist","3D weights",50,-.5,49.5,50,-.5,49.5,50,-.5,49.5 );
-
+  TH3D* WHist = new TH3D("WHist","3D weights",50,0.,50.,50,0.,50.,50,0.,50. );
+  TH3D* DHist = new TH3D("DHist","3D weights",50,0.,50.,50,0.,50.,50,0.,50. );
+  TH3D* MHist = new TH3D("MHist","3D weights",50,0.,50.,50,0.,50.,50,0.,50. );
 
   using std::min;
 
