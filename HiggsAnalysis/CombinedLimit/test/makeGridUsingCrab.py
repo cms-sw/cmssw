@@ -71,8 +71,13 @@ if [ "$n" = "" ]; then
   exit 2;
 fi
 
+## Save memory on batch systems by avoinding a redundant fork when only one child will be ever spawned
+nchild={fork};
+if  [[ "$nchild" == "1" && "$n" == "1" ]]; then
+    nchild=0;
+fi;
 echo "## Starting at $(date)"
-""")
+""".format(fork=options.fork))
 for i,x in enumerate(points):
     seed = ("$((%d + $i))" % (i*10000)) if options.random == False else "-1"
     interleave = "(( ($i + %d) %% %d == 0 )) && " % (i, options.interl)
@@ -83,7 +88,7 @@ for i,x in enumerate(points):
         elif i < 0.4 * options.points:
             toys = "$(( 2 * $n ))";
     what = "--singlePoint %g " % x if options.signif == False else "--signif";
-    script.write("{cond} ./combine {wsp} -M HybridNew {opts} --fork {fork} -T {T} --clsAcc 0 -v {v} -n {out} --saveHybridResult --saveToys -s {seed} -i {toys} {what}\n".format(
+    script.write("{cond} ./combine {wsp} -M HybridNew {opts} --fork $nchild -T {T} --clsAcc 0 -v {v} -n {out} --saveHybridResult --saveToys -s {seed} -i {toys} {what}\n".format(
                 wsp=workspace, opts=options.options, fork=options.fork, T=options.T, seed=seed, out=options.out, what=what, v=options.v,
                 cond=interleave, toys=toys
               ))
