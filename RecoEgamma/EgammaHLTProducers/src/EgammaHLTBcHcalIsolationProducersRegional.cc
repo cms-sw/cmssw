@@ -74,8 +74,13 @@ void EgammaHLTBcHcalIsolationProducersRegional::produce(edm::Event& iEvent, cons
   iEvent.getByLabel(caloTowerProducer_, caloTowersHandle);
 
   edm::Handle<double> rhoHandle;
-  iEvent.getByLabel(rhoProducer_, rhoHandle);
-  double rho = *(rhoHandle.product());
+  double rho = 0.0;
+
+  if (doRhoCorrection_) {
+    iEvent.getByLabel(rhoProducer_, rhoHandle);
+    rho = *(rhoHandle.product());
+  }
+
   if (rho > rhoMax_)
     rho = rhoMax_;
   

@@ -95,12 +95,15 @@ EgammaHLTHcalIsolationProducersRegional::produce(edm::Event& iEvent, const edm::
   iSetup.get<HcalSeverityLevelComputerRcd>().get(hcalSevLvlComp);
 
   edm::Handle<double> rhoHandle;
-  double rho(0.0);
+  double rho = 0.0;
   if (doRhoCorrection_) {
     iEvent.getByLabel(rhoProducer_, rhoHandle);
     rho = *(rhoHandle.product());
   }
-  if (rho > rhoMax_) rho = rhoMax_;
+
+  if (rho > rhoMax_)
+    rho = rhoMax_;
+
   rho = rho*rhoScale_;
 
   edm::ESHandle<CaloGeometry> caloGeomHandle;
