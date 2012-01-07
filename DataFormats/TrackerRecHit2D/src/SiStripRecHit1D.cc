@@ -2,10 +2,28 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 
+
+
+namespace {
+  void
+  throwExceptionUninitialized(const char *where)
+  {
+    throw cms::Exception("SiStripRecHit1D") << 
+      "Trying to access " << where << " for a RecHit that was read from disk, but since CMSSW_2_1_X local positions are transient.\n" <<
+      "If you want to get coarse position/error estimation from disk, please set: ComputeCoarseLocalPositionFromDisk = True \n " <<
+      " to the TransientTrackingRecHitBuilder you are using from RecoTracker/TransientTrackingRecHit/python/TTRHBuilders_cff.py";
+  }
+  
+  void obsolete() {
+    throw cms::Exception("SiStripRecHit1D") << "CLHEP is obsolete for Tracker Hits";
+  }
+}
+
+
 SiStripRecHit1D::SiStripRecHit1D( const LocalPoint& pos, const LocalError& err,
 				  const DetId& id,
 				  ClusterRef const & cluster):
-  RecHit1D(id),
+  Base(id),
   sigmaPitch_(-1.),pos_(pos),err_(err),
   cluster_(cluster){}
 
@@ -13,13 +31,13 @@ SiStripRecHit1D::SiStripRecHit1D( const LocalPoint& pos, const LocalError& err,
 SiStripRecHit1D::SiStripRecHit1D( const LocalPoint& pos, const LocalError& err,
 				  const DetId& id,
 				  ClusterRegionalRef const& cluster): 
-  RecHit1D(id),
+  Base(id),
   sigmaPitch_(-1.),pos_(pos),err_(err),
   cluster_(cluster){}
 
 
 SiStripRecHit1D::SiStripRecHit1D(const SiStripRecHit2D* hit2D):
-  RecHit1D(hit2D->geographicalId()),
+  Base(hit2D->geographicalId()),
   sigmaPitch_(-1),pos_(hit2D->localPosition()),
   err_(hit2D->localPositionError().xx(),0.,DBL_MAX),
   cluster_(hit2D->omniCluster())
@@ -126,11 +144,19 @@ std::vector<TrackingRecHit*> SiStripRecHit1D::recHits() {
   return nullvector; 
 }
 
-void
-SiStripRecHit1D::throwExceptionUninitialized(const char *where) const
-{
-   throw cms::Exception("SiStripRecHit1D") << 
-     "Trying to access " << where << " for a RecHit that was read from disk, but since CMSSW_2_1_X local positions are transient.\n" <<
-     "If you want to get coarse position/error estimation from disk, please set: ComputeCoarseLocalPositionFromDisk = True \n " <<
-     " to the TransientTrackingRecHitBuilder you are using from RecoTracker/TransientTrackingRecHit/python/TTRHBuilders_cff.py";
+ // obsolete (for what tracker is concerned...) interface
+virtual AlgebraicVector SiStripRecHit1D::parameters() const {
+  obsolete();
+  return AlgebraicVector();
+}
+
+virtual AlgebraicSymMatrix SiStripRecHit1D::parametersError() const {
+  obsolete();
+  return AlgebraicSymMatrix();
+}
+
+
+virtual AlgebraicMatrix SiStripRecHit1D::projectionMatrix() const {
+  obsolete();
+  return AlgebraicMatrix();
 }

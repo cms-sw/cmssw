@@ -1,17 +1,21 @@
 #ifndef SiStripRecHit1D_H
 #define SiStripRecHit1D_H
 
-#include "DataFormats/TrackingRecHit/interface/RecHit1D.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "DataFormats/GeometrySurface/interface/LocalError.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
 
 #include "float.h"
 
-class SiStripRecHit1D : public RecHit1D{
+class SiStripRecHit1D : public TrackingRecHit { //  public RecHit1D{
 public:
 
-  SiStripRecHit1D(): RecHit1D(),
-		     sigmaPitch_(-1.){}
+  typedef TrackingRecHit Base;
+
+  SiStripRecHit1D(): sigmaPitch_(-1.){}
   
   
   typedef OmniClusterRef::ClusterRef         ClusterRef;
@@ -31,6 +35,10 @@ public:
 
   virtual SiStripRecHit1D * clone() const {return new SiStripRecHit1D( * this); }
   
+
+  virtual int dimension() const {
+    return 1;
+  }
 
  
   ClusterRegionalRef cluster_regional()  const { 
@@ -66,7 +74,16 @@ public:
 
 
  private:
-  void throwExceptionUninitialized(const char *where) const;
+
+  // obsolete (for what tracker is concerned...) interface
+   virtual AlgebraicVector parameters() const;
+
+  virtual AlgebraicSymMatrix parametersError() const;
+
+
+   virtual AlgebraicMatrix projectionMatrix() const ;
+
+
  
 
  /// cache for the matcher....
