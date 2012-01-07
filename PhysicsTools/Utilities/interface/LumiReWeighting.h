@@ -237,11 +237,7 @@ namespace edm {
 
     double weight( float npv ) ;
 
-    double weight3BX( float npv ) ;
-
     double weight( const edm::EventBase &e ) ;
-
-    double weight3BX( const edm::EventBase &e ) ;
 
     double weightOOT( const edm::EventBase &e ) ;
 
