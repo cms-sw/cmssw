@@ -16,7 +16,8 @@
    <version ClassVersion="10" checksum="4057204970"/>
     <field name="sigmaPitch_" transient="true" />
   </class>
-  <class name="SiStripRecHit1D"  ClassVersion="11">
+  <class name="SiStripRecHit1D"  ClassVersion="12">
+   <version ClassVersion="12" checksum="2412665741"/>
    <version ClassVersion="11" checksum="1486832741"/>
     <field name="sigmaPitch_" transient="true" />
     <field name="pos_" transient="true" />
