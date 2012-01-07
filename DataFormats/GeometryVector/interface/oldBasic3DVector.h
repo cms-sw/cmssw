@@ -72,9 +72,17 @@ public:
     theX(iv.arr[0]), theY(iv.arr[1]), theZ(iv.arr[2]), theW(0) {}
 #endif  
 
+#ifndef __REFLEX__
   /// construct from cartesian coordinates
   Basic3DVector( const T& x, const T& y, const T& z, const T& w=0) : 
     theX(x), theY(y), theZ(z), theW(w) {}
+#else
+  /// construct from cartesian coordinates
+  Basic3DVector( const T& x, const T& y, const T& z) :
+    theX(x), theY(y), theZ(z), theW(0) {}
+#endif
+
+
 
   /** Deprecated construct from polar coordinates, use 
    *  <BR> Basic3DVector<T>( Basic3DVector<T>::Polar( theta, phi, r))
