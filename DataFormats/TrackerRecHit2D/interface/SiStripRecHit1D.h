@@ -73,7 +73,7 @@ public:
   virtual std::vector<TrackingRecHit*> recHits();
 
 
- private:
+public:
 
   // obsolete (for what tracker is concerned...) interface
    virtual AlgebraicVector parameters() const;
@@ -83,7 +83,7 @@ public:
 
    virtual AlgebraicMatrix projectionMatrix() const ;
 
-
+private:
  
 
  /// cache for the matcher....
