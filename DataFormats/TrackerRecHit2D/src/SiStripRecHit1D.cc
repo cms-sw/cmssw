@@ -145,18 +145,18 @@ std::vector<TrackingRecHit*> SiStripRecHit1D::recHits() {
 }
 
  // obsolete (for what tracker is concerned...) interface
-virtual AlgebraicVector SiStripRecHit1D::parameters() const {
+AlgebraicVector SiStripRecHit1D::parameters() const {
   obsolete();
   return AlgebraicVector();
 }
 
-virtual AlgebraicSymMatrix SiStripRecHit1D::parametersError() const {
+AlgebraicSymMatrix SiStripRecHit1D::parametersError() const {
   obsolete();
   return AlgebraicSymMatrix();
 }
 
 
-virtual AlgebraicMatrix SiStripRecHit1D::projectionMatrix() const {
+AlgebraicMatrix SiStripRecHit1D::projectionMatrix() const {
   obsolete();
   return AlgebraicMatrix();
 }
