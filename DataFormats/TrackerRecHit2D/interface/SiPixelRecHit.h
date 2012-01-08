@@ -14,40 +14,32 @@
 //---------------------------------------------------------------------------
 
 //! Our base class
-#include "DataFormats/TrackerRecHit2D/interface/BaseSiTrackerRecHit2DLocalPos.h"
-//! Quality word packing
+#include "DataFormats/TrackerRecHit2D/interface/TrackerSingleRecHit.h"
+/! Quality word packing
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitQuality.h"
 
-#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
 
+class SiPixelRecHit : public TrackerSingleRecHit {
 
-
-class SiPixelRecHit : public  BaseSiTrackerRecHit2DLocalPos {
 public:
 
   typedef edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster > ClusterRef;
 
-  SiPixelRecHit(): BaseSiTrackerRecHit2DLocalPos(), qualWord_(0), cluster_() {}
+  SiPixelRecHit(): qualWord_(0) {}
 
   ~SiPixelRecHit() {}
   
   SiPixelRecHit( const LocalPoint& pos , const LocalError& err,
 		 const DetId& id, 
-		 ClusterRef const&  cluster) :
-  BaseSiTrackerRecHit2DLocalPos(pos,err,id),
-  qualWord_(0), 
-  cluster_(cluster) 
-{}
+		 ClusterRef const&  clust) : 
+    TrackerSingleRecHit(pos,err,id,clus), 
+    qualWord_(0), 
+  {}
 
   virtual SiPixelRecHit * clone() const {return new SiPixelRecHit( * this); }
-  
-  ClusterRef cluster() const { return cluster_.cluster_pixel();}
-  void setClusterRef(const ClusterRef &ref) { cluster_  =  OmniClusterRef(ref); }
-
-  virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const;
+ 
+  virtual int dimension() const {return 2;}
+  virtual void getKfComponents( KfComponentsHolder & holder ) const { getKfComponents2D(holder); }
 
 
   //--------------------------------------------------------------------------
@@ -146,19 +138,6 @@ public:
     SiPixelRecHitQuality::thePacking.setHasFilledProb( flag, qualWord_ );
   }
 
-private:
-
-   OmniClusterRef  cluster_;
-
 };
-
-// Comparison operators
-inline bool operator<( const SiPixelRecHit& one, const SiPixelRecHit& other) {
-  if ( one.geographicalId() < other.geographicalId() ) {
-    return true;
-  } else {
-    return false;
-  }
-}
 
 #endif

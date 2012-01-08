@@ -1,14 +1,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 
 
-SiStripMatchedRecHit2D::SiStripMatchedRecHit2D( const LocalPoint& pos, const LocalError& err,
-								const DetId& id , const SiStripRecHit2D* rMono,const SiStripRecHit2D* rStereo): BaseSiTrackerRecHit2DLocalPos(pos, err, id), componentMono_(*rMono),componentStereo_(*rStereo){}
-
-SiStripMatchedRecHit2D *
-SiStripMatchedRecHit2D::clone() const
-{
-  return new SiStripMatchedRecHit2D( * this);
-}
 
 bool 
 SiStripMatchedRecHit2D::sharesInput( const TrackingRecHit* other, 
@@ -23,15 +15,23 @@ SiStripMatchedRecHit2D::sharesInput( const TrackingRecHit* other,
   else{
     const SiStripMatchedRecHit2D* otherMatched = static_cast<const SiStripMatchedRecHit2D*>(other);
     if ( what == all) {
-      return (monoHit()->sharesInput( otherMatched->monoHit(),what) && 
-	      stereoHit()->sharesInput( otherMatched->stereoHit(),what));
+      return (monoHit()->sharesInput(*otherMatched->monoHit()) && 
+	      stereoHit()->sharesInput(*otherMatched->stereoHit()));
     }
     else {
-      return (monoHit()->sharesInput( otherMatched->monoHit(),what) || 
-	      stereoHit()->sharesInput( otherMatched->stereoHit(),what));
+      return (monoHit()->sharesInput(*otherMatched->monoHit()) || 
+	      stereoHit()->sharesInput(*otherMatched->stereoHit()))
+	;
     }
   }
 }
+
+
+bool SiStripMatchedRecHit2D::sharesInput(TrackerSingleRecHit const & other) const {
+  return (monoHit()->sharesInput( other)|| stereoHit()->sharesInput( other));
+
+}
+
 
 std::vector<const TrackingRecHit*>
 SiStripMatchedRecHit2D::recHits()const {

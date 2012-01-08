@@ -1,15 +1,15 @@
 #ifndef SiStripMatchedRecHit2D_H
 #define SiStripMatchedRecHit2D_H
 
-
-#include "DataFormats/TrackerRecHit2D/interface/BaseSiTrackerRecHit2DLocalPos.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 
-class SiStripMatchedRecHit2D : public BaseSiTrackerRecHit2DLocalPos {
+class SiStripMatchedRecHit2D : public BaseTrackerRecHit {
  public:
-  SiStripMatchedRecHit2D(): BaseSiTrackerRecHit2DLocalPos(){}
+  SiStripMatchedRecHit2D(){}
   ~SiStripMatchedRecHit2D(){}
-  SiStripMatchedRecHit2D( const LocalPoint& pos, const LocalError& err, const DetId& id , const SiStripRecHit2D* rMono,const SiStripRecHit2D* rStereo);
+  SiStripMatchedRecHit2D( const LocalPoint& pos, const LocalError& err, const DetId& id , 
+			  const SiStripRecHit2D* rMono,const SiStripRecHit2D* rStereo):
+    BaseTrackerRecHit(pos, err, id), componentMono_(*rMono),componentStereo_(*rStereo){}
 					 
   const SiStripRecHit2D *stereoHit() const { return &componentStereo_;}
   const SiStripRecHit2D *monoHit() const { return &componentMono_;}
@@ -18,9 +18,16 @@ class SiStripMatchedRecHit2D : public BaseSiTrackerRecHit2DLocalPos {
   SiStripRecHit2D *stereoHit() { return &componentStereo_;}
   SiStripRecHit2D *monoHit() { return &componentMono_;}
   
-  virtual SiStripMatchedRecHit2D * clone() const;
+  virtual SiStripMatchedRecHit2D * clone() const {return new SiStripMatchedRecHit2D( * this);}
  
+  virtual int dimension() const {return 2;}
+  virtual void getKfComponents( KfComponentsHolder & holder ) const { getKfComponents2D(holder); }
+
+
+
   virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const;
+
+  bool sharesInput(TrackerSingleRecHit const & other) const;
 
   virtual std::vector<const TrackingRecHit*> recHits() const; 
 
