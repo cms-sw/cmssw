@@ -22,6 +22,11 @@ public:
   typedef OmniClusterRef::ClusterRegionalRef ClusterRegionalRef;
 
 
+
+  TrackerSingleRecHit(const LocalPoint& p, const LocalError& e,
+		      DetId id,
+		      OmniClusterRef const&  clus) : Base(p,e,id), cluster_(clus){}
+
   TrackerSingleRecHit(const LocalPoint& p, const LocalError& e,
 		      DetId id,
 		      ClusterPixelRef const&  clus) : Base(p,e,id), cluster_(clus){}

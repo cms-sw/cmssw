@@ -7,4 +7,4 @@ TrackerSingleRecHit(hit2D->localPosition(),
 		    hit2D->geographicalId(), hit2D->omniCluster()
 		    ),
   sigmaPitch_(-1){}
-}
+
