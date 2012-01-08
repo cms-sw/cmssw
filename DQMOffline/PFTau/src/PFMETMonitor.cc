@@ -145,7 +145,6 @@ void PFMETMonitor::setup() {
 
     PhaseSpace pxPS       = PhaseSpace( 50, 0, 200);
     PhaseSpace dpxPS      = PhaseSpace( 50, -500, 500);    
-    PhaseSpace dptPS      = PhaseSpace( 200, -500, 500);
     PhaseSpace setPS      = PhaseSpace( 50, 0.0, 3000);
     PhaseSpace dsetPS     = PhaseSpace( 50, -1000.0, 1000);
     PhaseSpace setOvsetPS = PhaseSpace( 100,0., 2.);
