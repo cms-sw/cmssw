@@ -20,7 +20,7 @@
      <field name="pos_" transient="true" />	 
      <field name="err_" transient="true" />	 
    </class>	 
-  <class name="TrackerSimpleRecHit" ClassVersion="10">
+  <class name="TrackerSingleRecHit" ClassVersion="10">
    <version ClassVersion="10" checksum="1111914457"/>
    </class>	 
 
