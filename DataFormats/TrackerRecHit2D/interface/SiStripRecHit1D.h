@@ -20,11 +20,11 @@ public:
 
   SiStripRecHit1D( const LocalPoint& p, const LocalError& e,
 		   const DetId& id, 
-		   ClusterRef const&  clus) : TrackerSingleRecHit(p,e,id), sigmaPitch_(-1.){}
+		   ClusterRef const&  clus) : TrackerSingleRecHit(p,e,id,clus), sigmaPitch_(-1.){}
 
   SiStripRecHit1D( const LocalPoint& p, const LocalError& e,
 		   const DetId& id, 
-		   ClusterRegionalRef const& clus) : TrackerSingleRecHit(p,e,id), sigmaPitch_(-1.){}
+		   ClusterRegionalRef const& clus) : TrackerSingleRecHit(p,e,id,clus), sigmaPitch_(-1.){}
   
   /// method to facilitate the convesion from 2D to 1D hits
   SiStripRecHit1D(const SiStripRecHit2D*);

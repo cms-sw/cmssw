@@ -2,6 +2,8 @@
 
 
 
+#include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 
 bool 
 TrackerSingleRecHit::sharesInput( const TrackingRecHit* other, 

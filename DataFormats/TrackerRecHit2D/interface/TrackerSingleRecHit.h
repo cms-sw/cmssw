@@ -27,7 +27,7 @@ public:
 
   TrackerSingleRecHit(const LocalPoint& p, const LocalError& e,
 		      DetId id,  
-		      ClusterRegionalRef const& cluster) :  Base(p,e,id), cluster_(clus){}
+		      ClusterRegionalRef const& clus) :  Base(p,e,id), cluster_(clus){}
   
   ClusterRegionalRef cluster_regional()  const { 
     return cluster_.cluster_regional();

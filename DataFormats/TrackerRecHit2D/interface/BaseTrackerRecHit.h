@@ -51,11 +51,4 @@ public:
 inline bool operator<( const BaseTrackerRecHit& one, const BaseTrackerRecHit& other) {
   return ( one.geographicalId() < other.geographicalId() );
 }
-
-#endif
-
-
-
-
-
 #endif  // BaseTrackerRecHit_H
