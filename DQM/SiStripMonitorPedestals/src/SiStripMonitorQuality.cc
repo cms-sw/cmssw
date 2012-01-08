@@ -13,7 +13,7 @@
 //
 // Original Author:  Suchandra Dutta
 //         Created:  Fri Dec  7 20:50 CET 2007
-// $Id: SiStripMonitorQuality.cc,v 1.4 2008/04/12 15:16:05 dutta Exp $
+// $Id: SiStripMonitorQuality.cc,v 1.5 2009/11/05 21:08:29 dutta Exp $
 //
 //
 
@@ -161,8 +161,6 @@ MonitorElement* SiStripMonitorQuality::getQualityME(uint32_t idet){
     std::string hid;
     hid = hidmanager.createHistoId("StripQualityFromCondDB","det", idet);
     
-    std::map<uint32_t, MonitorElement* >::iterator pos = QualityMEs.find(idet);
-
     det_me = dqmStore_->book1D(hid, hid, nStrip,0.5,nStrip+0.5);
     dqmStore_->tag(det_me, idet);
     det_me->setAxisTitle("Strip Number",1);
