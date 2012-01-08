@@ -276,7 +276,6 @@ void ApvTimingAlgorithm::analyse() {
     }
     
     // Iterate through "edges_r" map
-    uint16_t max_derivative_r_bin = sistrip::invalid_;
     float max_derivative_r = -1.*sistrip::invalid_;
     
     bool found_r = false;
@@ -304,7 +303,6 @@ void ApvTimingAlgorithm::analyse() {
 	if ( temp_r > max_derivative_r && ii_r < 10) {
 	  max_derivative_r = temp_r;
 	  max_derivative = temp_r;
-	  max_derivative_r_bin = bin_r;
 	  max_derivative_bin = bin_r;
 	}
 	
@@ -328,7 +326,6 @@ void ApvTimingAlgorithm::analyse() {
       else {
 	max_derivative_r = -1.*sistrip::invalid_;
 	max_derivative = -1.*sistrip::invalid_;
-	max_derivative_r_bin = sistrip::invalid_;
 	max_derivative_bin = sistrip::invalid_;
 	//edges_r.erase(iter_r);
 	anal->addErrorCode(sistrip::rejectedCandidate_);
