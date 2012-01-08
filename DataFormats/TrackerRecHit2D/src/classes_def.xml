@@ -16,12 +16,12 @@
 
 
   <class name="BaseTrackerRecHit" ClassVersion="10">
-   <version ClassVersion="10" checksum="1111914457"/>
+   <version ClassVersion="10" checksum="213945316"/>
      <field name="pos_" transient="true" />	 
      <field name="err_" transient="true" />	 
    </class>	 
   <class name="TrackerSingleRecHit" ClassVersion="10">
-   <version ClassVersion="10" checksum="1111914457"/>
+   <version ClassVersion="10" checksum="3082889606"/>
    </class>	 
 
   <class name="OmniClusterRef"  ClassVersion="10">
@@ -29,7 +29,7 @@
   </class>
 
   <class name="SiStripRecHit1D"  ClassVersion="12">
-   <version ClassVersion="12" checksum="2412665741"/>
+   <version ClassVersion="12" checksum="3158843011"/>
     <field name="sigmaPitch_" transient="true" />
    <version ClassVersion="11" checksum="1486832741"/>
     <field name="sigmaPitch_" transient="true" />
@@ -42,7 +42,7 @@
   </class> 
 
   <class name="SiStripRecHit2D"  ClassVersion="12">
-   <version ClassVersion="12" checksum="2157674799"/>
+   <version ClassVersion="12" checksum="2350660116"/>
     <field name="sigmaPitch_" transient="true" />
    <version ClassVersion="11" checksum="2157674799"/>
     <field name="sigmaPitch_" transient="true" />
@@ -52,20 +52,20 @@
 
 
   <class name="ProjectedSiStripRecHit2D" ClassVersion="11">
-   <version ClassVersion="11" checksum="1058168814"/>
+   <version ClassVersion="11" checksum="1187571635"/>
    <version ClassVersion="10" checksum="1058168814"/>
   </class>
   <class name="SiStripMatchedRecHit2D" ClassVersion="11">
-   <version ClassVersion="11" checksum="1602539953"/>
+   <version ClassVersion="11" checksum="917032768"/>
    <version ClassVersion="10" checksum="1602539953"/>
   </class>
   <class name="SiTrackerMultiRecHit" ClassVersion="11">
-   <version ClassVersion="11" checksum="2607997209"/>
+   <version ClassVersion="11" checksum="2489323248"/>
    <version ClassVersion="10" checksum="2607997209"/>
   </class>
 
   <class name="SiPixelRecHit" ClassVersion="12">
-   <version ClassVersion="12" checksum="790601993"/>
+   <version ClassVersion="12" checksum="1051928582"/>
    <version ClassVersion="11" checksum="790601993"/>
    <version ClassVersion="10" checksum="414205262"/>
   </class>
