@@ -20,28 +20,28 @@
 
 
 class SiPixelRecHit : public TrackerSingleRecHit {
-
+  
 public:
-
+  
   typedef edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster > ClusterRef;
-
+  
   SiPixelRecHit(): qualWord_(0) {}
-
+  
   ~SiPixelRecHit() {}
   
   SiPixelRecHit( const LocalPoint& pos , const LocalError& err,
 		 const DetId& id, 
-		 ClusterRef const&  clust) : 
+		 ClusterRef const&  clus) : 
     TrackerSingleRecHit(pos,err,id,clus), 
-    qualWord_(0), 
+    qualWord_(0) 
   {}
-
+  
   virtual SiPixelRecHit * clone() const {return new SiPixelRecHit( * this); }
- 
+  
   virtual int dimension() const {return 2;}
   virtual void getKfComponents( KfComponentsHolder & holder ) const { getKfComponents2D(holder); }
-
-
+  
+  
   //--------------------------------------------------------------------------
   //--- Accessors of other auxiliary quantities
   //--- Added Oct 07 by Petar for 18x.
@@ -51,7 +51,7 @@ private:
   SiPixelRecHitQuality::QualWordType  qualWord_ ;   // unsigned int 32-bit wide
   //
   // *************************************************************************
-
+  
 public:
   //--- The overall probability.  flags is the 32-bit-packed set of flags that
   //--- our own concrete implementation of clusterProbability() uses to direct
@@ -60,8 +60,8 @@ public:
   //--- probabilityY() only (as that's the safest thing to do).
   //--- Flags are static and kept in the transient rec hit.
   float clusterProbability(unsigned int flags = 0) const;
-
-
+  
+  
   //--- Allow direct access to the packed quality information.
   inline SiPixelRecHitQuality::QualWordType rawQualityWord() const { 
     return qualWord_ ; 

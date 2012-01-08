@@ -21,7 +21,7 @@ TrackerSingleRecHit::sharesInput( const TrackingRecHit* other,
     return sharesInput(otherCast);
   } 
   if (otherType == typeid(ProjectedSiStripRecHit2D)) 
-    return other.sharesInput(this,what);
+    return other->sharesInput(this,what);
   if (otherType == typeid(SiStripMatchedRecHit2D) ) {
     if (what == all) return false;
     return static_cast<SiStripMatchedRecHit2D const &>(*other).sharesInput(*this);
