@@ -14,6 +14,3 @@
 <use   name="CalibTracker/SiStripAPVAnalysis"/>
 <use   name="CondCore/DBOutputService"/>
 <flags   EDM_PLUGIN="1"/>
-<export>
-  <lib   name="1"/>
-</export>
