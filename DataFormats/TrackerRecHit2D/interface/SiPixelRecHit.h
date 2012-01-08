@@ -38,7 +38,7 @@ public:
   
   virtual SiPixelRecHit * clone() const {return new SiPixelRecHit( * this); }
   
-  ClusterRef cluster()  const { cluster_pixel() ; }
+  ClusterRef cluster()  const { return cluster_pixel(); }
   virtual int dimension() const {return 2;}
   virtual void getKfComponents( KfComponentsHolder & holder ) const { getKfComponents2D(holder); }
   

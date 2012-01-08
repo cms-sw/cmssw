@@ -28,7 +28,7 @@ public:
     TrackerSingleRecHit(pos,err,id, clus),
     sigmaPitch_(-1.) {}
 				
-  ClusterRef cluster()  const { cluster_strip() ; }
+  ClusterRef cluster()  const { return cluster_strip() ; }
   
   
   virtual SiStripRecHit2D * clone() const {return new SiStripRecHit2D( * this); }

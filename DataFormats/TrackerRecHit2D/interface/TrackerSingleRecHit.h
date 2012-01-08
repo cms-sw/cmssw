@@ -34,7 +34,7 @@ public:
 		      DetId id,  
 		      ClusterRegionalRef const& clus) :  Base(p,e,id), cluster_(clus){}
   
-  OmniClusterRef const & omniCluster() cons { return cluster_;}
+  OmniClusterRef const & omniCluster() const { return cluster_;}
 
   ClusterPixelRef cluster_pixel()  const { 
     return cluster_.cluster_pixel();
