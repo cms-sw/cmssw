@@ -4,19 +4,20 @@
 using namespace std;
 using namespace edm;
 
-SiTrackerMultiRecHit::SiTrackerMultiRecHit(const LocalPoint& pos, const LocalError& err, const DetId& id, const std::vector< std::pair<const TrackingRecHit*, float> >& aHitMap):
-	BaseSiTrackerRecHit2DLocalPos(pos,err,id)	
+SiTrackerMultiRecHit::SiTrackerMultiRecHit(const LocalPoint& pos, const LocalError& err, const DetId& id, 
+					   const std::vector< std::pair<const TrackingRecHit*, float> >& aHitMap):
+  BaseTrackerRecHit(pos,err,id)	
 {
-	for(std::vector<std::pair<const TrackingRecHit*, float> >::const_iterator ihit = aHitMap.begin(); ihit != aHitMap.end(); ihit++){
-		theHits.push_back(ihit->first->clone());
-		theWeights.push_back(ihit->second);
-	}
+  for(std::vector<std::pair<const TrackingRecHit*, float> >::const_iterator ihit = aHitMap.begin(); ihit != aHitMap.end(); ihit++){
+    theHits.push_back(ihit->first->clone());
+    theWeights.push_back(ihit->second);
+  }
 }
 
 float SiTrackerMultiRecHit::weight(unsigned int i) const {
-	if (i < theWeights.size()) return theWeights[i];
-	edm::LogError("SiTrackerMultiRecHit") << "You are requesting a the weight for a hit out of range, returning 0";
-	return 0; 
+  if (i < theWeights.size()) return theWeights[i];
+  edm::LogError("SiTrackerMultiRecHit") << "You are requesting a the weight for a hit out of range, returning 0";
+  return 0; 
 }
 
 
@@ -58,18 +59,18 @@ bool SiTrackerMultiRecHit::sharesInput(const TrackingRecHit* other,
 
 
 vector<const TrackingRecHit*> SiTrackerMultiRecHit::recHits() const{
-         vector<const TrackingRecHit*> myhits;
-         for(edm::OwnVector<TrackingRecHit>::const_iterator ihit = theHits.begin(); ihit != theHits.end(); ihit++) {
-                 myhits.push_back(&*ihit);
-         }
+  vector<const TrackingRecHit*> myhits;
+  for(edm::OwnVector<TrackingRecHit>::const_iterator ihit = theHits.begin(); ihit != theHits.end(); ihit++) {
+    myhits.push_back(&*ihit);
+  }
   return myhits;
 }
 
 vector<TrackingRecHit*> SiTrackerMultiRecHit::recHits() {
   //        vector<TrackingRecHit*> myhits;
-//         for(edm::OwnVector<TrackingRecHit>::const_iterator ihit = theHits.begin(); ihit != theHits.end(); ihit++) {
-//                 const TrackingRecHit* ahit = &(*ihit);
-//                 myhits.push_back(const_cast<TrackingRecHit*>(ahit));
-//         }
-        return theHits.data();
+  //         for(edm::OwnVector<TrackingRecHit>::const_iterator ihit = theHits.begin(); ihit != theHits.end(); ihit++) {
+  //                 const TrackingRecHit* ahit = &(*ihit);
+  //                 myhits.push_back(const_cast<TrackingRecHit*>(ahit));
+  //         }
+  return theHits.data();
 }

@@ -7,17 +7,30 @@
   <class name="GSSiTrackerRecHit2DLocalPos" ClassVersion="10">
    <version ClassVersion="10" checksum="2474445311"/>
   </class>
+  <class name="SiTrackerGSRecHit2D" ClassVersion="10">
+   <version ClassVersion="10" checksum="877294307"/>
+  </class>
+  <class name="SiTrackerGSMatchedRecHit2D" ClassVersion="10">
+   <version ClassVersion="10" checksum="3741285161"/>
+  </class>
+
+
+  <class name="BaseTrackerRecHit" ClassVersion="10">
+   <version ClassVersion="10" checksum="1111914457"/>
+     <field name="pos_" transient="true" />	 
+     <field name="err_" transient="true" />	 
+   </class>	 
+  <class name="TrackerSimpleRecHit" ClassVersion="10">
+   <version ClassVersion="10" checksum="1111914457"/>
+   </class>	 
+
   <class name="OmniClusterRef"  ClassVersion="10">
    <version ClassVersion="10" checksum="735211426"/>
   </class>
-  <class name="SiStripRecHit2D"  ClassVersion="11">
-   <version ClassVersion="11" checksum="2157674799"/>
-    <field name="sigmaPitch_" transient="true" />
-   <version ClassVersion="10" checksum="4057204970"/>
-    <field name="sigmaPitch_" transient="true" />
-  </class>
+
   <class name="SiStripRecHit1D"  ClassVersion="12">
    <version ClassVersion="12" checksum="2412665741"/>
+    <field name="sigmaPitch_" transient="true" />
    <version ClassVersion="11" checksum="1486832741"/>
     <field name="sigmaPitch_" transient="true" />
     <field name="pos_" transient="true" />
@@ -28,18 +41,35 @@
     <field name="err_" transient="true" />
   </class> 
 
-  <class name="SiTrackerGSRecHit2D" ClassVersion="10">
-   <version ClassVersion="10" checksum="877294307"/>
+  <class name="SiStripRecHit2D"  ClassVersion="12">
+   <version ClassVersion="12" checksum="2157674799"/>
+    <field name="sigmaPitch_" transient="true" />
+   <version ClassVersion="11" checksum="2157674799"/>
+    <field name="sigmaPitch_" transient="true" />
+   <version ClassVersion="10" checksum="4057204970"/>
+    <field name="sigmaPitch_" transient="true" />
   </class>
-  <class name="SiTrackerGSMatchedRecHit2D" ClassVersion="10">
-   <version ClassVersion="10" checksum="3741285161"/>
+
+
+  <class name="ProjectedSiStripRecHit2D" ClassVersion="11">
+   <version ClassVersion="11" checksum="1058168814"/>
+   <version ClassVersion="10" checksum="1058168814"/>
   </class>
-  <class name="SiStripMatchedRecHit2D" ClassVersion="10">
+  <class name="SiStripMatchedRecHit2D" ClassVersion="11">
+   <version ClassVersion="11" checksum="1602539953"/>
    <version ClassVersion="10" checksum="1602539953"/>
   </class>
-  <class name="SiTrackerMultiRecHit" ClassVersion="10">
+  <class name="SiTrackerMultiRecHit" ClassVersion="11">
+   <version ClassVersion="11" checksum="2607997209"/>
    <version ClassVersion="10" checksum="2607997209"/>
   </class>
+
+  <class name="SiPixelRecHit" ClassVersion="12">
+   <version ClassVersion="12" checksum="790601993"/>
+   <version ClassVersion="11" checksum="790601993"/>
+   <version ClassVersion="10" checksum="414205262"/>
+  </class>
+
   <class name="std::vector<SiStripRecHit2D*>"/>
   <class name="std::vector<SiStripRecHit1D*>"/>
   <class name="std::vector<SiTrackerGSRecHit2D*>"/>
@@ -83,13 +113,6 @@
 
   <class name="edm::Wrapper<edm::RangeMap<DetId, edm::OwnVector<SiStripMatchedRecHit2D, edm::ClonePolicy<SiStripMatchedRecHit2D> >, edm::ClonePolicy<SiStripMatchedRecHit2D> > >"/>
 
-  <class name="ProjectedSiStripRecHit2D" ClassVersion="10">
-   <version ClassVersion="10" checksum="1058168814"/>
-  </class>
-  <class name="SiPixelRecHit" ClassVersion="11">
-   <version ClassVersion="11" checksum="790601993"/>
-   <version ClassVersion="10" checksum="414205262"/>
-  </class>
   <class name="std::vector<SiPixelRecHit*>"/>
   <class name="edm::OwnVector<SiPixelRecHit,edm::ClonePolicy<SiPixelRecHit> >"/>
   <class name="edm::OwnVector<SiPixelRecHit,edm::ClonePolicy<SiPixelRecHit> >::const_iterator"/>
