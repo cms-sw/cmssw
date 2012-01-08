@@ -1,9 +1,9 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
-#include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
+#include <limits>
 
 SiStripRecHit1D::SiStripRecHit1D(const SiStripRecHit2D* hit2D) :
 TrackerSingleRecHit(hit2D->localPosition(),
-		    LocalError(hit2D->localPositionError().xx(),0.,DBL_MAX),
+		    LocalError(hit2D->localPositionError().xx(),0.f,std::numeric_limits<float>::max()),
 		    hit2D->geographicalId(), hit2D->omniCluster()
 		    ),
   sigmaPitch_(-1){}

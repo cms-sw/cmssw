@@ -45,3 +45,4 @@ private:
   mutable double sigmaPitch_;  // transient.... 
 };
 
+#endif

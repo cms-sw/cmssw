@@ -15,7 +15,7 @@
 
 //! Our base class
 #include "DataFormats/TrackerRecHit2D/interface/TrackerSingleRecHit.h"
-/! Quality word packing
+//! Quality word packing
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitQuality.h"
 
 
