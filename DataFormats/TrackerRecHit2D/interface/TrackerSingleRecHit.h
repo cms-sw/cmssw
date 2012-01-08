@@ -17,9 +17,14 @@ public:
   TrackerSingleRecHit(){}
   
   
+  typedef OmniClusterRef::ClusterPixelRef ClusterPixelRef;
   typedef OmniClusterRef::ClusterRef         ClusterRef;
   typedef OmniClusterRef::ClusterRegionalRef ClusterRegionalRef;
 
+
+  TrackerSingleRecHit(const LocalPoint& p, const LocalError& e,
+		      DetId id,
+		      ClusterPixelRef const&  clus) : Base(p,e,id), cluster_(clus){}
 
   TrackerSingleRecHit(const LocalPoint& p, const LocalError& e,
 		      DetId id,
@@ -29,15 +34,21 @@ public:
 		      DetId id,  
 		      ClusterRegionalRef const& clus) :  Base(p,e,id), cluster_(clus){}
   
-  OmniClusterRef  const & omniCluster() cons { return cluster_;}
+  OmniClusterRef const & omniCluster() cons { return cluster_;}
 
+  ClusterPixelRef cluster_pixel()  const { 
+    return cluster_.cluster_pixel();
+  }
+  
+  
   ClusterRegionalRef cluster_regional()  const { 
     return cluster_.cluster_regional();
   }
-
-  ClusterRef cluster()  const { 
+  
+  ClusterRef cluster_strip()  const { 
     return cluster_.cluster_strip();
   }
+
 
   void setClusterRef(ClusterRef const & ref) {  cluster_ = OmniClusterRef(ref); }
   void setClusterRegionalRef(ClusterRegionalRef const & ref) { cluster_ = OmniClusterRef(ref); }

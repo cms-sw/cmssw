@@ -29,6 +29,9 @@ public:
   /// method to facilitate the convesion from 2D to 1D hits
   SiStripRecHit1D(const SiStripRecHit2D*);
 
+  ClusterRef cluster()  const { cluster_strip() ; }
+
+
   virtual SiStripRecHit1D * clone() const {return new SiStripRecHit1D( * this); }
   
 

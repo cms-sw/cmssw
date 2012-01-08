@@ -27,10 +27,12 @@ public:
 		  ClusterRegionalRef const& clus) : 
     TrackerSingleRecHit(pos,err,id, clus),
     sigmaPitch_(-1.) {}
-						 
+				
+  ClusterRef cluster()  const { cluster_strip() ; }
+  
   
   virtual SiStripRecHit2D * clone() const {return new SiStripRecHit2D( * this); }
-
+  
   virtual int dimension() const {return 2;}
   virtual void getKfComponents( KfComponentsHolder & holder ) const { getKfComponents2D(holder); }
 
