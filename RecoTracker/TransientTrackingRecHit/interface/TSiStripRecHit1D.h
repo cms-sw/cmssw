@@ -6,10 +6,6 @@
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/HelpertRecHit2DLocalPos.h"
 #include "DataFormats/Common/interface/RefGetter.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include<limits>
 
 class TSiStripRecHit1D : public TransientTrackingRecHit{
 public:
@@ -95,30 +91,7 @@ private:
   TSiStripRecHit1D (const GeomDet * geom, const SiStripRecHit1D* rh,
 		    const StripClusterParameterEstimator* cpe,
 		    float weight, float annealing,
-		    bool computeCoarseLocalPosition) : 
-    TransientTrackingRecHit(geom, weight, annealing), theCPE(cpe) 
-    {
-      if (rh->hasPositionAndError() || !computeCoarseLocalPosition)
-	theHitData = SiStripRecHit1D(*rh);
-      else{
-      const GeomDetUnit* gdu = dynamic_cast<const GeomDetUnit*>(geom);
-      LogDebug("TSiStripRecHit2DLocalPos")<<"calculating coarse position/error.";
-      if (gdu){
-	if (rh->cluster().isNonnull()){
-	  StripClusterParameterEstimator::LocalValues lval= theCPE->localParameters(*rh->cluster(), *gdu);
-	  LocalError le(lval.second.xx(),0.,std::numeric_limits<float>::max()); //Correct??
-	  theHitData = SiStripRecHit1D(lval.first, le, geom->geographicalId(),rh->cluster());
-	}else{
-	  StripClusterParameterEstimator::LocalValues lval= theCPE->localParameters(*rh->cluster_regional(), *gdu);
-	  LocalError le(lval.second.xx(),0.,std::numeric_limits<float>::max()); //Correct??
-	  theHitData = SiStripRecHit1D(lval.first, le, geom->geographicalId(),rh->cluster_regional());
-	}
-      }else{
-	edm::LogError("TSiStripRecHit2DLocalPos")<<" geomdet does not cast into geomdet unit. cannot create strip local parameters.";
-	theHitData = SiStripRecHit1D(*rh);
-      }
-      }
-    }
+		    bool computeCoarseLocalPosition);
 
   /// Creates the TrackingRecHit internally, avoids redundent cloning
   TSiStripRecHit1D( const LocalPoint& pos, const LocalError& err,
