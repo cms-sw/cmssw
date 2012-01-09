@@ -21,12 +21,13 @@ namespace {
       ref.cluster_pixel().isNull() << " " <<
       ref.cluster_regional().isNull()  << " " << std::endl;
   }
-
-  void verify(TrackingRecHit const * thit) {
-    int subd =   thit->geographicalId().rawId() >> (DetId::kSubdetOffset);
   
+  void verify(TrackingRecHit const * thit) {
+    int id = thit->geographicalId().rawId();
+    int subd =   thit->geographicalId().rawId() >> (DetId::kSubdetOffset);
+    
     TrackerSingleRecHit const * hit= dynamic_cast<TrackerSingleRecHit const *>(thit);
-
+    
     if (dynamic_cast<SiPixelRecHit const *>(hit)) {
       static int n=0;
       if (++n<5) {
@@ -37,25 +38,25 @@ namespace {
     if (dynamic_cast<SiStripRecHit1D const *>(hit)) {
       static int n=0;
       if (++n<5) {
-	std::cout << "Strip1D:" << subd << " " << id&3 << " ";
+	std::cout << "Strip1D:" << subd << " " << (id&3) << " ";
 	verify(hit->omniCluster());
       }
     }
     if (dynamic_cast<SiStripRecHit2D const *>(hit)) {
       static int n=0;
       if (++n<5) {
-	std::cout << "Strip2D:" << subd << " " << id&3 << " ";
+	std::cout << "Strip2D:" << subd << " " << (id&3) << " ";
 	verify(hit->omniCluster());
       }
     }
     if (dynamic_cast<SiStripMatchedRecHit2D const *>(thit)) {
       static int n=0;
       if (++n<5) {
-	std::cout << "Strip Matched:" << subd << " " << id&3 << " " << std::endl;
+	std::cout << "Strip Matched:" << subd << " " << (id&3) << " " << std::endl;
 	// verify(hit->omniCluster());
       }
     }
-
+    
 
   }
 }
