@@ -1,8 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("Alignment")
 
-# "including" common configuration
-<COMMON>
+# "including" common configuration <COMMON>
 
 process.source = cms.Source("EmptySource")
 
@@ -11,7 +10,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.AlignmentProducer.algoConfig.collectorActive = True
-process.AlignmentProducer.algoConfig.collectorNJobs  = <JOBS>
+process.AlignmentProducer.algoConfig.collectorNJobs  = '<JOBS>'
 process.AlignmentProducer.algoConfig.collectorPath   = '<PATH>'
 #process.AlignmentProducer.algoConfig.minimumNumberOfHits = 30
 process.AlignmentProducer.algoConfig.minimumNumberOfHits = 0

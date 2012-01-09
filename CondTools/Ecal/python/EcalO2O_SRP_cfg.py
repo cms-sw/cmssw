@@ -5,7 +5,7 @@ process = cms.Process("ProcessOne")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 #process.CondDBCommon.connect = 'oracle://cms_orcon_prod/CMS_COND_34X_ECAL'
 #process.CondDBCommon.DBParameters.authenticationPath = '/nfshome0/popcondev/conddb'
- process.CondDBCommon.connect = 'sqlite_file:EcalSRSettings_v00_beam10.db'
+process.CondDBCommon.connect = 'sqlite_file:EcalSRSettings_v00_beam10.db'
 
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -57,7 +57,6 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalSRPAnalyzer",
         location = cms.string('P5_Co'),
         runtype = cms.string('Physics'), 
         gentag = cms.string('global'),
-        debug = cms.bool(False)
     )
 )
 

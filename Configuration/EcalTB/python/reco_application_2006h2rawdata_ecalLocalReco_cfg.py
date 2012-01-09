@@ -50,12 +50,12 @@ process.ecalTBunpack = cms.EDProducer("EcalRawToDigi",
     EcalFirstFED = cms.untracked.int32(8)
 )
 
-process.reco-pool-out = cms.OutputModule("PoolOutputModule",
+process.reco_pool_out = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring('keep *', 
         'drop FEDRawDataCollection_*_*_*'),
     fileName = cms.untracked.string('h2.ecalReco.root')
 )
 
 process.p = cms.Path(process.getCond*process.tbunpacker*process.ecalTBunpack*process.ecal2006TBH2TDCReconstructor*process.ecal2006TBH2WeightUncalibRecHit)
-process.ep = cms.EndPath(process.reco-pool-out)
+process.ep = cms.EndPath(process.reco_pool_out)
 

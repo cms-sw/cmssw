@@ -8,18 +8,17 @@ process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 
 
-# "including" common configuration
-<COMMON>
+# "including" common configuration <COMMON>
 
 if 'COSMICS' =='<FLAG>':
     process.source = cms.Source("PoolSource",
 #                                useCSA08Kludge = cms.untracked.bool(True),
-                                fileNames = cms.untracked.vstring(<FILE>)
+                                fileNames = cms.untracked.vstring('<FILE>')
                                 )
 else :
     process.source = cms.Source("PoolSource",
                                 #useCSA08Kludge = cms.untracked.bool(True),
-                                fileNames = cms.untracked.vstring(<FILE>)
+                                fileNames = cms.untracked.vstring('<FILE>')
                                 )
     
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
@@ -27,8 +26,7 @@ process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi")
 process.offlinePrimaryVertices.TrackLabel = cms.InputTag("TrackRefitter1")
 process.offlinePrimaryVertices.minNdof = cms.double(2.0)
 
-# "including" selection for this track sample
-<SELECTION>
+# "including" selection for this track sample <SELECTION>
 
 # parameters for HIP
 process.AlignmentProducer.tjTkAssociationMapTag = 'TrackRefitter2'

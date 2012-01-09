@@ -10,8 +10,8 @@ process.source = cms.Source("EmptySource")
 
 process.ppt = cms.EDAnalyzer("PhysicalPartsTree")
 
-process.print = cms.OutputModule("AsciiOutputModule")
+process.printM = cms.OutputModule("AsciiOutputModule")
 
 process.p1 = cms.Path(process.ppt)
-process.ep = cms.EndPath(process.print)
+process.ep = cms.EndPath(process.printM)
 
