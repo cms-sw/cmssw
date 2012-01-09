@@ -483,7 +483,7 @@ bool AlignmentTrackSelector::isOkCharge(const TrackingRecHit* hit) const
   edm::LogError("AlignmentTrackSelector") 
     << "@SUB=isOkCharge" << "Unknown valid tracker hit not in pixel, subdet " << id.subdetId()
     << ", SiTrackerMultiRecHit " << dynamic_cast<const SiTrackerMultiRecHit*>(hit)
-    << ", BaseSiTrackerRecHit2DLocalPos " << dynamic_cast<const BaseSiTrackerRecHit2DLocalPos*>(hit); 
+    << ", BaseTrackerRecHit " << dynamic_cast<const BaseTrackerRecHit*>(hit); 
   
   return true;
 } 
