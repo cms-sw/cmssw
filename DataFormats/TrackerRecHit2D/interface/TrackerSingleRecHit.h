@@ -52,7 +52,10 @@ public:
   ClusterRegionalRef cluster_regional()  const { 
     return cluster_.cluster_regional();
   }
-  
+
+  SiStripCluster const & stripCluster() const { 
+    return cluster_.stripCluster();
+  }  
 
   // void setClusterRef(const &  OmniClusterRef ref) {  cluster_ =ref;}
   void setClusterPixelRef(ClusterPixelRef const & ref) {  cluster_ = OmniClusterRef(ref); }

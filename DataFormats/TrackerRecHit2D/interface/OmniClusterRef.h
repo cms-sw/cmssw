@@ -37,6 +37,10 @@ public:
     return isRegional() ?  ClusterRegionalRef(me.toRefCore(),index()) : ClusterRegionalRef();
   }
   
+
+  SiStripCluster const & stripCluster() const {
+    return isRegional() ?  *ClusterRegionalRef(me.toRefCore(),index()) :  *ClusterStripRef(me.toRefCore(),index());
+  }
   
   bool operator==(OmniClusterRef const & lh) const { 
     return rawIndex() == lh.rawIndex(); // in principle this is enough!

@@ -17,10 +17,16 @@ public:
 
   SiStripRecHit2D( const LocalPoint& pos, const LocalError& err,
 		   const DetId& id,
-		   ClusterRef const& clus) : 
+		   OmniClusterRef const& clus) : 
     TrackerSingleRecHit(pos,err,id, clus),
     sigmaPitch_(-1.) {}
  
+  SiStripRecHit2D( const LocalPoint& pos, const LocalError& err,
+		   const DetId& id,
+		   ClusterRef const& clus) : 
+    TrackerSingleRecHit(pos,err,id, clus),
+    sigmaPitch_(-1.) {}
+
 
   SiStripRecHit2D(const LocalPoint& pos, const LocalError& err,
 		  const DetId& id,
