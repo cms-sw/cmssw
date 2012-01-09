@@ -5,10 +5,63 @@
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+#include<iostream>
+namespace {
+  
+  void verify(OmniClusterRef const ref) {
+    std::cout << 
+      ref.rawIndex() << " " <<
+      ref.isValid() << " " <<
+      ref.isPixel() << " " <<
+      ref.isStrip()  << " " <<
+      ref.isRegional() << " " <<
+      ref.cluster_strip().isNull() << " " <<
+      ref.cluster_pixel().isNull() << " " <<
+      ref.cluster_regional().isNull()  << " " << std::endl;
+  }
+
+  void verify(TrackingRecHit const * hit) {
+    int subd =   hit->geographicalId().rawId() >> (DetId::kSubdetOffset);
+  
+    if (dynamic_cast<SiPixelRecHit const *>(hit)) {
+      static int n=0;
+      if (++n<5) {
+	std::cout << "Pixel:" << subd << " ";
+	verify(hit->omniCluster());
+      }
+    }
+    if (dynamic_cast<SiStripRecHit1D const *>(hit)) {
+      static int n=0;
+      if (++n<5) {
+	std::cout << "Strip1D:" << subd << " " << id&3 << " ";
+	verify(hit->omniCluster());
+      }
+    }
+    if (dynamic_cast<SiStripRecHit2D const *>(hit)) {
+      static int n=0;
+      if (++n<5) {
+	std::cout << "Strip2D:" << subd << " " << id&3 << " ";
+	verify(hit->omniCluster());
+      }
+    }
+    if (dynamic_cast<SiStripMatchedRecHit2D const *>(hit)) {
+      static int n=0;
+      if (++n<5) {
+	std::cout << "Strip Matched:" << subd << " " << id&3 << " " << std::endl;
+	// verify(hit->omniCluster());
+      }
+    }
+
+
+  }
+}
+
 bool 
 TrackerSingleRecHit::sharesInput( const TrackingRecHit* other, 
 			      SharedInputType what) const
 {
+  verify(this); verify(other);
   // check subdetector is the same
   if( ((geographicalId().rawId()) >> (DetId::kSubdetOffset) ) != ( (other->geographicalId().rawId())>> (DetId::kSubdetOffset)) ) return false;
   //Protection against invalid hits
