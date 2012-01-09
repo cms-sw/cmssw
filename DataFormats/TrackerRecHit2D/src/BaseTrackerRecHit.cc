@@ -29,7 +29,7 @@ bool BaseTrackerRecHit::sameDetModule(TrackingRecHit const & hit) const {
   if (mysubd!=subd) return false;
   
   //Protection against invalid hits
-  if(!hit->isValid()) return false;
+  if(!hit.isValid()) return false;
   
   const int limdet = 11;  // TIB
   
