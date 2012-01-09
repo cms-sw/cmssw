@@ -80,6 +80,8 @@ public:
   /// construct from cartesian coordinates
   Basic3DVector( const T& x, const T& y, const T& z) :
     theX(x), theY(y), theZ(z), theW(0) {}
+  Basic3DVector( const T& x, const T& y, const T& z, const T& w) :
+    theX(x), theY(y), theZ(z), theW(w) {}
 #endif
 
 
