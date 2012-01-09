@@ -30,7 +30,7 @@ public:
   SiStripRecHit1D(const SiStripRecHit2D*);
 
   ClusterRef cluster()  const { return cluster_strip() ; }
-  void setClusterRef(ClusterRef const & ref)  {setClusterStripRef();}
+  void setClusterRef(ClusterRef const & ref)  {setClusterStripRef(ref);}
 
 
   virtual SiStripRecHit1D * clone() const {return new SiStripRecHit1D( * this); }
