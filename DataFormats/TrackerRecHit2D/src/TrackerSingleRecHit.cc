@@ -27,7 +27,7 @@ namespace {
     static bool once=false;
     if (once) {
       once=true;
-      DetID Lim(DetId::Tracker,3);
+      DetId Lim(DetId::Tracker,3);
       std::cout << "detid lim " << (Lim..rawId() >> (DetId::kSubdetOffset)) << srd::endl;
     }
     int id = thit->geographicalId().rawId();
