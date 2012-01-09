@@ -6,10 +6,11 @@
 class ProjectedSiStripRecHit2D : public BaseTrackerRecHit {
 public:
 
+  typedef BaseTrackerRecHit Base;
   ProjectedSiStripRecHit2D() {};
   ProjectedSiStripRecHit2D( const LocalPoint& pos, const LocalError& err, const DetId& id , 
 			    const SiStripRecHit2D* originalHit) :
-    BaseTrackerRecHit(pos, err, id), originalHit_(*originalHit) {}
+    BaseTrackerRecHit(pos, err, id, base::proj), originalHit_(*originalHit) {}
     
   virtual ProjectedSiStripRecHit2D* clone() const {return new ProjectedSiStripRecHit2D( *this); }
 

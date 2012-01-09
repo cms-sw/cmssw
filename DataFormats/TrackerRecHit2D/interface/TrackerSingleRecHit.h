@@ -25,19 +25,19 @@ public:
 
   TrackerSingleRecHit(const LocalPoint& p, const LocalError& e,
 		      DetId id,
-		      OmniClusterRef const&  clus) : Base(p,e,id), cluster_(clus){}
+		      OmniClusterRef const&  clus) : Base(p,e,id, Base::simple), cluster_(clus){}
 
   TrackerSingleRecHit(const LocalPoint& p, const LocalError& e,
 		      DetId id,
-		      ClusterPixelRef const&  clus) : Base(p,e,id), cluster_(clus){}
+		      ClusterPixelRef const&  clus) : Base(p,e,id, Base::simple), cluster_(clus){}
 
   TrackerSingleRecHit(const LocalPoint& p, const LocalError& e,
 		      DetId id,
-		      ClusterStripRef const&  clus) : Base(p,e,id), cluster_(clus){}
+		      ClusterStripRef const&  clus) : Base(p,e,id, Base::simple), cluster_(clus){}
 
   TrackerSingleRecHit(const LocalPoint& p, const LocalError& e,
 		      DetId id,  
-		      ClusterRegionalRef const& clus) :  Base(p,e,id), cluster_(clus){}
+		      ClusterRegionalRef const& clus) :  Base(p,e,id, Base::simple), cluster_(clus){}
   
   OmniClusterRef const & omniCluster() const { return cluster_;}
 

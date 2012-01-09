@@ -8,13 +8,19 @@
 
 class BaseTrackerRecHit : public TrackingRecHit { 
 public:
-
+  // tracking hit can be : single (si1D, si2D, pix), projected, matched or multi
+  enum RTTI { undef=0, single=1, proj=2, match=3};
   BaseTrackerRecHit() {}
 
   virtual ~BaseTrackerRecHit() {}
 
   BaseTrackerRecHit( const LocalPoint& p, const LocalError&e,
-				 DetId id) :  TrackingRecHit(id), pos_(p), err_(e){}
+		     DetId id, RTTI rt=undef) :  TrackingRecHit(id,unsigned int(rt)), pos_(p), err_(e){}
+
+  RTTI rtti() const { return RTTI(getRTTI());}
+  bool isSingle() const { return rtti()=single;}
+  bool isProjected() const { return rtti()=proj;}
+  bool isMatched() const { return rtti()=match;}
 
 
   // verify that hits can share clusters...
