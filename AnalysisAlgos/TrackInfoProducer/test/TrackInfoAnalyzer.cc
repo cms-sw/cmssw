@@ -67,7 +67,7 @@ class TrackInfoAnalyzer : public edm::EDAnalyzer {
 	edm::LogInfo("TrackInfoAnalyzer") <<"LocalMomentum: "<<(track->stateOnDet(Combined,(*iter).first)->parameters()).momentum();
 	edm::LogInfo("TrackInfoAnalyzer") <<"LocalPosition: "<<(track->stateOnDet(Combined,(*iter).first)->parameters()).position();
 	edm::LogInfo("TrackInfoAnalyzer") <<"LocalPosition (rechit): "<<((*iter).first)->localPosition();
-	DetId id=((BaseSiTrackerRecHit2DLocalPos *) (&(*(*iter).first)))->geographicalId();
+	DetId id= (*(*iter).first)).geographicalId();
 	unsigned int iSubDet = StripSubdetector(id).subdetId();
         if (iSubDet == StripSubdetector::TIB){
 	  TIBDetId* tibId = new TIBDetId(id);
