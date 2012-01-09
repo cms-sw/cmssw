@@ -77,12 +77,13 @@ TrackerSingleRecHit::sharesInput( const TrackingRecHit* other,
 
   if (!sameDetModule(*other)) return false;
 
-  const std::type_info & otherType = typeid(*other);
-  if (otherType == typeid(TrackerSingleRecHit)) {
+  // dynamic cast to be FIXED!
+  if (dynamic_cast<TrackerSingleRecHit const *>(other)) {
     const TrackerSingleRecHit & otherCast = static_cast<const TrackerSingleRecHit&>(*other);
     return sharesInput(otherCast);
   } 
 
+  const std::type_info & otherType = typeid(*other);
   if (otherType == typeid(ProjectedSiStripRecHit2D)) 
     return other->sharesInput(this,what);
 
