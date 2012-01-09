@@ -17,6 +17,9 @@ public:
 				 DetId id) :  TrackingRecHit(id), pos_(p), err_(e){}
 
 
+  // verify that hits can share clusters...
+  bool sameDetModule() const;
+
   virtual LocalPoint localPosition() const ;
 
   virtual LocalError localPositionError() const ;
