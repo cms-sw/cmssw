@@ -746,17 +746,21 @@ double HcalRecHitsMaker::noiseInfCfromDB(const HcalDbService * conditions,const 
 // fraction of energy collected as a function of ToF (for out-of-time particles; use case is out-of-time pileup)
 double HcalRecHitsMaker::fractionOOT(int time_slice)// in units of 25 ns; 0 means in-time
 {
-  if (abs(time_slice)>=5) return 0.;
-  double f[5]={0.7, 0.18, 0.06, 0.04, 0.02}; // numbers provided by Salavat
-  double fraction_observed=0.;
-  if (time_slice>=0) {
-    for(int i=time_slice; i<5; i++) fraction_observed+=f[i];
+  double SF = 100./88.; // to normalize to in-time signal (88% is in the reco window)
+  if (time_slice==-4) {
+    return 0.02*SF;
+  } else if (time_slice==-3) {
+    return 0.06*SF;
+  } else if (time_slice==-2) {
+    return 0.19*SF;
+  } else if (time_slice==-1) {
+    return 0.24*SF;
+  } else if (time_slice==0) {
+    return 1.;
+  } else if (time_slice==1) {
+    return 0.70*SF;
   } else {
-    for(int i=0; i<5+time_slice; i++) fraction_observed+=f[i];
+    return 0.;
   }
-  return fraction_observed;
 
-  // Note (by Andrea G): actually one can just tabulate these numbers instead of doing sums
-  // but this is error-prone and I prefer to delay that until the next update, after some validation.
-  // (one can put the tabulation macro in /test, in order to recalculate the scaling factors quickly in case the TS fractions change)
 }
