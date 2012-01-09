@@ -14,7 +14,7 @@ public:
   SiStripRecHit1D(): sigmaPitch_(-1.){}
   
   
-  typedef OmniClusterRef::ClusterRef         ClusterRef;
+  typedef OmniClusterRef::ClusterStripRef         ClusterRef;
   typedef OmniClusterRef::ClusterRegionalRef ClusterRegionalRef;
 
 

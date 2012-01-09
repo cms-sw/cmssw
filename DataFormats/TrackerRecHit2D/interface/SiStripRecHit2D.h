@@ -11,7 +11,7 @@ public:
 
   ~SiStripRecHit2D() {} 
 
-  typedef OmniClusterRef::ClusterRef         ClusterRef;
+  typedef OmniClusterRef::ClusterStripRef         ClusterRef;
   typedef OmniClusterRef::ClusterRegionalRef ClusterRegionalRef;
 
 
