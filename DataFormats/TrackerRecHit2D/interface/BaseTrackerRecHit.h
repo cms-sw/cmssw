@@ -18,7 +18,7 @@ public:
 
 
   // verify that hits can share clusters...
-  bool sameDetModule() const;
+  bool sameDetModule(TrackingRecHit const & hit) const;
 
   virtual LocalPoint localPosition() const ;
 

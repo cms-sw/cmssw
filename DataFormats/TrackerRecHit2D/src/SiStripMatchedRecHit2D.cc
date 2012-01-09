@@ -7,10 +7,8 @@ SiStripMatchedRecHit2D::sharesInput( const TrackingRecHit* other,
 				     SharedInputType what) const
 {
   if (what==all && (geographicalId() != other->geographicalId())) return false;
-  // check subdetector is the same
-  if( ((geographicalId().rawId()) >> (DetId::kSubdetOffset) ) != ( (other->geographicalId().rawId())>> (DetId::kSubdetOffset)) ) return false;
-  //Protection against invalid hits
-  if(!other->isValid()) return false;
+ 
+  if (!sameDetModule(*other)) return false;
   
   if ( typeid(*other)!=typeid(SiStripMatchedRecHit2D)){
     if (what==all)  return false;

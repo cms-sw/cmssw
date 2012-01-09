@@ -8,6 +8,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include<iostream>
+/*
 namespace {
   
   void verify(OmniClusterRef const ref) {
@@ -24,9 +25,9 @@ namespace {
   
   void verify(TrackingRecHit const * thit) {
 
-    static bool once=false;
+    static bool once=true;
     if (once) {
-      once=true;
+      once=false;
       DetId Lim(DetId::Tracker,3);
       std::cout << "detid lim " << (Lim.rawId() >> (DetId::kSubdetOffset)) << std::endl;
     }
@@ -67,16 +68,14 @@ namespace {
 
   }
 }
-
+*/
 bool 
 TrackerSingleRecHit::sharesInput( const TrackingRecHit* other, 
 			      SharedInputType what) const
 {
-  verify(this); verify(other);
-  // check subdetector is the same
-  if( ((geographicalId().rawId()) >> (DetId::kSubdetOffset) ) != ( (other->geographicalId().rawId())>> (DetId::kSubdetOffset)) ) return false;
-  //Protection against invalid hits
-  if(!other->isValid()) return false;
+  // verify(this); verify(other);
+
+  if (!sameDetModule(*other)) return false;
 
   const std::type_info & otherType = typeid(*other);
   if (otherType == typeid(TrackerSingleRecHit)) {

@@ -20,6 +20,30 @@ namespace {
 }
 
 
+bool BaseTrackerRecHit::sameDetModule(TrackingRecHit const & hit) const {
+  int myid = hit.geographicalId().rawId();
+  int mysubd = myid >> (DetId::kSubdetOffset);
+  int id = hit.geographicalId().rawId();
+  int subd = id >> (DetId::kSubdetOffset);
+  
+  if (mysubd!=subd) return false;
+  
+  //Protection against invalid hits
+  if(!hit->isValid()) return false;
+  
+  const int limdet = 11;  // TIB
+  
+  if (mysubd<limdet) { // pixel
+    return id==myid;
+  }
+
+  // mask glue and stereo
+  myid&=3;
+  id&=3;
+  return id==myid;
+
+}
+
 bool BaseTrackerRecHit::hasPositionAndError() const {
     return (err_.xx() != 0) || (err_.yy() != 0) || (err_.xy() != 0) ||
            (pos_.x()  != 0) || (pos_.y()  != 0) || (pos_.z()  != 0);
