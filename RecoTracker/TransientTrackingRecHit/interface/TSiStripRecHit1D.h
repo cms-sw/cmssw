@@ -9,6 +9,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include<limits>
 
 class TSiStripRecHit1D : public TransientTrackingRecHit{
 public:
@@ -105,11 +106,11 @@ private:
       if (gdu){
 	if (rh->cluster().isNonnull()){
 	  StripClusterParameterEstimator::LocalValues lval= theCPE->localParameters(*rh->cluster(), *gdu);
-	  LocalError le(lval.second.xx(),0.,DBL_MAX); //Correct??
+	  LocalError le(lval.second.xx(),0.,std::numeric_limits<float>::max()); //Correct??
 	  theHitData = SiStripRecHit1D(lval.first, le, geom->geographicalId(),rh->cluster());
 	}else{
 	  StripClusterParameterEstimator::LocalValues lval= theCPE->localParameters(*rh->cluster_regional(), *gdu);
-	  LocalError le(lval.second.xx(),0.,DBL_MAX); //Correct??
+	  LocalError le(lval.second.xx(),0.,std::numeric_limits<float>::max()); //Correct??
 	  theHitData = SiStripRecHit1D(lval.first, le, geom->geographicalId(),rh->cluster_regional());
 	}
       }else{
