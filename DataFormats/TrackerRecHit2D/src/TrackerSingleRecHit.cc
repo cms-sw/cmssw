@@ -23,6 +23,13 @@ namespace {
   }
   
   void verify(TrackingRecHit const * thit) {
+
+    static bool once=false;
+    if (once) {
+      once=true;
+      DetID Lim(DetId::Tracker,3);
+      std::cout << "detid lim " << (Lim..rawId() >> (DetId::kSubdetOffset)) << srd::endl;
+    }
     int id = thit->geographicalId().rawId();
     int subd =   thit->geographicalId().rawId() >> (DetId::kSubdetOffset);
     
