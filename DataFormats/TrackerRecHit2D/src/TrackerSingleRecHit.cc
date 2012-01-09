@@ -40,35 +40,35 @@ namespace {
     if (dynamic_cast<SiPixelRecHit const *>(hit)) {
       static int n=0;
       if (++n<5) {
-	std::cout << "Pixel:" << subd << " " << bhit.isSingle() ". " <<;
+	std::cout << "Pixel:" << subd << " " << bhit->isSingle() ". " <<;
 	verify(hit->omniCluster());
       }
     }
     if (dynamic_cast<SiStripRecHit1D const *>(hit)) {
       static int n=0;
       if (++n<5) {
-	std::cout << "Strip1D:" << subd << " " << (id&3) << " "<< bhit.isSingle() ". " <<;
+	std::cout << "Strip1D:" << subd << " " << (id&3) << " "<< bhit->isSingle() ". " <<;
 	verify(hit->omniCluster());
       }
     }
     if (dynamic_cast<SiStripRecHit2D const *>(hit)) {
       static int n=0;
       if (++n<5) {
-	std::cout << "Strip2D:" << subd << " " << (id&3) << " "<< bhit.isSingle() ". " <<;
+	std::cout << "Strip2D:" << subd << " " << (id&3) << " "<< bhit->isSingle() ". " <<;
 	verify(hit->omniCluster());
       }
     }
     if (dynamic_cast<SiStripMatchedRecHit2D const *>(thit)) {
       static int n=0;
       if (++n<5) {
-	std::cout << "Strip Matched:" << subd << " " << (id&3) << " " << bhit.isMatched() ". " << std::endl;
+	std::cout << "Strip Matched:" << subd << " " << (id&3) << " " << bhit->isMatched() ". " << std::endl;
 	// verify(hit->omniCluster());
       }
     }
     if (dynamic_cast<ProjectedSiStripRecHit2D const *>(thit)) {
       static int n=0;
       if (++n<5) {
-	std::cout << "Strip Matched:" << subd << " " << (id&3) << " " << bhit.isProjected() ". " << std::endl;
+	std::cout << "Strip Matched:" << subd << " " << (id&3) << " " << bhit->isProjected() ". " << std::endl;
 	// verify(hit->omniCluster());
       }
     }
