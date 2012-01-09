@@ -42,15 +42,6 @@ PFRecHitProducerHO::PFRecHitProducerHO(const edm::ParameterSet& iConfig)
   inputTagHORecHits_ = 
     iConfig.getParameter<InputTag>("recHitsHO");
   
-  // Energy threshold in Ring 0 
-  thresholdR0_ = 
-    iConfig.getParameter<double>("threshold_R0");
-  
-  // Energy threshold in Ring +/-1 and +/- 2
-  thresholdR1_ = 
-    iConfig.getParameter<double>("threshold_R1");
-  
-  
   neighbourmapcalculated_ = false;
 }
 
@@ -122,7 +113,8 @@ PFRecHitProducerHO::createRecHits(vector<reco::PFRecHit>& rechits,
       
       if (esd != 3) continue;
       int hoeta=detid.ieta();
-      if ((abs(hoeta)<=4 && energy < thresholdR0_) || (abs(hoeta)>4 && energy < thresholdR1_)) continue;
+      if ( (abs(hoeta)<=4 && energy < thresh_Barrel_) || 
+	   (abs(hoeta)> 4 && energy < thresh_Endcap_) ) continue;
       
       reco::PFRecHit *pfrh = createHORecHit(detid, energy,  
 					    PFLayer::HCAL_BARREL2, // HO,
