@@ -29,8 +29,8 @@ public:
     sigmaPitch_(-1.) {}
 				
   ClusterRef cluster()  const { return cluster_strip() ; }
-  
-  
+  void setClusterRef(ClusterRef const & ref)  {setClusterStripRef();}
+
   virtual SiStripRecHit2D * clone() const {return new SiStripRecHit2D( * this); }
   
   virtual int dimension() const {return 2;}

@@ -17,27 +17,26 @@ class OmniClusterRef {
 
 public:
   typedef edm::Ref<edmNew::DetSetVector<SiPixelCluster>,SiPixelCluster > ClusterPixelRef;
-  typedef edm::Ref<edmNew::DetSetVector<SiStripCluster>,SiStripCluster > ClusterRef;
+  typedef edm::Ref<edmNew::DetSetVector<SiStripCluster>,SiStripCluster > ClusterStripRef;
   typedef edm::Ref< edm::LazyGetter<SiStripCluster>, SiStripCluster, edm::FindValue<SiStripCluster> >  ClusterRegionalRef;
   
   OmniClusterRef() : me(edm::RefCore(),kInvalid) {}
   explicit OmniClusterRef(ClusterPixelRef const & ref) : me(ref.refCore(), (ref.isNonnull() ? ref.key() : kInvalid) ){}
-  explicit OmniClusterRef(ClusterRef const & ref) : me(ref.refCore(), (ref.isNonnull() ? ref.key() | kIsStrip : kInvalid) ){}
+  explicit OmniClusterRef(ClusterStripRef const & ref) : me(ref.refCore(), (ref.isNonnull() ? ref.key() | kIsStrip : kInvalid) ){}
   explicit OmniClusterRef(ClusterRegionalRef const & ref) : me(ref.refCore(), (ref.isNonnull() ? ref.key() | kIsRegional : kInvalid)){}
   
   ClusterPixelRef cluster_pixel()  const { 
     return (isPixel() && isValid()) ?  ClusterPixelRef(me.toRefCore(),index()) : ClusterPixelRef();
+  }
+
+  ClusterStripRef cluster_strip()  const { 
+    return isNonRegionalStrip() ? ClusterRef(me.toRefCore(),index()) : ClusterRef();
   }
   
   ClusterRegionalRef cluster_regional()  const { 
     return isRegional() ?  ClusterRegionalRef(me.toRefCore(),index()) : ClusterRegionalRef();
   }
   
-  ClusterRef cluster()  const { return  cluster_strip();}
-
-  ClusterRef cluster_strip()  const { 
-    return isNonRegionalStrip() ? ClusterRef(me.toRefCore(),index()) : ClusterRef();
-  }
   
   bool operator==(OmniClusterRef const & lh) const { 
     return rawIndex() == lh.rawIndex(); // in principle this is enough!

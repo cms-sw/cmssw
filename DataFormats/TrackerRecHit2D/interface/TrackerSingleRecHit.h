@@ -18,7 +18,7 @@ public:
   
   
   typedef OmniClusterRef::ClusterPixelRef ClusterPixelRef;
-  typedef OmniClusterRef::ClusterRef         ClusterRef;
+  typedef OmniClusterRef::ClusterStripRef ClusterStripRef;
   typedef OmniClusterRef::ClusterRegionalRef ClusterRegionalRef;
 
 
@@ -45,17 +45,18 @@ public:
     return cluster_.cluster_pixel();
   }
   
+  ClusterStripRef cluster_strip()  const { 
+    return cluster_.cluster_strip();
+  }
   
   ClusterRegionalRef cluster_regional()  const { 
     return cluster_.cluster_regional();
   }
   
-  ClusterRef cluster_strip()  const { 
-    return cluster_.cluster_strip();
-  }
 
-
-  void setClusterRef(ClusterRef const & ref) {  cluster_ = OmniClusterRef(ref); }
+  void setClusterRef(const &  OmniClusterRef ref) {  cluster_ =ref;}
+  void setClusterPixelRef(ClusterPixelRef const & ref) {  cluster_ = OmniClusterRef(ref); }
+  void setClusterStripRef(ClusterStripRef const & ref) {  cluster_ = OmniClusterRef(ref); }
   void setClusterRegionalRef(ClusterRegionalRef const & ref) { cluster_ = OmniClusterRef(ref); }
 
 
