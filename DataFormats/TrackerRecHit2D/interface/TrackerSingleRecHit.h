@@ -33,7 +33,7 @@ public:
 
   TrackerSingleRecHit(const LocalPoint& p, const LocalError& e,
 		      DetId id,
-		      ClusterRef const&  clus) : Base(p,e,id), cluster_(clus){}
+		      ClusterStripRef const&  clus) : Base(p,e,id), cluster_(clus){}
 
   TrackerSingleRecHit(const LocalPoint& p, const LocalError& e,
 		      DetId id,  
@@ -54,7 +54,7 @@ public:
   }
   
 
-  void setClusterRef(const &  OmniClusterRef ref) {  cluster_ =ref;}
+  // void setClusterRef(const &  OmniClusterRef ref) {  cluster_ =ref;}
   void setClusterPixelRef(ClusterPixelRef const & ref) {  cluster_ = OmniClusterRef(ref); }
   void setClusterStripRef(ClusterStripRef const & ref) {  cluster_ = OmniClusterRef(ref); }
   void setClusterRegionalRef(ClusterRegionalRef const & ref) { cluster_ = OmniClusterRef(ref); }

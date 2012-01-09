@@ -30,7 +30,7 @@ public:
   }
 
   ClusterStripRef cluster_strip()  const { 
-    return isNonRegionalStrip() ? ClusterRef(me.toRefCore(),index()) : ClusterRef();
+    return isNonRegionalStrip() ? ClusterStripRef(me.toRefCore(),index()) : ClusterRef();
   }
   
   ClusterRegionalRef cluster_regional()  const { 
