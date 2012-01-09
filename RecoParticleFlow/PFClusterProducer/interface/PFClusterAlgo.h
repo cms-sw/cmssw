@@ -187,7 +187,7 @@ class PFClusterAlgo {
 
   /// \return the value of a parameter of a given type, see enum Parameter,
   /// in a given layer. 
-  double parameter( Parameter paramtype, PFLayer::Layer layer, unsigned iCoeff = 0) const; 
+    double parameter( Parameter paramtype, PFLayer::Layer layer, unsigned iCoeff = 0, int iring0=0) const; 
 
   
   enum SeedState {

@@ -78,6 +78,7 @@ void PFClusterAlgo::doClustering( const PFRecHitHandle& rechitsHandle ) {
 }
 
 void PFClusterAlgo::doClustering( const PFRecHitHandle& rechitsHandle, const std::vector<bool> & mask ) {
+
   const reco::PFRecHitCollection& rechits = * rechitsHandle;
 
   // cache the Handle to the rechits
@@ -93,10 +94,13 @@ void PFClusterAlgo::doClustering( const PFRecHitHandle& rechitsHandle, const std
   }
 
   // perform clustering
+
   doClusteringWorker( rechits );
+
 }
 
 void PFClusterAlgo::doClustering( const reco::PFRecHitCollection& rechits ) {
+
   // using rechits without a Handle, clear to avoid a stale member
   rechitsHandle_.clear();
 
@@ -106,14 +110,17 @@ void PFClusterAlgo::doClustering( const reco::PFRecHitCollection& rechits ) {
 
   // perform clustering
   doClusteringWorker( rechits );
+
 }
 
 void PFClusterAlgo::doClustering( const reco::PFRecHitCollection& rechits, const std::vector<bool> & mask ) {
   // using rechits without a Handle, clear to avoid a stale member
+
   rechitsHandle_.clear();
 
   // use the specified mask, unless it doesn't match with the rechits
   mask_.clear();
+
   if (mask.size() == rechits.size()) {
       mask_.insert( mask_.end(), mask.begin(), mask.end() );
   } else {
@@ -123,24 +130,31 @@ void PFClusterAlgo::doClustering( const reco::PFRecHitCollection& rechits, const
 
   // perform clustering
   doClusteringWorker( rechits );
+
 }
 
 
 void PFClusterAlgo::doClusteringWorker( const reco::PFRecHitCollection& rechits ) {
+
 
   if ( pfClusters_.get() )
     pfClusters_->clear();
   else 
     pfClusters_.reset( new std::vector<reco::PFCluster> );
 
+
   if ( pfRecHitsCleaned_.get() )
     pfRecHitsCleaned_->clear();
   else 
     pfRecHitsCleaned_.reset( new std::vector<reco::PFRecHit> );
 
+
   eRecHits_.clear();
-  for ( unsigned i = 0; i < rechits.size(); i++ )
+
+  for ( unsigned i = 0; i < rechits.size(); i++ ){
+
     eRecHits_.insert( make_pair( rechit(i, rechits).energy(), i) );
+  }
 
   color_.clear(); 
   color_.resize( rechits.size(), 0 );
@@ -154,44 +168,57 @@ void PFClusterAlgo::doClusteringWorker( const reco::PFRecHitCollection& rechits 
   if ( cleanRBXandHPDs_ ) cleanRBXAndHPD( rechits);
 
   // look for seeds.
+
   findSeeds( rechits );
 
   // build topological clusters around seeds
   buildTopoClusters( rechits );
-  
+
   // look for PFClusters inside each topological cluster (one per seed)
+  
+  
+  //  int ix=0;
+  //  for (reco::PFRecHitCollection::const_iterator cand =rechits.begin(); cand<rechits.end(); cand++){
+  //    cout <<ix++<<" "<< cand->layer()<<endl;
+  //  }
+
+
   for(unsigned i=0; i<topoClusters_.size(); i++) {
 
     const std::vector< unsigned >& topocluster = topoClusters_[i];
+
     buildPFClusters( topocluster, rechits ); 
+
   }
+
 }
 
 
 double PFClusterAlgo::parameter( Parameter paramtype, 
 				 PFLayer::Layer layer,
-				 unsigned iCoeff )  const {
+				 unsigned iCoeff, int iring )  const {
   
 
   double value = 0;
 
   switch( layer ) {
+
   case PFLayer::ECAL_BARREL:
   case PFLayer::HCAL_BARREL1:
-  case PFLayer::HCAL_BARREL2: // I think this is HO. 
-                              // should not do anything for HO !
+  case PFLayer::HCAL_BARREL2: //  HO. 
+                                 
     switch(paramtype) {
     case THRESH:
-      value = threshBarrel_;
+      value = (iring==0) ? threshBarrel_ : threshEndcap_; //For HO Ring0 and others
       break;
     case SEED_THRESH:
-      value = threshSeedBarrel_;
+      value = (iring==0) ? threshSeedBarrel_ : threshSeedEndcap_;
       break;
     case PT_THRESH:
-      value = threshPtBarrel_;
+      value = (iring==0) ? threshPtBarrel_ : threshPtEndcap_;
       break;
     case SEED_PT_THRESH:
-      value = threshPtSeedBarrel_;
+      value = (iring==0) ? threshPtSeedBarrel_ : threshPtSeedEndcap_;
       break;
     case CLEAN_THRESH:
       value = threshCleanBarrel_;
@@ -275,7 +302,8 @@ PFClusterAlgo::cleanRBXAndHPD(  const reco::PFRecHitCollection& rechits ) {
     //double energy = rhit.energy();
     int layer = rhit.layer();
     if ( layer != PFLayer::HCAL_BARREL1 &&
-	 layer != PFLayer::HCAL_ENDCAP ) break;
+	 layer != PFLayer::HCAL_ENDCAP ) break; 
+      // layer != PFLayer::HCAL_BARREL2) break; //BARREL2 for HO : need specific cleaning
     HcalDetId theHcalDetId = HcalDetId(rhit.detId());
     int ieta = theHcalDetId.ieta();
     int iphi = theHcalDetId.iphi();
@@ -555,6 +583,7 @@ void PFClusterAlgo::findSeeds( const reco::PFRecHitCollection& rechits ) {
   const vector<unsigned> noNeighbours(0, static_cast<unsigned>(0));
 
   // loop on rechits (sorted by decreasing energy - not E_T)
+
   for(EH ih = eRecHits_.begin(); ih != eRecHits_.end(); ih++ ) {
 
     unsigned  rhi      = ih->second; 
@@ -570,21 +599,31 @@ void PFClusterAlgo::findSeeds( const reco::PFRecHitCollection& rechits ) {
  
     // determine seed energy threshold depending on the detector
     int layer = wannaBeSeed.layer();
-    double seedThresh = parameter( SEED_THRESH, 
-				   static_cast<PFLayer::Layer>(layer) );
-    double seedPtThresh = parameter( SEED_PT_THRESH, 
-				     static_cast<PFLayer::Layer>(layer) );
-    double cleanThresh = parameter( CLEAN_THRESH, 
-				    static_cast<PFLayer::Layer>(layer) );
-    double minS4S1_a = parameter( CLEAN_S4S1, 
-				  static_cast<PFLayer::Layer>(layer), 0 );
-    double minS4S1_b = parameter( CLEAN_S4S1, 
-				  static_cast<PFLayer::Layer>(layer), 1 );
-    double doubleSpikeThresh = parameter( DOUBLESPIKE_THRESH, 
-					  static_cast<PFLayer::Layer>(layer) );
-    double doubleSpikeS6S2 = parameter( DOUBLESPIKE_S6S2, 
-					static_cast<PFLayer::Layer>(layer) );
+    //for HO Ring0 and 1/2 boundary
+    
+    int iring = 0;
+    if (layer==PFLayer::HCAL_BARREL2 && abs(wannaBeSeed.positionREP().Eta())>0.34) iring= 1;
 
+    double seedThresh = parameter( SEED_THRESH, 
+				   static_cast<PFLayer::Layer>(layer), 0, iring );
+
+    double seedPtThresh = parameter( SEED_PT_THRESH, 
+				     static_cast<PFLayer::Layer>(layer), 0., iring );
+
+    double cleanThresh = parameter( CLEAN_THRESH, 
+				    static_cast<PFLayer::Layer>(layer), 0, iring );
+
+    double minS4S1_a = parameter( CLEAN_S4S1, 
+				  static_cast<PFLayer::Layer>(layer), 0, iring );
+
+    double minS4S1_b = parameter( CLEAN_S4S1, 
+				  static_cast<PFLayer::Layer>(layer), 1, iring );
+
+    double doubleSpikeThresh = parameter( DOUBLESPIKE_THRESH, 
+					  static_cast<PFLayer::Layer>(layer), 0, iring );
+
+    double doubleSpikeS6S2 = parameter( DOUBLESPIKE_S6S2, 
+					static_cast<PFLayer::Layer>(layer), 0, iring );
 
 #ifdef PFLOW_DEBUG
     if(debug_) 
@@ -597,7 +636,6 @@ void PFClusterAlgo::findSeeds( const reco::PFRecHitCollection& rechits ) {
       continue;
     } 
 
-      
     // Find the cell unused neighbours
     const vector<unsigned>* nbp;
     double tighterE = 1.0;
@@ -659,8 +697,7 @@ void PFClusterAlgo::findSeeds( const reco::PFRecHitCollection& rechits ) {
 	break;
       }
     }
-      
-
+    
     // Cleaning : check energetic, isolated seeds, likely to come from erratic noise.
     if ( file_ || wannaBeSeed.energy() > cleanThresh ) { 
       
@@ -692,7 +729,7 @@ void PFClusterAlgo::findSeeds( const reco::PFRecHitCollection& rechits ) {
       // if ( fraction1 < minS4S1 || ( wannaBeSeed.energy() > 1.5*cleanThresh && fraction0 + fraction3 < minS4S1 ) ) {
       
       if ( file_ ) { 
-	if ( layer == PFLayer::ECAL_BARREL || layer == PFLayer::HCAL_BARREL1 ) { 
+	if ( layer == PFLayer::ECAL_BARREL || layer == PFLayer::HCAL_BARREL1 || layer == PFLayer::HCAL_BARREL2) { //BARREL2 for HO 
 	  /*
 	  double eta = wannaBeSeed.position().eta();
 	  double phi = wannaBeSeed.position().phi();
@@ -713,7 +750,6 @@ void PFClusterAlgo::findSeeds( const reco::PFRecHitCollection& rechits ) {
 	}
       }
       
-
       if ( wannaBeSeed.energy() > cleanThresh ) { 
 	double f1Cut = minS4S1_a * log10(wannaBeSeed.energy()) + minS4S1_b;
 	if ( fraction1 < f1Cut ) {
@@ -831,6 +867,7 @@ void PFClusterAlgo::findSeeds( const reco::PFRecHitCollection& rechits ) {
 	seedStates_[ neighbours[in] ] = NO;
       }
     }
+
   }  
 
 #ifdef PFLOW_DEBUG
@@ -901,10 +938,14 @@ PFClusterAlgo::buildTopoCluster( vector< unsigned >& cluster,
   double e = rh.energy();
   int layer = rh.layer();
   
+
+  int iring = 0;
+  if (layer==PFLayer::HCAL_BARREL2 && abs(rh.positionREP().Eta())>0.34) iring= 1;
+
   double thresh = parameter( THRESH, 
-			     static_cast<PFLayer::Layer>(layer) );
+			     static_cast<PFLayer::Layer>(layer), 0, iring );
   double ptThresh = parameter( PT_THRESH, 
-			       static_cast<PFLayer::Layer>(layer) );
+			       static_cast<PFLayer::Layer>(layer), 0, iring );
 
 
   if( e < thresh ||  (ptThresh > 0. && rh.pt2() < ptThresh*ptThresh) ) {
@@ -985,12 +1026,12 @@ PFClusterAlgo::buildPFClusters( const std::vector< unsigned >& topocluster,
       double fraction = 1.0; 
       
       reco::PFRecHitRef  recHitRef = createRecHitRef( rechits, rhi ); 
-	
+
       cluster.addRecHitFraction( reco::PFRecHitFraction( recHitRef, 
 							 fraction ) );
 
     // cluster.addRecHit( rhi, fraction );
-      
+
       calculateClusterPosition( cluster,
                                 clusterwodepthcor, 
 			        true );    
@@ -1010,7 +1051,6 @@ PFClusterAlgo::buildPFClusters( const std::vector< unsigned >& topocluster,
 
       // keep track of the seed of each topocluster
       seedsintopocluster.push_back( rhi );
-      
     }
   }
 
@@ -1032,6 +1072,7 @@ PFClusterAlgo::buildPFClusters( const std::vector< unsigned >& topocluster,
   vector<double> dist;
   vector<double> frac;
   vector<math::XYZVector> tmp;
+
   while ( iter++ < niter && diff > 1E-8*ns2 ) {
 
     // Store previous iteration's result and reset pfclusters     
@@ -1056,10 +1097,8 @@ PFClusterAlgo::buildPFClusters( const std::vector< unsigned >& topocluster,
       curpfclusters[ic].reset();
     }
 
-
     // Loop over topocluster cells
     for( unsigned irh=0; irh<topocluster.size(); irh++ ) {
-      
       unsigned rhindex = topocluster[irh];
       
       const reco::PFRecHit& rh = rechit( rhindex, rechits);
@@ -1150,7 +1189,7 @@ PFClusterAlgo::buildPFClusters( const std::vector< unsigned >& topocluster,
 #ifdef PFLOW_DEBUG
 	  if(debug_) {
 	    cout<<"dist["<<ic<<"] "<<dist[ic]
-		<<", sigma="<<sigma
+	      //		<<", sigma="<<sigma
 		<<", frc="<<frc<<endl;
 	  }  
 #endif
@@ -1211,11 +1250,12 @@ PFClusterAlgo::buildPFClusters( const std::vector< unsigned >& topocluster,
       }
       // if(debug_) cout<<" end add cell"<<endl;
     }
-    
+
     // Determine the new cluster position and check 
     // the distance with the previous iteration
     diff = 0.;
     for (  unsigned ic=0; ic<tmp.size(); ++ic ) {
+
       calculateClusterPosition( curpfclusters[ic], curpfclusterswodepthcor[ic], 
                                 true, posCalcNCrystal );
 #ifdef PFLOW_DEBUG
@@ -1240,8 +1280,10 @@ PFClusterAlgo::buildPFClusters( const std::vector< unsigned >& topocluster,
   // There we go
   // add all clusters to the list of pfClusters.
   for(unsigned ic=0; ic<curpfclusters.size(); ic++) {
+
     calculateClusterPosition(curpfclusters[ic], curpfclusterswodepthcor[ic], 
                              true, posCalcNCrystal);
+
     pfClusters_->push_back(curpfclusters[ic]); 
   }
 }
@@ -1260,6 +1302,7 @@ PFClusterAlgo::calculateClusterPosition(reco::PFCluster& cluster,
     throw "PFCluster::calculatePosition : posCalcNCrystal_ must be -1, 5, or 9.";
   }  
 
+
   if(!posCalcNCrystal) posCalcNCrystal = posCalcNCrystal_; 
 
   cluster.position_.SetXYZ(0,0,0);
@@ -1270,8 +1313,10 @@ PFClusterAlgo::calculateClusterPosition(reco::PFCluster& cluster,
 
   // calculate total energy, average layer, and look for seed  ---------- //
 
+
   // double layer = 0;
   map <PFLayer::Layer, double> layers; 
+
   unsigned seedIndex = 0;
   bool     seedIndexFound = false;
 
@@ -1304,12 +1349,18 @@ PFClusterAlgo::calculateClusterPosition(reco::PFCluster& cluster,
     cluster.energy_ += recHitEnergy;
 
     // sum energy in each layer
-    PFLayer::Layer layer = rh.layer();                              
+    PFLayer::Layer layer = rh.layer();  
+
     map <PFLayer::Layer, double>:: iterator it = layers.find(layer);
-    if (it != layers.end()) 
+
+    if (it != layers.end()) {
       it->second += recHitEnergy;
-    else 
+    } else {
+
       layers.insert(make_pair(layer, recHitEnergy));
+
+    }
+
   }  
 
   assert(seedIndexFound);
@@ -1326,11 +1377,14 @@ PFClusterAlgo::calculateClusterPosition(reco::PFCluster& cluster,
     }
   }
   
+
   //setlayer here
   cluster.setLayer( layer ); // take layer with max energy
 
   // layer /= cluster.energy_;
   // cluster.layer_ = lrintf(layer); // nearest integer
+
+
 
   double p1 =  posCalcP1_;
   if( p1 < 0 ) { 
@@ -1343,6 +1397,7 @@ PFClusterAlgo::calculateClusterPosition(reco::PFCluster& cluster,
     case PFLayer::ECAL_BARREL:
     case PFLayer::HCAL_BARREL1:
     case PFLayer::HCAL_BARREL2:
+      //    case PFLayer::HCAL_HO:
       p1 = threshBarrel_;
       break;
     case PFLayer::ECAL_ENDCAP:
@@ -1381,7 +1436,6 @@ PFClusterAlgo::calculateClusterPosition(reco::PFCluster& cluster,
   else if( p1< 1e-9 ) { // will divide by p1 later on
     p1 = 1e-9;
   }
-
   // calculate uncorrected cluster position --------------------------------
 
   reco::PFCluster::REPPoint clusterpos;   // uncorrected cluster pos 
@@ -1412,7 +1466,6 @@ PFClusterAlgo::calculateClusterPosition(reco::PFCluster& cluster,
 	}
       }
     }
-    
     double fraction =  cluster.rechits_[ic].fraction();
     double recHitEnergy = rh.energy() * fraction;
 
@@ -1432,7 +1485,7 @@ PFClusterAlgo::calculateClusterPosition(reco::PFCluster& cluster,
     // clusterposxyz += rechitposxyz * norm;
     normalize += norm;
   }
-  
+
   // normalize uncorrected position
   // assert(normalize);
   if( normalize < 1e-9 ) {
@@ -1447,17 +1500,21 @@ PFClusterAlgo::calculateClusterPosition(reco::PFCluster& cluster,
     x /= normalize;
     y /= normalize; 
     z /= normalize; 
+
     clusterposxyz.SetCoordinates( x, y, z);
+
     clusterpos.SetCoordinates( clusterposxyz.Rho(), clusterposxyz.Eta(), clusterposxyz.Phi() );
+
   }  
 
   cluster.posrep_ = clusterpos;
+
   cluster.position_ = clusterposxyz;
 
   clusterwodepthcor = cluster;
 
 
-  // correction of the rechit position, 
+  // correctio of the rechit position, 
   // according to the depth, only for ECAL 
 
 
@@ -1465,7 +1522,7 @@ PFClusterAlgo::calculateClusterPosition(reco::PFCluster& cluster,
       ( cluster.layer() == PFLayer::ECAL_BARREL ||       
 	cluster.layer() == PFLayer::ECAL_ENDCAP ) ) {
 
-    
+
     double corra = reco::PFCluster::depthCorA_;
     double corrb = reco::PFCluster::depthCorB_;
     if( abs(clusterpos.Eta() ) < 2.6 && 
@@ -1489,6 +1546,7 @@ PFClusterAlgo::calculateClusterPosition(reco::PFCluster& cluster,
       cerr<<"PFClusterAlgo::calculateClusterPosition : unknown function for depth correction! "<<endl;
       assert(0);
     }
+
 
     // calculate depth vector:
     // its mag is depth
@@ -1541,7 +1599,7 @@ PFClusterAlgo::calculateClusterPosition(reco::PFCluster& cluster,
 	  }
 	}
       }
-    
+
       double fraction =  cluster.rechits_[ic].fraction();
       double recHitEnergy = rh.energy() * fraction;
       
@@ -1575,7 +1633,7 @@ PFClusterAlgo::calculateClusterPosition(reco::PFCluster& cluster,
       // clusterposxyzcor += rechitposxyzcor * norm;
       normalize += norm;
     }
-    
+
     // normalize
     if(normalize < 1e-9) {
       cerr<<"--------------------"<<endl;
@@ -1595,6 +1653,7 @@ PFClusterAlgo::calculateClusterPosition(reco::PFCluster& cluster,
       cluster.position_  = clusterposxyzcor;
       clusterposxyz = clusterposxyzcor;
     }
+
   }
 }
 
