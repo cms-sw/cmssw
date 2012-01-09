@@ -55,7 +55,7 @@ PFElectronAlgo::PFElectronAlgo(const double mvaEleCut,
   coneTrackIsoForEgammaSC_(coneTrackIsoForEgammaSC)								   
 {
   // Set the tmva reader
-  tmvaReader_ = new TMVA::Reader();
+  tmvaReader_ = new TMVA::Reader("!Color:Silent");
   tmvaReader_->AddVariable("lnPt_gsf",&lnPt_gsf);
   tmvaReader_->AddVariable("Eta_gsf",&Eta_gsf);
   tmvaReader_->AddVariable("dPtOverPt_gsf",&dPtOverPt_gsf);

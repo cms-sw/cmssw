@@ -7,8 +7,6 @@
 #pragma link C++ class MERun+;
 #pragma link C++ class MERunManager+;
 #pragma link C++ class METimeInterval+;
-#pragma link C++ class MEIntervals+;
-#pragma link C++ class MECorrector2Var+;
 #pragma link C++ class MusEcal+;
 #pragma link C++ class MusEcalGUI+;
 #pragma link C++ class MEVarVector+;
@@ -21,6 +19,5 @@
 #pragma link C++ class MEChanPanel+;
 #pragma link C++ class MELeafPanel+;
 #pragma link C++ class MEMultiVarPanel+;
-#pragma link C++ class METwoVarPanel+;
 
 #endif

@@ -1,7 +1,7 @@
 /** See header file for a class description
  *
- *  $Date: 2010/11/12 17:02:25 $
- *  $Revision: 1.47 $
+ *  $Date: 2010/10/22 17:47:44 $
+ *  $Revision: 1.45 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
  */
 // Some notes:
@@ -232,7 +232,6 @@ bool MuScleFitUtils::useProbsFile_ = true;
 
 bool MuScleFitUtils::rapidityBinsForZ_ = true;
 
-bool MuScleFitUtils::separateRanges_ = true;
 double MuScleFitUtils::minMuonPt_ = 0.;
 double MuScleFitUtils::maxMuonPt_ = 100000000.;
 double MuScleFitUtils::minMuonEtaFirstRange_ = -6.;
@@ -309,11 +308,7 @@ std::pair<lorentzVector,lorentzVector> MuScleFitUtils::findBestRecoRes( const st
   double minDeltaMass = 999999;
   std::pair<reco::LeafCandidate,reco::LeafCandidate> bestMassMuons;
   for (std::vector<reco::LeafCandidate>::const_iterator Muon1=muons.begin(); Muon1!=muons.end(); ++Muon1) {
-    //rc2010
-    if (debug>0) std::cout << "muon_1_charge:"<<(*Muon1).charge() << std::endl;
     for (std::vector<reco::LeafCandidate>::const_iterator Muon2=Muon1+1; Muon2!=muons.end(); ++Muon2) {
-   //rc2010
-      if (debug>0) std::cout << "after_2" << std::endl;
       if (((*Muon1).charge()*(*Muon2).charge())>0) {
 	continue; // This also gets rid of Muon1==Muon2...
       }
@@ -325,12 +320,12 @@ std::pair<lorentzVector,lorentzVector> MuScleFitUtils::findBestRecoRes( const st
       double pt2 = (*Muon2).p4().Pt();
       double eta1 = (*Muon1).p4().Eta();
       double eta2 = (*Muon2).p4().Eta();
-      if( pt1 >= minMuonPt_ && pt1 < maxMuonPt_ &&
-	  pt2 >= minMuonPt_ && pt2 < maxMuonPt_ &&
-	  ( (eta1 >= minMuonEtaFirstRange_ && eta1 < maxMuonEtaFirstRange_ &&
-	     eta2 >= minMuonEtaFirstRange_ && eta2 < maxMuonEtaFirstRange_) ||
-	    (eta1 >= minMuonEtaSecondRange_ && eta1 < maxMuonEtaSecondRange_ &&
-	     eta2 >= minMuonEtaSecondRange_ && eta2 < maxMuonEtaSecondRange_) ) ) {
+      if( pt1 > minMuonPt_ && pt1 < maxMuonPt_ &&
+          pt2 > minMuonPt_ && pt2 < maxMuonPt_ &&
+          eta1 > minMuonEtaFirstRange_ && eta1 < maxMuonEtaFirstRange_ &&
+          eta2 > minMuonEtaFirstRange_ && eta2 < maxMuonEtaFirstRange_ &&
+          eta1 > minMuonEtaSecondRange_ && eta1 < maxMuonEtaSecondRange_ &&
+          eta2 > minMuonEtaSecondRange_ && eta2 < maxMuonEtaSecondRange_ ) {
         double mcomb = ((*Muon1).p4()+(*Muon2).p4()).mass();
 	double Y = ((*Muon1).p4()+(*Muon2).p4()).Rapidity();
 	if (debug>1) {
@@ -688,7 +683,7 @@ double MuScleFitUtils::massResolution( const lorentzVector& mu1,
 
 // Mass probability - version with linear background included, accepts std::vector<double> parval
 // -----------------------------------------------------------------------------------------
-double MuScleFitUtils::massProb( const double & mass, const double & resEta, const double & rapidity, const double & massResol, const std::vector<double> & parval, const bool doUseBkgrWindow, const double & eta1, const double & eta2 )
+double MuScleFitUtils::massProb( const double & mass, const double & resEta, const double & rapidity, const double & massResol, const std::vector<double> & parval, const bool doUseBkgrWindow )
 {
 #ifdef USE_CALLGRIND
   CALLGRIND_START_INSTRUMENTATION;
@@ -706,7 +701,7 @@ double MuScleFitUtils::massProb( const double & mass, const double & resEta, con
     p[id] = *it;
   }
   // p must be passed by value as below:
-  double massProbability = massProb( mass, resEta, rapidity, massResol, p, doUseBkgrWindow, eta1, eta2 );
+  double massProbability = massProb( mass, resEta, rapidity, massResol, p, doUseBkgrWindow );
   delete[] p;
 
 #ifdef USE_CALLGRIND
@@ -853,7 +848,7 @@ double MuScleFitUtils::probability( const double & mass, const double & massReso
 
 // Mass probability - version with linear background included
 // ----------------------------------------------------------
-double MuScleFitUtils::massProb( const double & mass, const double & resEta, const double & rapidity, const double & massResol, double * parval, const bool doUseBkgrWindow, const double & eta1, const double & eta2 ) {
+double MuScleFitUtils::massProb( const double & mass, const double & resEta, const double & rapidity, const double & massResol, double * parval, const bool doUseBkgrWindow ) {
 
   // This routine computes the likelihood that a given measured mass "measMass" is
   // the result of a reference mass ResMass[] if the resolution
@@ -982,14 +977,9 @@ double MuScleFitUtils::massProb( const double & mass, const double & resEta, con
         PS[0] = 0;
       }
 
-      // std::pair<double, double> bgrResult = backgroundHandler->backgroundFunction( doBackgroundFit[loopCounter],
-      // 										   &(parval[bgrParShift]), MuScleFitUtils::totalResNum, 0,
-      // 										   resConsidered, ResMass, ResHalfWidth, MuonType, mass, resEta );
-
       std::pair<double, double> bgrResult = backgroundHandler->backgroundFunction( doBackgroundFit[loopCounter],
 										   &(parval[bgrParShift]), MuScleFitUtils::totalResNum, 0,
-										   resConsidered, ResMass, ResHalfWidth, MuonType, mass, eta1, eta2 );
-
+										   resConsidered, ResMass, ResHalfWidth, MuonType, mass, resEta );
       Bgrp1 = bgrResult.first;
       // When fitting the background we have only one Bgrp1
       // When not fitting the background we have many only in a superposition region and this case is treated
@@ -1027,8 +1017,7 @@ double MuScleFitUtils::massProb( const double & mass, const double & resEta, con
 
         std::pair<double, double> bgrResult = backgroundHandler->backgroundFunction( doBackgroundFit[loopCounter],
 										     &(parval[bgrParShift]), MuScleFitUtils::totalResNum, ires,
-										     // resConsidered, ResMass, ResHalfWidth, MuonType, mass, resEta );
-										     resConsidered, ResMass, ResHalfWidth, MuonType, mass, eta1, eta2 );
+										     resConsidered, ResMass, ResHalfWidth, MuonType, mass, resEta );
         Bgrp1 = bgrResult.first;
         PB = bgrResult.second;
 
@@ -1743,8 +1732,7 @@ extern "C" void likelihood( int& npar, double* grad, double& fval, double* xval,
       // --------------------------------------------------------------------
       if (MuScleFitUtils::debug>1) std::cout << "calling massProb inside likelihood function" << std::endl;
 
-      // double prob = MuScleFitUtils::massProb( corrMass, resEta, Y, massResol, xval );
-      double prob = MuScleFitUtils::massProb( corrMass, resEta, Y, massResol, xval, false, corrMu1.eta(), corrMu2.eta() );
+      double prob = MuScleFitUtils::massProb( corrMass, resEta, Y, massResol, xval );
       if (MuScleFitUtils::debug>1) std::cout << "likelihood:massProb = " << prob << std::endl;
 
       // Compute likelihood

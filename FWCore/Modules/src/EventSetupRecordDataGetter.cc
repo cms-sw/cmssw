@@ -88,7 +88,7 @@ private:
       descriptions.setComment("Retrieves specified data from the EventSetup sytem whenever that data changes.");
       
       ParameterSetDescription desc;
-      desc.addOptionalUntracked<bool>("verbose", false)->setComment("Print a message to the logger each time a data item is gotten.");
+      desc.addUntracked<bool>("verbose", false)->setComment("Print a message to the logger each time a data item is gotten.");
 
       ParameterSetDescription toGet;
       toGet.add<std::string>("record")->setComment("The name of an EventSetup record holding the data you want obtained.");

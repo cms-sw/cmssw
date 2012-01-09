@@ -1,4 +1,4 @@
-// $Id: Enabled.cc,v 1.9 2009/09/29 07:57:56 mommsen Exp $
+// $Id: Enabled.cc,v 1.10.6.1 2011/03/07 11:33:05 mommsen Exp $
 /// @file: Enabled.cc
 
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
@@ -28,13 +28,13 @@ void Enabled::do_entryActionWork()
     outermost_context().getSharedResources();
 
   // reset all statistics (needs to be done first)
-  sharedResources->_statisticsReporter->reset();
+  sharedResources->statisticsReporter_->reset();
 
   // clear the INIT message collection at begin run
-  sharedResources->_initMsgCollection->clear();
+  sharedResources->initMsgCollection_->clear();
 
   // update the run-based configuration parameters
-  sharedResources->_configuration->updateRunParams();
+  sharedResources->configuration_->updateRunParams();
 }
 
 Enabled::~Enabled()

@@ -564,7 +564,7 @@ class matplotRender():
         button.pack(side=Tk.BOTTOM)
         Tk.mainloop()
 if __name__=='__main__':
-    fig=Figure(figsize=(8,8),dpi=100)
+    fig=Figure(figsize=(5,5),dpi=100)
     a=fig.add_subplot(111)
     t=numpy.arange(0.0,3.0,0.01)
     s=numpy.sin(2*numpy.pi*t)

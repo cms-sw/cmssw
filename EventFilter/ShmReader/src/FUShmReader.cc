@@ -83,7 +83,8 @@ int FUShmReader::fillRawData(EventID& eID,
   // if the event is 'stop', the reader is being told to shut down!
   evt::State_t state=shmBuffer_->evtState(newCell->index());
   if (state==evt::STOP) {
-    edm::LogInfo("ShutDown")<<"Received empty event, shut down."<<endl;
+    edm::LogInfo("ShutDown")<<"Received STOP event, shut down."<<endl;
+    std::cout << getpid() << " Received STOP event, shut down." << std::endl;
     shmBuffer_->scheduleRawEmptyCellForDiscard(newCell);
     shmdt(shmBuffer_);
     shmBuffer_=0;
@@ -95,12 +96,19 @@ int FUShmReader::fillRawData(EventID& eID,
     unsigned int ls = newCell->getLumiSection();
     //shmBuffer_->setEvtState(newCell->index(),evt::PROCESSING);
     shmBuffer_->scheduleRawCellForDiscard(newCell->index());
+    if(ls==0){
+      std::cout << getpid() << " GOT an EOL event for ls 0!!!" 
+		<< std::endl;
+      throw edm::Exception(errors::LogicError)
+        << "FUShmReader received an EOL event with ls = 0 !!!";
+    }
     return (-1)*ls;
   }
   // getting an 'empty' event here is a pathological condition !!!
   else if(state==evt::EMPTY){
     edm::LogError("EmptyRawCell")
       <<"Received empty event, this should not happen !!!" <<endl;
+    std::cout << getpid() << "Received EPTY event!!! ERROR." << std::endl;
     return fillRawData(eID, tstamp, data);
   }
   else assert(state==evt::RAWREADING);
@@ -122,7 +130,9 @@ int FUShmReader::fillRawData(EventID& eID,
   shmBuffer_->finishReadingRawCell(newCell);
   eID=EventID(runNumber_,1U,evtNumber_);
   data=event_;
-  
+  if(evtNumber_==0) 
+    std::cout << getpid() << " ShmReader got event number zero !!! " 
+	      << std::endl;
   return evtNumber_;
 }
 

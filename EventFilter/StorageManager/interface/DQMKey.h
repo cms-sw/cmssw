@@ -1,11 +1,12 @@
-// $Id: DQMKey.h,v 1.4 2009/10/13 15:08:33 mommsen Exp $
+// $Id: DQMKey.h,v 1.5.10.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: DQMKey.h 
 
-#ifndef StorageManager_DQMKey_h
-#define StorageManager_DQMKey_h
+#ifndef EventFilter_StorageManager_DQMKey_h
+#define EventFilter_StorageManager_DQMKey_h
 
 #include <cstddef>
 #include <stdint.h>
+#include <string>
 
 namespace stor {
 
@@ -13,14 +14,15 @@ namespace stor {
    * Definition of the DQMKey used in the storage manager
    *
    * $Author: mommsen $
-   * $Revision: 1.4 $
-   * $Date: 2009/10/13 15:08:33 $
+   * $Revision: 1.5.10.1 $
+   * $Date: 2011/03/07 11:33:04 $
    */
   
   struct DQMKey
   {
     uint32_t runNumber;
     uint32_t lumiSection;
+    std::string topLevelFolderName;
 
     bool operator<(DQMKey const& other) const;
     bool operator==(DQMKey const& other) const;
@@ -28,19 +30,21 @@ namespace stor {
   
   inline bool DQMKey::operator<(DQMKey const& other) const
   {
-    if ( runNumber != other.runNumber) return runNumber < other.runNumber;
-    return lumiSection < other.lumiSection;
+    if ( runNumber != other.runNumber ) return runNumber < other.runNumber;
+    if ( lumiSection != other.lumiSection ) return lumiSection < other.lumiSection;
+    return ( topLevelFolderName < other.topLevelFolderName );
   }
   
   inline bool DQMKey::operator==(DQMKey const& other) const
   {
-    return (runNumber == other.runNumber &&
-      lumiSection == other.lumiSection);
+    return ( runNumber == other.runNumber &&
+      lumiSection == other.lumiSection &&
+      topLevelFolderName == other.topLevelFolderName );
   }
 
 } // namespace stor
 
-#endif // StorageManager_DQMKey_h 
+#endif // EventFilter_StorageManager_DQMKey_h 
 
 
 /// emacs configuration

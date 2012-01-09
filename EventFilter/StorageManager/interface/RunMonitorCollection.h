@@ -1,8 +1,8 @@
-// $Id: RunMonitorCollection.h,v 1.11 2010/05/17 15:59:09 mommsen Exp $
+// $Id: RunMonitorCollection.h,v 1.12.6.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: RunMonitorCollection.h 
 
-#ifndef StorageManager_RunMonitorCollection_h
-#define StorageManager_RunMonitorCollection_h
+#ifndef EventFilter_StorageManager_RunMonitorCollection_h
+#define EventFilter_StorageManager_RunMonitorCollection_h
 
 #include <boost/thread/mutex.hpp>
 
@@ -21,8 +21,8 @@ namespace stor {
    * in the current run
    *
    * $Author: mommsen $
-   * $Revision: 1.11 $
-   * $Date: 2010/05/17 15:59:09 $
+   * $Revision: 1.12.6.1 $
+   * $Date: 2011/03/07 11:33:04 $
    */
   
   class RunMonitorCollection : public MonitorCollection
@@ -31,53 +31,53 @@ namespace stor {
 
     RunMonitorCollection
     (
-      const utils::duration_t& updateInterval,
-      boost::shared_ptr<AlarmHandler>,
+      const utils::Duration_t& updateInterval,
+      AlarmHandlerPtr,
       SharedResourcesPtr
     );
 
     void configureAlarms(AlarmParams const&);
 
     const MonitoredQuantity& getEventIDsReceivedMQ() const {
-      return _eventIDsReceived;
+      return eventIDsReceived_;
     }
     MonitoredQuantity& getEventIDsReceivedMQ() {
-      return _eventIDsReceived;
+      return eventIDsReceived_;
     }
 
     const MonitoredQuantity& getErrorEventIDsReceivedMQ() const {
-      return _errorEventIDsReceived;
+      return errorEventIDsReceived_;
     }
     MonitoredQuantity& getErrorEventIDsReceivedMQ() {
-      return _errorEventIDsReceived;
+      return errorEventIDsReceived_;
     }
 
     const MonitoredQuantity& getUnwantedEventIDsReceivedMQ() const {
-      return _unwantedEventIDsReceived;
+      return unwantedEventIDsReceived_;
     }
     MonitoredQuantity& getUnwantedEventIDsReceivedMQ() {
-      return _unwantedEventIDsReceived;
+      return unwantedEventIDsReceived_;
     }
 
     const MonitoredQuantity& getRunNumbersSeenMQ() const {
-      return _runNumbersSeen;
+      return runNumbersSeen_;
     }
     MonitoredQuantity& getRunNumbersSeenMQ() {
-      return _runNumbersSeen;
+      return runNumbersSeen_;
     }
 
     const MonitoredQuantity& getLumiSectionsSeenMQ() const {
-      return _lumiSectionsSeen;
+      return lumiSectionsSeen_;
     }
     MonitoredQuantity& getLumiSectionsSeenMQ() {
-      return _lumiSectionsSeen;
+      return lumiSectionsSeen_;
     }
 
     const MonitoredQuantity& getEoLSSeenMQ() const {
-      return _eolsSeen;
+      return eolsSeen_;
     }
     MonitoredQuantity& getEoLSSeenMQ() {
-      return _eolsSeen;
+      return eolsSeen_;
     }
 
     void addUnwantedEvent(const I2OChain&);
@@ -89,15 +89,15 @@ namespace stor {
     RunMonitorCollection(RunMonitorCollection const&);
     RunMonitorCollection& operator=(RunMonitorCollection const&);
 
-    MonitoredQuantity _eventIDsReceived;
-    MonitoredQuantity _errorEventIDsReceived;
-    MonitoredQuantity _unwantedEventIDsReceived;
-    MonitoredQuantity _runNumbersSeen;  // Does this make sense?
-    MonitoredQuantity _lumiSectionsSeen;
-    MonitoredQuantity _eolsSeen;
+    MonitoredQuantity eventIDsReceived_;
+    MonitoredQuantity errorEventIDsReceived_;
+    MonitoredQuantity unwantedEventIDsReceived_;
+    MonitoredQuantity runNumbersSeen_;  // Does this make sense?
+    MonitoredQuantity lumiSectionsSeen_;
+    MonitoredQuantity eolsSeen_;
 
-    boost::shared_ptr<AlarmHandler> _alarmHandler;
-    SharedResourcesPtr _sharedResources;
+    AlarmHandlerPtr alarmHandler_;
+    SharedResourcesPtr sharedResources_;
 
     virtual void do_calculateStatistics();
     virtual void do_reset();
@@ -117,24 +117,24 @@ namespace stor {
       static uint32_t nextId;
     };
     typedef std::map<uint32_t, UnwantedEvent> UnwantedEventsMap;
-    UnwantedEventsMap _unwantedEventsMap;
-    mutable boost::mutex _unwantedEventMapLock;
+    UnwantedEventsMap unwantedEventsMap_;
+    mutable boost::mutex unwantedEventMapLock_;
 
     void checkForBadEvents();
     void alarmErrorEvents();
     void alarmUnwantedEvents(UnwantedEventsMap::value_type&);
 
-    xdata::UnsignedInteger32 _runNumber;       // The current run number
-    xdata::UnsignedInteger32 _dataEvents;      // Number of data events received
-    xdata::UnsignedInteger32 _errorEvents;     // Number of error events received
-    xdata::UnsignedInteger32 _unwantedEvents;  // Number of events not consumed
+    xdata::UnsignedInteger32 runNumber_;       // The current run number
+    xdata::UnsignedInteger32 dataEvents_;      // Number of data events received
+    xdata::UnsignedInteger32 errorEvents_;     // Number of error events received
+    xdata::UnsignedInteger32 unwantedEvents_;  // Number of events not consumed
 
-    AlarmParams _alarmParams;
+    AlarmParams alarmParams_;
   };
   
 } // namespace stor
 
-#endif // StorageManager_RunMonitorCollection_h 
+#endif // EventFilter_StorageManager_RunMonitorCollection_h 
 
 
 /// emacs configuration

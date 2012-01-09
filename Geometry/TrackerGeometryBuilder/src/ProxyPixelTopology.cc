@@ -6,7 +6,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 ProxyPixelTopology::ProxyPixelTopology(PixelGeomDetType* type, BoundPlane * bp)
-  :theType(type), theBounds(bp->bounds())
+  :theType(type), theLength(bp->bounds().length()), theWidth(bp->bounds().width())
 {
   
 }
@@ -42,16 +42,11 @@ LocalError ProxyPixelTopology::localError( const MeasurementPoint& mp,
 					   const MeasurementError& me, 
 					   const Topology::LocalTrackPred &trkPred ) const
 {
-  if (!this->surfaceDeformation()) return specificTopology().localError(mp, me);
-
-  // Where does 'mp' "think" it is:
-  const LocalPoint lp(specificTopology().localPosition(mp));
-  const SurfaceDeformation::Local2DVector corr(this->positionCorrection(trkPred));
-  // Where it actually is:
-  const LocalPoint lpNew(lp.x() + corr.x(), lp.y() + corr.y(), lp.z());
-  const MeasurementPoint mpNew(specificTopology().measurementPosition(lpNew));
-  
-  return specificTopology().localError(mpNew, me);
+  // The topology knows to calculate the cartesian error from measurement frame.
+  // But assuming no uncertainty on the SurfaceDeformation variables,
+  // the errors do not change from a simple shift to compensate
+  // that the track 'sees' the surface at another place than it thinks...
+  return specificTopology().localError(mp, me);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -202,7 +197,7 @@ ProxyPixelTopology::positionCorrection(const LocalPoint &pos,
   const SurfaceDeformation::Local2DPoint pos2D(pos.x(), pos.y());// change precision and dimension
 
   return this->surfaceDeformation()->positionCorrection(pos2D, dir,
-							theBounds.length(), theBounds.width());
+							theLength, theWidth);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -210,5 +205,5 @@ SurfaceDeformation::Local2DVector
 ProxyPixelTopology::positionCorrection(const Topology::LocalTrackPred &trk) const
 {
   return this->surfaceDeformation()->positionCorrection(trk.point(), trk.angles(),
-							theBounds.length(), theBounds.width());
+							theLength, theWidth);
 }

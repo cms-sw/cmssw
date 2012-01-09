@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 hcalBaseDQMonitor=cms.EDAnalyzer("HcalBaseDQMonitor",
                                  debug                  = cms.untracked.int32(0),
                                  online                 = cms.untracked.bool(False),
-                                 AllowedCalibTypes      = cms.untracked.vint32(),
+                                 AllowedCalibTypes      = cms.untracked.vint32([0,1,2,3,4,5,6,7]),
                                  mergeRuns              = cms.untracked.bool(False),
                                  enableCleanup          = cms.untracked.bool(False),
                                  subSystemFolder        = cms.untracked.string("Hcal/"),

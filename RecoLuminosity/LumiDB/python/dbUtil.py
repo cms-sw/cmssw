@@ -130,12 +130,13 @@ class dbUtil(object):
             bulkOperation=dataEditor.bulkInsert(insertdata,len(bulkinput))
             for valuelist in bulkinput:
                 for (columnname,columnvalue) in valuelist:
+#                    print 'columnname ',columnname,' columnvalue ',columnvalue
                     insertdata[columnname].setData(columnvalue)
                 bulkOperation.processNextIteration()
             bulkOperation.flush()
             del bulkOperation
-        except Exception, e:
-            raise Exception, 'dbUtil.bulkInsert:'+str(e)
+        except:
+            raise
         
     def deleteRows( self, tableName, condition, conditionbindDict ):
         """

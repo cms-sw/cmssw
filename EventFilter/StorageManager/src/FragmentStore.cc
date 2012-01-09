@@ -1,4 +1,4 @@
-// $Id: FragmentStore.cc,v 1.7 2010/02/15 13:47:38 mommsen Exp $
+// $Id: FragmentStore.cc,v 1.9 2011/03/07 15:31:32 mommsen Exp $
 /// @file: FragmentStore.cc
 
 #include "EventFilter/StorageManager/interface/FragmentStore.h"
@@ -7,19 +7,25 @@
 using namespace stor;
 
 
+FragmentStore::FragmentStore(size_t maxMemoryUsageMB)
+  : maxMemoryUsage_(maxMemoryUsageMB*1024*1024)
+{
+  clear();
+}
+
 const bool FragmentStore::addFragment(I2OChain &chain)
 {
   // the trivial case that the chain is already complete
   if ( chain.complete() ) return true;
 
-  _memoryUsed += chain.memoryUsed();
+  memoryUsed_ += chain.memoryUsed();
   const FragKey newKey = chain.fragmentKey();
 
   // Use efficientAddOrUpdates pattern suggested by Item 24 of 
   // 'Effective STL' by Scott Meyers
-  fragmentMap::iterator pos = _store.lower_bound(newKey);
+  fragmentMap::iterator pos = store_.lower_bound(newKey);
 
-  if(pos != _store.end() && !(_store.key_comp()(newKey, pos->first)))
+  if(pos != store_.end() && !(store_.key_comp()(newKey, pos->first)))
   {
     // key already exists
     pos->second.addToChain(chain);
@@ -27,8 +33,8 @@ const bool FragmentStore::addFragment(I2OChain &chain)
     if ( pos->second.complete() )
     {
       chain = pos->second;
-      _store.erase(pos);
-      _memoryUsed -= chain.memoryUsed();
+      store_.erase(pos);
+      memoryUsed_ -= chain.memoryUsed();
       return true;
     }
   }
@@ -38,20 +44,20 @@ const bool FragmentStore::addFragment(I2OChain &chain)
 
     // The key does not exist in the map, add it to the map
     // Use pos as a hint to insert, so it can avoid another lookup
-    _store.insert(pos, fragmentMap::value_type(newKey, chain));
+    store_.insert(pos, fragmentMap::value_type(newKey, chain));
     chain.release();
 
     // We already handled the trivial case that the chain is complete.
-    // Thus, _store will not have a complete event.
+    // Thus, store_ will not have a complete event.
   }
 
   return false;
 }
 
-void FragmentStore::addToStaleEventTimes(const utils::duration_t duration)
+void FragmentStore::addToStaleEventTimes(const utils::Duration_t duration)
 {
   for (
-    fragmentMap::iterator it = _store.begin(), itEnd = _store.end();
+    fragmentMap::iterator it = store_.begin(), itEnd = store_.end();
     it != itEnd;
     ++it
   )
@@ -63,7 +69,7 @@ void FragmentStore::addToStaleEventTimes(const utils::duration_t duration)
 void FragmentStore::resetStaleEventTimes()
 {
   for (
-    fragmentMap::iterator it = _store.begin(), itEnd = _store.end();
+    fragmentMap::iterator it = store_.begin(), itEnd = store_.end();
     it != itEnd;
     ++it
   )
@@ -72,12 +78,12 @@ void FragmentStore::resetStaleEventTimes()
   }
 }
 
-const bool FragmentStore::getStaleEvent(I2OChain &chain, utils::duration_t timeout)
+const bool FragmentStore::getStaleEvent(I2OChain &chain, utils::Duration_t timeout)
 {
-  const utils::time_point_t cutOffTime = utils::getCurrentTime() - timeout;
+  const utils::TimePoint_t cutOffTime = utils::getCurrentTime() - timeout;
   
-  fragmentMap::iterator pos = _store.begin();
-  fragmentMap::iterator end = _store.end();
+  fragmentMap::iterator pos = store_.begin();
+  fragmentMap::iterator end = store_.end();
 
   while ( (pos != end) && (pos->second.staleWindowStartTime() > cutOffTime ) )
   {
@@ -92,8 +98,8 @@ const bool FragmentStore::getStaleEvent(I2OChain &chain, utils::duration_t timeo
   else
   {
     chain = pos->second;
-    _store.erase(pos);
-    _memoryUsed -= chain.memoryUsed();
+    store_.erase(pos);
+    memoryUsed_ -= chain.memoryUsed();
     chain.markFaulty();
     return true;
   }

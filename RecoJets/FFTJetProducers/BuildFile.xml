@@ -1,6 +1,0 @@
-<use   name="FWCore/Framework"/>
-<use   name="RecoJets/FFTJetAlgorithms"/>
-<use   name="RecoJets/JetProducers"/>
-<export>
-   <lib   name="1"/>
-</export>

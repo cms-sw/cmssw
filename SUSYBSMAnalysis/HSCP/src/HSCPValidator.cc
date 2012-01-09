@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth Cooper,27 1-024,+41227672342,
 //         Created:  Wed Apr 14 14:27:52 CEST 2010
-// $Id: HSCPValidator.cc,v 1.3 2010/04/15 12:57:39 carrillo Exp $
+// $Id: HSCPValidator.cc,v 1.6 2011/03/15 16:01:46 querten Exp $
 //
 //
 
@@ -96,11 +96,13 @@ edm::Service<TFileService> fileService;
 //
 HSCPValidator::HSCPValidator(const edm::ParameterSet& iConfig) :
   doGenPlots_ (iConfig.getParameter<bool>("MakeGenPlots")),
+  doHLTPlots_ (iConfig.getParameter<bool>("MakeHLTPlots")),
+  doSimTrackPlots_ (iConfig.getParameter<bool>("MakeSimTrackPlots")),
   doSimDigiPlots_ (iConfig.getParameter<bool>("MakeSimDigiPlots")),
   doRecoPlots_ (iConfig.getParameter<bool>("MakeRecoPlots")),
   label_ (iConfig.getParameter<edm::InputTag>("generatorLabel")),
   particleIds_ (iConfig.getParameter< std::vector<int> >("particleIds")),
-  particleStatus_ (iConfig.getUntrackedParameter<int>("particleStatus",3)),
+  particleStatus_ (iConfig.getUntrackedParameter<int>("particleStatus",1)),
   ebSimHitTag_ (iConfig.getParameter<edm::InputTag>("EBSimHitCollection")),
   eeSimHitTag_ (iConfig.getParameter<edm::InputTag>("EESimHitCollection")),
   simTrackTag_ (iConfig.getParameter<edm::InputTag>("SimTrackCollection")),
@@ -119,6 +121,27 @@ HSCPValidator::HSCPValidator(const edm::ParameterSet& iConfig) :
   particleBetaHist_ = fileService->make<TH1F>("particleBeta","Beta of gen particle",100,0,1);
   particleBetaInverseHist_ = fileService->make<TH1F>("particleBetaInverse","1/#beta of gen particle",100,0,5);
   
+  h_genhscp_met = fileService->make<TH1F>( "hscp_met"  , "missing E_{T} hscp" , 100, 0., 1500. );
+  h_genhscp_met_nohscp = fileService->make<TH1F>( "hscp_met_nohscp"  , "missing E_{T} w/o hscp" , 100, 0., 1500. );
+  h_genhscp_scaloret =  fileService->make<TH1F>( "hscp_scaloret"  , "scalor E_{T} sum" , 100, 0., 1500. );
+  h_genhscp_scaloret_nohscp =  fileService->make<TH1F>( "hscp_scaloret_nohscp"  , "scalor E_{T} sum w/o hscp" , 100, 0., 1500. );
+
+
+
+
+  //SIM track Info
+  simTrackParticleEtaHist_ = fileService->make<TH1F>("simTrackParticleEta","Eta of simTrackParticle",100,-5,5);
+  simTrackParticlePhiHist_ = fileService->make<TH1F>("simTrackParticlePhi","Phi of simTrackParticle",180,-3.15,3.15);
+  simTrackParticlePHist_ = fileService->make<TH1F>("simTrackParticleP","Momentum of simTrackParticle",500,0,2000);
+  simTrackParticlePtHist_ = fileService->make<TH1F>("simTrackParticlePt","P_{T} of simTrackParticle",500,0,2000);
+  simTrackParticleBetaHist_ = fileService->make<TH1F>("simTrackParticleBeta","Beta of simTrackParticle",100,0,1);
+
+//HLT Info
+  hltmet100_ = fileService->make<TH1F>("HLT_MET100","MET100",3,-1,2);
+  hltjet140_ = fileService->make<TH1F>("HLT_JET140","JET140",3,-1,2);
+  hltmu15_ = fileService->make<TH1F>("HLT_Mu15","Mu15",3,-1,2);
+
+
   // SIM-DIGI: ECAL
   simHitsEcalEnergyHistEB_ = fileService->make<TH1F>("ecalEnergyOfSimHitsEB","HSCP SimTrack-matching SimHit energy EB [GeV]",125,-1,4);
   simHitsEcalEnergyHistEE_ = fileService->make<TH1F>("ecalEnergyOfSimHitsEE","HSCP SimTrack-matching SimHit energy EE [GeV]",125,-1,4);
@@ -172,6 +195,14 @@ HSCPValidator::~HSCPValidator()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
+//   particleEtaHist_ = fileService->make<TH1F>("particleEta","Eta of gen particle",100,-5,5);
+//   particlePhiHist_ = fileService->make<TH1F>("particlePhi","Phi of gen particle",180,-3.15,3.15);
+//   particlePHist_ = fileService->make<TH1F>("particleP","Momentum of gen particle",500,0,2000);
+//   particlePtHist_ = fileService->make<TH1F>("particlePt","P_{T} of gen particle",500,0,2000);
+//   particleMassHist_ = fileService->make<TH1F>("particleMass","Mass of gen particle",1000,0,2000);
+//   particleStatusHist_ = fileService->make<TH1F>("particleStatus","Status of gen particle",10,0,10);
+//   particleBetaHist_ = fileService->make<TH1F>("particleBeta","Beta of gen particle",100,0,1);
+//   particleBetaInverseHist_ = fileService->make<TH1F>("particleBetaInverse","1/#beta of gen particle",100,0,5);
 
 }
 
@@ -190,9 +221,14 @@ HSCPValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   if(doGenPlots_)
     makeGenPlots(iEvent);
+  if(doSimTrackPlots_)
+    makeSimTrackPlots(iEvent);
   if(doSimDigiPlots_){
     makeSimDigiPlotsECAL(iEvent);
     makeSimDigiPlotsRPC(iEvent);
+  }
+  if(doHLTPlots_){
+    makeHLTPlots(iEvent);
   }
 }
 
@@ -226,6 +262,14 @@ void HSCPValidator::makeGenPlots(const edm::Event& iEvent)
 {
   using namespace edm;
 
+  double missingpx=0;
+  double missingpy=0;
+  double missingpx_nohscp=0;
+  double missingpy_nohscp=0;
+  double scalorEt=0;
+  double scalorEt_nohscp=0;
+
+
   Handle<HepMCProduct> evt;
   iEvent.getByLabel(label_, evt);
 
@@ -233,44 +277,185 @@ void HSCPValidator::makeGenPlots(const edm::Event& iEvent)
   for(HepMC::GenEvent::particle_iterator p = myGenEvent->particles_begin();
       p != myGenEvent->particles_end(); ++p )
   {
-    // Check if the particleId is in our list
-    std::vector<int>::const_iterator partIdItr = find(particleIds_.begin(),particleIds_.end(),(*p)->pdg_id());
-    if(partIdItr==particleIds_.end())
-      continue;
-
-    particleStatusHist_->Fill((*p)->status());
 
     if((*p)->status() != particleStatus_)
       continue;
-
-    std::pair<std::map<int,int>::iterator,bool> pair = particleIdsFoundMap_.insert(std::make_pair<int,int>((*p)->pdg_id(),1));
-    if(!pair.second)
-    {
-      ++(pair.first->second);
+    //calculate MET(neutrino as MET)
+    if(abs((*p)->pdg_id())!=12 && abs((*p)->pdg_id())!=14 && abs((*p)->pdg_id())!=16){ //for non-neutrino particles. 
+       missingpx-=(*p)->momentum().px();
+       missingpy-=(*p)->momentum().py();
+       scalorEt+=(*p)->momentum().perp();
     }
 
-    double mag = sqrt(pow((*p)->momentum().px(),2) + pow((*p)->momentum().py(),2) + pow((*p)->momentum().pz(),2) );
-    particleEtaHist_->Fill((*p)->momentum().eta());
-    particlePhiHist_->Fill((*p)->momentum().phi());
-    particlePHist_->Fill(mag);
-    particlePtHist_->Fill((*p)->momentum().perp());
-    particleMassHist_->Fill((*p)->generated_mass());
-    float particleP = mag;
-    float particleM = (*p)->generated_mass();
-    particleBetaHist_->Fill(particleP/sqrt(particleP*particleP+particleM*particleM));
-    particleBetaInverseHist_->Fill(sqrt(particleP*particleP+particleM*particleM)/particleP);
+    // Check if the particleId is in our R-hadron list
+    std::vector<int>::const_iterator partIdItr = find(particleIds_.begin(),particleIds_.end(),(*p)->pdg_id());
+    if(partIdItr==particleIds_.end()){
+       //calculate MET(neutrino+ HSCP as MET)
+       if(abs((*p)->pdg_id())!=12 && abs((*p)->pdg_id())!=14 && abs((*p)->pdg_id())!=16){ //for non-neutrino particles. 
+          missingpx_nohscp-=(*p)->momentum().px();
+          missingpy_nohscp-=(*p)->momentum().py();
+          scalorEt_nohscp+=(*p)->momentum().perp();
+        }
+    }
+    else{
 
-    //std::cout << "FOUND PARTICLE WITH PDGid: " << (*p)->pdg_id() << std::endl;
-    //std::cout << "FOUND PARTICLE in param array where its id is " << particleID[i] << std::endl;
-    //std::cout << "\tParticle -- eta: " << (*p)->momentum().eta() << std::endl;
-
-    //if((*p)->momentum().perp() > ptMin[i] && (*p)->momentum().eta() > etaMin[i] 
-    //    && (*p)->momentum().eta() < etaMax[i] && ((*p)->status() == status[i] || status[i] == 0))
-    //{
-    //  std::cout << "!!!!PARTICLE ACCEPTED" << std::endl;
-    //}  
+       particleStatusHist_->Fill((*p)->status());
+    
+       std::pair<std::map<int,int>::iterator,bool> pair = particleIdsFoundMap_.insert(std::make_pair<int,int>((*p)->pdg_id(),1));
+       if(!pair.second)
+       {
+          ++(pair.first->second);
+       }
+       
+       double mag = sqrt(pow((*p)->momentum().px(),2) + pow((*p)->momentum().py(),2) + pow((*p)->momentum().pz(),2) );
+       particleEtaHist_->Fill((*p)->momentum().eta());
+       particlePhiHist_->Fill((*p)->momentum().phi());
+       particlePHist_->Fill(mag);
+       particlePtHist_->Fill((*p)->momentum().perp());
+       particleMassHist_->Fill((*p)->generated_mass());
+       float particleP = mag;
+       float particleM = (*p)->generated_mass();
+       particleBetaHist_->Fill(particleP/sqrt(particleP*particleP+particleM*particleM));
+       particleBetaInverseHist_->Fill(sqrt(particleP*particleP+particleM*particleM)/particleP);
+    }
+       
   }
+
+  h_genhscp_met->Fill(sqrt(missingpx*missingpx+missingpy*missingpy));
+  h_genhscp_met_nohscp->Fill(sqrt(missingpx_nohscp*missingpx_nohscp+missingpy_nohscp*missingpy_nohscp));
+  h_genhscp_scaloret->Fill(scalorEt);
+  h_genhscp_scaloret_nohscp->Fill(scalorEt_nohscp);
+
+
   delete myGenEvent; 
+
+
+
+}
+
+// ------------- Make SimTrack plots ---------------------------------------------------------
+void HSCPValidator::makeSimTrackPlots(const edm::Event& iEvent)
+{  using namespace edm;
+  //get sim track infos
+  Handle<edm::SimTrackContainer> simTracksHandle;
+  iEvent.getByLabel("g4SimHits",simTracksHandle);
+  const SimTrackContainer simTracks = *(simTracksHandle.product());
+
+  SimTrackContainer::const_iterator simTrack;
+
+  for (simTrack = simTracks.begin(); simTrack != simTracks.end(); ++simTrack){
+     // Check if the particleId is in our list
+     std::vector<int>::const_iterator partIdItr = find(particleIds_.begin(),particleIds_.end(),simTrack->type());
+     if(partIdItr==particleIds_.end()) continue;
+
+     simTrackParticleEtaHist_->Fill((*simTrack).momentum().eta());
+     simTrackParticlePhiHist_->Fill((*simTrack).momentum().phi());
+     simTrackParticlePHist_->Fill((*simTrack).momentum().P());
+     
+     simTrackParticlePtHist_->Fill((*simTrack).momentum().pt());
+     
+     simTrackParticleBetaHist_->Fill((*simTrack).momentum().P()/(*simTrack).momentum().e());  
+     
+
+
+  }
+}
+// ------------- Make HLT plots ---------------------------------------------------------
+void HSCPValidator::makeHLTPlots(const edm::Event& iEvent)
+{
+  using namespace edm;
+  //get HLT infos
+     
+
+      edm::TriggerResultsByName tr = iEvent.triggerResultsByName("HLT");
+
+      if(!tr.isValid()){
+         std::cout<<"Tirgger Results not available"<<std::endl;
+       }
+ 
+//     std::cout<<"trigger names are : ";
+//      for(unsigned int i=0;i<tr.size();i++){
+//         std::cout<<" "<<tr.triggerName(i);
+//      }
+//      std::cout<<std::endl;
+
+   edm::Handle< trigger::TriggerEvent > trEvHandle;
+   iEvent.getByLabel("hltTriggerSummaryAOD", trEvHandle);
+   trigger::TriggerEvent trEv = *trEvHandle;
+
+
+   unsigned int TrIndex_Unknown     = tr.size();
+
+
+   // HLT TRIGGER BASED ON 1 MUON!
+   if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu15_v1")){
+      if(tr.accept(tr.triggerIndex("HLT_Mu15_v1"))) hltmu15_->Fill(1);
+      else hltmu15_->Fill(0);
+   }else{
+      if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu11")){
+         if(IncreasedTreshold(trEv, InputTag("hltSingleMu11L3Filtered11","","HLT"), 15, 1, false))  hltmu15_->Fill(1);
+         else hltmu15_->Fill(0);
+      }else{
+         if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu9")){
+            if(IncreasedTreshold(trEv, InputTag("hltSingleMu9L3Filtered9","","HLT"), 15, 1, false)) hltmu15_->Fill(1);
+            else hltmu15_->Fill(0);
+         }else{           printf("BUG with HLT_Mu15\n");
+
+         }
+      }
+   }
+
+ // HLT TRIGGER BASED ON MET!
+   if(TrIndex_Unknown != tr.triggerIndex("HLT_MET100_v3")){
+      if(tr.accept(tr.triggerIndex("HLT_MET100_v3")))hltmet100_->Fill(1);
+      else hltmet100_->Fill(0);
+   }else{
+      if(TrIndex_Unknown != tr.triggerIndex("HLT_MET100_v2")){
+          if(tr.accept(tr.triggerIndex("HLT_MET100_v2"))) hltmet100_->Fill(1);
+          else hltmet100_->Fill(0);
+      }else{
+         if(TrIndex_Unknown != tr.triggerIndex("HLT_MET100")){
+             if(tr.accept(tr.triggerIndex("HLT_MET100"))) hltmet100_->Fill(1);
+             else hltmet100_->Fill(0);
+         }else{
+           printf("BUG with HLT_MET100\n");
+
+         }
+      }
+   }
+
+  // HLT TRIGGER BASED ON 1 JET!
+   if(TrIndex_Unknown != tr.triggerIndex("HLT_Jet140U_v3")){
+       if(tr.accept(tr.triggerIndex("HLT_Jet140U_v3")))hltjet140_->Fill(1);
+       else   hltjet140_->Fill(0);
+   }else{ 
+      if(TrIndex_Unknown != tr.triggerIndex("HLT_Jet140U_v1")){
+          if(tr.accept(tr.triggerIndex("HLT_Jet140U_v1")))hltjet140_->Fill(1);
+          else   hltjet140_->Fill(0);
+      }else{
+         if(TrIndex_Unknown != tr.triggerIndex("HLT_Jet100U")){
+             if(IncreasedTreshold(trEv, InputTag("hlt1jet100U","","HLT"), 140, 1, false))hltjet140_->Fill(1);
+             else   hltjet140_->Fill(0);
+         }else{
+            if(TrIndex_Unknown != tr.triggerIndex("HLT_Jet70U")){   
+               if(IncreasedTreshold(trEv, InputTag("hlt1jet70U","","HLT"), 140, 1, false))hltjet140_->Fill(1);
+               else   hltjet140_->Fill(0);
+            }else{
+               if(TrIndex_Unknown != tr.triggerIndex("HLT_Jet50U")){
+                  if(IncreasedTreshold(trEv, InputTag("hlt1jet50U","","HLT"), 140, 1, false))hltjet140_->Fill(1);
+                  else   hltjet140_->Fill(0); 
+               }else{
+                  printf("BUG with HLT_Jet140\n");
+
+               }
+            }
+         }
+      }
+   }
+
+
+
+  
 }
 
 // ------------- Make simDigi plots ECAL ------------------------------------------------
@@ -591,6 +776,56 @@ std::string HSCPValidator::intToString(int num)
   myStream << num << flush;
   return(myStream.str()); //returns the string form of the stringstream object
 }
+
+
+
+//------Increase trigger thresold----
+bool HSCPValidator::IncreasedTreshold(const trigger::TriggerEvent& trEv, const edm::InputTag& InputPath, double NewThreshold, int NObjectAboveThreshold, bool averageThreshold)
+{
+   unsigned int filterIndex = trEv.filterIndex(InputPath);
+   //if(filterIndex<trEv.sizeFilters())printf("SELECTED INDEX =%i --> %s    XXX   %s\n",filterIndex,trEv.filterTag(filterIndex).label().c_str(), trEv.filterTag(filterIndex).process().c_str());
+
+   if (filterIndex<trEv.sizeFilters()){
+      const trigger::Vids& VIDS(trEv.filterIds(filterIndex));
+      const trigger::Keys& KEYS(trEv.filterKeys(filterIndex));
+      const int nI(VIDS.size());
+      const int nK(KEYS.size());
+      assert(nI==nK);
+      const int n(std::max(nI,nK));
+      const trigger::TriggerObjectCollection& TOC(trEv.getObjects());
+
+
+      if(!averageThreshold){
+         int NObjectAboveThresholdObserved = 0;
+         for (int i=0; i!=n; ++i) {
+            if(TOC[KEYS[i]].pt()> NewThreshold) NObjectAboveThresholdObserved++;
+            //cout << "   " << i << " " << VIDS[i] << "/" << KEYS[i] << ": "<< TOC[KEYS[i]].id() << " " << TOC[KEYS[i]].pt() << " " << TOC[KEYS[i]].eta() << " " << TOC[KEYS[i]].phi() << " " << TOC[KEYS[i]].mass()<< endl;
+         }
+         if(NObjectAboveThresholdObserved>=NObjectAboveThreshold)return true;
+
+      }else{
+         std::vector<double> ObjPt;
+
+         for (int i=0; i!=n; ++i) {
+            ObjPt.push_back(TOC[KEYS[i]].pt());
+            //cout << "   " << i << " " << VIDS[i] << "/" << KEYS[i] << ": "<< TOC[KEYS[i]].id() << " " << TOC[KEYS[i]].pt() << " " << TOC[KEYS[i]].eta() << " " << TOC[KEYS[i]].phi() << " " << TOC[KEYS[i]].mass()<< endl;
+         }
+         if((int)(ObjPt.size())<NObjectAboveThreshold)return false;
+         std::sort(ObjPt.begin(), ObjPt.end());
+
+         double Average = 0;
+         for(int i=0; i<NObjectAboveThreshold;i++){
+            Average+= ObjPt[ObjPt.size()-1-i];
+         }Average/=NObjectAboveThreshold;
+         //cout << "AVERAGE = " << Average << endl;
+
+         if(Average>NewThreshold)return true;
+      }
+   }
+   return false;
+}
+
+
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(HSCPValidator);

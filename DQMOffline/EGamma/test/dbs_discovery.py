@@ -13,6 +13,7 @@
 # 
 #   DBS_RELEASE, for example CMSSW_2_2_0_pre1
 #   DBS_SAMPLE, for example RelValSingleElectronPt35
+#   DBS_RUN, for example Any
 #   DBS_COND , for example MC_31X_V2-v1
 #   DBS_TIER , for example RECO
 #   DBS_TIER_SECONDARY, for eventual secondary files
@@ -42,7 +43,6 @@ def common_search(dbs_tier):
       if line.find(dbs_tier)== -1: continue
       result.append('file:'+line)
   else:
-    url = "https://cmsweb.cern.ch:443/dbs_discovery/aSearch"
     input = "find file"
     separator = " where "
     if os.environ['DBS_RELEASE'] != "Any":
@@ -55,6 +55,8 @@ def common_search(dbs_tier):
       input = input + separator + "run = " + os.environ['DBS_RUN']
       separator = " and "
     input = input + separator + "dataset like *" + os.environ['DBS_COND'] + "*" + dbs_tier + "*"
+
+    url = "https://cmsweb.cern.ch:443/dbs_discovery/aSearch"
     final_input = urllib.quote(input) ;
     
     agent   = "Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)"

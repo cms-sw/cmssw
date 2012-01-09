@@ -1,6 +1,6 @@
 #include "FWPFClusterLegoProxyBuilder.h"
 
-//______________________________________________________________________________________________________________________________________________
+//______________________________________________________________________________
 float
 FWPFClusterLegoProxyBuilder::calculateEt( const reco::PFCluster &iData, float E )
 {
@@ -18,7 +18,7 @@ FWPFClusterLegoProxyBuilder::calculateEt( const reco::PFCluster &iData, float E 
     return et;
 }
 
-//______________________________________________________________________________________________________________________________________________
+//______________________________________________________________________________
 void
 FWPFClusterLegoProxyBuilder::localModelChanges( const FWModelId &iId, TEveElement *parent, FWViewType::EType viewType, const FWViewContext *vc )
 {
@@ -35,7 +35,7 @@ FWPFClusterLegoProxyBuilder::localModelChanges( const FWModelId &iId, TEveElemen
     }
 }
 
-//______________________________________________________________________________________________________________________________________________
+//______________________________________________________________________________
 void
 FWPFClusterLegoProxyBuilder::scaleProduct( TEveElementList* parent, FWViewType::EType type, const FWViewContext* vc )
 {
@@ -50,9 +50,9 @@ FWPFClusterLegoProxyBuilder::scaleProduct( TEveElementList* parent, FWViewType::
    }
 }
 
-//______________________________________________________________________________________________________________________________________________
+//______________________________________________________________________________
 void
-FWPFClusterLegoProxyBuilder::sharedBuild( const reco::PFCluster &iData, TEveCompound *itemHolder, const FWViewContext *vc )
+FWPFClusterLegoProxyBuilder::sharedBuild( const reco::PFCluster &iData, TEveElement &oItemHolder, const FWViewContext *vc )
 {
    float energy = iData.energy();
    float et = calculateEt( iData, energy );
@@ -64,45 +64,27 @@ FWPFClusterLegoProxyBuilder::sharedBuild( const reco::PFCluster &iData, TEveComp
 
    FWPFLegoCandidate *cluster = new FWPFLegoCandidate( vc, FWProxyBuilderBase::context(), energy, et, pt, eta, phi );
    cluster->SetMarkerColor( FWProxyBuilderBase::item()->defaultDisplayProperties().color() );
-   setupAddElement( cluster, itemHolder );
+   setupAddElement( cluster, &oItemHolder );
 }
 
-//______________________________________________________________________________________________________________________________________________
+//______________________________ECAL____________________________________________
 void
-FWPFEcalClusterLegoProxyBuilder::build( const FWEventItem *iItem, TEveElementList *product, const FWViewContext *vc )
+FWPFEcalClusterLegoProxyBuilder::build( const reco::PFCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc )
 {
-   for( int index = 0; index < static_cast<int>( iItem->size() ); ++index )
-   {
-      const reco::PFCluster &iData = modelData( index );
-      TEveCompound *itemHolder = createCompound();
-      product->AddElement( itemHolder );
-
-      PFLayer::Layer layer = iData.layer();
-      if( layer < 0 )
-      {
-         sharedBuild( iData, itemHolder, vc );
-      }
-   }
+   PFLayer::Layer layer = iData.layer();
+   if( layer < 0 )
+      sharedBuild( iData, oItemHolder, vc ); 
 }
 
-//______________________________________________________________________________________________________________________________________________
+//______________________________HCAL____________________________________________
 void
-FWPFHcalClusterLegoProxyBuilder::build( const FWEventItem *iItem, TEveElementList *product, const FWViewContext *vc )
+FWPFHcalClusterLegoProxyBuilder::build( const reco::PFCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc )
 {
-   for( int index = 0; index < static_cast<int>( iItem->size() ); ++index )
-   {
-      const reco::PFCluster &iData = modelData( index );
-      TEveCompound *itemHolder = createCompound();
-      product->AddElement( itemHolder );
-
-      PFLayer::Layer layer = iData.layer();
-      if( layer > 0 )
-      {
-         sharedBuild( iData, itemHolder, vc );
-      }
-   }
+   PFLayer::Layer layer = iData.layer();
+   if( layer > 0 )
+      sharedBuild( iData, oItemHolder, vc );
 }
 
-//______________________________________________________________________________________________________________________________________________
+//______________________________________________________________________________
 REGISTER_FWPROXYBUILDER( FWPFEcalClusterLegoProxyBuilder, reco::PFCluster, "PF Cluster", FWViewType::kLegoPFECALBit );
 REGISTER_FWPROXYBUILDER( FWPFHcalClusterLegoProxyBuilder, reco::PFCluster, "PF Cluster", FWViewType::kLegoBit );

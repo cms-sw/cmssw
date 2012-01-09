@@ -1,4 +1,4 @@
-# $Id: Onia_mumu.dec,v 1.1 2009/07/10 07:58:27 covarell Exp $
+# $Id: Onia_mumu.dec,v 1.2 2011/01/18 10:32:54 fabiocos Exp $
 #
 #
 Alias      MyJ/psi  J/psi
@@ -38,22 +38,6 @@ ChargeConj MyUpsilon(3S)  MyUpsilon(3S)
 #
 Decay MyUpsilon(3S)
   1.000         mu+       mu-            PHOTOS VLL;
-Enddecay
-#
-Alias Myrho0 rho0
-ChargeConj Myrho0 Myrho0
-#
-Decay Myrho0
-1.000    pi+ pi-                         VSS;
-Enddecay	
-# 
-#
-Alias      myX3872  chi_c1
-ChargeConj myX3872  myX3872
-Particle myX3872 3.872 0.003 
-#
-Decay myX3872
-  1.000         MyJ/psi      Myrho0          PHSP;
 Enddecay
 End
 

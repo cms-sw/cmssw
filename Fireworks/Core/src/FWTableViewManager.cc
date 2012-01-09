@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWTableViewManager.cc,v 1.19 2010/06/18 10:17:16 yana Exp $
+// $Id: FWTableViewManager.cc,v 1.20 2010/11/04 22:38:55 amraktad Exp $
 //
 
 // system include files
@@ -134,7 +134,7 @@ FWTableViewManager::FWTableViewManager(FWGUIManager* iGUIMgr)
    column("zError", 5).
    column("tracks", TableEntry::INT, "tracksSize").
    column("chi2", 3).
-   column("ndof", TableEntry::INT);
+   column("ndof", 3);
 
    table("CaloTower").
    column("emEt", 1).
