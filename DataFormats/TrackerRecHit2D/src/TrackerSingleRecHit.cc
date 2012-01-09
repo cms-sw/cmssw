@@ -6,6 +6,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include<iostream>
 namespace {
   
@@ -21,9 +22,11 @@ namespace {
       ref.cluster_regional().isNull()  << " " << std::endl;
   }
 
-  void verify(TrackingRecHit const * hit) {
-    int subd =   hit->geographicalId().rawId() >> (DetId::kSubdetOffset);
+  void verify(TrackingRecHit const * thit) {
+    int subd =   thit->geographicalId().rawId() >> (DetId::kSubdetOffset);
   
+    TrackerSingleRecHit const * hit= dynamic_cast<TrackerSingleRecHit const *>(thit);
+
     if (dynamic_cast<SiPixelRecHit const *>(hit)) {
       static int n=0;
       if (++n<5) {
@@ -45,7 +48,7 @@ namespace {
 	verify(hit->omniCluster());
       }
     }
-    if (dynamic_cast<SiStripMatchedRecHit2D const *>(hit)) {
+    if (dynamic_cast<SiStripMatchedRecHit2D const *>(thit)) {
       static int n=0;
       if (++n<5) {
 	std::cout << "Strip Matched:" << subd << " " << id&3 << " " << std::endl;
