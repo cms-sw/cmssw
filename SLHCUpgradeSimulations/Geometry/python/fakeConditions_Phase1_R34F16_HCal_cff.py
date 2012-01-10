@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-# Phase1 R39F16
+# Start by reading in all the fake conditions that are common to all Phase1 trackers
+# Then do the 1 or two that are specific the R34F16
 from SLHCUpgradeSimulations.Geometry.fakeConditions_Phase1_cff import *
 siPixelFakeLorentzAngleESSource = cms.ESSource("SiPixelFakeLorentzAngleESSource",
         file = cms.FileInPath('SLHCUpgradeSimulations/Geometry/data/PhaseI/PixelSkimmedGeometry_phase1.txt')
