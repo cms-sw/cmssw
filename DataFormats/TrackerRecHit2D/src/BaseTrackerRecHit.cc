@@ -21,8 +21,9 @@ namespace {
 
 
 bool BaseTrackerRecHit::sameDetModule(TrackingRecHit const & hit) const {
-  int myid = hit.geographicalId().rawId();
+  int myid = geographicalId().rawId();
   int mysubd = myid >> (DetId::kSubdetOffset);
+
   int id = hit.geographicalId().rawId();
   int subd = id >> (DetId::kSubdetOffset);
   

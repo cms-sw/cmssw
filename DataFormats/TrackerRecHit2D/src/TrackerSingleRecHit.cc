@@ -105,7 +105,7 @@ TrackerSingleRecHit::sharesInput( const TrackingRecHit* other,
 			      SharedInputType what) const
 {
   //  verify(this); verify(other);
-  if (!doingCheck && (other!=this)) checkSelf(this,other);
+  // if (!doingCheck && (other!=this)) checkSelf(this,other);
 
 
   if (!sameDetModule(*other)) return false;
