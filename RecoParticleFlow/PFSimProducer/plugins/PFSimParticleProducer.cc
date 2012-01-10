@@ -123,6 +123,7 @@ PFSimParticleProducer::beginRun(edm::Run& run,
   es.getData(pdt);
   if ( !ParticleTable::instance() ) ParticleTable::instance(&(*pdt));
   mySimEvent->initializePdt(&(*pdt));
+
 }
 
 
@@ -490,17 +491,31 @@ void PFSimParticleProducer::produce(Event& iEvent,
 	
 	particle.addPoint( hcalPtin ); 
 
+	const RawParticle& rpout = fst.hcalExit();
+	
+	math::XYZPoint posHCALout( rpout.x(), rpout.y(), rpout.z() );
+	math::XYZTLorentzVector momHCALout( rpout.px(), rpout.py(), rpout.pz(),
+					    rpout.e() );
+	reco::PFTrajectoryPoint 
+	  hcalPtout(-1, reco::PFTrajectoryPoint::HCALExit, 
+		     posHCALout, momHCALout);
+	
+	particle.addPoint( hcalPtout ); 	
 
-	// 	const RawParticle& rpout = fst.hcalExit();
+	const RawParticle& rpho = fst.hoEntrance();
 	
-	// 	math::XYZPoint posHCALout( rpout.x(), rpout.y(), rpout.z() );
-	// 	math::XYZTLorentzVector momHCALout( rpout.px(), rpout.py(), rpout.pz(),
-	//  					    rpout.e() );
-	// 	reco::PFTrajectoryPoint 
-	// 	  hcalPtout(0, reco::PFTrajectoryPoint::HCALEntrance, 
-	// 		    posHCAL, momHCAL);
+	math::XYZPoint posHOEntrance( rpho.x(), rpho.y(), rpho.z() );
+	math::XYZTLorentzVector momHOEntrance( rpho.px(), rpho.py(), rpho.pz(),
+					    rpho.e() );
+	reco::PFTrajectoryPoint 
+	  hoPtin(-1, reco::PFTrajectoryPoint::HOLayer, 
+		 posHOEntrance, momHOEntrance);
 	
-	// 	particle.addPoint( hcalPtout ); 	
+	particle.addPoint( hoPtin ); 	
+
+
+
+
       }
       else { // add a dummy point
 	reco::PFTrajectoryPoint dummy;
