@@ -401,27 +401,24 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
       if ( myTrack.notYetToEndVertex(myPart.vertex()) )
 	myTrack.setHcal(myPart,myPart.getSuccess());
       
-      //GMA put this number from 
-      //bool BaseParticlePropagator::propagateToVFcalEntrance(bool first) {
-      if (myPart.cos2ThetaV()>0.99014) {
+      // Attempt propagation to HF for low pt and high eta 
+      if ( myPart.cos2ThetaV()>0.8 || mom.T() < 3. ) {
 	// Propagate to VFCAL entrance
 	myPart.propagateToVFcalEntrance(false);
 	if ( myTrack.notYetToEndVertex(myPart.vertex()) )
  	myTrack.setVFcal(myPart,myPart.getSuccess());
-
 	
-      } else if (mom.T()>2) { 
+	// Otherwise propagate to the HCAL exit and HO.
+      } else { 
 	// Propagate to HCAL exit
 	myPart.propagateToHcalExit(false);
 	if ( myTrack.notYetToEndVertex(myPart.vertex()) )
 	  myTrack.setHcalExit(myPart,myPart.getSuccess());     
-	if (isHOinUse) {
-	  // Propagate to HOLayer entrance
-	  myPart.setMagneticField(0);
-	  myPart.propagateToHOLayer(false);
-	  if ( myTrack.notYetToEndVertex(myPart.vertex()) )
-	    myTrack.setHO(myPart,myPart.getSuccess());
-	}
+	// Propagate to HOLayer entrance
+	myPart.setMagneticField(0);
+	myPart.propagateToHOLayer(false);
+	if ( myTrack.notYetToEndVertex(myPart.vertex()) )
+	  myTrack.setHO(myPart,myPart.getSuccess());
       } 
     }
   }

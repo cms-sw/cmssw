@@ -152,7 +152,6 @@ public:
     theBeamSpot = aBeamSpot;
   }
 
-  void setHOTag(bool ho) { isHOinUse = ho;}
  protected:
 
   /// The pointer to the vector of FSimTrack's 
@@ -169,8 +168,6 @@ public:
   inline std::vector<HepMC::GenParticle*>* genparts() const { 
     return theGenParticles; 
   }
-
-  bool isHOinUse;
 
  private:
 
