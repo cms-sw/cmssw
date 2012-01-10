@@ -88,11 +88,14 @@ namespace {
 
   }
   
+  bool doingCheck = false;
   void checkSelf(const TrackingRecHit* one,const TrackingRecHit* two) {
+    doingCheck=true;
     if (!one->sharesInput(one,TrackingRecHit::all)) problem(one,"all");
     if (!one->sharesInput(one,TrackingRecHit::some)) problem(one,"some");
     if (!two->sharesInput(two,TrackingRecHit::all)) problem(two,"all");
     if (!two->sharesInput(two,TrackingRecHit::some)) problem(two,"some");
+    doingCheck=false;
   }
 
 }
@@ -102,7 +105,7 @@ TrackerSingleRecHit::sharesInput( const TrackingRecHit* other,
 			      SharedInputType what) const
 {
   //  verify(this); verify(other);
-  if (other!=this) checkSelf(this,other);
+  if (!doingCheck && (other!=this)) checkSelf(this,other);
 
 
   if (!sameDetModule(*other)) return false;
