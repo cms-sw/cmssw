@@ -16,7 +16,7 @@ process.load('SLHCUpgradeSimulations.Geometry.mixLowLumPU_FastSim14TeV_cff')
 #process.load('FastSimulation.Configuration.Geometries_MC_cff')
 process.load('FastSimulation.Configuration.Geometries_cff')
 process.load('FastSimulation.Configuration.FamosSequences_cff')
-process.load('SLHCUpgradeSimulations.Geometry.Phase1_R39F16_cmsSimIdealGeometryXML_cff')
+process.load('SLHCUpgradeSimulations.Geometry.Phase1_R34F16_cmsSimIdealGeometryXML_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 #process.load('Configuration.StandardSequences.Generator_cff')
 #process.load('GeneratorInterface.Core.genFilterSummary_cff')
@@ -34,13 +34,13 @@ process.RandomNumberGeneratorService.simSiPixelDigis = cms.PSet(
       engineName = cms.untracked.string('HepJamesRandom'))
 
 
-process.load('SLHCUpgradeSimulations.Geometry.Digi_Phase1_R39F16_cff')
+process.load('SLHCUpgradeSimulations.Geometry.Digi_Phase1_R34F16_cff')
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 #process.load("SLHCUpgradeSimulations.Geometry.fakeConditions_Phase1_cff")
-process.load('SLHCUpgradeSimulations.Geometry.fakeConditions_Phase1_R39F16_cff')
+process.load('SLHCUpgradeSimulations.Geometry.fakeConditions_Phase1_R34F16_cff')
 process.load("SLHCUpgradeSimulations.Geometry.recoFromSimDigis_cff")
 process.load("SLHCUpgradeSimulations.Geometry.upgradeTracking_phase1_cff")
 
@@ -135,7 +135,7 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.3 $'),
+    version = cms.untracked.string('$Revision: 1.5 $'),
     annotation = cms.untracked.string('SLHCUpgradeSimulations/Configuration/python/FourMuPt_1_50_cfi.py nevts:10'),
     name = cms.untracked.string('PyReleaseValidation')
 )

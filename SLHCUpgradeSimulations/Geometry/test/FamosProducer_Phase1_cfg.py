@@ -34,13 +34,13 @@ process.load("FastSimulation.Configuration.Geometries_cff")
 process.load("FastSimulation.Configuration.FamosSequences_cff")
 # replace with strawman geometry
 #process.load("SLHCUpgradeSimulations.Geometry.PhaseI_cmsSimIdealGeometryXML_R39F16_cff")
-process.load('SLHCUpgradeSimulations.Geometry.Phase1_R39F16_cmsSimIdealGeometryXML_cff')
+process.load('SLHCUpgradeSimulations.Geometry.Phase1_R34F16_cmsSimIdealGeometryXML_cff')
 
 # Parametrized magnetic field (new mapping, 4.0 and 3.8T)
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 
-process.load('SLHCUpgradeSimulations.Geometry.Digi_Phase1_R39F16_cff')
+process.load('SLHCUpgradeSimulations.Geometry.Digi_Phase1_R34F16_cff')
 process.simSiPixelDigis.ROUList =  ['famosSimHitsTrackerHits']
 
 ## static efficiency
@@ -62,7 +62,7 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 #process.load("SLHCUpgradeSimulations.Geometry.fakeConditions_Phase1_cff")
-process.load("SLHCUpgradeSimulations.Geometry.fakeConditions_Phase1_R39F16_cff")
+process.load("SLHCUpgradeSimulations.Geometry.fakeConditions_Phase1_R34F16_cff")
 process.load("SLHCUpgradeSimulations.Geometry.recoFromSimDigis_cff")
 process.load("SLHCUpgradeSimulations.Geometry.upgradeTracking_phase1_cff")
 

@@ -5,7 +5,7 @@ process = cms.Process("ICALIB")
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 #process.load("SLHCUpgradeSimulations.Geometry.Phase1_R39F16_smpx_cmsSimIdealGeometryXML_cff")
-process.load('SLHCUpgradeSimulations.Geometry.Phase1_R39F16_cmsSimIdealGeometryXML_cff')
+process.load('SLHCUpgradeSimulations.Geometry.Phase1_R34F16_cmsSimIdealGeometryXML_cff')
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = 'DESIGN42_V11::All'
