@@ -21,16 +21,16 @@ class SiStripDetId : public DetId {
   // ---------- Constructors, enumerated types ----------
   
   /** Construct a null id */
-  SiStripDetId();
+  SiStripDetId()  : DetId() {;}
 
   /** Construct from a raw value */
-  SiStripDetId( const uint32_t& raw_id );
+  SiStripDetId( const uint32_t& raw_id ) : DetId( raw_id ) {;}
 
   /** Construct from generic DetId */
-  SiStripDetId( const DetId& );
+  SiStripDetId( const DetId& )  : DetId( det_id.rawId() ) {;}
 
   /** Construct and fill only the det and sub-det fields. */
-  SiStripDetId( Detector det, int subdet );
+  SiStripDetId( Detector det, int subdet ) : DetId( det, subdet ) {;}
 
   /** Enumerated type for tracker sub-deteector systems. */
   enum SubDetector { UNKNOWN=0, TIB=3, TID=4, TOB=5, TEC=6 };
@@ -63,20 +63,34 @@ class SiStripDetId : public DetId {
   
   /** Construct from a raw value and set "reserved" field. */
   SiStripDetId( const uint32_t& raw_id, 
-		const uint16_t& reserved );
+		const uint16_t& reserved )
+    : DetId( raw_id ) 
+  {
+    id_ &= ( ~static_cast<uint32_t>(reservedMask_<<reservedStartBit_) );
+    id_ |= ( ( reserved & reservedMask_ ) << reservedStartBit_ );
+  }
+  
+  // -----------------------------------------------------------------------------
+  //
   
   /** Construct from generic DetId and set "reserved" field. */
   SiStripDetId( const DetId& det_id, 
-		const uint16_t& reserved );
+		const uint16_t& reserved )
+    : DetId( det_id.rawId() ) 
+  {
+    id_ &= ( ~static_cast<uint32_t>(reservedMask_<<reservedStartBit_) );
+    id_ |= ( ( reserved & reservedMask_ ) << reservedStartBit_ );
+  }
+
   
   /** Returns value of "reserved" field. */
   inline uint16_t reserved() const;
   
- private:
+private:
   
   /** Position of "reserved" bit field. */ 
   static const uint16_t reservedStartBit_ = 20;
-
+  
   /** */
   static const uint32_t sterStartBit_ = 0;
 
@@ -163,9 +177,6 @@ double SiStripDetId::stripLength() const {
   return 0.;
 }
 
-//bool SiStripDetId::isDoubleSide() const {
-//  return false;
-//}
 
 uint16_t SiStripDetId::reserved() const { 
   return static_cast<uint16_t>( (id_>>reservedStartBit_) & reservedMask_ );
