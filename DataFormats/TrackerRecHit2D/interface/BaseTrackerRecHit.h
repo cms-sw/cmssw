@@ -8,12 +8,12 @@
 namespace trackerHitRTTI {
   // tracking hit can be : single (si1D, si2D, pix), projected, matched or multi
   enum RTTI { undef=0, single=1, proj=2, match=3, multi=4};
-  RTTI rtti(TrackingRecHit const & hit)  { return RTTI(hit.getRTTI());}
-  bool isUndef(TrackingRecHit const & hit) { return rtti(hit)==undef;}
-  bool isSingle(TrackingRecHit const & hit)  { return rtti(hit)==single;}
-  bool isProjected(TrackingRecHit const & hit)  { return rtti(hit)==proj;}
-  bool isMatched(TrackingRecHit const & hit)  { return rtti(hit)==match;}
-  bool isMulti(TrackingRecHit const & hit)  { return rtti(hit)==multi;}
+  inline RTTI rtti(TrackingRecHit const & hit)  { return RTTI(hit.getRTTI());}
+  inline bool isUndef(TrackingRecHit const & hit) { return rtti(hit)==undef;}
+  inline bool isSingle(TrackingRecHit const & hit)  { return rtti(hit)==single;}
+  inline bool isProjected(TrackingRecHit const & hit)  { return rtti(hit)==proj;}
+  inline bool isMatched(TrackingRecHit const & hit)  { return rtti(hit)==match;}
+  inline bool isMulti(TrackingRecHit const & hit)  { return rtti(hit)==multi;}
 }
 
 class BaseTrackerRecHit : public TrackingRecHit { 
