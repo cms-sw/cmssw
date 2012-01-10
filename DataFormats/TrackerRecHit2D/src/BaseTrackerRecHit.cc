@@ -38,8 +38,8 @@ bool BaseTrackerRecHit::sameDetModule(TrackingRecHit const & hit) const {
   }
 
   // mask glue and stereo
-  myid&=3;
-  id&=3;
+  myid|=3;
+  id|=3;
   return id==myid;
 
 }
