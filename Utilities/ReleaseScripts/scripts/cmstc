@@ -143,6 +143,7 @@ import sys
 import optparse
 import subprocess
 import re
+from optparse import OptionParser
 
 def _system(args):
   print "Running:", ' '.join(args)
@@ -291,11 +292,25 @@ def cmd_difflast(releases):
   a = cmstc.TagCollector().getReleasesTags(releases, True)
   printTags([(x[0], x[-1]) for x in a])
 
-def cmd_tagset(tagset):
-  if lentagset)!= 1:
-    raise Exception("Error: Expected a tagset.")
-  tagset = tagset[0]
-  printTags(cmstc.TagCollector().getTagsetTags(tagset))
+def cmd_tagset(args):
+  import commands
+  parser = optparse.OptionParser(usage="cmstc tagset [-a] <tagset-id>")
+  parser.add_option("-a", dest="doAdd", action="store_true", default=False, help="Checkout tags")
+  opts, tagsets = parser.parse_args(args)
+  if len(tagsets) != 1:
+    parser.error("Provide one (and only one) <tagset-id>")
+  tagset = tagsets[0]
+  allTags = cmstc.TagCollector().getTagsetTags(tagset)
+  printTags(allTags) 
+  if not opts.doAdd:
+    return
+  for (name, version) in allTags:
+    command = "addpkg %s %s" % (name, version)
+    error, output = commands.getstatusoutput(command)
+    print output
+    if error:
+      print output
+      raise RuntimeError("Error while downloading package %s %s." % (name, version))
 
 def cmd_tagsetinfo(tagset):
   if len(tagset) != 1:
