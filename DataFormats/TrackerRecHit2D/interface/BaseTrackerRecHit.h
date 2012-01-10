@@ -33,7 +33,7 @@ public:
 
 
   // verify that hits can share clusters...
-  bool sameDetModule(TrackingRecHit const & hit) const;
+  inline bool sameDetModule(TrackingRecHit const & hit) const;
 
   virtual LocalPoint localPosition() const ;
 
@@ -64,6 +64,31 @@ public:
   LocalPoint pos_;
   LocalError err_;
 };
+
+
+bool BaseTrackerRecHit::sameDetModule(TrackingRecHit const & hit) const {
+  unsigned int myid = geographicalId().rawId();
+  unsigned int mysubd = myid >> (DetId::kSubdetOffset);
+
+  unsigned int id = hit.geographicalId().rawId();
+  unsigned int subd = id >> (DetId::kSubdetOffset);
+  
+  if (mysubd!=subd) return false;
+  
+  //Protection against invalid hits
+  if(!hit.isValid()) return false;
+  
+  const unsigned int limdet = 10;  // TIB=11
+  
+  if (mysubd>limdet) { // strip
+    // mask glue and stereo
+    myid|=3;
+    id|=3;
+  }
+  return id==myid;
+
+}
+
 
 // Comparison operators
 inline bool operator<( const BaseTrackerRecHit& one, const BaseTrackerRecHit& other) {
