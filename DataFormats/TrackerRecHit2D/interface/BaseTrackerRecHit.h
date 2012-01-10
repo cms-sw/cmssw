@@ -25,9 +25,9 @@ public:
   virtual ~BaseTrackerRecHit() {}
 
   BaseTrackerRecHit( const LocalPoint& p, const LocalError&e,
-		     DetId id, trackerHitRTTI::RTTI rt=undef) :  TrackingRecHit(id,(unsigned int)(rt)), pos_(p), err_(e){}
+		     DetId id, trackerHitRTTI::RTTI rt) :  TrackingRecHit(id,(unsigned int)(rt)), pos_(p), err_(e){}
 
-  RTTI rtti() const { return trackerHitRTTI::rtti(*this);}
+  trackerHitRTTI::RTTI rtti() const { return trackerHitRTTI::rtti(*this);}
   bool isSingle() const { return trackerHitRTTI::isSingle(*this);}
   bool isProjected() const { return trackerHitRTTI::isProjected(*this);}
   bool isMatched() const { return trackerHitRTTI::isMatched(*this);}
