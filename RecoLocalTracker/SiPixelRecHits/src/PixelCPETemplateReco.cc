@@ -48,9 +48,9 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
 					   const SiPixelTemplateDBObject * templateDBobject) 
   : PixelCPEBase(conf, mag, lorentzAngle, 0, templateDBobject)
 {
-  cout << endl;
-  cout << "Constructing PixelCPETemplateReco::PixelCPETemplateReco(...)................................................." << endl;
-  cout << endl;
+  //cout << endl;
+  //cout << "Constructing PixelCPETemplateReco::PixelCPETemplateReco(...)................................................." << endl;
+  //cout << endl;
 
   // &&& initialize the templates, etc.
   
