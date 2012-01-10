@@ -81,7 +81,7 @@ namespace {
 
   }
   
-  void problem(const TrackingRecHit* thit, char * what) {
+  void problem(const TrackingRecHit* thit, const char * what) {
     std::cout << "not sharing with itself! " << what << " "
 	      << typeid(*thit).name() << std::endl;
     verify(thit);
