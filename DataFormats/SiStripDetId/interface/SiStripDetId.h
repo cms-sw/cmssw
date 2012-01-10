@@ -47,19 +47,17 @@ class SiStripDetId : public DetId {
   inline ModuleGeometry moduleGeometry() const;
 
   /** A non-zero value means a glued module, null means not glued. */
-  inline virtual uint32_t glued() const;
+  inline uint32_t glued() const;
   
   /** A non-zero value means a stereo module, null means not stereo. */
-  inline virtual uint32_t stereo() const;
+  inline uint32_t stereo() const;
 
   /** Returns DetId of the partner module if glued, otherwise null. */
-  inline virtual uint32_t partnerDetId() const;
+  inline uint32_t partnerDetId() const;
  
   /** Returns strip length of strip tracker sensor, otherwise null. */
-  inline virtual double stripLength() const;
+  inline double stripLength() const;
   
-  /** Returns true if the module is a double side = rphi + stereo */
-  //  inline virtual bool isDoubleSide() const;
   
   // ---------- Constructors that set "reserved" field ----------
   
