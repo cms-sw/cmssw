@@ -81,7 +81,7 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::vector< std::vector<std::s
   
   if (tmp=="Mode:"){
     in >> mode_;
-//    std::cout << __LINE__ << "]\t" << mthn << "mode=" << mode_ << std::endl;
+    std::cout << __LINE__ << "]\t" << mthn << "mode=" << mode_ << std::endl;
     in >>tmp;
   } else {
     mode_="FEDChannelOffsetPixel";
@@ -989,7 +989,7 @@ void PixelCalibConfiguration::nextFECState(std::map<unsigned int, PixelFECConfig
 
   bool changedWBC=false;
 
-  std::map<unsigned int, PixelFECConfigInterface*>::iterator iPixelFEC=pixelFECs.begin();
+  //std::map<unsigned int, PixelFECConfigInterface*>::iterator iPixelFEC=pixelFECs.begin();
   //for(;iPixelFEC!=pixelFECs.end();++iPixelFEC){
   //iPixelFEC->second->fecDebug(1);
   //}
