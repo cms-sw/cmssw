@@ -36,6 +36,8 @@ namespace {
     
     TrackerSingleRecHit const * hit= dynamic_cast<TrackerSingleRecHit const *>(thit);
     BaseTrackerRecHit const * bhit = dynamic_cast<BaseTrackerRecHit const *>(thit);    
+    if (!bhit)
+      std::cout << "not a tracker hit! " << typeid(*thit).name() << std::endl;
 
     if (dynamic_cast<SiPixelRecHit const *>(hit)) {
       static int n=0;
