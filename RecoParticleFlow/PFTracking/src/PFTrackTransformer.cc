@@ -52,7 +52,7 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
   LogDebug("PFTrackTransformer")<<"Trajectory propagation started";
   using namespace reco;
   using namespace std;
-
+  
   float PT= track.pt();
   float pfmass= (pftrack.algoType()==reco::PFRecTrack::KF_ELCAND) ? 0.0005 : 0.139; 
   float pfenergy=sqrt((pfmass*pfmass)+(track.p()*track.p()));
@@ -194,6 +194,7 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
    }
 
    //HCAL exit
+   // theOutParticle.setMagneticField(0); //Show we propagate as straight line inside HCAL ?
    theOutParticle.propagateToHcalExit(false);
    if(theOutParticle.getSuccess()!=0)
      pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALExit,
@@ -206,6 +207,25 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
      pftrack.addPoint(dummyHCALexit); 
    }
    
+   
+   //HO layer0
+   //   if (abs(theOutParticle.vertex().z())<550) {
+   if ( PT>3.0) { //Same value is used in PFBlockAlgo::link( case PFBlockLink::TRACKandHO:
+     theOutParticle.setMagneticField(0);
+     theOutParticle.setCharge(0);
+     theOutParticle.propagateToHOLayer(false);
+     if(theOutParticle.getSuccess()!=0) {
+       pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HOLayer,
+					  math::XYZPoint(theOutParticle.vertex()),
+					  math::XYZTLorentzVector(theOutParticle.momentum())));
+     } else {
+       //       if (PT>5.&& msgwarning)
+       //	 LogWarning("PFTrackTransformer")<<"KF TRACK "<<pftrack<< " PROPAGATION TO THE HO HAS FAILED";
+       PFTrajectoryPoint dummyHOLayer;
+       pftrack.addPoint(dummyHOLayer); 
+     }
+   }
+
    return true;
 }
 bool 
@@ -378,7 +398,6 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 	PFTrajectoryPoint dummyHCALentrance;
 	pftrack.addPoint(dummyHCALentrance); 
       }  
-      
       //HCAL exit
       theOutParticle.propagateToHcalExit(false);
       if(theOutParticle.getSuccess()!=0)
@@ -392,6 +411,21 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 	pftrack.addPoint(dummyHCALexit); 
       } 
       
+      //HO Layer0
+      if ( abs(theOutParticle.vertex().z())<550) {
+	theOutParticle.setMagneticField(0);
+	theOutParticle.propagateToHOLayer(false);
+	if(theOutParticle.getSuccess()!=0)
+	  pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HOLayer,
+					     math::XYZPoint(theOutParticle.vertex()),
+					     math::XYZTLorentzVector(theOutParticle.momentum())));
+	else{
+	  if (PT>5.)
+	    LogWarning("PFTrackTransformer")<<"GSF TRACK "<<pftrack<< " PROPAGATION TO THE HO Layer0 HAS FAILED";
+	  PFTrajectoryPoint dummyHOLayer;
+	  pftrack.addPoint(dummyHOLayer); 
+	}
+      } 
     }
 
     // --------------------------   END GSF Track ------------------------------------- 
@@ -500,26 +534,43 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
      PFTrajectoryPoint dummyHCALentrance;
      brem.addPoint(dummyHCALentrance); 
    }  
-
+   
    //HCAL exit
    theBremParticle.propagateToHcalExit(false);
    if(theBremParticle.getSuccess()!=0)
      brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALExit,
-					math::XYZPoint(theBremParticle.vertex()),
-					math::XYZTLorentzVector(theBremParticle.momentum())));
+				     math::XYZPoint(theBremParticle.vertex()),
+				     math::XYZTLorentzVector(theBremParticle.momentum())));
    else{  
      if ((DP>5.) && ((DP/SigmaDP)>3))
        LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE HCAL EXIT HAS FAILED";
      PFTrajectoryPoint dummyHCALexit;
      brem.addPoint(dummyHCALexit); 
    }
-
+   
+   //HO Layer0
+   if ( abs(theBremParticle.vertex().z())<550.0) {
+     theBremParticle.setMagneticField(0);
+     theBremParticle.propagateToHOLayer(false);
+     if(theBremParticle.getSuccess()!=0)
+       brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HOLayer,
+				       math::XYZPoint(theBremParticle.vertex()),
+				       math::XYZTLorentzVector(theBremParticle.momentum())));
+     else {  
+       if ((DP>5.) && ((DP/SigmaDP)>3))
+	 LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE HCAL EXIT HAS FAILED";
+       PFTrajectoryPoint dummyHOLayer;
+       brem.addPoint(dummyHOLayer); 
+     }
+   }
    brem.calculatePositionREP();
    pftrack.addBrem(brem);
    iTrajPos++;
   }
   return true;
 }
+
+
 
 bool 
 PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack, 
@@ -694,7 +745,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
     PFTrajectoryPoint dummyHCALentrance;
     brem.addPoint(dummyHCALentrance); 
   }  
-  
+
   //HCAL exit
   theBremParticle.propagateToHcalExit(false);
   if(theBremParticle.getSuccess()!=0)
@@ -706,6 +757,22 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
       LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE HCAL EXIT HAS FAILED";
     PFTrajectoryPoint dummyHCALexit;
     brem.addPoint(dummyHCALexit); 
+  }
+  
+  //HO Layer0
+  if ( abs(theBremParticle.vertex().z())<550) {
+    theBremParticle.setMagneticField(0);
+    theBremParticle.propagateToHOLayer(false);
+    if(theBremParticle.getSuccess()!=0)
+      brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HOLayer,
+				      math::XYZPoint(theBremParticle.vertex()),
+				      math::XYZTLorentzVector(theBremParticle.momentum())));
+    else{  
+      if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3))
+	LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE HCAL EXIT HAS FAILED";
+      PFTrajectoryPoint dummyHOLayer;
+      brem.addPoint(dummyHOLayer); 
+    }
   }
   
   brem.calculatePositionREP();
@@ -860,6 +927,22 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
       brem.addPoint(dummyHCALexit); 
     }
     
+    //HO Layer0
+    if ( abs(theBremParticle.vertex().z())<550) {
+      theBremParticle.setMagneticField(0);
+      theBremParticle.propagateToHOLayer(false);
+      if(theBremParticle.getSuccess()!=0)
+	brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HOLayer,
+					math::XYZPoint(theBremParticle.vertex()),
+					math::XYZTLorentzVector(theBremParticle.momentum())));
+      else{  
+	if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3))
+	  LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE HCAL EXIT HAS FAILED";
+	PFTrajectoryPoint dummyHOLayer;
+	brem.addPoint(dummyHOLayer); 
+      }
+    }
+
     brem.calculatePositionREP();
     pftrack.addBrem(brem);
     iTrajPos++;
@@ -966,7 +1049,6 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
       PFTrajectoryPoint dummyHCALentrance;
       pftrack.addPoint(dummyHCALentrance); 
     }  
-    
     //HCAL exit
     theOutParticle.propagateToHcalExit(false);
     if(theOutParticle.getSuccess()!=0)
@@ -979,10 +1061,22 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
       PFTrajectoryPoint dummyHCALexit;
       pftrack.addPoint(dummyHCALexit); 
     }
-
-
-
-
+    
+    //HO Layer0
+    if ( abs(theOutParticle.vertex().z())<550) {
+      theOutParticle.setMagneticField(0);
+      theOutParticle.propagateToHOLayer(false);
+      if(theOutParticle.getSuccess()!=0)
+	pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HOLayer,
+					   math::XYZPoint(theOutParticle.vertex()),
+					   math::XYZTLorentzVector(theOutParticle.momentum())));
+      else{  
+	if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3))
+	  LogWarning("PFTrackTransformer")<<"GSF TRACK "<<pftrack<<" PROPAGATION TO THE HOLayer HAS FAILED";
+	PFTrajectoryPoint dummyHOLayer;
+	pftrack.addPoint(dummyHOLayer); 
+      }
+    }
     //######## Photon at the OUTER State ##########
 
     dp_tang = OutMom.mag();
@@ -1076,8 +1170,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 	LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE HCAL ENTRANCE HAS FAILED";
       PFTrajectoryPoint dummyHCALentrance;
       brem.addPoint(dummyHCALentrance); 
-    }  
-    
+    } 
     //HCAL exit
     theBremParticle.propagateToHcalExit(false);
     if(theBremParticle.getSuccess()!=0)
@@ -1090,7 +1183,22 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
       PFTrajectoryPoint dummyHCALexit;
       brem.addPoint(dummyHCALexit); 
     }
-
+    
+    //HO Layer0
+    if ( abs(theBremParticle.vertex().z())<550) {
+      theBremParticle.setMagneticField(0);
+      theBremParticle.propagateToHOLayer(false);
+      if(theBremParticle.getSuccess()!=0)
+	brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HOLayer,
+					math::XYZPoint(theBremParticle.vertex()),
+					math::XYZTLorentzVector(theBremParticle.momentum())));
+      else{  
+	if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3))
+	  LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE HCAL EXIT HAS FAILED";
+	PFTrajectoryPoint dummyHOLayer;
+	brem.addPoint(dummyHOLayer); 
+      }
+    }
     brem.calculatePositionREP();
     pftrack.addBrem(brem);
     iTrajPos++;
