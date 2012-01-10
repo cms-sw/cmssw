@@ -6,7 +6,7 @@ using namespace edm;
 
 SiTrackerMultiRecHit::SiTrackerMultiRecHit(const LocalPoint& pos, const LocalError& err, const DetId& id, 
 					   const std::vector< std::pair<const TrackingRecHit*, float> >& aHitMap):
-  BaseTrackerRecHit(pos,err,trackerHitRTTI::multi)	
+  BaseTrackerRecHit(pos,err,id,trackerHitRTTI::multi)	
 {
   for(std::vector<std::pair<const TrackingRecHit*, float> >::const_iterator ihit = aHitMap.begin(); ihit != aHitMap.end(); ihit++){
     theHits.push_back(ihit->first->clone());

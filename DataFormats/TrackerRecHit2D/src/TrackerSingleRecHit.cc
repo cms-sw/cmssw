@@ -39,7 +39,7 @@ namespace {
     if (!bhit)
       std::cout << "not a tracker hit! " << typeid(*thit).name() << std::endl;
 
-    if (isUndef(*thit))
+    if (trackerHitRTTI::isUndef(*thit))
       std::cout << "undef hit! " << typeid(*thit).name() << std::endl;
     
     if (dynamic_cast<SiPixelRecHit const *>(hit)) {
