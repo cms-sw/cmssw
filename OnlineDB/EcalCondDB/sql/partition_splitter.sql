@@ -1,4 +1,4 @@
-column pind format a10
+column pind format a2
 column table_name format a30
 column column_name format a30
 column pname format a30
@@ -69,9 +69,9 @@ SET LINE 80
 SPOOL SPLITPARTITIONS.sql
 SELECT 'ALTER TABLE ', TABLE_NAME, ' SPLIT PARTITION ', PNAME || '_' ||
 	PIND, ' AT (', MAXVAL, ') INTO (PARTITION ', PNAME || '_' || 
-	(PIND + 1),
-	', PARTITION ', PNAME || '_' || (PIND + 2), 
-	' TABLESPACE CMS_ECAL_COND_2011_DATA) UPDATE GLOBAL INDEXES;' 
+	(PIND), 'TABLESPACE CMS_ECAL_COND_20' || PIND || '_DATA',
+	', PARTITION ', PNAME || '_' || (PIND + 1), 
+	' TABLESPACE CMS_ECAL_COND_20' || (PIND+1) || '_DATA) UPDATE GLOBAL INDEXES;' 
 	FROM SPLITTER;
 SPOOL OFF
 
