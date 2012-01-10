@@ -219,8 +219,8 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
 					  math::XYZPoint(theOutParticle.vertex()),
 					  math::XYZTLorentzVector(theOutParticle.momentum())));
      } else {
-       //       if (PT>5.&& msgwarning)
-       //	 LogWarning("PFTrackTransformer")<<"KF TRACK "<<pftrack<< " PROPAGATION TO THE HO HAS FAILED";
+       if (PT>5. && abs(theOutParticle.Z()) < 700.25 && msgwarning)
+       	 LogWarning("PFTrackTransformer")<<"KF TRACK "<<pftrack<< " PROPAGATION TO THE HO HAS FAILED";
        PFTrajectoryPoint dummyHOLayer;
        pftrack.addPoint(dummyHOLayer); 
      }
@@ -420,8 +420,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 					     math::XYZPoint(theOutParticle.vertex()),
 					     math::XYZTLorentzVector(theOutParticle.momentum())));
 	else{
-	  if (PT>5.)
-	    LogWarning("PFTrackTransformer")<<"GSF TRACK "<<pftrack<< " PROPAGATION TO THE HO Layer0 HAS FAILED";
+	  if (PT>5. && abs(theOutParticle.Z()) < 700.25 )
+	    LogWarning("PFTrackTransformer")<<"GSF TRACK "<<pftrack<< " PROPAGATION TO THE HO HAS FAILED";
 	  PFTrajectoryPoint dummyHOLayer;
 	  pftrack.addPoint(dummyHOLayer); 
 	}
@@ -557,8 +557,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 				       math::XYZPoint(theBremParticle.vertex()),
 				       math::XYZTLorentzVector(theBremParticle.momentum())));
      else {  
-       if ((DP>5.) && ((DP/SigmaDP)>3))
-	 LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE HCAL EXIT HAS FAILED";
+       if ((DP>5.) && ((DP/SigmaDP)>3) && abs(theBremParticle.Z()) < 700.25 )
+	 LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE H0 HAS FAILED";
        PFTrajectoryPoint dummyHOLayer;
        brem.addPoint(dummyHOLayer); 
      }
@@ -768,8 +768,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 				      math::XYZPoint(theBremParticle.vertex()),
 				      math::XYZTLorentzVector(theBremParticle.momentum())));
     else{  
-      if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3))
-	LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE HCAL EXIT HAS FAILED";
+      if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3) && abs(theBremParticle.Z()) < 700.25 )
+	LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE H0 HAS FAILED";
       PFTrajectoryPoint dummyHOLayer;
       brem.addPoint(dummyHOLayer); 
     }
@@ -936,8 +936,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 					math::XYZPoint(theBremParticle.vertex()),
 					math::XYZTLorentzVector(theBremParticle.momentum())));
       else{  
-	if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3))
-	  LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE HCAL EXIT HAS FAILED";
+	if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3) && abs(theBremParticle.Z()) < 700.25 )
+	  LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE H0 HAS FAILED";
 	PFTrajectoryPoint dummyHOLayer;
 	brem.addPoint(dummyHOLayer); 
       }
@@ -1071,8 +1071,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 					   math::XYZPoint(theOutParticle.vertex()),
 					   math::XYZTLorentzVector(theOutParticle.momentum())));
       else{  
-	if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3))
-	  LogWarning("PFTrackTransformer")<<"GSF TRACK "<<pftrack<<" PROPAGATION TO THE HOLayer HAS FAILED";
+	if ( pTtot_out > 5. && abs(theOutParticle.Z()) < 700.25 )
+	  LogWarning("PFTrackTransformer")<<"GSF TRACK "<<pftrack<<" PROPAGATION TO THE HO HAS FAILED";
 	PFTrajectoryPoint dummyHOLayer;
 	pftrack.addPoint(dummyHOLayer); 
       }
@@ -1193,8 +1193,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 					math::XYZPoint(theBremParticle.vertex()),
 					math::XYZTLorentzVector(theBremParticle.momentum())));
       else{  
-	if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3))
-	  LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE HCAL EXIT HAS FAILED";
+	if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3) && abs(theBremParticle.Z()) < 700.25 )
+	  LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE H0 HAS FAILED";
 	PFTrajectoryPoint dummyHOLayer;
 	brem.addPoint(dummyHOLayer); 
       }
