@@ -80,13 +80,30 @@ namespace {
     
 
   }
+  
+  void problem(const TrackingRecHit* thit, char * what) {
+    std::cout << "not sharing with itself! " << what << " "
+	      << typeid(*thit).name() << std::endl;
+    verify(thit);
+
+  }
+  
+  void checkSelf(const TrackingRecHit* one,const TrackingRecHit* two) {
+    if (!one->sharesInput(one,TrackingRecHit::all)) problem(one,"all");
+    if (!one->sharesInput(one,TrackingRecHit::some)) problem(one,"some");
+    if (!two->sharesInput(two,TrackingRecHit::all)) problem(two,"all");
+    if (!two->sharesInput(two,TrackingRecHit::some)) problem(two,"some");
+  }
+
 }
 
 bool 
 TrackerSingleRecHit::sharesInput( const TrackingRecHit* other, 
 			      SharedInputType what) const
 {
-   verify(this); verify(other);
+  //  verify(this); verify(other);
+  if (other!=this) checkSelf(this,other);
+
 
   if (!sameDetModule(*other)) return false;
 
