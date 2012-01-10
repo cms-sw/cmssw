@@ -27,7 +27,7 @@ class SiStripDetId : public DetId {
   SiStripDetId( const uint32_t& raw_id ) : DetId( raw_id ) {;}
 
   /** Construct from generic DetId */
-  SiStripDetId( const DetId& )  : DetId( det_id.rawId() ) {;}
+  SiStripDetId( const DetId& det_id )  : DetId( det_id.rawId() ) {;}
 
   /** Construct and fill only the det and sub-det fields. */
   SiStripDetId( Detector det, int subdet ) : DetId( det, subdet ) {;}
