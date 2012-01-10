@@ -10,18 +10,18 @@ SiStripMatchedRecHit2D::sharesInput( const TrackingRecHit* other,
  
   if (!sameDetModule(*other)) return false;
   
-  if (!trackerHitRTTI::isMatched(*other) )
+  if (!trackerHitRTTI::isMatched(*other) ) {
     if (what==all)  return false;
-    return (monoHit()->sharesInput( other,what)|| stereoHit()->sharesInput( other,what));
+    return monoHit()->sharesInput( other,what) || stereoHit()->sharesInput( other,what);
   }
   
   const SiStripMatchedRecHit2D* otherMatched = static_cast<const SiStripMatchedRecHit2D*>(other);
   if ( what == all)
-    return (monoHit()->sharesInput(*otherMatched->monoHit()) && 
-	      stereoHit()->sharesInput(*otherMatched->stereoHit()));
+    return monoHit()->sharesInput(*otherMatched->monoHit()) && 
+      stereoHit()->sharesInput(*otherMatched->stereoHit());
 
-  return (monoHit()->sharesInput(*otherMatched->monoHit()) || 
-	  stereoHit()->sharesInput(*otherMatched->stereoHit()));
+  return monoHit()->sharesInput(*otherMatched->monoHit()) || 
+    stereoHit()->sharesInput(*otherMatched->stereoHit());
 }
 
 
