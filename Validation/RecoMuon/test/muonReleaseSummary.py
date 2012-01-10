@@ -83,8 +83,12 @@ if (NewFastSim|RefFastSim):
 #RefFormat='GEN-SIM-RECO'
 NewFormat='DQM'
 RefFormat='DQM'
-NewTag = NewCondition+'_noPU_ootb'
-RefTag = RefCondition+'_noPU_ootb'
+NewTag = NewCondition+'_noPU'
+RefTag = RefCondition+'_noPU'
+if (NewCondition=='PILEUP'):
+    NewTag = NewCondition+'_PU'
+if (RefCondition=='PILEUP'):
+    RefTag = RefCondition+'_PU'
 
 #specify if any of the files compared is from FastSim
 isFastSimNew = ''
