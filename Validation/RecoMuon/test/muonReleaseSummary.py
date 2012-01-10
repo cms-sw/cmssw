@@ -5,8 +5,8 @@ import sys
 import fileinput
 import string
 
-NewRelease='CMSSW_5_0_0_pre6'
-RefRelease='CMSSW_5_0_0_pre4'
+NewRelease='CMSSW_5_1_0_pre1'
+RefRelease='CMSSW_5_0_0'
 #NewRelease='Summer09'
 #RefRelease='Summer09_pre1'
 
@@ -25,8 +25,8 @@ if (NewCondition=='MC'):
     if (NewFastSim|RefFastSim):
         samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValTTbar']
 elif (NewCondition=='STARTUP'):
-#    samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValSingleMuPt1000','RelValTTbar','RelValZMM','RelValJpsiMM']
-    samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValSingleMuPt1000','RelValTTbar', 'RelValJpsiMM']
+    samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValSingleMuPt1000','RelValTTbar','RelValZMM','RelValJpsiMM']
+#    samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValSingleMuPt1000','RelValTTbar', 'RelValJpsiMM']
     if (NewFastSim|RefFastSim):
         samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValTTbar']
 elif (NewCondition=='PILEUP'):
@@ -49,19 +49,19 @@ GetRefsFrom='GUI'
 
 #DqmGuiNewRepository = 'https://cmsweb.cern.ch/dqm/dev/data/browse/Development/RelVal/CMSSW_4_2_x/'
 #DqmGuiNewRepository = 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/RelVal/CMSSW_4_3_x/'
-DqmGuiNewRepository = 'https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_5_0_x/'
+DqmGuiNewRepository = 'https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_5_1_x/'
 #DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/dev/data/browse/Development/RelVal/CMSSW_4_2_x/'
 #DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/RelVal/CMSSW_4_3_x/'
 DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_5_0_x/'
 CastorRepository = '/castor/cern.ch/user/a/aperrott/ValidationRecoMuon'
 
 # These are only needed if you copy any root file from the DQM GUI:
-NewLabel='START50_V5'
+NewLabel='START50_V8'
 if (NewCondition=='MC'):
-    NewLabel='MC_50_V5'
-RefLabel='START50_V3'
+    NewLabel='MC_50_V8'
+RefLabel='START50_V8'
 if (RefCondition=='MC'):
-    RefLabel='MC_50_V3'
+    RefLabel='MC_50_V8'
 
 if ((GetFilesFrom=='GUI')|(GetRefsFrom=='GUI')):
     print "*** Did you remind doing:"
@@ -102,12 +102,12 @@ if (RefFastSim):
 
 if (NewCondition=='PILEUP'):
     if (NewFastSim):
-        NewLabel=NewLabel+'_PU_156BxLumiPileUp'
+        NewLabel=NewLabel+'_PU_FlatDist10_2011EarlyData_50ns'
     else:
         NewLabel=NewLabel+'_PU_XXX'  # There are no FullSim pileup relval produced yed
 if (RefCondition=='PILEUP'):
     if (RefFastSim):
-        RefLabel=RefLabel+'_PU_156BxLumiPileUp'
+        RefLabel=RefLabel+'_PU_FlatDist10_2011EarlyData_50ns'
     else:
         RefLabel=RefLabel+'_PU_XXX'  # There are no FullSim pileup relval produced yed
 
