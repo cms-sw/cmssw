@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Schmitt
 //         Created:  Sat Jul 12 17:43:33 CEST 2008
-// $Id: CSCSkim.cc,v 1.10 2010/08/07 14:55:55 wmtan Exp $
+// $Id: CSCSkim.cc,v 1.11 2011/12/22 08:39:44 eulisse Exp $
 //
 //
 //======================================================================
@@ -1128,14 +1128,11 @@ bool CSCSkim::doBFieldStudySelection(edm::Handle<reco::TrackCollection> saMuons,
     } // end loop over hits
 
     float zInner = -1.;
-    float zOuter = 20000.;
     if (nCSCHits >= nCSCHitsMin) {
       if (abs(iPnt.z()) < abs(iPnt.z())) {
 	zInner = iPnt.z();
-	zOuter = oPnt.z();
       } else {
 	zInner = oPnt.z();
-	zOuter = iPnt.z();
       }
     }
 
@@ -1194,18 +1191,6 @@ bool CSCSkim::doBFieldStudySelection(edm::Handle<reco::TrackCollection> saMuons,
       yExt = iPnt.y() + deltaZ * iP.y() / iP.z();
     }
     float rExt = sqrt( xExt*xExt + yExt*yExt );
-
-    float zInner = -1.;
-    float zOuter = 20000.;
-    if (n >= nTrHitsMin) {
-      if (abs(iPnt.z()) < abs(iPnt.z())) {
-	zInner = iPnt.z();
-	zOuter = oPnt.z();
-      } else {
-	zInner = oPnt.z();
-	zOuter = iPnt.z();
-      }
-    }
 
     bool goodTrack = (preco > pMin)
       && (n >= nTrHitsMin)
