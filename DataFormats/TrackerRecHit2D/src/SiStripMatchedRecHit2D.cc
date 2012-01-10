@@ -10,7 +10,7 @@ SiStripMatchedRecHit2D::sharesInput( const TrackingRecHit* other,
  
   if (!sameDetModule(*other)) return false;
   
-  if ( typeid(*other)!=typeid(SiStripMatchedRecHit2D)){
+  if (!trackerHitRTTI::isMatched(*other) )
     if (what==all)  return false;
     return (monoHit()->sharesInput( other,what)|| stereoHit()->sharesInput( other,what));
   }

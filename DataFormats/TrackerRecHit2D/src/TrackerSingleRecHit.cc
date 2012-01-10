@@ -39,6 +39,9 @@ namespace {
     if (!bhit)
       std::cout << "not a tracker hit! " << typeid(*thit).name() << std::endl;
 
+    if (isUndef(*thit))
+      std::cout << "undef hit! " << typeid(*thit).name() << std::endl;
+    
     if (dynamic_cast<SiPixelRecHit const *>(hit)) {
       static int n=0;
       if (++n<5) {
@@ -87,17 +90,16 @@ TrackerSingleRecHit::sharesInput( const TrackingRecHit* other,
 
   if (!sameDetModule(*other)) return false;
 
-  // dynamic cast to be FIXED!
-  if (dynamic_cast<TrackerSingleRecHit const *>(other)) {
+  // move to switch?
+  if (trackerHitRTTI::isSingle(*other)) {
     const TrackerSingleRecHit & otherCast = static_cast<const TrackerSingleRecHit&>(*other);
     return sharesInput(otherCast);
   } 
 
-  const std::type_info & otherType = typeid(*other);
-  if (otherType == typeid(ProjectedSiStripRecHit2D)) 
+  if (trackerHitRTTI::isProjected(*other)) 
     return other->sharesInput(this,what);
 
-  if (otherType == typeid(SiStripMatchedRecHit2D) ) {
+  if (trackerHitRTTI::isMatched(*other) ) {
     if (what == all) return false;
     return static_cast<SiStripMatchedRecHit2D const &>(*other).sharesInput(*this);
   }
@@ -105,7 +107,7 @@ TrackerSingleRecHit::sharesInput( const TrackingRecHit* other,
   // last resort, recur to 'recHits()', even if it returns a vector by value
   std::vector<const TrackingRecHit*> otherHits = other->recHits();
   int ncomponents=otherHits.size();
-  if(ncomponents==0)return false;
+  if(ncomponents==0)return false; //bho
   if(ncomponents==1) return sharesInput(otherHits.front(),what);
   // ncomponents>1
   if(what == all )return false;

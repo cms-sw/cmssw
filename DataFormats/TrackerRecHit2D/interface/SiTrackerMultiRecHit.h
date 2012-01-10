@@ -13,6 +13,7 @@ it contains an OwnVector with the component rechits and a vector of weights
 class SiTrackerMultiRecHit : public BaseTrackerRecHit
 {
 public:
+  typedef BaseTrackerRecHit Base;
   SiTrackerMultiRecHit():
     theHits(),
     theWeights(){}

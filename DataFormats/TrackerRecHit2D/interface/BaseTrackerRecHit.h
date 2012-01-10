@@ -5,22 +5,33 @@
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
+namespace trackerHitRTTI {
+  // tracking hit can be : single (si1D, si2D, pix), projected, matched or multi
+  enum RTTI { undef=0, single=1, proj=2, match=3, multi=4};
+  RTTI rtti(TrackingRecHit const & hit) const { return RTTI(hit.getRTTI());}
+  bool isUndef(TrackingRecHit const & hit) const { return rtti(hit)==undef;}
+  bool isSingle(TrackingRecHit const & hit) const { return rtti(hit)==single;}
+  bool isProjected(TrackingRecHit const & hit) const { return rtti(hit)==proj;}
+  bool isMatched(TrackingRecHit const & hit) const { return rtti(hit)==match;}
+  bool isMulti(TrackingRecHit const & hit) const { return rtti(hit)==multi;}
+
+
+}
 
 class BaseTrackerRecHit : public TrackingRecHit { 
 public:
-  // tracking hit can be : single (si1D, si2D, pix), projected, matched or multi
-  enum RTTI { undef=0, single=1, proj=2, match=3};
   BaseTrackerRecHit() {}
 
   virtual ~BaseTrackerRecHit() {}
 
   BaseTrackerRecHit( const LocalPoint& p, const LocalError&e,
-		     DetId id, RTTI rt=undef) :  TrackingRecHit(id,(unsigned int)(rt)), pos_(p), err_(e){}
+		     DetId id, trackerHitRTTI::RTTI rt=undef) :  TrackingRecHit(id,(unsigned int)(rt)), pos_(p), err_(e){}
 
-  RTTI rtti() const { return RTTI(getRTTI());}
-  bool isSingle() const { return rtti()==single;}
-  bool isProjected() const { return rtti()==proj;}
-  bool isMatched() const { return rtti()==match;}
+  RTTI rtti() const { return trackerHitRTTI::rtti(*this);}
+  bool isSingle() const { return trackerHitRTTI::isSingle(*this);}
+  bool isProjected() const { return trackerHitRTTI::isProjected(*this);}
+  bool isMatched() const { return trackerHitRTTI::isMatched(*this);}
+  bool isMulti() const { return trackerHitRTTI::isMulti(*this);}
 
 
   // verify that hits can share clusters...

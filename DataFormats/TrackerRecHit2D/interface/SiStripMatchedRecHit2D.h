@@ -11,7 +11,7 @@ class SiStripMatchedRecHit2D : public BaseTrackerRecHit {
   ~SiStripMatchedRecHit2D(){}
   SiStripMatchedRecHit2D( const LocalPoint& pos, const LocalError& err, const DetId& id , 
 			  const SiStripRecHit2D* rMono,const SiStripRecHit2D* rStereo):
-    BaseTrackerRecHit(pos, err, id, Base::match), componentMono_(*rMono),componentStereo_(*rStereo){}
+    BaseTrackerRecHit(pos, err, id, trackerHitRTTI::match), componentMono_(*rMono),componentStereo_(*rStereo){}
 					 
   const SiStripRecHit2D *stereoHit() const { return &componentStereo_;}
   const SiStripRecHit2D *monoHit() const { return &componentMono_;}
