@@ -14,7 +14,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("EmptySource")
 
 #Setup the analyzer.
-#process.demo2 = cms.EDAnalyzer('TestPerformanceFW_ES',
+#process.demo2 = cms.EDAnalyzer('DumpBtagTable',
 #                               AlgoName = cms.string('JetProbability_loose'),
 #                               measureName = cms.vstring("MISTAGSSVHEM","MISTAGSSVHEM","MISTAGSSVHEM","MISTAGSSVHEM",
 #                                                         "MISTAGSSVHPT","MISTAGSSVHPT","MISTAGSSVHPT","MISTAGSSVHPT",
@@ -24,15 +24,15 @@ process.source = cms.Source("EmptySource")
 #                                                         "BTAGLEFF", "BTAGLERR", "BTAGLEFFCORR", "BTAGLERRCORR")
 #                               )
 
-process.demo2 = cms.EDAnalyzer('TestPerformanceFW_ES',
+## DUMP Tables for CSVM: data b-tag efficiencies, SF_b, data mistag efficiencies, SF_mistag  
+process.demo2 = cms.EDAnalyzer('DumpBtagTable',
                                AlgoName = cms.string('CombinedSecondaryVertex_medium'),
                                measureName = cms.vstring("BTAGCSVM","BTAGCSVM","MISTAGCSVM","MISTAGCSVM"),
-                               #measureName = cms.vstring("BTAGTCHEM","BTAGTCHEM","MISTAGTCHEM","MISTAGTCHEM"),
                                measureType = cms.vstring("BTAGBEFF", "BTAGBEFFCORR", "BTAGLEFF", "BTAGLEFFCORR")
                                )
 
 
-#process.demo3 = cms.EDAnalyzer('TestPerformanceFW_ES',
+#process.demo3 = cms.EDAnalyzer('DumpBtagTable',
 #                               AlgoName = cms.string('TrackCountingHighPurity_tight'),
 #                               measureName = cms.vstring("BTAGTCHPT","BTAGTCHPT"),
 #                               measureType = cms.vstring( "BTAGBEFFCORR", "BTAGBERRCORR")

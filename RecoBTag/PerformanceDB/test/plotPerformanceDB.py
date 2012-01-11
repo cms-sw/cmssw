@@ -17,10 +17,10 @@ from ROOT import *
 def main():
 
     executable = "getbtagPerformance"
-    rootFile = "rootFile=performanceDB.root"
-    payload  = "payload=SYSTEM8SSVHEM"
-    OP = "SSVHEM"
-    flavor   = "flavor=b"
+    rootFile = "rootFile=btag_performance_CSVM.root"
+    payload  = "payload=BTAGCSVM" #"payload=MISTAGCSVM"
+    OP = "CSVM"
+    flavor   = "flavor=b" #l
     typeSF   = "type=SF"
     typeEff  = "type=eff"
     jetpt    = "pt="
@@ -28,8 +28,8 @@ def main():
 
     sp = " "
 
-    ptmin = 20.
-    ptmax = 250.
+    ptmin = 25.
+    ptmax = 240. #240.
     etamin = 0.
     etamax = 2.4
     ptNbins = 30
@@ -76,9 +76,9 @@ def main():
             tmpjeteta = jeteta+str(aeta)
     
             allcmd = executable+ sp +rootFile+ sp +payload+ sp +flavor+ sp +typeSF+ sp +tmpjetpt+ sp +tmpjeteta
-            #print allcmd
+            print allcmd
             output = commands.getstatusoutput(allcmd)
-            #print output[1]
+            print output[1]
             
             if output[0]!=0:
                 print " Error retrieving data from file DB."
