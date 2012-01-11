@@ -31,7 +31,7 @@ void ClusterRemovalRefSetter::reKey(TrackingRecHit *hit) const {
             reKeyStrip(mhit->stereoClusterRef());
         } else if (type == typeid(ProjectedSiStripRecHit2D)) {
             ProjectedSiStripRecHit2D *phit = reinterpret_cast<ProjectedSiStripRecHit2D *>(hit);
-            reKeyStrip(&phit->originalHit()->omniCluster());
+            reKeyStrip(phit->originalHit().omniCluster());
         } else throw cms::Exception("Unknown RecHit Type") << "RecHit of type " << type.name() << " not supported. (use c++filt to demangle the name)";
     }
 }
