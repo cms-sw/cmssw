@@ -18,14 +18,19 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 class ClusterRemovalRefSetter {
-    public:
-        ClusterRemovalRefSetter(const edm::Event &iEvent, const edm::InputTag tag) ;
-        void reKey(TrackingRecHit *hit) const ;
-        void reKey(SiStripRecHit2D *hit, uint32_t detid) const ;
-        void reKey(SiStripRecHit1D *hit, uint32_t detid) const ;
-        void reKey(SiPixelRecHit *hit, uint32_t detid) const ;
-    private:
-        const reco::ClusterRemovalInfo *cri_;
+public:
+  ClusterRemovalRefSetter(const edm::Event &iEvent, const edm::InputTag tag) ;
+  void reKey(TrackingRecHit *hit) const ;
+private:
+  typedef OmniClusterRef::ClusterPixelRef ClusterPixelRef;
+  typedef OmniClusterRef::ClusterStripRef ClusterStripRef;
+  typedef OmniClusterRef::ClusterRegionalRef ClusterRegionalRef;
+
+  void reKeyPixel(OmniClusterRef& clusRef) const ;
+  void reKeyStrip(OmniClusterRef& clusRef) const ;
+  //void reKeyRegional(OmniClusterRef& clusRef) const ;
+private:
+  const reco::ClusterRemovalInfo *cri_;
 };
 
 #endif
