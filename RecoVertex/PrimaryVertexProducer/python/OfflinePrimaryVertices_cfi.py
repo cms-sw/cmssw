@@ -48,6 +48,6 @@ offlinePrimaryVertices = cms.EDProducer("PrimaryVertexProducer",
 )
 
 # These lines should be uncommented only for the gcc4X builds, with X>=6
-#offlinePrimaryVertices.TkClusParameters.algorithm = cms.string("DA_vect" )
-#offlinePrimaryVertices.TkClusParameters.TkDAClusParameters.use_vdt = cms.untracked.bool( True )
+offlinePrimaryVertices.TkClusParameters.algorithm = cms.string("DA_vect" )
+offlinePrimaryVertices.TkClusParameters.TkDAClusParameters.use_vdt = cms.untracked.bool( True )
 
