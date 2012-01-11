@@ -162,7 +162,7 @@ namespace helper {
     TrackingRecHit &genericHit = (*hits_)[index_];
     const std::type_info &hit_type = typeid(genericHit);
 
-    OmniCluster * cluRef=0;
+    OmniClusterRef * cluRef=0;
     if (typeid(SiStripRecHit1D) == hit_type) {
       cluRef = &static_cast<SiStripRecHit1D&>(genericHit).omniCluster();
      } else if (typeid(SiStripRecHit2D) == hit_type) {
@@ -176,7 +176,7 @@ namespace helper {
   
     assert(cluRef != 0); // to catch missing RecHit types
     assert(cluRef->key() == ref_.key()); // otherwise something went wrong
-    (*cluRef) = OmniRef(newRef);
+    (*cluRef) = OmniClusterRef(newRef);
   }
   
 } // end namespace 'helper'
