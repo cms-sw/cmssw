@@ -47,6 +47,10 @@ public:
   }
   
 public:
+  // edm Ref interface
+  unsigned int id() const { return me.id();}
+  unsigned int key() const { return index();}
+
 
   unsigned int rawIndex() const { return me.index();}
   
