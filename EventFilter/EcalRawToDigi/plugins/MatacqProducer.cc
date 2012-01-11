@@ -213,16 +213,13 @@ MatacqProducer::addMatacqData(edm::Event& event){
 	LogInfo("Matacq") << "Run " << runNumber << "\t Orbit " << orbitId << "\n";
       
 	bool fileChange;
-	uint32_t offset = 0;
 	if(doOrbitOffset_){
 	  map<uint32_t,uint32_t>::iterator it = orbitOffset_.find(runNumber);
 	  if(it == orbitOffset_.end()){
 	    LogWarning("Matacq") << "Orbit offset not found for run "
 				 << runNumber
 				 << ". No orbit correction will be applied.";
-	  } else{
-	    offset = it->second;
-	  }
+    }
 	}    
       
 	if(getMatacqFile(runNumber, orbitId, &fileChange)){

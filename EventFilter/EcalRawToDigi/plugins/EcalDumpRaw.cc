@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-
 /*
- * $Id: EcalDumpRaw.cc,v 1.4 2010/12/06 20:35:02 wmtan Exp $
+ * $Id: EcalDumpRaw.cc,v 1.8 2010/12/07 00:31:21 wmtan Exp $
  *
  * Author: Ph Gras. CEA/IRFU - Saclay
  *
@@ -259,12 +259,8 @@ EcalDumpRaw::analyze(const edm::Event& event, const edm::EventSetup& es){
 #if 1
 
   bool dccIdErr = false;
-  bool simpleTrigTypeErr = false;
-  bool outOfSync = false;
   unsigned iFed = 0;
   unsigned refDccId = 0;
-  int refSimpleTrigType = -1;
-  int refBx = -1;
   //  static bool recordNextPhys = false;
   //static int bxCalib = -1;
   //x static int nCalib = 0;
@@ -329,17 +325,9 @@ EcalDumpRaw::analyze(const edm::Event& event, const edm::EventSetup& es){
 
       if(iFed==1){
         refDccId = dccId_;
-        refSimpleTrigType = simpleTrigType_;
-        refBx = bx_;
       } else{
         if(dccId_!=refDccId){
           dccIdErr = true;
-        }
-        if(simpleTrigType_!=refSimpleTrigType){
-          simpleTrigTypeErr = true;
-        }
-        if(refBx!=bx_){
-          outOfSync = true;
         }
       }
 
@@ -449,10 +437,6 @@ EcalDumpRaw::analyze(const edm::Event& event, const edm::EventSetup& es){
     cerr << "DCC ID discrepancy in detailed trigger type "
          << " of " << toNth(iEvent_) << " event." << endl;
   }
-  int bx = -1;
-  if(!outOfSync){
-    bx = bx_;
-  }
 
   if(l1a_>0 && l1a_< l1amin_) l1amin_ = l1a_;
   if(l1a_>l1amax_) l1amax_ = l1a_;
@@ -542,12 +526,6 @@ bool EcalDumpRaw::decode(const uint32_t* data, int iWord64, ostream& out){
                 << " Color: "  << ((data[1] >>6 ) & 0x3)
                 << " (" << colorNames[(data[1]>>6)&0x3] << ")"
                 << " DCC ID: " << dccId_;
-      int l;
-      if(dccId_>=10 && dccId_<=46 && side_ <= 1){ // side_ >=0, since side is unsigned
-        l = lme(dccId_, side_);
-      } else{
-        l = -1;//indicates error
-      }
       break;
     case 3:
       {
@@ -866,36 +844,39 @@ bool EcalDumpRaw::decode(const uint32_t* data, int iWord64, ostream& out){
   return rc;
 }
 
-int EcalDumpRaw::lme(int dcc1, int side){
-  int fedid = ((dcc1-1)%600) + 600; //to handle both FED and DCC id.
-   vector<int> lmes;
-   // EE -
-   if( fedid <= 609 ) {
-     if ( fedid <= 607 ) {
-       lmes.push_back(fedid-601+83);
-     } else if ( fedid == 608 ) {
-       lmes.push_back(90);
-       lmes.push_back(91);
-     } else if ( fedid == 609 ) {
-       lmes.push_back(92);
-     }
-   } //EB
-   else if ( fedid >= 610  && fedid <= 645 ) {
-     lmes.push_back(2*(fedid-610)+1);
-     lmes.push_back(lmes[0]+1);
-   } // EE+
-   else if ( fedid >= 646 ) {
-     if ( fedid <= 652 ) {
-       lmes.push_back(fedid-646+73);
-     } else if ( fedid == 653 ) {
-       lmes.push_back(80);
-       lmes.push_back(81);
-     } else if ( fedid == 654 ) {
-       lmes.push_back(82);
-     }
-   }
-   return lmes.size()==0?-1:lmes[std::min(lmes.size(), (size_t)side)];
-}
+// The following method was not removed due to package maintainer 
+// (Philippe Gras <philippe.gras@cern.ch>) request.
+
+//int EcalDumpRaw::lme(int dcc1, int side){
+//  int fedid = ((dcc1-1)%600) + 600; //to handle both FED and DCC id.
+//   vector<int> lmes;
+//   // EE -
+//   if( fedid <= 609 ) {
+//     if ( fedid <= 607 ) {
+//       lmes.push_back(fedid-601+83);
+//     } else if ( fedid == 608 ) {
+//       lmes.push_back(90);
+//       lmes.push_back(91);
+//     } else if ( fedid == 609 ) {
+//       lmes.push_back(92);
+//     }
+//   } //EB
+//   else if ( fedid >= 610  && fedid <= 645 ) {
+//     lmes.push_back(2*(fedid-610)+1);
+//     lmes.push_back(lmes[0]+1);
+//   } // EE+
+//   else if ( fedid >= 646 ) {
+//     if ( fedid <= 652 ) {
+//       lmes.push_back(fedid-646+73);
+//     } else if ( fedid == 653 ) {
+//       lmes.push_back(80);
+//       lmes.push_back(81);
+//     } else if ( fedid == 654 ) {
+//       lmes.push_back(82);
+//     }
+//   }
+//   return lmes.size()==0?-1:lmes[std::min(lmes.size(), (size_t)side)];
+//}
 
 
 int EcalDumpRaw::sideOfRu(int ru1){
