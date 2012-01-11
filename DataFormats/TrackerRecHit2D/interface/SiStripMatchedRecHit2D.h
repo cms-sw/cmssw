@@ -17,9 +17,24 @@ class SiStripMatchedRecHit2D : public BaseTrackerRecHit {
   const SiStripRecHit2D *monoHit() const { return &componentMono_;}
  
   // Non const variants needed for cluster re-keying 
-  SiStripRecHit2D *stereoHit() { return &componentStereo_;}
-  SiStripRecHit2D *monoHit() { return &componentMono_;}
+  // SiStripRecHit2D *stereoHit() { return &componentStereo_;}
+  // SiStripRecHit2D *monoHit() { return &componentMono_;}
   
+  OmniClusterRef const & stereoClusterRef() const { return componentStereo_.omniCluster();}
+  OmniClusterRef const & monoClusterRef() const { return componentMono_.omniCluster();}
+  // Non const variants needed for cluster re-keying 
+  OmniClusterRef & stereoClusterRef()  { return componentStereo_.omniCluster();}
+  OmniClusterRef  & monoClusterRef()  { return componentMono_.omniCluster();}
+  
+  SiStripCluster const & stereoCluster() const { 
+    return stereoClusterRef().stripCluster();
+  }  
+  SiStripCluster const & monoCluster() const { 
+    return monoClusterRef().stripCluster();
+  }  
+
+
+
   virtual SiStripMatchedRecHit2D * clone() const {return new SiStripMatchedRecHit2D( * this);}
  
   virtual int dimension() const {return 2;}

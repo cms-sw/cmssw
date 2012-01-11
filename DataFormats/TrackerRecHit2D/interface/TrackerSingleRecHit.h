@@ -40,6 +40,8 @@ public:
 		      ClusterRegionalRef const& clus) :  Base(p,e,id, trackerHitRTTI::single), cluster_(clus){}
   
   OmniClusterRef const & omniCluster() const { return cluster_;}
+  // for rekeying...
+  OmniClusterRef & omniCluster()  { return cluster_;}
 
   ClusterPixelRef cluster_pixel()  const { 
     return cluster_.cluster_pixel();
