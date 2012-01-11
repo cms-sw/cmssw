@@ -86,8 +86,6 @@ bool NuclearVertexBuilder::FillVertexWithAdaptVtxFitter(const reco::TrackRef& pr
 
 
 bool NuclearVertexBuilder::FillVertexWithCrossingPoint(const reco::TrackRef& primTrack, const std::vector<reco::TrackRef>& secTracks) {
-            FreeTrajectoryState primTraj = getTrajectory(primTrack);
-
             // get the secondary track with the max number of hits
             unsigned short maxHits = 0; int indice=-1;
             for( unsigned short i=0; i < secTracks.size(); i++) {
