@@ -214,7 +214,10 @@ class TopSingleLeptonDQM : public edm::EDAnalyzer  {
   /// default constructor
   TopSingleLeptonDQM(const edm::ParameterSet& cfg);
   /// default destructor
-  ~TopSingleLeptonDQM(){};
+  ~TopSingleLeptonDQM(){
+    if( vertexSelect_ ) delete vertexSelect_;
+    if( beamspotSelect_ ) delete beamspotSelect_;
+  };
   
   /// do this during the event loop
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);

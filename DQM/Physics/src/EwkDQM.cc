@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/02/18 13:57:46 $
- *  $Revision: 1.16 $
+ *  $Date: 2011/12/21 14:24:21 $
+ *  $Revision: 1.17 $
  *  \author Michael B. Anderson, University of Wisconsin-Madison
  *  \author Will Parker, University of Wisconsin-Madison
  */
@@ -62,6 +62,39 @@ EwkDQM::EwkDQM(const ParameterSet& parameters) {
   // just to initialize
   isValidHltConfig_ = false;
 
+  // coverity says..
+  h_e1_et = 0;
+  h_e1_eta = 0;
+  h_e1_phi = 0;
+  h_e2_et = 0;
+  h_e2_eta = 0;
+  h_e2_phi = 0;
+  h_e_invWMass = 0;
+  h_ee_invMass = 0;
+  h_jet2_et = 0;
+  h_jet_count = 0;
+  h_jet_et = 0;
+  h_m1_eta = 0;
+  h_m1_phi = 0;
+  h_m1_pt = 0;
+  h_m2_eta = 0;
+  h_m2_phi = 0;
+  h_m2_pt = 0;
+  h_m_invWMass = 0;
+  h_met = 0;
+  h_met_phi = 0;
+  h_mumu_invMass = 0;
+  h_t1_et = 0;
+  h_t1_eta = 0;
+  h_t1_phi = 0;
+  h_vertex_chi2 = 0;
+  h_vertex_d0 = 0;
+  h_vertex_numTrks = 0;
+  h_vertex_number = 0;
+  h_vertex_sumTrks = 0;
+  
+  theDbe = Service<DQMStore>().operator->();
+
 }
 
 EwkDQM::~EwkDQM() { 
@@ -73,7 +106,6 @@ void EwkDQM::beginJob() {
   logTraceName = "EwkAnalyzer";
 
   LogTrace(logTraceName)<<"Parameters initialization";
-  theDbe = Service<DQMStore>().operator->();
   theDbe->setCurrentFolder("Physics/EwkDQM");  // Use folder with name of PAG
 
   const float pi = 3.14159265;

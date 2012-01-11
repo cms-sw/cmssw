@@ -177,6 +177,38 @@ SusyDQM<Mu, Ele, Jet, Met>::SusyDQM(const edm::ParameterSet& pset) {
    RAL_jet_max_emf_cut_ = pset.getParameter<double> ("RAL_jet_max_emf_cut");
 
    RAL_met_cut_ = pset.getParameter<double> ("RAL_met_cut");
+
+   dbe_ = edm::Service<DQMStore>().operator->();
+
+   hRAL_N_muons_ = 0;
+   hRAL_pt_muons_ = 0;
+   hRAL_eta_muons_ = 0;
+   hRAL_phi_muons_ = 0;
+   hRAL_Iso_muons_ = 0;
+   hRAL_N_elecs_ = 0;
+   hRAL_pt_elecs_ = 0;
+   hRAL_eta_elecs_ = 0;
+   hRAL_phi_elecs_ = 0;
+   hRAL_Iso_elecs_ = 0;
+   hRAL_Sum_pt_jets_ = 0;
+   hRAL_Met_ = 0;
+   hRAL_dR_emu_ = 0;
+   hRAL_mass_OS_mumu_ = 0;
+   hRAL_mass_OS_ee_ = 0;
+   hRAL_mass_OS_emu_ = 0;
+   hRAL_mass_SS_mumu_ = 0;
+   hRAL_mass_SS_ee_ = 0;
+   hRAL_mass_SS_emu_ = 0;
+   hRAL_Muon_monitor_ = 0;
+   hRAL_Electron_monitor_ = 0;
+   hRAL_OSee_monitor_ = 0;
+   hRAL_OSemu_monitor_ = 0;
+   hRAL_OSmumu_monitor_ = 0;
+   hRAL_SSee_monitor_ = 0;
+   hRAL_SSemu_monitor_ = 0;
+   hRAL_SSmumu_monitor_ = 0;
+   hRAL_TriMuon_monitor_ = 0;
+
 }
 
 template<typename Mu, typename Ele, typename Jet, typename Met>
@@ -191,8 +223,6 @@ void SusyDQM<Mu, Ele, Jet, Met>::initialize() {
 
 template<typename Mu, typename Ele, typename Jet, typename Met>
 void SusyDQM<Mu, Ele, Jet, Met>::beginJob() {
-
-   dbe_ = edm::Service<DQMStore>().operator->();
 
    dbe_->setCurrentFolder(moduleName_);
 

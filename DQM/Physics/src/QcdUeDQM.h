@@ -105,7 +105,7 @@ class QcdUeDQM : public edm::EDAnalyzer
     void                          setLabel1D(std::vector<MonitorElement*> &mes);
    
 
-    bool                          trackSelection(const reco::Track &trk, const reco::BeamSpot* bs, const reco::Vertex vtx, int sizevtx);
+    bool                          trackSelection(const reco::Track &trk, const reco::BeamSpot* bs, const reco::Vertex& vtx, int sizevtx);
     void                          fillHltBits(const edm::Event &iEvent,const edm::EventSetup &iSetup);
     
     bool                          fillVtxPlots(const reco::BeamSpot* bs, const edm::Handle< reco::VertexCollection > vtxColl);

@@ -90,6 +90,12 @@ EwkElecDQM::EwkElecDQM( const ParameterSet & cfg ) :
 
 
 {
+
+  // access to dbe
+  theDbe = Service<DQMStore>().operator->();
+  theDbe->setCurrentFolder("Physics/EwkElecDQM");
+  init_histograms();
+
 }
 
 void EwkElecDQM::beginRun(const Run& r, const EventSetup&) {
@@ -105,117 +111,98 @@ void EwkElecDQM::beginRun(const Run& r, const EventSetup&) {
 
 
 void EwkElecDQM::beginJob() {
-      theDbe = Service<DQMStore>().operator->();
-      theDbe->setCurrentFolder("Physics/EwkElecDQM");
-      init_histograms();
+
 }
 
 void EwkElecDQM::init_histograms() {
 
-      char chtitle[256] = "";
-      for (int i=0; i<2; ++i) {
-//             snprintf(chtitle, 255, "Muon transverse momentum (global muon) [GeV]");
-//             pt_before_ = theDbe->book1D("PT_BEFORECUTS",chtitle,100,0.,100.);
-//             pt_after_ = theDbe->book1D("PT_LASTCUT",chtitle,100,0.,100.);
+  char chtitle[256] = "";
+  for (int i=0; i<2; ++i) {
+    
+    //             pt_before_ = theDbe->book1D("PT_BEFORECUTS","Muon transverse momentum (global muon) [GeV],100,0.,100.);
+    //             pt_after_ = theDbe->book1D("PT_LASTCUT","Muon transverse momentum (global muon) [GeV],100,0.,100.);
+    
+    pt_before_ = theDbe->book1D("PT_BEFORECUTS","Electron transverse momentum [GeV]",100,0.,100.);
+    pt_after_ = theDbe->book1D("PT_LASTCUT","Electron transverse momentum [GeV]",100,0.,100.);
 
-            snprintf(chtitle, 255, "Electron transverse momentum [GeV]");
-            pt_before_ = theDbe->book1D("PT_BEFORECUTS",chtitle,100,0.,100.);
-            pt_after_ = theDbe->book1D("PT_LASTCUT",chtitle,100,0.,100.);
+    eta_before_ = theDbe->book1D("ETA_BEFORECUTS","Electron pseudo-rapidity",50,-2.5,2.5);
+    eta_after_ = theDbe->book1D("ETA_LASTCUT","Electron pseudo-rapidity",50,-2.5,2.5);
 
-            snprintf(chtitle, 255, "Electron pseudo-rapidity");
-            eta_before_ = theDbe->book1D("ETA_BEFORECUTS",chtitle,50,-2.5,2.5);
-            eta_after_ = theDbe->book1D("ETA_LASTCUT",chtitle,50,-2.5,2.5);
+    sieiebarrel_before_ = theDbe->book1D("SIEIEBARREL_BEFORECUTS","Electron #sigma_{i#etai#eta} (barrel)",70,0.,0.07);
+    sieiebarrel_after_ = theDbe->book1D("SIEIEBARREL_LASTCUT","Electron #sigma_{i#etai#eta} (barrel)",70,0.,0.07);
 
-            snprintf(chtitle, 255, "Electron #sigma_{i#etai#eta} (barrel)");
-            sieiebarrel_before_ = theDbe->book1D("SIEIEBARREL_BEFORECUTS",chtitle,70,0.,0.07);
-            sieiebarrel_after_ = theDbe->book1D("SIEIEBARREL_LASTCUT",chtitle,70,0.,0.07);
+    sieieendcap_before_ = theDbe->book1D("SIEIEENDCAP_BEFORECUTS","Electron #sigma_{i#etai#eta} (endcap)",70,0.,0.07);
+    sieieendcap_after_ = theDbe->book1D("SIEIEENDCAP_LASTCUT","Electron #sigma_{i#etai#eta} (endcap)",70,0.,0.07);
+    
+    detainbarrel_before_ = theDbe->book1D("DETAINBARREL_BEFORECUTS","Electron #Delta#eta_{in} (barrel)",40,-0.02,0.02);
+    detainbarrel_after_ = theDbe->book1D("DETAINBARREL_LASTCUT","Electron #Delta#eta_{in} (barrel)",40,-0.02,0.02);
 
-            snprintf(chtitle, 255, "Electron #sigma_{i#etai#eta} (endcap)");
-            sieieendcap_before_ = theDbe->book1D("SIEIEENDCAP_BEFORECUTS",chtitle,70,0.,0.07);
-            sieieendcap_after_ = theDbe->book1D("SIEIEENDCAP_LASTCUT",chtitle,70,0.,0.07);
+    detainendcap_before_ = theDbe->book1D("DETAINENDCAP_BEFORECUTS","Electron #Delta#eta_{in} (endcap)",40,-0.02,0.02);
+    detainendcap_after_ = theDbe->book1D("DETAINENDCAP_LASTCUT","Electron #Delta#eta_{in} (endcap)",40,-0.02,0.02);
+    
+    //             dxy_before_ = theDbe->book1D("DXY_BEFORECUTS","Muon transverse distance to beam spot [cm]",100,-0.5,0.5);
+    //             dxy_after_ = theDbe->book1D("DXY_LASTCUT","Muon transverse distance to beam spot [cm]",100,-0.5,0.5);
 
-            snprintf(chtitle, 255, "Electron #Delta#eta_{in} (barrel)");
-            detainbarrel_before_ = theDbe->book1D("DETAINBARREL_BEFORECUTS",chtitle,40,-0.02,0.02);
-            detainbarrel_after_ = theDbe->book1D("DETAINBARREL_LASTCUT",chtitle,40,-0.02,0.02);
+    //             chi2_before_ = theDbe->book1D("CHI2_BEFORECUTS","Normalized Chi2, inner track fit",100,0.,100.);
+    //             chi2_after_ = theDbe->book1D("CHI2_LASTCUT","Normalized Chi2, inner track fit",100,0.,100.);
 
-            snprintf(chtitle, 255, "Electron #Delta#eta_{in} (endcap)");
-            detainendcap_before_ = theDbe->book1D("DETAINENDCAP_BEFORECUTS",chtitle,40,-0.02,0.02);
-            detainendcap_after_ = theDbe->book1D("DETAINENDCAP_LASTCUT",chtitle,40,-0.02,0.02);
+    //             nhits_before_ = theDbe->book1D("NHITS_BEFORECUTS","Number of hits, inner track",40,-0.5,39.5);
+    //             nhits_after_ = theDbe->book1D("NHITS_LASTCUT","Number of hits, inner track",40,-0.5,39.5);
 
-//             snprintf(chtitle, 255, "Muon transverse distance to beam spot [cm]");
-//             dxy_before_ = theDbe->book1D("DXY_BEFORECUTS",chtitle,100,-0.5,0.5);
-//             dxy_after_ = theDbe->book1D("DXY_LASTCUT",chtitle,100,-0.5,0.5);
+    //             tkmu_before_ = theDbe->book1D("TKMU_BEFORECUTS","Tracker-muon flag (for global muons)",2,-0.5,1.5);
+    //             tkmu_after_ = theDbe->book1D("TKMU_LASTCUT","Tracker-muon flag (for global muons)",2,-0.5,1.5);
 
-//             snprintf(chtitle, 255, "Normalized Chi2, inner track fit");
-//             chi2_before_ = theDbe->book1D("CHI2_BEFORECUTS",chtitle,100,0.,100.);
-//             chi2_after_ = theDbe->book1D("CHI2_LASTCUT",chtitle,100,0.,100.);
+    //             if (isRelativeIso_) {
+    //               if (isCombinedIso_) {
+    //                 snprintf(chtitle, 255, "Relative (combined) isolation variable");
+    //                 iso_before_ = theDbe->book1D("ISO_BEFORECUTS","Relative (combined) isolation variable",100, 0., 1.);
+    //                 iso_after_ = theDbe->book1D("ISO_LASTCUT","Relative (combined) isolation variable",100, 0., 1.);
+    //               } else {
+    //                 snprintf(chtitle, 255, "Relative (tracker) isolation variable");
+    //                 iso_before_ = theDbe->book1D("ISO_BEFORECUTS","Relative (tracker) isolation variable",100, 0., 1.);
+    //                 iso_after_ = theDbe->book1D("ISO_LASTCUT","Relative (tracker) isolation variable",100, 0., 1.);
+    //               }
+    //             } else {
+    //               if (isCombinedIso_) {
+    //                 iso_before_ = theDbe->book1D("ISO_BEFORECUTS","Absolute (combined) isolation variable [GeV]",100, 0., 20.);
+    //                 iso_after_ = theDbe->book1D("ISO_LASTCUT","Absolute (combined) isolation variable [GeV]",100, 0., 20.);
+    //               } else {
+    //                 iso_before_ = theDbe->book1D("ISO_BEFORECUTS","Absolute (tracker) isolation variable [GeV]",100, 0., 20.);
+    //                 iso_after_ = theDbe->book1D("ISO_LASTCUT","Absolute (tracker) isolation variable [GeV]",100, 0., 20.);
+    //               }
+    //             }
 
-//             snprintf(chtitle, 255, "Number of hits, inner track");
-//             nhits_before_ = theDbe->book1D("NHITS_BEFORECUTS",chtitle,40,-0.5,39.5);
-//             nhits_after_ = theDbe->book1D("NHITS_LASTCUT",chtitle,40,-0.5,39.5);
+            ecalisobarrel_before_ = theDbe->book1D("ECALISOBARREL_BEFORECUTS","Absolute electron ECAL isolation variable (barrel) [GeV]",50,0.,50.);
+            ecalisobarrel_after_ = theDbe->book1D("ECALISOBARREL_LASTCUT","Absolute electron ECAL isolation variable (barrel) [GeV]",50,0.,50.);
 
-//             snprintf(chtitle, 255, "Tracker-muon flag (for global muons)");
-//             tkmu_before_ = theDbe->book1D("TKMU_BEFORECUTS",chtitle,2,-0.5,1.5);
-//             tkmu_after_ = theDbe->book1D("TKMU_LASTCUT",chtitle,2,-0.5,1.5);
+            ecalisoendcap_before_ = theDbe->book1D("ECALISOENDCAP_BEFORECUTS","Absolute electron ECAL isolation variable (endcap) [GeV]",50,0.,50.);
+            ecalisoendcap_after_ = theDbe->book1D("ECALISOENDCAP_LASTCUT","Absolute electron ECAL isolation variable (endcap) [GeV]",50,0.,50.);
 
-//             if (isRelativeIso_) {
-//                   if (isCombinedIso_) {
-//                         snprintf(chtitle, 255, "Relative (combined) isolation variable");
-//                   } else {
-//                         snprintf(chtitle, 255, "Relative (tracker) isolation variable");
-//                   }
-//                   iso_before_ = theDbe->book1D("ISO_BEFORECUTS",chtitle,100, 0., 1.);
-//                   iso_after_ = theDbe->book1D("ISO_LASTCUT",chtitle,100, 0., 1.);
-//             } else {
-//                   if (isCombinedIso_) {
-//                         snprintf(chtitle, 255, "Absolute (combined) isolation variable [GeV]");
-//                   } else {
-//                         snprintf(chtitle, 255, "Absolute (tracker) isolation variable [GeV]");
-//                   }
-//                   iso_before_ = theDbe->book1D("ISO_BEFORECUTS",chtitle,100, 0., 20.);
-//                   iso_after_ = theDbe->book1D("ISO_LASTCUT",chtitle,100, 0., 20.);
-//             }
+            hcalisobarrel_before_ = theDbe->book1D("HCALISOBARREL_BEFORECUTS","Absolute electron HCAL isolation variable (barrel) [GeV]",50,0.,50.);
+            hcalisobarrel_after_ = theDbe->book1D("HCALISOBARREL_LASTCUT","Absolute electron HCAL isolation variable (barrel) [GeV]",50,0.,50.);
 
-            snprintf(chtitle, 255, "Absolute electron ECAL isolation variable (barrel) [GeV]");
-            ecalisobarrel_before_ = theDbe->book1D("ECALISOBARREL_BEFORECUTS",chtitle,50,0.,50.);
-            ecalisobarrel_after_ = theDbe->book1D("ECALISOBARREL_LASTCUT",chtitle,50,0.,50.);
+            hcalisoendcap_before_ = theDbe->book1D("HCALISOENDCAP_BEFORECUTS","Absolute electron HCAL isolation variable (endcap) [GeV]",50,0.,50.);
+            hcalisoendcap_after_ = theDbe->book1D("HCALISOENDCAP_LASTCUT","Absolute electron HCAL isolation variable (endcap) [GeV]",50,0.,50.);
 
-            snprintf(chtitle, 255, "Absolute electron ECAL isolation variable (endcap) [GeV]");
-            ecalisoendcap_before_ = theDbe->book1D("ECALISOENDCAP_BEFORECUTS",chtitle,50,0.,50.);
-            ecalisoendcap_after_ = theDbe->book1D("ECALISOENDCAP_LASTCUT",chtitle,50,0.,50.);
+            trkisobarrel_before_ = theDbe->book1D("TRKISOBARREL_BEFORECUTS","Absolute electron track isolation variable (barrel) [GeV]",50,0.,50.);
+            trkisobarrel_after_ = theDbe->book1D("TRKISOBARREL_LASTCUT","Absolute electron track isolation variable (barrel) [GeV]",50,0.,50.);
 
-            snprintf(chtitle, 255, "Absolute electron HCAL isolation variable (barrel) [GeV]");
-            hcalisobarrel_before_ = theDbe->book1D("HCALISOBARREL_BEFORECUTS",chtitle,50,0.,50.);
-            hcalisobarrel_after_ = theDbe->book1D("HCALISOBARREL_LASTCUT",chtitle,50,0.,50.);
-
-            snprintf(chtitle, 255, "Absolute electron HCAL isolation variable (endcap) [GeV]");
-            hcalisoendcap_before_ = theDbe->book1D("HCALISOENDCAP_BEFORECUTS",chtitle,50,0.,50.);
-            hcalisoendcap_after_ = theDbe->book1D("HCALISOENDCAP_LASTCUT",chtitle,50,0.,50.);
-
-            snprintf(chtitle, 255, "Absolute electron track isolation variable (barrel) [GeV]");
-            trkisobarrel_before_ = theDbe->book1D("TRKISOBARREL_BEFORECUTS",chtitle,50,0.,50.);
-            trkisobarrel_after_ = theDbe->book1D("TRKISOBARREL_LASTCUT",chtitle,50,0.,50.);
-
-            snprintf(chtitle, 255, "Absolute electron track isolation variable (endcap) [GeV]");
-            trkisoendcap_before_ = theDbe->book1D("TRKISOENDCAP_BEFORECUTS",chtitle,50,0.,50.);
-            trkisoendcap_after_ = theDbe->book1D("TRKISOENDCAP_LASTCUT",chtitle,50,0.,50.);
+            trkisoendcap_before_ = theDbe->book1D("TRKISOENDCAP_BEFORECUTS","Absolute electron track isolation variable (endcap) [GeV]",50,0.,50.);
+            trkisoendcap_after_ = theDbe->book1D("TRKISOENDCAP_LASTCUT","Absolute electron track isolation variable (endcap) [GeV]",50,0.,50.);
 
 //             snprintf(chtitle, 255, "Trigger response (bit %s)", muonTrig_.data());
 //             trig_before_ = theDbe->book1D("TRIG_BEFORECUTS",chtitle,2,-0.5,1.5);
 //             trig_after_ = theDbe->book1D("TRIG_LASTCUT",chtitle,2,-0.5,1.5);
 
             //snprintf(chtitle, 255, "Trigger response (bit %s)", elecTrig_.data());
-	    snprintf(chtitle, 255, "Trigger response"); // elecTrig_ is now a vector of strings!
-            trig_before_ = theDbe->book1D("TRIG_BEFORECUTS",chtitle,2,-0.5,1.5);
-            trig_after_ = theDbe->book1D("TRIG_LASTCUT",chtitle,2,-0.5,1.5);
+            trig_before_ = theDbe->book1D("TRIG_BEFORECUTS","Trigger response",2,-0.5,1.5); // elecTrig_ is now a vector of strings!
+            trig_after_ = theDbe->book1D("TRIG_LASTCUT","Trigger response",2,-0.5,1.5);
 
-            snprintf(chtitle, 255, "Di-electron invariant mass [GeV]");
-            invmass_before_ = theDbe->book1D("INVMASS_BEFORECUTS",chtitle,100,0.,200.);
-            invmass_after_ = theDbe->book1D("INVMASS_AFTERCUTS",chtitle,100,0.,200.);
+            invmass_before_ = theDbe->book1D("INVMASS_BEFORECUTS","Di-electron invariant mass [GeV]",100,0.,200.);
+            invmass_after_ = theDbe->book1D("INVMASS_AFTERCUTS","Di-electron invariant mass [GeV]",100,0.,200.);
 
-	    snprintf(chtitle, 255, "Number of electrons in event");
-	    nelectrons_before_ = theDbe->book1D("NELECTRONS_BEFORECUTS",chtitle,10,-0.5,9.5);
-	    nelectrons_after_ = theDbe->book1D("NELECTRONS_AFTERCUTS",chtitle,10,-0.5,9.5);
+	    nelectrons_before_ = theDbe->book1D("NELECTRONS_BEFORECUTS","Number of electrons in event",10,-0.5,9.5);
+	    nelectrons_after_ = theDbe->book1D("NELECTRONS_AFTERCUTS","Number of electrons in event",10,-0.5,9.5);
 
             snprintf(chtitle, 255, "Transverse mass (%s) [GeV]", metTag_.label().data());
             mt_before_ = theDbe->book1D("MT_BEFORECUTS",chtitle,150,0.,300.);
@@ -244,12 +231,15 @@ void EwkElecDQM::init_histograms() {
              snprintf(chtitle, 255, "Number of jets (%s) above %.2f GeV", jetTag_.label().data(), eJetMin_);
              njets_before_ = theDbe->book1D("NJETS_BEFORECUTS",chtitle,10,-0.5,9.5);
              njets_after_  = theDbe->book1D("NJETS_LASTCUT",chtitle,10,-0.5,9.5);
+
 	     snprintf(chtitle, 255, "Jet with highest E_{T} (%s)", jetTag_.label().data());
 	     jet_et_before_       = theDbe->book1D("JETET1_BEFORECUTS",chtitle, 20, 0., 200.0);
 	     jet_et_after_       = theDbe->book1D("JETET1_AFTERCUTS",chtitle, 20, 0., 200.0);
+
 	     snprintf(chtitle, 255, "Eta of Jet with highest E_{T} (%s)", jetTag_.label().data());
 	     jet_eta_before_       = theDbe->book1D("JETETA1_BEFORECUTS",chtitle, 20, -5, 5);
 	     jet_eta_after_       = theDbe->book1D("JETETA1_AFTERCUTS",chtitle, 20, -5, 5);
+
 // 	     snprintf(chtitle, 255, "Jet with 2nd highest E_{T} (%s)", jetTag_.label().data());
 // 	     jet2_et_before      = theDbe->book1D("JETET2_BEFORECUTS",chtitle, 20, 0., 200.0);
 // 	     jet2_et_after       = theDbe->book1D("JETET2_AFTERCUTS",chtitle, 20, 0., 200.0);
@@ -355,7 +345,6 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
       bool eid_sel = false;
       bool iso_sel = false;
 //       bool hlt_sel = false;
-//      bool met_sel = false; // UNUSED
       bool all_sel = false;
 
 //       // Muon collection
@@ -494,11 +483,8 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
 
       float jet_et    = -8.0;
       float jet_eta   = -8.0;
-      //      float jet_phi   = -8.0; // UNUSED
       int   jet_count = 0;
       float jet2_et   = -9.0;
-      //      float jet2_eta  = -9.0; // UNUSED
-      //      float jet2_phi  = -9.0; // UNUSED
       unsigned int jetCollectionSize = jetCollection->size();
       int njets = 0;
       for (unsigned int i=0; i<jetCollectionSize; i++) {
@@ -525,17 +511,12 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
 	if (jet_current_et > jet_et) 
 	  {
 	    jet2_et  = jet_et;  // 2nd highest jet get's et from current highest
-	    //	    jet2_eta = jet_eta; // UNUSED
-	    //	    jet2_phi = jet_phi; // UNUSED
 	    jet_et   = jet.et(); // current highest jet gets et from the new highest
 	    jet_eta  = jet.eta();
-	    //	    jet_phi  = jet.phi(); // UNUSED
 	  } 
 	else if (jet_current_et > jet2_et) 
 	  {
 	    jet2_et  = jet.et();
-	    //	    jet2_eta = jet.eta(); // UNUSED
-	    //	    jet2_phi = jet.phi(); // UNUSED
 	  }
       }
 
@@ -775,7 +756,6 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
 	  bool rec_sel_this = true;
 	  bool eid_sel_this = true;
 	  bool iso_sel_this = true;
-	  //	  bool met_sel_this = true; // UNUSED
 	  bool all_sel_this = true;
 	  for (int j=0; j<NFLAGS; ++j) 
 	    {
@@ -783,7 +763,6 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
 	      if (j<2  && !electron_sel[j]) rec_sel_this = false;
 	      if (j<4  && !electron_sel[j]) eid_sel_this = false;
 	      if (j<7  && !electron_sel[j]) iso_sel_this = false;
-	      //	      if (j<9 && !electron_sel[j]) met_sel_this = false; // UNUSED
 	      if (!electron_sel[j]) all_sel_this = false;
 	    }
 	  
@@ -817,7 +796,6 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
 	  // "iso" => "eid" AND "electron is isolated"
 	  if (iso_sel_this) iso_sel = true;
 	  // "met" => "iso" AND "MET/MT"
-	  //	  if (met_sel_this) met_sel = true; // UNUSED (met_sel)
 	  // "all" => "met" AND "event is triggered"
 	  if (all_sel_this) all_sel = true;
 

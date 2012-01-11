@@ -16,7 +16,7 @@ namespace TopSingleLepton {
   static const double WMASS = 80.4;
 
   MonitorEnsemble::MonitorEnsemble(const char* label, const edm::ParameterSet& cfg) : 
-    label_(label), elecIso_(0), elecSelect_(0), muonIso_(0), muonSelect_(0), jetIDSelect_(0), includeBTag_(false), lowerEdge_(-1.), upperEdge_(-1.), logged_(0)
+    label_(label), elecIso_(0), elecSelect_(0), pvSelect_(0), muonIso_(0), muonSelect_(0), jetIDSelect_(0), includeBTag_(false), lowerEdge_(-1.), upperEdge_(-1.), logged_(0)
   {
     // sources have to be given; this PSet is not optional
     edm::ParameterSet sources=cfg.getParameter<edm::ParameterSet>("sources");
@@ -527,7 +527,7 @@ namespace TopSingleLepton {
 }
 
 
-TopSingleLeptonDQM::TopSingleLeptonDQM(const edm::ParameterSet& cfg): triggerTable_(""), beamspot_("") 
+TopSingleLeptonDQM::TopSingleLeptonDQM(const edm::ParameterSet& cfg): triggerTable_(""), vertexSelect_(0), beamspot_(""), beamspotSelect_(0)
 {
   // configure preselection
   edm::ParameterSet presel=cfg.getParameter<edm::ParameterSet>("preselection");

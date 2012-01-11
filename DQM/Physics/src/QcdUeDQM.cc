@@ -99,6 +99,7 @@ QcdUeDQM::QcdUeDQM(const ParameterSet &parameters) :
      hltProcNames_.push_back("HLT");
   }
 
+  isHltConfigSuccessful_ = false; // init
  
 }
 
@@ -661,7 +662,7 @@ void QcdUeDQM::fillProfile(std::vector<MonitorElement*> &mes, double valx, doubl
 }
 
 //--------------------------------------------------------------------------------------------------
-bool QcdUeDQM::trackSelection(const reco::Track &trk, const reco::BeamSpot* bs, const reco::Vertex vtx, int sizevtx )
+bool QcdUeDQM::trackSelection(const reco::Track &trk, const reco::BeamSpot* bs, const reco::Vertex& vtx, int sizevtx )
 {
 //-------------Fill basic histograms---------
 
@@ -749,6 +750,8 @@ bool QcdUeDQM::trackSelection(const reco::Track &trk, const reco::BeamSpot* bs, 
   return goodTrk;
 
  }
+
+
 //--------------------------------------------------------------------------------------------------
 bool  QcdUeDQM::fillVtxPlots( const reco::BeamSpot* bs, const edm::Handle< reco::VertexCollection > vtxColl)
 {

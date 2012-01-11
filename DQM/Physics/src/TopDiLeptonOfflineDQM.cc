@@ -9,7 +9,7 @@
 namespace TopDiLeptonOffline {
 
   MonitorEnsemble::MonitorEnsemble(const char* label, const edm::ParameterSet& cfg) : 
-   label_(label), elecIso_(0), elecSelect_(0), muonIso_(0), muonSelect_(0), jetIDSelect_(0), 
+   label_(label), eidPattern_(0), elecIso_(0), elecSelect_(0), muonIso_(0), muonSelect_(0), jetIDSelect_(0), 
    lowerEdge_(-1.), upperEdge_(-1.), elecMuLogged_(0), diMuonLogged_(0), diElecLogged_(0)
   {
     // sources have to be given; this PSet is not optional
@@ -564,7 +564,7 @@ namespace TopDiLeptonOffline {
   
 }
 
-TopDiLeptonOfflineDQM::TopDiLeptonOfflineDQM(const edm::ParameterSet& cfg): triggerTable_(""), vertex_("") 
+TopDiLeptonOfflineDQM::TopDiLeptonOfflineDQM(const edm::ParameterSet& cfg): triggerTable_(""), vertex_(""), vertexSelect_(0), beamspotSelect_(0)
 {
   // configure the preselection
   edm::ParameterSet presel=cfg.getParameter<edm::ParameterSet>("preselection");

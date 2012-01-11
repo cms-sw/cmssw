@@ -130,7 +130,11 @@ HiggsDQM::HiggsDQM(const edm::ParameterSet& ps){
  //cout<<"Entering  HiggsDQM::HiggsDQM: "<<endl;
  
   edm::LogInfo("HZZ4LeptonsDQM") <<  " Creating HZZ4LeptonsDQM " << "\n" ;
+
   bei_ = Service<DQMStore>().operator->();
+  bei_->setCurrentFolder("Physics/Higgs");
+  bookHistos(bei_);
+
   typedef std::vector<edm::InputTag> vtag;
   // Get parameters from configuration file
   theElecTriggerPathToPass    = ps.getParameter<string>("elecTriggerPathToPass");
@@ -169,8 +173,6 @@ void HiggsDQM::beginJob(){
 
   nLumiSecs_ = 0;
   nEvents_   = 0;
-  bei_->setCurrentFolder("Physics/Higgs");
-  bookHistos(bei_);
   pi = 3.14159265;
   
 

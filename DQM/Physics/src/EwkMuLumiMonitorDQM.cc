@@ -67,6 +67,11 @@ EwkMuLumiMonitorDQM::EwkMuLumiMonitorDQM( const ParameterSet & cfg ) :
  // just to initialize
   isValidHltConfig_ = false;
 
+  // dqm service & histograms
+  theDbe = Service<DQMStore>().operator->();
+  theDbe->setCurrentFolder("Physics/EwkMuLumiMonitorDQM");
+  init_histograms();
+
 }
 
 
@@ -97,52 +102,41 @@ void EwkMuLumiMonitorDQM::beginRun(const Run& r, const EventSetup&iSetup) {
 
 
 void EwkMuLumiMonitorDQM::beginJob() {
-      theDbe = Service<DQMStore>().operator->();
-      theDbe->setCurrentFolder("Physics/EwkMuLumiMonitorDQM");
 
-      init_histograms();
 }
 
 void EwkMuLumiMonitorDQM::init_histograms() {
 
-      char chtitle[256] = "";
-      for (int i=0; i<2; ++i) {
-            snprintf(chtitle, 255, "Z mass [GeV/c^{2}]");
-            mass2HLT_ = theDbe->book1D("Z_2HLT_MASS",chtitle,200,0.,200.);
-            mass1HLT_ = theDbe->book1D("Z_1HLT_MASS",chtitle,200,0.,200.);
-	    massNotIso_ = theDbe->book1D("Z_NOTISO_MASS",chtitle,200,0.,200.);
-	    massGlbSta_ = theDbe->book1D("Z_GLBSTA_MASS",chtitle,200,0.,200.);
-	    massGlbTrk_ = theDbe->book1D("Z_GLBTRK_MASS",chtitle,200,0.,200.);
-	    massIsBothGlbTrkThanW_ = theDbe->book1D("Z_ISBOTHGLBTRKTHANW_MASS",chtitle,200,0.,200.);
-	  
-
-	    snprintf(chtitle, 255, "Z high mass [GeV/c^{2}]");
-            highMass2HLT_ = theDbe->book1D("Z_2HLT_HIGHMASS",chtitle,2000,0.,2000.);
-            highMass1HLT_ = theDbe->book1D("Z_1HLT_HIGHMASS",chtitle,2000,0.,2000.);              
-	    highMassNotIso_ = theDbe->book1D("Z_NOTISO_HIGHMASS",chtitle,2000,0.,2000.);              
-	    highMassGlbSta_ = theDbe->book1D("Z_GLBSTA_HIGHMASS",chtitle,2000,0.,2000.);              
-	    highMassGlbTrk_ = theDbe->book1D("Z_GLBTRK_HIGHMASS",chtitle,2000,0.,2000.);              
-            highMassIsBothGlbTrkThanW_ = theDbe->book1D("Z_ISBOTHGLBTRKTHANW_HIGHMASS",chtitle,2000,0.,2000.);  
- 
-	    /*	    snprintf(chtitle, 255, "Highest muon p_{t}[GeV/c]");
-            highest_mupt2HLT_ = theDbe->book1D("HIGHEST_MU_PT_2HLT",chtitle,200,0.,200.);
-            highest_mupt1HLT_ = theDbe->book1D("HIGHEST_MU_PT_1HLT",chtitle,200,0.,200.);
-            highest_muptNotIso_ = theDbe->book1D("HIGHEST_MU_PT_NOTISO",chtitle,200,0.,200.);
-            highest_muptGlbSta_ = theDbe->book1D("HIGHEST_MU_PT_GLBSTA",chtitle,200,0.,200.);
-            highest_muptGlbTrk_ = theDbe->book1D("HIGHEST_MU_PT_GLBTRK",chtitle,200,0.,200.);
-
-	    snprintf(chtitle, 255, "Lowest muon p_{t} [GeV/c]");
-            lowest_mupt2HLT_ = theDbe->book1D("LOWEST_MU_PT_2HLT",chtitle,200,0.,200.);
-	    lowest_mupt1HLT_ = theDbe->book1D("LOWEST_MU_PT_1HLT",chtitle,200,0.,200.);
-	    lowest_muptNotIso_ = theDbe->book1D("LOWEST_MU_PT_NOTISO",chtitle,200,0.,200.);
-	    lowest_muptGlbSta_ = theDbe->book1D("LOWEST_MU_PT_GLBSTA",chtitle,200,0.,200.);
-	    lowest_muptGlbTrk_ = theDbe->book1D("LOWEST_MU_PT_GLBTRK",chtitle,200,0.,200.);
-	    */
-
-	    snprintf(chtitle, 255, "Transverse mass [GeV]" );
-            TMass_ = theDbe->book1D("TMASS",chtitle,300,0.,300.);
-            
-      }
+  mass2HLT_ = theDbe->book1D("Z_2HLT_MASS","Z mass [GeV/c^{2}]",200,0.,200.);
+  mass1HLT_ = theDbe->book1D("Z_1HLT_MASS","Z mass [GeV/c^{2}]",200,0.,200.);
+  massNotIso_ = theDbe->book1D("Z_NOTISO_MASS","Z mass [GeV/c^{2}]",200,0.,200.);
+  massGlbSta_ = theDbe->book1D("Z_GLBSTA_MASS","Z mass [GeV/c^{2}]",200,0.,200.);
+  massGlbTrk_ = theDbe->book1D("Z_GLBTRK_MASS","Z mass [GeV/c^{2}]",200,0.,200.);
+  massIsBothGlbTrkThanW_ = theDbe->book1D("Z_ISBOTHGLBTRKTHANW_MASS","Z mass [GeV/c^{2}]",200,0.,200.);
+  
+  highMass2HLT_ = theDbe->book1D("Z_2HLT_HIGHMASS","Z high mass [GeV/c^{2}]",2000,0.,2000.);
+  highMass1HLT_ = theDbe->book1D("Z_1HLT_HIGHMASS","Z high mass [GeV/c^{2}]",2000,0.,2000.);              
+  highMassNotIso_ = theDbe->book1D("Z_NOTISO_HIGHMASS","Z high mass [GeV/c^{2}]",2000,0.,2000.);              
+  highMassGlbSta_ = theDbe->book1D("Z_GLBSTA_HIGHMASS","Z high mass [GeV/c^{2}]",2000,0.,2000.);              
+  highMassGlbTrk_ = theDbe->book1D("Z_GLBTRK_HIGHMASS","Z high mass [GeV/c^{2}]",2000,0.,2000.);              
+  highMassIsBothGlbTrkThanW_ = theDbe->book1D("Z_ISBOTHGLBTRKTHANW_HIGHMASS","Z high mass [GeV/c^{2}]",2000,0.,2000.);  
+  
+  /*
+    highest_mupt2HLT_ = theDbe->book1D("HIGHEST_MU_PT_2HLT","Highest muon p_{t}[GeV/c]",200,0.,200.);
+    highest_mupt1HLT_ = theDbe->book1D("HIGHEST_MU_PT_1HLT","Highest muon p_{t}[GeV/c]",200,0.,200.);
+    highest_muptNotIso_ = theDbe->book1D("HIGHEST_MU_PT_NOTISO","Highest muon p_{t}[GeV/c]",200,0.,200.);
+    highest_muptGlbSta_ = theDbe->book1D("HIGHEST_MU_PT_GLBSTA","Highest muon p_{t}[GeV/c]",200,0.,200.);
+    highest_muptGlbTrk_ = theDbe->book1D("HIGHEST_MU_PT_GLBTRK","Highest muon p_{t}[GeV/c]",200,0.,200.);
+    
+    lowest_mupt2HLT_ = theDbe->book1D("LOWEST_MU_PT_2HLT","Lowest muon p_{t} [GeV/c]",200,0.,200.);
+    lowest_mupt1HLT_ = theDbe->book1D("LOWEST_MU_PT_1HLT","Lowest muon p_{t} [GeV/c]",200,0.,200.);
+    lowest_muptNotIso_ = theDbe->book1D("LOWEST_MU_PT_NOTISO","Lowest muon p_{t} [GeV/c]",200,0.,200.);
+    lowest_muptGlbSta_ = theDbe->book1D("LOWEST_MU_PT_GLBSTA","Lowest muon p_{t} [GeV/c]",200,0.,200.);
+    lowest_muptGlbTrk_ = theDbe->book1D("LOWEST_MU_PT_GLBTRK","Lowest muon p_{t} [GeV/c]",200,0.,200.);
+  */
+  
+  TMass_ = theDbe->book1D("TMASS","Transverse mass [GeV]",300,0.,300.);
+    
 }
 
 
@@ -226,7 +220,6 @@ void EwkMuLumiMonitorDQM::endRun(const Run& r, const EventSetup&) {
 
 void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
       nall++;  
-      //      bool iso_sel = false; // UNUSED
       bool hlt_sel = false;
       double iso1=-1;
       double iso2=-1;
@@ -449,7 +442,6 @@ void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
 
 		if (  isMu1Iso &&  isMu2Iso  ){
 		  niso++;
-		  //  iso_sel=true; // UNUSED
 		  if (isZGolden2HLT_) {
 		    n2hlt++; 
 		    mass2HLT_->Fill(mass);

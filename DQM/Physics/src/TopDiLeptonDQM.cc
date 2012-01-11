@@ -1,6 +1,6 @@
 /*
- *  $Date: 2010/05/12 15:49:56 $
- *  $Revision: 1.12 $
+ *  $Date: 2011/12/21 14:24:22 $
+ *  $Revision: 1.13 $
  *  \author M. Marienfeld - DESY Hamburg
  */
 
@@ -59,6 +59,50 @@ TopDiLeptonDQM::TopDiLeptonDQM( const edm::ParameterSet& ps ) {
     outfile.open (fileName);
   }
 
+  dbe_ = Service<DQMStore>().operator->();
+
+  Events_ = 0;
+  Trigs_ = 0;
+  TriggerEff_ = 0;
+  Ntracks_ = 0;
+  Nmuons_ = 0;
+  Nmuons_iso_ = 0;
+  Nmuons_charge_ = 0;
+  VxVy_muons_ = 0;
+  Vz_muons_ = 0;
+  pT_muons_ = 0;
+  eta_muons_ = 0;
+  phi_muons_ = 0;
+  Nelecs_ = 0;
+  Nelecs_iso_ = 0;
+  Nelecs_charge_ = 0;
+  HoverE_elecs_ = 0;
+  pT_elecs_ = 0;
+  eta_elecs_ = 0;
+  phi_elecs_ = 0;
+  MuIso_emEt03_ = 0;
+  MuIso_hadEt03_ = 0;
+  MuIso_hoEt03_ = 0;
+  MuIso_nJets03_ = 0;
+  MuIso_nTracks03_ = 0;
+  MuIso_sumPt03_ = 0;
+  MuIso_CombRelIso03_ = 0;
+  ElecIso_cal_ = 0;
+  ElecIso_trk_ = 0;
+  ElecIso_CombRelIso_ = 0;
+  dimassRC_ = 0;
+  dimassWC_ = 0;
+  dimassRC_LOGX_ = 0;
+  dimassWC_LOGX_ = 0;
+  dimassRC_LOG10_ = 0;
+  dimassWC_LOG10_ = 0;
+  D_eta_muons_ = 0;
+  D_phi_muons_ = 0;
+  D_eta_elecs_ = 0;
+  D_phi_elecs_ = 0;
+  D_eta_lepts_ = 0;
+  D_phi_lepts_ = 0;
+
 }
 
 
@@ -73,8 +117,6 @@ void TopDiLeptonDQM::initialize() {
 
 
 void TopDiLeptonDQM::beginJob() {
-
-  dbe_ = Service<DQMStore>().operator->();
 
   dbe_->setCurrentFolder(moduleName_);
 

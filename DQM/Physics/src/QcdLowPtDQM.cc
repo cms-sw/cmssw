@@ -1,4 +1,4 @@
-// $Id: QcdLowPtDQM.cc,v 1.17 2011/01/21 21:17:20 elmer Exp $
+// $Id: QcdLowPtDQM.cc,v 1.18 2011/12/21 14:24:21 olzem Exp $
 
 #include "DQM/Physics/src/QcdLowPtDQM.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -116,8 +116,10 @@ void QcdLowPtDQM::analyze(const Event &iEvent, const EventSetup &iSetup)
   ESHandle<TrackerGeometry> trackerHandle;
   iSetup.get<TrackerDigiGeometryRecord>().get(trackerHandle);
   tgeo_ = trackerHandle.product();
-  if (!tgeo_)
-    print(3,"Could not obtain pointer to TrackerGeometry");
+  if (!tgeo_) {
+    print(3,"QcdLowPtDQM::analyze -- Could not obtain pointer to TrackerGeometry. Return.");
+    return;
+  }
 
   fillHltBits(iEvent);
   fillPixels(iEvent);
@@ -132,9 +134,10 @@ void QcdLowPtDQM::beginJob()
   // Begin job and setup the DQM store.
 
   theDbe_ = Service<DQMStore>().operator->();
-  if (!theDbe_)
-    print(3,"Could not obtain pointer to DQMStore");
-
+  if (!theDbe_) {
+    print(3,"QcdLowPtDQM::beginJob -- Could not obtain pointer to DQMStore. Return.");
+    return;
+  }
   theDbe_->setCurrentFolder("Physics/QcdLowPt");
   yieldAlphaHistogram(pixLayers_);
 }

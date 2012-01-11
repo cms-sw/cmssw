@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/01/21 10:21:39 $
- *  $Revision: 1.27 $
+ *  $Date: 2011/12/21 14:24:22 $
+ *  $Revision: 1.28 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
@@ -80,6 +80,37 @@ QcdPhotonsDQM::QcdPhotonsDQM(const ParameterSet& parameters) {
   // just to initialize
   isValidHltConfig_ = false;
 
+  // coverity says...
+  h_deltaEt_photon_jet = 0;
+  h_deltaPhi_jet_jet2 = 0;
+  h_deltaPhi_photon_jet = 0;
+  h_deltaPhi_photon_jet2 = 0;
+  h_deltaR_jet_jet2 = 0;
+  h_deltaR_photon_jet2 = 0;
+  h_jet2_eta = 0;
+  h_jet2_pt = 0;
+  h_jet2_ptOverPhotonEt = 0;
+  h_jet_count = 0;
+  h_jet_eta = 0;
+  h_jet_pt = 0;
+  h_photon_count_bar = 0;
+  h_photon_count_end = 0;
+  h_photon_et = 0;
+  h_photon_et_jetco = 0;
+  h_photon_et_jetcs = 0;
+  h_photon_et_jetfo = 0;
+  h_photon_et_jetfs = 0;
+  h_photon_et_ratio_co_cs = 0;
+  h_photon_et_ratio_co_fo = 0;
+  h_photon_et_ratio_co_fs = 0;
+  h_photon_et_ratio_cs_fo = 0;
+  h_photon_et_ratio_cs_fs = 0;
+  h_photon_et_ratio_fo_fs = 0;
+  h_photon_eta = 0;
+  h_triggers_passed = 0;
+
+  theDbe = Service<DQMStore>().operator->();
+  
 }
 
 QcdPhotonsDQM::~QcdPhotonsDQM() { 
@@ -91,7 +122,6 @@ void QcdPhotonsDQM::beginJob() {
   logTraceName = "QcdPhotonAnalyzer";
 
   LogTrace(logTraceName)<<"Parameters initialization";
-  theDbe = Service<DQMStore>().operator->();
  
   theDbe->setCurrentFolder("Physics/QcdPhotons");  // Use folder with name of PAG
 

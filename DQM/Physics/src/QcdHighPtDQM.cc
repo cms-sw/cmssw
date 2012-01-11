@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/09/22 15:47:05 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/01/04 14:46:10 $
+ *  $Revision: 1.4 $
  *  \author S. Bolognesi, Eric - CERN
  */
 
@@ -40,6 +40,8 @@ QcdHighPtDQM::QcdHighPtDQM(const ParameterSet& iConfig):
   metLabel4_(iConfig.getUntrackedParameter<edm::InputTag>("metTag4"))
 {
 
+  theDbe = Service<DQMStore>().operator->();
+  
 }
 
 QcdHighPtDQM::~QcdHighPtDQM() { 
@@ -50,7 +52,6 @@ QcdHighPtDQM::~QcdHighPtDQM() {
 
 void QcdHighPtDQM::beginJob() {
  
-  theDbe = Service<DQMStore>().operator->();
 
   //Book MEs
  

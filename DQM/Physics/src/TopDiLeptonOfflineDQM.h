@@ -249,7 +249,10 @@ class TopDiLeptonOfflineDQM : public edm::EDAnalyzer  {
   /// default constructor
   TopDiLeptonOfflineDQM(const edm::ParameterSet& cfg);
   /// default destructor
-  ~TopDiLeptonOfflineDQM(){};
+  ~TopDiLeptonOfflineDQM(){ 
+    if( beamspotSelect_ ) delete beamspotSelect_; 
+    if( vertexSelect_ ) delete vertexSelect_;
+  }
   
   /// do this during the event loop
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);

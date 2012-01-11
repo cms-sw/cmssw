@@ -83,6 +83,11 @@ EwkMuDQM::EwkMuDQM( const ParameterSet & cfg ) :
       nPhoMax_(cfg.getUntrackedParameter<int>("nPhoMax", 999999)) 
 {
   isValidHltConfig_ = false;
+
+  theDbe = Service<DQMStore>().operator->();
+  theDbe->setCurrentFolder("Physics/EwkMuDQM");
+  init_histograms();
+
 }
 
 void EwkMuDQM::beginRun(const Run& iRun, const EventSetup& iSet) {
@@ -103,173 +108,133 @@ void EwkMuDQM::beginRun(const Run& iRun, const EventSetup& iSet) {
 }
 
 void EwkMuDQM::beginJob() {
-      theDbe = Service<DQMStore>().operator->();
-      theDbe->setCurrentFolder("Physics/EwkMuDQM");
-      init_histograms();
+
 }
 
 void EwkMuDQM::init_histograms() {
 
-      char chtitle[256] = "";
-      for (int i=0; i<2; ++i) {
-            snprintf(chtitle, 255, "Muon transverse momentum (global muon) [GeV]");
-            pt_before_ = theDbe->book1D("PT_BEFORECUTS",chtitle,100,0.,100.);
-            pt_after_ = theDbe->book1D("PT_AFTERWCUTS",chtitle,100,0.,100.);
+  char chtitle[256] = "";
 
-            snprintf(chtitle, 255, "Muon pseudo-rapidity");
-            eta_before_ = theDbe->book1D("ETA_BEFORECUTS",chtitle,50,-2.5,2.5);
-            eta_after_ = theDbe->book1D("ETA_AFTERWCUTS",chtitle,50,-2.5,2.5);
+  pt_before_ = theDbe->book1D("PT_BEFORECUTS","Muon transverse momentum (global muon) [GeV]",100,0.,100.);
+  pt_after_ = theDbe->book1D("PT_AFTERWCUTS","Muon transverse momentum (global muon) [GeV]",100,0.,100.);
 
-            snprintf(chtitle, 255, "Muon transverse distance to beam spot [cm]");
-            dxy_before_ = theDbe->book1D("DXY_BEFORECUTS",chtitle,1000,-0.5,0.5);
-            dxy_after_ = theDbe->book1D("DXY_AFTERWCUTS",chtitle,1000,-0.5,0.5);
+  eta_before_ = theDbe->book1D("ETA_BEFORECUTS","Muon pseudo-rapidity",50,-2.5,2.5);
+  eta_after_ = theDbe->book1D("ETA_AFTERWCUTS","Muon pseudo-rapidity",50,-2.5,2.5);
 
-            snprintf(chtitle, 255, "Quality-muon flag");
-            goodewkmuon_before_ = theDbe->book1D("GOODEWKMUON_BEFORECUTS",chtitle,2,-0.5,1.5);
-            goodewkmuon_after_ = theDbe->book1D("GOODEWKMUON_AFTERWCUTS",chtitle,2,-0.5,1.5);
+  dxy_before_ = theDbe->book1D("DXY_BEFORECUTS","Muon transverse distance to beam spot [cm]",1000,-0.5,0.5);
+  dxy_after_ = theDbe->book1D("DXY_AFTERWCUTS","Muon transverse distance to beam spot [cm]",1000,-0.5,0.5);
 
-            if (isRelativeIso_) {
-                  if (isCombinedIso_) {
-                        snprintf(chtitle, 255, "Relative (combined) isolation variable");
-                  } else {
-                        snprintf(chtitle, 255, "Relative (tracker) isolation variable");
-                  }
-                  iso_before_ = theDbe->book1D("ISO_BEFORECUTS",chtitle,100, 0., 1.);
-                  iso_after_ = theDbe->book1D("ISO_AFTERWCUTS",chtitle,100, 0., 1.);
-            } else {
-                  if (isCombinedIso_) {
-                        snprintf(chtitle, 255, "Absolute (combined) isolation variable [GeV]");
-                  } else {
-                        snprintf(chtitle, 255, "Absolute (tracker) isolation variable [GeV]");
-                  }
-                  iso_before_ = theDbe->book1D("ISO_BEFORECUTS",chtitle,100, 0., 20.);
-                  iso_after_ = theDbe->book1D("ISO_AFTERWCUTS",chtitle,100, 0., 20.);
-            }
+  goodewkmuon_before_ = theDbe->book1D("GOODEWKMUON_BEFORECUTS","Quality-muon flag",2,-0.5,1.5);
+  goodewkmuon_after_ = theDbe->book1D("GOODEWKMUON_AFTERWCUTS","Quality-muon flag",2,-0.5,1.5);
 
-            snprintf(chtitle, 255, "Trigger response (boolean of muon triggers)");
-            trig_before_ = theDbe->book1D("TRIG_BEFORECUTS",chtitle,2,-0.5,1.5);
-            trig_after_ = theDbe->book1D("TRIG_AFTERWCUTS",chtitle,2,-0.5,1.5);
+  if (isRelativeIso_) {
+    if (isCombinedIso_) {
+      iso_before_ = theDbe->book1D("ISO_BEFORECUTS","Relative (combined) isolation variable",100, 0., 1.);
+      iso_after_ = theDbe->book1D("ISO_AFTERWCUTS","Relative (combined) isolation variable",100, 0., 1.);
+    } else {
+      iso_before_ = theDbe->book1D("ISO_BEFORECUTS","Relative (tracker) isolation variable",100, 0., 1.);
+      iso_after_ = theDbe->book1D("ISO_AFTERWCUTS","Relative (tracker) isolation variable",100, 0., 1.);
+    }
+  } else {
+    if (isCombinedIso_) {
+      iso_before_ = theDbe->book1D("ISO_BEFORECUTS","Absolute (combined) isolation variable [GeV]",100, 0., 20.);
+      iso_after_ = theDbe->book1D("ISO_AFTERWCUTS","Absolute (combined) isolation variable [GeV]",100, 0., 20.);
+    } else {
+      iso_before_ = theDbe->book1D("ISO_BEFORECUTS","Absolute (tracker) isolation variable [GeV]",100, 0., 20.);
+      iso_after_ = theDbe->book1D("ISO_AFTERWCUTS","Absolute (tracker) isolation variable [GeV]",100, 0., 20.);
+    }
+  }
 
-            snprintf(chtitle, 255, "Transverse mass (%s) [GeV]", metTag_.label().data());
-            mt_before_ = theDbe->book1D("MT_BEFORECUTS",chtitle,150,0.,300.);
-            mt_after_ = theDbe->book1D("MT_AFTERWCUTS",chtitle,150,0.,300.);
+  trig_before_ = theDbe->book1D("TRIG_BEFORECUTS","Trigger response (boolean of muon triggers)",2,-0.5,1.5);
+  trig_after_ = theDbe->book1D("TRIG_AFTERWCUTS","Trigger response (boolean of muon triggers)",2,-0.5,1.5);
 
-            snprintf(chtitle, 255, "Missing transverse energy (%s) [GeV]", metTag_.label().data());
-            met_before_ = theDbe->book1D("MET_BEFORECUTS",chtitle,100,0.,200.);
-            met_after_ = theDbe->book1D("MET_AFTERWCUTS",chtitle,100,0.,200.);
-            met_afterZ_ = theDbe->book1D("MET_AFTERZCUTS",chtitle,100,0.,200.);
+  snprintf(chtitle, 255, "Transverse mass (%s) [GeV]", metTag_.label().data());
+  mt_before_ = theDbe->book1D("MT_BEFORECUTS",chtitle,150,0.,300.);
+  mt_after_ = theDbe->book1D("MT_AFTERWCUTS",chtitle,150,0.,300.);
 
-            snprintf(chtitle, 255, "MU-MET (%s) acoplanarity", metTag_.label().data());
-            acop_before_ = theDbe->book1D("ACOP_BEFORECUTS",chtitle,50,0.,M_PI);
-            acop_after_ = theDbe->book1D("ACOP_AFTERWCUTS",chtitle,50,0.,M_PI);
+  snprintf(chtitle, 255, "Missing transverse energy (%s) [GeV]", metTag_.label().data());
+  met_before_ = theDbe->book1D("MET_BEFORECUTS",chtitle,100,0.,200.);
+  met_after_ = theDbe->book1D("MET_AFTERWCUTS",chtitle,100,0.,200.);
+  met_afterZ_ = theDbe->book1D("MET_AFTERZCUTS",chtitle,100,0.,200.);
 
-            /* Clearing space:
-            snprintf(chtitle, 255, "Z rejection: number of muons above %.2f GeV", ptThrForZ1_);
-            nz1_before_ = theDbe->book1D("NZ1_BEFORECUTS",chtitle,10,-0.5,9.5);
-            nz1_after_ = theDbe->book1D("NZ1_AFTERWCUTS",chtitle,10,-0.5,9.5);
+  snprintf(chtitle, 255, "MU-MET (%s) acoplanarity", metTag_.label().data());
+  acop_before_ = theDbe->book1D("ACOP_BEFORECUTS",chtitle,50,0.,M_PI);
+  acop_after_ = theDbe->book1D("ACOP_AFTERWCUTS",chtitle,50,0.,M_PI);
 
-            snprintf(chtitle, 255, "Z rejection: number of muons above %.2f GeV", ptThrForZ2_);
-            nz2_before_ = theDbe->book1D("NZ2_BEFORECUTS",chtitle,10,-0.5,9.5);
-            nz2_after_ = theDbe->book1D("NZ2_AFTERWCUTS",chtitle,10,-0.5,9.5);
-            */
+  /* Clearing space:
+     snprintf(chtitle, 255, "Z rejection: number of muons above %.2f GeV", ptThrForZ1_);
+     nz1_before_ = theDbe->book1D("NZ1_BEFORECUTS",chtitle,10,-0.5,9.5);
+     nz1_after_ = theDbe->book1D("NZ1_AFTERWCUTS",chtitle,10,-0.5,9.5);
 
-            snprintf(chtitle, 255, "Number of jets (%s) above %.2f GeV", jetTag_.label().data(), eJetMin_);
-            njets_before_ = theDbe->book1D("NJETS_BEFORECUTS",chtitle,10,-0.5,9.5);
-            njets_after_ = theDbe->book1D("NJETS_AFTERWCUTS",chtitle,10,-0.5,9.5);
-            njets_afterZ_ = theDbe->book1D("NJETS_AFTERZCUTS",chtitle,10,-0.5,9.5);
+     snprintf(chtitle, 255, "Z rejection: number of muons above %.2f GeV", ptThrForZ2_);
+     nz2_before_ = theDbe->book1D("NZ2_BEFORECUTS",chtitle,10,-0.5,9.5);
+     nz2_after_ = theDbe->book1D("NZ2_AFTERWCUTS",chtitle,10,-0.5,9.5);
+  */
 
-            snprintf(chtitle, 255, "Leading Jet transverse momentum");
-            leadingjet_pt_before_ = theDbe->book1D("LEADINGJET_PT_BEFORECUTS",chtitle,300,0.,300.);
-            leadingjet_pt_after_ = theDbe->book1D("LEADINGJET_PT_AFTERWCUTS",chtitle,300,0.,300.);
-            leadingjet_pt_afterZ_ = theDbe->book1D("LEADINGJET_PT_AFTERZCUTS",chtitle,300,0.,300.);
+  snprintf(chtitle, 255, "Number of jets (%s) above %.2f GeV", jetTag_.label().data(), eJetMin_);
+  njets_before_ = theDbe->book1D("NJETS_BEFORECUTS",chtitle,10,-0.5,9.5);
+  njets_after_ = theDbe->book1D("NJETS_AFTERWCUTS",chtitle,10,-0.5,9.5);
+  njets_afterZ_ = theDbe->book1D("NJETS_AFTERZCUTS",chtitle,10,-0.5,9.5);
 
-            snprintf(chtitle, 255, "Leading Jet pseudo-rapidity");
-            leadingjet_eta_before_ = theDbe->book1D("LEADINGJET_ETA_BEFORECUTS",chtitle,50,-2.5,2.5);
-            leadingjet_eta_after_ = theDbe->book1D("LEADINGJET_ETA_AFTERWCUTS",chtitle,50,-2.5,2.5);
-            leadingjet_eta_afterZ_ = theDbe->book1D("LEADINGJET_ETA_AFTERZCUTS",chtitle,50,-2.5,2.5);
+  leadingjet_pt_before_ = theDbe->book1D("LEADINGJET_PT_BEFORECUTS","Leading Jet transverse momentum",300,0.,300.);
+  leadingjet_pt_after_ = theDbe->book1D("LEADINGJET_PT_AFTERWCUTS","Leading Jet transverse momentum",300,0.,300.);
+  leadingjet_pt_afterZ_ = theDbe->book1D("LEADINGJET_PT_AFTERZCUTS","Leading Jet transverse momentum",300,0.,300.);
+
+  leadingjet_eta_before_ = theDbe->book1D("LEADINGJET_ETA_BEFORECUTS","Leading Jet pseudo-rapidity",50,-2.5,2.5);
+  leadingjet_eta_after_ = theDbe->book1D("LEADINGJET_ETA_AFTERWCUTS","Leading Jet pseudo-rapidity",50,-2.5,2.5);
+  leadingjet_eta_afterZ_ = theDbe->book1D("LEADINGJET_ETA_AFTERZCUTS","Leading Jet pseudo-rapidity",50,-2.5,2.5);
 
 
-	    /**\ For Z-boson events  */
+  /**\ For Z-boson events  */
 
-            snprintf(chtitle, 255, "Muon transverse momentum (global muon) [GeV]");
-            pt1_afterZ_ = theDbe->book1D("PT1_AFTERZCUTS",chtitle,100,0.,100.);
+  pt1_afterZ_ = theDbe->book1D("PT1_AFTERZCUTS","Muon transverse momentum (global muon) [GeV]",100,0.,100.);
+  eta1_afterZ_ = theDbe->book1D("ETA1_AFTERZCUTS","Muon pseudo-rapidity",50,-2.5,2.5);
+  dxy1_afterZ_ = theDbe->book1D("DXY1_AFTERZCUTS","Muon transverse distance to beam spot [cm]",1000,-0.5,0.5);
+  goodewkmuon1_afterZ_ = theDbe->book1D("GOODEWKMUON1_AFTERZCUTS","Quality-muon flag",2,-0.5,1.5);
 
-            snprintf(chtitle, 255, "Muon pseudo-rapidity");
-            eta1_afterZ_ = theDbe->book1D("ETA1_AFTERZCUTS",chtitle,50,-2.5,2.5);
+  if (isRelativeIso_) {
+    if (isCombinedIso_) {
+      iso1_afterZ_ = theDbe->book1D("ISO1_AFTERZCUTS","Relative (combined) isolation variable",100, 0., 1.);
+      iso2_afterZ_ = theDbe->book1D("ISO2_AFTERZCUTS","Relative (combined) isolation variable",100, 0., 1.);
+    } else {
+      iso1_afterZ_ = theDbe->book1D("ISO1_AFTERZCUTS","Relative (tracker) isolation variable",100, 0., 1.);
+      iso2_afterZ_ = theDbe->book1D("ISO2_AFTERZCUTS","Relative (tracker) isolation variable",100, 0., 1.);
+    }
+  } else {
+    if (isCombinedIso_) {
+      iso1_afterZ_ = theDbe->book1D("ISO1_AFTERZCUTS","Absolute (combined) isolation variable [GeV]",100, 0., 20.);
+      iso2_afterZ_ = theDbe->book1D("ISO2_AFTERZCUTS","Absolute (combined) isolation variable [GeV]",100, 0., 20.);
+    } else {
+      iso1_afterZ_ = theDbe->book1D("ISO1_AFTERZCUTS","Absolute (tracker) isolation variable [GeV]",100, 0., 20.);
+      iso2_afterZ_ = theDbe->book1D("ISO2_AFTERZCUTS","Absolute (tracker) isolation variable [GeV]",100, 0., 20.);
+    }
+  }
 
-            snprintf(chtitle, 255, "Muon transverse distance to beam spot [cm]");
-            dxy1_afterZ_ = theDbe->book1D("DXY1_AFTERZCUTS",chtitle,1000,-0.5,0.5);
+  pt2_afterZ_ = theDbe->book1D("PT2_AFTERZCUTS","Muon transverse momentum (global muon) [GeV]",100,0.,100.);
+  eta2_afterZ_ = theDbe->book1D("ETA2_AFTERZCUTS","Muon pseudo-rapidity",50,-2.5,2.5);
+  dxy2_afterZ_ = theDbe->book1D("DXY2_AFTERZCUTS","Muon transverse distance to beam spot [cm]",1000,-0.5,0.5);
+  goodewkmuon2_afterZ_ = theDbe->book1D("GOODEWKMUON2_AFTERZCUTS","Quality-muon flag",2,-0.5,1.5);
+  ztrig_afterZ_ = theDbe->book1D("ZTRIG_AFTERZCUTS","Trigger response (boolean of muon triggers)",2,-0.5,1.5); 
+  dimuonmass_before_= theDbe->book1D("DIMUONMASS_BEFORECUTS","DiMuonMass (2 globals)",100,0,200);
+  dimuonmass_afterZ_= theDbe->book1D("DIMUONMASS_AFTERZCUTS","DiMuonMass (2 globals)",100,0,200);
+  npvs_before_ = theDbe->book1D("NPVs_BEFORECUTS","Number of Valid Primary Vertices",30,-0.5,29.5);
+  npvs_after_ = theDbe->book1D("NPVs_AFTERZCUTS","Number of Valid Primary Vertices",30,-0.5,29.5);
+  npvs_afterZ_ = theDbe->book1D("NPVs_AFTERWCUTS","Number of Valid Primary Vertices",30,-0.5,29.5);
+  muoncharge_before_ = theDbe->book1D("MUONCHARGE_BEFORECUTS","Muon Charge",3,-1.5,1.5);
+  muoncharge_after_ = theDbe->book1D("MUONCHARGE_AFTERZCUTS","Muon Charge",3,-1.5,1.5);
+  muoncharge_afterZ_ = theDbe->book1D("MUONCHARGE_AFTERWCUTS","Muon Charge",3,-1.5,1.5);
 
-            snprintf(chtitle, 255, "Quality-muon flag");
-            goodewkmuon1_afterZ_ = theDbe->book1D("GOODEWKMUON1_AFTERZCUTS",chtitle,2,-0.5,1.5);
+  // Adding these to replace the NZ ones (more useful, since they are more general?)     
+  nmuons_ = theDbe->book1D("NMuons","Number of muons in the event",10,-0.5,9.5);
+  ngoodmuons_ = theDbe->book1D("NGoodMuons","Number of muons passing the quality criteria",10,-0.5,9.5);
 
-            if (isRelativeIso_) {
-                  if (isCombinedIso_) {
-                        snprintf(chtitle, 255, "Relative (combined) isolation variable");
-                  } else {
-                        snprintf(chtitle, 255, "Relative (tracker) isolation variable");
-                  }
-                  iso1_afterZ_ = theDbe->book1D("ISO1_AFTERZCUTS",chtitle,100, 0., 1.);
-                  iso2_afterZ_ = theDbe->book1D("ISO2_AFTERZCUTS",chtitle,100, 0., 1.);
-            } else {
-                  if (isCombinedIso_) {
-                        snprintf(chtitle, 255, "Absolute (combined) isolation variable [GeV]");
-                  } else {
-                        snprintf(chtitle, 255, "Absolute (tracker) isolation variable [GeV]");
-                  }
-                  iso1_afterZ_ = theDbe->book1D("ISO1_AFTERZCUTS",chtitle,100, 0., 20.);
-                  iso2_afterZ_ = theDbe->book1D("ISO2_AFTERZCUTS",chtitle,100, 0., 20.);
-            }
+  nph_ = theDbe->book1D("nph","Number of photons in the event",20,0.,20.); 
+  npfph_ = theDbe->book1D("npfph","Number of PF photons in the event",20,0.,20.); 
+  phPt_ = theDbe->book1D("phPt","Photon transverse momentum [GeV]",1000,0.,1000.);
+  pfphPt_ = theDbe->book1D("pfphPt","PF Photon transverse momentum [GeV]",1000,0.,1000.); 
+  phEta_ = theDbe->book1D("phEta","Photon pseudorapidity",100,-2.5,2.5); 
+  pfphEta_ = theDbe->book1D("pfphEta","PF Photon pseudorapidity",100,-2.5,2.5); 
 
-            snprintf(chtitle, 255, "Muon transverse momentum (global muon) [GeV]");
-            pt2_afterZ_ = theDbe->book1D("PT2_AFTERZCUTS",chtitle,100,0.,100.);
-
-            snprintf(chtitle, 255, "Muon pseudo-rapidity");
-            eta2_afterZ_ = theDbe->book1D("ETA2_AFTERZCUTS",chtitle,50,-2.5,2.5);
-
-            snprintf(chtitle, 255, "Muon transverse distance to beam spot [cm]");
-            dxy2_afterZ_ = theDbe->book1D("DXY2_AFTERZCUTS",chtitle,1000,-0.5,0.5);
-
-            snprintf(chtitle, 255, "Quality-muon flag");
-            goodewkmuon2_afterZ_ = theDbe->book1D("GOODEWKMUON2_AFTERZCUTS",chtitle,2,-0.5,1.5);
-
-            snprintf(chtitle, 255, "Trigger response (boolean of muon triggers)");
-            ztrig_afterZ_ = theDbe->book1D("ZTRIG_AFTERZCUTS",chtitle,2,-0.5,1.5); 
-
-            snprintf(chtitle, 255, "DiMuonMass (2 globals)");
-            dimuonmass_before_= theDbe->book1D("DIMUONMASS_BEFORECUTS",chtitle,100,0,200);
-            dimuonmass_afterZ_= theDbe->book1D("DIMUONMASS_AFTERZCUTS",chtitle,100,0,200);
-
-            snprintf(chtitle, 255, "Number of Valid Primary Vertices");
-            npvs_before_ = theDbe->book1D("NPVs_BEFORECUTS",chtitle,30,-0.5,29.5);
-            npvs_after_ = theDbe->book1D("NPVs_AFTERZCUTS",chtitle,30,-0.5,29.5);
-            npvs_afterZ_ = theDbe->book1D("NPVs_AFTERWCUTS",chtitle,30,-0.5,29.5);
-
-            snprintf(chtitle, 255, "Muon Charge");
-            muoncharge_before_ = theDbe->book1D("MUONCHARGE_BEFORECUTS",chtitle,3,-1.5,1.5);
-            muoncharge_after_ = theDbe->book1D("MUONCHARGE_AFTERZCUTS",chtitle,3,-1.5,1.5);
-            muoncharge_afterZ_ = theDbe->book1D("MUONCHARGE_AFTERWCUTS",chtitle,3,-1.5,1.5);
-
-            // Adding these to replace the NZ ones (more useful, since they are more general?)     
-            snprintf(chtitle, 255, "Number of muons in the event");
-            nmuons_ = theDbe->book1D("NMuons",chtitle,10,-0.5,9.5);
-            snprintf(chtitle, 255, "Number of muons passing the quality criteria");
-            ngoodmuons_ = theDbe->book1D("NGoodMuons",chtitle,10,-0.5,9.5);
-
-	    snprintf(chtitle, 255, "Number of photons in the event");
-	    nph_ = theDbe->book1D("nph",chtitle,20,0.,20.); 
-	    snprintf(chtitle, 255, "Number of PF photons in the event");
-	    npfph_ = theDbe->book1D("npfph",chtitle,20,0.,20.); 
-            snprintf(chtitle, 255, "Photon transverse momentum [GeV]");
-            phPt_ = theDbe->book1D("phPt",chtitle,1000,0.,1000.);
-            snprintf(chtitle, 255, "PF Photon transverse momentum [GeV]");
-            pfphPt_ = theDbe->book1D("pfphPt",chtitle,1000,0.,1000.); 
-            snprintf(chtitle, 255, "Photon pseudorapidity");
-            phEta_ = theDbe->book1D("phEta",chtitle,100,-2.5,2.5); 
-            snprintf(chtitle, 255, "PF Photon pseudorapidity");
-            pfphEta_ = theDbe->book1D("pfphEta",chtitle,100,-2.5,2.5); 
-
-      }
 }
 
 
@@ -282,13 +247,6 @@ void EwkMuDQM::endRun(const Run& r, const EventSetup& iSet) {
 
 void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
       
-      // Reset global event selection flags
-  //      bool rec_sel = false; // UNUSED
-  //      bool iso_sel = false; // UNUSED
-  //      bool hlt_sel = false; // UNUSED
-  //      bool met_sel = false; // UNUSED
-  //      bool all_sel = false; // UNUSED
-
       // Muon collection
       Handle<View<Muon> > muonCollection;
       if (!ev.getByLabel(muonTag_, muonCollection)) {
@@ -594,30 +552,9 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
 
             // Collect necessary flags "per muon"
             int flags_passed = 0;
-	    //            bool rec_sel_this = true; // UNUSED
-	    //            bool iso_sel_this = true; // UNUSED
-	    //            bool hlt_sel_this = true; // UNUSED
-	    //            bool met_sel_this = true; // UNUSED
-	    //            bool all_sel_this = true; // UNUSED
             for (int j=0; j<NFLAGS; ++j) {
-                  if (muon_sel[j]) flags_passed += 1;
-		  //                  if (j<4 && !muon_sel[j]) rec_sel_this = false; // UNUSED
-		  //                  if (j<5 && !muon_sel[j]) iso_sel_this = false; // UNUSED
-		  //                  if (j<6 && !muon_sel[j]) hlt_sel_this = false; // UNUSED
-		  //                  if (j<8 && !muon_sel[j]) met_sel_this = false; // UNUSED
-		  //                  if (!muon_sel[j]) all_sel_this = false; // UNUSED
+	      if (muon_sel[j]) flags_passed += 1;
             }
-
-            // "rec" => pt,eta and quality cuts are satisfied
-	    //            if (rec_sel_this) rec_sel = true; // UNUSED
-            // "iso" => "rec" AND "muon is isolated"
-	    //            if (iso_sel_this) iso_sel = true; // UNUSED
-            // "hlt" => "iso" AND "event is triggered"
-	    //            if (hlt_sel_this) hlt_sel = true; // UNUSED
-            // "met" => "hlt" AND "MET/MT and acoplanarity cuts"
-	    //            if (met_sel_this) met_sel = true; // UNUSED
-            // "all" => "met" AND "Z/top rejection cuts"
-	    //            if (all_sel_this) all_sel = true; // UNUSED
 
             // Do N-1 histograms now (and only once for global event quantities)
             if (flags_passed >= (NFLAGS-1)) {
@@ -718,23 +655,9 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
 
                                // start filling histos: N-1 plots
 			       int  flags_passed_z = 0;
-			       // bool rec1_sel_z      = true; // UNUSED
-			       // bool iso1_sel_z      = true; // UNUSED
-			       // bool rec2_sel_z      = true; // UNUSED
-			       // bool iso2_sel_z      = true; // UNUSED
-			       // bool hlt_sel_z      = true; // UNUSED
-			       // bool zmu_sel_z      = true; // UNUSED
-			       // bool all_sel_z      = true; // UNUSED
-			       for (int jj=0; jj<NFLAGSZ; ++jj) {
-				       if (zmuon_sel[jj]) ++flags_passed_z ;
-				       // if (jj<4 && !zmuon_sel[jj]) rec1_sel_z = false; // UNUSED
-				       // if (jj<5 && !zmuon_sel[jj]) iso1_sel_z = false; // UNUSED
-				       // if (jj<9 && !zmuon_sel[jj]) rec2_sel_z = false; // UNUSED
-				       // if (jj<10&& !zmuon_sel[jj]) iso2_sel_z = false; // UNUSED
-				       // if (jj<11&& !zmuon_sel[jj]) hlt_sel_z  = false; // UNUSED
-				       // if (jj<12&& !zmuon_sel[jj]) zmu_sel_z  = false; // UNUSED
-				       // if (!zmuon_sel[jj]) all_sel_z  = false;  // UNUSED
 
+			       for (int jj=0; jj<NFLAGSZ; ++jj) {
+				 if (zmuon_sel[jj]) ++flags_passed_z ;
 			       }
 
 			       if (flags_passed_z >= (NFLAGSZ-1)) {
