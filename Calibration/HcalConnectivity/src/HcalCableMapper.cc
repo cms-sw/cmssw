@@ -8,7 +8,7 @@
 
 using namespace std;
 
-/*$Date: 2009/05/14 03:36:17 $
+/*$Date: 2010/02/25 00:28:50 $
 version 3.1 02-13-07 
 
 author Kevin Klapoetke - Minnesota*/
@@ -182,7 +182,7 @@ void HcalCableMapper::endJob(){
   std::vector<SampleSet>::iterator j; 
   int c [128];
   int k,ii,kk;
-  int c_max=0,c_next=0;
+  int c_max=0;
   
   std::map<HcalDetId,std::vector<SampleSet> >::iterator i;
   
@@ -204,16 +204,12 @@ void HcalCableMapper::endJob(){
       //sort c-array
       for (kk=0;kk<128;kk++){  
 	if (c[kk]>c[c_max]){
-	  c_next=c_max;
 	  c_max = kk;
 	}
-      }//std::cout<<"c_max:"<<c_max << " " << c[c_max] <<", c_next:"<<c_next<< " " << c[c_next]<<std::endl;
-    
+      }    
       
       s.push_back(((c_max&0x7F)));
 
-
-      c_next=0;
       c_max=0;
     }//k-loop    
   consensus[i->first]=s;
