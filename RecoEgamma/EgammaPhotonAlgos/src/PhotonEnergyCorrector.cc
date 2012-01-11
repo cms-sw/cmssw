@@ -9,6 +9,8 @@ PhotonEnergyCorrector::PhotonEnergyCorrector( const edm::ParameterSet& config ) 
   minR9Endcap_        = config.getParameter<double>("minR9Endcap");
   // get the geometry from the event setup:
 
+  barrelEcalHits_   = config.getParameter<edm::InputTag>("barrelEcalHits");
+  endcapEcalHits_   = config.getParameter<edm::InputTag>("endcapEcalHits");
   //  candidateP4type_ = config.getParameter<std::string>("candidateP4type") ;
 
 
@@ -89,9 +91,9 @@ void PhotonEnergyCorrector::calculate(edm::Event& evt, reco::Photon & thePhoton,
     minR9=minR9Endcap_;
   }
 
-  EcalClusterLazyTools lazyTools(evt, iSetup, edm::InputTag("ecalRecHit","EcalRecHitsEB"), 
-                                 edm::InputTag("ecalRecHit","EcalRecHitsEE"));  
+ 
 
+  EcalClusterLazyTools lazyTools(evt, iSetup, barrelEcalHits_,endcapEcalHits_);  
 
 
   ////////////// Here default Ecal corrections based on electrons  ////////////////////////
