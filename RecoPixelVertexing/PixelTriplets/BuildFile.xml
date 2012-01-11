@@ -12,3 +12,5 @@
 <export>
   <lib   name="1"/>
 </export>
+
+<flags   CXXFLAGS="-O3 -ftree-vectorizer-verbose=1 -fno-math-errno"/>

@@ -64,9 +64,11 @@ void ThirdHitPredictionFromInvParabola::
     
 
 
-ThirdHitPredictionFromInvParabola::Range ThirdHitPredictionFromInvParabola::rangeRPhi(
-    double radius, int charge) const
+ThirdHitPredictionFromInvParabola::Range 
+ThirdHitPredictionFromInvParabola::rangeRPhi(double radius, int icharge) const
 {
+  double charge = icharge; // will (icharge>0) ? 1. : -1; be faster?
+
   RangeD ip = (charge > 0) ? theIpRangePlus : theIpRangeMinus;
 
 
