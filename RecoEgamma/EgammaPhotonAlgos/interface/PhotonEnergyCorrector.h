@@ -3,9 +3,9 @@
 /** \class PhotonEnergyCorrector
  **  
  **
- **  $Id: PhotonEnergyCorrector.h,v 1.2 2011/11/24 18:13:56 nancy Exp $ 
- **  $Date: 2011/11/24 18:13:56 $ 
- **  $Revision: 1.2 $
+ **  $Id: PhotonEnergyCorrector.h,v 1.3 2011/12/15 00:20:52 nancy Exp $ 
+ **  $Date: 2011/12/15 00:20:52 $ 
+ **  $Revision: 1.3 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -57,6 +57,8 @@ class PhotonEnergyCorrector
    double minR9Barrel_;
    double minR9Endcap_;
    edm::ESHandle<CaloGeometry> theCaloGeom_; 
+   edm::InputTag barrelEcalHits_;
+   edm::InputTag endcapEcalHits_;
    
  } ;
 
