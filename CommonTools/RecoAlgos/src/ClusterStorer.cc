@@ -18,6 +18,7 @@
 namespace helper {
 
   // -------------------------------------------------------------
+  //FIXME (push cluster pointers...)
   void ClusterStorer::addCluster(TrackingRecHitCollection &hits, size_t index)
   {
     TrackingRecHit &newHit = hits[index];
@@ -132,6 +133,7 @@ namespace helper {
   //-------------------------------------------------------------
   // helper classes  
   //-------------------------------------------------------------
+  // FIXME (migrate to new RTTI and interface)
   // generic rekey (in practise for pixel only...)
   template<typename ClusterRefType> // template for class
   template<typename RecHitType>     // template for member function
@@ -160,28 +162,21 @@ namespace helper {
     TrackingRecHit &genericHit = (*hits_)[index_];
     const std::type_info &hit_type = typeid(genericHit);
 
+    OmniCluster * cluRef=0;
     if (typeid(SiStripRecHit1D) == hit_type) {
-      // case of SiStripRecHit1D 
-      SiStripRecHit1D *hit = &static_cast<SiStripRecHit1D&>(genericHit);
-      assert(hit->cluster() == ref_); // otherwise something went wrong
-      hit->setClusterRef(newRef);
-    } else {
-      // various cases resolving to SiStripRecHit2D 
-      SiStripRecHit2D *hit = 0;
-      if (typeid(SiStripRecHit2D) == hit_type) {
-	hit = &static_cast<SiStripRecHit2D&>(genericHit);
-      } else if (typeid(SiStripMatchedRecHit2D) == hit_type) {
+      cluRef = &static_cast<SiStripRecHit1D&>(genericHit).omniCluster();
+     } else if (typeid(SiStripRecHit2D) == hit_type) {
+      cluRef = &static_cast<SiStripRecHit2D&>(genericHit).omniCluster();
+    } else if (typeid(SiStripMatchedRecHit2D) == hit_type) {
 	SiStripMatchedRecHit2D &mhit = static_cast<SiStripMatchedRecHit2D&>(genericHit);
-	hit = (SiStripDetId(detid_).stereo() ? mhit.stereoHit() : mhit.monoHit());
-      } else if (typeid(ProjectedSiStripRecHit2D) == hit_type) {
-	ProjectedSiStripRecHit2D &phit = static_cast<ProjectedSiStripRecHit2D&>(genericHit);
-	hit = &phit.originalHit();
-      }
-      assert(hit != 0); // to catch missing RecHit types
-      assert(hit->cluster() == ref_); // otherwise something went wrong
-      hit->setClusterRef(newRef);
+	 cluRef = (SiStripDetId(detid_).stereo() ? &mhit.stereoClusterRef() : &mhit.monoClusterRef());
+    } else if (typeid(ProjectedSiStripRecHit2D) == hit_type) {
+      cluRef = &static_cast<ProjectedSiStripRecHit2D&>(genericHit).originalHit().omniCluster();
     }
-
+  
+    assert(cluRef != 0); // to catch missing RecHit types
+    assert(cluRef->key() == ref_.key()); // otherwise something went wrong
+    (*cluRef) = OmniRef(newRef);
   }
   
 } // end namespace 'helper'
