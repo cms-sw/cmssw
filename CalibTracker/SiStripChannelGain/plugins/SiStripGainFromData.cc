@@ -1209,17 +1209,17 @@ bool SiStripGainFromData::IsFarFromBorder(TrajectoryStateOnSurface trajState, co
   const RectangularPlaneBounds* rectangularBounds( dynamic_cast<const RectangularPlaneBounds*>(&(plane.bounds())));
 
   double DistFromBorder = 1.0;    
-  double HalfWidth      = it->surface().bounds().width()  /2.0;
+  //double HalfWidth      = it->surface().bounds().width()  /2.0;
   double HalfLength     = it->surface().bounds().length() /2.0;
 
   if(trapezoidalBounds)
   {
      std::vector<float> const & parameters = (*trapezoidalBounds).parameters();
      HalfLength     = parameters[3];
-     double t       = (HalfLength + HitLocalPos.y()) / (2*HalfLength) ;
-     HalfWidth      = parameters[0] + (parameters[1]-parameters[0]) * t;
+     //double t       = (HalfLength + HitLocalPos.y()) / (2*HalfLength) ;
+     //HalfWidth      = parameters[0] + (parameters[1]-parameters[0]) * t;
   }else if(rectangularBounds){
-     HalfWidth      = it->surface().bounds().width()  /2.0;
+     //HalfWidth      = it->surface().bounds().width()  /2.0;
      HalfLength     = it->surface().bounds().length() /2.0;
   }else{return false;}
 
