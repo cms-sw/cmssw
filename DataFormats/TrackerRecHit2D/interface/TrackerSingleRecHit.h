@@ -39,6 +39,9 @@ public:
 		      DetId id,  
 		      ClusterRegionalRef const& clus) :  Base(p,e,id, trackerHitRTTI::single), cluster_(clus){}
   
+  // used by trackMerger (to be improved)
+  virtual OmniClusterRef const & firstClusterRef() const { return cluster_;}
+
   OmniClusterRef const & omniCluster() const { return cluster_;}
   // for rekeying...
   OmniClusterRef & omniCluster()  { return cluster_;}

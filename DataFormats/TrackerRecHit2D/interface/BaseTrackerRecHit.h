@@ -5,6 +5,8 @@
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
+class OmniClusterRef;
+
 namespace trackerHitRTTI {
   // tracking hit can be : single (si1D, si2D, pix), projected, matched or multi
   enum RTTI { undef=0, single=1, proj=2, match=3, multi=4};

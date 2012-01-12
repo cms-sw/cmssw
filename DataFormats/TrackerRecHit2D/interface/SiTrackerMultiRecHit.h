@@ -30,7 +30,7 @@ public:
 
   // at the momement nobody care of MultiHit!!!
   // used by trackMerger (to be improved)
-  virtual OmniClusterRef const & firstClusterRef() const { return static_cast<BaseTrackerRecHit const *>(theHits.front())->firstClusterRef();}
+  virtual OmniClusterRef const & firstClusterRef() const { return static_cast<BaseTrackerRecHit const *>(&theHits.front())->firstClusterRef();}
 
   
   //vector of component rechits
