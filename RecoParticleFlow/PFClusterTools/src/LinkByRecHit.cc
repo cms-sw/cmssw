@@ -20,13 +20,14 @@ LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track,
   //cluster position
   double clustereta  = cluster.positionREP().Eta();
   double clusterphi  = cluster.positionREP().Phi();
-  double clusterX    = cluster.position().X();
-  double clusterY    = cluster.position().Y();
+  //double clusterX    = cluster.position().X();
+  //double clusterY    = cluster.position().Y();
   double clusterZ    = cluster.position().Z();
 
   bool barrel = false;
   bool hcal = false;
-//  double distance = 999999.9;
+  // double distance = 999999.9;
+  double horesolscale=1.0;
 
   //track extrapolation
   const reco::PFTrajectoryPoint& atVertex 
@@ -46,7 +47,6 @@ LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track,
   // Quantities at vertex
   double trackPt = isBrem ? 999. : sqrt(atVertex.momentum().Vect().Perp2());
   // double trackEta = isBrem ? 999. : atVertex.momentum().Vect().Eta();
-
 
   switch (cluster.layer()) {
   case PFLayer::ECAL_BARREL: barrel = true;
@@ -109,6 +109,52 @@ LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track,
 */			           
     }
     break;
+
+  case PFLayer::HCAL_BARREL2: barrel = true; 
+#ifdef PFLOW_DEBUG
+    if( debug )
+     std::cout << "Fetching HO Resolution Maps"
+	       << std::endl;
+#endif
+    if( isBrem ) {  
+      return  -1.;
+    } else { 
+      hcal=true;
+      horesolscale=1.15;
+      const reco::PFTrajectoryPoint& atHO 
+	= track.extrapolatedPoint( reco::PFTrajectoryPoint::HOLayer );
+      // did not reach ho, cannot be associated with a cluster.
+      if( ! atHO.isValid() ) return -1.;   
+      
+      //
+      tracketa = atHO.positionREP().Eta();
+      trackphi = atHO.positionREP().Phi();
+      track_X  = atHO.position().X();
+      track_Y  = atHO.position().Y();
+      track_Z  = atHO.position().Z();
+
+      // Is this check really useful ?
+      if ( fabs(track_Z) > 700.25 ) return -1.;
+
+
+/*      distance 
+	= std::sqrt( (track_X-clusterX)*(track_X-clusterX)
+		      +(track_Y-clusterY)*(track_Y-clusterY)
+		      +(track_Z-clusterZ)*(track_Z-clusterZ)
+		      );
+*/
+#ifdef PFLOW_DEBUG
+/*      if( debug ) {
+	std::cout <<"dist "<<distance<<" "<<cluster.energy()<<" "<<cluster.layer()<<" "
+		  <<track_X<<" "<<clusterX<<" "
+		  <<track_Y<<" "<<clusterY<<" "
+		  <<track_Z<<" "<<clusterZ<<std::endl;
+      }
+*/
+#endif
+    }
+    break;
+
   case PFLayer::PS1:
   case PFLayer::PS2:
     //Note Alex: Nothing implemented for the
@@ -136,12 +182,9 @@ LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track,
   }
   // Check that, if the cluster is in the barrel, 
   // 1) the track is in the barrel too !
-  if ( barrel ) 
+  if ( barrel ) {
     if ( !hcal && fabs(track_Z) > 300. ) return -1.;
-
-  // Finally check that, if the track points to the central barrel (|eta| < 1), 
-  // it cannot be linked to a cluster in Endcaps (avoid low pt loopers)
-
+  }
 
   double dist = LinkByRecHit::computeDist( clustereta, clusterphi, 
 					 tracketa, trackphi);
@@ -199,8 +242,8 @@ LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track,
 	= fabs(corners[0].Phi() - corners[2].Phi());
       if ( rhsizePhi > M_PI ) rhsizePhi = 2.*M_PI - rhsizePhi;
       if ( hcal ) { 
-	rhsizeEta = rhsizeEta * (1.50 + 0.5/fracs.size()) + 0.2*fabs(dHEta);
-	rhsizePhi = rhsizePhi * (1.50 + 0.5/fracs.size()) + 0.2*fabs(dHPhi); 
+	rhsizeEta = rhsizeEta * horesolscale * (1.50 + 0.5/fracs.size()) + 0.2*fabs(dHEta);
+	rhsizePhi = rhsizePhi * horesolscale * (1.50 + 0.5/fracs.size()) + 0.2*fabs(dHPhi); 
 	
       } else { 
 	rhsizeEta *= 2.00 + 1.0/fracs.size()/std::min(1.,trackPt/2.);
