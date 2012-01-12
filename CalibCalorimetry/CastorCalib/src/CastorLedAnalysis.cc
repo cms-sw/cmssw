@@ -561,7 +561,6 @@ void CastorLedAnalysis::LedCastorHists(const HcalDetId& detid, const CastorDataF
   // now we have the signal in fC, let's get rid of that darn pedestal
   // Most of this is borrowed from CastorSimpleReconstructor, so thanks Jeremy/Phil
 
-  int maxTS = -1;
   float max_fC = 0;
   float ta = 0;
   m_coder = cond.getCastorCoder(detid);
@@ -588,7 +587,6 @@ void CastorLedAnalysis::LedCastorHists(const HcalDetId& detid, const CastorDataF
     // keep track of max TS and max amplitude (in fC)
     if (ta > max_fC){
       max_fC = ta;
-      maxTS = TS;
     }
   }
 
