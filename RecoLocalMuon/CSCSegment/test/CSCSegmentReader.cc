@@ -1,7 +1,7 @@
 /** \file CSCSegmentReader.cc
  *
- *  $Date: 2008/04/23 11:11:20 $
- *  $Revision: 1.21 $
+ *  $Date: 2011/11/03 10:29:15 $
+ *  $Revision: 1.23 $
  *  \author M. Sani
  *
  *  Modified by D. Fortin - UC Riverside
@@ -399,7 +399,6 @@ void CSCSegmentReader::resolution(const edm::Handle<edm::PSimHitContainer> simHi
        
     float sim1X = 0.;
     float sim1Y = 0.;
-    float sim1Z = 0.;
     double sim1Phi = 0.;
     double sim1Theta = 0.;
  
@@ -422,7 +421,6 @@ void CSCSegmentReader::resolution(const edm::Handle<edm::PSimHitContainer> simHi
   
         sim1X += (*ith).localPosition().x();
         sim1Y += (*ith).localPosition().y();
-        sim1Z  = (*ith).localPosition().z();
 
         counter++;
       }    
@@ -444,7 +442,6 @@ void CSCSegmentReader::resolution(const edm::Handle<edm::PSimHitContainer> simHi
 
     float sim2X = 0.;
     float sim2Y = 0.;
-    float sim2Z = 0.;
     double sim2Phi = 0.;
     double sim2Theta = 0.;
 
@@ -470,7 +467,6 @@ void CSCSegmentReader::resolution(const edm::Handle<edm::PSimHitContainer> simHi
 
         sim2X += (*ith).localPosition().x();
         sim2Y += (*ith).localPosition().y();
-        sim2Z  = (*ith).localPosition().z();
         counter++;
 
       }

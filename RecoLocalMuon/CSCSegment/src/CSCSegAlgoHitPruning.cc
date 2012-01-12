@@ -58,7 +58,7 @@ std::vector<CSCSegment> CSCSegAlgoHitPruning::pruneBadHits(const CSCChamber* aCh
 
   int hit_nr = 0;
   int hit_nr_worst = -1;
-  int hit_nr_2ndworst = -1;
+  //int hit_nr_2ndworst = -1;
   
   for (std::vector<CSCSegment>::iterator it=segments.begin(); it != segments.end(); it++) {
     
@@ -80,7 +80,7 @@ std::vector<CSCSegment> CSCSegAlgoHitPruning::pruneBadHits(const CSCChamber* aCh
         // find (rough) "residuals" (NOT excluding the hit from the fit - speed!) of hits on segment
         std::vector<CSCRecHit2D> theseRecHits = (*it).specificRecHits();
         std::vector<CSCRecHit2D>::const_iterator iRH_worst;
-        float xdist_local       = -99999.;
+        //float xdist_local       = -99999.;
 
         float xdist_local_worst_sig = -99999.;
         float xdist_local_2ndworst_sig = -99999.;
@@ -88,22 +88,22 @@ std::vector<CSCSegment> CSCSegAlgoHitPruning::pruneBadHits(const CSCChamber* aCh
 
         hit_nr = 0;
         hit_nr_worst = -1;
-        hit_nr_2ndworst = -1;
+        //hit_nr_2ndworst = -1;
 
         for ( std::vector<CSCRecHit2D>::const_iterator iRH = theseRecHits.begin(); iRH != theseRecHits.end(); iRH++ ) {
           //mark "worst" hit:
           
-          float z_at_target ;
-          float radius      ;
+          //float z_at_target ;
+          //float radius      ;
           float loc_x_at_target ;
-          float loc_y_at_target ;
-          float loc_z_at_target ;
+          //float loc_y_at_target ;
+          //float loc_z_at_target ;
 
-          z_at_target  = 0.;
+          //z_at_target  = 0.;
           loc_x_at_target  = 0.;
-          loc_y_at_target  = 0.;
-          loc_z_at_target  = 0.;
-          radius       = 0.;
+          //loc_y_at_target  = 0.;
+          //loc_z_at_target  = 0.;
+          //radius       = 0.;
           
           // set the z target in CMS global coordinates:
           const CSCLayer* csclayerRH = theChamber->layer((*iRH).cscDetId().layer());
@@ -116,24 +116,24 @@ std::vector<CSCSegment> CSCSegAlgoHitPruning::pruneBadHits(const CSCChamber* aCh
           float target_z     = globalPositionRH.z();  // target z position in cm (z pos of the hit)
           
           loc_x_at_target = localPos.x() + (segDir.x()*( target_z - globZ ));
-          loc_y_at_target = localPos.y() + (segDir.y()*( target_z - globZ ));
-          loc_z_at_target = target_z;
+          //loc_y_at_target = localPos.y() + (segDir.y()*( target_z - globZ ));
+          //loc_z_at_target = target_z;
 
           // have to transform the segments coordinates back to the local frame... how?!!!!!!!!!!!!
           
-          xdist_local  = fabs(localPositionRH.x() - loc_x_at_target);
+          //xdist_local  = fabs(localPositionRH.x() - loc_x_at_target);
           xdist_local_sig  = fabs((localPositionRH.x() -loc_x_at_target)/(xxerr));
           
           if( xdist_local_sig > xdist_local_worst_sig ) {
             xdist_local_2ndworst_sig = xdist_local_worst_sig;
             xdist_local_worst_sig    = xdist_local_sig;
             iRH_worst            = iRH;
-            hit_nr_2ndworst = hit_nr_worst;
+            //hit_nr_2ndworst = hit_nr_worst;
             hit_nr_worst = hit_nr;
           }
           else if(xdist_local_sig > xdist_local_2ndworst_sig) {
             xdist_local_2ndworst_sig = xdist_local_sig;
-            hit_nr_2ndworst = hit_nr;
+            //hit_nr_2ndworst = hit_nr;
           }
           ++hit_nr;
         }
@@ -143,7 +143,7 @@ std::vector<CSCSegment> CSCSegAlgoHitPruning::pruneBadHits(const CSCChamber* aCh
         // 1.5 better than the worst in terms of sigma:
         if ( xdist_local_worst_sig / xdist_local_2ndworst_sig < 1.5 ) {
           hit_nr_worst    = -1;
-          hit_nr_2ndworst = -1;
+          //hit_nr_2ndworst = -1;
         }
       }
     }

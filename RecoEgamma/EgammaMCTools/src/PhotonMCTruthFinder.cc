@@ -99,8 +99,8 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
     if (  (*iSimTk).noVertex() ) continue;
 
 
-    int vertexId = (*iSimTk).vertIndex();
-    SimVertex vertex = theSimVertices[vertexId];
+    //int vertexId = (*iSimTk).vertIndex();
+    //SimVertex vertex = theSimVertices[vertexId];
  
     //    std::cout << " Particle type " <<  (*iSimTk).type() << " Sim Track ID " << (*iSimTk).trackId() << " momentum " << (*iSimTk).momentum() <<  " vertex position " << vertex.position() << " vertex index " << (*iSimTk).vertIndex() << std::endl;  
     if ( (*iSimTk).vertIndex() == iPV ) {
@@ -247,7 +247,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
 	       int vertexId1 = (*iSimTk).vertIndex();
 	       SimVertex vertex1 = theSimVertices[vertexId1];
 	       int vertexId2 = trLast.vertIndex();
-	       SimVertex vertex2 = theSimVertices[vertexId2];
+	       //SimVertex vertex2 = theSimVertices[vertexId2];
 	       
 	       
 	       int motherId=-1;

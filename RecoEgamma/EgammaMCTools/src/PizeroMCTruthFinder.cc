@@ -32,15 +32,15 @@ std::vector<PizeroMCTruth> PizeroMCTruthFinder::find(std::vector<SimTrack> theSi
   std::vector<ElectronMCTruth> electronsFromPizero;
 
   // Local variables  
-  const int SINGLE=1;
-  const int DOUBLE=2;
-  const int PYTHIA=3;
-  const int ELECTRON_FLAV=1;
-  const int PIZERO_FLAV=2;
-  const int PHOTON_FLAV=3;
+  //const int SINGLE=1;
+  //const int DOUBLE=2;
+  //const int PYTHIA=3;
+  //const int ELECTRON_FLAV=1;
+  //const int PIZERO_FLAV=2;
+  //const int PHOTON_FLAV=3;
   
-  int ievtype=0;
-  int ievflav=0;
+  //int ievtype=0;
+  //int ievflav=0;
   
   std::vector<SimTrack> pizeroTracks;
   SimVertex primVtx;   
@@ -49,8 +49,8 @@ std::vector<PizeroMCTruth> PizeroMCTruthFinder::find(std::vector<SimTrack> theSi
   fill(theSimTracks,  theSimVertices);
   
   int iPV=-1;   
-  int partType1=0;
-  int partType2=0;
+  //int partType1=0;
+  //int partType2=0;
   std::vector<SimTrack>::iterator iFirstSimTk = theSimTracks.begin();
   if (  !(*iFirstSimTk).noVertex() ) {
     iPV =  (*iFirstSimTk).vertIndex();
@@ -58,7 +58,7 @@ std::vector<PizeroMCTruth> PizeroMCTruthFinder::find(std::vector<SimTrack> theSi
     int vtxId =   (*iFirstSimTk).vertIndex();
     primVtx = theSimVertices[vtxId];
     
-    partType1 = (*iFirstSimTk).type();
+    //partType1 = (*iFirstSimTk).type();
     std::cout <<  " Primary vertex id " << iPV << " first track type " << (*iFirstSimTk).type() << std::endl;  
   } else {
     std::cout << " First track has no vertex " << std::endl;
@@ -75,7 +75,7 @@ std::vector<PizeroMCTruth> PizeroMCTruthFinder::find(std::vector<SimTrack> theSi
   if ( iFirstSimTk!=  theSimTracks.end() ) {
     
     if (  (*iFirstSimTk).vertIndex() == iPV) {
-      partType2 = (*iFirstSimTk).type();  
+      //partType2 = (*iFirstSimTk).type();  
       std::cout <<  " second track type " << (*iFirstSimTk).type() << " vertex " <<  (*iFirstSimTk).vertIndex() << std::endl;  
       
     } else {
@@ -115,25 +115,25 @@ std::vector<PizeroMCTruth> PizeroMCTruthFinder::find(std::vector<SimTrack> theSi
   
   std::cout << " There are " << npv << " particles originating in the PV " << std::endl;
   
-  if(npv > 4) {
-    ievtype = PYTHIA;
-  } else if(npv == 1) {
-    if( std::abs(partType1) == 11 ) {
-      ievtype = SINGLE; ievflav = ELECTRON_FLAV;
-    } else if(partType1 == 111) {
-      ievtype = SINGLE; ievflav = PIZERO_FLAV;
-    } else if(partType1 == 22) {
-      ievtype = SINGLE; ievflav = PHOTON_FLAV;
-    }
-  } else if(npv == 2) {
-    if (  std::abs(partType1) == 11 && std::abs(partType2) == 11 ) {
-      ievtype = DOUBLE; ievflav = ELECTRON_FLAV;
-    } else if(partType1 == 111 && partType2 == 111)   {
-      ievtype = DOUBLE; ievflav = PIZERO_FLAV;
-    } else if(partType1 == 22 && partType2 == 22)   {
-      ievtype = DOUBLE; ievflav = PHOTON_FLAV;
-    }
-  }
+  //if(npv > 4) {
+  //  ievtype = PYTHIA;
+  //} else if(npv == 1) {
+  //  if( std::abs(partType1) == 11 ) {
+  //    ievtype = SINGLE; ievflav = ELECTRON_FLAV;
+  //  } else if(partType1 == 111) {
+  //    ievtype = SINGLE; ievflav = PIZERO_FLAV;
+  //  } else if(partType1 == 22) {
+  //    ievtype = SINGLE; ievflav = PHOTON_FLAV;
+  //  }
+  //} else if(npv == 2) {
+  //  if (  std::abs(partType1) == 11 && std::abs(partType2) == 11 ) {
+  //    ievtype = DOUBLE; ievflav = ELECTRON_FLAV;
+  //  } else if(partType1 == 111 && partType2 == 111)   {
+  //    ievtype = DOUBLE; ievflav = PIZERO_FLAV;
+  //  } else if(partType1 == 22 && partType2 == 22)   {
+  //    ievtype = DOUBLE; ievflav = PHOTON_FLAV;
+  //  }
+  //}
 
 
   

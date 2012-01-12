@@ -748,7 +748,7 @@ void CSCSegAlgoDF::orderSecondSeed( GlobalPoint gp1,
 
   secondSeedHits.clear();
 
-  ChamberHitContainerCIt ib = rechits.begin();
+  //ChamberHitContainerCIt ib = rechits.begin();
   ChamberHitContainerCIt ie = rechits.end();
 
   //  int layer1 = layerIndex[i1-ib];
