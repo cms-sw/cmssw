@@ -282,7 +282,7 @@ namespace cms
 	    for ( unsigned jh=0; jh<nh2; ++jh ) { 
 	      const TrackingRecHit *jt=rh1[j][jh];
 	      if (!jt->isValid() ) continue;
-	      
+	      if ( (it->geographicalId()|3) !=(jt->geographicalId()|3) ) continue;  // VI: mask mono/stereo...
 	      if (!use_sharesInput_){
 		float delta = fabs ( it->localPosition().x()-jt->localPosition().x() ); 
 		if ((it->geographicalId()==jt->geographicalId())&&(delta<epsilon_)) {
