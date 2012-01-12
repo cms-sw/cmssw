@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date:  $
- *  $Revision:  $
+ *  $Date: 2011/02/22 18:43:20 $
+ *  $Revision: 1.1 $
  */
 
 #include "DTResidualCalibration.h"
@@ -65,7 +65,6 @@ void DTResidualCalibration::beginRun(const edm::Run& run, const edm::EventSetup&
      std::vector<DTChamber*>::const_iterator ch_it = dtGeom_->chambers().begin(); 	 
      std::vector<DTChamber*>::const_iterator ch_end = dtGeom_->chambers().end(); 	 
      for (; ch_it != ch_end; ++ch_it) { 	 
-        DTChamberId chId = (*ch_it)->id();
         std::vector<const DTSuperLayer*>::const_iterator sl_it = (*ch_it)->superLayers().begin(); 	 
         std::vector<const DTSuperLayer*>::const_iterator sl_end = (*ch_it)->superLayers().end(); 	 
         // Loop over the SLs 	 

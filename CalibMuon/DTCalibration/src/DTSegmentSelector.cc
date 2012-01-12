@@ -68,7 +68,6 @@ bool DTSegmentSelector::operator() (DTRecSegment4D const& segment, edm::Event co
      result = false;
 
   // Segment angle
-  LocalPoint segment4DLocalPos = segment.localPosition();
   LocalVector segment4DLocalDir = segment.localDirection();
   double angleZ = fabs( atan(segment4DLocalDir.y()/segment4DLocalDir.z())*180./Geom::pi() ); 
   if( angleZ > maxAngleZ_)

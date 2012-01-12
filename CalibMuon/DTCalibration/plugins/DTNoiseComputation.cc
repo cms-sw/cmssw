@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/02/26 09:46:58 $
- *  $Revision: 1.5 $
+ *  $Date: 2010/01/19 09:51:31 $
+ *  $Revision: 1.6 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -332,7 +332,6 @@ void DTNoiseComputation::endJob(){
   vector<DTChamber*>::const_iterator chamber_end = dtGeom->chambers().end();
   // Loop over the chambers
   for (; chamber_it != chamber_end; ++chamber_it) {
-    DTChamberId ch = (*chamber_it)->id();
     vector<const DTSuperLayer*>::const_iterator sl_it = (*chamber_it)->superLayers().begin(); 
     vector<const DTSuperLayer*>::const_iterator sl_end = (*chamber_it)->superLayers().end();
     // Loop over the SLs
