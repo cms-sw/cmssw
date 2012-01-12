@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/02/26 13:50:29 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/12/21 09:43:29 $
+ *  $Revision: 1.5 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -68,17 +68,15 @@ TString DTMeanTimerPlotter::getHistoNameSuffix(int wheel, int station, int secto
 
 void DTMeanTimerPlotter::plotHistos(vector<TH1D*> hTMaxes, TString& name, const TString& drawOptions){
 
-  TCanvas *c ;
   TLegend *leg = new TLegend(0.5,0.6,0.7,0.8);;
   if(!drawOptions.Contains("same")){
-     c = new TCanvas(name,"Fit of Tmax histo");
+     new TCanvas(name,"Fit of Tmax histo");
      hTMaxes[0]->Draw();
    }
 
   for(vector<TH1D*>::const_iterator ith = hTMaxes.begin();
       ith != hTMaxes.end(); ith++) {
    color++;     
-   //c->cd();
 
    (*ith)->Rebin(theRebinning);
    (*ith)->SetLineColor(color);
@@ -94,7 +92,6 @@ void DTMeanTimerPlotter::plotHistos(vector<TH1D*> hTMaxes, TString& name, const 
    for(vector<TF1*>::const_iterator funct = functions.begin();
        funct != functions.end(); funct++) {
      //     color++;     
-     //c->cd();
      (*funct)->SetLineColor(hTMaxes[i]->GetLineColor());
      (*funct)->Draw("same");
      i++;
