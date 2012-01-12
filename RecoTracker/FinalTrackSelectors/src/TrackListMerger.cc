@@ -7,7 +7,7 @@
 // Original Author: David Lange
 // Created:         April 4, 2011
 //
-/
+
 
 #include <memory>
 #include <string>
