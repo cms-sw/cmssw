@@ -1,6 +1,6 @@
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: CastorDbASCIIIO.cc,v 1.5 2010/04/08 15:46:35 mundim Exp $
+// $Id: CastorDbASCIIIO.cc,v 1.6 2011/05/09 19:35:15 mundim Exp $
 //
 #include <vector>
 #include <string>
@@ -520,9 +520,9 @@ bool getObject (std::istream& fInput, CastorQIEData* fObject) {
 	edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 33 items: SHAPE  32 x low QIE edges for first 32 bins" << std::endl;
 	continue;
       }
-      float lowEdges [32];
-      int i = 32;
-      while (--i >= 0) lowEdges [i] = atof (items [i+1].c_str ());
+      //float lowEdges [32];
+      //int i = 32;
+      //while (--i >= 0) lowEdges [i] = atof (items [i+1].c_str ());
       //      fObject->setShape (lowEdges);
     }
     else { // QIE parameters
