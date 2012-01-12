@@ -4,16 +4,16 @@ import FWCore.ParameterSet.Config as cms
 #- energy deposits near an ECAL gap/crack region
 #- energy deposit near dead/masked ECAL cells
 
-#In this version the EcalAnomalous EventFilter is summing up the boundary energy around dead/masked cells (all amasked cells:single, 1x5, 5x5). The boundary energy above a given threshold (configure:cutBoundEnergyDeadCellsEB/EE) is written into a summary object (DataFormats/AnomalousEcalDataFormats/interface/AnomalousECALVariables.h) together with the information of the size of the dead cell cluster. To identify problematic events the AnomalousECALVariables class 'isEcalNoise()' function returns a flag based on the stored boundary energies. Currently the function returns true if at least 1 dead cell cluster with size>=24 was filtered out in this EcalAnomalousEventFilter, no additional energy cut is applied to the threshold configured below. Morde details:see AnomalousECALVariables.h.
+#In this version the EcalAnomalous EventFilter is summing up the boundary energy around dead/masked cells (all amasked cells:single, 1x5, 5x5). The boundary energy above a given threshold (configure:cutBoundEnergyDeadCellsEB/EE) is written into a summary object (DataFormats/AnomalousEcalDataFormats/interface/AnomalousECALVariables.h) together with the information of the size of the dead cell cluster. To identify problematic events the AnomalousECALVariables class 'isEcalNoise()' function returns a flag based on the stored boundary energies. Currently the function returns true if at least 1 dead cell cluster with size>=24 was filtered out in this EcalDeadCellBoundaryEnergyFilter, no additional energy cut is applied to the threshold configured below. Morde details:see AnomalousECALVariables.h.
 
-#The EcalAnomalousEventFilter can be run in different modes, the two needed for dead Ecal studies are:
+#The EcalDeadCellBoundaryEnergyFilter can be run in different modes, the two needed for dead Ecal studies are:
 #1. "TuningMode":summary object is written into the event and can be accessed later in the process.
 #2. "FilterMode":the summary object is not written to the event, the filter returns the value determined in AnomalousECALVariables.isEcalNoise()--->Events affected by energy deposits in dead cells do NOT pass
 #current default cut: >5 GeV boundary energy
 #To configure the mode, please adapt FilterAlgo accordingly.
 #For Filter Mode events are rejected if a dead cluster has a boundary energy of at least 'cutBoundEnergyDeadCellsEB/EE'
 
-EcalAnomalousEventFilter = cms.EDFilter('EcalAnomalousEventFilter',
+EcalDeadCellBoundaryEnergyFilter = cms.EDFilter('EcalDeadCellBoundaryEnergyFilter',
 	recHitsEB = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
 	recHitsEE = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
 	FilterAlgo= cms.untracked.string("TuningMode"),

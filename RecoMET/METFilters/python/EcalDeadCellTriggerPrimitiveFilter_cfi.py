@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-EcalDeadCellTPfilter = cms.EDFilter(
-    'EcalDeadCellTPfilter',
+EcalDeadCellTriggerPrimitiveFilter = cms.EDFilter(
+    'EcalDeadCellTriggerPrimitiveFilter',
 
     # when activated, the filter does not filter event.
     # the filter is however storing a bool in the event, that can be used to take the

@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    EcalAnomalousEventFilter
-// Class:      EcalAnomalousEventFilter
+// Package:    EcalDeadCellBoundaryEnergyFilter
+// Class:      EcalDeadCellBoundaryEnergyFilter
 //
-/**\class EcalAnomalousEventFilter EcalAnomalousEventFilter.cc PhysicsTools/EcalAnomalousEventFilter/src/EcalAnomalousEventFilter.cc
+/**\class EcalDeadCellBoundaryEnergyFilter EcalDeadCellBoundaryEnergyFilter.cc PhysicsTools/EcalDeadCellBoundaryEnergyFilter/src/EcalDeadCellBoundaryEnergyFilter.cc
 
  Description: <one line class summary>
  Event filtering for anomalous ECAL events where the energy measured by ECAL is significantly biased due to energy depositions
@@ -20,7 +20,7 @@
 //
 // Original Author:  Konstantinos Theofilatos, Ulla Gebbert and Christian Sander
 //         Created:  Sat Nov 14 18:43:21 CET 2009
-// $Id: EcalAnomalousEventFilter.cc,v 1.11 2011/05/23 18:42:16 csander Exp $
+// $Id: EcalDeadCellBoundaryEnergyFilter.cc,v 1.1 2012/01/06 19:56:06 lhx Exp $
 //
 //
 
@@ -56,12 +56,12 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
 #include "RecoMET/METFilters/interface/EcalBoundaryInfoCalculator.h"
-#include "DataFormats/AnomalousEcalDataFormats/interface/AnomalousECALVariables.h"
+#include "DataFormats/METReco/interface/AnomalousECALVariables.h"
 
-class EcalAnomalousEventFilter: public edm::EDFilter {
+class EcalDeadCellBoundaryEnergyFilter: public edm::EDFilter {
    public:
-      explicit EcalAnomalousEventFilter(const edm::ParameterSet&);
-      ~EcalAnomalousEventFilter();
+      explicit EcalDeadCellBoundaryEnergyFilter(const edm::ParameterSet&);
+      ~EcalDeadCellBoundaryEnergyFilter();
 
    private:
       virtual void beginJob();
@@ -116,7 +116,7 @@ class EcalAnomalousEventFilter: public edm::EDFilter {
 //
 // constructors and destructor
 //
-EcalAnomalousEventFilter::EcalAnomalousEventFilter(const edm::ParameterSet& iConfig) :
+EcalDeadCellBoundaryEnergyFilter::EcalDeadCellBoundaryEnergyFilter(const edm::ParameterSet& iConfig) :
    kMAX(50) {
    cout << "Constructor EcalAnomalousEvent" << endl;
 
@@ -168,12 +168,12 @@ EcalAnomalousEventFilter::EcalAnomalousEventFilter(const edm::ParameterSet& iCon
    }
 }
 
-EcalAnomalousEventFilter::~EcalAnomalousEventFilter() {
+EcalDeadCellBoundaryEnergyFilter::~EcalDeadCellBoundaryEnergyFilter() {
    //cout << "destructor Filter" << endl;
 }
 
 // ------------ method called on each new Event  ------------
-bool EcalAnomalousEventFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool EcalDeadCellBoundaryEnergyFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
    using namespace edm;
 
    //int eventno = (int) iEvent.eventAuxiliary().event();
@@ -443,14 +443,14 @@ bool EcalAnomalousEventFilter::filter(edm::Event& iEvent, const edm::EventSetup&
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void EcalAnomalousEventFilter::beginJob() {
+void EcalDeadCellBoundaryEnergyFilter::beginJob() {
    outFile = new ofstream("./filteredEventsBE.txt");
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void EcalAnomalousEventFilter::endJob() {
+void EcalDeadCellBoundaryEnergyFilter::endJob() {
    outFile->close();
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE( EcalAnomalousEventFilter);
+DEFINE_FWK_MODULE( EcalDeadCellBoundaryEnergyFilter);

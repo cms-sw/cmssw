@@ -14,7 +14,7 @@
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/AnomalousEcalDataFormats/interface/BoundaryInformation.h"
+#include "DataFormats/METReco/interface/BoundaryInformation.h"
 
 using namespace edm;
 using namespace std;
