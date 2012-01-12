@@ -160,10 +160,11 @@ void EcalUnpackerWorker::update(const edm::Event & e)const{
 
 
 std::auto_ptr< EcalRecHitCollection > EcalUnpackerWorker::work(const uint32_t & index, const FEDRawDataCollection & rawdata)const{
-  MyWatcher watcher("Worker");
+//  MyWatcher watcher("Worker");
   LogDebug("EcalRawToRecHit|Worker")<<"is going to work on index: "<<index
-				    <<"for fed Id: "<<EcalRegionCabling::fedIndex(index)<<watcher.lap();
-
+				    <<"for fed Id: "<<EcalRegionCabling::fedIndex(index);
+//<<watcher.lap();
+//std::cout<<watcher.lap() <<std::endl;
   int fedIndex = EcalRegionCabling::fedIndex(index);
 
   const FEDRawData & fedData = rawdata.FEDData(fedIndex);
@@ -172,8 +173,8 @@ std::auto_ptr< EcalRecHitCollection > EcalUnpackerWorker::work(const uint32_t & 
    LogDebug("EcalRawToRecHit|Worker")
     <<"size of digi collections before unpacking: "
     <<(*unpacker_->ebDigisCollection())->size()
-    <<" "<<(*unpacker_->eeDigisCollection())->size()
-    <<watcher.lap();
+    <<" "<<(*unpacker_->eeDigisCollection())->size();
+  //  <<watcher.lap();
 
   EcalDigiCollection::const_iterator beginDigiEB =  (*unpacker_->ebDigisCollection())->end();
   EcalDigiCollection::const_iterator beginDigiEE =  (*unpacker_->eeDigisCollection())->end();
@@ -186,11 +187,11 @@ std::auto_ptr< EcalRecHitCollection > EcalUnpackerWorker::work(const uint32_t & 
     if(myMap_->setActiveDCC(fedIndex)){
       smId = myMap_->getActiveSM();
       uint64_t * pData = (uint64_t *)(fedData.data());
-       LogDebug("EcalRawToRecHit|Worker")<<"calling the unpacker: "<<length<<" "<<smId<<" "<<fedIndex
-					      <<watcher.lap();
+       LogDebug("EcalRawToRecHit|Worker")<<"calling the unpacker: "<<length<<" "<<smId<<" "<<fedIndex ;
+//					      <<watcher.lap();
       unpacker_->unpack( pData, static_cast<unsigned int>(length),smId,fedIndex);
-       LogDebug("EcalRawToRecHit|Worker")<<"unpacking done."
-					      <<watcher.lap();
+       LogDebug("EcalRawToRecHit|Worker")<<"unpacking done." ;
+//					      <<watcher.lap();
     }
     else{
       edm::LogInfo("EcalUnpackerWorker")<<"cannot set: "<<fedIndex<<" to be an active DCC.";
@@ -207,8 +208,8 @@ std::auto_ptr< EcalRecHitCollection > EcalUnpackerWorker::work(const uint32_t & 
    LogDebug("EcalRawToRecHit|Worker")
     <<"size of digi collections after unpacking: "
     <<(*unpacker_->ebDigisCollection())->size()
-    <<" "<<(*unpacker_->eeDigisCollection())->size()
-    <<watcher.lap();
+    <<" "<<(*unpacker_->eeDigisCollection())->size() ;
+//    <<watcher.lap();
   EcalDigiCollection::const_iterator endDigiEB = (*unpacker_->ebDigisCollection())->end();
   EcalDigiCollection::const_iterator endDigiEE = (*unpacker_->eeDigisCollection())->end();
 
@@ -217,24 +218,24 @@ std::auto_ptr< EcalRecHitCollection > EcalUnpackerWorker::work(const uint32_t & 
   std::auto_ptr< EcalUncalibratedRecHitCollection > uncalibRecHits( new EcalUncalibratedRecHitCollection );
   
    LogDebug("EcalRawToRecHit|Worker")<<"going to work on EE rechits from: "<<endDigiEE-beginDigiEE<<" digis."
-					    <<"\ngoing to work on EB rechits from: "<<endDigiEB-beginDigiEB<<" digis."
-					  <<watcher.lap();
+					    <<"\ngoing to work on EB rechits from: "<<endDigiEB-beginDigiEB<<" digis." ;
+//					  <<watcher.lap();
   // EB
   //make the uncalibrated rechits on the fly
   if (beginDigiEB!=endDigiEB){
     work<EBDetId>(beginDigiEB, endDigiEB, uncalibRecHits, ecalrechits);
   }
    LogDebug("EcalRawToRecHit|Worker")<<uncalibRecHits->size()<<" uncalibrated rechit created so far\n"
-					  <<ecalrechits->size()<<" rechit created so far."
-					  <<watcher.lap();
+					  <<ecalrechits->size()<<" rechit created so far." ;
+//					  <<watcher.lap();
   
   // EE
   if (beginDigiEE!=endDigiEE){
     work<EEDetId>(beginDigiEE, endDigiEE, uncalibRecHits, ecalrechits);
   } 
    LogDebug("EcalRawToRecHit|Worker")<<uncalibRecHits->size()<<" uncalibrated rechit created eventually\n"
-					  <<ecalrechits->size()<<" rechit created eventually"
-					  <<watcher.lap();
+					  <<ecalrechits->size()<<" rechit created eventually" ;
+//					  <<watcher.lap();
 
   return ecalrechits;
 }

@@ -51,20 +51,20 @@ EcalRawToRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 {
   using namespace edm;
 
-  MyWatcher watcher("Producer");
-  LogDebug("EcalRawToRecHit|Producer")<<watcher.lap();
+//  MyWatcher watcher("Producer");
+//  LogDebug("EcalRawToRecHit|Producer")<<watcher.lap();
 
   //retrieve a lazygetter
   edm::Handle<EcalRecHitLazyGetter> lgetter;
   iEvent.getByLabel(lsourceTag_, lgetter);
-  LogDebug("EcalRawToRecHit|Producer")<<"lazy getter retreived from: "<<lsourceTag_<<(lgetter.failedToGet()?" not valid ":"valid")
-				      <<watcher.lap();
+  LogDebug("EcalRawToRecHit|Producer")<<"lazy getter retreived from: "<<lsourceTag_<<(lgetter.failedToGet()?" not valid ":"valid") ;
+//				      <<watcher.lap();
   
   //retrieve a refgetter
   edm::Handle<EcalRecHitRefGetter> rgetter;
   iEvent.getByLabel(sourceTag_ ,rgetter);
-  LogDebug("EcalRawToRecHit|Producer")<<"ref getter retreived from: "<<sourceTag_<<(rgetter.failedToGet()?" not valid ":"valid")
-				      <<watcher.lap();
+  LogDebug("EcalRawToRecHit|Producer")<<"ref getter retreived from: "<<sourceTag_<<(rgetter.failedToGet()?" not valid ":"valid");
+//				      <<watcher.lap();
 
  
   if (splitOutput_){
@@ -76,7 +76,8 @@ EcalRawToRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     EcalRecHitRefGetter::const_iterator iRegion=rgetter->begin();
     EcalRecHitRefGetter::const_iterator iRegionEnd=rgetter->end();
     for (;iRegion!=iRegionEnd;++iRegion){
-      LogDebug("EcalRawToRecHit|Producer")<<"looping over refgetter region: "<<iR<<watcher.lap();
+      LogDebug("EcalRawToRecHit|Producer")<<"looping over refgetter region: "<<iR;
+//<<watcher.lap();
       std::vector<EcalRecHit>::const_iterator iRecHit=lgetter->begin_record()+iRegion->start();
       std::vector<EcalRecHit>::const_iterator iRecHitEnd =lgetter->begin_record()+iRegion->finish();
       for (;iRecHit!=iRecHitEnd;iRecHit++){
@@ -91,13 +92,13 @@ EcalRawToRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 						   <<" is lost.";
 	}//subdetid
       }//loop over things in region
-      LogDebug("EcalRawToRecHit|Producer")<<"looping over refgetter region: "<<iR++<<" done"
-					  <<watcher.lap();
+      LogDebug("EcalRawToRecHit|Producer")<<"looping over refgetter region: "<<iR++<<" done";
+//					  <<watcher.lap();
     }//loop over regions
 
     LogDebug("EcalRawToRecHit|Producer")<<EBrechits->size()<<" EB recHits to be put with instance: "<<EBrechitCollection_
-					<<"\n"<<EErechits->size()<<" EE recHits to be put with instance: "<<EErechitCollection_
-					<< watcher.lap();
+					<<"\n"<<EErechits->size()<<" EE recHits to be put with instance: "<<EErechitCollection_ ;
+//					<< watcher.lap();
     
     // cleaning of anomalous signals, aka spikes
     // only doable once we have a "global" collection of hits
@@ -110,8 +111,8 @@ EcalRawToRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
     iEvent.put(EBrechits, EBrechitCollection_);
     iEvent.put(EErechits, EErechitCollection_);
-    LogDebug("EcalRawToRecHit|Producer")<<"collections uploaded."
-					<< watcher.lap();
+    LogDebug("EcalRawToRecHit|Producer")<<"collections uploaded.";
+//					<< watcher.lap();
   }
   else{
     //prepare the output collection
@@ -121,7 +122,8 @@ EcalRawToRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     EcalRecHitRefGetter::const_iterator iRegion=rgetter->begin();
     EcalRecHitRefGetter::const_iterator iRegionEnd=rgetter->end();
     for (;iRegion!=iRegionEnd;++iRegion){
-      LogDebug("EcalRawToRecHit|Producer")<<"looping over refgetter region: "<<iR<<watcher.lap();
+      LogDebug("EcalRawToRecHit|Producer")<<"looping over refgetter region: "<<iR ;
+//<<watcher.lap();
       std::vector<EcalRecHit>::const_iterator iRecHit=lgetter->begin_record()+iRegion->start();
       std::vector<EcalRecHit>::const_iterator iRecHitEnd=lgetter->begin_record()+iRegion->finish();
       for (;iRecHit!=iRecHitEnd;iRecHit++){
@@ -131,17 +133,19 @@ EcalRawToRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	LogDebug("EcalRawToRecHit|Producer")<<"subdetId is: "<<EcalNum;
 	rechits->push_back(*iRecHit);
       }//loop over things in region
-      LogDebug("EcalRawToRecHit|Producer")<<"looping over refgetter region: "<<iR++<<" done"<<watcher.lap();
+      LogDebug("EcalRawToRecHit|Producer")<<"looping over refgetter region: "<<iR++<<" done" ;
+//<<watcher.lap();
     }//loop over regions
 
     if (cleaningAlgo_){
       rechits->sort();
       cleaningAlgo_->setFlags(*rechits);
     }
-    LogDebug("EcalRawToRecHit|Producer")<<rechits->size()<<" rechits to be put."<< watcher.lap();
+    LogDebug("EcalRawToRecHit|Producer")<<rechits->size()<<" rechits to be put." ;
+//<< watcher.lap();
     iEvent.put(rechits,rechitCollection_);
-    LogDebug("EcalRawToRecHit|Producer")<<"collections uploaded."
-					<< watcher.lap();
+    LogDebug("EcalRawToRecHit|Producer")<<"collections uploaded." ;
+//					<< watcher.lap();
   }
 
 }

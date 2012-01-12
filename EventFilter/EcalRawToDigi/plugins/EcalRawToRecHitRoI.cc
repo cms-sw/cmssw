@@ -32,7 +32,7 @@
 
 #include "EventFilter/EcalRawToDigi/interface/EcalRegionCablingRecord.h"
 #include "EventFilter/EcalRawToDigi/interface/EcalRegionCabling.h"
-#include "EventFilter/EcalRawToDigi/interface/MyWatcher.h"
+//#include "EventFilter/EcalRawToDigi/interface/MyWatcher.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitComparison.h"
 
 
@@ -154,14 +154,14 @@ std::string EcalRawToRecHitRoI::dumpFEDs(const std::vector<int> & FEDs){
 
 void EcalRawToRecHitRoI::produce(edm::Event & e, const edm::EventSetup& iSetup){
   const std::string category = "EcalRawToRecHit|RoI";
-  MyWatcher watcher("RoI");
-  LogDebug(category)<<watcher.lap();
-
+//  MyWatcher watcher("RoI");
+//  LogDebug(category)<<watcher.lap();
+//std::cout<<watcher.lap() << std::endl;
   // retreive cabling
   edm::ESHandle<EcalRegionCabling> cabling;
   iSetup.get<EcalRegionCablingRecord>().get(cabling);
-  LogDebug(category)<<"cabling retrieved."
-		    <<watcher.lap();
+  LogDebug(category)<<"cabling retrieved.";
+//		    <<watcher.lap();
   TheMapping =cabling->mapping();
   TheESMapping =cabling->es_mapping();
 
@@ -181,15 +181,15 @@ void EcalRawToRecHitRoI::produce(edm::Event & e, const edm::EventSetup& iSetup){
  unsigned int nf = feds.size();
  for (unsigned int i=0; i <nf; feds[i++]+=FEDNumbering::MINECALFEDID) {}
  
- LogDebug(category)<< "Will unpack Ecal FED\n" <<dumpFEDs(feds)
-		   <<watcher.lap();
+ LogDebug(category)<< "Will unpack Ecal FED\n" <<dumpFEDs(feds) ;
+//		   <<watcher.lap();
  
  // if (nf<1){edm::LogWarning(category)<<"no ECAL FED to unpack for Run " << e.id().run() << "  Event " << e.id().event() ;}
  
  productAddress->SetList(feds);
  e.put(productAddress);
- LogDebug(category)<< "list of ECAL fed put in the event."
-		   <<watcher.lap();
+ LogDebug(category)<< "list of ECAL fed put in the event." ;
+//		   <<watcher.lap();
 
 
  //now defined the Region of interest to be unpacked. from the feds list
@@ -204,14 +204,14 @@ void EcalRawToRecHitRoI::produce(edm::Event & e, const edm::EventSetup& iSetup){
      return;
    }
 
- LogDebug(category)<<"Ecal lazy getter retrieved from: "<<sourceTag_
-		   <<watcher.lap();
+ LogDebug(category)<<"Ecal lazy getter retrieved from: "<<sourceTag_ ;
+//		   <<watcher.lap();
  
 
  //prepare a refgetter
  std::auto_ptr<EcalRecHitRefGetter> rgetter(new EcalRecHitRefGetter);
- LogDebug(category)<<"ECal ref getter ready to be updated."
-		   <<watcher.lap();
+ LogDebug(category)<<"ECal ref getter ready to be updated." ;
+//		   <<watcher.lap();
 
  for (unsigned int i=0;i!=nf;i++){
    cabling->updateEcalRefGetterWithFedIndex(*rgetter, lgetter, feds[i]);
@@ -219,29 +219,29 @@ void EcalRawToRecHitRoI::produce(edm::Event & e, const edm::EventSetup& iSetup){
  }
 
  //put the refgetters in the event  
- LogDebug(category)<<"Ecal refGetter to be put in the event."
-		   << watcher.lap();
+ LogDebug(category)<<"Ecal refGetter to be put in the event." ;
+//		   << watcher.lap();
  e.put(rgetter);
- LogDebug(category)<<"Ecal refGetter loaded."
-		   << watcher.lap();
+ LogDebug(category)<<"Ecal refGetter loaded." ;
+//		   << watcher.lap();
 
  //further process the ES if required
  if (do_es_){
-   LogDebug(category)<< "Will make the ES list of FEDs at the same time."
-		     <<watcher.lap();
+   LogDebug(category)<< "Will make the ES list of FEDs at the same time." ;
+//		     <<watcher.lap();
    std::auto_ptr<ESListOfFEDS> productAddressES(new ESListOfFEDS);
    std::vector<int> es_feds = TheESMapping->GetListofFEDs(feds);
 
-   LogDebug(category)<< "Will unpack ES FED\n" <<dumpFEDs(es_feds)
-		     <<watcher.lap();
+   LogDebug(category)<< "Will unpack ES FED\n" <<dumpFEDs(es_feds) ;
+//		     <<watcher.lap();
  
 
    productAddressES->SetList(es_feds);
    e.put(productAddressES,esinstance_);
 
 
-   LogDebug(category)<< "list of ES fed put in the event."
-		     <<watcher.lap();
+   LogDebug(category)<< "list of ES fed put in the event." ;
+//		     <<watcher.lap();
    
    edm::Handle<EcalRecHitLazyGetter> lgetter_es;
    e.getByLabel(sourceTag_es_, lgetter_es);
@@ -251,23 +251,23 @@ void EcalRawToRecHitRoI::produce(edm::Event & e, const edm::EventSetup& iSetup){
        return;
      }
 
-   LogDebug(category)<<"ES lazy getter retrieved from: "<<sourceTag_es_
-		     <<watcher.lap();
+   LogDebug(category)<<"ES lazy getter retrieved from: "<<sourceTag_es_ ;
+//		     <<watcher.lap();
 
    std::auto_ptr<EcalRecHitRefGetter> rgetter_es(new EcalRecHitRefGetter);
-   LogDebug(category)<<"ES ref getter ready to be updated."
-		     <<watcher.lap();
+   LogDebug(category)<<"ES ref getter ready to be updated." ;
+//		     <<watcher.lap();
    
    unsigned int nf_es=es_feds.size();
    for (unsigned int i=0;i!=nf_es;i++){
      cabling->updateEcalRefGetterWithElementIndex(*rgetter_es, lgetter_es, cabling->esElementIndex(es_feds[i]));
    }
    
-   LogDebug(category)<<"ES refGetter to be put in the event."
-		     << watcher.lap();
+   LogDebug(category)<<"ES refGetter to be put in the event." ;
+//		     << watcher.lap();
    e.put(rgetter_es,esinstance_);
-   LogDebug(category)<<"ES refGetter loaded."
-		     << watcher.lap();
+   LogDebug(category)<<"ES refGetter loaded." ;
+//		     << watcher.lap();
  }
 
 }

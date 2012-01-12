@@ -19,7 +19,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "EventFilter/EcalRawToDigi/interface/MyWatcher.h"
+//#include "EventFilter/EcalRawToDigi/interface/MyWatcher.h"
 
 #include "EventFilter/EcalRawToDigi/interface/EcalUnpackerWorkerBase.h"
 
@@ -88,8 +88,9 @@ class EcalUnpackerWorker : public EcalUnpackerWorkerBase {
 				 EcalDigiCollection::const_iterator & endDigi,
 				 std::auto_ptr<EcalUncalibratedRecHitCollection> & uncalibRecHits,
 				 std::auto_ptr< EcalRecHitCollection > & calibRechits)const{
-    MyWatcher watcher("<Worker>");
-    LogDebug("EcalRawToRecHit|Worker")<<"ready to work on digis."<<watcher.lap();
+//    MyWatcher watcher("<Worker>");
+    LogDebug("EcalRawToRecHit|Worker")<<"ready to work on digis.";
+//<<watcher.lap();
 
     EcalDigiCollection::const_iterator itdg = beginDigi;
     /*R*/ LogDebug("EcalRawToRecHit|Worker")<<"iterator check." ;
@@ -98,13 +99,16 @@ class EcalUnpackerWorker : public EcalUnpackerWorkerBase {
       {
 
 	//get the uncalibrated rechit
-	/*R*/ LogDebug("EcalRawToRecHit|Worker")<<"ready to make Uncalib rechit."<<watcher.lap();
+	/*R*/ LogDebug("EcalRawToRecHit|Worker")<<"ready to make Uncalib rechit." ;
+//<<watcher.lap();
 	if (!UncalibWorker_->run(*evt, itdg, *uncalibRecHits)) continue;
 	EcalUncalibratedRecHit & EURH=uncalibRecHits->back();
 
-	/*R*/ LogDebug("EcalRawToRecHit|Worker")<<"creating a rechit."<<watcher.lap();
+	/*R*/ LogDebug("EcalRawToRecHit|Worker")<<"creating a rechit." ;
+//<<watcher.lap();
 	if (!CalibWorker_->run(*evt, EURH, *calibRechits)) continue;
-	/*R*/ LogDebug("EcalRawToRecHit|Worker")<<"created."<<watcher.lap();
+	/*R*/ LogDebug("EcalRawToRecHit|Worker")<<"created." ;
+//<<watcher.lap();
 
       }//loop over digis
   }
