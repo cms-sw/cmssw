@@ -1,3 +1,10 @@
+/******************************************************************************
+
+This script is used to create the scripts that actually splits partitions
+on CMS_ECAL_COND account
+
+******************************************************************************/
+
 column pind format a2
 column table_name format a30
 column column_name format a30
@@ -67,17 +74,20 @@ SPOOL OFF
 */
 SET LINE 80
 SPOOL SPLITPARTITIONS.sql
-SELECT 'ALTER TABLE ', TABLE_NAME, ' SPLIT PARTITION ', PNAME || '_' ||
-	PIND, ' AT (', MAXVAL, ') INTO (PARTITION ', PNAME || '_' || 
-	(PIND), 'TABLESPACE CMS_ECAL_COND_20' || PIND || '_DATA',
-	', PARTITION ', PNAME || '_' || (PIND + 1), 
-	' TABLESPACE CMS_ECAL_COND_20' || (PIND+1) || '_DATA) UPDATE GLOBAL INDEXES;' 
+SELECT 'ALTER TABLE ' || TABLE_NAME || ' SPLIT PARTITION ' || PNAME || '_' ||
+	PIND || ' AT (' || MAXVAL || ') INTO (PARTITION ' || PNAME || '_' || 
+	(PIND) || 'TABLESPACE CMS_ECAL_COND_20' || PIND || '_DATA' ||
+	', PARTITION ' || PNAME || '_' || (PIND + 1) || 
+	' TABLESPACE CMS_ECAL_COND_20' || (PIND+1) || 
+	'_DATA) UPDATE GLOBAL INDEXES;' 
 	FROM SPLITTER;
 SPOOL OFF
 
-/* do the splitting
+/* do the splitting (to be done by hand)
 @SPLITPARTITIONS;
 */
 
+/*
 SELECT table_name, partition_name, high_value
 FROM user_tab_partitions;
+*/
