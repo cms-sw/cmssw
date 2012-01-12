@@ -43,9 +43,6 @@ bool MuScleFitGenFilter::filter(edm::Event& event, const edm::EventSetup& iSetup
 {
   ++totalEvents_;
 
-  bool ifHepMC = false;
-  bool ifGenPart = false;
-
   edm::Handle<edm::HepMCProduct> evtMC;
 
   std::pair<lorentzVector,lorentzVector> genPair;
@@ -54,8 +51,6 @@ bool MuScleFitGenFilter::filter(edm::Event& event, const edm::EventSetup& iSetup
   if( evtMC.isValid() ) {
 
     genPair = MuScleFitUtils::findGenMuFromRes(evtMC.product());
-
-    ifHepMC = true;
   }
   else {
     edm::Handle<reco::GenParticleCollection> genParticles;
@@ -63,8 +58,6 @@ bool MuScleFitGenFilter::filter(edm::Event& event, const edm::EventSetup& iSetup
     if( genParticles.isValid() ) {
       
       genPair = MuScleFitUtils::findGenMuFromRes(genParticles.product());
-
-      ifGenPart=true;
     }
     else {
       std::cout << "ERROR: no generator info found" << std::endl;

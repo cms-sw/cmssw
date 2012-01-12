@@ -20,7 +20,6 @@ public:
   BaseFunction( const MuScleFitDBobject * dbObject )
   {
     functionId_ = dbObject->identifiers;
-    std::vector<int>::const_iterator id = functionId_.begin();
     parVecVec_ = dbObject->parameters;
     // Needed for the tests in convertToArrays
     iterationNum_ = functionId_.size()-1;
