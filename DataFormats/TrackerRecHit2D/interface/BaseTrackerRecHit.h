@@ -31,6 +31,9 @@ public:
   bool isMatched() const { return trackerHitRTTI::isMatched(*this);}
   bool isMulti() const { return trackerHitRTTI::isMulti(*this);}
 
+ // used by trackMerger (to be improved)
+  virtual OmniClusterRef const & firstClusterRef() const=0;
+
 
   // verify that hits can share clusters...
   inline bool sameDetModule(TrackingRecHit const & hit) const;

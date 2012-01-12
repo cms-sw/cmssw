@@ -18,6 +18,9 @@ public:
   virtual void getKfComponents( KfComponentsHolder & holder ) const { getKfComponents2D(holder); }
 
 
+  // used by trackMerger (to be improved)
+  virtual OmniClusterRef const & firstClusterRef() const { return  originalHit().firstClusterRef();}
+
 
   const SiStripRecHit2D& originalHit() const {return originalHit_;}
   SiStripRecHit2D& originalHit() {return originalHit_;}

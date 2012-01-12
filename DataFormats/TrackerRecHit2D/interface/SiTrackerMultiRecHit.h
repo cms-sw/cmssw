@@ -28,6 +28,9 @@ public:
   virtual int dimension() const {return 2;}
   virtual void getKfComponents( KfComponentsHolder & holder ) const { getKfComponents2D(holder); }
 
+  // at the momement nobody care of MultiHit!!!
+  // used by trackMerger (to be improved)
+  virtual OmniClusterRef const & firstClusterRef() const { return static_cast<BaseTrackerRecHit const *>(theHits.front())->firstClusterRef();}
 
   
   //vector of component rechits

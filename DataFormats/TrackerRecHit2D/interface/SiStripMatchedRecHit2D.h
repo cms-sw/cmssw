@@ -19,7 +19,11 @@ class SiStripMatchedRecHit2D : public BaseTrackerRecHit {
   // Non const variants needed for cluster re-keying 
   // SiStripRecHit2D *stereoHit() { return &componentStereo_;}
   // SiStripRecHit2D *monoHit() { return &componentMono_;}
-  
+
+   // used by trackMerger (to be improved)
+  virtual OmniClusterRef const & firstClusterRef() const { return monoClusterRef();}
+
+
   OmniClusterRef const & stereoClusterRef() const { return componentStereo_.omniCluster();}
   OmniClusterRef const & monoClusterRef() const { return componentMono_.omniCluster();}
   // Non const variants needed for cluster re-keying 
