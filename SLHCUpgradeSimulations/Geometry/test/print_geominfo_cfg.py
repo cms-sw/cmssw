@@ -6,7 +6,7 @@ process = cms.Process("PrintGeom")
 # choose the current geometry
 #process.load("Geometry.CMSCommonData.trackerSimGeometryXML_cfi")
 # or choose an upgrade geometry
-process.load('SLHCUpgradeSimulations.Geometry.PhaseI_cmsSimIdealGeometryXML_R39F16_cff')
+process.load("SLHCUpgradeSimulations.Geometry.Phase1_R34F16_cmsSimIdealGeometryXML_cff")
 #process.load("SLHCUpgradeSimulations.Geometry.hybrid_cmsIdealGeometryXML_cff")
 #process.load("SLHCUpgradeSimulations.Geometry.longbarrel_cmsIdealGeometryXML_cff")
 
