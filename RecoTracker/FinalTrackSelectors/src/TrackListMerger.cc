@@ -7,10 +7,7 @@
 // Original Author: David Lange
 // Created:         April 4, 2011
 //
-// $Author: dlange $
-// $Date: 2011/06/01 03:02:04 $
-// $Revision: 1.6 $
-//
+/
 
 #include <memory>
 #include <string>
@@ -165,7 +162,7 @@ namespace cms
     bool trkUpdated[rSize]; 
     int trackCollNum[rSize];
     int trackQuals[rSize];
-    for (unsigned int j=0; j<rSize;k++) {
+    for (unsigned int j=0; j<rSize;j++) {
       selected[j]=1; trkUpdated[i]=false; trackCollNum[j]=0; trackQuals[j]=0;
     }
     
@@ -250,7 +247,7 @@ namespace cms
 	if (selected[i]==0) continue;
 	unsigned int collNum=trackCollNum[i];
 	//nothing to do if this is the last collection
-	if (collNum==trackCollNum.size()-1) continue;
+	if (collNum==(rSize-1)) continue;
 	
 	//check that this track is in one of the lists for this iteration
 	std::vector<int>::iterator isActive=find(listsToMerge_[ltm].begin(),listsToMerge_[ltm].end(),collNum);
