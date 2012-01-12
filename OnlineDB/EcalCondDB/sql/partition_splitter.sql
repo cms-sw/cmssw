@@ -30,7 +30,7 @@ select table_name, column_name, pname, max(pind) pind
 	from 
 	user_tab_partitions t join user_part_key_columns c on t.table_name =
 	c.name) 
-        group by pname, table_name, column_name;
+        group by pname, table_name, column_name order by pind asc;
 
 /*
    Add a column to that table to store the maximum value assigned
