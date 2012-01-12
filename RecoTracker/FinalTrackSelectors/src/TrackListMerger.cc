@@ -8,8 +8,8 @@
 // Created:         April 4, 2011
 //
 // $Author: dlange $
-// $Date: 2011/05/28 02:33:06 $
-// $Revision: 1.5 $
+// $Date: 2011/06/01 03:02:04 $
+// $Revision: 1.6 $
 //
 
 #include <memory>
@@ -44,34 +44,14 @@ namespace cms
 {
   
   edm::ProductID clusterProductB( const TrackingRecHit *hit){
-    edm::ProductID pID;
-    //cast it into the proper class	and find productID
-    DetId detid = hit->geographicalId(); 
-    uint32_t subdet = detid.subdetId();
-    if ((subdet == PixelSubdetector::PixelBarrel) || (subdet == PixelSubdetector::PixelEndcap)) {
-      pID=reinterpret_cast<const SiPixelRecHit *>(hit)->cluster().id();
-    } else {
-      const std::type_info &type = typeid(*hit);
-      if (type == typeid(SiStripRecHit2D)) {
-	pID=reinterpret_cast<const SiStripRecHit2D *>(hit)->cluster().id();
-      } else if (type == typeid(SiStripRecHit1D)) {
-	pID=reinterpret_cast<const SiStripRecHit1D *>(hit)->cluster().id();	
-      } else if (type == typeid(SiStripMatchedRecHit2D)) {
-	const SiStripMatchedRecHit2D *mhit = reinterpret_cast<const SiStripMatchedRecHit2D *>(hit);
-	pID=mhit->monoHit()->cluster().id();
-      } else if (type == typeid(ProjectedSiStripRecHit2D)) {
-	const ProjectedSiStripRecHit2D *phit = reinterpret_cast<const ProjectedSiStripRecHit2D *>(hit);
-	pID=(&phit->originalHit())->cluster().id();
-      } else throw cms::Exception("Unknown RecHit Type") << "RecHit of type " << type.name() << " not supported. (use c++filt to demangle the name)";
-    }
-        
-    return pID;}
+    return reinterpret_cast<const BaseTrackerRecHit *>(hit)->firstClusterRef().id();
+  }
   
 
 
   TrackListMerger::TrackListMerger(edm::ParameterSet const& conf) {
     copyExtras_ = conf.getUntrackedParameter<bool>("copyExtras", true);
-
+    
     trackProducers_ = conf.getParameter<std::vector<edm::InputTag> >("TrackProducers");
     //which of these do I need to turn into vectors?
     maxNormalizedChisq_ =  conf.getParameter<double>("MaxNormalizedChisq");
@@ -81,26 +61,26 @@ namespace cms
     shareFrac_ =  conf.getParameter<double>("ShareFrac");
     allowFirstHitShare_ = conf.getParameter<bool>("allowFirstHitShare");
     std::string qualityStr = conf.getParameter<std::string>("newQuality");
- 
+    
     if (qualityStr != "") {
       qualityToSet_ = reco::TrackBase::qualityByName(conf.getParameter<std::string>("newQuality"));
     }
     else 
       qualityToSet_ = reco::TrackBase::undefQuality;
-
+    
     use_sharesInput_ = true;
     if ( epsilon_ > 0.0 )use_sharesInput_ = false;
-
+    
     edm::VParameterSet setsToMerge=conf.getParameter<edm::VParameterSet>("setsToMerge");
-
+    
     for ( unsigned int i=0; i<setsToMerge.size(); i++) { 
       listsToMerge_.push_back(setsToMerge[i].getParameter<std::vector< int> >("tLists"));   
       promoteQuality_.push_back(setsToMerge[i].getParameter<bool>("pQual"));   
     }
-
+    
     hasSelector_=conf.getParameter<std::vector<int> >("hasSelector");
     selectors_=conf.getParameter<std::vector<edm::InputTag> >("selectedTrackQuals");   
-
+    
     trkQualMod_=conf.getParameter<bool>("writeOnlyTrkQuals");
     if ( trkQualMod_) {
       bool ok=true;
@@ -128,13 +108,13 @@ namespace cms
       produces< std::vector<Trajectory> >();
       produces< TrajTrackAssociationCollection >();
     }
-      
+    
   }
-
-
+  
+  
   // Virtual destructor needed.
   TrackListMerger::~TrackListMerger() { }  
-
+  
   // Functions that gets called by framework every event
   void TrackListMerger::produce(edm::Event& e, const edm::EventSetup& es)
   {
@@ -142,16 +122,16 @@ namespace cms
     //
     //edm::ESHandle<TrackerGeometry> theG;
     //es.get<TrackerDigiGeometryRecord>().get(theG);
-
-//    using namespace reco;
-
+    
+    //    using namespace reco;
+    
     // get Inputs 
     // if 1 input list doesn't exist, make an empty list, issue a warning, and continue
     // this allows TrackListMerger to be used as a cleaner only if handed just one list
     // if both input lists don't exist, will issue 2 warnings and generate an empty output collection
     // 
     static const reco::TrackCollection s_empty;
-
+    
     std::vector<const reco::TrackCollection *> trackColls;
     std::vector<edm::Handle<reco::TrackCollection> > trackHandles(trackProducers_.size());
     for ( unsigned int i=0; i<trackProducers_.size(); i++) {
@@ -165,42 +145,45 @@ namespace cms
 	trackColls[i]=&s_empty;
       }
     }
-
+    
     unsigned int rSize=0;
-    std::vector<unsigned int> trackCollSizes(trackColls.size(),0);
-    std::vector<unsigned int> trackCollFirsts(trackColls.size(),0);
+    unsigned int trackCollSizes[trackColls.size()];
+    unsigned int trackCollFirsts[trackColls.size()];
     for (unsigned int i=0; i<trackColls.size(); i++) {
       trackCollSizes[i]=trackColls[i]->size();
       trackCollFirsts[i]=rSize;
       rSize+=trackCollSizes[i];
     }
-
-
-  //
-  //  quality cuts first
-  // 
+    
+    
+    //
+    //  quality cuts first
+    // 
     int i=-1;
-
-    std::vector<int> selected(rSize,1); 
-    std::vector<bool> trkUpdated(rSize,false); 
-    std::vector<int> trackCollNum(rSize,0);
-    std::vector<int> trackQuals(rSize,0);
-
+    
+    int selected[rSize]; 
+    bool trkUpdated[rSize]; 
+    int trackCollNum[rSize];
+    int trackQuals[rSize];
+    for (unsigned int j=0; j<rSize;k++) {
+      selected[j]=1; trkUpdated[i]=false; trackCollNum[j]=0; trackQuals[j]=0;
+    }
+    
     for (unsigned int j=0; j< trackColls.size(); j++) {
       const reco::TrackCollection *tC1=trackColls[j];
-
+      
       edm::Handle<edm::ValueMap<int> > trackSelColl;
       if ( hasSelector_[j]>0 ){
 	e.getByLabel(selectors_[j], trackSelColl);
       }
-
+      
       if ( 0<tC1->size() ){
 	unsigned int iC=0;
 	for (reco::TrackCollection::const_iterator track=tC1->begin(); track!=tC1->end(); track++){
 	  i++; 
 	  trackCollNum[i]=j;
 	  trackQuals[i]=track->qualityMask();
-
+	  
 	  if ( hasSelector_[j]>0 ) {
 	    reco::TrackRef trkRef=reco::TrackRef(trackHandles[j],iC);
 	    int qual=(*trackSelColl)[trkRef];
@@ -235,39 +218,40 @@ namespace cms
 	}//end loop over tracks
       }//end more than 0 track
     } // loop over trackcolls
-
-   
-
+    
+    
+    
     //cache the rechits and valid hits
-    std::vector<std::vector<const TrackingRecHit*> > rh1(rSize);
-    std::vector<int> validHits(rSize,0);
+    std::vector<const TrackingRecHit*> rh1[rSize];  // an array of vectors!
+    int validHits[rSize];
     for ( unsigned int i=0; i<rSize; i++) {
+      validHits[i]=0;
       if (selected[i]==0) continue;
       unsigned int collNum=trackCollNum[i];
       unsigned int trackNum=i-trackCollFirsts[collNum];
       const reco::Track *track=&((trackColls[collNum])->at(trackNum)); 
       validHits[i]=track->numberOfValidHits();
-
+      
       rh1[i].reserve(track->recHitsSize());
       for (trackingRecHit_iterator it = track->recHitsBegin();  it != track->recHitsEnd(); ++it) { 
 	const TrackingRecHit* hit = &(**it);
 	rh1[i].push_back(hit);
       }
     }
-
+    
     //DL here    
     for ( unsigned int ltm=0; ltm<listsToMerge_.size(); ltm++) {
       if ( rSize==0 ) continue;
-      std::vector<int> saveSelected(rSize);
+      int saveSelected[rSize];
       for ( unsigned int i=0; i<rSize; i++) saveSelected[i]=selected[i];
-
+      
       //DL protect against 0 tracks? 
       for ( unsigned int i=0; i<rSize-1; i++) {
 	if (selected[i]==0) continue;
 	unsigned int collNum=trackCollNum[i];
 	//nothing to do if this is the last collection
 	if (collNum==trackCollNum.size()-1) continue;
-
+	
 	//check that this track is in one of the lists for this iteration
 	std::vector<int>::iterator isActive=find(listsToMerge_[ltm].begin(),listsToMerge_[ltm].end(),collNum);
 	if ( isActive==listsToMerge_[ltm].end() ) continue;
@@ -275,14 +259,14 @@ namespace cms
 	const reco::Track *track=&((trackColls[collNum])->at(trackNum)); 
 	unsigned nh1=rh1[i].size();
 	int qualityMaskT1 = trackQuals[i];
-
+	
 	int nhit1 = validHits[i];
-
+	
 	for ( unsigned int j=i+1; j<rSize; j++) {
 	  if (selected[j]==0) continue;
 	  unsigned int collNum2=trackCollNum[j];
 	  if ( collNum == collNum2) continue;
-
+	  
 	  //check that this track is in one of the lists for this iteration
 	  std::vector<int>::iterator isActive=find(listsToMerge_[ltm].begin(),listsToMerge_[ltm].end(),collNum2);
 	  if ( isActive==listsToMerge_[ltm].end() ) continue;
@@ -324,7 +308,7 @@ namespace cms
 	    newQualityMask =(maskT1 | maskT2); // take OR of trackQuality 
 	  }
 	  int nhit2 = validHits[j];
-
+	  
 	  if ( (noverlap-firstoverlap) > (std::min(nhit1,nhit2)-firstoverlap)*shareFrac_ ) {
 	    if ( nhit1 > nhit2 ){
 	      selected[j]=0; 
@@ -365,19 +349,19 @@ namespace cms
 	}//end track2 loop
       }//end track loop
     } //end loop over track list sets
-
-
-
+    
+    
+    
     // special case - if just doing the trkquals 
     if (trkQualMod_) {
       std::auto_ptr<edm::ValueMap<int> > vm = std::auto_ptr<edm::ValueMap<int> >(new edm::ValueMap<int>);
       edm::ValueMap<int>::Filler filler(*vm);
-
+      
       unsigned int tSize=trackColls[0]->size();
       std::vector<int> finalQuals(tSize,-1); //default is unselected
       for ( unsigned int i=0; i<rSize; i++) {
 	unsigned int tNum=i%tSize;
-
+	
 	if (selected[i]>1 ) { 
 	  finalQuals[tNum]=selected[i]-10;
 	  if (trkUpdated[i])
@@ -386,31 +370,31 @@ namespace cms
 	if ( selected[i]==1 )
 	  finalQuals[tNum]=trackQuals[i];
       }
-
+      
       filler.insert(trackHandles[0], finalQuals.begin(),finalQuals.end());
       filler.fill();
-  
+      
       e.put(vm);
       return;
     }
-
-
+    
+    
     //
     //  output selected tracks - if any
     //
-
+    
     trackRefs.resize(rSize);
     std::vector<edm::RefToBase<TrajectorySeed> > seedsRefs(rSize);
-
+    
     unsigned int nToWrite=0;
     for ( unsigned int i=0; i<rSize; i++) 
       if (selected[i]!=0) nToWrite++;
-
-
+    
+    
     outputTrks = std::auto_ptr<reco::TrackCollection>(new reco::TrackCollection);
     outputTrks->reserve(nToWrite);
     refTrks = e.getRefBeforePut<reco::TrackCollection>();      
-
+    
     if (copyExtras_) {
       outputTrkExtras = std::auto_ptr<reco::TrackExtraCollection>(new reco::TrackExtraCollection);
       outputTrkExtras->reserve(nToWrite);
@@ -424,20 +408,20 @@ namespace cms
 	refTrajSeeds = e.getRefBeforePut<TrajectorySeedCollection>();
       }
     }
-
+    
 
     outputTrajs = std::auto_ptr< std::vector<Trajectory> >(new std::vector<Trajectory>()); 
     outputTrajs->reserve(rSize);
     outputTTAss = std::auto_ptr< TrajTrackAssociationCollection >(new TrajTrackAssociationCollection());
-
-
-
+    
+    
+    
     for ( unsigned int i=0; i<rSize; i++) {
       if (selected[i]==0) {
 	trackRefs[i]=reco::TrackRef();
 	continue;
       }
-
+      
       unsigned int collNum=trackCollNum[i];
       unsigned int trackNum=i-trackCollFirsts[collNum];
       const reco::Track *track=&((trackColls[collNum])->at(trackNum)); 
@@ -450,9 +434,9 @@ namespace cms
       //might duplicate things, but doesnt hurt
       if ( selected[i]==1 )
 	outputTrks->back().setQualityMask(trackQuals[i]);
-
+      
       // if ( beVerb ) std::cout << "selected " << outputTrks->back().pt() << " " << outputTrks->back().qualityMask() << " " << selected[i] << std::endl;
-
+      
       //fill the TrackCollection
       if (copyExtras_) {
 	edm::RefToBase<TrajectorySeed> origSeedRef = track->seedRef();
@@ -500,7 +484,7 @@ namespace cms
 	  edm::Ref<TrajectorySeedCollection> pureRef(refTrajSeeds, outputSeeds->size()-1);
 	  origSeedRef=edm::RefToBase<TrajectorySeed>( pureRef);
 	}//creating a new seed and rekeying it rechit clusters.
-
+	
 	// Fill TrackExtra collection
 	outputTrkExtras->push_back( reco::TrackExtra( 
 						     track->outerPosition(), track->outerMomentum(), track->outerOk(),
@@ -512,7 +496,7 @@ namespace cms
 	outputTrks->back().setExtra( reco::TrackExtraRef( refTrkExtras, outputTrkExtras->size() - 1) );
 	reco::TrackExtra & tx = outputTrkExtras->back();
 	tx.setResiduals(track->residuals());
-
+	
 	// fill TrackingRecHits
 	unsigned nh1=track->recHitsSize();
 	for ( unsigned ih=0; ih<nh1; ++ih ) { 
@@ -523,48 +507,48 @@ namespace cms
       }
       trackRefs[i] = reco::TrackRef(refTrks, outputTrks->size() - 1);
       
-
+      
     }//end faux loop over tracks
-
+    
     //Fill the trajectories, etc. for 1st collection
     refTrajs    = e.getRefBeforePut< std::vector<Trajectory> >();
-
+  
     for (unsigned int ti=0; ti<trackColls.size(); ti++) {
       edm::Handle< std::vector<Trajectory> >  hTraj1;
       edm::Handle< TrajTrackAssociationCollection >  hTTAss1;
       e.getByLabel(trackProducers_[ti], hTraj1);
       e.getByLabel(trackProducers_[ti], hTTAss1);
-    
+      
       if (hTraj1.failedToGet() || hTTAss1.failedToGet()) continue;
-
+      
       for (size_t i = 0, n = hTraj1->size(); i < n; ++i) {
-	edm::Ref< std::vector<Trajectory> > trajRef(hTraj1, i);
-	TrajTrackAssociationCollection::const_iterator match = hTTAss1->find(trajRef);
-	if (match != hTTAss1->end()) {
-	  const edm::Ref<reco::TrackCollection> &trkRef = match->val; 
-	  short oldKey = trackCollFirsts[ti]+static_cast<short>(trkRef.key());
-	  if (trackRefs[oldKey].isNonnull()) {
-	    outputTrajs->push_back( *trajRef );
-	    //if making extras and the seeds at the same time, change the seed ref on the trajectory
-	    if (copyExtras_ && makeReKeyedSeeds_)
-	      outputTrajs->back().setSeedRef( seedsRefs[oldKey] );
-	    outputTTAss->insert ( edm::Ref< std::vector<Trajectory> >(refTrajs, outputTrajs->size() - 1), 
-				  trackRefs[oldKey] );
-	  }
+      edm::Ref< std::vector<Trajectory> > trajRef(hTraj1, i);
+      TrajTrackAssociationCollection::const_iterator match = hTTAss1->find(trajRef);
+      if (match != hTTAss1->end()) {
+	const edm::Ref<reco::TrackCollection> &trkRef = match->val; 
+	short oldKey = trackCollFirsts[ti]+static_cast<short>(trkRef.key());
+	if (trackRefs[oldKey].isNonnull()) {
+	  outputTrajs->push_back( *trajRef );
+	  //if making extras and the seeds at the same time, change the seed ref on the trajectory
+	  if (copyExtras_ && makeReKeyedSeeds_)
+	    outputTrajs->back().setSeedRef( seedsRefs[oldKey] );
+	  outputTTAss->insert ( edm::Ref< std::vector<Trajectory> >(refTrajs, outputTrajs->size() - 1), 
+				trackRefs[oldKey] );
 	}
       }
+      }
     }
-
+    
     e.put(outputTrks);
     if (copyExtras_) {
-        e.put(outputTrkExtras);
-        e.put(outputTrkHits);
-	if (makeReKeyedSeeds_)
-	  e.put(outputSeeds);
+      e.put(outputTrkExtras);
+      e.put(outputTrkHits);
+      if (makeReKeyedSeeds_)
+	e.put(outputSeeds);
     }
     e.put(outputTrajs);
     e.put(outputTTAss);
     return;
-
+  
   }//end produce
 }
