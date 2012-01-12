@@ -11,8 +11,8 @@
 /*
  * \file HcalDetDiagNoiseMonitorClient.cc
  * 
- * $Date: 2010/03/25 21:21:04 $
- * $Revision: 1.3 $
+ * $Date: 2010/05/07 09:09:12 $
+ * $Revision: 1.4 $
  * \author J. Temple
  * \brief Hcal DetDiagNoiseMonitor Client class
  */
@@ -58,7 +58,7 @@ void HcalDetDiagNoiseMonitorClient::calculateProblems()
 {
  if (debug_>2) std::cout <<"\t\tHcalDetDiagNoiseMonitorClient::calculateProblems()"<<std::endl;
   if(!dqmStore_) return;
-  double totalevents=0;
+  //double totalevents=0;
   int etabins=0, phibins=0, zside=0;
   double problemvalue=0;
 
@@ -110,7 +110,7 @@ void HcalDetDiagNoiseMonitorClient::calculateProblems()
       if (ProblemCellsByDepth->depth[d]==0) continue;
     
       //totalevents=DigiPresentByDepth[d]->GetBinContent(0);
-      totalevents=0;
+      //totalevents=0;
       // Check underflow bins for events processed
       /*
       if (BadTiming[d]!=0) totalevents = BadTiming[d]->GetBinContent(0);
@@ -118,7 +118,7 @@ void HcalDetDiagNoiseMonitorClient::calculateProblems()
       */
       //if (totalevents==0 || totalevents<minevents_) continue;
       
-      totalevents=1; // temporary value pending removal of histogram normalization from tasks
+      //totalevents=1; // temporary value pending removal of histogram normalization from tasks
 
       etabins=(ProblemCellsByDepth->depth[d]->getTH2F())->GetNbinsX();
       phibins=(ProblemCellsByDepth->depth[d]->getTH2F())->GetNbinsY();
