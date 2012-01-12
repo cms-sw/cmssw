@@ -202,16 +202,12 @@ void DistortedPFCandProducer::produce(edm::Event& ev, const edm::EventSetup& iSe
 
 	  double ptgen = pf->pt();
 	  double etagen = pf->eta();
-	  double phigen = pf->phi();
-	  int chrgen = pf->charge();
 
 
 	  reco::GenParticleRef gen = (*genMatchMap)[mu];
 	  if( !gen.isNull()) {
 	    ptgen = gen->pt();
 	    etagen = gen->eta();
-	    phigen = gen->phi();
-	    chrgen = gen->charge();
 	    LogTrace("") << ">>> Muon-GenParticle match found; ptmu= " << pf->pt() << ", ptgen= " << ptgen;
 	  } else {
 	    LogTrace("") << ">>> MUON-GENPARTICLE MATCH NOT FOUND!!!";
