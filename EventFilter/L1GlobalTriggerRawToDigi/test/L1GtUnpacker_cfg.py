@@ -18,12 +18,15 @@ if errorUserOptions == True :
     print '\nError returned by UserOptions_cff\n'
     sys.exit()
 
-
 # source according to data type
 if dataType == 'StreamFile' :
     process.source = cms.Source("NewEventStreamFileReader", fileNames=readFiles)
 else :        
-    process.source = cms.Source ('PoolSource', fileNames=readFiles, secondaryFileNames=secFiles)
+    process.source = cms.Source ('PoolSource', 
+                                 fileNames=readFiles, 
+                                 secondaryFileNames=secFiles,
+                                 eventsToProcess = selectedEvents
+                                 )
 
 
 # number of events to be processed and source file
@@ -38,20 +41,20 @@ process.maxEvents = cms.untracked.PSet(
 process.load('Configuration.StandardSequences.Geometry_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-process.GlobalTag.globaltag = useGlobalTag+'::All'
+process.GlobalTag.globaltag = useGlobalTag
 
 # L1 GT/GMT unpack
 process.load("EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi")
 
-# input tag for GT readout collection: 
+# input tag for GT readout collection (before CMSSW_5_0_X)
 #     source        = hardware record
-#     l1GtPack      = GT packer - DigiToRaw (default) 
-#     l1GtTextToRaw = GT TextToRaw
+#
+#if useRelValSample == True :
+#    daqGtInputTag = 'rawDataCollector'
+#else :
+#    daqGtInputTag = 'source'
 
-if useRelValSample == True :
-    daqGtInputTag = 'rawDataCollector'
-else :
-    daqGtInputTag = 'source'
+daqGtInputTag = 'rawDataCollector'
 
 process.l1GtUnpack.DaqGtInputTag = daqGtInputTag
 #process.l1GtUnpack.DaqGtInputTag = 'l1GtTextToRaw'
