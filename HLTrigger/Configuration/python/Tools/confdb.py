@@ -5,6 +5,16 @@ import re
 import os
 from pipe import pipe as _pipe
 from options import globalTag
+from itertools import islice
+
+def splitter(iterator, n):
+  i = iterator.__iter__()
+  while True:
+    l = list(islice(i, n))
+    if l:
+      yield l
+    else:
+      break
 
 
 class HLTProcess(object):
@@ -383,10 +393,14 @@ if 'PrescaleService' in %(dict)s:
     if self.config.open:
       # find all EDfilters
       filters = [ match[1] for match in re.findall(r'(process\.)?\b(\w+) = cms.EDFilter', self.data) ]
-      # wrap all EDfilters with "cms.ignore( ... )"
-      re_filters  = re.compile( r'\b((process\.)?(' + r'|'.join(filters) + r'))\b' )
       re_sequence = re.compile( r'cms\.(Path|Sequence)\((.*)\)' )
-      self.data = re_sequence.sub( lambda line: re_filters.sub( r'cms.ignore( \1 )', line.group(0) ), self.data )
+      # remove existing 'cms.ingore' and '~' modifiers
+      self.data = re_sequence.sub( lambda line: re.sub( r'cms\.ignore *\( *((process\.)?\b(\w+)) *\)', r'\1', line.group(0) ), self.data )
+      self.data = re_sequence.sub( lambda line: re.sub( r'~', '', line.group(0) ), self.data )
+      # wrap all EDfilters with "cms.ignore( ... )", 1000 at a time (python 2.6 complains for too-big regular expressions)
+      for some in splitter(filters, 1000):
+        re_filters  = re.compile( r'\b((process\.)?(' + r'|'.join(some) + r'))\b' )
+        self.data = re_sequence.sub( lambda line: re_filters.sub( r'cms.ignore( \1 )', line.group(0) ), self.data )
 
 
   def overrideGlobalTag(self):
