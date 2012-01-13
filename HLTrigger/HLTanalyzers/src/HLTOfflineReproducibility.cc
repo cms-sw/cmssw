@@ -13,7 +13,7 @@
 //
 // Original Author:  Juliette Marie Alimena,40 3-A02,+41227671577,
 //         Created:  Fri Apr 22 15:46:58 CEST 2011
-// $Id: HLTOfflineReproducibility.cc,v 1.6 2011/11/15 11:27:03 fwyzard Exp $
+// $Id: HLTOfflineReproducibility.cc,v 1.7 2012/01/13 16:43:26 jalimena Exp $
 //
 //
 
@@ -164,7 +164,7 @@ HLTOfflineReproducibility::HLTOfflineReproducibility(const edm::ParameterSet& iC
 {
   //now do what ever initialization is needed
   //define parameters
-  if(dqm_) dqms_ = edm::Service<DQMStore>().operator->();
+  if (dqm_) dqms_ = edm::Service<DQMStore>().operator->();
 }
 
 
@@ -557,10 +557,10 @@ HLTOfflineReproducibility::beginRun(edm::Run const& iRun, edm::EventSetup const&
   //---------------------------------------------------------------------------------------------------------- 
 
   //define histograms
-  if (!dqms_) return;
 
   //all paths
   if(dqm_){
+    if (not dqms_) return;
     dqms_->setCurrentFolder("DQMExample/DQMSource_HLTOfflineReproducibility");
 
     path_ORIG_hist = dqms_->book1D("path_ORIG_hist","Total Times Path Fires in ORIG",nPaths_,0,nPaths_)->getTH1F();
