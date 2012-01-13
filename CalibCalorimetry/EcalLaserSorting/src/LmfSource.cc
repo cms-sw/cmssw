@@ -1,6 +1,6 @@
 /*
- *  $Date: 2009/11/03 10:10:03 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/02/12 17:34:05 $
+ *  $Revision: 1.7 $
  *  \author Philippe Gras CEA/Saclay
  */
 
@@ -478,7 +478,6 @@ void LmfSource::readIndexTable(){
 
   if(indexTablePos_==0) throw cms::Exception("LmfSource") << errMsg.str();
 
-  streampos pos = in_.tellg();
   in_.clear();
   in_.seekg(indexTablePos_);
 
