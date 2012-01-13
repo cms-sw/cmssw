@@ -13,7 +13,7 @@
 //
 // Original Author:  Juliette Marie Alimena,40 3-A02,+41227671577,
 //         Created:  Fri Apr 22 15:46:58 CEST 2011
-// $Id: HLTOfflineReproducibility.cc,v 1.7 2012/01/13 16:43:26 jalimena Exp $
+// $Id: HLTOfflineReproducibility.cc,v 1.8 2012/01/13 17:42:37 fwyzard Exp $
 //
 //
 
@@ -185,6 +185,9 @@ HLTOfflineReproducibility::~HLTOfflineReproducibility()
 void
 HLTOfflineReproducibility::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  // if DQM was requested, check that the DQMService is available
+  if (dqm_ and not dqms_) return;
+
   using namespace edm;
   
   //cout <<"Run/Event/Lumi block "<< iEvent.id().run()<<" "<<iEvent.id().event()<<" "<<iEvent.luminosityBlock() <<endl;
@@ -622,6 +625,9 @@ HLTOfflineReproducibility::beginRun(edm::Run const& iRun, edm::EventSetup const&
 void 
 HLTOfflineReproducibility::endRun(edm::Run const&, edm::EventSetup const&)
 {
+  // if DQM was requested, check that the DQMService is available
+  if (dqm_ and not dqms_) return;
+
   //all paths
   cout<<endl;
   for (unsigned int x=0; x<nPaths_; x++) {
