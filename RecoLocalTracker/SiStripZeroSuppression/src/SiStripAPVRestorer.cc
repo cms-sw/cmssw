@@ -139,8 +139,6 @@ void SiStripAPVRestorer::restore(const uint16_t& firstAPV, std::vector<int16_t>&
 template<typename T>
 inline
 int16_t SiStripAPVRestorer::BaselineFollowerInspect(const uint16_t& firstAPV, std::vector<T>& digis){
-  SiStripQuality::Range detQualityRange = qualityHandle->getRange(detId_);
-  
   std::vector<T> singleAPVdigi;  
   int16_t nAPVflagged = 0;
   
@@ -185,9 +183,6 @@ int16_t SiStripAPVRestorer::BaselineFollowerInspect(const uint16_t& firstAPV, st
 template<typename T>
 inline
 int16_t SiStripAPVRestorer::BaselineAndSaturationInspect(const uint16_t& firstAPV, std::vector<T>& digis){
-  SiStripQuality::Range detQualityRange = qualityHandle->getRange(detId_);
-  
-   
   std::vector<T> singleAPVdigi;
   singleAPVdigi.clear();
   
