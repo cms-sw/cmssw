@@ -72,15 +72,15 @@ SPOOL OFF
 /*
    generate the sql instructions to partition tables
 */
-SET LINE 80
+SET LINE 400
 SPOOL SPLITPARTITIONS.sql
 SELECT 'ALTER TABLE ' || TABLE_NAME || ' SPLIT PARTITION ' || PNAME || '_' ||
 	PIND || ' AT (' || MAXVAL || ') INTO (PARTITION ' || PNAME || '_' || 
-	(PIND) || 'TABLESPACE CMS_ECAL_COND_20' || PIND || '_DATA' ||
+	(PIND) || ' TABLESPACE CMS_ECAL_COND_20' || PIND || '_DATA' ||
 	', PARTITION ' || PNAME || '_' || (PIND + 1) || 
 	' TABLESPACE CMS_ECAL_COND_20' || (PIND+1) || 
 	'_DATA) UPDATE GLOBAL INDEXES;' 
-	FROM SPLITTER;
+	FROM SPLITTER ORDER BY PIND ASC;
 SPOOL OFF
 
 /* do the splitting (to be done by hand)
