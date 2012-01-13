@@ -81,8 +81,7 @@ void PhotonEnergyCorrector::calculate(edm::Event& evt, reco::Photon & thePhoton,
   double phoEcalEnergyError = -9999.;
   double phoRegr1Energy = -9999.;
   double phoRegr1EnergyError = -9999.;
-  const CaloSubdetectorGeometry* subDetGeometry =0 ;
-  subDetGeometry =  theCaloGeom_->getSubdetectorGeometry(DetId::Ecal, subdet);
+  theCaloGeom_->getSubdetectorGeometry(DetId::Ecal, subdet);
 
   double minR9=0;
   if (subdet==EcalBarrel) {
