@@ -86,28 +86,46 @@ process.p = cms.Path(process.l1GtEvmUnpack)
 
 # Message Logger
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.MessageLogger.debugModules = ['l1GtEvmUnpack']
-process.MessageLogger.destinations = ['L1GtEvmUnpacker']
-process.MessageLogger.L1GtEvmUnpacker = cms.untracked.PSet(
-    threshold=cms.untracked.string('DEBUG'),
-    #threshold = cms.untracked.string('INFO'),
-    #threshold = cms.untracked.string('ERROR'),
-    DEBUG=cms.untracked.PSet(
-        limit=cms.untracked.int32(-1)
-    ),
-    INFO=cms.untracked.PSet(
-        limit=cms.untracked.int32(-1)
-    ),
-    WARNING=cms.untracked.PSet(
-        limit=cms.untracked.int32(-1)
-    ),
-    ERROR=cms.untracked.PSet(
-        limit=cms.untracked.int32(-1)
-    ),
-    default = cms.untracked.PSet( 
-        limit=cms.untracked.int32(-1)  
-    )
-)
+process.MessageLogger.debugModules = ['l1GtEvmUnpack', 'l1GtTrigReport']
+process.MessageLogger.categories.append('L1GlobalTriggerEvmRawToDigi')
+process.MessageLogger.categories.append('L1GtTrigReport')
+process.MessageLogger.destinations = ['L1GtEvmUnpacker_errors', 
+                                      'L1GtEvmUnpacker_warnings', 
+                                      'L1GtEvmUnpacker_info', 
+                                      'L1GtEvmUnpacker'
+                                      ]
+process.MessageLogger.statistics = []
+process.MessageLogger.fwkJobReports = []
+
+process.MessageLogger.L1GtEvmUnpacker_errors = cms.untracked.PSet( 
+        threshold = cms.untracked.string('ERROR'),
+        ERROR = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
+        L1GlobalTriggerEvmRawToDigi = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
+       )
+
+process.MessageLogger.L1GtEvmUnpacker_warnings = cms.untracked.PSet( 
+        threshold = cms.untracked.string('WARNING'),
+        WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
+        ERROR = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
+        L1GlobalTriggerEvmRawToDigi = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
+        )
+
+process.MessageLogger.L1GtEvmUnpacker_info = cms.untracked.PSet( 
+        threshold = cms.untracked.string('INFO'),
+        INFO = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
+        WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
+        ERROR = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
+        L1GtTrigReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
+        )
+
+process.MessageLogger.L1GtEvmUnpacker = cms.untracked.PSet( 
+        threshold = cms.untracked.string('DEBUG'),
+        DEBUG = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
+        INFO = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
+        WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
+        ERROR = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
+        L1GlobalTriggerEvmRawToDigi = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
+        )
 
 # summary
 process.options = cms.untracked.PSet(

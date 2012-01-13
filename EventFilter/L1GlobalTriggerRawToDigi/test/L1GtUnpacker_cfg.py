@@ -114,41 +114,47 @@ process.l1GtTrigReport.L1GtRecordInputTag = "l1GtUnpack"
 # path to be run
 process.p = cms.Path(process.l1GtUnpack*process.l1GtTrigReport)
 
-
 # Message Logger
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.MessageLogger.debugModules = ['*']
+process.MessageLogger.debugModules = ['l1GtUnpack', 'l1GtTrigReport']
 process.MessageLogger.categories.append('L1GlobalTriggerRawToDigi')
 process.MessageLogger.categories.append('L1GtTrigReport')
+process.MessageLogger.destinations = ['L1GtUnpacker_errors', 
+                                      'L1GtUnpacker_warnings', 
+                                      'L1GtUnpacker_info', 
+                                      'L1GtUnpacker'
+                                      ]
+process.MessageLogger.statistics = []
+process.MessageLogger.fwkJobReports = []
 
-process.MessageLogger.cerr.default.limit = 0
-process.MessageLogger.cerr.FwkJob.limit = 0
-process.MessageLogger.cerr.FwkReport.limit = 0
-process.MessageLogger.cerr.FwkSummary.limit = -1
+process.MessageLogger.L1GtUnpacker_errors = cms.untracked.PSet( 
+        threshold = cms.untracked.string('ERROR'),
+        ERROR = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
+        L1GlobalTriggerRawToDigi = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
+       )
 
-process.MessageLogger.debugs = cms.untracked.PSet( 
+process.MessageLogger.L1GtUnpacker_warnings = cms.untracked.PSet( 
+        threshold = cms.untracked.string('WARNING'),
+        WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
+        ERROR = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
+        L1GlobalTriggerRawToDigi = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
+        )
+
+process.MessageLogger.L1GtUnpacker_info = cms.untracked.PSet( 
+        threshold = cms.untracked.string('INFO'),
+        INFO = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
+        WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
+        ERROR = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
+        L1GtTrigReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
+        )
+
+process.MessageLogger.L1GtUnpacker = cms.untracked.PSet( 
         threshold = cms.untracked.string('DEBUG'),
         DEBUG = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         INFO = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         ERROR = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
-        L1GlobalTriggerRawToDigi = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
-        L1GtTrigReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
-        )
-
-process.MessageLogger.warnings = cms.untracked.PSet( 
-        threshold = cms.untracked.string('WARNING'),
-        WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
-        ERROR = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
-        L1GlobalTriggerRawToDigi = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
-        L1GtTrigReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
-        )
-
-process.MessageLogger.errors = cms.untracked.PSet( 
-        threshold = cms.untracked.string('ERROR'),
-        ERROR = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
-        L1GlobalTriggerRawToDigi = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
-        L1GtTrigReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
+        L1GlobalTriggerRawToDigi = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
         )
 
 
