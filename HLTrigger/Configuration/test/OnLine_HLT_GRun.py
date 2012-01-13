@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_0_0/GRun/V7 (CMSSW_5_0_0_HLT2)
+# /dev/CMSSW_5_0_0/GRun/V8 (CMSSW_5_0_0_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_0_0/GRun/V7')
+  tableName = cms.string('/dev/CMSSW_5_0_0/GRun/V8')
 )
 
 process.streams = cms.PSet( 
@@ -1833,6 +1833,7 @@ process.eegeom = cms.ESSource( "EmptyESSource",
     firstValid = cms.vuint32( 1 )
 )
 process.es_hardcode = cms.ESSource( "HcalHardcodeCalibrations",
+    H2Mode = cms.untracked.bool( False ),
     toGet = cms.untracked.vstring( 'GainWidths' ),
     appendToDataLabel = cms.string( "" )
 )
@@ -1856,6 +1857,7 @@ process.hltESSHcalSeverityLevel = cms.ESSource( "EmptyESSource",
 )
 process.magfield = cms.ESSource( "XMLIdealGeometryESSource",
     rootNodeName = cms.string( "cmsMagneticField:MAGF" ),
+    userControlledNamespace = cms.untracked.bool( False ),
     appendToDataLabel = cms.string( "" ),
     geomXMLFiles = cms.vstring( 'Geometry/CMSCommonData/data/normal/cmsextent.xml',
       'Geometry/CMSCommonData/data/cms.xml',
@@ -1890,6 +1892,7 @@ process.CSCGeometryESModule = cms.ESProducer( "CSCGeometryESModule",
   useOnlyWiresInME1a = cms.bool( False ),
   useGangedStripsInME1a = cms.bool( True ),
   useCentreTIOffsets = cms.bool( False ),
+  debugV = cms.untracked.bool( False ),
   useDDD = cms.bool( False ),
   applyAlignment = cms.bool( True )
 )
@@ -1914,6 +1917,7 @@ process.CaloTowerGeometryFromDBEP = cms.ESProducer( "CaloTowerGeometryFromDBEP",
   applyAlignment = cms.bool( False )
 )
 process.CastorDbProducer = cms.ESProducer( "CastorDbProducer",
+  file = cms.untracked.string( "" ),
   appendToDataLabel = cms.string( "" )
 )
 process.ClusterShapeHitFilterESProducer = cms.ESProducer( "ClusterShapeHitFilterESProducer",
@@ -1981,6 +1985,8 @@ process.HcalGeometryFromDBEP = cms.ESProducer( "HcalGeometryFromDBEP",
   applyAlignment = cms.bool( False )
 )
 process.HcalTopologyIdealEP = cms.ESProducer( "HcalTopologyIdealEP",
+  Exclude = cms.untracked.string( "" ),
+  H2Mode = cms.untracked.bool( False ),
   appendToDataLabel = cms.string( "" )
 )
 process.L1GtTriggerMaskAlgoTrigTrivialProducer = cms.ESProducer( "L1GtTriggerMaskAlgoTrigTrivialProducer",
@@ -2028,6 +2034,7 @@ process.OppositeMaterialPropagatorForHI = cms.ESProducer( "PropagatorWithMateria
   appendToDataLabel = cms.string( "" )
 )
 process.RPCGeometryESModule = cms.ESProducer( "RPCGeometryESModule",
+  compatibiltyWith11 = cms.untracked.bool( True ),
   useDDD = cms.untracked.bool( False ),
   appendToDataLabel = cms.string( "" )
 )
@@ -2157,6 +2164,7 @@ process.TransientTrackBuilderESProducer = cms.ESProducer( "TransientTrackBuilder
 )
 process.VBF0 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
   label = cms.untracked.string( "0t" ),
+  debugBuilder = cms.untracked.bool( False ),
   version = cms.string( "grid_1103l_071212_2t" ),
   overrideMasterSector = cms.bool( True ),
   useParametrizedTrackerField = cms.bool( True ),
@@ -2169,6 +2177,7 @@ process.VBF0 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
 )
 process.VBF20 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
   label = cms.untracked.string( "071212_2t" ),
+  debugBuilder = cms.untracked.bool( False ),
   version = cms.string( "grid_1103l_071212_2t" ),
   overrideMasterSector = cms.bool( True ),
   useParametrizedTrackerField = cms.bool( True ),
@@ -2181,6 +2190,7 @@ process.VBF20 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
 )
 process.VBF30 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
   label = cms.untracked.string( "071212_3t" ),
+  debugBuilder = cms.untracked.bool( False ),
   version = cms.string( "grid_1103l_071212_3t" ),
   overrideMasterSector = cms.bool( True ),
   useParametrizedTrackerField = cms.bool( True ),
@@ -2193,6 +2203,7 @@ process.VBF30 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
 )
 process.VBF35 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
   label = cms.untracked.string( "071212_3_5t" ),
+  debugBuilder = cms.untracked.bool( False ),
   version = cms.string( "grid_1103l_071212_3_5t" ),
   overrideMasterSector = cms.bool( True ),
   useParametrizedTrackerField = cms.bool( True ),
@@ -2205,6 +2216,7 @@ process.VBF35 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
 )
 process.VBF38 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
   label = cms.untracked.string( "090322_3_8t" ),
+  debugBuilder = cms.untracked.bool( False ),
   version = cms.string( "grid_1103l_090322_3_8t" ),
   overrideMasterSector = cms.bool( False ),
   useParametrizedTrackerField = cms.bool( True ),
@@ -2217,6 +2229,7 @@ process.VBF38 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
 )
 process.VBF40 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
   label = cms.untracked.string( "071212_4t" ),
+  debugBuilder = cms.untracked.bool( False ),
   version = cms.string( "grid_1103l_071212_4t" ),
   overrideMasterSector = cms.bool( True ),
   useParametrizedTrackerField = cms.bool( True ),
@@ -2343,6 +2356,7 @@ process.hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
     'HcalCellDead' )
 )
 process.hcal_db_producer = cms.ESProducer( "HcalDbProducer",
+  file = cms.untracked.string( "" ),
   appendToDataLabel = cms.string( "" )
 )
 process.hltESPAK5CaloL1L2L3 = cms.ESProducer( "JetCorrectionESChain",
@@ -2809,11 +2823,16 @@ process.hltESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer
   Regional = cms.bool( True ),
   OnDemand = cms.bool( True ),
   UsePixelModuleQualityDB = cms.bool( True ),
+  DebugPixelModuleQualityDB = cms.untracked.bool( False ),
   UsePixelROCQualityDB = cms.bool( True ),
+  DebugPixelROCQualityDB = cms.untracked.bool( False ),
   UseStripModuleQualityDB = cms.bool( True ),
+  DebugStripModuleQualityDB = cms.untracked.bool( False ),
   UseStripAPVFiberQualityDB = cms.bool( True ),
+  DebugStripAPVFiberQualityDB = cms.untracked.bool( False ),
   MaskBadAPVFibers = cms.bool( True ),
   UseStripStripQualityDB = cms.bool( True ),
+  DebugStripStripQualityDB = cms.untracked.bool( False ),
   SiStripQualityLabel = cms.string( "" ),
   appendToDataLabel = cms.string( "" ),
   skipClusters = cms.InputTag( "" ),
@@ -2852,11 +2871,16 @@ process.hltESPMeasurementTrackerForHI = cms.ESProducer( "MeasurementTrackerESPro
   Regional = cms.bool( False ),
   OnDemand = cms.bool( False ),
   UsePixelModuleQualityDB = cms.bool( True ),
+  DebugPixelModuleQualityDB = cms.untracked.bool( False ),
   UsePixelROCQualityDB = cms.bool( True ),
+  DebugPixelROCQualityDB = cms.untracked.bool( False ),
   UseStripModuleQualityDB = cms.bool( True ),
+  DebugStripModuleQualityDB = cms.untracked.bool( False ),
   UseStripAPVFiberQualityDB = cms.bool( True ),
+  DebugStripAPVFiberQualityDB = cms.untracked.bool( False ),
   MaskBadAPVFibers = cms.bool( True ),
   UseStripStripQualityDB = cms.bool( True ),
+  DebugStripStripQualityDB = cms.untracked.bool( False ),
   SiStripQualityLabel = cms.string( "" ),
   appendToDataLabel = cms.string( "" ),
   skipClusters = cms.InputTag( "" ),
@@ -3356,6 +3380,7 @@ process.hltESPTrackCounting3D2nd = cms.ESProducer( "TrackCountingESProducer",
   trackQualityClass = cms.string( "any" )
 )
 process.hltESPTrackerRecoGeometryESProducer = cms.ESProducer( "TrackerRecoGeometryESProducer",
+  trackerGeometryLabel = cms.untracked.string( "" ),
   appendToDataLabel = cms.string( "" )
 )
 process.hltESPTrajectoryBuilderIT = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
@@ -3519,11 +3544,16 @@ process.hltHIAllESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESPro
   Regional = cms.bool( True ),
   OnDemand = cms.bool( True ),
   UsePixelModuleQualityDB = cms.bool( True ),
+  DebugPixelModuleQualityDB = cms.untracked.bool( False ),
   UsePixelROCQualityDB = cms.bool( True ),
+  DebugPixelROCQualityDB = cms.untracked.bool( False ),
   UseStripModuleQualityDB = cms.bool( True ),
+  DebugStripModuleQualityDB = cms.untracked.bool( False ),
   UseStripAPVFiberQualityDB = cms.bool( True ),
+  DebugStripAPVFiberQualityDB = cms.untracked.bool( False ),
   MaskBadAPVFibers = cms.bool( True ),
   UseStripStripQualityDB = cms.bool( True ),
+  DebugStripStripQualityDB = cms.untracked.bool( False ),
   SiStripQualityLabel = cms.string( "" ),
   appendToDataLabel = cms.string( "" ),
   skipClusters = cms.InputTag( "" ),
@@ -3597,11 +3627,16 @@ process.hltIter1ESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESPro
   Regional = cms.bool( True ),
   OnDemand = cms.bool( True ),
   UsePixelModuleQualityDB = cms.bool( True ),
+  DebugPixelModuleQualityDB = cms.untracked.bool( False ),
   UsePixelROCQualityDB = cms.bool( True ),
+  DebugPixelROCQualityDB = cms.untracked.bool( False ),
   UseStripModuleQualityDB = cms.bool( True ),
+  DebugStripModuleQualityDB = cms.untracked.bool( False ),
   UseStripAPVFiberQualityDB = cms.bool( True ),
+  DebugStripAPVFiberQualityDB = cms.untracked.bool( False ),
   MaskBadAPVFibers = cms.bool( True ),
   UseStripStripQualityDB = cms.bool( True ),
+  DebugStripStripQualityDB = cms.untracked.bool( False ),
   SiStripQualityLabel = cms.string( "" ),
   appendToDataLabel = cms.string( "" ),
   skipClusters = cms.InputTag( "hltIter1ClustersRefRemoval" ),
@@ -3699,11 +3734,16 @@ process.hltIter2ESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESPro
   Regional = cms.bool( True ),
   OnDemand = cms.bool( True ),
   UsePixelModuleQualityDB = cms.bool( True ),
+  DebugPixelModuleQualityDB = cms.untracked.bool( False ),
   UsePixelROCQualityDB = cms.bool( True ),
+  DebugPixelROCQualityDB = cms.untracked.bool( False ),
   UseStripModuleQualityDB = cms.bool( True ),
+  DebugStripModuleQualityDB = cms.untracked.bool( False ),
   UseStripAPVFiberQualityDB = cms.bool( True ),
+  DebugStripAPVFiberQualityDB = cms.untracked.bool( False ),
   MaskBadAPVFibers = cms.bool( True ),
   UseStripStripQualityDB = cms.bool( True ),
+  DebugStripStripQualityDB = cms.untracked.bool( False ),
   SiStripQualityLabel = cms.string( "" ),
   appendToDataLabel = cms.string( "" ),
   skipClusters = cms.InputTag( "hltIter2ClustersRefRemoval" ),
@@ -3855,11 +3895,16 @@ process.hltIter3ESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESPro
   Regional = cms.bool( True ),
   OnDemand = cms.bool( True ),
   UsePixelModuleQualityDB = cms.bool( True ),
+  DebugPixelModuleQualityDB = cms.untracked.bool( False ),
   UsePixelROCQualityDB = cms.bool( True ),
+  DebugPixelROCQualityDB = cms.untracked.bool( False ),
   UseStripModuleQualityDB = cms.bool( True ),
+  DebugStripModuleQualityDB = cms.untracked.bool( False ),
   UseStripAPVFiberQualityDB = cms.bool( True ),
+  DebugStripAPVFiberQualityDB = cms.untracked.bool( False ),
   MaskBadAPVFibers = cms.bool( True ),
   UseStripStripQualityDB = cms.bool( True ),
+  DebugStripStripQualityDB = cms.untracked.bool( False ),
   SiStripQualityLabel = cms.string( "" ),
   appendToDataLabel = cms.string( "" ),
   skipClusters = cms.InputTag( "hltIter3ClustersRefRemoval" ),
@@ -3928,11 +3973,16 @@ process.hltIter4ESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESPro
   Regional = cms.bool( True ),
   OnDemand = cms.bool( True ),
   UsePixelModuleQualityDB = cms.bool( True ),
+  DebugPixelModuleQualityDB = cms.untracked.bool( False ),
   UsePixelROCQualityDB = cms.bool( True ),
+  DebugPixelROCQualityDB = cms.untracked.bool( False ),
   UseStripModuleQualityDB = cms.bool( True ),
+  DebugStripModuleQualityDB = cms.untracked.bool( False ),
   UseStripAPVFiberQualityDB = cms.bool( True ),
+  DebugStripAPVFiberQualityDB = cms.untracked.bool( False ),
   MaskBadAPVFibers = cms.bool( True ),
   UseStripStripQualityDB = cms.bool( True ),
+  DebugStripStripQualityDB = cms.untracked.bool( False ),
   SiStripQualityLabel = cms.string( "" ),
   appendToDataLabel = cms.string( "" ),
   skipClusters = cms.InputTag( "hltIter4ClustersRefRemoval" ),
@@ -4065,6 +4115,11 @@ process.sistripconn = cms.ESProducer( "SiStripConnectivity" )
 process.DQM = cms.Service( "DQM",
 )
 process.DQMStore = cms.Service( "DQMStore",
+    forceResetOnBeginRun = cms.untracked.bool( False ),
+    verbose = cms.untracked.int32( 0 ),
+    verboseQT = cms.untracked.int32( 0 ),
+    collateHistograms = cms.untracked.bool( False ),
+    referenceFileName = cms.untracked.string( "" )
 )
 process.DTDataIntegrityTask = cms.Service( "DTDataIntegrityTask",
     getSCInfo = cms.untracked.bool( True ),
@@ -5518,7 +5573,9 @@ process.hltGctDigis = cms.EDProducer( "GctRawToDigi",
     numberOfGctSamplesToUnpack = cms.uint32( 1 ),
     numberOfRctSamplesToUnpack = cms.uint32( 1 ),
     unpackSharedRegions = cms.bool( False ),
-    unpackerVersion = cms.uint32( 0 )
+    unpackerVersion = cms.uint32( 0 ),
+    checkHeaders = cms.untracked.bool( False ),
+    verbose = cms.untracked.bool( False )
 )
 process.hltL1GtObjectMap = cms.EDProducer( "L1GlobalTrigger",
     GmtInputTag = cms.InputTag( "hltGtDigis" ),
@@ -5538,6 +5595,7 @@ process.hltL1GtObjectMap = cms.EDProducer( "L1GlobalTrigger",
     TechnicalTriggersUnprescaled = cms.bool( True ),
     TechnicalTriggersUnmasked = cms.bool( False ),
     TechnicalTriggersVetoUnmasked = cms.bool( True ),
+    Verbosity = cms.untracked.int32( 0 ),
     TechnicalTriggersInputTags = cms.VInputTag( 'simBscDigis' ),
     RecordLength = cms.vint32( 3, 0 )
 )
@@ -5604,6 +5662,7 @@ process.hltEcalRegionalRestFEDs = cms.EDProducer( "EcalRawToRecHitRoI",
     type = cms.string( "all" ),
     doES = cms.bool( False ),
     sourceTag_es = cms.InputTag( "NotNeededoESfalse" ),
+    esInstance = cms.untracked.string( "es" ),
     MuJobPSet = cms.PSet(  ),
     JetJobPSet = cms.VPSet( 
     ),
@@ -5617,6 +5676,7 @@ process.hltEcalRegionalESRestFEDs = cms.EDProducer( "EcalRawToRecHitRoI",
     type = cms.string( "all" ),
     doES = cms.bool( True ),
     sourceTag_es = cms.InputTag( "hltESRawToRecHitFacility" ),
+    esInstance = cms.untracked.string( "es" ),
     MuJobPSet = cms.PSet(  ),
     JetJobPSet = cms.VPSet( 
     ),
@@ -5815,6 +5875,7 @@ process.hltEgammaSelectEcalSuperClustersActivityFilterSC7 = cms.EDFilter( "HLTEg
     etcutEE = cms.double( 7.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( True ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltRecoEcalSuperClusterActivityCandidate" ),
     L1NonIsoCand = cms.InputTag( "none" )
 )
@@ -5861,6 +5922,9 @@ process.hltHcalDigis = cms.EDProducer( "HcalRawToDigi",
     InputLabel = cms.InputTag( "rawDataCollector" ),
     UnpackCalib = cms.untracked.bool( True ),
     UnpackZDC = cms.untracked.bool( True ),
+    UnpackTTP = cms.untracked.bool( False ),
+    silent = cms.untracked.bool( True ),
+    ComplainEmptyData = cms.untracked.bool( False ),
     firstSample = cms.int32( 0 ),
     lastSample = cms.int32( 9 ),
     FilterDataQuality = cms.bool( True )
@@ -6366,6 +6430,7 @@ process.hltEcalRegionalJetsFEDs = cms.EDProducer( "EcalRawToRecHitRoI",
     type = cms.string( "jet" ),
     doES = cms.bool( False ),
     sourceTag_es = cms.InputTag( "NotNeededoESfalse" ),
+    esInstance = cms.untracked.string( "es" ),
     MuJobPSet = cms.PSet(  ),
     JetJobPSet = cms.VPSet( 
       cms.PSet(  regionEtaMargin = cms.double( 1.0 ),
@@ -6967,6 +7032,8 @@ process.hltMuonDTDigis = cms.EDProducer( "DTUnpackingModule",
     fedbyType = cms.bool( False ),
     inputLabel = cms.InputTag( "rawDataCollector" ),
     useStandardFEDid = cms.bool( True ),
+    minFEDid = cms.untracked.int32( 770 ),
+    maxFEDid = cms.untracked.int32( 779 ),
     dqmOnly = cms.bool( False ),
     rosParameters = cms.PSet(  ),
     readOutParameters = cms.PSet( 
@@ -6984,6 +7051,7 @@ process.hltMuonDTDigis = cms.EDProducer( "DTUnpackingModule",
     )
 )
 process.hltDt1DRecHits = cms.EDProducer( "DTRecHitProducer",
+    debug = cms.untracked.bool( False ),
     dtDigiLabel = cms.InputTag( "hltMuonDTDigis" ),
     recAlgo = cms.string( "DTLinearDriftFromDBAlgo" ),
     recAlgoConfig = cms.PSet( 
@@ -7006,6 +7074,7 @@ process.hltDt1DRecHits = cms.EDProducer( "DTRecHitProducer",
     )
 )
 process.hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
+    debug = cms.untracked.bool( False ),
     recHits1DLabel = cms.InputTag( "hltDt1DRecHits" ),
     recHits2DLabel = cms.InputTag( "dt2DSegments" ),
     Reco4DAlgoName = cms.string( "DTCombinatorialPatternReco4D" ),
@@ -7081,7 +7150,13 @@ process.hltMuonCSCDigis = cms.EDProducer( "CSCDCCUnpacker",
     ErrorMask = cms.uint32( 0x0 ),
     UnpackStatusDigis = cms.bool( False ),
     UseFormatStatus = cms.bool( True ),
-    PrintEventNumber = cms.untracked.bool( False )
+    PrintEventNumber = cms.untracked.bool( False ),
+    Debug = cms.untracked.bool( False ),
+    runDQM = cms.untracked.bool( False ),
+    VisualFEDInspect = cms.untracked.bool( False ),
+    VisualFEDShort = cms.untracked.bool( False ),
+    FormatedEventDump = cms.untracked.bool( False ),
+    SuppressZeroLCT = cms.untracked.bool( True )
 )
 process.hltCsc2DRecHits = cms.EDProducer( "CSCRecHitDProducer",
     CSCUseCalibrations = cms.bool( True ),
@@ -7127,7 +7202,9 @@ process.hltCsc2DRecHits = cms.EDProducer( "CSCRecHitDProducer",
     readBadChambers = cms.bool( True ),
     UseAverageTime = cms.bool( False ),
     UseParabolaFit = cms.bool( False ),
-    UseFivePoleFit = cms.bool( True )
+    UseFivePoleFit = cms.bool( True ),
+    CSCDebug = cms.untracked.bool( False ),
+    CSCStripClusterSize = cms.untracked.int32( 3 )
 )
 process.hltCscSegments = cms.EDProducer( "CSCSegmentProducer",
     inputObjects = cms.InputTag( "hltCsc2DRecHits" ),
@@ -7334,6 +7411,8 @@ process.hltL2MuonCandidates = cms.EDProducer( "L2MuonCandidateProducer",
 process.hltSiPixelDigis = cms.EDProducer( "SiPixelRawToDigi",
     IncludeErrors = cms.bool( False ),
     UseQualityInfo = cms.bool( False ),
+    UseCablingTree = cms.untracked.bool( True ),
+    Timing = cms.untracked.bool( False ),
     InputLabel = cms.InputTag( "rawDataCollector" ),
     ErrorList = cms.vint32(  )
 )
@@ -7341,6 +7420,7 @@ process.hltSiPixelClusters = cms.EDProducer( "SiPixelClusterProducer",
     src = cms.InputTag( "hltSiPixelDigis" ),
     maxNumberOfClusters = cms.int32( 20000 ),
     payloadType = cms.string( "HLT" ),
+    ClusterMode = cms.untracked.string( "PixelThresholdClusterizer" ),
     ChannelThreshold = cms.int32( 1000 ),
     SeedThreshold = cms.int32( 1000 ),
     ClusterThreshold = cms.double( 4000.0 ),
@@ -7351,6 +7431,7 @@ process.hltSiPixelClusters = cms.EDProducer( "SiPixelClusterProducer",
 )
 process.hltSiPixelRecHits = cms.EDProducer( "SiPixelRecHitConverter",
     src = cms.InputTag( "hltSiPixelClusters" ),
+    VerboseLevel = cms.untracked.int32( 0 ),
     CPE = cms.string( "hltESPPixelCPEGeneric" )
 )
 process.hltSiStripExcludedFEDListProducer = cms.EDProducer( "SiStripExcludedFEDListProducer",
@@ -8482,6 +8563,8 @@ process.hltIter1PFlowTrackSelectionHighPurityTight = cms.EDProducer( "Analytical
     dz_par2 = cms.vdouble( 1.0, 4.0 )
 )
 process.hltIter1PFlowTrackSelectionHighPurity = cms.EDProducer( "SimpleTrackListMerger",
+    copyExtras = cms.untracked.bool( True ),
+    makeReKeyedSeeds = cms.untracked.bool( False ),
     TrackProducer1 = cms.string( "hltIter1PFlowTrackSelectionHighPurityLoose" ),
     TrackProducer2 = cms.string( "hltIter1PFlowTrackSelectionHighPurityTight" ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
@@ -8494,6 +8577,8 @@ process.hltIter1PFlowTrackSelectionHighPurity = cms.EDProducer( "SimpleTrackList
     newQuality = cms.string( "confirmed" )
 )
 process.hltIter1Merged = cms.EDProducer( "SimpleTrackListMerger",
+    copyExtras = cms.untracked.bool( True ),
+    makeReKeyedSeeds = cms.untracked.bool( False ),
     TrackProducer1 = cms.string( "hltPFlowTrackSelectionHighPurity" ),
     TrackProducer2 = cms.string( "hltIter1PFlowTrackSelectionHighPurity" ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
@@ -8678,6 +8763,8 @@ process.hltIter2PFlowTrackSelectionHighPurity = cms.EDProducer( "AnalyticalTrack
     dz_par2 = cms.vdouble( 0.4, 4.0 )
 )
 process.hltIter2Merged = cms.EDProducer( "SimpleTrackListMerger",
+    copyExtras = cms.untracked.bool( True ),
+    makeReKeyedSeeds = cms.untracked.bool( False ),
     TrackProducer1 = cms.string( "hltIter1Merged" ),
     TrackProducer2 = cms.string( "hltIter2PFlowTrackSelectionHighPurity" ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
@@ -8901,6 +8988,8 @@ process.hltIter3PFlowTrackSelectionHighPurityTight = cms.EDProducer( "Analytical
     dz_par2 = cms.vdouble( 1.0, 4.0 )
 )
 process.hltIter3PFlowTrackSelectionHighPurity = cms.EDProducer( "SimpleTrackListMerger",
+    copyExtras = cms.untracked.bool( True ),
+    makeReKeyedSeeds = cms.untracked.bool( False ),
     TrackProducer1 = cms.string( "hltIter3PFlowTrackSelectionHighPurityLoose" ),
     TrackProducer2 = cms.string( "hltIter3PFlowTrackSelectionHighPurityTight" ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
@@ -8913,6 +9002,8 @@ process.hltIter3PFlowTrackSelectionHighPurity = cms.EDProducer( "SimpleTrackList
     newQuality = cms.string( "confirmed" )
 )
 process.hltIter3Merged = cms.EDProducer( "SimpleTrackListMerger",
+    copyExtras = cms.untracked.bool( True ),
+    makeReKeyedSeeds = cms.untracked.bool( False ),
     TrackProducer1 = cms.string( "hltIter2Merged" ),
     TrackProducer2 = cms.string( "hltIter3PFlowTrackSelectionHighPurity" ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
@@ -9097,6 +9188,8 @@ process.hltIter4PFlowTrackSelectionHighPurity = cms.EDProducer( "AnalyticalTrack
     dz_par2 = cms.vdouble( 1.0, 4.0 )
 )
 process.hltIter4Merged = cms.EDProducer( "SimpleTrackListMerger",
+    copyExtras = cms.untracked.bool( True ),
+    makeReKeyedSeeds = cms.untracked.bool( False ),
     TrackProducer1 = cms.string( "hltIter3Merged" ),
     TrackProducer2 = cms.string( "hltIter4PFlowTrackSelectionHighPurity" ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
@@ -9109,6 +9202,8 @@ process.hltIter4Merged = cms.EDProducer( "SimpleTrackListMerger",
     newQuality = cms.string( "confirmed" )
 )
 process.hltPFMuonMerging = cms.EDProducer( "SimpleTrackListMerger",
+    copyExtras = cms.untracked.bool( True ),
+    makeReKeyedSeeds = cms.untracked.bool( False ),
     TrackProducer1 = cms.string( "hltL3TkTracksFromL2" ),
     TrackProducer2 = cms.string( "hltIter4Merged" ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
@@ -9445,6 +9540,7 @@ process.hltParticleFlowRecHitPS = cms.EDProducer( "PFRecHitProducerPS",
     thresh_Endcap = cms.double( 7.0E-6 )
 )
 process.hltParticleFlowClusterECAL = cms.EDProducer( "PFClusterProducer",
+    verbose = cms.untracked.bool( False ),
     thresh_Barrel = cms.double( 0.08 ),
     thresh_Seed_Barrel = cms.double( 0.23 ),
     thresh_Pt_Barrel = cms.double( 0.0 ),
@@ -9474,6 +9570,7 @@ process.hltParticleFlowClusterECAL = cms.EDProducer( "PFClusterProducer",
     minS4S1_Clean_Endcap = cms.vdouble( 0.02, -0.0125 )
 )
 process.hltParticleFlowClusterHCAL = cms.EDProducer( "PFClusterProducer",
+    verbose = cms.untracked.bool( False ),
     thresh_Barrel = cms.double( 0.8 ),
     thresh_Seed_Barrel = cms.double( 0.8 ),
     thresh_Pt_Barrel = cms.double( 0.0 ),
@@ -9503,6 +9600,7 @@ process.hltParticleFlowClusterHCAL = cms.EDProducer( "PFClusterProducer",
     minS4S1_Clean_Endcap = cms.vdouble( 0.032, -0.045 )
 )
 process.hltParticleFlowClusterHFEM = cms.EDProducer( "PFClusterProducer",
+    verbose = cms.untracked.bool( False ),
     thresh_Barrel = cms.double( 0.8 ),
     thresh_Seed_Barrel = cms.double( 1.4 ),
     thresh_Pt_Barrel = cms.double( 0.0 ),
@@ -9532,6 +9630,7 @@ process.hltParticleFlowClusterHFEM = cms.EDProducer( "PFClusterProducer",
     minS4S1_Clean_Endcap = cms.vdouble( 0.11, -0.19 )
 )
 process.hltParticleFlowClusterHFHAD = cms.EDProducer( "PFClusterProducer",
+    verbose = cms.untracked.bool( False ),
     thresh_Barrel = cms.double( 0.8 ),
     thresh_Seed_Barrel = cms.double( 1.4 ),
     thresh_Pt_Barrel = cms.double( 0.0 ),
@@ -9561,6 +9660,7 @@ process.hltParticleFlowClusterHFHAD = cms.EDProducer( "PFClusterProducer",
     minS4S1_Clean_Endcap = cms.vdouble( 0.045, -0.08 )
 )
 process.hltParticleFlowClusterPS = cms.EDProducer( "PFClusterProducer",
+    verbose = cms.untracked.bool( False ),
     thresh_Barrel = cms.double( 6.0E-5 ),
     thresh_Seed_Barrel = cms.double( 1.2E-4 ),
     thresh_Pt_Barrel = cms.double( 0.0 ),
@@ -9609,6 +9709,8 @@ process.hltParticleFlowBlock = cms.EDProducer( "PFBlockProducer",
     PFClustersPS = cms.InputTag( "hltParticleFlowClusterPS" ),
     useEGPhotons = cms.bool( False ),
     EGPhotons = cms.InputTag( "" ),
+    verbose = cms.untracked.bool( False ),
+    debug = cms.untracked.bool( False ),
     usePFatHLT = cms.bool( True ),
     useNuclear = cms.bool( False ),
     useConversions = cms.bool( False ),
@@ -9679,6 +9781,8 @@ process.hltParticleFlow = cms.EDProducer( "PFProducer",
     minDeltaMet = cms.double( 0.4 ),
     vertexCollection = cms.InputTag( "hltPixelVertices" ),
     useVerticesForNeutral = cms.bool( True ),
+    verbose = cms.untracked.bool( False ),
+    debug = cms.untracked.bool( False ),
     calibHF_eta_step = cms.vdouble( 0.0, 2.9, 3.0, 3.2, 4.2, 4.4, 4.6, 4.8, 5.2, 5.4 ),
     calibHF_a_EMonly = cms.vdouble( 0.96945, 0.96701, 0.76309, 0.82268, 0.87583, 0.89718, 0.98674, 1.4681, 1.458, 1.458 ),
     calibHF_b_HADonly = cms.vdouble( 1.27541, 0.85361, 0.86333, 0.89091, 0.94348, 0.94348, 0.9437, 1.0034, 1.0444, 1.0444 ),
@@ -9899,6 +10003,7 @@ process.hltMet = cms.EDProducer( "METProducer",
     noHF = cms.bool( False ),
     calculateSignificance = cms.bool( False ),
     onlyFiducialParticles = cms.bool( False ),
+    usePt = cms.untracked.bool( False ),
     jets = cms.InputTag( "" ),
     rf_type = cms.int32( 0 ),
     correctShowerTracks = cms.bool( False ),
@@ -10304,6 +10409,7 @@ process.hltDoubleJet36Eta2p6 = cms.EDFilter( "HLT1CaloJet",
     MinN = cms.int32( 2 )
 )
 process.hltPixelVertices3DbbPhi = cms.EDProducer( "PrimaryVertexProducer",
+    verbose = cms.untracked.bool( False ),
     TrackLabel = cms.InputTag( "hltPixelTracks" ),
     beamSpotLabel = cms.InputTag( "hltOnlineBeamSpot" ),
     algorithm = cms.string( "AdaptiveVertexFitter" ),
@@ -10640,6 +10746,8 @@ process.hltParticleFlowBlockForTaus = cms.EDProducer( "PFBlockProducer",
     PFClustersPS = cms.InputTag( "hltParticleFlowClusterPS" ),
     useEGPhotons = cms.bool( False ),
     EGPhotons = cms.InputTag( "" ),
+    verbose = cms.untracked.bool( False ),
+    debug = cms.untracked.bool( False ),
     usePFatHLT = cms.bool( True ),
     useNuclear = cms.bool( False ),
     useConversions = cms.bool( False ),
@@ -10710,6 +10818,8 @@ process.hltParticleFlowForTaus = cms.EDProducer( "PFProducer",
     minDeltaMet = cms.double( 0.4 ),
     vertexCollection = cms.InputTag( "hltPixelVertices" ),
     useVerticesForNeutral = cms.bool( True ),
+    verbose = cms.untracked.bool( False ),
+    debug = cms.untracked.bool( False ),
     calibHF_eta_step = cms.vdouble( 0.0, 2.9, 3.0, 3.2, 4.2, 4.4, 4.6, 4.8, 5.2, 5.4 ),
     calibHF_a_EMonly = cms.vdouble( 0.96945, 0.96701, 0.76309, 0.82268, 0.87583, 0.89718, 0.98674, 1.4681, 1.458, 1.458 ),
     calibHF_b_HADonly = cms.vdouble( 1.27541, 0.85361, 0.86333, 0.89091, 0.94348, 0.94348, 0.9437, 1.0034, 1.0444, 1.0444 ),
@@ -13473,6 +13583,7 @@ process.hltEcalRegionalMuonsFEDs = cms.EDProducer( "EcalRawToRecHitRoI",
     type = cms.string( "candidate" ),
     doES = cms.bool( False ),
     sourceTag_es = cms.InputTag( "NotNeededoESfalse" ),
+    esInstance = cms.untracked.string( "es" ),
     MuJobPSet = cms.PSet(  ),
     JetJobPSet = cms.VPSet( 
     ),
@@ -14042,6 +14153,8 @@ process.hltL2DoubleMu30NoVertexL2FilteredPhi25 = cms.EDFilter( "HLTMuonDimuonL2F
     FastAccept = cms.bool( False ),
     MaxEta = cms.double( 3.0 ),
     MinNhits = cms.int32( 1 ),
+    MinNstations = cms.int32( -9999 ),
+    MinNchambers = cms.int32( -9999 ),
     MaxDr = cms.double( 100.0 ),
     MaxDz = cms.double( 9999.0 ),
     ChargeOpt = cms.int32( 0 ),
@@ -14052,6 +14165,8 @@ process.hltL2DoubleMu30NoVertexL2FilteredPhi25 = cms.EDFilter( "HLTMuonDimuonL2F
     MaxInvMass = cms.double( 9999.0 ),
     MinAcop = cms.double( 0.64 ),
     MaxAcop = cms.double( 3.15 ),
+    MinAngle = cms.double( -9999.0 ),
+    MaxAngle = cms.double( 9999.0 ),
     MinPtBalance = cms.double( -1.0 ),
     MaxPtBalance = cms.double( 999999.0 ),
     NSigmaPt = cms.double( 0.0 ),
@@ -15589,6 +15704,8 @@ process.hltMuCtfTracks = cms.EDProducer( "TrackProducer",
     NavigationSchool = cms.string( "" )
 )
 process.hltDiMuonMerging = cms.EDProducer( "SimpleTrackListMerger",
+    copyExtras = cms.untracked.bool( True ),
+    makeReKeyedSeeds = cms.untracked.bool( False ),
     TrackProducer1 = cms.string( "hltL3TkTracksFromL2" ),
     TrackProducer2 = cms.string( "hltMuCtfTracks" ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
@@ -16549,6 +16666,7 @@ process.hltEcalRegionalEgammaFEDs = cms.EDProducer( "EcalRawToRecHitRoI",
     type = cms.string( "egamma" ),
     doES = cms.bool( True ),
     sourceTag_es = cms.InputTag( "hltESRawToRecHitFacility" ),
+    esInstance = cms.untracked.string( "es" ),
     MuJobPSet = cms.PSet(  ),
     JetJobPSet = cms.VPSet( 
     ),
@@ -16940,6 +17058,7 @@ process.hltEG20EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 20.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -17339,6 +17458,7 @@ process.hltDoubleIsoEG18EtFilterUnseeded = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 18.0 ),
     ncandcut = cms.int32( 2 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltRecoEcalSuperClusterActivityCandidate" ),
     L1NonIsoCand = cms.InputTag( "" )
 )
@@ -17437,6 +17557,7 @@ process.hltEG20EtFilterDoubleEG125 = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 20.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -17536,6 +17657,7 @@ process.hltEG8EtFilterUnseeded = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 8.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltRecoEcalSuperClusterActivityCandidate" ),
     L1NonIsoCand = cms.InputTag( "" )
 )
@@ -17744,6 +17866,7 @@ process.hltEG26EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 26.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -17771,6 +17894,7 @@ process.hltEG18EtDoubleFilterUnseeded = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 18.0 ),
     ncandcut = cms.int32( 2 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltRecoEcalSuperClusterActivityCandidate" ),
     L1NonIsoCand = cms.InputTag( "" )
 )
@@ -17874,6 +17998,8 @@ process.hltL1IsoEgammaRegionalAnalyticalTrackSelector = cms.EDProducer( "Analyti
     useVertices = cms.bool( False ),
     useVtxError = cms.bool( False ),
     vertices = cms.InputTag( "NONE" ),
+    copyExtras = cms.untracked.bool( False ),
+    copyTrajectories = cms.untracked.bool( False ),
     vtxNumber = cms.int32( 0 ),
     vertexCut = cms.string( "" ),
     chi2n_par = cms.double( 0.6 ),
@@ -17904,6 +18030,8 @@ process.hltL1NonIsoEgammaRegionalAnalyticalTrackSelector = cms.EDProducer( "Anal
     useVertices = cms.bool( False ),
     useVtxError = cms.bool( False ),
     vertices = cms.InputTag( "NONE" ),
+    copyExtras = cms.untracked.bool( False ),
+    copyTrajectories = cms.untracked.bool( False ),
     vtxNumber = cms.int32( 0 ),
     vertexCut = cms.string( "" ),
     chi2n_par = cms.double( 0.6 ),
@@ -18116,6 +18244,8 @@ process.hltEcalActivityEgammaRegionalAnalyticalTrackSelector = cms.EDProducer( "
     useVertices = cms.bool( False ),
     useVtxError = cms.bool( False ),
     vertices = cms.InputTag( "NONE" ),
+    copyExtras = cms.untracked.bool( False ),
+    copyTrajectories = cms.untracked.bool( False ),
     vtxNumber = cms.int32( 0 ),
     vertexCut = cms.string( "" ),
     chi2n_par = cms.double( 0.6 ),
@@ -18364,6 +18494,7 @@ process.hltEG30EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 30.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -18489,6 +18620,7 @@ process.hltEG36EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 36.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -18516,6 +18648,7 @@ process.hltEG22EtDoubleFilterUnseeded = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 22.0 ),
     ncandcut = cms.int32( 2 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltRecoEcalSuperClusterActivityCandidate" ),
     L1NonIsoCand = cms.InputTag( "" )
 )
@@ -18583,6 +18716,7 @@ process.hltDoubleIsoEG22EtFilterUnseeded = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 22.0 ),
     ncandcut = cms.int32( 2 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltRecoEcalSuperClusterActivityCandidate" ),
     L1NonIsoCand = cms.InputTag( "" )
 )
@@ -18990,6 +19124,7 @@ process.hltEG50EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 50.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -19115,6 +19250,7 @@ process.hltEG60EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 60.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -19185,6 +19321,7 @@ process.hltEG70EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 70.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -19246,6 +19383,7 @@ process.hltEG75EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 75.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -19371,6 +19509,7 @@ process.hltEG90EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 90.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -19496,6 +19635,7 @@ process.hltEG90EBOnlyEtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 99999.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -19631,6 +19771,7 @@ process.hltEG135EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 135.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -19662,6 +19803,7 @@ process.hltEG225EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 225.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( True ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -19675,6 +19817,7 @@ process.hltEG400EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 400.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -19706,6 +19849,7 @@ process.hltEG200EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 200.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( True ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -19719,6 +19863,7 @@ process.hltEG43EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 43.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -19746,6 +19891,7 @@ process.hltDoubleEG43EtDoubleFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 43.0 ),
     ncandcut = cms.int32( 2 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltRecoEcalSuperClusterActivityCandidate" ),
     L1NonIsoCand = cms.InputTag( "" )
 )
@@ -19777,6 +19923,7 @@ process.hltEG48EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 48.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -19804,6 +19951,7 @@ process.hltDoubleEG48EtDoubleFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 48.0 ),
     ncandcut = cms.int32( 2 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltRecoEcalSuperClusterActivityCandidate" ),
     L1NonIsoCand = cms.InputTag( "" )
 )
@@ -19853,6 +20001,7 @@ process.hltDoubleEG70EtDoubleFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 70.0 ),
     ncandcut = cms.int32( 2 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltRecoEcalSuperClusterActivityCandidate" ),
     L1NonIsoCand = cms.InputTag( "" )
 )
@@ -19884,6 +20033,7 @@ process.hltEG80EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 80.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -19911,6 +20061,7 @@ process.hltDoubleIsoEG80EtFilterUnseededTight = cms.EDFilter( "HLTEgammaEtFilter
     etcutEE = cms.double( 80.0 ),
     ncandcut = cms.int32( 2 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltRecoEcalSuperClusterActivityCandidate" ),
     L1NonIsoCand = cms.InputTag( "" )
 )
@@ -19967,6 +20118,7 @@ process.hltDoublePhoton5IsoVLEtPhiFilter = cms.EDFilter( "HLTEgammaDoubleEtDelta
     etcut = cms.double( 5.0 ),
     minDeltaPhi = cms.double( 2.5 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -20164,6 +20316,7 @@ process.hltEG8EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 8.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -20763,6 +20916,7 @@ process.hltL1Iso3HitElectronTrackIsol = cms.EDProducer( "EgammaHLTElectronTrackI
     egTrkIsoZSpan = cms.double( 0.15 ),
     egTrkIsoRSpan = cms.double( 999999.0 ),
     egTrkIsoVetoConeSize = cms.double( 0.03 ),
+    egCheckForOtherEleInCone = cms.untracked.bool( False ),
     egTrkIsoStripBarrel = cms.double( 0.03 ),
     egTrkIsoStripEndcap = cms.double( 0.03 )
 )
@@ -20774,6 +20928,7 @@ process.hltL1NonIso3HitElectronTrackIsol = cms.EDProducer( "EgammaHLTElectronTra
     egTrkIsoZSpan = cms.double( 0.15 ),
     egTrkIsoRSpan = cms.double( 999999.0 ),
     egTrkIsoVetoConeSize = cms.double( 0.03 ),
+    egCheckForOtherEleInCone = cms.untracked.bool( False ),
     egTrkIsoStripBarrel = cms.double( 0.03 ),
     egTrkIsoStripEndcap = cms.double( 0.03 )
 )
@@ -20804,6 +20959,7 @@ process.hltEG15EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 15.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -20942,6 +21098,7 @@ process.hltL1IsoElectronTrackIsol = cms.EDProducer( "EgammaHLTElectronTrackIsola
     egTrkIsoZSpan = cms.double( 0.15 ),
     egTrkIsoRSpan = cms.double( 999999.0 ),
     egTrkIsoVetoConeSize = cms.double( 0.03 ),
+    egCheckForOtherEleInCone = cms.untracked.bool( False ),
     egTrkIsoStripBarrel = cms.double( 0.03 ),
     egTrkIsoStripEndcap = cms.double( 0.03 )
 )
@@ -20953,6 +21110,7 @@ process.hltL1NonIsoElectronTrackIsol = cms.EDProducer( "EgammaHLTElectronTrackIs
     egTrkIsoZSpan = cms.double( 0.15 ),
     egTrkIsoRSpan = cms.double( 999999.0 ),
     egTrkIsoVetoConeSize = cms.double( 0.03 ),
+    egCheckForOtherEleInCone = cms.untracked.bool( False ),
     egTrkIsoStripBarrel = cms.double( 0.03 ),
     egTrkIsoStripEndcap = cms.double( 0.03 )
 )
@@ -20983,6 +21141,7 @@ process.hltEG17EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 17.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -21223,6 +21382,7 @@ process.hltDoubleEG8EtFilterUnseeded = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 8.0 ),
     ncandcut = cms.int32( 2 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltRecoEcalSuperClusterActivityCandidate" ),
     L1NonIsoCand = cms.InputTag( "" )
 )
@@ -21250,9 +21410,11 @@ process.hltEle17CaloIdVTCaloIsoVTTrkIdTTrkIsoVTSC8PMMassFilter = cms.EDFilter( "
     lowerMassCut = cms.double( 30.0 ),
     upperMassCut = cms.double( 999999.0 ),
     nZcandcut = cms.int32( 1 ),
+    reqOppCharge = cms.untracked.bool( False ),
     isElectron1 = cms.untracked.bool( False ),
     isElectron2 = cms.untracked.bool( False ),
     saveTags = cms.bool( True ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltRecoEcalSuperClusterActivityCandidate" ),
     L1NonIsoCand = cms.InputTag( "" )
 )
@@ -21266,6 +21428,7 @@ process.hltEG17EtFilterDoubleEG125 = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 17.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -21586,6 +21749,7 @@ process.hlt3HitElectronActivityTrackIsol = cms.EDProducer( "EgammaHLTElectronTra
     egTrkIsoZSpan = cms.double( 0.15 ),
     egTrkIsoRSpan = cms.double( 999999.0 ),
     egTrkIsoVetoConeSize = cms.double( 0.03 ),
+    egCheckForOtherEleInCone = cms.untracked.bool( False ),
     egTrkIsoStripBarrel = cms.double( 0.03 ),
     egTrkIsoStripEndcap = cms.double( 0.03 )
 )
@@ -21760,6 +21924,7 @@ process.hltEle17CaloIdVTCaloIsoVTTrkIdTTrkIsoVTEle8DoubleEtFilter = cms.EDFilter
     etcutEE = cms.double( 8.0 ),
     ncandcut = cms.int32( 2 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltRecoEcalSuperClusterActivityCandidate" ),
     L1NonIsoCand = cms.InputTag( "" )
 )
@@ -21798,9 +21963,11 @@ process.hltEle17CaloIdVTCaloIsoVTTrkIdTTrkIsoVTEle8PMMassFilter = cms.EDFilter( 
     lowerMassCut = cms.double( 30.0 ),
     upperMassCut = cms.double( 999999.0 ),
     nZcandcut = cms.int32( 1 ),
+    reqOppCharge = cms.untracked.bool( False ),
     isElectron1 = cms.untracked.bool( False ),
     isElectron2 = cms.untracked.bool( False ),
     saveTags = cms.bool( True ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltRecoEcalSuperClusterActivityCandidate" ),
     L1NonIsoCand = cms.InputTag( "" )
 )
@@ -21840,6 +22007,7 @@ process.hltEG22EtFilterL1EG18ForJet16 = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 22.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -21963,6 +22131,7 @@ process.hltEG27EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 27.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -22290,6 +22459,7 @@ process.hltEG32EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 32.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -22625,6 +22795,7 @@ process.hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17EtFilter = cms.EDFilter( "HLTEga
     etcutEE = cms.double( 32.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -22778,6 +22949,7 @@ process.hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17DoubleEtFilter = cms.EDFilter( "
     etcutEE = cms.double( 17.0 ),
     ncandcut = cms.int32( 2 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltRecoEcalSuperClusterActivityCandidate" ),
     L1NonIsoCand = cms.InputTag( "" )
 )
@@ -22823,6 +22995,7 @@ process.hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTEle17EtFilter = cms.EDFilter( "HLTEg
     etcutEE = cms.double( 32.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -22976,6 +23149,7 @@ process.hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTEle17DoubleEtFilter = cms.EDFilter( 
     etcutEE = cms.double( 17.0 ),
     ncandcut = cms.int32( 2 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltRecoEcalSuperClusterActivityCandidate" ),
     L1NonIsoCand = cms.InputTag( "" )
 )
@@ -23018,6 +23192,7 @@ process.hltEG65EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 65.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -23217,6 +23392,7 @@ process.hltEG100EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 100.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -23347,6 +23523,7 @@ process.hltEG8EtDoubleFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 8.0 ),
     ncandcut = cms.int32( 2 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -23451,6 +23628,7 @@ process.hltEG33EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 33.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -23507,6 +23685,7 @@ process.hltDoubleEG33EtDoubleFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 33.0 ),
     ncandcut = cms.int32( 2 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltRecoEcalSuperClusterActivityCandidate" ),
     L1NonIsoCand = cms.InputTag( "" )
 )
@@ -23763,6 +23942,7 @@ process.hltEG45EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 45.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -23819,6 +23999,7 @@ process.hltDoubleEG45EtDoubleFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 45.0 ),
     ncandcut = cms.int32( 2 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltRecoEcalSuperClusterActivityCandidate" ),
     L1NonIsoCand = cms.InputTag( "" )
 )
@@ -23886,6 +24067,7 @@ process.hltPreMediumIsoPFTau35Trk20 = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 process.hltCaloTowersTau1Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
+    verbose = cms.untracked.int32( 0 ),
     towers = cms.InputTag( "hltTowerMakerForJets" ),
     UseTowersInCone = cms.double( 0.8 ),
     TauTrigger = cms.InputTag( 'hltL1extraParticles','Tau' ),
@@ -23933,6 +24115,7 @@ process.hltIconeTau1Regional = cms.EDProducer( "FastjetJetProducer",
     puPtMin = cms.double( 10.0 )
 )
 process.hltCaloTowersTau2Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
+    verbose = cms.untracked.int32( 0 ),
     towers = cms.InputTag( "hltTowerMakerForJets" ),
     UseTowersInCone = cms.double( 0.8 ),
     TauTrigger = cms.InputTag( 'hltL1extraParticles','Tau' ),
@@ -23980,6 +24163,7 @@ process.hltIconeTau2Regional = cms.EDProducer( "FastjetJetProducer",
     puPtMin = cms.double( 10.0 )
 )
 process.hltCaloTowersTau3Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
+    verbose = cms.untracked.int32( 0 ),
     towers = cms.InputTag( "hltTowerMakerForJets" ),
     UseTowersInCone = cms.double( 0.8 ),
     TauTrigger = cms.InputTag( 'hltL1extraParticles','Tau' ),
@@ -24027,6 +24211,7 @@ process.hltIconeTau3Regional = cms.EDProducer( "FastjetJetProducer",
     puPtMin = cms.double( 10.0 )
 )
 process.hltCaloTowersTau4Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
+    verbose = cms.untracked.int32( 0 ),
     towers = cms.InputTag( "hltTowerMakerForJets" ),
     UseTowersInCone = cms.double( 0.8 ),
     TauTrigger = cms.InputTag( 'hltL1extraParticles','Tau' ),
@@ -24074,6 +24259,7 @@ process.hltIconeTau4Regional = cms.EDProducer( "FastjetJetProducer",
     puPtMin = cms.double( 10.0 )
 )
 process.hltCaloTowersCentral1Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
+    verbose = cms.untracked.int32( 0 ),
     towers = cms.InputTag( "hltTowerMakerForJets" ),
     UseTowersInCone = cms.double( 0.8 ),
     TauTrigger = cms.InputTag( 'hltL1extraParticles','Central' ),
@@ -24121,6 +24307,7 @@ process.hltIconeCentral1Regional = cms.EDProducer( "FastjetJetProducer",
     puPtMin = cms.double( 10.0 )
 )
 process.hltCaloTowersCentral2Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
+    verbose = cms.untracked.int32( 0 ),
     towers = cms.InputTag( "hltTowerMakerForJets" ),
     UseTowersInCone = cms.double( 0.8 ),
     TauTrigger = cms.InputTag( 'hltL1extraParticles','Central' ),
@@ -24168,6 +24355,7 @@ process.hltIconeCentral2Regional = cms.EDProducer( "FastjetJetProducer",
     puPtMin = cms.double( 10.0 )
 )
 process.hltCaloTowersCentral3Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
+    verbose = cms.untracked.int32( 0 ),
     towers = cms.InputTag( "hltTowerMakerForJets" ),
     UseTowersInCone = cms.double( 0.8 ),
     TauTrigger = cms.InputTag( 'hltL1extraParticles','Central' ),
@@ -24215,6 +24403,7 @@ process.hltIconeCentral3Regional = cms.EDProducer( "FastjetJetProducer",
     puPtMin = cms.double( 10.0 )
 )
 process.hltCaloTowersCentral4Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
+    verbose = cms.untracked.int32( 0 ),
     towers = cms.InputTag( "hltTowerMakerForJets" ),
     UseTowersInCone = cms.double( 0.8 ),
     TauTrigger = cms.InputTag( 'hltL1extraParticles','Central' ),
@@ -24727,6 +24916,7 @@ process.hltEG5EtFilterUnseededforDR = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 5.0 ),
     ncandcut = cms.int32( 0 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltRecoEcalSuperClusterActivityCandidate" ),
     L1NonIsoCand = cms.InputTag( "" )
 )
@@ -24927,6 +25117,7 @@ process.hltElectronActivityTrackIsol = cms.EDProducer( "EgammaHLTElectronTrackIs
     egTrkIsoZSpan = cms.double( 0.15 ),
     egTrkIsoRSpan = cms.double( 999999.0 ),
     egTrkIsoVetoConeSize = cms.double( 0.03 ),
+    egCheckForOtherEleInCone = cms.untracked.bool( False ),
     egTrkIsoStripBarrel = cms.double( 0.03 ),
     egTrkIsoStripEndcap = cms.double( 0.03 )
 )
@@ -25648,6 +25839,7 @@ process.hltDoubleEG8EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 8.0 ),
     ncandcut = cms.int32( 2 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -25818,6 +26010,7 @@ process.hltL1Mu3EG5Ele8EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 8.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -25966,6 +26159,7 @@ process.hltL1NonIsoHLTNonIsoSingleEle8NoCandEtFilter = cms.EDFilter( "HLTEgammaE
     etcutEE = cms.double( 8.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltRecoEcalSuperClusterActivityCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltRecoEcalSuperClusterActivityCandidate" )
 )
@@ -26067,6 +26261,7 @@ process.hltMu5Ele8CaloIdTTrkIdVLMass8Filter = cms.EDFilter( "HLTElectronMuonInvM
     upperMassCut = cms.double( 999999.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( True ),
+    electronRelaxed = cms.untracked.bool( True ),
     ElectronL1IsoCand = cms.InputTag( "hltPixelMatchElectronsActivity" ),
     ElectronL1NonIsoCand = cms.InputTag( "hltPixelMatchElectronsActivity" ),
     MuonCand = cms.InputTag( "hltL3MuonCandidates" )
@@ -26095,6 +26290,7 @@ process.hltMu8Ele8CaloIdTTrkIdVLMass8Filter = cms.EDFilter( "HLTElectronMuonInvM
     upperMassCut = cms.double( 999999.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( True ),
+    electronRelaxed = cms.untracked.bool( True ),
     ElectronL1IsoCand = cms.InputTag( "hltPixelMatchElectronsActivity" ),
     ElectronL1NonIsoCand = cms.InputTag( "hltPixelMatchElectronsActivity" ),
     MuonCand = cms.InputTag( "hltL3MuonCandidates" )
@@ -26264,6 +26460,7 @@ process.hltMu5Ele8CaloIdTCaloIsoVVLTrkIdVLMass8Filter = cms.EDFilter( "HLTElectr
     upperMassCut = cms.double( 999999.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( True ),
+    electronRelaxed = cms.untracked.bool( True ),
     ElectronL1IsoCand = cms.InputTag( "hltPixelMatchElectronsActivity" ),
     ElectronL1NonIsoCand = cms.InputTag( "hltPixelMatchElectronsActivity" ),
     MuonCand = cms.InputTag( "hltL3MuonCandidates" )
@@ -26282,6 +26479,7 @@ process.hltEG8EtFilterL1MuOpenDoubleEG5 = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 8.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -26543,6 +26741,7 @@ process.hltEG17EtFilterL1MuOpenEG12 = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 17.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -26603,6 +26802,7 @@ process.hltMu8Ele17CaloIdTCaloIsoVLEtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 17.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -26699,6 +26899,7 @@ process.hltEG20EtFilterL1MuOpenEG12 = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 20.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -27015,6 +27216,7 @@ process.hltDoubleEG15EtFilterL1MuOpenDoubleEG5 = cms.EDFilter( "HLTEgammaEtFilte
     etcutEE = cms.double( 15.0 ),
     ncandcut = cms.int32( 2 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -27582,6 +27784,7 @@ process.hltEG8EtFilterL1Mu7EG5 = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 8.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -27708,6 +27911,7 @@ process.hltEG8EtFilterL1Mu12EG5 = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 8.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -28699,6 +28903,7 @@ process.hltEG8EtFilterL1DoubleMuOpenEG5 = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 8.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -28851,6 +29056,7 @@ process.hltEG40EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 40.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -28960,6 +29166,7 @@ process.hltEG40EtDoubleFilterUnseeded = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 40.0 ),
     ncandcut = cms.int32( 2 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltRecoEcalSuperClusterActivityCandidate" ),
     L1NonIsoCand = cms.InputTag( "" )
 )
@@ -29024,6 +29231,7 @@ process.hltEG55EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 55.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -29085,6 +29293,7 @@ process.hltEG5EtFilterUnseeded = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 5.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltRecoEcalSuperClusterActivityCandidate" ),
     L1NonIsoCand = cms.InputTag( "" )
 )
@@ -29272,6 +29481,7 @@ process.hltEG60EtFilterL1EG5HTT75 = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 60.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -29406,6 +29616,7 @@ process.hltEG8L1EG5DoubleJet20CentralEtFilter = cms.EDFilter( "HLTEgammaEtFilter
     etcutEE = cms.double( 8.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -29553,6 +29764,7 @@ process.hltEG15EtFilterL1EG5HTT75 = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 15.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -29714,6 +29926,7 @@ process.hltEG12EtFilterUnseeded = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 12.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltRecoEcalSuperClusterActivityCandidate" ),
     L1NonIsoCand = cms.InputTag( "" )
 )
@@ -29852,6 +30065,7 @@ process.hltHitElectronActivityTrackIsol = cms.EDProducer( "EgammaHLTElectronTrac
     egTrkIsoZSpan = cms.double( 0.15 ),
     egTrkIsoRSpan = cms.double( 999999.0 ),
     egTrkIsoVetoConeSize = cms.double( 0.03 ),
+    egCheckForOtherEleInCone = cms.untracked.bool( False ),
     egTrkIsoStripBarrel = cms.double( 0.03 ),
     egTrkIsoStripEndcap = cms.double( 0.03 )
 )
@@ -29920,6 +30134,7 @@ process.hltEG18EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 18.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -30085,6 +30300,7 @@ process.hltEG20EtFilterL1SingleEG18orL1SingleEG20 = cms.EDFilter( "HLTEgammaEtFi
     etcutEE = cms.double( 20.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -30296,6 +30512,7 @@ process.hltEG25EtFilterL1SingleEG22 = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 25.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -30509,6 +30726,7 @@ process.hltEG25EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 25.0 ),
     ncandcut = cms.int32( 1 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -31770,6 +31988,7 @@ process.hltDoubleEG8EtFilterL1DoubleEG5HTT75 = cms.EDFilter( "HLTEgammaEtFilter"
     etcutEE = cms.double( 8.0 ),
     ncandcut = cms.int32( 2 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -31870,7 +32089,11 @@ process.hltL1NonIsoHLTCaloIdTTrkIdVLDoubleEle8HTT75PMMassFilter8 = cms.EDFilter(
     lowerMassCut = cms.double( 8.0 ),
     upperMassCut = cms.double( 999999.0 ),
     nZcandcut = cms.int32( 1 ),
+    reqOppCharge = cms.untracked.bool( False ),
+    isElectron1 = cms.untracked.bool( True ),
+    isElectron2 = cms.untracked.bool( True ),
     saveTags = cms.bool( True ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
     L1NonIsoCand = cms.InputTag( "hltPixelMatchElectronsL1NonIso" )
 )
@@ -31914,6 +32137,7 @@ process.hltTripleEG10EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 10.0 ),
     ncandcut = cms.int32( 3 ),
     saveTags = cms.bool( False ),
+    relaxed = cms.untracked.bool( True ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
@@ -32800,6 +33024,7 @@ process.hltPreHcalCalibration = cms.EDFilter( "HLTPrescaler",
 )
 process.hltHcalCalibTypeFilter = cms.EDFilter( "HLTHcalCalibTypeFilter",
     InputTag = cms.InputTag( "rawDataCollector" ),
+    FilterSummary = cms.untracked.bool( False ),
     CalibTypes = cms.vint32( 1, 2, 3, 4, 5, 6 )
 )
 process.hltHcalCalibrationRaw = cms.EDProducer( "EvFFEDSelector",
@@ -33147,6 +33372,7 @@ process.hltEcalRegionalPi0EtaFEDs = cms.EDProducer( "EcalRawToRecHitRoI",
     type = cms.string( "egamma" ),
     doES = cms.bool( True ),
     sourceTag_es = cms.InputTag( "hltESRawToRecHitFacility" ),
+    esInstance = cms.untracked.string( "es" ),
     MuJobPSet = cms.PSet(  ),
     JetJobPSet = cms.VPSet( 
     ),
@@ -33395,10 +33621,18 @@ process.hltRPCPointProducer = cms.EDProducer( "RPCPointProducer",
     cscSegments = cms.InputTag( "hltCscSegments" ),
     dt4DSegments = cms.InputTag( "hltDt4DSegments" ),
     tracks = cms.InputTag( "NotUsed" ),
+    debug = cms.untracked.bool( False ),
+    incldt = cms.untracked.bool( True ),
+    inclcsc = cms.untracked.bool( True ),
     incltrack = cms.untracked.bool( False ),
+    MinCosAng = cms.untracked.double( 0.95 ),
+    MaxD = cms.untracked.double( 80.0 ),
+    MaxDrb4 = cms.untracked.double( 150.0 ),
+    ExtrapolatedRegion = cms.untracked.double( 0.5 ),
     TrackTransformer = cms.PSet(  )
 )
 process.hltRPCFilter = cms.EDFilter( "HLTRPCFilter",
+    rangestrips = cms.untracked.double( 1.0 ),
     rpcRecHits = cms.InputTag( "hltRpcRecHits" ),
     rpcDTPoints = cms.InputTag( 'hltRPCPointProducer','RPCDTExtrapolatedPoints' ),
     rpcCSCPoints = cms.InputTag( 'hltRPCPointProducer','RPCCSCExtrapolatedPoints' )
@@ -33444,6 +33678,8 @@ process.hltPreDQMFEDIntegrity = cms.EDFilter( "HLTPrescaler",
 )
 process.hltCSCMonitorModule = cms.EDAnalyzer( "CSCMonitorModule",
     InputObjects = cms.untracked.InputTag( "rawDataCollector" ),
+    PREBOOK_EFF_PARAMS = cms.untracked.bool( False ),
+    PROCESS_DCS_SCALERS = cms.untracked.bool( True ),
     BOOKING_XML_FILE = cms.FileInPath( "DQM/CSCMonitorModule/data/emuDQMBooking.xml" ),
     EventProcessor = cms.untracked.PSet( 
       PROCESS_EFF_PARAMETERS = cms.untracked.bool( False ),
@@ -33494,6 +33730,8 @@ process.hltDTDQMEvF = cms.EDProducer( "DTUnpackingModule",
     fedbyType = cms.bool( False ),
     inputLabel = cms.InputTag( "rawDataCollector" ),
     useStandardFEDid = cms.bool( True ),
+    minFEDid = cms.untracked.int32( 770 ),
+    maxFEDid = cms.untracked.int32( 779 ),
     dqmOnly = cms.bool( True ),
     rosParameters = cms.PSet(  ),
     readOutParameters = cms.PSet( 
@@ -33516,6 +33754,8 @@ process.hltEcalRawToRecHitByproductProducer = cms.EDProducer( "EcalRawToRecHitBy
 process.hltEBHltTask = cms.EDAnalyzer( "EBHltTask",
     prefixME = cms.untracked.string( "EcalBarrel" ),
     folderName = cms.untracked.string( "FEDIntegrity_EvF" ),
+    enableCleanup = cms.untracked.bool( False ),
+    mergeRuns = cms.untracked.bool( False ),
     EBDetIdCollection0 = cms.InputTag( 'hltEcalRawToRecHitByproductProducer','EcalIntegrityDCCSizeErrors' ),
     EBDetIdCollection1 = cms.InputTag( 'hltEcalRawToRecHitByproductProducer','EcalIntegrityGainErrors' ),
     EBDetIdCollection2 = cms.InputTag( 'hltEcalRawToRecHitByproductProducer','EcalIntegrityChIdErrors' ),
@@ -33531,6 +33771,8 @@ process.hltEBHltTask = cms.EDAnalyzer( "EBHltTask",
 process.hltEEHltTask = cms.EDAnalyzer( "EEHltTask",
     prefixME = cms.untracked.string( "EcalEndcap" ),
     folderName = cms.untracked.string( "FEDIntegrity_EvF" ),
+    enableCleanup = cms.untracked.bool( False ),
+    mergeRuns = cms.untracked.bool( False ),
     EEDetIdCollection0 = cms.InputTag( 'hltEcalRawToRecHitByproductProducer','EcalIntegrityDCCSizeErrors' ),
     EEDetIdCollection1 = cms.InputTag( 'hltEcalRawToRecHitByproductProducer','EcalIntegrityGainErrors' ),
     EEDetIdCollection2 = cms.InputTag( 'hltEcalRawToRecHitByproductProducer','EcalIntegrityChIdErrors' ),
@@ -33546,32 +33788,50 @@ process.hltEEHltTask = cms.EDAnalyzer( "EEHltTask",
 process.hltESFEDIntegrityTask = cms.EDAnalyzer( "ESFEDIntegrityTask",
     prefixME = cms.untracked.string( "EcalPreshower" ),
     FEDDirName = cms.untracked.string( "FEDIntegrity_EvF" ),
+    enableCleanup = cms.untracked.bool( False ),
+    mergeRuns = cms.untracked.bool( False ),
+    debug = cms.untracked.bool( False ),
     ESDCCCollections = cms.InputTag( "NotUsed" ),
     ESKChipCollections = cms.InputTag( "NotUsed" ),
     FEDRawDataCollection = cms.InputTag( "rawDataCollector" )
 )
 process.hltHcalDataIntegrityMonitor = cms.EDAnalyzer( "HcalDataIntegrityTask",
+    online = cms.untracked.bool( False ),
+    mergeRuns = cms.untracked.bool( False ),
+    enableCleanup = cms.untracked.bool( False ),
+    debug = cms.untracked.int32( 0 ),
+    subSystemFolder = cms.untracked.string( "Hcal" ),
     TaskFolder = cms.untracked.string( "FEDIntegrity_EvF" ),
+    skipOutOfOrderLS = cms.untracked.bool( False ),
+    NLumiBlocks = cms.untracked.int32( 4000 ),
+    makeDiagnostics = cms.untracked.bool( False ),
     RawDataLabel = cms.untracked.InputTag( "rawDataCollector" ),
     UnpackerReportLabel = cms.untracked.InputTag( "hltHcalDigis" ),
     AllowedCalibTypes = cms.untracked.vint32( 0, 1, 2, 3, 4, 5, 6, 7 )
 )
 process.hltL1tfed = cms.EDAnalyzer( "L1TFED",
+    verbose = cms.untracked.bool( False ),
     rawTag = cms.InputTag( "rawDataCollector" ),
     DQMStore = cms.untracked.bool( True ),
+    outputFile = cms.untracked.string( "" ),
     disableROOToutput = cms.untracked.bool( True ),
     FEDDirName = cms.untracked.string( "L1T/FEDIntegrity_EvF" ),
+    stableROConfig = cms.untracked.bool( True ),
     L1FEDS = cms.vint32( 745, 760, 780, 812, 813 )
 )
 process.hltSiPixelHLTSource = cms.EDAnalyzer( "SiPixelHLTSource",
     RawInput = cms.InputTag( "rawDataCollector" ),
     ErrorInput = cms.InputTag( "hltSiPixelDigis" ),
+    saveFile = cms.untracked.bool( False ),
+    slowDown = cms.untracked.bool( False ),
     DirName = cms.untracked.string( "Pixel/FEDIntegrity_EvF" ),
     outputFile = cms.string( "Pixel_DQM_HLT.root" )
 )
 process.hltSiStripFEDCheck = cms.EDAnalyzer( "SiStripFEDCheckPlugin",
     RawDataTag = cms.InputTag( "rawDataCollector" ),
     DirName = cms.untracked.string( "SiStrip/FEDIntegrity_EvF" ),
+    PrintDebugMessages = cms.untracked.bool( False ),
+    WriteDQMStore = cms.untracked.bool( False ),
     HistogramUpdateFrequency = cms.untracked.uint32( 1000 ),
     DoPayloadChecks = cms.untracked.bool( False ),
     CheckChannelLengths = cms.untracked.bool( False ),
@@ -33581,7 +33841,10 @@ process.hltSiStripFEDCheck = cms.EDAnalyzer( "SiStripFEDCheckPlugin",
 )
 process.hltRPCFEDIntegrity = cms.EDAnalyzer( "RPCFEDIntegrity",
     RPCRawCountsInputTag = cms.untracked.InputTag( "hltMuonRPCDigis" ),
-    RPCPrefixDir = cms.untracked.string( "RPC/FEDIntegrity_EvF" )
+    RPCPrefixDir = cms.untracked.string( "RPC/FEDIntegrity_EvF" ),
+    MergeRuns = cms.untracked.bool( False ),
+    MinimumFEDID = cms.untracked.int32( 790 ),
+    MaximumFEDID = cms.untracked.int32( 792 )
 )
 process.hltFEDSelector = cms.EDProducer( "EvFFEDSelector",
     inputTag = cms.InputTag( "rawDataCollector" ),
@@ -33595,10 +33858,17 @@ process.hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
 )
 process.hltL1GtTrigReport = cms.EDAnalyzer( "L1GtTrigReport",
     UseL1GlobalTriggerRecord = cms.bool( False ),
-    L1GtRecordInputTag = cms.InputTag( "hltGtDigis" )
+    L1GtRecordInputTag = cms.InputTag( "hltGtDigis" ),
+    PrintVerbosity = cms.untracked.int32( 2 ),
+    PrintOutput = cms.untracked.int32( 3 )
 )
 process.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
-    HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
+    HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' ),
+    reportBy = cms.untracked.string( "job" ),
+    resetBy = cms.untracked.string( "never" ),
+    serviceBy = cms.untracked.string( "never" ),
+    ReferencePath = cms.untracked.string( "HLTriggerFinalPath" ),
+    ReferenceRate = cms.untracked.double( 100.0 )
 )
 process.hltPreALCAP0Output = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -33617,7 +33887,15 @@ process.hltPreCalibrationOutput = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 process.hltDQML1Scalers = cms.EDAnalyzer( "L1Scalers",
+    verbose = cms.untracked.bool( False ),
     l1GtData = cms.InputTag( "hltGtDigis" ),
+    denomIsTech = cms.untracked.bool( True ),
+    denomBit = cms.untracked.uint32( 40 ),
+    tfIsTech = cms.untracked.bool( True ),
+    tfBit = cms.untracked.uint32( 41 ),
+    dqmFolder = cms.untracked.string( "L1T/L1Scalers_EvF" ),
+    firstFED = cms.untracked.uint32( 0 ),
+    lastFED = cms.untracked.uint32( 931 ),
     fedRawData = cms.InputTag( "rawDataCollector" ),
     HFRecHitCollection = cms.InputTag( "hltHfreco" ),
     maskedChannels = cms.untracked.vint32( 8137, 8141, 8146, 8149, 8150, 8153 )
@@ -33636,8 +33914,11 @@ process.hltDQML1SeedLogicScalers = cms.EDAnalyzer( "HLTSeedL1LogicScalers",
       'HLT_MinBiasEcal' )
 )
 process.hltDQMHLTScalers = cms.EDAnalyzer( "HLTScalers",
+    dqmFolder = cms.untracked.string( "HLT/HLTScalers_EvF" ),
     processname = cms.string( "HLT" ),
-    triggerResults = cms.InputTag( 'TriggerResults','','HLT' )
+    triggerResults = cms.InputTag( 'TriggerResults','','HLT' ),
+    MonitorDaemon = cms.untracked.bool( False ),
+    verbose = cms.untracked.bool( False )
 )
 process.hltPreDQMForPPOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),

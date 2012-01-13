@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_0_0/HIon/V7 (CMSSW_5_0_0_HLT2)
+# /dev/CMSSW_5_0_0/HIon/V8 (CMSSW_5_0_0_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_0_0/HIon/V7')
+  tableName = cms.string('/dev/CMSSW_5_0_0/HIon/V8')
 )
 
 process.streams = cms.PSet( 
@@ -432,6 +432,7 @@ process.eegeom = cms.ESSource( "EmptyESSource",
     firstValid = cms.vuint32( 1 )
 )
 process.es_hardcode = cms.ESSource( "HcalHardcodeCalibrations",
+    H2Mode = cms.untracked.bool( False ),
     toGet = cms.untracked.vstring( 'GainWidths' ),
     appendToDataLabel = cms.string( "" )
 )
@@ -455,6 +456,7 @@ process.hltESSHcalSeverityLevel = cms.ESSource( "EmptyESSource",
 )
 process.magfield = cms.ESSource( "XMLIdealGeometryESSource",
     rootNodeName = cms.string( "cmsMagneticField:MAGF" ),
+    userControlledNamespace = cms.untracked.bool( False ),
     appendToDataLabel = cms.string( "" ),
     geomXMLFiles = cms.vstring( 'Geometry/CMSCommonData/data/normal/cmsextent.xml',
       'Geometry/CMSCommonData/data/cms.xml',
@@ -489,6 +491,7 @@ process.CSCGeometryESModule = cms.ESProducer( "CSCGeometryESModule",
   useOnlyWiresInME1a = cms.bool( False ),
   useGangedStripsInME1a = cms.bool( True ),
   useCentreTIOffsets = cms.bool( False ),
+  debugV = cms.untracked.bool( False ),
   useDDD = cms.bool( False ),
   applyAlignment = cms.bool( True )
 )
@@ -513,6 +516,7 @@ process.CaloTowerGeometryFromDBEP = cms.ESProducer( "CaloTowerGeometryFromDBEP",
   applyAlignment = cms.bool( False )
 )
 process.CastorDbProducer = cms.ESProducer( "CastorDbProducer",
+  file = cms.untracked.string( "" ),
   appendToDataLabel = cms.string( "" )
 )
 process.ClusterShapeHitFilterESProducer = cms.ESProducer( "ClusterShapeHitFilterESProducer",
@@ -580,6 +584,8 @@ process.HcalGeometryFromDBEP = cms.ESProducer( "HcalGeometryFromDBEP",
   applyAlignment = cms.bool( False )
 )
 process.HcalTopologyIdealEP = cms.ESProducer( "HcalTopologyIdealEP",
+  Exclude = cms.untracked.string( "" ),
+  H2Mode = cms.untracked.bool( False ),
   appendToDataLabel = cms.string( "" )
 )
 process.L1GtTriggerMaskAlgoTrigTrivialProducer = cms.ESProducer( "L1GtTriggerMaskAlgoTrigTrivialProducer",
@@ -627,6 +633,7 @@ process.OppositeMaterialPropagatorForHI = cms.ESProducer( "PropagatorWithMateria
   appendToDataLabel = cms.string( "" )
 )
 process.RPCGeometryESModule = cms.ESProducer( "RPCGeometryESModule",
+  compatibiltyWith11 = cms.untracked.bool( True ),
   useDDD = cms.untracked.bool( False ),
   appendToDataLabel = cms.string( "" )
 )
@@ -756,6 +763,7 @@ process.TransientTrackBuilderESProducer = cms.ESProducer( "TransientTrackBuilder
 )
 process.VBF0 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
   label = cms.untracked.string( "0t" ),
+  debugBuilder = cms.untracked.bool( False ),
   version = cms.string( "grid_1103l_071212_2t" ),
   overrideMasterSector = cms.bool( True ),
   useParametrizedTrackerField = cms.bool( True ),
@@ -768,6 +776,7 @@ process.VBF0 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
 )
 process.VBF20 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
   label = cms.untracked.string( "071212_2t" ),
+  debugBuilder = cms.untracked.bool( False ),
   version = cms.string( "grid_1103l_071212_2t" ),
   overrideMasterSector = cms.bool( True ),
   useParametrizedTrackerField = cms.bool( True ),
@@ -780,6 +789,7 @@ process.VBF20 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
 )
 process.VBF30 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
   label = cms.untracked.string( "071212_3t" ),
+  debugBuilder = cms.untracked.bool( False ),
   version = cms.string( "grid_1103l_071212_3t" ),
   overrideMasterSector = cms.bool( True ),
   useParametrizedTrackerField = cms.bool( True ),
@@ -792,6 +802,7 @@ process.VBF30 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
 )
 process.VBF35 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
   label = cms.untracked.string( "071212_3_5t" ),
+  debugBuilder = cms.untracked.bool( False ),
   version = cms.string( "grid_1103l_071212_3_5t" ),
   overrideMasterSector = cms.bool( True ),
   useParametrizedTrackerField = cms.bool( True ),
@@ -804,6 +815,7 @@ process.VBF35 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
 )
 process.VBF38 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
   label = cms.untracked.string( "090322_3_8t" ),
+  debugBuilder = cms.untracked.bool( False ),
   version = cms.string( "grid_1103l_090322_3_8t" ),
   overrideMasterSector = cms.bool( False ),
   useParametrizedTrackerField = cms.bool( True ),
@@ -816,6 +828,7 @@ process.VBF38 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
 )
 process.VBF40 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
   label = cms.untracked.string( "071212_4t" ),
+  debugBuilder = cms.untracked.bool( False ),
   version = cms.string( "grid_1103l_071212_4t" ),
   overrideMasterSector = cms.bool( True ),
   useParametrizedTrackerField = cms.bool( True ),
@@ -942,6 +955,7 @@ process.hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
     'HcalCellDead' )
 )
 process.hcal_db_producer = cms.ESProducer( "HcalDbProducer",
+  file = cms.untracked.string( "" ),
   appendToDataLabel = cms.string( "" )
 )
 process.hltESPAK5CaloL1L2L3 = cms.ESProducer( "JetCorrectionESChain",
@@ -1408,11 +1422,16 @@ process.hltESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer
   Regional = cms.bool( True ),
   OnDemand = cms.bool( True ),
   UsePixelModuleQualityDB = cms.bool( True ),
+  DebugPixelModuleQualityDB = cms.untracked.bool( False ),
   UsePixelROCQualityDB = cms.bool( True ),
+  DebugPixelROCQualityDB = cms.untracked.bool( False ),
   UseStripModuleQualityDB = cms.bool( True ),
+  DebugStripModuleQualityDB = cms.untracked.bool( False ),
   UseStripAPVFiberQualityDB = cms.bool( True ),
+  DebugStripAPVFiberQualityDB = cms.untracked.bool( False ),
   MaskBadAPVFibers = cms.bool( True ),
   UseStripStripQualityDB = cms.bool( True ),
+  DebugStripStripQualityDB = cms.untracked.bool( False ),
   SiStripQualityLabel = cms.string( "" ),
   appendToDataLabel = cms.string( "" ),
   skipClusters = cms.InputTag( "" ),
@@ -1451,11 +1470,16 @@ process.hltESPMeasurementTrackerForHI = cms.ESProducer( "MeasurementTrackerESPro
   Regional = cms.bool( False ),
   OnDemand = cms.bool( False ),
   UsePixelModuleQualityDB = cms.bool( True ),
+  DebugPixelModuleQualityDB = cms.untracked.bool( False ),
   UsePixelROCQualityDB = cms.bool( True ),
+  DebugPixelROCQualityDB = cms.untracked.bool( False ),
   UseStripModuleQualityDB = cms.bool( True ),
+  DebugStripModuleQualityDB = cms.untracked.bool( False ),
   UseStripAPVFiberQualityDB = cms.bool( True ),
+  DebugStripAPVFiberQualityDB = cms.untracked.bool( False ),
   MaskBadAPVFibers = cms.bool( True ),
   UseStripStripQualityDB = cms.bool( True ),
+  DebugStripStripQualityDB = cms.untracked.bool( False ),
   SiStripQualityLabel = cms.string( "" ),
   appendToDataLabel = cms.string( "" ),
   skipClusters = cms.InputTag( "" ),
@@ -1955,6 +1979,7 @@ process.hltESPTrackCounting3D2nd = cms.ESProducer( "TrackCountingESProducer",
   trackQualityClass = cms.string( "any" )
 )
 process.hltESPTrackerRecoGeometryESProducer = cms.ESProducer( "TrackerRecoGeometryESProducer",
+  trackerGeometryLabel = cms.untracked.string( "" ),
   appendToDataLabel = cms.string( "" )
 )
 process.hltESPTrajectoryBuilderIT = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
@@ -2118,11 +2143,16 @@ process.hltHIAllESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESPro
   Regional = cms.bool( True ),
   OnDemand = cms.bool( True ),
   UsePixelModuleQualityDB = cms.bool( True ),
+  DebugPixelModuleQualityDB = cms.untracked.bool( False ),
   UsePixelROCQualityDB = cms.bool( True ),
+  DebugPixelROCQualityDB = cms.untracked.bool( False ),
   UseStripModuleQualityDB = cms.bool( True ),
+  DebugStripModuleQualityDB = cms.untracked.bool( False ),
   UseStripAPVFiberQualityDB = cms.bool( True ),
+  DebugStripAPVFiberQualityDB = cms.untracked.bool( False ),
   MaskBadAPVFibers = cms.bool( True ),
   UseStripStripQualityDB = cms.bool( True ),
+  DebugStripStripQualityDB = cms.untracked.bool( False ),
   SiStripQualityLabel = cms.string( "" ),
   appendToDataLabel = cms.string( "" ),
   skipClusters = cms.InputTag( "" ),
@@ -2196,11 +2226,16 @@ process.hltIter1ESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESPro
   Regional = cms.bool( True ),
   OnDemand = cms.bool( True ),
   UsePixelModuleQualityDB = cms.bool( True ),
+  DebugPixelModuleQualityDB = cms.untracked.bool( False ),
   UsePixelROCQualityDB = cms.bool( True ),
+  DebugPixelROCQualityDB = cms.untracked.bool( False ),
   UseStripModuleQualityDB = cms.bool( True ),
+  DebugStripModuleQualityDB = cms.untracked.bool( False ),
   UseStripAPVFiberQualityDB = cms.bool( True ),
+  DebugStripAPVFiberQualityDB = cms.untracked.bool( False ),
   MaskBadAPVFibers = cms.bool( True ),
   UseStripStripQualityDB = cms.bool( True ),
+  DebugStripStripQualityDB = cms.untracked.bool( False ),
   SiStripQualityLabel = cms.string( "" ),
   appendToDataLabel = cms.string( "" ),
   skipClusters = cms.InputTag( "hltIter1ClustersRefRemoval" ),
@@ -2298,11 +2333,16 @@ process.hltIter2ESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESPro
   Regional = cms.bool( True ),
   OnDemand = cms.bool( True ),
   UsePixelModuleQualityDB = cms.bool( True ),
+  DebugPixelModuleQualityDB = cms.untracked.bool( False ),
   UsePixelROCQualityDB = cms.bool( True ),
+  DebugPixelROCQualityDB = cms.untracked.bool( False ),
   UseStripModuleQualityDB = cms.bool( True ),
+  DebugStripModuleQualityDB = cms.untracked.bool( False ),
   UseStripAPVFiberQualityDB = cms.bool( True ),
+  DebugStripAPVFiberQualityDB = cms.untracked.bool( False ),
   MaskBadAPVFibers = cms.bool( True ),
   UseStripStripQualityDB = cms.bool( True ),
+  DebugStripStripQualityDB = cms.untracked.bool( False ),
   SiStripQualityLabel = cms.string( "" ),
   appendToDataLabel = cms.string( "" ),
   skipClusters = cms.InputTag( "hltIter2ClustersRefRemoval" ),
@@ -2454,11 +2494,16 @@ process.hltIter3ESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESPro
   Regional = cms.bool( True ),
   OnDemand = cms.bool( True ),
   UsePixelModuleQualityDB = cms.bool( True ),
+  DebugPixelModuleQualityDB = cms.untracked.bool( False ),
   UsePixelROCQualityDB = cms.bool( True ),
+  DebugPixelROCQualityDB = cms.untracked.bool( False ),
   UseStripModuleQualityDB = cms.bool( True ),
+  DebugStripModuleQualityDB = cms.untracked.bool( False ),
   UseStripAPVFiberQualityDB = cms.bool( True ),
+  DebugStripAPVFiberQualityDB = cms.untracked.bool( False ),
   MaskBadAPVFibers = cms.bool( True ),
   UseStripStripQualityDB = cms.bool( True ),
+  DebugStripStripQualityDB = cms.untracked.bool( False ),
   SiStripQualityLabel = cms.string( "" ),
   appendToDataLabel = cms.string( "" ),
   skipClusters = cms.InputTag( "hltIter3ClustersRefRemoval" ),
@@ -2527,11 +2572,16 @@ process.hltIter4ESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESPro
   Regional = cms.bool( True ),
   OnDemand = cms.bool( True ),
   UsePixelModuleQualityDB = cms.bool( True ),
+  DebugPixelModuleQualityDB = cms.untracked.bool( False ),
   UsePixelROCQualityDB = cms.bool( True ),
+  DebugPixelROCQualityDB = cms.untracked.bool( False ),
   UseStripModuleQualityDB = cms.bool( True ),
+  DebugStripModuleQualityDB = cms.untracked.bool( False ),
   UseStripAPVFiberQualityDB = cms.bool( True ),
+  DebugStripAPVFiberQualityDB = cms.untracked.bool( False ),
   MaskBadAPVFibers = cms.bool( True ),
   UseStripStripQualityDB = cms.bool( True ),
+  DebugStripStripQualityDB = cms.untracked.bool( False ),
   SiStripQualityLabel = cms.string( "" ),
   appendToDataLabel = cms.string( "" ),
   skipClusters = cms.InputTag( "hltIter4ClustersRefRemoval" ),
@@ -2664,6 +2714,11 @@ process.sistripconn = cms.ESProducer( "SiStripConnectivity" )
 process.DQM = cms.Service( "DQM",
 )
 process.DQMStore = cms.Service( "DQMStore",
+    forceResetOnBeginRun = cms.untracked.bool( False ),
+    verbose = cms.untracked.int32( 0 ),
+    verboseQT = cms.untracked.int32( 0 ),
+    collateHistograms = cms.untracked.bool( False ),
+    referenceFileName = cms.untracked.string( "" )
 )
 process.DTDataIntegrityTask = cms.Service( "DTDataIntegrityTask",
     getSCInfo = cms.untracked.bool( True ),
@@ -3037,7 +3092,9 @@ process.hltGctDigis = cms.EDProducer( "GctRawToDigi",
     numberOfGctSamplesToUnpack = cms.uint32( 1 ),
     numberOfRctSamplesToUnpack = cms.uint32( 1 ),
     unpackSharedRegions = cms.bool( False ),
-    unpackerVersion = cms.uint32( 0 )
+    unpackerVersion = cms.uint32( 0 ),
+    checkHeaders = cms.untracked.bool( False ),
+    verbose = cms.untracked.bool( False )
 )
 process.hltL1GtObjectMap = cms.EDProducer( "L1GlobalTrigger",
     GmtInputTag = cms.InputTag( "hltGtDigis" ),
@@ -3057,6 +3114,7 @@ process.hltL1GtObjectMap = cms.EDProducer( "L1GlobalTrigger",
     TechnicalTriggersUnprescaled = cms.bool( True ),
     TechnicalTriggersUnmasked = cms.bool( False ),
     TechnicalTriggersVetoUnmasked = cms.bool( True ),
+    Verbosity = cms.untracked.int32( 0 ),
     TechnicalTriggersInputTags = cms.VInputTag( 'simBscDigis' ),
     RecordLength = cms.vint32( 3, 0 )
 )
@@ -3117,6 +3175,7 @@ process.hltEcalRegionalRestFEDs = cms.EDProducer( "EcalRawToRecHitRoI",
     type = cms.string( "all" ),
     doES = cms.bool( False ),
     sourceTag_es = cms.InputTag( "NotNeededoESfalse" ),
+    esInstance = cms.untracked.string( "es" ),
     MuJobPSet = cms.PSet(  ),
     JetJobPSet = cms.VPSet( 
     ),
@@ -3157,6 +3216,9 @@ process.hltHcalDigis = cms.EDProducer( "HcalRawToDigi",
     InputLabel = cms.InputTag( "rawDataCollector" ),
     UnpackCalib = cms.untracked.bool( True ),
     UnpackZDC = cms.untracked.bool( True ),
+    UnpackTTP = cms.untracked.bool( False ),
+    silent = cms.untracked.bool( True ),
+    ComplainEmptyData = cms.untracked.bool( False ),
     firstSample = cms.int32( 0 ),
     lastSample = cms.int32( 9 ),
     FilterDataQuality = cms.bool( True )
@@ -3539,6 +3601,7 @@ process.hltMet = cms.EDProducer( "METProducer",
     noHF = cms.bool( False ),
     calculateSignificance = cms.bool( False ),
     onlyFiducialParticles = cms.bool( False ),
+    usePt = cms.untracked.bool( False ),
     jets = cms.InputTag( "" ),
     rf_type = cms.int32( 0 ),
     correctShowerTracks = cms.bool( False ),
@@ -3636,9 +3699,11 @@ process.hltSiStripRawDigiToVirginRaw = cms.EDProducer( "SiStripDigiToRawModule",
     UseWrongDigiType = cms.bool( False )
 )
 process.virginRawDataRepacker = cms.EDProducer( "RawDataCollectorByLabel",
+    verbose = cms.untracked.int32( 0 ),
     RawCollectionList = cms.VInputTag( 'hltSiStripRawDigiToVirginRaw' )
 )
 process.rawDataRepacker = cms.EDProducer( "RawDataCollectorByLabel",
+    verbose = cms.untracked.int32( 0 ),
     RawCollectionList = cms.VInputTag( 'hltSiStripDigiToZSRaw','source','rawDataCollector' )
 )
 process.hltBoolEnd = cms.EDFilter( "HLTBool",
@@ -3707,6 +3772,7 @@ process.hltPreHIHcalCalibration = cms.EDFilter( "HLTPrescaler",
 )
 process.hltHcalCalibTypeFilter = cms.EDFilter( "HLTHcalCalibTypeFilter",
     InputTag = cms.InputTag( "rawDataCollector" ),
+    FilterSummary = cms.untracked.bool( False ),
     CalibTypes = cms.vint32( 1, 2, 3, 4, 5, 6 )
 )
 process.hltHcalCalibrationRaw = cms.EDProducer( "EvFFEDSelector",
@@ -3764,6 +3830,8 @@ process.hltPreHIZeroBiasPixelSingleTrack = cms.EDFilter( "HLTPrescaler",
 process.hltSiPixelDigis = cms.EDProducer( "SiPixelRawToDigi",
     IncludeErrors = cms.bool( False ),
     UseQualityInfo = cms.bool( False ),
+    UseCablingTree = cms.untracked.bool( True ),
+    Timing = cms.untracked.bool( False ),
     InputLabel = cms.InputTag( "rawDataCollector" ),
     ErrorList = cms.vint32(  )
 )
@@ -3771,6 +3839,7 @@ process.hltHISiPixelClusters = cms.EDProducer( "SiPixelClusterProducer",
     src = cms.InputTag( "hltSiPixelDigis" ),
     maxNumberOfClusters = cms.int32( -1 ),
     payloadType = cms.string( "HLT" ),
+    ClusterMode = cms.untracked.string( "PixelThresholdClusterizer" ),
     ChannelThreshold = cms.int32( 1000 ),
     SeedThreshold = cms.int32( 1000 ),
     ClusterThreshold = cms.double( 4000.0 ),
@@ -3781,6 +3850,7 @@ process.hltHISiPixelClusters = cms.EDProducer( "SiPixelClusterProducer",
 )
 process.hltHISiPixelRecHits = cms.EDProducer( "SiPixelRecHitConverter",
     src = cms.InputTag( "hltHISiPixelClusters" ),
+    VerboseLevel = cms.untracked.int32( 0 ),
     CPE = cms.string( "hltESPPixelCPEGeneric" )
 )
 process.hltHIPixelClusterVertices = cms.EDProducer( "HIPixelClusterVtxProducer",
@@ -4093,6 +4163,8 @@ process.hltMuonDTDigis = cms.EDProducer( "DTUnpackingModule",
     fedbyType = cms.bool( False ),
     inputLabel = cms.InputTag( "rawDataCollector" ),
     useStandardFEDid = cms.bool( True ),
+    minFEDid = cms.untracked.int32( 770 ),
+    maxFEDid = cms.untracked.int32( 779 ),
     dqmOnly = cms.bool( False ),
     rosParameters = cms.PSet(  ),
     readOutParameters = cms.PSet( 
@@ -4110,6 +4182,7 @@ process.hltMuonDTDigis = cms.EDProducer( "DTUnpackingModule",
     )
 )
 process.hltDt1DRecHits = cms.EDProducer( "DTRecHitProducer",
+    debug = cms.untracked.bool( False ),
     dtDigiLabel = cms.InputTag( "hltMuonDTDigis" ),
     recAlgo = cms.string( "DTLinearDriftFromDBAlgo" ),
     recAlgoConfig = cms.PSet( 
@@ -4132,6 +4205,7 @@ process.hltDt1DRecHits = cms.EDProducer( "DTRecHitProducer",
     )
 )
 process.hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
+    debug = cms.untracked.bool( False ),
     recHits1DLabel = cms.InputTag( "hltDt1DRecHits" ),
     recHits2DLabel = cms.InputTag( "dt2DSegments" ),
     Reco4DAlgoName = cms.string( "DTCombinatorialPatternReco4D" ),
@@ -4207,7 +4281,13 @@ process.hltMuonCSCDigis = cms.EDProducer( "CSCDCCUnpacker",
     ErrorMask = cms.uint32( 0x0 ),
     UnpackStatusDigis = cms.bool( False ),
     UseFormatStatus = cms.bool( True ),
-    PrintEventNumber = cms.untracked.bool( False )
+    PrintEventNumber = cms.untracked.bool( False ),
+    Debug = cms.untracked.bool( False ),
+    runDQM = cms.untracked.bool( False ),
+    VisualFEDInspect = cms.untracked.bool( False ),
+    VisualFEDShort = cms.untracked.bool( False ),
+    FormatedEventDump = cms.untracked.bool( False ),
+    SuppressZeroLCT = cms.untracked.bool( True )
 )
 process.hltCsc2DRecHits = cms.EDProducer( "CSCRecHitDProducer",
     CSCUseCalibrations = cms.bool( True ),
@@ -4253,7 +4333,9 @@ process.hltCsc2DRecHits = cms.EDProducer( "CSCRecHitDProducer",
     readBadChambers = cms.bool( True ),
     UseAverageTime = cms.bool( False ),
     UseParabolaFit = cms.bool( False ),
-    UseFivePoleFit = cms.bool( True )
+    UseFivePoleFit = cms.bool( True ),
+    CSCDebug = cms.untracked.bool( False ),
+    CSCStripClusterSize = cms.untracked.int32( 3 )
 )
 process.hltCscSegments = cms.EDProducer( "CSCSegmentProducer",
     inputObjects = cms.InputTag( "hltCsc2DRecHits" ),
@@ -5703,6 +5785,7 @@ process.hltCleanedHiCorrectedIslandBarrelSuperClustersHI = cms.EDProducer( "HiSp
     recHitProducerEndcap = cms.InputTag( 'hltEcalRecHitAll','EcalRecHitsEE' ),
     originalSuperClusterProducer = cms.InputTag( "hltHiCorrectedIslandBarrelSuperClustersHI" ),
     TimingCut = cms.untracked.double( 9999999.0 ),
+    swissCutThr = cms.untracked.double( 0.95 ),
     etCut = cms.double( 8.0 ),
     outputColl = cms.string( "" )
 )
@@ -6339,6 +6422,7 @@ process.hltHISelectedProtoTracks = cms.EDFilter( "HIProtoTrackSelection",
     maxD0Significance = cms.double( 5.0 )
 )
 process.hltHIPixelAdaptiveVertex = cms.EDProducer( "PrimaryVertexProducer",
+    verbose = cms.untracked.bool( False ),
     TrackLabel = cms.InputTag( "hltHISelectedProtoTracks" ),
     beamSpotLabel = cms.InputTag( "hltOnlineBeamSpot" ),
     algorithm = cms.string( "AdaptiveVertexFitter" ),
@@ -6499,6 +6583,7 @@ process.hltHIGoodLooseTracks = cms.EDProducer( "AnalyticalTrackSelector",
     useVertices = cms.bool( True ),
     useVtxError = cms.bool( True ),
     vertices = cms.InputTag( "hltHISelectedVertex" ),
+    copyExtras = cms.untracked.bool( False ),
     copyTrajectories = cms.untracked.bool( True ),
     vtxNumber = cms.int32( -1 ),
     vertexCut = cms.string( "" ),
@@ -6885,10 +6970,17 @@ process.hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
 )
 process.hltL1GtTrigReport = cms.EDAnalyzer( "L1GtTrigReport",
     UseL1GlobalTriggerRecord = cms.bool( False ),
-    L1GtRecordInputTag = cms.InputTag( "hltGtDigis" )
+    L1GtRecordInputTag = cms.InputTag( "hltGtDigis" ),
+    PrintVerbosity = cms.untracked.int32( 2 ),
+    PrintOutput = cms.untracked.int32( 3 )
 )
 process.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
-    HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
+    HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' ),
+    reportBy = cms.untracked.string( "job" ),
+    resetBy = cms.untracked.string( "never" ),
+    serviceBy = cms.untracked.string( "never" ),
+    ReferencePath = cms.untracked.string( "HLTriggerFinalPath" ),
+    ReferenceRate = cms.untracked.double( 100.0 )
 )
 process.hltPreALCAP0Output = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -6907,7 +6999,15 @@ process.hltPreCalibrationOutput = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 process.hltDQML1Scalers = cms.EDAnalyzer( "L1Scalers",
+    verbose = cms.untracked.bool( False ),
     l1GtData = cms.InputTag( "hltGtDigis" ),
+    denomIsTech = cms.untracked.bool( True ),
+    denomBit = cms.untracked.uint32( 40 ),
+    tfIsTech = cms.untracked.bool( True ),
+    tfBit = cms.untracked.uint32( 41 ),
+    dqmFolder = cms.untracked.string( "L1T/L1Scalers_EvF" ),
+    firstFED = cms.untracked.uint32( 0 ),
+    lastFED = cms.untracked.uint32( 931 ),
     fedRawData = cms.InputTag( "rawDataCollector" ),
     HFRecHitCollection = cms.InputTag( "hltHfreco" ),
     maskedChannels = cms.untracked.vint32( 8137, 8141, 8146, 8149, 8150, 8153 )
@@ -6926,8 +7026,11 @@ process.hltDQML1SeedLogicScalers = cms.EDAnalyzer( "HLTSeedL1LogicScalers",
       'HLT_MinBiasEcal' )
 )
 process.hltDQMHLTScalers = cms.EDAnalyzer( "HLTScalers",
+    dqmFolder = cms.untracked.string( "HLT/HLTScalers_EvF" ),
     processname = cms.string( "HLT" ),
-    triggerResults = cms.InputTag( 'TriggerResults','','HLT' )
+    triggerResults = cms.InputTag( 'TriggerResults','','HLT' ),
+    MonitorDaemon = cms.untracked.bool( False ),
+    verbose = cms.untracked.bool( False )
 )
 process.hltPreDQMForHIOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
