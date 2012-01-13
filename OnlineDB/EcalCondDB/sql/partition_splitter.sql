@@ -22,15 +22,15 @@ DROP TABLE SPLITTER;
    index
 */
 CREATE TABLE SPLITTER AS 
-select table_name, column_name, pname, max(pind) pind 
-	from (select table_name,
+select table_name, column_name, pname, max(pind) pind, num_rows 
+	from (select t.table_name,
 	column_name,
 	regexp_replace(partition_name, '_[0-9]+$', '') pname, 
-	regexp_replace(partition_name, '.*_', '') pind
+	regexp_replace(partition_name, '.*_', '') pind, u.num_rows num_rows
 	from 
 	user_tab_partitions t join user_part_key_columns c on t.table_name =
-	c.name) 
-        group by pname, table_name, column_name order by pind asc;
+	c.name join user_tables u on t.table_name = u.table_name) 
+        group by pname, table_name, column_name, num_rows order by num_rows asc;
 
 /*
    Add a column to that table to store the maximum value assigned
@@ -47,6 +47,7 @@ SET ECHO OFF
    script to update the MAXVAL column of the SPLITTER table. Use 
    the COALESCE function to fight against empty tables.
 */
+column a format a35
 SPOOL UPDATESPLITTER1.sql
 SELECT 'SELECT ''UPDATE SPLITTER SET MAXVAL = '', COALESCE(MAX(', 
 	COLUMN_NAME, '),0), '' WHERE TABLE_NAME = ', 
@@ -80,7 +81,7 @@ SELECT 'ALTER TABLE ' || TABLE_NAME || ' SPLIT PARTITION ' || PNAME || '_' ||
 	', PARTITION ' || PNAME || '_' || (PIND + 1) || 
 	' TABLESPACE CMS_ECAL_COND_20' || (PIND+1) || 
 	'_DATA) UPDATE GLOBAL INDEXES;' 
-	FROM SPLITTER ORDER BY PIND ASC;
+	FROM SPLITTER WHERE MAXVAL > 0 ORDER BY NUM_ROWS ASC;
 SPOOL OFF
 
 /* do the splitting (to be done by hand)
