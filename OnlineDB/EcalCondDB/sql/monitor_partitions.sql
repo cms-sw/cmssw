@@ -53,6 +53,7 @@ SELECT
 FROM USER_tab_partitions p JOIN USER_part_key_columns c ON 
      p.TABLE_NAME = c.NAME JOIN TEMP_TABLE t ON p.TABLE_NAME =
      t.TABLE_NAME
+/*WHERE partition_name like '%_0' and partition_name not like '%_10'*/
 ORDER BY table_name, partition_position
 /
 
