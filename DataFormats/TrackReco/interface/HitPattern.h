@@ -198,7 +198,7 @@ namespace reco {
 
     /// Muon station (1-4). Only valid for muon patterns, of course.
     static uint32_t getMuonStation(uint32_t pattern);  // only for patterns from muon, of course
-    /// DT superlayer (1-3). Only valid for muon DT patterns, of course.
+    /// DT superlayer (1-3). Where the "hit" was a DT segment, superlayer is 0.  Only valid for muon DT patterns, of course.
     static uint32_t getDTSuperLayer(uint32_t pattern); // only for DT patterns
     /// CSC ring (1-4). Only valid for muon CSC patterns, of course.
     static uint32_t getCSCRing(uint32_t pattern) ; 
@@ -502,7 +502,7 @@ namespace reco {
   }
   
   inline uint32_t HitPattern::getDTSuperLayer(uint32_t pattern) {
-    return (getSubSubStructure(pattern) & 3) + 1;
+    return (getSubSubStructure(pattern) & 3);
   }
   
   inline uint32_t HitPattern::getCSCRing(uint32_t pattern) {
