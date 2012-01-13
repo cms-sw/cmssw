@@ -11,7 +11,8 @@ namespace pat {
 			 User1Iso=7, User2Iso=8, User3Iso=9, User4Iso=10, User5Iso=11,
 			 UserBaseIso=7, // offset of the first user isolation
 			 CaloIso=-1,     // keys which are not real indices are mapped to negative numbers.
-			 PfPUChargedHadronIso=12
+			 PfPUChargedHadronIso=12,
+			 PfChargedAllIso=13
     };
 }
 
