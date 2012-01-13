@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2009/12/28 23:14:52 $
- *  $Revision: 1.27 $
+ *  $Date: 2010/08/06 20:24:29 $
+ *  $Revision: 1.28 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -273,8 +273,8 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData ,
     for (int u=1; u< (kTriggerTowersAndMem+1); u++)
       {
 	// map status array to expected tower array
-	int towerMap[kTriggerTowersAndMem+1];
-	for (int i=0; i<kTriggerTowersAndMem; ++i ) towerMap[i] = i;
+	//int towerMap[kTriggerTowersAndMem+1];
+	//for (int i=0; i<kTriggerTowersAndMem; ++i ) towerMap[i] = i;
 	//towerMap[1] = 6;
 	//towerMap[2] = 2;
 	//towerMap[3] = 1;

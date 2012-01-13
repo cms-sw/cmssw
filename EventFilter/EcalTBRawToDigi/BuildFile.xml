@@ -9,6 +9,3 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="TBDataFormats/EcalTBObjects"/>
-<export>
-  <lib   name="1"/>
-</export>

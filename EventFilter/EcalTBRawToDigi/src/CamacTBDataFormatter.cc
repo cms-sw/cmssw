@@ -400,12 +400,11 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
    **********************************/
   // skip 6 reserved words
   wordCounter += 6;
-  bool TDCIsGood = true;
-  TDCIsGood =  ADCIsGood && checkStatus(buffer[wordCounter], wordCounter);
+  ADCIsGood && checkStatus(buffer[wordCounter], wordCounter);
   a = buffer[wordCounter];      wordCounter++;
   b = (a & 0xfffff);
   LogDebug("CamacTBDataFormatter") << "TDC word1: " << a << "\t TDC2: " << b;
-  TDCIsGood =  ADCIsGood && checkStatus(buffer[wordCounter], wordCounter);
+  ADCIsGood && checkStatus(buffer[wordCounter], wordCounter);
   a = buffer[wordCounter];      wordCounter++;
   b = (a & 0xfffff);
   LogDebug("CamacTBDataFormatter") << "TDC word2: (ext_val_trig - LHC_clock) " 
