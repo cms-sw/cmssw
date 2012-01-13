@@ -27,7 +27,7 @@ parser.add_option("-S", "--signif",   dest="signif",     default=False, action="
 if len(args) != 3:
     parser.print_usage()
     exit(1)
-options.fork = 1 ## No fork in batch jobs for now
+options.fork = 1 ## NEVER EVER FORK IN GRID JOBS. NOT ALLOWED BY THE SYSTEM ##
 
 workspace = args[0]
 if workspace.endswith(".txt"):
