@@ -127,33 +127,35 @@ TSiStripMatchedRecHit::transientHits () const {
 void TSiStripMatchedRecHit::ComputeCoarseLocalPosition(){
   if (!theCPE || !theMatcher) return;
   const SiStripMatchedRecHit2D *orig = static_cast<const SiStripMatchedRecHit2D *> (trackingRecHit_);
-  if (orig && !orig->hasPositionAndError()){
-    LogDebug("TSiStripMatchedRecHit")<<"calculating coarse position/error.";
-    const GeomDet *det = this->det();
-    const GluedGeomDet *gdet = static_cast<const GluedGeomDet *> (det);
-    LocalVector tkDir = det->surface().toLocal( det->position()-GlobalPoint(0,0,0));
+  if ( (!orig)  ||  orig->hasPositionAndError()) return;
 
-    const SiStripCluster& monoclust   = orig->monoCluster();  
-    const SiStripCluster& stereoclust = orig->stereoCluster();
-      
-    StripClusterParameterEstimator::LocalValues lvMono = 
-      theCPE->localParameters( monoclust, *gdet->monoDet());
-    StripClusterParameterEstimator::LocalValues lvStereo = 
-      theCPE->localParameters( stereoclust, *gdet->stereoDet());
-    
-    SiStripRecHit2D monoHit = SiStripRecHit2D( lvMono.first, lvMono.second,
-					       gdet->monoDet()->geographicalId(),
-					       orig->monoClusterRef());
-    
-    SiStripRecHit2D stereoHit = SiStripRecHit2D( lvStereo.first, lvStereo.second,
-						 gdet->stereoDet()->geographicalId(),
+  LogDebug("TSiStripMatchedRecHit")<<"calculating coarse position/error.";
+  const GeomDet *det = this->det();
+  const GluedGeomDet *gdet = static_cast<const GluedGeomDet *> (det);
+  LocalVector tkDir = det->surface().toLocal( det->position()-GlobalPoint(0,0,0));
+  
+  const SiStripCluster& monoclust   = orig->monoCluster();  
+  const SiStripCluster& stereoclust = orig->stereoCluster();
+  
+  StripClusterParameterEstimator::LocalValues lvMono = 
+    theCPE->localParameters( monoclust, *gdet->monoDet());
+  StripClusterParameterEstimator::LocalValues lvStereo = 
+    theCPE->localParameters( stereoclust, *gdet->stereoDet());
+  
+  SiStripRecHit2D monoHit = SiStripRecHit2D( lvMono.first, lvMono.second,
+					     gdet->monoDet()->geographicalId(),
+					     orig->monoClusterRef());
+  
+  SiStripRecHit2D stereoHit = SiStripRecHit2D( lvStereo.first, lvStereo.second,
+					       gdet->stereoDet()->geographicalId(),
 						 orig->stereoClusterRef());
-    const SiStripMatchedRecHit2D* better =  theMatcher->match(&monoHit,&stereoHit,gdet,tkDir);
- 
-    if (!better) {
-      edm::LogWarning("TSiStripMatchedRecHit")<<"could not get a matching rechit.";
-    }else{
-      trackingRecHit_ = better->clone();
-    }
+  const SiStripMatchedRecHit2D* better =  theMatcher->match(&monoHit,&stereoHit,gdet,tkDir);
+  
+  if (!better) {
+    edm::LogWarning("TSiStripMatchedRecHit")<<"could not get a matching rechit.";
+  }else{
+    delete trackingRecHit_;
+    trackingRecHit_ = better;
   }
+  
 }
