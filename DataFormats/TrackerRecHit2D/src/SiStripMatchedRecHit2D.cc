@@ -12,12 +12,12 @@ SiStripMatchedRecHit2D::sharesInput( const TrackingRecHit* other,
 
   if (trackerHitRTTI::isMatched(*other) ) {
     const SiStripMatchedRecHit2D* otherMatched = static_cast<const SiStripMatchedRecHit2D*>(other);
-    return sharesClusters(*this, *otherMatched);
+    return sharesClusters(*this, *otherMatched,what);
   }
    
   if (what==all)  return false;
   // what about multi???
-  auto const otherClus & reinterpret_cast<const BaseTrackerRecHit *>(hit)->firstClusterRef();
+  auto const & otherClus = reinterpret_cast<const BaseTrackerRecHit *>(hit)->firstClusterRef();
   return (otherClus==stereoClusterRef())  ||  (otherClus==monoClusterRef());
   
   

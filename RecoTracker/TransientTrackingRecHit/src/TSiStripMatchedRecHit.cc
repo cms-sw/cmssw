@@ -120,11 +120,11 @@ TSiStripMatchedRecHit::transientHits () const {
     auto m = orig->monoHit(); auto s = orig->stereoHit();
     result.push_back(TSiStripRecHit2DLocalPos::build( gdet->monoDet(),&m,theCPE));
     result.push_back(TSiStripRecHit2DLocalPos::build( gdet->stereoDet(),&s,theCPE));
-  {
+  }
   return result;
 }
 
-void TSiStripMatchedRecHit::ComputeCoarseLocalPosition(){
+  void TSiStripMatchedRecHit::ComputeCoarseLocalPosition(){
   if (!theCPE || !theMatcher) return;
   const SiStripMatchedRecHit2D *orig = static_cast<const SiStripMatchedRecHit2D *> (trackingRecHit_);
   if ( (!orig)  ||  orig->hasPositionAndError()) return;
