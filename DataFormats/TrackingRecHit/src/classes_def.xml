@@ -1,6 +1,7 @@
 <lcgdict>
 <selection>
-  <class name="TrackingRecHit" ClassVersion="10">
+  <class name="TrackingRecHit" ClassVersion="11">
+   <version ClassVersion="11" checksum="1162527707"/>
    <version ClassVersion="10" checksum="1481465852"/>
   </class>
   <class name="RecHit1D" ClassVersion="10">
