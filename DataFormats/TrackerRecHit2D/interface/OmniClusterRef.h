@@ -45,6 +45,10 @@ public:
   bool operator==(OmniClusterRef const & lh) const { 
     return rawIndex() == lh.rawIndex(); // in principle this is enough!
   }
+
+  bool operator<(OmniClusterRef const & lh) const { 
+    return rawIndex() < lh.rawIndex(); // in principle this is enough!
+  }
   
 public:
   // edm Ref interface
