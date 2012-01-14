@@ -12,12 +12,12 @@
 class LocalError {
 public:
   LocalError() : thexx(0), thexy(0), theyy(0) {}
-  LocalError(InvalidError) : thexx(-99999.f), thexy(0), theyy(-99999.f) {}
+  LocalError(InvalidError) : thexx(-9999.e10f), thexy(0), theyy(-9999.e10f) {}
 
   LocalError( float xx, float xy, float yy) :
     thexx(xx), thexy(xy), theyy(yy) {}
 
-  bool invalid() const { return thexx<0;}
+  bool invalid() const { return thexx<-1.e10f;}
   bool valid() const { return !invalid();}
 
 
