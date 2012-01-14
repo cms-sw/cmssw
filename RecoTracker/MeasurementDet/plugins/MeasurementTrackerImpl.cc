@@ -219,7 +219,7 @@ void MeasurementTrackerImpl::addPixelDet( const GeomDet* gd,
 
 void MeasurementTrackerImpl::addGluedDet( const GluedGeomDet* gd)
 {
-  theGluedDets.push_back(TkGluedMeasurementDet( gd, theStDets.matcher()));
+  theGluedDets.push_back(TkGluedMeasurementDet( gd, theStDets.matcher(), theStDets.stripCPE()));
 }
 
 void MeasurementTrackerImpl::initGluedDet( TkGluedMeasurementDet & det)

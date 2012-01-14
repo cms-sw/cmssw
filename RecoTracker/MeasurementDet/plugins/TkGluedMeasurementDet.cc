@@ -21,9 +21,10 @@
 using namespace std;
 
 TkGluedMeasurementDet::TkGluedMeasurementDet( const GluedGeomDet* gdet, 
-					      const SiStripRecHitMatcher* matcher) :
+					      const SiStripRecHitMatcher* matcher,
+                                              const StripClusterParameterEstimator* cpe) :
   MeasurementDet(gdet), 
-  theMatcher(matcher),
+  theMatcher(matcher),  theCPE(cpe),
   theMonoDet(nullptr), theStereoDet(nullptr)
 {}
 
@@ -42,7 +43,7 @@ TkGluedMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
 {
 
   RecHitContainer result;
-  HitCollectorForRecHits collector( &fastGeomDet(), theMatcher, result );
+  HitCollectorForRecHits collector( &fastGeomDet(), theMatcher, theCPE, result );
   collectRecHits(ts, collector);
   return result;
 }
@@ -118,7 +119,7 @@ TkGluedMeasurementDet::fastMeasurements( const TrajectoryStateOnSurface& stateOn
    std::vector<TrajectoryMeasurement> result;
    if (theMonoDet->isActive() || theStereoDet->isActive()) {
 
-      HitCollectorForFastMeasurements collector( &fastGeomDet(), theMatcher, stateOnThisDet, est, result);
+      HitCollectorForFastMeasurements collector( &fastGeomDet(), theMatcher, theCPE, stateOnThisDet, est, result);
       collectRecHits(stateOnThisDet, collector);
        
       if ( result.empty()) {
@@ -279,9 +280,9 @@ TkGluedMeasurementDet::testStrips(const TrajectoryStateOnSurface& tsos,
 
 #include<boost/bind.hpp>
 TkGluedMeasurementDet::HitCollectorForRecHits::HitCollectorForRecHits(const GeomDet * geomDet, 
-        const SiStripRecHitMatcher * matcher,
+        const SiStripRecHitMatcher * matcher, const StripClusterParameterEstimator* cpe,
         RecHitContainer & target) :
-    geomDet_(geomDet), matcher_(matcher), target_(target),
+  geomDet_(geomDet), matcher_(matcher), cpe_(cpe),target_(target),
     collector_(boost::bind(&HitCollectorForRecHits::add,boost::ref(*this),_1)),
     hasNewHits_(false)
 {
@@ -296,11 +297,11 @@ TkGluedMeasurementDet::HitCollectorForRecHits::addProjected(const TransientTrack
 }
 
 TkGluedMeasurementDet::HitCollectorForFastMeasurements::HitCollectorForFastMeasurements(const GeomDet * geomDet, 
-        const SiStripRecHitMatcher * matcher,
+        const SiStripRecHitMatcher * matcher, const StripClusterParameterEstimator* cpe,
         const TrajectoryStateOnSurface& stateOnThisDet,
         const MeasurementEstimator& est,
         std::vector<TrajectoryMeasurement> & target) :
-    geomDet_(geomDet), matcher_(matcher), stateOnThisDet_(stateOnThisDet), est_(est), target_(target),
+  geomDet_(geomDet), matcher_(matcher), cpe_(cpe),stateOnThisDet_(stateOnThisDet), est_(est), target_(target),
     collector_(boost::bind(&HitCollectorForFastMeasurements::add,boost::ref(*this),_1)),
     hasNewHits_(false)
 {
@@ -311,7 +312,7 @@ TkGluedMeasurementDet::HitCollectorForFastMeasurements::add(SiStripMatchedRecHit
 {
   static LocalCache<TSiStripMatchedRecHit> lcache; // in case of pool allocator it will be cleared centrally
   std::auto_ptr<TSiStripMatchedRecHit> & cache = lcache.ptr;
-  TSiStripMatchedRecHit::buildInPlace( cache, geomDet_, &hit2d, matcher_ );
+  TSiStripMatchedRecHit::buildInPlace( cache, geomDet_, &hit2d, matcher_, cpe_ );
   std::pair<bool,double> diffEst = est_.estimate( stateOnThisDet_, *cache);
   if ( diffEst.first) {
     cache->clonePersistentHit(); // clone and take ownership of the persistent 2D hit
