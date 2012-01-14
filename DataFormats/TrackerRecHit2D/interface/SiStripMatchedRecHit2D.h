@@ -59,13 +59,14 @@ class SiStripMatchedRecHit2D : public BaseTrackerRecHit {
 };
 
 
-inline sharesClusters(SiStripMatchedRecHit2D const & h1, SiStripMatchedRecHit2D const & h2,
-		      TrackingRecHit::SharedInputType what) {
+inline 
+bool sharesClusters(SiStripMatchedRecHit2D const & h1, SiStripMatchedRecHit2D const & h2,
+		    TrackingRecHit::SharedInputType what) {
   bool mono =  h1.monoClusterRef()== h2.monoClusterRef();
-  bool stereo =  h1.steroClusterRef()== h2.stereoClusterRef();
-
-  return (what==all) ? (mono&&stereo) : (mono||stereo);
-
+  bool stereo =  h1.stereoClusterRef()== h2.stereoClusterRef();
+  
+  return (what==TrackingRecHit::all) ? (mono&&stereo) : (mono||stereo);
+  
 } 
 
 #endif
