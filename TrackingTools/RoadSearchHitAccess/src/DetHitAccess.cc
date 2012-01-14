@@ -83,6 +83,10 @@ std::vector<TrackingRecHit*> DetHitAccess::getHitVector(const DetId* detid) {
 	  edm::LogWarning("RoadSearch") << "rphi RecHit collection not set properly";
 	}
       } else {
+	/* 
+	 * VI January 2012 not supported anymore (at least in this form)
+         * and (by-the-way) is infinitely slow with such a double loop!!!!!
+         *
 	if ( matchedHits_ != 0 ) {
 	  DetId useDetId(StripDetId.glued());
 	  SiStripMatchedRecHit2DCollection::DetSet matchedDetHits = detSetOrEmpty(*matchedHits_, useDetId);
@@ -107,6 +111,7 @@ std::vector<TrackingRecHit*> DetHitAccess::getHitVector(const DetId* detid) {
 	} else {
 	  edm::LogWarning("RoadSearch") << "matched RecHit collection not set properly";
 	}
+        */
       }
     } else if (accessMode_ == rphi_stereo ) {
       //
@@ -190,8 +195,7 @@ std::vector<TrackingRecHit*> DetHitAccess::getHitVector(const DetId* detid) {
 	      //SiStripMatchedRecHit2DCollection::DetSet matchedDetHits = detSetOrEmpty(*matchedHits_, *detid);
 	      for ( SiStripMatchedRecHit2DCollection::DetSet::const_iterator matchedDetHit = matchedDetHits.begin();
 		    matchedDetHit != matchedDetHits.end(); ++matchedDetHit ) { 
-		if (rphiDetHit->localPosition().x()==matchedDetHit->monoHit()->localPosition().x() 
-		    && rphiDetHit->localPosition().y()==matchedDetHit->monoHit()->localPosition().y() ) {
+		if (rphiDetHit->sharesInput((TrackingRecHit*)(&(*matchedDetHit)), TrackingRecHit::some)) {
 		  use_rphi=false;
 		  break;
 		}
@@ -216,8 +220,7 @@ std::vector<TrackingRecHit*> DetHitAccess::getHitVector(const DetId* detid) {
 	      //SiStripMatchedRecHit2DCollection::DetSet matchedDetHits = detSetOrEmpty(*matchedHits_, *detid);
 	      for ( SiStripMatchedRecHit2DCollection::DetSet::const_iterator matchedDetHit = matchedDetHits.begin();
 		    matchedDetHit != matchedDetHits.end(); ++matchedDetHit ) { 
-		if (stereoDetHit->localPosition().x()==matchedDetHit->stereoHit()->localPosition().x() 
-		    && stereoDetHit->localPosition().y()==matchedDetHit->stereoHit()->localPosition().y() ) {
+		if (stereoDetHit->sharesInput((TrackingRecHit*)(&(*matchedDetHit)), TrackingRecHit::some)) {
 		  use_stereo=false;
 		  break;
 		}
