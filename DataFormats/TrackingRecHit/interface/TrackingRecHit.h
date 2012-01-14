@@ -31,7 +31,7 @@ public:
   explicit TrackingRecHit(DetId id, Type type=valid ) : m_id(id), m_status(type) {}
   explicit TrackingRecHit(id_type id=0, Type type=valid ) : m_id(id), m_status(type) {}
 
-  explicit TrackingRecHit(DetId id, unsigned int rt, Type type=valid  ) : m_id(id), m_status((rt<< rttiShift)|int(type)) {}
+  TrackingRecHit(DetId id, unsigned int rt, Type type=valid  ) : m_id(id), m_status((rt<< rttiShift)|int(type)) {}
 
   
   virtual ~TrackingRecHit() {}
@@ -56,6 +56,8 @@ public:
   virtual std::vector<TrackingRecHit*> recHits() = 0;
   virtual void recHitsV(std::vector<TrackingRecHit*> & );
   
+
+  id_type rawId() const { return m_id;}
   DetId geographicalId() const {return m_id;}
   
   virtual LocalPoint localPosition() const = 0;
