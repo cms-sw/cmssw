@@ -26,7 +26,6 @@ void ClusterRemovalRefSetter::reKey(TrackingRecHit *hit) const {
             reKeyStrip(reinterpret_cast<SiStripRecHit1D *>(hit)->omniCluster());
         } else if (type == typeid(SiStripMatchedRecHit2D)) {
             SiStripMatchedRecHit2D *mhit = reinterpret_cast<SiStripMatchedRecHit2D *>(hit);
-            // const_cast is needed: monoHit() e stereoHit() are const only - at least for now
             reKeyStrip(mhit->monoClusterRef());
             reKeyStrip(mhit->stereoClusterRef());
         } else if (type == typeid(ProjectedSiStripRecHit2D)) {
