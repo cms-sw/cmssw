@@ -9,25 +9,24 @@ SiStripMatchedRecHit2D::sharesInput( const TrackingRecHit* other,
   if (what==all && (geographicalId() != other->geographicalId())) return false;
  
   if (!sameDetModule(*other)) return false;
-  
-  if (!trackerHitRTTI::isMatched(*other) ) {
-    if (what==all)  return false;
-    return monoHit()->sharesInput( other,what) || stereoHit()->sharesInput( other,what);
-  }
-  
-  const SiStripMatchedRecHit2D* otherMatched = static_cast<const SiStripMatchedRecHit2D*>(other);
-  if ( what == all)
-    return monoHit()->sharesInput(*otherMatched->monoHit()) && 
-      stereoHit()->sharesInput(*otherMatched->stereoHit());
 
-  return monoHit()->sharesInput(*otherMatched->monoHit()) || 
-    stereoHit()->sharesInput(*otherMatched->stereoHit());
+  if (trackerHitRTTI::isMatched(*other) ) {
+    const SiStripMatchedRecHit2D* otherMatched = static_cast<const SiStripMatchedRecHit2D*>(other);
+    return sharesClusters(*this, *otherMatched);
+  }
+   
+  if (what==all)  return false;
+  // what about multi???
+  auto const otherClus & reinterpret_cast<const BaseTrackerRecHit *>(hit)->firstClusterRef();
+  return (otherClus==stereoClusterRef())  ||  (otherClus==monoClusterRef());
+  
+  
 }
 
 
 
 bool SiStripMatchedRecHit2D::sharesInput(TrackerSingleRecHit const & other) const {
-  return (monoHit()->sharesInput( other)|| stereoHit()->sharesInput( other));
+  return other.sameCluster(monoClusterRef()) || other.sameCluster(stereoClusterRef());
 }
 
 

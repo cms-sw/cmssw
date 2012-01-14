@@ -76,6 +76,9 @@ public:
     return cluster_== other.cluster_;
   }
 
+  bool sameCluster( OmniClusterRef const & oh) const {
+    return oh == cluster_;
+  }
 
   virtual std::vector<const TrackingRecHit*> recHits() const;
   virtual std::vector<TrackingRecHit*> recHits();

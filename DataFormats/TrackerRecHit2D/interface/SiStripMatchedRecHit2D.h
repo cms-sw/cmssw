@@ -12,15 +12,15 @@ class SiStripMatchedRecHit2D : public BaseTrackerRecHit {
   SiStripMatchedRecHit2D( const LocalPoint& pos, const LocalError& err, const DetId& id , 
 			  const SiStripRecHit2D* rMono,const SiStripRecHit2D* rStereo):
     BaseTrackerRecHit(pos, err, id, trackerHitRTTI::match), componentMono_(*rMono),componentStereo_(*rStereo){}
-					 
-  const SiStripRecHit2D *stereoHit() const { return &componentStereo_;}
-  const SiStripRecHit2D *monoHit() const { return &componentMono_;}
- 
-  // Non const variants needed for cluster re-keying 
-  // SiStripRecHit2D *stereoHit() { return &componentStereo_;}
-  // SiStripRecHit2D *monoHit() { return &componentMono_;}
 
-   // used by trackMerger (to be improved)
+  // by value, as they will not exists anymore...
+  SiStripRecHit2D  stereoHit() const { return componentStereo_;}
+  SiStripRecHit2D  monoHit() const { return componentMono_;}
+ 
+  unsigned int stereoId() const { return rawId()+1;}
+  unsigned int monoId()   const { return rawId()+2;}
+
+  // (to be improved)
   virtual OmniClusterRef const & firstClusterRef() const { return monoClusterRef();}
 
 
@@ -36,7 +36,6 @@ class SiStripMatchedRecHit2D : public BaseTrackerRecHit {
   SiStripCluster const & monoCluster() const { 
     return monoClusterRef().stripCluster();
   }  
-
 
 
   virtual SiStripMatchedRecHit2D * clone() const {return new SiStripMatchedRecHit2D( * this);}
@@ -59,5 +58,14 @@ class SiStripMatchedRecHit2D : public BaseTrackerRecHit {
   SiStripRecHit2D componentMono_, componentStereo_;
 };
 
+
+inline sharesClusters(SiStripMatchedRecHit2D const & h1, SiStripMatchedRecHit2D const & h2,
+		      TrackingRecHit::SharedInputType what) {
+  bool mono =  h1.monoClusterRef()== h2.monoClusterRef();
+  bool stereo =  h1.steroClusterRef()== h2.stereoClusterRef();
+
+  return (what==all) ? (mono&&stereo) : (mono||stereo);
+
+} 
 
 #endif

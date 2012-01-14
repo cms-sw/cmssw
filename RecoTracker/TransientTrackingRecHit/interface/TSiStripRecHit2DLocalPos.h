@@ -63,6 +63,14 @@ public:
     return RecHitPointer( new TSiStripRecHit2DLocalPos( geom, rh, cpe, weight, annealing,computeCoarseLocalPosition));
   }
 
+
+  static RecHitPointer build( const LocalPoint& pos, const LocalError& err,
+			      const GeomDet* det,
+			      const OmniClusterRef clust,
+			      const StripClusterParameterEstimator* cpe,
+			      float weight=1., float annealing=1.) {
+    return RecHitPointer( new TSiStripRecHit2DLocalPos( pos, err, det, clust, cpe, weight, annealing));
+
   static RecHitPointer build( const LocalPoint& pos, const LocalError& err,
 			      const GeomDet* det,
 			      const SiStripClusterRef clust,
@@ -103,12 +111,8 @@ private:
 	  const GeomDetUnit* gdu = dynamic_cast<const GeomDetUnit*>(geom);
 	  LogDebug("TSiStripRecHit2DLocalPos")<<"calculating coarse position/error.";
 	  if (gdu){
-	    if (rh->cluster().isNonnull()){
-	      StripClusterParameterEstimator::LocalValues lval= theCPE->localParameters(*rh->cluster(), *gdu);
-	      theHitData = SiStripRecHit2D(lval.first, lval.second, geom->geographicalId(),rh->cluster());
-	    }else{
-	      StripClusterParameterEstimator::LocalValues lval= theCPE->localParameters(*rh->cluster_regional(), *gdu);
-	      theHitData = SiStripRecHit2D(lval.first, lval.second, geom->geographicalId(),rh->cluster_regional());
+	      StripClusterParameterEstimator::LocalValues lval= theCPE->localParameters(rh->stripCluster(), *gdu);
+	      theHitData = SiStripRecHit2D(lval.first, lval.second, geom->geographicalId(),rh->omniCluster());
 	    }
 	  }else{
 	    edm::LogError("TSiStripRecHit2DLocalPos")<<" geomdet does not cast into geomdet unit. cannot create strip local parameters.";
@@ -117,6 +121,16 @@ private:
 	}
       }
     }
+
+
+  /// Creates the TrackingRecHit internally, avoids redundent cloning
+  TSiStripRecHit2DLocalPos( const LocalPoint& pos, const LocalError& err,
+			    const GeomDet* det,
+			    const OmniClusterRef clust,
+			    const StripClusterParameterEstimator* cpe,
+			    float weight, float annealing) :
+    TransientTrackingRecHit(det, weight, annealing), theHitData(pos, err, det->geographicalId(), clust), 
+    theCPE(cpe){} 
 
   /// Creates the TrackingRecHit internally, avoids redundent cloning
   TSiStripRecHit2DLocalPos( const LocalPoint& pos, const LocalError& err,

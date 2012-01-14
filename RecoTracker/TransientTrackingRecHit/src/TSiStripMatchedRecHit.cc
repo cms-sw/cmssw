@@ -49,41 +49,23 @@ TSiStripMatchedRecHit::clone( const TrajectoryStateOnSurface& ts) const
       //is slow// and useless (?) in this case.
 
       const SiStripMatchedRecHit2D* better;
-
-      if(!orig->monoHit()->cluster().isNull()){
-	const SiStripCluster& monoclust   = *orig->monoHit()->cluster();  
-	const SiStripCluster& stereoclust = *orig->stereoHit()->cluster();
-
-	StripClusterParameterEstimator::LocalValues lvMono = 
-	  theCPE->localParameters( monoclust, *gdet->monoDet(), ts);
-	StripClusterParameterEstimator::LocalValues lvStereo = 
-	  theCPE->localParameters( stereoclust, *gdet->stereoDet(), gluedToStereo(ts, gdet));
-	
-	SiStripRecHit2D monoHit = SiStripRecHit2D( lvMono.first, lvMono.second,
-				   gdet->monoDet()->geographicalId(),
-				   orig->monoHit()->cluster());
-	
-	SiStripRecHit2D stereoHit = SiStripRecHit2D( lvStereo.first, lvStereo.second,
-				     gdet->stereoDet()->geographicalId(),
-				     orig->stereoHit()->cluster());
-	better =  theMatcher->match(&monoHit,&stereoHit,gdet,tkDir);
-      }else{
-      	const SiStripCluster& monoclust   = *orig->monoHit()->cluster_regional();  
-	const SiStripCluster& stereoclust = *orig->stereoHit()->cluster_regional();
-	StripClusterParameterEstimator::LocalValues lvMono = 
-	  theCPE->localParameters( monoclust, *gdet->monoDet(), ts);
-	StripClusterParameterEstimator::LocalValues lvStereo = 
-	  theCPE->localParameters( stereoclust, *gdet->stereoDet(), gluedToStereo(ts, gdet));
-	
-	SiStripRecHit2D monoHit = SiStripRecHit2D( lvMono.first, lvMono.second,
-						   gdet->monoDet()->geographicalId(),
-						   orig->monoHit()->cluster_regional());
-	
-	SiStripRecHit2D stereoHit = SiStripRecHit2D( lvStereo.first, lvStereo.second,
-						     gdet->stereoDet()->geographicalId(),
-						     orig->stereoHit()->cluster_regional());
-	better =  theMatcher->match(&monoHit,&stereoHit,gdet,tkDir);
-      }
+      
+      const SiStripCluster& monoclust   = orig->monoCluster();  
+      const SiStripCluster& stereoclust = orig->stereoCluster();
+      
+      StripClusterParameterEstimator::LocalValues lvMono = 
+	theCPE->localParameters( monoclust, *gdet->monoDet(), ts);
+      StripClusterParameterEstimator::LocalValues lvStereo = 
+	theCPE->localParameters( stereoclust, *gdet->stereoDet(), gluedToStereo(ts, gdet));
+      
+      SiStripRecHit2D monoHit = SiStripRecHit2D( lvMono.first, lvMono.second,
+						 gdet->monoDet()->geographicalId(),
+						 orig->monoClusterRef());
+      
+      SiStripRecHit2D stereoHit = SiStripRecHit2D( lvStereo.first, lvStereo.second,
+						   gdet->stereoDet()->geographicalId(),
+						   orig->stereoClusterRef());
+      better =  theMatcher->match(&monoHit,&stereoHit,gdet,tkDir);
       
       if (better == 0) {
 	//dm::LogWarning("TSiStripMatchedRecHit") << "Refitting of a matched rechit returns NULL";
@@ -93,15 +75,19 @@ TSiStripMatchedRecHit::clone( const TrajectoryStateOnSurface& ts) const
       return RecHitPointer(new TSiStripMatchedRecHit( gdet, better, theMatcher,theCPE, weight(), getAnnealingFactor(), false, DontCloneRecHit()));
       // delete better; //the ownership of the object is passed to the caller of the matcher
 
-    }else{
-      const SiStripMatchedRecHit2D *better = theMatcher->match(orig,gdet,tkDir);
-      if (better == 0) {
+    }
+    /*
+    // not supported anymore....
+    else{
+       const SiStripMatchedRecHit2D *better = theMatcher->match(orig,gdet,tkDir);
+       if (better == 0) {
 	//edm::LogWarning("TSiStripMatchedRecHit") << "Refitting of a matched rechit returns NULL";
-	return this->clone();        
-      }
+	  return this->clone();        
+	}
       return RecHitPointer(new TSiStripMatchedRecHit( gdet, better, theMatcher,theCPE, weight(), getAnnealingFactor(), false, DontCloneRecHit()));
       // delete better; //the ownership of the object is passed to the caller of the matcher
     }
+    */
   }
   return this->clone();
    
@@ -116,7 +102,25 @@ TSiStripMatchedRecHit::transientHits () const {
   const GluedGeomDet *gdet = static_cast<const GluedGeomDet *> (this->det());
   const SiStripMatchedRecHit2D *orig = static_cast<const SiStripMatchedRecHit2D *> (this->hit());
 
-  result.push_back(TSiStripRecHit2DLocalPos::build( gdet->monoDet(),orig->monoHit(),theCPE));
-  result.push_back(TSiStripRecHit2DLocalPos::build( gdet->stereoDet(),orig->stereoHit(),theCPE));
+  if (theCPE!=nullptr) {
+    // this is at least the third place I read (write) this logic...
+    const SiStripCluster& monoclust   = orig->monoCluster();  
+    const SiStripCluster& stereoclust = orig->stereoCluster();
+    
+    StripClusterParameterEstimator::LocalValues lvMono = 
+      theCPE->localParameters( monoclust, *gdet->monoDet());
+    StripClusterParameterEstimator::LocalValues lvStereo = 
+      theCPE->localParameters( stereoclust, *gdet->stereoDet());
+    
+    result.push_back(TSiStripRecHit2DLocalPos::build(lvMono.first, lvMono.second, gdet->monoDet(), 
+						     orig->monoClusterRef(), theCPE));
+    result.push_back(TSiStripRecHit2DLocalPos::build(lvStereo.first, lvStereo.second, gdet->stereoDet(), 
+						     orig->stereoClusterRef(), theCPE));
+  }
+  else {
+    auto m = orig->monoHit(); auto s = orig->stereoHit();
+    result.push_back(TSiStripRecHit2DLocalPos::build( gdet->monoDet(),&m,theCPE));
+    result.push_back(TSiStripRecHit2DLocalPos::build( gdet->stereoDet(),&s,theCPE));
+  {
   return result;
 }
