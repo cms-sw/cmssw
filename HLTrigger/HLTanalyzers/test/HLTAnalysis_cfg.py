@@ -38,7 +38,7 @@ cmsswVersion = os.environ['CMSSW_VERSION']
 # Which AlCa condition for what. 
 if cmsswVersion > "CMSSW_5_0" :
     if (isData) :
-        GLOBAL_TAG='GR_R_50_V3::All' # 2011 Collisions data, CMSSW_5_0_X
+        GLOBAL_TAG='GR_R_50_V9::All' # 2011 Collisions data, CMSSW_5_0_X
     else :
         GLOBAL_TAG='START50_V9::All'
 
