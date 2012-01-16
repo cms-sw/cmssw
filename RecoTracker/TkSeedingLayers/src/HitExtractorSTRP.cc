@@ -45,7 +45,7 @@ bool HitExtractorSTRP::ringRange(int ring) const
   else return false;
 }
 
-bool HitExtractorSTRP::skipThis(const OmniClusterRef const& clus,
+bool HitExtractorSTRP::skipThis(OmniClusterRef const& clus,
 				edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > & stripClusterMask) const {
   //  if (!hit->isValid())  return false;
 

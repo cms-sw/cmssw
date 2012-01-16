@@ -34,9 +34,12 @@ public:
   void useSimpleRphiHitsCleaner(bool use) {hasSimpleRphiHitsCleaner = use;}
 
   void cleanedOfClusters( const edm::Event& ev, HitExtractor::Hits & hits, bool matched, unsigned int cleanFrom=0) const;
+
   bool skipThis(TransientTrackingRecHit::ConstRecHitPointer & ptr,edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > & stripClusterMask,
 		TransientTrackingRecHit::ConstRecHitPointer & replaceMe) const;
-  bool skipThis(const SiStripRecHit2D * hit,edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > & stripClusterMask) const;
+
+  bool skipThis(OmniClusterRef const& clus, edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > & stripClusterMask) const;
+
   void project(TransientTrackingRecHit::ConstRecHitPointer & ptr,
 	       const SiStripRecHit2D * hit,
 	       TransientTrackingRecHit::ConstRecHitPointer & replaceMe) const;
