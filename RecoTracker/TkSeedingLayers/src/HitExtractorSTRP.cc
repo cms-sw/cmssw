@@ -112,7 +112,7 @@ void HitExtractorSTRP::cleanedOfClusters( const edm::Event& ev, HitExtractor::Hi
       skipped++;
       continue;
     }
-    if (!matched && skipThis(hits[iH]->hit()->omniClusterRef(),stripClusterMask)){
+    if (!matched && skipThis( (TrackerSingleRecHit const *)(hits[iH]->hit())->omniClusterRef(),stripClusterMask)){
 	LogDebug("HitExtractorSTRP")<<"skipping a hit on :"<<hits[iH]->hit()->geographicalId().rawId()<<" key: ";
 	skipped++;
 	continue;
