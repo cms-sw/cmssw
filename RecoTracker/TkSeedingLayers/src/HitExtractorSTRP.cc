@@ -69,8 +69,8 @@ bool HitExtractorSTRP::skipThis(TransientTrackingRecHit::ConstRecHitPointer & pt
 				TransientTrackingRecHit::ConstRecHitPointer & replaceMe) const {
   const SiStripMatchedRecHit2D * hit = (SiStripMatchedRecHit2D *) ptr->hit();
 
-  bool rejectSt= skipThis(hit->stereoClusterRef());
-  bool rejectMono=skipThis(hit->monoClusterRef());
+  bool rejectSt   = skipThis(hit->stereoClusterRef(), stripClusterMask);
+  bool rejectMono = skipThis(hit->monoClusterRef(),  stripClusterMask);
 
   if (rejectSt&&rejectMono){
     //only skip if both hits are done
@@ -78,13 +78,15 @@ bool HitExtractorSTRP::skipThis(TransientTrackingRecHit::ConstRecHitPointer & pt
   }
   else{
     //FIX use clusters directly
-    if (rejectSt) project(ptr,&hit->stereoHit(),replaceMe);
-    else if (rejectMono) project(ptr,&hit->monoHit(),replaceMe);
+    auto const & s= hit->stereoHit();
+    auto const & m= hit->monoHit();
+    if (rejectSt) project(ptr,&s,replaceMe);
+    else if (rejectMono) project(ptr,&m,replaceMe);
     if (!replaceMe) return true; //means that the projection failed, and needs to be skipped
     if (rejectSt)
-      LogDebug("HitExtractorSTRP")<<"a matched hit is partially masked, and the mono hit got projected onto: "<<replaceMe->hit()->geographicalId().rawId()<<" key: "<<hit->monoHit()->cluster().key();
+      LogDebug("HitExtractorSTRP")<<"a matched hit is partially masked, and the mono hit got projected onto: "<<replaceMe->hit()->geographicalId().rawId()<<" key: "<<hit->monoClusterRef().key();
     else if (rejectMono)
-      LogDebug("HitExtractorSTRP")<<"a matched hit is partially masked, and the stereo hit got projected onto: "<<replaceMe->hit()->geographicalId().rawId()<<" key: "<<hit->stereoHit()->cluster().key();
+      LogDebug("HitExtractorSTRP")<<"a matched hit is partially masked, and the stereo hit got projected onto: "<<replaceMe->hit()->geographicalId().rawId()<<" key: "<<hit->stereoClusterRef().key();
     return false; //means the projection succeeded or nothing to be masked, no need to skip and replaceMe is going to be used anyways.
   }
   return false;
