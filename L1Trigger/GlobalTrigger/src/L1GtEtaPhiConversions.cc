@@ -39,7 +39,7 @@
 // constructor
 L1GtEtaPhiConversions::L1GtEtaPhiConversions() :
     m_nrBinsPhiMu(0), m_nrBinsPhiJetEg(0), m_nrBinsPhiEtm(0),
-            m_nrBinsPhiHtm(0), m_verbosity(0),
+            m_nrBinsPhiHtm(0), m_nrBinsEtaCommon(0), m_verbosity(0),
             m_isDebugEnabled(edm::isDebugEnabled()) {
 
     // prepare the pairs of L1GtObjects, reserve (by hand) memory for vectors
@@ -490,34 +490,82 @@ const unsigned int L1GtEtaPhiConversions::gtObjectPairIndex(
     return m_gtObjectPairVec.size();
 }
 
-const unsigned int L1GtEtaPhiConversions::convertPhiIndex(
-        unsigned int pairIndex, unsigned int positionPair,
-        unsigned int initialIndex) const {
+const bool L1GtEtaPhiConversions::convertPhiIndex(const unsigned int pairIndex,
+        const unsigned int positionPair, const unsigned int initialIndex,
+        unsigned int& convertedIndex) const {
 
-    unsigned int newIndex = 99999;
+    unsigned int newIndex = badIndex;
+    bool conversionStatus = false;
 
+    // check if initial index is within the scale size
+    // could be outside the scale size if there are hardware errors
+    // or wrong scale conversions
+    if (initialIndex >= (*(m_pairPhiConvVec.at(pairIndex))).size()) {
+
+        conversionStatus = false;
+
+        if (m_verbosity && m_isDebugEnabled) {
+            LogTrace("L1GlobalTrigger") << (positionPair ? "    Second"
+                    : "\n  First") << " object from pair " << pairIndex
+                    << ": initial phi index " << initialIndex << " >= "
+                    << ((*(m_pairPhiConvVec.at(pairIndex))).size())
+                    << " Conversion failed." << std::endl;
+        }
+    } else {
+        if (m_verbosity && m_isDebugEnabled) {
+            LogTrace("L1GlobalTrigger") << (positionPair ? "    Second"
+                    : "\n  First") << " object from pair " << pairIndex
+                    << ": initial phi index " << initialIndex
+                    << " within scale size " <<
+                    ((*(m_pairPhiConvVec.at(pairIndex))).size())
+                    << std::endl;
+        }
+
+    }
+
+    // convert the index
     switch (positionPair) {
         case 0: {
             if (m_pairConvertPhiFirstGtObject.at(pairIndex)) {
 
                 newIndex = (*(m_pairPhiConvVec.at(pairIndex))).at(initialIndex);
 
-                if (m_verbosity && m_isDebugEnabled) {
-                    LogTrace("L1GlobalTrigger") << (positionPair ? "    Second"
-                            : "\n  First") << " object from pair " << pairIndex
-                            << ": initial phi index " << initialIndex
-                            << " converted to " << newIndex << std::endl;
+                if (newIndex != badIndex) {
+
+                    conversionStatus = true;
+
+                    if (m_verbosity && m_isDebugEnabled) {
+                        LogTrace("L1GlobalTrigger")
+                                << (positionPair ? "    Second" : "\n  First")
+                                << " object from pair " << pairIndex
+                                << ": initial phi index " << initialIndex
+                                << " converted to " << newIndex << std::endl;
+                    }
+
+                } else {
+
+                    conversionStatus = false;
+
+                    if (m_verbosity && m_isDebugEnabled) {
+                        LogTrace("L1GlobalTrigger")
+                                << (positionPair ? "    Second" : "\n  First")
+                                << " object from pair " << pairIndex
+                                << ": converted phi index " << newIndex
+                                << "is equal to badIndex " << badIndex
+                                << " Conversion failed." << std::endl;
+                    }
                 }
 
             } else {
                 newIndex = initialIndex;
+                conversionStatus = true;
 
                 if (m_verbosity && m_isDebugEnabled) {
                     LogTrace("L1GlobalTrigger") << (positionPair ? "    Second"
                             : "\n  First") << " object from pair " << pairIndex
                             << ": initial phi index " << initialIndex
-                            << " not converted, return index " << newIndex
-                            << std::endl;
+                            << " not requested to be converted, return index "
+                            << newIndex << std::endl;
                 }
             }
         }
@@ -525,25 +573,47 @@ const unsigned int L1GtEtaPhiConversions::convertPhiIndex(
             break;
         case 1: {
             if (m_pairConvertPhiFirstGtObject.at(pairIndex)) {
+
                 newIndex = initialIndex;
+                conversionStatus = true;
 
                 if (m_verbosity && m_isDebugEnabled) {
                     LogTrace("L1GlobalTrigger") << (positionPair ? "    Second"
                             : "\n  First") << " object from pair " << pairIndex
                             << ": initial phi index " << initialIndex
-                            << " not converted, return index " << newIndex
-                            << std::endl;
+                            << " not requested to be converted, return index, return index "
+                            << newIndex << std::endl;
                 }
             } else {
 
                 newIndex = (*(m_pairPhiConvVec.at(pairIndex))).at(initialIndex);
 
-                if (m_verbosity && m_isDebugEnabled) {
-                    LogTrace("L1GlobalTrigger") << (positionPair ? "    Second"
-                            : "\n  First") << " object from pair " << pairIndex
-                            << ": initial phi index " << initialIndex
-                            << " converted to " << newIndex << std::endl;
+                if (newIndex != badIndex) {
+
+                    conversionStatus = true;
+
+                    if (m_verbosity && m_isDebugEnabled) {
+                        LogTrace("L1GlobalTrigger")
+                                << (positionPair ? "    Second" : "\n  First")
+                                << " object from pair " << pairIndex
+                                << ": initial phi index " << initialIndex
+                                << " converted to " << newIndex << std::endl;
+                    }
+
+                } else {
+
+                    conversionStatus = false;
+
+                    if (m_verbosity && m_isDebugEnabled) {
+                        LogTrace("L1GlobalTrigger")
+                                << (positionPair ? "    Second" : "\n  First")
+                                << " object from pair " << pairIndex
+                                << ": converted phi index " << newIndex
+                                << "is equal to badIndex " << badIndex
+                                << " Conversion failed." << std::endl;
+                    }
                 }
+
             }
 
         }
@@ -561,16 +631,215 @@ const unsigned int L1GtEtaPhiConversions::convertPhiIndex(
             break;
     }
 
-    return newIndex;
+    //
+    convertedIndex = newIndex;
+    return conversionStatus;
 
 }
 
+const bool L1GtEtaPhiConversions::convertEtaIndex(const L1GtObject& gtObject,
+        const unsigned int initialIndex, unsigned int& convertedIndex) const {
 
-const unsigned int L1GtEtaPhiConversions::convertEtaIndex(
-        unsigned int pairIndex, unsigned int initialIndex) const {
+    unsigned int newIndex = badIndex;
+    bool conversionStatus = false;
 
-    // FIXME write the conversion code
-    return initialIndex;
+    switch (gtObject) {
+
+        case Mu: {
+
+            // check if initial index is within the scale size
+            // could be outside the scale size if there are hardware errors
+            // or wrong scale conversions
+            if (initialIndex >= m_lutEtaMuToCommonCalo.size()) {
+
+                conversionStatus = false;
+
+                if (m_verbosity && m_isDebugEnabled) {
+                    LogTrace("L1GlobalTrigger") << "    L1 GT object "
+                            << (l1GtObjectEnumToString(gtObject))
+                            << " has initial eta index " << initialIndex
+                            << " >= " << (m_lutEtaMuToCommonCalo.size())
+                            << " scale size. Conversion failed." << std::endl;
+                }
+            } else {
+
+                // convert the index
+                newIndex = m_lutEtaMuToCommonCalo[initialIndex];
+
+                if (newIndex != badIndex) {
+
+                    conversionStatus = true;
+
+                    if (m_verbosity && m_isDebugEnabled) {
+                        LogTrace("L1GlobalTrigger") << "    L1 GT object "
+                                << (l1GtObjectEnumToString(gtObject))
+                                << " initial eta index " << initialIndex
+                                << " (within scale size "
+                                << (m_lutEtaMuToCommonCalo.size())
+                                << ") converted to " << newIndex << std::endl;
+                    }
+
+                } else {
+
+                    conversionStatus = false;
+
+                    if (m_verbosity && m_isDebugEnabled) {
+                        LogTrace("L1GlobalTrigger") << "    L1 GT object "
+                                << (l1GtObjectEnumToString(gtObject))
+                                << " initial eta index " << initialIndex
+                                << " (within scale size "
+                                << (m_lutEtaMuToCommonCalo.size())
+                                << ") converted to badIndex" << newIndex
+                                << " Conversion failed." << std::endl;
+                    }
+                }
+
+            }
+
+        }
+            break;
+
+        case NoIsoEG:
+        case IsoEG:
+        case CenJet:
+        case TauJet: {
+
+            // check if initial index is within the scale size
+            // could be outside the scale size if there are hardware errors
+            // or wrong scale conversions
+            if (initialIndex >= m_lutEtaCentralToCommonCalo.size()) {
+
+                conversionStatus = false;
+
+                if (m_verbosity && m_isDebugEnabled) {
+                    LogTrace("L1GlobalTrigger") << "    L1 GT object "
+                            << (l1GtObjectEnumToString(gtObject))
+                            << " has initial eta index " << initialIndex
+                            << " >= " << (m_lutEtaCentralToCommonCalo.size())
+                            << " scale size. Conversion failed." << std::endl;
+                }
+            } else {
+
+                // convert the index
+                newIndex = m_lutEtaCentralToCommonCalo[initialIndex];
+
+                if (newIndex != badIndex) {
+
+                    conversionStatus = true;
+
+                    if (m_verbosity && m_isDebugEnabled) {
+                        LogTrace("L1GlobalTrigger") << "    L1 GT object "
+                                << (l1GtObjectEnumToString(gtObject))
+                                << " initial eta index " << initialIndex
+                                << " (within scale size "
+                                << (m_lutEtaMuToCommonCalo.size())
+                                << ") converted to " << newIndex << std::endl;
+                    }
+
+                } else {
+
+                    conversionStatus = false;
+
+                    if (m_verbosity && m_isDebugEnabled) {
+                        LogTrace("L1GlobalTrigger") << "    L1 GT object "
+                                << (l1GtObjectEnumToString(gtObject))
+                                << " initial eta index " << initialIndex
+                                << " (within scale size "
+                                << (m_lutEtaCentralToCommonCalo.size())
+                                << ") converted to badIndex" << newIndex
+                                << " Conversion failed." << std::endl;
+                    }
+                }
+
+            }
+
+        }
+            break;
+
+        case ForJet: {
+
+            // check if initial index is within the scale size
+            // could be outside the scale size if there are hardware errors
+            // or wrong scale conversions
+            if (initialIndex >= m_lutEtaForJetToCommonCalo.size()) {
+
+                conversionStatus = false;
+
+                if (m_verbosity && m_isDebugEnabled) {
+                    LogTrace("L1GlobalTrigger") << "    L1 GT object "
+                            << (l1GtObjectEnumToString(gtObject))
+                            << " has initial eta index " << initialIndex
+                            << " >= " << (m_lutEtaForJetToCommonCalo.size())
+                            << " scale size. Conversion failed." << std::endl;
+                }
+            } else {
+
+                // convert the index
+                newIndex = m_lutEtaForJetToCommonCalo[initialIndex];
+
+                if (newIndex != badIndex) {
+
+                    conversionStatus = true;
+
+                    if (m_verbosity && m_isDebugEnabled) {
+                        LogTrace("L1GlobalTrigger") << "    L1 GT object "
+                                << (l1GtObjectEnumToString(gtObject))
+                                << " initial eta index " << initialIndex
+                                << " (within scale size "
+                                << (m_lutEtaMuToCommonCalo.size())
+                                << ") converted to " << newIndex << std::endl;
+                    }
+
+                } else {
+
+                    conversionStatus = false;
+
+                    if (m_verbosity && m_isDebugEnabled) {
+                        LogTrace("L1GlobalTrigger") << "    L1 GT object "
+                                << (l1GtObjectEnumToString(gtObject))
+                                << " initial eta index " << initialIndex
+                                << " (within scale size "
+                                << (m_lutEtaForJetToCommonCalo.size())
+                                << ") converted to badIndex" << newIndex
+                                << " Conversion failed." << std::endl;
+                    }
+                }
+
+            }
+        }
+            break;
+
+        case ETM:
+        case ETT:
+        case HTT:
+        case HTM:
+        case JetCounts:
+        case HfBitCounts:
+        case HfRingEtSums:
+        case TechTrig:
+        case Castor:
+        case BPTX:
+        case GtExternal:
+        case ObjNull: {
+
+            //no conversions needed, there is no eta quantity for these objects
+            conversionStatus = false;
+        }
+            break;
+
+        default: {
+            edm::LogInfo("L1GtObject") << "\n  '" << (l1GtObjectEnumToString(
+                    gtObject)) << "' is not a recognized L1GtObject. "
+                    << "\n Conversion failed. " << std::endl;
+            conversionStatus = false;
+        }
+            break;
+    }
+
+    //
+    convertedIndex = newIndex;
+
+    return conversionStatus;
 
 }
 
@@ -622,7 +891,8 @@ const unsigned int L1GtEtaPhiConversions::gtObjectNrBinsPhi(
             break;
 
         default: {
-            edm::LogInfo("L1GtObject") << "\n  '" << gtObject
+            edm::LogInfo("L1GtObject") << "\n  '"
+                    << (l1GtObjectEnumToString(gtObject))
                     << "' is not a recognized L1GtObject. "
                     << "\n Return 0 bins.";
             return 0;
@@ -677,40 +947,45 @@ const unsigned int L1GtEtaPhiConversions::gtObjectNrBinsPhi(
 
 
 // perform all conversions
-void L1GtEtaPhiConversions::convert(const L1CaloGeometry* l1CaloGeometry,
+void L1GtEtaPhiConversions::convertL1Scales(
+        const L1CaloGeometry* l1CaloGeometry,
         const L1MuTriggerScales* l1MuTriggerScales,
         const int ifCaloEtaNumberBits, const int ifMuEtaNumberBits) {
 
     // no bullet-proof method, depends on binning ...
     // decide "by hand / by eyes" which object converts to which object
 
-    // number of bins for all scales used
+    // update the scales used
+    m_l1CaloGeometry = l1CaloGeometry;
+    m_l1MuTriggerScales =  l1MuTriggerScales;
+
+    // number of bins for all phi scales used
 
     m_nrBinsPhiMu = 144; // FIXME ask Ivan for size() ...
-    //m_nrBinsPhiMu = l1MuTriggerScales->getPhiScale()->size();
+    //m_nrBinsPhiMu = m_l1MuTriggerScales->getPhiScale()->size();
 
-    m_nrBinsPhiJetEg = l1CaloGeometry->numberGctEmJetPhiBins();
-    m_nrBinsPhiEtm = l1CaloGeometry->numberGctEtSumPhiBins();
-    m_nrBinsPhiHtm = l1CaloGeometry->numberGctHtSumPhiBins();
+    m_nrBinsPhiJetEg = m_l1CaloGeometry->numberGctEmJetPhiBins();
+    m_nrBinsPhiEtm = m_l1CaloGeometry->numberGctEtSumPhiBins();
+    m_nrBinsPhiHtm = m_l1CaloGeometry->numberGctHtSumPhiBins();
 
     //
     // convert phi scale for muon (finer) to phi scale for (*Jet, EG) / ETM / HTM (coarser)
     //
 
     m_lutPhiMuToJetEg.clear();
-    m_lutPhiMuToJetEg.resize(m_nrBinsPhiMu);
+    m_lutPhiMuToJetEg.resize(m_nrBinsPhiMu, badIndex);
 
     m_lutPhiMuToEtm.clear();
-    m_lutPhiMuToEtm.resize(m_nrBinsPhiMu);
+    m_lutPhiMuToEtm.resize(m_nrBinsPhiMu, badIndex);
 
     m_lutPhiMuToHtm.clear();
-    m_lutPhiMuToHtm.resize(m_nrBinsPhiMu);
+    m_lutPhiMuToHtm.resize(m_nrBinsPhiMu, badIndex);
 
     for (unsigned int phiMuInd = 0; phiMuInd < m_nrBinsPhiMu; ++phiMuInd) {
 
-        double phiMuLowEdge = l1MuTriggerScales->getPhiScale()->getLowEdge(
+        double phiMuLowEdge = m_l1MuTriggerScales->getPhiScale()->getLowEdge(
                 phiMuInd);
-        double phiMuHighEdge = l1MuTriggerScales->getPhiScale()->getHighEdge(
+        double phiMuHighEdge = m_l1MuTriggerScales->getPhiScale()->getHighEdge(
                 phiMuInd);
 
         // phi Mu -> (*Jet, EG)
@@ -719,8 +994,8 @@ void L1GtEtaPhiConversions::convert(const L1CaloGeometry* l1CaloGeometry,
 
         for (unsigned int iBin = nrBins;; --iBin) {
 
-            double phiLowEdge = l1CaloGeometry->emJetPhiBinLowEdge(iBin);
-            double phiHighEdge = l1CaloGeometry->emJetPhiBinHighEdge(iBin);
+            double phiLowEdge = m_l1CaloGeometry->emJetPhiBinLowEdge(iBin);
+            double phiHighEdge = m_l1CaloGeometry->emJetPhiBinHighEdge(iBin);
 
             if (phiMuLowEdge >= phiLowEdge) {
                 m_lutPhiMuToJetEg[phiMuInd] = iBin % nrBins;
@@ -742,8 +1017,8 @@ void L1GtEtaPhiConversions::convert(const L1CaloGeometry* l1CaloGeometry,
 
         for (unsigned int iBin = nrBins;; --iBin) {
 
-            double phiLowEdge = l1CaloGeometry->etSumPhiBinLowEdge(iBin);
-            double phiHighEdge = l1CaloGeometry->etSumPhiBinHighEdge(iBin);
+            double phiLowEdge = m_l1CaloGeometry->etSumPhiBinLowEdge(iBin);
+            double phiHighEdge = m_l1CaloGeometry->etSumPhiBinHighEdge(iBin);
 
             if (phiMuLowEdge >= phiLowEdge) {
                 m_lutPhiMuToEtm[phiMuInd] = iBin % nrBins;
@@ -764,8 +1039,8 @@ void L1GtEtaPhiConversions::convert(const L1CaloGeometry* l1CaloGeometry,
 
         for (unsigned int iBin = nrBins;; --iBin) {
 
-            double phiLowEdge = l1CaloGeometry->htSumPhiBinLowEdge(iBin);
-            double phiHighEdge = l1CaloGeometry->htSumPhiBinHighEdge(iBin);
+            double phiLowEdge = m_l1CaloGeometry->htSumPhiBinLowEdge(iBin);
+            double phiHighEdge = m_l1CaloGeometry->htSumPhiBinHighEdge(iBin);
 
             if (phiMuLowEdge >= phiLowEdge) {
                 m_lutPhiMuToHtm[phiMuInd] = iBin % nrBins;
@@ -803,16 +1078,16 @@ void L1GtEtaPhiConversions::convert(const L1CaloGeometry* l1CaloGeometry,
     //
 
     m_lutPhiEtmToJetEg.clear();
-    m_lutPhiEtmToJetEg.resize(m_nrBinsPhiEtm);
+    m_lutPhiEtmToJetEg.resize(m_nrBinsPhiEtm, badIndex);
 
     m_lutPhiEtmToHtm.clear();
-    m_lutPhiEtmToHtm.resize(m_nrBinsPhiEtm);
+    m_lutPhiEtmToHtm.resize(m_nrBinsPhiEtm, badIndex);
 
 
     for (unsigned int phiEtmInd = 0; phiEtmInd < m_nrBinsPhiEtm; ++phiEtmInd) {
 
-        double phiEtmLowEdge = l1CaloGeometry->etSumPhiBinLowEdge(phiEtmInd);
-        double phiEtmHighEdge = l1CaloGeometry->etSumPhiBinHighEdge(phiEtmInd);
+        double phiEtmLowEdge = m_l1CaloGeometry->etSumPhiBinLowEdge(phiEtmInd);
+        double phiEtmHighEdge = m_l1CaloGeometry->etSumPhiBinHighEdge(phiEtmInd);
 
         // phi ETM -> (*Jet, EG)
 
@@ -820,8 +1095,8 @@ void L1GtEtaPhiConversions::convert(const L1CaloGeometry* l1CaloGeometry,
 
         for (unsigned int iBin = nrBins;; --iBin) {
 
-            double phiLowEdge = l1CaloGeometry->emJetPhiBinLowEdge(iBin);
-            double phiHighEdge = l1CaloGeometry->emJetPhiBinHighEdge(iBin);
+            double phiLowEdge = m_l1CaloGeometry->emJetPhiBinLowEdge(iBin);
+            double phiHighEdge = m_l1CaloGeometry->emJetPhiBinHighEdge(iBin);
 
             if (phiEtmLowEdge >= phiLowEdge) {
                 m_lutPhiEtmToJetEg[phiEtmInd] = iBin % nrBins;
@@ -843,8 +1118,8 @@ void L1GtEtaPhiConversions::convert(const L1CaloGeometry* l1CaloGeometry,
 
         for (unsigned int iBin = nrBins;; --iBin) {
 
-            double phiLowEdge = l1CaloGeometry->htSumPhiBinLowEdge(iBin);
-            double phiHighEdge = l1CaloGeometry->htSumPhiBinHighEdge(iBin);
+            double phiLowEdge = m_l1CaloGeometry->htSumPhiBinLowEdge(iBin);
+            double phiHighEdge = m_l1CaloGeometry->htSumPhiBinHighEdge(iBin);
 
             if (phiEtmLowEdge >= phiLowEdge) {
                 m_lutPhiEtmToHtm[phiEtmInd] = iBin % nrBins;
@@ -868,20 +1143,20 @@ void L1GtEtaPhiConversions::convert(const L1CaloGeometry* l1CaloGeometry,
     //
 
     m_lutPhiHtmToJetEg.clear();
-    m_lutPhiHtmToJetEg.resize(m_nrBinsPhiHtm);
+    m_lutPhiHtmToJetEg.resize(m_nrBinsPhiHtm, badIndex);
 
 
     for (unsigned int phiHtmInd = 0; phiHtmInd < m_nrBinsPhiHtm; ++phiHtmInd) {
 
-        double phiHtmLowEdge = l1CaloGeometry->htSumPhiBinLowEdge(phiHtmInd);
-        double phiHtmHighEdge = l1CaloGeometry->htSumPhiBinHighEdge(phiHtmInd);
+        double phiHtmLowEdge = m_l1CaloGeometry->htSumPhiBinLowEdge(phiHtmInd);
+        double phiHtmHighEdge = m_l1CaloGeometry->htSumPhiBinHighEdge(phiHtmInd);
 
         unsigned int nrBins = m_nrBinsPhiJetEg;
 
         for (unsigned int iBin = nrBins;; --iBin) {
 
-            double phiLowEdge = l1CaloGeometry->emJetPhiBinLowEdge(iBin);
-            double phiHighEdge = l1CaloGeometry->emJetPhiBinHighEdge(iBin);
+            double phiLowEdge = m_l1CaloGeometry->emJetPhiBinLowEdge(iBin);
+            double phiHighEdge = m_l1CaloGeometry->emJetPhiBinHighEdge(iBin);
 
             if (phiHtmLowEdge >= phiLowEdge) {
                 m_lutPhiHtmToJetEg[phiHtmInd] = iBin % nrBins;
@@ -905,33 +1180,173 @@ void L1GtEtaPhiConversions::convert(const L1CaloGeometry* l1CaloGeometry,
     // dummy - return the same index as the input index
 
     m_lutPhiJetEgToJetEg.clear();
-    m_lutPhiJetEgToJetEg.resize(m_nrBinsPhiJetEg);
+    m_lutPhiJetEgToJetEg.resize(m_nrBinsPhiJetEg, badIndex);
 
     for (unsigned int phiInd = 0; phiInd < m_nrBinsPhiJetEg; ++phiInd) {
         m_lutPhiJetEgToJetEg[phiInd] = phiInd;
     }
 
-
     //
-    // convert calo eta scale for CenJet/TauJet & IsoEG/NoIsoEG to a common 
-    // central / forward eta scale
+    // eta conversions
+    //
+
+    // all objects are converted to a common central / forward calorimeter eta scale,
+    // built by setting together the forward scale and the central scale
+    //
+    // eta is signed,  MSB is the sign for all objects - must be taken into account
+    // in conversion - the common scale is, from 0 to m_nrBinsEtaCommon:
+    //
+    // [ForJet negative bins][Central Jet/IsoEG/NoIsoEG negative bins][Central Jet/IsoEG/NoIsoEG positive bins][ForJet positive bins]
     //
 
     unsigned int nrGctCentralEtaBinsPerHalf =
-            l1CaloGeometry->numberGctCentralEtaBinsPerHalf();
+            m_l1CaloGeometry->numberGctCentralEtaBinsPerHalf();
 
     unsigned int nrGctForwardEtaBinsPerHalf =
-            l1CaloGeometry->numberGctForwardEtaBinsPerHalf();
+            m_l1CaloGeometry->numberGctForwardEtaBinsPerHalf();
 
     unsigned int nrGctTotalEtaBinsPerHalf = nrGctCentralEtaBinsPerHalf
             + nrGctForwardEtaBinsPerHalf;
 
-    m_lutEtaCenCaloCommon.clear();
-    m_lutEtaCenCaloCommon.resize(nrGctTotalEtaBinsPerHalf);
+    m_nrBinsEtaCommon = 2*nrGctTotalEtaBinsPerHalf;
 
-    for (unsigned int cenInd = 0; cenInd < nrGctCentralEtaBinsPerHalf; ++cenInd) {
+    //
+    // convert eta scale for CenJet/TauJet & IsoEG/NoIsoEG to a common
+    // central / forward calorimeter eta scale
+    //
+    // get the sign and the index absolute value
 
-        // FIXME 
+    LogTrace("L1GlobalTrigger")
+            << " \nEta conversion: CenJet/TauJet & IsoEG/NoIsoEG to a common calorimeter scale\n"
+            << std::endl;
+
+    m_lutEtaCentralToCommonCalo.clear();
+    m_lutEtaCentralToCommonCalo.resize(
+            (nrGctCentralEtaBinsPerHalf | (1 << (ifCaloEtaNumberBits - 1))),
+            badIndex);
+
+    for (unsigned int etaInd = 0; etaInd < nrGctCentralEtaBinsPerHalf; ++etaInd) {
+
+        // for positive values, the index is etaInd
+        unsigned int globalIndex = m_l1CaloGeometry->globalEtaIndex(
+                m_l1CaloGeometry->etaBinCenter(etaInd, true));
+        m_lutEtaCentralToCommonCalo[etaInd] = globalIndex;
+
+        LogTrace("L1GlobalTrigger") << " etaIndex " << etaInd << "\t [hex: "
+                << std::hex << etaInd << "] " << std::dec
+                << " ==> etaIndexGlobal " << globalIndex << std::endl;
+
+        // for negative values, one adds (binary) 1 as MSB to the index
+        unsigned int etaIndNeg = etaInd | (1 << (ifCaloEtaNumberBits - 1));
+        globalIndex = m_l1CaloGeometry->globalEtaIndex(
+                m_l1CaloGeometry->etaBinCenter(etaIndNeg, true));
+        m_lutEtaCentralToCommonCalo[etaIndNeg] = globalIndex;
+
+        LogTrace("L1GlobalTrigger") << " etaIndex " << etaIndNeg
+                << "\t [hex: " << std::hex << etaIndNeg << "] " << std::dec
+                << " ==> etaIndexGlobal " << globalIndex << std::endl;
+
+    }
+
+    //
+    // convert eta scale for ForJet to a common
+    // central / forward calorimeter eta scale
+    //
+
+    LogTrace("L1GlobalTrigger")
+            << " \nEta conversion: ForJet to a common calorimeter scale\n"
+            << std::endl;
+
+    m_lutEtaForJetToCommonCalo.clear();
+    m_lutEtaForJetToCommonCalo.resize(
+            (nrGctForwardEtaBinsPerHalf | (1 << (ifCaloEtaNumberBits - 1))),
+            badIndex);
+
+    for (unsigned int etaInd = 0; etaInd < nrGctForwardEtaBinsPerHalf; ++etaInd) {
+
+        // for positive values, the index is etaInd
+        unsigned int globalIndex = m_l1CaloGeometry->globalEtaIndex(
+                m_l1CaloGeometry->etaBinCenter(etaInd, false));
+        m_lutEtaForJetToCommonCalo[etaInd] = globalIndex;
+
+        LogTrace("L1GlobalTrigger") << " etaIndex " << etaInd << "\t [hex: "
+                << std::hex << etaInd << "] " << std::dec
+                << " ==> etaIndexGlobal " << globalIndex << std::endl;
+
+        // for negative values, one adds (binary) 1 as MSB to the index
+        unsigned int etaIndNeg = etaInd | (1 << (ifCaloEtaNumberBits - 1));
+        globalIndex = m_l1CaloGeometry->globalEtaIndex(
+                m_l1CaloGeometry->etaBinCenter(etaIndNeg, false));
+        m_lutEtaForJetToCommonCalo[etaIndNeg] = globalIndex;
+
+        LogTrace("L1GlobalTrigger") << " etaIndex " << etaIndNeg << "\t [hex: "
+                << std::hex << etaIndNeg << "] " << std::dec
+                << " ==> etaIndexGlobal " << globalIndex << std::endl;
+
+    }
+
+    //
+    // convert eta scale for Mu to a common
+    // central / forward calorimeter eta scale
+    //
+
+    LogDebug("L1GlobalTrigger")
+            << " \nEta conversion: Mu to a common calorimeter scale\n"
+            << std::endl;
+
+    // eta scale defined for positive values - need to be symmetrized
+    unsigned int nrBinsEtaMuPerHalf =
+            m_l1MuTriggerScales->getGMTEtaScale()->getNBins();
+    LogTrace("L1GlobalTrigger") << " \nnrBinsEtaMuPerHalf = "
+            << nrBinsEtaMuPerHalf << "\n" << std::endl;
+
+    m_lutEtaMuToCommonCalo.clear();
+    m_lutEtaMuToCommonCalo.resize(
+            (nrBinsEtaMuPerHalf | (1 << (ifMuEtaNumberBits - 1))), badIndex);
+
+    for (unsigned int etaMuInd = 0; etaMuInd < nrBinsEtaMuPerHalf; ++etaMuInd) {
+
+        double etaMuLowEdge = m_l1MuTriggerScales->getGMTEtaScale()->getValue(
+                etaMuInd);
+        double etaMuHighEdge = m_l1MuTriggerScales->getGMTEtaScale()->getValue(
+                etaMuInd + 1);
+
+        // positive values
+        for (unsigned int iBin = m_nrBinsEtaCommon;; --iBin) {
+
+            double etaLowEdge = m_l1CaloGeometry->globalEtaBinLowEdge(iBin);
+            double etaHighEdge =
+                    m_l1CaloGeometry->globalEtaBinLowEdge(iBin + 1);
+
+            if (etaMuLowEdge >= etaLowEdge) {
+                m_lutEtaMuToCommonCalo[etaMuInd] = iBin % m_nrBinsEtaCommon;
+
+                LogTrace("L1GlobalTrigger") << " etaMuIndex \t" << etaMuInd
+                        << "\t [ " << etaMuLowEdge << ", \t" << etaMuHighEdge
+                        << "] ==> etaMuJetEG \t"
+                        << m_lutEtaMuToCommonCalo[etaMuInd] << "\t [ "
+                        << etaLowEdge << ", \t" << etaHighEdge << " ]"
+                        << std::endl;
+
+                break;
+            }
+        }
+
+        // for negative values, one adds (binary) 1 as MSB to the index
+        unsigned int etaMuIndNeg = etaMuInd | (1 << (ifMuEtaNumberBits - 1));
+        m_lutEtaMuToCommonCalo[etaMuIndNeg] = m_lutEtaMuToCommonCalo[0]
+                - (m_lutEtaMuToCommonCalo[etaMuInd] - m_lutEtaMuToCommonCalo[0]
+                        + 1);
+
+        LogTrace("L1GlobalTrigger") << " etaMuIndexNeg \t" << etaMuIndNeg
+                << "\t [ " << (-1.0 * etaMuLowEdge) << ", \t" << (-1.0
+                * etaMuHighEdge) << "] ==> etaMuJetEG \t"
+                << m_lutEtaMuToCommonCalo[etaMuIndNeg] << "\t [ "
+                << m_l1CaloGeometry->globalEtaBinLowEdge(
+                        m_lutEtaMuToCommonCalo[etaMuIndNeg]) << ", \t"
+                << m_l1CaloGeometry->globalEtaBinLowEdge(
+                        m_lutEtaMuToCommonCalo[etaMuIndNeg] + 1) << " ]"
+                << std::endl;
 
     }
 
@@ -945,8 +1360,516 @@ void L1GtEtaPhiConversions::convert(const L1CaloGeometry* l1CaloGeometry,
 // print all the performed conversions
 void L1GtEtaPhiConversions::print(std::ostream& myCout) const {
 
-    myCout << "\n  L1GtEtaPhiConversions print...\n" << std::endl;
-    // FIXME
+    myCout
+            << "\n---++Conversion tables for phi and eta variables of the trigger objects used in correlation conditions \n"
+            << std::endl;
+
+    //
+    // phi conversions
+    //
+
+    // phi Mu -> (*Jet, EG)
+
+    myCout
+            << "\n---+++Phi conversion for muons to jets and e-gamma common phi scale \n"
+            << std::endl;
+
+    size_t lutPhiMuToJetEgSize = m_lutPhiMuToJetEg.size();
+    myCout << "Size of look-up table = " << lutPhiMuToJetEgSize << "\n"
+            << std::endl;
+
+    myCout << "|  *Initial Phi Hardware Index*  "
+            << "||  *Initial Phi Range*  ||"
+            << "  *Converted Phi Hardware Index*  "
+            << "||  *Converted Phi Range*  ||" << "\n"
+            << "|  *hex*  |  *dec*  | ^|^|  *hex*  |  *dec*  |^|^|"
+            << std::endl;
+
+    for (unsigned int indexToConv = 0; indexToConv < lutPhiMuToJetEgSize; ++indexToConv) {
+
+        double lowEdgeToConv = m_l1MuTriggerScales->getPhiScale()->getLowEdge(
+                indexToConv);
+        double highEdgeToConv =
+                m_l1MuTriggerScales->getPhiScale()->getHighEdge(indexToConv);
+
+        unsigned int convIndex = m_lutPhiMuToJetEg[indexToConv];
+
+        double convLowEdge = 0.;
+        double convHighEdge = 0.;
+
+        if (convIndex != badIndex) {
+            convLowEdge = m_l1CaloGeometry->emJetPhiBinLowEdge(convIndex);
+            convHighEdge = m_l1CaloGeometry->emJetPhiBinHighEdge(convIndex);
+        } else {
+            // badIndex means a bad initialIndex
+            lowEdgeToConv = 0.;
+            highEdgeToConv = 0.;
+        }
+
+        myCout << "|  0x" << std::setw(3) << std::hex << std::left
+                << indexToConv << "  |  " << std::dec << std::setw(3)
+                << std::left << indexToConv << "  |[ " << std::setw(10)
+                << std::left << (rad2deg(lowEdgeToConv)) << ",  |"
+                << std::setw(10) << std::left << (rad2deg(highEdgeToConv))
+                << " )  |  0x" << std::setw(6) << std::hex << std::left
+                << convIndex << " |  " << std::dec << std::setw(6) << convIndex
+                << "  |[ " << std::setw(10) << std::left << (rad2deg(
+                convLowEdge)) << ",  |" << std::setw(10) << std::left
+                << (rad2deg(convHighEdge)) << " )  |" << std::right
+                << std::endl;
+
+    }
+
+    // phi Mu -> ETM
+
+    myCout << "\n---+++Phi conversion for muons to ETM phi scale \n"
+            << std::endl;
+
+    size_t lutPhiMuToEtmSize = m_lutPhiMuToEtm.size();
+    myCout << "Size of look-up table = " << lutPhiMuToEtmSize << "\n"
+            << std::endl;
+
+    myCout << "|  *Initial Phi Hardware Index*  "
+            << "||  *Initial Phi Range*  ||"
+            << "  *Converted Phi Hardware Index*  "
+            << "||  *Converted Phi Range*  ||" << "\n"
+            << "|  *hex*  |  *dec*  | ^|^|  *hex*  |  *dec*  |^|^|"
+            << std::endl;
+
+    for (unsigned int indexToConv = 0; indexToConv < lutPhiMuToEtmSize; ++indexToConv) {
+
+        double lowEdgeToConv = m_l1MuTriggerScales->getPhiScale()->getLowEdge(
+                indexToConv);
+        double highEdgeToConv =
+                m_l1MuTriggerScales->getPhiScale()->getHighEdge(indexToConv);
+
+        unsigned int convIndex = m_lutPhiMuToEtm[indexToConv];
+
+        double convLowEdge = 0.;
+        double convHighEdge = 0.;
+
+        if (convIndex != badIndex) {
+            convLowEdge = m_l1CaloGeometry->etSumPhiBinLowEdge(convIndex);
+            convHighEdge = m_l1CaloGeometry->etSumPhiBinHighEdge(convIndex);
+        } else {
+            // badIndex means a bad initialIndex
+            lowEdgeToConv = 0.;
+            highEdgeToConv = 0.;
+        }
+
+        myCout << "|  0x" << std::setw(3) << std::hex << std::left
+                << indexToConv << "  |  " << std::dec << std::setw(3)
+                << std::left << indexToConv << "  |[ " << std::setw(10)
+                << std::left << (rad2deg(lowEdgeToConv)) << ",  |"
+                << std::setw(10) << std::left << (rad2deg(highEdgeToConv))
+                << " )  |  0x" << std::setw(6) << std::hex << std::left
+                << convIndex << " |  " << std::dec << std::setw(6) << convIndex
+                << "  |[ " << std::setw(10) << std::left << (rad2deg(
+                convLowEdge)) << ",  |" << std::setw(10) << std::left
+                << (rad2deg(convHighEdge)) << " )  |" << std::right
+                << std::endl;
+
+    }
+
+    // phi Mu -> HTM
+
+    myCout << "\n---+++Phi conversion for muons to HTM phi scale \n"
+            << std::endl;
+
+    size_t lutPhiMuToHtmSize = m_lutPhiMuToHtm.size();
+    myCout << "Size of look-up table = " << lutPhiMuToHtmSize << "\n"
+            << std::endl;
+
+    myCout << "|  *Initial Phi Hardware Index*  "
+            << "||  *Initial Phi Range*  ||"
+            << "  *Converted Phi Hardware Index*  "
+            << "||  *Converted Phi Range*  ||" << "\n"
+            << "|  *hex*  |  *dec*  | ^|^|  *hex*  |  *dec*  |^|^|"
+            << std::endl;
+
+    for (unsigned int indexToConv = 0; indexToConv < lutPhiMuToHtmSize; ++indexToConv) {
+
+        double lowEdgeToConv = m_l1MuTriggerScales->getPhiScale()->getLowEdge(
+                indexToConv);
+        double highEdgeToConv =
+                m_l1MuTriggerScales->getPhiScale()->getHighEdge(indexToConv);
+
+        unsigned int convIndex = m_lutPhiMuToHtm[indexToConv];
+
+        double convLowEdge = 0.;
+        double convHighEdge = 0.;
+
+        if (convIndex != badIndex) {
+            convLowEdge = m_l1CaloGeometry->htSumPhiBinLowEdge(convIndex);
+            convHighEdge = m_l1CaloGeometry->htSumPhiBinHighEdge(convIndex);
+        } else {
+            // badIndex means a bad initialIndex
+            lowEdgeToConv = 0.;
+            highEdgeToConv = 0.;
+        }
+
+        myCout << "|  0x" << std::setw(3) << std::hex << std::left
+                << indexToConv << "  |  " << std::dec << std::setw(3)
+                << std::left << indexToConv << "  |[ " << std::setw(10)
+                << std::left << (rad2deg(lowEdgeToConv)) << ",  |"
+                << std::setw(10) << std::left << (rad2deg(highEdgeToConv))
+                << " )  |  0x" << std::setw(6) << std::hex << std::left
+                << convIndex << " |  " << std::dec << std::setw(6) << convIndex
+                << "  |[ " << std::setw(10) << std::left << (rad2deg(
+                convLowEdge)) << ",  |" << std::setw(10) << std::left
+                << (rad2deg(convHighEdge)) << " )  |" << std::right
+                << std::endl;
+
+    }
+
+    // phi ETM -> (*Jet, EG)
+
+    myCout
+            << "\n---+++Phi conversion for ETM to jets and e-gamma scale common phi scale \n"
+            << std::endl;
+
+    size_t lutPhiEtmToJetEgSize = m_lutPhiEtmToJetEg.size();
+    myCout << "Size of look-up table = " << lutPhiEtmToJetEgSize << "\n"
+            << std::endl;
+
+    myCout << "|  *Initial Phi Hardware Index*  "
+            << "||  *Initial Phi Range*  ||"
+            << "  *Converted Phi Hardware Index*  "
+            << "||  *Converted Phi Range*  ||" << "\n"
+            << "|  *hex*  |  *dec*  | ^|^|  *hex*  |  *dec*  |^|^|"
+            << std::endl;
+
+    for (unsigned int indexToConv = 0; indexToConv < lutPhiEtmToJetEgSize; ++indexToConv) {
+
+        double lowEdgeToConv =
+                m_l1CaloGeometry->etSumPhiBinLowEdge(indexToConv);
+        double highEdgeToConv = m_l1CaloGeometry->etSumPhiBinHighEdge(
+                indexToConv);
+
+        unsigned int convIndex = m_lutPhiEtmToJetEg[indexToConv];
+
+        double convLowEdge = 0.;
+        double convHighEdge = 0.;
+
+        if (convIndex != badIndex) {
+            convLowEdge = m_l1CaloGeometry->emJetPhiBinLowEdge(convIndex);
+            convHighEdge = m_l1CaloGeometry->emJetPhiBinHighEdge(convIndex);
+        } else {
+            // badIndex means a bad initialIndex
+            lowEdgeToConv = 0.;
+            highEdgeToConv = 0.;
+        }
+
+        myCout << "|  0x" << std::setw(3) << std::hex << std::left
+                << indexToConv << "  |  " << std::dec << std::setw(3)
+                << std::left << indexToConv << "  |[ " << std::setw(10)
+                << std::left << (rad2deg(lowEdgeToConv)) << ",  |"
+                << std::setw(10) << std::left << (rad2deg(highEdgeToConv))
+                << " )  |  0x" << std::setw(6) << std::hex << std::left
+                << convIndex << " |  " << std::dec << std::setw(6) << convIndex
+                << "  |[ " << std::setw(10) << std::left << (rad2deg(
+                convLowEdge)) << ",  |" << std::setw(10) << std::left
+                << (rad2deg(convHighEdge)) << " )  |" << std::right
+                << std::endl;
+
+    }
+
+    // phi ETM -> HTM
+
+    myCout << "\n---+++Phi conversion for ETM to HTM phi scale \n" << std::endl;
+
+    size_t lutPhiEtmToHtmSize = m_lutPhiEtmToHtm.size();
+    myCout << "Size of look-up table = " << lutPhiEtmToHtmSize << "\n"
+            << std::endl;
+
+    myCout << "|  *Initial Phi Hardware Index*  "
+            << "||  *Initial Phi Range*  ||"
+            << "  *Converted Phi Hardware Index*  "
+            << "||  *Converted Phi Range*  ||" << "\n"
+            << "|  *hex*  |  *dec*  | ^|^|  *hex*  |  *dec*  |^|^|"
+            << std::endl;
+
+    for (unsigned int indexToConv = 0; indexToConv < lutPhiEtmToHtmSize; ++indexToConv) {
+
+        double lowEdgeToConv =
+                m_l1CaloGeometry->etSumPhiBinLowEdge(indexToConv);
+        double highEdgeToConv = m_l1CaloGeometry->etSumPhiBinHighEdge(
+                indexToConv);
+
+        unsigned int convIndex = m_lutPhiEtmToHtm[indexToConv];
+
+        double convLowEdge = 0.;
+        double convHighEdge = 0.;
+
+        if (convIndex != badIndex) {
+            convLowEdge = m_l1CaloGeometry->htSumPhiBinLowEdge(convIndex);
+            convHighEdge = m_l1CaloGeometry->htSumPhiBinHighEdge(convIndex);
+        } else {
+            // badIndex means a bad initialIndex
+            lowEdgeToConv = 0.;
+            highEdgeToConv = 0.;
+        }
+
+        myCout << "|  0x" << std::setw(3) << std::hex << std::left
+                << indexToConv << "  |  " << std::dec << std::setw(3)
+                << std::left << indexToConv << "  |[ " << std::setw(10)
+                << std::left << (rad2deg(lowEdgeToConv)) << ",  |"
+                << std::setw(10) << std::left << (rad2deg(highEdgeToConv))
+                << " )  |  0x" << std::setw(6) << std::hex << std::left
+                << convIndex << " |  " << std::dec << std::setw(6) << convIndex
+                << "  |[ " << std::setw(10) << std::left << (rad2deg(
+                convLowEdge)) << ",  |" << std::setw(10) << std::left
+                << (rad2deg(convHighEdge)) << " )  |" << std::right
+                << std::endl;
+
+    }
+
+    // phi HTM -> (*Jet, EG)
+
+
+    myCout
+            << "\n---+++Phi conversion for HTM to jets and e-gamma scale common phi scale \n"
+            << std::endl;
+
+    size_t lutPhiHtmToJetEgSize = m_lutPhiHtmToJetEg.size();
+    myCout << "Size of look-up table = " << lutPhiHtmToJetEgSize << "\n"
+            << std::endl;
+
+    myCout << "|  *Initial Phi Hardware Index*  "
+            << "||  *Initial Phi Range*  ||"
+            << "  *Converted Phi Hardware Index*  "
+            << "||  *Converted Phi Range*  ||" << "\n"
+            << "|  *hex*  |  *dec*  | ^|^|  *hex*  |  *dec*  |^|^|"
+            << std::endl;
+
+    for (unsigned int indexToConv = 0; indexToConv < lutPhiHtmToJetEgSize; ++indexToConv) {
+
+        double lowEdgeToConv =
+                m_l1CaloGeometry->htSumPhiBinLowEdge(indexToConv);
+        double highEdgeToConv = m_l1CaloGeometry->htSumPhiBinHighEdge(
+                indexToConv);
+
+        unsigned int convIndex = m_lutPhiHtmToJetEg[indexToConv];
+
+        double convLowEdge = 0.;
+        double convHighEdge = 0.;
+
+        if (convIndex != badIndex) {
+            convLowEdge = m_l1CaloGeometry->emJetPhiBinLowEdge(convIndex);
+            convHighEdge = m_l1CaloGeometry->emJetPhiBinHighEdge(convIndex);
+        } else {
+            // badIndex means a bad initialIndex
+            lowEdgeToConv = 0.;
+            highEdgeToConv = 0.;
+        }
+
+        myCout << "|  0x" << std::setw(3) << std::hex << std::left
+                << indexToConv << "  |  " << std::dec << std::setw(3)
+                << std::left << indexToConv << "  |[ " << std::setw(10)
+                << std::left << (rad2deg(lowEdgeToConv)) << ",  |"
+                << std::setw(10) << std::left << (rad2deg(highEdgeToConv))
+                << " )  |  0x" << std::setw(6) << std::hex << std::left
+                << convIndex << " |  " << std::dec << std::setw(6) << convIndex
+                << "  |[ " << std::setw(10) << std::left << (rad2deg(
+                convLowEdge)) << ",  |" << std::setw(10) << std::left
+                << (rad2deg(convHighEdge)) << " )  |" << std::right
+                << std::endl;
+
+    }
+
+    //
+    // eta conversions
+    //
+
+
+    // CenJet/TauJet & IsoEG/NoIsoEG to a common central / forward calorimeter eta scale
+
+
+    myCout
+            << "\n---+++Eta conversion for central and tau jets and e-gamma objects to a common central and forward calorimeter eta scale \n"
+            << std::endl;
+
+    size_t lutEtaCentralToCommonCaloSize = m_lutEtaCentralToCommonCalo.size();
+    myCout << "Size of look-up table = " << lutEtaCentralToCommonCaloSize
+            << "\n" << std::endl;
+
+    myCout << "|  *Initial Eta Hardware Index*  "
+            << "||  *Initial Eta Range*  ||"
+            << "  *Converted Eta Hardware Index*  "
+            << "||  *Converted Eta Range*  ||" << "\n"
+            << "|  *hex*  |  *dec*  | ^|^|  *hex*  |  *dec*  |^|^|"
+            << std::endl;
+
+    for (unsigned int indexToConv = 0; indexToConv
+            < lutEtaCentralToCommonCaloSize; ++indexToConv) {
+
+        double lowEdgeToConv = m_l1CaloGeometry->globalEtaBinLowEdge(
+                m_l1CaloGeometry->globalEtaIndex(
+                        m_l1CaloGeometry->etaBinCenter(indexToConv, true)));
+        double highEdgeToConv = m_l1CaloGeometry->globalEtaBinLowEdge(
+                m_l1CaloGeometry->globalEtaIndex(
+                        m_l1CaloGeometry->etaBinCenter(indexToConv, true)) + 1);
+
+        unsigned int convIndex = m_lutEtaCentralToCommonCalo[indexToConv];
+
+        double convLowEdge = 0.;
+        double convHighEdge = 0.;
+
+        if (convIndex != badIndex) {
+            convLowEdge = m_l1CaloGeometry->globalEtaBinLowEdge(convIndex);
+            convHighEdge = m_l1CaloGeometry->globalEtaBinLowEdge(convIndex + 1);
+        } else {
+            // badIndex means a bad initialIndex
+            lowEdgeToConv = 0.;
+            highEdgeToConv = 0.;
+        }
+
+        myCout << "|  0x" << std::setw(3) << std::hex << std::left
+                << indexToConv << "  |  " << std::dec << std::setw(3)
+                << std::left << indexToConv << "  |[ " << std::setw(10)
+                << std::left << lowEdgeToConv << ",  |" << std::setw(10)
+                << std::left << highEdgeToConv << " )  |  0x" << std::setw(6)
+                << std::hex << std::left << convIndex << " |  " << std::dec
+                << std::setw(6) << convIndex << "  |[ " << std::setw(10)
+                << std::left << convLowEdge << ",  |" << std::setw(10)
+                << std::left << convHighEdge << " )  |" << std::right
+                << std::endl;
+    }
+
+    // ForJet to a common central / forward calorimeter eta scale
+
+
+    myCout
+            << "\n---+++Eta conversion for forward jets to a common central and forward calorimeter eta scale \n"
+            << std::endl;
+
+    size_t lutEtaForJetToCommonCaloSize = m_lutEtaForJetToCommonCalo.size();
+    myCout << "Size of look-up table = " << lutEtaForJetToCommonCaloSize
+            << "\n" << std::endl;
+
+    myCout << "|  *Initial Eta Hardware Index*  "
+            << "||  *Initial Eta Range*  ||"
+            << "  *Converted Eta Hardware Index*  "
+            << "||  *Converted Eta Range*  ||" << "\n"
+            << "|  *hex*  |  *dec*  | ^|^|  *hex*  |  *dec*  |^|^|"
+            << std::endl;
+
+    for (unsigned int indexToConv = 0; indexToConv
+            < lutEtaForJetToCommonCaloSize; ++indexToConv) {
+
+        double lowEdgeToConv = m_l1CaloGeometry->globalEtaBinLowEdge(
+                m_l1CaloGeometry->globalEtaIndex(
+                        m_l1CaloGeometry->etaBinCenter(indexToConv, false)));
+        double highEdgeToConv =
+                m_l1CaloGeometry->globalEtaBinLowEdge(
+                        m_l1CaloGeometry->globalEtaIndex(
+                                m_l1CaloGeometry->etaBinCenter(indexToConv,
+                                        false)) + 1);
+
+        unsigned int convIndex = m_lutEtaForJetToCommonCalo[indexToConv];
+
+        double convLowEdge = 0.;
+        double convHighEdge = 0.;
+
+        if (convIndex != badIndex) {
+            convLowEdge = m_l1CaloGeometry->globalEtaBinLowEdge(convIndex);
+            convHighEdge = m_l1CaloGeometry->globalEtaBinLowEdge(convIndex + 1);
+        } else {
+            // badIndex means a bad initialIndex
+            lowEdgeToConv = 0.;
+            highEdgeToConv = 0.;
+        }
+
+        myCout << "|  0x" << std::setw(3) << std::hex << std::left
+                << indexToConv << "  |  " << std::dec << std::setw(3)
+                << std::left << indexToConv << "  |[ " << std::setw(10)
+                << std::left << lowEdgeToConv << ",  |" << std::setw(10)
+                << std::left << highEdgeToConv << " )  |  0x" << std::setw(6)
+                << std::hex << std::left << convIndex << " |  " << std::dec
+                << std::setw(6) << convIndex << "  |[ " << std::setw(10)
+                << std::left << convLowEdge << ",  |" << std::setw(10)
+                << std::left << convHighEdge << " )  |" << std::right
+                << std::endl;
+    }
+
+    // Mu to a common central / forward calorimeter eta scale
+
+    myCout
+            << "\n---+++Eta conversion for muons to a common central and forward calorimeter eta scale \n"
+            << std::endl;
+
+    size_t lutEtaMuToCommonCaloSize = m_lutEtaMuToCommonCalo.size();
+    myCout << "Size of look-up table = " << lutEtaMuToCommonCaloSize << "\n"
+            << std::endl;
+
+    unsigned int nrBinsEtaMuPerHalf =
+            m_l1MuTriggerScales->getGMTEtaScale()->getNBins();
+
+    myCout << "|  *Initial Eta Hardware Index*  "
+            << "||  *Initial Eta Range*  ||"
+            << "  *Converted Eta Hardware Index*  "
+            << "||  *Converted Eta Range*  ||" << "\n"
+            << "|  *hex*  |  *dec*  | ^|^|  *hex*  |  *dec*  |^|^|"
+            << std::endl;
+
+    for (unsigned int indexToConv = 0; indexToConv < lutEtaMuToCommonCaloSize; ++indexToConv) {
+
+        // Mu scale defined for positive values only, need to be symmetrized
+        unsigned int iBinOffset = 0;
+        double etaSign = 1.;
+
+        if (indexToConv > nrBinsEtaMuPerHalf) {
+            iBinOffset = nrBinsEtaMuPerHalf + 1;
+            etaSign = -1.;
+        }
+
+        double lowEdgeToConv = etaSign
+                * m_l1MuTriggerScales->getGMTEtaScale()->getValue(
+                        indexToConv - iBinOffset);
+        double highEdgeToConv = etaSign
+                * m_l1MuTriggerScales->getGMTEtaScale()->getValue(
+                        indexToConv + 1 - iBinOffset);
+
+        unsigned int convIndex = m_lutEtaMuToCommonCalo[indexToConv];
+
+        double convLowEdge = 0.;
+        double convHighEdge = 0.;
+
+        if (convIndex != badIndex) {
+            convLowEdge = m_l1CaloGeometry->globalEtaBinLowEdge(convIndex);
+            convHighEdge = m_l1CaloGeometry->globalEtaBinLowEdge(convIndex + 1);
+        } else {
+            // badIndex means a bad initialIndex
+            lowEdgeToConv = 0.;
+            highEdgeToConv = 0.;
+        }
+
+        myCout << "|  0x" << std::setw(3) << std::hex << std::left
+                << indexToConv << "  |  " << std::dec << std::setw(3)
+                << std::left << indexToConv << "  |[ " << std::setw(10)
+                << std::left << lowEdgeToConv << ",  |" << std::setw(10)
+                << std::left << highEdgeToConv << " )  |  0x" << std::setw(6)
+                << std::hex << std::left << convIndex << " |  " << std::dec
+                << std::setw(6) << convIndex << "  |[ " << std::setw(10)
+                << std::left << convLowEdge << ",  |" << std::setw(10)
+                << std::left << convHighEdge << " )  |" << std::right
+                << std::endl;
+    }
 
 }
+
+// convert phi from rad (-pi, pi] to deg (0, 360)
+const double L1GtEtaPhiConversions::rad2deg(const double& phiRad) const {
+
+    if (phiRad < 0.) {
+        return (phiRad * PiConversion) + 360.;
+    } else {
+        return (phiRad * PiConversion);
+    }
+}
+
+// static members
+
+const unsigned int L1GtEtaPhiConversions::badIndex = 999999;
+const double L1GtEtaPhiConversions::PiConversion = 180. / acos(-1.);
 

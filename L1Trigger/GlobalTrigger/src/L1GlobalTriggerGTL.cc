@@ -252,9 +252,17 @@ void L1GlobalTriggerGTL::run(
 
     if (convertScale) {
         m_gtEtaPhiConversions->setVerbosity(m_verbosity);
-        m_gtEtaPhiConversions->convert(m_l1CaloGeometry,
-                m_l1MuTriggerScales, ifCaloEtaNumberBits,
-                ifMuEtaNumberBits);
+        m_gtEtaPhiConversions->convertL1Scales(m_l1CaloGeometry,
+                m_l1MuTriggerScales, ifCaloEtaNumberBits, ifMuEtaNumberBits);
+
+        // print the conversions if DEBUG and verbosity enabled
+
+        if (m_verbosity && m_isDebugEnabled) {
+            std::ostringstream myCout;
+            m_gtEtaPhiConversions->print(myCout);
+
+            LogTrace("L1GlobalTrigger") << myCout.str() << std::endl;
+        }
 
         // set convertScale to false to avoid executing the conversion
         // more than once - in case the scales change it will be set to true

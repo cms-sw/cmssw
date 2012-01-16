@@ -338,14 +338,19 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
             break;
     }
 
-    // return if second subcondition is false
-    // if here, the first subcondition was true
+    // return if second sub-condition is false
     if (!condResult) {
         return false;
+    } else {
+        LogTrace("L1GlobalTrigger") << "\n"
+                << "    Both sub-conditions true for object requirements."
+                << "    Evaluate correlation requirements.\n" << std::endl;
+
     }
 
     //
     // evaluate the delta_eta and delta_phi correlations
+    // if here, the object requirements are satisfied for both sub-conditions
     //
 
     // get the correlation parameters
@@ -353,7 +358,18 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
     L1GtCorrelationTemplate::CorrelationParameter corrPar =
         *(m_gtCorrelationTemplate->correlationParameter());
 
-    // convert the template requirements from string to 64-bit integers
+    // convert the eta template requirements from string to 64-bit integers
+    // number of 64-bit integers: string length / 16
+    size_t deltaEtaRangeConvSize = (corrPar.deltaEtaRange).size() / 16
+            + 1;
+    std::vector<unsigned long long> deltaEtaRangeConv(
+            deltaEtaRangeConvSize);
+
+    if (!(hexStringToInt64(corrPar.deltaEtaRange, deltaEtaRangeConv))) {
+        return false;
+    }
+
+    // convert the phi template requirements from string to 64-bit integers
     // number of 64-bit integers: string length / 16
     size_t deltaPhiRangeConvSize = (corrPar.deltaPhiRange).size() / 16
             + 1;
@@ -393,8 +409,15 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
 
     unsigned int phiIndex0 = 0;
     unsigned int phiIndex1 = 0;
+
+    unsigned int phiIndex0Converted = 0;
+    unsigned int phiIndex1Converted = 0;
+
     unsigned int etaIndex0 = 0;
     unsigned int etaIndex1 = 0;
+
+    unsigned int etaIndex0Converted = 0;
+    unsigned int etaIndex1Converted = 0;
 
     LogTrace("L1GlobalTrigger")
             << "  Sub-condition 0: std::vector<SingleCombInCond> size: "
@@ -421,49 +444,78 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
             return false;
         }
 
+        bool convStatus = false;
+
         switch (cond0Categ) {
             case CondMuon: {
                 candMuVec = m_gtGTL->getCandL1Mu();
                 phiIndex0 = (*candMuVec)[obj0Index]->phiIndex();
                 etaIndex0 = (*candMuVec)[obj0Index]->etaIndex();
 
-                phiIndex0 = m_gtEtaPhiConversions->convertPhiIndex(
-                        objPairIndex,  0, phiIndex0);
-                etaIndex0 = m_gtEtaPhiConversions->convertEtaIndex(
-                        objPairIndex, etaIndex0);
+                convStatus = m_gtEtaPhiConversions->convertPhiIndex(
+                        objPairIndex,  0, phiIndex0, phiIndex0Converted);
+
+                if (!convStatus) {
+                    // conversion failed, message written in L1GtEtaPhiConversions
+                    return false;
+                }
+
+                convStatus = m_gtEtaPhiConversions->convertEtaIndex(
+                        Mu, etaIndex0, etaIndex0Converted);
+
+                if (!convStatus) {
+                    // conversion failed, message written in L1GtEtaPhiConversions
+                    return false;
+                }
 
             }
                 break;
             case CondCalo: {
                 switch (cndObjTypeVec[0]) {
-                    case NoIsoEG:
+                    case NoIsoEG: {
                         candCaloVec = m_gtPSB->getCandL1NoIsoEG();
+                    }
                         break;
-                    case IsoEG:
+                    case IsoEG: {
                         candCaloVec = m_gtPSB->getCandL1IsoEG();
+                    }
                         break;
-                    case CenJet:
+                    case CenJet: {
                         candCaloVec = m_gtPSB->getCandL1CenJet();
+                    }
                         break;
-                    case ForJet:
+                    case ForJet: {
                         candCaloVec = m_gtPSB->getCandL1ForJet();
+                    }
                         break;
-                    case TauJet:
+                    case TauJet: {
                         candCaloVec = m_gtPSB->getCandL1TauJet();
+                    }
                         break;
-                    default:
+                    default: {
                         // do nothing
+                    }
                         break;
                 }
 
                 phiIndex0 = (*candCaloVec)[obj0Index]->phiIndex();
                 etaIndex0 = (*candCaloVec)[obj0Index]->etaIndex();
 
-                phiIndex0 = m_gtEtaPhiConversions->convertPhiIndex(
-                        objPairIndex,  0, phiIndex0);
-                etaIndex0 = m_gtEtaPhiConversions->convertEtaIndex(
-                        objPairIndex, etaIndex0);
+                convStatus = m_gtEtaPhiConversions->convertPhiIndex(
+                        objPairIndex,  0, phiIndex0, phiIndex0Converted);
 
+                if (!convStatus) {
+                    // conversion failed, message written in L1GtEtaPhiConversions
+                    return false;
+                }
+
+                convStatus = m_gtEtaPhiConversions->convertEtaIndex(
+                        cndObjTypeVec[0], etaIndex0, etaIndex0Converted);
+
+                if (!convStatus) {
+                    // conversion failed, message written in L1GtEtaPhiConversions
+                    return false;
+                }
             }
                 break;
             case CondEnergySum: {
@@ -472,16 +524,27 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
                         candETM = m_gtPSB->getCandL1ETM();
                         phiIndex0 = candETM->phi();
 
-                        phiIndex0 = m_gtEtaPhiConversions->convertPhiIndex(
-                                objPairIndex,  0, phiIndex0);
+                        convStatus = m_gtEtaPhiConversions->convertPhiIndex(
+                                objPairIndex,  0, phiIndex0, phiIndex0Converted);
+
+                        if (!convStatus) {
+                            // conversion failed, message written in L1GtEtaPhiConversions
+                            return false;
+                        }
+
                     }
                         break;
                     case HTM: {
                         candHTM = m_gtPSB->getCandL1HTM();
                         phiIndex0 = candHTM->phi();
 
-                        phiIndex0 = m_gtEtaPhiConversions->convertPhiIndex(
-                                objPairIndex,  0, phiIndex0);
+                        convStatus = m_gtEtaPhiConversions->convertPhiIndex(
+                                objPairIndex,  0, phiIndex0, phiIndex0Converted);
+
+                        if (!convStatus) {
+                            // conversion failed, message written in L1GtEtaPhiConversions
+                            return false;
+                        }
 
                     }
                         break;
@@ -520,10 +583,21 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
                     phiIndex1 = (*candMuVec)[obj1Index]->phiIndex();
                     etaIndex1 = (*candMuVec)[obj1Index]->etaIndex();
 
-                    phiIndex1 = m_gtEtaPhiConversions->convertPhiIndex(
-                            objPairIndex,  1, phiIndex1);
-                    etaIndex1 = m_gtEtaPhiConversions->convertEtaIndex(
-                            objPairIndex, etaIndex1);
+                    convStatus = m_gtEtaPhiConversions->convertPhiIndex(
+                            objPairIndex,  1, phiIndex1, phiIndex1Converted);
+
+                    if (!convStatus) {
+                        // conversion failed, message written in L1GtEtaPhiConversions
+                        return false;
+                    }
+
+                    convStatus = m_gtEtaPhiConversions->convertEtaIndex(
+                            cndObjTypeVec[1], etaIndex1, etaIndex1Converted);
+
+                    if (!convStatus) {
+                        // conversion failed, message written in L1GtEtaPhiConversions
+                        return false;
+                    }
                 }
                     break;
                 case CondCalo: {
@@ -551,10 +625,22 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
                     phiIndex1 = (*candCaloVec)[obj1Index]->phiIndex();
                     etaIndex1 = (*candCaloVec)[obj1Index]->etaIndex();
 
-                    phiIndex1 = m_gtEtaPhiConversions->convertPhiIndex(
-                            objPairIndex,  1, phiIndex1);
-                    etaIndex1 = m_gtEtaPhiConversions->convertEtaIndex(
-                            objPairIndex, etaIndex1);
+                    convStatus = m_gtEtaPhiConversions->convertPhiIndex(
+                            objPairIndex,  1, phiIndex1, phiIndex1Converted);
+
+                    if (!convStatus) {
+                        // conversion failed, message written in L1GtEtaPhiConversions
+                        return false;
+                    }
+
+                    convStatus = m_gtEtaPhiConversions->convertEtaIndex(
+                            cndObjTypeVec[1], etaIndex1, etaIndex1Converted);
+
+                    if (!convStatus) {
+                        // conversion failed, message written in L1GtEtaPhiConversions
+                        return false;
+                    }
+
                 }
                     break;
                 case CondEnergySum: {
@@ -563,16 +649,26 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
                             candETM = m_gtPSB->getCandL1ETM();
                             phiIndex1 = candETM->phi();
 
-                            phiIndex1 = m_gtEtaPhiConversions->convertPhiIndex(
-                                    objPairIndex,  1, phiIndex1);
+                            convStatus = m_gtEtaPhiConversions->convertPhiIndex(
+                                    objPairIndex,  1, phiIndex1, phiIndex1Converted);
+
+                            if (!convStatus) {
+                                // conversion failed, message written in L1GtEtaPhiConversions
+                                return false;
+                            }
                         }
                             break;
                         case HTM: {
                             candHTM = m_gtPSB->getCandL1HTM();
                             phiIndex1 = candHTM->phi();
 
-                            phiIndex1 = m_gtEtaPhiConversions->convertPhiIndex(
-                                    objPairIndex,  1, phiIndex1);
+                            convStatus = m_gtEtaPhiConversions->convertPhiIndex(
+                                    objPairIndex,  1, phiIndex1, phiIndex1Converted);
+
+                            if (!convStatus) {
+                                // conversion failed, message written in L1GtEtaPhiConversions
+                                return false;
+                            }
                         }
                             break;
                         default:
@@ -589,30 +685,29 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
             }
 
             if (m_verbosity && m_isDebugEnabled ) {
-                LogTrace("L1GlobalTrigger")
-                        << "    After conversion, correlation pair ["
+                LogTrace("L1GlobalTrigger") << "    Correlation pair ["
                         << l1GtObjectEnumToString(cndObjTypeVec[0]) << ", "
                         << l1GtObjectEnumToString(cndObjTypeVec[1])
                         << "] with collection indices [" << obj0Index << ", "
-                        << obj1Index << "] " << " has phi indices = ["
-                        << phiIndex0 << ", " << phiIndex1
-                        << "] and eta indices [" << etaIndex0 << ", "
-                        << etaIndex1 << "]\n" << std::endl;
+                        << obj1Index << "] " << " has: \n      phi indices = ["
+                        << phiIndex0 << ", " << phiIndex1 << "] converted to ["
+                        << phiIndex0Converted << ", " << phiIndex1Converted
+                        << "] \n      eta indices [" << etaIndex0 << ", "
+                        << etaIndex1 << "] converted to ["
+                        << etaIndex0Converted << ", " << etaIndex1Converted
+                        << "] \n" << std::endl;
             }
 
-            // evaluate delta_eta
 
-            // FIXME evaluate delta_eta
-
-            // check candDeltaPhi requirements
+            // evaluate candDeltaPhi requirements
 
             unsigned int candDeltaPhi;
 
             // calculate absolute value of candDeltaPhi
-            if (phiIndex0 > phiIndex1) {
-                candDeltaPhi = phiIndex0 - phiIndex1;
+            if (phiIndex0Converted > phiIndex1Converted) {
+                candDeltaPhi = phiIndex0Converted - phiIndex1Converted;
             } else {
-                candDeltaPhi = phiIndex1 - phiIndex0;
+                candDeltaPhi = phiIndex1Converted - phiIndex0Converted;
             }
 
             // check if candDeltaPhi > 180 (via delta_phi_maxbits)
@@ -658,8 +753,67 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
             }
 
             if (!indResult) {
+
+                if (m_verbosity && m_isDebugEnabled ) {
+                    LogTrace("L1GlobalTrigger") << "      object delta phi = "
+                            << candDeltaPhi << " fails delta phi requirements."
+                            << "\n      Pair fails correlation condition.\n"
+                            << std::endl;
+                }
+
                 continue;
+            } else {
+                if (m_verbosity && m_isDebugEnabled ) {
+                    LogTrace("L1GlobalTrigger") << "      object delta phi = "
+                            << candDeltaPhi
+                            << " passes delta phi requirements."
+                            << std::endl;
+                }
             }
+
+
+            // evaluate candDeltaEta requirements
+
+            unsigned int candDeltaEta;
+
+            // calculate absolute value of candDeltaEta
+            if (etaIndex0Converted > etaIndex1Converted) {
+                candDeltaEta = etaIndex0Converted - etaIndex1Converted;
+            } else {
+                candDeltaEta = etaIndex1Converted - etaIndex0Converted;
+            }
+
+            // template requirements already converted from string to 64-bit integers
+            // ...now check for each 64-bit integer against template requirements
+            indResult = true;
+
+            for (size_t iDeltaEta = 0; iDeltaEta < deltaEtaRangeConv.size(); ++iDeltaEta) {
+                if (!checkBit(deltaEtaRangeConv[iDeltaEta], candDeltaEta)) {
+                    indResult = false;
+                }
+            }
+
+            if (!indResult) {
+
+                if (m_verbosity && m_isDebugEnabled ) {
+                    LogTrace("L1GlobalTrigger") << "      object delta eta = "
+                            << candDeltaEta << " fails delta eta requirements."
+                            << "\n      Pair fails correlation condition.\n"
+                            << std::endl;
+                }
+
+                continue;
+
+            } else {
+                if (m_verbosity && m_isDebugEnabled ) {
+                    LogTrace("L1GlobalTrigger") << "      object delta eta = "
+                            << candDeltaEta
+                            << " passes delta eta requirements."
+                            << "\n      Pair passes correlation condition.\n"
+                            << std::endl;
+                }
+            }
+
 
             // clear the indices in the combination
             objectsInComb.clear();

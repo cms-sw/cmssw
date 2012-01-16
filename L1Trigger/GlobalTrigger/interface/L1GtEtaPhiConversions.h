@@ -21,6 +21,7 @@
 #include <iostream>
 #include <vector>
 #include <utility>
+#include <cmath>
 
 // user include files
 
@@ -48,32 +49,39 @@ public:
 
     /// return the index of a pair in the vector m_gtObjectPairVec, to be used to extract
     /// the number of phi bins, the conversion of the indices, etc
-    const unsigned int
-            gtObjectPairIndex(const L1GtObject&, const L1GtObject&) const;
+    const unsigned int gtObjectPairIndex(const L1GtObject&,
+            const L1GtObject&) const;
 
     /// convert the phi index initialIndex for an object from pair pairIndex, with position of
     /// object in pair positionPair to common scale for the L1GtObject pair
-    const unsigned int convertPhiIndex(unsigned int pairIndex,
-            unsigned int positionPair, unsigned int initialIndex) const ;
+    /// converted index returned by reference
+    /// method return true, if initial index within scale size
+    /// otherwise (hardware error), return false
+    const bool convertPhiIndex(const unsigned int pairIndex,
+            const unsigned int positionPair, const unsigned int initialIndex,
+            unsigned int& convertedIndex) const ;
 
-    /// convert the eta index for an object to common scale for the L1GtObject pair
-    const unsigned int convertEtaIndex(unsigned int pairIndex,
-            unsigned int initialIndex) const;
+    /// convert the eta index initialIndex for a L1GtObject object to common scale
+    /// converted index returned by reference
+    /// method return true, if initial index within scale size
+    /// otherwise (hardware error), return false
+    const bool convertEtaIndex(const L1GtObject&, const unsigned int initialIndex,
+            unsigned int& convertedIndex) const;
 
     /// return the number of phi bins for a GT object
     const unsigned int gtObjectNrBinsPhi(const L1GtObject&) const;
 
     /// return the number of phi bins for a pair of GT objects, according to conversion rules
-    const unsigned int
-            gtObjectNrBinsPhi(const L1GtObject&, const L1GtObject&) const;
+    const unsigned int gtObjectNrBinsPhi(const L1GtObject&,
+            const L1GtObject&) const;
 
     /// return the number of phi bins for a pair of GT objects, according to conversion rules,
     /// when the index of the pair is used
     const unsigned int gtObjectNrBinsPhi(const unsigned int) const;
 
-    /// perform all conversions
-    void convert(const L1CaloGeometry*, const L1MuTriggerScales*, const int,
-            const int);
+    /// perform all scale conversions
+    void convertL1Scales(const L1CaloGeometry*, const L1MuTriggerScales*,
+            const int, const int);
 
     inline void setVerbosity(const int verbosity) {
         m_verbosity = verbosity;
@@ -81,6 +89,22 @@ public:
 
     /// print all the performed conversions
     virtual void print(std::ostream& myCout) const;
+
+
+
+
+private:
+
+    /// a bad index value, treated specially when performing the conversions or printing the
+    /// conversion vectors
+    static const unsigned int badIndex;
+
+    ///
+    static const double PiConversion;
+
+    ///  convert phi from rad (-pi, pi] to deg (0, 360)
+    const double rad2deg(const double&) const;
+
 
 private:
 
@@ -102,7 +126,15 @@ private:
     /// it is filled correlated with m_gtObjectPairVec, so the index of the pair in
     /// m_gtObjectPairVec is the index of the m_pairPhiConvVec element containing the
     /// reference
-    std::vector<const std::vector<unsigned int>* > m_pairPhiConvVec;
+    std::vector<const std::vector<unsigned int>*> m_pairPhiConvVec;
+
+private:
+
+    /// pointer to calorimetry scales - updated in convertl1Scales method
+    const L1CaloGeometry* m_l1CaloGeometry;
+
+    /// pointer to muon scales - updated in convertl1Scales method
+    const L1MuTriggerScales* m_l1MuTriggerScales;
 
 private:
 
@@ -117,6 +149,9 @@ private:
 
     /// number of phi bins for HTM
     unsigned int m_nrBinsPhiHtm;
+
+    /// number of eta bins for common scale
+    unsigned int m_nrBinsEtaCommon;
 
 private:
 
@@ -145,8 +180,15 @@ private:
 
 private:
 
-    /// eta conversion of calorimeter object to a common scale
-    std::vector<unsigned int> m_lutEtaCenCaloCommon;
+    /// eta conversion of CenJet/TauJet & IsoEG/NoIsoEG
+    /// to a common calorimeter eta scale
+    std::vector<unsigned int> m_lutEtaCentralToCommonCalo;
+
+    /// eta conversion of ForJet to the common calorimeter eta scale defined before
+    std::vector<unsigned int> m_lutEtaForJetToCommonCalo;
+
+    /// eta conversion of Mu to the common calorimeter eta scale defined before
+    std::vector<unsigned int> m_lutEtaMuToCommonCalo;
 
 private:
 
