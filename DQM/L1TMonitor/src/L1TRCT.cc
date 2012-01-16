@@ -1,8 +1,8 @@
 /*
  * \file L1TRCT.cc
  *
- * $Date: 2009/07/22 19:40:29 $
- * $Revision: 1.17 $
+ * $Date: 2009/11/19 14:54:33 $
+ * $Revision: 1.18 $
  * \author P. Wittich
  *
  */
@@ -232,7 +232,9 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
       if(ireg->et()>0)
       {
       rctRegionRank_->Fill(ireg->et());
-      rctRegionsOccEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi());
+      if(ireg->et()>5){
+	rctRegionsOccEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi());
+      }
       rctRegionsEtEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi(), ireg->et());
 //      rctTauVetoEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi(),
 //			      ireg->tauVeto());
@@ -276,8 +278,10 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
       rctIsoEmRank_->Fill(iem->rank());
       rctIsoEmEtEtaPhi_->Fill(iem->regionId().ieta(),
 			      iem->regionId().iphi(), iem->rank());
-      rctIsoEmOccEtaPhi_->Fill(iem->regionId().ieta(),
+      if(iem->rank()>10){
+	rctIsoEmOccEtaPhi_->Fill(iem->regionId().ieta(),
 			       iem->regionId().iphi());
+      }
       rctEmBx_->Fill(iem->bx());
       }
     }
@@ -287,8 +291,10 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
       rctNonIsoEmRank_->Fill(iem->rank());
       rctNonIsoEmEtEtaPhi_->Fill(iem->regionId().ieta(),
 				 iem->regionId().iphi(), iem->rank());
-      rctNonIsoEmOccEtaPhi_->Fill(iem->regionId().ieta(),
+      if(iem->rank()>10){
+	rctNonIsoEmOccEtaPhi_->Fill(iem->regionId().ieta(),
 				  iem->regionId().iphi());
+      }
       rctEmBx_->Fill(iem->bx());
       }
     }
