@@ -149,7 +149,7 @@ TSiStripMatchedRecHit::transientHits () const {
   SiStripRecHit2D stereoHit = SiStripRecHit2D( lvStereo.first, lvStereo.second,
 					       gdet->stereoDet()->geographicalId(),
 						 orig->stereoClusterRef());
-  const SiStripMatchedRecHit2D* better =  theMatcher->match(&monoHit,&stereoHit,gdet,tkDir);
+  SiStripMatchedRecHit2D* better =  theMatcher->match(&monoHit,&stereoHit,gdet,tkDir);
   
   if (!better) {
     edm::LogWarning("TSiStripMatchedRecHit")<<"could not get a matching rechit.";
