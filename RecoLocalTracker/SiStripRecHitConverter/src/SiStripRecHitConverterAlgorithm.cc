@@ -185,10 +185,10 @@ namespace {
 	     ++itm) {
 	  m_collector.push_back(*itm);
 	  // mark the stereo hit cluster as used, so that the hit won't go in the unmatched stereo ones
-	  if (itm->stereoHit()->cluster().isNonnull()) {
-	    m_matchedSteroClusters.push_back(itm->stereoHit()->cluster().key()); 
+	  if (itm->stereoHit().cluster().isNonnull()) {
+	    m_matchedSteroClusters.push_back(itm->stereoClusterRef().key()); 
 	  } else {
-	    m_matchedSteroClustersRegional.push_back(itm->stereoHit()->cluster_regional().key()); 
+	    m_matchedSteroClustersRegional.push_back(itm->stereoClusterRef().key()); 
 	    regional = true;
 	  }
 	}
