@@ -42,8 +42,10 @@ public:
   // used by trackMerger (to be improved)
   virtual OmniClusterRef const & firstClusterRef() const { return cluster_;}
 
+  OmniClusterRef const & omniClusterRef() const { return cluster_;}
   OmniClusterRef const & omniCluster() const { return cluster_;}
   // for rekeying...
+  OmniClusterRef & omniClusterRef()  { return cluster_;}
   OmniClusterRef & omniCluster()  { return cluster_;}
 
   ClusterPixelRef cluster_pixel()  const { 
