@@ -44,6 +44,9 @@ SiStripMatchedRecHit2D* SiStripRecHitMatcher::match(const SiStripMatchedRecHit2D
 						    const GluedGeomDet* gluedDet,
 						    LocalVector trackdirection) const{
   
+  throw "SiStripRecHitMatcher::match(const SiStripMatchedRecHit2D *,..) is obsoltete since 5.2.0"; 
+
+  /*
   const SiStripRecHit2D* theMonoRH   = origRH->monoHit();
   // const SiStripRecHit2D* theStereoRH = origRH->stereoHit();
   SimpleHitCollection theStereoHits(1, origRH->stereoHit());
@@ -56,7 +59,9 @@ SiStripMatchedRecHit2D* SiStripRecHitMatcher::match(const SiStripMatchedRecHit2D
 	 gluedDet,trackdirection);
   
   return collection.empty() ? (SiStripMatchedRecHit2D*)(0) : collection.front();
-  
+  */
+
+  return nullptr;
 }
 
 
