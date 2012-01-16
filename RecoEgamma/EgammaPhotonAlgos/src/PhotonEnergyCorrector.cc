@@ -1,5 +1,13 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/PhotonEnergyCorrector.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+
 
 
 PhotonEnergyCorrector::PhotonEnergyCorrector( const edm::ParameterSet& config ) {
@@ -109,21 +117,23 @@ void PhotonEnergyCorrector::calculate(edm::Event& evt, reco::Photon & thePhoton,
   thePhoton.setCorrectedEnergy( reco::Photon::ecal_standard, phoEcalEnergy, phoEcalEnergyError,  false);
 
   ////////////// Here Ecal corrections specific for photons ////////////////////////
-  // correction for low r9 
+
   if ( thePhoton.r9() > minR9 ) {
     // f(eta) correction to e5x5
     double deltaE = scEnergyFunction_->getValue(*(thePhoton.superCluster()), 1);
     float e5x5=thePhoton.e5x5();
     if (subdet==EcalBarrel) e5x5 = e5x5 * (1.0 +  deltaE/thePhoton.superCluster()->rawEnergy() );
     phoEcalEnergy =  e5x5    +  thePhoton.superCluster()->preshowerEnergy() ;  
+    // add correction for cracks
+    phoEcalEnergy *=  scCrackEnergyFunction_->getValue(*(thePhoton.superCluster()));
+    // as for the erros use the error on the SC TEMPORARY
+    phoEcalEnergyError =   scEnergyErrorFunction_->getValue(*(thePhoton.superCluster()), 0);  
   } else {
+    // correction for low r9 
     phoEcalEnergy =  photonEcalEnergyCorrFunction_->getValue(*(thePhoton.superCluster()), 1);
+    phoEcalEnergy *= applyCrackCorrection(*(thePhoton.superCluster()), scCrackEnergyFunction_);
   }
   
-  // add correction for cracks
-  phoEcalEnergy *=  scCrackEnergyFunction_->getValue(*(thePhoton.superCluster()));
-  // as for the erros use the error on the SC 
-  phoEcalEnergyError =   scEnergyErrorFunction_->getValue(*(thePhoton.superCluster()), 0);  
   // store the value in the Photon.h
   thePhoton.setCorrectedEnergy( reco::Photon::ecal_photons, phoEcalEnergy, phoEcalEnergyError,  false);
 
@@ -151,5 +161,24 @@ void PhotonEnergyCorrector::calculate(edm::Event& evt, reco::Photon & thePhoton,
   std::cout << " ------------------------- " << std::endl;
   */
 
+
+}
+
+double PhotonEnergyCorrector::applyCrackCorrection(const reco::SuperCluster &cl,
+                                                   EcalClusterFunctionBaseClass* crackCorrectionFunction){
+
+
+  double crackcor = 1.; 
+
+  for(reco::CaloCluster_iterator cIt = cl.clustersBegin(); cIt != cl.clustersEnd(); ++cIt) {
+
+    const reco::CaloClusterPtr cc = *cIt; 
+    crackcor *= ( (cl.rawEnergy() +
+                   cc->energy()*(crackCorrectionFunction->getValue(*cc)-1.)) / 
+                   cl.rawEnergy() );   
+  }// loop on BCs
+  
+  
+  return crackcor;
 
 }

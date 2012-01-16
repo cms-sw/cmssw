@@ -3,9 +3,9 @@
 /** \class PhotonEnergyCorrector
  **  
  **
- **  $Id: PhotonEnergyCorrector.h,v 1.3 2011/12/15 00:20:52 nancy Exp $ 
- **  $Date: 2011/12/15 00:20:52 $ 
- **  $Revision: 1.3 $
+ **  $Id: PhotonEnergyCorrector.h,v 1.4 2012/01/11 11:11:29 nancy Exp $ 
+ **  $Date: 2012/01/11 11:11:29 $ 
+ **  $Revision: 1.4 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -14,23 +14,12 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "RecoEgamma/EgammaTools/interface/EGEnergyCorrector.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h" 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
-
-
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-
-
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
 
 class PhotonEnergyCorrector
  {
@@ -41,7 +30,7 @@ class PhotonEnergyCorrector
 
    void init(const edm::EventSetup& theEventSetup );
    void calculate( edm::Event& evt, reco::Photon &, int subdet,const reco::VertexCollection& vtxcol,const edm::EventSetup& iSetup) ;
-
+   double applyCrackCorrection(const reco::SuperCluster &cl, EcalClusterFunctionBaseClass* crackCorrectionFunction);
 
   private:
  
