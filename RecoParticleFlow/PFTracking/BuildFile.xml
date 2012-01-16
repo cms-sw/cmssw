@@ -20,7 +20,7 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FastSimulation/BaseParticlePropagator"/>
-<use   name="RecoParticleFlow/PFProducer"/>
+<use   name="RecoParticleFlow/PFClusterTools"/>
 <use   name="TrackingTools/GsfTools"/>
 <use   name="TrackingTools/PatternTools"/>
 <use   name="TrackingTools/TrajectoryState"/>
@@ -31,6 +31,7 @@
 <use   name="TrackingTools/IPTools"/>
 <use   name="DataFormats/VertexReco"/>
 <use   name="rootcore"/>
+<use   name="roottmva"/>
 <export>
   <lib   name="1"/>
 </export>
