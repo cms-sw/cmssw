@@ -1,4 +1,4 @@
-<bin   name="cmsRun" file="cmsRun.cpp">
+<bin   name="cmsGLibCRun" file="cmsRun.cpp">
   <use   name="roothistmatrix"/>
   <use   name="boost"/>
   <use   name="boost_program_options"/>
@@ -24,7 +24,7 @@
   <use   name="FWCore/ParameterSet"/>
   <use   name="FWCore/PythonParameterSet"/>
 </bin>
-<bin   name="cmsJERun" file="cmsRun.cpp">
+<bin   name="cmsRun" file="cmsRun.cpp">
   <use   name="boost"/>
   <use   name="boost_program_options"/>
   <use   name="boost_python"/>
