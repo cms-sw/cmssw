@@ -24,6 +24,7 @@
 <use   name="RecoParticleFlow/PFClusterProducer"/>
 <use   name="RecoParticleFlow/PFClusterTools"/>
 <use   name="RecoParticleFlow/PFProducer"/>
+<use   name="RecoParticleFlow/PFTracking"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="DQMOffline/PFTau"/>
 <use   name="fastjet"/>
