@@ -121,7 +121,7 @@ class HitComparator
 //std::cerr << " comp matched strip" << std::endl;
       if(a->monoClusterRef() < b->monoClusterRef()) return true;
       if(b->monoClusterRef() < a->monoClusterRef()) return false;
-      if(a->stereoClusterRef) < b->stereoClusterRef()) return true;
+      if(a->stereoClusterRef() < b->stereoClusterRef()) return true;
       return false;
     }
 };
