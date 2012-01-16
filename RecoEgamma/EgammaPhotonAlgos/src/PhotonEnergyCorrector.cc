@@ -126,13 +126,14 @@ void PhotonEnergyCorrector::calculate(edm::Event& evt, reco::Photon & thePhoton,
     phoEcalEnergy =  e5x5    +  thePhoton.superCluster()->preshowerEnergy() ;  
     // add correction for cracks
     phoEcalEnergy *=  scCrackEnergyFunction_->getValue(*(thePhoton.superCluster()));
-    // as for the erros use the error on the SC TEMPORARY
-    phoEcalEnergyError =   scEnergyErrorFunction_->getValue(*(thePhoton.superCluster()), 0);  
   } else {
     // correction for low r9 
     phoEcalEnergy =  photonEcalEnergyCorrFunction_->getValue(*(thePhoton.superCluster()), 1);
     phoEcalEnergy *= applyCrackCorrection(*(thePhoton.superCluster()), scCrackEnergyFunction_);
   }
+
+  // as for the erros use the error on the SC old energy corrections TEMPORARY for both low and high r9. Final calculations in the next release
+  phoEcalEnergyError =   scEnergyErrorFunction_->getValue(*(thePhoton.superCluster()), 0);  
   
   // store the value in the Photon.h
   thePhoton.setCorrectedEnergy( reco::Photon::ecal_photons, phoEcalEnergy, phoEcalEnergyError,  false);
