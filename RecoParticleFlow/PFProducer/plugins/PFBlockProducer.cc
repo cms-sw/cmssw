@@ -62,6 +62,9 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
   inputTagPFClustersHCAL_ 
     = iConfig.getParameter<InputTag>("PFClustersHCAL");
 
+  inputTagPFClustersHO_ 
+    = iConfig.getParameter<InputTag>("PFClustersHO");
+
   inputTagPFClustersHFEM_ 
     = iConfig.getParameter<InputTag>("PFClustersHFEM");
 
@@ -95,6 +98,8 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
   bool useConvBremPFRecTracks = iConfig.getParameter<bool>("useConvBremPFRecTracks");
 
   useV0_ = iConfig.getParameter<bool>("useV0");
+
+  useHO_=  iConfig.getParameter<bool>("useHO");
 
   produces<reco::PFBlockCollection>();
   
@@ -157,6 +162,10 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
   // Glowinski & Gouzevitch
   pfBlockAlgo_.setUseOptimization(useKDTreeTrackEcalLinker_);
   // !Glowinski & Gouzevitch
+
+  // Use HO clusters for link
+  pfBlockAlgo_.setHOTag(useHO_);
+
 }
 
 
@@ -240,9 +249,6 @@ PFBlockProducer::produce(Event& iEvent,
       LogError("PFBlockProducer")<<" cannot get PFNuclearInteractions : "
                                <<inputTagPFNuclear_<<endl;
   }
-
-
-
  
   // get conversions
   Handle< reco::PFConversionCollection > pfConversions;
@@ -267,7 +273,7 @@ PFBlockProducer::produce(Event& iEvent,
 
 
   
-  // get ECAL, HCAL and PS clusters
+  // get ECAL, HCAL, HO and PS clusters
   
   
   Handle< reco::PFClusterCollection > clustersECAL;
@@ -285,6 +291,15 @@ PFBlockProducer::produce(Event& iEvent,
     LogError("PFBlockProducer")<<" cannot get HCAL clusters: "
 			       <<inputTagPFClustersHCAL_<<endl;
     
+  Handle< reco::PFClusterCollection > clustersHO;
+  if (useHO_) {
+    found = iEvent.getByLabel(inputTagPFClustersHO_, 
+			      clustersHO);      
+    if(!found )
+      LogError("PFBlockProducer")<<" cannot get HO clusters: "
+				 <<inputTagPFClustersHO_<<endl;
+  }
+
   Handle< reco::PFClusterCollection > clustersHFEM;
   found = iEvent.getByLabel(inputTagPFClustersHFEM_, 
 			    clustersHFEM);      
@@ -322,11 +337,12 @@ PFBlockProducer::produce(Event& iEvent,
   if( usePFatHLT_  ) {
      pfBlockAlgo_.setInput( recTracks, 		
 			    recMuons,
-			   clustersECAL,
-			   clustersHCAL,
-			   clustersHFEM,
-			   clustersHFHAD,
-			   clustersPS );
+			    clustersECAL,
+			    clustersHCAL,
+			    clustersHO,
+			    clustersHFEM,
+			    clustersHFHAD,
+			    clustersPS);
   } else { 
     pfBlockAlgo_.setInput( recTracks, 
 			   GsfrecTracks,
@@ -338,6 +354,7 @@ PFBlockProducer::produce(Event& iEvent,
 			   pfV0,
 			   clustersECAL,
 			   clustersHCAL,
+			   clustersHO,
 			   clustersHFEM,
 			   clustersHFHAD,
 			   clustersPS,
@@ -350,13 +367,12 @@ PFBlockProducer::produce(Event& iEvent,
     str<<pfBlockAlgo_<<endl;
     LogInfo("PFBlockProducer") << str.str()<<endl;
   }    
-  
+
   auto_ptr< reco::PFBlockCollection > 
     pOutputBlockCollection( pfBlockAlgo_.transferBlocks() ); 
   
-  
   iEvent.put(pOutputBlockCollection);
-  
+
   LogDebug("PFBlockProducer")<<"STOP event: "<<iEvent.id().event()
 			     <<" in run "<<iEvent.id().run()<<endl;
 }

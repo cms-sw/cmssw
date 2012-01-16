@@ -104,6 +104,7 @@ class PFBlockAlgo {
 		   const T<reco::PFV0Collection>&  v0,
 		   const T<reco::PFClusterCollection>&  ecalh,
 		   const T<reco::PFClusterCollection>&  hcalh,
+		   const T<reco::PFClusterCollection>&  hoh,
 		   const T<reco::PFClusterCollection>&  hfemh,
 		   const T<reco::PFClusterCollection>&  hfhadh,
 		   const T<reco::PFClusterCollection>&  psh,
@@ -112,10 +113,11 @@ class PFBlockAlgo {
 		   const Mask& gsftrackMask = dummyMask_,
 		   const Mask& ecalMask = dummyMask_,
 		   const Mask& hcalMask = dummyMask_,
+		   const Mask& hoMask = dummyMask_, 
 		   const Mask& hfemMask = dummyMask_,		   
 		   const Mask& hfhadMask = dummyMask_,
 		   const Mask& psMask = dummyMask_,
-		   const Mask& phMask = dummyMask_); 
+		   const Mask& phMask = dummyMask_);
   
   ///COLIN: I think this is for particle flow at HLT...
   template< template<typename> class T >
@@ -123,13 +125,15 @@ class PFBlockAlgo {
 		  const T<reco::MuonCollection>&    muonh,
 		  const T<reco::PFClusterCollection>&  ecalh,
 		  const T<reco::PFClusterCollection>&  hcalh,
+ 		  const T<reco::PFClusterCollection>&  hoh,
 		  const T<reco::PFClusterCollection>&  hfemh,
 		  const T<reco::PFClusterCollection>&  hfhadh,
 		  const T<reco::PFClusterCollection>&  psh,
 		  const Mask& trackMask = dummyMask_,
 		  const Mask& ecalMask = dummyMask_,
 		  const Mask& hcalMask = dummyMask_,
-		  const Mask& psMask = dummyMask_ ) {
+		  const Mask& hoMask = dummyMask_,
+		  const Mask& psMask = dummyMask_) {
     T<reco::GsfPFRecTrackCollection> gsftrackh;
     T<reco::GsfPFRecTrackCollection> convbremgsftrackh;
     //T<reco::MuonCollection> muonh;
@@ -139,8 +143,8 @@ class PFBlockAlgo {
     T<reco::PFV0Collection> v0;
     T<reco::PhotonCollection> phh;
     setInput<T>( trackh, gsftrackh, convbremgsftrackh, muonh, nuclearh, nucleartrackh, convh, v0, 
-		 ecalh, hcalh, hfemh, hfhadh, psh, phh,
-		 trackMask, ecalMask, hcalMask, psMask); 
+		 ecalh, hcalh, hoh, hfemh, hfhadh, psh, phh,
+		 trackMask, ecalMask, hcalMask, hoMask, psMask); 
   }
   
   ///COLIN: what is this setinput function for? can it be removed?
@@ -149,12 +153,14 @@ class PFBlockAlgo {
 		  const T<reco::GsfPFRecTrackCollection>&    gsftrackh,
 		  const T<reco::PFClusterCollection>&  ecalh,
 		  const T<reco::PFClusterCollection>&  hcalh,
+		  const T<reco::PFClusterCollection>&  hoh,
 		  const T<reco::PFClusterCollection>&  psh,
 		  const Mask& trackMask = dummyMask_,
 		  const Mask& gsftrackMask = dummyMask_,
 		  const Mask& ecalMask = dummyMask_,
 		  const Mask& hcalMask = dummyMask_,
-		  const Mask& psMask = dummyMask_ ) {
+		  const Mask& hoMask = dummyMask_,
+		  const Mask& psMask = dummyMask_) {
     T<reco::GsfPFRecTrackCollection> convbremgsftrackh;
     T<reco::MuonCollection> muonh;
     T<reco::PFDisplacedTrackerVertexCollection>  nuclearh;
@@ -162,8 +168,8 @@ class PFBlockAlgo {
     T<reco::PFConversionCollection> convh;
     T<reco::PFV0Collection> v0;
     T<reco::PhotonCollection> egphh;
-    setInput<T>( trackh, gsftrackh, convbremgsftrackh, muonh, nuclearh, nucleartrackh, convh, v0, ecalh, hcalh, psh, egphh,
-		 trackMask, gsftrackMask,ecalMask, hcalMask, psMask); 
+    setInput<T>( trackh, gsftrackh, convbremgsftrackh, muonh, nuclearh, nucleartrackh, convh, v0, ecalh, hcalh, hoh, psh, egphh,
+		 trackMask, gsftrackMask,ecalMask, hcalMask, hoMask, psMask); 
   }
   
   
@@ -187,6 +193,8 @@ class PFBlockAlgo {
   typedef std::list< reco::PFBlockElement* >::const_iterator IEC;  
   typedef reco::PFBlockCollection::const_iterator IBC;
   
+  void setHOTag(bool ho) { useHO_ = ho;}
+
  private:
   
   /// recursive procedure which adds elements from 
@@ -229,6 +237,12 @@ class PFBlockAlgo {
   /// \returns distance
   double testECALAndHCAL(const reco::PFCluster& ecal, 
 			 const reco::PFCluster& hcal) const;
+
+  /// tests association between an HCAL and an HO cluster
+  /// \returns distance
+  double testHCALAndHO(const reco::PFCluster& hcal, 
+		       const reco::PFCluster& ho) const;
+
 			 
   /// tests association between a PS1 v cluster and a PS2 h cluster
   /// returns distance
@@ -250,6 +264,7 @@ class PFBlockAlgo {
 		      const reco::GsfPFRecTrackCollection& gsftracks,
 		      const reco::PFClusterCollection&  ecals,
 		      const reco::PFClusterCollection&  hcals,
+		      const reco::PFClusterCollection&  hos, 
 		      const reco::PFClusterCollection&  hfems,
 		      const reco::PFClusterCollection&  hfhads,
 		      const reco::PFClusterCollection&  pss, 
@@ -258,6 +273,7 @@ class PFBlockAlgo {
 		      const Mask& gsftrackMask, 
 		      const Mask& ecalMask, 
 		      const Mask& hcalMask,
+		      const Mask& hoMask,
 		      const Mask& hfemMask,
 		      const Mask& hfhadMask,		      
 		      const Mask& psMask,
@@ -340,6 +356,9 @@ class PFBlockAlgo {
   
   friend std::ostream& operator<<(std::ostream&, const PFBlockAlgo&);
 
+  // Create links between tracks or HCAL clusters, and HO clusters
+  bool useHO_;
+
 };
 
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementGsfTrack.h"
@@ -360,6 +379,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 		      const T<reco::PFV0Collection>&  v0,
                       const T<reco::PFClusterCollection>&  ecalh,
                       const T<reco::PFClusterCollection>&  hcalh,
+		      const T<reco::PFClusterCollection>&  hoh,
                       const T<reco::PFClusterCollection>&  hfemh,
                       const T<reco::PFClusterCollection>&  hfhadh,
                       const T<reco::PFClusterCollection>&  psh,
@@ -368,6 +388,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 		      const Mask& gsftrackMask,
                       const Mask& ecalMask,
                       const Mask& hcalMask,
+		      const Mask& hoMask,
                       const Mask& hfemMask,
                       const Mask& hfhadMask,
                       const Mask& psMask,
@@ -378,6 +399,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 		 *gsftrackh,
                  *ecalh,
                  *hcalh,
+		 *hoh,
 		 *hfemh,
 		 *hfhadh,
                  *psh,
@@ -386,6 +408,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 		 gsftrackMask,
                  ecalMask,
                  hcalMask,
+		 hoMask,
 		 hfemMask,
 		 hfhadMask,
                  psMask,
@@ -967,6 +990,23 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
     }
   }
 
+  // -------------- HO clusters ---------------------
+
+  if(useHO_ && hoh.isValid() ) {
+    
+    for(unsigned i=0;i<hoh->size(); ++i)  {
+      
+      // this hcal cluster has been disabled
+      if( !hoMask.empty() &&
+          !hoMask[i] ) continue;
+      
+      reco::PFClusterRef ref( hoh,i );
+      reco::PFBlockElement* th
+        = new reco::PFBlockElementCluster( ref,
+					   reco::PFBlockElement::HO );
+      elements_.push_back( th );
+    }
+  }
 
   // -------------- HFEM clusters ---------------------
 
@@ -1067,6 +1107,13 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
       if (useKDTreeTrackEcalLinker_)
 	THLinker_.insertFieldClusterElt(*it);
       break;
+
+    case reco::PFBlockElement::HO: 
+      if (useHO_ && useKDTreeTrackEcalLinker_) {
+	// THLinker_.insertFieldClusterElt(*it);
+      }
+      break;
+
 	
     case reco::PFBlockElement::ECAL:
       if (useKDTreeTrackEcalLinker_) {

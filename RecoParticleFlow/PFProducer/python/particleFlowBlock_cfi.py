@@ -7,9 +7,13 @@ particleFlowBlock = cms.EDProducer("PFBlockProducer",
     # Debug flag
     debug = cms.untracked.bool(False),
 
+    # Link tracks and HCAL clusters to HO clusters
+    useHO = cms.bool(True),
+
     # input clusters
     PFClustersECAL = cms.InputTag("particleFlowClusterECAL"),
     PFClustersHCAL = cms.InputTag("particleFlowClusterHCAL"),
+    PFClustersHO = cms.InputTag("particleFlowClusterHO"),	
     PFClustersHFEM = cms.InputTag("particleFlowClusterHFEM"),
     PFClustersHFHAD = cms.InputTag("particleFlowClusterHFHAD"),
     PFClustersPS = cms.InputTag("particleFlowClusterPS"),
@@ -64,7 +68,7 @@ particleFlowBlock = cms.EDProducer("PFBlockProducer",
     # Photon selection. Et cut; Track iso (cste;slope), Ecal iso (cste, slope), Hcal iso (cste, slope), H/E
     # just put infinite Et cut to disable the photon import
     useEGPhotons = cms.bool(True),                                   
-    PhotonSelectionCuts = cms.vdouble(1,10,2.0, 0.001, 4.2, 0.003, 2.2, 0.001, 0.05, 10, 0.10)                                   
+    PhotonSelectionCuts = cms.vdouble(1,10,2.0, 0.001, 4.2, 0.003, 2.2, 0.001, 0.05, 10, 0.10)
 )
 
 

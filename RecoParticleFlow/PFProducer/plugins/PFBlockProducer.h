@@ -55,6 +55,7 @@ class PFBlockProducer : public edm::EDProducer {
   edm::InputTag   inputTagPFNuclear_;
   edm::InputTag   inputTagPFClustersECAL_;
   edm::InputTag   inputTagPFClustersHCAL_;
+  edm::InputTag   inputTagPFClustersHO_;
   edm::InputTag   inputTagPFClustersHFEM_;
   edm::InputTag   inputTagPFClustersHFHAD_;
   edm::InputTag   inputTagPFClustersPS_;
@@ -62,6 +63,9 @@ class PFBlockProducer : public edm::EDProducer {
   edm::InputTag   inputTagPFV0_;
   edm::InputTag   inputTagEGPhotons_;
   
+  // Link track and HCAL clusters to HO clusters ?
+  bool useHO_;
+
   /// verbose ?
   bool   verbose_;
 

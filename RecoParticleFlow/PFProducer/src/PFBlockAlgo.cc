@@ -506,10 +506,19 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
 
 	  const reco::PFTrajectoryPoint& atHCALExit = 
 	    trackref->extrapolatedPoint(reco::PFTrajectoryPoint::HCALExit);
-	  double dHEta = atHCALExit.positionREP().Eta()-atHCAL.positionREP().Eta();
-	  double dHPhi = atHCALExit.positionREP().Phi()-atHCAL.positionREP().Phi(); 
-	  if ( dHPhi > M_PI ) dHPhi = dHPhi - 2.*M_PI;
-	  else if ( dHPhi < -M_PI ) dHPhi = dHPhi + 2.*M_PI; 
+	  double dHEta = 0.0;
+	  double dHPhi = 0.0;
+	  if (atHCALExit.position().R()>atHCAL.position().R()) {
+	    dHEta = atHCALExit.positionREP().Eta()-atHCAL.positionREP().Eta();
+	    dHPhi = atHCALExit.positionREP().Phi()-atHCAL.positionREP().Phi(); 
+	    if ( dHPhi > M_PI ) dHPhi = dHPhi - 2.*M_PI;
+	    else if ( dHPhi < -M_PI ) dHPhi = dHPhi + 2.*M_PI; 
+	  } else {
+	    std::cout << "Qu'est ce que c'est que ce gag ? " 
+		      << atHCALExit.position().R() << " is larger than " 
+		      << atHCAL.position().R() << " !" << std::endl;
+	  }
+
 	  tracketa += 0.1 * dHEta;
 	  trackphi += 0.1 * dHPhi;
 
@@ -525,7 +534,32 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
 	else
 	  dist = -1.;
       }
+      
+      //      linktest = PFBlock::LINKTEST_RECHIT;
+      break;
+    }
+  case PFBlockLink::TRACKandHO:
+    {
+      if(debug_ ) cout<<"TRACKandHO"<<endl;
 
+      PFRecTrackRef trackref = lowEl->trackRefPF();
+      PFClusterRef  clusterref = highEl->clusterRef();
+      
+      assert( !trackref.isNull() );
+      assert( !clusterref.isNull() );
+
+      
+      // Old algorithm
+      //      cout<<"TRACKandHO1"<<trackref->pt()<<" "<<trackref->eta()<<" "<<trackref->phi()<<endl;
+      //Same value is used in PFTrackTransformer::addPoints() for HOLayer
+      if ( lowEl->trackRef()->pt() > 3.0 && trackref->extrapolatedPoint( reco::PFTrajectoryPoint::HOLayer ).isValid() ) {
+	//	cout<<"TRACKandHO2"<<endl;
+	dist = LinkByRecHit::testTrackAndClusterByRecHit( *trackref, *clusterref, false, debug_ );
+	
+	//	cout <<"dist TRACKandHO "<<dist<<endl;
+      } else {
+	dist = -1.;
+      }
       //      linktest = PFBlock::LINKTEST_RECHIT;
       break;
     }
@@ -539,6 +573,20 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
       // PJ - 14-May-09 : A link by rechit is needed here !
       dist = testECALAndHCAL( *ecalref, *hcalref );
       // dist = -1.;
+      //     linktest = PFBlock::LINKTEST_RECHIT;
+      break;
+    }
+  case PFBlockLink::HCALandHO:
+    {
+      //       cout<<"HCALandH0"<<endl;
+      PFClusterRef  hcalref = lowEl->clusterRef();
+      PFClusterRef  horef = highEl->clusterRef();
+      assert( !hcalref.isNull() );
+      assert( !horef.isNull() );
+      // PJ - 14-May-09 : A link by rechit is needed here !
+      dist = testHCALAndHO( *hcalref, *horef );
+      // dist = -1.;
+      //      cout <<"Dist "<<dist<<endl;
       //     linktest = PFBlock::LINKTEST_RECHIT;
       break;
     }
@@ -916,6 +964,37 @@ PFBlockAlgo::testECALAndHCAL(const PFCluster& ecal,
 }
 
 double
+PFBlockAlgo::testHCALAndHO(const PFCluster& hcal, 
+			     const PFCluster& ho)  const {
+  
+  double dist = fabs(hcal.positionREP().Eta()) < 1.5 ?
+    LinkByRecHit::computeDist( hcal.positionREP().Eta(),
+			       hcal.positionREP().Phi(), 
+			       ho.positionREP().Eta(), 
+			       ho.positionREP().Phi() )
+    : 
+    -1.;
+
+#ifdef PFLOW_DEBUG
+  if(debug_) cout<<"testHCALAndHO "<< dist <<" "<<endl;
+  if(debug_){
+    cout<<" hcaleta " << hcal.positionREP().Eta()
+	<<" hcalphi " << hcal.positionREP().Phi()
+	<<" hoeta " << ho.positionREP().Eta()
+	<<" hophi " << ho.positionREP().Phi()
+	<<" dist " << dist<<endl;
+  }
+#endif
+
+  if ( dist < 0.20 ) return dist; 
+ 
+  // Need to implement a link by RecHit
+  return -1.;
+}
+
+
+
+double
 PFBlockAlgo::testLinkBySuperCluster(const PFClusterRef& ecal1, 
 				    const PFClusterRef& ecal2)  const {
   
@@ -1094,6 +1173,7 @@ PFBlockAlgo::checkMaskSize( const reco::PFRecTrackCollection& tracks,
 			    const reco::GsfPFRecTrackCollection& gsftracks, 
 			    const reco::PFClusterCollection&  ecals,
 			    const reco::PFClusterCollection&  hcals,
+			    const reco::PFClusterCollection&  hos,
 			    const reco::PFClusterCollection&  hfems,
 			    const reco::PFClusterCollection&  hfhads,
 			    const reco::PFClusterCollection&  pss, 
@@ -1101,7 +1181,8 @@ PFBlockAlgo::checkMaskSize( const reco::PFRecTrackCollection& tracks,
 			    const Mask& trackMask, 
 			    const Mask& gsftrackMask,  
 			    const Mask& ecalMask,
-			    const Mask& hcalMask, 
+			    const Mask& hcalMask,
+			    const Mask& hoMask, 
 			    const Mask& hfemMask,
 			    const Mask& hfhadMask,		      
 			    const Mask& psMask,
@@ -1138,6 +1219,15 @@ PFBlockAlgo::checkMaskSize( const reco::PFRecTrackCollection& tracks,
     err += "from the size of the hcal clusters vector.";
     throw std::length_error( err.c_str() );
   }
+
+  if( !hoMask.empty() && 
+      hoMask.size() != hos.size() ) {
+    string err = "PFBlockAlgo::setInput: ";
+    err += "The size of the ho mask is different ";
+    err += "from the size of the ho clusters vector.";
+    throw std::length_error( err.c_str() );
+  }
+
 
   if( !hfemMask.empty() && 
       hfemMask.size() != hfems.size() ) {
@@ -1330,7 +1420,7 @@ PFBlockAlgo::linkPrefilter(const reco::PFBlockElement* last, const reco::PFBlock
     // cannot link 2 elements of the same type. 
     // except if the elements are 2 tracks or 2 ECAL
     if( type1!=PFBlockElement::TRACK && type1!=PFBlockElement::GSF &&
-	type1!=PFBlockElement::ECAL) {
+	type1!=PFBlockElement::ECAL) { // && type1!=PFBlockElement::HCAL) {
       return false;
     }
 
