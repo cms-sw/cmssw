@@ -68,6 +68,7 @@ class DisplayManager {
      
   //variables
   //----------------------graphic options variable ---------------------
+  
   double clusEnMin_;
   double hitEnMin_;
   double trackPtMin_;
@@ -84,6 +85,7 @@ class DisplayManager {
   bool drawParticles_;
   bool drawGenParticles_;
   bool drawPFBlocks_;
+  bool drawHO_;
      
      
   //---------------------- new graphic Container ----------------
@@ -102,6 +104,10 @@ class DisplayManager {
   TAttMarker *clusPattern_;
   TAttMarker *clusPSPattern_;
   
+  TAttMarker *clusPatternecal_;
+  TAttMarker *clusPatternho_;
+  TAttMarker *clusPatternhfem_;    
+
   TAttMarker *trackPatternM_;
   TAttLine   *trackPatternL_;
   TAttMarker *gsfPatternM_;
@@ -132,6 +138,7 @@ class DisplayManager {
 
   double maxERecHitEcal_;
   double maxERecHitHcal_;
+  double maxERecHitHo_;
   bool   isGraphicLoaded_;
   int    eventNumber_;
   int    maxEvents_;
@@ -163,6 +170,9 @@ class DisplayManager {
 
   /// HCAL in XY view. \todo should be attribute ?
   TEllipse frontFaceHCALXY_;
+
+  /// HO in XY view. \todo should be attribute ?
+  TEllipse frontFaceHOXY_;
   
   //----------------  end Draw Canvas ------------------------------------
     
@@ -237,7 +247,7 @@ class DisplayManager {
   double getMaxE(int layer) const;
   double getMaxEEcal();
   double getMaxEHcal();
-               
+  double getMaxEHo();              
      
      
      

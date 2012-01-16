@@ -71,6 +71,7 @@ PFRootEventManager::PFRootEventManager(const char* file)
   eventAuxiliary_( new edm::EventAuxiliary ),
   clustersECAL_(new reco::PFClusterCollection),
   clustersHCAL_(new reco::PFClusterCollection),
+  clustersHO_(new reco::PFClusterCollection),
   clustersHFEM_(new reco::PFClusterCollection),
   clustersHFHAD_(new reco::PFClusterCollection),
   clustersPS_(new reco::PFClusterCollection),
@@ -417,6 +418,27 @@ void PFRootEventManager::readOptions(const char* file,
   
   // clustering parameters -----------------------------------------------
 
+  //Rechit for Ring 0 and +-1/2
+  double threshold_R0=0.4;
+  options_->GetOpt("clustering", "threshold_Hit_R0", threshold_R0);
+
+  double threshold_R1=1.0;
+  options_->GetOpt("clustering", "threshold_Hit_R1", threshold_R1);
+
+  //Clustering
+  double threshHO_Seed_Ring0=1.0;
+  options_->GetOpt("clustering", "threshHO_Seed_Ring0", threshHO_Seed_Ring0);
+
+  double threshHO_Ring0=0.5;
+  options_->GetOpt("clustering", "threshHO_Ring0", threshHO_Ring0);
+
+  double threshHO_Seed_Outer=3.1;
+  options_->GetOpt("clustering", "threshHO_Seed_Outer", threshHO_Seed_Outer);
+
+  double threshHO_Outer=1.0;
+  options_->GetOpt("clustering", "threshHO_Outer", threshHO_Outer);
+
+
   doClustering_ = true;
   //options_->GetOpt("clustering", "on/off", doClustering_);
   
@@ -574,7 +596,7 @@ void PFRootEventManager::readOptions(const char* file,
   //   }
 
   
-
+  // And now the HCAL
   double threshHcalBarrel = 0.8;
   options_->GetOpt("clustering", "thresh_Hcal_Barrel", threshHcalBarrel);
   
@@ -677,7 +699,132 @@ void PFRootEventManager::readOptions(const char* file,
   clusterAlgoHCAL_.enableDebugging( clusteringDebug ); 
 
 
-  // clustering HF EM 
+  // And now the HO
+  double threshHOBarrel = 0.5;
+  options_->GetOpt("clustering", "thresh_HO_Barrel", threshHOBarrel);
+  
+  double threshPtHOBarrel = 0.0;
+  options_->GetOpt("clustering", "thresh_Pt_HO_Barrel", threshPtHOBarrel);
+  
+  double threshSeedHOBarrel = 1.0;
+  options_->GetOpt("clustering", "thresh_Seed_HO_Barrel", 
+                   threshSeedHOBarrel);
+
+  double threshPtSeedHOBarrel = 0.0;
+  options_->GetOpt("clustering", "thresh_Pt_Seed_HO_Barrel", 
+                   threshPtSeedHOBarrel);
+
+  double threshCleanHOBarrel = 1E5;
+  options_->GetOpt("clustering", "thresh_Clean_HO_Barrel", 
+                   threshCleanHOBarrel);
+
+  std::vector<double> minS4S1CleanHOBarrel;
+  options_->GetOpt("clustering", "minS4S1_Clean_HO_Barrel", 
+                   minS4S1CleanHOBarrel);
+
+  double threshDoubleSpikeHOBarrel = 1E9;
+  options_->GetOpt("clustering", "thresh_DoubleSpike_HO_Barrel", 
+                   threshDoubleSpikeHOBarrel);
+
+  double minS6S2DoubleSpikeHOBarrel = -1;
+  options_->GetOpt("clustering", "minS6S2_DoubleSpike_HO_Barrel", 
+                   minS6S2DoubleSpikeHOBarrel);
+
+  double threshHOEndcap = 1.0;
+  options_->GetOpt("clustering", "thresh_HO_Endcap", threshHOEndcap);
+
+  double threshPtHOEndcap = 0.0;
+  options_->GetOpt("clustering", "thresh_Pt_HO_Endcap", threshPtHOEndcap);
+
+  double threshSeedHOEndcap = 3.1;
+  options_->GetOpt("clustering", "thresh_Seed_HO_Endcap",
+                   threshSeedHOEndcap);
+
+  double threshPtSeedHOEndcap = 0.0;
+  options_->GetOpt("clustering", "thresh_Pt_Seed_HO_Endcap",
+                   threshPtSeedHOEndcap);
+
+  double threshCleanHOEndcap = 1E5;
+  options_->GetOpt("clustering", "thresh_Clean_HO_Endcap", 
+                   threshCleanHOEndcap);
+
+  std::vector<double> minS4S1CleanHOEndcap;
+  options_->GetOpt("clustering", "minS4S1_Clean_HO_Endcap", 
+                   minS4S1CleanHOEndcap);
+
+  double threshDoubleSpikeHOEndcap = 1E9;
+  options_->GetOpt("clustering", "thresh_DoubleSpike_HO_Endcap", 
+                   threshDoubleSpikeHOEndcap);
+
+  double minS6S2DoubleSpikeHOEndcap = -1;
+  options_->GetOpt("clustering", "minS6S2_DoubleSpike_HO_Endcap", 
+                   minS6S2DoubleSpikeHOEndcap);
+
+  double showerSigmaHO    = 15;
+  options_->GetOpt("clustering", "shower_Sigma_HO",
+                   showerSigmaHO);
+ 
+  int nNeighboursHO = 4;
+  options_->GetOpt("clustering", "neighbours_HO", nNeighboursHO);
+
+  int posCalcNCrystalHO = 5;
+  options_->GetOpt("clustering", "posCalc_nCrystal_HO",
+                   posCalcNCrystalHO);
+
+  bool useCornerCellsHO = false;
+  options_->GetOpt("clustering", "useCornerCells_HO",
+                   useCornerCellsHO);
+
+  bool cleanRBXandHPDsHO = false;
+  options_->GetOpt("clustering", "cleanRBXandHPDs_HO",
+                   cleanRBXandHPDsHO);
+
+  double posCalcP1HO 
+    = threshHOBarrel<threshHOEndcap ? threshHOBarrel:threshHOEndcap;
+//   options_->GetOpt("clustering", "posCalc_p1_HO", 
+//                    posCalcP1HO);
+
+
+  clusterAlgoHO_.setHistos(file1,hBNeighbour1,hENeighbour1);
+
+
+  clusterAlgoHO_.setThreshBarrel( threshHOBarrel );
+  clusterAlgoHO_.setThreshSeedBarrel( threshSeedHOBarrel );
+  
+  clusterAlgoHO_.setThreshPtBarrel( threshPtHOBarrel );
+  clusterAlgoHO_.setThreshPtSeedBarrel( threshPtSeedHOBarrel );
+  
+  clusterAlgoHO_.setThreshCleanBarrel(threshCleanHOBarrel);
+  clusterAlgoHO_.setS4S1CleanBarrel(minS4S1CleanHOBarrel);
+
+  clusterAlgoHO_.setThreshDoubleSpikeBarrel( threshDoubleSpikeHOBarrel );
+  clusterAlgoHO_.setS6S2DoubleSpikeBarrel( minS6S2DoubleSpikeHOBarrel );
+
+  clusterAlgoHO_.setThreshEndcap( threshHOEndcap );
+  clusterAlgoHO_.setThreshSeedEndcap( threshSeedHOEndcap );
+
+  clusterAlgoHO_.setThreshPtEndcap( threshPtHOEndcap );
+  clusterAlgoHO_.setThreshPtSeedEndcap( threshPtSeedHOEndcap );
+
+  clusterAlgoHO_.setThreshCleanEndcap(threshCleanHOEndcap);
+  clusterAlgoHO_.setS4S1CleanEndcap(minS4S1CleanHOEndcap);
+
+  clusterAlgoHO_.setThreshDoubleSpikeEndcap( threshDoubleSpikeHOEndcap );
+  clusterAlgoHO_.setS6S2DoubleSpikeEndcap( minS6S2DoubleSpikeHOEndcap );
+
+  clusterAlgoHO_.setNNeighbours( nNeighboursHO );
+  clusterAlgoHO_.setShowerSigma( showerSigmaHO );
+
+  clusterAlgoHO_.setPosCalcNCrystal( posCalcNCrystalHO );
+  clusterAlgoHO_.setPosCalcP1( posCalcP1HO );
+
+  clusterAlgoHO_.setUseCornerCells( useCornerCellsHO );
+  clusterAlgoHO_.setCleanRBXandHPDs( cleanRBXandHPDs );
+
+  clusterAlgoHO_.enableDebugging( clusteringDebug ); 
+
+
+   // clustering HF EM 
 
   double threshHFEM = 0.;
   options_->GetOpt("clustering", "thresh_HFEM", threshHFEM);
@@ -1028,9 +1175,12 @@ void PFRootEventManager::readOptions(const char* file,
 
   std::vector<double> muonHCAL;
   std::vector<double> muonECAL;
+  std::vector<double> muonHO;
   options_->GetOpt("particle_flow", "muon_HCAL", muonHCAL);
   options_->GetOpt("particle_flow", "muon_ECAL", muonECAL);
-  assert ( muonHCAL.size() == 2 && muonECAL.size() == 2 );
+  options_->GetOpt("particle_flow", "muon_HO", muonHO);
+
+  assert ( muonHCAL.size() == 2 && muonECAL.size() == 2 && muonHO.size() == 2);
 
   double nSigmaTRACK = 3.0;
   options_->GetOpt("particle_flow", "nsigma_TRACK", nSigmaTRACK);
@@ -1051,6 +1201,7 @@ void PFRootEventManager::readOptions(const char* file,
   try { 
     pfAlgo_.setPFMuonAndFakeParameters(muonHCAL,
 				       muonECAL,
+				       muonHO,
 				       nSigmaTRACK,
 				       ptError,
 				       factors45,
@@ -1096,9 +1247,13 @@ void PFRootEventManager::readOptions(const char* file,
     exit(1);
   }
   
-  useAtHLT = false;
-  options_->GetOpt("particle_flow", "useAtHLT", useAtHLT);
-  cout<<"use HLT tracking "<<useAtHLT<<endl;
+  useAtHLT_ = false;
+  options_->GetOpt("particle_flow", "useAtHLT", useAtHLT_);
+  cout<<"use HLT tracking "<<useAtHLT_<<endl;
+
+  useHO_ = true;
+  options_->GetOpt("particle_flow", "useHO", useHO_);
+  cout<<"use of HO "<<useHO_<<endl;
 
 
   usePFElectrons_ = false;   // set true to use PFElectrons
@@ -1122,6 +1277,10 @@ void PFRootEventManager::readOptions(const char* file,
     options_->GetOpt("particle_flow","egammaElectrons",egammaElectronstagname);
     egammaElectronsTag_ =  edm::InputTag(egammaElectronstagname);
     
+    //HO in the algorithm or not
+    pfBlockAlgo_.setHOTag(useHO_);
+    pfAlgo_.setHOTag(useHO_);
+
     try { 
       pfAlgo_.setPFEleParameters(mvaEleCut,
 				 mvaWeightFileEleID,
@@ -1449,6 +1608,10 @@ void PFRootEventManager::connect( const char* infilename ) {
   options_->GetOpt("root","rechits_HCAL_inputTag", rechitsHCALtagname);
   rechitsHCALTag_ = edm::InputTag(rechitsHCALtagname);
 
+  std::string rechitsHOtagname;
+  options_->GetOpt("root","rechits_HO_inputTag", rechitsHOtagname);
+  rechitsHOTag_ = edm::InputTag(rechitsHOtagname);
+
   std::string rechitsHFEMtagname;
   options_->GetOpt("root","rechits_HFEM_inputTag", rechitsHFEMtagname);
   rechitsHFEMTag_ = edm::InputTag(rechitsHFEMtagname);
@@ -1618,6 +1781,7 @@ void PFRootEventManager::write() {
   if(doPFMETBenchmark_) metManager_->write();
   clusterAlgoECAL_.write();
   clusterAlgoHCAL_.write();
+  clusterAlgoHO_.write();
   clusterAlgoPS_.write();
   clusterAlgoHFEM_.write();
   clusterAlgoHFHAD_.write();
@@ -1684,7 +1848,7 @@ bool PFRootEventManager::processEntry(int entry) {
   reset();
 
   iEvent_ = entry;
- 
+
   bool exists = ev_->to(entry);
   if ( !exists ) { 
     std::cout << "Entry " << entry << " does not exist " << std::endl; 
@@ -1707,6 +1871,7 @@ bool PFRootEventManager::processEntry(int entry) {
 	<< endl;
 
   //ev_->getTFile()->cd();
+
   bool goodevent =  readFromSimulation(entry);
 
   /* 
@@ -1730,15 +1895,19 @@ bool PFRootEventManager::processEntry(int entry) {
     cout<<"number of true particles       : "<<trueParticles_.size()<<endl;
     cout<<"number of ECAL rechits         : "<<rechitsECAL_.size()<<endl;
     cout<<"number of HCAL rechits         : "<<rechitsHCAL_.size()<<endl;
+    cout<<"number of HO rechits           : "<<rechitsHO_.size()<<endl;
     cout<<"number of HFEM rechits         : "<<rechitsHFEM_.size()<<endl;
     cout<<"number of HFHAD rechits        : "<<rechitsHFHAD_.size()<<endl;
     cout<<"number of HF Cleaned rechits   : "<<rechitsCLEANED_.size()<<endl;
     cout<<"number of PS rechits           : "<<rechitsPS_.size()<<endl;
   }  
 
-  if( doClustering_ ) clustering(); 
-  else if( verbosity_ == VERBOSE )
+  if( doClustering_ ) {
+    clustering(); 
+
+  } else if( verbosity_ == VERBOSE ) {
     cout<<"clustering is OFF - clusters come from the input file"<<endl; 
+  }
 
   if(verbosity_ == VERBOSE ) {
     if(clustersECAL_.get() ) {
@@ -1747,6 +1916,11 @@ bool PFRootEventManager::processEntry(int entry) {
     if(clustersHCAL_.get() ) {
       cout<<"number of HCAL clusters : "<<clustersHCAL_->size()<<endl;
     }
+
+    if(useHO_ && clustersHO_.get() ) {
+      cout<<"number of HO clusters : "<<clustersHO_->size()<<endl;
+    }
+
     if(clustersHFEM_.get() ) {
       cout<<"number of HFEM clusters : "<<clustersHFEM_->size()<<endl;
     }
@@ -1760,7 +1934,6 @@ bool PFRootEventManager::processEntry(int entry) {
 
   if(doParticleFlow_) { 
     particleFlow();
-
     if (doCompare_) pfCandCompare(entry);
   }
 
@@ -1769,8 +1942,7 @@ bool PFRootEventManager::processEntry(int entry) {
     reconstructCaloJets();
     reconstructPFJets();
   }    
-        
- 
+
   // call print() in verbose mode
   if( verbosity_ == VERBOSE ) print();
   
@@ -1818,7 +1990,7 @@ bool PFRootEventManager::processEntry(int entry) {
     //   if (resNeutralEmEnergy>0.5) return true;
     //   else return false;
   }// end PFJet Benchmark
-
+  
   // Addition to have DQM histograms : by S. Dutta 
   reco::MET reComputedMet_;    
   reco::MET computedGenMet_;
@@ -1904,7 +2076,6 @@ bool PFRootEventManager::eventAccepted() const {
   return true;
 } 
 
-
 bool PFRootEventManager::highPtJet(double ptMin) const {
   for( unsigned i=0; i<pfJets_.size(); ++i) {
     if( pfJets_[i].pt() > ptMin ) return true;
@@ -1980,6 +2151,17 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   } else { 
     cerr<<"PFRootEventManager::ProcessEntry : rechitsHCAL Collection not found : "
         <<entry << " " << rechitsHCALTag_<<endl;
+  }
+
+  if (useHO_) {
+    bool foundHO = iEvent.getByLabel(rechitsHOTag_,rechitsHOHandle_);
+    if ( foundHO ) { 
+      rechitsHO_ = *rechitsHOHandle_;
+      // cout << "Found " << rechitsHO_.size() << " HO rechits" << endl;
+    } else { 
+      cerr<<"PFRootEventManager::ProcessEntry : rechitsHO Collection not found : "
+	  <<entry << " " << rechitsHOTag_<<endl;
+    }
   }
 
   bool foundHFEM = iEvent.getByLabel(rechitsHFEMTag_,rechitsHFEMHandle_);
@@ -2275,6 +2457,13 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   if(rechitsHCAL_.size()) {
     PreprocessRecHits( rechitsHCAL_ , findRecHitNeighbours_);
   }
+  
+  if (useHO_) {
+    if(rechitsHO_.size()) {
+      PreprocessRecHits( rechitsHO_ , findRecHitNeighbours_);
+    }
+  }
+
   if(rechitsHFEM_.size()) {
     PreprocessRecHits( rechitsHFEM_ , findRecHitNeighbours_);
   }
@@ -2590,6 +2779,18 @@ void PFRootEventManager::clustering() {
 
   fillOutEventWithClusters( *clustersHCAL_ );
 
+  // HO clustering -------------------------------------------
+
+  if (useHO_) {
+    fillRecHitMask( mask, rechitsHO_ );
+    
+    clusterAlgoHO_.doClustering( rechitsHO_, mask );
+    
+    clustersHO_ = clusterAlgoHO_.clusters();
+    
+    fillOutEventWithClusters( *clustersHO_ );
+  }
+
   // HF clustering -------------------------------------------
 
   fillRecHitMask( mask, rechitsHFEM_ );
@@ -2600,7 +2801,6 @@ void PFRootEventManager::clustering() {
   clusterAlgoHFHAD_.doClustering( rechitsHFHAD_, mask );
   clustersHFHAD_ = clusterAlgoHFHAD_.clusters();
   
-
   // PS clustering -------------------------------------------
 
   fillRecHitMask( mask, rechitsPS_ );
@@ -2608,7 +2808,7 @@ void PFRootEventManager::clustering() {
   clustersPS_ = clusterAlgoPS_.clusters();
 
   fillOutEventWithClusters( *clustersPS_ );
-  
+
 }
 
 
@@ -2625,6 +2825,7 @@ PFRootEventManager::fillOutEventWithClusters(const reco::PFClusterCollection&
     cluster.phi = clusters[i].position().Phi();
     cluster.e = clusters[i].energy();
     cluster.layer = clusters[i].layer();
+    if (!useHO_ && cluster.layer==PFLayer::HCAL_BARREL2) continue;
     cluster.type = 1;
 
     reco::PFTrajectoryPoint::LayerType tpLayer = 
@@ -2638,6 +2839,11 @@ PFRootEventManager::fillOutEventWithClusters(const reco::PFClusterCollection&
     case PFLayer::HCAL_ENDCAP:
       tpLayer = reco::PFTrajectoryPoint::HCALEntrance;
       break;
+
+    case PFLayer::HCAL_BARREL2:
+      tpLayer = reco::PFTrajectoryPoint::HOLayer;
+      break;
+
     default:
       break;
     }
@@ -2792,6 +2998,9 @@ void PFRootEventManager::particleFlow() {
   edm::OrphanHandle< reco::PFClusterCollection > hcalh( clustersHCAL_.get(), 
                                                         edm::ProductID(3) );  
 
+  edm::OrphanHandle< reco::PFClusterCollection > hoh( clustersHO_.get(), 
+						      edm::ProductID(21) );  //GMA put this four
+
   edm::OrphanHandle< reco::PFClusterCollection > hfemh( clustersHFEM_.get(), 
                                                         edm::ProductID(31) );  
 
@@ -2836,6 +3045,11 @@ void PFRootEventManager::particleFlow() {
   fillClusterMask( ecalMask, *clustersECAL_ );
   vector<bool> hcalMask;
   fillClusterMask( hcalMask, *clustersHCAL_ );
+
+
+  vector<bool> hoMask;
+  if (useHO_) {fillClusterMask( hoMask, *clustersHO_ );}
+
   vector<bool> hfemMask;
   fillClusterMask( hfemMask, *clustersHFEM_ );
   vector<bool> hfhadMask;
@@ -2845,15 +3059,15 @@ void PFRootEventManager::particleFlow() {
   vector<bool> photonMask;
   fillPhotonMask( photonMask, photons_ );
 
-  if ( !useAtHLT )
+  if ( !useAtHLT_ )
     pfBlockAlgo_.setInput( trackh, gsftrackh, convBremGsftrackh,
 			   muonh, nuclearh, displacedtrackh, convh, v0,
-			   ecalh, hcalh, hfemh, hfhadh, psh, photonh,
-			   trackMask,gsftrackMask,
-			   ecalMask, hcalMask, hfemMask, hfhadMask, psMask,photonMask );
+			   ecalh, hcalh, hoh, hfemh, hfhadh, psh, 
+			   photonh, trackMask,gsftrackMask, 
+			   ecalMask, hcalMask, hoMask, hfemMask, hfhadMask, psMask,photonMask );
   else    
-    pfBlockAlgo_.setInput( trackh, muonh, ecalh, hcalh, hfemh, hfhadh, psh,
-			   trackMask, ecalMask, hcalMask, psMask );
+    pfBlockAlgo_.setInput( trackh, muonh, ecalh, hcalh, hfemh, hfhadh, psh, hoh,
+			   trackMask, ecalMask, hcalMask, hoMask, psMask);
 
   pfBlockAlgo_.findBlocks();
   
@@ -2889,6 +3103,10 @@ void PFRootEventManager::particleFlow() {
 
 void PFRootEventManager::pfCandCompare(int entry) {
 
+  cout << "ievt " << entry <<" : PFCandidate : "
+       << " original size : " << pfCandCMSSW_.size()
+       << " current  size : " << pfCandidates_->size() << endl;
+
   bool differentSize = pfCandCMSSW_.size() != pfCandidates_->size();
   if ( differentSize ) { 
     cout << "+++WARNING+++ PFCandidate size changed for entry " 
@@ -2913,7 +3131,6 @@ void PFRootEventManager::pfCandCompare(int entry) {
       }
     }
   }
-
 }
 
 
@@ -3225,11 +3442,6 @@ PFRootEventManager::tauBenchmark( const reco::PFCandidateCollection& candidates)
   }
 
 
-
-
-
-
-
   EventColin::Jet jetmc;
 
   jetmc.eta = partTOTMC.Eta();
@@ -3317,8 +3529,6 @@ PFRootEventManager::tauBenchmark( const reco::PFCandidateCollection& candidates)
     TLorentzVector jetmom = caloTjets[i].GetMomentum();
     double jetcalo_pt = sqrt(jetmom.Px()*jetmom.Px()+jetmom.Py()*jetmom.Py());
     double jetcalo_et = jetmom.Et();
-
-
 
     EventColin::Jet jet;
     jet.eta = jetmom.Eta();
@@ -3620,6 +3830,10 @@ void  PFRootEventManager::print(ostream& out,int maxNLines ) const {
     printRecHits(rechitsECAL_, clusterAlgoECAL_, out );             out<<endl;
     out<<"HCAL RecHits ==============================================="<<endl;
     printRecHits(rechitsHCAL_, clusterAlgoHCAL_, out );             out<<endl;
+    if (useHO_) {
+      out<<"HO RecHits ================================================="<<endl;
+      printRecHits(rechitsHO_, clusterAlgoHO_, out );                 out<<endl;
+    }
     out<<"HFEM RecHits ==============================================="<<endl;
     printRecHits(rechitsHFEM_, clusterAlgoHFEM_, out );             out<<endl;
     out<<"HFHAD RecHits =============================================="<<endl;
@@ -3633,6 +3847,10 @@ void  PFRootEventManager::print(ostream& out,int maxNLines ) const {
     printClusters( *clustersECAL_, out);                           out<<endl;
     out<<"HCAL Clusters ============================================="<<endl;
     printClusters( *clustersHCAL_, out);                           out<<endl;
+    if (useHO_) {
+      out<<"HO Clusters ==============================================="<<endl;
+      printClusters( *clustersHO_, out);                             out<<endl;
+    }
     out<<"HFEM Clusters ============================================="<<endl;
     printClusters( *clustersHFEM_, out);                           out<<endl;
     out<<"HFHAD Clusters ============================================"<<endl;
@@ -4084,10 +4302,6 @@ void  PFRootEventManager::printCluster(const reco::PFCluster& cluster,
     out<<cluster<<endl;
 }
 
-
-
-
-
 bool PFRootEventManager::trackInsideGCut( const reco::PFTrack& track ) const {
 
   TCutG* cutg = (TCutG*) gROOT->FindObject("CUTG");
@@ -4336,13 +4550,17 @@ std::string PFRootEventManager::getGenParticleName(int partId, std::string &late
   case -321: { name = "K-";latexString="K^{-}"; break; }
   case  411: { name = "D+";latexString="D^{+}" ; break; }
   case -411: { name = "D-";latexString="D^{-}"; break; }
-  case  421: { name = "D0";latexString=name ; break; }
+  case  421: { name = "D0";latexString="D^{0}" ; break; }
+  case -421: { name = "D0-bar";latexString="#overline{D^{0}}" ; break; }
+  case  423: { name = "D*0";latexString="D^{*0}" ; break; }
+  case -423: { name = "D*0-bar";latexString="#overline{D^{*0}}" ; break; }
   case  431: { name = "Ds_+";latexString="Ds_{+}" ; break; }
   case -431: { name = "Ds_-";latexString="Ds_{-}" ; break; }
   case  511: { name = "B0";latexString= name; break; }
   case  521: { name = "B+";latexString="B^{+}" ; break; }
   case -521: { name = "B-";latexString="B^{-}" ; break; }
   case  531: { name = "Bs_0";latexString="Bs_{0}" ; break; }
+  case -531: { name = "anti-Bs_0";latexString="#overline{Bs_{0}}" ; break; }
   case  541: { name = "Bc_+";latexString="Bc_{+}" ; break; }
   case -541: { name = "Bc_+";latexString="Bc_{+}" ; break; }
   case  313: { name = "K*0";latexString="K^{*0}" ; break; }
@@ -4351,11 +4569,18 @@ std::string PFRootEventManager::getGenParticleName(int partId, std::string &late
   case -323: { name = "K*-";latexString="#K^{*-}" ; break; }
   case  413: { name = "D*+";latexString= "D^{*+}"; break; }
   case -413: { name = "D*-";latexString= "D^{*-}" ; break; }
-  case  423: { name = "D*0";latexString="D^{*0}" ; break; }
+
+  case  433: { name = "Ds*+";latexString="D_{s}^{*+}" ; break; }
+  case -433: { name = "Ds*-";latexString="B_{S}{*-}" ; break; }
+
   case  513: { name = "B*0";latexString="B^{*0}" ; break; }
+  case -513: { name = "anti-B*0";latexString="#overline{B^{*0}}" ; break; }
   case  523: { name = "B*+";latexString="B^{*+}" ; break; }
   case -523: { name = "B*-";latexString="B^{*-}" ; break; }
+
   case  533: { name = "B*_s0";latexString="B^{*}_{s0}" ; break; }
+  case -533 : {name="anti-B_s0"; latexString= "#overline{B_{s}^{0}}";break; }
+
   case  543: { name = "B*_c+";latexString= "B^{*}_{c+}"; break; }
   case -543: { name = "B*_c-";latexString= "B^{*}_{c-}"; break; }
   case  1114: { name = "Delta-";latexString="#Delta^{-}" ; break; }
@@ -4368,18 +4593,62 @@ std::string PFRootEventManager::getGenParticleName(int partId, std::string &late
   case -3122: { name = "Lambdabar0";latexString="#bar{#Lambda}^{0}" ; break; }
   case  3112: { name = "Sigma-"; latexString="#Sigma" ;break; }
   case -3112: { name = "Sigmabar+"; latexString="#bar{#Sigma}^{+}" ;break; }
+  case  3114: { name = "Sigma*-"; latexString="#Sigma^{*}" ;break; }
+  case -3114: { name = "Sigmabar*+"; latexString="#bar{#Sigma}^{*+}" ;break; }
+
+
   case  3212: { name = "Sigma0";latexString="#Sigma^{0}" ; break; }
   case -3212: { name = "Sigmabar0";latexString="#bar{#Sigma}^{0}" ; break; }
   case  3214: { name = "Sigma*0"; latexString="#Sigma^{*0}" ;break; }
   case -3214: { name = "Sigma*bar0";latexString="#bar{#Sigma}^{*0}" ; break; }
   case  3222: { name = "Sigma+"; latexString="#Sigma^{+}" ;break; }
   case -3222: { name = "Sigmabar-"; latexString="#bar{#Sigma}^{-}";break; }
+  case  3224: { name = "Sigma*+"; latexString="#Sigma^{*+}" ;break; }
+  case -3224: { name = "Sigmabar*-"; latexString="#bar{#Sigma}^{*-}";break; }
+
   case  2212: { name = "p";latexString=name ; break; }
   case -2212: { name = "~p";latexString="#bar{p}" ; break; }
   case -2214: { name = "Delta-";latexString="#Delta^{-}" ; break; }
   case  2214: { name = "Delta+";latexString="#Delta^{+}" ; break; }
   case -2224: { name = "Deltabar--"; latexString="#bar{#Delta}^{--}" ;break; }
   case  2224: { name = "Delta++"; latexString= "#Delta^{++}";break; }
+
+  case  3312: { name = "Xi-"; latexString= "#Xi^{-}";break; }
+  case -3312: { name = "Xi+"; latexString= "#Xi^{+}";break; }
+  case  3314: { name = "Xi*-"; latexString= "#Xi^{*-}";break; }
+  case -3314: { name = "Xi*+"; latexString= "#Xi^{*+}";break; }
+
+  case  3322: { name = "Xi0"; latexString= "#Xi^{0}";break; }
+  case -3322: { name = "anti-Xi0"; latexString= "#overline{Xi^{0}}";break; }
+  case  3324: { name = "Xi*0"; latexString= "#Xi^{*0}";break; }
+  case -3324: { name = "anti-Xi*0"; latexString= "#overline{Xi^{*0}}";break; }
+
+  case  3334: { name = "Omega-"; latexString= "#Omega^{-}";break; }
+  case -3334: { name = "anti-Omega+"; latexString= "#Omega^{+}";break; }
+
+  case  4122: { name = "Lambda_c+"; latexString= "#Lambda_{c}^{+}";break; }
+  case -4122: { name = "Lambda_c-"; latexString= "#Lambda_{c}^{-}";break; }
+  case  4222: { name = "Sigma_c++"; latexString= "#Sigma_{c}^{++}";break; }
+  case -4222: { name = "Sigma_c--"; latexString= "#Sigma_{c}^{--}";break; }
+
+
+  case 92 : {name="String"; latexString= "String";break; }
+    
+  case  2101 : {name="ud_0"; latexString= "ud_{0}";break; }
+  case -2101 : {name="anti-ud_0"; latexString= "#overline{ud}_{0}";break; }
+  case  2103 : {name="ud_1"; latexString= "ud_{1}";break; }
+  case -2103 : {name="anti-ud_1"; latexString= "#overline{ud}_{1}";break; }
+  case  2203 : {name="uu_1"; latexString= "uu_{1}";break; }
+  case -2203 : {name="anti-uu_1"; latexString= "#overline{uu}_{1}";break; }
+  case  3303 : {name="ss_1"; latexString= "#overline{ss}_{1}";break; }
+  case  3101 : {name="sd_0"; latexString= "sd_{0}";break; }
+  case -3101 : {name="anti-sd_0"; latexString= "#overline{sd}_{0}";break; }
+  case  3103 : {name="sd_1"; latexString= "sd_{1}";break; }
+  case -3103 : {name="anti-sd_1"; latexString= "#overline{sd}_{1}";break; }
+
+  case 20213 : {name="a_1+"; latexString= "a_{1}^{+}";break; }
+  case -20213 : {name="a_1-"; latexString= "a_{1}^{-}";break; }
+
   default:
     {
       name = "unknown"; 

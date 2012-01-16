@@ -5,7 +5,6 @@ root outtree 0
 //colin	mode 1
 
 root file ../../Configuration/test/display.root
-
 // Warning: no cleaning of the HF is done in fast sim, due to the absence of timing simulation and to an unreliable transverse shower shape simulation in the HF. 
 //          Thus you shall switch it off in PFRootEvent also by changing the thresholds to the following values: 
 //                                                             clustering thresh_Clean_HFEM            1E5 
@@ -25,6 +24,8 @@ root file ../../Configuration/test/display.root
 root rechits_ECAL_inputTag   particleFlowRecHitECAL
 // HCAL rechits branch
 root rechits_HCAL_inputTag   particleFlowRecHitHCAL
+// HO rechits branch
+root rechits_HO_inputTag   particleFlowRecHitHO
 // HFEM rechits branch
 root rechits_HFEM_inputTag   particleFlowRecHitHCAL:HFEM
 // HFHAD rechits branch
@@ -152,7 +153,6 @@ display rechits_enmin    0
 // min energy threshold to display cluster
 display   clusters_enmin  0
 
-
 // display x/y view yes/no
 display  x/y      1
 // display eta/phi view yes/no
@@ -161,14 +161,20 @@ display  eta/phi  1
 display  r/z      1
 
 // color, pscolor, style, size
-display cluster_attributes 2 5 20 1
+display cluster_attributes 2 5 20 1.0 6 9 46
 // color, line style, marker style, marker size 
-display track_attributes   8 1 8 0.5
-display gsf_attributes   419 2 23 1
-display brem_attributes   921 3 22 1
+display track_attributes   8 1.0 8 0.5
+display gsf_attributes   419 2 23 1.0
+display brem_attributes   921 3 22 1.0
 // color, line style, marker size 
-display simPart_attributes 4 2 1
+display simPart_attributes 4 2 1.0
+
+
 display drawPFBlock 0
+
+
+//Use of HO
+display         drawHO               0
 
 
 // clustering parameters ---------------------------------------------------
@@ -187,6 +193,7 @@ clustering findRecHitNeighbours 0
 
 // threshold on ECAL barrel rechits. Note that a threshold might have
 // been applied already, see RecoParticleFlow/PFProducer/data/particleFlow.cff
+
 clustering thresh_Ecal_Barrel           0.08
 clustering thresh_Pt_Ecal_Barrel        0.00
 
@@ -290,6 +297,57 @@ clustering posCalc_nCrystal_Hcal        5
 // width of shower in Hcal, cm
 clustering shower_Sigma_Hcal	       10
 
+// ------------ clustering HO ----------------------------
+
+clustering thresh_HO_Seed_Barrel         1.00
+clustering thresh_HO_Barrel              0.50
+clustering threshold_R0                  0.50
+clustering threshold_R1                  2.00
+
+
+// threshold on H0 rechits, ring 0
+clustering thresh_HO_Barrel           0.5
+clustering thresh_Pt_HO_Barrel        0.0
+// seed threshold for H0 rechits, ring 0
+clustering thresh_Seed_HO_Barrel      1.0
+clustering thresh_Pt_Seed_HO_Barrel   0.0
+// cleaning thresholds for H0 seeds, ring 0
+clustering thresh_Clean_HO_Barrel     1E5
+clustering minS4S1_Clean_HO_Barrel    0.032 -0.045
+// double spike cleaning thresholds for HO seeds, ring 0
+clustering thresh_DoubleSpike_HO_Barrel     1E9
+clustering minS6S2_DoubleSpike_HO_Barrel    -1.
+
+// threshold on HO rechits, rings +/-1 and +/-2
+clustering thresh_HO_Endcap           1.0
+clustering thresh_Pt_HO_Endcap        0.0
+// seed threshold for H0 rechits, rings +/-1 and +/-2
+clustering thresh_Seed_HO_Endcap      3.1
+clustering thresh_Pt_Seed_HO_Endcap   0.0
+// cleaning thresholds for HO seeds, rings +/-1 and +/-2
+clustering thresh_Clean_HO_Endcap     1E5
+clustering minS4S1_Clean_HO_Endcap    0.032 -0.045
+// double spike cleaning thresholds for HO seeds, , rings +/-1 and +/-2
+clustering thresh_DoubleSpike_HO_Endcap     1E9
+clustering minS6S2_DoubleSpike_HO_Endcao    -1.
+
+// build topo-cluster from cells with 1 common side or corner
+clustering useCornerCells_HO 1
+// enable cleaning of RBX's and HPD's
+clustering cleanRBXandHPDs_HO 0
+
+// number of neighbours to be considered for seed finding in HCAL. 
+// 4 means that it is checked that the 4 direct neighbours 
+// have a lower energy than the seed. The other possibility is 8. 
+// If set to 8, it is also checked that the diagonal neighbours have a 
+// lower energy.
+clustering neighbours_HO		4
+clustering posCalc_p1_HO            1.0 
+clustering posCalc_nCrystal_HO        5
+
+// width of shower in HO, cm
+clustering shower_Sigma_HO	       10
+
 // ------------ clustering HFEM ----------------------------
 //COLIN: all parameters to be checked and tuned.
 //COLIN: check that parameters are correctly read!
@@ -355,11 +413,15 @@ particle_flow DPtoverPt_Cut  -1. -1. -1. 1. 1.
 particle_flow NHit_Cut 3 3 3 3 3
 particle_flow useIterTracking 1
 
+// Use HO for PFBlockAlgo and PFAlgo
+particle_flow   useHO   0
+
 
 // Treatment of muons : 
-// Expected energy in ECAL and HCAL, and RMS
+// Expected energy in ECAL, HCAL and HO, and RMS
 particle_flow muon_HCAL 3.0 3.0
 particle_flow muon_ECAL 0.5 0.5
+particle_flow muon_HO   0.9 0.9
 
 // Treatment of potential fake tracks
 // Number of sigmas for fake track detection
@@ -409,12 +471,14 @@ particle_flow   calibPFSCEle_endcap  1.153 -16.5975 5.668 -0.1772 16.22 7.326 0.
 particle_flow   usePFPhotons      1
 particle_flow   conv_mvaCut	  0.00
 particle_flow   useReg		  0	
+
 // Daniele and Rishi: To be changed
 particle_flow   convID_mvaWeightFile    /afs/cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_pfConversionAug0411.txt
 particle_flow mvaWeightFileRegLC	/afs/cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFClusterLCorr_14Dec2011.root
 particle_flow mvaWeightFileRegGC        /afs/cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFGlobalCorr_14Dec2011.root
 particle_flow mvaWeightFileRegRes        /afs/cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFRes_14Dec2011.root
 particle_flow X0Map                                  /afs/cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/allX0histos.root
+
 particle_flow sumPtTrackIsoForPhoton   2.0
 particle_flow sumPtTrackIsoSlopeForPhoton   0.001
 
@@ -453,6 +517,7 @@ particle_flow   useBestMuonTrack	0
 
 //Use tracking at HLT
 particle_flow   useAtHLT                0
+
 
 
 //-------- Parameters of Displaced Vertices ------------

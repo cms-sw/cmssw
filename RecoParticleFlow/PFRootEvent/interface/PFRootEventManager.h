@@ -456,6 +456,11 @@ class PFRootEventManager {
   edm::InputTag rechitsHCALTag_;
   reco::PFRecHitCollection rechitsHCAL_;
 
+  /// rechits HO
+  edm::Handle<reco::PFRecHitCollection> rechitsHOHandle_;
+  edm::InputTag rechitsHOTag_;
+  reco::PFRecHitCollection rechitsHO_;
+
   /// rechits HF EM
   edm::Handle<reco::PFRecHitCollection> rechitsHFEMHandle_;
   edm::InputTag rechitsHFEMTag_;
@@ -486,6 +491,11 @@ class PFRootEventManager {
   edm::Handle<reco::PFClusterCollection> clustersHCALHandle_;
   edm::InputTag clustersHCALTag_;
   std::auto_ptr< reco::PFClusterCollection > clustersHCAL_;
+
+  /// clusters HO
+  edm::Handle<reco::PFClusterCollection> clustersHOHandle_;
+  edm::InputTag clustersHOTag_;
+  std::auto_ptr< reco::PFClusterCollection > clustersHO_;
 
   /// clusters HCAL
   edm::Handle<reco::PFClusterCollection> clustersHFEMHandle_;
@@ -690,6 +700,9 @@ class PFRootEventManager {
   /// clustering algorithm for HCAL
   PFClusterAlgo   clusterAlgoHCAL_;
 
+  /// clustering algorithm for HO
+  PFClusterAlgo   clusterAlgoHO_;
+
   /// clustering algorithm for HF, electro-magnetic layer
   PFClusterAlgo   clusterAlgoHFEM_;
 
@@ -854,7 +867,10 @@ class PFRootEventManager {
   bool useEGElectrons_;
 
   /// Use HLT tracking
-  bool useAtHLT;
+  bool useAtHLT_;
+
+  /// Use of HO in links with tracks/HCAL and in particle flow reconstruction
+  bool useHO_;
 
   // MC Truth tools              ---------------------------------------
 
