@@ -47,6 +47,9 @@ class PFProducer : public edm::EDProducer {
   std::string electronExtraOutputCol_;
   std::string photonExtraOutputCol_;
 
+  //Use of HO clusters and links in PF Reconstruction
+  bool useHO_;
+
   /// verbose ?
   bool  verbose_;
 

@@ -55,6 +55,7 @@ class PFAlgo {
   /// destructor
   virtual ~PFAlgo();
 
+  void setHOTag(bool ho) { useHO_ = ho;}
   void setAlgo( int algo ) {algo_ = algo;}
 
   void setDebug( bool debug ) {debug_ = debug; connector_.setDebug(debug_);}
@@ -80,6 +81,7 @@ class PFAlgo {
 
   void setPFMuonAndFakeParameters(std::vector<double> muonHCAL,
 				  std::vector<double> muonECAL,
+				  std::vector<double> muonHO,
 				  double nSigmaTRACK,
 				  double ptError,
 				  std::vector<double> factors45,
@@ -305,11 +307,6 @@ class PFAlgo {
   /// the extra photon collection 
   reco::PFCandidatePhotonExtraCollection      pfPhotonExtra_; 
 
-  ///Checking if a given cluster is a satellite cluster
-  ///of a given charged hadron (track)
-  bool isSatelliteCluster( const reco::PFRecTrack& track,
-                           const reco::PFCluster& cluster );
-
   /// Associate PS clusters to a given ECAL cluster, and return their energy
   void associatePSClusters(unsigned iEcal,
 			   reco::PFBlockElement::Type psElementType,
@@ -347,7 +344,7 @@ class PFAlgo {
   boost::shared_ptr<PFEnergyCalibrationHF>  thepfEnergyCalibrationHF_;
   boost::shared_ptr<PFSCEnergyCalibration> thePFSCEnergyCalibration_;
 
-  
+  bool               useHO_;
   int                algo_;
   bool               debug_;
 
@@ -395,6 +392,7 @@ class PFAlgo {
   /// Variables for muons and fakes
   std::vector<double> muonHCAL_;
   std::vector<double> muonECAL_;
+  std::vector<double> muonHO_;
   double nSigmaTRACK_;
   double ptError_;
   std::vector<double> factors45_;

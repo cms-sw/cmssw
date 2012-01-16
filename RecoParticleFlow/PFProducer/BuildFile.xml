@@ -3,7 +3,6 @@
 <use   name="DataFormats/CaloRecHit"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/EgammaCandidates"/>
-<use   name="DataFormats/GeometrySurface"/>
 <use   name="DataFormats/ParticleFlowCandidate"/>
 <use   name="DataFormats/ParticleFlowReco"/>
 <use   name="DataFormats/Provenance"/>

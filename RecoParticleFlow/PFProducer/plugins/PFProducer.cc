@@ -284,7 +284,10 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
     = iConfig.getParameter<std::vector<double> >("muon_HCAL");  
   std::vector<double> muonECAL
     = iConfig.getParameter<std::vector<double> >("muon_ECAL");  
-  assert ( muonHCAL.size() == 2 && muonECAL.size() == 2 );
+  std::vector<double> muonHO
+    = iConfig.getParameter<std::vector<double> >("muon_HO");  
+
+  assert ( muonHCAL.size() == 2 && muonECAL.size() == 2 && muonHO.size() == 2);
   
   // Fake track parameters
   double nSigmaTRACK
@@ -306,6 +309,7 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   // Set muon and fake track parameters
   pfAlgo_->setPFMuonAndFakeParameters(muonHCAL,
 				      muonECAL,
+				      muonHO,
 				      nSigmaTRACK,
 				      ptError,
 				      factors45,
@@ -346,7 +350,9 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   vertices_ = iConfig.getParameter<edm::InputTag>("vertexCollection");
   useVerticesForNeutral_ = iConfig.getParameter<bool>("useVerticesForNeutral");
 
-
+  // Use HO clusters and links in the PF reconstruction
+  useHO_= iConfig.getParameter<bool>("useHO");
+  pfAlgo_->setHOTag(useHO_);
 
   verbose_ = 
     iConfig.getUntrackedParameter<bool>("verbose",false);
@@ -515,7 +521,7 @@ PFProducer::produce(Event& iEvent,
   LogDebug("PFProducer")<<"particle flow is starting"<<endl;
 
   assert( blocks.isValid() );
- 
+
   pfAlgo_->reconstructParticles( blocks );
 
   if(verbose_) {

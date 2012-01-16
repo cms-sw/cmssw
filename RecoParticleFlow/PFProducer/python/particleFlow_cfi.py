@@ -20,6 +20,9 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     verbose = cms.untracked.bool(False),
     debug = cms.untracked.bool(False),
 
+    # Use HO clusters in PF hadron reconstruction
+    useHO = cms.bool(False),                                 
+
     # Use electron identification in PFAlgo
     usePFElectrons = cms.bool(True),
     pf_electron_output_col=cms.string('electrons'),
@@ -103,6 +106,7 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     # Expected energy in ECAL and HCAL, and RMS
     muon_HCAL = cms.vdouble(3.0,3.0),
     muon_ECAL = cms.vdouble(0.5,0.5),
+    muon_HO = cms.vdouble(0.9,0.9),		
 
     # Use PF muon momentum assigment instead of default reco muon one
     usePFMuonMomAssign = cms.bool(False),
