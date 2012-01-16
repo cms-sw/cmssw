@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:12:04 EDT 2006
-// $Id: SiStripElectronAlgo.cc,v 1.38 2011/12/22 19:00:57 innocent Exp $
+// $Id: SiStripElectronAlgo.cc,v 1.39 2011/12/22 19:06:09 innocent Exp $
 //
 
 // system include files
@@ -649,7 +649,7 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
     if(r_stereo_err > stereoHitSmallestError ) {
       r_stereo_err = sqrt(r_stereo_err*r_stereo_err+stereoErrFudge*stereoErrFudge);
  
-      const SiStripRecHit2D::ClusterRef & stereocluster=(*hit)->cluster();
+      OmniClusterRef const & stereocluster=(*hit)->omniClusterRef();
     
       bool thisHitIsMatched = false ;
 
@@ -658,7 +658,7 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
 	unsigned int matcheduselist_size = matcheduselist.size();
 	for (unsigned int i = 0;  i < matcheduselist_size;  i++) {
 	  if (matcheduselist[i]) {
-	    const SiStripRecHit2D::ClusterRef &  mystereocluster = matchedhitlist[i]->stereoHit()->cluster();
+            OmniClusterRef const &  mystereocluster = matchedhitlist[i]->stereoClusterRef();
 	    if( stereocluster == mystereocluster ) {
 	      thisHitIsMatched = true ;
 	      //    LogDebug("")<< "     This hit is matched " << tracker_p_->idToDet(matchedhitlist[i]->stereoHit()->geographicalId())->surface().toGlobal(matchedhitlist[i]->stereoHit()->localPosition()) << std::endl;
@@ -704,7 +704,7 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
       // inflate the reported error
       r_mono_err=sqrt(r_mono_err*r_mono_err+rphiErrFudge*rphiErrFudge);
 
-      const SiStripRecHit2D::ClusterRef &  monocluster=(*hit)->cluster();
+      OmniClusterRef const & monocluster=(*hit)->omniClusterRef();
     
 
       if (!hitUsed_[*hit]) {
@@ -716,7 +716,7 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
 	  unsigned int matcheduselist_size = matcheduselist.size();
 	  for (unsigned int i = 0;  i < matcheduselist_size;  i++) {
 	    if (matcheduselist[i]) {
-	      const SiStripRecHit2D::ClusterRef &  mymonocluster = matchedhitlist[i]->monoHit()->cluster();
+              OmniClusterRef const &  mymonocluster = matchedhitlist[i]->monoClusterRef();
 	      if( monocluster == mymonocluster ) {
 		thisHitIsMatched = true ;
 	      } 
