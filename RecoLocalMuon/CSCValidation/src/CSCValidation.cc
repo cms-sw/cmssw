@@ -259,8 +259,7 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
   if (makeOccupancyPlots && CSCL1A) doOccupancies(strips,wires,recHits,cscSegments);
 
 
-  bool HLT = false;
-  if (makeHLTPlots) HLT = doHLT(hlt);
+  if (makeHLTPlots) doHLT(hlt);
 
 
   if (cleanEvent && CSCL1A){
@@ -1021,9 +1020,6 @@ void CSCValidation::doSegments(edm::Handle<CSCSegmentCollection> cscSegments, ed
     // global transformation
     float globX = 0.;
     float globY = 0.;
-    float globZ = 0.;
-    float globpPhi = 0.;
-    float globR = 0.;
     float globTheta = 0.;
     float globPhi   = 0.;
     const CSCChamber* cscchamber = cscGeom->chamber(id);
@@ -1031,9 +1027,6 @@ void CSCValidation::doSegments(edm::Handle<CSCSegmentCollection> cscSegments, ed
       GlobalPoint globalPosition = cscchamber->toGlobal(localPos);
       globX = globalPosition.x();
       globY = globalPosition.y();
-      globZ = globalPosition.z();
-      globpPhi =  globalPosition.phi();
-      globR   =  sqrt(globX*globX + globY*globY);
       GlobalVector globalDirection = cscchamber->toGlobal(segDir);
       globTheta = globalDirection.theta();
       globPhi   = globalDirection.phi();
@@ -2088,13 +2081,13 @@ float CSCValidation::getthisSignal(const CSCStripDigiCollection& stripdigis, CSC
 	// Loop over strip digis responsible for this recHit
 	CSCStripDigiCollection::DigiRangeIterator sIt;
 	float thisADC = 0.;
-	bool foundRHid = false;
+	//bool foundRHid = false;
 	// std::cout<<"iD   S/R/C/L = "<<idRH<<"    "<<idRH.station()<<"/"<<idRH.ring()<<"/"<<idRH.chamber()<<"/"<<idRH.layer()<<std::endl;
 	for (sIt = stripdigis.begin(); sIt != stripdigis.end(); sIt++){
 		CSCDetId id = (CSCDetId)(*sIt).first;
 		//std::cout<<"STRIPS: id    S/R/C/L = "<<id<<"     "<<id.station()<<"/"<<id.ring()<<"/"<<id.chamber()<<"/"<<id.layer()<<std::endl;
 		if (id == idRH){
-			foundRHid = true;
+			//foundRHid = true;
 			vector<CSCStripDigi>::const_iterator digiItr = (*sIt).second.first;
 			vector<CSCStripDigi>::const_iterator last = (*sIt).second.second;
 			//if(digiItr == last ) {std::cout << " Attention1 :: Size of digi collection is zero " << std::endl;}
@@ -2501,7 +2494,7 @@ void CSCValidation::doCompTiming(const CSCComparatorDigiCollection& compars) {
 
      ostringstream ss;      std::string name,title,endcap;
      float x,y;
-     int strip,tbin,layer,cfeb,idlayer,idchamber,idum;
+     int strip,tbin,cfeb,idlayer,idchamber;
      int channel=0; // for  CSCIndexer::dbIndex(id, channel); irrelevant here
      CSCIndexer indexer;
                                                                                 
@@ -2518,7 +2511,6 @@ void CSCValidation::doCompTiming(const CSCComparatorDigiCollection& compars) {
           const CSCDetId id = (*compdetUnitIt).first;
           idlayer=indexer.dbIndex(id, channel); // channel irrelevant here
           idchamber=idlayer/10;
-          layer=id.layer();
                                                                                 
           if (id.endcap() == 1) endcap = "+";
           if (id.endcap() == 2) endcap = "-";
@@ -2533,8 +2525,8 @@ void CSCValidation::doCompTiming(const CSCComparatorDigiCollection& compars) {
              std::cout<<idchamber<<" "<<id.station()<<" "<<id.ring()<<" "
                       <<strip <<std::endl;  
           */
-             idum=indexer.dbIndex(id, strip); // strips 1-16 of ME1/1a 
-                                              // become strips 65-80 of ME1/1 
+             indexer.dbIndex(id, strip); // strips 1-16 of ME1/1a 
+                                         // become strips 65-80 of ME1/1 
              tbin=(*digiIt).getTimeBin();
              cfeb=(strip-1)/16+1;
                                                                                 
@@ -2678,7 +2670,6 @@ void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
     vector<float> non_zero;
     
     for ( vector<CSCRecHit2D>::const_iterator iRH = theseRecHits.begin(); iRH != theseRecHits.end(); iRH++) {
-      CSCDetId idRH = (CSCDetId)(*iRH).cscDetId();
       non_zero.push_back( iRH->tpeak());
       
     }// end rechit loop
