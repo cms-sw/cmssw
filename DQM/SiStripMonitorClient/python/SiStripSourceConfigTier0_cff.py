@@ -60,12 +60,7 @@ SiStripMonitorTrack.andOr         = cms.bool( False )
 SiStripMonitorTrack.l1DBKey       = cms.string( 'SiStripDQM_L1' )
 SiStripMonitorTrack.l1Algorithms  = cms.vstring(
 #                  'L1Tech_BSC_minBias_threshold2.v0 OR L1_BscMinBiasOR_BptxPlusORMinus' # Tech BIT41 OR Algo Bit 124
-                   'NOT L1Tech_BSC_halo_beam2_inner.v0' # NOT 36
-                 , 'NOT L1Tech_BSC_halo_beam2_outer.v0' # NOT 37
-                 , 'NOT L1Tech_BSC_halo_beam1_inner.v0' # NOT 38
-                 , 'NOT L1Tech_BSC_halo_beam1_outer.v0' # NOT 39
-                 , 'NOT (L1Tech_BSC_splash_beam1.v0 AND NOT L1Tech_BSC_splash_beam2.v0)'   # NOT (42 AND NOT 43)
-                 , 'NOT (L1Tech_BSC_splash_beam2.v0 AND NOT L1Tech_BSC_splash_beam1.v0)')  # NOT (43 AND NOT 42)
+)
 SiStripMonitorTrack.andOrL1       = cms.bool( False )
 SiStripMonitorTrack.errorReplyL1  = cms.bool( True )
 
@@ -78,12 +73,7 @@ MonitorTrackResiduals.andOr         = cms.bool( False )
 MonitorTrackResiduals.l1DBKey       = cms.string( 'SiStripDQM_L1' )
 MonitorTrackResiduals.l1Algorithms  = cms.vstring(
 #                  'L1Tech_BSC_minBias_threshold2.v0 OR L1_BscMinBiasOR_BptxPlusORMinus' # Tech BIT41 OR Algo Bit 124  
-                   'NOT L1Tech_BSC_halo_beam2_inner.v0' # NOT 36
-                 , 'NOT L1Tech_BSC_halo_beam2_outer.v0' # NOT 37
-                 , 'NOT L1Tech_BSC_halo_beam1_inner.v0' # NOT 38
-                 , 'NOT L1Tech_BSC_halo_beam1_outer.v0' # NOT 39
-                 , 'NOT (L1Tech_BSC_splash_beam1.v0 AND NOT L1Tech_BSC_splash_beam2.v0)'   # NOT (42 AND NOT 43)
-                 , 'NOT (L1Tech_BSC_splash_beam2.v0 AND NOT L1Tech_BSC_splash_beam1.v0)')  # NOT (43 AND NOT 42)
+)
 MonitorTrackResiduals.andOrL1       = cms.bool( False )
 MonitorTrackResiduals.errorReplyL1  = cms.bool( True )
 
@@ -99,12 +89,7 @@ TrackerCollisionTrackMon.errorReplyDcs = cms.bool( True )
 TrackerCollisionTrackMon.l1DBKey       = cms.string( 'SiStripDQM_L1' )
 TrackerCollisionTrackMon.l1Algorithms  = cms.vstring(
 #                  'L1Tech_BSC_minBias_threshold2.v0 OR L1_BscMinBiasOR_BptxPlusORMinus' # Tech BIT41 OR Algo Bit 124     
-                   'NOT L1Tech_BSC_halo_beam2_inner.v0' # NOT 36
-                 , 'NOT L1Tech_BSC_halo_beam2_outer.v0' # NOT 37
-                 , 'NOT L1Tech_BSC_halo_beam1_inner.v0' # NOT 38
-                 , 'NOT L1Tech_BSC_halo_beam1_outer.v0' # NOT 39
-                 , 'NOT (L1Tech_BSC_splash_beam1.v0 AND NOT L1Tech_BSC_splash_beam2.v0)'   # NOT (42 AND NOT 43)
-                 , 'NOT (L1Tech_BSC_splash_beam2.v0 AND NOT L1Tech_BSC_splash_beam1.v0)')  # NOT (43 AND NOT 42)
+)
 TrackerCollisionTrackMon.andOrL1       = cms.bool( False )
 TrackerCollisionTrackMon.errorReplyL1  = cms.bool( True )
 
