@@ -533,11 +533,11 @@ std::vector<SimHitIdpr>  TrackerHitAssociator::associateMatchedRecHit(const SiSt
   matched_mono.clear();
   matched_st.clear();
 
-  const SiStripRecHit2D *mono = matchedrechit->monoHit();
-  const SiStripRecHit2D *st = matchedrechit->stereoHit();
+  const SiStripRecHit2D mono = matchedrechit->monoHit();
+  const SiStripRecHit2D st = matchedrechit->stereoHit();
   //associate the two simple hits separately
-  associateSimpleRecHit(mono,matched_mono );
-  associateSimpleRecHit(st, matched_st );
+  associateSimpleRecHit(&mono,matched_mono );
+  associateSimpleRecHit(&st, matched_st );
   
   //save in a vector all the simtrack-id's that are common to mono and stereo hits
   if(!matched_mono.empty() && !matched_st.empty()){
