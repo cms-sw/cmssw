@@ -45,11 +45,11 @@ bool HitExtractorSTRP::ringRange(int ring) const
   else return false;
 }
 
-bool HitExtractorSTRP::skipThis(const SiStripRecHit2D * hit,
+bool HitExtractorSTRP::skipThis(const OmniClusterRef const& clus,
 				edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > & stripClusterMask) const {
-  if (!hit->isValid())  return false;
+  //  if (!hit->isValid())  return false;
 
-  return stripClusterMask->mask(hit->cluster().key());
+  return stripClusterMask->mask(clus.key());
 }
 
 
@@ -69,17 +69,17 @@ bool HitExtractorSTRP::skipThis(TransientTrackingRecHit::ConstRecHitPointer & pt
 				TransientTrackingRecHit::ConstRecHitPointer & replaceMe) const {
   const SiStripMatchedRecHit2D * hit = (SiStripMatchedRecHit2D *) ptr->hit();
 
-  bool rejectSt=false,rejectMono=false;
-  if (skipThis(hit->stereoHit(),stripClusterMask))  rejectSt=true;
-  if (skipThis(hit->monoHit(),stripClusterMask))    rejectMono=true;
+  bool rejectSt= skipThis(hit->stereoClusterRef());
+  bool rejectMono=skipThis(hit->monoClusterRef());
 
   if (rejectSt&&rejectMono){
     //only skip if both hits are done
     return true;
   }
   else{
-    if (rejectSt) project(ptr,hit->stereoHit(),replaceMe);
-    else if (rejectMono) project(ptr,hit->monoHit(),replaceMe);
+    //FIX use clusters directly
+    if (rejectSt) project(ptr,&hit->stereoHit(),replaceMe);
+    else if (rejectMono) project(ptr,&hit->monoHit(),replaceMe);
     if (!replaceMe) return true; //means that the projection failed, and needs to be skipped
     if (rejectSt)
       LogDebug("HitExtractorSTRP")<<"a matched hit is partially masked, and the mono hit got projected onto: "<<replaceMe->hit()->geographicalId().rawId()<<" key: "<<hit->monoHit()->cluster().key();
@@ -103,13 +103,14 @@ void HitExtractorSTRP::cleanedOfClusters( const edm::Event& ev, HitExtractor::Hi
   newHits.reserve(hits.size());
   TransientTrackingRecHit::ConstRecHitPointer replaceMe;
   for (unsigned int iH=cleanFrom;iH<hits.size();++iH){
+    if (!hits[iH]->isValid()) continue;
     replaceMe=hits[iH];
     if (matched && skipThis(hits[iH],stripClusterMask,replaceMe)){
       LogDebug("HitExtractorSTRP")<<"skipping a matched hit on :"<<hits[iH]->hit()->geographicalId().rawId();
       skipped++;
       continue;
     }
-    if (!matched && skipThis((const SiStripRecHit2D*) hits[iH]->hit(),stripClusterMask)){
+    if (!matched && skipThis(hits[iH]->hit()->omniClusterRef(),stripClusterMask)){
 	LogDebug("HitExtractorSTRP")<<"skipping a hit on :"<<hits[iH]->hit()->geographicalId().rawId()<<" key: ";
 	skipped++;
 	continue;
