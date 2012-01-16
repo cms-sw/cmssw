@@ -362,6 +362,7 @@ void PFAlgo::reconstructParticles( const reco::PFBlockCollection& blocks ) {
   // sort elements in three lists:
   std::list< reco::PFBlockRef > hcalBlockRefs;
   std::list< reco::PFBlockRef > ecalBlockRefs;
+  std::list< reco::PFBlockRef > hoBlockRefs;
   std::list< reco::PFBlockRef > otherBlockRefs;
   
   for( unsigned i=0; i<blocks.size(); ++i ) {
@@ -384,6 +385,7 @@ void PFAlgo::reconstructParticles( const reco::PFBlockCollection& blocks ) {
       }
       if( elements[0].type() == reco::PFBlockElement::HO ){
 	// Single HO elements are likely to be noise. Not considered for now.
+	hoBlockRefs.push_back( blockref );
 	singleEcalOrHcal = true;
       }
     }
@@ -396,6 +398,7 @@ void PFAlgo::reconstructParticles( const reco::PFBlockCollection& blocks ) {
   if( debug_ ){
     cout<<"# Ecal blocks: "<<ecalBlockRefs.size()
         <<", # Hcal blocks: "<<hcalBlockRefs.size()
+        <<", # HO blocks: "<<hoBlockRefs.size()
         <<", # Other blocks: "<<otherBlockRefs.size()<<endl;
   }
 
@@ -403,19 +406,25 @@ void PFAlgo::reconstructParticles( const reco::PFBlockCollection& blocks ) {
   // loop on blocks that are not single ecal, 
   // and not single hcal.
 
+  unsigned nblcks = 0;
   for( IBR io = otherBlockRefs.begin(); io!=otherBlockRefs.end(); ++io) {
+    if ( debug_ ) std::cout << "Block number " << nblcks++ << std::endl; 
     processBlock( *io, hcalBlockRefs, ecalBlockRefs );
   }
 
   std::list< reco::PFBlockRef > empty;
 
+  unsigned hblcks = 0;
   // process remaining single hcal blocks
   for( IBR ih = hcalBlockRefs.begin(); ih!=hcalBlockRefs.end(); ++ih) {
+    if ( debug_ ) std::cout << "HCAL block number " << hblcks++ << std::endl;
     processBlock( *ih, empty, empty );
   }
 
+  unsigned eblcks = 0;
   // process remaining single ecal blocks
   for( IBR ie = ecalBlockRefs.begin(); ie!=ecalBlockRefs.end(); ++ie) {
+    if ( debug_ ) std::cout << "ECAL block number " << eblcks++ << std::endl;
     processBlock( *ie, empty, empty );
   }
 
@@ -2838,7 +2847,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     (*pfCandidates_)[tmpi].addElementInBlock( blockref, iHcal );
     for (unsigned iec=0; iec<ecalRefs.size(); ++iec) 
       (*pfCandidates_)[tmpi].addElementInBlock( blockref, ecalRefs[iec] );
-    for (unsigned iho=0; iho<ecalRefs.size(); ++iho) 
+    for (unsigned iho=0; iho<hoRefs.size(); ++iho) 
       (*pfCandidates_)[tmpi].addElementInBlock( blockref, hoRefs[iho] );
       
   }//loop hcal elements
