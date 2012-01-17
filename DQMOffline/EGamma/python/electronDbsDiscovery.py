@@ -53,7 +53,7 @@ def common_search(dbs_tier):
       if os.environ['DBS_SAMPLE'] != "Any" and line.find(os.environ['DBS_SAMPLE'])== -1: continue
       if line.find(os.environ['DBS_COND'])== -1: continue
       if line.find(dbs_tier)== -1: continue
-      result.append('file:'+line)
+      result.append(line)
       
   elif os.environ['DBS_STRATEGY'] == "castor":
   
