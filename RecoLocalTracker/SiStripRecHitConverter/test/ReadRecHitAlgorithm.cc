@@ -64,50 +64,51 @@ void ReadRecHitAlgorithm::run(const SiStripMatchedRecHit2DCollection* input)
 	  edm::LogInfo("ReadRecHit")<<"local position: "<<position.x()<<" "<<position.y()<<" "<<position.z()<<"\n"
 	  <<"local error: "<<error.xx()<<" "<<error.xy()<<" "<<error.yy();
 
-	  
-	  ProjectedSiStripRecHit2D projrechit(iter->monoHit()->localPosition() ,iter->monoHit()->localPositionError() , rechit.geographicalId(),iter->monoHit() );
-	  ProjectedSiStripRecHit2D projsrechit(iter->stereoHit()->localPosition() ,iter->stereoHit()->localPositionError() , rechit.geographicalId(),iter->stereoHit() );
+          auto m = iter->monoHit();
+          auto s = iter->stereoHit();
+	  ProjectedSiStripRecHit2D projrechit(m.localPosition() ,m.localPositionError() , rechit.geographicalId(), &m );
+	  ProjectedSiStripRecHit2D projsrechit(s.localPosition() ,s.localPositionError() , rechit.geographicalId(), &s );
 	  
 	  edm::LogVerbatim("ReadRecHit")<<"Checking shareinput\nALL:";
 	  
 	  edm::LogVerbatim("ReadRecHit")<<"Matched with its mono ---------->";
-	  if (iter->sharesInput(iter->monoHit(),TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+	  if (iter->sharesInput(&m,TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
 	  else edm::LogVerbatim("ReadRecHit")<<"PASSED!";
 
 	  edm::LogVerbatim("ReadRecHit")<<"Matched with its stereo ---------->";
-	  if (iter->sharesInput(iter->stereoHit(),TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+	  if (iter->sharesInput(&s,TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
 	  else edm::LogVerbatim("ReadRecHit")<<"PASSED!";
 
 	  edm::LogVerbatim("ReadRecHit")<<"Mono with its matched ---------->";
-	  if (iter->monoHit()->sharesInput(&rechit,TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+	  if (m.sharesInput(&rechit,TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
 	  else edm::LogVerbatim("ReadRecHit")<<"PASSED!";
 
 	  edm::LogVerbatim("ReadRecHit")<<"Stereo with its matched ---------->";
-	  if (iter->stereoHit()->sharesInput(&rechit,TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+	  if (s.sharesInput(&rechit,TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
 	  else edm::LogVerbatim("ReadRecHit")<<"PASSED!";
 
 	  edm::LogVerbatim("ReadRecHit")<<"Mono with itsself ---------->";
-	  if (iter->monoHit()->sharesInput(iter->monoHit(),TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+	  if (m.sharesInput(&m,TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
 	  else edm::LogVerbatim("ReadRecHit")<<"FAILED!";
 
 	  edm::LogVerbatim("ReadRecHit")<<"Stereo with itsself ---------->";
-	  if (iter->stereoHit()->sharesInput(iter->stereoHit(),TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+	  if (s.sharesInput(&s,TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
 	  else edm::LogVerbatim("ReadRecHit")<<"FAILED!";
 
 	  edm::LogVerbatim("ReadRecHit")<<"Mono with stereo ---------->";
-	  if (iter->monoHit()->sharesInput(iter->stereoHit(),TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+	  if (m.sharesInput(&s,TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
 	  else edm::LogVerbatim("ReadRecHit")<<"PASSED!";
 
 	  edm::LogVerbatim("ReadRecHit")<<"Stereo with mono ---------->";
-	  if (iter->stereoHit()->sharesInput(iter->monoHit(),TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+	  if (s.sharesInput(&m,TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
 	  else edm::LogVerbatim("ReadRecHit")<<"PASSED!";
   
        	  edm::LogVerbatim("ReadRecHit")<<"Mono with projected mono---------->";
-	  if (iter->monoHit()->sharesInput(&projrechit,TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+	  if (m.sharesInput(&projrechit,TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
 	  else edm::LogVerbatim("ReadRecHit")<<"FAILED!";
 
 	  edm::LogVerbatim("ReadRecHit")<<"Stereo with projected mono ---------->";
-	  if (iter->stereoHit()->sharesInput(&projrechit,TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+	  if (s.sharesInput(&projrechit,TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
 	  else edm::LogVerbatim("ReadRecHit")<<"PASSED!";
 
 	  edm::LogVerbatim("ReadRecHit")<<"Matched with projected mono ---------->";
@@ -115,11 +116,11 @@ void ReadRecHitAlgorithm::run(const SiStripMatchedRecHit2DCollection* input)
 	  else edm::LogVerbatim("ReadRecHit")<<"PASSED!";
 
 	  edm::LogVerbatim("ReadRecHit")<<"Projected mono with mono---------->";
-	  if (projrechit.sharesInput(iter->monoHit(),TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+	  if (projrechit.sharesInput(&m,TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
 	  else edm::LogVerbatim("ReadRecHit")<<"FAILED!";
 
 	  edm::LogVerbatim("ReadRecHit")<<"Projected mono with stereo ---------->";
-	  if (projrechit.sharesInput(iter->stereoHit(),TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+	  if (projrechit.sharesInput(&s,TrackingRecHit::all))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
 	  else edm::LogVerbatim("ReadRecHit")<<"PASSED!";
 
 	  edm::LogVerbatim("ReadRecHit")<<"Projected mono with matched ---------->";
@@ -141,43 +142,43 @@ void ReadRecHitAlgorithm::run(const SiStripMatchedRecHit2DCollection* input)
 	  edm::LogVerbatim("ReadRecHit")<<"Checking shareinput\nSOME:";
 	  
 	  edm::LogVerbatim("ReadRecHit")<<"Matched with its mono ---------->";
-	  if (iter->sharesInput(iter->monoHit(),TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+	  if (iter->sharesInput(&m,TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
 	  else edm::LogVerbatim("ReadRecHit")<<"FAILED!";
 
 	  edm::LogVerbatim("ReadRecHit")<<"Matched with its stereo ---------->";
-	  if (iter->sharesInput(iter->stereoHit(),TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+	  if (iter->sharesInput(&s,TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
 	  else edm::LogVerbatim("ReadRecHit")<<"FAILED!";
 
 	  edm::LogVerbatim("ReadRecHit")<<"Mono with its matched ---------->";
-	  if (iter->monoHit()->sharesInput(&rechit,TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+	  if (m.sharesInput(&rechit,TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
 	  else edm::LogVerbatim("ReadRecHit")<<"FAILED!";
 
 	  edm::LogVerbatim("ReadRecHit")<<"Stereo with its matched ---------->";
-	  if (iter->stereoHit()->sharesInput(&rechit,TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+	  if (s.sharesInput(&rechit,TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
 	  else edm::LogVerbatim("ReadRecHit")<<"FAILED!";
 
 	  edm::LogVerbatim("ReadRecHit")<<"Mono with itsself ---------->";
-	  if (iter->monoHit()->sharesInput(iter->monoHit(),TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+	  if (m.sharesInput(&m,TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
 	  else edm::LogVerbatim("ReadRecHit")<<"FAILED!";
 
 	  edm::LogVerbatim("ReadRecHit")<<"Stereo with itsself ---------->";
-	  if (iter->stereoHit()->sharesInput(iter->stereoHit(),TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+	  if (s.sharesInput(&s,TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
 	  else edm::LogVerbatim("ReadRecHit")<<"FAILED!";
 
 	  edm::LogVerbatim("ReadRecHit")<<"Mono with stereo ---------->";
-	  if (iter->monoHit()->sharesInput(iter->stereoHit(),TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+	  if (m.sharesInput(&s,TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
 	  else edm::LogVerbatim("ReadRecHit")<<"PASSED!";
 
 	  edm::LogVerbatim("ReadRecHit")<<"Stereo with mono ---------->";
-	  if (iter->stereoHit()->sharesInput(iter->monoHit(),TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+	  if (s.sharesInput(&m,TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
 	  else edm::LogVerbatim("ReadRecHit")<<"PASSED!";
   
        	  edm::LogVerbatim("ReadRecHit")<<"Mono with projected mono---------->";
-	  if (iter->monoHit()->sharesInput(&projrechit,TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+	  if (m.sharesInput(&projrechit,TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
 	  else edm::LogVerbatim("ReadRecHit")<<"FAILED!";
 
 	  edm::LogVerbatim("ReadRecHit")<<"Stereo with projected mono ---------->";
-	  if (iter->stereoHit()->sharesInput(&projrechit,TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+	  if (s.sharesInput(&projrechit,TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
 	  else edm::LogVerbatim("ReadRecHit")<<"PASSED!";
 
 	  edm::LogVerbatim("ReadRecHit")<<"Matched with projected mono ---------->";
@@ -185,11 +186,11 @@ void ReadRecHitAlgorithm::run(const SiStripMatchedRecHit2DCollection* input)
 	  else edm::LogVerbatim("ReadRecHit")<<"FAILED!";
 
 	  edm::LogVerbatim("ReadRecHit")<<"Projected mono with mono---------->";
-	  if (projrechit.sharesInput(iter->monoHit(),TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
+	  if (projrechit.sharesInput(&m,TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"PASSED!";
 	  else edm::LogVerbatim("ReadRecHit")<<"FAILED!";
 
 	  edm::LogVerbatim("ReadRecHit")<<"Projected mono with stereo ---------->";
-	  if (projrechit.sharesInput(iter->stereoHit(),TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
+	  if (projrechit.sharesInput(&s,TrackingRecHit::some))edm::LogVerbatim("ReadRecHit")<<"FAILED!";
 	  else edm::LogVerbatim("ReadRecHit")<<"PASSED!";
 
 	  edm::LogVerbatim("ReadRecHit")<<"Projected mono with matched ---------->";
