@@ -32,18 +32,18 @@ using namespace reco;
 	   stereo.trajectoryMeasurement = &(*it);
 	   mono.angleCosine = cosine; 
 	   stereo.angleCosine = cosine;
-	   const std::vector<uint8_t> &  amplitudes = matchedHit->monoHit()->cluster()->amplitudes(); 
+	   const std::vector<uint8_t> &  amplitudes = matchedHit->monoCluster().amplitudes(); 
 	   mono.charge = accumulate(amplitudes.begin(), amplitudes.end(), 0);
            mono.NSaturating =0;
            for(unsigned int i=0;i<amplitudes.size();i++){if(amplitudes[i]>=254)mono.NSaturating++;}
        
-	   const std::vector<uint8_t> & amplitudesSt = matchedHit->stereoHit()->cluster()->amplitudes();
+	   const std::vector<uint8_t> & amplitudesSt = matchedHit->stereoCluster().amplitudes();
 	   stereo.charge = accumulate(amplitudesSt.begin(), amplitudesSt.end(), 0);
            stereo.NSaturating =0;
            for(unsigned int i=0;i<amplitudes.size();i++){if(amplitudes[i]>=254)stereo.NSaturating++;}
    
-	   mono.detId= matchedHit->monoHit()->geographicalId();
-	   stereo.detId= matchedHit->stereoHit()->geographicalId();
+	   mono.detId= matchedHit->monoId();
+	   stereo.detId= matchedHit->stereoId();
 
 	   hits.push_back(mono);
 	   hits.push_back(stereo);
