@@ -15,7 +15,7 @@
 //         Created:  Thu May 31 14:09:02 CEST 2007
 //    Code Updates:  loic Quertenmont (querten)
 //         Created:  Thu May 10 14:09:02 CEST 2008
-// $Id: DeDxEstimatorProducer.cc,v 1.33 2011/10/20 09:47:54 querten Exp $
+// $Id: DeDxEstimatorProducer.cc,v 1.1 2011/11/18 16:00:05 querten Exp $
 //
 //
 
@@ -175,11 +175,11 @@ void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	   mono.angleCosine = cosine; 
 	   stereo.angleCosine = cosine;
 
-	   mono.charge = getCharge(DeDxTools::GetCluster(matchedHit->monoHit()),mono.NSaturating,matchedHit->monoHit()->geographicalId());
-           stereo.charge = getCharge(DeDxTools::GetCluster(matchedHit->stereoHit()),stereo.NSaturating,matchedHit->stereoHit()->geographicalId());
+	   mono.charge = getCharge(DeDxTools::GetCluster(matchedHit->monoHit()),mono.NSaturating,matchedHit->monoId());
+           stereo.charge = getCharge(DeDxTools::GetCluster(matchedHit->stereoHit()),stereo.NSaturating,matchedHit->stereoId());
 
-	   mono.detId= matchedHit->monoHit()->geographicalId();
-	   stereo.detId= matchedHit->stereoHit()->geographicalId();
+	   mono.detId= matchedHit->monoId();
+	   stereo.detId= matchedHit->stereoId();
 
            if(shapetest && !(DeDxTools::shapeSelection((DeDxTools::GetCluster(matchedHit->stereoHit()))->amplitudes()))) hits.push_back(stereo);
 	   if(shapetest && !(DeDxTools::shapeSelection((DeDxTools::GetCluster(matchedHit->  monoHit()))->amplitudes()))) hits.push_back(mono);

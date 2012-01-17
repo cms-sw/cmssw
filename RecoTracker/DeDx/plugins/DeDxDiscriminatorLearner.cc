@@ -167,8 +167,8 @@ void DeDxDiscriminatorLearner::algoAnalyze(const edm::Event& iEvent, const edm::
          if(sistripsimplehit){
              Learn((sistripsimplehit->cluster()).get(), trajState);
          }else if(sistripmatchedhit){
-             Learn((sistripmatchedhit->monoHit()  ->cluster()).get(),trajState);
-             Learn((sistripmatchedhit->stereoHit()->cluster()).get(),trajState);
+             Learn(&sistripmatchedhit->monoCluster(),trajState);
+             Learn(&sistripmatchedhit->stereoCluster(),trajState);
          }else if(sistripsimple1dhit){
              Learn((sistripsimple1dhit->cluster()).get(), trajState);
          }else{
