@@ -32,13 +32,13 @@ bool SiStripMatchedRecHit2D::sharesInput(TrackerSingleRecHit const & other) cons
 // it does not have components anymore...
 std::vector<const TrackingRecHit*>
 SiStripMatchedRecHit2D::recHits()const {
-  std::vector<const TrackingRecHit*> rechits();
+  std::vector<const TrackingRecHit*> rechits;
   return rechits;
 }
 
 std::vector<TrackingRecHit*>
 SiStripMatchedRecHit2D::recHits() {
-  std::vector<TrackingRecHit*> rechits();
+  std::vector<TrackingRecHit*> rechits;
   return rechits;
 }
 
