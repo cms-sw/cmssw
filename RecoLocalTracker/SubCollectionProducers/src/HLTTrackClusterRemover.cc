@@ -66,8 +66,7 @@ class HLTTrackClusterRemover : public edm::EDProducer {
         edm::ProductID pixelSourceProdID, stripSourceProdID; // ProdIDs refs must point to (for consistency tests)
 
         inline void process(const TrackingRecHit *hit, float chi2);
-        inline void process(const SiStripRecHit2D *hit2D, uint32_t subdet);
-        inline void process(const SiStripRecHit1D *hit1D, uint32_t subdet);
+        inline void process(const OmniClusterRef & cluRef, uint32_t subdet);
 
         template<typename T> 
         std::auto_ptr<edmNew::DetSetVector<T> >
@@ -212,23 +211,9 @@ HLTTrackClusterRemover::cleanup(const edmNew::DetSetVector<T> &oldClusters, cons
     return output;
 }
 
-
-void HLTTrackClusterRemover::process(const SiStripRecHit2D *hit, uint32_t subdet) {
-  SiStripRecHit2D::ClusterRegionalRef clusterReg = hit->cluster_regional();
-  if (clusterReg.id() != stripSourceProdID) throw cms::Exception("Inconsistent Data") <<
+void HLTTrackClusterRemover::process(OmniClusterRef const & clusterReg, uint32_t subdet) {
+   if (clusterReg.id() != stripSourceProdID) throw cms::Exception("Inconsistent Data") <<
     "HLTTrackClusterRemover: strip cluster ref from Product ID = " << clusterReg.id() <<
-    " does not match with source cluster collection (ID = " << stripSourceProdID << ")\n.";
-  if (collectedRegStrips_.size()<=clusterReg.key()){
-    edm::LogError("BadCollectionSize")<<collectedRegStrips_.size()<<" is smaller than "<<clusterReg.key();
-    assert(collectedRegStrips_.size()>clusterReg.key());
-  }
-  collectedRegStrips_[clusterReg.key()]=true;
-}
-
-void HLTTrackClusterRemover::process(const SiStripRecHit1D *hit, uint32_t subdet) {
-  SiStripRecHit2D::ClusterRegionalRef clusterReg = hit->cluster_regional();
-  if (clusterReg.id() != stripSourceProdID) throw cms::Exception("Inconsistent Data") << 
-    "HLTTrackClusterRemover: strip cluster ref from Product ID = " << clusterReg.id() << 
     " does not match with source cluster collection (ID = " << stripSourceProdID << ")\n.";
   if (collectedRegStrips_.size()<=clusterReg.key()){
     edm::LogError("BadCollectionSize")<<collectedRegStrips_.size()<<" is smaller than "<<clusterReg.key();
@@ -276,19 +261,19 @@ void HLTTrackClusterRemover::process(const TrackingRecHit *hit, float chi2) {
         if (hitType == typeid(SiStripRecHit2D)) {
             const SiStripRecHit2D *stripHit = static_cast<const SiStripRecHit2D *>(hit);
 //DBG//     cout << "Plain RecHit 2D: " << endl;
-            process(stripHit,subdet);}
+            process(stripHit->omniClusterRef(),subdet);}
 	else if (hitType == typeid(SiStripRecHit1D)) {
 	  const SiStripRecHit1D *hit1D = static_cast<const SiStripRecHit1D *>(hit);
-	  process(hit1D,subdet);
+	  process(hit1D->omniClusterRef(),subdet);
         } else if (hitType == typeid(SiStripMatchedRecHit2D)) {
             const SiStripMatchedRecHit2D *matchHit = static_cast<const SiStripMatchedRecHit2D *>(hit);
 //DBG//     cout << "Matched RecHit 2D: " << endl;
-            process(matchHit->monoHit(),subdet);
-            process(matchHit->stereoHit(),subdet);
+            process(matchHit->monoClusterRef(),subdet);
+            process(matchHit->stereoClusterRef(),subdet);
         } else if (hitType == typeid(ProjectedSiStripRecHit2D)) {
             const ProjectedSiStripRecHit2D *projHit = static_cast<const ProjectedSiStripRecHit2D *>(hit);
 //DBG//     cout << "Projected RecHit 2D: " << endl;
-            process(&projHit->originalHit(),subdet);
+            process(projHit->originalHit().omniClusterRef(),subdet);
         } else throw cms::Exception("NOT IMPLEMENTED") << "Don't know how to handle " << hitType.name() << " on detid " << detid.rawId() << "\n";
     }
 }
