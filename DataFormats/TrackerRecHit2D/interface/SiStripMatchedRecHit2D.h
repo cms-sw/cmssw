@@ -9,9 +9,10 @@ class SiStripMatchedRecHit2D : public BaseTrackerRecHit {
 
   SiStripMatchedRecHit2D(){}
   ~SiStripMatchedRecHit2D(){}
+
   SiStripMatchedRecHit2D( const LocalPoint& pos, const LocalError& err, const DetId& id , 
 			  const SiStripRecHit2D* rMono,const SiStripRecHit2D* rStereo):
-    BaseTrackerRecHit(pos, err, id, trackerHitRTTI::match), componentMono_(*rMono),componentStereo_(*rStereo){}
+    BaseTrackerRecHit(pos, err, id, trackerHitRTTI::match), clusterMono_(rMono->omniClusterRef()), clusterStereo_(rStereo->omniClusterRef()){}
 
   // by value, as they will not exists anymore...
   SiStripRecHit2D  stereoHit() const { return SiStripRecHit2D(stereoId(),stereoClusterRef()) ;}
@@ -24,11 +25,11 @@ class SiStripMatchedRecHit2D : public BaseTrackerRecHit {
   virtual OmniClusterRef const & firstClusterRef() const { return monoClusterRef();}
 
 
-  OmniClusterRef const & stereoClusterRef() const { return componentStereo_.omniCluster();}
-  OmniClusterRef const & monoClusterRef() const { return componentMono_.omniCluster();}
+  OmniClusterRef const & stereoClusterRef() const { return clusterStereo_;}
+  OmniClusterRef const & monoClusterRef() const { return clusterMono_;}
   // Non const variants needed for cluster re-keying 
-  OmniClusterRef & stereoClusterRef()  { return componentStereo_.omniCluster();}
-  OmniClusterRef  & monoClusterRef()  { return componentMono_.omniCluster();}
+  OmniClusterRef & stereoClusterRef()  { return clusterStereo_;}
+  OmniClusterRef  & monoClusterRef()  { return clusterMono_;}
   
   SiStripCluster const & stereoCluster() const { 
     return stereoClusterRef().stripCluster();
@@ -55,7 +56,7 @@ class SiStripMatchedRecHit2D : public BaseTrackerRecHit {
 
     
  private:
-  SiStripRecHit2D componentMono_, componentStereo_;
+   OmniClusterRef clusterMono_, clusterStereo_;
 };
 
 
