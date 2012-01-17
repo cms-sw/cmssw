@@ -323,25 +323,11 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     //math::XYZVector momentum = direction.unit() * photonEnergy ;
     math::XYZVector momentum = direction.unit() ;
 
-    // Create dummy candidate with unit momentum and zero energy
+    // Create dummy candidate with unit momentum and zero energy to allow setting of all variables. The energy is set for last.
     math::XYZTLorentzVectorD p4(momentum.x(), momentum.y(), momentum.z(), photonEnergy );
     reco::Photon newCandidate(p4, caloPosition, coreRef, vtx);
     //std::cout << " standard p4 before " << newCandidate.p4() << " energy " << newCandidate.energy() <<  std::endl;
     //std::cout << " type " <<newCandidate.getCandidateP4type() <<  " standard p4 after " << newCandidate.p4() << " energy " << newCandidate.energy() << std::endl;
-
-    /// get ecal photon specific corrected energy 
-    /// plus values from regressions     and store them in the Photon
-    // Photon candidate takes by default (set in photons_cfi.py)  a 4-momentum derived from the ecal photon-specific corrections. 
-    thePhotonEnergyCorrector_->calculate(evt, newCandidate, subdet, vertexCollection,es);
-   
-
-    if ( candidateP4type_ == "fromEcalEnergy") {
-      newCandidate.setP4( newCandidate.p4(reco::Photon::ecal_photons) );
-    } else if ( candidateP4type_ == "fromRegression") {
-      newCandidate.setP4( newCandidate.p4(reco::Photon::regression1) );
-    }
-
-    //       std::cout << " final p4 " << newCandidate.p4() << " energy " << newCandidate.energy() <<  std::endl;
 
 
 
@@ -367,6 +353,19 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     showerShape.hcalDepth1OverEcalBc = hcalDepth1OverEcalBc;
     showerShape.hcalDepth2OverEcalBc = hcalDepth2OverEcalBc;
     newCandidate.setShowerShapeVariables ( showerShape ); 
+
+    /// get ecal photon specific corrected energy 
+    /// plus values from regressions     and store them in the Photon
+    // Photon candidate takes by default (set in photons_cfi.py)  a 4-momentum derived from the ecal photon-specific corrections. 
+    thePhotonEnergyCorrector_->calculate(evt, newCandidate, subdet, vertexCollection,es);
+    if ( candidateP4type_ == "fromEcalEnergy") {
+      newCandidate.setP4( newCandidate.p4(reco::Photon::ecal_photons) );
+    } else if ( candidateP4type_ == "fromRegression") {
+      newCandidate.setP4( newCandidate.p4(reco::Photon::regression1) );
+    }
+
+    //       std::cout << " final p4 " << newCandidate.p4() << " energy " << newCandidate.energy() <<  std::endl;
+
 
     // std::cout << " PhotonProducer from candidate HoE with towers in a cone " << newCandidate.hadronicOverEm()  << "  " <<  newCandidate.hadronicDepth1OverEm()  << " " <<  newCandidate.hadronicDepth2OverEm()  << std::endl;
     //    std::cout << " PhotonProducer from candidate  of HoE with towers behind the BCs " <<  newCandidate.hadTowOverEm()  << "  " << newCandidate.hadTowDepth1OverEm() << " " << newCandidate.hadTowDepth2OverEm() << std::endl;
