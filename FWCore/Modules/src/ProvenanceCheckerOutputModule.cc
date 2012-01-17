@@ -109,22 +109,29 @@ namespace edm {
       std::set<BranchID> missingFromMapper;
       std::set<BranchID> missingProductProvenance;
 
+      std::map<BranchID, boost::shared_ptr<Group> > idToGroup;
       for(EventPrincipal::const_iterator it = e.begin(), itEnd = e.end();
           it != itEnd;
           ++it) {
          if(*it) {
             BranchID branchID = (*it)->branchDescription().branchID();
+            idToGroup[branchID] = (*it);
             if((*it)->productUnavailable()) {
                //This call seems to have a side effect of filling the 'ProductProvenance' in the Group
                OutputHandle const oh = e.getForOutput(branchID, false);
 
+               bool cannotFindProductProvenance=false;
                if(!(*it)->productProvenancePtr()) {
                   missingProductProvenance.insert(branchID);
-                  continue;
+                  cannotFindProductProvenance=true;
                }
                ProductProvenance const* pInfo = mapperPtr->branchIDToProvenance(branchID);
                if(!pInfo) {
                   missingFromMapper.insert(branchID);
+                  continue;
+               }
+               if(cannotFindProductProvenance) {
+                  continue;
                }
                markAncestors(*((*it)->productProvenancePtr()), *mapperPtr, seenParentInPrincipal, missingFromMapper);
             }
@@ -160,7 +167,7 @@ namespace edm {
          for(std::set<BranchID>::iterator it = missingFromMapper.begin(), itEnd = missingFromMapper.end();
              it != itEnd;
              ++it) {
-            LogProblem("ProvenanceChecker") << *it;
+            LogProblem("ProvenanceChecker") << *it<<" "<<idToGroup[*it]->branchDescription();
          }
       }
       if(missingFromPrincipal.size()) {
@@ -177,7 +184,7 @@ namespace edm {
          for(std::set<BranchID>::iterator it = missingProductProvenance.begin(), itEnd = missingProductProvenance.end();
              it != itEnd;
              ++it) {
-            LogProblem("ProvenanceChecker") << *it;
+            LogProblem("ProvenanceChecker") << *it<<" "<<idToGroup[*it]->branchDescription();
          }
       }
 
