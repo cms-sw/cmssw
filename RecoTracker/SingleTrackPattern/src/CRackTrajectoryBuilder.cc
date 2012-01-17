@@ -355,8 +355,10 @@ CRackTrajectoryBuilder::SortHits(const SiStripRecHit2DCollection &collstereo,
 
    if (matchedhit)
      {
-       float_t yGlobRPhi   = RHBuilder->build( (matchedhit->monoHit()))->globalPosition().y();
-       float_t yGlobStereo = RHBuilder->build( (matchedhit->stereoHit()))->globalPosition().y();
+       auto m = matchedhit->monoHit();
+       auto s = matchedhit->stereoHit();
+       float_t yGlobRPhi   = RHBuilder->build(&m)->globalPosition().y();
+       float_t yGlobStereo = RHBuilder->build(&s)->globalPosition().y();
 
        if (debug_info) cout << "Rphi ..." << yGlobRPhi << endl;
        if (debug_info) cout << "Stereo ..." << yGlobStereo << endl;
@@ -368,8 +370,8 @@ CRackTrajectoryBuilder::SortHits(const SiStripRecHit2DCollection &collstereo,
        if ( yGlobRPhi   > yMax ) yMax = yGlobRPhi;
 
        detIDSeedMatched.push_back (  matchedhit->geographicalId().rawId() );
-       detIDSeedRphi.push_back ( matchedhit->monoHit()->geographicalId().rawId() );
-       detIDSeedStereo.push_back ( matchedhit->stereoHit()->geographicalId().rawId() );
+       detIDSeedRphi.push_back ( m.geographicalId().rawId() );
+       detIDSeedStereo.push_back ( s.geographicalId().rawId() );
 
       if (bAddSeedHits)
 	{
@@ -382,13 +384,13 @@ CRackTrajectoryBuilder::SortHits(const SiStripRecHit2DCollection &collstereo,
 	    {
 	      if ( ( (yGlobRPhi > yGlobStereo ) && seed_plus ) || ((yGlobRPhi < yGlobStereo ) && !seed_plus ))  
 		{
-		  hits.push_back((RHBuilder->build(matchedhit->monoHit())));
-		  hits.push_back((RHBuilder->build(matchedhit->stereoHit())));
+		  hits.push_back((RHBuilder->build(&m)));
+		  hits.push_back((RHBuilder->build(&s)));
 		}
 	      else
 		{
-		  hits.push_back((RHBuilder->build(matchedhit->stereoHit())));     
-		  hits.push_back((RHBuilder->build(matchedhit->monoHit())));
+		  hits.push_back((RHBuilder->build(&s)));     
+		  hits.push_back((RHBuilder->build(&m)));
 		  
 		}
 	    }
@@ -470,8 +472,8 @@ CRackTrajectoryBuilder::SortHits(const SiStripRecHit2DCollection &collstereo,
 	   if ((&collmatched)!=0)
 	     for(istripm=collmatched.data().begin();istripm!=collmatched.data().end();istripm++)
 	       {
-		 //		 if ( isDifferentStripReHit2D ( *istrip, * (istripm->stereoHit() ) ) == false)
-		   if ( isDifferentStripReHit2D ( *istrip, * (istripm->monoHit() ) ) == false)
+		 //		 if ( isDifferentStripReHit2D ( *istrip, (istripm->stereoHit() ) ) == false)
+		   if ( isDifferentStripReHit2D ( *istrip, (istripm->monoHit() ) ) == false)
 		   {
 		     hitIsUnique = false;
 		     edm::LogInfo("CRackTrajectoryBuilder::SortHits")  << "rphi hit is in matched hits; y: " << ych << endl;
