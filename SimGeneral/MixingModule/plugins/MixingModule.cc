@@ -306,7 +306,20 @@ namespace edm
     
     produces<CrossingFramePlaybackInfoExtended>();
   }
- 
+
+  void MixingModule::reload(const edm::EventSetup & setup){
+    //change the basic parameters.
+    edm::ESHandle<MixingModuleConfig> config;   
+    setup.get<MixingRcd>().get(config);                       
+    minBunch_=config->minBunch();                
+    maxBunch_=config->maxBunch();               
+    bunchSpace_=config->bunchSpace();            
+
+    //propagate to change the workers
+    for (unsigned int ii=0;ii<workersObjects_.size();ii++){
+      workersObjects_[ii]->reload(setup);
+    }
+  }
 
   void MixingModule::branchesActivate(const std::string &friendlyName, const std::string &subdet, InputTag &tag, std::string &label) {
        
