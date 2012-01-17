@@ -446,13 +446,13 @@ bool AlignmentTrackSelector::isOkCharge(const TrackingRecHit* hit) const
   if (type == typeid(SiStripRecHit2D)) {
     const SiStripRecHit2D *stripHit2D = dynamic_cast<const SiStripRecHit2D*>(hit);
     if (stripHit2D) {
-      return this->isOkChargeStripHit(stripHit2D);
+      return this->isOkChargeStripHit(*stripHit2D);
     }
   }
   else if(type == typeid(SiStripRecHit1D)){
     const SiStripRecHit1D *stripHit1D = dynamic_cast<const SiStripRecHit1D*>(hit);
     if (stripHit1D) {
-      return this->isOkChargeStripHit(stripHit1D);
+      return this->isOkChargeStripHit(*stripHit1D);
     } 
   }
 
@@ -467,7 +467,7 @@ bool AlignmentTrackSelector::isOkCharge(const TrackingRecHit* hit) const
     // or projected (should not occur anymore due to hit splitting since 20X):
     const ProjectedSiStripRecHit2D *projHit = dynamic_cast<const ProjectedSiStripRecHit2D*>(hit);
     if (projHit) {
-      return this->isOkChargeStripHit(&projHit->originalHit());
+      return this->isOkChargeStripHit(projHit->originalHit());
     }
   }
   else{
@@ -491,11 +491,11 @@ bool AlignmentTrackSelector::isOkCharge(const TrackingRecHit* hit) const
 
 //-----------------------------------------------------------------------------
 
-bool AlignmentTrackSelector::isOkChargeStripHit(const SiStripRecHit2D *siStripRecHit2D) const
+bool AlignmentTrackSelector::isOkChargeStripHit(const SiStripRecHit2D & siStripRecHit2D) const
 {
   double charge = 0.;
 
-  SiStripRecHit2D::ClusterRef cluster(siStripRecHit2D->cluster());
+  SiStripRecHit2D::ClusterRef cluster(siStripRecHit2D.cluster());
   const std::vector<uint8_t> &amplitudes = cluster->amplitudes();
 
   for (size_t ia = 0; ia < amplitudes.size(); ++ia) {
@@ -507,11 +507,11 @@ bool AlignmentTrackSelector::isOkChargeStripHit(const SiStripRecHit2D *siStripRe
 
 //-----------------------------------------------------------------------------
 
-bool AlignmentTrackSelector::isOkChargeStripHit(const SiStripRecHit1D *siStripRecHit1D) const
+bool AlignmentTrackSelector::isOkChargeStripHit(const SiStripRecHit1D & siStripRecHit1D) const
 {
   double charge = 0.;
 
-  SiStripRecHit1D::ClusterRef cluster(siStripRecHit1D->cluster());
+  SiStripRecHit1D::ClusterRef cluster(siStripRecHit1D.cluster());
   const std::vector<uint8_t> &amplitudes = cluster->amplitudes();
 
   for (size_t ia = 0; ia < amplitudes.size(); ++ia) {
