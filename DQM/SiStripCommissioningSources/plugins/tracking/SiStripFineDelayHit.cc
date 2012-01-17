@@ -13,7 +13,7 @@
 //
 // Original Author:  Christophe DELAERE
 //         Created:  Fri Nov 17 10:52:42 CET 2006
-// $Id: SiStripFineDelayHit.cc,v 1.15 2011/04/11 14:22:01 lowette Exp $
+// $Id: SiStripFineDelayHit.cc,v 1.16 2011/05/20 17:17:25 wmtan Exp $
 //
 //
 
@@ -241,6 +241,8 @@ bool SiStripFineDelayHit::rechit(reco::Track* tk,uint32_t det_id)
   return false;
 }
 
+// VI January 2012: FIXME
+// do not understand what is going on here: each hit has a cluster: by definition will be the closest!
 std::pair<const SiStripCluster*,double> SiStripFineDelayHit::closestCluster(const TrackerGeometry& tracker,const reco::Track* tk,const uint32_t& det_id ,const edmNew::DetSetVector<SiStripCluster>& clusters, const edm::DetSetVector<SiStripDigi>& hits)
 {
   std::pair<const SiStripCluster*,double> result(NULL,0.);
@@ -260,6 +262,7 @@ std::pair<const SiStripCluster*,double> SiStripFineDelayHit::closestCluster(cons
       nstrips = (dynamic_cast<const StripTopology*>(&(gdu->topology())))->nstrips();
       break;
     }
+    /* FIXME: local position is not there anymore...
     //handle stereo part of matched hits
     //one could try to cast to SiStripMatchedRecHit2D but it is faster to look at the detid
     else if((det_id - (*it)->geographicalId().rawId())==1) {
@@ -292,6 +295,7 @@ std::pair<const SiStripCluster*,double> SiStripFineDelayHit::closestCluster(cons
       nstrips = (dynamic_cast<const StripTopology*>(&(gdu->topology())))->nstrips();
       break;
     }
+    */
   }
   LogDebug("closestCluster") << " hit strip = " << hitStrip;
   if(hitStrip<0) return result;

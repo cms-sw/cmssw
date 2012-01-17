@@ -65,30 +65,30 @@ std::vector<std::pair< std::pair<DetId, LocalPoint> ,float> > SiStripFineDelayTL
 	GlobalVector gtrkdir=gdet->toGlobal(trackdirection);
 	// trackdirection on mono det
 	// this the pointer to the mono hit of a matched hit 
-	const SiStripRecHit2D *monohit=matchedhit->monoHit();
+	const SiStripRecHit2D monohit=matchedhit->monoHit();
 	const GeomDetUnit * monodet=gdet->monoDet();
 	LocalVector monotkdir=monodet->toLocal(gtrkdir);
 	if(monotkdir.z()!=0){
 	  // the local angle (mono)
           float localpitch = ((StripTopology*)(&monodet->topology()))->localPitch(tsos.localPosition());
-          float thickness = ((((((monohit->geographicalId())>>25)&0x7f)==0xd)||
-	                     ((((monohit->geographicalId())>>25)&0x7f)==0xe))&&
-			           ((((monohit->geographicalId())>>5)&0x7)>4)) ? 0.0500 : 0.0320;
+          float thickness = ((((((monohit.geographicalId())>>25)&0x7f)==0xd)||
+	                     ((((monohit.geographicalId())>>25)&0x7f)==0xe))&&
+			           ((((monohit.geographicalId())>>5)&0x7)>4)) ? 0.0500 : 0.0320;
           float angle = computeAngleCorr(monotkdir, localpitch, thickness);
-	  hitangleassociation.push_back(make_pair(make_pair(monohit->geographicalId(),monohit->localPosition()), angle)); 
+	  hitangleassociation.push_back(make_pair(make_pair(monohit.geographicalId(),monohit.localPosition()), angle)); 
 	  // trackdirection on stereo det
 	  // this the pointer to the stereo hit of a matched hit 
-	  const SiStripRecHit2D *stereohit=matchedhit->stereoHit();
+	  const SiStripRecHit2D stereohit=matchedhit->stereoHit();
 	  const GeomDetUnit * stereodet=gdet->stereoDet(); 
 	  LocalVector stereotkdir=stereodet->toLocal(gtrkdir);
 	  if(stereotkdir.z()!=0){
 	    // the local angle (stereo)
             float localpitch = ((StripTopology*)(&stereodet->topology()))->localPitch(tsos.localPosition());
-            float thickness = ((((((stereohit->geographicalId())>>25)&0x7f)==0xd)||
-	                       ((((stereohit->geographicalId())>>25)&0x7f)==0xe))&&
-			             ((((stereohit->geographicalId())>>5)&0x7)>4)) ? 0.0500 : 0.0320;
+            float thickness = ((((((stereohit.geographicalId())>>25)&0x7f)==0xd)||
+	                       ((((stereohit.geographicalId())>>25)&0x7f)==0xe))&&
+			             ((((stereohit.geographicalId())>>5)&0x7)>4)) ? 0.0500 : 0.0320;
             float angle = computeAngleCorr(stereotkdir, localpitch, thickness);
- 	    hitangleassociation.push_back(make_pair(make_pair(stereohit->geographicalId(),stereohit->localPosition()), angle)); 
+ 	    hitangleassociation.push_back(make_pair(make_pair(stereohit.geographicalId(),stereohit.localPosition()), angle)); 
 	  }
 	}
     }
