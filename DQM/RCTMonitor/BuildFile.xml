@@ -9,5 +9,3 @@
 <use   name="DataFormats/HcalDigi"/>
 <use   name="root"/>
 <flags   EDM_PLUGIN="1"/>
-<export>
-</export>
