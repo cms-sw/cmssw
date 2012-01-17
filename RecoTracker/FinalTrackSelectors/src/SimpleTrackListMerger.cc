@@ -7,9 +7,9 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: stenson $
-// $Date: 2010/05/03 23:47:08 $
-// $Revision: 1.26 $
+// $Author: innocent $
+// $Date: 2010/12/14 15:03:08 $
+// $Revision: 1.27 $
 //
 
 #include <memory>
@@ -42,7 +42,7 @@
 
 namespace cms
 {
-  
+  // VI January 2012   to be migrated to omnicluster (or firstCluster)
   edm::ProductID clusterProduct( const TrackingRecHit *hit){
     edm::ProductID pID;
     //cast it into the proper class	and find productID
@@ -58,7 +58,7 @@ namespace cms
 	pID=reinterpret_cast<const SiStripRecHit1D *>(hit)->cluster().id();	
       } else if (type == typeid(SiStripMatchedRecHit2D)) {
 	const SiStripMatchedRecHit2D *mhit = reinterpret_cast<const SiStripMatchedRecHit2D *>(hit);
-	pID=mhit->monoHit()->cluster().id();
+	pID=mhit->monoClusterRef().id();
       } else if (type == typeid(ProjectedSiStripRecHit2D)) {
 	const ProjectedSiStripRecHit2D *phit = reinterpret_cast<const ProjectedSiStripRecHit2D *>(hit);
 	pID=(&phit->originalHit())->cluster().id();
