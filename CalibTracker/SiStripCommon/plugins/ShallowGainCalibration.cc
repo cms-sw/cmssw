@@ -76,11 +76,11 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
             if(!sistripmatchedhit && h==1){
 	       continue;
             }else if(sistripmatchedhit  && h==0){
-               Cluster = (sistripmatchedhit->monoHit()  ->cluster()).get();
-	       DetId = sistripmatchedhit->monoHit()->geographicalId().rawId();
+               Cluster = &sistripmatchedhit->monoCluster();
+	       DetId = sistripmatchedhit->monoId();
             }else if(sistripmatchedhit  && h==1){
-               Cluster = (sistripmatchedhit->stereoHit()->cluster()).get();
-	       DetId = sistripmatchedhit->stereoHit()->geographicalId().rawId();
+               Cluster = &sistripmatchedhit->stereoCluster();;
+	       DetId = sistripmatchedhit->stereoId();
             }else if(sistripsimplehit){
                Cluster = (sistripsimplehit->cluster()).get();
 	       DetId = sistripsimplehit->geographicalId().rawId();

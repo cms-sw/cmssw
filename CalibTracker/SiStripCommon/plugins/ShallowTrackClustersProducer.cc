@@ -133,8 +133,8 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       for(unsigned h=0; h<2; h++) {
 	const SiStripCluster* cluster_ptr;
 	if(!matchedhit && h==1) continue; else 
-	if( matchedhit && h==0) cluster_ptr = (matchedhit->monoHit()  ->cluster()).get(); else 
-	if( matchedhit && h==1) cluster_ptr = (matchedhit->stereoHit()->cluster()).get(); else 
+	if( matchedhit && h==0) cluster_ptr = &matchedhit->monoCluster(); else 
+	if( matchedhit && h==1) cluster_ptr = &matchedhit->stereoCluster(); else 
 	if(hit2D) cluster_ptr = (hit2D->cluster()).get(); else 
 	if(hit1D) cluster_ptr = (hit1D->cluster()).get(); 
 	else continue;
