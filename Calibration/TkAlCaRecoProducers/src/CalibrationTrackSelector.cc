@@ -261,17 +261,15 @@ bool CalibrationTrackSelector::isOkCharge(const TrackingRecHit* therechit) const
   const ProjectedSiStripRecHit2D* unmatchedhit = dynamic_cast<const ProjectedSiStripRecHit2D*>(therechit);
   
   if (matchedhit) {  
-    const SiStripRecHit2D *monohit=matchedhit->monoHit();    
-    const SiStripCluster* monocluster = &*(monohit->cluster());
-    const std::vector<uint16_t> amplitudesmono( monocluster->amplitudes().begin(),
-						monocluster->amplitudes().end());
+    const SiStripCluster & monocluster = matchedhit->monoCluster();
+    const std::vector<uint16_t> amplitudesmono( monocluster.amplitudes().begin(),
+						monocluster.amplitudes().end());
     for(size_t ia=0; ia<amplitudesmono.size();++ia)
       { charge1+=amplitudesmono[ia];} 
     
-    const SiStripRecHit2D *stereohit=matchedhit->stereoHit();   
-    const SiStripCluster* stereocluster = &*(stereohit->cluster());
-    const std::vector<uint16_t> amplitudesstereo( stereocluster->amplitudes().begin(),
-						  stereocluster->amplitudes().end());
+    const SiStripCluster & stereocluster = matchedhit->stereoCluster();
+    const std::vector<uint16_t> amplitudesstereo( stereocluster.amplitudes().begin(),
+						  stereocluster.amplitudes().end());
     for(size_t ia=0; ia<amplitudesstereo.size();++ia)
       {charge2+=amplitudesstereo[ia];}
     // std::cout << "charge1 = " << charge1 << "\n";
