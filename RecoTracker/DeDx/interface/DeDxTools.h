@@ -24,11 +24,11 @@ namespace DeDxTools  {
     int   NSaturating;
   };
 
-   const SiStripCluster* GetCluster(const SiStripRecHit2D* hit);
-   const SiStripCluster* GetCluster(const SiStripRecHit1D* hit);
-   void   trajectoryRawHits(const edm::Ref<std::vector<Trajectory> >& trajectory, std::vector<RawHits>& hits, bool usePixel, bool useStrip);
-   double genericAverage   (const reco::DeDxHitCollection &, float expo = 1.);
-   bool shapeSelection(const std::vector<uint8_t> & ampls);
+  inline const SiStripCluster* GetCluster(const TrackerSingleRecHit * hit) { return &hit->stripCluster();}
+  inline const SiStripCluster* GetCluster(const TrackerSingleRecHit & hit) {return &hit.stripCluster();}
+  void   trajectoryRawHits(const edm::Ref<std::vector<Trajectory> >& trajectory, std::vector<RawHits>& hits, bool usePixel, bool useStrip);
+  double genericAverage   (const reco::DeDxHitCollection &, float expo = 1.);
+  bool shapeSelection(const std::vector<uint8_t> & ampls);
 }
 
 #endif

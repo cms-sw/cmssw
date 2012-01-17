@@ -6,20 +6,6 @@ namespace DeDxTools {
 using namespace std;
 using namespace reco;
 
-
-   const SiStripCluster* GetCluster(const SiStripRecHit2D* hit){
-     if(hit->cluster         ().isNonnull())return hit->cluster().get();
-     if(hit->cluster_regional().isNonnull())return hit->cluster_regional().get();
-     return NULL;
-   }
-
-   const SiStripCluster* GetCluster(const SiStripRecHit1D* hit){
-     if(hit->cluster         ().isNonnull())return hit->cluster().get();
-     if(hit->cluster_regional().isNonnull())return hit->cluster_regional().get();
-     return NULL;
-   }
-
-
                    
   void trajectoryRawHits(const edm::Ref<std::vector<Trajectory> >& trajectory, vector<RawHits>& hits, bool usePixel, bool useStrip)
   {
