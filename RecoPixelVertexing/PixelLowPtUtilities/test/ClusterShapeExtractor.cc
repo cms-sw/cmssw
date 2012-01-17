@@ -1,3 +1,5 @@
+// VI January 2012: needs to be migrated to use cluster directly
+
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -343,7 +345,8 @@ void ClusterShapeExtractor::processMatchedRecHits
   (const SiStripMatchedRecHit2DCollection::DataContainer * recHits)
 {
   map<pair<unsigned int, float>, const SiStripRecHit2D *> simHitMap;
-
+  // VI very very quick fix
+  std::vector<SiStripRecHit2D> cache;
   PSimHit simHit;
   pair<unsigned int, float> key;
 
@@ -352,7 +355,8 @@ void ClusterShapeExtractor::processMatchedRecHits
   for(  SiStripMatchedRecHit2DCollection::DataContainer::const_iterator
         matched = recHits->begin(); matched!= recHits->end(); matched++)
   {
-    recHit = matched->monoHit();
+    cache.push_back(matched->monoHit());
+    recHit = &cache.back();
     if(checkSimHits(*recHit, simHit, key))
     {
       // Fill map
@@ -363,8 +367,8 @@ void ClusterShapeExtractor::processMatchedRecHits
            simHitMap[key]->cluster()->amplitudes().size()) 
            simHitMap[key] = &(*recHit);
     }
-
-    recHit = matched->stereoHit();
+    cache.push_back(matched->stereoHit());
+    recHit = &cache.back();
     if(checkSimHits(*recHit, simHit, key))
     {
       // Fill map
@@ -381,20 +385,20 @@ void ClusterShapeExtractor::processMatchedRecHits
   for(  SiStripMatchedRecHit2DCollection::DataContainer::const_iterator 
         matched = recHits->begin(); matched!= recHits->end(); matched++)
   {
-    recHit = matched->monoHit();
-    if(checkSimHits(*recHit, simHit, key))
+    auto recHit = matched->monoHit();
+    if(checkSimHits(recHit, simHit, key))
     {
       // Check whether the present rechit is the largest
-      if(&(*recHit) == simHitMap[key]) 
-        processSim(*recHit, simHit, hssc);
+      if(recHit.omniCluster() == simHitMap[key]->omniCluster()) 
+        processSim(recHit, simHit, hssc);
     }
 
     recHit = matched->stereoHit();
-    if(checkSimHits(*recHit, simHit, key))
+    if(checkSimHits(recHit, simHit, key))
     {
       // Check whether the present rechit is the largest
-      if(&(*recHit) == simHitMap[key]) 
-        processSim(*recHit, simHit, hssc);
+     if(recHit.omniCluster() == simHitMap[key]->omniCluster())
+        processSim(recHit, simHit, hssc);
     }
   }
 
@@ -496,8 +500,8 @@ void ClusterShapeExtractor::analyzeRecTracks
 
         if(stripMatchedRecHit != 0)
         {
-          processRec(*(stripMatchedRecHit->monoHit())  , ldir, hrsc);
-          processRec(*(stripMatchedRecHit->stereoHit()), ldir, hrsc);
+          processRec(stripMatchedRecHit->monoHit(), ldir, hrsc);
+          processRec(stripMatchedRecHit->stereoHit(), ldir, hrsc);
         }
 
         if(stripProjectedRecHit != 0)

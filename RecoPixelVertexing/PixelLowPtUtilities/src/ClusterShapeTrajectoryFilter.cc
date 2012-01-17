@@ -1,3 +1,6 @@
+// VI January 2012: needs to be	migrated to use	cluster	directly
+
+
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeTrajectoryFilter.h"
 
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeHitFilter.h"
@@ -69,8 +72,8 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
 
           if(recHit != 0)
           { 
-            return (theFilter->isCompatible(*(recHit->monoHit())  , gdir) &&
-                    theFilter->isCompatible(*(recHit->stereoHit()), gdir));
+            return (theFilter->isCompatible(recHit->monoHit()  , gdir) &&
+                    theFilter->isCompatible(recHit->stereoHit(), gdir));
           }
         }
         else
@@ -140,14 +143,14 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
 
           if(recHit != 0)
           { 
-            if(! theFilter->isCompatible(*(recHit->monoHit()  ), gdir))
+            if(! theFilter->isCompatible(recHit->monoHit(), gdir))
             {
               LogTrace("TrajectFilter")
                << "  [TrajectFilter] fail strip matched 1st";
               return false;
             }
 
-            if(! theFilter->isCompatible(*(recHit->stereoHit()), gdir))
+            if(! theFilter->isCompatible(recHit->stereoHit(), gdir))
             {
               LogTrace("TrajectFilter")
                 << "  [TrajectFilter] fail strip matched 2nd";
