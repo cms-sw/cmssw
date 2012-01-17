@@ -61,7 +61,28 @@ process:{
  isPhysicsSample = [0]; #Must be an int type
  names = ["minbias"];
  fnames = ["openhlt_*.root"];
- paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r180250__SingleMu_Run2011B-PromptReco-v1__20111129_1403/"];
+
+##  paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r180250__BTag_Run2011B-PromptReco-v1__20111129_1403/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r180250__Commissioning_Run2011B-PromptReco-v1__20111129_1403/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r180250__Cosmics_Run2011B-PromptReco-v1__20111129_1403/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r180250__DoubleElectron_Run2011B-PromptReco-v1__20111129_1403/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r180250__DoubleMu_Run2011B-PromptReco-v1__20111129_1403/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r180250__ElectronHad_Run2011B-PromptReco-v1__20111129_1403/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r180250__HT_Run2011B-PromptReco-v1__20111129_1403/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r180250__Jet_Run2011B-PromptReco-v1__20111129_1403/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r180250__MinimumBias_Run2011B-PromptReco-v1__20111129_1404/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r180250__MET_Run2011B-PromptReco-v1__20111129_1403/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r180250__MuOnia_Run2011B-PromptReco-v1__20111129_1404/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r180250__MultiJet_Run2011B-PromptReco-v1__20111129_1403/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r180250__MuEG_Run2011B-PromptReco-v1__20111129_1403/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r180250__MuHad_Run2011B-PromptReco-v1__20111129_1404/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r180250__Photon_Run2011B-PromptReco-v1__20111129_1403/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r180250__PhotonHad_Run2011B-PromptReco-v1__20111129_1403/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r180250__SingleElectron_Run2011B-PromptReco-v1__20111129_1403/"];
+paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r180250__SingleMu_Run2011B-PromptReco-v1__20111129_1403/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r180250__Tau_Run2011B-PromptReco-v1__20111129_1403/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r180250__TauPlusX_Run2011B-PromptReco-v1__20111129_1404/"];
+
 
  doMuonCuts = [false];
  doElecCuts = [false];
