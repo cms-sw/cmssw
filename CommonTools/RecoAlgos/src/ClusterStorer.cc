@@ -38,8 +38,8 @@ namespace helper {
     } else if (hit_type == typeid(SiStripMatchedRecHit2D)) {      
       //std::cout << "|   It is a SiStripMatchedRecHit2D hit !!" << std::endl;
       SiStripMatchedRecHit2D &mhit = static_cast<SiStripMatchedRecHit2D&>(newHit);
-      stripClusterRecords_.push_back(StripClusterHitRecord(*mhit.monoHit(), hits, index));
-      stripClusterRecords_.push_back(StripClusterHitRecord(*mhit.stereoHit(), hits, index));
+      stripClusterRecords_.push_back(StripClusterHitRecord(mhit.monoHit(), hits, index));
+      stripClusterRecords_.push_back(StripClusterHitRecord(mhit.stereoHit(), hits, index));
     } else if (hit_type == typeid(ProjectedSiStripRecHit2D)) {
       //std::cout << "|   It is a ProjectedSiStripRecHit2D hit !!" << std::endl;
       ProjectedSiStripRecHit2D &phit = static_cast<ProjectedSiStripRecHit2D&>(newHit);

@@ -167,8 +167,8 @@ namespace helper
         if (!static_cast<const SiStripRecHit1D &>(hit).cluster().isAvailable()) return false;
       } else if (hit_type == typeid(SiStripMatchedRecHit2D)) {      
         const SiStripMatchedRecHit2D &mHit = static_cast<const SiStripMatchedRecHit2D &>(hit);
-        if (!mHit.monoHit()->cluster().isAvailable()) return false;
-        if (!mHit.stereoHit()->cluster().isAvailable()) return false;
+        if (!mHit.monoHit().cluster().isAvailable()) return false;
+        if (!mHit.stereoHit().cluster().isAvailable()) return false;
       } else if (hit_type == typeid(ProjectedSiStripRecHit2D)) {
         const ProjectedSiStripRecHit2D &pHit = static_cast<const ProjectedSiStripRecHit2D &>(hit);
         if (!pHit.originalHit().cluster().isAvailable()) return false;
