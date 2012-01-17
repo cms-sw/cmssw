@@ -29,20 +29,16 @@ bool SiStripMatchedRecHit2D::sharesInput(TrackerSingleRecHit const & other) cons
   return other.sameCluster(monoClusterRef()) || other.sameCluster(stereoClusterRef());
 }
 
-
+// it does not have components anymore...
 std::vector<const TrackingRecHit*>
 SiStripMatchedRecHit2D::recHits()const {
-  std::vector<const TrackingRecHit*> rechits(2);
-  rechits[0]=&componentMono_;
-  rechits[1]=&componentStereo_;
+  std::vector<const TrackingRecHit*> rechits();
   return rechits;
 }
 
 std::vector<TrackingRecHit*>
 SiStripMatchedRecHit2D::recHits() {
-  std::vector<TrackingRecHit*> rechits(2);
-  rechits[0]=&componentMono_;
-  rechits[1]=&componentStereo_;
+  std::vector<TrackingRecHit*> rechits();
   return rechits;
 }
 

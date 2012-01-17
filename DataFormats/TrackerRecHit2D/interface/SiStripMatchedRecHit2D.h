@@ -14,8 +14,8 @@ class SiStripMatchedRecHit2D : public BaseTrackerRecHit {
     BaseTrackerRecHit(pos, err, id, trackerHitRTTI::match), componentMono_(*rMono),componentStereo_(*rStereo){}
 
   // by value, as they will not exists anymore...
-  SiStripRecHit2D  stereoHit() const { return componentStereo_;}
-  SiStripRecHit2D  monoHit() const { return componentMono_;}
+  SiStripRecHit2D  stereoHit() const { return SiStripRecHit2D(stereoId(),stereoClusterRef()) ;}
+  SiStripRecHit2D  monoHit() const { return SiStripRecHit2D(monoId(),monoClusterRef());}
  
   unsigned int stereoId() const { return rawId()+1;}
   unsigned int monoId()   const { return rawId()+2;}
