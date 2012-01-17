@@ -48,8 +48,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gpetrucc $
-// $Date: 2010/12/13 17:33:48 $
-// $Revision: 1.57 $
+// $Date: 2011/10/27 13:01:39 $
+// $Revision: 1.58 $
 //
 
 #include <vector>
@@ -1240,7 +1240,9 @@ SiStripMatchedRecHit2D* RoadSearchCloudMakerAlgorithm::CorrectMatchedHit(const T
                                                                          const TrackerGeometry *tracker,
                                                                          const SiStripRecHitMatcher* theHitMatcher,
                                                                          double k0, double phi0) {
- 
+          // VI January 2012
+          // this is not supported anymore w/o cpe
+    
           const SiStripMatchedRecHit2D *theRH = dynamic_cast<const SiStripMatchedRecHit2D*>(originalHit);
           if (theRH == 0) {
             std::cout<<" Could not cast original hit" << std::endl;
@@ -1250,10 +1252,10 @@ SiStripMatchedRecHit2D* RoadSearchCloudMakerAlgorithm::CorrectMatchedHit(const T
             const GluedGeomDet *theGluedDet = dynamic_cast<const GluedGeomDet*>(recHitGeomDet);
              
             const GeomDetUnit* theMonoDet = theGluedDet->monoDet();
-            const SiStripRecHit2D* theMonoHit   = theRH->monoHit();
-            //GlobalPoint monoRHpos = (theMonoDet->surface()).toGlobal(theMonoHit->localPosition());
+            const SiStripRecHit2D theMonoHit   = theRH->monoHit();
+            //GlobalPoint monoRHpos = (theMonoDet->surface()).toGlobal(theMonoHit.localPosition());
              
-            GlobalPoint gcenterofstrip=(theMonoDet->surface()).toGlobal(theMonoHit->localPosition());
+            GlobalPoint gcenterofstrip=(theMonoDet->surface()).toGlobal(theMonoHit.localPosition());
              
             float gtrackangle_xy = map_phi2(phi0 + 2.0*asin(0.5*gcenterofstrip.perp()*k0));
             float rzangle = atan2(gcenterofstrip.perp(),gcenterofstrip.z());
