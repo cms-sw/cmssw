@@ -11,13 +11,13 @@ def l3muons(old):
                                MuonServiceProxy,
                                L3TrajBuilderParameters = cms.PSet(
             GlobalTrajectoryBuilderCommon,
-            MatcherOutPropagator = cms.string('SmartPropagator'),
+            MatcherOutPropagator = cms.string('hltESPSmartPropagator'),
             #	InputTag tkTrajLabel = hltL3Trajectory
             #	InputTag l3SeedLabel = hltL3TrajectorySeedFromL2
             ## TrackerTrajectories = cms.InputTag("hltL3TkTracksFromL2"),
             tkTrajLabel = cms.InputTag("hltL3TkTracksFromL2"),
             TkTrackBuilder = cms.string('muonCkfTrajectoryBuilder'),
-            TransformerOutPropagator = cms.string('SmartPropagatorAny'),
+            TransformerOutPropagator = cms.string('hltESPSmartPropagatorAny'),
             KFFitter = cms.string('L3MuKFFitter')
             ),
                                MuonCollectionLabel = cms.InputTag("hltL2Muons","UpdatedAtVtx")

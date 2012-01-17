@@ -159,7 +159,7 @@ def makeOIHitSet():
         )
       ),
       ComponentName = cms.string( "FastTSGFromPropagation" ),       
-      Propagator = cms.string( "SmartPropagatorAnyOpposite" ),
+      Propagator = cms.string( "hltESPSmartPropagatorAnyOpposite" ),
       MaxChi2 = cms.double( 15.0 ),
       ResetMethod = cms.string("matrix"),
       ErrorRescaling = cms.double(3.0),
@@ -192,7 +192,7 @@ def makeIOHitSet():
         cms.InputTag("pixelTripletSeeds","PixelTriplet"),
         cms.InputTag("globalPixelSeeds","GlobalPixel")),
         SimTrackCollectionLabel = cms.InputTag("famosSimHits"),
-        #Propagator = cms.string( "SmartPropagatorAnyOpposite" ),
+        #Propagator = cms.string( "hltESPSmartPropagatorAnyOpposite" ),
         )
 
 def makeOIHitCascadeSet():
@@ -269,7 +269,7 @@ def l3seeds(tsg = "old"):
                UseMuonNavigation = cms.untracked.bool(True),
                Propagators = cms.untracked.vstring(
                   'SteppingHelixPropagatorOpposite', 
-                  'SteppingHelixPropagatorAlong', 'PropagatorWithMaterial', 'SmartPropagatorAnyOpposite')
+                  'SteppingHelixPropagatorAlong', 'PropagatorWithMaterial', 'hltESPSmartPropagatorAnyOpposite')
                ),
             TSGFromPixelTriplets = cms.PSet(    ),
             MuonCollectionLabel = cms.InputTag("hltL2Muons","UpdatedAtVtx"),
@@ -294,7 +294,7 @@ def l3seeds(tsg = "old"):
                Propagators = cms.untracked.vstring(
                   'SteppingHelixPropagatorOpposite', 
                   'SteppingHelixPropagatorAlong', 'PropagatorWithMaterial',
-                  'SmartPropagatorAnyOpposite')
+                  'hltESPSmartPropagatorAnyOpposite')
                ),
             TrackerSeedCleaner = cms.PSet(    ),
             MuonTrackingRegionBuilder = cms.PSet(
@@ -342,7 +342,7 @@ def l3seeds(tsg = "old"):
             #   Propagators = cms.untracked.vstring(
             #      'SteppingHelixPropagatorOpposite', 
             #      'SteppingHelixPropagatorAlong', 'PropagatorWithMaterial',
-            #      'SmartPropagatorAnyOpposite')
+            #      'hltESPSmartPropagatorAnyOpposite')
             #   ),
             #TSGFromPixelTriplets = cms.PSet(    ),
             #MuonCollectionLabel = cms.InputTag("hltL2Muons","UpdatedAtVtx"),
@@ -377,7 +377,7 @@ def l3seeds(tsg = "old"):
             #   Propagators = cms.untracked.vstring(
             #      'SteppingHelixPropagatorOpposite', 
             #      'SteppingHelixPropagatorAlong', 'PropagatorWithMaterial',
-            #      'SmartPropagatorAnyOpposite')
+            #      'hltESPSmartPropagatorAnyOpposite')
             #   ),
             #TrackerSeedCleaner = cms.PSet(    ),
             MuonTrackingRegionBuilder = cms.PSet(
