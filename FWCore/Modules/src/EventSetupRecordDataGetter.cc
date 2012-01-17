@@ -99,13 +99,15 @@ private:
                                                                "If there is no label, the backslash may be omitted."
       );
       
-      desc.addVPSet("toGet", toGet)->setComment("The contained PSets must have the following structure.\n"
+      std::vector<edm::ParameterSet> emptyVect;
+      desc.addVPSet("toGet", toGet,emptyVect)->setComment("The contained PSets must have the following structure.\n"
                                                 "A 'string' named 'record' that holds the name of an EventSetup record holding the data you want to obtain.\n"
                                                 "a 'vstring' named 'data' that holds identifiers for the data you wish to retrieve. "
                                                 "The identifier is in two parts separated by a backslash '/'. "
                                                 "The first part is the C++ class name of the data and the "
                                                 "second part is the label used when getting the data (blank is acceptable). "
-                                                "If there is no label, the backslash may be omitted."
+                                                "If there is no label, the backslash may be omitted.\n"
+                                                "If the VPSet is empty it means all data in the EventSetup should be retrieved."
       );
       descriptions.add("getEventSetupData", desc);
    }
