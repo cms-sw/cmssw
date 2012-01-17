@@ -1077,8 +1077,8 @@ SiStripGainFromData::algoAnalyze(const edm::Event& iEvent, const edm::EventSetup
 	 if(sistripsimplehit){
 	     ComputeChargeOverPath((sistripsimplehit->cluster()).get(), trajState, &iSetup, &track, traj.chiSquared()/ndof);
 	 }else if(sistripmatchedhit){
-             ComputeChargeOverPath((sistripmatchedhit->monoHit()  ->cluster()).get(),trajState, &iSetup, &track, traj.chiSquared()/ndof); 
-             ComputeChargeOverPath((sistripmatchedhit->stereoHit()->cluster()).get(),trajState, &iSetup, &track, traj.chiSquared()/ndof);
+             ComputeChargeOverPath(&sistripmatchedhit->monoCluster(),trajState, &iSetup, &track, traj.chiSquared()/ndof); 
+             ComputeChargeOverPath(&sistripmatchedhit->stereoCluster(),trajState, &iSetup, &track, traj.chiSquared()/ndof);
          }else if(sistripsimple1dhit){
              ComputeChargeOverPath((sistripsimple1dhit->cluster()).get(), trajState, &iSetup, &track, traj.chiSquared()/ndof);
 	 }else{		

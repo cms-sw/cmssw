@@ -178,8 +178,8 @@ void SiStripQualityHotStripIdentifier::algoAnalyze(const edm::Event& e, const ed
 	const ProjectedSiStripRecHit2D* projectedHit=dynamic_cast<const ProjectedSiStripRecHit2D*>(recHit);
 
 	if(matchedHit){
-	  vPSiStripCluster.insert((void *)&*(matchedHit->monoHit()->cluster())); 
-	  vPSiStripCluster.insert((void *)&*(matchedHit->stereoHit()->cluster()));         
+	  vPSiStripCluster.insert((void *)&(matchedHit->monoCluster())); 
+	  vPSiStripCluster.insert((void *)&(matchedHit->stereoCluster()));         
 	} else if(projectedHit){
 	  vPSiStripCluster.insert((void *)&*(projectedHit->originalHit().cluster())); 
 	} else if(singleHit){
