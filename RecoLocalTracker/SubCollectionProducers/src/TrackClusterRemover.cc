@@ -223,7 +223,7 @@ TrackClusterRemover::cleanup(const edmNew::DetSetVector<T> &oldClusters, const s
 
 
 void TrackClusterRemover::process(OmniClusterRef const & ocluster, uint32_t subdet) {
-    SiStripRecHit2D::ClusterRef cluster = ocluster.stripCluster();
+    SiStripRecHit2D::ClusterRef cluster = ocluster.cluster_strip();
   if (cluster.id() != stripSourceProdID) throw cms::Exception("Inconsistent Data") <<
     "TrackClusterRemover: strip cluster ref from Product ID = " << cluster.id() <<
     " does not match with source cluster collection (ID = " << stripSourceProdID << ")\n.";
