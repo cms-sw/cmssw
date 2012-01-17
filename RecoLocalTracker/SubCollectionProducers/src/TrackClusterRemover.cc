@@ -68,8 +68,8 @@ class TrackClusterRemover : public edm::EDProducer {
         edm::ProductID pixelSourceProdID, stripSourceProdID; // ProdIDs refs must point to (for consistency tests)
 
         inline void process(const TrackingRecHit *hit, float chi2);
-        inline void process(const SiStripRecHit2D *hit2D, uint32_t subdet);
-        inline void process(const SiStripRecHit1D *hit1D, uint32_t subdet);
+        inline void process(const OmniClusterRef & cluRef, uint32_t subdet);
+
 
         template<typename T> 
         std::auto_ptr<edmNew::DetSetVector<T> >
@@ -222,8 +222,8 @@ TrackClusterRemover::cleanup(const edmNew::DetSetVector<T> &oldClusters, const s
 }
 
 
-void TrackClusterRemover::process(const SiStripRecHit2D *hit, uint32_t subdet) {
-  SiStripRecHit2D::ClusterRef cluster = hit->cluster();
+void TrackClusterRemover::process(OmniClusterRef const & cluster, uint32_t subdet) {
+    SiStripRecHit2D::ClusterRef cluster = cluster.stripCluster();
   if (cluster.id() != stripSourceProdID) throw cms::Exception("Inconsistent Data") <<
     "TrackClusterRemover: strip cluster ref from Product ID = " << cluster.id() <<
     " does not match with source cluster collection (ID = " << stripSourceProdID << ")\n.";
@@ -237,25 +237,6 @@ void TrackClusterRemover::process(const SiStripRecHit2D *hit, uint32_t subdet) {
   //assert(hit->geographicalId() == cluster->geographicalId()); //This condition fails
   if (!clusterWasteSolution_) collectedStrips_[cluster.key()]=true;
 }
-
-void TrackClusterRemover::process(const SiStripRecHit1D *hit, uint32_t subdet) {
-    SiStripRecHit1D::ClusterRef cluster = hit->cluster();
-    if (cluster.id() != stripSourceProdID) throw cms::Exception("Inconsistent Data") << 
-            "TrackClusterRemover: strip cluster ref from Product ID = " << cluster.id() << 
-            " does not match with source cluster collection (ID = " << stripSourceProdID << ")\n.";
-
-    assert(cluster.id() == stripSourceProdID);
-    if (pblocks_[subdet-1].usesSize_ && (cluster->amplitudes().size() > pblocks_[subdet-1].maxSize_)) return;
-
-//DBG// cout << "Individual HIT " << cluster.key().first << ", INDEX = " << cluster.key().second << endl;
-    strips[cluster.key()] = false;
-    assert(collectedStrips_.size() > cluster.key());
-    //assert(hit->geographicalId() == cluster->geographicalId()); //This condition fails
-    //if (!clusterWasteSolution_) collectedStrip[hit->geographicalId()].insert(cluster);
-    if (!clusterWasteSolution_) collectedStrips_[cluster.key()]=true;
-}
-
-
 
 
 void TrackClusterRemover::process(const TrackingRecHit *hit, float chi2) {
@@ -298,19 +279,19 @@ void TrackClusterRemover::process(const TrackingRecHit *hit, float chi2) {
         if (hitType == typeid(SiStripRecHit2D)) {
             const SiStripRecHit2D *stripHit = static_cast<const SiStripRecHit2D *>(hit);
 //DBG//     cout << "Plain RecHit 2D: " << endl;
-            process(stripHit,subdet);}
+            process(stripHit->omniClusterRef(),subdet);}
 	else if (hitType == typeid(SiStripRecHit1D)) {
 	  const SiStripRecHit1D *hit1D = static_cast<const SiStripRecHit1D *>(hit);
-	  process(hit1D,subdet);
+	  process(hit1D->omniClusterRef(),subdet);
         } else if (hitType == typeid(SiStripMatchedRecHit2D)) {
             const SiStripMatchedRecHit2D *matchHit = static_cast<const SiStripMatchedRecHit2D *>(hit);
 //DBG//     cout << "Matched RecHit 2D: " << endl;
-            process(matchHit->monoHit(),subdet);
-            process(matchHit->stereoHit(),subdet);
+            process(matchHit->monoClusterRef(),subdet);
+            process(matchHit->stereoClusterRef(),subdet);
         } else if (hitType == typeid(ProjectedSiStripRecHit2D)) {
             const ProjectedSiStripRecHit2D *projHit = static_cast<const ProjectedSiStripRecHit2D *>(hit);
 //DBG//     cout << "Projected RecHit 2D: " << endl;
-            process(&projHit->originalHit(),subdet);
+            process(&projHit->originalHit().omniClusterRef(),subdet);
         } else throw cms::Exception("NOT IMPLEMENTED") << "Don't know how to handle " << hitType.name() << " on detid " << detid.rawId() << "\n";
     }
 }
