@@ -165,12 +165,12 @@ def correctionsForRangeV2(schema,inputRange):
             ncollidingbunches=0
             if cursor.currentRow()['ncollidingbunches']:
                 ncollidingbunches=cursor.currentRow()['ncollidingbunches'].data()
-            if fillnum>=2124: #afterglow is needed only for fill>=2124               
-                fillscheme=''
-                if cursor.currentRow()['fillscheme']:
-                    fillscheme=cursor.currentRow()['fillscheme'].data()
-                if fillscheme and len(fillscheme)!=0:
-                    afterglow=afterglowByFillscheme(fillscheme,afterglows)           
+#            if fillnum>=2124: #afterglow is needed only for fill>=2124               
+            fillscheme=''
+            if cursor.currentRow()['fillscheme']:
+                fillscheme=cursor.currentRow()['fillscheme'].data()
+            if fillscheme and len(fillscheme)!=0:
+                afterglow=afterglowByFillscheme(fillscheme,afterglows)           
             result[runnum]=(constfactor,afterglow,ncollidingbunches,nonlinear_1,nonlinear_2)
     except :
         del qHandle
