@@ -1460,7 +1460,8 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 
       if (matchedhit)
 	{
-	  monohit=matchedhit->monoHit();
+          auto hm =matchedhit->monoHit();
+	  monohit=&hm;
 	  //	  const GeomDetUnit * monodet=gdet->monoDet();
 	  gdet=(GluedGeomDet *)tracker2->idToDet(matchedhit->geographicalId());
 	  monodet=gdet->monoDet();
@@ -1580,9 +1581,8 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	    rechitrphicategory = iopt;
 	  }
 	   
- 
-	  const SiStripRecHit2D *stereohit;
-	  stereohit=matchedhit->stereoHit();
+          auto s =matchedhit->stereoHit();
+	  const SiStripRecHit2D *stereohit=&s;
 	  const GeomDetUnit * stereodet=gdet->stereoDet(); 
 	  //	  GlobalVector 
 	  gtrkdir=gdet->toGlobal(trackdirection);
