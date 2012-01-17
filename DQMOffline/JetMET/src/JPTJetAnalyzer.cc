@@ -583,8 +583,8 @@ void JPTJetAnalyzer::fillSiStripHitSoN(const TrackingRecHit& hit)
   const InvalidTrackingRecHit* pInvalidHit = dynamic_cast<const InvalidTrackingRecHit*>(pHit);
   //fill signal to noise for appropriate hit
   if (pMatchedRecHit2D) {
-    fillSiStripHitSoNForSingleHit(*pMatchedRecHit2D->monoHit());
-    fillSiStripHitSoNForSingleHit(*pMatchedRecHit2D->stereoHit());
+    fillSiStripHitSoNForSingleHit(pMatchedRecHit2D->monoHit());
+    fillSiStripHitSoNForSingleHit(pMatchedRecHit2D->stereoHit());
   } else if (pProjctedRecHit2D) {
     fillSiStripHitSoNForSingleHit(pProjctedRecHit2D->originalHit());
   } else if (pRecHit2D) {
