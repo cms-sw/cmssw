@@ -222,8 +222,8 @@ TrackClusterRemover::cleanup(const edmNew::DetSetVector<T> &oldClusters, const s
 }
 
 
-void TrackClusterRemover::process(OmniClusterRef const & cluster, uint32_t subdet) {
-    SiStripRecHit2D::ClusterRef cluster = cluster.stripCluster();
+void TrackClusterRemover::process(OmniClusterRef const & ocluster, uint32_t subdet) {
+    SiStripRecHit2D::ClusterRef cluster = ocluster.stripCluster();
   if (cluster.id() != stripSourceProdID) throw cms::Exception("Inconsistent Data") <<
     "TrackClusterRemover: strip cluster ref from Product ID = " << cluster.id() <<
     " does not match with source cluster collection (ID = " << stripSourceProdID << ")\n.";
@@ -291,7 +291,7 @@ void TrackClusterRemover::process(const TrackingRecHit *hit, float chi2) {
         } else if (hitType == typeid(ProjectedSiStripRecHit2D)) {
             const ProjectedSiStripRecHit2D *projHit = static_cast<const ProjectedSiStripRecHit2D *>(hit);
 //DBG//     cout << "Projected RecHit 2D: " << endl;
-            process(&projHit->originalHit().omniClusterRef(),subdet);
+            process(projHit->originalHit().omniClusterRef(),subdet);
         } else throw cms::Exception("NOT IMPLEMENTED") << "Don't know how to handle " << hitType.name() << " on detid " << detid.rawId() << "\n";
     }
 }
