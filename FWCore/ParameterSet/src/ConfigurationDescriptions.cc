@@ -21,6 +21,7 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <cstring>
 
 namespace {
   void matchLabel(std::pair<std::string, edm::ParameterSetDescription> const& thePair,
@@ -31,6 +32,13 @@ namespace {
     }
   }
 }         
+
+static const char* const kSource ="Source";
+static const char* const kService = "Service";
+static const char* const kESSource = "ESSource";
+static const char* const kESProducer = "ESProducer";
+static const char* const k_source = "source";
+static const std::string kAppendToDataLabel("appendToDataLabel");
 
 namespace edm {
 
@@ -60,8 +68,8 @@ namespace edm {
   ConfigurationDescriptions::add(std::string const& label,
                                  ParameterSetDescription const& psetDescription) {
 
-    if (baseType_ == std::string("Source")) {
-      if (label != std::string("source")) {
+    if (0==strcmp(baseType_.c_str(),kSource)) {
+      if (0!=strcmp(label.c_str(),k_source)) {
         throw edm::Exception(edm::errors::LogicError,
           "ConfigurationDescriptions::add, when adding a ParameterSetDescription for a source the label must be \"source\"\n");
       }
@@ -71,7 +79,7 @@ namespace edm {
           "ConfigurationDescriptions::add, for a source only 1 ParameterSetDescription may be added\n");
       }
     }
-    else if (baseType_ == std::string("Service")) {
+    else if (0==strcmp(baseType_.c_str(),kService)) {
       if (descriptions_.size() != 0U ||
           defaultDescDefined_ == true) {
         throw edm::Exception(edm::errors::LogicError,
@@ -88,10 +96,9 @@ namespace edm {
     pair.first = label;
     pair.second = psetDescription;
 
-    if (baseType_ == std::string("ESSource") || baseType_ == std::string("ESProducer")) {
-      std::string name("appendToDataLabel");
-      if (pair.second.isLabelUnused(name)) {
-        pair.second.add<std::string>(name, std::string(""));
+    if (0==strcmp(baseType_.c_str(),kESSource) || 0==strcmp(baseType_.c_str(),kESProducer)) {
+      if (pair.second.isLabelUnused(kAppendToDataLabel)) {
+        pair.second.add<std::string>(kAppendToDataLabel, std::string(""));
       }
     }
   }
@@ -99,7 +106,7 @@ namespace edm {
   void
   ConfigurationDescriptions::addDefault(ParameterSetDescription const& psetDescription) {
 
-    if (baseType_ == std::string("Source") || baseType_ == std::string("Service")) {
+    if (0==strcmp(baseType_.c_str(),kSource) || 0==strcmp(baseType_.c_str(),kService)) {
       if (descriptions_.size() != 0U ||
           defaultDescDefined_ == true) {
         throw edm::Exception(edm::errors::LogicError,
@@ -110,10 +117,9 @@ namespace edm {
     defaultDescDefined_ = true;
     defaultDesc_ = psetDescription;
 
-    if (baseType_ == std::string("ESSource") || baseType_ == std::string("ESProducer")) {
-      std::string name("appendToDataLabel");
-      if (defaultDesc_.isLabelUnused(name)) {
-        defaultDesc_.add<std::string>(name, std::string(""));
+    if (0==strcmp(baseType_.c_str(),kESSource) || 0==strcmp(baseType_.c_str(),kESProducer)) {
+      if (defaultDesc_.isLabelUnused(kAppendToDataLabel)) {
+        defaultDesc_.add<std::string>(kAppendToDataLabel, std::string(""));
       }
     }
   }
@@ -160,7 +166,7 @@ namespace edm {
                                               std::string const& baseType,
                                               std::string const& pluginName)
   {
-    if (baseType == std::string("Service") && labelAndDesc.first != pluginName) {
+    if (0 == strcmp(baseType.c_str(),kService) && labelAndDesc.first != pluginName) {
       throw edm::Exception(edm::errors::LogicError,
         "ConfigurationDescriptions::writeCfiForLabel\nFor a service the label and the plugin name must be the same.\n")
         << "This error probably is caused by an incorrect label being passed\nto the ConfigurationDescriptions::add function earlier.\n"
@@ -168,7 +174,7 @@ namespace edm {
     }
 
     std::string cfi_filename;
-    if (baseType == std::string("Source")) {
+    if (0 == strcmp(baseType.c_str(),kSource)) {
       cfi_filename = pluginName + "_cfi.py";
     }
     else {
@@ -188,7 +194,7 @@ namespace edm {
   
     outFile.close();
 
-    if (baseType == std::string("Source")) {
+    if (0 == strcmp(baseType.c_str(),kSource)) {
       std::cout << pluginName << "\n";
     }
     else {
@@ -348,7 +354,7 @@ namespace edm {
     }
     else {
       if (!brief) {
-        if (baseType_ == std::string("Source") || baseType_ == std::string("Service")) {
+        if (0 == strcmp(baseType_.c_str(),kSource) || 0 == strcmp(baseType_.c_str(),kService)) {
           os << "label: ";
         }
         else {
