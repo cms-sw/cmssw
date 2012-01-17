@@ -24,6 +24,9 @@ public:
 
   virtual ~BaseTrackerRecHit() {}
 
+  // no position (as in persistent)
+  BaseTrackerRecHit(DetId id, trackerHitRTTI::RTTI rt) :  TrackingRecHit(id,(unsigned int)(rt)) {}
+
   BaseTrackerRecHit( const LocalPoint& p, const LocalError&e,
 		     DetId id, trackerHitRTTI::RTTI rt) :  TrackingRecHit(id,(unsigned int)(rt)), pos_(p), err_(e){}
 

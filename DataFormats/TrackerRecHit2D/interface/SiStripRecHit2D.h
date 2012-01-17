@@ -14,6 +14,12 @@ public:
   typedef OmniClusterRef::ClusterStripRef         ClusterRef;
   typedef OmniClusterRef::ClusterRegionalRef ClusterRegionalRef;
 
+  // no position (as in persistent)
+  SiStripRecHit2D(const DetId& id,
+		  OmniClusterRef const& clus) : 
+    TrackerSingleRecHit(id, clus),
+    sigmaPitch_(-1.) {}
+
 
   SiStripRecHit2D( const LocalPoint& pos, const LocalError& err,
 		   const DetId& id,
