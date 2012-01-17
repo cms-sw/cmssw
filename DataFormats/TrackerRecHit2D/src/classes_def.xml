@@ -56,7 +56,7 @@
    <version ClassVersion="10" checksum="1058168814"/>
   </class>
   <class name="SiStripMatchedRecHit2D" ClassVersion="11">
-   <version ClassVersion="11" checksum="917032768"/>
+   <version ClassVersion="11" checksum="427184586"/>
    <version ClassVersion="10" checksum="1602539953"/>
   </class>
   <class name="SiTrackerMultiRecHit" ClassVersion="11">

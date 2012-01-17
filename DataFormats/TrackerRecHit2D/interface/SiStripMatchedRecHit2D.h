@@ -53,7 +53,6 @@ class SiStripMatchedRecHit2D : public BaseTrackerRecHit {
   virtual std::vector<const TrackingRecHit*> recHits() const; 
 
   virtual std::vector<TrackingRecHit*> recHits(); 
-
     
  private:
    OmniClusterRef clusterMono_, clusterStereo_;
