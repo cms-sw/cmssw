@@ -210,7 +210,7 @@ ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	   long int DetID=(DetMatch != rphirecHits->end())? detid:0;
 
 	   if ((MDetMatch != matchedrecHits->end()) && !MDetMatch->empty()) {
-	     long int pii = MDetMatch->begin()->monoHit()->geographicalId().rawId();
+	     long int pii = MDetMatch->begin()->monoId();
 	     StDetMatch CDetMatch = (rphirecHits.product())->find((pii));
 	     DetID=(CDetMatch != rphirecHits->end())? pii:0;
 	     
