@@ -1,7 +1,7 @@
 #ifndef IOMC_BetafuncEvtVtxGenerator_H
 #define IOMC_BetafuncEvtVtxGenerator_H
 
-// $Id: BetafuncEvtVtxGenerator.h,v 1.5 2007/09/14 08:31:56 fabiocos Exp $
+// $Id: BetafuncEvtVtxGenerator.h,v 1.6 2008/04/04 21:38:24 yumiceva Exp $
 /*
 ________________________________________________________________________
 
@@ -31,6 +31,8 @@ class BetafuncEvtVtxGenerator : public BaseEvtVtxGenerator
 public:
   BetafuncEvtVtxGenerator(const edm::ParameterSet & p);
   virtual ~BetafuncEvtVtxGenerator();
+
+  virtual void beginRun( edm::Run & , const edm::EventSetup&);
 
   /// return a new event vertex
   //virtual CLHEP::Hep3Vector * newVertex();
@@ -69,6 +71,8 @@ private:
   BetafuncEvtVtxGenerator&  operator = (const BetafuncEvtVtxGenerator & rhs );
   
 private:
+
+  bool readDB_;
 
   double alpha_, phi_;
   //TMatrixD boost_;

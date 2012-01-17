@@ -10,7 +10,8 @@ import FWCore.ParameterSet.Config as cms
 
 # common parameters
 VtxSmearedCommon = cms.PSet(
-    src = cms.InputTag("generator")
+    src = cms.InputTag("generator"),
+    readDB = cms.bool(False)
 )
 # Gaussian smearing
 GaussVtxSmearingParameters = cms.PSet(
