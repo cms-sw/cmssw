@@ -483,11 +483,13 @@ MonitorElement* SiStripMonitorTrack::bookMETrend(const char* ParameterSetLabel, 
 	//mono side
 	const GeomDetUnit * monodet=gdet->monoDet();
 	statedirection=monodet->toLocal(gtrkdirup);
-	if(statedirection.mag() != 0)	  RecHitInfo<SiStripRecHit2D>(matchedhit->monoHit(),statedirection,trackref,es);
+        SiStripRecHit2D m = matchedhit->monoHit();
+	if(statedirection.mag() != 0)	  RecHitInfo<SiStripRecHit2D>(&m,statedirection,trackref,es);
 	//stereo side
 	const GeomDetUnit * stereodet=gdet->stereoDet();
 	statedirection=stereodet->toLocal(gtrkdirup);
-	if(statedirection.mag() != 0)	  RecHitInfo<SiStripRecHit2D>(matchedhit->stereoHit(),statedirection,trackref,es);
+        SiStripRecHit2D s = matchedhit->stereoHit();
+	if(statedirection.mag() != 0)	  RecHitInfo<SiStripRecHit2D>(&s,statedirection,trackref,es);
       }
       else if(phit){
 	LogTrace("SiStripMonitorTrack")<<"\nProjected recHit found"<< std::endl;
