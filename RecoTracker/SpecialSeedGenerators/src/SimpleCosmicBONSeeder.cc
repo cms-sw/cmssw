@@ -312,9 +312,9 @@ bool SimpleCosmicBONSeeder::checkCharge(const TrackingRecHit *hit) const {
         if (typeid(*hit) == typeid(SiStripMatchedRecHit2D)) {
             const SiStripMatchedRecHit2D *mhit = static_cast<const SiStripMatchedRecHit2D *>(hit);
             if (matchedRecHitUsesAnd_) {
-                return checkCharge(*mhit->monoHit(), subdet) && checkCharge(*mhit->stereoHit(), subdet);
+                return checkCharge(mhit->monoHit(), subdet) && checkCharge(mhit->stereoHit(), subdet);
             } else {
-                return checkCharge(*mhit->monoHit(), subdet) || checkCharge(*mhit->stereoHit(), subdet);
+                return checkCharge(mhit->monoHit(), subdet) || checkCharge(mhit->stereoHit(), subdet);
             }
         } else if (typeid(*hit) == typeid(SiStripRecHit2D)) {
             return checkCharge(static_cast<const SiStripRecHit2D &>(*hit), subdet);
@@ -323,6 +323,8 @@ bool SimpleCosmicBONSeeder::checkCharge(const TrackingRecHit *hit) const {
         }
     }
 }
+
+// to be fixed to use OmniCluster
 bool SimpleCosmicBONSeeder::checkCharge(const SiStripRecHit2D &hit, int subdetid) const {
     const SiStripCluster *clust = (hit.cluster().isNonnull() ?  hit.cluster().get() : hit.cluster_regional().get());
     int charge = std::accumulate(clust->amplitudes().begin(), clust->amplitudes().end(), int(0));
