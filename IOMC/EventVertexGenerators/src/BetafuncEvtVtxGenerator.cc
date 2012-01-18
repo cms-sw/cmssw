@@ -1,5 +1,5 @@
 
-// $Id: BetafuncEvtVtxGenerator.cc,v 1.12 2011/03/08 16:09:22 burkett Exp $
+// $Id: BetafuncEvtVtxGenerator.cc,v 1.13 2012/01/17 11:58:52 vlimant Exp $
 /*
 ________________________________________________________________________
 
@@ -71,13 +71,29 @@ BetafuncEvtVtxGenerator::~BetafuncEvtVtxGenerator()
     delete fRandom; 
 }
 
+void BetafuncEvtVtxGenerator::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const& iEventSetup){
+  update(iEventSetup);
+}
 void BetafuncEvtVtxGenerator::beginRun( edm::Run & , const edm::EventSetup& iEventSetup){
+  update(iEventSetup);
+}
 
-  if (readDB_){
+void BetafuncEvtVtxGenerator::update(const edm::EventSetup& iEventSetup){
+  if (readDB_ &&  parameterWatcher_.check(iEventSetup)){
     edm::ESHandle< SimBeamSpotObjects > beamhandle;
     iEventSetup.get<SimBeamSpotObjectsRcd>().get(beamhandle);
+
     fX0=beamhandle->fX0;
-    
+    fY0=beamhandle->fY0;
+    fZ0=beamhandle->fZ0;
+    //    falpha=beamhandle->fAlpha;
+    alpha_=beamhandle->fAlpha;
+    phi_=beamhandle->fPhi;
+    fSigmaZ=beamhandle->fSigmaZ;
+    fTimeOffset=beamhandle->fTimeOffset;
+    fbetastar=beamhandle->fbetastar;
+    femittance=beamhandle->femittance;
+
     //re-initialize the boost matrix
     delete boost_;
     boost_=0;

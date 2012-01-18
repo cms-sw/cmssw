@@ -1,7 +1,7 @@
 #ifndef IOMC_BetafuncEvtVtxGenerator_H
 #define IOMC_BetafuncEvtVtxGenerator_H
 
-// $Id: BetafuncEvtVtxGenerator.h,v 1.6 2008/04/04 21:38:24 yumiceva Exp $
+// $Id: BetafuncEvtVtxGenerator.h,v 1.7 2012/01/17 11:58:52 vlimant Exp $
 /*
 ________________________________________________________________________
 
@@ -20,7 +20,8 @@ ________________________________________________________________________
 */
 
 #include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
-
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "CondFormats/DataRecord/interface/SimBeamSpotObjectsRcd.h"
 
 namespace CLHEP {
    class RandGaussQ;
@@ -33,6 +34,7 @@ public:
   virtual ~BetafuncEvtVtxGenerator();
 
   virtual void beginRun( edm::Run & , const edm::EventSetup&);
+  virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
 
   /// return a new event vertex
   //virtual CLHEP::Hep3Vector * newVertex();
@@ -81,11 +83,13 @@ private:
   double fSigmaZ;
   //double fdxdz, fdydz;
   double fbetastar, femittance;
-  double falpha;
+  //  double falpha;
   double fTimeOffset;
     
   CLHEP::RandGaussQ*  fRandom ;
   
+  void update(const edm::EventSetup& iEventSetup);
+  edm::ESWatcher<SimBeamSpotObjectsRcd> parameterWatcher_;
 };
 
 #endif
