@@ -358,7 +358,7 @@ step1['Z3Jets-Pt_0To100_TuneZ2_7TeV_alpgen_tauola']=genvalid('Hadronizer_Et20Exc
 step1['ZJetsLNu_Tune4C_7TeV_madgraph-pythia8']=genvalid('Hadronizer_MgmMatchTune4C_7TeV_madgraph_pythia8_cff',step1GenDefaults,'dy',2925)
 
 PU={'--pileup':'E7TeV_FlatDist10_2011EarlyData_50ns_PoissonOOT','--pileup_input':'dbs:/RelValProdMinBias/CMSSW_5_0_0_pre7-START50_V7-v1/GEN-SIM-RAW'}
-step1['ZmumuJets_Pt_20_300PU1']=merge([gen('ZmumuJets_Pt_20_300_GEN_7TeV_cfg',K250by100),PU])
+step1['ZmumuJets_Pt_20_300']=gen('ZmumuJets_Pt_20_300_GEN_7TeV_cfg',K250by100)
 step1['TTbarPU2']=merge([step1['TTbar'],PU])
 
 step1['TTbarFSPU']=merge([{'--pileup':'FlatDist10_2011EarlyData_50ns'},step1['TTbarFS']])
@@ -599,6 +599,9 @@ step3['RECODFROMRAWRECO']=merge([{'-s':'RAW2DIGI:RawToDigi_noTk,L1Reco,RECO:reco
                                   'cfg':'step3'},
                                  step2['RECOD']])
 
+### over write a few things to add PU to every sample in the standard set
+#step2['DIGI']=step2['DIGIPU1']
+#step3['RECO']=step3['RECOPU1']
 
 # to handle things easier in other places, make a list of all the steps:
 stepList = [step1, step2, step3, step4]
