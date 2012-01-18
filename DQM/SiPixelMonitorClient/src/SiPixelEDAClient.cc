@@ -195,9 +195,13 @@ void SiPixelEDAClient::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
   
   edm::LogInfo ("SiPixelEDAClient") <<"[SiPixelEDAClient]: Begin of LS transition";
 
+  nEvents_lastLS_=0; nErrorsBarrel_lastLS_=0; nErrorsEndcap_lastLS_=0;
   MonitorElement * me = bei_->get("Pixel/AdditionalPixelErrors/byLumiErrors");
   if(me){
     nEvents_lastLS_ = int(me->getBinContent(0));
+    nErrorsBarrel_lastLS_ = int(me->getBinContent(1));
+    nErrorsEndcap_lastLS_ = int(me->getBinContent(2));
+    std::cout<<"Nevts in lastLS in EDAClient: "<<nEvents_lastLS_<<" "<<nErrorsBarrel_lastLS_<<" "<<nErrorsEndcap_lastLS_<<std::endl;
     me->Reset();
   }
 //  cout<<"...leaving SiPixelEDAClient::beginLuminosityBlock. "<<endl;
@@ -235,7 +239,7 @@ void SiPixelEDAClient::analyze(const edm::Event& e, const edm::EventSetup& eSetu
 // -- End Luminosity Block
 //
 void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {
-//  cout<<"Entering SiPixelEDAClient::endLuminosityBlock: "<<endl;
+  //cout<<"Entering SiPixelEDAClient::endLuminosityBlock: "<<endl;
 
   edm::LogInfo ("SiPixelEDAClient") <<"[SiPixelEDAClient]: End of LS transition, performing the DQM client operation";
 
@@ -243,9 +247,9 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
   //cout << "nLumiSecs_: "<< nLumiSecs_ << endl;
   
   edm::LogInfo("SiPixelEDAClient") << "====================================================== " << endl << " ===> Iteration # " << nLumiSecs_ << " " << lumiSeg.luminosityBlock() << endl  << "====================================================== " << endl;
-
-  if(actionOnLumiSec_ && !Tier0Flag_ && nLumiSecs_ % 1 == 0 ){
-    //cout << " Updating Summary " << endl;
+  
+  //if(actionOnLumiSec_ && !Tier0Flag_ && nLumiSecs_ % 1 == 0 ){
+  if(actionOnLumiSec_ && nLumiSecs_ % 1 == 0 ){
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Summary);
     sipixelWebInterface_->performAction();
      //cout << " Updating efficiency plots" << endl;
@@ -259,7 +263,7 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
     bei_->cd();
     bool init=true;
     //sipixelDataQuality_->computeGlobalQualityFlag(bei_,init,nFEDs_,Tier0Flag_);
-    sipixelDataQuality_->computeGlobalQualityFlagByLumi(bei_,init,nFEDs_,Tier0Flag_,nEvents_lastLS_);
+    sipixelDataQuality_->computeGlobalQualityFlagByLumi(bei_,init,nFEDs_,Tier0Flag_,nEvents_lastLS_,nErrorsBarrel_lastLS_,nErrorsEndcap_lastLS_);
     init=true;
     bei_->cd();
     sipixelDataQuality_->fillGlobalQualityPlot(bei_,init,eSetup,nFEDs_,Tier0Flag_,nLumiSecs_);
@@ -274,7 +278,7 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
     // cout << "*** Done with Tracker Map Histos for End Run ***" << endl;
   }   
          
-//  cout<<"...leaving SiPixelEDAClient::endLuminosityBlock. "<<endl;
+  //cout<<"...leaving SiPixelEDAClient::endLuminosityBlock. "<<endl;
 }
 //
 // -- End Run

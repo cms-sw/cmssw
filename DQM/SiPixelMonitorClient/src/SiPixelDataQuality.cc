@@ -620,7 +620,9 @@ void SiPixelDataQuality::computeGlobalQualityFlagByLumi(DQMStore * bei,
                                                            bool init,
 							   int nFEDs,
 							   bool Tier0Flag,
-							   int nEvents_lastLS_){
+							   int nEvents_lastLS_,
+							   int nErrorsBarrel_lastLS_,
+							   int nErrorsEndcap_lastLS_){
 //cout<<"entering SiPixelDataQuality::ComputeGlobalQualityFlagByLumi"<<endl;
 //   cout << ACRed << ACBold
 //        << "[SiPixelDataQuality::ComputeGlobalQualityFlag]"
@@ -630,24 +632,70 @@ void SiPixelDataQuality::computeGlobalQualityFlagByLumi(DQMStore * bei,
 
   if(nFEDs==0) return;  
   
-  float BarrelRate_LS = 0.;
-  float EndcapRate_LS = 0.;
-  float PixelRate_LS = 0.;
+  // evaluate fatal FED errors for data quality:
+  float BarrelRate_LS = 1.;
+  float EndcapRate_LS = 1.;
+  float PixelRate_LS = 1.;
   MonitorElement * me = bei->get("Pixel/AdditionalPixelErrors/byLumiErrors");
   if(me){
+    cout<<"NENTRIES: "<<me->getEntries()<<" "<<nEvents_lastLS_<<" "<<nErrorsBarrel_lastLS_<<" "<<nErrorsEndcap_lastLS_<<endl;
+    double nBarrelErrors_LS = me->getBinContent(1) - nErrorsBarrel_lastLS_;
+    double nEndcapErrors_LS = me->getBinContent(2) - nErrorsEndcap_lastLS_;
     double nEvents_LS = me->getBinContent(0) - nEvents_lastLS_;
-    double nBarrelErrors_LS = me->getBinContent(1);
-    double nEndcapErrors_LS = me->getBinContent(2);
-    BarrelRate_LS = nBarrelErrors_LS / nEvents_LS / 32.; // normalize to nevents and nFEDchannels
-    EndcapRate_LS = nEndcapErrors_LS / nEvents_LS / 8.;
-    PixelRate_LS = (nBarrelErrors_LS + nEndcapErrors_LS) / nEvents_LS / 40.;
-    //std::cout<<"nEvents_LS: "<<nEvents_LS<<" , nBarrelErrors_LS: "<<nBarrelErrors_LS<<" , nEndcapErrors_LS: "<<nEndcapErrors_LS<<" , BarrelRate_LS: "<<BarrelRate_LS<<" , EndcapRate_LS: "<<EndcapRate_LS<<" , PixelRate_LS: "<<PixelRate_LS<<std::endl;
+    cout<<"BINS: "<<me->getBinContent(0)<<" "<<me->getBinContent(1)<<" "<<me->getBinContent(2)<<endl;
+    if(nBarrelErrors_LS/nEvents_LS>0.5) BarrelRate_LS=0.;
+    if(nEndcapErrors_LS/nEvents_LS>0.5) EndcapRate_LS=0.;
+    if((nBarrelErrors_LS + nEndcapErrors_LS)/nEvents_LS>0.5) PixelRate_LS=0.;
+    std::cout<<"nEvents_LS: "<<nEvents_LS<<" , nBarrelErrors_LS: "<<nBarrelErrors_LS<<" , nEndcapErrors_LS: "<<nEndcapErrors_LS<<" , BarrelRate_LS: "<<BarrelRate_LS<<" , EndcapRate_LS: "<<EndcapRate_LS<<" , PixelRate_LS: "<<PixelRate_LS<<std::endl;
   }
   
-  float pixelFlag = 1.-PixelRate_LS;
-  float barrelFlag = 1.-BarrelRate_LS;
-  float endcapFlag = 1.-EndcapRate_LS;
+  // evaluate mean cluster charge on tracks for data quality:
+  float BarrelClusterCharge = 1.;
+  float EndcapClusterCharge = 1.;
+  float PixelClusterCharge = 1.;
+  MonitorElement * me1 = bei->get("Pixel/Clusters/OnTrack/charge_siPixelClusters_Barrel");
+  if(me1 && me1->getMean()<12.) BarrelClusterCharge = 0.;
+  if(me1) cout<<"Mean cluster charge in Barrel: "<<me1->getMean()<<endl;
+  MonitorElement * me2 = bei->get("Pixel/Clusters/OnTrack/charge_siPixelClusters_Endcap");
+  if(me2 && me2->getMean()<12.) EndcapClusterCharge = 0.;
+  if(me2) cout<<"Mean cluster charge in Endcap: "<<me2->getMean()<<endl;
+  MonitorElement * me3 = bei->get("Pixel/Clusters/OnTrack/charge_siPixelClusters");
+  if(me3 && me3->getMean()<12.) PixelClusterCharge = 0.;
+  if(me3) cout<<"Mean cluster charge in Pixel: "<<me3->getMean()<<endl;
   
+  // evaluate average FED occupancy for data quality:
+  float BarrelOccupancy = 1.;
+  float EndcapOccupancy = 1.;
+  float PixelOccupancy = 1.;
+  MonitorElement * me4 = bei->get("Pixel/averageDigiOccupancy");
+  if(me4){
+    double minBarrelOcc = 999999.; 
+    double maxBarrelOcc = -1.; 
+    double meanBarrelOcc = 0.;
+    double minEndcapOcc = 999999.;
+    double maxEndcapOcc = -1.;
+    double meanEndcapOcc = 0.;
+    for(int i=1; i!=41; i++){
+      if(i<=32 && me4->getBinContent(i)<minBarrelOcc) minBarrelOcc=me4->getBinContent(i); 
+      if(i<=32 && me4->getBinContent(i)>maxBarrelOcc) maxBarrelOcc=me4->getBinContent(i);
+      if(i<=32) meanBarrelOcc+=me4->getBinContent(i);
+      if(i>32 && me4->getBinContent(i)<minEndcapOcc) minEndcapOcc=me4->getBinContent(i); 
+      if(i>32 && me4->getBinContent(i)>maxEndcapOcc) maxEndcapOcc=me4->getBinContent(i); 
+      if(i>32) meanEndcapOcc+=me4->getBinContent(i);
+      //cout<<"OCCUPANCY: "<<i<<" "<<me4->getBinContent(i)<<" : "<<minBarrelOcc<<" "<<maxBarrelOcc<<" "<<minEndcapOcc<<" "<<maxEndcapOcc<<endl;
+    } 
+    meanBarrelOcc = meanBarrelOcc/32.;
+    meanEndcapOcc = meanEndcapOcc/8.;
+    //cout<<"MEANS: "<<meanBarrelOcc<<" "<<meanEndcapOcc<<endl;
+    if(minBarrelOcc<0.1*meanBarrelOcc || maxBarrelOcc>2.5*meanBarrelOcc) BarrelOccupancy=0.;
+    if(minEndcapOcc<0.2*meanEndcapOcc || maxEndcapOcc>1.8*meanEndcapOcc) EndcapOccupancy=0.;
+    PixelOccupancy=BarrelOccupancy*EndcapOccupancy;
+    //cout<<"Occupancies: "<<meanBarrelOcc<<" "<<meanEndcapOcc<<endl;
+  }
+  
+  float pixelFlag = PixelRate_LS * PixelClusterCharge * PixelOccupancy;
+  float barrelFlag = BarrelRate_LS * BarrelClusterCharge * BarrelOccupancy;
+  float endcapFlag = EndcapRate_LS * EndcapClusterCharge * EndcapOccupancy;
   //cout<<"barrel, endcap, pixel flags: "<<barrelFlag<<","<<endcapFlag<<","<<pixelFlag<<endl;
   SummaryPixel = bei->get("Pixel/EventInfo/reportSummary");
   if(SummaryPixel) SummaryPixel->Fill(pixelFlag);
@@ -971,6 +1019,7 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
             float myerrs  = errmodsVec->GetBinContent(i) - lasterrmods_[i-1];
 	    if ((mydigis + myerrs) > 0.){
 	      contents = mydigis/(mydigis + myerrs);
+	      //std::cout<<"Fed: "<<i-1<<" , nevents: "<<nevents<<" , ndigis: "<< mydigis <<" , nerrors: "<< myerrs << " , contents: " << contents << std::endl;
             }else{
 	      //Changed so that dynamic zooming will still
 	      //advance over these bins(in renderplugins)
