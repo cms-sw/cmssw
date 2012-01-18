@@ -23,7 +23,8 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "Mixing/Base/interface/PileUp.h"
-
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "CondFormats/DataRecord/interface/MixingRcd.h"
 
 namespace edm {
   class BMixingModule : public edm::EDProducer {
@@ -38,6 +39,9 @@ namespace edm {
       virtual void produce(edm::Event& e1, const edm::EventSetup& c);
 
       virtual void beginRun(edm::Run & r, const edm::EventSetup & setup);
+      virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
+
+      // to be overloaded by dependent class
       virtual void reload(const edm::EventSetup & setup){};
 
       // Should 'averageNumber' return 0 or 1 if there is no mixing? It is the average number of
@@ -82,6 +86,8 @@ namespace edm {
       // input, cosmics, beamhalo_plus, beamhalo_minus
       std::vector<boost::shared_ptr<PileUp> > inputSources_;
 
+      void update(edm::EventSetup const&);
+      edm::ESWatcher<MixingRcd> parameterWatcher_;
   };
 
 }//edm

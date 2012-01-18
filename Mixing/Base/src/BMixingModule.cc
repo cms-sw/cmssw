@@ -200,9 +200,16 @@ namespace edm {
   // Virtual destructor needed.
   BMixingModule::~BMixingModule() {;}
 
-  // method call at begin run to reload the mixing configuration.
+  // method call at begin run/lumi to reload the mixing configuration
+  void BMixingModule::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&setup){
+    update(setup);
+  }
   void BMixingModule::beginRun(edm::Run & r, const edm::EventSetup & setup){
-    if (readDB_){
+    update(setup);
+  }
+
+  void BMixingModule::update(const edm::EventSetup & setup){
+    if (readDB_ && parameterWatcher_.check(setup)){
       for (size_t makeIdx = 0; makeIdx < maxNbSources_; makeIdx++ ) {
 	if (inputSources_[makeIdx]) inputSources_[makeIdx]->reload(setup);
       }
