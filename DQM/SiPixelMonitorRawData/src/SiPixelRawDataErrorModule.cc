@@ -466,7 +466,9 @@ int SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>
       }//end if bladeon
       
       if(!(FedId==38&&chanNmbr==7)){ // mask slow channel that spits out lots of EventNumber errors even when in STDBY!
-        if(!(errorType==30) || notReset){
+	if(errorType==29 || (errorType==30 && TBMType==1)){ // consider only TIMEOUT and OVERFLOW as serious errors right now
+        //if(!(errorType==30) || notReset){
+          //cout<<"ERROR: "<<errorType<<" "<<TBMType<<endl;
           std::string hid;
           static const char chNfmt[] = "Pixel/AdditionalPixelErrors/FED_%d/FedChNErrArray_%d";
           char chNbuf[sizeof(chNfmt) + 2*32]; // 32 digits is enough for up to 2^105 + sign.
@@ -679,10 +681,11 @@ int SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataErr
 	  };
 	}// end if errorType
 
-	if(!(errorType==30) || notReset){
+	//if(!(errorType==30) || notReset){
+	if(errorType==29 || (errorType==30 && TBMType==1)){ // consider only TIMEOUT and OVERFLOW as serious errors right now
           if(!(FedId==38&&chanNmbr==7)){ // mask slow channel that spits out lots of EventNumber errors even when in STDBY!
             std::string hid;
-
+            //cout<<"FEDERROR: "<<errorType<<" "<<TBMType<<endl;
             static const char chNfmt[] = "Pixel/AdditionalPixelErrors/FED_%d/FedChNErrArray_%d";
             char chNbuf[sizeof(chNfmt) + 2*32]; // 32 digits is enough for up to 2^105 + sign.
             sprintf(chNbuf, chNfmt, FedId, chanNmbr);

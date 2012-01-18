@@ -131,30 +131,33 @@ void SiPixelRawDataErrorSource::analyze(const edm::Event& iEvent, const edm::Eve
     int numberOfModuleErrors = (*struct_iter).second->fill(*input, modOn, ladOn, bladeOn);
     if(DetId( (*struct_iter).first ).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) nEventBPIXModuleErrors = nEventBPIXModuleErrors + numberOfModuleErrors;
     if(DetId( (*struct_iter).first ).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) nEventFPIXModuleErrors = nEventFPIXModuleErrors + numberOfModuleErrors;
+    //cout<<"NErrors: "<<nEventBPIXModuleErrors<<" "<<nEventFPIXModuleErrors<<endl;
     nErrors = nErrors + numberOfModuleErrors;
+    //if(nErrors>0) cout<<"MODULES: nErrors: "<<nErrors<<endl;
   }
   for (struct_iter2 = theFEDStructure.begin() ; struct_iter2 != theFEDStructure.end() ; struct_iter2++) {
     
     int numberOfFEDErrors = (*struct_iter2).second->fillFED(*input);
     if((*struct_iter2).first <= 31) nEventBPIXFEDErrors = nEventBPIXFEDErrors + numberOfFEDErrors; // (*struct_iter2).first >= 0, since (*struct_iter2).first is unsigned
     if((*struct_iter2).first >= 32 && (*struct_iter2).first <= 39) nEventFPIXFEDErrors = nEventFPIXFEDErrors + numberOfFEDErrors;    
+    //cout<<"NFEDErrors: "<<nEventBPIXFEDErrors<<" "<<nEventFPIXFEDErrors<<endl;
     nErrors = nErrors + numberOfFEDErrors;
+    //if(nErrors>0) cout<<"FEDS: nErrors: "<<nErrors<<endl;
   }
   MonitorElement* me = theDMBE->get("Pixel/AdditionalPixelErrors/byLumiErrors");
   if(me){
     me->setBinContent(0,eventNo);
-    if(nEventBPIXModuleErrors+nEventBPIXFEDErrors>0) me->setBinContent(1,nEventBPIXModuleErrors+nEventBPIXFEDErrors);
-    if(nEventFPIXModuleErrors+nEventFPIXFEDErrors>0) me->setBinContent(2,nEventFPIXModuleErrors+nEventFPIXFEDErrors);
+    //cout<<"NErrors: "<<nEventBPIXModuleErrors<<" "<<nEventFPIXModuleErrors<<" "<<nEventBPIXFEDErrors<<" "<<nEventFPIXFEDErrors<<endl;
+    //if(nEventBPIXModuleErrors+nEventBPIXFEDErrors>0) me->setBinContent(1,me->getBinContent(1)+nEventBPIXModuleErrors+nEventBPIXFEDErrors);
+    //if(nEventFPIXModuleErrors+nEventFPIXFEDErrors>0) me->setBinContent(2,me->getBinContent(2)+nEventFPIXModuleErrors+nEventFPIXFEDErrors);
+    if(nEventBPIXModuleErrors+nEventBPIXFEDErrors>0) me->Fill(0,1.);
+    if(nEventFPIXModuleErrors+nEventFPIXFEDErrors>0) me->Fill(1,1.);
+    //cout<<"histo: "<<me->getBinContent(0)<<" "<<me->getBinContent(1)<<" "<<me->getBinContent(2)<<endl;
   }  
   
   // Rate of errors per lumi section:
   MonitorElement* me1 = theDMBE->get("Pixel/AdditionalPixelErrors/errorRate");
-  if(me1){
-    int nLumiErrors = int(me1->getBinContent(lumiSection+1)) + nErrors;
-    me1->Fill(lumiSection, nLumiErrors);
-  }
-  
-    
+  if(me1) me1->Fill(lumiSection, nErrors);
 
   // slow down...
   if(slowDown) usleep(100000);
@@ -237,7 +240,7 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup& iSetup){
 // Book MEs
 //------------------------------------------------------------------
 void SiPixelRawDataErrorSource::bookMEs(){
-  
+  //cout<<"Entering SiPixelRawDataErrorSource::bookMEs now: "<<endl;
   // Get DQM interface
   DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
   theDMBE->setCurrentFolder("Pixel/AdditionalPixelErrors");
@@ -297,5 +300,6 @@ void SiPixelRawDataErrorSource::bookMEs(){
     }
 
   }
+  //cout<<"...leaving SiPixelRawDataErrorSource::bookMEs now! "<<endl;
 
 }
