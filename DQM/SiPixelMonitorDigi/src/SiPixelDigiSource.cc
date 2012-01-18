@@ -14,7 +14,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.50 2011/09/08 10:06:32 merkelp Exp $
+// $Id: SiPixelDigiSource.cc,v 1.51 2011/12/05 12:13:33 duggan Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -109,6 +109,47 @@ void SiPixelDigiSource::beginRun(const edm::Run& r, const edm::EventSetup& iSetu
     nFPIXDigis = 0;
     for(int i=0; i!=40; i++) nDigisPerFed[i]=0;  
     for(int i=0; i!=4; i++) nDigisPerDisk[i]=0;  
+    nDP1P1M1 = 0;
+    nDP1P1M2 = 0;
+    nDP1P1M3 = 0;
+    nDP1P1M4 = 0;
+    nDP1P2M1 = 0;
+    nDP1P2M2 = 0;
+    nDP1P2M3 = 0;
+    nDP2P1M1 = 0;
+    nDP2P1M2 = 0;
+    nDP2P1M3 = 0;
+    nDP2P1M4 = 0;
+    nDP2P2M1 = 0;
+    nDP2P2M2 = 0;
+    nDP2P2M3 = 0;
+    nDM1P1M1 = 0;
+    nDM1P1M2 = 0;
+    nDM1P1M3 = 0;
+    nDM1P1M4 = 0;
+    nDM1P2M1 = 0;
+    nDM1P2M2 = 0;
+    nDM1P2M3 = 0;
+    nDM2P1M1 = 0;
+    nDM2P1M2 = 0;
+    nDM2P1M3 = 0;
+    nDM2P1M4 = 0;
+    nDM2P2M1 = 0;
+    nDM2P2M2 = 0;
+    nDM2P2M3 = 0;
+    nL1M1 = 0;
+    nL1M2 = 0;
+    nL1M3 = 0;
+    nL1M4 = 0;
+    nL2M1 = 0;
+    nL2M2 = 0;
+    nL2M3 = 0;
+    nL2M4 = 0;
+    nL3M1 = 0;
+    nL3M2 = 0;
+    nL3M3 = 0;
+    nL3M4 = 0;
+    
     
     // Build map
     buildStructure(iSetup);
@@ -155,6 +196,15 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
     MonitorElement* meReset = theDMBE->get("Pixel/averageDigiOccupancy");
     //if(meReset && eventNo%1000==0){
     if(meReset && lumiSection%8==0){
+      meReset->Reset();
+      nBPIXDigis = 0; 
+      nFPIXDigis = 0;
+      for(int i=0; i!=40; i++) nDigisPerFed[i]=0;  
+    }
+  }
+  if(!modOn){
+    MonitorElement* meReset = theDMBE->get("Pixel/averageDigiOccupancy");
+    if(meReset && lumiSection%1==0){
       meReset->Reset();
       nBPIXDigis = 0; 
       nFPIXDigis = 0;
@@ -209,11 +259,19 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	int disk = PixelEndcapName(DetId((*struct_iter).first)).diskName();
 	int blade = PixelEndcapName(DetId((*struct_iter).first)).bladeName();
         int panel = PixelEndcapName(DetId((*struct_iter).first)).pannelName();
+        int module = PixelEndcapName(DetId((*struct_iter).first)).plaquetteName();
 	//std::cout<<"Endcap: "<<side<<" , "<<disk<<" , "<<blade<<" , "<<panel<<" , "<<std::endl;
 	int iter=0; int i=0;
 	if(side==PixelEndcapName::mI){
 	  if(disk==1){
 	    i=0;
+	    if(panel==1){ if(module==1) nDM1P1M1+=numberOfDigisMod; 
+	                  else if(module==2) nDM1P1M2+=numberOfDigisMod; 
+			  else if(module==3) nDM1P1M3+=numberOfDigisMod; 
+			  else if(module==4) nDM1P1M4+=numberOfDigisMod;}
+	    else if(panel==2){ if(module==1) nDM1P2M1+=numberOfDigisMod; 
+	                       else if(module==2) nDM1P2M2+=numberOfDigisMod; 
+			       else if(module==3) nDM1P2M3+=numberOfDigisMod; }
 	    if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
 	    if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
 	    if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
@@ -228,6 +286,13 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	    if(blade==12){ if(panel==1) iter=i+22; else if(panel==2) iter=i+23; }
 	  }else if(disk==2){
 	    i=24;
+	    if(panel==1){ if(module==1) nDM2P1M1+=numberOfDigisMod; 
+	                  else if(module==2) nDM2P1M2+=numberOfDigisMod; 
+			  else if(module==3) nDM2P1M3+=numberOfDigisMod; 
+			  else if(module==4) nDM2P1M4+=numberOfDigisMod;}
+	    else if(panel==2){ if(module==1) nDM2P2M1+=numberOfDigisMod; 
+	                       else if(module==2) nDM2P2M2+=numberOfDigisMod; 
+			       else if(module==3) nDM2P2M3+=numberOfDigisMod; }
 	    if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
 	    if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
 	    if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
@@ -244,6 +309,13 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	}else if(side==PixelEndcapName::mO){
 	  if(disk==1){
 	    i=48;
+	    if(panel==1){ if(module==1) nDM1P1M1+=numberOfDigisMod; 
+	                  else if(module==2) nDM1P1M2+=numberOfDigisMod; 
+			  else if(module==3) nDM1P1M3+=numberOfDigisMod; 
+			  else if(module==4) nDM1P1M4+=numberOfDigisMod;}
+	    else if(panel==2){ if(module==1) nDM1P2M1+=numberOfDigisMod; 
+	                       else if(module==2) nDM1P2M2+=numberOfDigisMod; 
+			       else if(module==3) nDM1P2M3+=numberOfDigisMod; }
 	    if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
 	    if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
 	    if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
@@ -258,6 +330,13 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	    if(blade==12){ if(panel==1) iter=i+22; else if(panel==2) iter=i+23; }
 	  }else if(disk==2){
 	    i=72;
+	    if(panel==1){ if(module==1) nDM2P1M1+=numberOfDigisMod; 
+	                  else if(module==2) nDM2P1M2+=numberOfDigisMod; 
+			  else if(module==3) nDM2P1M3+=numberOfDigisMod; 
+			  else if(module==4) nDM2P1M4+=numberOfDigisMod;}
+	    else if(panel==2){ if(module==1) nDM2P2M1+=numberOfDigisMod; 
+	                       else if(module==2) nDM2P2M2+=numberOfDigisMod; 
+			       else if(module==3) nDM2P2M3+=numberOfDigisMod; }
 	    if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
 	    if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
 	    if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
@@ -274,6 +353,13 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	}else if(side==PixelEndcapName::pI){
 	  if(disk==1){
 	    i=96;
+	    if(panel==1){ if(module==1) nDP1P1M1+=numberOfDigisMod; 
+	                  else if(module==2) nDP1P1M2+=numberOfDigisMod; 
+			  else if(module==3) nDP1P1M3+=numberOfDigisMod; 
+			  else if(module==4) nDP1P1M4+=numberOfDigisMod;}
+	    else if(panel==2){ if(module==1) nDP1P2M1+=numberOfDigisMod; 
+	                       else if(module==2) nDP1P2M2+=numberOfDigisMod; 
+			       else if(module==3) nDP1P2M3+=numberOfDigisMod; }
 	    if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
 	    if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
 	    if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
@@ -288,6 +374,13 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	    if(blade==12){ if(panel==1) iter=i+22; else if(panel==2) iter=i+23; }
 	  }else if(disk==2){
 	    i=120;
+	    if(panel==1){ if(module==1) nDP2P1M1+=numberOfDigisMod; 
+	                  else if(module==2) nDP2P1M2+=numberOfDigisMod; 
+			  else if(module==3) nDP2P1M3+=numberOfDigisMod; 
+			  else if(module==4) nDP2P1M4+=numberOfDigisMod;}
+	    else if(panel==2){ if(module==1) nDP2P2M1+=numberOfDigisMod; 
+	                       else if(module==2) nDP2P2M2+=numberOfDigisMod; 
+			       else if(module==3) nDP2P2M3+=numberOfDigisMod; }
 	    if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
 	    if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
 	    if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
@@ -304,6 +397,13 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	}else if(side==PixelEndcapName::pO){
 	  if(disk==1){
 	    i=144;
+	    if(panel==1){ if(module==1) nDP1P1M1+=numberOfDigisMod; 
+	                  else if(module==2) nDP1P1M2+=numberOfDigisMod; 
+			  else if(module==3) nDP1P1M3+=numberOfDigisMod; 
+			  else if(module==4) nDP1P1M4+=numberOfDigisMod;}
+	    else if(panel==2){ if(module==1) nDP1P2M1+=numberOfDigisMod; 
+	                       else if(module==2) nDP1P2M2+=numberOfDigisMod; 
+			       else if(module==3) nDP1P2M3+=numberOfDigisMod; }
 	    if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
 	    if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
 	    if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
@@ -318,6 +418,13 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	    if(blade==12){ if(panel==1) iter=i+22; else if(panel==2) iter=i+23; }
 	  }else if(disk==2){
 	    i=168;
+	    if(panel==1){ if(module==1) nDP2P1M1+=numberOfDigisMod; 
+	                  else if(module==2) nDP2P1M2+=numberOfDigisMod; 
+			  else if(module==3) nDP2P1M3+=numberOfDigisMod; 
+			  else if(module==4) nDP2P1M4+=numberOfDigisMod;}
+	    else if(panel==2){ if(module==1) nDP2P2M1+=numberOfDigisMod; 
+	                       else if(module==2) nDP2P2M2+=numberOfDigisMod; 
+			       else if(module==3) nDP2P2M3+=numberOfDigisMod; }
 	    if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
 	    if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
 	    if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
@@ -346,6 +453,7 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	    i=1439;
 	  }
         }
+	//cout<<"NDigis Endcap: "<<nDM1P1M1/2.<<" "<<nDM1P2M1/6.<<" "<<nDM1P1M2/6.<<" "<<nDM1P2M2/8.<<" "<<nDM1P1M3/8.<<" "<<nDM1P2M3/10.<<" "<<nDM1P1M4/5.<<endl;
       } //endif Barrel/Endcap
       //cout<<"numberOfDigis: "<<numberOfDigisMod<<" , nBPIXDigis: "<<nBPIXDigis<<" , nFPIXDigis: "<<nFPIXDigis<<endl;
       // digi occupancy per individual FED channel:
@@ -579,6 +687,7 @@ void SiPixelDigiSource::bookMEs(){
   pixEventRate = theDMBE->book1D("pixEventRate",title2,5000,0.,5000.);
   char title3[80]; sprintf(title3, "Average digi occupancy per FED;FED;NDigis/<NDigis>");
   averageDigiOccupancy = theDMBE->book1D("averageDigiOccupancy",title3,40,-0.5,39.5);
+  averageDigiOccupancy->setLumiFlag();
   if(modOn){
     char title4[80]; sprintf(title4, "FED Digi Occupancy (NDigis/<NDigis>) vs LumiSections;Lumi Section;FED");
     avgfedDigiOccvsLumi = theDMBE->book2D ("avgfedDigiOccvsLumi", title4, 400,0., 3200., 40, -0.5, 39.5);
