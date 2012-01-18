@@ -360,8 +360,10 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     thePhotonEnergyCorrector_->calculate(evt, newCandidate, subdet, vertexCollection,es);
     if ( candidateP4type_ == "fromEcalEnergy") {
       newCandidate.setP4( newCandidate.p4(reco::Photon::ecal_photons) );
+      newCandidate.setCandidateP4type(reco::Photon::ecal_photons);
     } else if ( candidateP4type_ == "fromRegression") {
       newCandidate.setP4( newCandidate.p4(reco::Photon::regression1) );
+      newCandidate.setCandidateP4type(reco::Photon::regression1);
     }
 
     //       std::cout << " final p4 " << newCandidate.p4() << " energy " << newCandidate.energy() <<  std::endl;
