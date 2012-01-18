@@ -95,7 +95,7 @@ herwigDefaultsBlock = cms.PSet(
 		'set KtCut:MinKT 4.0',
 		'set UECuts:MHatMin 8.0',
 		'set MPIHandler:InvRadius 1.5',
-		'cd /'
+		'cd /',
 	),
 	# UE Tune from Herwig++ 2.4 (MRST2008LO**)
 	ue_2_4 = cms.vstring(
@@ -103,7 +103,7 @@ herwigDefaultsBlock = cms.PSet(
 		'set KtCut:MinKT 4.3',
 		'set UECuts:MHatMin 8.6',
 		'set MPIHandler:InvRadius 1.2',
-		'cd /'
+		'cd /',
 	),
 
 	# reweight presets
