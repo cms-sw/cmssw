@@ -73,8 +73,8 @@ namespace edm {
 
     if(manage_OOT_) { // figure out what the parameters are
 
-      if (playback_) throw cms::Exception("Illegal parameter clash","PileUp::PileUp(ParameterSet const& pset)")
-	<< " manage_OOT option not allowed with playback ";
+      //      if (playback_) throw cms::Exception("Illegal parameter clash","PileUp::PileUp(ParameterSet const& pset)")
+      // << " manage_OOT option not allowed with playback ";
 
       std::string OOT_type = pset.getUntrackedParameter<std::string>("OOT_type");
 

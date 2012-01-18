@@ -45,7 +45,7 @@ namespace
 	std::string type_=psin.getParameter<std::string>("type");
 	if (ps.exists("readDB") && ps.getParameter<bool>("readDB")){
 	  //in case of DB access, do not try to load anything from the PSet, but wait for beginRun.
-	  edm::LogError("JR")<<" reset to a dummy PileUp object.";
+	  edm::LogError("BMixingModule")<<"Will read from DB: reset to a dummy PileUp object.";
 	  pileup.reset(new edm::PileUp(psin,0,0,playback));
 	  return pileup;
 	}
