@@ -4,6 +4,27 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("Demo")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger = cms.Service("MessageLogger",
+                                    destinations  = cms.untracked.vstring( 'Info',
+                                                                           'Errors',
+                                                                           'Warnings',
+                                                                           'Debug'),
+                                    categories    = cms.untracked.vstring( 'eventNumber',
+                                                                           'Root_Information',
+                                                                           'EventSetupDependency'
+                                                                           ),
+                                    Info          = cms.untracked.PSet( threshold = cms.untracked.string('INFO'),
+                                                                        Root_Information     = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
+                                                                        EventSetupDependency = cms.untracked.PSet( limit = cms.untracked.int32(0) )
+                                                                        ),
+                                    Errors        = cms.untracked.PSet( threshold = cms.untracked.string('ERROR') ),
+                                    Warnings      = cms.untracked.PSet( threshold = cms.untracked.string('WARNING') ),
+                                    Debug         = cms.untracked.PSet( threshold =  cms.untracked.string('DEBUG') ),
+                                    debugModules  = cms.untracked.vstring('*')
+                                    )
+
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+
 process.load("HLTrigger.HLTanalyzers.hltOfflineReproducibility_cfi")
 from HLTrigger.HLTanalyzers.hltOfflineReproducibility_cfi import *
 
@@ -18,12 +39,8 @@ process.GlobalTag.globaltag = autoCond['hltonline']
 process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
 process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
 
-
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
-
-process.MessageLogger.cerr.FwkReport.reportEvery = 1
-
-INPUTFILE="rfio:/castor/cern.ch/user/j/jalimena/177139/HT/out_177139_HT_0.root"
+#INPUTFILE="rfio:/castor/cern.ch/user/j/jalimena/177139/HT/out_177139_HT_0.root"
+INPUTFILE="rfio:/castor/cern.ch/user/j/jalimena/179977/429_HLT3_hltpatch3_trackerR_BadModuleFiber/MuEG/out_179977_MuEG_0.root"
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(INPUTFILE)
                             )
@@ -40,7 +57,7 @@ if DQM:
                                          )
 
 else:
-    OUTPUTFILE="./HLTOfflineReproducibility_177139HT_0.root"
+    OUTPUTFILE="./179977MuEG_0_OfflineReproducibility.root"
     process.TFileService = cms.Service("TFileService",
                                        fileName = cms.string(OUTPUTFILE)
                                        )

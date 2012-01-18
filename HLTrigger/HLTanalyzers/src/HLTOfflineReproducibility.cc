@@ -13,7 +13,7 @@
 //
 // Original Author:  Juliette Marie Alimena,40 3-A02,+41227671577,
 //         Created:  Fri Apr 22 15:46:58 CEST 2011
-// $Id: HLTOfflineReproducibility.cc,v 1.8 2012/01/13 17:42:37 fwyzard Exp $
+// $Id: HLTOfflineReproducibility.cc,v 1.9 2012/01/13 17:45:06 fwyzard Exp $
 //
 //
 
@@ -33,6 +33,7 @@ using namespace std;
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Common/interface/HLTGlobalStatus.h"
@@ -190,8 +191,6 @@ HLTOfflineReproducibility::analyze(const edm::Event& iEvent, const edm::EventSet
 
   using namespace edm;
   
-  //cout <<"Run/Event/Lumi block "<< iEvent.id().run()<<" "<<iEvent.id().event()<<" "<<iEvent.luminosityBlock() <<endl;
-  
   //Initialize Trigger
   TriggerResults trORIG_;
   Handle<TriggerResults> h_trigResORIG_;
@@ -206,14 +205,14 @@ HLTOfflineReproducibility::analyze(const edm::Event& iEvent, const edm::EventSet
   vector<string> triggerListORIG_;
   Service<service::TriggerNamesService> tnsORIG_;
   bool foundNamesORIG_ = tnsORIG_->getTrigPaths(trORIG_,triggerListORIG_);
-  if (!foundNamesORIG_) cout << "Could not get trigger names!\n";
-  if (trORIG_.size()!=triggerListORIG_.size()) cout << "ERROR: length of names and paths not the same: " << triggerListORIG_.size() << "," << trORIG_.size() << endl;  
+  if (!foundNamesORIG_) LogError("DataNotFound")<<"Could not get ORIG trigger names!";
+  if (trORIG_.size()!=triggerListORIG_.size()) LogError("DataNotFound")<<"Length of names and paths not the same: " << triggerListORIG_.size() << "," << trORIG_.size() << endl;  
   
   vector<string> triggerListNEW_;
   Service<service::TriggerNamesService> tnsNEW_;
   bool foundNamesNEW_ = tnsNEW_->getTrigPaths(trNEW_,triggerListNEW_);
-  if (!foundNamesNEW_) cout << "Could not get trigger names!\n";
-  if (trNEW_.size()!=triggerListNEW_.size()) cout << "ERROR: length of names and paths not the same: " << triggerListNEW_.size() << "," << trNEW_.size() << endl;  
+  if (!foundNamesNEW_) LogError("DataNotFound")<<"Could not get trigger names!";
+  if (trNEW_.size()!=triggerListNEW_.size()) LogError("DataNotFound")<<"Length of names and paths not the same: " << triggerListNEW_.size() << "," << trNEW_.size() << endl;  
   
 
   vector<bool> ORIG_accept_, NEW_accept_, fails_prescaler_; 
@@ -229,27 +228,32 @@ HLTOfflineReproducibility::analyze(const edm::Event& iEvent, const edm::EventSet
     module_index_labelNEW_.push_back(" ");
     fails_prescaler_.push_back(false);
   }
-  
+
   //loop over ORIG trigger paths
   for (unsigned int i=0; i<nPathsORIG_; i++) {
     for (unsigned int x=0; x<nPaths_; x++) {
       //match to list of paths that are in common to both ORIG and NEW
       if (triggerListORIG_.at(i)==triggerNames_.at(x)) {
+	LogDebug("event")<<"triggerListORIG and triggerNames matched for 'global' path "<<x<<", "<<triggerNames_.at(x);
 
 	//if ORIG accepted
 	if (trORIG_.at(i).wasrun()==1 && trORIG_.at(i).accept()==1 && trORIG_.at(i).error()==0) {
+	  LogDebug("event")<<"ORIG accepted";
 	  ORIG_accept_.at(x) = true;
 	  trigger_ORIG_.at(x)++;
 	  path_ORIG_hist->Fill(x);
 	  for (unsigned int a=0; a<nDatasets_; a++) {
 	    for (unsigned int b=0; b<nPaths_PD_.at(a); b++) {
-	      if (triggerNames_matched_.at(i).at(a).at(b)) path_ORIG_hist_PD.at(a)->Fill(b);
+	      if (triggerNames_matched_.at(x).at(a).at(b)){
+		path_ORIG_hist_PD.at(a)->Fill(b);
+	      }
 	    }
 	  }
 	}
 	
 	//if ORIG failed
 	if (trORIG_.at(i).accept() == 0){
+	  LogDebug("event")<<"ORIG failed";
 	  module_index_labelORIG_.at(x) = moduleLabelORIG_.at(i)[trORIG_.at(i).index()];
 	  module_indexORIG_.at(x) = hltConfig_.moduleIndex(triggerNames_.at(x),module_index_labelORIG_.at(x));
 	}
@@ -264,7 +268,6 @@ HLTOfflineReproducibility::analyze(const edm::Event& iEvent, const edm::EventSet
       }
     }
   }
-
 
   //loop over NEW trigger paths
   for (unsigned int i=0; i<nPathsNEW_; i++) {
@@ -295,7 +298,6 @@ HLTOfflineReproducibility::analyze(const edm::Event& iEvent, const edm::EventSet
   }
 
 
-
   //check agreement between ORIG and NEW
   //loop over trigger paths (ORIG and NEW)
   for (unsigned int x=0; x<nPaths_; x++) {
@@ -303,9 +305,7 @@ HLTOfflineReproducibility::analyze(const edm::Event& iEvent, const edm::EventSet
       if(ORIG_accept_.at(x) && !NEW_accept_.at(x)){ //ORIG fires but NEW doesn't
 	path_ORIGnotNEW_hist->Fill(x);
 	pathmodule_ORIGnotNEW_hist->Fill(x,module_indexNEW_.at(x)); //module and path for where it fails NEW
-	cout<<"  Event "<<iEvent.id().event()<<" in run "<<iEvent.id().run()<<" and luminosity block "<<iEvent.luminosityBlock()<<endl;
-	cout<<"  fires in ORIG but not NEW!!"<<endl;
-	cout<<"  Path is: "<<triggerNames_.at(x)<<", last run module is: "<<module_index_labelNEW_.at(x)<<endl;
+	LogInfo("EventNotReproduced")<<"Fires in ORIG but not NEW!!"<<" Path is: "<<triggerNames_.at(x)<<", last run module is: "<<module_index_labelNEW_.at(x);
 	for (unsigned int a=0; a<nDatasets_; a++) {
 	  for (unsigned int b=0; b<nPaths_PD_.at(a); b++) {
 	    if (triggerNames_matched_.at(x).at(a).at(b)){
@@ -318,9 +318,7 @@ HLTOfflineReproducibility::analyze(const edm::Event& iEvent, const edm::EventSet
       if(!ORIG_accept_.at(x) && NEW_accept_.at(x)){//NEW fires but ORIG doesn't
 	path_NEWnotORIG_hist->Fill(x);
 	pathmodule_NEWnotORIG_hist->Fill(x,module_indexORIG_.at(x)); //module and path for where it fails ORIG
-	cout<<"  Event "<<iEvent.id().event()<<" in run "<<iEvent.id().run()<<" and luminosity block "<<iEvent.luminosityBlock()<<endl;
-	cout<<"  fires in NEW but not ORIG!!"<<endl;
-	cout<<"  Path is: "<<triggerNames_.at(x)<<", last run module is: "<<module_index_labelORIG_.at(x)<<endl;
+	LogInfo("EventNotReproduced")<<"Fires in NEW but not ORIG!!"<<" Path is: "<<triggerNames_.at(x)<<", last run module is: "<<module_index_labelORIG_.at(x)<<endl;
 	for (unsigned int a=0; a<nDatasets_; a++) {
 	  for (unsigned int b=0; b<nPaths_PD_.at(a); b++) {
 	    if (triggerNames_matched_.at(x).at(a).at(b)){
@@ -331,14 +329,7 @@ HLTOfflineReproducibility::analyze(const edm::Event& iEvent, const edm::EventSet
 	}
       }
     }
-
   }//end of loop over trigger paths
-
-
-
-  //const vector<string> & moduleLabels(hltConfig_.moduleLabels(i));
-  //cout<<"triggerListORIG_["<<i<<"] is: "<<triggerListORIG_.at(i)<<endl;
-  
 
 }
 
@@ -374,7 +365,7 @@ HLTOfflineReproducibility::beginRun(edm::Run const& iRun, edm::EventSetup const&
   if (hltConfig_.init(iRun,iSetup,processNameORIG_,changed)) {
     // if init returns TRUE, initialisation has succeeded!
     if (changed) {
-      cout<<"hlt_Config_.init returns true for ORIG"<<endl;
+      edm::LogInfo("HLTConfigProvider")<<"hlt_Config_.init returns true for ORIG"<<endl;
       // The HLT config has actually changed wrt the previous Run, hence rebook your
       // histograms or do anything else dependent on the revised HLT config
       // check if trigger name in (new) config
@@ -396,7 +387,7 @@ HLTOfflineReproducibility::beginRun(edm::Run const& iRun, edm::EventSetup const&
   else {
     // if init returns FALSE, initialisation has NOT succeeded, which indicates a problem
     // with the file and/or code and needs to be investigated!
-    cout<<" HLT config extraction failure with process name " << processNameORIG_;
+    edm::LogError("HLTConfigProvider")<<" HLT config extraction failure with process name " << processNameORIG_;
     // In this case, all access methods will return empty values!
   }
 
@@ -404,7 +395,7 @@ HLTOfflineReproducibility::beginRun(edm::Run const& iRun, edm::EventSetup const&
   if (hltConfig_.init(iRun,iSetup,processNameNEW_,changed)) {
     // if init returns TRUE, initialisation has succeeded!
     if (changed) {
-      cout<<"hlt_Config_.init returns true for NEW"<<endl;
+      edm::LogInfo("HLTConfigProvider")<<"hlt_Config_.init returns true for NEW"<<endl;
       // The HLT config has actually changed wrt the previous Run, hence rebook your
       // histograms or do anything else dependent on the revised HLT config
       // check if trigger name in (new) config
@@ -425,13 +416,13 @@ HLTOfflineReproducibility::beginRun(edm::Run const& iRun, edm::EventSetup const&
   else {
     // if init returns FALSE, initialisation has NOT succeeded, which indicates a problem
     // with the file and/or code and needs to be investigated!
-    cout<<" HLT config extraction failure with process name " << processNameNEW_;
+    edm::LogError("HLTConfigProvider")<<" HLT config extraction failure with process name " << processNameNEW_;
     // In this case, all access methods will return empty values!
   }
 
   //------------------compare ORIG and NEW hltConfig------------------------
   if (nPathsORIG_==0 || nPathsNEW_==0){
-    cout<<"There are 0 paths ORIG or NEW!! There are "<<nPathsORIG_<<" paths ORIG and "<<nPathsNEW_<<" paths NEW!!!"<<endl;
+    edm::LogError("TooLittleData")<<"There are 0 paths ORIG or NEW!! There are "<<nPathsORIG_<<" paths ORIG and "<<nPathsNEW_<<" paths NEW!!!";
     TriggerModuleNamesOK_ = false;
   }
   else{
@@ -443,16 +434,27 @@ HLTOfflineReproducibility::beginRun(edm::Run const& iRun, edm::EventSetup const&
       for (unsigned int j=0; j<nPathsNEW_; j++) {
 	if (triggerNamesORIG_.at(i)==triggerNamesNEW_.at(j)){
 	  triggerNames_.push_back(triggerNamesORIG_.at(i));
-	  if (i!=j) cout<<"Path "<<triggerNamesORIG_.at(i)<<" corresponds to path number "<<i<<" for ORIG and path number "<<j<<" for NEW"<<endl;
+	  if (i!=j) edm::LogInfo("PathInfo")<<"Path "<<triggerNamesORIG_.at(i)<<" corresponds to path number "<<i<<" for ORIG and path number "<<j<<" for NEW";
 
 	  //define nModules_ as number of modules shared between ORIG and NEW
-	  if (moduleLabelORIG_.at(i).size()<=moduleLabelNEW_.at(j).size()) nModules_.push_back(moduleLabelORIG_.at(i).size());
-	  else nModules_.push_back(moduleLabelNEW_.at(j).size());
+	  if (moduleLabelORIG_.at(i).size()<=moduleLabelNEW_.at(j).size()){
+	    nModules_.push_back(moduleLabelORIG_.at(i).size());
+	    LogDebug("")<<"moduleLabelORIG<=moduleLabelNEW, so moduleLabelORIG_.at(i).size() is: "<<moduleLabelORIG_.at(i).size()<<" for ORIG path "<<i;
+	  }
+	  else {
+	    nModules_.push_back(moduleLabelNEW_.at(j).size());
+	    LogDebug("")<<"moduleLabelORIG>moduleLabelNEW, so moduleLabelNEW_.at(j).size() is: "<<moduleLabelNEW_.at(j).size()<<" for NEW path "<<j;
+	  }
+	  int x;
+	  if (i<=j) x=i;
+	  else x=j;
+	  LogDebug("")<<"nModules for 'global' path "<<x<<" is: "<<nModules_.at(x);
 
-	  if (nModules_.at(i)>max_nModules_) max_nModules_=nModules_.at(i);
+	  if (nModules_.at(x)>max_nModules_) max_nModules_=nModules_.at(x);
 	  
 	  if (moduleLabelORIG_.at(i).size()>moduleLabelNEW_.at(j).size()) nModules_diff_.push_back(moduleLabelORIG_.at(i).size()-moduleLabelNEW_.at(j).size());
 	  else nModules_diff_.push_back(moduleLabelNEW_.at(j).size()-moduleLabelORIG_.at(i).size());
+	  LogDebug("")<<"nModules_diff is: "<<nModules_diff_.at(x)<<" for 'global' path "<<x;
 
 	  temp_.clear();
 	  for (unsigned int a=0; a<moduleLabelORIG_.at(i).size(); a++) {
@@ -462,11 +464,10 @@ HLTOfflineReproducibility::beginRun(edm::Run const& iRun, edm::EventSetup const&
 	      //require that a and b be fairly close to each other, +/- the difference in the number of modules run NEW vs ORIG,
 	      //to avoid double-counting modules that are repeated later in the path
 	      //also, since we need to work with unsigned ints, a or b could also be 0, ignoring the requirement described above
-	      if ( (moduleLabelORIG_.at(i).at(a)==moduleLabelNEW_.at(j).at(b)) && ( (b<=a+nModules_diff_.at(i) && b>=a-nModules_diff_.at(i)) || (a==0 || b==0) ) ){
+	      if ( (moduleLabelORIG_.at(i).at(a)==moduleLabelNEW_.at(j).at(b)) && ( (b<=a+nModules_diff_.at(x) && b>=a-nModules_diff_.at(x)) || (a==0 || b==0) ) ){
 		temp_.push_back(moduleLabelORIG_.at(i).at(a));
 		if (a!=b){
-		  cout<<"For path "<<triggerNamesORIG_.at(i)<<" in ORIG and "<<triggerNamesNEW_.at(j)<<" in NEW:"<<endl;
-		  cout<<"  module "<<moduleLabelORIG_.at(i).at(a)<<" corresponds to module number "<<a<<" for ORIG and module number "<<b<<" for NEW"<<endl;
+		  edm::LogInfo("PathInfo")<<"For path "<<triggerNamesORIG_.at(i)<<" in ORIG and "<<triggerNamesNEW_.at(j)<<" in NEW:"<<"  module "<<moduleLabelORIG_.at(i).at(a)<<" corresponds to module number "<<a<<" for ORIG and module number "<<b<<" for NEW";
 		}
 	      }
 	    }
@@ -486,16 +487,16 @@ HLTOfflineReproducibility::beginRun(edm::Run const& iRun, edm::EventSetup const&
   if (TriggerModuleNamesOK_){
 
     //------------all paths--------------
-    cout<<endl<<"There are "<<nPaths_<<" paths in total"<<endl;
-    cout<<"Maximum number of modules over all paths is: "<<max_nModules_<<endl;  
+    edm::LogInfo("PathInfo")<<"There are "<<nPaths_<<" paths in total";
+    edm::LogInfo("PathInfo")<<"Maximum number of modules over all paths is: "<<max_nModules_;  
 
     for (unsigned int x=0; x<nPaths_; x++) {
       trigger_ORIG_.push_back(0);
       trigger_NEW_.push_back(0);
-      cout<<endl<<"For "<<triggerNames_.at(x)<<" (trigger number "<<x<<"), there are "<<nModules_.at(x)<<" modules:"<<endl;
+      edm::LogInfo("PathInfo")<<"For "<<triggerNames_.at(x)<<" (trigger number "<<x<<"), there are "<<nModules_.at(x)<<" modules:";
       for (unsigned int j=0; j<nModules_.at(x); j++) {
 	const string& moduleType_ = hltConfig_.moduleType(moduleLabel_.at(x).at(j));
-	cout<<"  module "<<j<<" is "<<moduleLabel_.at(x).at(j)<<" and is of type "<<moduleType_<<endl;
+	edm::LogInfo("PathInfo")<<" module "<<j<<" is "<<moduleLabel_.at(x).at(j)<<" and is of type "<<moduleType_;
       }
     }
 
@@ -513,9 +514,9 @@ HLTOfflineReproducibility::beginRun(edm::Run const& iRun, edm::EventSetup const&
       temp_.clear();
       vector<string> datasetcontent_ = hltConfig_.datasetContent(a);
       nPaths_PD_.push_back(datasetcontent_.size());
-      cout<<endl<<"For dataset "<<datasetNames_.at(a)<<" (dataset number "<<a<<"), there are "<<nPaths_PD_.at(a)<<" paths:"<<endl;
+      edm::LogInfo("DatasetInfo")<<"For dataset "<<datasetNames_.at(a)<<" (dataset number "<<a<<"), there are "<<nPaths_PD_.at(a)<<" paths:";
       for (unsigned int b=0; b<nPaths_PD_.at(a); b++) {
-	cout<<"  path "<<b<<" is "<<datasetcontent_.at(b)<<endl;
+	edm::LogInfo("DatasetInfo")<<" path "<<b<<" is "<<datasetcontent_.at(b);
 	temp_.push_back(datasetcontent_.at(b));
       }
       datasetContent_.push_back(temp_);
@@ -532,7 +533,7 @@ HLTOfflineReproducibility::beginRun(edm::Run const& iRun, edm::EventSetup const&
 	for (unsigned int b=0; b<nPaths_PD_.at(a); b++) {
 	  if (triggerNames_.at(x)==datasetContent_.at(a).at(b)){
 	    temp2_.push_back(true);	    
-	    //cout<<"Matched trigger name is: "<<datasetContent_.at(a).at(b)<<" for dataset "<<a<<" and dataset path "<<b<<endl;
+	    LogDebug("")<<"Matched trigger name is: "<<datasetContent_.at(a).at(b)<<" for dataset "<<a<<" and dataset path "<<b;
 	  }
 	  else temp2_.push_back(false);
 	}
@@ -551,7 +552,7 @@ HLTOfflineReproducibility::beginRun(edm::Run const& iRun, edm::EventSetup const&
     }
 
     //for (unsigned int a=0; a<nDatasets_; a++) {
-    //cout<<"For dataset "<<datasetNames_.at(a)<<", the max number of modules is: "<<max_nModules_PD_.at(a)<<endl;
+    //LogDebug("")<<"For dataset "<<datasetNames_.at(a)<<", the max number of modules is: "<<max_nModules_PD_.at(a);
     //}
 
   }//end if all triggers and modules match from ORIG to NEW
@@ -629,9 +630,8 @@ HLTOfflineReproducibility::endRun(edm::Run const&, edm::EventSetup const&)
   if (dqm_ and not dqms_) return;
 
   //all paths
-  cout<<endl;
   for (unsigned int x=0; x<nPaths_; x++) {
-    cout<<triggerNames_.at(x)<<" ORIG accepts: "<<trigger_ORIG_.at(x)<<", NEW accepts: "<<trigger_NEW_.at(x)<<endl;
+    edm::LogInfo("OrigNewFired")<<triggerNames_.at(x)<<" ORIG accepts: "<<trigger_ORIG_.at(x)<<", NEW accepts: "<<trigger_NEW_.at(x);
     path_ORIG_hist->GetXaxis()->SetBinLabel(x+1,triggerNames_.at(x).c_str());
     path_ORIGnotNEW_hist->GetXaxis()->SetBinLabel(x+1,triggerNames_.at(x).c_str());
     path_NEWnotORIG_hist->GetXaxis()->SetBinLabel(x+1,triggerNames_.at(x).c_str());
@@ -649,7 +649,6 @@ HLTOfflineReproducibility::endRun(edm::Run const&, edm::EventSetup const&)
       pathmodule_NEWnotORIG_hist_PD.at(a)->GetXaxis()->SetBinLabel(b+1,datasetContent_.at(a).at(b).c_str());
     }
   }
-  cout<<"axes labeled"<<endl;
 
 }
 
