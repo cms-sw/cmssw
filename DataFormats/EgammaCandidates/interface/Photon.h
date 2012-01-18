@@ -7,7 +7,7 @@
  * stores isolation, shower shape and additional info
  * needed for identification
  * 
- * \version $Id: Photon.h,v 1.44 2011/11/07 21:16:01 nancy Exp $
+ * \version $Id: Photon.h,v 1.45 2011/11/09 11:27:11 nancy Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -234,6 +234,7 @@ namespace reco {
     void setCorrectedEnergy( P4type type, float E, float dE, bool toCand=true );        
     void setP4( P4type type, const LorentzVector & p4, float p4Error, bool setToRecoCandidate ) ;
     void setEnergyCorrections ( const EnergyCorrections& e) { eCorrections_=e;}
+    void setCandidateP4type(const  P4type type) { eCorrections_.candidateP4type = type; }
 
     float getCorrectedEnergy( P4type type) const;
     float getCorrectedEnergyError( P4type type) const ;
