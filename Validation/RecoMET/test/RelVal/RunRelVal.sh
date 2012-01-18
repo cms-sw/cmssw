@@ -5,12 +5,13 @@
 # by: Michael Schmitt and Bobby Scurlock (The University of Florida)
 ##### Modification by : Ronny Remington (UF) 6/12/08
 ##### Modification by : Dayong Wang 12/2009
+##### Modification by : Samantha Hewamanage 01/2012
 ##### This script will validate all 12 met collections, both calotower thresholds, ECAL, and HCAL : Takes 14 mins to run over all layers for a given sample
 
 
 # user input area:
 
-dirlist="QCD_Pt_80_120 TTbar LM1_sfts QCD_FlatPt_15_3000"
+dirlist="QCDFlat TTbar"
 
 CaloMetList="met metNoHF metHO metNoHFHO metOpt metOptNoHF metOptHO metOptNoHFHO"
 tcMetList="tcMet"
@@ -18,18 +19,14 @@ GenMetList="genMetTrue genMetCalo genMetCaloAndNonPrompt"
 CaloTowerList="SchemeB"
 MCaloTowerList="SchemeB Optimized"
 
+datadirRef="/uscms_data/d3/samantha/METRelValTesting_new/CMSSW_5_0_0/src/Validation/RecoMET/test/FullSim/500"
+datadirNew="/uscms_data/d3/samantha/METRelValTesting_new/CMSSW_5_0_0/src/Validation/RecoMET/test/FullSim/500g4emtest"
 
-datadirNew="/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/RelVal/CMSSW_4_2_x"
-datadirRef="/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/RelVal/CMSSW_4_2_x"
+release_ref="500"
+release_new="500_g4emtest"
 
-datadirRef="/tmp/wangdy/4_2_0_pre7"
-datadirNew="/tmp/wangdy/4_2_0"
-
-release_ref="4_2_0_pre7"
-release_new="4_2_0"
-
-cond_ref="MC_42_V6"
-cond_new="MC_42_V9"
+cond_ref="500"
+cond_new="500_g4emtest"
 
 # error handling
 
@@ -206,12 +203,22 @@ for i in $dirlist; do
       newRoot=$datadirNew/DQM_V000?_R000000001__RelVal"$i"__CMSSW_"$release"-"$cond_new"_FastSim-v?__GEN-SIM-DIGI-RECO.root;
   fi
 
-  echo $refRoot;
-  echo $newRoot;
+  if [ -e $refRoot ]; then
+	  echo "Found $refRoot"
+  else
+	  echo "NOT FOUND!! $refRoot"
+	  exit
+  fi
 
+  if [ -e $newRoot ]; then
+	  echo "Found $newRoot"
+	  exit
+  else
+	  echo "NOT FOUND!! $newRoot"
+  fi
 
   #========Run MET Validation=============#
-  cd MET;
+  cd $i/MET;
   failtrue=0
 #  if [ -f Result-button.gif ]; then rm Result-button.gif; fi;
   if [ -f METSummaryTable.html ]; then rm METSummaryTable.html; fi;
