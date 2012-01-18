@@ -16,7 +16,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.h,v 1.23 2010/11/03 21:38:38 merkelp Exp $
+// $Id: SiPixelDigiSource.h,v 1.24 2011/05/20 17:17:24 wmtan Exp $
 //
 
 #include <memory>
@@ -82,6 +82,46 @@
        DQMStore* theDMBE;
        std::map<uint32_t,SiPixelDigiModule*> thePixelStructure;
 
+       int nDP1P1M1;
+       int nDP1P1M2;
+       int nDP1P1M3;
+       int nDP1P1M4;
+       int nDP1P2M1;
+       int nDP1P2M2;
+       int nDP1P2M3;
+       int nDP2P1M1;
+       int nDP2P1M2;
+       int nDP2P1M3;
+       int nDP2P1M4;
+       int nDP2P2M1;
+       int nDP2P2M2;
+       int nDP2P2M3;
+       int nDM1P1M1;
+       int nDM1P1M2;
+       int nDM1P1M3;
+       int nDM1P1M4;
+       int nDM1P2M1;
+       int nDM1P2M2;
+       int nDM1P2M3;
+       int nDM2P1M1;
+       int nDM2P1M2;
+       int nDM2P1M3;
+       int nDM2P1M4;
+       int nDM2P2M1;
+       int nDM2P2M2;
+       int nDM2P2M3;
+       int nL1M1;
+       int nL1M2;
+       int nL1M3;
+       int nL1M4;
+       int nL2M1;
+       int nL2M2;
+       int nL2M3;
+       int nL2M4;
+       int nL3M1;
+       int nL3M2;
+       int nL3M3;
+       int nL3M4;
        int nBigEvents;
        int nBPIXDigis;
        int nFPIXDigis;
