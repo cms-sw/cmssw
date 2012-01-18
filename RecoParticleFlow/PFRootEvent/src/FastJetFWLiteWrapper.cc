@@ -16,6 +16,7 @@
 #include <string.h>
 #include "fastjet/ClusterSequence.hh"
 #include "fastjet/ClusterSequenceActiveArea.hh"
+#include "fastjet/ClusterSequenceWithArea.hh"
 //  Wrapper around fastjet-package written by Matteo Cacciari and Gavin Salam.
 //
 //  The algorithms that underlie FastJet have required considerable
