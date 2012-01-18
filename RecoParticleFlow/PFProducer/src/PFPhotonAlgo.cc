@@ -932,6 +932,7 @@ float PFPhotonAlgo::EvaluateResMVA(reco::PFCandidate photon){
 	ClustSumEt=ClustSumEt+ClusterRef->pt();
 	Clust_Eta.push_back(ClusterRef->eta());
 	Clust_Phi.push_back(ClusterRef->phi());
+	PFclusters.push_back(&*ClusterRef);
       }
       
       if(element.type()==reco::PFBlockElement::GSF)
@@ -1079,6 +1080,7 @@ float PFPhotonAlgo::EvaluateGCorrMVA(reco::PFCandidate photon){
 	ClustSumEt=ClustSumEt+ClusterRef->pt();
 	Clust_Eta.push_back(ClusterRef->eta());
 	Clust_Phi.push_back(ClusterRef->phi());
+	PFclusters.push_back(&*ClusterRef);
       }
       
       if(element.type()==reco::PFBlockElement::GSF)
