@@ -25,7 +25,8 @@ int main(int argc, char * argv[] ) {
   invertPosDefMatrix(m);
   std::cout << m << std::endl;
   m.Invert();
-  m.Invert();
+  std::cout << m << std::endl;
+   m.Invert();
   std::cout << m << std::endl;
 
  
