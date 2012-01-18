@@ -54,6 +54,8 @@ private:
   int nLumiSecs_;
   int nEvents_;
   int nEvents_lastLS_;
+  int nErrorsBarrel_lastLS_;
+  int nErrorsEndcap_lastLS_;
   
   
   DQMStore* bei_;  

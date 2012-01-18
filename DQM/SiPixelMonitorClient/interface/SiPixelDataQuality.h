@@ -63,7 +63,9 @@ class SiPixelDataQuality {
                                        bool                               init,
 				       int                                nFEDs,
 				       bool                               Tier0Flag,
-				       int                                nEvents_lastLS_);
+				       int                                nEvents_lastLS_,
+				       int                                nErrorsBarrel_lastLS_,
+				       int                                nErrorsEndcap_lastLS_);
   
   void fillGlobalQualityPlot    (DQMStore                               * bei,
                                  bool                                     init,
