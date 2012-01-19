@@ -1,0 +1,7 @@
+<export>
+</export>
+<library   name="CommonToolsTriggerUtils_test" file="*.cc">
+  <use name="CommonTools/TriggerUtils"/>
+  <use name="FWCore/Framework"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
