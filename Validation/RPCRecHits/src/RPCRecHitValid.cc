@@ -61,7 +61,7 @@ RPCRecHitValid::RPCRecHitValid(const edm::ParameterSet& pset)
   }
 
   dbe_->setCurrentFolder(subDir_+"/Track");
-  
+
   h_nRPCHitPerSimMuon        = dbe_->book1D("NRPCHitPerSimMuon"       , "Number of RPC SimHit per SimMuon", 11, -0.5, 10.5);
   h_nRPCHitPerSimMuonBarrel  = dbe_->book1D("NRPCHitPerSimMuonBarrel" , "Number of RPC SimHit per SimMuon", 11, -0.5, 10.5);
   h_nRPCHitPerSimMuonOverlap = dbe_->book1D("NRPCHitPerSimMuonOverlap", "Number of RPC SimHit per SimMuon", 11, -0.5, 10.5);
@@ -70,7 +70,7 @@ RPCRecHitValid::RPCRecHitValid(const edm::ParameterSet& pset)
   h_nRPCHitPerRecoMuon        = dbe_->book1D("NRPCHitPerRecoMuon"       , "Number of RPC RecHit per RecoMuon", 11, -0.5, 10.5);
   h_nRPCHitPerRecoMuonBarrel  = dbe_->book1D("NRPCHitPerRecoMuonBarrel" , "Number of RPC RecHit per RecoMuon", 11, -0.5, 10.5);
   h_nRPCHitPerRecoMuonOverlap = dbe_->book1D("NRPCHitPerRecoMuonOverlap", "Number of RPC RecHit per RecoMuon", 11, -0.5, 10.5);
-  h_nRPCHitPerRecoMuonEndcap  = dbe_->book1D("NRPCHitPerRecoMuonEndcap" , "Number of RPC RecHit per RecoMuon", 11, -0.5, 10.5); 
+  h_nRPCHitPerRecoMuonEndcap  = dbe_->book1D("NRPCHitPerRecoMuonEndcap" , "Number of RPC RecHit per RecoMuon", 11, -0.5, 10.5);
 
   float ptBins[] = {0, 1, 2, 5, 10, 20, 30, 50, 100, 200, 300, 500};
   const int nPtBins = sizeof(ptBins)/sizeof(float)-1;
@@ -102,7 +102,7 @@ RPCRecHitValid::RPCRecHitValid(const edm::ParameterSet& pset)
 
   dbe_->setCurrentFolder(subDir_+"/Occupancy");
 
-  h_eventCount = dbe_->book1D("EventCount", "Event count", 3, 0, 3);
+  h_eventCount = dbe_->book1D("EventCount", "Event count", 3, 1, 4);
   if ( h_eventCount )
   {
     TH1* h = h_eventCount->getTH1();
@@ -110,7 +110,7 @@ RPCRecHitValid::RPCRecHitValid(const edm::ParameterSet& pset)
     h->GetXaxis()->SetBinLabel(2, "eventEnd");
     h->GetXaxis()->SetBinLabel(3, "run");
   }
-  
+
   h_refPunchOccupancyBarrel_wheel   = dbe_->book1D("RefPunchOccupancyBarrel_wheel"  , "RefPunchthrough occupancy", 5, -2.5, 2.5);
   h_refPunchOccupancyEndcap_disk    = dbe_->book1D("RefPunchOccupancyEndcap_disk"   , "RefPunchthrough occupancy", 7, -3.5, 3.5);
   h_refPunchOccupancyBarrel_station = dbe_->book1D("RefPunchOccupancyBarrel_station", "RefPunchthrough occupancy", 4,  0.5, 4.5);
@@ -178,16 +178,13 @@ void RPCRecHitValid::endJob()
 void RPCRecHitValid::beginRun(const edm::Run& run, const edm::EventSetup& eventSetup)
 {
   if ( !dbe_ ) return;
-  h_eventCount->Fill(2);
+  h_eventCount->Fill(3);
 
   // Book roll-by-roll histograms
   edm::ESHandle<RPCGeometry> rpcGeom;
   eventSetup.get<MuonGeometryRecord>().get(rpcGeom);
 
   int nRPCRollBarrel = 0, nRPCRollEndcap = 0;
-  std::vector<float> rollAreaBarrel, rollAreaEndcap;
-  rollAreaBarrel.reserve(1300);
-  rollAreaEndcap.reserve(1300);
 
   TrackingGeometry::DetContainer rpcDets = rpcGeom->dets();
   for ( TrackingGeometry::DetContainer::const_iterator detIter = rpcDets.begin();
@@ -207,20 +204,16 @@ void RPCRecHitValid::beginRun(const edm::Run& run, const edm::EventSetup& eventS
       const int rawId = roll->geographicalId().rawId();
       //if ( !roll->specs()->isRPC() ) { cout << "\nNoRPC : " << rpcSrv.name() << ' ' << rawId << endl; continue; }
 
-      const StripTopology& topol = roll->specificTopology();
-      const double area = topol.stripLength()*topol.nstrips()*topol.pitch();
       if ( roll->isBarrel() )
       {
         detIdToIndexMapBarrel_[rawId] = nRPCRollBarrel;
         //rollIdToNameMapBarrel_[rawId] = rpcSrv.name();
-        rollAreaBarrel.push_back(area);
         ++nRPCRollBarrel;
       }
       else
       {
         detIdToIndexMapEndcap_[rawId] = nRPCRollEndcap;
         //rollIdToNameMapEndcap_[rawId] = rpcSrv.name();
-        rollAreaEndcap.push_back(area);
         ++nRPCRollEndcap;
       }
     }
@@ -234,34 +227,62 @@ void RPCRecHitValid::beginRun(const edm::Run& run, const edm::EventSetup& eventS
   h_noiseOccupancyBarrel_detId = dbe_->book1D("NoiseOccupancyBarrel_detId", "Noise occupancy;roll index (can be arbitrary)", nRPCRollBarrel, 0, nRPCRollBarrel);
   h_noiseOccupancyEndcap_detId = dbe_->book1D("NoiseOccupancyEndcap_detId", "Noise occupancy;roll index (can be arbitrary)", nRPCRollEndcap, 0, nRPCRollEndcap);
 
-  h_rollAreaBarrel_detId = dbe_->book1D("RollAreaBarrel_detId", "Roll area;roll index", nRPCRollBarrel, 0, nRPCRollBarrel);
-  h_rollAreaEndcap_detId = dbe_->book1D("RollAreaEndcap_detId", "Roll area;roll index", nRPCRollEndcap, 0, nRPCRollEndcap);
-
-  TH1* h = 0;
-
-  h = h_rollAreaBarrel_detId->getTH1();
-  h->SetBit(TH1::kIsAverage);
-  for ( int i = 0; i < nRPCRollBarrel; ++i )
-  {
-    h->SetBinContent(i+1, rollAreaBarrel[i]);
-  }
-
-  h = h_rollAreaEndcap_detId->getTH1();
-  h->SetBit(TH1::kIsAverage);
-  for ( int i = 0; i < nRPCRollEndcap; ++i )
-  {
-    h->SetBinContent(i+1, rollAreaEndcap[i]);
-  }
 }
 
-void RPCRecHitValid::endRun()
+void RPCRecHitValid::endRun(const edm::Run& run, const edm::EventSetup& eventSetup)
 {
+  if ( !dbe_ ) return;
+
+  const int nRPCRollBarrel = detIdToIndexMapBarrel_.size();
+  const int nRPCRollEndcap = detIdToIndexMapEndcap_.size();
+
+  h_rollAreaBarrel_detId = dbe_->bookProfile("RollAreaBarrel_detId", "Roll area;roll index;Area", nRPCRollBarrel, 0., 1.*nRPCRollBarrel, 0., 1e5);
+  h_rollAreaEndcap_detId = dbe_->bookProfile("RollAreaEndcap_detId", "Roll area;roll index;Area", nRPCRollEndcap, 0., 1.*nRPCRollEndcap, 0., 1e5);
+
+  edm::ESHandle<RPCGeometry> rpcGeom;
+  eventSetup.get<MuonGeometryRecord>().get(rpcGeom);
+
+  for ( map<int, int>::const_iterator iter = detIdToIndexMapBarrel_.begin();
+        iter != detIdToIndexMapBarrel_.end(); ++iter )
+  {
+    const int rawId = iter->first;
+    const int index = iter->second;
+
+    const RPCDetId rpcDetId = static_cast<const RPCDetId>(rawId);
+    const RPCRoll* roll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(rpcDetId));
+
+    //RPCGeomServ rpcSrv(roll->id());
+    //if ( !roll->specs()->isRPC() ) { cout << "\nNoRPC : " << rpcSrv.name() << ' ' << rawId << endl; continue; }
+
+    const StripTopology& topol = roll->specificTopology();
+    const double area = topol.stripLength()*topol.nstrips()*topol.pitch();
+
+    h_rollAreaBarrel_detId->Fill(index, area);
+  }
+
+  for ( map<int, int>::const_iterator iter = detIdToIndexMapEndcap_.begin();
+        iter != detIdToIndexMapEndcap_.end(); ++iter )
+  {
+    const int rawId = iter->first;
+    const int index = iter->second;
+
+    const RPCDetId rpcDetId = static_cast<const RPCDetId>(rawId);
+    const RPCRoll* roll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(rpcDetId));
+
+    //RPCGeomServ rpcSrv(roll->id());
+    //if ( !roll->specs()->isRPC() ) { cout << "\nNoRPC : " << rpcSrv.name() << ' ' << rawId << endl; continue; }
+
+    const StripTopology& topol = roll->specificTopology();
+    const double area = topol.stripLength()*topol.nstrips()*topol.pitch();
+
+    h_rollAreaEndcap_detId->Fill(index, area);
+  }
 }
 
 void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eventSetup)
 {
   if ( !dbe_ ) return;
-  h_eventCount->Fill(0);
+  h_eventCount->Fill(1);
 
   // Get the RPC Geometry
   edm::ESHandle<RPCGeometry> rpcGeom;
@@ -423,7 +444,7 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
 
       h_refOccupancyBarrel_detId->Fill(detIdToIndexMapBarrel_[simHit->detUnitId()]);
     }
-    else 
+    else
     {
       ++nRefHitEndcap;
       h_.refHitOccupancyEndcap_disk->Fill(region*station);
@@ -457,7 +478,7 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
 
       h_refOccupancyBarrel_detId->Fill(detIdToIndexMapBarrel_[simHit->detUnitId()]);
     }
-    else 
+    else
     {
       ++nRefHitEndcap;
       h_refPunchOccupancyEndcap_disk->Fill(region*station);
@@ -488,7 +509,7 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
 
     h_.clusterSize->Fill(recHitIter->clusterSize());
 
-    if ( region == 0 ) 
+    if ( region == 0 )
     {
       ++nRecHitBarrel;
       sumClusterSizeBarrel += recHitIter->clusterSize();
@@ -592,7 +613,7 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
     const double errX = sqrt(recHitIter->localPositionError().xx());
     const double dX = recX - simX;
     const double pull = errX == 0 ? -999 : dX/errX;
-  
+
     //const GlobalPoint simPos = roll->toGlobal(simHitIter->localPosition());
     //const GlobalPoint recPos = roll->toGlobal(recHitIter->localPosition());
 
@@ -640,7 +661,7 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
 
     int nRPCHitBarrel = 0;
     int nRPCHitEndcap = 0;
-    
+
     const reco::TrackRef glbTrack = muon->globalTrack();
     for ( trackingRecHit_iterator recHit = glbTrack->recHitsBegin();
           recHit != glbTrack->recHitsEnd(); ++recHit )
@@ -713,7 +734,7 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
     if ( !matched )
     {
       // FIXME : kept for backward compatibility //
-      if ( region == 0 ) 
+      if ( region == 0 )
       {
         h_.umOccupancyBarrel_wheel->Fill(ring);
         h_.umOccupancyBarrel_station->Fill(station);
@@ -806,7 +827,7 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
     }
   }
 
-  h_eventCount->Fill(1);
+  h_eventCount->Fill(2);
 }
 
 DEFINE_FWK_MODULE(RPCRecHitValid);
