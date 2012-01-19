@@ -35,10 +35,7 @@ namespace {
 
 static const char* const kSource ="Source";
 static const char* const kService = "Service";
-static const char* const kESSource = "ESSource";
-static const char* const kESProducer = "ESProducer";
 static const char* const k_source = "source";
-static const std::string kAppendToDataLabel("appendToDataLabel");
 
 namespace edm {
 
@@ -86,7 +83,7 @@ namespace edm {
           "ConfigurationDescriptions::add, for a service only 1 ParameterSetDescription may be added\n");
       }
     }
-
+    
     // To minimize the number of copies involved create an empty description first
     // and push it into the vector.  Then perform the copy.
     std::pair<std::string, ParameterSetDescription> pairWithEmptyDescription;
@@ -95,12 +92,7 @@ namespace edm {
 
     pair.first = label;
     pair.second = psetDescription;
-
-    if (0==strcmp(baseType_.c_str(),kESSource) || 0==strcmp(baseType_.c_str(),kESProducer)) {
-      if (pair.second.isLabelUnused(kAppendToDataLabel)) {
-        pair.second.add<std::string>(kAppendToDataLabel, std::string(""));
-      }
-    }
+    
   }
 
   void
@@ -116,14 +108,24 @@ namespace edm {
 
     defaultDescDefined_ = true;
     defaultDesc_ = psetDescription;
-
-    if (0==strcmp(baseType_.c_str(),kESSource) || 0==strcmp(baseType_.c_str(),kESProducer)) {
-      if (defaultDesc_.isLabelUnused(kAppendToDataLabel)) {
-        defaultDesc_.add<std::string>(kAppendToDataLabel, std::string(""));
-      }
-    }
+    
   }
+  
+  ParameterSetDescription* 
+  ConfigurationDescriptions::defaultDescription() {
+    if (defaultDescDefined_) {
+      return &defaultDesc_;
+    }
+    return 0;
+  }
+  
+  ConfigurationDescriptions::iterator 
+  ConfigurationDescriptions::begin() { return descriptions_.begin();}
 
+  ConfigurationDescriptions::iterator 
+  ConfigurationDescriptions::end() {return descriptions_.end();}
+
+  
   void
   ConfigurationDescriptions::validate(ParameterSet & pset,
                                       std::string const& moduleLabel) const {

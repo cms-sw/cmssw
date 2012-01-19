@@ -37,6 +37,7 @@ namespace edm {
 
     virtual void fill(ConfigurationDescriptions & descriptions) const {
       T::fillDescriptions(descriptions);
+      T::prevalidate(descriptions);
     }
 
     virtual const std::string& baseType() const {
@@ -86,8 +87,35 @@ namespace edm {
         descriptions.addDefault(desc);
       }
     };
+    
+    template <typename T, void (*)(ConfigurationDescriptions &)>  struct prevalidate_function;
+    template <typename T> no_tag  has_prevalidate_helper(...);
+    template <typename T> yes_tag has_prevalidate_helper(fillDescriptions_function<T, &T::prevalidate> * dummy);
+    
+    template<typename T>
+    struct has_prevalidate_function {
+      static bool const value =
+      sizeof(has_prevalidate_helper<T>(0)) == sizeof(yes_tag);
+    };
+    
+    template <typename T>
+    struct DoPrevalidate {
+      void operator()(ConfigurationDescriptions & descriptions) {
+        T::prevalidate(descriptions);
+      }
+    };
+    
+    template <typename T>
+    struct DoNothing {
+      void operator()(ConfigurationDescriptions & descriptions) {
+      }
+    };
+
   }
 
+  // Not needed at the moment
+  //void prevalidateService(ConfigurationDescriptions &);
+  
   template< typename T>
   class DescriptionFillerForServices : public ParameterSetDescriptionFillerBase
   {
@@ -101,6 +129,9 @@ namespace edm {
                                 edm::fillDetails::DoFillDescriptions<T>,
                                 edm::fillDetails::DoFillAsUnknown<T> >::type fill_descriptions;
       fill_descriptions(descriptions);
+      //we don't have a need for prevalidation of services at the moment, so this is a placeholder
+      // Probably the best package to declare this in would be FWCore/ServiceRegistry
+      //prevalidateService(descriptions);
     }
 
     virtual const std::string& baseType() const {
@@ -108,6 +139,7 @@ namespace edm {
     }
 
   private:
+    void prevalidate(ConfigurationDescriptions & descriptions);
     DescriptionFillerForServices(const DescriptionFillerForServices&); // stop default
     const DescriptionFillerForServices& operator=(const DescriptionFillerForServices&); // stop default
   };
@@ -125,6 +157,11 @@ namespace edm {
                                 edm::fillDetails::DoFillDescriptions<T>,
                                 edm::fillDetails::DoFillAsUnknown<T> >::type fill_descriptions;
       fill_descriptions(descriptions);
+      
+      typename boost::mpl::if_c<edm::fillDetails::has_prevalidate_function<T>::value,
+      edm::fillDetails::DoPrevalidate<T>,
+      edm::fillDetails::DoNothing<T> >::type prevalidate;
+      prevalidate(descriptions);
     }
 
     virtual const std::string& baseType() const {
@@ -149,6 +186,11 @@ namespace edm {
                                 edm::fillDetails::DoFillDescriptions<T>,
                                 edm::fillDetails::DoFillAsUnknown<T> >::type fill_descriptions;
       fill_descriptions(descriptions);
+      
+      typename boost::mpl::if_c<edm::fillDetails::has_prevalidate_function<T>::value,
+      edm::fillDetails::DoPrevalidate<T>,
+      edm::fillDetails::DoNothing<T> >::type prevalidate;
+      prevalidate(descriptions);
     }
 
     virtual const std::string& baseType() const {
