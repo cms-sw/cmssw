@@ -28,6 +28,7 @@ namespace edm {
     virtual ~EDProducer();
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
+    static void prevalidate(ConfigurationDescriptions& descriptions);
     static const std::string& baseType();
 
   protected:

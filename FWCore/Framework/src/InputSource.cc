@@ -112,6 +112,11 @@ namespace edm {
     descriptions.addDefault(desc);
   }
 
+  void
+  InputSource::prevalidate(ConfigurationDescriptions& ) {
+  }
+  
+
   static std::string const kBaseType("Source");
 
   std::string const&

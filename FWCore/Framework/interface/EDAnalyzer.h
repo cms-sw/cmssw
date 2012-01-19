@@ -24,6 +24,9 @@ namespace edm {
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
     static const std::string& baseType();
+    static   void prevalidate(ConfigurationDescriptions& );
+    
+
 
   protected:
     // The returned pointer will be null unless the this is currently

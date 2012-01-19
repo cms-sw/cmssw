@@ -122,6 +122,11 @@ namespace edm {
     descriptions.addDefault(desc);
   }
 
+  void
+  EDFilter::prevalidate(ConfigurationDescriptions& ) {
+  }
+  
+
   static const std::string kBaseType("EDFilter");
   const std::string&
   EDFilter::baseType() {

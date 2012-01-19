@@ -33,6 +33,8 @@ namespace edm {
     virtual ~EDFilter();
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
+    static void prevalidate(ConfigurationDescriptions& );
+
     static const std::string& baseType();
 
   protected:

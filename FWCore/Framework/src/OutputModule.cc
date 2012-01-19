@@ -416,12 +416,17 @@ namespace edm {
     desc.setUnknown();
     descriptions.addDefault(desc);
   }
-
+  
   void
   OutputModule::fillDescription(ParameterSetDescription& desc) {
     GroupSelectorRules::fillDescription(desc, "outputCommands");
     EventSelector::fillDescription(desc);
   }
+  
+  void
+  OutputModule::prevalidate(ConfigurationDescriptions& ) {
+  }
+  
 
   static const std::string kBaseType("OutputModule");
   const std::string&

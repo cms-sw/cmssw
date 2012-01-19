@@ -34,6 +34,7 @@
 namespace edm {
    class ValidityInterval;
    class ParameterSet;
+   class ConfigurationDescriptions;
    namespace eventsetup {
       class DataProxy;
       
@@ -59,6 +60,9 @@ class DataProxyProvider
       
       const ComponentDescription& description() const { return description_;}
       // ---------- static member functions --------------------
+      /**Used to add parameters available to all inheriting classes
+      */
+      static void prevalidate(ConfigurationDescriptions&);
 
       // ---------- member functions ---------------------------
       

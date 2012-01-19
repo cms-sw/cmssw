@@ -124,6 +124,10 @@ namespace edm {
     descriptions.addDefault(desc);
   }
   
+  void
+  EDProducer::prevalidate(ConfigurationDescriptions& ) {
+  }
+  
   static const std::string kBaseType("EDProducer");
   
   const std::string&

@@ -93,6 +93,9 @@ namespace edm {
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
     static const std::string& baseType();
     static void fillDescription(ParameterSetDescription& desc);
+    static void prevalidate(ConfigurationDescriptions& );
+    
+
 
     ItemType nextItemType();
 

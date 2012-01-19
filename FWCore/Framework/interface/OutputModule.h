@@ -59,6 +59,9 @@ namespace edm {
     static void fillDescription(ParameterSetDescription & desc);
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
     static const std::string& baseType();
+    static void prevalidate(ConfigurationDescriptions& );
+    
+
 
     BranchChildren const& branchChildren() const {return branchChildren_;}
 

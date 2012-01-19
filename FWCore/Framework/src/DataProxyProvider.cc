@@ -11,11 +11,13 @@
 //
 
 // system include files
+#include <algorithm>
 
 // user include files
 #include "FWCore/Framework/interface/DataProxyProvider.h"
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 namespace edm {
    namespace eventsetup {
@@ -167,6 +169,23 @@ DataProxyProvider::keyedProxies(const EventSetupRecordKey& iRecordKey) const
 //
 // static member functions
 //
+static const std::string kAppendToDataLabel("appendToDataLabel");
+
+void
+DataProxyProvider::prevalidate(ConfigurationDescriptions& iDesc)
+{
+   if(iDesc.defaultDescription()) {
+     if (iDesc.defaultDescription()->isLabelUnused(kAppendToDataLabel)) {
+       iDesc.defaultDescription()->add<std::string>(kAppendToDataLabel, std::string(""));
+     }
+   }
+   for(auto v: iDesc) {
+     if (v.second.isLabelUnused(kAppendToDataLabel)) {
+       v.second.add<std::string>(kAppendToDataLabel, std::string(""));
+     }
+   }
+}
+
    }
 }
 

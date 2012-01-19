@@ -112,6 +112,12 @@ namespace edm {
     desc.setUnknown();
     descriptions.addDefault(desc);
   }
+  
+  void
+  EDAnalyzer::prevalidate(ConfigurationDescriptions& ) {
+  }
+  
+
 
   static const std::string kBaseType("EDAnalyzer");
   const std::string&
