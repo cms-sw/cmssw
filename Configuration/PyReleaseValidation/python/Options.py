@@ -293,7 +293,7 @@ expertSettings.add_option("--inputEventContent",
 
 expertSettings.add_option("--dropDescendant",
                           help="allow to drop descendant on input",
-                          default=defaultOptionsdropDescendant",
+                          default=defaultOptions.dropDescendant,
                           action="store_true")
 
 expertSettings.add_option("--slhc",
