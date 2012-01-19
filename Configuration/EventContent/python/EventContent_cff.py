@@ -23,7 +23,7 @@ import FWCore.ParameterSet.Config as cms
 #
 #  FEVT (RAW+RECO), FEVTSIM (RAWSIM+RECOSIM), FEVTDEBUG (FEVTSIM+ALL_SIM_INFO), FEVTDEBUGHLT (FEVTDEBUG+HLTDEBUG)
 #
-#  $Id: EventContent_cff.py,v 1.44 2011/12/19 04:15:05 mikeh Exp $
+#  $Id: EventContent_cff.py,v 1.45 2011/12/29 03:50:44 mikeh Exp $
 #
 #
 #
@@ -637,3 +637,13 @@ REPACKRAWSIMEventContent.outputCommands.extend(['drop FEDRawDataCollection_sourc
                                                 'drop FEDRawDataCollection_rawDataCollector_*_*'])
 REPACKRAWEventContent.outputCommands.extend(['drop FEDRawDataCollection_source_*_*',
                                                 'drop FEDRawDataCollection_rawDataCollector_*_*'])
+
+REDIGIEventContent = cms.PSet(
+    inputCommands=cms.untracked.vstring('drop *')
+    )
+REDIGIEventContent.inputCommands.extend(SimG4CoreRAW.outputCommands)
+REDIGIEventContent.inputCommands.extend(IOMCRAW.outputCommands)
+REDIGIEventContent.inputCommands.extend(GeneratorInterfaceRAW.outputCommands)
+for item in REDIGIEventContent.inputCommands:
+    if 'genParticles' in item:
+        REDIGIEventContent.inputCommands.remove(item)
