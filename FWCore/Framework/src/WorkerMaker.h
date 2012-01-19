@@ -60,6 +60,7 @@ namespace edm {
   template <class T>
   void WorkerMaker<T>::fillDescriptions(ConfigurationDescriptions& iDesc) const {
     T::fillDescriptions(iDesc);
+    T::prevalidate(iDesc);
   }
 
   template <class T>
