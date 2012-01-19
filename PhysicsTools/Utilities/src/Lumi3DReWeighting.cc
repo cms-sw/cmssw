@@ -161,13 +161,14 @@ double Lumi3DReWeighting::weight3D( const edm::EventBase &e ) {
  
 }
 
-void Lumi3DReWeighting::weight3D_set( std::string generatedFile, std::string dataFile, std::string GenHistName, std::string DataHistName)
+void Lumi3DReWeighting::weight3D_set( std::string generatedFile, std::string dataFile, std::string GenHistName, std::string DataHistName, std::string WeightOutputFile )
 {
  
   generatedFileName_ = generatedFile;
   dataFileName_ = dataFile ; 
   GenHistName_ = GenHistName ; 
   DataHistName_= DataHistName ;
+  weightFileName_  = WeightOutputFile; 	
     
   std::cout<< " seting values: " << generatedFileName_ << " " << dataFileName_ << " " << GenHistName_ << " " << DataHistName_ << std::endl;
 

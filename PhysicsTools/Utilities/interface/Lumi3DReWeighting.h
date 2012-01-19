@@ -43,7 +43,7 @@ namespace edm {
 
     double weight3D( int, int, int );
 
-    void weight3D_set( std::string generatedFile, std::string dataFile, std::string GenHistName, std::string DataHistName);
+    void weight3D_set( std::string generatedFile, std::string dataFile, std::string GenHistName, std::string DataHistName, std::string WeightOutputFile);
 
     void weight3D_init( float Scale );
 
