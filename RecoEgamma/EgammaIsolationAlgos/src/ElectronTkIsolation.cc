@@ -56,7 +56,7 @@ std::pair<int,double> ElectronTkIsolation::getIso(const reco::GsfElectron* elect
 }
 
 // unified acces to isolations
-std::pair<int,double> ElectronTkIsolation::getIso(const reco::GsfTrack* tmpTrack) const  
+std::pair<int,double> ElectronTkIsolation::getIso(const reco::Track* tmpTrack) const  
 {
   int counter  =0 ;
   double ptSum =0.;

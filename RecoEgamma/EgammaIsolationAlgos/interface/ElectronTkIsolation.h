@@ -102,7 +102,7 @@ class ElectronTkIsolation {
 
   int getNumberTracks(const reco::GsfElectron*) const ;
   double getPtTracks (const reco::GsfElectron*) const ;
-  std::pair<int,double>getIso(const reco::GsfTrack*) const ;
+  std::pair<int,double>getIso(const reco::Track*) const ;
 
  private:
     
