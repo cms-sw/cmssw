@@ -638,15 +638,15 @@ void SiPixelDataQuality::computeGlobalQualityFlagByLumi(DQMStore * bei,
   float PixelRate_LS = 1.;
   MonitorElement * me = bei->get("Pixel/AdditionalPixelErrors/byLumiErrors");
   if(me){
-    cout<<"NENTRIES: "<<me->getEntries()<<" "<<nEvents_lastLS_<<" "<<nErrorsBarrel_lastLS_<<" "<<nErrorsEndcap_lastLS_<<endl;
+    //cout<<"NENTRIES: "<<me->getEntries()<<" "<<nEvents_lastLS_<<" "<<nErrorsBarrel_lastLS_<<" "<<nErrorsEndcap_lastLS_<<endl;
     double nBarrelErrors_LS = me->getBinContent(1) - nErrorsBarrel_lastLS_;
     double nEndcapErrors_LS = me->getBinContent(2) - nErrorsEndcap_lastLS_;
     double nEvents_LS = me->getBinContent(0) - nEvents_lastLS_;
-    cout<<"BINS: "<<me->getBinContent(0)<<" "<<me->getBinContent(1)<<" "<<me->getBinContent(2)<<endl;
+    //cout<<"BINS: "<<me->getBinContent(0)<<" "<<me->getBinContent(1)<<" "<<me->getBinContent(2)<<endl;
     if(nBarrelErrors_LS/nEvents_LS>0.5) BarrelRate_LS=0.;
     if(nEndcapErrors_LS/nEvents_LS>0.5) EndcapRate_LS=0.;
     if((nBarrelErrors_LS + nEndcapErrors_LS)/nEvents_LS>0.5) PixelRate_LS=0.;
-    std::cout<<"nEvents_LS: "<<nEvents_LS<<" , nBarrelErrors_LS: "<<nBarrelErrors_LS<<" , nEndcapErrors_LS: "<<nEndcapErrors_LS<<" , BarrelRate_LS: "<<BarrelRate_LS<<" , EndcapRate_LS: "<<EndcapRate_LS<<" , PixelRate_LS: "<<PixelRate_LS<<std::endl;
+    //std::cout<<"nEvents_LS: "<<nEvents_LS<<" , nBarrelErrors_LS: "<<nBarrelErrors_LS<<" , nEndcapErrors_LS: "<<nEndcapErrors_LS<<" , BarrelRate_LS: "<<BarrelRate_LS<<" , EndcapRate_LS: "<<EndcapRate_LS<<" , PixelRate_LS: "<<PixelRate_LS<<std::endl;
   }
   
   // evaluate mean cluster charge on tracks for data quality:
@@ -655,13 +655,13 @@ void SiPixelDataQuality::computeGlobalQualityFlagByLumi(DQMStore * bei,
   float PixelClusterCharge = 1.;
   MonitorElement * me1 = bei->get("Pixel/Clusters/OnTrack/charge_siPixelClusters_Barrel");
   if(me1 && me1->getMean()<12.) BarrelClusterCharge = 0.;
-  if(me1) cout<<"Mean cluster charge in Barrel: "<<me1->getMean()<<endl;
+  //if(me1) cout<<"Mean cluster charge in Barrel: "<<me1->getMean()<<endl;
   MonitorElement * me2 = bei->get("Pixel/Clusters/OnTrack/charge_siPixelClusters_Endcap");
   if(me2 && me2->getMean()<12.) EndcapClusterCharge = 0.;
-  if(me2) cout<<"Mean cluster charge in Endcap: "<<me2->getMean()<<endl;
+  //if(me2) cout<<"Mean cluster charge in Endcap: "<<me2->getMean()<<endl;
   MonitorElement * me3 = bei->get("Pixel/Clusters/OnTrack/charge_siPixelClusters");
   if(me3 && me3->getMean()<12.) PixelClusterCharge = 0.;
-  if(me3) cout<<"Mean cluster charge in Pixel: "<<me3->getMean()<<endl;
+  //if(me3) cout<<"Mean cluster charge in Pixel: "<<me3->getMean()<<endl;
   
   // evaluate average FED occupancy for data quality:
   float BarrelOccupancy = 1.;
@@ -711,7 +711,7 @@ void SiPixelDataQuality::computeGlobalQualityFlagByLumi(DQMStore * bei,
 void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::EventSetup const& eSetup, int nFEDs, bool Tier0Flag, int lumisec){
 //std::cout<<"Entering SiPixelDataQuality::fillGlobalQualityPlot: "<<nFEDs<<std::endl;
   //calculate eta and phi of the modules and fill a 2D plot:
-  if(lastLS_<lumisec){ cout<<"lastLS_="<<lastLS_<<" ,lumisec="<<lumisec<<endl; lastLS_=lumisec; init=true; cout<<"init="<<init<<endl; }
+  //if(lastLS_<lumisec){ cout<<"lastLS_="<<lastLS_<<" ,lumisec="<<lumisec<<endl; lastLS_=lumisec; init=true; cout<<"init="<<init<<endl; }
   if(init){
     count=0; errcount=0;
     init=false;
@@ -723,7 +723,7 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
     count6=0;
     modCounter_=0;
   if(!Tier0Flag){
-    cout<<"RESETS"<<endl;
+    //cout<<"RESETS"<<endl;
     //The plots that these Vecs are integrated throughout a run
     //So at each lumi section I save their last values (lastmods)
     //And then subtract them out later when filling the SummaryMap
