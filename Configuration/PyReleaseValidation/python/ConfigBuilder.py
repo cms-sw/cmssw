@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.348 $"
+__version__ = "$Revision: 1.349 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -789,7 +789,6 @@ class ConfigBuilder(object):
         self.SIMDefaultSeq=None
         self.GENDefaultSeq='pgen'
         self.DIGIDefaultSeq='pdigi'
-	self.REDIGIDefaultSeq=None
         self.DATAMIXDefaultSeq=None
         self.DIGI2RAWDefaultSeq='DigiToRaw'
         self.HLTDefaultSeq='GRun'
@@ -913,7 +912,9 @@ class ConfigBuilder(object):
 		self.DIGIDefaultCFF='SLHCUpgradeSimulations/Geometry/Digi_%s_cff'%(self._options.slhc,)
 		if self._options.pileup!=defaultOptions.pileup:
 			self._options.pileup='SLHC_%s_%s'%(self._options.pileup,self._options.slhc)
-		
+
+	self.REDIGIDefaultSeq=self.DIGIDefaultSeq
+
     # for alca, skims, etc
     def addExtraStream(self,name,stream,workflow='full'):
             # define output module and go from there
@@ -1148,7 +1149,7 @@ class ConfigBuilder(object):
         self.process.generation_step = cms.Path( getattr(self.process,genSeqName) )
         self.schedule.append(self.process.generation_step)
 
-	if 'REDIGI' in self.StepMap:
+	if 'REDIGI' in self.stepMap:
 		#stop here
 		return 
 
@@ -1196,9 +1197,9 @@ class ConfigBuilder(object):
 	    if self._options.inputEventContent:
 		    raise Exception('--inputEventContent and REDIGI are incompatible')
 	    self._options.inputEventContent='REDIGI'
-	    self.loadAndRemember('Configuration.StandardSequences.ReMixingSeeds_cff')
-	    if self._options.pileup and self._options.pileup!='NoPileUp':
-		    self.executeAndRemember("process.mix.playback = True")
+	    self.executeAndRemember('process.RandomNumberGeneratorService.restoreStateLabel=cms.untracked.string("randomEngineStateProducer")')
+	    #if self._options.pileup and self._options.pileup!='NoPileUp':
+	    #self.executeAndRemember("process.mix.playback = True")
 	    return
 
     def prepare_CFWRITER(self, sequence = None):
@@ -1626,7 +1627,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.348 $"),
+                                            (version=cms.untracked.string("$Revision: 1.349 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
