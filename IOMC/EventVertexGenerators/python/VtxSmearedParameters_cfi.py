@@ -170,11 +170,11 @@ Centered7TeV2011CollisionVtxSmearingParameters = cms.PSet(
     Y0 = cms.double(0.0),
     Z0 = cms.double(0.0)
 )
-# 8 TeV realistic collisions, transverse beam width size is 26 microns
+# 8 TeV realistic collisions, transverse beam width size is 20 microns
 Realistic8TeVCollisionVtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),
     BetaStar = cms.double(70.0),
-    Emittance = cms.double(5.86e-08),
+    Emittance = cms.double(0.586e-07),
     Alpha = cms.double(0.0),
     SigmaZ = cms.double(6.16),
     TimeOffset = cms.double(0.0),
