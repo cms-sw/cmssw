@@ -25,7 +25,7 @@ public:
 
   void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
   void beginRun(const edm::Run& run, const edm::EventSetup& eventSetup);
-  void endRun();
+  void endRun(const edm::Run& run, const edm::EventSetup& eventSetup);
   void beginJob();
   void endJob();
 
