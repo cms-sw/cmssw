@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequence.Digi_cff import *
+from Configuration.StandardSequences.Digi_cff import *
 
 # switch off HCAL ZS in digi
 simHcalDigis.markAndPass = True
