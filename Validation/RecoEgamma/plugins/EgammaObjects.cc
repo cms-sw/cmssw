@@ -28,6 +28,61 @@ EgammaObjects::EgammaObjects( const edm::ParameterSet& ps )
   loadHistoParameters(ps);
 
   rootFile_ = TFile::Open(ps.getParameter<std::string>("outputFile").c_str(),"RECREATE");
+
+  hist_EtaEfficiency_ = 0 ;
+  hist_EtaNumRecoOverNumTrue_ = 0 ;
+  hist_deltaEtaVsEt_ = 0 ;
+  hist_deltaEtaVsE_ = 0 ;
+  hist_deltaEtaVsEta_ = 0 ;
+  hist_deltaEtaVsPhi_ = 0 ;
+  hist_resolutionEtaVsEt_ = 0 ;
+  hist_resolutionEtaVsE_ = 0 ;
+  hist_resolutionEtaVsEta_ = 0 ;
+  hist_resolutionEtaVsPhi_ = 0 ;
+
+  hist_Phi_ = 0 ;
+  hist_PhiOverTruth_ = 0 ;
+  hist_PhiEfficiency_ = 0 ;
+  hist_PhiNumRecoOverNumTrue_ = 0 ;
+  hist_deltaPhiVsEt_ = 0 ;
+  hist_deltaPhiVsE_ = 0 ;
+  hist_deltaPhiVsEta_ = 0 ;
+  hist_deltaPhiVsPhi_ = 0 ;
+  hist_resolutionPhiVsEt_ = 0 ;
+  hist_resolutionPhiVsE_ = 0 ;
+  hist_resolutionPhiVsEta_ = 0 ;
+  hist_resolutionPhiVsPhi_ = 0 ;
+
+  hist_All_recoMass_ = 0 ;
+  hist_BarrelOnly_recoMass_ = 0 ;
+  hist_EndcapOnly_recoMass_ = 0 ;
+  hist_Mixed_recoMass_ = 0 ;
+
+  hist_recoMass_withBackgroud_NoEtCut_ = 0 ;
+  hist_recoMass_withBackgroud_5EtCut_ = 0 ;
+  hist_recoMass_withBackgroud_10EtCut_ = 0 ;
+  hist_recoMass_withBackgroud_20EtCut_ = 0 ;
+
+  _TEMP_scatterPlot_EtOverTruthVsEt_ = 0 ;
+  _TEMP_scatterPlot_EtOverTruthVsE_ = 0 ;
+  _TEMP_scatterPlot_EtOverTruthVsEta_ = 0 ;
+  _TEMP_scatterPlot_EtOverTruthVsPhi_ = 0 ;
+
+  _TEMP_scatterPlot_EOverTruthVsEt_ = 0 ;
+  _TEMP_scatterPlot_EOverTruthVsE_ = 0 ;
+  _TEMP_scatterPlot_EOverTruthVsEta_ = 0 ;
+  _TEMP_scatterPlot_EOverTruthVsPhi_ = 0 ;
+
+  _TEMP_scatterPlot_deltaEtaVsEt_ = 0 ;
+  _TEMP_scatterPlot_deltaEtaVsE_ = 0 ;
+  _TEMP_scatterPlot_deltaEtaVsEta_ = 0 ;
+  _TEMP_scatterPlot_deltaEtaVsPhi_ = 0 ;
+
+  _TEMP_scatterPlot_deltaPhiVsEt_ = 0 ;
+  _TEMP_scatterPlot_deltaPhiVsE_ = 0 ;
+  _TEMP_scatterPlot_deltaPhiVsEta_ = 0 ;
+  _TEMP_scatterPlot_deltaPhiVsPhi_ = 0 ;
+
 }
 
 void EgammaObjects::loadCMSSWObjects(const edm::ParameterSet& ps)
