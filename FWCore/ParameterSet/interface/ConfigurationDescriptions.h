@@ -26,7 +26,12 @@ namespace edm {
 
   class ConfigurationDescriptions {
   public:
-
+    
+    typedef std::vector<std::pair<std::string, ParameterSetDescription> >::iterator iterator;
+    
+    //NOTE: This does not take ownership of the PreValidatorBase instance so
+    // this instance must remain valid for as long as the ConfigurationDescriptions
+    // is being modified
     ConfigurationDescriptions(std::string const& baseType);
 
     ~ConfigurationDescriptions();
@@ -45,6 +50,11 @@ namespace edm {
 
     void addDefault(ParameterSetDescription const& psetDescription);
 
+    ///Returns 0 if no default has been assigned
+    ParameterSetDescription* defaultDescription();
+    iterator begin();
+    iterator end();
+    
     // ---------------------------------------------------------
     // These functions use the information in the descriptions
     // ---------------------------------------------------------
@@ -100,10 +110,10 @@ namespace edm {
 
     std::vector<std::pair<std::string, ParameterSetDescription> > descriptions_;
 
-    bool defaultDescDefined_;
     ParameterSetDescription defaultDesc_;
 
     std::string comment_;
+    bool defaultDescDefined_;
   };
 }
 
