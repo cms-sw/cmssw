@@ -1,35 +1,22 @@
 import FWCore.ParameterSet.Config as cms
 
-def customiseCommon(process):
-    return (process)
+#gone with the fact that there is no difference between production and development sequence
+#def customiseCommon(process):
+#    return (process)
 
 
 ##############################################################################
 def customisePPData(process):
-    process= customiseCommon(process)
-
-    ## particle flow HF cleaning
-    process.particleFlowRecHitHCAL.LongShortFibre_Cut = 30.
-    process.particleFlowRecHitHCAL.ApplyPulseDPG = True
-
-    ## HF cleaning for data only
-    process.hcalRecAlgos.SeverityLevels[3].RecHitFlags.remove("HFDigiTime")
-    process.hcalRecAlgos.SeverityLevels[4].RecHitFlags.append("HFDigiTime")
-
-    ##beam-halo-id for data only
-    process.CSCHaloData.ExpectedBX = cms.int32(3)
-
-    ##Ecal time bias correction
-    process.ecalGlobalUncalibRecHit.doEBtimeCorrection = True
-    process.ecalGlobalUncalibRecHit.doEEtimeCorrection = True
-    
+    #deprecated process= customiseCommon(process)
+    ##all customisation for data are now deprecated to Reconstruction_Data_cff
+    #left as a place holder to alter production sequences in case of emergencies
     return process
 
 
 ##############################################################################
 def customisePPMC(process):
-    process=customiseCommon(process)
-    
+    #deprecated process=customiseCommon(process)
+    #left as a place holder to alter production sequences in case of emergencies    
     return process
 
 ##############################################################################
@@ -61,6 +48,7 @@ def customiseExpress(process):
 ##############################################################################
 def customisePrompt(process):
     process= customisePPData(process)
+
     #add the lumi producer in the prompt reco only configuration
     process.reconstruction_step+=process.lumiProducer
     return process
