@@ -1,7 +1,7 @@
 #include "Validation/RPCRecHits/interface/RPCRecHitValidClient.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-        
+
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -20,13 +20,15 @@ void RPCRecHitValidClient::endRun(const edm::Run& run, const edm::EventSetup& ev
   if ( !dbe ) return;
 
   dbe->setCurrentFolder(subDir_);
-  MEP me_rollEfficiencyBarrel_eff = dbe->book1D("RollEfficiencyBarrel_eff", "Roll efficiency in Barrel;Efficiency [%]", 50+1, 0, 100+2);
-  MEP me_rollEfficiencyEndcap_eff = dbe->book1D("RollEfficiencyEndcap_eff", "Roll efficiency in Endcap;Efficiency [%]", 50+1, 0, 100+2);
+  MEP me_rollEfficiencyBarrel_eff = dbe->book1D("RollEfficiencyBarrel_eff", "Roll efficiency in Barrel;Efficiency [%]", 50+2, -2, 100+2);
+  MEP me_rollEfficiencyEndcap_eff = dbe->book1D("RollEfficiencyEndcap_eff", "Roll efficiency in Endcap;Efficiency [%]", 50+2, -2, 100+2);
+  MEP me_rollEfficiencyStatCutOffBarrel_eff = dbe->book1D("RollEfficiencyCutOffBarrel_eff", "Roll efficiency in Barrel without low stat chamber;Efficiency [%]", 50+2, -2, 100+2);
+  MEP me_rollEfficiencyStatCutOffEndcap_eff = dbe->book1D("RollEfficiencyCutOffEndcap_eff", "Roll efficiency in Endcap without low stat chamber;Efficiency [%]", 50+2, -2, 100+2);
 
   const double maxNoise = 1e-7;
   MEP me_rollNoiseBarrel_noise = dbe->book1D("RollNoiseBarrel_noise", "Roll noise in Barrel;Noise level [Event^{-1}cm^{-2}]", 25+2, -maxNoise/25, maxNoise+maxNoise/25);
   MEP me_rollNoiseEndcap_noise = dbe->book1D("RollNoiseEndcap_noise", "Roll noise in Endcap;Noise level [Event^{-1}cm^{-2}]", 25+2, -maxNoise/25, maxNoise+maxNoise/25);
-  
+
   MEP me_matchOccupancyBarrel_detId = dbe->get(subDir_+"/Occupancy/MatchOccupancyBarrel_detId");
   MEP me_matchOccupancyEndcap_detId = dbe->get(subDir_+"/Occupancy/MatchOccupancyEndcap_detId");
   MEP me_refOccupancyBarrel_detId = dbe->get(subDir_+"/Occupancy/RefOccupancyBarrel_detId");
@@ -45,9 +47,10 @@ void RPCRecHitValidClient::endRun(const edm::Run& run, const edm::EventSetup& ev
       const double eff = nRef ? nRec/nRef*100 : -1;
 
       me_rollEfficiencyBarrel_eff->Fill(eff);
+      if ( nRef >= 20 ) me_rollEfficiencyStatCutOffBarrel_eff->Fill(eff);
     }
   }
-  
+
   if ( me_matchOccupancyEndcap_detId and me_refOccupancyEndcap_detId )
   {
     TH1* h_matchOccupancyEndcap_detId = me_matchOccupancyEndcap_detId->getTH1();
@@ -61,6 +64,7 @@ void RPCRecHitValidClient::endRun(const edm::Run& run, const edm::EventSetup& ev
       const double eff = nRef ? nRec/nRef*100 : -1;
 
       me_rollEfficiencyEndcap_eff->Fill(eff);
+      if ( nRef >= 20 ) me_rollEfficiencyStatCutOffEndcap_eff->Fill(eff);
     }
   }
 
@@ -99,7 +103,7 @@ void RPCRecHitValidClient::endRun(const edm::Run& run, const edm::EventSetup& ev
       else me_rollNoiseEndcap_noise->Fill(std::min(noiseLevel, maxNoise));
     }
   }
-  
+
 }
 
 DEFINE_FWK_MODULE(RPCRecHitValidClient);
