@@ -1,5 +1,5 @@
 //
-// $Id: GenericTriggerEventFlag.cc,v 1.8 2012/01/17 14:21:26 vadler Exp $
+// $Id: GenericTriggerEventFlag.cc,v 1.9 2012/01/19 17:18:56 vadler Exp $
 //
 
 
@@ -92,10 +92,10 @@ GenericTriggerEventFlag::GenericTriggerEventFlag( const edm::ParameterSet & conf
       onL1_ = false;
     }
     if ( config.exists( "andOrHlt" ) ) {
-      andOrHlt_              = config.getParameter< bool >( "andOrHlt" );
-      hltInputTag_           = config.getParameter< edm::InputTag >( "hltInputTag" );
-      hltLogicalExpressions_ = config.getParameter< std::vector< std::string > >( "hltPaths" );
-      errorReplyHlt_         = config.getParameter< bool >( "errorReplyHlt" );
+      andOrHlt_                   = config.getParameter< bool >( "andOrHlt" );
+      hltInputTag_                = config.getParameter< edm::InputTag >( "hltInputTag" );
+      hltLogicalExpressionsCache_ = config.getParameter< std::vector< std::string > >( "hltPaths" );
+      errorReplyHlt_              = config.getParameter< bool >( "errorReplyHlt" );
       if ( config.exists( "hltDBKey" ) ) hltDBKey_ = config.getParameter< std::string >( "hltDBKey" );
     } else {
       onHlt_ = false;
@@ -134,9 +134,11 @@ void GenericTriggerEventFlag::initRun( const edm::Run & run, const edm::EventSet
     }
     if ( onHlt_ && hltDBKey_.size() > 0 ) {
       const std::vector< std::string > exprs( expressionsFromDB( hltDBKey_, setup ) );
-      if ( exprs.empty() || exprs.at( 0 ) != configError_ ) hltLogicalExpressions_ = exprs;
+      if ( exprs.empty() || exprs.at( 0 ) != configError_ ) hltLogicalExpressionsCache_ = exprs;
     }
   }
+
+  hltLogicalExpressions_ = hltLogicalExpressionsCache_;
 
   hltConfigInit_ = false;
   if ( onHlt_ ) {
@@ -159,9 +161,21 @@ void GenericTriggerEventFlag::initRun( const edm::Run & run, const edm::EventSet
         // Loop over paths
         for ( size_t iPath = 0; iPath < hltAlgoLogicParser.operandTokenVector().size(); ++iPath ) {
           const std::string hltPathName( hltAlgoLogicParser.operandTokenVector().at( iPath ).tokenName );
-          if ( hltPathName.substr( hltPathName.size() - wildcard.size() ) == wildcard ) {
-            const std::string hltPathNameBase( hltPathName.substr( 0, hltPathName.size() - wildcard.size() ) );
-            const std::vector< std::string > hltPathNameVersions( hltConfig_.restoreVersion( hltConfig_.triggerNames(), hltPathNameBase ) );
+          if ( hltPathName.find( '*' ) != std::string::npos ) {
+            std::vector< std::string > hltPathNameVersions;
+            if ( hltPathName.substr( hltPathName.size() - wildcard.size() ) == wildcard ) {
+              const std::string hltPathNameBase( hltPathName.substr( 0, hltPathName.size() - wildcard.size() ) );
+              hltPathNameVersions = hltConfig_.restoreVersion( hltConfig_.triggerNames(), hltPathNameBase );
+            } else {
+              std::string hltPathNameReg( hltPathName );
+              unsigned index( hltPathNameReg.find( '*' ) );
+              hltPathNameReg.insert( index, 1, '.' );
+              while ( hltPathNameReg.find( '*', index + 2 ) != std::string::npos ) {
+                index = hltPathNameReg.find( '*', index + 2 );
+                hltPathNameReg.insert( index, 1, '.' );
+              }
+              hltPathNameVersions = hltConfig_.matched( hltConfig_.triggerNames(), hltPathNameReg );
+            }
             std::string hltPathExpanded( "(" );
             if ( ! hltPathNameVersions.empty() ) {
               for ( unsigned iVers = 0; iVers < hltPathNameVersions.size(); ++iVers ) {
@@ -170,12 +184,10 @@ void GenericTriggerEventFlag::initRun( const edm::Run & run, const edm::EventSet
               }
             } else hltPathExpanded.append( hltPathName );
             hltPathExpanded.append( ")" );
-            if ( verbose_ > 1 ) edm::LogInfo( "GenericTriggerEventFlag" ) << "HLT path with wild-card: " << hltPathName << "\n"
-                                                                          << "        --> expanded to  " << hltPathExpanded;
             hltLogicalExpression.replace( hltLogicalExpression.find( hltPathName ), hltPathName.size(), hltPathExpanded );
-            if ( verbose_ > 1 ) edm::LogInfo( "GenericTriggerEventFlag" ) << "Old logical expression: " << hltLogicalExpressions_.at( iExpr );
             hltLogicalExpressions_[ iExpr ] = hltLogicalExpression;
-            if ( verbose_ > 1 ) edm::LogInfo( "GenericTriggerEventFlag" ) << "New logical expression: " << hltLogicalExpressions_.at( iExpr );
+            if ( verbose_ > 1 ) edm::LogInfo( "GenericTriggerEventFlag" ) << "HLT logical expression: \"" << hltLogicalExpressionsCache_.at( iExpr ) << "\"\n"
+                                                                          << "       --> expanded to  \"" << hltLogicalExpression << "\"";
           }
         }
       }
