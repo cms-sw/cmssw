@@ -1,16 +1,32 @@
 import os,coral,re
 from RecoLuminosity.LumiDB import nameDealer
-#from RecoLuminosity.LumiDB import tempIntgLumiDict
 
+class correctionTerm(object):
+    constfactor=1.141 # const upshift , same for everyone     
+
+class nonlinearSingle(correctionTerm):
+    t1=0.076  #slop
+    
+class nonlinearV2(correctionTerm):
+    drift=0.01258 # drift 
+    t1=0.063  # slop1
+    t2=-0.0037# slop2
+        
+class nonlinearV3(correctionTerm):
+    drift=0.00813# drift 
+    t1=0.073    # slop1
+    t2=-0.0037 # slop2
+        
 def afterglowByFillscheme(fillscheme,afterglowPatterns):
     for (apattern,cfactor) in afterglowPatterns:
         if re.match(apattern,fillscheme):
             return cfactor
     return 1.0
+
 #=======================================================================================================
-#below : version_2
+#below : correction formula version_2
 #======================================================================================================
-def driftcorrectionsForRange(schema,inputRange,startrun=160403):
+def driftcorrectionsForRange(schema,inputRange,correctionTerm,startrun=160403):
     '''
     select intglumi from intglumi where runnum=:runnum and startrun=:startrun
     input : inputRange. str if a single run, [runs] if a list of runs
@@ -54,7 +70,7 @@ def driftcorrectionsForRange(schema,inputRange,startrun=160403):
         del qHandle
         if not lint:
             print '[WARNING] null intglumi for run ',r,' '
-        result[r]=defaultresult+0.01258*lint
+        result[r]=defaultresult+correctionTerm.drift*lint
     #print 'lint ',lint,' result ',result
     return result
 
@@ -86,13 +102,14 @@ def applyfinecorrectionV2(avglumi,constfactor,afterglowfactor,ncollidingbx,nonli
     #print 'avglumi,const,after,nonlinear,instlumi ',avglumi,constfactor,afterglowfactor,nonlinearfactor,instlumi
     return instlumi
 
-def correctionsForRangeV2(schema,inputRange):
+def correctionsForRangeV2(schema,inputRange,correctionTerm):
     '''
     decide on the corrections to apply in the input range depending on amodetag,egev and runrange
     select fillschemepattern,correctionfactor from fillscheme; 
        [(fillschemepattern,afterglow),...]
     select fillnum,runnum,fillscheme,ncollidingbunches,egev from cmsrunsummary where amodetag='PROTPYHS' and egev>3000
         {runnum: (fillnum,fillscheme,ncollidingbunches),...}
+    input: correctionTerm correction terms used in the formula
     output:
         {runnum:(constantfactor,afterglowfactor,ncollidingbx,nonlinearfactor1,nonlinearfactor2)}
     '''
@@ -159,13 +176,12 @@ def correctionsForRangeV2(schema,inputRange):
                 continue
             fillnum=cursor.currentRow()['fillnum'].data()
             afterglow=1.0
-            constfactor=1.141                
-            nonlinear_1=0.063
-            nonlinear_2=-0.0037
+            constfactor=correctionTerm.constfactor
+            nonlinear_1=correctionTerm.t1
+            nonlinear_2=correctionTerm.t2
             ncollidingbunches=0
             if cursor.currentRow()['ncollidingbunches']:
                 ncollidingbunches=cursor.currentRow()['ncollidingbunches'].data()
-#            if fillnum>=2124: #afterglow is needed only for fill>=2124               
             fillscheme=''
             if cursor.currentRow()['fillscheme']:
                 fillscheme=cursor.currentRow()['fillscheme'].data()
@@ -181,7 +197,7 @@ def correctionsForRangeV2(schema,inputRange):
             result[run]=(constfactor,afterglow,ncollidingbunches,nonlinear_1,nonlinear_2) 
     return result
 #=======================================================================================================
-#below : version_1
+#below : below correction formula version_1
 #======================================================================================================
 def applyfinecorrectionBX(bxlumi,avglumi,norm,constfactor,afterglowfactor,nonlinearfactor):
     if bxlumi<=0:
@@ -204,7 +220,7 @@ def applyfinecorrection(avglumi,constfactor,afterglowfactor,nonlinearfactor):
     #print 'avglumi,const,after,nonlinear,instlumi ',avglumi,constfactor,afterglowfactor,nonlinearfactor,instlumi
     return instlumi
 
-def correctionsForRange(schema,inputRange):
+def correctionsForRange(schema,inputRange,correctionTerm):
     '''
     select fillschemepattern,correctionfactor from fillscheme; 
        [(fillschemepattern,afterglow),...]
@@ -223,7 +239,7 @@ def correctionsForRange(schema,inputRange):
         if r<150008 :
             result[r]=(1.0,1.0,0.0)
     afterglows=[]
-    constfactor=1.141
+    constfactor=correctionTerm.constfactor
     s=nameDealer.fillschemeTableName()
     r=nameDealer.cmsrunsummaryTableName()
     qHandle=schema.newQuery()
@@ -271,9 +287,9 @@ def correctionsForRange(schema,inputRange):
             if runnum not in runs or result.has_key(runnum):
                 continue
             fillnum=cursor.currentRow()['fillnum'].data()
-            constfactor=1.141
+            constfactor=correctionTerm.constfactor
             afterglow=1.0
-            nonlinear=0.076
+            nonlinear=correctionTerm.t1
             nonlinearPerBX=0.0
             ncollidingbunches=0
             if cursor.currentRow()['ncollidingbunches']:
