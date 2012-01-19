@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.347 $"
+__version__ = "$Revision: 1.348 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -54,6 +54,7 @@ defaultOptions.beamspot=VtxSmearedDefaultKey
 defaultOptions.outputDefinition =''
 defaultOptions.inputCommands = None
 defaultOptions.inputEventContent = None
+defaultOptions.dropDescendant = False
 defaultOptions.relval = None
 defaultOptions.slhc = None
 defaultOptions.profile = None
@@ -307,7 +308,7 @@ class ConfigBuilder(object):
 				self.process.source.fileNames.append(self._options.dirin+entry)
 		if self._options.secondfilein:
 			if not hasattr(self.process.source,"secondaryFileNames"):
-				raise Execption("--secondfilein not compatible with "+self._options.filetype+"input type")
+				raise Exception("--secondfilein not compatible with "+self._options.filetype+"input type")
 			for entry in self._options.secondfilein.split(','):
 				print "entry",entry
 				if entry.startswith("filelist:"):
@@ -362,8 +363,8 @@ class ConfigBuilder(object):
 		self.process.source.inputCommands = cms.untracked.vstring()
 		for command in self._options.inputCommands.split(','):
 			self.process.source.inputCommands.append(command)
-		#I do not want to drop descendants
-		self.process.source.dropDescendantsOfDroppedBranches = cms.untracked.bool(False)
+		if not self._options.dropDescendant:
+			self.process.source.dropDescendantsOfDroppedBranches = cms.untracked.bool(False)
 
 	if self._options.inputEventContent:
 		import copy
@@ -372,6 +373,8 @@ class ConfigBuilder(object):
 			self.process.source.inputCommands=copy.copy(theEventContent.outputCommands)
 		if hasattr(theEventContent,'inputCommands'):
 			self.process.source.inputCommands=copy.copy(theEventContent.inputCommands)
+		if not self._options.dropDescendant:
+			self.process.source.dropDescendantsOfDroppedBranches = cms.untracked.bool(False)
 		
         if 'GEN' in self.stepMap.keys() or (not self._options.filein and hasattr(self._options, "evt_type")):
             if self.process.source is None:
@@ -786,6 +789,7 @@ class ConfigBuilder(object):
         self.SIMDefaultSeq=None
         self.GENDefaultSeq='pgen'
         self.DIGIDefaultSeq='pdigi'
+	self.REDIGIDefaultSeq=None
         self.DATAMIXDefaultSeq=None
         self.DIGI2RAWDefaultSeq='DigiToRaw'
         self.HLTDefaultSeq='GRun'
@@ -824,7 +828,9 @@ class ConfigBuilder(object):
                 self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineMC_cff"
                 self.ALCADefaultCFF="Configuration/StandardSequences/AlCaRecoStreamsMC_cff"
 
-        # now for #%#$#! different scenarios
+	#patch for gen, due to backward incompatibility
+	if 'REDIGI' in self.stepMap:
+		self.GENDefaultSeq='fixGenInfo'
 
         if self._options.scenario=='nocoll' or self._options.scenario=='cosmics':
             self.SIMDefaultCFF="Configuration/StandardSequences/SimNOBEAM_cff"
@@ -1142,6 +1148,10 @@ class ConfigBuilder(object):
         self.process.generation_step = cms.Path( getattr(self.process,genSeqName) )
         self.schedule.append(self.process.generation_step)
 
+	if 'REDIGI' in self.StepMap:
+		#stop here
+		return 
+
         """ Enrich the schedule with the summary of the filter step """
         #the gen filter in the endpath
         self.loadAndRemember("GeneratorInterface/Core/genFilterSummary_cff")
@@ -1178,6 +1188,18 @@ class ConfigBuilder(object):
 
 	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
         return
+
+    def prepare_REDIGI(self, sequence = None):
+	    """same as the DIGI step, but with some extra stuff"""
+	    self.prepare_DIGI(sequence)
+
+	    if self._options.inputEventContent:
+		    raise Exception('--inputEventContent and REDIGI are incompatible')
+	    self._options.inputEventContent='REDIGI'
+	    self.loadAndRemember('Configuration.StandardSequences.ReMixingSeeds_cff')
+	    if self._options.pileup and self._options.pileup!='NoPileUp':
+		    self.executeAndRemember("process.mix.playback = True")
+	    return
 
     def prepare_CFWRITER(self, sequence = None):
 	    """ Enrich the schedule with the crossing frame writer step"""
@@ -1604,7 +1626,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.347 $"),
+                                            (version=cms.untracked.string("$Revision: 1.348 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
@@ -1617,9 +1639,9 @@ class ConfigBuilder(object):
 
         self.loadAndRemember(self.EVTCONTDefaultCFF)  #load the event contents regardless
         self.addMaxEvents()
+	self.addStandardSequences()
         if self.with_input:
            self.addSource()	
-        self.addStandardSequences()
         self.addConditions()
 
 
