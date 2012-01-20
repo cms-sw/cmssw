@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     09-Jul-2007
 #     A. Parenti, DESY Hamburg    24-Apr-2008
-#     $Revision: 1.25 $ by $Author: flucke $
-#     $Date: 2010/10/26 20:53:55 $
+#     $Revision: 1.26 $ by $Author: jbehr $
+#     $Date: 2011/09/22 13:48:11 $
 #
 #  Check output from jobs that have FETCH status
 #  
@@ -44,6 +44,7 @@ for ($i=0; $i<@JOBID; ++$i) {
   $emptyDatOnFarm = 0;
   $cmdNotFound = 0;
   $insuffPriv = 0;
+  $quotaspace = 0;
 
   $pedeLogErrStr = "";
   $pedeLogWrnStr = "";
@@ -56,6 +57,7 @@ for ($i=0; $i<@JOBID; ++$i) {
     open STDFILE,"$stdOut";
     # scan records in input file
     while ($line = <STDFILE>) {
+      if (($line =~ m/Unable to access quota space/) eq 1) { $quotaspace = 1;}
       if (($line =~ m/CERN report: Job Killed/) eq 1) { $killed = 1;}
       if (($line =~ m/Job finished/) eq 1)  { $finished = 1; }
       if (($line =~ m/connection timed out/) eq 1)  { $timeout = 1; }
@@ -210,6 +212,10 @@ for ($i=0; $i<@JOBID; ++$i) {
     unless ($eofile eq 1) {
       print "@JOBDIR[$i] @JOBID[$i] did not reach end of file\n";
       $okStatus = "ABEND";
+    }
+    if ($quotaspace eq 1) {
+      print "@JOBDIR[$i] @JOBID[$i] had quota space problem\n";
+      $okStatus = "FAIL";
     }
     if ($ioprob eq 1) {
       print "@JOBDIR[$i] @JOBID[$i] had I/O problem\n";
