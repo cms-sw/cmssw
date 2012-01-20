@@ -26,24 +26,6 @@ def parseInputFiles(inputfilename,dbrunlist,optaction):
             selectedrunlsInDB[runinfile]=runlsbyfile[runinfile]
     return (selectedrunlsInDB,resultlines)
 
-def getValidationData(dbsession,run=None,cmsls=None):
-    '''retrieve validation data per run or all
-    input: runnum, if not runnum, retrive all
-    output: {run:[[cmslsnum,flag,comment]]}
-    '''
-    try:
-        dbsession.transaction().start(True)
-        schema=dbsession.nominalSchema()
-        queryHandle=dbsession.nominalSchema().newQuery()
-        result=lumiQueryAPI.validation(queryHandle,run,cmsls)
-        del queryHandle
-        dbsession.transaction().commit()
-    except Exception, e:
-        dbsession.transaction().rollback()
-        del dbsession
-        raise Exception, 'lumiValidate.getValidationData:'+str(e)
-    return result
-
 ##############################
 ## ######################## ##
 ## ## ################## ## ##
