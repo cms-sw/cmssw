@@ -497,7 +497,7 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
    bool plus_endcap = false;
    bool minus_endcap = false;
    bool both_endcaps = false;
-   float r = 0., phi = 0.;
+   //float r = 0., phi = 0.;
    if (TheCSCSegments.isValid()) {
      for(CSCSegmentCollection::const_iterator iSegment = TheCSCSegments->begin();
          iSegment != TheCSCSegments->end();
@@ -596,8 +596,8 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
        if (nSegs > 0) nSegs++;
        if (nSegs > maxNSegments) {
 	 // Use value of r, phi to collect halo CSCSegments for examining timing (not coded yet...)
-	 r = iR;
-	 phi = iPhi;
+	 //r = iR;
+	 //phi = iPhi;
 	 maxNSegments = nSegs;
 	 both_endcaps = both_endcaps ? both_endcaps : minus_endcap && plus_endcap;
        }

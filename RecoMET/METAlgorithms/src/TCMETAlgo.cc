@@ -271,8 +271,6 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
      unsigned int nTracks = TrackHandle->size();
 
      edm::ESHandle<MagneticField> theMagField;
-     bool haveBfield = true;
-     if( !theMagField.isValid() ) haveBfield = false;
      setup.get<IdealMagneticFieldRecord>().get(theMagField);
      bField = theMagField.product();
 

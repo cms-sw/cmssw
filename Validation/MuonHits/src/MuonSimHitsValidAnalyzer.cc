@@ -731,9 +731,8 @@ void MuonSimHitsValidAnalyzer::bookHistos_CSC()
 
 void MuonSimHitsValidAnalyzer::saveHistos_DT()
 {
-  int DTHistos;
-
-  DTHistos = 1000;
+  //int DTHistos;
+  //DTHistos = 1000;
   theDTFile->cd();
    
   if ( dbeDT_ ) {
@@ -750,8 +749,8 @@ void MuonSimHitsValidAnalyzer::saveHistos_DT()
 
 void MuonSimHitsValidAnalyzer::saveHistos_RPC()
 {
-  int RPCHistos;
-  RPCHistos = 3000;
+  //int RPCHistos;
+  //RPCHistos = 3000;
   theRPCFile->cd();
 
   if ( dbeRPC_ ) {
@@ -771,8 +770,8 @@ void MuonSimHitsValidAnalyzer::saveHistos_RPC()
 
 void MuonSimHitsValidAnalyzer::saveHistos_CSC()
 {
-  int CSCHistos;
-  CSCHistos = 2000;
+  //int CSCHistos;
+  //CSCHistos = 2000;
   theCSCFile->cd();
  
   if ( dbeCSC_ ) {
