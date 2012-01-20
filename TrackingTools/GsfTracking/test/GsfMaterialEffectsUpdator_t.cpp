@@ -68,11 +68,11 @@ int main(int argc, char * arg[]) {
   plane->setMediumProperties(MediumProperties(0.1,0.3));
 
   LocalTrajectoryParameters tp(1., 1.,1., 0.,0.,0.);
-  
+  LocalTrajectoryError lerr(1.,1.,0.1,0.1,0.1);
   M5T const m; 
   
   
-  TrajectoryStateOnSurface tsos(tp,*plane, &m, SurfaceSideDefinition::beforeSurface);
+  TrajectoryStateOnSurface tsos(tp,lerr,*plane, &m, SurfaceSideDefinition::beforeSurface);
   
   st();
   meu->updateState(tsos,alongMomentum);
