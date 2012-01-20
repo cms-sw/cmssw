@@ -1,15 +1,17 @@
 //
-// $Id: GenericTriggerEventFlag.cc,v 1.9 2012/01/19 17:18:56 vadler Exp $
+// $Id: GenericTriggerEventFlag.cc,v 1.10 2012/01/19 20:17:34 vadler Exp $
 //
 
 
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 #include "CondFormats/HLTObjects/interface/AlCaRecoTriggerBits.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include <vector>
 
@@ -83,9 +85,9 @@ GenericTriggerEventFlag::GenericTriggerEventFlag( const edm::ParameterSet & conf
       onGt_ = false;
     }
     if ( config.exists( "andOrL1" ) ) {
-      andOrL1_              = config.getParameter< bool >( "andOrL1" );
-      l1LogicalExpressions_ = config.getParameter< std::vector< std::string > >( "l1Algorithms" );
-      errorReplyL1_         = config.getParameter< bool >( "errorReplyL1" );
+      andOrL1_                   = config.getParameter< bool >( "andOrL1" );
+      l1LogicalExpressionsCache_ = config.getParameter< std::vector< std::string > >( "l1Algorithms" );
+      errorReplyL1_              = config.getParameter< bool >( "errorReplyL1" );
       if ( config.exists( "l1DBKey" ) )      l1DBKey_      = config.getParameter< std::string >( "l1DBKey" );
       if ( config.exists( "l1BeforeMask" ) ) l1BeforeMask_ = config.getParameter< bool >( "l1BeforeMask" );
     } else {
@@ -130,7 +132,7 @@ void GenericTriggerEventFlag::initRun( const edm::Run & run, const edm::EventSet
     }
     if ( onL1_ && l1DBKey_.size() > 0 ) {
       const std::vector< std::string > exprs( expressionsFromDB( l1DBKey_, setup ) );
-      if ( exprs.empty() || exprs.at( 0 ) != configError_ ) l1LogicalExpressions_ = exprs;
+      if ( exprs.empty() || exprs.at( 0 ) != configError_ ) l1LogicalExpressionsCache_ = exprs;
     }
     if ( onHlt_ && hltDBKey_.size() > 0 ) {
       const std::vector< std::string > exprs( expressionsFromDB( hltDBKey_, setup ) );
@@ -138,6 +140,8 @@ void GenericTriggerEventFlag::initRun( const edm::Run & run, const edm::EventSet
     }
   }
 
+  // Re-initialise starting valuse before wild-card expansion
+  l1LogicalExpressions_  = l1LogicalExpressionsCache_;
   hltLogicalExpressions_ = hltLogicalExpressionsCache_;
 
   hltConfigInit_ = false;
@@ -152,45 +156,53 @@ void GenericTriggerEventFlag::initRun( const edm::Run & run, const edm::EventSet
         if ( verbose_ > 0 ) edm::LogError( "GenericTriggerEventFlag" ) << "HLT config size error";
       } else hltConfigInit_ = true;
     }
-    // Expand version wild-cards in HLT logical expressions
-    const std::string wildcard( "_v*" );
-    if ( hltConfigInit_ ) {
-      for ( unsigned iExpr = 0; iExpr < hltLogicalExpressions_.size(); ++iExpr ) {
-        std::string hltLogicalExpression( hltLogicalExpressions_.at( iExpr ) );
-        L1GtLogicParser hltAlgoLogicParser( hltLogicalExpression );
-        // Loop over paths
-        for ( size_t iPath = 0; iPath < hltAlgoLogicParser.operandTokenVector().size(); ++iPath ) {
-          const std::string hltPathName( hltAlgoLogicParser.operandTokenVector().at( iPath ).tokenName );
-          if ( hltPathName.find( '*' ) != std::string::npos ) {
-            std::vector< std::string > hltPathNameVersions;
-            if ( hltPathName.substr( hltPathName.size() - wildcard.size() ) == wildcard ) {
-              const std::string hltPathNameBase( hltPathName.substr( 0, hltPathName.size() - wildcard.size() ) );
-              hltPathNameVersions = hltConfig_.restoreVersion( hltConfig_.triggerNames(), hltPathNameBase );
-            } else {
-              std::string hltPathNameReg( hltPathName );
-              unsigned index( hltPathNameReg.find( '*' ) );
-              hltPathNameReg.insert( index, 1, '.' );
-              while ( hltPathNameReg.find( '*', index + 2 ) != std::string::npos ) {
-                index = hltPathNameReg.find( '*', index + 2 );
-                hltPathNameReg.insert( index, 1, '.' );
-              }
-              hltPathNameVersions = hltConfig_.matched( hltConfig_.triggerNames(), hltPathNameReg );
-            }
-            std::string hltPathExpanded( "(" );
-            if ( ! hltPathNameVersions.empty() ) {
-              for ( unsigned iVers = 0; iVers < hltPathNameVersions.size(); ++iVers ) {
-                if ( iVers > 0 ) hltPathExpanded.append( " OR " );
-                hltPathExpanded.append( hltPathNameVersions.at( iVers ) );
-              }
-            } else hltPathExpanded.append( hltPathName );
-            hltPathExpanded.append( ")" );
-            hltLogicalExpression.replace( hltLogicalExpression.find( hltPathName ), hltPathName.size(), hltPathExpanded );
-            hltLogicalExpressions_[ iExpr ] = hltLogicalExpression;
-            if ( verbose_ > 1 ) edm::LogInfo( "GenericTriggerEventFlag" ) << "HLT logical expression: \"" << hltLogicalExpressionsCache_.at( iExpr ) << "\"\n"
-                                                                          << "       --> expanded to  \"" << hltLogicalExpression << "\"";
-          }
+  }
+
+  // Expand version wild-cards in HLT logical expressions
+  // L1
+  if ( onL1_ ) {
+    // build vector of algo names
+    l1Gt_.getL1GtRunCache( run, setup, true, false );
+    edm::ESHandle< L1GtTriggerMenu > handleL1GtTriggerMenu;
+    setup.get< L1GtTriggerMenuRcd >().get( handleL1GtTriggerMenu );
+//     L1GtTriggerMenu l1GtTriggerMenu( *handleL1GtTriggerMenu );
+    std::vector< std::string > algoNames;
+//     const AlgorithmMap l1GtPhys( l1GtTriggerMenu.gtAlgorithmMap() );
+    const AlgorithmMap l1GtPhys( handleL1GtTriggerMenu->gtAlgorithmMap() );
+    for ( CItAlgo iAlgo = l1GtPhys.begin(); iAlgo != l1GtPhys.end(); ++iAlgo ) {
+      algoNames.push_back( iAlgo->second.algoName() );
+    }
+//     const AlgorithmMap l1GtTech( l1GtTriggerMenu.gtTechnicalTriggerMap() );
+    const AlgorithmMap l1GtTech( handleL1GtTriggerMenu->gtTechnicalTriggerMap() );
+    for ( CItAlgo iAlgo = l1GtTech.begin(); iAlgo != l1GtTech.end(); ++iAlgo ) {
+      algoNames.push_back( iAlgo->second.algoName() );
+    }
+    for ( unsigned iExpr = 0; iExpr < l1LogicalExpressions_.size(); ++iExpr ) {
+      std::string l1LogicalExpression( l1LogicalExpressions_.at( iExpr ) );
+      L1GtLogicParser l1AlgoLogicParser( l1LogicalExpression );
+      // Loop over algorithms
+      for ( size_t iAlgo = 0; iAlgo < l1AlgoLogicParser.operandTokenVector().size(); ++iAlgo ) {
+        const std::string l1AlgoName( l1AlgoLogicParser.operandTokenVector().at( iAlgo ).tokenName );
+        if ( l1AlgoName.find( '*' ) != std::string::npos ) {
+          l1LogicalExpression.replace( l1LogicalExpression.find( l1AlgoName ), l1AlgoName.size(), expandLogicalExpression( algoNames, l1AlgoName ) );
         }
       }
+      l1LogicalExpressions_[ iExpr ] = l1LogicalExpression;
+    }
+  }
+  // HLT
+  if ( hltConfigInit_ ) {
+    for ( unsigned iExpr = 0; iExpr < hltLogicalExpressions_.size(); ++iExpr ) {
+      std::string hltLogicalExpression( hltLogicalExpressions_.at( iExpr ) );
+      L1GtLogicParser hltAlgoLogicParser( hltLogicalExpression );
+      // Loop over paths
+      for ( size_t iPath = 0; iPath < hltAlgoLogicParser.operandTokenVector().size(); ++iPath ) {
+        const std::string hltPathName( hltAlgoLogicParser.operandTokenVector().at( iPath ).tokenName );
+        if ( hltPathName.find( '*' ) != std::string::npos ) {
+          hltLogicalExpression.replace( hltLogicalExpression.find( hltPathName ), hltPathName.size(), expandLogicalExpression( hltConfig_.triggerNames(), hltPathName ) );
+        }
+      }
+      hltLogicalExpressions_[ iExpr ] = hltLogicalExpression;
     }
   }
 
@@ -534,6 +546,42 @@ bool GenericTriggerEventFlag::acceptHltLogicalExpression( const edm::Handle< edm
   // Determine decision
   const bool hltDecision( hltAlgoLogicParser.expressionResult() );
   return negExpr ? ( ! hltDecision ) : hltDecision;
+
+}
+
+
+
+/// Expand wild-carded logical expressions, giving version postfixes priority
+std::string GenericTriggerEventFlag::expandLogicalExpression( const std::vector< std::string > & targets, const std::string & expr, bool useAnd ) const
+{
+
+  // Find matching entries in the menu
+  std::vector< std::string > matched;
+  const std::string versionWildcard( "_v*" );
+  if ( expr.substr( expr.size() - versionWildcard.size() ) == versionWildcard ) {
+    const std::string exprBase( expr.substr( 0, expr.size() - versionWildcard.size() ) );
+    matched = hltConfig_.restoreVersion( targets, exprBase );
+  } else {
+    matched = hltConfig_.matched( targets, expr );
+  }
+
+  // Return input, if no match is found
+  if ( matched.empty() ) {
+    if ( verbose_ > 1 ) edm::LogWarning( "GenericTriggerEventFlag" ) << "Logical expression: \"" << expr << "\" could not be resolved";
+    return expr;
+  }
+
+  // Compose logical expression
+  std::string expanded( "(" );
+  for ( unsigned iVers = 0; iVers < matched.size(); ++iVers ) {
+    if ( iVers > 0 ) expanded.append( useAnd ? " AND " : " OR " );
+    expanded.append( matched.at( iVers ) );
+  }
+  expanded.append( ")" );
+  if ( verbose_ > 1 ) edm::LogInfo( "GenericTriggerEventFlag" ) << "Logical expression: \"" << expr     << "\"\n"
+                                                                << "   --> expanded to  \"" << expanded << "\"";
+
+  return expanded;
 
 }
 

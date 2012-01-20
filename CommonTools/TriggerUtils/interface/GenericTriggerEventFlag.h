@@ -7,7 +7,7 @@
 // Package:    CommonTools/TriggerUtils
 // Class:      GenericTriggerEventFlag
 //
-// $Id: GenericTriggerEventFlag.h,v 1.4 2011/08/08 14:49:34 vadler Exp $
+// $Id: GenericTriggerEventFlag.h,v 1.5 2012/01/19 20:17:34 vadler Exp $
 //
 /**
   \class    GenericTriggerEventFlag GenericTriggerEventFlag.h "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
@@ -16,7 +16,7 @@
    [...]
 
   \author   Volker Adler
-  \version  $Id: GenericTriggerEventFlag.h,v 1.4 2011/08/08 14:49:34 vadler Exp $
+  \version  $Id: GenericTriggerEventFlag.h,v 1.5 2012/01/19 20:17:34 vadler Exp $
 */
 
 
@@ -57,6 +57,7 @@ class GenericTriggerEventFlag {
     bool                       andOrL1_;
     bool                       l1BeforeMask_;
     std::string                l1DBKey_;
+    std::vector< std::string > l1LogicalExpressionsCache_;
     std::vector< std::string > l1LogicalExpressions_;
     bool                       errorReplyL1_;
     bool                       andOrHlt_;
@@ -108,6 +109,7 @@ class GenericTriggerEventFlag {
     bool acceptHltLogicalExpression( const edm::Handle< edm::TriggerResults > & hltTriggerResults, std::string hltLogicalExpression ) const;
 
     // Algos
+    std::string expandLogicalExpression( const std::vector< std::string > & target, const std::string & expr, bool useAnd = false ) const;
     bool negate( std::string & word ) const;
 
   public:

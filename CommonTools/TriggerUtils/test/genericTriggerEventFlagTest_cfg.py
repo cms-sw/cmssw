@@ -24,7 +24,20 @@ process.source = cms.Source( "PoolSource"
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32( 100 ) )
 
 # Test modules
-process.genericTriggerEventFlagPass = cms.EDFilter( "GenericTriggerEventFlagTest"
+# L1
+process.genericTriggerEventFlagL1Pass = cms.EDFilter( "GenericTriggerEventFlagTest"
+, andOr          = cms.bool( False )
+, verbosityLevel = cms.uint32( 2 )
+, andOrL1      = cms.bool( False )
+, l1Algorithms = cms.vstring( 'L1_SingleMu12 OR L1_SingleMu14_Eta2p1'
+                            )
+, errorReplyL1 = cms.bool( False )
+)
+process.genericTriggerEventFlagL1Fail     = process.genericTriggerEventFlagL1Pass.clone( l1Algorithms = [ 'L1_SingleMu12_' ] )
+process.genericTriggerEventFlagL1Test     = process.genericTriggerEventFlagL1Pass.clone( l1Algorithms = [ 'L1_SingleMu12* OR L1_SingleMu14*' ] )
+process.genericTriggerEventFlagL1TestFail = process.genericTriggerEventFlagL1Pass.clone( l1Algorithms = [ 'L1_SingleMu12_v*' ] )
+# HLT
+process.genericTriggerEventFlagHLTPass = cms.EDFilter( "GenericTriggerEventFlagTest"
 , andOr          = cms.bool( False )
 , verbosityLevel = cms.uint32( 2 )
 , andOrHlt      = cms.bool( False )
@@ -33,20 +46,38 @@ process.genericTriggerEventFlagPass = cms.EDFilter( "GenericTriggerEventFlagTest
                              )
 , errorReplyHlt = cms.bool( False )
 )
-process.genericTriggerEventFlagFail      = process.genericTriggerEventFlagPass.clone( hltPaths = [ 'HLT_IsoMu24_eta2p1' ] )
-process.genericTriggerEventFlagTestTight = process.genericTriggerEventFlagPass.clone( hltPaths = [ 'HLT_IsoMu24_eta2p1_v*' ] )
-process.genericTriggerEventFlagTestLoose = process.genericTriggerEventFlagPass.clone( hltPaths = [ 'HLT_Mu*_* OR HLT_IsoMu*_*' ] )
+process.genericTriggerEventFlagHLTFail      = process.genericTriggerEventFlagHLTPass.clone( hltPaths = [ 'HLT_IsoMu24_eta2p1' ] )
+process.genericTriggerEventFlagHLTTestTight = process.genericTriggerEventFlagHLTPass.clone( hltPaths = [ 'HLT_IsoMu24_eta2p1_v*' ] )
+process.genericTriggerEventFlagHLTTestLoose = process.genericTriggerEventFlagHLTPass.clone( hltPaths = [ 'HLT_IsoMu24_*' ] )
+process.genericTriggerEventFlagHLTTestFail  = process.genericTriggerEventFlagHLTPass.clone( hltPaths = [ 'HLT_IsoMu2*_v*' ] )        # does not fail, in fact :-)
 
 # Paths
-process.pPass = cms.Path(
-  process.genericTriggerEventFlagPass
+# L1
+process.pL1Pass = cms.Path(
+  process.genericTriggerEventFlagL1Pass
 )
-process.pFail = cms.Path(
-  process.genericTriggerEventFlagFail
+process.pL1Fail = cms.Path(
+  process.genericTriggerEventFlagL1Fail
 )
-process.pTestTight = cms.Path(
-  process.genericTriggerEventFlagTestTight
+process.pL1Test = cms.Path(
+  process.genericTriggerEventFlagL1Test
 )
-process.pTestLoose = cms.Path(
-  process.genericTriggerEventFlagTestLoose
+process.pL1TestFail = cms.Path(
+  process.genericTriggerEventFlagL1TestFail
+)
+# HLT
+process.pHLTPass = cms.Path(
+  process.genericTriggerEventFlagHLTPass
+)
+process.pHLTFail = cms.Path(
+  process.genericTriggerEventFlagHLTFail
+)
+process.pHLTTestTight = cms.Path(
+  process.genericTriggerEventFlagHLTTestTight
+)
+process.pHLTTestLoose = cms.Path(
+  process.genericTriggerEventFlagHLTTestLoose
+)
+process.pHLTTestFail = cms.Path(
+  process.genericTriggerEventFlagHLTTestFail
 )
