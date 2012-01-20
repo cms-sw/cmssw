@@ -40,6 +40,8 @@ selectTight = cms.EDProducer("AnalyticalTrackSelector",
 
     # Absolute cuts in case of no PV. If yes, please define also max_d0NoPV and max_z0NoPV
     applyAbsCutsIfNoPV = cms.bool(False),
+    max_d0NoPV = cms.double( 100.0 ),
+    max_z0NoPV = cms.double( 100.0 ),
 
     # parameters for cutting on pterror/pt and number of valid hits
     max_relpterr = cms.double(9999.),
