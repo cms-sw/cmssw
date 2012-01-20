@@ -23,7 +23,7 @@ import FWCore.ParameterSet.Config as cms
 #
 #  FEVT (RAW+RECO), FEVTSIM (RAWSIM+RECOSIM), FEVTDEBUG (FEVTSIM+ALL_SIM_INFO), FEVTDEBUGHLT (FEVTDEBUG+HLTDEBUG)
 #
-#  $Id: EventContent_cff.py,v 1.45 2011/12/29 03:50:44 mikeh Exp $
+#  $Id: EventContent_cff.py,v 1.46 2012/01/19 15:49:57 vlimant Exp $
 #
 #
 #
@@ -647,3 +647,4 @@ REDIGIEventContent.inputCommands.extend(GeneratorInterfaceRAW.outputCommands)
 for item in REDIGIEventContent.inputCommands:
     if 'genParticles' in item:
         REDIGIEventContent.inputCommands.remove(item)
+REDIGIEventContent.inputCommands.append('drop *_randomEngineStateProducer_*_*')
