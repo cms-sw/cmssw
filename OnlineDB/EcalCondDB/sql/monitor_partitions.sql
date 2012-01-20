@@ -19,6 +19,7 @@ CREATE TABLE TEMP_TABLE (
 )
 /
 
+set term off
 SPOOL TEMP.sql
 set head off
 set echo off
@@ -32,6 +33,7 @@ SPOOL OFF
 @TEMP
 
 SET LINES 230
+SET TERM ON
 SET HEAD ON
 SET FEED ON
 SELECT 
