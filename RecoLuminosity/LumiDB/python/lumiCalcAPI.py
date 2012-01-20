@@ -28,7 +28,7 @@ def _decidenormForRun(schema,run):
 #public functions
 def runsummary(schema,irunlsdict):
     '''
-    output  [[l1key,amodetag,egev,hltkey,fillnum,sequence,starttime,stoptime]]
+    output  [[run,l1key,amodetag,egev,hltkey,fillnum,sequence,starttime,stoptime]]
     '''
     result=[]
     for run in sorted(irunlsdict):
