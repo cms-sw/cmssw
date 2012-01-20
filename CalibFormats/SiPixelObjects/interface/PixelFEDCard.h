@@ -64,7 +64,7 @@ namespace pos{
     virtual void writeXMLTrailer(std::ofstream *fedstream,
 				 std::ofstream *recostream,
 				 std::ofstream *tbmstream) const ;
-    unsigned long long enabledChannels();  // returns 64-bit integer mask 35..0
+    uint64_t enabledChannels();  // returns 64-bit integer mask 35..0
 
 
     //Settable optical input parameters (one for each 12-receiver)

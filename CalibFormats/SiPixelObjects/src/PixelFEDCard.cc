@@ -2119,8 +2119,8 @@ void PixelFEDCard::writeXML(pos::PixelConfigKey key, int version, std::string pa
 }
 
 //=============================================================================================
-unsigned long long PixelFEDCard::enabledChannels() {
-  unsigned long long channels=0;
+uint64_t PixelFEDCard::enabledChannels() {
+  uint64_t channels=0;
 // return a 64-bit word with low 36 bits set if a channel is enabled
 // if bits are set in the control registers, transfer of data from 
 // fifo1 to fifo 2 is not done, meaning the channel is disabled.
