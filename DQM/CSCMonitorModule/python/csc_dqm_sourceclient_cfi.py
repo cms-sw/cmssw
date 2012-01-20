@@ -47,7 +47,7 @@ dqmCSCClient = cms.EDAnalyzer("CSCMonitorModule",
     MO_FILTER = cms.untracked.vstring(
       '+/^.*$/',
       '-/All_Readout_Errors/',
-      '-/DMB_.*$/',
+      '-/^DMB_.*$/',
       '-/DDU_[0-9]+/',
       '-/CSC_[0-9]+_[0-9]+/',
       '+/CSC_[0-9]+_[0-9]+\/BinCheck_ErrorStat_Table/',
