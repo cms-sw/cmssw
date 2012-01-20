@@ -9,7 +9,7 @@ from DQM.CSCMonitorModule.csc_dqm_masked_hw_cfi import *
 dqmCSCClient = cms.EDAnalyzer("CSCMonitorModule",
 
   BOOKING_XML_FILE = cms.FileInPath('DQM/CSCMonitorModule/data/emuDQMBooking.xml'),
-  InputObjects = cms.untracked.InputTag("rawDataCollector"),
+  InputObjects = cms.untracked.InputTag("source"),
   PREBOOK_EFF_PARAMS = cms.untracked.bool(True),
   MASKEDHW = CSCMaskedHW,
 
