@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("Alignment")
 
-# "including" common configuration <COMMON>
+# "including" common configuration
+<COMMON>
 
 process.source = cms.Source("EmptySource")
 
@@ -10,15 +11,16 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.AlignmentProducer.algoConfig.collectorActive = True
-process.AlignmentProducer.algoConfig.collectorNJobs  = '<JOBS>'
+process.AlignmentProducer.algoConfig.collectorNJobs  = <JOBS>
 process.AlignmentProducer.algoConfig.collectorPath   = '<PATH>'
-#process.AlignmentProducer.algoConfig.minimumNumberOfHits = 30
-process.AlignmentProducer.algoConfig.minimumNumberOfHits = 0
-process.AlignmentProducer.algoConfig.maxRelParameterError = '1e99'
+process.AlignmentProducer.algoConfig.minimumNumberOfHits = 30
+# process.AlignmentProducer.algoConfig.minimumNumberOfHits = 0
+process.AlignmentProducer.algoConfig.maxRelParameterError = 100000000.
 process.AlignmentProducer.algoConfig.outpath = '<PATH>/main/'
 ##
 process.AlignmentProducer.algoConfig.eventPrescale= 1
-process.AlignmentProducer.algoConfig.fillTrackMonitoring=True
+#process.AlignmentProducer.algoConfig.fillTrackMonitoring=True
+process.AlignmentProducer.algoConfig.fillTrackMonitoring=False
 process.AlignmentProducer.algoConfig.outfile =  '/HIPAlignmentEvents.root'
 process.AlignmentProducer.algoConfig.outfile2 = '/HIPAlignmentAlignables.root'
 
