@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     03-Jul-2007
 #     A. Parenti, DESY Hamburg    27-Mar-2008
-#     $Revision: 1.7 $
-#     $Date: 2009/03/09 11:23:54 $
+#     $Revision: 1.9 $
+#     $Date: 2011/06/15 14:24:52 $
 #
 #  Take card file, blank all INFI directives and insert
 #  the INFI directives from the modifier file instead.
@@ -70,8 +70,9 @@ close MODFILE;
 $/ = "\n"; # back to normal
 chomp $mods;
 
+#FIXME: make more robust regexp
 $nn = ($body =~ s/mode \= \'full\'/mode \= \'mille\'/);
-if ($nn != 1) {
+if ($nn) {
   print "Replaced mode from 'full' to 'mille'.\n";
 }
 
