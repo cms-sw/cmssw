@@ -69,7 +69,10 @@ getExternals()
    fi
    
    echo "copy root from $origr to ${tard}/external/root"
-   cp -a $origr  ${tard}/external/root
+   pushd $PWD
+   cd $ROOTSYS
+   ROOTSYS=${tard}/external/root make install
+   popd
    
  
    
@@ -131,7 +134,8 @@ getSources()
    ln -s  src/Fireworks/Core/macros/ispy.fwc  .
    ln -s  src/Fireworks/Core/macros/pflow.fwc  .
    ln -s  src/Fireworks/Core/macros/hfLego.fwc  
-   ln -s  src/Fireworks/Core/macros/simGeo.fwc  .
+   ln -s  src/Fireworks/Core/macros/simGeo.fwc  
+   ln -s  src/Fireworks/Core/macros/overlaps.fwc  ..
    
    ln -s  src/Fireworks/Core/scripts/cmsShow .
    
@@ -180,7 +184,6 @@ if [ $# -lt 1 ]; then
   echo "Usage: $0   [-s] [-p] [-v] destination_dir "
   exit 1
 fi
-
 
 
 while [ $# -gt 0 ]; do
