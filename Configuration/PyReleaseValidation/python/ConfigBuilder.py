@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.349 $"
+__version__ = "$Revision: 1.350 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -1197,7 +1197,7 @@ class ConfigBuilder(object):
 	    if self._options.inputEventContent:
 		    raise Exception('--inputEventContent and REDIGI are incompatible')
 	    self._options.inputEventContent='REDIGI'
-	    self.executeAndRemember('process.RandomNumberGeneratorService.restoreStateLabel=cms.untracked.string("randomEngineStateProducer")')
+	    #self.executeAndRemember('process.RandomNumberGeneratorService.restoreStateLabel=cms.untracked.string("randomEngineStateProducer")')
 	    #if self._options.pileup and self._options.pileup!='NoPileUp':
 	    #self.executeAndRemember("process.mix.playback = True")
 	    return
@@ -1627,7 +1627,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.349 $"),
+                                            (version=cms.untracked.string("$Revision: 1.350 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
