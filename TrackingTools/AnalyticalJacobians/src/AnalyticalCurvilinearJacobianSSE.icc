@@ -202,7 +202,17 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
   if (cutCriterion > limit) {
     double pp = 1./qbp;
     theJacobian(3,0) = pp*dot(u2,dx.xy());
-    theJacobian(4,0) = -pp*dot(v2,dx);  // was wrong sign???
+//    theJacobian(4,0) = -pp*dot(v2,dx);  // was wrong sign???
+/*
+It seems so.
+The effect was noticed analysing the distribution of reduced chi2 of general tracks
+vs eta. A +3% difference was noticed whem using the - sign instead of the plus,
+in the region .75 < |eta| < 1.5, in particular for <1GeV tracks.
+Indeed, the reduced chi2 is only one of the symptoms: many other quantities 
+were affected (momentum for example). In addition additional tracks were reconstructed.
+*/
+    theJacobian(4,0) = pp*dot(v2,dx);  
+
   }
   else {
     Vec3D hp1 = cross(hn,t1);
