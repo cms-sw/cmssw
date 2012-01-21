@@ -95,7 +95,6 @@ HcalRawDataMonitor::HcalRawDataMonitor(const edm::ParameterSet& ps) {
   for (int d=0; d<DEPTHBINS; d++) {
     for (int eta=0; eta<ETABINS; eta++) {
       for (int phi=0; phi<PHIBINS; phi++){
-	uniqcounter[eta][phi][d] = 0.0;
 	problemcount[eta][phi][d] = 0.0;
 	problemfound[eta][phi][d] = false;
       }
@@ -555,22 +554,17 @@ void HcalRawDataMonitor::analyze(const edm::Event& e, const edm::EventSetup& s){
 	  else if (isHF(eta,d+1)) subdet=HcalForward;
 	  else if (isHO(eta,d+1)) subdet=HcalOuter;
 	  if (subdet!=HcalEmpty){
-	    if (subdet==HcalBarrel)       {if(uniqcounter[eta][phi][d]<1) NumBadHB+= problemcount[eta][phi][d]; uniqcounter[eta][phi][d]++; }
-	    else if (subdet==HcalEndcap)  {if(uniqcounter[eta][phi][d]<1) NumBadHE+= problemcount[eta][phi][d]; uniqcounter[eta][phi][d]++; }
-	    ///NumBadHE+= problemcount[eta][phi][d];
+	    if (subdet==HcalBarrel)       NumBadHB+= problemcount[eta][phi][d];
+	    else if (subdet==HcalEndcap)  NumBadHE+= problemcount[eta][phi][d];
 	    else if (subdet==HcalOuter)  
 	      {
-		if(uniqcounter[eta][phi][d]<1) 
-		  NumBadHO += problemcount[eta][phi][d];
-		uniqcounter[eta][phi][d]++; 
+		NumBadHO += problemcount[eta][phi][d];
 		if (abs(ieta)<5) NumBadHO0+= problemcount[eta][phi][d];
 		else NumBadHO12+= problemcount[eta][phi][d];
 	      }
 	    else if (subdet==HcalForward)
 	      {
-		if(uniqcounter[eta][phi][d]<1) 
-		  NumBadHF+= problemcount[eta][phi][d];
-		uniqcounter[eta][phi][d]++; 
+		NumBadHF+= problemcount[eta][phi][d];
 		if (d==1 && (abs(ieta)==33 || abs(ieta)==34))
 		  NumBadHFLUMI+= problemcount[eta][phi][d];
 		else if (d==2 && (abs(ieta)==35 || abs(ieta)==36))
@@ -1195,15 +1189,13 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
 // End LumiBlock
 void HcalRawDataMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 					    const edm::EventSetup& c){
-  
-  
+
   ProblemsVsLB_HB->Fill(lumiSeg.luminosityBlock(),NumBadHB);
   ProblemsVsLB_HE->Fill(lumiSeg.luminosityBlock(),NumBadHE);
   ProblemsVsLB_HO->Fill(lumiSeg.luminosityBlock(),NumBadHO);
   ProblemsVsLB_HF->Fill(lumiSeg.luminosityBlock(),NumBadHF);
   ProblemsVsLB_HBHEHF->Fill(lumiSeg.luminosityBlock(),NumBadHB+NumBadHE+NumBadHF);
   ProblemsVsLB->Fill(lumiSeg.luminosityBlock(),NumBadHB+NumBadHE+NumBadHO+NumBadHF);
-  
   // Reset current LS histogram, if it exists
   if (ProblemsCurrentLB)
     ProblemsCurrentLB->Reset();
@@ -1221,13 +1213,8 @@ void HcalRawDataMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
     }
 
-  for (int d=0; d<DEPTHBINS; d++) {
-    for (int eta=0; eta<ETABINS; eta++) {
-      for (int phi=0; phi<PHIBINS; phi++){
-	uniqcounter[eta][phi][d] = 0.0;
-      }
-    }
-  }
+ 
+
 
   UpdateMEs();
 }

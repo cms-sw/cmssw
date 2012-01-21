@@ -23,10 +23,6 @@
 		rm -f $LOCALTOP/$CMSSW_xyz.index
 	endif
 
-	if (-e $LOCALTOP/tagList.txt) then
-		rm -f $LOCALTOP/tagList.txt
-	endif
-
 	if (-e $LOCALTOP/doc/html/ReferenceManual.html) then
 		rm $LOCALTOP/doc/html/ReferenceManual.html
 	endif
@@ -61,13 +57,7 @@
 	time python $SCRIPTS/splitter/splitter.py $LOCALTOP /doc/html/namespaces.html namespaceList_ 
 	time python $SCRIPTS/splitter/splitter.py $LOCALTOP /doc/html/configfiles.html configfilesList_ 
 	time python $SCRIPTS/splitter/splitter.py $LOCALTOP /doc/html/annotated.html annotatedList_ 
-
-	# package documetation
-	cd src
-	showtags -t> ../tagList.txt
-	cd ..
-
-	time python $SCRIPTS/splitter/packageDocSplitter.py pages.html $LOCALTOP tagList.txt
+	time python $SCRIPTS/splitter/packageDocSplitter.py pages.html $LOCALTOP 
 
 	find $LOCALTOP/doc/html/ -name "*.html" ! \( -name "*dir_*" -o -name "*globals_*" -o -name "*namespacemembers_*" -o -name "*functions_*" \) -print | sort > $LOCALTOP/$CMSSW_xyz.index
 

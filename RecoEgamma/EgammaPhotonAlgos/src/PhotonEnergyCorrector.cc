@@ -1,13 +1,13 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/PhotonEnergyCorrector.h"
 
 
-PhotonEnergyCorrector::PhotonEnergyCorrector( const edm::ParameterSet& config ) {
+PhotonEnergyCorrector::PhotonEnergyCorrector( const edm::ParameterSet& config, const edm::EventSetup& theEventSetup  ) {
 
 
   minR9Barrel_        = config.getParameter<double>("minR9Barrel");
   minR9Endcap_        = config.getParameter<double>("minR9Endcap");
   // get the geometry from the event setup:
-
+  theEventSetup.get<CaloGeometryRecord>().get(theCaloGeom_);
   //  candidateP4type_ = config.getParameter<std::string>("candidateP4type") ;
 
 
@@ -15,35 +15,32 @@ PhotonEnergyCorrector::PhotonEnergyCorrector( const edm::ParameterSet& config ) 
   scEnergyFunction_ = 0 ;
   std::string superClusterFunctionName = config.getParameter<std::string>("superClusterEnergyCorrFunction") ;
   scEnergyFunction_ = EcalClusterFunctionFactory::get()->create(superClusterFunctionName,config) ;
-
+  scEnergyFunction_->init(theEventSetup); 
 
   // function to extract corrections to cracks
   scCrackEnergyFunction_ = 0 ;
   std::string superClusterCrackFunctionName = config.getParameter<std::string>("superClusterCrackEnergyCorrFunction") ;
   scCrackEnergyFunction_ = EcalClusterFunctionFactory::get()->create(superClusterCrackFunctionName,config) ;
-
+  scCrackEnergyFunction_->init(theEventSetup); 
 
   // function to extract the error on the sc ecal correction
   scEnergyErrorFunction_ = 0 ;
   std::string superClusterErrorFunctionName = config.getParameter<std::string>("superClusterEnergyErrorFunction") ;
   scEnergyErrorFunction_ = EcalClusterFunctionFactory::get()->create(superClusterErrorFunctionName,config) ;
-
+  scEnergyErrorFunction_->init(theEventSetup); 
 
   // function  to extract the error on the photon ecal correction
   photonEcalEnergyCorrFunction_=0;
   std::string photonEnergyFunctionName = config.getParameter<std::string>("photonEcalEnergyCorrFunction") ;
   photonEcalEnergyCorrFunction_ = EcalClusterFunctionFactory::get()->create(photonEnergyFunctionName, config);
+  photonEcalEnergyCorrFunction_->init(theEventSetup);
 
 
-
-  // ingredient for energy regression
-  weightsfromDB_= config.getParameter<bool>("regressionWeightsFromDB");
-  w_file_ = config.getParameter<std::string>("energyRegressionWeightsFileLocation");
-  if (weightsfromDB_) w_db_   = config.getParameter<std::string>("energyRegressionWeightsDBLocation");
-  else  w_db_ == "none" ;
+  // ingredient for energy regression  
+  w_file_ = config.getParameter<std::string>("energyRegressionWeightsLocation");
   regressionCorrector_ = new EGEnergyCorrector(); 
-
-
+  if ( ! (w_file_ == "none") ) 
+    if (!regressionCorrector_->IsInitialized()) regressionCorrector_->Initialize(theEventSetup,w_file_);
 }
 
 
@@ -51,25 +48,6 @@ PhotonEnergyCorrector::~PhotonEnergyCorrector() {
   delete regressionCorrector_;
 }
 
-
-
-void PhotonEnergyCorrector::init (  const edm::EventSetup& theEventSetup ) {
-  theEventSetup.get<CaloGeometryRecord>().get(theCaloGeom_);
-
-  scEnergyFunction_->init(theEventSetup); 
-  scCrackEnergyFunction_->init(theEventSetup); 
-  scEnergyErrorFunction_->init(theEventSetup); 
-  photonEcalEnergyCorrFunction_->init(theEventSetup);
-
-  if ( weightsfromDB_ ) {
-    if (!regressionCorrector_->IsInitialized()) regressionCorrector_->Initialize(theEventSetup,w_db_,weightsfromDB_);
-  }
-  if ( !weightsfromDB_ &&  !(w_file_ == "none")  ) {
-    if (!regressionCorrector_->IsInitialized()) regressionCorrector_->Initialize(theEventSetup,w_file_,weightsfromDB_);
-  }  
-
-
-}
 
 
 void PhotonEnergyCorrector::calculate(reco::Photon & thePhoton, int subdet) {
@@ -87,7 +65,6 @@ void PhotonEnergyCorrector::calculate(reco::Photon & thePhoton, int subdet) {
   } else if  (subdet==EcalEndcap) {
     minR9=minR9Endcap_;
   }
-
 
   ////////////// Here default Ecal corrections based on electrons  ////////////////////////
   if ( thePhoton.r9() > minR9 ) {
@@ -122,16 +99,13 @@ void PhotonEnergyCorrector::calculate(reco::Photon & thePhoton, int subdet) {
   thePhoton.setCorrectedEnergy( reco::Photon::ecal_photons, phoEcalEnergy, phoEcalEnergyError,  false);
 
   //////////  Energy  Regression ////////////////////// 
-  //
-  if ( weightsfromDB_  || ( !weightsfromDB_ && !(w_file_ == "none") ) ) {
+  if ( !(w_file_ == "none") ) {
     std::pair<double,double> cor = regressionCorrector_->CorrectedEnergyWithError(thePhoton);
     phoRegr1Energy = cor.first;
     phoRegr1EnergyError = cor.second;
     // store the value in the Photon.h
     thePhoton.setCorrectedEnergy( reco::Photon::regression1, phoRegr1Energy, phoRegr1EnergyError,  false);
-  } 
-
-
+  }
 
   /*
   std::cout << " ------------------------- " << std::endl;

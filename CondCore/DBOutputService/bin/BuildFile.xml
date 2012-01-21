@@ -1,2 +1,4 @@
 <use   name="CondCore/DBOutputService"/>
 <use   name="boost_program_options"/>
+<bin   file="cmscond_logdb_prepare.cpp" name="cmscond_logdb_prepare">
+</bin>

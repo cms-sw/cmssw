@@ -16,7 +16,6 @@ workflows[3] = ['', ['ProdQCD_Pt_3000_3500','DIGIPROD1','RECOPROD1']]
 
 ### data ###
 workflows[4.5]  = ['', ['RunCosmicsA','RECOCOSD','ALCACOSD']]
-#workflows[4.45] = ['', ['RunCosmicsA','RECOD']]
 workflows[4.6]  = ['', ['MinimumBias2010A','RECOSKIM','HARVESTD']]
 workflows[4.7]  = ['', ['MinimumBias2010B','RECOSKIMALCA']]
 workflows[4.8]  = ['', ['WZMuSkim2010A','RECOSKIM']]
@@ -45,6 +44,19 @@ workflows[4.25] = ['',['WElSkim2011A','RECOSKIM']]
 workflows[4.26] = ['',['ZMuSkim2011A','RECOSKIM']]
 workflows[4.27] = ['',['ZElSkim2011A','RECOSKIM']]
 workflows[4.28] = ['',['HighMet2011A','RECOSKIM']]
+
+workflows[4.29] = ['', ['RunMinBias2011B','RECOD','HARVESTD','SKIMD']]
+workflows[4.30] = ['', ['RunMu2011B','RECOD']]
+workflows[4.31] = ['', ['RunElectron2011B','RECOD']]
+workflows[4.32] = ['', ['RunPhoton2011B','RECOD']]
+workflows[4.33] = ['', ['RunJet2011B','RECOD']]
+
+workflows[4.34] = ['',['ValSkim2011B','RECOSKIM']]
+workflows[4.35] = ['',['WMuSkim2011B','RECOSKIM']]
+workflows[4.36] = ['',['WElSkim2011B','RECOSKIM']]
+workflows[4.37] = ['',['ZMuSkim2011B','RECOSKIM']]
+workflows[4.38] = ['',['ZElSkim2011B','RECOSKIM']]
+workflows[4.39] = ['',['HighMet2011B','RECOSKIM']]
 
 workflows[4.51] = ['',['RunHI2010','REPACKHID','RECOHID11St3']]
 workflows[4.52] = ['',['RunHI2010','RECOHID10','RECOHIR10D11']]
@@ -103,3 +115,5 @@ workflows[41] = ['',['HydjetQ_B0_2760GeV','DIGIHI','RECOHI']]
 workflows[42] = ['',['HydjetQ_B8_2760GeV','DIGIHI','RECOHI']]
 
 
+
+#  LocalWords:  workflows

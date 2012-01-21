@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmitry Vishnevskiy,591 R-013,+41227674265,
 //         Created:  Wed Mar  3 12:14:16 CET 2010
-// $Id: HcalDetDiagLaserMonitor.cc,v 1.18 2011/06/30 07:37:20 dma Exp $
+// $Id: HcalDetDiagLaserMonitor.cc,v 1.17 2011/05/24 14:40:28 dma Exp $
 //
 //
 
@@ -287,8 +287,7 @@ class HcalDetDiagLaserMonitor : public HcalBaseDQMonitor {
       const HcalElectronicsMap  *emap;
       edm::InputTag inputLabelDigi_;
       edm::InputTag calibDigiLabel_;
-      edm::InputTag rawDataLabel_;
-  
+
       void SaveReference();
       void SaveRaddamData();
       void LoadReference();
@@ -382,7 +381,6 @@ HcalDetDiagLaserMonitor::HcalDetDiagLaserMonitor(const edm::ParameterSet& iConfi
 
   inputLabelDigi_  = iConfig.getUntrackedParameter<edm::InputTag>("digiLabel",edm::InputTag("hcalDigis"));
   calibDigiLabel_  = iConfig.getUntrackedParameter<edm::InputTag>("calibDigiLabel",edm::InputTag("hcalDigis"));
-  rawDataLabel_   =  iConfig.getUntrackedParameter<edm::InputTag>("RawDataLabel",edm::InputTag("source"));
 
   ReferenceData    = iConfig.getUntrackedParameter<std::string>("LaserReferenceData" ,"");
   OutputFilePath   = iConfig.getUntrackedParameter<std::string>("OutputFilePath", "");
@@ -603,10 +601,8 @@ static int  lastHBHEorbit,lastHOorbit,lastHForbit,nChecksHBHE,nChecksHO,nChecksH
 
    // Abort Gap laser 
    if(LocalRun==false || LaserEvent==false){
-     edm::Handle<FEDRawDataCollection> rawdata;
-     iEvent.getByLabel(rawDataLabel_ ,rawdata);
-       // edm::Handle<FEDRawDataCollection> rawdata;
-       // iEvent.getByType(rawdata);
+       edm::Handle<FEDRawDataCollection> rawdata;
+       iEvent.getByType(rawdata);
        //checking FEDs for calibration information
        for (int i=FEDNumbering::MINHCALFEDID;i<=FEDNumbering::MAXHCALFEDID; i++) {
           const FEDRawData& fedData = rawdata->FEDData(i) ;

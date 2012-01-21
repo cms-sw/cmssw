@@ -1,7 +1,7 @@
 /* 
  *  \class PulseFitWithShape
  *
- *  $Date: 2010/04/12 14:17:11 $
+ *  $Date: 2010/10/21 22:54:31 $
  *  \author: Julie Malcles - CEA/Saclay
  */
 
@@ -12,6 +12,7 @@
 
 #include <iostream>
 #include "TMath.h"
+#include <cmath>
 
 //ClassImp(PulseFitWithShape)
 
@@ -19,14 +20,12 @@
 // Constructor...
 PulseFitWithShape::PulseFitWithShape()
 { 
-  debug                   = false;
+ 
   fNsamples               =  0;
   fNsamplesShape          =  0;
   fNum_samp_bef_max       =  0;
   fNum_samp_after_max     =  0;
-  fNum_presample          =  0;
   fNoise                  = 0.0;
-  fFitPed                 = true;
 }
 
 // Destructor
@@ -36,7 +35,7 @@ PulseFitWithShape::~PulseFitWithShape()
 
 // Initialisation
 
-void PulseFitWithShape::init(int n_samples,int samplb,int sampla,int niter,int n_samplesShape,int n_presample, vector<double> shape, double nois)
+void PulseFitWithShape::init(int n_samples,int samplb,int sampla,int niter,int n_samplesShape, std::vector<double> shape, double nois)
 {
  
   fNsamples   = n_samples ;
@@ -44,10 +43,10 @@ void PulseFitWithShape::init(int n_samples,int samplb,int sampla,int niter,int n
   fNb_iter = niter ;
   fNum_samp_bef_max = samplb ;
   fNum_samp_after_max = sampla  ;
-  fNum_presample = n_presample;
+
 
   if( fNsamplesShape < fNum_samp_bef_max+fNum_samp_after_max+1){
-    cout<<"PulseFitWithShape::init: Error! Configuration samples in fit greater than total number of samples!" << endl;
+    std::cout<<"PulseFitWithShape::init: Error! Configuration samples in fit greater than total number of samples!" << std::endl;
   }
 
   for(int i=0;i<fNsamplesShape;i++){
@@ -58,17 +57,6 @@ void PulseFitWithShape::init(int n_samples,int samplb,int sampla,int niter,int n
   fNoise=nois;
   return ;
  }
-void PulseFitWithShape::setFitPed( bool doFitPed ){
-  fFitPed = doFitPed;
-}
-
-double PulseFitWithShape::doFit(double *adc)
-{
-  double *cova;
-  cova=0;
-
-  return doFit(adc, cova);
-}
 
 // Compute the amplitude using as input the Crystaldata  
 
@@ -96,10 +84,11 @@ double PulseFitWithShape::doFit(double *adc, double *cova)
   // Sample noise. If the cova matrix is defined, use it :
 
   double noise=fNoise;
-  //if(cova[0] > 0. && useCova ) noise=1./sqrt(cova[0]);
+  //if(cova[0] > 0.) noise=1./sqrt(cova[0]);
   
   xpar[0]=0.;
   xpar[2]=0.;
+
 
   // first locate max:
 
@@ -124,19 +113,15 @@ double PulseFitWithShape::doFit(double *adc, double *cova)
       qms=pshape[is];
       ims=is;
     }
-  }
-  
-  // 2) normalize and compute shape derivative :
-  
-  for(int is=0; is<fNsamplesShape; is++) pshape[is]/=qms;
-  
-  for(int is=0; is<fNsamplesShape; is++){
+
+  // 2) compute shape derivative :
+    
     if(is < fNsamplesShape-2)
       dshape[is]= (pshape[is+2]-pshape[is])*12.5;
     else
       dshape[is]=dshape[is-1]; 
   }
-  
+
   // 3) compute pol2 max
 
   double sq1=pshape[ims-1];
@@ -162,17 +147,14 @@ double PulseFitWithShape::doFit(double *adc, double *cova)
   
   for(int is=0; is<nsamplef; is++){
 
-    if(fabs(adc[is+nsampleo]) > fabs(qm) ){
+    if(adc[is+nsampleo] > qm){
       qm=adc[is+nsampleo];
       im=nsampleo+is;
     }
   }
 
-  if(debug) printf("opt_shape : entrance : %d %d %d\n",fNsamples,nsamplef,nsampleo);
-
-  if(fabs(qm)<5.*noise)nsampleo=5;
-  double tm=0.;
-  if(qm > 3.*noise){
+  double tm;
+  if(qm > 5.*noise){
     if(im >= nsamplef+nsampleo) im=nsampleo+nsamplef-1;
     double q1=adc[im-1];
     double q2=adc[im];
@@ -183,25 +165,11 @@ double PulseFitWithShape::doFit(double *adc, double *cova)
     tm=-y1/2./y2;
     xpar[0]=y0+y1*tm+y2*tm*tm;
     xpar[2]=(double)ims/25.-tm;
-    if(xpar[2]>2.)xpar[2]=2.;
-    if(xpar[2]<-3.)xpar[2]=-3.;
   }
-  else
-  {
-    xpar[0]=qm;
-    xpar[2]=1.5;
-  }
-
-  if(debug) {
-    printf("\nopt_shape : xsamples = "); for(int is=0; is<fNsamples; is++)printf("%f ",adc[is]);
-    printf("\n opt_shape : phase = %f %f %f , qmax= %f \n",xpar[2],tm,float(ims)/25., xpar[0]);
-  }
-  
 
   double chi2old=999999.;
   chi2=99999.;
   int nsfit=nsamplef;
-  if(fFitPed) nsfit+=fNum_presample;
   int iloop=0;
   int nloop=fNb_iter;
   if(qm <= 5*noise)nloop=1; // Just one iteration for very low signal
@@ -210,7 +178,7 @@ double PulseFitWithShape::doFit(double *adc, double *cova)
   resi= new double[fNsamples];  
   for (int j=0;j<fNsamples;j++) resi[j]=0;
 
-  while(fabs(chi2old-chi2) > 0.1 && iloop < nloop)
+  while(std::fabs(chi2old-chi2) > 0.1 && iloop < nloop)
     {
       iloop++;
       chi2old=chi2;
@@ -228,11 +196,7 @@ double PulseFitWithShape::doFit(double *adc, double *cova)
       for(int is=0; is<nsfit; is++)
 	{
 	  int iis=is;
-	  
-	  if(!fFitPed)
-	    iis=is+nsampleo;
-	  else if(is >= fNum_presample)
-	    iis=is+nsampleo-fNum_presample;
+	  iis=is+nsampleo;
 	  
 	  double t1=(double)iis+xpar[2];
 	  double xbin=t1*25.;
@@ -240,12 +204,7 @@ double PulseFitWithShape::doFit(double *adc, double *cova)
 	  
 	  if(ibin1 < 0) ibin1=0;
 
-	  double amp1=0.;
-	  double amp11=0.;
-	  double amp12=0.;
-	  double der1=0.;
-	  double der11=0.;
-	  double der12=0.;
+	  double amp1,amp11,amp12,der1,der11,der12;
 
 	  if(ibin1 <= fNsamplesShape-2){     // Interpolate shape values to get the right number :
 	    
@@ -264,19 +223,12 @@ double PulseFitWithShape::doFit(double *adc, double *cova)
 	      (xbin-double(fNsamplesShape-1))/25.;
 	    der1=dshape[fNsamplesShape-1];
 	  }
-	  if(debug) {
-	    printf("opt_shape : is %d, iis %d, ibin1 %d, shape %f, amp11 %f, amp12 %f, amp1 %f\n",
-		   is,iis,ibin1,pshape[ibin1],amp11,amp12,amp1);
-	  }
+	  
 	  if( useCova ){     // Use covariance matrix: 
 	    for(int js=0; js<nsfit; js++)
 	      {
 		int jjs=js;
-
-		if(!fFitPed)
-		  jjs=js+nsampleo;
-		else if(js >= fNum_presample)
-		  jjs=js+nsampleo-fNum_presample;
+		jjs+=nsampleo;
 		
 		t1=(double)jjs+xpar[2];
 		xbin=t1*25.;
@@ -313,54 +265,12 @@ double PulseFitWithShape::doFit(double *adc, double *cova)
 	    ysp=ysp+der1*adc[iis];
 	  }
 	}
-
-      //new: fitped
-
-      // NEW STUFF: fit ped
-      if(!fFitPed)
-	{
-	  xpar[0]=(ysp*ssp-ys1*sp2)/(ssp*ssp-s2*sp2);
-	  xpar[2]+=(ysp/xpar[0]/sp2-ssp/sp2);
-	}
-      else
-	{
-	  double u=c*ys1-y1*s1;
-	  double v=s1*s1-s2*c;
-	  double w=sp1*s1-ssp*c;
-	  double x=c*ysp-y1*sp1;
-	  double y=s1*sp1-ssp*c;
-	  double z=sp1*sp1-sp2*c;
-	  xpar[0]=(w*x-z*u)/(z*v-w*y);
-	  double deltat=0.;
-	  if(qm > 5.*noise ) deltat=(y*u-v*x)/(z*v-w*y)/xpar[0];
-	  if(deltat>1.)deltat=1.;
-	  if(deltat<-1.)deltat=-1.;
-	  //if(fabs(xpar[2]+deltat-tdc_f)>1.5)
-	  //{
-	  //  fittdc=0;
-	  //  xpar[2]=tdc_f;
-	  //  deltat=0.;
-	  //}
-	  xpar[2]+=deltat;
-	  xpar[1]=(y1-xpar[0]*s1-deltat*xpar[0]*sp1)/c;
-	  
-	   if(debug)  printf("opt_shape : xpar : %f %f %f \n",xpar[0],xpar[1],xpar[2]);
-	}
-      // NEW STUFF: end
-
-
-      // OLD STUFF
-      //       xpar[0]=(ysp*ssp-ys1*sp2)/(ssp*ssp-s2*sp2);
-      //       xpar[2]+=(ysp/xpar[0]/sp2-ssp/sp2);
-      // OLD STUFF: end
+      xpar[0]=(ysp*ssp-ys1*sp2)/(ssp*ssp-s2*sp2);
+      xpar[2]+=(ysp/xpar[0]/sp2-ssp/sp2);
    
-
       for(int is=0; is<nsfit; is++){
 	int iis=is;
-	if(!fFitPed)
-	  iis=is+nsampleo;
-	else if(is >= fNum_presample)
-	  iis=is+nsampleo-fNum_presample;
+	iis=is+nsampleo;
 	
 	double t1=(double)iis+xpar[2];
 	double xbin=t1*25.;
@@ -378,29 +288,20 @@ double PulseFitWithShape::doFit(double *adc, double *cova)
       }
 
       chi2=0.;
-      for(int is=0; is<nsfit; is++){	
+      for(int is=0; is<nsfit; is++){
 	int iis=is;
-	if(!fFitPed)
-	  iis=is+nsampleo;
-	else if(is >= fNum_presample)
-	  iis=is+nsampleo-fNum_presample;
+	iis+=nsampleo;
 	
 	if( useCova ){
 	  for(int js=0; js<nsfit; js++){
-
 	    int jjs=js;
-	    if(!fFitPed)
-	      jjs=js+nsampleo;
-	    else if(js >= fNum_presample)
-	      jjs=js+nsampleo-fNum_presample;
-	    
+	    jjs+=nsampleo;
 	    chi2+=resi[iis]*resi[jjs]*cova[js*fNsamples+is];
 	  }
 
 	}else chi2+=resi[iis]*resi[iis];
       }
     }
-   if(debug) printf("opt_shape : qmax %f, ped %f, dt %f, chi2 %f\nResi : ", xpar[0],xpar[1],xpar[2],chi2);
   
   fAmp_fitted_max = xpar[0];
   fTim_fitted_max = (double)t_ims/25.-xpar[2];

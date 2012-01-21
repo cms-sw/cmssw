@@ -61,9 +61,6 @@ class PerfSuite:
     def __init__(self):
         
         self.ERRORS = 0
-        #Swtiching from CASTOR to EOS (using xrdcp instead of rfcp and  root://eoscms//eos/ instead of /castor/cern.ch/
-        #NOT YET!
-        #FIX ME... do the migration to EOS eventually, taking care of PerFDB implications for tarball location!
         self._CASTOR_DIR = "/castor/cern.ch/cms/store/relval/performance/"
         self._dryrun   = False
         self._debug    = False
@@ -105,12 +102,7 @@ class PerfSuite:
     #to the AvailableCores list.
     #In the same loop a check for the case of all cores being back into AvailableCores with no more TestsToDo will break the infinite loop
     #and declare the end of all tests.As else to this if a sleep statement of 5 seconds will delay the repetition of the loop.
-
-    def createIgVolume(self):
-       igcommand = '/afs/cern.ch/cms/sdt/internal/scripts/requestPerfIgprofSpace.py --version ' + self.cmssw_version + ' --platform ' + self.cmssw_arch
-       subprocess.Popen(igcommand,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
-
-
+ 
     class simpleGenReportThread(threading.Thread):
        def __init__(self,cpu,perfsuiteinstance,**simpleGenReportArgs): #Passing around the perfsuite object to be able to access simpleGenReport
           self.cpu=cpu
@@ -188,7 +180,6 @@ class PerfSuite:
                             noexec           = False      ,
                             dryrun           = False      ,
                             verbose          = True       ,
-                            create           = False      ,
                             previousrel      = ""         ,
                             castordir        = self._CASTOR_DIR,
                             cores            = cmsCpuInfo.get_NumOfCores(), #Get Number of cpu cores on the machine from /proc/cpuinfo
@@ -204,8 +195,6 @@ class PerfSuite:
                             RunMemcheckPU    = ""         ,
                             PUInputFile      = ""         ,
                             userInputFile    = ""         )
-        parser.add_option('--createIgVol', action="store_true", dest='create',
-            help = 'Create IgProf AFS volume for the release and architecture')
         parser.add_option('-q', '--quiet'      , action="store_false", dest='verbose'   ,
             help = 'Output less information'                  )
         parser.add_option('-b', '--bypass-hlt' , action="store_true" , dest='bypasshlt' ,
@@ -302,8 +291,7 @@ class PerfSuite:
         self._unittest        = options.unittest
         self._noexec          = options.noexec
         self._verbose         = options.verbose
-        self._dryrun          = options.dryrun
-        create           = options.create
+        self._dryrun          = options.dryrun    
         castordir        = options.castordir
         TimeSizeEvents   = options.TimeSizeEvents
         IgProfEvents     = options.IgProfEvents
@@ -498,8 +486,7 @@ class PerfSuite:
             #Set the regular ones too:
             cmsdriverOptions = '--cmsdriver="%s"'%cmsdriverOptions        
     
-        return (create          ,
-                castordir       ,
+        return (castordir       ,
                 TimeSizeEvents  ,
                 IgProfEvents    ,
                 CallgrindEvents ,
@@ -888,10 +875,6 @@ class PerfSuite:
     #def runPerfSuite(**opts):
     #then instead of using castordir variable, would use opts['castordir'] etc    
     def runPerfSuite(self,
-                     create           = False,
-                     #Swtiching from CASTOR to EOS (using xrdcp instead of rfcp and  root://eoscms//eos/ instead of /castor/cern.ch/
-                     #Actually not yet... for consistency we will keep it on CASTOR for now
-                     #FIXME! Do the migration, following its implication in PerfDB application!
                      castordir        = "/castor/cern.ch/cms/store/relval/performance/",
                      TimeSizeEvents   = 100        ,
                      IgProfEvents     = 5          ,
@@ -905,7 +888,6 @@ class PerfSuite:
                      quicktest        = False      ,
                      profilers        = ""         ,
                      cpus             = [1]        ,
-                     cpu_list         = [1]        ,
                      cores            = 4          ,#Could use directly cmsCpuInfo.get_NumOfCores()
                      prevrel          = ""         ,
                      bypasshlt        = False      ,
@@ -1046,20 +1028,19 @@ class PerfSuite:
             scimark = ""
             scimarklarge = ""
             if not (self._unittest or self._noexec):
-                if (len(cpu_list) != cores):
-                    for core in range(cores):
-                        if (not core in cpus) and runonspare:
-                            self.logh.write("Submitting cmsScimarkLaunch.csh to run on core cpu "+str(core) + "\n")
-                            subcmd = "cd %s ; cmsScimarkLaunch.csh %s" % (perfsuitedir, str(core))            
-                            command="taskset -c %s sh -c \"%s\" &" % (str(core), subcmd)
-                            self.logh.write(command + "\n")
-                      
-                            #cmsScimarkLaunch.csh is an infinite loop to spawn cmsScimark2 on the other
-                            #cpus so it makes no sense to try reading its stdout/err
-                            #Obsolete popen4-> subprocess.Popen
-                            #os.popen4(command)
-                            subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
-                      
+                for core in range(cores):
+                    if (not core in cpus) and runonspare:
+                        self.logh.write("Submitting cmsScimarkLaunch.csh to run on core cpu "+str(core) + "\n")
+                        subcmd = "cd %s ; cmsScimarkLaunch.csh %s" % (perfsuitedir, str(core))            
+                        command="taskset -c %s sh -c \"%s\" &" % (str(core), subcmd)
+                        self.logh.write(command + "\n")
+    
+                        #cmsScimarkLaunch.csh is an infinite loop to spawn cmsScimark2 on the other
+                        #cpus so it makes no sense to try reading its stdout/err
+                        #Obsolete popen4-> subprocess.Popen
+                        #os.popen4(command)
+                        subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+
             self.logh.flush()
     
             #Don't do benchmarking if in debug mode... saves time
@@ -1095,14 +1076,11 @@ class PerfSuite:
                     copycmd="cp"
                     #Allow the file to be on CASTOR (taking a full CASTOR path)
                     if '/store/relval/' in PUInputFile:
-                       #Switching from CASTOR to EOS, i.e. from rfcp to xrdcp
-                        copycmd="xrdcp"
+                        copycmd="rfcp"
                         #Accept plain LFNs from DBS for RelVal CASTOR files:
                         #Minor fix to allow the case of user using the full path /castor/cern.ch/cms...
                         if PUInputFile.startswith('/store/relval/'):
-                           #Switching to EOS from CASTOR:
-                           #PUInputFile="/castor/cern.ch/cms"+PUInputFile
-                           PUInputFile="root://eoscms//eos/cms"+PUInputFile
+                           PUInputFile="/castor/cern.ch/cms"+PUInputFile
                     #Copy the file locally
                     self.logh.write("Copying the file %s locally to %s\n"%(PUInputFile,PUInputName))
                     self.logh.flush()
@@ -1175,12 +1153,8 @@ class PerfSuite:
             if cores==0: #When specifying the cpu to run the suite on, one has to set cores to 0 to avoid threading of PerfSuite itself...
                                           #So we need to catch this case for the IB tests case where we assign the test to a specific cpu.
                 AvailableCores=cpus
-            elif len(cpu_list) == cores: # For the new relval case, when running all the tests on one machine,
-                                         # specifying the same number of cores and cpus (like: --cores 3, --cpu 3,4,5)
-                AvailableCores=cpus
             else:
                 AvailableCores=range(cores)
-                
             #Initialize a list that will contain all the simpleGenReport keyword arguments (1 dictionary per test):
             TestsToDo=[]
             #IgProf tests:
@@ -1563,7 +1537,7 @@ class PerfSuite:
                            # check if we are using the autoCond style of flexible conditions
                            # if so, expand the condition here so that the file names contain the real conditions
                            if "auto:" in fileOptionValue: 
-                              from Configuration.AlCa.autoCond import autoCond
+                              from Configuration.PyReleaseValidation.autoCond import autoCond
                               fileConditionsOption = autoCond[ fileOptionValue.split(':')[1] ]
                            else:
                               # "old style" conditions, hardcoded values ...
@@ -1629,9 +1603,6 @@ class PerfSuite:
                if checkcastorout.rstrip()==fullcastorpathfile:
                   castorcmdstderr="File %s is already on CASTOR! Will NOT OVERWRITE!!!"%fullcastorpathfile
                else:
-                  #Switching from CASTOR TO EOS, i.e. rfcp to xrdcp!
-                  #Not YET!!!
-                  #FIXME! Migrate to EOS eventually, taking into account implications for PerfDB logs linking!
                   castorcmd="rfcp %s %s" % (AbsTarFile,fullcastorpathfile)
                   castormd5cmd="rfcp %s %s" % (AbsTarFileMD5,fullcastorpathmd5)
                   castorlogcmd="rfcp %s %s" % (AbsTarFileLOG,fullcastorpathlog)
@@ -1724,7 +1695,7 @@ class PerfSuite:
         self.logh.write("Final Performance Suite exit code was %s"%FinalExitCode)
         self.logh.flush()
         sys.exit(FinalExitCode)
-
+    
 def main(argv=[__name__]): #argv is a list of arguments.
                      #Valid ways to call main with arguments:
                      #main(["--cmsScimark",10])
@@ -1741,8 +1712,7 @@ def main(argv=[__name__]): #argv is a list of arguments.
     #print suite.optionParse(argv)
     
     PerfSuiteArgs={}
-    (PerfSuiteArgs['create'],
-     PerfSuiteArgs['castordir'],
+    (PerfSuiteArgs['castordir'],
      PerfSuiteArgs['TimeSizeEvents'],
      PerfSuiteArgs['IgProfEvents'],    
      PerfSuiteArgs['CallgrindEvents'],
@@ -1774,9 +1744,6 @@ def main(argv=[__name__]): #argv is a list of arguments.
      PerfSuiteArgs['MailLogRecipients'],
      PerfSuiteArgs['tarball']
      ) = suite.optionParse(argv)
-
-    if PerfSuiteArgs['create']: # Before anything, request the AFS volume (it takes some time...)
-       suite.createIgVolume()
 
     if not PerfSuiteArgs['logfile'] == None:
        if os.path.exists(PerfSuiteArgs['logfile']):
@@ -1814,31 +1781,27 @@ def main(argv=[__name__]): #argv is a list of arguments.
     ActualLogfile.flush()
     #print PerfSuiteArgs
 
-    PerfSuiteArgs['cpu_list'] = PerfSuiteArgs['cpus'] #To access the actual number of cpus used inside the threads..
-
     #Handle in here the case of multiple cores and the loading of cores with cmsScimark:
     if len(PerfSuiteArgs['cpus']) > 1:
         ActualLogfile.write("More than 1 cpu: threading the Performance Suite!\n")
         outputdir=PerfSuiteArgs['perfsuitedir']
         runonspare=PerfSuiteArgs['runonspare'] #Save the original value of runonspare for cmsScimark stuff
         cpus=PerfSuiteArgs['cpus']
-        cores=PerfSuiteArgs['cores']
         if runonspare:
             for core in range(PerfSuiteArgs['cores']):
                 cmsScimarkLaunch_pslist={}
-                if len(cpus) != cores: #In case of this (relval), don't load the others with cmsScimark
-                   if (core not in cpus):
-                      #self.logh.write("Submitting cmsScimarkLaunch.csh to run on core cpu "+str(core) + "\n")
-                      ActualLogfile.write("Submitting cmsScimarkLaunch.csh to run on core cpu "+str(core)+"\n")
-                      subcmd = "cd %s ; cmsScimarkLaunch.csh %s" % (outputdir, str(core))            
-                      command="taskset -c %s sh -c \"%s\" &" % (str(core), subcmd)
-                      #self.logh.write(command + "\n")
-                      ActualLogfile.write(command+"\n")
-                      #cmsScimarkLaunch.csh is an infinite loop to spawn cmsScimark2 on the other
-                      #cpus so it makes no sense to try reading its stdout/err
-                      cmsScimarkLaunch_pslist[core]=subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-                      ActualLogfile.write("Spawned %s \n with PID %s"%(command,cmsScimarkLaunch_pslist[core].pid))
-                      ActualLogfile.flush()
+                if (core not in cpus):
+                    #self.logh.write("Submitting cmsScimarkLaunch.csh to run on core cpu "+str(core) + "\n")
+                    ActualLogfile.write("Submitting cmsScimarkLaunch.csh to run on core cpu "+str(core)+"\n")
+                    subcmd = "cd %s ; cmsScimarkLaunch.csh %s" % (outputdir, str(core))            
+                    command="taskset -c %s sh -c \"%s\" &" % (str(core), subcmd)
+                    #self.logh.write(command + "\n")
+                    ActualLogfile.write(command+"\n")
+                    #cmsScimarkLaunch.csh is an infinite loop to spawn cmsScimark2 on the other
+                    #cpus so it makes no sense to try reading its stdout/err
+                    cmsScimarkLaunch_pslist[core]=subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+                    ActualLogfile.write("Spawned %s \n with PID %s"%(command,cmsScimarkLaunch_pslist[core].pid))
+                    ActualLogfile.flush()
         PerfSuiteArgs['runonspare']=False #Set it to false to avoid cmsScimark being spawned by each thread
         logfile=PerfSuiteArgs['logfile']
         suitethread={}
@@ -1859,7 +1822,7 @@ def main(argv=[__name__]): #argv is a list of arguments.
                 PerfSuiteArgs['logfile']=os.path.join(cpudir,"cmsPerfSuiteThread.log")
             #Now spawn the thread with:
             suitethread[cpu]=PerfThread(**PerfSuiteArgs)
-            #ActualLogfile.write(suitethread[cpu])
+            ActualLogfile.write(suitethread[cpu])
             ActualLogfile.write("Launching PerfSuite thread on cpu%s"%cpu)
             ActualLogfile.flush()
             #print "With arguments:"

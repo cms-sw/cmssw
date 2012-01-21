@@ -14,7 +14,7 @@ from RecoLuminosity.LumiDB import dataDML,revisionDML,argparse,sessionManager,lu
 if __name__ == '__main__':
     parser=argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description="Lumi Normalization factor",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     allowedActions=['add','list']
-    amodetagChoices=['PROTPHYS','IONPHYS','PAPHYS']
+    amodetagChoices=['PROTPHYS','IONPHYS']
     egevChoices=['3500','450','1380']
     parser.add_argument('action',choices=allowedActions,help='command actions')
     parser.add_argument('-c',dest='connect',action='store',required=False,help='connect string to lumiDB,optional',default='frontier://LumiCalc/CMS_LUMI_PROD')

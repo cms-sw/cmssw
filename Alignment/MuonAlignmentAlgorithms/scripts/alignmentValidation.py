@@ -232,42 +232,28 @@ CANVASES_LIST_TEMPLATE = [
  ['Station&Sector: map of dydz residual vs z','map_DTvsz_dydz.png'],
  ['Station&Sector: map of x residual vs z','map_DTvsz_x.png'],
  ['Station&Sector: map of y residual vs z','map_DTvsz_y.png'],
- ['Station: map of dxdz residual vs z','map_DTvsz_all_dxdz.png'],
- ['Station: map of dydz residual vs z','map_DTvsz_all_dydz.png'],
- ['Station: map of x residual vs z','map_DTvsz_all_x.png'],
- ['Station: map of y residual vs z','map_DTvsz_all_y.png'],
  ['Wheel: segdiff in x residuals vs phi','segdifphi_dt13_resid.png'],
  ['Wheel: segdiff in dxdz residuals vs phi','segdifphi_dt13_slope.png'],
  ['Wheel: segdiff in y residuals vs phi','segdifphi_dt2_resid.png'],
  ['Wheel: segdiff in dydz residuals vs phi','segdifphi_dt2_slope.png'],
- ['Wheel: segdiff DT-CSC in x residuals vs phi','segdifphi_x_dt_csc_resid.png'],
  ['Chamber: segdiff in x residuals','segdif_dt13_resid.png'],
  ['Chamber: segdiff in dxdz residuals','segdif_dt13_slope.png'],
  ['Chamber: segdiff in y residuals','segdif_dt2_resid.png'],
  ['Chamber: segdiff in dydz residuals','segdif_dt2_slope.png'],
- ['Chamber: segdiff DT-CSC in x residuals','segdif_x_dt_csc_resid.png'],
  ['Chamber: residuals distributions','dt_bellcurves.png'],
  ['Chamber: residuals relations to misalignments','dt_polynomials.png'],
  ['Chamber: Delta x residuals vs. curvature','dt_curvature_deltax.png'],
- ['Chamber: Delta dxdz residuals vs. curvature','dt_curvature_deltadxdz.png'],
- ['Extras: Extra plots in a separate window','dt_extras.php']
+ ['Chamber: Delta dxdz residuals vs. curvature','dt_curvature_deltadxdz.png']
 ],
 ['CSC',' ',
  ['Station&Ring: map of d(rphi)/dz residual vs phi','map_CSCvsphi_dxdz.png'],
  ['Station&Ring: map of rphi residual vs phi','map_CSCvsphi_x.png'],
  ['Station&Chamber: map of d(rphi)/dz residual vs r','map_CSCvsr_dxdz.png'],
  ['Station&Chamber: map of rphi residual vs r','map_CSCvsr_x.png'],
- ['Station: map of d(rphi)/dz residual vs r','map_CSCvsr_all_dxdz.png'],
- ['Station: map of rphi residual vs r','map_CSCvsr_all_x.png'],
- ['Station: segdiff in rphi residuals vs phi','segdifphi_csc_resid.png'],
- ['Station: segdiff in d(rphi)/dz residuals vs phi','segdifphi_csc_slope.png'],
  ['Chamber: segdiff in rphi residuals','segdif_csc_resid.png'],
  ['Chamber: segdiff in d(rphi)/dz residuals','segdif_csc_slope.png'],
  ['Chamber: residuals distributions','csc_bellcurves.png'],
- ['Chamber: residuals relations to misalignments','csc_polynomials.png'],
- #['Chamber: Delta rphi residuals vs. curvature','csc_curvature_x.png'],
- #['Chamber: Delta d(rphi)/dz residuals vs. curvature','csc_curvature_dxdz.png'],
- ['Extras: Extra plots in a separate window','csc_extras.php']
+ ['Chamber: residuals relations to misalignments','csc_polynomials.png']
 ]
 ]
 
@@ -367,42 +353,28 @@ def doMapPlotsDT(dt_basedir, tfiles_plotting):
   Interface: may be arranged into station(1 .. 4) vs. sector(1 .. 14) map with sector range
   (1 .. 12) for stations 1-3.
   It could be incorporated into an EXTENDED general DT chambers map (extended by adding an
-  identifier "ALL" in column1 for wheel number).
-
-
- "DTvsz_st%dsecALL" % (station)
-
-  plots spanning in z over ALL WHEELS and "integrated" over all sectors:
-  of x, y, dxdz, dydz vs. z (y and dydz only for stations 1-3)
-  made for all stations
-
-  Interface: may be arranged into station(1 .. 4) map 
-  It could be incorporated into an EXTENDED general DT chambers map (extended by adding an
   identifier "ALL" in column1 for wheel number)."""
-  
-  
+
   for wheel in DT_TYPES:
     if wheel[1]=="ALL": continue
     for station in wheel[2]:
       pdir = dt_basedir+'/'+wheel[0]+'/'+station[1]+'/'
       label = "DTvsphi_st%dwh%s" % (int(station[1]), wheelLetter(int(wheel[1])))
       htitle = "wheel %+d, station %s" % (int(wheel[1]), station[1])
-      #mapplot(tfiles_plotting, label, "x", window=25., title=htitle, fitsawteeth=True,fitsine=True)
-      mapplot(tfiles_plotting, label, "x", window=10., title=htitle, fitsine=True,fitpeaks=True,peaksbins=2)
+      mapplot(tfiles_plotting, label, "x", window=15., title=htitle, fitsawteeth=True,fitsine=True)
       c1.SaveAs(pdir+'map_DTvsphi_x.png')
-      #mapplot(tfiles_plotting, label, "dxdz", window=25., title=htitle, fitsawteeth=True,fitsine=True)
-      mapplot(tfiles_plotting, label, "dxdz", window=10., title=htitle,peaksbins=2)
+      #mapplot(tfiles_plotting, label, "dxdz", window=15., title=htitle, fitsawteeth=True,fitsine=True)
+      mapplot(tfiles_plotting, label, "dxdz", window=15., title=htitle)
       c1.SaveAs(pdir+'map_DTvsphi_dxdz.png')
 
       if station[1]=='4': continue
-      #mapplot(tfiles_plotting, label, "y", window=25., title=htitle, fitsawteeth=True,fitsine=True)
-      mapplot(tfiles_plotting, label, "y", window=10., title=htitle,peaksbins=2)
+      #mapplot(tfiles_plotting, label, "y", window=15., title=htitle, fitsawteeth=True,fitsine=True)
+      mapplot(tfiles_plotting, label, "y", window=15., title=htitle)
       c1.SaveAs(pdir+'map_DTvsphi_y.png')
-      #mapplot(tfiles_plotting, label, "dydz", window=25., title=htitle, fitsawteeth=True,fitsine=True)
-      mapplot(tfiles_plotting, label, "dydz", window=10., title=htitle,peaksbins=2)
+      #mapplot(tfiles_plotting, label, "dydz", window=15., title=htitle, fitsawteeth=True,fitsine=True)
+      mapplot(tfiles_plotting, label, "dydz", window=15., title=htitle)
       c1.SaveAs(pdir+'map_DTvsphi_dydz.png')
 
-  
   qcount=0
   for wheel in DT_TYPES:
     if wheel[1]!="ALL": continue
@@ -414,39 +386,17 @@ def doMapPlotsDT(dt_basedir, tfiles_plotting):
         pdir = dt_basedir+'/'+wheel[0]+'/'+station[1]+'/'+ssector+'/'
         label = "DTvsz_st%ssec%s" % (station[1], ssector)
         htitle = "station %s, sector %d" % (station[1], sector)
-        mapplot(tfiles_plotting, label, "x", window=10., title=htitle, peaksbins=2)
+        mapplot(tfiles_plotting, label, "x", window=15., title=htitle)
         c1.SaveAs(pdir+'map_DTvsz_x.png')
-        mapplot(tfiles_plotting, label, "dxdz", window=10., title=htitle, peaksbins=2)
+        mapplot(tfiles_plotting, label, "dxdz", window=15., title=htitle)
         c1.SaveAs(pdir+'map_DTvsz_dxdz.png')
         
         if station[1]=='4': continue
-	mapplot(tfiles_plotting, label, "y", window=10., title=htitle, peaksbins=2)
+        mapplot(tfiles_plotting, label, "y", window=15., title=htitle)
         c1.SaveAs(pdir+'map_DTvsz_y.png')
-        mapplot(tfiles_plotting, label, "dydz", window=10., title=htitle, peaksbins=2)
+        mapplot(tfiles_plotting, label, "dydz", window=15., title=htitle)
         c1.SaveAs(pdir+'map_DTvsz_dydz.png')
   
-  qcount=0
-  for wheel in DT_TYPES:
-    if wheel[1]!="ALL": continue
-    for station in wheel[2]:
-      if qcount>QUICKTESTN: break
-      qcount += 1
-      pdir = dt_basedir+'/'+wheel[0]+'/'+station[1]+'/'
-      label = "DTvsz_st%ssecALL" % (station[1])
-      htitle = "station %s" % (station[1])
-      
-      print label, 
-      mapplot(tfiles_plotting, label, "x", window=10., title=htitle, peaksbins=2)
-      c1.SaveAs(pdir+'map_DTvsz_all_x.png')
-      mapplot(tfiles_plotting, label, "dxdz", window=10., title=htitle, peaksbins=2)
-      c1.SaveAs(pdir+'map_DTvsz_all_dxdz.png')
-      
-      if station[1]=='4': continue
-      mapplot(tfiles_plotting, label, "y", window=10., title=htitle, peaksbins=2)
-      c1.SaveAs(pdir+'map_DTvsz_all_y.png')
-      mapplot(tfiles_plotting, label, "dydz", window=10., title=htitle, peaksbins=2)
-      c1.SaveAs(pdir+'map_DTvsz_all_dydz.png')
-
   saveTestResultsMap(options.runLabel)
 
 
@@ -474,16 +424,6 @@ def doMapPlotsCSC(csc_basedir, tfiles_plotting):
 
   Interface: may be arranged into two station(1 .. 4) vs. chamber(1 .. 36) maps for both endcaps
   It could be incorporated into an EXTENDED general CSC chambers map (extended by adding an
-  identifier "ALL" in column3 for ring number).
-  
- "CSCvsr_me%s%dchALL" % (endcap, station)
-
-  plots spanning over ALL RINGS along r and integrated over all SECTORS:
-  of rphi, drphi/dz vs. z
-  made for all (endcap,station) combinations
-
-  Interface: may be arranged into two station(1 .. 4) maps for both endcaps
-  It could be incorporated into an EXTENDED general CSC chambers map (extended by adding an
   identifier "ALL" in column3 for ring number)."""
 
   for endcap in CSC_TYPES:
@@ -493,10 +433,9 @@ def doMapPlotsCSC(csc_basedir, tfiles_plotting):
         pdir = csc_basedir+'/'+endcap[0]+'/'+station[1]+'/'+ring[1]+'/'
         label = "CSCvsphi_me%s%s%s" % (endcap[1], station[1], ring[1])
         htitle = "%s%s/%s" % (endcap[0], station[1],ring[1])
-        mapplot(tfiles_plotting, label, "x", window=15., title=htitle, fitsine=True,fitpeaks=True, peaksbins=2)
-        #mapplot(tfiles_plotting, label, "x", window=15., title=htitle, fitsine=True)
+        mapplot(tfiles_plotting, label, "x", window=15., title=htitle, fitsine=True)
         c1.SaveAs(pdir+'map_CSCvsphi_x.png')
-        mapplot(tfiles_plotting, label, "dxdz", window=15., title=htitle, peaksbins=2)
+        mapplot(tfiles_plotting, label, "dxdz", window=15., title=htitle)
         c1.SaveAs(pdir+'map_CSCvsphi_dxdz.png')
 
   saveTestResultsMap(options.runLabel)
@@ -513,27 +452,10 @@ def doMapPlotsCSC(csc_basedir, tfiles_plotting):
           pdir = csc_basedir+'/'+endcap[0]+'/'+station[1]+'/'+ring[1]+'/'+schamber+'/'
           label = "CSCvsr_me%s%sch%s" % (endcap[1], station[1], schamber)
           htitle = "%s%s/ALL/%d" % (endcap[0], station[1],chamber)
-          mapplot(tfiles_plotting, label, "x", window=15., title=htitle, peaksbins=2)
+          mapplot(tfiles_plotting, label, "x", window=15., title=htitle)
           c1.SaveAs(pdir+'map_CSCvsr_x.png')
-          mapplot(tfiles_plotting, label, "dxdz", window=15., title=htitle, peaksbins=2)
+          mapplot(tfiles_plotting, label, "dxdz", window=15., title=htitle)
           c1.SaveAs(pdir+'map_CSCvsr_dxdz.png')
-
-  qcount = 0
-  for endcap in CSC_TYPES:
-    for station in endcap[2]:
-      for ring in station[2]:
-        if ring[1]!="ALL": continue
-        if qcount>QUICKTESTN: break
-        qcount += 1
-        schamber = "%02d" % chamber
-        pdir = csc_basedir+'/'+endcap[0]+'/'+station[1]+'/'+ring[1]+'/'
-        label = "CSCvsr_me%s%schALL" % (endcap[1], station[1])
-        htitle = "%s%s" % (endcap[0], station[1])
-        mapplot(tfiles_plotting, label, "x", window=10., title=htitle, peaksbins=2)
-        c1.SaveAs(pdir+'map_CSCvsr_all_x.png')
-        mapplot(tfiles_plotting, label, "dxdz", window=10., title=htitle, peaksbins=2)
-        c1.SaveAs(pdir+'map_CSCvsr_all_dxdz.png')
-
 
 
 def doCurvaturePlotsDT(dt_basedir, tfiles_plotting):
@@ -559,22 +481,20 @@ def doCurvaturePlotsDT(dt_basedir, tfiles_plotting):
   for wheel in DT_TYPES:
     if wheel[1]=="ALL": continue
     #station = 1
-    #station = wheel[2][0]
-    for station in wheel[2]:
-      print "curv in ", wheel[0]+'/'+station[1]
-      for sector in range(1,station[2]+1):
-        #if sector>12: break
-        if qcount>QUICKTESTN: break
-        qcount += 1
-        ssector = "%02d" % sector
-        pdir = dt_basedir+'/'+wheel[0]+'/'+station[1]+'/'+ssector+'/'
-        label = "wheel%s_st%s_sector%s" % (w_dict[wheel[1]], station[1], ssector)
-        thetitle ="Wheel %s, station %s, sector %s" % (wheel[1], station[1], ssector)
-        curvatureplot(tfiles_plotting, label, "deltax", title=thetitle, window=10., fitline=True)
-        saveAs(pdir+'dt_curvature_deltax.png')
-        curvatureplot(tfiles_plotting, label, "deltadxdz", title=thetitle, window=10., fitline=True)
-        saveAs(pdir+'dt_curvature_deltadxdz.png')
-
+    station = wheel[2][0]
+    print wheel[0]+'/'+station[1]
+    for sector in range(1,station[2]+1):
+      if sector>12: break
+      if qcount>QUICKTESTN: break
+      qcount += 1
+      ssector = "%02d" % sector
+      pdir = dt_basedir+'/'+wheel[0]+'/'+station[1]+'/'+ssector+'/'
+      label = "wheel%s_sector%s" % (w_dict[wheel[1]], ssector)
+      thetitle ="Wheel %s, sector %s" % (wheel[1], ssector)
+      curvatureplot(tfiles_plotting, label, "deltax", title=thetitle, window=15., fitline=True)
+      saveAs(pdir+'dt_curvature_deltax.png')
+      curvatureplot(tfiles_plotting, label, "deltadxdz", title=thetitle, window=15., fitline=True)
+      saveAs(pdir+'dt_curvature_deltadxdz.png')
 
 
 def doSegDiffPlotsDT(dt_basedir, tfiles_plotting, iter_reports):
@@ -614,33 +534,16 @@ def doSegDiffPlotsDT(dt_basedir, tfiles_plotting, iter_reports):
         ssector = "%02d" % isector
         pdir = dt_basedir + '/' + iwheel[0] + '/' + istation[1] + '/' + ssector + '/'
         
-        segdiff(tfiles_plotting, "dt13_resid", dstations, wheel=int(iwheel[1]), sector=isector, window=15.)
+        segdiff(tfiles_plotting, "dt13_resid", dstations, wheel=int(iwheel[1]), sector=isector, window=10.)
         c1.SaveAs(pdir + 'segdif_dt13_resid.png')
-        segdiff(tfiles_plotting, "dt13_slope", dstations, wheel=int(iwheel[1]), sector=isector, window=15.)
+        segdiff(tfiles_plotting, "dt13_slope", dstations, wheel=int(iwheel[1]), sector=isector, window=10.)
         c1.SaveAs(pdir + 'segdif_dt13_slope.png')
         
-        if istation[1] != '4':
-          segdiff(tfiles_plotting, "dt2_resid", dstations, wheel=int(iwheel[1]), sector=isector, window=15.)
-          c1.SaveAs(pdir + 'segdif_dt2_resid.png')
-          segdiff(tfiles_plotting, "dt2_slope", dstations, wheel=int(iwheel[1]), sector=isector, window=15.)
-          c1.SaveAs(pdir + 'segdif_dt2_slope.png')
-        
-  qcount = 0
-  for iwheel in DT_TYPES:
-    if iwheel[1]=="ALL": continue
-    if abs(int(iwheel[1])) != 2: continue
-    for istation in iwheel[2]:
-      if istation[1]=="3": continue
-      #print dstations
-      for isector in range(1, istation[2] + 1):
-        ssector = "%02d" % isector
-        pdir = dt_basedir + '/' + iwheel[0] + '/' + istation[1] + '/' + ssector + '/'
-        if istation[1]=="1":
-          segdiff_xalign(tfiles_plotting, "x_dt1_csc", wheel=int(iwheel[1]), sector=isector, cscstations = "12")
-          c1.SaveAs(pdir + 'segdif_x_dt_csc_resid.png')
-        if istation[1]=="2":
-          segdiff_xalign(tfiles_plotting, "x_dt2_csc", wheel=int(iwheel[1]), sector=isector, cscstations = "1")
-          c1.SaveAs(pdir + 'segdif_x_dt_csc_resid.png')
+        if istation[1] == '4': continue
+        segdiff(tfiles_plotting, "dt2_resid", dstations, wheel=int(iwheel[1]), sector=isector, window=10.)
+        c1.SaveAs(pdir + 'segdif_dt2_resid.png')
+        segdiff(tfiles_plotting, "dt2_slope", dstations, wheel=int(iwheel[1]), sector=isector, window=10.)
+        c1.SaveAs(pdir + 'segdif_dt2_slope.png')
 
   """segdiffvsphi "dt13_resid" and "dt13_slope"
 
@@ -669,21 +572,14 @@ def doSegDiffPlotsDT(dt_basedir, tfiles_plotting, iter_reports):
   for iwheel in DT_TYPES:
     if iwheel[1]=="ALL": continue
     pdir = dt_basedir + '/' + iwheel[0] + '/'
-    segdiffvsphi(tfiles_plotting, iter_reports, "dt13_resid", int(iwheel[1]), window=10.)#, excludesectors=(1,7))
+    segdiffvsphi(tfiles_plotting, iter_reports, "dt13_resid", int(iwheel[1]), window=15., excludesectors=(1,7))
     c1.SaveAs(pdir + 'segdifphi_dt13_resid.png')
-    segdiffvsphi(tfiles_plotting, iter_reports, "dt13_slope", int(iwheel[1]), window=10.)#, excludesectors=(1,7))
+    segdiffvsphi(tfiles_plotting, iter_reports, "dt13_slope", int(iwheel[1]), window=15., excludesectors=(1,7))
     c1.SaveAs(pdir + 'segdifphi_dt13_slope.png')
-    segdiffvsphi(tfiles_plotting, iter_reports, "dt2_resid", int(iwheel[1]), window=10.)#, excludesectors=(1,7))
+    segdiffvsphi(tfiles_plotting, iter_reports, "dt2_resid", int(iwheel[1]), window=15., excludesectors=(1,7))
     c1.SaveAs(pdir + 'segdifphi_dt2_resid.png')
-    segdiffvsphi(tfiles_plotting, iter_reports, "dt2_slope", int(iwheel[1]), window=15.)#, excludesectors=(1,7))
+    segdiffvsphi(tfiles_plotting, iter_reports, "dt2_slope", int(iwheel[1]), window=15., excludesectors=(1,7))
     c1.SaveAs(pdir + 'segdifphi_dt2_slope.png')
-
-  for iwheel in DT_TYPES:
-    if iwheel[1]=="ALL": continue
-    if abs(int(iwheel[1])) != 2: continue
-    pdir = dt_basedir + '/' + iwheel[0] + '/'
-    segdiffvsphi_xalign(tfiles_plotting, int(iwheel[1]), window=10.)
-    c1.SaveAs(pdir + 'segdifphi_x_dt_csc_resid.png')
 
 
 def doSegDiffPlotsCSC(csc_basedir, tfiles_plotting, iter_reports):
@@ -717,36 +613,11 @@ def doSegDiffPlotsCSC(csc_basedir, tfiles_plotting, iter_reports):
           schamber = "%02d" % ichamber
           pdir = csc_basedir+'/'+iendcap[0]+'/'+istation[1]+'/'+iring[1]+'/'+schamber+'/'
           segdiff(tfiles_plotting, "csc_resid", dstations, 
-                  endcap=iendcap[1], ring=int(iring[1]), chamber=ichamber, window=15.)
+                  endcap=iendcap[1], ring=int(iring[1]), chamber=ichamber, window=10.)
           c1.SaveAs(pdir + 'segdif_csc_resid.png')
           segdiff(tfiles_plotting, "csc_slope", dstations, 
-                  endcap=iendcap[1], ring=int(iring[1]), chamber=ichamber, window=15.)
+                  endcap=iendcap[1], ring=int(iring[1]), chamber=ichamber, window=10.)
           c1.SaveAs(pdir + 'segdif_csc_slope.png')
-
-  """segdiffvsphicsc "csc_resid" and "csc_slope"
-
-  plot for a specific deltaME station differences:
-  rphi vs phi of pair ("csc_resid")
-  dxdz vs phi of pair ("csc_slope")
-  contains plots for two (or one for ME4-ME3) rings
-  done for ME1-ME2, ME2-ME3, and ME3-ME4 stations combinations with
-    endcap "m" or "p" 
-  
-  Interface: could be accessed by clicking on ME station boxes, but only for stations 2-4 
-  (e.g., station 2 would provide ME1-ME2 plots)."""
-
-  qcount = 0
-  for iendcap in CSC_TYPES:
-    for istation in iendcap[2]:
-      if istation[1]=="1": continue
-      dstations = (int(istation[1])-1)*10 + int(istation[1])
-      if qcount>QUICKTESTN: break
-      qcount += 1
-      pdir = csc_basedir+'/'+iendcap[0]+'/'+istation[1]+'/'
-      segdiffvsphicsc(tfiles_plotting, "csc_resid", dstations, window=10., endcap=iendcap[1])
-      c1.SaveAs(pdir + 'segdifphi_csc_resid.png')
-      segdiffvsphicsc(tfiles_plotting, "csc_slope", dstations, window=10., endcap=iendcap[1])
-      c1.SaveAs(pdir + 'segdifphi_csc_slope.png')
 
 
 def doFitFunctionsPlotsDT(dt_basedir, iter_tfile, iter_reports):
@@ -878,12 +749,10 @@ def createCanvasesList(fname="canvases_list.js"):
 
 
 def createCanvasToIDList(fname="canvas2id_list.js"):
-  '''Writes out a canvas-2-ids list include for the browser.
+  '''Create a canvas-to-ids list include for the browser.
      Write out only those canvases which have existing filename.png plots.
-     Returns: list of unique IDs that have existing filename.png plots.
   '''
   CANVAS2ID_LIST = []
-  ID_LIST = []
   for scope in CANVASES_LIST_TEMPLATE:
     if len(scope)>2:
       for canvas_entry in scope[2:]:
@@ -892,7 +761,6 @@ def createCanvasToIDList(fname="canvas2id_list.js"):
         # uniquify:
         set_ids = set(ids)
         uids = list(set_ids)
-        ID_LIST.extend(uids)
         print canvas_entry, ":", len(uids), "ids"
         if (len(uids)>0):
           CANVAS2ID_LIST.append( (canvas_entry[1],uids) )
@@ -903,8 +771,6 @@ def createCanvasToIDList(fname="canvas2id_list.js"):
   print >>ff, "var CANVAS2ID_LIST = "
   json.dump(CANVAS2ID_LIST_DICT,ff)
   ff.close()
-  set_ids = set(ID_LIST)
-  return list(set_ids)
 
 def idsForFile(dir_name, file_name):
   '''Recursively looks for file named file_name under dir_name directory
@@ -914,8 +780,7 @@ def idsForFile(dir_name, file_name):
   for f in os.listdir(dir_name):
     dirfile = os.path.join(dir_name, f)
     if os.path.isfile(dirfile) and f==file_name:
-      if file_name[-4:]=='.php': id_list.append(dir_name+'/'+file_name)
-      else:    id_list.append(dirToID(dir_name))
+      id_list.append(dirToID(dir_name))
     # recursively access file names in subdirectories
     elif os.path.isdir(dirfile):
       #print "Accessing directory:", dirfile
@@ -932,10 +797,10 @@ def dirToID(d):
     return d[dtn+4:-1]
   cscn = d.find("/ME-/")
   if cscn!=-1:
-    return 'ME-'+d[cscn+5:-1]
+    return 'ME-'+d[cscn+4:-1]
   cscn = d.find("/ME+/")
   if cscn!=-1:
-    return 'ME+'+d[cscn+5:-1]
+    return 'ME+'+d[cscn+4:-1]
   return ''
 
 
@@ -1024,9 +889,7 @@ c1 = ROOT.TCanvas("c1","c1",800,600)
 
 set_palette("blues")
 
-print "--- ITERATION 1 ---"
 if not SINGLE_ITERATION: doIterationPlots(iteration1, tfiles1_plotting, iter1_tfile, iter1_reports)
-print "--- ITERATION N ---"
 doIterationPlots(iterationN, tfilesN_plotting, iterN_tfile, iterN_reports)
 
 if CPP_LOADED: ROOT.cleanUpHeap()
@@ -1034,13 +897,12 @@ if CPP_LOADED: ROOT.cleanUpHeap()
 # write distributions of medians plots
 
 if DO_MEDIAN:
-  #plotmedians(iter1_reports, iterN_reports)
-  plotmedians(iter1_reports, iterN_reports,binsx=100, windowx=10., binsy=100, windowy=10., binsdxdz=100, windowdxdz=10., binsdydz=100, windowdydz=10.)
+  plotmedians(iter1_reports, iterN_reports)
   c1.SaveAs(comdir+'medians.png')
 
 # perform diagnostic
 if DO_DIAGNOSTIC:
   #if not SINGLE_ITERATION: doTests(iter1_reports,"mu_list_1.js","dqm_report_1.js",options.runLabel)
+  doTests(iterN_reports,"mu_list.js","dqm_report.js",options.runLabel)
   createCanvasesList("canvases_list.js")
-  pic_ids = createCanvasToIDList("canvas2id_list.js")
-  doTests(iterN_reports, pic_ids, "mu_list.js","dqm_report.js",options.runLabel)
+  createCanvasToIDList("canvas2id_list.js")

@@ -4,7 +4,7 @@
 #include <cstring>
 
 static const char* OIDFMT = "%04X-%08X";
-static const size_t OIDSIZ = 14;
+static const size_t OIDSIZ = 13;
 
 bool ora::OId::isOId( const std::string& input ){
   ora::OId tmp;
@@ -57,7 +57,7 @@ int ora::OId::itemId() const{
 
 std::string ora::OId::toString() const {
   char text[OIDSIZ];
-  ::snprintf(text, OIDSIZ, OIDFMT, m_containerId, m_itemId );
+  ::sprintf(text, OIDFMT, m_containerId, m_itemId );
   return std::string(text);
 }
 

@@ -1,8 +1,3 @@
-2011-09-01  Andrei Spataru  <andrei.cristian.spataru@cern.ch>
-	* added START script and State.pm
-	* modification to initialize script to kill running xdaq
- 	applications on destroy
-
 2011-04-12  Emilio Meschi  <emilio.meschi@cern.ch>
 	* tag V01-00-03
 	* small improvements to initialize script

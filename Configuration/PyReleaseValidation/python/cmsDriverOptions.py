@@ -210,7 +210,7 @@ def OptionsFromItems(items):
         else:	
             raise Exception("Not a valid profiler type %s. Alternatives are pp, mp, fp=<function>."%(profilerType))
 
-        options.prefix = "igprof -%s" % profilerType
+        options.prefix = "igprof -t cmsRun -%s" % profilerType
         
     return options
 

@@ -125,7 +125,7 @@ public:
 
   /// specify whether ME should be reset at end of monitoring cycle (default:false);
   /// (typically called by Sources that control the original ME)
-  void setResetMe(bool /* flag */)
+  void setResetMe(bool flag)
     { data_.flags |= DQMNet::DQM_PROP_RESET; }
 
   /// true if ME is meant to be stored for each luminosity section
@@ -274,7 +274,7 @@ private:
 
   /// if true, will accumulate ME contents (over many periods)
   /// until method is called with flag = false again
-  void setAccumulate(bool /* flag */)
+  void setAccumulate(bool flag)
     { data_.flags |= DQMNet::DQM_PROP_ACCUMULATE; }
 
   TAxis *getAxis(const char *func, int axis) const;

@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_4_2/HLT/V120 (CMSSW_4_4_0_HLT23)
+# /dev/CMSSW_4_4_2/HLT/V121 (CMSSW_4_4_0_HLT23)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/HLT/V120')
+  tableName = cms.string('/dev/CMSSW_4_4_2/HLT/V121')
 )
 
 streams = cms.PSet( 
@@ -4428,9 +4428,9 @@ hltCorrectedHybridSuperClustersActivity = cms.EDProducer( "EgammaSCCorrectionMak
     superClusterAlgo = cms.string( "Hybrid" ),
     applyEnergyCorrection = cms.bool( True ),
     applyCrackCorrection = cms.bool( False ),
-    energyCorrectorName = cms.string( "EcalClusterEnergyCorrection" ),
-    modeEB = cms.int32( 3 ),
-    modeEE = cms.int32( 5 ),
+    energyCorrectorName = cms.string( "EcalClusterEnergyCorrectionObjectSpecific" ),
+    modeEB = cms.int32( 0 ),
+    modeEE = cms.int32( 0 ),
     sigmaElectronicNoise = cms.double( 0.15 ),
     etThresh = cms.double( 5.0 ),
     corectedSuperClusterCollection = cms.string( "" ),
@@ -4511,9 +4511,9 @@ hltCorrectedMulti5x5SuperClustersWithPreshowerActivity = cms.EDProducer( "Egamma
     superClusterAlgo = cms.string( "Multi5x5" ),
     applyEnergyCorrection = cms.bool( True ),
     applyCrackCorrection = cms.bool( False ),
-    energyCorrectorName = cms.string( "EcalClusterEnergyCorrection" ),
-    modeEB = cms.int32( 3 ),
-    modeEE = cms.int32( 5 ),
+    energyCorrectorName = cms.string( "EcalClusterEnergyCorrectionObjectSpecific" ),
+    modeEB = cms.int32( 0 ),
+    modeEE = cms.int32( 0 ),
     sigmaElectronicNoise = cms.double( 0.15 ),
     etThresh = cms.double( 5.0 ),
     corectedSuperClusterCollection = cms.string( "" ),
@@ -15552,9 +15552,9 @@ hltCorrectedHybridSuperClustersL1Isolated = cms.EDProducer( "EgammaSCCorrectionM
     superClusterAlgo = cms.string( "Hybrid" ),
     applyEnergyCorrection = cms.bool( True ),
     applyCrackCorrection = cms.bool( False ),
-    energyCorrectorName = cms.string( "EcalClusterEnergyCorrection" ),
-    modeEB = cms.int32( 3 ),
-    modeEE = cms.int32( 5 ),
+    energyCorrectorName = cms.string( "EcalClusterEnergyCorrectionObjectSpecific" ),
+    modeEB = cms.int32( 0 ),
+    modeEE = cms.int32( 0 ),
     sigmaElectronicNoise = cms.double( 0.03 ),
     etThresh = cms.double( 1.0 ),
     corectedSuperClusterCollection = cms.string( "" ),
@@ -15641,9 +15641,9 @@ hltCorrectedMulti5x5EndcapSuperClustersWithPreshowerL1Isolated = cms.EDProducer(
     superClusterAlgo = cms.string( "Multi5x5" ),
     applyEnergyCorrection = cms.bool( True ),
     applyCrackCorrection = cms.bool( False ),
-    energyCorrectorName = cms.string( "EcalClusterEnergyCorrection" ),
-    modeEB = cms.int32( 3 ),
-    modeEE = cms.int32( 5 ),
+    energyCorrectorName = cms.string( "EcalClusterEnergyCorrectionObjectSpecific" ),
+    modeEB = cms.int32( 0 ),
+    modeEE = cms.int32( 0 ),
     sigmaElectronicNoise = cms.double( 0.15 ),
     etThresh = cms.double( 1.0 ),
     corectedSuperClusterCollection = cms.string( "" ),
@@ -15700,9 +15700,9 @@ hltCorrectedHybridSuperClustersL1NonIsolatedTemp = cms.EDProducer( "EgammaSCCorr
     superClusterAlgo = cms.string( "Hybrid" ),
     applyEnergyCorrection = cms.bool( True ),
     applyCrackCorrection = cms.bool( False ),
-    energyCorrectorName = cms.string( "EcalClusterEnergyCorrection" ),
-    modeEB = cms.int32( 3 ),
-    modeEE = cms.int32( 5 ),
+    energyCorrectorName = cms.string( "EcalClusterEnergyCorrectionObjectSpecific" ),
+    modeEB = cms.int32( 0 ),
+    modeEE = cms.int32( 0 ),
     sigmaElectronicNoise = cms.double( 0.03 ),
     etThresh = cms.double( 1.0 ),
     corectedSuperClusterCollection = cms.string( "" ),
@@ -15794,9 +15794,9 @@ hltCorrectedMulti5x5EndcapSuperClustersWithPreshowerL1NonIsolatedTemp = cms.EDPr
     superClusterAlgo = cms.string( "Multi5x5" ),
     applyEnergyCorrection = cms.bool( True ),
     applyCrackCorrection = cms.bool( False ),
-    energyCorrectorName = cms.string( "EcalClusterEnergyCorrection" ),
-    modeEB = cms.int32( 3 ),
-    modeEE = cms.int32( 5 ),
+    energyCorrectorName = cms.string( "EcalClusterEnergyCorrectionObjectSpecific" ),
+    modeEB = cms.int32( 0 ),
+    modeEE = cms.int32( 0 ),
     sigmaElectronicNoise = cms.double( 0.15 ),
     etThresh = cms.double( 1.0 ),
     corectedSuperClusterCollection = cms.string( "" ),

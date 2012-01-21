@@ -54,14 +54,6 @@
   <class name="RPCDQMObject::DQMObjectItem"/>
   <class name="std::vector<RPCDQMObject::DQMObjectItem>"/>
 
-  <class name="RPCNoiseObject"/>
-  <class name="RPCNoiseObject::NoiseObjectItem"/>
-  <class name="std::vector<RPCNoiseObject::NoiseObjectItem>"/>
-
-  <class name="RPCNoiseStripsObject"/>
-  <class name="RPCNoiseStripsObject::NoiseStripsObjectItem"/>
-  <class name="std::vector<RPCNoiseStripsObject::NoiseStripsObjectItem>"/>
-
   <class name="RPCObGas"/>
   <class name="RPCObGas::Item"/>
   <class name="std::vector<RPCObGas::Item>"/>

@@ -9,77 +9,6 @@ import array
 #==============================
 # SELECT
 #==============================
-def fillInRange(schema,fillmin,fillmax,amodetag,startT,stopT):
-    '''
-    select fillnum,runnum,starttime from cmsrunsummary where [where fillnum>=:fillmin and fillnum<=:fillmax and amodetag=:amodetag]
-    output: [fill]
-    '''
-    result=[]
-    tmpresult={}
-    qHandle=schema.newQuery()
-    r=nameDealer.cmsrunsummaryTableName()
-    lute=lumiTime.lumiTime()
-    try:
-        qHandle.addToTableList(r)
-        qConditionPieces=[]
-        qConditionStr=''
-        qCondition=coral.AttributeList()
-        if fillmin:
-            qConditionPieces.append('FILLNUM>=:fillmin')
-            qCondition.extend('fillmin','unsigned int')
-            qCondition['fillmin'].setData(int(fillmin))
-        if fillmax:
-            qConditionPieces.append('FILLNUM<=:fillmax')
-            qCondition.extend('fillmax','unsigned int')
-            qCondition['fillmax'].setData(int(fillmax))
-        if amodetag:
-            qConditionPieces.append('AMODETAG=:amodetag')
-            qCondition.extend('amodetag','string')
-            qCondition['amodetag'].setData(amodetag)
-        if len(qConditionPieces)!=0:
-            qConditionStr=(' AND ').join(qConditionPieces)
-        qResult=coral.AttributeList()
-        qResult.extend('fillnum','unsigned int')
-        qResult.extend('runnum','unsigned int')
-        qResult.extend('starttime','string')
-        qHandle.defineOutput(qResult)
-        if len(qConditionStr)!=0:
-            qHandle.setCondition(qConditionStr,qCondition)
-        qHandle.addToOutputList('FILLNUM','fillnum')
-        qHandle.addToOutputList('RUNNUM','runnum')
-        qHandle.addToOutputList('TO_CHAR('+r+'.STARTTIME,\'MM/DD/YY HH24:MI:SS\')','starttime')
-        cursor=qHandle.execute()
-        while cursor.next():
-            currentfill=cursor.currentRow()['fillnum'].data()
-            runnum=cursor.currentRow()['runnum'].data()
-            starttimeStr=cursor.currentRow()['starttime'].data()
-            runTime=lute.StrToDatetime(starttimeStr,customfm='%m/%d/%y %H:%M:%S')
-            minTime=None
-            maxTime=None
-            if startT and stopT:
-                minTime=lute.StrToDatetime(startT,customfm='%m/%d/%y %H:%M:%S')
-                maxTime=lute.StrToDatetime(stopT,customfm='%m/%d/%y %H:%M:%S')                
-                if runTime>=minTime and runTime<=maxTime:
-                    tmpresult.setdefault(currentfill,[]).append(runnum)
-            elif startT is not None:
-                minTime=lute.StrToDatetime(startT,customfm='%m/%d/%y %H:%M:%S')
-                if runTime>=minTime:
-                    tmpresult.setdefault(currentfill,[]).append(runnum)
-            elif stopT is not None:
-                maxTime=lute.StrToDatetime(stopT,customfm='%m/%d/%y %H:%M:%S')
-                if runTime<=maxTime:
-                    tmpresult.setdefault(currentfill,[]).append(runnum)
-            else:                
-                tmpresult.setdefault(currentfill,[]).append(runnum)
-        #print tmpresult
-        for f in sorted(tmpresult):
-            if tmpresult[f]:
-                result.append(f)
-    except :
-        del qHandle
-        raise
-    del qHandle
-    return result    
 def fillrunMap(schema,fillnum=None,runmin=None,runmax=None,startT=None,stopT=None,l1keyPattern=None,hltkeyPattern=None,amodetag=None):
     '''
     select fillnum,runnum,starttime from cmsrunsummary [where fillnum=:fillnum and runnum>=runmin and runnum<=runmax and amodetag=:amodetag ]
@@ -538,16 +467,9 @@ def trgLSById(schema,dataid,trgbitname=None,trgbitnamepattern=None,withL1Count=F
             prescales=[]
             trgcounts=[]
             if prescalesblob:
-                if runnum <150008: ###WORKAROUND PATCH!! because the 2010 blobs were packed as type l ###
-                    prescales=CommonUtil.unpackBlobtoArray(prescalesblob,'l')
-                else:
-                    prescales=CommonUtil.unpackBlobtoArray(prescalesblob,'I')
+                prescales=CommonUtil.unpackBlobtoArray(prescalesblob,'I')
             if trgcountblob:
-                if runnum <150008: ###WORKAROUND PATCH!! because the 2010 blobs were packed as type l ###
-                    trgcounts=CommonUtil.unpackBlobtoArray(trgcountblob,'l')
-                else:
-                    trgcounts=CommonUtil.unpackBlobtoArray(trgcountblob,'I')
-                    
+                trgcounts=CommonUtil.unpackBlobtoArray(trgcountblob,'I')
             bitinfo=[]
             for (bitidx,thisbitname) in trgnamedict:
                 thispresc=None
@@ -984,20 +906,11 @@ def hltLSById(schema,dataid,hltpathname=None,hltpathpattern=None,withL1Pass=Fals
             hltcounts=None
             hltaccepts=None
             if prescaleblob:
-                if runnum <150008: ###WORKAROUND PATCH!! because the 2010 blobs were packed as type l ###
-                    prescales=CommonUtil.unpackBlobtoArray(prescaleblob,'l')
-                else:
-                    prescales=CommonUtil.unpackBlobtoArray(prescaleblob,'I')
+                prescales=CommonUtil.unpackBlobtoArray(prescaleblob,'I')
             if hltcountblob:
-                if runnum <150008: ###WORKAROUND PATCH!! because the 2010 blobs were packed as type l ###
-                    hltcounts=CommonUtil.unpackBlobtoArray(hltcountblob,'l')
-                else:
-                    hltcounts=CommonUtil.unpackBlobtoArray(hltcountblob,'I')
+                hltcounts=CommonUtil.unpackBlobtoArray(hltcountblob,'I')
             if hltacceptblob:
-                if runnum <150008: ###WORKAROUND PATCH!! because the 2010 blobs were packed as type l ###
-                    hltaccepts=CommonUtil.unpackBlobtoArray(hltacceptblob,'l')
-                else:
-                    hltaccepts=CommonUtil.unpackBlobtoArray(hltacceptblob,'I')
+                hltaccepts=CommonUtil.unpackBlobtoArray(hltacceptblob,'I')
             for (hltpathidx,thispathname) in hltnamedict:#loop over selected paths
                 thispresc=0
                 thishltcount=0
@@ -1072,10 +985,10 @@ def guessTrgDataIdByRun(schema,runnum):
         del qHandle
         raise 
     del qHandle
-    if len(trgids)>0:
-        return max(trgids)
-    else:
+    if len(trgids)==0:
         return result
+    result=max(trgids)
+    return result
 
 def guessHltDataIdByRun(schema,runnum):
     result=None
@@ -1100,10 +1013,8 @@ def guessHltDataIdByRun(schema,runnum):
         del qHandle
         raise 
     del qHandle
-    if len(hltids)>0 :
-        return max(hltids)
-    else:
-        return result
+    result=max(hltids)
+    return result
 def guessAllDataIdByRun(schema,runnum):
     '''
     get dataids by runnumber, if there are duplicates, pick max(dataid).Bypass full version lookups

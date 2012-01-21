@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 
-hltTauQualityTesterForZ = cms.EDAnalyzer("QualityTester",
+hltTauQualityTesterForZ5E32 = cms.EDAnalyzer("QualityTester",
                                         qtList = cms.untracked.FileInPath('HLTriggerOffline/Tau/data/QTDefault.xml'),
                                         #reportThreshold         = cms.untracked.string('black'),
                                         prescaleFactor          = cms.untracked.int32(1),
@@ -13,7 +13,7 @@ hltTauQualityTesterForZ = cms.EDAnalyzer("QualityTester",
                                         verboseQT               = cms.untracked.bool(True)
                                     )
 
-hltTauQualityTesterForZCustom = cms.EDAnalyzer("HLTTauRelvalQTester",
+hltTauQualityTesterForZ5E32Custom = cms.EDAnalyzer("HLTTauRelvalQTester",
                                         qtList = cms.untracked.FileInPath('HLTriggerOffline/Tau/data/QTDefault.xml'),
                                         #reportThreshold         = cms.untracked.string('black'),
                                         prescaleFactor          = cms.untracked.int32(1),

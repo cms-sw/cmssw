@@ -433,7 +433,7 @@ namespace edm
 
 	int NumPU_Events = 0;
 
-	if(readSrcIdx ==0) { NumPU_Events = PileupList[bunchIdx - minBunch_];}
+	if(readSrcIdx ==0 && !playback_) { NumPU_Events = PileupList[bunchIdx - minBunch_];}
 	else { NumPU_Events = 1;}  // non-minbias pileup only gets one event for now. Fix later if desired.
 
 	//        int eventId = 0;

@@ -1,12 +1,10 @@
-// Authors: F. Ambroglini, L. Fano', F. Bechtel
+// Authors: F. Ambroglini, L. Fano'
 #include <QCDAnalysis/UEAnalysis/interface/AnalysisRootpleProducer.h>
-#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
-
-
-
-//using namespace edm;
-//using namespace std;
-//using namespace reco;
+#include "FWCore/Common/interface/TriggerNames.h"
+ 
+using namespace edm;
+using namespace std;
+using namespace reco;
 
 class GreaterPt{
 public:
@@ -17,77 +15,175 @@ public:
 
 class GenJetSort{
 public:
-  bool operator()(const reco::GenJet& a, const reco::GenJet& b) {
+  bool operator()(const GenJet& a, const GenJet& b) {
     return a.pt() > b.pt();
   }
 };
 
 class BasicJetSort{
 public:
-  bool operator()(const reco::TrackJet& a, const reco::TrackJet& b) {
+  bool operator()(const BasicJet& a, const BasicJet& b) {
     return a.pt() > b.pt();
   }
 };
 
 class CaloJetSort{
 public:
-  bool operator()(const reco::CaloJet& a, const reco::CaloJet& b) {
+  bool operator()(const CaloJet& a, const CaloJet& b) {
     return a.pt() > b.pt();
   }
 };
-
-
-
-
  
+
 void AnalysisRootpleProducer::store(){
 
   AnalysisTree->Fill();
 
+  NumberMCParticles=0;
+  NumberTracks=0;
+  NumberInclusiveJet=0;
+  NumberChargedJet=0;
+  NumberTracksJet=0;
+  NumberCaloJet=0;
 }
 
 void AnalysisRootpleProducer::fillEventInfo(int e){
   EventKind = e;
 }
 
+void AnalysisRootpleProducer::fillMCParticles(float p, float pt, float eta, float phi){
+  MomentumMC[NumberMCParticles]=p;
+  TransverseMomentumMC[NumberMCParticles]=pt;
+  EtaMC[NumberMCParticles]=eta;
+  PhiMC[NumberMCParticles]=phi;
+  NumberMCParticles++;
+}
 
-AnalysisRootpleProducer::AnalysisRootpleProducer( const edm::ParameterSet& pset )
+void AnalysisRootpleProducer::fillTracks(float p, float pt, float eta, float phi){
+  MomentumTK[NumberTracks]=p;
+  TransverseMomentumTK[NumberTracks]=pt;
+  EtaTK[NumberTracks]=eta;
+  PhiTK[NumberTracks]=phi;
+  NumberTracks++;
+}
+
+void AnalysisRootpleProducer::fillInclusiveJet(float p, float pt, float eta, float phi){
+  MomentumIJ[NumberInclusiveJet]=p;
+  TransverseMomentumIJ[NumberInclusiveJet]=pt;
+  EtaIJ[NumberInclusiveJet]=eta;
+  PhiIJ[NumberInclusiveJet]=phi;
+  NumberInclusiveJet++;
+}
+
+void AnalysisRootpleProducer::fillChargedJet(float p, float pt, float eta, float phi){
+  MomentumCJ[NumberChargedJet]=p;
+  TransverseMomentumCJ[NumberChargedJet]=pt;
+  EtaCJ[NumberChargedJet]=eta;
+  PhiCJ[NumberChargedJet]=phi;
+  NumberChargedJet++;
+}
+
+void AnalysisRootpleProducer::fillTracksJet(float p, float pt, float eta, float phi){
+  MomentumTJ[NumberTracksJet]=p;
+  TransverseMomentumTJ[NumberTracksJet]=pt;
+  EtaTJ[NumberTracksJet]=eta;
+  PhiTJ[NumberTracksJet]=phi;
+  NumberTracksJet++;
+}
+
+void AnalysisRootpleProducer::fillCaloJet(float p, float pt, float eta, float phi){
+  MomentumEHJ[NumberCaloJet]=p;
+  TransverseMomentumEHJ[NumberCaloJet]=pt;
+  EtaEHJ[NumberCaloJet]=eta;
+  PhiEHJ[NumberCaloJet]=phi;
+  NumberCaloJet++;
+}
+
+AnalysisRootpleProducer::AnalysisRootpleProducer( const ParameterSet& pset )
 {
   // flag to ignore gen-level analysis
- 
-  onlyRECO = pset.getParameter<bool>("OnlyRECO");
+  onlyRECO = pset.getUntrackedParameter<bool>("OnlyRECO",false);
 
   // particle, track and jet collections
-  mcEvent             = pset.getParameter<edm::InputTag>( "MCEvent"                   );
-  genJetCollName      = pset.getParameter<edm::InputTag>( "GenJetCollectionName"      );
-  chgJetCollName      = pset.getParameter<edm::InputTag>( "ChgGenJetCollectionName"   );
-  tracksJetCollName   = pset.getParameter<edm::InputTag>( "TracksJetCollectionName"   );
-  recoCaloJetCollName = pset.getParameter<edm::InputTag>( "RecoCaloJetCollectionName" );
-  chgGenPartCollName  = pset.getParameter<edm::InputTag>( "ChgGenPartCollectionName"  );
-  tracksCollName      = pset.getParameter<edm::InputTag>( "TracksCollectionName"      );
-  genEventScaleTag    = pset.getParameter<edm::InputTag>( "genEventScale"             );
+  mcEvent = pset.getUntrackedParameter<InputTag>("MCEvent",std::string(""));
+  genJetCollName = pset.getUntrackedParameter<InputTag>("GenJetCollectionName",std::string(""));
+  chgJetCollName = pset.getUntrackedParameter<InputTag>("ChgGenJetCollectionName",std::string(""));
+  tracksJetCollName = pset.getUntrackedParameter<InputTag>("TracksJetCollectionName",std::string(""));
+  recoCaloJetCollName = pset.getUntrackedParameter<InputTag>("RecoCaloJetCollectionName",std::string(""));
+  chgGenPartCollName = pset.getUntrackedParameter<InputTag>("ChgGenPartCollectionName",std::string(""));
+  tracksCollName = pset.getUntrackedParameter<InputTag>("TracksCollectionName",std::string(""));
 
   // trigger results
-  triggerResultsTag = pset.getParameter<edm::InputTag>("triggerResults");
-  triggerEventTag   = pset.getParameter<edm::InputTag>("triggerEvent"  );
+  triggerResultsTag = pset.getParameter<InputTag>("triggerResults");
+  //   hltFilterTag      = pset.getParameter<InputTag>("hltFilter");
+  //   triggerName       = pset.getParameter<InputTag>("triggerName");
 
   piG = acos(-1.);
-  pdgidList.reserve(200);
+  NumberMCParticles=0;
+  NumberTracks=0;
+  NumberInclusiveJet=0;
+  NumberChargedJet=0;
+  NumberTracksJet=0;
+  NumberCaloJet=0;
 }
 
 void AnalysisRootpleProducer::beginJob()
 {
  
-  // used TFileService for output to root file
-
- AnalysisTree = fs->make<TTree>("AnalysisTree","MBUE Analysis Tree ");
+  // use TFileService for output to root file
+  AnalysisTree = fs->make<TTree>("AnalysisTree","MBUE Analysis Tree ");
 
   AnalysisTree->Branch("EventKind",&EventKind,"EventKind/I");
 
+  // store p, pt, eta, phi for particles and jets
+
+  // GenParticles at hadron level  
+  AnalysisTree->Branch("NumberMCParticles",&NumberMCParticles,"NumberMCParticles/I");
+  AnalysisTree->Branch("MomentumMC",MomentumMC,"MomentumMC[NumberMCParticles]/F");
+  AnalysisTree->Branch("TransverseMomentumMC",TransverseMomentumMC,"TransverseMomentumMC[NumberMCParticles]/F");
+  AnalysisTree->Branch("EtaMC",EtaMC,"EtaMC[NumberMCParticles]/F");
+  AnalysisTree->Branch("PhiMC",PhiMC,"PhiMC[NumberMCParticles]/F");
+  
+  // tracks
+  AnalysisTree->Branch("NumberTracks",&NumberTracks,"NumberTracks/I");
+  AnalysisTree->Branch("MomentumTK",MomentumTK,"MomentumTK[NumberTracks]/F");
+  AnalysisTree->Branch("TrasverseMomentumTK",TransverseMomentumTK,"TransverseMomentumTK[NumberTracks]/F");
+  AnalysisTree->Branch("EtaTK",EtaTK,"EtaTK[NumberTracks]/F");
+  AnalysisTree->Branch("PhiTK",PhiTK,"PhiTK[NumberTracks]/F");
+  
+  // GenJets
+  AnalysisTree->Branch("NumberInclusiveJet",&NumberInclusiveJet,"NumberInclusiveJet/I");
+  AnalysisTree->Branch("MomentumIJ",MomentumIJ,"MomentumIJ[NumberInclusiveJet]/F");
+  AnalysisTree->Branch("TrasverseMomentumIJ",TransverseMomentumIJ,"TransverseMomentumIJ[NumberInclusiveJet]/F");
+  AnalysisTree->Branch("EtaIJ",EtaIJ,"EtaIJ[NumberInclusiveJet]/F");
+  AnalysisTree->Branch("PhiIJ",PhiIJ,"PhiIJ[NumberInclusiveJet]/F");
+  
+  // jets from charged GenParticles
+  AnalysisTree->Branch("NumberChargedJet",&NumberChargedJet,"NumberChargedJet/I");
+  AnalysisTree->Branch("MomentumCJ",MomentumCJ,"MomentumCJ[NumberChargedJet]/F");
+  AnalysisTree->Branch("TrasverseMomentumCJ",TransverseMomentumCJ,"TransverseMomentumCJ[NumberChargedJet]/F");
+  AnalysisTree->Branch("EtaCJ",EtaCJ,"EtaCJ[NumberChargedJet]/F");
+  AnalysisTree->Branch("PhiCJ",PhiCJ,"PhiCJ[NumberChargedJet]/F");
+  
+  // jets from tracks
+  AnalysisTree->Branch("NumberTracksJet",&NumberTracksJet,"NumberTracksJet/I");
+  AnalysisTree->Branch("MomentumTJ",MomentumTJ,"MomentumTJ[NumberTracksJet]/F");
+  AnalysisTree->Branch("TrasverseMomentumTJ",TransverseMomentumTJ,"TransverseMomentumTJ[NumberTracksJet]/F");
+  AnalysisTree->Branch("EtaTJ",EtaTJ,"EtaTJ[NumberTracksJet]/F");
+  AnalysisTree->Branch("PhiTJ",PhiTJ,"PhiTJ[NumberTracksJet]/F");
+  
+  // jets from calorimeter towers
+  AnalysisTree->Branch("NumberCaloJet",&NumberCaloJet,"NumberCaloJet/I");
+  AnalysisTree->Branch("MomentumEHJ",MomentumEHJ,"MomentumEHJ[NumberCaloJet]/F");
+  AnalysisTree->Branch("TrasverseMomentumEHJ",TransverseMomentumEHJ,"TransverseMomentumEHJ[NumberCaloJet]/F");
+  AnalysisTree->Branch("EtaEHJ",EtaEHJ,"EtaEHJ[NumberCaloJet]/F");
+  AnalysisTree->Branch("PhiEHJ",PhiEHJ,"PhiEHJ[NumberCaloJet]/F");
+  
+
+  // alternative storage method:
   // save TClonesArrays of TLorentzVectors
   // i.e. store 4-vectors of particles and jets
-  
- 
+
   MonteCarlo = new TClonesArray("TLorentzVector", 10000);
   AnalysisTree->Branch("MonteCarlo", "TClonesArray", &MonteCarlo, 128000, 0);
 
@@ -109,107 +205,73 @@ void AnalysisRootpleProducer::beginJob()
   acceptedTriggers = new TClonesArray("TObjString", 10000);
   AnalysisTree->Branch("acceptedTriggers", "TClonesArray", &acceptedTriggers, 128000, 0);
 
-  AnalysisTree->Branch("genEventScale", &genEventScale, "genEventScale/D");
- 
-  AnalysisTree->Branch("eventNum",&eventNum,"eventNum/I");
-  AnalysisTree->Branch("lumiBlock",&lumiBlock,"lumiBlock/I");
-  AnalysisTree->Branch("runNumber",&runNumber,"runNumber/I");
-  AnalysisTree->Branch("bx",&bx,"bx/I");
-
-
 }
 
   
-void AnalysisRootpleProducer::analyze( const edm::Event& e, const edm::EventSetup& )
+void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
 {
-  ///
-  /// Pythia: genEventScaleTag = "genEventScale"
-  /// Herwig: genEventScaleTag = "genEventKTValue"
-  ///
+  
+  e.getByLabel( triggerResultsTag, triggerResults );
+  const edm::TriggerNames & triggerNames = e.triggerNames(*triggerResults);
 
-  // if ( e.getByLabel( genEventScaleTag, genEventScaleHandle ) ) genEventScale = *genEventScaleHandle;
- 
-  eventNum   = e.id().event() ;
-  runNumber  = e.id().run() ;
-  lumiBlock  = e.luminosityBlock() ;
-  bx = e.bunchCrossing();
-  if(!onlyRECO){
-    edm::Handle<GenEventInfoProduct> hEventInfo;
-  e.getByLabel(genEventScaleTag , hEventInfo);
- if (hEventInfo->binningValues().size() > 0)
-   { 
-    genEventScale = hEventInfo->binningValues()[0];
-   }
+  acceptedTriggers->Clear();
+  unsigned int iAcceptedTriggers( 0 ); 
+  if ( triggerResults.product()->wasrun() )
+    {
+      //cout << "at least one path out of " << triggerResults.product()->size() << " ran? " << triggerResults.product()->wasrun() << endl;
+  
+      if ( triggerResults.product()->accept() ) 
+	{
+	  //cout << endl << "at least one path accepted? " << triggerResults.product()->accept() << endl;
 
+	  const unsigned int n_TriggerResults( triggerResults.product()->size() );
+	  for ( unsigned int itrig( 0 ); itrig < n_TriggerResults; ++itrig )
+	    {
+	      if ( triggerResults.product()->accept( itrig ) )
+		{
+		  //cout << "path " << triggerNames.triggerName( itrig );
+		  //cout << ", module index " << triggerResults.product()->index( itrig );
+		  //cout << ", state (Ready = 0, Pass = 1, Fail = 2, Exception = 3) " << triggerResults.product()->state( itrig );
+		  //cout << ", accept " << triggerResults.product()->accept( itrig );
+		  //cout << endl;
 
-  }
+		  // save name of accepted trigger path
+		  new((*acceptedTriggers)[iAcceptedTriggers]) TObjString( (triggerNames.triggerName( itrig )).c_str() );
+		  ++iAcceptedTriggers;
+		}
+	    }
+	}
+    }
 
- 
- // access trigger bits by TriggerResults
-  edm::Handle<edm::TriggerResults> hltresults;
-  try{e.getByLabel(edm::InputTag("TriggerResults::HLT"), hltresults);}
-  //try{iEvent.getManyByType(hltresults);}
-  catch(...){std::cout<<"The HLT Trigger branch was not correctly taken"<<std::endl;}
-
-  if (e.getByLabel(edm::InputTag("TriggerResults::HLT"), hltresults) )
-      {
-	edm::TriggerNames const& triggerNames = e.triggerNames(*hltresults);
-	acceptedTriggers->Clear();
-	int iAcceptedTriggers( 0 ); 
-	 int n_TriggerResults( hltresults.product()->size() );
-	 //	cout<< n_TriggerResults<<"dimensione"<<endl;
-	for (int itrig = 0; itrig != n_TriggerResults; ++itrig){
-	  std::string trigName = triggerNames.triggerName(itrig);
-	  bool accept = hltresults->accept((const unsigned int )itrig);
-	  //	         cout << "HLT " << itrig << "  " << trigName << "accettato"<<accept <<endl;
-	  if (accept){
-	 new((*acceptedTriggers)[iAcceptedTriggers]) TObjString( trigName.c_str() );
-	 ++iAcceptedTriggers;
-	  }
-	  //else {HLT[itrig] = "NULL";}
-     }
-	
-	
-      }
-    
-    
-    
   // gen level analysis
   // skipped, if onlyRECO flag set to true
-  
+
   if(!onlyRECO){
     
     e.getByLabel( mcEvent           , EvtHandle        );
     e.getByLabel( chgGenPartCollName, CandHandleMC     );
     e.getByLabel( chgJetCollName    , ChgGenJetsHandle );
     e.getByLabel( genJetCollName    , GenJetsHandle    );
-
-
-
-  ///-------------------------------
+    
     const HepMC::GenEvent* Evt = EvtHandle->GetEvent() ;
     
     EventKind = Evt->signal_process_id();
 
     std::vector<math::XYZTLorentzVector> GenPart;
-    std::vector<reco::GenJet> ChgGenJetContainer;
-    std::vector<reco::GenJet> GenJetContainer;
-
-
+    std::vector<GenJet> ChgGenJetContainer;
+    std::vector<GenJet> GenJetContainer;
     
     GenPart.clear();
- 
     ChgGenJetContainer.clear();
     GenJetContainer.clear();
     MonteCarlo->Clear();
     InclusiveJet->Clear();
     ChargedJet->Clear();
-    //  Parton->Clear();
-    // jets from charged particles at hadron level
-    //	std::cout<<"ChgGenJet"<<std::endl; 
-   if (ChgGenJetsHandle->size()){
 
-      for ( reco::GenJetCollection::const_iterator it(ChgGenJetsHandle->begin()), itEnd(ChgGenJetsHandle->end());
+    // jets from charged particles at hadron level
+    if (ChgGenJetsHandle->size()){
+
+      for ( GenJetCollection::const_iterator it(ChgGenJetsHandle->begin()), itEnd(ChgGenJetsHandle->end());
 	    it!=itEnd; ++it)
 	{
 	  ChgGenJetContainer.push_back(*it);
@@ -217,75 +279,41 @@ void AnalysisRootpleProducer::analyze( const edm::Event& e, const edm::EventSetu
 
       std::stable_sort(ChgGenJetContainer.begin(),ChgGenJetContainer.end(),GenJetSort());
 
-      std::vector<reco::GenJet>::const_iterator it(ChgGenJetContainer.begin()), itEnd(ChgGenJetContainer.end());
+      std::vector<GenJet>::const_iterator it(ChgGenJetContainer.begin()), itEnd(ChgGenJetContainer.end());
       for ( int iChargedJet(0); it != itEnd; ++it, ++iChargedJet)
 	{
+	  fillChargedJet(it->p(),it->pt(),it->eta(),it->phi());
 	  new((*ChargedJet)[iChargedJet]) TLorentzVector(it->px(), it->py(), it->pz(), it->energy());
 	}
     }
 
 
     // GenJets
-   //std::cout<<"GenJet"<<std::endl; 
-   
- if (GenJetsHandle->size()){
+    if (GenJetsHandle->size()){
 
-   for ( reco::GenJetCollection::const_iterator it(GenJetsHandle->begin()), itEnd(GenJetsHandle->end());
+      for ( GenJetCollection::const_iterator it(GenJetsHandle->begin()), itEnd(GenJetsHandle->end());
 	    it!=itEnd; ++it )
 	{
 	  GenJetContainer.push_back(*it);
-
-	  // 	  Jet::Constituents constituents( (*it).getJetConstituents() );
-	  // 	  //cout << "get " << constituents.size() << " constituents" << endl;
-	  // 	  for (int iJC(0); iJC<constituents.size(); ++iJC )
-	  // 	    {
-	  // 	      //cout << "[" << iJC << "] constituent pT = " << constituents[iJC]->pt() << endl;
-	  // 	      if (constituents[iJC]->et()<0.5)
-	  // 		{
-	  // 		  cout << "ERROR!!! [" << iJC << "] constituent pT = " << constituents[iJC]->pt() << endl;
-	  // 		}
-	  // 	    }
 	}
 
       std::stable_sort(GenJetContainer.begin(),GenJetContainer.end(),GenJetSort());
 
-      std::vector<reco::GenJet>::const_iterator it(GenJetContainer.begin()), itEnd(GenJetContainer.end());
+      std::vector<GenJet>::const_iterator it(GenJetContainer.begin()), itEnd(GenJetContainer.end());
       for ( int iInclusiveJet(0); it != itEnd; ++it, ++iInclusiveJet)
 	{
+	  fillInclusiveJet(it->p(),it->pt(),it->eta(),it->phi());
 	  new((*InclusiveJet)[iInclusiveJet]) TLorentzVector(it->px(), it->py(), it->pz(), it->energy());
 	}
     }
 
 
     // hadron level particles
- // std::cout<<"Particle"<<std::endl;   
-  if (CandHandleMC->size()){
-    
-      for (std::vector<reco::GenParticle>::const_iterator it(CandHandleMC->begin()), itEnd(CandHandleMC->end());
+    if (CandHandleMC->size()){
+      
+      for (vector<GenParticle>::const_iterator it(CandHandleMC->begin()), itEnd(CandHandleMC->end());
 	   it != itEnd;it++)
 	{
-
-
-	  //======
-	  // 	  bool found( false );
-	  // 	  for (int iParticle(0), iParticleEnd( pdgidList.size() ); iParticle<iParticleEnd; ++iParticle) 
-	  // 	    {
-	  // 	      //cout << "Particle pdgid " << it->pdgId() << " charge " << it->charge() << endl; 
-	  // 	      if ( it->pdgId()==pdgidList[iParticle] )
-	  // 		{
-	  // 		  found = true;
-	  // 		  break;
-	  // 		}
-	  // 	    }
-	  // 	  if (!found) 
-	  // 	    {
-	  // 	      //cout << "Particle pdgid " << it->pdgId() << " status " << it->status() << endl; 
-	  // 	      //cout << "Particle pdgid " << it->pdgId() << " charge " << it->charge() << endl;
-	  // 	      pdgidList.push_back( it->pdgId() );
-	  // 	    }
-	  //======
-
-
 	  GenPart.push_back(it->p4());
 	}
 
@@ -294,9 +322,8 @@ void AnalysisRootpleProducer::analyze( const edm::Event& e, const edm::EventSetu
       std::vector<math::XYZTLorentzVector>::const_iterator it(GenPart.begin()), itEnd(GenPart.end());
       for( int iMonteCarlo(0); it != itEnd; ++it, ++iMonteCarlo )
 	{
-	 
+	  fillMCParticles(it->P(),it->Pt(),it->Eta(),it->Phi());
 	  new((*MonteCarlo)[iMonteCarlo]) TLorentzVector(it->Px(), it->Py(), it->Pz(), it->E());
-	
 	}
     }
 
@@ -304,130 +331,71 @@ void AnalysisRootpleProducer::analyze( const edm::Event& e, const edm::EventSetu
 
   
   // reco level analysis
-
+  
+  e.getByLabel( tracksCollName     , CandHandleRECO     );
+  e.getByLabel( recoCaloJetCollName, RecoCaloJetsHandle );
+  e.getByLabel( tracksJetCollName  , TracksJetsHandle   );
+  
   std::vector<math::XYZTLorentzVector> Tracks;
-
-  std::vector<math::XYZPoint> AssVertices;
-
-  std::vector<reco::CaloJet> RecoCaloJetContainer;
-
- std::vector<reco::TrackJet> TracksJetContainer;
-
+  std::vector<BasicJet> TracksJetContainer;
+  std::vector<CaloJet> RecoCaloJetContainer;
+  
   Tracks.clear();
-
-  RecoCaloJetContainer.clear();
-
   TracksJetContainer.clear();
-
-  //new   
-  std::vector<math::XYZTLorentzVector> TracksT;
-
-  TracksT.clear();
-
+  RecoCaloJetContainer.clear();
+  
   Track->Clear();
-
   TracksJet->Clear();
-
   CalorimeterJet->Clear();
 
-
-  if ( e.getByLabel( recoCaloJetCollName, RecoCaloJetsHandle ) )
+  if(RecoCaloJetsHandle->size())
     {
-      if(RecoCaloJetsHandle->size())
-	{
-	  for(reco::CaloJetCollection::const_iterator it(RecoCaloJetsHandle->begin()), itEnd(RecoCaloJetsHandle->end());
-	      it!=itEnd;++it)
-	    {
-	      RecoCaloJetContainer.push_back(*it);
-	    }
-	  std::stable_sort(RecoCaloJetContainer.begin(),RecoCaloJetContainer.end(),CaloJetSort());
-	  
-	  std::vector<reco::CaloJet>::const_iterator it(RecoCaloJetContainer.begin()), itEnd(RecoCaloJetContainer.end());
-	  for( int iCalorimeterJet(0); it != itEnd; ++it, ++iCalorimeterJet)
-	    {
-	      new((*CalorimeterJet)[iCalorimeterJet]) TLorentzVector(it->px(), it->py(), it->pz(), it->energy());
-	    }
-	}
+    for(CaloJetCollection::const_iterator it(RecoCaloJetsHandle->begin()), itEnd(RecoCaloJetsHandle->end());
+	it!=itEnd;++it)
+      {
+	RecoCaloJetContainer.push_back(*it);
+      }
+    std::stable_sort(RecoCaloJetContainer.begin(),RecoCaloJetContainer.end(),CaloJetSort());
+
+    std::vector<CaloJet>::const_iterator it(RecoCaloJetContainer.begin()), itEnd(RecoCaloJetContainer.end());
+    for( int iCalorimeterJet(0); it != itEnd; ++it, ++iCalorimeterJet)
+      {
+	fillCaloJet(it->p(),it->pt(),it->eta(),it->phi());
+	new((*CalorimeterJet)[iCalorimeterJet]) TLorentzVector(it->px(), it->py(), it->pz(), it->energy());
+      }
     }
     
-  
-
-
-
-if ( e.getByLabel( tracksJetCollName, TracksJetsHandle ) )
+  if(TracksJetsHandle->size())
     {
-      if(TracksJetsHandle->size())
+      for(BasicJetCollection::const_iterator it(TracksJetsHandle->begin()), itEnd(TracksJetsHandle->end());
+	  it!=itEnd;++it)
 	{
-	  for(reco::TrackJetCollection::const_iterator it(TracksJetsHandle->begin()), itEnd(TracksJetsHandle->end());
-	      it!=itEnd;++it)
-	    {
-	      TracksJetContainer.push_back(*it);
-
-	      // 	      Jet::Constituents constituents( (*it).getJetConstituents() );
-	      // 	      //cout << "get " << constituents.size() << " constituents" << endl;
-	      // 	      for (int iJC(0); iJC<constituents.size(); ++iJC )
-	      // 		{
-	      // 		  //cout << "[" << iJC << "] constituent pT = " << constituents[iJC]->pt() << endl;
-	      // 		  if (constituents[iJC]->et()<0.5)
-	      // 		    {
-	      // 		      cout << "ERROR!!! [" << iJC << "] constituent pT = " << constituents[iJC]->pt() << endl;
-	      // 		    }
-	      // 		}
-	    }
-	  std::stable_sort(TracksJetContainer.begin(),TracksJetContainer.end(),BasicJetSort());
-	  
-          int iJCall=0;
-	  std::vector<reco::TrackJet>::const_iterator it(TracksJetContainer.begin()), itEnd(TracksJetContainer.end());
-	  for(int iTracksJet(0); it != itEnd; ++it, ++iTracksJet)
-	    {
-
-	      reco::Jet::Constituents constituents( (*it).getJetConstituents() );
-	      trackinjet_.tkn[iTracksJet]=constituents.size();
-	      for (int iJC(0); iJC<(int)constituents.size(); ++iJC )
-		{
-		 
-		  trackinjet_.tkp[iJCall]=constituents[iJC]->p();
-		  trackinjet_.tkpt[iJCall]=constituents[iJC]->pt();
-		  trackinjet_.tketa[iJCall]=constituents[iJC]->eta();
-		  trackinjet_.tkphi[iJCall]=constituents[iJC]->phi();
-		  //  trackinjet_.tknhit[iJCall]=constituents[iJC]->recHitsSize();
-		  //  trackinjet_.tkchi2norm[iJCall]=constituents[iJC]->normalizedChi2();
-		  //  trackinjet_.tkd0[iJCall]=constituents[iJC]->d0();
-		  //  trackinjet_.tkd0Err[iJCall]=constituents[iJC]->d0Err();
-		  //  trackinjet_.tkdz[iJCall]=constituents[iJC]->dz();
-		  //  trackinjet_.tkdzErr[iJCall]=constituents[iJC]->dzErr();
-		  iJCall++;
-		}
-
-	      new((*TracksJet)[iTracksJet]) TLorentzVector(it->px(), it->py(), it->pz(), it->energy());
-	    }
+	  TracksJetContainer.push_back(*it);
+	}
+      std::stable_sort(TracksJetContainer.begin(),TracksJetContainer.end(),BasicJetSort());
+    
+      std::vector<BasicJet>::const_iterator it(TracksJetContainer.begin()), itEnd(TracksJetContainer.end());
+      for(int iTracksJet(0); it != itEnd; ++it, ++iTracksJet)
+	{
+	  fillTracksJet(it->p(),it->pt(),it->eta(),it->phi());
+	  new((*TracksJet)[iTracksJet]) TLorentzVector(it->px(), it->py(), it->pz(), it->energy());
 	}
     }
-
- int iTracks=0;
-  if ( e.getByLabel( tracksCollName , CandHandleRECO ) )
+  
+  if(CandHandleRECO->size())
     {
-      if(CandHandleRECO->size())
+      for(CandidateCollection::const_iterator it(CandHandleRECO->begin()), itEnd(CandHandleRECO->end());
+	  it!=itEnd;++it)
 	{
-	  
-	  //for(CandidateCollection::const_iterator it(CandHandleRECO->begin()), itEnd(CandHandleRECO->end());
-	  for(edm::View<reco::Candidate>::const_iterator it(CandHandleRECO->begin()), itEnd(CandHandleRECO->end());
-	      it!=itEnd;++it)
-	    {
-
-    	     Tracks.push_back(it->p4());
-
-	     
-	     iTracks++; 
-	    }
-	   std::stable_sort(Tracks.begin(),Tracks.end(),GreaterPt());
-	  
-	    std::vector<math::XYZTLorentzVector>::const_iterator it( Tracks.begin()), itEnd(Tracks.end());
-	     for(int iTracks(0); it != itEnd; ++it, ++iTracks)
-	    {
-	     new ((*Track)[iTracks]) TLorentzVector(it->Px(), it->Py(), it->Pz(), it->E());
-	  
-	     }
+	  Tracks.push_back(it->p4());
+	}
+      std::stable_sort(Tracks.begin(),Tracks.end(),GreaterPt());
+    
+      std::vector<math::XYZTLorentzVector>::const_iterator it( Tracks.begin()), itEnd(Tracks.end());
+      for(int iTracks(0); it != itEnd; ++it, ++iTracks)
+	{
+	  fillTracks(it->P(),it->Pt(),it->Eta(),it->Phi());
+	  new ((*Track)[iTracks]) TLorentzVector(it->Px(), it->Py(), it->Pz(), it->E());
 	}
     }
   
@@ -436,11 +404,5 @@ if ( e.getByLabel( tracksJetCollName, TracksJetsHandle ) )
 
 void AnalysisRootpleProducer::endJob()
 {
-  //   cout << "Printing list of PDG id's: " << endl;
-  //   std::sort(pdgidList.begin(), pdgidList.end());
-  //   for (int iParticle(0), iParticleEnd( pdgidList.size() ); iParticle<iParticleEnd; ++iParticle)
-  //     {
-  //       cout << pdgidList[iParticle] << endl;
-  //     }
 }
 

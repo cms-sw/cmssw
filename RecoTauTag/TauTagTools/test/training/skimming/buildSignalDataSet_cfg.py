@@ -18,7 +18,6 @@ Author: Evan K. Friis (UC Davis)
 # that we require good argv to be passed
 sampleId = -999
 sampleName = "ErrorParsingCLI"
-_hltProcess = "HLT"
 
 if not hasattr(sys, "argv"):
     #raise ValueError, "Can't extract CLI arguments!"
@@ -29,12 +28,10 @@ else:
     if sys.argv[0] != 'cmsRun':
         argOffset = 1
     args = sys.argv[2 - argOffset]
-    _hltProcess = args.split(',')[2]
     sampleId = int(args.split(',')[1])
     sampleName = args.split(',')[0]
     print "Found %i for sample id" % sampleId
     print "Running on sample: %s" % sampleName
-    print "HLT Process: %s" % _hltProcess
 
 process = cms.Process("TANC")
 
@@ -46,12 +43,11 @@ process.source = cms.Source("PoolSource", fileNames = readFiles,
 
 #dbs search --noheader --query="find file where primds=RelValZTT and release=$CMSSW_VERSION and tier=GEN-SIM-RECO"  | sed "s|.*|\"&\",|"
 readFiles.extend([
-    "rfio:/castor/cern.ch/user/f/friis/CMSSW_4_1_x/skims/ZTT_PU/ZTT_PU_10_3_Uws.root",
-#"/store/relval/CMSSW_3_9_9/RelValZTT/GEN-SIM-RECO/START39_V9-v1/0001/22F9F1AF-9B3D-E011-BCE8-001A928116D0.root",
-#"/store/relval/CMSSW_3_9_9/RelValZTT/GEN-SIM-RECO/START39_V9-v1/0000/AE9602D6-593D-E011-A106-0030486790FE.root",
-#"/store/relval/CMSSW_3_9_9/RelValZTT/GEN-SIM-RECO/START39_V9-v1/0000/74B5926B-543D-E011-A7B9-0026189438AC.root",
-#"/store/relval/CMSSW_3_9_9/RelValZTT/GEN-SIM-RECO/START39_V9-v1/0000/223E536A-543D-E011-BED7-003048678B3C.root",
-#"/store/relval/CMSSW_3_9_9/RelValZTT/GEN-SIM-RECO/START39_V9-v1/0000/00E71A68-533D-E011-97EE-002618943934.root",
+"/store/relval/CMSSW_3_9_9/RelValZTT/GEN-SIM-RECO/START39_V9-v1/0001/22F9F1AF-9B3D-E011-BCE8-001A928116D0.root",
+"/store/relval/CMSSW_3_9_9/RelValZTT/GEN-SIM-RECO/START39_V9-v1/0000/AE9602D6-593D-E011-A106-0030486790FE.root",
+"/store/relval/CMSSW_3_9_9/RelValZTT/GEN-SIM-RECO/START39_V9-v1/0000/74B5926B-543D-E011-A7B9-0026189438AC.root",
+"/store/relval/CMSSW_3_9_9/RelValZTT/GEN-SIM-RECO/START39_V9-v1/0000/223E536A-543D-E011-BED7-003048678B3C.root",
+"/store/relval/CMSSW_3_9_9/RelValZTT/GEN-SIM-RECO/START39_V9-v1/0000/00E71A68-533D-E011-97EE-002618943934.root",
 ])
 
 # Load standard services
@@ -71,30 +67,37 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-from Configuration.AlCa.autoCond import autoCond
+from Configuration.PyReleaseValidation.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['mc']
 
-# Make our own PF collection
-process.particleFlow = cms.EDProducer(
-    "PFCandidateCollectionCopier",
-    src = cms.InputTag("particleFlow"),
-    cut = cms.string(''),
-    embedTracks = cms.bool(True),
-    embedGsfTracks = cms.bool(True),
-    embedMuons = cms.bool(True)
-)
+# Local re-reco: Produce tracker rechits, pf rechits and pf clusters
+process.localReReco = cms.Sequence(process.siPixelRecHits+
+                                   process.siStripMatchedRecHits+
+                                   process.particleFlowCluster)
+
+# Track re-reco
+process.globalReReco =  cms.Sequence(process.offlineBeamSpot+
+                                     process.recopixelvertexing+
+                                     process.ckftracks+
+                                     process.caloTowersRec+
+                                     process.vertexreco+
+                                     process.recoJets+
+                                     process.muonrecoComplete+
+                                     process.electronGsfTracking+
+                                     process.metreco)
+
+# Particle Flow re-processing
+process.pfReReco = cms.Sequence(process.particleFlowReco+
+                                process.ak5PFJets+
+                                process.kt6PFJets)
 
 process.kt6PFJets.doRhoFastjet = True
 process.kt6PFJets.Rho_EtaMax = cms.double( 4.4)
 
-process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVerticesDA_cfi")
-
 process.rereco = cms.Sequence(
-    process.particleFlow
-    *process.ak5PFJets
-    *process.kt6PFJets
-    *process.offlinePrimaryVerticesDA
-)
+    process.localReReco*
+    process.globalReReco*
+    process.pfReReco)
 
 #################################################################
 # Build and select true taus
@@ -325,8 +328,7 @@ process.selectSignal = cms.Path(
 
 # Store the trigger stuff in the event
 from PhysicsTools.PatAlgos.tools.trigTools import switchOnTrigger
-switchOnTrigger(
-    process, sequence="selectSignal", outputModule='', hltProcess=_hltProcess)
+switchOnTrigger(process, sequence="selectSignal", outputModule='')
 
 # Keep only a subset of data
 poolOutputCommands = cms.untracked.vstring(
@@ -339,11 +341,10 @@ poolOutputCommands = cms.untracked.vstring(
     'keep *_ak5PFJets_*_TANC',
     'keep *_kt6PFJets_*_TANC', # for PU subtraction
     'keep *_offlinePrimaryVertices_*_TANC',
-    'keep *_offlinePrimaryVerticesDA_*_TANC',
-    #'keep *_offlineBeamSpot_*_TANC',
+    'keep *_offlineBeamSpot_*_TANC',
     'keep *_particleFlow_*_TANC',
-    #'keep recoTracks_generalTracks_*_TANC',
-    #'keep recoTracks_electronGsfTracks_*_TANC',
+    'keep recoTracks_generalTracks_*_TANC',
+    'keep recoTracks_electronGsfTracks_*_TANC',
     'keep *_genParticles_*_*', # this product is okay, since we dont' need it in bkg
     'keep *_selectedTrueHadronicTaus_*_*',
     'keep *_preselectedSignalJets_*_*',

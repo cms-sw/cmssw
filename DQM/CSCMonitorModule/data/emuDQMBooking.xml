@@ -221,20 +221,6 @@
                 <Name>FED_DDU_L1A_mismatch</Name>
         </Histogram>
 
-	<Histogram>
-		<Prefix>EMU</Prefix>
-                <SetOption>bar1text</SetOption>
-                <SetStats>0</SetStats>
-		<Title>CSC FED-DDUs L1A mismatch fraction</Title>
-                <Type>h1</Type>
-                <XBins>8</XBins>
-                <XMax>758</XMax>
-                <XMin>750</XMin>
-                <XTitle>FED ID</XTitle>
-		<YTitle>Fraction of Events</YTitle>
-		<Name>FED_DDU_L1A_mismatch_fract</Name>
-        </Histogram>
-
 
 	<!-- FED Histograms -->
 

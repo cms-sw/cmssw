@@ -286,9 +286,7 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
 	||
 	   ( (buf0[3]&0xF000) == 0x5000 && (buf0[0]&0x000F) == 0x0008 ) )
 	 &&
-	  // =VB= Why 0xD900 signature word if only 0xD part is constant???
-	  // (buf1[3]&0xFF00) == 0xD900 ) 
-	  (buf1[3]&0xF000) == 0xD000 )
+	  (buf1[3]&0xFF00) == 0xD900 ) 
 	{
 	if( fDCC_Header ){
 	  // == Another DCC Header before encountering DCC Trailer!
@@ -307,7 +305,6 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
 	  buf1  = &(tmpbuf[8]);  // Just for safety
 	  buf2  = &(tmpbuf[12]); // Just for safety
 	  bzero(tmpbuf,sizeof(uint16_t)*16);
-	  sync_stats();
 	  return length+12;
 	}
 
@@ -369,7 +366,7 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
 	  bERROR    |= 0x1000000;
 	}
 	DMB_Active = 0;
-    	nDMBs = 0;
+    nDMBs = 0;
 
 	// Unknown chamber denoted as -2
 	// If it still remains in any of errors - put it in error 0
@@ -389,11 +386,17 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
 	buf1  = &(tmpbuf[8]);  // Just for safety
 	buf2  = &(tmpbuf[12]); // Just for safety
 	bzero(tmpbuf,sizeof(uint16_t)*16);
-	sync_stats();
 	return length+12;
       }
 
-
+      // Reset all Error and Warning flags to be false
+      ///bzero(fERROR,   sizeof(bool)*nERRORS);
+      ///bzero(fWARNING, sizeof(bool)*nWARNINGS);
+      ///bERROR = 0; bWARNING = 0;
+      ///for(int err=0; err<nERRORS;   err++) fCHAMB_ERR[err].clear();
+      ///for(int wrn=0; wrn<nWARNINGS; wrn++) fCHAMB_WRN[wrn].clear();
+      ///bCHAMB_ERR.clear();
+      ///bCHAMB_WRN.clear();
       currentChamber = -1; // Unknown yet
 
       if( fDDU_Trailer && DDU_WordsSinceLastTrailer != 4 ){
@@ -423,20 +426,15 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
          clear();
       }
 
-	dduBuffers[sourceID] = buf_1;
-      	dduOffsets[sourceID] = buf_1-buffer_start;
-      	dduSize   [sourceID] = 0;
-      	dmbBuffers[sourceID].clear();
-      	dmbOffsets[sourceID].clear();
-      	dmbSize   [sourceID].clear();
+	  dduBuffers[sourceID] = buf_1;
+      dduOffsets[sourceID] = buf_1-buffer_start;
+      dduSize   [sourceID] = 0;
+      dmbBuffers[sourceID].clear();
+      dmbOffsets[sourceID].clear();
+      dmbSize   [sourceID].clear();
 
-	// Reset all Error and Warning flags to be false
-	bDDU_ERR[sourceID] = 0;
-      	bDDU_WRN[sourceID] = 0;
-	bERROR             = 0;
-	bWARNING           = 0;
-	bzero(fERROR,   sizeof(bool)*nERRORS);
-	bzero(fWARNING, sizeof(bool)*nWARNINGS);
+	  bDDU_ERR[sourceID] = 0;
+      bDDU_WRN[sourceID] = 0;
 
       nDMBs      = 0;
       DMB_Active = buf1[0]&0xF;
@@ -1013,7 +1011,7 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
       CFEB_SampleWordCount=0;
     }
 
-     // == If it is neither ALCT record nor TMB - probably it is CFEB record and we try to count CRC sum.
+     // == If it is nither ALCT record nor TMB - probably it is CFEB record and we try to count CRC sum.
     // It very few words of CFEB occasionaly will be misinterpreted as ALCT or TMB header the result
     // for the CRC sum will be wrong, but other errors of Trailers counting will appear as well
     if( checkCrcCFEB && fDMB_Header && !fTMB_Header && !fALCT_Header && CFEB_SampleWordCount )
@@ -1269,7 +1267,6 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
 
       bDDU_ERR[sourceID] |= bERROR;
       bDDU_WRN[sourceID] |= bWARNING;
-      sync_stats();
 
       DDU_WordsSinceLastHeader=0;
       DDU_WordsSinceLastTrailer=0;
@@ -1316,7 +1313,6 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
 	buf1  = &(tmpbuf[8]);  // Just for safety
 	buf2  = &(tmpbuf[12]); // Just for safety
 	bzero(tmpbuf, sizeof(uint16_t)*16);
- 	sync_stats();
 	return length-4;
       }
     }
@@ -1338,7 +1334,6 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
         bERROR|=0x2000000;
 	fERROR[0]=true;
         bERROR|=0x1;
-	sync_stats();
 	return length;
        	
   }
@@ -1351,12 +1346,7 @@ void CSCDCCExaminer::clear()
 {
   bzero(fERROR,   sizeof(bool)*nERRORS);
   bzero(fWARNING, sizeof(bool)*nWARNINGS);
-  bzero(fSUM_ERROR,   sizeof(bool)*nERRORS);
-  bzero(fSUM_WARNING, sizeof(bool)*nWARNINGS);
-  bERROR = 0;
-  bWARNING = 0;
-  bSUM_ERROR = 0;
-  bSUM_WARNING = 0;
+  bERROR = 0; bWARNING = 0;
   for(int err=0; err<nERRORS;   ++err) fCHAMB_ERR[err].clear();
   for(int wrn=0; wrn<nWARNINGS; ++wrn) fCHAMB_WRN[wrn].clear();
   bCHAMB_ERR.clear();
@@ -1490,16 +1480,6 @@ if( !fALCT_Header && (ALCT_WordsSinceLastHeader!=ALCT_WordsExpected
   }
 }
 
-inline void CSCDCCExaminer::sync_stats()
-{
-  for (int err=0; err<nERRORS; ++err)
-    fSUM_ERROR[err] |= fERROR[err];
-  for (int wrn=0; wrn<nWARNINGS; ++wrn)
-    fSUM_WARNING[wrn] |= fWARNING[wrn];
-  bSUM_ERROR            |= bERROR;
-  bSUM_WARNING  |= bWARNING;
-}
-
 inline int CSCDCCExaminer::scanbuf(const uint16_t* &buffer, int32_t length, uint16_t sig, uint16_t mask)
 {
 	for (int i=0; i<length; i++)
@@ -1510,4 +1490,3 @@ inline int CSCDCCExaminer::scanbuf(const uint16_t* &buffer, int32_t length, uint
 	}
         return -1;
 }
-

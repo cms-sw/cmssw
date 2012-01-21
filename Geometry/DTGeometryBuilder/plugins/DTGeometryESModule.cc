@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2009/01/29 12:36:58 $
- *  $Revision: 1.8 $
+ *  $Date: 2010/03/25 22:08:43 $
+ *  $Revision: 1.9 $
  *  \author N. Amapane - CERN
  */
 
@@ -40,7 +40,11 @@ DTGeometryESModule::DTGeometryESModule(const edm::ParameterSet & p)
 
   applyAlignment_ = p.getParameter<bool>("applyAlignment");
 
-  setWhatProduced(this, dependsOn(&DTGeometryESModule::geometryCallback_) );
+  if(fromDDD_) {
+    setWhatProduced(this, dependsOn(&DTGeometryESModule::geometryCallback_) );
+  } else {
+    setWhatProduced(this, dependsOn(&DTGeometryESModule::dbGeometryCallback_) );
+  }
 
   edm::LogInfo("Geometry") << "@SUB=DTGeometryESModule"
     << "Label '" << myLabel_ << "' "
@@ -89,22 +93,28 @@ void DTGeometryESModule::geometryCallback_( const MuonNumberingRecord& record ) 
   //
 
   _dtGeometry = boost::shared_ptr<DTGeometry>(new DTGeometry );
-  if ( fromDDD_ ) {
-    edm::ESHandle<MuonDDDConstants> mdc;
-    record.get( mdc );
+  edm::ESHandle<MuonDDDConstants> mdc;
+  record.get( mdc );
 
-    edm::ESTransientHandle<DDCompactView> cpv;
-    record.getRecord<IdealGeometryRecord>().get(cpv);
+  edm::ESTransientHandle<DDCompactView> cpv;
+  record.getRecord<IdealGeometryRecord>().get(cpv);
 
-    DTGeometryBuilderFromDDD builder;
-    builder.build(_dtGeometry, &(*cpv), *mdc);
-  } else {
-    edm::ESHandle<RecoIdealGeometry> rig;
-    record.getRecord<DTRecoGeometryRcd>().get(rig);
+  DTGeometryBuilderFromDDD builder;
+  builder.build(_dtGeometry, &(*cpv), *mdc);
+    
+}
 
-    DTGeometryBuilderFromCondDB builder;
-    builder.build(_dtGeometry, *rig);
-  }
+void DTGeometryESModule::dbGeometryCallback_( const DTRecoGeometryRcd& record ) {
+  //
+  // Called whenever the muon numbering (or ideal geometry) changes
+  //
+
+  _dtGeometry = boost::shared_ptr<DTGeometry>(new DTGeometry );
+  edm::ESHandle<RecoIdealGeometry> rig;
+  record.get(rig);
+  
+  DTGeometryBuilderFromCondDB builder;
+  builder.build(_dtGeometry, *rig);
 
 }
 

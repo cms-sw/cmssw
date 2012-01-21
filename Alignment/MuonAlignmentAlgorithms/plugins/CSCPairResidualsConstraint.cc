@@ -533,7 +533,7 @@ void CSCPairResidualsConstraint::read(std::vector<std::ifstream*> &input, std::v
 }
 
 void CSCPairResidualsConstraint::calculatePhi(const TransientTrackingRecHit *hit, double &phi, double &phierr2, bool doRphi, bool globalPhi) {
-  align::LocalPoint pos = hit->localPosition();
+  LocalPoint pos = hit->localPosition();
   DetId id = hit->geographicalId();
   CSCDetId cscid = CSCDetId(id.rawId());
 

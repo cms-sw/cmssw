@@ -19,51 +19,23 @@ TString ME::granularity[ME::iSizeG] = {
 };
 
 TString ME::APDPrimVar[ME::iSizeAPD] = {
-  "FLAG", "MEAN", "RMS", "M3", "NEVT", 
-  "APD_OVER_PNA_MEAN", "APD_OVER_PNA_RMS", "APD_OVER_PNA_M3","APD_OVER_PNA_NEVT",
-  "APD_OVER_PNB_MEAN", "APD_OVER_PNB_RMS", "APD_OVER_PNB_M3", "APD_OVER_PNB_NEVT",
-  "APD_OVER_PN_MEAN", "APD_OVER_PN_RMS", "APD_OVER_PN_M3","APD_OVER_PN_NEVT",
-  "APD_OVER_PNACOR_MEAN", "APD_OVER_PNACOR_RMS", "APD_OVER_PNACOR_M3","APD_OVER_PNACOR_NEVT",
-  "APD_OVER_PNBCOR_MEAN", "APD_OVER_PNBCOR_RMS", "APD_OVER_PNBCOR_M3", "APD_OVER_PNBCOR_NEVT",
-  "APD_OVER_PNCOR_MEAN", "APD_OVER_PNCOR_RMS", "APD_OVER_PNCOR_M3","APD_OVER_PNCOR_NEVT",
-  "APD_OVER_APDA_MEAN", "APD_OVER_APDA_RMS", "APD_OVER_APDA_M3","APD_OVER_APDA_NEVT", 
-  "APD_OVER_APDB_MEAN", "APD_OVER_APDB_RMS", "APD_OVER_APDB_M3","APD_OVER_APDB_NEVT", 
-  //  "APD_OVER_PNACORABFIT_MEAN", "APD_OVER_PNACORABFIT_RMS", "APD_OVER_PNACORABFIT_M3","APD_OVER_PNACORABFIT_NEVT",
-  // "APD_OVER_PNBCORABFIT_MEAN", "APD_OVER_PNBCORABFIT_RMS", "APD_OVER_PNBCORABFIT_M3", "APD_OVER_PNBCORABFIT_NEVT",
-  //"APD_OVER_PNCORABFIT_MEAN", "APD_OVER_PNCORABFIT_RMS", "APD_OVER_PNCORABFIT_M3","APD_OVER_PNCORABFIT_NEVT",
-  //"APD_OVER_PNACORABFIX_MEAN", "APD_OVER_PNACORABFIX_RMS", "APD_OVER_PNACORABFIX_M3","APD_OVER_PNACORABFIX_NEVT",
-  //"APD_OVER_PNBCORABFIX_MEAN", "APD_OVER_PNBCORABFIX_RMS", "APD_OVER_PNBCORABFIX_M3", "APD_OVER_PNBCORABFIX_NEVT",
-  //"APD_OVER_PNCORABFIX_MEAN", "APD_OVER_PNCORABFIX_RMS", "APD_OVER_PNCORABFIX_M3","APD_OVER_PNCORABFIX_NEVT",
-  "SHAPE_COR_APD", "ALPHA", "BETA",
+  "FLAG", "MEAN", "RMS", "M3", 
+  "APD_OVER_PNA_MEAN", "APD_OVER_PNA_RMS", "APD_OVER_PNA_M3",
+  "APD_OVER_PNB_MEAN", "APD_OVER_PNB_RMS", "APD_OVER_PNB_M3",
+  "APD_OVER_PN_MEAN", "APD_OVER_PN_RMS", "APD_OVER_PN_M3",
+  "SHAPE_COR", "ALPHA", "BETA",
   "TIME_MEAN", "TIME_RMS", "TIME_M3", "TIME_NEVT" 
 };
 
-TString ME::NLSVar[ME::iSizeNLS] = {
-  "MEAN", "RMS", "NEVT", "NORM","ENORM" , "FLAG",
-  "CLS_MEAN", "CLS_RMS", "CLS_NEVT", "CLS_NORM","CLS_ENORM", "CLS_FLAG"
-};
-
-TString ME::MIDPrimVar[ME::iSizeMID] = {
-  "MID_MEAN", "MID_RMS", "MID_NEVT" 
-	 "MIDA_MEAN", "MIDA_RMS", "MIDA_NEVT" 
-	 "MIDB_MEAN", "MIDB_RMS", "MIDB_NEVT"
-	 "APD_OVER_PNTMPCOR_MEAN", "APD_OVER_PNTMPCOR_RMS", "APD_OVER_PNTMPCOR_NEVT" 
-	 "APD_OVER_PNATMPCOR_MEAN", "APD_OVER_PNATMPCOR_RMS", "APD_OVER_PNATMPCOR_NEVT" 
-	 "APD_OVER_PNBTMPCOR_MEAN", "APD_OVER_PNBTMPCOR_RMS", "APD_OVER_PNBTMPCOR_NEVT"
-};
-
-//TString ME::NLSRefVar[ME::iSizeNLSRef] = {
-//  "RUN","LB","START_LOW", " START_HIGH"
-//};
-
 TString ME::PNPrimVar[ME::iSizePN] = {
-  "FLAG", "MEAN", "RMS", "M3", "NEVT",
-  "PNA_OVER_PNB_MEAN", "PNA_OVER_PNB_RMS", "PNA_OVER_PNB_M3", "SHAPE_COR_PN"
+  "FLAG", "MEAN", "RMS", "M3", 
+  "PNA_OVER_PNB_MEAN", "PNA_OVER_PNB_RMS", "PNA_OVER_PNB_M3",
 };
+
 TString ME::MTQPrimVar[ME::iSizeMTQ] = {
   "FIT_METHOD", 
   "MTQ_AMPL", "MTQ_TIME", "MTQ_RISE", 
-  "MTQ_FWHM", "MTQ_FW10", "MTQ_FW05", "MTQ_SLIDING"
+  "MTQ_FWHM", "MTQ_FW20", "MTQ_FW80", "MTQ_SLIDING"
 };
 
 TString ME::TPAPDPrimVar[ME::iSizeTPAPD] = {
@@ -75,14 +47,14 @@ TString ME::TPPNPrimVar[ME::iSizeTPPN] = {
 };
 
 TString ME::type[ME::iSizeT] = { 
-  "Laser", "TestPulse", "LED"
+  "Laser", "TestPulse"
 };
 
 TString ME::color[ME::iSizeC] = { 
-  "Blue", "Green", "Red", "IRed"
+  "Blue", "Green", "Red", "IRed", "LED1", "LED2" 
 };
 
-vector<MEChannel*> ME::_trees = vector<MEChannel*>(4,(MEChannel*)0); 
+std::vector<MEChannel*> ME::_trees = std::vector<MEChannel*>(4,(MEChannel*)0); 
 
 bool ME::useElectronicNumbering = false;
 
@@ -100,15 +72,6 @@ TString
 ME::primPath( int lmr )
 {
   TString out_(getenv("MESTORE"));
-  out_ += "/";
-  out_ += ME::smName(lmr);
-  out_ += "/";
-  return out_;
-}
-TString
-ME::nlsPath( int lmr )
-{
-  TString out_(getenv("MENLSSTORE"));
   out_ += "/";
   out_ += ME::smName(lmr);
   out_ += "/";
@@ -145,132 +108,11 @@ ME::rootFileName( ME::Header header, ME::Settings settings )
     {
       outfile_ += "_testPulse"; 
     }
-  else if( settings.type==ME::iLED )
-    {
-      switch( settings.wavelength )
-	{
-	case iBlue:   outfile_ += "_BlueLED"; break;
-	case iGreen:  outfile_ += "_GreenLED";  break;
-	case iRed:    outfile_ += "_RedLED";  break;
-	case iIRed:   outfile_ += "_IRedLED";  break;
-	default: break;
-	}
-    }
-  
   outfile_ += "_";      outfile_ += header.rundir.c_str();
   outfile_ += "_TS";    outfile_ += header.ts_beg;
   outfile_ += ".root";
   return outfile_;
 }
-
-TString
-ME::rootNLSFileName( ME::Header header, ME::Settings settings )
-{
-
-  TString outfile_;
-
-  if( settings.type != ME::iLaser ){
-    cout<< " Wrong type for NLS file name "<<settings.type<<" "<< ME::iLaser << endl; 
-    return outfile_;
-  }
-  
-  // get the laser monitoring region and super-module
-  int lmr_   = ME::lmr( header.dcc, header.side );
-  outfile_ = nlsPath( lmr_ );
-  outfile_ += "LMF_";
-  outfile_ += ME::smName( lmr_ );
-  outfile_ += "_"; outfile_ += header.side; 
-  outfile_ += "_NLS"; 
-  
-  switch( settings.wavelength )
-    {
-    case iBlue:   outfile_ += "_BlueLaser"; break;
-    case iGreen:  outfile_ += "_GreenLaser";  break;
-    case iRed:    outfile_ += "_RedLaser";  break;
-    case iIRed:   outfile_ += "_IRedLaser";  break;
-    default: break;
-    }
-
-  outfile_ += "_";      outfile_ += header.rundir.c_str();
-  outfile_ += "_TS";    outfile_ += header.ts_beg;
-  outfile_ += ".root";
-  return outfile_;
-}
-
-TString
-ME::rootNormFileName( ME::Header header, ME::Settings settings )
-{
-
-  TString outfile_;
-
-  if( settings.type != ME::iLaser ){
-    cout<< " Wrong type for NLS file name "<<settings.type<<" "<< ME::iLaser << endl; 
-    return outfile_;
-  }
-  
-  // get the laser monitoring region and super-module
-  int lmr_   = ME::lmr( header.dcc, header.side );
-  outfile_ = nlsPath( lmr_ );
-  //outfile_ += "LMF_";
-  //outfile_ += ME::smName( lmr_ );
-  //outfile_ += "_"; outfile_ += header.side; 
-  //outfile_ += "_NLS"; 
-  
-  //switch( settings.wavelength )
-  //  {
-  //  case iBlue:   outfile_ += "_BlueLaser"; break;
-  //  case iGreen:  outfile_ += "_GreenLaser";  break;
-  //  case iRed:    outfile_ += "_RedLaser";  break;
-  // case iIRed:   outfile_ += "_IRedLaser";  break;
-  //  default: break;
-  //  }
-
-  //if( settings.wavelength == ME::iBlue) {
-  //  outfile_ += "_";      outfile_ += header.rundir.c_str();
-  // }
-  outfile_ += "NORM";    outfile_ += header.side;
-  outfile_ += ".root";
-  return outfile_;
-}
-
-/*
-TString
-ME::rootNormFileName( ME::Header header, ME::Settings settings )
-{
-
-  TString outfile_;
-
-  if( settings.type != ME::iLaser ){
-    cout<< " Wrong type for NLS file name "<<settings.type<<" "<< ME::iLaser << endl; 
-    return 0;
-  }
-  
-  // get the laser monitoring region and super-module
-  int lmr_   = ME::lmr( header.dcc, header.side );
-  outfile_ = nlsPath( lmr_ );
-
-  outfile_ += "LMF_";
-  outfile_ += ME::smName( lmr_ );
-  outfile_ += "_"; outfile_ += header.side; 
-  outfile_ += "_NORM"; 
-  
-  switch( settings.wavelength )
-    {
-    case iBlue:   outfile_ += "_BlueLaser"; break;
-    case iGreen:  outfile_ += "_GreenLaser";  break;
-    case iRed:    outfile_ += "_RedLaser";  break;
-    case iIRed:   outfile_ += "_IRedLaser";  break;
-    default: break;
-    }
-
-  if( settings.wavelength == ME::iBlue) {
-    outfile_ += "_";      outfile_ += header.rundir.c_str();
-  }
-  outfile_ += "_TS";    outfile_ += header.ts_beg;
-  outfile_ += ".root";
-  return outfile_;
-}
-*/
 
 TString
 ME::runListName( int lmr, int type, int color )
@@ -293,27 +135,6 @@ ME::runListName( int lmr, int type, int color )
     {
       outfile_  += "runlist_Test_Pulse";
     }
-  else if( type==iLED )
-    {
-      outfile_ += "runlist_";
-      switch( color ) 
-	{
-	case ME::iBlue:   outfile_+="Blue_"; break;
-	case ME::iGreen:  outfile_+="Red_";  break;
-	case ME::iRed:    outfile_+="Red_";  break;
-	case ME::iIRed:   outfile_+="IRed_";  break;
-	default: abort();
-	}
-      outfile_ += "LED";
-    }
-  return outfile_;
-}
-
-TString
-ME::runListNLSName( int lmr )
-{
-  TString outfile_ = nlsPath( lmr ); 
-  outfile_ += "runlist_NLS";
   return outfile_;
 }
 
@@ -639,7 +460,7 @@ ME::regTree( int ireg )
 	  if( iEcalRegion_==iEBM ) iSector_+=18; 
 	  if( _trees[iEcalRegion_]==0 )
 	    {
-	      //	      cout << "Building the tree of crystals -- " 
+	      //	      std::cout << "Building the tree of crystals -- " 
 	      //		   << ME::region[iEcalRegion_];  
 	      _trees[iEcalRegion_] = new MEChannel( 0, 0, iEcalRegion_, 0 ); 
 	    }
@@ -687,7 +508,7 @@ ME::regTree( int ireg )
       if( iEcalRegion_==iEEM ) iz=-1;
       if( _trees[iEcalRegion_]==0 )
 	{
-	  //	  cout << "Building the tree of crystals -- " 
+	  //	  std::cout << "Building the tree of crystals -- " 
 	  //	       << ME::region[iEcalRegion_];  
 	  _trees[iEcalRegion_] = new MEChannel( 0, 0, iEcalRegion_, 0 ); 
 	}
@@ -740,7 +561,7 @@ ME::regTree( int ireg )
 	    }
 	}
     }
-  //  cout << ".... done" << endl;  
+  //  std::cout << ".... done" << std::endl;  
   return _trees[iEcalRegion_];
 }
 
@@ -754,14 +575,14 @@ ME::isBarrel( int ilmr )
   return true;
 }
 
-pair<int,int>
+std::pair<int,int>
 ME::memFromLmr( int ilmr )
 {
   if( isBarrel( ilmr ) )
     return MEEBGeom::memFromLmr( ilmr );
   else
     return MEEEGeom::memFromLmr( ilmr );
-  return pair<int,int>();
+  return std::pair<int,int>();
 }
 std::vector< int>
 ME::apdRefChannels( int ilmmod , int ilmr)
@@ -773,41 +594,41 @@ ME::apdRefChannels( int ilmmod , int ilmr)
   return std::vector< int>();
 }
 
-vector<int>
+std::vector<int>
 ME::lmmodFromLmr( int ilmr )
 {
   if( isBarrel(ilmr) )
     return MEEBGeom::lmmodFromLmr( ilmr );
   else
     return MEEEGeom::lmmodFromLmr( ilmr );
-  return vector<int>();
+  return std::vector<int>();
 }
 
-vector<int>
+std::vector<int>
 ME::memFromDcc( int idcc )
 {
-  vector<int> vec;
+  std::vector<int> vec;
   for( int iside=0; iside<=1;  iside++ )
     {
       int ilmr = lmr( idcc, iside );
       if( ilmr<0 ) continue;
-      pair< int, int > mem_ = memFromLmr( ilmr );
+      std::pair< int, int > mem_ = memFromLmr( ilmr );
       vec.push_back( mem_.first  );
       vec.push_back( mem_.second );
     }
   return vec;
 }
 
-vector<int>
+std::vector<int>
 ME::lmmodFromDcc( int idcc )
 {  
-  vector<int> vec;
+  std::vector<int> vec;
   for( int iside=0; iside<=1;  iside++ )
     {
       int ilmr = lmr( idcc, iside );
       if( ilmr<0 ) continue;
       bool isBarrel_ = isBarrel( ilmr );
-      vector< int > vec_ = lmmodFromLmr( ilmr );
+      std::vector< int > vec_ = lmmodFromLmr( ilmr );
       for( unsigned ii=0; ii<vec_.size(); ii++ )
 	{
 	  int ilmmod_ = vec_[ii];
@@ -826,14 +647,11 @@ ME::lmmodFromDcc( int idcc )
 std::pair<int,int> 
 ME::pn( int ilmr, int ilmmod, ME::PN ipn )
 {
-  pair<int,int> pnpair_(0,0);
-  pair<int,int> mempair_ = memFromLmr(ilmr);
-  std::pair<int, int> dccside= dccAndSide( ilmr );
-  int dcc=dccside.first;
-
+  std::pair<int,int> pnpair_(0,0);
+  std::pair<int,int> mempair_ = memFromLmr(ilmr);
   if( isBarrel( ilmr ) )
     {
-      pnpair_=MEEBGeom::pn( ilmmod , dcc ); // dcc in case of inversions
+      pnpair_=MEEBGeom::pn( ilmmod );
     }
   else
     {
@@ -852,6 +670,6 @@ ME::pn( int ilmr, int ilmmod, ME::PN ipn )
       mem_=mempair_.second;
       pn_=pnpair_.second;
     }      
-  return pair<int,int>(mem_,pn_);
+  return std::pair<int,int>(mem_,pn_);
 }
 

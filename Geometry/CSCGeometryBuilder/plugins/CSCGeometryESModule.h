@@ -30,8 +30,13 @@ public:
 private:  
 
   /// Called when geometry description changes
-  void geometryCallback_( const MuonNumberingRecord& );
+  void muonNumberingChanged_( const MuonNumberingRecord& );
+  void cscRecoGeometryChanged_( const CSCRecoGeometryRcd& );
+  void cscRecoDigiParametersChanged_( const CSCRecoDigiParametersRcd& );
+
+  void initCSCGeometry_(const MuonGeometryRecord& );
   boost::shared_ptr<CSCGeometry> cscGeometry;
+  bool recreateGeometry_;
 
   // Flags for controlling geometry modelling during build of CSCGeometry
   bool useRealWireGeometry;

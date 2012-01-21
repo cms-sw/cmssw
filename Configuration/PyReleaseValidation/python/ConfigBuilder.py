@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.341 $"
+__version__ = "$Revision: 1.347 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -552,7 +552,10 @@ class ConfigBuilder(object):
 		self.loadAndRemember(mixingDict['file'])
 		mixingDict.pop('file')
 		if self._options.pileup_input:
-			mixingDict['F']=self._options.pileup_input.split(',')
+			if self._options.pileup_input.startswith('dbs'):
+				mixingDict['F']=filesFromDBSQuery('find file where dataset = %s'%(self._options.pileup_input[4:],))[0]
+			else:
+				mixingDict['F']=self._options.pileup_input.split(',')
 		specialization=defineMixing(mixingDict,'FASTSIM' in self.stepMap)
 		for command in specialization:
 			self.executeAndRemember(command)
@@ -865,6 +868,8 @@ class ConfigBuilder(object):
 
         self.RAW2RECODefaultSeq=','.join([self.RAW2DIGIDefaultSeq,self.RECODefaultSeq])
 
+	self.USERDefaultSeq='user'
+	self.USERDefaultCFF=None
 
         # the magnetic field
         self.magFieldCFF = 'Configuration/StandardSequences/MagneticField_'+self._options.magField.replace('.','')+'_cff'
@@ -1223,16 +1228,14 @@ class ConfigBuilder(object):
                         #case where HLT:something:something was provided
                         self.executeAndRemember('import HLTrigger.Configuration.Utilities')
                         optionsForHLT = {}
-                        optionsForHLT['data'] = self._options.isData
-                        optionsForHLT['type'] = 'GRun'
-                        if self._options.scenario == 'HeavyIons': optionsForHLT['type'] = 'HIon'
+                        if self._options.scenario == 'HeavyIons':
+                          optionsForHLT['type'] = 'HIon'
+                        else:
+                          optionsForHLT['type'] = 'GRun'
                         optionsForHLTConfig = ', '.join('%s=%s' % (key, repr(val)) for (key, val) in optionsForHLT.iteritems())
                         self.executeAndRemember('process.loadHltConfiguration("%s",%s)'%(sequence.replace(',',':'),optionsForHLTConfig))
                 else:
-                        dataSpec=''
-                        if self._options.isData:
-                                dataSpec='_data'
-                        self.loadAndRemember('%s/Configuration/HLT_%s%s_cff'%(loadDir,sequence,dataSpec))
+                        self.loadAndRemember('%s/Configuration/HLT_%s_cff' % (loadDir, sequence))
 
         self.schedule.append(self.process.HLTSchedule)
         [self.blacklist_paths.append(path) for path in self.process.HLTSchedule if isinstance(path,(cms.Path,cms.EndPath))]
@@ -1328,6 +1331,12 @@ class ConfigBuilder(object):
                 print 'WARNING, possible typo with SKIM:'+'+'.join(skimlist)
                 raise Exception('WARNING, possible typo with SKIM:'+'+'.join(skimlist))
 
+    def prepare_USER(self, sequence = None):
+        ''' Enrich the schedule with a user defined sequence '''
+        self.loadDefaultOrSpecifiedCFF(sequence,self.USERDefaultCFF)
+	self.scheduleSequence(sequence.split('.')[-1],'user_step')
+        return
+
     def prepare_POSTRECO(self, sequence = None):
         """ Enrich the schedule with the postreco step """
         self.loadAndRemember(self.POSTRECODefaultCFF)
@@ -1369,6 +1378,9 @@ class ConfigBuilder(object):
             else:
                     self.process.validation_step = cms.EndPath( getattr(self.process,valSeqName ) )
             self.schedule.append(self.process.validation_step)
+
+	    if (not 'DIGI' in self.stepMap and not 'FASTSIM' in self.stepMap):
+		    self.executeAndRemember("process.mix.playback = True")
 
             return
 
@@ -1591,7 +1603,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.341 $"),
+                                            (version=cms.untracked.string("$Revision: 1.347 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
