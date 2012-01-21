@@ -7,8 +7,8 @@
  *  This class is an HLTFilter (-> EDFilter) implementing an HLT
  *  Prescaler module with associated book keeping.
  *
- *  $Date: 2010/07/30 11:27:48 $
- *  $Revision: 1.18 $
+ *  $Date: 2011/03/29 12:54:34 $
+ *  $Revision: 1.19 $
  *
  *  \author Martin Grunewald
  *  \author Philipp Schieferdecker
@@ -33,7 +33,7 @@ public:
   //
   virtual bool beginLuminosityBlock(edm::LuminosityBlock &lb,
 				    edm::EventSetup const& iSetup);
-  virtual bool filter(edm::Event& iEvent,edm::EventSetup const& iSetup);
+  virtual bool hltFilter(edm::Event& iEvent,edm::EventSetup const& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct);
   virtual void endJob();
   
   
