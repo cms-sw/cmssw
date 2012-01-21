@@ -3,16 +3,18 @@
 
 // Orso Iorio, INFN Napoli 
 
+#include <string>
+#include <map>
+#include <fstream>
 
-
-#include <FWCore/Framework/interface/Frameworkfwd.h>
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include <DataFormats/MuonDetId/interface/RPCDetId.h>
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Run.h"
 
@@ -25,9 +27,9 @@
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "TrackingTools/MeasurementDet/interface/TrajectoryMeasurementGroup.h"
 
-#include <DataFormats/RPCRecHit/interface/RPCRecHit.h>
+#include "DataFormats/RPCRecHit/interface/RPCRecHit.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
-#include <DataFormats/RPCDigi/interface/RPCDigi.h>
+#include "DataFormats/RPCDigi/interface/RPCDigi.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 
 #include "RecoMuon/Navigation/interface/DirectMuonNavigation.h"
@@ -41,13 +43,6 @@
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 
 #include "FWCore/Framework/interface/EDFilter.h"
-#include "HLTrigger/HLTcore/interface/HLTFilter.h"
-//include "./MyHistoClassDbeNew.h"
-//#include "./Tower.h"
-
-#include<string>
-#include<map>
-#include<fstream>
 
 #include "TDirectory.h"
 #include "TFile.h"
@@ -59,42 +54,28 @@ class Propagator;
 class GeomDet;
 class TrajectoryStateOnSurface;
 
+typedef std::vector<TrajectoryMeasurement>                  MeasurementContainer;
+typedef std::pair<const GeomDet*, TrajectoryStateOnSurface> DetWithState;
+typedef std::vector<Trajectory>                             Trajectories;
 
 
-
-
-typedef std::vector<TrajectoryMeasurement>          MeasurementContainer;
-typedef std::pair<const GeomDet*,TrajectoryStateOnSurface> DetWithState;
-typedef std::vector<Trajectory> Trajectories;
-
-
-class RPCRecHitFilter : public HLTFilter {
+class RPCRecHitFilter : public edm::EDFilter {
 
 public:
 
   explicit RPCRecHitFilter(const edm::ParameterSet&);
-  ~RPCRecHitFilter();
-  
+  ~RPCRecHitFilter() { }
 
 private:
 
-
-  virtual void beginJob() ;
-
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
-
-  virtual void endJob();
+  virtual bool filter(edm::Event &, const edm::EventSetup & );
 
   std::string RPCDataLabel;
   
-  //edm::InputTag RPCRecHits;
-
+  int centralBX_, BXWindow_, minHits_, hitsInStations_;
   
-  int centralBX_, BXWindow_,minHits_, hitsInStations_;
-
-
-  
-  bool Verbose_,Debug_, Barrel_, EndcapPositive_, EndcapNegative_, cosmicsVeto_;
+  bool Verbose_, Debug_, Barrel_, EndcapPositive_, EndcapNegative_, cosmicsVeto_;
 
 };
-#endif
+
+#endif // RPCRecHitsFilter_h

@@ -77,8 +77,7 @@ using namespace edm;
 using namespace reco;
 using namespace std;
 
-RPCRecHitFilter::RPCRecHitFilter(const edm::ParameterSet& iConfig) :
-  HLTFilter(iConfig)
+RPCRecHitFilter::RPCRecHitFilter(const edm::ParameterSet& iConfig)
 {
   LogTrace("RPCEffTrackExtrapolation") <<"Dentro Costruttore"<<std::endl;
 
@@ -105,14 +104,10 @@ RPCRecHitFilter::RPCRecHitFilter(const edm::ParameterSet& iConfig) :
   cosmicsVeto_  = iConfig.getUntrackedParameter<bool>("CosmicsVeto",false);
 }
 
-void RPCRecHitFilter::beginJob()
+
+bool RPCRecHitFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 {
 
-}
-
-bool RPCRecHitFilter::hltFilter( edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct){
-
-  
   edm::ESHandle<RPCGeometry> rpcGeo;
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
   
@@ -313,12 +308,6 @@ bool RPCRecHitFilter::hltFilter( edm::Event& iEvent, const edm::EventSetup& iSet
       return  condition;      
       
 }
-
-void RPCRecHitFilter::endJob(){
-
-}
-
-RPCRecHitFilter::~RPCRecHitFilter(){}
 
 DEFINE_FWK_MODULE(RPCRecHitFilter);
 
