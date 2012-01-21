@@ -3,16 +3,19 @@
 
 /** \class MuonPtFilter
  *
- * HLTFilter to select muons above certain Pt
+ * EDFilter to select muons above certain Pt
  *
- * $Date: 2009/02/18 12:36:38 $
- * $Revision: 1.1 $
+ * $Date: 2012/01/21 14:56:53 $
+ * $Revision: 1.2 $
  * \author Silvia Goy Lopez - CERN <silvia.goy.lopez@cern.ch>
  *
  */
 
 /* Base Class Headers */
-#include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 /* Collaborating Class Declarations */
 class Propagator;
@@ -24,7 +27,7 @@ class Propagator;
 
 /* Class MuonPtFilter Interface */
 
-class MuonPtFilter : public HLTFilter {
+class MuonPtFilter : public edm::EDFilter {
 
   public:
 
@@ -35,7 +38,7 @@ class MuonPtFilter : public HLTFilter {
     ~MuonPtFilter() ;
 
 /* Operations */ 
-    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+    virtual bool filter(edm::Event &, const edm::EventSetup &);
 
   private:
     std::string theSTAMuonLabel; // label of muons 

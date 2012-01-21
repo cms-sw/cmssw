@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2010/08/07 14:55:55 $
- * $Revision: 1.2 $
+ * $Date: 2012/01/21 14:56:53 $
+ * $Revision: 1.3 $
  * \author Silvia Goy Lopez - CERN <silvia.goy.lopez@cern.ch>
  */
 
@@ -17,9 +17,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-
-
-
 /* C++ Headers */
 using namespace std;
 using namespace edm;
@@ -27,8 +24,7 @@ using namespace edm;
 /* ====================================================================== */
 
 /// Constructor
-MuonPtFilter::MuonPtFilter(const edm::ParameterSet& pset) :
-    HLTFilter(pset)
+MuonPtFilter::MuonPtFilter(const edm::ParameterSet& pset)
 {
   // the name of the STA rec hits collection
   theSTAMuonLabel = pset.getParameter<std::string>("SALabel");
@@ -44,9 +40,7 @@ MuonPtFilter::~MuonPtFilter() {
 }
 
 /* Operations */ 
-bool MuonPtFilter::hltFilter(edm::Event& event, const edm::EventSetup& eventSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
-  bool accept = false;
-
+bool MuonPtFilter::filter(edm::Event& event, const edm::EventSetup& eventSetup) {
   // Get the RecTrack collection from the event
   Handle<reco::TrackCollection> staTracks;
   event.getByLabel(theSTAMuonLabel, staTracks);
@@ -54,17 +48,11 @@ bool MuonPtFilter::hltFilter(edm::Event& event, const edm::EventSetup& eventSetu
   reco::TrackCollection::const_iterator staTrack;
   
   for (staTrack = staTracks->begin(); staTrack != staTracks->end(); ++staTrack){
-    
-    if(staTrack->pt()>theMinPt){
-      accept=true;
-      return accept;
-    }
-
+    if (staTrack->pt() > theMinPt)
+      return true;
   }
 
-  return accept;
-
-
+  return false;
 }
 
 // define this as a plug-in
