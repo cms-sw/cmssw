@@ -2,7 +2,7 @@
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
- * $Id: HLTElectronOneOEMinusOneOPFilterRegional.cc,v 1.9 2011/01/19 16:48:23 sharper Exp $
+ * $Id: HLTElectronOneOEMinusOneOPFilterRegional.cc,v 1.10 2011/05/01 08:14:08 gruen Exp $
  *
  */
 
@@ -25,22 +25,15 @@
 //
 // constructors and destructor
 //
-HLTElectronOneOEMinusOneOPFilterRegional::HLTElectronOneOEMinusOneOPFilterRegional(const edm::ParameterSet& iConfig)
+HLTElectronOneOEMinusOneOPFilterRegional::HLTElectronOneOEMinusOneOPFilterRegional(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
-   candTag_ = iConfig.getParameter< edm::InputTag > ("candTag");
-   electronIsolatedProducer_ = iConfig.getParameter< edm::InputTag > ("electronIsolatedProducer");
-   electronNonIsolatedProducer_ = iConfig.getParameter< edm::InputTag > ("electronNonIsolatedProducer");
-   barrelcut_  = iConfig.getParameter<double> ("barrelcut");
-   endcapcut_  = iConfig.getParameter<double> ("endcapcut");
-   ncandcut_  = iConfig.getParameter<int> ("ncandcut");
-   doIsolated_  = iConfig.getParameter<bool> ("doIsolated");
-
-   store_ = iConfig.getParameter<bool>("saveTags") ;
-   // L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
-   // L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
-
-   //register your products
-   produces<trigger::TriggerFilterObjectWithRefs>();
+  candTag_ = iConfig.getParameter< edm::InputTag > ("candTag");
+  electronIsolatedProducer_ = iConfig.getParameter< edm::InputTag > ("electronIsolatedProducer");
+  electronNonIsolatedProducer_ = iConfig.getParameter< edm::InputTag > ("electronNonIsolatedProducer");
+  barrelcut_  = iConfig.getParameter<double> ("barrelcut");
+  endcapcut_  = iConfig.getParameter<double> ("endcapcut");
+  ncandcut_  = iConfig.getParameter<int> ("ncandcut");
+  doIsolated_  = iConfig.getParameter<bool> ("doIsolated");
 }
 
 
@@ -49,15 +42,16 @@ HLTElectronOneOEMinusOneOPFilterRegional::~HLTElectronOneOEMinusOneOPFilterRegio
 
 // ------------ method called to produce the data  ------------
 bool
-HLTElectronOneOEMinusOneOPFilterRegional::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTElectronOneOEMinusOneOPFilterRegional::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
+  using namespace trigger;
 
   // The filter object
-  using namespace trigger;
-    std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-    if( store_ ){filterproduct->addCollectionTag(electronIsolatedProducer_);}
-    if( store_ && !doIsolated_){filterproduct->addCollectionTag(electronNonIsolatedProducer_);}  
-    //will be a collection of Ref<reco::ElectronCollection> ref;
+  if (saveTags()) {
+    filterproduct.addCollectionTag(electronIsolatedProducer_);
+    if (not doIsolated_) filterproduct.addCollectionTag(electronNonIsolatedProducer_);
+  }
+  //will be a collection of Ref<reco::ElectronCollection> ref;
     
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
   iEvent.getByLabel (candTag_,PrevFilterOutput);
@@ -102,13 +96,13 @@ HLTElectronOneOEMinusOneOPFilterRegional::filter(edm::Event& iEvent, const edm::
 	if( fabs(electronref->eta()) < 1.5 ){
 	  if ( elecEoverp < barrelcut_) {
 	    n++;
-	    filterproduct->addObject(TriggerElectron, electronref);
+	    filterproduct.addObject(TriggerElectron, electronref);
 	  }
 	}
 	if( fabs(electronref->eta()) > 1.5 ) {
 	  if ( elecEoverp < endcapcut_) {
 	    n++;
-	    filterproduct->addObject(TriggerElectron, electronref);
+	    filterproduct.addObject(TriggerElectron, electronref);
 	  }
 	}
       }//end of the if checking the matching of the SC from RecoCandidate and the one from Electrons
@@ -131,13 +125,13 @@ HLTElectronOneOEMinusOneOPFilterRegional::filter(edm::Event& iEvent, const edm::
 	if( fabs(electronref->eta()) < 1.5 ){
 	  if ( elecEoverp < barrelcut_) {
 	    n++;
-	    filterproduct->addObject(TriggerElectron, electronref);
+	    filterproduct.addObject(TriggerElectron, electronref);
 	  }
 	}
 	if( fabs(electronref->eta()) > 1.5 ){
 	  if ( elecEoverp < endcapcut_) {
 	    n++;
-	    filterproduct->addObject(TriggerElectron, electronref);
+	    filterproduct.addObject(TriggerElectron, electronref);
 	  }
 	}
       }//end of the if checking the matching of the SC from RecoCandidate and the one from Electrons
@@ -147,9 +141,6 @@ HLTElectronOneOEMinusOneOPFilterRegional::filter(edm::Event& iEvent, const edm::
 
   // filter decision
   bool accept(n>=ncandcut_);
-  
-  // put filter object into the Event
-  iEvent.put(filterproduct);
   
   return accept;
 }

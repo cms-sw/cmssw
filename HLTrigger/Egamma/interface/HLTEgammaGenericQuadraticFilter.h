@@ -18,7 +18,7 @@ class HLTEgammaGenericQuadraticFilter : public HLTFilter {
    public:
       explicit HLTEgammaGenericQuadraticFilter(const edm::ParameterSet&);
       ~HLTEgammaGenericQuadraticFilter();
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
       edm::InputTag candTag_; // input tag identifying product that contains filtered photons
@@ -40,7 +40,6 @@ class HLTEgammaGenericQuadraticFilter : public HLTFilter {
       int    ncandcut_;        // number of photons required
       bool doIsolated_;
 
-      bool   store_;
       edm::InputTag L1IsoCollTag_; 
       edm::InputTag L1NonIsoCollTag_; 
 };

@@ -27,7 +27,7 @@ class HLTMuonL3PreFilter : public HLTFilter {
       explicit HLTMuonL3PreFilter(const edm::ParameterSet&);
       ~HLTMuonL3PreFilter();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
       bool triggeredByLevel2(const reco::TrackRef& track,std::vector<reco::RecoChargedCandidateRef>& vcands);
    private:
 
@@ -41,8 +41,6 @@ class HLTMuonL3PreFilter : public HLTFilter {
       double max_Dz_;           // dz cut
       double min_Pt_;           // pt threshold in GeV 
       double nsigma_Pt_;        // pt uncertainty margin (in number of sigmas)
-      bool saveTags_;            // should we save the input collection ?
-
 };
 
 #endif //HLTMuonL3PreFilter_h

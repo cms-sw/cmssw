@@ -1,6 +1,6 @@
 /** \class HLTEgammaL1MatchFilterPairs
  *
- * $Id: HLTEgammaL1MatchFilterPairs.cc,v 1.8 2008/04/21 04:59:38 wsun Exp $
+ * $Id: HLTEgammaL1MatchFilterPairs.cc,v 1.1 2008/10/14 14:52:56 ghezzi Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -30,7 +30,7 @@
 //
 // constructors and destructor
 //
-HLTEgammaL1MatchFilterPairs::HLTEgammaL1MatchFilterPairs(const edm::ParameterSet& iConfig)
+HLTEgammaL1MatchFilterPairs::HLTEgammaL1MatchFilterPairs(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
    candIsolatedTag_ = iConfig.getParameter< edm::InputTag > ("candIsolatedTag");
    l1IsolatedTag_ = iConfig.getParameter< edm::InputTag > ("l1IsolatedTag");
@@ -46,9 +46,6 @@ HLTEgammaL1MatchFilterPairs::HLTEgammaL1MatchFilterPairs(const edm::ParameterSet
    region_phi_size_      = iConfig.getParameter<double> ("region_phi_size");
    barrel_end_           = iConfig.getParameter<double> ("barrel_end");   
    endcap_end_           = iConfig.getParameter<double> ("endcap_end");   
-
-   //register your products
-   produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTEgammaL1MatchFilterPairs::~HLTEgammaL1MatchFilterPairs(){}
@@ -56,12 +53,11 @@ HLTEgammaL1MatchFilterPairs::~HLTEgammaL1MatchFilterPairs(){}
 
 // ------------ method called to produce the data  ------------
 bool
-HLTEgammaL1MatchFilterPairs::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTEgammaL1MatchFilterPairs::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
 
   using namespace trigger;
   using namespace l1extra;
-  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
   std::vector < std::pair< edm::Ref<reco::RecoEcalCandidateCollection>, edm::Ref<reco::RecoEcalCandidateCollection> > > thePairs;
   
   edm::Handle<reco::RecoEcalCandidateCollection> recoIsolecalcands;
@@ -132,8 +128,8 @@ HLTEgammaL1MatchFilterPairs::filter(edm::Event& iEvent, const edm::EventSetup& i
 //      std::cout<<"1) Et Eta phi: "<<r1->et()<<" "<<r1->eta()<<" "<<r1->phi()<<" 2) Et eta phi: "<<r2->et()<<" "<<r2->eta()<<" "<<r2->phi()<<std::endl;
     
     if ( CheckL1Matching(pairsIt->first,l1EGIso,l1EGNonIso) && CheckL1Matching(pairsIt->second,l1EGIso,l1EGNonIso) ){
-      filterobject->addObject(TriggerCluster, pairsIt->first);
-      filterobject->addObject(TriggerCluster, pairsIt->second);
+      filterproduct.addObject(TriggerCluster, pairsIt->first);
+      filterproduct.addObject(TriggerCluster, pairsIt->second);
       n++;
     } 
   }
@@ -142,9 +138,6 @@ HLTEgammaL1MatchFilterPairs::filter(edm::Event& iEvent, const edm::EventSetup& i
   //  std::cout<<"#####################################################"<<std::endl;
   // filter decision
   bool accept(n>=1);
-  
-  // put filter object into the Event
-  iEvent.put(filterobject);
   
   return accept;
 }

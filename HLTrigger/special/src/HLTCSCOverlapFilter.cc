@@ -11,8 +11,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-HLTCSCOverlapFilter::HLTCSCOverlapFilter(const edm::ParameterSet& iConfig)
-   : m_input(iConfig.getParameter<edm::InputTag>("input"))
+HLTCSCOverlapFilter::HLTCSCOverlapFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
+     , m_input(iConfig.getParameter<edm::InputTag>("input"))
      , m_minHits(iConfig.getParameter<unsigned int>("minHits"))
      , m_xWindow(iConfig.getParameter<double>("xWindow"))
      , m_yWindow(iConfig.getParameter<double>("yWindow"))
@@ -35,7 +35,7 @@ HLTCSCOverlapFilter::HLTCSCOverlapFilter(const edm::ParameterSet& iConfig)
 
 HLTCSCOverlapFilter::~HLTCSCOverlapFilter() { }
 
-bool HLTCSCOverlapFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool HLTCSCOverlapFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
    edm::Handle<CSCRecHit2DCollection> hits;
    iEvent.getByLabel(m_input, hits);
 

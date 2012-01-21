@@ -21,7 +21,7 @@ class HLTPMDocaFilter : public HLTFilter {
    public:
       explicit HLTPMDocaFilter(const edm::ParameterSet&);
       ~HLTPMDocaFilter();
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
       edm::InputTag candTag_;     // input tag identifying product contains filtered egammas

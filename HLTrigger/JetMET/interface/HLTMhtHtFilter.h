@@ -24,7 +24,7 @@ class HLTMhtHtFilter : public HLTFilter {
       explicit HLTMhtHtFilter(const edm::ParameterSet&);
       ~HLTMhtHtFilter();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
       const edm::InputTag       inputJetTag_;   // input tag identifying jets
@@ -45,7 +45,6 @@ class HLTMhtHtFilter : public HLTFilter {
                                                 //----mode = 5 for HT and AlphaT cross trigger (ALWAYS uses jet ET, not pT)
       const bool                usePt_;
       const bool                useTracks_;
-      const bool                saveTags_;      // whether to save this tag
 };
 
 #endif //HLTMhtHtFilter_h

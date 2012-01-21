@@ -54,7 +54,7 @@ class HLTPMMassFilter : public HLTFilter {
    public:
       explicit HLTPMMassFilter(const edm::ParameterSet&);
       ~HLTPMMassFilter();
-      virtual bool filter(edm::Event&, const edm::EventSetup&);      
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);      
 
    private:
       TLorentzVector approxMomAtVtx( const MagneticField *magField, const GlobalPoint& xvert, const reco::SuperClusterRef sc, int charge) ;
@@ -70,7 +70,6 @@ class HLTPMMassFilter : public HLTFilter {
       int    nZcandcut_;           // number of Z candidates required
       bool   reqOppCharge_;
 
-      bool   store_;
       bool   relaxed_;
       bool   isElectron1_;
       bool   isElectron2_;

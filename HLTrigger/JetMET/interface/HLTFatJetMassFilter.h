@@ -24,11 +24,10 @@ class HLTFatJetMassFilter : public HLTFilter {
       explicit HLTFatJetMassFilter(const edm::ParameterSet&);
       ~HLTFatJetMassFilter();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
       edm::InputTag inputJetTag_; // input tag identifying jets
-      bool saveTags_;              // whether to save this tag
       double minMass_;
       double fatJetDeltaR_;
       double maxDeltaEta_;

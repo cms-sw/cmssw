@@ -8,8 +8,8 @@
  *  trigger for single objects of the same physics type, cutting on
  *  variables relating to their 4-momentum representation
  *
- *  $Date: 2011/05/01 08:19:55 $
- *  $Revision: 1.4 $
+ *  $Date: 2011/07/12 17:35:52 $
+ *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
@@ -29,11 +29,10 @@ class HLTSinglet : public HLTFilter {
    public:
       explicit HLTSinglet(const edm::ParameterSet&);
       ~HLTSinglet();
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
       edm::InputTag inputTag_;  // input tag identifying product
-      bool   saveTags_;         // whether to save this tag
       double min_Pt_;           // pt threshold in GeV 
       double max_Eta_;          // eta range (symmetric)
       int    min_N_;            // number of objects passing cuts required

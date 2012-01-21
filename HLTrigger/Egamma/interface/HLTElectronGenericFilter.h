@@ -18,7 +18,7 @@ class HLTElectronGenericFilter : public HLTFilter {
    public:
       explicit HLTElectronGenericFilter(const edm::ParameterSet&);
       ~HLTElectronGenericFilter();
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
       edm::InputTag candTag_; // input tag identifying product that contains filtered electrons
@@ -34,7 +34,6 @@ class HLTElectronGenericFilter : public HLTFilter {
       int    ncandcut_;        // number of electrons required
       bool doIsolated_;
 
-      bool   store_;
       edm::InputTag L1IsoCollTag_; 
       edm::InputTag L1NonIsoCollTag_; 
 };

@@ -24,13 +24,11 @@ class HLTMhtFilter : public HLTFilter {
       explicit HLTMhtFilter(const edm::ParameterSet&);
       ~HLTMhtFilter();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
       edm::InputTag inputMhtTag_; // input tag identifying mht
-      bool saveTags_;              // whether to save this tag
       double minMht_;
-            
 };
 
 #endif //HLTMhtFilter_h

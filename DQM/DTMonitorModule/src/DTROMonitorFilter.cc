@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/05/20 16:12:45 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/03/12 18:33:51 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -21,16 +21,16 @@
 using namespace edm;
 
 
-DTROMonitorFilter::DTROMonitorFilter(const edm::ParameterSet& pset){
+DTROMonitorFilter::DTROMonitorFilter(const edm::ParameterSet& pset) :
+  HLTFilter(pset)
+{
   inputLabel = pset.getUntrackedParameter<InputTag>("inputLabel",InputTag("source"));
-
-
 }
 
 DTROMonitorFilter::~DTROMonitorFilter(){}
 
 
-bool DTROMonitorFilter::filter(edm::Event& event, const edm::EventSetup& setup) {
+bool DTROMonitorFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
   // get the raw data
   event.getByLabel(inputLabel, rawdata);
   

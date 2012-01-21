@@ -18,11 +18,10 @@ class HLTRapGapFilter : public HLTFilter {
    public:
       explicit HLTRapGapFilter(const edm::ParameterSet&);
       ~HLTRapGapFilter();
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
       edm::InputTag inputTag_; // input tag identifying jets
-      bool saveTags_;           // whether to save this tag
       double absEtaMin_;
       double absEtaMax_;
       double caloThresh_;

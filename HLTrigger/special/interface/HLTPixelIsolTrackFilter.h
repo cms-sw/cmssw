@@ -8,7 +8,7 @@ class HLTPixelIsolTrackFilter : public HLTFilter {
    public:
       explicit HLTPixelIsolTrackFilter(const edm::ParameterSet&);
       ~HLTPixelIsolTrackFilter();
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
       edm::InputTag candTag_; 

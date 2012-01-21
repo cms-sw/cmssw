@@ -25,7 +25,7 @@ class HLTMuonDimuonL3Filter : public HLTFilter {
       explicit HLTMuonDimuonL3Filter(const edm::ParameterSet&);
       ~HLTMuonDimuonL3Filter();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
       bool triggeredByLevel2(const reco::TrackRef& track,std::vector<reco::RecoChargedCandidateRef>& vcands);
 
    private:
@@ -51,9 +51,7 @@ class HLTMuonDimuonL3Filter : public HLTFilter {
       double nsigma_Pt_;        // pt uncertainty margin (in number of sigmas)
       double max_DCAMuMu_;      // DCA between the two muons
       double max_YPair_;        // |rapidity| of pair
-      bool saveTags_;            // should we save the input collection ?
       bool cutCowboys_;             ///< if true, reject muon-track pairs that bend towards each other
-
 };
 
 #endif //HLTMuonDimuonFilter_h

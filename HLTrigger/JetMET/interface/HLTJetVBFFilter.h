@@ -18,11 +18,10 @@ class HLTJetVBFFilter : public HLTFilter {
    public:
       explicit HLTJetVBFFilter(const edm::ParameterSet&);
       ~HLTJetVBFFilter();
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
       edm::InputTag inputTag_; // input tag identifying jets
-      bool saveTags_;           // whether to save this tag
       double minEtLow_;
       double minEtHigh_;
       bool etaOpposite_;

@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTHcalCalibTypeFilter.cc,v 1.7 2009/08/06 11:21:56 fwyzard Exp $
+// $Id: HLTHcalCalibTypeFilter.cc,v 1.8 2009/08/27 13:33:47 gruen Exp $
 //
 //
 
@@ -43,7 +43,7 @@ Implementation:
 //
 // constructors and destructor
 //
-HLTHcalCalibTypeFilter::HLTHcalCalibTypeFilter(const edm::ParameterSet& iConfig)
+HLTHcalCalibTypeFilter::HLTHcalCalibTypeFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
   //now do what ever initialization is needed
 
@@ -68,7 +68,7 @@ HLTHcalCalibTypeFilter::~HLTHcalCalibTypeFilter()
 
 // ------------ method called on each new Event  ------------
 bool
-HLTHcalCalibTypeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTHcalCalibTypeFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace edm;
   

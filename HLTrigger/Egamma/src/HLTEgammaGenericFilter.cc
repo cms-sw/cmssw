@@ -1,6 +1,6 @@
 /** \class HLTEgammaGenericFilter
  *
- * $Id: HLTEgammaGenericFilter.cc,v 1.4 2011/01/19 16:48:23 sharper Exp $
+ * $Id: HLTEgammaGenericFilter.cc,v 1.5 2011/05/01 08:14:08 gruen Exp $
  *
  *  \author Roberto Covarelli (CERN)
  *
@@ -24,7 +24,7 @@
 //
 // constructors and destructor
 //
-HLTEgammaGenericFilter::HLTEgammaGenericFilter(const edm::ParameterSet& iConfig){
+HLTEgammaGenericFilter::HLTEgammaGenericFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) {
   candTag_ = iConfig.getParameter< edm::InputTag > ("candTag");
   isoTag_ = iConfig.getParameter< edm::InputTag > ("isoTag");
   nonIsoTag_ = iConfig.getParameter< edm::InputTag > ("nonIsoTag");
@@ -37,16 +37,10 @@ HLTEgammaGenericFilter::HLTEgammaGenericFilter(const edm::ParameterSet& iConfig)
   thrOverEEE_ = iConfig.getParameter<double> ("thrOverEEE");		  
   thrOverE2EB_ = iConfig.getParameter<double> ("thrOverE2EB");		  
   thrOverE2EE_ = iConfig.getParameter<double> ("thrOverE2EE");		  
-  				     	  
   ncandcut_  = iConfig.getParameter<int> ("ncandcut");			  
   doIsolated_ = iConfig.getParameter<bool> ("doIsolated");		  
-			     				  
-  store_ = iConfig.getParameter<bool>("saveTags") ;	  
   L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 	  
   L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
-
-//register your products
-produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTEgammaGenericFilter::~HLTEgammaGenericFilter(){}
@@ -54,19 +48,20 @@ HLTEgammaGenericFilter::~HLTEgammaGenericFilter(){}
 
 // ------------ method called to produce the data  ------------
 bool
-HLTEgammaGenericFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTEgammaGenericFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace trigger;
-  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if( store_ ){filterproduct->addCollectionTag(L1IsoCollTag_);}
-  if( store_ && !doIsolated_){filterproduct->addCollectionTag(L1NonIsoCollTag_);}
+  if (saveTags()) {
+    filterproduct.addCollectionTag(L1IsoCollTag_);
+    if (not doIsolated_) filterproduct.addCollectionTag(L1NonIsoCollTag_);
+  }
 
   // Ref to Candidate object to be recorded in filter object
   edm::Ref<reco::RecoEcalCandidateCollection> ref;
 
   // Set output format 
   int trigger_type = trigger::TriggerCluster;
-  if ( store_ ) trigger_type = trigger::TriggerPhoton;
+  if (saveTags()) trigger_type = trigger::TriggerPhoton;
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
 
@@ -101,35 +96,35 @@ HLTEgammaGenericFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
     if ( lessThan_ ) {
       if ( (fabs(EtaSC) < 1.479 && vali <= thrRegularEB_) || (fabs(EtaSC) >= 1.479 && vali <= thrRegularEE_) ) {
 	n++;
-	filterproduct->addObject(trigger_type, ref);
+	filterproduct.addObject(trigger_type, ref);
 	continue;
       }
       if (energy > 0. && (thrOverEEB_ > 0. || thrOverEEE_ > 0. || thrOverE2EB_ > 0. || thrOverE2EE_ > 0.) ) {
 	if ((fabs(EtaSC) < 1.479 && vali/energy <= thrOverEEB_) || (fabs(EtaSC) >= 1.479 && vali/energy <= thrOverEEE_) ) {
 	  n++;
-	  filterproduct->addObject(trigger_type, ref);
+	  filterproduct.addObject(trigger_type, ref);
 	  continue;
 	}
 	if ((fabs(EtaSC) < 1.479 && vali/(energy*energy) <= thrOverE2EB_) || (fabs(EtaSC) >= 1.479 && vali/(energy*energy) <= thrOverE2EE_) ) {
 	  n++;
-	  filterproduct->addObject(trigger_type, ref);
+	  filterproduct.addObject(trigger_type, ref);
 	}
       }
     } else {
       if ( (fabs(EtaSC) < 1.479 && vali >= thrRegularEB_) || (fabs(EtaSC) >= 1.479 && vali >= thrRegularEE_) ) {
 	n++;
-	filterproduct->addObject(trigger_type, ref);
+	filterproduct.addObject(trigger_type, ref);
 	continue;
       }
       if (energy > 0. && (thrOverEEB_ > 0. || thrOverEEE_ > 0. || thrOverE2EB_ > 0. || thrOverE2EE_ > 0.) ) {
 	if ((fabs(EtaSC) < 1.479 && vali/energy >= thrOverEEB_) || (fabs(EtaSC) >= 1.479 && vali/energy >= thrOverEEE_) ) {
 	  n++;
-	  filterproduct->addObject(trigger_type, ref);
+	  filterproduct.addObject(trigger_type, ref);
 	  continue;
 	}
 	if ((fabs(EtaSC) < 1.479 && vali/(energy*energy) >= thrOverE2EB_) || (fabs(EtaSC) >= 1.479 && vali/(energy*energy) >= thrOverE2EE_) ) {
 	  n++;
-	  filterproduct->addObject(trigger_type, ref);
+	  filterproduct.addObject(trigger_type, ref);
 	}
       }
     }
@@ -137,9 +132,6 @@ HLTEgammaGenericFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   
   // filter decision
   bool accept(n>=ncandcut_);
-
-  // put filter object into the Event
-  iEvent.put(filterproduct);
 
   return accept;
 }

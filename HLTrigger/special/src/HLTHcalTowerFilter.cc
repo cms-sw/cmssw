@@ -3,8 +3,8 @@
  *  This class is an EDFilter implementing the following requirement:
  *  the number of caltowers with hadEnergy>E_Thr less than N_Thr for HB/HE/HF sperately.
  *
- *  $Date: 2011/05/01 08:41:41 $
- *  $Revision: 1.5 $
+ *  $Date: 2011/05/01 14:38:24 $
+ *  $Revision: 1.6 $
  *
  *  \author Li Wenbo (PKU)
  *
@@ -22,10 +22,9 @@ public:
   ~HLTHcalTowerFilter();
   
 private:
-  virtual bool filter(edm::Event &, const edm::EventSetup &);
+  virtual bool hltFilter(edm::Event &, const edm::EventSetup &, trigger::TriggerFilterObjectWithRefs & filterproduct);
   
   edm::InputTag inputTag_;    // input tag identifying product
-  bool saveTags_;              // whether to save this tag
   double min_E_HB_;           // energy threshold for HB in GeV
   double min_E_HE_;           // energy threshold for HE in GeV
   double min_E_HF_;           // energy threshold for HF in GeV
@@ -46,9 +45,8 @@ private:
 //
 // constructors and destructor
 //
-HLTHcalTowerFilter::HLTHcalTowerFilter(const edm::ParameterSet& config) :
+HLTHcalTowerFilter::HLTHcalTowerFilter(const edm::ParameterSet& config) : HLTFilter(config),
   inputTag_ (config.getParameter<edm::InputTag>("inputTag")),
-  saveTags_  (config.getParameter<bool>("saveTags")),
   min_E_HB_ (config.getParameter<double>       ("MinE_HB")),
   min_E_HE_ (config.getParameter<double>       ("MinE_HE")),
   min_E_HF_ (config.getParameter<double>       ("MinE_HF")),
@@ -56,8 +54,6 @@ HLTHcalTowerFilter::HLTHcalTowerFilter(const edm::ParameterSet& config) :
   max_N_HE_ (config.getParameter<int>          ("MaxN_HE")),
   max_N_HF_ (config.getParameter<int>          ("MaxN_HF"))
 {
-  // register your products
-  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTHcalTowerFilter::~HLTHcalTowerFilter()
@@ -70,7 +66,7 @@ HLTHcalTowerFilter::~HLTHcalTowerFilter()
 
 // ------------ method called to produce the data  ------------
 bool 
-HLTHcalTowerFilter::filter(edm::Event& event, const edm::EventSetup& setup)
+HLTHcalTowerFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace std;
   using namespace edm;
@@ -78,8 +74,7 @@ HLTHcalTowerFilter::filter(edm::Event& event, const edm::EventSetup& setup)
   using namespace trigger;
    
   // The filter object
-  std::auto_ptr<TriggerFilterObjectWithRefs> filterobject (new TriggerFilterObjectWithRefs(path(),module()));
-  if(saveTags_) filterobject->addCollectionTag(inputTag_);
+  if (saveTags()) filterproduct.addCollectionTag(inputTag_);
 
   // get hold of collection of objects
   Handle<CaloTowerCollection> towers;
@@ -99,7 +94,7 @@ HLTHcalTowerFilter::filter(edm::Event& event, const edm::EventSetup& setup)
 	    {
 	      n_HB++;
 	      //edm::Ref<CaloTowerCollection> ref(towers, std::distance(towers->begin(), i));
-	      //filterobject->addObject(TriggerJet, ref);
+	      //filterproduct.addObject(TriggerJet, ref);
 	    }
 	}
       else if(abseta>=1.305 && abseta<3)
@@ -108,7 +103,7 @@ HLTHcalTowerFilter::filter(edm::Event& event, const edm::EventSetup& setup)
 	    {
 	      n_HE++;
 	      //edm::Ref<CaloTowerCollection> ref(towers, std::distance(towers->begin(), i));
-	      //filterobject->addObject(TriggerJet, ref);
+	      //filterproduct.addObject(TriggerJet, ref);
 	    }
 	}
       else
@@ -117,16 +112,13 @@ HLTHcalTowerFilter::filter(edm::Event& event, const edm::EventSetup& setup)
 	    {
 	      n_HF++;
 	      //edm::Ref<CaloTowerCollection> ref(towers, std::distance(towers->begin(), i));
-	      //filterobject->addObject(TriggerJet, ref);
+	      //filterproduct.addObject(TriggerJet, ref);
 	    }
 	}
     }
 
   // filter decision
   bool accept(n_HB<max_N_HB_ && n_HE<max_N_HE_ && n_HF<max_N_HF_ );
-
-  // put filter object into the Event
-  event.put(filterobject);
 
   return accept;
 }

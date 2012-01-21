@@ -15,7 +15,7 @@ Implementation:
 //
 // Original Author:  Giovanni FRANZONI
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTTriggerTypeFilter.h,v 1.1 2009/04/01 07:32:50 gruen Exp $
+// $Id: HLTTriggerTypeFilter.h,v 1.2 2009/08/06 11:23:34 fwyzard Exp $
 //
 //
 
@@ -37,7 +37,7 @@ public:
   ~HLTTriggerTypeFilter();
   
 private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
   
   // ----------member data ---------------------------  
   unsigned short  SelectedTriggerType_;

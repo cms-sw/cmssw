@@ -7,8 +7,8 @@
  *  tagged multi-jet trigger for b and tau. 
  *  It should be run after the normal multi-jet trigger.
  *
- *  $Date: 2010/02/11 00:12:20 $
- *  $Revision: 1.3 $
+ *  $Date: 2011/05/01 08:24:58 $
+ *  $Revision: 1.4 $
  *
  *  \author Arnaud Gay, Ian Tomalin
  *  \maintainer Andrea Bocci
@@ -31,7 +31,7 @@ public:
   explicit HLTJetTag(const edm::ParameterSet & config);
   ~HLTJetTag();
 
-  virtual bool filter(edm::Event & event, const edm::EventSetup & setup);
+  virtual bool hltFilter(edm::Event & event, const edm::EventSetup & setup, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
 private:
   edm::InputTag m_jetTag;       // module label of input JetTagCollection

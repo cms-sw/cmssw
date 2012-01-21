@@ -8,11 +8,10 @@
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-HLTMuonL1RegionalFilter::HLTMuonL1RegionalFilter(const edm::ParameterSet& iConfig):
+HLTMuonL1RegionalFilter::HLTMuonL1RegionalFilter(const edm::ParameterSet& iConfig): HLTFilter(iConfig),
   candTag_( iConfig.getParameter<edm::InputTag>("CandTag") ),
   previousCandTag_( iConfig.getParameter<edm::InputTag>("PreviousCandTag") ),
-  minN_( iConfig.getParameter<int>("MinN") ),
-  saveTags_( iConfig.getParameter<bool>("saveTags") ) 
+  minN_( iConfig.getParameter<int>("MinN") )
 {
   using namespace std;
   using namespace edm;
@@ -75,18 +74,15 @@ HLTMuonL1RegionalFilter::HLTMuonL1RegionalFilter(const edm::ParameterSet& iConfi
     }
     ss<<endl;
     ss<<"    MinN = "<<minN_<<endl;
-    ss<<"    saveTags= "<<saveTags_;
+    ss<<"    saveTags= "<<saveTags();
     LogDebug("HLTMuonL1RegionalFilter")<<ss.str();
   }
-
-  //register the product
-  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTMuonL1RegionalFilter::~HLTMuonL1RegionalFilter(){
 }
 
-bool HLTMuonL1RegionalFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup){
+bool HLTMuonL1RegionalFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct){
   using namespace std;
   using namespace edm;
   using namespace trigger;
@@ -95,9 +91,6 @@ bool HLTMuonL1RegionalFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
   // All HLT filters must create and fill an HLT filter object,
   // recording any reconstructed physics objects satisfying (or not)
   // this HLT filter, and place it in the Event.
-
-  // The filter object
-  auto_ptr<TriggerFilterObjectWithRefs> filterproduct(new TriggerFilterObjectWithRefs(path(), module()));
 
   // get hold of all muons
   Handle<L1MuonParticleCollection> allMuons;
@@ -138,12 +131,12 @@ bool HLTMuonL1RegionalFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
     }
 
     //we have a good candidate
-    filterproduct->addObject(TriggerL1Mu, muon);
+    filterproduct.addObject(TriggerL1Mu, muon);
 
     n++;
   }
 
-  if(saveTags_) filterproduct->addCollectionTag(candTag_);
+  if (saveTags()) filterproduct.addCollectionTag(candTag_);
 
   // filter decision
   const bool accept (n >= minN_);
@@ -156,7 +149,7 @@ bool HLTMuonL1RegionalFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
     ss<<"---------------------------------------------------------------"<<endl;
 
     vector<L1MuonParticleRef> firedMuons;
-    filterproduct->getObjects(TriggerL1Mu, firedMuons);
+    filterproduct.getObjects(TriggerL1Mu, firedMuons);
     for(size_t i=0; i<allMuons->size(); i++){
       L1MuonParticleRef mu(allMuons, i);
       int quality = mu->gmtMuonCand().empty() ? 0 : mu->gmtMuonCand().quality();
@@ -165,11 +158,8 @@ bool HLTMuonL1RegionalFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
       ss<<i<<'\t'<<scientific<<mu->charge()*mu->pt()<<fixed<<'\t'<<mu->eta()<<'\t'<<mu->phi()<<'\t'<<quality<<'\t'<<isPrev<<'\t'<<isFired<<endl;
     }
     ss<<"---------------------------------------------------------------"<<endl;
-    LogDebug("HLTMuonL1RegionalFilter")<<ss.str()<<"Decision of filter is "<<accept<<", number of muons passing = "<<filterproduct->l1muonSize();
+    LogDebug("HLTMuonL1RegionalFilter")<<ss.str()<<"Decision of filter is "<<accept<<", number of muons passing = "<<filterproduct.l1muonSize();
   }
-
-  // put filter object into the Event
-  iEvent.put(filterproduct);
 
   return accept;
 }

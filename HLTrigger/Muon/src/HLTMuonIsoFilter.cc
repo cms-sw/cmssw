@@ -26,13 +26,12 @@
 //
 // constructors and destructor
 //
-HLTMuonIsoFilter::HLTMuonIsoFilter(const edm::ParameterSet& iConfig) :
+HLTMuonIsoFilter::HLTMuonIsoFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
    candTag_ (iConfig.getParameter< edm::InputTag > ("CandTag") ),
    previousCandTag_ (iConfig.getParameter<edm::InputTag > ("PreviousCandTag")),
    depTag_  (iConfig.getParameter< std::vector< edm::InputTag > >("DepTag" ) ),
    theDepositIsolator(0),
-   min_N_   (iConfig.getParameter<int> ("MinN")),
-   saveTags_  (iConfig.getParameter<bool>("saveTags"))
+   min_N_   (iConfig.getParameter<int> ("MinN"))
 {
   std::stringstream tags;
   for (unsigned int i=0;i!=depTag_.size();++i)
@@ -49,8 +48,6 @@ HLTMuonIsoFilter::HLTMuonIsoFilter(const edm::ParameterSet& iConfig) :
      theDepositIsolator = MuonIsolatorFactory::get()->create(type, isolatorPSet);
    }
    
-   //register your products
-   produces<trigger::TriggerFilterObjectWithRefs>();
    if (theDepositIsolator) produces<edm::ValueMap<bool> >();
 }
 
@@ -64,7 +61,7 @@ HLTMuonIsoFilter::~HLTMuonIsoFilter()
 
 // ------------ method called to produce the data  ------------
 bool
-HLTMuonIsoFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTMuonIsoFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
    using namespace std;
    using namespace edm;
@@ -75,17 +72,13 @@ HLTMuonIsoFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // recording any reconstructed physics objects satisfying (or not)
    // this HLT filter, and place it in the Event.
 
-   // The filter object
-   auto_ptr<TriggerFilterObjectWithRefs>
-     filterproduct (new TriggerFilterObjectWithRefs(path(),module()));
-   
    //the decision map
    std::auto_ptr<edm::ValueMap<bool> > 
      isoMap( new edm::ValueMap<bool> ());
 
    // get hold of trks
    Handle<RecoChargedCandidateCollection> mucands;
-   if(saveTags_)filterproduct->addCollectionTag(candTag_);
+   if (saveTags()) filterproduct.addCollectionTag(candTag_);
    iEvent.getByLabel (candTag_,mucands);
    Handle<TriggerFilterObjectWithRefs> previousLevelCands;
    iEvent.getByLabel (previousCandTag_,previousLevelCands);
@@ -144,14 +137,11 @@ HLTMuonIsoFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (!isos[iMu]) continue;
 
      nIsolatedMu++;
-     filterproduct->addObject(TriggerMuon,candref);
+     filterproduct.addObject(TriggerMuon,candref);
    }
 
    // filter decision
    const bool accept (nIsolatedMu >= min_N_);
-
-   // put filter object into the Event
-   iEvent.put(filterproduct);
 
    if (theDepositIsolator){
      //put the decision map

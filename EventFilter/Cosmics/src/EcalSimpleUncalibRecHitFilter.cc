@@ -13,7 +13,7 @@
 //
 // Original Author:  Giovanni FRANZONI
 //         Created:  Wed Sep 19 16:21:29 CEST 2007
-// $Id: EcalSimpleUncalibRecHitFilter.cc,v 1.2 2008/03/10 19:04:14 mzanetti Exp $
+// $Id: EcalSimpleUncalibRecHitFilter.cc,v 1.3 2010/02/03 03:12:45 wmtan Exp $
 //
 //
 
@@ -45,7 +45,7 @@ class EcalSimpleUncalibRecHitFilter : public HLTFilter {
 
    private:
       virtual void beginJob() ;
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
       virtual void endJob() ;
       
       // ----------member data ---------------------------
@@ -59,7 +59,8 @@ class EcalSimpleUncalibRecHitFilter : public HLTFilter {
 //
 // constructors and destructor
 //
-EcalSimpleUncalibRecHitFilter::EcalSimpleUncalibRecHitFilter(const edm::ParameterSet& iConfig)
+EcalSimpleUncalibRecHitFilter::EcalSimpleUncalibRecHitFilter(const edm::ParameterSet& iConfig) :
+  HLTFilter(iConfig)
 {
    //now do what ever initialization is needed
   minAdc_     = iConfig.getUntrackedParameter<double>("adcCut", 12);
@@ -83,7 +84,7 @@ EcalSimpleUncalibRecHitFilter::~EcalSimpleUncalibRecHitFilter()
 
 // ------------ method called on each new Event  ------------
 bool
-EcalSimpleUncalibRecHitFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+EcalSimpleUncalibRecHitFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
    using namespace edm;
 

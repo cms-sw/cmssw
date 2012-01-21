@@ -4,8 +4,8 @@
  *  tagged multi-jet trigger for b and tau. 
  *  It should be run after the normal multi-jet trigger.
  *
- *  $Date: 2008/04/23 11:57:53 $
- *  $Revision: 1.9 $
+ *  $Date: 2011/05/01 08:24:58 $
+ *  $Revision: 1.10 $
  *
  *  \author Arnaud Gay, Ian Tomalin
  *  \maintainer Andrea Bocci
@@ -26,12 +26,11 @@
 // constructors and destructor
 //
 
-HLTJetTag::HLTJetTag(const edm::ParameterSet & config) :
+HLTJetTag::HLTJetTag(const edm::ParameterSet & config) : HLTFilter(config),
   m_jetTag(  config.getParameter<edm::InputTag> ("JetTag") ),
   m_minTag(  config.getParameter<double>        ("MinTag") ),
   m_maxTag(  config.getParameter<double>        ("MaxTag") ),
   m_minJets( config.getParameter<int>           ("MinJets") ),
-  m_saveTags( config.getParameter<bool>          ("saveTags") ),
   m_label(   config.getParameter<std::string>   ("@module_label") )
 {
 
@@ -39,9 +38,6 @@ HLTJetTag::HLTJetTag(const edm::ParameterSet & config) :
                    << "\ttype of tagged jets used: " << m_jetTag.encode() << std::endl
                    << "\tmin/max tag value: [" << m_minTag << ".." << m_maxTag << "]" << std::endl
                    << "\tmin no. tagged jets: " << m_minJets << std::endl;
-
-  //register your products
-  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTJetTag::~HLTJetTag()
@@ -54,20 +50,18 @@ HLTJetTag::~HLTJetTag()
 
 // ------------ method called to produce the data  ------------
 bool
-HLTJetTag::filter(edm::Event& event, const edm::EventSetup& setup)
+HLTJetTag::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace std;
   using namespace edm;
   using namespace reco;
 
-  // store jets used for triggering.
-  auto_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-
   edm::Handle<JetTagCollection> h_jetTag;
   event.getByLabel(m_jetTag, h_jetTag);
   const reco::JetTagCollection & jetTags = * h_jetTag;
 
-  if (m_saveTags and jetTags.size()) {
+  // store jets used for triggering.
+  if (saveTags() and jetTags.size()) {
     // find out which InputTag identifies the jets being tagged, and request it to be stored in the event
     // if there are no tagged jets, there is nothing to save
     ProductID jetsId = jetTags.begin()->first.id();
@@ -76,7 +70,7 @@ HLTJetTag::filter(edm::Event& event, const edm::EventSetup& setup)
     const edm::Provenance & jets_data = * h_jets.provenance();
     edm::InputTag jets_name( jets_data.moduleLabel(), jets_data.productInstanceName(), jets_data.processName() );
 
-    filterproduct->addCollectionTag( jets_name );
+    filterproduct.addCollectionTag( jets_name );
   }
 
   // Look at all jets in decreasing order of Et.
@@ -93,15 +87,12 @@ HLTJetTag::filter(edm::Event& event, const edm::EventSetup& setup)
 
       // Store a reference to the jets which passed tagging cuts
       // N.B. this *should* work as we start from a CaloJet in HLT
-      filterproduct->addObject(trigger::TriggerBJet, jet->first.castTo<reco::CaloJetRef>() );
+      filterproduct.addObject(trigger::TriggerBJet, jet->first.castTo<reco::CaloJetRef>() );
     }
   }
 
   // filter decision
   bool accept = (nTag >= m_minJets);
-
-  // put filter object into the Event
-  event.put(filterproduct);
 
   edm::LogInfo("") << m_label << " trigger accept ? = " << accept
                    << " nTag/nJet = " << nTag << "/" << nJet << std::endl;

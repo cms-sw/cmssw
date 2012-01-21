@@ -23,7 +23,7 @@ class HLTMuonL2PreFilter : public HLTFilter {
     explicit HLTMuonL2PreFilter(const edm::ParameterSet&);
     ~HLTMuonL2PreFilter();
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    virtual bool filter(edm::Event&, const edm::EventSetup&);
+    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
   private:
     /// input tag of the beam spot
@@ -65,9 +65,6 @@ class HLTMuonL2PreFilter : public HLTFilter {
 
     /// pt uncertainty margin (in number of sigmas)
     double nSigmaPt_;
-
-    /// should we save the input collection ?
-    bool saveTags_;
 };
 
 #endif //HLTMuonL2PreFilter_h

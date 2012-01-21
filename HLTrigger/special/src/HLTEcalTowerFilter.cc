@@ -4,8 +4,8 @@
  *  This class is an HLTFilter (-> EDFilter) implementing a
  *  single CaloTower requirement with an emEnergy threshold (not Et!)
  *
- *  $Date: 2011/05/01 08:41:41 $
- *  $Revision: 1.4 $
+ *  $Date: 2011/05/01 14:38:24 $
+ *  $Revision: 1.5 $
  *
  *  \author Seth Cooper
  *
@@ -23,10 +23,9 @@ public:
   ~HLTEcalTowerFilter();
 
 private:
-  virtual bool filter(edm::Event &, const edm::EventSetup &);
+  virtual bool hltFilter(edm::Event &, const edm::EventSetup &, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
   edm::InputTag inputTag_; // input tag identifying product
-  bool saveTags_;           // whether to save this tag
   double min_E_;           // energy threshold in GeV 
   double max_Eta_;         // maximum eta
   int min_N_;              // minimum number
@@ -45,9 +44,8 @@ private:
 //
 // constructors and destructor
 //
-HLTEcalTowerFilter::HLTEcalTowerFilter(const edm::ParameterSet& config) :
+HLTEcalTowerFilter::HLTEcalTowerFilter(const edm::ParameterSet& config) : HLTFilter(config),
   inputTag_ (config.getParameter<edm::InputTag>("inputTag")),
-  saveTags_  (config.getParameter<bool>("saveTags")),
   min_E_    (config.getParameter<double>       ("MinE"   )),
   max_Eta_  (config.getParameter<double>       ("MaxEta"   )),
   min_N_    (config.getParameter<int>          ("MinN"   ))
@@ -57,9 +55,6 @@ HLTEcalTowerFilter::HLTEcalTowerFilter(const edm::ParameterSet& config) :
                << min_E_ << " "
                << max_Eta_ << " "
                << min_N_ ;
-
-  // register your products
-  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTEcalTowerFilter::~HLTEcalTowerFilter()
@@ -72,7 +67,7 @@ HLTEcalTowerFilter::~HLTEcalTowerFilter()
 
 // ------------ method called to produce the data  ------------
   bool 
-HLTEcalTowerFilter::filter(edm::Event& event, const edm::EventSetup& setup)
+HLTEcalTowerFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace std;
   using namespace edm;
@@ -84,8 +79,7 @@ HLTEcalTowerFilter::filter(edm::Event& event, const edm::EventSetup& setup)
   // this HLT filter, and place it in the Event.
 
   // The filter object
-  std::auto_ptr<TriggerFilterObjectWithRefs> filterobject (new TriggerFilterObjectWithRefs(path(),module()));
-  if (saveTags_) filterobject->addCollectionTag(inputTag_);
+  if (saveTags()) filterproduct.addCollectionTag(inputTag_);
 
   // get hold of collection of objects
   Handle<CaloTowerCollection> towers;
@@ -99,7 +93,7 @@ HLTEcalTowerFilter::filter(edm::Event& event, const edm::EventSetup& setup)
     if (i->emEnergy() >= min_E_ and fabs(i->eta()) <= max_Eta_) {
       ++n;
       //edm::Ref<CaloTowerCollection> ref(towers, std::distance(towers->begin(), i));
-      //filterobject->addObject(TriggerJet, ref);
+      //filterproduct.addObject(TriggerJet, ref);
     }
   }
 
@@ -107,9 +101,6 @@ HLTEcalTowerFilter::filter(edm::Event& event, const edm::EventSetup& setup)
 
   // filter decision
   bool accept(n>=min_N_);
-
-  // put filter object into the Event
-  event.put(filterobject);
 
   return accept;
 }

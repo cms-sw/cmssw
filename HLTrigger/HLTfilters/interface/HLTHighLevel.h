@@ -7,8 +7,8 @@
  *  This class is an HLTFilter (-> EDFilter) implementing filtering on
  *  HLT bits
  *
- *  $Date: 2010/02/11 00:12:11 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/02/16 22:31:04 $
+ *  $Revision: 1.8 $
  *
  *  \author Martin Grunewald
  *
@@ -37,7 +37,7 @@ class HLTHighLevel : public HLTFilter {
 
     explicit HLTHighLevel(const edm::ParameterSet&);
     ~HLTHighLevel();
-    virtual bool filter(edm::Event&, const edm::EventSetup&);
+    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
     /// get HLTPaths with key 'key' from EventSetup (AlCaRecoTriggerBitsRcd)
     std::vector<std::string> pathsFromSetup(const std::string &key,

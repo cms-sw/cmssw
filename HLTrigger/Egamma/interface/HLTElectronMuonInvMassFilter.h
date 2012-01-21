@@ -37,7 +37,7 @@ class HLTElectronMuonInvMassFilter : public HLTFilter {
    public:
       explicit HLTElectronMuonInvMassFilter(const edm::ParameterSet&);
       ~HLTElectronMuonInvMassFilter();
-      virtual bool filter(edm::Event&, const edm::EventSetup&);      
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);      
 
 
    private:
@@ -47,12 +47,10 @@ class HLTElectronMuonInvMassFilter : public HLTFilter {
       double lowerMassCut_;
       double upperMassCut_;
       int ncandcut_;
-      bool store_;
       bool relaxed_;
       edm::InputTag L1IsoCollTag_; 
       edm::InputTag L1NonIsoCollTag_; 
       edm::InputTag MuonCollTag_; 
-
 };
 
 #endif //HLTElectronMuonInvMassFilter_h

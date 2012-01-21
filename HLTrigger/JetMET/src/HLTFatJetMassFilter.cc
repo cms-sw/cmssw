@@ -33,16 +33,12 @@
 //
 // constructors and destructor
 //
-HLTFatJetMassFilter::HLTFatJetMassFilter(const edm::ParameterSet& iConfig)
+HLTFatJetMassFilter::HLTFatJetMassFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
 {
   inputJetTag_  = iConfig.getParameter< edm::InputTag > ("inputJetTag");
-  saveTags_     = iConfig.getParameter<bool>("saveTags");
   minMass_      = iConfig.getParameter<double> ("minMass");
   fatJetDeltaR_ = iConfig.getParameter<double> ("fatJetDeltaR");
   maxDeltaEta_  = iConfig.getParameter<double> ("maxDeltaEta");
-
-  //register your products
-  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTFatJetMassFilter::~HLTFatJetMassFilter(){}
@@ -59,16 +55,14 @@ void HLTFatJetMassFilter::fillDescriptions(edm::ConfigurationDescriptions& descr
 
 // ------------ method called to produce the data  ------------
 bool
-  HLTFatJetMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+  HLTFatJetMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace std;
   using namespace edm;
   using namespace reco;
-  using namespace trigger;
-  // The filter object
-  auto_ptr<trigger::TriggerFilterObjectWithRefs> filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if (saveTags_) filterobject->addCollectionTag(inputJetTag_);
 
+  // The filter object
+  if (saveTags()) filterproduct.addCollectionTag(inputJetTag_);
 
   Handle<CaloJetCollection> recocalojets;
   iEvent.getByLabel(inputJetTag_,recocalojets);
@@ -119,9 +113,6 @@ bool
   // Apply mass cut
   fj1 += fj2;
   if(fj1.mass() < minMass_) return false;
-
-  // put filter object into the Event
-  iEvent.put(filterobject);
 
   return true;
 }

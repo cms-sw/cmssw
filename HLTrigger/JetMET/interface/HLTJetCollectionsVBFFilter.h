@@ -23,12 +23,11 @@ class HLTJetCollectionsVBFFilter : public HLTFilter {
       explicit HLTJetCollectionsVBFFilter(const edm::ParameterSet&);
       ~HLTJetCollectionsVBFFilter();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
       edm::InputTag inputTag_; // input tag identifying jet collections
       edm::InputTag originalTag_; // input tag original jet collection
-      bool saveTags_;           // whether to save this tag
       double softJetPt_;
       double hardJetPt_;
       double minDeltaEta_;

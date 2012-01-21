@@ -23,14 +23,10 @@
 //
 // constructors and destructor
 //
-HLTMhtFilter::HLTMhtFilter(const edm::ParameterSet& iConfig)
+HLTMhtFilter::HLTMhtFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
 {
   inputMhtTag_ = iConfig.getParameter< edm::InputTag > ("inputMhtTag");
-  saveTags_     = iConfig.getParameter<bool>("saveTags");
-  minMht_= iConfig.getParameter<double> ("minMht");
-  
-  //register your products
-  produces<trigger::TriggerFilterObjectWithRefs>();
+  minMht_      = iConfig.getParameter<double> ("minMht");
 }
 
 HLTMhtFilter::~HLTMhtFilter(){}
@@ -45,15 +41,15 @@ void HLTMhtFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions
 
 // ------------ method called to produce the data  ------------
 bool
-  HLTMhtFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+  HLTMhtFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace std;
   using namespace edm;
   using namespace reco;
   using namespace trigger;
+
   // The filter object
-  auto_ptr<trigger::TriggerFilterObjectWithRefs> filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if (saveTags_) filterobject->addCollectionTag(inputMhtTag_);
+  if (saveTags()) filterproduct.addCollectionTag(inputMhtTag_);
 
   METRef ref;
   
@@ -74,16 +70,13 @@ bool
   if (flag==1) {
     for (METCollection::const_iterator recomht = recomhts->begin(); recomht != recomhts->end(); recomht++) {
       ref = METRef(recomhts,distance(recomhts->begin(),recomht));
-      filterobject->addObject(TriggerMET,ref);
+      filterproduct.addObject(TriggerMET,ref);
       n++;
     } 
   }
   
   // filter decision
   bool accept(n>0);
-  
-  // put filter object into the Event
-  iEvent.put(filterobject);
   
   return accept;
 }

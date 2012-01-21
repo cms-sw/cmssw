@@ -23,29 +23,22 @@
 //
 // constructors and destructor
 //
-HLTEgammaDoubleLegCombFilter::HLTEgammaDoubleLegCombFilter(const edm::ParameterSet& iConfig)
+HLTEgammaDoubleLegCombFilter::HLTEgammaDoubleLegCombFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
   firstLegLastFilterTag_ = iConfig.getParameter<edm::InputTag>("firstLegLastFilter");
   secondLegLastFilterTag_= iConfig.getParameter<edm::InputTag>("secondLegLastFilter");
   nrRequiredFirstLeg_ = iConfig.getParameter<int> ("nrRequiredFirstLeg");
   nrRequiredSecondLeg_ = iConfig.getParameter<int> ("nrRequiredSecondLeg");
   maxMatchDR_ = iConfig.getParameter<double> ("maxMatchDR");
-  
-  //register your products
-  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTEgammaDoubleLegCombFilter::~HLTEgammaDoubleLegCombFilter(){}
 
 
 // ------------ method called to produce the data  ------------
-bool HLTEgammaDoubleLegCombFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+bool HLTEgammaDoubleLegCombFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
-  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct (new trigger::TriggerFilterObjectWithRefs(path(),module())); //empty filter product
-
   //right, issue 1, we dont know if this is a TriggerElectron, TriggerPhoton, TriggerCluster (should never be a TriggerCluster btw as that implies the 4-vectors are not stored in AOD)
-
-  
 
   //trigger::TriggerObjectType firstLegTrigType;
   std::vector<math::XYZPoint> firstLegP3s;
@@ -81,9 +74,6 @@ bool HLTEgammaDoubleLegCombFilter::filter(edm::Event& iEvent, const edm::EventSe
     if(nrBoth >= nrNeededFirstLeg + nrNeededSecondLeg) accept = true;
   }
   
-  //put filter object into the Event
-  iEvent.put(filterproduct);
-
   return accept;
 }
 

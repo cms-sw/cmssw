@@ -6,8 +6,8 @@
  *  
  *  This filter cuts on MinPt and Quality in specified eta regions
  *
- *  $Date: 2010/03/31 12:01:10 $
- *  $Revision: 1.2 $
+ *  $Date: 2011/05/01 08:22:48 $
+ *  $Revision: 1.3 $
  *
  *  \author Cristina Botta, Zoltan Gecse
  *
@@ -20,7 +20,7 @@ class HLTMuonL1RegionalFilter : public HLTFilter {
   public:
     explicit HLTMuonL1RegionalFilter(const edm::ParameterSet&);
     ~HLTMuonL1RegionalFilter();
-    virtual bool filter(edm::Event&, const edm::EventSetup&);
+    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
   private:
     /// input tag identifying the product containing muons
@@ -59,9 +59,6 @@ class HLTMuonL1RegionalFilter : public HLTFilter {
 
     /// required number of passing candidates to pass the filter
     int minN_;
-
-    /// should we save the input collection ?
-    bool saveTags_;
 };
 
 #endif //HLTMuonL1RegionalFilter_h

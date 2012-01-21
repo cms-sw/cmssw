@@ -4,7 +4,7 @@
 /** \class HLTDTROMonitorFilter.h
  *  No description available.
  *
- *  $Date: 2009/05/20 16:12:45 $
+ *  $Date: 2009/07/14 10:12:22 $
  *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
@@ -23,7 +23,7 @@ public:
   virtual ~HLTDTROMonitorFilter();
 
   // Operations
-  virtual bool filter(edm::Event& event, const edm::EventSetup& setup);
+  virtual bool hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct);
   
 protected:
 

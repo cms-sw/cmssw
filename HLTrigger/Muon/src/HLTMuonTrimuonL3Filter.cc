@@ -41,10 +41,11 @@ using namespace trigger;
 //
 // constructors and destructor
 //
-HLTMuonTrimuonL3Filter::HLTMuonTrimuonL3Filter(const edm::ParameterSet& iConfig) :   beamspotTag_   (iConfig.getParameter< edm::InputTag > ("BeamSpotTag")),
+HLTMuonTrimuonL3Filter::HLTMuonTrimuonL3Filter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
+   beamspotTag_   (iConfig.getParameter< edm::InputTag > ("BeamSpotTag")),
    candTag_     (iConfig.getParameter< edm::InputTag > ("CandTag")),
    previousCandTag_   (iConfig.getParameter<InputTag > ("PreviousCandTag")),
-    fast_Accept_ (iConfig.getParameter<bool> ("FastAccept")),
+   fast_Accept_ (iConfig.getParameter<bool> ("FastAccept")),
    max_Eta_     (iConfig.getParameter<double> ("MaxEta")),
    min_Nhits_   (iConfig.getParameter<int> ("MinNhits")),
    max_Dr_      (iConfig.getParameter<double> ("MaxDr")),
@@ -61,8 +62,7 @@ HLTMuonTrimuonL3Filter::HLTMuonTrimuonL3Filter(const edm::ParameterSet& iConfig)
    max_PtBalance_ (iConfig.getParameter<double> ("MaxPtBalance")),
    nsigma_Pt_   (iConfig.getParameter<double> ("NSigmaPt")), 
    max_DCAMuMu_  (iConfig.getParameter<double>("MaxDCAMuMu")),
-   max_YTriplet_   (iConfig.getParameter<double>("MaxRapidityTriplet")),
-   saveTags_  (iConfig.getParameter<bool>("saveTags"))
+   max_YTriplet_   (iConfig.getParameter<double>("MaxRapidityTriplet"))
 {
 
    LogDebug("HLTMuonTrimuonL3Filter")
@@ -81,9 +81,6 @@ HLTMuonTrimuonL3Filter::HLTMuonTrimuonL3Filter(const edm::ParameterSet& iConfig)
       << " " << nsigma_Pt_
       << " " << max_DCAMuMu_
       << " " << max_YTriplet_;
-
-   //register your products
-   produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTMuonTrimuonL3Filter::~HLTMuonTrimuonL3Filter()
@@ -124,7 +121,7 @@ HLTMuonTrimuonL3Filter::fillDescriptions(edm::ConfigurationDescriptions& descrip
 
 // ------------ method called to produce the data  ------------
 bool
-HLTMuonTrimuonL3Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTMuonTrimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
 
    double const MuMass = 0.106;
@@ -133,13 +130,9 @@ HLTMuonTrimuonL3Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
    // recording any reconstructed physics objects satisfying (or not)
    // this HLT filter, and place it in the Event.
 
-   // The filter object
-   auto_ptr<TriggerFilterObjectWithRefs>
-     filterproduct (new TriggerFilterObjectWithRefs(path(),module()));
-
    // get hold of trks
    Handle<RecoChargedCandidateCollection> mucands;
-   if(saveTags_)filterproduct->addCollectionTag(candTag_);
+   if (saveTags()) filterproduct.addCollectionTag(candTag_);
    iEvent.getByLabel (candTag_,mucands);
    // sort them by L2Track
    std::map<reco::TrackRef, std::vector<RecoChargedCandidateRef> > L2toL3s;
@@ -384,7 +377,7 @@ HLTMuonTrimuonL3Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 		  bool i2done = false;
 		  bool i3done = false;
 		  vector<RecoChargedCandidateRef> vref;
-		  filterproduct->getObjects(TriggerMuon,vref);
+		  filterproduct.getObjects(TriggerMuon,vref);
 		  for (unsigned int i=0; i<vref.size(); i++) {
 		    RecoChargedCandidateRef candref =  RecoChargedCandidateRef(vref[i]);
 		    TrackRef tktmp = candref->get<TrackRef>();
@@ -399,13 +392,13 @@ HLTMuonTrimuonL3Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 		  }
 		  
 		  if (!i1done) { 
-		    filterproduct->addObject(TriggerMuon,cand1);
+		    filterproduct.addObject(TriggerMuon,cand1);
 		  }
 		  if (!i2done) { 
-		    filterproduct->addObject(TriggerMuon,cand2);
+		    filterproduct.addObject(TriggerMuon,cand2);
 		  }
 		  if (!i3done) { 
-		    filterproduct->addObject(TriggerMuon,cand3);
+		    filterproduct.addObject(TriggerMuon,cand3);
 		  }
 		  
 		  //break anyway since a L3 track triplet has been found matching the criteria
@@ -432,9 +425,6 @@ HLTMuonTrimuonL3Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
    
    // filter decision
    const bool accept (n >= 1);
-   
-   // put filter object into the Event
-   iEvent.put(filterproduct);
    
    LogDebug("HLTMuonTrimuonL3Filter") << " >>>>> Result of HLTMuonTrimuonL3Filter is "<< accept << ", number of muon triplets passing thresholds= " << n; 
    

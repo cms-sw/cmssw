@@ -18,7 +18,7 @@ class HLTElectronPixelMatchFilter : public HLTFilter {
    public:
       explicit HLTElectronPixelMatchFilter(const edm::ParameterSet&);
       ~HLTElectronPixelMatchFilter();
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
       edm::InputTag candTag_;     // input tag identifying product contains filtered egammas
@@ -33,7 +33,6 @@ class HLTElectronPixelMatchFilter : public HLTFilter {
       int    ncandcut_;           // number of electrons required
       
       bool doIsolated_;
-      bool   store_;
       edm::InputTag L1IsoCollTag_; 
       edm::InputTag L1NonIsoCollTag_; 
 };

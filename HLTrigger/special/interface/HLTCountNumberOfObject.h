@@ -25,22 +25,17 @@
 template <class OColl>
 class HLTCountNumberOfObject : public HLTFilter {
 public:
-  explicit HLTCountNumberOfObject(const edm::ParameterSet& iConfig) :
+  explicit HLTCountNumberOfObject(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
     src_(iConfig.getParameter<edm::InputTag>("src")),
     minN_(iConfig.getParameter<int>("MinN")),
     maxN_(iConfig.getParameter<int>("MaxN"))
-      {
-	produces<trigger::TriggerFilterObjectWithRefs>();
-      };
+  { }
   
-  ~HLTCountNumberOfObject(){};
+  ~HLTCountNumberOfObject() { }
   
 private:
-  virtual bool filter(edm::Event& iEvent, const edm::EventSetup&)
+  virtual bool hltFilter(edm::Event& iEvent, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct)
   {
-    // The filtered object. which is put empty.
-    std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-
     edm::Handle<OColl> oHandle;
     iEvent.getByLabel(src_, oHandle);
     int s=oHandle->size();
@@ -49,10 +44,8 @@ private:
     if (maxN_!=-1) answer = answer && (s<=maxN_);
     LogDebug("HLTCountNumberOfObject")<<module()<<" sees: "<<s<<" objects. Filtere answer is: "<<(answer?"true":"false");
 
-    iEvent.put(filterproduct);
     return answer;
   }
-  virtual void endJob(){};
  
   edm::InputTag src_;
   int minN_,maxN_;

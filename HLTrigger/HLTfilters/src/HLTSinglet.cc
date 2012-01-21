@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/05/01 14:41:36 $
- *  $Revision: 1.10 $
+ *  $Date: 2011/07/12 17:35:52 $
+ *  $Revision: 1.11 $
  *
  *  \author Martin Grunewald
  *
@@ -74,9 +74,8 @@ trigger::TriggerObjectType getObjectType(const l1extra::L1JetParticle & candidat
 // constructors and destructor
 //
 template<typename T, int Tid>
-HLTSinglet<T,Tid>::HLTSinglet(const edm::ParameterSet& iConfig) :
+HLTSinglet<T,Tid>::HLTSinglet(const edm::ParameterSet& iConfig) : HLTFilter(iConfig), 
   inputTag_ (iConfig.template getParameter<edm::InputTag>("inputTag")),
-  saveTags_  (iConfig.template getParameter<bool>("saveTags")),
   min_Pt_   (iConfig.template getParameter<double>       ("MinPt"   )),
   max_Eta_  (iConfig.template getParameter<double>       ("MaxEta"  )),
   min_N_    (iConfig.template getParameter<int>          ("MinN"    ))
@@ -84,9 +83,6 @@ HLTSinglet<T,Tid>::HLTSinglet(const edm::ParameterSet& iConfig) :
    LogDebug("") << "Input/ptcut/etacut/ncut : "
 		<< inputTag_.encode() << " "
 		<< min_Pt_ << " " << max_Eta_ << " " << min_N_ ;
-
-   //register your products
-   produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 template<typename T, int Tid>
@@ -101,7 +97,7 @@ HLTSinglet<T,Tid>::~HLTSinglet()
 // ------------ method called to produce the data  ------------
 template<typename T, int Tid> 
 bool
-HLTSinglet<T,Tid>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTSinglet<T,Tid>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
    using namespace std;
    using namespace edm;
@@ -116,9 +112,8 @@ HLTSinglet<T,Tid>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // this HLT filter, and place it in the Event.
 
    // The filter object
-   auto_ptr<TriggerFilterObjectWithRefs>
-     filterobject (new TriggerFilterObjectWithRefs(path(),module()));
-   if (saveTags_) filterobject->addCollectionTag(inputTag_);
+   if (saveTags()) filterproduct.addCollectionTag(inputTag_);
+
    // Ref to Candidate object to be recorded in filter object
    TRef ref;
 
@@ -135,15 +130,12 @@ HLTSinglet<T,Tid>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  ( (max_Eta_ < 0.0) || (std::abs(i->eta()) <= max_Eta_) ) ) {
        n++;
        ref=TRef(objects,distance(objects->begin(),i));
-       filterobject->addObject(getObjectType<T, Tid>(*i),ref);
+       filterproduct.addObject(getObjectType<T, Tid>(*i),ref);
      }
    }
 
    // filter decision
    bool accept(n>=min_N_);
-
-   // put filter object into the Event
-   iEvent.put(filterobject);
 
    return accept;
 }

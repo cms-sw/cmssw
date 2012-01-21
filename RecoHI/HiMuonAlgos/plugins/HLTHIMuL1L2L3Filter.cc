@@ -7,7 +7,7 @@
 //
 // Original Author:  Dong Ho Moon
 //         Created:  Wed May  9 06:22:36 CEST 2007
-// $Id: HLTHIMuL1L2L3Filter.cc,v 1.1 2009/11/25 09:09:20 kodolova Exp $
+// $Id: HLTHIMuL1L2L3Filter.cc,v 1.2 2010/01/22 13:32:02 kodolova Exp $
 //
 //
 // Comment: Dimuon reconstruction need primary vertex
@@ -35,7 +35,7 @@
 using namespace std;
 
 namespace cms{
-HLTHIMuL1L2L3Filter::HLTHIMuL1L2L3Filter(const edm::ParameterSet& ps1)
+HLTHIMuL1L2L3Filter::HLTHIMuL1L2L3Filter(const edm::ParameterSet& ps1) : HLTFilter(ps1) 
 {
    pset_ = ps1;
 }
@@ -61,7 +61,7 @@ HLTHIMuL1L2L3Filter::~HLTHIMuL1L2L3Filter()
 {
 } 
 
-bool HLTHIMuL1L2L3Filter::filter(edm::Event& e1, const edm::EventSetup& es1)
+bool HLTHIMuL1L2L3Filter::hltFilter(edm::Event& e1, const edm::EventSetup& es1, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
    HITrackVertexMaker theTrackVertexMaker(pset_,es1);
 // Start track finder

@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/05/01 08:43:49 $
- *  $Revision: 1.15 $
+ *  $Date: 2011/05/01 14:41:36 $
+ *  $Revision: 1.16 $
  *
  *  \author Martin Grunewald
  *
@@ -27,10 +27,9 @@
 // constructors and destructor
 //
 template<typename T1, int Tid1, typename T2, int Tid2>
-HLTDoublet<T1,Tid1,T2,Tid2>::HLTDoublet(const edm::ParameterSet& iConfig) :
+HLTDoublet<T1,Tid1,T2,Tid2>::HLTDoublet(const edm::ParameterSet& iConfig) : HLTFilter(iConfig), 
   inputTag1_(iConfig.template getParameter<edm::InputTag>("inputTag1")),
   inputTag2_(iConfig.template getParameter<edm::InputTag>("inputTag2")),
-  saveTags_ (iConfig.template getParameter<bool>("saveTags")),
   min_Dphi_ (iConfig.template getParameter<double>("MinDphi")),
   max_Dphi_ (iConfig.template getParameter<double>("MaxDphi")),
   min_Deta_ (iConfig.template getParameter<double>("MinDeta")),
@@ -60,9 +59,6 @@ HLTDoublet<T1,Tid1,T2,Tid2>::HLTDoublet(const edm::ParameterSet& iConfig) :
                 << " MinN =" << min_N_
 		<< " same/dphi/deta/minv/delr "
 		<< same_ << cutdphi_ << cutdeta_ << cutminv_ << cutdelr_;
-
-   //register your products
-   produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 template<typename T1, int Tid1, typename T2, int Tid2>
@@ -77,7 +73,7 @@ HLTDoublet<T1,Tid1,T2,Tid2>::~HLTDoublet()
 // ------------ method called to produce the data  ------------
 template<typename T1, int Tid1, typename T2, int Tid2>
 bool
-HLTDoublet<T1,Tid1,T2,Tid2>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTDoublet<T1,Tid1,T2,Tid2>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
    using namespace std;
    using namespace edm;
@@ -88,14 +84,6 @@ HLTDoublet<T1,Tid1,T2,Tid2>::filter(edm::Event& iEvent, const edm::EventSetup& i
    // recording any reconstructed physics objects satisfying (or not)
    // this HLT filter, and place it in the Event.
 
-   // The filter object
-   auto_ptr<TriggerFilterObjectWithRefs>
-     filterobject (new TriggerFilterObjectWithRefs(path(),module()));
-   // Don't saveTagsthe TFOWRs, but rather the collections pointed to!
-   //   if (saveTags_) {
-   //     filterobject->addCollectionTag(inputTag1_);
-   //     filterobject->addCollectionTag(inputTag2_);
-   //   }
    bool accept(false);
 
    // get hold of pre-filtered object collections
@@ -108,7 +96,7 @@ HLTDoublet<T1,Tid1,T2,Tid2>::filter(edm::Event& iEvent, const edm::EventSetup& i
      coll2->getObjects(Tid2,coll2_);
      const size_type n2(coll2_.size());
 
-     if (saveTags_) {
+     if (saveTags()) {
        InputTag tagOld;
        tagOld=InputTag();
        for (size_type i1=0; i1!=n1; ++i1) {
@@ -118,7 +106,7 @@ HLTDoublet<T1,Tid1,T2,Tid2>::filter(edm::Event& iEvent, const edm::EventSetup& i
 	 const string&  process(iEvent.getProvenance(pid).processName());
 	 InputTag tagNew(InputTag(label,instance,process));
 	 if (tagOld.encode()!=tagNew.encode()) {
-	   filterobject->addCollectionTag(tagNew);
+	   filterproduct.addCollectionTag(tagNew);
 	   tagOld=tagNew;
 	 }
        }
@@ -130,7 +118,7 @@ HLTDoublet<T1,Tid1,T2,Tid2>::filter(edm::Event& iEvent, const edm::EventSetup& i
 	 const string&  process(iEvent.getProvenance(pid).processName());
 	 InputTag tagNew(InputTag(label,instance,process));
 	 if (tagOld.encode()!=tagNew.encode()) {
-	   filterobject->addCollectionTag(tagNew);
+	   filterproduct.addCollectionTag(tagNew);
 	   tagOld=tagNew;
 	 }
        }
@@ -164,8 +152,8 @@ HLTDoublet<T1,Tid1,T2,Tid2>::filter(edm::Event& iEvent, const edm::EventSetup& i
 	      ( (!cutminv_) || ((min_Minv_<=Minv) && (Minv<=max_Minv_)) ) &&
               ( (!cutdelr_) || ((min_DelR_<=DelR) && (DelR<=max_DelR_)) ) ) {
 	   n++;
-	   filterobject->addObject(Tid1,r1);
-	   filterobject->addObject(Tid2,r2);
+	   filterproduct.addObject(Tid1,r1);
+	   filterproduct.addObject(Tid2,r2);
 	 }
 	 
        }
@@ -174,6 +162,5 @@ HLTDoublet<T1,Tid1,T2,Tid2>::filter(edm::Event& iEvent, const edm::EventSetup& i
      accept = accept || (n>=min_N_);
    }
 
-   iEvent.put(filterobject);
    return accept;
 }

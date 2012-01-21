@@ -25,7 +25,7 @@ class HLTMuonTrimuonL3Filter : public HLTFilter {
       explicit HLTMuonTrimuonL3Filter(const edm::ParameterSet&);
       ~HLTMuonTrimuonL3Filter();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
       bool triggeredByLevel2(const reco::TrackRef& track,std::vector<reco::RecoChargedCandidateRef>& vcands);
 
    private:
@@ -51,8 +51,6 @@ class HLTMuonTrimuonL3Filter : public HLTFilter {
       double nsigma_Pt_;        // pt uncertainty margin (in number of sigmas)
       double max_DCAMuMu_;      // DCA between the three muons
       double max_YTriplet_;        // |rapidity| of triplet
-      bool saveTags_;            // should we save the input collection ?
-
 };
 
 #endif //HLTMuonDimuonFilter_h

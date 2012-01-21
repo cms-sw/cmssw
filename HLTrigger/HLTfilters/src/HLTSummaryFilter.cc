@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/09/25 13:04:00 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/09/28 11:25:02 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -19,7 +19,7 @@
 //
 // constructors and destructor
 //
-HLTSummaryFilter::HLTSummaryFilter(const edm::ParameterSet& iConfig) :
+HLTSummaryFilter::HLTSummaryFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
   summaryTag_ (iConfig.getParameter<edm::InputTag>("summary")),
   memberTag_  (iConfig.getParameter<edm::InputTag>("member" )),
   cut_        (iConfig.getParameter<std::string>  ("cut"    )),
@@ -31,9 +31,6 @@ HLTSummaryFilter::HLTSummaryFilter(const edm::ParameterSet& iConfig) :
      << summaryTag_.encode() << " "
      << memberTag_.encode() << " " 
      << cut_<< " " << min_N_ ;
-
-   //register your products
-   //produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTSummaryFilter::~HLTSummaryFilter()
@@ -46,7 +43,7 @@ HLTSummaryFilter::~HLTSummaryFilter()
 
 // ------------ method called to produce the data  ------------
 bool
-HLTSummaryFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTSummaryFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
    using namespace std;
    using namespace edm;

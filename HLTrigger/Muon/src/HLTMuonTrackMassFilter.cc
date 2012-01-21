@@ -36,12 +36,11 @@
 #include <sstream>
 
 
-HLTMuonTrackMassFilter::HLTMuonTrackMassFilter(const edm::ParameterSet& iConfig) :
+HLTMuonTrackMassFilter::HLTMuonTrackMassFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
   beamspotTag_(iConfig.getParameter<edm::InputTag>("BeamSpotTag")),
   muonTag_(iConfig.getParameter<edm::InputTag>("CandTag")),
   trackTag_(iConfig.getParameter<edm::InputTag>("TrackTag")),
   prevCandTag_(iConfig.getParameter<edm::InputTag>("PreviousCandTag")),
-  saveTags_(iConfig.getParameter<bool>("saveTags")),
   minMasses_(iConfig.getParameter< std::vector<double> >("MinMasses")),
   maxMasses_(iConfig.getParameter< std::vector<double> >("MaxMasses")),
   checkCharge_(iConfig.getParameter<bool>("checkCharge")),
@@ -56,8 +55,6 @@ HLTMuonTrackMassFilter::HLTMuonTrackMassFilter(const edm::ParameterSet& iConfig)
   max_DCAMuonTrack_(iConfig.getParameter<double>("MaxDCAMuonTrack")),
   cutCowboys_(iConfig.getParameter<bool>("CutCowboys"))
 {
-  //register your products
-  produces<trigger::TriggerFilterObjectWithRefs>();
   //
   // verify mass windows
   //
@@ -81,7 +78,7 @@ HLTMuonTrackMassFilter::HLTMuonTrackMassFilter(const edm::ParameterSet& iConfig)
   stream << "  muonCandidates = " << muonTag_ << "\n";
   stream << "  trackCandidates = " << trackTag_ << "\n";
   stream << "  previousCandidates = " << prevCandTag_ << "\n";
-  stream << "  saveTags= " << saveTags_ << "\n";
+  stream << "  saveTags= " << saveTags() << "\n";
   stream << "  mass windows =";
   for ( size_t i=0; i<minMasses_.size(); ++i )  
     stream << " (" << minMasses_[i] << "," << maxMasses_[i] << ")";
@@ -135,14 +132,12 @@ HLTMuonTrackMassFilter::fillDescriptions(edm::ConfigurationDescriptions& descrip
 }
 
 bool
-HLTMuonTrackMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTMuonTrackMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
- // The filter object
-  std::auto_ptr<trigger::TriggerFilterObjectWithRefs>
-    filterproduct (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if ( saveTags_ ) {
-    filterproduct->addCollectionTag(muonTag_);
-    filterproduct->addCollectionTag(trackTag_);
+  // The filter object
+  if (saveTags()) {
+    filterproduct.addCollectionTag(muonTag_);
+    filterproduct.addCollectionTag(trackTag_);
   }
   //
   // Beamspot
@@ -291,8 +286,8 @@ HLTMuonTrackMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
       for ( unsigned int j=0; j<minMasses_.size(); ++j ) {
 	if ( mass>minMasses_[j] && mass<maxMasses_[j] ) {
 	  ++nComb;
-	  filterproduct->addObject(trigger::TriggerMuon,selectedMuonRefs[im]);
-	  filterproduct->addObject(trigger::TriggerTrack,selectedTrackRefs[it]);
+	  filterproduct.addObject(trigger::TriggerMuon,selectedMuonRefs[im]);
+	  filterproduct.addObject(trigger::TriggerTrack,selectedTrackRefs[it]);
 // 	  stream3 << "... accepted\n";
 	  break;
 	}
@@ -310,8 +305,8 @@ HLTMuonTrackMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
     stream << "Found " << nComb << " jpsi candidates with # / mass / q / pt / eta" << std::endl;
     std::vector<reco::RecoChargedCandidateRef> muRefs;
     std::vector<reco::RecoChargedCandidateRef> tkRefs;
-    filterproduct->getObjects(trigger::TriggerMuon,muRefs);
-    filterproduct->getObjects(trigger::TriggerTrack,tkRefs);
+    filterproduct.getObjects(trigger::TriggerMuon,muRefs);
+    filterproduct.getObjects(trigger::TriggerTrack,tkRefs);
     reco::Particle::LorentzVector p4Mu;
     reco::Particle::LorentzVector p4Tk;
     reco::Particle::LorentzVector p4JPsi;
@@ -332,8 +327,6 @@ HLTMuonTrackMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
       LogDebug("HLTMuonTrackMassFilter") << "different sizes for muon and track containers!!!";
     }
   }
-
-  iEvent.put(filterproduct);
 
   return nComb>0;
 }

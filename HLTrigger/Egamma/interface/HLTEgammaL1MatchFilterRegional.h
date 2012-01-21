@@ -21,7 +21,7 @@ class HLTEgammaL1MatchFilterRegional : public HLTFilter {
    public:
       explicit HLTEgammaL1MatchFilterRegional(const edm::ParameterSet&);
       ~HLTEgammaL1MatchFilterRegional();
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
       edm::InputTag candIsolatedTag_; // input tag identifying product contains egammas

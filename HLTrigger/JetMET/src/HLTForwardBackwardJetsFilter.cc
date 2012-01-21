@@ -1,6 +1,6 @@
 /** \class HLTForwardBackwardJetsFilter
  *
- * $Id: HLTForwardBackwardJetsFilter.cc,v 1.4 2011/05/01 08:21:43 gruen Exp $
+ * $Id: HLTForwardBackwardJetsFilter.cc,v 1.5 2011/10/27 13:41:48 gruen Exp $
  *
  *
  */
@@ -25,16 +25,12 @@
 //
 // constructors and destructor
 //
-HLTForwardBackwardJetsFilter::HLTForwardBackwardJetsFilter(const edm::ParameterSet& iConfig)
+HLTForwardBackwardJetsFilter::HLTForwardBackwardJetsFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
-   inputTag_    = iConfig.getParameter< edm::InputTag > ("inputTag");
-   saveTags_     = iConfig.getParameter<bool>("saveTags");
-   minPt_       = iConfig.getParameter<double> ("minPt");
-   minEta_ = iConfig.getParameter<double> ("minEta"); 
-   maxEta_ = iConfig.getParameter<double> ("maxEta"); 
-
-   //register your products
-   produces<trigger::TriggerFilterObjectWithRefs>();
+   inputTag_ = iConfig.getParameter< edm::InputTag > ("inputTag");
+   minPt_    = iConfig.getParameter<double> ("minPt");
+   minEta_   = iConfig.getParameter<double> ("minEta"); 
+   maxEta_   = iConfig.getParameter<double> ("maxEta"); 
 }
 
 HLTForwardBackwardJetsFilter::~HLTForwardBackwardJetsFilter(){}
@@ -52,13 +48,12 @@ HLTForwardBackwardJetsFilter::fillDescriptions(edm::ConfigurationDescriptions& d
 
 // ------------ method called to produce the data  ------------
 bool
-HLTForwardBackwardJetsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTForwardBackwardJetsFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace trigger;
+
   // The filter object
-  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> 
-    filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if (saveTags_) filterobject->addCollectionTag(inputTag_);
+  if (saveTags()) filterproduct.addCollectionTag(inputTag_);
 
   edm::Handle<reco::CaloJetCollection> recocalojets;
   iEvent.getByLabel(inputTag_,recocalojets);
@@ -80,7 +75,7 @@ HLTForwardBackwardJetsFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
 	if ( etajet > minEta_ && etajet < maxEta_ ){
 	  nplusjets++;
 	  reco::CaloJetRef ref(reco::CaloJetRef(recocalojets,distance(recocalojets->begin(),recocalojet)));
-	  filterobject->addObject(TriggerJet,ref);
+	  filterproduct.addObject(TriggerJet,ref);
 	}
       }
     }
@@ -95,19 +90,15 @@ HLTForwardBackwardJetsFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
 	  if ( etajet < -minEta_ && etajet > -maxEta_ ){
 	    nminusjets++;
 	    reco::CaloJetRef ref(reco::CaloJetRef(recocalojets,distance(recocalojets->begin(),recocalojet)));
-	    filterobject->addObject(TriggerJet,ref);
+	    filterproduct.addObject(TriggerJet,ref);
 	  }
 	}
       }
     }
   } // events with two or more jets
   
-  
-  
   // filter decision
   bool accept(nplusjets>0 && nminusjets>0);  
-  // put filter object into the Event
-  iEvent.put(filterobject);
   
   return accept;
 }

@@ -31,22 +31,19 @@
 //
 // constructors and destructor
 //
-HLTDisplacedmumumuFilter::HLTDisplacedmumumuFilter(const edm::ParameterSet& iConfig):
- 
+HLTDisplacedmumumuFilter::HLTDisplacedmumumuFilter(const edm::ParameterSet& iConfig) :
+  HLTFilter(iConfig),
   fastAccept_ (iConfig.getParameter<bool>("FastAccept")),
   minLxySignificance_ (iConfig.getParameter<double>("MinLxySignificance")),
   maxLxySignificance_ (iConfig.existsAs<double>("MaxLxySignificance") ? iConfig.getParameter<double>("MaxLxySignificance") : -1. ),
   maxNormalisedChi2_ (iConfig.getParameter<double>("MaxNormalisedChi2")), 
   minVtxProbability_ (iConfig.getParameter<double>("MinVtxProbability")),
   minCosinePointingAngle_ (iConfig.getParameter<double>("MinCosinePointingAngle")),
-  saveTags_ (iConfig.getParameter<bool>("saveTags")),
   DisplacedVertexTag_(iConfig.getParameter<edm::InputTag>("DisplacedVertexTag")),
   beamSpotTag_ (iConfig.getParameter<edm::InputTag> ("BeamSpotTag")),
   MuonTag_ (iConfig.getParameter<edm::InputTag>("MuonTag"))
  
 {
-
-  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 
@@ -69,7 +66,7 @@ void HLTDisplacedmumumuFilter::endJob()
 }
 
 // ------------ method called on each new Event  ------------
-bool HLTDisplacedmumumuFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+bool HLTDisplacedmumumuFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
 
 
@@ -101,8 +98,7 @@ bool HLTDisplacedmumumuFilter::filter(edm::Event& iEvent, const edm::EventSetup&
   reco::RecoChargedCandidateRef ref2;
   reco::RecoChargedCandidateRef ref3;
 
-  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if(saveTags_) 	  filterobject->addCollectionTag(MuonTag_);
+  if (saveTags()) filterproduct.addCollectionTag(MuonTag_);
 
   
   bool triggered = false;
@@ -181,19 +177,15 @@ bool HLTDisplacedmumumuFilter::filter(edm::Event& iEvent, const edm::EventSetup&
 	  // now add the muons that passed to the filter object
 	  
 	  ref1=reco::RecoChargedCandidateRef( edm::Ref<reco::RecoChargedCandidateCollection> 	(mucands,distance(mucands->begin(), cand1)));
-	  filterobject->addObject(trigger::TriggerMuon,ref1);
+	  filterproduct.addObject(trigger::TriggerMuon,ref1);
 	  
 	  ref2=reco::RecoChargedCandidateRef( edm::Ref<reco::RecoChargedCandidateCollection> (mucands,distance(mucands->begin(),cand2 )));
-	  filterobject->addObject(trigger::TriggerMuon,ref2);
+	  filterproduct.addObject(trigger::TriggerMuon,ref2);
 
 	  ref3=reco::RecoChargedCandidateRef( edm::Ref<reco::RecoChargedCandidateCollection> (mucands,distance(mucands->begin(),cand3 )));
-	  filterobject->addObject(trigger::TriggerMuon,ref3);
+	  filterproduct.addObject(trigger::TriggerMuon,ref3);
   }
 
-
-  // put filter object into the Event
-  
-  iEvent.put(filterobject);
   LogDebug("HLTDisplacedMumumuFilter") << " >>>>> Result of HLTDisplacedMumumuFilter is "<< triggered <<std::endl; 
 
   return triggered;

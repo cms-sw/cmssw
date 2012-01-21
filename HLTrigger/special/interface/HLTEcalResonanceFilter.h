@@ -76,7 +76,7 @@ class HLTEcalResonanceFilter : public HLTFilter {
       explicit HLTEcalResonanceFilter(const edm::ParameterSet&);
       ~HLTEcalResonanceFilter();
 
-      virtual bool filter(edm::Event &, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event &, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
    private:
       // ----------member data ---------------------------
       void doSelection(int detector, const reco::BasicClusterCollection *clusterCollection,

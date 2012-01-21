@@ -23,7 +23,7 @@ class HLTEgammaL1MatchFilterPairs : public HLTFilter {
    public:
       explicit HLTEgammaL1MatchFilterPairs(const edm::ParameterSet&);
       ~HLTEgammaL1MatchFilterPairs();
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
       bool CheckL1Matching(edm::Ref<reco::RecoEcalCandidateCollection>ref,std::vector<l1extra::L1EmParticleRef >& l1EGIso,std::vector<l1extra::L1EmParticleRef >& l1EGNonIso);

@@ -25,7 +25,7 @@
 //
 // constructors and destructor
 //
-HLTElectronEtFilter::HLTElectronEtFilter(const edm::ParameterSet& iConfig){
+HLTElectronEtFilter::HLTElectronEtFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) {
   candTag_ = iConfig.getParameter< edm::InputTag > ("candTag");
   EtEB_ = iConfig.getParameter<double> ("EtCutEB");
   EtEE_ = iConfig.getParameter<double> ("EtCutEE");
@@ -33,24 +33,21 @@ HLTElectronEtFilter::HLTElectronEtFilter(const edm::ParameterSet& iConfig){
   ncandcut_  = iConfig.getParameter<int> ("ncandcut");
   doIsolated_ = iConfig.getParameter<bool> ("doIsolated");
 
-  store_ = iConfig.getParameter<bool>("saveTags") ;
   L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
   L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
-
-//register your products
-produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTElectronEtFilter::~HLTElectronEtFilter(){}
 
 
 // ------------ method called to produce the data  ------------
-bool HLTElectronEtFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+bool HLTElectronEtFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace trigger;
-  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if( store_ ){filterproduct->addCollectionTag(L1IsoCollTag_);}
-  if( store_ && !doIsolated_){filterproduct->addCollectionTag(L1NonIsoCollTag_);}
+  if (saveTags()) {
+    filterproduct.addCollectionTag(L1IsoCollTag_);
+    if (not doIsolated_) filterproduct.addCollectionTag(L1NonIsoCollTag_);
+  }
 
   // Ref to Candidate object to be recorded in filter object
   reco::ElectronRef ref;
@@ -75,16 +72,12 @@ bool HLTElectronEtFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSet
     
     if ( (Eta < 1.479 && Pt > EtEB_) || (Eta >= 1.479 && Pt > EtEE_) ) {
       n++;
-      filterproduct->addObject(TriggerElectron, ref);
+      filterproduct.addObject(TriggerElectron, ref);
     }
     
   }  
   // filter decision
   bool accept(n>=ncandcut_);
   
-  // put filter object into the Event
-  iEvent.put(filterproduct);
-
   return accept;
 }
-

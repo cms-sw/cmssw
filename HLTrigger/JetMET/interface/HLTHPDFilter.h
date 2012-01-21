@@ -19,7 +19,7 @@ class HLTHPDFilter : public HLTFilter {
       explicit HLTHPDFilter(const edm::ParameterSet&);
       ~HLTHPDFilter();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
       edm::InputTag mInputTag; // input tag for HCAL HBHE digis

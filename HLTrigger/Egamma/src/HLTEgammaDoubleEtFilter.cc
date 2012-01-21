@@ -1,6 +1,6 @@
 /** \class HLTEgammaDoubleEtFilter
  *
- * $Id: HLTEgammaDoubleEtFilter.cc,v 1.7 2008/05/06 13:58:06 ghezzi Exp $
+ * $Id: HLTEgammaDoubleEtFilter.cc,v 1.8 2011/05/01 08:14:08 gruen Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -26,31 +26,30 @@ public:
 //
 // constructors and destructor
 //
-HLTEgammaDoubleEtFilter::HLTEgammaDoubleEtFilter(const edm::ParameterSet& iConfig)
+HLTEgammaDoubleEtFilter::HLTEgammaDoubleEtFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
-   candTag_ = iConfig.getParameter< edm::InputTag > ("candTag");
-   etcut1_  = iConfig.getParameter<double> ("etcut1");
-   etcut2_  = iConfig.getParameter<double> ("etcut2");
-   npaircut_  = iConfig.getParameter<int> ("npaircut");
-   store_ = iConfig.getParameter<bool>("saveTags") ;
-   relaxed_ = iConfig.getUntrackedParameter<bool> ("relaxed",true) ;
-   L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
-   L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
-   //register your products
-   produces<trigger::TriggerFilterObjectWithRefs>();
+  candTag_ = iConfig.getParameter< edm::InputTag > ("candTag");
+  etcut1_  = iConfig.getParameter<double> ("etcut1");
+  etcut2_  = iConfig.getParameter<double> ("etcut2");
+  npaircut_  = iConfig.getParameter<int> ("npaircut");
+  relaxed_ = iConfig.getUntrackedParameter<bool> ("relaxed",true) ;
+  L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
+  L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
 }
 
 HLTEgammaDoubleEtFilter::~HLTEgammaDoubleEtFilter(){}
 
 // ------------ method called to produce the data  ------------
 bool
-HLTEgammaDoubleEtFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTEgammaDoubleEtFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
-    // The filter object
   using namespace trigger;
-    std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-    if( store_ ){filterproduct->addCollectionTag(L1IsoCollTag_);}
-    if( store_ && relaxed_){filterproduct->addCollectionTag(L1NonIsoCollTag_);}
+
+  // The filter object
+  if (saveTags()) {
+    filterproduct.addCollectionTag(L1IsoCollTag_);
+    if (relaxed_) filterproduct.addCollectionTag(L1NonIsoCollTag_);
+  }
   // Ref to Candidate object to be recorded in filter object
    edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
 
@@ -71,8 +70,8 @@ HLTEgammaDoubleEtFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       for (unsigned int j=i+1; j<mysortedrecoecalcands.size(); j++) {
 	ref2 = mysortedrecoecalcands[j];
 	if( ref2->et() >= etcut2_ ){
-	  filterproduct->addObject(TriggerPhoton, ref1);
-	  filterproduct->addObject(TriggerPhoton, ref2);
+	  filterproduct.addObject(TriggerPhoton, ref1);
+	  filterproduct.addObject(TriggerPhoton, ref2);
 	  n++;
 	}
       }
@@ -82,9 +81,6 @@ HLTEgammaDoubleEtFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 
   // filter decision
   bool accept(n>=npaircut_);
-  
-  // put filter object into the Event
-  iEvent.put(filterproduct);
   
   return accept;
 }

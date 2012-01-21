@@ -9,7 +9,7 @@ class HLTDisplacedmumuFilter : public HLTFilter {
 		~HLTDisplacedmumuFilter();
 	
 		virtual void beginJob() ;
-		virtual bool filter(edm::Event&, const edm::EventSetup&);
+		virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 		virtual void endJob() ;
 		
  private:
@@ -20,7 +20,6 @@ class HLTDisplacedmumuFilter : public HLTFilter {
 		double maxNormalisedChi2_;
 		double minVtxProbability_;
 		double minCosinePointingAngle_;
-		bool saveTags_;
 		edm::InputTag DisplacedVertexTag_;
 		edm::InputTag beamSpotTag_;
 		edm::InputTag MuonTag_;

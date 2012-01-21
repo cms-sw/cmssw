@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2008/06/11 08:19:14 $
- * $Revision: 1.3 $
+ * $Date: 2009/10/05 10:40:17 $
+ * $Revision: 1.4 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
 
@@ -34,8 +34,10 @@ using namespace edm;
 /* ====================================================================== */
 
 /// Constructor
-HLTMuonPointingFilter::HLTMuonPointingFilter(const edm::ParameterSet& pset): m_cacheRecordId(0) {
-
+HLTMuonPointingFilter::HLTMuonPointingFilter(const edm::ParameterSet& pset) :
+   HLTFilter(pset),
+   m_cacheRecordId(0) 
+{
   // the name of the STA rec hits collection
   theSTAMuonLabel = pset.getParameter<string>("SALabel");
 
@@ -67,7 +69,7 @@ HLTMuonPointingFilter::~HLTMuonPointingFilter() {
 }
 
 /* Operations */ 
-bool HLTMuonPointingFilter::filter(edm::Event& event, const edm::EventSetup& eventSetup) {
+bool HLTMuonPointingFilter::hltFilter(edm::Event& event, const edm::EventSetup& eventSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
   bool accept = false;
 
   const TrackingComponentsRecord & tkRec = eventSetup.get<TrackingComponentsRecord>();

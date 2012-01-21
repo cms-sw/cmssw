@@ -15,7 +15,7 @@ Implementation:
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTHcalNZSFilter.h,v 1.2 2009/08/06 07:12:54 fwyzard Exp $
+// $Id: HLTHcalNZSFilter.h,v 1.3 2009/08/27 13:33:46 gruen Exp $
 //
 //
 
@@ -39,7 +39,7 @@ public:
   
 private:
   virtual void beginJob(void);
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
   virtual void endJob(void);
   
   // ----------member data ---------------------------

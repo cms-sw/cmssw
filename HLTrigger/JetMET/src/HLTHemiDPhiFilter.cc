@@ -23,7 +23,7 @@
 //
 // constructors and destructor
 //
-HLTHemiDPhiFilter::HLTHemiDPhiFilter(const edm::ParameterSet& iConfig) :
+HLTHemiDPhiFilter::HLTHemiDPhiFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
   inputTag_    (iConfig.getParameter<edm::InputTag>("inputTag")),
   min_dphi_      (iConfig.getParameter<double>       ("minDPhi"   )),
   accept_NJ_    (iConfig.getParameter<bool>       ("acceptNJ"   ))
@@ -33,9 +33,6 @@ HLTHemiDPhiFilter::HLTHemiDPhiFilter(const edm::ParameterSet& iConfig) :
 		<< inputTag_.encode() << " "	
 		<< min_dphi_ << " "
 		<< accept_NJ_ << ".";
-
-   //register your products
-   produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTHemiDPhiFilter::~HLTHemiDPhiFilter()
@@ -57,22 +54,16 @@ HLTHemiDPhiFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions
 
 // ------------ method called to produce the data  ------------
 bool 
-HLTHemiDPhiFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTHemiDPhiFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
    using namespace std;
    using namespace edm;
    using namespace reco;
    using namespace trigger;
 
-   // The filter object
-   auto_ptr<TriggerFilterObjectWithRefs>
-     filterobject (new TriggerFilterObjectWithRefs(path(),module()));
-
    // get hold of collection of objects
    Handle< vector<math::XYZTLorentzVector> > hemispheres;
    iEvent.getByLabel (inputTag_,hemispheres);
-
-   iEvent.put(filterobject);
 
    // check the the input collections are available
    if (not hemispheres.isValid())

@@ -19,32 +19,28 @@
 //
 // constructors and destructor
 //
-HLTEgammaDoubleEtDeltaPhiFilter::HLTEgammaDoubleEtDeltaPhiFilter(const edm::ParameterSet& iConfig)
+HLTEgammaDoubleEtDeltaPhiFilter::HLTEgammaDoubleEtDeltaPhiFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
    inputTag_ = iConfig.getParameter< edm::InputTag > ("inputTag");
    etcut_  = iConfig.getParameter<double> ("etcut");
    minDeltaPhi_ =   iConfig.getParameter<double> ("minDeltaPhi");
-   //   ncandcut_  = iConfig.getParameter<int> ("ncandcut",2);
-   store_ = iConfig.getParameter<bool>("saveTags") ;
    relaxed_ = iConfig.getUntrackedParameter<bool> ("relaxed",true) ;
    L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
    L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand");
-
-   //register your products
-   produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTEgammaDoubleEtDeltaPhiFilter::~HLTEgammaDoubleEtDeltaPhiFilter(){}
 
 // ------------ method called to produce the data  ------------
 bool
-HLTEgammaDoubleEtDeltaPhiFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTEgammaDoubleEtDeltaPhiFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
    using namespace trigger;
    // The filter object
-   std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-   if( store_ ){filterproduct->addCollectionTag(L1IsoCollTag_);}
-   if( store_ && relaxed_){filterproduct->addCollectionTag(L1NonIsoCollTag_);}   
+   if (saveTags()) {
+     filterproduct.addCollectionTag(L1IsoCollTag_);
+     if (relaxed_) filterproduct.addCollectionTag(L1NonIsoCollTag_);
+   }
 
    // get hold of filtered candidates
    edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
@@ -73,15 +69,12 @@ HLTEgammaDoubleEtDeltaPhiFilter::filter(edm::Event& iEvent, const edm::EventSetu
       deltaPhi = fabs(ref1->phi()-ref2->phi());
       if(deltaPhi>M_PI) deltaPhi = 2*M_PI - deltaPhi;
 
-      filterproduct->addObject(TriggerCluster, ref1);
-      filterproduct->addObject(TriggerCluster, ref2);  
+      filterproduct.addObject(TriggerCluster, ref1);
+      filterproduct.addObject(TriggerCluster, ref2);  
    } 
         
    // filter decision
    bool accept(n==2 && deltaPhi>minDeltaPhi_);
-     
-   // put filter object into the Event
-   iEvent.put(filterproduct);
   
    return accept;
 }

@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/07/12 10:04:34 $
- *  $Revision: 1.13 $
+ *  $Date: 2010/07/12 12:26:06 $
+ *  $Revision: 1.1 $
  *
  *  Authors: Martin Grunewald, Andrea Bocci
  *
@@ -31,7 +31,7 @@
 //
 // constructors and destructor
 //
-TriggerResultsFilterFromDB::TriggerResultsFilterFromDB(const edm::ParameterSet & config) :
+TriggerResultsFilterFromDB::TriggerResultsFilterFromDB(const edm::ParameterSet & config) : HLTFilter(config),
   m_eventSetupPathsKey(config.getParameter<std::string>("eventSetupPathsKey")),
   m_eventSetupWatcher(),
   m_expression(0),
@@ -89,7 +89,7 @@ void TriggerResultsFilterFromDB::pathsFromSetup(const edm::EventSetup & setup)
   parse( triggerBits->decompose(listIter->second) );
 }
 
-bool TriggerResultsFilterFromDB::filter(edm::Event & event, const edm::EventSetup & setup)
+bool TriggerResultsFilterFromDB::hltFilter(edm::Event & event, const edm::EventSetup & setup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   // if the IOV has changed, re-read the triggerConditions from the database
   if (m_eventSetupWatcher.check(setup))

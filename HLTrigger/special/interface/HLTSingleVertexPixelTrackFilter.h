@@ -1,4 +1,4 @@
-// $Id: HLTSingleVertexPixelTrackFilter.h,v 1.1 2009/10/22 18:03:50 davidlw Exp $
+// $Id: HLTSingleVertexPixelTrackFilter.h,v 1.2 2009/11/01 19:35:03 davidlw Exp $
 
 #ifndef HLTSingleVertexPixelTrackFilter_h
 #define HLTSingleVertexPixelTrackFilter_h
@@ -14,7 +14,7 @@ class HLTSingleVertexPixelTrackFilter : public HLTFilter {
    public:
       explicit HLTSingleVertexPixelTrackFilter(const edm::ParameterSet&);
       ~HLTSingleVertexPixelTrackFilter();
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
       edm::InputTag pixelVerticesTag_;  // input tag identifying product containing Pixel-vertices

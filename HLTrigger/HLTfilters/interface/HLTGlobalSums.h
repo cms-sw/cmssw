@@ -8,8 +8,8 @@
  *  global sums such as the scalar sum of Et (a.k.a. H_T), available
  *  in the T=CaloMET or T=MET object.
  *
- *  $Date: 2008/09/26 08:40:34 $
- *  $Revision: 1.4 $
+ *  $Date: 2011/05/01 08:19:55 $
+ *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
@@ -29,12 +29,11 @@ class HLTGlobalSums : public HLTFilter {
 
       explicit HLTGlobalSums(const edm::ParameterSet&);
       ~HLTGlobalSums();
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
       // configuration
       edm::InputTag inputTag_; // input tag identifying MET product
-      bool saveTags_;           // whether to save this tag
       std::string observable_; // which observable to cut on
       double min_,max_;        // cut: Min<=observable<=Max
       int min_N_;              // how many needed to pass

@@ -26,25 +26,21 @@
 
 class HLTTrackWithHits : public HLTFilter {
 public:
-  explicit HLTTrackWithHits(const edm::ParameterSet& iConfig) :
+  explicit HLTTrackWithHits(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
     src_(iConfig.getParameter<edm::InputTag>("src")),
     minN_(iConfig.getParameter<int>("MinN")),
     maxN_(iConfig.getParameter<int>("MaxN")),
     MinBPX_(iConfig.getParameter<int>("MinBPX")),
     MinFPX_(iConfig.getParameter<int>("MinFPX")),
     MinPXL_(iConfig.getParameter<int>("MinPXL"))
-      {
-	produces<trigger::TriggerFilterObjectWithRefs>();
-      };
+  {
+  }
   
-  ~HLTTrackWithHits(){};
+  ~HLTTrackWithHits() { }
   
 private:
-  virtual bool filter(edm::Event& iEvent, const edm::EventSetup&)
+  virtual bool hltFilter(edm::Event& iEvent, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct)
   {
-    // The filtered object. which is put empty.
-    std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-
     edm::Handle<reco::TrackCollection> oHandle;
     iEvent.getByLabel(src_, oHandle);
     int s=oHandle->size();
@@ -59,11 +55,8 @@ private:
       
     bool answer=(count>=minN_ && count<=maxN_);
     LogDebug("HLTTrackWithHits")<<module()<<" sees: "<<s<<" objects. Only: "<<count<<" satisfy the hit requirement. Filter answer is: "<<(answer?"true":"false")<<std::endl;
-
-    iEvent.put(filterproduct);
     return answer;
   }
-  virtual void endJob(){};
  
   edm::InputTag src_;
   int minN_,maxN_,MinBPX_,MinFPX_,MinPXL_;

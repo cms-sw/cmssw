@@ -6,8 +6,8 @@
  * HLTFilter to select muons that points to a cylinder of configurable radius
  * and lenght.
  *
- * $Date: 2008/06/04 14:17:37 $
- * $Revision: 1.2 $
+ * $Date: 2009/10/05 10:40:17 $
+ * $Revision: 1.3 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  *
  */
@@ -38,7 +38,7 @@ public:
   ~HLTMuonPointingFilter() ;
   
   /* Operations */ 
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
   
 private:
   std::string theSTAMuonLabel; // label of muons 

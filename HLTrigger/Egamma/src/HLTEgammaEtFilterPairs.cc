@@ -1,6 +1,6 @@
 /** \class HLTEgammaEtFilterPairs
  *
- * $Id: HLTEgammaEtFilterPairs.cc,v 1.2 2009/01/27 13:57:07 ghezzi Exp $
+ * $Id: HLTEgammaEtFilterPairs.cc,v 1.3 2011/05/01 08:14:08 gruen Exp $
  *
  *  \author Alessio Ghezzi
  *
@@ -19,20 +19,16 @@
 //
 // constructors and destructor
 //
-HLTEgammaEtFilterPairs::HLTEgammaEtFilterPairs(const edm::ParameterSet& iConfig)
+HLTEgammaEtFilterPairs::HLTEgammaEtFilterPairs(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
    inputTag_ = iConfig.getParameter< edm::InputTag > ("inputTag");
    etcutEB1_  = iConfig.getParameter<double> ("etcut1EB");
    etcutEE1_  = iConfig.getParameter<double> ("etcut1EE");
    etcutEB2_  = iConfig.getParameter<double> ("etcut2EB");
    etcutEE2_  = iConfig.getParameter<double> ("etcut2EE");
-   store_ = iConfig.getParameter<bool>("saveTags") ;
    relaxed_ = iConfig.getUntrackedParameter<bool> ("relaxed",true) ;
    L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
    L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
-
-   //register your products
-   produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTEgammaEtFilterPairs::~HLTEgammaEtFilterPairs(){}
@@ -40,13 +36,14 @@ HLTEgammaEtFilterPairs::~HLTEgammaEtFilterPairs(){}
 
 // ------------ method called to produce the data  ------------
 bool
-HLTEgammaEtFilterPairs::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTEgammaEtFilterPairs::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace trigger;
   // The filter object
-    std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-    if( store_ ){filterproduct->addCollectionTag(L1IsoCollTag_);}
-    if( store_ && relaxed_){filterproduct->addCollectionTag(L1NonIsoCollTag_);}
+  if (saveTags()) {
+    filterproduct.addCollectionTag(L1IsoCollTag_);
+    if (relaxed_) filterproduct.addCollectionTag(L1NonIsoCollTag_);
+  }
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
   iEvent.getByLabel (inputTag_,PrevFilterOutput);
@@ -72,17 +69,14 @@ HLTEgammaEtFilterPairs::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 
     if ( first && second ) {
       n++;
-      filterproduct->addObject(TriggerCluster,r1 );
-      filterproduct->addObject(TriggerCluster,r2 );
+      filterproduct.addObject(TriggerCluster,r1 );
+      filterproduct.addObject(TriggerCluster,r2 );
     }
   }
 
   
   // filter decision
   bool accept(n>=1);
-  
-  // put filter object into the Event
-  iEvent.put(filterproduct);
   
   return accept;
 }

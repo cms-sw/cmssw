@@ -31,7 +31,7 @@
 //
 // constructors and destructor
 //
-HLTMhtHtFilter::HLTMhtHtFilter(const edm::ParameterSet& iConfig) :
+HLTMhtHtFilter::HLTMhtHtFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
   inputJetTag_    ( iConfig.getParameter<edm::InputTag>("inputJetTag") ),
   inputTracksTag_ ( iConfig.getParameter<edm::InputTag>("inputTracksTag") ),
   minPtJet_       ( iConfig.getParameter<std::vector<double> >("minPtJet") ),
@@ -50,8 +50,7 @@ HLTMhtHtFilter::HLTMhtHtFilter(const edm::ParameterSet& iConfig) :
   //----mode=4 for HT only
   //----mode=5 for HT and AlphaT cross trigger (ALWAYS uses jet ET, not pT)
   usePt_          ( iConfig.getParameter<bool>("usePt") ),
-  useTracks_      ( iConfig.getParameter<bool>("useTracks") ),
-  saveTags_       ( iConfig.getParameter<bool>("saveTags") )
+  useTracks_      ( iConfig.getParameter<bool>("useTracks") )
 {
   // sanity checks
   if (       (minPtJet_.size()    !=  etaJet_.size())
@@ -60,9 +59,6 @@ HLTMhtHtFilter::HLTMhtHtFilter(const edm::ParameterSet& iConfig) :
   ) {
     edm::LogError("HLTMhtHtFilter") << "inconsistent module configuration!";
   }
-
-  //register your products
-  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTMhtHtFilter::~HLTMhtHtFilter(){}
@@ -103,19 +99,19 @@ void HLTMhtHtFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptio
 
 // ------------ method called to produce the data  ------------
 bool
-  HLTMhtHtFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+  HLTMhtHtFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace std;
   using namespace edm;
   using namespace reco;
   using namespace trigger;
+
   // The filter object
-  auto_ptr<trigger::TriggerFilterObjectWithRefs> filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if (saveTags_) filterobject->addCollectionTag(inputJetTag_);
+  if (saveTags()) filterproduct.addCollectionTag(inputJetTag_);
 
   CaloJetRef ref;
-  // Get the Candidates
 
+  // Get the Candidates
   Handle<CaloJetCollection> recocalojets;
   iEvent.getByLabel(inputJetTag_,recocalojets);
 
@@ -205,7 +201,7 @@ bool
 
       if (jetVar > minPtJet_.at(0)) {
         ref = CaloJetRef(recocalojets,distance(recocalojets->begin(),recocalojet));
-        filterobject->addObject(TriggerJet,ref);
+        filterproduct.addObject(TriggerJet,ref);
         n++;
       }
     }
@@ -216,9 +212,6 @@ bool
 
   // filter decision
 bool accept(n>0);
-
-  // put filter object into the Event
-iEvent.put(filterobject);
 
 return accept;
 }

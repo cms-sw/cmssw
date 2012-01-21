@@ -25,7 +25,7 @@
 
 #include "DataFormats/Math/interface/deltaR.h"
 
-HLTDiMuonGlbTrkFilter::HLTDiMuonGlbTrkFilter(const edm::ParameterSet& iConfig){
+HLTDiMuonGlbTrkFilter::HLTDiMuonGlbTrkFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) {
   m_muons             = iConfig.getParameter<edm::InputTag>("inputMuonCollection");
   m_cands             = iConfig.getParameter<edm::InputTag>("inputCandCollection");
   m_minTrkHits        = iConfig.getParameter<int>("minTrkHits");
@@ -38,9 +38,6 @@ HLTDiMuonGlbTrkFilter::HLTDiMuonGlbTrkFilter(const edm::ParameterSet& iConfig){
   m_minPtMuon1        = iConfig.getParameter<double>("minPtMuon1");
   m_minPtMuon2        = iConfig.getParameter<double>("minPtMuon2");
   m_minMass           = iConfig.getParameter<double>("minMass");
-  m_saveTags          = iConfig.getParameter<bool>("saveTags");
-  //register your products
-  produces<trigger::TriggerFilterObjectWithRefs>(); // muons that passed di-muon selection
 }
 
 void
@@ -63,15 +60,13 @@ HLTDiMuonGlbTrkFilter::fillDescriptions(edm::ConfigurationDescriptions& descript
 }
 
 bool
-HLTDiMuonGlbTrkFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTDiMuonGlbTrkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
-  std::auto_ptr<trigger::TriggerFilterObjectWithRefs>  filterproduct(new trigger::TriggerFilterObjectWithRefs(path(),module()));
-
   edm::Handle<reco::MuonCollection> muons;
   iEvent.getByLabel(m_muons,muons);
   edm::Handle<reco::RecoChargedCandidateCollection> cands;
   iEvent.getByLabel(m_cands,cands);
-  if ( m_saveTags ) filterproduct->addCollectionTag(m_cands);
+  if ( saveTags() ) filterproduct.addCollectionTag(m_cands);
   if ( cands->size() != muons->size() )
     throw edm::Exception(edm::errors::Configuration) << "Both input collection must be aligned and represent same physical muon objects";
   std::vector<unsigned int> filteredMuons;
@@ -109,8 +104,7 @@ HLTDiMuonGlbTrkFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   for ( std::set<unsigned int>::const_iterator itr = mus.begin(); itr != mus.end(); ++itr )
-    filterproduct->addObject(trigger::TriggerMuon, reco::RecoChargedCandidateRef(cands,*itr));
+    filterproduct.addObject(trigger::TriggerMuon, reco::RecoChargedCandidateRef(cands,*itr));
   
-  iEvent.put(filterproduct);
   return npassed>0;
 }

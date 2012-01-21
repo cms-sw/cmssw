@@ -1,4 +1,4 @@
-// $Id: HLTSingleVertexPixelTrackFilter.cc,v 1.2 2009/10/23 11:50:39 davidlw Exp $
+// $Id: HLTSingleVertexPixelTrackFilter.cc,v 1.3 2009/11/01 19:34:12 davidlw Exp $
 
 #include "HLTrigger/special/interface/HLTSingleVertexPixelTrackFilter.h"
 
@@ -23,7 +23,7 @@
 // constructors and destructor
 //
  
-HLTSingleVertexPixelTrackFilter::HLTSingleVertexPixelTrackFilter(const edm::ParameterSet& iConfig) :
+HLTSingleVertexPixelTrackFilter::HLTSingleVertexPixelTrackFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
     pixelVerticesTag_ (iConfig.getParameter<edm::InputTag>("vertexCollection")),
     pixelTracksTag_ (iConfig.getParameter<edm::InputTag>("trackCollection")),
     min_Pt_  (iConfig.getParameter<double>("MinPt")),
@@ -33,8 +33,6 @@ HLTSingleVertexPixelTrackFilter::HLTSingleVertexPixelTrackFilter(const edm::Para
     min_trks_  (iConfig.getParameter<int>("MinTrks")),
     min_sep_  (iConfig.getParameter<double>("MinSep"))
 {
-   //register your products
-  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTSingleVertexPixelTrackFilter::~HLTSingleVertexPixelTrackFilter()
@@ -46,15 +44,12 @@ HLTSingleVertexPixelTrackFilter::~HLTSingleVertexPixelTrackFilter()
 //
 
 // ------------ method called to produce the data  ------------
-bool HLTSingleVertexPixelTrackFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+bool HLTSingleVertexPixelTrackFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
 
    // All HLT filters must create and fill an HLT filter object,
    // recording any reconstructed physics objects satisfying (or not)
    // this HLT filter, and place it in the Event.
-
-   // The Filter object
-   std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct (new trigger::TriggerFilterObjectWithRefs(path(),module()));
 
    // Ref to Candidate object to be recorded in filter object
    edm::Ref<reco::RecoChargedCandidateCollection> candref;
@@ -106,7 +101,7 @@ bool HLTSingleVertexPixelTrackFilter::filter(edm::Event& iEvent, const edm::Even
             if(fabs(vz-vzmax) > min_sep_) continue;
 
             candref = edm::Ref<reco::RecoChargedCandidateCollection>(trackCollection, icount);
-            filterproduct->addObject(trigger::TriggerTrack, candref);
+            filterproduct.addObject(trigger::TriggerTrack, candref);
             nTrackCandidate++;
           }
        }
@@ -115,9 +110,7 @@ bool HLTSingleVertexPixelTrackFilter::filter(edm::Event& iEvent, const edm::Even
        
    accept = ( nTrackCandidate >= min_trks_ );
 
-   filterproduct->addCollectionTag(pixelTracksTag_);
-
-   iEvent.put(filterproduct);
+   filterproduct.addCollectionTag(pixelTracksTag_);
 
    return accept;
 }

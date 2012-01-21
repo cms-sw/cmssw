@@ -11,8 +11,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-HLTCSCRing2or3Filter::HLTCSCRing2or3Filter(const edm::ParameterSet& iConfig)
-   : m_input(iConfig.getParameter<edm::InputTag>("input"))
+HLTCSCRing2or3Filter::HLTCSCRing2or3Filter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
+     , m_input(iConfig.getParameter<edm::InputTag>("input"))
      , m_minHits(iConfig.getParameter<unsigned int>("minHits"))
      , m_xWindow(iConfig.getParameter<double>("xWindow"))
      , m_yWindow(iConfig.getParameter<double>("yWindow"))
@@ -20,7 +20,7 @@ HLTCSCRing2or3Filter::HLTCSCRing2or3Filter(const edm::ParameterSet& iConfig)
 
 HLTCSCRing2or3Filter::~HLTCSCRing2or3Filter() { }
 
-bool HLTCSCRing2or3Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool HLTCSCRing2or3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
    edm::Handle<CSCRecHit2DCollection> hits;
    iEvent.getByLabel(m_input, hits);
 

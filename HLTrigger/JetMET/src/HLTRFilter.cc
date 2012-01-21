@@ -25,7 +25,7 @@
 //
 // constructors and destructor
 //
-HLTRFilter::HLTRFilter(const edm::ParameterSet& iConfig) :
+HLTRFilter::HLTRFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
   inputTag_    (iConfig.getParameter<edm::InputTag>("inputTag")),
   inputMetTag_ (iConfig.getParameter<edm::InputTag>("inputMetTag")),
   min_R_       (iConfig.getParameter<double>       ("minR"   )),
@@ -48,9 +48,6 @@ HLTRFilter::HLTRFilter(const edm::ParameterSet& iConfig) :
 		<< MR_offset_ << " "
 		<< R_MR_cut_
 		<< ".";
-
-   //register your products
-   produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTRFilter::~HLTRFilter()
@@ -78,16 +75,11 @@ HLTRFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
 // ------------ method called to produce the data  ------------
 bool 
-HLTRFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTRFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
    using namespace std;
    using namespace edm;
    using namespace reco;
-   using namespace trigger;
-
-   // The filter object
-   auto_ptr<TriggerFilterObjectWithRefs>
-     filterobject (new TriggerFilterObjectWithRefs(path(),module()));
 
    // get hold of collection of objects
    Handle< vector<math::XYZTLorentzVector> > hemispheres;
@@ -96,8 +88,6 @@ HLTRFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // get hold of the MET Collection
    Handle<CaloMETCollection> inputMet;
    iEvent.getByLabel(inputMetTag_,inputMet);  
-
-   iEvent.put(filterobject);
 
    // check the the input collections are available
    if (not hemispheres.isValid() or not inputMet.isValid())

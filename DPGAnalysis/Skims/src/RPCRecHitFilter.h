@@ -81,7 +81,7 @@ private:
 
   virtual void beginJob() ;
 
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
   virtual void endJob();
 

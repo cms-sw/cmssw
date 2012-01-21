@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Giovanni FRANZONI
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: EcalFEDErrorFilter.cc,v 1.3 2010/01/04 15:07:40 ferriff Exp $
+// $Id: EcalFEDErrorFilter.cc,v 1.4 2010/10/05 13:39:30 vlimant Exp $
 //
 //
 
@@ -23,7 +23,8 @@ Implementation:
 //
 // constructors and destructor
 //
-EcalFEDErrorFilter::EcalFEDErrorFilter(const edm::ParameterSet& iConfig)
+EcalFEDErrorFilter::EcalFEDErrorFilter(const edm::ParameterSet& iConfig) :
+  HLTFilter(iConfig)
 {
   //now do what ever initialization is needed
 
@@ -50,7 +51,7 @@ EcalFEDErrorFilter::~EcalFEDErrorFilter()
 
 // ------------ method called on each new Event  ------------
 bool
-EcalFEDErrorFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+EcalFEDErrorFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace edm;
 

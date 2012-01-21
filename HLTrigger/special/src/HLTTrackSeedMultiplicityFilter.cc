@@ -10,10 +10,9 @@ public:
   ~HLTTrackSeedMultiplicityFilter();
 
 private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
   edm::InputTag inputTag_;       // input tag identifying product containing track seeds
-  bool          saveTags_;        // whether to save this tag
   unsigned int  min_seeds_;      // minimum number of track seeds
   unsigned int  max_seeds_;      // maximum number of track seeds
 
@@ -32,9 +31,8 @@ private:
 // constructors and destructor
 //
  
-HLTTrackSeedMultiplicityFilter::HLTTrackSeedMultiplicityFilter(const edm::ParameterSet& config) :
-  inputTag_     (config.getParameter<edm::InputTag>("inputTag")),
-  saveTags_      (config.getParameter<bool>("saveTags")),
+HLTTrackSeedMultiplicityFilter::HLTTrackSeedMultiplicityFilter(const edm::ParameterSet& config) : HLTFilter(config),
+  inputTag_  (config.getParameter<edm::InputTag>("inputTag")),
   min_seeds_ (config.getParameter<unsigned int>("minSeeds")),
   max_seeds_ (config.getParameter<unsigned int>("maxSeeds"))
 {
@@ -42,9 +40,6 @@ HLTTrackSeedMultiplicityFilter::HLTTrackSeedMultiplicityFilter(const edm::Parame
   LogDebug("") << "Requesting at least " << min_seeds_ << " seeds";
   if(max_seeds_ > 0) 
     LogDebug("") << "...but no more than " << max_seeds_ << " seeds";
-
-  // register your products
-  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTTrackSeedMultiplicityFilter::~HLTTrackSeedMultiplicityFilter()
@@ -56,15 +51,14 @@ HLTTrackSeedMultiplicityFilter::~HLTTrackSeedMultiplicityFilter()
 //
 
 // ------------ method called to produce the data  ------------
-bool HLTTrackSeedMultiplicityFilter::filter(edm::Event& event, const edm::EventSetup& iSetup)
+bool HLTTrackSeedMultiplicityFilter::hltFilter(edm::Event& event, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   // All HLT filters must create and fill an HLT filter object,
   // recording any reconstructed physics objects satisfying (or not)
   // this HLT filter, and place it in the Event.
 
   // The filter object
-  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if (saveTags_) filterobject->addCollectionTag(inputTag_);
+  if (saveTags()) filterproduct.addCollectionTag(inputTag_);
 
   // get hold of products from Event
   edm::Handle<TrajectorySeedCollection> seedColl;
@@ -98,9 +92,6 @@ bool HLTTrackSeedMultiplicityFilter::filter(edm::Event& event, const edm::EventS
   if(max_seeds_ > 0) 
     accept &= (seedsize <= max_seeds_);
   
-  // put filter object into the Event
-  event.put(filterobject);
-
   // return with final filter decision
   return accept;
 }

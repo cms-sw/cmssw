@@ -13,7 +13,7 @@
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Wed Sep 19 16:21:29 CEST 2007
-// $Id: HLTHcalSimpleRecHitFilter.cc,v 1.4 2010/08/26 00:47:05 frankma Exp $
+// $Id: HLTHcalSimpleRecHitFilter.cc,v 1.4 2010/09/06 18:23:04 cer Exp $
 //
 //
 
@@ -43,7 +43,7 @@ public:
     ~HLTHcalSimpleRecHitFilter();
     
 private:
-    virtual bool filter(edm::Event&, const edm::EventSetup&);
+    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
     
     // ----------member data ---------------------------
     edm::InputTag HcalRecHitCollection_;
@@ -58,7 +58,7 @@ private:
 //
 // constructors and destructor
 //
-HLTHcalSimpleRecHitFilter::HLTHcalSimpleRecHitFilter(const edm::ParameterSet& iConfig)
+HLTHcalSimpleRecHitFilter::HLTHcalSimpleRecHitFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
     //now do what ever initialization is needed
     threshold_     = iConfig.getParameter<double>("threshold");
@@ -86,7 +86,7 @@ HLTHcalSimpleRecHitFilter::~HLTHcalSimpleRecHitFilter()
 
 // ------------ method called on each new Event  ------------
 bool
-HLTHcalSimpleRecHitFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+HLTHcalSimpleRecHitFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
     // using namespace edm;
 
     // getting very basic uncalRH

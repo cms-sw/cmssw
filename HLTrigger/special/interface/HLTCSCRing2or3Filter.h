@@ -13,7 +13,7 @@ class HLTCSCRing2or3Filter : public HLTFilter {
  public:
   explicit HLTCSCRing2or3Filter(const edm::ParameterSet&);
   ~HLTCSCRing2or3Filter();
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
  private:
   edm::InputTag m_input;

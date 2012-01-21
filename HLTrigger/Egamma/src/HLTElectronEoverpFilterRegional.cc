@@ -2,7 +2,7 @@
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
- * $Id: HLTElectronEoverpFilterRegional.cc,v 1.9 2009/02/09 16:27:18 covarell Exp $
+ * $Id: HLTElectronEoverpFilterRegional.cc,v 1.10 2011/05/01 08:14:08 gruen Exp $
  *
  */
 
@@ -25,7 +25,7 @@
 //
 // constructors and destructor
 //
-HLTElectronEoverpFilterRegional::HLTElectronEoverpFilterRegional(const edm::ParameterSet& iConfig)
+HLTElectronEoverpFilterRegional::HLTElectronEoverpFilterRegional(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
    candTag_ = iConfig.getParameter< edm::InputTag > ("candTag");
    electronIsolatedProducer_ = iConfig.getParameter< edm::InputTag > ("electronIsolatedProducer");
@@ -34,13 +34,6 @@ HLTElectronEoverpFilterRegional::HLTElectronEoverpFilterRegional(const edm::Para
    eoverpendcapcut_  = iConfig.getParameter<double> ("eoverpendcapcut");
    ncandcut_  = iConfig.getParameter<int> ("ncandcut");
    doIsolated_  = iConfig.getParameter<bool> ("doIsolated");
-   
-   store_ = iConfig.getParameter<bool>("saveTags") ;
-   // L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
-   // L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
-
-   //register your products
-   produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTElectronEoverpFilterRegional::~HLTElectronEoverpFilterRegional(){}
@@ -48,15 +41,15 @@ HLTElectronEoverpFilterRegional::~HLTElectronEoverpFilterRegional(){}
 
 // ------------ method called to produce the data  ------------
 bool
-HLTElectronEoverpFilterRegional::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTElectronEoverpFilterRegional::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
 
   // The filter object
   using namespace trigger;
-    std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-    if( store_ ){filterproduct->addCollectionTag(electronIsolatedProducer_);}
-    if( store_ && !doIsolated_){filterproduct->addCollectionTag(electronNonIsolatedProducer_);}   
-    //will be a collection of Ref<reco::ElectronCollection> ref;
+  if (saveTags()) {
+    filterproduct.addCollectionTag(electronIsolatedProducer_);
+    if (not doIsolated_) filterproduct.addCollectionTag(electronNonIsolatedProducer_);
+  }
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
   iEvent.getByLabel (candTag_,PrevFilterOutput);
@@ -100,13 +93,13 @@ HLTElectronEoverpFilterRegional::filter(edm::Event& iEvent, const edm::EventSetu
 	if( fabs(electronref->eta()) < 1.5 ){
 	  if ( elecEoverp < eoverpbarrelcut_) {
 	    n++;
-	    filterproduct->addObject(TriggerElectron, electronref);
+	    filterproduct.addObject(TriggerElectron, electronref);
 	  }
 	}
 	if( fabs(electronref->eta()) > 1.5 ){
 	  if ( elecEoverp < eoverpendcapcut_) {
 	    n++;
-	    filterproduct->addObject(TriggerElectron, electronref);
+	    filterproduct.addObject(TriggerElectron, electronref);
 	  }
 	}
       }//end of the if checking the matching of the SC from RecoCandidate and the one from Electrons
@@ -129,13 +122,13 @@ HLTElectronEoverpFilterRegional::filter(edm::Event& iEvent, const edm::EventSetu
 	if( fabs(electronref->eta()) < 1.5 ){
 	  if ( elecEoverp < eoverpbarrelcut_) {
 	    n++;
-	    filterproduct->addObject(TriggerElectron, electronref);
+	    filterproduct.addObject(TriggerElectron, electronref);
 	  }
 	}
 	if( fabs(electronref->eta()) > 1.5 ){
 	  if ( elecEoverp < eoverpendcapcut_) {
 	    n++;
-	    filterproduct->addObject(TriggerElectron, electronref);
+	    filterproduct.addObject(TriggerElectron, electronref);
 	  }
 	}
       }//end of the if checking the matching of the SC from RecoCandidate and the one from Electrons
@@ -145,9 +138,6 @@ HLTElectronEoverpFilterRegional::filter(edm::Event& iEvent, const edm::EventSetu
 
   // filter decision
   bool accept(n>=ncandcut_);
-  
-  // put filter object into the Event
-  iEvent.put(filterproduct);
   
   return accept;
 }

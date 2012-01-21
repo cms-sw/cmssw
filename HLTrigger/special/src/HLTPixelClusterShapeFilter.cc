@@ -12,8 +12,6 @@ public:
 private:
 
   edm::InputTag       inputTag_;      // input tag identifying product containing pixel clusters
-  bool                saveTags_;       // whether to save this tag
-
   double              minZ_;          // beginning z-vertex position
   double              maxZ_;          // end z-vertex position
   double              zStep_;         // size of steps in z-vertex test
@@ -29,7 +27,7 @@ private:
     float w;
   };
 
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
   int getContainedHits(const std::vector<VertexHit> &hits, double z0, double &chi);
 
 };
@@ -57,9 +55,8 @@ private:
 // constructors and destructor
 //
  
-HLTPixelClusterShapeFilter::HLTPixelClusterShapeFilter(const edm::ParameterSet& config) :
+HLTPixelClusterShapeFilter::HLTPixelClusterShapeFilter(const edm::ParameterSet& config) : HLTFilter(config),
   inputTag_     (config.getParameter<edm::InputTag>("inputTag")),
-  saveTags_      (config.getParameter<bool>("saveTags")),
   minZ_         (config.getParameter<double>("minZ")),
   maxZ_         (config.getParameter<double>("maxZ")),
   zStep_        (config.getParameter<double>("zStep")),
@@ -68,9 +65,6 @@ HLTPixelClusterShapeFilter::HLTPixelClusterShapeFilter(const edm::ParameterSet& 
   clusterTrunc_ (config.getParameter<double>("clusterTrunc"))
 {
   LogDebug("") << "Using the " << inputTag_ << " input collection";
-
-  // register your products
-  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTPixelClusterShapeFilter::~HLTPixelClusterShapeFilter()
@@ -82,15 +76,14 @@ HLTPixelClusterShapeFilter::~HLTPixelClusterShapeFilter()
 //
 
 // ------------ method called to produce the data  ------------
-bool HLTPixelClusterShapeFilter::filter(edm::Event& event, const edm::EventSetup& iSetup)
+bool HLTPixelClusterShapeFilter::hltFilter(edm::Event& event, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   // All HLT filters must create and fill an HLT filter object,
   // recording any reconstructed physics objects satisfying (or not)
   // this HLT filter, and place it in the Event.
 
   // The filter object
-  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if (saveTags_) filterobject->addCollectionTag(inputTag_);
+  if (saveTags()) filterproduct.addCollectionTag(inputTag_);
   bool accept = true;
 
   // get hold of products from Event
@@ -187,9 +180,6 @@ bool HLTPixelClusterShapeFilter::filter(edm::Event& event, const edm::EventSetup
     polyCut=clusterTrunc_; // no cut above clusterTrunc_
 
   if (clusVtxQual < polyCut) accept = false;
-
-  // put filter object into the Event
-  event.put(filterobject);
   }
 
   // return with final filter decision

@@ -22,7 +22,7 @@ class HLTEgammaDoubleEtPhiFilter : public HLTFilter {
  public:
   explicit HLTEgammaDoubleEtPhiFilter(const edm::ParameterSet&);
   ~HLTEgammaDoubleEtPhiFilter();
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
  private:
   edm::InputTag candTag_; // input tag identifying product contains filtered candidates

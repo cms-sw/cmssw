@@ -18,7 +18,7 @@ class HLTEgammaGenericFilter : public HLTFilter {
    public:
       explicit HLTEgammaGenericFilter(const edm::ParameterSet&);
       ~HLTEgammaGenericFilter();
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
       edm::InputTag candTag_; // input tag identifying product that contains filtered photons
@@ -35,7 +35,6 @@ class HLTEgammaGenericFilter : public HLTFilter {
       int    ncandcut_;        // number of photons required
       bool doIsolated_;
 
-      bool   store_;
       edm::InputTag L1IsoCollTag_; 
       edm::InputTag L1NonIsoCollTag_; 
 };

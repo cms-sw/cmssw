@@ -51,11 +51,10 @@ class HLTElectronPFMTFilter : public HLTFilter {
       explicit HLTElectronPFMTFilter(const edm::ParameterSet&);
       ~HLTElectronPFMTFilter();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
       edm::InputTag inputMetTag_; // input tag identifying jets
-      bool saveTags_;              // whether to save this tag
       double minMht_;
 
       edm::InputTag inputEleTag_;     // input tag identifying egammas

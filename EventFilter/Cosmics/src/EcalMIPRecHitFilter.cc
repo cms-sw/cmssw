@@ -13,7 +13,7 @@
 //
 // Original Author:  Giovanni FRANZONI
 //         Created:  Wed Sep 19 16:21:29 CEST 2007
-// $Id: EcalMIPRecHitFilter.cc,v 1.5 2008/06/09 05:36:23 haupt Exp $
+// $Id: EcalMIPRecHitFilter.cc,v 1.6 2010/02/03 03:12:45 wmtan Exp $
 //
 //
 
@@ -59,7 +59,7 @@ class EcalMIPRecHitFilter : public HLTFilter {
 
    private:
       virtual void beginJob() ;
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
       virtual void endJob() ;
       
       // ----------member data ---------------------------
@@ -76,9 +76,10 @@ class EcalMIPRecHitFilter : public HLTFilter {
 //
 // constructors and destructor
 //
-EcalMIPRecHitFilter::EcalMIPRecHitFilter(const edm::ParameterSet& iConfig)
+EcalMIPRecHitFilter::EcalMIPRecHitFilter(const edm::ParameterSet& iConfig) :
+  HLTFilter(iConfig)
 {
-   //now do what ever initialization is needed
+  // now do what ever initialization is needed
   minSingleAmp_     = iConfig.getUntrackedParameter<double>("SingleAmpMin", 0.108);
   minAmp1_     = iConfig.getUntrackedParameter<double>("AmpMinSeed", 0.063);
   minAmp2_     = iConfig.getUntrackedParameter<double>("AmpMin2", 0.045); 
@@ -103,7 +104,7 @@ EcalMIPRecHitFilter::~EcalMIPRecHitFilter()
 
 // ------------ method called on each new Event  ------------
 bool
-EcalMIPRecHitFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+EcalMIPRecHitFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
    using namespace edm;
 

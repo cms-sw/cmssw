@@ -12,7 +12,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
-HLTEcalIsolationFilter::HLTEcalIsolationFilter(const edm::ParameterSet& iConfig)
+HLTEcalIsolationFilter::HLTEcalIsolationFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
   candTag_ = iConfig.getParameter<edm::InputTag> ("EcalIsolatedParticleSource");
   maxhitout = iConfig.getParameter<int> ("MaxNhitOuterCone");
@@ -20,18 +20,12 @@ HLTEcalIsolationFilter::HLTEcalIsolationFilter(const edm::ParameterSet& iConfig)
   maxenin = iConfig.getParameter<double> ("MaxEnergyInnerCone");
   maxenout = iConfig.getParameter<double> ("MaxEnergyOuterCone");
   maxetacand = iConfig.getParameter<double> ("MaxEtaCandidate");  
-
-  //register products
-  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTEcalIsolationFilter::~HLTEcalIsolationFilter(){}
 
-bool HLTEcalIsolationFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+bool HLTEcalIsolationFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
-
-  // The Filter object
-  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct (new trigger::TriggerFilterObjectWithRefs(path(),module()));
 
   // Ref to Candidate object to be recorded in filter object
   edm::Ref<reco::IsolatedPixelTrackCandidateCollection> candref;
@@ -49,15 +43,13 @@ bool HLTEcalIsolationFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
 	
       if ((candref->nHitIn()<=maxhitin)&&(candref->nHitOut()<=maxhitout)&&(candref->energyOut()<maxenout)&&(candref->energyIn()<maxenin)&&fabs(candref->eta())<maxetacand)
 	{
-	  filterproduct->addObject(trigger::TriggerTrack, candref);
+	  filterproduct.addObject(trigger::TriggerTrack, candref);
 	  n++;
 	}
     }
   
   
   bool accept(n>0);
-
-  iEvent.put(filterproduct);
 
   return accept;
 

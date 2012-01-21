@@ -15,7 +15,7 @@ Description: Filter to select events with activity in the muon barrel system
 //
 // Original Author:  Carlo Battilana
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTDTActivityFilter.cc,v 1.5 2010/03/08 10:53:31 goys Exp $
+// $Id: HLTDTActivityFilter.cc,v 1.6 2010/07/30 16:41:11 goys Exp $
 //
 //
 
@@ -50,7 +50,7 @@ typedef   std::map<uint32_t,std::bitset<4> > activityMap; // bitset map accordin
 //
 // constructors and destructor
 //
-HLTDTActivityFilter::HLTDTActivityFilter(const edm::ParameterSet& iConfig) {
+HLTDTActivityFilter::HLTDTActivityFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) {
 
   using namespace std;
 
@@ -112,7 +112,7 @@ bool HLTDTActivityFilter::beginRun(edm::Run& iRun, const edm::EventSetup& iSetup
 }
 
 // ------------ method called on each new Event  ------------
-bool HLTDTActivityFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool HLTDTActivityFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
 
   using namespace edm;
   using namespace std;

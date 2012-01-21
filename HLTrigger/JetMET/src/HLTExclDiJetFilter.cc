@@ -30,15 +30,12 @@
 //
 // constructors and destructor
 //
-HLTExclDiJetFilter::HLTExclDiJetFilter(const edm::ParameterSet& iConfig)
+HLTExclDiJetFilter::HLTExclDiJetFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
    inputJetTag_ = iConfig.getParameter< edm::InputTag > ("inputJetTag");
-   saveTags_     = iConfig.getParameter<bool>("saveTags");
    minPtJet_    = iConfig.getParameter<double> ("minPtJet"); 
    minHFe_      = iConfig.getParameter<double> ("minHFe"); 
    HF_OR_       = iConfig.getParameter<bool> ("HF_OR"); 
-   //register your products
-   produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTExclDiJetFilter::~HLTExclDiJetFilter(){}
@@ -56,18 +53,15 @@ HLTExclDiJetFilter::fillDescriptions(edm::ConfigurationDescriptions& description
 
 // ------------ method called to produce the data  ------------
 bool
-HLTExclDiJetFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTExclDiJetFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace std;
   using namespace edm;
   using namespace reco;
   using namespace trigger;
 
-
   // The filter object
-  auto_ptr<trigger::TriggerFilterObjectWithRefs> 
-    filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if (saveTags_) filterobject->addCollectionTag(inputJetTag_);
+  if (saveTags()) filterproduct.addCollectionTag(inputJetTag_);
 
   Handle<CaloJetCollection> recocalojets;
   iEvent.getByLabel(inputJetTag_,recocalojets);
@@ -108,8 +102,8 @@ HLTExclDiJetFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       double Dphi=fabs(phijet1-phijet2);
       if(Dphi>M_PI) Dphi=2.0*M_PI-Dphi;
     if(Dphi>0.5*M_PI) {
-       filterobject->addObject(TriggerJet,JetRef1);
-       filterobject->addObject(TriggerJet,JetRef2);
+       filterproduct.addObject(TriggerJet,JetRef1);
+       filterproduct.addObject(TriggerJet,JetRef2);
        ++n;
     }
     }
@@ -147,8 +141,5 @@ HLTExclDiJetFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 // filter decision
   bool accept(n>0 && hf_accept);
 
-  // put filter object into the Event
-  iEvent.put(filterobject);
-  
   return accept;
 }

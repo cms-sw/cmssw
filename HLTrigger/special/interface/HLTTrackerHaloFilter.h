@@ -45,19 +45,14 @@ public:
   ~HLTTrackerHaloFilter();
 
 private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
   edm::InputTag inputTag_; // input tag identifying product containing pixel clusters
-  bool          saveTags_;   // whether to save this tag
-
   int max_clusTp_; // Maximum number of TEC+ clusters
   int max_clusTm_; // Maximum number of TEC- clusters
-
   int sign_accu_;  // Minimal size for a signal accumulation
   int max_clusT_;  // Maximum number of TEC clusters
-
   int max_back_;   // Max number of accumulations per side
-
   int fastproc_;   // fast unpacking of cluster info, based on DetIds 
  
   int SST_clus_MAP_m[5][8][9];

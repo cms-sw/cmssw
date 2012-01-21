@@ -14,9 +14,8 @@
 // constructors and destructor
 //
  
-HLTPixelAsymmetryFilter::HLTPixelAsymmetryFilter(const edm::ParameterSet& config) :
-  inputTag_     (config.getParameter<edm::InputTag>("inputTag")),
-  saveTags_      (config.getParameter<bool>("saveTags")),
+HLTPixelAsymmetryFilter::HLTPixelAsymmetryFilter(const edm::ParameterSet& config) : HLTFilter(config),
+  inputTag_ (config.getParameter<edm::InputTag>("inputTag")),
   min_asym_ (config.getParameter<double>("MinAsym")),
   max_asym_ (config.getParameter<double>("MaxAsym")),
   clus_thresh_ (config.getParameter<double>("MinCharge")),
@@ -26,9 +25,6 @@ HLTPixelAsymmetryFilter::HLTPixelAsymmetryFilter(const edm::ParameterSet& config
   LogDebug("") << "Requesting events with a charge repartition asymmetry between " << min_asym_ << " and " << max_asym_;
   LogDebug("") << "Mean cluster charge in the barrel should be higher than" << bmincharge_ << " electrons ";
   LogDebug("") << "Only clusters with a charge larger than " << clus_thresh_ << " electrons will be used ";
-
-  // register your products
-  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTPixelAsymmetryFilter::~HLTPixelAsymmetryFilter()
@@ -40,15 +36,14 @@ HLTPixelAsymmetryFilter::~HLTPixelAsymmetryFilter()
 //
 
 // ------------ method called to produce the data  ------------
-bool HLTPixelAsymmetryFilter::filter(edm::Event& event, const edm::EventSetup& iSetup)
+bool HLTPixelAsymmetryFilter::hltFilter(edm::Event& event, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   // All HLT filters must create and fill an HLT filter object,
   // recording any reconstructed physics objects satisfying (or not)
   // this HLT filter, and place it in the Event.
 
   // The filter object
-  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if (saveTags_) filterobject->addCollectionTag(inputTag_);
+  if (saveTags()) filterproduct.addCollectionTag(inputTag_);
 
   // get hold of products from Event
   edm::Handle<edmNew::DetSetVector<SiPixelCluster> > clusterColl;

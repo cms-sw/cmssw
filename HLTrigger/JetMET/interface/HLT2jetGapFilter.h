@@ -17,11 +17,10 @@ class HLT2jetGapFilter : public HLTFilter {
    public:
       explicit HLT2jetGapFilter(const edm::ParameterSet&);
       ~HLT2jetGapFilter();
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
       edm::InputTag inputTag_; // input tag identifying jets
-      bool saveTags_;           // whether to save this tag
       double minEt_;
       double minEta_;
 };

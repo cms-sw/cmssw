@@ -20,24 +20,19 @@
 //
 // constructors and destructor
 //
-HLTEgammaCombMassFilter::HLTEgammaCombMassFilter(const edm::ParameterSet& iConfig)
+HLTEgammaCombMassFilter::HLTEgammaCombMassFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
   firstLegLastFilterTag_ = iConfig.getParameter<edm::InputTag>("firstLegLastFilter");
   secondLegLastFilterTag_= iConfig.getParameter<edm::InputTag>("secondLegLastFilter");
   minMass_ = iConfig.getParameter<double> ("minMass");
-  
-  //register your products
-  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTEgammaCombMassFilter::~HLTEgammaCombMassFilter(){}
 
 
 // ------------ method called to produce the data  ------------
-bool HLTEgammaCombMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+bool HLTEgammaCombMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
-  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct (new trigger::TriggerFilterObjectWithRefs(path(),module())); //empty filter product
-
   //right, issue 1, we dont know if this is a TriggerElectron, TriggerPhoton, TriggerCluster (should never be a TriggerCluster btw as that implies the 4-vectors are not stored in AOD)
 
   //trigger::TriggerObjectType firstLegTrigType;
@@ -60,9 +55,6 @@ bool HLTEgammaCombMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
     }
   }
   
-  //put filter object into the Event
-  iEvent.put(filterproduct);
-
   return accept;
 }
 

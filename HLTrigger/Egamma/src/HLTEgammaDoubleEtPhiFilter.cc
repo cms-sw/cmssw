@@ -1,6 +1,6 @@
 /** \class HLTEgammaDoubleEtPhiFilter
  *
- * $Id: HLTEgammaDoubleEtPhiFilter.cc,v 1.3 2007/12/07 09:32:56 ghezzi Exp $
+ * $Id: HLTEgammaDoubleEtPhiFilter.cc,v 1.4 2007/12/07 14:41:33 ghezzi Exp $
  *
  *  \author Jonathan Hollar (LLNL)
  *
@@ -26,7 +26,7 @@ public:
 //
 // constructors and destructor
 //
-HLTEgammaDoubleEtPhiFilter::HLTEgammaDoubleEtPhiFilter(const edm::ParameterSet& iConfig)
+HLTEgammaDoubleEtPhiFilter::HLTEgammaDoubleEtPhiFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
    candTag_ = iConfig.getParameter< edm::InputTag > ("candTag");
    etcut1_  = iConfig.getParameter<double> ("etcut1");
@@ -36,27 +36,20 @@ HLTEgammaDoubleEtPhiFilter::HLTEgammaDoubleEtPhiFilter(const edm::ParameterSet& 
    min_EtBalance_ = iConfig.getParameter<double> ("MinEtBalance");
    max_EtBalance_ = iConfig.getParameter<double> ("MaxEtBalance");
    npaircut_  = iConfig.getParameter<int> ("npaircut");
-
-   //register your products
-   produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTEgammaDoubleEtPhiFilter::~HLTEgammaDoubleEtPhiFilter(){}
 
 // ------------ method called to produce the data  ------------
 bool
-HLTEgammaDoubleEtPhiFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTEgammaDoubleEtPhiFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
-
-     // The filter object
   using namespace trigger;
-    std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  // Ref to Candidate object to be recorded in filter object
-   edm::Ref<reco::RecoEcalCandidateCollection> ref;
 
+  // Ref to Candidate object to be recorded in filter object
+  edm::Ref<reco::RecoEcalCandidateCollection> ref;
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
-
   iEvent.getByLabel (candTag_,PrevFilterOutput);
   
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> >  mysortedrecoecalcands;
@@ -87,8 +80,8 @@ HLTEgammaDoubleEtPhiFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
             double etbalance = fabs(ref1->et()-ref2->et());
             if ((etbalance>=min_EtBalance_) && (etbalance<=max_EtBalance_))
 	    {
-	      filterproduct->addObject(TriggerCluster, ref1);
-	      filterproduct->addObject(TriggerCluster, ref2);
+	      filterproduct.addObject(TriggerCluster, ref1);
+	      filterproduct.addObject(TriggerCluster, ref2);
 	      n++;
 	    }
 	  }
@@ -100,9 +93,6 @@ HLTEgammaDoubleEtPhiFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
 
   // filter decision
   bool accept(n>=npaircut_);
-  
-  // put filter object into the Event
-  iEvent.put(filterproduct);
   
   return accept;
 }

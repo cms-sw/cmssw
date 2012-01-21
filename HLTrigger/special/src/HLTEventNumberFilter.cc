@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Martin Grunewald
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTEventNumberFilter.cc,v 1.1 2009/06/24 14:30:01 gruen Exp $
+// $Id: HLTEventNumberFilter.cc,v 1.2 2009/06/24 14:49:57 gruen Exp $
 //
 //
 
@@ -29,7 +29,7 @@ Implementation:
 //
 // constructors and destructor
 //
-HLTEventNumberFilter::HLTEventNumberFilter(const edm::ParameterSet& iConfig)
+HLTEventNumberFilter::HLTEventNumberFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
   //now do what ever initialization is needed
 
@@ -53,7 +53,7 @@ HLTEventNumberFilter::~HLTEventNumberFilter()
 
 // ------------ method called on each new Event  ------------
 bool
-HLTEventNumberFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTEventNumberFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace edm;
 

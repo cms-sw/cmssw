@@ -8,8 +8,8 @@
  *    - use or ignore the L1 trigger mask
  *    - only look at a subset of the L1 bits
  * 
- *  $Date: 2011/02/23 17:03:00 $
- *  $Revision: 1.11 $
+ *  $Date: 2011/02/23 17:10:54 $
+ *  $Revision: 1.12 $
  *
  *  \author Andrea Bocci
  *
@@ -39,7 +39,7 @@ public:
   explicit HLTLevel1Activity(const edm::ParameterSet&);
   ~HLTLevel1Activity();
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
 private:
   edm::InputTag     m_gtReadoutRecord;
@@ -67,7 +67,7 @@ private:
 //
 // constructors and destructor
 //
-HLTLevel1Activity::HLTLevel1Activity(const edm::ParameterSet & config) :
+HLTLevel1Activity::HLTLevel1Activity(const edm::ParameterSet & config) : HLTFilter(config),
   m_gtReadoutRecord( config.getParameter<edm::InputTag>     ("L1GtReadoutRecordTag") ),
   m_bunchCrossings(  config.getParameter<std::vector<int> > ("bunchCrossings") ),
   m_selectPhysics(   PHYSICS_BITS_SIZE ),
@@ -126,7 +126,7 @@ HLTLevel1Activity::fillDescriptions(edm::ConfigurationDescriptions& descriptions
 
 // ------------ method called to produce the data  ------------
 bool
-HLTLevel1Activity::filter(edm::Event& event, const edm::EventSetup& setup)
+HLTLevel1Activity::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   // apply L1 mask to the physics bits
   //  - mask & partition == part. --> fully masked

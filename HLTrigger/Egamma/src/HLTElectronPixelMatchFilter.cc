@@ -1,6 +1,6 @@
 /** \class HLTElectronPixelMatchFilter
  *
- * $Id: HLTElectronPixelMatchFilter.cc,v 1.12 2009/01/28 17:04:19 ghezzi Exp $
+ * $Id: HLTElectronPixelMatchFilter.cc,v 1.13 2011/05/01 08:14:08 gruen Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -33,24 +33,16 @@
 //
 // constructors and destructor
 //
-HLTElectronPixelMatchFilter::HLTElectronPixelMatchFilter(const edm::ParameterSet& iConfig)
+HLTElectronPixelMatchFilter::HLTElectronPixelMatchFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
   candTag_            = iConfig.getParameter< edm::InputTag > ("candTag");
-
   L1IsoPixelSeedsTag_  = iConfig.getParameter< edm::InputTag > ("L1IsoPixelSeedsTag");
   L1NonIsoPixelSeedsTag_  = iConfig.getParameter< edm::InputTag > ("L1NonIsoPixelSeedsTag");
-
   npixelmatchcut_     = iConfig.getParameter<double> ("npixelmatchcut");
   ncandcut_           = iConfig.getParameter<int> ("ncandcut");
-
   doIsolated_    = iConfig.getParameter<bool> ("doIsolated");
-
-   store_ = iConfig.getParameter<bool>("saveTags") ;
-   L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
-   L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
-
-   //register your products
-   produces<trigger::TriggerFilterObjectWithRefs>();
+  L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
+  L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
 }
 
 
@@ -59,16 +51,17 @@ HLTElectronPixelMatchFilter::~HLTElectronPixelMatchFilter(){}
 
 // ------------ method called to produce the data  ------------
 bool
-HLTElectronPixelMatchFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTElectronPixelMatchFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   // The filter object
   using namespace trigger;
-    std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-    if( store_ ){filterproduct->addCollectionTag(L1IsoCollTag_);}
-    if( store_ && !doIsolated_){filterproduct->addCollectionTag(L1NonIsoCollTag_);}
-  // Ref to Candidate object to be recorded in filter object
-   edm::Ref<reco::RecoEcalCandidateCollection> ref;
+  if (saveTags()) {
+    filterproduct.addCollectionTag(L1IsoCollTag_);
+    if (not doIsolated_) filterproduct.addCollectionTag(L1NonIsoCollTag_);
+  }
 
+  // Ref to Candidate object to be recorded in filter object
+  edm::Ref<reco::RecoEcalCandidateCollection> ref;
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
 
@@ -125,16 +118,13 @@ HLTElectronPixelMatchFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
     
     if ( nmatch >= npixelmatchcut_) {
       n++;
-      filterproduct->addObject(TriggerCluster, ref);
+      filterproduct.addObject(TriggerCluster, ref);
     }
     
   }//end of loop over candidates
   //    std::cout<<"######################################################################"<<std::endl;   
   // filter decision
   bool accept(n>=ncandcut_);
-  
-  // put filter object into the Event
-  iEvent.put(filterproduct);
   
   return accept;
 }

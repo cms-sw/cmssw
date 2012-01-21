@@ -13,15 +13,14 @@
 #include "DataFormats/METReco/interface/MET.h"
 
 
-HLTHtMhtFilter::HLTHtMhtFilter(const edm::ParameterSet & iConfig) :
+HLTHtMhtFilter::HLTHtMhtFilter(const edm::ParameterSet & iConfig) : HLTFilter(iConfig),
   htLabels_  ( iConfig.getParameter<std::vector<edm::InputTag> >("htLabels") ),
   mhtLabels_ ( iConfig.getParameter<std::vector<edm::InputTag> >("mhtLabels") ),
   minHt_     ( iConfig.getParameter<std::vector<double> >("minHt") ),
   minMht_    ( iConfig.getParameter<std::vector<double> >("minMht") ),
   minMeff_   ( iConfig.getParameter<std::vector<double> >("minMeff") ),
   meffSlope_ ( iConfig.getParameter<std::vector<double> >("meffSlope") ),
-  nOrs_      ( htLabels_.size() ), // number of settings to .OR.
-  saveTags_  ( iConfig.getParameter<bool>("saveTags") )
+  nOrs_      ( htLabels_.size() )   // number of settings to .OR.
 {
   if (!( htLabels_.size() == mhtLabels_.size() and
          htLabels_.size() == minHt_.size() and
@@ -39,7 +38,6 @@ HLTHtMhtFilter::HLTHtMhtFilter(const edm::ParameterSet & iConfig) :
 
   moduleLabel_ = iConfig.getParameter<std::string>("@module_label");
   produces<reco::METCollection>();
-  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 
@@ -62,13 +60,12 @@ void HLTHtMhtFilter::fillDescriptions(edm::ConfigurationDescriptions & descripti
 }
 
 
-bool HLTHtMhtFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup) {
+bool HLTHtMhtFilter::hltFilter(edm::Event & iEvent, const edm::EventSetup & iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
 
   // the filter objects to be stored
   std::auto_ptr<reco::METCollection> metobject(new reco::METCollection());
   // the references to the filter objects
-  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if (saveTags_) filterobject->addCollectionTag(moduleLabel_);
+  if (saveTags()) filterproduct.addCollectionTag(moduleLabel_);
 
   bool accept = false;
 
@@ -93,14 +90,11 @@ bool HLTHtMhtFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup)
     // store the object that was cut on and the ref to it
     metobject->push_back(reco::MET(ht, (*hmht)[0].p4(), reco::MET::Point()));
     edm::Ref<reco::METCollection> metref(iEvent.getRefBeforePut<reco::METCollection>(), i); // point to i'th object
-    filterobject->addObject(trigger::TriggerMHT, metref); // save as an MHT
+    filterproduct.addObject(trigger::TriggerMHT, metref); // save as an MHT
 
   }
 
-  // put filter object into the Event
   iEvent.put(metobject);
-  iEvent.put(filterobject);
 
   return accept;
-
 }

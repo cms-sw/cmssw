@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/05/01 08:43:49 $
- *  $Revision: 1.8 $
+ *  $Date: 2011/05/01 14:41:36 $
+ *  $Revision: 1.9 $
  *
  *  \author Martin Grunewald
  *
@@ -23,17 +23,13 @@
 // constructors and destructor
 //
 template<typename T, int Tid>
-HLTSmartSinglet<T,Tid>::HLTSmartSinglet(const edm::ParameterSet& iConfig) :
+HLTSmartSinglet<T,Tid>::HLTSmartSinglet(const edm::ParameterSet& iConfig) : HLTFilter(iConfig), 
   inputTag_ (iConfig.template getParameter<edm::InputTag>("inputTag")),
-  saveTags_  (iConfig.template getParameter<bool>("saveTags")),
   cut_      (iConfig.template getParameter<std::string>  ("cut"     )),
   min_N_    (iConfig.template getParameter<int>          ("MinN"    )),
   select_   (cut_                                                    )
 {
    LogDebug("") << "Input/cut/ncut : " << inputTag_.encode() << " " << cut_<< " " << min_N_ ;
-
-   //register your products
-   produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 template<typename T, int Tid>
@@ -48,7 +44,7 @@ HLTSmartSinglet<T,Tid>::~HLTSmartSinglet()
 // ------------ method called to produce the data  ------------
 template<typename T, int Tid> 
 bool
-HLTSmartSinglet<T,Tid>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTSmartSinglet<T,Tid>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
    using namespace std;
    using namespace edm;
@@ -63,12 +59,10 @@ HLTSmartSinglet<T,Tid>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
    // this HLT filter, and place it in the Event.
 
    // The filter object
-   auto_ptr<TriggerFilterObjectWithRefs>
-     filterObject (new TriggerFilterObjectWithRefs(path(),module()));
-   if (saveTags_) filterObject->addCollectionTag(inputTag_);
+   if (saveTags()) filterproduct.addCollectionTag(inputTag_);
+
    // Ref to Candidate object to be recorded in filter object
    TRef ref;
-
 
    // get hold of collection of objects
    Handle<TCollection> objects;
@@ -81,15 +75,12 @@ HLTSmartSinglet<T,Tid>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
      if (select_(*i)) {
        n++;
        ref=TRef(objects,distance(objects->begin(),i));
-       filterObject->addObject(Tid,ref);
+       filterproduct.addObject(Tid,ref);
      }
    }
 
    // filter decision
    bool accept(n>=min_N_);
-
-   // put filter object into the Event
-   iEvent.put(filterObject);
 
    return accept;
 }

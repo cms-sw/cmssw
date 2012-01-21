@@ -8,7 +8,7 @@ class HLTEcalIsolationFilter : public HLTFilter {
    public:
       explicit HLTEcalIsolationFilter(const edm::ParameterSet&);
       ~HLTEcalIsolationFilter();
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
       edm::InputTag candTag_; 

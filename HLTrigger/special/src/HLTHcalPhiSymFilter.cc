@@ -3,7 +3,7 @@
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-HLTHcalPhiSymFilter::HLTHcalPhiSymFilter(const edm::ParameterSet& iConfig)
+HLTHcalPhiSymFilter::HLTHcalPhiSymFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
   HBHEHits_ = iConfig.getParameter< edm::InputTag > ("HBHEHitCollection");
   HOHits_ = iConfig.getParameter< edm::InputTag > ("HOHitCollection");
@@ -21,8 +21,6 @@ HLTHcalPhiSymFilter::HLTHcalPhiSymFilter(const edm::ParameterSet& iConfig)
   produces< HBHERecHitCollection >(phiSymHBHEHits_);
   produces< HORecHitCollection >(phiSymHOHits_);
   produces< HFRecHitCollection >(phiSymHFHits_);	
-
-  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 
@@ -35,7 +33,7 @@ HLTHcalPhiSymFilter::~HLTHcalPhiSymFilter()
 
 // ------------ method called to produce the data  ------------
 bool
-HLTHcalPhiSymFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTHcalPhiSymFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   edm::Handle<HBHERecHitCollection> HBHERecHitsH;
   edm::Handle<HORecHitCollection> HORecHitsH;
@@ -49,11 +47,6 @@ HLTHcalPhiSymFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::auto_ptr< HBHERecHitCollection > phiSymHBHERecHitCollection( new HBHERecHitCollection );
   std::auto_ptr< HORecHitCollection > phiSymHORecHitCollection( new HORecHitCollection );
   std::auto_ptr< HFRecHitCollection > phiSymHFRecHitCollection( new HFRecHitCollection );
-
-  // The Filter object. We don't really need to put anything into it, but we 
-  // write an empty one for consistency
-
-  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct (new trigger::TriggerFilterObjectWithRefs(path(),module()));
 
   //Select interesting HBHERecHits 
   for (HBHERecHitCollection::const_iterator it=HBHERecHitsH->begin(); it!=HBHERecHitsH->end(); it++) {
@@ -87,7 +80,5 @@ HLTHcalPhiSymFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (phiSymHORecHitCollection->size()>0) iEvent.put( phiSymHORecHitCollection, phiSymHOHits_);
   if (phiSymHFRecHitCollection->size()>0) iEvent.put( phiSymHFRecHitCollection, phiSymHFHits_);
   
-  iEvent.put(filterproduct);
- 
   return true;
 }

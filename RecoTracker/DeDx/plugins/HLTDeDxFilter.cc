@@ -32,9 +32,8 @@
 //
 // constructors and destructor
 //
-HLTDeDxFilter::HLTDeDxFilter(const edm::ParameterSet& iConfig)
+HLTDeDxFilter::HLTDeDxFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
 {
-  saveTags_     = iConfig.getParameter<bool>("saveTags");
   minDEDx_	= iConfig.getParameter<double> ("minDEDx");
   minPT_        = iConfig.getParameter<double> ("minPT");
   minNOM_       = iConfig.getParameter<double> ("minNOM");
@@ -43,11 +42,9 @@ HLTDeDxFilter::HLTDeDxFilter(const edm::ParameterSet& iConfig)
   inputdedxTag_   = iConfig.getParameter< edm::InputTag > ("inputDeDxTag");
 
   thisModuleTag_ = edm::InputTag(iConfig.getParameter<std::string>("@module_label")); 
-
  
   //register your products
   produces<reco::RecoChargedCandidateCollection>();
-  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTDeDxFilter::~HLTDeDxFilter(){}
@@ -68,25 +65,21 @@ void HLTDeDxFilter::fillDescriptions(edm::ConfigurationDescriptions& description
 
 // ------------ method called to produce the data  ------------
 bool
-  HLTDeDxFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+  HLTDeDxFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace std;
   using namespace edm;
   using namespace reco;
   using namespace trigger;
 
-  // The filter object
-  auto_ptr<trigger::TriggerFilterObjectWithRefs> filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-    RecoChargedCandidateCollection* chargedCandidatesCollection = new std::vector<RecoChargedCandidate>;
-    auto_ptr<RecoChargedCandidateCollection> chargedCandidates( chargedCandidatesCollection );
+  auto_ptr<RecoChargedCandidateCollection> chargedCandidates( new std::vector<RecoChargedCandidate> );
 
- ModuleDescription moduleDesc_;
+  ModuleDescription moduleDesc_;
 
-
-  if (saveTags_){
-     filterobject->addCollectionTag(thisModuleTag_);
-     filterobject->addCollectionTag(inputTracksTag_);
-     filterobject->addCollectionTag(inputdedxTag_);
+  if (saveTags()){
+     filterproduct.addCollectionTag(thisModuleTag_);
+     filterproduct.addCollectionTag(inputTracksTag_);
+     filterproduct.addCollectionTag(inputdedxTag_);
   }
 
   edm::Handle<reco::TrackCollection> trackCollectionHandle;
@@ -103,7 +96,7 @@ bool
      reco::TrackRef track  = reco::TrackRef( trackCollectionHandle, i );
     if(track->pt()>minPT_ && fabs(track->eta())<maxETA_ && dEdxTrack[track].numberOfMeasurements()>minNOM_ && dEdxTrack[track].dEdx()>minDEDx_){
        NTracks++;
-       if (saveTags_){
+       if (saveTags()){
           Particle::Charge q = track->charge();
           //SAVE DEDX INFORMATION AS IF IT WAS THE MASS OF THE PARTICLE
           Particle::LorentzVector p4(track->px(), track->py(), track->pz(), sqrt(pow(track->p(),2) + pow(dEdxTrack[track].dEdx(),2)));
@@ -112,21 +105,20 @@ bool
           int Hits  = ((dEdxTrack[track].numberOfSaturatedMeasurements()&0xFF)<<16) | ((dEdxTrack[track].numberOfMeasurements()&0xFF)<<8) | (track->found()&0xFF); 
           RecoChargedCandidate cand(q, p4, vtx, Hits, 0);
           cand.setTrack(track);
-          chargedCandidatesCollection->push_back(cand);
+          chargedCandidates->push_back(cand);
        }
        accept=true; 
     }
   }
 
   // put filter object into the Event
-   if(saveTags_){
+   if(saveTags()){
      edm::OrphanHandle<RecoChargedCandidateCollection> chargedCandidatesHandle = iEvent.put(chargedCandidates);
      for(int i=0; i<NTracks; i++){
-          filterobject->addObject(TriggerMuon,RecoChargedCandidateRef(chargedCandidatesHandle,i));
+          filterproduct.addObject(TriggerMuon,RecoChargedCandidateRef(chargedCandidatesHandle,i));
      }
    }
 
-  iEvent.put(filterobject);
   return accept;
 }
 

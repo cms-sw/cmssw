@@ -54,7 +54,7 @@ public:
     virtual ~HLTLevel1GTSeed();
 
     /// filter the event
-    virtual bool filter(edm::Event&, const edm::EventSetup&);
+    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
 private:
 
@@ -79,19 +79,21 @@ private:
     void debugPrint(bool);
 
     /// seeding is done via L1 trigger object maps, considering the objects which fired in L1
-    bool seedsL1TriggerObjectMaps(edm::Event&, std::auto_ptr<
-            trigger::TriggerFilterObjectWithRefs>&,
-            const L1GlobalTriggerReadoutRecord*, const int physicsDaqPartition);
+    bool seedsL1TriggerObjectMaps(
+            edm::Event &, 
+            trigger::TriggerFilterObjectWithRefs &,
+            const L1GlobalTriggerReadoutRecord *, 
+            const int physicsDaqPartition);
 
     /// seeding is done ignoring if a L1 object fired or not
     /// if the event is selected at L1, fill all the L1 objects of types corresponding to the
     /// L1 conditions from the seeding logical expression for bunch crosses F, 0, 1
     /// directly from L1Extra and use them as seeds at HLT
     /// method and filter return true if at least an object is filled
-    bool seedsL1Extra(edm::Event&, std::auto_ptr<trigger::TriggerFilterObjectWithRefs>&);
+    bool seedsL1Extra(edm::Event &, trigger::TriggerFilterObjectWithRefs &);
 
     /// detailed print of filter content
-    void dumpTriggerFilterObjectWithRefs(std::auto_ptr<trigger::TriggerFilterObjectWithRefs>&);
+    void dumpTriggerFilterObjectWithRefs(trigger::TriggerFilterObjectWithRefs &);
 
 
 private:
@@ -179,13 +181,8 @@ private:
     /// replace string "L1GlobalDecision" with bool to speed up the "if"
     bool m_l1GlobalDecision;
 
-    /// Whether to save these tags
-    bool saveTags_;
-
     /// cache edm::isDebugEnabled()
     bool m_isDebugEnabled;
-
-
 };
 
 #endif // HLTfilters_HLTLevel1GTSeed_h

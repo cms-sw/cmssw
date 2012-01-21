@@ -10,10 +10,9 @@ public:
   ~HLTPixelActivityFilter();
 
 private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
   edm::InputTag inputTag_;          // input tag identifying product containing pixel clusters
-  bool          saveTags_;           // whether to save this tag
   unsigned int  min_clusters_;      // minimum number of clusters
   unsigned int  max_clusters_;      // maximum number of clusters
 
@@ -32,9 +31,8 @@ private:
 // constructors and destructor
 //
  
-HLTPixelActivityFilter::HLTPixelActivityFilter(const edm::ParameterSet& config) :
+HLTPixelActivityFilter::HLTPixelActivityFilter(const edm::ParameterSet& config) : HLTFilter(config),
   inputTag_     (config.getParameter<edm::InputTag>("inputTag")),
-  saveTags_      (config.getParameter<bool>("saveTags")),
   min_clusters_ (config.getParameter<unsigned int>("minClusters")),
   max_clusters_ (config.getParameter<unsigned int>("maxClusters"))
 {
@@ -42,9 +40,6 @@ HLTPixelActivityFilter::HLTPixelActivityFilter(const edm::ParameterSet& config) 
   LogDebug("") << "Requesting at least " << min_clusters_ << " clusters";
   if(max_clusters_ > 0) 
     LogDebug("") << "...but no more than " << max_clusters_ << " clusters";
-
-  // register your products
-  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTPixelActivityFilter::~HLTPixelActivityFilter()
@@ -56,15 +51,14 @@ HLTPixelActivityFilter::~HLTPixelActivityFilter()
 //
 
 // ------------ method called to produce the data  ------------
-bool HLTPixelActivityFilter::filter(edm::Event& event, const edm::EventSetup& iSetup)
+bool HLTPixelActivityFilter::hltFilter(edm::Event& event, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   // All HLT filters must create and fill an HLT filter object,
   // recording any reconstructed physics objects satisfying (or not)
   // this HLT filter, and place it in the Event.
 
   // The filter object
-  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if (saveTags_) filterobject->addCollectionTag(inputTag_);
+  if (saveTags()) filterproduct.addCollectionTag(inputTag_);
 
   // get hold of products from Event
   edm::Handle<edmNew::DetSetVector<SiPixelCluster> > clusterColl;
@@ -75,9 +69,6 @@ bool HLTPixelActivityFilter::filter(edm::Event& event, const edm::EventSetup& iS
   bool accept = (clusterSize >= min_clusters_);
   if(max_clusters_ > 0) 
     accept &= (clusterSize <= max_clusters_);
-
-  // put filter object into the Event
-  event.put(filterobject);
 
   // return with final filter decision
   return accept;

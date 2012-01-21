@@ -1,6 +1,6 @@
 /** \class HLTEgammaL1MatchFilterRegional
  *
- * $Id: HLTEgammaL1MatchFilterRegional.cc,v 1.8 2008/04/21 04:59:38 wsun Exp $
+ * $Id: HLTEgammaTriggerFilterObjectWrapper.cc,v 1.1 2009/01/21 19:00:50 ghezzi Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -24,27 +24,21 @@
 //
 // constructors and destructor
 //
-HLTEgammaTriggerFilterObjectWrapper::HLTEgammaTriggerFilterObjectWrapper(const edm::ParameterSet& iConfig)
+HLTEgammaTriggerFilterObjectWrapper::HLTEgammaTriggerFilterObjectWrapper(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
    candIsolatedTag_ = iConfig.getParameter< edm::InputTag > ("candIsolatedTag");
    candNonIsolatedTag_ = iConfig.getParameter< edm::InputTag > ("candNonIsolatedTag");
    doIsolated_   = iConfig.getParameter<bool>("doIsolated");
-  
-   //register your products
-   produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTEgammaTriggerFilterObjectWrapper::~HLTEgammaTriggerFilterObjectWrapper(){}
 
 
 // ------------ method called to produce the data  ------------
-bool HLTEgammaTriggerFilterObjectWrapper::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+bool HLTEgammaTriggerFilterObjectWrapper::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
-
   using namespace trigger;
   using namespace l1extra;
-  //using namespace std;
-  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
 
   // Get the recoEcalCandidates
   edm::Handle<reco::RecoEcalCandidateCollection> recoIsolecalcands;
@@ -54,7 +48,7 @@ bool HLTEgammaTriggerFilterObjectWrapper::filter(edm::Event& iEvent, const edm::
   // transform the L1Iso_RecoEcalCandidate into the TriggerFilterObjectWithRefs
   for (reco::RecoEcalCandidateCollection::const_iterator recoecalcand= recoIsolecalcands->begin(); recoecalcand!=recoIsolecalcands->end(); recoecalcand++) {
     ref = edm::Ref<reco::RecoEcalCandidateCollection>(recoIsolecalcands, distance(recoIsolecalcands->begin(),recoecalcand) );       
-    filterobject->addObject(TriggerCluster, ref);
+    filterproduct.addObject(TriggerCluster, ref);
   }
   
   if(!doIsolated_) {
@@ -63,11 +57,9 @@ bool HLTEgammaTriggerFilterObjectWrapper::filter(edm::Event& iEvent, const edm::
     iEvent.getByLabel(candNonIsolatedTag_,recoNonIsolecalcands);
     for (reco::RecoEcalCandidateCollection::const_iterator recoecalcand= recoNonIsolecalcands->begin(); recoecalcand!=recoNonIsolecalcands->end(); recoecalcand++) {
       ref = edm::Ref<reco::RecoEcalCandidateCollection>(recoNonIsolecalcands, distance(recoNonIsolecalcands->begin(),recoecalcand) );       
-      filterobject->addObject(TriggerCluster, ref);
+      filterproduct.addObject(TriggerCluster, ref);
     }
   }
   
-  iEvent.put(filterobject);
-
   return true;  
  }

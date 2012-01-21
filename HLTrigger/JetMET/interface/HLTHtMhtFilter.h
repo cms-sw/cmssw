@@ -21,7 +21,7 @@ class HLTHtMhtFilter : public HLTFilter {
     explicit HLTHtMhtFilter(const edm::ParameterSet &);
     ~HLTHtMhtFilter();
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup);
+    virtual bool hltFilter(edm::Event & iEvent, const edm::EventSetup & iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
   private:
 
@@ -33,8 +33,6 @@ class HLTHtMhtFilter : public HLTFilter {
     std::vector<double> minMeff_;
     std::vector<double> meffSlope_;
     unsigned int nOrs_;
-    bool saveTags_;
-
 };
 
 #endif

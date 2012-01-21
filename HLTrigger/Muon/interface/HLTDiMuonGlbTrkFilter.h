@@ -13,7 +13,7 @@ class HLTDiMuonGlbTrkFilter : public HLTFilter {
  public:
   HLTDiMuonGlbTrkFilter(const edm::ParameterSet&);
   virtual ~HLTDiMuonGlbTrkFilter(){}
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
  private:

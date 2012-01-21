@@ -29,7 +29,7 @@
 //
 // constructors and destructor
 //
-HLTMuonL1Filter::HLTMuonL1Filter(const edm::ParameterSet& iConfig) :
+HLTMuonL1Filter::HLTMuonL1Filter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
   candTag_( iConfig.getParameter<edm::InputTag>("CandTag") ),
   previousCandTag_( iConfig.getParameter<edm::InputTag>("PreviousCandTag") ),
   maxEta_( iConfig.getParameter<double>("MaxEta") ),
@@ -38,8 +38,7 @@ HLTMuonL1Filter::HLTMuonL1Filter(const edm::ParameterSet& iConfig) :
   excludeSingleSegmentCSC_( iConfig.getParameter<bool>("ExcludeSingleSegmentCSC") ),
   csctfTag_( iConfig.getParameter<edm::InputTag>("CSCTFtag") ),
   l1MuTriggerScales_(0),
-  m_scalesCacheID_(0),
-  saveTags_( iConfig.getParameter<bool>("saveTags") ) 
+  m_scalesCacheID_(0)
 {
   using namespace std;
 
@@ -69,12 +68,9 @@ HLTMuonL1Filter::HLTMuonL1Filter(const edm::ParameterSet& iConfig) :
     ss<<"    MinN = "<<minN_<<endl;
     ss<<"    ExcludeSingleSegmentCSC = "<<excludeSingleSegmentCSC_<<endl;
     ss<<"    CSCTFtag = "<<csctfTag_.encode()<<endl;
-    ss<<"    saveTags= "<<saveTags_;
+    ss<<"    saveTags= "<<saveTags();
     LogDebug("HLTMuonL1Filter")<<ss.str();
   }
-
-  //register your products
-  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTMuonL1Filter::~HLTMuonL1Filter()
@@ -107,7 +103,7 @@ HLTMuonL1Filter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
 //
 
 // ------------ method called to produce the data  ------------
-bool HLTMuonL1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup){
+bool HLTMuonL1Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct){
   using namespace std;
   using namespace edm;
   using namespace trigger;
@@ -116,9 +112,6 @@ bool HLTMuonL1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup){
   // All HLT filters must create and fill an HLT filter object,
   // recording any reconstructed physics objects satisfying (or not)
   // this HLT filter, and place it in the Event.
-
-  // The filter object
-  auto_ptr<TriggerFilterObjectWithRefs> filterproduct(new TriggerFilterObjectWithRefs(path(), module()));
 
   // get hold of all muons
   Handle<L1MuonParticleCollection> allMuons;
@@ -168,10 +161,10 @@ bool HLTMuonL1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup){
 
     //we have a good candidate
     n++;
-    filterproduct->addObject(TriggerL1Mu,muon);
+    filterproduct.addObject(TriggerL1Mu,muon);
   }
 
-  if(saveTags_) filterproduct->addCollectionTag(candTag_);
+  if (saveTags()) filterproduct.addCollectionTag(candTag_);
 
   // filter decision
   const bool accept(n >= minN_);
@@ -184,7 +177,7 @@ bool HLTMuonL1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup){
     ss<<"--------------------------------------------------------------------------"<<endl;
 
     vector<L1MuonParticleRef> firedMuons;
-    filterproduct->getObjects(TriggerL1Mu, firedMuons);
+    filterproduct.getObjects(TriggerL1Mu, firedMuons);
     for(size_t i=0; i<allMuons->size(); i++){
       L1MuonParticleRef mu(allMuons, i);
       int quality = mu->gmtMuonCand().empty() ? 0 : mu->gmtMuonCand().quality();
@@ -194,11 +187,8 @@ bool HLTMuonL1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup){
       ss<<i<<'\t'<<scientific<<mu->charge()*mu->pt()<<'\t'<<fixed<<mu->eta()<<'\t'<<mu->phi()<<'\t'<<quality<<'\t'<<isPrev<<'\t'<<isFired<<'\t'<<isSingleCSC<<endl;
     }
     ss<<"--------------------------------------------------------------------------"<<endl;
-    LogDebug("HLTMuonL1Filter")<<ss.str()<<"Decision of filter is "<<accept<<", number of muons passing = "<<filterproduct->l1muonSize();
+    LogDebug("HLTMuonL1Filter")<<ss.str()<<"Decision of filter is "<<accept<<", number of muons passing = "<<filterproduct.l1muonSize();
   }
-
-  // put filter object into the Event
-  iEvent.put(filterproduct);
 
   return accept;
 }

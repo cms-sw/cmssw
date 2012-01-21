@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/05/01 08:43:49 $
- *  $Revision: 1.11 $
+ *  $Date: 2011/05/01 14:41:36 $
+ *  $Revision: 1.12 $
  *
  *  \author Martin Grunewald
  *
@@ -25,9 +25,8 @@
 // constructors and destructor
 //
 template<typename T, int Tid>
-HLTGlobalSums<T,Tid>::HLTGlobalSums(const edm::ParameterSet& iConfig) :
+HLTGlobalSums<T,Tid>::HLTGlobalSums(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
   inputTag_   (iConfig.template getParameter<edm::InputTag>("inputTag")),
-  saveTags_    (iConfig.template getParameter<bool>("saveTags")),
   observable_ (iConfig.template getParameter<std::string>("observable")),
   min_        (iConfig.template getParameter<double>("Min")),
   max_        (iConfig.template getParameter<double>("Max")),
@@ -61,9 +60,6 @@ HLTGlobalSums<T,Tid>::HLTGlobalSums(const edm::ParameterSet& iConfig) :
    } else {
      tid_=Tid;
    }
-
-   //register your products
-   produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 template<typename T, int Tid>
@@ -78,7 +74,7 @@ HLTGlobalSums<T,Tid>::~HLTGlobalSums()
 // ------------ method called to produce the data  ------------
 template<typename T, int Tid> 
 bool
-HLTGlobalSums<T,Tid>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTGlobalSums<T,Tid>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
    using namespace std;
    using namespace edm;
@@ -93,9 +89,7 @@ HLTGlobalSums<T,Tid>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // this HLT filter, and place it in the Event.
 
    // The filter object
-   auto_ptr<TriggerFilterObjectWithRefs>
-     filterobject (new TriggerFilterObjectWithRefs(path(),module()));
-   if (saveTags_) filterobject->addCollectionTag(inputTag_);
+   if (saveTags()) filterproduct.addCollectionTag(inputTag_);
    // Ref to Candidate object to be recorded in filter object
    TRef ref;
 
@@ -105,7 +99,6 @@ HLTGlobalSums<T,Tid>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(inputTag_,objects);
    if (!objects.isValid()) {
      LogDebug("") << inputTag_ << " collection not found!";
-     iEvent.put(filterobject);
      return false;
    }
 
@@ -140,16 +133,13 @@ HLTGlobalSums<T,Tid>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  ( (max_<0.0) || (value<=max_) ) ) {
        n++;
        ref=TRef(objects,distance(ibegin,iter));
-       filterobject->addObject(tid_,ref);
+       filterproduct.addObject(tid_,ref);
      }
 
    }
 
    // filter decision
    const bool accept(n>=min_N_);
-
-   // put filter object into the Event
-   iEvent.put(filterobject);
 
    return accept;
 }

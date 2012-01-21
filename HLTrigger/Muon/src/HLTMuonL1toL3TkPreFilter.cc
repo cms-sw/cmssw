@@ -31,7 +31,7 @@ using namespace edm;
 using namespace reco;
 using namespace trigger;
 
-HLTMuonL1toL3TkPreFilter::HLTMuonL1toL3TkPreFilter(const ParameterSet& iConfig) :
+HLTMuonL1toL3TkPreFilter::HLTMuonL1toL3TkPreFilter(const ParameterSet& iConfig) : HLTFilter(iConfig),
    beamspotTag_   (iConfig.getParameter< edm::InputTag > ("BeamSpotTag")),
    candTag_   (iConfig.getParameter<InputTag > ("CandTag")),
    previousCandTag_   (iConfig.getParameter<InputTag > ("PreviousCandTag")),
@@ -41,8 +41,7 @@ HLTMuonL1toL3TkPreFilter::HLTMuonL1toL3TkPreFilter(const ParameterSet& iConfig) 
    max_Dr_    (iConfig.getParameter<double> ("MaxDr")),
    max_Dz_    (iConfig.getParameter<double> ("MaxDz")),
    min_Pt_    (iConfig.getParameter<double> ("MinPt")),
-   nsigma_Pt_  (iConfig.getParameter<double> ("NSigmaPt")), 
-   saveTags_  (iConfig.getParameter<bool>("saveTags")) 
+   nsigma_Pt_  (iConfig.getParameter<double> ("NSigmaPt"))
 {
 
    LogDebug("HLTMuonL1toL3TkPreFilter")
@@ -70,22 +69,17 @@ HLTMuonL1toL3TkPreFilter::~HLTMuonL1toL3TkPreFilter()
 
 // ------------ method called to produce the data  ------------
 bool
-HLTMuonL1toL3TkPreFilter::filter(Event& iEvent, const EventSetup& iSetup)
+HLTMuonL1toL3TkPreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
 
    // All HLT filters must create and fill an HLT filter object,
    // recording any reconstructed physics objects satisfying (or not)
    // this HLT filter, and place it in the Event.
 
-   // The filter object
-   auto_ptr<TriggerFilterObjectWithRefs>
-     filterproduct (new TriggerFilterObjectWithRefs(path(),module()));
-
    // get hold of trks
-   //   Handle<reco::TrackCollection> mucands;
    Handle<RecoChargedCandidateCollection> mucands;
    iEvent.getByLabel(candTag_,mucands);
-   if(saveTags_)filterproduct->addCollectionTag(candTag_);
+   if (saveTags()) filterproduct.addCollectionTag(candTag_);
    // sort them by L2Track
    std::map<l1extra::L1MuonParticleRef, std::vector<RecoChargedCandidateRef> > L1toL3s;
    unsigned int n = 0;
@@ -148,7 +142,7 @@ HLTMuonL1toL3TkPreFilter::filter(Event& iEvent, const EventSetup& iSetup)
       if (ptLx<min_Pt_) continue;
 
       //one good L3Tk
-      filterproduct->addObject(TriggerMuon,cand);      
+      filterproduct.addObject(TriggerMuon,cand);      
       break; // and go on with the next L1 association
      }
 
@@ -156,7 +150,7 @@ HLTMuonL1toL3TkPreFilter::filter(Event& iEvent, const EventSetup& iSetup)
 
 
    vector<RecoChargedCandidateRef> vref;
-   filterproduct->getObjects(TriggerMuon,vref);
+   filterproduct.getObjects(TriggerMuon,vref);
    for (unsigned int i=0; i<vref.size(); i++ ) {
      TrackRef tk = vref[i]->track();
      LogDebug("HLTMuonL1toL3TkPreFilter")
@@ -166,9 +160,6 @@ HLTMuonL1toL3TkPreFilter::filter(Event& iEvent, const EventSetup& iSetup)
    
    // filter decision
    const bool accept ((int)n >= min_N_);
-   
-   // put filter object into the Event
-   iEvent.put(filterproduct);
    
    LogDebug("HLTMuonL1toL3TkPreFilter") << " >>>>> Result of HLTMuonL1toL3TkPreFilter is " << accept << ", number of muons passing thresholds= " << n; 
    

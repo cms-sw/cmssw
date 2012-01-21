@@ -21,11 +21,10 @@ class HLTForwardBackwardJetsFilter : public HLTFilter {
       explicit HLTForwardBackwardJetsFilter(const edm::ParameterSet&);
       ~HLTForwardBackwardJetsFilter();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
       edm::InputTag inputTag_; // input tag identifying jets
-      bool saveTags_;           // whether to save this tag
       double minPt_;
       double minEta_;
       double maxEta_;

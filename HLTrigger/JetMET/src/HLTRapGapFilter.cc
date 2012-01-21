@@ -1,6 +1,6 @@
 /** \class HLTRapGapFilter
  *
- * $Id: HLTRapGapFilter.cc,v 1.9 2011/05/01 08:40:25 gruen Exp $
+ * $Id: HLTRapGapFilter.cc,v 1.10 2011/05/01 14:35:45 gruen Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -23,16 +23,12 @@
 //
 // constructors and destructor
 //
-HLTRapGapFilter::HLTRapGapFilter(const edm::ParameterSet& iConfig)
+HLTRapGapFilter::HLTRapGapFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
    inputTag_   = iConfig.getParameter< edm::InputTag > ("inputTag");
-   saveTags_    = iConfig.getParameter<bool>("saveTags");
    absEtaMin_  = iConfig.getParameter<double> ("minEta");
    absEtaMax_  = iConfig.getParameter<double> ("maxEta"); 
    caloThresh_ = iConfig.getParameter<double> ("caloThresh"); 
-
-   //register your products
-   produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTRapGapFilter::~HLTRapGapFilter(){}
@@ -40,15 +36,13 @@ HLTRapGapFilter::~HLTRapGapFilter(){}
 
 // ------------ method called to produce the data  ------------
 bool
-HLTRapGapFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTRapGapFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace reco;
   using namespace trigger;
 
   // The filter object
-  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> 
-    filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if (saveTags_) filterobject->addCollectionTag(inputTag_);
+  if (saveTags()) filterproduct.addCollectionTag(inputTag_);
 
   edm::Handle<CaloJetCollection> recocalojets;
   iEvent.getByLabel(inputTag_,recocalojets);
@@ -87,20 +81,15 @@ HLTRapGapFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       for (CaloJetCollection::const_iterator recocalojet = recocalojets->begin(); 
 	   recocalojet!=(recocalojets->end()); recocalojet++) {
 	CaloJetRef ref(CaloJetRef(recocalojets,distance(recocalojets->begin(),recocalojet)));
-	filterobject->addObject(TriggerJet,ref);
+	filterproduct.addObject(TriggerJet,ref);
 	n++;
       }
     }
     
   } // events with two or more jets
   
-  
-  
   // filter decision
   bool accept(n>0);
-  
-  // put filter object into the Event
-  iEvent.put(filterobject);
   
   return accept;
 }

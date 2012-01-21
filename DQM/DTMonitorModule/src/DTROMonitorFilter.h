@@ -4,7 +4,7 @@
 /** \class DTROMonitorFilter.h
  *  No description available.
  *
- *  $Date: 2008/06/10 14:56:27 $
+ *  $Date: 2009/05/20 16:12:45 $
  *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
@@ -23,7 +23,7 @@ public:
   virtual ~DTROMonitorFilter();
 
   // Operations
-  virtual bool filter(edm::Event& event, const edm::EventSetup& setup);
+  virtual bool hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct);
   
 protected:
 

@@ -53,10 +53,9 @@ class HLTPixelAsymmetryFilter : public HLTFilter {
   ~HLTPixelAsymmetryFilter();
 
  private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
   edm::InputTag inputTag_; // input tag identifying product containing pixel clusters
-  bool          saveTags_;  // whether to save this tag
   double  min_asym_;       // minimum asymmetry 
   double  max_asym_;       // maximum asymmetry
   double  clus_thresh_;    // minimum charge for a cluster to be selected (in e-)

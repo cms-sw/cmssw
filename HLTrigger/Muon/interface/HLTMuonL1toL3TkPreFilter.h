@@ -24,7 +24,7 @@ class HLTMuonL1toL3TkPreFilter : public HLTFilter {
    public:
       explicit HLTMuonL1toL3TkPreFilter(const edm::ParameterSet&);
       ~HLTMuonL1toL3TkPreFilter();
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
       bool triggeredAtL1(const l1extra::L1MuonParticleRef & l1mu,std::vector<l1extra::L1MuonParticleRef>& vcands);
    private:
 
@@ -38,7 +38,6 @@ class HLTMuonL1toL3TkPreFilter : public HLTFilter {
       double max_Dz_;           // dz cut
       double min_Pt_;           // pt threshold in GeV 
       double nsigma_Pt_;        // pt uncertainty margin (in number of sigmas)
-      bool saveTags_;            // should we save the input collection ?
 };
 
 #endif //HLTMuonL1toL3TkPreFilter_h

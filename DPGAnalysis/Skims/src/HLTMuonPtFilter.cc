@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2009/02/13 15:37:12 $
- * $Revision: 1.1 $
+ * $Date: 2010/08/07 14:55:55 $
+ * $Revision: 1.2 $
  * \author Silvia Goy Lopez - CERN <silvia.goy.lopez@cern.ch>
  */
 
@@ -27,8 +27,9 @@ using namespace edm;
 /* ====================================================================== */
 
 /// Constructor
-HLTMuonPtFilter::HLTMuonPtFilter(const edm::ParameterSet& pset) {
-
+HLTMuonPtFilter::HLTMuonPtFilter(const edm::ParameterSet& pset) :
+  HLTFilter(pset)
+{
   // the name of the STA rec hits collection
   theSTAMuonLabel = pset.getParameter<std::string>("SALabel");
 
@@ -43,7 +44,7 @@ HLTMuonPtFilter::~HLTMuonPtFilter() {
 }
 
 /* Operations */ 
-bool HLTMuonPtFilter::filter(edm::Event& event, const edm::EventSetup& eventSetup) {
+bool HLTMuonPtFilter::hltFilter(edm::Event& event, const edm::EventSetup& eventSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
   bool accept = false;
 
   // Get the RecTrack collection from the event

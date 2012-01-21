@@ -13,7 +13,7 @@
 */
 //
 // Original Author:  Grigory Safronov
-//         Created:  $Date: 2008/01/16 11:28:15 $
+//         Created:  $Date: 2008/01/21 16:49:16 $
 //
 
 
@@ -39,7 +39,7 @@ class HLTHcalPhiSymFilter : public HLTFilter {
       ~HLTHcalPhiSymFilter();
 
 
-      virtual bool filter(edm::Event &, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event &, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
    private:
       // ----------member data ---------------------------
 

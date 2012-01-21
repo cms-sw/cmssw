@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/01/09 14:16:15 $
- *  $Revision: 1.3 $
+ *  $Date: 2011/02/16 17:25:34 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -18,7 +18,7 @@
 //
 // constructors and destructor
 //
-HLTBool::HLTBool(const edm::ParameterSet& iConfig) :
+HLTBool::HLTBool(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
   result_(iConfig.getParameter<bool> ("result"))
 {
   LogDebug("HLTBool") << " configured result is: " << result_;
@@ -41,7 +41,7 @@ HLTBool::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
 // ------------ method called to produce the data  ------------
 bool
-HLTBool::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTBool::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
    return result_;
 }

@@ -30,25 +30,23 @@ using namespace trigger;
 
 
 // ----------------------------------------------------------------------
-HLTmmkFilter::HLTmmkFilter(const edm::ParameterSet& iConfig):thirdTrackMass_(iConfig.getParameter<double>("ThirdTrackMass")),
-                                                             maxEta_(iConfig.getParameter<double>("MaxEta")),
-                                                             minPt_(iConfig.getParameter<double>("MinPt")),
-                                                             minInvMass_(iConfig.getParameter<double>("MinInvMass")),
-                                                             maxInvMass_(iConfig.getParameter<double>("MaxInvMass")),
-                                                             maxNormalisedChi2_(iConfig.getParameter<double>("MaxNormalisedChi2")),
-                                                             minLxySignificance_(iConfig.getParameter<double>("MinLxySignificance")),
-                                                             minCosinePointingAngle_(iConfig.getParameter<double>("MinCosinePointingAngle")),
-                                                             fastAccept_(iConfig.getParameter<bool>("FastAccept")),
-							     saveTags_ (iConfig.getParameter<bool>("saveTags")),
-							     beamSpotTag_ (iConfig.getParameter<edm::InputTag> ("BeamSpotTag")){
-
+HLTmmkFilter::HLTmmkFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
+  thirdTrackMass_(iConfig.getParameter<double>("ThirdTrackMass")),
+  maxEta_(iConfig.getParameter<double>("MaxEta")),
+  minPt_(iConfig.getParameter<double>("MinPt")),
+  minInvMass_(iConfig.getParameter<double>("MinInvMass")),
+  maxInvMass_(iConfig.getParameter<double>("MaxInvMass")),
+  maxNormalisedChi2_(iConfig.getParameter<double>("MaxNormalisedChi2")),
+  minLxySignificance_(iConfig.getParameter<double>("MinLxySignificance")),
+  minCosinePointingAngle_(iConfig.getParameter<double>("MinCosinePointingAngle")),
+  fastAccept_(iConfig.getParameter<bool>("FastAccept")),
+  beamSpotTag_ (iConfig.getParameter<edm::InputTag> ("BeamSpotTag"))
+{
   muCandLabel_   = iConfig.getParameter<edm::InputTag>("MuCand");
   trkCandLabel_  = iConfig.getParameter<edm::InputTag>("TrackCand");
   
   produces<VertexCollection>();
   produces<CandidateCollection>();
-  produces<trigger::TriggerFilterObjectWithRefs>();
-
 }
 
 
@@ -71,15 +69,12 @@ void HLTmmkFilter::endJob() {
 
 
 // ----------------------------------------------------------------------
-bool HLTmmkFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool HLTmmkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
 
   const double MuMass(0.106);
   const double MuMass2(MuMass*MuMass);
   
   const double thirdTrackMass2(thirdTrackMass_*thirdTrackMass_);
-  
-  // The filter object
-  auto_ptr<TriggerFilterObjectWithRefs> filterobject (new TriggerFilterObjectWithRefs(path(),module()));
   
   auto_ptr<CandidateCollection> output(new CandidateCollection());    
   auto_ptr<VertexCollection> vertexCollection(new VertexCollection());
@@ -106,9 +101,9 @@ bool HLTmmkFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   Handle<RecoChargedCandidateCollection> trkcands;
   iEvent.getByLabel (trkCandLabel_,trkcands);
   
-  if(saveTags_){
-    filterobject->addCollectionTag(muCandLabel_);
-    filterobject->addCollectionTag(trkCandLabel_);
+  if (saveTags()) {
+    filterproduct.addCollectionTag(muCandLabel_);
+    filterproduct.addCollectionTag(trkCandLabel_);
   }
   
   double e1,e2,e3;
@@ -267,7 +262,7 @@ bool HLTmmkFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 			bool i2done = false;
 			bool i3done = false;
 			vector<RecoChargedCandidateRef> vref;
-			filterobject->getObjects(TriggerMuon,vref);
+			filterproduct.getObjects(TriggerMuon,vref);
 			for (unsigned int i=0; i<vref.size(); i++) {
 				RecoChargedCandidateRef candref =  RecoChargedCandidateRef(vref[i]);
 				TrackRef trktmp = candref->get<TrackRef>();
@@ -283,15 +278,15 @@ bool HLTmmkFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 		
 			if (!i1done) { 
 				refMu1=RecoChargedCandidateRef( Ref<RecoChargedCandidateCollection> (mucands,distance(mucands->begin(), mucand1)));
-				filterobject->addObject(TriggerMuon,refMu1);
+				filterproduct.addObject(TriggerMuon,refMu1);
 			}
 			if (!i2done) { 
 				refMu2=RecoChargedCandidateRef( Ref<RecoChargedCandidateCollection> (mucands,distance(mucands->begin(),mucand2)));
-				filterobject->addObject(TriggerMuon,refMu2);
+				filterproduct.addObject(TriggerMuon,refMu2);
 			}
 			if (!i3done) {
 			    refTrk=RecoChargedCandidateRef( Ref<RecoChargedCandidateCollection> (trkcands,distance(trkcands->begin(),trkcand)));
-				filterobject->addObject(TriggerTrack,refTrk);
+				filterproduct.addObject(TriggerTrack,refTrk);
 			}
  			
  			if (fastAccept_) break;
@@ -306,8 +301,6 @@ bool HLTmmkFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   
   LogDebug("HLTDisplacedMumukFilter") << " >>>>> Result of HLTDisplacedMumukFilter is "<< accept << ", number of muon pairs passing thresholds= " << counter; 
   
-  // put filter object into the Event
-  iEvent.put(filterobject);
   iEvent.put(vertexCollection);
   
   return accept;

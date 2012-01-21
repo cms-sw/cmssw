@@ -11,21 +11,17 @@
 //
 // constructors and destructor
 //
-HLTElectronMuonInvMassFilter::HLTElectronMuonInvMassFilter(const edm::ParameterSet& iConfig)
+HLTElectronMuonInvMassFilter::HLTElectronMuonInvMassFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
   eleCandTag_             = iConfig.getParameter< edm::InputTag > ("elePrevCandTag");
   muonCandTag_            = iConfig.getParameter< edm::InputTag > ("muonPrevCandTag");
   lowerMassCut_           = iConfig.getParameter<double> ("lowerMassCut");
   upperMassCut_           = iConfig.getParameter<double> ("upperMassCut");
   ncandcut_  = iConfig.getParameter<int> ("ncandcut");
-  store_ = iConfig.getParameter<bool>("saveTags") ;
   relaxed_ = iConfig.getUntrackedParameter<bool> ("electronRelaxed",true) ;
   L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("ElectronL1IsoCand"); 
   L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("ElectronL1NonIsoCand");
   MuonCollTag_= iConfig.getParameter< edm::InputTag > ("MuonCand");
-
-  //register your products
-  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 
@@ -34,7 +30,7 @@ HLTElectronMuonInvMassFilter::~HLTElectronMuonInvMassFilter(){}
 
 // ------------ method called to produce the data  ------------
 bool
-HLTElectronMuonInvMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTElectronMuonInvMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace std;
   using namespace edm;
@@ -42,15 +38,14 @@ HLTElectronMuonInvMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
   // The filter object
   using namespace trigger;
 
-   double const MuMass = 0.106;
-   double const MuMass2 = MuMass*MuMass;
+  double const MuMass = 0.106;
+  double const MuMass2 = MuMass*MuMass;
 
-
-  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filteredLeptons (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if( store_ ){filteredLeptons->addCollectionTag(L1IsoCollTag_);}
-  if( store_ && relaxed_){filteredLeptons->addCollectionTag(L1NonIsoCollTag_);}
-  if( store_ ){filteredLeptons->addCollectionTag(MuonCollTag_);}
-
+  if (saveTags()) {
+    filterproduct.addCollectionTag(L1IsoCollTag_);
+    if (relaxed_) filterproduct.addCollectionTag(L1NonIsoCollTag_);
+    filterproduct.addCollectionTag(MuonCollTag_);
+  }
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> EleFromPrevFilter;
   iEvent.getByLabel (eleCandTag_,EleFromPrevFilter); 
@@ -98,15 +93,13 @@ HLTElectronMuonInvMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
       double mass = pTot.M();
       if(mass>=lowerMassCut_ && mass<=upperMassCut_){
 	nEleMuPairs++;
-	filteredLeptons->addObject(TriggerElectron, electrons[i]);
-	filteredLeptons->addObject(TriggerMuon, l3muons[j]);
+	filterproduct.addObject(TriggerElectron, electrons[i]);
+	filterproduct.addObject(TriggerMuon, l3muons[j]);
       }
     }
   }
-  // put filter object into the Event
-  iEvent.put(filteredLeptons);
+
   // filter decision
   bool accept(nEleMuPairs>=ncandcut_);
   return accept;
-  
 }

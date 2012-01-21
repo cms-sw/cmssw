@@ -1,6 +1,6 @@
 /** \class HLTEgammaGenericQuadraticFilter
  *
- * $Id: HLTEgammaGenericQuadraticFilter.cc,v 1.1 2011/01/17 21:48:50 cgtully Exp $
+ * $Id: HLTEgammaGenericQuadraticFilter.cc,v 1.2 2011/05/01 08:14:08 gruen Exp $
  *
  *  \author Roberto Covarelli (CERN)
  *  modified by Chris Tully (Princeton)
@@ -24,7 +24,7 @@
 //
 // constructors and destructor
 //
-HLTEgammaGenericQuadraticFilter::HLTEgammaGenericQuadraticFilter(const edm::ParameterSet& iConfig){
+HLTEgammaGenericQuadraticFilter::HLTEgammaGenericQuadraticFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) {
   candTag_ = iConfig.getParameter< edm::InputTag > ("candTag");
   isoTag_ = iConfig.getParameter< edm::InputTag > ("isoTag");
   nonIsoTag_ = iConfig.getParameter< edm::InputTag > ("nonIsoTag");
@@ -41,12 +41,8 @@ HLTEgammaGenericQuadraticFilter::HLTEgammaGenericQuadraticFilter(const edm::Para
   ncandcut_  = iConfig.getParameter<int> ("ncandcut");			  
   doIsolated_ = iConfig.getParameter<bool> ("doIsolated");		  
 			     				  
-  store_ = iConfig.getParameter<bool>("saveTags") ;	  
   L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 	  
   L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
-
-//register your products
-produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTEgammaGenericQuadraticFilter::~HLTEgammaGenericQuadraticFilter(){}
@@ -54,19 +50,20 @@ HLTEgammaGenericQuadraticFilter::~HLTEgammaGenericQuadraticFilter(){}
 
 // ------------ method called to produce the data  ------------
 bool
-HLTEgammaGenericQuadraticFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTEgammaGenericQuadraticFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace trigger;
-  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if( store_ ){filterproduct->addCollectionTag(L1IsoCollTag_);}
-  if( store_ && !doIsolated_){filterproduct->addCollectionTag(L1NonIsoCollTag_);}
+  if (saveTags()) {
+    filterproduct.addCollectionTag(L1IsoCollTag_);
+    if (not doIsolated_) filterproduct.addCollectionTag(L1NonIsoCollTag_);
+  }
 
   // Ref to Candidate object to be recorded in filter object
   edm::Ref<reco::RecoEcalCandidateCollection> ref;
 
   // Set output format 
   int trigger_type = trigger::TriggerCluster;
-  if ( store_ ) trigger_type = trigger::TriggerPhoton;
+  if (saveTags()) trigger_type = trigger::TriggerPhoton;
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
 
@@ -101,13 +98,13 @@ HLTEgammaGenericQuadraticFilter::filter(edm::Event& iEvent, const edm::EventSetu
     if ( lessThan_ ) {
       if ((fabs(EtaSC) < 1.479 && vali <= thrRegularEB_ + energy*thrOverEEB_ + energy*energy*thrOverE2EB_) || (fabs(EtaSC) >= 1.479 && vali <= thrRegularEE_ + energy*thrOverEEE_ + energy*energy*thrOverE2EE_) ) {
 	  n++;
-	  filterproduct->addObject(trigger_type, ref);
+	  filterproduct.addObject(trigger_type, ref);
 	  continue;
       }
     } else {
       if ((fabs(EtaSC) < 1.479 && vali >= thrRegularEB_ + energy*thrOverEEB_ + energy*energy*thrOverE2EB_) || (fabs(EtaSC) >= 1.479 && vali >= thrRegularEE_ + energy*thrOverEEE_ + energy*energy*thrOverE2EE_) ) {
 	  n++;
-	  filterproduct->addObject(trigger_type, ref);
+	  filterproduct.addObject(trigger_type, ref);
 	  continue;
       }
     }
@@ -116,9 +113,5 @@ HLTEgammaGenericQuadraticFilter::filter(edm::Event& iEvent, const edm::EventSetu
   // filter decision
   bool accept(n>=ncandcut_);
 
-  // put filter object into the Event
-  iEvent.put(filterproduct);
-
   return accept;
 }
-

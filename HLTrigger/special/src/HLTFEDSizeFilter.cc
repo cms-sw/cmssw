@@ -13,7 +13,7 @@
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Wed Sep 19 16:21:29 CEST 2007
-// $Id: HLTFEDSizeFilter.cc,v 1.7 2009/05/16 13:40:34 fwyzard Exp $
+// $Id: HLTFEDSizeFilter.cc,v 1.8 2009/05/16 13:58:31 fwyzard Exp $
 //
 //
 
@@ -42,7 +42,7 @@ public:
     ~HLTFEDSizeFilter();
     
 private:
-    virtual bool filter(edm::Event&, const edm::EventSetup&);
+    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
     
     // ----------member data ---------------------------
     edm::InputTag RawCollection_;
@@ -55,7 +55,7 @@ private:
 //
 // constructors and destructor
 //
-HLTFEDSizeFilter::HLTFEDSizeFilter(const edm::ParameterSet& iConfig)
+HLTFEDSizeFilter::HLTFEDSizeFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
     threshold_      = iConfig.getParameter<unsigned int>("threshold");
     RawCollection_  = iConfig.getParameter<edm::InputTag>("rawData");
@@ -79,7 +79,7 @@ HLTFEDSizeFilter::~HLTFEDSizeFilter()
 
 // ------------ method called on each new Event  ------------
 bool
-HLTFEDSizeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+HLTFEDSizeFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
 
     // get the RAW data collction
     edm::Handle<FEDRawDataCollection> h_raw;

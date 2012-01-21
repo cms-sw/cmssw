@@ -40,7 +40,7 @@ public:
     
 private:
   virtual 
-  bool filter(edm::Event & event, const edm::EventSetup & setup);
+  bool hltFilter(edm::Event & event, const edm::EventSetup & setup, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
   edm::InputTag m_inputTag;     // input vertex collection
   double        m_minNDoF;      // minimum vertex NDoF
@@ -54,7 +54,7 @@ private:
 //
 // constructors and destructor
 //
-HLTVertexFilter::HLTVertexFilter(const edm::ParameterSet& config) :
+HLTVertexFilter::HLTVertexFilter(const edm::ParameterSet& config) : HLTFilter(config),
   m_inputTag(config.getParameter<edm::InputTag>("inputTag")),
   m_minNDoF(config.getParameter<double>("minNDoF")),
   m_maxChi2(config.getParameter<double>("maxChi2")),
@@ -62,8 +62,6 @@ HLTVertexFilter::HLTVertexFilter(const edm::ParameterSet& config) :
   m_maxZ(config.getParameter<double>("maxZ")),
   m_minVertices(config.getParameter<unsigned int>("minVertices"))
 {
-  // register your products
-  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 
@@ -78,10 +76,7 @@ HLTVertexFilter::~HLTVertexFilter()
 
 // ------------ method called on each new Event  ------------
 bool
-HLTVertexFilter::filter(edm::Event &  event, edm::EventSetup const & setup) {
-
-  // The filter object
-  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
+HLTVertexFilter::hltFilter(edm::Event &  event, edm::EventSetup const & setup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
 
   // get hold of collection of objects
   edm::Handle<reco::VertexCollection> vertices;
@@ -102,9 +97,6 @@ HLTVertexFilter::filter(edm::Event &  event, edm::EventSetup const & setup) {
         ++n;
     }
   }
-
-  // put filter object into the Event
-  event.put(filterobject);
 
   // filter decision
   return (n >= m_minVertices);

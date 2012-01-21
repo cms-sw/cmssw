@@ -5,8 +5,8 @@
  *  that checks for a specific pattern of L1 accept/reject in 5 BX's for a given L1 bit
  *  It can be configured to use or ignore the L1 trigger mask
  *
- *  $Date: 2011/02/23 17:03:00 $
- *  $Revision: 1.6 $
+ *  $Date: 2011/02/23 17:10:54 $
+ *  $Revision: 1.7 $
  *
  *  \author Andrea Bocci
  *
@@ -35,7 +35,7 @@ public:
   explicit HLTLevel1Pattern(const edm::ParameterSet&);
   ~HLTLevel1Pattern();
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
 private:
   edm::InputTag     m_gtReadoutRecord;
@@ -67,7 +67,7 @@ private:
 //
 // constructors and destructor
 //
-HLTLevel1Pattern::HLTLevel1Pattern(const edm::ParameterSet & config) :
+HLTLevel1Pattern::HLTLevel1Pattern(const edm::ParameterSet & config) : HLTFilter(config),
   m_gtReadoutRecord( config.getParameter<edm::InputTag>     ("L1GtReadoutRecordTag") ),
   m_triggerBit(      config.getParameter<std::string>       ("triggerBit") ),
   m_bunchCrossings(  config.getParameter<std::vector<int> > ("bunchCrossings") ),
@@ -130,7 +130,7 @@ HLTLevel1Pattern::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 
 // ------------ method called to produce the data  ------------
 bool
-HLTLevel1Pattern::filter(edm::Event& event, const edm::EventSetup& setup)
+HLTLevel1Pattern::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   // determine the L1 algo or tech bit to use
   if (m_watchL1Menu.check(setup)) {

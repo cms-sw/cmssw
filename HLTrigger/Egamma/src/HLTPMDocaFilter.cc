@@ -3,7 +3,7 @@
  *  Original Author: Jeremy Werner                          
  *  Institution: Princeton University, USA                                                                 *  Contact: Jeremy.Werner@cern.ch 
  *  Date: February 21, 2007     
- * $Id: HLTPMDocaFilter.cc,v 1.7 2007/12/07 09:32:56 ghezzi Exp $
+ * $Id: HLTPMDocaFilter.cc,v 1.8 2011/10/12 09:00:40 fwyzard Exp $
  *
  */
 
@@ -21,15 +21,12 @@
 //
 // constructors and destructor
 //
-HLTPMDocaFilter::HLTPMDocaFilter(const edm::ParameterSet& iConfig)
+HLTPMDocaFilter::HLTPMDocaFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
   candTag_            = iConfig.getParameter< edm::InputTag > ("candTag");
   docaDiffPerpCutHigh_     = iConfig.getParameter<double> ("docaDiffPerpCutHigh");
   docaDiffPerpCutLow_     = iConfig.getParameter<double> ("docaDiffPerpCutLow");
   nZcandcut_           = iConfig.getParameter<int> ("nZcandcut");
-
-   //register your products
-  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTPMDocaFilter::~HLTPMDocaFilter(){}
@@ -37,22 +34,17 @@ HLTPMDocaFilter::~HLTPMDocaFilter(){}
 
 // ------------ method called to produce the data  ------------
 bool
-HLTPMDocaFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTPMDocaFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
-
   using namespace std;
   using namespace edm;
   using namespace reco;
-
-  // The filter object
   using namespace trigger;
-  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct (new trigger::TriggerFilterObjectWithRefs(path(),module()));
+
   // Ref to Candidate object to be recorded in filter object
   edm::Ref<reco::ElectronCollection> ref;
-  
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
-
   iEvent.getByLabel (candTag_,PrevFilterOutput);
   
   std::vector<edm::Ref<reco::ElectronCollection> > electrons;
@@ -78,9 +70,9 @@ HLTPMDocaFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 if((docaDiffPerp>=docaDiffPerpCutLow_) && (docaDiffPerp<= docaDiffPerpCutHigh_)){
 	   n++;
 	   ref = electrons[ii];
-	   filterproduct->addObject(TriggerElectron, ref);
+	   filterproduct.addObject(TriggerElectron, ref);
 	   ref = electrons[jj];
-	   filterproduct->addObject(TriggerElectron, ref);
+	   filterproduct.addObject(TriggerElectron, ref);
 
 	 }
      }
@@ -89,9 +81,6 @@ HLTPMDocaFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // filter decision
   bool accept(n>=nZcandcut_);
-  
-  // put filter object into the Event
-  iEvent.put(filterproduct);
   
   return accept;
 }

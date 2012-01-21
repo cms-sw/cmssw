@@ -8,8 +8,8 @@
  *  HLT trigger acting on candidates, requiring a g/e/m/j tuple above
  *  pt cuts
  *
- *  $Date: 2008/05/05 15:48:33 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/04/08 14:24:27 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -26,7 +26,7 @@ class HLTFiltCand : public HLTFilter {
    public:
       explicit HLTFiltCand(const edm::ParameterSet&);
       ~HLTFiltCand();
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
       edm::InputTag photTag_;  // input tag identifying product containing photons
@@ -38,8 +38,6 @@ class HLTFiltCand : public HLTFilter {
       edm::InputTag mhtsTag_;  // input tag identifying product containing HTs
       edm::InputTag trckTag_;  // input tag identifying product containing Tracks
       edm::InputTag ecalTag_;  // input tag identifying product containing SuperClusters
-
-      bool saveTags_;          // whether to save all these tags
 
       double min_Pt_;          // min pt cut
 };

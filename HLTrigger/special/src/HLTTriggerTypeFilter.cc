@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/04/01 07:32:50 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/08/06 11:23:34 $
+ *  $Revision: 1.2 $
  *
  *  \author:  Giovanni FRANZONI
  *
@@ -20,7 +20,7 @@
 //
 // constructors and destructor
 //
-HLTTriggerTypeFilter::HLTTriggerTypeFilter(const edm::ParameterSet& iConfig)
+HLTTriggerTypeFilter::HLTTriggerTypeFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
   //now do what ever initialization is needed
   SelectedTriggerType_ = static_cast<unsigned short>(iConfig.getParameter<int>("SelectedTriggerType"));
@@ -42,7 +42,7 @@ HLTTriggerTypeFilter::~HLTTriggerTypeFilter()
 
 // ------------ method called on each new Event  ------------
 bool
-HLTTriggerTypeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTTriggerTypeFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   if (iEvent.isRealData()) {
     return (iEvent.experimentType() == SelectedTriggerType_); 

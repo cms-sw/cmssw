@@ -12,7 +12,7 @@
 //
 // Original Author:  Camilo Andres Carrillo Montoya
 //         Created:  Thu Oct 29 11:04:22 CET 2009
-// $Id: HLTRPCTrigNoSyncFilter.cc,v 1.2 2010/02/23 10:38:24 carrillo Exp $
+// $Id: HLTRPCTrigNoSyncFilter.cc,v 1.3 2010/02/23 14:43:03 carrillo Exp $
 //
 //
 
@@ -44,7 +44,7 @@ bool bigmag(const RPC4DHit &Point1,const RPC4DHit &Point2){
   else return false;
 }
 
-HLTRPCTrigNoSyncFilter::HLTRPCTrigNoSyncFilter(const edm::ParameterSet& iConfig)
+HLTRPCTrigNoSyncFilter::HLTRPCTrigNoSyncFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
   //now do what ever initialization is needed
   m_GMTInputTag =iConfig.getParameter< edm::InputTag >("GMTInputTag");
@@ -64,7 +64,7 @@ HLTRPCTrigNoSyncFilter::~HLTRPCTrigNoSyncFilter()
 //
 
 // ------------ method called on each new Event  ------------
-bool HLTRPCTrigNoSyncFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup){
+bool HLTRPCTrigNoSyncFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct){
 
   std::vector<RPC4DHit> GlobalRPC4DHits;
   std::vector<RPC4DHit> GlobalRPC4DHitsNoBx0;

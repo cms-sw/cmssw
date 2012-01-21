@@ -20,12 +20,11 @@ class HLTAcoFilter : public HLTFilter {
    public:
       explicit HLTAcoFilter(const edm::ParameterSet&);
       ~HLTAcoFilter();
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
       edm::InputTag inputJetTag_; // input tag identifying jets
       edm::InputTag inputMETTag_; // input tag identifying for MET
-      bool saveTags_;             // whether to save these tags
       double minEtjet1_;
       double minEtjet2_;
       double minDPhi_;

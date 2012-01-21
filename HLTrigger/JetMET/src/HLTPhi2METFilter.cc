@@ -23,18 +23,14 @@
 //
 // constructors and destructor
 //
-HLTPhi2METFilter::HLTPhi2METFilter(const edm::ParameterSet& iConfig)
+HLTPhi2METFilter::HLTPhi2METFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
    inputJetTag_ = iConfig.getParameter< edm::InputTag > ("inputJetTag");
    inputMETTag_ = iConfig.getParameter< edm::InputTag > ("inputMETTag");
-   saveTags_    = iConfig.getParameter<bool>("saveTags");
    minDPhi_   = iConfig.getParameter<double> ("minDeltaPhi");
    maxDPhi_   = iConfig.getParameter<double> ("maxDeltaPhi");
    minEtjet1_= iConfig.getParameter<double> ("minEtJet1"); 
    minEtjet2_= iConfig.getParameter<double> ("minEtJet2"); 
-
-   //register your products
-   produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTPhi2METFilter::~HLTPhi2METFilter(){}
@@ -42,7 +38,7 @@ HLTPhi2METFilter::~HLTPhi2METFilter(){}
 
 // ------------ method called to produce the data  ------------
 bool
-HLTPhi2METFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTPhi2METFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace std;
   using namespace edm;
@@ -50,11 +46,9 @@ HLTPhi2METFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace trigger;
 
   // The filter object
-  auto_ptr<trigger::TriggerFilterObjectWithRefs> 
-    filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if (saveTags_) {
-    filterobject->addCollectionTag(inputJetTag_);
-    filterobject->addCollectionTag(inputMETTag_);
+  if (saveTags()) {
+    filterproduct.addCollectionTag(inputJetTag_);
+    filterproduct.addCollectionTag(inputMETTag_);
   }
 
   Handle<CaloJetCollection> recocalojets;
@@ -97,9 +91,9 @@ HLTPhi2METFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double Dphi= fabs(phimiss-phijet2);
     if (Dphi>M_PI) Dphi=2.0*M_PI-Dphi;
     if(etjet1>minEtjet1_  && etjet2>minEtjet2_ && Dphi>=minDPhi_ && Dphi<=maxDPhi_){
-	filterobject->addObject(TriggerMET,metRef);
-	filterobject->addObject(TriggerJet,ref1);
-	filterobject->addObject(TriggerJet,ref2);
+	filterproduct.addObject(TriggerMET,metRef);
+	filterproduct.addObject(TriggerJet,ref1);
+	filterproduct.addObject(TriggerJet,ref2);
 	n++;
     }
     
@@ -109,9 +103,6 @@ HLTPhi2METFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   // filter decision
   bool accept(n>=1);
-  
-  // put filter object into the Event
-  iEvent.put(filterobject);
   
   return accept;
 }

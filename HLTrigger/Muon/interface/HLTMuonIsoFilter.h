@@ -20,7 +20,7 @@ class HLTMuonIsoFilter : public HLTFilter {
    public:
       explicit HLTMuonIsoFilter(const edm::ParameterSet&);
       ~HLTMuonIsoFilter();
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
       bool triggerdByPreviousLevel(const reco::RecoChargedCandidateRef &, const std::vector<reco::RecoChargedCandidateRef> &);
    private:
       edm::InputTag candTag_; // input tag identifying muon container
@@ -30,7 +30,6 @@ class HLTMuonIsoFilter : public HLTFilter {
       const muonisolation::MuIsoBaseIsolator * theDepositIsolator;
 
       int    min_N_;          // minimum number of muons to fire the trigger
-      bool saveTags_;            // should we save the input collection ?
 };
 
 #endif //HLTMuonIsoFilter_h

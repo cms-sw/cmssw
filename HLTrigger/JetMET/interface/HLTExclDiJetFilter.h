@@ -23,11 +23,10 @@ class HLTExclDiJetFilter : public HLTFilter {
       explicit HLTExclDiJetFilter(const edm::ParameterSet&);
       ~HLTExclDiJetFilter();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
       edm::InputTag inputJetTag_; // input tag identifying jets
-      bool saveTags_;              // whether to save this tag
       double minPtJet_;
       double minHFe_;
       bool HF_OR_;

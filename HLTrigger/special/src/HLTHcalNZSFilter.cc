@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTHcalNZSFilter.cc,v 1.8 2009/10/06 14:00:01 fwyzard Exp $
+// $Id: HLTHcalNZSFilter.cc,v 1.9 2009/10/06 14:05:56 fwyzard Exp $
 //
 //
 
@@ -44,7 +44,7 @@ Implementation:
 //
 // constructors and destructor
 //
-HLTHcalNZSFilter::HLTHcalNZSFilter(const edm::ParameterSet& iConfig)
+HLTHcalNZSFilter::HLTHcalNZSFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
   //now do what ever initialization is needed
 
@@ -68,11 +68,11 @@ HLTHcalNZSFilter::~HLTHcalNZSFilter()
 
 // ------------ method called on each new Event  ------------
 bool
-HLTHcalNZSFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTHcalNZSFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace edm;
 
-  // MC treatment for this filter (NZS not fully emulated in HTR for MC)
+  // MC treatment for this hltFilter(NZS not fully emulated in HTR for MC, trigger::TriggerFilterObjectWithRefs & filterproduct)
   if (!iEvent.isRealData()) return false;
 
   edm::Handle<FEDRawDataCollection> rawdata;  

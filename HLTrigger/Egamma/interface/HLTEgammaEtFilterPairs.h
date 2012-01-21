@@ -18,7 +18,7 @@ class HLTEgammaEtFilterPairs : public HLTFilter {
    public:
       explicit HLTEgammaEtFilterPairs(const edm::ParameterSet&);
       ~HLTEgammaEtFilterPairs();
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
       edm::InputTag inputTag_; // input tag identifying product contains egammas
@@ -26,7 +26,6 @@ class HLTEgammaEtFilterPairs : public HLTFilter {
       double etcutEB2_;           // Et threshold in GeV 
       double etcutEE1_;           // Et threshold in GeV 
       double etcutEE2_;           // Et threshold in GeV 
-      bool   store_;
       bool   relaxed_;
       edm::InputTag L1IsoCollTag_; 
       edm::InputTag L1NonIsoCollTag_; 

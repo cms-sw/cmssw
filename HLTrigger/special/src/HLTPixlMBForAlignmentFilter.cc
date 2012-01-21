@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/10/15 22:44:31 $
- *  $Revision: 1.3 $
+ *  $Date: 2011/11/07 11:50:49 $
+ *  $Revision: 1.4 $
  *
  *  \author Mika Huhtinen
  *
@@ -31,7 +31,7 @@
 // constructors and destructor
 //
  
-HLTPixlMBForAlignmentFilter::HLTPixlMBForAlignmentFilter(const edm::ParameterSet& iConfig) :
+HLTPixlMBForAlignmentFilter::HLTPixlMBForAlignmentFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
     pixlTag_ (iConfig.getParameter<edm::InputTag>("pixlTag")),
     min_Pt_  (iConfig.getParameter<double>("MinPt")),
     min_trks_  (iConfig.getParameter<unsigned int>("MinTrks")),
@@ -43,8 +43,6 @@ HLTPixlMBForAlignmentFilter::HLTPixlMBForAlignmentFilter(const edm::ParameterSet
   LogDebug("") << "Requesting : " << min_trks_ << " tracks from same vertex ";
   LogDebug("") << "Requesting tracks from same vertex eta-phi separation by " << min_sep_;
   LogDebug("") << "Requesting track to be isolated within cone of " << min_isol_;
-   //register your products
-  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTPixlMBForAlignmentFilter::~HLTPixlMBForAlignmentFilter()
@@ -56,7 +54,7 @@ HLTPixlMBForAlignmentFilter::~HLTPixlMBForAlignmentFilter()
 //
 
 // ------------ method called to produce the data  ------------
-bool HLTPixlMBForAlignmentFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+bool HLTPixlMBForAlignmentFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
    using namespace std;
    using namespace edm;
@@ -175,20 +173,15 @@ bool HLTPixlMBForAlignmentFilter::filter(edm::Event& iEvent, const edm::EventSet
        }
      }
      // At this point we have the indices of the accepted tracks stored in itstore
-     // we now move them to the filterobject
-
-     // The filter object
-     auto_ptr<TriggerFilterObjectWithRefs> filterobject (new TriggerFilterObjectWithRefs(path(),module()));
+     // we now move them to the filterproduct
 
      if (accept) {
        for (unsigned int ipos=0; ipos < itsep.size(); ipos++) {
          int iaddr=itstore.at(itsep.at(ipos));
-         filterobject->addObject(TriggerTrack,RecoChargedCandidateRef(tracks,iaddr));
+         filterproduct.addObject(TriggerTrack,RecoChargedCandidateRef(tracks,iaddr));
        }
        // std::cout << "Accept this event " << std::endl;
      }
-     // put filter object into the Event
-     iEvent.put(filterobject);
    }
 
 

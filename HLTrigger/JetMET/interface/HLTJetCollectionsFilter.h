@@ -17,18 +17,14 @@ class HLTJetCollectionsFilter : public HLTFilter {
       explicit HLTJetCollectionsFilter(const edm::ParameterSet&);
       ~HLTJetCollectionsFilter();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
       edm::InputTag inputTag_; // input tag identifying jet collections
       edm::InputTag originalTag_; // input tag original jet collection
-      bool saveTags_;              // whether to save this tag
-
       double minJetPt_; // jet pt threshold in GeV
       double maxAbsJetEta_; // jet |eta| range
       unsigned int minNJets_; // number of required jets passing cuts after cleaning
-
-
 };
 
 #endif //HLTJetCollectionsFilter_h

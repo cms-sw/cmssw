@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/02/16 22:31:10 $
- *  $Revision: 1.17 $
+ *  $Date: 2011/02/24 08:28:45 $
+ *  $Revision: 1.18 $
  *
  *  \author Martin Grunewald
  *
@@ -33,7 +33,7 @@
 //
 // constructors and destructor
 //
-HLTHighLevel::HLTHighLevel(const edm::ParameterSet& iConfig) :
+HLTHighLevel::HLTHighLevel(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
   inputTag_     (iConfig.getParameter<edm::InputTag> ("TriggerResultsTag")),
   triggerNamesID_ (),
   andOr_        (iConfig.getParameter<bool> ("andOr")),
@@ -184,7 +184,7 @@ HLTHighLevel::pathsFromSetup(const std::string &key, const edm::EventSetup &iSet
 
 // ------------ method called to produce the data  ------------
   bool
-HLTHighLevel::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTHighLevel::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace std;
   using namespace edm;

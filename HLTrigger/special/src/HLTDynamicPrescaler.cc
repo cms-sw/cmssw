@@ -8,7 +8,7 @@ public:
   explicit HLTDynamicPrescaler(edm::ParameterSet const & configuration);
   ~HLTDynamicPrescaler();
 
-  bool filter(edm::Event & event, edm::EventSetup const & setup);
+  bool hltFilter(edm::Event & event, edm::EventSetup const & setup, trigger::TriggerFilterObjectWithRefs & filterproduct);
   void endJob();
 
 private:
@@ -16,7 +16,7 @@ private:
   unsigned int m_scale;     // accept one event every m_scale, which will change dynamically
 };
 
-HLTDynamicPrescaler::HLTDynamicPrescaler(edm::ParameterSet const & configuration) :
+HLTDynamicPrescaler::HLTDynamicPrescaler(edm::ParameterSet const & configuration) : HLTFilter(configuration),
   m_count(0),
   m_scale(1) { 
 }
@@ -24,7 +24,7 @@ HLTDynamicPrescaler::HLTDynamicPrescaler(edm::ParameterSet const & configuration
 HLTDynamicPrescaler::~HLTDynamicPrescaler() {
 }
 
-bool HLTDynamicPrescaler::filter(edm::Event & event, edm::EventSetup const & setup) {
+bool HLTDynamicPrescaler::hltFilter(edm::Event & event, edm::EventSetup const & setup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
   ++m_count;
 
   if (m_count % m_scale)

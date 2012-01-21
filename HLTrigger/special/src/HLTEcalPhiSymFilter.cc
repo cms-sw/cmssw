@@ -7,7 +7,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-HLTEcalPhiSymFilter::HLTEcalPhiSymFilter(const edm::ParameterSet& iConfig)
+HLTEcalPhiSymFilter::HLTEcalPhiSymFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
   barrelHits_ = iConfig.getParameter< edm::InputTag > ("barrelHitCollection");
   endcapHits_ = iConfig.getParameter< edm::InputTag > ("endcapHitCollection");
@@ -26,9 +26,6 @@ HLTEcalPhiSymFilter::HLTEcalPhiSymFilter(const edm::ParameterSet& iConfig)
   //register your products
   produces< EBRecHitCollection >(phiSymBarrelHits_);
   produces< EERecHitCollection >(phiSymEndcapHits_);
-  produces<trigger::TriggerFilterObjectWithRefs>();
-
-
 }
 
 
@@ -41,7 +38,7 @@ HLTEcalPhiSymFilter::~HLTEcalPhiSymFilter()
 
 // ------------ method called to produce the data  ------------
 bool
-HLTEcalPhiSymFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTEcalPhiSymFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
 
 
@@ -64,12 +61,6 @@ HLTEcalPhiSymFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //Create empty output collections
   std::auto_ptr< EBRecHitCollection > phiSymEBRecHitCollection( new EBRecHitCollection );
   std::auto_ptr< EERecHitCollection > phiSymEERecHitCollection( new EERecHitCollection );
-
-  // The Filter object. We don't really need to put anything into it, but we 
-  // write an empty one for consistency
-  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> 
-      filterproduct (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  
 
   //Select interesting EcalRecHits (barrel)
   EBRecHitCollection::const_iterator itb;
@@ -106,8 +97,5 @@ HLTEcalPhiSymFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put( phiSymEBRecHitCollection, phiSymBarrelHits_);
   iEvent.put( phiSymEERecHitCollection, phiSymEndcapHits_);
   
-  iEvent.put(filterproduct);
-   
   return true;
-
 }

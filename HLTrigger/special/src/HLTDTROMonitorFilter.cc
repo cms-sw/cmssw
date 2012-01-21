@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/07/14 12:56:49 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/02/11 15:19:31 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -21,7 +21,7 @@
 using namespace edm;
 
 
-HLTDTROMonitorFilter::HLTDTROMonitorFilter(const edm::ParameterSet& pset){
+HLTDTROMonitorFilter::HLTDTROMonitorFilter(const edm::ParameterSet& pset) : HLTFilter(pset) {
   inputLabel = pset.getParameter<InputTag>("inputLabel");
 
 
@@ -30,7 +30,7 @@ HLTDTROMonitorFilter::HLTDTROMonitorFilter(const edm::ParameterSet& pset){
 HLTDTROMonitorFilter::~HLTDTROMonitorFilter(){}
 
 
-bool HLTDTROMonitorFilter::filter(edm::Event& event, const edm::EventSetup& setup) {
+bool HLTDTROMonitorFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
   // get the raw data
   event.getByLabel(inputLabel, rawdata);
   

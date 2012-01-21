@@ -1,6 +1,6 @@
 /** \class HLTEgammaL1MatchFilterRegional
  *
- * $Id: HLTEgammaL1MatchFilterRegional.cc,v 1.9 2010/06/10 14:17:37 covarell Exp $
+ * $Id: HLTEgammaL1MatchFilterRegional.cc,v 1.10 2012/01/16 14:41:20 sharper Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -31,7 +31,7 @@
 //
 // constructors and destructor
 //
-HLTEgammaL1MatchFilterRegional::HLTEgammaL1MatchFilterRegional(const edm::ParameterSet& iConfig)
+HLTEgammaL1MatchFilterRegional::HLTEgammaL1MatchFilterRegional(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
    candIsolatedTag_ = iConfig.getParameter< edm::InputTag > ("candIsolatedTag");
    l1IsolatedTag_ = iConfig.getParameter< edm::InputTag > ("l1IsolatedTag");
@@ -47,9 +47,6 @@ HLTEgammaL1MatchFilterRegional::HLTEgammaL1MatchFilterRegional(const edm::Parame
    region_phi_size_      = iConfig.getParameter<double> ("region_phi_size");
    barrel_end_           = iConfig.getParameter<double> ("barrel_end");   
    endcap_end_           = iConfig.getParameter<double> ("endcap_end");   
-
-   //register your products
-   produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTEgammaL1MatchFilterRegional::~HLTEgammaL1MatchFilterRegional(){}
@@ -60,13 +57,11 @@ HLTEgammaL1MatchFilterRegional::~HLTEgammaL1MatchFilterRegional(){}
 //doIsolated=true, only isolated superclusters are allowed to match isolated L1 seeds
 //doIsolated=false, isolated superclusters are allowed to match either iso or non iso L1 seeds, non isolated superclusters are allowed only to match non-iso seeds. If no collection name is given for non-isolated superclusters, assumes the the isolated collection contains all (both iso + non iso) seeded superclusters.
 bool
-HLTEgammaL1MatchFilterRegional::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTEgammaL1MatchFilterRegional::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   // std::cout <<"runnr "<<iEvent.id().run()<<" event "<<iEvent.id().event()<<std::endl;
   using namespace trigger;
   using namespace l1extra;
-  //using namespace std;
-  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
 
   edm::Ref<reco::RecoEcalCandidateCollection> ref;
 
@@ -116,7 +111,7 @@ HLTEgammaL1MatchFilterRegional::filter(edm::Event& iEvent, const edm::EventSetup
 	n++;
 
 	ref = edm::Ref<reco::RecoEcalCandidateCollection>(recoIsolecalcands, distance(recoIsolecalcands->begin(),recoecalcand) );       
-	filterobject->addObject(TriggerCluster, ref);
+	filterproduct.addObject(TriggerCluster, ref);
       }//end  matched check
 
     }//end endcap fiduical check
@@ -139,7 +134,7 @@ HLTEgammaL1MatchFilterRegional::filter(edm::Event& iEvent, const edm::EventSetup
 	if(matchedSCNonIso) {
 	  n++;
 	  ref = edm::Ref<reco::RecoEcalCandidateCollection>(recoNonIsolecalcands, distance(recoNonIsolecalcands->begin(),recoecalcand) );       
-	  filterobject->addObject(TriggerCluster, ref);
+	  filterproduct.addObject(TriggerCluster, ref);
 	}//end  matched check
 	
       }//end endcap fiduical check
@@ -151,11 +146,6 @@ HLTEgammaL1MatchFilterRegional::filter(edm::Event& iEvent, const edm::EventSetup
   // filter decision
   bool accept(n>=ncandcut_);
   
-  // put filter object into the Event
-  iEvent.put(filterobject);
-  
-  // if(!accept)std::cout <<"FAILING FILTER"<<std::endl;
-
   return accept;
 }
 

@@ -4,7 +4,7 @@ using namespace std;
 using namespace edm;
 
 
-HLTEcalResonanceFilter::HLTEcalResonanceFilter(const edm::ParameterSet& iConfig)
+HLTEcalResonanceFilter::HLTEcalResonanceFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
   
   
@@ -130,7 +130,7 @@ HLTEcalResonanceFilter::~HLTEcalResonanceFilter()
 
 // ------------ method called to produce the data  ------------
 bool
-HLTEcalResonanceFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTEcalResonanceFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
    
   //Create empty output collections

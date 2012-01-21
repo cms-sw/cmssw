@@ -12,7 +12,7 @@
 //
 // Original Author:  Dong Ho Moon
 //         Created:  Wed May  9 06:22:36 CEST 2007
-// $Id: HLTHIMuL1L2L3Filter.h,v 1.2 2010/01/22 13:17:40 kodolova Exp $
+// $Id: HLTHIMuL1L2L3Filter.h,v 1.3 2010/01/22 13:32:02 kodolova Exp $
 //
 //
 
@@ -60,7 +60,7 @@ class HLTHIMuL1L2L3Filter : public HLTFilter {
       
   // General Block
   
-      virtual bool filter(edm ::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm ::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
       virtual void beginJob();
       virtual void endJob();
   

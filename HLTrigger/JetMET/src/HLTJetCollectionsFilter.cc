@@ -29,15 +29,13 @@ typedef std::vector<edm::RefVector<std::vector<reco::CaloJet>,reco::CaloJet,edm:
 //
 // constructors and destructor
 //
-HLTJetCollectionsFilter::HLTJetCollectionsFilter(const edm::ParameterSet& iConfig):
+HLTJetCollectionsFilter::HLTJetCollectionsFilter(const edm::ParameterSet& iConfig): HLTFilter(iConfig),
   inputTag_(iConfig.getParameter< edm::InputTag > ("inputTag")),
   originalTag_(iConfig.getParameter< edm::InputTag > ("originalTag")),
-  saveTags_(iConfig.getParameter<bool>("saveTags")),
   minJetPt_(iConfig.getParameter<double> ("MinJetPt")),
   maxAbsJetEta_(iConfig.getParameter<double> ("MaxAbsJetEta")),
   minNJets_(iConfig.getParameter<unsigned int> ("MinNJets"))
 {
-  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTJetCollectionsFilter::~HLTJetCollectionsFilter(){}
@@ -56,15 +54,15 @@ HLTJetCollectionsFilter::fillDescriptions(edm::ConfigurationDescriptions& descri
 
 // ------------ method called to produce the data  ------------
 bool
-HLTJetCollectionsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTJetCollectionsFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace std;
   using namespace edm;
   using namespace reco;
   using namespace trigger;
+
   // The filter object
-  auto_ptr < trigger::TriggerFilterObjectWithRefs > filterobject(new trigger::TriggerFilterObjectWithRefs(path(), module()));
-  if (saveTags_) filterobject->addCollectionTag(originalTag_);
+  if (saveTags()) filterproduct.addCollectionTag(originalTag_);
 
   Handle < JetCollectionVector > theCaloJetCollectionsHandle;
   iEvent.getByLabel(inputTag_, theCaloJetCollectionsHandle);
@@ -101,12 +99,8 @@ HLTJetCollectionsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 
   //fill the filter object
   for (unsigned int refIndex = 0; refIndex < goodJetRefs.size(); ++refIndex) {
-    filterobject->addObject(TriggerJet, goodJetRefs.at(refIndex));
+    filterproduct.addObject(TriggerJet, goodJetRefs.at(refIndex));
   }
 
-  // put filter object into the Event
-  iEvent.put(filterobject);
-  
   return accept;
-
 }

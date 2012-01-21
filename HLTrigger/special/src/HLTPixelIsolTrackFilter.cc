@@ -15,7 +15,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
-HLTPixelIsolTrackFilter::HLTPixelIsolTrackFilter(const edm::ParameterSet& iConfig)
+HLTPixelIsolTrackFilter::HLTPixelIsolTrackFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
   candTag_             = iConfig.getParameter<edm::InputTag> ("candTag");
   hltGTseedlabel_      = iConfig.getParameter<edm::InputTag> ("L1GTSeedLabel");
@@ -28,17 +28,12 @@ HLTPixelIsolTrackFilter::HLTPixelIsolTrackFilter(const edm::ParameterSet& iConfi
   minEnergy_           = iConfig.getParameter<double>("MinEnergyTrack");
   nMaxTrackCandidates_ = iConfig.getParameter<int>("NMaxTrackCandidates");
   dropMultiL2Event_    = iConfig.getParameter<bool> ("DropMultiL2Event");
-  //register your products
-  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTPixelIsolTrackFilter::~HLTPixelIsolTrackFilter(){}
 
-bool HLTPixelIsolTrackFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+bool HLTPixelIsolTrackFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
-
-  // The Filter object
-  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct (new trigger::TriggerFilterObjectWithRefs(path(),module()));
 
   // Ref to Candidate object to be recorded in filter object
   edm::Ref<reco::IsolatedPixelTrackCandidateCollection> candref;
@@ -85,7 +80,7 @@ bool HLTPixelIsolTrackFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
       if (!filterE_&&(candref->maxPtPxl()<maxptnearby_)&&
 	  (candref->pt()>minpttrack_)&&fabs(candref->track()->eta())<maxetatrack_&&fabs(candref->track()->eta())>minetatrack_)
 	{
-	  filterproduct->addObject(trigger::TriggerTrack, candref);
+	  filterproduct.addObject(trigger::TriggerTrack, candref);
 	  n++;
 	}
 
@@ -93,7 +88,7 @@ bool HLTPixelIsolTrackFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
       if (filterE_){
 	if ((candref->maxPtPxl()<maxptnearby_)&&((candref->pt())*cosh(candref->track()->eta())>minEnergy_)&&fabs(candref->track()->eta())<maxetatrack_&&fabs(candref->track()->eta())>minetatrack_)
 	  {
-	    filterproduct->addObject(trigger::TriggerTrack, candref);
+	    filterproduct.addObject(trigger::TriggerTrack, candref);
 	    n++;
 	  }
       }
@@ -108,9 +103,7 @@ bool HLTPixelIsolTrackFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
 
   if( dropMultiL2Event_ && n>nMaxTrackCandidates_ ) accept=false;
 
-  filterproduct->addCollectionTag(candTag_);
-
-  iEvent.put(filterproduct);
+  filterproduct.addCollectionTag(candTag_);
 
   return accept;
 

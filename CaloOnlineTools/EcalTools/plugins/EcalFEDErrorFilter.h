@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Giovanni FRANZONI
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: EcalFEDErrorFilter.h,v 1.2 2010/01/04 15:07:40 ferriff Exp $
+// $Id: EcalFEDErrorFilter.h,v 1.3 2010/02/11 00:10:40 wmtan Exp $
 //
 //
 
@@ -49,7 +49,7 @@ public:
   ~EcalFEDErrorFilter();
   
 private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
   
   // ----------member data ---------------------------
   

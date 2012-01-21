@@ -7,8 +7,8 @@
  *  This class is an HLTFilter (-> EDFilter) returning always the same
  *  configurable Boolean value (good for tests)
  *
- *  $Date: 2007/08/16 14:49:05 $
- *  $Revision: 1.1 $
+ *  $Date: 2011/02/16 17:25:34 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -31,7 +31,7 @@ class HLTBool : public HLTFilter {
     explicit HLTBool(const edm::ParameterSet&);
     ~HLTBool();
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    virtual bool filter(edm::Event&, const edm::EventSetup&);
+    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
   private:
 

@@ -12,7 +12,7 @@
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-HLTHcalNoiseFilter::HLTHcalNoiseFilter(const edm::ParameterSet& iConfig)
+HLTHcalNoiseFilter::HLTHcalNoiseFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
   JetSource_ = iConfig.getParameter<edm::InputTag>("JetSource");
   MetSource_ = iConfig.getParameter<edm::InputTag>("MetSource");
@@ -29,7 +29,7 @@ HLTHcalNoiseFilter::HLTHcalNoiseFilter(const edm::ParameterSet& iConfig)
 
 HLTHcalNoiseFilter::~HLTHcalNoiseFilter() { }
 
-bool HLTHcalNoiseFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+bool HLTHcalNoiseFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
    using namespace edm;
    using namespace reco;

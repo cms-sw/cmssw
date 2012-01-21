@@ -15,9 +15,8 @@
 // constructors and destructor
 //
  
-HLTTrackerHaloFilter::HLTTrackerHaloFilter(const edm::ParameterSet& config) :
+HLTTrackerHaloFilter::HLTTrackerHaloFilter(const edm::ParameterSet& config) : HLTFilter(config),
   inputTag_     (config.getParameter<edm::InputTag>("inputTag")),
-  saveTags_      (config.getParameter<bool>("saveTags")),
   max_clusTp_   (config.getParameter<int>("MaxClustersTECp")),
   max_clusTm_   (config.getParameter<int>("MaxClustersTECm")),
   sign_accu_    (config.getParameter<int>("SignalAccumulation")),
@@ -25,12 +24,6 @@ HLTTrackerHaloFilter::HLTTrackerHaloFilter(const edm::ParameterSet& config) :
   max_back_     (config.getParameter<int>("MaxAccus")),
   fastproc_     (config.getParameter<int>("FastProcessing"))
 {
-
-  // register your products
-  produces<trigger::TriggerFilterObjectWithRefs>();
-
-
-
 }
 
 HLTTrackerHaloFilter::~HLTTrackerHaloFilter()
@@ -42,16 +35,14 @@ HLTTrackerHaloFilter::~HLTTrackerHaloFilter()
 //
 
 // ------------ method called to produce the data  ------------
-bool HLTTrackerHaloFilter::filter(edm::Event& event, const edm::EventSetup& iSetup)
+bool HLTTrackerHaloFilter::hltFilter(edm::Event& event, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   // All HLT filters must create and fill an HLT filter object,
   // recording any reconstructed physics objects satisfying (or not)
   // this HLT filter, and place it in the Event.
   
   // The filter object
-  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if (saveTags_) filterobject->addCollectionTag(inputTag_);
-  event.put(filterobject);
+  if (saveTags()) filterproduct.addCollectionTag(inputTag_);
   
   // get hold of products from Event
   edm::Handle<edm::RefGetter<SiStripCluster> > refgetter;

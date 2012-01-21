@@ -15,7 +15,7 @@ class HLTEgammaCombMassFilter : public HLTFilter {
  public:
   explicit HLTEgammaCombMassFilter(const edm::ParameterSet&);
   ~HLTEgammaCombMassFilter();
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
   static void getP4OfLegCands(const edm::Event& iEvent,edm::InputTag filterTag,std::vector<math::XYZTLorentzVector>& p4s);
   
  private:

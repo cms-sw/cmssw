@@ -1,6 +1,6 @@
 /** \class EgammaHLTCaloIsolFilterPairs
  *
- * $Id: HLTEgammaCaloIsolFilterPairs.cc,v 1.8 2008/04/24 12:53:42 ghezzi Exp $
+ * $Id: HLTEgammaCaloIsolFilterPairs.cc,v 1.1 2008/10/14 14:52:57 ghezzi Exp $
  * 
  *  \author Alessio Ghezzi
  *
@@ -17,7 +17,7 @@
 //
 // constructors and destructor
 //
-HLTEgammaCaloIsolFilterPairs::HLTEgammaCaloIsolFilterPairs(const edm::ParameterSet& iConfig)
+HLTEgammaCaloIsolFilterPairs::HLTEgammaCaloIsolFilterPairs(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
   candTag_ = iConfig.getParameter< edm::InputTag > ("candTag");
   isoTag_ = iConfig.getParameter< edm::InputTag > ("isoTag");
@@ -40,10 +40,6 @@ HLTEgammaCaloIsolFilterPairs::HLTEgammaCaloIsolFilterPairs(const edm::ParameterS
 
   AlsoNonIso_1 = iConfig.getParameter<bool> ("AlsoNonIso1");
   AlsoNonIso_2 = iConfig.getParameter<bool> ("AlsoNonIso2");
-
-   //register your products
-   produces<trigger::TriggerFilterObjectWithRefs>();
-
 }
 
 HLTEgammaCaloIsolFilterPairs::~HLTEgammaCaloIsolFilterPairs(){}
@@ -51,15 +47,11 @@ HLTEgammaCaloIsolFilterPairs::~HLTEgammaCaloIsolFilterPairs(){}
 
 // ------------ method called to produce the data  ------------
 bool
-HLTEgammaCaloIsolFilterPairs::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTEgammaCaloIsolFilterPairs::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
-
-  // The filter object
   using namespace trigger;
-  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  
+
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
-  
   iEvent.getByLabel (candTag_,PrevFilterOutput);
 
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > recoecalcands;
@@ -91,16 +83,13 @@ HLTEgammaCaloIsolFilterPairs::filter(edm::Event& iEvent, const edm::EventSetup& 
     if( PassCaloIsolation(r1,*depMap,*depNonIsoMap,1,AlsoNonIso_1) && PassCaloIsolation(r2,*depMap,*depNonIsoMap,2,AlsoNonIso_2)    )
       {
 	n++;
-	filterproduct->addObject(TriggerCluster, r1);
-	filterproduct->addObject(TriggerCluster, r2);
+	filterproduct.addObject(TriggerCluster, r1);
+	filterproduct.addObject(TriggerCluster, r2);
       }
   }
   
   // filter decision
   bool accept(n>=1);
-  
-  // put filter object into the Event
-  iEvent.put(filterproduct);
   
   return accept;
 }

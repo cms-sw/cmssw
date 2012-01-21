@@ -20,7 +20,7 @@ class HLTHcalMETNoiseFilter : public HLTFilter {
   explicit HLTHcalMETNoiseFilter(const edm::ParameterSet&);
   ~HLTHcalMETNoiseFilter();
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
   
  private:
   // parameters

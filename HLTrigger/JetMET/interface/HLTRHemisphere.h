@@ -20,11 +20,10 @@ class HLTRHemisphere : public HLTFilter {
       explicit HLTRHemisphere(const edm::ParameterSet&);
       ~HLTRHemisphere();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
       edm::InputTag inputTag_; // input tag identifying product
-      bool saveTags_;           // whether to save this tag
       double min_Jet_Pt_;      // minimum jet pT threshold for collection
       double max_Eta_;         // maximum eta
       int max_NJ_;             // don't calculate R if event has more than NJ jets

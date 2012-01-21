@@ -29,10 +29,9 @@ typedef std::vector<edm::RefVector<std::vector<reco::CaloJet>,reco::CaloJet,edm:
 //
 // constructors and destructor
 //
-HLTJetCollectionsVBFFilter::HLTJetCollectionsVBFFilter(const edm::ParameterSet& iConfig):
+HLTJetCollectionsVBFFilter::HLTJetCollectionsVBFFilter(const edm::ParameterSet& iConfig): HLTFilter(iConfig),
    inputTag_(iConfig.getParameter< edm::InputTag > ("inputTag")),
    originalTag_(iConfig.getParameter< edm::InputTag > ("originalTag")),
-   saveTags_(iConfig.getParameter<bool>("saveTags")),
    softJetPt_(iConfig.getParameter<double> ("SoftJetPt")),
    hardJetPt_(iConfig.getParameter<double> ("HardJetPt")),
    minDeltaEta_(iConfig.getParameter<double> ("MinDeltaEta")), 
@@ -41,8 +40,6 @@ HLTJetCollectionsVBFFilter::HLTJetCollectionsVBFFilter(const edm::ParameterSet& 
    maxAbsThirdJetEta_(iConfig.getParameter<double> ("MaxAbsThirdJetEta")),
    minNJets_(iConfig.getParameter<unsigned int> ("MinNJets"))
 {
-   //register your products
-   produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTJetCollectionsVBFFilter::~HLTJetCollectionsVBFFilter(){}
@@ -65,16 +62,14 @@ HLTJetCollectionsVBFFilter::fillDescriptions(edm::ConfigurationDescriptions& des
 
 // ------------ method called to produce the data  ------------
 bool
-HLTJetCollectionsVBFFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTJetCollectionsVBFFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace std;
   using namespace edm;
   using namespace reco;
   using namespace trigger;
   // The filter object
-  auto_ptr<trigger::TriggerFilterObjectWithRefs> 
-    filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if (saveTags_) filterobject->addCollectionTag(originalTag_);
+  if (saveTags()) filterproduct.addCollectionTag(originalTag_);
 
   Handle<JetCollectionVector> theCaloJetCollectionsHandle;
   iEvent.getByLabel(inputTag_,theCaloJetCollectionsHandle);
@@ -163,11 +158,8 @@ HLTJetCollectionsVBFFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
 
   //fill the filter object
   for (unsigned int refIndex = 0; refIndex < goodJetRefs.size(); ++refIndex) {
-    filterobject->addObject(TriggerJet, goodJetRefs.at(refIndex));
+    filterproduct.addObject(TriggerJet, goodJetRefs.at(refIndex));
   }
 
-  // put filter object into the Event
-  iEvent.put(filterobject);
-  
   return accept;
 }

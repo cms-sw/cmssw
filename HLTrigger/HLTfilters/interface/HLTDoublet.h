@@ -12,8 +12,8 @@
  *  single-object-type filters so that the access is thorugh
  *  RefToBases and polymorphic.
  *
- *  $Date: 2008/05/05 15:48:33 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/09/26 10:38:10 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -34,13 +34,12 @@ class HLTDoublet : public HLTFilter {
 
       explicit HLTDoublet(const edm::ParameterSet&);
       ~HLTDoublet();
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
       // configuration
       edm::InputTag inputTag1_;   // input tag identifying 1st product
       edm::InputTag inputTag2_;   // input tag identifying 2nd product
-      bool saveTags_;             // whether to save these tags
       double min_Dphi_,max_Dphi_; // Delta phi window
       double min_Deta_,max_Deta_; // Delta eta window
       double min_Minv_,max_Minv_; // Minv(1,2) window

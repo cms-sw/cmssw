@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Carlo Battilana
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTCSCActivityFilter.cc,v 1.13 2010/06/15 16:48:31 fwyzard Exp $
+// $Id: HLTCSCActivityFilter.cc,v 1.14 2010/06/15 22:16:10 fwyzard Exp $
 //
 //
 
@@ -29,9 +29,8 @@ Implementation:
 //
 // constructors and destructor
 //
-HLTCSCActivityFilter::HLTCSCActivityFilter(const edm::ParameterSet& iConfig) :
+HLTCSCActivityFilter::HLTCSCActivityFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
   m_cscStripDigiTag( iConfig.getParameter<edm::InputTag>("cscStripDigiTag")),
-  m_applyfilter(     iConfig.getParameter<bool>("applyfilter")),
   m_MESR(            iConfig.getParameter<bool>("skipStationRing")),
   m_RingNumb(        iConfig.getParameter<int>("skipRingNumber")),
   m_StationNumb(     iConfig.getParameter<int>("skipStationNumber"))
@@ -46,12 +45,10 @@ HLTCSCActivityFilter::~HLTCSCActivityFilter() {
 //
 
 // ------------ method called on each new Event  ------------
-bool HLTCSCActivityFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool HLTCSCActivityFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
   using namespace edm;
   using namespace std;
-
-  if (not m_applyfilter)
-    return true;
+  using namespace trigger;
 
   int nStripsFired = 0;
 

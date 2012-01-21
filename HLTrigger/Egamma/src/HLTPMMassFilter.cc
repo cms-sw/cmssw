@@ -11,26 +11,19 @@
 //
 // constructors and destructor
 //
-HLTPMMassFilter::HLTPMMassFilter(const edm::ParameterSet& iConfig)
+HLTPMMassFilter::HLTPMMassFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
-
   candTag_            = iConfig.getParameter< edm::InputTag > ("candTag");
   beamSpot_           = iConfig.getParameter< edm::InputTag > ("beamSpot");
   lowerMassCut_       = iConfig.getParameter<double> ("lowerMassCut");
   upperMassCut_       = iConfig.getParameter<double> ("upperMassCut");
-  // lowerPtCut_         = iConfig.getParameter<double> ("lowerPtCut");
   nZcandcut_          = iConfig.getParameter<int> ("nZcandcut");
   reqOppCharge_       = iConfig.getUntrackedParameter<bool> ("reqOppCharge",false);
-
   isElectron1_ = iConfig.getUntrackedParameter<bool> ("isElectron1",true) ;
   isElectron2_ = iConfig.getUntrackedParameter<bool> ("isElectron2",true) ;
-  store_ = iConfig.getParameter<bool>("saveTags") ;
   relaxed_ = iConfig.getUntrackedParameter<bool> ("relaxed",true) ;
   L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
   L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
-
-  //register your products
-  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTPMMassFilter::~HLTPMMassFilter(){}
@@ -38,17 +31,18 @@ HLTPMMassFilter::~HLTPMMassFilter(){}
 
 // ------------ method called to produce the data  ------------
 bool
-HLTPMMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTPMMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
-
   using namespace std;
   using namespace edm;
   using namespace reco;
-  // The filter object
   using namespace trigger;
-  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if( store_ ){filterproduct->addCollectionTag(L1IsoCollTag_);}
-  if( store_ && relaxed_){filterproduct->addCollectionTag(L1NonIsoCollTag_);}
+
+  // The filter object
+  if (saveTags()) {
+    filterproduct.addCollectionTag(L1IsoCollTag_);
+    if (relaxed_) filterproduct.addCollectionTag(L1NonIsoCollTag_);
+  }
   
   iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
 
@@ -108,9 +102,9 @@ HLTPMMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if(mass>=lowerMassCut_ && mass<=upperMassCut_){
 	  n++;
 	  refele = electrons[ii];
-	  filterproduct->addObject(TriggerElectron, refele);
+	  filterproduct.addObject(TriggerElectron, refele);
 	  refele = electrons[jj];
-	  filterproduct->addObject(TriggerElectron, refele);
+	  filterproduct.addObject(TriggerElectron, refele);
 	}
       }
     }
@@ -154,9 +148,9 @@ HLTPMMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if(mass>= lowerMassCut_ && mass<=upperMassCut_){
 	  n++;
 	  refsc = scs[ii];
-	  filterproduct->addObject(TriggerCluster, refsc);
+	  filterproduct.addObject(TriggerCluster, refsc);
 	  refsc = scs[jj];
-	  filterproduct->addObject(TriggerCluster, refsc);
+	  filterproduct.addObject(TriggerCluster, refsc);
 	}
       }
     }
@@ -166,9 +160,6 @@ HLTPMMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // filter decision
   bool accept(n>=nZcandcut_); 
   // if (accept) std::cout << "n size = " << n << std::endl;
-
-  // put filter object into the Event
-  iEvent.put(filterproduct);
 
   return accept;
 }

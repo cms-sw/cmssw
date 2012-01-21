@@ -3,16 +3,12 @@
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-HLTHFAsymmetryFilter::HLTHFAsymmetryFilter(const edm::ParameterSet& iConfig)
+HLTHFAsymmetryFilter::HLTHFAsymmetryFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
   HFHits_   = iConfig.getParameter<edm::InputTag>("HFHitCollection");  
   eCut_HF_  = iConfig.getParameter<double>("ECut_HF");
   os_asym_ = iConfig.getParameter<double>("OS_Asym_max");
   ss_asym_ = iConfig.getParameter<double>("SS_Asym_min");
-
-  //register your products
-
-  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 
@@ -25,7 +21,7 @@ HLTHFAsymmetryFilter::~HLTHFAsymmetryFilter()
 
 // ------------ method called to produce the data  ------------
 bool
-HLTHFAsymmetryFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTHFAsymmetryFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   edm::Handle<HFRecHitCollection> HFRecHitsH;
   

@@ -13,7 +13,7 @@
 //
 // Original Author:  Ingo Bloch
 //         Created:  Mon Mar 15 11:39:08 CDT 2010
-// $Id: HLTCSCAcceptBusyFilter.cc,v 1.1 2010/03/18 18:54:25 gruen Exp $
+// $Id: HLTCSCAcceptBusyFilter.cc,v 1.2 2010/03/18 19:53:28 gruen Exp $
 //
 //
 
@@ -49,7 +49,7 @@ class HLTCSCAcceptBusyFilter : public HLTFilter {
       explicit HLTCSCAcceptBusyFilter(const edm::ParameterSet&);
       virtual ~HLTCSCAcceptBusyFilter();
 
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
   
    private:
       bool AcceptManyHitsInChamber(unsigned int maxRecHitsPerChamber, const edm::Handle<CSCRecHit2DCollection>& recHits);
@@ -72,7 +72,7 @@ class HLTCSCAcceptBusyFilter : public HLTFilter {
 //
 // constructors and destructor
 //
-HLTCSCAcceptBusyFilter::HLTCSCAcceptBusyFilter(const edm::ParameterSet& iConfig)
+HLTCSCAcceptBusyFilter::HLTCSCAcceptBusyFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
    //now do what ever initialization is needed
    cscrechitsTag        = iConfig.getParameter<edm::InputTag>("cscrechitsTag");
@@ -96,7 +96,7 @@ HLTCSCAcceptBusyFilter::~HLTCSCAcceptBusyFilter()
 //
 
 // ------------ method called on each new Event  ------------
-bool HLTCSCAcceptBusyFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool HLTCSCAcceptBusyFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
 
    using namespace edm;
 

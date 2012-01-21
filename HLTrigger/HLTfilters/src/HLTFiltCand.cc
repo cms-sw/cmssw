@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/05/01 14:41:36 $
- *  $Revision: 1.16 $
+ *  $Date: 2011/10/27 14:40:28 $
+ *  $Revision: 1.17 $
  *
  *  \author Martin Grunewald
  *
@@ -42,7 +42,7 @@
 // constructors and destructor
 //
  
-HLTFiltCand::HLTFiltCand(const edm::ParameterSet& iConfig) :
+HLTFiltCand::HLTFiltCand(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
   photTag_ (iConfig.getParameter<edm::InputTag>("photTag")),
   elecTag_ (iConfig.getParameter<edm::InputTag>("elecTag")),
   muonTag_ (iConfig.getParameter<edm::InputTag>("muonTag")),
@@ -52,7 +52,6 @@ HLTFiltCand::HLTFiltCand(const edm::ParameterSet& iConfig) :
   mhtsTag_ (iConfig.getParameter<edm::InputTag>("mhtsTag")),
   trckTag_ (iConfig.getParameter<edm::InputTag>("trckTag")),
   ecalTag_ (iConfig.getParameter<edm::InputTag>("ecalTag")),
-  saveTags_(iConfig.getParameter<bool>("saveTags")),
   min_Pt_  (iConfig.getParameter<double>("MinPt"))
 {
   LogDebug("") << "MinPt cut " << min_Pt_
@@ -66,9 +65,6 @@ HLTFiltCand::HLTFiltCand(const edm::ParameterSet& iConfig) :
    <<" TR: " << trckTag_.encode()
    <<" SC: " << ecalTag_.encode()
    ;
-
-   //register your products
-   produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTFiltCand::~HLTFiltCand()
@@ -81,7 +77,7 @@ HLTFiltCand::~HLTFiltCand()
 
 // ------------ method called to produce the data  ------------
 bool
-HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTFiltCand::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
    using namespace std;
    using namespace edm;
@@ -93,18 +89,16 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // this HLT filter, and place it in the Event.
 
    // The filter object
-   auto_ptr<TriggerFilterObjectWithRefs> 
-     filterobject (new TriggerFilterObjectWithRefs(path(),module()));
-   if (saveTags_) {
-     filterobject->addCollectionTag(photTag_);
-     filterobject->addCollectionTag(elecTag_);
-     filterobject->addCollectionTag(muonTag_);
-     filterobject->addCollectionTag(tausTag_);
-     filterobject->addCollectionTag(jetsTag_);
-     filterobject->addCollectionTag(metsTag_);
-     filterobject->addCollectionTag(mhtsTag_);
-     filterobject->addCollectionTag(trckTag_);
-     filterobject->addCollectionTag(ecalTag_);
+   if (saveTags()) {
+     filterproduct.addCollectionTag(photTag_);
+     filterproduct.addCollectionTag(elecTag_);
+     filterproduct.addCollectionTag(muonTag_);
+     filterproduct.addCollectionTag(tausTag_);
+     filterproduct.addCollectionTag(jetsTag_);
+     filterproduct.addCollectionTag(metsTag_);
+     filterproduct.addCollectionTag(mhtsTag_);
+     filterproduct.addCollectionTag(trckTag_);
+     filterproduct.addCollectionTag(ecalTag_);
    }
 
    // Specific filter code
@@ -143,7 +137,7 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (iphot->pt() >= min_Pt_) {
        nphot++;
        RecoEcalCandidateRef ref(RecoEcalCandidateRef(photons,distance(aphot,iphot)));
-       filterobject->addObject(TriggerPhoton,ref);
+       filterproduct.addObject(TriggerPhoton,ref);
      }
    }
 
@@ -156,7 +150,7 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (ielec->pt() >= min_Pt_) {
        nelec++;
        ElectronRef ref(ElectronRef(electrons,distance(aelec,ielec)));
-       filterobject->addObject(-TriggerElectron,ref);
+       filterproduct.addObject(-TriggerElectron,ref);
      }
    }
 
@@ -169,7 +163,7 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (imuon->pt() >= min_Pt_) {
        nmuon++;
        RecoChargedCandidateRef ref(RecoChargedCandidateRef(muons,distance(amuon,imuon)));
-       filterobject->addObject(TriggerMuon,ref);
+       filterproduct.addObject(TriggerMuon,ref);
      }
    }
 
@@ -182,7 +176,7 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (itaus->pt() >= min_Pt_) {
        ntaus++;
        CaloJetRef ref(CaloJetRef(taus,distance(ataus,itaus)));
-       filterobject->addObject(-TriggerTau,ref);
+       filterproduct.addObject(-TriggerTau,ref);
      }
    }
 
@@ -195,7 +189,7 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (ijets->pt() >= min_Pt_) {
        njets++;
        CaloJetRef ref(CaloJetRef(jets,distance(ajets,ijets)));
-       filterobject->addObject(TriggerJet,ref);
+       filterproduct.addObject(TriggerJet,ref);
      }
    }
 
@@ -208,7 +202,7 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (imets->pt() >= min_Pt_) {
        nmets++;
        CaloMETRef ref(CaloMETRef(mets,distance(amets,imets)));
-       filterobject->addObject(TriggerMET,ref);
+       filterproduct.addObject(TriggerMET,ref);
      }
    }
 
@@ -221,7 +215,7 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (imhts->pt() >= min_Pt_) {
        nmhts++;
        METRef ref(METRef(mhts,distance(amhts,imhts)));
-       filterobject->addObject(TriggerMHT,ref);
+       filterproduct.addObject(TriggerMHT,ref);
      }
    }
 
@@ -234,7 +228,7 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (itrcks->pt() >= min_Pt_) {
        ntrck++;
        RecoChargedCandidateRef ref(RecoChargedCandidateRef(trcks,distance(atrcks,itrcks)));
-       filterobject->addObject(TriggerTrack,ref);
+       filterproduct.addObject(TriggerTrack,ref);
      }
    }
 
@@ -247,20 +241,17 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (iecals->pt() >= min_Pt_) {
        necal++;
        RecoEcalCandidateRef ref(RecoEcalCandidateRef(ecals,distance(aecals,iecals)));
-       filterobject->addObject(TriggerCluster,ref);
+       filterproduct.addObject(TriggerCluster,ref);
      }
    }
 
    // error case
-   // filterobject->addObject(0,Ref<vector<int> >());
+   // filterproduct.addObject(0,Ref<vector<int> >());
 
    // final filter decision:
    const bool accept ( (nphot>0) && (nelec>0) && (nmuon>0) && (ntaus>0) &&
 		       //   (njets>0) && (nmets>0) && (nmhts>=0) && (ntrck>0) && (necal>0) );
 		       (njets>0) && (nmets>0) && (ntrck>0) && (necal>0) );
-
-   // All filters: put filter object into the Event
-   iEvent.put(filterobject);
 
    LogDebug("") << "Number of g/e/m/t/j/M/H/TR/SC objects accepted:"
 		<< " " << nphot

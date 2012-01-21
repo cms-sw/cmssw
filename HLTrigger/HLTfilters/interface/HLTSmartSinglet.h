@@ -10,8 +10,8 @@
  *  variables relating to both the base class T and the derived actual
  *  class
  *
- *  $Date: 2010/01/13 12:59:57 $
- *  $Revision: 1.6 $
+ *  $Date: 2011/05/01 08:19:55 $
+ *  $Revision: 1.7 $
  *
  *  \author Martin Grunewald
  *
@@ -34,11 +34,10 @@ class HLTSmartSinglet : public HLTFilter {
 
       explicit HLTSmartSinglet(const edm::ParameterSet&);
       ~HLTSmartSinglet();
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
       edm::InputTag inputTag_; // input tag identifying product
-      bool          saveTags_;  // whether to save this tag
       std::string   cut_;      // smart cut
       int           min_N_;    // number of objects passing cuts required
 

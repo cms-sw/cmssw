@@ -1,6 +1,6 @@
 /* \class HLTHPDFilter
  *
- * $Id: HLTHPDFilter.cc,v 1.4 2010/01/12 06:28:35 hegner Exp $
+ * $Id: HLTHPDFilter.cc,v 1.5 2011/02/11 20:55:24 wdd Exp $
  *
  * Fedor Ratnikov (UMd) May 19, 2008
  */
@@ -76,8 +76,8 @@ namespace {
   }
 }
 
-HLTHPDFilter::HLTHPDFilter(const edm::ParameterSet& iConfig)
-  :  mInputTag (iConfig.getParameter <edm::InputTag> ("inputTag")),
+HLTHPDFilter::HLTHPDFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
+     mInputTag (iConfig.getParameter <edm::InputTag> ("inputTag")),
      mEnergyThreshold (iConfig.getParameter <double> ("energy")),
      mHPDSpikeEnergyThreshold (iConfig.getParameter <double> ("hpdSpikeEnergy")),
      mHPDSpikeIsolationEnergyThreshold (iConfig.getParameter <double> ("hpdSpikeIsolationEnergy")),
@@ -100,7 +100,7 @@ HLTHPDFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   descriptions.add("hltHPDFilter",desc);
 }
 
-bool HLTHPDFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+bool HLTHPDFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   if (mHPDSpikeEnergyThreshold <= 0 && mRBXSpikeEnergyThreshold <= 0) return true; // nothing to filter
   // get hits

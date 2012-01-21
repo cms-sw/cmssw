@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/04/05 16:43:02 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/01/10 07:52:24 $
+ *  $Revision: 1.3 $
  *
  *  \author Mika Huhtinen
  *
@@ -31,7 +31,7 @@
 // constructors and destructor
 //
  
-HLTPixlMBFilt::HLTPixlMBFilt(const edm::ParameterSet& iConfig) :
+HLTPixlMBFilt::HLTPixlMBFilt(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
     pixlTag_ (iConfig.getParameter<edm::InputTag>("pixlTag")),
     min_Pt_  (iConfig.getParameter<double>("MinPt")),
     min_trks_  (iConfig.getParameter<unsigned int>("MinTrks")),
@@ -41,9 +41,6 @@ HLTPixlMBFilt::HLTPixlMBFilt(const edm::ParameterSet& iConfig) :
   LogDebug("") << "MinPt cut " << min_Pt_   << "pixl: " << pixlTag_.encode();
   LogDebug("") << "Requesting : " << min_trks_ << " tracks from same vertex ";
   LogDebug("") << "Requesting tracks from same vertex eta-phi separation by " << min_sep_;
-
-   //register your products
-  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTPixlMBFilt::~HLTPixlMBFilt()
@@ -55,7 +52,7 @@ HLTPixlMBFilt::~HLTPixlMBFilt()
 //
 
 // ------------ method called to produce the data  ------------
-bool HLTPixlMBFilt::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+bool HLTPixlMBFilt::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
    using namespace std;
    using namespace edm;
@@ -156,20 +153,14 @@ bool HLTPixlMBFilt::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 
    // At this point we have the indices of the accepted tracks stored in itstore
-   // we now move them to the filterobject
-
-   // The filter object
-   auto_ptr<TriggerFilterObjectWithRefs> filterobject (new TriggerFilterObjectWithRefs(path(),module()));
+   // we now move them to the filterproduct
 
    if (accept) {
      for (unsigned int ipos=0; ipos < itstore.size(); ipos++) {
        int iaddr=itstore.at(ipos);
-       filterobject->addObject(TriggerTrack,RecoChargedCandidateRef(tracks,iaddr));
+       filterproduct.addObject(TriggerTrack,RecoChargedCandidateRef(tracks,iaddr));
      }
    }
-   // put filter object into the Event
-   iEvent.put(filterobject);
-
 
   LogDebug("") << "Number of pixel-track objects accepted:"
                << " " << npixl_tot;

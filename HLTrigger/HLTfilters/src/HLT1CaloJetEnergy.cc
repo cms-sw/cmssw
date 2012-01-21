@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/05/01 08:43:49 $
- *  $Revision: 1.10 $
+ *  $Date: 2011/05/01 14:41:36 $
+ *  $Revision: 1.11 $
  *
  *  \author Jim Brooke
  *
@@ -30,9 +30,8 @@
 //
 // constructors and destructor
 //
-HLT1CaloJetEnergy::HLT1CaloJetEnergy(const edm::ParameterSet& iConfig) :
+HLT1CaloJetEnergy::HLT1CaloJetEnergy(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
   inputTag_ (iConfig.getParameter<edm::InputTag>("inputTag")),
-  saveTags_  (iConfig.getParameter<bool>("saveTags")),
   min_E_    (iConfig.getParameter<double>       ("MinE"   )),
   max_Eta_  (iConfig.getParameter<double>       ("MaxEta"   )),
   min_N_    (iConfig.getParameter<int>          ("MinN"   ))
@@ -42,9 +41,6 @@ HLT1CaloJetEnergy::HLT1CaloJetEnergy(const edm::ParameterSet& iConfig) :
 		<< min_E_ << " "
 		<< max_Eta_ << " "
 		<< min_N_ ;
-
-   //register your products
-   produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLT1CaloJetEnergy::~HLT1CaloJetEnergy()
@@ -68,7 +64,7 @@ HLT1CaloJetEnergy::fillDescriptions(edm::ConfigurationDescriptions& descriptions
 
 // ------------ method called to produce the data  ------------
 bool 
-HLT1CaloJetEnergy::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLT1CaloJetEnergy::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
    using namespace std;
    using namespace edm;
@@ -80,9 +76,8 @@ HLT1CaloJetEnergy::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // this HLT filter, and place it in the Event.
 
    // The filter object
-   auto_ptr<TriggerFilterObjectWithRefs>
-     filterobject (new TriggerFilterObjectWithRefs(path(),module()));
-   if (saveTags_) filterobject->addCollectionTag(inputTag_);
+   if (saveTags()) filterproduct.addCollectionTag(inputTag_);
+
    // Ref to Candidate object to be recorded in filter object
    Ref<CaloJetCollection> ref;
 
@@ -99,15 +94,12 @@ HLT1CaloJetEnergy::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  fabs(i->eta()) <= max_Eta_   ) {
        n++;
        ref=Ref<CaloJetCollection>(jets,distance(jets->begin(),i));
-       filterobject->addObject(TriggerJet,ref);
+       filterproduct.addObject(TriggerJet,ref);
      }
    }
 
    // filter decision
    bool accept(n>=min_N_);
-
-   // put filter object into the Event
-   iEvent.put(filterobject);
 
    return accept;
 }

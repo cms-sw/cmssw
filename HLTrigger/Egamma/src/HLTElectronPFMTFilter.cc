@@ -10,11 +10,10 @@
 //
 // constructors and destructor
 //
-HLTElectronPFMTFilter::HLTElectronPFMTFilter(const edm::ParameterSet& iConfig)
+HLTElectronPFMTFilter::HLTElectronPFMTFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
 {
   // MHT parameters
   inputMetTag_ = iConfig.getParameter< edm::InputTag > ("inputMetTag");
-  saveTags_    = iConfig.getParameter<bool>("saveTags");
   minMht_      = iConfig.getParameter<double> ("minMht");
   // Electron parameters
   inputEleTag_ = iConfig.getParameter< edm::InputTag > ("inputEleTag");
@@ -24,9 +23,6 @@ HLTElectronPFMTFilter::HLTElectronPFMTFilter(const edm::ParameterSet& iConfig)
   minN_        = iConfig.getParameter<int>("minN");
   L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
   L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
-
-  //register your products
-  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTElectronPFMTFilter::~HLTElectronPFMTFilter(){}
@@ -50,18 +46,18 @@ void HLTElectronPFMTFilter::fillDescriptions(edm::ConfigurationDescriptions& des
 
 // ------------ method called to produce the data  ------------
 bool
-    HLTElectronPFMTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+    HLTElectronPFMTFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace std;
   using namespace edm;
   using namespace reco;
   using namespace trigger;
   // The filter object
-  auto_ptr<trigger::TriggerFilterObjectWithRefs> filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if (saveTags_) filterobject->addCollectionTag(inputMetTag_);
-
-  if( saveTags_ ){filterobject->addCollectionTag(L1IsoCollTag_);}
-  if( saveTags_ && relaxed_){filterobject->addCollectionTag(L1NonIsoCollTag_);}
+  if (saveTags()) {
+    filterproduct.addCollectionTag(inputMetTag_);
+    filterproduct.addCollectionTag(L1IsoCollTag_);
+    if (relaxed_) filterproduct.addCollectionTag(L1NonIsoCollTag_);
+  }
   
   // Get the Met collection
   edm::Handle<reco::METCollection> pfMHT;
@@ -102,13 +98,12 @@ bool
     {
       nW++;
       refele = electrons[i];
-      filterobject->addObject(TriggerElectron, refele);
+      filterproduct.addObject(TriggerElectron, refele);
     }
   }
 
   // filter decision
   const bool accept(nW>=minN_);
-  iEvent.put(filterobject);
 
   return accept;
 }

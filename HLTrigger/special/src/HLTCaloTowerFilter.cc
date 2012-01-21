@@ -34,11 +34,10 @@ public:
   ~HLTCaloTowerFilter();
     
 private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
   // ----------member data ---------------------------
   edm::InputTag inputTag_;    // input tag identifying product
-  bool          saveTags_;     // whether to save this tag
   double        min_Pt_;      // pt threshold in GeV 
   double        max_Eta_;     // eta range (symmetric)
   unsigned int  min_N_;       // number of objects passing cuts required
@@ -48,15 +47,12 @@ private:
 //
 // constructors and destructor
 //
-HLTCaloTowerFilter::HLTCaloTowerFilter(const edm::ParameterSet& config) :
+HLTCaloTowerFilter::HLTCaloTowerFilter(const edm::ParameterSet& config) : HLTFilter(config),
   inputTag_ (config.getParameter<edm::InputTag>("inputTag")),
-  saveTags_  (config.getParameter<bool>("saveTags")),
   min_Pt_   (config.getParameter<double>       ("MinPt"   )),
   max_Eta_  (config.getParameter<double>       ("MaxEta"  )),
   min_N_    (config.getParameter<unsigned int> ("MinN"    ))
 {
-  // register your products
-  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 
@@ -73,7 +69,7 @@ HLTCaloTowerFilter::~HLTCaloTowerFilter()
 
 // ------------ method called on each new Event  ------------
 bool
-HLTCaloTowerFilter::filter(edm::Event& event, const edm::EventSetup& setup) {
+HLTCaloTowerFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
   using namespace std;
   using namespace edm;
   using namespace reco;
@@ -83,8 +79,7 @@ HLTCaloTowerFilter::filter(edm::Event& event, const edm::EventSetup& setup) {
   // this HLT filter, and place it in the Event.
 
   // The filter object
-  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if (saveTags_) filterobject->addCollectionTag(inputTag_);
+  if (saveTags()) filterproduct.addCollectionTag(inputTag_);
 
   // get hold of collection of objects
   Handle<CaloTowerCollection> caloTowers;
@@ -96,11 +91,8 @@ HLTCaloTowerFilter::filter(edm::Event& event, const edm::EventSetup& setup) {
     if ( (i->pt() >= min_Pt_) and ( (max_Eta_ < 0.0) or (std::abs(i->eta()) <= max_Eta_) ) )
       ++n;
       //edm::Ref<CaloTowerCollection> ref(towers, std::distance(caloTowers->begin(), i));
-      //filterobject->addObject(TriggerJet, ref);
+      //filterproduct.addObject(TriggerJet, ref);
   }
-
-  // put filter object into the Event
-  event.put(filterobject);
 
   // filter decision
   return (n >= min_N_);

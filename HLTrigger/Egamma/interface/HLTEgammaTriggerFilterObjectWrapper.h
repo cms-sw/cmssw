@@ -18,7 +18,7 @@ class HLTEgammaTriggerFilterObjectWrapper : public HLTFilter {
    public:
       explicit HLTEgammaTriggerFilterObjectWrapper(const edm::ParameterSet&);
       ~HLTEgammaTriggerFilterObjectWrapper();
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
       edm::InputTag candIsolatedTag_; // input tag identifying product contains egammas

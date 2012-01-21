@@ -1,6 +1,6 @@
 /** \class HLTJetVBFFilter
  *
- * $Id: HLTJetVBFFilter.cc,v 1.10 2011/05/01 08:40:25 gruen Exp $
+ * $Id: HLTJetVBFFilter.cc,v 1.11 2011/05/01 14:35:45 gruen Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -23,19 +23,15 @@
 //
 // constructors and destructor
 //
-HLTJetVBFFilter::HLTJetVBFFilter(const edm::ParameterSet& iConfig)
+HLTJetVBFFilter::HLTJetVBFFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
    inputTag_    = iConfig.getParameter< edm::InputTag > ("inputTag");
-   saveTags_     = iConfig.getParameter<bool>("saveTags");
    minEtLow_    = iConfig.getParameter<double> ("minEtLow");
    minEtHigh_   = iConfig.getParameter<double> ("minEtHigh");
    etaOpposite_ = iConfig.getParameter<bool>   ("etaOpposite"); 
    minDeltaEta_ = iConfig.getParameter<double> ("minDeltaEta"); 
    minInvMass_  = iConfig.getParameter<double> ("minInvMass"); 
    maxEta_      = iConfig.getParameter<double> ("maxEta"); 
-
-   //register your products
-   produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTJetVBFFilter::~HLTJetVBFFilter(){}
@@ -43,13 +39,12 @@ HLTJetVBFFilter::~HLTJetVBFFilter(){}
 
 // ------------ method called to produce the data  ------------
 bool
-HLTJetVBFFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTJetVBFFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace trigger;
+
   // The filter object
-  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> 
-    filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if (saveTags_) filterobject->addCollectionTag(inputTag_);
+  if (saveTags()) filterproduct.addCollectionTag(inputTag_);
 
   edm::Handle<reco::CaloJetCollection> recocalojets;
   iEvent.getByLabel(inputTag_,recocalojets);
@@ -118,9 +113,9 @@ HLTJetVBFFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
           
    	  ++n;
           reco::CaloJetRef ref1(reco::CaloJetRef(recocalojets,distance(recocalojets->begin(),recocalojet1)));
-          filterobject->addObject(TriggerJet,ref1);
+          filterproduct.addObject(TriggerJet,ref1);
           reco::CaloJetRef ref2(reco::CaloJetRef(recocalojets,distance(recocalojets->begin(),recocalojet2)));
-          filterobject->addObject(TriggerJet,ref2);
+          filterproduct.addObject(TriggerJet,ref2);
         
         } // VBF cuts
       
@@ -133,9 +128,6 @@ HLTJetVBFFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   // filter decision
   bool accept(n>=1);
-  
-  // put filter object into the Event
-  iEvent.put(filterobject);
   
   return accept;
 }

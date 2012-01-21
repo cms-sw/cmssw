@@ -77,9 +77,9 @@ using namespace edm;
 using namespace reco;
 using namespace std;
 
-RPCRecHitFilter::RPCRecHitFilter(const edm::ParameterSet& iConfig){
-
-
+RPCRecHitFilter::RPCRecHitFilter(const edm::ParameterSet& iConfig) :
+  HLTFilter(iConfig)
+{
   LogTrace("RPCEffTrackExtrapolation") <<"Dentro Costruttore"<<std::endl;
 
   RPCDataLabel = iConfig.getUntrackedParameter<std::string>("rpcRecHitLabel");
@@ -103,9 +103,6 @@ RPCRecHitFilter::RPCRecHitFilter(const edm::ParameterSet& iConfig){
   EndcapNegative_  = iConfig.getUntrackedParameter<bool>("UseEndcapNegative",true);
 
   cosmicsVeto_  = iConfig.getUntrackedParameter<bool>("CosmicsVeto",false);
-
-
-
 }
 
 void RPCRecHitFilter::beginJob()
@@ -113,7 +110,7 @@ void RPCRecHitFilter::beginJob()
 
 }
 
-bool RPCRecHitFilter::filter( edm::Event& iEvent, const edm::EventSetup& iSetup){
+bool RPCRecHitFilter::hltFilter( edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct){
 
   
   edm::ESHandle<RPCGeometry> rpcGeo;

@@ -18,7 +18,7 @@ class HLTMuonDimuonL2Filter : public HLTFilter {
    public:
       explicit HLTMuonDimuonL2Filter(const edm::ParameterSet&);
       ~HLTMuonDimuonL2Filter();
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
       edm::InputTag beamspotTag_ ;
@@ -47,7 +47,6 @@ class HLTMuonDimuonL2Filter : public HLTFilter {
       double min_PtBalance_;    // minimum Pt difference
       double max_PtBalance_;    // maximum Pt difference
       double nsigma_Pt_;        // pt uncertainty margin (in number of sigmas)
-      bool saveTags_;            // should we save the input collection ?
 
 };
 

@@ -32,7 +32,7 @@ class HLTMuonL1Filter : public HLTFilter {
     explicit HLTMuonL1Filter(const edm::ParameterSet&);
     ~HLTMuonL1Filter();
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    virtual bool filter(edm::Event&, const edm::EventSetup&);
+    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
   private:
     /// input tag identifying the product containing muons
@@ -87,9 +87,6 @@ class HLTMuonL1Filter : public HLTFilter {
 
     /// trigger scales cache ID
     unsigned long long m_scalesCacheID_ ;
-
-    /// should we save the input collection?
-    bool saveTags_;
 };
 
 #endif //HLTMuonL1Filter_h

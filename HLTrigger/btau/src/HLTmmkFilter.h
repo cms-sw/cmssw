@@ -37,7 +37,7 @@ class HLTmmkFilter : public HLTFilter {
   
  private:
   virtual void beginJob() ;
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
   virtual void endJob();
   virtual int overlap(const reco::Candidate&, const reco::Candidate&);
   
@@ -53,8 +53,7 @@ class HLTmmkFilter : public HLTFilter {
   const double minLxySignificance_;
   const double minCosinePointingAngle_;
   const bool fastAccept_;
-	bool saveTags_;
-	edm::InputTag beamSpotTag_;
+  edm::InputTag beamSpotTag_;
 
 };
 #endif

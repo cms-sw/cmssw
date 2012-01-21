@@ -10,8 +10,8 @@
  *  It is a modifed version of TriggerResultsFilter that reads the 
  *  trigger expression from the database.
  *
- *  $Date: 2010/07/06 13:40:41 $
- *  $Revision: 1.9 $
+ *  $Date: 2010/07/12 12:26:06 $
+ *  $Revision: 1.1 $
  *
  *  Authors: Martin Grunewald, Andrea Bocci
  *
@@ -38,7 +38,7 @@ class TriggerResultsFilterFromDB : public HLTFilter {
 public:
   explicit TriggerResultsFilterFromDB(const edm::ParameterSet &);
   ~TriggerResultsFilterFromDB();
-  virtual bool filter(edm::Event &, const edm::EventSetup &);
+  virtual bool hltFilter(edm::Event &, const edm::EventSetup &, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
 private:
   /// read the triggerConditions from the database

@@ -36,7 +36,7 @@
 
 
 // constructor(s)
-HLTBeamModeFilter::HLTBeamModeFilter(const edm::ParameterSet& parSet) :
+HLTBeamModeFilter::HLTBeamModeFilter(const edm::ParameterSet& parSet) : HLTFilter(parSet),
 
     m_l1GtEvmReadoutRecordTag(parSet.getParameter<edm::InputTag>(
             "L1GtEvmReadoutRecordTag")),
@@ -72,8 +72,7 @@ HLTBeamModeFilter::~HLTBeamModeFilter() {
 
 // member functions
 
-bool HLTBeamModeFilter::filter(edm::Event& iEvent,
-        const edm::EventSetup& evSetup) {
+bool HLTBeamModeFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& evSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
 
     // for MC samples, return always true (not even checking validity of L1GlobalTriggerEvmReadoutRecord)
     // eventually, the BST information will be filled also in MC simulation to spare this check

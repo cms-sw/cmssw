@@ -20,7 +20,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
   bool pairMatched (std::vector<reco::RecoChargedCandidateRef>& prevMuonRefs,
 		    std::vector<reco::RecoChargedCandidateRef>& prevTrackRefs,
 		    const reco::RecoChargedCandidateRef& muonRef,
@@ -31,7 +31,6 @@ private:
   edm::InputTag muonTag_;       ///< RecoChargedCandidateCollection (muons)
   edm::InputTag trackTag_;      ///< RecoChargedCandidateCollection (tracks)
   edm::InputTag prevCandTag_;   ///< filter objects from previous filter
-  bool saveTags_;                ///< save tags in filter object collection?
   std::vector<double> minMasses_; ///< lower mass limits
   std::vector<double> maxMasses_; ///< higher mass limits
   bool checkCharge_;            ///< check opposite charge?

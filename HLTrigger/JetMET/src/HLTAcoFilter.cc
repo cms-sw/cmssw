@@ -26,19 +26,15 @@
 //
 // constructors and destructor
 //
-HLTAcoFilter::HLTAcoFilter(const edm::ParameterSet& iConfig)
+HLTAcoFilter::HLTAcoFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
    inputJetTag_ = iConfig.getParameter< edm::InputTag > ("inputJetTag");
    inputMETTag_ = iConfig.getParameter< edm::InputTag > ("inputMETTag");
-   saveTags_    = iConfig.getParameter<bool>("saveTags");
    minDPhi_     = iConfig.getParameter<double> ("minDeltaPhi");
    maxDPhi_     = iConfig.getParameter<double> ("maxDeltaPhi");
    minEtjet1_   = iConfig.getParameter<double> ("minEtJet1"); 
    minEtjet2_   = iConfig.getParameter<double> ("minEtJet2"); 
    AcoString_   = iConfig.getParameter<std::string> ("Acoplanar");
-
-   //register your products
-   produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTAcoFilter::~HLTAcoFilter(){}
@@ -46,7 +42,7 @@ HLTAcoFilter::~HLTAcoFilter(){}
 
 // ------------ method called to produce the data  ------------
 bool
-HLTAcoFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTAcoFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace std;
   using namespace edm;
@@ -54,11 +50,9 @@ HLTAcoFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace trigger;
 
   // The filter object
-  auto_ptr<trigger::TriggerFilterObjectWithRefs> 
-    filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if (saveTags_) {
-    filterobject->addCollectionTag(inputJetTag_);
-    filterobject->addCollectionTag(inputMETTag_);
+  if (saveTags()) {
+    filterproduct.addCollectionTag(inputJetTag_);
+    filterproduct.addCollectionTag(inputMETTag_);
   }
 
   Handle<CaloJetCollection> recocalojets;
@@ -120,9 +114,9 @@ HLTAcoFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (Dphi>M_PI) {Dphi=2.0*M_PI-Dphi;}
     if(JetSel>0 && Dphi>=minDPhi_ && Dphi<=maxDPhi_){
       
-      if (AcoString_=="Jet2Met" || AcoString_=="Jet1Met")  {filterobject->addObject(TriggerMET,metRef);}
-      if (AcoString_=="Jet1Met" || AcoString_=="Jet1Jet2") {filterobject->addObject(TriggerJet,ref1);}
-      if (AcoString_=="Jet2Met" || AcoString_=="Jet1Jet2") {filterobject->addObject(TriggerJet,ref2);}
+      if (AcoString_=="Jet2Met" || AcoString_=="Jet1Met")  {filterproduct.addObject(TriggerMET,metRef);}
+      if (AcoString_=="Jet1Met" || AcoString_=="Jet1Jet2") {filterproduct.addObject(TriggerJet,ref1);}
+      if (AcoString_=="Jet2Met" || AcoString_=="Jet1Jet2") {filterproduct.addObject(TriggerJet,ref2);}
       n++;
     }
     
@@ -132,9 +126,6 @@ HLTAcoFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
   // filter decision
   bool accept(n>=1);
-    
-  // put filter object into the Event
-  iEvent.put(filterobject);
     
   return accept;
 }
