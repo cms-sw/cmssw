@@ -1004,7 +1004,7 @@ if 'GlobalTag' in %%(dict)s:
       for line in self.parent:
         self.data += "        '%s',\n" % line
     self.data += """    ),
-    inputCommands = untracked vstring(
+    inputCommands = cms.untracked.vstring(
         'keep *'
     )
 )
