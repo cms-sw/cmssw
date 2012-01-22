@@ -1,6 +1,9 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianCurvilinearToCartesian.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianCartesianToCurvilinear.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 #include <cmath>
@@ -12,7 +15,8 @@ void FreeTrajectoryState::missingError() const {
   form<< "FreeTrajectoryState: attempt to access errors when none available" <<
     "\nCurvilinear error valid/values :"<< theCurvilinearError.valid() << "\n" 
       <<  theCurvilinearError.matrix();
-  throw TrajectoryStateException(form.str());
+    edm::LogWarning("FreeTrajectoryState") << "(was exception) " << form.str();
+//  throw TrajectoryStateException(form.str());
 }
 
 // implementation of non-trivial methods of FreeTrajectoryState
