@@ -60,6 +60,7 @@ class HLTProcess(object):
     self.config = configuration
     self.data   = None
     self.source = None
+    self.parent = None
 
     self.options = {
       'essources' : [],
@@ -98,20 +99,14 @@ class HLTProcess(object):
     else:
       return '--%s --configName %s' % (self.config.menu.db, self.config.menu.name)
 
-  def _build_source(self):
-    if self.source is None:
-      return '--noedsources'
-    else:
-      return '--input ' + self.source
-
   def _build_options(self):
     return ' '.join(['--%s %s' % (key, ','.join(vals)) for key, vals in self.options.iteritems() if vals])
 
   def _build_cmdline(self):
     if not self.config.fragment:
-      return 'edmConfigFromDB %s %s %s'       % (self._build_query(), self._build_source(), self._build_options())
+      return 'edmConfigFromDB       %s --noedsources %s' % (self._build_query(), self._build_options())
     else:
-      return 'edmConfigFromDB --cff %s %s %s' % (self._build_query(), self._build_source(), self._build_options())
+      return 'edmConfigFromDB --cff %s --noedsources %s' % (self._build_query(), self._build_options())
 
 
   def getRawConfigurationFromDB(self):
@@ -189,6 +184,10 @@ cmsswVersion = os.environ['CMSSW_VERSION']
 
   # customize the configuration according to the options
   def customize(self):
+
+    # adapt the source to the current scenario
+    if not self.config.fragment:
+      self.build_source()
 
     # manual override some parameters
     if self.config.type in ('GRun', ):
@@ -764,10 +763,6 @@ if 'GlobalTag' in %%(dict)s:
     # common configuration for all scenarios
     self.options['services'].append( "-FUShmDQMOutputService" )
 
-    # adapt source and options to the current scenario
-    if not self.config.fragment:
-      self.build_source()
-
     if self.config.fragment:
       # extract a configuration file fragment
       self.options['essources'].append( "-GlobalTag" )
@@ -974,15 +969,44 @@ if 'GlobalTag' in %%(dict)s:
 
   def build_source(self):
     if self.config.input:
-      # if an explicit input file was given, use it
-      self.source = self.config.input
+      # if a dataset or a list of input files was given, use it
+      if self.config.input[0:8] == 'dataset:':
+        from dbsFileQuery import dbsFileQuery
+        # extract the dataset name, and use DBS to fine the list of LFNs
+        dataset = self.config.input[8:]
+        query   = 'find file where dataset=' + dataset
+        files   = dbsFileQuery(query)
+        self.source = files
+      else:
+        # assume a list of input files
+        self.source = self.config.input.split(',')
     elif self.config.online:
       # online we always run on data
-      self.source = "file:/tmp/InputCollection.root"
+      self.source = [ "file:/tmp/InputCollection.root" ]
     elif self.config.data:
       # offline we can run on data...
-      self.source = "/store/data/Run2011A/MinimumBias/RAW/v1/000/165/205/6C8BA6D0-F680-E011-B467-003048F118AC.root"
+      self.source = [ "/store/data/Run2011A/MinimumBias/RAW/v1/000/165/205/6C8BA6D0-F680-E011-B467-003048F118AC.root" ]
     else:
       # ...or on mc
-      self.source = "file:RelVal_DigiL1Raw_%s.root" % self.config.type
+      self.source = [ "file:RelVal_DigiL1Raw_%s.root" % self.config.type ]
+
+    self.data = """
+%(process)source = cms.Source( "PoolSource",
+    fileNames = cms.untracked.vstring(
+"""
+    if self.source: 
+      for line in self.source:
+        self.data += "        '%s',\n" % line
+    self.data += """    ),
+    secondaryFileNames = cms.untracked.vstring(
+"""
+    if self.parent: 
+      for line in self.parent:
+        self.data += "        '%s',\n" % line
+    self.data += """    ),
+    inputCommands = untracked vstring(
+        'keep *'
+    )
+)
+"""
 
