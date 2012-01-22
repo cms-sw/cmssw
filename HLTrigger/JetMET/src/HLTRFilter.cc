@@ -25,7 +25,7 @@
 //
 // constructors and destructor
 //
-HLTRFilter::HLTRFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
+HLTRFilter::HLTRFilter(const edm::ParameterSet& iConfig) :
   inputTag_    (iConfig.getParameter<edm::InputTag>("inputTag")),
   inputMetTag_ (iConfig.getParameter<edm::InputTag>("inputMetTag")),
   min_R_       (iConfig.getParameter<double>       ("minR"   )),
@@ -75,7 +75,7 @@ HLTRFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
 // ------------ method called to produce the data  ------------
 bool 
-HLTRFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTRFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace std;
    using namespace edm;

@@ -14,13 +14,13 @@ namespace edm {
    class ConfigurationDescriptions;
 }
 
-class HLTHcalMETNoiseFilter : public HLTFilter {
+class HLTHcalMETNoiseFilter : public edm::EDFilter {
   
  public:
   explicit HLTHcalMETNoiseFilter(const edm::ParameterSet&);
   ~HLTHcalMETNoiseFilter();
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+  virtual bool filter(edm::Event&, const edm::EventSetup&);
   
  private:
   // parameters

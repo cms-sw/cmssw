@@ -13,14 +13,14 @@ namespace edm {
 // class declaration
 //
 
-class HLTRFilter : public HLTFilter {
+class HLTRFilter : public edm::EDFilter {
 
    public:
 
       explicit HLTRFilter(const edm::ParameterSet&);
       ~HLTRFilter();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      virtual bool filter(edm::Event&, const edm::EventSetup&);
 
    private:
       edm::InputTag inputTag_; // input tag identifying product

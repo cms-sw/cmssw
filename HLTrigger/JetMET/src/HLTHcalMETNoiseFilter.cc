@@ -12,7 +12,7 @@
 //
 // Original Author:  Leonard Apanasevich
 //         Created:  Wed Mar 25 16:01:27 CDT 2009
-// $Id: HLTHcalMETNoiseFilter.cc,v 1.15 2011/04/12 21:47:29 johnpaul Exp $
+// $Id: HLTHcalMETNoiseFilter.cc,v 1.16 2012/01/21 14:57:01 fwyzard Exp $
 //
 //
 
@@ -34,7 +34,7 @@
 
 #include <iostream>
 
-HLTHcalMETNoiseFilter::HLTHcalMETNoiseFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
+HLTHcalMETNoiseFilter::HLTHcalMETNoiseFilter(const edm::ParameterSet& iConfig) :
     HcalNoiseRBXCollectionTag_(iConfig.getParameter<edm::InputTag>("HcalNoiseRBXCollection")),
     severity_(iConfig.getParameter<int> ("severity")),
     maxNumRBXs_(iConfig.getParameter<int>("maxNumRBXs")),
@@ -116,7 +116,7 @@ HLTHcalMETNoiseFilter::fillDescriptions(edm::ConfigurationDescriptions& descript
 // member functions
 //
 
-bool HLTHcalMETNoiseFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+bool HLTHcalMETNoiseFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace reco;
 

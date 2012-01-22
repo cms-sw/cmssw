@@ -1,15 +1,15 @@
 /** \class HLTLevel1Activity
  *
  *  
- *  This class is an HLTFilter (-> EDFilter) 
+ *  This class is an EDFilter
  *  that checks if there was any L1 activity
  *  It can be configured to
  *    - look at different bunch crossings
  *    - use or ignore the L1 trigger mask
  *    - only look at a subset of the L1 bits
  * 
- *  $Date: 2011/02/23 17:10:54 $
- *  $Revision: 1.12 $
+ *  $Date: 2012/01/21 14:56:59 $
+ *  $Revision: 1.13 $
  *
  *  \author Andrea Bocci
  *
@@ -34,12 +34,12 @@
 // class declaration
 //
 
-class HLTLevel1Activity : public HLTFilter {
+class HLTLevel1Activity : public edm::EDFilter {
 public:
   explicit HLTLevel1Activity(const edm::ParameterSet&);
   ~HLTLevel1Activity();
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+  virtual bool filter(edm::Event&, const edm::EventSetup&);
 
 private:
   edm::InputTag     m_gtReadoutRecord;
@@ -67,7 +67,7 @@ private:
 //
 // constructors and destructor
 //
-HLTLevel1Activity::HLTLevel1Activity(const edm::ParameterSet & config) : HLTFilter(config),
+HLTLevel1Activity::HLTLevel1Activity(const edm::ParameterSet & config) :
   m_gtReadoutRecord( config.getParameter<edm::InputTag>     ("L1GtReadoutRecordTag") ),
   m_bunchCrossings(  config.getParameter<std::vector<int> > ("bunchCrossings") ),
   m_selectPhysics(   PHYSICS_BITS_SIZE ),
@@ -126,7 +126,7 @@ HLTLevel1Activity::fillDescriptions(edm::ConfigurationDescriptions& descriptions
 
 // ------------ method called to produce the data  ------------
 bool
-HLTLevel1Activity::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTLevel1Activity::filter(edm::Event& event, const edm::EventSetup& setup)
 {
   // apply L1 mask to the physics bits
   //  - mask & partition == part. --> fully masked

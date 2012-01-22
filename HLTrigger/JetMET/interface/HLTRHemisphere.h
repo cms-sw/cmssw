@@ -13,14 +13,14 @@ namespace edm {
 // class declaration
 //
 
-class HLTRHemisphere : public HLTFilter {
+class HLTRHemisphere : public edm::EDFilter {
 
    public:
 
       explicit HLTRHemisphere(const edm::ParameterSet&);
       ~HLTRHemisphere();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      virtual bool filter(edm::Event&, const edm::EventSetup&);
 
    private:
       edm::InputTag inputTag_; // input tag identifying product

@@ -27,7 +27,7 @@
 //
 // constructors and destructor
 //
-HLTRHemisphere::HLTRHemisphere(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
+HLTRHemisphere::HLTRHemisphere(const edm::ParameterSet& iConfig) :
   inputTag_    (iConfig.getParameter<edm::InputTag>("inputTag")),
   min_Jet_Pt_  (iConfig.getParameter<double>       ("minJetPt" )),
   max_Eta_     (iConfig.getParameter<double>       ("maxEta" )),
@@ -66,7 +66,7 @@ HLTRHemisphere::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
 // ------------ method called to produce the data  ------------
 bool 
-HLTRHemisphere::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTRHemisphere::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace std;
    using namespace edm;

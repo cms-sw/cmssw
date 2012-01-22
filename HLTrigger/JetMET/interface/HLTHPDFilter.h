@@ -13,13 +13,13 @@ namespace edm {
    class ConfigurationDescriptions;
 }
 
-class HLTHPDFilter : public HLTFilter {
+class HLTHPDFilter : public edm::EDFilter {
 
    public:
       explicit HLTHPDFilter(const edm::ParameterSet&);
       ~HLTHPDFilter();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      virtual bool filter(edm::Event&, const edm::EventSetup&);
 
    private:
       edm::InputTag mInputTag; // input tag for HCAL HBHE digis
