@@ -1,4 +1,4 @@
-// $Id: HLTSingleVertexPixelTrackFilter.cc,v 1.3 2009/11/01 19:34:12 davidlw Exp $
+// $Id: HLTSingleVertexPixelTrackFilter.cc,v 1.4 2012/01/21 15:00:22 fwyzard Exp $
 
 #include "HLTrigger/special/interface/HLTSingleVertexPixelTrackFilter.h"
 
@@ -46,10 +46,11 @@ HLTSingleVertexPixelTrackFilter::~HLTSingleVertexPixelTrackFilter()
 // ------------ method called to produce the data  ------------
 bool HLTSingleVertexPixelTrackFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
-
    // All HLT filters must create and fill an HLT filter object,
    // recording any reconstructed physics objects satisfying (or not)
    // this HLT filter, and place it in the Event.
+   if (saveTags())
+      filterproduct.addCollectionTag(pixelTracksTag_);
 
    // Ref to Candidate object to be recorded in filter object
    edm::Ref<reco::RecoChargedCandidateCollection> candref;
@@ -109,8 +110,6 @@ bool HLTSingleVertexPixelTrackFilter::hltFilter(edm::Event& iEvent, const edm::E
    }
        
    accept = ( nTrackCandidate >= min_trks_ );
-
-   filterproduct.addCollectionTag(pixelTracksTag_);
 
    return accept;
 }
