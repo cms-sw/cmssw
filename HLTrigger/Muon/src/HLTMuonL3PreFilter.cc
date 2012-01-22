@@ -47,7 +47,6 @@ HLTMuonL3PreFilter::HLTMuonL3PreFilter(const ParameterSet& iConfig) : HLTFilter(
    min_Pt_    (iConfig.getParameter<double> ("MinPt")),
    nsigma_Pt_  (iConfig.getParameter<double> ("NSigmaPt"))
 {
-
    LogDebug("HLTMuonL3PreFilter")
       << " CandTag/MinN/MaxEta/MinNhits/MaxDr/MaxDz/MinPt/NSigmaPt : " 
       << candTag_.encode()
@@ -58,9 +57,6 @@ HLTMuonL3PreFilter::HLTMuonL3PreFilter(const ParameterSet& iConfig) : HLTFilter(
       << " " << max_Dz_
       << " " << min_Pt_
       << " " << nsigma_Pt_;
-
-   //register your products
-   produces<TriggerFilterObjectWithRefs>();
 }
 
 HLTMuonL3PreFilter::~HLTMuonL3PreFilter()
