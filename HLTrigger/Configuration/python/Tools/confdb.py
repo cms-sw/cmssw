@@ -990,8 +990,8 @@ if 'GlobalTag' in %%(dict)s:
       # ...or on mc
       self.source = [ "file:RelVal_DigiL1Raw_%s.root" % self.config.type ]
 
-    self.data = """
-%(process)source = cms.Source( "PoolSource",
+    self.data += """
+%(process)ssource = cms.Source( "PoolSource",
     fileNames = cms.untracked.vstring(
 """
     if self.source: 
