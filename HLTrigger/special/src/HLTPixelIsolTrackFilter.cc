@@ -34,6 +34,8 @@ HLTPixelIsolTrackFilter::~HLTPixelIsolTrackFilter(){}
 
 bool HLTPixelIsolTrackFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
+  if (saveTags())
+    filterproduct.addCollectionTag(candTag_);
 
   // Ref to Candidate object to be recorded in filter object
   edm::Ref<reco::IsolatedPixelTrackCandidateCollection> candref;
@@ -102,8 +104,6 @@ bool HLTPixelIsolTrackFilter::hltFilter(edm::Event& iEvent, const edm::EventSetu
   bool accept(n>0);
 
   if( dropMultiL2Event_ && n>nMaxTrackCandidates_ ) accept=false;
-
-  filterproduct.addCollectionTag(candTag_);
 
   return accept;
 
