@@ -1,6 +1,6 @@
 /** \class HLTEgammaL1MatchFilterRegional
  *
- * $Id: HLTEgammaL1MatchFilterRegional.cc,v 1.10 2012/01/16 14:41:20 sharper Exp $
+ * $Id: HLTEgammaL1MatchFilterRegional.cc,v 1.11 2012/01/21 14:56:57 fwyzard Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -62,6 +62,12 @@ HLTEgammaL1MatchFilterRegional::hltFilter(edm::Event& iEvent, const edm::EventSe
   // std::cout <<"runnr "<<iEvent.id().run()<<" event "<<iEvent.id().event()<<std::endl;
   using namespace trigger;
   using namespace l1extra;
+
+  if (saveTags()) {
+    filterproduct.addCollectionTag(l1IsolatedTag_);
+    if (not doIsolated_)
+      filterproduct.addCollectionTag(l1NonIsolatedTag_);
+  }
 
   edm::Ref<reco::RecoEcalCandidateCollection> ref;
 
