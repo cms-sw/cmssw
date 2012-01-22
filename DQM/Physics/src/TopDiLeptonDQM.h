@@ -32,7 +32,6 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "HLTrigger/HLTfilters/interface/HLTHighLevel.h"
 
 class TH1F;
 class TH2F;
