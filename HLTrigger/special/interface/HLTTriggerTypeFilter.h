@@ -15,7 +15,7 @@ Implementation:
 //
 // Original Author:  Giovanni FRANZONI
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTTriggerTypeFilter.h,v 1.2 2009/08/06 11:23:34 fwyzard Exp $
+// $Id: HLTTriggerTypeFilter.h,v 1.3 2012/01/21 15:00:14 fwyzard Exp $
 //
 //
 
@@ -23,21 +23,21 @@ Implementation:
 // include files
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
 
 //
 // class declaration
 //
 
-class HLTTriggerTypeFilter : public HLTFilter {
+class HLTTriggerTypeFilter : public edm::EDFilter {
 public:
   explicit HLTTriggerTypeFilter(const edm::ParameterSet&);
   ~HLTTriggerTypeFilter();
   
 private:
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+  virtual bool filter(edm::Event&, const edm::EventSetup&);
   
   // ----------member data ---------------------------  
   unsigned short  SelectedTriggerType_;
