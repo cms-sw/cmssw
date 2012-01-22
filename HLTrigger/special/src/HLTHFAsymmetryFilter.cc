@@ -3,7 +3,7 @@
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-HLTHFAsymmetryFilter::HLTHFAsymmetryFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
+HLTHFAsymmetryFilter::HLTHFAsymmetryFilter(const edm::ParameterSet& iConfig)
 {
   HFHits_   = iConfig.getParameter<edm::InputTag>("HFHitCollection");  
   eCut_HF_  = iConfig.getParameter<double>("ECut_HF");
@@ -14,14 +14,12 @@ HLTHFAsymmetryFilter::HLTHFAsymmetryFilter(const edm::ParameterSet& iConfig) : H
 
 HLTHFAsymmetryFilter::~HLTHFAsymmetryFilter()
 {
- 
-
 }
 
 
 // ------------ method called to produce the data  ------------
 bool
-HLTHFAsymmetryFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTHFAsymmetryFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   edm::Handle<HFRecHitCollection> HFRecHitsH;
   

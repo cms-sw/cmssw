@@ -46,13 +46,13 @@
 // class decleration
 //
 
-class HLTHFAsymmetryFilter : public HLTFilter {
+class HLTHFAsymmetryFilter : public edm::EDFilter {
    public:
       explicit HLTHFAsymmetryFilter(const edm::ParameterSet&);
       ~HLTHFAsymmetryFilter();
 
 
-      virtual bool hltFilter(edm::Event &, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      virtual bool filter(edm::Event &, const edm::EventSetup&);
    private:
       // ----------member data ---------------------------
 
