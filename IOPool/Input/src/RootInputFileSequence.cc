@@ -509,12 +509,30 @@ namespace edm {
   }
 
   bool
-  RootInputFileSequence::skipToItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) {
+  RootInputFileSequence::skipToItemInNewFile(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) {
+    // Look for item in files not yet opened.
+    typedef std::vector<boost::shared_ptr<IndexIntoFile> >::const_iterator Iter;
+    for(Iter it = indexesIntoFiles_.begin(), itEnd = indexesIntoFiles_.end(); it != itEnd; ++it) {
+      if(!*it) {
+        fileIter_ = fileIterBegin_ + (it - indexesIntoFiles_.begin());
+        initFile(false);
+        bool found = rootFile_->setEntryAtItem(run, lumi, event);
+        if(found) {
+          return true;
+        }
+      }
+    }
+    // Not found
+    return false;
+  }
+
+  bool
+  RootInputFileSequence::skipToItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool currentFileFirst) {
     // Attempt to find item in currently open input file.
-    bool found = rootFile_ && rootFile_->setEntryAtItem(run, lumi, event);
+    bool found = currentFileFirst && rootFile_ && rootFile_->setEntryAtItem(run, lumi, event);
     if(!found) {
       // If only one input file, give up now, to save time.
-      if(rootFile_ && indexesIntoFiles_.size() == 1) {
+      if(currentFileFirst && rootFile_ && indexesIntoFiles_.size() == 1) {
         return false;
       }
       // Look for item (run/lumi/event) in files previously opened without reopening unnecessary files.
@@ -522,8 +540,11 @@ namespace edm {
       for(Iter it = indexesIntoFiles_.begin(), itEnd = indexesIntoFiles_.end(); it != itEnd; ++it) {
         if(*it && (*it)->containsItem(run, lumi, event)) {
           // We found it. Close the currently open file, and open the correct one.
+          std::vector<FileCatalogItem>::const_iterator currentIter = fileIter_;
           fileIter_ = fileIterBegin_ + (it - indexesIntoFiles_.begin());
-          initFile(false);
+          if(fileIter_ != currentIter) {
+            initFile(false);
+          }
           // Now get the item from the correct file.
           found = rootFile_->setEntryAtItem(run, lumi, event);
           assert (found);
@@ -531,18 +552,7 @@ namespace edm {
         }
       }
       // Look for item in files not yet opened.
-      for(Iter it = indexesIntoFiles_.begin(), itEnd = indexesIntoFiles_.end(); it != itEnd; ++it) {
-        if(!*it) {
-          fileIter_ = fileIterBegin_ + (it - indexesIntoFiles_.begin());
-          initFile(false);
-          found = rootFile_->setEntryAtItem(run, lumi, event);
-          if(found) {
-            return true;
-          }
-        }
-      }
-      // Not found
-      return false;
+      return skipToItemInNewFile(run, lumi, event);
     }
     return true;
   }
@@ -608,6 +618,33 @@ namespace edm {
       rootFile_->setAtEventEntry(-1);
       return readOneSequential();
     }
+    std::cerr << "BARF SEQ: " << ep->id() << std::endl;
+    return ep;
+  }
+
+  EventPrincipal*
+  RootInputFileSequence::readOneSequentialWithID(LuminosityBlockID const& id) {
+    if(fileIterEnd_ == fileIterBegin_) {
+      throw Exception(errors::Configuration) << "RootInputFileSequence::readOneSequentialWithID(): no input files specified.\n";
+    }
+    skipBadFiles_ = false;
+    if(fileIter_ == fileIterEnd_ || !rootFile_ ||
+        rootFile_->indexIntoFileIter().run() != id.run() || 
+        rootFile_->indexIntoFileIter().lumi() != id.luminosityBlock()) {
+      bool found = skipToItem(id.run(), id.luminosityBlock(), 0, false);
+      if(!found) {
+        return 0;
+      }
+    }
+    bool nextFound = rootFile_->setEntryAtNextEventInLumi(id.run(), id.luminosityBlock());
+    EventPrincipal* ep = (nextFound ? rootFile_->clearAndReadCurrentEvent(rootFile_->secondaryEventPrincipal()) : 0);
+    if(ep == 0) {
+      bool found = skipToItemInNewFile(id.run(), id.luminosityBlock(), 0);
+      if(found) {
+        return readOneSequentialWithID(id);
+      }
+    }
+    std::cerr << "BARF SEQ ID: " << ep->id() << std::endl;
     return ep;
   }
 
@@ -623,6 +660,7 @@ namespace edm {
     }
     EventPrincipal* ep = rootFile_->clearAndReadCurrentEvent(rootFile_->secondaryEventPrincipal());
     assert(ep != 0);
+    std::cerr << "BARF SPEC: " << ep->id() << std::endl;
     return ep;
   }
 
@@ -661,6 +699,49 @@ namespace edm {
       assert(ep != 0);
     }
     --eventsRemainingInFile_;
+    std::cerr << "BARF RAND: " << ep->id() << std::endl;
+    return ep;
+  }
+
+  // bool RootFile::setEntryAtNextEventInLumi(RunNumber_t run, LuminosityBlockNumber_t lumi) {
+
+  EventPrincipal*
+  RootInputFileSequence::readOneRandomWithID(LuminosityBlockID const& id) {
+    if(fileIterEnd_ == fileIterBegin_) {
+      throw Exception(errors::Configuration) << "RootInputFileSequence::readOneRandomWithID(): no input files specified.\n";
+    }
+    if(!flatDistribution_) {
+      Service<RandomNumberGenerator> rng;
+      CLHEP::HepRandomEngine& engine = rng->getEngine();
+      flatDistribution_.reset(new CLHEP::RandFlat(engine));
+    }
+    skipBadFiles_ = false;
+    if(fileIter_ == fileIterEnd_ || !rootFile_ ||
+        rootFile_->indexIntoFileIter().run() != id.run() || 
+        rootFile_->indexIntoFileIter().lumi() != id.luminosityBlock()) {
+      bool found = skipToItem(id.run(), id.luminosityBlock(), 0);
+      if(!found) {
+        return 0;
+      }
+      int eventsInLumi = 0;
+      while(rootFile_->setEntryAtNextEventInLumi(id.run(), id.luminosityBlock())) ++eventsInLumi;
+      found = skipToItem(id.run(), id.luminosityBlock(), 0);
+      assert(found);
+      int eventInLumi = flatDistribution_->fireInt(eventsInLumi);
+      for(int i = 0; i < eventInLumi; ++i) {
+        bool found = rootFile_->setEntryAtNextEventInLumi(id.run(), id.luminosityBlock());
+        assert(found);
+      }
+    }
+    bool nextFound = rootFile_->setEntryAtNextEventInLumi(id.run(), id.luminosityBlock());
+    EventPrincipal* ep = (nextFound ? rootFile_->clearAndReadCurrentEvent(rootFile_->secondaryEventPrincipal()) : 0);
+    if(ep == 0) {
+      bool found = rootFile_->setEntryAtItem(id.run(), id.luminosityBlock(), 0);
+      if(found) {
+        return readOneRandomWithID(id);
+      }
+    }
+    std::cerr << "BARF RAND ID: " << ep->id() << std::endl;
     return ep;
   }
 

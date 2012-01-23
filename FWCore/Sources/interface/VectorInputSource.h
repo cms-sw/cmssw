@@ -26,6 +26,10 @@ namespace edm {
     size_t loopRandom(size_t number, T eventOperator);
     template<typename T>
     size_t loopSequential(size_t number, T eventOperator);
+    template<typename T, typename ID>
+    size_t loopRandomWithID(ID id, size_t number, T eventOperator);
+    template<typename T, typename ID>
+    size_t loopSequentialWithID(ID id, size_t number, T eventOperator);
     template<typename T, typename Collection>
     size_t loopSpecified(Collection const& events, T eventOperator);
 
@@ -34,7 +38,9 @@ namespace edm {
   private:
 
     virtual EventPrincipal* readOneRandom() = 0;
+    virtual EventPrincipal* readOneRandomWithID(LuminosityBlockID const& lumiId) = 0;
     virtual EventPrincipal* readOneSequential() = 0;
+    virtual EventPrincipal* readOneSequentialWithID(LuminosityBlockID const& lumiId) = 0;
     virtual EventPrincipal* readOneSpecified(EventID const& event) = 0;
 
     virtual void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches) = 0;
@@ -56,6 +62,28 @@ namespace edm {
     size_t i = 0U;
     for(; i < number; ++i) {
       EventPrincipal* ep = readOneSequential();
+      if(!ep) break;
+      eventOperator(*ep);
+    }
+    return i;
+  }
+
+  template<typename T, typename ID>
+  size_t VectorInputSource::loopRandomWithID(ID id, size_t number, T eventOperator) {
+    size_t i = 0U;
+    for(; i < number; ++i) {
+      EventPrincipal* ep = readOneRandomWithID(id);
+      if(!ep) break;
+      eventOperator(*ep);
+    }
+    return i;
+  }
+
+  template<typename T, typename ID>
+  size_t VectorInputSource::loopSequentialWithID(ID id, size_t number, T eventOperator) {
+    size_t i = 0U;
+    for(; i < number; ++i) {
+      EventPrincipal* ep = readOneSequentialWithID(id);
       if(!ep) break;
       eventOperator(*ep);
     }
