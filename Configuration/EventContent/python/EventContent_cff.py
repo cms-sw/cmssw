@@ -23,7 +23,7 @@ import FWCore.ParameterSet.Config as cms
 #
 #  FEVT (RAW+RECO), FEVTSIM (RAWSIM+RECOSIM), FEVTDEBUG (FEVTSIM+ALL_SIM_INFO), FEVTDEBUGHLT (FEVTDEBUG+HLTDEBUG)
 #
-#  $Id: EventContent_cff.py,v 1.46 2012/01/19 15:49:57 vlimant Exp $
+#  $Id: EventContent_cff.py,v 1.47 2012/01/20 11:52:45 vlimant Exp $
 #
 #
 #
@@ -440,19 +440,7 @@ RAWSIMEventContent.outputCommands.extend(MEtoEDMConverterFEVT.outputCommands)
 RAWSIMEventContent.outputCommands.extend(IOMCRAW.outputCommands)
 RAWSIMEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 
-RAWSIMHLTEventContent.outputCommands.extend(RAWEventContent.outputCommands)
-RAWSIMHLTEventContent.outputCommands.extend(SimG4CoreRAW.outputCommands)
-RAWSIMHLTEventContent.outputCommands.extend(SimTrackerRAW.outputCommands)
-RAWSIMHLTEventContent.outputCommands.extend(SimMuonRAW.outputCommands)
-RAWSIMHLTEventContent.outputCommands.extend(SimCalorimetryRAW.outputCommands)
-RAWSIMHLTEventContent.outputCommands.extend(SimGeneralRAW.outputCommands)
-RAWSIMHLTEventContent.outputCommands.extend(GeneratorInterfaceRAW.outputCommands)
-RAWSIMHLTEventContent.outputCommands.extend(RecoGenJetsFEVT.outputCommands)
-RAWSIMHLTEventContent.outputCommands.extend(RecoGenMETFEVT.outputCommands)
-RAWSIMHLTEventContent.outputCommands.extend(DigiToRawFEVT.outputCommands)
-RAWSIMHLTEventContent.outputCommands.extend(MEtoEDMConverterFEVT.outputCommands)
-RAWSIMHLTEventContent.outputCommands.extend(IOMCRAW.outputCommands)
-RAWSIMHLTEventContent.outputCommands.extend(CommonEventContent.outputCommands)
+RAWSIMHLTEventContent.outputCommands.extend(RAWSIMEventContent.outputCommands)
 RAWSIMHLTEventContent.outputCommands.extend(HLTDebugRAW.outputCommands)
 
 GENRAWEventContent.outputCommands.extend(RAWEventContent.outputCommands)
@@ -638,13 +626,47 @@ REPACKRAWSIMEventContent.outputCommands.extend(['drop FEDRawDataCollection_sourc
 REPACKRAWEventContent.outputCommands.extend(['drop FEDRawDataCollection_source_*_*',
                                                 'drop FEDRawDataCollection_rawDataCollector_*_*'])
 
+#from modules in Configuration.StandardSequence.Generator_cff fixGenInfo
+REGENEventContent = cms.PSet(
+    inputCommands=cms.untracked.vstring(
+      'drop *_genParticles_*_*',
+      'drop *_genParticlesForJets_*_*',
+      'drop *_kt4GenJets_*_*',
+      'drop *_kt6GenJets_*_*',
+      'drop *_iterativeCone5GenJets_*_*',
+      'drop *_ak5GenJets_*_*',
+      'drop *_ak7GenJets_*_*',
+      'drop *_genCandidatesForMET_*_*',
+      'drop *_genParticlesForMETAllVisible_*_*',
+      'drop *_genMetCalo_*_*',
+      'drop *_genMetCaloAndNonPrompt_*_*',
+      'drop *_genMetTrue_*_*',
+      'drop *_genMetIC5GenJs_*_*'
+      )
+)
+
+def SwapKeepAndDrop(l):
+    r=[]
+    for item in l:
+        if 'keep ' in item:
+            r.append(item.replace('keep ','drop '))
+        elif 'drop ' in item:
+            r.append(item.replace('drop ','keep '))
+    return r
+
+RESIMEventContent = cms.PSet(
+    inputCommands=cms.untracked.vstring('drop *')
+    )
+RESIMEventContent.inputCommands.extend(IOMCRAW.outputCommands)
+RESIMEventContent.inputCommands.extend(GeneratorInterfaceRAW.outputCommands)
+#RESIMEventContent.inputCommands.extend(SwapKeepAndDrop(SimG4CoreRAW.outputCommands))
+#RESIMEventContent.inputCommands.extend(SwapKeepAndDrop(GeneratorInterfaceRAW.outputCommands))
+
 REDIGIEventContent = cms.PSet(
     inputCommands=cms.untracked.vstring('drop *')
     )
 REDIGIEventContent.inputCommands.extend(SimG4CoreRAW.outputCommands)
 REDIGIEventContent.inputCommands.extend(IOMCRAW.outputCommands)
 REDIGIEventContent.inputCommands.extend(GeneratorInterfaceRAW.outputCommands)
-for item in REDIGIEventContent.inputCommands:
-    if 'genParticles' in item:
-        REDIGIEventContent.inputCommands.remove(item)
 REDIGIEventContent.inputCommands.append('drop *_randomEngineStateProducer_*_*')
+
