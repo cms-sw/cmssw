@@ -81,7 +81,7 @@ FreeTrajectoryState FastHelix::helixStateAtVertex() const {
   
 
   // VU 23/01/2012
-  double dzdrphi = theMiddleHit.z() - theInnerHit.z();
+  double dzdrphi = theOuterHit.z() - theMiddleHit.z();
   if (rho>0.) dzdrphi /=
 			    (rho*acos(((theOuterHit.x()-theCircle.x0())*(theMiddleHit.x()-theCircle.x0()) +
 				       (theOuterHit.y()-theCircle.y0())*(theMiddleHit.y()-theCircle.y0())
