@@ -8,7 +8,7 @@
 //
 // Original Author:  Roberto Covarelli (CERN)
 //
-// $Id: EgammaHLTElectronDetaDphiProducer.h,v 1.1 2009/01/15 14:28:27 covarell Exp $
+// $Id: EgammaHLTElectronDetaDphiProducer.h,v 1.2 2011/12/19 11:16:45 sani Exp $
 //
 //
 
@@ -25,6 +25,14 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
+
+class MagneticField;
+
 #include "TTree.h"
 //
 // class declaration
@@ -37,16 +45,17 @@ class EgammaHLTElectronDetaDphiProducer : public edm::EDProducer {
 
 
       virtual void produce(edm::Event&, const edm::EventSetup&);
+  
    private:
-      // ----------member data ---------------------------
-
+  std::pair<float,float> calDEtaDPhiSCTrk(reco::ElectronRef& eleref, const reco::BeamSpot::Point& BSPosition,const MagneticField *magField);
+  static reco::ElectronRef getEleRef(const reco::RecoEcalCandidateRef& recoEcalCandRef,const edm::Handle<reco::ElectronCollection>& electronHandle);
+  
   edm::InputTag electronProducer_;
-  edm::ParameterSet conf_;
+  edm::InputTag recoEcalCandidateProducer_;
 
+  bool useSCRefs_;
   bool useTrackProjectionToEcal_;
-  edm::InputTag BSProducer_;
-  TTree * tree;
-  float mydphi;
-  Int_t myevent, myrun;
+  edm::InputTag bsProducer_;
+  
 };
 

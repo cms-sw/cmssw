@@ -8,7 +8,7 @@
 //
 // Original Author:  Monica Vazquez Acosta (CERN)
 //
-// $Id: EgammaHLTElectronTrackIsolationProducers.h,v 1.2 2008/10/10 14:05:43 covarell Exp $
+// $Id: EgammaHLTElectronTrackIsolationProducers.h,v 1.3 2011/12/19 11:16:45 sani Exp $
 //
 //
 
@@ -25,7 +25,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "RecoEgamma/EgammaHLTAlgos/interface/EgammaHLTTrackIsolation.h"
+
 
 //
 // class declaration
@@ -43,16 +43,22 @@ class EgammaHLTElectronTrackIsolationProducers : public edm::EDProducer {
 
   edm::InputTag electronProducer_;
   edm::InputTag trackProducer_;
+  edm::InputTag recoEcalCandidateProducer_;
+  edm::InputTag beamSpotProducer_;
 
-  edm::ParameterSet conf_;
+  bool useGsfTrack_;
+  bool useSCRefs_;
 
   double egTrkIsoPtMin_; 
   double egTrkIsoConeSize_;
   double egTrkIsoZSpan_;   
   double egTrkIsoRSpan_;  
-  double egTrkIsoVetoConeSize_;
-  bool egCheckForOtherEleInCone_;
+  double egTrkIsoVetoConeSizeBarrel_;
+  double egTrkIsoVetoConeSizeEndcap_;
+  double egTrkIsoStripBarrel_;
+  double egTrkIsoStripEndcap_;
 
-  EgammaHLTTrackIsolation* test_;
+  
+  
 };
 
