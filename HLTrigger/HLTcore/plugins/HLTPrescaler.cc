@@ -27,7 +27,8 @@ const unsigned int HLTPrescaler::prescaleSeed_ = 65537;
 
 //_____________________________________________________________________________
 HLTPrescaler::HLTPrescaler(edm::ParameterSet const& iConfig) :
-    prescaleFactor_(1)
+  prescaleSet_(0)
+  , prescaleFactor_(1)
   , eventCount_(0)
   , acceptCount_(0)
   , offsetCount_(0)
@@ -75,25 +76,27 @@ bool HLTPrescaler::filter(edm::Event& iEvent, const edm::EventSetup&)
 
     if (prescaleService_) {
       std::string const & pathName = * currentContext()->pathName();
+      const unsigned int oldSet(prescaleSet_);
       const unsigned int oldPrescale(prescaleFactor_);
 
       edm::Handle<L1GlobalTriggerReadoutRecord> handle;
       iEvent.getByLabel(gtDigi_ , handle);
       if (handle.isValid()) {
-        unsigned int index = handle->gtFdlWord().gtPrescaleFactorIndexAlgo();
+        prescaleSet_ = handle->gtFdlWord().gtPrescaleFactorIndexAlgo();
         // gtPrescaleFactorIndexTech() is also available
         // by construction, they should always return the same index
-        prescaleFactor_ = prescaleService_->getPrescale(index, pathName);
+        prescaleFactor_ = prescaleService_->getPrescale(prescaleSet_, pathName);
       } else {
         edm::LogWarning("HLT") << "Cannot read prescale column index from GT data: using default as defined by configuration or DAQ";
         prescaleFactor_ = prescaleService_->getPrescale(pathName);
       }
 
-      if (prescaleFactor_ != oldPrescale) {
+      if (prescaleSet_ != oldSet) {
         edm::LogInfo("ChangedPrescale")
-          << "lumiBlockNb="<< iEvent.getLuminosityBlock().id().luminosityBlock() << ", "
-          << "path="<<pathName<<": "
-          << prescaleFactor_ << " [" <<oldPrescale<<"]";
+          << "lumiBlockNb = " << iEvent.getLuminosityBlock().id().luminosityBlock()
+	  << ", set = " << prescaleSet_ << " [" << oldSet <<"]" 
+          << ", path = "<< pathName
+	  << ": " << prescaleFactor_ << " [" <<oldPrescale<<"]";
         // reset the prescale counter
         needsInit = true;
       }

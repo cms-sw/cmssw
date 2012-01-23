@@ -7,8 +7,8 @@
  *  This class is an EDFilter implementing an HLT
  *  Prescaler module with associated book keeping.
  *
- *  $Date: 2012/01/22 22:32:14 $
- *  $Revision: 1.21 $
+ *  $Date: 2012/01/23 00:13:18 $
+ *  $Revision: 1.22 $
  *
  *  \author Martin Grunewald
  *  \author Philipp Schieferdecker
@@ -44,6 +44,9 @@ private:
   //
   //member data
   //
+
+  /// l1 prescale set index
+  unsigned int prescaleSet_;
 
   /// accept one in prescaleFactor_; 0 means never to accept an event
   unsigned int prescaleFactor_;
