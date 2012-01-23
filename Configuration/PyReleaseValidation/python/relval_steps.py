@@ -145,7 +145,7 @@ step1['SingleMuPt100INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt100/CMS
 step1['SingleMuPt1000INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt1000/CMSSW_5_0_0_pre7-START50_V7-v1/GEN-SIM',location='STD')}
 step1['TTbarINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar/CMSSW_5_0_0_pre7-START50_V7-v2/GEN-SIM',location='STD')}
 step1['OldTTbarINPUT']={'INPUT':InputInfo(dataSet='/RelValProdTTbar/CMSSW_5_0_0_pre6-START50_V5-v1/GEN-SIM-RECO',location='STD')}
-step1['OldGenSimINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar/CMSSW_5_0_0_pre7-START50_V7-v2/GEN-SIM-DIGI-RAW-HLTDEBUG',location='STD')}
+step1['OldGenSimINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar/CMSSW_4_4_2-START44_V7-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',location='STD')}
 step1['ZEEINPUT']={'INPUT':InputInfo(dataSet='/RelValZEE/CMSSW_5_0_0_pre7-START50_V7-v2/GEN-SIM',location='STD')}
 step1['Wjet_Pt_80_120INPUT']={'INPUT':InputInfo(dataSet='/RelValWjet_Pt_80_120/CMSSW_5_0_0_pre7-START50_V7-v1/GEN-SIM',location='STD')}
 step1['Wjet_Pt_3000_3500INPUT']={'INPUT':InputInfo(dataSet='/RelValWjet_Pt_3000_3500/CMSSW_5_0_0_pre7-START50_V7-v1/GEN-SIM',location='STD')}
@@ -383,9 +383,10 @@ step2['DIGI']=merge([step2Defaults])
 step2['DIGICOS']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW'},stCond,step2Defaults])
 
 step2['DIGIPU1']=merge([step2Defaults,PU])
-step2['REDIGIPU']=merge([{'-s':'GEN,REDIGI,L1,DIGI2RAW,HLT,RAW2DIGI,L1Reco'},step2['DIGIPU1']])
+step2['REDIGIPU']=merge([{'-s':'reGEN,reDIGI,L1,DIGI2RAW,HLT,RAW2DIGI,L1Reco'},step2['DIGIPU1']])
 
 
+step2['RESIM']=merge([{'-s':'reGEN,reSIM'},step2['DIGI']])
     
 step2['DIGIHI']=merge([{'--inputCommands':'"keep *","drop *_simEcalPreshowerDigis_*_*"','-n':10},hiDefaults,step2Defaults])
 
@@ -464,6 +465,7 @@ step3Defaults = { 'cfg'           : 'step3',
                   }
 
 step3 = {}
+step3['DIGIPU']=merge([{'cfg':'step3'},step2['DIGIPU1']])
 
 step3['RECO']=merge([step3Defaults])
 #step3['RECO2']=merge([stCond,step3Defaults])
@@ -475,6 +477,7 @@ step3['RECOQCD']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:@QCD,VALIDATION,DQM'},s
 
 step3['RECOPU1']=merge([step3['RECO'],PU])
 step3['RERECOPU1']=merge([{'--hltProcess':'REDIGI'},step3['RECOPU1']])
+
 
 step3['RECOHI']=merge([hiDefaults,step3Defaults])
 step3['DIGIHISt3']=step2['DIGIHI']
@@ -518,6 +521,7 @@ step4Defaults = { 'cfg'           : 'step4',
                   '--eventcontent': 'ALCARECO',
                   }
 step4 = {}
+step4['RERECOPU']=merge([{'cfg':'step4'},step3['RERECOPU1']])
 
 step4['ALCATT1']=merge([step4Defaults])
 step4['ALCATT2']=merge([stCond,step4Defaults])

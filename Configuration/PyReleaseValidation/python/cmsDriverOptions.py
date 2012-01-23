@@ -161,7 +161,9 @@ def OptionsFromItems(items):
     # Setting name of process
     # if not set explicitly it needs some thinking
     if not options.name:
-        if 'REDIGI' in options.trimmedStep:
+        if 'reSIM' in options.trimmedStep:
+            options.name = 'RESIM'
+        elif 'reDIGI' in options.trimmedStep:
             options.name = 'REDIGI'
         elif 'HLT' in options.trimmedStep:    
             options.name = 'HLT'

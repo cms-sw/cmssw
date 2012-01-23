@@ -21,4 +21,6 @@ workflows[1100]=['',['OldGenSimINPUT','REDIGIPU','RERECOPU1']]
 workflows[1102]=['RR', ['TTbar','DIGI','RECO','RECOFROMRECO']]
 workflows[1103]=['RR', ['OldTTbarINPUT','RECOFROMRECOSt2']]
 
+workflows[1104]=['',['OldGenSimINPUT','RESIM','DIGIPU','RERECOPU']]
+
 
