@@ -80,7 +80,7 @@ FreeTrajectoryState FastHelix::helixStateAtVertex() const {
   //pz = pT*(dz/d(R*phi)))
   
 
-  // VU 23/01/2012
+  // VI 23/01/2012
   double dzdrphi = theOuterHit.z() - theMiddleHit.z();
   if (rho>0.) dzdrphi /=
 			    (rho*acos(((theOuterHit.x()-theCircle.x0())*(theMiddleHit.x()-theCircle.x0()) +
@@ -90,12 +90,14 @@ FreeTrajectoryState FastHelix::helixStateAtVertex() const {
 			     );
   double pz = pt*dzdrphi;
 
+  
   // old crap
   FastLine flfit(theOuterHit, theMiddleHit, theCircle.rho());
   double dzdrphi2 = -flfit.n1()/flfit.n2();
 
-  if (fabs(dzdrphi2-dzdrphi)>1.e-5) 
-    std::cout << "FastHelix: old,new" << dzdrphi2 <<", " <<  dzdrphi << std::endl; 
+//  if (fabs(dzdrphi2-dzdrphi)>1.e-5) 
+//    std::cout << "FastHelix: old,new " << dzdrphi2 <<", " <<  dzdrphi << std::endl; 
+  
 
   //get sign of particle
 
@@ -118,7 +120,16 @@ FreeTrajectoryState FastHelix::helixStateAtVertex() const {
 	       &(*pSetup)
 	       );
   } else {
-    double z_0 = -flfit.c()/flfit.n2();
+    double z_old = -flfit.c()/flfit.n2();
+    // assume v is before middleHit (opposite to outer)
+    double ds = 
+      (rho*acos(((v.x()-theCircle.x0())*(theMiddleHit.x()-theCircle.x0()) +
+		 (v.y()-theCircle.y0())*(theMiddleHit.y()-theCircle.y0())
+		 )/(rho*rho)
+		)
+       );
+    double z_0 =  theMiddleHit.z() - ds*dzdrphi;
+    std::cout << "v:xyz, z,old,new " << v << "   " << z_old << " " << z_0 << std::endl;
     return FTS(GlobalPoint(v.x(),v.y(),z_0), 
 	       GlobalVector(px, py, pz),
 	       q, 
