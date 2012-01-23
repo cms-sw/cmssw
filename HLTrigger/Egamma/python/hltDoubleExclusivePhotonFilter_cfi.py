@@ -8,7 +8,7 @@ hltDoubleExclusivePhotonFilter = cms.EDFilter("HLTEgammaDoubleEtPhiFilter",
     MinEtBalance = cms.double(-1.0),
     MaxEtBalance = cms.double(10.0),
     candTag = cms.InputTag("hltDoubleL1MatchFilter"),
-    MinAcop = cms.double(-0.1)
+    MinAcop = cms.double(-0.1),
+    saveTags = cms.bool( False )
 )
-
 

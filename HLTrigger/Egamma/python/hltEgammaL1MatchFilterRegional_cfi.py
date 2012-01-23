@@ -12,7 +12,8 @@ hltEgammaL1MatchFilterRegional = cms.EDFilter("HLTEgammaL1MatchFilterRegional",
     barrel_end = cms.double(1.4791),
     L1SeedFilterTag = cms.InputTag("theL1SeedFilter"),
     candNonIsolatedTag = cms.InputTag("hltRecoNonIsolatedEcalCandidate"),
-    l1NonIsolatedTag = cms.InputTag("l1extraParticles","NonIsolated")
+    l1NonIsolatedTag = cms.InputTag("l1extraParticles","NonIsolated"),
+    saveTags = cms.bool( False )
 )
 
 
