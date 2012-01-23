@@ -10,7 +10,7 @@
 */
 //
 // Original Author:  Monica Vazquez Acosta (CERN)
-// $Id: EgammaHLTPixelMatchElectronAlgo.cc,v 1.14 2009/10/14 14:18:31 covarell Exp $
+// $Id: EgammaHLTPixelMatchElectronAlgo.cc,v 1.15 2011/12/23 08:13:34 innocent Exp $
 //
 //
 #include "RecoEgamma/EgammaHLTAlgos/interface/EgammaHLTPixelMatchElectronAlgo.h"
@@ -40,87 +40,209 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
+#include "TrackingTools/GsfTools/interface/MultiTrajectoryStateMode.h"
+#include "TrackingTools/GsfTools/interface/MultiTrajectoryStateTransform.h"
+
 using namespace edm;
 using namespace std;
 using namespace reco;
-//using namespace math; // conflicts with DataFormat/Math/interface/Point3D.h!!!!
-
-//EgammaHLTPixelMatchElectronAlgo::EgammaHLTPixelMatchElectronAlgo():  
-//  theCkfTrajectoryBuilder(0), theTrajectoryCleaner(0),
-//  theInitialStateEstimator(0), theNavigationSchool(0) {}
 
 EgammaHLTPixelMatchElectronAlgo::EgammaHLTPixelMatchElectronAlgo(const edm::ParameterSet &conf) :
-  trackProducer_( conf.getParameter<edm::InputTag>("TrackProducer") ),
-  BSProducer_(    conf.getParameter<edm::InputTag>("BSProducer") )
-{}
+  trackProducer_(conf.getParameter<edm::InputTag>("TrackProducer")),
+  gsfTrackProducer_(conf.getParameter<edm::InputTag>("GsfTrackProducer")),
+  useGsfTracks_(conf.getParameter<bool>("UseGsfTracks")),
+  bsProducer_(conf.getParameter<edm::InputTag>("BSProducer")), 
+  mtsMode_(new MultiTrajectoryStateMode()),
+  mtsTransform_(0),
+  cacheIDTDGeom_(0),
+  cacheIDMagField_(0)
+{
 
-EgammaHLTPixelMatchElectronAlgo::~EgammaHLTPixelMatchElectronAlgo() {
-
-  // delete theInitialStateEstimator;
-  //delete theNavigationSchool;
-  //delete theTrajectoryCleaner; 
-    
 }
+
+  EgammaHLTPixelMatchElectronAlgo::~EgammaHLTPixelMatchElectronAlgo() 
+{
+  delete mtsTransform_;
+  delete mtsMode_;
+ }
 
 void EgammaHLTPixelMatchElectronAlgo::setupES(const edm::EventSetup& es) {
   //services
-  es.get<TrackerRecoGeometryRecord>().get(theGeomSearchTracker);
-  es.get<IdealMagneticFieldRecord>().get(theMagField);
+  
+  bool updateField(false);
+  if (cacheIDMagField_!=es.get<IdealMagneticFieldRecord>().cacheIdentifier()){
+    updateField = true;
+    cacheIDMagField_=es.get<IdealMagneticFieldRecord>().cacheIdentifier();
+    es.get<IdealMagneticFieldRecord>().get(magField_);
+  }
+  
+  if(useGsfTracks_){ //only need the geom and mtsTransform if we are doing gsf tracks
+    bool updateGeometry(false);
+    if (cacheIDTDGeom_!=es.get<TrackerDigiGeometryRecord>().cacheIdentifier()){
+      updateGeometry = true;
+       cacheIDTDGeom_=es.get<TrackerDigiGeometryRecord>().cacheIdentifier();
+       es.get<TrackerDigiGeometryRecord>().get(trackerGeom_);
+    }
+    if ( updateField || updateGeometry || !mtsTransform_ ) {
+      delete mtsTransform_;
+      mtsTransform_ = new MultiTrajectoryStateTransform(trackerGeom_.product(),magField_.product());
+    }
+  }
+  
+  
 }
 
 void  EgammaHLTPixelMatchElectronAlgo::run(Event& e, ElectronCollection & outEle) {
-
+  
   // get the input 
   edm::Handle<TrackCollection> tracksH;
-  //  e.getByLabel(trackLabel_,trackInstanceName_,tracksH);
- e.getByLabel(trackProducer_,tracksH);
+  if (!useGsfTracks_)
+    e.getByLabel(trackProducer_,tracksH);
+
+  // get the input 
+  edm::Handle<GsfTrackCollection> gsfTracksH;
+  if (useGsfTracks_)
+    e.getByLabel(gsfTrackProducer_, gsfTracksH);
 
   //Get the Beam Spot position
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  // iEvent.getByType(recoBeamSpotHandle);
-  e.getByLabel(BSProducer_,recoBeamSpotHandle);
-  // gets its position
-  const BeamSpot::Point& BSPosition = recoBeamSpotHandle->position(); 
-  Global3DPoint bs(BSPosition.x(),BSPosition.y(),0);
-  process(tracksH,outEle,bs);
+  e.getByLabel(bsProducer_,recoBeamSpotHandle);
 
+  // gets its position
+  const BeamSpot::Point& bsPosition = recoBeamSpotHandle->position(); 
+  Global3DPoint bs(bsPosition.x(),bsPosition.y(),0);
+  process(tracksH, gsfTracksH, outEle, bs);
+  
   return;
 }
 
-void EgammaHLTPixelMatchElectronAlgo::process(edm::Handle<TrackCollection> tracksH, ElectronCollection & outEle, Global3DPoint & bs) {
-  const TrackCollection *tracks=tracksH.product();
-  for (unsigned int i=0;i<tracks->size();++i) {
-    const Track & t=(*tracks)[i];
+void EgammaHLTPixelMatchElectronAlgo::process(edm::Handle<TrackCollection> tracksH, edm::Handle<GsfTrackCollection> gsfTracksH, ElectronCollection & outEle, Global3DPoint & bs) {
 
-    const TrackRef trackRef = edm::Ref<TrackCollection>(tracksH,i);
-    edm::RefToBase<TrajectorySeed> seed = trackRef->extra()->seedRef();
-    ElectronSeedRef elseed=seed.castTo<ElectronSeedRef>();
+  if (!useGsfTracks_) {
 
-    edm::RefToBase<CaloCluster> caloCluster = elseed->caloCluster() ;
-    SuperClusterRef scRef = caloCluster.castTo<SuperClusterRef>() ;
+    for (unsigned int i=0; i<tracksH->size(); ++i) {
+      
+      const TrackRef trackRef = edm::Ref<TrackCollection>(tracksH, i);
+      edm::RefToBase<TrajectorySeed> seed = trackRef->extra()->seedRef();
+      ElectronSeedRef elseed=seed.castTo<ElectronSeedRef>();
+      
+      edm::RefToBase<CaloCluster> caloCluster = elseed->caloCluster() ;
+      SuperClusterRef scRef = caloCluster.castTo<SuperClusterRef>() ;
+      
+      // Get the momentum at vertex (not at the innermost layer)
+      TSCPBuilderNoMaterial tscpBuilder;
+      
+      FreeTrajectoryState fts = trajectoryStateTransform::innerFreeState(*trackRef, magField_.product());
+      TrajectoryStateClosestToPoint tscp = tscpBuilder(fts, bs);
+      
+      float scale = scRef->energy()/tscp.momentum().mag();
+      
+      const math::XYZTLorentzVector momentum(tscp.momentum().x()*scale,
+					     tscp.momentum().y()*scale,
+					     tscp.momentum().z()*scale,
+					     scRef->energy());
 
-    //const SuperClusterRef & scRef=elseed->superCluster();
-    
-        // Get the momentum at vertex (not at the innermost layer)
-    TSCPBuilderNoMaterial tscpBuilder;
-    
-    FreeTrajectoryState fts = trajectoryStateTransform::innerFreeState(t,theMagField.product());
-    TrajectoryStateClosestToPoint tscp = tscpBuilder(fts, bs );
-    
-    float scale = scRef->energy()/tscp.momentum().mag();
-  
-    const math::XYZTLorentzVector momentum(tscp.momentum().x()*scale,
- 					   tscp.momentum().y()*scale,
- 					   tscp.momentum().z()*scale,
-					   scRef->energy());
+      Electron ele(trackRef->charge(), momentum, trackRef->vertex());
+      ele.setSuperCluster(scRef);
+      edm::Ref<TrackCollection> myRef(tracksH, i);
+      ele.setTrack(myRef);
+      outEle.push_back(ele);
+    }  // loop over tracks
+  } else {
 
-    
-    Electron ele(t.charge(),momentum, t.vertex() );
-    ele.setSuperCluster(scRef);
-    edm::Ref<TrackCollection> myRef(tracksH,i);
-    ele.setTrack(myRef);
-    outEle.push_back(ele);
+    // clean gsf tracks
+    std::vector<unsigned int> flag(gsfTracksH->size(), 0);
+    if (gsfTracksH->size() == 0)
+      return;
 
-  }  // loop over tracks
+    for (unsigned int i=0; i<gsfTracksH->size()-1; ++i) {
+      const GsfTrackRef trackRef1 = edm::Ref<GsfTrackCollection>(gsfTracksH, i);
+      ElectronSeedRef elseed1 = trackRef1->extra()->seedRef().castTo<ElectronSeedRef>();
+      SuperClusterRef scRef1 = elseed1->caloCluster().castTo<SuperClusterRef>();
+
+      TrajectoryStateOnSurface inTSOS = mtsTransform_->innerStateOnSurface((*trackRef1));
+      TrajectoryStateOnSurface fts = mtsTransform_->extrapolatedState(inTSOS, bs);
+      GlobalVector innMom;
+      float pin1 = trackRef1->pMode();
+      if (fts.isValid()) {
+	mtsMode_->momentumFromModeCartesian(fts, innMom);  
+	pin1 = innMom.mag();
+      }
+
+      for (unsigned int j=i+1; j<gsfTracksH->size(); ++j) {
+	const GsfTrackRef trackRef2 = edm::Ref<GsfTrackCollection>(gsfTracksH, j);
+	ElectronSeedRef elseed2 = trackRef2->extra()->seedRef().castTo<ElectronSeedRef>();
+	SuperClusterRef scRef2 = elseed2->caloCluster().castTo<SuperClusterRef>();
+
+	TrajectoryStateOnSurface inTSOS = mtsTransform_->innerStateOnSurface((*trackRef2));
+	TrajectoryStateOnSurface fts = mtsTransform_->extrapolatedState(inTSOS, bs);
+	GlobalVector innMom;
+	float pin2 = trackRef2->pMode();
+	if (fts.isValid()) {
+	  mtsMode_->momentumFromModeCartesian(fts, innMom);  
+	  pin2 = innMom.mag();
+	}
+	
+	if (scRef1 == scRef2) {
+	  bool isSameLayer = false;
+	  bool iGsfInnermostWithLostHits = isInnerMostWithLostHits(trackRef2, trackRef1, isSameLayer);
+	  
+	  if (iGsfInnermostWithLostHits) {
+	    flag[j] = 1;
+	  } else if(isSameLayer) {
+	    if(fabs((scRef1->energy()/pin1)-1) < fabs((scRef2->energy()/pin2)-1))
+	      flag[j] = 1;
+	  } else {
+	    flag[i] = 1;
+	  }
+	}
+      }
+    }
+
+    for (unsigned int i=0; i<gsfTracksH->size(); ++i) {
+      if (flag[i] == 1)
+	continue;
+
+      const GsfTrackRef trackRef = edm::Ref<GsfTrackCollection>(gsfTracksH, i);
+      ElectronSeedRef elseed = trackRef->extra()->seedRef().castTo<ElectronSeedRef>();
+      SuperClusterRef scRef = elseed->caloCluster().castTo<SuperClusterRef>();
+      
+      // Get the momentum at vertex (not at the innermost layer)
+      TrajectoryStateOnSurface inTSOS = mtsTransform_->innerStateOnSurface((*trackRef));
+      TrajectoryStateOnSurface fts = mtsTransform_->extrapolatedState(inTSOS, bs);
+      GlobalVector innMom;
+      mtsMode_->momentumFromModeCartesian(inTSOS, innMom);
+      if (fts.isValid()) {
+	mtsMode_->momentumFromModeCartesian(fts, innMom);  
+      }
+      
+      float scale = scRef->energy()/innMom.mag();
+      const math::XYZTLorentzVector momentum(innMom.x()*scale,
+					     innMom.y()*scale,
+					     innMom.z()*scale,
+					     scRef->energy());
+      
+      Electron ele(trackRef->charge(), momentum, trackRef->vertex());
+      ele.setSuperCluster(scRef);
+      edm::Ref<GsfTrackCollection> myRef(gsfTracksH, i);
+      ele.setGsfTrack(myRef);
+      outEle.push_back(ele);
+    }
+  }
 }
+
+bool EgammaHLTPixelMatchElectronAlgo::isInnerMostWithLostHits(const reco::GsfTrackRef& nGsfTrack, const reco::GsfTrackRef& iGsfTrack, bool& sameLayer) {
+  
+  // define closest using the lost hits on the expectedhitsineer
+  unsigned int nLostHits = nGsfTrack->trackerExpectedHitsInner().numberOfLostHits();
+  unsigned int iLostHits = iGsfTrack->trackerExpectedHitsInner().numberOfLostHits();
+  
+  if (nLostHits!=iLostHits) {
+    return (nLostHits > iLostHits);
+  } else {
+    sameLayer = true;
+    return  false; 
+  }
+}
+
 
