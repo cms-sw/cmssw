@@ -40,6 +40,7 @@
 #<library file="analysis/LCT*.cc" name="CSCTFLCTAna">
 #     <flags EDM_PLUGIN="1"/>
 #     <lib name="CSCTFAnaHelpers"/>
+#     <use name="DataFormats/Luminosity"/>
 #</library>
 
 #<library file="analysis/CSCTFFilter.cc" name="CSCTFFilter">
