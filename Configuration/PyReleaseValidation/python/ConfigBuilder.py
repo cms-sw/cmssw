@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.351 $"
+__version__ = "$Revision: 1.353 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -53,12 +53,13 @@ from Configuration.StandardSequences.VtxSmeared import VtxSmearedDefaultKey
 defaultOptions.beamspot=VtxSmearedDefaultKey
 defaultOptions.outputDefinition =''
 defaultOptions.inputCommands = None
-defaultOptions.inputEventContent = None
+defaultOptions.inputEventContent = ''
 defaultOptions.dropDescendant = False
 defaultOptions.relval = None
 defaultOptions.slhc = None
 defaultOptions.profile = None
 defaultOptions.isRepacked = False
+defaultOptions.restoreRNDSeeds = False
 
 # some helper routines
 def dumpPython(process,name):
@@ -165,7 +166,7 @@ class ConfigBuilder(object):
                 if step=='': continue
                 stepParts = step.split(":")
                 stepName = stepParts[0]
-                if stepName not in stepList:
+                if stepName not in stepList and not stepName.startswith('re'):
                         raise ValueError("Step "+stepName+" unknown")
                 if len(stepParts)==1:
                         self.stepMap[stepName]=""
@@ -358,23 +359,41 @@ class ConfigBuilder(object):
                self.process.source=cms.Source("PoolSource", fileNames = cms.untracked.vstring(),secondaryFileNames = cms.untracked.vstring())
 	       filesFromDBSQuery(self._options.dbsquery,self.process.source)
 
+	if self._options.inputEventContent:
+		import copy
+		def dropSecondDropStar(iec):
+			#drop occurence of 'drop *' in the list
+			count=0
+			for item in iec:
+				if item=='drop *':
+					if count!=0:
+						iec.remove(item)
+					count+=1
+					
+		
+		##allow comma separated input eventcontent
+		if not hasattr(self.process.source,'inputCommands'): self.process.source.inputCommands=cms.untracked.vstring()
+		for evct in self._options.inputEventContent.split(','):
+			if evct=='': continue
+			theEventContent = getattr(self.process, evct+"EventContent")
+			if hasattr(theEventContent,'outputCommands'):
+				self.process.source.inputCommands.extend(copy.copy(theEventContent.outputCommands))
+			if hasattr(theEventContent,'inputCommands'):
+				self.process.source.inputCommands.extend(copy.copy(theEventContent.inputCommands))
+				
+		dropSecondDropStar(self.process.source.inputCommands)
+		
+		if not self._options.dropDescendant:
+			self.process.source.dropDescendantsOfDroppedBranches = cms.untracked.bool(False)
 
 	if self._options.inputCommands:
-		self.process.source.inputCommands = cms.untracked.vstring()
+		if not hasattr(self.process.source,'inputCommands'): self.process.source.inputCommands=cms.untracked.vstring()
 		for command in self._options.inputCommands.split(','):
+			if command=='': continue
 			self.process.source.inputCommands.append(command)
 		if not self._options.dropDescendant:
 			self.process.source.dropDescendantsOfDroppedBranches = cms.untracked.bool(False)
 
-	if self._options.inputEventContent:
-		import copy
-		theEventContent = getattr(self.process, self._options.inputEventContent+"EventContent")
-		if hasattr(theEventContent,'outputCommands'):
-			self.process.source.inputCommands=copy.copy(theEventContent.outputCommands)
-		if hasattr(theEventContent,'inputCommands'):
-			self.process.source.inputCommands=copy.copy(theEventContent.inputCommands)
-		if not self._options.dropDescendant:
-			self.process.source.dropDescendantsOfDroppedBranches = cms.untracked.bool(False)
 		
         if 'GEN' in self.stepMap.keys() or (not self._options.filein and hasattr(self._options, "evt_type")):
             if self.process.source is None:
@@ -575,6 +594,10 @@ class ConfigBuilder(object):
 
         self.loadAndRemember(self.magFieldCFF)
 
+	if self._options.restoreRNDSeeds:
+		self.executeAndRemember('process.RandomNumberGeneratorService.restoreStateLabel=cms.untracked.string("randomEngineStateProducer")')
+		if not self._options.inputCommands:			self._options.inputCommands='keep *_randomEngineStateProducer_*_*,'     
+		else:		self._options.inputCommands+='keep *_randomEngineStateProducer_*_*,'
 
         # what steps are provided by this class?
         stepList = [re.sub(r'^prepare_', '', methodName) for methodName in ConfigBuilder.__dict__ if methodName.startswith('prepare_')]
@@ -587,6 +610,10 @@ class ConfigBuilder(object):
             if step == "":
                 continue
             print step
+	    if step.startswith('re'):
+		    ##add the corresponding input content
+		    self._options.inputEventContent='%s,%s'%(step.split(":")[0].upper(),self._options.inputEventContent)
+		    step=step[2:]
             stepParts = step.split(":")   # for format STEP:alternativeSequence
             stepName = stepParts[0]
             if stepName not in stepList:
@@ -828,7 +855,7 @@ class ConfigBuilder(object):
                 self.ALCADefaultCFF="Configuration/StandardSequences/AlCaRecoStreamsMC_cff"
 
 	#patch for gen, due to backward incompatibility
-	if 'REDIGI' in self.stepMap:
+	if 'reGEN' in self.stepMap:
 		self.GENDefaultSeq='fixGenInfo'
 
         if self._options.scenario=='nocoll' or self._options.scenario=='cosmics':
@@ -1149,7 +1176,7 @@ class ConfigBuilder(object):
         self.process.generation_step = cms.Path( getattr(self.process,genSeqName) )
         self.schedule.append(self.process.generation_step)
 
-	if 'REDIGI' in self.stepMap:
+	if 'reGEN' in self.stepMap:
 		#stop here
 		return 
 
@@ -1189,18 +1216,6 @@ class ConfigBuilder(object):
 
 	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
         return
-
-    def prepare_REDIGI(self, sequence = None):
-	    """same as the DIGI step, but with some extra stuff"""
-	    self.prepare_DIGI(sequence)
-
-	    if self._options.inputEventContent:
-		    raise Exception('--inputEventContent and REDIGI are incompatible')
-	    self._options.inputEventContent='REDIGI'
-	    #self.executeAndRemember('process.RandomNumberGeneratorService.restoreStateLabel=cms.untracked.string("randomEngineStateProducer")')
-	    #if self._options.pileup and self._options.pileup!='NoPileUp':
-	    #self.executeAndRemember("process.mix.playback = True")
-	    return
 
     def prepare_CFWRITER(self, sequence = None):
 	    """ Enrich the schedule with the crossing frame writer step"""
@@ -1403,7 +1418,7 @@ class ConfigBuilder(object):
                     self.process.validation_step = cms.EndPath( getattr(self.process,valSeqName ) )
             self.schedule.append(self.process.validation_step)
 
-	    if (not 'DIGI' in self.stepMap and not 'FASTSIM' in self.stepMap):
+	    if not 'DIGI' in self.stepMap and not 'FASTSIM' in self.stepMap:
 		    self.executeAndRemember("process.mix.playback = True")
 
             return
@@ -1627,7 +1642,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.351 $"),
+                                            (version=cms.untracked.string("$Revision: 1.353 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
