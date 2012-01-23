@@ -45,6 +45,28 @@ class PFRecoTauDiscriminationByIsolation :
         maximumRelativeSumPt_ = pset.getParameter<double>(
             "relativeSumPtCut");
 
+        storeRawOccupancy_ = pset.exists("storeRawOccupancy") ?
+          pset.getParameter<bool>("storeRawOccupancy") : false;
+        storeRawSumPt_ = pset.exists("storeRawSumPt") ?
+          pset.getParameter<bool>("storeRawSumPt") : false;
+
+        // Sanity check on requested options.  We can't apply cuts and store the
+        // raw output at the same time
+        if (applySumPtCut_ || applyOccupancyCut_ || applyRelativeSumPtCut_) {
+          if (storeRawSumPt_ || storeRawOccupancy_) {
+            throw cms::Exception("BadIsoConfig") <<
+              "A 'store raw' and a 'apply cut' option have been set to true "
+              << "simultaneously.  These options are mutually exclusive.";
+          }
+        }
+
+        // Can only store one type
+        if (storeRawSumPt_ && storeRawOccupancy_) {
+            throw cms::Exception("BadIsoConfig") <<
+              "Both 'store sum pt' and 'store occupancy' options are set."
+              << " These options are mutually exclusive.";
+        }
+
         if (pset.exists("customOuterCone")) {
           customIsoCone_ = pset.getParameter<double>("customOuterCone");
         } else {
@@ -133,8 +155,14 @@ class PFRecoTauDiscriminationByIsolation :
     double maximumRelativeSumPt_;
     double customIsoCone_;
 
+    // Options to store the raw value in the discriminator instead of
+    // boolean float
+    bool storeRawOccupancy_;
+    bool storeRawSumPt_;
 
-    // PU subtraction parameters
+    /* **********************************************************************
+       **** Pileup Subtraction Parameters ***********************************
+       **********************************************************************/
 
     // Delta Beta correction
     bool applyDeltaBeta_;
@@ -279,11 +307,13 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) {
     neutrals=0;
   }
 
-  failsOccupancyCut = ( isoCharged.size()+neutrals > maximumOccupancy_ );
+  size_t nOccupants = isoCharged.size() + neutrals;
 
+  failsOccupancyCut = ( nOccupants > maximumOccupancy_ );
+
+  double totalPt=0.0;
   //--- Sum PT requirement
-  if( applySumPtCut_ || applyRelativeSumPtCut_ ) {
-    double totalPt=0.0;
+  if( applySumPtCut_ || applyRelativeSumPtCut_ || storeRawSumPt_) {
     double chargedPt=0.0;
     double puPt=0.0;
     double neutralPt=0.0;
@@ -320,9 +350,15 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) {
 
   bool fails = (applyOccupancyCut_ && failsOccupancyCut) ||
     (applySumPtCut_ && failsSumPtCut) ||
-    (applyRelativeSumPtCut_ && failsRelativeSumPtCut) ;
+    (applyRelativeSumPtCut_ && failsRelativeSumPtCut);
 
-  return (fails ? 0. : 1.);
+  // We did error checking in the constructor, so this is safe.
+  if (storeRawSumPt_)
+    return totalPt;
+  else if (storeRawOccupancy_)
+    return nOccupants;
+  else
+    return (fails ? 0. : 1.);
 }
 
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationByIsolation);
