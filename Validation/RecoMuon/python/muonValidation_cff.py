@@ -288,12 +288,9 @@ muonValidationCosmic_seq = cms.Sequence(trkCosmicMuonTrackVTrackAssoc
 
 # The muon association and validation sequence
 
-recoMixMuonAssociatorByHits_seq = cms.Sequence(muonMix+trackingParticlesNoSimHits)
-
-recoMuonValidation = cms.Sequence(recoMixMuonAssociatorByHits_seq+
-                                  (muonAssociation_seq*muonValidation_seq)
-                                  +(muonAssociationTEV_seq*muonValidationTEV_seq)
-                                  +(muonAssociationSET_seq*muonValidationSET_seq)
-                                  )
+recoMuonValidation = cms.Sequence((muonAssociation_seq*muonValidation_seq)
+                                 +(muonAssociationTEV_seq*muonValidationTEV_seq)
+                                 +(muonAssociationSET_seq*muonValidationSET_seq)
+                                 )
 
 recoCosmicMuonValidation = cms.Sequence(muonAssociationCosmic_seq*muonValidationCosmic_seq)
