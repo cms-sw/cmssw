@@ -4,12 +4,11 @@
 /** \class HLTFilter
  *
  *  
- *  This class derives from EDFilter and adds a few HLT specific
- *  items. Any and all HLT filters must derive from the HLTFilter
- *  class!
+ *  This class derives from EDFilter and adds a few HLT specific items.
+ *  All HLT filters that wish to save summary objects for the AOD must derive from the HLTFilter class.
  *
- *  $Date: 2006/08/14 15:26:42 $
- *  $Revision: 1.7 $
+ *  $Date: 2012/01/21 14:52:28 $
+ *  $Revision: 1.8 $
  *
  *  \author Martin Grunewald
  *
