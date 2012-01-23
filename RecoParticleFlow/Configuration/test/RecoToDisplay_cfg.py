@@ -8,6 +8,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['startup']
+#process.GlobalTag.globaltag = 'START50_V10::All'
 
 #process.Timing =cms.Service("Timing")
 process.maxEvents = cms.untracked.PSet(
@@ -17,7 +18,10 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-    #"file:reco.root",
+    '/store/relval/CMSSW_5_0_0/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/START50_V8-v2/0073/324BAB7B-C328-E111-B624-00261894389E.root',
+    '/store/relval/CMSSW_5_0_0/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/START50_V8-v2/0073/72BA0554-C328-E111-B2A6-002618943972.root',
+    '/store/relval/CMSSW_5_0_0/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/START50_V8-v2/0073/B44EAD5D-C328-E111-8057-0018F3D096BC.root',
+    '/store/relval/CMSSW_5_0_0/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/START50_V8-v2/0073/EE7D4C4A-0529-E111-84F5-002618943900.root'
     ),
     eventsToProcess = cms.untracked.VEventRange(),
     #eventsToProcess = cms.untracked.VEventRange('1:1217421-1:1217421'),
@@ -31,8 +35,8 @@ process.source = cms.Source(
     duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
 )
 
-from RecoParticleFlow.Configuration.reco_QCDForPF_cff import fileNames
-process.source.fileNames = fileNames
+#from RecoParticleFlow.Configuration.reco_QCDForPF_cff import fileNames
+#process.source.fileNames = fileNames
 
 process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 
@@ -55,6 +59,7 @@ process.reco = cms.OutputModule("PoolOutputModule",
 #process.hbhereflag.hbheInput = 'hbhereco'
 #process.towerMakerPF.hbheInput = 'hbhereflag'
 #process.particleFlowRecHitHCAL.hcalRecHitsHBHE = cms.InputTag("hbhereflag")
+process.particleFlowTmp.useHO = False
 
 # Local re-reco: Produce tracker rechits, pf rechits and pf clusters
 process.localReReco = cms.Sequence(process.siPixelRecHits+
@@ -118,7 +123,7 @@ process.p = cms.Path(process.localReReco+
 
 # And the output.
 process.outpath = cms.EndPath(
-    #process.reco +
+    process.reco + 
     process.display
 )
 

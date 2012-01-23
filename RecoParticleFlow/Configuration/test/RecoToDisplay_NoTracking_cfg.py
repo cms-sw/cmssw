@@ -10,12 +10,11 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 #process.GlobalTag.globaltag = autoCond['mc']
 from Configuration.AlCa.autoCond import autoCond 
 process.GlobalTag.globaltag = cms.string( autoCond[ 'startup' ] )
-
-
+#process.GlobalTag.globaltag = 'START50_V10::All'
 
 #process.Timing =cms.Service("Timing")
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(-1)
 )
 
 process.source = cms.Source(
@@ -28,12 +27,12 @@ process.source = cms.Source(
 )
 
 from RecoParticleFlow.Configuration.reco_QCDForPF_cff import fileNames
-process.source.fileNames = ['/store/relval/CMSSW_4_4_0_pre3/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/START43_V4-v1/0000/0EE664B2-FFA3-E011-918F-002618943882.root',
-                            '/store/relval/CMSSW_4_4_0_pre3/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/START43_V4-v1/0000/644190E4-F0A3-E011-BED0-00304867C1BA.root',
-                            '/store/relval/CMSSW_4_4_0_pre3/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/START43_V4-v1/0000/9A80E178-18A4-E011-B1DD-002618FDA287.root',
-                            '/store/relval/CMSSW_4_4_0_pre3/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/START43_V4-v1/0005/F29B164E-43A6-E011-B2B1-00248C55CC7F.root']
+process.source.fileNames = [ '/store/relval/CMSSW_5_0_0/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/START50_V8-v2/0073/324BAB7B-C328-E111-B624-00261894389E.root',
+                             '/store/relval/CMSSW_5_0_0/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/START50_V8-v2/0073/72BA0554-C328-E111-B2A6-002618943972.root',
+                             '/store/relval/CMSSW_5_0_0/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/START50_V8-v2/0073/B44EAD5D-C328-E111-8057-0018F3D096BC.root',
+                             '/store/relval/CMSSW_5_0_0/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/START50_V8-v2/0073/EE7D4C4A-0529-E111-84F5-002618943900.root'
+    ]
     
-
 process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 
 
@@ -44,16 +43,20 @@ process.display = cms.OutputModule("PoolOutputModule",
 )
 
 # modify reconstruction sequence
-#process.hbhereflag = process.hbhereco.clone()
-#process.hbhereflag.hbheInput = 'hbhereco'
-#process.towerMakerPF.hbheInput = 'hbhereflag'
-#process.particleFlowRecHitHCAL.hcalRecHitsHBHE = cms.InputTag("hbhereflag")
+process.pfTrack.MuColl = cms.InputTag('muons')
 process.particleFlowTmp.muons = cms.InputTag('muons')
-process.particleFlow.FillMuonRefs = False 
+process.particleFlow.FillMuonRefs = False
+#process.particleFlowTmp.useHO = True
+
 
 # Local re-reco: Produce tracker rechits, pf rechits and pf clusters
-process.localReReco = cms.Sequence(process.particleFlowCluster)
+process.localReReco = cms.Sequence(process.particleFlowCluster+
+                                   process.ecalClusters)
 
+
+process.globalReReco = cms.Sequence(process.particleFlowTrackWithDisplacedVertex+
+                                    process.gsfEcalDrivenElectronSequence
+                                    )
 
 # Particle Flow re-processing
 process.pfReReco = cms.Sequence(process.particleFlowReco+
@@ -78,14 +81,18 @@ process.genReReco = cms.Sequence(process.generator+
                                  process.recoGenMET+
                                  process.particleFlowSimParticle)
 
-#process.pfConversions.conversionCollection = cms.InputTag("trackerOnlyConversions", "")
+process.load("RecoParticleFlow.PFProducer.particleFlowCandidateChecker_cfi")
+#process.particleFlowCandidateChecker.pfCandidatesReco = cms.InputTag("particleFlow","","REPROD")
+#process.particleFlowCandidateChecker.pfCandidatesReReco = cms.InputTag("particleFlow","","REPROD2")
+#process.particleFlowCandidateChecker.pfJetsReco = cms.InputTag("ak5PFJets","","REPROD")
+#process.particleFlowCandidateChecker.pfJetsReReco = cms.InputTag("ak5PFJets","","REPROD2")
 
 # The complete reprocessing
 process.p = cms.Path(process.localReReco+
-                     process.particleFlowTrackWithDisplacedVertex+
-                     process.gsfEcalDrivenElectronSequence+
+                     process.globalReReco+
                      process.pfReReco+
                      process.genReReco
+                     #+process.particleFlowCandidateChecker
                      )
 
 # And the output.
@@ -116,6 +123,6 @@ process.options = cms.untracked.PSet(
         'NotFound')
 )
 
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 
