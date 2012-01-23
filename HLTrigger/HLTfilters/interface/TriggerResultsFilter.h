@@ -10,8 +10,8 @@
  *  It has been written as an extension of the HLTHighLevel and HLTHighLevelDev 
  *  filters.
  *
- *  $Date: 2010/07/12 12:25:34 $
- *  $Revision: 1.10 $
+ *  $Date: 2012/01/21 14:56:58 $
+ *  $Revision: 1.11 $
  *
  *  Authors: Martin Grunewald, Andrea Bocci
  *
@@ -20,7 +20,11 @@
 #include <vector>
 #include <string>
 
-#include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "HLTrigger/HLTcore/interface/TriggerExpressionData.h"
 
 // forward declaration
@@ -32,11 +36,11 @@ namespace triggerExpression {
 // class declaration
 //
 
-class TriggerResultsFilter : public HLTFilter {
+class TriggerResultsFilter : public edm::EDFilter {
 public:
   explicit TriggerResultsFilter(const edm::ParameterSet &);
   ~TriggerResultsFilter();
-  virtual bool hltFilter(edm::Event &, const edm::EventSetup &, trigger::TriggerFilterObjectWithRefs & filterproduct);
+  virtual bool filter(edm::Event &, const edm::EventSetup &);
 
 private:
   /// parse the logical expression into functionals

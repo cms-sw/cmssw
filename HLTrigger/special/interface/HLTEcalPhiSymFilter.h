@@ -22,8 +22,8 @@
 //
 // Original Author:  David Futyan
 // HLT Port       :  Stefano Argiro
-//         Created:  $Date: 2009/10/06 08:27:49 $
-// $Id: HLTEcalPhiSymFilter.h,v 1.3 2009/10/06 08:27:49 argiro Exp $
+//         Created:  $Date: 2012/01/21 15:00:13 $
+// $Id: HLTEcalPhiSymFilter.h,v 1.4 2012/01/21 15:00:13 fwyzard Exp $
 //
 //
 
@@ -33,24 +33,23 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "HLTrigger/HLTcore/interface/HLTFilter.h"
-
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
 
 //
 // class decleration
 //
 
-class HLTEcalPhiSymFilter : public HLTFilter {
+class HLTEcalPhiSymFilter : public edm::EDFilter {
    public:
       explicit HLTEcalPhiSymFilter(const edm::ParameterSet&);
       ~HLTEcalPhiSymFilter();
 
 
-      virtual bool hltFilter(edm::Event &, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      virtual bool filter(edm::Event &, const edm::EventSetup&);
    private:
       // ----------member data ---------------------------
 

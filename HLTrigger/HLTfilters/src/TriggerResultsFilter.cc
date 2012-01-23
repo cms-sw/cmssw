@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/07/12 12:25:34 $
- *  $Revision: 1.14 $
+ *  $Date: 2012/01/21 14:56:59 $
+ *  $Revision: 1.15 $
  *
  *  Authors: Martin Grunewald, Andrea Bocci
  *
@@ -29,7 +29,7 @@
 //
 // constructors and destructor
 //
-TriggerResultsFilter::TriggerResultsFilter(const edm::ParameterSet & config) : HLTFilter(config),
+TriggerResultsFilter::TriggerResultsFilter(const edm::ParameterSet & config) :
   m_expression(0),
   m_eventCache(config)
 {
@@ -66,7 +66,7 @@ void TriggerResultsFilter::parse(const std::string & expression) {
     edm::LogWarning("Configuration") << "Couldn't parse trigger results expression \"" << expression << "\"";
 }
 
-bool TriggerResultsFilter::hltFilter(edm::Event & event, const edm::EventSetup & setup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+bool TriggerResultsFilter::filter(edm::Event & event, const edm::EventSetup & setup)
 {
   if (not m_expression)
     // no valid expression has been parsed

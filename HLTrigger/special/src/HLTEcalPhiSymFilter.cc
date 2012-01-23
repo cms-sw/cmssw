@@ -7,7 +7,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-HLTEcalPhiSymFilter::HLTEcalPhiSymFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
+HLTEcalPhiSymFilter::HLTEcalPhiSymFilter(const edm::ParameterSet& iConfig)
 {
   barrelHits_ = iConfig.getParameter< edm::InputTag > ("barrelHitCollection");
   endcapHits_ = iConfig.getParameter< edm::InputTag > ("endcapHitCollection");
@@ -38,7 +38,7 @@ HLTEcalPhiSymFilter::~HLTEcalPhiSymFilter()
 
 // ------------ method called to produce the data  ------------
 bool
-HLTEcalPhiSymFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTEcalPhiSymFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
 

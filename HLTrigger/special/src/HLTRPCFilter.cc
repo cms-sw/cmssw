@@ -12,7 +12,7 @@
 //
 // Original Author:  Camilo Andres Carrillo Montoya
 //         Created:  Thu Oct 29 11:04:22 CET 2009
-// $Id: HLTRPCFilter.cc,v 1.2 2010/02/23 10:20:56 carrillo Exp $
+// $Id: HLTRPCFilter.cc,v 1.3 2012/01/21 15:00:22 fwyzard Exp $
 //
 //
 
@@ -33,7 +33,7 @@
 // constructors and destructor
 //
 
-HLTRPCFilter::HLTRPCFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
+HLTRPCFilter::HLTRPCFilter(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
 
@@ -41,16 +41,13 @@ HLTRPCFilter::HLTRPCFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig
   rpcRecHitsLabel = iConfig.getParameter<edm::InputTag>("rpcRecHits");
   rpcDTPointsLabel  = iConfig.getParameter<edm::InputTag>("rpcDTPoints");
   rpcCSCPointsLabel  = iConfig.getParameter<edm::InputTag>("rpcCSCPoints");
-  
 }
 
 
 HLTRPCFilter::~HLTRPCFilter()
 {
- 
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-
 }
 
 
@@ -59,7 +56,7 @@ HLTRPCFilter::~HLTRPCFilter()
 //
 
 // ------------ method called on each new Event  ------------
-bool HLTRPCFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+bool HLTRPCFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   edm::Handle<RPCRecHitCollection> rpcHits;
   iEvent.getByLabel(rpcRecHitsLabel,rpcHits);
@@ -138,18 +135,6 @@ bool HLTRPCFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
 }
 
 
-
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-HLTRPCFilter::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-HLTRPCFilter::endJob() {
-}
-
 //define this as a plug-in
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(HLTRPCFilter);

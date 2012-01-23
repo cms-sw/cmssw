@@ -4,10 +4,8 @@ using namespace std;
 using namespace edm;
 
 
-HLTEcalResonanceFilter::HLTEcalResonanceFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
+HLTEcalResonanceFilter::HLTEcalResonanceFilter(const edm::ParameterSet& iConfig)
 {
-  
-  
   barrelHits_ = iConfig.getParameter< edm::InputTag > ("barrelHits");
   barrelClusters_ = iConfig.getParameter< edm::InputTag > ("barrelClusters");
   
@@ -130,7 +128,7 @@ HLTEcalResonanceFilter::~HLTEcalResonanceFilter()
 
 // ------------ method called to produce the data  ------------
 bool
-HLTEcalResonanceFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTEcalResonanceFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    
   //Create empty output collections
@@ -864,6 +862,5 @@ void HLTEcalResonanceFilter::makeClusterES(float x, float y, float z,const CaloS
     reco::PreshowerCluster cl1 = presh_algo_->makeOneCluster(strip1,&m_used_strips,&m_esrechit_map,geometry_es,topology_es);   
     reco::PreshowerCluster cl2 = presh_algo_->makeOneCluster(strip2,&m_used_strips,&m_esrechit_map,geometry_es,topology_es); 
   } // end of cycle over ES clusters
-  
   
 }

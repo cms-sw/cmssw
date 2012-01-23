@@ -15,13 +15,12 @@ Description: Producer for EcalRecHits to be used for pi0/eta ECAL calibration.
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-
+#include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -29,8 +28,6 @@ Description: Producer for EcalRecHits to be used for pi0/eta ECAL calibration.
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
-
-#include "HLTrigger/HLTcore/interface/HLTFilter.h"
 // Geometry
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
@@ -41,7 +38,6 @@ Description: Producer for EcalRecHits to be used for pi0/eta ECAL calibration.
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
@@ -71,12 +67,12 @@ Description: Producer for EcalRecHits to be used for pi0/eta ECAL calibration.
 #include "TLorentzVector.h"
 #include <vector>
 
-class HLTEcalResonanceFilter : public HLTFilter {
+class HLTEcalResonanceFilter : public edm::EDFilter {
    public:
       explicit HLTEcalResonanceFilter(const edm::ParameterSet&);
       ~HLTEcalResonanceFilter();
 
-      virtual bool hltFilter(edm::Event &, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      virtual bool filter(edm::Event &, const edm::EventSetup&);
    private:
       // ----------member data ---------------------------
       void doSelection(int detector, const reco::BasicClusterCollection *clusterCollection,
@@ -183,9 +179,4 @@ class HLTEcalResonanceFilter : public HLTFilter {
       
       
       int debug_; 
-      
-      
-      
-      
-
 };
