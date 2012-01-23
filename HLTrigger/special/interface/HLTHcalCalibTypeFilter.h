@@ -15,7 +15,7 @@ Implementation:
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTHcalCalibTypeFilter.h,v 1.5 2009/08/27 13:33:46 gruen Exp $
+// $Id: HLTHcalCalibTypeFilter.h,v 1.6 2012/01/21 15:00:14 fwyzard Exp $
 //
 //
 
@@ -23,8 +23,8 @@ Implementation:
 // include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
 #include <string>
 
@@ -32,14 +32,14 @@ Implementation:
 // class declaration
 //
 
-class HLTHcalCalibTypeFilter : public HLTFilter {
+class HLTHcalCalibTypeFilter : public edm::EDFilter {
 public:
   explicit HLTHcalCalibTypeFilter(const edm::ParameterSet&);
   virtual ~HLTHcalCalibTypeFilter();
   
 private:
   virtual void beginJob(void);
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+  virtual bool filter(edm::Event&, const edm::EventSetup&);
   virtual void endJob(void);
   
   // ----------member data ---------------------------

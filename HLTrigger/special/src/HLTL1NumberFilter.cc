@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Martin Grunewald
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTL1NumberFilter.cc,v 1.1 2009/08/21 08:11:23 bdahmes Exp $
+// $Id: HLTL1NumberFilter.cc,v 1.2 2012/01/21 15:00:21 fwyzard Exp $
 //
 //
 
@@ -33,7 +33,7 @@ Implementation:
 //
 // constructors and destructor
 //
-HLTL1NumberFilter::HLTL1NumberFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
+HLTL1NumberFilter::HLTL1NumberFilter(const edm::ParameterSet& iConfig)
 {
   //now do what ever initialization is needed
   input_  = iConfig.getParameter<edm::InputTag>("rawInput") ;   
@@ -57,7 +57,7 @@ HLTL1NumberFilter::~HLTL1NumberFilter()
 
 // ------------ method called on each new Event  ------------
 bool
-HLTL1NumberFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTL1NumberFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
 
