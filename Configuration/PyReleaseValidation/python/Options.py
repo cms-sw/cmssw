@@ -296,6 +296,11 @@ expertSettings.add_option("--dropDescendant",
                           default=defaultOptions.dropDescendant,
                           action="store_true")
 
+expertSettings.add_option("--donotDropOnInput",
+                          help="when using reSTEP, prevent the automatic product dropping on input",
+                          default=defaultOptions.donotDropOnInput
+                          )
+
 expertSettings.add_option("--restoreRNDSeeds",
                           help="restore the random number engine state",
                           default=False,
