@@ -465,7 +465,7 @@ step3Defaults = { 'cfg'           : 'step3',
                   }
 
 step3 = {}
-step3['DIGIPU']=merge([{'cfg':'step3'},step2['DIGIPU1']])
+step3['DIGIPU']=merge([{'cfg':'step3','--process':'REDIGI'},step2['DIGIPU1']])
 
 step3['RECO']=merge([step3Defaults])
 #step3['RECO2']=merge([stCond,step3Defaults])
