@@ -76,7 +76,7 @@ towerMakerPF.UseHcalRecoveredHits = True
 # flag to allow/disallow missing inputs
 towerMakerPF.AllowMissingInputs = False
 
-particleFlowCluster = cms.Sequence(
+particleFlowClusterWithoutHO = cms.Sequence(
     #caloTowersRec*
     towerMakerPF*
     pfClusteringECAL*
@@ -84,7 +84,7 @@ particleFlowCluster = cms.Sequence(
     pfClusteringPS
 )
 
-particleFlowClusterWithHO = cms.Sequence(
+particleFlowCluster = cms.Sequence(
     #caloTowersRec*
     towerMakerPF*
     pfClusteringECAL*
