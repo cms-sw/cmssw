@@ -3103,9 +3103,11 @@ void PFRootEventManager::particleFlow() {
 
 void PFRootEventManager::pfCandCompare(int entry) {
 
+  /*
   cout << "ievt " << entry <<" : PFCandidate : "
        << " original size : " << pfCandCMSSW_.size()
        << " current  size : " << pfCandidates_->size() << endl;
+  */
 
   bool differentSize = pfCandCMSSW_.size() != pfCandidates_->size();
   if ( differentSize ) { 
@@ -3118,7 +3120,7 @@ void PFRootEventManager::pfCandCompare(int entry) {
       double deltaE = (*pfCandidates_)[i].energy()-pfCandCMSSW_[i].energy();
       double deltaEta = (*pfCandidates_)[i].eta()-pfCandCMSSW_[i].eta();
       double deltaPhi = (*pfCandidates_)[i].phi()-pfCandCMSSW_[i].phi();
-      if ( fabs(deltaE) > 2E-5 ||
+      if ( fabs(deltaE) > 1E-4 ||
 	   fabs(deltaEta) > 1E-9 ||
 	   fabs(deltaPhi) > 1E-9 ) { 
 	cout << "+++WARNING+++ PFCandidate " << i 
