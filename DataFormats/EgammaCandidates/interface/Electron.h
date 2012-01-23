@@ -6,10 +6,11 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Electron.h,v 1.11 2008/04/30 07:46:08 llista Exp $
+ * \version $Id: Electron.h,v 1.12 2009/03/20 22:59:16 chamont Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 
 namespace reco {
 
@@ -29,10 +30,14 @@ namespace reco {
     virtual reco::TrackRef track() const;
     /// reference to a SuperCluster
     virtual reco::SuperClusterRef superCluster() const;
+    /// reference to a GsfTrack
+    virtual reco::GsfTrackRef gsfTrack() const;
     /// set refrence to Photon component
     void setSuperCluster( const reco::SuperClusterRef & r ) { superCluster_ = r; }
     /// set refrence to Track component
     void setTrack( const reco::TrackRef & r ) { track_ = r; }
+    /// set reference to GsfTrack component
+    void setGsfTrack( const reco::GsfTrackRef & r ) { gsfTrack_ = r; }
 
     bool isElectron() const;
   private:
@@ -42,6 +47,8 @@ namespace reco {
     reco::SuperClusterRef superCluster_;
     /// reference to a Track
     reco::TrackRef track_;
+    /// reference to a GsfTrack;
+    reco::GsfTrackRef gsfTrack_;
   };
 
 }
