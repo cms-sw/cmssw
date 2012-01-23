@@ -618,7 +618,6 @@ namespace edm {
       rootFile_->setAtEventEntry(-1);
       return readOneSequential();
     }
-    std::cerr << "BARF SEQ: " << ep->id() << std::endl;
     return ep;
   }
 
@@ -644,7 +643,6 @@ namespace edm {
         return readOneSequentialWithID(id);
       }
     }
-    std::cerr << "BARF SEQ ID: " << ep->id() << std::endl;
     return ep;
   }
 
@@ -660,7 +658,6 @@ namespace edm {
     }
     EventPrincipal* ep = rootFile_->clearAndReadCurrentEvent(rootFile_->secondaryEventPrincipal());
     assert(ep != 0);
-    std::cerr << "BARF SPEC: " << ep->id() << std::endl;
     return ep;
   }
 
@@ -699,7 +696,6 @@ namespace edm {
       assert(ep != 0);
     }
     --eventsRemainingInFile_;
-    std::cerr << "BARF RAND: " << ep->id() << std::endl;
     return ep;
   }
 
@@ -741,7 +737,6 @@ namespace edm {
         return readOneRandomWithID(id);
       }
     }
-    std::cerr << "BARF RAND ID: " << ep->id() << std::endl;
     return ep;
   }
 
