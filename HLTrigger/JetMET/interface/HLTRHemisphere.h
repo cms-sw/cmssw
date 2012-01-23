@@ -1,9 +1,11 @@
 #ifndef HLTRHemisphere_h
 #define HLTRHemisphere_h
 
-#include "HLTrigger/HLTcore/interface/HLTFilter.h"
-#include<vector>
-#include "TLorentzVector.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 namespace edm {
    class ConfigurationDescriptions;

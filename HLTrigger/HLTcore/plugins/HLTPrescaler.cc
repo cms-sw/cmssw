@@ -7,13 +7,13 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
-#include "HLTrigger/HLTcore/interface/HLTPrescaler.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-
+#include "FWCore/Framework/interface/CurrentProcessingContext.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "HLTrigger/HLTcore/interface/HLTPrescaler.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // initialize static member variables

@@ -4,17 +4,20 @@
 /** \class HLTPrescaler
  *
  *  
- *  This class is an HLTFilter (-> EDFilter) implementing an HLT
+ *  This class is an EDFilter implementing an HLT
  *  Prescaler module with associated book keeping.
  *
- *  $Date: 2012/01/21 14:52:28 $
- *  $Revision: 1.20 $
+ *  $Date: 2012/01/22 22:32:14 $
+ *  $Revision: 1.21 $
  *
  *  \author Martin Grunewald
  *  \author Philipp Schieferdecker
  */
 
-#include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PrescaleService/interface/PrescaleService.h"
 
 
