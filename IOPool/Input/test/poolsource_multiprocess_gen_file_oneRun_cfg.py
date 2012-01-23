@@ -13,8 +13,8 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("EmptySource",
     firstRun = cms.untracked.uint32(100),
     numberEventsInRun = cms.untracked.uint32(500),
-    firstTime = cms.untracked.uint32(1000),
-    timeBetweenEvents = cms.untracked.uint32(10)
+    firstTime = cms.untracked.uint64(1000),
+    timeBetweenEvents = cms.untracked.uint64(10)
 )
 
 process.out = cms.OutputModule("PoolOutputModule", fileName = cms.untracked.string("multiprocess_oneRun_test.root"))
