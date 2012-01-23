@@ -79,9 +79,24 @@ FreeTrajectoryState FastHelix::helixStateAtVertex() const {
   //in transverse plane
   //pz = pT*(dz/d(R*phi)))
   
-  FastLine flfit(theOuterHit, theMiddleHit, theCircle.rho());
-  double dzdrphi = -flfit.n1()/flfit.n2();
+
+  // VU 23/01/2012
+  double dzdrphi = theMiddleHit.z() - theInnerHit.z();
+  if (rho>0.) dzdrphi /=
+			    (rho*acos(((theOuterHit.x()-theCircle.x0())*(theMiddleHit.x()-theCircle.x0()) +
+				       (theOuterHit.y()-theCircle.y0())*(theMiddleHit.y()-theCircle.y0())
+				       )/(rho*rho)
+				      )
+			     );
   double pz = pt*dzdrphi;
+
+  // old crap
+  FastLine flfit(theOuterHit, theMiddleHit, theCircle.rho());
+  double dzdrphi2 = -flfit.n1()/flfit.n2();
+
+  if (fabs(dzdrphi2-dzdrphi)>1.e-5) 
+    std::cout << "FastHelix: old,new" << dzdrphi2 <<", " <<  dzdrphi << std::endl; 
+
   //get sign of particle
 
   GlobalVector magvtx=pSetup->inTesla(v);
