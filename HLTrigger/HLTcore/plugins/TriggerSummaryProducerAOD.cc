@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/11/08 15:47:45 $
- *  $Revision: 1.42 $
+ *  $Date: 2010/11/09 13:58:43 $
+ *  $Revision: 1.43 $
  *
  *  \author Martin Grunewald
  *
@@ -44,6 +44,9 @@
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
+
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
 
 #include <algorithm>
 #include <typeinfo>
@@ -237,6 +240,8 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
    fillTriggerObjectCollections<           L1EtMissParticleCollection>(iEvent);
    fillTriggerObjectCollections<                  L1HFRingsCollection>(iEvent);
    ///
+   fillTriggerObjectCollections<                      PFJetCollection>(iEvent);
+   ///
    const unsigned int nk(tags_.size());
    LogDebug("TriggerSummaryProducerAOD") << "Number of collections found: " << nk;
    const unsigned int no(toc_.size());
@@ -272,6 +277,7 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
        fillFilterObjectMembers(iEvent,filterTag,fobs_[ifob]->l1jetIds()    ,fobs_[ifob]->l1jetRefs());
        fillFilterObjectMembers(iEvent,filterTag,fobs_[ifob]->l1etmissIds() ,fobs_[ifob]->l1etmissRefs());
        fillFilterObjectMembers(iEvent,filterTag,fobs_[ifob]->l1hfringsIds(),fobs_[ifob]->l1hfringsRefs());
+       fillFilterObjectMembers(iEvent,filterTag,fobs_[ifob]->pfjetIds()    ,fobs_[ifob]->pfjetRefs());
        product->addFilter(filterTag,ids_,keys_);
      }
    }

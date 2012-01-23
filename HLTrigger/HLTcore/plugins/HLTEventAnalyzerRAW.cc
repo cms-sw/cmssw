@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/02/19 14:26:53 $
- *  $Revision: 1.11 $
+ *  $Date: 2010/07/14 15:30:08 $
+ *  $Revision: 1.12 $
  *
  *  \author Martin Grunewald
  *
@@ -27,6 +27,7 @@
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
 
 #include <cassert>
 
@@ -190,6 +191,8 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const edm::Event& iEvent, const edm::Ev
   l1etmissRefs_.clear();
   l1hfringsIds_.clear();
   l1hfringsRefs_.clear();
+  pfjetIds_.clear();
+  pfjetRefs_.clear();
 
   // Attention: must look only for modules actually run in this path
   // for this event!
@@ -349,6 +352,17 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const edm::Event& iEvent, const edm::Ev
 	       << " " << l1hfringsRefs_[i]->hfBitCount(l1extra::L1HFRings::kRing1NegEta)
 	       << " " << l1hfringsRefs_[i]->hfBitCount(l1extra::L1HFRings::kRing2PosEta)
 	       << " " << l1hfringsRefs_[i]->hfBitCount(l1extra::L1HFRings::kRing2NegEta)
+	       << endl;
+	}
+      }
+
+      triggerEventWithRefsHandle_->getObjects(filterIndex,pfjetIds_,pfjetRefs_);
+      const unsigned int nPfjets(pfjetIds_.size());
+      if (nPfjets>0) {
+	cout << "   Pfjets: " << nPfjets << "  - the objects: # id pt" << endl;
+	for (unsigned int i=0; i!=nPfjets; ++i) {
+	  cout << "   " << i << " " << pfjetIds_[i]
+	       << " " << pfjetRefs_[i]->pt()
 	       << endl;
 	}
       }

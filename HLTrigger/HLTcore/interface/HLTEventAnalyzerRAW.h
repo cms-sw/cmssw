@@ -6,8 +6,8 @@
  *  
  *  This class is an EDAnalyzer analyzing the combined HLT information for RAW
  *
- *  $Date: 2010/02/19 14:26:53 $
- *  $Revision: 1.5 $
+ *  $Date: 2010/07/14 15:30:07 $
+ *  $Revision: 1.6 $
  *
  *  \author Martin Grunewald
  *
@@ -75,6 +75,9 @@ class HLTEventAnalyzerRAW : public edm::EDAnalyzer {
   trigger::VRl1etmiss  l1etmissRefs_;
   trigger::Vids        l1hfringsIds_;
   trigger::VRl1hfrings l1hfringsRefs_;
+
+  trigger::Vids        pfjetIds_;
+  trigger::VRpfjet     pfjetRefs_;
 
 };
 #endif
