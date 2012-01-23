@@ -1,22 +1,22 @@
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
-class HLTDynamicPrescaler : public HLTFilter {
+class HLTDynamicPrescaler : public edm::EDFilter {
 public:
   explicit HLTDynamicPrescaler(edm::ParameterSet const & configuration);
   ~HLTDynamicPrescaler();
 
-  bool hltFilter(edm::Event & event, edm::EventSetup const & setup, trigger::TriggerFilterObjectWithRefs & filterproduct);
-  void endJob();
+  bool filter(edm::Event & event, edm::EventSetup const & setup);
 
 private:
   unsigned int m_count;     // event counter
   unsigned int m_scale;     // accept one event every m_scale, which will change dynamically
 };
 
-HLTDynamicPrescaler::HLTDynamicPrescaler(edm::ParameterSet const & configuration) : HLTFilter(configuration),
+HLTDynamicPrescaler::HLTDynamicPrescaler(edm::ParameterSet const & configuration) :
   m_count(0),
   m_scale(1) { 
 }
@@ -24,7 +24,7 @@ HLTDynamicPrescaler::HLTDynamicPrescaler(edm::ParameterSet const & configuration
 HLTDynamicPrescaler::~HLTDynamicPrescaler() {
 }
 
-bool HLTDynamicPrescaler::hltFilter(edm::Event & event, edm::EventSetup const & setup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
+bool HLTDynamicPrescaler::filter(edm::Event & event, edm::EventSetup const & setup) {
   ++m_count;
 
   if (m_count % m_scale)
@@ -34,9 +34,6 @@ bool HLTDynamicPrescaler::hltFilter(edm::Event & event, edm::EventSetup const & 
     m_scale = m_count;
   
   return true;
-}
-
-void HLTDynamicPrescaler::endJob() {
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

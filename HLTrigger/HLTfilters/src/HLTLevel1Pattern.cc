@@ -1,12 +1,12 @@
 /** \class HLTLevel1Pattern
  *
  *
- *  This class is an HLTFilter (-> EDFilter)
+ *  This class is an EDFilter
  *  that checks for a specific pattern of L1 accept/reject in 5 BX's for a given L1 bit
  *  It can be configured to use or ignore the L1 trigger mask
  *
- *  $Date: 2011/02/23 17:10:54 $
- *  $Revision: 1.7 $
+ *  $Date: 2012/01/21 14:56:59 $
+ *  $Revision: 1.8 $
  *
  *  \author Andrea Bocci
  *
@@ -15,27 +15,28 @@
 #include <vector>
 
 #include "FWCore/Framework/interface/ESWatcher.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskTechTrigRcd.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
-#include "HLTrigger/HLTcore/interface/HLTFilter.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 
 //
 // class declaration
 //
 
-class HLTLevel1Pattern : public HLTFilter {
+class HLTLevel1Pattern : public edm::EDFilter {
 public:
   explicit HLTLevel1Pattern(const edm::ParameterSet&);
   ~HLTLevel1Pattern();
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+  virtual bool filter(edm::Event&, const edm::EventSetup&);
 
 private:
   edm::InputTag     m_gtReadoutRecord;
@@ -67,7 +68,7 @@ private:
 //
 // constructors and destructor
 //
-HLTLevel1Pattern::HLTLevel1Pattern(const edm::ParameterSet & config) : HLTFilter(config),
+HLTLevel1Pattern::HLTLevel1Pattern(const edm::ParameterSet & config) :
   m_gtReadoutRecord( config.getParameter<edm::InputTag>     ("L1GtReadoutRecordTag") ),
   m_triggerBit(      config.getParameter<std::string>       ("triggerBit") ),
   m_bunchCrossings(  config.getParameter<std::vector<int> > ("bunchCrossings") ),
@@ -130,7 +131,7 @@ HLTLevel1Pattern::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 
 // ------------ method called to produce the data  ------------
 bool
-HLTLevel1Pattern::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTLevel1Pattern::filter(edm::Event& event, const edm::EventSetup& setup)
 {
   // determine the L1 algo or tech bit to use
   if (m_watchL1Menu.check(setup)) {

@@ -1,39 +1,38 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/02/11 15:19:31 $
- *  $Revision: 1.3 $
+ *  $Date: 2012/01/21 15:00:15 $
+ *  $Revision: 1.4 $
  *  \author G. Cerminara - INFN Torino
  */
 
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "EventFilter/DTRawToDigi/interface/DTDDUWords.h"
 #include "HLTrigger/special/interface/HLTDTROMonitorFilter.h"
-
-#include <FWCore/Framework/interface/Event.h>
-
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
-
-#include <DataFormats/FEDRawData/interface/FEDRawData.h>
-#include <DataFormats/FEDRawData/interface/FEDNumbering.h>
-#include <EventFilter/DTRawToDigi/interface/DTDDUWords.h>
 
 using namespace edm;
 
 
-HLTDTROMonitorFilter::HLTDTROMonitorFilter(const edm::ParameterSet& pset) : HLTFilter(pset) {
+HLTDTROMonitorFilter::HLTDTROMonitorFilter(const edm::ParameterSet& pset)
+{
   inputLabel = pset.getParameter<InputTag>("inputLabel");
-
-
 }
 
 HLTDTROMonitorFilter::~HLTDTROMonitorFilter(){}
 
 
-bool HLTDTROMonitorFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
+bool HLTDTROMonitorFilter::filter(edm::Event& event, const edm::EventSetup& setup) {
   // get the raw data
+  edm::Handle<FEDRawDataCollection> rawdata;
   event.getByLabel(inputLabel, rawdata);
-  
 
   // Loop over the DT FEDs
   int FEDIDmin = FEDNumbering::MINDTFEDID;

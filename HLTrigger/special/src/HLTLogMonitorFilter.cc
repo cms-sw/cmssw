@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Bocci
 //         Created:  Thu Nov  5 15:16:46 CET 2009
-// $Id: HLTLogMonitorFilter.cc,v 1.8 2009/11/18 15:23:20 fwyzard Exp $
+// $Id: HLTLogMonitorFilter.cc,v 1.9 2012/01/21 15:00:21 fwyzard Exp $
 //
 
 
@@ -24,15 +24,16 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Provenance/interface/EventID.h"
-#include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
 //
 // class declaration
 //
 
-class HLTLogMonitorFilter : public HLTFilter {
+class HLTLogMonitorFilter : public edm::EDFilter {
 public:
     explicit HLTLogMonitorFilter(const edm::ParameterSet &);
     ~HLTLogMonitorFilter();
@@ -80,7 +81,7 @@ private:
     // ---------- private methods -----------------------
 
     /// EDFilter accept method
-    virtual bool hltFilter(edm::Event&, const edm::EventSetup &, trigger::TriggerFilterObjectWithRefs & filterproduct);
+    virtual bool filter(edm::Event&, const edm::EventSetup &);
 
     /// EDFilter beginJob method
     virtual void beginJob(void);
@@ -122,7 +123,7 @@ private:
 //
 // constructors and destructor
 //
-HLTLogMonitorFilter::HLTLogMonitorFilter(const edm::ParameterSet & config) : HLTFilter(config),
+HLTLogMonitorFilter::HLTLogMonitorFilter(const edm::ParameterSet & config) :
   m_prescale(),
   m_data()
 {
@@ -149,7 +150,7 @@ HLTLogMonitorFilter::~HLTLogMonitorFilter()
 //
 
 // ------------ method called on each new Event  ------------
-bool HLTLogMonitorFilter::hltFilter(edm::Event & event, const edm::EventSetup & setup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
+bool HLTLogMonitorFilter::filter(edm::Event & event, const edm::EventSetup & setup) {
   // no LogErrors or LogWarnings, skip processing and reject the event
   if (not edm::MessageSender::freshError)
     return false;

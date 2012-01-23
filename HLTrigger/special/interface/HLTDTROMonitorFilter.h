@@ -4,17 +4,18 @@
 /** \class HLTDTROMonitorFilter.h
  *  No description available.
  *
- *  $Date: 2009/07/14 10:12:22 $
- *  $Revision: 1.1 $
+ *  $Date: 2012/01/21 15:00:13 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
-#include "HLTrigger/HLTcore/interface/HLTFilter.h"
-#include <DataFormats/Common/interface/Handle.h>
-#include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
-
-class HLTDTROMonitorFilter : public HLTFilter {
+class HLTDTROMonitorFilter : public edm::EDFilter {
 public:
   /// Constructor
   HLTDTROMonitorFilter(const edm::ParameterSet&);
@@ -23,17 +24,12 @@ public:
   virtual ~HLTDTROMonitorFilter();
 
   // Operations
-  virtual bool hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct);
+  virtual bool filter(edm::Event& event, const edm::EventSetup& setup);
   
 protected:
 
 private:
-  // Get the data integrity service
-  edm::Handle<FEDRawDataCollection> rawdata;
-
-  /// if not you need the label
   edm::InputTag inputLabel;
-
 };
 #endif
 
