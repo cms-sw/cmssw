@@ -27,7 +27,15 @@
 
 #include "L1Trigger/CSCTrackFinder/test/src/RunSRLUTs.h"
 
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "DataFormats/Luminosity/interface/LumiSummary.h"
+
 #include "TH1F.h"
+#include "TFile.h"
+#include "TTree.h"
 
 using namespace std;
 using namespace edm;
@@ -42,14 +50,26 @@ class LCTOccupancies : public edm::EDAnalyzer {
       virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
+      virtual void beginLuminosityBlock(edm::LuminosityBlock const& iLumiBlock, 
+					edm::EventSetup const& iSetup);
 
       // ----------member data ---------------------------
 
   //TH1F* rateHist;
 
 	edm::InputTag lctsTag;	
+	edm::InputTag vertexColTag;	
   	edm::Service<TFileService> fs;
         csctf_analysis::RunSRLUTs* runSRLUTs;
+	float insLumi;
+	int nVertex;
+	bool haveRECO;
+	int singleSectorNum;
+	std::string outTreeFileName;
+
+	TH1F* hNVertex;
+	TH1F* hInsLumi;
+
 	TH1F* hMPCLink;
 	TH1F* hLocalPhi;
 	TH1F* hPhi;
@@ -84,10 +104,26 @@ class LCTOccupancies : public edm::EDAnalyzer {
 	TH1F* hOccME42;
 	TH1F* hOccME42SingleSector;
 
-	std::vector<TH1F*> hOccME1Chambs;
+	std::vector<TH1F*> hOccME1ChambsSubSec1;
+	std::vector<TH1F*> hOccME1ChambsSubSec2;
 	std::vector<TH1F*> hOccME2Chambs;
 	std::vector<TH1F*> hOccME3Chambs;
 	std::vector<TH1F*> hOccME4Chambs;
+
+	//Tree stuff
+	TFile* treeFile;
+	TTree* tree;
+	std::vector<int> occStation1SubSec1;
+	std::vector<int> occStation1SubSec2;
+	std::vector<int> occStation2;
+	std::vector<int> occStation3;
+	std::vector<int> occStation4;
+
+	std::vector<std::vector<int> > occME1ChamberSubSec1;
+	std::vector<std::vector<int> > occME1ChamberSubSec2;
+	std::vector<std::vector<int> > occME2Chamber;
+	std::vector<std::vector<int> > occME3Chamber;
+	std::vector<std::vector<int> > occME4Chamber;
 };
 //
 // constants, enums and typedefs
@@ -106,6 +142,43 @@ LCTOccupancies::LCTOccupancies(const edm::ParameterSet& iConfig)
    //now do what ever initialization is needed
    runSRLUTs = new csctf_analysis::RunSRLUTs();
    lctsTag= iConfig.getParameter<edm::InputTag>("lctsTag");
+   vertexColTag= iConfig.getParameter<edm::InputTag>("vertexColTag");
+   outTreeFileName= iConfig.getUntrackedParameter<std::string>("outTreeFileName");
+   haveRECO = iConfig.getUntrackedParameter<bool>("haveRECO");
+   singleSectorNum = iConfig.getUntrackedParameter<int>("singleSectorNum");
+   
+   treeFile = new TFile(outTreeFileName.c_str(),"RECREATE");
+   tree = new TTree("tree","tree");
+
+   occStation1SubSec1 = std::vector<int>(12,0);
+   occStation1SubSec2 = std::vector<int>(12,0);
+   occStation2 = std::vector<int>(12,0);
+   occStation3 = std::vector<int>(12,0);
+   occStation4 = std::vector<int>(12,0);
+
+   for(int iSector = 0; iSector<12; iSector++)
+   {
+      occME1ChamberSubSec1.push_back(std::vector<int>(12,0));
+      occME1ChamberSubSec2.push_back(std::vector<int>(12,0));
+      occME2Chamber.push_back(std::vector<int>(9,0));
+      occME3Chamber.push_back(std::vector<int>(9,0));
+      occME4Chamber.push_back(std::vector<int>(9,0));
+   }
+
+   tree->Branch("nVertex",&nVertex,"nVertex/I");  
+   tree->Branch("insLumi",&insLumi,"insLumi/F");  
+
+   tree->Branch("occStation1SubSec1","vector<int>",&occStation1SubSec1);
+   tree->Branch("occStation1SubSec2","vector<int>",&occStation1SubSec2);
+   tree->Branch("occStation2","vector<int>",&occStation2);
+   tree->Branch("occStation3","vector<int>",&occStation3);
+   tree->Branch("occStation4","vector<int>",&occStation4);
+
+   tree->Branch("occME1ChamberSubSec1","vector<std::vector<int> >",&occME1ChamberSubSec1);
+   tree->Branch("occME1ChamberSubSec2","vector<std::vector<int> >",&occME1ChamberSubSec2);
+   tree->Branch("occME2Chamber","vector<std::vector<int> >",&occME2Chamber);
+   tree->Branch("occME3Chamber","vector<std::vector<int> >",&occME3Chamber);
+   tree->Branch("occME4Chamber","vector<std::vector<int> >",&occME4Chamber);
 }
 
 
@@ -115,6 +188,8 @@ LCTOccupancies::~LCTOccupancies()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
+   treeFile->cd();
+   tree->Write();
    delete runSRLUTs;
 }
 
@@ -130,6 +205,7 @@ LCTOccupancies::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   ///////////////////
   //Setup Stuff//////
   ///////////////////
+  nVertex=0;
 
   std::vector<csctf::TrackStub> stubs;
   std::vector<csctf::TrackStub>::const_iterator stub;
@@ -144,11 +220,9 @@ LCTOccupancies::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::vector<csctf::TrackStub>::const_iterator ts = trackStubs->begin();
   std::vector<csctf::TrackStub>::const_iterator tsEnd = trackStubs->end();
 
-  std::vector<int> occStation1SubSec1(12,0);
-  std::vector<int> occStation1SubSec2(12,0);
-  std::vector<int> occStation2(12,0);
-  std::vector<int> occStation3(12,0);
-  std::vector<int> occStation4(12,0);
+  for(unsigned i=0;i<12;i++)
+  {
+  }
 
   std::vector<int> occME11a(24,0);
   std::vector<int> occME11b(24,0);
@@ -162,19 +236,24 @@ LCTOccupancies::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::vector<int> occME42(12,0);
   int occME42SingleSector=0;
 
-  std::vector< std::vector<int> > occME1Chamber;
-  std::vector< std::vector<int> > occME2Chamber;
-  std::vector< std::vector<int> > occME3Chamber;
-  std::vector< std::vector<int> > occME4Chamber;
-  for(int iSubSectors = 0; iSubSectors<24; iSubSectors++)
+  for(int iSectors = 0; iSectors<12; iSectors++)
   {
-    occME1Chamber.push_back(std::vector<int>(12,0));
-    if(iSubSectors<12)
+   occStation1SubSec1[iSectors]=0;
+   occStation1SubSec2[iSectors]=0;
+   occStation2[iSectors]=0;
+   occStation3[iSectors]=0;
+   occStation4[iSectors]=0;
+   for(int iChambers = 0; iChambers<12; iChambers++)
+   {
+    occME1ChamberSubSec1[iSectors][iChambers]=0;
+    occME1ChamberSubSec2[iSectors][iChambers]=0;
+    if(iChambers<9)
     {
-      occME2Chamber.push_back(std::vector<int>(9,0));
-      occME3Chamber.push_back(std::vector<int>(9,0));
-      occME4Chamber.push_back(std::vector<int>(9,0));
+      occME2Chamber[iSectors][iChambers]=0;
+      occME3Chamber[iSectors][iChambers]=0;
+      occME4Chamber[iSectors][iChambers]=0;
     }
+   }
   }
 
   for (;ts != tsEnd; ts++)
@@ -194,6 +273,8 @@ LCTOccupancies::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	unsigned sector = ts->sector()-1;
 
+	if(ts->BX() != 0)
+		continue;
 	hMPCLink->Fill(ts->getMPCLink());
 	hLocalPhi->Fill(ts->phiValue());
 	hPhi->Fill(ts->phiValue()+15.0*M_PI/180+(sector)*60.0*M_PI/180); 
@@ -218,12 +299,17 @@ LCTOccupancies::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	hSector->Fill(sector+1);
 	hStation->Fill(station);
 	hSubSector->Fill(subsector);
-        //std::cout << "my sector packed: " << sector << std::endl << std::endl;
+
+        //std::cout << "station: " << station << std::endl;
+        //std::cout << "my sector packed: " << sector << std::endl;
+        //std::cout << "trigger Chamber: " << triggerChamber << std::endl;
+	
+	station = abs(station);
 	if (station==1)
 	{
 	  if(subsector==1)
 	  {
-  		occME1Chamber[sector][triggerChamber-1]++;
+  		occME1ChamberSubSec1[sector][triggerChamber-1]++;
 		occStation1SubSec1[sector]++;
 		if (ring==4)
 		  occME11a[sector]++;
@@ -236,7 +322,7 @@ LCTOccupancies::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           }
 	  else
 	  {
-  		occME1Chamber[sector+12][triggerChamber-1]++;
+  		occME1ChamberSubSec2[sector][triggerChamber-1]++;
 		occStation1SubSec2[sector]++;
 		if (ring==4)
 		  occME11a[sector+12]++;
@@ -284,6 +370,8 @@ LCTOccupancies::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   for (unsigned iSector=0; iSector<12; iSector++)
   {
+    if (singleSectorNum != -1 && singleSectorNum != (int) iSector)
+	continue;
     hOccStation1SubSec1->Fill(occStation1SubSec1[iSector]);
     hOccStation1SubSec2->Fill(occStation1SubSec2[iSector]);
     hOccStation2->Fill(occStation2[iSector]);
@@ -309,6 +397,9 @@ LCTOccupancies::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   for (unsigned iSector=0; iSector<24; iSector++)
   {
+    if (singleSectorNum != -1 && abs(singleSectorNum) != (int) iSector
+		&& abs(singleSectorNum) != (int) iSector-12)
+	continue;
     hOccME11a->Fill(occME11a[iSector]);
     hOccME11b->Fill(occME11b[iSector]);
     hOccME12->Fill(occME12[iSector]);
@@ -327,18 +418,41 @@ LCTOccupancies::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   for (unsigned iChamb=0; iChamb<12;iChamb++)
   {
-    for (unsigned iSubSector=0; iSubSector<24;iSubSector++)
+    for (unsigned iSector=0; iSector<12;iSector++)
     {
-      hOccME1Chambs[iChamb]->Fill(occME1Chamber[iSubSector][iChamb]);
-      if(iChamb<9 && iSubSector<12)
+      if (singleSectorNum != -1 && abs(singleSectorNum) != (int) iSector
+		&& abs(singleSectorNum) != (int) iSector-12)
+	  continue;
+      hOccME1ChambsSubSec1[iChamb]->Fill(occME1ChamberSubSec1[iSector][iChamb]);
+      hOccME1ChambsSubSec2[iChamb]->Fill(occME1ChamberSubSec2[iSector][iChamb]);
+      if(iChamb<9)
       {
-        hOccME2Chambs[iChamb]->Fill(occME2Chamber[iSubSector][iChamb]);
-        hOccME3Chambs[iChamb]->Fill(occME3Chamber[iSubSector][iChamb]);
-        hOccME4Chambs[iChamb]->Fill(occME4Chamber[iSubSector][iChamb]);
+        hOccME2Chambs[iChamb]->Fill(occME2Chamber[iSector][iChamb]);
+        hOccME3Chambs[iChamb]->Fill(occME3Chamber[iSector][iChamb]);
+        hOccME4Chambs[iChamb]->Fill(occME4Chamber[iSector][iChamb]);
       }
     }
   }
 
+  //Vertex Counting
+
+  if(haveRECO)
+   if(vertexColTag.label() != "null")
+   {
+     edm::Handle<reco::VertexCollection> vertexCol;
+     iEvent.getByLabel(vertexColTag,vertexCol);
+     reco::VertexCollection::const_iterator vertex;
+     for(vertex = vertexCol->begin(); vertex != vertexCol->end(); vertex++)
+     {
+  	if(vertex->isValid() && !vertex->isFake()) //&& vertex->normalizedChi2()<10)
+  		nVertex++;
+     }
+     //std::cout << "nVertex: " << nVertex << std::endl;
+     //std::cout << "luminosity: " <<insLumi << std::endl;
+     hNVertex->Fill(nVertex);
+   }
+
+  tree->Fill();
 }
 
 
@@ -346,6 +460,14 @@ LCTOccupancies::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void 
 LCTOccupancies::beginJob()
 {
+
+  hNVertex=fs->make<TH1F>("NVertex","N Primary Vertices",30,0,30);
+  hNVertex->GetXaxis()->SetTitle("N Primary Vertices");
+  hNVertex->GetYaxis()->SetTitle("Counts");
+  hInsLumi=fs->make<TH1F>("InsLumi","Lumi Section Instantanious Luminosity",10000,0,1000000);
+  hInsLumi->GetXaxis()->SetTitle("Lumi Section Instantanious Luminosity (Uncorrected HF--10^{30} cm^{2}s^{-1})");
+  hInsLumi->GetYaxis()->SetTitle("Counts");
+
   hMPCLink=fs->make<TH1F>("MPCLink","Stub MPC Link Number",5,-1,4);
   hMPCLink->GetXaxis()->SetTitle("MPC Link");
   hMPCLink->GetYaxis()->SetTitle("Counts");
@@ -452,7 +574,8 @@ LCTOccupancies::beginJob()
 	TH1F* tempHist = chambsME1Dir.make<TH1F>(tmpName.str().c_str(),tmpTitle.str().c_str(),3,-0.5,2.5);
 	tempHist->GetXaxis()->SetTitle(tmpTitle.str().c_str());
 	tempHist->GetYaxis()->SetTitle("Counts");
-	hOccME1Chambs.push_back(tempHist);
+	hOccME1ChambsSubSec1.push_back(tempHist);
+	hOccME1ChambsSubSec2.push_back((TH1F*) tempHist->Clone());
   }
 
   for(int i=0; i<9;i++)
@@ -507,6 +630,24 @@ LCTOccupancies::endJob()
   hOccAddStations->Add(hOccStation2);
   hOccAddStations->Add(hOccStation3);
   hOccAddStations->Add(hOccStation4);
+}
+
+void
+LCTOccupancies::beginLuminosityBlock(edm::LuminosityBlock const& iLumiBlock, 
+                                         edm::EventSetup const& iSetup)
+{
+  if(haveRECO)
+  {
+   edm::Handle<LumiSummary> lumiSummary;
+   iLumiBlock.getByLabel("lumiProducer", lumiSummary);
+ 
+   //
+   //collect lumi. 
+   //
+   insLumi=lumiSummary->avgInsDelLumi();//*93.244;
+   //std::cout << "luminosity: " <<insLumi << std::endl;
+   hInsLumi->Fill(insLumi);
+  }
 }
 
 //define this as a plug-in
