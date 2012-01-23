@@ -12,8 +12,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2009/04/08 16:39:24 $
- *  $Revision: 1.13 $
+ *  $Date: 2009/04/17 17:13:09 $
+ *  $Revision: 1.14 $
  *
  *  \author Martin Grunewald
  *
@@ -39,6 +39,8 @@
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
 
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+
 #include <cassert>
 #include <vector>
 
@@ -61,6 +63,8 @@ namespace trigger
   typedef std::vector<l1extra::L1JetParticleRef>            VRl1jet;
   typedef std::vector<l1extra::L1EtMissParticleRef>         VRl1etmiss;
   typedef std::vector<l1extra::L1HFRingsRef>                VRl1hfrings;
+
+  typedef std::vector<reco::PFJetRef>                       VRpfjet;
 
   class TriggerRefsCollections {
 
@@ -94,6 +98,9 @@ namespace trigger
     VRl1etmiss  l1etmissRefs_;
     Vids        l1hfringsIds_;
     VRl1hfrings l1hfringsRefs_;
+
+    Vids        pfjetIds_;
+    VRpfjet     pfjetRefs_;
     
   /// methods
   public:
@@ -112,7 +119,9 @@ namespace trigger
       l1muonIds_(), l1muonRefs_(),
       l1jetIds_(), l1jetRefs_(),
       l1etmissIds_(), l1etmissRefs_(),
-      l1hfringsIds_(), l1hfringsRefs_()
+      l1hfringsIds_(), l1hfringsRefs_(),
+
+      pfjetIds_(), pfjetRefs_()
       { }
 
     /// utility
@@ -144,6 +153,9 @@ namespace trigger
       std::swap(l1etmissRefs_,  other.l1etmissRefs_);
       std::swap(l1hfringsIds_,  other.l1hfringsIds_);
       std::swap(l1hfringsRefs_, other.l1hfringsRefs_);
+
+      std::swap(pfjetIds_,      other.pfjetIds_);
+      std::swap(pfjetRefs_,     other.pfjetRefs_);
     }
 
     /// setters for L3 collections: (id=physics type, and Ref<C>)
@@ -201,6 +213,10 @@ namespace trigger
       l1hfringsRefs_.push_back(ref);
     }
 
+    void addObject(int id, const reco::PFJetRef& ref) {
+      pfjetIds_.push_back(id);
+      pfjetRefs_.push_back(ref);
+    }
 
     /// 
     size_type addObjects (const Vids& ids, const VRphoton& refs) {
@@ -283,6 +299,12 @@ namespace trigger
       return l1hfringsIds_.size();
     }
 
+    size_type addObjects (const Vids& ids, const VRpfjet& refs) {
+      assert(ids.size()==refs.size());
+      pfjetIds_.insert(pfjetIds_.end(),ids.begin(),ids.end());
+      pfjetRefs_.insert(pfjetRefs_.end(),refs.begin(),refs.end());
+      return pfjetIds_.size();
+    }
 
     /// various physics-level getters:
     void getObjects(Vids& ids, VRphoton& refs) const {
@@ -701,6 +723,38 @@ namespace trigger
       return;
     }
 
+    void getObjects(Vids& ids, VRpfjet& refs) const {
+      getObjects(ids,refs,0,pfjetIds_.size());
+    }
+    void getObjects(Vids& ids, VRpfjet& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=pfjetIds_.size());
+      const size_type n(end-begin);
+      ids.resize(n);
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	ids[j]=pfjetIds_[i];
+	refs[j]=pfjetRefs_[i];
+	++j;
+      }
+    }
+    void getObjects(int id, VRpfjet& refs) const {
+      getObjects(id,refs,0,pfjetIds_.size());
+    }
+    void getObjects(int id, VRpfjet& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=pfjetIds_.size());
+      size_type n(0);
+      for (size_type i=begin; i!=end; ++i) {if (id==pfjetIds_[i]) {++n;}}
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	if (id==pfjetIds_[i]) {refs[j]=pfjetRefs_[i]; ++j;}
+      }
+      return;
+    }
+
     /// low-level getters for data members
     size_type          photonSize()    const {return photonIds_.size();}
     const Vids&        photonIds()     const {return photonIds_;}
@@ -753,6 +807,10 @@ namespace trigger
     size_type          l1hfringsSize() const {return l1hfringsIds_.size();}
     const Vids&        l1hfringsIds()  const {return l1hfringsIds_;}
     const VRl1hfrings& l1hfringsRefs() const {return l1hfringsRefs_;}
+
+    size_type          pfjetSize()     const {return pfjetIds_.size();}
+    const Vids&        pfjetIds()      const {return pfjetIds_;}
+    const VRpfjet&     pfjetRefs()     const {return pfjetRefs_;}
 
   };
 
