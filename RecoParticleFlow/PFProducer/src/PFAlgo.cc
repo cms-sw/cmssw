@@ -1626,9 +1626,9 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  muonECALError += 0.;
 	  photonAtECAL -= muonEcal*chargedDirection;
 	  hadronAtECAL -= totalHcal*chargedDirection;
-	  active[iEcal] = false;
+	  if ( !sortedEcals.empty() ) active[iEcal] = false;
 	  active[iHcal] = false;
-	  if (useHO_) active[iHO] = false;
+	  if (useHO_ && !sortedHOs.empty() ) active[iHO] = false;
 	}
 	else{
 	// Estimate of the energy deposit & resolution in the calorimeters
@@ -1847,7 +1847,6 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     double slopeEcal = 1.0;
     double calibEcal = 0.;
     double calibHcal = 0.;
-    double calibHO = 0.;
     hadronDirection = hadronAtECAL.Unit();
 
     // Determine the expected calo resolution from the total charged momentum
@@ -1877,9 +1876,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       photonAtECAL += is->second.second;
       calibEcal = std::max(0.,totalEcal);
       calibHcal = std::max(0.,totalHcal);
-      calibHO = std::max(0., totalHO);
       hadronAtECAL = calibHcal * hadronDirection;
-      if (useHO_) { calibHcal +=calibHO;}      
       // Calibrate ECAL and HCAL energy under the hadron hypothesis.
       calibration_->energyEmHad(totalChargedMomentum,calibEcal,calibHcal,
 				hclusterref->positionREP().Eta(),
