@@ -22,6 +22,8 @@ from CommonTools.ParticleFlow.genForPF2PAT_cff import *
 
 pfPileUp.PFCandidates = 'particleFlow'
 pfNoPileUp.bottomCollection = 'particleFlow'
+pfPileUpIso.PFCandidates = 'particleFlow' 
+pfNoPileUpIso.bottomCollection='particleFlow'
 
 PF2PAT = cms.Sequence(
     pfNoPileUpSequence +
