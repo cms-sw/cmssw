@@ -12,7 +12,7 @@ HLTTauDQMSummaryPlotter::HLTTauDQMSummaryPlotter( const edm::ParameterSet& ps, s
         dqmBaseFolder_   = dqmBaseFolder;
         validity_        = true;
     } catch ( cms::Exception &e ) {
-        edm::LogWarning("HLTTauDQMSummaryPlotter::HLTTauDQMSummaryPlotter") << e.what() << std::endl;
+        edm::LogInfo("HLTTauDQMSummaryPlotter::HLTTauDQMSummaryPlotter") << e.what() << std::endl;
         validity_ = false;
         return;
     }

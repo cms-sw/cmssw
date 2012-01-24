@@ -21,7 +21,7 @@ HLTTauDQMLitePathPlotter::HLTTauDQMLitePathPlotter( const edm::ParameterSet& ps,
         binsPhi_         = phibins;
         validity_        = true;
     } catch ( cms::Exception &e ) {
-        edm::LogWarning("HLTTauDQMLitePathPlotter::HLTTauDQMLitePathPlotter") << e.what() << std::endl;
+        edm::LogInfo("HLTTauDQMLitePathPlotter::HLTTauDQMLitePathPlotter") << e.what() << std::endl;
         validity_ = false;
         return;
     }

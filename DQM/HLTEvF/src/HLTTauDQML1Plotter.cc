@@ -21,7 +21,7 @@ HLTTauDQML1Plotter::HLTTauDQML1Plotter( const edm::ParameterSet& ps, int etbins,
         binsPhi_          = phibins;
         validity_         = true;
     } catch ( cms::Exception &e ) {
-        edm::LogWarning("HLTTauDQML1Plotter::HLTTauDQML1Plotter") << e.what() << std::endl;
+        edm::LogInfo("HLTTauDQML1Plotter::HLTTauDQML1Plotter") << e.what() << std::endl;
         validity_ = false;
         return;
     }

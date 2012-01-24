@@ -19,7 +19,7 @@ HLTTauDQMPathPlotter::HLTTauDQMPathPlotter( const edm::ParameterSet& ps, bool re
         doRefAnalysis_        = ref;
         validity_             = true;
     } catch ( cms::Exception &e ) {
-        edm::LogWarning("HLTTauDQMPathPlotter::HLTTauDQMPathPlotter") << e.what() << std::endl;
+        edm::LogInfo("HLTTauDQMPathPlotter::HLTTauDQMPathPlotter") << e.what() << std::endl;
         validity_ = false;
         return;
     }

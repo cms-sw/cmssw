@@ -138,6 +138,8 @@ void HLTTauDQMAutomation::AutoCompleteMatching( edm::ParameterSet& config, HLTCo
                         }
                         
                         imatch->addUntrackedParameter<edm::InputTag>("FilterName", edm::InputTag(selectedModule,"",hltProcessName_) );
+                    } else {
+                        imatch->addUntrackedParameter<edm::InputTag>("FilterName", edm::InputTag("","",hltProcessName_) );
                     }
                 } catch ( cms::Exception &e ) {
                     edm::LogWarning("HLTTauDQMAutomation") << e.what() << std::endl;

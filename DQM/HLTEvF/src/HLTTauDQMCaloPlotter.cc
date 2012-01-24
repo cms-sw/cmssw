@@ -20,7 +20,7 @@ HLTTauDQMCaloPlotter::HLTTauDQMCaloPlotter( const edm::ParameterSet& iConfig, in
         dqmBaseFolder_   = dqmBaseFolder;
         validity_        = true;
     } catch ( cms::Exception &e ) {
-        edm::LogWarning("HLTTauDQMCaloPlotter::HLTTauDQMCaloPlotter") << e.what() << std::endl;
+        edm::LogInfo("HLTTauDQMCaloPlotter::HLTTauDQMCaloPlotter") << e.what() << std::endl;
         validity_ = false;
         return;
     }

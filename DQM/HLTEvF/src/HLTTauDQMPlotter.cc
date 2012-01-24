@@ -44,7 +44,7 @@ HLTTauDQMPlotter::FilterObject::FilterObject( const edm::ParameterSet& ps ) {
         Alias_ = ps.getUntrackedParameter<std::string>("Alias",FilterName_.label());
         validity_ = true;
     } catch ( cms::Exception &e ) {
-        edm::LogWarning("HLTTauDQMPlotter::FilterObject") << e.what() << std::endl;
+        edm::LogInfo("HLTTauDQMPlotter::FilterObject") << e.what() << std::endl;
     }
 }
 
