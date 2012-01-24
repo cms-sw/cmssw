@@ -1,3 +1,7 @@
+/*  VI Janurary 2012 
+ * This file need to be migrated to the new interface of matched hit as the mono/stero are not there anymore
+ * what is returned are hits w/o localpoistion, just cluster and id
+ */
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -43,6 +47,7 @@
 #include <TStyle.h>
 #include <TF1.h>
 
+#include<list>
 
 class DetIdLess 
   : public std::binary_function< const SiStripRecHit2D*,const SiStripRecHit2D*,bool> {
@@ -171,17 +176,17 @@ void SiStripLAProfileBooker::beginRun(const edm::EventSetup& c){
   //get all detids
   
   for(std::vector<uint32_t>::const_iterator Id = activeDets.begin(); Id!=activeDets.end(); Id++){
-
+    
     //  for(Iditer=Id.begin();Iditer!=Id.end();Iditer++){ //loop on detids
     DetId Iditero=DetId(*Id);
     DetId *Iditer=&Iditero;
     if((Iditer->subdetId() == int(StripSubdetector::TIB)) || (Iditer->subdetId() == int(StripSubdetector::TOB))){ //include only barrel
-
+      
       int module_bin = 0;
       if(Iditer->subdetId() == int(StripSubdetector::TIB)){
-      module_bin = TIB_bin;
+	module_bin = TIB_bin;
       }else{
-      module_bin = TOB_bin;
+	module_bin = TOB_bin;
       }
       
       // create a TProfile for each module
@@ -202,14 +207,14 @@ void SiStripLAProfileBooker::beginRun(const edm::EventSetup& c){
       detmap[Iditer->rawId()] = param;
       param->thickness = thickness*10000;
       param->pitch = topol.localPitch(p)*10000;
-
+      
       const GlobalPoint globalp = (stripdet->surface()).toGlobal(p);
       GlobalVector globalmagdir = magfield->inTesla(globalp);
       param->magfield=(stripdet->surface()).toLocal(globalmagdir);
-
+      
       profile->setAxisTitle("tan(#theta_{t})",1);
       profile->setAxisTitle("Cluster size",2);
-
+      
       // create a summary histo if it does not exist already
       std::string name;
       unsigned int layerid;
@@ -271,12 +276,12 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
   EventTree->Fill();
   
   //Analysis of Trajectory-RecHits
-        
+  
   edm::InputTag TkTag = conf_.getParameter<edm::InputTag>("Tracks");
   
   edm::Handle<reco::TrackCollection> trackCollection;
   e.getByLabel(TkTag,trackCollection);
-    
+  
   edm::Handle<std::vector<Trajectory> > TrajectoryCollection;
   e.getByLabel(TkTag,TrajectoryCollection);
   
@@ -284,9 +289,11 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
   e.getByLabel(TkTag, TrajTrackMap);
   
   const reco::TrackCollection *tracks=trackCollection.product();
-   
+  
+  // FIXME this has to be changed to use pointers to clusters...
   std::map<const SiStripRecHit2D*,std::pair<float,float>,DetIdLess> hitangleassociation;
-    
+  std::list<SiStripRecHit2D> cache;  // ugly, inefficient, effective in making the above working
+  
   trackcollsize=tracks->size();
   trajsize=TrajectoryCollection->size();
   
@@ -300,7 +307,7 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
     if(TrajTrackIter->key->foundHits()>=5){
       
       TrackTree->Fill();
-    
+      
       ParticleCharge = -99;
       Momentum = -99;
       pt = -99;
@@ -316,39 +323,38 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
       EtaTrack = TrajTrackIter->val->eta();
       PhiTrack = TrajTrackIter->val->phi();
       HitPerTrack = TrajTrackIter->key->foundHits();
-          
+      
       std::vector<TrajectoryMeasurement> TMeas=TrajTrackIter->key->measurements();
       std::vector<TrajectoryMeasurement>::iterator itm;
       
       for (itm=TMeas.begin();itm!=TMeas.end();itm++){ //loop on hits
-           
-      int i;
-      for(i=0;i<100;i++){
-      Amplitudes[i]=0;}
-      
-      TanTrackAngle = -99;
-      TanTrackAngleParallel=-99;
-      ClSize = -99;
-      HitCharge = 0;
-      Type = -99;
-      Layer = -99;
-      Wheel = -99;
-      bw_fw = -99;
-      Ext_Int = -99;
-      MonoStereo = -99;
-      MagField = -99;
-      SignCorrection = -99;
-      XGlobal = -99;
-      YGlobal = -99;
-      ZGlobal = -99;
-      barycenter = -99;
-      hit_std_dev = -99;
-      sumx = 0;
-      id_detector=-1;
-      thick_detector=-1;
-      pitch_detector=-1;       
-      HitNr = 1;    
-      
+	
+	int i;
+	for(i=0;i<100;i++){Amplitudes[i]=0;}
+	
+	TanTrackAngle = -99;
+	TanTrackAngleParallel=-99;
+	ClSize = -99;
+	HitCharge = 0;
+	Type = -99;
+	Layer = -99;
+	Wheel = -99;
+	bw_fw = -99;
+	Ext_Int = -99;
+	MonoStereo = -99;
+	MagField = -99;
+	SignCorrection = -99;
+	XGlobal = -99;
+	YGlobal = -99;
+	ZGlobal = -99;
+	barycenter = -99;
+	hit_std_dev = -99;
+	sumx = 0;
+	id_detector=-1;
+	thick_detector=-1;
+	pitch_detector=-1;       
+	HitNr = 1;    
+	
 	TrajectoryStateOnSurface tsos=itm->updatedState();
 	const TransientTrackingRecHit::ConstRecHitPointer thit=itm->recHit();
 	if((thit->geographicalId().subdetId() == int(StripSubdetector::TIB)) ||  thit->geographicalId().subdetId()== int(StripSubdetector::TOB)){ //include only barrel
@@ -367,10 +373,14 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
 	    
 	    // THIS THE POINTER TO THE MONO HIT OF A MATCHED HIT 
 	    
-	    const SiStripRecHit2D *monohit=matchedhit->monoHit();    
+	    // top be migrated to the more direct interface of matchedhit
+	    cache.push_back(matchedhit->monoHit()); 
+	    const SiStripRecHit2D * monohit = &cache.back();   
 	    const SiStripRecHit2D::ClusterRef & monocluster=monohit->cluster();
-	    const GeomDetUnit * monodet=gdet->monoDet();    
-	    const LocalPoint monoposition = monohit->localPosition();    
+	    const GeomDetUnit * monodet=gdet->monoDet();
+	    // this does not exists anymore! either project the matched or use CPE
+	    const LocalPoint monoposition = monohit->localPosition();   
+	    
             StripSubdetector detid=(StripSubdetector)monohit->geographicalId();
 	    id_detector = detid.rawId();
 	    thick_detector=monodet->specificSurface().bounds().thickness();
@@ -387,13 +397,13 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
 	    std::vector<uint8_t>::const_iterator begin=amplitudes.begin();
 	    nstrip=0;
 	    for(idigi=begin; idigi!=amplitudes.end(); idigi++){
-	    Amplitudes[nstrip]=*idigi;
-	    sumx+=pow(((FirstStrip+idigi-begin)-barycenter),2)*(*idigi);
-            HitCharge+=*idigi;
+	      Amplitudes[nstrip]=*idigi;
+	      sumx+=pow(((FirstStrip+idigi-begin)-barycenter),2)*(*idigi);
+	      HitCharge+=*idigi;
 	    }
 	    hit_std_dev = sqrt(sumx/HitCharge);
-	  
-	    	    
+	    
+	    
             XGlobal = monogposition.x();
 	    YGlobal = monogposition.y();
 	    ZGlobal = monogposition.z();
@@ -402,30 +412,30 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
 	    MonoStereo=detid.stereo();
 	    
 	    if(detid.subdetId() == int (StripSubdetector::TIB)){
-            TIBDetId TIBid=TIBDetId(detid);
-            Layer = TIBid.layer();
-	    bw_fw = TIBid.string()[0];
-	    Ext_Int = TIBid.string()[1];
+	      TIBDetId TIBid=TIBDetId(detid);
+	      Layer = TIBid.layer();
+	      bw_fw = TIBid.string()[0];
+	      Ext_Int = TIBid.string()[1];
             }
 	    if(detid.subdetId() == int (StripSubdetector::TOB)){
-            TOBDetId TOBid=TOBDetId(detid);
-            Layer = TOBid.layer();
-	    bw_fw = TOBid.rod()[0];
+	      TOBDetId TOBid=TOBDetId(detid);
+	      Layer = TOBid.layer();
+	      bw_fw = TOBid.rod()[0];
             }
 	    if(detid.subdetId() == int (StripSubdetector::TID)){
-            TIDDetId TIDid=TIDDetId(detid);
-            Wheel = TIDid.wheel();
-	    bw_fw = TIDid.module()[0];
+	      TIDDetId TIDid=TIDDetId(detid);
+	      Wheel = TIDid.wheel();
+	      bw_fw = TIDid.module()[0];
             }
 	    if(detid.subdetId() == int (StripSubdetector::TEC)){
-            TECDetId TECid=TECDetId(detid);
-            Wheel = TECid.wheel();
-	    bw_fw = TECid.petal()[0];
+	      TECDetId TECid=TECDetId(detid);
+	      Wheel = TECid.wheel();
+	      bw_fw = TECid.petal()[0];
             }
 	    
 	    
 	    LocalVector monotkdir=monodet->toLocal(gtrkdir);
-	   
+	    
 	    if(monotkdir.z()!=0){
 	      
 	      // THE LOCAL ANGLE (MONO)
@@ -437,83 +447,87 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
               if(TheDet!=detmap.end())localmagdir=TheDet->second->magfield;
               MagField = localmagdir.mag();
 	      if(MagField != 0.){
-	      LocalVector monoylocal(0,1,0);
-	      float signcorrection = (localmagdir * monoylocal)/(MagField);
-	      if(signcorrection!=0)SignCorrection=1/signcorrection;}
+		LocalVector monoylocal(0,1,0);
+		float signcorrection = (localmagdir * monoylocal)/(MagField);
+		if(signcorrection!=0)SignCorrection=1/signcorrection;
+	      }
 	      
 	      std::map<const SiStripRecHit2D *,std::pair<float,float>,DetIdLess>::iterator alreadystored=hitangleassociation.find(monohit);
 	      
 	      
 	      if(alreadystored != hitangleassociation.end()){//decide which hit take
-	      if(itm->estimate() >  alreadystored->second.first){
-	        worse_double_hit++;}
+		if(itm->estimate() >  alreadystored->second.first){
+		  worse_double_hit++;}
 		if(itm->estimate() <  alreadystored->second.first){
-		better_double_hit++;
-		hitangleassociation.insert(std::make_pair(monohit, std::make_pair(itm->estimate(),tanangle)));
-		
+		  better_double_hit++;
+		  hitangleassociation.insert(std::make_pair(monohit, std::make_pair(itm->estimate(),tanangle)));
+		  
 		}}
 	      else{
-	      hitangleassociation.insert(make_pair(monohit, std::make_pair(itm->estimate(),tanangle)));
-	      HitsTree->Fill();
-	      hitcounter++;}
-	          
+		hitangleassociation.insert(make_pair(monohit, std::make_pair(itm->estimate(),tanangle)));
+		HitsTree->Fill();
+		hitcounter++;}
+	      
 	      // THIS THE POINTER TO THE STEREO HIT OF A MATCHED HIT 
 	      
-	    const SiStripRecHit2D *stereohit=matchedhit->stereoHit();
-	    const SiStripRecHit2D::ClusterRef & stereocluster=stereohit->cluster();
-	    const GeomDetUnit * stereodet=gdet->stereoDet();
-	    const LocalPoint stereoposition = stereohit->localPosition();    
-            StripSubdetector detid=(StripSubdetector)stereohit->geographicalId();
-	    id_detector = detid.rawId();
-	    thick_detector=stereodet->specificSurface().bounds().thickness();
-            const StripTopology& stopol=(StripTopology&)stereodet->topology();
-            pitch_detector = stopol.localPitch(stereoposition);
-            const GlobalPoint stereogposition = (stereodet->surface()).toGlobal(stereoposition);
-	    
-	    ClSize = (stereocluster->amplitudes()).size();
-	    
-	    const std::vector<uint8_t> amplitudes = stereocluster->amplitudes();
-	    
-	    barycenter = stereocluster->barycenter()- 0.5; 
-	    uint16_t FirstStrip = stereocluster->firstStrip();
-	    std::vector<uint8_t>::const_iterator idigi;
-	    std::vector<uint8_t>::const_iterator begin=amplitudes.begin();
-	    nstrip=0;
-	    for(idigi=begin; idigi!=amplitudes.end(); idigi++){
-	    Amplitudes[nstrip]=*idigi;
-	    sumx+=pow(((FirstStrip+idigi-begin)-barycenter),2)*(*idigi);
-            HitCharge+=*idigi;
-	    }
-	    hit_std_dev = sqrt(sumx/HitCharge);
-	
-            XGlobal = stereogposition.x();
-	    YGlobal = stereogposition.y();
-	    ZGlobal = stereogposition.z();
-	    
-	    Type = detid.subdetId();
-	    MonoStereo=detid.stereo();
-	    
-	    if(detid.subdetId() == int (StripSubdetector::TIB)){
-            TIBDetId TIBid=TIBDetId(detid);
-            Layer = TIBid.layer();
-	    bw_fw = TIBid.string()[0];
-	    Ext_Int = TIBid.string()[1];
-            }
-	    if(detid.subdetId() == int (StripSubdetector::TOB)){
-            TOBDetId TOBid=TOBDetId(detid);
-            Layer = TOBid.layer();
-	    bw_fw = TOBid.rod()[0];
-            }
-	    if(detid.subdetId() == int (StripSubdetector::TID)){
-            TIDDetId TIDid=TIDDetId(detid);
-            Wheel = TIDid.wheel();
-	    bw_fw = TIDid.module()[0];
-            }
-	    if(detid.subdetId() == int (StripSubdetector::TEC)){
-            TECDetId TECid=TECDetId(detid);
-            Wheel = TECid.wheel();
-	    bw_fw = TECid.petal()[0];
-            }
+	      // top be migrated to the more direct interface of matchedhit
+	      cache.push_back(matchedhit->stereoHit());
+	      const SiStripRecHit2D stereohit=  = &cache.back();
+	      const SiStripRecHit2D::ClusterRef & stereocluster=stereohit->cluster();
+	      const GeomDetUnit * stereodet=gdet->stereoDet();
+	      // this does not exists anymore! either project the matched or use CPE
+	      const LocalPoint stereoposition = stereohit->localPosition();    
+	      StripSubdetector detid=(StripSubdetector)stereohit->geographicalId();
+	      id_detector = detid.rawId();
+	      thick_detector=stereodet->specificSurface().bounds().thickness();
+	      const StripTopology& stopol=(StripTopology&)stereodet->topology();
+	      pitch_detector = stopol.localPitch(stereoposition);
+	      const GlobalPoint stereogposition = (stereodet->surface()).toGlobal(stereoposition);
+	      
+	      ClSize = (stereocluster->amplitudes()).size();
+	      
+	      const std::vector<uint8_t> amplitudes = stereocluster->amplitudes();
+	      
+	      barycenter = stereocluster->barycenter()- 0.5; 
+	      uint16_t FirstStrip = stereocluster->firstStrip();
+	      std::vector<uint8_t>::const_iterator idigi;
+	      std::vector<uint8_t>::const_iterator begin=amplitudes.begin();
+	      nstrip=0;
+	      for(idigi=begin; idigi!=amplitudes.end(); idigi++){
+		Amplitudes[nstrip]=*idigi;
+		sumx+=pow(((FirstStrip+idigi-begin)-barycenter),2)*(*idigi);
+		HitCharge+=*idigi;
+	      }
+	      hit_std_dev = sqrt(sumx/HitCharge);
+	      
+	      XGlobal = stereogposition.x();
+	      YGlobal = stereogposition.y();
+	      ZGlobal = stereogposition.z();
+	      
+	      Type = detid.subdetId();
+	      MonoStereo=detid.stereo();
+	      
+	      if(detid.subdetId() == int (StripSubdetector::TIB)){
+		TIBDetId TIBid=TIBDetId(detid);
+		Layer = TIBid.layer();
+		bw_fw = TIBid.string()[0];
+		Ext_Int = TIBid.string()[1];
+	      }
+	      if(detid.subdetId() == int (StripSubdetector::TOB)){
+		TOBDetId TOBid=TOBDetId(detid);
+		Layer = TOBid.layer();
+		bw_fw = TOBid.rod()[0];
+	      }
+	      if(detid.subdetId() == int (StripSubdetector::TID)){
+		TIDDetId TIDid=TIDDetId(detid);
+		Wheel = TIDid.wheel();
+		bw_fw = TIDid.module()[0];
+	      }
+	      if(detid.subdetId() == int (StripSubdetector::TEC)){
+		TECDetId TECid=TECDetId(detid);
+		Wheel = TECid.wheel();
+		bw_fw = TECid.petal()[0];
+	      }
 	      
 	      
 	      LocalVector stereotkdir=stereodet->toLocal(gtrkdir);
@@ -530,34 +544,34 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
                 MagField = localmagdir.mag();
 		LocalVector stereoylocal(0,1,0);
 	        if(MagField != 0.){
-	        float signcorrection = (localmagdir * stereoylocal)/(MagField);
-		if(signcorrection!=0)SignCorrection=1/signcorrection;}
+		  float signcorrection = (localmagdir * stereoylocal)/(MagField);
+		  if(signcorrection!=0)SignCorrection=1/signcorrection;}
 		
 		std::map<const SiStripRecHit2D *,std::pair<float,float>,DetIdLess>::iterator alreadystored=hitangleassociation.find(stereohit);
-				
+		
 		if(alreadystored != hitangleassociation.end()){//decide which hit take
-		if(itm->estimate() >  alreadystored->second.first){
-		worse_double_hit++;}
+		  if(itm->estimate() >  alreadystored->second.first){
+		    worse_double_hit++;}
 		  if(itm->estimate() <  alreadystored->second.first){
-		  better_double_hit++;
-		  hitangleassociation.insert(std::make_pair(stereohit, std::make_pair(itm->estimate(),tanangle)));
-		  
+		    better_double_hit++;
+		    hitangleassociation.insert(std::make_pair(stereohit, std::make_pair(itm->estimate(),tanangle)));
+		    
 		  }}
 		else{
-		hitangleassociation.insert(std::make_pair(stereohit, std::make_pair(itm->estimate(),tanangle)));
-		HitsTree->Fill();
-		hitcounter++;}
-				  
+		  hitangleassociation.insert(std::make_pair(stereohit, std::make_pair(itm->estimate(),tanangle)));
+		  HitsTree->Fill();
+		  hitcounter++;}
+		
 	      }
 	    }
 	  }
 	  else if(hit){
-	  
-	  
+	    
+	    
 	    //  hit= POINTER TO THE RECHIT
 	    
 	    const SiStripRecHit2D::ClusterRef & cluster=hit->cluster();
-	   
+	    
 	    GeomDetUnit * gdet=(GeomDetUnit *)tracker->idToDet(hit->geographicalId());
 	    const LocalPoint position = hit->localPosition();    
             StripSubdetector detid=(StripSubdetector)hit->geographicalId();
@@ -577,9 +591,9 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
 	    std::vector<uint8_t>::const_iterator begin=amplitudes.begin();
 	    nstrip=0;
 	    for(idigi=begin; idigi!=amplitudes.end(); idigi++){
-	    Amplitudes[nstrip]=*idigi;
-	    sumx+=pow(((FirstStrip+idigi-begin)-barycenter),2)*(*idigi);
-            HitCharge+=*idigi;
+	      Amplitudes[nstrip]=*idigi;
+	      sumx+=pow(((FirstStrip+idigi-begin)-barycenter),2)*(*idigi);
+	      HitCharge+=*idigi;
 	    }
 	    hit_std_dev = sqrt(sumx/HitCharge);
 	    
@@ -591,29 +605,29 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
 	    MonoStereo=detid.stereo();
 	    
 	    if(detid.subdetId() == int (StripSubdetector::TIB)){
-            TIBDetId TIBid=TIBDetId(detid);
-            Layer = TIBid.layer();
-	    bw_fw = TIBid.string()[0];
-	    Ext_Int = TIBid.string()[1];
+	      TIBDetId TIBid=TIBDetId(detid);
+	      Layer = TIBid.layer();
+	      bw_fw = TIBid.string()[0];
+	      Ext_Int = TIBid.string()[1];
             }
 	    if(detid.subdetId() == int (StripSubdetector::TOB)){
-            TOBDetId TOBid=TOBDetId(detid);
-            Layer = TOBid.layer();
-	    bw_fw = TOBid.rod()[0];
+	      TOBDetId TOBid=TOBDetId(detid);
+	      Layer = TOBid.layer();
+	      bw_fw = TOBid.rod()[0];
             }
 	    if(detid.subdetId() == int (StripSubdetector::TID)){
-            TIDDetId TIDid=TIDDetId(detid);
-            Wheel = TIDid.wheel();
-	    bw_fw = TIDid.module()[0];
+	      TIDDetId TIDid=TIDDetId(detid);
+	      Wheel = TIDid.wheel();
+	      bw_fw = TIDid.module()[0];
             }
 	    if(detid.subdetId() == int (StripSubdetector::TEC)){
-            TECDetId TECid=TECDetId(detid);
-            Wheel = TECid.wheel();
-	    bw_fw = TECid.petal()[0];
+	      TECDetId TECid=TECDetId(detid);
+	      Wheel = TECid.wheel();
+	      bw_fw = TECid.petal()[0];
             }
-	    	    
-	    if(trackdirection.z()!=0){
 	    
+	    if(trackdirection.z()!=0){
+	      
 	      // THE LOCAL ANGLE 
 	      float tanangle = trackdirection.x()/trackdirection.z();
 	      TanTrackAngleParallel = trackdirection.y()/trackdirection.z();
@@ -623,24 +637,24 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
               if(TheDet!=detmap.end())localmagdir=TheDet->second->magfield;
               MagField = localmagdir.mag();
 	      if(MagField != 0.){
-	      LocalVector ylocal(0,1,0);
-	      float signcorrection = (localmagdir * ylocal)/(MagField);
-	      if(signcorrection!=0)SignCorrection=1/signcorrection;}
-		
+		LocalVector ylocal(0,1,0);
+		float signcorrection = (localmagdir * ylocal)/(MagField);
+		if(signcorrection!=0)SignCorrection=1/signcorrection;}
+	      
 	      std::map<const SiStripRecHit2D *,std::pair<float,float>, DetIdLess>::iterator alreadystored=hitangleassociation.find(hit);
-	      	      
+	      
 	      if(alreadystored != hitangleassociation.end()){//decide which hit take
-	      if(itm->estimate() >  alreadystored->second.first){
-	      worse_double_hit++;}
+		if(itm->estimate() >  alreadystored->second.first){
+		  worse_double_hit++;}
 		if(itm->estimate() <  alreadystored->second.first){
-		better_double_hit++;
-		hitangleassociation.insert(std::make_pair(hit, std::make_pair(itm->estimate(),tanangle)));
-	        
+		  better_double_hit++;
+		  hitangleassociation.insert(std::make_pair(hit, std::make_pair(itm->estimate(),tanangle)));
+		  
 		}}
 	      else{
-	      hitangleassociation.insert(std::make_pair(hit,std::make_pair(itm->estimate(), tanangle) ) );
-	      HitsTree->Fill();
-	      hitcounter++;}
+		hitangleassociation.insert(std::make_pair(hit,std::make_pair(itm->estimate(), tanangle) ) );
+		HitsTree->Fill();
+		hitcounter++;}
 	      
 	      
 	    }
@@ -649,29 +663,29 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
       }
     }
   }
-    std::map<const SiStripRecHit2D *,std::pair<float,float>,DetIdLess>::iterator hitsiter;
-    
-        
-    for(hitsiter=hitangleassociation.begin();hitsiter!=hitangleassociation.end();hitsiter++){
+  std::map<const SiStripRecHit2D *,std::pair<float,float>,DetIdLess>::iterator hitsiter;
+  
+  
+  for(hitsiter=hitangleassociation.begin();hitsiter!=hitangleassociation.end();hitsiter++){
     
     hitcounter_2ndloop++;
     
     const SiStripRecHit2D* hit=hitsiter->first;
     const SiStripRecHit2D::ClusterRef & cluster=hit->cluster();
-
+    
     size=(cluster->amplitudes()).size();
     
     StripSubdetector detid=(StripSubdetector)hit->geographicalId();  
     
     float tangent = hitsiter->second.second;
-	  
+    
     //Sign and XZ plane projection correction applied in TrackLocalAngle (TIB|TOB layers)
-      
+    
     detparmap::iterator thedet=detmap.find(detid.rawId());
     LocalVector localmagdir;
     if(thedet!=detmap.end())localmagdir=thedet->second->magfield;
     float localmagfield = localmagdir.mag();
-        
+    
     if(localmagfield != 0.){
       
       LocalVector ylocal(0,1,0);
@@ -685,11 +699,11 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
 	tangent*=signprojcorrection;
       }
     }
-       	  
+    
     //Filling histograms
     
     histomap::iterator thehisto=histos.find(detid.rawId());
-   
+    
     if(thehisto==histos.end())edm::LogError("SiStripLAProfileBooker::analyze")<<"Error: the profile associated to"<<detid.rawId()<<"does not exist! ";    
     else thehisto->second->Fill(tangent,size);
     
@@ -702,11 +716,11 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
     else thesummaryhisto->second->Fill(tangent,size);
     
   }
-    
-        
+  
+  
 }
 
- 
+
 //Makename function
  
 void SiStripLAProfileBooker::getlayer(const DetId & detid, std::string &name,unsigned int &layerid){
