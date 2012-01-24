@@ -92,14 +92,14 @@ FreeTrajectoryState FastHelix::helixStateAtVertex() const {
   dzdrphi /= rho*acos(dcphi);
   double pz = pt*dzdrphi;
 
-  
+  /*
   // old crap
   FastLine flfit(theOuterHit, theMiddleHit, theCircle.rho());
   double dzdrphi2 = -flfit.n1()/flfit.n2();
 
   //  if (fabs(dzdrphi2-dzdrphi)>1.e-5) 
   std::cout << "FastHelix: old,new " << dzdrphi2 <<", " <<  dzdrphi << std::endl; 
-  
+  */
 
   //get sign of particle
 
@@ -133,8 +133,9 @@ FreeTrajectoryState FastHelix::helixStateAtVertex() const {
       z_0 -= std::sqrt((theMiddleHit-v).perp2()/(theOuterHit-theMiddleHit).perp2())*(theOuterHit.z()-theMiddleHit.z());
     }
     
-    double z_old = -flfit.c()/flfit.n2();
-    std::cout << "v:xyz, z,old,new " << v << "   " << z_old << " " << z_0 << std::endl;
+    //double z_old = -flfit.c()/flfit.n2();
+    // std::cout << "v:xyz, z,old,new " << v << "   " << z_old << " " << z_0 << std::endl;
+
     return FTS(GlobalPoint(v.x(),v.y(),z_0), 
 	       GlobalVector(px, py, pz),
 	       q, 
