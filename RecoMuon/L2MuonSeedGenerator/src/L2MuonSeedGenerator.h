@@ -10,8 +10,8 @@
  *   L2 muon reconstruction
  *
  *
- *   $Date: 2007/03/23 20:55:23 $
- *   $Revision: 1.5 $
+ *   $Date: 2010/02/11 00:14:22 $
+ *   $Revision: 1.6 $
  *
  *   \author  A.Everett, R.Bellan
  *
@@ -25,6 +25,8 @@
 
 class MuonServiceProxy;
 class MeasurementEstimator;
+class TrajectorySeed;
+class TrajectoryStateOnSurface;
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
@@ -44,16 +46,23 @@ class L2MuonSeedGenerator : public edm::EDProducer {
 
   edm::InputTag theSource;
   edm::InputTag theL1GMTReadoutCollection;
-  std::string thePropagatorName;
+  edm::InputTag theOfflineSeedLabel;
+  std::string   thePropagatorName;
 
   const double theL1MinPt;
   const double theL1MaxEta;
   const unsigned theL1MinQuality;
+  const bool useOfflineSeed;
 
   /// the event setup proxy, it takes care the services update
   MuonServiceProxy *theService;  
 
   MeasurementEstimator *theEstimator;
+
+  const TrajectorySeed* associateOfflineSeedToL1( edm::Handle<edm::View<TrajectorySeed> > &, 
+						  std::vector<int> &, 
+						  TrajectoryStateOnSurface &);
+
 };
 
 #endif
