@@ -11,16 +11,10 @@
 /// In addition store relative shifts and rotations of the
 /// two surfaces.
 ///
-///  \author    : Gero Flucke
-///  date       : October 2010
-///  $Revision: 1.1 $
-///  $Date: 2010/10/26 19:00:00 $
-///  (last update by $Author: flucke $)
 
 #include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 
-// already included in the above:
-// #include <vector>
+#include<array>
 
 class TwoBowedSurfacesDeformation : public SurfaceDeformation
 {
@@ -67,14 +61,20 @@ class TwoBowedSurfacesDeformation : public SurfaceDeformation
   /// parameters - see constructor for meaning
   virtual std::vector<double> parameters() const;
 
-  /// minimum size of vector that is accepted by constructor from vector
-  static unsigned int minParameterSize() { return 13;}
-  /// maximum size of vector that is accepted by constructor from vector
-  static unsigned int maxParameterSize() { return 13;}
+  // the size
+  static constexpr unsigned int parameterSize() { return 13; }
+  
 
+  /// minimum size of vector that is accepted by constructor from vector
+  static constexpr unsigned int minParameterSize() { return parameterSize(); }
+  /// maximum size of vector that is accepted by constructor from vector
+  static constexpr unsigned int maxParameterSize() { return parameterSize();}
+
+  // location of ySplit
+  static constexpr unsigned int k_ySplit() { return parameterSize()-1];
 
  private:
-  std::vector<double> theParameters;
+ double theParameters[parameterSize()];
 };
 
 #endif

@@ -7,11 +7,6 @@
 /// 2D local positions on a surface if the surface is not perfectly
 /// following its parameterisaton (e.g. bows for a Plane).
 ///
-///  \author    : Gero Flucke
-///  date       : October 2010
-///  $Revision: 1.2 $
-///  $Date: 2010/11/17 15:55:09 $
-///  (last update by $Author: flucke $)
 
 #include "DataFormats/GeometryVector/interface/Vector2DBase.h"
 #include "DataFormats/GeometryVector/interface/Point2DBase.h"

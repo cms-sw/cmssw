@@ -1,7 +1,7 @@
 ///  \author    : Gero Flucke
 ///  date       : October 2010
-///  $Revision: 1.1 $
-///  $Date: 2010/10/26 19:00:00 $
+///  $Revision: 1.2 $
+///  $Date: 2010/11/17 15:55:09 $
 ///  (last update by $Author: flucke $)
 
 #include "Geometry/CommonTopologies/interface/TwoBowedSurfacesDeformation.h"
@@ -14,20 +14,22 @@
 
 //------------------------------------------------------------------------------
 TwoBowedSurfacesDeformation::TwoBowedSurfacesDeformation(const std::vector<double> &pars)
-  : theParameters(pars)
+  : 
 {
-  if (pars.size() != minParameterSize()) {
+  if (pars.size() != parameterSize()) {
     edm::LogError("BadSetup") << "@SUB=TwoBowedSurfacesDeformation"
                               << "Input vector of wrong size " << pars.size()
-                              << " instead of " << minParameterSize() << ", add zeros to fill up!";
+                              << " instead of " << parameterSize() << ", add zeros to fill up!";
   }
-  while (theParameters.size() < minParameterSize()) theParameters.push_back(0.);
+  for (unsigned int i=0; i!=std::min(pars.size(), parameterSize()); ++i )  theParameters[i]=pars[i];
+  for (unsigned int i=pars.size(); i!=parameterSize()); ++i )  theParameters[i]=0;
+  
 }
 
 //------------------------------------------------------------------------------
 TwoBowedSurfacesDeformation* TwoBowedSurfacesDeformation::clone() const
 {
-  return new TwoBowedSurfacesDeformation(theParameters);
+  return new TwoBowedSurfacesDeformation(*this);
 }
 
 //------------------------------------------------------------------------------
@@ -42,7 +44,7 @@ TwoBowedSurfacesDeformation::positionCorrection(const Local2DPoint &localPos,
 						const LocalTrackAngles &localAngles,
 						double length, double width) const
 {
-  const double ySplit = this->parameters().back();
+  const double ySplit = theParameters[k_ySplit()];
 
 // treatment of different widthes at high/low y could be done by theRelWidthLowY or so
 //   if (widthLowY > 0. && widthHighY != widthLowY) {
@@ -66,7 +68,7 @@ TwoBowedSurfacesDeformation::positionCorrection(const Local2DPoint &localPos,
   if (uRel < -cutOff) { uRel = -cutOff; } else if (uRel > cutOff) { uRel = cutOff; }
   if (vRel < -cutOff) { vRel = -cutOff; } else if (vRel > cutOff) { vRel = cutOff; }
   
-  const std::vector<double> &pars = this->parameters();
+  auto pars = theParameters;
   // 1st, get dw effect depending 
   // - on the surface sagittas (Legendre polynomials),
   //   see BowedSurfaceAlignmentDerivatives::operator()(..)
@@ -98,17 +100,18 @@ TwoBowedSurfacesDeformation::positionCorrection(const Local2DPoint &localPos,
 bool TwoBowedSurfacesDeformation::add(const SurfaceDeformation &other)
 {
   if (this->type() == other.type()) {
+    // wonder how cuold be different!
     const std::vector<double> otherParameters(other.parameters());
-    if (otherParameters.size() == theParameters.size()) {
-      if (theParameters.back() == otherParameters.back()) {
-	for (unsigned int i = 0; i < theParameters.size() - 1; ++i) {// -1 for ySplit
+    if (otherParameters.size() ==parameterSize() ) {
+      if (theParameters[k_ySplit()] == otherParameters[k_ySplit()]) {
+	for (unsigned int i = 0; i < 11; ++i) {// -1 for ySplit
 	  // mean bows, delta shifts, delta angles and delta bows can simply be added up
 	  theParameters[i] += otherParameters[i];
 	}
 	return true;
       } else { // ySplit values are different!
 	LogDebug("Alignment") << "@SUB=TwoBowedSurfacesDeformation::add"
-			      << "Different ySplit: this " << theParameters.back() 
+			      << "Different ySplit: this " << theParameters[12]
 			      << ", to add " << otherParameters.back();
       }
     } // same size
@@ -120,5 +123,5 @@ bool TwoBowedSurfacesDeformation::add(const SurfaceDeformation &other)
 //------------------------------------------------------------------------------
 std::vector<double> TwoBowedSurfacesDeformation::parameters() const
 {
-  return theParameters;
+  return std::vector<double>(theParameters,theParameters+parameterSize());
 }
