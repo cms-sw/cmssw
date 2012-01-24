@@ -557,26 +557,6 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 					  hfDTparam->HFdigiflagCoefficients()
 					  );
 	  }
-	// Set aux parameters (and digi params, if not read from DB) based on reco params
-	if (first ==3 && toadd == 4)  { // 2010 data cfgs
-	  firstAuxTS_=3;
-	  // Provide firstSample, samplesToAdd, expected peak for digi flag
-	  // (This can be different from rechit value!)
-	  if (digiTimeFromDB_==0 && hfdigibit_!=0)
-	    hfdigibit_->resetFlagTimeSamples(3,4,4);
-	} // 2010 data; firstSample = 3; samplesToAdd =4 
-	else if (first == 4 && toadd == 2)  // 2011 data cfgs, 10-TS digis
-	  {
-	    firstAuxTS_=3;
-	    if (digiTimeFromDB_==0 && hfdigibit_!=0)
-	      hfdigibit_->resetFlagTimeSamples(3,3,4);
-	  } // 2010 data; firstSample = 4; samplesToAdd =2 
-	else if (first == 2 && toadd == 2)  // 2011 data cfgs; 6-TS digis
-	  {
-	    firstAuxTS_=1;
-	    if (digiTimeFromDB_==0 && hfdigibit_!=0)
-	      hfdigibit_->resetFlagTimeSamples(1,3,2);
-	  } // 2010 data; firstSample = 2; samplesToAdd =2 
 
 	//std::cout << "TOADDHF " << toadd << " " << first << " " << std::endl;
 	rec->push_back(reco_.reconstruct(*i,first,toadd,coder,calibrations));

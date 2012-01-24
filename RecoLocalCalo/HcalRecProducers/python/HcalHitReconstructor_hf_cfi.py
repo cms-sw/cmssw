@@ -11,7 +11,7 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
    		        firstSample = cms.int32(2),
                         samplesToAdd = cms.int32(1),	
                         tsFromDB = cms.bool(True),
-                        recoParamsFromDB = cms.bool(False),
+                        recoParamsFromDB = cms.bool(True),
                         useLeakCorrection = cms.bool(False),
 	
                         correctTiming = cms.bool(True),
@@ -20,7 +20,7 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
 
                         # Tags for calculating status flags
                         setNoiseFlags = cms.bool(True),
-                        digiTimeFromDB = cms.bool(False), # turn on to read parameters from DB
+                        digiTimeFromDB = cms.bool(True), # turn on to read parameters from DB
                         setHSCPFlags = cms.bool( False ),
                         setSaturationFlags = cms.bool(True),
                         setTimingTrustFlags = cms.bool(True),
