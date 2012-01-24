@@ -8,6 +8,3 @@
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/L1GlobalTrigger"/>
 <use   name="FWCore/MessageLogger"/>
-<export>
-  <lib   name="1"/>
-</export>
