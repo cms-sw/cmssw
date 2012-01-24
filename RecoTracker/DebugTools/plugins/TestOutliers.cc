@@ -13,7 +13,7 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Mon Sep 17 10:31:30 CEST 2007
-// $Id: TestOutliers.cc,v 1.12 2011/03/20 18:36:42 innocent Exp $
+// $Id: TestOutliers.cc,v 1.13 2011/10/27 12:58:07 gpetrucc Exp $
 //
 //
 
@@ -569,8 +569,8 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	    }
 	    else if (dynamic_cast<const SiStripMatchedRecHit2D*>(&**itHit)){
 	      LogTrace("TestOutliers") << "SiStripMatchedRecHit2D";		  
-	      int clsize1 = ((const SiStripMatchedRecHit2D*)(&**itHit))->monoHit()->cluster()->amplitudes().size();
-	      int clsize2 =  ((const SiStripMatchedRecHit2D*)(&**itHit))->stereoHit()->cluster()->amplitudes().size();
+	      int clsize1 = ((const SiStripMatchedRecHit2D*)(&**itHit))->monoCluster().amplitudes().size();
+	      int clsize2 =  ((const SiStripMatchedRecHit2D*)(&**itHit))->stereoCluster().amplitudes().size();
 	      if (clsize1>clsize2) clustersize = clsize1;
 	      else clustersize = clsize2;
 	      hittypeval  = 3;

@@ -428,8 +428,8 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	if (simhitvecsize>1) mergedhit = true;
       }
       else if (dynamic_cast<const SiStripMatchedRecHit2D*>(rhit->hit())){
-	int clsize1 = ((const SiStripMatchedRecHit2D*)(rhit->hit()))->monoHit()->cluster()->amplitudes().size();
-	int clsize2 =  ((const SiStripMatchedRecHit2D*)(rhit->hit()))->stereoHit()->cluster()->amplitudes().size();
+	int clsize1 = ((const SiStripMatchedRecHit2D*)(rhit->hit()))->monoCluster().amplitudes().size();
+	int clsize2 =  ((const SiStripMatchedRecHit2D*)(rhit->hit()))->stereoCluster().amplitudes().size();
 	if (clsize1>clsize2) clustersize = clsize1;
 	else clustersize = clsize2;
 	hSt2Clsize_vs_Chi2->Fill(chi2increment, clustersize);
@@ -731,8 +731,8 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	Propagator* thePropagatorAnyDir = new PropagatorWithMaterial(anyDirection,0.105,theMF.product(),1.6);
 	//mono
 	LogTrace("TestTrackHits") << "MONO HIT" ;
-	CTTRHp tMonoHit = 
-	  theBuilder->build(dynamic_cast<const SiStripMatchedRecHit2D*>(rhit->hit())->monoHit());
+        auto m = dynamic_cast<const SiStripMatchedRecHit2D*>(rhit->hit())->monoHit();
+	CTTRHp tMonoHit = theBuilder->build(&m);
 	if (tMonoHit==0) continue;
 	vector<PSimHit> assMonoSimHits = hitAssociator->associateHit(*tMonoHit->hit());
 	if (assMonoSimHits.size()==0) continue;
@@ -835,8 +835,8 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 	//stereo
 	LogTrace("TestTrackHits") << "STEREO HIT" ;
-	CTTRHp tStereoHit = 
-	  theBuilder->build(dynamic_cast<const SiStripMatchedRecHit2D*>(rhit->hit())->stereoHit());
+        auto s = dynamic_cast<const SiStripMatchedRecHit2D*>(rhit->hit())->stereoHit();
+	CTTRHp tStereoHit = theBuilder->build(&s);
 	if (tStereoHit==0) continue;
 	vector<PSimHit> assStereoSimHits = hitAssociator->associateHit(*tStereoHit->hit());
 	if (assStereoSimHits.size()==0) continue;

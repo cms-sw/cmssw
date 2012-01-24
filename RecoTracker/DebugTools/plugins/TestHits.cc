@@ -404,8 +404,8 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (dynamic_cast<const SiStripMatchedRecHit2D*>((rhit)->hit())) {
 	//mono
 	LogTrace("TestHits") << "MONO HIT" << std::endl;
-	CTTRHp tMonoHit = 
-	  theBuilder->build(dynamic_cast<const SiStripMatchedRecHit2D*>((rhit)->hit())->monoHit());
+        auto m = dynamic_cast<const SiStripMatchedRecHit2D*>((rhit)->hit())->monoHit();
+	CTTRHp tMonoHit = theBuilder->build(&m);
 	if (tMonoHit==0) continue;
 	vector<PSimHit> assMonoSimHits = hitAssociator->associateHit(*tMonoHit->hit());
 	if (assMonoSimHits.size()==0) continue;
@@ -498,8 +498,9 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	//stereo
 	LogTrace("TestHits") << "STEREO HIT" << std::endl;
+        auto s = dynamic_cast<const SiStripMatchedRecHit2D*>((rhit)->hit())->stereoHit();
 	CTTRHp tStereoHit = 
-	  theBuilder->build(dynamic_cast<const SiStripMatchedRecHit2D*>((rhit)->hit())->stereoHit());
+	  theBuilder->build(&s);
 	if (tStereoHit==0) continue;
 	vector<PSimHit> assStereoSimHits = hitAssociator->associateHit(*tStereoHit->hit());
 	if (assStereoSimHits.size()==0) continue;

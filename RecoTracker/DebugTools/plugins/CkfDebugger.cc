@@ -388,7 +388,8 @@ bool CkfDebugger::analyseCompatibleMeasurements(const Trajectory& traj,
 		}
 		if (dynamic_cast<const SiStripMatchedRecHit2D*>(correctRecHit.first->hit())) {
 		  LogTrace("CkfDebugger") << "MONO HIT";
-		  CTTRHp tMonoHit = theTTRHBuilder->build(dynamic_cast<const SiStripMatchedRecHit2D*>(correctRecHit.first->hit())->monoHit());
+                  auto m = dynamic_cast<const SiStripMatchedRecHit2D*>(correctRecHit.first->hit())->monoHit();
+		  CTTRHp tMonoHit = theTTRHBuilder->build(&m);
 		  const PSimHit sMonoHit = *(hitAssociator->associateHit(*tMonoHit->hit()).begin());
 		  TSOS monoState = theForwardPropagator->propagate( traj.lastMeasurement().updatedState(), tMonoHit->det()->surface());
 		  double pullM_shrh = (sMonoHit.localPosition().x()-tMonoHit->localPosition().x())/
@@ -407,7 +408,8 @@ bool CkfDebugger::analyseCompatibleMeasurements(const Trajectory& traj,
 		  hPullM_strh[title.str()]->Fill(pullsMono.first);
 
 		  LogTrace("CkfDebugger") << "STEREO HIT";
-		  CTTRHp tStereoHit = theTTRHBuilder->build(dynamic_cast<const SiStripMatchedRecHit2D*>(correctRecHit.first->hit())->stereoHit());
+                  auto s= dynamic_cast<const SiStripMatchedRecHit2D*>(correctRecHit.first->hit())->stereoHit();
+		  CTTRHp tStereoHit = theTTRHBuilder->build(&s);
 		  const PSimHit sStereoHit = *(hitAssociator->associateHit(*tStereoHit->hit()).begin());
 		  TSOS stereoState = theForwardPropagator->propagate( traj.lastMeasurement().updatedState(), tStereoHit->det()->surface());
 		  double pullS_shrh = (sStereoHit.localPosition().x()-tStereoHit->localPosition().x())/
