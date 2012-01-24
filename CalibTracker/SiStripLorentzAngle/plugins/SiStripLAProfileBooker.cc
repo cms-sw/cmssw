@@ -472,7 +472,7 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
 	      
 	      // top be migrated to the more direct interface of matchedhit
 	      cache.push_back(matchedhit->stereoHit());
-	      const SiStripRecHit2D stereohit=  = &cache.back();
+	      const SiStripRecHit2D * stereohit = &cache.back();
 	      const SiStripRecHit2D::ClusterRef & stereocluster=stereohit->cluster();
 	      const GeomDetUnit * stereodet=gdet->stereoDet();
 	      // this does not exists anymore! either project the matched or use CPE
