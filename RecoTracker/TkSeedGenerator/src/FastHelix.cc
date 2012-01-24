@@ -23,7 +23,7 @@ FreeTrajectoryState FastHelix::helixStateAtVertex() const {
   //(10./(3.*MagneticField::inTesla(GlobalPoint(0., 0., 0.)).z()));
   
   // pt = 0.01 * rho * (0.3*MagneticField::inTesla(GlobalPoint(0.,0.,0.)).z());
-  pt = 0.01 * rho * 0.3*tesla0;
+  double pt = 0.01 * rho * 0.3*tesla0;
 
   // verify that rho is not toooo large
   double dcphi = ((theOuterHit.x()-theCircle.x0())*(theMiddleHit.x()-theCircle.x0()) +
