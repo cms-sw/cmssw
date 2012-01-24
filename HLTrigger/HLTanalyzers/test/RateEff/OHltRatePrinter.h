@@ -64,6 +64,8 @@ public:
 
    void writeHistos(OHltConfig *cfg, OHltMenu *menu);
 
+   void fitRatesForPileup(OHltConfig *cfg, OHltMenu *menu);
+
    TString GetFileName(OHltConfig *cfg, OHltMenu *menu);
 
    void printPrescalesCfg(OHltConfig *cfg, OHltMenu *menu);

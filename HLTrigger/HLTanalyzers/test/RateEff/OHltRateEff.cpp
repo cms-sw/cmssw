@@ -127,6 +127,8 @@ int main(int argc, char *argv[])
       rprint->printRatesTwiki(ocfg, omenu);
       //    rprint->printPrescalesCfg(ocfg,omenu);
       rprint->writeHistos(ocfg, omenu);
+      if(ocfg->nonlinearPileupFit != "none")
+	rprint->fitRatesForPileup(ocfg, omenu);
       char sLumi[10], sEnergy[10];
       snprintf(sEnergy, 10, "%1.0f", ocfg->cmsEnergy);
       snprintf(sLumi,   10, "%1.1e", ocfg->iLumi);
