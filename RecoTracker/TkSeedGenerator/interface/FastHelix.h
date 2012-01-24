@@ -80,7 +80,7 @@ public:
 
 private:
 
-  constexpr double maxPt = 10000; // 10Tev
+  static constexpr double maxPt = 10000; // 10Tev
 
   GlobalPoint theOuterHit;
   GlobalPoint theMiddleHit;

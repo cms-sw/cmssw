@@ -6,7 +6,7 @@
 
 FreeTrajectoryState FastHelix::stateAtVertex() const {
   
-  if(isValid() && (fabs(tesla0) > 1e-3) && circle.rho()<maxRho)
+  if(isValid() && (fabs(tesla0) > 1e-3) && theCircle.rho()<maxRho)
     return helixStateAtVertex();
   else 
     return straightLineStateAtVertex();
@@ -16,6 +16,15 @@ FreeTrajectoryState FastHelix::stateAtVertex() const {
 FreeTrajectoryState FastHelix::helixStateAtVertex() const {
 
   // given the above rho>0.
+  double rho = theCircle.rho();
+  //remember (radius rho in cm):
+  //rho = 
+  //100. * pt * 
+  //(10./(3.*MagneticField::inTesla(GlobalPoint(0., 0., 0.)).z()));
+  
+  // pt = 0.01 * rho * (0.3*MagneticField::inTesla(GlobalPoint(0.,0.,0.)).z());
+  pt = 0.01 * rho * 0.3*tesla0;
+
   // verify that rho is not toooo large
   double dcphi = ((theOuterHit.x()-theCircle.x0())*(theMiddleHit.x()-theCircle.x0()) +
 		  (theOuterHit.y()-theCircle.y0())*(theMiddleHit.y()-theCircle.y0())
@@ -26,16 +35,8 @@ FreeTrajectoryState FastHelix::helixStateAtVertex() const {
   GlobalPoint v(theVertex);
   
   double dydx = 0., dxdy = 0.;
-  double pt = 0., px = 0., py = 0.;
+  double px = 0., py = 0.;
   
-  //remember (radius rho in cm):
-  //rho = 
-  //100. * pt * 
-  //(10./(3.*MagneticField::inTesla(GlobalPoint(0., 0., 0.)).z()));
-  
-  double rho = theCircle.rho();
-  // pt = 0.01 * rho * (0.3*MagneticField::inTesla(GlobalPoint(0.,0.,0.)).z());
-  pt = 0.01 * rho * 0.3*tesla0;
 
   // (py/px)|x=v.x() = (dy/dx)|x=v.x()
   //remember:
@@ -120,12 +121,12 @@ FreeTrajectoryState FastHelix::helixStateAtVertex() const {
 	       &(*pSetup)
 	       );
   } else {
-    double z_0 =  theMiddleHit.z()
+    double z_0 =  theMiddleHit.z();
     // assume v is before middleHit (opposite to outer)
     double ds = ( (v.x()-theCircle.x0())*(theMiddleHit.x()-theCircle.x0()) +
 		  (v.y()-theCircle.y0())*(theMiddleHit.y()-theCircle.y0())
 		  )/(rho*rho);
-    if (fabs(ds)<.) {
+    if (fabs(ds)<1.) {
       ds = rho*acos(ds);
       z_0 -= ds*dzdrphi;
     } else { // line????
