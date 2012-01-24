@@ -11,5 +11,6 @@ hltmmkFilter = cms.EDFilter("HLTmmkFilter",
     TrackCand = cms.InputTag("hltMumukAllConeTracks"),
     MaxNormalisedChi2 = cms.double(10.0),
     MinInvMass = cms.double(1.2),
-    MuCand = cms.InputTag("hltMuTracks")
+    MuCand = cms.InputTag("hltMuTracks"),
+    saveTags = cms.bool( True )
 )
