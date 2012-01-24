@@ -614,7 +614,7 @@ static void
   edm::decode(FileInPath& to, std::string const& from) {
     std::istringstream is(from);
     FileInPath temp;
-    is >> temp;
+    temp.readFromParameterSetBlob(is);
     if (!is) return false;
     to = temp;
     return true;

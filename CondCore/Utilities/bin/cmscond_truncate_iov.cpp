@@ -2,7 +2,6 @@
 #include "CondCore/DBCommon/interface/DbScopedTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
-#include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/Utilities/interface/Utilities.h"
 #include <iostream>
@@ -39,9 +38,8 @@ int cond::TruncateIOVUtilities::execute() {
     return 11;
   }
   
-  cond::IOVService iovservice( rdbms );
-  cond::IOVEditor* ioveditor=iovservice.newIOVEditor(token);
-  ioveditor->truncate(withPayload);
+  cond::IOVEditor ioveditor(rdbms,token);
+  ioveditor.truncate(withPayload);
   transaction.commit();
   return 0;
 }

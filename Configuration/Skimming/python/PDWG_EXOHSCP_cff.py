@@ -9,11 +9,12 @@ generalTracksSkim = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
     filter = False,
     applyBasicCuts = True,
     ptMin = TRACK_PT,
+    ptMax = cms.double(999999.0),
     nHitMin = 5,
     chi2nMax = 10.,
 )
-
 trackerSeq = cms.Sequence( generalTracksSkim)
+
 
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 from RecoTracker.TrackProducer.TrackRefitters_cff import *
@@ -50,11 +51,11 @@ DedxFilter = cms.EDFilter("HSCPFilter",
 	 trkPtMin = cms.double(TRACK_PT),
 	 dedxMin =cms.double(3.0),
      dedxMaxLeft =cms.double(2.8),
-     ndedxHits = cms.int32(5),
+     ndedxHits = cms.int32(3),
      etaMin= cms.double(-2.4),
      etaMax= cms.double(2.4),
      chi2nMax = cms.double(10),
-     dxyMax = cms.double(0.5),
+     dxyMax = cms.double(2.0),
      dzMax = cms.double(5),
      filter = cms.bool(True)
 
@@ -216,7 +217,3 @@ EXOHSCPSkim_EventContent=cms.PSet(
       'keep recoBeamSpot_offlineBeamSpot__*',
       )
     )
-
-
-
-

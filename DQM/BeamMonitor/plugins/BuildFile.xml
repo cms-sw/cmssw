@@ -29,3 +29,6 @@
 <library   file="TKStatus.cc" name="TKStatus">
   <flags   EDM_PLUGIN="1"/>
 </library>
+<library   file="PixelVTXMonitor.cc" name="PixelVTXMonitor">
+  <flags   EDM_PLUGIN="1"/>
+</library>

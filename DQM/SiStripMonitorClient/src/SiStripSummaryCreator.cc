@@ -298,12 +298,12 @@ void SiStripSummaryCreator::fillHistos(int ival, int istep, std::string htype,
                        MonitorElement* me_src, MonitorElement* me) {
   
   if (me->getTH1()) {
-    TProfile* prof = 0;
+    //    TProfile* prof = 0;
     TH1F* hist1 = 0;
     TH2F* hist2 = 0;
     if (me->kind() == MonitorElement::DQM_KIND_TH1F)    hist1 = me->getTH1F();
     if (me->kind() == MonitorElement::DQM_KIND_TH2F)    hist2 = me->getTH2F();
-    if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) prof = me->getTProfile();
+    //    if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) prof = me->getTProfile();
     
     int nbins = me_src->getNbinsX();
     std::string name = me_src->getName();

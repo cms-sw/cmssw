@@ -79,7 +79,7 @@ pr_process(const edm::DetSetVector<SiStripRawDigi> & input, edm::DetSetVector<Si
   for(edm::DetSetVector<SiStripRawDigi>::const_iterator detset=input.begin(); detset!=input.end(); detset++) {
     std::vector<float> digis;
     transform(detset->begin(), detset->end(), back_inserter(digis), boost::bind(&SiStripRawDigi::adc , _1));
-    subtractorCMN->subtract(detset->id, digis);
+    subtractorCMN->subtract(detset->id, 0, digis);
     common_process( detset->id, digis, output);
   }
 }
@@ -90,7 +90,7 @@ vr_process(const edm::DetSetVector<SiStripRawDigi> & input, edm::DetSetVector<Si
     std::vector<int16_t> int_digis(detset->size());
     subtractorPed->subtract(*detset,int_digis);
     std::vector<float> digis(int_digis.begin(), int_digis.end());
-    subtractorCMN->subtract(detset->id, digis);
+    subtractorCMN->subtract(detset->id, 0, digis);
     common_process( detset->id, digis, output);
   }
 }

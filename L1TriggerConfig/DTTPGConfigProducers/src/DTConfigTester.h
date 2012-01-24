@@ -48,6 +48,6 @@ private:
   int my_st;
   int my_traco;
   int my_bti;
-  int my_sl;
+
 };
 

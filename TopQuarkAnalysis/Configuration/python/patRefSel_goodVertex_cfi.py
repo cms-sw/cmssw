@@ -13,7 +13,7 @@ goodOfflinePrimaryVertices = cms.EDFilter(
 , src          = cms.InputTag( 'offlinePrimaryVertices' )
 )
 
-goodOfflinePrimaryVertexFilter = cms.EDFilter(
+step2 = cms.EDFilter(
 #   "VertexSelector"
 # , src    = pvSrc
 # , cut    = cms.string( '!isFake && ndof > 4 && abs(z) <= 24. && abs(position.rho) <= 2.' )

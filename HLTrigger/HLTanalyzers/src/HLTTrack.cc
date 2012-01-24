@@ -68,6 +68,9 @@ void HLTTrack::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("ohPixelTracksL3Eta",pixeltracksL3eta,"ohPixelTracksL3Eta[NohPixelTracksL3]/F");
   HltTree->Branch("ohPixelTracksL3Phi",pixeltracksL3phi,"ohPixelTracksL3Phi[NohPixelTracksL3]/F"); 
   HltTree->Branch("ohPixelTracksL3Vz",pixeltracksL3vz,"ohPixelTracksL3Vz[NohPixelTracksL3]/F");
+
+  HltTree->Branch("ohPixelFEDSize",&pixelfedsize,"ohPixelFEDSize/I");
+  HltTree->Branch("NohPixelClusters",&npixelclusters,"NohPixelClusters/I");
 }
 
 /* **Analyze the event** */
@@ -76,6 +79,8 @@ void HLTTrack::analyze(
 		       const edm::Handle<reco::IsolatedPixelTrackCandidateCollection> & IsoPixelTrackL2,
 		       const edm::Handle<reco::VertexCollection> & pixelVertices,
 		       const edm::Handle<reco::RecoChargedCandidateCollection> & PixelTracksL3,
+		       const edm::Handle<FEDRawDataCollection> hfedraw,
+		       const edm::Handle<edmNew::DetSetVector<SiPixelCluster> > & pixelClusters,
 		       TTree* HltTree) {
 
   //isoPixel
@@ -156,6 +161,18 @@ void HLTTrack::analyze(
   }
   else {npixeltracksL3 = 0;} 
 
+  //Pixel FED activity
+  const FEDRawDataCollection theRaw = * hfedraw;
+  int sumoffeds = 0; 
+
+  for (unsigned int i = 0; i <= 39; i++)
+    {
+      sumoffeds = sumoffeds + (theRaw.FEDData(i).size());
+    }
+
+  pixelfedsize = sumoffeds;
+
+  npixelclusters = pixelClusters->dataSize();
 
   //////////////////////////////////////////////////////////////////////////////
   

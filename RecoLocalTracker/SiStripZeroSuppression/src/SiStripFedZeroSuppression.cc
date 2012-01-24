@@ -227,7 +227,7 @@ void SiStripFedZeroSuppression::fillThresholds_(const uint32_t detID, size_t siz
     highThrSN_.resize(size);
     lowThrSN_.resize(size);
   }
-
+  
   noiseHandle->allNoises(noises_, detNoiseRange);
   thresholdHandle->allThresholds(lowThrSN_, highThrSN_, detThRange); // thresholds as S/N
   for (size_t strip = 0; strip < size; ++strip) {
@@ -243,7 +243,8 @@ void SiStripFedZeroSuppression::fillThresholds_(const uint32_t detID, size_t siz
   } 
 }
 
-void SiStripFedZeroSuppression::suppress(const std::vector<int16_t>& in, edm::DetSet<SiStripDigi>& out){
+
+void SiStripFedZeroSuppression::suppress(const std::vector<int16_t>& in, const uint16_t& firstAPV,  edm::DetSet<SiStripDigi>& out){
 
   const uint32_t detID = out.id;
   size_t size = in.size();
@@ -252,10 +253,12 @@ void SiStripFedZeroSuppression::suppress(const std::vector<int16_t>& in, edm::De
     LogTrace("SiStripZeroSuppression") << "[SiStripFedZeroSuppression::suppress] Zero suppression on std::vector<int16_t>: detID " << detID << " size = " << in.size();
 #endif
 
-   fillThresholds_(detID, size); // want to decouple this from the other cost
+  fillThresholds_(detID, size+firstAPV*128); // want to decouple this from the other cost
+
 
   std::vector<int16_t>::const_iterator in_iter=in.begin();
-  for (size_t strip = 0; strip < size; ++strip, ++in_iter){
+  uint16_t strip = firstAPV*128;
+  for (; strip < size+firstAPV*128; ++strip, ++in_iter){
 
     size_t strip_mod_128 = strip & 127;
 #ifdef DEBUG_SiStripZeroSuppression_

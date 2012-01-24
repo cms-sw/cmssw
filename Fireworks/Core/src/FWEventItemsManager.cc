@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.41 2011/07/13 20:49:28 amraktad Exp $
+// $Id: FWEventItemsManager.cc,v 1.44 2011/08/11 03:41:08 amraktad Exp $
 //
 
 // system include files
@@ -163,7 +163,7 @@ FWEventItemsManager::addTo(FWConfiguration& iTo) const
        ++it)
    {
       if(!*it) continue;
-      FWConfiguration conf(5);
+      FWConfiguration conf(6);
       ROOT::Reflex::Type dataType( ROOT::Reflex::Type::ByTypeInfo(*((*it)->type()->GetTypeInfo())));
       assert(dataType != ROOT::Reflex::Type() );
 
@@ -191,7 +191,7 @@ FWEventItemsManager::addTo(FWConfiguration& iTo) const
       }
 
       FWConfiguration pbTmp;
-      (*it)->proxyBuilderConfig()->addTo(pbTmp);
+      (*it)->getConfig()->addTo(pbTmp);
       conf.addKeyValue("PBConfig",pbTmp, true);
 
       iTo.addKeyValue((*it)->name(), conf, true);
@@ -261,7 +261,22 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
       std::string purpose(name);
       if (conf.version() > 1)
          purpose = (*keyValues)[8].second.value();
-      
+
+      FWConfiguration* proxyConfig = (FWConfiguration*) conf.valueForKey("PBConfig") ? new FWConfiguration(*conf.valueForKey("PBConfig")) : 0;
+
+      // beckward compatibilty for obsolete proxy builders
+      if (conf.version() < 6)
+      {
+         assert(proxyConfig == 0);
+         if (purpose == "VerticesWithTracks")
+         {
+            purpose = "Vertices";
+            proxyConfig = new FWConfiguration();
+            FWConfiguration vTmp; vTmp.addKeyValue("Draw Tracks", FWConfiguration("1"));
+            proxyConfig->addKeyValue("Var", vTmp,true);
+         }
+      }
+
       FWPhysicsObjectDesc desc(name,
                                TClass::GetClass(type.c_str()),
                                purpose,
@@ -271,9 +286,7 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
                                processName,
                                filterExpression,
                                layer);
-
-      const FWConfiguration* proxyConfig = new FWConfiguration(*conf.valueForKey("PBConfig"));
-
+      
       add(desc, proxyConfig );
    }
 }

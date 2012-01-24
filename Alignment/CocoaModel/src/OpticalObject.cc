@@ -1700,14 +1700,6 @@ void OpticalObject::resetOriginalOriginalCoordinates()
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 OpticalObject::~OpticalObject()
 {
-  for( unsigned int ii = 0; ii < theCoordinateEntryVector.size(); ii++ ) {
-    delete theCoordinateEntryVector[ii];
-  }
-
-  for( unsigned int ii = 0; ii < theExtraEntryVector.size(); ii++ ) {
-    delete theExtraEntryVector[ii];
-  }
-
 }
 
 

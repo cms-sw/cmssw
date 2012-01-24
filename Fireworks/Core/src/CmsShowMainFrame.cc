@@ -5,11 +5,11 @@
 // Class  :     CmsShowMainFrame
 //
 // Implementation:
-//     <Notes on implementation>
+//     <Notes on implementation> 
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.117 2011/07/14 02:21:31 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.119 2011/09/07 01:20:57 amraktad Exp $
 
 #include "FWCore/Common/interface/EventBase.h"
 
@@ -45,6 +45,8 @@
 #include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Core/src/FWCheckBoxIcon.h"
 #include "Fireworks/Core/src/FWNumberEntry.h"
+
+#include "Fireworks/Core/interface/fwPaths.h"
 
 #include <fstream>
 
@@ -726,14 +728,23 @@ CmsShowMainFrame::showFWorksInfo()
 {
    if (m_fworksAbout == 0)
    {
-      TString infoFileName("$(CMSSW_BASE)/src/Fireworks/Core/data/version.txt");
-      gSystem->ExpandPathName(infoFileName);
-      
-      ifstream infoFile(infoFileName);
       TString infoText;
-      infoText.ReadFile(infoFile);
-      infoFile.close();
- 
+      if (gSystem->Getenv("CMSSW_VERSION"))
+      {
+         infoText = "Version ";
+         infoText += gSystem->Getenv("CMSSW_VERSION");
+      }
+      else
+      {
+         TString infoFileName("/data/version.txt");
+         fireworks::setPath(infoFileName);
+         ifstream infoFile(infoFileName);
+         infoText.ReadFile(infoFile);
+         infoFile.close();
+      }
+
+      infoText += "\nIt works or we fix it for free!\nhn-cms-visualization@cern.ch\n";
+
       const UInt_t ww = 280, hh = 180;
       
       m_fworksAbout = new InfoFrame(gClient->GetRoot(), ww, hh, kVerticalFrame | kFixedSize);

@@ -64,6 +64,12 @@ namespace edm {
   }
 
   void
+  InputFile::reportSkippedFile(std::string const& fileName, std::string const& logicalFileName) {
+    Service<JobReport> reportSvc;
+    reportSvc->reportSkippedFile(fileName, logicalFileName);
+  }
+
+  void
   InputFile::Close() {
     if(file_->IsOpen()) {
       file_->Close();

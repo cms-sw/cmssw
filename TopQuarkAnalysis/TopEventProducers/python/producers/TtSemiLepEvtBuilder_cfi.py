@@ -37,14 +37,6 @@ ttSemiLepEvent = cms.EDProducer("TtSemiLepEvtBuilder",
         chi2 = cms.InputTag("kinFitTtSemiLepEventHypothesis","Chi2"),
         prob = cms.InputTag("kinFitTtSemiLepEventHypothesis","Prob"),
     ),
-    
-    ## add extra information on hitFit
-    hitFit = cms.PSet(
-        chi2 = cms.InputTag("hitFitTtSemiLepEventHypothesis","Chi2"),
-        prob = cms.InputTag("hitFitTtSemiLepEventHypothesis","Prob"),
-        mt = cms.InputTag("hitFitTtSemiLepEventHypothesis","MT"),
-        sigmt = cms.InputTag("hitFitTtSemiLepEventHypothesis","SigMT"),
-    ),
 
     ## add extra information on genMatch
     genMatch = cms.PSet(

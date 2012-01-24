@@ -12,6 +12,52 @@ SiStripMonitorDigi = cms.EDAnalyzer("SiStripMonitorDigi",
       cms.InputTag('siStripZeroSuppression','ScopeMode')
     ),
 
+   TH1NApvShots = cms.PSet(
+       Nbins = cms.int32(201),
+       xmin = cms.double(-0.5),
+       xmax = cms.double(200.5),
+       subdetswitchon = cms.bool(False),
+       globalswitchon = cms.bool(False)
+    ),
+
+   TH1ChargeMedianApvShots = cms.PSet(
+       Nbins = cms.int32(255),
+       xmin = cms.double(0.5),
+       xmax = cms.double(255.5),
+       subdetswitchon = cms.bool(False),
+       globalswitchon = cms.bool(False)
+    ),
+
+   TH1NStripsApvShots = cms.PSet(
+       Nbins = cms.int32(64),
+       xmin = cms.double(64.5),
+       xmax = cms.double(128.5),
+       subdetswitchon = cms.bool(False),
+       globalswitchon = cms.bool(False)
+    ),
+
+   TProfNShotsVsTime = cms.PSet(
+        Nbins = cms.int32(600),
+        xmin = cms.double(0.0),
+        xmax = cms.double(1.0*60*60),
+        ymin = cms.double(0.0),
+        ymax = cms.double(0.0),
+        subdetswitchon = cms.bool(False),
+        globalswitchon = cms.bool(False)
+    ),
+
+    TH1ApvNumApvShots = cms.PSet(
+       Nbins = cms.int32(6),
+       xmin = cms.double(0.5),
+       xmax = cms.double(6.5),
+       subdetswitchon = cms.bool(False),
+       globalswitchon = cms.bool(False)
+    ),
+                                    
+   TProfGlobalNShots = cms.PSet(
+        globalswitchon = cms.bool(False)
+    ),
+
     TH1ADCsCoolestStrip = cms.PSet(
        Nbinx = cms.int32(60),
        xmin = cms.double(-0.5),
@@ -19,6 +65,7 @@ SiStripMonitorDigi = cms.EDAnalyzer("SiStripMonitorDigi",
        layerswitchon = cms.bool(False),
        moduleswitchon = cms.bool(True)
     ),
+                                    
     TH1ADCsHottestStrip = cms.PSet(
         Nbinx = cms.int32(60),
         xmin = cms.double(-0.5),
@@ -40,12 +87,14 @@ SiStripMonitorDigi = cms.EDAnalyzer("SiStripMonitorDigi",
         layerswitchon = cms.bool(True),
         moduleswitchon = cms.bool(True)
     ),
+                                    
     TH1NumberOfDigisPerStrip = cms.PSet(
         Nbinx = cms.int32(768),
         xmin = cms.double(-0.5),
         xmax = cms.double(767.5),
         moduleswitchon = cms.bool(False)
-    ),                        
+    ),
+                                    
     TH1StripOccupancy = cms.PSet(
         Nbinx = cms.int32(51),
         xmin = cms.double(-0.01),
@@ -53,6 +102,7 @@ SiStripMonitorDigi = cms.EDAnalyzer("SiStripMonitorDigi",
         layerswitchon = cms.bool(True),        
         moduleswitchon = cms.bool(True)
     ),
+                                    
     TProfNumberOfDigi = cms.PSet(
         Nbinx = cms.int32(100),
         xmin = cms.double(-0.5),
@@ -60,6 +110,7 @@ SiStripMonitorDigi = cms.EDAnalyzer("SiStripMonitorDigi",
         layerswitchon = cms.bool(False),        
         moduleswitchon = cms.bool(False)        
     ),
+                                    
     TProfDigiADC = cms.PSet(
         Nbinx = cms.int32(100),
         xmin = cms.double(0.0),
@@ -78,8 +129,12 @@ SiStripMonitorDigi = cms.EDAnalyzer("SiStripMonitorDigi",
     ),
 
     TkHistoMap_On = cms.bool(True),
+    TkHistoMapNApvShots_On = cms.bool(False),
+    TkHistoMapNStripApvShots_On = cms.bool(False),
+    TkHistoMapMedianChargeApvShots_On = cms.bool(False),
 
     CreateTrendMEs = cms.bool(False),
+                                    
     Trending = cms.PSet(
         Nbins = cms.int32(600),
         xmin = cms.double(0.0),

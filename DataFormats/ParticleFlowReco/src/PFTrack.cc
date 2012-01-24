@@ -67,9 +67,9 @@ void PFTrack::addPoint(const PFTrajectoryPoint& trajPt) {
 
 void PFTrack::calculatePositionREP() {
   
-  for(unsigned i=0; i<trajectoryPoints_.size(); i++) {
-    trajectoryPoints_[i].calculatePositionREP();
-  }
+  //for(unsigned i=0; i<trajectoryPoints_.size(); i++) {
+  //  trajectoryPoints_[i].calculatePositionREP();
+  //}
 }
 
  

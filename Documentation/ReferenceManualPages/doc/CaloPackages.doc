@@ -86,6 +86,9 @@ Digitization.
  - \ref SimCalorimetry_HcalSimAlgos "HcalSimAlgos"<br>
  - \ref SimCalorimetry_HcalSimProducers "HcalSimProducers"<br>
 
+- <b>VisReco</b><br>
+Visualization.
+
 \section contact Contact persons
 - Simulation: 
 - Reconstruction: P. Meridiani, J. Mans

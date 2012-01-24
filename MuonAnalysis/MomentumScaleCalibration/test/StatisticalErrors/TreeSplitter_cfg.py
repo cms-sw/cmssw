@@ -10,7 +10,7 @@ process.maxEvents = cms.untracked.PSet(
 process.TreeSplitterModule = cms.EDAnalyzer(
     "TreeSplitter",
 
-    InputFileName = cms.string("/afs/cern.ch/user/d/demattia/scratch0/MuScleFit/CMSSW_3_11_0/src/MuonAnalysis/MomentumScaleCalibration/test/StatisticalErrors/Tree_MCFall2010_INNtk_CRAFTRealistic_wGEN.root"),
+    InputFileName = cms.string("tree_Summer10JPsiPromptSTARTUP.root"),
     OutputFileName = cms.string("SubSample.root"),
     MaxEvents = cms.int32(MAXEVENTS),
     SubSampleFirstEvent = cms.uint32(SUBSAMPLEFIRSTEVENT),

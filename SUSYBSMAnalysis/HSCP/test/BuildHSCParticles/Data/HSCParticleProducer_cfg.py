@@ -34,9 +34,10 @@ process.load("SUSYBSMAnalysis.HSCP.HSCPTreeBuilder_cff")
 
 process.HSCPHLTFilter = cms.EDFilter("HSCPHLTFilter",
    TriggerProcess  = cms.string("HLT"),
-   RemoveDuplicates    = cms.bool(False),
-   MuonTrigger1Mask    = cms.int32(1),  #Activated
-   PFMetTriggerMask    = cms.int32(1),  #Activated
+   RemoveDuplicates = cms.bool(False),
+   MuonTriggerMask = cms.int32(1),  #Activated
+   METTriggerMask  = cms.int32(1),  #Activated
+   JetTriggerMask  = cms.int32(1),  #Activated
 )
 
 ########################################################################  SPECIAL CASE FOR DATA
@@ -47,33 +48,24 @@ process.GlobalTag.toGet = cms.VPSet(
             connect = cms.untracked.string("sqlite_file:Data7TeV_Deco_SiStripDeDxMip_3D_Rcd.db")),
 )
 
+
 process.load("RecoLocalMuon.DTSegment.dt4DSegments_MTPatternReco4D_LinearDriftFromDBLoose_cfi")
-process.dt4DSegments.Reco4DAlgoConfig.Reco2DAlgoConfig.AlphaMaxPhi = 1.0
-process.dt4DSegments.Reco4DAlgoConfig.Reco2DAlgoConfig.AlphaMaxTheta = 0.9
-process.dt4DSegments.Reco4DAlgoConfig.Reco2DAlgoConfig.segmCleanerMode = 2
-process.dt4DSegments.Reco4DAlgoConfig.Reco2DAlgoConfig.MaxChi2 = 1.0
 process.dt4DSegmentsMT = process.dt4DSegments.clone()
-process.dt4DSegmentsMT.Reco4DAlgoConfig.recAlgoConfig.stepTwoFromDigi = True
-process.dt4DSegmentsMT.Reco4DAlgoConfig.Reco2DAlgoConfig.recAlgoConfig.stepTwoFromDigi = True
+#process.dt4DSegmentsMT.Reco4DAlgoConfig.recAlgoConfig.stepTwoFromDigi = True
+#process.dt4DSegmentsMT.Reco4DAlgoConfig.Reco2DAlgoConfig.recAlgoConfig.stepTwoFromDigi= True
 
 process.muontiming.TimingFillerParameters.DTTimingParameters.MatchParameters.DTsegments = "dt4DSegmentsMT"
-process.muontiming.TimingFillerParameters.DTTimingParameters.HitsMin = 3
-process.muontiming.TimingFillerParameters.DTTimingParameters.RequireBothProjections = False
-process.muontiming.TimingFillerParameters.DTTimingParameters.DropTheta = True
+process.muontiming.TimingFillerParameters.DTTimingParameters.HitsMin = 5
 process.muontiming.TimingFillerParameters.DTTimingParameters.DoWireCorr = True
-process.muontiming.TimingFillerParameters.DTTimingParameters.MatchParameters.DTradius = 1.0
 
 
 ########################################################################
-process.nEventsBefEDM   = cms.EDProducer("EventCountProducer")
-########################################################################
+
+
 
 process.Out = cms.OutputModule("PoolOutputModule",
      outputCommands = cms.untracked.vstring(
          "drop *",
-         'keep EventAux_*_*_*',
-         'keep LumiSummary_*_*_*',
-         'keep edmMergeableCounter_*_*_*',
          "keep *_genParticles_*_*",
          "keep GenEventInfoProduct_generator_*_*",
          "keep *_offlinePrimaryVertices_*_*",
@@ -113,7 +105,7 @@ process.Out = cms.OutputModule("PoolOutputModule",
 
 
 #LOOK AT SD PASSED PATH IN ORDER to avoid as much as possible duplicated events (make the merging of .root file faster)
-process.p1 = cms.Path(process.nEventsBefEDM * process.HSCPHLTFilter * process.dt4DSegmentsMT * process.HSCParticleProducerSeq)
+process.p1 = cms.Path(process.HSCPHLTFilter * process.dt4DSegmentsMT * process.HSCParticleProducerSeq)
 #process.p1 = cms.Path(process.HSCParticleProducerSeq)
 process.endPath1 = cms.EndPath(process.Out)
 process.schedule = cms.Schedule( process.p1, process.endPath1)

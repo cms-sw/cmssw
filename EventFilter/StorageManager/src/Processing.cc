@@ -1,6 +1,7 @@
-// $Id: Processing.cc,v 1.17.6.1 2011/03/07 11:33:05 mommsen Exp $
+// $Id: Processing.cc,v 1.18 2011/03/07 15:31:32 mommsen Exp $
 /// @file: Processing.cc
 
+#include "EventFilter/StorageManager/interface/AlarmHandler.h"
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
 #include "EventFilter/StorageManager/interface/DiscardManager.h"
 #include "EventFilter/StorageManager/interface/FragmentStore.h"
@@ -50,7 +51,7 @@ string Processing::do_stateName() const
 
 void Processing::do_moveToFailedState( xcept::Exception& exception ) const
 {
-  outermost_context().getSharedResources()->moveToFailedState( exception );
+  outermost_context().getSharedResources()->alarmHandler_->moveToFailedState( exception );
 }
 
 void Processing::logEndRunRequest( const EndRun& request )
@@ -78,8 +79,8 @@ Processing::do_processI2OFragment( I2OChain& frag ) const
     catch(stor::exception::RunNumberMismatch &e)
     {
       // Just raise an alarm, but continue to process the event
-      outermost_context().getSharedResources()->statisticsReporter_->
-        alarmHandler()->notifySentinel(AlarmHandler::ERROR, e);
+      outermost_context().getSharedResources()->
+        alarmHandler_->notifySentinel(AlarmHandler::ERROR, e);
     }
     outermost_context().getEventDistributor()->addEventToRelevantQueues(frag);
     outermost_context().getSharedResources()->discardManager_->sendDiscardMessage(frag);

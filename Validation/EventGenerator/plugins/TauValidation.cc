@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2011/02/17 14:46:42 $
- *  $Revision: 1.12 $
+ *  $Date: 2011/02/14 15:17:23 $
+ *  $Revision: 1.11 $
  */
  
 #include "Validation/EventGenerator/interface/TauValidation.h"
@@ -113,8 +113,6 @@ void TauValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
 
   // find taus
   for(HepMC::GenEvent::particle_const_iterator iter = myGenEvent->particles_begin(); iter != myGenEvent->particles_end(); ++iter) {
-    if ((*iter)->status()==3)
-    {
       if(abs((*iter)->pdg_id())==15){
         TauPt->Fill((*iter)->momentum().perp());
         TauEta->Fill((*iter)->momentum().eta());
@@ -129,7 +127,6 @@ void TauValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
       if(abs((*iter)->pdg_id())==23){
         spinEffectsZ(*iter);
       }
-    }
   }
 
   delete myGenEvent;
@@ -215,7 +212,7 @@ int TauValidation::findTauDecayChannel(const HepMC::GenParticle* tau){
               for(des = tau->end_vertex()->particles_begin(HepMC::descendants);
                   des!= tau->end_vertex()->particles_end(HepMC::descendants);++des ) {
 
-			//if(abs(tauMother(*des)) != 15) continue;
+                        if(abs(tauMother(*des)) != 15) continue;
                         int pid = (*des)->pdg_id();
                         //std::cout << " barcode=" << (*des)->barcode() << " pid="
                         //          << pid << " mom=" << tauMother(*des) << " status="

@@ -17,17 +17,12 @@
  *
  */
 
-//   for L1GtLogicParser
-#include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
-
 // system include files
 #include <iostream>
 
 #include <string>
 #include <vector>
 #include <map>
-#include <stack>
-#include <queue>
 
 #include <boost/cstdint.hpp>
 
@@ -36,17 +31,19 @@
 #include <ext/hash_map>
 
 //   how to hash std::string, using a "template specialization"
-namespace __gnu_cxx {
+namespace __gnu_cxx
+{
 
-    /**
-     Explicit template specialization of hash of a string class,
-     which just uses the internal char* representation as a wrapper.
-     */
-    template<> struct hash<std::string> {
-        size_t operator()(const std::string& x) const {
-            return hash<const char*> ()(x.c_str());
-        }
-    };
+/**
+ Explicit template specialization of hash of a string class,
+ which just uses the internal char* representation as a wrapper.
+ */
+template <> struct hash<std::string>
+{
+    size_t operator()(const std::string& x) const {
+        return hash<const char*>()(x.c_str());
+    }
+};
 
 }
 // end hash map
@@ -60,40 +57,39 @@ namespace __gnu_cxx {
 //
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 // forward declarations
 class L1GtAlgorithm;
 class L1GtConditionEvaluation;
 
 // class interface
-class L1GtAlgorithmEvaluation {
+class L1GtAlgorithmEvaluation : public L1GtLogicParser
+{
 
 public:
-    typedef L1GtLogicParser::TokenRPN TokenRPN;
-    typedef std::vector<TokenRPN> RpnVector;
-    typedef L1GtLogicParser::OperandToken OperandToken;
 
     /// constructor
-    //  L1GtAlgorithmEvaluation();
+    L1GtAlgorithmEvaluation();
 
     /// constructor from an algorithm from event setup
-    explicit L1GtAlgorithmEvaluation(const L1GtAlgorithm&);
+    L1GtAlgorithmEvaluation(const L1GtAlgorithm&);
 
     /// copy constructor
-    // L1GtAlgorithmEvaluation(L1GtAlgorithmEvaluation&);
+    L1GtAlgorithmEvaluation(L1GtAlgorithmEvaluation&);
 
     /// destructor
-    // virtual ~L1GtAlgorithmEvaluation();
-
+    virtual ~L1GtAlgorithmEvaluation();
+    
     //typedef std::map<std::string, L1GtConditionEvaluation*> ConditionEvaluationMap;
-    typedef __gnu_cxx ::hash_map<std::string, L1GtConditionEvaluation*>
-            ConditionEvaluationMap;
-    typedef ConditionEvaluationMap::const_iterator CItEvalMap;
-    typedef ConditionEvaluationMap::iterator ItEvalMap;
+    typedef __gnu_cxx::hash_map<std::string, L1GtConditionEvaluation*> ConditionEvaluationMap;
+    typedef ConditionEvaluationMap::const_iterator CItEvalMap ;
+    typedef ConditionEvaluationMap::iterator ItEvalMap  ;
 
 public:
 
     /// get / set the result of the algorithm
-    inline bool gtAlgoResult() const {
+    inline const bool& gtAlgoResult() const {
         return m_algoResult;
     }
 
@@ -102,31 +98,21 @@ public:
     }
 
     /// evaluate an algorithm
-    void evaluateAlgorithm(const int chipNumber, const std::vector<
-            ConditionEvaluationMap>&);
+    void evaluateAlgorithm(const int chipNumber, const std::vector<ConditionEvaluationMap>&);
 
-    /// get all the object combinations evaluated to true in the conditions
+    /// get all the object combinations evaluated to true in the conditions 
     /// from the algorithm 
-    inline std::vector<CombinationsInCond> & gtAlgoCombinationVector() {
-        return m_algoCombinationVector;
+    inline const std::vector<CombinationsInCond>* gtAlgoCombinationVector() const {
+        return &m_algoCombinationVector;
     }
-
-    inline std::vector<L1GtLogicParser::OperandToken>& operandTokenVector() {
-        return m_operandTokenVector;
-    }
-
+    
     void print(std::ostream& myCout) const;
+
 
 private:
 
     /// algorithm result
     bool m_algoResult;
-
-    // input
-    std::string const & m_logicalExpression;
-    RpnVector const & m_rpnVector;
-
-    std::vector<OperandToken> m_operandTokenVector;
 
     std::vector<CombinationsInCond> m_algoCombinationVector;
 

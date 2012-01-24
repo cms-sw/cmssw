@@ -1,3 +1,4 @@
+/////////////////////////   OBSOLETE    ///////////////////
 #ifndef PrimaryVertexProducerAlgorithm_H
 #define PrimaryVertexProducerAlgorithm_H
 // -*- C++ -*-
@@ -15,7 +16,7 @@
 //
 // Original Author:  Pascal Vanlaer
 //         Created:  Tue Feb 28 11:06:34 CET 2006
-// $Id: PrimaryVertexProducerAlgorithm.h,v 1.14 2010/07/30 18:23:45 wmtan Exp $
+// $Id: PrimaryVertexProducerAlgorithm.h,v 1.15 2010/08/18 13:20:24 werdmann Exp $
 //
 //
 

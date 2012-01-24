@@ -53,7 +53,7 @@ struct TkOffTreeVariables
 
     meanResXvsX = meanResXvsY = meanResYvsX = meanResYvsY
       = rmsResXvsX = rmsResXvsY = rmsResYvsX = rmsResYvsY = 0.;
-   
+    
     // variable Int_t's
     entries = 0;
   }
@@ -96,7 +96,6 @@ struct TkOffTreeVariables
   Float_t rmsResXvsX, rmsResXvsY, rmsResYvsX, rmsResYvsY;
   
   std::string profileNameResXvsX, profileNameResXvsY, profileNameResYvsX, profileNameResYvsY; 
-  
 };
   
 #endif

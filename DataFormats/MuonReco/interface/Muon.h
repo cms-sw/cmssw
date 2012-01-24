@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik, Riccardo Bellan, Michalis Bachtis
  *
- * \version $Id: Muon.h,v 1.63 2011/06/07 18:02:25 bellan Exp $
+ * \version $Id: Muon.h,v 1.64 2011/06/20 08:50:06 bellan Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -54,12 +54,20 @@ namespace reco {
     virtual TrackRef globalTrack() const { return globalTrack_; }
     virtual TrackRef combinedMuon() const { return globalTrack(); }
 
-    TrackRef tpfmsTrack() const { return muonTrack(TPFMS);}
-    TrackRef pickyTrack() const { return muonTrack(Picky);}
-    TrackRef dytTrack()   const { return muonTrack(DYT);}
+    virtual TrackRef tpfmsTrack() const { return muonTrackFromMap(TPFMS);}
+    virtual TrackRef pickyTrack() const { return muonTrackFromMap(Picky);}
+    virtual TrackRef dytTrack()   const { return muonTrackFromMap(DYT);}
     
     bool isAValidMuonTrack(const MuonTrackType& type) const;
     TrackRef muonTrack(const MuonTrackType&) const;
+
+    TrackRef muonTrackFromMap(const MuonTrackType& type) const {
+      MuonTrackRefMap::const_iterator iter = refittedTrackMap_.find(type);
+      if (iter != refittedTrackMap_.end()) 
+	return iter->second;
+      else 
+	return TrackRef();
+    }
 
     /// set reference to Track
     virtual void setInnerTrack( const TrackRef & t );

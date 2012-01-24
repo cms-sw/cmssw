@@ -1,4 +1,4 @@
-// $Id: DQMEventProcessor.h,v 1.6 2011/03/07 15:31:31 mommsen Exp $
+// $Id: DQMEventProcessor.h,v 1.7 2011/04/19 16:01:55 mommsen Exp $
 /// @file: DQMEventProcessor.h 
 
 #ifndef EventFilter_StorageManager_DQMEventProcessor_h
@@ -10,6 +10,7 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "EventFilter/StorageManager/interface/AlarmHandler.h"
 #include "EventFilter/StorageManager/interface/DQMEventStore.h"
 #include "EventFilter/StorageManager/interface/I2OChain.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
@@ -31,8 +32,8 @@ namespace stor {
    * to disk every N lumi-sections.
    *
    * $Author: mommsen $
-   * $Revision: 1.6 $
-   * $Date: 2011/03/07 15:31:31 $
+   * $Revision: 1.7 $
+   * $Date: 2011/04/19 16:01:55 $
    */
   
   class DQMEventProcessor : public toolbox::lang::Class
@@ -85,7 +86,7 @@ namespace stor {
 
     toolbox::task::WorkLoop* processWL_;      
 
-    DQMEventStore<I2OChain,InitMsgCollection,SharedResources> dqmEventStore_;
+    DQMEventStore<I2OChain,InitMsgCollection,AlarmHandler> dqmEventStore_;
 
   };
   
