@@ -16,6 +16,7 @@ VectorInputSource: Abstract interface for vector input sources.
 namespace edm {
   class EventPrincipal;
   struct InputSourceDescription;
+  class LuminosityBlockID;
   class ParameterSet;
   class VectorInputSource : public EDInputSource {
   public:
@@ -26,10 +27,10 @@ namespace edm {
     size_t loopRandom(size_t number, T eventOperator);
     template<typename T>
     size_t loopSequential(size_t number, T eventOperator);
-    template<typename T, typename ID>
-    size_t loopRandomWithID(ID id, size_t number, T eventOperator);
-    template<typename T, typename ID>
-    size_t loopSequentialWithID(ID id, size_t number, T eventOperator);
+    template<typename T>
+    size_t loopRandomWithID(LuminosityBlockID const& id, size_t number, T eventOperator);
+    template<typename T>
+    size_t loopSequentialWithID(LuminosityBlockID const& id, size_t number, T eventOperator);
     template<typename T, typename Collection>
     size_t loopSpecified(Collection const& events, T eventOperator);
 
@@ -38,9 +39,9 @@ namespace edm {
   private:
 
     virtual EventPrincipal* readOneRandom() = 0;
-    virtual EventPrincipal* readOneRandomWithID(LuminosityBlockID const& lumiId) = 0;
+    virtual EventPrincipal* readOneRandomWithID(LuminosityBlockID const& id) = 0;
     virtual EventPrincipal* readOneSequential() = 0;
-    virtual EventPrincipal* readOneSequentialWithID(LuminosityBlockID const& lumiId) = 0;
+    virtual EventPrincipal* readOneSequentialWithID(LuminosityBlockID const& id) = 0;
     virtual EventPrincipal* readOneSpecified(EventID const& event) = 0;
 
     virtual void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches) = 0;
@@ -68,8 +69,8 @@ namespace edm {
     return i;
   }
 
-  template<typename T, typename ID>
-  size_t VectorInputSource::loopRandomWithID(ID id, size_t number, T eventOperator) {
+  template<typename T>
+  size_t VectorInputSource::loopRandomWithID(LuminosityBlockID const& id, size_t number, T eventOperator) {
     size_t i = 0U;
     for(; i < number; ++i) {
       EventPrincipal* ep = readOneRandomWithID(id);
@@ -79,8 +80,8 @@ namespace edm {
     return i;
   }
 
-  template<typename T, typename ID>
-  size_t VectorInputSource::loopSequentialWithID(ID id, size_t number, T eventOperator) {
+  template<typename T>
+  size_t VectorInputSource::loopSequentialWithID(LuminosityBlockID const& id, size_t number, T eventOperator) {
     size_t i = 0U;
     for(; i < number; ++i) {
       EventPrincipal* ep = readOneSequentialWithID(id);
