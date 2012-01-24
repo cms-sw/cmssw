@@ -1,8 +1,8 @@
 ///  \author    : Gero Flucke
 ///  date       : October 2010
-///  $Revision: 1.2 $
-///  $Date: 2010/11/17 15:55:09 $
-///  (last update by $Author: flucke $)
+///  $Revision: 1.3 $
+///  $Date: 2012/01/24 13:13:15 $
+///  (last update by $Author: innocent $)
 
 #include "Geometry/CommonTopologies/interface/TwoBowedSurfacesDeformation.h"
 #include "Geometry/CommonTopologies/interface/SurfaceDeformationFactory.h"
@@ -14,15 +14,14 @@
 
 //------------------------------------------------------------------------------
 TwoBowedSurfacesDeformation::TwoBowedSurfacesDeformation(const std::vector<double> &pars)
-  : 
 {
   if (pars.size() != parameterSize()) {
     edm::LogError("BadSetup") << "@SUB=TwoBowedSurfacesDeformation"
                               << "Input vector of wrong size " << pars.size()
                               << " instead of " << parameterSize() << ", add zeros to fill up!";
   }
-  for (unsigned int i=0; i!=std::min(pars.size(), parameterSize()); ++i )  theParameters[i]=pars[i];
-  for (unsigned int i=pars.size(); i!=parameterSize()); ++i )  theParameters[i]=0;
+  for (unsigned int i=0; i!=std::min((unsigned int)(pars.size()), parameterSize()); ++i )  theParameters[i]=pars[i];
+  for (unsigned int i=pars.size(); i!=parameterSize(); ++i )  theParameters[i]=0;
   
 }
 

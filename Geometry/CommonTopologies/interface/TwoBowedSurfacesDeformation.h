@@ -62,7 +62,8 @@ class TwoBowedSurfacesDeformation : public SurfaceDeformation
   virtual std::vector<double> parameters() const;
 
   // the size
-  static constexpr unsigned int parameterSize() { return 13; }
+  static constexpr unsigned int parSize = 13; 
+  static constexpr unsigned int parameterSize() { return parSize; }
   
 
   /// minimum size of vector that is accepted by constructor from vector
@@ -71,10 +72,10 @@ class TwoBowedSurfacesDeformation : public SurfaceDeformation
   static constexpr unsigned int maxParameterSize() { return parameterSize();}
 
   // location of ySplit
-  static constexpr unsigned int k_ySplit() { return parameterSize()-1];
+  static constexpr unsigned int k_ySplit() { return parameterSize()-1;}
 
  private:
- double theParameters[parameterSize()];
+ double theParameters[parSize];
 };
 
 #endif
