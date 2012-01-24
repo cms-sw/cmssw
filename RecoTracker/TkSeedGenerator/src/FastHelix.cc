@@ -6,7 +6,7 @@
 
 FreeTrajectoryState FastHelix::stateAtVertex() const {
   
-  if(isValid() && (fabs(tesla0.z()) > 1e-3))
+  if(isValid() && (fabs(tesla0) > 1e-3) && circle.rho()<maxRho)
     return helixStateAtVertex();
   else 
     return straightLineStateAtVertex();
@@ -14,7 +14,14 @@ FreeTrajectoryState FastHelix::stateAtVertex() const {
 }
 
 FreeTrajectoryState FastHelix::helixStateAtVertex() const {
-  
+
+  // given the above rho>0.
+  // verify that rho is not toooo large
+  double dcphi = ((theOuterHit.x()-theCircle.x0())*(theMiddleHit.x()-theCircle.x0()) +
+		  (theOuterHit.y()-theCircle.y0())*(theMiddleHit.y()-theCircle.y0())
+		  )/(rho*rho);
+  if (fabs(dcphi)>=1.) return straightLineStateAtVertex();
+
   GlobalPoint pMid(theMiddleHit);
   GlobalPoint v(theVertex);
   
@@ -28,8 +35,7 @@ FreeTrajectoryState FastHelix::helixStateAtVertex() const {
   
   double rho = theCircle.rho();
   // pt = 0.01 * rho * (0.3*MagneticField::inTesla(GlobalPoint(0.,0.,0.)).z());
-  pt = 0.01 * rho * (0.3*tesla0.z());
-  //  pt = 0.01 * rho * (0.3*GlobalPoint(0.,0.,0.).MagneticField().z());
+  pt = 0.01 * rho * 0.3*tesla0;
 
   // (py/px)|x=v.x() = (dy/dx)|x=v.x()
   //remember:
@@ -82,26 +88,20 @@ FreeTrajectoryState FastHelix::helixStateAtVertex() const {
 
   // VI 23/01/2012
   double dzdrphi = theOuterHit.z() - theMiddleHit.z();
-  if (rho>0.) dzdrphi /=
-			    (rho*acos(((theOuterHit.x()-theCircle.x0())*(theMiddleHit.x()-theCircle.x0()) +
-				       (theOuterHit.y()-theCircle.y0())*(theMiddleHit.y()-theCircle.y0())
-				       )/(rho*rho)
-				      )
-			     );
+  dzdrphi /= rho*acos(dcphi);
   double pz = pt*dzdrphi;
 
-  /*
+  
   // old crap
   FastLine flfit(theOuterHit, theMiddleHit, theCircle.rho());
   double dzdrphi2 = -flfit.n1()/flfit.n2();
 
   //  if (fabs(dzdrphi2-dzdrphi)>1.e-5) 
-  //    std::cout << "FastHelix: old,new " << dzdrphi2 <<", " <<  dzdrphi << std::endl; 
-  */
+  std::cout << "FastHelix: old,new " << dzdrphi2 <<", " <<  dzdrphi << std::endl; 
+  
 
   //get sign of particle
 
-  GlobalVector magvtx=pSetup->inTesla(v);
   /*
   TrackCharge q = 
     ((theCircle.x0()*py - theCircle.y0()*px) / 
@@ -110,7 +110,7 @@ FreeTrajectoryState FastHelix::helixStateAtVertex() const {
   */
   TrackCharge q = 1;
   if (theCircle.x0()*py - theCircle.y0()*px < 0) q =-q;
-  if (magvtx.z() < 0.) q =-q;
+  if (tesla0 < 0.) q =-q;
 
   //VI
   if ( useBasisVertex ) {
@@ -120,16 +120,20 @@ FreeTrajectoryState FastHelix::helixStateAtVertex() const {
 	       &(*pSetup)
 	       );
   } else {
-    // double z_old = -flfit.c()/flfit.n2();
+    double z_0 =  theMiddleHit.z()
     // assume v is before middleHit (opposite to outer)
-    double ds = 
-      (rho*acos(((v.x()-theCircle.x0())*(theMiddleHit.x()-theCircle.x0()) +
-		 (v.y()-theCircle.y0())*(theMiddleHit.y()-theCircle.y0())
-		 )/(rho*rho)
-		)
-       );
-    double z_0 =  theMiddleHit.z() - ds*dzdrphi;
-    // std::cout << "v:xyz, z,old,new " << v << "   " << z_old << " " << z_0 << std::endl;
+    double ds = ( (v.x()-theCircle.x0())*(theMiddleHit.x()-theCircle.x0()) +
+		  (v.y()-theCircle.y0())*(theMiddleHit.y()-theCircle.y0())
+		  )/(rho*rho);
+    if (fabs(ds)<.) {
+      ds = rho*acos(ds);
+      z_0 -= ds*dzdrphi;
+    } else { // line????
+      z_0 -= std::sqrt((theMiddleHit-v).perp2()/(theOuterHit-theMiddleHit).perp2())*(theOuterHit.z()-theMiddleHit.z());
+    }
+    
+    double z_old = -flfit.c()/flfit.n2();
+    std::cout << "v:xyz, z,old,new " << v << "   " << z_old << " " << z_0 << std::endl;
     return FTS(GlobalPoint(v.x(),v.y(),z_0), 
 	       GlobalVector(px, py, pz),
 	       q, 
@@ -150,7 +154,7 @@ FreeTrajectoryState FastHelix::straightLineStateAtVertex() const {
   double pt = 0., px = 0., py = 0.;
   
   if(fabs(theCircle.n1()) > 0. || fabs(theCircle.n2()) > 0.)
-    pt = 1.e+4;// 10 TeV //else no pt
+    pt = maxPt  ;// 10 TeV //else no pt
   if(fabs(theCircle.n2()) > 0.) {
     dydx = -theCircle.n1()/theCircle.n2(); //else px = 0 
   }

@@ -13,6 +13,7 @@
    Generation of track parameters at a vertex using two hits and a vertex.
    It is used e.g. by a seed generator.
 
+   24.01.2012: introduced Maxpt cut. changed algo of "FastLine" to use vertex
    21.02.2001: Old FastHelix is now called FastHelixFit. Replace FastLineFit
                by FastLine (z0, dz/drphi calculated without vertex and errors)
    14.02.2001: Replace general Circle by FastCircle.
@@ -44,7 +45,8 @@ public:
 							   middleHit,
 							   aVertex) {
 		  iSetup.get<IdealMagneticFieldRecord>().get(pSetup);
-		  tesla0=pSetup->inTesla(GlobalPoint(0,0,0));
+		  tesla0=0.1*double(pSetup->nominalValue());
+		  maxRho = maxPt/(0.01 * 0.3*tesla0);
 		  useBasisVertex = false;
 		}
 
@@ -61,7 +63,8 @@ public:
 						        middleHit,
 							aVertex) {
 		  iSetup.get<IdealMagneticFieldRecord>().get(pSetup);
-		  tesla0=pSetup->inTesla(GlobalPoint(0,0,0));
+		  tesla0=0.1*double(pSetup->nominalValue());
+		  maxRho = maxPt/(0.01 * 0.3*tesla0);
 		  useBasisVertex = true;
 		}
 
@@ -76,14 +79,17 @@ public:
   FTS straightLineStateAtVertex() const;
 
 private:
-  
+
+  constexpr double maxPt = 10000; // 10Tev
+
   GlobalPoint theOuterHit;
   GlobalPoint theMiddleHit;
   GlobalPoint theVertex;
   GlobalPoint basisVertex;
   FastCircle theCircle;
   edm::ESHandle<MagneticField> pSetup;
-  GlobalVector tesla0;
+  double tesla0;
+  double maxRho;
   bool useBasisVertex;
 };
 
