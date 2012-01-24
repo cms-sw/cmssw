@@ -12,10 +12,10 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 #process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load("SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R34F16_cff")
-process.load("SLHCUpgradeSimulations.Geometry.Phase1_R34F16_cmsSimIdealGeometryXML_cff")
+process.load("SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R30F12_cff")
+process.load("SLHCUpgradeSimulations.Geometry.Phase1_R30F12_cmsSimIdealGeometryXML_cff")
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
-process.load('SLHCUpgradeSimulations.Geometry.Digi_Phase1_R34F16_cff')
+process.load('SLHCUpgradeSimulations.Geometry.Digi_Phase1_R30F12_cff')
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.DigiToRaw_cff')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
@@ -26,7 +26,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.11 $'),
+    version = cms.untracked.string('$Revision: 1.12 $'),
     annotation = cms.untracked.string('step2 nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -40,7 +40,7 @@ process.options = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-       '/store/mc/Summer11/TTbar_Tauola/GEN-SIM/DESIGN42_V11_428_SLHC1-v1/0003/1689DD1B-7A32-E111-AC68-60EB69BACB94.root'
+       'file:TTbar_Tauola_14TeV_cfi_GEN_SIM.root'
     )
 )
 # Output definition
@@ -89,7 +89,7 @@ process.simSiPixelDigis.AddPixelInefficiency = 20
 ## TIB1,2 inefficiency at 99% (i.e. dead)
 #process.simSiStripDigis.Inefficiency = 40
 
-process.load("SLHCUpgradeSimulations.Geometry.fakeConditions_Phase1_R34F16_cff")
+process.load("SLHCUpgradeSimulations.Geometry.fakeConditions_Phase1_R30F12_cff")
 process.load("SLHCUpgradeSimulations.Geometry.recoFromSimDigis_cff")
 process.load("SLHCUpgradeSimulations.Geometry.upgradeTracking_phase1_cff")
 

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 # Mostly copied from Configuration/StandardSequences/python/Geometry_cff.py
-# The R34F16 Version of the Phase 1 Pixel Upgrade
-from SLHCUpgradeSimulations.Geometry.Phase1_R34F16_cmsSimIdealGeometryXML_cfi import *
+# The R30F12 Version of the Phase 1 Pixel Upgrade
+from SLHCUpgradeSimulations.Geometry.Phase1_cmsSimIdealGeometryXML_cfi import *
 from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
 # Reconstruction geometry services
 #  Tracking Geometry
@@ -26,5 +26,3 @@ from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *
 from Geometry.EcalMapping.EcalMapping_cfi import *
 from Geometry.EcalMapping.EcalMappingRecord_cfi import *
 
-# HCal mods
-HcalTopologyIdealEP.SLHCMode = cms.untracked.bool(True)

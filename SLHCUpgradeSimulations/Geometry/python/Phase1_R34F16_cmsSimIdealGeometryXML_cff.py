@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 # Mostly copied from Configuration/StandardSequences/python/Geometry_cff.py
-# The R39F16 Version of the Phase 1 Pixel Upgrade
-from SLHCUpgradeSimulations.Geometry.Phase1_cmsSimIdealGeometryXML_cfi import *
+# The R34F16 Version of the Phase 1 Pixel Upgrade
+#from SLHCUpgradeSimulations.Geometry.Phase1_cmsSimIdealGeometryXML_cfi import *
+from SLHCUpgradeSimulations.Geometry.Phase1_R34F16_cmsSimIdealGeometryXML_cfi import *
 from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
 # Reconstruction geometry services
 #  Tracking Geometry
