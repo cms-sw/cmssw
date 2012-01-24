@@ -9,6 +9,7 @@ import FWCore.ParameterSet.Config as cms
 
 hltPixelAsymmetryFilter = cms.EDFilter( "HLTPixelAsymmetryFilter",
                                        inputTag  = cms.InputTag( "hltSiPixelClusters" ),
+                                       saveTags = cms.bool( False ),
                                        MinAsym   = cms.double( 0. ),     # minimum asymmetry 
                                        MaxAsym   = cms.double( 1. ),     # maximum asymmetry
                                        MinCharge = cms.double( 4000. ),  # minimum charge for a cluster to be selected (in e-)

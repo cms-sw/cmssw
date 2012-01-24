@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 hltPixlMBForAlignment = cms.EDFilter("HLTPixlMBForAlignmentFilter",
     pixlTag = cms.InputTag("hltPixelCands"),
+    saveTags = cms.bool( False ),
     MinIsol = cms.double(0.05), ## minimum eta-phi isolation around tracks
 
     MinTrks = cms.uint32(2), ## Number of tracks required

@@ -8,8 +8,9 @@ hltDTActivityFilter = cms.EDFilter( "HLTDTActivityFilter",
    processDCC       = cms.bool( True ), 
    processDDU       = cms.bool( True ), 
    processRPC       = cms.bool( True ), 
-   processDigis     = cms.bool( True ), 
-
+   processDigis     = cms.bool( True ),
+   saveTags = cms.bool( False ),
+                                    
    maxDeltaPhi = cms.double( 1.0 ),
    maxDeltaEta = cms.double( 0.3 ),
 

@@ -7,7 +7,8 @@ ecalIsolFilter = cms.EDFilter("HLTEcalIsolationFilter",
     EcalIsolatedParticleSource = cms.InputTag("ecalIsolPartProd"),
     MaxEnergyOuterCone = cms.double(10000.0),
     MaxEtaCandidate = cms.double(1.3),
-    MaxEnergyInnerCone = cms.double(10000.0)
+    MaxEnergyInnerCone = cms.double(10000.0),
+    saveTags = cms.bool( False )
 )
 
 

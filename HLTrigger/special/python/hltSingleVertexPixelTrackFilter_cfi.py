@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 hltSingleVertexPixelTrackFilter = cms.EDFilter("HLTSingleVertexPixelTrackFilter",
     vertexCollection = cms.InputTag("hltPixelVerticesForMinBias"),
     trackCollection = cms.InputTag("hltPixelCands"),
+    saveTags = cms.bool( False ),
     MinTrks = cms.int32(30),
     MaxEta = cms.double(1.0),
     MaxVz = cms.double(10.0),

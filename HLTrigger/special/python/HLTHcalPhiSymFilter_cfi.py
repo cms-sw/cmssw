@@ -10,7 +10,8 @@ alCaHcalPhiSymStream = cms.EDFilter("HLTHcalPhiSymFilter",
     phiSymHBHEHitCollection = cms.string('phiSymHcalRecHitsHBHE'),
     HOHitCollection = cms.InputTag("horeco"),
     phiSymHFHitCollection = cms.string('phiSymHcalRecHitsHF'),
-    HBHEHitCollection = cms.InputTag("hbhereco")
+    HBHEHitCollection = cms.InputTag("hbhereco"),
+    saveTags = cms.bool( False )
 )
 
 
