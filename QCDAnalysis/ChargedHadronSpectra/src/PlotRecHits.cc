@@ -196,10 +196,10 @@ void PlotRecHits::printStripRecHits(const edm::Event& ev)
             recHit = theStripHits->data().begin();
             recHit!= theStripHits->data().end(); recHit++)
       {
-        if(recHit->monoHit()->isValid())
-          printStripRecHit((recHit->monoHit()));
-        if(recHit->stereoHit()->isValid())
-          printStripRecHit((recHit->stereoHit()));
+          auto m = recHit->monoHit();
+          auto s = recHit->stereoHit();
+          printStripRecHit(&m);
+          printStripRecHit(&s);
 
         DetId id = recHit->geographicalId();
         LocalPoint lpos = recHit->localPosition();

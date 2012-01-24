@@ -337,8 +337,10 @@ int EnergyLossPlain::estimate
   
         if(stripMatchedRecHit != 0)
         {
-          process(ldir,stripMatchedRecHit->monoHit()  , vstr);
-          process(ldir,stripMatchedRecHit->stereoHit(), vstr);
+          auto m = stripMatchedRecHit->monoHit();
+          auto s = stripMatchedRecHit->stereoHit();
+          process(ldir,&m, vstr);
+          process(ldir,&s, vstr);
         } 
 
         if(stripProjectedRecHit != 0)

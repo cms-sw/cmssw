@@ -281,8 +281,10 @@ cerr << " track[" << i << "] " << recTrack->chi2() << " " << it->chiSquared() <<
 
         if(stripMatchedRecHit != 0)
         {
-          theRecHits.printStripRecHit(stripMatchedRecHit->monoHit());
-          theRecHits.printStripRecHit(stripMatchedRecHit->stereoHit());
+          auto m = stripMatchedRecHit->monoHit();
+          auto s = stripMatchedRecHit->stereoHit();
+          theRecHits.printStripRecHit(&m);
+          theRecHits.printStripRecHit(&s);
 
           DetId id = stripMatchedRecHit->geographicalId();
           LocalPoint lpos = stripMatchedRecHit->localPosition();
