@@ -1,0 +1,10 @@
+<lcgdict>
+ <class name="ClusterSummary">
+   <field name="nType" transient="true"/>
+   <field name="ClusterSize" transient="true"/>
+   <field name="ClusterCharge" transient="true"/>
+   <field name="userContent" transient="true"/>
+ </class>
+ <class name="edm::Wrapper<ClusterSummary>"/>
+</lcgdict>
+
