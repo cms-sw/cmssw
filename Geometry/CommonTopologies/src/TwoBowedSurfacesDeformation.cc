@@ -1,7 +1,7 @@
 ///  \author    : Gero Flucke
 ///  date       : October 2010
-///  $Revision: 1.3 $
-///  $Date: 2012/01/24 13:13:15 $
+///  $Revision: 1.4 $
+///  $Date: 2012/01/24 13:30:20 $
 ///  (last update by $Author: innocent $)
 
 #include "Geometry/CommonTopologies/interface/TwoBowedSurfacesDeformation.h"
@@ -99,11 +99,10 @@ TwoBowedSurfacesDeformation::positionCorrection(const Local2DPoint &localPos,
 bool TwoBowedSurfacesDeformation::add(const SurfaceDeformation &other)
 {
   if (this->type() == other.type()) {
-    // wonder how cuold be different!
     const std::vector<double> otherParameters(other.parameters());
     if (otherParameters.size() ==parameterSize() ) {
       if (theParameters[k_ySplit()] == otherParameters[k_ySplit()]) {
-	for (unsigned int i = 0; i < 11; ++i) {// -1 for ySplit
+	for (unsigned int i = 0; i != parameterSize()-1; ++i) {// -1 for ySplit
 	  // mean bows, delta shifts, delta angles and delta bows can simply be added up
 	  theParameters[i] += otherParameters[i];
 	}
