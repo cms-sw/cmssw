@@ -12,6 +12,7 @@ hltBeamModeFilter = cms.EDFilter("HLTBeamModeFilter",
     #
     # vector of allowed beam modes 
     # default value: 11 (STABLE)
-    AllowedBeamMode = cms.vuint32(11)
+    AllowedBeamMode = cms.vuint32(11),
 
+    saveTags = cms.bool( False )
 )
