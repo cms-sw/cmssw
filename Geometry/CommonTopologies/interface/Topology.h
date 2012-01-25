@@ -39,6 +39,7 @@ class GeomDetType;
 class Topology {
 public:
   typedef Basic2DVector<double> Vector2D;
+  typedef Vector2D::MathVector MathVector2D;
     /** Track angles in the local frame, needed to handle surface deformations */
   class LocalTrackAngles : public Vector2D {
   public:

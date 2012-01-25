@@ -1,7 +1,7 @@
 ///  \author    : Gero Flucke
 ///  date       : October 2010
-///  $Revision: 1.3 $
-///  $Date: 2012/01/25 08:01:20 $
+///  $Revision: 1.4 $
+///  $Date: 2012/01/25 08:28:39 $
 ///  (last update by $Author: innocent $)
 
 #include "Geometry/CommonTopologies/interface/BowedSurfaceDeformation.h"
@@ -54,22 +54,25 @@ BowedSurfaceDeformation::positionCorrection(const Local2DPoint &localPos,
 //   const double width = widthHighY;
   
 // try to use vectorization...
-  Vector2D  norm(width,length);
-  Vector2D uvRel = 2*localPos.basicVector().v/norm.v; 
+  MathVector2D  norm(width,length);
+  MathVector2D uvRel = 2*localPos.mathVector()/norm; 
   
   //  double uRel = (width  ? 2. * localPos.x() / width  : 0.);  // relative u (-1 .. +1)
   // double vRel = (length ? 2. * localPos.y() / length : 0.);  // relative v (-1 .. +1)
   // 'range check':
-  const double cutOff = 1.5;
-  if (uvRel.x() < -cutOff) { uvRel.v[0] = -cutOff; } else if (uvRel.x() > cutOff) { uvRel.v[0] = cutOff; }
-  if (uvRel.y() < -cutOff) { uvRel.v[1] = -cutOff; } else if (uvRel.y() > cutOff) { uvRel.v[1] = cutOff; }
+  //const double cutOff = 1.5;
+  // if (uvRel.x() < -cutOff) { uvRel.v[0] = -cutOff; } else if (uvRel.x() > cutOff) { uvRel.v[0] = cutOff; }
+  // if (uvRel.y() < -cutOff) { uvRel.v[1] = -cutOff; } else if (uvRel.y() > cutOff) { uvRel.v[1] = cutOff; }
+  const MathVector2D cutOff(1.5,1.5);
+  uvRel = max(uvRel,-cutOff);
+  uvRel = min(uvRel,cutOff);
   
   // apply coefficients to Legendre polynomials
   // to get local height relative to 'average'
   const double dw 
-    = (uvRel.x() * uvRel.x() - 1./3.) * theSagittaX
-    +  uvRel.x() * uvRel.y()          * theSagittaXY
-    + (uvRel.y() * uvRel.y() - 1./3.) * theSagittaY;
+    = (uvRel[0] * uvRel[0] - 1./3.) * theSagittaX
+    +  uvRel[0] * uvRel[1]          * theSagittaXY
+    + (uvRel[1] * uvRel[1] - 1./3.) * theSagittaY;
 
   
   return Local2DVector(-dw*localAngles);

@@ -22,6 +22,7 @@ class SurfaceDeformation
   typedef Topology::Local2DPoint         Local2DPoint;
   typedef Topology::LocalTrackAngles     LocalTrackAngles;
   typedef Topology::Vector2D             Vector2D;
+  typedef Topology::MathVector2D         MathVector2D;
 
   virtual SurfaceDeformation* clone() const = 0;
 
