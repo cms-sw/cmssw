@@ -2,12 +2,6 @@
 #define CommonAlignmentMonitor_AlignmentStats_H
 
 
-#include <Riostream.h>
-#include <fstream>
-#include <string>
-#include <vector>
-#include <map>
-
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventPrincipal.h" 
 #include "FWCore/Framework/interface/Event.h"
@@ -17,6 +11,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+
+// #include <Riostream.h>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <map>
+
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "TFile.h"
@@ -57,7 +58,7 @@ class AlignmentStats: public edm::EDAnalyzer{
   int Nhits[MAXTRKS_][7];//0=total, 1-6=Subdets
 
   //Hit Population
-  typedef map<uint32_t,uint32_t>DetHitMap;
+  typedef std::map<uint32_t,uint32_t>DetHitMap;
   DetHitMap hitmap_;
   DetHitMap overlapmap_;
 
