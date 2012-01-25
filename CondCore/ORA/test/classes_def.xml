@@ -1,4 +1,9 @@
 <lcgdict>
+  <class name="MixingInputConfig"/>
+  <class name="std::vector<MixingInputConfig>"/>
+  <class name="MixingModuleConfigV"/>
+  <class name="MixingModuleConfigA"/>
+  <class name="MixingModuleConfigIA"/>
   <class name="std::vector<testORA::SimpleMember>"/>
   <class name="std::vector<testORA::OtherMember>"/>
   <class name="std::vector<std::vector<testORA::OtherMember> >"/>

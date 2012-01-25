@@ -19,6 +19,7 @@ namespace ora {
 
     void execute( const std::string& connStr ){
       ora::Database db;
+      //creating database
       db.connect( connStr );
       ora::ScopedTransaction trans0( db.transaction() );
       trans0.start( false );
@@ -31,9 +32,10 @@ namespace ora {
       std::cout << "#### creating containers..."<<std::endl;
       if( conts.find( "Cont0" )!= conts.end() ) db.dropContainer( "Cont0" );
       if( conts.find( "std::string" )!= conts.end() ) db.dropContainer( "std::string" );
+      //creating containers
       db.createContainer<int>("Cont0");
       int contId = db.createContainer<std::string>().id();
-      //**
+      //inserting
       std::cout << "#### writing..."<<std::endl;
       ora::Container contH0 = db.containerHandle( "Cont0" );
       int myInt0(999);
@@ -48,11 +50,11 @@ namespace ora {
       int oid10 = contH1.insert( myStr0 );
       int oid11 = contH1.insert( myStr1 );
       contH1.flush();
-      ::sleep(3);
       //**
       trans0.commit();
       db.disconnect();
-      ::sleep(1);
+      sleep();
+      //reading back...
       db.connect( connStr );
       ora::ScopedTransaction trans1( db.transaction() );
       trans1.start( true );
@@ -97,7 +99,7 @@ namespace ora {
       }
       trans1.commit();
       db.disconnect();
-      //***
+      //updating
       std::cout << "#### updating..."<<std::endl;
       db.connect( connStr );  
       ora::ScopedTransaction trans2( db.transaction() );
@@ -140,7 +142,7 @@ namespace ora {
       }
       trans2.commit();
       db.disconnect();
-      //**
+      //reading back again
       std::cout << "#### reading after update..."<<std::endl;
       db.connect( connStr );
       ora::ScopedTransaction trans3( db.transaction() );
@@ -194,6 +196,7 @@ namespace ora {
       } catch (ora::Exception& e){
 	std::cout << "*** expected exception:"<<e.what()<<std::endl;
       }
+      //deleting
       std::cout << "#### deleting..."<<std::endl;
       db.connect( connStr );
       ora::ScopedTransaction trans4( db.transaction() );
@@ -204,6 +207,7 @@ namespace ora {
       db.flush();
       trans4.commit();
       db.disconnect();
+      //reading back...
       std::cout << "#### reading after delete..."<<std::endl;
       db.connect( connStr );  
       ora::ScopedTransaction trans5( db.transaction() );
@@ -245,6 +249,7 @@ namespace ora {
 	std::cout << " **** Cont="<<contH1.name()<<" val="<<*s<<std::endl;
       }
       std::cout <<"#### Database schema version="<<db.schemaVersion()<<std::endl;
+      //clean up
       db.drop();
       trans5.commit();
       db.disconnect();

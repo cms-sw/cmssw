@@ -25,6 +25,7 @@ namespace ora {
       //db.configuration().setMessageVerbosity( coral::Debug );
       db.connect( connStr0 );
       ora::ScopedTransaction trans( db.transaction() );
+      //creating source database
       trans.start( false );
       if(db.exists()){
 	db.drop();
@@ -32,8 +33,10 @@ namespace ora {
       db.create();
       std::set< std::string > conts = db.containers();
       if( conts.find( "Cont0" )!= conts.end() ) db.dropContainer( "Cont0" );
+      //creating container
       db.createContainer<SimpleClass>("Cont0");
       ora::Container contH0 = db.containerHandle( "Cont0" );
+      //inserting into source db
       SimpleClass s0(4);
       int oid0 = contH0.insert( s0 );
       SimpleClass s1(999);
@@ -42,18 +45,21 @@ namespace ora {
       trans.commit();
       db.disconnect();
       std::cout <<"## Source DB created."<<std::endl;
-      ::sleep(1);
+      sleep();
       db.connect( connStr1 );
+      //creating dest db
       trans.start( false );
       if(db.exists()){
 	db.drop();
       }
       db.create();
       trans.commit();
+      //importing schema from source
       trans.start( false );
       ora::DatabaseUtility util = db.utility();
       util.importContainerSchema( connStr0, "Cont0" );
       std::cout <<"## Imported Schema for container \"Cont0\""<<std::endl;
+      //inserting
       contH0 = db.containerHandle( "Cont0" );
       SimpleClass s01(5);
       oid0 = contH0.insert( s01 );
@@ -68,7 +74,7 @@ namespace ora {
       } catch ( ora::Exception& e ){
 	std::cout << "## Expected exception: "<<e.what()<<std::endl;
       }
-      // reading back...
+      //reading back from dest db
       db.connect( connStr1 );
       trans.start( true );
       util = db.utility();
@@ -96,6 +102,7 @@ namespace ora {
       }
       trans.commit();
       db.disconnect();
+      //creating another database automatically
       db.configuration().properties().setFlag( ora::Configuration::automaticDatabaseCreation() );
       db.connect( connStr2 );
       db.transaction().start( false );
@@ -109,7 +116,7 @@ namespace ora {
       util.importContainer( connStr0, "Cont0" );
       std::cout <<"## Container \"Cont0\" imported."<<std::endl;
       trans.commit();
-      db.disconnect(); 
+      db.disconnect();
       // reading back...
       db.connect( connStr2 );
       trans.start( true );
@@ -129,7 +136,7 @@ namespace ora {
       }
       trans.commit();
       db.disconnect();
-      ::sleep(1);
+      //clean up source db
       db.connect( connStr0 );
       trans.start( false );
       db.drop();

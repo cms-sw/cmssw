@@ -176,6 +176,7 @@ namespace ora {
       db.configuration().setBlobStreamingService( blobServ );
       db.connect( connStr );
       ora::ScopedTransaction trans( db.transaction() );
+      //creating database
       trans.start( false );
       if(!db.exists()){
 	db.create();
@@ -184,9 +185,9 @@ namespace ora {
       std::set< std::string > conts = db.containers();
       if( conts.find( "Cont0" )!= conts.end() ) db.dropContainer( "Cont0" );
       if( conts.find( "testORA::SiStripNoises" )!= conts.end() ) db.dropContainer( "testORA::SiStripNoises" );
-      //
+      //creating container
       db.createContainer<SB>("Cont0");
-
+      //inserting
       ora::Container contH0 = db.containerHandle( "Cont0" );
       std::vector<boost::shared_ptr<SB> > buff;
       for( unsigned int i=0;i<10;i++){
@@ -196,9 +197,9 @@ namespace ora {
       }
       contH0.flush();
       buff.clear();
-
+      //creating another container
       ora::Container cont2 = db.createContainer<SiStripNoises>();
-
+      //inserting
       std::vector<boost::shared_ptr<SiStripNoises> > buff2;
       for( unsigned int i=0;i<10;i++){
 	boost::shared_ptr<SiStripNoises> obj( new SiStripNoises(i) );
@@ -209,7 +210,7 @@ namespace ora {
       buff2.clear();
       trans.commit();
       db.disconnect();
-      ::sleep(1);
+      sleep();
       // reading back...
       db.connect( connStr );
       trans.start( true );
@@ -242,6 +243,7 @@ namespace ora {
 	}
       }
       trans.commit();
+      //clean up
       trans.start( false );
       db.drop();
       trans.commit();
