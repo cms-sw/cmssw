@@ -446,6 +446,9 @@ namespace mathSSE {
       return Vec2(arr[n],arr[n]);
     }
     */
+    double & operator[](unsigned int n) {
+      return arr[n];
+    }
     double operator[](unsigned int n) const {
       return arr[n];
     }
