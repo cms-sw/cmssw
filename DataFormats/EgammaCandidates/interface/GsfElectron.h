@@ -165,8 +165,10 @@ class GsfElectron : public RecoCandidate
     virtual GsfElectronCoreRef core() const ;
 
     // forward core methods
-    SuperClusterRef superCluster() const { return core()->superCluster() ; }
-    GsfTrackRef gsfTrack() const { return core()->gsfTrack() ; }
+    virtual SuperClusterRef superCluster() const { return core()->superCluster() ; }
+    virtual GsfTrackRef gsfTrack() const { return core()->gsfTrack() ; }
+    virtual TrackRef closestTrack() const { return core()->ctfTrack() ; }
+    float shFracInnerHits() const { return core()->ctfGsfOverlap() ; } // measure the fraction of common hits between the GSF and CTF tracks
     bool ecalDrivenSeed() const { return core()->ecalDrivenSeed() ; }
     bool trackerDrivenSeed() const { return core()->trackerDrivenSeed() ; }
     SuperClusterRef pflowSuperCluster() const { return core()->pflowSuperCluster() ; }
