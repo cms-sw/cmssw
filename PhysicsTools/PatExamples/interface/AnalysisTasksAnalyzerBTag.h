@@ -34,7 +34,7 @@ class AnalysisTasksAnalyzerBTag : public edm::BasicAnalyzer {
   /// input tag for mouns
   edm::InputTag Jets_;
   std::string bTagAlgo_;
-  uint bins_;
+  unsigned int bins_;
   double lowerbin_;
   double upperbin_;
   std::string softMuonTagInfoLabel_;

@@ -47,12 +47,12 @@ AnalysisTasksAnalyzerJEC::analyze(const edm::EventBase& event)
 ///// You can get some help if you switch help to True in your config file
   	if(help_==true){    		
        		std::cout<<"\n \n number of available JEC sets: "<< jet_it->availableJECSets().size() << std::endl; 
-		for(uint k=0; k< jet_it->availableJECSets().size(); ++k){
+		for(unsigned int k=0; k< jet_it->availableJECSets().size(); ++k){
 			 std::cout<<"\n \n available JEC Set: "<< jet_it->availableJECSets()[k] << std::endl; 
 		}	
        		std::cout<<"\n \n*** You found out which JEC Sets exist! Now correct it in your config file."<<std::endl;
        		std::cout<<"\n \n number of available JEC levels "<< jet_it->availableJECLevels().size() << std::endl; 
-       		for(uint k=0; k< jet_it->availableJECLevels().size(); ++k){
+       		for(unsigned int k=0; k< jet_it->availableJECLevels().size(); ++k){
 	 		std::cout<<"\n \n available JEC: "<< jet_it->availableJECLevels(patJetCorrFactors_)[k] << std::endl; 
        		}
        		std::cout<<"\n \n**** You did it correctly congratulations!!!!  And you found out which JEC levels are saved within the jets. Correct this in your configuration file." <<std::endl;	     		

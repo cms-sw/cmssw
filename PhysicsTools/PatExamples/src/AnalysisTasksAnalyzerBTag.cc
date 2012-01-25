@@ -9,7 +9,7 @@ AnalysisTasksAnalyzerBTag::AnalysisTasksAnalyzerBTag(const edm::ParameterSet& cf
   edm::BasicAnalyzer::BasicAnalyzer(cfg, fs),
   Jets_(cfg.getParameter<edm::InputTag>("Jets")),
   bTagAlgo_(cfg.getParameter<std::string>("bTagAlgo")),
-  bins_(cfg.getParameter<uint>("bins")),
+  bins_(cfg.getParameter<unsigned int>("bins")),
   lowerbin_(cfg.getParameter<double>("lowerbin")),
   upperbin_(cfg.getParameter<double>("upperbin")),
   softMuonTagInfoLabel_(cfg.getParameter<std::string>("softMuonTagInfoLabel")),
@@ -29,7 +29,7 @@ AnalysisTasksAnalyzerBTag::AnalysisTasksAnalyzerBTag(const edm::ParameterSet& cf
 }
 AnalysisTasksAnalyzerBTag::~AnalysisTasksAnalyzerBTag()
 {
-  for(uint i=0; i< bins_; ++i){
+  for(unsigned int i=0; i< bins_; ++i){
    hists_["effBTag_b"]->SetBinContent(i,hists_["BTag_b"]->Integral(i,hists_["BTag_b"]->GetNbinsX()+1)/hists_["BTag_b"]->Integral(0,hists_["BTag_b"]->GetNbinsX()+1) );
    hists_["effBTag_g"]->SetBinContent(i,hists_["BTag_g"]->Integral(i,hists_["BTag_g"]->GetNbinsX()+1)/hists_["BTag_g"]->Integral(0,hists_["BTag_g"]->GetNbinsX()+1) );
    hists_["effBTag_c"]->SetBinContent(i,hists_["BTag_c"]->Integral(i,hists_["BTag_c"]->GetNbinsX()+1)/hists_["BTag_c"]->Integral(0,hists_["BTag_c"]->GetNbinsX()+1) );
