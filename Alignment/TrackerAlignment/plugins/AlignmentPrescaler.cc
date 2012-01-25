@@ -24,7 +24,7 @@
 #include "DataFormats/Alignment/interface/AlignmentClusterFlag.h"
 #include "DataFormats/Alignment/interface/AliClusterValueMap.h"
 
-#include "Riostream.h"
+// #include "Riostream.h"
 
 AlignmentPrescaler::AlignmentPrescaler(const edm::ParameterSet &iConfig):
   src_(iConfig.getParameter<edm::InputTag>("src")),
