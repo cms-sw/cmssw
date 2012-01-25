@@ -473,12 +473,17 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 
 	  //chi2test compare rechit errors with the simhit position ( using null matrix for the simhit). 
 	  //Can spot problems in the geometry better than a simple residual. (thanks to BorisM)
-	  AlgebraicVector rhparameters = rechit.parameters();
+	  AlgebraicVector  rhparameters(2);//= rechit.parameters();
+	  rhparameters[0] = position.x(); 
+	  rhparameters[1] = position.y();
 	  AlgebraicVector shparameters(2);
 	  shparameters[0] = closest.localPosition().x();
 	  shparameters[1] = closest.localPosition().y();
 	  AlgebraicVector r(rhparameters - shparameters);
-	  AlgebraicSymMatrix R  = rechit.parametersError();
+	  AlgebraicSymMatrix R(2);//  = rechit.parametersError();
+	  R[0][0] = error.xx();
+	  R[0][1] = error.xy();
+	  R[1][1] = error.yy();
 	  int ierr; 
 	  R.invert(ierr); // if (ierr != 0) throw exception;
 	  double est = R.similarity(r);
@@ -549,12 +554,19 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	  rechitsaspullMF[j] = (Mposition.x() - (topol.measurementPosition(closest.localPosition())).x())/sqrt(Merror.uu());
 	  //chi2test compare rechit errors with the simhit position ( using null matrix for the simhit). 
 	  //Can spot problems in the geometry better than a simple residual. (thanks to BorisM)
-	  AlgebraicVector rhparameters = rechit.parameters();
+// 	  AlgebraicVector rhparameters = rechit.parameters();
+	  AlgebraicVector  rhparameters(2);//= rechit.parameters();
+	  rhparameters[0] = position.x(); 
+	  rhparameters[1] = position.y();
 	  AlgebraicVector shparameters(2);
 	  shparameters[0] = closest.localPosition().x();
 	  shparameters[1] = closest.localPosition().y();
 	  AlgebraicVector r(rhparameters - shparameters);
-	  AlgebraicSymMatrix R  = rechit.parametersError();
+// 	  AlgebraicSymMatrix R  = rechit.parametersError();
+	  AlgebraicSymMatrix R(2);//  = rechit.parametersError();
+	  R[0][0] = error.xx();
+	  R[0][1] = error.xy();
+	  R[1][1] = error.yy();
 	  int ierr; 
 	  R.invert(ierr); // if (ierr != 0) throw exception;
 	  double est = R.similarity(r);
@@ -642,13 +654,18 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
  	  //chi2test compare rechit errors with the simhit position ( using null matrix for the simhit). 
  	  //Can spot problems in the geometry better than a simple residual. (thanks to BorisM)
 
- 	  AlgebraicVector rhparameters = rechit.parameters();
+	  AlgebraicVector  rhparameters(2);//= rechit.parameters();
+	  rhparameters[0] = position.x(); 
+	  rhparameters[1] = position.y();
  	  LocalPoint sh = closestPair.first;
  	  AlgebraicVector shparameters(2);
  	  shparameters[0] = sh.x();
  	  shparameters[1] = sh.y();
  	  AlgebraicVector r(rhparameters - shparameters);
- 	  AlgebraicSymMatrix R  = rechit.parametersError();
+	  AlgebraicSymMatrix R(2);//  = rechit.parametersError();
+	  R[0][0] = error.xx();
+	  R[0][1] = error.xy();
+	  R[1][1] = error.yy();
 	  int ierr; 
 	  R.invert(ierr); // if (ierr != 0) throw exception;
 	  double est = R.similarity(r);
