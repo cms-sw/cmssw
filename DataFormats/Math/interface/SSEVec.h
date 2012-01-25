@@ -637,6 +637,15 @@ inline mathSSE::Vec4F operator/(mathSSE::Vec4F a, mathSSE::Vec4F b) {
   return  _mm_div_ps(a.vec,b.vec);
 }
 
+inline mathSSE::Vec4F min(mathSSE::Vec4F a, mathSSE::Vec4F b) {
+  return  _mm_min_ps(a.vec,b.vec);
+}
+
+inline mathSSE::Vec4F max(mathSSE::Vec4F a, mathSSE::Vec4F b) {
+  return  _mm_max_ps(a.vec,b.vec);
+}
+
+
 inline mathSSE::Vec4F operator*(float a, mathSSE::Vec4F b) {
   return  _mm_mul_ps(_mm_set1_ps(a),b.vec);
 }
@@ -785,6 +794,16 @@ inline mathSSE::Vec2D operator/(mathSSE::Vec2D a, mathSSE::Vec2D b) {
   return  _mm_div_pd(a.vec,b.vec);
 }
 
+
+inline mathSSE::Vec2D min(mathSSE::Vec2D a, mathSSE::Vec2D b) {
+  return _mm_min_pd(a.vec,b.vec);
+}
+
+inline mathSSE::Vec2D max(mathSSE::Vec2D a, mathSSE::Vec2D b) {
+  return _mm_max_pd(a.vec,b.vec);
+}
+
+
 inline mathSSE::Vec2D operator*(double a, mathSSE::Vec2D b) {
   return  _mm_mul_pd(_mm_set1_pd(a),b.vec);
 }
@@ -796,6 +815,7 @@ inline mathSSE::Vec2D operator*(mathSSE::Vec2D b,double a) {
 inline mathSSE::Vec2D operator/(mathSSE::Vec2D b,double a) {
   return  _mm_div_pd(b.vec,_mm_set1_pd(a));
 }
+
 
 inline double dot(mathSSE::Vec2D a, mathSSE::Vec2D b)  __attribute__((always_inline)) __attribute__ ((pure));
 
@@ -860,6 +880,15 @@ inline mathSSE::Vec4D operator*(mathSSE::Vec4D a, mathSSE::Vec4D b) {
 }
 inline mathSSE::Vec4D operator/(mathSSE::Vec4D a, mathSSE::Vec4D b) {
   return  mathSSE::Vec4D(_mm_div_pd(a.vec[0],b.vec[0]),_mm_div_pd(a.vec[1],b.vec[1]));
+}
+
+
+inline mathSSE::Vec4D min(mathSSE::Vec4D a, mathSSE::Vec4D b) {
+  return  mathSSE::Vec4D(min(a.vec[0],b.vec[0]),min(a.vec[1],b.vec[1]) );
+}
+
+inline mathSSE::Vec4D max(mathSSE::Vec4D a, mathSSE::Vec4D b) {
+  return  mathSSE::Vec4D(max(a.vec[0],b.vec[0]),max(a.vec[1],b.vec[1]) );
 }
 
 inline mathSSE::Vec4D operator*(double a, mathSSE::Vec4D b) {
