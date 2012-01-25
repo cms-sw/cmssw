@@ -21,7 +21,7 @@
  * \author Ivica Puljak - FESB, Split
  * \author Stephanie Baffioni - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: ElectronMomentumCorrector.cc,v 1.19 2011/10/19 06:14:30 chamont Exp $
+ * \version $Id: ElectronMomentumCorrector.cc,v 1.20 2011/12/09 18:29:12 chamont Exp $
  *
  ****************************************************************************/
 
@@ -142,7 +142,7 @@ void ElectronMomentumCorrector::correct( reco::GsfElectron & electron, Trajector
          { finalMomentum = scEnergy; finalMomentumError = errorEnergy_ ; }
         if (elClass == reco::GsfElectron::SHOWERING)
          {
-          if (scEnergy<36)
+          if (scEnergy<30)
            { finalMomentum = trackMomentum ; finalMomentumError = errorTrackMomentum; }
           else
            { finalMomentum = scEnergy; finalMomentumError = errorEnergy_;}
