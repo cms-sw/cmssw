@@ -715,7 +715,7 @@ inline mathSSE::Vec4F min(mathSSE::Vec2F a, mathSSE::Vec2F b) {
 }
 
 inline mathSSE::Vec4F max(mathSSE::Vec2F a, mathSSE::Vec2F b) {
-  return  max(mathSSE::Vec4F(a),mathSSE::Vec4F(b));
+  return  ::max(mathSSE::Vec4F(a),mathSSE::Vec4F(b));
 }
 
 
@@ -896,7 +896,7 @@ inline mathSSE::Vec4D min(mathSSE::Vec4D a, mathSSE::Vec4D b) {
 }
 
 inline mathSSE::Vec4D max(mathSSE::Vec4D a, mathSSE::Vec4D b) {
-  return  mathSSE::Vec4D(max(a.vec[0],b.vec[0]),max(a.vec[1],b.vec[1]) );
+  return  mathSSE::Vec4D(::max(a.vec[0],b.vec[0]),::max(a.vec[1],b.vec[1]) );
 }
 
 inline mathSSE::Vec4D operator*(double a, mathSSE::Vec4D b) {
