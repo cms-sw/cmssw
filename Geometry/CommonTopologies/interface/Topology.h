@@ -38,15 +38,16 @@ class GeomDetType;
 
 class Topology {
 public:
+  typedef Basic2DVector<double> Vector2D;
     /** Track angles in the local frame, needed to handle surface deformations */
-    class LocalTrackAngles {
-        public:
-            LocalTrackAngles(double dxdz, double dydz) : dxdz_(dxdz), dydz_(dydz) {}
-            double dydz() const { return dydz_; }
-            double dxdz() const { return dxdz_; }
-        private:
-            double dxdz_, dydz_;
-    };
+  class LocalTrackAngles : public Vector2D {
+  public:
+    typedef  Basic2DVector<double> Base;
+    LocalTrackAngles(const Base & v) : Base(v) {}
+    LocalTrackAngles(double dxdz, double dydz) : Base(dxdz,dydz) {}
+    double dydz() const { return x(); }
+    double dxdz() const { return y(); }
+  };
     typedef Point2DBase <double, LocalTag> Local2DPoint;
     /** Track prediction in local frame (2D point and angles), 
 	needed to handle surface deformations*/

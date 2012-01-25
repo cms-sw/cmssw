@@ -1,7 +1,7 @@
 ///  \author    : Gero Flucke
 ///  date       : October 2010
-///  $Revision: 1.1 $
-///  $Date: 2010/10/26 19:00:00 $
+///  $Revision: 1.2 $
+///  $Date: 2010/11/17 15:55:09 $
 ///  (last update by $Author: flucke $)
 
 #include "Geometry/CommonTopologies/interface/BowedSurfaceDeformation.h"
@@ -53,25 +53,26 @@ BowedSurfaceDeformation::positionCorrection(const Local2DPoint &localPos,
 //   }
 //   const double width = widthHighY;
   
-  double uRel = (width  ? 2. * localPos.x() / width  : 0.);  // relative u (-1 .. +1)
-  double vRel = (length ? 2. * localPos.y() / length : 0.);  // relative v (-1 .. +1)
+// try to use vectorization...
+  Vector2D  norm(width,lengh);
+  Vector2D uvRel = 2*locaPos.basicVector().v/norm.v; 
+  
+  //  double uRel = (width  ? 2. * localPos.x() / width  : 0.);  // relative u (-1 .. +1)
+  // double vRel = (length ? 2. * localPos.y() / length : 0.);  // relative v (-1 .. +1)
   // 'range check':
   const double cutOff = 1.5;
-  if (uRel < -cutOff) { uRel = -cutOff; } else if (uRel > cutOff) { uRel = cutOff; }
-  if (vRel < -cutOff) { vRel = -cutOff; } else if (vRel > cutOff) { vRel = cutOff; }
+  if (uvRel.x() < -cutOff) { uRel.x() = -cutOff; } else if (uvRel.x() > cutOff) { uvRel[0] = cutOff; }
+  if (uvRel.y() < -cutOff) { vRel.y() = -cutOff; } else if (uvRel.y() > cutOff) { uvRel[1] = cutOff; }
   
   // apply coefficients to Legendre polynomials
   // to get local height relative to 'average'
   const double dw 
-    = (uRel * uRel - 1./3.) * theSagittaX
-    +  uRel * vRel          * theSagittaXY
-    + (vRel * vRel - 1./3.) * theSagittaY;
+    = (uvRel.x() * uvRel.x() - 1./3.) * theSagittaX
+    +  uvRel.x() * uvRel.y()          * theSagittaXY
+    + (uvRel.y() * uvRel.y() - 1./3.) * theSagittaY;
 
-  // positive dxdz/dydz and positive dw mean negative shift in x/y: 
-  const Local2DVector::ScalarType x = -dw * localAngles.dxdz();
-  const Local2DVector::ScalarType y = -dw * localAngles.dydz();
   
-  return Local2DVector(x, y);
+  return Local2DVector(-dw*localAngles);
 }
 
 //------------------------------------------------------------------------------
