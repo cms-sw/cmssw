@@ -88,6 +88,10 @@ public:
   AlignmentPositionError* alignmentPositionError() const { return theAlignmentPositionError;}
 
 
+  // specific unix index in a given subdetector (such as Tracker)
+  int index() const { return m_index;}
+  void setIndex(int i) { m_index=i;}
+
   protected:
 
     void setDetId(DetId id) {
@@ -100,7 +104,7 @@ private:
   AlignmentPositionError*               theAlignmentPositionError;
   LocalError                            theLocalAlignmentError;
   DetId m_detId;
-
+  int m_index;
 
   /// Alignment part of interface, available only to friend 
   friend class DetPositioner;

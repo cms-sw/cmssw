@@ -45,7 +45,7 @@ TrackerGeometry* TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* 
   for(u_int32_t i = 0;i<comp.size();i++)
     dets[comp[i]->geographicalID().subdetId()-1].push_back(comp[i]);
   
-
+  // this order is VERY IMPORTANT!!!!!
   buildPixel(pixB,tracker,theDetIdToEnum.type(1), "barrel"); //"PixelBarrel" 
   buildPixel(pixF,tracker,theDetIdToEnum.type(2), "endcap"); //"PixelEndcap" 
   buildSilicon(tib,tracker,theDetIdToEnum.type(3), "barrel");// "TIB"	
@@ -60,6 +60,7 @@ void TrackerGeomBuilderFromGeometricDet::buildPixel(std::vector<const GeometricD
 						    TrackerGeometry* tracker,
 						    GeomDetType::SubDetector det,
 						    const std::string& part){ 
+  tracker->setOffsetDU(det);
 
   for(u_int32_t i=0; i<gdv.size(); i++){
 
@@ -91,6 +92,8 @@ void TrackerGeomBuilderFromGeometricDet::buildSilicon(std::vector<const Geometri
 						      GeomDetType::SubDetector det,
 						      const std::string& part)
 { 
+  tracker->setOffsetDU(det);
+
   for(u_int32_t i=0;i<gdv.size();i++){
 
     std::string const & detName = gdv[i]->name().fullname();

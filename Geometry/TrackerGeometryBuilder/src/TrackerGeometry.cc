@@ -30,6 +30,8 @@ void TrackerGeometry::addType(GeomDetType* p) {
 }
 
 void TrackerGeometry::addDetUnit(GeomDetUnit* p) {
+  // set index
+  p->setIndex(theDetUnits.size());
   theDetUnits.push_back(p);  // add to vector
   theMapUnit.insert(std::make_pair(p->geographicalId().rawId(),p));
 }

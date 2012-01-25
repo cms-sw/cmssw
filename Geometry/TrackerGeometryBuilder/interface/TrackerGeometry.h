@@ -2,6 +2,7 @@
 #define Geometry_TrackerGeometryBuilder_TrackerGeometry_H
 
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
 
 class GeometricDet;
 
@@ -25,6 +26,7 @@ namespace trackerTrie {
  */
 class TrackerGeometry : public TrackingGeometry {
 public:
+  typedef GeomDetEnumerators::SubDetector SubDetector;
 
   explicit TrackerGeometry(GeometricDet const* gd=0);  
 
@@ -45,8 +47,9 @@ public:
   void addDet(GeomDet* p);
   void addDetId(DetId p);
 
-
-
+  unsigned int offsetDU(SubDetector sid) const { return theOffsetDU[sid];}
+  // magic : better be called at the right moment...
+  void setOffsetDU(SubDetector sid} { theOffsetDU[sid]=detUnits().size();}
 
   GeometricDet const * trackerDet() const; 
 
@@ -66,6 +69,7 @@ private:
 
   DetTypeContainer  theDetTypes;  // owns the DetTypes
   DetUnitContainer  theDetUnits;  // they're all also into 'theDets', so we assume 'theDets' owns them
+  unsigned int      theOffsetDU[6]; // offsets in the above
   DetContainer      theDets;      // owns *ONLY* the GeomDet * corresponding to GluedDets.
   DetIdContainer    theDetUnitIds;
   DetIdContainer    theDetIds; 
