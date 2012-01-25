@@ -1006,6 +1006,11 @@ class PickRelValInputFiles( ConfigToolBase ):
             # partially stolen from das_client.py for option '--format=plain', needs filter ("grep") in the query
             dasData     = das_client.get_data( 'https://cmsweb.cern.ch', dasQuery, 0, dasLimit, False )
             jsondict    = json.loads( dasData )
+            if debug:
+                print '%s DEBUG: Received DAS data:'%( self._label )
+                print '    \'%s\''%( dasData )
+                print '%s DEBUG: Determined JSON dictionary:'%( self._label )
+                print '    \'%s\''%( jsondict )
             if jsondict[ 'status' ] != 'ok':
                 print 'There was a problem while querying DAS with query \'%s\'. Server reply was:\n %s' % (dasQuery, dasData)
 #                 if debug:
@@ -1015,9 +1020,17 @@ class PickRelValInputFiles( ConfigToolBase ):
             mongo_query = jsondict[ 'mongo_query' ]
             filters     = mongo_query[ 'filters' ]
             data        = jsondict[ 'data' ]
-            rows = []
+            if debug:
+                print '%s DEBUG: Query in JSON dictionary:'%( self._label )
+                print '    \'%s\''%( mongo_query )
+                print '%s DEBUG: Filters in query:'%( self._label )
+                print '    \'%s\''%( filters )
+                print '%s DEBUG: Data in JSON dictionary:'%( self._label )
+                print '    \'%s\''%( data )
             for row in data:
                 filePath = [ r for r in das_client.get_value( row, filters ) ][ 0 ]
+                if debug:
+                    print '%s DEBUG: Testing file entry \'%s\''%( self._label, filePath )
                 if len( filePath ) > 0:
                     if validVersion != version:
                         dasTest         = das_client.get_data( 'https://cmsweb.cern.ch', 'site dataset=%s | grep site.name'%( dataset ), 0, 999, False )
@@ -1025,7 +1038,17 @@ class PickRelValInputFiles( ConfigToolBase ):
                         mongo_testquery = jsontestdict[ 'mongo_query' ]
                         testfilters = mongo_testquery[ 'filters' ]
                         testdata    = jsontestdict[ 'data' ]
-                        testrows = []
+                        if debug:
+                            print '%s DEBUG: Received DAS data (site test):'%( self._label )
+                            print '    \'%s\''%( dasTest )
+                            print '%s DEBUG: Determined JSON dictionary (site test):'%( self._label )
+                            print '    \'%s\''%( jsontestdict )
+                            print '%s DEBUG: Query in JSON dictionary (site test):'%( self._label )
+                            print '    \'%s\''%( mongo_testquery )
+                            print '%s DEBUG: Filters in query (site test):'%( self._label )
+                            print '    \'%s\''%( testfilters )
+                            print '%s DEBUG: Data in JSON dictionary (site test):'%( self._label )
+                            print '    \'%s\''%( testdata )
                         foundSE = False
                         for testrow in testdata:
                             siteName = [ tr for tr in das_client.get_value( testrow, testfilters ) ][ 0 ]
