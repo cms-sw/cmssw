@@ -4,6 +4,9 @@ import FWCore.ParameterSet.Config as cms
 # This cfi should be included to run the CkfTrajectoryMaker 
 #
 ckfTrajectories = cms.EDProducer("CkfTrajectoryMaker",
+    # these two needed by HLT
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    maxNSeeds = cms.uint32( 100000 ),
     # set it as "none" to avoid redundant seed cleaner
     RedundantSeedCleaner = cms.string('CachingSeedCleanerBySharedInput'),
     TrajectoryCleaner = cms.string('TrajectoryCleanerBySharedHits'),
