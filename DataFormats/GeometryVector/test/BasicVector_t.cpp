@@ -97,7 +97,9 @@ int main() {
     std::cout << dotV(x,y) << std::endl; 
     std::cout << normV(x) << std::endl; 
     std::cout << norm(x) << std::endl; 
-    
+    std::cout << min(x.mathVector(),y.mathVector()) << std::endl;
+    std::cout << max(x.mathVector(),y.mathVector()) << std::endl;
+
     std::cout << dotV(x,yd) << std::endl; 
     std::cout << dotV(xd,y) << std::endl; 
     std::cout << dotV(xd,yd) << std::endl; 
@@ -140,7 +142,9 @@ int main() {
     std::cout << dotV(x2,y2) << std::endl; 
     std::cout << normV(x2) << std::endl; 
     std::cout << norm(x2) << std::endl; 
-    
+    std::cout << min(x2.mathVector(),y2.mathVector()) << std::endl;
+    std::cout << max(x2.mathVector(),y2.mathVector()) << std::endl;
+
     std::cout << dotV(x2,yd2) << std::endl; 
     std::cout << dotV(xd2,y2) << std::endl; 
     std::cout << dotV(xd2,yd2) << std::endl; 

@@ -710,6 +710,14 @@ inline mathSSE::Vec4F operator/(mathSSE::Vec2F a, mathSSE::Vec2F b) {
   return  mathSSE::Vec4F(a)/mathSSE::Vec4F(b);
 }
 
+inline mathSSE::Vec4F min(mathSSE::Vec2F a, mathSSE::Vec2F b) {
+  return  min(mathSSE::Vec4F(a),mathSSE::Vec4F(b));
+}
+
+inline mathSSE::Vec4F max(mathSSE::Vec2F a, mathSSE::Vec2F b) {
+  return  max(mathSSE::Vec4F(a),mathSSE::Vec4F(b));
+}
+
 
 inline mathSSE::Vec4F operator*(mathSSE::Vec2F a, float s) {
   return  s*mathSSE::Vec4F(a);

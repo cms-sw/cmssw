@@ -25,6 +25,8 @@ class Basic3DVector {
 public:
 
   typedef T                                   ScalarType;
+  typedef mathSSE::Vec4<T>                    VectorType;
+  typedef mathSSE::Vec4<T>                    MathVector;
   typedef Geom::Cylindrical2Cartesian<T>      Cylindrical;
   typedef Geom::Spherical2Cartesian<T>        Spherical;
   typedef Spherical                           Polar; // synonym
@@ -81,6 +83,10 @@ public:
     Polar p( theta.value(), phi.value(), r);
     v.o.theX = p.x(); v.o.theY = p.y(); v.o.theZ = p.z();
   }
+
+  MathVector const & mathVector() const { return v;}
+  MathVector & mathVector() { return v;}
+
 
   /// Cartesian x coordinate
   T x() const { return v.o.theX;}

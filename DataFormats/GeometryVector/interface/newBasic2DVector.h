@@ -16,6 +16,8 @@ class Basic2DVector {
 public:
 
   typedef T    ScalarType;
+  typedef mathSSE::Vec2<T> VectorType;
+  typedef mathSSE::Vec2<T> MathVector;
   typedef Geom::Polar2Cartesian<T>        Polar;
 
   /** default constructor uses default constructor of T to initialize the 
@@ -49,6 +51,9 @@ public:
   Basic2DVector(mathSSE::Vec2<U> const& iv) : v(iv){}
   template<typename U>
   Basic2DVector(mathSSE::Vec4<U> const& iv) : v(iv.xy()){}
+
+  MathVector const & mathVector() const { return v;}
+  MathVector & mathVector() { return v;}
 
 
   /// Cartesian x coordinate

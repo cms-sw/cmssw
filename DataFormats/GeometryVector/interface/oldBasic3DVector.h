@@ -27,6 +27,8 @@ namespace detailsBasic3DVector {
 template < typename T> 
 class Basic3DVector {
 public:
+  typedef  Basic3DVector<T> MathVector;
+
 
   typedef T                                   ScalarType;
   typedef Geom::Cylindrical2Cartesian<T>      Cylindrical;

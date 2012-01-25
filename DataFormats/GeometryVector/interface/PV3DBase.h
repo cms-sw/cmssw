@@ -20,6 +20,8 @@ public:
   typedef typename BasicVectorType::Cylindrical     Cylindrical;
   typedef typename BasicVectorType::Spherical       Spherical;
   typedef typename BasicVectorType::Polar           Polar;
+  typedef typename BasicVectorType::MathVector  MathVector;
+
 
   /** default constructor uses default constructor of T to initialize the 
    *  components. For built-in floating-point types this means initialization 
@@ -52,7 +54,10 @@ public:
    *  are too restrictive (preferably never). 
    */
   const BasicVectorType& basicVector() const { return theVector;}
+  MathVector const & mathVector() const { return theVector.v;}
+  MathVector & mathVector() { return theVector.v;}
   
+
   T x() const { return basicVector().x();}
   T y() const { return basicVector().y();}
   T z() const { return basicVector().z();}

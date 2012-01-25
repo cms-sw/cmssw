@@ -19,6 +19,7 @@
 template < class T> 
 class Basic2DVector {
 public:
+  typedef  Basic2DVector<T> MathVector;
 
   typedef T    ScalarType;
   typedef Geom::Polar2Cartesian<T>        Polar;
