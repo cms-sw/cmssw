@@ -785,9 +785,9 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
     const RPCRoll* roll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(recDetId));
 
     const int region = roll->id().region();
-    const int ring = roll->id().ring();
+    //    const int ring = roll->id().ring(); // UNUSED VARIABLE
     //const int sector = roll->id().sector();
-    const int station = roll->id().station();
+    //    const int station = roll->id().station(); // UNUSED VARIABLE
     //const int layer = roll->id().layer();
     //const int subsector = roll->id().subsector();
 
