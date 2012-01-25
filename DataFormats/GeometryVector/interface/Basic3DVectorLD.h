@@ -6,11 +6,15 @@
 template <> 
 class Basic3DVector<long double> {
 public:
+
+
   typedef long double                         T;
   typedef T                                   ScalarType;
   typedef Geom::Cylindrical2Cartesian<T>      Cylindrical;
   typedef Geom::Spherical2Cartesian<T>        Spherical;
   typedef Spherical                           Polar; // synonym
+
+  typedef  Basic3DVector<T> MathVector;
     
   /** default constructor uses default constructor of T to initialize the 
    *  components. For built-in floating-point types this means initialization 
