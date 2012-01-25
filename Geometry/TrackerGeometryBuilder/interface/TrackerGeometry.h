@@ -49,7 +49,7 @@ public:
 
   unsigned int offsetDU(SubDetector sid) const { return theOffsetDU[sid];}
   // magic : better be called at the right moment...
-  void setOffsetDU(SubDetector sid} { theOffsetDU[sid]=detUnits().size();}
+  void setOffsetDU(SubDetector sid) { theOffsetDU[sid]=detUnits().size();}
 
   GeometricDet const * trackerDet() const; 
 
