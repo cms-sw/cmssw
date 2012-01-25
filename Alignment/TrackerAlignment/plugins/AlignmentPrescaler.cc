@@ -26,6 +26,8 @@
 
 // #include "Riostream.h"
 
+using namespace std;
+
 AlignmentPrescaler::AlignmentPrescaler(const edm::ParameterSet &iConfig):
   src_(iConfig.getParameter<edm::InputTag>("src")),
   srcQualityMap_(iConfig.getParameter<edm::InputTag>("assomap")),
