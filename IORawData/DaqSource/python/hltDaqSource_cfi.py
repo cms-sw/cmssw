@@ -1,3 +1,5 @@
+import FWCore.ParameterSet.Config as cms
+
 source = cms.Source( "DaqSource",
     evtsPerLS = cms.untracked.uint32( 0 ),
     useEventCounter = cms.untracked.bool( False ),
