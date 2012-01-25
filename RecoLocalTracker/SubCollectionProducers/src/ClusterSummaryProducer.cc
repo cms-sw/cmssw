@@ -1,7 +1,7 @@
 #include "RecoLocalTracker/SubCollectionProducers/interface/ClusterSummaryProducer.h"
 
 ClusterSummaryProducer::ClusterSummaryProducer(const edm::ParameterSet& iConfig)
-  : ClustersLabel(iConfig.getParameter<edm::InputTag>("Clusters")),
+  : stripClustersLabel(iConfig.getParameter<edm::InputTag>("stripClusters")),
     modules(iConfig.getParameter<std::string>("Module")),
     variables(iConfig.getParameter<std::string>("Variables"))
 {
@@ -21,8 +21,8 @@ ClusterSummaryProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 {
    using namespace edm;
       
-   edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusters;
-   iEvent.getByLabel(ClustersLabel, clusters);
+   edm::Handle<edmNew::DetSetVector<SiStripCluster> > stripClusters;
+   iEvent.getByLabel(stripClustersLabel, stripClusters);
 
    ModuleSelectionVect.clear();
    for ( std::vector<std::string>::iterator it=v_moduleTypes.begin() ; it < v_moduleTypes.end(); it++ ){
@@ -40,8 +40,8 @@ ClusterSummaryProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
    for ( unsigned int i = 0; i < ModuleSelectionVect.size(); i++){
      
      // Loop over the clusters
-     edmNew::DetSetVector<SiStripCluster>::const_iterator itClusters=clusters->begin();
-     for(;itClusters!=clusters->end();++itClusters){
+     edmNew::DetSetVector<SiStripCluster>::const_iterator itClusters=stripClusters->begin();
+     for(;itClusters!=stripClusters->end();++itClusters){
        uint32_t id = itClusters->id();
        for(edmNew::DetSet<SiStripCluster>::const_iterator cluster=itClusters->begin(); cluster!=itClusters->end();++cluster){
 

@@ -16,7 +16,7 @@ process.source = cms.Source("PoolSource",
 process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(100)
 
 process.ClusterSummaryProducer = cms.EDProducer('ClusterSummaryProducer',
-                                        Clusters=cms.InputTag("siStripClusters"),
+                                        stripClusters=cms.InputTag("siStripClusters"),
                                         #Module=cms.string('TOB, TIB, TID, TEC, TIB_1, TOB_4, TECM, TECP, TIDM, TIDP, TECM_1, TECP_2, TIDM_3, TIDP_1'),
                                         #Module=cms.string( TOB, TIB, TID, TEC, TRACKER')
                                         Module=cms.string('TOB,TIB'),

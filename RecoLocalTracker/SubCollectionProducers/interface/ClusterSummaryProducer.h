@@ -16,7 +16,7 @@
 //
 // Original Author:  Michael Segala
 //         Created:  Thu Jun 23 09:33:08 CDT 2011
-// $Id: ClusterSummaryProducer.h,v 1.5 2011/10/31 17:15:18 msegala Exp $
+// $Id: ClusterSummaryProducer.h,v 1.1 2012/01/24 18:00:23 msegala Exp $
 //
 //
 
@@ -82,7 +82,7 @@ class ClusterSummaryProducer : public edm::EDProducer {
       
       // ----------member data ---------------------------
       
-      edm::InputTag ClustersLabel;
+      edm::InputTag stripClustersLabel;
       std::string modules;
       std::vector<std::string> v_moduleTypes;
       
