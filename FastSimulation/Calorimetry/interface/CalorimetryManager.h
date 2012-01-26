@@ -31,6 +31,8 @@ class GflashPiKShowerProfile;
 class GflashProtonShowerProfile;
 class GflashAntiProtonShowerProfile;
 
+class DQMStore;
+
 namespace edm { 
   class ParameterSet;
 }
@@ -95,6 +97,8 @@ class CalorimetryManager{
   CaloGeometryHelper* myCalorimeter_;
 
   Histos * myHistos;
+  DQMStore * dbe;
+
 
   HCALResponse* myHDResponse_;
   HSParameters * myHSParameters_;
@@ -114,7 +118,10 @@ class CalorimetryManager{
   // should make a es_producer of CaloGeometryTools 
   std::vector<DetId> theDetIds_;
   bool debug_;
+  bool useDQM_;
   std::vector<unsigned int> evtsToDebug_;
+
+
 
   bool unfoldedMode_;
 
@@ -146,7 +153,6 @@ class CalorimetryManager{
   GammaFunctionGenerator* aGammaGenerator;
 
   static std::vector<std::pair<int, float> > myZero_;
-  bool initialized_;
 
   // RespCorrP p, k_e(p), k_h(p) vectors  and evaluated for each p
   // ecorr and hcorr  
@@ -157,9 +163,19 @@ class CalorimetryManager{
   double ecorr;
   double hcorr;
 
+  // Used to check if the calorimeters was initialized
+  bool initialized_;
+
   std::vector<FSimTrack> muonSimTracks;
   MaterialEffects* theMuonEcalEffects; // material effects for muons in ECAL
   MaterialEffects* theMuonHcalEffects; // material effects for muons in HCAL
+
+
+  // If set to true the simulation in ECAL would be done 1X0 by 1X0
+  // this is slow but more adapted to detailed studies.
+  // Otherwise roughty 5 steps are used.
+  // This variable is transferred to EMShower
+  bool bFixedLength_;
 
   //Gflash
   GflashHadronShowerProfile *theProfile;

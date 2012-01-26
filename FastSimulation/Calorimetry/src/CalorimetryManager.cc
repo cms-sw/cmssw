@@ -45,6 +45,11 @@
 #include <vector>
 #include <iostream>
 
+//DQM
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+
 //CMSSW headers 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -62,7 +67,7 @@ std::vector<std::pair<int,float> > CalorimetryManager::myZero_ = std::vector<std
 
 CalorimetryManager::CalorimetryManager() : 
   myCalorimeter_(0),
-  myHistos(0),
+  //  myHistos(0),
   random(0),initialized_(false)
 {;}
 
@@ -74,8 +79,8 @@ CalorimetryManager::CalorimetryManager(FSimEvent * aSimEvent,
 				       const RandomEngine* engine)
   : 
   mySimEvent(aSimEvent), 
-  random(engine),initialized_(false),
-  theMuonEcalEffects(0), theMuonHcalEffects (0)
+  random(engine), initialized_(false),
+  theMuonEcalEffects(0), theMuonHcalEffects (0), bFixedLength_(false)
 
 {
 
@@ -107,27 +112,40 @@ CalorimetryManager::CalorimetryManager(FSimEvent * aSimEvent,
       if(ic<10000)
 	HMapping_[ic].reserve(s);
     }
-  
 
+  //  myHistos = 0; 
 
-  myHistos = 0; 
-#ifdef FAMOSDEBUG
-  myHistos = Histos::instance();
-  myHistos->book("h10",140,-3.5,3.5,100,-0.5,99.5);
-  myHistos->book("h20",150,0,150.,100,-0.5,99.5);
-  myHistos->book("h100",140,-3.5,3.5,100,0,0.1);
-  myHistos->book("h110",140,-3.5,3.5,100,0,10.);
-  myHistos->book("h120",200,-5.,5.,100,0,0.5);
+  dbe = edm::Service<DQMStore>().operator->();
 
-  myHistos->book("h200",300,0,3.,100,0.,35.);
-  myHistos->book("h210",720,-M_PI,M_PI,100,0,35.);
-  myHistos->book("h212",720,-M_PI,M_PI,100,0,35.);
+  if (useDQM_){
+    dbe->setCurrentFolder("EMShower");
+     // please keep the binning with fixed width and coherent between ShapeRhoZ and Tr/Lo shapes. Also check if you 
+     // change the binning that the weight changes in the filling in EMShower.cc
+    dbe->book1D("TransverseShape","Transverse Shape; #rho / Moliere radius; 1/E dE/d#rho",70, 0., 7.);
+    dbe->book1D("LongitudinalShape","Longitudinal Shape; z / X0; 1/E dE/dz",26, 0.01, 26.01);
+    dbe->book2D("ShapeRhoZ","2D Shape Ee = 10 GeV; #rho / Moliere radius; z / X0",70, 0., 7., 26, 0.01, 26.01);
+    
+    dbe->book1D("NumberOfParticles","Number Of Particles entering the Shower; #Particles; #Events", 6, -0.5, 5.5);
+    
+    dbe->book1D("ParticlesEnergy","Log Particles Energy; log10(E / GeV); #Particles", 30, 0, 3);
+  }
 
-  myHistos->bookByNumber("h30",0,7,300,-3.,3.,100,0.,35.);
-  myHistos->book("h310",75,-3.,3.,"");
-  myHistos->book("h400",100,-10.,10.,100,0.,35.);
-  myHistos->book("h410",720,-M_PI,M_PI);
-#endif
+//   myHistos = Histos::instance();
+//   myHistos->book("h10",140,-3.5,3.5,100,-0.5,99.5);
+//   myHistos->book("h20",150,0,150.,100,-0.5,99.5);
+//   myHistos->book("h100",140,-3.5,3.5,100,0,0.1);
+//   myHistos->book("h110",140,-3.5,3.5,100,0,10.);
+//   myHistos->book("h120",200,-5.,5.,100,0,0.5);
+
+//   myHistos->book("h200",300,0,3.,100,0.,35.);
+//   myHistos->book("h210",720,-M_PI,M_PI,100,0,35.);
+//   myHistos->book("h212",720,-M_PI,M_PI,100,0,35.);
+
+//   myHistos->bookByNumber("h30",0,7,300,-3.,3.,100,0.,35.);
+//   myHistos->book("h310",75,-3.,3.,"");
+//   myHistos->book("h400",100,-10.,10.,100,0.,35.);
+//   myHistos->book("h410",720,-M_PI,M_PI);
+
   myCalorimeter_ = 
     new CaloGeometryHelper(fastCalo);
   myHDResponse_ = 
@@ -153,6 +171,7 @@ CalorimetryManager::CalorimetryManager(FSimEvent * aSimEvent,
        fastMuHCAL.getParameter<bool>("EnergyLoss") || 
        fastMuHCAL.getParameter<bool>("MultipleScattering") )
     theMuonHcalEffects = new MaterialEffects(fastMuHCAL,random);
+
 
 }
 
@@ -185,9 +204,6 @@ void CalorimetryManager::clean()
 
 CalorimetryManager::~CalorimetryManager()
 {
-#ifdef FAMOSDEBUG
-  myHistos->put("Famos.root");
-#endif
   if(myCalorimeter_) delete myCalorimeter_;
   if(myHDResponse_) delete myHDResponse_;
 
@@ -199,6 +215,7 @@ CalorimetryManager::~CalorimetryManager()
 
 void CalorimetryManager::reconstruct()
 {
+
   if(evtsToDebug_.size())
     {
       std::vector<unsigned int>::const_iterator itcheck=find(evtsToDebug_.begin(),evtsToDebug_.end(),mySimEvent->id().event());
@@ -406,7 +423,8 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
 //  if ( maxEnergy < threshold3x3 ) size = 3;
 
 
-  EMShower theShower(random,aGammaGenerator,&showerparam,&thePart);
+  EMShower theShower(random,aGammaGenerator,&showerparam,&thePart, dbe, NULL, NULL, bFixedLength_);
+
 
   double maxShower = theShower.getMaximumOfShower();
   if (maxShower > 20.) maxShower = 2.; // simple pivot-searching protection 
@@ -1275,6 +1293,10 @@ void CalorimetryManager::readParameters(const edm::ParameterSet& fastCalo) {
 
   evtsToDebug_ = fastCalo.getUntrackedParameter<std::vector<unsigned int> >("EvtsToDebug",std::vector<unsigned>());
   debug_ = fastCalo.getUntrackedParameter<bool>("Debug");
+  useDQM_ = fastCalo.getUntrackedParameter<bool>("useDQM");
+
+  bFixedLength_ = ECALparameters.getParameter<bool>("bFixedLength");
+  //   std::cout << "bFixedLength_ = " << bFixedLength_ << std::endl;
 
   gridSize_ = ECALparameters.getParameter<int>("GridSize");
   spotFraction_ = ECALparameters.getParameter<double>("SpotFraction");

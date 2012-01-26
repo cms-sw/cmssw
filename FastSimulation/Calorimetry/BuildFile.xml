@@ -10,6 +10,9 @@
 <use   name="FastSimulation/ShowerDevelopment"/>
 <use   name="FastSimulation/Utilities"/>
 <use   name="FastSimulation/MaterialEffects"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="DQMServices/Core"/>
 <use   name="SimG4Core/GFlash"/>
 <export>
   <lib   name="1"/>

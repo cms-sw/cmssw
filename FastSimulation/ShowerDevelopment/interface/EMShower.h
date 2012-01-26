@@ -23,6 +23,8 @@ class GammaDistributionGenerator;
 class RandomEngine;
 class GammaFunctionGenerator;
 
+class DQMStore;
+
 class EMShower 
 {
 
@@ -39,8 +41,10 @@ class EMShower
 	   GammaFunctionGenerator* gamma,
 	   EMECALShowerParametrization* const myParam,
 	   std::vector<const RawParticle*>* const myPart,
+	   DQMStore * const dbeIn = NULL,
 	   EcalHitMaker  * const myGrid=NULL,
-	   PreshowerHitMaker * const myPreshower=NULL);
+	   PreshowerHitMaker * const myPreshower=NULL,
+	   bool bFixedLength = false);
 
   virtual ~EMShower(){;}
 
@@ -134,7 +138,9 @@ class EMShower
   // Is there a preshower ? 
   bool hasPreshower;
   // Histos
+
   //  Histos* myHistos;
+  DQMStore * dbe;
 
   Genfun::IncompleteGamma myIncompleteGamma;
 
@@ -144,7 +150,7 @@ class EMShower
   // integer gamma function generator
   GammaFunctionGenerator * myGammaGenerator;
 
-  
+  bool bFixedLength_;
   
 };
 

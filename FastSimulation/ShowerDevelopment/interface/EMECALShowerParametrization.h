@@ -39,49 +39,211 @@ class EMECALShowerParametrization
 
   virtual ~EMECALShowerParametrization() { }
 
+
+  //====== Longitudinal profiles =======
+
+  // -------- Average -------
+
   inline double meanT(double lny) const { 
-    return lny-0.858; }
+    if (theECAL->isHom()) return meanTHom(lny);
+    return meanTSam(lny); }
 
   inline double meanAlpha(double lny) const { 
+    if (theECAL->isHom()) return meanAlphaHom(lny);
+    return meanAlphaSam(lny); }
+
+
+  // Average Homogeneous
+
+  inline double meanTHom(double lny) const { 
+    return lny-0.858; }
+
+  inline double meanAlphaHom(double lny) const { 
     return 0.21+(0.492+2.38/theECAL->theZeff())*lny; }
 
+
+  // Average sampling
+
+
+  inline double meanTSam(double lny) const { 
+    return meanTHom(lny) - 0.59/theECAL->theFs() - 0.53*(1.-theECAL->ehat()); }
+
+  inline double meanAlphaSam(double lny) const { 
+    return meanAlphaHom(lny) - 0.444/theECAL->theFs(); }
+
+
+
+
+
+
+
+  // ---- Fluctuated longitudinal profiles ----
+
   inline double meanLnT(double lny) const {
-    return std::log(lny-0.812); }
+    if (theECAL->isHom()) return meanLnTHom(lny); 
+    return meanLnTSam(lny); }
 
   inline double sigmaLnT(double lny) const {
-    return 1./(-1.4+1.26*lny); }
-  
+    if (theECAL->isHom()) return sigmaLnTHom(lny); 
+    return sigmaLnTSam(lny); }
+
+
   inline double meanLnAlpha(double lny) const {
-    return std::log(0.81+(0.458+2.26/theECAL->theZeff())*lny); }
+    if (theECAL->isHom()) return meanLnAlphaHom(lny); 
+    return meanLnAlphaSam(lny); }
+  
 
   inline double sigmaLnAlpha(double lny) const {
-    return 1./(-0.58+0.86*lny); }
+    if (theECAL->isHom()) return sigmaLnAlphaHom(lny); 
+    return sigmaLnAlphaSam(lny); }
+
 
   inline double correlationAlphaT(double lny) const {
+    if (theECAL->isHom()) return correlationAlphaTHom(lny); 
+    return correlationAlphaTSam(lny); }
+
+
+
+
+  // Fluctuated longitudinal profiles homogeneous
+
+  inline double meanLnTHom(double lny) const {
+    return std::log(lny-0.812); }
+
+
+  inline double sigmaLnTHom(double lny) const {
+    return 1./(-1.4+1.26*lny); }
+
+  inline double meanLnAlphaHom(double lny) const {
+    return std::log(0.81+(0.458+2.26/theECAL->theZeff())*lny); }
+
+  inline double sigmaLnAlphaHom(double lny) const {
+    return 1./(-0.58+0.86*lny); }
+
+  inline double correlationAlphaTHom(double lny) const {
     return 0.705-0.023*lny; }
 
-  inline double nSpots(double E) const {
-    return 93.*std::log(theECAL->theZeff()) * std::pow(E,0.876); }
+  // Fluctuated longitudinal profiles sampling
 
-  inline double meanAlphaSpot(double alpha) const {
-    return alpha*(0.639+0.00334*theECAL->theZeff()); }
 
-  inline double meanTSpot(double T) const {
-    return T*(0.698+0.00212*theECAL->theZeff()); }
+  inline double meanLnTSam(double lny) const {
+    return log( std::exp(meanLnTHom(lny)) - 0.55/theECAL->theFs() - 0.69*(1-theECAL->ehat()) ); }
+
+  inline double sigmaLnTSam(double lny) const {
+    return 1/(-2.5 + 1.25*lny); }
+
+  inline double meanLnAlphaSam(double lny) const {
+    return log( std::exp(meanLnAlphaHom(lny)) - 0.476/theECAL->theZeff() ); }
+
+  inline double sigmaLnAlphaSam(double lny) const {
+    return 1./(-0.82+0.79*lny); }
+
+  inline double correlationAlphaTSam(double lny) const {
+    return 0.784-0.023*lny; }
+
+
+
+
+
+
+  //====== Radial profiles =======
+
+
+  // ---- Radial Profiles ----
+
+  inline double rC(double tau, double E) const {
+    if (theECAL->isHom()) return rCHom(tau, E); 
+    return rCSam(tau, E); }
+  
+  inline double rT(double tau, double E) const {
+    if (theECAL->isHom()) return rTHom(tau, E); 
+    return rTSam(tau, E); }
 
   inline double p(double tau, double E) const {
+    if (theECAL->isHom()) return pHom(tau, E); 
+    return pSam(tau, E); }
+
+
+
+  // Radial Profiles
+
+  inline double rCHom(double tau, double E) const {
+    return theRcfactor*(z1(E) + z2()*tau);
+  }  
+
+  inline double rTHom(double tau,double E) const {
+    return theRtfactor*k1() * ( std::exp(k3()*(tau-k2()))+
+				std::exp(k4(E)*(tau-k2())) );
+  }
+
+  inline double pHom(double tau, double E) const {
     double arg = (p2()-tau)/p3(E);
     return p1()* std::exp(arg-std::exp(arg));
   }
 
-  inline double rT(double tau,double E) const {
-    return theRtfactor*k1() * ( std::exp(k3()*(tau-k2()))+
-				std::exp(k4(E)*(tau-k2())) );
-  }
   
-  inline double rC(double tau, double E) const {
-    return theRcfactor*(z1(E) + z2()*tau);
-  }                            
+  // Radial Profiles Sampling
+
+  inline double rCSam(double tau, double E) const {
+    return rCHom(tau, E) - 0.0203*(1-theECAL->ehat()) + 0.0397/theECAL->theFs()*std::exp(-1.*tau);
+  }
+
+  inline double rTSam(double tau,double E) const {
+    return rTHom(tau, E) -0.14*(1-theECAL->ehat()) - 0.495/theECAL->theFs()*std::exp(-1.*tau);
+  }
+
+  inline double pSam(double tau, double E) const {
+    return pHom(tau, E) + (1-theECAL->ehat())*(0.348-0.642/theECAL->theFs()*std::exp(-1.*std::pow((tau-1),2) ) );
+  }
+
+
+
+
+
+
+  // ---- Fluctuations of the radial profiles ----
+
+  inline double nSpots(double E) const {
+    if (theECAL->isHom()) return nSpotsHom(E); 
+    return nSpotsSam(E); }
+
+  inline double meanTSpot(double T) const {
+    if (theECAL->isHom()) return meanTSpotHom(T); 
+    return meanTSpotSam(T); }
+
+  inline double meanAlphaSpot(double alpha) const {
+    if (theECAL->isHom()) return meanAlphaSpotHom(alpha); 
+    return meanAlphaSpotSam(alpha); }
+
+
+
+
+  // Fluctuations of the radial profiles
+  
+  inline double nSpotsHom(double E) const {
+    return 93.*std::log(theECAL->theZeff()) * std::pow(E,0.876); }
+
+  inline double meanTSpotHom(double T) const {
+    return T*(0.698+0.00212*theECAL->theZeff()); }
+
+  inline double meanAlphaSpotHom(double alpha) const {
+    return alpha*(0.639+0.00334*theECAL->theZeff()); }
+
+
+  // Fluctuations of the radial profiles Sampling
+
+  inline double nSpotsSam(double E) const {
+    return 10.3/theECAL->resE()*std::pow(E, 0.959); }
+
+  inline double meanTSpotSam(double T) const {
+    return meanTSpotHom(T)*(0.813+0.0019*theECAL->theZeff()); }
+
+  inline double meanAlphaSpotSam(double alpha) const {
+    return meanAlphaSpotHom(alpha)*(0.844+0.0026*theECAL->theZeff()); }
+
+
+
+
 
   inline const ECALProperties* ecalProperties() const { 
     return theECAL; 

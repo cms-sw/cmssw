@@ -8,6 +8,11 @@ FamosCalorimetryBlock = cms.PSet(
         HSParameterBlock,
         HCALResponseBlock,
         ECAL = cms.PSet(
+            # If set to true the simulation in ECAL would be done 1X0 by 1X0
+            # this is slow but more adapted to detailed studies.
+            # Otherwise roughty 5 steps are used.
+            bFixedLength = cms.bool(False),
+    
             # For the core 10% of the spots for
             CoreIntervals = cms.vdouble(100.0, 0.1),
             # change the radius of the tail of the shower
@@ -47,11 +52,130 @@ FamosCalorimetryBlock = cms.PSet(
             HCAL_Sampling = cms.double(0.0035),
             # Watch out ! The following two values are defined wrt the electron shower simulation
             # There are not directly related to the detector properties
-            HCAL_PiOverE = cms.double(0.2)
-#            HCAL_PiOverE = cms.double(0.4)
+            HCAL_PiOverE = cms.double(0.2),
+            # HCAL_PiOverE = cms.double(0.4)
+
+            BarrelCalorimeterProperties = cms.PSet(
+
+                 #======  Geometrical material properties ========
+    
+                 # Light Collection efficiency 
+                 lightColl = cms.double(0.03),
+                 # Light Collection uniformity
+                 lightCollUnif = cms.double(0.003),
+                 # Photostatistics (photons/GeV) in the homegeneous material
+                 photoStatistics = cms.double(50.E3),
+                 # Thickness of the detector in cm
+                 thickness = cms.double(23.0),
+
+                 #====== Global parameters of the material ========
+
+                 # Interaction length in cm
+                 interactionLength  = cms.double(18.5),
+                 Aeff = cms.double(170.87),
+                 Zeff = cms.double(68.36),
+                 rho = cms.double(8.280),
+                 # Radiation length in g/cm^2
+                 radLenIngcm2 = cms.double(7.37),
+
+                 # ===== Those parameters might be entered by hand
+                 # or calculated out of the previous ones 
+
+                 # Radiation length in cm. If value set to -1, FastSim uses internally the
+                 # formula radLenIngcm2/rho
+                 radLenIncm = cms.double(0.89), 
+                 # Critical energy in GeV. If value set to -1, FastSim uses internally the
+                 # formula (2.66E-3*(x0*Z/A)^1.1): 8.74E-3 for ECAL EndCap
+                 criticalEnergy = cms.double(8.74E-3),
+                 # Moliere Radius in cm.If value set to -1, FastSim uses internally the
+                 # formula : Es/criticalEnergy*X0 with Es=sqrt(4*Pi/alphaEM)*me*c^2=0.0212 GeV
+                 # This value is known to be 2.190 cm for ECAL Endcap, but the formula gives 2.159 cm
+                 moliereRadius = cms.double(2.190),
+
+                 #====== Parameters for sampling ECAL ========
+
+                 # Sampling Fraction: Fs = X0eff/(da+dp) where X0eff is the average X0
+                 # of the active and passive media and da/dp their thicknesses
+                 Fs = cms.double(0.0),
+
+                 # e/mip for the calorimeter. May be estimated by 1./(1+0.007*(Zp-Za))
+                 ehat = cms.double(0.0),
+
+                 # a rough estimate of ECAL resolution sigma/E = resE/sqrt(E)
+                 # it is used to generate Nspots in radial profiles.
+                 resE = cms.double(1.),
+
+                 # Is a homogenious detector?
+                 bHom = cms.bool(True),
+
+                 # Activate the LogDebug
+                 debug = cms.bool(False)
+
+            ),
+            
+            EndcapCalorimeterProperties = cms.PSet(
+
+                 #======  Geometrical material properties ========
+    
+                 # Light Collection efficiency 
+                 lightColl = cms.double(0.023),
+                 # Light Collection uniformity
+                 lightCollUnif = cms.double(0.003),
+                 # Photostatistics (photons/GeV) in the homegeneous material
+                 photoStatistics = cms.double(50.E3),
+                 # Thickness of the detector in cm
+                 thickness = cms.double(22.0),
+
+                 #====== Global parameters of the material ========
+
+                 # Interaction length in cm
+                 interactionLength  = cms.double(18.5),
+                 Aeff = cms.double(170.87),
+                 Zeff = cms.double(68.36),
+                 rho = cms.double(8.280),
+                 # Radiation length in g/cm^2
+                 radLenIngcm2 = cms.double(7.37),
+
+                 # ===== Those parameters might be entered by hand
+                 # or calculated out of the previous ones 
+
+                 # Radiation length in cm. If value set to -1, FastSim uses internally the
+                 # formula radLenIngcm2/rho
+                 radLenIncm = cms.double(0.89), 
+                 # Critical energy in GeV. If value set to -1, FastSim uses internally the
+                 # formula (2.66E-3*(x0*Z/A)^1.1): 8.74E-3 for ECAL EndCap
+                 criticalEnergy = cms.double(8.74E-3),
+                 # Moliere Radius in cm.If value set to -1, FastSim uses internally the
+                 # formula : Es/criticalEnergy*X0 with Es=sqrt(4*Pi/alphaEM)*me*c^2=0.0212 GeV
+                 # This value is known to be 2.190 cm for ECAL Endcap, but the formula gives 2.159 cm
+                 moliereRadius = cms.double(2.190),
+
+
+                 #====== Parameters for sampling ECAL ========
+
+                 # Sampling Fraction: Fs = X0eff/(da+dp) where X0eff is the average X0
+                 # of the active and passive media and da/dp their thicknesses
+                 Fs = cms.double(0.0),
+
+                 # e/mip for the calorimeter. May be estimated by 1./(1+0.007*(Zp-Za))
+                 ehat = cms.double(0.0),
+
+                 # a rough estimate of ECAL resolution sigma/E = resE/sqrt(E)
+                 # it is used to generate Nspots in radial profiles.
+                 resE = cms.double(1.),
+
+                 # Is a homogenious detector?
+                 bHom = cms.bool(True),
+
+                 # Activate the LogDebug
+                 debug = cms.bool(False)
+
+            )
+
         ),
         UnfoldedMode = cms.untracked.bool(False),
         Debug = cms.untracked.bool(False),
+        useDQM = cms.untracked.bool(False),
 #        EvtsToDebug = cms.untracked.vuint32(487),
         HCAL = cms.PSet(
             SimMethod = cms.int32(0), ## 0 - use HDShower, 1 - use HDRShower, 2 - GFLASH
