@@ -201,6 +201,7 @@ step1['ZTT']=genS('ZTT_Tauola_All_hadronic_7TeV_cfi',K9by100)
 step1['H130GGgluonfusion']=genS('H130GGgluonfusion_7TeV_cfi',K9by100)
 step1['PhotonJets_Pt_10']=genS('PhotonJet_Pt_10_7TeV_cfi',K9by100)
 step1['QQH1352T_Tauola']=genS('QQH1352T_Tauola_7TeV_cfi',K9by100)
+step1['ZmumuJets_Pt_20_300']=gen('ZmumuJets_Pt_20_300_GEN_7TeV_cfg',K250by100)
 
 step1['MinBias2INPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/CMSSW_5_0_0_pre7-START50_V7-v1/GEN-SIM',location='STD')}
 step1['Higgs200ChargedTausINPUT']={'INPUT':InputInfo(dataSet='/RelValHiggs200ChargedTaus/CMSSW_5_0_0_pre7-START50_V7-v1/GEN-SIM',location='STD')}
@@ -216,6 +217,8 @@ step1['ZTTINPUT']={'INPUT':InputInfo(dataSet='/RelValZTT/CMSSW_5_0_0_pre7-START5
 step1['H130GGgluonfusionINPUT']={'INPUT':InputInfo(dataSet='/RelValH130GGgluonfusion/CMSSW_5_0_0_pre7-START50_V7-v1/GEN-SIM',location='STD')}
 step1['PhotonJets_Pt_10INPUT']={'INPUT':InputInfo(dataSet='/RelValPhotonJets_Pt_10/CMSSW_5_0_0_pre7-START50_V7-v1/GEN-SIM',location='STD')}
 step1['QQH1352T_TauolaINPUT']={'INPUT':InputInfo(dataSet='/RelValQQH1352T_Tauola/CMSSW_5_0_0_pre7-START50_V7-v1/GEN-SIM',location='STD')}
+
+step1['ZmumuJets_Pt_20_300INPUT']={'INPUT':InputInfo(dataSet='/RelValZmumuJets_Pt_20_300PU1/CMSSW_5_0_0_patch1-START50_V8_PU_E7TeV_FlatDist10_2011EarlyData_50ns_PoissonOOT_special_120124-v1/GEN-SIM',location='STD')}
 
 step1['Cosmics']=merge([{'cfg':'UndergroundCosmicMu_cfi.py','--relval':'666000,7400','--scenario':'cosmics'},step1Defaults])
 step1['BeamHalo']=merge([{'cfg':'BeamHalo_cfi.py','--scenario':'cosmics'},K9by100,step1Defaults])
@@ -359,7 +362,6 @@ step1['Z3Jets-Pt_0To100_TuneZ2_7TeV_alpgen_tauola']=genvalid('Hadronizer_Et20Exc
 step1['ZJetsLNu_Tune4C_7TeV_madgraph-pythia8']=genvalid('Hadronizer_MgmMatchTune4C_7TeV_madgraph_pythia8_cff',step1GenDefaults,'dy',2925)
 
 PU={'--pileup':'E7TeV_FlatDist10_2011EarlyData_50ns_PoissonOOT','--pileup_input':'dbs:/RelValProdMinBias/CMSSW_5_0_0_pre7-START50_V7-v1/GEN-SIM-RAW'}
-step1['ZmumuJets_Pt_20_300']=gen('ZmumuJets_Pt_20_300_GEN_7TeV_cfg',K250by100)
 
 step1['TTbarFSPU']=merge([{'--pileup':'FlatDist10_2011EarlyData_50ns'},step1['TTbarFS']])
 ##########################
