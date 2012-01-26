@@ -111,6 +111,10 @@ void go2d() {
   std::cout << "\n2d" << std::endl;
   std::cout << sizeof(Vec2d) << std::endl;
 
+  Vec2d k(-2.0,3.14);
+  std::cout << k << std::endl;  
+  std::cout << k+k << std::endl;
+  std::cout << k*k << std::endl;
   Vec3d x(2.0,4.0,5.0);
   Vec3d y(-3.0,2.0,-5.0);
   std::cout << x << std::endl;
