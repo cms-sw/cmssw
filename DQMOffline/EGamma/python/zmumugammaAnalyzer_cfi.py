@@ -36,9 +36,9 @@ zmumugammaAnalysis = cms.EDAnalyzer("ZToMuMuGammaAnalyzer",
     minMumuInvMass = cms.double(60.0),
     maxMumuInvMass = cms.double(120.0),                                                             
 #   Photon selection              
-    photonMinEt = cms.double(20.0),
-    photonMaxEta = cms.double(20.0),
-    photonTrackIso = cms.double(20.0),                                
+    photonMinEt = cms.double(15.0),
+    photonMaxEta = cms.double(2.5),
+    photonTrackIso = cms.double(0.9),                                
 #   MuMuGamma selection
     nearMuonDr       = cms.double(1.0),
     nearMuonHcalIso  = cms.double(1.0),
