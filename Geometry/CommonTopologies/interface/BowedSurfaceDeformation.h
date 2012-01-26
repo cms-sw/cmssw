@@ -11,8 +11,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2010
-///  $Revision: 1.1 $
-///  $Date: 2010/10/26 19:00:00 $
+///  $Revision: 1.2 $
+///  $Date: 2010/11/17 15:55:08 $
 ///  (last update by $Author: flucke $)
 
 #include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
@@ -25,7 +25,7 @@ class BowedSurfaceDeformation : public SurfaceDeformation
  public:
   /// constructor from sagittae, i.e. coefficients of Legendre polynomials
   BowedSurfaceDeformation(double sagittaX, double sagittaXY, double sagittaY) :
-    theSagittaX(sagittaX), theSagittaXY(sagittaXY), theSagittaY(sagittaY) {  }
+    theSagittaX(sagittaX),theSagittaY(sagittaY),  theSagittaXY(sagittaXY)  {  }
   /// constructor from vector of sagittae, parameters.size() must be
   /// between minParameterSize() and maxParameterSize()
   BowedSurfaceDeformation(const std::vector<double> &parameters);
@@ -61,8 +61,8 @@ class BowedSurfaceDeformation : public SurfaceDeformation
 
  private:
   double theSagittaX;
-  double theSagittaXY;
   double theSagittaY;
+  double theSagittaXY;
   // double theRelWidthLowY; // could be used for non-rectangular modules
 };
 

@@ -3,3 +3,4 @@
 <export>
   <lib   name="1"/>
 </export>
+# <flags   CXXFLAGS="-O3 -ftree-vectorizer-verbose=1 -fno-math-errno -funsafe-loop-optimizations -ftree-loop-if-convert-stores --param max-completely-peel-times=1"/>
