@@ -210,7 +210,7 @@ step1['JpsiMMINPUT']={'INPUT':InputInfo(dataSet='/RelValJpsiMM/CMSSW_5_0_0_pre7-
 step1['TTbar2INPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar/CMSSW_5_0_0_pre7-START50_V7-v1/GEN-SIM',location='STD')}
 step1['WEINPUT']={'INPUT':InputInfo(dataSet='/RelValWE/CMSSW_5_0_0_pre7-START50_V7-v1/GEN-SIM',location='STD')}
 step1['WMINPUT']={'INPUT':InputInfo(dataSet='/RelValWM/CMSSW_5_0_0_pre7-START50_V7-v1/GEN-SIM',location='STD')}
-step1['ZEE2INPUT']={'INPUT':InputInfo(dataSet='/RelValZEE/CMSSW_5_0_0_pre7-START50_V7-v1/GEN-SIM',location='STD')}
+step1['ZEEINPUT']={'INPUT':InputInfo(dataSet='/RelValZEE/CMSSW_5_0_0_pre7-START50_V7-v1/GEN-SIM',location='STD')}
 step1['ZMMINPUT']={'INPUT':InputInfo(dataSet='/RelValZMM/CMSSW_5_0_0_pre7-START50_V7-v1/GEN-SIM',location='STD')}
 step1['ZTTINPUT']={'INPUT':InputInfo(dataSet='/RelValZTT/CMSSW_5_0_0_pre7-START50_V7-v1/GEN-SIM',location='STD')}
 step1['H130GGgluonfusionINPUT']={'INPUT':InputInfo(dataSet='/RelValH130GGgluonfusion/CMSSW_5_0_0_pre7-START50_V7-v1/GEN-SIM',location='STD')}
@@ -360,7 +360,6 @@ step1['ZJetsLNu_Tune4C_7TeV_madgraph-pythia8']=genvalid('Hadronizer_MgmMatchTune
 
 PU={'--pileup':'E7TeV_FlatDist10_2011EarlyData_50ns_PoissonOOT','--pileup_input':'dbs:/RelValProdMinBias/CMSSW_5_0_0_pre7-START50_V7-v1/GEN-SIM-RAW'}
 step1['ZmumuJets_Pt_20_300']=gen('ZmumuJets_Pt_20_300_GEN_7TeV_cfg',K250by100)
-step1['TTbarPU2']=merge([step1['TTbar'],PU])
 
 step1['TTbarFSPU']=merge([{'--pileup':'FlatDist10_2011EarlyData_50ns'},step1['TTbarFS']])
 ##########################
