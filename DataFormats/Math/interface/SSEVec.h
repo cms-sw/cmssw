@@ -345,7 +345,7 @@ namespace mathSSE {
     }
 
     Vec4(float f1, float f2, float f3, float f4=0) {
-      arr[0] = f1; arr[1] = f2; arr[2] = f3; arr[3]=f4;
+      vec = _mm_set_ps(f4, f3, f2, f1);
     }
 
 
@@ -414,7 +414,7 @@ namespace mathSSE {
 
 
     Vec2(double f1, double f2) {
-      arr[0] = f1; arr[1] = f2;
+      vec = _mm_set_pd(f2,f1);
     }
 
     explicit Vec2(double f1) {
@@ -430,7 +430,7 @@ namespace mathSSE {
 
 
     void set(double f1, double f2) {
-      arr[0] = f1; arr[1] = f2;
+      vec = _mm_set_pd(f2,f1);
     }
 
     void set1(double f1) {
