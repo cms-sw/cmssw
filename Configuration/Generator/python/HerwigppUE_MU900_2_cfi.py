@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 herwigppUESettingsBlock = cms.PSet(
 	herwigppUESettings = cms.vstring(
 		'+pdfMRST2008LOss',
-		'set LHCGenerator:EventHandler:LuminosityFunction:Energy 900.0',
+		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 900.0',
 		'set /Herwig/Shower/Evolver:IntrinsicPtGaussian 2.2*GeV',
 		# Colour reconnection settings
 		'set /Herwig/Hadronization/ColourReconnector:ColourReconnection Yes',
@@ -19,5 +19,6 @@ herwigppUESettingsBlock = cms.PSet(
 		'set /Herwig/UnderlyingEvent/MPIHandler:softInt Yes',
 		'set /Herwig/UnderlyingEvent/MPIHandler:twoComp Yes',
 		'set /Herwig/UnderlyingEvent/MPIHandler:DLmode 3',
+		'cd /',
 	),
 )
