@@ -1,6 +1,7 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DQMOffline/EGamma/plugins/PhotonAnalyzer.h"
+#include "DQMOffline/EGamma/plugins/ZToMuMuGammaAnalyzer.h"
 #include "DQMOffline/EGamma/plugins/PhotonOfflineClient.h"
 #include "DQMOffline/EGamma/plugins/PhotonDataCertification.h"
 #include "DQMOffline/EGamma/plugins/PiZeroAnalyzer.h"
@@ -13,6 +14,7 @@
 
 
 DEFINE_FWK_MODULE(PhotonAnalyzer);
+DEFINE_FWK_MODULE(ZToMuMuGammaAnalyzer);
 DEFINE_FWK_MODULE(PhotonOfflineClient);
 DEFINE_FWK_MODULE(PhotonDataCertification);
 DEFINE_FWK_MODULE(PiZeroAnalyzer);
