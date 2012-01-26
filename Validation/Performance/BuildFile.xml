@@ -5,5 +5,3 @@
 <use   name="DQMServices/Core"/>
 <use   name="root"/>
 <flags   EDM_PLUGIN="1"/>
-<export>
-</export>
