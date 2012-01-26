@@ -20,6 +20,8 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
+static const bool useL1EventSetup(true);
+static const bool useL1GtTriggerMenuLite(false);
 
 HLTInfo::HLTInfo() {
 
@@ -51,7 +53,6 @@ void HLTInfo::beginRun(const edm::Run& run, const edm::EventSetup& c){
 
 /*  Setup the analysis to put the branch-variables into the tree. */
 void HLTInfo::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
-
 
   processName_ = pSet.getParameter<std::string>("HLTProcessName") ;
 
@@ -487,7 +488,8 @@ void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>                 & h
 
   // L1 Triggers from Menu
 
-  m_l1GtUtils.retrieveL1EventSetup(eventSetup);
+  //  m_l1GtUtils.retrieveL1EventSetup(eventSetup);
+  m_l1GtUtils.getL1GtRunCache(iEvent,eventSetup,useL1EventSetup,useL1GtTriggerMenuLite);
   edm::ESHandle<L1GtTriggerMenu> menuRcd;
   eventSetup.get<L1GtTriggerMenuRcd>().get(menuRcd) ;
   const L1GtTriggerMenu* menu = menuRcd.product();

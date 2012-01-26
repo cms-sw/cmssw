@@ -532,7 +532,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     if (not missing.empty() and (errCnt < errMax())) {
         errCnt++;
         std::stringstream out;       
-        out <<  "OpenHLT analyser - missing collections:";
+        out <<  "OpenHLT analyser - missing collections (This message is for information only. RECO collections will always be missing when running on RAW, MC collections will always be missing when running on data):";
         BOOST_FOREACH(const MissingCollectionInfo & entry, missing)
         out << "\n\t" << entry.first << ": " << entry.second->encode();
         edm::LogPrint("OpenHLT") << out.str() << std::endl; 
