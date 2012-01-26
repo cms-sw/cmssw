@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 OnDemandMeasurementTracker = cms.ESProducer("MeasurementTrackerESProducer",
+    skipClusters = cms.InputTag(""),
     ComponentName = cms.string('OnDemandMeasurementTracker'),
 
     OnDemand = cms.bool(True),
