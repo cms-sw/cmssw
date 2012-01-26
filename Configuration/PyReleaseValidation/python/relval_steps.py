@@ -418,7 +418,6 @@ step2['REPACKHID']=merge([{'--scenario':'HeavyIons',
 step2['REPACKHID'].pop('--customise')
 step2['RECOHID10']=merge([{'--scenario':'HeavyIons',
                          '-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBiasHI+HcalCalMinBias,DQM',
-                         '--customise':'Configuration/DataProcessing/RecoTLR.customiseCommonHI',
                          '--datatier':'RECO,DQMROOT',
                          '--eventcontent':'RECO,DQMROOT'},
                         step2['RECOD']])
