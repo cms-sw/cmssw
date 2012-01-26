@@ -10,7 +10,7 @@
  **
  **
  **  $Id: ZToMuMuGammaAnalyzer
- **  $Date: $
+ **  $Date: 2012/01/26 13:48:55 $
  **  authors:
  **   Nancy Marinelli, U. of Notre Dame, US
  **
@@ -391,7 +391,7 @@ bool ZToMuMuGammaAnalyzer::muonSelection ( const reco::Muon & mu,  const reco::B
   bool result=true;
   if ( mu.globalTrack()->normalizedChi2() > muonMaxChi2_ )          result=false;
   if ( fabs( mu.globalTrack()->dxy(beamSpot)) > muonMaxDxy_ )       result=false;
-   if ( mu.numberOfMatches() < muonMatches_ )                                   result=false;
+  if ( mu.numberOfMatches() < muonMatches_ )                                   result=false;
 
   if ( mu.track()-> hitPattern().numberOfValidPixelHits() <  validPixHits_ )     result=false;
   if ( mu.globalTrack()->hitPattern().numberOfValidMuonHits() < validMuonHits_ ) result=false;
@@ -407,13 +407,10 @@ bool ZToMuMuGammaAnalyzer::muonSelection ( const reco::Muon & mu,  const reco::B
 
 bool ZToMuMuGammaAnalyzer::photonSelection ( const reco::Photon & pho) {
   bool result=true;
-  //if ( pho.pt() < 10 )          result=false;
   if ( pho.pt() < photonMinEt_ )          result=false;
-  // if ( fabs(pho.eta())>2.5 )   result=false;
   if ( fabs(pho.eta())> photonMaxEta_ )   result=false;
   if ( pho.isEBEEGap() )       result=false;
-  //  if ( pho.ecalRecHitSumEtConeDR04() >   2.4 )   result=false; // check how to exclude the muon track (which muon track).
-  if ( pho.ecalRecHitSumEtConeDR04() >   photonTrackIso_ )   result=false; // check how to exclude the muon track (which muon track).
+  if ( pho.trkSumPtHollowConeDR04() >   photonTrackIso_ )   result=false; // check how to exclude the muon track (which muon track).
 
 
   return result;  
