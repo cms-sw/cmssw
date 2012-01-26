@@ -10,7 +10,7 @@
  **
  **
  **  $Id: ZToMuMuGammaAnalyzer
- **  $Date: 2012/01/26 13:48:55 $
+ **  $Date: 2012/01/26 17:26:03 $
  **  authors:
  **   Nancy Marinelli, U. of Notre Dame, US
  **
@@ -324,8 +324,8 @@ void ZToMuMuGammaAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
         if ( farMuon.isolationR03().sumPt > farMuonTrackIso_ )  continue;
         if ( farMuon.isolationR03().emEt  > farMuonEcalIso_ )  continue;
 	if ( farMuon.pt() < farMuonMinPt_ )       continue;
-	if ( drNear > nearMuonDr_)               continue;
-
+	if ( drNear > nearMuonDr_)                continue;
+        
 
 	float mumuGammaMass = mumuGammaInvMass(*iMu,*iMu2,*iPho) ;
         if ( mumuGammaMass < minMumuGammaInvMass_ || mumuGammaMass > maxMumuGammaInvMass_ ) continue;
@@ -410,7 +410,7 @@ bool ZToMuMuGammaAnalyzer::photonSelection ( const reco::Photon & pho) {
   if ( pho.pt() < photonMinEt_ )          result=false;
   if ( fabs(pho.eta())> photonMaxEta_ )   result=false;
   if ( pho.isEBEEGap() )       result=false;
-  if ( pho.trkSumPtHollowConeDR04() >   photonTrackIso_ )   result=false; // check how to exclude the muon track (which muon track).
+  //  if ( pho.trkSumPtHollowConeDR04() >   photonTrackIso_ )   result=false; // check how to exclude the muon track (which muon track).
 
 
   return result;  
