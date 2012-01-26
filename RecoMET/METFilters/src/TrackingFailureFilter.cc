@@ -24,6 +24,8 @@ class TrackingFailureFilter : public edm::EDFilter {
     double dzTrVtxMax_, dxyTrVtxMax_;
     double minSumPtOverHT_;
 
+    bool taggingMode_;
+
 };
 
 
@@ -34,6 +36,9 @@ TrackingFailureFilter::TrackingFailureFilter(const edm::ParameterSet & iConfig) 
   dzTrVtxMax_     = iConfig.getParameter<double>("DzTrVtxMax");
   dxyTrVtxMax_    = iConfig.getParameter<double>("DxyTrVtxMax");
   minSumPtOverHT_ = iConfig.getParameter<double>("MinSumPtOverHT");
+  taggingMode_    = iConfig.getParameter<bool>("taggingMode");
+
+  produces<bool>();
 }
 
 
@@ -65,7 +70,14 @@ bool TrackingFailureFilter::filter(edm::Event & iEvent, const edm::EventSetup & 
               << " HT=" << ht
               << " SumPt=" << sumpt
               << std::endl;
-  return ((sumpt/ht) > minSumPtOverHT_);
+
+  bool pass = (sumpt/ht) > minSumPtOverHT_;
+  
+  std::auto_ptr<bool> pOut( new bool(pass) );
+  iEvent.put( pOut );
+
+  if( taggingMode_ ) return true;
+  else return pass;
 
 }
 

@@ -20,7 +20,7 @@
 //
 // Original Author:  Konstantinos Theofilatos, Ulla Gebbert and Christian Sander
 //         Created:  Sat Nov 14 18:43:21 CET 2009
-// $Id: EcalDeadCellBoundaryEnergyFilter.cc,v 1.1 2012/01/06 19:56:06 lhx Exp $
+// $Id: EcalDeadCellBoundaryEnergyFilter.cc,v 1.1 2012/01/12 22:24:55 lhx Exp $
 //
 //
 
@@ -105,7 +105,7 @@ class EcalDeadCellBoundaryEnergyFilter: public edm::EDFilter {
       vector<int> limitDeadCellToChannelStatusEE_;
 
       bool enableGap_;
-      ofstream *outFile;
+//      ofstream *outFile;
 
 };
 
@@ -434,7 +434,7 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::Event& iEvent, const edm::Eve
 
       bool result = (!isBoundary && ((!isGap && enableGap_) || !enableGap_));
       if (!result) {
-         (*outFile) << iEvent.id().run() << ":" << iEvent.id().luminosityBlock() << ":" << iEvent.id().event() << std::endl;
+//         (*outFile) << iEvent.id().run() << ":" << iEvent.id().luminosityBlock() << ":" << iEvent.id().event() << std::endl;
       }
       return result;
    }
@@ -444,12 +444,12 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::Event& iEvent, const edm::Eve
 
 // ------------ method called once each job just before starting event loop  ------------
 void EcalDeadCellBoundaryEnergyFilter::beginJob() {
-   outFile = new ofstream("./filteredEventsBE.txt");
+//   outFile = new ofstream("./filteredEventsBE.txt");
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void EcalDeadCellBoundaryEnergyFilter::endJob() {
-   outFile->close();
+//   outFile->close();
 }
 
 //define this as a plug-in

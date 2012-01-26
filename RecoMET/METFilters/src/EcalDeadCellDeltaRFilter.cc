@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    simpleDRfilter
-// Class:      simpleDRfilter
+// Package:    EcalDeadCellDeltaRFilter
+// Class:      EcalDeadCellDeltaRFilter
 // 
-/**\class simpleDRfilter simpleDRfilter.cc
+/**\class EcalDeadCellDeltaRFilter EcalDeadCellDeltaRFilter.cc
 
  Description: <one line class summary>
  Event filtering for RA2 analysis (filtering status is stored in the event) 
@@ -92,10 +92,10 @@
 #include "TTree.h"
 #include "TH1.h"
 
-class simpleDRfilter : public edm::EDFilter {
+class EcalDeadCellDeltaRFilter : public edm::EDFilter {
 public:
-  explicit simpleDRfilter(const edm::ParameterSet&);
-  ~simpleDRfilter();
+  explicit EcalDeadCellDeltaRFilter(const edm::ParameterSet&);
+  ~EcalDeadCellDeltaRFilter();
 
 private:
   virtual bool filter(edm::Event&, const edm::EventSetup&);
@@ -169,7 +169,7 @@ private:
   std::vector<double> cracksHBHEdef_, cracksHEHFdef_;
 
 // Simple dR filter
-  std::vector<double> simpleDRfilterInput_;
+  std::vector<double> EcalDeadCellDeltaRFilterInput_;
 
   int dPhiToMETfunc(const std::vector<reco::Jet> &jetTVec, const double &dPhiCutVal, std::vector<reco::Jet> &closeToMETjetsVec);
   int dRtoMaskedChnsEvtFilterFunc(const std::vector<reco::Jet> &jetTVec, const int &chnStatus, const double &dRCutVal);
@@ -179,13 +179,13 @@ private:
   int isCloseToBadEcalChannel(const reco::Jet &jet, const double &deltaRCut, const int &chnStatus, std::map<double, DetId> &deltaRdetIdMap);
 };
 
-void simpleDRfilter::loadMET(const edm::Event& iEvent, const edm::EventSetup& iSetup){
+void EcalDeadCellDeltaRFilter::loadMET(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 
   iEvent.getByLabel(metInputTag_, met);
 
 }
 
-void simpleDRfilter::loadEventInfo(const edm::Event& iEvent, const edm::EventSetup& iSetup){
+void EcalDeadCellDeltaRFilter::loadEventInfo(const edm::Event& iEvent, const edm::EventSetup& iSetup){
    run = iEvent.id().run();
    event = iEvent.id().event();
    ls = iEvent.luminosityBlock();
@@ -199,7 +199,7 @@ void simpleDRfilter::loadEventInfo(const edm::Event& iEvent, const edm::EventSet
 
 }
 
-void simpleDRfilter::loadJets(const edm::Event& iEvent, const edm::EventSetup& iSetup ){
+void EcalDeadCellDeltaRFilter::loadJets(const edm::Event& iEvent, const edm::EventSetup& iSetup ){
    
   iEvent.getByLabel(jetInputTag_, jets);
 
@@ -212,7 +212,7 @@ void simpleDRfilter::loadJets(const edm::Event& iEvent, const edm::EventSetup& i
 //
 // constructors and destructor
 //
-simpleDRfilter::simpleDRfilter(const edm::ParameterSet& iConfig){
+EcalDeadCellDeltaRFilter::EcalDeadCellDeltaRFilter(const edm::ParameterSet& iConfig){
 
   debug_= iConfig.getUntrackedParameter<bool>("debug",false);
   printSkimInfo_= iConfig.getUntrackedParameter<bool>("printSkimInfo",false);
@@ -225,7 +225,7 @@ simpleDRfilter::simpleDRfilter(const edm::ParameterSet& iConfig){
   metInputTag_ = iConfig.getParameter<edm::InputTag>("metInputTag");
 
   makeProfileRoot_ = iConfig.getUntrackedParameter<bool>("makeProfileRoot", true);
-  profileRootName_ = iConfig.getUntrackedParameter<std::string>("profileRootName", "simpleDRfilter.root");
+  profileRootName_ = iConfig.getUntrackedParameter<std::string>("profileRootName", "EcalDeadCellDeltaRFilter.root");
 
   maskedEcalChannelStatusThreshold_ = iConfig.getParameter<int>("maskedEcalChannelStatusThreshold");
 
@@ -237,7 +237,7 @@ simpleDRfilter::simpleDRfilter(const edm::ParameterSet& iConfig){
   
   verbose_ = iConfig.getParameter<int>("verbose");
 
-  simpleDRfilterInput_ = iConfig.getParameter<std::vector<double> >("simpleDRfilterInput");
+  EcalDeadCellDeltaRFilterInput_ = iConfig.getParameter<std::vector<double> >("EcalDeadCellDeltaRFilterInput");
 
   cracksHBHEdef_ = iConfig.getParameter<std::vector<double> > ("cracksHBHEdef");
   cracksHEHFdef_ = iConfig.getParameter<std::vector<double> > ("cracksHEHFdef");
@@ -250,7 +250,7 @@ simpleDRfilter::simpleDRfilter(const edm::ParameterSet& iConfig){
   }
 }
 
-simpleDRfilter::~simpleDRfilter() {
+EcalDeadCellDeltaRFilter::~EcalDeadCellDeltaRFilter() {
   if( makeProfileRoot_ ){
      profFile->cd();
 
@@ -261,7 +261,7 @@ simpleDRfilter::~simpleDRfilter() {
   }
 }
 
-void simpleDRfilter::envSet(const edm::EventSetup& iSetup) {
+void EcalDeadCellDeltaRFilter::envSet(const edm::EventSetup& iSetup) {
 
   if (debug_) std::cout << "***envSet***" << std::endl;
 
@@ -279,7 +279,7 @@ void simpleDRfilter::envSet(const edm::EventSetup& iSetup) {
 }
 
 // ------------ method called on each new Event  ------------
-bool simpleDRfilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool EcalDeadCellDeltaRFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   loadEventInfo(iEvent, iSetup);
   loadJets(iEvent, iSetup);
@@ -301,7 +301,7 @@ bool simpleDRfilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   if( seledJets.empty() ) return pass;
 
-  double dPhiToMET = simpleDRfilterInput_[0], dRtoDeadCell = simpleDRfilterInput_[1];
+  double dPhiToMET = EcalDeadCellDeltaRFilterInput_[0], dRtoDeadCell = EcalDeadCellDeltaRFilterInput_[1];
 
   std::vector<reco::Jet> closeToMETjetsVec;
 
@@ -335,17 +335,17 @@ bool simpleDRfilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void simpleDRfilter::beginJob() {
+void EcalDeadCellDeltaRFilter::beginJob() {
   if (debug_) std::cout << "beginJob" << std::endl;
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void simpleDRfilter::endJob() {
+void EcalDeadCellDeltaRFilter::endJob() {
   if (debug_) std::cout << "endJob" << std::endl;
 }
 
 // ------------ method called once each run just before starting event loop  ------------
-bool simpleDRfilter::beginRun(edm::Run &run, const edm::EventSetup& iSetup) {
+bool EcalDeadCellDeltaRFilter::beginRun(edm::Run &run, const edm::EventSetup& iSetup) {
   if (debug_) std::cout << "beginRun" << std::endl;
 // Channel status might change for each run (data)
 // Event setup
@@ -356,13 +356,13 @@ bool simpleDRfilter::beginRun(edm::Run &run, const edm::EventSetup& iSetup) {
 }
 
 // ------------ method called once each run just after starting event loop  ------------
-bool simpleDRfilter::endRun(edm::Run &run, const edm::EventSetup& iSetup) {
+bool EcalDeadCellDeltaRFilter::endRun(edm::Run &run, const edm::EventSetup& iSetup) {
   if (debug_) std::cout << "endRun" << std::endl;
   return true;
 }
 
 
-int simpleDRfilter::etaToBoundary(const std::vector<reco::Jet> &jetTVec){
+int EcalDeadCellDeltaRFilter::etaToBoundary(const std::vector<reco::Jet> &jetTVec){
 
   int isClose = 0;
 
@@ -383,7 +383,7 @@ int simpleDRfilter::etaToBoundary(const std::vector<reco::Jet> &jetTVec){
 
 
 // Cache all jets that are close to the MET within a dphi of dPhiCutVal
-int simpleDRfilter::dPhiToMETfunc(const std::vector<reco::Jet> &jetTVec, const double &dPhiCutVal, std::vector<reco::Jet> &closeToMETjetsVec){
+int EcalDeadCellDeltaRFilter::dPhiToMETfunc(const std::vector<reco::Jet> &jetTVec, const double &dPhiCutVal, std::vector<reco::Jet> &closeToMETjetsVec){
 
   closeToMETjetsVec.clear();
 
@@ -411,7 +411,7 @@ int simpleDRfilter::dPhiToMETfunc(const std::vector<reco::Jet> &jetTVec, const d
 }
 
 
-int simpleDRfilter::dRtoMaskedChnsEvtFilterFunc(const std::vector<reco::Jet> &jetTVec, const int &chnStatus, const double &dRCutVal){
+int EcalDeadCellDeltaRFilter::dRtoMaskedChnsEvtFilterFunc(const std::vector<reco::Jet> &jetTVec, const int &chnStatus, const double &dRCutVal){
 
   int isClose = 0;
 
@@ -430,7 +430,7 @@ int simpleDRfilter::dRtoMaskedChnsEvtFilterFunc(const std::vector<reco::Jet> &je
 }
 
 
-int simpleDRfilter::isCloseToBadEcalChannel(const reco::Jet &jet, const double &deltaRCut, const int &chnStatus, std::map<double, DetId> &deltaRdetIdMap){
+int EcalDeadCellDeltaRFilter::isCloseToBadEcalChannel(const reco::Jet &jet, const double &deltaRCut, const int &chnStatus, std::map<double, DetId> &deltaRdetIdMap){
 
    double jetEta = jet.eta(), jetPhi = jet.phi();
 
@@ -467,7 +467,7 @@ int simpleDRfilter::isCloseToBadEcalChannel(const reco::Jet &jet, const double &
 }
 
 
-int simpleDRfilter::getChannelStatusMaps(){
+int EcalDeadCellDeltaRFilter::getChannelStatusMaps(){
 
   EcalAllDeadChannelsValMap.clear(); EcalAllDeadChannelsBitMap.clear();
 
@@ -537,4 +537,4 @@ int simpleDRfilter::getChannelStatusMaps(){
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(simpleDRfilter);
+DEFINE_FWK_MODULE(EcalDeadCellDeltaRFilter);

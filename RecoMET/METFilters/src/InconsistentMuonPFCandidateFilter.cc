@@ -40,6 +40,8 @@ private:
   const double          ptMin_;
   const double          maxPTDiff_;
   const bool            verbose_;
+
+  const bool taggingMode_;
 };
 
 //
@@ -58,8 +60,10 @@ InconsistentMuonPFCandidateFilter::InconsistentMuonPFCandidateFilter(const edm::
   , ptMin_                ( iConfig.getParameter<double>        ("ptMin")         )
   , maxPTDiff_            ( iConfig.getParameter<double>        ("maxPTDiff")     )
   , verbose_              ( iConfig.getUntrackedParameter<bool> ("verbose",false) )
+  , taggingMode_          ( iConfig.getParameter<bool>          ("taggingMode")   )
 {
-  produces<reco::PFCandidateCollection>();
+  produces<bool>();
+  produces<reco::PFCandidateCollection>("muons");
 }
 
 InconsistentMuonPFCandidateFilter::~InconsistentMuonPFCandidateFilter() { }
@@ -115,9 +119,15 @@ InconsistentMuonPFCandidateFilter::filter(edm::Event& iEvent, const edm::EventSe
     }    
   } // end loop over PF candidates
    
-  iEvent.put( pOutputCandidateCollection ); 
+  iEvent.put( pOutputCandidateCollection, "muons" );
 
-  return foundMuon;
+  bool pass = !foundMuon;
+  
+  std::auto_ptr<bool> pOut( new bool(pass) );
+  iEvent.put( pOut );
+
+  if( taggingMode_ ) return true;
+  else return pass;
 }
 
 // ------------ method called once each job just before starting event loop  ------------

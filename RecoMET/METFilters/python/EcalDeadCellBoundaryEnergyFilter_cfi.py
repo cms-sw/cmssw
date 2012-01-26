@@ -16,19 +16,19 @@ import FWCore.ParameterSet.Config as cms
 EcalDeadCellBoundaryEnergyFilter = cms.EDFilter('EcalDeadCellBoundaryEnergyFilter',
 	recHitsEB = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
 	recHitsEE = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
-	FilterAlgo= cms.untracked.string("TuningMode"),
+	FilterAlgo= cms.untracked.string("FilterMode"),
 	#### the following parameters skimGap, skimDead are only used in TuningMode
 	#### switch bool to True to turn on filter: only Events with chosen signature pass, otherwise all events pass
 	skimGap = cms.untracked.bool(False),
 	skimDead  = cms.untracked.bool(False),
 	#### cuts for finding energy deposit near Gaps
 	## min. boundary energy (RecHit next to Gap) (abs value)
-	cutBoundEnergyGapEE=cms.untracked.double(10),
-	cutBoundEnergyGapEB=cms.untracked.double(10),
+	cutBoundEnergyGapEE=cms.untracked.double(100),
+	cutBoundEnergyGapEB=cms.untracked.double(100),
 	#### cuts for finding energy deposit near dead region
 	## min. boundary energy (RecHits next to Dead Region) (abs value)
-	cutBoundEnergyDeadCellsEB=cms.untracked.double(5),
-	cutBoundEnergyDeadCellsEE=cms.untracked.double(5),
+	cutBoundEnergyDeadCellsEB=cms.untracked.double(10),
+	cutBoundEnergyDeadCellsEE=cms.untracked.double(10),
 	#### Limit complete filter processing to EE or EB, if both are 'True' nothing will happen in the filter at all...
 	limitFilterToEB=cms.untracked.bool(False),
 	limitFilterToEE=cms.untracked.bool(False),
@@ -38,8 +38,8 @@ EcalDeadCellBoundaryEnergyFilter = cms.EDFilter('EcalDeadCellBoundaryEnergyFilte
 	#### limitDeadCellToChannelStatusEB=cms.vint32(12,14)
 	#### limitDeadCellToChannelStatusEE=cms.vint32()
 	#### for negative values all status>=abs(given value) are used (e.g. limitDeadCellToChannelStatusEE=cms.vint32(-13)--->limitDeadCellToChannelStatusEE=cms.vint32(13,14,15,16,17,...))
-	limitDeadCellToChannelStatusEB=cms.vint32(),
-	limitDeadCellToChannelStatusEE=cms.vint32(),
+	limitDeadCellToChannelStatusEB=cms.vint32(12, 14),
+	limitDeadCellToChannelStatusEE=cms.vint32(12, 14),
 	#### enable calculation of energy deposits next to cracks/gaps
 	enableGap=cms.untracked.bool(False)
 )
