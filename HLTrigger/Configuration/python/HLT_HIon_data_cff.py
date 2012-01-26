@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_0_0/HIon/V8 (CMSSW_5_0_0_HLT3)
+# /dev/CMSSW_5_0_0/HIon/V9 (CMSSW_5_0_0_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_0_0/HIon/V8')
+  tableName = cms.string('/dev/CMSSW_5_0_0/HIon/V9')
 )
 
 streams = cms.PSet( 
@@ -2940,10 +2940,10 @@ hltMet = cms.EDProducer( "METProducer",
 )
 hltHIMET120 = cms.EDFilter( "HLT1CaloMET",
     inputTag = cms.InputTag( "hltMet" ),
-    saveTags = cms.bool( True ),
     MinPt = cms.double( 120.0 ),
     MaxEta = cms.double( -1.0 ),
-    MinN = cms.int32( 1 )
+    MinN = cms.int32( 1 ),
+    saveTags = cms.bool( True )
 )
 hltSiStripRawToDigi = cms.EDProducer( "SiStripRawToDigiModule",
     ProductLabel = cms.InputTag( "rawDataCollector" ),
@@ -3047,10 +3047,10 @@ hltPreHIMET200 = cms.EDFilter( "HLTPrescaler",
 )
 hltHIMET200 = cms.EDFilter( "HLT1CaloMET",
     inputTag = cms.InputTag( "hltMet" ),
-    saveTags = cms.bool( True ),
     MinPt = cms.double( 200.0 ),
     MaxEta = cms.double( -1.0 ),
-    MinN = cms.int32( 1 )
+    MinN = cms.int32( 1 ),
+    saveTags = cms.bool( True )
 )
 hltPreHIMET220 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -3058,10 +3058,10 @@ hltPreHIMET220 = cms.EDFilter( "HLTPrescaler",
 )
 hltHIMET220 = cms.EDFilter( "HLT1CaloMET",
     inputTag = cms.InputTag( "hltMet" ),
-    saveTags = cms.bool( True ),
     MinPt = cms.double( 220.0 ),
     MaxEta = cms.double( -1.0 ),
-    MinN = cms.int32( 1 )
+    MinN = cms.int32( 1 ),
+    saveTags = cms.bool( True )
 )
 hltPreHIPhysics = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -3433,8 +3433,8 @@ hltHIDoubleMuLevel1PathL1OpenFiltered = cms.EDFilter( "HLTMuonL1Filter",
     MinN = cms.int32( 2 ),
     ExcludeSingleSegmentCSC = cms.bool( False ),
     CSCTFtag = cms.InputTag( "unused" ),
-    saveTags = cms.bool( True ),
-    SelectQualities = cms.vint32(  )
+    SelectQualities = cms.vint32(  ),
+    saveTags = cms.bool( True )
 )
 hltPreHIL1DoubleMuOpenHighQ = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -3448,8 +3448,8 @@ hltHIDoubleMuLevel1PathL1HighQFiltered = cms.EDFilter( "HLTMuonL1Filter",
     MinN = cms.int32( 2 ),
     ExcludeSingleSegmentCSC = cms.bool( False ),
     CSCTFtag = cms.InputTag( "unused" ),
-    saveTags = cms.bool( True ),
-    SelectQualities = cms.vint32( 7, 6, 5, 0, 0, 0, 0, 0 )
+    SelectQualities = cms.vint32( 7, 6, 5, 0, 0, 0, 0, 0 ),
+    saveTags = cms.bool( True )
 )
 hltL1sL1SingleMu3BptxAND = cms.EDFilter( "HLTLevel1GTSeed",
     L1UseL1TriggerObjectMaps = cms.bool( True ),
@@ -3475,8 +3475,8 @@ hltHIL1SingleMu3withBptxANDL1Filtered = cms.EDFilter( "HLTMuonL1Filter",
     MinN = cms.int32( 1 ),
     ExcludeSingleSegmentCSC = cms.bool( False ),
     CSCTFtag = cms.InputTag( "unused" ),
-    saveTags = cms.bool( False ),
-    SelectQualities = cms.vint32(  )
+    SelectQualities = cms.vint32(  ),
+    saveTags = cms.bool( False )
 )
 hltMuonDTDigis = cms.EDProducer( "DTUnpackingModule",
     dataType = cms.string( "DDU" ),
@@ -3870,10 +3870,10 @@ hltHIL2Mu3L2Filtered = cms.EDFilter( "HLTMuonL2PreFilter",
     MaxDz = cms.double( 9999.0 ),
     MinPt = cms.double( 3.0 ),
     NSigmaPt = cms.double( 0.0 ),
-    saveTags = cms.bool( True ),
     AbsEtaBins = cms.vdouble( 5.0 ),
     MinNstations = cms.vint32( 0 ),
-    MinNhits = cms.vint32( 0 )
+    MinNhits = cms.vint32( 0 ),
+    saveTags = cms.bool( True )
 )
 hltPreHIL2Mu3NHitQ = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -3890,10 +3890,10 @@ hltHIL2Mu3NHitL2Filtered = cms.EDFilter( "HLTMuonL2PreFilter",
     MaxDz = cms.double( 9999.0 ),
     MinPt = cms.double( 3.0 ),
     NSigmaPt = cms.double( 0.0 ),
-    saveTags = cms.bool( True ),
     AbsEtaBins = cms.vdouble( 5.0 ),
     MinNstations = cms.vint32( 0 ),
-    MinNhits = cms.vint32( 1 )
+    MinNhits = cms.vint32( 1 ),
+    saveTags = cms.bool( True )
 )
 hltPreHIL2Mu7 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -3910,10 +3910,10 @@ hltHIL2Mu7L2Filtered = cms.EDFilter( "HLTMuonL2PreFilter",
     MaxDz = cms.double( 9999.0 ),
     MinPt = cms.double( 7.0 ),
     NSigmaPt = cms.double( 0.0 ),
-    saveTags = cms.bool( True ),
     AbsEtaBins = cms.vdouble( 5.0 ),
     MinNstations = cms.vint32( 0 ),
-    MinNhits = cms.vint32( 0 )
+    MinNhits = cms.vint32( 0 ),
+    saveTags = cms.bool( True )
 )
 hltPreHIL2Mu15 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -3930,10 +3930,10 @@ hltHIL2Mu15L2Filtered = cms.EDFilter( "HLTMuonL2PreFilter",
     MaxDz = cms.double( 9999.0 ),
     MinPt = cms.double( 15.0 ),
     NSigmaPt = cms.double( 0.0 ),
-    saveTags = cms.bool( True ),
     AbsEtaBins = cms.vdouble( 5.0 ),
     MinNstations = cms.vint32( 0 ),
-    MinNhits = cms.vint32( 0 )
+    MinNhits = cms.vint32( 0 ),
+    saveTags = cms.bool( True )
 )
 hltPreHIL2DoubleMu0 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -3950,10 +3950,10 @@ hltHIL2DoubleMu0L2Filtered = cms.EDFilter( "HLTMuonL2PreFilter",
     MaxDz = cms.double( 9999.0 ),
     MinPt = cms.double( 0.0 ),
     NSigmaPt = cms.double( 0.0 ),
-    saveTags = cms.bool( True ),
     AbsEtaBins = cms.vdouble( 5.0 ),
     MinNstations = cms.vint32( 0 ),
-    MinNhits = cms.vint32( 0 )
+    MinNhits = cms.vint32( 0 ),
+    saveTags = cms.bool( True )
 )
 hltPreHIL2DoubleMu0NHitQ = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -3970,10 +3970,10 @@ hltHIL2DoubleMu0L2N1HitsFiltered = cms.EDFilter( "HLTMuonL2PreFilter",
     MaxDz = cms.double( 9999.0 ),
     MinPt = cms.double( 0.0 ),
     NSigmaPt = cms.double( 0.0 ),
-    saveTags = cms.bool( True ),
     AbsEtaBins = cms.vdouble( 5.0 ),
     MinNstations = cms.vint32( 0 ),
-    MinNhits = cms.vint32( 1 )
+    MinNhits = cms.vint32( 1 ),
+    saveTags = cms.bool( True )
 )
 hltPreHIL2DoubleMu0L1HighQL2NHitQ = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -3994,10 +3994,10 @@ hltHIL2DoubleMu3L2Filtered = cms.EDFilter( "HLTMuonL2PreFilter",
     MaxDz = cms.double( 9999.0 ),
     MinPt = cms.double( 3.0 ),
     NSigmaPt = cms.double( 0.0 ),
-    saveTags = cms.bool( True ),
     AbsEtaBins = cms.vdouble( 5.0 ),
     MinNstations = cms.vint32( 0 ),
-    MinNhits = cms.vint32( 0 )
+    MinNhits = cms.vint32( 0 ),
+    saveTags = cms.bool( True )
 )
 hltPreHIL3Mu3 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -4849,10 +4849,10 @@ hltHIDimuonL2PreFiltered0 = cms.EDFilter( "HLTMuonL2PreFilter",
     MaxDz = cms.double( 9999.0 ),
     MinPt = cms.double( 0.0 ),
     NSigmaPt = cms.double( 0.0 ),
-    saveTags = cms.bool( True ),
     AbsEtaBins = cms.vdouble( 5.0 ),
     MinNstations = cms.vint32( 0 ),
-    MinNhits = cms.vint32( 0 )
+    MinNhits = cms.vint32( 0 ),
+    saveTags = cms.bool( True )
 )
 hltHIDimuonL3FilteredOpen = cms.EDFilter( "HLTMuonDimuonL3Filter",
     BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
@@ -4876,8 +4876,8 @@ hltHIDimuonL3FilteredOpen = cms.EDFilter( "HLTMuonDimuonL3Filter",
     NSigmaPt = cms.double( 0.0 ),
     MaxDCAMuMu = cms.double( 999.0 ),
     MaxRapidityPair = cms.double( 999999.0 ),
-    saveTags = cms.bool( True ),
-    CutCowboys = cms.bool( False )
+    CutCowboys = cms.bool( False ),
+    saveTags = cms.bool( True )
 )
 hltPreHIL1DoubleMuOpenL3Mgt2 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -4905,8 +4905,8 @@ hltHIDimuonL3FilteredMgt2 = cms.EDFilter( "HLTMuonDimuonL3Filter",
     NSigmaPt = cms.double( 0.0 ),
     MaxDCAMuMu = cms.double( 999.0 ),
     MaxRapidityPair = cms.double( 999999.0 ),
-    saveTags = cms.bool( True ),
-    CutCowboys = cms.bool( False )
+    CutCowboys = cms.bool( False ),
+    saveTags = cms.bool( True )
 )
 hltPreHIL1DoubleMuOpenL3Mgt2SS = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -4934,8 +4934,8 @@ hltHIDimuonL3FilteredMgt2SS = cms.EDFilter( "HLTMuonDimuonL3Filter",
     NSigmaPt = cms.double( 0.0 ),
     MaxDCAMuMu = cms.double( 999.0 ),
     MaxRapidityPair = cms.double( 999999.0 ),
-    saveTags = cms.bool( True ),
-    CutCowboys = cms.bool( False )
+    CutCowboys = cms.bool( False ),
+    saveTags = cms.bool( True )
 )
 hltPreHIL1DoubleMuOpenL3Mgt2OS = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -4963,8 +4963,8 @@ hltHIDimuonL3FilteredMg2OS = cms.EDFilter( "HLTMuonDimuonL3Filter",
     NSigmaPt = cms.double( 0.0 ),
     MaxDCAMuMu = cms.double( 999.0 ),
     MaxRapidityPair = cms.double( 999999.0 ),
-    saveTags = cms.bool( True ),
-    CutCowboys = cms.bool( False )
+    CutCowboys = cms.bool( False ),
+    saveTags = cms.bool( True )
 )
 hltPreHIL1DoubleMuOpenL3Mgt2OSnoCowboy = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -4992,8 +4992,8 @@ hltHIDimuonL3FilteredMg2OSnoCowboy = cms.EDFilter( "HLTMuonDimuonL3Filter",
     NSigmaPt = cms.double( 0.0 ),
     MaxDCAMuMu = cms.double( 999.0 ),
     MaxRapidityPair = cms.double( 999999.0 ),
-    saveTags = cms.bool( True ),
-    CutCowboys = cms.bool( True )
+    CutCowboys = cms.bool( True ),
+    saveTags = cms.bool( True )
 )
 hltL1sL1SingleEG5BptxAND = cms.EDFilter( "HLTLevel1GTSeed",
     L1UseL1TriggerObjectMaps = cms.bool( True ),
@@ -5116,10 +5116,10 @@ hltRecoHIEcalWithCleaningCandidate = cms.EDProducer( "EgammaHLTRecoEcalCandidate
 )
 hltHIPhoton15 = cms.EDFilter( "HLT1Photon",
     inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate" ),
-    saveTags = cms.bool( False ),
     MinPt = cms.double( 15.0 ),
     MaxEta = cms.double( 2.0 ),
-    MinN = cms.int32( 1 )
+    MinN = cms.int32( 1 ),
+    saveTags = cms.bool( False )
 )
 hltPreHIPhoton20 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -5127,10 +5127,10 @@ hltPreHIPhoton20 = cms.EDFilter( "HLTPrescaler",
 )
 hltHIPhoton20 = cms.EDFilter( "HLT1Photon",
     inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate" ),
-    saveTags = cms.bool( False ),
     MinPt = cms.double( 20.0 ),
     MaxEta = cms.double( 2.0 ),
-    MinN = cms.int32( 1 )
+    MinN = cms.int32( 1 ),
+    saveTags = cms.bool( False )
 )
 hltPreHIPhoton30 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -5138,10 +5138,10 @@ hltPreHIPhoton30 = cms.EDFilter( "HLTPrescaler",
 )
 hltHIPhoton30 = cms.EDFilter( "HLT1Photon",
     inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate" ),
-    saveTags = cms.bool( False ),
     MinPt = cms.double( 30.0 ),
     MaxEta = cms.double( 2.0 ),
-    MinN = cms.int32( 1 )
+    MinN = cms.int32( 1 ),
+    saveTags = cms.bool( False )
 )
 hltPreHIPhoton40 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -5149,10 +5149,10 @@ hltPreHIPhoton40 = cms.EDFilter( "HLTPrescaler",
 )
 hltHIPhoton40 = cms.EDFilter( "HLT1Photon",
     inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate" ),
-    saveTags = cms.bool( False ),
     MinPt = cms.double( 40.0 ),
     MaxEta = cms.double( 2.0 ),
-    MinN = cms.int32( 1 )
+    MinN = cms.int32( 1 ),
+    saveTags = cms.bool( False )
 )
 hltL1sL1DoubleEG5BptxAND = cms.EDFilter( "HLTLevel1GTSeed",
     L1UseL1TriggerObjectMaps = cms.bool( True ),
@@ -5172,17 +5172,17 @@ hltPreHIDoublePhoton10and15 = cms.EDFilter( "HLTPrescaler",
 )
 hltHIDoublePhoton1015Filter1 = cms.EDFilter( "HLT1Photon",
     inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate" ),
-    saveTags = cms.bool( False ),
     MinPt = cms.double( 10.0 ),
     MaxEta = cms.double( 2.0 ),
-    MinN = cms.int32( 2 )
+    MinN = cms.int32( 2 ),
+    saveTags = cms.bool( False )
 )
 hltHIDoublePhoton1015Filter2 = cms.EDFilter( "HLT1Photon",
     inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate" ),
-    saveTags = cms.bool( False ),
     MinPt = cms.double( 15.0 ),
     MaxEta = cms.double( 2.0 ),
-    MinN = cms.int32( 1 )
+    MinN = cms.int32( 1 ),
+    saveTags = cms.bool( False )
 )
 hltPreHIDoublePhoton15and20 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -5190,17 +5190,17 @@ hltPreHIDoublePhoton15and20 = cms.EDFilter( "HLTPrescaler",
 )
 hltHIDoublePhoton1520Filter1 = cms.EDFilter( "HLT1Photon",
     inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate" ),
-    saveTags = cms.bool( False ),
     MinPt = cms.double( 15.0 ),
     MaxEta = cms.double( 2.0 ),
-    MinN = cms.int32( 2 )
+    MinN = cms.int32( 2 ),
+    saveTags = cms.bool( False )
 )
 hltHIDoublePhoton1520Filter2 = cms.EDFilter( "HLT1Photon",
     inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate" ),
-    saveTags = cms.bool( False ),
     MinPt = cms.double( 20.0 ),
     MaxEta = cms.double( 2.0 ),
-    MinN = cms.int32( 1 )
+    MinN = cms.int32( 1 ),
+    saveTags = cms.bool( False )
 )
 hltPreHIDoublePhoton10 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -5208,10 +5208,10 @@ hltPreHIDoublePhoton10 = cms.EDFilter( "HLTPrescaler",
 )
 hltHIDoublePhoton10 = cms.EDFilter( "HLT1Photon",
     inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate" ),
-    saveTags = cms.bool( False ),
     MinPt = cms.double( 10.0 ),
     MaxEta = cms.double( 2.0 ),
-    MinN = cms.int32( 2 )
+    MinN = cms.int32( 2 ),
+    saveTags = cms.bool( False )
 )
 hltPreHIDoublePhoton15 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -5219,10 +5219,10 @@ hltPreHIDoublePhoton15 = cms.EDFilter( "HLTPrescaler",
 )
 hltHIDoublePhoton15 = cms.EDFilter( "HLT1Photon",
     inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate" ),
-    saveTags = cms.bool( False ),
     MinPt = cms.double( 15.0 ),
     MaxEta = cms.double( 2.0 ),
-    MinN = cms.int32( 2 )
+    MinN = cms.int32( 2 ),
+    saveTags = cms.bool( False )
 )
 hltPreHIDoublePhoton20 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -5230,10 +5230,10 @@ hltPreHIDoublePhoton20 = cms.EDFilter( "HLTPrescaler",
 )
 hltHIDoublePhoton20 = cms.EDFilter( "HLT1Photon",
     inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate" ),
-    saveTags = cms.bool( False ),
     MinPt = cms.double( 20.0 ),
     MaxEta = cms.double( 2.0 ),
-    MinN = cms.int32( 2 )
+    MinN = cms.int32( 2 ),
+    saveTags = cms.bool( False )
 )
 hltL1sL1SingleJet36BptxAND = cms.EDFilter( "HLTLevel1GTSeed",
     L1UseL1TriggerObjectMaps = cms.bool( True ),
@@ -5313,10 +5313,10 @@ hltHICaloJetCorrected = cms.EDProducer( "CaloJetCorrectionProducer",
 )
 hltHI1jet55 = cms.EDFilter( "HLT1CaloJet",
     inputTag = cms.InputTag( "hltHICaloJetCorrected" ),
-    saveTags = cms.bool( True ),
     MinPt = cms.double( 55.0 ),
     MaxEta = cms.double( 5.0 ),
-    MinN = cms.int32( 1 )
+    MinN = cms.int32( 1 ),
+    saveTags = cms.bool( True )
 )
 hltPreHIJet65 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -5324,10 +5324,10 @@ hltPreHIJet65 = cms.EDFilter( "HLTPrescaler",
 )
 hltHI1jet65 = cms.EDFilter( "HLT1CaloJet",
     inputTag = cms.InputTag( "hltHICaloJetCorrected" ),
-    saveTags = cms.bool( True ),
     MinPt = cms.double( 65.0 ),
     MaxEta = cms.double( 5.0 ),
-    MinN = cms.int32( 1 )
+    MinN = cms.int32( 1 ),
+    saveTags = cms.bool( True )
 )
 hltL1sL1SingleJet52BptxAND = cms.EDFilter( "HLTLevel1GTSeed",
     L1UseL1TriggerObjectMaps = cms.bool( True ),
@@ -5347,10 +5347,10 @@ hltPreHIJet80 = cms.EDFilter( "HLTPrescaler",
 )
 hltHI1jet80 = cms.EDFilter( "HLT1CaloJet",
     inputTag = cms.InputTag( "hltHICaloJetCorrected" ),
-    saveTags = cms.bool( True ),
     MinPt = cms.double( 80.0 ),
     MaxEta = cms.double( 5.0 ),
-    MinN = cms.int32( 1 )
+    MinN = cms.int32( 1 ),
+    saveTags = cms.bool( True )
 )
 hltL1sL1SingleJet68BptxAND = cms.EDFilter( "HLTLevel1GTSeed",
     L1UseL1TriggerObjectMaps = cms.bool( True ),
@@ -5370,10 +5370,10 @@ hltPreHIJet95 = cms.EDFilter( "HLTPrescaler",
 )
 hltHI1jet95 = cms.EDFilter( "HLT1CaloJet",
     inputTag = cms.InputTag( "hltHICaloJetCorrected" ),
-    saveTags = cms.bool( True ),
     MinPt = cms.double( 95.0 ),
     MaxEta = cms.double( 5.0 ),
-    MinN = cms.int32( 1 )
+    MinN = cms.int32( 1 ),
+    saveTags = cms.bool( True )
 )
 hltPreHIDiJet55and55 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -5381,10 +5381,10 @@ hltPreHIDiJet55and55 = cms.EDFilter( "HLTPrescaler",
 )
 hltHIDiJet55and55 = cms.EDFilter( "HLT1CaloJet",
     inputTag = cms.InputTag( "hltHICaloJetCorrected" ),
-    saveTags = cms.bool( True ),
     MinPt = cms.double( 55.0 ),
     MaxEta = cms.double( 5.0 ),
-    MinN = cms.int32( 2 )
+    MinN = cms.int32( 2 ),
+    saveTags = cms.bool( True )
 )
 hltPreHIDiJet65and55 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -5515,20 +5515,20 @@ hltStoppedHSCPIterativeCone5CaloJets = cms.EDProducer( "FastjetJetProducer",
 )
 hltStoppedHSCPControl1CaloJetEnergy30 = cms.EDFilter( "HLT1CaloJetEnergy",
     inputTag = cms.InputTag( "hltStoppedHSCPIterativeCone5CaloJets" ),
-    saveTags = cms.bool( True ),
     MinE = cms.double( 30.0 ),
     MaxEta = cms.double( 3.0 ),
-    MinN = cms.int32( 1 )
+    MinN = cms.int32( 1 ),
+    saveTags = cms.bool( True )
 )
 hltBPTXAntiCoincidence = cms.EDFilter( "HLTLevel1Activity",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     daqPartitions = cms.uint32( 1 ),
     ignoreL1Mask = cms.bool( True ),
     invert = cms.bool( True ),
+    bunchCrossings = cms.vint32( 0, 1, -1 ),
     physicsLoBits = cms.uint64( 0x1 ),
     physicsHiBits = cms.uint64( 0x0 ),
-    technicalBits = cms.uint64( 0x11 ),
-    bunchCrossings = cms.vint32( 0, 1, -1 )
+    technicalBits = cms.uint64( 0x11 )
 )
 hltL1sL1SingleJet32CentralNotBptx = cms.EDFilter( "HLTLevel1GTSeed",
     L1UseL1TriggerObjectMaps = cms.bool( True ),
@@ -5547,10 +5547,10 @@ hltL1BeamHaloAntiCoincidence3BX = cms.EDFilter( "HLTLevel1Activity",
     daqPartitions = cms.uint32( 1 ),
     ignoreL1Mask = cms.bool( True ),
     invert = cms.bool( True ),
+    bunchCrossings = cms.vint32( 0, 1, -1 ),
     physicsLoBits = cms.uint64( 0x40000000000000 ),
     physicsHiBits = cms.uint64( 0x0 ),
-    technicalBits = cms.uint64( 0x0 ),
-    bunchCrossings = cms.vint32( 0, 1, -1 )
+    technicalBits = cms.uint64( 0x0 )
 )
 hltPreJetE50NoBPTX3BXNoHalo = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -5566,10 +5566,10 @@ hltStoppedHSCPHpdFilter = cms.EDFilter( "HLTHPDFilter",
 )
 hltStoppedHSCPCaloJetEnergy50 = cms.EDFilter( "HLT1CaloJetEnergy",
     inputTag = cms.InputTag( "hltStoppedHSCPIterativeCone5CaloJets" ),
-    saveTags = cms.bool( True ),
     MinE = cms.double( 50.0 ),
     MaxEta = cms.double( 3.0 ),
-    MinN = cms.int32( 1 )
+    MinN = cms.int32( 1 ),
+    saveTags = cms.bool( True )
 )
 hltL1sL1GlobalDecision = cms.EDFilter( "HLTLevel1GTSeed",
     L1UseL1TriggerObjectMaps = cms.bool( True ),
@@ -5588,6 +5588,7 @@ hltPreHIActivityHFCoincidence3 = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 hltHcalSimpleRecHitFilterCoincidence = cms.EDFilter( "HLTHcalSimpleRecHitFilter",
+    saveTags = cms.bool( False ),
     threshold = cms.double( 3.0 ),
     minNHitsNeg = cms.int32( 1 ),
     minNHitsPos = cms.int32( 1 ),
@@ -5600,6 +5601,7 @@ hltPreHIActivityHFSingle3 = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 hltHcalSimpleRecHitFilter = cms.EDFilter( "HLTHcalSimpleRecHitFilter",
+    saveTags = cms.bool( False ),
     threshold = cms.double( 3.0 ),
     minNHitsNeg = cms.int32( 1 ),
     minNHitsPos = cms.int32( 1 ),
@@ -5613,12 +5615,12 @@ hltPreHIClusterVertexCompatibility = cms.EDFilter( "HLTPrescaler",
 )
 hltHIPixelClusterShapeFilter = cms.EDFilter( "HLTPixelClusterShapeFilter",
     inputTag = cms.InputTag( "hltHISiPixelRecHits" ),
-    saveTags = cms.bool( False ),
     minZ = cms.double( -20.0 ),
     maxZ = cms.double( 20.05 ),
     zStep = cms.double( 0.2 ),
     nhitsTrunc = cms.int32( 150 ),
     clusterTrunc = cms.double( 2.0 ),
+    saveTags = cms.bool( False ),
     clusterPars = cms.vdouble(  )
 )
 hltPreHICentralityVeto = cms.EDFilter( "HLTPrescaler",
@@ -5627,19 +5629,19 @@ hltPreHICentralityVeto = cms.EDFilter( "HLTPrescaler",
 )
 hltPixelActivityFilterCentralityVeto = cms.EDFilter( "HLTPixelActivityFilter",
     inputTag = cms.InputTag( "hltHISiPixelClusters" ),
-    saveTags = cms.bool( False ),
     minClusters = cms.uint32( 3 ),
-    maxClusters = cms.uint32( 1000 )
+    maxClusters = cms.uint32( 1000 ),
+    saveTags = cms.bool( False )
 )
 hltBPTXCoincidence = cms.EDFilter( "HLTLevel1Activity",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     daqPartitions = cms.uint32( 1 ),
     ignoreL1Mask = cms.bool( True ),
     invert = cms.bool( False ),
+    bunchCrossings = cms.vint32( 0, -1, 1 ),
     physicsLoBits = cms.uint64( 0x1 ),
     physicsHiBits = cms.uint64( 0x40000 ),
-    technicalBits = cms.uint64( 0x1 ),
-    bunchCrossings = cms.vint32( 0, -1, 1 )
+    technicalBits = cms.uint64( 0x1 )
 )
 hltL1sETT100BptxAND = cms.EDFilter( "HLTLevel1GTSeed",
     L1UseL1TriggerObjectMaps = cms.bool( True ),
@@ -5659,10 +5661,10 @@ hltPreHIFullTrack12L1Central = cms.EDFilter( "HLTPrescaler",
 )
 hltHICaloTowerFilter4 = cms.EDFilter( "HLTCaloTowerFilter",
     inputTag = cms.InputTag( "hltTowerMakerForAll" ),
-    saveTags = cms.bool( False ),
     MinPt = cms.double( 4.0 ),
     MaxEta = cms.double( 2.4 ),
-    MinN = cms.uint32( 1 )
+    MinN = cms.uint32( 1 ),
+    saveTags = cms.bool( False )
 )
 hltHIPixelClusterVerticesForHITrackTrigger = cms.EDProducer( "HIPixelClusterVtxProducer",
     pixelRecHits = cms.string( "hltHISiPixelRecHits" ),
@@ -5844,7 +5846,8 @@ hltHISinglePixelTrackFilter10 = cms.EDFilter( "HLTSingleVertexPixelTrackFilter",
     MaxEta = cms.double( 2.4 ),
     MaxVz = cms.double( 15.0 ),
     MinTrks = cms.int32( 1 ),
-    MinSep = cms.double( 0.2 )
+    MinSep = cms.double( 0.2 ),
+    saveTags = cms.bool( True )
 )
 hltHISiStripClustersNonRegional = cms.EDProducer( "SiStripClusterizer",
     Clusterizer = cms.PSet( 
@@ -5941,7 +5944,8 @@ hltHISingleFullTrackFilter12 = cms.EDFilter( "HLTSingleVertexPixelTrackFilter",
     MaxEta = cms.double( 2.4 ),
     MaxVz = cms.double( 15.0 ),
     MinTrks = cms.int32( 1 ),
-    MinSep = cms.double( 0.2 )
+    MinSep = cms.double( 0.2 ),
+    saveTags = cms.bool( True )
 )
 hltL1sJet16CentralNotETT140BptxAND = cms.EDFilter( "HLTLevel1GTSeed",
     L1UseL1TriggerObjectMaps = cms.bool( True ),
@@ -5971,7 +5975,8 @@ hltHISingleFullTrackFilter14 = cms.EDFilter( "HLTSingleVertexPixelTrackFilter",
     MaxEta = cms.double( 2.4 ),
     MaxVz = cms.double( 15.0 ),
     MinTrks = cms.int32( 1 ),
-    MinSep = cms.double( 0.2 )
+    MinSep = cms.double( 0.2 ),
+    saveTags = cms.bool( True )
 )
 hltPreHIFullTrack14L1Peripheral = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -5989,7 +5994,8 @@ hltHISingleFullTrackFilter20 = cms.EDFilter( "HLTSingleVertexPixelTrackFilter",
     MaxEta = cms.double( 2.4 ),
     MaxVz = cms.double( 15.0 ),
     MinTrks = cms.int32( 1 ),
-    MinSep = cms.double( 0.2 )
+    MinSep = cms.double( 0.2 ),
+    saveTags = cms.bool( True )
 )
 hltPreHIFullTrack20L1Peripheral = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -6007,7 +6013,8 @@ hltHISingleFullTrackFilter25 = cms.EDFilter( "HLTSingleVertexPixelTrackFilter",
     MaxEta = cms.double( 2.4 ),
     MaxVz = cms.double( 15.0 ),
     MinTrks = cms.int32( 1 ),
-    MinSep = cms.double( 0.2 )
+    MinSep = cms.double( 0.2 ),
+    saveTags = cms.bool( True )
 )
 hltPreHIFullTrack25L1Peripheral = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -6134,17 +6141,17 @@ hltMetForHf = cms.EDProducer( "METProducer",
 )
 hltGlobalSumETHfFilter3200 = cms.EDFilter( "HLTGlobalSumsCaloMET",
     inputTag = cms.InputTag( "hltMetForHf" ),
-    saveTags = cms.bool( False ),
     observable = cms.string( "sumEt" ),
     Min = cms.double( 3200.0 ),
     Max = cms.double( -1.0 ),
-    MinN = cms.int32( 1 )
+    MinN = cms.int32( 1 ),
+    saveTags = cms.bool( False )
 )
 hltPixelActivityFilter51500 = cms.EDFilter( "HLTPixelActivityFilter",
     inputTag = cms.InputTag( "hltHISiPixelClusters" ),
-    saveTags = cms.bool( False ),
     minClusters = cms.uint32( 51500 ),
-    maxClusters = cms.uint32( 1000000 )
+    maxClusters = cms.uint32( 1000000 ),
+    saveTags = cms.bool( False )
 )
 hltPreHIUCC015 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -6152,17 +6159,17 @@ hltPreHIUCC015 = cms.EDFilter( "HLTPrescaler",
 )
 hltGlobalSumETHfFilter3100 = cms.EDFilter( "HLTGlobalSumsCaloMET",
     inputTag = cms.InputTag( "hltMetForHf" ),
-    saveTags = cms.bool( False ),
     observable = cms.string( "sumEt" ),
     Min = cms.double( 3100.0 ),
     Max = cms.double( -1.0 ),
-    MinN = cms.int32( 1 )
+    MinN = cms.int32( 1 ),
+    saveTags = cms.bool( False )
 )
 hltPixelActivityFilter51400 = cms.EDFilter( "HLTPixelActivityFilter",
     inputTag = cms.InputTag( "hltHISiPixelClusters" ),
-    saveTags = cms.bool( False ),
     minClusters = cms.uint32( 51400 ),
-    maxClusters = cms.uint32( 1000000 )
+    maxClusters = cms.uint32( 1000000 ),
+    saveTags = cms.bool( False )
 )
 hltPreHICentral10 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -6170,17 +6177,17 @@ hltPreHICentral10 = cms.EDFilter( "HLTPrescaler",
 )
 hltGlobalSumETHfFilter0 = cms.EDFilter( "HLTGlobalSumsCaloMET",
     inputTag = cms.InputTag( "hltMetForHf" ),
-    saveTags = cms.bool( False ),
     observable = cms.string( "sumEt" ),
     Min = cms.double( 0.0 ),
     Max = cms.double( -1.0 ),
-    MinN = cms.int32( 1 )
+    MinN = cms.int32( 1 ),
+    saveTags = cms.bool( False )
 )
 hltPixelActivityFilter0 = cms.EDFilter( "HLTPixelActivityFilter",
     inputTag = cms.InputTag( "hltHISiPixelClusters" ),
-    saveTags = cms.bool( False ),
     minClusters = cms.uint32( 34000 ),
-    maxClusters = cms.uint32( 1000000 )
+    maxClusters = cms.uint32( 1000000 ),
+    saveTags = cms.bool( False )
 )
 hltL1sHIUPCNeuMu = cms.EDFilter( "HLTLevel1GTSeed",
     L1UseL1TriggerObjectMaps = cms.bool( True ),
