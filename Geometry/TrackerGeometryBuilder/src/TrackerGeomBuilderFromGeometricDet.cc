@@ -26,15 +26,14 @@ using std::string;
 
 namespace {
   void verifyDUinTG(TrackerGeometry const & tg) {
-    int off=0; int size=0;
+    int off=0; int end=0;
     for ( int i=1; i!=7; i++) {
       auto det = GeomDetEnumerators::tkDetEnum[i];
-      assert(size==(tg.offsetDU(det)-off)); // from the previous loop
       off = tg.offsetDU(det);
-      size = tg.sizeDU(det); assert(size>0);
-      for (int j=0; j!=size; ++j) {
-	assert(tg.detUnits()[off+j]->geographicalId().subdetId()==i);
-	assert(tg.detUnits()[off+j]->subDetector()==det);
+      end = tg.endsetDU(det); assert(end>off);
+      for (int j=off; j!=end; ++j) {
+	assert(tg.detUnits()[j]->geographicalId().subdetId()==i);
+	assert(tg.detUnits()[j]->subDetector()==det);
       }
     }
   }
@@ -103,6 +102,8 @@ void TrackerGeomBuilderFromGeometricDet::buildPixel(std::vector<const GeometricD
     tracker->addDetUnit(temp);
     tracker->addDetUnitId(gdv[i]->geographicalID());
   }
+  tracker->setEndsetDU(det);
+
 }
 
 void TrackerGeomBuilderFromGeometricDet::buildSilicon(std::vector<const GeometricDet*>  const & gdv, 
@@ -135,6 +136,8 @@ void TrackerGeomBuilderFromGeometricDet::buildSilicon(std::vector<const Geometri
     tracker->addDetUnit(temp);
     tracker->addDetUnitId(gdv[i]->geographicalID());
   }  
+  tracker->setEndsetDU(det);
+
 }
 
 

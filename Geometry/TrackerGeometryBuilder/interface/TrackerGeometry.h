@@ -48,9 +48,10 @@ public:
   void addDetId(DetId p);
 
   unsigned int offsetDU(SubDetector sid) const { return theOffsetDU[sid];}
-  unsigned int sizeDU(SubDetector sid) const { return (sid==5 ? (unsigned int)(detUnits().size()) : theOffsetDU[int(sid)+1]) -theOffsetDU[sid];}
+  unsigned int endsetDU(SubDetector sid) const { return theEndsetDU[sid];}
   // Magic : better be called at the right moment...
   void setOffsetDU(SubDetector sid) { theOffsetDU[sid]=detUnits().size();}
+  void setEndsetDU(SubDetector sid) { theEndsetDU[sid]=detUnits().size();}
 
   GeometricDet const * trackerDet() const; 
 
@@ -71,6 +72,7 @@ private:
   DetTypeContainer  theDetTypes;  // owns the DetTypes
   DetUnitContainer  theDetUnits;  // they're all also into 'theDets', so we assume 'theDets' owns them
   unsigned int      theOffsetDU[6]; // offsets in the above
+  unsigned int      theEndsetDU[6]; // end offsets in the above
   DetContainer      theDets;      // owns *ONLY* the GeomDet * corresponding to GluedDets.
   DetIdContainer    theDetUnitIds;
   DetIdContainer    theDetIds; 
