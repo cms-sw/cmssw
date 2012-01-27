@@ -201,7 +201,7 @@ void SiPixelEDAClient::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
     nEvents_lastLS_ = int(me->getBinContent(0));
     nErrorsBarrel_lastLS_ = int(me->getBinContent(1));
     nErrorsEndcap_lastLS_ = int(me->getBinContent(2));
-    std::cout<<"Nevts in lastLS in EDAClient: "<<nEvents_lastLS_<<" "<<nErrorsBarrel_lastLS_<<" "<<nErrorsEndcap_lastLS_<<std::endl;
+    //std::cout<<"Nevts in lastLS in EDAClient: "<<nEvents_lastLS_<<" "<<nErrorsBarrel_lastLS_<<" "<<nErrorsEndcap_lastLS_<<std::endl;
     me->Reset();
   }
 //  cout<<"...leaving SiPixelEDAClient::beginLuminosityBlock. "<<endl;
