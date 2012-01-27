@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Jul  2 16:11:42 CEST 2010
-// $Id: TGeoMgrFromDdd.cc,v 1.9 2010/12/13 15:20:34 yana Exp $
+// $Id: TGeoMgrFromDdd.cc,v 1.10 2010/12/15 13:47:58 yana Exp $
 //
 
 #include "Fireworks/Geometry/interface/TGeoMgrFromDdd.h"
@@ -335,7 +335,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	    {
 	       x = pt.x2(); // tubs radius
 	    }
-	    double openingAngle = 2. * asin( x / abs( r ))/deg;
+	    double halfOpeningAngle = asin( x / abs( r ))/deg;
 	    double displacement = 0;
 	    double startPhi = 0;
 	    /* calculate the displacement of the tubs w.r.t. to the trap,
@@ -350,12 +350,12 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	      if( atMinusZ )
 	      {
 		displacement = - pt.halfZ() - delta; 
-		startPhi = 270. - openingAngle/2.;
+		startPhi = 90. - halfOpeningAngle;
 	      }
 	      else
 	      {
 		displacement =   pt.halfZ() + delta;
-		startPhi = 90. - openingAngle/2.;
+		startPhi = -90.- halfOpeningAngle;
 	      }
 	    }
 	    else if( r > 0 && abs( r ) >= x )
@@ -363,13 +363,13 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	      if( atMinusZ )
 	      {
 		displacement = - pt.halfZ() + delta;
-		startPhi = 270. - openingAngle/2.;
+		startPhi = 270.- halfOpeningAngle;
 		h = pt.y1();
 	      }
 	      else
 	      {
 		displacement =   pt.halfZ() - delta; 
-		startPhi = 90. - openingAngle/2.;
+		startPhi = 90. - halfOpeningAngle;
 		h = pt.y2();
 	      }    
 	    }
@@ -387,19 +387,19 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	      
 	    std::auto_ptr<TGeoShape> tubs( new TGeoTubeSeg( pt.name().name().c_str(),
 							    0.,
-							    r/cm,
+							    abs(r)/cm, // radius cannot be negative!!!
 							    h/cm,
 							    startPhi,
-							    startPhi + openingAngle ));
+							    startPhi + halfOpeningAngle * 2. ));
 	    if( intersec )
 	    {
-	      TGeoSubtraction* sub = new TGeoSubtraction( trap.release(),
-							  tubs.release(),
-							  0,
-							  createPlacement( s_rot,
-									   DDTranslation( 0.,
-											  0.,
-											  displacement )));
+ 	      TGeoSubtraction* sub = new TGeoSubtraction( trap.release(),
+ 							  tubs.release(),
+ 							  0,
+ 							  createPlacement( s_rot,
+ 									   DDTranslation( 0.,
+ 											  0.,
+ 											  displacement )));
 	      rSolid = new TGeoCompositeShape( iName.c_str(),
 					       sub );
 	    }
