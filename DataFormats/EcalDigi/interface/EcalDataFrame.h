@@ -5,12 +5,14 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Common/interface/DataFrame.h"
 
-
-
+#define EcalMgpaBitwiseGain12 1
+#define EcalMgpaBitwiseGain6  2
+#define EcalMgpaBitwiseGain1  3
+#define EcalMgpaBitwiseGain0  0
 
 /** \class EcalDataFrame
       
-$Id: EcalDataFrame.h,v 1.7 2007/08/10 06:42:10 innocent Exp $
+$Id: EcalDataFrame.h,v 1.8 2009/03/27 16:29:55 ferriff Exp $
 */
 class EcalDataFrame {
  public:
@@ -41,6 +43,9 @@ class EcalDataFrame {
   // void setPresamples(int ps);
   void setSample(int i, EcalMGPASample sam) { m_data[i]=sam; }
 
+  bool hasSwitchToGain6() const; 
+  bool hasSwitchToGain1() const; 
+  
   static const int MAXSAMPLES = 10;
 
   edm::DataFrame const & frame() const { return m_data;}
