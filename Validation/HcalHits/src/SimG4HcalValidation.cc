@@ -488,7 +488,6 @@ void SimG4HcalValidation::nxNAnalysis(PHcalValidInfoNxN& product) {
     
     // NxN calulation
     
-    int save_i = 0;
     if (fabs(eta0-eta) <= dEta[max-1] && fabs(phi0-phi) <= dPhi[max-1]) {
       etot += e;
       if (type == 10 || type == 11 || type == 12)  ee += e;
@@ -510,7 +509,6 @@ void SimG4HcalValidation::nxNAnalysis(PHcalValidInfoNxN& product) {
 				  << phi;
 
 	    product.fillTProfileNxN(e, i, t);  
-	    save_i = i;
 	    break;
 	  }
 	}

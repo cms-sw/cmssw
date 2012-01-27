@@ -498,7 +498,7 @@ void TrackerHitAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
        ++itTrk) {
 
 //    cout << "itTrk = "<< itTrk << endl;
-    double eta =0, phi =0, p =0;
+    double eta =0, p =0;
     const CLHEP::HepLorentzVector& G4Trk = CLHEP::HepLorentzVector(itTrk->momentum().x(),
                                                      itTrk->momentum().y(),
                                                      itTrk->momentum().z(),
@@ -511,7 +511,6 @@ void TrackerHitAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
           double costheta  = G4Trk[2]/p;
           double theta = acos(TMath::Min(TMath::Max(costheta, -1.),1.));
           eta = -log(tan(theta/2));          
-          if ( G4Trk[0] != 0 || G4Trk[1] != 0) phi = atan2(G4Trk[1],G4Trk[0]);
           
           if (eta>0.0 && eta<=0.5) ir = 0;
           if (eta>0.5 && eta<=1.0) ir = 1;
