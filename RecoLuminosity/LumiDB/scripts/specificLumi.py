@@ -6,11 +6,12 @@
 # dumpFill -o outputdir
 # dumpFill -f fillnum generate runlist for the given fill
 #
-import os,os.path,sys,math,array,datetime,time,re
+import os,os.path,sys,math,array,datetime,time,calendar,re,gc
 import coral
 
-from RecoLuminosity.LumiDB import argparse,lumiTime,CommonUtil,lumiQueryAPI,lumiCorrections
+from RecoLuminosity.LumiDB import argparse,sessionManager,lumiTime,CommonUtil,lumiCalcAPI,lumiCorrections
 MINFILL=1800
+MAXFILL=9999
 allfillname='allfills.txt'
 
 def listfilldir(indir):
@@ -46,28 +47,12 @@ def calculateSpecificLumi(lumi,lumierr,beam1intensity,beam1intensityerr,beam2int
     '''
     specificlumi=0.0
     specificlumierr=0.0
+    if beam1intensity<0: beam1intensity=0
+    if beam2intensity<0: beam2intensity=0
     if beam1intensity!=0.0 and  beam2intensity!=0.0:
         specificlumi=float(lumi)/(float(beam1intensity)*float(beam2intensity))
         specificlumierr=specificlumi*math.sqrt(lumierr**2/lumi**2+beam1intensityerr**2/beam1intensity**2+beam2intensityerr**2/beam2intensity**2)
     return (specificlumi,specificlumierr)
-
-def getFillFromDB(dbsession,parameters,fillnum):
-    '''
-    output: {run:starttime}
-    '''
-    runtimesInFill={}
-    q=dbsession.nominalSchema().newQuery()
-    fillrundict=lumiQueryAPI.runsByfillrange(q,fillnum,fillnum)
-    del q
-    if len(fillrundict)>0:
-        for fill,runs in  fillrundict.items():
-            for run in runs:
-                q=dbsession.nominalSchema().newQuery()
-                rresult=lumiQueryAPI.runsummaryByrun(q,run)
-                del q
-                if len(rresult)==0: continue
-                runtimesInFill[run]=rresult[3]
-    return runtimesInFill
 
 def getFillFromFile(fillnum,inputdir):
     runtimesInFill={}
@@ -95,89 +80,6 @@ def getFillFromFile(fillnum,inputdir):
         f.close()
     return runtimesInFill
 
-def getSpecificLumi(dbsession,parameters,fillnum,inputdir,finecorrections=None):
-    '''
-    specific lumi in 1e-30 (ub-1s-1) unit
-    lumidetail occlumi in 1e-27
-    1309_lumi_401_CMS.txt
-    time(in seconds since January 1,2011,00:00:00 UTC) stab(fraction of time spent in stable beams for this time bin) l(lumi in Hz/ub) dl(point-to-point error on lumi in Hz/ub) sl(specific lumi in Hz/ub) dsl(error on specific lumi)
-    20800119.0 1 -0.889948 0.00475996848729 0.249009 0.005583287562 -0.68359 6.24140208607 0.0 0.0 0.0 0.0 0.0 0.0 0.0383576 0.00430892097862 0.0479095 0.00430892097862 66.6447 4.41269758764 0.0 0.0 0.0
-    result [(time,beamstatusfrac,lumi,lumierror,speclumi,speclumierror)]
-    '''
-    #result=[]
-    runtimesInFill=getFillFromFile(fillnum,inputdir)#{runnum:starttimestr}
-    beamstatusDict={}#{runnum:{(startorbit,cmslsnum):beamstatus}}
-    t=lumiTime.lumiTime()
-    fillbypos={}#{bxidx:(lstime,beamstatusfrac,lumi,lumierror,specificlumi,specificlumierror)}
-    #referencetime=time.mktime(datetime.datetime(2010,1,1,0,0,0).timetuple())
-    referencetime=0
-    if fillnum and len(runtimesInFill)==0:
-        runtimesInFill=getFillFromDB(dbsession,parameters,fillnum)#{runnum:starttimestr}
-    #precheck
-    totalstablebeamLS=0
-    for runnum in runtimesInFill.keys():
-        q=dbsession.nominalSchema().newQuery()
-        runinfo=lumiQueryAPI.lumisummaryByrun(q,runnum,'0001',beamstatus=None)
-        del q
-        lsbeamstatusdict={}
-        for perlsdata in runinfo:
-            cmslsnum=perlsdata[0]
-            startorbit=perlsdata[3]
-            beamstatus=perlsdata[4]
-            lsbeamstatusdict[(startorbit,cmslsnum)]=beamstatus            
-            #print (startorbit,cmslsnum),beamstatus
-            if beamstatus=='STABLE BEAMS':
-                totalstablebeamLS+=1
-        beamstatusDict[runnum]=lsbeamstatusdict
-    if totalstablebeamLS<10:#less than 10 LS in a fill has 'stable beam', it's no a good fill
-        print 'fill ',fillnum,' , having less than 10 stable beam lS, is not good, skip'
-        return fillbypos
-    for runnum,starttime in runtimesInFill.items():
-        #if not runtimesInFill.has_key(runnum):
-        #    print 'run '+str(runnum)+' does not exist'
-        #    continue
-        q=dbsession.nominalSchema().newQuery()
-        if finecorrections and finecorrections[runnum]:
-            occlumidata=lumiQueryAPI.calibratedDetailForRunLimitresult(q,parameters,runnum,finecorrection=finecorrections[runnum])#{(startorbit,cmslsnum):[(bxidx,lumivalue,lumierr)]} #values after cut
-        else:
-            occlumidata=lumiQueryAPI.calibratedDetailForRunLimitresult(q,parameters,runnum)
-        del q
-        #print occlumidata
-        q=dbsession.nominalSchema().newQuery()
-        beamintensitydata=lumiQueryAPI.beamIntensityForRun(q,parameters,runnum)#{startorbit:[(bxidx,beam1intensity,beam2intensity),()]}
-        #print 'beamintensity for run ',runnum,beamintensitydata
-        del q
-        for (startorbit,cmslsnum),lumilist in occlumidata.items():
-            if len(lumilist)==0: continue
-            beamstatusflag=beamstatusDict[runnum][(startorbit,cmslsnum)]
-            beamstatusfrac=0.0
-            if beamstatusflag=='STABLE BEAMS':
-                beamstatusfrac=1.0
-            lstimestamp=t.OrbitToUTCTimestamp(starttime,startorbit)
-            for lumidata in lumilist:#loop over bx
-                bxidx=lumidata[0]
-                lumi=lumidata[1]
-                lumierror=lumidata[2]
-                speclumi=(0.0,0.0)
-                if not fillbypos.has_key(bxidx):
-                    fillbypos[bxidx]=[]
-                if beamintensitydata.has_key(startorbit):
-                    beaminfo=beamintensitydata[startorbit]
-                    for beamintensitybx in beaminfo:
-                        if beamintensitybx[0]==bxidx:                        
-                            beam1intensity=beamintensitybx[1]
-                            beam2intensity=beamintensitybx[2]
-                            if beam1intensity<0:
-                                beam1intensity=0
-                            if beam2intensity<0:
-                                beam2intensity=0
-                            speclumi=calculateSpecificLumi(lumi,lumierror,beam1intensity,0.0,beam2intensity,0.0)
-                            break
-                fillbypos[bxidx].append((lstimestamp-referencetime,beamstatusfrac,lumi,lumierror,speclumi[0],speclumi[1]))
-
-    #print 'fillbypos.keys ',fillbypos.keys()
-    return fillbypos
-
 #####output methods####
 def filltofiles(allfills,runsperfill,runtimes,dirname):
     f=open(os.path.join(dirname,allfillname),'w')
@@ -193,12 +95,14 @@ def filltofiles(allfills,runsperfill,runtimes,dirname):
             f.close()
             
 def specificlumiTofile(fillnum,filldata,outdir):
-    timedict={}#{lstime:[[stablebeamfrac,lumi,lumierr,speclumi,speclumierr]]}
     #
+    #input : fillnum
+    #        filldata: {bxidx:[[lstime,beamstatusfrac,lumivalue,lumierror,speclumi,speclumierr]],[]}
+    #sorted by bxidx, sorted by lstime inside list
     #check outdir/fillnum subdir exists; if not, create it; else outdir=outdir/fillnum
     #
+    timedict={}#{lstime:[[stablebeamfrac,lumi,lumierr,speclumi,speclumierr]]}
     filloutdir=os.path.join(outdir,str(fillnum))
-    print 'filloutdir ',filloutdir
     if not os.path.exists(filloutdir):
         os.mkdir(filloutdir)
     for cmsbxidx,perbxdata in filldata.items():
@@ -288,9 +192,19 @@ def specificlumiTofile(fillnum,filldata,outdir):
         lui=sum(CommonUtil.transposed(tsdatainseg,0.0)[1])*23.357
         print >>f,'%d\t%d\t%e\t%e'%(startts,stopts,plu,lui)
     f.close()
+
+##############################
+## ######################## ##
+## ## ################## ## ##
+## ## ## Main Program ## ## ##
+## ## ################## ## ##
+## ######################## ##
+##############################
         
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description = "Dump Fill",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description = "specific lumi",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    amodetagChoices = [ "PROTPHYS","IONPHYS",'PAPHYS' ]
+    xingAlgoChoices =[ "OCC1","OCC2","ET"]
     # parse arguments
     parser.add_argument('-c',dest='connect',action='store',required=False,help='connect string to lumiDB,optional',default='frontier://LumiCalc/CMS_LUMI_PROD')
     parser.add_argument('-P',dest='authpath',action='store',help='path to authentication file,optional')
@@ -298,86 +212,161 @@ if __name__ == '__main__':
     parser.add_argument('-o',dest='outputdir',action='store',required=False,help='output dir',default='.')
     parser.add_argument('-f',dest='fillnum',action='store',required=False,help='specific fill',default=None)
     parser.add_argument('-minfill',dest='minfill',action='store',required=False,help='min fill',default=None)
-    parser.add_argument('-norm',dest='norm',action='store',required=False,help='norm',default=None)
-    parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',help='specific path to site-local-config.xml file, optional. If path undefined, fallback to cern proxy&server')
-    parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
-    parser.add_argument('--with-correction',dest='withFineCorrection',action='store_true',required=False,help='with fine correction',default=None)
-    parser.add_argument('--toscreen',dest='toscreen',action='store_true',help='dump to screen')
+    parser.add_argument('-maxfill',dest='maxfill',action='store',required=False,help='maximum fillnumber ',default=MAXFILL)
+    parser.add_argument('-amodetag',dest='amodetag',action='store',
+                        choices=amodetagChoices,
+                        required=False,
+                        help='specific accelerator mode choices [PROTOPHYS,IONPHYS,PAPHYS] (optional)')
+    parser.add_argument('-xingMinLum', dest = 'xingMinLum',
+                        type=float,
+                        default=0,
+                        required=False,
+                        help='Minimum luminosity considered for lumibylsXing action, default=0')
+    parser.add_argument('-xingAlgo', dest = 'xingAlgo',
+                        default='OCC1',
+                        required=False,
+                        help='algorithm name for per-bunch lumi ')
+    parser.add_argument('-norm',dest='normfactor',action='store',
+                        required=False,
+                        help='norm',
+                        default=None)
+    #
+    #command configuration 
+    #
+    parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',
+                        help='specific path to site-local-config.xml file, optional. If path undefined, fallback to cern proxy&server')
+    #
+    #switches
+    #
+    parser.add_argument('--without-correction',dest='withoutFineCorrection',action='store_true',
+                        help='without fine correction on calibration' )
+    parser.add_argument('--correctionv2',dest='correctionv2',action='store_true',
+                        help='apply correction v2' )
+    parser.add_argument('--correctionv3',dest='correctionv3',action='store_true',
+                        help='apply correction v3' )
+    parser.add_argument('--debug',dest='debug',action='store_true',
+                        help='debug')
     options=parser.parse_args()
     if options.minfill:
         MINFILL=int(options.minfill)
     if options.authpath:
         os.environ['CORAL_AUTH_PATH'] = options.authpath
-    parameters = lumiQueryAPI.ParametersObject()
-    if options.norm!=None:
-        parameters.normFactor=float(options.norm)
-    session,svc =  lumiQueryAPI.setupSession (options.connect or \
-                                              'frontier://LumiCalc/CMS_LUMI_PROD',
-                                               options.siteconfpath,parameters,options.debug)
-
     ##
     #query DB for all fills and compare with allfills.txt
     #if found newer fills, store  in mem fill number
     #reprocess anyway the last 1 fill in the dir
     #redo specific lumi for all marked fills
-    ##
-    finecorrections=None
+    ##    
+    normfactor=options.normfactor
+    svc=sessionManager.sessionManager(options.connect,authpath=options.authpath,debugON=options.debug)
+    session=svc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
+
     allfillsFromFile=[]
     fillstoprocess=[]
-    session.transaction().start(True)
-    if options.fillnum: #if process a specific single fill
+    maxfillnum=options.maxfill
+    if options.fillnum is not None: #if process a specific single fill
         fillstoprocess.append(int(options.fillnum))
-    else: #if process fills automatically
-        q=session.nominalSchema().newQuery()    
-        allfillsFromDB=lumiQueryAPI.allfills(q)
-        del q
+    else:
+        svc=sessionManager.sessionManager(options.connect,authpath=options.authpath,debugON=options.debug)
+        session=svc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
+        session.transaction().start(True)
+        schema=session.nominalSchema()
+        allfillsFromDB=lumiCalcAPI.fillInRange(schema,fillmin=MINFILL,fillmax=maxfillnum,amodetag=options.amodetag)
         processedfills=listfilldir(options.outputdir)
         lastcompletedFill=lastcompleteFill(os.path.join(options.inputdir,'runtofill_dqm.txt'))
-        print 'last complete fill : ',lastcompletedFill
-        print 'processedfills in '+options.outputdir+' ',processedfills
         for pf in processedfills:
             if pf>lastcompletedFill:
                 print '\tremove unfinished fill from processed list ',pf
                 processedfills.remove(pf)
-        print 'final processed fills : ',sorted(processedfills)
         for fill in allfillsFromDB:
             if fill not in processedfills :
-                if fill<=lastcompletedFill:
-                    #print 'fill less than last complet fill ',fill
-                    if fill>MINFILL:
+                if int(fill)<=lastcompletedFill:
+                    if int(fill)>MINFILL:
                         fillstoprocess.append(fill)
                 else:
-                    print 'ongoing fill...',fill               
+                    print 'ongoing fill...',fill
+        session.transaction().start(True)
     print 'fills to process : ',fillstoprocess
     if len(fillstoprocess)==0:
         print 'no fill to process, exit '
         exit(0)
-    runsperfillFromDB={}
-    q=session.nominalSchema().newQuery()
-    runsperfillFromDB=lumiQueryAPI.runsByfillrange(q,int(min(fillstoprocess)),int(max(fillstoprocess)))
-    del q
-    #print 'runsperfillFromDB ',runsperfillFromDB
-    runtimes={}
-    runs=runsperfillFromDB.values()#list of lists
-    allruns=[item for sublist in runs for item in sublist]
-    allruns.sort()
-    #print 'allruns ',allruns
-    for run in allruns:
-        q=session.nominalSchema().newQuery()
-        runtimes[run]=lumiQueryAPI.runsummaryByrun(q,run)[3]
-        del q
-    if options.withFineCorrection:
-         schema=session.nominalSchema()
-         finecorrections=lumiCorrections.correctionsForRange(schema,allruns)
-    #write specificlumi to outputdir
-    #update inputdir
-    print 'fillstoprocess ',fillstoprocess
-    if len(fillstoprocess)!=0 and options.fillnum is None:
-        filltofiles(allfillsFromDB,runsperfillFromDB,runtimes,options.inputdir)
-    print '===== Start Processing Fills',fillstoprocess
-    print '====='
-    
-    for fillnum in fillstoprocess:
-        filldata=getSpecificLumi(session,parameters,fillnum,options.inputdir,finecorrections=finecorrections)
-        specificlumiTofile(fillnum,filldata,options.outputdir)
-    session.transaction().commit()
+    finecorrections=None
+    driftcorrections=None
+        
+    fillbypos={}#{bxidx:[[ts,beamstatusfrac,lumi,lumierror,spec1,specerror],[]]}
+    for fillnum in fillstoprocess:# process per fill
+        session.transaction().start(True)
+        fillrunmap=lumiCalcAPI.fillrunMap(session.nominalSchema(),fillnum)
+        runlist=fillrunmap[fillnum]
+        if not runlist or len(runlist)==0:
+            continue
+        irunlsdict=dict(zip(runlist,[None]*len(runlist)))
+        print irunlsdict
+        schema=session.nominalSchema()
+        session.transaction().start(True)
+        if not options.withoutFineCorrection:
+            if options.correctionv2:
+                cterms=lumiCorrections.nonlinearV2()
+                finecorrections=lumiCorrections.correctionsForRangeV2(schema,runlist,cterms)#constant+nonlinear corrections
+                driftcorrections=lumiCorrections.driftcorrectionsForRange(schema,runlist,cterms)
+            elif options.correctionv3:
+                cterms=lumiCorrections.nonlinearV3()
+                finecorrections=lumiCorrections.correctionsForRangeV2(schema,runlist,cterms)#constant+nonlinear corrections
+                driftcorrections=lumiCorrections.driftcorrectionsForRange(schema,runlist,cterms)            
+            else:#default
+                cterms=lumiCorrections.nonlinearSingle()
+                finecorrections=lumiCorrections.correctionsForRange(schema,runlist,cterms)
+                driftcorrections=None
+        lumidetails=lumiCalcAPI.instCalibratedLumiForRange(schema,irunlsdict,beamstatus=None,amodetag=options.amodetag,withBXInfo=True,withBeamIntensity=True,bxAlgo='OCC1',xingMinLum=options.xingMinLum,norm=options.normfactor,finecorrections=finecorrections,driftcorrections=driftcorrections,usecorrectionv2=(options.correctionv2 or options.correctionv3))
+        session.transaction().commit()
+        print 'done with db'
+        #
+        #output: {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),calibratedlumi(5),calibratedlumierr(6),startorbit(7),numorbit(8),(bxvalues,bxerrs)(9),(bxidx,b1intensities,b2intensities)(10)]}}
+        #
+        totalstablebeamls=0
+        orderedrunlist=sorted(lumidetails)
+        for run in orderedrunlist:
+            perrundata=lumidetails[run]
+            for perlsdata in perrundata:
+                beamstatus=perlsdata[3]
+                if beamstatus=='STABLE BEAMS':
+                    totalstablebeamls+=1
+        print 'totalstablebeamls in fill ',totalstablebeamls
+        if totalstablebeamls<10:#less than 10 LS in a fill has 'stable beam', it's no a good fill
+            print 'fill ',fillnum,' , having less than 10 stable beam lS, is not good, skip'
+            exit(0)
+        #t0=time.time()
+        for run in orderedrunlist:
+            perrundata=lumidetails[run]
+            for perlsdata in perrundata:
+                beamstatusfrac=0.0
+                tsdatetime=perlsdata[2]
+                ts=calendar.timegm(tsdatetime.utctimetuple())
+                beamstatus=perlsdata[3]
+                if beamstatus=='STABLE BEAMS':
+                    beamstatusfrac=1.0
+                (bxidxlist,bxvaluelist,bxerrolist)=perlsdata[9]
+                (intbxidxlist,b1intensities,b2intensities)=perlsdata[10]#contains only non-zero bx
+                for bxidx in bxidxlist:
+                    idx=bxidxlist.index(bxidx)
+                    bxvalue=bxvaluelist[idx]
+                    bxerror=bxerrolist[idx]
+                    bintensityPos=-1
+                    try:
+                        bintensityPos=intbxidxlist.index(bxidx)
+                    except ValueError:
+                        pass
+                    if bintensityPos<=0:
+                        fillbypos.setdefault(bxidx,[]).append([ts,beamstatusfrac,bxvalue,bxerror,0.0,0.0])
+                        continue
+                    b1intensity=b1intensities[bintensityPos]
+                    b2intensity=b2intensities[bintensityPos]
+                    if b1intensity<0:
+                        b1intensity=0
+                    if b2intensity<0:
+                        b2intensity=0
+                    speclumi=calculateSpecificLumi(bxvalue,bxerror,b1intensity,0.0,b2intensity,0.0)
+                    fillbypos.setdefault(bxidx,[]).append([ts,beamstatusfrac,bxvalue,bxerror,speclumi[0],speclumi[1]])
+        #print time.time()-t0
+        #print fillbypos
+        specificlumiTofile(fillnum,fillbypos,'.')
