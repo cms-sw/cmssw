@@ -33,21 +33,21 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.source = cms.Source("PoolSource",
-                            fileNames =cms.untracked.vstring("file:zeer.root")
+                            fileNames =cms.untracked.vstring("file:ttbar.root")
 )
 
 process.rndmStore = cms.EDProducer("RandomEngineStateProducer")
 
 process.o1 = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
-    fileName = cms.untracked.string('Simevent_zeer_QGSP_BERT_EML95.root')
+    fileName = cms.untracked.string('Simevent_ttbar_FTFP_BERT_EML.root')
 )
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('zeer_QGSP_BERT_EML95.root')
+    fileName = cms.string('ttbar_FTFP_BERT_EML.root')
 )
 
 process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits*process.electronStudy*process.rndmStore)
 process.outpath = cms.EndPath(process.o1)
-process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EML95'
+process.g4SimHits.Physics.type = 'SimG4Core/Physics/FTFP_BERT_EML'
 
