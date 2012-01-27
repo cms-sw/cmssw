@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_1_0/HIon/V6 (CMSSW_5_2_0_pre2_HLT6)
+# /dev/CMSSW_5_1_0/HIon/V7 (CMSSW_5_2_0_pre2_HLT13)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/HIon/V6')
+  tableName = cms.string('/dev/CMSSW_5_1_0/HIon/V7')
 )
 
 process.streams = cms.PSet( 
@@ -4328,9 +4328,11 @@ process.hltL2MuonSeeds = cms.EDProducer( "L2MuonSeedGenerator",
     ),
     InputObjects = cms.InputTag( "hltL1extraParticles" ),
     L1MaxEta = cms.double( 2.5 ),
+    OfflineSeedLabel = cms.untracked.InputTag( "hltL2OfflineMuonSeeds" ),
     L1MinPt = cms.double( 0.0 ),
     L1MinQuality = cms.uint32( 1 ),
     GMTReadoutCollection = cms.InputTag( "hltGtDigis" ),
+    UseOfflineSeed = cms.untracked.bool( False ),
     Propagator = cms.string( "SteppingHelixPropagatorAny" )
 )
 process.hltL2Muons = cms.EDProducer( "L2MuonProducer",
