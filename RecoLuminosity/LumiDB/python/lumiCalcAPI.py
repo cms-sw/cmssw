@@ -240,7 +240,7 @@ def instLumiForRange(schema,inputRange,beamstatusfilter=None,withBXInfo=False,bx
            withBeamIntensity: get beam intensity info (optional)
            datatag: data version
     output:
-           result {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),instlumi(5),instlumierr(6),startorbit(7),numorbit(8),(bxvalues,bxerrs)(9),(bxidx,b1intensities,b2intensities)(10)]}}
+           result {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),instlumi(5),instlumierr(6),startorbit(7),numorbit(8),(bxidx,bxvalues,bxerrs)(9),(bxidx,b1intensities,b2intensities)(10)]}}
            lumi unit: HZ/ub
     '''
     result={}
@@ -258,14 +258,14 @@ def instLumiForRange(schema,inputRange,beamstatusfilter=None,withBXInfo=False,bx
         if lumidataid is None: #if run not found in lumidata
             result[run]=None
             continue
-        perlsresult=dataDML.lumiLSById(schema,lumidataid,beamstatusfilter,withBXInfo=withBXInfo,bxAlgo=bxAlgo,withBeamIntensity=withBeamIntensity)[1]
+        (lumirunnum,perlsresult)=dataDML.lumiLSById(schema,lumidataid,beamstatusfilter,withBXInfo=withBXInfo,bxAlgo=bxAlgo,withBeamIntensity=withBeamIntensity)
         lsresult=[]
         c=lumiTime.lumiTime()
-        for lumilsnum,perlsdata in perlsresult.items():
+        for lumilsnum in perlsresult.keys():
+            perlsdata=perlsresult[lumilsnum]
             cmslsnum=perlsdata[0]
             if lslist is not None and lumilsnum not in lslist:
                 cmslsnum=0
-                recordedlumi=0.0
             numorbit=perlsdata[6]
             startorbit=perlsdata[7]
             orbittime=c.OrbitToTime(runstarttimeStr,startorbit,0)
@@ -332,7 +332,7 @@ def instCalibratedLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,e
            finecorrections: const and non-linear corrections
            driftcorrections: driftcorrections
     output:
-           result {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),calibratedlumi(5),calibratedlumierr(6),startorbit(7),numorbit(8),(bxvalues,bxerrs)(9),(bxidx,b1intensities,b2intensities)(10)]}}
+           result {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),calibratedlumi(5),calibratedlumierr(6),startorbit(7),numorbit(8),(bxidx,bxvalues,bxerrs)(9),(bxidx,b1intensities,b2intensities)(10)]}}
            lumi unit: HZ/ub
     '''
     result = {}
@@ -380,9 +380,9 @@ def instCalibratedLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,e
             if withBXInfo:
                 bxdata=perlsdata[9]
                 if bxdata:
-                    calibratedbxdata=([x*perbunchnormval for x in bxdata[0]],[x*perbunchnormval for x in bxdata[1]])
-                    del bxdata[0][:]
+                    calibratedbxdata=(bxdata[0],[x*perbunchnormval for x in bxdata[1]],[x*perbunchnormval for x in bxdata[2]])
                     del bxdata[1][:]
+                    del bxdata[2][:]
             if withBeamIntensity:
                 beamdata=perlsdata[10]                
             result[run].append([lumilsnum,cmslsnum,timestamp,bs,beamenergy,calibratedlumi,calibratedlumierr,startorbit,numorbit,calibratedbxdata,beamdata])
@@ -455,10 +455,11 @@ def deliveredLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=N
             beamdata=None
             if withBXInfo:
                 bxdata=perlsdata[9]
+                print 'bxdata ',bxdata
                 if bxdata:
-                    calibratedbxdata=([x*perbunchnormval for x in bxdata[0]],[x*perbunchnormval for x in bxdata[1]])
-                del bxdata[0][:]
+                    calibratedbxdata=(bxdata[0],[x*perbunchnormval for x in bxdata[1]],[x*perbunchnormval for x in bxdata[2]])
                 del bxdata[1][:]
+                del bxdata[2][:]
             if withBeamIntensity:
                 beamdata=perlsdata[10]             
             result[run].append([lumilsnum,cmslsnum,timestamp,bs,beamenergy,deliveredlumi,calibratedlumierr,calibratedbxdata,beamdata])
@@ -480,7 +481,7 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
            normname: norm factor name to use (optional)
            datatag: data version
     output:
-           result {run:[lumilsnum,cmslsnum,timestamp,beamstatus,beamenergy,deliveredlumi,recordedlumi,calibratedlumierror,(bxidx,bxvalues,bxerrs),(bxidx,b1intensities,b2intensities)]}
+           result {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),recordedlumi(6),calibratedlumierror(7),(bxidx,bxvalues,bxerrs)(8),(bxidx,b1intensities,b2intensities)(9)]}
            lumi unit: 1/ub
     '''
     numbx=3564
@@ -815,6 +816,52 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
         result[run]=perrunresult
     #print result
     return result
+
+def validation(schema,run=None,cmsls=None):
+    '''retrieve validation data per run or all
+    input: run. if not run, retrive all; if cmslsnum selection list pesent, filter out unselected result
+    output: {run:[[cmslsnum,status,comment]]}
+    '''
+    result={}
+    qHandle=schema.newQuery()
+    queryHandle.addToTableList(nameDealer.lumivalidationTableName())
+    queryHandle.addToOutputList('RUNNUM','runnum')
+    queryHandle.addToOutputList('CMSLSNUM','cmslsnum')
+    queryHandle.addToOutputList('FLAG','flag')
+    queryHandle.addToOutputList('COMMENT','comment')
+    if run:
+        queryCondition='RUNNUM=:runnum'
+        queryBind=coral.AttributeList()
+        queryBind.extend('runnum','unsigned int')
+        queryBind['runnum'].setData(run)
+        queryHandle.setCondition(queryCondition,queryBind)
+    queryResult=coral.AttributeList()
+    queryResult.extend('runnum','unsigned int')
+    queryResult.extend('cmslsnum','unsigned int')
+    queryResult.extend('flag','string')
+    queryResult.extend('comment','string')
+    queryHandle.defineOutput(queryResult)
+    cursor=queryHandle.execute()
+    while cursor.next():
+        runnum=cursor.currentRow()['runnum'].data()
+        if not result.has_key(runnum):
+            result[runnum]=[]
+        cmslsnum=cursor.currentRow()['cmslsnum'].data()
+        flag=cursor.currentRow()['flag'].data()
+        comment=cursor.currentRow()['comment'].data()
+        result[runnum].append([cmslsnum,flag,comment])
+    if run and cmsls and len(cmsls)!=0:
+        selectedresult={}
+        for runnum,perrundata in result.items():
+            for lsdata in perrundata:
+                if lsdata[0] not in cmsls:
+                    continue
+                if not selectedresult.has_key(runnum):
+                    selectedresult[runnum]=[]
+                selectedresult[runnum].append(lsdata)
+        return selectedresult
+    else:
+        return result
 ##===printers
     
 
