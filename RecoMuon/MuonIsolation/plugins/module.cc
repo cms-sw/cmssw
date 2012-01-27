@@ -19,5 +19,7 @@ DEFINE_EDM_PLUGIN(IsoDepositExtractorFactory, muonisolation::ExtractorFromDeposi
 
 #include "RecoMuon/MuonIsolation/interface/MuonIsolatorFactory.h"
 #include "RecoMuon/MuonIsolation/interface/SimpleCutsIsolator.h"
+#include "CutsIsolatorWithCorrection.h"
 
 DEFINE_EDM_PLUGIN(MuonIsolatorFactory, SimpleCutsIsolator, "SimpleCutsIsolator");
+DEFINE_EDM_PLUGIN(MuonIsolatorFactory, CutsIsolatorWithCorrection, "CutsIsolatorWithCorrection");
