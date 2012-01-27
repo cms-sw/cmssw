@@ -12,6 +12,10 @@ class DTTTrigProd:
         self.process = None
         self.crab_cfg = None
 
+        self.pset_template = 'CalibMuon.DTCalibration.dtTTrigCalibration_cfg'
+        if hasattr(self.config,'runOnCosmics') and self.config.runOnCosmics:
+            self.pset_template = 'CalibMuon.DTCalibration.dtTTrigCalibration_cosmics_cfg'
+
         self.initProcess()
         self.initCrab()
         self.task = CrabTask(self.dir,self.crab_cfg) 
@@ -21,8 +25,6 @@ class DTTTrigProd:
         self.process.GlobalTag.globaltag = self.config.globaltag
         self.process.dtTTrigCalibration.rootFileName = self.outputfile
         self.process.dtTTrigCalibration.digiLabel = self.config.digilabel
-        if hasattr(self.config,'runOnCosmics') and self.config.runOnCosmics:
-            self.process.load('RecoLocalMuon.Configuration.RecoLocalMuonCosmics_cff')
 
         if hasattr(self.config,'runOnRAW') and self.config.runOnRAW:
             prependPaths(self.process,self.config.digilabel)
