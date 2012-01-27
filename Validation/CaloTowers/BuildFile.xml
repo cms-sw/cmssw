@@ -9,6 +9,3 @@
 <use   name="DataFormats/CaloRecHit"/>
 <use   name="Geometry/CaloGeometry"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
-<export>
-  <lib   name="1"/>
-</export>
