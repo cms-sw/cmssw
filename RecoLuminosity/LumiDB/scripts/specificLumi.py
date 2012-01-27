@@ -227,7 +227,7 @@ def getSpecificLumi(schema,fillnum,inputdir,xingMinLum=0.0,norm='pp7TeV',withcor
     result [(time,beamstatusfrac,lumi,lumierror,speclumi,speclumierror)]
     '''
     runtimesInFill=getFillFromFile(fillnum,inputdir)#{runnum:starttimestr}
-    print runtimesInFill
+    #print runtimesInFill
     t=lumiTime.lumiTime()
     fillbypos={}#{bxidx:[[ts,beamstatusfrac,lumi,lumierror,spec1,specerror],[]]}
     if fillnum and len(runtimesInFill)==0:
@@ -235,7 +235,7 @@ def getSpecificLumi(schema,fillnum,inputdir,xingMinLum=0.0,norm='pp7TeV',withcor
     runlist=runtimesInFill.keys()
     if not runlist: return fillbypos
     irunlsdict=dict(zip(runlist,[None]*len(runlist)))
-    print irunlsdict
+    #print irunlsdict
     finecorrections=None
     driftcorrections=None
     usecorrectionv2=False
@@ -250,7 +250,6 @@ def getSpecificLumi(schema,fillnum,inputdir,xingMinLum=0.0,norm='pp7TeV',withcor
             driftcorrections=lumiCorrections.driftcorrectionsForRange(schema,runlist,cterms)            
         else:#default
             cterms=lumiCorrections.nonlinearSingle()
-            print cterms
             finecorrections=lumiCorrections.correctionsForRange(schema,runlist,cterms)
             driftcorrections=None
     lumidetails=lumiCalcAPI.instCalibratedLumiForRange(schema,irunlsdict,beamstatus=None,amodetag=amodetag,withBXInfo=True,withBeamIntensity=True,bxAlgo=bxAlgo,xingMinLum=xingMinLum,norm=norm,finecorrections=finecorrections,driftcorrections=driftcorrections,usecorrectionv2=(usecorrectionv2 or usecorrectionv3 ))
@@ -267,7 +266,7 @@ def getSpecificLumi(schema,fillnum,inputdir,xingMinLum=0.0,norm='pp7TeV',withcor
             beamstatus=perlsdata[3]
             if beamstatus=='STABLE BEAMS':
                 totalstablebeamls+=1
-    print 'totalstablebeamls in fill ',totalstablebeamls
+    #print 'totalstablebeamls in fill ',totalstablebeamls
     if totalstablebeamls<10:#less than 10 LS in a fill has 'stable beam', it's no a good fill
         print 'fill ',fillnum,' , having less than 10 stable beam lS, is not good, skip'
         return fillbypos
@@ -411,10 +410,7 @@ if __name__ == '__main__':
     driftcorrections=None
     print '===== Start Processing Fills',fillstoprocess
     print '====='
-    print options.normfactor
-    print options.inputdir
     withcorrection=not options.withoutFineCorrection
-    print 'withcorrection ',withcorrection
     session.transaction().start(True)
     filldata={}
     for fillnum in fillstoprocess:# process per fill
