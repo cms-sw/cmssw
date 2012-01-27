@@ -140,7 +140,7 @@ public:
 		  const HepMC::GenVertex* ev=0);
 
   /// Add a new vertex to the Event and to the various lists
-  int addSimVertex(const XYZTLorentzVector& decayVertex,int im=-1, 
+  int addSimVertex(const XYZTLorentzVector& decayVertex, int im=-1,
 		   FSimVertexType::VertexType type = FSimVertexType::ANY);
 
   const KineParticleFilter& filter() const { return *myFilter; } 

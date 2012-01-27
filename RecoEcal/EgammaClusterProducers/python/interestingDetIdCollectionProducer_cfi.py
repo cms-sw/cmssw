@@ -5,6 +5,6 @@ interestingDetIdCollectionProducer = cms.EDProducer("InterestingDetIdCollectionP
                                                     recHitsLabel = cms.InputTag('ecalRecHit','EcalRecHitsEB'),
                                                     etaSize = cms.int32(5),
                                                     phiSize = cms.int32(5),
-                                                    severityLevel = cms.int32(-1),
+                                                    severityLevel = cms.int32(1),
                                                     interestingDetIdCollection = cms.string('')
                                                     )

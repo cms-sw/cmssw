@@ -4,6 +4,7 @@
 #include "DataFormats/TrackingRecHit/interface/RecHit2DLocalPos.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h" 
 #include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h" 
 #include "DataFormats/TrackingRecHit/interface/RecSegment.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 

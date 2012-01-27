@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.60 2010/12/09 18:30:27 amraktad Exp $
+// $Id: FWDetailViewManager.cc,v 1.61 2011/02/10 14:58:05 amraktad Exp $
 //
 
 #include <stdio.h>
@@ -19,6 +19,8 @@
 #include "TROOT.h"
 #include "TGWindow.h"
 #include "TGFrame.h"
+#include "TEveManager.h"
+#include "TEveWindowManager.h"
 #include "TEveWindow.h"
 #include "TQObject.h"
 
@@ -51,13 +53,13 @@ FWDetailViewManager::FWDetailViewManager(FWColorManager* colMng):
    gROOT->SetStyle("Plain");
 
    m_colorManager->colorsHaveChanged_.connect(boost::bind(&FWDetailViewManager::colorsChanged,this));
+   gEve->GetWindowManager()->Connect( "WindowDeleted(TEveWindow*)", "FWDetailViewManager", this, "eveWindowDestroyed(TEveWindow*)");   
 }
 
 FWDetailViewManager::~FWDetailViewManager()
 { 
-   for (vViews_i i = m_views.begin(); i !=  m_views.end(); ++i)
-      delete (*i).m_detailView;
-
+   newEventCallback();
+   gEve->GetWindowManager()->Disconnect("WindowDeleted(TEveWindow*)", this, "eveWindowDestroyed(TEveWindow*)" );
 }
 
 void
@@ -88,7 +90,6 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id, const std::string& i
    assert(match.size() != 0);
    FWDetailViewBase* detailView = FWDetailViewFactory::get()->create(match);
    assert(0!=detailView);
-   m_views.push_back(ViewFrame(eveFrame, detailView));
 
    TEveWindowSlot* ws  = (TEveWindowSlot*)(eveFrame->GetEveWindow());
    detailView->init(ws);
@@ -96,11 +97,11 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id, const std::string& i
    detailView->setBackgroundColor(m_colorManager->background());
 
    TGMainFrame* mf = (TGMainFrame*)(eveFrame->GetParent());
-   mf->SetWindowName(Form("%s Detail View [%d]", id.item()->name().c_str(), id.index()));
-   mf->Connect( "Destroyed()", "FWDetailViewManager", this, "eveWindowDestroyed()");   
+   mf->SetWindowName(Form("%s Detail View [%d]", id.item()->name().c_str(), id.index())); 
   
-   mf->MapRaised();
+   m_views.push_back(ViewFrame(eveFrame, detailView, eveFrame->GetEveWindow()));
 
+   mf->MapRaised();
 }
 
 std::vector<std::string>
@@ -164,23 +165,23 @@ FWDetailViewManager::colorsChanged()
 void
 FWDetailViewManager::newEventCallback()
 {
-   for (vViews_i i = m_views.begin(); i !=  m_views.end(); ++i)
-   {
-      TGMainFrame* mf = (TGMainFrame*)(*i).m_eveFrame->GetParent();
-      mf->CloseWindow();
+   while (!m_views.empty())
+   {  
+      m_views.front().m_eveWindow->DestroyWindowAndSlot();
    }
-
-   m_views.clear();
 }
 
 void
-FWDetailViewManager::eveWindowDestroyed()
+FWDetailViewManager::eveWindowDestroyed(TEveWindow* ew)
 {
-   TGMainFrame *mf = static_cast<TGMainFrame *>(gTQSender);
-
-   for (vViews_i i = m_views.begin(); i !=  m_views.end(); ++i)
+   for (vViews_i i = m_views.begin(); i != m_views.end(); ++i)
    {
-      if (mf == (*i).m_eveFrame->GetParent())
+      if (ew == i->m_eveWindow)
+      {
+         // printf("========================== delete %s \n", ew->GetElementName());
+         delete i->m_detailView;
          m_views.erase(i);
+         break;
+      }
    }
 }

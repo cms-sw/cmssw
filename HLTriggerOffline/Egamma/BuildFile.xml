@@ -8,5 +8,3 @@
 <use   name="HLTrigger/HLTcore"/>
 <use   name="boost"/>
 <flags   EDM_PLUGIN="1"/>
-<export>
-</export>

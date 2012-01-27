@@ -25,6 +25,7 @@ class EmDQMPostProcessor : public edm::EDAnalyzer {
       are calculated with respect to reconstructed objects (instead 
       of generated objects). This is e.g. a useful option when 
       running on data. */
+  bool noPhiPlots;
   bool normalizeToReco;
 
   /** convenience method to get a histogram but checks first

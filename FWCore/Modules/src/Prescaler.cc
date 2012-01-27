@@ -1,9 +1,9 @@
 
 #include "FWCore/Framework/interface/EDFilter.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 namespace edm {
   class Prescaler : public EDFilter {
@@ -30,14 +30,13 @@ namespace edm {
   Prescaler::~Prescaler() {
   }
 
-  bool Prescaler::filter(Event & e, EventSetup const&) {
+  bool Prescaler::filter(Event&, EventSetup const&) {
     ++count_;
     return count_ % n_ == offset_ ? true : false;
   }
 
   void Prescaler::endJob() {
   }
-
 
   void
   Prescaler::fillDescriptions(ConfigurationDescriptions& descriptions) {

@@ -14,7 +14,7 @@ namespace edmtest
 {
 
 
-void UnitTestClient_L::analyze( edm::Event      const & e
+void UnitTestClient_L::analyze( edm::Event      const & /*unused*/
                            , edm::EventSetup const & /*unused*/
                               )
 {
@@ -23,7 +23,7 @@ void UnitTestClient_L::analyze( edm::Event      const & e
   edm::LogInfo     ("cat") << "Event " << e.id() << "complete";
 }  // MessageLoggerClient::analyze()
 
-void UnitTestClient_L1::analyze( edm::Event      const & e
+void UnitTestClient_L1::analyze( edm::Event      const & /*unused*/
                            , edm::EventSetup const & /*unused*/
                               )
 {

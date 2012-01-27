@@ -1,8 +1,8 @@
 /*
  * \file EEDataCertificationTask.cc
  *
- * $Date: 2010/08/11 14:57:34 $
- * $Revision: 1.25 $
+ * $Date: 2011/06/27 12:16:03 $
+ * $Revision: 1.26.4.1 $
  * \author E. Di Marco
  *
 */
@@ -16,6 +16,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -58,26 +61,24 @@ EEDataCertificationTask::~EEDataCertificationTask() {
 
 void EEDataCertificationTask::beginJob(void){
 
-  char histo[200];
-
   if ( dqmStore_ ) {
+
+    std::string name;
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo");
 
-    sprintf(histo, "CertificationSummary");
-    meEEDataCertificationSummary_ = dqmStore_->bookFloat(histo);
+    meEEDataCertificationSummary_ = dqmStore_->bookFloat( "CertificationSummary" );
     meEEDataCertificationSummary_->Fill(-1.0);
 
-    sprintf(histo, "CertificationSummaryMap");
-    meEEDataCertificationSummaryMap_ = dqmStore_->book2D(histo,histo, 200, 0., 200., 100, 0., 100.);
-    meEEDataCertificationSummaryMap_->setAxisTitle("jx", 1);
-    meEEDataCertificationSummaryMap_->setAxisTitle("jy", 2);
+    name = "CertificationSummaryMap";
+    meEEDataCertificationSummaryMap_ = dqmStore_->book2D(name, name, 40, 0., 200., 20, 0., 100.);
+    meEEDataCertificationSummaryMap_->setAxisTitle("ix / ix+100", 1);
+    meEEDataCertificationSummaryMap_->setAxisTitle("iy", 2);
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/CertificationContents");
 
     for (int i = 0; i < 18; i++) {
-      sprintf(histo, "EcalEndcap_%s", Numbers::sEE(i+1).c_str());
-      meEEDataCertification_[i] = dqmStore_->bookFloat(histo);
+      meEEDataCertification_[i] = dqmStore_->bookFloat( "EcalEndcap_" + Numbers::sEE(i+1) );
       meEEDataCertification_[i]->Fill(-1.0);
     }
 
@@ -99,8 +100,6 @@ void EEDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
 
   this->reset();
 
-  char histo[200];
-
   MonitorElement* me;
 
   // evaluate the DQM quality of observables checked by lumi
@@ -109,19 +108,21 @@ void EEDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
     DQMVal[i] = -1.;
   }
 
-  sprintf(histo, (prefixME_ + "/EEIntegrityTask/EEIT weighted integrity errors by lumi").c_str());
-  me = dqmStore_->get(histo);
+  edm::ESHandle< EcalElectronicsMapping > handle;
+  iSetup.get< EcalMappingRcd >().get(handle);
+  const EcalElectronicsMapping *map = handle.product();
+  if( ! map ) edm::LogWarning("EEDaqInfoTask") << "EcalElectronicsMapping not available";
+
+  me = dqmStore_->get( prefixME_ + "/EEIntegrityTask/EEIT weighted integrity errors by lumi" );
   hIntegrityByLumi_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hIntegrityByLumi_ );
 
-  sprintf(histo, (prefixME_ + "/EEStatusFlagsTask/FEStatus/EESFT weighted frontend errors by lumi").c_str());
-  me = dqmStore_->get(histo);
+  me = dqmStore_->get( prefixME_ + "/EEStatusFlagsTask/FEStatus/EESFT weighted frontend errors by lumi" );
   hFrontendByLumi_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hFrontendByLumi_ );
 
-  sprintf(histo, (prefixME_ + "/EERawDataTask/EERDT FE synchronization errors by lumi").c_str());
-  me = dqmStore_->get(histo);
+  me = dqmStore_->get( prefixME_ + "/EERawDataTask/EERDT FE synchronization errors by lumi" );
   hSynchronizationByLumi_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hSynchronizationByLumi_ );
 
-  if( hIntegrityByLumi_ && hFrontendByLumi_ && hSynchronizationByLumi_ ) {
+  if( hIntegrityByLumi_ && hFrontendByLumi_ && hSynchronizationByLumi_ && map) {
 
     float integrityErrSum = 0.;
     float integrityQual = 1.0;
@@ -159,23 +160,22 @@ void EEDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
     float minVal = std::min(integrityQual,frontendQual);
     float totDQMVal = std::min(minVal,synchronizationQual);
 
-    sprintf(histo, (prefixME_ + "/EventInfo/reportSummary").c_str());
-    me = dqmStore_->get(histo);
+    me = dqmStore_->get( prefixME_ + "/EventInfo/reportSummary" );
     if( me ) me->Fill(totDQMVal);
 
     for ( int i=0; i<18; i++) {
-      sprintf(histo, "EcalEndcap_%s", Numbers::sEE(i+1).c_str());
-      me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
+      me = dqmStore_->get( prefixME_ + "/EventInfo/reportSummaryContents/EcalEndcap_" + Numbers::sEE(i+1) );
       if( me ) me->Fill(DQMVal[i]);
 
-      sprintf(histo, "reportSummaryMap");
-      me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo );
+      me = dqmStore_->get( prefixME_ + "/EventInfo/reportSummaryMap" );
       if( me ) {
-        for ( int ix = 1; ix <= 100; ix++ ) {
-          for ( int iy = 1; iy <= 100; iy++ ) {
-            int jx = ( i < 9 ) ? ix : 100 + ix;
-            int jy = iy;
-            if ( Numbers::validEE(i+1, ix, iy) ) me->setBinContent(jx, jy, DQMVal[i]);
+	for(int t=1 ; t<=nTowerMax_ ; t++){
+	  if(! map->dccTowerConstituents(DccId_[i], t).size() ) continue;
+	  std::vector<EcalScDetId> scs = map->getEcalScDetId(DccId_[i], t, false);
+	  for(unsigned u=0 ; u<scs.size() ; u++){
+	    int jx = scs[u].ix() + (scs[u].zside()<0 ? 0 : 20);
+	    int jy = scs[u].iy();
+	    me->setBinContent(jx,jy, DQMVal[i]);
           }
         }
       }
@@ -184,12 +184,10 @@ void EEDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
   }
 
   // now combine reduced DQM with DCS and DAQ
-  sprintf(histo, (prefixME_ + "/EventInfo/DAQSummaryMap").c_str());
-  me = dqmStore_->get(histo);
+  me = dqmStore_->get( prefixME_ + "/EventInfo/DAQSummaryMap" );
   hDAQ_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hDAQ_ );
 
-  sprintf(histo, (prefixME_ + "/EventInfo/DCSSummaryMap").c_str());
-  me = dqmStore_->get(histo);
+  me = dqmStore_->get( prefixME_ + "/EventInfo/DCSSummaryMap" );
   hDCS_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hDCS_ );
 
   float sumCert = 0.;
@@ -197,68 +195,73 @@ void EEDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
   int nValidChannels = 0;
   int nValidChannelsEE[18];
 
+  if ( meEEDataCertificationSummaryMap_ ){
+    for(int ix=1 ; ix<=meEEDataCertificationSummaryMap_->getNbinsX() ; ix++){
+      for(int iy=1 ; iy<=meEEDataCertificationSummaryMap_->getNbinsY() ; iy++){
+	meEEDataCertificationSummaryMap_->setBinContent( ix, iy, -1.0 );
+      }
+    }
+  }
+
   for (int i = 0; i < 18; i++) {
     sumCertEE[i] = 0;
     nValidChannelsEE[i] = 0;
-  }
 
-  for ( int iz = -1; iz < 2; iz+=2 ) {
-    for ( int ix = 1; ix <= 100; ix++ ) {
-      for ( int iy = 1; iy <= 100; iy++ ) {
-        int jx = (iz==1) ? 100 + ix : ix;
-        int jy = iy;
-        if( EEDetId::validDetId(ix, iy, iz) ) {
+    for(int t=1 ; t<=nTowerMax_ ; t++){
 
-          // map the 1-18 index to the correct SM
-          int ism = 0;
-          int firstSec = ( iz < 0 ) ? 1 : 10;
-          int lastSec = ( iz < 0 ) ? 9 : 18;
-          for (int i = firstSec; i <= lastSec; i++) {
-            if ( Numbers::validEE(i, ix, iy) ) ism = i;
-          }
+      std::vector<DetId> crystals = map->dccTowerConstituents(DccId_[i], t);
+      if(!crystals.size()) continue; // getEcalScDetId throws an exception when no crystal is found
 
-          float xvalDQM = DQMVal[ism-1];
+      std::vector<EcalScDetId> scs = map->getEcalScDetId(DccId_[i], t, false);
+      for(unsigned u=0 ; u<scs.size() ; u++){
 
-          float xvalDAQ, xvalDCS;
-          xvalDAQ = xvalDCS = -1.;
-          float xcert = -1.;
+	int jx = scs[u].ix() + (scs[u].zside()<0 ? 0 : 20);
+	int jy = scs[u].iy();
 
-          if ( hDAQ_ ) xvalDAQ = hDAQ_->GetBinContent( jx, jy );
-          if ( hDCS_ ) xvalDCS = hDCS_->GetBinContent( jx, jy );
+	float xvalDQM = DQMVal[i];
 
-          if ( xvalDQM == -1 || ( xvalDAQ == -1 && xvalDCS == -1 ) ) {
-            // problems: DQM empty or DAQ and DCS not available
-            xcert = 0.0;
-          } else {
-            // do not consider the white value of DAQ and DCS (problems with DB)
-            xcert = std::abs(xvalDQM) * std::abs(xvalDAQ) * std::abs(xvalDCS);
-          }
+	float xvalDAQ, xvalDCS;
+	xvalDAQ = xvalDCS = -1.;
+	float xcert = -1.;
 
-          if ( meEEDataCertificationSummaryMap_ ) meEEDataCertificationSummaryMap_->setBinContent( jx, jy, xcert );
+	if ( hDAQ_ ) xvalDAQ = hDAQ_->GetBinContent( jx, jy );
+	if ( hDCS_ ) xvalDCS = hDCS_->GetBinContent( jx, jy );
 
-          sumCertEE[ism-1] += xcert;
-          nValidChannelsEE[ism-1]++;
+	if ( xvalDQM == -1 || ( xvalDAQ == -1 && xvalDCS == -1 ) ) {
+	  // problems: DQM empty or DAQ and DCS not available
+	  xcert = 0.0;
+	} else {
+	  // do not consider the white value of DAQ and DCS (problems with DB)
+	  xcert = std::abs(xvalDQM) * std::abs(xvalDAQ) * std::abs(xvalDCS);
+	}
 
-          sumCert += xcert;
-          nValidChannels++;
+	if ( meEEDataCertificationSummaryMap_ ) meEEDataCertificationSummaryMap_->setBinContent( jx, jy, xcert );
 
-        } else {
-          if ( meEEDataCertificationSummaryMap_ ) meEEDataCertificationSummaryMap_->setBinContent( jx, jy, -1.0 );
-        }
+	int ncrystals = 0;
+
+	for(std::vector<DetId>::const_iterator it=crystals.begin() ; it!=crystals.end() ; ++it){
+	  EEDetId id(*it);
+	  if( id.zside() == scs[u].zside() && (id.ix()-1)/5+1 == scs[u].ix() && (id.iy()-1)/5+1 == scs[u].iy() ) ncrystals++;
+	}
+
+	sumCertEE[i] += xcert * ncrystals;
+	nValidChannelsEE[i] += ncrystals;
+
+	sumCert += xcert * ncrystals;
+	nValidChannels += ncrystals;
+
       }
+    }
+
+    if( meEEDataCertification_[i] ) {
+      if( nValidChannelsEE[i]>0 ) meEEDataCertification_[i]->Fill( sumCertEE[i]/nValidChannelsEE[i] );
+      else meEEDataCertification_[i]->Fill( 0.0 );
     }
   }
 
   if( meEEDataCertificationSummary_ ) {
     if( nValidChannels>0 ) meEEDataCertificationSummary_->Fill( sumCert/nValidChannels );
     else meEEDataCertificationSummary_->Fill( 0.0 );
-  }
-
-  for (int i = 0; i < 18; i++) {
-    if( meEEDataCertification_[i] ) {
-      if( nValidChannelsEE[i]>0 ) meEEDataCertification_[i]->Fill( sumCertEE[i]/nValidChannelsEE[i] );
-      else meEEDataCertification_[i]->Fill( 0.0 );
-    }
   }
 
 }
@@ -273,20 +276,23 @@ void EEDataCertificationTask::endRun(const edm::Run& r, const edm::EventSetup& c
 
   this->reset();
 
-  char histo[200];
+  edm::ESHandle< EcalElectronicsMapping > handle;
+  c.get< EcalMappingRcd >().get(handle);
+  const EcalElectronicsMapping *map = handle.product();
+  if( ! map ){
+    edm::LogWarning("EEDaqInfoTask") << "EcalElectronicsMapping not available";
+    return;
+  }
 
   MonitorElement* me;
 
-  sprintf(histo, (prefixME_ + "/EventInfo/reportSummaryMap").c_str());
-  me = dqmStore_->get(histo);
+  me = dqmStore_->get( prefixME_ + "/EventInfo/reportSummaryMap" );
   hDQM_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hDQM_ );
 
-  sprintf(histo, (prefixME_ + "/EventInfo/DAQSummaryMap").c_str());
-  me = dqmStore_->get(histo);
+  me = dqmStore_->get( prefixME_ + "/EventInfo/DAQSummaryMap" );
   hDAQ_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hDAQ_ );
 
-  sprintf(histo, (prefixME_ + "/EventInfo/DCSSummaryMap").c_str());
-  me = dqmStore_->get(histo);
+  me = dqmStore_->get( prefixME_ + "/EventInfo/DCSSummaryMap" );
   hDCS_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hDCS_ );
 
   float sumCert = 0.;
@@ -294,72 +300,72 @@ void EEDataCertificationTask::endRun(const edm::Run& r, const edm::EventSetup& c
   int nValidChannels = 0;
   int nValidChannelsEE[18];
 
-  for (int i = 0; i < 18; i++) {
-    sumCertEE[i] = 0.;
-    nValidChannelsEE[i] = 0;
+  if ( meEEDataCertificationSummaryMap_ ){
+    for(int ix=1 ; ix<=meEEDataCertificationSummaryMap_->getNbinsX() ; ix++){
+      for(int iy=1 ; iy<=meEEDataCertificationSummaryMap_->getNbinsY() ; iy++){
+	meEEDataCertificationSummaryMap_->setBinContent( ix, iy, -1.0 );
+      }
+    }
   }
 
-  for ( int iz = -1; iz < 2; iz+=2 ) {
-    for ( int ix = 1; ix <= 100; ix++ ) {
-      for ( int iy = 1; iy <= 100; iy++ ) {
-        int jx = (iz==1) ? 100 + ix : ix;
-        int jy = iy;
-        if( EEDetId::validDetId(ix, iy, iz) ) {
+  for (int i = 0; i < 18; i++) {
+    sumCertEE[i] = 0;
+    nValidChannelsEE[i] = 0;
 
-          float xvalDQM, xvalDAQ, xvalDCS;
-          xvalDQM = xvalDAQ = xvalDCS = -1.;
-          float xcert = -1.;
+    for(int t=1 ; t<=nTowerMax_ ; t++){
 
-          if ( hDQM_ ) xvalDQM = hDQM_->GetBinContent( jx, jy );
-          if ( hDAQ_ ) xvalDAQ = hDAQ_->GetBinContent( jx, jy );
-          if ( hDCS_ ) xvalDCS = hDCS_->GetBinContent( jx, jy );
+      std::vector<DetId> crystals = map->dccTowerConstituents(DccId_[i], t);
+      if(!crystals.size()) continue;
 
-          if ( xvalDQM == -1 || ( xvalDAQ == -1 && xvalDCS == -1 ) ) {
-            // problems: DQM empty or DAQ and DCS not available
-            xcert = 0.0;
-          } else {
-            // do not consider the white value of DAQ and DCS (problems with DB)
-            xcert = std::abs(xvalDQM) * std::abs(xvalDAQ) * std::abs(xvalDCS);
-          }
+      std::vector<EcalScDetId> scs = map->getEcalScDetId(DccId_[i], t, false);
+      for(unsigned u=0 ; u<scs.size() ; u++){
 
-          if ( meEEDataCertificationSummaryMap_ ) meEEDataCertificationSummaryMap_->setBinContent( jx, jy, xcert );
+	int jx = scs[u].ix() + (scs[u].zside()<0 ? 0 : 20);
+	int jy = scs[u].iy();
 
-          // map the 1-18 index to the correct SM
-          int firstSec = ( iz < 0 ) ? 1 : 10;
-          int lastSec = ( iz < 0 ) ? 9 : 18;
-          for (int i = firstSec; i <= lastSec; i++) {
-            if ( Numbers::validEE(i, ix, iy) ) {
-              sumCertEE[i-1] += xcert;
-              nValidChannelsEE[i-1]++;
-            }
-          }
+	float xvalDQM, xvalDAQ, xvalDCS;
+	xvalDQM = xvalDAQ = xvalDCS = -1.;
+	float xcert = -1.;
 
-          sumCert += xcert;
-          nValidChannels++;
+	if ( hDQM_ ) xvalDQM = hDQM_->GetBinContent( jx, jy );
+	if ( hDAQ_ ) xvalDAQ = hDAQ_->GetBinContent( jx, jy );
+	if ( hDCS_ ) xvalDCS = hDCS_->GetBinContent( jx, jy );
 
-        } else {
-          if ( meEEDataCertificationSummaryMap_ ) meEEDataCertificationSummaryMap_->setBinContent( jx, jy, -1.0 );
-        }
+	if ( xvalDQM == -1 || ( xvalDAQ == -1 && xvalDCS == -1 ) ) {
+	  // problems: DQM empty or DAQ and DCS not available
+	  xcert = 0.0;
+	} else {
+	  // do not consider the white value of DAQ and DCS (problems with DB)
+	  xcert = std::abs(xvalDQM) * std::abs(xvalDAQ) * std::abs(xvalDCS);
+	}
+
+	if ( meEEDataCertificationSummaryMap_ ) meEEDataCertificationSummaryMap_->setBinContent( jx, jy, xcert );
+
+	int ncrystals = 0;
+
+	for(std::vector<DetId>::const_iterator it=crystals.begin() ; it!=crystals.end() ; ++it){
+	  EEDetId id(*it);
+	  if( id.zside() == scs[u].zside() && (id.ix()-1)/5+1 == scs[u].ix() && (id.iy()-1)/5+1 == scs[u].iy() ) ncrystals++;
+	}
+
+	sumCertEE[i] += xcert * ncrystals;
+	nValidChannelsEE[i] += ncrystals;
+
+	sumCert += xcert * ncrystals;
+	nValidChannels += ncrystals;
+
       }
+    }
+
+    if( meEEDataCertification_[i] ) {
+      if( nValidChannelsEE[i]>0 ) meEEDataCertification_[i]->Fill( sumCertEE[i]/nValidChannelsEE[i] );
+      else meEEDataCertification_[i]->Fill( 0.0 );
     }
   }
 
   if( meEEDataCertificationSummary_ ) {
-    if( nValidChannels>0 ) {
-      meEEDataCertificationSummary_->Fill( sumCert/nValidChannels );
-    } else {
-      meEEDataCertificationSummary_->Fill( 0.0 );
-    }
-  }
-
-  for (int i = 0; i < 18; i++) {
-    if( meEEDataCertification_[i] ) {
-      if( nValidChannelsEE[i]>0 ) {
-        meEEDataCertification_[i]->Fill( sumCertEE[i]/nValidChannelsEE[i] );
-      } else {
-        meEEDataCertification_[i]->Fill( 0.0 );
-      }
-    }
+    if( nValidChannels>0 ) meEEDataCertificationSummary_->Fill( sumCert/nValidChannels );
+    else meEEDataCertificationSummary_->Fill( 0.0 );
   }
 
 }

@@ -59,76 +59,18 @@ void OHltRatePrinter::printRatesASCII(OHltConfig *cfg, OHltMenu *menu)
    cout << "\n";
    cout << "Trigger Rates [Hz] : " << "\n";
    cout
-         << "         Name                       Prescale (HLT*L1)   Indiv.          Pure   Cumulative\n";
+         << "         Name                       Prescale           Indiv.          Pure   Cumulative\n";
    cout
          << "----------------------------------------------------------------------------------------------\n";
 
    float cumulRate = 0.;
    float cumulRateErr = 0.;
    float hltPrescaleCorrection = 1.;
-   float l1PrescaleCorrection = 1.; 
 
    for (unsigned int i=0; i<menu->GetTriggerSize(); i++)
    {
       cumulRate += spureRate[i];
       cumulRateErr += pow(spureRateErr[i], fTwo);
-
-      TString tempTrigSeedPrescales; 
-      TString tempTrigSeeds; 
-      std::map<TString, std::vector<TString> > mapL1seeds = 
-	menu->GetL1SeedsOfHLTPathMap(); // mapping to all seeds  
-
-      vector<TString> vtmp;
-      vector<int> itmp;
-
-      typedef map< TString, vector<TString> > mymap;
-      for (mymap::const_iterator it = mapL1seeds.begin(); it
-            != mapL1seeds.end(); ++it)
-      {
-         if (it->first.CompareTo(menu->GetTriggerName(i)) == 0)
-         {
-            vtmp = it->second;
-            //cout<<it->first<<endl; 
-            for (unsigned int j=0; j<it->second.size(); j++)
-            {
-               itmp.push_back(menu->GetL1Prescale((it->second)[j]));
-               //cout<<"\t"<<(it->second)[j]<<endl; 
-            }
-         }
-      }
-
-      for (unsigned int j=0; j<vtmp.size(); j++)
-      {
-
-         if (cfg->readRefPrescalesFromNtuple)
-         {
-            for (unsigned int k=0; k<menu->GetL1TriggerSize(); k++)
-            {
-               if ((menu->GetL1TriggerName(k)) == (vtmp[j]))
-               {
-                  if ((menu->GetL1TriggerName(k)).Contains("OpenL1_"))
-                  {
-                     l1PrescaleCorrection = 1.0;
-                     tempTrigSeedPrescales += (itmp[j]*l1PrescaleCorrection);
-                  }
-                  else
-                  {
-                     l1PrescaleCorrection = averageRefPrescaleL1[k];
-                     tempTrigSeedPrescales += (itmp[j]*l1PrescaleCorrection);
-                  }
-               }
-            }
-         }
-         else
-            tempTrigSeedPrescales += itmp[j];
-
-         if (j<(vtmp.size()-1))
-         {
-            tempTrigSeedPrescales = tempTrigSeedPrescales + ", ";
-         }
-      }
-
-      tempTrigSeeds = menu->GetSeedCondition(menu->GetTriggerName(i));
 
       if (cfg->readRefPrescalesFromNtuple)
       {
@@ -155,9 +97,8 @@ void OHltRatePrinter::printRatesASCII(OHltConfig *cfg, OHltMenu *menu)
          hltPrescaleCorrection = menu->GetReferenceRunPrescale(i);
 
       cout<<setw(50)<<menu->GetTriggerName(i)<<" (" <<setw(8)
-            <<(int)(menu->GetPrescale(i) * hltPrescaleCorrection)
-	    << "*" <<tempTrigSeedPrescales<<setw(5)<<")  "
-            <<setw(8)<<Rate[i]<<" +- " <<setw(7)<<RateErr[i]<<" ) " <<setw(8)
+            <<(int)(menu->GetPrescale(i) * hltPrescaleCorrection)<<")  "
+            <<setw(8)<<Rate[i]<<" +- " <<setw(7)<<RateErr[i]<<"  " <<setw(8)
             <<spureRate[i]<<"  " <<setw(8)<<cumulRate <<endl;
    }
 

@@ -28,8 +28,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2011/03/10 19:18:13 $ 
- **  $Revision: 1.40 $
+ **  $Date: 2011/03/01 15:36:58 $ 
+ **  $Revision: 1.39 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -155,7 +155,7 @@ class PhotonValidator : public edm::EDAnalyzer
   /// Global variables for reco Photon
   double recMinPt_;
   double recMaxPt_;
-  MonitorElement* h_nRecoVtx_;
+
   //
   MonitorElement* h_nSimPho_[2];
   MonitorElement* h_SimPhoMotherType_[2];
@@ -217,7 +217,6 @@ class PhotonValidator : public edm::EDAnalyzer
 
   MonitorElement* h_psE_;
 
-  MonitorElement* h_EtR9Less093_[3][3];  
   MonitorElement* h_r9_[3][3];  
   MonitorElement* h2_r9VsEta_[3];
   MonitorElement* p_r9VsEta_[3];

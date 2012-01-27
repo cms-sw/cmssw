@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.64 2010/10/26 04:55:28 wmtan Exp $
+// $Id: FourVectorHLTOffline.h,v 1.66 2011/06/15 16:22:47 bjk Exp $
 //
 //
 // system include files
@@ -156,12 +156,16 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       void selectTaus(const edm::Event& iEvent);
       void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);   
       void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);   
+      std::string removeVersions(std::string histVersion);
+
 
       // ----------member data --------------------------- 
       int nev_;
       DQMStore * dbe_;
       bool fLumiFlag;
       bool fIsSetup;
+
+      bool useUM;
 
       // JetID helper
       reco::helper::JetIDHelper *jetID;
@@ -1011,15 +1015,17 @@ void objMonData<T>::matchL1Offline(const trigger::TriggerObject& l1FV, FourVecto
       {
 
         // fill UM histos (no matching required)
-        if(NL1 == 1) {
-
-          NL1OffUM++;
-          v_->getOffEtL1OffUMHisto()->Fill(recoPt);
-
-          if(recoPt >= thresholdFactor_*v_->getHltThreshold())
-          v_->getOffEtaVsOffPhiL1OffUMHisto()->Fill(recoEta,recoPhi);
-
-        }
+	if (v_->getOffEtL1OffUMHisto() != 0) {
+	  if(NL1 == 1) {
+	    
+	    NL1OffUM++;
+	    v_->getOffEtL1OffUMHisto()->Fill(recoPt);
+	    
+	    if(recoPt >= thresholdFactor_*v_->getHltThreshold())
+	      v_->getOffEtaVsOffPhiL1OffUMHisto()->Fill(recoEta,recoPhi);
+	    
+	  }
+	}
 
          // make maps of matched objects
         float dR = reco::deltaR(recoEta,recoPhi,l1FV.eta(),l1FV.phi());
@@ -1055,15 +1061,17 @@ void objMonData<T>::matchL1Offline(const trigger::TriggerObject& l1FV, FourVecto
       {
 
         // fill UM histos (no matching required)
-        if(NL1 == 1) {
-
-          NL1OffUM++;
-          v_->getOffEtL1OffUMHisto()->Fill(recoPt);
-
-          if(recoPt >= thresholdFactor_*v_->getHltThreshold())
-          v_->getOffEtaVsOffPhiL1OffUMHisto()->Fill(recoEta,recoPhi);
-
-        }
+	if (v_->getOffEtL1OffUMHisto() != 0) {
+	  if(NL1 == 1) {
+	    
+	    NL1OffUM++;
+	    v_->getOffEtL1OffUMHisto()->Fill(recoPt);
+	    
+	    if(recoPt >= thresholdFactor_*v_->getHltThreshold())
+	      v_->getOffEtaVsOffPhiL1OffUMHisto()->Fill(recoEta,recoPhi);
+	    
+	  }
+	}
 
          // make maps of matched objects
         float dR = reco::deltaR(recoEta,recoPhi,l1FV.eta(),l1FV.phi());
@@ -1091,16 +1099,18 @@ void objMonData<T>::matchL1Offline(const trigger::TriggerObject& l1FV, FourVecto
       if (fabs(iter->eta()) <= EtaMax_ && iter->superCluster()->energy()*sin(iter->superCluster()->position().Theta()) >=  EtMin_ )
       {
 
-        // fill UM histos (no matching required)
-        if(NL1 == 1) {
-
-          NL1OffUM++;
-          v_->getOffEtL1OffUMHisto()->Fill(iter->superCluster()->energy()*sin(iter->superCluster()->position().Theta()));
-
-          if(iter->superCluster()->energy()*sin(iter->superCluster()->position().Theta()) >= thresholdFactor_*v_->getHltThreshold())
-          v_->getOffEtaVsOffPhiL1OffUMHisto()->Fill(iter->eta(),iter->phi());
-
-        }
+	if ( v_->getOffEtL1OffUMHisto() != 0) {
+	  // fill UM histos (no matching required)
+	  if(NL1 == 1) {
+	    
+	    NL1OffUM++;
+	    v_->getOffEtL1OffUMHisto()->Fill(iter->superCluster()->energy()*sin(iter->superCluster()->position().Theta()));
+	    
+	    if(iter->superCluster()->energy()*sin(iter->superCluster()->position().Theta()) >= thresholdFactor_*v_->getHltThreshold())
+	      v_->getOffEtaVsOffPhiL1OffUMHisto()->Fill(iter->eta(),iter->phi());
+	    
+	  }
+	}
 
         // make maps of matched objects
         float dR = reco::deltaR(iter->eta(),iter->phi(),l1FV.eta(),l1FV.phi());
@@ -1129,15 +1139,17 @@ void objMonData<T>::matchL1Offline(const trigger::TriggerObject& l1FV, FourVecto
       {
 
         // fill UM histos (no matching required)
-        if(NL1 == 1) {
-
-          NL1OffUM++;
-          v_->getOffEtL1OffUMHisto()->Fill(iter->pt());
-
-          if(iter->pt() >= thresholdFactor_*v_->getHltThreshold())
-          v_->getOffEtaVsOffPhiL1OffUMHisto()->Fill(iter->eta(),iter->phi());
-
-        }
+	if (v_->getOffEtL1OffUMHisto()!= 0 ) {
+	  if(NL1 == 1) {
+	    
+	    NL1OffUM++;
+	    v_->getOffEtL1OffUMHisto()->Fill(iter->pt());
+	    
+	    if(iter->pt() >= thresholdFactor_*v_->getHltThreshold())
+	      v_->getOffEtaVsOffPhiL1OffUMHisto()->Fill(iter->eta(),iter->phi());
+	    
+	  }
+	}
 
         // make maps of matched objects
         float dR = reco::deltaR(iter->eta(),iter->phi(),l1FV.eta(),l1FV.phi());
@@ -1184,8 +1196,8 @@ void objMonData<T>::monitorOnline(const int hltIndex, const int l1Index, FourVec
 	  v_->getOnOneOverEtOnHisto()->Fill(1./onlineFV.pt());
 	  v_->getOnEtaVsOnPhiOnHisto()->Fill(onlineFV.eta(), onlineFV.phi());
 	
-    matchOnlineL1(onlineFV,l1Index, fv, NOn);
-    matchOnlineOffline(onlineFV,fv, NOn);
+	  matchOnlineL1(onlineFV,l1Index, fv, NOn);
+	  matchOnlineOffline(onlineFV,fv, NOn);
 
   } // end loop over HLT objects
   
@@ -1217,15 +1229,16 @@ void objMonData<T>::matchOnlineL1(const trigger::TriggerObject& onlineFV, const 
         trigger::TriggerObject l1FV = toc[*l1ki];
 
         // fill UM histos (no matching required)
-        if(NOn == 1) {
-
-          NOnL1UM++;
-          v_->getL1EtL1OnUMHisto()->Fill(l1FV.pt());
-          v_->getL1EtaVsL1PhiL1OnUMHisto()->Fill(l1FV.eta(),l1FV.phi());
-
-         }
-
-
+	if (v_->getL1EtL1OnUMHisto() != 0) {
+	  if(NOn == 1) {
+	    
+	    NOnL1UM++;
+	    v_->getL1EtL1OnUMHisto()->Fill(l1FV.pt());
+	    v_->getL1EtaVsL1PhiL1OnUMHisto()->Fill(l1FV.eta(),l1FV.phi());
+	    
+	  }
+	}
+	  
          float dR = reco::deltaR(l1FV.eta(),l1FV.phi(),onlineFV.eta(),onlineFV.phi());
 
          if ( dR < DRRange_) 
@@ -1269,16 +1282,19 @@ void objMonData<T>::matchOnlineOffline(const trigger::TriggerObject& onlineFV, F
        if (fabs(recoEta) <= EtaMax_ && recoPt >=  EtMin_ )
        {
 
+
          // fill UM histos (no matching required)
-         if(NOn == 1) {
-
-           NOnOffUM++;
-           v_->getOffEtOnOffUMHisto()->Fill(recoPt);
-
-           if(recoPt >= thresholdFactor_*v_->getHltThreshold())
-           v_->getOffEtaVsOffPhiOnOffUMHisto()->Fill(recoEta,recoPhi);
-
-         }
+	 if (v_->getOffEtOnOffUMHisto() != 0) {
+	   if(NOn == 1) {
+	     
+	     NOnOffUM++;
+	     v_->getOffEtOnOffUMHisto()->Fill(recoPt);
+	     
+	     if(recoPt >= thresholdFactor_*v_->getHltThreshold())
+	       v_->getOffEtaVsOffPhiOnOffUMHisto()->Fill(recoEta,recoPhi);
+	     
+	   }
+	 }
 
           // make maps of matched objects
          float dR = reco::deltaR(recoEta,recoPhi,onlineFV.eta(),onlineFV.phi());
@@ -1313,15 +1329,17 @@ void objMonData<T>::matchOnlineOffline(const trigger::TriggerObject& onlineFV, F
       if (fabs(recoEta) <= EtaMax_ && recoPt >=  EtMin_ )
       {
          // fill UM histos (no matching required)
-         if(NOn == 1) {
-
-           NOnOffUM++;
-           v_->getOffEtOnOffUMHisto()->Fill(iter->pt());
-
-           if(recoPt >= thresholdFactor_*v_->getHltThreshold())
-           v_->getOffEtaVsOffPhiOnOffUMHisto()->Fill(iter->eta(),iter->phi());
-
-         }
+	if (v_->getOffEtOnOffUMHisto() != 0) {
+	  if(NOn == 1) {
+	    
+	    NOnOffUM++;
+	    v_->getOffEtOnOffUMHisto()->Fill(iter->pt());
+	    
+	    if(recoPt >= thresholdFactor_*v_->getHltThreshold())
+	      v_->getOffEtaVsOffPhiOnOffUMHisto()->Fill(iter->eta(),iter->phi());
+	    
+	  }
+	}
 
           // make maps of matched objects
          float dR = reco::deltaR(recoEta,recoPhi,onlineFV.eta(),onlineFV.phi());
@@ -1352,15 +1370,17 @@ void objMonData<T>::matchOnlineOffline(const trigger::TriggerObject& onlineFV, F
        {
 
          // fill UM histos (no matching required)
-         if(NOn == 1) {
-
-           NOnOffUM++;
-           v_->getOffEtOnOffUMHisto()->Fill(iter->superCluster()->energy()*sin(iter->superCluster()->position().Theta()));
-
-           if(iter->superCluster()->energy()*sin(iter->superCluster()->position().Theta()) >= thresholdFactor_*v_->getHltThreshold())
-           v_->getOffEtaVsOffPhiOnOffUMHisto()->Fill(iter->eta(),iter->phi());
-
-         }
+	 if (v_->getOffEtOnOffUMHisto() != 0) {
+	   if(NOn == 1) {
+	     
+	     NOnOffUM++;
+	     v_->getOffEtOnOffUMHisto()->Fill(iter->superCluster()->energy()*sin(iter->superCluster()->position().Theta()));
+	     
+	     if(iter->superCluster()->energy()*sin(iter->superCluster()->position().Theta()) >= thresholdFactor_*v_->getHltThreshold())
+	       v_->getOffEtaVsOffPhiOnOffUMHisto()->Fill(iter->eta(),iter->phi());
+	     
+	   }
+	 }
 
           // make maps of matched objects
          float dR = reco::deltaR(iter->eta(),iter->phi(),onlineFV.eta(),onlineFV.phi());
@@ -1391,15 +1411,17 @@ void objMonData<T>::matchOnlineOffline(const trigger::TriggerObject& onlineFV, F
        {
 
          // fill UM histos (no matching required)
-         if(NOn == 1) {
-
-           NOnOffUM++;
-           v_->getOffEtOnOffUMHisto()->Fill(iter->pt());
-
-           if(iter->pt() >= thresholdFactor_*v_->getHltThreshold())
-           v_->getOffEtaVsOffPhiOnOffUMHisto()->Fill(iter->eta(),iter->phi());
-
-         }
+	 if (v_->getOffEtOnOffUMHisto() != 0) {
+	   if(NOn == 1) {
+	     
+	     NOnOffUM++;
+	     v_->getOffEtOnOffUMHisto()->Fill(iter->pt());
+	     
+	     if(iter->pt() >= thresholdFactor_*v_->getHltThreshold())
+	       v_->getOffEtaVsOffPhiOnOffUMHisto()->Fill(iter->eta(),iter->phi());
+	     
+	   }
+	 }
 
           // make maps of matched objects
          float dR = reco::deltaR(iter->eta(),iter->phi(),onlineFV.eta(),onlineFV.phi());

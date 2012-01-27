@@ -17,6 +17,8 @@ siPixelClusters = cms.EDProducer("SiPixelClusterProducer",
     # ****  Offline - gain:col/ped:pix  ****
     # **************************************
     payloadType = cms.string('Offline'),
+    AdcFullScaleStack = cms.int32(255),
+    FirstStackLayer = cms.int32(5),
     SeedThreshold = cms.int32(1000),
     ClusterThreshold = cms.double(4000.0),
     # **************************************

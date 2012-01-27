@@ -1,4 +1,8 @@
 #include "SubProcess.h"
+#include "FileDescriptorHandler.h"
+
+#include "EventFilter/Utilities/interface/TriggerReportDef.h"
+
 namespace evf{
 
   SubProcess &SubProcess::operator=(const SubProcess &b)
@@ -14,6 +18,7 @@ namespace evf{
     save_scalers_ = b.save_scalers_;
     restart_countdown_=b.restart_countdown_;
     reported_inconsistent_=b.reported_inconsistent_;
+    postponed_trigger_updates_ = b.postponed_trigger_updates_;
     return *this;
   }
 
@@ -44,6 +49,7 @@ namespace evf{
   void SubProcess::setParams(struct prg *p)
   {
     prg_.ls  = p->ls;
+    prg_.eols  = p->eols;
     prg_.ps  = p->ps;
     prg_.nbp = p->nbp + save_nbp_;
     prg_.nba = p->nba + save_nba_;
@@ -60,6 +66,8 @@ namespace evf{
     pid_t retval = -1;
     retval = fork();
     reported_inconsistent_ = false;
+    nfound_invalid_ = 0;
+    postponed_trigger_updates_.clear();
     if(retval>0)
       {
 	pid_ = retval;
@@ -69,10 +77,29 @@ namespace evf{
       {
 	//	  freopen(filename,"w",stdout); // send all console output from children to /dev/null
 	freopen("/dev/null","w",stderr);
+	FileDescriptorHandler a; //handle socket file descriptors left open at fork
 	sqm_ = new SlaveQueue(monitor_queue_offset_+ind_);
 	sqs_ = new SlaveQueue(ind_);
       }
     return retval;
   }
+  void SubProcess::add_postponed_trigger_update(MsgBuf &b)
+  {
+    postponed_trigger_updates_.push_back(b);
+  }
+  bool SubProcess::check_postponed_trigger_update(MsgBuf &b, unsigned int ls)
+  {
+    for(std::vector<MsgBuf>::iterator i = postponed_trigger_updates_.begin(); i != postponed_trigger_updates_.end(); i++)
+      {
+	TriggerReportStatic *trp = (TriggerReportStatic *)((*i)->mtext);
+	 if(trp->lumiSection == ls){
+	   b = (*i);
+	   postponed_trigger_updates_.erase(i);
+	   return true;
+	 }
+      }
+    return false;
+  }
+
 
 }

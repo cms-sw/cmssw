@@ -7,6 +7,8 @@ process = cms.Process("DQMOnlineRealData")
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
     '/store/data/Run2010B/MinimumBias/RAW/v1/000/149/011/0042F6EF-0AE1-DF11-9237-003048F1C420.root'
+    #'file:/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/DQMTest/MinimumBias__RAW__v1__165633__1CC420EE-B686-E011-A788-0030487CD6E8.root'
+    #'/store/data/Run2011A/Jet/RAW/v1/000/173/692/18F5E657-E6CC-E011-97EE-BCAEC54DB5D6.root'
     )
 )
 process.maxEvents = cms.untracked.PSet(
@@ -39,7 +41,8 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 # Calibration
 #-------------------------------------------------
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "GR_R_311_V1::All"
+#process.GlobalTag.globaltag = "GR_R_311_V1::All"
+process.GlobalTag.globaltag = "GR_P_V22::All"
 
 #-----------------------
 #  Reconstruction Modules
@@ -102,7 +105,7 @@ process.outP = cms.OutputModule("AsciiOutputModule")
 
 process.AdaptorConfig = cms.Service("AdaptorConfig")
 
-process.RecoForDQM = cms.Sequence(process.siStripDigis*process.gtDigis*process.siStripZeroSuppression*process.siStripClusters)
+process.RecoForDQM = cms.Sequence(process.siPixelDigis*process.siPixelClusters*process.siStripDigis*process.gtDigis*process.siStripZeroSuppression*process.siStripClusters)
 process.p = cms.Path(
     process.scalersRawToDigi*
     process.APVPhases*

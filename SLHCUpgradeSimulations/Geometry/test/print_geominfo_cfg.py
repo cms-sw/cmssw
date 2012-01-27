@@ -3,11 +3,12 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PrintGeom")
 
 #process.load("SimG4Core.PrintGeomInfo.testTotemGeometryXML_cfi")
-process.load("Geometry.CMSCommonData.trackerSimGeometryXML_cfi")
-# choose an upgrade geometry
+# choose the current geometry
+#process.load("Geometry.CMSCommonData.trackerSimGeometryXML_cfi")
+# or choose an upgrade geometry
+process.load("SLHCUpgradeSimulations.Geometry.Phase1_R34F16_cmsSimIdealGeometryXML_cff")
 #process.load("SLHCUpgradeSimulations.Geometry.hybrid_cmsIdealGeometryXML_cff")
 #process.load("SLHCUpgradeSimulations.Geometry.longbarrel_cmsIdealGeometryXML_cff")
-process.load("SLHCUpgradeSimulations.Geometry.PhaseI_cmsSimIdealGeometryXML_cff")
 
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.globaltag = 'MC_31X_V8::All'
@@ -50,29 +51,12 @@ process.generator.PGunParameters.MinEta = -2.4
 process.generator.PGunParameters.MaxEta = 2.4
 process.generator.AddAntiParticle = False
 
-#process.source = cms.Source("EmptySource")
-
-#process.generator = cms.EDProducer("FlatRandomPtGunSource",
-#    PGunParameters = cms.PSet(
-#        PartID = cms.vint32(13),
-#        MinEta = cms.double(-2.5),
-#        MaxEta = cms.double(2.5),
-#        MinPhi = cms.double(-3.14159265359),
-#        MaxPhi = cms.double(3.14159265359),
-#        MinPt  = cms.double(9.99),
-#        MaxPt  = cms.double(10.01)
-#    ),
-#    AddAntiParticle = cms.bool(False),
-#    Verbosity       = cms.untracked.int32(0),
-#    firstRun        = cms.untracked.uint32(1)
+#process.EnableFloatingPointExceptions = cms.Service("EnableFloatingPointExceptions",
+#    enableDivByZeroEx = cms.untracked.bool(False),
+#    enableInvalidEx   = cms.untracked.bool(True),
+#    enableOverFlowEx  = cms.untracked.bool(False),
+#    enableUnderFlowEx = cms.untracked.bool(False)
 #)
-
-process.EnableFloatingPointExceptions = cms.Service("EnableFloatingPointExceptions",
-    enableDivByZeroEx = cms.untracked.bool(False),
-    enableInvalidEx   = cms.untracked.bool(True),
-    enableOverFlowEx  = cms.untracked.bool(False),
-    enableUnderFlowEx = cms.untracked.bool(False)
-)
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     moduleSeeds = cms.PSet(
@@ -98,13 +82,28 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
 	DumpLVMatBudget= cms.untracked.bool(True),
 # Standard geometry
 #        LVNames2Dump   = cms.untracked.vstring('PixelBarrelLayer0','PixelBarrelLayer1','PixelBarrelLayer2'),
+#        LVNames2Dump   = cms.untracked.vstring('PixelBarrel'),
+#        LVNames2Dump   = cms.untracked.vstring('PixelForwardZPlus','PixelForwardZMinus'),
 #        Radius2Use     = cms.untracked.vdouble(44.2558, 73.1232, 101.776),
 #        Z2Use          = cms.untracked.vdouble(567.8, 567.8, 567.8),
+#        LVNames2Dump   = cms.untracked.vstring('PixelBarrelLayer0','PixelBarrelLayer1','PixelBarrelLayer2',
+#'PixelBarrelSuppTub', 'PixelBarrelSuppBox', 'PixelBarrelShield1', 'PixelBarrelShield2', 'PixelBarrelShield3', 'PixelBarrelShield4'),
+#        Radius2Use     = cms.untracked.vdouble(44.2558, 73.1232, 101.776,
+#101.776, 101.776, 44.2558, 44.2558, 101.776, 101.776),
+#        Z2Use          = cms.untracked.vdouble(567.8, 567.8, 567.8,
+#567.8, 567.8, 567.8, 567.8, 567.8, 567.8),
+#
 # Phase 1 geometry
         LVNames2Dump   = cms.untracked.vstring('PixelBarrelLayer0','PixelBarrelLayer1','PixelBarrelLayer2',
                                                'PixelBarrelLayer3','BEAM'),
         Radius2Use     = cms.untracked.vdouble(38.7995, 67.8557, 108.92, 159.958, 30.0),
         Z2Use          = cms.untracked.vdouble(567.8, 567.8, 567.8, 567.8, 567.8),
+#        LVNames2Dump   = cms.untracked.vstring('PixelBarrel'),
+#        Radius2Use     = cms.untracked.vdouble(38.7995),
+#        Z2Use          = cms.untracked.vdouble(567.8),
+#        LVNames2Dump   = cms.untracked.vstring('PixelForward'),
+#        Radius2Use     = cms.untracked.vdouble(38.7995),
+#        Z2Use          = cms.untracked.vdouble(567.8),
 # Hybrid geometry
 #        LVNames2Dump   = cms.untracked.vstring('PixelBarrelLayer0','PixelBarrelLayer1','PixelBarrelLayer2',
 #                                               'PixelBarrelLayer3','PixelBarrelLayerStack0','PixelBarrelLayerStack1','BEAM',

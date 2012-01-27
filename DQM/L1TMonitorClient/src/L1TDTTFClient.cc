@@ -1,8 +1,8 @@
 /*
  * \file L1TDTTFClient.cc
  *
- * $Date: 2010/11/14 14:02:42 $
- * $Revision: 1.6 $
+ * $Date: 2010/11/01 11:27:53 $
+ * $Revision: 1.5 $
  * \author G. Codispoti
  *
  */
@@ -928,7 +928,7 @@ void L1TDTTFClient::buildSummaries()
       for ( unsigned int qual = 1; qual < 8; ++qual ) {
 	double binqual = tmp->GetBinContent( qual );
 	dttf_quality_integ_2ndTrack->getTH1F()->AddBinContent( qual, binqual );
-	dttf_quality_summary_2ndTrack->setBinContent( wh+1, qual, binqual );
+	dttf_quality_summary_2ndTrack->setBinContent( wh, qual, binqual );
       }
     }
 

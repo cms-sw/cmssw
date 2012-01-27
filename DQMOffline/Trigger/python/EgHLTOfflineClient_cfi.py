@@ -16,29 +16,24 @@ egHLTOffDQMClient = cms.EDAnalyzer("EgHLTOfflineClient",
                                  #eleN1EffVars=cms.vstring('dEtaIn','dPhiIn','hOverE','sigmaIEtaIEta',
                                  #                         'isolEm','isolHad','isolPtTrks','hltIsolHad',
                                  #                         'hltIsoltrksEle'),
-                                 eleN1EffVars=cms.vstring('dEtaIn','dPhiIn','hOverE','sigmaIEtaIEta','maxr9',
-                                                          'isolEm','isolHad','isolPtTrks','hltIsolHad',
-                                                          'hltIsoltrksEle'),
+                                 eleN1EffVars=cms.vstring('dEtaIn','dPhiIn','hOverE','sigmaIEtaIEta',
+                                                          'hltIsolEm','hltIsolHad','hltIsoltrksEle'),
                                  #-------------------
                                  eleSingleEffVars=cms.vstring('dEtaIn','dPhiIn','hOverE','sigmaIEtaIEta',
-                                                              'isolEm','isolHad','isolPtTrks','hltIsolHad',
-                                                              'hltIsoltrksEle','hltIsolTrksPho'),
-                                 eleEffTags=cms.vstring('effVsEt','effVsEta','effVsPhi'), #used for vs vars and T&P, Fake rate tags
-                                 eleTrigTPEffVsVars=cms.vstring('et','eta','phi','charge','etUnCut'),
-                                 eleLooseTightTrigEffVsVars=cms.vstring('et','eta','phi','charge','etUnCut',
-                                                                        'hOverE','sigmaIEtaIEta','dPhiIn','dEtaIn'),
+                                                              'hltIsolEm','hltIsolHad','hltIsoltrksEle'),
+                                 eleEffTags=cms.vstring('effVsEt','effVsEta'),#'effVsPhi'), #used for vs vars and T&P, Fake rate tags
+                                 eleTrigTPEffVsVars=cms.vstring('et','eta','nVertex'),#'phi','charge','etUnCut'),
+                                 eleLooseTightTrigEffVsVars=cms.vstring('et','eta','hOverE','sigmaIEtaIEta','dPhiIn','dEtaIn'),
                                  #----Morse-----
                                  #phoN1EffVars=cms.vstring('hOverE','sigmaIEtaIEta','r9',
                                  #                         'isolEm','isolHad','isolPtTrks','isolNrTrks'),
-                                 phoN1EffVars=cms.vstring('hOverE','sigmaIEtaIEta','minr9','maxr9',
+                                 phoN1EffVars=cms.vstring('hOverE','sigmaIEtaIEta',
                                                           'isolEm','isolHad','isolPtTrks','isolNrTrks'),
                                  #-------------
-                                 phoSingleEffVars=cms.vstring('sigmaIEtaIEta','isolEm','isolHad',
-                                                              'hltIsolHad','hltIsolTrksPho'),
-                                 phoEffTags=cms.vstring('effVsEt','effVsEta','effVsPhi'),
-                                 phoTrigTPEffVsVars=cms.vstring('et','eta','phi','charge','etUnCut'),
-                                 phoLooseTightTrigEffVsVars=cms.vstring('et','eta','phi','etUnCut',
-                                                                        'hOverE','sigmaIEtaIEta')
+                                 phoSingleEffVars=cms.vstring('hOverE','sigmaIEtaIEta','isolEm','isolHad','isolPtTracks'),
+                                 phoEffTags=cms.vstring('effVsEt','effVsEta'),#'effVsPhi'),
+                                 phoTrigTPEffVsVars=cms.vstring('et','eta'),#'phi','charge','etUnCut'),
+                                 phoLooseTightTrigEffVsVars=cms.vstring('et','eta','hOverE','sigmaIEtaIEta')
                                  )
 
 

@@ -63,6 +63,10 @@ public:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
 private:
+  enum ClusterFlags {
+    OffTrack,
+    OnTrack
+  };
   //booking
   void book();
   void bookModMEs(const uint32_t& );
@@ -77,12 +81,12 @@ private:
   void AllClusters(const edm::Event& ev, const edm::EventSetup& es); 
   void trackStudy(const edm::Event& ev, const edm::EventSetup& es);
   //  LocalPoint project(const GeomDet *det,const GeomDet* projdet,LocalPoint position,LocalVector trackdirection)const;
-  bool clusterInfos(SiStripClusterInfo* cluster, const uint32_t& detid,std::string flag, LocalVector LV);	
+  bool clusterInfos(SiStripClusterInfo* cluster, const uint32_t& detid,enum ClusterFlags flags, LocalVector LV);	
   template <class T> void RecHitInfo(const T* tkrecHit, LocalVector LV,reco::TrackRef track_ref, const edm::EventSetup&);
 
   // fill monitorables 
   void fillModMEs(SiStripClusterInfo*,std::string,float);
-  void fillMEs(SiStripClusterInfo*,uint32_t detid,float,std::string);
+  void fillMEs(SiStripClusterInfo*,uint32_t detid,float,enum ClusterFlags);
   inline void fillME(MonitorElement* ME,float value1){if (ME!=0)ME->Fill(value1);}
   inline void fillME(MonitorElement* ME,float value1,float value2){if (ME!=0)ME->Fill(value1,value2);}
   inline void fillME(MonitorElement* ME,float value1,float value2,float value3){if (ME!=0)ME->Fill(value1,value2,value3);}
@@ -171,5 +175,6 @@ private:
 
   SiStripDCSStatus* dcsStatus_;
   GenericTriggerEventFlag* genTriggerEventFlag_;
+  SiStripFolderOrganizer folderOrganizer_;                                                                                                                                                                                                                                   
 };
 #endif

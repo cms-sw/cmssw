@@ -1,0 +1,6 @@
+<environment>
+  <bin   file="runtestUtilAlgos.cpp">
+    <flags   TEST_RUNNER_ARGS=" /bin/bash PhysicsTools/UtilAlgos/test runtests.sh"/>
+    <use   name="FWCore/Utilities"/>
+  </bin>
+</environment>

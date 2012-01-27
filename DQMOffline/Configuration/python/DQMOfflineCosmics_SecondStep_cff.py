@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from CondTools.DQM.DQMReferenceHistogramRootFileEventSetupAnalyzer_cfi import *
-from DQMServices.Components.DQMMessageLoggerClient_cfi import *
+from DQMServices.Components.DQMMessageLoggerClient_cff import *
 from DQMServices.Components.DQMDcsInfoClient_cfi import *
 
 from DQMOffline.Ecal.ecal_dqm_client_offline_cosmic_cff import *
@@ -28,7 +28,7 @@ DQMOfflineCosmics_SecondStep_PreDPG = cms.Sequence( dqmDcsInfoClient *
 
 DQMOfflineCosmics_SecondStepDPG = cms.Sequence( dqmRefHistoRootFileGetter *
                                                 DQMOfflineCosmics_SecondStep_PreDPG *
-                                                DQMMessageLoggerClient )
+                                                DQMMessageLoggerClientSeq )
 
 from DQMOffline.Muon.muonQualityTests_cff import *
 from DQMOffline.EGamma.photonOfflineDQMClient_cff import *
@@ -42,10 +42,10 @@ DQMOfflineCosmics_SecondStep_PrePOG = cms.Sequence( cosmicMuonQualityTests *
  
 DQMOfflineCosmics_SecondStepPOG = cms.Sequence( dqmRefHistoRootFileGetter *
                                                 DQMOfflineCosmics_SecondStep_PrePOG *
-                                                DQMMessageLoggerClient )
+                                                DQMMessageLoggerClientSeq )
 
 DQMOfflineCosmics_SecondStep = cms.Sequence( dqmRefHistoRootFileGetter *
                                              DQMOfflineCosmics_SecondStep_PreDPG *
                                              DQMOfflineCosmics_SecondStep_PrePOG *
-                                             DQMMessageLoggerClient )
+                                             DQMMessageLoggerClientSeq )
 

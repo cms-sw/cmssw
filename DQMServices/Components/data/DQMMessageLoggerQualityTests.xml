@@ -1,0 +1,27 @@
+<TESTSCONFIGURATION>
+
+<QTEST name="XrangeWithin:Error">
+	<TYPE>ContentsXRange</TYPE>	
+	<PARAM name="xmin">-0.5</PARAM>
+	<PARAM name="xmax">0.5</PARAM>
+	<PARAM name="error">0.50</PARAM>
+	<PARAM name="warning">0.90</PARAM>
+	<PARAM name="useEmptyBins">1</PARAM>
+</QTEST>
+<QTEST name="XrangeWithin:Warning">
+	<TYPE>ContentsXRange</TYPE>	
+	<PARAM name="xmin">-0.5</PARAM>
+	<PARAM name="xmax">0.5</PARAM>
+	<PARAM name="error">0.50</PARAM>
+	<PARAM name="warning">0.90</PARAM>
+	<PARAM name="useEmptyBins">1</PARAM>
+</QTEST>
+
+<LINK name="*total_errors*">
+	<TestName activate="true">XrangeWithin:Error</TestName>
+</LINK>
+<LINK name="*total_warnings*">
+	<TestName activate="true">XrangeWithin:Warning</TestName>
+</LINK>
+</TESTSCONFIGURATION>
+

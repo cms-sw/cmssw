@@ -36,8 +36,8 @@ Ref: A template for a interproduct reference to a member of a product_.
      3) \b F: A helper class (a functor) which knows how to find a
      particular 'T' within the container given an appropriate key. The
      type of the key is deduced from F::second_argument. The default
-     for F is refhelper::FindTrait<C,T>::value.  If no specialization
-     of FindTrait<> is available for the combination (C,T) then it
+     for F is refhelper::FindTrait<C, T>::value.  If no specialization
+     of FindTrait<> is available for the combination (C, T) then it
      defaults to getting the iterator to be beginning of the container
      and using std::advance() to move to the appropriate key in the
      container.
@@ -55,15 +55,15 @@ Ref: A template for a interproduct reference to a member of a product_.
          // coll is an instance of type C
          // k    is an instance of type F::key_type
 
-         result_type r = f(coll,k);     
+         result_type r = f(coll, k);     
  
      If one wishes to make a specialized lookup the default lookup for
      the container/type pair then one needs to partially specialize
-     the templated class edm::refhelper::FindTrait<C,T> such that it
+     the templated class edm::refhelper::FindTrait<C, T> such that it
      has a typedef named 'value' which refers to the specialized
      helper class (i.e., F)
 
-     The class template Ref<C,T,F> supports 'null' references.
+     The class template Ref<C, T, F> supports 'null' references.
 
      -- a default-constructed Ref is 'null'; furthermore, it also
         has an invalid (or 'null') ProductID.
@@ -103,22 +103,22 @@ Ref: A template for a interproduct reference to a member of a product_.
     bool operator!() const;			// equivalent to !isNonnull()
     ----------------------------------------------------------------------*/ 
 
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
+#include "DataFormats/Common/interface/ConstPtrCache.h"
+#include "DataFormats/Common/interface/EDProductfwd.h"
+#include "DataFormats/Common/interface/EDProductGetter.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/OrphanHandle.h"
+#include "DataFormats/Common/interface/RefCore.h"
+#include "DataFormats/Common/interface/TestHandle.h"
+#include "DataFormats/Common/interface/traits.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
+
 #include "boost/functional.hpp"
 #include "boost/call_traits.hpp"
 #include "boost/type_traits.hpp"
 #include "boost/mpl/has_xxx.hpp"
 #include "boost/utility/enable_if.hpp"
-
-#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
-#include "DataFormats/Provenance/interface/ProductID.h"
-#include "DataFormats/Common/interface/EDProductGetter.h"
-#include "DataFormats/Common/interface/EDProductfwd.h"
-#include "DataFormats/Common/interface/traits.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/TestHandle.h"
-#include "DataFormats/Common/interface/OrphanHandle.h"
-#include "DataFormats/Common/interface/RefCore.h"
-#include "DataFormats/Common/interface/ConstPtrCache.h"
 
 BOOST_MPL_HAS_XXX_TRAIT_DEF(key_compare)
 
@@ -201,7 +201,7 @@ namespace edm {
     /// but have a pointer to a product getter (such as the EventPrincipal).
     /// prodGetter will ususally be a pointer to the event principal.
     Ref(ProductID const& productID, key_type itemKey, EDProductGetter const* prodGetter) :
-      product_(productID, 0, mustBeNonZero(prodGetter, "Ref", productID), false),index_(itemKey)  {
+      product_(productID, 0, mustBeNonZero(prodGetter, "Ref", productID), false), index_(itemKey) {
     }
 
     /// Constructor for use in the various X::fillView(...) functions.
@@ -211,16 +211,16 @@ namespace edm {
     //  Event. The given ProductID must be the id of the collection in
     //  the Event.
     
-    Ref(ProductID const& productID, T const* item, key_type item_key, C const* product ) :
-      product_(productID,product,0,false),index_(item_key)
+    Ref(ProductID const& iProductID, T const* /*item*/, key_type iItemKey, C const* iProduct) :
+      product_(iProductID, iProduct, 0, false), index_(iItemKey)
     { }
 
     /// Constructor that creates an invalid ("null") Ref that is
     /// associated with a given product (denoted by that product's
     /// ProductID).
 
-    explicit Ref(ProductID const& id) :
-      product_(id,0,0,false),index_(key_traits<key_type>::value)
+    explicit Ref(ProductID const& iId) :
+      product_(iId, 0, 0, false), index_(key_traits<key_type>::value)
     { }
 
     /// Constructor from RefProd<C> and key
@@ -270,9 +270,6 @@ namespace edm {
     /// Returns true if container referenced by the Ref has been cached
     bool hasProductCache() const {return product_.productPtr() != 0;}
 
-    /// Returns true if the referenced item from the container has been cached
-    bool hasCache() const {return product_.clientCache() != 0;}
-
     /// Checks if collection is in memory or available
     /// in the Event. No type checking is done.
     bool isAvailable() const {return product_.isAvailable();}
@@ -282,16 +279,12 @@ namespace edm {
 
     RefCore const& refCore() const {return product_;}
     
-    void setPtr(T const* iPtr) {
-      product_.mutableClientCache() = iPtr;
-    }
-    
     //Used by ROOT storage
     CMS_CLASS_VERSION(10)
-  private:
+    //  private:
     // Constructor from member of RefVector
-    Ref(RefCore const& refCore, key_type const& key) : 
-      product_(refCore), index_(key) {
+    Ref(RefCore const& iRefCore, key_type const& iKey) : 
+      product_(iRefCore), index_(iKey) {
     }
 
   private:
@@ -314,33 +307,33 @@ namespace edm {
   template <typename C, typename T, typename F>
   inline
   Ref<C, T, F>::Ref(Handle<C> const& handle, key_type itemKey, bool setNow) :
-      product_(handle.id(), handle.product(),0,false),index_(itemKey){
+      product_(handle.id(), handle.product(), 0, false), index_(itemKey){
     checkTypeAtCompileTime(handle.product());
     assert(key() == itemKey);
         
-    if (setNow) {product_.mutableClientCache()=getPtr_<C, T, F>(product_, index_);}
+    if (setNow) {getPtr_<C, T, F>(product_, index_);}
   }
 
   /// General purpose constructor from orphan handle.
   template <typename C, typename T, typename F>
   inline
   Ref<C, T, F>::Ref(OrphanHandle<C> const& handle, key_type itemKey, bool setNow) :
-  product_(handle.id(),handle.product(),0,false),index_(itemKey) {
+  product_(handle.id(), handle.product(), 0, false), index_(itemKey) {
     checkTypeAtCompileTime(handle.product());
     assert(key() == itemKey);
         
-    if (setNow) {product_.mutableClientCache()=getPtr_<C, T, F>(product_, index_);}
+    if (setNow) {getPtr_<C, T, F>(product_, index_);}
   }
 
   /// Constructor from RefVector and index into the collection
   template <typename C, typename T, typename F>
   inline
   Ref<C, T, F>::Ref(RefVector<C, T, F> const& refvector, key_type itemKey, bool setNow) :
-      product_(refvector.id(),refvector.product(),0,refvector.isTransient()),index_(itemKey) {
+      product_(refvector.id(), refvector.product(), 0, refvector.isTransient()), index_(itemKey) {
     checkTypeAtCompileTime(refvector.product());
     assert(key() == itemKey);
         
-    if (setNow) {product_.mutableClientCache()=getPtr_<C, T, F>(product_, index_);}
+    if (setNow) {getPtr_<C, T, F>(product_, index_);}
   }
 
   /// Constructor for refs to object that is not in an event.
@@ -352,12 +345,12 @@ namespace edm {
   //  and persistified.  It is this Ref itself that cannot be persistified.
   template <typename C, typename T, typename F>
   inline
-  Ref<C, T, F>::Ref(C const* product, key_type itemKey, bool setNow) :
-    product_(ProductID(),product,0,true),index_(product != 0 ? itemKey : key_traits<key_type>::value) {
-    checkTypeAtCompileTime(product);
-    assert(key() == (product != 0 ? itemKey : key_traits<key_type>::value));
+  Ref<C, T, F>::Ref(C const* iProduct, key_type iItemKey, bool iSetNow) :
+    product_(ProductID(), iProduct, 0, true), index_(iProduct != 0 ? iItemKey : key_traits<key_type>::value) {
+    checkTypeAtCompileTime(iProduct);
+    assert(key() == (iProduct != 0 ? iItemKey : key_traits<key_type>::value));
         
-    if (setNow && product != 0) {product_.mutableClientCache() = getPtr_<C, T, F>(product_, index_);}
+    if (iSetNow && iProduct != 0) {getPtr_<C, T, F>(product_, index_);}
   }
 
   /// constructor from test handle.
@@ -365,22 +358,19 @@ namespace edm {
   template <typename C, typename T, typename F>
   inline
   Ref<C, T, F>::Ref(TestHandle<C> const& handle, key_type itemKey, bool setNow) :
-      product_(handle.id(),handle.product(),0,true), index_(itemKey) {
+      product_(handle.id(), handle.product(), 0, true), index_(itemKey) {
     checkTypeAtCompileTime(handle.product());
     assert(key() == itemKey);
         
-    if (setNow) {product_.mutableClientCache() = getPtr_<C, T, F>(product_, index_);}
+    if (setNow) {getPtr_<C, T, F>(product_, index_);}
   }
 
   /// Constructor from RefProd<C> and key
   template <typename C, typename T, typename F>
   inline
   Ref<C, T, F>::Ref(RefProd<C> const& refProd, key_type itemKey) :
-      product_(refProd.id(),refProd.refCore().productPtr(),refProd.refCore().productGetter(),refProd.refCore().isTransient()),index_(itemKey) {
+      product_(refProd.id(), refProd.refCore().productPtr(), refProd.refCore().productGetter(), refProd.refCore().isTransient()), index_(itemKey) {
     assert(index() == itemKey);
-    if (0 != refProd.refCore().productPtr()) {
-      product_.mutableClientCache() =getPtr_<C, T, F>(product_, index_);
-    }
   }
 
   /// Accessor for product collection
@@ -397,7 +387,7 @@ namespace edm {
   inline
   T const&
   Ref<C, T, F>::operator*() const {
-    return *getPtr<C, T, F>(product_, index_, product_.mutableClientCache());
+    return *getPtr<C, T, F>(product_, index_);
   }
 
   /// Member dereference operator
@@ -405,14 +395,14 @@ namespace edm {
   inline
   T const*
   Ref<C, T, F>::operator->() const {
-    return getPtr<C, T, F>(product_, index_, product_.mutableClientCache());
+    return getPtr<C, T, F>(product_, index_);
   }
 
   template <typename C, typename T, typename F>
   inline
   bool
   operator==(Ref<C, T, F> const& lhs, Ref<C, T, F> const& rhs) {
-    return lhs.refCore() == rhs.refCore() && lhs.key() == rhs.key();
+    return lhs.key() == rhs.key() && lhs.refCore() == rhs.refCore() ;
   }
 
   template <typename C, typename T, typename F>
@@ -447,13 +437,13 @@ namespace edm {
 	typedef RefVector<typename REF::product_type,
 	                  typename REF::value_type, 
                        	  typename REF::finder_type> REFV;
-	return std::auto_ptr<BaseVectorHolder<T> >( new VectorHolder<T, REFV> );
+	return std::auto_ptr<BaseVectorHolder<T> >(new VectorHolder<T, REFV>);
       }
       static  std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() {
 	typedef RefVector<typename REF::product_type,
 	                  typename REF::value_type, 
                        	  typename REF::finder_type> REFV;
-	return std::auto_ptr<RefVectorHolderBase>( new RefVectorHolder<REFV> );
+	return std::auto_ptr<RefVectorHolderBase>(new RefVectorHolder<REFV>);
       }
     };
 
@@ -468,7 +458,7 @@ namespace edm {
 	typedef RefVector<typename REF::product_type,
 	                  typename REF::value_type, 
                          	typename REF::finder_type> REFV;
-	return std::auto_ptr<RefVectorHolderBase>( new RefVectorHolder<REFV> );
+	return std::auto_ptr<RefVectorHolderBase>(new RefVectorHolder<REFV>);
       }
     };
 
