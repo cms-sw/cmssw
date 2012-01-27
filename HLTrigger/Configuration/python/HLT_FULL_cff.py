@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_1_0/HLT/V13 (CMSSW_5_2_0_pre2_HLT13)
+# /dev/CMSSW_5_1_0/HLT/V14 (CMSSW_5_2_0_pre2_HLT13)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/HLT/V13')
+  tableName = cms.string('/dev/CMSSW_5_1_0/HLT/V14')
 )
 
 streams = cms.PSet( 
@@ -8228,7 +8228,7 @@ hltParticleFlowBlock = cms.EDProducer( "PFBlockProducer",
     verbose = cms.untracked.bool( False ),
     PFClustersPS = cms.InputTag( "hltParticleFlowClusterPS" ),
     usePFatHLT = cms.bool( True ),
-    PFClustersHO = cms.InputTag( "particleFlowClusterHO" ),
+    PFClustersHO = cms.InputTag( "hltParticleFlowClusterHO" ),
     useIterTracking = cms.bool( False ),
     useConvBremPFRecTracks = cms.bool( False ),
     useV0 = cms.bool( False ),
@@ -8240,7 +8240,7 @@ hltParticleFlowBlock = cms.EDProducer( "PFBlockProducer",
     pf_DPtoverPt_Cut = cms.vdouble( 0.5, 0.5, 0.5, 0.5, 0.5 ),
     GsfRecTracks = cms.InputTag( "" ),
     RecTracks = cms.InputTag( "hltLightPFTracks" ),
-    useHO = cms.bool( True ),
+    useHO = cms.bool( False ),
     PFNuclear = cms.InputTag( "" ),
     PFV0 = cms.InputTag( "" ),
     PhotonSelectionCuts = cms.vdouble(  ),
@@ -9350,7 +9350,7 @@ hltParticleFlowBlockForTaus = cms.EDProducer( "PFBlockProducer",
     verbose = cms.untracked.bool( False ),
     PFClustersPS = cms.InputTag( "hltParticleFlowClusterPS" ),
     usePFatHLT = cms.bool( True ),
-    PFClustersHO = cms.InputTag( "particleFlowClusterHO" ),
+    PFClustersHO = cms.InputTag( "hltParticleFlowClusterHO" ),
     useIterTracking = cms.bool( False ),
     useConvBremPFRecTracks = cms.bool( False ),
     useV0 = cms.bool( False ),
@@ -9362,7 +9362,7 @@ hltParticleFlowBlockForTaus = cms.EDProducer( "PFBlockProducer",
     pf_DPtoverPt_Cut = cms.vdouble( -1.0, -1.0, -1.0, -1.0, -1.0 ),
     GsfRecTracks = cms.InputTag( "" ),
     RecTracks = cms.InputTag( "hltLightPFTracks" ),
-    useHO = cms.bool( True ),
+    useHO = cms.bool( False ),
     PFNuclear = cms.InputTag( "" ),
     PFV0 = cms.InputTag( "" ),
     PhotonSelectionCuts = cms.vdouble(  ),
