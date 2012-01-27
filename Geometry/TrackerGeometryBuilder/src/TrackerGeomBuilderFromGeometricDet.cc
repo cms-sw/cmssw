@@ -34,6 +34,7 @@ namespace {
       for (int j=off; j!=end; ++j) {
 	assert(tg.detUnits()[j]->geographicalId().subdetId()==i);
 	assert(tg.detUnits()[j]->subDetector()==det);
+	assert(tg.detUnits()[j]->index()==j);
       }
     }
   }
