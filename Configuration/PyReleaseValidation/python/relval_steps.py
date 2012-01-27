@@ -108,6 +108,7 @@ step1['RunHI2011']={'INPUT':InputInfo(dataSet='/HIAllPhysics/HIRun2011A-v1/RAW',
 stCond={'--conditions':'auto:startup'}
 K9by25={'--relval':'9000,25'}
 K9by50={'--relval':'9000,50'}
+K90by500={'--relval':'9000,500'}
 K9by100={'--relval':'9000,100'}
 K9by250={'--relval':'9000,250'}
 K25by250={'--relval':'25000,250'}
@@ -127,6 +128,7 @@ step1['SingleMuPt10']=gen('SingleMuPt10_cfi',K25by250)
 step1['SingleMuPt100']=gen('SingleMuPt100_cfi',K9by250)
 step1['SingleMuPt1000']=gen('SingleMuPt1000_cfi',K9by100)
 step1['TTbar']=gen('TTbar_Tauola_7TeV_cfi',K9by50)
+step1['TTbarLepton']=gen('TTbarLepton_Tauola_7TeV_cfi',K90by500)
 step1['ZEE']=gen('ZEE_7TeV_cfi',K9by100)
 step1['Wjet_Pt_80_120']=gen('Wjet_Pt_80_120_7TeV_cfi',K9by100)
 step1['Wjet_Pt_3000_3500']=gen('Wjet_Pt_3000_3500_7TeV_cfi',K9by100)
@@ -403,6 +405,8 @@ dataReco={'--conditions':'auto:com10',
           '--process':'reRECO',
           '--scenario':'pp',
           }
+
+step2['HLTD']=merge([{'--process':'reHLT','-s':'HLT','--condition':'auto:hltonline','--data':'','--datatier':'RAW','--eventcontent':'RAW'},])
 step2['RECOD']=merge([{'--scenario':'pp',},dataReco])
 step2['RECOSKIMALCA']=merge([{'--inputCommands':'"keep *","drop *_*_*_RECO"'
                               },step2['RECOD']])
@@ -466,6 +470,7 @@ step3Defaults = { 'cfg'           : 'step3',
 step3 = {}
 step3['DIGIPU']=merge([{'cfg':'step3','--process':'REDIGI'},step2['DIGIPU1']])
 
+step3['RECODst3']=merge([{'--hltProcess':'reHLT'},step2['RECOD']])
 step3['RECO']=merge([step3Defaults])
 #step3['RECO2']=merge([stCond,step3Defaults])
 step3['RECOPROD1']=merge([{ '-s' : 'RAW2DIGI,L1Reco,RECO', '--datatier' : 'GEN-SIM-RECO,AODSIM', '--eventcontent' : 'RECOSIM,AODSIM'},step3Defaults])
