@@ -146,7 +146,6 @@ step1['SingleMuPt1000INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt1000/C
 step1['TTbarINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar/CMSSW_5_0_0_pre7-START50_V7-v2/GEN-SIM',location='STD')}
 step1['OldTTbarINPUT']={'INPUT':InputInfo(dataSet='/RelValProdTTbar/CMSSW_5_0_0_pre6-START50_V5-v1/GEN-SIM-RECO',location='STD')}
 step1['OldGenSimINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar/CMSSW_4_4_2-START44_V7-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',location='STD')}
-step1['ZEEINPUT']={'INPUT':InputInfo(dataSet='/RelValZEE/CMSSW_5_0_0_pre7-START50_V7-v2/GEN-SIM',location='STD')}
 step1['Wjet_Pt_80_120INPUT']={'INPUT':InputInfo(dataSet='/RelValWjet_Pt_80_120/CMSSW_5_0_0_pre7-START50_V7-v1/GEN-SIM',location='STD')}
 step1['Wjet_Pt_3000_3500INPUT']={'INPUT':InputInfo(dataSet='/RelValWjet_Pt_3000_3500/CMSSW_5_0_0_pre7-START50_V7-v1/GEN-SIM',location='STD')}
 step1['LM1_sftsINPUT']={'INPUT':InputInfo(dataSet='/RelValLM1_sfts/CMSSW_5_0_0_pre7-START50_V7-v1/GEN-SIM',location='STD')}
@@ -211,7 +210,7 @@ step1['JpsiMMINPUT']={'INPUT':InputInfo(dataSet='/RelValJpsiMM/CMSSW_5_0_0_pre7-
 step1['TTbar2INPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar/CMSSW_5_0_0_pre7-START50_V7-v1/GEN-SIM',location='STD')}
 step1['WEINPUT']={'INPUT':InputInfo(dataSet='/RelValWE/CMSSW_5_0_0_pre7-START50_V7-v1/GEN-SIM',location='STD')}
 step1['WMINPUT']={'INPUT':InputInfo(dataSet='/RelValWM/CMSSW_5_0_0_pre7-START50_V7-v1/GEN-SIM',location='STD')}
-step1['ZEEINPUT']={'INPUT':InputInfo(dataSet='/RelValZEE/CMSSW_5_0_0_pre7-START50_V7-v1/GEN-SIM',location='STD')}
+step1['ZEEINPUT']={'INPUT':InputInfo(dataSet='/RelValZEE/CMSSW_5_0_0_pre7-START50_V7-v2/GEN-SIM',location='STD')}
 step1['ZMMINPUT']={'INPUT':InputInfo(dataSet='/RelValZMM/CMSSW_5_0_0_pre7-START50_V7-v1/GEN-SIM',location='STD')}
 step1['ZTTINPUT']={'INPUT':InputInfo(dataSet='/RelValZTT/CMSSW_5_0_0_pre7-START50_V7-v1/GEN-SIM',location='STD')}
 step1['H130GGgluonfusionINPUT']={'INPUT':InputInfo(dataSet='/RelValH130GGgluonfusion/CMSSW_5_0_0_pre7-START50_V7-v1/GEN-SIM',location='STD')}
