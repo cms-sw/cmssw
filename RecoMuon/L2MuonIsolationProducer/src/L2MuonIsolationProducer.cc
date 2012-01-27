@@ -97,7 +97,7 @@ void L2MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
 
       if (optOutputDecision){
 	muonisolation::MuIsoBaseIsolator::DepositContainer isoContainer(1,muonisolation::MuIsoBaseIsolator::DepositAndVetos(&deps[i]));
-	isos[i] = theDepositIsolator->result( isoContainer, *tk ).valBool;
+	isos[i] = theDepositIsolator->result( isoContainer, *tk, &event ).valBool;
       }
   }
 

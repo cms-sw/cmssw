@@ -6,8 +6,8 @@
  *  This is the simplest definition possible, for isolation algorithms
  *  where the cut is directly on, e.g., the deposited energy.
  *
- *  $Date: 2007/03/30 08:44:34 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/11/14 02:11:20 $
+ *  $Revision: 1.2 $
  *  \author M. Konecki, N. Amapane
  */
 
@@ -40,7 +40,7 @@ public:
   virtual void setWeights(const std::vector<double>& weights) {theWeights=weights;}
 
   //! Compute the deposit within the cone and return the isolation result
-  virtual Result result(DepositContainer deposits) const;
+  virtual Result result(const DepositContainer& deposits, const edm::Event* = 0) const;
 
   //! Compute the count of deposit within the cone and return the isolation result
 /*   virtual int resultInt(DepositContainer deposits) const; */

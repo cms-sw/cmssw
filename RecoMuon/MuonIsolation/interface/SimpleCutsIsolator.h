@@ -16,20 +16,24 @@ class SimpleCutsIsolator : public muonisolation::MuIsoBaseIsolator {
 
   virtual ResultType resultType() const {return ISOL_BOOL_TYPE;}
 
-  virtual Result result(DepositContainer deposits) const {
+  virtual Result result(const DepositContainer& deposits, const edm::Event* = 0) const {
     Result answer(ISOL_BOOL_TYPE);
     answer.valBool = false;
     // fail miserably...
     return answer;
   }
 
-  virtual Result result(DepositContainer deposits, const reco::Track& tk) const {
+  virtual Result result(const DepositContainer& deposits, const reco::Track& tk, const edm::Event* = 0) const {
     Result answer(ISOL_BOOL_TYPE);
 
     muonisolation::Cuts::CutSpec cuts_here = theCuts(tk.eta());
     
     double conesize = cuts_here.conesize;
-    double dephlt = deposits.front().dep->depositWithin(conesize);
+    double dephlt = 0;
+    unsigned int nDeps = deposits.size();
+    for(unsigned int iDep = 0; iDep < nDeps; ++iDep ){
+      dephlt += deposits[iDep].dep->depositWithin(conesize);
+    }
     if (dephlt<cuts_here.threshold) {
       answer.valBool = true;
     } else {

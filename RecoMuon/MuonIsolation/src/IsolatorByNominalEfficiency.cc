@@ -59,7 +59,7 @@ string IsolatorByNominalEfficiency::findPath(const string&  fileName)
 }
 
 MuIsoBaseIsolator::Result
-IsolatorByNominalEfficiency::result(DepositContainer deposits) const{
+IsolatorByNominalEfficiency::result(const DepositContainer& deposits, const edm::Event*) const{
 
   if (deposits.size()==0) {
     cout << "IsolatorByNominalEfficiency: no deposit" << endl;

@@ -13,7 +13,7 @@ IsolatorByDepositCount::IsolatorByDepositCount(const ConeSizeFunction * conesize
   : theConeSizeFunction(conesize), theConeSize(0.), theDepThresholds(dThresh)
 { }
 
-MuIsoBaseIsolator::Result IsolatorByDepositCount::result(DepositContainer deposits) const{
+MuIsoBaseIsolator::Result IsolatorByDepositCount::result(const DepositContainer& deposits, const edm::Event*) const{
   if (deposits.empty()) return Result(resultType());
   if (deposits.size()>1){    return Result(ISOL_INVALID_TYPE);
   }

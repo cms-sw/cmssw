@@ -6,7 +6,7 @@
  *  This is the simplest definition possible, for isolation algorithms
  *  where the cut is directly on, e.g., the deposited energy.
  *
- *  $Date: 2007/03/30 08:44:34 $
+ *  $Date: 2007/11/14 02:07:01 $
  *  $Revision: 1.1 $
  *  \author M. Konecki, N. Amapane
  */
@@ -31,7 +31,7 @@ public:
   virtual ~IsolatorByDepositCount() {}
 
   //! Compute the deposit within the cone and return the isolation result
-  virtual Result result(DepositContainer deposits) const;
+  virtual Result result(const DepositContainer& deposits, const edm::Event* = 0) const;
 
 
   void setConeSize(float conesize) { theConeSize = conesize; theConeSizeFunction = 0;} 

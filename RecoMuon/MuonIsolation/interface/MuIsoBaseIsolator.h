@@ -2,6 +2,8 @@
 #define MuonIsolation_MuIsoBaseIsolator_H
 
 #include <vector>
+#include "FWCore/Framework/interface/Event.h"
+
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -49,13 +51,13 @@ namespace muonisolation {
     virtual ~MuIsoBaseIsolator(){}
 
     //! Compute and return the isolation variable
-    virtual Result result(DepositContainer deposits) const = 0;
+    virtual Result result(const DepositContainer& deposits, const edm::Event* = 0) const = 0;
     //! Compute and return the isolation variable, with vetoes and the muon
-    virtual Result result(DepositContainer deposits, const reco::Candidate& muon) const {
+    virtual Result result(const DepositContainer& deposits, const reco::Candidate& muon, const edm::Event* = 0) const {
       return result(deposits);
     }
     //! Compute and return the isolation variable, with vetoes and the muon
-    virtual Result result(DepositContainer deposits, const reco::Track& muon) const {
+    virtual Result result(const DepositContainer& deposits, const reco::Track& muon, const edm::Event* = 0) const {
       return result(deposits);
     }
 

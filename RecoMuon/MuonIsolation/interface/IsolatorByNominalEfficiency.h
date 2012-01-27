@@ -6,7 +6,7 @@
  *  defined so that a cut at a value X will give X efficiency
  *  on the reference signal (W->munu). See CMS/Note 2002/040 for details.
  *
- *  $Date: 2007/03/30 08:41:52 $
+ *  $Date: 2007/11/14 02:11:21 $
  *  \author M. Konecki, N. Amapane
  */
 
@@ -35,7 +35,7 @@ namespace muonisolation {
     virtual ~IsolatorByNominalEfficiency();
 
     //! Compute the deposit within the cone and return the isolation result
-    virtual Result result(DepositContainer deposits) const;
+    virtual Result result(const DepositContainer& deposits, const edm::Event* = 0) const;
 
     Cuts cuts(float nominalEfficiency) const;
 

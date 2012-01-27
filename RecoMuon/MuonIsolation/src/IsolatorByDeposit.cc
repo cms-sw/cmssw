@@ -27,7 +27,7 @@ IsolatorByDeposit::IsolatorByDeposit(const ConeSizeFunction * conesize,
     theDepThresholds(dThresh)
 { }
 
-MuIsoBaseIsolator::Result IsolatorByDeposit::result(DepositContainer deposits) const{
+MuIsoBaseIsolator::Result IsolatorByDeposit::result(const DepositContainer& deposits, const edm::Event*) const{
   if (deposits.empty()) return Result(resultType());
 
   // To determine the threshold, the direction of the cone of the first
