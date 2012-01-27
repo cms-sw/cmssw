@@ -68,6 +68,7 @@ if __name__ == '__main__':
         session.transaction().start(True)
         schema=session.nominalSchema()
         allfillsFromDB=lumiCalcAPI.fillInRange(schema,fillmin=MINFILL,fillmax=maxfillnum,amodetag=options.amodetag)
+        session.transaction().commit()
         processedfills=listfilldir(options.outputdir)
         lastcompletedFill=lastcompleteFill(os.path.join(options.inputdir,'runtofill_dqm.txt'))
         for pf in processedfills:
@@ -81,7 +82,6 @@ if __name__ == '__main__':
                         fillstoprocess.append(fill)
                 else:
                     print 'ongoing fill...',fill
-        session.transaction().start(True)
     print 'fills to process : ',fillstoprocess
     if len(fillstoprocess)==0:
         print 'no fill to process, exit '
