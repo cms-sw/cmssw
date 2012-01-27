@@ -326,12 +326,6 @@ int SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input, bool modo
       int col = di->column(); // column 
       int row = di->row();    // row
       numberOfDigisMod++;
-      bool isHalfModule = false;
-      uint32_t DBladder = 0;
-      if(barrel){
-        isHalfModule = PixelBarrelName(DetId(id_)).isHalfModule(); 
-        DBladder = PixelBarrelName(DetId(id_)).ladderName();
-      }
       PixelBarrelName::Shell DBshell = PixelBarrelName(DetId(id_)).shell();
       int DBlayer  = PixelBarrelName(DetId(id_)).layerName();
       int DBmodule = PixelBarrelName(DetId(id_)).moduleName();
