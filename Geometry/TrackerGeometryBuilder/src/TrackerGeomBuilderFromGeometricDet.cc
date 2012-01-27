@@ -20,10 +20,25 @@
 
 
 #include <cfloat>
-
+#include <cassert>
 using std::vector;
 using std::string;
 
+namespace {
+  void verifyDUinTG(TrackerGeometry const & tg) {
+    int off=0; int size=0;
+    for ( int i=1; i!=7; i++) {
+      auto det = GeomDetEnumerators::tkDetEnum[i];
+      assert(size==(tg.offsetDU(det)-off)); // from the previous loop
+      off = tg.offsetDU(det);
+      size = tg.sizeDU(det); assert(size>0);
+      for (int j=0; j!=size; ++j) {
+	assert(tg.detUnits()[off+j]->geographicalId().subdetId()==i);
+	assert(tg.detUnits()[off+j]->subDetector()==det);
+      }
+    }
+  }
+}
 
 TrackerGeometry* TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd){
 
@@ -53,6 +68,9 @@ TrackerGeometry* TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* 
   buildSilicon(tob,tracker,theDetIdToEnum.type(5), "barrel");//"TOB"	
   buildSilicon(tec,tracker,theDetIdToEnum.type(6), "endcap");//"TEC"        
   buildGeomDet(tracker);//"GeomDet"
+
+  verifyDUinTG(*tracker);
+
   return tracker;
 }
 
