@@ -446,10 +446,10 @@ TrackClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       Handle<std::vector<reco::Track> > tracks; 
       iEvent.getByLabel(trajectories_, tracks);
-      TrajectoryStateTransform transform;
+      //TrajectoryStateTransform transform;
       foreach (const reco::Track &track, *tracks) 
 	{
-	  FreeTrajectoryState atVtx = transform.innerFreeState(track, &*magfield_);
+	  FreeTrajectoryState atVtx   =  trajectoryStateTransform::innerFreeState(track, &*magfield_);
 	  trackingRecHit_iterator it_hit = track.recHitsBegin(), ed_hit = track.recHitsEnd();
 	  for (; it_hit != ed_hit; ++it_hit) 
 	    {
