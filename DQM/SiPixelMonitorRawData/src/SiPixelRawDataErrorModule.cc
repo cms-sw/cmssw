@@ -171,7 +171,7 @@ int SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>
       int chanNmbr = 0;
       int errorType = di->getType();               // type of error
       int TBMType=-1; int TBMMessage=-1; int evtSize=-1; int evtNbr=-1; int fullType=-1;
-      bool notReset = true;
+      //bool notReset = true;
       const int LINK_bits = 6;
       const int LINK_shift = 26;
       const uint32_t LINK_mask = ~(~(uint32_t)(0) << LINK_bits);
@@ -234,7 +234,7 @@ int SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>
 	    if (T5==1) TBMMessage=5;
 	    if (T6==1) TBMMessage=6;
 	    if (T7==1) TBMMessage=7;
-	    if(TBMMessage==5 || TBMMessage==6) notReset=false;
+	    //if(TBMMessage==5 || TBMMessage==6) notReset=false;
 	    int StateMach_bits      = 4;
 	    int StateMach_shift     = 8;
 	    uint32_t StateMach_mask = ~(~uint32_t(0) << StateMach_bits);
@@ -570,7 +570,7 @@ int SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataErr
       if(FedId==static_cast<int>(id_)) {
 	errorType = di->getType();               // type of error
 	(meErrorType_)->Fill((int)errorType);
-	bool notReset=true;
+	//bool notReset=true;
         int TBMType=-1; int TBMMessage=-1; int evtSize=-1; int fullType=-1;
         const int LINK_bits = 6;
         const int LINK_shift = 26;
@@ -646,7 +646,7 @@ int SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataErr
 	      if (T6==1) { TBMMessage=6; (meTBMMessage_)->Fill((int)TBMMessage); }
 	      if (T7==1) { TBMMessage=7; (meTBMMessage_)->Fill((int)TBMMessage); }
 	    }
-	    if(TBMMessage==5 || TBMMessage==6) notReset=false;
+	    //if(TBMMessage==5 || TBMMessage==6) notReset=false;
 	    int StateMach_bits      = 4;
 	    int StateMach_shift     = 8;
 	    uint32_t StateMach_mask = ~(~uint32_t(0) << StateMach_bits);
