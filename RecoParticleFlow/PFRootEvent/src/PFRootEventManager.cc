@@ -13,7 +13,7 @@
 #include "DataFormats/FWLite/interface/ChainEvent.h"
 
 #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterAlgo.h"
-#include "RecoParticleFlow/PFProducer/interface/PFGeometry.h"
+#include "RecoParticleFlow/PFTracking/interface/PFGeometry.h"
 
 #include "RecoParticleFlow/PFRootEvent/interface/PFRootEventManager.h"
 
