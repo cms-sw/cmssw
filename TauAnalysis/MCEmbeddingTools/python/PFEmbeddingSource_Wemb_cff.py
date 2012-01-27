@@ -33,8 +33,8 @@ adaptedMuonsFromWmunu = cms.EDProducer("PATMuonMETAdapter",
    patMet = cms.untracked.InputTag("patMETsPFlow")
 )
 
-
-dimuonsGlobal = cms.EDProducer('ZmumuPFEmbedder',
+# Removes input muon from tracks and PF candidate collections
+removedInputMuons = cms.EDProducer('ZmumuPFEmbedder',
     tracks = cms.InputTag("generalTracks"),
     selectedMuons = cms.InputTag("adaptedMuonsFromWmunu","zMusExtracted"),
     keepMuonTrack = cms.bool(False)
@@ -43,4 +43,4 @@ dimuonsGlobal = cms.EDProducer('ZmumuPFEmbedder',
 generator = newSource.clone()
 generator.src = cms.InputTag("adaptedMuonsFromWmunu","zMusExtracted")
 
-ProductionFilterSequence = cms.Sequence(adaptedMuonsFromWmunu*dimuonsGlobal*generator*filterEmptyEv)
+ProductionFilterSequence = cms.Sequence(adaptedMuonsFromWmunu*removedInputMuons*generator*filterEmptyEv)

@@ -55,7 +55,7 @@ def customise(process):
   process.TFileService = cms.Service("TFileService",  fileName = cms.string("histo_reconstruction.root")          )
 
   process.tmfTracks = cms.EDProducer("RecoTracksMixer",
-      trackCol1 = cms.InputTag("dimuonsGlobal"),
+      trackCol1 = cms.InputTag("removedInputMuons","tracks"),
       trackCol2 = cms.InputTag("generalTracks","","SELECTandSIM")
   )  
 
@@ -80,7 +80,7 @@ def customise(process):
   print "Changing eventcontent to AODSIM + misc "
   outputModule.outputCommands = process.AODSIMEventContent.outputCommands
   keepMC = cms.untracked.vstring("keep *_*_zMusExtracted_*",
-                                 "keep *_dimuonsGlobal_*_*",
+                                 "keep *_removedInputMuons_*_*",
                                  "keep *_generator_*_*",
                                  "keep *_tmfTracks_*_SELECTandSIM",
                                  "keep *_offlinePrimaryVertices_*_SELECTandSIM",
@@ -117,7 +117,7 @@ def customise(process):
     raise "Cannot find tracking sequence"
 
   process.particleFlow =  cms.EDProducer('PFCandidateMixer',
-          col1 = cms.untracked.InputTag("dimuonsGlobal","forMixing"),
+          col1 = cms.untracked.InputTag("removedInputMuons","pfCands"),
           col2 = cms.untracked.InputTag("particleFlowORG", "")
   )
 

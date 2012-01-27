@@ -36,7 +36,7 @@ def customise(process):
 
   keepMC = cms.untracked.vstring("keep *_*_zMusExtracted_*",
                                  "keep *_*_zmmCands_*",
-                                 "keep *_dimuonsGlobal_*_*",
+                                 "keep *_removedInputMuons_*_*",
                                  "keep *_generator_*_*",
                                  "keep *_PhotonIDProd_*_*",
                                  "keep *_photons_*_*",

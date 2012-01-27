@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Wed Dec  9 16:14:56 CET 2009
-// $Id: ZmumuPFEmbedder.cc,v 1.10 2010/11/23 08:00:46 mkortela Exp $
+// $Id: ZmumuPFEmbedder.cc,v 1.11 2010/11/29 16:35:17 zeise Exp $
 //
 //
 
@@ -55,6 +55,7 @@ class ZmumuPFEmbedder : public edm::EDProducer {
    private:
       virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
+      void producePFCandColl(edm::Event&, const std::vector< reco::Particle::LorentzVector > * toBeAdded );
       void produceTrackColl(edm::Event&, const std::vector< reco::Particle::LorentzVector > * toBeAdded );
       virtual void endJob() ;
       
@@ -85,8 +86,8 @@ ZmumuPFEmbedder::ZmumuPFEmbedder(const edm::ParameterSet& iConfig)
 
    //register your products
    // produces< std::vector< reco::Muon >  >("zMusExtracted"); // 
-   produces<reco::TrackCollection>();
-   produces< std::vector< reco::PFCandidate >  >("forMixing");
+   produces<reco::TrackCollection>("tracks");
+   produces< std::vector< reco::PFCandidate >  >("pfCands");
 
    
 }
@@ -108,16 +109,6 @@ ZmumuPFEmbedder::~ZmumuPFEmbedder()
 void
 ZmumuPFEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
-   using namespace reco;
-		
-   Handle<PFCandidateCollection> pfIn;
-   iEvent.getByLabel("particleFlow",pfIn);
-
-   //std::auto_ptr<std::vector< reco::Muon > > pOut(new std::vector< reco::Muon  > );
-   std::auto_ptr<std::vector< reco::PFCandidate > > forMix(new std::vector< reco::PFCandidate  > );   
-   
-   //get selected muons
    std::vector< reco::Particle::LorentzVector > toBeAdded;
    
    if (_useCombinedCandidate)
@@ -138,14 +129,27 @@ ZmumuPFEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    if (toBeAdded.size() == 0)
       return;
 
+   producePFCandColl(iEvent, &toBeAdded);
+   produceTrackColl(iEvent, &toBeAdded);
+}
+
+// produces clean PFCandidate collection w/o muon candidates.
+void ZmumuPFEmbedder::producePFCandColl(edm::Event & iEvent, const std::vector< reco::Particle::LorentzVector > * toBeAdded )
+{
+   edm::Handle<reco::PFCandidateCollection> pfIn;
+   iEvent.getByLabel("particleFlow",pfIn);
+
    //std::vector< reco::Muon > toBeAdded;
    // TODO - check col size
    //reco::Muon l1 = *(toBeAdded->begin());
    //reco::Muon l2 = *(toBeAdded->rbegin());
    
+   std::auto_ptr<std::vector< reco::PFCandidate > > newCol(new std::vector< reco::PFCandidate  > );   
+   
+   //get selected muons
    // iterate over pfcandidates, make copy if its not a selected muon
-   PFCandidateConstIterator it = pfIn->begin();
-   PFCandidateConstIterator itE = pfIn->end();
+   reco::PFCandidateConstIterator it = pfIn->begin();
+   reco::PFCandidateConstIterator itE = pfIn->end();
 
    for (;it!=itE;++it) {
      int pdg = std::abs( it->pdgId() );
@@ -154,8 +158,8 @@ ZmumuPFEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      double dr1 = reco::deltaR( *it, l1); 
      double dr2 = reco::deltaR( *it, l2); 
      */
-     std::vector< reco::Particle::LorentzVector >::const_iterator itSelectedMu = toBeAdded.begin();
-     std::vector< reco::Particle::LorentzVector >::const_iterator itSelectedMuE = toBeAdded.end();
+     std::vector< reco::Particle::LorentzVector >::const_iterator itSelectedMu = toBeAdded->begin();
+     std::vector< reco::Particle::LorentzVector >::const_iterator itSelectedMuE = toBeAdded->end();
      for (; itSelectedMu != itSelectedMuE; ++itSelectedMu ){
        double dr = reco::deltaR( *it, *itSelectedMu);
        if (dr < minDR)  minDR = dr;
@@ -166,21 +170,14 @@ ZmumuPFEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        
        
      } else {
-       forMix->push_back(*it);
+       newCol->push_back(*it);
      }
    }
 
-
-
-   produceTrackColl(iEvent, &toBeAdded);
-   iEvent.put(forMix, "forMixing");
-
-
-   
+   iEvent.put(newCol, "pfCands");
 }
 
-
-// produces clean track collection wo muon tracks.
+// produces clean track collection w/o muon tracks.
 void ZmumuPFEmbedder::produceTrackColl(edm::Event & iEvent, const std::vector< reco::Particle::LorentzVector > * toBeAdded )
 {
    edm::Handle<reco::TrackCollection> tks;
@@ -209,8 +206,7 @@ void ZmumuPFEmbedder::produceTrackColl(edm::Event & iEvent, const std::vector< r
    }
    if (nMatched!=toBeAdded->size() ) std::cout << "TTT ARGGGHGH " << nMatched << std::endl;
 
-   iEvent.put(newCol);
-
+   iEvent.put(newCol, "tracks");
 }
 // ------------ method called once each job just before starting event loop  ------------
 void 

@@ -45,7 +45,8 @@ filterEmptyEv = cms.EDFilter("EmptyEventsFilter",
 #inputColl = cms.InputTag("adaptedMuonsFromDiTauCands","zMusExtracted")
 inputColl = cms.InputTag("goldenZmumuCandidatesGe2IsoMuons")
 
-dimuonsGlobal = cms.EDProducer('ZmumuPFEmbedder',
+# Removes input muons from tracks and PF candidate collections
+removedInputMuons = cms.EDProducer('ZmumuPFEmbedder',
     tracks = cms.InputTag("generalTracks"),
     selectedMuons = inputColl,
     keepMuonTrack = cms.bool(False),
@@ -55,6 +56,6 @@ dimuonsGlobal = cms.EDProducer('ZmumuPFEmbedder',
 generator = newSource.clone()
 generator.src = inputColl
 
-#ProductionFilterSequence = cms.Sequence(adaptedMuonsFromDiTauCands*dimuonsGlobal*generator*filterEmptyEv)
-ProductionFilterSequence = cms.Sequence(dimuonsGlobal*generator*filterEmptyEv)
+#ProductionFilterSequence = cms.Sequence(adaptedMuonsFromDiTauCands*removedInputMuons*generator*filterEmptyEv)
+ProductionFilterSequence = cms.Sequence(removedInputMuons*generator*filterEmptyEv)
 #ProductionFilterSequence = cms.Sequence(generator)

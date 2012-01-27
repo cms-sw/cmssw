@@ -65,7 +65,7 @@ def customise(process):
 
   keepMC = cms.untracked.vstring("keep *_*_zMusExtracted_*",
                                  "keep *_*_zmmCands_*",
-                                 "keep *_dimuonsGlobal_*_*",
+                                 "keep *_removedInputMuons_*_*",
                                  "keep *_generator_*_*",
                                  "keep *_PhotonIDProd_*_*",
                                  "keep *_photons_*_*",
@@ -208,7 +208,7 @@ def customise(process):
 
 
   process.tmfTracks = cms.EDProducer("RecoTracksMixer",
-      trackCol1 = cms.InputTag("dimuonsGlobal"),
+      trackCol1 = cms.InputTag("removedInputMuons","tracks"),
       trackCol2 = cms.InputTag("generalTracks","","EmbeddedRECO")
   )  
 
@@ -266,7 +266,7 @@ def customise(process):
     raise "Cannot find tracking sequence"
 
   process.particleFlow =  cms.EDProducer('PFCandidateMixer',
-          col1 = cms.untracked.InputTag("dimuonsGlobal","forMixing"),
+          col1 = cms.untracked.InputTag("removedInputMuons","pfCands"),
           col2 = cms.untracked.InputTag("particleFlowORG", ""),
           trackCol = cms.untracked.InputTag("tmfTracks")
   )
