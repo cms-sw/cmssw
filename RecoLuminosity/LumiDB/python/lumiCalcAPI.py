@@ -363,26 +363,48 @@ def instCalibratedLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,e
             timestamp=perlsdata[2]
             bs=perlsdata[3]
             beamenergy=perlsdata[4]
-            calibratedlumi=perlsdata[5]*normval            
+            avglumi=perlsdata[5]*normval
+            calibratedlumi=avglumi
+            bxdata=perlsdata[9]
             if finecorrections and finecorrections[run]:
                 if usecorrectionv2:
                     if driftcorrections and driftcorrections[run]:
-                        calibratedlumi=lumiCorrections.applyfinecorrectionV2(calibratedlumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],driftcorrections[run])
+                        calibratedlumi=lumiCorrections.applyfinecorrectionV2(avglumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],driftcorrections[run])
                     else:
-                        calibratedlumi=lumiCorrections.applyfinecorrectionV2(calibratedlumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],1.0)
+                        calibratedlumi=lumiCorrections.applyfinecorrectionV2(avglumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],1.0)
                 else:
-                    calibratedlumi=lumiCorrections.applyfinecorrection(calibratedlumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])
+                    calibratedlumi=lumiCorrections.applyfinecorrection(avglumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])
             calibratedlumierr=perlsdata[6]*normval
             startorbit=perlsdata[7]
             numorbit=perlsdata[8]
+            bxidxlistResult=[]
+            bxvaluelistResult=[]
+            bxerrorlistResult=[]
             calibratedbxdata=None
             beamdata=None
             if withBXInfo:
-                bxdata=perlsdata[9]
                 if bxdata:
-                    calibratedbxdata=(bxdata[0],[x*perbunchnormval for x in bxdata[1]],[x*perbunchnormval for x in bxdata[2]])
+                    bxidxlist=bxdata[0]
+                    bxvaluelist=bxdata[1]
+                    #avglumiBX=sum(bxvaluelist)*normval*1.0e-03
+                    bxlumierrlist=bxdata[2]
+                    for idx,bxidx in enumerate(bxidxlist):
+                        bxval=bxvaluelist[idx]
+                        bxlumierr=bxlumierrlist[idx]
+                        if finecorrections and finecorrections[run]:
+                            if usecorrectionv2:
+                                if driftcorrections and driftcorrections[run]:
+                                    mybxval=lumiCorrections.applyfinecorrectionBXV2(bxval,avglumi,perbunchnormval,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],driftcorrections[run])
+                                else:
+                                    mybxval=lumiCorrections.applyfinecorrectionBXV2(bxval,avglumi,perbunchnormval,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],1.0)
+                            else:
+                                mybxval=lumiCorrections.applyfinecorrectionBX(bxval,avglumi,perbunchnormval,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])
+                        bxidxlistResult.append(bxidx)
+                        bxvaluelistResult.append(mybxval)
+                        bxerrorlistResult.append(bxlumierr*perbunchnormval)#no correciton on errors
                     del bxdata[1][:]
                     del bxdata[2][:]
+            calibratedbxdata=(bxidxlistResult,bxvaluelistResult,bxerrorlistResult)
             if withBeamIntensity:
                 beamdata=perlsdata[10]                
             result[run].append([lumilsnum,cmslsnum,timestamp,bs,beamenergy,calibratedlumi,calibratedlumierr,startorbit,numorbit,calibratedbxdata,beamdata])
@@ -543,9 +565,9 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
             if finecorrections and finecorrections[run]:
                 if usecorrectionv2:
                     if driftcorrections and driftcorrections[run]:
-                        calibratedlumi=lumiCorrections.applyfinecorrectionV2(calibratedlumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],driftcorrections[run])
+                        calibratedlumi=lumiCorrections.applyfinecorrectionV2(avglumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],driftcorrections[run])
                     else:
-                        calibratedlumi=lumiCorrections.applyfinecorrectionV2(calibratedlumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],1.0)
+                        calibratedlumi=lumiCorrections.applyfinecorrectionV2(avglumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],1.0)
                 else:
                     calibratedlumi=lumiCorrections.applyfinecorrection(avglumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])
             calibratedlumierror=instlumierror*normval
@@ -694,15 +716,16 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
                 recordedlumi=0.0
             instlumi=perlsdata[1]
             instlumierror=perlsdata[2]
-            calibratedlumi=instlumi*normval
+            avglumi=instlumi*normval
+            calibratedlumi=avglumi 
             if finecorrections and finecorrections[run]:
                 if usecorrectionv2:
                     if driftcorrections and driftcorrections[run]:
-                        calibratedlumi=lumiCorrections.applyfinecorrectionV2(calibratedlumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],driftcorrections[run])
+                        calibratedlumi=lumiCorrections.applyfinecorrectionV2(avglumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],driftcorrections[run])
                     else:
-                        calibratedlumi=lumiCorrections.applyfinecorrectionV2(calibratedlumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],1.0)
+                        calibratedlumi=lumiCorrections.applyfinecorrectionV2(avglumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],1.0)
                 else:
-                    calibratedlumi=lumiCorrections.applyfinecorrection(calibratedlumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])
+                    calibratedlumi=lumiCorrections.applyfinecorrection(avglumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])
             calibratedlumierror=instlumierror*normval
             bstatus=perlsdata[4]
             begev=perlsdata[5]
