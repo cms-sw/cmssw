@@ -20,6 +20,8 @@
 #include "RecoTauTag/HLTProducers/interface/L2TauModularIsolationSelector.h"
 #include "RecoTauTag/HLTProducers/interface/TauJetSelectorForHLTTrackSeeding.h"
 //#include "RecoTauTag/HLTProducers/interface/PFJetIsolator.h"
+#include "RecoTauTag/HLTProducers/interface/PFTauVertexSelector.h"
+#include "RecoTauTag/HLTProducers/interface/VertexFromTrackProducer.h"
 
 
 
@@ -44,3 +46,5 @@ DEFINE_FWK_MODULE(L2TauIsolationSelector);
 DEFINE_FWK_MODULE(L2TauRelaxingIsolationSelector);
 DEFINE_FWK_MODULE(TauJetSelectorForHLTTrackSeeding);
 //DEFINE_FWK_MODULE(PFJetIsolator);
+DEFINE_FWK_MODULE(PFTauVertexSelector);
+DEFINE_FWK_MODULE(VertexFromTrackProducer);
