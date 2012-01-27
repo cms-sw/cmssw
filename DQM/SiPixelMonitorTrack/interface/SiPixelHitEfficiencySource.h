@@ -69,6 +69,15 @@ class SiPixelHitEfficiencySource : public edm::EDAnalyzer {
     std::map<uint32_t, SiPixelHitEfficiencyModule*> theSiPixelStructure;
     
     int nmissing,nvalid; 
+    
+    int nvtx_;
+    int vtxntrk_;
+    double vtxD0_;
+    double vtxX_;
+    double vtxY_;
+    double vtxZ_;
+    double vtxndof_;
+    double vtxchi2_;
 
 };
 

@@ -10,5 +10,6 @@
 <use   name="Geometry/Records"/>
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="TrackingTools/TrackFitters"/>
+<use   name="RecoTracker/MeasurementDet"/>
 <use   name="boost"/>
 <flags   EDM_PLUGIN="1"/>
