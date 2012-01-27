@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 hltEgammaRegionalCTFFinalFitWithMaterial = cms.EDProducer("TrackProducer",
+    MeasurementTracker = cms.string( "" ),
+    NavigationSchool = cms.string( "" ),
     src = cms.InputTag("hltEgammaRegionalCkfTrackCandidates"),
     clusterRemovalInfo = cms.InputTag(""),
     beamSpot = cms.InputTag("offlineBeamSpot"),
