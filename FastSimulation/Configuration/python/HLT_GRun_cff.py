@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_1_0/GRun/V6 (CMSSW_5_2_0_pre2_HLT6)
+# /dev/CMSSW_5_1_0/GRun/V7 (CMSSW_5_2_0_pre2_HLT13)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V6')
+  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V7')
 )
 
 hltESSBTagRecord = cms.ESSource( "EmptyESSource",
@@ -3056,9 +3056,11 @@ hltL2MuonSeeds = cms.EDProducer( "L2MuonSeedGenerator",
     ),
     InputObjects = cms.InputTag( "l1extraParticles" ),
     L1MaxEta = cms.double( 2.5 ),
+    OfflineSeedLabel = cms.untracked.InputTag( "hltL2OfflineMuonSeeds" ),
     L1MinPt = cms.double( 0.0 ),
     L1MinQuality = cms.uint32( 1 ),
     GMTReadoutCollection = cms.InputTag( "gmtDigis" ),
+    UseOfflineSeed = cms.untracked.bool( False ),
     Propagator = cms.string( "SteppingHelixPropagatorAny" )
 )
 hltL2Muons = cms.EDProducer( "L2MuonProducer",
@@ -4140,17 +4142,19 @@ hltParticleFlowBlock = cms.EDProducer( "PFBlockProducer",
     verbose = cms.untracked.bool( False ),
     PFClustersPS = cms.InputTag( "hltParticleFlowClusterPS" ),
     usePFatHLT = cms.bool( True ),
+    PFClustersHO = cms.InputTag( "particleFlowClusterHO" ),
     useIterTracking = cms.bool( False ),
     useConvBremPFRecTracks = cms.bool( False ),
     useV0 = cms.bool( False ),
-    RecTracks = cms.InputTag( "hltLightPFTracks" ),
+    useNuclear = cms.bool( False ),
     EGPhotons = cms.InputTag( "" ),
     ConvBremGsfRecTracks = cms.InputTag( "" ),
     useKDTreeTrackEcalLinker = cms.bool( True ),
+    useConvBremGsfTracks = cms.bool( False ),
     pf_DPtoverPt_Cut = cms.vdouble( 0.5, 0.5, 0.5, 0.5, 0.5 ),
     GsfRecTracks = cms.InputTag( "" ),
-    useNuclear = cms.bool( False ),
-    useConvBremGsfTracks = cms.bool( False ),
+    RecTracks = cms.InputTag( "hltLightPFTracks" ),
+    useHO = cms.bool( True ),
     PFNuclear = cms.InputTag( "" ),
     PFV0 = cms.InputTag( "" ),
     PhotonSelectionCuts = cms.vdouble(  ),
@@ -4175,6 +4179,7 @@ hltParticleFlow = cms.EDProducer( "PFProducer",
     minDeltaMet = cms.double( 0.4 ),
     minSignificanceReduction = cms.double( 1.4 ),
     muon_HCAL = cms.vdouble( 3.0, 3.0 ),
+    muon_HO = cms.vdouble( 0.9, 0.9 ),
     postHFCleaning = cms.bool( False ),
     factors_45 = cms.vdouble( 10.0, 100.0 ),
     cleanedHF = cms.VInputTag( 'hltParticleFlowRecHitHCAL:Cleaned','hltParticleFlowClusterHFHAD:Cleaned','hltParticleFlowClusterHFEM:Cleaned' ),
@@ -4204,7 +4209,7 @@ hltParticleFlow = cms.EDProducer( "PFProducer",
     calibPFSCEle_barrel = cms.vdouble( 1.004, -1.536, 22.88, -1.467, 0.3555, 0.6227, 14.65, 2051.0, 25.0, 0.9932, -0.5444, 0.0, 0.5438, 0.7109, 7.645, 0.2904, 0.0 ),
     pf_electron_mvaCut = cms.double( -0.1 ),
     useEGammaElectrons = cms.bool( False ),
-    pt_Error = cms.double( 1.0 ),
+    useHO = cms.bool( False ),
     nsigma_TRACK = cms.double( 1.0 ),
     pf_electron_output_col = cms.string( "electrons" ),
     dptRel_DispVtx = cms.double( 10.0 ),
@@ -4229,11 +4234,12 @@ hltParticleFlow = cms.EDProducer( "PFProducer",
     calibHF_a_EMHAD = cms.vdouble( 1.42215, 1.00496, 0.68961, 0.81656, 0.98504, 0.98504, 1.00802, 1.0593, 1.4576, 1.4576 ),
     algoType = cms.uint32( 0 ),
     usePFSCEleCalib = cms.bool( True ),
-    useRegressionFromDB = cms.bool( False ),
+    pt_Error = cms.double( 1.0 ),
     debug = cms.untracked.bool( False ),
     X0_Map = cms.string( "RecoParticleFlow/PFProducer/data/allX0histos.root" ),
     pf_convID_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_pfConversionAug0411.txt" ),
     calibHF_eta_step = cms.vdouble( 0.0, 2.9, 3.0, 3.2, 4.2, 4.4, 4.6, 4.8, 5.2, 5.4 ),
+    useRegressionFromDB = cms.bool( False ),
     useEGammaSupercluster = cms.bool( False )
 )
 hltAntiKT5PFJets = cms.EDProducer( "FastjetJetProducer",
@@ -5038,17 +5044,19 @@ hltParticleFlowBlockForTaus = cms.EDProducer( "PFBlockProducer",
     verbose = cms.untracked.bool( False ),
     PFClustersPS = cms.InputTag( "hltParticleFlowClusterPS" ),
     usePFatHLT = cms.bool( True ),
+    PFClustersHO = cms.InputTag( "particleFlowClusterHO" ),
     useIterTracking = cms.bool( False ),
     useConvBremPFRecTracks = cms.bool( False ),
     useV0 = cms.bool( False ),
-    RecTracks = cms.InputTag( "hltLightPFTracks" ),
+    useNuclear = cms.bool( False ),
     EGPhotons = cms.InputTag( "" ),
     ConvBremGsfRecTracks = cms.InputTag( "" ),
     useKDTreeTrackEcalLinker = cms.bool( True ),
+    useConvBremGsfTracks = cms.bool( False ),
     pf_DPtoverPt_Cut = cms.vdouble( -1.0, -1.0, -1.0, -1.0, -1.0 ),
     GsfRecTracks = cms.InputTag( "" ),
-    useNuclear = cms.bool( False ),
-    useConvBremGsfTracks = cms.bool( False ),
+    RecTracks = cms.InputTag( "hltLightPFTracks" ),
+    useHO = cms.bool( True ),
     PFNuclear = cms.InputTag( "" ),
     PFV0 = cms.InputTag( "" ),
     PhotonSelectionCuts = cms.vdouble(  ),
@@ -5073,6 +5081,7 @@ hltParticleFlowForTaus = cms.EDProducer( "PFProducer",
     minDeltaMet = cms.double( 0.4 ),
     minSignificanceReduction = cms.double( 1.4 ),
     muon_HCAL = cms.vdouble( 3.0, 3.0 ),
+    muon_HO = cms.vdouble( 0.9, 0.9 ),
     postHFCleaning = cms.bool( False ),
     factors_45 = cms.vdouble( 10.0, 100.0 ),
     cleanedHF = cms.VInputTag( 'hltParticleFlowRecHitHCAL:Cleaned','hltParticleFlowClusterHFHAD:Cleaned','hltParticleFlowClusterHFEM:Cleaned' ),
@@ -5102,7 +5111,7 @@ hltParticleFlowForTaus = cms.EDProducer( "PFProducer",
     calibPFSCEle_barrel = cms.vdouble( 1.004, -1.536, 22.88, -1.467, 0.3555, 0.6227, 14.65, 2051.0, 25.0, 0.9932, -0.5444, 0.0, 0.5438, 0.7109, 7.645, 0.2904, 0.0 ),
     pf_electron_mvaCut = cms.double( -0.1 ),
     useEGammaElectrons = cms.bool( False ),
-    pt_Error = cms.double( 1.0 ),
+    useHO = cms.bool( False ),
     nsigma_TRACK = cms.double( 1.0 ),
     pf_electron_output_col = cms.string( "electrons" ),
     dptRel_DispVtx = cms.double( 10.0 ),
@@ -5127,11 +5136,12 @@ hltParticleFlowForTaus = cms.EDProducer( "PFProducer",
     calibHF_a_EMHAD = cms.vdouble( 1.42215, 1.00496, 0.68961, 0.81656, 0.98504, 0.98504, 1.00802, 1.0593, 1.4576, 1.4576 ),
     algoType = cms.uint32( 0 ),
     usePFSCEleCalib = cms.bool( True ),
-    useRegressionFromDB = cms.bool( False ),
+    pt_Error = cms.double( 1.0 ),
     debug = cms.untracked.bool( False ),
     X0_Map = cms.string( "RecoParticleFlow/PFProducer/data/allX0histos.root" ),
     pf_convID_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_pfConversionAug0411.txt" ),
     calibHF_eta_step = cms.vdouble( 0.0, 2.9, 3.0, 3.2, 4.2, 4.4, 4.6, 4.8, 5.2, 5.4 ),
+    useRegressionFromDB = cms.bool( False ),
     useEGammaSupercluster = cms.bool( False )
 )
 hltAntiKT5PFJetsForTaus = cms.EDProducer( "FastjetJetProducer",
@@ -13873,11 +13883,15 @@ hltEle8CaloIdLTrkIdVLPixelMatchFilter = cms.EDFilter( "HLTElectronPixelMatchFilt
 )
 hltPixelMatchElectronsL1Iso = cms.EDProducer( "EgammaHLTPixelMatchElectronProducers",
     BSProducer = cms.InputTag( "offlineBeamSpot" ),
-    TrackProducer = cms.InputTag( "hltCtfL1IsoWithMaterialTracks" )
+    UseGsfTracks = cms.bool( False ),
+    TrackProducer = cms.InputTag( "hltCtfL1IsoWithMaterialTracks" ),
+    GsfTrackProducer = cms.InputTag( "" )
 )
 hltPixelMatchElectronsL1NonIso = cms.EDProducer( "EgammaHLTPixelMatchElectronProducers",
     BSProducer = cms.InputTag( "offlineBeamSpot" ),
-    TrackProducer = cms.InputTag( "hltCtfL1NonIsoWithMaterialTracks" )
+    UseGsfTracks = cms.bool( False ),
+    TrackProducer = cms.InputTag( "hltCtfL1NonIsoWithMaterialTracks" ),
+    GsfTrackProducer = cms.InputTag( "" )
 )
 hltEle8CaloIdLTrkIdVLOneOEMinusOneOPFilter = cms.EDFilter( "HLTElectronOneOEMinusOneOPFilterRegional",
     saveTags = cms.bool( False ),
@@ -13892,11 +13906,15 @@ hltEle8CaloIdLTrkIdVLOneOEMinusOneOPFilter = cms.EDFilter( "HLTElectronOneOEMinu
 hltElectronL1IsoDetaDphi = cms.EDProducer( "EgammaHLTElectronDetaDphiProducer",
     electronProducer = cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
     BSProducer = cms.InputTag( "offlineBeamSpot" ),
+    recoEcalCandidateProducer = cms.InputTag( "" ),
+    useSCRefs = cms.bool( False ),
     useTrackProjectionToEcal = cms.bool( False )
 )
 hltElectronL1NonIsoDetaDphi = cms.EDProducer( "EgammaHLTElectronDetaDphiProducer",
     electronProducer = cms.InputTag( "hltPixelMatchElectronsL1NonIso" ),
     BSProducer = cms.InputTag( "offlineBeamSpot" ),
+    recoEcalCandidateProducer = cms.InputTag( "" ),
+    useSCRefs = cms.bool( False ),
     useTrackProjectionToEcal = cms.bool( False )
 )
 hltEle8CaloIdLTrkIdVLDetaFilter = cms.EDFilter( "HLTElectronGenericFilter",
@@ -14022,11 +14040,15 @@ hltEle8TightIdLooseIsoPixelMatchFilter = cms.EDFilter( "HLTElectronPixelMatchFil
 )
 hltPixelMatch3HitElectronsL1Iso = cms.EDProducer( "EgammaHLTPixelMatchElectronProducers",
     BSProducer = cms.InputTag( "offlineBeamSpot" ),
-    TrackProducer = cms.InputTag( "hltCtf3HitL1IsoWithMaterialTracks" )
+    UseGsfTracks = cms.bool( False ),
+    TrackProducer = cms.InputTag( "hltCtf3HitL1IsoWithMaterialTracks" ),
+    GsfTrackProducer = cms.InputTag( "" )
 )
 hltPixelMatch3HitElectronsL1NonIso = cms.EDProducer( "EgammaHLTPixelMatchElectronProducers",
     BSProducer = cms.InputTag( "offlineBeamSpot" ),
-    TrackProducer = cms.InputTag( "hltCtf3HitL1NonIsoWithMaterialTracks" )
+    UseGsfTracks = cms.bool( False ),
+    TrackProducer = cms.InputTag( "hltCtf3HitL1NonIsoWithMaterialTracks" ),
+    GsfTrackProducer = cms.InputTag( "" )
 )
 hltEle8TightIdLooseIsoOneOEMinusOneOPFilter = cms.EDFilter( "HLTElectronOneOEMinusOneOPFilterRegional",
     saveTags = cms.bool( False ),
@@ -14041,11 +14063,15 @@ hltEle8TightIdLooseIsoOneOEMinusOneOPFilter = cms.EDFilter( "HLTElectronOneOEMin
 hlt3HitElectronL1IsoDetaDphi = cms.EDProducer( "EgammaHLTElectronDetaDphiProducer",
     electronProducer = cms.InputTag( "hltPixelMatch3HitElectronsL1Iso" ),
     BSProducer = cms.InputTag( "offlineBeamSpot" ),
+    recoEcalCandidateProducer = cms.InputTag( "" ),
+    useSCRefs = cms.bool( False ),
     useTrackProjectionToEcal = cms.bool( False )
 )
 hlt3HitElectronL1NonIsoDetaDphi = cms.EDProducer( "EgammaHLTElectronDetaDphiProducer",
     electronProducer = cms.InputTag( "hltPixelMatch3HitElectronsL1NonIso" ),
     BSProducer = cms.InputTag( "offlineBeamSpot" ),
+    recoEcalCandidateProducer = cms.InputTag( "" ),
+    useSCRefs = cms.bool( False ),
     useTrackProjectionToEcal = cms.bool( False )
 )
 hltEle8TightIdLooseIsoDetaFilter = cms.EDFilter( "HLTElectronGenericFilter",
@@ -14084,25 +14110,37 @@ hltEle8TightIdLooseIsoDphiFilter = cms.EDFilter( "HLTElectronGenericFilter",
 )
 hltL1Iso3HitElectronTrackIsol = cms.EDProducer( "EgammaHLTElectronTrackIsolationProducers",
     egTrkIsoStripEndcap = cms.double( 0.03 ),
-    egTrkIsoVetoConeSize = cms.double( 0.03 ),
+    electronProducer = cms.InputTag( "hltPixelMatch3HitElectronsL1Iso" ),
+    egTrkIsoZSpan = cms.double( 0.15 ),
+    useGsfTrack = cms.bool( False ),
+    useSCRefs = cms.bool( False ),
+    egTrkIsoConeSize = cms.double( 0.3 ),
     trackProducer = cms.InputTag( "hltL1IsoEgammaRegionalCTFFinalFitWithMaterial" ),
     egTrkIsoStripBarrel = cms.double( 0.03 ),
-    electronProducer = cms.InputTag( "hltPixelMatch3HitElectronsL1Iso" ),
-    egTrkIsoConeSize = cms.double( 0.3 ),
+    egTrkIsoVetoConeSizeBarrel = cms.double( 0.03 ),
+    egTrkIsoVetoConeSize = cms.double( 0.03 ),
     egTrkIsoRSpan = cms.double( 999999.0 ),
-    egTrkIsoZSpan = cms.double( 0.15 ),
+    egTrkIsoVetoConeSizeEndcap = cms.double( 0.03 ),
+    recoEcalCandidateProducer = cms.InputTag( "" ),
+    beamSpotProducer = cms.InputTag( "offlineBeamSpot" ),
     egTrkIsoPtMin = cms.double( 1.0 ),
     egCheckForOtherEleInCone = cms.untracked.bool( False )
 )
 hltL1NonIso3HitElectronTrackIsol = cms.EDProducer( "EgammaHLTElectronTrackIsolationProducers",
     egTrkIsoStripEndcap = cms.double( 0.03 ),
-    egTrkIsoVetoConeSize = cms.double( 0.03 ),
+    electronProducer = cms.InputTag( "hltPixelMatch3HitElectronsL1NonIso" ),
+    egTrkIsoZSpan = cms.double( 0.15 ),
+    useGsfTrack = cms.bool( False ),
+    useSCRefs = cms.bool( False ),
+    egTrkIsoConeSize = cms.double( 0.3 ),
     trackProducer = cms.InputTag( "hltL1NonIsoEgammaRegionalCTFFinalFitWithMaterial" ),
     egTrkIsoStripBarrel = cms.double( 0.03 ),
-    electronProducer = cms.InputTag( "hltPixelMatch3HitElectronsL1NonIso" ),
-    egTrkIsoConeSize = cms.double( 0.3 ),
+    egTrkIsoVetoConeSizeBarrel = cms.double( 0.03 ),
+    egTrkIsoVetoConeSize = cms.double( 0.03 ),
     egTrkIsoRSpan = cms.double( 999999.0 ),
-    egTrkIsoZSpan = cms.double( 0.15 ),
+    egTrkIsoVetoConeSizeEndcap = cms.double( 0.03 ),
+    recoEcalCandidateProducer = cms.InputTag( "" ),
+    beamSpotProducer = cms.InputTag( "offlineBeamSpot" ),
     egTrkIsoPtMin = cms.double( 1.0 ),
     egCheckForOtherEleInCone = cms.untracked.bool( False )
 )
@@ -14266,25 +14304,37 @@ hltEle15CaloIdTCaloIsoVLTrkIdTDphiFilter = cms.EDFilter( "HLTElectronGenericFilt
 )
 hltL1IsoElectronTrackIsol = cms.EDProducer( "EgammaHLTElectronTrackIsolationProducers",
     egTrkIsoStripEndcap = cms.double( 0.03 ),
-    egTrkIsoVetoConeSize = cms.double( 0.03 ),
+    electronProducer = cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
+    egTrkIsoZSpan = cms.double( 0.15 ),
+    useGsfTrack = cms.bool( False ),
+    useSCRefs = cms.bool( False ),
+    egTrkIsoConeSize = cms.double( 0.3 ),
     trackProducer = cms.InputTag( "hltL1IsoEgammaRegionalCTFFinalFitWithMaterial" ),
     egTrkIsoStripBarrel = cms.double( 0.03 ),
-    electronProducer = cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
-    egTrkIsoConeSize = cms.double( 0.3 ),
+    egTrkIsoVetoConeSizeBarrel = cms.double( 0.03 ),
+    egTrkIsoVetoConeSize = cms.double( 0.03 ),
     egTrkIsoRSpan = cms.double( 999999.0 ),
-    egTrkIsoZSpan = cms.double( 0.15 ),
+    egTrkIsoVetoConeSizeEndcap = cms.double( 0.03 ),
+    recoEcalCandidateProducer = cms.InputTag( "" ),
+    beamSpotProducer = cms.InputTag( "offlineBeamSpot" ),
     egTrkIsoPtMin = cms.double( 1.0 ),
     egCheckForOtherEleInCone = cms.untracked.bool( False )
 )
 hltL1NonIsoElectronTrackIsol = cms.EDProducer( "EgammaHLTElectronTrackIsolationProducers",
     egTrkIsoStripEndcap = cms.double( 0.03 ),
-    egTrkIsoVetoConeSize = cms.double( 0.03 ),
+    electronProducer = cms.InputTag( "hltPixelMatchElectronsL1NonIso" ),
+    egTrkIsoZSpan = cms.double( 0.15 ),
+    useGsfTrack = cms.bool( False ),
+    useSCRefs = cms.bool( False ),
+    egTrkIsoConeSize = cms.double( 0.3 ),
     trackProducer = cms.InputTag( "hltL1NonIsoEgammaRegionalCTFFinalFitWithMaterial" ),
     egTrkIsoStripBarrel = cms.double( 0.03 ),
-    electronProducer = cms.InputTag( "hltPixelMatchElectronsL1NonIso" ),
-    egTrkIsoConeSize = cms.double( 0.3 ),
+    egTrkIsoVetoConeSizeBarrel = cms.double( 0.03 ),
+    egTrkIsoVetoConeSize = cms.double( 0.03 ),
     egTrkIsoRSpan = cms.double( 999999.0 ),
-    egTrkIsoZSpan = cms.double( 0.15 ),
+    egTrkIsoVetoConeSizeEndcap = cms.double( 0.03 ),
+    recoEcalCandidateProducer = cms.InputTag( "" ),
+    beamSpotProducer = cms.InputTag( "offlineBeamSpot" ),
     egTrkIsoPtMin = cms.double( 1.0 ),
     egCheckForOtherEleInCone = cms.untracked.bool( False )
 )
@@ -14835,7 +14885,9 @@ hltEle17TightIdLooseIsoEle8TightIdLooseIsoPixelMatchDoubleFilter = cms.EDFilter(
 )
 hltPixelMatch3HitElectronsActivity = cms.EDProducer( "EgammaHLTPixelMatchElectronProducers",
     BSProducer = cms.InputTag( "offlineBeamSpot" ),
-    TrackProducer = cms.InputTag( "hltCtf3HitActivityWithMaterialTracks" )
+    UseGsfTracks = cms.bool( False ),
+    TrackProducer = cms.InputTag( "hltCtf3HitActivityWithMaterialTracks" ),
+    GsfTrackProducer = cms.InputTag( "" )
 )
 hltEle17TightIdLooseIsoEle8TightIdLooseIsoOneOEMinusOneOPDoubleFilter = cms.EDFilter( "HLTElectronOneOEMinusOneOPFilterRegional",
     saveTags = cms.bool( False ),
@@ -14850,6 +14902,8 @@ hltEle17TightIdLooseIsoEle8TightIdLooseIsoOneOEMinusOneOPDoubleFilter = cms.EDFi
 hlt3HitElectronActivityDetaDphi = cms.EDProducer( "EgammaHLTElectronDetaDphiProducer",
     electronProducer = cms.InputTag( "hltPixelMatch3HitElectronsActivity" ),
     BSProducer = cms.InputTag( "offlineBeamSpot" ),
+    recoEcalCandidateProducer = cms.InputTag( "" ),
+    useSCRefs = cms.bool( False ),
     useTrackProjectionToEcal = cms.bool( False )
 )
 hltEle17TightIdLooseIsoEle8TightIdLooseIsoDetaDoubleFilter = cms.EDFilter( "HLTElectronGenericFilter",
@@ -14888,13 +14942,19 @@ hltEle17TightIdLooseIsoEle8TightIdLooseIsoDphiDoubleFilter = cms.EDFilter( "HLTE
 )
 hlt3HitElectronActivityTrackIsol = cms.EDProducer( "EgammaHLTElectronTrackIsolationProducers",
     egTrkIsoStripEndcap = cms.double( 0.03 ),
-    egTrkIsoVetoConeSize = cms.double( 0.03 ),
+    electronProducer = cms.InputTag( "hltPixelMatch3HitElectronsActivity" ),
+    egTrkIsoZSpan = cms.double( 0.15 ),
+    useGsfTrack = cms.bool( False ),
+    useSCRefs = cms.bool( False ),
+    egTrkIsoConeSize = cms.double( 0.3 ),
     trackProducer = cms.InputTag( "hltEcalActivityEgammaRegionalCTFFinalFitWithMaterial" ),
     egTrkIsoStripBarrel = cms.double( 0.03 ),
-    electronProducer = cms.InputTag( "hltPixelMatch3HitElectronsActivity" ),
-    egTrkIsoConeSize = cms.double( 0.3 ),
+    egTrkIsoVetoConeSizeBarrel = cms.double( 0.03 ),
+    egTrkIsoVetoConeSize = cms.double( 0.03 ),
     egTrkIsoRSpan = cms.double( 999999.0 ),
-    egTrkIsoZSpan = cms.double( 0.15 ),
+    egTrkIsoVetoConeSizeEndcap = cms.double( 0.03 ),
+    recoEcalCandidateProducer = cms.InputTag( "" ),
+    beamSpotProducer = cms.InputTag( "offlineBeamSpot" ),
     egTrkIsoPtMin = cms.double( 1.0 ),
     egCheckForOtherEleInCone = cms.untracked.bool( False )
 )
@@ -18209,6 +18269,8 @@ hltEle5NoL1SeedOneOEMinusOneOPFilterforDR = cms.EDFilter( "HLTElectronOneOEMinus
 hltElectronActivityDetaDphi = cms.EDProducer( "EgammaHLTElectronDetaDphiProducer",
     electronProducer = cms.InputTag( "hltPixelMatchElectronsActivity" ),
     BSProducer = cms.InputTag( "offlineBeamSpot" ),
+    recoEcalCandidateProducer = cms.InputTag( "" ),
+    useSCRefs = cms.bool( False ),
     useTrackProjectionToEcal = cms.bool( False )
 )
 hltEle5NoL1SeedDetaFilterforDR = cms.EDFilter( "HLTElectronGenericFilter",
@@ -18247,13 +18309,19 @@ hltEle5NoL1SeedDphiFilterforDR = cms.EDFilter( "HLTElectronGenericFilter",
 )
 hltElectronActivityTrackIsol = cms.EDProducer( "EgammaHLTElectronTrackIsolationProducers",
     egTrkIsoStripEndcap = cms.double( 0.03 ),
-    egTrkIsoVetoConeSize = cms.double( 0.03 ),
+    electronProducer = cms.InputTag( "hltPixelMatchElectronsActivity" ),
+    egTrkIsoZSpan = cms.double( 0.15 ),
+    useGsfTrack = cms.bool( False ),
+    useSCRefs = cms.bool( False ),
+    egTrkIsoConeSize = cms.double( 0.3 ),
     trackProducer = cms.InputTag( "hltEcalActivityEgammaRegionalCTFFinalFitWithMaterial" ),
     egTrkIsoStripBarrel = cms.double( 0.03 ),
-    electronProducer = cms.InputTag( "hltPixelMatchElectronsActivity" ),
-    egTrkIsoConeSize = cms.double( 0.3 ),
+    egTrkIsoVetoConeSizeBarrel = cms.double( 0.03 ),
+    egTrkIsoVetoConeSize = cms.double( 0.03 ),
     egTrkIsoRSpan = cms.double( 999999.0 ),
-    egTrkIsoZSpan = cms.double( 0.15 ),
+    egTrkIsoVetoConeSizeEndcap = cms.double( 0.03 ),
+    recoEcalCandidateProducer = cms.InputTag( "" ),
+    beamSpotProducer = cms.InputTag( "offlineBeamSpot" ),
     egTrkIsoPtMin = cms.double( 1.0 ),
     egCheckForOtherEleInCone = cms.untracked.bool( False )
 )
@@ -23026,13 +23094,19 @@ hltEle12CaloIdLTrkIdVLCaloIsoVLDphiFilterUnseeded = cms.EDFilter( "HLTElectronGe
 )
 hltHitElectronActivityTrackIsol = cms.EDProducer( "EgammaHLTElectronTrackIsolationProducers",
     egTrkIsoStripEndcap = cms.double( 0.03 ),
-    egTrkIsoVetoConeSize = cms.double( 0.03 ),
+    electronProducer = cms.InputTag( "hltPixelMatchElectronsActivity" ),
+    egTrkIsoZSpan = cms.double( 0.15 ),
+    useGsfTrack = cms.bool( False ),
+    useSCRefs = cms.bool( False ),
+    egTrkIsoConeSize = cms.double( 0.3 ),
     trackProducer = cms.InputTag( "hltEcalActivityEgammaRegionalCTFFinalFitWithMaterial" ),
     egTrkIsoStripBarrel = cms.double( 0.03 ),
-    electronProducer = cms.InputTag( "hltPixelMatchElectronsActivity" ),
-    egTrkIsoConeSize = cms.double( 0.3 ),
+    egTrkIsoVetoConeSizeBarrel = cms.double( 0.03 ),
+    egTrkIsoVetoConeSize = cms.double( 0.03 ),
     egTrkIsoRSpan = cms.double( 999999.0 ),
-    egTrkIsoZSpan = cms.double( 0.15 ),
+    egTrkIsoVetoConeSizeEndcap = cms.double( 0.03 ),
+    recoEcalCandidateProducer = cms.InputTag( "" ),
+    beamSpotProducer = cms.InputTag( "offlineBeamSpot" ),
     egTrkIsoPtMin = cms.double( 1.0 ),
     egCheckForOtherEleInCone = cms.untracked.bool( False )
 )
@@ -25623,7 +25697,9 @@ hltPixelVertices = cms.EDProducer( "PixelVertexProducer",
 )
 hltPixelMatchElectronsActivity = cms.EDProducer( "EgammaHLTPixelMatchElectronProducers",
     BSProducer = cms.InputTag( "offlineBeamSpot" ),
-    TrackProducer = cms.InputTag( "hltCtfActivityWithMaterialTracks" )
+    UseGsfTracks = cms.bool( False ),
+    TrackProducer = cms.InputTag( "hltCtfActivityWithMaterialTracks" ),
+    GsfTrackProducer = cms.InputTag( "" )
 )
 
 HLTEcalActivitySequence = cms.Sequence( hltEcalRawToRecHitFacility + hltESRawToRecHitFacility + hltEcalRegionalRestFEDs + hltEcalRegionalESRestFEDs + hltEcalRecHitAll + hltESRecHitAll + hltHybridSuperClustersActivity + hltCorrectedHybridSuperClustersActivity + hltMulti5x5BasicClustersActivity + hltMulti5x5SuperClustersActivity + hltMulti5x5SuperClustersWithPreshowerActivity + hltCorrectedMulti5x5SuperClustersWithPreshowerActivity + hltRecoEcalSuperClusterActivityCandidate + hltEcalActivitySuperClusterWrapper )
