@@ -43,11 +43,15 @@ if __name__ == '__main__':
     group_additional.add_option("--runOnGrid", action="store_true", dest="runOnGrid", default=False, help="workflow will be run on the Grid (instead of the CAF)")
     group_additional.add_option("--stageOutLocal", action="store_true", dest="stageOutLocal", default=True, help="output will be copied locally (if running on the Grid this will be the default)")
 
-    # Split by lumi options
+    # Splitting options
     group_additional.add_option("--splitByLumi", action="store_true", dest="splitByLumi", default=False, help="will split CRAB jobs by lumi section")
     group_additional.add_option("--totalnumberlumis", dest="totalnumberlumis", type="int", default=-1, help="total number of lumis to be analyzed")
     group_additional.add_option("--lumisperjob", dest="lumisperjob", type="int", default=150, help="number of lumis per job")
     group_additional.add_option("--lumimask", dest="lumimask", help="lumi mask JSON file")
+    group_additional.add_option("--splitByEvent", action="store_true", dest="splitByEvent", default=False, help="will split CRAB jobs by events (For running MC)")
+    group_additional.add_option("--totalnumberevents", dest="totalnumberevents", type="int", default=-1, help="total number of events to be analyzed")
+    group_additional.add_option("--eventsperjob", dest="eventsperjob", type="int", default=10000, help="number of events per job")
+    
     parser.add_option_group(group_additional)
  
     (input, args) = parser.parse_args()
@@ -138,12 +142,19 @@ if __name__ == '__main__':
     #config.eventsperjob = 50000
     if hasattr(input,'splitByLumi') and input.splitByLumi:
         config.splitByLumi = True
+        config.splitByEvent = False
         config.totalnumberlumis = input.totalnumberlumis
         config.lumisperjob = input.lumisperjob
         if hasattr(input,'lumimask') and input.lumimask: config.lumimask = os.path.abspath(input.lumimask)
+    elif hasattr(input,'splitByEvent') and input.splitByEvent:
+        config.splitByLumi = False 
+        config.splitByEvent = True
+        config.totalnumberevents = input.totalnumberevents
+        config.eventsperjob = input.eventsperjob
     else:
         config.splitByLumi = False 
-
+        config.splitByEvent = False
+        
     if hasattr(input,'email') and input.email: config.email = input.email    
 
     if config.stageOutCAF:

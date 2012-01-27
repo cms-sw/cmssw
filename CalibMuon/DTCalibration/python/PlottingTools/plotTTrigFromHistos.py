@@ -57,7 +57,7 @@ def plot(fileName,sl,ymin=300,ymax=360,option="HISTOP",draw=True):
 
     return objects
 
-def compare(fileNames,sl,ymin=300,ymax=360):
+def compare(fileNames,sl,ymin=300,ymax=360,labels=[]):
     option = "HISTOP"
     colors = (2,4,12,44,55,38,27,46)
     markers = (24,25,26,27,28,30,32,5)
@@ -86,7 +86,22 @@ def compare(fileNames,sl,ymin=300,ymax=360):
             histos[-1].Draw(option + "SAME")
 
         idx += 1
-    
+
+    legend = ROOT.TLegend(0.4,0.7,0.95,0.8)
+    for idx in range( len(histos) ):
+	histo = histos[idx]
+        label = histo.GetName()
+        if len(labels): label = labels[idx]
+        legend.AddEntry(histo,label,"LP")
+
+        idx += 1
+
+    canvas.cd()
+    legend.SetFillColor( canvas.GetFillColor() )
+    legend.Draw("SAME")
+
+    objects.append(legend)
+
     return (canvas,histos,objects)
 
 def compareDiff(fileNames,sl,ymin=-15.,ymax=15.):

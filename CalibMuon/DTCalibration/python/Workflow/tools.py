@@ -217,7 +217,6 @@ def loadCrabDefault(crabCfg,config):
     crabCfg.remove_option('CMSSW','lumi_mask')
     crabCfg.remove_option('CMSSW','split_by_run')
  
-    if hasattr(config,'runselection') and config.runselection: crabCfg.set('CMSSW','runselection',config.runselection)
     """
     if hasattr(config,'totalnumberevents'): crabCfg.set('CMSSW','total_number_of_events',config.totalnumberevents)
     if hasattr(config,'eventsperjob'): crabCfg.set('CMSSW','events_per_job',config.eventsperjob) 
@@ -226,9 +225,18 @@ def loadCrabDefault(crabCfg,config):
         crabCfg.set('CMSSW','total_number_of_lumis',config.totalnumberlumis)
         crabCfg.set('CMSSW','lumis_per_job',config.lumisperjob)
         if hasattr(config,'lumimask') and config.lumimask: crabCfg.set('CMSSW','lumi_mask',config.lumimask)
+    elif hasattr(config,'splitByEvent') and config.splitByEvent:
+        crabCfg.set('CMSSW','total_number_of_events',config.totalnumberevents)
+        crabCfg.set('CMSSW','events_per_job',config.eventsperjob)
     else:
         crabCfg.set('CMSSW','split_by_run',1)
- 
+
+    if hasattr(config,'splitByEvent') and config.splitByEvent:
+        crabCfg.remove_option('CMSSW','runselection')
+    else:
+	if hasattr(config,'runselection') and config.runselection:
+	    crabCfg.set('CMSSW','runselection',config.runselection)
+
     # USER section
     if not crabCfg.has_section('USER'): crabCfg.add_section('USER')  
 
