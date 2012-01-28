@@ -11,20 +11,20 @@
 
 
 #if defined(__REFLEX__) || defined(__CINT__)
-  #define NOCXX11
+  #define CMS_NOCXX11
 #endif
 #if !GCC_PREREQUISITE(4,6,0)
-  #define NOCXX11
+  #define CMS_NOCXX11
 #endif
 
-#ifndef NOCXX11
+#ifndef CMS_NOCXX11
   #if GCC_PREREQUISITE(4,7,0)
-     #define FINAL final
+     #define GCC11_FINAL final
   #else
-     #define FINAL  
+     #define GCC11_FINAL  
   #endif // gcc 4.7
 #else
-  #define FINAL
+  #define GCC11_FINAL
   #define constexpr
   #define noexcept
 #endif // NOCXX11
