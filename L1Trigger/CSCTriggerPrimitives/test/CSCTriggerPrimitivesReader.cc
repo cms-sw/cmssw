@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2010/08/04 12:06:30 $
-//   $Revision: 1.40 $
+//   $Date: 2010/08/04 14:51:37 $
+//   $Revision: 1.41 $
 //
 //   Modifications:
 //
@@ -1670,7 +1670,9 @@ int CSCTriggerPrimitivesReader::convertBXofLCT(
                              const int emul_bx, const CSCDetId& detid,
 			     const CSCALCTDigiCollection* alcts_data,
 			     const CSCCLCTDigiCollection* clcts_data) {
-  int full_anode_bx = -999, full_cathode_bx = -999, lct_bx = -999;
+  int full_anode_bx = -999;
+  //int full_cathode_bx = -999;
+  int lct_bx = -999;
   int tbin_anode_offset = 5; // 2007, run 14419.
   if (isMTCCData_) tbin_anode_offset = 10; // MTCC-II.  Why not 6???
 
@@ -1689,7 +1691,7 @@ int CSCTriggerPrimitivesReader::convertBXofLCT(
   for (CSCCLCTDigiCollection::const_iterator digiIt = crange.first;
        digiIt != crange.second; digiIt++) {
     if ((*digiIt).isValid()) {
-      full_cathode_bx = (*digiIt).getFullBX();
+      //full_cathode_bx = (*digiIt).getFullBX();
       break;
     }
   }
