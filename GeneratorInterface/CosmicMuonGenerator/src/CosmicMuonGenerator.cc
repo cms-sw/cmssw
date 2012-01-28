@@ -439,9 +439,6 @@ bool CosmicMuonGenerator::nextMultiEvent() {
 
     double pPh1=0.25, pPh2=0.7, pPh3=0.05;
 
-    int temp = 0;
-    bool btemp = false;
-  
     Trials = 0; //global int trials
     double trials = 0.; //local weighted trials
     Vx_mu.resize(nmuons); Vy_mu.resize(nmuons); Vz_mu.resize(nmuons);
@@ -550,7 +547,6 @@ bool CosmicMuonGenerator::nextMultiEvent() {
       } //end imu for loop
 
       
-      if (temp > 0) btemp = true;
 
 
       if (NmuHitTargetSphere < MultiMuonNmin) continue; //while (Id_sf.size() < 2) loop
