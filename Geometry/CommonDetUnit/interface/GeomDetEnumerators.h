@@ -1,8 +1,8 @@
 #ifndef _COMMONDETUNIT_GEOMDETENUMERATORS_H_ 
 #define _COMMONDETUNIT_GEOMDETENUMERATORS_H_
 
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 #include <iosfwd>
-#include <ostream>
 
 /** Global enumerators for Det types.
  */
