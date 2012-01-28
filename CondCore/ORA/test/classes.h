@@ -20,6 +20,8 @@
 
 typedef unsigned int uint32_t;
 
+namespace testORA {
+
   class MixingInputConfig {
   public:
     MixingInputConfig():
@@ -139,7 +141,7 @@ typedef unsigned int uint32_t;
       return !operator==( rhs );
     }
       
-    std::vector<MixingInputConfig> configs_; 
+    std::vector<testORA::MixingInputConfig> configs_; 
   };
 
   class MixingModuleConfigA {
@@ -170,7 +172,7 @@ typedef unsigned int uint32_t;
       return !operator==( rhs );
     }
       
-    MixingInputConfig configs_[200]; 
+    testORA::MixingInputConfig configs_[200]; 
   };
 
   class MixingModuleConfigIA {
@@ -201,10 +203,9 @@ typedef unsigned int uint32_t;
       return !operator==( rhs );
     }
       
-    MixingInputConfig configs_[4]; 
+    testORA::MixingInputConfig configs_[4]; 
   };
 
-namespace testORA {
 
 class BObj {
   public:
