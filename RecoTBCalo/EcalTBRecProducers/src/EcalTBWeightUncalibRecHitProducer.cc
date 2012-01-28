@@ -1,13 +1,13 @@
 /** \class EcalTBWeightUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes
  *
-  *  $Id: EcalTBWeightUncalibRecHitProducer.cc,v 1.13 2008/11/21 15:31:24 meridian Exp $
-  *  $Date: 2008/11/21 15:31:24 $
-  *  $Revision: 1.13 $
+  *  $Id: EcalTBWeightUncalibRecHitProducer.cc,v 1.14 2009/10/19 19:35:23 theofil Exp $
+  *  $Date: 2009/10/19 19:35:23 $
+  *  $Revision: 1.14 $
   *
   *  $Alex Zabi$
-  *  $Date: 2008/11/21 15:31:24 $
-  *  $Revision: 1.13 $
+  *  $Date: 2009/10/19 19:35:23 $
+  *  $Revision: 1.14 $
   *  Modification to detect first sample to switch gain.
   *  used for amplitude recontruction at high energy
   *  Add TDC convention option (P. Meridiani)
@@ -296,8 +296,8 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
 #endif
 	 const EcalWeightSet::EcalWeightMatrix& mat1 = wset.getWeightsBeforeGainSwitch();
 	 const EcalWeightSet::EcalWeightMatrix& mat2 = wset.getWeightsAfterGainSwitch();
-	 const EcalWeightSet::EcalChi2WeightMatrix& mat3 = wset.getChi2WeightsBeforeGainSwitch();
-	 const EcalWeightSet::EcalChi2WeightMatrix& mat4 = wset.getChi2WeightsAfterGainSwitch();
+	 //const EcalWeightSet::EcalChi2WeightMatrix& mat3 = wset.getChi2WeightsBeforeGainSwitch();
+	 //const EcalWeightSet::EcalChi2WeightMatrix& mat4 = wset.getChi2WeightsAfterGainSwitch();
 	 const EcalWeightSet::EcalWeightMatrix* weights[2];
 	 weights[0]=&mat1;
 	 weights[1]=&mat2;
@@ -308,9 +308,9 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
      
      
 	 // build CLHEP chi2  matrices
-	 const EcalWeightSet::EcalChi2WeightMatrix* chi2mat[2];
-	 chi2mat[0]=&mat3;
-	 chi2mat[1]=&mat4;
+	 //const EcalWeightSet::EcalChi2WeightMatrix* chi2mat[2];
+	 // chi2mat[0]=&mat3;
+	 // chi2mat[1]=&mat4;
 
 	 EcalUncalibratedRecHit aHit =
 	   EBalgo_.makeRecHit(itdg, pedVec, pedRMSVec, gainRatios, weights, testbeamEBShape);
@@ -442,8 +442,8 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
 #endif
 	 const EcalWeightSet::EcalWeightMatrix& mat1 = wset.getWeightsBeforeGainSwitch();
 	 const EcalWeightSet::EcalWeightMatrix& mat2 = wset.getWeightsAfterGainSwitch();
-	 const EcalWeightSet::EcalChi2WeightMatrix& mat3 = wset.getChi2WeightsBeforeGainSwitch();
-	 const EcalWeightSet::EcalChi2WeightMatrix& mat4 = wset.getChi2WeightsAfterGainSwitch();
+	 //const EcalWeightSet::EcalChi2WeightMatrix& mat3 = wset.getChi2WeightsBeforeGainSwitch();
+	 //const EcalWeightSet::EcalChi2WeightMatrix& mat4 = wset.getChi2WeightsAfterGainSwitch();
 	 const EcalWeightSet::EcalWeightMatrix* weights[2];
 	 weights[0]=&mat1;
 	 weights[1]=&mat2;
@@ -454,9 +454,9 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
      
      
 	 // build CLHEP chi2  matrices
-	 const EcalWeightSet::EcalChi2WeightMatrix* chi2mat[2];
-	 chi2mat[0]=&mat3;
-	 chi2mat[1]=&mat4;
+	 //const EcalWeightSet::EcalChi2WeightMatrix* chi2mat[2];
+	 //chi2mat[0]=&mat3;
+	 //chi2mat[1]=&mat4;
 
 	 EcalUncalibratedRecHit aHit =
 	   EEalgo_.makeRecHit(itdg, pedVec, pedRMSVec, gainRatios, weights, testbeamEEShape);
