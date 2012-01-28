@@ -40,7 +40,6 @@ int FileToolKit::MakeDir( std::string dirName, mode_t writeMode ){
   using std::vector;
   using std::string;
 
-  int result;
   int errsv = 0;
   
   vector< string > tkDirName;
@@ -64,11 +63,11 @@ int FileToolKit::MakeDir( std::string dirName, mode_t writeMode ){
     if( errsv == 2 ){  // No such file or directory 
       
       errno = 0;
-      result = mkdir( currentDirName.c_str(), writeMode);
+      mkdir( currentDirName.c_str(), writeMode);
       errsv = errno;
       if( errno == 0 ){
 	errno = 0;
-	result = chmod( currentDirName.c_str(), writeMode);
+	chmod( currentDirName.c_str(), writeMode);
 	errsv = errno;
       }
     }

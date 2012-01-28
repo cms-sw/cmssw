@@ -17,13 +17,9 @@ void HCAL_HLX::ROOTFileTransfer::SetFileType( const std::string &fileType ){
 
 int HCAL_HLX::ROOTFileTransfer::TransferFile(){
   
-  int errorCode;
   std::stringstream commandLine;
 
-  if( fileName_ == "" ){
-    // No File set
-    errorCode = -1;
-  }else{
+  if( fileName_ != "" ){
 
     //Transfer File to Offline DB
     commandLine.str(std::string());
