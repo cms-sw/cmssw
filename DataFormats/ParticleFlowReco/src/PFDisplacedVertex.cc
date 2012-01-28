@@ -204,8 +204,6 @@ PFDisplacedVertex:: primaryDirection() const {
   math::XYZTLorentzVector momentumPrim = primaryMomentum((string) "PI", true);
   math::XYZTLorentzVector momentumSec = secondaryMomentum((string) "PI", true);
 
-  math::XYZVector p_out = momentumSec.Vect();
-
   math::XYZVector p_in;
 
   if (( isThereKindTracks(T_TO_VERTEX) || isThereKindTracks(T_MERGED) ) &&
