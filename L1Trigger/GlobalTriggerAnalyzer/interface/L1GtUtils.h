@@ -350,8 +350,8 @@ private:
     const std::vector<std::vector<int> >* m_prescaleFactorsAlgoTrigLite;
     const std::vector<std::vector<int> >* m_prescaleFactorsTechTrigLite;
 
-    const edm::RunID* m_runIDCache;
-    const edm::RunID* m_provRunIDCache;
+    edm::RunID m_runIDCache;
+    edm::RunID m_provRunIDCache;
 
     bool m_l1GtMenuLiteValid;
 

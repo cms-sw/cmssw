@@ -48,9 +48,9 @@ if useRelValSample == False :
     #runNumber = 'MinimumBias_Commissioning10-May13thReReco_preproduction-v1_RECO'
     #runNumber = '137028'
     #runNumber = '156508'
-    #runNumber = '156508_137028'
+    runNumber = '156508_137028'
     #runNumber = '165633-CAFDQM'
-    runNumber = '180250'
+    #runNumber = '180250'
 
 else :
 
@@ -657,7 +657,8 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
             import json
              
             # Same default values as the options in das_client.py
-            host  =  'https://cmsweb.cern.ch'
+            #host  =  'https://cmsweb.cern.ch'
+            host  =  'https://cmsweb-testbed.cern.ch'
             query =  ''
             idx   =   0
             limit =  10
