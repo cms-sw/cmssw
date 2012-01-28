@@ -1,8 +1,8 @@
 ///  \author    : Gero Flucke
 ///  date       : October 2010
-///  $Revision: 1.5 $
-///  $Date: 2012/01/25 19:36:42 $
-///  (last update by $Author: innocent $)
+///  $Revision: 1.2 $
+///  $Date: 2010/11/17 15:55:09 $
+///  (last update by $Author: flucke $)
 
 #include "Geometry/CommonTopologies/interface/BowedSurfaceDeformation.h"
 #include "Geometry/CommonTopologies/interface/SurfaceDeformationFactory.h"
@@ -53,53 +53,22 @@ BowedSurfaceDeformation::positionCorrection(const Local2DPoint &localPos,
 //   }
 //   const double width = widthHighY;
   
-
-  //--------  original code
-  // compiler actually generates a loop and transfrom if in min/max
-  //double uRel = (width  ? 2. * localPos.x() / width  : 0.);  // relative u (-1 .. +1)
-  //double vRel = (length ? 2. * localPos.y() / length : 0.);  // relative v (-1 .. +1)
+  double uRel = (width  ? 2. * localPos.x() / width  : 0.);  // relative u (-1 .. +1)
+  double vRel = (length ? 2. * localPos.y() / length : 0.);  // relative v (-1 .. +1)
   // 'range check':
-  //const double cutOff = 1.5;
-  //if (uRel < -cutOff) { uRel = -cutOff; } else if (uRel > cutOff) { uRel = cutOff; }
-  //if (vRel < -cutOff) { vRel = -cutOff; } else if (vRel > cutOff) { vRel = cutOff; }
-  //double uvRel[2] = {uRel,vRel};  // to bridge to common part
-
-  //-------- try to use vectorization...  
-  // the compiler just generate a gazzillion of "movq" instruction instead of using just xmm registers..., very very slow! too bad
-  // 2* into + need to be done by hand...
-  // MathVector2D  norm(width,length);
-  // MathVector2D uvRel = localPos.mathVector()/norm; uvRel=uvRel+uvRel;
-  // const MathVector2D cutOff(1.5,1.5);
-  // uvRel = max(uvRel,-cutOff);
-  // uvRel = min(uvRel,cutOff);
-
-  
-  //-------- try autovect 
-  // does not,  compiler prefers unroll, transform max in if and mix with the computation of "dw"
   const double cutOff = 1.5;
-  double norm[2] = {width,length};
-  double uvRel[2];
-  // double coef[2];
-  // double const * sag = &theSagittaX;
-  for (int i=0;i!=2;++i) {
-    uvRel[i]=2.*localPos.mathVector()[i]/norm[i];
-    uvRel[i] =  std::max(uvRel[i], -cutOff);
-    uvRel[i] =  std::min(uvRel[i],  cutOff);
-    // coef[i]= (uvRel[i]*uvRel[i] -1./3.) *sag[i];
-  }
-  // const double dw = coef[0]+coef[1]+ uvRel[0]*uvRel[1]* theSagittaXY;
+  if (uRel < -cutOff) { uRel = -cutOff; } else if (uRel > cutOff) { uRel = cutOff; }
+  if (vRel < -cutOff) { vRel = -cutOff; } else if (vRel > cutOff) { vRel = cutOff; }
   
-
   // apply coefficients to Legendre polynomials
   // to get local height relative to 'average'
-  
   const double dw 
-    = (uvRel[0] * uvRel[0] - 1./3.) * theSagittaX
-    +  uvRel[0] * uvRel[1]          * theSagittaXY
-    + (uvRel[1] * uvRel[1] - 1./3.) * theSagittaY;
-  
-  
-  return Local2DVector(-dw*localAngles);
+    = (uRel * uRel - 1./3.) * theSagittaX
+    +  uRel * vRel          * theSagittaXY
+    + (vRel * vRel - 1./3.) * theSagittaY;
+
+  // positive dxdz/dydz and positive dw mean negative shift in x/y: 
+  return Local2DVector(-dw * localAngles);
 }
 
 //------------------------------------------------------------------------------
