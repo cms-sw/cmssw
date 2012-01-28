@@ -13,7 +13,6 @@ using reco::TrackCollection;
 
 EventShape::EventShape(reco::TrackCollection& tracks):eigenvalues(3)
 {
-  math::XYZTLorentzVectorF output = math::XYZTLorentzVectorF(0,0,0,0);
   for(reco::TrackCollection::const_iterator itTrack = tracks.begin(); itTrack<tracks.end(); ++itTrack) {
     p.push_back(TVector3(itTrack->px(),itTrack->py(),itTrack->pz()));
   }
