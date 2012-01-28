@@ -49,8 +49,8 @@ process.source = cms.Source("PoolSource",
 
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.10 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/TrackerPointing_cfg.py,v $'),
+    version = cms.untracked.string('$Revision: 1.11 $'),
+    name = cms.untracked.string('$Source: /cvs/CMSSW/CMSSW/DPGAnalysis/Skims/python/TrackerPointing_cfg.py,v $'),
     annotation = cms.untracked.string('CRAFT TrackerPointing skim')
 )
 
@@ -89,7 +89,8 @@ process.cosmicMuonsBarrelOnlyTkFilter = cms.EDFilter("HLTMuonPointingFilter",
                                                      SALabel = cms.string("cosmicMuonsBarrelOnly"),
                                                      PropagatorName = cms.string("SteppingHelixPropagatorAny"),
                                                      radius = cms.double(90.0),
-                                                     maxZ = cms.double(130.0)
+                                                     maxZ = cms.double(130.0),
+                                                     saveTags = cms.bool(False)
                                                      )
 
 process.cosmicMuonsBarrelOnlyTkPath = cms.Path(process.cosmicMuonsBarrelOnlyTkFilter)

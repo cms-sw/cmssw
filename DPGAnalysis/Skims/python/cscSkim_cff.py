@@ -10,7 +10,7 @@ hltBeamHalo = cms.EDFilter("HLTHighLevel",
      eventSetupPathsKey = cms.string(''), # not empty => use read paths from AlCaRecoTriggerBitsRcd via this key
      andOr = cms.bool(True),             # how to deal with multiple triggers: True (OR) accept if ANY is true, False (AND) accept if ALL are true
      throw = cms.bool(False),    # throw exception on unknown path names
-                           saveTags = cms.bool(False)
+     saveTags = cms.bool(False)
  )
 
 cscSkimAloneSeq = cms.Sequence(cscSkim)

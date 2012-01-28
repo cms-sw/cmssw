@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.3 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/CSC_Trial_BField_cfg.py,v $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
+    name = cms.untracked.string('$Source: /cvs/CMSSW/CMSSW/DPGAnalysis/Skims/python/CosmicsPD_Skims.py,v $'),
     annotation = cms.untracked.string('CRAFT Cosmics PD skim')
 )
 
@@ -133,63 +133,72 @@ process.cosmicMuonsBarrelOnlyFilter = cms.EDFilter("HLTMuonPointingFilter",
                                                    SALabel = cms.string("cosmicMuonsBarrelOnly"),
                                                    PropagatorName = cms.string("SteppingHelixPropagatorAny"),
                                                    radius = cms.double(10.0),
-                                                   maxZ = cms.double(50.0)
+                                                   maxZ = cms.double(50.0),
+                                                   saveTags = cms.bool(False)
                                                    )
 
 process.cosmicMuonsFilter = cms.EDFilter("HLTMuonPointingFilter",
                                          SALabel = cms.string("cosmicMuons"),
                                          PropagatorName = cms.string("SteppingHelixPropagatorAny"),
                                          radius = cms.double(10.0),
-                                         maxZ = cms.double(50.0)
+                                         maxZ = cms.double(50.0),
+                                         saveTags = cms.bool(False)
                                          )
 
 process.cosmicMuons1LegFilter = cms.EDFilter("HLTMuonPointingFilter",
                                                        SALabel = cms.string("cosmicMuons1Leg"),
                                                        PropagatorName = cms.string("SteppingHelixPropagatorAny"),
                                                        radius = cms.double(10.0),
-                                                       maxZ = cms.double(50.0)
+                                                       maxZ = cms.double(50.0),
+                                                       saveTags = cms.bool(False)
                                                        )
 
 process.globalCosmicMuonsBarrelOnlyFilter = cms.EDFilter("HLTMuonPointingFilter",
                                                          SALabel = cms.string("globalCosmicMuonsBarrelOnly"),
                                                          PropagatorName = cms.string("SteppingHelixPropagatorAny"),
                                                          radius = cms.double(10.0),
-                                                         maxZ = cms.double(50.0)
+                                                         maxZ = cms.double(50.0),
+                                                         saveTags = cms.bool(False)
                                                          )
 
 process.cosmictrackfinderP5Filter = cms.EDFilter("HLTMuonPointingFilter",
                                                  SALabel = cms.string("cosmictrackfinderP5"),
                                                  PropagatorName = cms.string("SteppingHelixPropagatorAny"),
                                                  radius = cms.double(10.0),
-                                                 maxZ = cms.double(50.0)
+                                                 maxZ = cms.double(50.0),
+                                                 saveTags = cms.bool(False)
                                                  )
 
 process.globalCosmicMuonsFilter = cms.EDFilter("HLTMuonPointingFilter",
                                                SALabel = cms.string("globalCosmicMuons"),
                                                PropagatorName = cms.string("SteppingHelixPropagatorAny"),
                                                radius = cms.double(10.0),
-                                               maxZ = cms.double(50.0)
+                                               maxZ = cms.double(50.0),
+                                               saveTags = cms.bool(False)
                                                )
 
 process.rsWithMaterialTracksP5Filter = cms.EDFilter("HLTMuonPointingFilter",
                                                     SALabel = cms.string("rsWithMaterialTracksP5"),
                                                     PropagatorName = cms.string("SteppingHelixPropagatorAny"),
                                                     radius = cms.double(10.0),
-                                                    maxZ = cms.double(50.0)
+                                                    maxZ = cms.double(50.0),
+                                                    saveTags = cms.bool(False)
                                                     )
 
 process.globalCosmicMuons1LegFilter = cms.EDFilter("HLTMuonPointingFilter",
                                                              SALabel = cms.string("globalCosmicMuons1Leg"),
                                                              PropagatorName = cms.string("SteppingHelixPropagatorAny"),
                                                              radius = cms.double(10.0),
-                                                             maxZ = cms.double(50.0)
+                                                             maxZ = cms.double(50.0),
+                                                             saveTags = cms.bool(False)
                                                              )
 
 process.ctfWithMaterialTracksP5Filter = cms.EDFilter("HLTMuonPointingFilter",
                                                      SALabel = cms.string("ctfWithMaterialTracksP5"),
                                                      PropagatorName = cms.string("SteppingHelixPropagatorAny"),
                                                      radius = cms.double(10.0),
-                                                     maxZ = cms.double(50.0)
+                                                     maxZ = cms.double(50.0),
+                                                     saveTags = cms.bool(False)
                                                      )
 
 

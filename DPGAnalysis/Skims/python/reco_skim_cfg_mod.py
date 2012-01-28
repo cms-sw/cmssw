@@ -44,7 +44,8 @@ process.hltHighLevel = cms.EDFilter("HLTHighLevel",
      HLTPaths = cms.vstring('HLT_MinBiasBSC'),           # provide list of HLT paths (or patterns) you want
      eventSetupPathsKey = cms.string(''), # not empty => use read paths from AlCaRecoTriggerBitsRcd via this key
      andOr = cms.bool(True),             # how to deal with multiple triggers: True (OR) accept if ANY is true, False (AND) accept if ALL are true
-     throw = cms.bool(True)    # throw exception on unknown path names
+     throw = cms.bool(True),    # throw exception on unknown path names
+     saveTags = cms.bool(False)
  )
 
 # this is for filtering based on reco variables
@@ -78,7 +79,7 @@ process.physdecl = cms.EDFilter("PhysDecl",
 
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.3 $'),
+    version = cms.untracked.string('$Revision: 1.4 $'),
     annotation = cms.untracked.string('promptReco nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )

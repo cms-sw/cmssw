@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.3 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/CommPDSkim_cfg.py,v $'),
+    version = cms.untracked.string('$Revision: 1.4 $'),
+    name = cms.untracked.string('$Source: /cvs/CMSSW/CMSSW/DPGAnalysis/Skims/python/CommPDSkim_cfg.py,v $'),
     annotation = cms.untracked.string('Combined Commissioning skim')
 )
 
@@ -88,7 +88,8 @@ process.hltDTActivityFilter = cms.EDFilter( "HLTDTActivityFilter",
     minRPCBX         = cms.int32( -1 ),
     maxRPCBX         = cms.int32( 1 ),
     minActiveChambs  = cms.int32( 1 ),
-    activeSectors    = cms.vint32(1,2,3,4,5,6,7,8,9,10,11,12)
+    activeSectors    = cms.vint32(1,2,3,4,5,6,7,8,9,10,11,12),
+    saveTags = cms.bool(False)
                                      )
 
 # this is for filtering on HLT path
@@ -97,8 +98,9 @@ process.HLTDT =cms.EDFilter("HLTHighLevel",
      HLTPaths = cms.vstring('HLT_L1MuOpen','HLT_Activity_DT', 'HLT_Activity_DT_Tuned'),           # provide list of HLT paths (or patterns) you want
      eventSetupPathsKey = cms.string(''), # not empty => use read paths from AlCaRecoTriggerBitsRcd via this key
      andOr = cms.bool(True),             # how to deal with multiple triggers: True (OR) accept if ANY is true, False (AND) accept if ALL are true
-     throw = cms.bool(False)    # throw exception on unknown path names
- )
+     throw = cms.bool(False),    # throw exception on unknown path names
+     saveTags = cms.bool(False)
+)
 
 process.dtHLTSkim = cms.Path(process.HLTDT)
 
@@ -187,7 +189,8 @@ from Configuration.StandardSequences.RawToDigi_Data_cff import gtEvmDigis
 process.gtEvmDigis = gtEvmDigis.clone()
 process.stableBeam = cms.EDFilter("HLTBeamModeFilter",
                                   L1GtEvmReadoutRecordTag = cms.InputTag("gtEvmDigis"),
-                                  AllowedBeamMode = cms.vuint32(11)
+                                  AllowedBeamMode = cms.vuint32(11),
+                                  saveTags = cms.bool(False)
                                   )
 
 process.logerrorpath=cms.Path(process.gtEvmDigis+process.stableBeam+process.logErrorFilter)

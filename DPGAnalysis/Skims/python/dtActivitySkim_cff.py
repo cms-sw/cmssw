@@ -41,8 +41,9 @@ HLTDT =cms.EDFilter("HLTHighLevel",
      HLTPaths = cms.vstring('HLT_L1MuOpen','HLT_Activity_DT','HLT_Activity_DT_Tuned','HLT_Mu5_TkMu0_OST_Jpsi_Tight_B5Q7'),           # provide list of HLT paths (or patterns) you want
      eventSetupPathsKey = cms.string(''), # not empty => use read paths from AlCaRecoTriggerBitsRcd via this key
      andOr = cms.bool(True),             # how to deal with multiple triggers: True (OR) accept if ANY is true, False (AND) accept if ALL are true
-     throw = cms.bool(False)    # throw exception on unknown path names
- )
+     throw = cms.bool(False),    # throw exception on unknown path names
+     saveTags = cms.bool(False)
+)
 
 dtHLTSkimseq = cms.Sequence(HLTDT)
 

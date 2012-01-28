@@ -21,7 +21,8 @@ cosmicMuonsBarrelOnlyTkFilter = cms.EDFilter("HLTMuonPointingFilter",
                                              SALabel = cms.string("cosmicMuons"),
                                              PropagatorName = cms.string("SteppingHelixPropagatorAny"),
                                              radius = cms.double(90.0),
-                                             maxZ = cms.double(130.0)
+                                             maxZ = cms.double(130.0),
+                                             saveTags = cms.bool(False)
                                              )
 
 cosmicMuonsEndCapsOnlyTkFilter       = cosmicMuonsBarrelOnlyTkFilter.clone(SALabel = cms.string("cosmicMuonsEndCapsOnly"))

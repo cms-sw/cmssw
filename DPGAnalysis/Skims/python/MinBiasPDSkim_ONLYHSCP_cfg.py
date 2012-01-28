@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/MinBiasPDSkim_ONLYHSCP_cfg.py,v $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
+    name = cms.untracked.string('$Source: /cvs/CMSSW/CMSSW/DPGAnalysis/Skims/python/MinBiasPDSkim_ONLYHSCP_cfg.py,v $'),
     annotation = cms.untracked.string('Combined MinBias skim')
 )
 # selection eff. on 1000 events
@@ -79,8 +79,9 @@ process.hltstoppedhscp = cms.EDFilter("HLTHighLevel",
      HLTPaths = cms.vstring("HLT_StoppedHSCP*"), # provide list of HLT paths (or patterns) you want
      eventSetupPathsKey = cms.string(''), # not empty => use read paths from AlCaRecoTriggerBitsRcd via this key
      andOr = cms.bool(True),             # how to deal with multiple triggers: True (OR) accept if ANY is true, False (AND) accept if ALL are true
-     throw = cms.bool(False)    # throw exception on unknown path names
- )
+     throw = cms.bool(False),    # throw exception on unknown path names
+     saveTags = cms.bool(False)
+)
 
 process.HSCP=cms.Path(process.hltstoppedhscp)
 

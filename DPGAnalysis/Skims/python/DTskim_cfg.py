@@ -4,8 +4,8 @@ process = cms.Process("SKIM")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.3 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/DTskim_cfg.py,v $'),
+    version = cms.untracked.string('$Revision: 1.4 $'),
+    name = cms.untracked.string('$Source: /cvs/CMSSW/CMSSW/DPGAnalysis/Skims/python/DTskim_cfg.py,v $'),
     annotation = cms.untracked.string('Collisions DT skim')
 )
 
@@ -96,8 +96,9 @@ process.HLTDT =cms.EDFilter("HLTHighLevel",
      HLTPaths = cms.vstring('HLT_L1MuOpen','HLT_Activity_DT'),           # provide list of HLT paths (or patterns) you want
      eventSetupPathsKey = cms.string(''), # not empty => use read paths from AlCaRecoTriggerBitsRcd via this key
      andOr = cms.bool(True),             # how to deal with multiple triggers: True (OR) accept if ANY is true, False (AND) accept if ALL are true
-     throw = cms.bool(False)    # throw exception on unknown path names
- )
+     throw = cms.bool(False),    # throw exception on unknown path names
+     saveTags = cms.bool(False)
+)
 
 process.HLTDTpath = cms.Path(process.HLTDT)
 
@@ -108,8 +109,8 @@ process.DTskim=cms.Path(process.muonDTDigis+process.hltDTActivityFilter)
 
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.3 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/DTskim_cfg.py,v $'),
+    version = cms.untracked.string('$Revision: 1.4 $'),
+    name = cms.untracked.string('$Source: /cvs/CMSSW/CMSSW/DPGAnalysis/Skims/python/DTskim_cfg.py,v $'),
     annotation = cms.untracked.string('BSC skim')
 )
 

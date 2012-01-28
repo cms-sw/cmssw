@@ -16,7 +16,8 @@ hltFilter = cms.EDFilter("HLTHighLevel",
     ),
                          eventSetupPathsKey = cms.string(''),
                          andOr = cms.bool(True),
-                         throw = cms.bool(False)
+                         throw = cms.bool(False),
+                         saveTags = cms.bool(False)
                          )
 
 from DPGAnalysis.Skims.WZinterestingEventFilter_cfi import *

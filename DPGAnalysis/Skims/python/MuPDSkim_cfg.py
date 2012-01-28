@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/MuPDSkim_cfg.py,v $'),
+    version = cms.untracked.string('$Revision: 1.7 $'),
+    name = cms.untracked.string('$Source: /cvs/CMSSW/CMSSW/DPGAnalysis/Skims/python/MuPDSkim_cfg.py,v $'),
     annotation = cms.untracked.string('Mu skim')
 )
 
@@ -83,7 +83,8 @@ from Configuration.StandardSequences.RawToDigi_Data_cff import gtEvmDigis
 process.gtEvmDigis = gtEvmDigis.clone()
 process.stableBeam = cms.EDFilter("HLTBeamModeFilter",
                                   L1GtEvmReadoutRecordTag = cms.InputTag("gtEvmDigis"),
-                                  AllowedBeamMode = cms.vuint32(11)
+                                  AllowedBeamMode = cms.vuint32(11),
+                                  saveTags = cms.bool(False)
                                   )
 
 process.logerrorpath=cms.Path(process.gtEvmDigis+process.stableBeam+process.logErrorFilter)
