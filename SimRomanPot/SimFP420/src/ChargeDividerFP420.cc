@@ -184,14 +184,9 @@ void ChargeDividerFP420::fluctuateEloss(int pid, float particleMomentum,
 					float eloss, float length, 
 					int NumberOfSegs,float elossVector[]) {
   
-  // Get dedx for this track
-  float dedx;
-  
   if(verbosity>0) {
     std::cout << "fluctuateEloss: eloss=  " << eloss << "length=  " << length << "NumberOfSegs=  " << NumberOfSegs << std::endl;
   }
-  if( length > 0.) dedx = eloss/length;
-  else dedx = eloss;
   
   //  double particleMass = 139.57; // Mass in MeV, Assume pion
   double particleMass = 938.271; // Mass in MeV, Assume proton   ----  AZ

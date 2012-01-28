@@ -16,7 +16,6 @@ double GsfVertexWeightCalculator::calculate(const  VertexState & oldVertex,
   AlgebraicSymMatrixNN trackParametersError = track->predictedStateError();
   //vertex information
   AlgebraicSymMatrix33 oldVertexError  = oldVertex.error().matrix_new();
-  AlgebraicSymMatrix33 oldVertexWeight  = oldVertex.weight().matrix_new();
   //Vertex position
   GlobalPoint oldVertexPosition = oldVertex.position();
   AlgebraicVector3 oldVertexCoord;
