@@ -6,6 +6,3 @@
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondTools/L1Trigger"/>
 <use   name="xerces-c"/>
-<export>
-  <lib   name="1"/>
-</export>
