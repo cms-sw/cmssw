@@ -104,10 +104,6 @@ void SetupFDSets(fd_set& ReadFDs, fd_set& WriteFDs,
 	// From John's code
 
 	fd_set fdsRead, fdsWrite, fdsExcept;
-	struct timeval tv;
-
-	tv.tv_sec = 1;
-	tv.tv_usec = 0;
 
 	//	int outputcode;
 	//int z = 0, localCount = 0;

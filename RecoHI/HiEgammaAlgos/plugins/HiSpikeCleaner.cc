@@ -13,7 +13,7 @@
 //
 // Original Author:  Yong Kim,32 4-A08,+41227673039,
 //         Created:  Mon Nov  1 18:22:21 CET 2010
-// $Id: HiSpikeCleaner.cc,v 1.8 2011/01/20 15:22:17 vlimant Exp $
+// $Id: HiSpikeCleaner.cc,v 1.9 2011/01/21 10:45:18 vlimant Exp $
 //
 //
 
@@ -184,7 +184,6 @@ HiSpikeCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 if ( theEt < etCut_ )  continue;   // cut off low pT superclusters 
 	 
 	 bool flagS = true;
-	 int severity(-100);
 	 float swissCrx(0);
 	 
 	 const reco::CaloClusterPtr seed = aClus->seed();
@@ -193,7 +192,7 @@ HiSpikeCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 EcalRecHitCollection::const_iterator it = rechits.find( id );
 	 
 	 if( it != rechits.end() ) {
-	    severity = ecalSevLvlAlgoHndl->severityLevel(id, rechits);
+	    ecalSevLvlAlgoHndl->severityLevel(id, rechits);
 	    swissCrx = EcalTools::swissCross   (id, rechits, 0.,true);
 	    //	    std::cout << "swissCross = " << swissCrx <<std::endl;
 	    // std::cout << " timing = " << it->time() << std::endl;

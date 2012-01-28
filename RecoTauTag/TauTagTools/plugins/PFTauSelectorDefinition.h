@@ -65,7 +65,6 @@ struct PFTauSelectorDefinition {
     for (size_t iTau = 0; iTau < nTaus; ++iTau) {
       bool passed = true;
       reco::PFTauRef tau(hc, iTau);
-      edm::ProductID tauProduct = tau.id();
       // Check if it passed all the discrimiantors
       BOOST_FOREACH(const DiscCutPair &disc, discriminators_) {
         // Check this discriminator passes
