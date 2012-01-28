@@ -895,11 +895,11 @@ std::string WriteVHDL::writeConeDef(const edm::EventSetup& evtSetup, int tower, 
                    std::vector< std::pair< LinkBoardElectronicIndex, LinkBoardPackedStrip> > aVec = map->rawDataFrame( stripInDetUnit);
                    std::vector< std::pair< LinkBoardElectronicIndex, LinkBoardPackedStrip> >::const_iterator CI;
 
-                   bool connectionFound = false;
+                   //bool connectionFound = false;
                    for(CI=aVec.begin();CI!=aVec.end();++CI){
 
                      if(CI->first.dccInputChannelNum==dccInputChannel) linkStrip = *CI;
-                     connectionFound = true;
+                     // connectionFound = true;
                      
 
                    }
