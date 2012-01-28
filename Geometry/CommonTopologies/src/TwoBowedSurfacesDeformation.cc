@@ -1,7 +1,7 @@
 ///  \author    : Gero Flucke
 ///  date       : October 2010
-///  $Revision: 1.4 $
-///  $Date: 2012/01/24 13:30:20 $
+///  $Revision: 1.5 $
+///  $Date: 2012/01/24 13:53:21 $
 ///  (last update by $Author: innocent $)
 
 #include "Geometry/CommonTopologies/interface/TwoBowedSurfacesDeformation.h"
@@ -109,8 +109,8 @@ bool TwoBowedSurfacesDeformation::add(const SurfaceDeformation &other)
 	return true;
       } else { // ySplit values are different!
 	LogDebug("Alignment") << "@SUB=TwoBowedSurfacesDeformation::add"
-			      << "Different ySplit: this " << theParameters[12]
-			      << ", to add " << otherParameters.back();
+			      << "Different ySplit: this " << theParameters[k_ySplit()]
+			      << ", to add " << otherParameters[k_ySplit()];
       }
     } // same size
   } // same type
