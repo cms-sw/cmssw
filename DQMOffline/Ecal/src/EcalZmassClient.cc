@@ -13,7 +13,7 @@
 //
 // Original Author:  Vieri Candelise
 //         Created:  Mon Jun 13 09:49:08 CEST 2011
-// $Id$
+// $Id: EcalZmassClient.cc,v 1.1 2011/07/25 14:34:56 vieri Exp $
 //
 //
 
@@ -40,13 +40,8 @@
 #include <iostream>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-using namespace std;
-using namespace edm;
-using namespace reco;
-
 class DQMStore;
 class MonitorElement;
-
 
 //
 // class declaration
@@ -85,8 +80,7 @@ private:
 
   // ----------member data ---------------------------
 
-  std::string
-    prefixME_;
+  std::string prefixME_;
 
   MonitorElement *
     h_ee_invMass_EB;
@@ -136,23 +130,9 @@ private:
 
 };
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
-
-
-
 EcalZmassClient::EcalZmassClient (const edm::ParameterSet & iConfig)
 {
-  prefixME_ = iConfig.getUntrackedParameter < string > ("prefixME", "");
+  prefixME_ = iConfig.getUntrackedParameter < std::string > ("prefixME", "");
 
 }
 
@@ -175,19 +155,7 @@ void
 EcalZmassClient::analyze (const edm::Event & iEvent,
 			  const edm::EventSetup & iSetup)
 {
-  using namespace edm;
 
-
-
-#ifdef THIS_IS_AN_EVENT_EXAMPLE
-  Handle < ExampleData > pIn;
-  iEvent.getByLabel ("example", pIn);
-#endif
-
-#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-  ESHandle < SetupData > pSetup;
-  iSetup.get < SetupRecord > ().get (pSetup);
-#endif
 }
 
 
@@ -207,7 +175,7 @@ EcalZmassClient::endJob ()
 void
 EcalZmassClient::beginRun (edm::Run const &, edm::EventSetup const &)
 {
-  DQMStore *theDbe = Service < DQMStore > ().operator-> ();
+  DQMStore *theDbe = edm::Service < DQMStore > ().operator-> ();
 
   theDbe->setCurrentFolder (prefixME_ + "/Zmass");
   h_fitres1 =
@@ -239,30 +207,6 @@ EcalZmassClient::beginRun (edm::Run const &, edm::EventSetup const &)
   h_fitres2Chi2 =
     theDbe->book1D ("Gaussian Chi2 result over NDF WP80 EE-EE",
 		    "Gaussian Chi2 result over NDF WP80 EE-EE", 1, 0, 1);
-
-  /*
-     h_95_fitres1 =
-     theDbe->book1D ("Breit-Wigner mean WP95 EB-EB",
-     "Breit-Wigner mean WP95 EB-EB", 1, 0, 1);
-     h_95_fitres1bis =
-     theDbe->book1D ("Breit-Wigner sigma WP95 EB-EB",
-     "Breit-Wigner sigma WP95 EB-EB", 1, 0, 1);
-
-     h_95_fitres3 =
-     theDbe->book1D ("Breit-Wigner  mean WP95 EB-EE",
-     "Breit-Wigner  mean WP95 EB-EE", 1, 0, 1);
-     h_95_fitres3bis =
-     theDbe->book1D ("Breit-Wigner  sigma WP95 EB-EE",
-     "Breit-Wigner  sigma WP95 EB-EE", 1, 0, 1);
-
-     h_95_fitres2 =
-     theDbe->book1D ("Gaussian mean WP95 EE-EE",
-     "Gaussian mean WP95 EE-EE", 1, 0, 1);
-     h_95_fitres2bis =
-     theDbe->book1D ("Gaussian sigma WP95 EE-EE",
-     "Gaussian sigma WP95 EE-EE", 1, 0, 1);
-   */
-
 }
 
 
@@ -298,11 +242,9 @@ mygauss (Double_t * x, Double_t * par)
 void
 EcalZmassClient::endRun (edm::Run const &, edm::EventSetup const &)
 {
-  DQMStore *theDbe = Service < DQMStore > ().operator-> ();
-  std::string logTraceName;
-  logTraceName = "EwkAnalyzer";
+  DQMStore *theDbe = edm::Service < DQMStore > ().operator-> ();
 
-  LogTrace (logTraceName) << "Parameters initialization";
+  LogTrace ("EwkAnalyzer") << "Parameters initialization";
 
   MonitorElement *me1 = theDbe->get (prefixME_ + "/Zmass/Z peak - WP80 EB-EB");
   MonitorElement *me2 = theDbe->get (prefixME_ + "/Zmass/Z peak - WP80 EE-EE");
@@ -666,351 +608,6 @@ EcalZmassClient::endRun (edm::Run const &, edm::EventSetup const &)
       R3bis->SetEntries (N);
       R3bis->PutStats (stats);
     }
-
-  /* WP95 DO NOT USE IT ******************************************************************************************************************************
-
-
-     MonitorElement *me4 = theDbe->get ("Physics/EwkDQM/Z peak - WP95 EB-EB");
-     MonitorElement *me5 = theDbe->get ("Physics/EwkDQM/Z peak - WP95 EE-EE");
-     MonitorElement *me6 = theDbe->get ("Physics/EwkDQM/Z peak - WP95 EB-EE");
-
-
-     if (me4 != 0) {
-     TH1F *B_95 = me4->getTH1F ();
-     TH1F *R1_95 = h_95_fitres1->getTH1F ();
-     int division = B_95->GetNbinsX ();
-     float massMIN = B_95->GetBinLowEdge (1);
-     float massMAX = B_95->GetBinLowEdge (division + 1);
-     //float BIN_SIZE = B->GetBinWidth(1);
-
-     TF1 *func = new TF1 ("mybw", mybw, massMIN, massMAX, 3);
-     func->SetParameter (0, 1.0);
-     func->SetParName (0, "const");
-     func->SetParameter (1, 95.0);
-     func->SetParName (1, "mean");
-     func->SetParameter (2, 5.0);
-     func->SetParName (2, "sigma");
-
-     double stats[4];
-     R1_95->GetStats (stats);
-     float N = 0;
-     float mean = 0;
-     float sigma = 0;
-     N = B_95->GetEntries ();
-
-     try {
-     if (N != 0) {
-
-     B_95->Fit ("mybw", "QR");
-     mean = fabs (func->GetParameter (1));
-     sigma = fabs (func->GetParError (1));
-     }
-
-     if (N == 0 || mean < 50 || mean > 100 || sigma <= 0 || sigma > 20) {
-     N = 1;
-     mean = 50;
-     sigma = 0;
-     }
-
-     }
-     catch (...) {
-     edm::LogError ("ZFitter") << "[Zfitter]: Exception when fitting...";
-     N = 1;
-     mean = 40;
-     sigma = 0;
-     }
-
-     stats[0] = N;
-     stats[1] = N;
-     stats[2] = mean * N;
-     stats[3] = sigma * sigma * N + mean * mean * N;
-
-     R1_95->SetEntries (N);
-     R1_95->PutStats (stats);
-
-     }
-     ***************************************************************************
-     if (me4 != 0) {
-     TH1F *B_95bis = me4->getTH1F ();
-     TH1F *R1_95bis = h_95_fitres1bis->getTH1F ();
-     int division = B_95bis->GetNbinsX ();
-     float massMIN = B_95bis->GetBinLowEdge (1);
-     float massMAX = B_95bis->GetBinLowEdge (division + 1);
-     //float BIN_SIZE = B->GetBinWidth(1);
-
-     TF1 *func = new TF1 ("mybw", mybw, massMIN, massMAX, 3);
-     func->SetParameter (0, 1.0);
-     func->SetParName (0, "const");
-     func->SetParameter (1, 95.0);
-     func->SetParName (1, "mean");
-     func->SetParameter (2, 5.0);
-     func->SetParName (2, "sigma");
-
-     double stats[4];
-     R1_95bis->GetStats (stats);
-     float N = 0;
-     float rms = 0;
-     float rmsErr = 0;
-     N = B_95bis->GetEntries ();
-
-     try {
-     if (N != 0) {
-
-     B_95bis->Fit ("mybw", "QR");
-     rms = fabs (func->GetParameter (2));
-     rmsErr = fabs (func->GetParError (2));
-     }
-
-     if (N == 0 || rms < 0 || rms > 50 || rmsErr <= 0 || rmsErr > 50) {
-     N = 1;
-     rms = 50;
-     rmsErr = 0;
-     }
-
-     }
-     catch (...) {
-     edm::LogError ("ZFitter") << "[Zfitter]: Exception when fitting...";
-     N = 1;
-     rms = 40;
-     rmsErr = 0;
-     }
-
-     stats[0] = N;
-     stats[1] = N;
-     stats[2] = rms * N;
-     stats[3] = rmsErr * rmsErr * N + rms * rms * N;
-
-     R1_95bis->SetEntries (N);
-     R1_95bis->PutStats (stats);
-     }
-     ***************************************************************
-
-     if (me5 != 0) {
-     TH1F *E_95 = me5->getTH1F ();
-     TH1F *R2_95 = h_95_fitres2->getTH1F ();
-     int division = E_95->GetNbinsX ();
-     float massMIN = E_95->GetBinLowEdge (1);
-     float massMAX = E_95->GetBinLowEdge (division + 1);
-     //float BIN_SIZE = E->GetBinWidth(1);
-
-     TF1 *func = new TF1 ("mygauss", mygauss, massMIN, massMAX, 3);
-     func->SetParameter (0, 1.0);
-     func->SetParName (0, "const");
-     func->SetParameter (1, 95.0);
-     func->SetParName (1, "mean");
-     func->SetParameter (2, 5.0);
-     func->SetParName (2, "sigma");
-
-     double stats[4];
-     R2_95->GetStats (stats);
-     float N = 0;
-     float mean = 0;
-     float sigma = 0;
-     N = E_95->GetEntries ();
-
-     try {
-     if (N != 0) {
-
-     E_95->Fit ("mygauss", "QR");
-     mean  =  fabs(func->GetParameter (1));
-     sigma =  fabs(func->GetParError  (1));
-     }
-
-     if (N == 0 || mean < 50 || mean > 100 || sigma <= 0 || sigma > 20) {
-     N = 1;
-     mean = 50;
-     sigma = 0;
-     }
-
-     }
-     catch (...) {
-     edm::LogError ("ZFitter") << "[Zfitter]: Exception when fitting...";
-     N = 1;
-     mean = 40;
-     sigma = 0;
-     }
-
-     stats[0] = N;
-     stats[1] = N;
-     stats[2] = mean * N;
-     stats[3] = sigma * sigma * N + mean * mean * N;
-
-     R2_95->SetEntries (N);
-     R2_95->PutStats (stats);
-
-     }
-     *******************************************************************
-     if (me5 != 0) {
-     TH1F *E_95bis = me5->getTH1F ();
-     TH1F *R2_95bis = h_95_fitres2bis->getTH1F ();
-     int division = E_95bis->GetNbinsX ();
-     float massMIN = E_95bis->GetBinLowEdge (1);
-     float massMAX = E_95bis->GetBinLowEdge (division + 1);
-     //float BIN_SIZE = B->GetBinWidth(1);
-
-     TF1 *func = new TF1 ("mygauss", mygauss, massMIN, massMAX, 3);
-     func->SetParameter (0, 1.0);
-     func->SetParName (0, "const");
-     func->SetParameter (1, 95.0);
-     func->SetParName (1, "mean");
-     func->SetParameter (2, 5.0);
-     func->SetParName (2, "sigma");
-
-     double stats[4];
-     R2_95bis->GetStats (stats);
-     float N = 0;
-     float rms = 0;
-     float rmsErr = 0;
-     N = E_95bis->GetEntries ();
-
-     try {
-     if (N != 0) {
-
-     E_95bis->Fit ("mygauss", "QR");
-     rms = fabs (func->GetParameter (2));
-     rmsErr = fabs (func->GetParError (2));
-     }
-
-     if (N == 0 || rms < 0 || rms > 50 || rmsErr <= 0 || rmsErr > 50) {
-     N = 1;
-     rms = 50;
-     rmsErr = 0;
-     }
-
-     }
-     catch (...) {
-     edm::LogError ("ZFitter") << "[Zfitter]: Exception when fitting...";
-     N = 1;
-     rms = 40;
-     rmsErr = 0;
-     }
-
-     stats[0] = N;
-     stats[1] = N;
-     stats[2] = rms * N;
-     stats[3] = rmsErr * rmsErr * N + rms * rms * N;
-
-     R2_95bis->SetEntries (N);
-     R2_95bis->PutStats (stats);
-     }
-     ****************************************************************************************
-
-     if (me6 != 0) {
-     TH1F *R3_95 = h_95_fitres3->getTH1F ();
-     TH1F *M_95 = me6->getTH1F ();
-     int division = M_95->GetNbinsX ();
-     float massMIN = M_95->GetBinLowEdge (1);
-     float massMAX = M_95->GetBinLowEdge (division + 1);
-     //float BIN_SIZE = M->GetBinWidth(1);
-
-     TF1 *func = new TF1 ("mybw", mybw, massMIN, massMAX, 3);
-     func->SetParameter (0, 1.0);
-     func->SetParName (0, "const");
-     func->SetParameter (1, 95.0);
-     func->SetParName (1, "mean");
-     func->SetParameter (2, 5.0);
-     func->SetParName (2, "sigma");
-
-     double stats[4];
-     R3_95->GetStats (stats);
-     float N = 0;
-     float mean = 0;
-     float sigma = 0;
-     N = M_95->GetEntries ();
-
-
-     try {
-     if (N != 0) {
-
-     M_95->Fit ("mybw", "QR");
-     mean = fabs (func->GetParameter (1));
-     sigma = fabs (func->GetParError (1));
-     }
-
-     if (N == 0 || mean < 50 || mean > 100 || sigma <= 0 || sigma > 20) {
-     N = 1;
-     mean = 50;
-     sigma = 0;
-     }
-
-     stats[0] = N;
-     stats[1] = N;
-     stats[2] = mean * N;
-     stats[3] = sigma * sigma * N + mean * mean * N;
-
-     R3_95->SetEntries (N);
-     R3_95->PutStats (stats);
-
-     }
-     catch (...) {
-     edm::LogError ("ZFitter") << "[Zfitter]: Exception when fitting...";
-     N = 1;
-     mean = 40;
-     sigma = 0;
-     }
-     stats[0] = N;
-     stats[1] = N;
-     stats[2] = mean * N;
-     stats[3] = sigma * sigma * N + mean * mean * N;
-
-     R3_95->SetEntries (N);
-     R3_95->PutStats (stats);
-
-     }
-     ***********************************************************
-     if (me6 != 0) {
-     TH1F *M_95bis = me6->getTH1F ();
-     TH1F *R3_95bis = h_95_fitres3bis->getTH1F ();
-     int division = M_95bis->GetNbinsX ();
-     float massMIN = M_95bis->GetBinLowEdge (1);
-     float massMAX = M_95bis->GetBinLowEdge (division + 1);
-     //float BIN_SIZE = B->GetBinWidth(1);
-
-     TF1 *func = new TF1 ("mybw", mybw, massMIN, massMAX, 3);
-     func->SetParameter (0, 1.0);
-     func->SetParName (0, "const");
-     func->SetParameter (1, 95.0);
-     func->SetParName (1, "mean");
-     func->SetParameter (2, 5.0);
-     func->SetParName (2, "sigma");
-
-     double stats[4];
-     R3_95bis->GetStats (stats);
-     float N = 0;
-     float rms = 0;
-     float rmsErr = 0;
-     N = M_95bis->GetEntries ();
-
-     try {
-     if (N != 0) {
-
-     M_95bis->Fit ("mybw", "QR");
-     rms = fabs (func->GetParameter (2));
-     rmsErr = fabs (func->GetParError (2));
-     }
-
-     if (N == 0 || rms <= 0 || rms > 50 || rmsErr <= 0 || rmsErr > 100) {
-     N = 1;
-     rms = 50;
-     rmsErr = 0;
-     }
-
-     }
-     catch (...) {
-     edm::LogError ("ZFitter") << "[Zfitter]: Exception when fitting...";
-     N = 1;
-     rms = 40;
-     rmsErr = 0;
-     }
-
-     stats[0] = N;
-     stats[1] = N;
-     stats[2] = rms * N;
-     stats[3] = rmsErr * rmsErr * N + rms * rms * N;
-
-     R3_95bis->SetEntries (N);
-     R3_95bis->PutStats (stats);
-     }******************************************************************************* */
 
   /*Chi2 */
 

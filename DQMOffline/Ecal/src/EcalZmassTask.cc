@@ -13,7 +13,7 @@
 //
 // Original Author:  Vieri Candelise
 //         Created:  Wed May 11 14:53:26 CEST 2011
-// $Id: EcalZmassTask.cc,v 1.1 2011/07/25 14:34:56 vieri Exp $
+// $Id: EcalZmassTask.cc,v 1.2 2011/07/28 10:03:01 vieri Exp $
 //
 //
 
@@ -47,15 +47,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 
-using namespace std;
-using namespace edm;
-using namespace reco;
-
-
 class DQMStore;
 class MonitorElement;
-
-std::string prefixME_;
 
 class
   EcalZmassTask:
@@ -89,21 +82,7 @@ private:
   virtual void
   endLuminosityBlock (edm::LuminosityBlock const &, edm::EventSetup const &);
 
-
-
-
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
+  std::string prefixME_;
 
   edm::InputTag
     theElectronCollectionLabel;
@@ -139,9 +118,9 @@ private:
 
 EcalZmassTask::EcalZmassTask (const edm::ParameterSet & parameters)
 {
-  prefixME_ = parameters.getUntrackedParameter < string > ("prefixME", "");
+  prefixME_ = parameters.getUntrackedParameter < std::string > ("prefixME", "");
   theElectronCollectionLabel =
-    parameters.getParameter < InputTag > ("electronCollection");
+    parameters.getParameter < edm::InputTag > ("electronCollection");
 
 }
 
@@ -168,10 +147,8 @@ EcalZmassTask::analyze (const edm::Event & iEvent,
 			const edm::EventSetup & iSetup)
 {
 
-  LogTrace (logTraceName) << "Analysis of event # ";
-
   using namespace edm;
-  Handle < GsfElectronCollection > electronCollection;
+  Handle < reco::GsfElectronCollection > electronCollection;
   iEvent.getByLabel (theElectronCollectionLabel, electronCollection);
   if (!electronCollection.isValid ())
     return;
@@ -179,46 +156,6 @@ EcalZmassTask::analyze (const edm::Event & iEvent,
   //get GSF Tracks
   Handle < reco::GsfTrackCollection > gsftracks_h;
   iEvent.getByLabel ("electronGsfTracks", gsftracks_h);
-
-/*
-  // Find the highest and 2nd highest electron in the barrel/endcap that will be selected with WP95
-
-  float b_95_electron_et = -8.0;
-  float b_95_electron_eta = -8.0;
-  float b_95_electron_phi = -8.0;
-  float b_95_electron2_et = -9.0;
-  float b_95_electron2_eta = -9.0;
-  float b_95_electron2_phi = -9.0;
-  float b_95_ee_invMass = -9.0;
-  TLorentzVector b_95_e1, b_95_e2;
-
-  float e_95_electron_et = -8.0;
-  float e_95_electron_eta = -8.0;
-  float e_95_electron_phi = -8.0;
-  float e_95_electron2_et = -9.0;
-  float e_95_electron2_eta = -9.0;
-  float e_95_electron2_phi = -9.0;
-  float e_95_ee_invMass = -9.0;
-  TLorentzVector e_95_e1, e_95_e2;
-
-  float eb_95_electron_et = -8.0;
-  float eb_95_electron_eta = -8.0;
-  float eb_95_electron_phi = -8.0;
-  float eb_95_electron2_et = -9.0;
-  float eb_95_electron2_eta = -9.0;
-  float eb_95_electron2_phi = -9.0;
-  float eb_95_ee_invMass = -9.0;
-  TLorentzVector eb_95_e1, eb_95_e2;
-  
-  float be_95_electron_et = -8.0;	            	
-  float be_95_electron_eta = -8.0;
-  float be_95_electron_phi = -8.0;
-  float be_95_electron2_et = -9.0;
-  float be_95_electron2_eta = -9.0;
-  float be_95_electron2_phi = -9.0;
-  float be_95_ee_invMass = -9.0;
-  TLorentzVector be_95_e1, be_95_e2;
-*/
 
   bool isBarrelElectrons;
   bool isEndcapElectrons;
@@ -349,7 +286,7 @@ EcalZmassTask::analyze (const edm::Event & iEvent,
 
 	  if (elIsAccepted>1){
 	     double e_ee_invMass=0; 
-	     if (elIsAccepted>2) cout<<"WARNING: In this events we have more than two electrons accpeted!!!!!!!"<<endl;
+	     if (elIsAccepted>2) edm::LogWarning("EwkAnalyzer") << "WARNING: In this events we have more than two electrons accpeted!!!!!!!";
              if (LV.size()==2){
 		      TLorentzVector e_pair = LV[0] + LV[1];
 		      e_ee_invMass = e_pair.M ();
@@ -370,35 +307,20 @@ EcalZmassTask::analyze (const edm::Event & iEvent,
 	 }
 }
 
-#ifdef THIS_IS_AN_EVENT_EXAMPLE
-Handle < ExampleData > pIn;
-iEvent.getByLabel ("example", pIn);
-#endif
-
-#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-ESHandle < SetupData > pSetup;
-iSetup.get < SetupRecord > ().get (pSetup);
-#endif
-
-
-
 // ------------ method called once each job just before starting event loop  ------------
 void
 EcalZmassTask::beginJob ()
 {
 
   DQMStore *theDbe;
-  std::string logTraceName;
-
-  logTraceName = "EwkAnalyzer";
 
   h_ee_invMass_EB = 0;
   h_ee_invMass_EE = 0;
   h_ee_invMass_BB = 0;
 
 
-  LogTrace (logTraceName) << "Parameters initialization";
-  theDbe = Service < DQMStore > ().operator-> ();
+  LogTrace ("EwkAnalyzer") << "Parameters initialization";
+  theDbe = edm::Service < DQMStore > ().operator-> ();
 
   if (theDbe != 0)
     {
@@ -414,13 +336,6 @@ EcalZmassTask::beginJob ()
       h_ee_invMass_BB =
 	theDbe->book1D ("Z peak - WP80 EB-EB",
 			"Z peak - WP80 EB-EB;InvMass (Gev)", 60, 60.0, 120.0);
-
-      //h_e1_et             = theDbe->book1D("h_e1_et",  "E_{T} of Leading Electron;E_{T} (GeV)"        , 20,  0.0 , 100.0);
-      //h_e2_et             = theDbe->book1D("h_e2_et",  "E_{T} of Second Electron;E_{T} (GeV)"         , 20,  0.0 , 100.0);
-      //h_e1_eta            = theDbe->book1D("h_e1_eta", "#eta of Leading Electron;#eta"                , 20, -4.0 , 4.0);
-      //h_e2_eta            = theDbe->book1D("h_e2_eta", "#eta of Second Electron;#eta"                 , 20, -4.0 , 4.0);
-      //h_e1_phi            = theDbe->book1D("h_e1_phi", "#phi of Leading Electron;#phi"                , 22, (-1.-1./10.)*pi, (1.+1./10.)*pi );
-      //h_e2_phi            = theDbe->book1D("h_e2_phi", "#phi of Second Electron;#phi"                 , 22, (-1.-1./10.)*pi, (1.+1./10.)*pi );
     }
 }
 
