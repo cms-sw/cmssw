@@ -290,6 +290,10 @@ rstracksP5Bottom = cms.Sequence(roadSearchSeedsP5Bottom*roadSearchCloudsP5Bottom
                                          rsTrackCandidatesP5Bottom*rsWithMaterialTracksP5Bottom)
 
 #TOP SEQUENCE
-tracksP5Top = cms.Sequence(ctftracksP5Top+cosmictracksP5Top+rstracksP5Top)
+# (SK) keep rstracks commented out in case of resurrection
+#tracksP5Top = cms.Sequence(ctftracksP5Top+cosmictracksP5Top+rstracksP5Top)
+tracksP5Top = cms.Sequence(ctftracksP5Top+cosmictracksP5Top)
 #BOTTOM SEQUENCE
-tracksP5Bottom = cms.Sequence(ctftracksP5Bottom+cosmictracksP5Bottom+rstracksP5Bottom)
+# (SK) keep rstracks commented out in case of resurrection
+#tracksP5Bottom = cms.Sequence(ctftracksP5Bottom+cosmictracksP5Bottom+rstracksP5Bottom)
+tracksP5Bottom = cms.Sequence(ctftracksP5Bottom+cosmictracksP5Bottom)

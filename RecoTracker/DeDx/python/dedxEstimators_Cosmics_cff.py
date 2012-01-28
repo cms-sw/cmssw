@@ -62,6 +62,7 @@ doAlldEdXEstimatorsRS       = cms.Sequence(dedxTruncated40RS       + dedxDiscrim
 doAlldEdXEstimatorsCosmicTF = cms.Sequence(dedxTruncated40CosmicTF + dedxDiscrimASmiCosmicTF + dedxHarmonic2CosmicTF)
 doAlldEdXEstimatorsCTFP5LHC = cms.Sequence(dedxTruncated40CTFP5LHC + dedxDiscrimASmiCTFP5LHC + dedxHarmonic2CTFP5LHC)
 
-
-doAllCosmicdEdXEstimators = cms.Sequence( doAlldEdXEstimatorsCTF + doAlldEdXEstimatorsRS + doAlldEdXEstimatorsCosmicTF + doAlldEdXEstimatorsCTFP5LHC)
+# (SK) keep rstracks commented out in case of resurrection
+#doAllCosmicdEdXEstimators = cms.Sequence( doAlldEdXEstimatorsCTF + doAlldEdXEstimatorsRS + doAlldEdXEstimatorsCosmicTF + doAlldEdXEstimatorsCTFP5LHC)
+doAllCosmicdEdXEstimators = cms.Sequence( doAlldEdXEstimatorsCTF + doAlldEdXEstimatorsCosmicTF + doAlldEdXEstimatorsCTFP5LHC)
 

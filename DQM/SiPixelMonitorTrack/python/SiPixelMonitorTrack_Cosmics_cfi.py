@@ -6,7 +6,9 @@ SiPixelTrackResidualSource_Cosmics = cms.EDAnalyzer("SiPixelTrackResidualSource"
     debug = cms.untracked.bool(False),                          
     saveFile = cms.untracked.bool(False),
     outputFile = cms.string('Pixel_DQM_TrackResidual.root'),
-    TrackCandidateProducer = cms.string('rsTrackCandidatesP5'),
+# (SK) keep rstracks commented out in case of resurrection
+#    TrackCandidateProducer = cms.string('rsTrackCandidatesP5'),
+    TrackCandidateProducer = cms.string('ckfTrackCandidatesP5'),
     TrackCandidateLabel = cms.string(''),
     TTRHBuilder = cms.string('WithTrackAngle'),
     Fitter = cms.string('KFFittingSmootherWithOutliersRejectionAndRK'),
@@ -19,5 +21,7 @@ SiPixelTrackResidualSource_Cosmics = cms.EDAnalyzer("SiPixelTrackResidualSource"
     bladeOn = cms.untracked.bool(True),
     diskOn = cms.untracked.bool(True),
 
-    trajectoryInput = cms.InputTag('rsWithMaterialTracksP5')              
+# (SK) keep rstracks commented out in case of resurrection
+#    trajectoryInput = cms.InputTag('rsWithMaterialTracksP5')              
+    trajectoryInput = cms.InputTag('ctfWithMaterialTracksP5')              
 )
