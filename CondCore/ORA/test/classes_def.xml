@@ -1,6 +1,4 @@
 <lcgdict>
-  <class name="MixingInputConfig"/>
-  <class name="std::vector<MixingInputConfig>"/>
   <class name="MixingModuleConfigV"/>
   <class name="MixingModuleConfigA"/>
   <class name="MixingModuleConfigIA"/>
