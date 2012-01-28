@@ -143,7 +143,7 @@ KinematicState TrackKinematicStatePropagator::propagateToTheTransversePCANeutral
  AlgebraicVector7 par;
  AlgebraicSymMatrix77 cov;
  
- AlgebraicVector7 inStatePar = state.kinematicParameters().vector();
+ //AlgebraicVector7 inStatePar = state.kinematicParameters().vector();
  GlobalTrajectoryParameters inPar(state.globalPosition(),state.globalMomentum(), 
 		state.particleCharge(), state.magneticField());
  

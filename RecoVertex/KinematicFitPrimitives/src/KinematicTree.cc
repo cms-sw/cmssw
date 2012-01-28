@@ -51,7 +51,6 @@ std::vector<RefCountedKinematicParticle> KinematicTree::finalStateParticles() co
 //now pointer is at the  most left final particle
    rs.push_back(currentParticle()); 
    bool next_right = true; 
-   bool down = true;   
    bool up = true;
    do
    {
@@ -60,7 +59,7 @@ std::vector<RefCountedKinematicParticle> KinematicTree::finalStateParticles() co
     {
 //if there's a way to the right,
 //we go right and down possible    
-     down = leftFinalParticle();
+     leftFinalParticle();
      rs.push_back(currentParticle()); 
     }else{
 //once there's no way to right anymore
