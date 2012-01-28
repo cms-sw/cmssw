@@ -73,7 +73,6 @@ void AdaptiveVertexReconstructor::erase (
    * But erase only if trackweight > w
    */
   const vector < reco::TransientTrack > & origtrks = newvtx.originalTracks();
-  bool erased=false;
   for ( vector< reco::TransientTrack >::const_iterator i=origtrks.begin();
         i!=origtrks.end(); ++i )
   {
@@ -81,7 +80,6 @@ void AdaptiveVertexReconstructor::erase (
     if ( weight > w )
     {
       remainingtrks.erase ( *i );
-      erased=true;
     };
   };
 }
