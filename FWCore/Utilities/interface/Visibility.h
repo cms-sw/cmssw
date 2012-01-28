@@ -1,7 +1,8 @@
 #ifndef VISIBILITY_MACROS_H
 #define VISIBILITY_MACROS_H
+#include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
-#if defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ > 3)
+#if GCC_PREREQUISITE(4,4,0)
 #define dso_export    __attribute__ ((visibility ("default")))
 #define dso_hidden    __attribute__ ((visibility ("hidden")) )
 #define dso_internal  __attribute__ ((visibility ("internal")))
