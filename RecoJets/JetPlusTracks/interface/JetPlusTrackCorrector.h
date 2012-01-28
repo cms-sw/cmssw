@@ -191,10 +191,18 @@ class JetPlusTrackCorrector {
   typedef math::PtEtaPhiMLorentzVectorD PtEtaPhiM;
   
   /// Vectorial correction method (corrected 4-momentum passed by reference)
-  double correction( const reco::Jet&, const reco::Jet&, const edm::Event&, const edm::EventSetup&, P4& ) const;
+  double correction( const reco::Jet&, const reco::Jet&, const edm::Event&, const edm::EventSetup&, P4&,
+		     jpt::MatchedTracks &pions,
+		     jpt::MatchedTracks &muons,
+		     jpt::MatchedTracks &elecs,
+		     bool &validMatches) const;
   
   /// Scalar correction method
-  double correction( const reco::Jet&, const reco::Jet&, const edm::Event&, const edm::EventSetup& ) const;
+  double correction( const reco::Jet&, const reco::Jet&, const edm::Event&, const edm::EventSetup&, 
+		     jpt::MatchedTracks &pions,
+		     jpt::MatchedTracks &muons,
+		     jpt::MatchedTracks &elecs,
+		     bool &validMatches) const;
   
   /// Correction method (not used)
   double correction( const reco::Jet& ) const;
@@ -444,9 +452,13 @@ class JetPlusTrackCorrector {
 
 inline double JetPlusTrackCorrector::correction( const reco::Jet& fJet, const reco::Jet& fJetcalo,
 						 const edm::Event& event,
-						 const edm::EventSetup& setup ) const {
+						 const edm::EventSetup& setup,
+						 jpt::MatchedTracks &pions,
+						 jpt::MatchedTracks &muons,
+						 jpt::MatchedTracks &elecs,
+						 bool &validMatches) const {
   P4 not_used_for_scalar_correction;
-  return correction( fJet, fJetcalo, event, setup, not_used_for_scalar_correction );
+  return correction( fJet, fJetcalo, event, setup, not_used_for_scalar_correction,pions,muons,elecs,validMatches );
 }
 
 inline bool JetPlusTrackCorrector::eventRequired() const { return true; }

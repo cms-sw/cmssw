@@ -13,10 +13,9 @@ process.options = cms.untracked.PSet(
 
 #process.load(INPUTFILELIST)
 process.source = cms.Source("PoolSource",fileNames =cms.untracked.vstring(
-#    '/store/mc/Winter10/QCD_Pt_30to50_TuneZ2_7TeV_pythia6/GEN-SIM-RECODEBUG/E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/0000/F2CDEF8B-C40E-E011-B9EE-001A92810AE0.root'
-    '/store/mc/Winter10/QCD_Pt_30to50_TuneZ2_7TeV_pythia6/AODSIM/E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/0010/FCC19F72-200F-E011-9FBB-001A928116E8.root'
+    '/store/mc/Summer11/QCD_Pt-1800_TuneZ2_7TeV_pythia6/AODSIM/PU_S3_START42_V11-v2/0000/04C728A6-927D-E011-8313-00304867915A.root'
     ))
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(5000) )
 
 ##################### digi-2-raw plus L1 emulation #########################
 process.load("Configuration.StandardSequences.Services_cff")
@@ -27,9 +26,7 @@ process.load('TrackingTools/TrackAssociator/DetIdAssociatorESProducer_cff')
 #################### Conditions and L1 menu ################################
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = 'START3X_V25B::All'
-#process.GlobalTag.globaltag = 'START3X_V27::All'
-process.GlobalTag.globaltag = 'START311_V2::All'
+process.GlobalTag.globaltag = 'START42_V13G::All'
 
 process.primaryVertexFilter = cms.EDFilter("GoodVertexFilter",
                                            vertexCollection = cms.InputTag('offlinePrimaryVertices'),
@@ -39,14 +36,12 @@ process.primaryVertexFilter = cms.EDFilter("GoodVertexFilter",
                                            )
 
 process.load("Calibration.IsolatedParticles.isolatedGenParticles_cfi")
-process.isolatedGenParticles.GenSrc            = cms.untracked.string("Dummy")
-process.isolatedGenParticles.UseHepMC          = cms.untracked.bool(False)
-process.isolatedGenParticles.Debug             = cms.untracked.bool(False)
-process.isotracksGen = cms.EDAnalyzer("IsolatedGenParticles",
-                                      )
+process.isolatedGenParticles.GenSrc            = "Dummy"
+process.isolatedGenParticles.UseHepMC          = False
+process.isolatedGenParticles.Verbosity         = 0
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('IsolatedTracksGenParticles.root')
+                                   fileName = cms.string('IsoGenParticles.root')
                                    )
 
 
@@ -57,7 +52,6 @@ process.hltTrigReport = cms.EDAnalyzer( 'HLTrigReport',
 )
 
 process.load("L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi")
-#process.l1GtTrigReport.L1GtRecordInputTag = 'simGtDigis'
 process.l1GtTrigReport.L1GtRecordInputTag = 'gtDigis'
 process.l1GtTrigReport.PrintVerbosity = 0
 #=============================================================================

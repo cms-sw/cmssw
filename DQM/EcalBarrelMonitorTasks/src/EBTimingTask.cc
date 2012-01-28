@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2011/09/15 21:54:51 $
- * $Revision: 1.73 $
+ * $Date: 2011/09/15 20:59:51 $
+ * $Revision: 1.72 $
  * \author G. Della Ricca
  *
 */
@@ -25,6 +25,9 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
+
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
 #include "DQM/EcalCommon/interface/Numbers.h"
 
@@ -139,7 +142,7 @@ void EBTimingTask::setup(void){
       dqmStore_->tag(meTime_[i], i+1);
 
       name = "EBTMT timing " + Numbers::sEB(i+1);
-      meTimeMap_[i] = dqmStore_->bookProfile2D(name, name, 85, 0., 85., 20, 0., 20., -25.+shiftProf2D_, 25.+shiftProf2D_, "s");
+      meTimeMap_[i] = dqmStore_->bookProfile2D(name, name, 85, 0., 85., 20, 0., 20., -20.+shiftProf2D_, 20.+shiftProf2D_, "s");
       meTimeMap_[i]->setAxisTitle("ieta", 1);
       meTimeMap_[i]->setAxisTitle("iphi", 2);
       meTimeMap_[i]->setAxisTitle("time (ns)", 3);
@@ -162,7 +165,7 @@ void EBTimingTask::setup(void){
     meTimeSummary1D_->setAxisTitle("time (ns)", 1);
 
     name = "EBTMT timing map";
-    meTimeSummaryMap_ = dqmStore_->bookProfile2D(name, name, 72, 0., 360., 34, -85, 85, -7.+shiftProf2D_, 7.+shiftProf2D_, "s");
+    meTimeSummaryMap_ = dqmStore_->bookProfile2D(name, name, 72, 0., 360., 34, -85, 85, -20.+shiftProf2D_, 20.+shiftProf2D_, "s");
     meTimeSummaryMap_->setAxisTitle("jphi", 1);
     meTimeSummaryMap_->setAxisTitle("jeta", 2);
     meTimeSummaryMap_->setAxisTitle("time (ns)", 3);
@@ -272,6 +275,9 @@ void EBTimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     }
   }
 
+  edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
+  c.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
+
   edm::Handle<EcalRecHitCollection> hits;
 
   if ( e.getByLabel(EcalRecHitCollection_, hits) ) {
@@ -314,11 +320,11 @@ void EBTimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       float xval = hitItr->energy();
       float yval = hitItr->time();
 
-      // it's no use to use severitylevel to detect spikes (SeverityLevelAlgo simply uses RecHit flag for spikes)
-      uint32_t mask = 0xffffffff ^ ((0x1 << EcalRecHit::kGood) | (0x1 << EcalRecHit::kOutOfTime));
+      uint32_t flag = hitItr->recoFlag();
 
-      // chi2-based cut not applied for now
-      if( !hitItr->checkFlagMask(mask) ){ // not not good = good
+      uint32_t sev = sevlv->severityLevel(id, *hits);
+
+      if ( (flag == EcalRecHit::kGood || flag == EcalRecHit::kOutOfTime) && sev != EcalSeverityLevel::kWeird ) {
         if ( meTimeAmpli ) meTimeAmpli->Fill(xval, yval);
         if ( meTimeAmpliSummary_ ) meTimeAmpliSummary_->Fill(xval, yval);
 

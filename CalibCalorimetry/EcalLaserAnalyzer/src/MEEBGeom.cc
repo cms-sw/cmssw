@@ -1,7 +1,7 @@
 #include <iostream>
-#include <cstdlib>
+#include <stdlib.h>
 #include <string>
-#include <cassert>
+#include <assert.h>
 using namespace std;
 
 #include "CalibCalorimetry/EcalLaserAnalyzer/interface/ME.h"
@@ -92,21 +92,21 @@ MEEBGeom::smName( int ism )
 int 
 MEEBGeom::lmmod( EBGlobalCoord ieta, EBGlobalCoord iphi )
 {
-  pair<EBLocalCoord,EBLocalCoord> ixy = localCoord( ieta, iphi );
+  std::pair<EBLocalCoord,EBLocalCoord> ixy = localCoord( ieta, iphi );
   return lm_channel( ixy.first/5, ixy.second/5 );
 }
 
 int 
 MEEBGeom::tt( EBGlobalCoord ieta, EBGlobalCoord iphi )
 {
-  pair<EBLocalCoord,EBLocalCoord> ixy = localCoord( ieta, iphi );
+  std::pair<EBLocalCoord,EBLocalCoord> ixy = localCoord( ieta, iphi );
   return tt_channel( ixy.first/5, ixy.second/5 );
 }
 
 int 
 MEEBGeom::crystal( EBGlobalCoord ieta, EBGlobalCoord iphi )
 {
-  pair<EBLocalCoord,EBLocalCoord> ixy = localCoord( ieta, iphi );
+  std::pair<EBLocalCoord,EBLocalCoord> ixy = localCoord( ieta, iphi );
   return crystal_channel( ixy.first, ixy.second );
 }
 
@@ -116,7 +116,6 @@ MEEBGeom::side( EBGlobalCoord ieta, EBGlobalCoord iphi )
   int ilmmod = lmmod( ieta, iphi );
   return (ilmmod%2==0)?1:0;
 }
-
 
 int 
 MEEBGeom::lmr( EBGlobalCoord ieta, EBGlobalCoord iphi )
@@ -128,7 +127,7 @@ MEEBGeom::lmr( EBGlobalCoord ieta, EBGlobalCoord iphi )
   return ilmr;
 }
 
-pair< MEEBGeom::EBLocalCoord, MEEBGeom::EBLocalCoord >    
+std::pair< MEEBGeom::EBLocalCoord, MEEBGeom::EBLocalCoord >    
 MEEBGeom::localCoord( MEEBGeom::EBGlobalCoord ieta, MEEBGeom::EBGlobalCoord iphi )
 {
   int iz=1;
@@ -147,19 +146,19 @@ MEEBGeom::localCoord( MEEBGeom::EBGlobalCoord ieta, MEEBGeom::EBGlobalCoord iphi
   if( iz==-1 ) iy = 19-iy;
   // if( iz==1 ) iy = 19-iy;
 
-  return pair< EBLocalCoord, EBLocalCoord >(ix,iy);  
+  return std::pair< EBLocalCoord, EBLocalCoord >(ix,iy);  
 }
 
-pair< MEEBGeom::EBLocalCoord, MEEBGeom::EBLocalCoord >    
+std::pair< MEEBGeom::EBLocalCoord, MEEBGeom::EBLocalCoord >    
 MEEBGeom::localCoord( int icr )
 {
   assert( icr>=1 && icr<=1700 );
   int ix = (icr-1)/20;
   int iy = 19 - (icr-1)%20;
-  return pair< EBLocalCoord, EBLocalCoord >(ix,iy);  
+  return std::pair< EBLocalCoord, EBLocalCoord >(ix,iy);  
 }
 
-pair< MEEBGeom::EBGlobalCoord, MEEBGeom::EBGlobalCoord >    
+std::pair< MEEBGeom::EBGlobalCoord, MEEBGeom::EBGlobalCoord >    
 MEEBGeom::globalCoord( int ism, MEEBGeom::EBLocalCoord ix, MEEBGeom::EBLocalCoord iy )
 {
   assert( ism>=1 && ism<=36 );
@@ -180,10 +179,10 @@ MEEBGeom::globalCoord( int ism, MEEBGeom::EBLocalCoord ix, MEEBGeom::EBLocalCoor
   //  int iphi = -9 + iy + 20*(ism-1);
   int iphi = 1 + iy + 20*(ism-1);
 
-  return pair< EBGlobalCoord, EBGlobalCoord >(ieta,iphi);  
+  return std::pair< EBGlobalCoord, EBGlobalCoord >(ieta,iphi);  
 }
 
-pair< float, float >    
+std::pair< float, float >    
 MEEBGeom::globalCoord( int ism, float x, float y )
 {
   assert( ism>=1 && ism<=36 );
@@ -200,10 +199,10 @@ MEEBGeom::globalCoord( int ism, float x, float y )
   //  float phi = -9 + y + 20*(ism-1);
   float phi = 1 + y + 20*(ism-1);
 
-  return pair< float, float >(eta,phi);  
+  return std::pair< float, float >(eta,phi);  
 }
 
-pair< MEEBGeom::EBGlobalCoord, MEEBGeom::EBGlobalCoord >    
+std::pair< MEEBGeom::EBGlobalCoord, MEEBGeom::EBGlobalCoord >    
 MEEBGeom::globalCoord( int ism, int icr )
 {
   assert( ism>=1 && ism<=36 );
@@ -386,7 +385,7 @@ MEEBGeom::getGraphBoundary(  int type, int num, bool global )
   int ism=1;
   if( global ) ism = ism_;
 
-  //  list< pair< float, float > > l;
+  //  std::list< std::pair< float, float > > l;
   // getBoundary( l, type, num, global, ism );
   //  int n = l.size();
   //  if( n==0 ) return 0;
@@ -459,17 +458,17 @@ MEEBGeom::getGraphBoundary(  int type, int num, bool global )
     {
       for( int ii=0; ii<n; ii ++ )
 	{
-	  pair<float,float> xy = globalCoord( ism, ix[ii], iy[ii] ); 
+	  std::pair<float,float> xy = globalCoord( ism, ix[ii], iy[ii] ); 
 	  ix[ii] = xy.first;
 	  iy[ii] = xy.second;
 	}
     }
 
 //   int ii=0;
-//   list< pair< float, float > >::const_iterator l_it;      
+//   std::list< std::pair< float, float > >::const_iterator l_it;      
 //   for( l_it=l.begin(); l_it!=l.end(); l_it++ )
 //     {
-//       //      cout << "[" << l_it->first << "," << l_it->second << "]" << endl;
+//       //      std::cout << "[" << l_it->first << "," << l_it->second << "]" << std::endl;
 //       ix[ii] = l_it->first;
 //       iy[ii] = l_it->second;
 //       ii++;
@@ -480,76 +479,40 @@ MEEBGeom::getGraphBoundary(  int type, int num, bool global )
   return new TGraph( n, ix, iy );
 }
 
-pair< int, int >
-MEEBGeom::pn( int ilmmod)
+std::pair< int, int >
+MEEBGeom::pn( int ilmmod )
 {
   switch( ilmmod )
     {
-    case   1: return pair<int,int>(  0,  5 );
-    case   2: return pair<int,int>(  1,  6 );
-    case   3: return pair<int,int>(  1,  6 );
-    case   4: return pair<int,int>(  2,  7 );
-    case   5: return pair<int,int>(  2,  7 );
-    case   6: return pair<int,int>(  3,  8 );
-    case   7: return pair<int,int>(  3,  8 );
-    case   8: return pair<int,int>(  4,  9 );
-    case   9: return pair<int,int>(  4,  9 );
+    case   1: return std::pair<int,int>(  0,  5 );
+    case   2: return std::pair<int,int>(  1,  6 );
+    case   3: return std::pair<int,int>(  1,  6 );
+    case   4: return std::pair<int,int>(  2,  7 );
+    case   5: return std::pair<int,int>(  2,  7 );
+    case   6: return std::pair<int,int>(  3,  8 );
+    case   7: return std::pair<int,int>(  3,  8 );
+    case   8: return std::pair<int,int>(  4,  9 );
+    case   9: return std::pair<int,int>(  4,  9 );
     default:
       abort();
     }
-  return pair<int,int>(-1,-1);
+  return std::pair<int,int>(-1,-1);
 }
 
-pair< int, int >
-MEEBGeom::pn( int ilmmod, int idcc)
-{
-  // to take care of pn inversions...
-  //====================================
-
-  //  EB-10, fed 619 : PN 7 <-> 6
-  //  EB-16, fed 625 : PN 0 <-> 1
-  //  EB+5,  fed 632 : PN 4,9 <-> 3,8 
-
-  idcc=idcc%600;
-  pair< int, int > theoricPair=pn( ilmmod );
-
-  pair< int, int > newPair=theoricPair;
-  
-  if(idcc!=19 && idcc!=25 && idcc!=32 ) return theoricPair;
-  else{
-    
-    if(idcc==19){
-      if(theoricPair.second==6) newPair.second=7;
-      if(theoricPair.second==7) newPair.second=6;   
-    }else if(idcc==25){
-      if(theoricPair.first==0) newPair.first=1;
-      if(theoricPair.first==1) newPair.first=0;
-    }else if(idcc==32){
-      if(theoricPair.first==3) newPair.first=4;
-      if(theoricPair.first==4) newPair.first=3;
-      if(theoricPair.second==8) newPair.second=9;
-      if(theoricPair.second==9) newPair.second=8;      
-    }
-    return newPair;
-    
-  }
-  return pair<int,int>(-1,-1);
-}
-
-pair<int,int> 
+std::pair<int,int> 
 MEEBGeom::memFromLmr( int ilmr )
 {
-  pair< int, int > dccAndSide_ = ME::dccAndSide( ilmr );
+  std::pair< int, int > dccAndSide_ = ME::dccAndSide( ilmr );
   int idcc  = dccAndSide_.first;
-  return pair<int,int>( idcc, idcc );
+  return std::pair<int,int>( idcc, idcc );
 }
 
-vector<int> 
+std::vector<int> 
 MEEBGeom::lmmodFromLmr( int ilmr )
 {
-  pair< int, int > dccAndSide_ = ME::dccAndSide( ilmr );
+  std::pair< int, int > dccAndSide_ = ME::dccAndSide( ilmr );
   int iside = dccAndSide_.second;
-  vector< int > vec;
+  std::vector< int > vec;
   for( int ilmmod=1; ilmmod<=9; ilmmod++ )
     {
       if( (ilmmod+iside)%2==1 )  vec.push_back(ilmmod);
@@ -610,55 +573,3 @@ MEEBGeom::apdRefChannels( int ilmmod )
   return vec;
 }
 
-
-int 
-MEEBGeom::side( int ilmmod )
-{
-  return (ilmmod%2==0)?1:0;
-}
-
-int 
-MEEBGeom::referenceNormalization( int ilmr, int ilmmod ){
-
-  
-  int ilmmarc=0;
-  if (ilmmod%2==1) ilmmarc=(ilmmod-1)/2;
-  else ilmmarc=ilmmod/2;
-
-
-  // BAD PNs from Marc:
-  
-  // module 0 -> PN 0,5 (100 premiers cristaux) (1)
-  // module 1 -> PN 1,6 (2,3)
-  // module 2 -> PN 2,7 (4,5)
-  // module 3 -> PN 3,8 (6,7)
-  // module 4 -> PN 4,9 (8,9)
-  
-  // EB-3,  fed 612, PN 0 (pas de signal)
-  // EB-3,  fed 612, PN 1 (bruyante)
-  // EB-7,  fed 616, PN 3 (forme de signal bizarre, pas de TP -> pb preampli)
-  // EB-15, fed 624, PN 5, 6, 7, 8, 9 (TT70 absente)
-  // EB+5,  fed 632, PN 5 (instable)
-  // EB+7,  fed 634, PN 3 (pas de signal)
-  // EB+12, fed 639, PN 8 (pas de signal)
-  // EB+13, fed 640, PN 8 (pas de signal)
-  
-  // Inversions :
-  // EB-10, fed 619 : PN 7 <-> 6
-  // EB-16, fed 625 : PN 0 <-> 1
-  // EB+5,  fed 632 : PN 4,9 <-> 3,8
-  
-  int iNorm=ME::iPNNORM;
-  
-  if((ilmr==5 || ilmr==6) && (ilmmarc==0 || ilmmarc==1) ) iNorm=ME::iPNBNORM;  // OK
-  if((ilmr==13 || ilmr==14) && ilmmarc==3 ) iNorm=ME::iPNBNORM; // OK 
-  if(ilmr==29 || ilmr==30) iNorm=ME::iPNANORM;// OK 
-  if((ilmr==45 || ilmr==46) && ilmmarc==0 ) iNorm=ME::iPNANORM;// ?
-  if((ilmr==49 || ilmr==50) && ilmmarc==3 ) iNorm=ME::iPNBNORM;// OK 
-  if((ilmr==59 || ilmr==60) && ilmmarc==3 ) iNorm=ME::iPNANORM;// OK
-  if((ilmr==61 || ilmr==62) && ilmmarc==3 ) iNorm=ME::iPNANORM;// ? 
-
-
-  return iNorm;
-
-}

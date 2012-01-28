@@ -19,7 +19,7 @@
 bool CSCRPCData::debug = false;
 
 CSCRPCData::CSCRPCData(int ntbins) 
-  :ntbins_(ntbins)
+  : ntbins_(ntbins), size_( 0 )
 {
   theData[0] = 0x6b04;
   for(int i = 1; i < 257; ++i) {

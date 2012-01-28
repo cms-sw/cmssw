@@ -72,6 +72,7 @@ int main() {
 
   // test inching forward and inching back
   HcalShape hcalShape;
+  hcalShape.setShape(101);
   CaloCachedShapeIntegrator intShape(&hcalShape);
   CaloSamples signalStep(detId, 10), signalJump(detId, 10), signalOrig(detId, 10);
   for(int i = 0; i < 10; ++i) {

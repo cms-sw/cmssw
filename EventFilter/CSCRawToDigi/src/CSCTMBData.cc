@@ -1,7 +1,7 @@
 /** \class CSCTMBData
  *
- *  $Date: 2010/08/31 12:47:29 $
- *  $Revision: 1.30 $
+ *  $Date: 2011/11/01 16:31:54 $
+ *  $Revision: 1.31 $
  *  \author A. Tumanov - Rice
  */
 
@@ -18,6 +18,8 @@ bool CSCTMBData::debug =false;
 
 CSCTMBData::CSCTMBData() 
   : theOriginalBuffer(0), 
+    theB0CLine( 0 ),
+    theE0FLine( 0 ),
     theTMBHeader(2007, 0x50c3),
     theCLCTData(&theTMBHeader),
     theTMBScopeIsPresent(false), 
@@ -27,6 +29,8 @@ CSCTMBData::CSCTMBData()
     theBlockedCFEBIsPresent(false),
     theTMBBlockedCFEB(0),
     theTMBTrailer(theTMBHeader.sizeInWords()+theCLCTData.sizeInWords(), 2007),
+    size_( 0 ), 
+    cWordCnt( 0 ),
     theRPCDataIsPresent(false)
 {
 

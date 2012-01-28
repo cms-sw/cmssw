@@ -7,25 +7,18 @@
   <class name="GSSiTrackerRecHit2DLocalPos" ClassVersion="10">
    <version ClassVersion="10" checksum="2474445311"/>
   </class>
-  <class name="OmniClusterRef"  ClassVersion="10">
-   <version ClassVersion="10" checksum="2949673211"/>
-  </class>
-  <class name="SiStripRecHit2D"  ClassVersion="11">
-   <version ClassVersion="11" checksum="2157674799"/>
-    <field name="sigmaPitch_" transient="true" />
+  <class name="SiStripRecHit2D"  ClassVersion="10">
    <version ClassVersion="10" checksum="4057204970"/>
     <field name="sigmaPitch_" transient="true" />
   </class>
-  <class name="SiStripRecHit1D"  ClassVersion="11">
-   <version ClassVersion="11" checksum="1486832741"/>
-    <field name="sigmaPitch_" transient="true" />
-    <field name="pos_" transient="true" />
-    <field name="err_" transient="true" />
+  <class name="SiStripRecHit1D"  ClassVersion="10">
    <version ClassVersion="10" checksum="1325274892"/>
     <field name="sigmaPitch_" transient="true" />
     <field name="pos_" transient="true" />
     <field name="err_" transient="true" />
   </class> 
+
+
 
   <class name="SiTrackerGSRecHit2D" ClassVersion="10">
    <version ClassVersion="10" checksum="877294307"/>

@@ -23,14 +23,15 @@ namespace ora {
       db.connect( connStr );
       ora::ScopedTransaction trans0( db.transaction() );
       trans0.start( false );
-      //
+      //creating database
       if(!db.exists()){
 	db.create();
       }
       std::set< std::string > conts = db.containers();
       if( conts.find( "Cont0_ABCDEFGHILMNOPQRSTUVZ" )!= conts.end() ) db.dropContainer( "Cont0_ABCDEFGHILMNOPQRSTUVZ" );
-      //
+      //creating container
       ora::Container contH0 = db.createContainer<ArrayClass>("Cont0_ABCDEFGHILMNOPQRSTUVZ");
+      //inserting
       ArrayClass a0(10);
       int oid0 = contH0.insert( a0 );
       ArrayClass a1(20);
@@ -39,7 +40,7 @@ namespace ora {
       //
       trans0.commit();
       db.disconnect();
-      ::sleep(1);
+      sleep();
       // reading back...
       db.connect( connStr );
       trans0.start( true );
@@ -62,6 +63,7 @@ namespace ora {
       }
       r1.destruct();
       trans0.commit();
+      //clean up
       trans0.start( false );
       db.drop();
       trans0.commit();

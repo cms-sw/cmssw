@@ -11,20 +11,25 @@ from CalibMuon.DTCalibration.Workflow.DTVDriftSegmentWriter import DTVDriftSegme
 from CalibMuon.DTCalibration.Workflow.DTVDriftMeanTimerCalibration import DTVDriftMeanTimerCalibration
 from CalibMuon.DTCalibration.Workflow.DTVDriftMeanTimerWriter import DTVDriftMeanTimerWriter
 from CalibMuon.DTCalibration.Workflow.DTNoiseCalibration import DTNoiseCalibration
-from CalibMuon.DTCalibration.Workflow.DTDQMValidation import DTDQMValidation
-from CalibMuon.DTCalibration.Workflow.DTDQMMerge import DTDQMMerge
-from CalibMuon.DTCalibration.Workflow.DTDQMHarvesting import DTDQMHarvesting
 from CalibMuon.DTCalibration.Workflow.DTDqm import DTDqm
 from CalibMuon.DTCalibration.Workflow.CrabWatch import CrabWatch
-from CalibMuon.DTCalibration.Workflow.tools import listFilesInCastor,haddInCastor,listFilesLocal,haddLocal,copyFilesFromCastor,copyFilesLocal,parseInput,getDatasetStr
+from CalibMuon.DTCalibration.Workflow.tools import listFilesInCastor,haddInCastor,listFilesLocal,haddLocal,copyFilesFromCastor,copyFilesLocal,parseInput
 import sys,os,time,optparse
 
-def dqmOutputDir(type,dirLabel,config):
+def getDatasetStr(datasetpath):
+    datasetstr = datasetpath
+    datasetstr.strip()
+    if datasetstr[0] == '/': datasetstr = datasetstr[1:]
+    datasetstr = datasetstr.replace('/','_')
+
+    return datasetstr
+
+def dqmOutputDir(label,config):
     dqm_output_dir = ''
     if config.stageOutLocal:
         from crab_util import findLastWorkDir
         cwd = os.getcwd()
-        crab_task_dir = config.base_dir + '/' + dirLabel
+        crab_task_dir = config.base_dir + '/' + label
         os.chdir(crab_task_dir)
         crabdir = findLastWorkDir('crab_0_')
         if not crabdir: raise RuntimeError,'Could not find CRAB dir in %s' % crab_task_dir
@@ -32,7 +37,7 @@ def dqmOutputDir(type,dirLabel,config):
         dqm_output_dir = crabdir + "/res"
     elif config.stageOutCAF:
         datasetstr = getDatasetStr(config.datasetpath)
-        dqm_output_dir = config.castorpath + '/DTCalibration/' + datasetstr + '/Run' + str(run) + '/' + type + '/' + dirLabel + '/' + 'v' + str(trial)
+        dqm_output_dir = config.castorpath + '/DTCalibration/' + datasetstr + '/Run' + str(run) + '/TTrigValidation/' + label + '/' + 'v' + str(trial)
 
     return dqm_output_dir
 
@@ -287,7 +292,7 @@ def runVDriftMeanTimerWriter(run,root_file,config,runStep=True):
         print "Finished processing:"
         for pset in dtVDriftMeanTimerWriter.configs: print "--->",pset
 
-def runDQMClient(run,output_dir,config,runStep=True):
+def runDQMMerge(run,output_dir,config,runStep=True):
 
     print "Processing DQM Merge"
 
@@ -312,56 +317,6 @@ def runDQMClient(run,output_dir,config,runStep=True):
         dtDqmFinal = DTDqm(run,config.run_dir,dqm_files,config.result_dir,config)
         dtDqmFinal.writeCfg()
 
-def runDQMHarvesting(run,output_dir,config,runStep=True):
-
-    print "Processing DQM harvesting"
-
-    if runStep:
-        dqm_files = [] 
-        if config.stageOutLocal:
-            dqm_files = listFilesLocal(output_dir,'DQM')
-            dqm_files = ['file:%s' % item for item in dqm_files]
-            dtDqmFinal = DTDQMHarvesting(run,config.run_dir,dqm_files,config.result_dir,config)
-            dtDqmFinal.writeCfg()
-            dtDqmFinal.run()
-        elif config.stageOutCAF:
-            dqm_files = listFilesInCastor(output_dir,'DQM','')
-            dqm_files = [file.replace('/castor/cern.ch/cms','') for file in dqm_files] 
-            dtDqmFinal = DTDQMHarvesting(run,config.run_dir,dqm_files,config.result_dir,config)
-            dtDqmFinal.writeCfg()
-            dtDqmFinal.run()
-
-        print "...DQM harvesting finished"
-    else:
-        dqm_files = [] 
-        dtDqmFinal = DTDQMHarvesting(run,config.run_dir,dqm_files,config.result_dir,config)
-        dtDqmFinal.writeCfg()
-
-def runDQMMerge(run,output_dir,config,runStep=True):
-
-    print "Processing DQM merge"
-
-    if runStep:
-        dqm_files = [] 
-        if config.stageOutLocal:
-            dqm_files = listFilesLocal(output_dir,'DQM')
-            dqm_files = ['file:%s' % item for item in dqm_files]
-            dtDQMMerge = DTDQMMerge(run,config.run_dir,dqm_files,config.result_dir,config)
-            dtDQMMerge.writeCfg()
-            dtDQMMerge.run()
-        elif config.stageOutCAF:
-            dqm_files = listFilesInCastor(output_dir,'DQM','')
-            dqm_files = [file.replace('/castor/cern.ch/cms','') for file in dqm_files] 
-            dtDQMMerge = DTDQMMerge(run,config.run_dir,dqm_files,config.result_dir,config)
-            dtDQMMerge.writeCfg()
-            dtDQMMerge.run()
-
-        print "...DQM merge finished"
-    else:
-        dqm_files = [] 
-        dtDQMMerge = DTDQMMerge(run,config.run_dir,dqm_files,config.result_dir,config)
-        dtDQMMerge.writeCfg()
-
 ############################################################ 
 # tTrig workflow
 ############################################################ 
@@ -383,11 +338,12 @@ def runTtrigWorkflow(mode,run,config,execute=True):
             print "Writing configuration files.."
             runTtrigProd(run,runselection,trial,config,False)
             runTtrigWriter(run,config,False)
+            #runTtrigValid(run,runselection,trial,ttrig_timeboxes_db,'Residuals',residualsFirst,config,False)
             runResidualCalib(run,runselection,trial,ttrig_timeboxes_db,'Residuals',residualsFirst,config,False)
             runTtrigResidualCorr(run,ttrig_timeboxes_db,residualsFirst,config,False)                
             runTtrigValid(run,runselection,trial,ttrig_residuals_db,'ResidualsResidCorr',config,False)
             #runTtrigValidSummary(run,residualsResidCorr,summaryResiduals,config,False)
-            runDQMClient(run,'',config,False)
+            runDQMMerge(run,'',config,False)
 
             sys.exit(0)
 
@@ -401,6 +357,7 @@ def runTtrigWorkflow(mode,run,config,execute=True):
 
         # Produce residuals
         if not os.path.exists(residualsFirst):
+            #runTtrigValid(run,runselection,trial,ttrig_timeboxes_db,'Residuals',residualsFirst,config)
             runResidualCalib(run,runselection,trial,ttrig_timeboxes_db,'Residuals',residualsFirst,config)
         if not os.path.exists(residualsFirst): raise RuntimeError,'Could not produce %s' % residualsFirst
 
@@ -409,6 +366,11 @@ def runTtrigWorkflow(mode,run,config,execute=True):
         if not os.path.exists(ttrig_residuals_db): raise RuntimeError,'Could not produce %s' % ttrig_residuals_db
 
         # Validation
+        """         
+        if not os.path.exists(residualsResidCorr):
+            runTtrigValid(run,runselection,trial,ttrig_residuals_db,'ResidualsResidCorr',config)
+        if not os.path.exists(residualsResidCorr): raise RuntimeError,'Could not produce %s' % residualsResidCorr
+        """
         runTtrigValid(run,runselection,trial,ttrig_residuals_db,'ResidualsResidCorr',config)
 
         """
@@ -417,8 +379,8 @@ def runTtrigWorkflow(mode,run,config,execute=True):
         if not os.path.exists(summaryResiduals): raise RuntimeError,'Could not produce %s' % summaryResiduals
         """
         # Produce DQM output 
-        dqm_output_dir = dqmOutputDir('TTrigValidation','ResidualsResidCorr',config)
-        runDQMClient(run,dqm_output_dir,config)
+        dqm_output_dir = dqmOutputDir('ResidualsResidCorr',config)
+        runDQMMerge(run,dqm_output_dir,config)
 
     elif input.workflowMode == 'residuals':
         residualsFirst = os.path.abspath(result_dir + '/' + 'DTResidualValidation_' + run + '.root')
@@ -429,23 +391,27 @@ def runTtrigWorkflow(mode,run,config,execute=True):
         if not execute:
             print "Writing configuration files.."
             if ttrig_input_db:
+                #runTtrigValid(run,runselection,trial,ttrig_input_db,'Residuals',residualsFirst,config,False)
                 runResidualCalib(run,runselection,trial,ttrig_input_db,'Residuals',residualsFirst,config,False)
                 runTtrigResidualCorr(run,ttrig_input_db,residualsFirst,config,False)
             else:
+                #runTtrigValid(run,runselection,trial,None,'Residuals',residualsFirst,config,False)
                 runResidualCalib(run,runselection,trial,None,'Residuals',residualsFirst,config,False)
                 runTtrigResidualCorr(run,None,residualsFirst,config,False)
 
             runTtrigValid(run,runselection,trial,ttrig_residuals_db,'ResidualsResidCorr',config,False)
             #runTtrigValidSummary(run,residualsResidCorr,summaryResiduals,config,False)
-            runDQMClient(run,'',config,False)
+            runDQMMerge(run,'',config,False)
 
             sys.exit(0)
 
         # Produce residuals
         if not os.path.exists(residualsFirst):
             if ttrig_input_db:
+                #runTtrigValid(run,runselection,trial,ttrig_input_db,'Residuals',residualsFirst,config)
                 runResidualCalib(run,runselection,trial,ttrig_input_db,'Residuals',residualsFirst,config) 
             else:
+                #runTtrigValid(run,runselection,trial,None,'Residuals',residualsFirst,config)
                 runResidualCalib(run,runselection,trial,None,'Residuals',residualsFirst,config)
         if not os.path.exists(residualsFirst): raise RuntimeError,'Could not produce %s' % residualsFirst
 
@@ -456,6 +422,11 @@ def runTtrigWorkflow(mode,run,config,execute=True):
         if not os.path.exists(ttrig_residuals_db): raise RuntimeError,'Could not produce %s' % ttrig_residuals_db
 
         # Validation
+        """         
+        if not os.path.exists(residualsResidCorr):
+            runTtrigValid(run,runselection,trial,ttrig_residuals_db,'ResidualsResidCorr',config)
+        if not os.path.exists(residualsResidCorr): raise RuntimeError,'Could not produce %s' % residualsResidCorr
+        """
         runTtrigValid(run,runselection,trial,ttrig_residuals_db,'ResidualsResidCorr',config)
 
         """  
@@ -465,8 +436,8 @@ def runTtrigWorkflow(mode,run,config,execute=True):
         if not os.path.exists(summaryResiduals): raise RuntimeError,'Could not produce %s' % summaryResiduals
         """
         # Produce DQM output 
-        dqm_output_dir = dqmOutputDir('TTrigValidation','ResidualsResidCorr',config)
-        runDQMClient(run,dqm_output_dir,config)
+        dqm_output_dir = dqmOutputDir('ResidualsResidCorr',config)
+        runDQMMerge(run,dqm_output_dir,config)
 
     elif input.workflowMode == 'validation':
         residualsValid = os.path.abspath(result_dir + '/' + 'DTResidualValidation_' + run + '.root')
@@ -475,16 +446,25 @@ def runTtrigWorkflow(mode,run,config,execute=True):
         if not execute:
             print "Writing configuration files.."
             if ttrig_input_db:
+                #runTtrigValid(run,runselection,trial,ttrig_input_db,'Residuals',residualsValid,config,False)
                 runTtrigValid(run,runselection,trial,ttrig_input_db,'Residuals',config,False)
             else:
+                #runTtrigValid(run,runselection,trial,None,'Residuals',residualsValid,config,False)
                 runTtrigValid(run,runselection,trial,None,'Residuals',config,False)
 
             #runTtrigValidSummary(run,residualsValid,summaryResiduals,config,False)
-            runDQMClient(run,'',config,False)
+            runDQMMerge(run,'',config,False)
 
             sys.exit(0)
 
         # Validation
+        """
+        if not os.path.exists(residualsValid):
+            if ttrig_input_db:
+                runTtrigValid(run,runselection,trial,ttrig_input_db,'Residuals',residualsValid,config)
+            else:
+                runTtrigValid(run,runselection,trial,None,'Residuals',residualsValid,config)
+        """ 
         if ttrig_input_db:
             runTtrigValid(run,runselection,trial,ttrig_input_db,'Residuals',config)
         else:
@@ -498,8 +478,8 @@ def runTtrigWorkflow(mode,run,config,execute=True):
         """
 
         # Produce DQM output 
-        dqm_output_dir = dqmOutputDir('TTrigValidation','Residuals',config)
-        runDQMClient(run,dqm_output_dir,config)
+        dqm_output_dir = dqmOutputDir('Residuals',config)
+        runDQMMerge(run,dqm_output_dir,config)
 
     return 0
 
@@ -609,42 +589,37 @@ def runT0Workflow(mode,run,config,execute=True):
 # Validation workflow
 ############################################################
 def runValidationWorkflow(mode,run,config,execute=True):
-    print "Processing DQM validation"
     trial = config.trial
     runselection = config.runselection
+    ttrig_input_db = None
+    if hasattr(config,'inputTTrigDB') and config.inputTTrigDB: ttrig_input_db = os.path.abspath(config.inputTTrigDB)
     result_dir = config.result_dir
-    datasetstr = getDatasetStr(config.datasetpath)
-    dirLabel = 'DQM'
-    config.userdircaf = 'DTCalibration/' + datasetstr + '/Run' + str(run) + '/DQMValidation/' + dirLabel + '/' + 'v' + str(trial)
-
-    task_dir = config.base_dir + '/' + dirLabel
-    dtDQMValid = DTDQMValidation(run=run,
-                                 dir=task_dir,
-                                 config=config)
     if not execute:
-	dtDQMValid.writeCfg()
+        print "Writing configuration files.."
+        if ttrig_input_db:
+            runTtrigValid(run,runselection,trial,ttrig_input_db,'Residuals',config,False)
+        else:
+            runTtrigValid(run,runselection,trial,None,'Residuals',config,False)
+
         runDQMMerge(run,'',config,False)
-        runDQMHarvesting(run,'',config,False)
 
         sys.exit(0)
+
+    if ttrig_input_db:
+        runTtrigValid(run,runselection,trial,ttrig_input_db,'Residuals',config)
     else:
-        dtDQMValid.writeCfg()
-        project_valid = dtDQMValid.run()
+        runTtrigValid(run,runselection,trial,None,'Residuals',config)
 
-        print "Sent validation jobs with project",project_valid
-        print "%.0f%% of jobs are required to finish" % config.jobsFinishedThreshold
+    """
+    # Summary of validation
+    if not os.path.exists(summaryResiduals):
+        runTtrigValidSummary(run,residualsValid,summaryResiduals,config)
+    if not os.path.exists(summaryResiduals): raise RuntimeError,'Could not produce %s' % summaryResiduals
+    """
 
-        crabValid = CrabWatch(project_valid)
-        crabValid.setThreshold(config.jobsFinishedThreshold)
-        crabValid.start()
-        crabValid.join()
-
-	# Produce DQM output 
-	dqm_output_dir = dqmOutputDir('DQMValidation',dirLabel,config)
-	runDQMMerge(run,dqm_output_dir,config)
-        # Run harvesting from merged DQM file 
-        dqm_merge_dir = os.path.abspath(result_dir)
-        runDQMHarvesting(run,dqm_merge_dir,config)
+    # Produce DQM output 
+    dqm_output_dir = dqmOutputDir('Residuals',config)
+    runDQMMerge(run,dqm_output_dir,config)
 
     return 0
 
@@ -737,7 +712,7 @@ if __name__ == '__main__':
     config.label = label
     config.datasetpath = input.datasetpath
     config.runselection = runselection
-    if hasattr(input,'inputVDriftDB') and input.inputVDriftDB: config.inputVDriftDB = os.path.abspath(input.inputVDriftDB)
+    if hasattr(input,'inputVdriftDB') and input.inputVdriftDB: config.inputVdriftDB = os.path.abspath(input.inputVdriftDB)
     if hasattr(input,'inputTTrigDB') and input.inputTTrigDB: config.inputTTrigDB = os.path.abspath(input.inputTTrigDB)
 
     config.runOnRAW = False 

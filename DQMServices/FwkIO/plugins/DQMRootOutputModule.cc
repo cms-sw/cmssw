@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Apr 29 13:26:29 CDT 2011
-// $Id: DQMRootOutputModule.cc,v 1.11 2011/07/11 07:43:46 chrjones Exp $
+// $Id: DQMRootOutputModule.cc,v 1.12 2011/11/16 13:44:48 rovere Exp $
 //
 
 // system include files
@@ -266,7 +266,7 @@ m_indicesTree(0)
 {
   //NOTE: I need to also set the I/O performance settings
   
-  m_file = std::auto_ptr<TFile>(new TFile(m_fileName.c_str(),"CREATE",
+  m_file = std::auto_ptr<TFile>(new TFile(m_fileName.c_str(),"RECREATE",
                                 "1" //This is the file format version number
                                 ));  
   

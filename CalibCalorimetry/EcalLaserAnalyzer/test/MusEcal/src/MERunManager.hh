@@ -81,7 +81,6 @@ public:
   // set good/bad flags
   void setFlags();
   void setLaserFlags();
-  void setLEDFlags();
   void setTestPulseFlags();
 
   // get the vectors
@@ -91,7 +90,6 @@ public:
 
   // recursive flag setting 
   void setFlag( MEChannel* leaf, ME::Time time, int var, bool flag ); 
-  
 
   void refresh();
 

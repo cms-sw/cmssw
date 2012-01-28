@@ -162,6 +162,10 @@ void EventProcessor::processEvent(const edm::Event& e, const edm::InputTag& inpu
   cntCFEBs    = 0;
   cntALCTs    = 0;
   cntTMBs     = 0;
+  int nDDUs_out_of_sync = 0;
+  int nDDUs_with_CSC_data_out_of_sync = 0;
+  bool fGlobal_DCC_DDU_L1A_mismatch = false;
+  bool fGlobal_DCC_DDU_L1A_mismatch_with_CSC_data = false;
   MonitorObject* mo = 0;
 
   /*
@@ -279,26 +283,37 @@ void EventProcessor::processEvent(const edm::Event& e, const edm::InputTag& inpu
 
                       /// Check for DCC and DDUs L1A counter mismatch and fill corresponding histogram
                       bool fDCC_DDU_L1A_mismatch = false;
+		      bool fDCC_DDU_L1A_mismatch_with_CSC_data = false;
                       int DCC_L1A = dccData.dccHeader().getCDFEventNumber();
                       for (int ddu = 0; ddu < (int)dduData.size(); ddu++)
                         {
                           if (DCC_L1A != dduData[ddu].header().lvl1num())
                             {
                               fDCC_DDU_L1A_mismatch = true;
-                              /*
-                              if (dduData[ddu].sizeInWords() > 24) {
+			      fGlobal_DCC_DDU_L1A_mismatch = true;
+			      nDDUs_out_of_sync++;
+                              
+			      /// Check if DDU potentially has CSC data 
+                              if (dduData[ddu].sizeInWords() > 24) { 
+				fDCC_DDU_L1A_mismatch_with_CSC_data = true;
+				fGlobal_DCC_DDU_L1A_mismatch_with_CSC_data = true;
+				nDDUs_with_CSC_data_out_of_sync++;
+			      /*
                               std::cout <<  "FED" << id << " L1A:" << DCC_L1A <<  ", ";
                               std::cout << "DDU" << (dduData[ddu].header().source_id() & 0xFF )
                               	<< " L1A:" << dduData[ddu].header().lvl1num() << " size:" << (dduData[ddu].sizeInWords()*2);
                               std::cout << " - L1A mismatch";
                               std::cout << std::endl;
+			      */
                               }
-                              */
+                              
                             }
                           processDDU(dduData[ddu], binChecker);
                         }
 
                       if (fDCC_DDU_L1A_mismatch && getEMUHisto(h::EMU_FED_DDU_L1A_MISMATCH, mo)) mo->Fill(id);
+		      if (fDCC_DDU_L1A_mismatch_with_CSC_data 
+			&& getEMUHisto(h::EMU_FED_DDU_L1A_MISMATCH_WITH_CSC_DATA, mo)) mo->Fill(id);
 
                     }
 
@@ -315,6 +330,17 @@ void EventProcessor::processEvent(const edm::Event& e, const edm::InputTag& inpu
         }
 
     }
+
+  if (fGlobal_DCC_DDU_L1A_mismatch && getEMUHisto(h::EMU_FED_DDU_L1A_MISMATCH_CNT, mo)) mo->Fill(nDDUs_out_of_sync);
+  if (fGlobal_DCC_DDU_L1A_mismatch && getEMUHisto(h::EMU_FED_DDU_L1A_MISMATCH_WITH_CSC_DATA_CNT, mo)) 
+	mo->Fill(nDDUs_with_CSC_data_out_of_sync);
+
+  if (getEMUHisto(h::EMU_FED_STATS, mo))
+     {
+	mo->Fill(0);
+	if (fGlobal_DCC_DDU_L1A_mismatch) mo->Fill(1);
+	if (fGlobal_DCC_DDU_L1A_mismatch_with_CSC_data) mo->Fill(2);
+     }
 
   if (getEMUHisto(h::EMU_FED_EVENT_SIZE, mo)) mo->Fill(eventSize/1024.); /// CSC Event Size in KBytes
   if (getEMUHisto(h::EMU_FED_TOTAL_CSC_NUMBER, mo)) mo->Fill(cntDMBs);   /// Total Number of CSC/DMBs in event (DDU Header DAV)

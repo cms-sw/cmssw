@@ -28,10 +28,10 @@ private:
   double        m_startAngle;     //Start angle
   double        m_rangeAngle;     //Range in angle
   double        m_radius;         //Radius
-  double        m_delta;          //Increment in phi
   std::vector<double> m_center;   //Phi values
   std::vector<double> m_rotateSolid; //Rotation of the solid values
   
+  double        m_delta;          //Increment in phi
   std::string   m_idNameSpace;    //Namespace of this and ALL sub-parts
   std::pair<std::string, std::string> m_childNmNs; //Child name
                                                    //Namespace of the child

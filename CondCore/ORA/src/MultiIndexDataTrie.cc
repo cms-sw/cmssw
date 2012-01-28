@@ -74,7 +74,7 @@ void ora::MultiIndexDataTrie::lookupAndClear( const std::vector<int>& indexes, R
     if( branch->m_children.size()==0 || indexes[i] > (int)(branch->m_children.size()-1)){
       std::stringstream mess;
       mess << "Index["<<i<<"] is out of bound.";
-      throwException( mess.str(),"MultiIndexDataTrie::lookup" );
+      throwException( mess.str(),"MultiIndexDataTrie::lookupAndClear" );
     }
     trie = branch;
     branch = branch->m_children[indexes[i]];
@@ -111,10 +111,13 @@ size_t ora::MultiIndexDataTrie::branchSize( const std::vector<int>& indexes, siz
   if( depth > indexes.size() ) depth = indexes.size();
   const MultiIndexDataTrie* trie = this;
   for( size_t i=0;i<depth;i++){
-    if( trie->m_children.size()==0 || indexes[i] > (int)(trie->m_children.size()-1)){
+    if( indexes[i]+1 > (int)(trie->m_children.size())){
+      // empty leaf
+      if( i+2>=indexes.size())  return 0;
+      // empty branches are not expected!
       std::stringstream mess;
-      mess << "Index["<<i<<"] is out of bound.";
-      throwException( mess.str(),"MultiIndexDataTrie::lookup" );
+      mess << "1 Index["<<i<<"] is out of bound.";
+      throwException( mess.str(),"MultiIndexDataTrie::branchSize" );
     }
     trie = trie->m_children[indexes[i]];
     if( !trie ){

@@ -44,7 +44,6 @@ class LMFUnique: public IUniqueDBObject {
   virtual ~LMFUnique();
 
   virtual bool isValid() const { return true; }
-  virtual bool isValid() { return true; }
   virtual bool exists();
 
   //  int getID()       { return m_ID; } 

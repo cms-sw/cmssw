@@ -24,12 +24,13 @@ namespace ora {
       db.connect( connStr );
       ora::ScopedTransaction trans0( db.transaction() );
       trans0.start( false );
+      //creating database
       if(!db.exists()){
 	db.create();
       }
       std::set< std::string > conts = db.containers();
       if( conts.find( "Cont0" )!= conts.end() ) db.dropContainer( "Cont0" );
-      //
+      //creating container
       db.createContainer<MultiArrayClass2>("Cont0");
       ora::Container contH0 = db.containerHandle( "Cont0" );
       if( contH0.size() != 0 ){
@@ -37,6 +38,7 @@ namespace ora {
       } else {
 	std::cout << "Container Cont0 size is 0 as expected."<<std::endl;
       }
+      //inserting
       int oid0, oid1;
       MultiArrayClass2 a0(2);
       MultiArrayClass2 a1(3);
@@ -49,7 +51,7 @@ namespace ora {
       ora::OId id1( contH0.id(), oid1 );
       trans0.commit();
       db.disconnect();
-      ::sleep(1);
+      sleep();
       // reading back...
       db.connect( connStr );
       trans0.start( true );
@@ -131,7 +133,7 @@ namespace ora {
       }
       trans0.commit();
       db.disconnect();
-      //
+      //reading back again
       db.connect( connStr );
       trans0.start( true );
       contH0 = db.containerHandle( "Cont0" );
@@ -141,6 +143,7 @@ namespace ora {
 	std::cout << "Container Cont0 size is 1 after delete as expected."<<std::endl;
       }
       trans0.commit();
+      //clean up
       trans0.start( false );
       db.drop();
       trans0.commit();

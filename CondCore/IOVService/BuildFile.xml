@@ -1,5 +1,3 @@
-<flags   GENREFLEX_ARGS="--"/>
-<use   name="rootrflx"/>
 <use   name="CondFormats/Common"/>
 <use   name="CondCore/DBCommon"/>
 <use   name="CondCore/MetaDataService"/>

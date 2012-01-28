@@ -43,6 +43,8 @@ namespace edm {
 
     bool specified_;
 
+    bool lumiSpecified_;
+
     bool firstEvent_;
 
     bool firstLoop_;

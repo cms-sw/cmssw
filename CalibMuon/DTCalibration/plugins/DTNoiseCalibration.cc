@@ -1,17 +1,15 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/08/16 11:05:23 $
- *  $Revision: 1.17 $
+ *  $Date: 2011/05/26 16:04:55 $
+ *  $Revision: 1.14 $
  *  \author G. Mila - INFN Torino
- *          A. Vilela Pereira - INFN Torino 
  */
 
 #include "DTNoiseCalibration.h"
 
 // Framework
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h" 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -44,7 +42,7 @@ using namespace std;
 DTNoiseCalibration::DTNoiseCalibration(const edm::ParameterSet& pset):
   digiLabel_( pset.getParameter<InputTag>("digiLabel") ),
   useTimeWindow_( pset.getParameter<bool>("useTimeWindow") ),
-  triggerWidth_( pset.getParameter<double>("triggerWidth") ),
+  triggerWidth_( pset.getParameter<int>("triggerWidth") ),
   timeWindowOffset_( pset.getParameter<int>("timeWindowOffset") ),
   maximumNoiseRate_( pset.getParameter<double>("maximumNoiseRate") ),
   useAbsoluteRate_( pset.getParameter<bool>("useAbsoluteRate") ), 
@@ -52,7 +50,7 @@ DTNoiseCalibration::DTNoiseCalibration(const edm::ParameterSet& pset):
   dbLabel_( pset.getUntrackedParameter<string>("dbLabel", "") ),
   //fastAnalysis_( pset.getParameter<bool>("fastAnalysis", true) ),
   wireIdWithHisto_( std::vector<DTWireId>() ),
-  lumiMax_(3000)
+  lumiMax_(5000)
   {
 
   // Get the debug parameter for verbose output
@@ -105,8 +103,6 @@ void DTNoiseCalibration::beginRun(const edm::Run& run, const edm::EventSetup& se
   // tTrig 
   if( readDB_ ) setup.get<DTTtrigRcd>().get(dbLabel_,tTrigMap_);
 
-  runBeginTime_ = time_t(run.beginTime().value()>>32);
-  runEndTime_ = time_t(run.endTime().value()>>32);
   /*
   nevents = 0;
   counter = 0;
@@ -128,31 +124,20 @@ void DTNoiseCalibration::analyze(const edm::Event& event, const edm::EventSetup&
   TH2F *hEvtPerWireH;
   string Histo2Name;*/
 
-  //RunNumber_t runNumber = event.id().run(); 
-  time_t eventTime = time_t(event.time().value()>>32);
-  unsigned int lumiSection = event.luminosityBlock();
-
   // Loop over digis
   DTDigiCollection::DigiRangeIterator dtLayerId_It;
   for (dtLayerId_It=dtdigis->begin(); dtLayerId_It!=dtdigis->end(); ++dtLayerId_It){
      // Define time window
      float upperLimit = 0.;
-     if(useTimeWindow_){
-        if( readDB_ ){
-           float tTrig,tTrigRMS,kFactor;
-           DTSuperLayerId slId = ((*dtLayerId_It).first).superlayerId();
-           int status = tTrigMap_->get( slId, tTrig, tTrigRMS, kFactor, DTTimeUnits::counts );
-           if(status != 0) throw cms::Exception("DTNoiseCalibration") << "Could not find tTrig entry in DB for" << slId << endl;
-           upperLimit = tTrig - timeWindowOffset_;
-        } else {
-           upperLimit = defaultTtrig_ - timeWindowOffset_;
-        }
+     if( readDB_ ){
+        float tTrig,tTrigRMS,kFactor;
+        DTSuperLayerId slId = ((*dtLayerId_It).first).superlayerId();
+        int status = tTrigMap_->get( slId, tTrig, tTrigRMS, kFactor, DTTimeUnits::counts );
+        if(status != 0) throw cms::Exception("DTNoiseCalibration") << "Could not find tTrig entry in DB for" << slId << endl;
+        upperLimit = tTrig - timeWindowOffset_;
+     } else {
+        upperLimit = defaultTtrig_ - timeWindowOffset_;
      }
-
-     double triggerWidth_s = 0.;
-     if(useTimeWindow_) triggerWidth_s = ( (upperLimit*25)/32 )/1e9;
-     else               triggerWidth_s = double(triggerWidth_/1e9);
-     LogTrace("Calibration") << ((*dtLayerId_It).first).superlayerId() << " Trigger width (s): " << triggerWidth_s;
 
      for (DTDigiCollection::const_iterator digiIt = ((*dtLayerId_It).second).first;
 	 digiIt!=((*dtLayerId_It).second).second; ++digiIt){
@@ -160,10 +145,8 @@ void DTNoiseCalibration::analyze(const edm::Event& event, const edm::EventSetup&
         //Check the TDC trigger width
         int tdcTime = (*digiIt).countsTDC();
         if( !useTimeWindow_ ){
-	   if( ( ((float)tdcTime*25)/32 ) > triggerWidth_ ){
+	   if( ( ((float)tdcTime*25)/32 ) > triggerWidth_ )
               LogError("Calibration") << "Digi has a TDC time (ns) higher than the pre-defined TDC trigger width: " << ((float)tdcTime*25)/32;
-              continue;
-           }
         }	
 
         hTDCTriggerWidth_->Fill(tdcTime);
@@ -188,18 +171,7 @@ void DTNoiseCalibration::analyze(const edm::Event& event, const edm::EventSetup&
 	   LogTrace("Calibration") << "  Created occupancy Histo: " << hOccupancyHisto->GetName();
 	   theHistoOccupancyMap_[dtLId] = hOccupancyHisto;
         }
-        theHistoOccupancyMap_[dtLId]->Fill( (*digiIt).wire(), 1./triggerWidth_s );
-
-        // Histos vs lumi section
-        const DTChamberId dtChId = dtLId.chamberId();
-        if( chamberOccupancyVsLumiMap_.find(dtChId) == chamberOccupancyVsLumiMap_.end() ){
-           string histoName = "OccupancyVsLumi_" + getChamberName(dtChId);
-           rootFile_->cd();
-           TH1F* hOccupancyVsLumiHisto = new TH1F(histoName.c_str(), histoName.c_str(), lumiMax_, 0, lumiMax_);
-           LogTrace("Calibration") << "  Created occupancy histo: " << hOccupancyVsLumiHisto->GetName();
-           chamberOccupancyVsLumiMap_[dtChId] = hOccupancyVsLumiHisto;
-        }
-        chamberOccupancyVsLumiMap_[dtChId]->Fill( lumiSection, 1./triggerWidth_s );
+        theHistoOccupancyMap_[dtLId]->Fill((*digiIt).wire());
 
         const DTWireId wireId(dtLId, (*digiIt).wire());
         if( find(wireIdWithHisto_.begin(),wireIdWithHisto_.end(),wireId) != wireIdWithHisto_.end() ){
@@ -210,35 +182,10 @@ void DTNoiseCalibration::analyze(const edm::Event& event, const edm::EventSetup&
               LogTrace("Calibration") << "  Created occupancy histo: " << hOccupancyVsLumiHisto->GetName();
               theHistoOccupancyVsLumiMap_[wireId] = hOccupancyVsLumiHisto;
            }
-           theHistoOccupancyVsLumiMap_[wireId]->Fill( lumiSection, 1./triggerWidth_s );
-        }
 
-        // Histos vs time
-        if( chamberOccupancyVsTimeMap_.find(dtChId) == chamberOccupancyVsTimeMap_.end() ){
-           string histoName = "OccupancyVsTime_" + getChamberName(dtChId);
-           float secPerBin = 20.0; 
-           unsigned int nBins = ( (unsigned int)(runEndTime_ - runBeginTime_) )/secPerBin;
-           rootFile_->cd(); 
-           TH1F* hOccupancyVsTimeHisto = new TH1F(histoName.c_str(), histoName.c_str(),
-                                                                     nBins, (unsigned int)runBeginTime_,
-                                                                            (unsigned int)runEndTime_);
-           for(int k = 0; k < hOccupancyVsTimeHisto->GetNbinsX(); ++k){
-              if( k%10 == 0 ){
-                 unsigned int binLowEdge = hOccupancyVsTimeHisto->GetBinLowEdge(k+1);
-                 time_t timeValue = time_t(binLowEdge); 
-                 hOccupancyVsTimeHisto->GetXaxis()->SetBinLabel( (k+1),ctime(&timeValue) );
-              }
-           }
-           size_t lastBin = hOccupancyVsTimeHisto->GetNbinsX();
-           unsigned int binUpperEdge = hOccupancyVsTimeHisto->GetBinLowEdge(lastBin) +
-                                       hOccupancyVsTimeHisto->GetBinWidth(lastBin);
-           time_t timeValue = time_t(binUpperEdge);
-           hOccupancyVsTimeHisto->GetXaxis()->SetBinLabel( (lastBin),ctime(&timeValue) ); 
-
-           LogTrace("Calibration") << "  Created occupancy histo: " << hOccupancyVsTimeHisto->GetName();
-           chamberOccupancyVsTimeMap_[dtChId] = hOccupancyVsTimeHisto; 
+           unsigned int lumiSection = event.luminosityBlock();
+           theHistoOccupancyVsLumiMap_[wireId]->Fill(lumiSection);
         }
-        chamberOccupancyVsTimeMap_[dtChId]->Fill( (unsigned int)eventTime, 1./triggerWidth_s );               
 
         /*// Book the digi event plot every 1000 events if the analysis is not "fast" and if is the correct sector
 	if(!fastAnalysis &&
@@ -335,32 +282,15 @@ void DTNoiseCalibration::endJob(){
   rootFile_->cd();
   hTDCTriggerWidth_->Write();
 
-  double normalization = 1./double(nevents_);
-
   for(map<DTWireId, TH1F*>::const_iterator wHisto = theHistoOccupancyVsLumiMap_.begin();
-                                           wHisto != theHistoOccupancyVsLumiMap_.end(); ++wHisto){
-     (*wHisto).second->Scale(normalization);
-     (*wHisto).second->Write();
-  }
+      wHisto != theHistoOccupancyVsLumiMap_.end(); ++wHisto) (*wHisto).second->Write();
   
-  for(map<DTChamberId, TH1F*>::const_iterator chHisto = chamberOccupancyVsLumiMap_.begin();
-                                              chHisto != chamberOccupancyVsLumiMap_.end(); ++chHisto){
-     (*chHisto).second->Scale(normalization);
-     (*chHisto).second->Write();
-  }
-
-  for(map<DTChamberId, TH1F*>::const_iterator chHisto = chamberOccupancyVsTimeMap_.begin();
-                                              chHisto != chamberOccupancyVsTimeMap_.end(); ++chHisto){
-     (*chHisto).second->Scale(normalization);
-     (*chHisto).second->Write();
-  }
-
   // Save on file the occupancy histos and write the list of noisy cells
   DTStatusFlag *statusMap = new DTStatusFlag();
   for(map<DTLayerId, TH1F*>::const_iterator lHisto = theHistoOccupancyMap_.begin();
       lHisto != theHistoOccupancyMap_.end();
       ++lHisto){
-     /*double triggerWidth_s = 0.;
+     double triggerWidth_s = 0.;
      if( useTimeWindow_ ){
         double triggerWidth_ns = 0.;
         if( readDB_ ){
@@ -377,9 +307,9 @@ void DTNoiseCalibration::endJob(){
      } else{
         triggerWidth_s = double(triggerWidth_/1e9);
      }
-     LogTrace("Calibration") << (*lHisto).second->GetName() << " trigger width (s): " << triggerWidth_s;*/
+     LogTrace("Calibration") << (*lHisto).second->GetName() << " trigger width (s): " << triggerWidth_s;
 
-     //double normalization = 1./(nevents_*triggerWidth_s);
+     double normalization = 1./(nevents_*triggerWidth_s);
      if((*lHisto).second){
         (*lHisto).second->Scale(normalization);
         rootFile_->cd();
@@ -437,14 +367,14 @@ string DTNoiseCalibration::getLayerName(const DTLayerId& lId) const{
   stringstream station; station << dtChId.station();	
   stringstream sector; sector << dtChId.sector();
   
-  string layerName = 
+  string LayerName = 
     "W" + wheel.str()
     + "_St" + station.str() 
     + "_Sec" + sector.str() 
     + "_SL" + superLayer.str()
     + "_L" + Layer.str();
   
-  return layerName;
+  return LayerName;
 }
 
 string DTNoiseCalibration::getSuperLayerName(const DTSuperLayerId& dtSLId) const{
@@ -455,25 +385,11 @@ string DTNoiseCalibration::getSuperLayerName(const DTSuperLayerId& dtSLId) const
   stringstream station; station << dtChId.station();	
   stringstream sector; sector << dtChId.sector();
   
-  string superLayerName = 
+  string SuperLayerName = 
     "W" + wheel.str()
     + "_St" + station.str() 
     + "_Sec" + sector.str() 
     + "_SL" + superLayer.str();
   
-  return superLayerName;
-}
-
-string DTNoiseCalibration::getChamberName(const DTChamberId& dtChId) const{
-
-  stringstream wheel; wheel << dtChId.wheel();
-  stringstream station; station << dtChId.station();
-  stringstream sector; sector << dtChId.sector();
-
-  string chamberName =
-    "W" + wheel.str()
-    + "_St" + station.str()
-    + "_Sec" + sector.str();
-
-  return chamberName;
+  return SuperLayerName;
 }

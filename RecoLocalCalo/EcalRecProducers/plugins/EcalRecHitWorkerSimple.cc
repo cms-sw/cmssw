@@ -1,5 +1,5 @@
 #include "RecoLocalCalo/EcalRecProducers/plugins/EcalRecHitWorkerSimple.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
@@ -10,41 +10,19 @@
 #include "CondFormats/EcalObjects/interface/EcalTimeCalibConstants.h"
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CommonTools/Utils/interface/StringToEnumValue.h"
 
 EcalRecHitWorkerSimple::EcalRecHitWorkerSimple(const edm::ParameterSet&ps) :
         EcalRecHitWorkerBaseClass(ps)
 {
         rechitMaker_ = new EcalRecHitSimpleAlgo();
         v_chstatus_ = ps.getParameter<std::vector<int> >("ChannelStatusToBeExcluded");
-        //v_DB_reco_flags_ = ps.getParameter<std::vector<int> >("flagsMapDBReco");
+        v_DB_reco_flags_ = ps.getParameter<std::vector<int> >("flagsMapDBReco");
         killDeadChannels_ = ps.getParameter<bool>("killDeadChannels");
         laserCorrection_ = ps.getParameter<bool>("laserCorrection");
 	EBLaserMIN_ = ps.getParameter<double>("EBLaserMIN");
 	EELaserMIN_ = ps.getParameter<double>("EELaserMIN");
 	EBLaserMAX_ = ps.getParameter<double>("EBLaserMAX");
 	EELaserMAX_ = ps.getParameter<double>("EELaserMAX");
-
-
-
-        const edm::ParameterSet & dbps= ps.getParameter< edm::ParameterSet >("flagsMapDBReco");
-        std::vector<std::string> dbseverities = dbps.getParameterNames();
-        std::vector<uint32_t>    dbflags;
-         
-        recoflags_.resize(dbseverities.size());
-  
-        for (unsigned int is=0;is!=dbseverities.size();++is){
-            
-              EcalSeverityLevel::SeverityLevel snum = (EcalSeverityLevel::SeverityLevel) StringToEnumValue<EcalSeverityLevel::SeverityLevel>(dbseverities[is]); 
-              dbflags=dbps.getParameter<std::vector<uint32_t> >(dbseverities[is]);
-              uint32_t mask=0;
-              for (unsigned int ifi=0;ifi!=dbflags.size();++ifi){
-                   int f= dbflags[ifi];
-                   //manipulate the mask
-                   mask|=(0x1<<f);
-              }
-                   recoflags_[snum]=mask;
-        }
 }
 
 
@@ -84,7 +62,7 @@ EcalRecHitWorkerSimple::run( const edm::Event & evt,
                 }
         }
 
- /*       // find the proper flag for the recHit
+        // find the proper flag for the recHit
         // from a configurable vector
         // (see cfg file for the association)
         uint32_t recoFlag = 0;
@@ -96,7 +74,7 @@ EcalRecHitWorkerSimple::run( const edm::Event & evt,
                 edm::LogError("EcalRecHitError") << "Flag " << statusCode 
                         << " in DB exceed the allowed range of " << v_DB_reco_flags_.size();
         }
-*/
+
 	float offsetTime = 0; // the global time phase
 	const EcalIntercalibConstantMap& icalMap = ical->getMap();  
         if ( detid.subdetId() == EcalEndcap ) {
@@ -134,17 +112,12 @@ EcalRecHitWorkerSimple::run( const edm::Event & evt,
                         << detid.rawId()
                         << "! something wrong with EcalTimeCalibConstants in your DB? ";
         }
-          bool iscorrected=false;	
-	  
-	  for (size_t i=0; i< recoflags_.size();++i){
-            if (recoflags_[i]<=3) iscorrected=true; 
-          }
 
         // make the rechit and put in the output collection
-        if (/*recoflags_ <= EcalRecHit::kLeadingEdgeRecovered*/ iscorrected || !killDeadChannels_) {
-          EcalRecHit myrechit( rechitMaker_->makeRecHit(uncalibRH, icalconst * lasercalib, (itimeconst + offsetTime), /*recoflags_*/ 0) );	
+        if (recoFlag <= EcalRecHit::kLeadingEdgeRecovered || !killDeadChannels_) {
+          EcalRecHit myrechit( rechitMaker_->makeRecHit(uncalibRH, icalconst * lasercalib, (itimeconst + offsetTime), recoFlag) );
 	  if (detid.subdetId() == EcalBarrel && lasercalib < EBLaserMIN_ && lasercalib > EBLaserMAX_) myrechit.setFlag(EcalRecHit::kPoorCalib);
-	  if (detid.subdetId() == EcalEndcap && lasercalib < EELaserMIN_ && lasercalib > EELaserMAX_) myrechit.setFlag(EcalRecHit::kPoorCalib);
+	  if (detid.subdetId() == EcalEndcap && lasercalib < EELaserMIN_ && lasercalib > EELaserMAX_) myrechit.setFlag(EcalRecHit::kPoorCalib);	
 	  result.push_back(myrechit);
 	}
 

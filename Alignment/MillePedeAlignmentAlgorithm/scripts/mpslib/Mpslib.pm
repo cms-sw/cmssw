@@ -1,6 +1,6 @@
 package Mpslib;  # assumes Some/Module.pm
 
-# $Revision: 1.8 $ by $Author: flucke $
+# $Revision: 1.14 $ by $Author$
 #
 # Meaning of the database variables:
 #
@@ -153,13 +153,12 @@ sub read_db() {
   my $nMilleJobs = 0;
   $nJobs = 0; 
   while (<DBFILE>) { # loop through all jobs to read
-    #chomp $_;
+    chomp $_;
     my $line;
-    my $nsplit = ($line,@JOBDIR[$nJobs],@JOBID[$nJobs],@JOBSTATUS[$nJobs],
+    ($line,@JOBDIR[$nJobs],@JOBID[$nJobs],@JOBSTATUS[$nJobs],
     @JOBNTRY[$nJobs],@JOBRUNTIME[$nJobs],@JOBNEVT[$nJobs],@JOBHOST[$nJobs],@JOBINCR[$nJobs],
     @JOBREMARK[$nJobs],@JOBSP1[$nJobs],@JOBSP2[$nJobs],@JOBSP3[$nJobs])
       = split(":",$_);
-    chomp $JOBSP3[$nJobs];
     unless (@JOBDIR[$nJobs] =~ m/jobm/) { # count mille jobs
 	++$nMilleJobs;
     }

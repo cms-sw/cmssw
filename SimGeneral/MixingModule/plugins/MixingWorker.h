@@ -17,6 +17,11 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/Handle.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "CondFormats/DataRecord/interface/MixingRcd.h"
+#include "CondFormats/RunInfo/interface/MixingModuleConfig.h"
+
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/PCrossingFrame.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
@@ -74,6 +79,16 @@ namespace edm
       virtual ~MixingWorker() {;}
 
     public:
+
+      virtual void reload(const edm::EventSetup & setup){
+	//get the required parameters from DB.
+	// watch the label/tag
+	edm::ESHandle<MixingModuleConfig> config;
+	setup.get<MixingRcd>().get(config);
+	minBunch_=config->minBunch();
+	maxBunch_=config->maxBunch();
+	bunchSpace_=config->bunchSpace();
+      }
 
       virtual bool checkSignal(const edm::Event &e){
           bool got;
@@ -149,9 +164,9 @@ namespace edm
       virtual void copyPCrossingFrame(const PCrossingFrame<T> *PCF);
       
     private:
-      int const minBunch_;
-      int const maxBunch_;
-      int const bunchSpace_;
+      int minBunch_;
+      int maxBunch_;
+      int bunchSpace_;
       std::string const subdet_;
       std::string const label_;
       std::string const labelCF_;
