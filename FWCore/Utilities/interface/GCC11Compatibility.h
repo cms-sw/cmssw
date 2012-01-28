@@ -18,11 +18,13 @@
 #endif
 
 #ifndef NOCXX11
-  #if !GCC_PREREQUISITE(4,7,0)
-     #define final
-  #endif  // no 4.7
+  #if GCC_PREREQUISITE(4,7,0)
+     #define FINAL final
+  #else
+     #define FINAL  
+  #endif // gcc 4.7
 #else
-  #define final
+  #define FINAL
   #define constexpr
   #define noexcept
 #endif // NOCXX11
