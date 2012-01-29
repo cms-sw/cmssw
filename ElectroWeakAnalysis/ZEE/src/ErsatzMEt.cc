@@ -643,7 +643,6 @@ void ErsatzMEt::analyze(const edm::Event& evt, const edm::EventSetup& es)
 			}else{
 				scV2 = scV1;
 			}
-			math::XYZTLorentzVector	probe_scV2_detVec = DetectorVector(scV2);
 			probe_scV2_E_[iComb_] = scV2.energy();
 			ersatzMEt = ersatzFabrik(it->first, scV2, calomet, 2);
 			ErsatzV2CaloMEt_[iComb_] = ersatzMEt.pt();
@@ -657,7 +656,6 @@ void ErsatzMEt::analyze(const edm::Event& evt, const edm::EventSetup& es)
 			}else{
 				scV3 = fBremScCorr(scV1, m5x5_fCorrPSet_);
 			}	
-			math::XYZTLorentzVector	probe_scV3_detVec = DetectorVector(scV3);
 			probe_scV3_E_[iComb_] = scV3.energy();
 			ersatzMEt = ersatzFabrik(it->first, scV3, calomet, 3);
 			ErsatzV3CaloMEt_[iComb_] = ersatzMEt.pt();
@@ -671,7 +669,6 @@ void ErsatzMEt::analyze(const edm::Event& evt, const edm::EventSetup& es)
 			}else{
 				scV4 = fBremScCorr(scV1, m5x5_fCorrPSet_);
 			}	
-			math::XYZTLorentzVector	probe_scV4_detVec = DetectorVector(scV4);
 			probe_scV4_E_[iComb_] = scV4.energy();
 			ersatzMEt = ersatzFabrik(it->first, scV4, calomet, 4);
 			ErsatzV4CaloMEt_[iComb_] = ersatzMEt.pt();
