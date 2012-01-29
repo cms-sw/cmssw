@@ -58,6 +58,9 @@ StripCPE::StripCPE( edm::ParameterSet & conf,
     xtalk1[it->second] = confObj.get<double>(xtalk1S);
     xtalk2[it->second] = confObj.get<double>(xtalk2S);
   }
+  
+  fillPamams();
+
 }
 
 StripClusterParameterEstimator::LocalValues StripCPE::
