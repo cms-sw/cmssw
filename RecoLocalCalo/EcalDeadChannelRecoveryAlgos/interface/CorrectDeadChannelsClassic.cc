@@ -161,7 +161,6 @@ double CorrectDeadChannelsClassic(double *M11x11Input, const int DCeta){
 ////////////////////////////////////////////////////////////////////
 
   float XLOW[50],XHIG[50],YLOW[50],YHIG[50];
-  float CentX[50],CentY[50];
   int NSUBS = 25;
   for(int ix=0; ix<5 ; ix++){
     for(int iy=0; iy<5 ; iy++){
@@ -172,8 +171,6 @@ double CorrectDeadChannelsClassic(double *M11x11Input, const int DCeta){
       YLOW[isub]= -10.0 +float(iy)*4.0;;
       YHIG[isub]= YLOW[isub] + 4.0; 
       
-      CentX[isub]=(XHIG[isub]+XLOW[isub])/2.0;
-      CentY[isub]=(YHIG[isub]+YLOW[isub])/2.0;
     }
   }
 
