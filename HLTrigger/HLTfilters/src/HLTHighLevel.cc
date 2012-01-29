@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/02/24 08:28:45 $
- *  $Revision: 1.18 $
+ *  $Date: 2012/01/21 14:56:59 $
+ *  $Revision: 1.19 $
  *
  *  \author Martin Grunewald
  *
@@ -33,7 +33,7 @@
 //
 // constructors and destructor
 //
-HLTHighLevel::HLTHighLevel(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
+HLTHighLevel::HLTHighLevel(const edm::ParameterSet& iConfig) :
   inputTag_     (iConfig.getParameter<edm::InputTag> ("TriggerResultsTag")),
   triggerNamesID_ (),
   andOr_        (iConfig.getParameter<bool> ("andOr")),
@@ -173,7 +173,7 @@ HLTHighLevel::pathsFromSetup(const std::string &key, const edm::EventSetup &iSet
   TriggerMap::const_iterator listIter = triggerMap.find(key);
   if (listIter == triggerMap.end()) {
     throw cms::Exception("Configuration")
-      << " HLTHighLevel [instance: " << *moduleLabel() << " - path: " << *pathName()
+      << " HLTHighLevel [instance: " << moduleLabel() << " - path: " << pathName()
       << "]: No triggerList with key " << key << " in AlCaRecoTriggerBitsRcd";
   }
 
@@ -184,7 +184,7 @@ HLTHighLevel::pathsFromSetup(const std::string &key, const edm::EventSetup &iSet
 
 // ------------ method called to produce the data  ------------
   bool
-HLTHighLevel::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTHighLevel::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace std;
   using namespace edm;
@@ -235,8 +235,8 @@ HLTHighLevel::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigg
 
     if (config_changed) {
       LogTrace("HLTHighLevel")
-        << " HLTHighLevel [instance: " << *moduleLabel()
-        << " - path: " << *pathName()
+        << " HLTHighLevel [instance: " << moduleLabel()
+        << " - path: " << pathName()
         << "] configured with " << nbad
         << "/" << n
         << " unknown HLT path names: " << message;
@@ -244,8 +244,8 @@ HLTHighLevel::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigg
 
     if (throw_) {
       throw cms::Exception("Configuration")
-        << " HLTHighLevel [instance: " << *moduleLabel()
-        << " - path: " << *pathName()
+        << " HLTHighLevel [instance: " << moduleLabel()
+        << " - path: " << pathName()
         << "] configured with " << nbad
         << "/" << n
         << " unknown HLT path names: " << message;
@@ -257,4 +257,13 @@ HLTHighLevel::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigg
   LogDebug("HLTHighLevel") << "Accept = " << std::boolalpha << accept;
 
   return accept;
+}
+
+
+std::string const & HLTHighLevel::pathName() const {
+  return * currentContext()->pathName();
+}
+
+std::string const & HLTHighLevel::moduleLabel() const {
+  return * currentContext()->moduleLabel();
 }

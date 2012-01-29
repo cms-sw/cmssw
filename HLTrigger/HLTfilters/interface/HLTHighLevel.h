@@ -7,19 +7,25 @@
  *  This class is an HLTFilter (-> EDFilter) implementing filtering on
  *  HLT bits
  *
- *  $Date: 2010/02/16 22:31:04 $
- *  $Revision: 1.8 $
+ *  $Date: 2012/01/21 14:56:58 $
+ *  $Revision: 1.9 $
  *
  *  \author Martin Grunewald
  *
  */
 
-#include "FWCore/Framework/interface/ESWatcher.h"
-#include "HLTrigger/HLTcore/interface/HLTFilter.h"
-#include "FWCore/Common/interface/TriggerNames.h"
-#include "DataFormats/Provenance/interface/ParameterSetID.h"
+// C++ headers
 #include <vector>
 #include <string>
+
+// CMSSW headers
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/CurrentProcessingContext.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "DataFormats/Provenance/interface/ParameterSetID.h"
 
 // forward declarations
 namespace edm {
@@ -31,13 +37,13 @@ class AlCaRecoTriggerBitsRcd;
 // class declaration
 //
 
-class HLTHighLevel : public HLTFilter {
+class HLTHighLevel : public edm::EDFilter {
 
   public:
 
     explicit HLTHighLevel(const edm::ParameterSet&);
     ~HLTHighLevel();
-    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+    virtual bool filter(edm::Event&, const edm::EventSetup&);
 
     /// get HLTPaths with key 'key' from EventSetup (AlCaRecoTriggerBitsRcd)
     std::vector<std::string> pathsFromSetup(const std::string &key,
@@ -59,6 +65,10 @@ class HLTHighLevel : public HLTFilter {
 
     /// throw on any requested trigger being unknown
     bool throw_;
+
+    /// stolen from HLTFilter
+    std::string const & pathName() const;
+    std::string const & moduleLabel() const;
 
     /// not empty => use read paths from AlCaRecoTriggerBitsRcd via this key
     const std::string eventSetupPathsKey_;
