@@ -26,9 +26,6 @@ struct IMASelector {
     double EseedOPout = t.eSeedClusterOverPout () ;
     double EoPin = t.eSuperClusterOverP () ;
     double EoPout = (ESC)/pOut;
-    bool result;
-	    result=EoPout > EMPoutMin_ ;
-	    result = EoPout<EMPoutMax_;
     return (poMpiOpi > PinMPoutOPinMin_ && poMpiOpi < PinMPoutOPinMax_ &&
             EseedOPout > ESeedOPoutMin_ && EseedOPout < ESeedOPoutMax_ &&
             EoPin > ESCOPinMin_ && EoPin < ESCOPinMax_ &&

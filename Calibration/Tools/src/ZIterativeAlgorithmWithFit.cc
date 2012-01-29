@@ -289,14 +289,6 @@ bool ZIterativeAlgorithmWithFit::addEvent(calib::CalibElectron* ele1, calib::Cal
     
 void ZIterativeAlgorithmWithFit::getWeight(unsigned int event_id, std::pair<calib::CalibElectron*,calib::CalibElectron*> elepair, float invMassRescFactor) 
 {
-
-  float event_weight;
-  if (UseStatWeights_) {
-    event_weight=getEventWeight(event_id);
-  } else {
-    event_weight=1/(elepair.first->getRecoElectron()->superCluster()->rawEnergy()+elepair.second->getRecoElectron()->superCluster()->rawEnergy());
-  }
-
   getWeight(event_id, elepair.first, invMassRescFactor);
   getWeight(event_id, elepair.second, invMassRescFactor);
 }
