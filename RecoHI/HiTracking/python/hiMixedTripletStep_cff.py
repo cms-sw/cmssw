@@ -1,29 +1,26 @@
 import FWCore.ParameterSet.Config as cms
 
-#################################
-# Filter on quality tracks
-hiSecondStepFilter = cms.EDProducer("QualityFilter",
-                                  TrackQuality = cms.string('highPurity'),
-                                  recTracks = cms.InputTag("hiSecondPixelTripletSelectedTracks")
-                                  )
-
 # NEW CLUSTERS (remove previously used clusters)
 hiMixedTripletClusters = cms.EDProducer("TrackClusterRemover",
-                                clusterLessSolution= cms.bool(True),
-                                oldClusterRemovalInfo = cms.InputTag("hiSecondPixelTripletClusters"),
-                                trajectories = cms.InputTag("hiSecondStepFilter"),
-                                TrackQuality = cms.string('highPurity'),
-                                pixelClusters = cms.InputTag("siPixelClusters"),
-                                stripClusters = cms.InputTag("siStripClusters"),
-                                Common = cms.PSet(
+                                        clusterLessSolution= cms.bool(True),
+                                        oldClusterRemovalInfo = cms.InputTag("hiSecondPixelTripletClusters"),
+                                        trajectories = cms.InputTag("hiSecondPixelTripletGlobalPrimTracks"),
+                                        overrideTrkQuals = cms.InputTag('hiSecondPixelTripletStepSelector','hiSecondPixelTripletStep'),
+                                        TrackQuality = cms.string('highPurity'),
+                                        pixelClusters = cms.InputTag("siPixelClusters"),
+                                        stripClusters = cms.InputTag("siStripClusters"),
+                                        Common = cms.PSet(
     maxChi2 = cms.double(9.0),
     ),
-                                Strip = cms.PSet(
+                                        Strip = cms.PSet(
     maxChi2 = cms.double(9.0),
     #Yen-Jie's mod to preserve merged clusters
-    maxSize = cms.uint32(2)   
+    maxSize = cms.uint32(2)
     )
-                                )
+                                        )
+
+
+                                        
 
 
 # SEEDING LAYERS
@@ -180,26 +177,40 @@ hiMixedTripletTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ck
 # TRACK FITTING
 import RecoTracker.TrackProducer.TrackProducer_cfi
 hiMixedTripletGlobalPrimTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
-    AlgorithmName = cms.string('iter2'),
+    AlgorithmName = cms.string('iter4'),
     src = 'hiMixedTripletTrackCandidates'
     )
 
-#################################
-# HI track selection
-from RecoHI.HiTracking.HISelectedTracks_cfi import *
-hiMixedTripletSelectedTracks = hiSelectedTracks.clone(
-    src = "hiMixedTripletGlobalPrimTracks",
-    min_nhits = cms.uint32(14)
-    )
+# Final selection
+import RecoHI.HiTracking.hiMultiTrackSelector_cfi
+hiMixedTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
+    src='hiMixedTripletGlobalPrimTracks',
+    trackSelectors= cms.VPSet(
+    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
+    name = 'hiMixedTripletStepLoose',
+    ), #end of pset
+    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
+    name = 'hiMixedTripletStepTight',
+    preFilterName = 'hiMixedTripletStepLoose',
+    ),
+    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
+    name = 'hiMixedTripletStep',
+    preFilterName = 'hiMixedTripletStepTight',
+    min_nhits = 14
+    ),
+    ) #end of vpset
+    ) #end of clone
+
 
 
 # Final sequence
 
-hiMixedTripletStep = cms.Sequence(hiSecondStepFilter*
+hiMixedTripletStep = cms.Sequence(
                           hiMixedTripletClusters*
                           hiMixedTripletSeedsA*
                           hiMixedTripletSeedsB*
                           hiMixedTripletSeeds*
                           hiMixedTripletTrackCandidates*
                           hiMixedTripletGlobalPrimTracks*
-                          hiMixedTripletSelectedTracks)
+                          hiMixedTripletStepSelector)
+

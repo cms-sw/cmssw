@@ -1,38 +1,23 @@
 import FWCore.ParameterSet.Config as cms
 
-import RecoTracker.FinalTrackSelectors.simpleTrackListMerger_cfi
-# Track filtering and quality.
-#   input:    zeroStepTracksWithQuality,preMergingFirstStepTracksWithQuality,secStep,thStep,pixellessStep
-#   output:   generalTracks
-#   sequence: trackCollectionMerging
-
-#
-
-thirdAndFourthSteps = RecoTracker.FinalTrackSelectors.simpleTrackListMerger_cfi.simpleTrackListMerger.clone(
-    TrackProducer1 = 'hiMixedTripletSelectedTracks',
-    TrackProducer2 = 'hiPixelPairSelectedTracks',
-    promoteTrackQuality = True
-    )
-
-
-iterTracks = RecoTracker.FinalTrackSelectors.simpleTrackListMerger_cfi.simpleTrackListMerger.clone(
-    TrackProducer1 = 'hiSecondPixelTripletSelectedTracks',
-    TrackProducer2 = 'thirdAndFourthSteps',
-    promoteTrackQuality = True
-    )
-
-
-hiGeneralTracks = RecoTracker.FinalTrackSelectors.simpleTrackListMerger_cfi.simpleTrackListMerger.clone(
-    TrackProducer1 = 'hiSelectedTracks',
-    TrackProducer2 = 'iterTracks',
-    promoteTrackQuality = True,
+import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
+hiGeneralTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
+    TrackProducers = (cms.InputTag('hiGlobalPrimTracks'),
+                      cms.InputTag('hiSecondPixelTripletGlobalPrimTracks'),
+                      cms.InputTag('hiMixedTripletGlobalPrimTracks'),
+                      #cms.InputTag('detachedTripletStepTracks'),
+                      cms.InputTag('hiPixelPairGlobalPrimTracks')),
+    #cms.InputTag('pixelLessStepTracks'),
+    #cms.InputTag('tobTecStepTracks')),
+    hasSelector=cms.vint32(1,1,1,1),
+    selectedTrackQuals = cms.VInputTag(
+    cms.InputTag("hiInitialStepSelector","hiInitialStep"),
+    cms.InputTag("hiSecondPixelTripletStepSelector","hiSecondPixelTripletStep"),
+    cms.InputTag("hiMixedTripletStepSelector","hiMixedTripletStep"),
+    cms.InputTag("hiPixelPairStepSelector","hiPixelPairStep"),
+    ),                    
+    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3), pQual=cms.bool(True)),  # should this be False?
+                             ),
     copyExtras = True,
-    makeReKeyedSeeds = cms.untracked.bool(True)
-    )
-
-
-trackCollectionMerging = cms.Sequence(
-    thirdAndFourthSteps*
-    iterTracks*
-    hiGeneralTracks
+    makeReKeyedSeeds = cms.untracked.bool(False)
     )

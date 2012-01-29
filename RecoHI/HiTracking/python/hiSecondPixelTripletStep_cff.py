@@ -104,20 +104,44 @@ hiSecondPixelTripletGlobalPrimTracks = RecoTracker.TrackProducer.TrackProducer_c
 
 
 
-#################################
-# HI track selection
-from RecoHI.HiTracking.HISelectedTracks_cfi import *
-hiSecondPixelTripletSelectedTracks = hiSelectedTracks.clone(
-    src = "hiSecondPixelTripletGlobalPrimTracks",
-    min_nhits = cms.uint32(14)
-    )
+# Final selection
+import RecoHI.HiTracking.hiMultiTrackSelector_cfi
+hiSecondPixelTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
+    src='hiSecondPixelTripletGlobalPrimTracks',
+    trackSelectors= cms.VPSet(
+    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
+    name = 'hiSecondPixelTripletStepLoose',
+    ), #end of pset
+    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
+    name = 'hiSecondPixelTripletStepTight',
+    preFilterName = 'hiSecondPixelTripletStepLoose',
+    ),
+    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
+    name = 'hiSecondPixelTripletStep',
+    preFilterName = 'hiSecondPixelTripletStepTight',
+    min_nhits = 14
+    ),
+    ) #end of vpset
+    ) #end of clone
 
+
+import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
+hiSecondQual = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
+    TrackProducers = cms.VInputTag(cms.InputTag('hiSecondPixelTripletGlobalPrimTracks')),
+    hasSelector=cms.vint32(1),
+    selectedTrackQuals = cms.VInputTag(cms.InputTag("hiSecondPixelTripletStepSelector","hiSecondPixelTripletStep")),
+    copyExtras = True,
+    makeReKeyedSeeds = cms.untracked.bool(False),
+    #writeOnlyTrkQuals = True
+    )
 
 # Final sequence
 
 hiSecondPixelTripletStep = cms.Sequence(hiFirstStepFilter*
-                          hiSecondPixelTripletClusters*
-                          hiSecondPixelTripletSeeds*
-                          hiSecondPixelTripletTrackCandidates*
-                          hiSecondPixelTripletGlobalPrimTracks*
-                          hiSecondPixelTripletSelectedTracks)
+                                        hiSecondPixelTripletClusters*
+                                        hiSecondPixelTripletSeeds*
+                                        hiSecondPixelTripletTrackCandidates*
+                                        hiSecondPixelTripletGlobalPrimTracks*
+                                        hiSecondPixelTripletStepSelector
+                                        *hiSecondQual
+                                        )

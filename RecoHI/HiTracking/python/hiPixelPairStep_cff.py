@@ -1,30 +1,25 @@
 import FWCore.ParameterSet.Config as cms
 
 
-#################################
-# Filter on quality tracks
-hiThirdStepFilter = cms.EDProducer("QualityFilter",
-                                  TrackQuality = cms.string('highPurity'),
-                                  recTracks = cms.InputTag("hiMixedTripletSelectedTracks")
-                                  )
 
 # NEW CLUSTERS (remove previously used clusters)
 hiPixelPairClusters = cms.EDProducer("TrackClusterRemover",
-                                clusterLessSolution= cms.bool(True),
-                                oldClusterRemovalInfo = cms.InputTag("hiMixedTripletClusters"),
-                                trajectories = cms.InputTag("hiThirdStepFilter"),
-                                TrackQuality = cms.string('highPurity'),
-                                pixelClusters = cms.InputTag("siPixelClusters"),
-                                stripClusters = cms.InputTag("siStripClusters"),
-                                Common = cms.PSet(
+                                     clusterLessSolution= cms.bool(True),
+                                     oldClusterRemovalInfo = cms.InputTag("hiMixedTripletClusters"),
+                                     trajectories = cms.InputTag("hiMixedTripletGlobalPrimTracks"),
+                                     overrideTrkQuals = cms.InputTag('hiMixedTripletStepSelector','hiMixedTripletStep'),
+                                     TrackQuality = cms.string('highPurity'),
+                                     pixelClusters = cms.InputTag("siPixelClusters"),
+                                     stripClusters = cms.InputTag("siStripClusters"),
+                                     Common = cms.PSet(
     maxChi2 = cms.double(9.0),
     ),
-                                Strip = cms.PSet(
+                                     Strip = cms.PSet(
     maxChi2 = cms.double(9.0),
     #Yen-Jie's mod to preserve merged clusters
-    maxSize = cms.uint32(2)   
+    maxSize = cms.uint32(2)
     )
-                                )
+                                     )
 
 
 # SEEDING LAYERS
@@ -91,24 +86,37 @@ hiPixelPairTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTr
 import RecoTracker.TrackProducer.TrackProducer_cfi
 hiPixelPairGlobalPrimTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'hiPixelPairTrackCandidates',
-    AlgorithmName = cms.string('iter3')
+    AlgorithmName = cms.string('iter2')
     )
 
 
-#################################
-# HI track selection
-from RecoHI.HiTracking.HISelectedTracks_cfi import *
-hiPixelPairSelectedTracks = hiSelectedTracks.clone(
-    src = "hiPixelPairGlobalPrimTracks",
-    min_nhits = cms.uint32(14)
-    )
+
+# Final selection
+import RecoHI.HiTracking.hiMultiTrackSelector_cfi
+hiPixelPairStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
+    src='hiPixelPairGlobalPrimTracks',
+    trackSelectors= cms.VPSet(
+    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
+    name = 'hiPixelPairStepLoose',
+    ), #end of pset
+    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
+    name = 'hiPixelPairStepTight',
+    preFilterName = 'hiPixelPairStepLoose',
+    ),
+    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
+    name = 'hiPixelPairStep',
+    preFilterName = 'hiPixelPairStepTight',
+    min_nhits = 14
+    ),
+    ) #end of vpset
+    ) #end of clone
+
 
 
 # Final sequence
 
-hiPixelPairStep = cms.Sequence(hiThirdStepFilter*
-                               hiPixelPairClusters*
+hiPixelPairStep = cms.Sequence(hiPixelPairClusters*
                                hiPixelPairSeeds*
                                hiPixelPairTrackCandidates*
                                hiPixelPairGlobalPrimTracks*
-                               hiPixelPairSelectedTracks)
+                               hiPixelPairStepSelector)
