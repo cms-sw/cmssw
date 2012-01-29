@@ -64,6 +64,7 @@ void PixelTripletHLTGenerator::hitTriplets(
     const edm::Event & ev,
     const edm::EventSetup& es)
 {
+  if (theComparitor) theComparitor->init(es);
   OrderedHitPairs pairs; pairs.reserve(30000);
   OrderedHitPairs::const_iterator ip;
   
@@ -200,7 +201,7 @@ void PixelTripletHLTGenerator::hitTriplets(
           if (checkPhiInRange(p3_phi, rangeRPhi.first/p3_r-phiErr, rangeRPhi.second/p3_r+phiErr)) {
 	    // insert here check with comparitor 
 	    OrderedHitTriplet hittriplet( (*ip).inner(), (*ip).outer(), hit);
-	    if(!theComparitor  || theComparitor->compatible(hittriplet,es) ) {
+	    if(!theComparitor  || theComparitor->compatible(hittriplet,region) ) {
 	      result.push_back( hittriplet ); 
 	    } else {
 	      LogDebug("RejectedTriplet") << "rejected triplet from comparitor " 

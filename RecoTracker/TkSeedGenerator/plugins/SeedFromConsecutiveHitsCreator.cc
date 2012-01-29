@@ -15,6 +15,7 @@
 #include "TrackingTools/GeomPropagators/interface/PropagationExceptions.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
 
 template <class T> T sqr( T t) {return t*t;}
 
@@ -22,24 +23,30 @@ const TrajectorySeed * SeedFromConsecutiveHitsCreator::trajectorySeed(
     TrajectorySeedCollection & seedCollection,
     const SeedingHitSet & hits,
     const TrackingRegion & region,
-    const edm::EventSetup& es)
+    const edm::EventSetup& es,
+    const SeedComparitor *filter)
 {
   if ( hits.size() < 2) return 0;
 
-  GlobalTrajectoryParameters kine = initialKinematic(hits, region, es);
+  bool passesFilter = true;
+  GlobalTrajectoryParameters kine = initialKinematic(hits, region, es, filter, passesFilter);
+  if (!passesFilter) return 0;
+
   float sinTheta = sin(kine.momentum().theta());
 
   CurvilinearTrajectoryError error = initialError(region,  sinTheta);
   FreeTrajectoryState fts(kine, error);
 
-  return buildSeed(seedCollection,hits,fts,es); 
+  return buildSeed(seedCollection,hits,fts,es,filter); 
 }
 
 
 GlobalTrajectoryParameters SeedFromConsecutiveHitsCreator::initialKinematic(
       const SeedingHitSet & hits, 
       const TrackingRegion & region, 
-      const edm::EventSetup& es) const
+      const edm::EventSetup& es,
+      const SeedComparitor *filter,
+      bool                 &passesFilter) const
 {
   edm::ESHandle<MagneticField> bfield;
   es.get<IdealMagneticFieldRecord>().get(bfield);
@@ -66,6 +73,7 @@ GlobalTrajectoryParameters SeedFromConsecutiveHitsCreator::initialKinematic(
                               kine.charge(),
                               &*bfield);
   }
+  passesFilter = (filter ? filter->compatible(hits, kine, helix, region) : true); 
   return kine;
 }
 
@@ -102,7 +110,8 @@ const TrajectorySeed * SeedFromConsecutiveHitsCreator::buildSeed(
     TrajectorySeedCollection & seedCollection,
     const SeedingHitSet & hits,
     const FreeTrajectoryState & fts,
-    const edm::EventSetup& es) const
+    const edm::EventSetup& es,
+    const SeedComparitor *filter) const
 {
   // get tracker
   edm::ESHandle<TrackerGeometry> tracker;
@@ -133,7 +142,7 @@ const TrajectorySeed * SeedFromConsecutiveHitsCreator::buildSeed(
     
     TransientTrackingRecHit::RecHitPointer newtth = refitHit( tth, state);
     
-    if (!checkHit(state,newtth,es)) return 0;
+    if (!checkHit(state,newtth,es,filter)) return 0;
 
     updatedState =  updator.update(state, *newtth);
     if (!updatedState.isValid()) return 0;
@@ -144,8 +153,9 @@ const TrajectorySeed * SeedFromConsecutiveHitsCreator::buildSeed(
   
   PTrajectoryStateOnDet const & PTraj = 
       trajectoryStateTransform::persistentState(updatedState, hit->geographicalId().rawId());
-  
-  seedCollection.push_back( TrajectorySeed(PTraj,std::move(seedHits),alongMomentum));
+  TrajectorySeed seed(PTraj,std::move(seedHits),alongMomentum); 
+  if (filter != 0 && !filter->compatible(seed)) return 0;
+  seedCollection.push_back(seed);
   return &seedCollection.back();
 }
 
@@ -155,3 +165,14 @@ TransientTrackingRecHit::RecHitPointer SeedFromConsecutiveHitsCreator::refitHit(
 {
   return hit->clone(state);
 }
+
+bool 
+SeedFromConsecutiveHitsCreator::checkHit(
+      const TrajectoryStateOnSurface &tsos,
+      const TransientTrackingRecHit::ConstRecHitPointer &hit,
+      const edm::EventSetup& es,
+      const SeedComparitor *filter) const 
+{ 
+    return (filter ? filter->compatible(tsos,hit) : true); 
+}
+

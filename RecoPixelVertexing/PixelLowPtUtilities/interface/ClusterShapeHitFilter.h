@@ -175,13 +175,27 @@ class ClusterShapeHitFilter
 		    PixelData const * pd=nullptr ) const;
 
 
-  bool getSizes
-    (const SiStripRecHit2D & recHit, const LocalVector & ldir,
+  bool getSizes(DetId detId, const SiStripCluster & cluster, const LocalVector & ldir,
      int & meas, float & pred) const;
-  bool isCompatible(const SiStripRecHit2D & recHit,
+  bool getSizes(const SiStripRecHit2D & recHit, const LocalVector & ldir,
+     int & meas, float & pred) const {
+    return getSizes(recHit.geographicalId(), recHit.stripCluster(), ldir, meas, pred);
+  }
+  bool isCompatible(DetId detId,
+                    const SiStripCluster & cluster,
                     const LocalVector & ldir) const;
-  bool isCompatible(const SiStripRecHit2D & recHit,
+  bool isCompatible(DetId detId,
+                    const SiStripCluster & cluster,
                     const GlobalVector & gdir ) const;
+  bool isCompatible(const SiStripRecHit2D & recHit,
+                    const LocalVector & ldir) const {
+            return isCompatible(recHit.geographicalId(), recHit.stripCluster(), ldir);
+  }
+  bool isCompatible(const SiStripRecHit2D & recHit,
+                    const GlobalVector & gdir ) const {
+            return isCompatible(recHit.geographicalId(), recHit.stripCluster(), gdir);
+  } 
+
 
  private:
 

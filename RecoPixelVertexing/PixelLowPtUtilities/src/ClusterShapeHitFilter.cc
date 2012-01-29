@@ -342,19 +342,18 @@ bool ClusterShapeHitFilter::isCompatible
 /*****************************************************************************/
 /*****************************************************************************/
 bool ClusterShapeHitFilter::getSizes
-  (const SiStripRecHit2D & recHit, const LocalVector & ldir,
+  (DetId id, const SiStripCluster & cluster, const LocalVector & ldir,
    int & meas, float & pred) const 
 {
   // Get detector
-  DetId id = recHit.geographicalId();
   const StripGeomDetUnit* stripDet =
     dynamic_cast<const StripGeomDetUnit*> (theTracker->idToDet(id));
 
   // Measured width
-  meas   = recHit.cluster()->amplitudes().size();
+  meas   = cluster.amplitudes().size();
 
   // Usable?
-  int fs = recHit.cluster()->firstStrip();
+  int fs = cluster.firstStrip();
   int ns = stripDet->specificTopology().nstrips();
   // bool usable = (fs > 1 && fs + meas - 1 < ns);
   bool usable = (fs >= 1 && fs + meas - 1 <= ns);
@@ -379,12 +378,12 @@ bool ClusterShapeHitFilter::getSizes
 
 /*****************************************************************************/
 bool ClusterShapeHitFilter::isCompatible
-  (const SiStripRecHit2D & recHit, const LocalVector & ldir) const
+  (DetId detId, const SiStripCluster & cluster, const LocalVector & ldir) const
 {
   int meas;
   float pred;
 
-  if(getSizes(recHit, ldir, meas, pred))
+  if(getSizes(detId, cluster, ldir, meas, pred))
   {
     StripKeys key(meas);
     if (key.isValid())
@@ -398,12 +397,10 @@ bool ClusterShapeHitFilter::isCompatible
 
 /*****************************************************************************/
 bool ClusterShapeHitFilter::isCompatible
-  (const SiStripRecHit2D & recHit, const GlobalVector & gdir) const
+  (DetId detId, const SiStripCluster & cluster, const GlobalVector & gdir) const
 {
-  LocalVector ldir =
-    theTracker->idToDet(recHit.geographicalId())->toLocal(gdir);
-
-  return isCompatible(recHit, ldir);
+  LocalVector ldir = theTracker->idToDet(detId)->toLocal(gdir);
+  return isCompatible(detId, cluster, ldir);
 }
 
 

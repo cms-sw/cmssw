@@ -3,6 +3,8 @@
 
 #include "RecoTracker/TkSeedGenerator/interface/SeedCreator.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
+#include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
+
 class FreeTrajectoryState;
 
 class SeedFromConsecutiveHitsCreator : public SeedCreator {
@@ -23,18 +25,22 @@ public:
   virtual const TrajectorySeed * trajectorySeed(TrajectorySeedCollection & seedCollection,
 						const SeedingHitSet & ordered,
 						const TrackingRegion & region,
-						const edm::EventSetup& es);
+						const edm::EventSetup& es,
+                                                const SeedComparitor *filter);
 protected:
 
   virtual bool checkHit(
-      const TrajectoryStateOnSurface &,
+      const TrajectoryStateOnSurface &tsos,
       const TransientTrackingRecHit::ConstRecHitPointer &hit,
-      const edm::EventSetup& es) const { return true; }
+      const edm::EventSetup& es,
+      const SeedComparitor *filter) const; 
 
   virtual GlobalTrajectoryParameters initialKinematic(
       const SeedingHitSet & hits, 
       const TrackingRegion & region, 
-      const edm::EventSetup& es) const;
+      const edm::EventSetup& es,
+      const SeedComparitor *filter,
+      bool                 &passesFilter) const;
 
   virtual CurvilinearTrajectoryError initialError(
       const TrackingRegion& region, 
@@ -44,7 +50,8 @@ protected:
       TrajectorySeedCollection & seedCollection,
 	const SeedingHitSet & hits,
 	const FreeTrajectoryState & fts,
-	const edm::EventSetup& es) const;
+	const edm::EventSetup& es,
+        const SeedComparitor *filter) const;
 
   virtual TransientTrackingRecHit::RecHitPointer refitHit(
       const TransientTrackingRecHit::ConstRecHitPointer &hit, 

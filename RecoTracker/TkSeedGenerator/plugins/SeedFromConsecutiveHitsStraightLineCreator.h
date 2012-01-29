@@ -18,7 +18,9 @@ protected:
   virtual GlobalTrajectoryParameters initialKinematic(
       const SeedingHitSet & hits,
       const TrackingRegion & region,
-      const edm::EventSetup& es) const;
+      const edm::EventSetup& es,
+      const SeedComparitor *filter,
+      bool                 &passesFilter) const;
 
 };
 #endif

@@ -35,7 +35,8 @@ public:
 					       TrajectorySeedCollection & seedCollection,
 					       const SeedingHitSet & hits,
 					       const TrackingRegion & region,
-					       const edm::EventSetup& es){ return 0;}
+					       const edm::EventSetup& es,
+                                               const SeedComparitor *filter){ return 0;}
   
   double simpleGetSlope(const TransientTrackingRecHit::ConstRecHitPointer &ohit, const TransientTrackingRecHit::ConstRecHitPointer &nohit, const TransientTrackingRecHit::ConstRecHitPointer &ihit, const TransientTrackingRecHit::ConstRecHitPointer &nihit, const TrackingRegion & region, double & cotTheta, double & z0);
   double verySimpleFit(int size, double* ax, double* ay, double* e2y, double& p0, double& e2p0, double& p1);

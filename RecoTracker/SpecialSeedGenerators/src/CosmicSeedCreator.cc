@@ -5,13 +5,15 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
 
 template <class T> T sqr( T t) {return t*t;}
 
 const TrajectorySeed * CosmicSeedCreator::trajectorySeed(TrajectorySeedCollection & seedCollection,
 							 const SeedingHitSet & ordered,
 							 const TrackingRegion & region,
-							 const edm::EventSetup& es)
+							 const edm::EventSetup& es,
+                                                         const SeedComparitor *filter)
 {
 
   //_________________________
@@ -123,7 +125,10 @@ const TrajectorySeed * CosmicSeedCreator::trajectorySeed(TrajectorySeedCollectio
     
     
     PTrajectoryStateOnDet const & PTraj = trajectoryStateTransform::persistentState(tsos, usedHit->hit()->geographicalId().rawId());
-    seedCollection.push_back( TrajectorySeed(PTraj,seedHits,seedDirection));
+    TrajectorySeed seed(PTraj,seedHits,seedDirection);
+    if (filter == 0 || filter->compatible(seed)) {
+        seedCollection.push_back(seed);
+    }
     
   }//end charge loop
   
@@ -141,10 +146,10 @@ const TrajectorySeed * CosmicSeedCreator::trajectorySeed(TrajectorySeedCollectio
   if ( seedCollection.size() > maxseeds_ ) {
     edm::LogError("TooManySeeds") << "Found too many seeds (" << seedCollection.size() << " > " << maxseeds_ << "), bailing out.\n";
     seedCollection.clear();
-    return &seedCollection.back();
+    return 0;
   }
   else {
-    return &seedCollection.back();
+    return (seedCollection.empty() ? 0 : &seedCollection.back());
   }
   
 }

@@ -11,7 +11,9 @@
 GlobalTrajectoryParameters SeedFromConsecutiveHitsStraightLineCreator::initialKinematic(
       const SeedingHitSet & hits,
       const TrackingRegion & region,
-      const edm::EventSetup& es) const
+      const edm::EventSetup& es,
+      const SeedComparitor *filter,
+      bool                 &passesFilter) const
 {
   GlobalTrajectoryParameters kine;
 
@@ -30,6 +32,7 @@ GlobalTrajectoryParameters SeedFromConsecutiveHitsStraightLineCreator::initialKi
   TrackCharge q = 1; // irrelevant, since infinite momentum
   kine = GlobalTrajectoryParameters(vertexPos, initMomentum, q, &*bfield);
 
+  passesFilter = (filter ? filter->compatible(hits, kine, region) : true); 
   return kine;
 }
 

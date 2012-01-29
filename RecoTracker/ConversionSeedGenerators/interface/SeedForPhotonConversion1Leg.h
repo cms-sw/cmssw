@@ -35,7 +35,8 @@ public:
 					       TrajectorySeedCollection & seedCollection,
 					       const SeedingHitSet & hits,
 					       const TrackingRegion & region,
-					       const edm::EventSetup& es){ return 0;}
+					       const edm::EventSetup& es,
+                                               const SeedComparitor *filter){ return 0;}
   
  protected:
 

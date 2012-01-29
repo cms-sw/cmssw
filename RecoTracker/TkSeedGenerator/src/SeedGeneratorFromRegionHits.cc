@@ -37,6 +37,7 @@ SeedGeneratorFromRegionHits::~SeedGeneratorFromRegionHits()
 void SeedGeneratorFromRegionHits::run(TrajectorySeedCollection & seedCollection, 
     const TrackingRegion & region, const edm::Event& ev, const edm::EventSetup& es)
 {
+  if (theComparitor) theComparitor->init(es);
   const OrderedSeedingHits & hitss = theHitsGenerator->run(region, ev, es);
 
   unsigned int nHitss =  hitss.size();
@@ -44,8 +45,8 @@ void SeedGeneratorFromRegionHits::run(TrajectorySeedCollection & seedCollection,
                                                               // as it will cause N re-allocations instead of the normal log(N)/log(2)
   for (unsigned int iHits = 0; iHits < nHitss; ++iHits) { 
     const SeedingHitSet & hits =  hitss[iHits];
-    if (!theComparitor || theComparitor->compatible( hits, es) ) {
-      theSeedCreator->trajectorySeed(seedCollection, hits, region, es);
+    if (!theComparitor || theComparitor->compatible(hits, region) ) {
+      theSeedCreator->trajectorySeed(seedCollection, hits, region, es, theComparitor);
     }
   }
   theHitsGenerator->clear();

@@ -12,7 +12,9 @@
 GlobalTrajectoryParameters SeedFromConsecutiveHitsTripletOnlyCreator::initialKinematic(
       const SeedingHitSet& hits, 
       const TrackingRegion & region, 
-      const edm::EventSetup& es) const
+      const edm::EventSetup& es,
+      const SeedComparitor *filter,
+      bool                 &passesFilter) const
 {
   GlobalTrajectoryParameters kine;
 
@@ -32,5 +34,6 @@ GlobalTrajectoryParameters SeedFromConsecutiveHitsTripletOnlyCreator::initialKin
                               kine.charge(),
                               &*bfield);
   }
+  passesFilter = (filter ? filter->compatible(hits, kine, helix, region) : true); 
   return kine;
 }

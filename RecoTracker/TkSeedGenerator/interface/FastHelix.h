@@ -78,6 +78,8 @@ public:
 
   FTS straightLineStateAtVertex() const;
 
+  const FastCircle & circle() const { return theCircle; }
+
 private:
 
   static constexpr double maxPt = 10000; // 10Tev
