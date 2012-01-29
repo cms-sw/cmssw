@@ -1,8 +1,57 @@
+/*******************************************************************************
+ *
+ * VDT math library: collection of double precision vectorisable trascendental
+ * functions.
+ * The c++11 standard is used: remember to enable it for the compilation.
+ *
+ * The basic idea is to exploit pade polinomials.
+ * A lot of ideas were inspired by the cephes math library (by Stephen L. Moshier
+ * moshier@na-net.ornl.gov) as well as actual code for the exp, log, sin, cos, 
+ * tan, asin, acos and atan functions. The Cephes library can be found here:
+ * http://www.netlib.org/cephes/
+ * 
+ ******************************************************************************/
+
 #include "DataFormats/Math/interface/VDTMath.h"
+//#include "VDTMath.h"
 #include <stdlib.h>
 #include <iostream>
 #include <cassert>
 #include <iomanip>
+
+//------------------------------------------------------------------------------
+
+void vdt::print_instructions_info(){
+/**
+ * Check and print which instructions sets are enabled.
+ **/  
+
+  std::cout << "\nList of enabled instructions' sets:\n";
+  
+#ifdef __SSE2__
+        std::cout << " - SSE2 instructions enabled" << std::endl;
+#else
+        std::cout << " - SSE2 instructions *not* enabled" << std::endl;
+#endif
+#ifdef __SSE3__
+        std::cout << " - SSE3 instructions enabled" << std::endl;
+#else
+        std::cout << " - SSE3 instructions *not* enabled" << std::endl;
+#endif
+
+#ifdef __SSE4_1__
+        std::cout << " - SSE4.1 instructions enabled" << std::endl;
+#else
+        std::cout << " - SSE4.1 instructions *not* enabled" << std::endl;
+#endif
+#ifdef __AVX__
+        std::cout << " - AVX instructions enabled" << std::endl;
+#else
+        std::cout << " - AVX instructions *not* enabled" << std::endl;
+#endif
+       std::cout << "\n\n";
+    }
+
 
 /*******************************************************************************
  * 
@@ -10,20 +59,11 @@
  * 
  ******************************************************************************/ 
 
-//------------------------------------------------------------------------------
+/// Exponential Function - some tweaks to have it vectorise in gcc46
+void vdt::fast_exp_vect_46(double const * input,
+                           double * output,
+                           const unsigned int arr_size){
 
-void vdt::__future_fast_exp_vect(double* input, double* output, const unsigned int arr_size) {
-
-    for (unsigned int iarg = 0; iarg < arr_size; ++iarg) 
-        output[iarg] = vdt::fast_exp(input[iarg]);
-  }
-
-//------------------------------------------------------------------------------
-
-void vdt::fast_exp_vect(double* input, double* output, const unsigned int arr_size) {
-  /**
-    Vectorise the calculation in order to calculate exp of an array
-    **/
   // input & output must not point to the same memory location
   // 	assert( input != output );
 
@@ -34,14 +74,7 @@ void vdt::fast_exp_vect(double* input, double* output, const unsigned int arr_si
 
   // for vectorisation
   double x;
-  /*gcc 46x
-  Vector inside of loop cost: 52
-  Vector outside of loop cost: 75
-  Scalar iteration cost: 26
-  Scalar outside cost: 1
-  prologue iterations: 0
-  epilogue iterations: 2
-  Calculated minimum iters for profitability: 4*/
+  //Profitability threshold = 7
   for (unsigned int i = 0; i < arr_size; ++i) {
     x = input[i];
 
@@ -80,7 +113,7 @@ void vdt::fast_exp_vect(double* input, double* output, const unsigned int arr_si
                   
     } // end loop on input vals
    
-
+  //Profitability threshold = 4
   for (unsigned int i = 0; i < arr_size; ++i) {
       //     Build 2^n in double.
       n=nv[i];
@@ -100,15 +133,6 @@ void vdt::fast_exp_vect(double* input, double* output, const unsigned int arr_si
 
 //------------------------------------------------------------------------------
 
-void vdt::std_exp_vect(double* input, double* output, const unsigned int arr_size){
-  
-    for (unsigned int iarg = 0; iarg < arr_size; ++iarg) 
-        output[iarg] = std::exp(input[iarg]);
-  }   
-
-
-//------------------------------------------------------------------------------
-
 /*******************************************************************************
  * 
  * LOG IMPLEMENTATIONS
@@ -117,9 +141,9 @@ void vdt::std_exp_vect(double* input, double* output, const unsigned int arr_siz
  
 //------------------------------------------------------------------------------  
 // The implementation is such in order to vectorise also with gcc461
-void vdt::fast_log_vect(double* original_input, 
-                        double* output, 
-                        const unsigned int arr_size){
+void vdt::fast_log_vect_46(double const * original_input, 
+                           double* output, 
+                           const unsigned int arr_size){
 
   double* input = new double [arr_size];
   double* x_arr = new double [arr_size];
@@ -129,39 +153,33 @@ void vdt::fast_log_vect(double* original_input,
   double px,qx;
   double x;
   int fe;
-
+  // Profitability threshold = 4
   for (unsigned int i = 0; i < arr_size; ++i) {
     input[i] = original_input[i];
-    double x= input[i];
+    x= input[i];
 
 
     /* separate mantissa from exponent
     */
     
-    unsigned long long n = d2ll(x);
+//    double input_x=x;
 
-    unsigned long long le = ((n >> 52) & 0x7ffL);
-    fe = (le-1023);
-    n &=0xfffffffffffffLL;
-    const unsigned long long p05 = d2ll(0.5);
-    n |= p05;
-    x = ll2d(n);
+    /* separate mantissa from exponent */    
+    double fe;
+    x = getMantExponent(x,fe);
 
-    /* logarithm using log(x) = z + z**3 P(z)/Q(z),
-    * where z = 2(x-1)/x+1)
-    */
-    /* logarithm using log(1+x) = x - .5x**2 + x**3 P(x)/Q(x) */
-
-    // blending   
-    if( x > SQRTH ) fe+=1.;
-    if( x < SQRTH )   x += x;
-    x =   x - 1.0;
+    // blending      
+    if( x < SQRTH ) {
+      fe-=1;
+      x +=  x ;
+      }
+    x -= 1.0;
     
     x_arr[i]=x;
     fe_arr[i]=fe;
     
     }
-    
+  // Profitability threshold = 7
   for (unsigned int i = 0; i < arr_size; ++i) {
     
     x = x_arr[i];
@@ -222,82 +240,6 @@ void vdt::fast_log_vect(double* original_input,
   
 }
 
-//------------------------------------------------------------------------------
-
-void vdt::std_log_vect(double* input, double* output,const unsigned int arr_size){
-  for (unsigned int i=0;i<arr_size;++i)
-    output[i] = std::log(input[i]);
-}
 
 //------------------------------------------------------------------------------
-
-void vdt::__future_fast_log_vect(double* input, double* output, const unsigned int arr_size) {
-  
-  for (unsigned int i=0;i<arr_size;++i)
-    output[i] = vdt::fast_log( input[i] );
-  
-}
-
-
-//------------------------------------------------------------------------------
-
-/*******************************************************************************
- *
- * SIN COS IMPLEMENTATIONS
- *
- ******************************************************************************/
-    
-//------------------------------------------------------------------------------
-    
-    
-void vdt::__future_fast_sin_vect(double* input, double* outupt, const unsigned int arr_size) {
-    
-  for (unsigned int i=0;i<arr_size;++i)
-    outupt[0] = vdt::fast_sin( input[i] );
-    
-}     
-    
-//------------------------------------------------------------------------------
-      
-void vdt::__future_fast_cos_vect(double* input, double* outupt, const unsigned int arr_size) {
-    
-  for (unsigned int i=0;i<arr_size;++i)
-    outupt[0] = vdt::fast_cos( input[i] );
-    
-}
-
-
-                            
-void vdt::print_instructions_info(){
-/**
- * Check and print which instructions sets are enabled.
- **/  
-
-  std::cout << "\nList of enabled instructions' sets:\n";
-  
-#ifdef __SSE2__
-        std::cout << " - SSE2 instructions enabled" << std::endl;
-#else
-        std::cout << " - SSE2 instructions *not* enabled" << std::endl;
-#endif
-#ifdef __SSE3__
-        std::cout << " - SSE3 instructions enabled" << std::endl;
-#else
-        std::cout << " - SSE3 instructions *not* enabled" << std::endl;
-#endif
-
-#ifdef __SSE4_1__
-        std::cout << " - SSE4.1 instructions enabled" << std::endl;
-#else
-        std::cout << " - SSE4.1 instructions *not* enabled" << std::endl;
-#endif
-#ifdef __AVX__
-        std::cout << " - AVX instructions enabled" << std::endl;
-#else
-        std::cout << " - AVX instructions *not* enabled" << std::endl;
-#endif
-       std::cout << "\n\n"; 
-    } 
-
-
 

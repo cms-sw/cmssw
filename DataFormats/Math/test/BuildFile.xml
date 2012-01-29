@@ -4,6 +4,7 @@
   <flags   EDM_PLUGIN="1"/>
 </library>
 <use   name="rootmath"/>
+<use   name="rootgraphics"/>
 <use   name="DataFormats/Math"/>
 <bin   file="Matrices_t.cpp" name="DataFormatsMatrices_t">
 </bin>
