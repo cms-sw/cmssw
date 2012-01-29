@@ -1,6 +1,6 @@
 // Original author: Brock Tweedie (JHU)
 // Ported to CMSSW by: Sal Rappoccio (JHU)
-// $Id: CATopJetAlgorithm.cc,v 1.8 2010/11/29 22:32:18 jdolen Exp $
+// $Id: CATopJetAlgorithm.cc,v 1.9 2011/04/25 04:19:54 srappocc Exp $
 
 #include "RecoJets/JetAlgorithms/interface/CATopJetAlgorithm.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -107,7 +107,6 @@ void CATopJetAlgorithm::run( const vector<fastjet::PseudoJet> & cell_particles,
 	
 	// Loop over central jets, attempt to find substructure
 	vector<fastjet::PseudoJet>::iterator jetIt = centralJets.begin(),
-	  centralJetsBegin = centralJets.begin(),
 	  centralJetsEnd = centralJets.end();
 	if ( verbose_ )cout<<"Loop over jets"<<endl;
 	int i=0;
@@ -234,7 +233,6 @@ void CATopJetAlgorithm::run( const vector<fastjet::PseudoJet> & cell_particles,
 			
 			// Loop over the constituents and get the indices
 			vector<fastjet::PseudoJet>::const_iterator fastSubIt = subjetFastjetConstituents.begin(),
-			transConstBegin = subjetFastjetConstituents.begin(),
 			transConstEnd = subjetFastjetConstituents.end();
 			for ( ; fastSubIt != transConstEnd; ++fastSubIt ) {
 				if ( fastSubIt->user_index() >= 0 && static_cast<unsigned int>(fastSubIt->user_index()) < cell_particles.size() ) {

@@ -69,7 +69,6 @@ void SubJetAlgorithm::run( const vector<fastjet::PseudoJet> & cell_particles,
       // Get the indices of the constituents:
       vector<int> constituents;
       vector<fastjet::PseudoJet>::const_iterator fastSubIt = subjetFastjetConstituents.begin(),
-	transConstBegin = subjetFastjetConstituents.begin(),
 	transConstEnd = subjetFastjetConstituents.end();
       for ( ; fastSubIt != transConstEnd; ++fastSubIt ) {
 	if (fastSubIt->user_index() >= 0) {
