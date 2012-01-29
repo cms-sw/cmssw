@@ -46,13 +46,18 @@ namespace reco { namespace modules {
       
     private:
       typedef math::XYZPoint Point;
+      typedef reco::PFCandidateCollection::const_iterator CI;
+      typedef reco::TrackCollection::const_iterator TI;
+
       /// process one event
       void produce( edm::Event& evt, const edm::EventSetup& es ) ;
       
       void matchByDrAllowReuse(const reco::Track & trk, const edm::Handle<CaloTowerCollection> & towers, double & bestdr, double & bestpt);
       
-      double matchPFCandToTrack(const edm::Handle<PFCandidateCollection> & pfCandidates, unsigned it);
+      double matchPFCandToTrack(const edm::Handle<PFCandidateCollection> & pfCandidates, unsigned it, double trkPt);
       
+      bool selectByPFCands(TI ti, const edm::Handle<TrackCollection> hSrcTrack, const edm::Handle<PFCandidateCollection> pfCandidates, bool isPFThere);
+      bool selectByTowers(TI ti, const edm::Handle<TrackCollection> hSrcTrack, const edm::Handle<CaloTowerCollection> towers, bool isTowerThere);
       
       /// source collection label
       edm::InputTag srcTracks_;
@@ -62,18 +67,26 @@ namespace reco { namespace modules {
       //
       bool applyPtDepCut_;
       bool usePFCandMatching_;
-      double trkPtMin_;
-      double trkPtMax_;
+      double trkMatchPtMin_;
+      double trkCompPtMin_;
       double trkEtaMax_;
       double towerPtMin_;
       double matchConeRadius_;
       
+      bool keepAllTracks_;
       /// copy only the tracks, not extras and rechits (for AOD)
       bool copyExtras_;
       /// copy also trajectories and trajectory->track associations
       bool copyTrajectories_;
 
       std::string qualityToSet_;
+      std::string qualityToSkip_;
+      std::string qualityToMatch_;
+      std::string minimumQuality_;
+      bool resetQuality_;
+
+      bool passMuons_;
+      bool passElectrons_;
       
       // string of functional form
       std::string funcDeltaRTowerMatch_;
@@ -95,10 +108,8 @@ namespace reco { namespace modules {
       // TF1         
       TF1 *fDeltaRTowerMatch, *fCaloComp;
       
-      typedef reco::PFCandidateCollection::const_iterator CI;
-      typedef reco::TrackCollection::const_iterator TI;
 
-    };
+		   };
     
   } 
 }
