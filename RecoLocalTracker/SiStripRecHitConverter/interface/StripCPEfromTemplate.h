@@ -40,9 +40,7 @@ class StripCPEfromTemplate : public StripCPE
     }
   
  private:
-  
-  float stripErrorSquared(const unsigned, const float) const;
- 
+
   mutable SiStripTemplate templ;
  
   bool use_template_reco;
