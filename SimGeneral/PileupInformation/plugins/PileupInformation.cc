@@ -92,9 +92,7 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
       //    bool FirstL = true;
       EncodedEventIdToIndex vertexId;
       EncodedEventId oldEventId;
-      unsigned int oldVertexId = 0;
       int oldBX = -1000;
-      int oldEvent = 0;
 
       std::vector<int> BunchCrossings2;
       std::list<int> Interactions_Xing2;
@@ -113,16 +111,13 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
 		BunchCrossings2.push_back(iterator->eventId().bunchCrossing());
 		Interactions_Xing2.push_back(iterator->eventId().event());
 		oldBX = iterator->eventId().bunchCrossing();
-		oldEvent = iterator->eventId().event();
 	      }
 	      else { Interactions_Xing2.pop_back();
 		Interactions_Xing2.push_back(iterator->eventId().event());
-		oldEvent = iterator->eventId().event();
 	      }
 
 
 	      oldEventId = iterator->eventId();
-	      oldVertexId = iterator->vertexId();
 	      continue;
 	    }
 
@@ -154,7 +149,7 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
 
   int lastEvent = 0; // zero is the true MC hard-scatter event
 
-  int lastBunchCrossing = 0; // 0 is the true bunch crossing, should always come first.
+  // int lastBunchCrossing = 0; // 0 is the true bunch crossing, should always come first.
 
   edm::Handle<TrackingParticleCollection> mergedPH;
   edm::Handle<TrackingVertexCollection>   mergedVH;
@@ -308,7 +303,7 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
 
     PSIVector->push_back(PSI_bunch);
 
-    if(HaveTrackingParticles) lastBunchCrossing = iVtx->eventId().bunchCrossing();
+    // if(HaveTrackingParticles) lastBunchCrossing = iVtx->eventId().bunchCrossing();
 
     event_index_.clear();
     zpositions.clear();
