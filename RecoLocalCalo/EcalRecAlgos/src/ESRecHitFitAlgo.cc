@@ -100,8 +100,6 @@ EcalRecHit ESRecHitFitAlgo::reconstruct(const ESDataFrame& digi) const {
   double mipCalib = (std::fabs(cos(*it_ang)) != 0.) ? (*it_mip)/fabs(cos(*it_ang)) : 0.;
   energy *= (mipCalib != 0.) ? MIPGeV_/mipCalib : 0.;
 
-  DetId detId = digi.id();
-
   LogDebug("ESRecHitFitAlgo") << "ESRecHitFitAlgo : reconstructed energy "<<energy<<" T0 "<<t0;
 
   EcalRecHit rechit(digi.id(), energy, t0);

@@ -89,8 +89,6 @@ EcalRecHit ESRecHitSimAlgo::reconstruct(const ESDataFrame& digi) const {
   energy *= (mipCalib != 0.) ? MIPGeV_/mipCalib : 0.;
   otenergy *= (mipCalib != 0.) ? MIPGeV_/mipCalib : 0.;
 
-  DetId detId = digi.id();
-
   LogDebug("ESRecHitSimAlgo") << "ESRecHitSimAlgo : reconstructed energy "<<energy;
 
   EcalRecHit rechit(digi.id(), energy, t0);
