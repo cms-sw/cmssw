@@ -16,7 +16,6 @@ class StripCPE : public StripClusterParameterEstimator
 {
 public:
 
-  StripClusterParameterEstimator::LocalValues localParameters( const SiStripCluster&) const; 
   StripClusterParameterEstimator::LocalValues localParameters( const SiStripCluster& cl, const GeomDetUnit&) const;
   
   StripCPE( edm::ParameterSet & conf, 
@@ -26,7 +25,6 @@ public:
 	    const SiStripConfObject&,
 	    const SiStripLatency&);    
   LocalVector driftDirection(const StripGeomDetUnit* det) const;
-  void clearCache() {m_Params.clear();}
 
  protected:  
 
@@ -47,13 +45,16 @@ public:
     SiStripDetId::ModuleGeometry moduleGeom;
     float coveredStrips(const LocalVector&, const LocalPoint&) const;
   };
-  Param const & param(const uint32_t detid) const;
+  Param const & param(const GeomDetUnit& det) const {
+    return m_Params[det.index()-m_off];
+  }
 
 private:
 
-  Param & fillParam(Param & p, const GeomDetUnit *  det);
-  typedef  __gnu_cxx::hash_map< unsigned int, Param> Params;  
+  void fillParams();
+  typedef  std::vector<Param> Params;  
   Params m_Params;
+  unsigned int m_off;
 
 };
 #endif

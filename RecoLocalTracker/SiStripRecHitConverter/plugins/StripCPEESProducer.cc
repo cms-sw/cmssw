@@ -1,6 +1,7 @@
 #include "RecoLocalTracker/SiStripRecHitConverter/plugins/StripCPEESProducer.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPE.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEfromTrackAngle.h"
+#include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEfromTemplate.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEgeometric.h"
 #include "CondFormats/SiStripObjects/interface/SiStripConfObject.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLatency.h"
@@ -16,6 +17,7 @@ StripCPEESProducer::StripCPEESProducer(const edm::ParameterSet & p)
   enumMap[std::string("SimpleStripCPE")]=SIMPLE;
   enumMap[std::string("StripCPEfromTrackAngle")]=TRACKANGLE;
   enumMap[std::string("StripCPEgeometric")]=GEOMETRIC;
+  enumMap[std::string("StripCPEfromTemplate")]=TEMPLATE;
   if(enumMap.find(name)==enumMap.end()) 
     throw cms::Exception("Unknown StripCPE type") << name;
 
@@ -51,6 +53,11 @@ produce(const TkStripCPERecord & iRecord)
   case GEOMETRIC:  
     cpe = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPEgeometric(pset, *magfield, *pDD, *lorentzAngle, *confObj, *latency )); 
     break;  
+
+  case TEMPLATE: 
+    cpe = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPEfromTemplate( pset, *magfield, *pDD, *lorentzAngle, *confObj, *latency )); 
+    break;
+
 
   }
 

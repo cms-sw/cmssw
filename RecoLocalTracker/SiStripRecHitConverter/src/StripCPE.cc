@@ -6,6 +6,7 @@
 #include "boost/lambda/lambda.hpp"
 #include <algorithm>
 #include<cmath>
+#include<cassert>
 
 StripCPE::StripCPE( edm::ParameterSet & conf, 
 		    const MagneticField& mag, 
@@ -60,14 +61,8 @@ StripCPE::StripCPE( edm::ParameterSet & conf,
 }
 
 StripClusterParameterEstimator::LocalValues StripCPE::
-localParameters( const SiStripCluster& cluster) const {
-  throw cms::Exception("deprecatedMethod")<<"this method should never be called anymore";
-  return std::make_pair(LocalPoint(),LocalError());
-}
-
-StripClusterParameterEstimator::LocalValues StripCPE::
 localParameters( const SiStripCluster& cluster, const GeomDetUnit& det) const {
-  StripCPE::Param const & p = param(det.geographicalId());
+  StripCPE::Param const & p = param(det);
   const float barycenter = cluster.barycenter();
   const float fullProjection = p.coveredStrips( p.drift + LocalVector(0,0,-p.thickness), LocalPoint(barycenter,0,0));
   const float strip = barycenter - 0.5f * (1-shift[p.moduleGeom]) * fullProjection;
@@ -96,29 +91,29 @@ driftDirection(const StripGeomDetUnit* det) const {
   return LocalVector(dir_x,dir_y,dir_z);
 }
 
-StripCPE::Param const & StripCPE::
-param(const uint32_t detid) const {
-  Param & p = const_cast<StripCPE*>(this)->m_Params[detid];
-  if (p.topology) return p;
-  else return const_cast<StripCPE*>(this)->fillParam(p, geom_.idToDetUnit(detid));
-}
 
-StripCPE::Param & StripCPE::
-fillParam(StripCPE::Param & p, const GeomDetUnit *  det) {  
-  const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(det);
-  const Bounds& bounds = stripdet->specificSurface().bounds();
-  
-  p.maxLength = std::sqrt( std::pow(bounds.length(),2.f)+std::pow(bounds.width(),2.f) );
-  p.thickness = bounds.thickness();
-  p.drift = driftDirection(stripdet) * p.thickness;
-  p.topology=(StripTopology*)(&stripdet->topology());    
-  p.nstrips = p.topology->nstrips(); 
-  p.moduleGeom = SiStripDetId(stripdet->geographicalId()).moduleGeometry();
-  
-  const RadialStripTopology* rtop = dynamic_cast<const RadialStripTopology*>(&stripdet->specificType().specificTopology());
-  p.pitch_rel_err2 = (rtop) 
-    ? pow( 0.5f * rtop->angularWidth() * rtop->stripLength()/rtop->localPitch(LocalPoint(0,0,0)), 2.f) / 12.f
-    : 0.f;
-  
-  return p;
+void 
+StripCPE::fillParams() {  
+  m_off = geom_.offsetDU(GeomDetEnumerators::TIB); // yes we know this
+  auto const & dus = geom_.detUnits();
+  m_Params.resize(dus.size()-m_off);
+  for (auto i=m_off; i!=dus.size();++i) {
+    auto & p= m_Params[i-m_off];
+    const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(dus[i]);
+    assert(stripdet->index()==int(i));
+    assert(stripdet->geographicalId().subdetId()>1); // not pixel..
+
+    const Bounds& bounds = stripdet->specificSurface().bounds();
+    p.maxLength = std::sqrt( std::pow(bounds.length(),2.f)+std::pow(bounds.width(),2.f) );
+    p.thickness = bounds.thickness();
+    p.drift = driftDirection(stripdet) * p.thickness;
+    p.topology=(StripTopology*)(&stripdet->topology());    
+    p.nstrips = p.topology->nstrips(); 
+    p.moduleGeom = SiStripDetId(stripdet->geographicalId()).moduleGeometry();
+    
+    const RadialStripTopology* rtop = dynamic_cast<const RadialStripTopology*>(&stripdet->specificType().specificTopology());
+    p.pitch_rel_err2 = (rtop) 
+      ? pow( 0.5f * rtop->angularWidth() * rtop->stripLength()/rtop->localPitch(LocalPoint(0,0,0)), 2.f) / 12.f
+      : 0.f;
+  }
 }

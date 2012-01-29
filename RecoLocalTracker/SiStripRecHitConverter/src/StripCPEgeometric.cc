@@ -5,7 +5,7 @@
 
 StripClusterParameterEstimator::LocalValues StripCPEgeometric::
 localParameters( const SiStripCluster& cluster, const GeomDetUnit& det, const LocalTrajectoryParameters& ltp) const {
-  StripCPE::Param const& p = param(det.geographicalId());
+  StripCPE::Param const& p = param(det);
 
   const LocalPoint& pos = ltp.position();
   LocalVector track = ltp.momentum();
@@ -33,11 +33,6 @@ localParameters( const SiStripCluster& cluster, const GeomDetUnit& det, const Lo
 			 p.topology->localError( corrected, error2, ltp.vector()));
 }
 
-StripClusterParameterEstimator::LocalValues StripCPEgeometric::
-localParameters( const SiStripCluster& cluster, const LocalTrajectoryParameters& ltp) const {
-   throw cms::Exception("deprecatedMethod")<<"this method should never be called anymore";
-   return std::make_pair(LocalPoint(),LocalError()); 
-}
 
 stats_t<float> StripCPEgeometric::
 offset_from_firstStrip( const std::vector<stats_t<float> >& Q, const stats_t<float>& proj) const {

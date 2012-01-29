@@ -8,10 +8,7 @@ class StripCPEgeometric : public StripCPE
 {
 
  public:
-  
-  StripClusterParameterEstimator::LocalValues 
-    localParameters( const SiStripCluster&, const LocalTrajectoryParameters&) const; 
-
+ 
   StripClusterParameterEstimator::LocalValues 
     localParameters( const SiStripCluster&, const GeomDetUnit&, const LocalTrajectoryParameters&) const;
 
