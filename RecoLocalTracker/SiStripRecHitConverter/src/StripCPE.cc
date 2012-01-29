@@ -59,7 +59,7 @@ StripCPE::StripCPE( edm::ParameterSet & conf,
     xtalk2[it->second] = confObj.get<double>(xtalk2S);
   }
   
-  fillPamams();
+  fillParams();
 
 }
 
