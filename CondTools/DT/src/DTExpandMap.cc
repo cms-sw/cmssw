@@ -2,7 +2,7 @@
  *
  *  See header file for a description of this class.
  *
- *  $Date: 2009/03/19 12:00:00 $
+ *  $Date: 2009/03/26 14:11:04 $
  *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
@@ -132,7 +132,6 @@ void DTExpandMap::expandSteering( std::ifstream& file ) {
   std::vector<DTMapEntry>::const_iterator iend = entryList.end();
   std::vector<DTMapEntry>::const_iterator iros = entryList.end();
   std::vector<DTMapEntry>::const_iterator irob = entryList.end();
-  std::vector<DTMapEntry>::const_iterator itdc = entryList.end();
   while ( iter != iend ) {
     const DTMapEntry& rosEntry( *iter++ );
     if ( rosEntry.k1 > 0x3fffffff ) continue;

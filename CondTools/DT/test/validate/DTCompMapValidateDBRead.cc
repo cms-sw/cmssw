@@ -75,7 +75,6 @@ void DTCompMapValidateDBRead::analyze(const edm::Event& e,
   int ckrob;
   int cktdc;
   int ckcha;
-  int status;
   while ( chkFile >> ckddu
                   >> ckros
                   >> ckrob
@@ -113,17 +112,17 @@ void DTCompMapValidateDBRead::analyze(const edm::Event& e,
          ( ckqua ==  2 ) &&
          ( ckcel >  48 ) ) continue;
 */
-    status = ro->readOutToGeometry( ckddu,
-                                    ckros,
-                                    ckrob,
-                                    cktdc,
-                                    ckcha,
-                                    whe,
-                                    sta,
-                                    sec,
-                                    qua,
-                                    lay,
-                                    cel );
+    ro->readOutToGeometry( ckddu,
+                           ckros,
+                           ckrob,
+                           cktdc,
+                           ckcha,
+                           whe,
+                           sta,
+                           sec,
+                           qua,
+                           lay,
+                           cel );
     if ( ( ckwhe != whe ) ||
          ( cksta != sta ) ||
          ( cksec != sec ) ||
@@ -148,17 +147,17 @@ void DTCompMapValidateDBRead::analyze(const edm::Event& e,
                  << qua << " "
                  << lay << " "
                  << cel << std::endl;
-    status = ro->geometryToReadOut( ckwhe,
-                                    cksta,
-                                    cksec,
-                                    ckqua,
-                                    cklay,
-                                    ckcel,
-                                    ddu,
-                                    ros,
-                                    rob,
-                                    tdc,
-                                    cha );
+    ro->geometryToReadOut( ckwhe,
+                           cksta,
+                           cksec,
+                           ckqua,
+                           cklay,
+                           ckcel,
+                           ddu,
+                           ros,
+                           rob,
+                           tdc,
+                           cha );
     if ( ( ckddu != ddu ) ||
          ( ckros != ros ) ||
          ( ckrob != rob ) ||

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/09/14 13:54:17 $
- *  $Revision: 1.11 $
+ *  $Date: 2011/01/27 15:36:19 $
+ *  $Revision: 1.12 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -380,7 +380,6 @@ void DTHVStatusHandler::getChannelSplit() {
   int pqua;
   int play;
   int pl_p;
-  int snum;
   int swhe;
   int ssec;
   int ssta;
@@ -415,7 +414,7 @@ void DTHVStatusHandler::getChannelSplit() {
     pqua = csplCursor.currentRow()["P_SUPERLAYER"].data<int>();
     play = csplCursor.currentRow()["P_LAYER"     ].data<int>();
     pl_p = csplCursor.currentRow()["P_PART"      ].data<int>();
-    snum = csplCursor.currentRow()["S_NUMBER"    ].data<int>();
+    csplCursor.currentRow()["S_NUMBER"    ].data<int>();
     swhe = csplCursor.currentRow()["S_WHEEL"     ].data<int>();
     ssec = csplCursor.currentRow()["S_SECTOR"    ].data<int>();
     ssta = csplCursor.currentRow()["S_STATION"   ].data<int>();
