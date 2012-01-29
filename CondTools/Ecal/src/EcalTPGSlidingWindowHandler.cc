@@ -206,7 +206,6 @@ void popcon::EcalTPGSlidingWindowHandler::getNewObjects()
 	          typedef std::map<EcalLogicID, FEConfigSlidingDat>::const_iterator CIfesli;
 	          EcalLogicID ecid_xt;
 	          FEConfigSlidingDat rd_sli;
-	          unsigned int  rd_slid;
 	          int icells=0;
 	    	    
 		    
@@ -223,7 +222,6 @@ void popcon::EcalTPGSlidingWindowHandler::getNewObjects()
 	              int strip=ecid_xt.getID3();
 		      int tcc= sm+54;
 		      if(sm>18) tcc=sm+18 ;
-	              rd_slid = (unsigned int)rd_sli.getSliding();
 
 		      // simple formula to calculate the Srip EB identifier 
 		      		
@@ -240,9 +238,6 @@ void popcon::EcalTPGSlidingWindowHandler::getNewObjects()
 	              int id2=ecid_xt.getID2(); // ccu
 	              int id3=ecid_xt.getID3();	// strip
 		
-		      rd_slid = (unsigned int)rd_sli.getSliding();
-	       	
-
 		      bool set_the_strip=false;
 		      int stripid;
 		      for (size_t istrip=0; istrip<my_StripEcalLogicId_EE.size(); istrip++) {

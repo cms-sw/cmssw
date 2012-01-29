@@ -451,11 +451,11 @@ void popcon::EcalChannelStatusHandler::daqOut(RunIOV myRun) {
     if((fed_id<=609 || fed_id>=646) && tt_id<69) { // endcap    
       
       // moving from cms fed to db fed convention
-      int db_fedId = -999;
-      if (fed_id>=604 && fed_id<=609) db_fedId = fed_id - 603 + 9;  
-      if (fed_id>=601 && fed_id<=603) db_fedId = fed_id - 600 + 15;  
-      if (fed_id>=649 && fed_id<=654) db_fedId = fed_id - 648;
-      if (fed_id>=646 && fed_id<=648) db_fedId = fed_id - 645 + 6;  	    
+      //int db_fedId = -999;
+      //if (fed_id>=604 && fed_id<=609) db_fedId = fed_id - 603 + 9;  
+      //if (fed_id>=601 && fed_id<=603) db_fedId = fed_id - 600 + 15;  
+      //if (fed_id>=649 && fed_id<=654) db_fedId = fed_id - 648;
+      //if (fed_id>=646 && fed_id<=648) db_fedId = fed_id - 645 + 6;  	    
       // db_fedId = fed_id;    // fixme: do we need 1-18 or 6XX?
       
       std::vector<EcalLogicID> badCrystals;

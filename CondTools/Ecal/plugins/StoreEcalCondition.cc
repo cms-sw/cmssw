@@ -882,14 +882,8 @@ StoreEcalCondition::readEcalGainRatiosFromFile(const char* inputFile) {
     fgets(line,255,inpFile);
     string sm_or_all=to_string(line);
     int sm_number=0;
-    int nchan=1700;
     sm_number=atoi(line);
     str << "sm= " << sm_number << endl ;  
-    if(sm_number!=-1){
-      nchan=1700;
-    } else {
-      nchan=61200;
-    }
 
     fgets(line,255,inpFile);
     //int nevents=atoi(line);

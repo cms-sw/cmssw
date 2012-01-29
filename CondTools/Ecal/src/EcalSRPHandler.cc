@@ -164,9 +164,6 @@ void popcon::EcalSRPHandler::getNewObjects() {
       std::string myconfig_tag = "";
       int myconfig_version = 0;
       std::map< EcalLogicID, RunConfigDat>::const_iterator it;
-      int cycle_id_old = 0;
-      int srp_id_old = 0;
-      int dcc_id_old = 0;
       if(dataset.size() != 1) {
 	std::cout << "\n\n run " << irun << " strange number of dataset "
 		  << dataset.size() << std::endl;
@@ -246,9 +243,6 @@ void popcon::EcalSRPHandler::getNewObjects() {
 	  int dcc_id = ecal_cycle.getDCCId();
 	  if(m_debug)
 	    fout << " cycleid " << cycle_id << " SRP id " << srp_id << " DCC id " << dcc_id << std::endl;
-	  cycle_id_old = cycle_id;
-	  srp_id_old = srp_id;
-	  dcc_id_old = dcc_id;
 	    /**************************/
 	   /*          SRP           */ 
 	  /**************************/
