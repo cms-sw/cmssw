@@ -95,10 +95,8 @@ void GflashProtonShowerProfile::loadParameters()
 
   //@@@until we have a separate parameterization for Endcap 
 
-  bool isEndcap = false;
   if(showerType>3) {
     showerType -= 4;
-    isEndcap = true;
   }
   //no separate parameterization before crystal
   if(showerType==0) showerType = 1; 
