@@ -209,10 +209,9 @@ void ODDCCConfig::fetchData(ODDCCConfig * result)
 {
   this->checkConnection();
   //  result->clear();
-  int idid=0;
   if(result->getId()==0 && (result->getConfigTag()=="") ){
     //    throw(std::runtime_error("ODDCCConfig::fetchData(): no Id defined for this ODDCCConfig "));
-    idid=result->fetchID();
+    result->fetchID();
   }
 
   try {

@@ -205,10 +205,9 @@ void ODSRPConfig::fetchData(ODSRPConfig * result)
 {
   this->checkConnection();
   //  result->clear();
-  int idid=0;
   if(result->getId()==0 && (result->getConfigTag()=="") ){
     //    throw(std::runtime_error("ODSRPConfig::fetchData(): no Id defined for this ODSRPConfig "));
-    idid=result->fetchID();
+    result->fetchID();
   }
 
   try {

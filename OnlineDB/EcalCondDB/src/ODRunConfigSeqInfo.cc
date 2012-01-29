@@ -209,10 +209,9 @@ void ODRunConfigSeqInfo::fetchData(ODRunConfigSeqInfo * result)
 {
   this->checkConnection();
   //  result->clear();
-  int idid=0;
   if(result->getId()==0){
     //    throw(std::runtime_error("ODRunConfigSeqInfo::fetchData(): no Id defined for this record "));
-    idid=result->fetchID();
+    result->fetchID();
   }
 
   try {

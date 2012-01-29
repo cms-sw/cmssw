@@ -156,12 +156,12 @@ void FEConfigFgrGroupDat::writeArrayDB(const std::map< EcalLogicID, FEConfigFgrG
   ub2* t_len= new ub2[nrows];
 
 
-  const EcalLogicID* channel;
+  // const EcalLogicID* channel;
   const FEConfigFgrGroupDat* dataitem;
   int count=0;
   typedef map< EcalLogicID, FEConfigFgrGroupDat >::const_iterator CI;
   for (CI p = data->begin(); p != data->end(); ++p) {
-        channel = &(p->first);
+        //channel = &(p->first);
 	//	int logicID = channel->getLogicID();
 	//	if (!logicID) { throw(std::runtime_error("FEConfigFgrGroupDat::writeArrayDB:  Bad EcalLogicID")); }
 	//	ids[count]=logicID;

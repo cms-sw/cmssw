@@ -202,7 +202,7 @@ void MODCCSHFDat::writeArrayDB(const std::map< EcalLogicID, MODCCSHFDat >* data,
   ub2* x_len= new ub2[nrows];
 
   const EcalLogicID* channel;
-  const MODCCSHFDat* dataitem;
+  //const MODCCSHFDat* dataitem;
   int count=0;
   typedef map< EcalLogicID, MODCCSHFDat >::const_iterator CI;
   for (CI p = data->begin(); p != data->end(); ++p) {
@@ -212,7 +212,7 @@ void MODCCSHFDat::writeArrayDB(const std::map< EcalLogicID, MODCCSHFDat >* data,
 	ids[count]=logicID;
 	iovid_vec[count]=iovID;
 
-	dataitem = &(p->second);
+	// dataitem = &(p->second);
 	// dataIface.writeDB( channel, dataitem, iov);
 	// to be corrected 
 

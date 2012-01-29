@@ -310,10 +310,9 @@ void ODEcalCycle::fetchData(ODEcalCycle * result)
 {
   this->checkConnection();
   //  result->clear();
-  int idid=0;
   if(result->getId()==0){
     //    throw(std::runtime_error("ODEcalCycle::fetchData(): no Id defined for this ODEcalCycle "));
-    idid=result->fetchID();
+    result->fetchID();
   }
 
   try {

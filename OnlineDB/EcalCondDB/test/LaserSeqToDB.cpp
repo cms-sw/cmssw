@@ -625,7 +625,7 @@ public:
 		 
 		 int jx_ = (int)ax->GetBinCenter( ixb );
 		 int jy_ = (int)ay->GetBinCenter( iyb );
-		 int jx_id_(0), jy_id_(0);
+		 //int jx_id_(0), jy_id_(0);
 		 if( isEB ) 
 		   {
 		     if( table_id_!=MELaserPrim::iEB_crystal_number )
@@ -640,9 +640,9 @@ public:
 			 //			 << jd1_ << "/" << sm_ << " logic_id/id2=" << logic_id_ << "/" << jd2_ << endl;
 		       }
 		     assert( jd2_>=1 && jd2_<=1700 ); // !!!
-		     MEEBGeom::XYCoord xy_ = MEEBGeom::localCoord( jd2_ );
-		     jx_id_ = xy_.first;
-		     jy_id_ = xy_.second;
+		     // MEEBGeom::XYCoord xy_ = MEEBGeom::localCoord( jd2_ );
+		     //jx_id_ = xy_.first;
+		     //jy_id_ = xy_.second;
 		     
 		     jd1_ = sm_;
 		     jd2_ = MEEBGeom::crystal_channel( jx_, jy_ );
@@ -655,8 +655,8 @@ public:
 			 //		    cout << "warning -- inconsistent table_id [3] --> " << table_id_  << endl;
 			 table_id_=MELaserPrim::iEE_crystal_number;
 		       }
-		     jx_id_ = jd1_;
-		     jy_id_ = jd2_;
+		     //jx_id_ = jd1_;
+		     //jy_id_ = jd2_;
 		     
 		     jd1_ = 1;
 		     if( ME::ecalRegion( ilmr )==ME::iEEM ) jd1_=-1;
