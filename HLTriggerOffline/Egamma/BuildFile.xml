@@ -3,6 +3,7 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="DQMServices/Core"/>
+<use   name="DataFormats/EgammaCandidates"/>
 <use   name="DataFormats/HepMCCandidate"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="HLTrigger/HLTcore"/>
