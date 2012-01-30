@@ -322,14 +322,44 @@ if __name__ == '__main__':
     amodetagChoices = [ "PROTPHYS","IONPHYS",'PAPHYS' ]
     xingAlgoChoices =[ "OCC1","OCC2","ET"]
     # parse arguments
-    parser.add_argument('-c',dest='connect',action='store',required=False,help='connect string to lumiDB,optional',default='frontier://LumiCalc/CMS_LUMI_PROD')
-    parser.add_argument('-P',dest='authpath',action='store',help='path to authentication file,optional')
-    parser.add_argument('-i',dest='inputdir',action='store',required=False,help='output dir',default='.')
-    parser.add_argument('-o',dest='outputdir',action='store',required=False,help='output dir',default='.')
-    parser.add_argument('-f',dest='fillnum',action='store',required=False,help='specific fill',default=None)
-    parser.add_argument('-minfill',dest='minfill',action='store',required=False,help='min fill',default=None)
-    parser.add_argument('-maxfill',dest='maxfill',action='store',required=False,help='maximum fillnumber ',default=MAXFILL)
-    parser.add_argument('-amodetag',dest='amodetag',action='store',
+    parser.add_argument('-c',dest='connect',
+                        action='store',
+                        required=False,
+                        help='connect string to lumiDB,optional',
+                        default='frontier://LumiCalc/CMS_LUMI_PROD')
+    parser.add_argument('-P',dest='authpath',
+                        action='store',
+                        help='path to authentication file,optional')
+    parser.add_argument('-i',dest='inputdir',
+                        action='store',
+                        required=False,
+                        help='output dir',
+                        default='.')
+    parser.add_argument('-o',dest='outputdir',
+                        action='store',
+                        required=False,
+                        help='output dir',
+                        default='.')
+    parser.add_argument('-f',dest='fillnum',
+                        action='store',
+                        required=False,
+                        help='specific fill',
+                        default=None)
+    parser.add_argument('-minfill',dest='minfill',
+                        type=int,
+                        action='store',
+                        required=False,
+                        default=MINFILL,
+                        help='min fill')
+    parser.add_argument('-maxfill',dest='maxfill',
+                        type=int,
+                        action='store',
+                        required=False,
+                        default=MAXFILL,
+                        help='maximum fillnumber '
+                        )
+    parser.add_argument('-amodetag',dest='amodetag',
+                        action='store',
                         choices=amodetagChoices,
                         required=False,
                         help='specific accelerator mode choices [PROTOPHYS,IONPHYS,PAPHYS] (optional)')
@@ -363,8 +393,6 @@ if __name__ == '__main__':
     parser.add_argument('--debug',dest='debug',action='store_true',
                         help='debug')
     options=parser.parse_args()
-    if options.minfill:
-        MINFILL=int(options.minfill)
     if options.authpath:
         os.environ['CORAL_AUTH_PATH'] = options.authpath
     ##
@@ -380,14 +408,13 @@ if __name__ == '__main__':
     allfillsFromFile=[]
     fillstoprocess=[]
     maxfillnum=options.maxfill
+    minfillnum=options.minfill
     if options.fillnum is not None: #if process a specific single fill
         fillstoprocess.append(int(options.fillnum))
     else:
-        svc=sessionManager.sessionManager(options.connect,authpath=options.authpath,debugON=options.debug)
-        session=svc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
         session.transaction().start(True)
         schema=session.nominalSchema()
-        allfillsFromDB=lumiCalcAPI.fillInRange(schema,fillmin=MINFILL,fillmax=maxfillnum,amodetag=options.amodetag)
+        allfillsFromDB=lumiCalcAPI.fillInRange(schema,fillmin=minfillnum,fillmax=maxfillnum,amodetag=options.amodetag)
         processedfills=listfilldir(options.outputdir)
         lastcompletedFill=lastcompleteFill(os.path.join(options.inputdir,'runtofill_dqm.txt'))
         for pf in processedfills:
@@ -397,11 +424,11 @@ if __name__ == '__main__':
         for fill in allfillsFromDB:
             if fill not in processedfills :
                 if int(fill)<=lastcompletedFill:
-                    if int(fill)>MINFILL:
+                    if int(fill)>minfillnum and int(fill)<maxfillnum:
                         fillstoprocess.append(fill)
                 else:
                     print 'ongoing fill...',fill
-        session.transaction().start(True)
+        session.transaction().commit()
     print 'fills to process : ',fillstoprocess
     if len(fillstoprocess)==0:
         print 'no fill to process, exit '
@@ -411,11 +438,11 @@ if __name__ == '__main__':
     print '===== Start Processing Fills',fillstoprocess
     print '====='
     withcorrection=not options.withoutFineCorrection
-    session.transaction().start(True)
     filldata={}
+    session.transaction().start(True)
     for fillnum in fillstoprocess:# process per fill
         filldata=getSpecificLumi(session.nominalSchema(),fillnum,options.inputdir,xingMinLum=options.xingMinLum,norm=options.normfactor,withcorrection=withcorrection,amodetag=options.amodetag,bxAlgo=options.bxAlgo,usecorrectionv2=options.correctionv2,usecorrectionv3=options.correctionv3)
         specificlumiTofile(fillnum,filldata,options.outputdir)
     session.transaction().commit()
-    specificlumiTofile(fillnum,filldata,'.')
+
 
