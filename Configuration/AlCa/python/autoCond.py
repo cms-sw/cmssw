@@ -1,9 +1,9 @@
 
 
 
-autoCond = { 'mc'      : 'MC_50_V13::All',
-             'startup' : 'START50_V13::All',
-             'com10'   : 'GR_R_50_V11::All',
-             'hltonline' : 'GR_R_50_V11::All', # same as com10 until H tag available
-             'starthi' : 'STARTHI50_V13::All'
+autoCond = { 'mc'      : 'MC_52_V1::All',
+             'startup' : 'START52_V1::All',
+             'com10'   : 'GR_R_52_V1::All',
+             'hltonline' : 'GR_R_52_V1::All', # same as com10 until H tag available
+             'starthi' : 'STARTHI52_V1::All'
              }
