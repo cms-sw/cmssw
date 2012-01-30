@@ -133,11 +133,6 @@ void EBRecoSummary::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
   edm::ESHandle<MagneticField> theMagField;
   iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
 
-  // calo geometry
-  edm::ESHandle<CaloGeometry> pGeometry;
-  iSetup.get<CaloGeometryRecord>().get(pGeometry);
-  const CaloGeometry *geometry = pGeometry.product();
-
   // calo topology
   edm::ESHandle<CaloTopology> pTopology;
   iSetup.get<CaloTopologyRecord>().get(pTopology);
@@ -178,7 +173,6 @@ void EBRecoSummary::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
     {
 
       EBDetId ebid( itr -> id() );
-      GlobalPoint mycell = geometry -> getPosition(DetId(itr->id()));
       
       h_recHits_EB_recoFlag      -> Fill( itr -> recoFlag() );
 

@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTaskExtras.cc
  *
- * $Date: 2009/09/15 16:04:39 $
- * $Revision: 1.6 $
+ * $Date: 2009/12/14 21:14:08 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -699,7 +699,6 @@ void EEClusterTaskExtras::analyze(const Event& e, const EventSetup& c) {
 	    // >= CMSSW_3_1_X
 	    std::vector< std::pair<DetId,float> > sIds = sCluster->hitsAndFractions();
 
-	    float eMax, e2nd;
 	    EcalRecHitCollection::const_iterator seedItr = eeRecHits->begin();
 	    EcalRecHitCollection::const_iterator secondItr = eeRecHits->begin();
 
@@ -717,8 +716,6 @@ void EEClusterTaskExtras::analyze(const Event& e, const EventSetup& c) {
 	       if(hitItr->energy() > seedItr->energy()) { std::swap(seedItr,secondItr); }
 	    }
 
-	    eMax = seedItr->energy();
-	    e2nd = secondItr->energy();
 	    EEDetId seedId = (EEDetId) seedItr->id();
 
 	    // Prepare to fill maps
@@ -736,6 +733,9 @@ void EEClusterTaskExtras::analyze(const Event& e, const EventSetup& c) {
 	    vector<bool> triggers = determineTriggers(e,c);
 
 #ifndef EECLUSTERTASKEXTRAS_DQMOFFLINE
+	    float eMax, e2nd;
+	    eMax = seedItr->energy();
+	    e2nd = secondItr->energy();
 	    // energy, size
 	    if(meSCEneLow_) meSCEneLow_->Fill( sCluster->energy() );
 	    if(meSCEneHigh_) meSCEneHigh_->Fill( sCluster->energy() );
