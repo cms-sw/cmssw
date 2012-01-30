@@ -316,14 +316,15 @@ def toScreenLumiByLS(lumidata,resultlines,scalefactor,isverbose):
             continue
         for lsdata in rundata:
             lumilsnum=lsdata[0]
-            cmslsnum=lsdata[1]
+            cmslsnum=lsdata[1]#triggered ls
             ts=lsdata[2]
             bs=lsdata[3]
             begev=lsdata[4]
             deliveredlumi=lsdata[5]
             if deliveredlumi>maxlslumi: maxlslumi=deliveredlumi
             recordedlumi=lsdata[6]
-            result.append([str(run),str(lumilsnum)+':'+str(cmslsnum),ts.strftime('%m/%d/%y %H:%M:%S'),bs,'%.1f'%begev,(deliveredlumi),(recordedlumi)])
+            if cmslsnum!=0:               
+                result.append([str(run),str(lumilsnum)+':'+str(cmslsnum),ts.strftime('%m/%d/%y %H:%M:%S'),bs,'%.1f'%begev,(deliveredlumi),(recordedlumi)])
             totalDelivered+=deliveredlumi
             totalRecorded+=recordedlumi
             totalDeliveredLS+=1
@@ -383,7 +384,8 @@ def toCSVLumiByLS(lumidata,filename,resultlines,scalefactor,isverbose):
             begev=lsdata[4]
             deliveredlumi=lsdata[5]
             recordedlumi=lsdata[6]
-            result.append([run,str(lumilsnum)+':'+str(cmslsnum),ts.strftime('%m/%d/%y %H:%M:%S'),bs,begev,deliveredlumi*scalefactor,recordedlumi*scalefactor])
+            if cmslsnum!=0:
+                result.append([run,str(lumilsnum)+':'+str(cmslsnum),ts.strftime('%m/%d/%y %H:%M:%S'),bs,begev,deliveredlumi*scalefactor,recordedlumi*scalefactor])
     sortedresult=sorted(result,key=lambda x : int(x[0]))
     assert(filename)
     if filename.upper()=='STDOUT':
