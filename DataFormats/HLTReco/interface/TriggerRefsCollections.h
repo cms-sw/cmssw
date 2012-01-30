@@ -12,8 +12,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2009/04/17 17:13:09 $
- *  $Revision: 1.14 $
+ *  $Date: 2012/01/23 09:48:00 $
+ *  $Revision: 1.15 $
  *
  *  \author Martin Grunewald
  *
@@ -40,6 +40,7 @@
 #include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
 
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/TauReco/interface/PFTauFwd.h"
 
 #include <cassert>
 #include <vector>
@@ -65,6 +66,7 @@ namespace trigger
   typedef std::vector<l1extra::L1HFRingsRef>                VRl1hfrings;
 
   typedef std::vector<reco::PFJetRef>                       VRpfjet;
+  typedef std::vector<reco::PFTauRef>                       VRpftau;
 
   class TriggerRefsCollections {
 
@@ -101,6 +103,8 @@ namespace trigger
 
     Vids        pfjetIds_;
     VRpfjet     pfjetRefs_;
+    Vids        pftauIds_;
+    VRpftau     pftauRefs_;
     
   /// methods
   public:
@@ -121,7 +125,8 @@ namespace trigger
       l1etmissIds_(), l1etmissRefs_(),
       l1hfringsIds_(), l1hfringsRefs_(),
 
-      pfjetIds_(), pfjetRefs_()
+      pfjetIds_(), pfjetRefs_(),
+      pftauIds_(), pftauRefs_()
       { }
 
     /// utility
@@ -156,6 +161,8 @@ namespace trigger
 
       std::swap(pfjetIds_,      other.pfjetIds_);
       std::swap(pfjetRefs_,     other.pfjetRefs_);
+      std::swap(pftauIds_,      other.pftauIds_);
+      std::swap(pftauRefs_,     other.pftauRefs_);
     }
 
     /// setters for L3 collections: (id=physics type, and Ref<C>)
@@ -216,6 +223,10 @@ namespace trigger
     void addObject(int id, const reco::PFJetRef& ref) {
       pfjetIds_.push_back(id);
       pfjetRefs_.push_back(ref);
+    }
+    void addObject(int id, const reco::PFTauRef& ref) {
+      pftauIds_.push_back(id);
+      pftauRefs_.push_back(ref);
     }
 
     /// 
@@ -304,6 +315,12 @@ namespace trigger
       pfjetIds_.insert(pfjetIds_.end(),ids.begin(),ids.end());
       pfjetRefs_.insert(pfjetRefs_.end(),refs.begin(),refs.end());
       return pfjetIds_.size();
+    }
+    size_type addObjects (const Vids& ids, const VRpftau& refs) {
+      assert(ids.size()==refs.size());
+      pftauIds_.insert(pftauIds_.end(),ids.begin(),ids.end());
+      pftauRefs_.insert(pftauRefs_.end(),refs.begin(),refs.end());
+      return pftauIds_.size();
     }
 
     /// various physics-level getters:
@@ -755,6 +772,38 @@ namespace trigger
       return;
     }
 
+    void getObjects(Vids& ids, VRpftau& refs) const {
+      getObjects(ids,refs,0,pftauIds_.size());
+    }
+    void getObjects(Vids& ids, VRpftau& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=pftauIds_.size());
+      const size_type n(end-begin);
+      ids.resize(n);
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	ids[j]=pftauIds_[i];
+	refs[j]=pftauRefs_[i];
+	++j;
+      }
+    }
+    void getObjects(int id, VRpftau& refs) const {
+      getObjects(id,refs,0,pftauIds_.size());
+    }
+    void getObjects(int id, VRpftau& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=pftauIds_.size());
+      size_type n(0);
+      for (size_type i=begin; i!=end; ++i) {if (id==pftauIds_[i]) {++n;}}
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	if (id==pftauIds_[i]) {refs[j]=pftauRefs_[i]; ++j;}
+      }
+      return;
+    }
+
     /// low-level getters for data members
     size_type          photonSize()    const {return photonIds_.size();}
     const Vids&        photonIds()     const {return photonIds_;}
@@ -811,6 +860,10 @@ namespace trigger
     size_type          pfjetSize()     const {return pfjetIds_.size();}
     const Vids&        pfjetIds()      const {return pfjetIds_;}
     const VRpfjet&     pfjetRefs()     const {return pfjetRefs_;}
+
+    size_type          pftauSize()     const {return pftauIds_.size();}
+    const Vids&        pftauIds()      const {return pftauIds_;}
+    const VRpftau&     pftauRefs()     const {return pftauRefs_;}
 
   };
 
