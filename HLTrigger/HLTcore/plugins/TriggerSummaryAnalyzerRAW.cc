@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/04/17 17:12:52 $
- *  $Revision: 1.9 $
+ *  $Date: 2012/01/23 10:27:33 $
+ *  $Revision: 1.10 $
  *
  *  \author Martin Grunewald
  *
@@ -103,9 +103,13 @@ TriggerSummaryAnalyzerRAW::analyze(const edm::Event& iEvent, const edm::EventSet
 				    handle->l1hfringsSlice(iFO).first);
        if (nL1HfRings>0) cout << " L1HfRings: " << nL1HfRings;
 
-       const unsigned int nPfjets(handle->pfjetSlice(iFO).second-
+       const unsigned int nPFJets(handle->pfjetSlice(iFO).second-
 				handle->pfjetSlice(iFO).first);
-       if (nPfjets>0) cout << " Pfjets: " << nPfjets;
+       if (nPFJets>0) cout << " PFJets: " << nPFJets;
+
+       const unsigned int nPFTaus(handle->pftauSlice(iFO).second-
+				handle->pftauSlice(iFO).first);
+       if (nPFTaus>0) cout << " PFTaus: " << nPFTaus;
 
        cout << endl;
      }
@@ -124,6 +128,7 @@ TriggerSummaryAnalyzerRAW::analyze(const edm::Event& iEvent, const edm::EventSet
      cout << "  L1EtMiss:   " << handle->l1etmissSize()  << endl;
      cout << "  L1HfRings:  " << handle->l1hfringsSize() << endl;
      cout << "  PFJets:     " << handle->pfjetSize()     << endl;
+     cout << "  PFTaus:     " << handle->pftauSize()     << endl;
    } else {
      cout << "Handle invalid! Check InputTag provided." << endl;
    }

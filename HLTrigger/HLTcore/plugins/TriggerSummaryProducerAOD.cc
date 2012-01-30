@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/11/09 13:58:43 $
- *  $Revision: 1.43 $
+ *  $Date: 2012/01/23 10:27:33 $
+ *  $Revision: 1.44 $
  *
  *  \author Martin Grunewald
  *
@@ -47,6 +47,8 @@
 
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/TauReco/interface/PFTau.h"
+#include "DataFormats/TauReco/interface/PFTauFwd.h"
 
 #include <algorithm>
 #include <typeinfo>
@@ -241,6 +243,7 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
    fillTriggerObjectCollections<                  L1HFRingsCollection>(iEvent);
    ///
    fillTriggerObjectCollections<                      PFJetCollection>(iEvent);
+   fillTriggerObjectCollections<                      PFTauCollection>(iEvent);
    ///
    const unsigned int nk(tags_.size());
    LogDebug("TriggerSummaryProducerAOD") << "Number of collections found: " << nk;
@@ -278,6 +281,7 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
        fillFilterObjectMembers(iEvent,filterTag,fobs_[ifob]->l1etmissIds() ,fobs_[ifob]->l1etmissRefs());
        fillFilterObjectMembers(iEvent,filterTag,fobs_[ifob]->l1hfringsIds(),fobs_[ifob]->l1hfringsRefs());
        fillFilterObjectMembers(iEvent,filterTag,fobs_[ifob]->pfjetIds()    ,fobs_[ifob]->pfjetRefs());
+       fillFilterObjectMembers(iEvent,filterTag,fobs_[ifob]->pftauIds()    ,fobs_[ifob]->pftauRefs());
        product->addFilter(filterTag,ids_,keys_);
      }
    }

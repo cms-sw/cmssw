@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/11/08 15:47:45 $
- *  $Revision: 1.11 $
+ *  $Date: 2012/01/23 10:27:33 $
+ *  $Revision: 1.12 $
  *
  *  \author Martin Grunewald
  *
@@ -96,6 +96,7 @@ TriggerSummaryProducerRAW::produce(edm::Event& iEvent, const edm::EventSetup& iS
        << " C/" << fobs_[ifob]->l1etmissSize()
        << " D/" << fobs_[ifob]->l1hfringsSize()
        << " E/" << fobs_[ifob]->pfjetSize()
+       << " F/" << fobs_[ifob]->pftauSize()
        << endl;
      product->addFilterObject(tag,*fobs_[ifob]);
    }
