@@ -13,7 +13,7 @@
 //
 // Original Author:  Emilia Lubenova Becheva
 //         Created:  Wed Apr 22 16:54:31 CEST 2009
-// $Id: SecSourceAnalyzer.cc,v 1.6 2011/07/14 15:01:10 wsun Exp $
+// $Id: SecSourceAnalyzer.cc,v 1.7 2011/08/09 13:39:10 mikeh Exp $
 //
 //
 
@@ -97,14 +97,16 @@ SecSourceAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
      {
        if( ibx == 0 )
 	 {
-	   input_->readPileUp( vectorEventIDs_[ ibx-minBunch_ ],
+	   input_->readPileUp( iEvent.id(),
+                               vectorEventIDs_[ ibx-minBunch_ ],
 			       boost::bind(&SecSourceAnalyzer::getBranches, 
 					   this, _1), ibx
 			       );
 	 }
        else
 	 {
-	   input_->readPileUp( vectorEventIDs_[ ibx-minBunch_ ],
+	   input_->readPileUp( iEvent.id(),
+                               vectorEventIDs_[ ibx-minBunch_ ],
 			       boost::bind(&SecSourceAnalyzer::dummyFunction, 
 					   this, _1), ibx
 			       );

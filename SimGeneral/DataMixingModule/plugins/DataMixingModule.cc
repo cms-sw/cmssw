@@ -372,17 +372,22 @@ namespace edm
     for (int bunchCrossing=minBunch_;bunchCrossing<=maxBunch_;++bunchCrossing) {
       for (unsigned int isource=0;isource<maxNbSources_;++isource) {
         boost::shared_ptr<PileUp> source = inputSources_[isource];
-        if (!source || !source->doPileUp()) continue;
+        if (not source or not source->doPileUp()) 
+          continue;
 
-	if(isource==0) source->CalculatePileup(minBunch_, maxBunch_, PileupList, TrueNumInteractions_);
+	if (isource==0) 
+          source->CalculatePileup(minBunch_, maxBunch_, PileupList, TrueNumInteractions_);
 
 	int NumPU_Events = 0;
+	if (isource ==0) { 
+          NumPU_Events = PileupList[bunchCrossing - minBunch_];
+        } else {
+          // non-minbias pileup only gets one event for now. Fix later if desired.
+          NumPU_Events = 1;
+        }  
 
-	if(isource ==0) { NumPU_Events = PileupList[bunchCrossing - minBunch_];}
-	else { NumPU_Events = 1;}  // non-minbias pileup only gets one event for now. Fix later if desired.
-
-
-        inputSources_[isource]->readPileUp(
+        source->readPileUp(
+                e.id(),
                 recordEventID,
                 boost::bind(&DataMixingModule::pileWorker, boost::ref(*this),
                             _1, bunchCrossing, _2, boost::cref(ES)),

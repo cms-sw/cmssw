@@ -32,6 +32,7 @@ namespace edm {
     poissonDistr_OOT_(0),
     playback_(playback),
     sequential_(pset.getUntrackedParameter<bool>("sequential", false)),
+    samelumi_(pset.getUntrackedParameter<bool>("sameLumiBlock", false)),
     seed_(0)
    {
      if (pset.exists("nbPileupEvents"))

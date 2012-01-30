@@ -453,7 +453,7 @@ namespace edm
 	int vertexOffset = 0;
 
         if (!playback_) {
-          inputSources_[readSrcIdx]->readPileUp(recordEventID,
+          inputSources_[readSrcIdx]->readPileUp(e.id(), recordEventID,
             boost::bind(&MixingModule::pileAllWorkers, boost::ref(*this), _1, bunchIdx,
                         _2, vertexOffset), NumPU_Events
             );

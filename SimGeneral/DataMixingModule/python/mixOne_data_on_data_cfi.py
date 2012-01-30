@@ -11,6 +11,7 @@ mixData = cms.EDProducer("DataMixingModule",
         seed = cms.int32(1234567),
         type = cms.string('fixed'),
         sequential = cms.untracked.bool(False), 
+        sameLumiBlock = cms.untracked.bool(False),
         fileNames = cms.untracked.vstring(
             'file:DMPreProcess_RAW2DIGI.root'
         )
