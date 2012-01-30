@@ -20,13 +20,17 @@
 #ifndef CMS_NOCXX11
   #if GCC_PREREQUISITE(4,7,0)
      #define GCC11_FINAL final
+     #define GCC11_OVERRIDE override
   #else
-     #define GCC11_FINAL  
+     #define GCC11_FINAL
+     #define GCC11_OVERRIDE
   #endif // gcc 4.7
 #else
-  #define GCC11_FINAL
   #define constexpr
   #define noexcept
+  #define nullptr 0
+  #define GCC11_FINAL
+  #define GCC11_OVERRIDE
 #endif // NOCXX11
 
 #endif  // FWCORE_GCC11COMPATIBILITY_H
