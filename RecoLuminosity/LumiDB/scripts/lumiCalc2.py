@@ -205,7 +205,10 @@ if __name__ == '__main__':
         if options.action=='lumibylsXing':
             print '\tLS filter for lumibylsXing xingMinLum: ',options.xingMinLum
         
-    svc=sessionManager.sessionManager(options.connect,authpath=options.authpath,debugON=options.debug)
+    svc=sessionManager.sessionManager(options.connect,
+                                      authpath=options.authpath,
+                                      siteconfpath=options.siteconfpath,
+                                      debugON=options.debug)
     session=svc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
     
     irunlsdict={}
