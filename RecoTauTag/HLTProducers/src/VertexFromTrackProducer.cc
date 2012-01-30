@@ -1,4 +1,4 @@
-#include "RecoVertex/PrimaryVertexProducer/interface/VertexFromTrackProducer.h"
+#include "RecoTauTag/HLTProducers/interface/VertexFromTrackProducer.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
