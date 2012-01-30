@@ -1,5 +1,5 @@
 //
-// $Id: Electron.cc,v 1.26 2011/06/08 20:40:19 rwolf Exp $
+// $Id: Electron.cc,v 1.27 2011/10/22 10:30:41 sprenger Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -133,14 +133,18 @@ reco::SuperClusterRef Electron::superCluster() const {
   }
 }
 
-
-/// override the reco::GsfElectron::track method, to access the internal storage of the track
-reco::TrackRef Electron::track() const {
+/// override the reco::GsfElectron::closestCtfTrack method, to access the internal storage of the track
+reco::TrackRef Electron::closestCtfTrackRef() const {
   if (embeddedTrack_) {
     return reco::TrackRef(&track_, 0);
   } else {
-    return reco::GsfElectron::track();
+    return reco::GsfElectron::closestCtfTrackRef();
   }
+}
+
+// the name of the method is misleading, users should use gsfTrack of closestCtfTrack
+reco::TrackRef Electron::track() const {
+  return reco::TrackRef();
 }
 
 /// Stores the electron's core (reco::GsfElectronCoreRef) internally
@@ -171,12 +175,11 @@ void Electron::embedSuperCluster() {
   }
 }
 
-
-/// Stores the electron's track (reco::TrackRef) internally
+/// method to store the electron's track internally
 void Electron::embedTrack() {
   track_.clear();
-  if (reco::GsfElectron::track().isNonnull()) {
-      track_.push_back(*reco::GsfElectron::track());
+  if (reco::GsfElectron::closestCtfTrackRef().isNonnull()) {
+      track_.push_back(*reco::GsfElectron::closestCtfTrackRef());
       embeddedTrack_ = true;
   }
 }
