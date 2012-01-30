@@ -477,7 +477,6 @@ def deliveredLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=N
             beamdata=None
             if withBXInfo:
                 bxdata=perlsdata[9]
-                print 'bxdata ',bxdata
                 if bxdata:
                     calibratedbxdata=(bxdata[0],[x*perbunchnormval for x in bxdata[1]],[x*perbunchnormval for x in bxdata[2]])
                 del bxdata[1][:]
@@ -549,7 +548,6 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
             print '[Warning] using default normalization '+str(normval)
         
         perrunresult=[]
-        #print 'run,lslist ',run,lslist
         for lumilsnum,perlsdata in lumidata.items():
             cmslsnum=perlsdata[0]
             triggeredls=perlsdata[0]
