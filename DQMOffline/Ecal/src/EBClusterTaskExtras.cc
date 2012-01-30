@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTaskExtras.cc
  *
- * $Date: 2009/09/15 16:04:39 $
- * $Revision: 1.7 $
+ * $Date: 2009/12/14 21:14:08 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -683,7 +683,6 @@ void EBClusterTaskExtras::analyze(const Event& e, const EventSetup& c) {
 	    // >= CMSSW_3_1_X
 	    std::vector< std::pair<DetId,float> > sIds = sCluster->hitsAndFractions();
 
-	    float eMax, e2nd;
 	    EcalRecHitCollection::const_iterator seedItr = ebRecHits->begin();
 	    EcalRecHitCollection::const_iterator secondItr = ebRecHits->begin();
 
@@ -701,8 +700,6 @@ void EBClusterTaskExtras::analyze(const Event& e, const EventSetup& c) {
 	       if(hitItr->energy() > seedItr->energy()) { std::swap(seedItr,secondItr); }
 	    }
 
-	    eMax = seedItr->energy();
-	    e2nd = secondItr->energy();
 	    EBDetId seedId = (EBDetId) seedItr->id();
 
 	    // Prepare to fill maps
@@ -718,6 +715,8 @@ void EBClusterTaskExtras::analyze(const Event& e, const EventSetup& c) {
 	    vector<bool> triggers = determineTriggers(e,c);
 
 #ifndef EBCLUSTERTASKEXTRAS_DQMOFFLINE
+            float e2nd = secondItr->energy();
+	    float eMax = seedItr->energy();
 	    int ism = Numbers::iSM(seedId);
 
 	    // energy, size

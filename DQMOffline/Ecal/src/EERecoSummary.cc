@@ -140,11 +140,6 @@ void EERecoSummary::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
   edm::ESHandle<MagneticField> theMagField;
   iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
 
-  // calo geometry
-  edm::ESHandle<CaloGeometry> pGeometry;
-  iSetup.get<CaloGeometryRecord>().get(pGeometry);
-  const CaloGeometry *geometry = pGeometry.product();
-
   // --- REDUCED REC HITS ------------------------------------------------------------------------------------- 
   // ... endcap
   edm::Handle<EcalRecHitCollection> redRecHitsEE;
@@ -159,7 +154,6 @@ void EERecoSummary::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
   {
       
     EEDetId eeid( itr -> id() );
-    GlobalPoint mycell = geometry->getPosition(itr->detid());
 
     h_redRecHits_EE_recoFlag->Fill( itr -> recoFlag() );
 
@@ -186,7 +180,6 @@ void EERecoSummary::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
     {
       
       EEDetId eeid( itr -> id() );
-      GlobalPoint mycell = geometry->getPosition(itr->detid());
 
       // EE+
       if ( eeid.zside() > 0 ){
@@ -271,10 +264,6 @@ void EERecoSummary::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
     h_superClusters_eta       -> Fill( itSC -> eta() );
     h_superClusters_EE_phi    -> Fill( itSC -> phi() );
     
-    //Now get the seed:
-    DetId theSeedIdEE = EcalClusterTools::getMaximum( (*itSC).hitsAndFractions(), theEndcapEcalRecHits ).first;
-    EcalRecHitCollection::const_iterator theSeedEE = theEndcapEcalRecHits->find (theSeedIdEE) ;
-
     if  ( itSC -> z() > 0 ){
       h_superClusters_EEP_nBC    -> Fill( itSC -> clustersSize() );      
     }
