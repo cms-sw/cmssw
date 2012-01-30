@@ -32,6 +32,21 @@ void testEcalRecHit::testOne(){
   EcalRecHit rh (EBDetId(1,1),0.,0.);
   rh.setFlag(EcalRecHit::kTPSaturated);
   CPPUNIT_ASSERT(rh.checkFlag(EcalRecHit::kTPSaturated ) );
+
+  rh.setFlag(EcalRecHit::kHasSwitchToGain6);
+  CPPUNIT_ASSERT(rh.checkFlag(EcalRecHit::kHasSwitchToGain6) );
+
+  rh.setFlag(EcalRecHit::kHasSwitchToGain1);
+  CPPUNIT_ASSERT(rh.checkFlag(EcalRecHit::kHasSwitchToGain1) );
+  rh.unsetFlag(EcalRecHit::kHasSwitchToGain1);
+  CPPUNIT_ASSERT(!rh.checkFlag(EcalRecHit::kHasSwitchToGain1) );
+
+  CPPUNIT_ASSERT(!rh.checkFlag(EcalRecHit::kSaturated) );
+
+  CPPUNIT_ASSERT(!rh.checkFlag(EcalRecHit::kPoorReco) );
+  CPPUNIT_ASSERT(!rh.checkFlag(EcalRecHit::kUnknown) );
+  CPPUNIT_ASSERT(!rh.checkFlag(EcalRecHit::kGood) );
+ 
   
   // test chi2
   float chi2=1.8;

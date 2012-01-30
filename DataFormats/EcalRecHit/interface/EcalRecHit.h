@@ -5,7 +5,7 @@
 
 /** \class EcalRecHit
  *  
- * $Id: EcalRecHit.h,v 1.22 2011/02/06 09:48:56 innocent Exp $
+ * $Id: EcalRecHit.h,v 1.23 2011/02/15 20:11:48 argiro Exp $
  * \author P. Meridiani INFN Roma1
  */
 
@@ -31,6 +31,8 @@ public:
           kL1SpikeFlag,              // the channel is in a region with TP with sFGVB = 0
           kWeird,                    // the signal is believed to originate from an anomalous deposit (spike) 
           kDiWeird,                  // the signal is anomalous, and neighbors another anomalous signal  
+          kHasSwitchToGain6,         // at least one data frame is in G6
+          kHasSwitchToGain1,         // at least one data frame is in G1
                                      //
           kUnknown                   // to ease the interface with functions returning flags. 
   };

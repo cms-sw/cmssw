@@ -39,8 +39,12 @@ void testEcalUncalibratedRecHit::testOne(){
   print(urh.flags());
 
 
-  urh.setAmplitude(17.3); CPPUNIT_ASSERT(urh.amplitude()==17.3);
-  urh.setPedestal(12.35); CPPUNIT_ASSERT(urh.pedestal()==12.35);
+  urh.setAmplitude(17.3); CPPUNIT_ASSERT(urh.amplitude()==(float)17.3);
+  urh.setPedestal(12.35); CPPUNIT_ASSERT(urh.pedestal()==(float)12.35);
+  urh.setJitter(3.35); CPPUNIT_ASSERT(urh.jitter()==(float)3.35);
+  urh.setChi2(12.35); CPPUNIT_ASSERT(urh.chi2()==(float)12.35);
+  urh.setOutOfTimeEnergy(11.35); CPPUNIT_ASSERT(urh.outOfTimeEnergy()==(float)11.35);
+  urh.setOutOfTimeChi2(9.35); CPPUNIT_ASSERT(urh.outOfTimeChi2()==(float)9.35);
     
 
   urh.setOutOfTimeEnergy(230.63);
@@ -69,6 +73,22 @@ void testEcalUncalibratedRecHit::testOne(){
   CPPUNIT_ASSERT(outOfTimeEnergy_init ==  urh.outOfTimeEnergy());
   CPPUNIT_ASSERT(outOfTimeChi2_init ==  urh.outOfTimeChi2());
 
+  std::cout << "setting EcalUncalibratedRecHit::kHasSwitchToGain6" << std::endl;
+  urh.setFlagBit(EcalUncalibratedRecHit::kHasSwitchToGain6);// 
+  print(urh.flags());
+  std::cout << "urh.checkFlag(EcalUncalibratedRecHit::kGood) = "  <<  urh.checkFlag(EcalUncalibratedRecHit::kGood) << std::endl;
+  std::cout << "urh.checkFlag(EcalUncalibratedRecHit::kHasSwitchToGain6) = "  <<  urh.checkFlag(EcalUncalibratedRecHit::kHasSwitchToGain6) << std::endl;
+  std::cout << "urh.checkFlag(EcalUncalibratedRecHit::kSaturated) = "  <<  urh.checkFlag(EcalUncalibratedRecHit::kSaturated) << std::endl;
+  std::cout << "urh.checkFlag(EcalUncalibratedRecHit::kOutOfTime) = "  <<  urh.checkFlag(EcalUncalibratedRecHit::kOutOfTime) << std::endl;
+  std::cout<<"urh.checkFlag(EcalUncalibratedRecHit::kLeadingEdgeRecovered) = "<<urh.checkFlag(EcalUncalibratedRecHit::kLeadingEdgeRecovered)<<std::endl;
+  CPPUNIT_ASSERT(!urh.checkFlag(EcalUncalibratedRecHit::kGood));
+  CPPUNIT_ASSERT(urh.checkFlag(EcalUncalibratedRecHit::kHasSwitchToGain6));
+  CPPUNIT_ASSERT(!urh.checkFlag(EcalUncalibratedRecHit::kSaturated));
+  CPPUNIT_ASSERT(!urh.checkFlag(EcalUncalibratedRecHit::kOutOfTime));
+  CPPUNIT_ASSERT(!urh.checkFlag(EcalUncalibratedRecHit::kLeadingEdgeRecovered));
+  CPPUNIT_ASSERT(outOfTimeEnergy_init ==  urh.outOfTimeEnergy());
+  CPPUNIT_ASSERT(outOfTimeChi2_init ==  urh.outOfTimeChi2());
+
   std::cout << "setting EcalUncalibratedRecHit::kPoorReco" << std::endl;
   urh.setFlagBit(EcalUncalibratedRecHit::kPoorReco);// 
   print(urh.flags());
@@ -79,6 +99,22 @@ void testEcalUncalibratedRecHit::testOne(){
   std::cout<<"urh.checkFlag(EcalUncalibratedRecHit::kLeadingEdgeRecovered) = "<<urh.checkFlag(EcalUncalibratedRecHit::kLeadingEdgeRecovered)<<std::endl;
   CPPUNIT_ASSERT(!urh.checkFlag(EcalUncalibratedRecHit::kGood));
   CPPUNIT_ASSERT(urh.checkFlag(EcalUncalibratedRecHit::kPoorReco));
+  CPPUNIT_ASSERT(!urh.checkFlag(EcalUncalibratedRecHit::kSaturated));
+  CPPUNIT_ASSERT(!urh.checkFlag(EcalUncalibratedRecHit::kOutOfTime));
+  CPPUNIT_ASSERT(!urh.checkFlag(EcalUncalibratedRecHit::kLeadingEdgeRecovered));
+  CPPUNIT_ASSERT(outOfTimeEnergy_init ==  urh.outOfTimeEnergy());
+  CPPUNIT_ASSERT(outOfTimeChi2_init ==  urh.outOfTimeChi2());
+
+  std::cout << "setting EcalUncalibratedRecHit::kHasSwitchToGain1" << std::endl;
+  urh.setFlagBit(EcalUncalibratedRecHit::kHasSwitchToGain1);// 
+  print(urh.flags());
+  std::cout << "urh.checkFlag(EcalUncalibratedRecHit::kGood) = "  <<  urh.checkFlag(EcalUncalibratedRecHit::kGood) << std::endl;
+  std::cout << "urh.checkFlag(EcalUncalibratedRecHit::kHasSwitchToGain1) = "  <<  urh.checkFlag(EcalUncalibratedRecHit::kHasSwitchToGain1) << std::endl;
+  std::cout << "urh.checkFlag(EcalUncalibratedRecHit::kSaturated) = "  <<  urh.checkFlag(EcalUncalibratedRecHit::kSaturated) << std::endl;
+  std::cout << "urh.checkFlag(EcalUncalibratedRecHit::kOutOfTime) = "  <<  urh.checkFlag(EcalUncalibratedRecHit::kOutOfTime) << std::endl;
+  std::cout<<"urh.checkFlag(EcalUncalibratedRecHit::kLeadingEdgeRecovered) = "<<urh.checkFlag(EcalUncalibratedRecHit::kLeadingEdgeRecovered)<<std::endl;
+  CPPUNIT_ASSERT(!urh.checkFlag(EcalUncalibratedRecHit::kGood));
+  CPPUNIT_ASSERT(urh.checkFlag(EcalUncalibratedRecHit::kHasSwitchToGain1));
   CPPUNIT_ASSERT(!urh.checkFlag(EcalUncalibratedRecHit::kSaturated));
   CPPUNIT_ASSERT(!urh.checkFlag(EcalUncalibratedRecHit::kOutOfTime));
   CPPUNIT_ASSERT(!urh.checkFlag(EcalUncalibratedRecHit::kLeadingEdgeRecovered));
