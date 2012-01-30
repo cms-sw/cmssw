@@ -86,17 +86,13 @@ from TopQuarkAnalysis.Configuration.patRefSel_refMuJets import *
 
 # Trigger selection according to run range resp. MC sample:
 # lower range limits for data available as suffix;
-# available are: 000000, 147196, 160404, 163270 (default)
+# available are: 000000, 147196, 160404, 163270, 173236, 175832 (default)
 # sample name for MC available as suffix;
-# available are: Summer11 (default)
-#triggerSelectionData       = triggerSelection_163270
-#triggerObjectSelectionData = triggerObjectSelection_163270
-triggerSelectionData       = 'HLT_IsoMu24_v*'
-triggerObjectSelectionData = 'type("TriggerMuon") && ( path("HLT_IsoMu24_v*") )'
-#triggerSelectionMC       = triggerSelection_Summer11
-#triggerObjectSelectionMC = triggerObjectSelection_Summer11
-triggerSelectionMC       = 'HLT_IsoMu24_v*'
-triggerObjectSelectionMC = 'type("TriggerMuon") && ( path("HLT_IsoMu24_v*") )'
+# available are: Summer11, Fall11 (default)
+#triggerSelectionData       = triggerSelection_175832
+#triggerObjectSelectionData = triggerObjectSelection_175832
+#triggerSelectionMC       = triggerSelection_Fall11
+#triggerObjectSelectionMC = triggerObjectSelection_Fall11
 
 ### Particle flow
 ### takes effect only, if 'runPF2PAT' = True
@@ -105,7 +101,8 @@ postfix = 'PF' # needs to be a non-empty string, if 'runStandardPAT' = True
 
 # subtract charged hadronic pile-up particles (from wrong PVs)
 # effects also JECs
-usePFnoPU = True # before any top projection
+usePFnoPU       = True # before any top projection
+usePfIsoLessCHS = True # switch to new PF isolation with L1Fastjet CHS
 
 # other switches for PF top projections (default: all 'True')
 useNoMuon     = True # before electron top projection
@@ -342,7 +339,8 @@ if runPF2PAT:
   applyPostfix( process, 'pfNoTau'     , postfix ).enable = useNoTau
   applyPostfix( process, 'pfPileUp', postfix ).Vertices = cms.InputTag( pfVertices )
   if useL1FastJet:
-    applyPostfix( process, 'pfPileUp', postfix ).checkClosestZVertex = False
+    applyPostfix( process, 'pfPileUp'   , postfix ).checkClosestZVertex = False
+    applyPostfix( process, 'pfPileUpIso', postfix ).checkClosestZVertex = usePfIsoLessCHS
     applyPostfix( process, 'pfJets', postfix ).doAreaFastjet = True
     applyPostfix( process, 'pfJets', postfix ).doRhoFastjet  = False
   applyPostfix( process, 'pfMuonsFromVertex'    , postfix ).vertices = cms.InputTag( pfVertices )
