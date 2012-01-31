@@ -7,86 +7,94 @@
 
 #include "HLTrigger/JetMET/interface/HLTMonoJetFilter.h"
 
+#include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/Handle.h"
-
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-//#include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include <vector>
 
+//#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+//#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
+//
+// extract the candidate type
+//
+template<typename T, int Tid>
+trigger::TriggerObjectType getObjectType(const T &) {
+  return static_cast<trigger::TriggerObjectType>(Tid);
+}
 
 //
 // constructors and destructor
 //
-HLTMonoJetFilter::HLTMonoJetFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
+template<typename T, int Tid>
+HLTMonoJetFilter<T,Tid>::HLTMonoJetFilter(const edm::ParameterSet& iConfig) : 
+  HLTFilter(iConfig),
+  inputJetTag_ (iConfig.template getParameter< edm::InputTag > ("inputJetTag")),
+  max_PtSecondJet_ (iConfig.template getParameter<double> ("max_PtSecondJet")),
+  max_DeltaPhi_ (iConfig.template getParameter<double> ("max_DeltaPhi"))
 {
-  //Input tag
-  inputJetTag_           = iConfig.getParameter< edm::InputTag > ("inputJetTag");
-  //PFJets
-  max_PtSecondJet_       = iConfig.getParameter<double> ("max_PtSecondJet");
-  max_DeltaPhi_          = iConfig.getParameter<double> ("max_DeltaPhi");
+  LogDebug("") << "MonoJet: Input/maxPtSecondJet/maxDeltaPhi : "
+	       << inputJetTag_.encode() << " "
+	       << max_PtSecondJet_ << " " 
+	       << max_DeltaPhi_ ;
 }
 
-HLTMonoJetFilter::~HLTMonoJetFilter(){}
+template<typename T, int Tid>
+HLTMonoJetFilter<T,Tid>::~HLTMonoJetFilter(){}
 
-void 
-HLTMonoJetFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("inputJetTag",edm::InputTag("hltAntiKT5ConvPFJets"));
-  desc.add<bool>("saveTags",false);
-  desc.add<double>("max_PtSecondJet",9999.);
-  desc.add<double>("max_DeltaPhi",99.);
-  descriptions.add("hltMonoJetFilter",desc);
-}
-
+//
 // ------------ method called to produce the data  ------------
+//
+template<typename T, int Tid>
 bool
-HLTMonoJetFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTMonoJetFilter<T,Tid>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace std;
   using namespace edm;
   using namespace reco;
   using namespace trigger;
+
+  typedef vector<T> TCollection;
+  typedef Ref<TCollection> TRef;
   
+  // The filter object
   if (saveTags()) filterproduct.addCollectionTag(inputJetTag_);
 
-  // Get the Candidates
-  // CaloJets
-  edm::Handle<CaloJetCollection> recocalojets;
-  iEvent.getByLabel(inputJetTag_,recocalojets);
+  // Ref to Candidate object to be recorded in filter object
+  TRef ref;
+
+  // get hold of collection of objects
+  Handle<TCollection> objects;
+  iEvent.getByLabel (inputJetTag_,objects);
 
   // look at all candidates,  check cuts and add to filter object
   int n(0);
 
-  if(recocalojets->size() > 0){ 
+  if(objects->size() > 0){ 
     int countJet(0);
-    CaloJetRef JetRef1;
-    //CaloJetRef JetRef2;
-    double calo1Phi=0.;
-    double calo2Pt=0.;
-    double calo2Phi=0.;
-  
-    for(CaloJetCollection::const_iterator i = recocalojets->begin();
-	i != recocalojets->end(); i++) {
+    double jet1Phi = 0.;
+    double jet2Phi = 0.;
+    double jet2Pt  = 0.;
+
+    typename TCollection::const_iterator i ( objects->begin() );
+    for (; i!=objects->end(); i++) {
       if(countJet==0){
-	JetRef1 = CaloJetRef(recocalojets,distance(recocalojets->begin(),i));
-	calo1Phi  = i->phi();
+	ref=TRef(objects,distance(objects->begin(),i));
+	jet1Phi  = i->phi();
       }
       if(countJet==1){
-	//JetRef2 = CaloJetRef(recocalojets,distance(recocalojets->begin(),i)); 
-	calo2Pt   = i->pt();
-	calo2Phi  = i->phi();
+	jet2Pt   = i->pt();
+	jet2Phi  = i->phi();
       }
       countJet++;
       if(countJet>=2) break;
@@ -94,13 +102,12 @@ HLTMonoJetFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
   
     if(countJet==1){
       n=1;
-      //JetRef2=JetRef1;
     }
-    else if(countJet>1 && calo2Pt<max_PtSecondJet_){
+    else if(countJet>1 && jet2Pt<max_PtSecondJet_){
       n=1;
     }
-    else if(countJet>1 && calo2Pt>=max_PtSecondJet_){
-      double Dphi=fabs(deltaPhi(calo1Phi,calo2Phi));
+    else if(countJet>1 && jet2Pt>=max_PtSecondJet_){
+      double Dphi=fabs(deltaPhi(jet1Phi,jet2Phi));
       if(Dphi>=max_DeltaPhi_) n=-1;
       else n=1;
     }
@@ -109,8 +116,7 @@ HLTMonoJetFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
     }
   
     if(n==1){
-      filterproduct.addObject(TriggerJet,JetRef1);
-      //filterproduct.addObject(TriggerJet,JetRef2);
+      filterproduct.addObject(getObjectType<T, Tid>(*ref),ref);
     }
   }
 

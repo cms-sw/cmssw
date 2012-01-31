@@ -23,7 +23,20 @@
 #include "HLTrigger/JetMET/interface/HLTHtMhtProducer.h"
 #include "HLTrigger/JetMET/interface/HLTHtMhtFilter.h"
 #include "HLTrigger/JetMET/interface/HLTPFEnergyFractionsFilter.h"
+
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "HLTrigger/JetMET/interface/HLTMonoJetFilter.h"
+#include "HLTrigger/JetMET/src/HLTMonoJetFilter.cc"
+
+using namespace reco;
+using namespace trigger;
+
+typedef HLTMonoJetFilter<CaloJet,TriggerJet> HLTMonoCaloJetFilter;
+typedef HLTMonoJetFilter<PFJet,TriggerJet> HLTMonoPFJetFilter;
 
 DEFINE_FWK_MODULE(HLT2jetGapFilter);
 DEFINE_FWK_MODULE(HLTAcoFilter);
@@ -47,6 +60,7 @@ DEFINE_FWK_MODULE(HLTJetCollectionsFilter);
 DEFINE_FWK_MODULE(HLTHtMhtProducer);
 DEFINE_FWK_MODULE(HLTHtMhtFilter);
 DEFINE_FWK_MODULE(HLTPFEnergyFractionsFilter);
-DEFINE_FWK_MODULE(HLTMonoJetFilter);
 
+DEFINE_FWK_MODULE(HLTMonoCaloJetFilter);
+DEFINE_FWK_MODULE(HLTMonoPFJetFilter);
 
