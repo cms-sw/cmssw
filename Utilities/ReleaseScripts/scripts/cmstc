@@ -292,15 +292,42 @@ def cmd_difflast(releases):
   a = cmstc.TagCollector().getReleasesTags(releases, True)
   printTags([(x[0], x[-1]) for x in a])
 
+def number(tag):
+  if not tag.startswith("V"):
+    raise RuntimeErrror("Not a valid tag %s" % tag) 
+  digits = tag[1:].split("-")
+  if len(digits) < 3 or len(digits) > 4:
+    raise RuntimeError("Not a valid tag %s" % tag)
+  if [x for x in digits if not x.isdigit()]:
+    raise RuntimeError("Not a valid tag %s" % tag)
+  digits = [int(x) for x in digits]
+  # Handle the case we have V01-00-00-00 which 
+  # must be grater than V01-00-00
+  if len(digits) == 4:
+    digits[3] += 1
+  if len(digits) == 3:
+    digits.append(0)
+  return 1000000*digits[0] + 10000*digits[1] + 100*digits[2] + digits[3]
+
 def cmd_tagset(args):
   import commands
-  parser = optparse.OptionParser(usage="cmstc tagset [-a] <tagset-id>")
+  parser = optparse.OptionParser(usage="cmstc tagset [-a] <tagset-id> [<tagset-id> ..]")
   parser.add_option("-a", dest="doAdd", action="store_true", default=False, help="Checkout tags")
+  parser.add_option("--merge", "-m", dest="doMerge", action="store_true", default=False, help="Merge tagsets by picking most recent tags when there are overlaps")
   opts, tagsets = parser.parse_args(args)
-  if len(tagsets) != 1:
-    parser.error("Provide one (and only one) <tagset-id>")
-  tagset = tagsets[0]
-  allTags = cmstc.TagCollector().getTagsetTags(tagset)
+  allTags = {}
+  # If --merge is specified, we only update packages which have more recent tags.
+  for tagset in tagsets:
+    tags = cmstc.TagCollector().getTagsetTags(tagset)
+    if not opts.doMerge:
+      allTags.update(tags)
+    else:
+      for (name, version) in tags:
+        if not name in allTags:
+          allTags[name] = version
+        elif number(version) > number(allTags[name]):
+          allTags[name] = version
+  allTags = allTags.items()
   printTags(allTags) 
   if not opts.doAdd:
     return
