@@ -5,9 +5,9 @@
  *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
  *  using a ratio method
  *
- *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.8.2.1 2010/11/10 14:23:18 argiro Exp $
- *  $Date: 2010/11/10 14:23:18 $
- *  $Revision: 1.8.2.1 $
+ *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.44 2011/09/13 15:02:51 argiro Exp $
+ *  $Date: 2011/09/13 15:02:51 $
+ *  $Revision: 1.44 $
  *  \author A. Ledovskoy (Design) - M. Balazs (Implementation)
  */
 
@@ -333,13 +333,13 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
 
   // find minimum chi2
   double chi2min = 1.0e+9;
-  double timeMinimum = 5;
-  double errorMinimum = 999;
+  //double timeMinimum = 5;
+  //double errorMinimum = 999;
   for(unsigned int i = 0; i < timesAB_.size(); i++){
     if( timesAB_[i].chi2 <= chi2min ){
       chi2min = timesAB_[i].chi2;
-      timeMinimum = timesAB_[i].value;
-      errorMinimum = timesAB_[i].error;
+      //timeMinimum = timesAB_[i].value;
+      //errorMinimum = timesAB_[i].error;
     }
   }
 
