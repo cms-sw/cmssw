@@ -79,7 +79,6 @@ void reco::helper::JetMuonHitsIDHelper::calculate( const edm::Event& event, cons
     //####calculate rpc  variables for each jet########
     
     for (  RPCRecHitCollection::const_iterator itRPC = rpcRecHits_handle->begin(),
-	     itRPCBegin = rpcRecHits_handle->begin(),
 	     itRPCEnd = rpcRecHits_handle->end();
 	   itRPC != itRPCEnd; ++itRPC) {
       RPCRecHit const & hit = *itRPC;

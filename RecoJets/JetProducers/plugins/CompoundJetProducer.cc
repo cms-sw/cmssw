@@ -100,7 +100,6 @@ void CompoundJetProducer::writeCompoundJets(  edm::Event & iEvent, edm::EventSet
       // Get the transient subjet constituents from fastjet
       std::vector<int> const & subjetFastjetConstituentIndices = itSubJet->constituents();
       std::vector<int>::const_iterator fastSubIt = subjetFastjetConstituentIndices.begin(),
-	transConstBegin = subjetFastjetConstituentIndices.begin(),
 	transConstEnd = subjetFastjetConstituentIndices.end();
       for ( ; fastSubIt != transConstEnd; ++fastSubIt ) {
 	// Add a ptr to this constituent

@@ -97,7 +97,7 @@ void reco::writeSpecific(reco::PFJet  & jet,
   // now make jet charge
   int charge = 0.;
   for ( std::vector<reco::CandidatePtr>::const_iterator ic = constituents.begin(),
-	  icbegin = constituents.begin(), icend = constituents.end();
+	  icend = constituents.end();
 	ic != icend; ++ic ) {
     charge += (*ic)->charge();
   }

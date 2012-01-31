@@ -184,7 +184,6 @@ void PileUpSubtractor::subtractPedestal(vector<fastjet::PseudoJet> & coll)
   LogDebug("PileUpSubtractor")<<"The subtractor subtracting pedestals...\n";
 
   int it = -100;
-  int ip = -100;
         
   for (vector<fastjet::PseudoJet>::iterator input_object = coll.begin (),
 	 fjInputsEnd = coll.end(); 
@@ -193,7 +192,6 @@ void PileUpSubtractor::subtractPedestal(vector<fastjet::PseudoJet> & coll)
      reco::CandidatePtr const & itow =  (*inputs_)[ input_object->user_index() ];
     
     it = ieta( itow );
-    ip = iphi( itow );
     
     double etnew = itow->et() - (*(emean_.find(it))).second - (*(esigma_.find(it))).second;
     float mScale = etnew/input_object->Et(); 
