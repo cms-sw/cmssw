@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Jan 18 10:34:18 CET 2007
-// $Id: CallgrindAnalyzer.cc,v 1.3 2007/03/11 08:20:18 innocent Exp $
+// $Id: CallgrindAnalyzer.cc,v 1.4 2009/12/14 22:23:27 wmtan Exp $
 //
 //
 
@@ -91,6 +91,8 @@ Profiler::~Profiler()
 //
 
 // ------------ method called to for each event  ------------
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wset-but-unused"
 void
 Profiler::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
@@ -117,6 +119,7 @@ if(m_evtCount >= m_firstEvent && (m_evtCount <= m_lastEvent || m_lastEvent == -1
 
  }
 }
+#pragma GCC diagnostic pop
 
 
 // ------------ method called once each job just before starting event loop  ------------

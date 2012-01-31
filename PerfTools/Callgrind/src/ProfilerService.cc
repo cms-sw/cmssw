@@ -42,6 +42,8 @@ ProfilerService::~ProfilerService(){
   dumpStat();
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 bool ProfilerService::startInstrumentation(){
   // FIXME here or in client?
   if (!doEvent()) return false;
@@ -92,7 +94,7 @@ bool ProfilerService::resumeInstrumentation() {
 void ProfilerService::dumpStat() const {
      CALLGRIND_DUMP_STATS;
 }
-
+#pragma GCC diagnostic pop
 
 void ProfilerService::newEvent() {
   ++m_evtCount;
