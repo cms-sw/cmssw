@@ -1,6 +1,6 @@
 // -------------------------------------------------------------------------
 // File and Version Information:
-// 	$Id: DcxHel.cc,v 1.5 2009/05/27 07:17:25 fabiocos Exp $
+// 	$Id: DcxHel.cc,v 1.6 2011/04/07 21:47:06 stevew Exp $
 //
 // Description:
 //	Class Implementation for |DcxHel|
@@ -244,7 +244,7 @@ DcxHel::Doca( double wx, double wy, double wz,
   wvec=CLHEP::Hep3Vector(wx,wy,wz);
 //  edm::LogInfo("RoadSearch") << " In Doca, wx = " << wx << " wy = " << wy << " wz = " << wz ;
   //  calculate len to doca
-  double zd,xd=xi,yd=yi;
+  double xd=xi,yd=yi;
 //  edm::LogInfo("RoadSearch") << " In Doca, start xd = " << xd << " yd = " << yd ;
   double lnew,t1,t2,dphi,dlen=1000.0; len=0.0; int itry=2;
   // int segflg=0; if ((code==111)&&(z0==0.0)&&(tanl==0.0))segflg=1;
@@ -267,7 +267,9 @@ DcxHel::Doca( double wx, double wy, double wz,
       //   if ((lnew>circut)&&(superseg))lnew-=circum; 
       if ((lnew>circut)&&(turnflag))lnew-=circum; 
       zh=Zh(lnew); 
-      xd=xi+(zh-zi)*wx/wz; yd=yi+(zh-zi)*wy/wz; zd=zh;
+      xd=xi+(zh-zi)*wx/wz;
+      yd=yi+(zh-zi)*wy/wz;
+      //double zd=zh;
 //      edm::LogInfo("RoadSearch") << " In Doca, xd = " << xd << " yd = " << yd << " zh = " << zh;
 //      edm::LogInfo("RoadSearch") << " lnew = " << lnew ;
       dlen=fabs(lnew-len); len=lnew; 

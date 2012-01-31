@@ -1,6 +1,6 @@
 // -------------------------------------------------------------------------
 // File and Version Information:
-// 	$Id: DcxTrackCandidatesToTracks.cc,v 1.9 2011/03/08 15:38:50 innocent Exp $
+// 	$Id: DcxTrackCandidatesToTracks.cc,v 1.10 2011/04/07 21:47:06 stevew Exp $
 //
 // Description:
 //	Class Implementation for |DcxTrackCandidatesToTracks|
@@ -46,11 +46,12 @@ DcxTrackCandidatesToTracks::DcxTrackCandidatesToTracks(){
 //points
 DcxTrackCandidatesToTracks::DcxTrackCandidatesToTracks(std::vector<DcxHit*> &listohits, reco::TrackCollection &output, const MagneticField *field)
 { 
-  double rmin=1000.0; double phi_try=0.0; int ntrk=0;
+  double rmin=1000.0;
+  int ntrk=0;
   for (unsigned int i=0; i<listohits.size(); ++i) {
     if (!listohits[i]->stereo()){
       double rhit=sqrt(listohits[i]->x()*listohits[i]->x()+listohits[i]->y()*listohits[i]->y());
-      if ( (rhit<rmin) ){phi_try=atan2(listohits[i]->y(),listohits[i]->x());rmin=rhit;}
+      if ( (rhit<rmin) ){rmin=rhit;}
     }
     for (unsigned int j=0; j<listohits.size(); ++j) {
       for (unsigned int k=0; k<listohits.size(); ++k) {
