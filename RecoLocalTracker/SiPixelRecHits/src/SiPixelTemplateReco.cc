@@ -134,7 +134,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 	int fxpix, nxpix, lxpix, logxpx, shifty, shiftx, nyzero[TYSIZE];
 	int nclusx, nclusy;
 	int deltaj, jmin, jmax, fxbin, lxbin, fybin, lybin, djy, djx;
-	//int fypix2D, lypix2D, fxpix2D, lxpix2D;
+	int fypix2D, lypix2D, fxpix2D, lxpix2D;
 	float sythr, sxthr, rnorm, delta, sigma, sigavg, pseudopix, qscale, q50;
 	float ss2, ssa, sa2, ssba, saba, sba2, rat, fq, qtotal, qpixel;
 	float originx, originy, qfy, qly, qfx, qlx, bias, maxpix, minmax;
@@ -388,8 +388,8 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 	
 // Remember these numbers for later
 	
-	//fypix2D = fypix;
-	//lypix2D = lypix;
+	fypix2D = fypix;
+	lypix2D = lypix;
 	
 // next, center the cluster on template center if necessary   
 
@@ -482,8 +482,8 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 	
 // Remember these numbers for later
 	
-	//fxpix2D = fxpix;
-	//lxpix2D = lxpix;
+	fxpix2D = fxpix;
+	lxpix2D = lxpix;
 	        
 // next, center the cluster on template center if necessary   
 

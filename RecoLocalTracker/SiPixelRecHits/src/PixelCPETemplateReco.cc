@@ -428,6 +428,7 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
 	  float distance22 = sqrt( (templXrec2_ - trk_lp_x)*(templXrec2_ - trk_lp_x) + 
 				   (templYrec2_ - trk_lp_y)*(templYrec2_ - trk_lp_y) );
 	  
+	  int index_dist = -999;
 	  float min_templXrec_ = -999.9;
 	  float min_templYrec_ = -999.9;
 	  float distance_min = 9999999999.9;
@@ -436,24 +437,28 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
 	      distance_min = distance11;
 	      min_templXrec_ = templXrec1_;
 	      min_templYrec_ = templYrec1_;
+	      index_dist = 1;
 	    }
 	  if ( distance12 < distance_min )
 	    {
 	      distance_min = distance12;
 	      min_templXrec_ = templXrec1_;
 	      min_templYrec_ = templYrec2_;
+	      index_dist = 2;
 	    }
 	  if ( distance21 < distance_min )
 	    {
 	      distance_min = distance21;
 	      min_templXrec_ = templXrec2_;
 	      min_templYrec_ = templYrec1_;
+	      index_dist = 3;
 	    }
 	  if ( distance22 < distance_min )
 	    {
 	      distance_min = distance22;
 	      min_templXrec_ = templXrec2_;
 	      min_templYrec_ = templYrec2_;
+	      index_dist = 4;
 	    }
 	  	  
 	  templXrec_ = min_templXrec_;
