@@ -2154,7 +2154,7 @@ int SiPixelTemplate::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
     
     // Local variables 
     int i, binq;
-	int ilow, ihigh, iylow, iyhigh, Ny, Nxx, Nyx, imidy, imaxx, index;
+	int ilow, ihigh, iylow, iyhigh, Ny, Nxx, Nyx, index;
 	float yratio, yxratio, xxratio;
 	float acotb, qscale, qavg, qmin, qmin2, fq, qtotal, qcorrect, cotb, cotalpha0;
 	float yavggen[4], yrmsgen[4], xavggen[4], xrmsgen[4];
@@ -2225,8 +2225,6 @@ int SiPixelTemplate::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
 #else
 		assert(Ny > 1 && Nyx > 0 && Nxx > 1);
 #endif
-	   imaxx = Nyx - 1;
-	   imidy = Nxx/2;
         
 // next, loop over all y-angle entries   
 
@@ -2494,11 +2492,11 @@ void SiPixelTemplate::temperrors(int id, float cotalpha, float cotbeta, int qBin
     
     // Local variables 
     int i;
-	int ilow, ihigh, iylow, iyhigh, Ny, Nxx, Nyx, imidy, imaxx, index;
+	int ilow, ihigh, iylow, iyhigh, Ny, Nxx, Nyx, index;
 	float yratio, yxratio, xxratio;
 	float acotb, cotb;
 	float yrms, xrms;
-	bool flip_y;
+	//bool flip_y;
 	
 		
 		// Find the index corresponding to id
@@ -2544,8 +2542,8 @@ void SiPixelTemplate::temperrors(int id, float cotalpha, float cotbeta, int qBin
 	
 //	if(thePixelTemp_[index].head.Dtype == 0) {
 		cotb = acotb;
-		flip_y = false;
-		if(cotbeta < 0.f) {flip_y = true;}
+		//flip_y = false;
+		//if(cotbeta < 0.f) {flip_y = true;}
 //	} else {
 //	    if(locBz < 0.f) {
 //			cotb = cotbeta;
@@ -2569,8 +2567,6 @@ void SiPixelTemplate::temperrors(int id, float cotalpha, float cotbeta, int qBin
 #else
 		assert(Ny > 1 && Nyx > 0 && Nxx > 1);
 #endif
-		imaxx = Nyx - 1;
-		imidy = Nxx/2;
         
 		// next, loop over all y-angle entries   
 		
@@ -2695,11 +2691,11 @@ void SiPixelTemplate::qbin_dist(int id, float cotalpha, float cotbeta, float qbi
     
     // Local variables 
     int i;
-	int ilow, ihigh, iylow, iyhigh, Ny, Nxx, Nyx, imidy, imaxx, index;
+	int ilow, ihigh, iylow, iyhigh, Ny, Nxx, Nyx, index;
 	float yratio, yxratio, xxratio;
 	float acotb, cotb;
 	float qfrac[4];
-	bool flip_y;
+	//bool flip_y;
 			
 		// Find the index corresponding to id
 		
@@ -2734,8 +2730,8 @@ void SiPixelTemplate::qbin_dist(int id, float cotalpha, float cotbeta, float qbi
 	
 //	if(thePixelTemp_[index].head.Dtype == 0) {
 	    cotb = acotb;
-		flip_y = false;
-		if(cotbeta < 0.f) {flip_y = true;}
+		//flip_y = false;
+		//if(cotbeta < 0.f) {flip_y = true;}
 //	} else {
 //	    if(locBz < 0.f) {
 //			cotb = cotbeta;
@@ -2759,8 +2755,6 @@ void SiPixelTemplate::qbin_dist(int id, float cotalpha, float cotbeta, float qbi
 #else
 		assert(Ny > 1 && Nyx > 0 && Nxx > 1);
 #endif
-		imaxx = Nyx - 1;
-		imidy = Nxx/2;
         
 		// next, loop over all y-angle entries   
 		
