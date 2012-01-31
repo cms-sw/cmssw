@@ -6,6 +6,8 @@ hltFatJetMassFilter = cms.EDFilter("HLTFatJetMassFilter",
     minMass = cms.double(100.),
     fatJetDeltaR = cms.double(1.1),
     maxDeltaEta = cms.double(2.0),
+    maxJetEta = cms.double(3.0),
+    minJetPt = cms.double(30.0)
 )
 
 

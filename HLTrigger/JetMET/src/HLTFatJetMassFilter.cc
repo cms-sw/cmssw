@@ -39,6 +39,8 @@ HLTFatJetMassFilter::HLTFatJetMassFilter(const edm::ParameterSet& iConfig) : HLT
   minMass_      = iConfig.getParameter<double> ("minMass");
   fatJetDeltaR_ = iConfig.getParameter<double> ("fatJetDeltaR");
   maxDeltaEta_  = iConfig.getParameter<double> ("maxDeltaEta");
+  maxJetEta_    = iConfig.getParameter<double> ("maxJetEta");
+  minJetPt_     = iConfig.getParameter<double> ("minJetPt");
 }
 
 HLTFatJetMassFilter::~HLTFatJetMassFilter(){}
@@ -50,6 +52,8 @@ void HLTFatJetMassFilter::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<double>("minMass",0.0);
   desc.add<double>("fatJetDeltaR",1.1);
   desc.add<double>("maxDeltaEta",10.0);
+  desc.add<double>("maxJetEta",3.0);
+  desc.add<double>("minJetPt",30.0);
   descriptions.add("hltFatJetMassFilter",desc);
 }
 
@@ -64,19 +68,30 @@ bool
   // The filter object
   if (saveTags()) filterproduct.addCollectionTag(inputJetTag_);
 
-  Handle<CaloJetCollection> recocalojets;
-  iEvent.getByLabel(inputJetTag_,recocalojets);
+  // All jets 
+  Handle<CaloJetCollection> allrecocalojets;
+  iEvent.getByLabel(inputJetTag_,allrecocalojets);
+
+  // Selected jets          
+  CaloJetCollection recocalojets;
+  CaloJetCollection::const_iterator aBegin ( allrecocalojets->begin() );
+  CaloJetCollection::const_iterator aEnd ( allrecocalojets->end() );
+  for (CaloJetCollection::const_iterator allrecojet = aBegin ; allrecojet != aEnd; allrecojet++) {
+    if(fabs(allrecojet->eta()) < maxJetEta_ && allrecojet->pt() >= minJetPt_) {
+      recocalojets.push_back(*allrecojet);
+    }
+  }
 
   // events with at least two jets
-  if(recocalojets->size() < 2) return false;
+  if(recocalojets.size() < 2) return false;
 
   math::PtEtaPhiMLorentzVector j1(0.1, 0., 0., 0.);
   math::PtEtaPhiMLorentzVector j2(0.1, 0., 0., 0.);
   double jetPt1 = 0.;
   double jetPt2 = 0.;
   // look for the two highest-pT jet
-  for (CaloJetCollection::const_iterator recocalojet = recocalojets->begin();
-       recocalojet != recocalojets->end(); recocalojet++) {
+  for (CaloJetCollection::const_iterator recocalojet = recocalojets.begin();
+       recocalojet != recocalojets.end(); recocalojet++) {
     if(recocalojet->pt() > jetPt1) {
       // downgrade the 1st jet to 2nd jet
       j2 = j1;
@@ -99,8 +114,8 @@ bool
   math::PtEtaPhiMLorentzVector fj2;
   
   // apply radiation recovery
-  for (CaloJetCollection::const_iterator recocalojet = recocalojets->begin();
-       recocalojet != recocalojets->end(); recocalojet++) {
+  for (CaloJetCollection::const_iterator recocalojet = recocalojets.begin();
+       recocalojet != recocalojets.end(); recocalojet++) {
     double DeltaR1 = sqrt(pow(recocalojet->phi()-j1.phi(), 2.)+pow(recocalojet->eta()-j1.eta(),2.));
     double DeltaR2 = sqrt(pow(recocalojet->phi()-j2.phi(), 2.)+pow(recocalojet->eta()-j2.eta(),2.));
     if(DeltaR1 < DeltaR2 && DeltaR1 < fatJetDeltaR_) {

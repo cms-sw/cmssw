@@ -31,6 +31,8 @@ class HLTFatJetMassFilter : public HLTFilter {
       double minMass_;
       double fatJetDeltaR_;
       double maxDeltaEta_;
+      double maxJetEta_;
+      double minJetPt_;
 };
 
 #endif //HLTFatJetMassFilter_h
