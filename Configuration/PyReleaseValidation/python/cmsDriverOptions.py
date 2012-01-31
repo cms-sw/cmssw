@@ -39,7 +39,7 @@ def OptionsFromItems(items):
     from Configuration.PyReleaseValidation.Options import parser
     (options,args) = parser.parse_args(items)
 
-    if not options.conditions:
+    if not options.conditions or options.conditions=="help":
         from Configuration.AlCa import autoCond
         possible=""
         for k in autoCond.autoCond:
