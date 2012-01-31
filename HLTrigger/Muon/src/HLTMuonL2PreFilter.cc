@@ -34,6 +34,8 @@ HLTMuonL2PreFilter::HLTMuonL2PreFilter(const edm::ParameterSet& iConfig): HLTFil
   absetaBins_( iConfig.getParameter<std::vector<double> >("AbsEtaBins") ), 
   minNstations_( iConfig.getParameter<std::vector<int> >("MinNstations") ),
   minNhits_( iConfig.getParameter<std::vector<int> >("MinNhits") ),
+  cutOnChambers_( iConfig.getParameter<bool>("CutOnChambers") ),
+  minNchambers_( iConfig.getParameter<std::vector<int> >("MinNchambers") ),
   maxDr_( iConfig.getParameter<double>("MaxDr") ),
   maxDz_( iConfig.getParameter<double>("MaxDz") ),
   minPt_( iConfig.getParameter<double>("MinPt") ),
@@ -42,8 +44,10 @@ HLTMuonL2PreFilter::HLTMuonL2PreFilter(const edm::ParameterSet& iConfig): HLTFil
   using namespace std;
 
   // check that number of eta bins matches number of nStation cuts
-  if( minNstations_.size()!=absetaBins_.size() || minNhits_.size()!=absetaBins_.size()) {
-    throw cms::Exception("Configuration") << "Number of MinNstations cuts or MinNhits cuts " 
+  if( minNstations_.size()!=absetaBins_.size() || 
+      minNhits_.size()!=absetaBins_.size()     || 
+      ( cutOnChambers_ && minNchambers_.size()!=absetaBins_.size() ) ) {
+    throw cms::Exception("Configuration") << "Number of MinNstations, MinNhits, or MinNchambers cuts " 
 					  << "does not match number of eta bins." << endl;
   }
 
@@ -74,6 +78,14 @@ HLTMuonL2PreFilter::HLTMuonL2PreFilter(const edm::ParameterSet& iConfig): HLTFil
       ss<<minNhits_[j]<<" (|eta|<"<<absetaBins_[j]<<"), ";
     }
     ss<<endl;
+    ss<<"    CutOnChambers = " <<cutOnChambers_<<endl;
+    if ( cutOnChambers_ ) {
+      ss<<"    MinNchambers = ";
+      for(unsigned int j=0; j<absetaBins_.size(); ++j) {
+        ss<<minNchambers_[j]<<" (|eta|<"<<absetaBins_[j]<<"), ";
+      }
+    }
+    ss<<endl;
     ss<<"    MaxDr = "<<maxDr_<<endl;
     ss<<"    MaxDz = "<<maxDz_<<endl;
     ss<<"    MinPt = "<<minPt_<<endl;
@@ -92,7 +104,6 @@ HLTMuonL2PreFilter::fillDescriptions(edm::ConfigurationDescriptions& description
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("BeamSpotTag",edm::InputTag("hltOfflineBeamSpot"));
   desc.add<edm::InputTag>("CandTag",edm::InputTag("hltL2MuonCandidates"));
-  //  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag("hltDiMuonL1Filtered0"));
   desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag(""));
   desc.add<edm::InputTag>("SeedMapTag",edm::InputTag("hltL2Muons"));
   desc.add<int>("MinN",1);
@@ -100,6 +111,8 @@ HLTMuonL2PreFilter::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<std::vector<double> >("AbsEtaBins", std::vector<double>(1, 9999.));
   desc.add<std::vector<int> >("MinNstations", std::vector<int>(1, 1));
   desc.add<std::vector<int> >("MinNhits", std::vector<int>(1, 0));
+  desc.add<bool> ("CutOnChambers", 0);
+  desc.add<std::vector<int> >("MinNchambers", std::vector<int>(1, 0));
   desc.add<double>("MaxDr",9999.0);
   desc.add<double>("MaxDz",9999.0);
   desc.add<double>("MinPt",0.0);
@@ -155,7 +168,7 @@ bool HLTMuonL2PreFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
     if(fabs(mu->eta()) > maxEta_) continue;
 
     // cut on number of stations
-    bool failNstations(false), failNhits(false);
+    bool failNstations(false), failNhits(false), failNchambers(false);
     for(unsigned int i=0; i<nAbsetaBins; ++i) {
       if( fabs(mu->eta())<absetaBins_[i] ) {
 	if(mu->hitPattern().muonStationsWithAnyHits() < minNstations_[i]) {
@@ -164,10 +177,15 @@ bool HLTMuonL2PreFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
 	if(mu->numberOfValidHits() < minNhits_[i]) {
 	  failNhits=true;
 	}
+	if( cutOnChambers_ &&
+	    ( mu->hitPattern().dtStationsWithAnyHits() +
+	      mu->hitPattern().cscStationsWithAnyHits() < minNchambers_[i]) ) {
+	  failNchambers=true;
+	}
 	break;
       }
     }
-    if(failNstations || failNhits) continue;
+    if(failNstations || failNhits || failNchambers) continue;
 
     //dr cut
     if(fabs(mu->dxy(beamSpot)) > maxDr_) continue;

@@ -54,6 +54,12 @@ class HLTMuonL2PreFilter : public HLTFilter {
     /// minimum number of valid muon hits
     std::vector<int> minNhits_;
 
+    /// choose whether to apply cut on number of chambers (DT+CSC)
+    bool cutOnChambers_;
+
+    /// minimum number of valid chambers
+    std::vector<int> minNchambers_;
+    
     /// cut on impact parameter wrt to the beam spot
     double maxDr_;
 
