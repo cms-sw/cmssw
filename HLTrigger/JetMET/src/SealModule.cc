@@ -22,6 +22,8 @@
 #include "HLTrigger/JetMET/interface/HLTJetCollectionsFilter.h"
 #include "HLTrigger/JetMET/interface/HLTHtMhtProducer.h"
 #include "HLTrigger/JetMET/interface/HLTHtMhtFilter.h"
+#include "HLTrigger/JetMET/interface/HLTPFEnergyFractionsFilter.h"
+#include "HLTrigger/JetMET/interface/HLTMonoJetFilter.h"
 
 DEFINE_FWK_MODULE(HLT2jetGapFilter);
 DEFINE_FWK_MODULE(HLTAcoFilter);
@@ -44,4 +46,7 @@ DEFINE_FWK_MODULE(HLTMhtProducer);
 DEFINE_FWK_MODULE(HLTJetCollectionsFilter);
 DEFINE_FWK_MODULE(HLTHtMhtProducer);
 DEFINE_FWK_MODULE(HLTHtMhtFilter);
+DEFINE_FWK_MODULE(HLTPFEnergyFractionsFilter);
+DEFINE_FWK_MODULE(HLTMonoJetFilter);
+
 
