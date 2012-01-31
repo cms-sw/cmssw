@@ -78,7 +78,7 @@ double CSCDriftSim::pathSigmaLowB() {
     float ret_val;
 
     /* Local variables */
-    double x10, x11, x12, x13, x14, x15, x16, x20, x21, x22, x23,
+    double /*x10,*/ x11, x12, x13, x14, x15, x16, /*x20,*/ x21, x22, x23,
             x24, x25, x26, x27, x28, x29, x210, x211, x212, x213;
 
 /* ! Parameterization of path length dispersion- low field chambers */
@@ -122,14 +122,14 @@ double CSCDriftSim::pathSigmaLowB() {
  */
 
 
-    x10 = 1.;
+    //x10 = 1.; //not used later
     x11 = fabs(ycell) * 2. - 1.;
     x12 = x11 * x11;
     x13 = x11 * x12;
     x14 = x11 * x13;
     x15 = x11 * x14;
     x16 = x11 * x15;
-    x20 = 1.;
+    //x20 = 1.; //not used later
     x21 = fabs(zcell) * 2. - 1.;
     x22 = x21 * x21;
     x23 = x21 * x22;
@@ -245,7 +245,7 @@ double CSCDriftSim::driftTimeSigmaLowB() {
             -.41245784,-.32196924,-.29890696 };
 
     /* Local variables */
-    double x10, x11, x20, x21, x22, x23, x24, x25, x26, x27, x28,
+    double /*x10,*/ x11, x20, x21, x22, x23, x24, x25, x26, x27, x28,
       x29, x210, x211, x212;
 
 /* ! Parameterization of drift time dispersion- low field chambers */
@@ -290,7 +290,7 @@ double CSCDriftSim::driftTimeSigmaLowB() {
 
 
 
-    x10 = 1.;
+    //x10 = 1.; //not used
     x11 = fabs(ycell) * 2. - 1.;
     x20 = 1.;
     x21 = fabs(zcell) * 2. - 1.;
