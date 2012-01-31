@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # include  particle flow local reconstruction
 from RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff import *
+particleFlowClusterPS.thresh_Pt_Seed_Endcap = cms.double(99999.)
 
 from RecoParticleFlow.PFTracking.pfTrack_cfi import *
 pfTrack.UseQuality = cms.bool(True)
@@ -16,6 +17,7 @@ particleFlowBlock.useConvBremPFRecTracks = cms.bool(False)
 particleFlowBlock.useIterTracking = cms.bool(False)
 particleFlowBlock.useNuclear = cms.bool(False)
 particleFlowBlock.useConversions = cms.bool(False)
+particleFlowBlock.RecMuons = 'muons'
 
 particleFlowTmp.vertexCollection = cms.InputTag("hiSelectedVertex")
 particleFlowTmp.usePFElectrons = cms.bool(True)
