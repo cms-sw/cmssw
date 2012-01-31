@@ -542,8 +542,8 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   CSCCorrelatedLCTDigiCollection_ const* ctf_trk_data(new CSCCorrelatedLCTDigiCollection_);
   CSCCorrelatedLCTDigiCollection_ const* ctf_trk_emul(new CSCCorrelatedLCTDigiCollection_);
 
-  L1MuRegionalCandCollection      const* ctf_trc_data(new L1MuRegionalCandCollection);
-  L1MuRegionalCandCollection      const* ctf_trc_emul(new L1MuRegionalCandCollection);
+  //L1MuRegionalCandCollection      const* ctf_trc_data(new L1MuRegionalCandCollection);
+  //L1MuRegionalCandCollection      const* ctf_trc_emul(new L1MuRegionalCandCollection);
 
   edm::Handle<L1CSCStatusDigiCollection> ctf_sta_data_;
   edm::Handle<L1CSCStatusDigiCollection> ctf_sta_emul_;
@@ -599,8 +599,8 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	  ctf_trk_data_v.push_back(*vit);
     }
 
-    ctf_trk_data = &ctf_trk_data_v;
-    ctf_trc_data = &ctf_trc_data_v;
+    //ctf_trk_data = &ctf_trk_data_v;
+    //ctf_trc_data = &ctf_trc_data_v;
 
     //same for emulator collection
     for(ctcIt tcit=ctf_trk_emul_->begin();tcit!=ctf_trk_emul_->end(); tcit++) {
@@ -615,7 +615,7 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }
 
     ctf_trk_emul = &ctf_trk_emul_v;
-    ctf_trc_emul = &ctf_trc_emul_v;
+    //ctf_trc_emul = &ctf_trc_emul_v;
 
   }
   
