@@ -19,7 +19,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//$Id: EcalRecHitWorkerRecover.cc,v 1.31 2011/11/02 13:10:21 theofil Exp $
+//$Id: EcalRecHitWorkerRecover.cc,v 1.32 2011/11/09 22:51:59 argiro Exp $
 
 EcalRecHitWorkerRecover::EcalRecHitWorkerRecover(const edm::ParameterSet&ps) :
         EcalRecHitWorkerBaseClass(ps)
@@ -133,7 +133,6 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
 
                 // channel recovery
                 EcalRecHit hit = deadChannelCorrector.correct( detId, hit_collection, singleRecoveryMethod_, singleRecoveryThreshold_ );
-                EcalRecHitCollection::const_iterator ti = result.find( detId );
                 if ( hit.energy() != 0 ) {
 		  hit.setFlag( EcalRecHit::kNeighboursRecovered ) ;
                 } else {
@@ -190,7 +189,6 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
 			  if (alreadyInserted(*dit)) continue;
 			  EcalRecHit hit( *dit,0., 0. );
                                 hit.setFlag( EcalRecHit::kDead ) ;
-                                EcalRecHitCollection::iterator it = result.find( *dit );
                                 insertRecHit( hit, result );
                         }
                 }
@@ -244,7 +242,6 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                                 // add the energy of this trigger tower
                                 EcalTrigPrimDigiCollection::const_iterator itTP = tpDigis->find( *it );
                                 if ( itTP != tpDigis->end() ) {
-                                        EcalTrigTowerDetId ttId = itTP->id();
 
 					std::vector<DetId> v = ttMap_->constituentsOf( *it );
 

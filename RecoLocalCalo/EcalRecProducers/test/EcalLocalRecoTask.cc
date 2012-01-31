@@ -1,7 +1,7 @@
 /*
  * \file EcalLocalReco.cc
  *
- * $Id: EcalLocalRecoTask.cc,v 1.10 2009/12/18 20:45:02 wmtan Exp $
+ * $Id: EcalLocalRecoTask.cc,v 1.11 2010/07/21 04:23:25 wmtan Exp $
  *
 */
 
@@ -268,7 +268,6 @@ void EcalLocalRecoTask::analyze(const edm::Event& e, const edm::EventSetup& c)
       EBDigiCollection::const_iterator myDigi = EBDigi->find(EBid);
 
       double eMax = 0. ;
-      int sMax = -1;
 
       if (myDigi != EBDigi->end())
 	{
@@ -278,7 +277,6 @@ void EcalLocalRecoTask::analyze(const edm::Event& e, const edm::EventSetup& c)
 	      if ( eMax < analogSample )
 		{
 		  eMax = analogSample;
-		  sMax = sample;
 		}
 	    }
 	}
