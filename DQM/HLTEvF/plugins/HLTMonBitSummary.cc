@@ -494,14 +494,14 @@ void HLTMonBitSummary::configSelector(std::vector<std::string> selectTriggers, s
   while(!goodToGo && selectTriggers.size()!=0){
     goodToGo=true;
     for (std::vector<std::string>::iterator j=selectTriggers.begin();j!=selectTriggers.end();++j){
-      bool goodOne = false;
+      /* bool goodOne = false; */
       //check if trigger name is valid
       //use of wildcard
       TPRegexp wildCard(*j);
       //std::cout << "wildCard.GetPattern() = " << wildCard.GetPattern() << std::endl;
       for (unsigned int i = 0; i != validTriggerNames.size(); ++i){
 	if (TString(validTriggerNames[i]).Contains(wildCard)){ 
-	  goodOne = true;
+	  /* goodOne = true; */
 	  if (find(theSelectTriggers.begin(),
 		   theSelectTriggers.end(), 
 		   validTriggerNames[i])==theSelectTriggers.end()){

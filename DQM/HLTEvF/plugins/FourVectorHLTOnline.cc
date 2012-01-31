@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOnline.cc,v 1.37 2011/06/22 16:25:20 abrinke1 Exp $
+// $Id: FourVectorHLTOnline.cc,v 1.36 2011/03/29 13:51:44 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQM/HLTEvF/interface/FourVectorHLTOnline.h"
@@ -187,8 +187,6 @@ FourVectorHLTOnline::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
   */
 
-  // Get trigger results
-  
   edm::Handle<TriggerResults> triggerResults;
   iEvent.getByLabel(triggerResultsLabel_,triggerResults);
   if(!triggerResults.isValid()) {
@@ -412,7 +410,7 @@ FourVectorHLTOnline::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
   */
 
-  //fillHltMatrix(triggerNames);
+  fillHltMatrix(triggerNames);
 
 
   // Loop over paths
@@ -531,8 +529,10 @@ FourVectorHLTOnline::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
      // clear sets of matched objects
      mon->clearSets();
 
+     /* 
      int triggertype = 0;     
      triggertype = v->getObjectType();
+     */
 
      // monitor L1 (only if L1 passed and can find GTSeed)
      ////////////////////////////////////////////////////
@@ -651,12 +651,14 @@ FourVectorHLTOnline::endJob()
 // BeginRun
 void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c)
 {
-  LogDebug("FourVectorHLTOnline") << "beginRun, run " << run.id();
 
+  LogDebug("FourVectorHLTOnline") << "beginRun, run " << run.id();
+  
   // HLT config does not change within runs!
   bool changed=false;
  
   if (!hltConfig_.init(run, c, processname_, changed)) {
+
     processname_ = "FU";
 
     if (!hltConfig_.init(run, c, processname_, changed)){
@@ -916,7 +918,6 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
     for (unsigned int i=0;i<datasetNames.size();i++) {
 
       std::vector<std::string> datasetPaths = hltConfig_.datasetContent(datasetNames[i]);
- 
       fGroupNamePathsPair.push_back(make_pair(datasetNames[i],datasetPaths));
       //setupHltMatrix(datasetNames[i],datasetPaths);
 
@@ -936,7 +937,7 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
 
       fGroupTempCountPair.push_back(make_pair(fGroupNamePathsPair[g].first,0));
       fGroupL1TempCountPair.push_back(make_pair(fGroupNamePathsPair[g].first,0));
-      //setupHltMatrix(fGroupNamePathsPair[g].first,fGroupNamePathsPair[g].second);
+      setupHltMatrix(fGroupNamePathsPair[g].first,fGroupNamePathsPair[g].second);
 
     }
     /*
@@ -997,34 +998,11 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
 
        }//end for modulesName
 
-
        dbe_->setCurrentFolder(pathsSummaryFilterCountsFolder_.c_str()); 
-      
+
        //int nbin_sub = 5;
        int nbin_sub = v->filtersAndIndices.size()+2;
     
-       std::string pathName = v->getPath();
-          
-       vector<string> datasetNames =  hltConfig_.datasetNames();
-      
-       //Creates subfolders in FourVector->PathsSummary->FiltersCounts for each dataset,
-       //and moves each path's filter histogram to the proper dataset folder
-       for (unsigned int k=0;k<datasetNames.size();k++) { //Loop to cycle through datasets
-	 // std::cout << "Dataset " << datasetNames[k] << " has trigger paths " << std::endl;
-	
-	 std::string datasetFolder = pathsSummaryFilterCountsFolder_ + datasetNames[k];
-	 vector<string> datasetPaths = hltConfig_.datasetContent(datasetNames[k]);
-	 
-	 for (unsigned int m=0;m<datasetPaths.size();m++){ //Loop to cycle through trigger paths
-	   // std::cout << "              " <<  datasetPaths[m] << std::endl;
-	 
-	   if(datasetPaths[m]==pathName){ //Moves path to proper dataset directory
-	     dbe_->setCurrentFolder(datasetFolder.c_str());
-	   }
-	 }
-       }
-	     
-
        // count plots for subfilter
        MonitorElement* filters = dbe_->book1D("Filters_" + v->getPath(), 
                               "Filters_" + v->getPath(),
@@ -1692,11 +1670,11 @@ void FourVectorHLTOnline::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg
    int lumi = int(lumiSeg.id().luminosityBlock());
    LogTrace("FourVectorHLTOnline") << " end lumiSection number " << lumi << std::endl;
 
-   //countHLTPathHitsEndLumiBlock(lumi);
-   //countHLTGroupHitsEndLumiBlock(lumi);
-   //countHLTGroupL1HitsEndLumiBlock(lumi);
+  countHLTPathHitsEndLumiBlock(lumi);
+  countHLTGroupHitsEndLumiBlock(lumi);
+  countHLTGroupL1HitsEndLumiBlock(lumi);
 
-   //countHLTGroupBXHitsEndLumiBlock(lumi);
+  countHLTGroupBXHitsEndLumiBlock(lumi);
 
 }
 

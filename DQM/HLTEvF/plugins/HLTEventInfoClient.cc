@@ -1,9 +1,5 @@
 #include "DQM/HLTEvF/interface/HLTEventInfoClient.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -83,7 +79,7 @@ void HLTEventInfoClient::beginJob(){
   
   reportSummary_ = dbe_->bookFloat("reportSummary");
 
-  int nPDs = 20;
+  int nSubsystems = 20;
 
  //initialize reportSummary to 1
   if (reportSummary_) reportSummary_->Fill(1);
@@ -93,7 +89,7 @@ void HLTEventInfoClient::beginJob(){
   
   char histo[100];
   
-  for (int n = 0; n < nPDs; n++) {    
+  for (int n = 0; n < nSubsystems; n++) {    
 
   switch(n){
   case 0 :   sprintf(histo,"hlt_dqm_EGamma");	break;
@@ -119,6 +115,26 @@ void HLTEventInfoClient::beginJob(){
   }
   
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   
 //  if( reportSummaryContent_[i] = dbe_->get("HLT/EventInfo/reportSummaryContents/" + histo) ) 
 //  {
@@ -129,7 +145,7 @@ void HLTEventInfoClient::beginJob(){
   }
 
   //initialize reportSummaryContents to 1
-  for (int k = 0; k < nPDs; k++) {
+  for (int k = 0; k < nSubsystems; k++) {
     summaryContent[k] = 1;
     reportSummaryContent_[k]->Fill(1.);
   }  
@@ -143,19 +159,14 @@ void HLTEventInfoClient::beginJob(){
   }
 
 
-  reportSummaryMap_ = dbe_->book2D("reportSummaryMap", "reportSummaryMap", 1, 1, 2, 10, 1, 11);
+  reportSummaryMap_ = dbe_->book2D("reportSummaryMap", "reportSummaryMap", 1, 1, 2, 5, 1, 6);
   reportSummaryMap_->setAxisTitle("", 1);
   reportSummaryMap_->setAxisTitle("", 2);
-  reportSummaryMap_->setBinLabel(1,"SingleElectron",2);
-  reportSummaryMap_->setBinLabel(2,"DoubleElectron",2);
-  reportSummaryMap_->setBinLabel(3,"SingleMu",2);
-  reportSummaryMap_->setBinLabel(4,"DoubleMu",2);
-  reportSummaryMap_->setBinLabel(5,"Photon",2);
-  reportSummaryMap_->setBinLabel(6,"Tau",2);
-  reportSummaryMap_->setBinLabel(7,"BTag",2);
-  reportSummaryMap_->setBinLabel(8,"HT",2);
-  reportSummaryMap_->setBinLabel(9,"Jet",2);
-  reportSummaryMap_->setBinLabel(10,"MET",2);
+  reportSummaryMap_->setBinLabel(1,"EGAMMA",2);
+  reportSummaryMap_->setBinLabel(2,"MUON",2);
+  reportSummaryMap_->setBinLabel(3,"JETMET",2);
+  reportSummaryMap_->setBinLabel(4,"BJETS",2);
+  reportSummaryMap_->setBinLabel(5,"TAU",2);
   reportSummaryMap_->setBinLabel(1," ",1);
 
 }
@@ -165,102 +176,51 @@ void HLTEventInfoClient::beginRun(const Run& r, const EventSetup& context) {
 }
 
 //--------------------------------------------------------
-void HLTEventInfoClient::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) {
+void HLTEventInfoClient::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& context) {
    // optionally reset histograms here
 }
 
-void HLTEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) {
+void HLTEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+                          const edm::EventSetup& c){
 
+  /*
+  MonitorElement *Muon_QHist = dbe_->get("HLT/HLTMonMuon/Summary/Ratio_HLT_L1MuOpen");
 
-  int ilumi =  int(lumiSeg.id().luminosityBlock());
+  float muonResult = 0;
 
-  const int nPDs = 10;
-  MonitorElement* Pass_Hists[nPDs];
-  int nPathsPD[nPDs];
-  double PDResult[nPDs];
-  int nTotPD[nPDs];
-  for( int i = 0; i < nPDs; i++ ) {
-    PDResult[i] = 1.0;
-    nTotPD[i] = 0.0;
+  if(Muon_QHist){
+    const QReport *Muon_QReport = Muon_QHist->getQReport("CompareHist_Shape");
+    if(Muon_QReport) muonResult = Muon_QReport->getQTresult();
   }
-  bool isCollision = true;
+  */
 
-  for( int i = 0; i < nPDs; i++ ) {
-    if( i == 0 ) Pass_Hists[i] = dbe_->get("HLT/FourVector/PathsSummary/HLT_SingleElectron_Pass_Any"); // SingleElectron
-    if( i == 1 ) Pass_Hists[i] = dbe_->get("HLT/FourVector/PathsSummary/HLT_DoubleElectron_Pass_Any"); // DoubleElectron
-    if( i == 2 ) Pass_Hists[i] = dbe_->get("HLT/FourVector/PathsSummary/HLT_SingleMu_Pass_Any"); // SingleMu
-    if( i == 3 ) Pass_Hists[i] = dbe_->get("HLT/FourVector/PathsSummary/HLT_DoubleMu_Pass_Any"); // DoubleMu
-    if( i == 4 ) Pass_Hists[i] = dbe_->get("HLT/FourVector/PathsSummary/HLT_Photon_Pass_Any"); // Photon
-    if( i == 5 ) Pass_Hists[i] = dbe_->get("HLT/FourVector/PathsSummary/HLT_Tau_Pass_Any"); // Tau
-    if( i == 6 ) Pass_Hists[i] = dbe_->get("HLT/FourVector/PathsSummary/HLT_BTag_Pass_Any"); // BTag
-    if( i == 7 ) Pass_Hists[i] = dbe_->get("HLT/FourVector/PathsSummary/HLT_HT_Pass_Any"); // HT
-    if( i == 8 ) Pass_Hists[i] = dbe_->get("HLT/FourVector/PathsSummary/HLT_Jet_Pass_Any"); // Jet
-    if( i == 9 ) Pass_Hists[i] = dbe_->get("HLT/FourVector/PathsSummary/HLT_MET_Pass_Any"); // MET
-
-    if( Pass_Hists[i] ) {
-      if( i == 5 && !isCollision ) continue;
-      nPathsPD[i] = Pass_Hists[i]->getNbinsX();
-      int noBins = 2;
-      if( i == 1 ) noBins = 3; // the last trigger is low rate
-      if( i == 8 ) noBins = 4; // two last triggers are low rate
-
-      for( int j = 0; j < nPathsPD[i]-noBins; j++ ) {
-	// if triggers in each PD are too much prescaled (or low rate), skip in the summary
-	
-	if( i == 1 && (j == 0) ) continue; // DoubleElectron
-	if( i == 3 && (j == 1 || j == 4) ) continue; // DoubleMu
-	if( i == 4 && (j > 1) ) continue; // Photon
-	if( i == 5 && (j > 4) ) continue; // Tau
-	if( i == 7 && (j == 7) ) continue; // HT
-	if( i == 8 && (j == 8) ) continue; // Jet
-	if( i == 9 && (j == 8 || j == 13 || j == 15) ) continue; // MET
-
-        double val = Pass_Hists[i]->getBinContent(j+1);
-        if( val == 0 ) {
-          if( ilumi > 5 ) PDResult[i] = 0.5;
-        }
-        nTotPD[i] += val;
-      }
-      if( nTotPD[i] == 0 ) {
-        if( ilumi > 5 ) PDResult[i] = 0.0; 
-      }
-    }
-    else {
-      isCollision = false;
-    }
-  }
-  
-  for (int k = 0; k < nPDs; k++) {
-    if( k < 10 ) {
-      summaryContent[k] = PDResult[k];
-      reportSummaryContent_[k]->Fill(PDResult[k]);
-    }
-    else {
+  int nSubsystems = 20;
+  for (int k = 0; k < nSubsystems; k++) {
+    // mask all HLT applications
+    //if(k == 1 && muonResult != -1){
+    //  summaryContent[k] = muonResult;
+    //  reportSummaryContent_[k]->Fill(muonResult);
+    //}else{
       summaryContent[k] = 1;
       reportSummaryContent_[k]->Fill(1.);
-    }
+    //}
   }
   summarySum = 0;
 
-  for (int m = 0; m < nPDs; m++) {    
+  for (int m = 0; m < nSubsystems; m++) {    
     summarySum += summaryContent[m];
   }
 
 
-  reportSummary = summarySum / nPDs;;
+  reportSummary = summarySum / nSubsystems;;
   if (reportSummary_) reportSummary_->Fill(reportSummary);
 
 
-  reportSummaryMap_->setBinContent(1,1,summaryContent[0]);//SingleElectron
-  reportSummaryMap_->setBinContent(1,2,summaryContent[1]);//DoubleElectron
-  reportSummaryMap_->setBinContent(1,3,summaryContent[2]);//SingleMu
-  reportSummaryMap_->setBinContent(1,4,summaryContent[3]);//DoubleMu
-  reportSummaryMap_->setBinContent(1,5,summaryContent[4]);//Photon
-  reportSummaryMap_->setBinContent(1,6,summaryContent[5]);//Tau
-  reportSummaryMap_->setBinContent(1,7,summaryContent[6]);//BTag
-  reportSummaryMap_->setBinContent(1,8,summaryContent[7]);//HT
-  reportSummaryMap_->setBinContent(1,9,summaryContent[8]);//Jet
-  reportSummaryMap_->setBinContent(1,10,summaryContent[9]);//MET
+  reportSummaryMap_->setBinContent(1,1,summaryContent[0]);//Egamma
+  reportSummaryMap_->setBinContent(1,2,summaryContent[1]);//Muon
+  reportSummaryMap_->setBinContent(1,3,summaryContent[2]);//JetMet
+  reportSummaryMap_->setBinContent(1,4,summaryContent[3]);//BJets
+  reportSummaryMap_->setBinContent(1,5,summaryContent[4]);//Taus
 
 }
 
