@@ -40,7 +40,11 @@ def OptionsFromItems(items):
     (options,args) = parser.parse_args(items)
 
     if not options.conditions:
-        raise Exception("the --conditions option is mandatory")
+        from Configuration.AlCa import autoCond
+        possible=""
+        for k in autoCond.autoCond:
+            possible+="\nauto:"+k+" -> "+autoCond.autoCond[k]
+        raise Exception("the --conditions option is mandatory. Possibilities are: "+possible)
 
 
     #################################
