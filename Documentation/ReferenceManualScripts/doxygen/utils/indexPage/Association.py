@@ -46,7 +46,7 @@ def formatCVSLink(package, subpackage):
 def formatPackageDocumentationLink(package, subpackage):    
     for link in packageDocLinks:
         if (link.find(package+"_"+subpackage+".html") != -1):
-            return "[ <a target=\"_blank\" href=\"../"+link+"\">pd</a> ]"
+            return "[ <a target=\"_blank\" href=\"../"+link+"\">packageDoc</a> ]"
     
     return ""
 
