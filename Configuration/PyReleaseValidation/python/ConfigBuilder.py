@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.355 $"
+__version__ = "$Revision: 1.356 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -563,16 +563,25 @@ class ConfigBuilder(object):
 	if self._options.pileup:
 		pileupSpec=self._options.pileup.split(',')[0]
 		from Configuration.StandardSequences.Mixing import Mixing,defineMixing
-		if not pileupSpec in Mixing and '.' not in pileupSpec:
+		if not pileupSpec in Mixing and '.' not in pileupSpec and 'file:' not in pileupSpec:
 			raise Exception(pileupSpec+' is not a know mixing scenario:\n available are: '+'\n'.join(Mixing.keys()))
 		if '.' in pileupSpec:
 			mixingDict={'file':pileupSpec}
+		elif pileupSpec.startswith('file:'):
+			mixingDict={'file':pileupSpec[5:]}
 		else:
 			import copy
 			mixingDict=copy.copy(Mixing[pileupSpec])
 		if len(self._options.pileup.split(','))>1:
 			mixingDict.update(eval(self._options.pileup[self._options.pileup.find(',')+1:]))
-		self.loadAndRemember(mixingDict['file'])
+		if 'file:' in pileupSpec:
+			#the file is local
+			self.process.load(mixingDict['file'])
+			print "inlining mixing module configuration"
+			self._options.inlineObjets+=',mix'
+		else:
+			self.loadAndRemember(mixingDict['file'])
+
 		mixingDict.pop('file')
 		if self._options.pileup_input:
 			if self._options.pileup_input.startswith('dbs'):
@@ -1648,7 +1657,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.355 $"),
+                                            (version=cms.untracked.string("$Revision: 1.356 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
