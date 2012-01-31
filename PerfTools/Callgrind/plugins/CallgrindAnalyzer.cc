@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Jan 18 10:34:18 CET 2007
-// $Id: CallgrindAnalyzer.cc,v 1.4 2009/12/14 22:23:27 wmtan Exp $
+// $Id: CallgrindAnalyzer.cc,v 1.5 2012/01/31 12:31:54 eulisse Exp $
 //
 //
 
@@ -92,7 +92,7 @@ Profiler::~Profiler()
 
 // ------------ method called to for each event  ------------
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wset-but-unused"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 void
 Profiler::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
