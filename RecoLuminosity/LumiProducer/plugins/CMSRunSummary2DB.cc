@@ -92,8 +92,6 @@ namespace lumi{
   }
   CMSRunSummary2DB::CMSRunSummary2DB(const std::string& dest):DataPipe(dest){}
   bool CMSRunSummary2DB::isCollisionRun(const  lumi::CMSRunSummary2DB::cmsrunsum& rundata){
-    bool hasFill=false;
-    if(rundata.fillnumber.size()!=0) hasFill=true;
     bool isCollision=false;
     bool isPhysics=false;
     std::string hk=rundata.hltkey;
