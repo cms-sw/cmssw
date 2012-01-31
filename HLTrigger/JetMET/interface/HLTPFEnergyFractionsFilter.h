@@ -28,7 +28,6 @@ class HLTPFEnergyFractionsFilter : public HLTFilter {
 
    private:
       edm::InputTag inputPFJetTag_;   // input tag identifying pfjets
-      edm::InputTag inputCaloJetTag_; // input tag identifying correspond calojets
       unsigned int nJet_;           // No. of jet to check with this filter 
       double min_CEEF_;
       double max_CEEF_;

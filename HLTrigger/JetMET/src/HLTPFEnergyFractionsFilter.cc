@@ -1,7 +1,7 @@
 /** \class HLTPFEnergyFractionsFilter
 *
 *
-*  \author Srimanobhas N.
+*  \author Srimanobhas Phat
 *
 */
 
@@ -13,7 +13,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -28,8 +27,7 @@
 //
 HLTPFEnergyFractionsFilter::HLTPFEnergyFractionsFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
-  inputPFJetTag_           = iConfig.getParameter< edm::InputTag > ("inputPFJetTag");
-  inputCaloJetTag_         = iConfig.getParameter< edm::InputTag > ("inputCaloJetTag");
+  inputPFJetTag_         = iConfig.getParameter< edm::InputTag > ("inputPFJetTag");
   nJet_                  = iConfig.getParameter<unsigned int> ("nJet");
   min_CEEF_              = iConfig.getParameter<double> ("min_CEEF");
   max_CEEF_              = iConfig.getParameter<double> ("max_CEEF");
@@ -47,7 +45,6 @@ void
 HLTPFEnergyFractionsFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("inputPFJetTag",edm::InputTag("hltAntiKT5PFJets"));
-  desc.add<edm::InputTag>("inputCaloJetTag",edm::InputTag("hltAntiKT5ConvPFJets"));
   //
   desc.add<bool>("saveTags",false);
   //
@@ -73,23 +70,18 @@ HLTPFEnergyFractionsFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup&
   using namespace trigger;
   
   // The filter object
-  if (saveTags()) filterproduct.addCollectionTag(inputCaloJetTag_);
-
-  // CaloJets
-  edm::Handle<CaloJetCollection> recocalojets;
-  iEvent.getByLabel(inputCaloJetTag_,recocalojets);
+  if (saveTags()) filterproduct.addCollectionTag(inputPFJetTag_);
+  
   // PFJets
   edm::Handle<PFJetCollection> recopfjets;
   iEvent.getByLabel(inputPFJetTag_,recopfjets);
 
   //Checking
   int n(0); 
-  CaloJetRef JetRef1;
 
   if(recopfjets->size() >= nJet_){
-    unsigned int countJet(0); 
-    double pf1Pt=0., pf1Eta=0., pf1Phi=0.;
-    double calo1Pt=0., calo1Eta=0., calo1Phi=0.;
+    unsigned int countJet(0);
+    PFJetRef JetRef1; 
     
     //PF information
     for(PFJetCollection::const_iterator i = recopfjets->begin(); i != recopfjets->end(); ++i ){
@@ -105,39 +97,16 @@ HLTPFEnergyFractionsFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup&
 	//
 	if(i->neutralHadronEnergyFraction()<min_NHEF_) n = -1;
 	if(i->neutralHadronEnergyFraction()>max_NHEF_) n = -1;
-	//
-	if(countJet==0){
-	  pf1Pt   = i->pt();
-	  pf1Eta  = i->eta();
-	  pf1Phi  = i->phi();
-	}
       }
       countJet++;
       if(countJet>=nJet_) break;
     }
-    //Calo information
-    countJet=0;
-    for (CaloJetCollection::const_iterator j = recocalojets->begin();
-	 j != recocalojets->end(); j++) {
-      if(countJet==0){
-	JetRef1 = CaloJetRef(recocalojets,distance(recocalojets->begin(),j)); 
-	calo1Pt   = j->pt();
-	calo1Eta  = j->eta();
-	calo1Phi  = j->phi();
-	break;
-      }
-    }
-    
-    //x-check pfjet<->conv calojet
-    if(fabs(pf1Pt-calo1Pt)>0.001)   n = -1;
-    if(fabs(pf1Eta-calo1Eta)>0.001) n = -1;
-    if(fabs(pf1Phi-calo1Phi)>0.001) n = -1;
     if(n==0) n++;
-  }
-  
-  //Store only 1st pt jet which pass conditions
-  if(n>0){
-    filterproduct.addObject(TriggerJet,JetRef1);
+    
+    //Store only 1st pt jet which pass conditions
+    if(n>0){
+      filterproduct.addObject(TriggerJet,JetRef1);
+    }
   }
   
   // filter decision
