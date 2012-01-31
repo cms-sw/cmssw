@@ -445,7 +445,7 @@ void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
     event.getByLabel(zMuMuMatchMap_, zMuMuMatchMap); 
     event.getByLabel(muonIso_, muonIso); 
     event.getByLabel(muonMatchMap_, muonMatchMap); 
-    float muGenplus_pt = 0, muGenminus_pt = 0, muGenplus_eta = 100, muGenminus_eta = 100, dimuonMassGen = 0;
+    float muGenplus_pt = 0, muGenminus_pt = 0, muGenplus_eta = 100, muGenminus_eta = 100;
     for(unsigned int i = 0; i < zMuMu->size(); ++i) { //loop on candidates
       const Candidate & zMuMuCand = (*zMuMu)[i]; //the candidate
       CandidateBaseRef zMuMuCandRef = zMuMu->refAt(i);
@@ -467,7 +467,6 @@ void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
 	    Particle::LorentzVector muplusp4 = getParticleP4(-13,dauGen0,dauGen1,dauGen2);
 	    Particle::LorentzVector muminusp4 = getParticleP4(13,dauGen0,dauGen1,dauGen2);
 	    pZ = muplusp4 + muminusp4;
-	    dimuonMassGen = pZ.mass();  // dimuon invariant Mass at Generator Level
 	  }  // en if is Z
 	}  // end if is Z->mumu
 
@@ -534,7 +533,7 @@ void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
 
       bool etaCut = false;
       bool ptCut = false;
-      bool isoCut = false;
+      //bool isoCut = false;
       bool massCut = false;
 
       // ******************************************************************************************************************************
@@ -609,7 +608,7 @@ void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
       etaCut = false;
       ptCut = false;
       massCut = false;
-      isoCut = false;
+      //isoCut = false;
       if (abs(etaGlobal2)<etamax_ && abs(etaTracker1)<etamax_) etaCut = true;
       if (ptGlobal2>ptmin_ && ptTracker1>ptmin_) ptCut = true;
       if (massTrackerGlobal>massMin_ && massTrackerGlobal<massMax_) massCut = true;
@@ -680,7 +679,7 @@ void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
 
       etaCut = false;
       ptCut = false;
-      isoCut = false;
+      //isoCut = false;
       massCut = false;
 
      // cynematical cuts for Zglobal1Sta2
@@ -721,7 +720,7 @@ void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
 
       etaCut = false;
       ptCut = false;
-      isoCut = false;
+      //isoCut = false;
       massCut = false;
 
      // cynematical cuts for Zglobal2Sta1
@@ -767,7 +766,7 @@ void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
 
   // loop on ZMuTrack in order to recover some unMatched StandAlone
 
-  double LargerDRCut=2.; // larger DR cut to recover unMatched Sta
+  //double LargerDRCut=2.; // larger DR cut to recover unMatched Sta
   int taggedZ_index = -1; // index of Z with minimum DR respect to unMatched Sta
   int taggedMuon_index = -1; // index of Sta muon with minimum DR respect to unMatched track
   int n_ZMuTrackTagged_inEvent = 0;  // number of tagged Z in the event
@@ -777,8 +776,8 @@ void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
       const Candidate & zMuTrackCand = (*zMuTrack)[i]; //the candidate
       CandidateBaseRef zMuTrackCandRef = zMuTrack->refAt(i);
       GenParticleRef zMuTrackMatch = (*zMuTrackMatchMap)[zMuTrackCandRef];
-      bool isMCMatched = false;
-      if(zMuTrackMatch.isNonnull()) isMCMatched = true;   // ZMuTrack matched
+      //bool isMCMatched = false;
+      //if(zMuTrackMatch.isNonnull()) isMCMatched = true;   // ZMuTrack matched
       // forzo isMCMatched
       //      isMCMatched = true;
 
@@ -905,7 +904,7 @@ void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
   
   // loop on ZMuSta in order to recover some unMatched StandAlone 
   bool isZMuStaMatched=false;
-  LargerDRCut=2.; // larger DR cut to recover unMatched Sta
+  //LargerDRCut=2.; // larger DR cut to recover unMatched Sta
   taggedZ_index = -1; // index of Z with minimum DR respect to unMatched Sta
   taggedMuon_index = -1; // index of Sta muon with minimum DR respect to unMatched track
   int n_ZMuStaTagged_inEvent = 0;  // number of tagged Z in the event

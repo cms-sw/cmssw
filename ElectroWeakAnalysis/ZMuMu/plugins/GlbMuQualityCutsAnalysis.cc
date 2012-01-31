@@ -61,8 +61,6 @@ GlbMuQualityCutsAnalysis::GlbMuQualityCutsAnalysis(const edm::ParameterSet & cfg
 void GlbMuQualityCutsAnalysis::analyze(const edm::Event& evt, const edm::EventSetup&) {
   Handle<CandidateView> src;
   evt.getByLabel(src_, src);
-  double trackIso1=-1;
-  double trackIso2=-1;
   int j=0;
   cout << ">> entries in " << src_ << ": " << src->size() << endl;
   for(CandidateView::const_iterator i = src->begin(); i != src->end(); ++i) {
@@ -89,7 +87,7 @@ void GlbMuQualityCutsAnalysis::analyze(const edm::Event& evt, const edm::EventSe
   if(mu1 != 0) {
  
       //     if (mc1.isNonnull()) cout << "GlbMuQualityCutsAnalysis> genParticleRef1 " << mc1->pdgId() << endl;
-      trackIso1=mu1->trackIso();
+      // double trackIso1=mu1->trackIso();
       // std::cout << " mu1 iso" << trackIso1 << std::endl;
     } else {
       const pat::GenericParticle * gp1 = dynamic_cast<const pat::GenericParticle*>(c1);
@@ -103,7 +101,7 @@ void GlbMuQualityCutsAnalysis::analyze(const edm::Event& evt, const edm::EventSe
     const pat::Muon * mu2 = dynamic_cast<const pat::Muon*>(c2);
     if(mu2 != 0) {
  
-     trackIso2=mu2->trackIso();
+      // double trackIso2=mu2->trackIso();
      //std::cout << " mu2 iso" << trackIso2 << std::endl;
     } else {
       const pat::GenericParticle * gp2 = dynamic_cast<const pat::GenericParticle*>(c2);

@@ -260,7 +260,7 @@ void ZMuMuEfficiency::analyze(const Event& event, const EventSetup& setup) {
   bool ZMuMuMatchedfound = false;
   bool ZMuMuMatchedSelectedfound = false;
   bool ZMuStaMatchedfound = false;
-  bool ZMuStaMatchedSelectedfound = false;
+  //bool ZMuStaMatchedSelectedfound = false;
   int ZMuTrackMatchedfound = 0;
   int ZMuTrackMatchedSelected_exclusivefound = 0;
 
@@ -282,13 +282,13 @@ void ZMuMuEfficiency::analyze(const Event& event, const EventSetup& setup) {
 	  bool checkpt = false;
 	  bool checketa = false;
 	  bool checkmass = false;
-	  float mupluspt, muminuspt, mupluseta, muminuseta, muplusphi, muminusphi;
+	  float mupluspt, muminuspt, mupluseta, muminuseta;
 	  mupluspt = getParticlePt(-13,dauGen0,dauGen1,dauGen2);
 	  muminuspt = getParticlePt(13,dauGen0,dauGen1,dauGen2);
 	  mupluseta = getParticleEta(-13,dauGen0,dauGen1,dauGen2);
 	  muminuseta = getParticleEta(13,dauGen0,dauGen1,dauGen2);
-	  muplusphi = getParticlePhi(-13,dauGen0,dauGen1,dauGen2);
-	  muminusphi = getParticlePhi(13,dauGen0,dauGen1,dauGen2);
+	  //float muplusphi = getParticlePhi(-13,dauGen0,dauGen1,dauGen2);
+	  //float muminusphi = getParticlePhi(13,dauGen0,dauGen1,dauGen2);
 	  Particle::LorentzVector pZ(0, 0, 0, 0);
 	  Particle::LorentzVector muplusp4 = getParticleP4(-13,dauGen0,dauGen1,dauGen2);
 	  Particle::LorentzVector muminusp4 = getParticleP4(13,dauGen0,dauGen1,dauGen2);
@@ -454,7 +454,7 @@ void ZMuMuEfficiency::analyze(const Event& event, const EventSetup& setup) {
 	const double standAloneMuonIsolation = (*standAloneIso)[standAloneMuonCandRef_];
 	
 	if((globalMuonIsolation < isomax_) && (standAloneMuonIsolation < isomax_)) {   // ZMuSta matched and selected
-	  ZMuStaMatchedSelectedfound = true;
+	  //ZMuStaMatchedSelectedfound = true;
 	  numberOfMatchedSelectedZMuSta_++;
 	  h_etaStandAlone_->Fill(standAloneMuonCandRef_->eta()); //Denominator eta for measuring track efficiency
 	  h_ptStandAlone_->Fill(standAloneMuonCandRef_->pt());   //Denominator pt for measuring track eff

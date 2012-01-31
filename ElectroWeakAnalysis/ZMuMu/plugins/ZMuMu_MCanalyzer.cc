@@ -380,7 +380,6 @@ void ZMuMu_MCanalyzer::analyze(const Event& event, const EventSetup& setup) {
 
 
   // loop on ZMuTrack
-  bool zMuTrack_found = false;
   if (!zMuMu_found && !zMuSta_found && zMuTrack->size() > 0 ) {
     event.getByLabel(zMuTrackMatchMap_, zMuTrackMatchMap); 
     for(unsigned int i = 0; i < zMuTrack->size(); ++i) { //loop on candidates
@@ -412,7 +411,6 @@ void ZMuMu_MCanalyzer::analyze(const Event& event, const EventSetup& setup) {
 
       GenParticleRef zMuTrackMatch = (*zMuTrackMatchMap)[zMuTrackCandRef];
       if(zMuTrackMatch.isNonnull()) {  // ZMuTrack matched
-	zMuTrack_found = true;
 	nZMuTrk_matched++;
 	if (pt0>ptmin_ && pt1>ptmin_ && abs(eta0)>etamin_ && abs(eta1)>etamin_ && abs(eta0)<etamax_ && abs(eta1) <etamax_ && mass >massMin_ && 
 	    mass < massMax_ && iso0<isoMax_ && iso1 < isoMax_ && trig0found) { // all cuts and trigger passed

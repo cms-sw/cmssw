@@ -124,8 +124,8 @@ public:
 namespace dummy {
   void Isolationdummy() {
     pat::Lepton<reco::Muon> pat;
-    float x; 
-    x = pat.trackIso(); x = pat.ecalIso(); x = pat.hcalIso(); x = pat.caloIso();
+    //ignore return values
+    pat.trackIso(); pat.ecalIso(); pat.hcalIso(); pat.caloIso();
   }
 }
 

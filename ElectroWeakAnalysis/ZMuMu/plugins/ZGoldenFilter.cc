@@ -120,12 +120,12 @@ bool ZGoldenFilter::operator()(const reco::Candidate & z) const {
       }    
     }
   }
-    
+  /*trigger_fired is unused in all later code
   bool trigger_fired = false;
   for (unsigned int i=0; i<triggerResults_->size(); i++) {
     std::string trigName = trigNames_->triggerName(i);
     if ( trigName == hltPath_ && triggerResults_->accept(i)) trigger_fired = true;
-  }
+    }*/
   bool firstdismuon = (dau0->isGlobalMuon() ? true : false); 
   bool firstdisStandAlone = (dau0->isStandAloneMuon() ? true : false); 
   std::vector<bool> IsDau0Matched_;

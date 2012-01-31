@@ -140,7 +140,6 @@ void MuTriggerAnalyzer::endJob() {
 }
 
 void MuTriggerAnalyzer::analyze (const Event & ev, const EventSetup &) {
-      bool singleTrigFlag1 = false;
           //      bool overlap = false;
   
       // Trigger
@@ -153,13 +152,13 @@ void MuTriggerAnalyzer::analyze (const Event & ev, const EventSetup &) {
       ev.getByLabel(trigTag_, triggerResults); 
       // trigNames.init(*triggerResults);
       trigNames_ = &ev.triggerNames(*triggerResults);
-      bool trigger_fired = false;
+      //bool trigger_fired = false;
       for (unsigned int i=0; i<triggerResults->size(); i++) {
 	
 
         std::string trigName = trigNames_->triggerName(i);
 	if ( trigName == hltPath_ && triggerResults->accept(i)) {
-	  trigger_fired = true;
+	  //trigger_fired = true;
 	}
       }   
       edm::Handle< trigger::TriggerEvent > handleTriggerEvent;
@@ -226,7 +225,7 @@ void MuTriggerAnalyzer::analyze (const Event & ev, const EventSetup &) {
 	    math::XYZTLorentzVector mu1(muon1.p4());
 	    //      double pt1= muon1.pt();
         
-	    singleTrigFlag1 = IsMuMatchedToHLTMu ( muon1,  HLTMuMatched ,maxDeltaR_, maxDPtRel_ );
+	    /* bool singleTrigFlag1 =*/ IsMuMatchedToHLTMu ( muon1,  HLTMuMatched ,maxDeltaR_, maxDPtRel_ );
 	    
 	  }
 	  
