@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.354 $"
+__version__ = "$Revision: 1.355 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -907,6 +907,10 @@ class ConfigBuilder(object):
 	self.USERDefaultCFF=None
 
         # the magnetic field
+	if self._options.isData:
+		if self._options.magField==defaultOptions.magField:
+			print "magnetic field option forced to: AutoFromDBCurrent"
+		self._options.magField='AutoFromDBCurrent'
         self.magFieldCFF = 'Configuration/StandardSequences/MagneticField_'+self._options.magField.replace('.','')+'_cff'
         self.magFieldCFF = self.magFieldCFF.replace("__",'_')
 
@@ -1644,7 +1648,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.354 $"),
+                                            (version=cms.untracked.string("$Revision: 1.355 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
