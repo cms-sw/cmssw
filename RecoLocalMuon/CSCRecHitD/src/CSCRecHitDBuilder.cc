@@ -116,7 +116,6 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
   // Now loop over each layer containing strip hits
   for ( sIt=stripLayer.begin(); sIt != stripLayer.end(); ++sIt ) {
 
-    bool foundMatch = false;
     hitsInLayer.clear();
     hits_in_layer = 0;
    
@@ -193,10 +192,8 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
             const CSCWireHit w_hit = cscWireHit[j];
             CSCRecHit2D rechit = make2DHits_->hitFromStripAndWire(sDetId, layer, w_hit, s_hit);
 
-
             bool isInFiducial = make2DHits_->isHitInFiducial( layer, rechit );
             if ( isInFiducial ) {
-              foundMatch = true;  
               hitsInLayer.push_back( rechit );
               hits_in_layer++;
             }

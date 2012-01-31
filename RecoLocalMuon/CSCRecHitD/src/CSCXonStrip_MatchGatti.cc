@@ -586,13 +586,6 @@ double CSCXonStrip_MatchGatti::estimated2GattiCorrection(double x_estimated, flo
 
 double CSCXonStrip_MatchGatti::estimated2Gatti(double x_estimated, float stripWidth, bool ME1_1) {
 
- int sign;
- if(x_estimated>0.){
-   sign = 1;
- }
- else{
-   sign = - 1;
- }
  double x_corr = estimated2GattiCorrection(x_estimated, stripWidth, ME1_1);
  double x_gatti = x_estimated + x_corr;
 

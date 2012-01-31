@@ -80,7 +80,6 @@ float CSCFindPeakTime::fivePoleFitTime( int tmax, const float* adc, float t_peak
 
   // Initialize parameters to sensible (?) values
 
-  float fpNorm   = adc[1]; // this is tmax bin
   float t0       = 0.;
   float t0peak   = 133.;   // this is offset of peak from start time t0
   float p0       = 4./t0peak;
@@ -133,7 +132,6 @@ float CSCFindPeakTime::fivePoleFitTime( int tmax, const float* adc, float t_peak
     if ( chi_last > chi2 ) {
       if (chi2 < chi_min ){
         t0      = tt0;
-        fpNorm  = fN;
       }
       chi_last  = chi2;
       tt0       = tt0 + del_t;

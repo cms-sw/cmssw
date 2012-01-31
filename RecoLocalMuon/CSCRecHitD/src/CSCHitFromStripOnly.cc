@@ -493,9 +493,6 @@ float CSCHitFromStripOnly::findHitOnStripPosition( const std::vector<CSCStripHit
   float sum  = 0.;
   float sum_w= 0.;
 
-  float stripLeft = 0.;
-  float stripRight = 0.;
-
   std::vector<float> w(4);
   std::vector<float> wRaw(4);
   
@@ -510,9 +507,6 @@ float CSCHitFromStripOnly::findHitOnStripPosition( const std::vector<CSCStripHit
       if ( w[j] < 0. ) w[j] = 0.001;
     }
     */
-
-    if (i == data.size()/2 -1) stripLeft = w[1];
-    if (i == data.size()/2 +1) stripRight = w[1];
 
 
     // Fill the data members 
