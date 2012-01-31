@@ -29,7 +29,7 @@ void TCRecoTauDiscriminationAlgoComponent::beginEvent(const edm::Event& iEvent, 
 
 
 double TCRecoTauDiscriminationAlgoComponent::discriminate(const CaloTauRef& theCaloTauRef){
-	math::XYZTLorentzVector p4 = tcTauAlgorithm->recalculateEnergy(*theCaloTauRef);
+	tcTauAlgorithm->recalculateEnergy(*theCaloTauRef);
 	return (tcTauAlgorithm->algoComponent());
 }
 
