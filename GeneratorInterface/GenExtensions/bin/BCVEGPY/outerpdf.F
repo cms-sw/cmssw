@@ -935,7 +935,7 @@ c	   stop
 *                                                                   *
 *********************************************************************
       implicit double precision (a-h, o-z)
-      dimension arg(5),nent(5),ent(1000),table(10000)
+      dimension arg(narg),nent(narg),ent(*),table(*)
       dimension d(5),ncomb(5),ient(5)
 
       kd=1
