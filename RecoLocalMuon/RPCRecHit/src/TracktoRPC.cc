@@ -223,7 +223,6 @@ for(trackingRecHit_iterator hit=track->recHitsBegin(); hit != track->recHitsEnd(
                 for(std::set<RPCDetId>::iterator iteraRoll = rollsForThisDT.begin();iteraRoll != rollsForThisDT.end(); iteraRoll++)
                 {                                 
 	            const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll);
-	            RPCDetId rpcId = rollasociated->id();
 
                     TrajectoryStateOnSurface ptss =  thePropagator->propagate(upd2, rpcGeo->idToDet(rollasociated->id())->surface());
                     if(ptss.isValid()) if(ValidRPCSurface(rollasociated->id().rawId(), ptss.localPosition(), iSetup))
@@ -275,7 +274,6 @@ for(trackingRecHit_iterator hit=track->recHitsBegin(); hit != track->recHitsEnd(
                 for (std::set<RPCDetId>::iterator iteraRoll = rollsForThisCSC.begin();iteraRoll != rollsForThisCSC.end(); iteraRoll++)
                 {
 	            const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll);
-	            RPCDetId rpcId = rollasociated->id();
 
                     TrajectoryStateOnSurface ptss =  thePropagator->propagate(upd2, rpcGeo->idToDet(rollasociated->id())->surface());
                     if(ptss.isValid()) if(ValidRPCSurface(rollasociated->id().rawId(), ptss.localPosition(), iSetup))
