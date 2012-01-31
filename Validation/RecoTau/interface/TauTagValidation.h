@@ -63,12 +63,6 @@ public:
 
 private:
 
-  ///sum the transversal momentum of all candidates
-  double getSumPt(const reco::PFCandidateRefVector & 	candidates);
-  ///get rid of redundant parts to shorten the label
-  bool stripDiscriminatorLabel(const std::string& discriminatorLabel, std::string & newLabel);
-
-
   // What's the reference for the Validation Leptons or Jets
   std::string dataType_;
 
@@ -76,9 +70,6 @@ private:
   double matchDeltaR_Leptons_;
   double matchDeltaR_Jets_;
   double TauPtCut_;
-  
-  //optional: filter candidates by passed cuts
-  std::string recoCuts_, genCuts_;
 
   // output histograms
   bool saveoutputhistograms_;

@@ -17,26 +17,50 @@ selectElectrons = cms.EDProducer(
     )
 )
 
-selectElectronsForGenJets = copy.deepcopy(genParticlesForJets)
-selectElectronsForGenJets.src = cms.InputTag("selectElectrons")
+selectElectronsForGenJets = genParticlesForJets.clone( src = cms.InputTag("selectElectrons"))
 
-objectTypeSelectedTauValDenominator = copy.deepcopy(iterativeCone5GenJets)
-objectTypeSelectedTauValDenominator.src = cms.InputTag("selectElectronsForGenJets")
+objectTypeSelectedTauValDenominatorZEE = iterativeCone5GenJets.clone(src = cms.InputTag("selectElectronsForGenJets"))
 
-produceDenominator = cms.Sequence(
+#clones the kinematic selection
+kinematicSelectedTauValDenominatorZEE = kinematicSelectedTauValDenominator.clone( src = cms.InputTag("objectTypeSelectedTauValDenominatorZEE") )
+
+#labels TauValNumeratorAndDenominator modules in the sequence to match kinematicSelectedTauValDenominatorZEE and adds ZEE to the extention name
+zttLabeler = lambda module : SetValidationAttributes(module, 'ZEE', 'kinematicSelectedTauValDenominatorZEE')
+zttModifier = ApplyFunctionToSequence(zttLabeler)
+proc.TauValNumeratorAndDenominator.visit(zttModifier)
+
+#clones the whole sequence and related modules adding a ZEE to the end of the name, can even set the correct dependencies, but not needed here
+import PhysicsTools.PatAlgos.tools.helpers as configtools
+procAttributes = dir(proc)
+configtools.cloneProcessingSnippet( proc, proc.TauValNumeratorAndDenominator, 'ZEE')
+newProcAttributes = filter( lambda x: (x not in procAttributes) and (x.find('ZEE') != -1), dir(proc) )
+
+#spawns a local variable with the same name as the proc attribute, needed for future process.load
+for newAttr in newProcAttributes:
+    locals()[newAttr] = getattr(proc,newAttr)
+
+#clones the TauEfficiencies module
+TauEfficienciesZEE = TauEfficiencies.clone( plots = Utils.SetPlotSequence(TauValNumeratorAndDenominatorZEE) )
+
+#Define some useful sequences
+produceDenominatorZEE = cms.Sequence(
       selectElectrons
       +selectElectronsForGenJets
-      +objectTypeSelectedTauValDenominator
-      +kinematicSelectedTauValDenominator
+      +objectTypeSelectedTauValDenominatorZEE
+      +kinematicSelectedTauValDenominatorZEE
       )
 
-runTauValidationBatchMode = cms.Sequence(
-      produceDenominator
-      +TauValNumeratorAndDenominator
+runTauValidationBatchModeZEE = cms.Sequence(
+      produceDenominatorZEE
+      +TauValNumeratorAndDenominatorZEE
       )
 
-runTauValidation = cms.Sequence(
-      runTauValidationBatchMode
-      +TauEfficiencies
+runTauValidationZEE = cms.Sequence(
+      runTauValidationBatchModeZEE
+      +TauEfficienciesZEE
       )
+
+#Needed by RunValidation_cfg
+validationBatch = cms.Path(produceDenominatorZEE*runTauValidationBatchModeZEE)
+validationStd   = cms.Path(produceDenominatorZEE*runTauValidationZEE)
 

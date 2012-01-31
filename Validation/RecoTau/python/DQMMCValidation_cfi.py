@@ -1,8 +1,9 @@
 import FWCore.ParameterSet.Config as cms
-#import Validation.RecoTau.ValidateTausOnZTT_cff as zttVal
+
 from Validation.RecoTau.ValidateTausOnZTT_cff import *
-import copy
-import Validation.RecoTau.ValidationUtils as Utils
+from Validation.RecoTau.ValidateTausOnQCD_cff import *
+from Validation.RecoTau.ValidateTausOnZEE_cff import *
+from Validation.RecoTau.ValidateTausOnZMM_cff import *
 
 #------------------------------------------------------------
 #                     Producing Num e Denom
@@ -16,54 +17,28 @@ def PrintSeq(seq, tau=False):
         if type(module) is cms.EDAnalyzer and tau:# or type(module) is cms.EDFilter:
             print module.TauProducer.value() + module.ExtensionName.value()
 
-def SetSignalPars(module):
-    module.ExtensionName = (module.ExtensionName.value()+"_Signal")
-    module.RefCollection = "zttKinemSelection"
 
-def SetFakePars(module):
-    module.ExtensionName = (module.ExtensionName.value()+"_Fakes")
-    module.RefCollection = "qcdKinemSelection"
+produceDenoms = cms.Sequence()
+produceDenoms += produceDenominatorZTT
+produceDenoms += produceDenominatorQCD
+produceDenoms += produceDenominatorZMM
+produceDenoms += produceDenominatorZEE
 
 pfTauRunDQMValidation = cms.Sequence()
-
-tauGenJets = copy.deepcopy(tauGenJets)
-zttDenominator = objectTypeSelectedTauValDenominator.clone()
-zttKinemSelection= kinematicSelectedTauValDenominator.clone(src = cms.InputTag("zttDenominator"))
-
-zttModifier = ApplyFunctionToSequence(SetSignalPars)
-TauValNumeratorAndDenominator.visit(zttModifier)        
-pfTauRunDQMValidation += TauValNumeratorAndDenominator
-
-from Validation.RecoTau.ValidateTausOnQCD_cff import *
-
-genParticlesForJetsQCD= genParticlesForJets.clone()
-qcdDenominator = objectTypeSelectedTauValDenominator.clone()
-qcdKinemSelection= kinematicSelectedTauValDenominator.clone(src = cms.InputTag("qcdDenominator"))
-
-qcdModifier = ApplyFunctionToSequence(SetFakePars)
-TauValNumeratorAndDenominator2.visit(qcdModifier)        
-pfTauRunDQMValidation += TauValNumeratorAndDenominator2
-
-produceDenoms = cms.Sequence(
-    tauGenJets
-    *zttDenominator
-    *zttKinemSelection
-    +genParticlesForJets
-    *qcdDenominator
-    *qcdKinemSelection
-    )
+pfTauRunDQMValidation += runTauValidationBatchModeZTT
+pfTauRunDQMValidation += runTauValidationBatchModeQCD
+pfTauRunDQMValidation += runTauValidationBatchModeZMM
+pfTauRunDQMValidation += runTauValidationBatchModeZEE
 
 #-------------------------------------------------------------------------------------------------------
 #                     Producing Efficiencies (postValidation)
 #-------------------------------------------------------------------------------------------------------
 
-
-plotPsetSignal = Utils.SetPlotSequence(TauValNumeratorAndDenominator)
-plotPsetFake = Utils.SetPlotSequence(TauValNumeratorAndDenominator2)
-TauEfficienciesFake = TauEfficiencies.clone(plots = plotPsetFake)
-TauEfficiencies.plots = plotPsetSignal
-
-runTauEff = cms.Sequence(TauEfficienciesFake + TauEfficiencies)
+runTauEff = cms.Sequence()
+runTauEff += TauEfficienciesZTT
+runTauEff += TauEfficienciesQCD
+runTauEff += TauEfficienciesZMM
+runTauEff += TauEfficienciesZEE
 
 #--------------------------------------------------------------------------
 #         Making histograms look nicer (not working yet)
