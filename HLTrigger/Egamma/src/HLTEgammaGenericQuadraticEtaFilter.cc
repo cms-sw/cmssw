@@ -1,6 +1,6 @@
 /** \class HLTEgammaGenericQuadraticEtaFilter
  *
- * $Id: HLTEgammaGenericQuadraticEtaFilter.cc,v 1.2 2011/05/01 08:14:08 gruen Exp $
+ * $Id: HLTEgammaGenericQuadraticEtaFilter.cc,v 1.1 2012/01/31 20:38:20 cgtully Exp $
  *
  *  \author Roberto Covarelli (CERN)
  *  modified by Chris Tully (Princeton)
@@ -107,36 +107,48 @@ HLTEgammaGenericQuadraticEtaFilter::filter(edm::Event& iEvent, const edm::EventS
     if (energy < 0.) energy=0.; /* first and second order terms assume non-negative energies */
     
     if ( lessThan_ ) {
-      if (fabs(EtaSC) < etaBoundaryEB12_ && vali <= thrRegularEB1_ + energy*thrOverEEB1_ + energy*energy*thrOverE2EB1_) {
-	  n++;
-	  filterproduct->addObject(trigger_type, ref);
-	  continue;
-      } else if (fabs(EtaSC) < 1.479 && vali <= thrRegularEB2_ + energy*thrOverEEB2_ + energy*energy*thrOverE2EB2_) {
-	  n++;
-	  filterproduct->addObject(trigger_type, ref);
-	  continue;
-      } else if (fabs(EtaSC) < etaBoundaryEE12_ && vali <= thrRegularEE1_ + energy*thrOverEEE1_ + energy*energy*thrOverE2EE1_) {
-	  n++;
-	  filterproduct->addObject(trigger_type, ref);
-	  continue;
+      if (fabs(EtaSC) < etaBoundaryEB12_) {
+          if ( vali <= thrRegularEB1_ + energy*thrOverEEB1_ + energy*energy*thrOverE2EB1_) {
+	     n++;
+	     filterproduct->addObject(trigger_type, ref);
+	     continue;
+          }
+      } else if (fabs(EtaSC) < 1.479) {
+          if ( vali <= thrRegularEB2_ + energy*thrOverEEB2_ + energy*energy*thrOverE2EB2_) {
+	     n++;
+	     filterproduct->addObject(trigger_type, ref);
+	     continue;
+          }
+      } else if (fabs(EtaSC) < etaBoundaryEE12_) {
+          if ( vali <= thrRegularEE1_ + energy*thrOverEEE1_ + energy*energy*thrOverE2EE1_) {
+	    n++;
+	    filterproduct->addObject(trigger_type, ref);
+	    continue;
+          }
       } else if (vali <= thrRegularEE2_ + energy*thrOverEEE2_ + energy*energy*thrOverE2EE2_) {
 	  n++;
 	  filterproduct->addObject(trigger_type, ref);
 	  continue;
       }
     } else {
-      if (fabs(EtaSC) < etaBoundaryEB12_ && vali >= thrRegularEB1_ + energy*thrOverEEB1_ + energy*energy*thrOverE2EB1_) {
-	  n++;
-	  filterproduct->addObject(trigger_type, ref);
-	  continue;
-      } else if (fabs(EtaSC) < 1.479 && vali >= thrRegularEB2_ + energy*thrOverEEB2_ + energy*energy*thrOverE2EB2_) {
-	  n++;
-	  filterproduct->addObject(trigger_type, ref);
-	  continue;
-      } else if (fabs(EtaSC) < etaBoundaryEE12_ && vali >= thrRegularEE1_ + energy*thrOverEEE1_ + energy*energy*thrOverE2EE1_) {
-	  n++;
-	  filterproduct->addObject(trigger_type, ref);
-	  continue;
+      if (fabs(EtaSC) < etaBoundaryEB12_) {
+          if ( vali >= thrRegularEB1_ + energy*thrOverEEB1_ + energy*energy*thrOverE2EB1_) {
+	     n++;
+	     filterproduct->addObject(trigger_type, ref);
+	     continue;
+          }
+      } else if (fabs(EtaSC) < 1.479) {
+          if ( vali >= thrRegularEB2_ + energy*thrOverEEB2_ + energy*energy*thrOverE2EB2_) {
+	     n++;
+	     filterproduct->addObject(trigger_type, ref);
+	     continue;
+          }
+      } else if (fabs(EtaSC) < etaBoundaryEE12_) {
+          if ( vali >= thrRegularEE1_ + energy*thrOverEEE1_ + energy*energy*thrOverE2EE1_) {
+	    n++;
+	    filterproduct->addObject(trigger_type, ref);
+	    continue;
+          }
       } else if (vali >= thrRegularEE2_ + energy*thrOverEEE2_ + energy*energy*thrOverE2EE2_) {
 	  n++;
 	  filterproduct->addObject(trigger_type, ref);
