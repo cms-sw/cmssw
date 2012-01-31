@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2011/11/11 12:49:34 $
- * $Revision: 1.44 $
+ * $Date: 2011/11/24 14:59:00 $
+ * $Revision: 1.45 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  * \       A.Meneguzzo - Padova University  <anna.meneguzzo@pd.infn.it>
@@ -617,11 +617,9 @@ void DTSegmentUpdator::Fit4Var(const vector<float>& xfit,
   double slt = 0.;
   double sltx = 0.;
   double slty = 0.;
-  double chi2fit2 = -1.;
   double chi2fitN2 = -1. ;
   double chi2fit3 = -1.;
   double chi2fitN3 = -1. ;
-  double chi2fit4 = -1.;
   double chi2fitN4 = -1.;
   float bminf3 = bminf;
   float aminf3 = aminf;
@@ -673,7 +671,6 @@ void DTSegmentUpdator::Fit4Var(const vector<float>& xfit,
   nppar = 2; 
   nppar2 = nppar; 
 
-  chi2fit2 = chi2fit;
   chi2fitN2 = chi2fit/(nptfit-2);
 
   // cout << "dt0 = 0chi2fit = " << chi2fit << "  slope = "<<b<<endl;
@@ -777,17 +774,14 @@ void DTSegmentUpdator::Fit4Var(const vector<float>& xfit,
 
         } //end loop chi2
         if (nptfit<=nppar){ 
-          chi2fit4=chi2fit;  //set negative Chi2 if not a fit...;
           chi2fitN4=-1;
           //		cout << "nptfit " << nptfit << " nppar " << nppar << endl;
         }
         else{
-          chi2fit4 = chi2fit ;
           chi2fitN4= chi2fit / (nptfit-nppar); 
         }
       }
       else {
-        chi2fit4 = chi2fit;
         vminf = 0.;
 
         if (nptfit <= nppar) chi2fitN4=-1;
