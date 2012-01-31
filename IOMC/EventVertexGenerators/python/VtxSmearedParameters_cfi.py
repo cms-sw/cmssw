@@ -178,9 +178,9 @@ Realistic8TeVCollisionVtxSmearingParameters = cms.PSet(
     Alpha = cms.double(0.0),
     SigmaZ = cms.double(6.16),
     TimeOffset = cms.double(0.0),
-    X0 = cms.double(0.15),
-    Y0 = cms.double(0.30),
-    Z0 = cms.double(0.40)
+    X0 = cms.double(0.2440),
+    Y0 = cms.double(0.3929),
+    Z0 = cms.double(0.4145)
 )
 # 10 TeV collisions, transverse beam size = 46 microns
 Early10TeVCollisionVtxSmearingParameters = cms.PSet(
