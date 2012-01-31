@@ -4,8 +4,8 @@
 /*
  * \file EcalSelectiveReadoutValidation.h
  *
- * $Date: 2010/01/04 15:10:59 $
- * $Revision: 1.12 $
+ * $Date: 2010/05/05 10:54:53 $
+ * $Revision: 1.13 $
  *
  */
 
@@ -199,12 +199,6 @@ private:
    */
   double getDccSrDependentPayload(int iDcc0, double nReadRus,
                                   double nReadXtals) const{
-    subdet_t subdet;
-    if(iDcc0<9 || iDcc0>=45){
-      subdet = EE;
-    } else{
-      subdet = EB;
-    }
     return nReadXtals*getBytesPerCrystal() + nReadRus*8;
   }
 
