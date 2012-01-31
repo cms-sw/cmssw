@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2010/01/06 14:18:54 $
- *  $Revision: 1.17 $
+ *  $Date: 2011/08/09 08:00:58 $
+ *  $Revision: 1.18 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -547,7 +547,6 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
   ////////////////////////
   bool isBarrel = true;
   edm::Handle<EBDigiCollection> EcalDigiEB;  
-  const EBDigiCollection *EBdigis = 0;
   iEvent.getByLabel(ECalEBSrc_, EcalDigiEB);
   bool validDigiEB = true;
   if (!EcalDigiEB.isValid()) {
@@ -556,7 +555,6 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
     validDigiEB = false;
   }  
   if (validDigiEB) {
-    EBdigis = EcalDigiEB.product();
     if ( EcalDigiEB->size() == 0) isBarrel = false;
     
     if (isBarrel) {
@@ -676,7 +674,6 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
   ////////////////////////
   bool isEndCap = true;
   edm::Handle<EEDigiCollection> EcalDigiEE;  
-  const EEDigiCollection *EEdigis = 0;
   iEvent.getByLabel(ECalEESrc_, EcalDigiEE);
   bool validDigiEE = true;
   if (!EcalDigiEE.isValid()) {
@@ -685,7 +682,6 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
     validDigiEE = false;
   }  
   if (validDigiEE) {
-    EEdigis = EcalDigiEE.product();
     if (EcalDigiEE->size() == 0) isEndCap = false;
     
     if (isEndCap) {
@@ -807,7 +803,6 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
   ////////////////////////
   bool isPreshower = true;
   edm::Handle<ESDigiCollection> EcalDigiES;  
-  const ESDigiCollection *ESdigis = 0;
   iEvent.getByLabel(ECalESSrc_, EcalDigiES);
   bool validDigiES = true;
   if (!EcalDigiES.isValid()) {
@@ -820,7 +815,6 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
   validDigiES = false;
  
   if (validDigiES) {
-    ESdigis = EcalDigiES.product();
     if (EcalDigiES->size() == 0) isPreshower = false;
     
     if (isPreshower) {
@@ -866,9 +860,6 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
 	
 	ESDataFrame esdf = (*preshowerDigi)[digis];
 	int nrSamples = esdf.size();
-	
-	ESDetId esid = esdf.id () ;
-	// ESDetId esid = digis->id();
 	
 	for (int sample = 0 ; sample < nrSamples; ++sample) {
 	  esADCCounts[sample] = 0.;

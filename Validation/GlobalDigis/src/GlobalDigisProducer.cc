@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/03/04 16:36:04 $
- *  $Revision: 1.13 $
+ *  $Date: 2010/01/06 14:18:54 $
+ *  $Revision: 1.14 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -282,14 +282,12 @@ void GlobalDigisProducer::fillECal(edm::Event& iEvent,
   ////////////////////////
   bool isBarrel = true;
   edm::Handle<EBDigiCollection> EcalDigiEB;  
-  const EBDigiCollection *EBdigis = 0;
   iEvent.getByLabel(ECalEBSrc_, EcalDigiEB);
   if (!EcalDigiEB.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find EcalDigiEB in event!";
     return;
   }  
-  EBdigis = EcalDigiEB.product();
   if ( EcalDigiEB->size() == 0) isBarrel = false;
 
   if (isBarrel) {
@@ -405,14 +403,12 @@ void GlobalDigisProducer::fillECal(edm::Event& iEvent,
   ////////////////////////
   bool isEndCap = true;
   edm::Handle<EEDigiCollection> EcalDigiEE;  
-  const EEDigiCollection *EEdigis = 0;
   iEvent.getByLabel(ECalEESrc_, EcalDigiEE);
   if (!EcalDigiEE.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find EcalDigiEE in event!";
     return;
   }  
-  EEdigis = EcalDigiEE.product();
   if (EcalDigiEE->size() == 0) isEndCap = false;
 
   if (isEndCap) {
@@ -528,14 +524,12 @@ void GlobalDigisProducer::fillECal(edm::Event& iEvent,
   ////////////////////////
   bool isPreshower = true;
   edm::Handle<ESDigiCollection> EcalDigiES;  
-  const ESDigiCollection *ESdigis = 0;
   iEvent.getByLabel(ECalESSrc_, EcalDigiES);
   if (!EcalDigiES.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find EcalDigiES in event!";
     return;
   }  
-  ESdigis = EcalDigiES.product();
   if (EcalDigiES->size() == 0) isPreshower = false;
 
   if (isPreshower) {
