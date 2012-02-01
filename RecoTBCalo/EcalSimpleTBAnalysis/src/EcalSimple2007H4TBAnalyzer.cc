@@ -6,7 +6,7 @@
      <Notes on implementation>
 */
 //
-// $Id: EcalSimple2007H4TBAnalyzer.cc,v 1.2 2009/10/02 19:39:29 heltsley Exp $
+// $Id: EcalSimple2007H4TBAnalyzer.cc,v 1.3 2010/01/04 15:09:12 ferriff Exp $
 //
 //
 
@@ -402,11 +402,8 @@ EcalSimple2007H4TBAnalyzer::analyze( edm::Event const & iEvent, edm::EventSetup 
 
     
    //Filling the digis shape for the xtalInBeam
-   bool gain_switch = false;
    double samples_save[10]; for(int i=0; i < 10; ++i) samples_save[i]=0.0;
-   double gain_save[10];    for(int i=0; i < 10; ++i) gain_save[i]=0.0;
    
-   int sMax = -1;
    double eMax = 0.;
    for ( EEDigiCollection::const_iterator digiItr= digis->begin();digiItr != digis->end(); 
 	 ++digiItr ) 
@@ -418,16 +415,12 @@ EcalSimple2007H4TBAnalyzer::analyze( edm::Event const & iEvent, edm::EventSetup 
        for (int sample = 0; sample < myDigi.size(); ++sample)
 	 {
 	   double analogSample = myDigi.sample(sample).adc();
-	   double gainSample   = myDigi.sample(sample).gainId();
 	   samples_save[sample] = analogSample;
-	   gain_save[sample]    = gainSample;
 	   //  std::cout << analogSample << " ";
 	   if ( eMax < analogSample )
 	     {
 	       eMax = analogSample;
-	       sMax = sample;
 	     }
-	   if(gainSample != 1) gain_switch = true;
 	 }
        // std::cout << std::endl;
      }

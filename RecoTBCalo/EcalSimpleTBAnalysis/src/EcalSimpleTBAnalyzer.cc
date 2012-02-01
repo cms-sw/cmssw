@@ -6,7 +6,7 @@
      <Notes on implementation>
 */
 //
-// $Id: EcalSimpleTBAnalyzer.cc,v 1.8 2007/12/21 16:10:55 ferriff Exp $
+// $Id: EcalSimpleTBAnalyzer.cc,v 1.9 2010/01/04 15:09:12 ferriff Exp $
 //
 //
 
@@ -345,13 +345,10 @@ EcalSimpleTBAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
 
 
    
-   bool gain_switch = false;
    double samples_save[10]; for(int i=0; i < 10; ++i) samples_save[i]=0.0;
-   double gain_save[10];    for(int i=0; i < 10; ++i) gain_save[i]=0.0;
    
    // find the rechit corresponding digi and the max sample
    EBDigiCollection::const_iterator myDg = digis->find(xtalInBeam_);
-   int sMax = -1;
    double eMax = 0.;
    if (myDg != digis->end())
      {
@@ -359,16 +356,12 @@ EcalSimpleTBAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
        for (int sample = 0; sample < myDigi.size(); ++sample)
 	 {
 	   double analogSample = myDigi.sample(sample).adc();
-	   double gainSample   = myDigi.sample(sample).gainId();
 	   samples_save[sample] = analogSample;
-	   gain_save[sample]    = gainSample;
 	   //  std::cout << analogSample << " ";
 	   if ( eMax < analogSample )
 	     {
 	       eMax = analogSample;
-	       sMax = sample;
 	     }
-	   if(gainSample != 1) gain_switch = true;
 	 }
        // std::cout << std::endl;
      }
