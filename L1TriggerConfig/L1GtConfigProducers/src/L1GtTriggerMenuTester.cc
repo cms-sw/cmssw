@@ -133,7 +133,7 @@ void L1GtTriggerMenuTester::analyze(const edm::Event& iEvent,
     std::vector<unsigned int> triggerMaskVetoTechTrig = l1GtTmVetoTech->gtTriggerMask();
 
     // set the index of physics DAQ partition TODO EventSetup?
-    int physicsDaqPartition = 0;
+    //int physicsDaqPartition = 0;
 
     // use another map <int, L1GtAlgorithm> to get the menu sorted after bit number
     // both algorithm and bit numbers are unique
@@ -145,7 +145,6 @@ void L1GtTriggerMenuTester::analyze(const edm::Event& iEvent,
 
     std::map<int, const L1GtAlgorithm*> algoBitToAlgo;
 
-    typedef std::map<std::string, const L1GtAlgorithm*>::const_iterator CItAlgoP;
 
     std::map<std::string, const L1GtAlgorithm*> jetAlgoTrig;
     std::map<std::string, const L1GtAlgorithm*> egammaAlgoTrig;
@@ -402,11 +401,15 @@ void L1GtTriggerMenuTester::analyze(const edm::Event& iEvent,
 
     freeTechTrigNumber = techTrigNumberTotal - techTrigNumber;
 
+    // name of the attached HTML file FIXME get it automatically from L1 Trigger Menu Implementation
+    //m_htmlFile =  "%ATTACHURL%/L1Menu_Collisions2011_v6_L1T_Scales_20101224_Imp0_0x1024.html";
+    m_htmlFile =  "%ATTACHURL%/L1Menu_Collisions2012_v0_L1T_Scales_20101224_Imp0_0x1027.html";
+
 
     // header for printing algorithms
 
     std::cout << "\n   ********** L1 Trigger Menu - printing   ********** \n\n"
-            << "\n---++ L1 menu identification\n"
+            << "\n---+++ L1 menu identification\n"
             << "\n|L1 Trigger Menu Interface: |!" << l1GtMenu->gtTriggerMenuInterface() << " |"
             << "\n|L1 Trigger Menu Name: |!" << l1GtMenu->gtTriggerMenuName() << " |"
             << "\n|L1 Trigger Menu Implementation: |!" << l1GtMenu->gtTriggerMenuImplementation() << " |"
@@ -414,7 +417,7 @@ void L1GtTriggerMenuTester::analyze(const edm::Event& iEvent,
             << std::flush << std::endl;
 
     // Overview page
-    std::cout << "\n---++ Overview\n" << std::endl;
+    std::cout << "\n---+++ Summary\n" << std::endl;
     std::cout << "   * Number of algorithm triggers: " << algoTrigNumber << " defined, 128 possible." << std::endl;
     std::cout << "   * Number of technical triggers: " << techTrigNumber << " defined,  64 possible.<BR><BR>" << std::endl;
 
@@ -430,259 +433,37 @@ void L1GtTriggerMenuTester::analyze(const edm::Event& iEvent,
     std::cout << "    | Cross algorithm triggers: |  " << crossAlgoTrigNumber << "|"<< std::endl;
     std::cout << "    | Background algorithm triggers: |  " << bkgdAlgoTrigNumber << "|"<< std::endl;
 
-    std::cout << "\n---++ List of algorithm triggers sorted by trigger groups\n" << std::endl;
+    // force a page break
+    std::cout << "<p style=\"page-break-before: always\">&nbsp;</p>";
+
+    std::cout << "\n---+++ List of algorithm triggers sorted by trigger groups\n" << std::endl;
 
     // Jet algorithm triggers
-    std::cout << "\n---+++ Jet algorithm triggers\n" << std::endl;
-    std::cout << "| *AlgoTrig Name* | *AlgoTrig Alias* | *Prescale status* | *Seed for HLT path(s)* | *Expected rate* | *Comments* | " << std::endl;
-
-    for (CItAlgoP itAlgo = jetAlgoTrig.begin(); itAlgo != jetAlgoTrig.end(); itAlgo++) {
-
-        const std::string& aName = (itAlgo->second)->algoName();
-        const std::string& aAlias = (itAlgo->second)->algoAlias();
-
-        std::string aNameNoU = aName; // ...ugly
-        boost::erase_all(aNameNoU, "_");
-
-        std::cout
-        << "|" << std::left << aName << "  |" << aAlias << "  |  " << "  |  " << "  |  " << ( "  | [[#"+aNameNoU ) << "][link]] " << "  |  "
-        << std::endl;
-    }
-
-    std::cout << "\nJet algorithm triggers: " << jetAlgoTrigNumber << " bits defined."<< std::endl;
-
+    printTriggerGroup("Jet algorithm triggers", jetAlgoTrig);
 
     // EGamma algorithm triggers
-    std::cout << "\n---+++ EGamma algorithm triggers\n" << std::endl;
-    std::cout << "| *AlgoTrig Name* | *AlgoTrig Alias* | *Prescale status* | *Seed for HLT path(s)* | *Expected rate* | *Comments* | " << std::endl;
-
-    for (CItAlgoP itAlgo = egammaAlgoTrig.begin(); itAlgo != egammaAlgoTrig.end(); itAlgo++) {
-
-        const std::string& aName = (itAlgo->second)->algoName();
-        const std::string& aAlias = (itAlgo->second)->algoAlias();
-
-        std::string aNameNoU = aName; // ...ugly
-        boost::erase_all(aNameNoU, "_");
-
-        std::cout
-        << "|" << std::left << aName << "  |" << aAlias << "  |  " << "  |  " << "  |  " << ( "  | [[#"+aNameNoU ) << "][link]] " << "  |  "
-        << std::endl;
-    }
-
-    std::cout << "\nEGamma algorithm triggers: " << egammaAlgoTrigNumber << " bits defined."<< std::endl;
-
-
+    printTriggerGroup("EGamma algorithm triggers", egammaAlgoTrig);
 
     // Energy sum algorithm triggers
-    std::cout << "\n---+++ Energy sum algorithm triggers\n" << std::endl;
-    std::cout << "| *AlgoTrig Name* | *AlgoTrig Alias* | *Prescale status* | *Seed for HLT path(s)* | *Expected rate* | *Comments* | " << std::endl;
-
-    for (CItAlgoP itAlgo = esumAlgoTrig.begin(); itAlgo != esumAlgoTrig.end(); itAlgo++) {
-
-        const std::string& aName = (itAlgo->second)->algoName();
-        const std::string& aAlias = (itAlgo->second)->algoAlias();
-
-        std::string aNameNoU = aName; // ...ugly
-        boost::erase_all(aNameNoU, "_");
-
-        std::cout
-        << "|" << std::left << aName << "  |" << aAlias << "  |  " << "  |  " << "  |  " << ( "  | [[#"+aNameNoU ) << "][link]] " << "  |  "
-        << std::endl;
-    }
-
-    std::cout << "\nEnergy sum algorithm triggers: " << esumAlgoTrigNumber << " bits defined."<< std::endl;
-
+    printTriggerGroup("Energy sum algorithm triggers", esumAlgoTrig);
 
     // Muon algorithm triggers
-    std::cout << "\n---+++ Muon algorithm triggers\n" << std::endl;
-    std::cout << "| *AlgoTrig Name* | *AlgoTrig Alias* | *Prescale status* | *Seed for HLT path(s)* | *Expected rate* | *Comments* | " << std::endl;
-
-    for (CItAlgoP itAlgo = muonAlgoTrig.begin(); itAlgo != muonAlgoTrig.end(); itAlgo++) {
-
-        const std::string& aName = (itAlgo->second)->algoName();
-        const std::string& aAlias = (itAlgo->second)->algoAlias();
-
-        std::string aNameNoU = aName; // ...ugly
-        boost::erase_all(aNameNoU, "_");
-
-        std::cout
-        << "|" << std::left << aName << "  |" << aAlias << "  |  " << "  |  " << "  |  " << ( "  | [[#"+aNameNoU ) << "][link]] " << "  |  "
-        << std::endl;
-    }
-
-    std::cout << "\nMuon algorithm triggers: " << muonAlgoTrigNumber << " bits defined."<< std::endl;
-
+    printTriggerGroup("Muon algorithm triggers", muonAlgoTrig);
 
     // Cross algorithm triggers
-    std::cout << "\n---+++ Cross algorithm triggers\n" << std::endl;
-    std::cout << "| *AlgoTrig Name* | *AlgoTrig Alias* | *Prescale status* | *Seed for HLT path(s)* | *Expected rate* | *Comments* | " << std::endl;
-
-    for (CItAlgoP itAlgo = crossAlgoTrig.begin(); itAlgo != crossAlgoTrig.end(); itAlgo++) {
-
-        const std::string& aName = (itAlgo->second)->algoName();
-        const std::string& aAlias = (itAlgo->second)->algoAlias();
-
-        std::string aNameNoU = aName; // ...ugly
-        boost::erase_all(aNameNoU, "_");
-
-        std::cout
-        << "|" << std::left << aName << "  |" << aAlias << "  |  " << "  |  " << "  |  " << ( "  | [[#"+aNameNoU ) << "][link]] " << "  |  "
-        << std::endl;
-    }
-
-    std::cout << "\nCross algorithm triggers: " << crossAlgoTrigNumber << " bits defined."<< std::endl;
-
+    printTriggerGroup("Cross algorithm triggers", crossAlgoTrig);
 
     // Background algorithm triggers
-    std::cout << "\n---+++ Background algorithm triggers\n" << std::endl;
-    std::cout << "| *AlgoTrig Name* | *AlgoTrig Alias* | *Prescale status* | *Seed for HLT path(s)* | *Expected rate* | *Comments* | " << std::endl;
-
-    for (CItAlgoP itAlgo = bkgdAlgoTrig.begin(); itAlgo != bkgdAlgoTrig.end(); itAlgo++) {
-
-        const std::string& aName = (itAlgo->second)->algoName();
-        const std::string& aAlias = (itAlgo->second)->algoAlias();
-
-        std::string aNameNoU = aName; // ...ugly
-        boost::erase_all(aNameNoU, "_");
-
-        std::cout
-        << "|" << std::left << aName << "  |" << aAlias << "  |  " << "  |  " << "  |  " << ( "  | [[#"+aNameNoU ) << "][link]] " << "  |  "
-        << std::endl;
-    }
-
-    std::cout << "\nBackground algorithm triggers: " << bkgdAlgoTrigNumber << " bits defined."<< std::endl;
+    printTriggerGroup("Background algorithm triggers", bkgdAlgoTrig);
 
 
+    // force a page break
+    std::cout << "<p style=\"page-break-before: always\">&nbsp;</p>";
 
-    std::cout << "\n---+++ Comments\n" << std::endl;
-
-
-    // Jet algorithm triggers - comments
-    std::cout << "\n---++++ Jet algorithm triggers - comments\n" << std::endl;
-    std::cout
-            << "| *Algorithm trigger name*  | *Uncorrected energy* | *Typical prescale factor* | *HLT path* | *Requested by* | *POG/PAG group* | *Comments* | "
-            << std::endl;
-
-    for (CItAlgoP itAlgo = jetAlgoTrig.begin(); itAlgo != jetAlgoTrig.end(); itAlgo++) {
-
-        const std::string& aName = (itAlgo->second)->algoName();
-
-        std::string aNameNoU = aName; // ...ugly
-        boost::erase_all(aNameNoU, "_");
-
-        std::cout << ("#" + aNameNoU) << std::endl;
-        std::cout << "| " << std::left << aName << " |  |  |  |  |  |  | "
-                << std::endl;
-
-    }
-
-
-    // EGamma algorithm triggers - comments
-    std::cout << "\n---++++ EGamma algorithm triggers - comments\n" << std::endl;
-    std::cout
-            << "| *Algorithm trigger name*  | *Typical prescale factor* | *HLT path* | *Requested by* | *POG/PAG group* | *Comments* | "
-            << std::endl;
-
-    for (CItAlgoP itAlgo = egammaAlgoTrig.begin(); itAlgo != egammaAlgoTrig.end(); itAlgo++) {
-
-        const std::string& aName = (itAlgo->second)->algoName();
-
-        std::string aNameNoU = aName; // ...ugly
-        boost::erase_all(aNameNoU, "_");
-
-        std::cout << ("#" + aNameNoU) << std::endl;
-        std::cout << "| " << std::left << aName << " |  |  |  |  |  | "
-                << std::endl;
-
-    }
-
-
-    // Energy sum algorithm triggers - comments
-    std::cout << "\n---++++ Energy sum algorithm triggers - comments\n" << std::endl;
-    std::cout
-            << "| *Algorithm trigger name*  | *Typical prescale factor* | *HLT path* | *Requested by* | *POG/PAG group* | *Comments* | "
-            << std::endl;
-
-    for (CItAlgoP itAlgo = esumAlgoTrig.begin(); itAlgo != esumAlgoTrig.end(); itAlgo++) {
-
-        const std::string& aName = (itAlgo->second)->algoName();
-
-        std::string aNameNoU = aName; // ...ugly
-        boost::erase_all(aNameNoU, "_");
-
-        std::cout << ("#" + aNameNoU) << std::endl;
-        std::cout << "| " << std::left << aName << " |  |  |  |  |  | "
-                << std::endl;
-
-    }
-
-
-    // Muon algorithm triggers - comments
-    std::cout << "\n---++++ Muon algorithm triggers - comments\n" << std::endl;
-    std::cout
-            << "| *Algorithm trigger name*  | *Typical prescale factor* | *HLT path* | *Requested by* | *POG/PAG group* | *Comments* | "
-            << std::endl;
-
-    for (CItAlgoP itAlgo = muonAlgoTrig.begin(); itAlgo != muonAlgoTrig.end(); itAlgo++) {
-
-        const std::string& aName = (itAlgo->second)->algoName();
-
-        std::string aNameNoU = aName; // ...ugly
-        boost::erase_all(aNameNoU, "_");
-
-        std::cout << ("#" + aNameNoU) << std::endl;
-        std::cout << "| " << std::left << aName << " |  |  |  |  |  | "
-                << std::endl;
-
-    }
-
-
-    // Cross algorithm triggers - comments
-    std::cout << "\n---++++ Cross algorithm triggers - comments\n" << std::endl;
-    std::cout
-            << "| *Algorithm trigger name*  | *Typical prescale factor* | *HLT path* | *Requested by* | *POG/PAG group* | *Comments* | "
-            << std::endl;
-
-    for (CItAlgoP itAlgo = crossAlgoTrig.begin(); itAlgo != crossAlgoTrig.end(); itAlgo++) {
-
-        const std::string& aName = (itAlgo->second)->algoName();
-
-        std::string aNameNoU = aName; // ...ugly
-        boost::erase_all(aNameNoU, "_");
-
-        std::cout << ("#" + aNameNoU) << std::endl;
-        std::cout << "| " << std::left << aName << " |  |  |  |  |  | "
-                << std::endl;
-
-    }
-
-    // Background algorithm triggers - comments
-    std::cout << "\n---++++ Background algorithm triggers - comments\n" << std::endl;
-    std::cout
-            << "| *Algorithm trigger name*  | *Typical prescale factor* | *HLT path* | *Requested by* | *POG/PAG group* | *Comments* | "
-            << std::endl;
-
-    for (CItAlgoP itAlgo = bkgdAlgoTrig.begin(); itAlgo != bkgdAlgoTrig.end(); itAlgo++) {
-
-        const std::string& aName = (itAlgo->second)->algoName();
-
-        std::string aNameNoU = aName; // ...ugly
-        boost::erase_all(aNameNoU, "_");
-
-        std::cout << ("#" + aNameNoU) << std::endl;
-        std::cout << "| " << std::left << aName << " |  |  |  |  |  | "
-                << std::endl;
-
-    }
-
-
-
-
-
-    std::cout << "\n---++ List of algorithm triggers sorted by bits\n" << std::endl;
+    std::cout << "\n---+++ List of algorithm triggers sorted by bits\n" << std::endl;
 
     std::cout
-    << "| *Algorithm* | *Alias* | *Bit number* | *Prescale factor* | *Mask* |"
+    << "| *Algorithm* | *Alias* | *Bit number* |"
     << std::endl;
 
     for (CItBit itBit = algoBitToAlgo.begin(); itBit != algoBitToAlgo.end(); itBit++) {
@@ -691,25 +472,18 @@ void L1GtTriggerMenuTester::analyze(const edm::Event& iEvent,
         std::string aName = (itBit->second)->algoName();
         std::string aAlias = (itBit->second)->algoAlias();
 
-        unsigned int triggerMaskAlgo =
-            (triggerMaskAlgoTrig.at(bitNumber)) & (1 << physicsDaqPartition);
-
         std::cout
         << "|" << std::left << aName << "  |" << aAlias << "  |  " << std::right << bitNumber
-        << "|  " << prescaleFactorsAlgoTrig.at(bitNumber)
-        << "|  " << triggerMaskAlgo
         << " |"
         << std::endl;
     }
 
 
+    // force a page break
+    std::cout << "<p style=\"page-break-before: always\">&nbsp;</p>";
+    std::cout << "\n---+++ List of technical triggers\n" << std::endl;
 
-
-    std::cout << "\n---++ List of technical triggers\n" << std::endl;
-
-    std::cout
-    << "| *Technical trigger* | *Bit number* | *Prescale factor* | *Mask* | *Veto mask* |"
-    << std::endl;
+    std::cout << "| *Technical trigger* | *Bit number* |" << std::endl;
 
     for (CItBit itBit = techBitToAlgo.begin(); itBit != techBitToAlgo.end(); itBit++) {
 
@@ -717,22 +491,65 @@ void L1GtTriggerMenuTester::analyze(const edm::Event& iEvent,
         std::string aName = (itBit->second)->algoName();
         std::string aAlias = (itBit->second)->algoAlias();
 
-        unsigned int triggerMaskTech =
-            (triggerMaskTechTrig.at(bitNumber)) & (1 << physicsDaqPartition);
-        unsigned int triggerMaskVetoTech =
-            (triggerMaskVetoTechTrig.at(bitNumber)) & (1 << physicsDaqPartition);
-
-        std::cout
-        << "|!" << std::left << aName << "  |  " << std::right << bitNumber
-        << "|  " << prescaleFactorsTechTrig.at(bitNumber)
-        << "|  " << triggerMaskTech
-        << "|  " << triggerMaskVetoTech
-        << " |"
-        << std::endl;
+        std::cout << "|!" << std::left << aName << "  |  " << std::right
+                << bitNumber << " |" << std::endl;
     }
 
+}
+
+
+// printing template for a trigger group
+void L1GtTriggerMenuTester::printTriggerGroup(const std::string& trigGroupName,
+        const std::map<std::string, const L1GtAlgorithm*>& trigGroup) {
+
+
+    // force a page break before each group
+    std::cout << "<p style=\"page-break-before: always\">&nbsp;</p>";
+
+    // FIXME get values - either read from a specific L1 menu file, or from
+    std::string lumiVal1 = "5.0E33";
+    std::string lumiVal2 = "7.0E33";
+    std::string seedsHlt;
+    std::string trigComment;
+
+    int trigPfVal1 = 0;
+    int trigPfVal2 = 0;
+
+    int trigRateVal1 = 0;
+    int trigRateVal2 = 0;
+
+    std::cout << "\n---++++ " << trigGroupName << "\n" << std::endl;
+
     std::cout
-    << "\nNOTE: only the prescale factors from set index zero are printed!"
-    << std::endl;
+            << "|  *Trigger Name*  |  *Trigger Alias*  |  *Bit*  |  *Luminosity*  ||||  *Seed for !HLT path(s)*  |  *Comments*  |"
+            << std::endl;
+
+    std::cout << "|^|^|^|  *" << lumiVal1 << "*  ||  *" << lumiVal2
+            << "*  ||  **  |  **  |" << std::endl;
+
+    std::cout << "|^|^|^|  *PF*  |  *Rate*  |  *PF*  |  *Rate*  |  ** |  **  |"
+            << std::endl;
+
+    for (CItAlgoP itAlgo = trigGroup.begin(); itAlgo != trigGroup.end(); itAlgo++) {
+
+        const std::string& aName = (itAlgo->second)->algoName();
+        const std::string& aAlias = (itAlgo->second)->algoAlias();
+        const int& bitNumber = (itAlgo->second)->algoBitNumber();
+
+        std::cout
+                << "|" << std::left << "[[" << (m_htmlFile + "#" + aName) << "][ " << aName << "]] " << "  |"
+                << aAlias << "  |  "
+                << bitNumber << "|  "
+                << ( (trigPfVal1 != 0) ? trigPfVal1 : 0) << "  |  "
+                << ( (trigRateVal1 != 0) ? trigRateVal1 : 0) << "  |  "
+                << ( (trigPfVal2 != 0) ? trigPfVal2 : 0) << "  |  "
+                << ( (trigRateVal2 != 0) ? trigRateVal2 : 0) << "  |  "
+                << seedsHlt << "  |  " << trigComment << "  |"<< std::endl;
+    }
+
+    std::cout << "\n" << trigGroupName << ": " << (trigGroup.size())
+            << " bits defined." << std::endl;
 
 }
+
+
