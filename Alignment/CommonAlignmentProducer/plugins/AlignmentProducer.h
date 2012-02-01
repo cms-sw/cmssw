@@ -7,9 +7,9 @@
 /// Description : calls alignment algorithms
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.23 $
-///  last update: $Date: 2011/05/23 21:01:48 $
-///  by         : $Author: mussgill $
+///  Revision   : $Revision: 1.24 $
+///  last update: $Date: 2011/08/08 21:30:50 $
+///  by         : $Author: flucke $
 
 #include <vector>
 
@@ -177,7 +177,8 @@ class AlignmentProducer : public edm::ESProducerLooper
 
   const int stNFixAlignables_;
   const double stRandomShift_,stRandomRotation_;
-  const bool applyDbAlignment_,doMisalignmentScenario_;
+  const bool applyDbAlignment_,checkDbAlignmentValidity_;
+  const bool doMisalignmentScenario_;
   const bool saveToDB_, saveApeToDB_,saveDeformationsToDB_;
   const bool doTracker_,doMuon_,useExtras_;
   const bool useSurvey_; // true to read survey info from DB

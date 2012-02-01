@@ -23,7 +23,12 @@ looper = cms.Looper("AlignmentProducer",
                     # (Mis-)alignment including surface deformations from database
                     # true requires configuration of PoolDBESSource
                     applyDbAlignment = cms.untracked.bool(False),
-                    
+                                        
+                    # Checks the IOV of the alignment to be applied. Only has an effect
+                    # if applyDbAlignment is True as well. If set to True, the alignment
+                    # record to be applied is expected to have a validity from 1 to INF
+                    checkDbAlignmentValidity = cms.untracked.bool(True),
+
                     # misalignment scenario
                     MisalignmentScenario = cms.PSet(NoMovementsScenario), # why not by reference?
                     doMisalignmentScenario = cms.bool(False),

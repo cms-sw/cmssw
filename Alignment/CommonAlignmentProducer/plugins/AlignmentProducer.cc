@@ -1,8 +1,8 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.57 $
-///  last update: $Date: 2011/09/28 08:04:10 $
+///  Revision   : $Revision: 1.58 $
+///  last update: $Date: 2011/11/28 13:13:42 $
 ///  by         : $Author: mussgill $
 
 #include "AlignmentProducer.h"
@@ -83,6 +83,7 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
   stRandomShift_(iConfig.getParameter<double>("randomShift")),
   stRandomRotation_(iConfig.getParameter<double>("randomRotation")),
   applyDbAlignment_( iConfig.getUntrackedParameter<bool>("applyDbAlignment")),
+  checkDbAlignmentValidity_( iConfig.getUntrackedParameter<bool>("checkDbAlignmentValidity")),
   doMisalignmentScenario_(iConfig.getParameter<bool>("doMisalignmentScenario")),
   saveToDB_(iConfig.getParameter<bool>("saveToDB")),
   saveApeToDB_(iConfig.getParameter<bool>("saveApeToDB")),
@@ -724,8 +725,26 @@ void AlignmentProducer::applyDB(G* geometry, const edm::EventSetup &iSetup,
   // 'Rcd' is the record class for its Alignments 
   // 'ErrRcd' is the record class for its AlignmentErrors
   // 'globalCoordinates' are global transformation for this geometry
+
+  const Rcd & record = iSetup.get<Rcd>();
+  if (checkDbAlignmentValidity_) {
+    const edm::ValidityInterval & validity = record.validityInterval();
+    const edm::IOVSyncValue first = validity.first();
+    const edm::IOVSyncValue last = validity.last();
+    if (first!=edm::IOVSyncValue::beginOfTime() &&
+	last!=edm::IOVSyncValue::endOfTime()) {
+      throw cms::Exception("DatabaseError")
+	<< "@SUB=AlignmentProducer::applyDB"
+	<< "\nTrying to apply "
+	<< record.key().name()
+	<< " with multiple IOVs in tag.\n"
+	<< "Validity range is "
+	<< first.eventID().run() << " - " << last.eventID().run();
+    }
+  }
+
   edm::ESHandle<Alignments> alignments;
-  iSetup.get<Rcd>().get(alignments);
+  record.get(alignments);
 
   edm::ESHandle<AlignmentErrors> alignmentErrors;
   iSetup.get<ErrRcd>().get(alignmentErrors);
@@ -744,8 +763,25 @@ void AlignmentProducer::applyDB(G* geometry, const edm::EventSetup &iSetup) cons
 {
   // 'G' is the geometry class for that DB should be applied,
   // 'DeformationRcd' is the record class for its surface deformations 
+
+  const DeformationRcd & record = iSetup.get<DeformationRcd>();
+  if (checkDbAlignmentValidity_) {
+    const edm::ValidityInterval & validity = record.validityInterval();
+    const edm::IOVSyncValue first = validity.first();
+    const edm::IOVSyncValue last = validity.last();
+    if (first!=edm::IOVSyncValue::beginOfTime() &&
+	last!=edm::IOVSyncValue::endOfTime()) {
+      throw cms::Exception("DatabaseError")
+	<< "@SUB=AlignmentProducer::applyDB"
+	<< "\nTrying to apply "
+	<< record.key().name()
+	<< " with multiple IOVs in tag.\n"
+	<< "Validity range is "
+	<< first.eventID().run() << " - " << last.eventID().run();
+    }
+  }
   edm::ESHandle<AlignmentSurfaceDeformations> surfaceDeformations;
-  iSetup.get<DeformationRcd>().get(surfaceDeformations);
+  record.get(surfaceDeformations);
 
   GeometryAligner aligner;
   aligner.attachSurfaceDeformations<G>(geometry, &(*surfaceDeformations));
