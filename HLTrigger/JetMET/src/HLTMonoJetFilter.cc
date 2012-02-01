@@ -19,11 +19,10 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
-//#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-//#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 //
 // extract the candidate type
@@ -37,8 +36,7 @@ trigger::TriggerObjectType getObjectType(const T &) {
 // constructors and destructor
 //
 template<typename T, int Tid>
-HLTMonoJetFilter<T,Tid>::HLTMonoJetFilter(const edm::ParameterSet& iConfig) : 
-  HLTFilter(iConfig),
+HLTMonoJetFilter<T,Tid>::HLTMonoJetFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
   inputJetTag_ (iConfig.template getParameter< edm::InputTag > ("inputJetTag")),
   max_PtSecondJet_ (iConfig.template getParameter<double> ("max_PtSecondJet")),
   max_DeltaPhi_ (iConfig.template getParameter<double> ("max_DeltaPhi"))
@@ -51,6 +49,17 @@ HLTMonoJetFilter<T,Tid>::HLTMonoJetFilter(const edm::ParameterSet& iConfig) :
 
 template<typename T, int Tid>
 HLTMonoJetFilter<T,Tid>::~HLTMonoJetFilter(){}
+
+template<typename T, int Tid>
+void 
+HLTMonoJetFilter<T,Tid>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("inputJetTag",edm::InputTag("hltAntiKT5ConvPFJets"));
+  desc.add<bool>("saveTags",false);
+  desc.add<double>("max_PtSecondJet",9999.);
+  desc.add<double>("max_DeltaPhi",99.);
+  descriptions.add("hltMonoJetFilter",desc);
+}
 
 //
 // ------------ method called to produce the data  ------------

@@ -7,10 +7,12 @@
  *
  */
 
-#include<vector>
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
+namespace edm {
+   class ConfigurationDescriptions;
+}
 
 //
 // class declaration
@@ -22,6 +24,7 @@ class HLTMonoJetFilter : public HLTFilter {
    public:
       explicit HLTMonoJetFilter(const edm::ParameterSet&);
       ~HLTMonoJetFilter();
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
       virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
