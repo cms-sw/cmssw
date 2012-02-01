@@ -18,7 +18,7 @@ if not os.environ.has_key('DISPLAY') or not os.environ['DISPLAY']:
     from matplotlib.backends.backend_agg import FigureCanvasAgg as CanvasBackend
 else:
     try:
-        from RecoLuminosity.LumiDB import LumiQTWidget
+        from RecoLuminosity.LumiDB import lumiQTWidget
     except ImportError:
         print 'unable to import GUI backend, switch to batch only mode'
         matplotlib.use('Agg',warn=False)
@@ -747,7 +747,7 @@ class matplotRender():
         if batchonly:
             print 'interactive mode is not available for your setup, exit'
             sys.exit()
-        aw=LumiQTWidget.ApplicationWindow(fig=self.__fig)
+        aw=lumiQTWidget.ApplicationWindow(fig=self.__fig)
         aw.show()
         aw.destroy()
         
