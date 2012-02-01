@@ -18,12 +18,7 @@ if not os.environ.has_key('DISPLAY') or not os.environ['DISPLAY']:
     from matplotlib.backends.backend_agg import FigureCanvasAgg as CanvasBackend
 else:
     try:
-        matplotlib.use('TkAgg',warn=False)
-        from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as CanvasBackend
-        from matplotlib.backends.backend_tkagg import NavigationToolbar2TkAgg
-        import Tkinter as Tk
-        root=Tk.Tk()
-        root.wm_title("Lumi GUI in TK")
+        from RecoLuminosity.LumiDB import LumiQTWidget
     except ImportError:
         print 'unable to import GUI backend, switch to batch only mode'
         matplotlib.use('Agg',warn=False)
@@ -39,9 +34,6 @@ matplotlib.rcParams['ytick.labelsize']=11
 matplotlib.rcParams['legend.fontsize']=10
 matplotlib.rcParams['axes.labelsize']=11
 matplotlib.rcParams['font.weight']=567
-
-def destroy(e) :
-    sys.exit()
 
 def guessLumiUnit(t):
     '''
@@ -283,7 +275,7 @@ class matplotRender():
         ytotal={}
         lut=lumiTime.lumiTime()
         if not minTime:
-            minTime='03/01/10 00:00:00'
+            minTime='001/10 00:00:00'
         minTime=lut.StrToDatetime(minTime,customfm='%m/%d/%y %H:%M:%S')
         if not maxTime:
             maxTime=datetime.datetime.utcnow()
@@ -754,16 +746,10 @@ class matplotRender():
     def drawInteractive(self):
         if batchonly:
             print 'interactive mode is not available for your setup, exit'
-            sys.exit()    
-        self.__canvas=CanvasBackend(self.__fig,master=root)
-        self.__canvas.show()
-        self.__canvas.get_tk_widget().pack(side=Tk.TOP,fill=Tk.BOTH,expand=1)
-        toolbar=NavigationToolbar2TkAgg(self.__canvas,root)
-        toolbar.update()
-        self.__canvas._tkcanvas.pack(side=Tk.TOP,fill=Tk.BOTH,expand=1)
-        button = Tk.Button(master=root,text='Quit',command=sys.exit)
-        button.pack(side=Tk.BOTTOM)
-        Tk.mainloop()
+            sys.exit()
+        aw=LumiQTWidget.ApplicationWindow(fig=self.__fig)
+        aw.show()
+        aw.destroy()
         
 if __name__=='__main__':
     import csv
@@ -778,8 +764,11 @@ if __name__=='__main__':
     fig=Figure(figsize=(7.2,5.4),dpi=120)
     m=matplotRender(fig)
     m.plotSumX_Run(rawdata={},resultlines=resultlines,minRun=None,maxRun=None,nticks=6,yscale='linear',withannotation=False)
-    m.drawPNG('totallumivsrun-2011test.png')
+    #m.drawPNG('totallumivsrun-2011test.png')
+    m.drawInteractive()
     print 'DONE'
+    
+'''
     print '=====testing plotSumX_Fill======'
     f=open('/afs/cern.ch/cms/lumi/www/plots/operation/totallumivsfill-2011.csv','r')
     reader=csv.reader(f,delimiter=',')
@@ -835,3 +824,4 @@ if __name__=='__main__':
     m.drawPNG('lumipeak-2011test.png')
     print 'DONE'
     
+'''
