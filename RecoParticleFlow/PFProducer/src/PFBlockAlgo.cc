@@ -337,14 +337,10 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
 
   if(debug_ ) std::cout << " PFBlockAlgo links type1 " << type1 << " type2 " << type2 << std::endl;
 
-  PFBlockElement::Type lowType = type1;
-  PFBlockElement::Type highType = type2;
   const PFBlockElement* lowEl = el1;
   const PFBlockElement* highEl = el2;
   
   if(type1>type2) {
-    lowType = type2;
-    highType = type1;
     lowEl = el2;
     highEl = el1;
   }
