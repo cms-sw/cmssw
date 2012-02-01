@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Dec 30 10:09:44 CST 2010
-// $Id: MessageReceiverForSource.h,v 1.2 2011/01/03 21:05:00 chrjones Exp $
+// $Id: MessageReceiverForSource.h,v 1.3 2011/10/24 22:27:16 chrjones Exp $
 //
 
 // system include files
@@ -31,7 +31,7 @@ namespace edm {
          
       public:
          ///Takes the fd of the read and write socket for communication with parent
-         MessageReceiverForSource(int parentSocket);
+         MessageReceiverForSource(int parentSocket, int parentPipe);
          
          // ---------- const member functions ---------------------
          
@@ -65,6 +65,8 @@ namespace edm {
          
          // ---------- member data --------------------------------
          int m_parentSocket;
+         int m_parentPipe;
+         int m_maxFd;
          unsigned long m_startIndex;
          unsigned long m_numberOfConsecutiveIndices;
          unsigned long m_numberToSkip;

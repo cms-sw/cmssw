@@ -921,7 +921,23 @@ namespace edm {
       }
       m_maxFd++; // select reads [0,m_maxFd).
     }
-    
+   
+    /* This function is the heart of the communication between parent and child.
+     * When ready for more data, the child (see MessageReceiverForSource) requests
+     * data through a AF_UNIX socket message.  The parent will then assign the next
+     * chunk of data by sending a message back.
+     *
+     * Additionally, this function also monitors the read-side of the pipe fd from the child.
+     * If the child dies unexpectedly, the pipe will be selected as ready for read and
+     * will return EPIPE when read from.  Further, if the child thinks the parent has died
+     * (defined as waiting more than 1s for a response), it will write a single byte to
+     * the pipe.  If the parent has died, the child will get a EPIPE and throw an exception.
+     * If still alive, the parent will read the byte and ignore it.
+     *
+     * Note this function is complemented by the SIGCHLD handler above as currently only the SIGCHLD
+     * handler can distinguish between success and failure cases.
+     */
+ 
     void
     MessageSenderToSource::operator()() {
       multicore::MessageForParent childMsg;
@@ -941,17 +957,17 @@ namespace edm {
         ssize_t rc;
         while (((rc = select(m_maxFd, &readSockets, NULL, &errorSockets, NULL)) < 0) && (errno == EINTR)) {}
         if (rc < 0) {
-          std::cerr << "select failed; should be impossible due to preconditions.";
+          std::cerr << "select failed; should be impossible due to preconditions.\n";
           abort();
           break;
         }
-        
+
         // Read the message from the child.
-        // On error, set child_fail = true
         for (int idx=0; idx<m_maxFd; idx++) {
 
           // Handle errors
           if (FD_ISSET(idx, &errorSockets)) {
+            LogInfo("ForkingController") << "Error on socket " << idx;
             FD_CLR(idx, &m_socketSet);
             close(idx);
             // See if it was the watchdog pipe that died.
@@ -966,29 +982,45 @@ namespace edm {
           if (!FD_ISSET(idx, &readSockets)) {
             continue;
           }
-          while (((rc = recv(idx, reinterpret_cast<char*>(&childMsg),childMsg.sizeForBuffer() , 0)) < 0) && (errno == EINTR)) {}
-          if (rc < 0) {
-            FD_CLR(idx, &m_socketSet);
-            close(idx);
-            // See if it was the watchdog pipe that died.
-            for (std::vector<int>::const_iterator it = m_childrenPipes.begin(), itEnd = m_childrenPipes.end(); it != itEnd; it++) {
+
+          // See if this FD is a child watchdog pipe.  If so, read from it to prevent
+          // writes from blocking.
+          bool is_pipe = false;
+          for (std::vector<int>::const_iterator it = m_childrenPipes.begin(), itEnd = m_childrenPipes.end(); it != itEnd; it++) {
               if (*it == idx) {
-                m_aliveChildren--;
+                is_pipe = true;
+                char buf;
+                while (((rc = read(idx, &buf, 1)) < 0) && (errno == EINTR)) {}
+                if (rc <= 0) {
+                  m_aliveChildren--;
+                  FD_CLR(idx, &m_socketSet);
+                  close(idx);
+                }
               }
+          }
+
+          // Only execute this block if the FD is a socket for sending the child work.
+          if (!is_pipe) {
+            while (((rc = recv(idx, reinterpret_cast<char*>(&childMsg),childMsg.sizeForBuffer() , 0)) < 0) && (errno == EINTR)) {}
+            if (rc < 0) {
+              FD_CLR(idx, &m_socketSet);
+              close(idx);
+              continue;
             }
-            continue;
-          }
           
-          // Tell the child what events to process.
-          // On error, set child_fail = true
-          while (((rc = send(idx, (char *)(&sndmsg), multicore::MessageForSource::sizeForBuffer(), 0)) < 0) && (errno == EINTR)) {}
-          if (rc < 0) {
-            FD_CLR(idx, &m_socketSet);
-            close(idx);
-            continue;
+            // Tell the child what events to process.
+            // If 'send' fails, then the child process has failed (any other possibilities are
+            // eliminated because we are using fixed-size messages with Unix datagram sockets).
+            // Thus, the SIGCHLD handler will fire and set child_fail = true.
+            while (((rc = send(idx, (char *)(&sndmsg), multicore::MessageForSource::sizeForBuffer(), 0)) < 0) && (errno == EINTR)) {}
+            if (rc < 0) {
+              FD_CLR(idx, &m_socketSet);
+              close(idx);
+              continue;
+            }
+            //std::cout << "Sent chunk starting at " << sndmsg.startIndex << " to child, length " << sndmsg.nIndices << std::endl;
+            sndmsg.startIndex += sndmsg.nIndices;
           }
-          //std::cout << "Sent chunk starting at " << sndmsg.startIndex << " to child, length " << sndmsg.nIndices << std::endl;
-          sndmsg.startIndex += sndmsg.nIndices;
         }
       
       } while (m_aliveChildren > 0);
@@ -1086,6 +1118,10 @@ namespace edm {
     childrenSockets.reserve(kMaxChildren);
     std::vector<int> childrenPipes;
     childrenPipes.reserve(kMaxChildren);
+    std::vector<int> childrenSocketsCopy;
+    childrenSocketsCopy.reserve(kMaxChildren);
+    std::vector<int> childrenPipesCopy;
+    childrenPipesCopy.reserve(kMaxChildren);
     int pipes[2];
 
     {
@@ -1108,7 +1144,9 @@ namespace edm {
           printf("Failed to get fd flags: %d %s\n", errno, strerror(errno));
           exit(EXIT_FAILURE);
         }
-        if (fcntl(sockets[1], F_SETFD, fd_flags | FD_CLOEXEC) == -1) {
+        // Mark socket as non-block.  Child must be careful to do select prior
+        // to reading from socket.
+        if (fcntl(sockets[1], F_SETFD, fd_flags | FD_CLOEXEC | O_NONBLOCK) == -1) {
           printf("Failed to set new fd flags: %d %s\n", errno, strerror(errno));
           exit(EXIT_FAILURE);
         }
@@ -1120,11 +1158,34 @@ namespace edm {
           printf("Failed to set new fd flags: %d %s\n", errno, strerror(errno));
           exit(EXIT_FAILURE);
         }
+        // Linux man page notes there are some edge cases where reading from a
+        // fd can block, even after a select.
+        if ((fd_flags = fcntl(pipes[0], F_GETFD, NULL)) == -1) {
+          printf("Failed to get fd flags: %d %s\n", errno, strerror(errno));
+          exit(EXIT_FAILURE);
+        }
+        if (fcntl(pipes[0], F_SETFD, fd_flags | O_NONBLOCK) == -1) {
+          printf("Failed to set new fd flags: %d %s\n", errno, strerror(errno));
+          exit(EXIT_FAILURE);
+        }
+
+        childrenPipesCopy = childrenPipes;
+        childrenSocketsCopy = childrenSockets;
 
         pid_t value = fork();
         if(value == 0) {
-          // this is the child process, redirect stdout and stderr to a log file
+          // Close the parent's side of the socket and pipe which will talk to us.
           close(pipes[0]);
+          close(sockets[0]);
+          // Close our copies of the parent's other communication pipes.
+          for(std::vector<int>::const_iterator it=childrenPipesCopy.begin(); it != childrenPipesCopy.end(); it++) {
+            close(*it);
+          }
+          for(std::vector<int>::const_iterator it=childrenSocketsCopy.begin(); it != childrenSocketsCopy.end(); it++) {
+            close(*it);
+          }
+
+          // this is the child process, redirect stdout and stderr to a log file
           fflush(stdout);
           fflush(stderr);
           std::stringstream stout;
@@ -1161,6 +1222,7 @@ namespace edm {
         } else {
           //this is the parent
           close(pipes[1]);
+          close(sockets[1]);
         }
         if(value < 0) {
           LogError("ForkingChild") << "failed to create a child";
@@ -1175,7 +1237,7 @@ namespace edm {
         jobReport->childAfterFork(jobReportFile, childIndex, kMaxChildren);
         actReg_->postForkReacquireResourcesSignal_(childIndex, kMaxChildren);
 
-        boost::shared_ptr<multicore::MessageReceiverForSource> receiver(new multicore::MessageReceiverForSource(sockets[1]));
+        boost::shared_ptr<multicore::MessageReceiverForSource> receiver(new multicore::MessageReceiverForSource(sockets[1], pipes[1]));
         input_->doPostForkReacquireResources(receiver);
         schedule_->postForkReacquireResources(childIndex, kMaxChildren);
         //NOTE: sources have to reset themselves by listening to the post fork message
