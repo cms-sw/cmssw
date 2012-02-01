@@ -136,11 +136,9 @@ void BTagHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSet
     }
   }
   
-  int npath;
   if(&triggerResults_) {
   
     // Check how many HLT triggers are in triggerResults
-    npath = triggerResults_->size();
     triggerNames_ = iEvent.triggerNames(*triggerResults_);
     
   } 
@@ -262,10 +260,7 @@ void BTagHLTOfflineSource::fillMEforMonTriggerSummary(){
 //--------------------------------------------------------
 void BTagHLTOfflineSource::fillMEforTriggerNTfired(){
 
-  int npath;
-  if(&triggerResults_) {
-    npath = triggerResults_->size();
-  } else {
+  if(! &triggerResults_) {
     return;
   }
   for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v )
@@ -309,11 +304,7 @@ void BTagHLTOfflineSource::fillMEforTriggerNTfired(){
 //--------------------------------------------------------
 void BTagHLTOfflineSource::fillMEforEffAllTrigger(const Event & iEvent){
   
-  int npath;
-  if(&triggerResults_) {
-    npath = triggerResults_->size();
-  } 
-  else {
+  if(! &triggerResults_) {
     return;
   }
   
@@ -395,10 +386,7 @@ void BTagHLTOfflineSource::fillMEforEffAllTrigger(const Event & iEvent){
 //--------------------------------------------------------
 void BTagHLTOfflineSource::fillMEforEffWrtMuTrigger(const Event & iEvent){
 
-  int npath;
-  if(&triggerResults_) {
-    npath = triggerResults_->size();
-  } else {
+  if(! &triggerResults_) {
     return;
   }
   bool muTrig = false;
@@ -475,10 +463,7 @@ void BTagHLTOfflineSource::fillMEforEffWrtMuTrigger(const Event & iEvent){
 //--------------------------------------------------------
 void BTagHLTOfflineSource::fillMEforEffWrtMBTrigger(const Event & iEvent){
 
-  int npath;
-  if(&triggerResults_) {
-    npath = triggerResults_->size();
-  } else {
+  if(! &triggerResults_) {
     return;
   }
   bool mbTrig = false;
@@ -828,8 +813,7 @@ void BTagHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& 
 	    std::string histoname(labelname+"");
 	    std::string title(labelname+"");
 	    
-	    MonitorElement *dummy;
-	    dummy =  dbe->bookFloat("dummy");   
+	    dbe->bookFloat("dummy");   
 	    
 	    if((v->getObjectType() == trigger::TriggerBJet) && (v->getTriggerType().compare("BTagMu_Trigger") == 0))
 	      {//Loop over BTagMu trigger
@@ -837,85 +821,85 @@ void BTagHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& 
 		histoname = labelname + "_NumeratorPt";
 		title     = labelname + "NumeratorPt;Calo Pt[GeV/c]";
 		MonitorElement * NumeratorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-		TH1 * h = NumeratorPt->getTH1();
+		NumeratorPt->getTH1();
 
 		
 		histoname = labelname + "_NumeratorPtBarrel";
 		title     = labelname + "NumeratorPtBarrel;Calo Pt[GeV/c] ";
 		MonitorElement * NumeratorPtBarrel =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-		h = NumeratorPtBarrel->getTH1();
+		NumeratorPtBarrel->getTH1();
 
 		
 		histoname = labelname + "_NumeratorPtEndcap";
 		title     = labelname + "NumeratorPtEndcap;Calo Pt[GeV/c]";
 		MonitorElement * NumeratorPtEndcap =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-		h = NumeratorPtEndcap->getTH1();
+		NumeratorPtEndcap->getTH1();
 
 		
 		histoname = labelname + "_NumeratorPtForward";
 		title     = labelname + "NumeratorPtForward;Calo Pt[GeV/c]";
 		MonitorElement * NumeratorPtForward =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-		h = NumeratorPtForward->getTH1();
+		NumeratorPtForward->getTH1();
 
 		
 		histoname = labelname + "_NumeratorEta";
 		title     = labelname + "NumeratorEta;Calo #eta ";
 		MonitorElement * NumeratorEta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
-		h = NumeratorEta->getTH1();
+		NumeratorEta->getTH1();
 
 		
 		histoname = labelname + "_NumeratorPhi";
 		title     = labelname + "NumeratorPhi;Calo #Phi";
 		MonitorElement * NumeratorPhi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
-		h = NumeratorPhi->getTH1();
+		NumeratorPhi->getTH1();
 
 		
 		histoname = labelname + "_NumeratorEtaPhi";
 		title     = labelname + "NumeratorEtaPhi;Calo #eta;Calo #Phi";
 		MonitorElement * NumeratorEtaPhi =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
-		h = NumeratorEtaPhi->getTH1();
+		NumeratorEtaPhi->getTH1();
 
 		
 		histoname = labelname + "_DenominatorPt";
 		title     = labelname + "DenominatorPt;Calo Pt[GeV/c]";
 		MonitorElement * DenominatorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-		h = DenominatorPt->getTH1();
+		DenominatorPt->getTH1();
 
 		
 		histoname = labelname + "_DenominatorPtBarrel";
 		title     = labelname + "DenominatorPtBarrel;Calo Pt[GeV/c]";
 		MonitorElement * DenominatorPtBarrel =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-		h = DenominatorPtBarrel->getTH1();
+		DenominatorPtBarrel->getTH1();
 
 		
 		histoname = labelname + "_DenominatorPtEndcap";
 		title     = labelname + "DenominatorPtEndcap;Calo Pt[GeV/c]";
 		MonitorElement * DenominatorPtEndcap =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-		h = DenominatorPtEndcap->getTH1();
+		DenominatorPtEndcap->getTH1();
 
 		
 		histoname = labelname + "_DenominatorPtForward";
 		title     = labelname + "DenominatorPtForward;Calo Pt[GeV/c] ";
 		MonitorElement * DenominatorPtForward =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-		h = DenominatorPtForward->getTH1();
+		DenominatorPtForward->getTH1();
 
 		
 		histoname = labelname + "_DenominatorEta";
 		title     = labelname + "DenominatorEta;Calo #eta ";
 		MonitorElement * DenominatorEta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
-		h = DenominatorEta->getTH1();
+		DenominatorEta->getTH1();
 
 		
 		histoname = labelname + "_DenominatorPhi";
 		title     = labelname + "DenominatorPhi;Calo #Phi";
 		MonitorElement * DenominatorPhi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
-		h = DenominatorPhi->getTH1();
+		DenominatorPhi->getTH1();
 
 		
 		histoname = labelname + "_DenominatorEtaPhi";
 		title     = labelname + "DenominatorEtaPhi;Calo #eta; Calo #Phi";
 		MonitorElement * DenominatorEtaPhi =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
-		h = DenominatorEtaPhi->getTH1();
+		DenominatorEtaPhi->getTH1();
 
 		
 		
@@ -935,93 +919,92 @@ void BTagHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& 
 	    std::string title(labelname+"");
 	    dbe->setCurrentFolder(subdirName);
 	    
-	    MonitorElement *dummy;
-	    dummy =  dbe->bookFloat("dummy");
+	    dbe->bookFloat("dummy");
 	    if((v->getObjectType() == trigger::TriggerBJet) && (v->getTriggerType().compare("BTagMu_Trigger") == 0))
 	      {// Loop over BTagMu Trigger
 
 		histoname = labelname+"_NumeratorPt";
 		title     = labelname+"NumeratorPt;Pt[GeV/c]";
 		MonitorElement * NumeratorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-		TH1 * h = NumeratorPt->getTH1();
+		NumeratorPt->getTH1();
 
 		
 		histoname = labelname+"_NumeratorPtBarrel";
 		title     = labelname+"NumeratorPtBarrel;Calo Pt[GeV/c]";
 		MonitorElement * NumeratorPtBarrel =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-		h = NumeratorPtBarrel->getTH1();
+		NumeratorPtBarrel->getTH1();
 
 		
 		histoname = labelname+"_NumeratorPtEndcap";
 		title     = labelname+"NumeratorPtEndcap;Calo Pt[GeV/c]";
 		MonitorElement * NumeratorPtEndcap =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-		h = NumeratorPtEndcap->getTH1();
+		NumeratorPtEndcap->getTH1();
 
 		
 		histoname = labelname+"_NumeratorPtForward";
 		title     = labelname+"NumeratorPtForward;Calo Pt[GeV/c]";
 		MonitorElement * NumeratorPtForward =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-		h = NumeratorPtForward->getTH1();
+		NumeratorPtForward->getTH1();
 
 		
 		histoname = labelname+"_NumeratorEta";
 		title     = labelname+"NumeratorEta;Calo #eta ";
 		MonitorElement * NumeratorEta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
-		h = NumeratorEta->getTH1();
+		NumeratorEta->getTH1();
 
 		
 		histoname = labelname+"_NumeratorPhi";
 		title     = labelname+"NumeratorPhi;Calo #Phi";
 		MonitorElement * NumeratorPhi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
-		h = NumeratorPhi->getTH1();
+		NumeratorPhi->getTH1();
 
 		
 		histoname = labelname+"_NumeratorEtaPhi";
 		title     = labelname+"NumeratorEtaPhi;Calo #eta;Calo #Phi";
 		MonitorElement * NumeratorEtaPhi =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
-		h = NumeratorEtaPhi->getTH1();
+		NumeratorEtaPhi->getTH1();
 
 		
 		histoname = labelname+"_DenominatorPt";
 		title     = labelname+"DenominatorPt;Calo Pt[GeV/c]";
 		MonitorElement * DenominatorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-		h = DenominatorPt->getTH1();
+		DenominatorPt->getTH1();
 
 		
 		histoname = labelname+"_DenominatorPtBarrel";
 		title     = labelname+"DenominatorPtBarrel;Calo Pt[GeV/c]";
 		MonitorElement * DenominatorPtBarrel =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-		h = DenominatorPtBarrel->getTH1();
+		DenominatorPtBarrel->getTH1();
 
 		
 		histoname = labelname+"_DenominatorPtEndcap";
 		title     = labelname+"DenominatorPtEndcap;Calo Pt[GeV/c]";
 		MonitorElement * DenominatorPtEndcap =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-		h = DenominatorPtEndcap->getTH1();
+		DenominatorPtEndcap->getTH1();
 
 		
 		histoname = labelname+"_DenominatorPtForward";
 		title     = labelname+"DenominatorPtForward;Calo Pt[GeV/c] ";
 		MonitorElement * DenominatorPtForward =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-		h = DenominatorPtForward->getTH1();
+		DenominatorPtForward->getTH1();
 
 		
 		histoname = labelname+"_DenominatorEta";
 		title     = labelname+"DenominatorEta;Calo #eta";
 		MonitorElement * DenominatorEta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
-		h = DenominatorEta->getTH1();
+		DenominatorEta->getTH1();
 
 		
 		histoname = labelname+"_DenominatorPhi";
 		title     = labelname+"DenominatorPhi;Calo #Phi";
 		MonitorElement * DenominatorPhi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
-		h = DenominatorPhi->getTH1();
+		DenominatorPhi->getTH1();
 
 		
 		histoname = labelname+"_DenominatorEtaPhi";
 		title     = labelname+"DenominatorEtaPhi;Calo #eta (IC5);Calo #Phi ";
 		MonitorElement * DenominatorEtaPhi =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
-		h = DenominatorEtaPhi->getTH1();
+		DenominatorEtaPhi->getTH1();
 
 		
 		
@@ -1040,8 +1023,7 @@ void BTagHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& 
 	    std::string histoname(labelname+"");
 	    std::string title(labelname+"");
 	    dbe->setCurrentFolder(subdirName);
-	    MonitorElement *dummy;
-	    dummy =  dbe->bookFloat("dummy");   
+	    dbe->bookFloat("dummy");   
 
 	    if((v->getObjectType() == trigger::TriggerBJet) && (v->getTriggerType().compare("BTagMu_Trigger") == 0))
 	      { // Loop over BTagMu Trigger
@@ -1049,85 +1031,85 @@ void BTagHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& 
 		histoname = labelname+"_NumeratorPt";
 		title     = labelname+"NumeratorPt;Calo Pt[GeV/c] ";
 		MonitorElement * NumeratorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-		TH1 * h = NumeratorPt->getTH1();
+		NumeratorPt->getTH1();
 
 		
 		histoname = labelname+"_NumeratorPtBarrel";
 		title     = labelname+"NumeratorPtBarrel;Calo Pt[GeV/c]";
 		MonitorElement * NumeratorPtBarrel =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-		h = NumeratorPtBarrel->getTH1();
+		NumeratorPtBarrel->getTH1();
 
 		
 		histoname = labelname+"_NumeratorPtEndcap";
 		title     = labelname+"NumeratorPtEndcap; Calo Pt[GeV/c] ";
 		MonitorElement * NumeratorPtEndcap =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-		h = NumeratorPtEndcap->getTH1();
+		NumeratorPtEndcap->getTH1();
 
 		
 		histoname = labelname+"_NumeratorPtForward";
 		title     = labelname+"NumeratorPtForward;Calo Pt[GeV/c]";
 		MonitorElement * NumeratorPtForward =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-		h = NumeratorPtForward->getTH1();
+		NumeratorPtForward->getTH1();
 
 		
 		histoname = labelname+"_NumeratorEta";
 		title     = labelname+"NumeratorEta;Calo #eta ";
 		MonitorElement * NumeratorEta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
-		h = NumeratorEta->getTH1();
+		NumeratorEta->getTH1();
 
 		
 		histoname = labelname+"_NumeratorPhi";
 		title     = labelname+"NumeratorPhi;Calo #Phi";
 		MonitorElement * NumeratorPhi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
-		h = NumeratorPhi->getTH1();
+		NumeratorPhi->getTH1();
 
 		
 		histoname = labelname+"_NumeratorEtaPhi";
 		title     = labelname+"NumeratorEtaPhi;Calo #eta;Calo #Phi ";
 		MonitorElement * NumeratorEtaPhi =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
-		h = NumeratorEtaPhi->getTH1();
+		NumeratorEtaPhi->getTH1();
 
 		
 		histoname = labelname+"_DenominatorPt";
 		title     = labelname+"DenominatorPt;Calo Pt[GeV/c]";
 		MonitorElement * DenominatorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-		h = DenominatorPt->getTH1();
+		DenominatorPt->getTH1();
 
 		
 		histoname = labelname+"_DenominatorPtBarrel";
 		title     = labelname+"DenominatorPtBarrel;Calo Pt[GeV/c]";
 		MonitorElement * DenominatorPtBarrel =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-		h = DenominatorPtBarrel->getTH1();
+		DenominatorPtBarrel->getTH1();
 
 		
 		histoname = labelname+"_DenominatorPtEndcap";
 		title     = labelname+"DenominatorPtEndcap;Calo Pt[GeV/c]";
 		MonitorElement * DenominatorPtEndcap =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-		h = DenominatorPtEndcap->getTH1();
+		DenominatorPtEndcap->getTH1();
 
 		
 		histoname = labelname+"_DenominatorPtForward";
 		title     = labelname+"DenominatorPtForward;Calo Pt[GeV/c]";
 		MonitorElement * DenominatorPtForward =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-		h = DenominatorPtForward->getTH1();
+		DenominatorPtForward->getTH1();
 
 		
 		histoname = labelname+"_DenominatorEta";
 		title     = labelname+"DenominatorEta;Calo #eta ";
 		MonitorElement * DenominatorEta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
-		h = DenominatorEta->getTH1();
+		DenominatorEta->getTH1();
 
 		
 		histoname = labelname+"_DenominatorPhi";
 		title     = labelname+"DenominatorPhi;Calo #Phi";
 		MonitorElement * DenominatorPhi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
-		h = DenominatorPhi->getTH1();
+		DenominatorPhi->getTH1();
 
 		
 		histoname = labelname+"_DenominatorEtaPhi";
 		title     = labelname+"DenominatorEtaPhi;Calo #eta ;Calo #Phi ";
 		MonitorElement * DenominatorEtaPhi =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
-		h = DenominatorEtaPhi->getTH1();
+		DenominatorEtaPhi->getTH1();
 
 		
 		
@@ -1188,19 +1170,19 @@ void BTagHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& 
 	    histoname = labelname+"_JetPt"; 
 	    title     = labelname+"Leading jet pT;Pt[GeV/c]";
 	    MonitorElement * JetPt = dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-	    TH1 * h = JetPt->getTH1();
+	    JetPt->getTH1();
 
 	    
 	    histoname = labelname+"_JetEtaVsPt";
 	    title     = labelname+"Leading jet #eta vs pT;#eta;Pt[GeV/c]";
 	    MonitorElement * JetEtaVsPt = dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Ptbins_,PtMin_,PtMax_);
-	    h = JetEtaVsPt->getTH1();
+	    JetEtaVsPt->getTH1();
 
 	    
 	    histoname = labelname+"_JetPhiVsPt";
 	    title     = labelname+"Leading jet #Phi vs pT;#Phi;Pt[GeV/c]";
 	    MonitorElement * JetPhiVsPt = dbe->book2D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_,Ptbins_,PtMin_,PtMax_);
-	    h = JetPhiVsPt->getTH1();
+	    JetPhiVsPt->getTH1();
 
 	    
 	    v->setDgnsHistos( TriggerSummary, dummy, JetPt, JetEtaVsPt, JetPhiVsPt, dummy, dummy, dummy, dummy, dummy, dummy); 

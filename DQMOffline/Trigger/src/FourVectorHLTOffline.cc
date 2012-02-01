@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.104 2011/09/27 15:38:53 bjk Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.105 2011/09/27 16:29:40 bjk Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -649,8 +649,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
      // clear sets of matched objects
      mon->clearSets();
 
-     int triggertype = 0;     
-     triggertype = v->getObjectType();
+     v->getObjectType();
 
      // monitor offline (RECO objects)
      /////////////////////////////////
@@ -1640,7 +1639,7 @@ void FourVectorHLTOffline::fillHltMatrix(const edm::TriggerNames & triggerNames)
   }
 
   bool groupPassed = false;
-  bool groupL1Passed = false;
+  //bool groupL1Passed = false;
 
   // Main loop over paths
   // --------------------
@@ -1668,7 +1667,7 @@ void FourVectorHLTOffline::fillHltMatrix(const edm::TriggerNames & triggerNames)
     if(fTriggerResults->accept(pathByIndex)){
 
       groupPassed = true;
-      groupL1Passed = true;
+      //groupL1Passed = true;
 
       hist_2d->Fill(i,anyBinNumber-1);//binNumber1 = 0 = first filter
       hist_2d->Fill(anyBinNumber-1,i);//binNumber1 = 0 = first filter
@@ -2604,8 +2603,6 @@ int FourVectorHLTOffline::getHltThresholdFromName(const string & name)
 bool FourVectorHLTOffline::isVBTFMuon(const reco::Muon& muon)
 {
 
-  bool quality = 1;
-
   reco::TrackRef gm = muon.globalTrack();
   reco::TrackRef tk = muon.innerTrack();
 
@@ -2622,19 +2619,19 @@ bool FourVectorHLTOffline::isVBTFMuon(const reco::Muon& muon)
   int muonHits = gm->hitPattern().numberOfValidMuonHits();
   int nMatches = muon.numberOfMatches();
 
-  if (fabs(dxy)>dxyCut_) {return 0; quality=0;}
+  if (fabs(dxy)>dxyCut_) {return 0;}
   //               if(plotHistograms_){ h1_["hNormChi2"]->Fill(normalizedChi2);}
-  if (normalizedChi2>normalizedChi2Cut_) {return 0;quality=0;}
+  if (normalizedChi2>normalizedChi2Cut_) {return 0;}
   //               if(plotHistograms_){ h1_["hNHits"]->Fill(trackerHits);}
-  if (trackerHits<trackerHitsCut_) {return 0;quality=0;}
+  if (trackerHits<trackerHitsCut_) {return 0;}
   //               if(plotHistograms_){ h1_["hNMuonHits"]->Fill(muonHits);}
-  if (pixelHits<pixelHitsCut_) {return 0;quality=0;}
+  if (pixelHits<pixelHitsCut_) {return 0;}
   //               if(plotHistograms_){ h1_["hNPixelHits"]->Fill(pixelHits);}
-  if (muonHits<muonHitsCut_) {return 0;quality=0;}
+  if (muonHits<muonHitsCut_) {return 0;}
   //               if(plotHistograms_){ h1_["hTracker"]->Fill(mu.isTrackerMuon());}
-  if (!muon.isTrackerMuon()) {return 0;quality=0;}
+  if (!muon.isTrackerMuon()) {return 0;}
   //               if(plotHistograms_){ h1_["hNMatches"]->Fill(nMatches);}
-  if (nMatches<nMatchesCut_) {return 0;quality=0;}
+  if (nMatches<nMatchesCut_) {return 0;}
 
   return true;
 

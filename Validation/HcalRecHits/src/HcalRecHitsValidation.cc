@@ -729,7 +729,6 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
   // MC info 
   double phi_MC = -999999.;  // phi of initial particle from HepMC
   double eta_MC = -999999.;  // eta of initial particle from HepMC
-  bool MC = false;
 
   // HCAL energy around MC eta-phi at all depths;
   double partR = 0.3;
@@ -746,8 +745,6 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
   // hottest cell
   double etaHot  = 99999.; 
   double phiHot  = 99999.; 
-  int    ietahot = 1000;
-  int    iphihot = 1000;
 
   // MC information
 
@@ -762,7 +759,6 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
   if (!evtMC.isValid()) {
     std::cout << "no HepMCProduct found" << std::endl;    
   } else {
-    MC=true;
     //    std::cout << "*** source HepMCProduct found"<< std::endl;
   }  
 
@@ -952,8 +948,6 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 	maxE    = en;
 	etaHot  = eta;
 	phiHot  = phi;
-	ietahot = ieta;
-	iphihot = iphi;
       }
     }
 
