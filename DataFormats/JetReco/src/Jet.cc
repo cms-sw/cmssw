@@ -1,6 +1,6 @@
 // Jet.cc
 // Fedor Ratnikov, UMd
-// $Id: Jet.cc,v 1.25 2010/10/14 23:01:45 wmtan Exp $
+// $Id: Jet.cc,v 1.26 2012/02/01 10:42:16 pandolf Exp $
 
 #include <sstream>
 #include <cmath>
@@ -384,7 +384,7 @@ float Jet::ptD() const {
 
   } //for constituents
 
-  float ptD_value = sqrt( sum_pt2 / (sum_pt*sum_pt) );
+  float ptD_value = (sum_pt>0.) ? sqrt( sum_pt2 / (sum_pt*sum_pt) ) : 0.;
 
   return ptD_value;
 
@@ -414,7 +414,7 @@ float Jet::rmsCand() const {
 
   } //for constituents
 
-  float rmsCand_value = sum_pt2deltaR2/sum_pt2;
+  float rmsCand_value = (sum_pt2>0.) ? sum_pt2deltaR2/sum_pt2 : 0.;
 
   return rmsCand_value;
 
