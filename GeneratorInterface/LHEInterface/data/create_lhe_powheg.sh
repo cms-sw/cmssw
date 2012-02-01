@@ -89,6 +89,7 @@ cat ${card} | sed -e "s#SEED#${seed}#g" | sed -e "s#NEVENTS#${nevt}#g" > powheg.
 cat powheg.input
 ../pwhg_main &> log_${process}_${seed}.txt
 mv pwgevents.lhe ${file}_final.lhe
+cp ${file}_final.lhe $WORKDIR/.
 
 echo "Output ready with log_${process}_${seed}.txt and ${file}_final.lhe at `pwd`"
 echo "End of job on " `date`
