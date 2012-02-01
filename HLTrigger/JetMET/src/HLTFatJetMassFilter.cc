@@ -47,8 +47,8 @@ HLTFatJetMassFilter::~HLTFatJetMassFilter(){}
 
 void HLTFatJetMassFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("inputJetTag",edm::InputTag("hltMCJetCorJetIcone5HF07"));
-  desc.add<bool>("saveTags",false);
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("inputJetTag",edm::InputTag("hltCollection"));
   desc.add<double>("minMass",0.0);
   desc.add<double>("fatJetDeltaR",1.1);
   desc.add<double>("maxDeltaEta",10.0);

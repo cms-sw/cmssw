@@ -44,10 +44,8 @@ HLTPFEnergyFractionsFilter::~HLTPFEnergyFractionsFilter(){}
 void 
 HLTPFEnergyFractionsFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputPFJetTag",edm::InputTag("hltAntiKT5PFJets"));
-  //
-  desc.add<bool>("saveTags",false);
-  //
   desc.add<unsigned int>("nJet",1);
   desc.add<double>("min_CEEF",-99.);
   desc.add<double>("max_CEEF",99.); 

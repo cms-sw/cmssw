@@ -24,6 +24,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include<typeinfo>
+
 //
 // extract the candidate type
 //
@@ -54,11 +56,11 @@ template<typename T, int Tid>
 void 
 HLTMonoJetFilter<T,Tid>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputJetTag",edm::InputTag("hltAntiKT5ConvPFJets"));
-  desc.add<bool>("saveTags",false);
   desc.add<double>("max_PtSecondJet",9999.);
   desc.add<double>("max_DeltaPhi",99.);
-  descriptions.add("hltMonoJetFilter",desc);
+  descriptions.add(std::string("hlt")+std::string(typeid(HLTMonoJetFilter<T,Tid>).name()),desc);
 }
 
 //
