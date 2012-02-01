@@ -45,7 +45,14 @@ HLTMuonL3PreFilter::HLTMuonL3PreFilter(const ParameterSet& iConfig) : HLTFilter(
    max_Dr_    (iConfig.getParameter<double> ("MaxDr")),
    max_Dz_    (iConfig.getParameter<double> ("MaxDz")),
    min_Pt_    (iConfig.getParameter<double> ("MinPt")),
-   nsigma_Pt_  (iConfig.getParameter<double> ("NSigmaPt"))
+   nsigma_Pt_  (iConfig.getParameter<double> ("NSigmaPt")), 
+   saveTags_  (iConfig.getParameter<bool>("saveTags")),
+   max_NormalizedChi2_ (iConfig.getParameter<double> ("MaxNormalizedChi2")),
+   max_DXYBeamSpot_ (iConfig.getParameter<double> ("MaxDXYBeamSpot")),
+   min_NmuonHits_ (iConfig.getParameter<int> ("MinNmuonHits")),
+   max_PtDifference_ (iConfig.getParameter<double> ("MaxPtDifference")),
+   min_TrackPt_ (iConfig.getParameter<double> ("MinTrackPt")),
+   devDebug_ (false)
 {
    LogDebug("HLTMuonL3PreFilter")
       << " CandTag/MinN/MaxEta/MinNhits/MaxDr/MaxDz/MinPt/NSigmaPt : " 
@@ -78,6 +85,11 @@ HLTMuonL3PreFilter::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<double>("MinPt",3.0);
   desc.add<double>("NSigmaPt",0.0);
   desc.add<bool>("saveTags",false);
+  desc.add<double>("MaxNormalizedChi2",9999.0);
+  desc.add<double>("MaxDXYBeamSpot",9999.0);
+  desc.add<int>("MinNmuonHits",0);
+  desc.add<double>("MaxPtDifference",9999.0);
+  desc.add<double>("MinTrackPt",0.0);
   descriptions.add("hltMuonL3PreFilter",desc);
 }
 
@@ -152,6 +164,26 @@ HLTMuonL3PreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, trigger::
 
        //dz cut
        if (fabs((cand->vz()-beamSpot.z0()) - ((cand->vx()-beamSpot.x0())*cand->px()+(cand->vy()-beamSpot.y0())*cand->py())/cand->pt() * cand->pz()/cand->pt())>max_Dz_) continue;
+
+
+       //normalizedChi2 cut
+       if (tk->normalizedChi2() > max_NormalizedChi2_ ) continue;
+
+       //dxy beamspot cut
+       if (fabs(tk->dxy(beamSpot.position())) > max_DXYBeamSpot_ ) continue;
+
+       //min muon hits cut
+       reco::HitPattern trackHits = tk->hitPattern();
+       if (trackHits.numberOfValidMuonHits() < min_NmuonHits_ ) continue;
+       
+       //pt difference cut
+       double candPt = cand->pt();
+       double trackPt = tk->pt();
+
+       if (fabs(candPt - trackPt) > max_PtDifference_ ) continue;
+
+       //track pt cut
+       if (trackPt < min_TrackPt_ ) continue;
        
        // Pt threshold cut
        double pt = cand->pt();
