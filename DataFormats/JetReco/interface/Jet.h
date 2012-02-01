@@ -12,7 +12,7 @@
  *
  * \version   Original: April 22, 2005 by Fernando Varela Rodriguez.
  * \version   May 23, 2006 by F.R.
- * \version   $Id: Jet.h,v 1.29 2008/12/14 23:09:47 hegner Exp $
+ * \version   $Id: Jet.h,v 1.30 2012/02/01 10:42:17 pandolf Exp $
  ************************************************************/
 #include <string>
 #include "DataFormats/Candidate/interface/CompositePtrCandidate.h"
@@ -83,13 +83,13 @@ namespace reco {
 
 
     // jet structure variables:
-    // ptD is the pT distribution among the jet constituents
-    // (ptD = 1 if jet made by one constituent carrying all its momentum,
-    //  ptD = 0 if jet made by infinite constituents carrying an infinitesimal fraction of pt):
-    float ptD() const;
+    // ptDistribution is the pT distribution among the jet constituents
+    // (ptDistribution = 1 if jet made by one constituent carrying all its momentum,
+    //  ptDistribution = 0 if jet made by infinite constituents carrying an infinitesimal fraction of pt):
+    float ptDistribution() const;
 
     // rmsCand is the rms of the eta-phi spread of the jet's constituents wrt the jet axis:
-    float rmsCand() const;
+    float constituentEtaPhiSpread() const;
 
     /// Print object
     virtual std::string print () const;
