@@ -41,7 +41,6 @@ class HLTMuonL3PreFilter : public HLTFilter {
       double max_Dz_;           // dz cut
       double min_Pt_;           // pt threshold in GeV 
       double nsigma_Pt_;        // pt uncertainty margin (in number of sigmas)
-      bool saveTags_;            // should we save the input collection ?
       double max_NormalizedChi2_; // cutoff in normalized chi2
       double max_DXYBeamSpot_; // cutoff in dxy from the beamspot
   int min_NmuonHits_; // cutoff in minumum number of chi2 hits

@@ -102,6 +102,7 @@ HLTMuonL2PreFilter::~HLTMuonL2PreFilter()
 void
 HLTMuonL2PreFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("BeamSpotTag",edm::InputTag("hltOfflineBeamSpot"));
   desc.add<edm::InputTag>("CandTag",edm::InputTag("hltL2MuonCandidates"));
   desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag(""));
@@ -117,7 +118,6 @@ HLTMuonL2PreFilter::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<double>("MaxDz",9999.0);
   desc.add<double>("MinPt",0.0);
   desc.add<double>("NSigmaPt",0.0);
-  desc.add<bool>("saveTags",false);
   descriptions.add("hltMuonL2PreFilter",desc);
 }
 

@@ -46,7 +46,6 @@ HLTMuonL3PreFilter::HLTMuonL3PreFilter(const ParameterSet& iConfig) : HLTFilter(
    max_Dz_    (iConfig.getParameter<double> ("MaxDz")),
    min_Pt_    (iConfig.getParameter<double> ("MinPt")),
    nsigma_Pt_  (iConfig.getParameter<double> ("NSigmaPt")), 
-   saveTags_  (iConfig.getParameter<bool>("saveTags")),
    max_NormalizedChi2_ (iConfig.getParameter<double> ("MaxNormalizedChi2")),
    max_DXYBeamSpot_ (iConfig.getParameter<double> ("MaxDXYBeamSpot")),
    min_NmuonHits_ (iConfig.getParameter<int> ("MinNmuonHits")),
@@ -73,6 +72,7 @@ HLTMuonL3PreFilter::~HLTMuonL3PreFilter()
 void
 HLTMuonL3PreFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("BeamSpotTag",edm::InputTag("hltOfflineBeamSpot"));
   desc.add<edm::InputTag>("CandTag",edm::InputTag("hltL3MuonCandidates"));
   //  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag("hltDiMuonL2PreFiltered0"));
@@ -84,7 +84,6 @@ HLTMuonL3PreFilter::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<double>("MaxDz",9999.0);
   desc.add<double>("MinPt",3.0);
   desc.add<double>("NSigmaPt",0.0);
-  desc.add<bool>("saveTags",false);
   desc.add<double>("MaxNormalizedChi2",9999.0);
   desc.add<double>("MaxDXYBeamSpot",9999.0);
   desc.add<int>("MinNmuonHits",0);
