@@ -16,7 +16,7 @@
 #include "RecoTracker/TrackProducer/interface/TrackProducerAlgorithm.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include "RecoParticleFlow/PFProducer/interface/PFGeometry.h"
+#include "RecoParticleFlow/PFTracking/interface/PFGeometry.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
 
