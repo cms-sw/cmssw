@@ -27,6 +27,8 @@ class DTNoiseCalibration:
         self.process.dtNoiseCalibration.rootFileName = self.outputROOT 
 
         if hasattr(self.config,'runOnRAW') and self.config.runOnRAW:
+            if hasattr(self.config,'runOnMC') and self.config.runOnMC:
+                getattr(self.process,self.config.digilabel).inputLabel = 'rawDataCollector' 
             prependPaths(self.process,self.config.digilabel)
  
         if hasattr(self.config,'preselection') and self.config.preselection:

@@ -39,6 +39,8 @@ class DTVDriftMeanTimerCalibration:
 
         # Prepend paths with unpacker if running on RAW
         if hasattr(self.config,'runOnRAW') and self.config.runOnRAW:
+            if hasattr(self.config,'runOnMC') and self.config.runOnMC:
+                getattr(self.process,self.config.digilabel).inputLabel = 'rawDataCollector' 
             prependPaths(self.process,self.config.digilabel)
 
         # Prepend paths with custom selection sequence
