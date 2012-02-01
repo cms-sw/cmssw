@@ -6,6 +6,7 @@
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/EgammaCandidates"/>
 <use   name="DataFormats/HLTReco"/>
+<use   name="DataFormats/TauReco"/>
 <use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/L1GlobalTrigger"/>
 <use   name="DataFormats/L1Trigger"/>

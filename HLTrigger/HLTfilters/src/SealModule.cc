@@ -24,8 +24,14 @@
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METFwd.h"
+#include "DataFormats/TauReco/interface/PFTau.h"
+#include "DataFormats/TauReco/interface/PFTauFwd.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
 
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+
+#include <typeinfo>
 
 using namespace reco;
 using namespace trigger;
@@ -45,6 +51,8 @@ typedef HLTSinglet<CaloMET               ,TriggerMET> HLT1CaloMET  ;
 typedef HLTSinglet<MET                   ,TriggerMET> HLT1MET      ;
 typedef HLTSinglet<RecoChargedCandidate,TriggerTrack> HLT1Track    ;
 typedef HLTSinglet<RecoEcalCandidate, TriggerCluster> HLT1Cluster  ;
+typedef HLTSinglet<PFTau                 ,TriggerTau> HLT1PFTau    ;
+typedef HLTSinglet<PFJet                 ,TriggerJet> HLT1PFJet    ;
 
 // filters for L1 candidates
 typedef HLTSinglet<l1extra::L1EmParticle,    TriggerL1NoIsoEG> HLTLevel1EG;     // the actual type is ovrridden object-by-object (TriggerL1IsoEG or TriggerL1NoIsoEG)
@@ -66,6 +74,8 @@ typedef HLTSmartSinglet<CaloMET               ,TriggerMET> HLT1SmartCaloMET  ;
 typedef HLTSmartSinglet<MET                   ,TriggerMET> HLT1SmartMET      ;
 typedef HLTSmartSinglet<RecoChargedCandidate,TriggerTrack> HLT1SmartTrack    ;
 typedef HLTSmartSinglet<RecoEcalCandidate ,TriggerCluster> HLT1SmartCluster  ;
+typedef HLTSmartSinglet<PFTau                 ,TriggerTau> HLT1SmartPFTau    ;
+typedef HLTSmartSinglet<PFJet                 ,TriggerJet> HLT1SmartPFJet    ;
 
 
 #include "HLTrigger/HLTfilters/interface/HLTGlobalSums.h"
@@ -77,8 +87,8 @@ typedef HLTGlobalSums<MET    ,TriggerTHT> HLTGlobalSumsMET    ;
 
 #include "HLTrigger/HLTfilters/interface/HLTDoublet.h"
 #include "HLTrigger/HLTfilters/src/HLTDoublet.cc"
-typedef HLTDoublet<CaloJet,TriggerJet,CaloJet,TriggerJet> HLT2JetJet;
-typedef HLTDoublet<CaloJet,TriggerJet,CaloMET,TriggerMET> HLT2JetMET;
+typedef HLTDoublet<CaloJet,TriggerJet,CaloJet,TriggerJet> HLT2CaloJetCaloJet;
+typedef HLTDoublet<CaloJet,TriggerJet,CaloMET,TriggerMET> HLT2CaloJetCaloMET;
 typedef HLTDoublet<Electron,TriggerElectron,CaloJet,TriggerTau> HLT2ElectronTau;
 typedef HLTDoublet<RecoChargedCandidate,TriggerMuon,CaloJet,TriggerTau> HLT2MuonTau;
 
@@ -87,8 +97,8 @@ DEFINE_FWK_MODULE(HLTFiltCand);
 DEFINE_FWK_MODULE(HLTLevel1GTSeed);
 DEFINE_FWK_MODULE(HLTHighLevel);
 
-DEFINE_FWK_MODULE(HLT2JetJet);
-DEFINE_FWK_MODULE(HLT2JetMET);
+DEFINE_FWK_MODULE(HLT2CaloJetCaloJet);
+DEFINE_FWK_MODULE(HLT2CaloJetCaloMET);
 DEFINE_FWK_MODULE(HLT2ElectronTau);
 DEFINE_FWK_MODULE(HLT2MuonTau);
 
@@ -104,6 +114,8 @@ DEFINE_FWK_MODULE(HLT1MET);
 DEFINE_FWK_MODULE(HLT1Track);
 DEFINE_FWK_MODULE(HLT1Cluster);
 DEFINE_FWK_MODULE(HLT1CaloJetEnergy);
+DEFINE_FWK_MODULE(HLT1PFTau);
+DEFINE_FWK_MODULE(HLT1PFJet);
 
 DEFINE_FWK_MODULE(HLTLevel1EG);
 DEFINE_FWK_MODULE(HLTLevel1MET);
@@ -121,6 +133,8 @@ DEFINE_FWK_MODULE(HLT1SmartCaloMET);
 DEFINE_FWK_MODULE(HLT1SmartMET);
 DEFINE_FWK_MODULE(HLT1SmartTrack);
 DEFINE_FWK_MODULE(HLT1SmartCluster);
+DEFINE_FWK_MODULE(HLT1SmartPFTau);
+DEFINE_FWK_MODULE(HLT1SmartPFJet);
 
 DEFINE_FWK_MODULE(HLTGlobalSumsCaloMET);
 DEFINE_FWK_MODULE(HLTGlobalSumsMET);
