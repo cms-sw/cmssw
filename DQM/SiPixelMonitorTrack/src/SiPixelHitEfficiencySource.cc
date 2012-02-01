@@ -38,7 +38,7 @@
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
-#include "RecoLocalTracker/SiPixelRecHits/plugins/PixelCPEGenericESProducer.h"
+//#include "RecoLocalTracker/SiPixelRecHits/plugins/PixelCPEGenericESProducer.h"
 
 #include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
