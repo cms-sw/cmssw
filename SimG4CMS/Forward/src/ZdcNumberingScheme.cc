@@ -26,7 +26,6 @@ void ZdcNumberingScheme::setVerbosity(const int iv){ verbosity = iv; }
 
 unsigned int ZdcNumberingScheme::getUnitID(const G4Step* aStep) const {
 
-  unsigned intindex=0;
   uint32_t  index = 0;
   int level = detectorLevel(aStep);
  
@@ -89,8 +88,12 @@ unsigned int ZdcNumberingScheme::getUnitID(const G4Step* aStep) const {
       }
     }
  
+#ifdef debug
+    unsigned intindex=0;
     // intindex = myPacker.packZdcIndex (section, layer, fiber, channel, zside);
     intindex = packZdcIndex (section, layer, fiber, channel, zside);
+#endif
+
     bool true_for_positive_eta = true;
     //if(zside == 1)true_for_positive_eta = true;
     if(zside == -1)true_for_positive_eta = false;

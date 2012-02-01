@@ -239,9 +239,7 @@ double ZdcSD::getEnergyDeposit(G4Step * aStep, edm::ParameterSet const & p ) {
       << primaryID;
 
     float bThreshold = 0.67;
-    int status = 0;
     if ((beta > bThreshold) && (charge != 0) && (nameVolume == "ZDC_EMFiber" || nameVolume == "ZDC_HadFiber")) {
-      status = 1;
       LogDebug("ForwardSim") << "ZdcSD::  getEnergyDeposit:  pass "; 
 
       float nMedium = 1.4925;
@@ -393,7 +391,6 @@ double ZdcSD::getEnergyDeposit(G4Step * aStep, edm::ParameterSet const & p ) {
 
     } else {
       // determine failure mode: beta, charge, and/or nameVolume
-      status = 0;
       if (beta <= bThreshold)
         LogDebug("ForwardSim") 
 	  << "ZdcSD::  getEnergyDeposit: fail beta=" << beta;

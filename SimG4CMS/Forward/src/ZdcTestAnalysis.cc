@@ -333,7 +333,6 @@ void ZdcTestAnalysis::update(const EndOfEvent * evt) {
 
       // Find Primary info:
       int trackID = 0;
-      int particleType = 0;
       G4PrimaryParticle* thePrim=0;
       G4int nvertex = (*evt)()->GetNumberOfPrimaryVertex();
       std::cout << "Event has " << nvertex << " vertex" << std::endl;
@@ -354,7 +353,7 @@ void ZdcTestAnalysis::update(const EndOfEvent * evt) {
       }
       
       double px=0.,py=0.,pz=0.;
-      double eta = 0., phi = 0., pInit = 0.;
+      double pInit = 0.;
       
       if (thePrim != 0) {
 	px = thePrim->GetPx();
@@ -363,14 +362,7 @@ void ZdcTestAnalysis::update(const EndOfEvent * evt) {
 	pInit = sqrt(pow(px,2.)+pow(py,2.)+pow(pz,2.));
 	if (pInit==0) {
 	  std::cout << "ZdcTest End Of Event  ERR: primary has p=0 " << std::endl;
-	} else {
-	  float costheta = pz/pInit;
-	  float theta = acos(std::min(std::max(costheta,float(-1.)),float(1.)));
-	  eta = -log(tan(theta/2));
-	  
-	  if (px != 0) phi = atan(py/px);
 	}
-	particleType      = thePrim->GetPDGcode();
       } else {
 	std::cout << "ZdcTest End Of Event ERR: could not find primary "
 		     << std::endl;
