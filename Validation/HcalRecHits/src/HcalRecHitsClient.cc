@@ -140,9 +140,9 @@ int HcalRecHitsClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hca
    MonitorElement* occupancy_map_HE1 =0, *occupancy_map_HE2 =0, *occupancy_map_HE3 =0;
 
    MonitorElement* emean_vs_ieta_HB1 =0, *emean_vs_ieta_HB2 =0; 
-   MonitorElement* emean_vs_ieta_HE1 =0, *emean_vs_ieta_HE2 =0, *emean_vs_ieta_HE3 =0;
-   MonitorElement* emean_vs_ieta_HF1 =0, *emean_vs_ieta_HF2 =0; 
-   MonitorElement* emean_vs_ieta_HO =0;
+   MonitorElement* emean_vs_ieta_HE1 =0, *emean_vs_ieta_HE2 =0/*, *emean_vs_ieta_HE3 =0*/;
+   //MonitorElement* emean_vs_ieta_HF1 =0, *emean_vs_ieta_HF2 =0; 
+   //MonitorElement* emean_vs_ieta_HO =0;
    MonitorElement* RMS_vs_ieta_HB1 =0, *RMS_vs_ieta_HB2 =0; 
    MonitorElement* RMS_vs_ieta_HE1 =0, *RMS_vs_ieta_HE2 =0, *RMS_vs_ieta_HE3 =0;
    MonitorElement* RMS_vs_ieta_HF1 =0, *RMS_vs_ieta_HF2 =0; 
@@ -164,97 +164,97 @@ int HcalRecHitsClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hca
       }
 //      if( strcmp(hcalMEs[ih]->getName().c_str(), "emap_min_ME") ==0  ){ emap_min_ME = hcalMEs[ih]; }
       if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_simple1D_HO") ==0  ){ ZS_HO = hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_sequential1D_HO") ==0  ){ ZS_seqHO = hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_simple1D_HB1") ==0  ){ ZS_HB1 = hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_sequential1D_HB1") ==0  ){ ZS_seqHB1 = hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_simple1D_HB2") ==0  ){ ZS_HB2 = hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_sequential1D_HB2") ==0  ){ ZS_seqHB2 = hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_simple1D_HF1") ==0  ){ ZS_HF1 = hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_sequential1D_HF1") ==0  ){ ZS_seqHF1 = hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_simple1D_HF2") ==0  ){ ZS_HF2 = hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_sequential1D_HF2") ==0  ){ ZS_seqHF2 = hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_simple1D_HE1") ==0  ){ ZS_HE1 = hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_sequential1D_HE1") ==0  ){ ZS_seqHE1 = hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_simple1D_HE2") ==0  ){ ZS_HE2 = hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_sequential1D_HE2") ==0  ){ ZS_seqHE2 = hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_simple1D_HE3") ==0  ){ ZS_HE3 = hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_sequential1D_HE3") ==0  ){ ZS_seqHE3 = hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_map_depth1") ==0  ){ map_depth1= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_map_depth2") ==0  ){ map_depth2= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_map_depth3") ==0  ){ map_depth3= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_map_depth4") ==0  ){ map_depth4= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_sequential1D_HO") ==0  ){ ZS_seqHO = hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_simple1D_HB1") ==0  ){ ZS_HB1 = hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_sequential1D_HB1") ==0  ){ ZS_seqHB1 = hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_simple1D_HB2") ==0  ){ ZS_HB2 = hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_sequential1D_HB2") ==0  ){ ZS_seqHB2 = hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_simple1D_HF1") ==0  ){ ZS_HF1 = hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_sequential1D_HF1") ==0  ){ ZS_seqHF1 = hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_simple1D_HF2") ==0  ){ ZS_HF2 = hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_sequential1D_HF2") ==0  ){ ZS_seqHF2 = hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_simple1D_HE1") ==0  ){ ZS_HE1 = hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_sequential1D_HE1") ==0  ){ ZS_seqHE1 = hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_simple1D_HE2") ==0  ){ ZS_HE2 = hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_sequential1D_HE2") ==0  ){ ZS_seqHE2 = hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_simple1D_HE3") ==0  ){ ZS_HE3 = hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_sequential1D_HE3") ==0  ){ ZS_seqHE3 = hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_map_depth1") ==0  ){ map_depth1= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_map_depth2") ==0  ){ map_depth2= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_map_depth3") ==0  ){ map_depth3= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_map_depth4") ==0  ){ map_depth4= hcalMEs[ih]; }
 
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "N_HF") ==0  ){ Nhf= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "emap_depth1") ==0  ){ emap_depth1= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "emap_depth2") ==0  ){ emap_depth2= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "emap_depth3") ==0  ){ emap_depth3= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "emap_depth4") ==0  ){ emap_depth4= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "N_HF") ==0  ){ Nhf= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "emap_depth1") ==0  ){ emap_depth1= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "emap_depth2") ==0  ){ emap_depth2= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "emap_depth3") ==0  ){ emap_depth3= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "emap_depth4") ==0  ){ emap_depth4= hcalMEs[ih]; }
 
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "occ_sequential1D_HB1") ==0  ){ occupancy_seqHB1= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "occ_sequential1D_HB2") ==0  ){ occupancy_seqHB2= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "occ_sequential1D_HE1") ==0  ){ occupancy_seqHE1= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "occ_sequential1D_HE2") ==0  ){ occupancy_seqHE2= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "occ_sequential1D_HE3") ==0  ){ occupancy_seqHE3= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "occ_sequential1D_HF1") ==0  ){ occupancy_seqHF1= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "occ_sequential1D_HF2") ==0  ){ occupancy_seqHF2= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "occ_sequential1D_HO") ==0  ){ occupancy_seqHO= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_seq_HB1") ==0  ){ emean_seqHB1= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_seq_HB2") ==0  ){ emean_seqHB2= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_seq_HE1") ==0  ){ emean_seqHE1= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_seq_HE2") ==0  ){ emean_seqHE2= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_seq_HE3") ==0  ){ emean_seqHE3= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_seq_HF1") ==0  ){ emean_seqHF1= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_seq_HF2") ==0  ){ emean_seqHF2= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_seq_HO") ==0  ){ emean_seqHO= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_seq_HB1") ==0  ){ RMS_seq_HB1= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_seq_HB2") ==0  ){ RMS_seq_HB2= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_seq_HE1") ==0  ){ RMS_seq_HE1= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_seq_HE2") ==0  ){ RMS_seq_HE2= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_seq_HE3") ==0  ){ RMS_seq_HE3= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_seq_HF1") ==0  ){ RMS_seq_HF1= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_seq_HF2") ==0  ){ RMS_seq_HF2= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_seq_HO") ==0  ){ RMS_seq_HO= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_map_HB1") ==0  ){ occupancy_map_HB1= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_map_HB2") ==0  ){ occupancy_map_HB2= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_map_HE1") ==0  ){ occupancy_map_HE1= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_map_HE2") ==0  ){ occupancy_map_HE2= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_map_HE3") ==0  ){ occupancy_map_HE3= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_map_HF1") ==0  ){ occupancy_map_HF1= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_map_HF2") ==0  ){ occupancy_map_HF2= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_map_HO") ==0  ){ occupancy_map_HO= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_vs_ieta_HB1") ==0  ){ emean_vs_ieta_HB1= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_vs_ieta_HB2") ==0  ){ emean_vs_ieta_HB2= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_vs_ieta_HE1") ==0  ){ emean_vs_ieta_HE1= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_vs_ieta_HE2") ==0  ){ emean_vs_ieta_HE2= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_vs_ieta_HE3") ==0  ){ emean_vs_ieta_HE3= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_vs_ieta_HF1") ==0  ){ emean_vs_ieta_HF1= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_vs_ieta_HF2") ==0  ){ emean_vs_ieta_HF2= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_vs_ieta_HO") ==0  ){ emean_vs_ieta_HO= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_vs_ieta_HB1") ==0  ){ RMS_vs_ieta_HB1= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_vs_ieta_HB2") ==0  ){ RMS_vs_ieta_HB2= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_vs_ieta_HE1") ==0  ){ RMS_vs_ieta_HE1= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_vs_ieta_HE2") ==0  ){ RMS_vs_ieta_HE2= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_vs_ieta_HE3") ==0  ){ RMS_vs_ieta_HE3= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_vs_ieta_HF1") ==0  ){ RMS_vs_ieta_HF1= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_vs_ieta_HF2") ==0  ){ RMS_vs_ieta_HF2= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_vs_ieta_HO") ==0  ){ RMS_vs_ieta_HO= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_vs_ieta_HB1") ==0  ){ occupancy_vs_ieta_HB1= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_vs_ieta_HB2") ==0  ){ occupancy_vs_ieta_HB2= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_vs_ieta_HE1") ==0  ){ occupancy_vs_ieta_HE1= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_vs_ieta_HE2") ==0  ){ occupancy_vs_ieta_HE2= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_vs_ieta_HE3") ==0  ){ occupancy_vs_ieta_HE3= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_vs_ieta_HF1") ==0  ){ occupancy_vs_ieta_HF1= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_vs_ieta_HF2") ==0  ){ occupancy_vs_ieta_HF2= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_vs_ieta_HO") ==0  ){ occupancy_vs_ieta_HO= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "HcalRecHitTask_RecHit_StatusWord_HB") ==0  ){ RecHit_StatusWord_HB= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "HcalRecHitTask_RecHit_StatusWord_HE") ==0  ){ RecHit_StatusWord_HE= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "HcalRecHitTask_RecHit_StatusWord_HO") ==0  ){ RecHit_StatusWord_HO= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "HcalRecHitTask_RecHit_StatusWord_HF") ==0  ){ RecHit_StatusWord_HF= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "HcalRecHitTask_RecHit_StatusWord_HF67") ==0  ){ RecHit_StatusWord_HF67= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "HcalRecHitTask_RecHit_Aux_StatusWord_HB") ==0  ){ RecHit_Aux_StatusWord_HB= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "HcalRecHitTask_RecHit_Aux_StatusWord_HE") ==0  ){ RecHit_Aux_StatusWord_HE= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "HcalRecHitTask_RecHit_Aux_StatusWord_HO") ==0  ){ RecHit_Aux_StatusWord_HO= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "HcalRecHitTask_RecHit_Aux_StatusWord_HF") ==0  ){ RecHit_Aux_StatusWord_HF= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occ_sequential1D_HB1") ==0  ){ occupancy_seqHB1= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occ_sequential1D_HB2") ==0  ){ occupancy_seqHB2= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occ_sequential1D_HE1") ==0  ){ occupancy_seqHE1= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occ_sequential1D_HE2") ==0  ){ occupancy_seqHE2= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occ_sequential1D_HE3") ==0  ){ occupancy_seqHE3= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occ_sequential1D_HF1") ==0  ){ occupancy_seqHF1= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occ_sequential1D_HF2") ==0  ){ occupancy_seqHF2= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occ_sequential1D_HO") ==0  ){ occupancy_seqHO= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_seq_HB1") ==0  ){ emean_seqHB1= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_seq_HB2") ==0  ){ emean_seqHB2= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_seq_HE1") ==0  ){ emean_seqHE1= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_seq_HE2") ==0  ){ emean_seqHE2= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_seq_HE3") ==0  ){ emean_seqHE3= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_seq_HF1") ==0  ){ emean_seqHF1= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_seq_HF2") ==0  ){ emean_seqHF2= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_seq_HO") ==0  ){ emean_seqHO= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_seq_HB1") ==0  ){ RMS_seq_HB1= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_seq_HB2") ==0  ){ RMS_seq_HB2= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_seq_HE1") ==0  ){ RMS_seq_HE1= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_seq_HE2") ==0  ){ RMS_seq_HE2= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_seq_HE3") ==0  ){ RMS_seq_HE3= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_seq_HF1") ==0  ){ RMS_seq_HF1= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_seq_HF2") ==0  ){ RMS_seq_HF2= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_seq_HO") ==0  ){ RMS_seq_HO= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_map_HB1") ==0  ){ occupancy_map_HB1= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_map_HB2") ==0  ){ occupancy_map_HB2= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_map_HE1") ==0  ){ occupancy_map_HE1= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_map_HE2") ==0  ){ occupancy_map_HE2= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_map_HE3") ==0  ){ occupancy_map_HE3= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_map_HF1") ==0  ){ occupancy_map_HF1= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_map_HF2") ==0  ){ occupancy_map_HF2= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_map_HO") ==0  ){ occupancy_map_HO= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_vs_ieta_HB1") ==0  ){ emean_vs_ieta_HB1= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_vs_ieta_HB2") ==0  ){ emean_vs_ieta_HB2= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_vs_ieta_HE1") ==0  ){ emean_vs_ieta_HE1= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_vs_ieta_HE2") ==0  ){ emean_vs_ieta_HE2= hcalMEs[ih]; }
+      //else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_vs_ieta_HE3") ==0  ){ emean_vs_ieta_HE3= hcalMEs[ih]; }
+      //else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_vs_ieta_HF1") ==0  ){ emean_vs_ieta_HF1= hcalMEs[ih]; }
+      //else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_vs_ieta_HF2") ==0  ){ emean_vs_ieta_HF2= hcalMEs[ih]; }
+      //else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_vs_ieta_HO") ==0  ){ emean_vs_ieta_HO= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_vs_ieta_HB1") ==0  ){ RMS_vs_ieta_HB1= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_vs_ieta_HB2") ==0  ){ RMS_vs_ieta_HB2= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_vs_ieta_HE1") ==0  ){ RMS_vs_ieta_HE1= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_vs_ieta_HE2") ==0  ){ RMS_vs_ieta_HE2= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_vs_ieta_HE3") ==0  ){ RMS_vs_ieta_HE3= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_vs_ieta_HF1") ==0  ){ RMS_vs_ieta_HF1= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_vs_ieta_HF2") ==0  ){ RMS_vs_ieta_HF2= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_vs_ieta_HO") ==0  ){ RMS_vs_ieta_HO= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_vs_ieta_HB1") ==0  ){ occupancy_vs_ieta_HB1= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_vs_ieta_HB2") ==0  ){ occupancy_vs_ieta_HB2= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_vs_ieta_HE1") ==0  ){ occupancy_vs_ieta_HE1= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_vs_ieta_HE2") ==0  ){ occupancy_vs_ieta_HE2= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_vs_ieta_HE3") ==0  ){ occupancy_vs_ieta_HE3= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_vs_ieta_HF1") ==0  ){ occupancy_vs_ieta_HF1= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_vs_ieta_HF2") ==0  ){ occupancy_vs_ieta_HF2= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_vs_ieta_HO") ==0  ){ occupancy_vs_ieta_HO= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "HcalRecHitTask_RecHit_StatusWord_HB") ==0  ){ RecHit_StatusWord_HB= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "HcalRecHitTask_RecHit_StatusWord_HE") ==0  ){ RecHit_StatusWord_HE= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "HcalRecHitTask_RecHit_StatusWord_HO") ==0  ){ RecHit_StatusWord_HO= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "HcalRecHitTask_RecHit_StatusWord_HF") ==0  ){ RecHit_StatusWord_HF= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "HcalRecHitTask_RecHit_StatusWord_HF67") ==0  ){ RecHit_StatusWord_HF67= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "HcalRecHitTask_RecHit_Aux_StatusWord_HB") ==0  ){ RecHit_Aux_StatusWord_HB= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "HcalRecHitTask_RecHit_Aux_StatusWord_HE") ==0  ){ RecHit_Aux_StatusWord_HE= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "HcalRecHitTask_RecHit_Aux_StatusWord_HO") ==0  ){ RecHit_Aux_StatusWord_HO= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "HcalRecHitTask_RecHit_Aux_StatusWord_HF") ==0  ){ RecHit_Aux_StatusWord_HF= hcalMEs[ih]; }
    } 
    if( useAllHistos !=0 && useAllHistos !=1 ) return 0;
 
