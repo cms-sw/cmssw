@@ -97,8 +97,8 @@
  **
  **
  **  $Id: TkConvValidator
- **  $Date: 2011/07/20 16:57:32 $
- **  $Revision: 1.3 $
+ **  $Date: 2011/12/22 20:44:37 $
+ **  $Revision: 1.4 $
  **  \author N.Marinelli - Univ. of Notre Dame
  **
  ***/
@@ -1188,7 +1188,6 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       dPhiTracksAtVtx = p2AtVtx.phi() - p1AtVtx.phi();
 
 
-    math::XYZVector convMom =  tk1->momentum() + tk2->momentum();
     math::XYZVectorF refittedMom =  aConv.refittedPairMomentum();
 
 

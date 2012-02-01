@@ -515,7 +515,6 @@ void EgammaObjects::analyzeElectrons( const edm::Event& evt, const edm::EventSet
     if(abs((*currentParticle)->pdg_id())==11 && (*currentParticle)->status()==1
       && (*currentParticle)->momentum().e()/cosh((*currentParticle)->momentum().eta()) >= EtCut)
     {
-			HepMC::FourVector vtx = (*currentParticle)->production_vertex()->position();
 			double phiTrue = (*currentParticle)->momentum().phi();
 			double etaTrue = (*currentParticle)->momentum().eta();
       double eTrue  = (*currentParticle)->momentum().e();
