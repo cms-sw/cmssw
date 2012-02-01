@@ -99,16 +99,6 @@ void OptOPlateSplitter::fastDeviatesLightRay( LightRay& lightray )
     lightray.dumpData("Reflected in plate"); 
   }
   //---------- Deviate Lightray 
-  ALIdouble deviRX = findExtraEntryValue("deviRX");
-  ALIdouble deviRY = findExtraEntryValue("deviRY");
-  ALIdouble deviR;
-  ALIbool bb = findExtraEntryValueIfExists("deviR", deviR);
-  if( bb ) {
-    deviRX = deviR;
-    deviRY = deviR;
-  }
-
-  //  lightray.shiftAndDeviateWhileTraversing( this, 0., 0., 0., deviRX, deviRY, 0.);
   lightray.shiftAndDeviateWhileTraversing( this, 'R' );
   if (ALIUtils::debug >= 2) {
     lightray.dumpData("Deviated ");
@@ -137,25 +127,6 @@ void OptOPlateSplitter::fastTraversesLightRay( LightRay& lightray )
     lightray.dumpData("Intersected with plate"); 
   }
   //---------- Shift and Deviate
-  ALIdouble shiftX = findExtraEntryValue("shiftTX");
-  ALIdouble shiftY = findExtraEntryValue("shiftTY");
-  ALIdouble shift;
-  ALIbool bb = findExtraEntryValueIfExists("shiftT", shift);
-  if( bb ) {
-    shiftX = shift;
-    shiftY = shift;
-  }
-
-  ALIdouble deviTX = findExtraEntryValue("deviTX");
-  ALIdouble deviTY = findExtraEntryValue("deviTY");
-  ALIdouble deviT;
-  bb = findExtraEntryValueIfExists("deviT", deviT);
-  if( bb ) {
-    deviTX = deviT;
-    deviTY = deviT;
-  }
-
-  //  lightray.shiftAndDeviateWhileTraversing( this, shiftX, shiftY, 0., deviTX, deviTY, 0.);
   lightray.shiftAndDeviateWhileTraversing( this, 'T' );
   if (ALIUtils::debug >= 2) {
     lightray.dumpData("Shifted and Deviated");

@@ -179,25 +179,6 @@ void OptOMirror::fastTraversesLightRay( LightRay& lightray )
     lightray.dumpData("Intersected with plate"); 
   }
   //---------- Shift and Deviate
-  ALIdouble shiftX = findExtraEntryValue("shiftTX");
-  ALIdouble shiftY = findExtraEntryValue("shiftTY");
-  ALIdouble shift;
-  ALIbool bb = findExtraEntryValueIfExists("shiftT", shift);
-  if( bb ) {
-    shiftX = shift;
-    shiftY = shift;
-  }
-
-  ALIdouble deviTX = findExtraEntryValue("deviTX");
-  ALIdouble deviTY = findExtraEntryValue("deviTY");
-  ALIdouble deviT;
-  bb = findExtraEntryValueIfExists("deviT", deviT);
-  if( bb ) {
-    deviTX = deviT;
-    deviTY = deviT;
-  }
-
-  //  lightray.shiftAndDeviateWhileTraversing( this, shiftX, shiftY, 0., deviTX, deviTY, 0.);
   lightray.shiftAndDeviateWhileTraversing( this, 'T' );
   if (ALIUtils::debug >= 2) {
     lightray.dumpData("Shifted and Deviated");

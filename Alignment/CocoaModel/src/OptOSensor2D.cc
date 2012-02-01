@@ -122,14 +122,6 @@ void OptOSensor2D::fastTraversesLightRay( LightRay& lightray )
   if (ALIUtils::debug >= 2) std::cout << "LR: FAST TRAVERSES SENSOR2D  " << name() << std::endl;
 
   //---------- Shift and Deviate
-  ALIdouble shiftX = findExtraEntryValue("shiftX");
-  ALIdouble shiftY = findExtraEntryValue("shiftY");
-  ALIdouble shift;
-  ALIbool bb = findExtraEntryValueIfExists("shift", shift);
-  if( bb ) {
-    shiftX = shift;
-    shiftY = shift;
-  }
 
   //---------- Get intersection 
   CLHEP::Hep3Vector ZAxis(0.,0,1.);
@@ -219,7 +211,7 @@ void OptOSensor2D::fastTraversesLightRay( LightRay& lightray )
       deviY = entryDeviY->value();
 
     } else {
-      bb = findExtraEntryValueIfExists("devi", devi);
+      ALIbool bb = findExtraEntryValueIfExists("devi", devi);
       if( bb ) {
 	deviX = devi;
 	deviY = devi;
@@ -232,7 +224,6 @@ void OptOSensor2D::fastTraversesLightRay( LightRay& lightray )
 
   lightray.setPoint( inters );
 
-  //  lightray.shiftAndDeviateWhileTraversing( this, shiftX, shiftY, 0., deviX, deviY, 0.);
   lightray.shiftAndDeviateWhileTraversing( this, 'T' );
   if (ALIUtils::debug >= 2) {
     lightray.dumpData("Shifted and Deviated");
@@ -330,7 +321,6 @@ void OptOSensor2D::fillExtraEntry( std::vector<ALIstring>& wordlist )
     if(ALIUtils::debug >= 5 ) std::cout << "deviFromFile " << deviFromFile << std::endl; 
     //----- Read header
     ALIstring sensor1_name, sensor2_name;
-    ALIint sensor1_side, sensor2_side;
     ALIdouble sensor_dist;
     ALIdouble prec_deviX,prec_deviY;
 
@@ -340,14 +330,10 @@ void OptOSensor2D::fillExtraEntry( std::vector<ALIstring>& wordlist )
     sensor2_name = wl[1];
     sensor_dist = atof( wl[2].c_str() );
     // 'c' means that light is traversing the glass
-    sensor1_side = 1;
     if(sensor1_name[sensor1_name.size()-2] == 'c') {
-      sensor1_side = 2;
       sensor1_name = sensor1_name.substr(0,sensor1_name.size()-1);
     }
-    sensor2_side = 1;
     if(sensor2_name[sensor2_name.size()-2] == 'c') {
-      sensor2_side = 2;
       sensor2_name = sensor2_name.substr(0,sensor2_name.size()-1);
     }
     if(ALIUtils::debug >= 5) std::cout << "sensor1_name " << sensor1_name << " sensor2_name " << sensor2_name  << " sensor_dist " << sensor_dist << " unknown " << wl[3] << std::endl;
