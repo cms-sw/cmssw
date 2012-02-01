@@ -14,5 +14,6 @@ dtResidualCalibration = cms.EDAnalyzer("DTResidualCalibration",
     dtSegmentSelectionResiduals,
     segment4DLabel = cms.InputTag('dt4DSegments'),
     rootBaseDir = cms.untracked.string('DTResiduals'),
-    rootFileName = cms.untracked.string('residuals.root')
+    rootFileName = cms.untracked.string('residuals.root'),
+    detailedAnalysis = cms.untracked.bool(False)
 )
