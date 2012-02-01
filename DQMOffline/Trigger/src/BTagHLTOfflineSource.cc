@@ -1324,8 +1324,6 @@ void BTagHLTOfflineSource::selectMuons(const edm::Handle<reco::MuonCollection> &
 bool BTagHLTOfflineSource::isVBTFMuon(const reco::Muon& muon)
 {
 
-  bool quality = 1;
-
   reco::TrackRef gm = muon.globalTrack();
   reco::TrackRef tk = muon.innerTrack();
 
@@ -1357,16 +1355,16 @@ bool BTagHLTOfflineSource::isVBTFMuon(const reco::Muon& muon)
     #& muon.vz()‐primaryVertex.z() <2 & DR(muon,jet)<0.4
   */
 
-  if (mupt < _mupt)                           {return 0; quality=0;}
-  if (fabs(mueta) > _mueta)                   {return 0; quality=0;}
-  if (muonHits < _muonHits)                   {return 0; quality=0;}
-  if (nMatches < _nMatches)                   {return 0; quality=0;}
-  if (trackerHits < _trackerHits)             {return 0; quality=0;}
-  if (pixelHits < _pixelHits)                 {return 0; quality=0;}
-  if (outerHits > _outerHits)                 {return 0; quality=0;}
-  if (tknormalizedChi2 > _tknormalizedChi2)   {return 0; quality=0;}
-  if (gmnormalizedChi2 > _gmnormalizedChi2)   {return 0; quality=0;}
-  if (mudZ > _mudZ)                           {return 0; quality=0;}
+  if (mupt < _mupt)                           {return 0;}
+  if (fabs(mueta) > _mueta)                   {return 0;}
+  if (muonHits < _muonHits)                   {return 0;}
+  if (nMatches < _nMatches)                   {return 0;}
+  if (trackerHits < _trackerHits)             {return 0;}
+  if (pixelHits < _pixelHits)                 {return 0;}
+  if (outerHits > _outerHits)                 {return 0;}
+  if (tknormalizedChi2 > _tknormalizedChi2)   {return 0;}
+  if (gmnormalizedChi2 > _gmnormalizedChi2)   {return 0;}
+  if (mudZ > _mudZ)                           {return 0;}
 
   return true;
 
