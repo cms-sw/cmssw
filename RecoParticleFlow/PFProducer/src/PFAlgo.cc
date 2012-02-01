@@ -933,9 +933,6 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       double calibEcal = 0.;
       double calibHcal = 0.;
       double totalEcal = thisIsAMuon ? -muonECAL_[0] : 0.;
-      double totalHcal = 0.;
-      double totalHO   = 0.;
-      double calibHO   = 0.;
 
       // Consider charged particles closest to the same ECAL cluster
       std::multimap<double, unsigned> sortedTracks;
@@ -1084,13 +1081,10 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	// Since the electrons were found beforehand, this track must be a hadron. Calibrate 
 	// the energy under the hadron hypothesis.
 	totalEcal += ecalEnergy;
-	totalHcal = 0.;
-	totalHO = 0.0;
 	double previousCalibEcal = calibEcal;
 	double previousSlopeEcal = slopeEcal;
 	calibEcal = std::max(totalEcal,0.);
 	calibHcal = 0.;
-	calibHO = 0.0;
 	calibration_->energyEmHad(trackMomentum,calibEcal,calibHcal,
 				  clusterRef->positionREP().Eta(),
 				  clusterRef->positionREP().Phi());
@@ -2634,7 +2628,6 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     // Loop on these ECAL elements
     float totalEcal = 0.;
     float ecalMax = 0.;
-    unsigned jEcal = 0;
     reco::PFClusterRef eClusterRef;
     for(IE ie = ecalElems.begin(); ie != ecalElems.end(); ++ie ) {
       
@@ -2711,7 +2704,6 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       if ( ecalEnergy > ecalMax ) { 
 	ecalMax = ecalEnergy;
 	eClusterRef = eclusterRef;
-	jEcal = iEcal;
       }
       
       ecalRefs.push_back(iEcal);
@@ -2723,7 +2715,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     // Now find the HO clusters linked to the HCAL cluster
     double totalHO = 0.;
     double hoMax = 0.;
-    unsigned jHO = 0;
+    //unsigned jHO = 0;
     if (useHO_) {
       std::multimap<double, unsigned> hoElems;
       block.associatedElements( iHcal,  linkData,
@@ -2787,7 +2779,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	if ( hoEnergy > hoMax ) { 
 	  hoMax = hoEnergy;
 	  hoClusterRef = hoclusterRef;
-	  jHO = iHO;
+	  //jHO = iHO;
 	}
 	
 	hoRefs.push_back(iHO);
@@ -2809,19 +2801,19 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     //          << ", " << hclusterRef->positionREP().Eta()
     //          << std::endl;
     // Calibration
-    double caloEnergy = totalHcal;
+    //double caloEnergy = totalHcal;
     // double slopeEcal = 1.0;
     double calibEcal = totalEcal > 0. ? totalEcal : 0.;
     double calibHcal = std::max(0.,totalHcal);
     if  (  hclusterRef->layer() == PFLayer::HF_HAD  ||
 	   hclusterRef->layer() == PFLayer::HF_EM ) { 
-      caloEnergy = totalHcal/0.7;
+      //caloEnergy = totalHcal/0.7;
       calibEcal = totalEcal;
     } else { 
       calibration_->energyEmHad(-1.,calibEcal,calibHcal,
 				hclusterRef->positionREP().Eta(),
 				hclusterRef->positionREP().Phi());      
-      caloEnergy = calibEcal+calibHcal;
+      //caloEnergy = calibEcal+calibHcal;
     }
 
     // std::cout << "CalibEcal,HCal = " << calibEcal << ", " << calibHcal << std::endl;
@@ -3397,8 +3389,6 @@ PFAlgo::postCleaning() {
     double met2Cor = met2;
     double deltaPhi = 3.14159;
     double deltaPhiPt = 100.;
-    double deltaPhiCor = 3.14159;
-    double deltaPhiPtCor = 100.;
     bool next = true;
     unsigned iCor = 1E9;
 
@@ -3406,7 +3396,6 @@ PFAlgo::postCleaning() {
     while ( next ) { 
 
       double metReduc = -1.;
-      double setReduc = -1.;
       // Loop on the candidates
       for(unsigned i=0; i<pfCandidates_->size(); ++i) {
 	const PFCandidate& pfc = (*pfCandidates_)[i];
@@ -3440,13 +3429,10 @@ PFAlgo::postCleaning() {
 	  metXCor = metXInt;
 	  metYCor = metYInt;
 	  metReduc = (met2-met2Int)/met2Int; 
-	  setReduc = (std::sqrt(met2Int)-std::sqrt(met2))/(sumetInt-sumet); 
 	  met2Cor = met2Int;
 	  sumetCor = sumetInt;
 	  significanceCor = std::sqrt(met2Cor/sumetCor);
 	  iCor = i;
-	  deltaPhiCor = deltaPhi;
-	  deltaPhiPtCor = deltaPhiPt;
 	}
       }
       //
@@ -3515,7 +3501,6 @@ PFAlgo::checkCleaning( const reco::PFRecHitCollection& cleanedHits ) {
   while ( next ) { 
     
     double metReduc = -1.;
-    double setReduc = -1.;
     // Loop on the candidates
     for(unsigned i=0; i<cleanedHits.size(); ++i) {
       const PFRecHit& hit = cleanedHits[i];
@@ -3543,7 +3528,6 @@ PFAlgo::checkCleaning( const reco::PFRecHitCollection& cleanedHits ) {
 	metXCor = metXInt;
 	metYCor = metYInt;
 	metReduc = (met2-met2Int)/met2Int; 
-	setReduc = (std::sqrt(met2Int)-std::sqrt(met2))/(sumetInt-sumet); 
 	met2Cor = met2Int;
 	sumetCor = sumetInt;
 	// significanceCor = std::sqrt(met2Cor/sumetCor);
@@ -3744,7 +3728,7 @@ PFAlgo::postMuonCleaning( const edm::Handle<reco::MuonCollection>& muonh,
       std::cout << "MEX,MEY,MET ST" << metXST << " " << metYST << " " << std::sqrt(met2ST) << std::endl;
       */
 
-      bool fixed = false;
+      //bool fixed = false;
       if ( ( sumetNO-sumetPU > 250. && met2TK < met2/4. && met2TK < met2GL ) || 
 	   ( met2TK < met2/2. && trackerMu->pt() < bestMuTrack->pt()/4. && met2TK < met2GL ) )  { 
 	pfCleanedTrackerAndGlobalMuonCandidates_->push_back(pfc);
@@ -3758,7 +3742,7 @@ PFAlgo::postMuonCleaning( const edm::Handle<reco::MuonCollection>& muonh,
 	metX = metXTK;
 	metY = metYTK;
 	met2 = met2TK;
-	fixed = true;
+	//fixed = true;
 	if ( printout ) 
 	  std::cout << "MEX,MEY,MET Now    (TK)" << metX << " " << metY << " " << std::sqrt(met2) << std::endl;
       } 
@@ -3776,7 +3760,7 @@ PFAlgo::postMuonCleaning( const edm::Handle<reco::MuonCollection>& muonh,
 	metX = metXGL;
 	metY = metYGL;
 	met2 = met2GL;
-	fixed = true;
+	//fixed = true;
 	if ( printout ) 
 	  std::cout << "MEX,MEY,MET Now    (GL)" << metX << " " << metY << " " << std::sqrt(met2) << std::endl;
       }
@@ -3907,14 +3891,12 @@ PFAlgo::postMuonCleaning( const edm::Handle<reco::MuonCollection>& muonh,
     // check if the muons has already been taken
     bool used = false;
     bool hadron = false;
-    unsigned iHad = 1E9;
     for(unsigned i=0; i<pfCandidates_->size(); i++) {
       const PFCandidate& pfc = (*pfCandidates_)[i];
       if ( !pfc.trackRef().isNonnull() ) continue;
 
       if ( pfc.trackRef().isNonnull() && pfc.trackRef() == trackerMu ) { 
 	hadron = true;
-	iHad = i;
       }
 
       // The pf candidate is not associated to a muon
