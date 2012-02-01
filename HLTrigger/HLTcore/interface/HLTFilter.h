@@ -7,8 +7,8 @@
  *  This class derives from EDFilter and adds a few HLT specific items.
  *  All HLT filters that wish to save summary objects for the AOD must derive from the HLTFilter class.
  *
- *  $Date: 2012/01/21 14:52:28 $
- *  $Revision: 1.8 $
+ *  $Date: 2012/01/23 00:12:46 $
+ *  $Revision: 1.9 $
  *
  *  \author Martin Grunewald
  *
@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/CurrentProcessingContext.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 //
@@ -28,6 +29,7 @@ class HLTFilter : public edm::EDFilter {
 
 public:
   explicit HLTFilter(const edm::ParameterSet & config);
+  static void makeHLTFilterDescription(edm::ParameterSetDescription& desc);
   virtual ~HLTFilter();
 
 private:

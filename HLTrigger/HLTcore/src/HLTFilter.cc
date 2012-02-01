@@ -5,8 +5,8 @@
  *  items. Any and all HLT filters must derive from the HLTFilter
  *  class!
  *
- *  $Date: 2006/08/14 15:26:42 $
- *  $Revision: 1.7 $
+ *  $Date: 2012/01/21 14:52:28 $
+ *  $Revision: 1.8 $
  *
  *  \author Martin Grunewald
  *
@@ -21,6 +21,11 @@ HLTFilter::HLTFilter(const edm::ParameterSet & config) :
 { 
   // register common HLTFilter products
   produces<trigger::TriggerFilterObjectWithRefs>();
+}
+
+void
+HLTFilter::makeHLTFilterDescription(edm::ParameterSetDescription& desc) {
+  desc.add<bool>("saveTags",false);
 }
 
 HLTFilter::~HLTFilter() 
