@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/11/07 12:57:15 $
- *  $Revision: 1.14 $
+ *  $Date: 2009/12/18 20:45:12 $
+ *  $Revision: 1.15 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -546,7 +546,6 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
   // max values to be used (HO is found in HB)
   Double_t maxHBEnergy = 0.;
   Double_t maxHEEnergy = 0.;
-  Double_t maxHOEnergy = 0.;
   Double_t maxHFEnergy = 0.;
 
   Double_t maxHBPhi = -1000.;
@@ -591,7 +590,6 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
 	double fPhi = cellGeometry->getPosition().phi () ;
 	if ( (jhbhe->energy()) > maxHBEnergy ) {
 	  maxHBEnergy = jhbhe->energy();
-	  maxHOEnergy = maxHBEnergy;
 	  maxHBPhi = fPhi;
 	  maxHOPhi = maxHBPhi;
 	  maxHBEta = fEta;

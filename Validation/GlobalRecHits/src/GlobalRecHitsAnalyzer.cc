@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2009/12/18 20:45:11 $
- *  $Revision: 1.16 $
+ *  $Date: 2011/08/09 08:25:25 $
+ *  $Revision: 1.17 $
  *  \author M. Strang SUNY-Buffalo
  *  Testing by Ken Smith
  */
@@ -669,7 +669,6 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
   // max values to be used (HO is found in HB)
   Double_t maxHBEnergy = 0.;
   Double_t maxHEEnergy = 0.;
-  Double_t maxHOEnergy = 0.;
   Double_t maxHFEnergy = 0.;
   
   Double_t maxHBPhi = -1000.;
@@ -677,9 +676,6 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
   Double_t maxHOPhi = -1000.;
   Double_t maxHFPhi = -1000.;
   
-  Double_t maxHBEta = -1000.;
-  Double_t maxHEEta = -1000.;
-  Double_t maxHOEta = -1000.;
   
   Double_t PI = 3.141592653589;
   
@@ -712,15 +708,11 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 	  
 	  const CaloCellGeometry* cellGeometry =
 	    geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
-	  double fEta = cellGeometry->getPosition().eta () ;
 	  double fPhi = cellGeometry->getPosition().phi () ;
 	  if ( (jhbhe->energy()) > maxHBEnergy ) {
 	    maxHBEnergy = jhbhe->energy();
-	    maxHOEnergy = maxHBEnergy;
 	    maxHBPhi = fPhi;
 	    maxHOPhi = maxHBPhi;
-	    maxHBEta = fEta;
-	    maxHOEta = maxHBEta;
 	  }	  
 	}
       
@@ -728,12 +720,10 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 	  
 	  const CaloCellGeometry* cellGeometry =
 	    geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
-	  double fEta = cellGeometry->getPosition().eta () ;
 	  double fPhi = cellGeometry->getPosition().phi () ;
 	  if ( (jhbhe->energy()) > maxHEEnergy ) {
 	    maxHEEnergy = jhbhe->energy();
 	    maxHEPhi = fPhi;
-	    maxHEEta = fEta;
 	  }	  
 	}
       } // end find max values
