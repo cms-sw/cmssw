@@ -11,6 +11,7 @@ Sequences for HPS taus
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByIsolation_cfi                      import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingTrackFinding_cfi            import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectron_cfi                  import *
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectronMVA_cfi                  import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstMuon_cfi                      import *
 
 # Load helper functions to change the source of the discriminants
@@ -177,6 +178,23 @@ hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr = hpsPFTauDiscriminat
 hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minTrackPt = 0.5
 hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minGammaEt = 0.5
 
+hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr = hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr.clone(
+    applySumPtCut = False,
+    storeRawSumPt = cms.bool(True)
+)
+
+hpsPFTauDiscriminationByRawChargedIsolationDBSumPtCorr = hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr.clone(
+    applySumPtCut = False,
+    ApplyDiscriminationByECALIsolation = False,
+    storeRawSumPt = cms.bool(True)
+)
+
+hpsPFTauDiscriminationByRawGammaIsolationDBSumPtCorr = hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr.clone(
+    applySumPtCut = False,
+    ApplyDiscriminationByTrackerIsolation = False,
+    storeRawSumPt = cms.bool(True)
+)
+
 hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr = hpsPFTauDiscriminationByLooseIsolationDBSumPtCorr.clone(
     ApplyDiscriminationByTrackerIsolation = True,
     ApplyDiscriminationByECALIsolation = True,
@@ -257,6 +275,18 @@ hpsPFTauDiscriminationByTightMuonRejection = pfRecoTauDiscriminationAgainstMuon.
     discriminatorOption = cms.string('noAllArbitratedWithHOP')
     )
 
+hpsPFTauDiscriminationByMVAElectronRejection = pfRecoTauDiscriminationAgainstElectronMVA.clone(
+    PFTauProducer = cms.InputTag('hpsPFTauProducer'),
+    Prediscriminants = requireDecayMode.clone(),
+)
+
+# Additionally require that the MVA electrons pass electron medium
+# (this discriminator was used on the training sample)
+hpsPFTauDiscriminationByMVAElectronRejection.Prediscriminants.electronMedium = \
+        cms.PSet(
+            Producer = cms.InputTag('hpsPFTauDiscriminationByMediumElectronRejection'),
+            cut = cms.double(0.5)
+        )
 
 # Define the HPS selection discriminator used in cleaning
 hpsSelectionDiscriminator.PFTauProducer = cms.InputTag("combinatoricRecoTaus")
@@ -304,10 +334,16 @@ produceAndDiscriminateHPSPFTaus = cms.Sequence(
     #hpsPFTauDiscriminationByIsolationSeqRhoCorr*
     #hpsPFTauDiscriminationByIsolationSeqCustomRhoCorr*
     hpsPFTauDiscriminationByIsolationSeqDBSumPtCorr*
+
+    hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr*
+    hpsPFTauDiscriminationByRawChargedIsolationDBSumPtCorr*
+    hpsPFTauDiscriminationByRawGammaIsolationDBSumPtCorr*
+
     hpsPFTauDiscriminationByCombinedIsolationSeqDBSumPtCorr*
     hpsPFTauDiscriminationByLooseElectronRejection*
     hpsPFTauDiscriminationByMediumElectronRejection*
     hpsPFTauDiscriminationByTightElectronRejection*
+    hpsPFTauDiscriminationByMVAElectronRejection*
     hpsPFTauDiscriminationByLooseMuonRejection*
     hpsPFTauDiscriminationByMediumMuonRejection*
     hpsPFTauDiscriminationByTightMuonRejection
