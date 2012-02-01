@@ -125,12 +125,12 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
   templID_ = templateDBobject_->getTemplateID(theDet->geographicalId().rawId());
   if ( UseErrorsFromTemplates_ )
     {
-      bool fpix;  //!< barrel(false) or forward(true)
+      /*bool fpix;  //!< barrel(false) or forward(true)
       if ( thePart == GeomDetEnumerators::PixelBarrel )
 	fpix = false;    // no, it's not forward -- it's barrel
       else
 	fpix = true;     // yes, it's forward
-      
+      */
       float qclus = cluster.charge();
       
       GlobalVector bfield = magfield_->inTesla( theDet->surface().position() ); 
