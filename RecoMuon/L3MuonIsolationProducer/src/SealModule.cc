@@ -8,6 +8,9 @@
 #include "L3MuonIsolationProducer.h"
 DEFINE_FWK_MODULE(L3MuonIsolationProducer);
 
+#include "L3MuonCombinedRelativeIsolationProducer.h"
+DEFINE_FWK_MODULE(L3MuonCombinedRelativeIsolationProducer);
+
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include "IsolationRegionAroundL3Muon.h"
