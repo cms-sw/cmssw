@@ -316,14 +316,14 @@ void JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent){
       const int l1Index = triggerObj_->filterIndex(l1Tag);
       edm::InputTag hltTag(v->getLabel(),"",processname_);
       const int hltIndex = triggerObj_->filterIndex(hltTag);
-      bool l1TrigBool = false;
+      //bool l1TrigBool = false;
       bool hltTrigBool = false;
       bool diJetFire = false;
       int jetsize = 0;
       if ( l1Index >= triggerObj_->sizeFilters() ) {
 	edm::LogInfo("JetMETHLTOfflineSource") << "no index "<< l1Index << " of that name "<<l1Tag;
       } else {
-	l1TrigBool = true;
+	//l1TrigBool = true;
 	const trigger::Keys & kl1 = triggerObj_->filterKeys(l1Index);
 	if(v->getObjectType() == trigger::TriggerJet)v->getMEhisto_N_L1()->Fill(kl1.size());
 	for( trigger::Keys::const_iterator ki = kl1.begin(); ki != kl1.end(); ++ki)
@@ -505,7 +505,7 @@ void JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent){
 	if ( l1Index >= triggerObj_->sizeFilters() ) {
           edm::LogInfo("JetMETHLTOfflineSource") << "no index "<< l1Index << " of that name "<<l1Tag;
 	} else {
-	  l1TrigBool = true;
+	  //l1TrigBool = true;
 	  const trigger::Keys & kl1 = triggerObj_->filterKeys(l1Index);
 	  for( trigger::Keys::const_iterator ki = kl1.begin(); ki != kl1.end(); ++ki)
 	  {
@@ -601,14 +601,14 @@ void JetMETHLTOfflineSource::fillMEforMonAllTriggerwrtMuonTrigger(const Event & 
 	const int l1Index = triggerObj_->filterIndex(l1Tag);
 	edm::InputTag hltTag(v->getLabel(),"",processname_);
 	const int hltIndex = triggerObj_->filterIndex(hltTag);
-	bool l1TrigBool = false;
+	//bool l1TrigBool = false;
 	bool hltTrigBool = false;
 	bool diJetFire = false;
 	int jetsize = 0;
 	if ( l1Index >= triggerObj_->sizeFilters() ) {
 	  edm::LogInfo("JetMETHLTOfflineSource") << "no index "<< l1Index << " of that name "<<l1Tag;
 	} else {
-	  l1TrigBool = true;
+	  //l1TrigBool = true;
 	  const trigger::Keys & kl1 = triggerObj_->filterKeys(l1Index);
 	  if(v->getObjectType() == trigger::TriggerJet)v->getMEhisto_N_L1()->Fill(kl1.size());
 	  for( trigger::Keys::const_iterator ki = kl1.begin(); ki != kl1.end(); ++ki)
@@ -791,7 +791,7 @@ void JetMETHLTOfflineSource::fillMEforMonAllTriggerwrtMuonTrigger(const Event & 
 	  if ( l1Index >= triggerObj_->sizeFilters() ) {
 	    edm::LogInfo("JetMETHLTOfflineSource") << "no index "<< l1Index << " of that name "<<l1Tag;
 	  } else {
-	    l1TrigBool = true;
+	    //l1TrigBool = true;
 	    const trigger::Keys & kl1 = triggerObj_->filterKeys(l1Index);
             for( trigger::Keys::const_iterator ki = kl1.begin(); ki != kl1.end(); ++ki)
 	    {
