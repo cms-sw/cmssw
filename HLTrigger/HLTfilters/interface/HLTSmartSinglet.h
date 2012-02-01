@@ -10,14 +10,15 @@
  *  variables relating to both the base class T and the derived actual
  *  class
  *
- *  $Date: 2011/05/01 08:19:55 $
- *  $Revision: 1.7 $
+ *  $Date: 2012/01/21 14:56:58 $
+ *  $Revision: 1.8 $
  *
  *  \author Martin Grunewald
  *
  */
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include<vector>
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
@@ -34,6 +35,7 @@ class HLTSmartSinglet : public HLTFilter {
 
       explicit HLTSmartSinglet(const edm::ParameterSet&);
       ~HLTSmartSinglet();
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
       virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:

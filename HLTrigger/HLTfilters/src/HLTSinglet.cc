@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/07/12 17:35:52 $
- *  $Revision: 1.11 $
+ *  $Date: 2012/01/21 14:56:59 $
+ *  $Revision: 1.12 $
  *
  *  \author Martin Grunewald
  *
@@ -21,6 +21,7 @@
 
 #include "HLTrigger/HLTfilters/interface/HLTSinglet.h"
 
+#include <typeinfo>
 
 // extract the candidate type
 template<typename T, int Tid>
@@ -76,18 +77,35 @@ trigger::TriggerObjectType getObjectType(const l1extra::L1JetParticle & candidat
 template<typename T, int Tid>
 HLTSinglet<T,Tid>::HLTSinglet(const edm::ParameterSet& iConfig) : HLTFilter(iConfig), 
   inputTag_ (iConfig.template getParameter<edm::InputTag>("inputTag")),
+  min_E_    (iConfig.template getParameter<double>       ("MinE"    )),
   min_Pt_   (iConfig.template getParameter<double>       ("MinPt"   )),
+  min_Mass_ (iConfig.template getParameter<double>       ("MinMass" )),
   max_Eta_  (iConfig.template getParameter<double>       ("MaxEta"  )),
   min_N_    (iConfig.template getParameter<int>          ("MinN"    ))
 {
    LogDebug("") << "Input/ptcut/etacut/ncut : "
 		<< inputTag_.encode() << " "
-		<< min_Pt_ << " " << max_Eta_ << " " << min_N_ ;
+		<< min_E_ << " " << min_Pt_ << " " << min_Mass_ << " " 
+		<< max_Eta_ << " " << min_N_ ;
 }
 
 template<typename T, int Tid>
 HLTSinglet<T,Tid>::~HLTSinglet()
 {
+}
+
+template<typename T, int Tid>
+void
+HLTSinglet<T,Tid>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("inputTag",edm::InputTag("hltCollection"));
+  desc.add<double>("MinE",-1.0);
+  desc.add<double>("MinPt",-1.0);
+  desc.add<double>("MinMass",-1.0);
+  desc.add<double>("MaxEta",-1.0);
+  desc.add<int>("MinN",1);
+  descriptions.add(std::string("hlt")+std::string(typeid(HLTSinglet<T,Tid>).name()),desc);
 }
 
 //
@@ -126,7 +144,9 @@ HLTSinglet<T,Tid>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
    int n(0);
    typename TCollection::const_iterator i ( objects->begin() );
    for (; i!=objects->end(); i++) {
-     if ( (i->pt() >= min_Pt_) && 
+     if ( (i->energy() >= min_E_) &&
+	  (i->pt() >= min_Pt_) && 
+	  (i->mass() >= min_Mass_) && 
 	  ( (max_Eta_ < 0.0) || (std::abs(i->eta()) <= max_Eta_) ) ) {
        n++;
        ref=TRef(objects,distance(objects->begin(),i));
@@ -139,5 +159,3 @@ HLTSinglet<T,Tid>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
 
    return accept;
 }
-
-

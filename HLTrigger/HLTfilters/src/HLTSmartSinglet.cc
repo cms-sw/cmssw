@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/05/01 14:41:36 $
- *  $Revision: 1.9 $
+ *  $Date: 2012/01/21 14:56:59 $
+ *  $Revision: 1.10 $
  *
  *  \author Martin Grunewald
  *
@@ -18,6 +18,8 @@
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <typeinfo>
 
 //
 // constructors and destructor
@@ -35,6 +37,17 @@ HLTSmartSinglet<T,Tid>::HLTSmartSinglet(const edm::ParameterSet& iConfig) : HLTF
 template<typename T, int Tid>
 HLTSmartSinglet<T,Tid>::~HLTSmartSinglet()
 {
+}
+
+template<typename T, int Tid> 
+void
+HLTSmartSinglet<T,Tid>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("inputTag",edm::InputTag("hltCollection"));
+  desc.add<std::string>("cut","1>0");
+  desc.add<int>("MinN",1);
+  descriptions.add(std::string("hlt")+std::string(typeid(HLTSmartSinglet<T,Tid>).name()),desc);
 }
 
 //
