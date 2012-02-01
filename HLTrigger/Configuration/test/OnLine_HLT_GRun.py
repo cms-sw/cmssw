@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_1_0/GRun/V8 (CMSSW_5_2_0_pre2_HLT13)
+# /dev/CMSSW_5_1_0/GRun/V9 (CMSSW_5_2_0_pre3_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V8')
+  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V9')
 )
 
 process.streams = cms.PSet( 
@@ -33727,7 +33727,6 @@ process.hltCSCMonitorModule = cms.EDAnalyzer( "CSCMonitorModule",
       EFF_ERR_THRESHOLD = cms.untracked.double( 0.1 ),
       BINCHECKER_OUTPUT = cms.untracked.bool( False )
     ),
-    PREBOOK_EFF_PARAMS = cms.untracked.bool( False ),
     InputObjects = cms.untracked.InputTag( "rawDataCollector" )
 )
 process.hltDTDQMEvF = cms.EDProducer( "DTUnpackingModule",
