@@ -1,6 +1,6 @@
 // Jet.cc
 // Fedor Ratnikov, UMd
-// $Id: Jet.cc,v 1.27 2012/02/01 11:25:27 pandolf Exp $
+// $Id: Jet.cc,v 1.28 2012/02/01 14:38:40 pandolf Exp $
 
 #include <sstream>
 #include <cmath>
@@ -367,7 +367,7 @@ std::vector<const Candidate*> Jet::getJetConstituentsQuick () const {
 
 
 
-float Jet::ptDistribution() const {
+float Jet::constituentPtDistribution() const {
 
   Jet::Constituents constituents = this->getJetConstituents();
 
@@ -388,7 +388,7 @@ float Jet::ptDistribution() const {
 
   return ptD_value;
 
-} //ptDistribution
+} //constituentPtDistribution
 
 
 
