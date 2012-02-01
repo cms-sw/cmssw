@@ -675,7 +675,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	  float sumbuffef = 0.;
 	  float sumbuffer = 0.;
 	  float averageeff = 0.;
-	  float averageerr = 0.;
+	  //float averageerr = 0.;
 	  int NumberStripsPointed = 0;
 	 
 	  
@@ -704,7 +704,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	    
 	    if(NumberStripsPointed!=0){
 	      averageeff = (sumbuffef/float(NumberStripsPointed))*100.;
-	      averageerr = sqrt(sumbuffer/float(NumberStripsPointed))*100.;
+	      //averageerr = sqrt(sumbuffer/float(NumberStripsPointed))*100.;
 	    }
 	    
 	  } //////////////////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1023,7 +1023,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	  float sumbuffef = 0;
 	  float sumbuffer = 0;
 	  float averageeff = 0;
-	  float averageerr = 0;
+	  //float averageerr = 0;
 	  int NumberStripsPointed = 0;
 
 	  //	  if(debug) std::cout<<"Cloning BX"<<std::endl;
@@ -1066,7 +1066,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	    
 	    if(NumberStripsPointed!=0){
 	      averageeff = (sumbuffef/float(NumberStripsPointed))*100.;
-	      averageerr = sqrt(sumbuffer/float(NumberStripsPointed))*100.;
+	      //averageerr = sqrt(sumbuffer/float(NumberStripsPointed))*100.;
 	    }
 	    
 	   //  mybxhisto = 50.+BXDistribution->getMean()*10;

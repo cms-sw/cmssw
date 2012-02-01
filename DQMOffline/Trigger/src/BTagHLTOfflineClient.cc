@@ -117,7 +117,6 @@ void BTagHLTOfflineClient::runClient_()
 	      // found denominator too
               if(name.find("EtaPhi") !=std::string::npos) 
 		{
-		  MonitorElement* eff ;   
 		  TH2F* tNumerator   = hltMEs[k]->getTH2F();
 		  TH2F* tDenominator = hltMEs[l]->getTH2F();
 		  
@@ -125,11 +124,10 @@ void BTagHLTOfflineClient::runClient_()
 		  
 		  TH2F *teff = (TH2F*) tNumerator->Clone(title.c_str());
 		  teff->Divide(tNumerator,tDenominator,1,1);
-		  eff= dbe_->book2D("ME_Eff_"+name,teff);
+		  dbe_->book2D("ME_Eff_"+name,teff);
 		  delete teff;			
 		}
 	      else{
-		MonitorElement* eff ;
 		TH1F* tNumerator   = hltMEs[k]->getTH1F();
 		TH1F* tDenominator = hltMEs[l]->getTH1F();
 		
@@ -137,7 +135,7 @@ void BTagHLTOfflineClient::runClient_()
 		
 		TH1F *teff = (TH1F*) tNumerator->Clone(title.c_str());
 		teff->Divide(tNumerator,tDenominator,1,1);
-		eff= dbe_->book1D("ME_Eff_"+name,teff);
+		dbe_->book1D("ME_Eff_"+name,teff);
 		delete teff;
 	      }
 	    } // Denominator
