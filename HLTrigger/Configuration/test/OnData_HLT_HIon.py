@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_1_0/HIon/V9 (CMSSW_5_2_0_pre3_HLT2)
+# /dev/CMSSW_5_1_0/HIon/V10 (CMSSW_5_2_0_pre3_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/HIon/V9')
+  tableName = cms.string('/dev/CMSSW_5_1_0/HIon/V10')
 )
 
 process.streams = cms.PSet( 
@@ -3110,7 +3110,7 @@ process.hltHbhereco = cms.EDProducer( "HcalHitReconstructor",
     )
 )
 process.hltHfreco = cms.EDProducer( "HcalHitReconstructor",
-    digiTimeFromDB = cms.bool( False ),
+    digiTimeFromDB = cms.bool( True ),
     S9S1stat = cms.PSet( 
       longETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
       shortEnergyParams = cms.vdouble( 35.1773, 35.37, 35.7933, 36.4472, 37.3317, 38.4468, 39.7925, 41.3688, 43.1757, 45.2132, 47.4813, 49.98, 52.7093 ),
@@ -3181,7 +3181,7 @@ process.hltHfreco = cms.EDProducer( "HcalHitReconstructor",
     setPulseShapeFlags = cms.bool( False ),
     Subdetector = cms.string( "HF" ),
     dropZSmarkedPassed = cms.bool( True ),
-    recoParamsFromDB = cms.bool( False ),
+    recoParamsFromDB = cms.bool( True ),
     firstSample = cms.int32( 2 ),
     setTimingShapedCutsFlags = cms.bool( False ),
     timingshapedcutsParameters = cms.PSet( 
