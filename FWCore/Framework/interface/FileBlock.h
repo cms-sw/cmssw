@@ -10,8 +10,8 @@ FileBlock: Properties of an input file.
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
 #include "DataFormats/Provenance/interface/BranchChildren.h"
 class TTree;
-#include "boost/array.hpp"
 #include "boost/shared_ptr.hpp"
+#include <array>
 #include <string>
 
 namespace edm {
@@ -71,7 +71,7 @@ namespace edm {
               TTree const* lumi, TTree const* lumiMeta,
               TTree const* run, TTree const* runMeta,
               int whyNotFastClonable,
-              boost::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch,
+              std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch,
               std::string const& fileName,
               bool branchListIndexesUnchanged,
               bool modifiedIDs,
@@ -101,7 +101,7 @@ namespace edm {
     TTree* runMetaTree() const {return runMetaTree_;}
 
     int whyNotFastClonable() const {return whyNotFastClonable_;}
-    boost::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const {return hasNewlyDroppedBranch_;}
+    std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const {return hasNewlyDroppedBranch_;}
     std::string const& fileName() const {return fileName_;}
     bool branchListIndexesUnchanged() const {return branchListIndexesUnchanged_;}
     bool modifiedIDs() const {return modifiedIDs_;}
@@ -122,7 +122,7 @@ namespace edm {
     TTree* runTree_;
     TTree* runMetaTree_;
     int whyNotFastClonable_;
-    boost::array<bool, NumBranchTypes> hasNewlyDroppedBranch_;
+    std::array<bool, NumBranchTypes> hasNewlyDroppedBranch_;
     std::string fileName_;
     bool branchListIndexesUnchanged_;
     bool modifiedIDs_;
