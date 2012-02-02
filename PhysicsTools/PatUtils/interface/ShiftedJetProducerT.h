@@ -12,7 +12,7 @@
  *
  * \version $Revision: 1.1 $
  *
- * $Id: ShiftedJetProducerT.h,v 1.1 2011/09/13 14:35:34 veelken Exp $
+ * $Id: ShiftedJetProducerT.h,v 1.1 2011/10/14 11:18:24 veelken Exp $
  *
  */
 
@@ -20,6 +20,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
@@ -40,14 +41,28 @@ class ShiftedJetProducerT : public edm::EDProducer
   explicit ShiftedJetProducerT(const edm::ParameterSet& cfg)
     : moduleLabel_(cfg.getParameter<std::string>("@module_label")),
       src_(cfg.getParameter<edm::InputTag>("src")),
+      jetCorrPayloadName_(""),
+      jetCorrParameters_(0),
       jecUncertainty_(0),
       jecUncertaintyValue_(-1.)
   {
     if ( cfg.exists("jecUncertaintyValue") ) {
       jecUncertaintyValue_ = cfg.getParameter<double>("jecUncertaintyValue");
     } else {
-      jetCorrPayloadName_ = cfg.getParameter<std::string>("jetCorrPayloadName");
       jetCorrUncertaintyTag_ = cfg.getParameter<std::string>("jetCorrUncertaintyTag");
+      if ( cfg.exists("jetCorrInputFileName") ) {
+	jetCorrInputFileName_ = cfg.getParameter<edm::FileInPath>("jetCorrInputFileName");
+	if ( !jetCorrInputFileName_.isLocal()) throw cms::Exception("ShiftedJetProducerT") 
+	  << " Failed to find JEC parameter file = " << jetCorrInputFileName_ << " !!\n";
+	std::cout << "Reading JEC parameters = " << jetCorrUncertaintyTag_  
+		  << " from file = " << jetCorrInputFileName_.fullPath() << "." << std::endl;
+	jetCorrParameters_ = new JetCorrectorParameters(jetCorrInputFileName_.fullPath().data(), jetCorrUncertaintyTag_);
+	jecUncertainty_ = new JetCorrectionUncertainty(*jetCorrParameters_);
+      } else {
+	std::cout << "Reading JEC parameters = " << jetCorrUncertaintyTag_
+		  << " from DB/SQLlite file." << std::endl;
+	jetCorrPayloadName_ = cfg.getParameter<std::string>("jetCorrPayloadName");
+      }
     }
 
     shiftBy_ = cfg.getParameter<double>("shiftBy");
@@ -56,6 +71,7 @@ class ShiftedJetProducerT : public edm::EDProducer
   }
   ~ShiftedJetProducerT()
   {
+    delete jetCorrParameters_;
     delete jecUncertainty_;
   }
     
@@ -68,7 +84,7 @@ class ShiftedJetProducerT : public edm::EDProducer
 
     std::auto_ptr<JetCollection> shiftedJets(new JetCollection);
     
-    if ( jecUncertaintyValue_ == -1. ) {
+    if ( jetCorrPayloadName_ != "" ) {
       edm::ESHandle<JetCorrectorParametersCollection> jetCorrParameterSet;
       es.get<JetCorrectionsRecord>().get(jetCorrPayloadName_, jetCorrParameterSet); 
       const JetCorrectorParameters& jetCorrParameters = (*jetCorrParameterSet)[jetCorrUncertaintyTag_];
@@ -104,8 +120,10 @@ class ShiftedJetProducerT : public edm::EDProducer
 
   edm::InputTag src_; 
 
+  edm::FileInPath jetCorrInputFileName_;
   std::string jetCorrPayloadName_;
   std::string jetCorrUncertaintyTag_;
+  JetCorrectorParameters* jetCorrParameters_;
   JetCorrectionUncertainty* jecUncertainty_;
 
   double jecUncertaintyValue_;
