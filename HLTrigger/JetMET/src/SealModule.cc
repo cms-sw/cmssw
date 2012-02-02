@@ -18,11 +18,8 @@
 #include "HLTrigger/JetMET/interface/HLTJetIDProducer.h"
 #include "HLTrigger/JetMET/interface/HLTJetL1MatchProducer.h"
 #include "HLTrigger/JetMET/interface/HLTJetCollForElePlusJets.h"
-#include "HLTrigger/JetMET/src/HLTJetCollectionsForLeptonPlusJets.cc"
 #include "HLTrigger/JetMET/interface/HLTMhtFilter.h"
 #include "HLTrigger/JetMET/interface/HLTMhtProducer.h"
-#include "HLTrigger/JetMET/interface/HLTJetCollectionsFilter.h"
-#include "HLTrigger/JetMET/src/HLTJetCollectionsFilter.cc"
 #include "HLTrigger/JetMET/interface/HLTHtMhtProducer.h"
 #include "HLTrigger/JetMET/interface/HLTHtMhtFilter.h"
 #include "HLTrigger/JetMET/interface/HLTPFEnergyFractionsFilter.h"
@@ -32,8 +29,13 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
+
 #include "HLTrigger/JetMET/interface/HLTMonoJetFilter.h"
 #include "HLTrigger/JetMET/src/HLTMonoJetFilter.cc"
+#include "HLTrigger/JetMET/interface/HLTJetCollectionsForLeptonPlusJets.h"
+#include "HLTrigger/JetMET/src/HLTJetCollectionsForLeptonPlusJets.cc"
+#include "HLTrigger/JetMET/interface/HLTJetCollectionsFilter.h"
+#include "HLTrigger/JetMET/src/HLTJetCollectionsFilter.cc"
 
 using namespace reco;
 using namespace trigger;
