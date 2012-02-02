@@ -57,8 +57,7 @@ std::string LMFLmrSubIOV::fetchIdSql(Statement *stmt) {
     return "";
   }
 
-  std::string sql = "SELECT LMR_SUB_IOV_ID FROM "
-    "CMS_ECAL_LASER_COND.LMF_LMR_SUB_IOV "
+  std::string sql = "SELECT LMR_SUB_IOV_ID FROM LMF_LMR_SUB_IOV "
     "WHERE "
     "IOV_ID  = :1 AND "
     "T1      = :2 AND "
@@ -76,8 +75,7 @@ std::string LMFLmrSubIOV::fetchIdSql(Statement *stmt) {
 }
 
 std::string LMFLmrSubIOV::setByIDSql(Statement *stmt, int id) {
-  std::string sql = "SELECT IOV_ID, T1, T2, T3 FROM "
-    "CMS_ECAL_LASER_COND.LMF_LMR_SUB_IOV "
+  std::string sql = "SELECT IOV_ID, T1, T2, T3 FROM LMF_LMR_SUB_IOV "
     "WHERE LMR_SUB_IOV_ID = :1";
   stmt->setSQL(sql);
   stmt->setInt(1, id);
@@ -143,7 +141,7 @@ std::list<int> LMFLmrSubIOV::getIOVIDsLaterThan(const Tm &tmin, const Tm &tmax,
   Tm tinf;
   tinf.setToString("9999-12-31 23:59:59");
   std::string sql = "SELECT * FROM (SELECT LMR_SUB_IOV_ID "  
-    "FROM CMS_ECAL_LASER_COND.LMF_LMR_SUB_IOV WHERE T3 > :1 ";
+    "FROM LMF_LMR_SUB_IOV WHERE T3 > :1 ";
   if (tmax != tinf) {
     sql += "AND T3 < :2 ORDER BY T3 ASC) ";
     if (howMany > 0) {
@@ -178,7 +176,7 @@ std::list<int> LMFLmrSubIOV::getIOVIDsLaterThan(const Tm &tmin, const Tm &tmax,
       }
       ResultSet *rset = stmt->executeQuery();
       int row = 1;
-      while (rset->next() != 0) {
+      while (rset->next()) {
 	if (m_debug) {
 	  std::cout << "Getting row " << row++ << std::endl;
 	}

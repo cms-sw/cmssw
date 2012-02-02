@@ -47,6 +47,8 @@ dqmCSCClient = cms.EDAnalyzer("CSCMonitorModule",
     MO_FILTER = cms.untracked.vstring(
       '+/^.*$/',
       '-/All_Readout_Errors/',
+      '-/^DMB_.*$/',
+      '-/DDU_[0-9]+/',
       '-/CSC_[0-9]+_[0-9]+/',
       '+/CSC_[0-9]+_[0-9]+\/BinCheck_ErrorStat_Table/',
       '+/CSC_[0-9]+_[0-9]+\/BinCheck_DataFlow_Problems_Table/',
@@ -62,7 +64,7 @@ dqmCSCClient = cms.EDAnalyzer("CSCMonitorModule",
       '+/CSC_[0-9]+_[0-9]+\/CLCT[0-9]_dTime/',
       '+/CSC_[0-9]+_[0-9]+\/CLCT_Number_Of_Layers_With_Hits/',
       '+/CSC_[0-9]+_[0-9]+\/CLCT[0-9]_Half_Strip_Quality_Distr/',
-      '+/CSC_[0-9]+_[0-9]+\/Chamber_Event_Display_No[12345]/'
+      '+/CSC_[0-9]+_[0-9]+\/Chamber_Event_Display_No[1]/'
     )
   )
 

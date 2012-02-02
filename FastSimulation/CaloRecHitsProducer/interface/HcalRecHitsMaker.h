@@ -49,7 +49,6 @@ class HcalRecHitsMaker
   void cleanSubDet(std::vector<float>& hits,std::vector<int>& cells);
   // conversion for digitization
   int fCtoAdc(double fc) const;
-  double fractionOOT(int time_slice);
 
  private:
   unsigned det_;

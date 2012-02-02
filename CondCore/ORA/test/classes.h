@@ -15,7 +15,194 @@
 #include "CondCore/ORA/interface/UniqueRef.h"
 #include <boost/shared_ptr.hpp>
 
+#include <cstdlib>
+#include <ctime>
+
 typedef unsigned int uint32_t;
+
+  class MixingInputConfig {
+  public:
+    MixingInputConfig():
+      t_(0),
+      an_(0.),
+      dpfv_(),
+      dp_(),
+      moot_(0),
+      ioot_(0){}
+
+    explicit MixingInputConfig( int i ):
+      t_(i),
+      an_( (double)i),
+      dpfv_(),
+      dp_(),
+      moot_(i),
+      ioot_(i){
+      ::srand( i + time( NULL)%10 );
+      int vsiz = ::rand()%5;
+      for(int j=0;j<vsiz; j++){
+      	dpfv_.push_back( j );
+	dp_.push_back( (double)j );
+      }
+    }
+
+    virtual ~MixingInputConfig(){};
+
+    void load(int i){
+      t_ = i;
+      an_ = (double)i;
+      moot_ = i;
+      ioot_ = i;
+      dpfv_.clear();
+      dp_.clear();
+      ::srand( i + time( NULL)%10 );
+      int vsiz = ::rand()%5;
+      for(int j=0;j<vsiz; j++){
+	dpfv_.push_back( j );
+	dp_.push_back( (double)j );
+      }
+    }
+
+    bool operator==( const MixingInputConfig& rhs ) const {
+      bool ok = true;
+      if( t_ != rhs.t_ ){
+	ok = false;
+	std::cout <<"## t_ different!"<<std::endl;
+        return false;
+      }
+      if( an_ != rhs.an_ ){
+	ok = false;
+	std::cout <<"## an_ different!"<<std::endl;
+        return false;
+      }
+      if( dpfv_ != rhs.dpfv_ ){
+	ok = false;
+	std::cout <<"## dpfv_ different!"<<std::endl;
+        return false;
+     }
+      if( dp_ != rhs.dp_ ){
+	ok = false;
+	std::cout <<"## dp_ different!"<<std::endl;
+        return false;
+      }
+      if( moot_ != rhs.moot_ ){
+	ok = false;
+	std::cout <<"## moot_ different!"<<std::endl;
+        return false;
+      }
+      if( ioot_ != rhs.ioot_ ){
+	ok = false;
+	std::cout <<"## ioot_ different!"<<std::endl;
+        return false;
+      }
+      return ok;
+    }
+    bool operator!=( const MixingInputConfig& rhs ) const {
+      return !operator==(rhs);
+    }
+    
+    int t_;
+    double an_;
+    std::vector<int> dpfv_;
+    std::vector<double> dp_;
+    int moot_;
+    int ioot_;
+    
+  };
+
+  class MixingModuleConfigV {
+  public:
+    MixingModuleConfigV():
+      configs_(){
+    }
+
+    MixingModuleConfigV(int i ):
+      configs_(){
+      ::srand( i + time( NULL)%10);
+      int vsiz = ::rand()%5;
+      for (int j=0;j<vsiz;j++){
+	configs_.push_back( MixingInputConfig( j)) ;
+      }
+    }
+
+    virtual ~MixingModuleConfigV(){};
+    
+    bool operator==( const MixingModuleConfigV& rhs ) const {
+      bool ok = true;
+      if ( configs_ != rhs.configs_ ) {
+	ok = false;
+	std::cout <<"## configs_ different  size="<<configs_.size()<<" compared with size="<<rhs.configs_.size()<<std::endl;
+        return false;
+      }
+      return ok;
+    }
+    bool operator!=( const MixingModuleConfigV& rhs ) const {
+      return !operator==( rhs );
+    }
+      
+    std::vector<MixingInputConfig> configs_; 
+  };
+
+  class MixingModuleConfigA {
+  public:
+    MixingModuleConfigA(){
+    }
+
+    MixingModuleConfigA(int i ){
+      for (int j=0;j<200;j++){
+	configs_[j].load(i);
+      }
+    }
+
+    virtual ~MixingModuleConfigA(){};
+    
+    bool operator==( const MixingModuleConfigA& rhs ) const {
+      bool ok = true;
+      for (int j=0;j<200;j++){
+	if ( configs_[j] != rhs.configs_[j] ) {
+	  ok = false;
+	  std::cout <<"## configs_["<<j<<"] different "<<std::endl;
+	  return false;
+	}
+      }
+      return ok;
+    }
+    bool operator!=( const MixingModuleConfigA& rhs ) const {
+      return !operator==( rhs );
+    }
+      
+    MixingInputConfig configs_[200]; 
+  };
+
+  class MixingModuleConfigIA {
+  public:
+    MixingModuleConfigIA(){
+    }
+
+    MixingModuleConfigIA(int i ){
+      for (int j=0;j<4;j++){
+	configs_[j].load(i);
+      }
+    }
+
+    virtual ~MixingModuleConfigIA(){};
+    
+    bool operator==( const MixingModuleConfigIA& rhs ) const {
+      bool ok = true;
+      for (int j=0;j<4;j++){
+	if ( configs_[j] != rhs.configs_[j] ) {
+	  ok = false;
+	  std::cout <<"## configs_["<<j<<"] different "<<std::endl;
+	  return false;
+	}
+      }
+      return ok;
+    }
+    bool operator!=( const MixingModuleConfigIA& rhs ) const {
+      return !operator==( rhs );
+    }
+      
+    MixingInputConfig configs_[4]; 
+  };
 
 namespace testORA {
 

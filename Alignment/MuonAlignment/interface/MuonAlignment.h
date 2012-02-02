@@ -4,11 +4,12 @@
 /** \class MuonAlignment
  *  The MuonAlignment helper class for alignment jobs
  *
- *  $Date: 2011/06/07 19:28:47 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/03/26 22:02:51 $
+ *  $Revision: 1.13 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
+#include <vector>
 #include <map>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -32,12 +33,12 @@ class MuonAlignment {
       AlignableNavigator* getAlignableNavigator() { return theAlignableNavigator; }
 
 
-      void moveAlignableLocalCoord( DetId& , align::Scalars& , align::Scalars& );
-      void moveAlignableGlobalCoord( DetId& , align::Scalars& , align::Scalars& );
+      void moveAlignableLocalCoord( DetId& , std::vector<float>& , std::vector<float>& );
+      void moveAlignableGlobalCoord( DetId& , std::vector<float>& , std::vector<float>& );
 
-      void recursiveList(align::Alignables alignables, align::Alignables &theList);
-      void recursiveMap(align::Alignables alignables, std::map<align::ID, Alignable*> &theMap);
-      void recursiveStructureMap(align::Alignables alignables, std::map<std::pair<align::StructureType, align::ID>, Alignable*> &theMap);
+      void recursiveList(std::vector<Alignable*> alignables, std::vector<Alignable*> &theList);
+      void recursiveMap(std::vector<Alignable*> alignables, std::map<align::ID, Alignable*> &theMap);
+      void recursiveStructureMap(std::vector<Alignable*> alignables, std::map<std::pair<align::StructureType, align::ID>, Alignable*> &theMap);
 
       void copyAlignmentToSurvey(double shiftErr, double angleErr);
       void fillGapsInSurvey(double shiftErr, double angleErr);
@@ -63,13 +64,15 @@ class MuonAlignment {
       std::string theDTSurveyRecordName, theDTSurveyErrorRecordName;
       std::string theCSCSurveyRecordName, theCSCSurveyErrorRecordName;
  
-      align::Scalars displacements;
+      std::vector<float> displacements;
 
-      align::Scalars rotations;
+      std::vector<float> rotations;
 
       AlignableMuon* theAlignableMuon;
 
       AlignableNavigator* theAlignableNavigator;
+
+
 };
 
 #endif //MuonAlignment_H

@@ -6,16 +6,10 @@
 class TFile;
 class TTree;
 class TMTQ;
-class TF1;
-class TH1;
 
 #define N_samples 2560
 #define N_channels 1
 #define NSIDES     2     // Number of sides
-#define NCOL       2     // Number of sides
-#define FFT2_SIZE   2048  // Number of bins used for FFT
-#define FFT_SIZE   1048  // Number of bins used for FFT
-#define FFT_START  850   // Keep signal starting at 850 ns
 
 class EcalMatacqAnalyzer: public edm::EDAnalyzer{  
 
@@ -78,8 +72,7 @@ class EcalMatacqAnalyzer: public edm::EDAnalyzer{
   int  fedID;
 
   // Count Laser Events
-  int laserEvents[2];
-  int matacqEvents[2];
+  int laserEvents;
   bool isThereMatacq;
 
   //Declaration of leaves types
@@ -90,17 +83,14 @@ class EcalMatacqAnalyzer: public edm::EDAnalyzer{
   int  maxsamp; 
   int  nsamples; 
   double tt;
-  // vector<int> vernier;
 
   TFile *sampFile;
   TTree *tree;
 
-  
   TMTQ *MTQ[nColor][nSide];
   TTree *meanTree[nColor];
 
   std::vector<int> colors;
-  std::vector<int> sides;
 
   TFile *outFile;
   int status;

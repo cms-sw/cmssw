@@ -10,7 +10,8 @@ import FWCore.ParameterSet.Config as cms
 
 # common parameters
 VtxSmearedCommon = cms.PSet(
-    src = cms.InputTag("generator")
+    src = cms.InputTag("generator"),
+    readDB = cms.bool(False)
 )
 # Gaussian smearing
 GaussVtxSmearingParameters = cms.PSet(
@@ -130,6 +131,19 @@ Realistic7TeV2011CollisionVtxSmearingParameters = cms.PSet(
     Y0 = cms.double(0.3929),
     Z0 = cms.double(0.4145)
 )
+# HI realistic collisions, updated for 2011
+# estimated beamspot width 31-35 microns
+RealisticHI2011CollisionVtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(100.0),
+    Emittance = cms.double(2.04e-07),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(7.06),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(0.2245),
+    Y0 = cms.double(0.4182),
+    Z0 = cms.double(0.0847)
+)
 # 2.76 TeV estimated collisions, 11m beta*
 # normalized emittance 2.5 microns, transverse beam size is 140 microns
 Realistic2p76TeV2011CollisionVtxSmearingParameters = cms.PSet(
@@ -156,17 +170,17 @@ Centered7TeV2011CollisionVtxSmearingParameters = cms.PSet(
     Y0 = cms.double(0.0),
     Z0 = cms.double(0.0)
 )
-# 8 TeV realistic collisions, transverse beam width size is 26 microns
+# 8 TeV realistic collisions, transverse beam width size is 20 microns
 Realistic8TeVCollisionVtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),
-    BetaStar = cms.double(150.0),
-    Emittance = cms.double(0.90e-07),
+    BetaStar = cms.double(70.0),
+    Emittance = cms.double(0.586e-07),
     Alpha = cms.double(0.0),
-    SigmaZ = cms.double(6.26),
+    SigmaZ = cms.double(6.16),
     TimeOffset = cms.double(0.0),
-    X0 = cms.double(0.244),
-    Y0 = cms.double(0.393),
-    Z0 = cms.double(0.41)
+    X0 = cms.double(0.2440),
+    Y0 = cms.double(0.3929),
+    Z0 = cms.double(0.4145)
 )
 # 10 TeV collisions, transverse beam size = 46 microns
 Early10TeVCollisionVtxSmearingParameters = cms.PSet(

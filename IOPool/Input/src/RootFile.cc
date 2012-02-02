@@ -1588,6 +1588,19 @@ namespace edm {
     return true;
   }
 
+  bool
+  RootFile::setEntryAtNextEventInLumi(RunNumber_t run, LuminosityBlockNumber_t lumi) {
+    if(indexIntoFileIter_.getEntryType() == IndexIntoFile::kEvent) {
+      ++indexIntoFileIter_;
+    }
+    indexIntoFileIter_.advanceToEvent();
+    if(indexIntoFileIter_.getEntryType() != IndexIntoFile::kEvent) return false;
+    if(run != indexIntoFileIter_.run()) return false;
+    if(lumi != indexIntoFileIter_.lumi()) return false;
+    eventTree_.setEntryNumber(indexIntoFileIter_.entry());
+    return true;
+  }
+
   void
   RootFile::overrideRunNumber(RunID& id) {
     if(forcedRunOffset_ != 0) {

@@ -40,7 +40,6 @@ double             GlobalMinIs   =   0.0;
 double             GlobalMinIm   =   3.0;
 double             GlobalMinTOF  =   1.0;
 float              GlobalMaxEta  =  1.5; 
-float              PUShift       =  0.;
 
 double		   MinCandidateMass = 100;
 

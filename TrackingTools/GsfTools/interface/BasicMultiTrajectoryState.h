@@ -59,12 +59,12 @@ public:
     return theCombinedState.transverseCurvature();
   }
 
-  const CartesianTrajectoryError cartesianError() const {
+  const CartesianTrajectoryError& cartesianError() const {
     checkCombinedState();
     return theCombinedState.cartesianError();
   }
 
-  const CurvilinearTrajectoryError & curvilinearError() const {
+  const CurvilinearTrajectoryError& curvilinearError() const {
     checkCombinedState();
     return theCombinedState.curvilinearError();
   }

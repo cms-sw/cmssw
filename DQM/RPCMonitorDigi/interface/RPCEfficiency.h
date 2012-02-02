@@ -2,8 +2,8 @@
  *
  * Class for RPC Monitoring using RPCDigi and DT and CSC Segments.
  *
- *  $Date: 2011/07/05 15:08:28 $
- *  $Revision: 1.7 $
+ *  $Date: 2011/05/20 08:55:49 $
+ *  $Revision: 1.6 $
  *
  * \author Camilo Carrillo (Uniandes)
  *
@@ -184,6 +184,5 @@ class RPCEfficiency : public edm::EDAnalyzer {
       
       bool EffSaveRootFile;
       std::string EffRootFileName;
-      double fiducialCut_;
       DQMStore * dbe;
 };

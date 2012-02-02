@@ -146,6 +146,9 @@ PFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	      }
 	  }
 	}
+	else{
+	  edm::LogError("MissingInput")<<"there is no valide:"<<muonColl_<<" to be used.";
+	}
 
 	if(!isMuCandidate)
 	  {

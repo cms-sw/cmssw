@@ -1,8 +1,8 @@
 /** \class DTRecSegment4DProducer
  *  Builds the segments in the DT chambers.
  *
- *  $Date: 2008/01/29 13:19:54 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/12/03 12:52:22 $
+ *  $Revision: 1.11 $
  * \author Riccardo Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -30,7 +30,7 @@ DTRecSegment4DProducer::DTRecSegment4DProducer(const ParameterSet& pset){
   produces<DTRecSegment4DCollection>();
   
   // debug parameter
-  debug = pset.getUntrackedParameter<bool>("debug"); 
+  debug = pset.getUntrackedParameter<bool>("debug", false);
   
   if(debug)
     cout << "[DTRecSegment4DProducer] Constructor called" << endl;

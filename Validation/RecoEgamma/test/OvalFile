@@ -1,8 +1,8 @@
 
-<var name="TEST_RELEASE" value="4_4_0_pre10">
+<var name="TEST_RELEASE" value="4_3_0_pre7">
 <var name="TEST_GLOBAL_TAG" value="MC_43_V4">
-<var name="TEST_GLOBAL_STARTUP_TAG" value="START44_V5">
-<var name="TEST_GLOBAL_VERSION" value="v1">
+<var name="TEST_GLOBAL_STARTUP_TAG" value="START43_V4">
+<var name="TEST_GLOBAL_VERSION" value="v2">
 
 The value of OVAL_ENVNAME is automatically set by Oval to the name
 of the current environment, before running any executable. Using it below,
@@ -26,9 +26,9 @@ The VAL_* variables are configuration variables for electronValidation.csh,
 which compares the histograms from two releases. electronValidation.csh relies
 on the ROOT script electronValidation.C.
 
-<var name="VAL_NEW_RELEASE" value="4_4_0_pre10_AllowSingleLegConv">
-<var name="VAL_REF_RELEASE" value="4_4_0_pre10">
-<var name="VAL_COMMENT" value="Allowing single-leg conversions (pre9-like).">
+<var name="VAL_NEW_RELEASE" value="4_3_0_pre7">
+<var name="VAL_REF_RELEASE" value="4_3_0_pre6">
+<var name="VAL_COMMENT" value="New uncleanedOnly path">
 
 <var name="STORE_RELEASE" value="${VAL_NEW_RELEASE}">
 
@@ -56,7 +56,7 @@ first draft, and we do not yet check the differences that Oval could raise.
 The file defined below is used by the script electronDbsDiscovery.py when we want to analyze
 some RelVal reco files which have been regenerated locally.
 
-<var name="TEST_AFS_DIR" value="/afs/cern.ch/cms/CAF/CMSPHYS/PHYS_EGAMMA/electrons/chamont/ReleaseValidationTmp/AllowSingleLegConv">
+<var name="TEST_AFS_DIR" value="/afs/cern.ch/cms/CAF/CMSPHYS/PHYS_EGAMMA/electrons/chamont/ReleaseValidationTmp/DqmVal">
   
 Here comes the concrete executables to run. They are split among few different
 environments, each one defining the relevant variales for a given scenario and/or
@@ -94,42 +94,17 @@ This set of targets is currently used for the validation of electrons.
   <!--var name="DBS_STRATEGY" value="local"-->
   <!--var name="DBS_COND" value="MC"-->
   <file name="electronDbsDiscovery.txt">
-  file:${TEST_AFS_DIR}/RelValSingleElectronPt10-MC-RECO.root
-  file:${TEST_AFS_DIR}/RelValSingleElectronPt35-MC-RECO.root
-  file:${TEST_AFS_DIR}/RelValTTbar-MC-RECO.root
-  file:${TEST_AFS_DIR}/RelValZEE-MC-RECO.root
-  file:${TEST_AFS_DIR}/RelValQCD_Pt_80_120-MC-RECO.root
-  file:${TEST_AFS_DIR}/RelValSingleElectronPt10-START-RECO.root
-  file:${TEST_AFS_DIR}/RelValSingleElectronPt35-START-RECO.root
-  file:${TEST_AFS_DIR}/RelValTTbar-START-RECO.root
-  file:${TEST_AFS_DIR}/RelValZEE-START-RECO.root
-  file:${TEST_AFS_DIR}/RelValQCD_Pt_80_120-START-RECO.root
+  ${TEST_AFS_DIR}/RelValSingleElectronPt10-MC-RECO.root
+  ${TEST_AFS_DIR}/RelValSingleElectronPt35-MC-RECO.root
+  ${TEST_AFS_DIR}/RelValTTbar-MC-RECO.root
+  ${TEST_AFS_DIR}/RelValZEE-MC-RECO.root
+  ${TEST_AFS_DIR}/RelValZEE-START-RECO.root
+  ${TEST_AFS_DIR}/RelValQCD_Pt_80_120-MC-RECO.root
   </file>
     
   <environment name="FullPt35">
 
     <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
-    <var name="DBS_CASTOR_DIR" value="/store/unmerged/dqm/${DBS_SAMPLE}-${DBS_RELEASE}-${DBS_COND}-DQM-DQMHarvest-OfflineDQM">
-    
-    <target name="dqm" cmd="electronDbsDiscovery.py castor">
-    <target name="wget" cmd="electronWget.py castor">
-    
-    <target name="dbs" cmd="electronDbsDiscovery.py">
-    <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}">
-    <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}">
-    
-    <target name="store" cmd="electronStore.csh ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
-    <target name="force" cmd="electronStore.csh -f ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
-    <target name="publish" cmd="electronValidation.csh ${TEST_HISTOS_FILE}">
-    
-  </environment>
-  
-  <environment name="FullPt35Startup">
-
-    <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
-    <var name="TEST_GLOBAL_TAG" value="${TEST_GLOBAL_STARTUP_TAG}">
-    <var name="DBS_COND" value="${TEST_GLOBAL_TAG}-${TEST_GLOBAL_VERSION}">
-    <!--var name="DBS_COND" value="START"-->
     <var name="DBS_CASTOR_DIR" value="/store/unmerged/dqm/${DBS_SAMPLE}-${DBS_RELEASE}-${DBS_COND}-DQM-DQMHarvest-OfflineDQM">
     
     <target name="dqm" cmd="electronDbsDiscovery.py castor">
@@ -169,33 +144,6 @@ This set of targets is currently used for the validation of electrons.
 
   </environment>
   
-  <environment name="FullQcdPt80Pt120Startup">
-  
-    <var name="DBS_SAMPLE" value="RelValQCD_Pt_80_120">
-    <var name="TEST_GLOBAL_TAG" value="${TEST_GLOBAL_STARTUP_TAG}">
-    <var name="DBS_COND" value="${TEST_GLOBAL_TAG}-${TEST_GLOBAL_VERSION}">
-    <!--var name="DBS_COND" value="START"-->
-    <var name="DBS_CASTOR_DIR" value="/store/unmerged/dqm/${DBS_SAMPLE}-${DBS_RELEASE}-${DBS_COND}-DQM-DQMHarvest-OfflineDQM">
-    
-    <var name="VAL_HISTOS" value="ElectronMcFakeHistos.txt">
-    <var name="VAL_ANALYZER" value="ElectronMcFakeValidator">
-    <var name="VAL_POST_ANALYZER" value="ElectronMcFakePostValidator">
-    <var name="VAL_CONFIGURATION" value="ElectronMcFakeValidation_cfg.py">
-    <var name="VAL_POST_CONFIGURATION" value="ElectronMcFakePostValidation_cfg.py">
-    
-    <target name="dqm" cmd="electronDbsDiscovery.py castor">
-    <target name="wget" cmd="electronWget.py castor">
-    
-    <target name="dbs" cmd="electronDbsDiscovery.py">
-    <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}">
-    <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}">
-    
-    <target name="store" cmd="electronStore.csh ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
-    <target name="force" cmd="electronStore.csh -f ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
-    <target name="publish" cmd="electronValidation.csh ${TEST_HISTOS_FILE}">
-
-  </environment>
-  
   <environment name="FullPt10">
   
     <var name="DBS_SAMPLE" value="RelValSingleElectronPt10">
@@ -214,51 +162,9 @@ This set of targets is currently used for the validation of electrons.
 
   </environment>
   
-  <environment name="FullPt10Startup">
-  
-    <var name="DBS_SAMPLE" value="RelValSingleElectronPt10">
-    <var name="TEST_GLOBAL_TAG" value="${TEST_GLOBAL_STARTUP_TAG}">
-    <var name="DBS_COND" value="${TEST_GLOBAL_TAG}-${TEST_GLOBAL_VERSION}">
-    <!--var name="DBS_COND" value="START"-->
-    <var name="DBS_CASTOR_DIR" value="/store/unmerged/dqm/${DBS_SAMPLE}-${DBS_RELEASE}-${DBS_COND}-DQM-DQMHarvest-OfflineDQM">
-    
-    <target name="dqm" cmd="electronDbsDiscovery.py castor">
-    <target name="wget" cmd="electronWget.py castor">
-    
-    <target name="dbs" cmd="electronDbsDiscovery.py">
-    <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}">
-    <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}">
-    
-    <target name="store" cmd="electronStore.csh ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
-    <target name="force" cmd="electronStore.csh -f ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
-    <target name="publish" cmd="electronValidation.csh ${TEST_HISTOS_FILE}">
-
-  </environment>
-  
   <environment name="FullTTbar">
 
     <var name="DBS_SAMPLE" value="RelValTTbar">
-    <var name="DBS_CASTOR_DIR" value="/store/unmerged/dqm/${DBS_SAMPLE}-${DBS_RELEASE}-${DBS_COND}-DQM-DQMHarvest-OfflineDQM">
-    
-    <target name="dqm" cmd="electronDbsDiscovery.py castor">
-    <target name="wget" cmd="electronWget.py castor">
-    
-    <target name="dbs" cmd="electronDbsDiscovery.py">
-    <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}">
-    <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}">
-    
-    <target name="store" cmd="electronStore.csh ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
-    <target name="force" cmd="electronStore.csh -f ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
-    <target name="publish" cmd="electronValidation.csh ${TEST_HISTOS_FILE}">
-
-  </environment>
-  
-  <environment name="FullTTbarStartup">
-
-    <var name="DBS_SAMPLE" value="RelValTTbar">
-    <var name="TEST_GLOBAL_TAG" value="${TEST_GLOBAL_STARTUP_TAG}">
-    <var name="DBS_COND" value="${TEST_GLOBAL_TAG}-${TEST_GLOBAL_VERSION}">
-    <!--var name="DBS_COND" value="START"-->
     <var name="DBS_CASTOR_DIR" value="/store/unmerged/dqm/${DBS_SAMPLE}-${DBS_RELEASE}-${DBS_COND}-DQM-DQMHarvest-OfflineDQM">
     
     <target name="dqm" cmd="electronDbsDiscovery.py castor">
@@ -387,24 +293,6 @@ FastSim
       
     </environment>
   
-    <environment name="FastTTbarStartup">
-    
-      <var name="DBS_SAMPLE" value="RelValTTbar">
-      <var name="DBS_COND" value="${TEST_GLOBAL_STARTUP_TAG}*FastSim*-${TEST_GLOBAL_VERSION}">
-      <var name="DBS_CASTOR_DIR" value="/store/unmerged/dqm/${DBS_SAMPLE}-${DBS_RELEASE}-${DBS_COND}-DQM-DQMHarvest-OfflineDQM">
-      
-      <target name="dqm" cmd="electronDbsDiscovery.py castor">
-      <target name="wget" cmd="electronWget.py castor">
-      
-      <target name="dbs" cmd="electronDbsDiscovery.py">
-      <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}">
-      <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}">
-      
-      <target name="store" cmd="electronStore.csh ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
-      <target name="force" cmd="electronStore.csh -f ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
-      
-    </environment>
-  
     <environment name="FastZEEIdeal">
     
       <var name="DBS_SAMPLE" value="RelValZEE">
@@ -453,12 +341,6 @@ FastSim
       <target name="publish" cmd="electronValidation.csh electronHistos.FastTTbar.root">
     </environment>
     
-    <environment name="FastVsFastTTbarStartup">
-      <var name="DBS_SAMPLE" value="RelValTTbar">
-      <var name="DBS_COND" value="${TEST_GLOBAL_STARTUP_TAG}*FastSim*-${TEST_GLOBAL_VERSION}">
-      <target name="publish" cmd="electronValidation.csh electronHistos.FastTTbarStartup.root">
-    </environment>
-    
     <environment name="FastVsFastZEEIdeal">
       <var name="DBS_SAMPLE" value="RelValZEE">
       <target name="publish" cmd="electronValidation.csh electronHistos.FastZEEIdeal.root">
@@ -479,15 +361,6 @@ FastSim
       <var name="VAL_REF_RELEASE" value="FastSim">
       <var name="VAL_NEW_FILE" value="electronHistos.FullTTbar.root">
       <var name="VAL_REF_FILE" value="electronHistos.FastTTbar.root">
-      <target name="publish" cmd="electronValidation.csh">
-    </environment>
-    
-    <environment name="FastVsFullTTbarStartup">
-      <var name="DBS_SAMPLE" value="RelValTTbar">
-      <var name="DBS_COND" value="${TEST_GLOBAL_STARTUP_TAG}*FastSim*-${TEST_GLOBAL_VERSION}">
-      <var name="VAL_REF_RELEASE" value="FastSim">
-      <var name="VAL_NEW_FILE" value="electronHistos.FullTTbarStartup.root">
-      <var name="VAL_REF_FILE" value="electronHistos.FastTTbarStartup.root">
       <target name="publish" cmd="electronValidation.csh">
     </environment>
     
@@ -521,35 +394,6 @@ with the local modified code.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 <environment name="Redo">
-
-  <environment name="RedoFromTrackSeeds">
-
-    <var name="VAL_CONFIGURATION" value="ElectronRedoFromTrackSeeds_cfg.py">
-    <var name="TEST_GLOBAL_TAG" value="${TEST_GLOBAL_STARTUP_TAG}">
-    <var name="DBS_COND" value="${TEST_GLOBAL_TAG}-${TEST_GLOBAL_VERSION}">
-    
-    <environment name="RedoFromTrackSeedsPt35">
-      <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
-      <var name="TEST_HISTOS_FILE" value="${TEST_AFS_DIR}/${DBS_SAMPLE}-START-RECO.root">
-      <target name="dbs" cmd="electronDbsDiscovery.py">
-      <target name="redo" cmd="cmsRun ${VAL_CONFIGURATION}">
-    </environment>
-  
-    <environment name="RedoFromTrackSeedsQcdPt80Pt120">
-      <var name="DBS_SAMPLE" value="RelValQCD_Pt_80_120">
-      <var name="TEST_HISTOS_FILE" value="${TEST_AFS_DIR}/${DBS_SAMPLE}-START-RECO.root">
-      <target name="dbs" cmd="electronDbsDiscovery.py">
-      <target name="redo" cmd="cmsRun ${VAL_CONFIGURATION}">
-    </environment>
-  
-    <environment name="RedoFromTrackSeedsPt10">
-      <var name="DBS_SAMPLE" value="RelValSingleElectronPt10">
-      <var name="TEST_HISTOS_FILE" value="${TEST_AFS_DIR}/${DBS_SAMPLE}-START-RECO.root">
-      <target name="dbs" cmd="electronDbsDiscovery.py">
-      <target name="redo" cmd="cmsRun ${VAL_CONFIGURATION}">
-    </environment>
-  
-  </environment>
 
   <environment name="RedoFromCore">
 
@@ -615,24 +459,14 @@ with the local modified code.
     <!--var name="DBS_COND" value="MC"-->
 
     <environment name="RedoFromRawCfg">
-      <target name="redoFromRawCfg" cmd="cmsDriver.py reco -s RAW2DIGI,RECO -n -1 --geometry DB --conditions FrontierConditions_GlobalTag,${TEST_GLOBAL_TAG}::All --datatier GEN-SIM-RECO --eventcontent RECOSIM --filein=Dummy-RAW.root --fileout=Dummy-MC-RECO.root --python_filename=ElectronRedoFromRaw_driver_cfg.py --no_exec">
-      <target name="redoFromRawCfgStartup" cmd="cmsDriver.py reco -s RAW2DIGI,RECO -n -1 --geometry DB --conditions FrontierConditions_GlobalTag,${TEST_GLOBAL_STARTUP_TAG}::All --datatier GEN-SIM-RECO --eventcontent RECOSIM --filein=Dummy-RAW.root --fileout=Dummy-START-RECO.root --python_filename=ElectronRedoFromRawStartup_driver_cfg.py --no_exec">
+      <target name="redoFromRawCfg" cmd="cmsDriver.py reco -s RAW2DIGI,RECO -n -1 --geometry DB --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --datatier GEN-SIM-RECO --eventcontent RECOSIM --filein=Dummy-RAW.root --fileout=Dummy-MC-RECO.root --python_filename=ElectronRedoFromRaw_driver_cfg.py --no_exec">
     </environment>
   
     <environment name="RedoFromRawPt35">
       <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
       <var name="TEST_HISTOS_FILE" value="${TEST_AFS_DIR}/${DBS_SAMPLE}-MC-RECO.root">
-      <target name="dbs" cmd="electronDbsDiscovery.py">
-      <target name="reco" cmd="cmsRun ElectronRedoFromRaw_cfg.py">
-    </environment>
-  
-    <environment name="RedoFromRawPt35Startup">
-      <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
-      <var name="TEST_HISTOS_FILE" value="${TEST_AFS_DIR}/${DBS_SAMPLE}-START-RECO.root">
-      <var name="TEST_GLOBAL_TAG" value="${TEST_GLOBAL_STARTUP_TAG}">
-      <var name="DBS_COND" value="${TEST_GLOBAL_TAG}-${TEST_GLOBAL_VERSION}">
-      <target name="dbs" cmd="electronDbsDiscovery.py">
-      <target name="reco" cmd="cmsRun ElectronRedoFromRawStartup_cfg.py">
+      <executable name="electronDbsDiscovery.py">
+      <executable name="cmsRun" args="ElectronRedoFromRaw_cfg.py">
     </environment>
   
     <environment name="RedoFromRawQcdPt80Pt120">
@@ -640,15 +474,6 @@ with the local modified code.
       <var name="TEST_HISTOS_FILE" value="${TEST_AFS_DIR}/${DBS_SAMPLE}-MC-RECO.root">
       <executable name="electronDbsDiscovery.py">
       <executable name="cmsRun" args="ElectronRedoFromRaw_cfg.py">
-    </environment>
-  
-    <environment name="RedoFromRawQcdPt80Pt120Startup">
-      <var name="DBS_SAMPLE" value="RelValQCD_Pt_80_120">
-      <var name="TEST_HISTOS_FILE" value="${TEST_AFS_DIR}/${DBS_SAMPLE}-START-RECO.root">
-      <var name="TEST_GLOBAL_TAG" value="${TEST_GLOBAL_STARTUP_TAG}">
-      <var name="DBS_COND" value="${TEST_GLOBAL_TAG}-${TEST_GLOBAL_VERSION}">
-      <target name="dbs" cmd="electronDbsDiscovery.py">
-      <target name="reco" cmd="cmsRun ElectronRedoFromRawStartup_cfg.py">
     </environment>
   
     <environment name="RedoFromRawPt10">
@@ -708,15 +533,15 @@ with the local modified code.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ================================================================================
-This set of targets is made to test cmsDriver.py steps
+This set of targets is made to test validation
 ================================================================================
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 <environment name="Validation">
 
-  <target name="step1" cmd="cmsDriver.py SingleElectronPt35_cfi.py -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT:GRun -n 10 --eventcontent FEVTDEBUGHLT --conditions auto:mc --mc --fileout SingleElectronPt35-10-MC-RAW.root">
-  <target name="step2" cmd="cmsDriver.py step2 -s RAW2DIGI,RECO,VALIDATION,DQM -n 10 --filein file:SingleElectronPt35-10-MC-RAW.root --eventcontent FEVTDEBUGHLT --conditions auto:mc --mc --fileout SingleElectronPt35-10-MC-RECO.root">
-  <target name="step3" cmd="cmsDriver.py step3 -s HARVESTING:validationHarvesting+dqmHarvesting --harvesting AtRunEnd --conditions auto:mc --filein file:SingleElectronPt35-10-MC-RECO.root --mc">
+  <target name="val1" cmd="cmsDriver.py SingleElectronPt35_cfi.py -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT:GRun -n 10 --eventcontent FEVTDEBUGHLT --conditions auto:mc --mc --fileout SingleElectronPt35-10-MC-RAW.root">
+  <target name="val2" cmd="cmsDriver.py step2 -s RAW2DIGI,RECO,VALIDATION,DQM -n 10 --filein file:SingleElectronPt35-10-MC-RAW.root --eventcontent FEVTDEBUGHLT --conditions auto:mc --mc --fileout SingleElectronPt35-10-MC-RECO.root">
+  <target name="val3" cmd="cmsDriver.py step3 -s HARVESTING:validationHarvesting+dqmHarvesting --harvesting AtRunEnd --conditions auto:mc --filein file:SingleElectronPt35-10-MC-RECO.root --mc">
 
 </environment>
 
@@ -731,7 +556,7 @@ Process uncleaned superclusters
 
   <var name="DBS_TIER" value="-RAW">
   <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
-  <var name="TEST_HISTOS_FILE" value="${DBS_SAMPLE}-MC-UNCLEANED-RECO.root">
+  <var name="TEST_OUTPUT_FILE" value="${DBS_SAMPLE}-MC-UNCLEANED-RECO.root">
   
   <target name="dbs" cmd="electronDbsDiscovery.py">
   <target name="py" cmd="python ElectronFromUncleanedOnly_cfg.py">

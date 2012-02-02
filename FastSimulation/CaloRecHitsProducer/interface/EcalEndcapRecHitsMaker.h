@@ -10,7 +10,6 @@
 class RandomEngine;
 class EcalTrigTowerConstituentsMap;
 class GaussianTail;
-class EcalPedestal;
 
 namespace edm { 
   class ParameterSet;
@@ -30,7 +29,7 @@ class EcalEndcapRecHitsMaker
  private:
   void clean();
   void loadPCaloHits(const edm::Event & iEvent);
-  void geVtoGainAdc(float e,unsigned index,unsigned & gain, unsigned &adc, unsigned & ped) const;
+  void geVtoGainAdc(float e,unsigned & gain, unsigned &adc) const;
   // there are 2448 TT in the barrel. 
   inline int TThashedIndexforEE(int originalhi) const {return originalhi-2448;}
   inline int TThashedIndexforEE(const EcalTrigTowerDetId &detid) const {return detid.hashedIndex()-2448;}
@@ -119,8 +118,6 @@ class EcalEndcapRecHitsMaker
   const std::vector<float> * ICMC_;
   // vector of parameter for custom noise simulation (size =4 : 0 & 1 define the gaussian shape 
   // of the noise ; 2 & 3 define the sigma and threshold in ADC counts of the *OFFLINE* amplitude
-   // ECAL pedestals
-  const std::vector<EcalPedestal> * thePedestals_;
 
   std::vector<double> highNoiseParameters_ ; 
   bool doCustomHighNoise_;

@@ -196,8 +196,6 @@ int main (int argc, char** argv)
         connection->configuration().disablePoolAutomaticCleanUp();
         ora::Database db( connection );
         if( debug ) db.configuration().setMessageVerbosity( coral::Debug );
-        db.connect( connectionString );
-        ora::ScopedTransaction transaction( db.transaction() );
 
         std::string contTag("container.name");
         std::string classTag("type");
@@ -212,6 +210,8 @@ int main (int argc, char** argv)
         size_t classVerMax = classVerTag.length();
 
         if(cmd.userCommand()==listCont.name){
+	  db.connect( connectionString, true );
+	  ora::ScopedTransaction transaction( db.transaction() );
           transaction.start();
           if( ! db.exists() ){
 	    std::cout << "ORA database does not exists in \""<<connectionString<<"\"."<<std::endl;
@@ -257,6 +257,8 @@ int main (int argc, char** argv)
           return 0;
         }
         if(cmd.userCommand()==createCont.name){
+	  db.connect( connectionString );
+	  ora::ScopedTransaction transaction( db.transaction() );
           transaction.start(false);
           if( className.empty() ){
             throw coral::MissingRequiredOptionException(classPar.name);
@@ -279,6 +281,8 @@ int main (int argc, char** argv)
           return 0;
         }
         if(cmd.userCommand()==eraseCont.name){
+	  db.connect( connectionString );
+	  ora::ScopedTransaction transaction( db.transaction() );
           transaction.start(false);
           if( containerName.empty() ){
             throw coral::MissingRequiredOptionException(contPar.name);
@@ -298,6 +302,8 @@ int main (int argc, char** argv)
           }
         }
         if(cmd.userCommand()==listMapp.name){
+	  db.connect( connectionString, true );
+	  ora::ScopedTransaction transaction( db.transaction() );
           transaction.start();
           if( containerName.empty() ){
             throw coral::MissingRequiredOptionException(contPar.name);
@@ -367,6 +373,8 @@ int main (int argc, char** argv)
           }
         }
         if(cmd.userCommand()==dumpMapp.name){
+	  db.connect( connectionString, true );
+	  ora::ScopedTransaction transaction( db.transaction() );
           transaction.start();
           if( mappingVersion.empty() ){
             throw coral::MissingRequiredOptionException(mvPar.name);

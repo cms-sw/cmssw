@@ -107,17 +107,17 @@ HitDigitizerFP420::~HitDigitizerFP420(){
 
 
 //HitDigitizerFP420::hit_map_type HitDigitizerFP420::processHit(const PSimHit& hit, G4ThreeVector bfield, int xytype,int numStrips, double pitch){
-HitDigitizerFP420::hit_map_type HitDigitizerFP420::processHit(const PSimHit& hit, G4ThreeVector bfield, int xytype,int numStrips, double pitch, int numStripsW, double pitchW, double moduleThickness, bool ApplyChargeIneff, int verbosity){
+HitDigitizerFP420::hit_map_type HitDigitizerFP420::processHit(const PSimHit& hit, G4ThreeVector bfield, int xytype,int numStrips, double pitch, int numStripsW, double pitchW, double moduleThickness, int verbosity){
   
   // use chargePosition just for cross-check in "induce" method
   // hit center in 3D-detector r.f.
   
-  float middlex = (hit.exitPoint().x() + hit.entryPoint().x() )/2.;// local
-  float middley = (hit.exitPoint().y() + hit.entryPoint().y() )/2.;// local
+  float middlex = (hit.exitPoint().x() + hit.entryPoint().x() )/2.;
+  float middley = (hit.exitPoint().y() + hit.entryPoint().y() )/2.;
   
   
   float chargePosition= -100.;
-  // Yglobal, x-local: 
+  // Y: 
   if(xytype == 1) {
     //     chargePosition  = fabs(-numStrips/2. - ( int(middle.x()/pitch) +1.) );
     //chargePosition  = fabs(int(middle.x()/pitch+0.5*(numStrips+1)) + 1.);
@@ -128,7 +128,7 @@ HitDigitizerFP420::hit_map_type HitDigitizerFP420::processHit(const PSimHit& hit
     
     
   }
-  // Xglobal, y-local:
+  // X:
   else if(xytype == 2) {
     //     chargePosition  = fabs(-numStrips/2. - ( int(middle.y()/pitch) +1.) );
     //chargePosition  = fabs(int(middle.y()/pitch+0.5*(numStrips+1)) + 1.);
@@ -182,7 +182,7 @@ HitDigitizerFP420::hit_map_type HitDigitizerFP420::processHit(const PSimHit& hit
   //  }  else  
   //
 
-  return theIChargeFP420->induce(theCDrifterFP420->drift(ion,driftDir,xytype,ApplyChargeIneff), numStrips, pitch, numStripsW, pitchW, xytype, verbosity);
+  return theIChargeFP420->induce(theCDrifterFP420->drift(ion,driftDir,xytype), numStrips, pitch, numStripsW, pitchW, xytype, verbosity);
   
   //
 }
@@ -208,7 +208,6 @@ G4ThreeVector HitDigitizerFP420::DriftDirection(G4ThreeVector _bfield, int xytyp
   
   // global Y or localX
   // E field is in Xlocal direction with change vector to opposite
-//  if(xytype == 1) {
   if(xytype == 2) {
     dir_x = 1.; // E field in Xlocal direction
     dir_y = +tanLorentzAnglePerTesla * Bfield.z();
@@ -216,7 +215,6 @@ G4ThreeVector HitDigitizerFP420::DriftDirection(G4ThreeVector _bfield, int xytyp
   }
   // global X
   // E field is in Ylocal direction with change vector to opposite
-//  else if(xytype == 2) {
   else if(xytype == 1) {
     dir_x = +tanLorentzAnglePerTesla * Bfield.z();
     dir_y = 1.; // E field in Ylocal direction

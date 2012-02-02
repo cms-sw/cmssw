@@ -14,9 +14,11 @@
 //
 // Original Author:  Stephen Sanders
 //         Created:  Sat Jun 26 16:04:04 EDT 2010
-// $Id: HiEvtPlaneFlatProducer.cc,v 1.11 2011/11/29 21:01:19 ssanders Exp $
+// $Id: HiEvtPlaneFlatProducer.cc,v 1.8 2011/10/02 12:25:30 yilmaz Exp $
 //
 //
+
+
 // system include files
 #include <memory>
 
@@ -99,7 +101,8 @@ class HiEvtPlaneFlatProducer : public edm::EDProducer {
   int vs_sell;   // vertex collection size
   float vzr_sell;
   float vzErr_sell;
-  bool FirstEvent;
+
+  Double_t epang[NumEPNames];
   HiEvtPlaneFlatten * flat[NumEPNames];
   RPFlatParams * rpFlat;
   int nRP;
@@ -123,7 +126,7 @@ typedef TrackingParticleRefVector::iterator               tp_iterator;
 //
 HiEvtPlaneFlatProducer::HiEvtPlaneFlatProducer(const edm::ParameterSet& iConfig)
 {
-  FirstEvent = kTRUE;
+
   vtxCollection_  = iConfig.getParameter<edm::InputTag>("vtxCollection_");
   inputPlanes_ = iConfig.getParameter<edm::InputTag>("inputPlanes_");
   centrality_ = iConfig.getParameter<edm::InputTag>("centrality_");
@@ -134,7 +137,7 @@ HiEvtPlaneFlatProducer::HiEvtPlaneFlatProducer(const edm::ParameterSet& iConfig)
   Int_t FlatOrder = 21;
   for(int i = 0; i<NumEPNames; i++) {
     flat[i] = new HiEvtPlaneFlatten();
-    flat[i]->Init(FlatOrder,20,2,EPNames[i],EPOrder[i]);
+    flat[i]->Init(FlatOrder,11,4,EPNames[i],EPOrder[i]);
     Double_t psirange = 4;
     if(EPOrder[i]==2 ) psirange = 2;
     if(EPOrder[i]==3 ) psirange = 1.5;
@@ -168,32 +171,14 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   using namespace reco;
 
   //
-  //Get Flattening Parameters
-  //
-  if(FirstEvent) {
-    FirstEvent = kFALSE;
-    edm::ESHandle<RPFlatParams> flatparmsDB_;
-    iSetup.get<HeavyIonRPRcd>().get(flatparmsDB_);
-    int flatTableSize = flatparmsDB_->m_table.size();
-    for(int i = 0; i<flatTableSize; i++) {
-      const RPFlatParams::EP* thisBin = &(flatparmsDB_->m_table[i]);
-      for(int j = 0; j<NumEPNames; j++) {
-	int indx = thisBin->RPNameIndx[j];
-	if(indx>=0) {
-	  flat[indx]->SetXDB(i, thisBin->x[j]);
-	  flat[indx]->SetYDB(i, thisBin->y[j]);
-	}
-      }
-    }
-  }
-  //
   //Get Centrality
   //
-  
+
   edm::Handle<int> ch;
   iEvent.getByLabel(centrality_,ch);
   int bin = *(ch.product());
 
+  //  double centval = 2.5*bin+1.25;
   //
   //Get Vertex
   //
@@ -206,6 +191,22 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     vzErr_sell = vertices3->begin()->zError();
   } else
     vzr_sell = -999.9;
+  //
+  //Get Flattening Parameters
+  //
+  edm::ESHandle<RPFlatParams> flatparmsDB_;
+  iSetup.get<HeavyIonRPRcd>().get(flatparmsDB_);
+  int flatTableSize = flatparmsDB_->m_table.size();
+  for(int i = 0; i<flatTableSize; i++) {
+    const RPFlatParams::EP* thisBin = &(flatparmsDB_->m_table[i]);
+    for(int j = 0; j<NumEPNames; j++) {
+      int indx = thisBin->RPNameIndx[j];
+      if(indx>=0) {
+	flat[indx]->SetXDB(i, thisBin->x[j]);
+	flat[indx]->SetYDB(i, thisBin->y[j]);
+      }
+    }
+  }
   
   //
   //Get Event Planes
@@ -229,11 +230,12 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     ep[i]=0;
   }
   for (EvtPlaneCollection::const_iterator rp = evtPlanes->begin();rp !=evtPlanes->end(); rp++) {
+    if(rp->angle() > -5) {
       string baseName = rp->label();
       for(int i = 0; i< NumEPNames; i++) {
 	if(EPNames[i].compare(baseName)==0) {
-	  double psiFlat = rp->angle();
-	  if(psiFlat>-5) psiFlat = flat[i]->GetFlatPsi(rp->angle(),vzr_sell,bin);
+	  double psiFlat = flat[i]->GetFlatPsi(rp->angle(),vzr_sell,bin);
+	  epang[i]=psiFlat;
 	  if(EPNames[i].compare(rp->label())==0) {	    
 	    psiFull[i] = psiFlat;
 	    if(storeNames_) ep[i]= new EvtPlane(psiFlat, rp->sumSin(), rp->sumCos(),rp->label().data());
@@ -241,14 +243,14 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	  } 
 	}
       }
+    }    
   }
   
   for(int i = 0; i< NumEPNames; i++) {
     if(ep[i]!=0) evtplaneOutput->push_back(*ep[i]);
-    
   }
   iEvent.put(evtplaneOutput);
-  //storeNames_ = 0;  
+  storeNames_ = 0;  
 }
 
 // ------------ method called once each job just before starting event loop  ------------

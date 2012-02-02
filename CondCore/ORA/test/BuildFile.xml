@@ -68,3 +68,6 @@
 <bin   file="testNamedReference.cc" name="testNamedReference">
   <lib   name="testORADict"/>
 </bin>
+<bin   file="testNestedArrays.cc" name="testNestedArrays">
+  <lib   name="testORADict"/>
+</bin>

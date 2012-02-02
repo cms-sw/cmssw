@@ -23,7 +23,7 @@ gtDigis.DaqGtInputTag = 'source'
 # filter on L1 trigger bits:
 # select only events triggered by muon L1A
 from L1Trigger.Skimmer.l1Filter_cfi import *
-l1Filter.algorithms = cms.vstring('L1_SingleMuOpen_BptxAND', 'L1_SingleMu0_BptxAND', 'L1_SingleMu3_BptxAND', 'L1_SingleMu5_BptxAND', 'L1_SingleMu7', 'L1_SingleMu10', 'L1_SingleMu14', 'L1_SingleMu20', 'L1_DoubleMuOpen_BptxAND', 'L1_DoubleMu3_BptxAND')
+l1Filter.algorithms = cms.vstring('L1_SingleMuOpen', 'L1_SingleMu0', 'L1_SingleMu3', 'L1_SingleMu5', 'L1_SingleMu7', 'L1_SingleMu10', 'L1_SingleMu14', 'L1_SingleMu20', 'L1_DoubleMuOpen', 'L1_DoubleMu3')
 
 # Scalers info
 from EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi import *

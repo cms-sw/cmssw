@@ -4,8 +4,8 @@
 /*
  * \file EBRawDataTask.h
  *
- * $Date: 2010/08/06 17:35:40 $
- * $Revision: 1.8 $
+ * $Date: 2009/10/26 17:33:47 $
+ * $Revision: 1.7 $
  * \author E. Di Marco
  *
 */
@@ -84,9 +84,7 @@ MonitorElement* meEBTriggerTypeErrors_;
 MonitorElement* meEBCalibrationEventErrors_;
 MonitorElement* meEBL1ADCCErrors_;
 MonitorElement* meEBBunchCrossingDCCErrors_;
-// temporal measure to avoid dead link in EE layout (map will be for EE+ & EE-) -> remove 1D error histo once transition is done
 MonitorElement* meEBL1AFEErrors_;
-MonitorElement* meEBL1AFEErrorsMap_;
 MonitorElement* meEBBunchCrossingFEErrors_;
 MonitorElement* meEBL1ATCCErrors_;
 MonitorElement* meEBBunchCrossingTCCErrors_;

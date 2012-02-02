@@ -21,13 +21,27 @@ METCorrectionAlgorithm::METCorrectionAlgorithm(const edm::ParameterSet& cfg)
       typedef std::vector<edm::ParameterSet> vParameterSet;
       vParameterSet cfgType2Binning = cfg.getParameter<vParameterSet>("type2Binning");
       for ( vParameterSet::const_iterator cfgType2BinningEntry = cfgType2Binning.begin();
-	    cfgType2BinningEntry != cfgType2Binning.end(); ++cfgType2BinningEntry ) {
-	type2Binning_.push_back(new type2BinningEntryType(*cfgType2BinningEntry, srcUnclEnergySums));
+  	    cfgType2BinningEntry != cfgType2Binning.end(); ++cfgType2BinningEntry ) {
+  	type2Binning_.push_back(new type2BinningEntryType(*cfgType2BinningEntry, srcUnclEnergySums));
       }
     } else {
       std::string type2CorrFormula = cfg.getParameter<std::string>("type2CorrFormula").data();
       edm::ParameterSet type2CorrParameter = cfg.getParameter<edm::ParameterSet>("type2CorrParameter");
       type2Binning_.push_back(new type2BinningEntryType(type2CorrFormula, type2CorrParameter, srcUnclEnergySums));
+    }
+  }
+
+  applyType0Corrections_ = cfg.exists("applyType0Corrections") ? cfg.getParameter<bool>("applyType0Corrections") : false;
+  if ( applyType0Corrections_ ) {
+    srcCHSSums_ = cfg.getParameter<vInputTag>("srcCHSSums");
+    type0Rsoft_ = cfg.getParameter<double>("type0Rsoft");
+    type0Cuncl_ = 1.0;
+    if (applyType2Corrections_) {
+      if (cfg.exists("type2Binning")) throw cms::Exception("Invalid Arg") << "Currently, applyType0Corrections and type2Binning cannot be used together!";
+      std::string type2CorrFormula = cfg.getParameter<std::string>("type2CorrFormula").data();
+      if (!(type2CorrFormula == "A")) throw cms::Exception("Invalid Arg") << "type2CorrFormula must be \"A\" if applyType0Corrections!";
+      edm::ParameterSet type2CorrParameter = cfg.getParameter<edm::ParameterSet>("type2CorrParameter");
+      type0Cuncl_ = type2CorrParameter.getParameter<double>("A");
     }
   }
 }
@@ -46,6 +60,19 @@ CorrMETData METCorrectionAlgorithm::compMETCorrection(edm::Event& evt, const edm
   metCorr.mex   = 0.;
   metCorr.mey   = 0.;
   metCorr.sumet = 0.;
+
+  if ( applyType0Corrections_ ) {
+//--- sum all Type 0 MET correction terms
+    for ( vInputTag::const_iterator srcCHSSum = srcCHSSums_.begin();
+	  srcCHSSum != srcCHSSums_.end(); ++srcCHSSum ) {
+      edm::Handle<CorrMETData> chsSum;
+      evt.getByLabel(*srcCHSSum, chsSum);
+
+      metCorr.mex   += type0Cuncl_*(1 - type0Rsoft_)*chsSum->mex;
+      metCorr.mey   += type0Cuncl_*(1 - type0Rsoft_)*chsSum->mey;
+      metCorr.sumet += type0Cuncl_*(1 - type0Rsoft_)*chsSum->sumet;
+    }
+  }
 
   if ( applyType1Corrections_ ) {
 //--- sum all Type 1 MET correction terms

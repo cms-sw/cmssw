@@ -14,7 +14,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 ### conditions
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-from Configuration.AlCa.autoCond import autoCond
+from Configuration.PyReleaseValidation.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['startup']
 
 process.options = cms.untracked.PSet(

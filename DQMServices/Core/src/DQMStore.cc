@@ -193,7 +193,7 @@ DQMStore::initializeFrom(const edm::ParameterSet& pset) {
 //////////////////////////////////////////////////////////////////////
 /// set verbose level (0 turns all non-error messages off)
 void
-DQMStore::setVerbose(unsigned /* level */) 
+DQMStore::setVerbose(unsigned level) 
 { return; }
 
 //////////////////////////////////////////////////////////////////////
@@ -827,7 +827,7 @@ DQMStore::bookProfile(const std::string &dir, const std::string &name, TProfile 
 MonitorElement *
 DQMStore::bookProfile(const char *name, const char *title,
 		      int nchX, double lowX, double highX,
-		      int /* nchY */, double lowY, double highY,
+		      int nchY, double lowY, double highY,
 		      const char *option /* = "s" */)
 {
   return bookProfile(pwd_, name, new TProfile(name, title,
@@ -842,7 +842,7 @@ DQMStore::bookProfile(const char *name, const char *title,
 MonitorElement *
 DQMStore::bookProfile(const std::string &name, const std::string &title,
 		      int nchX, double lowX, double highX,
-		      int /* nchY */, double lowY, double highY,
+		      int nchY, double lowY, double highY,
 		      const char *option /* = "s" */)
 {
   return bookProfile(pwd_, name, new TProfile(name.c_str(), title.c_str(),
@@ -887,7 +887,7 @@ DQMStore::bookProfile(const std::string &name, const std::string &title,
 MonitorElement *
 DQMStore::bookProfile(const char *name, const char *title,
 		      int nchX, double *xbinsize,
-		      int /* nchY */, double lowY, double highY,
+		      int nchY, double lowY, double highY,
 		      const char *option /* = "s" */)
 {
   return bookProfile(pwd_, name, new TProfile(name, title,
@@ -902,7 +902,7 @@ DQMStore::bookProfile(const char *name, const char *title,
 MonitorElement *
 DQMStore::bookProfile(const std::string &name, const std::string &title,
 		      int nchX, double *xbinsize,
-		      int /* nchY */, double lowY, double highY,
+		      int nchY, double lowY, double highY,
 		      const char *option /* = "s" */)
 {
   return bookProfile(pwd_, name, new TProfile(name.c_str(), title.c_str(),
@@ -972,7 +972,7 @@ MonitorElement *
 DQMStore::bookProfile2D(const char *name, const char *title,
 			int nchX, double lowX, double highX,
 			int nchY, double lowY, double highY,
-			int /* nchZ */, double lowZ, double highZ,
+			int nchZ, double lowZ, double highZ,
 			const char *option /* = "s" */)
 {
   return bookProfile2D(pwd_, name, new TProfile2D(name, title,
@@ -989,7 +989,7 @@ MonitorElement *
 DQMStore::bookProfile2D(const std::string &name, const std::string &title,
 			int nchX, double lowX, double highX,
 			int nchY, double lowY, double highY,
-			int /* nchZ */, double lowZ, double highZ,
+			int nchZ, double lowZ, double highZ,
 			const char *option /* = "s" */)
 {
   return bookProfile2D(pwd_, name, new TProfile2D(name.c_str(), title.c_str(),

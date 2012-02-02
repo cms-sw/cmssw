@@ -25,9 +25,10 @@ process.RECOSIMoutput.outputCommands = cms.untracked.vstring('drop *',
   'keep *_uncleanedOnly*_*_*', 
 )
 
-#from Configuration.AlCa.autoCond import autoCond
-#process.GlobalTag.globaltag = autoCond['mc']
-process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG']+'::All'
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['mc']
+
+#process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG']+'::All'
 
 #process.pfElectronTranslator.MVACutBlock.MVACut = cms.double(-0.4)
 #process.gsfElectrons.minMVA = cms.double(-0.4)

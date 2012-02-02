@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri Mar 30 12:21:02 CDT 2007
-// $Id: AlignmentMonitorBase.h,v 1.11 2010/01/06 15:23:09 mussgill Exp $
+// $Id: AlignmentMonitorBase.h,v 1.10 2009/09/15 17:09:49 pivarski Exp $
 //
 
 // system include files
@@ -39,8 +39,7 @@
 
 // forward declarations
 
-class AlignmentMonitorBase
-{
+class AlignmentMonitorBase {
    public:
       typedef std::pair<const Trajectory*, const reco::Track*> ConstTrajTrackPair; 
       typedef std::vector<ConstTrajTrackPair>  ConstTrajTrackPairCollection;
@@ -64,7 +63,7 @@ class AlignmentMonitorBase
       void endOfLoop(const edm::EventSetup &iSetup);
 
       /// Called at end of processing: don't implement
-      void endOfJob() {}
+      void endOfJob();
 
       /////////////////////////////////////////////////////
 
@@ -72,11 +71,11 @@ class AlignmentMonitorBase
       virtual void book() = 0;
 
       /// Called for each event (by "run()"): may be reimplemented
-      virtual void event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection &iTrajTracks) { }
+      virtual void event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection &iTrajTracks) { };
 
       /// Called after updating AlignableTracker and AlignableMuon (by
       /// "endOfLoop()"): may be reimplemented
-      virtual void afterAlignment(const edm::EventSetup &iSetup) { }
+      virtual void afterAlignment(const edm::EventSetup &iSetup) { };
 
    protected:
       /// Use this every time you book a histogram (so that
@@ -87,13 +86,11 @@ class AlignmentMonitorBase
       TH2F *book2D(std::string dir, std::string name, std::string title, int nchX, double lowX, double highX, int nchY, double lowY, double highY);
       TFileDirectory *directory(std::string dir);
       
-      int                     iteration()    { return m_iteration; }
-      AlignableTracker        *pTracker()    { return mp_tracker; }
-      AlignableMuon           *pMuon()       { return mp_muon; }
-      AlignmentParameterStore *pStore()      { return mp_store; }
-      AlignableNavigator      *pNavigator()  { return mp_navigator; }
-
-      const edm::InputTag m_beamSpotTag;
+      int                     iteration()    { return m_iteration; };
+      AlignableTracker        *pTracker()    { return mp_tracker; };
+      AlignableMuon           *pMuon()       { return mp_muon; };
+      AlignmentParameterStore *pStore()      { return mp_store; };
+      AlignableNavigator      *pNavigator()  { return mp_navigator; };
 
    private:
       AlignmentMonitorBase(const AlignmentMonitorBase&); // stop default

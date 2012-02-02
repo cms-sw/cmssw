@@ -6,7 +6,7 @@ isolationInputParameters = cms.PSet(
    horeco = cms.InputTag("horeco"),
    hfreco = cms.InputTag("hfreco"),
    hbhereco = cms.InputTag("hbhereco"),
-   track = cms.InputTag("hiSelectedTracks"),
+   track = cms.InputTag("hiGoodTracks"),
    photons = cms.InputTag("cleanPhotons")
    )
 

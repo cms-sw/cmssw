@@ -273,9 +273,21 @@ namespace edm {
   }
 
   EventPrincipal*
+  PoolSource::readOneRandomWithID(LuminosityBlockID const& lumiID) {
+    assert(!secondaryFileSequence_);
+    return primaryFileSequence_->readOneRandomWithID(lumiID);
+  }
+
+  EventPrincipal*
   PoolSource::readOneSequential() {
     assert(!secondaryFileSequence_);
     return primaryFileSequence_->readOneSequential();
+  }
+
+  EventPrincipal*
+  PoolSource::readOneSequentialWithID(LuminosityBlockID const& lumiID) {
+    assert(!secondaryFileSequence_);
+    return primaryFileSequence_->readOneSequentialWithID(lumiID);
   }
 
   EventPrincipal*

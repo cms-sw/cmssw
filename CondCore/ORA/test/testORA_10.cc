@@ -25,12 +25,14 @@ namespace ora {
       //db.configuration().setMessageVerbosity( coral::Debug );
       db.connect( connStr );
       ora::ScopedTransaction trans( db.transaction() );
+      //creating database
       trans.start( false );
       if(!db.exists()){
 	db.create();
       }
       std::set< std::string > conts = db.containers();
       if( conts.find( "Cont0" )!= conts.end() ) db.dropContainer( "Cont0" );
+      //creating container
       db.createContainer<SE>("Cont0");
       std::vector<boost::shared_ptr<SE> > buff;
       std::vector<ora::OId> oids;
@@ -47,7 +49,7 @@ namespace ora {
       buff.clear();
       trans.commit();
       db.disconnect();
-      ::sleep(1);
+      sleep();
       // reading back...
       db.connect( connStr );
       trans.start( true );
@@ -67,6 +69,7 @@ namespace ora {
       }
       trans.commit();
       db.disconnect();
+      //updating: push back
       db.connect( connStr );
       trans.start( false );
       for( std::vector<ora::OId>::const_iterator iOid=oids.begin();
@@ -81,6 +84,7 @@ namespace ora {
       buff.clear();
       trans.commit();
       db.disconnect();
+      //reading back again...
       db.connect( connStr );
       trans.start( true );
       cont0 = db.containerHandle( "Cont0" );
@@ -102,6 +106,7 @@ namespace ora {
       }
       trans.commit();
       db.disconnect();
+      //updating: pop back
       db.connect( connStr );
       trans.start( false );
       for( std::vector<ora::OId>::const_iterator iOid=oids.begin();
@@ -116,6 +121,7 @@ namespace ora {
       buff.clear();
       trans.commit();
       db.disconnect();
+      //reading back...
       db.connect( connStr );
       trans.start( true );
       cont0 = db.containerHandle( "Cont0" );
@@ -133,6 +139,7 @@ namespace ora {
 	}
       }
       db.transaction().commit();
+      //clean up
       db.transaction().start( false );
       db.drop();
       db.transaction().commit();
