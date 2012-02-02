@@ -6,6 +6,7 @@
 
 #include <iosfwd>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace edm {
@@ -28,6 +29,11 @@ namespace edm {
     ProcessHistory() : data_(), transient_() {}
     explicit ProcessHistory(size_type n) : data_(n), transient_() {}
     explicit ProcessHistory(collection_type const& vec) : data_(vec), transient_() {}
+
+#ifndef __GCCXML__
+    template<typename... Args>
+    void emplace_back(Args&&... args) {data_.emplace_back(std::forward<Args>(args)...); phid() = ProcessHistoryID();}
+#endif
 
     void push_back(const_reference t) {data_.push_back(t); phid() = ProcessHistoryID();}
     void swap(ProcessHistory& other) {data_.swap(other.data_); phid().swap(other.phid());}
