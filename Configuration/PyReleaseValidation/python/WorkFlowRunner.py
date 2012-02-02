@@ -70,8 +70,8 @@ class WorkFlowRunner(Thread):
         inFile = None
         if self.wf.cmdStep1.startswith('DATAINPUT'):
             print "going to run with file input ... "
-            if self.wf.input.run:
-                run      = str(self.wf.input.run)
+            if self.wf.input.run!=[]:
+                run      = str(self.wf.input.run[-1])
             else:
                 run=None
 

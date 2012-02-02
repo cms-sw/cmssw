@@ -147,8 +147,8 @@ class MatrixReader(object):
                     # map input dataset to the one from the reference release:
                     inputInfo.dataSet = inputInfo.dataSet.replace('CMSSW_4_2_0_pre4', refRel)
                     cmd = 'DATAINPUT from '+inputInfo.dataSet+' on '+inputInfo.location
-                    if input.run:
-                        cmd+=' run %d'%(input.run)
+                    if len(input.run):
+                        cmd+=' run %s'%(','.join(map(str,input.run)))
                     from Configuration.PyReleaseValidation.relval_steps import InputInfoNDefault
                     if input.events!=InputInfoNDefault:
                         cmd+=' N %d'%(input.events)
@@ -210,7 +210,7 @@ class MatrixReader(object):
                     #skip the samples from INPUT when step1Only is on
                     if step1Only: continue
                     line += ' ++ REALDATA: '+inputInfo.dataSet
-                    if inputInfo.run!=0: line += ', RUN:'+str(inputInfo.run)
+                    if inputInfo.run!=[]: line += ', RUN:'+','.join(map(str,inputInfo.run))
                     line += ', FILES: ' +str(inputInfo.files)
                     line += ', EVENTS: '+str(inputInfo.events)
                     if inputInfo.label!='':
