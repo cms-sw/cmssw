@@ -31,6 +31,7 @@ class HLTHtMhtProducer : public edm::EDProducer {
 
     bool usePt_;
     bool useTracks_;
+    bool excludePFMuons_;
     int minNJetHt_;
     int minNJetMht_;
     double minPtJetHt_;
@@ -39,7 +40,7 @@ class HLTHtMhtProducer : public edm::EDProducer {
     double maxEtaJetMht_;
     edm::InputTag jetsLabel_;
     edm::InputTag tracksLabel_;
-
+    edm::InputTag pfCandidatesLabel_;
 };
 
 #endif

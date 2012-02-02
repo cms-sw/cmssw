@@ -13,19 +13,22 @@
 #include "DataFormats/METReco/interface/METCollection.h"
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 
 HLTHtMhtProducer::HLTHtMhtProducer(const edm::ParameterSet & iConfig) :
-  usePt_        ( iConfig.getParameter<bool>("usePt") ),
-  useTracks_    ( iConfig.getParameter<bool>("useTracks") ),
-  minNJetHt_    ( iConfig.getParameter<int>("minNJetHt") ),
-  minNJetMht_   ( iConfig.getParameter<int>("minNJetMht") ),
-  minPtJetHt_   ( iConfig.getParameter<double>("minPtJetHt") ),
-  minPtJetMht_  ( iConfig.getParameter<double>("minPtJetMht") ),
-  maxEtaJetHt_  ( iConfig.getParameter<double>("maxEtaJetHt") ),
-  maxEtaJetMht_ ( iConfig.getParameter<double>("maxEtaJetMht") ),
-  jetsLabel_    ( iConfig.getParameter<edm::InputTag>("jetsLabel") ),
-  tracksLabel_  ( iConfig.getParameter<edm::InputTag>("tracksLabel") )
+  usePt_          ( iConfig.getParameter<bool>("usePt") ),
+  useTracks_      ( iConfig.getParameter<bool>("useTracks") ),
+  excludePFMuons_ ( iConfig.getParameter<bool>("excludePFMuons") ),
+  minNJetHt_      ( iConfig.getParameter<int>("minNJetHt") ),
+  minNJetMht_     ( iConfig.getParameter<int>("minNJetMht") ),
+  minPtJetHt_     ( iConfig.getParameter<double>("minPtJetHt") ),
+  minPtJetMht_    ( iConfig.getParameter<double>("minPtJetMht") ),
+  maxEtaJetHt_    ( iConfig.getParameter<double>("maxEtaJetHt") ),
+  maxEtaJetMht_   ( iConfig.getParameter<double>("maxEtaJetMht") ),
+  jetsLabel_      ( iConfig.getParameter<edm::InputTag>("jetsLabel") ),
+  tracksLabel_    ( iConfig.getParameter<edm::InputTag>("tracksLabel") ),
+  pfCandidatesLabel_ ( iConfig.getParameter<edm::InputTag>("pfCandidatesLabel") )
 {
   produces<reco::METCollection>();
 }
@@ -47,6 +50,8 @@ void HLTHtMhtProducer::fillDescriptions(edm::ConfigurationDescriptions & descrip
   desc.add<double>("maxEtaJetMht", 999);
   desc.add<bool>("useTracks", false);
   desc.add<edm::InputTag>("tracksLabel",  edm::InputTag("hltL3Muons"));
+  desc.add<bool>("excludePFMuons", false);
+  desc.add<edm::InputTag>("pfCandidatesLabel",  edm::InputTag("hltParticleFlow"));
   descriptions.add("hltHtMhtProducer", desc);
 }
 
@@ -59,7 +64,9 @@ void HLTHtMhtProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   iEvent.getByLabel(jetsLabel_, jets);
   edm::Handle<reco::TrackCollection> tracks;
   if (useTracks_) iEvent.getByLabel(tracksLabel_, tracks);
-
+  edm::Handle<reco::PFCandidateCollection> pfCandidates;
+  if (excludePFMuons_) iEvent.getByLabel(pfCandidatesLabel_, pfCandidates);
+  
   int nj_ht = 0, nj_mht = 0;
   double ht=0.;
   double mhtx=0., mhty=0.;
@@ -85,6 +92,13 @@ void HLTHtMhtProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         mhtx -= track->px();
         mhty -= track->py();
       }
+    }
+  }
+  if (excludePFMuons_) {
+    reco::PFCandidateCollection::const_iterator i (pfCandidates->begin());
+    for (; i != pfCandidates->end(); ++i) {
+      mhtx += (i->pt())*cos(i->phi());
+      mhty += (i->pt())*sin(i->phi());
     }
   }
 
