@@ -4,7 +4,6 @@
 #include "HLTrigger/HLTfilters/interface/HLTFiltCand.h"
 #include "HLTrigger/HLTfilters/interface/HLTLevel1GTSeed.h"
 #include "HLTrigger/HLTfilters/interface/HLTHighLevel.h"
-#include "HLTrigger/HLTfilters/interface/HLT1CaloJetEnergy.h"
 
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
@@ -113,7 +112,6 @@ DEFINE_FWK_MODULE(HLT1CaloMET);
 DEFINE_FWK_MODULE(HLT1MET);
 DEFINE_FWK_MODULE(HLT1Track);
 DEFINE_FWK_MODULE(HLT1Cluster);
-DEFINE_FWK_MODULE(HLT1CaloJetEnergy);
 DEFINE_FWK_MODULE(HLT1PFTau);
 DEFINE_FWK_MODULE(HLT1PFJet);
 
