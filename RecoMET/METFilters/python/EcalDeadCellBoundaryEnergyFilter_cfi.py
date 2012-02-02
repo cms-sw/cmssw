@@ -41,7 +41,8 @@ EcalDeadCellBoundaryEnergyFilter = cms.EDFilter('EcalDeadCellBoundaryEnergyFilte
 	limitDeadCellToChannelStatusEB=cms.vint32(12, 14),
 	limitDeadCellToChannelStatusEE=cms.vint32(12, 14),
 	#### enable calculation of energy deposits next to cracks/gaps
-	enableGap=cms.untracked.bool(False)
+	enableGap=cms.untracked.bool(False),
+        taggingMode   = cms.bool(False),
 )
 
 

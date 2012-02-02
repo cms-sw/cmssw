@@ -15,7 +15,7 @@ It also allows users to remove events in which the number of HBHE rechits exceed
 //
 // Original Author:  Jeff Temple (temple@cern.ch)
 //         Created:  Thu Nov 17 12:44:22 EST 2011
-// $Id: HcalLaserEventFilter.cc,v 1.1 2011/11/17 23:51:03 temple Exp $
+// $Id: HcalLaserEventFilter.cc,v 1.1 2012/01/06 19:56:06 lhx Exp $
 //
 //
 
@@ -75,6 +75,8 @@ class HcalLaserEventFilter : public edm::EDFilter {
 
   // InputTag for HBHE rechits
   edm::InputTag hbheInputLabel_;
+
+  bool taggingMode_;
 };
 
 //
@@ -103,6 +105,8 @@ HcalLaserEventFilter::HcalLaserEventFilter(const edm::ParameterSet& iConfig)
   reverseFilter_        = iConfig.getUntrackedParameter<bool>("reverseFilter",false); 
   hbheInputLabel_       = iConfig.getUntrackedParameter<edm::InputTag>("hbheInputLabel",edm::InputTag("hbhereco"));
 
+  taggingMode_ = iConfig.getParameter<bool>("taggingMode");
+
   // Make (run,evt) pairs for storing bad events
   // Make this a map for better search performance?
   for (uint i=0;i+1<temprunevt.size();i+=2)
@@ -111,6 +115,8 @@ HcalLaserEventFilter::HcalLaserEventFilter(const edm::ParameterSet& iConfig)
       uint evt=temprunevt[i+1];
       RunEventData_.push_back(std::make_pair(run,evt));
     }
+ 
+   produces<bool>();
 }
 
 
@@ -171,7 +177,11 @@ HcalLaserEventFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    if (reverseFilter_)
      filterDecision=!filterDecision;
 
-   return filterDecision;
+   std::auto_ptr<bool> pOut( new bool(filterDecision) );
+   iEvent.put( pOut );
+   
+   if( taggingMode_ ) return true;
+   else return filterDecision;
 }
 
 // ------------ method called once each job just before starting event loop  ------------

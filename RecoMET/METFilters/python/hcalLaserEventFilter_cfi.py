@@ -18,5 +18,7 @@ hcalLaserEventFilter = cms.EDFilter("HcalLaserEventFilter",
                                     
                                     debug = cms.untracked.bool(False),
                                     reverseFilter = cms.untracked.bool(False), # if True, will select only events failing filter, rather than events passing
-                                    hbheInputLabel=cms.untracked.InputTag("hbhereco")
+                                    hbheInputLabel=cms.untracked.InputTag("hbhereco"),
+
+                                    taggingMode   = cms.bool(False),
                                     )

@@ -6,8 +6,8 @@ simpleDRfilter = cms.EDFilter('simpleDRfilter',
   debug = cms.untracked.bool( False ),
 # No usage now
   printSkimInfo = cms.untracked.bool( False ),
-# If enabled, events with MET due to dead cell are rejected
-  doFilter = cms.untracked.bool( True ),
+
+  taggingMode   = cms.bool(False),
 
 # It's written in general that one can put pf, calo and tracking jets
   jetInputTag = cms.InputTag('ak5PFJets'),

@@ -20,7 +20,7 @@
 //
 // Original Author:  Konstantinos Theofilatos, Ulla Gebbert and Christian Sander
 //         Created:  Sat Nov 14 18:43:21 CET 2009
-// $Id: EcalDeadCellBoundaryEnergyFilter.cc,v 1.1 2012/01/12 22:24:55 lhx Exp $
+// $Id: EcalDeadCellBoundaryEnergyFilter.cc,v 1.2 2012/01/26 07:08:48 lhx Exp $
 //
 //
 
@@ -73,6 +73,7 @@ class EcalDeadCellBoundaryEnergyFilter: public edm::EDFilter {
       edm::InputTag EERecHitsLabel_;
 
       std::string FilterAlgo_;
+      bool taggingMode_;
 
       const int kMAX;
       int i_EBDead, i_EEDead, i_EBGap, i_EEGap;
@@ -125,6 +126,7 @@ EcalDeadCellBoundaryEnergyFilter::EcalDeadCellBoundaryEnergyFilter(const edm::Pa
    EERecHitsLabel_ = iConfig.getParameter<edm::InputTag> ("recHitsEE");
 
    FilterAlgo_ = iConfig.getUntrackedParameter<std::string> ("FilterAlgo", "TuningMode");
+   taggingMode_ = iConfig.getParameter<bool>("taggingMode");
    skimGap_ = iConfig.getUntrackedParameter<bool> ("skimGap", false);
    skimDead_ = iConfig.getUntrackedParameter<bool> ("skimDead", false);
    if (skimGap_)
@@ -162,6 +164,8 @@ EcalDeadCellBoundaryEnergyFilter::EcalDeadCellBoundaryEnergyFilter(const edm::Pa
    v_boundaryInfoDeadCells_EE.clear();
 
    debug_ = false;
+
+   produces<bool>();
 
    if (FilterAlgo_ == "TuningMode") {
       produces<AnomalousECALVariables> ("anomalousECALVariables");
@@ -208,6 +212,8 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::Event& iEvent, const edm::Eve
    i_EEGap = 0;
 
    vector<DetId> sameFlagDetIds;
+
+   bool pass = true;
 
    if (!limitFilterToEE_) {
 
@@ -408,6 +414,34 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::Event& iEvent, const edm::Eve
 
    sameFlagDetIds.clear();
 
+   std::auto_ptr<AnomalousECALVariables> pAnomalousECALVariables(new AnomalousECALVariables(v_enNeighboursGap_EB,
+            v_enNeighboursGap_EE, v_boundaryInfoDeadCells_EB, v_boundaryInfoDeadCells_EE));
+
+
+   bool isGap = pAnomalousECALVariables->isGapEcalCluster(cutBoundEnergyGapEB, cutBoundEnergyGapEE);
+   bool isBoundary = pAnomalousECALVariables->isDeadEcalCluster(maxBoundaryEnergy_, limitDeadCellToChannelStatusEB_,
+            limitDeadCellToChannelStatusEE_);
+   pass = (!isBoundary && ((!isGap && enableGap_) || !enableGap_));
+
+   iEvent.put(pAnomalousECALVariables, "anomalousECALVariables");
+
+   std::auto_ptr<bool> pOut( new bool(pass) );
+   iEvent.put( pOut );
+
+   if( taggingMode_ ){
+      if (skimDead_ && (i_EBDead >= 1 || i_EEDead >= 1)) {
+         return true;
+      } else if (skimGap_ && (i_EBGap >= 1 || i_EEGap >= 1)) {
+         return true;
+      } else if (!skimDead_ && !skimGap_)
+         return true;
+      else {
+         return false;
+      }
+   }
+   else return pass; 
+
+/*
    if (FilterAlgo_ == "TuningMode") {
       std::auto_ptr<AnomalousECALVariables> pAnomalousECALVariables(new AnomalousECALVariables(v_enNeighboursGap_EB,
             v_enNeighboursGap_EE, v_boundaryInfoDeadCells_EB, v_boundaryInfoDeadCells_EE));
@@ -438,8 +472,9 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::Event& iEvent, const edm::Eve
       }
       return result;
    }
+*/
 
-   return true;
+//   return true;
 }
 
 // ------------ method called once each job just before starting event loop  ------------

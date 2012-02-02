@@ -5,7 +5,8 @@ multiEventFilter = cms.EDFilter(
   "MultiEventFilter",
   EventList = cms.vstring(
     "0:0:0"  # run:lumi:event
-  )
+  ),
+  taggingMode   = cms.bool(False),
 )
 
 vetoIncMuons = multiEventFilter.clone(EventList = [

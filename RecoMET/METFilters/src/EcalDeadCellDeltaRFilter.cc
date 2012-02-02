@@ -127,8 +127,6 @@ private:
 
   double calomet, calometPhi, tcmet, tcmetPhi, pfmet, pfmetPhi;
 
-  bool doFilter_;
-
 // Channel status related
   edm::ESHandle<EcalChannelStatus>  ecalStatus; // these come from EventSetup
   edm::ESHandle<HcalChannelQuality> hcalStatus;
@@ -177,6 +175,8 @@ private:
   int etaToBoundary(const std::vector<reco::Jet> &jetTVec);
 
   int isCloseToBadEcalChannel(const reco::Jet &jet, const double &deltaRCut, const int &chnStatus, std::map<double, DetId> &deltaRdetIdMap);
+
+  bool taggingMode_;
 };
 
 void EcalDeadCellDeltaRFilter::loadMET(const edm::Event& iEvent, const edm::EventSetup& iSetup){
@@ -217,8 +217,6 @@ EcalDeadCellDeltaRFilter::EcalDeadCellDeltaRFilter(const edm::ParameterSet& iCon
   debug_= iConfig.getUntrackedParameter<bool>("debug",false);
   printSkimInfo_= iConfig.getUntrackedParameter<bool>("printSkimInfo",false);
 
-  doFilter_ = iConfig.getUntrackedParameter<bool>("doFilter",false);
-
   jetInputTag_ = iConfig.getParameter<edm::InputTag>("jetInputTag");
   jetSelCuts_ = iConfig.getParameter<std::vector<double> >("jetSelCuts");
 
@@ -242,7 +240,10 @@ EcalDeadCellDeltaRFilter::EcalDeadCellDeltaRFilter(const edm::ParameterSet& iCon
   cracksHBHEdef_ = iConfig.getParameter<std::vector<double> > ("cracksHBHEdef");
   cracksHEHFdef_ = iConfig.getParameter<std::vector<double> > ("cracksHEHFdef");
 
+  taggingMode_ = iConfig.getParameter<bool>("taggingMode");
+
   produces<int> ("deadCellStatus"); produces<int> ("boundaryStatus");
+  produces<bool>();
 
   if( makeProfileRoot_ ){
      profFile = new TFile(profileRootName_.c_str(), "RECREATE");
@@ -327,11 +328,13 @@ bool EcalDeadCellDeltaRFilter::filter(edm::Event& iEvent, const edm::EventSetup&
   iEvent.put( deadCellStatusPtr, "deadCellStatus");
   iEvent.put( boundaryStatusPtr, "boundaryStatus");
 
+  std::auto_ptr<bool> pOut( new bool(pass) );
+  iEvent.put( pOut );
+
   if( deadCellStatus || (doCracks_ && boundaryStatus) ) pass = false;
 
-  if( !doFilter_ ) return true;
-
-  return pass;
+  if( taggingMode_ ) return true;
+  else return pass;
 }
 
 // ------------ method called once each job just before starting event loop  ------------

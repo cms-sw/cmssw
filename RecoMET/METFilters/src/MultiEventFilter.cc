@@ -27,11 +27,14 @@ class MultiEventFilter : public edm::EDFilter {
     
     std::vector<Event> events_;
 
+    bool taggingMode_;
+
 };
 
 
 MultiEventFilter::MultiEventFilter(const edm::ParameterSet & iConfig) {
   std::vector<std::string> eventList = iConfig.getParameter<std::vector<std::string> >("EventList");
+  taggingMode_ = iConfig.getParameter<bool>("taggingMode");
   for (unsigned int i = 0; i < eventList.size(); ++i) {
     std::vector<std::string> tokens = edm::tokenize(eventList[i], ":");
     if(tokens.size() != 3) {
@@ -40,17 +43,25 @@ MultiEventFilter::MultiEventFilter(const edm::ParameterSet & iConfig) {
     }
     events_.push_back(Event(atoi(tokens[0].c_str()), atoi(tokens[1].c_str()), atoi(tokens[2].c_str())));
   }
+  produces<bool>();
 }
 
 
 bool MultiEventFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup) {
 
+  bool pass = true;
+
   for (unsigned int i = 0; i < events_.size(); ++i) {
     if (events_[i].event == iEvent.id().event() &&
         events_[i].run == iEvent.id().run() &&
-        events_[i].lumi == iEvent.id().luminosityBlock()) return false;
+        events_[i].lumi == iEvent.id().luminosityBlock()) pass = false; 
   }
-  return true;
+
+  std::auto_ptr<bool> pOut( new bool(pass) );
+  iEvent.put( pOut );
+
+  if( taggingMode_ ) return true;
+  else return pass;
 
 }
 
