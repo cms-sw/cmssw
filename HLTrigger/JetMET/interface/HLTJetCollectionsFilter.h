@@ -2,6 +2,10 @@
 #define HLTJetCollectionsFilter_h
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 namespace edm {
    class ConfigurationDescriptions;
@@ -11,14 +15,14 @@ namespace edm {
 // class declaration
 //
 
+template <typename jetType, int Tid>
 class HLTJetCollectionsFilter : public HLTFilter {
 
    public:
       explicit HLTJetCollectionsFilter(const edm::ParameterSet&);
       ~HLTJetCollectionsFilter();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
-
+      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
    private:
       edm::InputTag inputTag_; // input tag identifying jet collections
       edm::InputTag originalTag_; // input tag original jet collection

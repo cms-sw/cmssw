@@ -11,8 +11,8 @@
  *  combination of one lepton + jets cleaned against this leptons satisfy the cuts.
  *  These jets are then added to a cleaned jet collection which is put into the event.
  *
- *  $Date: 2011/08/30 15:18:22 $
- *  $Revision: 1.1 $
+ *  $Date: 2011/08/31 09:14:38 $
+ *  $Revision: 1.2 $
  *
  *  \author Lukasz Kreczko
  *
@@ -36,7 +36,7 @@ namespace edm {
 // class declaration
 //
 
-class HLTJetCollectionsForLeptonPlusJets: public edm::EDProducer {
+template <typename jetType, int Tid> class HLTJetCollectionsForLeptonPlusJets: public edm::EDProducer {
   public:
     explicit HLTJetCollectionsForLeptonPlusJets(const edm::ParameterSet&);
     ~HLTJetCollectionsForLeptonPlusJets();
@@ -49,7 +49,7 @@ class HLTJetCollectionsForLeptonPlusJets: public edm::EDProducer {
     edm::InputTag sourceJetTag;
 
     double minDeltaR_; //min dR for jets and leptons not to match
-    
+
     // ----------member data ---------------------------
 };
 #endif //HLTJetCollectionsForLeptonPlusJets_h
