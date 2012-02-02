@@ -48,7 +48,7 @@ HLTJetCollectionsForLeptonPlusJets<jetType, Tid>::fillDescriptions(edm::Configur
     desc.add<edm::InputTag> ("HltLeptonTag", edm::InputTag("triggerFilterObjectWithRefs"));
     desc.add<edm::InputTag> ("SourceJetTag", edm::InputTag("caloJetCollection"));
     desc.add<double> ("minDeltaR", 0.5);
-    descriptions.add("hltJetCollectionsForLeptonPlusJets", desc);
+    descriptions.add(std::string("hlt")+std::string(typeid(HLTJetCollectionsForLeptonPlusJets<jetType, Tid>).name()),desc);
 }
 
 //

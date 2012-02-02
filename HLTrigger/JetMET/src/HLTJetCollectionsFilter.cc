@@ -28,7 +28,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 
-
+#include<typeinfo>
+#include<string>
 //
 // constructors and destructor
 //
@@ -56,7 +57,7 @@ HLTJetCollectionsFilter<jetType, Tid>::fillDescriptions(edm::ConfigurationDescri
   desc.add<double>("MinJetPt",30.0);
   desc.add<double>("MaxAbsJetEta",2.6);
   desc.add<unsigned int>("MinNJets",1);
-  descriptions.add("hltJetCollectionsFilter",desc);
+  descriptions.add(std::string("hlt")+std::string(typeid(HLTJetCollectionsFilter<jetType, Tid>).name()),desc);
 }
 
 // ------------ method called to produce the data  ------------
