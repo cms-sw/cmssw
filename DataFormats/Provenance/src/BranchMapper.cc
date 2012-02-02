@@ -16,7 +16,7 @@ namespace edm {
       provenanceReader_() {
   }
 
-  BranchMapper::BranchMapper(std::auto_ptr<ProvenanceReaderBase> reader) :
+  BranchMapper::BranchMapper(std::unique_ptr<ProvenanceReaderBase> reader) :
       entryInfoSet_(),
       nextMapper_(),
       delayedRead_(true),
