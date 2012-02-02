@@ -57,6 +57,7 @@ from DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi import *
 SiStripMonitorTrack.TrackProducer = 'generalTracks'
 SiStripMonitorTrack.Mod_On        = False
 SiStripMonitorTrack.andOr         = cms.bool( False )
+SiStripMonitorTrack.dbLabel       = cms.string("SiStripDQMTrigger")
 SiStripMonitorTrack.l1DBKey       = cms.string( 'SiStripDQM_L1' )
 SiStripMonitorTrack.l1Algorithms  = cms.vstring(
 #                  'L1Tech_BSC_minBias_threshold2.v0 OR L1_BscMinBiasOR_BptxPlusORMinus' # Tech BIT41 OR Algo Bit 124
@@ -70,6 +71,7 @@ MonitorTrackResiduals.trajectoryInput = 'generalTracks'
 MonitorTrackResiduals.OutputMEsInRootFile = False
 MonitorTrackResiduals.Mod_On        = False
 MonitorTrackResiduals.andOr         = cms.bool( False )
+MonitorTrackResiduals.dbLabel       = cms.string("SiStripDQMTrigger")
 MonitorTrackResiduals.l1DBKey       = cms.string( 'SiStripDQM_L1' )
 MonitorTrackResiduals.l1Algorithms  = cms.vstring(
 #                  'L1Tech_BSC_minBias_threshold2.v0 OR L1_BscMinBiasOR_BptxPlusORMinus' # Tech BIT41 OR Algo Bit 124  
@@ -86,6 +88,7 @@ TrackerCollisionTrackMon.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
 TrackerCollisionTrackMon.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29)
 TrackerCollisionTrackMon.andOrDcs      = cms.bool( False )
 TrackerCollisionTrackMon.errorReplyDcs = cms.bool( True )
+TrackerCollisionTrackMon.dbLabel       = cms.string("SiStripDQMTrigger")
 TrackerCollisionTrackMon.l1DBKey       = cms.string( 'SiStripDQM_L1' )
 TrackerCollisionTrackMon.l1Algorithms  = cms.vstring(
 #                  'L1Tech_BSC_minBias_threshold2.v0 OR L1_BscMinBiasOR_BptxPlusORMinus' # Tech BIT41 OR Algo Bit 124     
