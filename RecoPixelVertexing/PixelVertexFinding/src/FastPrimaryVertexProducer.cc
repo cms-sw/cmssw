@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea RIZZI
 //         Created:  Thu Dec 22 14:51:44 CET 2011
-// $Id$
+// $Id: FastPrimaryVertexProducer.cc,v 1.1 2012/02/01 16:24:02 arizzi Exp $
 //
 //
 
@@ -193,11 +193,9 @@ FastPrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   std::vector<float>::iterator itCenter = zProjections.begin();
   std::vector<float>::iterator itLeftSide = zProjections.begin();
   std::vector<float>::iterator itRightSide = zProjections.begin();
-  std::vector<float>::iterator itLastRightSide = zProjections.begin();
   std::vector<int> counts;
   float zCluster = m_clusterLength/2.0; //cm 
   int max=0;
-  int i=0,j=0;
   std::vector<float>::iterator left,right;
   for(;itCenter!=zProjections.end(); itCenter++)
   {
