@@ -1,7 +1,7 @@
 import ROOT
 
 def fitResidual(histo,nSigmas=2,verbose=False):
-    option = "R"
+    option = "R0"
     if not verbose: option += "Q"
 
     minFit = histo.GetMean() - histo.GetRMS()

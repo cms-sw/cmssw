@@ -2,10 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 dtSegmentSelectionResiduals = cms.PSet(
     checkNoisyChannels = cms.bool(False),
-    minHitsPhi = cms.int32(8),
+    minHitsPhi = cms.int32(7),
     minHitsZ = cms.int32(4),
     maxChi2 = cms.double(1000.0),
-    maxAnglePhi = cms.double(999.),
+    maxAnglePhi = cms.double(25.),
     maxAngleZ = cms.double(999.)
 )
 
@@ -15,5 +15,6 @@ dtResidualCalibration = cms.EDAnalyzer("DTResidualCalibration",
     segment4DLabel = cms.InputTag('dt4DSegments'),
     rootBaseDir = cms.untracked.string('DTResiduals'),
     rootFileName = cms.untracked.string('residuals.root'),
-    detailedAnalysis = cms.untracked.bool(False)
+    #detailedAnalysis = cms.untracked.bool(False)
+    detailedAnalysis = cms.untracked.bool(True)
 )

@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/01/12 15:05:33 $
- *  $Revision: 1.2 $
+ *  $Date: 2012/02/01 17:25:58 $
+ *  $Revision: 1.3 $
  */
 
 #include "DTResidualCalibration.h"
@@ -284,6 +284,7 @@ void DTResidualCalibration::bookHistos(DTLayerId layerId) {
   edm::LogVerbatim("Calibration") << "Accessing " << ("Sector" + sectorStr.str());
   TDirectory* sectorDir = stationDir->GetDirectory(("Sector" + sectorStr.str()).c_str());
   if(!sectorDir) sectorDir = stationDir->mkdir(("Sector" + sectorStr.str()).c_str()); 
+  edm::LogVerbatim("Calibration") << "Accessing " << ("SL" + superLayerStr.str());
   TDirectory* superLayerDir = sectorDir->GetDirectory(("SL" + superLayerStr.str()).c_str());
   if(!superLayerDir) superLayerDir = sectorDir->mkdir(("SL" + superLayerStr.str()).c_str()); 
 
