@@ -3,7 +3,7 @@ http://cmsdoc.cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/MVAnalysis
 http://cmsdoc.cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_PfElectrons23Jan.txt
 http://cmsdoc.cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_PfElectrons23Jan_IntToFloat.txt
 http://cmsdoc.cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_pfConversionAug0411.txt
-http://cmsdoc.cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFClusterCorr.root
-http://cmsdoc.cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFGlobalCorr.root
+http://cmsdoc.cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFClusterLCorr_14Dec2011.root
+http://cmsdoc.cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFGlobalCorr_14Dec2011.root
 http://cmsdoc.cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/allX0histos.root
-http://cmsdoc.cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFRes.root
+http://cmsdoc.cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFRes_14Dec2011.root

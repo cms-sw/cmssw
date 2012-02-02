@@ -2,6 +2,7 @@
 
 #include "Calibration/IsolatedParticles/interface/MatrixHCALDetIds.h"
 #include "Calibration/IsolatedParticles/interface/FindDistCone.h"
+#include "Calibration/IsolatedParticles/interface/DebugInfo.h"
 
 #include<algorithm>
 #include<iostream>
@@ -16,11 +17,7 @@ namespace spr{
       std::cout << "matrixHCALIds::Add " << ieta << " rows and " << iphi 
 		<< " columns of cells for " << dets.size() << " cells" 
 		<< std::endl;
-      for (unsigned int i1=0; i1<dets.size(); i1++) {
-	HcalDetId id = HcalDetId(dets[i1]());	
-	std::cout << "matrixHCALIds::Cell " << i1 << " 0x" << std::hex 
-		  << id.rawId() << std::dec << " " << id << std::endl;
-      }
+      spr::debugHcalDets(0, dets);
     }
 
     std::vector<DetId> vdetN = spr::newHCALIdNS(dets, 0, topology, true,  ieta,
@@ -37,10 +34,7 @@ namespace spr{
     if (debug) {
       std::cout << "matrixHCALIds::Total number of cells found is " 
 		<< vdetS.size() << std::endl;
-      for (unsigned int i1=0; i1<vdetS.size(); i1++) {
-	HcalDetId id = HcalDetId(vdetS[i1]());	
-	std::cout << "matrixHCALIds::Cell " << i1 << " " << id << std::endl;
-      }
+      spr::debugHcalDets(0, vdetS);
     }
     return vdetS;
   }
@@ -69,11 +63,7 @@ namespace spr{
       std::cout << "matrixHCALIds::Final List of cells for dR " << dR
 		<< " is with " << vdetx.size() << " from original list of "
 		<< vdets.size() << " cells" << std::endl;
-      for (unsigned int i=0; i < vdetx.size(); ++i) {
-	HcalDetId   hcdet  = HcalDetId(vdets[i]);
-	std::cout << "matrixHCALIds::Cell " << i << " 0x" << std::hex 
-		    << vdetx[i]() << std::dec << " " << hcdet << std::endl;
-      }
+      spr::debugHcalDets(0, vdetx);
     }
     return vdetx;
  }
@@ -87,11 +77,7 @@ namespace spr{
       std::cout << "matrixHCALIds::Add " <<ietaE << "|" <<ietaW << " rows and "
 		<< iphiN << "|" << iphiS << " columns of cells for " 
 		<< dets.size() << " cells" << std::endl;
-      for (unsigned int i1=0; i1<dets.size(); i1++) {
-	HcalDetId id = HcalDetId(dets[i1]());	
-	std::cout << "matrixHCALIds::Cell " << i1 << " 0x" << std::hex 
-		  << id.rawId() << std::dec << " " << id << std::endl;
-      }
+      spr::debugHcalDets(0, dets);
     }
 
     std::vector<DetId> vdetN = spr::newHCALIdNS(dets, 0, topology, true, ietaE,
@@ -108,10 +94,7 @@ namespace spr{
     if (debug) {
       std::cout << "matrixHCALIds::Total number of cells found is " 
 		<< vdetS.size() << std::endl;
-      for (unsigned int i1=0; i1<vdetS.size(); i1++) {
-	HcalDetId id = HcalDetId(vdetS[i1]());	
-	std::cout << "matrixHCALIds::Cell " << i1 << " " << id << std::endl;
-      }
+      spr::debugHcalDets(0, vdetS);
     }
     return vdetS;
   }
@@ -124,10 +107,7 @@ namespace spr{
       std::cout << "newHCALIdNS::Add " << iphi << " columns of cells along " 
 		<< shiftNorth << " for " << (dets.size()-last) << " cells" 
 		<< std::endl;
-      for (unsigned int i1=last; i1<dets.size(); i1++) {
-	HcalDetId id = HcalDetId(dets[i1]());	
-	std::cout << "newHCALIdNS::Cell " << i1 << " " << id << std::endl;
-      }
+      spr::debugHcalDets(last, dets);
     }
 
     std::vector<DetId> vdets;
@@ -147,10 +127,7 @@ namespace spr{
       if (debug) {
 	std::cout <<"newHCALIdNS::With Added cells along E/W results a set of "
 		  << (vdets.size()-dets.size()) << " new  cells" << std::endl;
-	for (unsigned int i1=dets.size(); i1<vdets.size(); i1++) {
-	  HcalDetId id = HcalDetId(vdets[i1]());	
-	  std::cout << "newHCALIdEW::Cell " << i1 << " " << id << std::endl;
-	}
+	spr::debugHcalDets(dets.size(), vdets);
       }
     }
     unsigned int last0 = vdets.size();
@@ -183,10 +160,7 @@ namespace spr{
       if (debug) {
 	std::cout << "newHCALIdNS::Addition results a set of " 
 		  << (vdets.size()-last0)  << " new  cells" << std::endl;
-	for (unsigned int i1=last0; i1<vdets.size(); i1++) {
-	  HcalDetId id = HcalDetId(vdets[i1]());	
-	  std::cout << "newHCALIdNS::Cell " << i1 << " " << id << std::endl;
-	}
+	spr::debugHcalDets(last0, vdets);
       }
       last0 = last;
     }
@@ -198,10 +172,7 @@ namespace spr{
       if (debug) {
 	std::cout << "newHCALIdNS::Final list consists of " << vdets.size()
 		  << " cells" << std::endl;
-	for (unsigned int i1=0; i1<vdets.size(); i1++) {
-	  HcalDetId id = HcalDetId(vdets[i1]());	
-	  std::cout << "newHCALIdNS::Cell " << i1 << " " << id << std::endl;
-	}
+	spr::debugHcalDets(0, vdets);
       }
       return vdets;
     }
@@ -216,10 +187,7 @@ namespace spr{
       std::cout << "newHCALIdNS::Add " << iphiN << "|" << iphiS
 		<< " columns of cells along " << shiftNorth << " for " 
 		<< (dets.size()-last) << " cells" << std::endl;
-      for (unsigned int i1=last; i1<dets.size(); i1++) {
-	HcalDetId id = HcalDetId(dets[i1]());	
-	std::cout << "newHCALIdNS::Cell " << i1 << " " << id << std::endl;
-      }
+      spr::debugHcalDets(last, dets);
     }
 
     std::vector<DetId> vdets;
@@ -239,10 +207,7 @@ namespace spr{
       if (debug) {
 	std::cout <<"newHCALIdNS::With Added cells along E/W results a set of "
 		  << (vdets.size()-dets.size()) << " new  cells" << std::endl;
-	for (unsigned int i1=dets.size(); i1<vdets.size(); i1++) {
-	  HcalDetId id = HcalDetId(vdets[i1]());	
-	  std::cout << "newHCALIdEW::Cell " << i1 << " " << id << std::endl;
-	}
+	spr::debugHcalDets(dets.size(), vdets);
       }
     }
     unsigned int last0 = vdets.size();
@@ -277,10 +242,7 @@ namespace spr{
       if (debug) {
 	std::cout << "newHCALIdNS::Addition results a set of " 
 		  << (vdets.size()-last0)  << " new  cells" << std::endl;
-	for (unsigned int i1=last0; i1<vdets.size(); i1++) {
-	  HcalDetId id = HcalDetId(vdets[i1]());	
-	  std::cout << "newHCALIdNS::Cell " << i1 << " " << id << std::endl;
-	}
+	spr::debugHcalDets(last0, vdets);
       }
       last0 = last;
     }
@@ -295,10 +257,7 @@ namespace spr{
       if (debug) {
 	std::cout << "newHCALIdNS::Final list consists of " << vdets.size()
 		  << " cells" << std::endl;
-	for (unsigned int i1=0; i1<vdets.size(); i1++) {
-	  HcalDetId id = HcalDetId(vdets[i1]());	
-	  std::cout << "newHCALIdNS::Cell " << i1 << " " << id << std::endl;
-	}
+	spr::debugHcalDets(0, vdets);
       }
       return vdets;
     }
@@ -312,10 +271,7 @@ namespace spr{
       std::cout << "newHCALIdEW::Add " << ieta << " rows of cells along " 
 		<< shiftEast << " for " << (dets.size()-last) << " cells" 
 		<< std::endl;
-      for (unsigned int i1=last; i1<dets.size(); i1++) {
-	HcalDetId id = HcalDetId(dets[i1]());	
-	std::cout << "newHCALIdEW::Cell " << i1 << " " << id << std::endl;
-      }
+      spr::debugHcalDets(last, dets);
     }
 
     std::vector<DetId> vdets;
@@ -336,10 +292,7 @@ namespace spr{
     if (debug) {
       std::cout << "newHCALIdEW::Addition results a set of " 
 		<< (vdets.size()-dets.size()) << " new  cells" << std::endl;
-      for (unsigned int i1=dets.size(); i1<vdets.size(); i1++) {
-	HcalDetId id = HcalDetId(vdets[i1]());	
-	std::cout << "newHCALIdEW::Cell " << i1 << " " << id << std::endl;
-      }
+      spr::debugHcalDets(dets.size(), vdets);
     }
 
     if (ieta > 0) {
@@ -349,10 +302,7 @@ namespace spr{
       if (debug) {
 	std::cout << "newHCALIdEW::Final list (EW) consists of " <<vdets.size()
 		  << " cells" << std::endl;
-	for (unsigned int i1=0; i1<vdets.size(); i1++) {
-	  HcalDetId id = HcalDetId(vdets[i1]());	
-	  std::cout << "newHCALIdEW::Cell " << i1 << " " << id << std::endl;
-	}
+	spr::debugHcalDets(0, vdets);
       }
       return vdets;
     }
@@ -366,10 +316,7 @@ namespace spr{
       std::cout << "newHCALIdEW::Add " << ietaE << "|" << ietaW
 		<< " rows of cells along " << shiftEast << " for " 
 		<< (dets.size()-last) << " cells" << std::endl;
-      for (unsigned int i1=last; i1<dets.size(); i1++) {
-	HcalDetId id = HcalDetId(dets[i1]());	
-	std::cout << "newHCALIdEW::Cell " << i1 << " " << id << std::endl;
-      }
+      spr::debugHcalDets(last, dets);
     }
 
     int ieta = ietaW;
@@ -394,10 +341,7 @@ namespace spr{
     if (debug) {
       std::cout << "newHCALIdEW::Addition results a set of " 
 		<< (vdets.size()-dets.size()) << " new  cells" << std::endl;
-      for (unsigned int i1=dets.size(); i1<vdets.size(); i1++) {
-	HcalDetId id = HcalDetId(vdets[i1]());	
-	std::cout << "newHCALIdEW::Cell " << i1 << " " << id << std::endl;
-      }
+      spr::debugHcalDets(dets.size(), vdets);
     }
 
     if (ieta > 0) {
@@ -407,10 +351,7 @@ namespace spr{
       if (debug) {
 	std::cout << "newHCALIdEW::Final list (EW) consists of " <<vdets.size()
 		  << " cells" << std::endl;
-	for (unsigned int i1=0; i1<vdets.size(); i1++) {
-	  HcalDetId id = HcalDetId(vdets[i1]());	
-	  std::cout << "newHCALIdEW::Cell " << i1 << " " << id << std::endl;
-	}
+	spr::debugHcalDets(0, vdets);
       }
       return vdets;
     }
@@ -424,10 +365,7 @@ namespace spr{
       std::cout << "matrixHCALIdsDepth::Add cells with higher depths with HO" 
 		<< "Flag set to " << includeHO << " to existing "
 		<< dets.size() << " cells" << std::endl;
-      for (unsigned int i1=0; i1<dets.size(); i1++) {
-	HcalDetId id = HcalDetId(dets[i1]());	
-	std::cout << "matrixHCALIdsDepth::Cell " << i1 << " " <<id <<std::endl;
-      }
+      spr::debugHcalDets(0, dets);
     }
  
     std::vector<DetId> vdets(dets);
@@ -439,7 +377,9 @@ namespace spr{
           if (includeHO || vUpDetId[0].subdetId() != (int)(HcalOuter)) {
             int n = std::count(vdets.begin(),vdets.end(),vUpDetId[0]);
             if (n == 0) {
-	      if (debug) std::cout << "matrixHCALIdsDepth:: Depth " << idepth << " " << vdet << " " << (HcalDetId)vUpDetId[0] << std::endl;
+	      if (debug) std::cout << "matrixHCALIdsDepth:: Depth " << idepth 
+				   << " " << vdet << " " 
+				   << (HcalDetId)vUpDetId[0] << std::endl;
               vdets.push_back(vUpDetId[0]);
 	    }
           }
@@ -451,10 +391,7 @@ namespace spr{
     if (debug) {
       std::cout << "matrixHCALIdsDepth::Final list contains " << vdets.size() 
 		<< " cells" << std::endl;
-      for (unsigned int i1=0; i1<vdets.size(); i1++) {
-	HcalDetId id = HcalDetId(vdets[i1]());	
-	std::cout << "matrixHCALIdsDepth::Cell " << i1 << " " <<id <<std::endl;
-      }
+      spr::debugHcalDets(0, vdets);
     }
     return vdets;
   }

@@ -48,22 +48,28 @@ namespace edm {
       input_->doEndJob();
     }
 
+    void reload(const edm::EventSetup & setup);
+
     void CalculatePileup(int MinBunch, int MaxBunch, std::vector<int>& PileupSelection, std::vector<float>& TrueNumInteractions);
 
     //template<typename T>
     // void recordEventForPlayback(EventPrincipal const& eventPrincipal,
 	//			  std::vector<edm::EventID> &ids, T& eventOperator);
 
+    const unsigned int & input()const{return inputType_;}
+    void input(unsigned int s){inputType_=s;}
+
   private:
-    std::string const type_;
-    double const averageNumber_;
+    unsigned int  inputType_;
+    std::string type_;
+    double averageNumber_;
     int const intAverage_;
-    TH1F* const histo_;
-    bool const histoDistribution_;
-    bool const probFunctionDistribution_;
-    bool const poisson_;
-    bool const fixed_;
-    bool const none_;
+    TH1F* histo_;
+    bool histoDistribution_;
+    bool probFunctionDistribution_;
+    bool poisson_;
+    bool fixed_;
+    bool none_;
     bool manage_OOT_;
     bool poisson_OOT_;
     bool fixed_OOT_;

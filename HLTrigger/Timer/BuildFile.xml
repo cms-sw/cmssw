@@ -7,4 +7,6 @@
 <use name="DQMServices/Core"/>
 <use name="sigcpp"/>
 <use name="sockets"/>       <!-- needed for -lrt -->
-<flags EDM_PLUGIN="1"/>
+<export>
+  <lib   name="1"/>
+</export>

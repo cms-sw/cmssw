@@ -5,6 +5,16 @@ import re
 import os
 from pipe import pipe as _pipe
 from options import globalTag
+from itertools import islice
+
+def splitter(iterator, n):
+  i = iterator.__iter__()
+  while True:
+    l = list(islice(i, n))
+    if l:
+      yield l
+    else:
+      break
 
 
 class HLTProcess(object):
@@ -37,7 +47,6 @@ class HLTProcess(object):
     "HLT_JetE50_NoBPTX3BX_NoHalo_v*",
 
   # TODO: paths not supported by FastSim, but for which a recovery should be attempted
-    "HLT_Mu3_Track3_Jpsi_v*",
     "HLT_Mu5_TkMu0_OST_Jpsi_Tight_B5Q7_v*",
     "HLT_Mu5_Track0_Jpsi_B5Q7_v*",
     "HLT_Mu5_Track2_Jpsi_v*",
@@ -45,17 +54,13 @@ class HLTProcess(object):
     "HLT_Mu7_Track5_Jpsi_v*",
     "HLT_Mu7_Track7_Jpsi_v*",
 
-    "HLT_HT250_DoubleDisplacedJet60_v*",
-    "HLT_HT250_DoubleDisplacedJet60_PromptTrack_v*",
-
-    # new in "5e33"
-    "HLT_Mu17_TkMu8_v*",
   )
 
   def __init__(self, configuration):
     self.config = configuration
     self.data   = None
     self.source = None
+    self.parent = None
 
     self.options = {
       'essources' : [],
@@ -94,20 +99,14 @@ class HLTProcess(object):
     else:
       return '--%s --configName %s' % (self.config.menu.db, self.config.menu.name)
 
-  def _build_source(self):
-    if self.source is None:
-      return '--noedsources'
-    else:
-      return '--input ' + self.source
-
   def _build_options(self):
     return ' '.join(['--%s %s' % (key, ','.join(vals)) for key, vals in self.options.iteritems() if vals])
 
   def _build_cmdline(self):
     if not self.config.fragment:
-      return 'edmConfigFromDB %s %s %s'       % (self._build_query(), self._build_source(), self._build_options())
+      return 'edmConfigFromDB       %s --noedsources %s' % (self._build_query(), self._build_options())
     else:
-      return 'edmConfigFromDB --cff %s %s %s' % (self._build_query(), self._build_source(), self._build_options())
+      return 'edmConfigFromDB --cff %s --noedsources %s' % (self._build_query(), self._build_options())
 
 
   def getRawConfigurationFromDB(self):
@@ -178,68 +177,17 @@ class HLTProcess(object):
   def releaseSpecificCustomize(self):
     # version specific customizations
     self.data += """
-# version specific customizations
+# CMSSW version specific customizations
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 """
 
-    self.data += """
-# from CMSSW_5_0_0_pre6: ESSource -> ESProducer in JetMETCorrections/Modules
-if cmsswVersion > "CMSSW_5_0":
-    if 'hltESSAK5CaloL2L3' in %(dict)s:
-        %(process)shltESSAK5CaloL2L3 = cms.ESProducer( "JetCorrectionESChain",
-            appendToDataLabel = cms.string( "" ),
-            correctors = cms.vstring( 'hltESSL2RelativeCorrectionService',
-                'hltESSL3AbsoluteCorrectionService' ),
-            label = cms.string( "hltESSAK5CaloL2L3" )
-        )
-    if 'hltESSAK5CaloL1L2L3' in %(dict)s:
-        %(process)shltESSAK5CaloL1L2L3 = cms.ESProducer( "JetCorrectionESChain",
-            appendToDataLabel = cms.string( "" ),
-            correctors = cms.vstring( 'hltESSL1FastJetCorrectionService',
-                'hltESSL2RelativeCorrectionService',
-                'hltESSL3AbsoluteCorrectionService' ),
-            label = cms.string( "hltESSAK5CaloL1L2L3" )
-        )
-    if 'hltESSL1FastJetCorrectionService' in %(dict)s:
-        %(process)shltESSL1FastJetCorrectionService = cms.ESProducer( "L1FastjetCorrectionESProducer",
-            appendToDataLabel = cms.string( "" ),
-            level = cms.string( "L1FastJet" ),
-            algorithm = cms.string( "AK5Calo" ),
-            srcRho = cms.InputTag( 'hltKT6CaloJets','rho' ),
-#           section = cms.string( "" ),
-#           era = cms.string( "Jec10V1" ),
-#           useCondDB = cms.untracked.bool( True )
-        )
-    if 'hltESSL2RelativeCorrectionService' in %(dict)s:
-        %(process)shltESSL2RelativeCorrectionService = cms.ESProducer( "LXXXCorrectionESProducer",
-            appendToDataLabel = cms.string( "" ),
-            level = cms.string( "L2Relative" ),
-            algorithm = cms.string( "AK5Calo" ),
-#           section = cms.string( "" ),
-#           era = cms.string( "" ),
-#           useCondDB = cms.untracked.bool( True )
-        )
-    if 'hltESSL3AbsoluteCorrectionService' in %(dict)s:
-        %(process)shltESSL3AbsoluteCorrectionService = cms.ESProducer( "LXXXCorrectionESProducer",
-            appendToDataLabel = cms.string( "" ),
-            level = cms.string( "L3Absolute" ),
-            algorithm = cms.string( "AK5Calo" ),
-#           section = cms.string( "" ),
-#           era = cms.string( "" ),
-#           useCondDB = cms.untracked.bool( True )
-        )
-"""
-    if self.config.data:
-      self.data += """
-# from CMSSW_5_0_0_pre6: RawDataLikeMC=False (to keep "source")
-if cmsswVersion > "CMSSW_5_0":
-    if 'source' in %(dict)s:
-        %(process)ssource.labelRawDataLikeMC = cms.untracked.bool( False )
-"""        
-
   # customize the configuration according to the options
   def customize(self):
+
+    # adapt the source to the current scenario
+    if not self.config.fragment:
+      self.build_source()
 
     # manual override some parameters
     if self.config.type in ('GRun', ):
@@ -255,28 +203,24 @@ if 'hltHfreco' in %(dict)s:
     %(process)shltHfreco.setNoiseFlags = cms.bool( False )
 """
 
-## Use L1 menu from xml file
-#  ...removed in favor of sqlite file    
-#%(process)sl1GtTriggerMenuXml = cms.ESProducer("L1GtTriggerMenuXmlProducer",
-#    TriggerMenuLuminosity = cms.string('startup'),
-#    DefXmlFile = cms.string('L1Menu_CollisionsHeavyIons2011_v0_L1T_Scales_20101224_Imp0_0x1026.xml'),
-#    VmeXmlFile = cms.string('')
-#)
-#%(process)sL1GtTriggerMenuRcdSource = cms.ESSource("EmptyESSource",
-#    recordName = cms.string('L1GtTriggerMenuRcd'),
-#    iovIsRunNotTime = cms.bool(True),
-#    firstValid = cms.vuint32(1)
-#)
-
-#    # untracked parameter with no default in the code
-#    if not self.config.data:
-#      self.data += """
-## untracked parameter with no default in the code
+#    self.data += """
+## untracked parameters with NO default in the code
 #if 'hltHcalDataIntegrityMonitor' in %(dict)s:
 #    %(process)shltHcalDataIntegrityMonitor.RawDataLabel = cms.untracked.InputTag("rawDataCollector")
+#if 'hltDt4DSegments' in %(dict)s:
+#    %(process)shltDt4DSegments.debug = cms.untracked.bool( False )
 #"""
 
     if self.config.fragment:
+      
+      self.data += """
+# dummyfy hltGetConditions in cff's
+if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
+    %(process)shltDummyConditions = cms.EDFilter( "HLTBool",
+        result = cms.bool( True )
+    )
+    %(process)sHLTriggerFirstPath.replace(%(process)shltGetConditions,%(process)shltDummyConditions)
+"""
       # if running on MC, adapt the configuration accordingly
       self.fixForMC()
 
@@ -381,9 +325,10 @@ if 'hltHfreco' in %(dict)s:
 
   def fixForMC(self):
     if not self.config.data:
-      # override the raw data collection label
-      self._fix_parameter(type = 'InputTag', value = 'source', replace = 'rawDataCollector')
-      self._fix_parameter(type = 'string',   value = 'source', replace = 'rawDataCollector')
+      pass # No longer needed!
+#      # override the raw data collection label
+#      self._fix_parameter(type = 'InputTag', value = 'source', replace = 'rawDataCollector')
+#      self._fix_parameter(type = 'string',   value = 'source', replace = 'rawDataCollector')
 
 
   def fixForFastSim(self):
@@ -447,10 +392,14 @@ if 'PrescaleService' in %(dict)s:
     if self.config.open:
       # find all EDfilters
       filters = [ match[1] for match in re.findall(r'(process\.)?\b(\w+) = cms.EDFilter', self.data) ]
-      # wrap all EDfilters with "cms.ignore( ... )"
-      re_filters  = re.compile( r'\b((process\.)?(' + r'|'.join(filters) + r'))\b' )
       re_sequence = re.compile( r'cms\.(Path|Sequence)\((.*)\)' )
-      self.data = re_sequence.sub( lambda line: re_filters.sub( r'cms.ignore( \1 )', line.group(0) ), self.data )
+      # remove existing 'cms.ingore' and '~' modifiers
+      self.data = re_sequence.sub( lambda line: re.sub( r'cms\.ignore *\( *((process\.)?\b(\w+)) *\)', r'\1', line.group(0) ), self.data )
+      self.data = re_sequence.sub( lambda line: re.sub( r'~', '', line.group(0) ), self.data )
+      # wrap all EDfilters with "cms.ignore( ... )", 1000 at a time (python 2.6 complains for too-big regular expressions)
+      for some in splitter(filters, 1000):
+        re_filters  = re.compile( r'\b((process\.)?(' + r'|'.join(some) + r'))\b' )
+        self.data = re_sequence.sub( lambda line: re_filters.sub( r'cms.ignore( \1 )', line.group(0) ), self.data )
 
 
   def overrideGlobalTag(self):
@@ -580,6 +529,10 @@ process = HLTrigger.Configuration.customizeHLTforL1Emulator.%(CustomHLT)s( proce
 %(process)shltOutputFULL = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputFULL.root" ),
     fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        dataTier = cms.untracked.string( 'RECO' ),
+        filterName = cms.untracked.string( '' )
+    ),
     outputCommands = cms.untracked.vstring( 'keep *' )
 )
 %(process)sFULLOutput = cms.EndPath( %(process)shltOutputFULL )
@@ -810,10 +763,6 @@ if 'GlobalTag' in %%(dict)s:
     # common configuration for all scenarios
     self.options['services'].append( "-FUShmDQMOutputService" )
 
-    # adapt source and options to the current scenario
-    if not self.config.fragment:
-      self.build_source()
-
     if self.config.fragment:
       # extract a configuration file fragment
       self.options['essources'].append( "-GlobalTag" )
@@ -913,6 +862,8 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltCtf3HitL1NonIsoWithMaterialTracks" )
       self.options['modules'].append( "-hltCkf3HitActivityTrackCandidates" )
       self.options['modules'].append( "-hltCtf3HitActivityWithMaterialTracks" )
+      self.options['modules'].append( "-hltMuCkfTrackCandidates" )
+      self.options['modules'].append( "-hltMuCtfTracks" )
       self.options['modules'].append( "-hltESRegionalEgammaRecHit" )
       self.options['modules'].append( "-hltEcalRegionalJetsFEDs" )
       self.options['modules'].append( "-hltEcalRegionalMuonsFEDs" )
@@ -1018,15 +969,44 @@ if 'GlobalTag' in %%(dict)s:
 
   def build_source(self):
     if self.config.input:
-      # if an explicit input file was given, use it
-      self.source = self.config.input
+      # if a dataset or a list of input files was given, use it
+      if self.config.input[0:8] == 'dataset:':
+        from dbsFileQuery import dbsFileQuery
+        # extract the dataset name, and use DBS to fine the list of LFNs
+        dataset = self.config.input[8:]
+        query   = 'find file where dataset=' + dataset
+        files   = dbsFileQuery(query)
+        self.source = files
+      else:
+        # assume a list of input files
+        self.source = self.config.input.split(',')
     elif self.config.online:
       # online we always run on data
-      self.source = "file:/tmp/InputCollection.root"
+      self.source = [ "file:/tmp/InputCollection.root" ]
     elif self.config.data:
       # offline we can run on data...
-      self.source = "/store/data/Run2011A/MinimumBias/RAW/v1/000/165/205/6C8BA6D0-F680-E011-B467-003048F118AC.root"
+      self.source = [ "/store/data/Run2011A/MinimumBias/RAW/v1/000/165/205/6C8BA6D0-F680-E011-B467-003048F118AC.root" ]
     else:
       # ...or on mc
-      self.source = "file:RelVal_DigiL1Raw_%s.root" % self.config.type
+      self.source = [ "file:RelVal_DigiL1Raw_%s.root" % self.config.type ]
+
+    self.data += """
+%(process)ssource = cms.Source( "PoolSource",
+    fileNames = cms.untracked.vstring(
+"""
+    if self.source: 
+      for line in self.source:
+        self.data += "        '%s',\n" % line
+    self.data += """    ),
+    secondaryFileNames = cms.untracked.vstring(
+"""
+    if self.parent: 
+      for line in self.parent:
+        self.data += "        '%s',\n" % line
+    self.data += """    ),
+    inputCommands = cms.untracked.vstring(
+        'keep *'
+    )
+)
+"""
 

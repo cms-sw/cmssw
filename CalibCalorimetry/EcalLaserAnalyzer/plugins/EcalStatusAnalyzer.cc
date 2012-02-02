@@ -1,7 +1,7 @@
 /* 
  *  \class EcalStatusAnalyzer
  *
- *  $Date: 2010/04/09 14:43:43 $
+ *  $Date: 2010/01/18 17:28:45 $
  *  author: Julie Malcles - CEA/Saclay
  *  author: Gautier Hamel De Monchenault - CEA/Saclay
  */
@@ -33,7 +33,6 @@
 #include <DataFormats/EcalRawData/interface/EcalRawDataCollections.h>
 #include <TBDataFormats/EcalTBObjects/interface/EcalTBEventHeader.h>
 #include <DataFormats/Provenance/interface/Timestamp.h>
-
 using namespace std;
 
 //========================================================================
@@ -158,25 +157,21 @@ void EcalStatusAnalyzer:: analyze( const edm::Event & e, const  edm::EventSetup&
     int laser_power = settings.LaserPower ;
     int laser_filter = settings.LaserFilter ;
     int laser_delay = settings.delay ;
-
-    //if(  laser_color <0 ) return;
+    if(  laser_color <0 ) return;
     // int laser_ = settings.MEMVinj;
 
     bool isLas=false;
     bool isTP=false;
     bool isPed=false;
-    bool isLed=false;
-  
+
     if(runType==EcalDCCHeaderBlock::LASER_STD || runType==EcalDCCHeaderBlock::LASER_GAP
        || runType==EcalDCCHeaderBlock::LASER_POWER_SCAN || runType==EcalDCCHeaderBlock::LASER_DELAY_SCAN) isLas=true;
 
     else if(runType==EcalDCCHeaderBlock::TESTPULSE_MGPA || runType==EcalDCCHeaderBlock::TESTPULSE_GAP
 	    || runType==EcalDCCHeaderBlock::TESTPULSE_SCAN_MEM ) isTP=true;
- 
+
     else if(runType==EcalDCCHeaderBlock::PEDESTAL_STD  || runType==EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN 
 	    || runType==EcalDCCHeaderBlock::PEDESTAL_25NS_SCAN  ) isPed=true;
-    
-    else if(runType==EcalDCCHeaderBlock::LED_STD  || runType==EcalDCCHeaderBlock::LED_GAP ) isLed=true;
 
 
     // take event only if the fed corresponds to the DCC in TCC
@@ -184,117 +179,68 @@ void EcalStatusAnalyzer:: analyze( const edm::Event & e, const  edm::EventSetup&
     
     
     if( 600+dccID != fedID ) continue;
-      
-    // create eventually new entry for laser
-
-    if( isLas ){
     
-      if ( isFedLasCreated.count(fedID)!=1 ){
-	
-	isFedLasCreated[fedID]=1;
+
+    bool doesExist=false;
+    
+    if( (isFedLasCreated.count(fedID)==1 && isLas ) || ( isFedTPCreated.count(fedID)==1 && isTP ) || ( isFedPedCreated.count(fedID)==1 && isPed )) doesExist=true;
+    else if(isLas) isFedLasCreated[fedID]=1;
+    else if(isTP) isFedTPCreated[fedID]=1;
+    else if(isPed) isFedPedCreated[fedID]=1;
+    
+    
+    
+    if(!doesExist){
+       
+      // create new entry for laser
+
+      if (isLas){
+
 	fedIDsLas.push_back(fedID);
 	dccIDsLas.push_back(dccID);
 	
 	timeStampBegLas[fedID]=timeStampCur;
 	timeStampEndLas[fedID]=timeStampCur;
-	
+
 	nEvtsLas[fedID]=1;
 	runTypeLas[fedID]=runType;
-	
+
 	if (laser_color==iBLUE) {
 	  nBlueLas[fedID]=1;
 	  laserPowerBlue[fedID] = laser_power;
 	  laserFilterBlue[fedID]= laser_filter;
 	  laserDelayBlue[fedID] = laser_delay;
-	}else if (laser_color==iRED) {
+	}else if (laser_color==iIR) {
 	  nRedLas[fedID]=1;
 	  laserPowerRed[fedID] = laser_power;
 	  laserFilterRed[fedID]= laser_filter;
 	  laserDelayRed[fedID] = laser_delay;
 	}
-	
+
 	MGPAGainLas[fedID]=VFEGain;
 	MEMGainLas[fedID]=MEMGain;
-	
-      } else {	
-	nEvtsLas[fedID]++;
-	if (laser_color==iBLUE)nBlueLas[fedID]++;
-	else if (laser_color==iRED)nRedLas[fedID]++;
-	
-	if(timeStampCur<timeStampBegLas[fedID])timeStampBegLas[fedID]=timeStampCur;
-	if(timeStampCur>timeStampEndLas[fedID])timeStampEndLas[fedID]=timeStampCur;
+
+	  
       }
-    }
-    
-    if(isLed){
-      if(isFedLedCreated.count(fedID)!=1){
-	
-	isFedLedCreated[fedID]=1;
-	fedIDsLed.push_back(fedID);
-	dccIDsLed.push_back(dccID);
-	
-	timeStampBegLed[fedID]=timeStampCur;
-	timeStampEndLed[fedID]=timeStampCur;
-	
-	nEvtsLed[fedID]=1;
-	runTypeLed[fedID]=runType;
-	
-	if (laser_color==iBLUE) {
-	  nBlueLed[fedID]=1;
-	  laserPowerBlue[fedID] = laser_power;
-	  laserFilterBlue[fedID]= laser_filter;
-	  laserDelayBlue[fedID] = laser_delay;
-	}else if (laser_color==iIR) {
-	  nRedLed[fedID]=1;
-	  laserPowerRed[fedID] = laser_power;
-	  laserFilterRed[fedID]= laser_filter;
-	  laserDelayRed[fedID] = laser_delay;
-	}
-	
-	MGPAGainLed[fedID]=VFEGain;
-	MEMGainLed[fedID]=MEMGain;
-	
-      }else{	
-	nEvtsLed[fedID]++;
-	if (laser_color==iBLUE)nBlueLed[fedID]++;
-	else if (laser_color==iIR)nRedLed[fedID]++;
-	
-	if(timeStampCur<timeStampBegLed[fedID])timeStampBegLed[fedID]=timeStampCur;
-	if(timeStampCur>timeStampEndLed[fedID])timeStampEndLed[fedID]=timeStampCur;
-      }
-    }
-    
-    if(isTP){
-      
+
       // or create new entry for test-pulse
-      if (isFedTPCreated.count(fedID)!=1){
+      else if (isTP){
 	
-	isFedTPCreated[fedID]=1;
 	fedIDsTP.push_back(fedID);
 	dccIDsTP.push_back(dccID);
 	
 	nEvtsTP[fedID]=1;
 	runTypeTP[fedID]=runType;
-	
+
 	timeStampBegTP[fedID]=timeStampCur;
 	timeStampEndTP[fedID]=timeStampCur;
-	
+
 	MGPAGainTP[fedID]=VFEGain;
 	MEMGainTP[fedID]=MEMGain;
-	
+
 	// or create new entry for pedestal
 	
-      } else {
-	nEvtsTP[fedID]++;
-	if(timeStampCur<timeStampBegTP[fedID])timeStampBegTP[fedID]=timeStampCur;
-	if(timeStampCur>timeStampEndTP[fedID])timeStampEndTP[fedID]=timeStampCur;  
-      }
-    }
-    
-    if(isPed){
-      if(isFedPedCreated.count(fedID)!=1 ){
-	
-	isFedPedCreated[fedID]=1;
+      } else if (isPed){
 	
 	fedIDsPed.push_back(fedID);
 	dccIDsPed.push_back(dccID);
@@ -308,16 +254,30 @@ void EcalStatusAnalyzer:: analyze( const edm::Event & e, const  edm::EventSetup&
 	MGPAGainPed[fedID]=VFEGain;
 	MEMGainPed[fedID]=MEMGain;
 	
-      }else{	
+      } 
+
+    }else{
+      if (isLas){	
+	nEvtsLas[fedID]++;
+	if (laser_color==iBLUE)nBlueLas[fedID]++;
+	else if (laser_color==iIR)nRedLas[fedID]++;
+       
+	if(timeStampCur<timeStampBegLas[fedID])timeStampBegLas[fedID]=timeStampCur;
+	if(timeStampCur>timeStampEndLas[fedID])timeStampEndLas[fedID]=timeStampCur;
+
+      }else if (isTP){	
+	nEvtsTP[fedID]++;
+	if(timeStampCur<timeStampBegTP[fedID])timeStampBegTP[fedID]=timeStampCur;
+	if(timeStampCur>timeStampEndTP[fedID])timeStampEndTP[fedID]=timeStampCur;
+      }else if (isPed){	
 	nEvtsPed[fedID]++;
 	if(timeStampCur<timeStampBegPed[fedID])timeStampBegPed[fedID]=timeStampCur;
 	if(timeStampCur>timeStampEndPed[fedID])timeStampEndPed[fedID]=timeStampCur;
       } 
-    }
-    
+    }  
   }
-}
-// analyze
+
+}// analyze
 
 
 //========================================================================
@@ -326,7 +286,7 @@ void EcalStatusAnalyzer::endJob() {
 
   // Create output status file
 
-  stringstream namefile;
+  std::stringstream namefile;
   namefile << resdir_ <<"/"<<statusfile_;
 
   string statusfile=namefile.str();
@@ -336,119 +296,82 @@ void EcalStatusAnalyzer::endJob() {
   
   if(fedIDsLas.size()!=0 && fedIDsLas.size()==dccIDsLas.size()){
     
-    statusFile <<"+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+="<<endl;
-    statusFile <<"                LASER Events              "<<endl;
-    statusFile <<"+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+="<<endl;
+    statusFile <<"+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+="<<std::endl;
+    statusFile <<"                LASER Events              "<<std::endl;
+    statusFile <<"+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+="<<std::endl;
     
     for(unsigned int i=0;i<fedIDsLas.size();i++){
        
-      statusFile <<"RUNTYPE = "<< runTypeLas[fedIDsLas.at(i)]<< endl;
-      statusFile <<"FEDID = "<< fedIDsLas.at(i) << endl;
-      statusFile <<"DCCID = "<< dccIDsLas.at(i) << endl;
-      statusFile <<"TIMESTAMP_BEG = "<<timeStampBegLas[fedIDsLas.at(i)] << endl;
-      statusFile <<"TIMESTAMP_END = "<<timeStampEndLas[fedIDsLas.at(i)] << endl;
-      statusFile <<"MPGA_GAIN = "<<MGPAGainLas[fedIDsLas.at(i)] << endl;
-      statusFile <<"MEM_GAIN  = "<<MEMGainLas[fedIDsLas.at(i)] << endl;
-      statusFile <<"LASER EVENTS = "<< nEvtsLas[fedIDsLas.at(i)]<< endl;
+      statusFile <<"RUNTYPE = "<< runTypeLas[fedIDsLas.at(i)]<< std::endl;
+      statusFile <<"FEDID = "<< fedIDsLas.at(i) << std::endl;
+      statusFile <<"DCCID = "<< dccIDsLas.at(i) << std::endl;
+      statusFile <<"TIMESTAMP_BEG = "<<timeStampBegLas[fedIDsLas.at(i)] << std::endl;
+      statusFile <<"TIMESTAMP_END = "<<timeStampEndLas[fedIDsLas.at(i)] << std::endl;
+      statusFile <<"MPGA_GAIN = "<<MGPAGainLas[fedIDsLas.at(i)] << std::endl;
+      statusFile <<"MEM_GAIN  = "<<MEMGainLas[fedIDsLas.at(i)] << std::endl;
+      statusFile <<"EVENTS = "<< nEvtsLas[fedIDsLas.at(i)]<< std::endl;
       
       if(nBlueLas[fedIDsLas.at(i)]>0){
-	statusFile <<"            blue laser events = "<< nBlueLas[fedIDsLas.at(i)]<< endl;
-	statusFile <<"            blue laser power  = "<< laserPowerBlue[fedIDsLas.at(i)]<< endl;
-	statusFile <<"            blue laser filter = "<< laserFilterBlue[fedIDsLas.at(i)]<< endl;
-	statusFile <<"            blue laser delay  = "<< laserDelayBlue[fedIDsLas.at(i)]<< endl;
+	statusFile <<"            blue laser events = "<< nBlueLas[fedIDsLas.at(i)]<< std::endl;
+	statusFile <<"            blue laser power  = "<< laserPowerBlue[fedIDsLas.at(i)]<< std::endl;
+	statusFile <<"            blue laser filter = "<< laserFilterBlue[fedIDsLas.at(i)]<< std::endl;
+	statusFile <<"            blue laser delay  = "<< laserDelayBlue[fedIDsLas.at(i)]<< std::endl;
       }
       
       if(nRedLas[fedIDsLas.at(i)]>0){
-	statusFile <<"            ired laser events = "<< nRedLas[fedIDsLas.at(i)]<< endl;
-	statusFile <<"            ired laser power  = "<< laserPowerRed[fedIDsLas.at(i)]<< endl;
-	statusFile <<"            ired laser filter = "<< laserFilterRed[fedIDsLas.at(i)]<< endl;
-	statusFile <<"            ired laser delay  = "<< laserDelayRed[fedIDsLas.at(i)]<< endl;
+	statusFile <<"            ired laser events = "<< nRedLas[fedIDsLas.at(i)]<< std::endl;
+	statusFile <<"            ired laser power  = "<< laserPowerRed[fedIDsLas.at(i)]<< std::endl;
+	statusFile <<"            ired laser filter = "<< laserFilterRed[fedIDsLas.at(i)]<< std::endl;
+	statusFile <<"            ired laser delay  = "<< laserDelayRed[fedIDsLas.at(i)]<< std::endl;
       }
       
-      if(i<fedIDsLas.size()-1) statusFile <<"-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="<<endl;
-      else  statusFile <<"  "<<endl;
+      if(i<fedIDsLas.size()-1) statusFile <<"-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="<<std::endl;
+      else  statusFile <<"  "<<std::endl;
     }    
   }
   
-  if(fedIDsLed.size()!=0 && fedIDsLed.size()==dccIDsLed.size()){
-    
-    statusFile <<"+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+="<<endl;
-    statusFile <<"                LED Events              "<<endl;
-    statusFile <<"+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+="<<endl;
-    
-    for(unsigned int i=0;i<fedIDsLed.size();i++){
-       
-      statusFile <<"RUNTYPE = "<< runTypeLed[fedIDsLed.at(i)]<< endl;
-      statusFile <<"FEDID = "<< fedIDsLed.at(i) << endl;
-      statusFile <<"DCCID = "<< dccIDsLed.at(i) << endl;
-      statusFile <<"TIMESTAMP_BEG = "<<timeStampBegLed[fedIDsLed.at(i)] << endl;
-      statusFile <<"TIMESTAMP_END = "<<timeStampEndLed[fedIDsLed.at(i)] << endl;
-      statusFile <<"MPGA_GAIN = "<<MGPAGainLed[fedIDsLed.at(i)] << endl;
-      statusFile <<"MEM_GAIN  = "<<MEMGainLed[fedIDsLed.at(i)] << endl;
-      statusFile <<"LED EVENTS = "<< nEvtsLed[fedIDsLed.at(i)]<< endl;
-              
-      if(nBlueLed[fedIDsLed.at(i)]>0){
-	statusFile <<"            blue led events = "<< nBlueLed[fedIDsLed.at(i)]<< endl;
-	statusFile <<"            blue led power  = "<< laserPowerBlue[fedIDsLed.at(i)]<< endl;
-	statusFile <<"            blue led filter = "<< laserFilterBlue[fedIDsLed.at(i)]<< endl;
-	statusFile <<"            blue led delay  = "<< laserDelayBlue[fedIDsLed.at(i)]<< endl;
-      }
-      
-      if(nRedLed[fedIDsLed.at(i)]>0){
-	statusFile <<"            ired led events = "<< nRedLed[fedIDsLed.at(i)]<< endl;
-	statusFile <<"            ired led power  = "<< laserPowerRed[fedIDsLed.at(i)]<< endl;
-	statusFile <<"            ired led filter = "<< laserFilterRed[fedIDsLed.at(i)]<< endl;
-	statusFile <<"            ired led delay  = "<< laserDelayRed[fedIDsLed.at(i)]<< endl;
-      }
-      
-      if(i<fedIDsLed.size()-1) statusFile <<"-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="<<endl;
-      else  statusFile <<"  "<<endl;
-    }    
-  }
-
-
   if(fedIDsTP.size()!=0 && fedIDsTP.size()==dccIDsTP.size()){
     
-    statusFile <<"+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+="<<endl;
-    statusFile <<"             TESTPULSE Events            "<<endl;
-    statusFile <<"+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+="<<endl;
+    statusFile <<"+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+="<<std::endl;
+    statusFile <<"             TESTPULSE Events            "<<std::endl;
+    statusFile <<"+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+="<<std::endl;
 
     for(unsigned int i=0;i<fedIDsTP.size();i++){
       
-      statusFile <<"RUNTYPE = "<< runTypeTP[fedIDsTP.at(i)]<< endl;
-      statusFile <<"FEDID = "<< fedIDsTP.at(i) << endl;
-      statusFile <<"DCCID = "<< dccIDsTP.at(i) << endl;
-      statusFile <<"TIMESTAMP_BEG = "<<timeStampBegTP[fedIDsTP.at(i)] << endl;
-      statusFile <<"TIMESTAMP_END = "<<timeStampEndTP[fedIDsTP.at(i)] << endl;
-      statusFile <<"MPGA_GAIN = "<<MGPAGainTP[fedIDsTP.at(i)] << endl;
-      statusFile <<"MEM_GAIN  = "<<MEMGainTP[fedIDsTP.at(i)] << endl;
-      statusFile <<"TESTPULSE EVENTS = "<< nEvtsTP[fedIDsTP.at(i)]<< endl;
-      if(i<fedIDsTP.size()-1) statusFile <<"-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="<<endl;
-      else  statusFile <<"  "<<endl;
+      statusFile <<"RUNTYPE = "<< runTypeTP[fedIDsTP.at(i)]<< std::endl;
+      statusFile <<"FEDID = "<< fedIDsTP.at(i) << std::endl;
+      statusFile <<"DCCID = "<< dccIDsTP.at(i) << std::endl;
+      statusFile <<"TIMESTAMP_BEG = "<<timeStampBegTP[fedIDsTP.at(i)] << std::endl;
+      statusFile <<"TIMESTAMP_END = "<<timeStampEndTP[fedIDsTP.at(i)] << std::endl;
+      statusFile <<"MPGA_GAIN = "<<MGPAGainTP[fedIDsTP.at(i)] << std::endl;
+      statusFile <<"MEM_GAIN  = "<<MEMGainTP[fedIDsTP.at(i)] << std::endl;
+      statusFile <<"EVENTS = "<< nEvtsTP[fedIDsTP.at(i)]<< std::endl;
+      if(i<fedIDsTP.size()-1) statusFile <<"-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="<<std::endl;
+      else  statusFile <<"  "<<std::endl;
     }     
   }
 
   if(fedIDsPed.size()!=0 && fedIDsPed.size()==dccIDsPed.size()){
     
-    statusFile <<"+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+="<<endl;
-    statusFile <<"               PEDESTAL Events              "<<endl;
-    statusFile <<"+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+="<<endl;
+    statusFile <<"+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+="<<std::endl;
+    statusFile <<"               PEDESTAL Events              "<<std::endl;
+    statusFile <<"+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+="<<std::endl;
 
     for(unsigned int i=0;i<fedIDsPed.size();i++){
       
-      statusFile <<"RUNTYPE = "<< runTypePed[fedIDsPed.at(i)]<< endl;
-      statusFile <<"FEDID = "<< fedIDsPed.at(i) << endl;
-      statusFile <<"DCCID = "<< dccIDsPed.at(i) << endl;
-      statusFile <<"TIMESTAMP_BEG = "<<timeStampBegPed[fedIDsPed.at(i)] << endl;
-      statusFile <<"TIMESTAMP_END = "<<timeStampEndPed[fedIDsPed.at(i)] << endl;
-      statusFile <<"MPGA_GAIN = "<<MGPAGainPed[fedIDsPed.at(i)] << endl;
-      statusFile <<"MEM_GAIN  = "<<MEMGainPed[fedIDsPed.at(i)] << endl;
-      statusFile <<"PEDESTAL EVENTS = "<< nEvtsPed[fedIDsPed.at(i)]<< endl;
-      if(i<fedIDsPed.size()-1) statusFile <<"-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="<<endl;
-      else  statusFile <<"  "<<endl;
+      statusFile <<"RUNTYPE = "<< runTypePed[fedIDsPed.at(i)]<< std::endl;
+      statusFile <<"FEDID = "<< fedIDsPed.at(i) << std::endl;
+      statusFile <<"DCCID = "<< dccIDsPed.at(i) << std::endl;
+      statusFile <<"TIMESTAMP_BEG = "<<timeStampBegPed[fedIDsPed.at(i)] << std::endl;
+      statusFile <<"TIMESTAMP_END = "<<timeStampEndPed[fedIDsPed.at(i)] << std::endl;
+      statusFile <<"MPGA_GAIN = "<<MGPAGainPed[fedIDsPed.at(i)] << std::endl;
+      statusFile <<"MEM_GAIN  = "<<MEMGainPed[fedIDsPed.at(i)] << std::endl;
+      statusFile <<"EVENTS = "<< nEvtsPed[fedIDsPed.at(i)]<< std::endl;
+      if(i<fedIDsPed.size()-1) statusFile <<"-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="<<std::endl;
+      else  statusFile <<"  "<<std::endl;
     }     
   }
-  statusFile <<" ... header done"<<endl;
+  statusFile <<" ... header done"<<std::endl;
   
   statusFile.close();
   

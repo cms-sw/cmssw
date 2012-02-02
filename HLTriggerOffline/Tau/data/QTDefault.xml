@@ -73,28 +73,28 @@ https://twiki.cern.ch/twiki/bin/view/CMS/DQMQualityTests
 
 
 
-<LINK name="HLT/TauRelVal/MC/L1/L1TauEtEff">
+<LINK name="HLT/TauRelVal/MC_5E32/L1/L1TauEtEff">
       <TestName activate="true">efficiencyCheckL1</TestName>
 </LINK>
 
-<LINK name="HLT/TauRelVal/MC/L1/L1TauEtResol">
+<LINK name="HLT/TauRelVal/MC_5E32/L1/L1TauEtResol">
       <TestName activate="true">resolutionCheckL1</TestName>
 </LINK>
 
-<LINK name="HLT/TauRelVal/MC/DoubleTau/EfficiencyRefPrevious">
+<LINK name="HLT/TauRelVal/MC_5E32/DoubleTau/EfficiencyRefPrevious">
       <TestName activate="true">efficiencyCheckDoubleTauHigh</TestName>
 </LINK>
 
-<LINK name="HLT/TauRelVal/MC/DoubleTau/EfficiencyRefPrevious">
+<LINK name="HLT/TauRelVal/MC_5E32/DoubleTau/EfficiencyRefPrevious">
       <TestName activate="true">efficiencyCheckDoubleTauLow</TestName>
 </LINK>
 
 
-<LINK name="HLT/TauRelVal/MC/SingleTau/EfficiencyRefPrevious">
+<LINK name="HLT/TauRelVal/MC_5E32/SingleTau/EfficiencyRefPrevious">
       <TestName activate="true">efficiencyCheckSingleTauHigh</TestName>
 </LINK>
 
-<LINK name="HLT/TauRelVal/MC/SingleTau/EfficiencyRefPrevious">
+<LINK name="HLT/TauRelVal/MC_5E32/SingleTau/EfficiencyRefPrevious">
       <TestName activate="true">efficiencyCheckSingleTauLow</TestName>
 </LINK>
 

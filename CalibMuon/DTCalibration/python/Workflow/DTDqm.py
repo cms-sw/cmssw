@@ -28,7 +28,7 @@ class DTDqm:
             if hasattr(self.config,'label') and self.config.label: label = self.config.label 
             workflowName = dqmWorkflowName(self.config.datasetpath,label,self.config.trial)
             self.process.dqmSaver.workflow = workflowName
-        if self.process.DQMStore.collateHistograms == True: self.process.dqmSaver.forceRunNumber = self.runnumber
+        if self.process.DQMStore.collateHistograms: self.process.dqmSaver.forceRunNumber = self.runnumber
 
     def writeCfg(self):
         writeCfg(self.process,self.dir,self.pset_name)   

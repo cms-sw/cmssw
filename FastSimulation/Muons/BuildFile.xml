@@ -6,6 +6,3 @@
 <use   name="TrackingTools/DetLayers"/>
 <use   name="TrackingTools/PatternTools"/>
 <use   name="Utilities/General"/>
-<export>
-  <lib   name="1"/>
-</export>

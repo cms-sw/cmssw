@@ -21,16 +21,10 @@ class LMFRunDat : public LMFDat {
   ~LMFRunDat() { }
 
   int getEvents(const EcalLogicID &id) {
-    return (int)rint(LMFDat::getData(id, "NEVENTS"));
-  }
-  int getEvents(int id) {
-    return (int)rint(LMFDat::getData(id, "NEVENTS"));
+    return (int)rint(getData(id, "NEVENTS"));
   }
   int getQualityFlag(const EcalLogicID &id) {
-    return (int)rint(LMFDat::getData(id, "QUALITY_FLAG"));
-  }
-  int getQualityFlag(int id) {
-    return (int)rint(LMFDat::getData(id, "QUALITY_FLAG"));
+    return (int)rint(getData(id, "QUALITY_FLAG"));
   }
   LMFRunDat& setEvents(const EcalLogicID &id, int n) {
     LMFDat::setData(id, "NEVENTS", (float)n);

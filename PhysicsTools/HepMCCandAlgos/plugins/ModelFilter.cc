@@ -28,7 +28,6 @@ bool ModelFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(inputTagSource_, product);
    comments_const_iterator comment;
 
-   size_t cursor;
    string tempString;
    vector<string> parameters;
 

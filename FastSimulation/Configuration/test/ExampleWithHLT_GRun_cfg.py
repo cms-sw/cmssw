@@ -77,7 +77,9 @@ process.famosSimHits.SimulateTracking = True
 process.famosPileUp.PileUpSimulator.averageNumber = 0.0
 
 # No reconstruction - only HLT
-process.HLTEndSequence = cms.Sequence(process.dummyModule)
+#process.HLTEndSequence = cms.Sequence(process.dummyModule)
+# (... but tracking is needed for HLT, at least)
+process.HLTEndSequence = cms.Sequence(process.famosWithTracks)
 
 # Schedule the HLT paths (and allows HLTAnalyzers for this test):
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import hltL1GtTrigReport

@@ -11,55 +11,14 @@ def flatten(obj):
             result.append (piece)
     return result
 
-def lumiUnitForPrint(t):
-    '''
-    input : largest lumivalue
-    output: (unitstring,denomitor)
-    '''
-    unitstring='/ub'
-    denomitor=1.0
-    if t>=1.0e3 and t<1.0e06:
-        denomitor=1.0e3
-        unitstring='1/nb'
-    elif t>=1.0e6 and t<1.0e9:
-        denomitor=1.0e6
-        unitstring='1/pb'
-    elif t>=1.0e9 and t<1.0e12:
-        denomitor=1.0e9
-        unitstring='1/fb'
-    elif t>=1.0e12 and t<1.0e15:
-        denomitor=1.0e12
-        unitstring='1/ab'
-    elif t<1.0 and t>=1.0e-3: #left direction
-        denomitor=1.0e-03
-        unitstring='1/mb'
-    elif t<1.0e-03 and t>=1.0e-06:
-        denomitor=1.0e-06
-        unitstring='1/b'
-    elif t<1.0e-06 and t>=1.0e-09:
-        denomitor=1.0e-9
-        unitstring='1/kb'
-    return (unitstring,denomitor)
 def guessUnit(inverseubval):
     '''
     input:
         float value in 1/ub
     output:
-        printable value (value(float),unit(str)) unit in [1/kb,1/b,1/mb,1/ub,1/nb,1/pb,1/fb]
+        printable value (value(float),unit(str)) unit in [1/ub,1/nb,1/pb,1/fb]
     '''
-    if inverseubval>=1.0e-09 and inverseubval<1.0e-06:
-        denomitor=1.0e-09
-        unitstring='/kb'
-        return (float(inverseubval)/float(denomitor),unitstring)
-    if inverseubval>=1.0e-06 and inverseubval<1.0e-03:
-        denomitor=1.0e-06
-        unitstring='/b'
-        return (float(inverseubval)/float(denomitor),unitstring)
-    if inverseubval>=1.0e-03 and inverseubval<1.0:
-        denomitor=1.0e-03
-        unitstring='/mb'
-        return (float(inverseubval)/float(denomitor),unitstring)
-    if inverseubval>=1.0 and inverseubval<1.0e3:
+    if inverseubval<1.0e3:
         unitstring='/ub'
         return (inverseubval,unitstring)
     if inverseubval>=1.0e3 and inverseubval<1.0e06:
@@ -78,7 +37,6 @@ def guessUnit(inverseubval):
         denomitor=1.0e12
         unitstring='/ab'
         return (float(inverseubval)/float(denomitor),unitstring)
-    return (float(inverseubval),'/ub')
 def pairwise(lst):
     """
     yield item i and item i+1 in lst. e.g.
@@ -133,8 +91,7 @@ def transposed(lists, defaultval=None):
     from http://code.activestate.com/recipes/410687-transposing-a-list-of-lists-with-different-lengths/
     """
     if not lists: return []
-    #return map(lambda *row: [elem or defaultval for elem in row], *lists)
-    return map(lambda *row: [elem for elem in row or defaultval], *lists)
+    return map(lambda *row: [elem or defaultval for elem in row], *lists)
 def pack(high,low):
     """pack high,low 32bit unsigned int to one unsigned 64bit long long
        Note:the print value of result number may appear signed, if the sign bit is used.

@@ -54,7 +54,7 @@ IsolatedGenParticles::IsolatedGenParticles(const edm::ParameterSet& iConfig) {
   a_mipR     = iConfig.getUntrackedParameter<double>("ConeRadiusMIP",14.0);
   a_Isolation= iConfig.getUntrackedParameter<bool>("UseConeIsolation",false);
   pCutIsolate= iConfig.getUntrackedParameter<double>("PMaxIsolation",20.0);
-  debug      = iConfig.getUntrackedParameter<bool>("Debug", false );
+  verbosity  = iConfig.getUntrackedParameter<int>("Verbosity", 0);
 
   debugL1Info_           = iConfig.getUntrackedParameter<bool>( "DebugL1Info", false );
   L1extraTauJetSource_   = iConfig.getParameter<edm::InputTag>("L1extraTauJetSource");
@@ -74,7 +74,7 @@ IsolatedGenParticles::IsolatedGenParticles(const edm::ParameterSet& iConfig) {
 	    << " pSeed " << pSeed << " ptMin " << ptMin << " etaMax " << etaMax
 	    << "\n a_coneR " << a_coneR << " a_charIsoR " << a_charIsoR
 	    << " a_neutIsoR " << a_neutIsoR << " a_mipR " << a_mipR 
-	    << " debug " << debug << " debugL1Info " <<   debugL1Info_ << "\n"
+	    << " debug " << verbosity << " debugL1Info " <<   debugL1Info_ << "\n"
 	    << " Isolation Flag " << a_Isolation << " with cut "
 	    << pCutIsolate << " GeV\n"
 	    << " L1extraTauJetSource_   " << L1extraTauJetSource_ 
@@ -269,7 +269,7 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
   
   GlobalPoint  posVec, posECAL;
   math::XYZTLorentzVector momVec;
-  if (debug) std::cout << "event number " << iEvent.id().event() <<std::endl;
+  if (verbosity>0) std::cout << "event number " << iEvent.id().event() <<std::endl;
 
   if (useHepMC) {
     const HepMC::GenEvent *myGenEvent = hepmc->GetEvent();
@@ -279,7 +279,7 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
       int charge = trackIDs[indx].charge;
       HepMC::GenEvent::particle_const_iterator p = trackIDs[indx].trkItr;
       momVec = math::XYZTLorentzVector((*p)->momentum().px(), (*p)->momentum().py(), (*p)->momentum().pz(), (*p)->momentum().e());
-      if (debug) std::cout << "trkIndx " << indx << " pdgid " << trackIDs[indx].pdgId << " charge " << charge <<	" momVec " << momVec << std::endl; 
+      if (verbosity>1) std::cout << "trkIndx " << indx << " pdgid " << trackIDs[indx].pdgId << " charge " << charge <<	" momVec " << momVec << std::endl; 
       // only stable particles avoiding electrons and muons
       if (trackIDs[indx].ok && (std::abs(trackIDs[indx].pdgId)<11 ||
 				std::abs(trackIDs[indx].pdgId)>=21)) {
@@ -290,7 +290,7 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
 				0.1*(*p)->production_vertex()->position().z());
 	  posECAL = trackIDs[indx].pointECAL;
 	  fillTrack (posVec, momVec, posECAL, trackIDs[indx].pdgId, trackIDs[indx].okECAL, true);
-	  if (debug) std::cout << "posECAL " << posECAL << " okECAL " << trackIDs[indx].okECAL << "okHCAL " << trackIDs[indx].okHCAL << std::endl;
+	  if (verbosity>1) std::cout << "posECAL " << posECAL << " okECAL " << trackIDs[indx].okECAL << "okHCAL " << trackIDs[indx].okHCAL << std::endl;
 	  if (trackIDs[indx].okECAL) {
 	    if ( std::abs(charge)>0 ) {
 	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 0, 0, isoinfo1x1,   false);
@@ -325,44 +325,43 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
       }
     } // loop over gen particles
   } else { 
-    std::vector<spr::propagatedGenParticleID> trackIDs = spr::propagateCALO(genParticles, pdt, geo, bField, etaMax, false);
+    std::vector<spr::propagatedGenParticleID> trackIDs = spr::propagateCALO(genParticles, pdt, geo, bField, etaMax, (verbosity>0));
 
     for (unsigned int indx=0; indx<trackIDs.size(); ++indx) {
       int charge = trackIDs[indx].charge;
       reco::GenParticleCollection::const_iterator p = trackIDs[indx].trkItr;
       
       momVec = math::XYZTLorentzVector(p->momentum().x(), p->momentum().y(), p->momentum().z(), p->energy());
-      if (debug) std::cout << "trkIndx " << indx << " pdgid " << trackIDs[indx].pdgId << " charge " << charge <<	" momVec " << momVec << std::endl; 
+      if (verbosity>1) std::cout << "trkIndx " << indx << " pdgid " << trackIDs[indx].pdgId << " charge " << charge <<	" momVec " << momVec << std::endl; 
       // only stable particles avoiding electrons and muons
-      if (trackIDs[indx].ok && (std::abs(trackIDs[indx].pdgId)<11 ||
-				std::abs(trackIDs[indx].pdgId)>=21)) {	
+      if (trackIDs[indx].ok && std::abs(trackIDs[indx].pdgId)>21) {	
 	// consider particles within a phased space
+	if (verbosity>1) std::cout << " pt " << momVec.Pt() << " eta " << momVec.eta() << std::endl;
 	if (momVec.Pt() > ptMin && std::abs(momVec.eta()) < etaMax) { 
 	  posVec  = GlobalPoint(p->vertex().x(), p->vertex().y(), p->vertex().z());
 	  posECAL = trackIDs[indx].pointECAL;
-	  if (debug) std::cout << "posECAL " << posECAL << " okECAL " << trackIDs[indx].okECAL << "okHCAL " << trackIDs[indx].okHCAL << std::endl;
+	  if (verbosity>0) std::cout << "posECAL " << posECAL << " okECAL " << trackIDs[indx].okECAL << "okHCAL " << trackIDs[indx].okHCAL << std::endl;
 	  fillTrack (posVec, momVec, posECAL, trackIDs[indx].pdgId, trackIDs[indx].okECAL, true);
-	  
 	  if (trackIDs[indx].okECAL) {
 	    if ( std::abs(charge)>0 ) {
-	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 0, 0, isoinfo1x1,   false);
-	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 1, 1, isoinfo3x3,   false);
-	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 3, 3, isoinfo7x7,   false);
-	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 4, 4, isoinfo9x9,   false);
-	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 5, 5, isoinfo11x11, false);
-	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 7, 7, isoinfo15x15, false);
-	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology,10,10, isoinfo21x21, false);
-	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology,12,12, isoinfo25x25, false);
-	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology,15,15, isoinfo31x31, false);
-	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, a_mipR, trackIDs[indx].directionECAL, isoinfoR, false);
-	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, a_neutIsoR, trackIDs[indx].directionECAL, isoinfoIsoR, false);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 0, 0, isoinfo1x1,   verbosity>1);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 1, 1, isoinfo3x3,   verbosity>0);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 3, 3, isoinfo7x7,   verbosity>1);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 4, 4, isoinfo9x9,   verbosity>1);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 5, 5, isoinfo11x11, verbosity>1);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 7, 7, isoinfo15x15, verbosity>1);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology,10,10, isoinfo21x21, verbosity>1);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology,12,12, isoinfo25x25, verbosity>1);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology,15,15, isoinfo31x31, verbosity>1);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, a_mipR, trackIDs[indx].directionECAL, isoinfoR, verbosity>1);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, a_neutIsoR, trackIDs[indx].directionECAL, isoinfoIsoR, verbosity>1);
 	      if (trackIDs[indx].okHCAL) {
-		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, theHBHETopology, 0, 0, isoinfoHC1x1, false);
-		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, theHBHETopology, 1, 1, isoinfoHC3x3, false);
-		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, theHBHETopology, 2, 2, isoinfoHC5x5, false);
-		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, theHBHETopology, 3, 3, isoinfoHC7x7, false);
-		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, geo, theHBHETopology, a_coneR, trackIDs[indx].directionHCAL, isoinfoHCR, false);
-		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, geo, theHBHETopology, a_charIsoR, trackIDs[indx].directionHCAL, isoinfoIsoHCR, false);
+		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, theHBHETopology, 0, 0, isoinfoHC1x1, verbosity>1);
+		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, theHBHETopology, 1, 1, isoinfoHC3x3, verbosity>1);
+		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, theHBHETopology, 2, 2, isoinfoHC5x5, verbosity>1);
+		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, theHBHETopology, 3, 3, isoinfoHC7x7, verbosity>1);
+		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, geo, theHBHETopology, a_coneR, trackIDs[indx].directionHCAL, isoinfoHCR, verbosity>1);
+		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, geo, theHBHETopology, a_charIsoR, trackIDs[indx].directionHCAL, isoinfoIsoHCR, verbosity>1);
 	      }
 
 	      bool saveTrack = true;

@@ -21,15 +21,6 @@ MuonAlignmentFromReferenceGlobalCosmicRefit = globalCosmicMuons.clone()
 MuonAlignmentFromReferenceGlobalCosmicRefit.Tracks = cms.InputTag("ALCARECOMuAlGlobalCosmics:GlobalMuon")
 MuonAlignmentFromReferenceGlobalCosmicRefit.TrackTransformer.RefitRPCHits = cms.bool(False)
 
-### for Tracker muon re-reco
-from RecoMuon.Configuration.RecoMuon_cff import *
-newmuons = muons.clone(
-  inputCollectionTypes = cms.vstring("inner tracks"),
-  #inputCollectionLabels = cms.VInputTag(cms.InputTag("generalTracks")),
-  inputCollectionLabels = cms.VInputTag(cms.InputTag("refittedGeneralTracks")),
-  fillIsolation = cms.bool(False),
-)
-
 ### AlignmentProducer with basic options for muon alignment
 from Alignment.CommonAlignmentProducer.AlignmentProducer_cff import *
 looper.tjTkAssociationMapTag = cms.InputTag("MuonAlignmentFromReferenceGlobalMuonRefit:Refitted")

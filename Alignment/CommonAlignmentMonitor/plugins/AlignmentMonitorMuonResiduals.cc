@@ -579,9 +579,9 @@ void AlignmentMonitorMuonResiduals::event(const edm::Event &iEvent, const edm::E
 
 	 if (hit->isValid()  &&  pNavigator()->detAndSubdetInMap(id)) {
 	    TrajectoryStateOnSurface tsosc = tsoscomb.combine(meas.forwardPredictedState(), meas.backwardPredictedState());
-	    align::LocalPoint trackPos = tsosc.localPosition();
+	    LocalPoint trackPos = tsosc.localPosition();
 	    LocalError trackErr = tsosc.localError().positionError();
-	    align::LocalPoint hitPos = hit->localPosition();
+	    LocalPoint hitPos = hit->localPosition();
 	    LocalError hitErr = hit->localPositionError();
 
 	    double x_residual = 10. * (trackPos.x() - hitPos.x());
@@ -592,7 +592,7 @@ void AlignmentMonitorMuonResiduals::event(const edm::Event &iEvent, const edm::E
 // 	    double ypos = trackPos.y();
 
 	    if (id.det() == DetId::Muon  &&  id.subdetId() == MuonSubdetId::DT) {
-	       if (fabs(hit->surface()->toGlobal(align::LocalVector(0,1,0)).z()) < 0.1) {
+	       if (fabs(hit->surface()->toGlobal(LocalVector(0,1,0)).z()) < 0.1) {
                   // local y != global z: it's a middle (y-measuring) superlayer
 		  y_residual = x_residual;
 		  y_reserr2 = x_reserr2;

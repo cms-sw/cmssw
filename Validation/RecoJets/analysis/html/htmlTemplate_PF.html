@@ -15,15 +15,6 @@
  <a href="#pTScale">PtScale</a>
  </td>
  <td> 
- <a href="#CorrectedJets">CorrectedJets</a>
- </td>
- <td>
- <a href="#pTRatio">pTRatio</a>
- </td>
- <td>
- <a href="#pTResponse">pTResponse</a>
- </td>
- <td> 
  <a href="#EM">EM</a>
  </td>
  <td> 
@@ -63,6 +54,9 @@ Red line filled histogram is for reference.<br>
 <td>
 <a href="E_80.gif"><img src="thumb.E_80.gif.jpg" alt=""> </a>
 </td>
+<td>
+<a href="E_3000.gif"><img src="thumb.E_3000.gif.jpg" alt=""></a>
+</td>
 </tr>
 
 <tr>
@@ -70,7 +64,10 @@ Red line filled histogram is for reference.<br>
 jet energy (0-500GeV)
 </td>
 <td>
-jet energy (0-4000GeV)
+jet energy (0-4500GeV)
+</td>
+<td>
+jet energy (0-6000GeV)
 </td>
 </tr>
 
@@ -82,6 +79,9 @@ jet energy (0-4000GeV)
 <td>
 <a href="P_80.gif"><img src="thumb.P_80.gif.jpg" alt=""> </a>
 </td>
+<td>
+<a href="P_3000.gif"><img src="thumb.P_3000.gif.jpg" alt=""> </a>
+</td>
 </tr>
 
 <tr>
@@ -89,7 +89,10 @@ jet energy (0-4000GeV)
 jet momentum (0-500GeV)
 </td>
 <td>
-jet momentum (0-4000GeV)
+jet momentum (0-4500GeV)
+</td>
+<td>
+jet momentum (0-6000GeV)
 </td>
 </tr>
 
@@ -102,11 +105,17 @@ jet momentum (0-4000GeV)
 <td>
 <a href="Pt_80.gif"><img src="thumb.Pt_80.gif.jpg" alt=""> </a>
 </td>
+<td>
+<a href="Pt_3000.gif"><img src="thumb.Pt_3000.gif.jpg" alt=""> </a>
+</td>
 </tr>
 
 <tr>
 <td>
-jet pT (0-500GeV)
+jet pT (0-50GeV)
+</td>
+<td>
+jet pT (0-140GeV)
 </td>
 <td>
 jet pT (0-4000GeV)
@@ -122,14 +131,20 @@ jet pT (0-4000GeV)
 <td>
 <a href="Mass_80.gif"><img src="thumb.Mass_80.gif.jpg" alt=""> </a>
 </td>
+<td>
+<a href="Mass_3000.gif"><img src="thumb.Mass_3000.gif.jpg" alt=""> </a>
+</td>
 </tr>
 
 <tr>
 <td>
-jet mass (0-200GeV)
+jet mass (0-25GeV)
 </td>
 <td>
-jet mass (0-500GeV)
+jet mass (0-120GeV)
+</td>
+<td>
+jet mass (0-1500GeV)
 </td>
 </tr>
 
@@ -149,7 +164,7 @@ jet mass (0-500GeV)
 
 <tr>
 <td>
-Eta (pt > 10.0 GeV)
+Eta
 </td>
 <td>
 Eta (Fine bin, pt > 10.0 GeV) 
@@ -207,25 +222,13 @@ Phi (Fine bin, pt > 10.0 GeV)
 </td>
 </tr>
 
-<tr>
-<td>
-<a href="jetArea.gif"><img src="thumb.jetArea.gif.jpg" alt=""> </a>
-</td>
-</tr>
-
-<tr>
-<td>
-jet area
-</td>
-</tr>
-
 </table>
 <!--- 
 ===================================================================================
 --->
 <a name="pTScale">
 <hr>
-<h2>pT Scale</h2> pT Scale = pT(raw)/pT(gen) <br>
+<h2>pT Scale</h2> pT Scale = pT(calo)/pT(gen) <br>
 In the pT scale vs jet pT/eta plots,
 the black histogram is for new, and 
 the red histogram is for reference.<br>
@@ -237,70 +240,33 @@ the red histogram is for reference.<br>
 
 <tr>
 <td>
-<a href="pTScale_d_0<|eta|<1.5.gif"><img src="pTScale_d_0<|eta|<1.5.gif" width="400" alt=""></a>
+<a href="pTScale_d_0<|eta|<1.3.gif"><img src="pTScale_d_0<|eta|<1.3.gif" width="400" alt=""></a>
 </td>
 
 <td>
-<a href="pTScale_d_1.5<|eta|<3.0.gif"><img src="pTScale_d_1.5<|eta|<3.0.gif" width="400" alt=""></a>
+<a href="pTScale_d_1.3<|eta|<3.0.gif"><img src="pTScale_d_1.3<|eta|<3.0.gif" width="400" alt=""></a>
 </td>
 
 <td>
-<a href="pTScale_d_3.0<|eta|<6.0.gif"><img src="pTScale_d_3.0<|eta|<6.0.gif" width="400" alt=""></a>
-</td>
-
-</tr>
-<tr>
-
-<td>
-pTScale Vs pT: 
-0<|eta|<1.5
-</td>
-
-<td>
-pTScale Vs pT: 
-1.5<|eta|<3.0
-</td>
-
-<td>
-pTScale Vs pT: 
-3.0<|eta|<6.0
-</td>
-</tr>
-</table>
-
-<table border="1">
-<tr>
-</tr>
-
-<tr>
-<td>
-<a href="pTScalePhi_d_0<|eta|<1.5.gif"><img src="pTScalePhi_d_0<|eta|<1.5.gif" width="400" alt=""></a>
-</td>
-
-<td>
-<a href="pTScalePhi_d_1.5<|eta|<3.0.gif"><img src="pTScalePhi_d_1.5<|eta|<3.0.gif" width="400" alt=""></a>
-</td>
-
-<td>
-<a href="pTScalePhi_d_3.0<|eta|<6.0.gif"><img src="pTScalePhi_d_3.0<|eta|<6.0.gif" width="400" alt=""></a>
+<a href="pTScale_d_3.0<|eta|<5.0.gif"><img src="pTScale_d_3.0<|eta|<5.0.gif" width="400" alt=""></a>
 </td>
 
 </tr>
 <tr>
 
 <td>
-pTScale Vs Phi: 
-0<|eta|<1.5
+pTScale: 
+0<|eta|<1.3
 </td>
 
 <td>
-pTScale Vs Phi: 
-1.5<|eta|<3.0
+pTScale: 
+1.3<|eta|<3.0
 </td>
 
 <td>
-pTScale Vs Phi: 
-3.0<|eta|<6.0
+pTScale: 
+3.0<|eta|<5.0
 </td>
 </tr>
 </table>
@@ -308,41 +274,41 @@ pTScale Vs Phi:
 <table border="1">
 <tr>
 <td>
-<a href="pTScale_d_30<pT<200.gif"><img src="pTScale_d_30<pT<200.gif" width="400" alt=""> </a>
+<a href="pTScale_d_60<pT<120.gif"><img src="pTScale_d_60<pT<120.gif" width="400" alt=""> </a>
 </td>
 <td>
-<a href="pTScale_d_200<pT<600.gif"><img src="pTScale_d_200<pT<600.gif" width="400" alt=""></a>
-</td>
-</tr>
-
-<tr>
-<td>
-pTScale Vs Eta:
-30 < pT < 200
-</td>
-<td>
-pTScale Vs Eta: 
-200 < pT < 600
+<a href="pTScale_d_200<pT<300.gif"><img src="pTScale_d_200<pT<300.gif" width="400" alt=""></a>
 </td>
 </tr>
 
 <tr>
 <td>
-<a href="pTScale_d_600<pT<1500.gif"><img src="pTScale_d_600<pT<1500.gif" width="400" alt=""> </a>
+pTScale: 
+60 < pT < 120
 </td>
 <td>
-<a href="pTScale_d_1500<pt<3500.gif"><img src="pTScale_d_1500<pt<3500.gif" width="400" alt=""></a>
+pTScale: 
+200 < pT < 300
 </td>
 </tr>
 
 <tr>
 <td>
-pTScale Vs Eta: 
-600 < pT < 1500
+<a href="pTScale_d_600<pT<900.gif"><img src="pTScale_d_600<pT<900.gif" width="400" alt=""> </a>
 </td>
 <td>
-pTScale Vs Eta: 
-1500 < pT < 3500
+<a href="pTScale_d_2700<pt<3500.gif"><img src="pTScale_d_2700<pt<3500.gif" width="400" alt=""></a>
+</td>
+</tr>
+
+<tr>
+<td>
+pTScale: 
+600 < pT < 900
+</td>
+<td>
+pTScale: 
+2700 < pT < 3500
 </td>
 </tr>
 
@@ -355,414 +321,120 @@ pTScale Vs Eta:
 <table border="1">
 <tr>
 <td>
-<a href="pTScale_distribution_for_0<|eta|<1.5_30_200.gif"><img src="thumb.pTScale_distribution_for_0<|eta|<1.5_30_200.gif.jpg" alt="">  </a> 
+<a href="pTScale_distribution_for_0<|eta|<1.3_60_120.gif"><img src="thumb.pTScale_distribution_for_0<|eta|<1.3_60_120.gif.jpg" alt="">  </a> 
 </td>
 <td>
-<a href="pTScale_distribution_for_0<|eta|<1.5_200_600.gif"><img src="thumb.pTScale_distribution_for_0<|eta|<1.5_200_600.gif.jpg" alt="">  </a> 
+<a href="pTScale_distribution_for_0<|eta|<1.3_200_300.gif"><img src="thumb.pTScale_distribution_for_0<|eta|<1.3_200_300.gif.jpg" alt="">  </a> 
 </td>
 <td>
-<a href="pTScale_distribution_for_0<|eta|<1.5_600_1500.gif"><img src="thumb.pTScale_distribution_for_0<|eta|<1.5_600_1500.gif.jpg" alt="">  </a> 
+<a href="pTScale_distribution_for_0<|eta|<1.3_600_900.gif"><img src="thumb.pTScale_distribution_for_0<|eta|<1.3_600_900.gif.jpg" alt="">  </a> 
 </td>
 <td>
-<a href="pTScale_distribution_for_0<|eta|<1.5_1500_3500.gif"><img src="thumb.pTScale_distribution_for_0<|eta|<1.5_1500_3500.gif.jpg" alt=""> </a> 
-</td>
-</tr>
-<tr>
-<td>
-pTScale: 
-0<|eta|<1.5 ( 30GeV < pT < 200GeV)
-</td>
-<td>
-pTScale: 
-0<|eta|<1.5 ( 200GeV < pT < 600GeV)
-</td>
-<td>
-pTScale: 
-0<|eta|<1.5 ( 600GeV < pT < 1500GeV)
-</td>
-<td>
-pTScale: 
-0<|eta|<1.5 ( 1500GeV < pT < 3500GeV)
-</td>
-</tr>
-
-<tr>
-<td>
-<a href="pTScale_distribution_for_1.5<|eta|<3.0_30_200.gif"><img src="thumb.pTScale_distribution_for_1.5<|eta|<3.0_30_200.gif.jpg" alt="">  </a>
-</td>
-<td>
-<a href="pTScale_distribution_for_1.5<|eta|<3.0_200_600.gif"><img src="thumb.pTScale_distribution_for_1.5<|eta|<3.0_200_600.gif.jpg" alt="">  </a>
-</td>
-<td>
-<a href="pTScale_distribution_for_1.5<|eta|<3.0_600_1500.gif"><img src="thumb.pTScale_distribution_for_1.5<|eta|<3.0_600_1500.gif.jpg" alt="">  </a>
-</td>
-<td>
-<a href="pTScale_distribution_for_1.5<|eta|<3.0_1500_3500.gif"><img src="thumb.pTScale_distribution_for_1.5<|eta|<3.0_1500_3500.gif.jpg" alt=""> </a> 
+<a href="pTScale_distribution_for_0<|eta|<1.3_2700_3500.gif"><img src="thumb.pTScale_distribution_for_0<|eta|<1.3_2700_3500.gif.jpg" alt=""> </a> 
 </td>
 </tr>
 <tr>
 <td>
 pTScale: 
-1.5<|eta|<3.0 ( 30GeV < pT < 200GeV)
+0<|eta|<1.3 ( 60GeV < pT < 120GeV)
 </td>
 <td>
 pTScale: 
-1.5<|eta|<3.0 ( 200GeV < pT < 600GeV)
+0<|eta|<1.3 ( 200GeV < pT < 300GeV)
 </td>
 <td>
 pTScale: 
-1.5<|eta|<3.0 ( 600GeV < pT < 1500GeV)
+0<|eta|<1.3 ( 600GeV < pT < 900GeV)
 </td>
 <td>
 pTScale: 
-1.5<|eta|<3.0 ( 1500GeV < pT < 3500GeV)
+0<|eta|<1.3 ( 2700GeV < pT < 3500GeV)
 </td>
 </tr>
 
 <tr>
 <td>
-<a href="pTScale_distribution_for_3.0<|eta|<6.0_30_200.gif"><img src="thumb.pTScale_distribution_for_3.0<|eta|<6.0_30_200.gif.jpg" alt="">   </a></td>
+<a href="pTScale_distribution_for_1.3<|eta|<3.0_60_120.gif"><img src="thumb.pTScale_distribution_for_1.3<|eta|<3.0_60_120.gif.jpg" alt="">  </a>
+</td>
 <td>
-<a href="pTScale_distribution_for_3.0<|eta|<6.0_200_600.gif"><img src="thumb.pTScale_distribution_for_3.0<|eta|<6.0_200_600.gif.jpg" alt="">   </a></td>
+<a href="pTScale_distribution_for_1.3<|eta|<3.0_200_300.gif"><img src="thumb.pTScale_distribution_for_1.3<|eta|<3.0_200_300.gif.jpg" alt="">  </a>
+</td>
 <td>
-<a href="pTScale_distribution_for_3.0<|eta|<6.0_600_1500.gif"><img src="thumb.pTScale_distribution_for_3.0<|eta|<6.0_600_1500.gif.jpg" alt="">   </a></td>
+<a href="pTScale_distribution_for_1.3<|eta|<3.0_600_900.gif"><img src="thumb.pTScale_distribution_for_1.3<|eta|<3.0_600_900.gif.jpg" alt="">  </a>
+</td>
 <td>
-<a href="pTScale_distribution_for_3.0<|eta|<6.0_1500_3500.gif"><img src="thumb.pTScale_distribution_for_3.0<|eta|<6.0_1500_3500.gif.jpg" alt="">  </a>
+<a href="pTScale_distribution_for_1.3<|eta|<3.0_2700_3500.gif"><img src="thumb.pTScale_distribution_for_1.3<|eta|<3.0_2700_3500.gif.jpg" alt=""> </a> 
 </td>
 </tr>
 <tr>
 <td>
 pTScale: 
-3.0<|eta|<6.0 ( 30GeV < pT < 200GeV)
+1.3<|eta|<3.0 ( 60GeV < pT < 120GeV)
 </td>
 <td>
 pTScale: 
-3.0<|eta|<6.0 ( 200GeV < pT < 600GeV)
+1.3<|eta|<3.0 ( 200GeV < pT < 300GeV)
 </td>
 <td>
 pTScale: 
-3.0<|eta|<6.0 ( 600GeV < pT < 1500GeV)
+1.3<|eta|<3.0 ( 600GeV < pT < 900GeV)
 </td>
 <td>
 pTScale: 
-3.0<|eta|<6.0 ( 1500GeV < pT < 3500GeV)
+1.3<|eta|<3.0 ( 2700GeV < pT < 3500GeV)
+</td>
+</tr>
+
+<tr>
+<td>
+<a href="pTScale_distribution_for_3.0<|eta|<5.0_60_120.gif"><img src="thumb.pTScale_distribution_for_3.0<|eta|<5.0_60_120.gif.jpg" alt="">   </a></td>
+<td>
+<a href="pTScale_distribution_for_3.0<|eta|<5.0_200_300.gif"><img src="thumb.pTScale_distribution_for_3.0<|eta|<5.0_200_300.gif.jpg" alt="">   </a></td>
+<td>
+<a href="pTScale_distribution_for_3.0<|eta|<5.0_60_120.gif"><img src="thumb.pTScale_distribution_for_3.0<|eta|<5.0_600_900.gif.jpg" alt="">   </a></td>
+<td>
+<a href="pTScale_distribution_for_3.0<|eta|<5.0_2700_3500.gif"><img src="thumb.pTScale_distribution_for_3.0<|eta|<5.0_2700_3500.gif.jpg" alt="">  </a>
+</td>
+</tr>
+<tr>
+<td>
+pTScale: 
+3.0<|eta|<5.0 ( 60GeV < pT < 120GeV)
+</td>
+<td>
+pTScale: 
+3.0<|eta|<5.0 ( 200GeV < pT < 300GeV)
+</td>
+<td>
+pTScale: 
+3.0<|eta|<5.0 ( 600GeV < pT < 900GeV)
+</td>
+<td>
+pTScale: 
+3.0<|eta|<5.0 ( 2700GeV < pT < 3500GeV)
 </td>
 </tr>
 <tr>
 <td> 
 
 <!---
-<a href="pTScale_distribution_for_30<pT<200.gif"><img src="thumb.pTScale_distribution_for_30<pT<200.gif.jpg" width="400" alt=""> </a> 
+<a href="pTScale_distribution_for_60<pT<120.gif"><img src="thumb.pTScale_distribution_for_60<pT<120.gif.jpg" width="400" alt=""> </a> 
 </td>
 <td>
-<a href="pTScale_distribution_for_1500<pt<3500.gif"><img src="thumb.pTScale_distribution_for_1500<pt<3500.gif.jpg" width="400" alt=""> </a> 
+<a href="pTScale_distribution_for_2700<pt<3500.gif"><img src="thumb.pTScale_distribution_for_2700<pt<3500.gif.jpg" width="400" alt=""> </a> 
 </td>
 </tr>
 <tr>
 <td>
-  pT Scale(pT(calo)/pT(gen)) ( 30GeV < pT < 200GeV)
+  pT Scale(pT(calo)/pT(gen)) ( 60GeV < pT < 120GeV)
 </td>
 <td>
-  pT Scale(pT(calo)/pT(gen)) ( 1500GeV < pT < 3500GeV)
+  pT Scale(pT(calo)/pT(gen)) ( 2700GeV < pT < 3500GeV)
 </td>
 --->
 
 </tr>
 </table>
-
-<!--- 
-===================================================================================
---->
-
-<a name="CorrectedJets">
-<hr>
-
-<h2>Corrected Jets</h2>
-L2L3 Correction <br>
-
-<table border="1">
-<tr>
-<td>
-<a href="CorrPt.gif"><img src="thumb.CorrPt.gif.jpg" alt=""> </a>
-</td>
-<td>
-<a href="CorrPt_80.gif"><img src="thumb.CorrPt_80.gif.jpg" alt=""> </a>
-</td>
-</tr>
-
-<tr>
-<td>
-Corrected jet pT (0-150GeV)
-</td>
-<td>
-Corrected jet pT (0-4000GeV)
-</td>
-</tr>
-
-<tr>
-<td>
-<a href="CorrEta.gif"><img src="thumb.CorrEta.gif.jpg" alt=""> </a>
-</td>
-<td>
-<a href="CorrPhi.gif"><img src="thumb.CorrPhi.gif.jpg" alt=""> </a>
-</td>
-<td>
-<img src="spacer.gif" alt="">
-</td>
-</tr>
-
-<tr>
-<td>
-Corrected jet Eta (pt > 10.0 GeV)
-</td>
-<td>
-Corrected jet Phi
-</td>
-<td>
-<img src="spacer.gif" alt="">
-</td>
-</tr>
-
-</table>
-
-<!---
-===================================================================================
---->
-<a name="pTRatio">
-<hr>
-<h2>pT Ratio</h2> pT Ratio = Corrected pT/UnCorrected pT<br>
-It is the the ratio of momenta 
-of the same jet before and after correction.<br>
-In the pT Ratio vs jet pT/eta plots,
-the black histogram is for new, and
-the red histogram is for reference.<br>
-<p>
-
-<table border="1">
-<tr>
-</tr>
-
-<tr>
-<td>
-<a href="pTRatio.gif"><img src="thumb.pTRatio.gif.jpg" alt=""> </a>
-</td>
-<!--<td>
-<img src="spacer.gif" alt="">
-</td>
-<td>
-<img src="spacer.gif" alt="">
-</td>-->
-</tr>
-
-<tr>
-<td>
-pTRatio =
-Corrected jet pT/UnCorrected jet pT
-</td>
-<!--<td>
-<img src="spacer.gif" alt="">
-</td>
-<td>
-<img src="spacer.gif" alt="">
-</td>-->
-</tr>
-</table>
-
-<table border="1">
-<tr>
-<td>
-<a href="pTRatio_d_0<|eta|<1.5.gif"><img src="pTRatio_d_0<|eta|<1.5.gif" width="400" alt=""></a>
-</td>
-
-<td>
-<a href="pTRatio_d_1.5<|eta|<3.0.gif"><img src="pTRatio_d_1.5<|eta|<3.0.gif" width="400" alt=""></a>
-</td>
-
-<td>
-<a href="pTRatio_d_3.0<|eta|<6.0.gif"><img src="pTRatio_d_3.0<|eta|<6.0.gif" width="400" alt=""></a>
-</td>
-
-</tr>
-<tr>
-
-<td>
-pTRatio:
-0<|eta|<1.5
-</td>
-
-<td>
-pTRatio:
-1.5<|eta|<3.0
-</td>
-<td>
-pTRatio:
-3.0<|eta|<6.0
-</td>
-</tr>
-</table>
-<table border="1">
-<tr>
-<td>
-<a href="pTRatio_d_30<pT<200.gif"><img src="pTRatio_d_30<pT<200.gif" width="400" alt=""> </a>
-</td>
-<td>
-<a href="pTRatio_d_200<pT<600.gif"><img src="pTRatio_d_200<pT<600.gif" width="400" alt=""></a>
-</td>
-</tr>
-
-<tr>
-<td>
-pTRatio:
-30 < pT < 200
-</td>
-<td>
-pTRatio:
-200 < pT < 600
-</td>
-</tr>
-
-<tr>
-<td>
-<a href="pTRatio_d_600<pT<1500.gif"><img src="pTRatio_d_600<pT<1500.gif" width="400" alt=""> </a>
-</td>
-<td>
-<a href="pTRatio_d_1500<pt<3500.gif"><img src="pTRatio_d_1500<pt<3500.gif" width="400" alt=""></a>
-</td>
-</tr>
-
-<tr>
-<td>
-pTRatio:
-600 < pT < 1500
-</td>
-<td>
-pTRatio:
-1500 < pT < 3500
-</td>
-</tr>
-
-</table>
-
-<!---
-===================================================================================
---->
-
-<a name="pTResponse">
-<hr>
-<h2>pT Response</h2> pT Response = Corrected pT/Gen pT<br>
-It is the the ratio of momenta of the corrected jets 
-and their match gen jets<br>
-In the pT Response vs jet pT/eta plots,
-the black histogram is for new, and 
-the red histogram is for reference.<br>
-<p>
-
-<table border="1">
-<tr>
-</tr>
-
-<tr>
-<td>
-<a href="pTResponse.gif"><img src="thumb.pTResponse.gif.jpg" alt=""></a>
-</td>
-<td>
-<a href="pTResponse_d_pt>30.gif"><img src="thumb.pTResponse_d_pt>30.gif.jpg" alt=""></a>
-</td>
-<!--<td>
-<img src="spacer.gif" alt="">
-</td>-->
-</tr>
-
-<tr>
-<td>
-pTResponse =  
-Corrected jet pT/Gen jet pT
-</td>
-<td>
-pTResponse of Gen jet pT>30
-</td>
-<!--<td>
-<img src="spacer.gif" alt="">
-</td>-->
-</tr>
-</table>
-
-<table border="1">
-<tr>
-<td>
-<a href="pTResponse_d_0<|eta|<1.5.gif"><img src="pTResponse_d_0<|eta|<1.5.gif" width="400" alt=""></a>
-</td>
-
-<td>
-<a href="pTResponse_d_1.5<|eta|<3.0.gif"><img src="pTResponse_d_1.5<|eta|<3.0.gif" width="400" alt=""></a>
-</td>
-
-<td>
-<a href="pTResponse_d_3.0<|eta|<6.0.gif"><img src="pTResponse_d_3.0<|eta|<6.0.gif" width="400" alt=""></a>
-</td>
-
-</tr>
-<tr>
-
-<td>
-pTResponse:
-0<|eta|<1.5
-</td>
-
-<td>
-pTResponse:
-1.5<|eta|<3.0
-</td>
-<td>
-pTResponse:
-3.0<|eta|<6.0
-</td>
-</tr>
-</table>
-
-<table border="1">
-<tr>
-<td>
-<a href="pTResponse_d_30<pT<200.gif"><img src="pTResponse_d_30<pT<200.gif" width="400" alt=""> </a>
-</td>
-<td>
-<a href="pTResponse_d_200<pT<600.gif"><img src="pTResponse_d_200<pT<600.gif" width="400" alt=""></a>
-</td>
-</tr>
-
-<tr>
-<td>
-pTResponse:
-30 < pT < 200
-</td>
-<td>
-pTResponse:
-200 < pT < 600
-</td>
-</tr>
-
-<tr>
-<td>
-<a href="pTResponse_d_600<pT<1500.gif"><img src="pTResponse_d_600<pT<1500.gif" width="400" alt=""> </a>
-</td>
-<td>
-<a href="pTResponse_d_1500<pt<3500.gif"><img src="pTResponse_d_1500<pt<3500.gif" width="400" alt=""></a>
-</td>
-</tr>
-
-<tr>
-<td>
-pTResponse:
-600 < pT < 1500
-</td>
-<td>
-pTResponse:
-1500 < pT < 3500
-</td>
-</tr>
-
-</table>
-
 
 <!--- 
 ===================================================================================
@@ -780,41 +452,22 @@ pTResponse:
 <td>
 <a href="ChargedEmEnergy_3000.gif"><img src="thumb.ChargedEmEnergy_3000.gif.jpg" alt=""> </a>
 </td>
-</tr>
-
-<tr>
 <td>
-Charged EM Energy (0 ~ 500GeV)
-</td>
-<td>
-Charged EM Energy (0 ~ 2000GeV)
+<a href="ChargedEmEnergyFraction.gif"><img src="thumb.ChargedEmEnergyFraction.gif.jpg" alt=""> </a>
 </td>
 </tr>
 
 <tr>
 <td>
-<a href="ChargedEmEnergyFraction_B.gif"><img src="thumb.ChargedEmEnergyFraction_B.gif.jpg" alt=""> </a>
+Charged EM Energy (0-500GeV)
 </td>
 <td>
-<a href="ChargedEmEnergyFraction_E.gif"><img src="thumb.ChargedEmEnergyFraction_E.gif.jpg" alt=""> </a>
+Charged EM Energy (0-2000GeV)
 </td>
 <td>
-<a href="ChargedEmEnergyFraction_F.gif"><img src="thumb.ChargedEmEnergyFraction_F.gif.jpg" alt=""> </a>
+Charged EM Energy Fraction
 </td>
 </tr>
-
-<tr>
-<td>
-Charged EM Energy Fraction in 0<|eta|<1.5
-</td>
-<td>
-Charged EM Energy Fraction in 1.5<|eta|<3.0
-</td>
-<td>
-Charged EM Energy Fraction in 3.0<|eta|6.0
-</td>
-</tr>
-
 
 <tr>
 <td>
@@ -823,64 +476,20 @@ Charged EM Energy Fraction in 3.0<|eta|6.0
 <td>
 <a href="NeutralEmEnergy_3000.gif"><img src="thumb.NeutralEmEnergy_3000.gif.jpg" alt=""> </a>
 </td>
-</tr>
-
-<tr>
 <td>
-Neutral EM Energy (0 ~ 500GeV)
-</td>
-<td>
-Neutral EM Energy (0 ~ 2000GeV)
+<a href="NeutralEmEnergyFraction.gif"><img src="thumb.NeutralEmEnergyFraction.gif.jpg" alt="">  </a>
 </td>
 </tr>
 
 <tr>
 <td>
-<a href="NeutralEmEnergyFraction_B.gif"><img src="thumb.NeutralEmEnergyFraction_B.gif.jpg" alt=""> </a>
+Neutral EM Energy (0-500GeV)
 </td>
 <td>
-<a href="NeutralEmEnergyFraction_E.gif"><img src="thumb.NeutralEmEnergyFraction_E.gif.jpg" alt=""> </a>
+Neutral EM Energy (0-2000GeV)
 </td>
 <td>
-<a href="NeutralEmEnergyFraction_F.gif"><img src="thumb.NeutralEmEnergyFraction_F.gif.jpg" alt=""> </a>
-</td>
-</tr>
-
-<tr>
-<td>
-Neutral EM Energy Fraction in 0<|eta|<1.5
-</td>
-<td>
-Neutral EM Energy Fraction in 1.5<|eta|<3.0
-</td>
-<td>
-Neutral EM Energy Fraction in 3.0<|eta|<6.0
-</td>
-</tr>
-
-
-<tr>
-<td>
-<a href="EmEnergyInHF_80.gif"><img src="thumb.EmEnergyInHF_80.gif.jpg" alt=""> </a>
-</td>
-<td>
-<a href="EmEnergyInHF_3000.gif"><img src="thumb.EmEnergyInHF_3000.gif.jpg" alt=""> </a>
-</td>
-<td>
-<a href="EmEnergyInHF.gif"><img src="thumb.EmEnergyInHF.gif.jpg" alt="">  </a>
-</td>
-</tr>
-
-<tr>
-
-<td>
-EM energy in HF ( -20 ~ 440GeV )
-</td>
-<td>
-EM energy in HF ( -20 ~ 190geV)
-</td>
-<td>
-EM energy in HF ( -20 ~ 450GeV )
+Neutral EM Energy Fraction
 </td>
 </tr>
 
@@ -902,38 +511,20 @@ EM energy in HF ( -20 ~ 450GeV )
 <td>
 <a href="ChargedHadronEnergy_3000.gif"><img src="thumb.ChargedHadronEnergy_3000.gif.jpg" alt=""> </a>
 </td>
-</tr>
-
-<tr>
 <td>
-Charged Hadron Energy (0 ~ 500GeV)
-</td>
-<td>
-Charged Hadron Energy (0 ~ 2000GeV)
+<a href="ChargedHadronEnergyFraction.gif"><img src="thumb.ChargedHadronEnergyFraction.gif.jpg" alt=""> </a>
 </td>
 </tr>
 
 <tr>
 <td>
-<a href="ChargedHadronEnergyFraction_B.gif"><img src="thumb.ChargedHadronEnergyFraction_B.gif.jpg" alt=""> </a>
+Charged Hadron Energy (0-500GeV)
 </td>
 <td>
-<a href="ChargedHadronEnergyFraction_E.gif"><img src="thumb.ChargedHadronEnergyFraction_E.gif.jpg" alt=""> </a>
+Charged Hadron Energy (0-2000GeV)
 </td>
 <td>
-<a href="ChargedHadronEnergyFraction_F.gif"><img src="thumb.ChargedHadronEnergyFraction_F.gif.jpg" alt=""> </a>
-</td>
-</tr>
-
-<tr>
-<td>
-Charged Hadron Energy Fraction in 0<|eta|<1.5
-</td>
-<td>
-Charged Hadron Energy Fraction in 1.5<|eta|<3.0
-</td>
-<td>
-Charged Hadron Energy Fraction in 3.0<|eta|6.0
+Charged Hadron Energy Fraction
 </td>
 </tr>
 
@@ -944,62 +535,20 @@ Charged Hadron Energy Fraction in 3.0<|eta|6.0
 <td>
 <a href="NeutralHadronEnergy_3000.gif"><img src="thumb.NeutralHadronEnergy_3000.gif.jpg" alt=""> </a>
 </td>
-</tr>
-
-<tr>
 <td>
-Neutral Hadron Energy (0 ~ 500GeV)
-</td>
-<td>
-Neutral Hadron Energy (0 ~ 2000GeV)
+<a href="NeutralHadronEnergyFraction.gif"><img src="thumb.NeutralHadronEnergyFraction.gif.jpg" alt="">  </a>
 </td>
 </tr>
 
 <tr>
 <td>
-<a href="NeutralHadronEnergyFraction_B.gif"><img src="thumb.NeutralHadronEnergyFraction_B.gif.jpg" alt=""> </a>
+Neutral Hadron Energy (0-500GeV)
 </td>
 <td>
-<a href="NeutralHadronEnergyFraction_E.gif"><img src="thumb.NeutralHadronEnergyFraction_E.gif.jpg" alt=""> </a>
+Neutral Hadron Energy (0-2000GeV)
 </td>
 <td>
-<a href="NeutralHadronEnergyFraction_F.gif"><img src="thumb.NeutralHadronEnergyFraction_F.gif.jpg" alt=""> </a>
-</td>
-</tr>
-
-<tr>
-<td>
-Neutral Hadron Energy Fraction in 0<|eta|<1.5
-</td>
-<td>
-Neutral Hadron Energy Fraction in 1.5<|eta|<3.0
-</td>
-<td>
-Neutral Hadron Energy Fraction in 3.0<|eta|<6.0
-</td>
-</tr>
-
-<tr>
-<td>
-<a href="HadEnergyInHF_80.gif"emacs><img src="thumb.HadEnergyInHF_80.gif.jpg" alt=""> </a>
-</td>
-<td>
-<a href="HadEnergyInHF_3000.gif"><img src="thumb.HadEnergyInHF_3000.gif.jpg" alt=""> </a>
-</td>
-<td>
-<a href="HadEnergyInHF.gif"><img src="thumb.HadEnergyInHF.gif.jpg" alt="">  </a>
-</td>
-</tr>
-
-<tr>
-<td>
-Hadrong Energy in HF ( 0 ~ 3000GeV )
-</td>
-<td>
-Hadrong Energy in HF ( 0 ~ 1800GeV )
-</td>
-<td>
-Hadrong Energy in HF ( 0 ~ 2500GeV )
+Neutral Hadron Energy Fraction
 </td>
 </tr>
 
@@ -1015,6 +564,30 @@ Hadrong Energy in HF ( 0 ~ 2500GeV )
 <h2>Miscellaneous</h2>
 <table border="1">
 
+<tr>
+<td>
+<a href="EFirst.gif"><img src="thumb.EFirst.gif.jpg" alt=""> </a>
+</td>
+<td>
+<a href="EFirst_80.gif"><img src="thumb.EFirst_80.gif.jpg" alt=""> </a>
+</td>
+<td>
+<a href="EFirst_3000.gif"><img src="thumb.EFirst_3000.gif.jpg" alt=""> </a>
+</td>
+</tr>
+
+<tr>
+<td>
+leading jet energy (0-1000GeV)
+</td>
+<td>
+leading jet energy (0-180GeV)
+</td>
+<td>
+leading jet energy (0-4000GeV)
+</td>
+</tr>
+
 
 <tr>
 <td>
@@ -1029,10 +602,10 @@ Hadrong Energy in HF ( 0 ~ 2500GeV )
 
 <tr>
 <td>
-leading jet pT (0-50GeV)
+leading jet pT (0-1000GeV)
 </td>
 <td>
-leading jet pT (0-140GeV)
+leading jet pT (0-180GeV)
 </td>
 <td>
 leading jet pT (0-4000GeV)
@@ -1149,10 +722,10 @@ Dijet Mass (0-10000GeV)
 
 <tr>
 <td>
-Number of jets (|eta| <= 1.5, pT > 10 GeV)
+Number of jets (|eta| <= 1.3, pT > 10 GeV)
 </td>
 <td>
-Number of jets (|eta| > 1.5, pT > 10 GeV)
+Number of jets (|eta| > 1.3, pT > 10 GeV)
 </td>
 <td>
 <img src="spacer.gif" alt="">
@@ -1175,14 +748,20 @@ Number of jets (|eta| > 1.5, pT > 10 GeV)
 <td>
 <a href="GenPt_80.gif"><img src="thumb.GenPt_80.gif.jpg" alt=""> </a>
 </td>
+<td>
+<a href="GenPt_3000.gif"><img src="thumb.GenPt_3000.gif.jpg" alt=""> </a>
+</td>
 </tr>
 
 <tr>
 <td>
-pT of GenJet ( 0-150GeV)
+pT of GenJet ( 0-50GeV)
 </td>
 <td>
-pT of Genjet ( 0-4000GeV)
+pT of Genjet ( 0-140GeV)
+</td>
+<td>
+pT of GenJet (0-1500GeV)
 </td>
 </tr>
 
@@ -1197,7 +776,7 @@ pT of Genjet ( 0-4000GeV)
 <a href="GenPhi.gif"><img src="thumb.GenPhi.gif.jpg" alt=""> </a>
 </td>
 <td>
-<a href="Pthat_80.gif"><img src="thumb.Pthat_80.gif.jpg" alt=""> </a>
+<a href="Pthat_80.gif>"<img src="thumb.Pthat_80.gif.jpg" alt=""> </a>
 </td>
 </tr>
 

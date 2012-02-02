@@ -192,8 +192,6 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
           for (unsigned j = 0; j != cscWireHit.size(); ++j ) {
             const CSCWireHit w_hit = cscWireHit[j];
             CSCRecHit2D rechit = make2DHits_->hitFromStripAndWire(sDetId, layer, w_hit, s_hit);
-
-
             bool isInFiducial = make2DHits_->isHitInFiducial( layer, rechit );
             if ( isInFiducial ) {
               foundMatch = true;  

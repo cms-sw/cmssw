@@ -13,7 +13,7 @@
 //
 // Original Author:  Marcello Maggi,161 R-006,+41227676292,
 //         Created:  Fri Nov  4 12:32:59 CET 2011
-// $Id: RPCDetIdAnalyzer.cc,v 1.1 2011/11/05 10:39:54 mmaggi Exp $
+// $Id$
 //
 //
 
@@ -92,51 +92,27 @@ void
 RPCDetIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 {
-  {
-    std::cout <<" =============>> RPCCompDetId::GAS RPCCompDetId TEST <================="<<std::endl;
-    RPCCompDetId rpcgasid("WM2_S04_RB4R",RPCCompDetId::GAS);
-    //RPCCompDetId rpcgasid("cms_rpc_dcs_03:EM1_R03_C12_C17_UP",0);
-    std::cout <<rpcgasid<<" rawid = "<< rpcgasid.rawId()<<std::endl;
-    std::cout <<"Region = "<<rpcgasid.region()<<std::endl;
-    std::cout <<"Ring or Wheel = "<<rpcgasid.ring()<<" - Wheel = "<<rpcgasid.wheel()<<std::endl;
-    std::cout <<"Station or Disk = "<<rpcgasid.station()<<" - Disk = "<<rpcgasid.disk()<<std::endl;
-    std::cout <<"Sector = "<<rpcgasid.sector()<<std::endl;
-    std::cout <<"Layer = "<<rpcgasid.layer()<<std::endl;
-    std::cout <<"SubSector = "<<rpcgasid.subsector()<<std::endl;
-    std::cout <<std::setw(100)<<std::setfill('-')<<std::endl;
-    std::cout <<"ok"<<std::endl;
-    RPCCompDetId check(rpcgasid.rawId(),RPCCompDetId::GAS);
-    std::cout <<check<<" rawid = "<< check.rawId()<<std::endl;
-    std::cout <<"Region = "<<check.region()<<std::endl;
-    std::cout <<"Ring or Wheel = "<<check.ring()<<" - Wheel = "<<check.wheel()<<std::endl;
-    std::cout <<"Station or Disk = "<<check.station()<<" - Disk = "<<check.disk()<<std::endl;
-    std::cout <<"Sector = "<<check.sector()<<std::endl;
-    std::cout <<"Layer = "<<check.layer()<<std::endl;
-    std::cout <<"SubSector = "<<check.subsector()<<std::endl;
-  }
-
-  {
-    std::cout <<" =============>> Temp RPCCompDetId TEST <================="<<std::endl;
-    RPCCompDetId rpctid("WM2_S04_RB4plus",RPCCompDetId::TEMPERATURE);
-    //RPCCompDetId rpctid("RPC_EM1_R03_C12_C17_UP",0);
-    std::cout <<rpctid<<" rawid = "<< rpctid.rawId()<<std::endl;
-    std::cout <<"Region = "<<rpctid.region()<<std::endl;
-    std::cout <<"Ring or Wheel = "<<rpctid.ring()<<" - Wheel = "<<rpctid.wheel()<<std::endl;
-    std::cout <<"Station or Disk = "<<rpctid.station()<<" - Disk = "<<rpctid.disk()<<std::endl;
-    std::cout <<"Sector = "<<rpctid.sector()<<std::endl;
-    std::cout <<"Layer = "<<rpctid.layer()<<std::endl;
-    std::cout <<"SubSector = "<<rpctid.subsector()<<std::endl;
-    std::cout <<std::setw(100)<<std::setfill('-')<<std::endl;
-    std::cout <<"ok"<<std::endl;
-    RPCCompDetId check(rpctid.rawId(),RPCCompDetId::TEMPERATURE);
-    std::cout <<check<<" rawid = "<< check.rawId()<<std::endl;
-    std::cout <<"Region = "<<check.region()<<std::endl;
-    std::cout <<"Ring or Wheel = "<<check.ring()<<" - Wheel = "<<check.wheel()<<std::endl;
-    std::cout <<"Station or Disk = "<<check.station()<<" - Disk = "<<check.disk()<<std::endl;
-    std::cout <<"Sector = "<<check.sector()<<std::endl;
-    std::cout <<"Layer = "<<check.layer()<<std::endl;
-    std::cout <<"SubSector = "<<check.subsector()<<std::endl;
-  }
+  RPCCompDetId rpcgasid("WM2_S04_RB4R",0);
+  
+  //RPCCompDetId rpcgasid("cms_rpc_dcs_03:EM1_R03_C12_C17_UP",0);
+  std::cout <<rpcgasid<<" rawid = "<< rpcgasid.rawId()<<std::endl;
+  std::cout <<"Region = "<<rpcgasid.region()<<std::endl;
+  std::cout <<"Ring or Wheel = "<<rpcgasid.ring()<<" - Wheel = "<<rpcgasid.wheel()<<std::endl;
+  std::cout <<"Station or Disk = "<<rpcgasid.station()<<" - Disk = "<<rpcgasid.disk()<<std::endl;
+  std::cout <<"Sector = "<<rpcgasid.sector()<<std::endl;
+  std::cout <<"Layer = "<<rpcgasid.layer()<<std::endl;
+  std::cout <<"SubSector = "<<rpcgasid.subsector()<<std::endl;
+  std::cout <<std::setw(100)<<std::setfill('-')<<std::endl;
+  std::cout <<"ok"<<std::endl;
+  RPCCompDetId check(rpcgasid.rawId());
+  std::cout <<check<<" rawid = "<< check.rawId()<<std::endl;
+  std::cout <<"Region = "<<check.region()<<std::endl;
+  std::cout <<"Ring or Wheel = "<<check.ring()<<" - Wheel = "<<check.wheel()<<std::endl;
+  std::cout <<"Station or Disk = "<<check.station()<<" - Disk = "<<check.disk()<<std::endl;
+  std::cout <<"Sector = "<<check.sector()<<std::endl;
+  std::cout <<"Layer = "<<check.layer()<<std::endl;
+  std::cout <<"SubSector = "<<check.subsector()<<std::endl;
+  
 }
 
 

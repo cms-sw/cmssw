@@ -473,7 +473,7 @@ void findHotPixels::analyze(const  edm::Event& ev, const edm::EventSetup& es) {
   int status=0;
   int countPixels=0;
   int countErrors=0;
-  int eventId = -1;
+  // int eventId = -1;
   int channel=-1, roc=-1, dcol=-1, pix=-1;
   
   countAllEvents++;
@@ -496,7 +496,7 @@ void findHotPixels::analyze(const  edm::Event& ev, const edm::EventSetup& es) {
     // check headers
     const Word64* header = reinterpret_cast<const Word64* >(rawData.data()); 
     //cout<<hex<<*header<<dec<<endl;
-    eventId = MyDecode::header(*header, printHeaders);
+    //eventId = MyDecode::header(*header, printHeaders);
     //if(fedId = fedIds.first) 
 
     const Word64* trailer = reinterpret_cast<const Word64* >(rawData.data())+(nWords-1);

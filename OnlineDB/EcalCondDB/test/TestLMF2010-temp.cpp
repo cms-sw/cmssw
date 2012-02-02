@@ -38,8 +38,42 @@ public:
   }
 
   void doRun() {
-    bool b = true;
-    LMFPnPrimDat(econn, "ORANGE", "LED", b);
+    LocationDef my_locdef;
+    my_locdef.setLocation( "P5_Co" );
+    
+    RunTypeDef my_rundef;
+    my_rundef.setRunType( "PHYSICS" );
+    
+    RunTag  my_runtag;
+    my_runtag.setLocationDef( my_locdef );
+    my_runtag.setRunTypeDef(  my_rundef );
+    my_runtag.setGeneralTag( "GLOBAL" );
+    
+    // Look for new runs in the DB
+    RunList runlist = econn->fetchRunList( my_runtag, 161900, 161976 );
+    std::vector<RunIOV> run_vec =  runlist.getRuns();
+
+    std::cout << "ALL: " << run_vec.size() << std::endl;
+    for (unsigned int i = 0; i < run_vec.size(); i++) {
+      std::cout << i << " " << run_vec[i].getRunNumber() << std::endl;
+    }
+
+    run_vec.clear();
+    runlist = econn->fetchNonEmptyRunList( my_runtag, 161900, 161976 );
+    run_vec =  runlist.getRuns();
+    
+    std::cout << "NON EMPTY: " << run_vec.size() << std::endl;  
+    for (unsigned int i = 0; i < run_vec.size(); i++) {
+      std::cout << i << " " << run_vec[i].getRunNumber() << std::endl;
+    }
+    runlist = econn->fetchNonEmptyGlobalRunList( my_runtag, 161900, 161976 );
+    run_vec.clear();
+    run_vec =  runlist.getRuns();
+    
+    std::cout << "NON EMPTY GLOBAL: " << run_vec.size() << std::endl;  
+    for (unsigned int i = 0; i < run_vec.size(); i++) {
+      std::cout << i << " " << run_vec[i].getRunNumber() << std::endl;
+    }
   }
 
 private:

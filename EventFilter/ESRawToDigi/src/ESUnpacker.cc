@@ -55,7 +55,7 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESRawDa
   int nWords = rawData.size()/sizeof(Word64);
   if (nWords==0) return;
   int dccWords = 6;
-  int head, kPACE[4], kFlag1, kFlag2, kBC, kEC, optoBC, optoEC, ttcEC;
+  int head, kPACE[4], kFlag1, kFlag2, kBC, kEC, optoBC, optoEC;
   int kid = -1;
 
   ESDCCHeaderBlock ESDCCHeader;
@@ -240,7 +240,6 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESRawDa
       ESKCHIP.setFlag2(kFlag2);
       kchips.push_back(ESKCHIP);
     } else if (head == 6) {
-      ttcEC  = (*word >> 0) & m32;
       optoBC = (*word >> 32) & m16;
       optoEC = (*word >> 48) & m8;      
       if (opto==0) ESDCCHeader.setOptoBC0(optoBC);

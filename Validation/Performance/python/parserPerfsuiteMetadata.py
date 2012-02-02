@@ -68,9 +68,9 @@ class parserPerfsuiteMetadata:
 		general_stop=[lines.index(line) for line in lines if self._otherStart.match(line)]
 		if timesize_start:
 			timesize_start_index = timesize_start[0]
-			general_stop_index = timesize_start_index
+			general_stop_index=timesize_start_index
 		elif general_stop:
-			timesize_start_index=timesize_end_index+1
+			timesize_start_index=0
 			general_stop_index=general_stop[0]
 		else:
 			timesize_start_index=0
@@ -358,120 +358,68 @@ class parserPerfsuiteMetadata:
 
 	
 	def parseAllOtherTests(self):
-		#make it general, for whatever test comes...
-		test = {}
-
-		parsing_rules = (
-			(("", "candle", ), r"""^(Candle|ONLY) (.+) will be PROCESSED$""", "req"),
-			#e.g.: --conditions FrontierConditions_GlobalTag,MC_31X_V4::All --eventcontent RECOSIM
-			(("cms_driver_options", ), r"""^Using user-specified cmsDriver.py options: (.+)$"""),
-			(("", "conditions", ""), r"""^Using user-specified cmsDriver.py options: (.*)--conditions ([^\s]+)(.*)$""", "req"),
-			# for this we cannot guarrantee that it has been found, TODO: we might count the number of pileup candles and compare with arguments
-			(("",  "pileup_type", ""), r"""^Using user-specified cmsDriver.py options:(.*)--pileup=([^\s]+)(.*)$"""),
-			#not shure if event content is required
-			(("",  "event_content", ""), r"""^Using user-specified cmsDriver.py options:(.*)--eventcontent ([^\s]+)(.*)$""", "req"),
-			#TODO: after changeing the splitter to "taskset -c ..." this is no longer included into the part of correct job
-			#(("input_user_root_file", ), r"""^For these tests will use user input file (.+)$"""),
-		)
-
+		threads = {}
+		tests = {
+			#"IgProf_Perf": {}, "IgProf_Mem": {}, "Memcheck": {},	"Callgrind": {},
+		}
 
 		lines = self.lines_other
 		"""
 
 		for each of IgProf_Perf, IgProf_Mem,  Memcheck, Callgrind tests we have such a structure of input file:
 		* beginning ->> and start timestamp- the firstone:
-        		Launching the PILE UP IgProf_Mem tests on cpu 4 with 201 events each
-			Adding thread <simpleGenReportThread(Thread-1, started -176235632)> to the list of active threads
-		        Mon Jun 14 20:06:54 2010
+			Adding thread <simpleGenReportThread(Thread-1, started)> to the list of active threads
+			Launching the Memcheck tests on cpu 3 with 5 events each
+			Fri Aug 14 01:16:03 2009
 
 			<... whatever might be here, might overlap with other test start/end messages ..>
 
-			Mon Jun 14 21:59:33 2010
-			IgProf_Mem test, in thread <simpleGenReportThread(Thread-1, stopped -176235632)> is done running on core 4
-
+			Fri Aug 14 02:13:18 2009
+			Memcheck test, in thread <simpleGenReportThread(Thread-1, stopped)> is done running on core 3
 		* ending - the last timestamp "before is done running ...."
 		"""
-		# we take the first TimeStamp after the starting message and the first before the finishing message in 2 rounds..
+		# we take the first TimeStamp after the starting message and the first before the finishing message
+
 	
 		#TODO: if threads would be changed it would stop working!!!
 
 		# i.e. Memcheck, cpu, events
-		reSubmit = re.compile(r"""^Let's submit (.+) test on core (\d+)$""")
+		reStart = re.compile(r"""^Launching the (.*) tests on cpu (\d+) with (\d+) events each$""")
+		# i.e. Memcheck, thread name,core number
+		reEnd = re.compile(r"""^(.*) test, in thread <simpleGenReportThread\((.+), stopped\)> is done running on core (\d+)$""")
 		
-		reStart = re.compile(r"""^Launching the (PILE UP |)(.*) tests on cpu (\d+) with (\d+) events each$""")
-
-		# i.e. Memcheck, thread name,id,core number
-		reEnd = re.compile(r"""^(.*) test, in thread <simpleGenReportThread\((.+), stopped -(\d+)\)> is done running on core (\d+)$""")
-		
-		reAddThread =  re.compile(r"""^Adding thread <simpleGenReportThread\((.+), started -(\d+)\)> to the list of active threads$""")
-
-		reWaiting = re.compile(r"""^Waiting for tests to be done...$""")
+		#i.e. thread = Thread-1
+		reAddThread =  re.compile(r"""^Adding thread <simpleGenReportThread\((.+), started\)> to the list of active threads$""")
 
 		reExitCode = re.compile(r"""Individual cmsRelvalreport.py ExitCode (\d+)""")
 		""" we search for lines being either: (it's a little pascal'ish but we need the index!) """
-
-		jobs = []
-
-		#can split it into jobs ! just have to reparse it for the exit codes later....
-		for line_index in xrange(0, len(lines)):
-			line = lines[line_index]
-			if reSubmit.match(line):
-				end_index = self.findLineAfter(line_index, lines, test_condition=lambda l: reWaiting.match(l), return_index = True)
-				jobs.append(lines[line_index:end_index])
-
-		for job_lines in jobs:
-			#print job_lines
-			info = self._applyParsingRules(parsing_rules, job_lines)
-			#Fixing here the compatibility with new cmsdriver.py --conditions option
-			#(for which now we have autoconditions and FrontierConditions_GlobalTag is optional):
-			if 'auto:' in info['conditions']:
-				from Configuration.AlCa.autoCond import autoCond
-				info['conditions'] = autoCond[ info['conditions'].split(':')[1] ].split("::")[0]
-			else:
-				if 'FrontierConditions_GlobalTag' in info['conditions']:
-					info['conditions']=info['conditions'].split(",")[1]
-
-			steps_start = self.findFirstIndex_ofStartsWith(job_lines, "You defined your own steps to run:")
-			steps_end = self.findFirstIndex_ofStartsWith(job_lines, "*Candle ")
-			#probably it includes steps until we found *Candle... ?
-			steps = job_lines[steps_start + 1:steps_end]
-			if not self.validateSteps(steps):
-				self.handleParsingError( "Steps were not found corrently: %s for current job: %s" % (str(steps), str(job_lines)))
-				
-				""" quite nasty - just a work around """
-				print "Trying to recover from this error in case of old cmssw"
-				
-				""" we assume that steps are between the following sentance and a TimeStamp """
-				steps_start = self.findFirstIndex_ofStartsWith(job_lines, "Steps passed to writeCommands")
-				steps_end = self.findLineAfter(steps_start, job_lines, test_condition = self.isTimeStamp, return_index = True)
-				
-				steps = job_lines[steps_start + 1:steps_end]
-				if not self.validateSteps(steps):
-					self.handleParsingError( "EVEN AFTER RECOVERY Steps were not found corrently! : %s for current job: %s" % (str(steps), str(job_lines)))
-				else:
-					print "RECOVERY SEEMS to be successful: %s" % str(steps)
-
-			info["steps"] = self._LINE_SEPARATOR.join(steps) #!!!! STEPS MIGHT CONTAIN COMMA: ","
-
-			start_id_index = self.findLineAfter(0, job_lines, test_condition = reStart.match, return_index = True)
-			pileUp, testName, testCore, testEventsNum = reStart.match(job_lines[start_id_index]).groups()			
-			info["testname"] = testName
-
-			thread_id_index = self.findLineAfter(0, job_lines, test_condition = reAddThread.match, return_index = True)
-			info["start"] = self.firstTimeStampAfter(thread_id_index, job_lines)
-
-			thread_id, thread_number = reAddThread.match(job_lines[thread_id_index]).groups()
-			info["thread_id"] = thread_id
-			
-			if not test.has_key(testName):
-				test[testName] = []
-			test[testName].append(info)
-		
 		for line_index in xrange(0, len(lines)):
 			line = lines[line_index]
 
+			# * starting of test
+			if reStart.match(line):
+				#print reStart.match(line).groups()
+				testName, testCore, testEventsNum = reStart.match(line).groups()
+
+				time = self.firstTimeStampAfter(line_index, lines)
+
+				#find the name of Thread: it's one of the lines before
+				line_thread = self.findLineBefore(line_index, lines, test_condition=lambda l: reAddThread.match(l))
+				(thread_id, ) =  reAddThread.match(line_thread).groups()
+				
+				#we add it to the list of threads as we DO NOT KNOW EXACT NAME OF TEST
+				if not threads.has_key(thread_id):
+					threads[thread_id] = {}
+				# this way we would get an Exception in case of unknown test name! 
+				threads[thread_id].update({"name": testName, "events_num": testEventsNum, "core": testCore, "start": time, "thread_id": thread_id})
+
+			# * or end of test
 			if reEnd.match(line):
-				testName, thread_id, thread_num, testCore = reEnd.match(line).groups()
+				testName, thread_id, testCore = reEnd.match(line).groups()
+				if not threads.has_key(testName):
+					threads[thread_id] = {}
+				#TODO: we get an exception if we found non existing
+
 				time = self.firstTimeStampBefore(line_index, lines)
 				try:
 					exit_code = ""
@@ -481,14 +429,13 @@ class parserPerfsuiteMetadata:
 				except Exception, e:
 					print "Error while getting exit code (Other test): %s" + str(e)
 					
-				for key, thread in test.items():
-					for i in range(0, len(thread)):
-						if thread[i]["thread_id"] == thread_id:
-							thread[i].update({"end": time, "exit_code": exit_code})
-							break
-				
-		return test
-						
+
+				# this way we would get an Exception in case of unknown test name! So we would be warned if the format have changed
+				threads[thread_id].update({"end": time, "exit_code":exit_code})
+			for key, thread in threads.items():
+				tests[thread["name"]] = thread
+		return tests
+
 
 	def parseTimeSize(self):
 		""" parses the timeSize """
@@ -557,7 +504,7 @@ class parserPerfsuiteMetadata:
 			info = self._applyParsingRules(parsing_rules, job_lines)
 			#Fixing here the compatibility with new cmsdriver.py --conditions option (for which now we have autoconditions and FrontierConditions_GlobalTag is optional):
 			if 'auto:' in info['conditions']:
-				from Configuration.AlCa.autoCond import autoCond
+				from Configuration.PyReleaseValidation.autoCond import autoCond
 				info['conditions'] = autoCond[ info['conditions'].split(':')[1] ].split("::")[0]
 			else:
 				if 'FrontierConditions_GlobalTag' in info['conditions']:
@@ -651,6 +598,43 @@ class parserPerfsuiteMetadata:
 		return csimark
 		#print csimark
 
+	#get IgProf summary information from the sql3 files
+	def getIgSummary(self):
+		igresult = []
+		globbed = glob.glob(os.path.join(self._path, "../*/IgProfData/*/*/*.sql3"))
+
+		for f in globbed:
+			#print f
+			profileInfo = self.getSummaryInfo(f)
+			if not profileInfo:
+				continue
+			cumCounts, cumCalls = profileInfo
+			dump, architecture, release, rest = f.rsplit("/", 3)
+			candle, sequence, pileup, conditions, process, counterType, events = rest.split("___")
+			events = events.replace(".sql3", "")
+			igresult.append({"counter_type": counterType, "event": events, "cumcounts": cumCounts, "cumcalls": cumCalls})
+
+		return igresult 
+
+	def getSummaryInfo(self, database):
+		summary_query="""SELECT counter, total_count, total_freq, tick_period
+	                         FROM summary;"""
+		error, output = self.doQuery(summary_query, database)
+		if error or not output or output.count("\n") > 1:
+			return None
+		counter, total_count, total_freq, tick_period = output.split("@@@")
+		if counter == "PERF_TICKS":
+			return float(tick_period) * float(total_count), int(total_freq)
+		else:
+			return int(total_count), int(total_freq)
+
+	def doQuery(self, query, database):
+		if os.path.exists("/usr/bin/sqlite3"):
+		        sqlite="/usr/bin/sqlite3"
+		else:
+		        sqlite="/afs/cern.ch/user/e/eulisse/www/bin/sqlite"
+		return getstatusoutput("echo '%s' | %s -separator @@@ %s" % (query, sqlite, database))
+		    
 	def parseTheCompletion(self):
 		"""
 		 checks if the suite has successfully finished  
@@ -681,7 +665,7 @@ class parserPerfsuiteMetadata:
 
 			url = ""
 			try:
-				#print "HERE!"
+				print "HERE!"
 				url=self.get_tarball_fromlog()
 				print "Extracted castor tarball full path by re-parsing cmsPerfSuite.log: %s"%url
 				
@@ -719,7 +703,7 @@ class parserPerfsuiteMetadata:
 		return castor_tarball
 
 	def parseAll(self):
-		result = {"General": {}, "TestResults":{}, "cmsSciMark":{}, 'unrecognized_jobs': []}
+		result = {"General": {}, "TestResults":{}, "cmsSciMark":{}, "IgSummary":{}, 'unrecognized_jobs': []}
 
 		""" all the general info - start, arguments, host etc """
 		result["General"].update(self.parseGeneralInfo())
@@ -730,20 +714,18 @@ class parserPerfsuiteMetadata:
 		""" we add info about how successfull was the run, when it finished and final castor url to the file! """
 		result["General"].update(self.parseTheCompletion())
 
-		print "Parsing TimeSize runs..."
-		if len(self.lines_timesize) > 0:
-			try:
-				result["TestResults"].update(self.parseTimeSize())
-			except Exception, e:
-				print "BAD BAD BAD UNHANDLED ERROR in parseTimeSize: " + str(e)
-
-		print "Parsing Other(IgProf, Memcheck, ...) runs..."
 		try:
-			result["TestResults"].update(self.parseAllOtherTests())
+			result["TestResults"].update(self.parseTimeSize())
 		except Exception, e:
-			print "BAD BAD BAD UNHANDLED ERROR in parseAllOtherTests: " + str(e)
+			print "BAD BAD BAD UNHANDLED ERROR" + str(e)
 
-		#print result["TestResults"]
+
+		#TODO:
+		#Check what Vidmantas was doing in the parseAllOtherTests, de facto it is not used now, so commenting it for now (to avoid the "BAD BAD BAD...."
+		#try:
+		#	result["TestResults"].update(self.parseAllOtherTests())
+		#except Exception, e:
+		#	print "BAD BAD BAD UNHANDLED ERROR" + str(e)
 
 
 		main_cores = [result["General"]["run_on_cpus"]]
@@ -755,6 +737,9 @@ class parserPerfsuiteMetadata:
 
 		# THE MAHCINE SCIMARKS
 		result["cmsSciMark"] = self.readCmsScimark(main_cores = main_cores)
+		result["IgSummary"] = self.getIgSummary()
+		
+
 
 		if self.missing_fields:
 			self.handleParsingError("========== SOME REQUIRED FIELDS WERE NOT FOUND DURING PARSING ======= "+ str(self.missing_fields))

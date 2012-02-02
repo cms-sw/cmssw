@@ -9,7 +9,6 @@
 
 class RandomEngine;
 class EcalTrigTowerConstituentsMap;
-class EcalPedestal;
 class GaussianTail;
 
 namespace edm { 
@@ -30,7 +29,7 @@ class EcalBarrelRecHitsMaker
  private:
   void clean();
   void loadPCaloHits(const edm::Event & iEvent);
-  void geVtoGainAdc(float e, unsigned index, unsigned& gain,unsigned &adc,unsigned & ped) const;
+  void geVtoGainAdc(float e,unsigned& gain,unsigned &adc) const;
   void noisifyTriggerTowers();
   bool noisifyTriggerTower(unsigned tthi);
   void randomNoisifier();
@@ -105,8 +104,7 @@ class EcalBarrelRecHitsMaker
   double noiseADC_;
   // need to keep the address of ICMC
   const std::vector<float> * ICMC_;
-  // ECAL pedestals
-  const std::vector<EcalPedestal> * thePedestals_;
+
 };
 
 #endif

@@ -9,7 +9,7 @@ Specs:
 import sys,os
 import numpy,datetime
 import matplotlib
-from RecoLuminosity.LumiDB import CommonUtil,lumiTime,csvReporter
+from RecoLuminosity.LumiDB import CommonUtil
 
 batchonly=False
 if not os.environ.has_key('DISPLAY') or not os.environ['DISPLAY']:
@@ -39,40 +39,9 @@ matplotlib.rcParams['ytick.labelsize']=11
 matplotlib.rcParams['legend.fontsize']=10
 matplotlib.rcParams['axes.labelsize']=11
 matplotlib.rcParams['font.weight']=567
-
 def destroy(e) :
     sys.exit()
-
-def guessLumiUnit(t):
-    '''
-    input : largest total lumivalue
-    output: (unitstring,denomitor)
-    '''
-    unitstring='$\mu$b$^{-1}$'
-    denomitor=1.0
-    if t>=1.0e3 and t<1.0e06:
-        denomitor=1.0e3
-        unitstring='nb$^{-1}$'
-    elif t>=1.0e6 and t<1.0e9:
-        denomitor=1.0e6
-        unitstring='pb$^{-1}$'
-    elif t>=1.0e9 and t<1.0e12:
-        denomitor=1.0e9
-        unitstring='fb$^{-1}$'
-    elif  t>=1.0e12 and t<1.0e15:
-        denomitor=1.0e12
-        unitstring='ab$^{-1}$'
-    elif t<=1.0e-3 and t>1.0e-6: #left direction
-        denomitor=1.0e-3
-        unitstring='mb$^{-1}$'
-    elif t<=1.0e-6 and t>1.0e-9:
-        denomitor=1.0e-6
-        unitstring='b$^{-1}$'
-    elif t<=1.0e-9 and t>1.0e-12:
-        denomitor=1.0e-9
-        unitstring='kb$^{-1}$'
-    return (unitstring,denomitor)
-
+    
 class matplotRender():
     def __init__(self,fig):
         self.__fig=fig
@@ -83,56 +52,41 @@ class matplotRender():
         self.colormap['Effective']='g'
         self.colormap['Max Inst']='r'
 
-    def plotSumX_Run(self,rawdata={},resultlines=[],minRun=None,maxRun=None,nticks=6,yscale='linear',withannotation=False,referenceLabel='Delivered',labels=['Delivered','Recorded'],textoutput=None):
-        '''
-        input:
-          rawdata = {'Delivered':[(runnumber,lumiperrun),..],'Recorded':[(runnumber,lumiperrun),..]}
-          resultlines = [[runnumber,dellumiperrun,reclumiperrun],[runnumber,dellumiperrun,reclumiperrun],]
-          minRun : minimal runnumber required
-          maxRun : max runnumber required
-          yscale: linear,log or both
-          withannotation: wheather the boundary points should be annotated
-          referenceLabel: the one variable that decides the total unit and the plot x-axis range
-          labels: labels of the variables to plot
-          textoutput: text output file name. 
-        '''
+    def plotSumX_Run(self,rawxdata,rawydata,nticks=6,yscale='linear'):
+        xpoints=[]
         ypoints={}
         ytotal={}
-        for r in resultlines:#parse old text data
-            runnumber=int(r[0])
-            if rawdata and runnumber in [t[0] for t in rawdata[referenceLabel]]:continue#use text input only if not in selected data
-            if minRun and runnumber<minRun: continue
-            if maxRun and runnumber>maxRun: continue
-            for i,lab in enumerate(labels) :
-                v=float(r[-(len(labels)-i)])#the values to plot are always the last n fields
-                rawdata.setdefault(lab,[]).append((runnumber,v))
-        if not rawdata:
-            print '[WARNING]: no data to plot , exit'
+        xidx=[]
+        #print 'max rawxdata ',max(rawxdata)
+        #print 'min rawxdata ',min(rawxdata)
+        for x in CommonUtil.inclusiveRange(min(rawxdata),max(rawxdata),1):
+            #print 'x : ',x
+            xpoints.append(x)
+            xidx.append(rawxdata.index(x)) #get the index of the sample points
+            #print 'xidx : ',rawxdata.index(x)
+        if len(xpoints)==0:
+            print '[WARNING]: no data, do nothing'
             return
-      
-        tot=sum([t[1] for t in rawdata[referenceLabel]])
-        (unitstring,denomitor)=guessLumiUnit(tot)
-        csvreport=None
-        rows=[]
-        flat=[]
-        for label,yvalues in rawdata.items():
-            yvalues.sort()
-            flat.append([t[1] for t in yvalues])
-            ypoints[label]=[]
-            ytotal[label]=0.0
-            lumivals=[t[1] for t in yvalues]
-            for i,val in enumerate(lumivals):
-                ypoints[label].append(sum(lumivals[0:i+1])/denomitor)#integrated lumi
-            ytotal[label]=sum(lumivals)/denomitor
-        xpoints=[t[0] for t in rawdata[referenceLabel]]
-        if textoutput:
-            csvreport=csvReporter.csvReporter(textoutput)
-            head=['#run','delivered','recorded']
-            csvreport.writeRow(head)
-            allruns=[int(t[0]) for t in rawdata[referenceLabel]]
-            flat.insert(0,allruns)
-            rows=zip(*flat)
-            csvreport.writeRows([list(t) for t in rows])
+        t=sum(rawydata['Delivered'])
+        denomitor=1.0
+        unitstring='$\mu$b$^{-1}$'
+        if t>=1.0e3 and t<1.0e06:
+            denomitor=1.0e3
+            unitstring='nb$^{-1}$'
+        elif t>=1.0e6 and t<1.0e9:
+            denomitor=1.0e6
+            unitstring='pb$^{-1}$'
+        elif t>=1.0e9 and t<1.0e12:
+            denomitor=1.0e9
+            unitstring='fb$^{-1}$'
+        elif  t>=1.0e12 and t<1.0e15:
+            denomitor=1.0e12
+            unitstring='ab$^{-1}$'
+        for ylabel,yvalues in rawydata.items():
+            ypoints[ylabel]=[]           
+            for i in xidx:
+                ypoints[ylabel].append(sum(yvalues[0:i+1])/denomitor)
+            ytotal[ylabel]=sum(yvalues)/denomitor  
         ax=self.__fig.add_subplot(111)
         if yscale=='linear':
             ax.set_yscale('linear')
@@ -161,73 +115,53 @@ class matplotRender():
             if self.colormap.has_key(ylabel):
                 cl=self.colormap[ylabel]
             ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl,drawstyle='steps')
-            legendlist.append(ylabel+' '+'%.3f'%(ytotal[ylabel])+' '+unitstring)
+            legendlist.append(ylabel+' '+'%.2f'%(ytotal[ylabel])+' '+unitstring)
         #font=FontProperties(size='medium',weight='demibold')
-        #legend
-        ax.legend(tuple(legendlist),loc='upper left')
-        #adjust
-        self.__fig.subplots_adjust(bottom=0.18,left=0.1)
         #annotations
-        if withannotation:
-            trans=matplotlib.transforms.BlendedGenericTransform(ax.transData,ax.transAxes)
-            ax.text(xpoints[0],1.025,str(xpoints[0]),transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
-            ax.text(xpoints[-1],1.025,str(xpoints[-1]),transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
+        trans=matplotlib.transforms.BlendedGenericTransform(ax.transData,ax.transAxes)
+        ax.text(xpoints[0],1.025,str(xpoints[0]),transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
+        ax.text(xpoints[-1],1.025,str(xpoints[-1]),transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
+        ax.legend(tuple(legendlist),loc='upper left')
+        self.__fig.subplots_adjust(bottom=0.18,left=0.1)
         
-    
-    def plotSumX_Fill(self,rawdata={},resultlines=[],minFill=None,maxFill=None,nticks=6,yscale='linear',withannotation=False,referenceLabel='Delivered',labels=['Delivered','Recorded'],textoutput=None):
-        '''
-        input:
-        rawdata = {'Delivered':[(fill,runnumber,lumiperrun)],'Recorded':[(fill,runnumber,lumiperrun)]}
-        resultlines = [[fillnumber,runnumber,dellumiperrun,reclumiperrun],[fillnumber,runnumber,dellumiperrun,reclumiperrun],]
-        minFill : min fill to draw
-        maxFill : max fill to draw
-        yscale: linear,log or both
-        withannotation: wheather the boundary points should be annotated
-        textoutput: text output file name. 
-        '''
+    def plotSumX_Fill(self,rawxdata,rawydata,rawfillDict,nticks=6,yscale='linear'):
+        #print 'plotSumX_Fill rawxdata ',rawxdata
         ytotal={}
         ypoints={}
-        for r in resultlines: #parse old text data
-            fillnum=int(r[0])
-            runnum=int(r[1])
-            if rawdata and (fillnum,runnum) in [(t[0],t[1]) for t in rawdata[referenceLabel]]:continue
-            if minFill and fillnum<minFill:continue
-            if maxFill and fillnum>maxFill:continue
-            for i,lab in enumerate(labels) :
-                v=float(r[-(len(labels)-i)])#the values to plot are always the last n fields
-                rawdata.setdefault(lab,[]).append((fillnum,runnum,v))
-        #print 'fillrunDict ',fillrunDict
-        if not rawdata:
+        xpoints=rawfillDict.keys()
+        if len(xpoints)==0:
             print '[WARNING]: no data, do nothing'
             return
-        tot=sum([t[2] for t in rawdata[referenceLabel]])
+        xpoints.sort()
         beginfo=''
         endinfo=''
-        (unitstring,denomitor)=guessLumiUnit(tot)
-        csvreport=None
-        rows=[]
-        flat=[]
-        for label,yvalues in rawdata.items():
-            yvalues.sort()
-            flat.append([t[2] for t in yvalues])
-            ypoints[label]=[]
-            ytotal[label]=0.0
-            lumivals=[t[2] for t in yvalues]
-            for i,val in enumerate(lumivals):
-                ypoints[label].append(sum(lumivals[0:i+1])/denomitor)
-            ytotal[label]=sum(lumivals)/denomitor
-        xpoints=[t[0] for t in rawdata[referenceLabel]]#after sort
-        if textoutput:
-            csvreport=csvReporter.csvReporter(textoutput)
-            head=['#fill','run','delivered','recorded']
-            csvreport.writeRow(head)
-            allfills=[int(t[0]) for t in rawdata[referenceLabel]]
-            allruns=[int(t[1]) for t in rawdata[referenceLabel]]
-            flat.insert(0,allfills)
-            flat.insert(1,allruns)
-            rows=zip(*flat)
-            csvreport.writeRows([list(t) for t in rows])
-        
+        t=sum(rawydata['Delivered'])
+        denomitor=1.0
+        unitstring='$\mu$b$^{-1}$'
+        if t>=1.0e3 and t<1.0e06:
+            denomitor=1.0e3
+            unitstring='nb$^{-1}$'
+        elif t>=1.0e6 and t<1.0e9:
+            denomitor=1.0e6
+            unitstring='pb$^{-1}$'
+        elif t>=1.0e9 and t<1.0e12:
+            denomitor=1.0e9
+            unitstring='fb$^{-1}$'
+        elif  t>=1.0e12 and t<1.0e15:
+            denomitor=1.0e12
+            unitstring='ab$^{-1}$'
+            
+        for ylabel,yvalue in rawydata.items():
+            ypoints[ylabel]=[]
+            ytotal[ylabel]=sum(rawydata[ylabel])/denomitor
+            for idx,fill in enumerate(xpoints):
+                runlist=rawfillDict[fill]
+                if idx==0:
+                    beginfo=str(fill)+':'+str(runlist[0])
+                if idx==len(xpoints)-1:
+                    endinfo=str(fill)+':'+str(runlist[-1])
+                xidx=rawxdata.index(max(runlist))
+                ypoints[ylabel].append(sum(yvalue[0:xidx+1])/denomitor)
         ax=self.__fig.add_subplot(111)
         ax.set_xlabel(r'LHC Fill Number',position=(0.84,0))
         ax.set_ylabel(r'L '+unitstring,position=(0,0.9))
@@ -254,87 +188,56 @@ class matplotRender():
             if self.colormap.has_key(ylabel):
                 cl=self.colormap[ylabel]
             ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl,drawstyle='steps')
-            legendlist.append(ylabel+' '+'%.3f'%(ytotal[ylabel])+' '+unitstring)
+            legendlist.append(ylabel+' '+'%.2f'%(ytotal[ylabel])+' '+unitstring)
         #font=FontProperties(size='medium',weight='demibold')
         #annotations
-        if withannotation:
-            trans=matplotlib.transforms.BlendedGenericTransform(ax.transData,ax.transAxes)
-            ax.text(xpoints[0],1.025,beginfo,transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
-            ax.text(xpoints[-1],1.025,endinfo,transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
-        #legend
+        trans=matplotlib.transforms.BlendedGenericTransform(ax.transData,ax.transAxes)
+        ax.text(xpoints[0],1.025,beginfo,transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
+        ax.text(xpoints[-1],1.025,endinfo,transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
         ax.legend(tuple(legendlist),loc='upper left')
-        #adjust
         self.__fig.subplots_adjust(bottom=0.1,left=0.1)
         
-    def plotSumX_Time(self,rawdata={},resultlines=[],minTime=None,maxTime=None,nticks=6,yscale='linear',withannotation=False,referenceLabel='Delivered',labels=['Delivered','Recorded'],textoutput=None):
+    def plotSumX_Time(self,rawxdata,rawydata,minTime,maxTime,hltpath='',nticks=6,annotateBoundaryRunnum=False,yscale='linear'):
         '''
         input:
-        rawdata = {'Delivered':[(runnumber,starttimestamp,stoptimestamp,lumiperrun)],'Recorded':[(runnumber,starttimestamp,stoptimestamp,lumiperrun)]}
-        resultlines = [[runnumber,starttimestampStr,stoptimestampStr,dellumiperrun,reclumiperrun],[runnumber,starttimestampStr,stoptimestampStr,dellumiperrun,reclumiperrun],]
-        minTime (python DateTime) : min *begin* time to draw: format %m/%d/%y %H:%M:%S
-        maxTime (python DateTime): max *begin* time to draw %m/%d/%y %H:%M:%S
-        yscale: linear,log or both
-        withannotation: wheather the boundary points should be annotated
-        referenceLabel: the one variable that decides the total unit and the plot x-axis range
-        labels: labels of the variables to plot
+           rawxdata runDict{runnumber:[delivered,recorded,recorded_hltpath]}
+           rawydata {label:[rundata]}
         '''
         xpoints=[]
         ypoints={}
         ytotal={}
-        lut=lumiTime.lumiTime()
-        if not minTime:
-            minTime='03/01/10 00:00:00'
-        minTime=lut.StrToDatetime(minTime,customfm='%m/%d/%y %H:%M:%S')
-        if not maxTime:
-            maxTime=datetime.datetime.utcnow()
-        else:
-            maxTime=lut.StrToDatetime(maxTime,customfm='%m/%d/%y %H:%M:%S')
-        for r in resultlines:
-            runnumber=int(r[0])
-            starttimeStr=r[1].split('.')[0]
-            starttime=lut.StrToDatetime(starttimeStr,customfm='%Y-%m-%d %H:%M:%S')
-            stoptimeStr=r[2].split('.')[0]
-            stoptime=lut.StrToDatetime(stoptimeStr,customfm='%Y-%m-%d %H:%M:%S')
-            if rawdata and runnumber in [t[0] for t in rawdata[referenceLabel]]:continue
-            if starttime<minTime:continue
-            if starttime>maxTime:continue
-                
-            for i,lab in enumerate(labels):
-                v=float(r[-(len(labels)-i)])
-                rawdata.setdefault(lab,[]).append((runnumber,starttime,stoptime,v))        
-        if not rawdata:
+        xidx=[]
+        runs=rawxdata.keys()
+        #print 'rawxdata ',rawxdata
+        runs.sort()
+        for idx,run in enumerate(runs):
+            #print 'idx,run ',idx,run
+            xpoints.append(matplotlib.dates.date2num(rawxdata[run][0]))
+            xidx.append(idx)
+        if len(xpoints)==0:
             print '[WARNING]: no data, do nothing'
             return
-        tot=sum([t[3] for t in rawdata[referenceLabel]])
-        (unitstring,denomitor)=guessLumiUnit(tot)
-        csvreport=None
-        rows=[]
-        flat=[]
-        for label,yvalues in rawdata.items():
-            yvalues.sort()
-            flat.append([t[3] for t in yvalues])
-            if label==referenceLabel:
-                minTime=yvalues[0][1]
-                maxTime=yvalues[-1][1]
-            ypoints[label]=[]
-            lumivals=[t[3] for t in yvalues]
-            for i,val in enumerate(lumivals):
-                ypoints[label].append(sum(lumivals[0:i+1])/denomitor)
-            ytotal[label]=sum(lumivals)/denomitor
-        xpoints=[matplotlib.dates.date2num(t[1]) for t in rawdata[referenceLabel]]
-        if textoutput:
-            csvreport=csvReporter.csvReporter(textoutput)
-            head=['#fill','run','delivered','recorded']
-            csvreport.writeRow(head)
-            allruns=[int(t[0]) for t in rawdata[referenceLabel]]
-            allstarts=[ t[1] for t in rawdata[referenceLabel]]
-            allstops=[ t[2] for t in rawdata[referenceLabel]]
-            flat.insert(0,allruns)
-            flat.insert(1,allstarts)
-            flat.insert(2,allstops)
-            rows=zip(*flat)
-            csvreport.writeRows([list(t) for t in rows])
-        
+        t=sum(rawydata['Delivered'])
+        denomitor=1.0
+        unitstring='$\mu$b$^{-1}$'
+        if t>=1.0e3 and t<1.0e06:
+            denomitor=1.0e3
+            unitstring='nb$^{-1}$'
+        elif t>=1.0e6 and t<1.0e9:
+            denomitor=1.0e6
+            unitstring='pb$^{-1}$'
+        elif t>=1.0e9 and t<1.0e12:
+            denomitor=1.0e9
+            unitstring='fb$^{-1}$'
+        elif  t>=1.0e12 and t<1.0e15:
+            denomitor=1.0e12
+            unitstring='ab$^{-1}$'
+            
+        for ylabel,yvalue in rawydata.items():
+            ypoints[ylabel]=[]
+            for i in xidx:
+                ypoints[ylabel].append(sum(yvalue[0:i+1])/denomitor)
+            ytotal[ylabel]=sum(yvalue)/denomitor
         ax=self.__fig.add_subplot(111)
         if yscale=='linear':
             ax.set_yscale('linear')
@@ -368,127 +271,56 @@ class matplotRender():
             if self.colormap.has_key(ylabel):
                 cl=self.colormap[ylabel]
             ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl,drawstyle='steps')
-            legendlist.append(ylabel+' '+'%.3f'%(ytotal[ylabel])+' '+unitstring)
+            legendlist.append(ylabel+' '+'%.2f'%(ytotal[ylabel])+' '+unitstring)
         #annotations
         trans=matplotlib.transforms.BlendedGenericTransform(ax.transData,ax.transAxes)
         #print 'run boundary ',runs[0],runs[-1]
         #print 'xpoints boundary ',xpoints[0],xpoints[-1]
-        #annotation
-        if withannotation:
-            runs=[t[0] for t in rawdata[referenceLabel]]
+        if annotateBoundaryRunnum:
             ax.text(xpoints[0],1.025,str(runs[0]),transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))        
             ax.text(xpoints[-1],1.025,str(runs[-1]),transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
         
         if yearStrMin==yearStrMax:
-            firsttimeStr=rawdata[referenceLabel][1][1].strftime('%b %d %H:%M') #time range(start) in the title is the first run beg time 
-            lasttimeStr=rawdata[referenceLabel][-1][2].strftime('%b %d %H:%M') #time range(stop) in the tile is the last run stop time
-            #firstimeStr=minTime.strftime('%b %d %H:%M')
-            #lasttimeStr=maxTime.strftime('%b %d %H:%M')
-            #ax.set_title('CMS Total Integrated Luminosity '+yearStrMin+' ('+firstimeStr+' - '+lasttimeStr+' UTC)',size='small',family='fantasy')
-            ax.set_title('CMS Total Integrated Luminosity '+yearStrMin+' ('+firsttimeStr+' - '+lasttimeStr+' UTC)',size='small')
+            firstimeStr=minTime.strftime('%b %d %H:%M')
+            lasttimeStr=maxTime.strftime('%b %d %H:%M')
+            ax.set_title('CMS Total Integrated Luminosity '+yearStrMin+' ('+firstimeStr+' - '+lasttimeStr+' UTC)',size='small',family='fantasy')
         else:
-            #ax.set_title('CMS Total Integrated Luminosity '+yearStrMin+'-'+yearStrMax,size='small',family='fantasy')
-            ax.set_title('CMS Total Integrated Luminosity '+yearStrMin+'-'+yearStrMax,size='small')
+            ax.set_title('CMS Total Integrated Luminosity '+yearStrMin+'-'+yearStrMax,size='small',family='fantasy')
         ax.legend(tuple(legendlist),loc='upper left')
         ax.autoscale_view(tight=True,scalex=True,scaley=False)
         self.__fig.autofmt_xdate(bottom=0.18,rotation=15,ha='right')
         self.__fig.subplots_adjust(bottom=0.2,left=0.15)
         
-    def plotPerdayX_Time(self,rawdata={},resultlines=[],minTime=None,maxTime=None,nticks=6,yscale='linear',withannotation=False,referenceLabel='Delivered',labels=['Delivered','Recorded'],textoutput=None):
+    def plotPerdayX_Time(self,days,databyday,minTime,maxTime,boundaryInfo=[],nticks=6,annotateBoundaryRunnum=False,yscale='linear'):
+        '''input
+            databyday {'Delivered':[lumiperday]}
+            boundaryInfo [[begintime,begininfo],[endtime,endinfo]]
         '''
-        Input:
-        rawdata={'Delivered':[(day,begrun:ls,endrun:ls,lumi)],'Recorded':[(dayofyear,begrun:ls,endrun:ls,lumi)]}
-        resultlines=[[day,begrun:ls,endrun:ls,deliveredperday,recordedperday],[]]
-        minTime (python DateTime) : min *begin* time to draw: format %m/%d/%y %H:%M:%S
-        maxTime (python DateTime): max *begin* time to draw %m/%d/%y %H:%M:%S
-        withannotation: wheather the boundary points should be annotated
-        referenceLabel: the one variable that decides the total unit and the plot x-axis range
-        labels: labels of the variables to plot
-        '''
-        xpoints=[]
-        ypoints={}
-        ymax={}
-        lut=lumiTime.lumiTime()
-        if not minTime:
-            minTime='03/01/10 00:00:00'
-        minTime=lut.StrToDatetime(minTime,customfm='%m/%d/%y %H:%M:%S')
-        if not maxTime:
-            maxTime=datetime.datetime.utcnow()
+        ax=self.__fig.add_subplot(111)
+        t=max(databyday['Delivered'])
+        minvar=min([x for x in databyday['Recorded'] if x>0]) #used only for log scale
+        maxvalues={}
+        keylist=databyday.keys()
+        keylist.sort()
+        for k in keylist:
+            maxvalues[k]=max(databyday[k])
+            
+        if yscale=='linear':
+            ax.set_yscale('linear')
+        elif yscale=='log':
+            ax.set_yscale('log')
+            for k in keylist:
+                for i,v in enumerate(databyday[k]):
+                    if v<minvar:
+                        databyday[k][i]=minvar
         else:
-            maxTime=lut.StrToDatetime(maxTime,customfm='%m/%d/%y %H:%M:%S')
-        for r in resultlines:
-            day=int(r[0])
-            begrunls=r[1]
-            endrunls=r[2]
-            #[begrun,begls]=[int(s) for s in r[1].split(':')]
-            if rawdata and day in [t[0] for t in rawdata[referenceLabel]]:continue
-            if day < minTime.date().toordinal():continue
-            if day > maxTime.date().toordinal():continue
-            for i,lab in enumerate(labels):
-                v=float(r[-(len(labels)-i)])
-                rawdata.setdefault(lab,[]).append((day,begrunls,endrunls,v))
-        if not rawdata:
-            print '[WARNING]: no data, do nothing'
-            return
-        maxlum=max([t[3] for t in rawdata[referenceLabel]])
-        minlum=min([t[3] for t in rawdata[referenceLabel] if t[3]>0]) #used only for log scale, fin the non-zero bottom
-        (unitstring,denomitor)=guessLumiUnit(maxlum)
-        csvreport=None
-        rows=[]
-        flat=[]
-        for label,yvalues in rawdata.items():
-            yvalues.sort()
-            flat.append([t[3] for t in yvalues])
-            minday=yvalues[0][0]
-            #print 'minday ',minday
-            maxday=yvalues[-1][0]
-            #print 'maxday ',maxday
-            alldays=range(minday,maxday+1)
-            #print 'alldays ',alldays
-            ypoints[label]=[]
-            dayvals=[t[0] for t in yvalues]
-            lumivals=[t[3] for t in yvalues]
-            #print 'lumivals ',lumivals
-            for d in alldays:
-                if not d in dayvals:
-                    ypoints[label].append(0.0)
-                else:
-                    thisdaylumi=[t[3] for t in yvalues if t[0]==d][0]
-                    if yscale=='log':
-                        if thisdaylumi<minlum:
-                            thisdaylumi=minlum/denomitor
-                        else:
-                            thisdaylumi=thisdaylumi/denomitor
-                    else:
-                         thisdaylumi=thisdaylumi/denomitor
-                    ypoints[label].append(thisdaylumi)
-                ymax[label]=max(lumivals)/denomitor
-        xpoints=alldays
-        if textoutput:
-            csvreport=csvReporter.csvReporter(textoutput)
-            head=['#day','begrunls','endrunls','delivered','recorded']
-            csvreport.writeRow(head)
-            flat.insert(0,alldays)
-            allstarts=[ t[1] for t in rawdata[referenceLabel]]
-            allstops=[ t[2] for t in rawdata[referenceLabel]]
-            flat.insert(1,allstarts)
-            flat.insert(2,allstops)
-            rows=zip(*flat)
-            csvreport.writeRows([list(t) for t in rows])
-        
+            raise 'unsupported yscale ',yscale        
         yearStrMin=minTime.strftime('%Y')
         yearStrMax=maxTime.strftime('%Y')
         if yearStrMin==yearStrMax:
             dateFmt=matplotlib.dates.DateFormatter('%d/%m')
         else:
             dateFmt=matplotlib.dates.DateFormatter('%d/%m/%y')
-        ax=self.__fig.add_subplot(111)     
-        if yscale=='linear':
-            ax.set_yscale('linear')
-        elif yscale=='log':
-            ax.set_yscale('log')
-        else:
-            raise 'unsupported yscale ',yscale        
         majorLoc=matplotlib.ticker.LinearLocator(numticks=nticks)
         minorLoc=matplotlib.ticker.LinearLocator(numticks=nticks*4)
         ax.xaxis.set_major_formatter(dateFmt)
@@ -500,130 +332,114 @@ class matplotRender():
             tx.set_horizontalalignment('right')
         ax.grid(True)
         legendlist=[]
+     
+        denomitor=1.0
+        unitstring='$\mu$b$^{-1}$'
+        if t>=1.0e3 and t<1.0e06:
+            denomitor=1.0e3
+            unitstring='nb$^{-1}$'
+        elif t>=1.0e6 and t<1.0e9:
+            denomitor=1.0e6
+            unitstring='pb$^{-1}$'
+        elif t>=1.0e9 and t<1.0e12:
+            denomitor=1.0e9
+            unitstring='fb$^{-1}$'
+        elif  t>=1.0e12 and t<1.0e15:
+            denomitor=1.0e12
+            unitstring='ab$^{-1}$'
+
         ax.set_ylabel(r'L '+unitstring,position=(0,0.9))    
-        for ylabel in labels:
+        for ylabel in keylist:
             cl='k'
             if self.colormap.has_key(ylabel):
                 cl=self.colormap[ylabel]
-            ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl,drawstyle='steps')
-            legendlist.append(ylabel+' Max '+'%.3f'%(ymax[ylabel])+' '+unitstring)
+            ax.plot(days,[y/denomitor for y in databyday[ylabel]],label=ylabel,color=cl,drawstyle='steps')
+            legendlist.append(ylabel+' Max '+'%.2f'%(maxvalues[ylabel]/denomitor)+' '+unitstring)
         ax.legend(tuple(legendlist),loc='upper left')
         ax.set_xbound(lower=matplotlib.dates.date2num(minTime),upper=matplotlib.dates.date2num(maxTime))
-        #if withannotation:
-        #        begtime=boundaryInfo[0][0]
-        #        beginfo=boundaryInfo[0][1]
-        #        endtime=boundaryInfo[1][0]
-        #        endinfo=boundaryInfo[1][1]
-        #        #annotations
-        #        trans=matplotlib.transforms.BlendedGenericTransform(ax.transData,ax.transAxes)
-        #        ax.text(matplotlib.dates.date2num(begtime),1.025,beginfo,transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))        
-        #        ax.text(matplotlib.dates.date2num(endtime),1.025,endinfo,transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
-        
-        firstday=datetime.date.fromordinal(rawdata[referenceLabel][0][0])
-        lastday=datetime.date.fromordinal(rawdata[referenceLabel][-1][0])
-        firstdayStr=firstday.strftime('%Y %b %d')
-        lastdayStr=lastday.strftime('%Y %b %d')
-        ax.set_title('CMS Integrated Luminosity/Day ('+firstdayStr+' - '+lastdayStr+')',size='small')
+        if annotateBoundaryRunnum:
+            if len(boundaryInfo)!=0:
+                begtime=boundaryInfo[0][0]
+                beginfo=boundaryInfo[0][1]
+                endtime=boundaryInfo[1][0]
+                endinfo=boundaryInfo[1][1]
+                #annotations
+                trans=matplotlib.transforms.BlendedGenericTransform(ax.transData,ax.transAxes)
+                ax.text(matplotlib.dates.date2num(begtime),1.025,beginfo,transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))        
+                ax.text(matplotlib.dates.date2num(endtime),1.025,endinfo,transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
+        if yearStrMin==yearStrMax:
+            firstimeStr=minTime.strftime('%b %d %H:%M')
+            lasttimeStr=maxTime.strftime('%b %d %H:%M')
+            ax.set_title('CMS Integrated Luminosity/Day '+yearStrMin+' ('+firstimeStr+' - '+lasttimeStr+' UTC)',size='small',family='fantasy')
+        else:
+            ax.set_title('CMS Integrated Luminosity/Day '+yearStrMin+'-'+yearStrMax,size='small',family='fantasy')
         #ax.autoscale(tight=True)
         ax.autoscale_view(tight=True,scalex=True,scaley=False)
         #ax.set_xmargin(0.015)
         self.__fig.autofmt_xdate(bottom=0.18,rotation=15,ha='right')
         self.__fig.subplots_adjust(bottom=0.2,left=0.15)
 
-    def plotPeakPerday_Time(self,rawdata={},resultlines=[],minTime=None,maxTime=None,nticks=6,withannotation=False,yscale='linear',referenceLabel='Delivered',labels=['Delivered'],textoutput=None):
+    def plotPeakPerday_Time(self,daydict,minTime,maxTime,nticks=6,annotateBoundaryRunnum=False,yscale='linear'):
         '''
-        THIS PLOT IS DELIVERED ONLY
-        Input:
-        rawdata={'Delivered':[(day,run,ls,instlumi)]}
-        resultlines=[[day,run,ls,maxinstlum],[]]
-        minTime (python DateTime) : min *begin* time to draw: format %m/%d/%y %H:%M:%S
-        maxTime (python DateTime): max *begin* time to draw %m/%d/%y %H:%M:%S
-        withannotation: wheather the boundary points should be annotated
-        referenceLabel: the one variable that decides the total unit and the plot x-axis range
-        labels: labels of the variables to plot
+        Input: daydict={}#{day:[run,lsnum,instlumi]}
         '''
         xpoints=[]
-        ypoints={}
+        ypoints=[]
         legendlist=[]
+        days=daydict.keys()
+        days.sort()
+        beginfo=str(daydict[days[0]][0])+':'+str(daydict[days[0]][1])
+        endinfo=str(daydict[days[-1]][0])+':'+str(daydict[days[-1]][1])
         maxinfo=''
-        ymax={}
-        lut=lumiTime.lumiTime()
-        if not minTime:
-            minTime='03/01/10 00:00:00'
-        minTime=lut.StrToDatetime(minTime,customfm='%m/%d/%y %H:%M:%S')
-        if not maxTime:
-            maxTime=datetime.datetime.utcnow()
-        else:
-            maxTime=lut.StrToDatetime(maxTime,customfm='%m/%d/%y %H:%M:%S')
-        for r in resultlines:
-            day=int(r[0])
-            runnumber=int(r[1])
-            lsnum=int(r[2].split('.')[0])
-            if rawdata and day in [int(t[0]) for t in rawdata[referenceLabel]]:continue
-            if day < minTime.date().toordinal():continue
-            if day > maxTime.date().toordinal():continue
-            for i,lab in enumerate(labels):
-                v=float(r[-(len(labels)-i)])
-                rawdata.setdefault(lab,[]).append((day,runnumber,lsnum,v))
-        if not rawdata:
-            print '[WARNING]: no data, do nothing'
-            return
-        maxlum=max([t[3] for t in rawdata[referenceLabel]])
-        minlum=min([t[3] for t in rawdata[referenceLabel] if t[3]>0]) #used only for log scale, fin the non-zero bottom
-        (unitstring,denomitor)=guessLumiUnit(maxlum)
-        csvreport=None
-        rows=[]
-        flat=[]
-        alldays=[]
-        for label,yvalues in rawdata.items():
-            yvalues.sort()#sort by day
-            minday=yvalues[0][0]
-            maxday=yvalues[-1][0]
-            alldays=range(minday,maxday+1)
-            ypoints[label]=[]
-            dayvals=[t[0] for t in yvalues]
-            lumivals=[t[3] for t in yvalues]
-            flat.append(lumivals)
-            for d in alldays:
-                if not d in dayvals:
-                    ypoints[label].append(0.0)
-                else:
-                    thisdaylumi=[t[3] for t in yvalues if t[0]==d][0]
-                    if yscale=='log':
-                        if thisdaylumi<minlum:
-                            thisdaylumi=minlum/denomitor
-                        else:
-                            thisdaylumi=thisdaylumi/denomitor
-                    else:
-                        thisdaylumi=thisdaylumi/denomitor
-                    ypoints[label].append(thisdaylumi)
-            ymax[label]=max(lumivals)/denomitor
-        xpoints=alldays
-        if textoutput:
-            csvreport=csvReporter.csvReporter(textoutput)
-            head=['#day','run','lsnum','maxinstlumi']
-            csvreport.writeRow(head)
-            flat.insert(0,[t[0] for t in yvalues])
-            allruns=[ t[1] for t in rawdata[referenceLabel]]
-            allls=[ t[2] for t in rawdata[referenceLabel]]
-            flat.insert(1,allruns)
-            flat.insert(2,allls)
-            rows=zip(*flat)
-            csvreport.writeRows([list(t) for t in rows])
+        ymax=0.0
+        xmax=0
+        minday=days[0]
+        maxday=days[-1]
+        minvar=0.1
+        for day in range(minday,maxday+1):
+            xpoints.append(day)
+            if not daydict.has_key(day):
+                ypoints.append(0.0)
+                continue
+            daymaxdata=daydict[day]
+            ypoints.append(daymaxdata[2])
+            if daydict[day][2]>ymax:
+                ymax=daydict[day][2]
+                xmax=day
+                runmax=daydict[day][0]
+                lsmax=daydict[day][1]
+                maxinfo=str(runmax)+':'+str(lsmax)
+        denomitor=1.0
+        unitstring='$\mu$b$^{-1}$s$^{-1}$'
+        if ymax>=1.0e3 and ymax<1.0e06:
+            denomitor=1.0e3
+            unitstring='nb$^{-1}$s$^{-1}$'
+        elif ymax>=1.0e6 and ymax<1.0e9:
+            denomitor=1.0e6
+            unitstring='pb$^{-1}$s$^{-1}$'
+        elif ymax>=1.0e9 and ymax<1.0e12:
+            denomitor=1.0e9
+            unitstring='fb$^{-1}$s$^{-1}$'
+        elif ymax>=1.0e12 and ymax<1.0e15:
+            denomitor=1.0e12
+            unitstring='ab$^{-1}$s$^{-1}$'
             
-        yearStrMin=minTime.strftime('%Y')
-        yearStrMax=maxTime.strftime('%Y')
-        if yearStrMin==yearStrMax:
-            dateFmt=matplotlib.dates.DateFormatter('%d/%m')
-        else:
-            dateFmt=matplotlib.dates.DateFormatter('%d/%m/%y')
         ax=self.__fig.add_subplot(111)
         if yscale=='linear':
             ax.set_yscale('linear')
         elif yscale=='log':
             ax.set_yscale('log')
+            for i,v in enumerate(ypoints):
+                    if v<minvar:
+                        ypoints[i]=minvar
         else:
             raise 'unsupported yscale ',yscale
+        yearStrMin=minTime.strftime('%Y')
+        yearStrMax=maxTime.strftime('%Y')
+        if yearStrMin==yearStrMax:
+            dateFmt=matplotlib.dates.DateFormatter('%d/%m')
+        else:
+            dateFmt=matplotlib.dates.DateFormatter('%d/%m/%y')            
         majorLoc=matplotlib.ticker.LinearLocator(numticks=nticks)
         minorLoc=matplotlib.ticker.LinearLocator(numticks=nticks*4)
         ax.xaxis.set_major_formatter(dateFmt)
@@ -636,56 +452,56 @@ class matplotRender():
             tx.set_horizontalalignment('right')
         ax.grid(True)
         cl=self.colormap['Max Inst']
-        for ylabel in labels:
-            cl='k'
-            if self.colormap.has_key(ylabel):
-                cl=self.colormap[ylabel]
-            ax.plot(xpoints,ypoints[ylabel],label='Max Inst',color=cl,drawstyle='steps')
-            legendlist.append('Max Inst %.3f'%(ymax[ylabel])+' '+unitstring)
+        #print 'xpoints ',xpoints
+        #print 'ypoints ',ypoints
+        #print 'maxinfo ',maxinfo
+        #print 'beginfo ',beginfo
+        #print 'endinfo ',endinfo
+        ax.plot(xpoints,[y/denomitor for y in ypoints],label='Max Inst',color=cl,drawstyle='steps')
+        legendlist.append('Max Inst %.2f'%(ymax/denomitor)+' '+unitstring)
         ax.legend(tuple(legendlist),loc='upper left')
         ax.set_xbound(lower=matplotlib.dates.date2num(minTime),upper=matplotlib.dates.date2num(maxTime))
-        if withannotation:
+        if annotateBoundaryRunnum:
            #annotations
            trans=matplotlib.transforms.BlendedGenericTransform(ax.transData,ax.transAxes)
            ax.text(xpoints[0],1.025,beginfo,transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
            ax.text(xpoints[-1],1.025,endinfo,transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
            ax.annotate(maxinfo,xy=(xmax,ymax),xycoords='data',xytext=(0,13),textcoords='offset points',arrowprops=dict(facecolor='green',shrink=0.05),size='x-small',horizontalalignment='center',color='green',bbox=dict(facecolor='white'))
-           
-        firstday=datetime.date.fromordinal(rawdata[referenceLabel][0][0])
-        lastday=datetime.date.fromordinal(rawdata[referenceLabel][-1][0])
-        firstdayStr=firstday.strftime('%Y %b %d')
-        lastdayStr=lastday.strftime('%Y %b %d')
-        ax.set_title('CMS Peak Luminosity/Day ('+firstdayStr+' - '+lastdayStr+')',size='small')
-
+        if  yearStrMin==yearStrMax: 
+            firstimeStr=minTime.strftime('%b %d %H:%M')
+            lasttimeStr=maxTime.strftime('%b %d %H:%M')
+            ax.set_title('CMS Peak Luminosity/Day '+yearStrMin+' ('+firstimeStr+' - '+lasttimeStr+' UTC)',size='small',family='fantasy')
+        else:
+            ax.set_title('CMS Peak Luminosity/Day '+yearStrMin+'-'+yearStrMax,size='small',family='fantasy')
         #ax.autoscale(tight=True)
         ax.autoscale_view(tight=True,scalex=True,scaley=False)        
         #ax.set_xmargin(0.015)
         self.__fig.autofmt_xdate(bottom=0.18,rotation=15,ha='right')
         self.__fig.subplots_adjust(bottom=0.2,left=0.15)
 
-    def plotInst_RunLS(self,rawxdata,rawydata,nticks=6,textoutput=None):
+    def plotInst_RunLS(self,rawxdata,rawydata,nticks=6):
         '''
-        Input: rawxdata [run,fill,starttime,stoptime,totalls,ncmsls]
-               rawydata {label:[lumi]}
+        Input: rawxdata [run,fill,norbit,starttime,stoptime,totalls,ncmsls]
+               rawydata {label:[instlumi]}
         '''
-        lslength=23.357
-        lut=lumiTime.lumiTime()
         runnum=rawxdata[0]
         fill=rawxdata[1]
-        starttime=lut.DatetimeToStr(rawxdata[2],customfm='%m/%d/%y %H:%M:%S')
-        stoptime=lut.DatetimeToStr(rawxdata[3],customfm='%m/%d/%y %H:%M:%S')
+        norbit=rawxdata[2]
+        starttime=rawxdata[3]
+        stoptime=rawxdata[4]
         totalls=rawxdata[-2]
         ncmsls=rawxdata[-1]
-        peakinst=max(rawydata['Delivered'])/lslength
-        totaldelivered=sum(rawydata['Delivered'])
-        totalrecorded=sum(rawydata['Recorded'])
+        peakinst=max(rawydata['Delivered'])
+        lslength=float(norbit)*3564*25.0e-9
+        totaldelivered=sum(rawydata['Delivered'])*lslength
+        totalrecorded=sum(rawydata['Recorded'])*lslength
         xpoints=range(1,totalls+1)        
         #print len(xpoints)
         ypoints={}
         ymax={}
         for ylabel,yvalue in rawydata.items():
-            ypoints[ylabel]=[y/lslength for y in yvalue]
-            ymax[ylabel]=max(yvalue)/lslength
+            ypoints[ylabel]=yvalue
+            ymax[ylabel]=max(yvalue)
         left=0.15
         width=0.7
         bottom=0.1
@@ -728,7 +544,21 @@ class matplotRender():
             legendlist.append(ylabel)      
         #ax.axhline(0,color='green',linewidth=0.2)
         ax.axvline(xpoints[ncmsls-1],color='green',linewidth=0.2)
-        (unitstring,denomitor)=guessLumiUnit(totaldelivered)
+
+        denomitor=1.0
+        unitstring='/$\mu$b'
+        if totaldelivered>=1.0e3 and totaldelivered<1.0e06:
+            denomitor=1.0e3
+            unitstring='/nb'
+        elif totaldelivered>=1.0e6 and totaldelivered<1.0e9:
+            denomitor=1.0e6
+            unitstring='/pb'
+        elif totaldelivered>=1.0e9 and totaldelivered<1.0e12:
+            denomitor=1.0e9
+            unitstring='/fb'
+        elif totaldelivered>=1.0e12 and totaldelivered<1.0e15:
+            denomitor=1.0e12
+            unitstring='/ab'
         colLabels=('run','fill','max inst(/$\mu$b/s)','delivered('+unitstring+')','recorded('+unitstring+')')
         cellText=[[str(runnum),str(fill),'%.3f'%(peakinst),'%.3f'%(totaldelivered/denomitor),'%.3f'%(totalrecorded/denomitor)]]
        
@@ -764,74 +594,13 @@ class matplotRender():
         button = Tk.Button(master=root,text='Quit',command=sys.exit)
         button.pack(side=Tk.BOTTOM)
         Tk.mainloop()
-        
 if __name__=='__main__':
-    import csv
-    print '=====testing plotSumX_Run======'
-    f=open('/afs/cern.ch/cms/lumi/www/plots/operation/totallumivsrun-2011.csv','r')
-    reader=csv.reader(f,delimiter=',')
-    resultlines=[]
-    for row in reader:
-        if not row[0].isdigit():continue
-        resultlines.append(row)
-    #print resultlines
-    fig=Figure(figsize=(7.2,5.4),dpi=120)
+    fig=Figure(figsize=(5,5),dpi=100)
+    a=fig.add_subplot(111)
+    t=numpy.arange(0.0,3.0,0.01)
+    s=numpy.sin(2*numpy.pi*t)
+    a.plot(t,s)
     m=matplotRender(fig)
-    m.plotSumX_Run(rawdata={},resultlines=resultlines,minRun=None,maxRun=None,nticks=6,yscale='linear',withannotation=False)
-    m.drawPNG('totallumivsrun-2011test.png')
-    print 'DONE'
-    print '=====testing plotSumX_Fill======'
-    f=open('/afs/cern.ch/cms/lumi/www/plots/operation/totallumivsfill-2011.csv','r')
-    reader=csv.reader(f,delimiter=',')
-    resultlines=[]
-    for row in reader:
-        if not row[0].isdigit():continue
-        resultlines.append(row)
-    #print resultlines
-    fig=Figure(figsize=(7.2,5.4),dpi=120)
-    m=matplotRender(fig)
-    m.plotSumX_Fill(rawdata={},resultlines=resultlines,minFill=None,maxFill=None,nticks=6,yscale='linear',withannotation=True)
-    m.drawPNG('totallumivsfill-2011test.png')
-    print 'DONE'
-    print '=====testing plotSumX_Time======'
-    f=open('/afs/cern.ch/cms/lumi/www/publicplots/totallumivstime-2011.csv','r')
-    reader=csv.reader(f,delimiter=',')
-    resultlines=[]
-    for row in reader:
-        if not row[0].isdigit():continue
-        resultlines.append(row)
-    #print resultlines
-    fig=Figure(figsize=(7.25,5.4),dpi=120)
-    m=matplotRender(fig)
-    m.plotSumX_Time(rawdata={},resultlines=resultlines,minTime="03/14/11 09:00:00",maxTime=None,nticks=6,yscale='linear',withannotation=False)
-    m.drawPNG('totallumivstime-2011test.png')
-    print 'DONE'
-    
-    print '=====testing plotPerdayX_Time======'
-    f=open('/afs/cern.ch/cms/lumi/www/publicplots/lumiperday-2011.csv','r')
-    reader=csv.reader(f,delimiter=',')
-    resultlines=[]
-    for row in reader:
-        if not row[0].isdigit():continue
-        resultlines.append(row)
-    #print resultlines
-    fig=Figure(figsize=(7.25,5.4),dpi=120)
-    m=matplotRender(fig)
-    m.plotPerdayX_Time(rawdata={},resultlines=resultlines,minTime="03/14/11 09:00:00",maxTime=None,nticks=6,yscale='linear',withannotation=False)
-    m.drawPNG('lumiperday-2011test.png')
-    print 'DONE'
-
-    print '=====testing plotPeakPerday_Time======'
-    f=open('/afs/cern.ch/cms/lumi/www/publicplots/lumipeak-2011.csv','r')
-    reader=csv.reader(f,delimiter=',')
-    resultlines=[]
-    for row in reader:
-        if not row[0].isdigit():continue
-        resultlines.append(row)
-    #print resultlines
-    fig=Figure(figsize=(7.25,5.4),dpi=120)
-    m=matplotRender(fig)
-    m.plotPeakPerday_Time(rawdata={},resultlines=resultlines,minTime="03/14/11 09:00:00",maxTime=None,nticks=6,yscale='linear',withannotation=False)
-    m.drawPNG('lumipeak-2011test.png')
-    print 'DONE'
-    
+    m.drawPNG('testmatplotrender.png')
+    m.drawInteractive()
+    #print drawHTTPstring()   

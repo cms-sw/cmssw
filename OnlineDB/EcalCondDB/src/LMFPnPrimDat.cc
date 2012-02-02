@@ -31,17 +31,7 @@ LMFPnPrimDat::LMFPnPrimDat(oracle::occi::Environment* env,
 }
 
 LMFPnPrimDat::LMFPnPrimDat(EcalDBConnection *c, std::string color, 
-			   std::string system, bool d) : LMFColoredTable(c) {
-  if (d) {
-    debug();
-  }
-  init();
-  setColor(color);
-  setSystem(system);
-}
-
-LMFPnPrimDat::LMFPnPrimDat(EcalDBConnection *c, std::string color, 
-			   std::string system) : LMFColoredTable(c) {
+			 std::string system) : LMFColoredTable(c) {
   init();
   setColor(color);
   setSystem(system);
@@ -70,37 +60,8 @@ LMFPnPrimDat::LMFPnPrimDat(EcalDBConnection *c, int color,
   setSystem(system);
 }
 
-LMFPnPrimDat& LMFPnPrimDat::setSystem(std::string s) {
-  // LED tables do not hold the shapecorr column. Drop it.
-  std::transform(s.begin(), s.end(), s.begin(), toupper);
-  if (s == "LED") {
-    if (m_debug) {
-      std::cout << "Erasing unwanted data" << std::endl;
-    }
-    m_type.erase(m_type.begin());
-    m_keys.erase("SHAPECORRPN");
-    if (m_debug) {
-      std::cout << "Data: " << m_data.size() << " Keys: " <<  m_keys.size()
-		<< " Type: " << m_type.size() << std::endl;
-    }
-    std::map<std::string, unsigned int>::iterator i = m_keys.begin();
-    std::map<std::string, unsigned int>::iterator e = m_keys.end();
-    while (i != e) {
-      // modify indexes
-      (i->second)--;
-      if (m_debug) {
-	std::cout << "Key " << i->first << " = " << i->second << std::endl;
-      }
-      i++;
-    }
-  }
-  LMFColoredTable::setSystem(s);
-  return *this;
-}
-
 void LMFPnPrimDat::init() {
   m_className = "LMFPnPrimDat";
-
   m_keys["SHAPECORRPN"] = 0;
   m_keys["MEAN"] = 1;
   m_keys["RMS"] = 2;
@@ -163,9 +124,7 @@ LMFPnPrimDat& LMFPnPrimDat::setPN(EcalLogicID &id, float mean, float rms,
   return *this;
 }
 LMFPnPrimDat& LMFPnPrimDat::setShapeCorr(EcalLogicID &id, float v ) {
-  if (getSystem() != "LED") {
-    LMFDat::setData(id, "SHAPECORRPN", v);
-  }
+  LMFDat::setData(id, "SHAPECORRPN", v);
   return *this;
 }
 
@@ -196,52 +155,12 @@ LMFPnPrimDat& LMFPnPrimDat::setFlag(EcalLogicID &id, int v) {
   return *this;
 }
 
-float LMFPnPrimDat::getMean(int id) {
-  return getData(id, "MEAN");
-}
-
-float LMFPnPrimDat::getShapeCor(int id) {
-  float x = 0;
-  if (getSystem() != "LED") {
-    x = getData(id, "SHAPECORRPN");
-  }
-  return x;
-}
-
-float LMFPnPrimDat::getRMS(int id) {
-  return getData(id, "RMS");
-}
-
-float LMFPnPrimDat::getM3(int id) {
-  return getData(id, "M3");
-}
-
-float LMFPnPrimDat::getPNAoverBM3(int id) {
-  return getData(id, "PNABM3");
-}
-
-float LMFPnPrimDat::getPNAoverBMean(int id) {
-  return getData(id, "PNABMEAN");
-}
-
-float LMFPnPrimDat::getPNAoverBRMS(int id) {
-  return getData(id, "PNABRMS");
-}
-
-int LMFPnPrimDat::getFlag(int id) {
-  return getData(id, "FLAG");
-}
-
 float LMFPnPrimDat::getMean(EcalLogicID &id) {
   return getData(id, "MEAN");
 }
 
 float LMFPnPrimDat::getShapeCor(EcalLogicID &id) {
-  float x = 0.;
-  if (getSystem() != "LED") {
-    x = getData(id, "SHAPECORRPN");
-  }
-  return x;
+  return getData(id, "SHAPECORRPN");
 }
 
 float LMFPnPrimDat::getRMS(EcalLogicID &id) {
@@ -267,5 +186,4 @@ float LMFPnPrimDat::getPNAoverBRMS(EcalLogicID &id) {
 int LMFPnPrimDat::getFlag(EcalLogicID &id) {
   return getData(id, "FLAG");
 }
-
 

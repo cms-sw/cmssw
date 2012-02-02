@@ -87,9 +87,6 @@ else:
     process.dqmSaver.saveAtJobEnd = True  
     process.dqmSaver.forceRunNumber = 1
 
-#process.dqm_step = cms.Path(process.EDMtoMEConverter*
-#                            process.qTester*process.resolutionTest*process.dqmSaver)
 process.dqm_step = cms.Path(process.EDMtoMEConverter*
-                            process.dqmSaver)
-
+                            process.resolutionTest*process.qTester*process.dqmSaver)
 process.DQM.collectorHost = ''
