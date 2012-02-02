@@ -190,7 +190,7 @@ class MatrixReader(object):
             stepCmds = ['','','','']
             for key in ids:
                 #trick to skip the HImix IB test
-                if key[0]==203.1 or key[0]==204.1 or key[0]==205.1: continue;
+                if key[0]==203.1 or key[0]==204.1 or key[0]==205.1 or key[0]==4.51 or key[0]==4.52: continue
                 num, name, stepCmds[0], stepCmds[1], stepCmds[2], stepCmds[3], inputInfo = self.step1WorkFlows[key]
                 wfName,stepNames= name.split('+',1)
                 stepNames=stepNames.replace('+RECODFROMRAWRECO','')
