@@ -63,20 +63,20 @@ namespace edm {
   // Algorithm classes for making ProvenanceReader:
   class MakeDummyProvenanceReader : public MakeProvenanceReader {
   public:
-    virtual std::auto_ptr<ProvenanceReaderBase> makeReader(RootTree& eventTree, DaqProvenanceHelper const* daqProvenanceHelper) const;
+    virtual std::unique_ptr<ProvenanceReaderBase> makeReader(RootTree& eventTree, DaqProvenanceHelper const* daqProvenanceHelper) const;
   };
   class MakeOldProvenanceReader : public MakeProvenanceReader {
   public:
-    virtual std::auto_ptr<ProvenanceReaderBase> makeReader(RootTree& eventTree, DaqProvenanceHelper const* daqProvenanceHelper) const;
+    virtual std::unique_ptr<ProvenanceReaderBase> makeReader(RootTree& eventTree, DaqProvenanceHelper const* daqProvenanceHelper) const;
   };
   class MakeFullProvenanceReader : public MakeProvenanceReader {
   public:
-    virtual std::auto_ptr<ProvenanceReaderBase> makeReader(RootTree& eventTree, DaqProvenanceHelper const* daqProvenanceHelper) const;
+    virtual std::unique_ptr<ProvenanceReaderBase> makeReader(RootTree& eventTree, DaqProvenanceHelper const* daqProvenanceHelper) const;
   };
   class MakeReducedProvenanceReader : public MakeProvenanceReader {
   public:
     MakeReducedProvenanceReader(std::vector<ParentageID> const& parentageIDLookup) : parentageIDLookup_(parentageIDLookup) {}
-    virtual std::auto_ptr<ProvenanceReaderBase> makeReader(RootTree& eventTree, DaqProvenanceHelper const* daqProvenanceHelper) const;
+    virtual std::unique_ptr<ProvenanceReaderBase> makeReader(RootTree& eventTree, DaqProvenanceHelper const* daqProvenanceHelper) const;
   private:
     std::vector<ParentageID> const& parentageIDLookup_;
   };
@@ -187,7 +187,7 @@ namespace edm {
       parentageIDLookup_(),
       daqProvenanceHelper_() {
 
-    hasNewlyDroppedBranch_.assign(false);
+    hasNewlyDroppedBranch_.fill(false);
 
     treePointers_[InEvent] = &eventTree_;
     treePointers_[InLumi]  = &lumiTree_;
@@ -195,7 +195,7 @@ namespace edm {
 
     // Read the metadata tree.
     // We use a smart pointer so the tree will be deleted after use, and not kept for the life of the file.
-    std::auto_ptr<TTree> metaDataTree(dynamic_cast<TTree *>(filePtr_->Get(poolNames::metaDataTreeName().c_str())));
+    std::unique_ptr<TTree> metaDataTree(dynamic_cast<TTree *>(filePtr_->Get(poolNames::metaDataTreeName().c_str())));
     if(0 == metaDataTree.get()) {
       throw Exception(errors::FileReadError) << "Could not find tree " << poolNames::metaDataTreeName()
                                              << " in the input file.\n";
@@ -238,7 +238,7 @@ namespace edm {
     } else {
       assert(fileFormatVersion().parameterSetsTree());
       // We use a smart pointer so the tree will be deleted after use, and not kept for the life of the file.
-      std::auto_ptr<TTree> psetTree(dynamic_cast<TTree *>(filePtr_->Get(poolNames::parameterSetsTreeName().c_str())));
+      std::unique_ptr<TTree> psetTree(dynamic_cast<TTree *>(filePtr_->Get(poolNames::parameterSetsTreeName().c_str())));
       if(0 == psetTree.get()) {
         throw Exception(errors::FileReadError) << "Could not find tree " << poolNames::parameterSetsTreeName()
         << " in the input file.\n";
@@ -249,7 +249,7 @@ namespace edm {
       IdToBlobs* pIdToBlob = &idToBlob;
       psetTree->SetBranchAddress(poolNames::idToParameterSetBlobsBranchName().c_str(), &pIdToBlob);
 
-      std::auto_ptr<TTreeCache> psetTreeCache = roottree::trainCache(psetTree.get(), *filePtr_, roottree::defaultNonEventCacheSize, "*");
+      std::unique_ptr<TTreeCache> psetTreeCache = roottree::trainCache(psetTree.get(), *filePtr_, roottree::defaultNonEventCacheSize, "*");
       filePtr_->SetCacheRead(psetTreeCache.get());
       for(Long64_t i = 0; i != psetTree->GetEntries(); ++i) {
         psetTree->GetEntry(i);
@@ -276,7 +276,7 @@ namespace edm {
       metaDataTree->SetBranchAddress(poolNames::processConfigurationBranchName().c_str(), &procConfigVectorPtr);
     }
 
-    std::auto_ptr<BranchIDListRegistry::collection_type> branchIDListsAPtr(new BranchIDListRegistry::collection_type);
+    std::unique_ptr<BranchIDListRegistry::collection_type> branchIDListsAPtr(new BranchIDListRegistry::collection_type);
     BranchIDListRegistry::collection_type *branchIDListsPtr = branchIDListsAPtr.get();
     if(metaDataTree->FindBranch(poolNames::branchIDListBranchName().c_str()) != 0) {
       metaDataTree->SetBranchAddress(poolNames::branchIDListBranchName().c_str(), &branchIDListsPtr);
@@ -409,7 +409,7 @@ namespace edm {
 
     fillProductRegistryTransients(processConfigurations_, inputProdDescReg);
 
-    std::auto_ptr<ProductRegistry> newReg(new ProductRegistry);
+    std::unique_ptr<ProductRegistry> newReg(new ProductRegistry);
 
     // Do the translation from the old registry to the new one
     {
@@ -484,7 +484,7 @@ namespace edm {
     // Called only for old format files.
     if(!fileFormatVersion().perEventProductIDs()) return;
     // We use a smart pointer so the tree will be deleted after use, and not kept for the life of the file.
-    std::auto_ptr<TTree> entryDescriptionTree(dynamic_cast<TTree*>(filePtr_->Get(poolNames::entryDescriptionTreeName().c_str())));
+    std::unique_ptr<TTree> entryDescriptionTree(dynamic_cast<TTree*>(filePtr_->Get(poolNames::entryDescriptionTreeName().c_str())));
     if(0 == entryDescriptionTree.get()) {
       throw Exception(errors::FileReadError) << "Could not find tree " << poolNames::entryDescriptionTreeName()
                                              << " in the input file.\n";
@@ -534,7 +534,7 @@ namespace edm {
     }
     // New format file
     // We use a smart pointer so the tree will be deleted after use, and not kept for the life of the file.
-    std::auto_ptr<TTree> parentageTree(dynamic_cast<TTree*>(filePtr_->Get(poolNames::parentageTreeName().c_str())));
+    std::unique_ptr<TTree> parentageTree(dynamic_cast<TTree*>(filePtr_->Get(poolNames::parentageTreeName().c_str())));
     if(0 == parentageTree.get()) {
       throw Exception(errors::FileReadError) << "Could not find tree " << poolNames::parentageTreeName()
                                              << " in the input file.\n";
@@ -880,8 +880,8 @@ namespace edm {
       prevRun = eventAux().run();
       prevLumi = eventAux().luminosityBlock();
       if(newLumi) {
-        lumis.push_back(LumiItem(reducedPHID,
-          eventAux().run(), eventAux().luminosityBlock(), eventTree_.entryNumber())); // (insert 1)
+        lumis.emplace_back(reducedPHID,
+          eventAux().run(), eventAux().luminosityBlock(), eventTree_.entryNumber()); // (insert 1)
         runLumiSet.insert(LuminosityBlockID(eventAux().run(), eventAux().luminosityBlock())); // (insert 2)
       } else {
         LumiItem& currentLumi = lumis.back();
@@ -892,7 +892,7 @@ namespace edm {
         // Insert run in list if it is not already there.
         RunItem item(reducedPHID, eventAux().run());
         if(runItemSet.insert(item).second) { // (check 3, insert 3)
-          runs.push_back(item); // (insert 5)
+          runs.push_back(std::move(item)); // (insert 5)
           runSet.insert(eventAux().run()); // (insert 4)
           phidMap.insert(std::make_pair(eventAux().run(), reducedPHID));
         }
@@ -920,7 +920,7 @@ namespace edm {
 
         if(runSet.insert(runAux->run()).second) { // (check 4, insert 4)
           // This run was not associated with any events.
-          emptyRuns.push_back(RunItem(reducedPHID, runAux->run())); // (insert 12)
+          emptyRuns.emplace_back(reducedPHID, runAux->run()); // (insert 12)
         }
         runMap.insert(std::make_pair(runAux->run(), runTree_.entryNumber())); // (insert 11)
         phidMap.insert(std::make_pair(runAux->run(), reducedPHID));
@@ -963,7 +963,7 @@ namespace edm {
           // to construct files where this is not the correct process history ID ...
           PHIDMap::const_iterator iPhidMap = phidMap.find(lumiAux->run());
           assert(iPhidMap != phidMap.end());
-          emptyLumis.push_back(LumiItem(iPhidMap->second, lumiAux->run(), lumiAux->luminosityBlock(), -1LL)); // (insert 7)
+          emptyLumis.emplace_back(iPhidMap->second, lumiAux->run(), lumiAux->luminosityBlock(), -1LL); // (insert 7)
         }
         runLumiMap.insert(std::make_pair(lumiID, lumiTree_.entryNumber()));
       }
@@ -1006,7 +1006,7 @@ namespace edm {
         phids.push_back(it->phid_);
         phidItem = phids.end() - 1;
       }
-      entries.push_back(IndexIntoFile::RunOrLumiEntry(
+      entries.emplace_back(
         countMapItem->second, // use (17)
         -1LL,
         runMap[it->run_], // use (11)
@@ -1014,7 +1014,7 @@ namespace edm {
         it->run_,
         0U,
         -1LL,
-        -1LL));
+        -1LL);
     }
 
     // Create a map of LumiItems that gives the order of first appearance in the list.
@@ -1032,7 +1032,7 @@ namespace edm {
       }
       std::vector<ProcessHistoryID>::const_iterator phidItem = find_in_all(phids, it->phid_);
       assert(phidItem != phids.end());
-      entries.push_back(IndexIntoFile::RunOrLumiEntry(
+      entries.emplace_back(
         runCountMapItem->second,
         countMapItem->second,
         runLumiMap[LuminosityBlockID(it->run_, it->lumi_)],
@@ -1040,7 +1040,7 @@ namespace edm {
         it->run_,
         it->lumi_,
         it->firstEventEntry_,
-        it->lastEventEntry_));
+        it->lastEventEntry_);
     }
     stable_sort_all(entries);
   }
@@ -1741,16 +1741,16 @@ namespace edm {
     }
   }
 
-  std::auto_ptr<MakeProvenanceReader>
+  std::unique_ptr<MakeProvenanceReader>
   RootFile::makeProvenanceReaderMaker() const {
     if(fileFormatVersion_.storedProductProvenanceUsed()) {
-      return std::auto_ptr<MakeProvenanceReader>(new MakeReducedProvenanceReader(parentageIDLookup_));
+      return std::unique_ptr<MakeProvenanceReader>(new MakeReducedProvenanceReader(parentageIDLookup_));
     } else if(fileFormatVersion_.splitProductIDs()) {
-      return std::auto_ptr<MakeProvenanceReader>(new MakeFullProvenanceReader);
+      return std::unique_ptr<MakeProvenanceReader>(new MakeFullProvenanceReader);
     } else if(fileFormatVersion_.perEventProductIDs()) {
-      return std::auto_ptr<MakeProvenanceReader>(new MakeOldProvenanceReader);
+      return std::unique_ptr<MakeProvenanceReader>(new MakeOldProvenanceReader);
     } else {
-      return std::auto_ptr<MakeProvenanceReader>(new MakeDummyProvenanceReader);
+      return std::unique_ptr<MakeProvenanceReader>(new MakeDummyProvenanceReader);
     }
   }
 
@@ -1905,23 +1905,23 @@ namespace edm {
     // Not providing parentage!!!
   }
 
-  std::auto_ptr<ProvenanceReaderBase>
+  std::unique_ptr<ProvenanceReaderBase>
   MakeDummyProvenanceReader::makeReader(RootTree&, DaqProvenanceHelper const*) const {
-     return std::auto_ptr<ProvenanceReaderBase>(new DummyProvenanceReader);
+     return std::unique_ptr<ProvenanceReaderBase>(new DummyProvenanceReader);
   }
 
-  std::auto_ptr<ProvenanceReaderBase>
+  std::unique_ptr<ProvenanceReaderBase>
   MakeOldProvenanceReader::makeReader(RootTree& rootTree, DaqProvenanceHelper const* daqProvenanceHelper) const {
-    return std::auto_ptr<ProvenanceReaderBase>(new OldProvenanceReader(&rootTree, daqProvenanceHelper));
+    return std::unique_ptr<ProvenanceReaderBase>(new OldProvenanceReader(&rootTree, daqProvenanceHelper));
   }
 
-  std::auto_ptr<ProvenanceReaderBase>
+  std::unique_ptr<ProvenanceReaderBase>
   MakeFullProvenanceReader::makeReader(RootTree& rootTree, DaqProvenanceHelper const* daqProvenanceHelper) const {
-    return std::auto_ptr<ProvenanceReaderBase>(new FullProvenanceReader(&rootTree, daqProvenanceHelper));
+    return std::unique_ptr<ProvenanceReaderBase>(new FullProvenanceReader(&rootTree, daqProvenanceHelper));
   }
 
-  std::auto_ptr<ProvenanceReaderBase>
+  std::unique_ptr<ProvenanceReaderBase>
   MakeReducedProvenanceReader::makeReader(RootTree& rootTree, DaqProvenanceHelper const* daqProvenanceHelper) const {
-    return std::auto_ptr<ProvenanceReaderBase>(new ReducedProvenanceReader(&rootTree, parentageIDLookup_, daqProvenanceHelper));
+    return std::unique_ptr<ProvenanceReaderBase>(new ReducedProvenanceReader(&rootTree, parentageIDLookup_, daqProvenanceHelper));
   }
 }

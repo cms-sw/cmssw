@@ -22,10 +22,7 @@ RootFile.h // used by ROOT input sources
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/InputSource.h"
 
-#include "boost/array.hpp"
-#include "boost/shared_ptr.hpp"
-#include "boost/utility.hpp"
-
+#include <array>
 #include <map>
 #include <memory>
 #include <string>
@@ -47,12 +44,12 @@ namespace edm {
 
   class MakeProvenanceReader {
   public:
-    virtual std::auto_ptr<ProvenanceReaderBase> makeReader(RootTree& eventTree, DaqProvenanceHelper const* daqProvenanceHelper) const = 0;
+    virtual std::unique_ptr<ProvenanceReaderBase> makeReader(RootTree& eventTree, DaqProvenanceHelper const* daqProvenanceHelper) const = 0;
   };
 
-  class RootFile : private boost::noncopyable {
+  class RootFile {
   public:
-    typedef boost::array<RootTree*, NumBranchTypes> RootTreePtrArray;
+    typedef std::array<RootTree*, NumBranchTypes> RootTreePtrArray;
     RootFile(std::string const& fileName,
              ProcessConfiguration const& processConfiguration,
              std::string const& logicalFileName,
@@ -76,6 +73,10 @@ namespace edm {
              bool labelRawDataLikeMC,
              bool usingGoToEvent);
     ~RootFile();
+
+    RootFile(RootFile const&) = delete; // Disallow copying and moving
+    RootFile& operator=(RootFile const&) = delete; // Disallow copying and moving
+
     void reportOpened(std::string const& inputType);
     void close();
     EventPrincipal* clearAndReadCurrentEvent(EventPrincipal& cache,
@@ -102,7 +103,7 @@ namespace edm {
     RootTree const& runTree() const {return runTree_;}
     FileFormatVersion fileFormatVersion() const {return fileFormatVersion_;}
     int whyNotFastClonable() const {return whyNotFastClonable_;}
-    boost::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const {return hasNewlyDroppedBranch_;}
+    std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const {return hasNewlyDroppedBranch_;}
     bool branchListIndexesUnchanged() const {return branchListIndexesUnchanged_;}
     bool modifiedIDs() const {return daqProvenanceHelper_.get() != 0;}
     boost::shared_ptr<FileBlock> createFileBlock() const;
@@ -166,7 +167,7 @@ namespace edm {
     void initializeDuplicateChecker(std::vector<boost::shared_ptr<IndexIntoFile> > const& indexesIntoFiles,
                                     std::vector<boost::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile);
 
-    std::auto_ptr<MakeProvenanceReader> makeProvenanceReaderMaker() const;
+    std::unique_ptr<MakeProvenanceReader> makeProvenanceReaderMaker() const;
     boost::shared_ptr<BranchMapper> makeBranchMapper();
 
     std::string const file_;
@@ -189,7 +190,7 @@ namespace edm {
     bool skipAnyEvents_;
     bool noEventSort_;
     int whyNotFastClonable_;
-    boost::array<bool, NumBranchTypes> hasNewlyDroppedBranch_;
+    std::array<bool, NumBranchTypes> hasNewlyDroppedBranch_;
     bool branchListIndexesUnchanged_;
     EventAuxiliary eventAux_;
     RootTree eventTree_;
@@ -205,15 +206,15 @@ namespace edm {
     TTree* eventHistoryTree_;			// backward compatibility
     boost::shared_ptr<EventSelectionIDVector> eventSelectionIDs_;
     boost::shared_ptr<BranchListIndexes> branchListIndexes_;
-    boost::scoped_ptr<History> history_; // backward compatibility
+    std::unique_ptr<History> history_; // backward compatibility
     boost::shared_ptr<BranchChildren> branchChildren_;
     boost::shared_ptr<DuplicateChecker> duplicateChecker_;
-    boost::scoped_ptr<ProvenanceAdaptor> provenanceAdaptor_; // backward comatibility
-    boost::scoped_ptr<MakeProvenanceReader> provenanceReaderMaker_;
-    mutable boost::scoped_ptr<EventPrincipal> secondaryEventPrincipal_;
+    std::unique_ptr<ProvenanceAdaptor> provenanceAdaptor_; // backward comatibility
+    std::unique_ptr<MakeProvenanceReader> provenanceReaderMaker_;
+    mutable std::unique_ptr<EventPrincipal> secondaryEventPrincipal_;
     mutable boost::shared_ptr<BranchMapper> eventBranchMapper_;
     std::vector<ParentageID> parentageIDLookup_;
-    boost::scoped_ptr<DaqProvenanceHelper> daqProvenanceHelper_;
+    std::unique_ptr<DaqProvenanceHelper> daqProvenanceHelper_;
   }; // class RootFile
 
 }

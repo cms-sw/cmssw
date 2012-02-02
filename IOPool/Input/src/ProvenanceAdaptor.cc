@@ -18,7 +18,6 @@ ProvenanceAdaptor.cc
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
-
 namespace edm {
   
   void
@@ -34,11 +33,11 @@ namespace edm {
       ProcessHistoryID const& oldphID = i->first;
       for (ProcessHistory::const_iterator it = i->second.begin(), et = i->second.end(); it != et; ++it) {
 	ParameterSetID const& newPsetID = convertID(it->parameterSetID());
-	newHist.push_back(ProcessConfiguration(it->processName(), newPsetID, it->releaseVersion(), it->passID()));
+	newHist.emplace_back(it->processName(), newPsetID, it->releaseVersion(), it->passID());
       }
       assert(newHist.size() == i->second.size());
       ProcessHistoryID newphID = newHist.id();
-      pHistVector.push_back(newHist);
+      pHistVector.push_back(std::move(newHist));
       if (newphID != oldphID) {
         processHistoryIdConverter_.insert(std::make_pair(oldphID, newphID));
       }
@@ -104,7 +103,7 @@ namespace edm {
         if (it->second.branchType() == InEvent) {
 	  it->second.init();
 	  processNamesThatProduced.insert(it->second.processName());
-	  orderedProducts.push_back(std::make_pair(it->second.processName(), it->second.branchID()));
+	  orderedProducts.emplace_back(it->second.processName(), it->second.branchID());
         }
       }
       assert (!orderedProducts.empty());
@@ -126,24 +125,24 @@ namespace edm {
       }
       stable_sort_all(orderedProducts, Sorter(processHistories));
 
-      std::auto_ptr<BranchIDLists> pv(new BranchIDLists);
-      std::auto_ptr<BranchIDList> p(new BranchIDList);
+      std::unique_ptr<BranchIDLists> pv(new BranchIDLists);
+      std::unique_ptr<BranchIDList> p(new BranchIDList);
       std::string processName;
       BranchListIndex blix = 0;
       for (OrderedProducts::const_iterator it = orderedProducts.begin(), itEnd = orderedProducts.end(); it != itEnd; ++it) {
         if (it->first != processName) {
 	  if (!processName.empty()) {
-	    pv->push_back(*p);
 	    branchListIndexes.push_back(blix);
 	    ++blix;
+	    pv->push_back(std::move(*p));
 	    p.reset(new BranchIDList);
           }
 	  processName = it->first;
         }
         p->push_back(it->second.id());
       }
-      pv->push_back(*p);
       branchListIndexes.push_back(blix);
+      pv->push_back(std::move(*p));
       branchIDLists.reset(pv.release());
     }
   }

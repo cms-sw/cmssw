@@ -13,9 +13,9 @@ PoolSource: This is an InputSource
 #include "FWCore/Sources/interface/VectorInputSource.h"
 #include "IOPool/Common/interface/RootServiceChecker.h"
 
-#include "boost/array.hpp"
-#include "boost/scoped_ptr.hpp"
+#include "boost/shared_ptr.hpp"
 
+#include <array>
 #include <memory>
 #include <string>
 #include <vector>
@@ -61,12 +61,12 @@ namespace edm {
     virtual ProcessingController::ReverseState reverseState_() const;
 
     RootServiceChecker rootServiceChecker_;
-    boost::scoped_ptr<RootInputFileSequence> primaryFileSequence_;
-    boost::scoped_ptr<RootInputFileSequence> secondaryFileSequence_;
+    std::unique_ptr<RootInputFileSequence> primaryFileSequence_;
+    std::unique_ptr<RootInputFileSequence> secondaryFileSequence_;
     boost::shared_ptr<RunPrincipal> secondaryRunPrincipal_;
     boost::shared_ptr<LuminosityBlockPrincipal> secondaryLumiPrincipal_;
-    boost::scoped_ptr<EventPrincipal> secondaryEventPrincipal_;
-    boost::array<std::vector<BranchID>, NumBranchTypes>  branchIDsToReplace_;
+    std::unique_ptr<EventPrincipal> secondaryEventPrincipal_;
+    std::array<std::vector<BranchID>, NumBranchTypes>  branchIDsToReplace_;
 
     //used when process has been forked
     boost::shared_ptr<edm::multicore::MessageReceiverForSource> receiver_;

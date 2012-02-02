@@ -18,11 +18,10 @@ files or does not check for duplicates at all.
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
 
-#include "boost/shared_ptr.hpp"
-
-#include <vector>
+#include <memory>
 #include <set>
 #include <string>
+#include <vector>
 
 
 namespace edm {

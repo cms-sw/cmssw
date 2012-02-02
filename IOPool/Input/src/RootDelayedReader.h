@@ -11,9 +11,6 @@ RootDelayedReader.h // used by ROOT input sources
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "RootTree.h"
 
-#include "boost/shared_ptr.hpp"
-#include "boost/utility.hpp"
-
 #include <map>
 #include <memory>
 #include <string>
@@ -26,7 +23,7 @@ namespace edm {
   // Class RootDelayedReader: pretends to support file reading.
   //
 
-  class RootDelayedReader : public DelayedReader, private boost::noncopyable {
+  class RootDelayedReader : public DelayedReader {
   public:
     typedef roottree::BranchInfo BranchInfo;
     typedef roottree::BranchMap BranchMap;
@@ -37,6 +34,9 @@ namespace edm {
       boost::shared_ptr<InputFile> filePtr);
 
     virtual ~RootDelayedReader();
+
+    RootDelayedReader(RootDelayedReader const&) = delete; // Disallow copying and moving
+    RootDelayedReader& operator=(RootDelayedReader const&) = delete; // Disallow copying and moving
 
   private:
     virtual WrapperOwningHolder getProduct_(BranchKey const& k, WrapperInterfaceBase const* interface, EDProductGetter const* ep) const;

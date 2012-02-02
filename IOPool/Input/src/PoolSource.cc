@@ -65,7 +65,7 @@ namespace edm {
     numberOfEventsBeforeBigSkip_(0) {
     if(secondaryFileSequence_) {
       assert(primary());
-      boost::array<std::set<BranchID>, NumBranchTypes> idsToReplace;
+      std::array<std::set<BranchID>, NumBranchTypes> idsToReplace;
       ProductRegistry::ProductList const& secondary = secondaryFileSequence_->fileProductRegistry()->productList();
       ProductRegistry::ProductList const& primary = primaryFileSequence_->fileProductRegistry()->productList();
       typedef ProductRegistry::ProductList::const_iterator const_iterator;

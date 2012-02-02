@@ -14,12 +14,8 @@ RootTree.h // used by ROOT input sources
 #include "Rtypes.h"
 #include "TBranch.h"
 
-#include "boost/scoped_ptr.hpp"
-#include "boost/shared_ptr.hpp"
-#include "boost/utility.hpp"
-
-#include <memory>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -54,10 +50,10 @@ namespace edm {
     typedef std::map<BranchKey const, BranchInfo> BranchMap;
     Int_t getEntry(TBranch* branch, EntryNumber entryNumber);
     Int_t getEntry(TTree* tree, EntryNumber entryNumber);
-    std::auto_ptr<TTreeCache> trainCache(TTree* tree, InputFile& file, unsigned int cacheSize, char const* branchNames);
+    std::unique_ptr<TTreeCache> trainCache(TTree* tree, InputFile& file, unsigned int cacheSize, char const* branchNames);
   }
 
-  class RootTree : private boost::noncopyable {
+  class RootTree {
   public:
     typedef roottree::BranchMap BranchMap;
     typedef roottree::EntryNumber EntryNumber;
@@ -67,6 +63,9 @@ namespace edm {
              unsigned int cacheSize,
              unsigned int learningEntries);
     ~RootTree();
+
+    RootTree(RootTree const&) = delete; // Disallow copying and moving
+    RootTree& operator=(RootTree const&) = delete; // Disallow copying and moving
 
     bool isValid() const;
     void addBranch(BranchKey const& key,
@@ -148,7 +147,7 @@ namespace edm {
     EntryNumber switchOverEntry_;
     unsigned int learningEntries_;
     unsigned int cacheSize_;
-    boost::scoped_ptr<DelayedReader> rootDelayedReader_;
+    std::unique_ptr<DelayedReader> rootDelayedReader_;
 
     TBranch* branchEntryInfoBranch_; //backwards compatibility
     // below for backward compatibility

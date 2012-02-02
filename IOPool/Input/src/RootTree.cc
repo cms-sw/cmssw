@@ -273,11 +273,11 @@ namespace edm {
       return n;
     }
 
-    std::auto_ptr<TTreeCache>
+    std::unique_ptr<TTreeCache>
     trainCache(TTree* tree, InputFile& file, unsigned int cacheSize, char const* branchNames) {
       tree->LoadTree(0);
       tree->SetCacheSize(cacheSize);
-      std::auto_ptr<TTreeCache> treeCache(dynamic_cast<TTreeCache*>(file.GetCacheRead()));
+      std::unique_ptr<TTreeCache> treeCache(dynamic_cast<TTreeCache*>(file.GetCacheRead()));
       if (0 != treeCache.get()) {
         treeCache->StartLearningPhase();
         treeCache->SetEntryRange(0, tree->GetEntries());

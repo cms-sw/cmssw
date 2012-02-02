@@ -18,9 +18,6 @@ RootInputFileSequence: This is an InputSource
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
 
-#include "boost/shared_ptr.hpp"
-#include "boost/utility.hpp"
-
 #include <memory>
 #include <string>
 #include <vector>
@@ -38,10 +35,13 @@ namespace edm {
   class PoolSource;
   class RootFile;
 
-  class RootInputFileSequence : private boost::noncopyable {
+  class RootInputFileSequence {
   public:
     explicit RootInputFileSequence(ParameterSet const& pset, PoolSource const& input, InputFileCatalog const& catalog, PrincipalCache& cache, InputType::InputType inputType);
     virtual ~RootInputFileSequence();
+
+    RootInputFileSequence(RootInputFileSequence const&) = delete; // Disallow copying and moving
+    RootInputFileSequence& operator=(RootInputFileSequence const&) = delete; // Disallow copying and moving
 
     typedef boost::shared_ptr<RootFile> RootFileSharedPtr;
     EventPrincipal* readEvent(EventPrincipal& cache, boost::shared_ptr<LuminosityBlockPrincipal> lb);
@@ -95,7 +95,7 @@ namespace edm {
     BranchDescription::MatchMode parametersMustMatch_;
     BranchDescription::MatchMode branchesMustMatch_;
 
-    boost::scoped_ptr<CLHEP::RandFlat> flatDistribution_;
+    std::unique_ptr<CLHEP::RandFlat> flatDistribution_;
     std::vector<boost::shared_ptr<IndexIntoFile> > indexesIntoFiles_;
     std::vector<ProcessHistoryID> orderedProcessHistoryIDs_;
 

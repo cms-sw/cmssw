@@ -9,9 +9,6 @@ Holder for an input TFile.
 
 #include "TFile.h"
 
-#include "boost/scoped_ptr.hpp"
-#include "boost/utility.hpp"
-
 #include <map>
 #include <string>
 #include <vector>
@@ -19,10 +16,14 @@ Holder for an input TFile.
 class TObject;
 
 namespace edm {
-  class InputFile : private boost::noncopyable {
+  class InputFile {
   public:  
     explicit InputFile(char const* fileName, char const* msg);
     ~InputFile();
+
+    InputFile(InputFile const&) = delete; // Disallow copying and moving
+    InputFile& operator=(InputFile const&) = delete; // Disallow copying and moving
+
     void Close();
     void inputFileOpened(std::string const& logicalFileName,
                          std::string const& inputType,
@@ -45,7 +46,7 @@ namespace edm {
     void SetCacheRead(TFileCacheRead* tfcr) {file_->SetCacheRead(tfcr);}
     void logFileAction(char const* msg, char const* fileName) const;
   private:
-    boost::scoped_ptr<TFile> file_;
+    std::unique_ptr<TFile> file_;
     std::string fileName_;
     JobReport::Token reportToken_;
   }; 

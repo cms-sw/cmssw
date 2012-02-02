@@ -7,9 +7,8 @@ ProvenanceAdaptor.h
 
 ----------------------------------------------------------------------*/
 #include <map>
+#include <memory>
 #include <vector>
-#include "boost/shared_ptr.hpp"
-#include "boost/utility.hpp"
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
@@ -24,7 +23,7 @@ namespace edm {
   //------------------------------------------------------------
   // Class ProvenanceAdaptor: 
 
-  class ProvenanceAdaptor : private boost::noncopyable {
+  class ProvenanceAdaptor {
   public:
     typedef ParameterSetConverter::ParameterSetIdConverter ParameterSetIdConverter;
     typedef std::map<ProcessHistoryID, ProcessHistoryID> ProcessHistoryIdConverter;
@@ -37,6 +36,9 @@ namespace edm {
 	     bool fullConversion);
     ~ProvenanceAdaptor();
   
+    ProvenanceAdaptor(ProvenanceAdaptor const&) = delete; // Disallow copying and moving
+    ProvenanceAdaptor& operator=(ProvenanceAdaptor const&) = delete; // Disallow copying and moving
+
     boost::shared_ptr<BranchIDLists const> branchIDLists() const;
 
     void branchListIndexes(BranchListIndexes & indexes) const;
