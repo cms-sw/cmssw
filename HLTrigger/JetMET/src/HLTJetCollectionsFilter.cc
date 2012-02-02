@@ -51,9 +51,9 @@ template <typename jetType, int Tid>
 void
 HLTJetCollectionsFilter<jetType, Tid>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputTag",edm::InputTag("hltIterativeCone5CaloJets"));
   desc.add<edm::InputTag>("originalTag",edm::InputTag("hltIterativeCone5CaloJets"));
-  desc.add<bool>("saveTags",false);
   desc.add<double>("MinJetPt",30.0);
   desc.add<double>("MaxAbsJetEta",2.6);
   desc.add<unsigned int>("MinNJets",1);
