@@ -124,10 +124,69 @@ def plot(fileName,sl,
     canvas.cd()
     legend.SetFillColor( canvas.GetFillColor() )
     legend.Draw("SAME")
-
     objects.append(legend)
 
-    return (canvas,histos,objects)
+    # Compute averages
+    # (Wh-2 MB1 Sec1 ... Wh-2 MB1 Sec12 ... Wh-1 MB1 Sec1 ... Wh-1 MB1 Sec12 ...)
+    # (Wh-2 MB2 Sec1 ... Wh-2 MB2 Sec12 ... Wh-1 MB2 Sec1 ... Wh-1 MB1 Sec12 ...) ...  
+    import math
+    wheels = (-2,-1,0,1,2)
+    stations = (1,2,3,4)
+    nBinsAve = len(stations)*len(wheels)
+    histoAverage = ROOT.TH1F("h_AverageAll","",nBinsAve,0,nBinsAve)
+    averages = {}
+    averagesErr = {}
+    averagesSumw = {}
+    slType = sl
+    print "Averages:"
+    for st in stations:
+        nSectors = 12
+        if st == 4: nSectors = 14
+        if st == 4 and slType == 2: continue 
+        for wh in wheels:
+            binHistoAve = (st - 1)*5 + (wh + 2) + 1
+            label = "Wheel %d" % wh
+            if wh == -2: label += " MB%d" % st  
+            histoAverage.GetXaxis().SetBinLabel(binHistoAve,label) 
+
+            averages[(st,wh)] = 0.
+            averagesSumw[(st,wh)] = 0.
+            for sec in range(1,nSectors+1):
+                binHisto = (st - 1)*60 + (wh + 2)*nSectors + sec
+                for idx in range( len(histos) ):
+                    histo = histos[idx]
+                    value = histo.GetBinContent( binHisto ) 
+                    error = histo.GetBinError( binHisto ) 
+                    averages[(st,wh)]     += value/( error*error ) 
+                    averagesSumw[(st,wh)] += 1./( error*error )
+            # Average per (st,wh)
+            averages[(st,wh)] = averages[(st,wh)]/averagesSumw[(st,wh)]
+            averagesErr[(st,wh)] = math.sqrt( 1./averagesSumw[(st,wh)] )
+            histoAverage.SetBinContent(binHistoAve,averages[(st,wh)])
+            histoAverage.SetBinError(binHistoAve,averagesErr[(st,wh)])
+            print "Station %d, Wheel %d: %.4f +/- %.6f" % (st,wh,averages[(st,wh)],averagesErr[(st,wh)])
+     
+    canvasAverage = ROOT.TCanvas("c_" + histoAverage.GetName())
+    canvasAverage.SetGridx()
+    canvasAverage.SetGridy()
+    canvasAverage.SetFillColor( 0 )
+    canvasAverage.cd()
+    mean_ymin = -0.02
+    mean_ymax =  0.02
+    sig_ymin = 0.
+    sig_ymax = 0.1
+    if type == 'mean':
+        histoAverage.GetYaxis().SetTitle("Mean of residuals (cm)")
+        histoAverage.GetYaxis().SetRangeUser(mean_ymin,mean_ymax)
+    elif type == 'sigma':
+        histoAverage.GetYaxis().SetTitle("Resolution (cm)")
+        histoAverage.GetYaxis().SetRangeUser(sig_ymin,sig_ymax)
+
+    histoAverage.SetMarkerStyle( 27 )
+    histoAverage.SetMarkerSize( 1.5 )
+    histoAverage.Draw("E2")           
+
+    return ( (canvas,canvasAverage),(histos,histoAverage),objects )
 
 def plotMean(fileName,sl,dir='DQMData/Run 1/DT/Run summary/DTCalibValidation',option='HISTOPE1'):
     type = 'mean'
