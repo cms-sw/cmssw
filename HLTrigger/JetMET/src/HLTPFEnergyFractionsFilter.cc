@@ -13,6 +13,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -83,6 +84,9 @@ HLTPFEnergyFractionsFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup&
     
     //PF information
     for(PFJetCollection::const_iterator i = recopfjets->begin(); i != recopfjets->end(); ++i ){
+      if(countJet==0){
+	JetRef1 = PFJetRef(recopfjets,distance(recopfjets->begin(),i));
+      }
       if(countJet<nJet_){
 	if(i->chargedEmEnergyFraction()<min_CEEF_) n = -1;
 	if(i->chargedEmEnergyFraction()>max_CEEF_) n = -1;
