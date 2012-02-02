@@ -332,8 +332,10 @@ class RunMEtUncertainties(ConfigToolBase):
  
         jetsEnUp = cms.EDProducer("ShiftedPATJetProducer",
             src = cms.InputTag(lastJetCollection),
-            jetCorrPayloadName = cms.string(jetCorrPayloadName),
-            jetCorrUncertaintyTag = cms.string('Uncertainty'),
+            #jetCorrPayloadName = cms.string(jetCorrPayloadName),
+            #jetCorrUncertaintyTag = cms.string('Uncertainty'),
+            jetCorrInputFileName = cms.FileInPath('PhysicsTools/PatUtils/data/JEC11_V12_AK5PF_UncertaintySources.txt'),
+            jetCorrUncertaintyTag = cms.string("SubTotalDataMC"),
             shiftBy = cms.double(+1.*varyByNsigmas)
         )
         jetCollectionEnUp = \
