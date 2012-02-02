@@ -21,5 +21,6 @@
 <use   name="DataFormats/HLTReco"/>
 <use   name="DataFormats/L1GlobalTrigger"/>
 <use   name="RecoPixelVertexing/PixelTrackFitting"/>
+<use   name="HLTrigger/HLTcore"/>
 <use   name="root"/>
 <flags   EDM_PLUGIN="1"/>
