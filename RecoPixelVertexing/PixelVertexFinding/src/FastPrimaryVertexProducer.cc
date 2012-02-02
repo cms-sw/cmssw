@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea RIZZI
 //         Created:  Thu Dec 22 14:51:44 CET 2011
-// $Id: FastPrimaryVertexProducer.cc,v 1.1 2012/02/01 16:24:02 arizzi Exp $
+// $Id: FastPrimaryVertexProducer.cc,v 1.2 2012/02/02 09:01:35 arizzi Exp $
 //
 //
 
@@ -207,12 +207,10 @@ FastPrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
    // std::cout << "algo :"<< *itCenter << " " << itCenter-zProjections.begin() << "  dists: " <<  (*itCenter - *itLeftSide) << " " << (*itRightSide - *itCenter) << " count: " <<  n << std::endl; 
     counts.push_back(n);
     if(n > max) {
-	 i=itCenter-zProjections.begin(); 
          max=n; 
          left=itLeftSide;
     }
     if(n >= max) {
-          j=itCenter-zProjections.begin(); 
 	  max=n;
           right=itRightSide;
 //          std::cout << "algo :"<< i << " " << j << " " << *itCenter << " " << itCenter-zProjections.begin() << "  dists: " <<  (*itCenter - *itLeftSide) << " " << (*itRightSide - *itCenter) << " count: " <<  n << std::endl;
