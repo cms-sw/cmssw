@@ -17,12 +17,19 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(100)
 
 process.ClusterSummaryProducer = cms.EDProducer('ClusterSummaryProducer',
                                         stripClusters=cms.InputTag("siStripClusters"),
+                                        pixelClusters=cms.InputTag("siPixelClusters"),
                                         #Module=cms.string('TOB, TIB, TID, TEC, TIB_1, TOB_4, TECM, TECP, TIDM, TIDP, TECM_1, TECP_2, TIDM_3, TIDP_1'),
                                         #Module=cms.string( TOB, TIB, TID, TEC, TRACKER')
-                                        Module=cms.string('TOB,TIB'),
+                                        stripModule=cms.string('TOB,TIB'),        
                                         #Module=cms.string('TECP,TECP_1,TECP_2,TECP_3,TECP_4,TECP_5,TECP_6,TECP_7,TECP_8,TECP_9'),
                                         #Module=cms.string('TOB, TECPR_2, TIDMR_2'),
-                                        Variables=cms.string('cHits,cSize,cCharge')        
+                                        stripVariables=cms.string('cHits,cSize,cCharge'),
+                                        #pixelModule=cms.string('BPIX,FPIX,FPIXM,FPIXP,PIXEL'),        
+                                        pixelModule=cms.string('BPIX,FPIX'),        
+                                        pixelVariables=cms.string('pHits,pSize,pCharge'),
+                                        doStrips=cms.bool(True),
+                                        doPixels=cms.bool(True),
+                                        verbose=cms.bool(True)
                                         )
 
 process.out = cms.OutputModule("PoolOutputModule",

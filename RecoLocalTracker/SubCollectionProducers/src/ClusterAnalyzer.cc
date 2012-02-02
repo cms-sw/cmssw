@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Segala
 //         Created:  Wed Feb 23 17:36:23 CST 2011
-// $Id: ClusterAnalyzer.cc,v 1.5 2011/10/31 17:15:18 msegala Exp $
+// $Id: ClusterAnalyzer.cc,v 1.1 2012/01/24 18:00:23 msegala Exp $
 //
 //
 
@@ -83,6 +83,8 @@ class ClusterAnalyzer : public edm::EDAnalyzer {
 
       std::string ProvInfo;
       std::string ProvInfo_vars;
+      std::string ProvInfoPixels;
+      std::string ProvInfoPixels_vars;
 
 };
 
@@ -109,18 +111,6 @@ ClusterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
    Handle< ClusterSummary  > class_;
    iEvent.getByLabel( _class, class_);
       
-   nType_ = class_ -> GetNumberOfModules();		
-   //int nTypeTOB_ = class_ -> GetNumberOfModules( ClusterSummary::TOB  );
-   //int nTypeTIB_ = class_ -> GetNumberOfModules( ClusterSummary::TIB  );
-   clusterSize_ = class_ -> GetClusterSize();
-   //double clusterSizeTOB_ = class_ -> GetClusterSize( ClusterSummary::TOB  );
-   //double clusterSizeTIB_ = class_ -> GetClusterSize( ClusterSummary::TIB  );
-   clusterCharge_ = class_ -> GetClusterCharge();
-   //double clusterChargeTOB_ = class_ -> GetClusterCharge( ClusterSummary::TOB  );
-   //double clusterChargeTIB_ = class_ -> GetClusterCharge( ClusterSummary::TIB  );
-   
-   
-
    if (_firstPass){
    
      modules_ . clear();
@@ -129,36 +119,31 @@ ClusterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
      //  Provenance Information
      const Provenance& prov = iEvent.getProvenance(class_.id());
      edm::ParameterSet pSet=getParameterSet( prov.psetID() );   
-     ProvInfo = pSet.getParameter<string>("Module");
-     cout << "From provenance infomation the selected modules are = "<< ProvInfo << endl;
+     ProvInfo = pSet.getParameter<string>("stripModule");
+     cout << "From provenance infomation the selected strip modules are = "<< ProvInfo << endl;
 
-     ProvInfo_vars = pSet.getParameter<string>("Variables");
-     cout << "From provenance infomation the avaliable variables are = "<< ProvInfo_vars << endl;
+     ProvInfo_vars = pSet.getParameter<string>("stripVariables");
+     cout << "From provenance infomation the avaliable strip variables are = "<< ProvInfo_vars << endl;
+
+
+     ProvInfoPixels = pSet.getParameter<string>("pixelModule");
+     cout << "From provenance infomation the selected pixel modules are = "<< ProvInfoPixels << endl;
+
+     ProvInfoPixels_vars = pSet.getParameter<string>("pixelVariables");
+     cout << "From provenance infomation the avaliable pixel variables are = "<< ProvInfoPixels_vars << endl;
      
-
      // Define the Modules to get the summary info out of  
-     v_moduleTypes = class_ -> DecodeProvInfo( ProvInfo );
-     v_variables = class_ -> DecodeProvInfo( ProvInfo_vars );
+     v_moduleTypes = class_ -> DecodeProvInfo( ProvInfo + "," + ProvInfoPixels );
+     v_variables = class_ -> DecodeProvInfo( ProvInfo_vars + "," + ProvInfoPixels_vars );
 
    }
    
-   class_ -> SetUserContent( v_variables );
-
-   /*
+   class_ -> SetUserContent( v_variables );   
+	
    genericVariables_ = class_ -> GetGenericVariable();   
-   cout <<" 1st way " << endl;
-   cout << genericVariables_.size() << endl;
-   cout << genericVariables_[0][1] << endl;
-   cout << genericVariables_[1][1] << endl;
-   cout << genericVariables_[2][2] << endl;
-   cout <<" 2ns way " << endl;
-   cout << class_ -> GetGenericVariable("cHits", ClusterSummary::TIB) << endl;
-   cout << class_ -> GetGenericVariable("cSize", ClusterSummary::TIB) << endl;
-   cout << class_ -> GetGenericVariable("cCharge", ClusterSummary::TOB) << endl;
-   */
+   
+   //cout << class_ -> GetGenericVariable("cHits", ClusterSummary::TIB) << endl;
 
-   
-   
    if ( _firstPass ){ //only do on the first event
  
      // Loop over all the modules to create a Map of Histograms to fill
@@ -191,20 +176,45 @@ ClusterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
    
    }
 
-   
-
    int n = 0;
    for ( vector<int>::const_iterator mod = modules_ . begin(); mod != modules_ . end(); mod++ ){
   
      std::string tmpstr = v_moduleTypes.at(n);
 
-     histos1D_[ (tmpstr + "nclusters").c_str() ] -> Fill( nType_.at(n)  );
-     histos1D_[ (tmpstr + "avgSize").c_str()   ] -> Fill( clusterSize_.at(n)  );
-     histos1D_[ (tmpstr + "avgCharge").c_str() ] -> Fill( clusterCharge_.at(n)  );
+     //Trick to see if it comes from a strip or pixel variable. If the first digit is < 6 then it is from the strips.
+     int mod_tmp = *mod;
+     while (mod_tmp > 9 ){
+       mod_tmp /= 10;
+     }
+     
+     if ( mod_tmp < 6 ){
 
+       histos1D_[ (tmpstr + "nclusters").c_str() ] -> Fill( class_ -> GetGenericVariable("cHits", *mod) );
+       histos1D_[ (tmpstr + "avgSize").c_str()   ] -> Fill( class_ -> GetGenericVariable("cSize", *mod)  /class_ -> GetGenericVariable("cHits", *mod) );
+       histos1D_[ (tmpstr + "avgCharge").c_str() ] -> Fill( class_ -> GetGenericVariable("cCharge", *mod)/class_ -> GetGenericVariable("cHits", *mod) );
+
+       cout << "n"<<tmpstr <<", avg size, avg charge = "<< class_ -> GetGenericVariable( "cHits",*mod ); 
+       cout << ", "<< class_ -> GetGenericVariable( "cSize",*mod )  /class_ -> GetGenericVariable( "cHits",*mod ); 
+       cout << ", "<< class_ -> GetGenericVariable( "cCharge",*mod )/class_ -> GetGenericVariable( "cHits",*mod ) <<  endl;
+
+     }
+     else{
+
+       histos1D_[ (tmpstr + "nclusters").c_str() ] -> Fill( class_ -> GetGenericVariable("pHits", *mod) );
+       histos1D_[ (tmpstr + "avgSize").c_str()   ] -> Fill( class_ -> GetGenericVariable("pSize", *mod)/class_ -> GetGenericVariable("pHits", *mod) );
+       histos1D_[ (tmpstr + "avgCharge").c_str() ] -> Fill( class_ -> GetGenericVariable("pCharge", *mod)/class_ -> GetGenericVariable("pHits", *mod) );
+       
+       cout << "n"<<tmpstr <<", avg size, avg charge = "<< class_ -> GetGenericVariable( "pHits",*mod );
+       cout << ", "<< class_ -> GetGenericVariable( "pSize",*mod )  /class_ -> GetGenericVariable( "pHits",*mod );
+       cout << ", "<< class_ -> GetGenericVariable( "pCharge",*mod )/class_ -> GetGenericVariable( "pHits",*mod ) <<  endl;
+
+     }
+     
      ++n;
 
    }
+   
+   cout << "----------------------------------------------------" << endl;
    
 
 }

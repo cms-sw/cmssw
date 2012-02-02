@@ -79,23 +79,36 @@ class ClusterSummaryProducer : public edm::EDProducer {
    private:
       virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
+
+      void decodeInput(std::vector<std::string> &, std::string );
       
       // ----------member data ---------------------------
       
       edm::InputTag stripClustersLabel;
-      std::string modules;
-      std::vector<std::string> v_moduleTypes;
+      edm::InputTag pixelClustersLabel;
+      std::string stripModules;
+      std::vector<std::string> v_stripModuleTypes;
+      std::string pixelModules;
+      std::vector<std::string> v_pixelModuleTypes;
       
-      std::string variables;
-      std::vector<std::string> v_variables;
+      std::string stripVariables;
+      std::vector<std::string> v_stripVariables;
+      std::string pixelVariables;
+      std::vector<std::string> v_pixelVariables;
       
       ClusterSummary cCluster;
       std::map< std::string, int > EnumMap;
       std::vector<ClusterSummary::ModuleSelection*> ModuleSelectionVect;
+      std::vector<ClusterSummary::ModuleSelection*> ModuleSelectionVectPixels;
 
+
+      bool doStrips;
+      bool doPixels;
       bool verbose;
       bool firstpass;
       bool firstpass_mod;
+      bool firstpassPixel;
+      bool firstpassPixel_mod;
 
       //Declare the variables to fill the summary info with
       std::vector<std::string> v_userContent; 

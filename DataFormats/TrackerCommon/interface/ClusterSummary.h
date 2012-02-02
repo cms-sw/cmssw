@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Segala
 //         Created:  Wed Feb 23 17:36:23 CST 2011
-// $Id: ClusterSummary.h,v 1.8 2011/10/31 17:15:05 msegala Exp $
+// $Id: ClusterSummary.h,v 1.1 2012/01/24 17:56:49 msegala Exp $
 //
 //
 
@@ -52,6 +52,10 @@
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 
 /*****************************************************************************************
 
@@ -82,12 +86,16 @@ The number of variables for each module is stored within iterator_
    Cluster.SetClusterSize( mod, Summaryinfo.clusterSize() );
    Cluster.SetClusterCharge( mod, Summaryinfo.charge() );
 
+   //++++++++++++++++++++++//
+   These methods are obsolete and you should use the SetGenericVariable() methods
+   //++++++++++++++++++++++//
+
    --or--
 
    //Fill generic vector to hold any variables. You can fill the vector based on the name of the variables or the location of the variable within userContent
-   cCluster.SetGenericVariable( "cHits", mod_pair2, 1 );
-   cCluster.SetGenericVariable( "cSize", mod_pair2, Summaryinfo.clusterSize() );
-   cCluster.SetGenericVariable( "cCharge", mod_pair2, Summaryinfo.charge() );
+   cCluster.SetGenericVariable( "sHits", mod_pair2, 1 );
+   cCluster.SetGenericVariable( "sSize", mod_pair2, Summaryinfo.clusterSize() );
+   cCluster.SetGenericVariable( "sCharge", mod_pair2, Summaryinfo.charge() );
 
 
    // Once the loop over all detIds have finsihed fill the Output vectors
@@ -106,11 +114,19 @@ The number of variables for each module is stored within iterator_
    Handle< ClusterSummary  > class_;
    iEvent.getByLabel( _class, class_);
       
-   nType_ = class_ -> GetNumberOfModules();
-   clusterSize_ = class_ -> GetClusterSize();
-   clusterCharge_ = class_ -> GetClusterCharge();
+   genericVariables_ = class_ -> GetGenericVariable();   
 
-   GetNumberOfModules(), GetClusterSize(), GetClusterCharge() looks into the vector variables_ and unfolds it to get the proper information 
+   //You can access the variables by genericVariables_[i][j] where 'i' is the order in which the variable was stored, see enum VariablePlacement
+   cout << genericVariables_[0][1] << endl;
+   cout << genericVariables_[1][1]/genericVariables_[0][1] << endl;
+   cout << genericVariables_[2][2]/genericVariables_[0][2] << endl;
+
+   --or--
+   
+   //You can access the variables by the variable and partition name.
+   cout << class_ -> GetGenericVariable("cHits", ClusterSummary::TIB) << endl;
+   cout << class_ -> GetGenericVariable("cSize", ClusterSummary::TIB)/class_ -> GetGenericVariable("cHits", ClusterSummary::TIB) << endl;
+   cout << class_ -> GetGenericVariable("cCharge", ClusterSummary::TOB)/class_ -> GetGenericVariable("cHits", ClusterSummary::TOB) << endl;
 
 
 
@@ -122,7 +138,7 @@ class ClusterSummary {
 
  public:
   
-  ClusterSummary():genericVariables_(3, std::vector<double>(5000,0) ){}
+  ClusterSummary():genericVariablesTmp_(6, std::vector<double>(80,0) ){}
 
   // Enum for each partition within Tracer
   enum CMSTracker { TRACKER = 0,
@@ -142,152 +158,135 @@ class ClusterSummary {
 		    TECP_1 = 421, TECP_2 = 422, TECP_3 = 423, TECP_4 = 424, TECP_5 = 425, TECP_6 = 426, TECP_7 = 427, TECP_8 = 428, TECP_9 = 429, 
 		    TECMR_1 = 4110, TECMR_2 = 4120, TECMR_3 = 4130, TECMR_4 = 4140, TECMR_5 = 4150, TECMR_6 = 4160, TECMR_7 = 4170, 
 		    TECPR_1 = 4210, TECPR_2 = 4220, TECPR_3 = 4230, TECPR_4 = 4240, TECPR_5 = 4250, TECPR_6 = 4260, TECPR_7 = 4270,  
-		    PIXELS = 5 };
+		    PIXEL = 5,
+                    FPIX = 6, 
+		    FPIXM = 61, FPIXP = 62,
+                    BPIX = 7};
 
   // Enum which describes the ordering of the summary variables inside vector variables_
   enum VariablePlacement{ NMODULES = 0,
 			  CLUSTERSIZE = 1,
-			  CLUSTERCHARGE = 2 };
+			  CLUSTERCHARGE = 2,
+			  NMODULESPIXELS = 3,
+			  CLUSTERSIZEPIXELS = 4,
+			  CLUSTERCHARGEPIXELS = 5};
+ 
+
+  //===================+++++++++++++========================
+  //
+  //                 Main methods to fill 
+  //                      Variables
+  //
+  //===================+++++++++++++========================
+
+  
+  //Get value of any variable given location of the variable within userContent and the module number based on enum CMSTracker
+  double GetGenericVariable( int variableLocation, int module ) const { return genericVariables_[variableLocation][GetModuleLocation(module)]; }
+
+  //Get value of any variable given variable name and the module number based on enum CMSTracker
+  double GetGenericVariable( std::string variableName, int module ) const { 
+
+    int position = GetVariableLocation(variableName);
+    int mposition = GetModuleLocation(module);
+
+    return genericVariables_[position][mposition];    
+  }
+
+  //Get specific varibale for all modules using the variable name
+  std::vector<double> GetGenericVariable( std::string variableName ) const {     
+    return genericVariables_[GetVariableLocation(variableName)];
+  }
+
+  //Get specific varibale for all modules using the location of the variable within userContent
+  std::vector<double> GetGenericVariable( int variableLocation ) const {     
+    return genericVariables_[variableLocation];
+  }
+
+  //Get the vector genericVariables_
+  std::vector< std::vector<double> > GetGenericVariable() const { return genericVariables_; }  
+
+  //Set the vector genericVariables_ based on the location of the variable within userContent and the module number based on enum CMSTracker
+  void SetGenericVariable( int variableLocation, int module, double value ) { genericVariablesTmp_[variableLocation][GetModuleLocation(module)] += value; } 
+
+  //Set the vector genericVariables_ given the variable name and the module number based on enum CMSTracker
+  void SetGenericVariable( std::string variableName, int module, double value ) { 
+    
+    /*
+      genericVariablesTmp[ variable ][ module ]
+      
+      This will fill the values in the order as they are filled in the produced.
+      
+      1) Find where the variableName lives in userContent
+      2) Find where module lives in modules_
+
+    */
+
+    int position = GetVariableLocation(variableName);
+    int mposition = GetModuleLocation(module);
+
+    genericVariablesTmp_[position][mposition] += value;    
+  } 
+
+  //Prepair the final vector to be put into the producer. Remove any remaining 0's and copy the Tmp to the vector over to genericVariables_. Must be done at the end of each event.
+  void PrepairGenericVariable() { 
+    
+    genericVariables_ = genericVariablesTmp_;
+    
+    for (unsigned int i = 0; i < userContent.size(); ++i){
+      genericVariables_[i].erase(std::remove(genericVariables_[i].begin(), genericVariables_[i].end(), 0), genericVariables_[i].end());
+    }
+  } 
+
+  //Clear genericVariablesTmp_. Must be done at the end of each event.
+  void ClearGenericVariable() { 
+    
+    //genericVariablesTmp_.clear();
+
+    for (unsigned int i = 0; i < genericVariablesTmp_.size(); ++i){
+      for (unsigned int j = 0; j < genericVariablesTmp_[i].size(); ++j){
+	genericVariablesTmp_[i][j] = 0;
+      }
+    }    
+  } 
 
 
-  // Setter and Getter and Clear for number of cluster in a given module
-  int GetNType( int module ){ return nType[module]; } 
-  void SetNType( int module ){ nType[module]++; } 
-  void SetNType( int module, int val ){ nType[module] = val; } 
-  void ClearNType( int module ){ nType[module] = 0; } 
-
-  // Setter and Getter and Clear for cluster size
-  double GetClusterSize( int module ){ return ClusterSize[module]; } 
-  double GetAverageClusterSize( int module ){ return (ClusterSize[module]/nType[module]); } 
-  void SetClusterSize( int module, double size ){ ClusterSize[module] += size; } 
-  void ClearClusterSize( int module ){ ClusterSize[module] = 0; } 
-
-  // Setter and Getter and Clear for cluster charge
-  double GetClusterCharge( int module ){ return ClusterCharge[module]; } 
-  double GetAverageClusterCharge( int module ){ return (ClusterCharge[module]/nType[module]); } 
-  void SetClusterCharge( int module, double charge ){ ClusterCharge[module] += charge; } 
-  void ClearClusterCharge( int module ){ ClusterCharge[module] = 0; } 
 
   // Setter and Getter for the User Content. You can also return the size and what is stored in the UserContent 
   void SetUserContent(std::vector<std::string> Content)  const { userContent = Content;}
   std::vector<std::string> GetUserContent()  { return userContent;}
   int GetUserContentSize()  { return userContent.size(); }
-  void  GetUserContentInfo()  { 
+  void  GetUserContentInfo() const  { 
     std::cout << "Saving info for " ;
     for (unsigned int i = 0; i < userContent.size(); ++i){ std::cout << userContent.at(i) << " " ;}
     std::cout << std::endl;
   }
+  int GetVariableLocation ( std::string var ) const;
 
-
-
-  // Setter and Getter for generic variable container
-  double GetGenericVariable( int variableLocation, int module ) const { return genericVariables_[variableLocation][module]; }
-
-
-  double GetGenericVariable( std::string variableName, int module ) const { 
-    int position = -1;
-    for (unsigned int i = 0; i < userContent.size(); ++i){
-      if (variableName == userContent[i]) position = i; 
-    }
-
-    return genericVariables_[position][module];
-  }
-  
-  
-  std::vector< std::vector<double> > GetGenericVariable() const { return genericVariables_; }
-  
-  void SetGenericVariable( int variableLocation, int module, double value ) { genericVariables_[variableLocation][module] += value; } 
-
-
-  void SetGenericVariable( std::string variableName, int module, double value ) { 
-    int position = -1;
-    for (unsigned int i = 0; i < userContent.size(); ++i){
-      if (variableName == userContent[i]) position = i; 
-    }
-    genericVariables_[position][module] += value;    
-  } 
- 
- 
-  void ClearGenericVariable() { 
-    
-    //genericVariables_.clear();
-    //genericVariables_[0].clear();
-    //genericVariables_[1].clear();
-    //genericVariables_[2].clear();
-
-    ///\\\\ Temperary until figure out how to clear correctly
-
-    for (int i = 0; i < 5000; ++i){
-      genericVariables_[0][i] = 0;
-      genericVariables_[1][i] = 0;
-      genericVariables_[2][i] = 0;
-    }
-  } 
-
-
-
-  /* 
-     Fill methods for three output vectors (modules_, iterator_, variables_)
-     The vectors are filled by accessing the proper location within appropriate array
-     User fills the vectors by calling method 
-     SetUserVariables( int module ) 
-     where module is from the ENUM CMSTracker
-  */
 
   //Set and Get modules_
   void SetUserModules( int value ) { modules_.push_back( value ); }
   std::vector<int> GetUserModules( ) const { return modules_;  }
   void ClearUserModules( ) { modules_.clear(); }
-
-  //Set and Get iterator_
-  void SetUserIterator() { iterator_.push_back( GetUserContentSize()  ); }
-  std::vector<int> GetUserIterator() const { return iterator_; }
-  void ClearUserIterator() { iterator_.clear(); }
- 
-  //Set and Get variables_
-  void SetUserVariables( int module ){ 
-    variables_.push_back(GetNType(module));
-    variables_.push_back(GetAverageClusterSize(module));
-    variables_.push_back(GetAverageClusterCharge(module));  
-  }
-  std::vector<double> GetUserVariables() const { return variables_; }
-  void ClearUserVariables(){ variables_.clear(); }
-  void ClearAllVariables(){variables_.clear(); }
-  
-
-   
   // Return the location of desired module within modules_. 
   int GetModuleLocation ( int mod ) const;
 
-  // Return a vector of the number of clusters per module. This method looks into variables_ and collects the correct information
-  std::vector<int> GetNumberOfModules() const; 
 
-  // Return number of clusters for a given module. An example of the input for the method should be ClusterSummary::TIB
-  int GetNumberOfModules( int mod ) const;
-  
-  // Return a vector of the average cluster size per module. This method looks into variables_ and collects the correct information
-  std::vector<double> GetClusterSize() const;
-
-  // Return average cluster size for a given module. An example of the input for the method should be ClusterSummary::TIB
-  double GetClusterSize( int mod ) const;
-
-  // Return a vector of the average cluster charge per module. This method looks into variables_ and collects the correct information
-  std::vector<double> GetClusterCharge() const;
-
-  // Return average cluster charge for a given module. An example of the input for the method should be ClusterSummary::TIB
-  double GetClusterCharge( int mod ) const;  
-  
+  //Set and Get iterator_
+  void SetUserIterator() { iterator_.push_back( GetUserContentSize()  );}
+  std::vector<int> GetUserIterator() const { return iterator_; }
+  void ClearUserIterator() { iterator_.clear(); }
+    
   // Return a vector of the modules that summary infomation was requested for. This should come from the provenance information. 
   std::vector<std::string> DecodeProvInfo(std::string ProvInfo) const;
 
- 
   // Class which determines if a detId is part of a desired partition
   class ModuleSelection{
   public:
     ModuleSelection(std::string gs){
       geosearch = gs;
     };
-    virtual std::pair<int,int> IsSelected (int DetId);
+    virtual std::pair<int,int> IsStripSelected (int DetId);
+    virtual std::pair<int,int> IsPixelSelected (int DetId);
   private:
     std::string geosearch; // string of selected modules	
   };
@@ -297,25 +296,15 @@ class ClusterSummary {
 
  private:
   
-  //mutable int nType[64];
-  //mutable double ClusterSize[64];
-  //mutable double ClusterCharge[64];
-
-
-  mutable int nType[5000];
-  mutable double ClusterSize[5000];
-  mutable double ClusterCharge[5000];
-
 
   // String which stores the name of the variables the user is getting the summary info for
   mutable std::vector<std::string>        userContent;
 
-  std::vector<int>   iterator_;   // <number of varibale for Module1, number of varibale for Module2 ...>
-  std::vector<int>   modules_;    // <Module1, Module2 ...>
-  std::vector<double> variables_;  // <nClusters Module1, avg cluster size Module1, avg charge Module1, nClusters Module2 ...>
-
+  std::vector<int>    iterator_;   // <number of varibale for Module1, number of varibale for Module2 ...>
+  std::vector<int>    modules_;    // <Module1, Module2 ...>
 
   std::vector< std::vector<double> > genericVariables_; 
+  mutable std::vector< std::vector<double> > genericVariablesTmp_; 
 
 };
 
