@@ -130,6 +130,9 @@ namespace {
     edm::Wrapper<reco::PFJetFwdPtrVector> wrp5;
     edm::reftobase::Holder<reco::Candidate, reco::PFJetRef> rtb5;
     reco::JetTrackMatch<reco::PFJetCollection> jtm5;
+    std::vector<edm::Ref<std::vector<reco::PFJet> > > vrvr5;
+    std::vector<reco::PFJetRefVector> vrv5;
+    edm::Wrapper<std::vector<reco::PFJetRefVector> > wfvrv5;
 
     reco::TrackJetCollection o6;
     reco::TrackJetRef r6;
