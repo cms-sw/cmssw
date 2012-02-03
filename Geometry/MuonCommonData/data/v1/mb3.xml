@@ -54,7 +54,7 @@
 <!-- ####  MB3: DTBX chamber -->
  <!--%% In MB3 the widest superlayer in x is the Z one -->
  <Box name="MB3_a" dx="[MB3_x]" dy="[mbCommon:MBSLPhiPlO_z]+12.*mm" dz="[MB3Height_With1RPC]+0.25*mm"/>  
- <Box name="MB3_OLAP1" dx="28.*mm" dy="[mbCommon:MBSLPhiPlO_z]+13.*mm" dz="18.25*mm"/>
+ <Box name="MB3_OLAP1" dx="28.*mm" dy="[mbCommon:MBSLPhiPlO_z]+13.*mm" dz="18.75*mm"/>
  <Box name="MB3_OLAP2" dx="25.75*mm" dy="[mbCommon:MBSLPhiPlO_z]+13.*mm" dz="44.75*mm"/>
 
  <SubtractionSolid name="MB3P_b">
