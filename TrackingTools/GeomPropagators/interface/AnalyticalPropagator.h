@@ -26,11 +26,12 @@ public:
 
   AnalyticalPropagator( const MagneticField* field,
 		        PropagationDirection dir = alongMomentum,
-			float maxDPhi = 1.6) :
+			float maxDPhi = 1.6,bool isOld=true) :
     Propagator(dir),
     theMaxDPhi2(maxDPhi*maxDPhi),
     theMaxDBzRatio(0.5),
-    theField(field) {}
+    theField(field),
+    isOldPropagationType(isOld) {}
 
   ~AnalyticalPropagator() {}
   //
@@ -127,6 +128,7 @@ private:
   float theMaxDPhi2;
   float theMaxDBzRatio;
   const MagneticField* theField;
+  bool isOldPropagationType;
 };
 
 #endif
