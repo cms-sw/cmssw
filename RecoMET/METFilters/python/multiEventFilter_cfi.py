@@ -7,6 +7,7 @@ multiEventFilter = cms.EDFilter(
     "0:0:0"  # run:lumi:event
   ),
   taggingMode   = cms.bool(False),
+  file = cms.FileInPath('RecoMET/METFilters/data/dummy.txt'),
 )
 
 vetoIncMuons = multiEventFilter.clone(EventList = [

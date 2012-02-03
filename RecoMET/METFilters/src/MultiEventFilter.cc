@@ -5,6 +5,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Parse.h"
 
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+
+#include <fstream>
 
 class MultiEventFilter : public edm::EDFilter {
 
@@ -35,6 +38,11 @@ class MultiEventFilter : public edm::EDFilter {
 MultiEventFilter::MultiEventFilter(const edm::ParameterSet & iConfig) {
   std::vector<std::string> eventList = iConfig.getParameter<std::vector<std::string> >("EventList");
   taggingMode_ = iConfig.getParameter<bool>("taggingMode");
+
+  edm::FileInPath fp = iConfig.getParameter<edm::FileInPath>("file");
+  std::string fFile = fp.fullPath();
+  std::ifstream inStream(fFile.c_str());
+
   for (unsigned int i = 0; i < eventList.size(); ++i) {
     std::vector<std::string> tokens = edm::tokenize(eventList[i], ":");
     if(tokens.size() != 3) {
@@ -43,6 +51,17 @@ MultiEventFilter::MultiEventFilter(const edm::ParameterSet & iConfig) {
     }
     events_.push_back(Event(atoi(tokens[0].c_str()), atoi(tokens[1].c_str()), atoi(tokens[2].c_str())));
   }
+
+  std::string line;
+  while( getline(inStream, line) ){
+     std::vector<std::string> tokens = edm::tokenize(line, ":");
+     if(tokens.size() != 3) {
+      throw edm::Exception(edm::errors::Configuration) << "Incorrect event specification";
+      continue;
+    }
+    events_.push_back(Event(atoi(tokens[0].c_str()), atoi(tokens[1].c_str()), atoi(tokens[2].c_str())));
+  }
+
   produces<bool>();
 }
 
