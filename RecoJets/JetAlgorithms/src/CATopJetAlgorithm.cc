@@ -1,6 +1,6 @@
 // Original author: Brock Tweedie (JHU)
 // Ported to CMSSW by: Sal Rappoccio (JHU)
-// $Id: CATopJetAlgorithm.cc,v 1.9 2011/04/25 04:19:54 srappocc Exp $
+// $Id: CATopJetAlgorithm.cc,v 1.10 2012/01/29 10:29:34 eulisse Exp $
 
 #include "RecoJets/JetAlgorithms/interface/CATopJetAlgorithm.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -216,6 +216,26 @@ void CATopJetAlgorithm::run( const vector<fastjet::PseudoJet> & cell_particles,
 		if ( subjet4.user_index() >= 0 )
 			hardSubjets.push_back(subjet4);
 		sort(hardSubjets.begin(), hardSubjets.end(), compEt );
+
+
+
+		if ( verbose_ ) {
+		  std::cout << "HardA : user_index = " << hardA.user_index() << ", (Pt,Y,Phi,M) = (" 
+			    << hardA.perp() << ", " << hardA.rapidity() << ", " 
+			    << hardA.phi() << ", " << hardA.m() << ")" << std::endl;
+
+		  std::cout << "HardB : user_index = " << hardB.user_index() << ", (Pt,Y,Phi,M) = (" 
+			    << hardB.perp() << ", " << hardB.rapidity() << ", " 
+			    << hardB.phi() << ", " << hardB.m() << ")" << std::endl;
+
+		  std::cout << "HardC : user_index = " << hardC.user_index() << ", (Pt,Y,Phi,M) = (" 
+			    << hardC.perp() << ", " << hardC.rapidity() << ", " 
+			    << hardC.phi() << ", " << hardC.m() << ")" << std::endl;
+
+		  std::cout << "HardD : user_index = " << hardD.user_index() << ", (Pt,Y,Phi,M) = (" 
+			    << hardD.perp() << ", " << hardD.rapidity() << ", " 
+			    << hardD.phi() << ", " << hardD.m() << ")" << std::endl;
+		}
 		
 		// create the subjets objects to put into the "output" objects
 		vector<CompoundPseudoSubJet>  subjetsOutput;
