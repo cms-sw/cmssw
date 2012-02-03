@@ -1,5 +1,4 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "HLTrigger/JetMET/interface/HLTRFilter.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -13,6 +12,8 @@
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 
+#include "DataFormats/MuonReco/interface/Muon.h"
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -22,12 +23,16 @@
 
 #include "TVector3.h"
 #include "TLorentzVector.h"
+
+#include "HLTrigger/JetMET/interface/HLTRFilter.h"
+
 //
 // constructors and destructor
 //
 HLTRFilter::HLTRFilter(const edm::ParameterSet& iConfig) :
   inputTag_    (iConfig.getParameter<edm::InputTag>("inputTag")),
   inputMetTag_ (iConfig.getParameter<edm::InputTag>("inputMetTag")),
+  doMuonCorrection_(iConfig.getParameter<bool>         ("doMuonCorrection" )),
   min_R_       (iConfig.getParameter<double>       ("minR"   )),
   min_MR_      (iConfig.getParameter<double>       ("minMR"   )),
   DoRPrime_    (iConfig.getParameter<bool>       ("doRPrime"   )),
@@ -59,6 +64,7 @@ HLTRFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("inputTag",edm::InputTag("hltRHemisphere"));
   desc.add<edm::InputTag>("inputMetTag",edm::InputTag("hltMet"));
+  desc.add<bool>("doMuonCorrection",false);
   desc.add<double>("minR",0.3);
   desc.add<double>("minMR",100.0);
   desc.add<bool>("doRPrime",false);
@@ -100,55 +106,123 @@ HLTRFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //***********************************
    //Calculate R 
 
+   int nMuons;
+   switch(hemispheres->size()){
+   case 2:
+     nMuons=0; break;
+   case 5:
+     nMuons=1; break;
+   case 10:
+     nMuons=2; break;
+   Default:
+     return false; //invalid hemisphere collection
+   }
+
+   //muons as MET
    TLorentzVector ja(hemispheres->at(0).x(),hemispheres->at(0).y(),hemispheres->at(0).z(),hemispheres->at(0).t());
    TLorentzVector jb(hemispheres->at(1).x(),hemispheres->at(1).y(),hemispheres->at(1).z(),hemispheres->at(1).t());
 
-   if(ja.Pt() > 0.1) { // some good R combination was found
-     
-     ja.SetPtEtaPhiM(ja.Pt(),ja.Eta(),ja.Phi(),0.0);
-     jb.SetPtEtaPhiM(jb.Pt(),jb.Eta(),jb.Phi(),0.0);
-     
-     if(ja.Pt() > jb.Pt()){
-       TLorentzVector temp = ja;
-       ja = jb;
-       jb = temp;
-     }
-     
-     double A = ja.P();
-     double B = jb.P();
-     double az = ja.Pz();
-     double bz = jb.Pz();
-     TVector3 jaT, jbT;
-     jaT.SetXYZ(ja.Px(),ja.Py(),0.0);
-     jbT.SetXYZ(jb.Px(),jb.Py(),0.0);
-     double ATBT = (jaT+jbT).Mag2();
+   std::vector<math::XYZTLorentzVector> muonVec;
+   
+   double MR = CalcMR(ja,jb);
+   double R  = CalcR(MR,ja,jb,inputMet,muonVec);
 
-     double MR = sqrt((A+B)*(A+B)-(az+bz)*(az+bz)-
-			(jbT.Dot(jbT)-jaT.Dot(jaT))*(jbT.Dot(jbT)-jaT.Dot(jaT))/(jaT+jbT).Mag2());
+   if(MR>=min_MR_ && R>=min_R_
+      && ( (R*R - R_offset_)*(MR-MR_offset_) )>=R_MR_cut_) return true;
 
-     double mybeta = (jbT.Dot(jbT)-jaT.Dot(jaT))/
-       sqrt(ATBT*((A+B)*(A+B)-(az+bz)*(az+bz)));
+   if(nMuons==0) return false;  // if no muons and we get here, reject event
 
-     double mygamma = 1./sqrt(1.-mybeta*mybeta);
+   //Lead Muon as Jet
+   ja.SetXYZT(hemispheres->at(3).x(),hemispheres->at(3).y(),hemispheres->at(3).z(),hemispheres->at(3).t());
+   jb.SetXYZT(hemispheres->at(4).x(),hemispheres->at(4).y(),hemispheres->at(4).z(),hemispheres->at(4).t());
+   muonVec.push_back(hemispheres->at(2)); // lead muon at position 2
 
-     //use gamma times MRstar
-     MR *= mygamma;
+   MR = CalcMR(ja,jb);
+   R  = CalcR(MR,ja,jb,inputMet,muonVec);
 
-     //now we can calculate MTR
-     TVector3 met;
-     met.SetPtEtaPhi((inputMet->front()).pt(),0.0,(inputMet->front()).phi());
-     double MTR = sqrt(0.5*(met.Mag()*(ja.Pt()+jb.Pt()) - met.Dot(ja.Vect()+jb.Vect())));
-     
-     //filter events
-     float R = float(MTR)/float(MR);
-     if(MR>=min_MR_ && R>=min_R_
-	&& ( (R*R - R_offset_)*(MR-MR_offset_) )>=R_MR_cut_) return true;
-     
-   }
+   if(MR>=min_MR_ && R>=min_R_
+      && ( (R*R - R_offset_)*(MR-MR_offset_) )>=R_MR_cut_) return true;
+   
+   if(nMuons==1) return false;  // if no muons and we get here, reject event
+
+   muonVec.pop_back();
+   //Second Muon as Jet
+   ja.SetXYZT(hemispheres->at(6).x(),hemispheres->at(6).y(),hemispheres->at(6).z(),hemispheres->at(6).t());
+   jb.SetXYZT(hemispheres->at(7).x(),hemispheres->at(7).y(),hemispheres->at(7).z(),hemispheres->at(7).t());
+   muonVec.push_back(hemispheres->at(5)); // sublead muon at position 5
+
+   MR = CalcMR(ja,jb);
+   R  = CalcR(MR,ja,jb,inputMet,muonVec);
+
+   if(MR>=min_MR_ && R>=min_R_
+      && ( (R*R - R_offset_)*(MR-MR_offset_) )>=R_MR_cut_) return true;
+
+   ja.SetXYZT(hemispheres->at(8).x(),hemispheres->at(8).y(),hemispheres->at(8).z(),hemispheres->at(8).t());
+   jb.SetXYZT(hemispheres->at(9).x(),hemispheres->at(9).y(),hemispheres->at(9).z(),hemispheres->at(9).t());
+   muonVec.push_back(hemispheres->at(2)); // lead muon at position 2
+   
+   MR = CalcMR(ja,jb);
+   R  = CalcR(MR,ja,jb,inputMet,muonVec);
+
+   if(MR>=min_MR_ && R>=min_R_
+      && ( (R*R - R_offset_)*(MR-MR_offset_) )>=R_MR_cut_) return true;   
 
    // filter decision
    return false;
 }
 
+double 
+HLTRFilter::CalcMR(TLorentzVector ja, TLorentzVector jb){
+  if(ja.Pt()<=0.1) return -1;
+
+  ja.SetPtEtaPhiM(ja.Pt(),ja.Eta(),ja.Phi(),0.0);
+  jb.SetPtEtaPhiM(jb.Pt(),jb.Eta(),jb.Phi(),0.0);
+  
+  if(ja.Pt() > jb.Pt()){
+    TLorentzVector temp = ja;
+    ja = jb;
+    jb = temp;
+  }
+  
+  double A = ja.P();
+  double B = jb.P();
+  double az = ja.Pz();
+  double bz = jb.Pz();
+  TVector3 jaT, jbT;
+  jaT.SetXYZ(ja.Px(),ja.Py(),0.0);
+  jbT.SetXYZ(jb.Px(),jb.Py(),0.0);
+  double ATBT = (jaT+jbT).Mag2();
+  
+  double MR = sqrt((A+B)*(A+B)-(az+bz)*(az+bz)-
+		   (jbT.Dot(jbT)-jaT.Dot(jaT))*(jbT.Dot(jbT)-jaT.Dot(jaT))/(jaT+jbT).Mag2());
+  
+  double mybeta = (jbT.Dot(jbT)-jaT.Dot(jaT))/
+    sqrt(ATBT*((A+B)*(A+B)-(az+bz)*(az+bz)));
+  
+  double mygamma = 1./sqrt(1.-mybeta*mybeta);
+  
+  //use gamma times MRstar
+  return MR*mygamma;  
+}
+
+double 
+HLTRFilter::CalcR(double MR, TLorentzVector ja, TLorentzVector jb, edm::Handle<reco::CaloMETCollection> inputMet, std::vector<math::XYZTLorentzVector> muons){
+  //now we can calculate MTR
+  TVector3 met;
+  met.SetPtEtaPhi((inputMet->front()).pt(),0.0,(inputMet->front()).phi());
+  
+  std::vector<math::XYZTLorentzVector>::const_iterator muonIt;
+  for(muonIt = muons.begin(); muonIt!=muons.end(); muonIt++){
+    TVector3 tmp;
+    tmp.SetPtEtaPhi(muonIt->pt(),0,muonIt->phi());
+    met-=tmp;
+  }
+
+  double MTR = sqrt(0.5*(met.Mag()*(ja.Pt()+jb.Pt()) - met.Dot(ja.Vect()+jb.Vect())));
+  
+  //filter events
+  return float(MTR)/float(MR); //R
+  
+}
 DEFINE_FWK_MODULE(HLTRFilter);
 

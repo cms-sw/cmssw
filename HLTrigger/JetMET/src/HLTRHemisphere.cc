@@ -1,7 +1,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "HLTrigger/JetMET/interface/HLTRHemisphere.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include "DataFormats/Common/interface/Ref.h"
 
@@ -11,6 +13,7 @@
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 
+#include "DataFormats/MuonReco/interface/Muon.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -22,6 +25,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "HLTrigger/JetMET/interface/HLTRHemisphere.h"
+
 #include<vector>
 
 //
@@ -29,6 +34,9 @@
 //
 HLTRHemisphere::HLTRHemisphere(const edm::ParameterSet& iConfig) :
   inputTag_    (iConfig.getParameter<edm::InputTag>("inputTag")),
+  muonTag_    (iConfig.getParameter<edm::InputTag>("muonTag")),
+  doMuonCorrection_(iConfig.getParameter<bool>         ("doMuonCorrection" )),
+  muonEta_     (iConfig.getParameter<double>       ("maxMuonEta" )),
   min_Jet_Pt_  (iConfig.getParameter<double>       ("minJetPt" )),
   max_Eta_     (iConfig.getParameter<double>       ("maxEta" )),
   max_NJ_      (iConfig.getParameter<int>          ("maxNJ" )),
@@ -53,6 +61,9 @@ void
 HLTRHemisphere::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("inputTag",edm::InputTag("hltMCJetCorJetIcone5HF07"));
+  desc.add<edm::InputTag>("muonTag",edm::InputTag(""));
+  desc.add<bool>("doMuonCorrection",false);
+  desc.add<double>("maxMuonEta",2.1);
   desc.add<double>("minJetPt",30.0);
   desc.add<double>("maxEta",3.0);
   desc.add<int>("maxNJ",7);
@@ -72,10 +83,17 @@ HLTRHemisphere::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace edm;
    using namespace reco;
    using namespace math;
+   using namespace trigger;
+   
+   typedef XYZTLorentzVector LorentzVector;
 
    // get hold of collection of objects
    Handle<CaloJetCollection> jets;
    iEvent.getByLabel (inputTag_,jets);
+
+   // get hold of the muons, if necessary
+   Handle<vector<reco::Muon> > muons;
+   if(doMuonCorrection_) iEvent.getByLabel( muonTag_,muons );
 
    // The output Collection
    std::auto_ptr<vector<math::XYZTLorentzVector> > Hemispheres(new vector<math::XYZTLorentzVector> );
@@ -91,33 +109,87 @@ HLTRHemisphere::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
    }
 
-  if(n<2){
-    return false; //need at least 2 jets to build the hemispheres
-  }
-
   if(n>max_NJ_ && max_NJ_!=-1){
     iEvent.put(Hemispheres);
-    return accNJJets_; // 
+    return accNJJets_; // too many jets, accept for timing
   }
-  unsigned int N_comb(1); // compute the number of combinations of jets possible
-  for(unsigned int i = 0; i < JETS.size(); i++){
-    N_comb *= 2;                
+
+  if(doMuonCorrection_){
+    const int nMu=2;
+    int muonIndex[nMu]={-1,-1};
+    std::vector<reco::Muon>::const_iterator muonIt;
+    int index=0;
+    int nPassMu;
+    for(muonIt = muons->begin(); muonIt!=muons->end(); muonIt++,index++){ 
+      if(fabs(muonIt->eta()) > muonEta_ || muonIt->pt() < min_Jet_Pt_) continue; // skip muons out of eta range or too low pT
+      if(nPassMu>=2){ // if we have already accepted two muons, accept the event
+	iEvent.put(Hemispheres); // too many muons, accept for timing      
+	return true;
+      }
+      muonIndex[nPassMu++]=index;    
+    }
+    //muons as MET
+    this->ComputeHemispheres(Hemispheres,JETS);
+    //lead muon as jet
+    if(nPassMu>0){
+      std::vector<math::XYZTLorentzVector> muonJets;
+      reco::Muon leadMu = muons->at(muonIndex[0]);
+      muonJets.push_back(leadMu.p4());
+      Hemispheres->push_back(leadMu.p4());
+      this->ComputeHemispheres(Hemispheres,JETS,&muonJets); // lead muon as jet
+      if(nPassMu>1){ // two passing muons
+	muonJets.pop_back();
+	reco::Muon secondMu = muons->at(muonIndex[1]);
+	muonJets.push_back(secondMu.p4());
+	Hemispheres->push_back(secondMu.p4());
+	this->ComputeHemispheres(Hemispheres,JETS,&muonJets); // lead muon as v, second muon as jet
+	muonJets.push_back(leadMu.p4());
+	this->ComputeHemispheres(Hemispheres,JETS,&muonJets); // both muon as jets
+      }
+    }
+  }else{ // do MuonCorrection==false
+    if(n<2) return false; // not enough jets and not adding in muons
+    this->ComputeHemispheres(Hemispheres,JETS); // don't do the muon isolation, just run once and done
   }
-  //Make the hemispheres
+  //Format: 
+  // 0 muon: 2 hemispheres (2)
+  // 1 muon: 2 hemisheress + leadMuP4 + 2 hemispheres (5)
+  // 2 muon: 2 hemispheres + leadMuP4 + 2 hemispheres + 2ndMuP4 + 4 Hemispheres (10)
+  iEvent.put(Hemispheres);
+  return true;
+}
+
+void
+HLTRHemisphere::ComputeHemispheres(std::auto_ptr<std::vector<math::XYZTLorentzVector> >& hlist, reco::CaloJetCollection JETS,
+				   std::vector<math::XYZTLorentzVector> *extraJets){
+  using namespace math;
+  using namespace reco;
   XYZTLorentzVector j1R(0.1, 0., 0., 0.1);
   XYZTLorentzVector j2R(0.1, 0., 0., 0.1);
+  int nJets = JETS.size();
+  if(extraJets) nJets+=extraJets->size();
+
+  if(nJets<2){ // put empty hemispheres if not enough jets
+    hlist->push_back(j1R);
+    hlist->push_back(j2R);
+    return;
+  }
+  unsigned int N_comb = pow(2,nJets); // compute the number of combinations of jets possible
+  //Make the hemispheres
   double M_minR = 9999999999.0;
   unsigned int j_count;
   for (unsigned int i = 0; i < N_comb; i++) {       
     XYZTLorentzVector j_temp1, j_temp2;
     unsigned int itemp = i;
     j_count = N_comb/2;
-    int count = 0;
+    unsigned int count = 0;
     while (j_count > 0) {
       if (itemp/j_count == 1){
-	j_temp1 += JETS.at(count).p4();
+	if(count<JETS.size()) j_temp1 += JETS.at(count).p4();
+	else j_temp1 +=extraJets->at(count-JETS.size());
       } else {
-	j_temp2 += JETS.at(count).p4();
+	if(count<JETS.size()) j_temp2 += JETS.at(count).p4();
+	else j_temp2 +=extraJets->at(count-JETS.size());
       }
       itemp -= j_count * (itemp/j_count);
       j_count /= 2;
@@ -131,11 +203,9 @@ HLTRHemisphere::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
   }
 
-  Hemispheres->push_back(j1R);
-  Hemispheres->push_back(j2R);
-
-  iEvent.put(Hemispheres);
-  return true;
+  hlist->push_back(j1R);
+  hlist->push_back(j2R);
+  return;
 }
 
 DEFINE_FWK_MODULE(HLTRHemisphere);

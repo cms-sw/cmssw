@@ -24,9 +24,13 @@ class HLTRFilter : public edm::EDFilter {
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
       virtual bool filter(edm::Event&, const edm::EventSetup&);
 
+      static double CalcMR(TLorentzVector ja,TLorentzVector jb);
+      static double CalcR(double MR, TLorentzVector ja,TLorentzVector jb, edm::Handle<reco::CaloMETCollection> met, std::vector<math::XYZTLorentzVector> muons);
+
    private:
       edm::InputTag inputTag_; // input tag identifying product
       edm::InputTag inputMetTag_; // input tag identifying MET product
+      bool doMuonCorrection_;  // do the muon corrections
       double min_R_;           // minimum R vaule
       double min_MR_;          // minimum MR vaule
       bool DoRPrime_;          // Do the R' instead of R
@@ -34,6 +38,7 @@ class HLTRFilter : public edm::EDFilter {
       double R_offset_;        // R offset for parameterized cut
       double MR_offset_;       // MR offset for parameterized cut
       double R_MR_cut_;        // Cut value for parameterized cut
+
 };
 
 #endif //HLTRFilter_h

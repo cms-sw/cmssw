@@ -26,10 +26,15 @@ class HLTRHemisphere : public edm::EDFilter {
 
    private:
       edm::InputTag inputTag_; // input tag identifying product
+      edm::InputTag muonTag_;  // input tag for the muon objects 
+      bool doMuonCorrection_;   // do the muon corrections
+      double muonEta_;         // maximum muon eta
       double min_Jet_Pt_;      // minimum jet pT threshold for collection
       double max_Eta_;         // maximum eta
       int max_NJ_;             // don't calculate R if event has more than NJ jets
       bool accNJJets_;         // accept or reject events with high NJ
+
+      void ComputeHemispheres(std::auto_ptr<std::vector<math::XYZTLorentzVector> >& hlist, reco::CaloJetCollection JETS, std::vector<math::XYZTLorentzVector> *extraJets=0);
 };
 
 #endif //HLTRHemisphere_h
