@@ -6,28 +6,20 @@
 */
 
 #include "HLTrigger/JetMET/interface/HLTAlphaTFilter.h"
-#include "HLTrigger/JetMET/interface/AlphaT.hh"
-
 #include "DataFormats/Common/interface/Handle.h"
-
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
 #include "DataFormats/Math/interface/deltaPhi.h"
-
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include <vector>
-#include <algorithm>
-#include <functional>
-#include <numeric>
+// #include <algorithm>
+// #include <functional>
+// #include <numeric>
 #include "TLorentzVector.h"
 
 
@@ -36,16 +28,16 @@ typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > LorentzV  ;
 //
 // constructors and destructor
 //
-HLTAlphaTFilter::HLTAlphaTFilter(const edm::ParameterSet& iConfig) :
-
-  inputJetTag_            ( iConfig.getParameter< edm::InputTag > ("inputJetTag") ),
-  inputJetTagFastJet_     ( iConfig.getParameter< edm::InputTag > ("inputJetTagFastJet") ),
-  minPtJet_               ( iConfig.getParameter<std::vector<double> > ("minPtJet") ),
-  etaJet_                 ( iConfig.getParameter<std::vector<double> > ("etaJet") ),
-  minHt_                  ( iConfig.getParameter<double> ("minHt") ),
-  minAlphaT_              ( iConfig.getParameter<double> ("minAlphaT") )
+HLTAlphaTFilter::HLTAlphaTFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
+{
+  inputJetTag_         = iConfig.getParameter< edm::InputTag > ("inputJetTag"); 
+  inputJetTagFastJet_  = iConfig.getParameter< edm::InputTag > ("inputJetTagFastJet"); 
+  minPtJet_            = iConfig.getParameter<std::vector<double> > ("minPtJet"); 
+  etaJet_              = iConfig.getParameter<std::vector<double> > ("etaJet"); 
+  minHt_               = iConfig.getParameter<double> ("minHt"); 
+  minAlphaT_           = iConfig.getParameter<double> ("minAlphaT");
 // sanity checks
-  {
+  
   if (       (minPtJet_.size()    !=  etaJet_.size())
   || (  (minPtJet_.size()<1) || (etaJet_.size()<1) )
   || ( ((minPtJet_.size()<2) || (etaJet_.size()<2))))
@@ -54,13 +46,13 @@ HLTAlphaTFilter::HLTAlphaTFilter(const edm::ParameterSet& iConfig) :
   }
 
 //register your products
-  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTAlphaTFilter::~HLTAlphaTFilter(){}
 
 void HLTAlphaTFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc); 
   desc.add<edm::InputTag>("inputJetTag",edm::InputTag("hltMCJetCorJetIcone5HF07"));
   desc.add<edm::InputTag>("inputJetTagFastJet",edm::InputTag("hltMCJetCorJetIcone5HF07"));
 
@@ -88,15 +80,14 @@ void HLTAlphaTFilter::fillDescriptions(edm::ConfigurationDescriptions& descripti
 
 
 // ------------ method called to produce the data  ------------
-bool HLTAlphaTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+bool HLTAlphaTFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
 using namespace std;
 using namespace edm;
 using namespace reco;
 using namespace trigger;
 // The filter object
-// auto_ptr<trigger::TriggerFilterObjectWithRefs> filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  
+  if (saveTags()) filterproduct.addCollectionTag(inputJetTag_);  
   CaloJetRef ref;
   // Get the Candidates
   Handle<CaloJetCollection> recocalojets;
@@ -157,7 +148,7 @@ if(recocalojets->size() > 1){
     for (reco::CaloJetCollection::const_iterator recocalojet = recocalojets->begin(); recocalojet!=jjet; recocalojet++) {
       if (recocalojet->et() > minPtJet_.at(0)) {
         ref = CaloJetRef(recocalojets,distance(recocalojets->begin(),recocalojet));
-        // filterobject->addObject(TriggerJet,ref);
+        filterproduct.addObject(TriggerJet,ref);
         n++;
       }
     }
@@ -167,8 +158,7 @@ if(recocalojets->size() > 1){
 // filter decision
 bool accept(n>0);
 
-// put filter object into the Event
-// iEvent.put(filterobject);
+
 
 return accept;
 }
