@@ -192,6 +192,7 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::Ev
 
   edm::Handle<reco::VertexCollection> vertexCollectionHandle;
   iEvent.getByLabel("offlinePrimaryVertices", vertexCollectionHandle);
+  if(!vertexCollectionHandle.isValid()) return;
   nvtx_=0;
   vtxntrk_=-9999;
   vtxD0_=-9999.; vtxX_=-9999.; vtxY_=-9999.; vtxZ_=-9999.; vtxndof_=-9999.; vtxchi2_=-9999.;
