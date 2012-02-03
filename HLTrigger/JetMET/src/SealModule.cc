@@ -23,8 +23,8 @@
 #include "HLTrigger/JetMET/interface/HLTHtMhtProducer.h"
 #include "HLTrigger/JetMET/interface/HLTHtMhtFilter.h"
 
-#include "HLTrigger/JetMET/interface/HLTjetetasortedVBF.h"
-#include "HLTrigger/JetMET/interface/HLTjetbtagsortedVBF.h"
+#include "HLTrigger/JetMET/interface/HLTJetEtaSortedVBF.h"
+#include "HLTrigger/JetMET/interface/HLTJetBTagSortedVBF.h"
 
 #include "HLTrigger/JetMET/interface/HLTPFEnergyFractionsFilter.h"
 
@@ -80,8 +80,8 @@ DEFINE_FWK_MODULE(HLTMhtProducer);
 DEFINE_FWK_MODULE(HLTHtMhtProducer);
 DEFINE_FWK_MODULE(HLTHtMhtFilter);
 
-DEFINE_FWK_MODULE(HLTjetetasortedVBF);
-DEFINE_FWK_MODULE(HLTjetbtagsortedVBF);
+DEFINE_FWK_MODULE(HLTJetEtaSortedVBF);
+DEFINE_FWK_MODULE(HLTJetBTagSortedVBF);
 
 DEFINE_FWK_MODULE(HLTPFEnergyFractionsFilter);
 
