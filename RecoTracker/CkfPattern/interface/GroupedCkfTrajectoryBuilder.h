@@ -195,6 +195,9 @@ private:
   unsigned int theMinNrOf2dHitsForRebuild;   
                                 /**< Minimum nr. of non-seed 2D hits required for rebuild. */
 
+  /** If the value is greater than zero, the reconstructions for looper is turned on for
+      candidates with pt greater than maxPtForLooperReconstruction */
+  float maxPtForLooperReconstruction;
 
   mutable TempTrajectoryContainer work_; // Better here than alloc every time
   enum work_MaxSize_Size_ { work_MaxSize_ = 50 };  // if it grows above this number, it is forced to resize to half this amount when cleared
