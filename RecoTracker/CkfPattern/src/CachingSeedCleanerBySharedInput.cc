@@ -4,6 +4,8 @@
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+
 #include<boost/bind.hpp>
 #include<algorithm>
 
@@ -38,6 +40,12 @@ void CachingSeedCleanerBySharedInput::add(const Trajectory *trj) {
     for (TI t = hits.begin(), te = hits.end(); t != te; ++t) {
       //    if ((*t)->isValid()) {   // they are valid!
       detid = (*t)->geographicalId().rawId();
+
+      //For seeds that are made only of pixel hits, it is pointless to store the 
+      //information about hits on other sub-detector of the trajectory.
+      if( theOnlyPixelHits && 
+	  (*t)->geographicalId().subdetId() != PixelSubdetector::PixelBarrel && 
+	  (*t)->geographicalId().subdetId() != PixelSubdetector::PixelEndcap    ) continue;
       if (detid) theCache.insert(std::pair<uint32_t, unsigned int>(detid, idx));
     }
 }
@@ -63,8 +71,8 @@ bool CachingSeedCleanerBySharedInput::good(const TrajectorySeed *seed) {
       assert(it->first == detid);
       //tracks_++;
       
-      // seeds are limited to the first 4 hits in trajectory...
-      int ext = std::min(4,int(theVault[it->second].size()));
+      // seeds are limited to the first "theNumHitsForSeedCleaner" hits in trajectory...
+      int ext = std::min(theNumHitsForSeedCleaner,int(theVault[it->second].size()));
       TI te =  theVault[it->second].begin()+ext;
       //    TI  te = theVault[it->second].end();
       
