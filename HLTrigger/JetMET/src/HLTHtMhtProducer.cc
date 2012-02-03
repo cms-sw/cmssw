@@ -97,8 +97,10 @@ void HLTHtMhtProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   if (excludePFMuons_) {
     reco::PFCandidateCollection::const_iterator i (pfCandidates->begin());
     for (; i != pfCandidates->end(); ++i) {
-      mhtx += (i->pt())*cos(i->phi());
-      mhty += (i->pt())*sin(i->phi());
+      if(abs(i->pdgId())==13){
+	mhtx += (i->pt())*cos(i->phi());
+	mhty += (i->pt())*sin(i->phi());
+      }
     }
   }
 
