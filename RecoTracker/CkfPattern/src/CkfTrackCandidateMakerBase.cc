@@ -68,6 +68,7 @@ namespace cms{
       theSeedLabel= conf.getParameter<edm::InputTag>("src");
       if ( conf.exists("maxSeedsBeforeCleaning") ) 
 	   maxSeedsBeforeCleaning_=conf.getParameter<unsigned int>("maxSeedsBeforeCleaning");
+
   }
 
   
@@ -87,7 +88,11 @@ namespace cms{
     } else if (cleaner == "CachingSeedCleanerByHitPosition") {
         theSeedCleaner = new CachingSeedCleanerByHitPosition();
     } else if (cleaner == "CachingSeedCleanerBySharedInput") {
-        theSeedCleaner = new CachingSeedCleanerBySharedInput();
+      int numHitsForSeedCleaner = conf_.existsAs<int>("numHitsForSeedCleaner") ? 
+	conf_.getParameter<int>("numHitsForSeedCleaner") : 4;
+      int onlyPixelHits = conf_.existsAs<bool>("onlyPixelHitsForSeedCleaner") ? 
+	conf_.getParameter<bool>("onlyPixelHitsForSeedCleaner") : false;
+      theSeedCleaner = new CachingSeedCleanerBySharedInput(numHitsForSeedCleaner,onlyPixelHits);
     } else if (cleaner == "none") {
         theSeedCleaner = 0;
     } else {
