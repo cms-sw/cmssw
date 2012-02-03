@@ -32,6 +32,12 @@
 // only included for RecHit comparison operator:
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
 
+// for looper reconstruction
+#include "TrackingTools/GeomPropagators/interface/HelixBarrelCylinderCrossing.h"
+#include "TrackingTools/GeomPropagators/interface/HelixBarrelPlaneCrossingByCircle.h"
+#include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
+
+
 #include <algorithm> 
 
 using namespace std;
@@ -86,6 +92,8 @@ GroupedCkfTrajectoryBuilder(const edm::ParameterSet&              conf,
   theMinNrOf2dHitsForRebuild  = 2;
   theRequireSeedHitsInRebuild = conf.getParameter<bool>("requireSeedHitsInRebuild");
   theMinNrOfHitsForRebuild    = max(0,conf.getParameter<int>("minNrOfHitsForRebuild"));
+  maxPtForLooperReconstruction     = conf.existsAs<double>("maxPtForLooperReconstruction") ? 
+    conf.getParameter<double>("maxPtForLooperReconstruction") : 0;
 
   /* ======= B.M. to be ported layer ===========
   bool setOK = thePropagator->setMaxDirectionChange(1.6);
@@ -343,6 +351,12 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
 					      TempTrajectoryContainer& result) const
 {
   std::pair<TSOS,std::vector<const DetLayer*> > stateAndLayers = findStateAndLayers(traj);
+  if(maxPtForLooperReconstruction>0 && inOut){
+    if(traj.lastLayer()->location()==0 && 
+       stateAndLayers.first.globalMomentum().perp()<maxPtForLooperReconstruction)
+      stateAndLayers.second.push_back(traj.lastLayer());
+  }
+
   vector<const DetLayer*>::iterator layerBegin = stateAndLayers.second.begin();
   vector<const DetLayer*>::iterator layerEnd   = stateAndLayers.second.end();
 
@@ -359,8 +373,69 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
 	il!=layerEnd; il++) {
 
     TSOS stateToUse = stateAndLayers.first;
-    if ((*il)==traj.lastLayer())
-      {
+
+    double dPhiCacheForLoopersReconstruction(0);
+    if ((*il)==traj.lastLayer()){
+      if(maxPtForLooperReconstruction>0){
+	// ------ For loopers reconstruction
+	//cout<<" self propagating in advanceOneLayer (for loopers) \n";
+	const BarrelDetLayer* sbdl = dynamic_cast<const BarrelDetLayer*>(traj.lastLayer());
+	if(sbdl){
+	  HelixBarrelCylinderCrossing cylinderCrossing(stateToUse.globalPosition(),
+						       stateToUse.globalMomentum(),
+						       stateToUse.transverseCurvature(),
+						       propagator->propagationDirection(),
+						       sbdl->specificSurface());
+	  if(!cylinderCrossing.hasSolution()) continue;
+	  GlobalPoint starting = stateToUse.globalPosition();
+	  GlobalPoint target1 = cylinderCrossing.position1();
+	  GlobalPoint target2 = cylinderCrossing.position2();
+	  
+	  GlobalPoint farther = fabs(starting.phi()-target1.phi()) > fabs(starting.phi()-target2.phi()) ?
+	    target1 : target2;
+	
+	  const Bounds& bounds( sbdl->specificSurface().bounds());
+	  float length = bounds.length() / 2.f;
+	
+	  /*
+	    cout << "starting: " << starting << endl;
+	    cout << "target1: " << target1 << endl;
+	    cout << "target2: " << target2 << endl;
+	    cout << "dphi: " << (target1.phi()-target2.phi()) << endl;
+	    cout << "length: " << length << endl;
+	  */
+	
+	  /*
+	  float deltaZ = bounds.thickness()/2.f/fabs(tan(stateToUse.globalDirection().theta()) ) ;
+	  if(stateToUse.hasError())
+	    deltaZ += 3*sqrt(stateToUse.cartesianError().position().czz());
+	  if( fabs(farther.z()) > length + deltaZ ) continue;
+	  */
+	  if(fabs(farther.z())*0.95>length) continue;
+
+	  Geom::Phi<double> tmpDphi = target1.phi()-target2.phi();
+
+	  // -- FIXME: this cut should be configurable and it has to be tuned
+	  //if(tmpDphi.degrees() )>170)continue;
+	  //if(fabs(tmpDphi)>2.966) continue;
+	  if(fabs(tmpDphi)>1.5) continue;
+	  GlobalPoint target((target1.x()+target2.x())/2,
+			     (target1.y()+target2.y())/2,
+			     (target1.z()+target2.z())/2);
+	  
+	  //cout << "target: " << target << endl;
+	  
+
+	  
+	  TransverseImpactPointExtrapolator extrapolator;
+	  stateToUse = extrapolator.extrapolate(stateToUse, target, *propagator);
+	  //dPhiCacheForLoopersReconstruction = fabs(target1.phi()-target2.phi())*2.;
+	  dPhiCacheForLoopersReconstruction = fabs(tmpDphi);
+	}else{
+	  continue;
+	}
+      }else{
+	// ------ For cosmics reconstruction
 	LogDebug("CkfPattern")<<" self propagating in advanceOneLayer.\n from: \n"<<stateToUse;
 	//self navigation case
 	// go to a middle point first
@@ -371,6 +446,7 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
 	if (!stateToUse.isValid()) continue;
 	LogDebug("CkfPattern")<<"to: "<<stateToUse;
       }
+    }
     
     TrajectorySegmentBuilder layerBuilder(theMeasurementTracker,
 					  theLayerMeasurements,
@@ -399,7 +475,42 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
       // create new candidate
       //
       TempTrajectory newTraj(traj);
+      traj.setDPhiCacheForLoopersReconstruction(dPhiCacheForLoopersReconstruction);
       
+      //----  avoid to add the same hits more than once in the trajectory ----
+      bool toBeRejected(false);
+      for(const TempTrajectory::DataContainer::const_iterator revIt = measurements.rbegin(); 
+	  revIt!=measurements.rend(); --revIt){
+	int tmpCounter(0);
+	for(const TempTrajectory::DataContainer::const_iterator newTrajMeasIt = newTraj.measurements().rbegin(); 
+	    newTrajMeasIt != newTraj.measurements().rend(); --newTrajMeasIt){
+	  if(tmpCounter==2) break;
+	  if(revIt->recHit()->geographicalId()==newTrajMeasIt->recHit()->geographicalId()){
+	    toBeRejected=true;
+	    break;
+	  }
+	  tmpCounter++;
+	}
+      }
+
+      if(!toBeRejected){
+	//newTraj.push(*is);
+	//std::cout << "DEBUG: newTraj after push found,lost: " 
+	//	  << newTraj.foundHits() << " , " 
+	//	  << newTraj.lostHits() << " , "
+	//	  << newTraj.measurements().size() << std::endl;
+      }else{	
+	/*cout << "WARNING: neglect candidate because it contains the same hit twice \n";
+	cout << "-- discarded track's pt,eta,#found: " 
+	     << newTraj.lastMeasurement().updatedState().globalMomentum().perp() << " , "
+	     << newTraj.lastMeasurement().updatedState().globalMomentum().eta() << " , "
+	     << newTraj.foundHits() << "\n";
+	*/
+	continue; //Are we sure about this????
+      }
+      // ------------------------
+
+
       newTraj.push(*is);
       //GIO// for ( vector<TM>::const_iterator im=measurements.begin();
       //GIO//        im!=measurements.end(); im++ )  newTraj.push(*im);
