@@ -29,6 +29,7 @@
 #include "TH1.h"
 #include "TH2.h"
 
+
 class OHltTree
 {
 public:
@@ -16692,13 +16693,14 @@ public:
          float jetPt);
 
    int OpenHltRMRPassed(
-         float Rmin,
-         float MRmin,
-         float RMRmin,
-	 float ROffset,
-	 float MROffset,
-         int NJmax,
-         float jetPt);
+			float Rmin,
+			float MRmin,
+			float RMRmin,
+			float ROffset,
+			float MROffset,
+			int NJmax,
+			float jetPt,
+			float DiJetPt);
 
    int OpenHlt1BJetPassedEleRemoval(
          float jetEt,
@@ -16849,6 +16851,8 @@ public:
 				   double lxysig);
 
     bool OpenHltNJetPtPassed(int N, const double& pt);
+
+    bool OpenHltNCentralJetFJPassed(int N, const double& pt);
 
     bool OpenHltNPFJetPassed(const int N, const double& pt, const double& eta);
 
