@@ -19,6 +19,10 @@ CutsIsolatorWithCorrection::CutsIsolatorWithCorrection(const edm::ParameterSet &
   theRhoMax(par.getParameter<double>("RhoMax")),
   theRhoScaleBarrel(par.getParameter<double>("RhoScaleBarrel")),
   theRhoScaleEndcap(par.getParameter<double>("RhoScaleEndcap")),
+  theEffAreaSFBarrel(par.getParameter<double>("EffAreaSFBarrel")),
+  theEffAreaSFEndcap(par.getParameter<double>("EffAreaSFEndcap")),
+  theReturnAbsoluteSum(par.getParameter<bool>("ReturnAbsoluteSum")),
+  theReturnRelativeSum(par.getParameter<bool>("ReturnRelativeSum")),
   theAndOrCuts(par.getParameter<bool>("AndOrCuts"))
 {
   if (! ( theCutAbsIso || theCutRelativeIso ) ) throw cms::Exception("BadConfiguration")
@@ -47,10 +51,13 @@ MuIsoBaseIsolator::Result CutsIsolatorWithCorrection::result(const DepositContai
   bool relDecision = false;
 
   double rho = 0.0;
+  double effAreaSF = 1.0;
+
   static const double pi = 3.14159265358979323846;
 
   //  edm::LogWarning("CutsIsolatorWithCorrection::resultIn")
   //    <<"Start tk.pt "<<tk.pt()<<" \t tk.eta "<<tk.eta()<<" \t tk.phi "<<tk.phi();
+
 
 
   if (theUseRhoCorrection){
@@ -58,6 +65,7 @@ MuIsoBaseIsolator::Result CutsIsolatorWithCorrection::result(const DepositContai
     ev->getByLabel(theRhoSrc, rhoHandle); 
     rho = *(rhoHandle.product());
     double rhoScale = fabs(tk.eta()) > 1.442 ? theRhoScaleEndcap : theRhoScaleBarrel;
+    effAreaSF = fabs(tk.eta()) > 1.442 ? theEffAreaSFEndcap : theEffAreaSFBarrel;
     //    edm::LogWarning("CutsIsolatorWithCorrection::resultInRho")
     //      << "got rho "<<rho<<" vs max "<<theRhoMax<<" will scale by "<<rhoScale;
     if (rho > theRhoMax){
@@ -70,7 +78,8 @@ MuIsoBaseIsolator::Result CutsIsolatorWithCorrection::result(const DepositContai
   if (theCutAbsIso){
     muonisolation::Cuts::CutSpec cuts_here = theCuts(tk.eta());
     double conesize = cuts_here.conesize;
-    double dephlt = depSum(deposits, conesize, rho*conesize*conesize*pi);
+    double dephlt = depSum(deposits, conesize, rho*conesize*conesize*pi*effAreaSF);
+    if (theReturnAbsoluteSum ) answer.valFloat = (float)dephlt;
     if (dephlt<cuts_here.threshold) {
       absDecision = true;
     } else {
@@ -83,7 +92,8 @@ MuIsoBaseIsolator::Result CutsIsolatorWithCorrection::result(const DepositContai
   if (theCutRelativeIso){
     muonisolation::Cuts::CutSpec cuts_here = theCutsRel(tk.eta());
     double conesize = cuts_here.conesize;
-    double dephlt = depSum(deposits, conesize, rho*conesize*conesize*pi)/tk.pt();
+    double dephlt = depSum(deposits, conesize, rho*conesize*conesize*pi*effAreaSF)/tk.pt();
+    if (theReturnRelativeSum ) answer.valFloat = (float)dephlt;
     if (dephlt<cuts_here.threshold) {
       relDecision = true;
     } else {

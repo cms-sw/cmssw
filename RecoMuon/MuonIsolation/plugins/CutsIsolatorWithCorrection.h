@@ -34,6 +34,10 @@ class CutsIsolatorWithCorrection : public muonisolation::MuIsoBaseIsolator {
   double theRhoMax;
   double theRhoScaleBarrel;
   double theRhoScaleEndcap;
+  double theEffAreaSFBarrel;
+  double theEffAreaSFEndcap;
+  bool theReturnAbsoluteSum;
+  bool theReturnRelativeSum;
   bool theAndOrCuts;
 
 };
