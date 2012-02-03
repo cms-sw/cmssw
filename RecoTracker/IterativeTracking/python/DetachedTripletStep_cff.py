@@ -51,7 +51,7 @@ import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
 detachedTripletStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone(
     ComponentName = 'detachedTripletStepTrajectoryFilter',
     filterPset = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.filterPset.clone(
-    maxLostHits = 1,
+    #maxLostHits = 1, # use LostHitFraction filter instead
     minimumNumberOfHits = 3,
     minPt = 0.075
     )

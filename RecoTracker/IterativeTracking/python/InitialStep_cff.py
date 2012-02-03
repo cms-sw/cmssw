@@ -28,7 +28,7 @@ initialStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter
     ComponentName = 'initialStepTrajectoryFilter',
     filterPset = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.filterPset.clone(
     minimumNumberOfHits = 3,
-    maxLostHits = 1,
+    #maxLostHits = 1, # use LostHitFraction filter instead
     minPt = 0.4
     )
     )
