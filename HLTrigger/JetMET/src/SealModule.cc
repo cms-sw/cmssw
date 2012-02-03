@@ -40,7 +40,7 @@
 #include "HLTrigger/JetMET/src/HLTJetCollectionsForLeptonPlusJets.cc"
 #include "HLTrigger/JetMET/interface/HLTJetCollectionsFilter.h"
 #include "HLTrigger/JetMET/src/HLTJetCollectionsFilter.cc"
-#include "HLTrigger/JetMET/interface/HLTAlphaTFilter.cc"
+#include "HLTrigger/JetMET/interface/HLTAlphaTFilter.h"
 using namespace reco;
 using namespace trigger;
 
