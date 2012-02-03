@@ -82,6 +82,34 @@ HelixBarrelCylinderCrossing( const GlobalPoint& startingPos,
   double sinTheta = pt * ipabs;
   double cosTheta = startingDir.z() * ipabs;
 
+
+  //-----  BM  
+  //double momProj1 = startingDir.x()*d1.x() + startingDir.y()*d1.y();
+  //double momProj2 = startingDir.x()*d2.x() + startingDir.y()*d2.y();
+
+ 
+  int theActualDir1 = propDir==alongMomentum ? 1 : -1;
+  int theActualDir2 = propDir==alongMomentum ? 1 : -1;
+
+
+  double dMag1 = d1.mag();
+  double tmp1 = 0.5 * dMag1 * rho;
+  if (std::abs(tmp1)>1.) tmp1 = ::copysign(1.,tmp1);
+  double theS1 = theActualDir1 * 2.* asin( tmp1 ) / (rho*sinTheta);
+  thePos1 =  GlobalPoint( startingPos.x() + d1.x(),
+			  startingPos.y() + d1.y(),
+			  startingPos.z() + theS1*cosTheta);
+
+
+  double dMag2 = d2.mag();
+  double tmp2 = 0.5 * dMag2 * rho;
+  if (std::abs(tmp2)>1.) tmp2 = ::copysign(1.,tmp2);
+  double theS2 = theActualDir2 * 2.* asin( tmp2 ) / (rho*sinTheta);
+  thePos2 =  GlobalPoint( startingPos.x() + d2.x(),
+			  startingPos.y() + d2.y(),
+			  startingPos.z() + theS2*cosTheta);	
+  // -------
+
   double dMag = theD.mag();
   double tmp = 0.5 * dMag * rho;
   if (std::abs(tmp)>1.) tmp = ::copysign(1.,tmp);

@@ -44,6 +44,13 @@ public:
    *  is given by position( pathLength( cylinder)).
    */
   PositionType position() const { return thePos;}
+  
+  /// Method to access separately each solution of the helix-cylinder crossing equations
+  PositionType position1() const { return thePos1;}
+
+  /// Method to access separately each solution of the helix-cylinder crossing equations
+  PositionType position2() const { return thePos2;}
+
 
   /** Returns the direction along the helix that corresponds to path
    *  length "s" from the starting point. As for position,
@@ -60,6 +67,10 @@ private:
   DirectionType  theDir;
   Vector         theD;
   int            theActualDir;
+
+  PositionType   thePos1;
+  PositionType   thePos2;
+
 
   void chooseSolution( const Point& p1, const Point& p2,
 		       const PositionType& startingPos,
