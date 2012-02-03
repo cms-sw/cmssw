@@ -22,6 +22,10 @@
 #include "HLTrigger/JetMET/interface/HLTMhtProducer.h"
 #include "HLTrigger/JetMET/interface/HLTHtMhtProducer.h"
 #include "HLTrigger/JetMET/interface/HLTHtMhtFilter.h"
+<<<<<<< SealModule.cc
+#include "HLTrigger/JetMET/interface/HLTjetetasortedVBF.h"
+#include "HLTrigger/JetMET/interface/HLTjetbtagsortedVBF.h"
+=======
 #include "HLTrigger/JetMET/interface/HLTPFEnergyFractionsFilter.h"
 
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
@@ -42,6 +46,7 @@ using namespace trigger;
 
 typedef HLTMonoJetFilter<CaloJet,TriggerJet> HLTMonoCaloJetFilter;
 typedef HLTMonoJetFilter<PFJet,TriggerJet> HLTMonoPFJetFilter;
+>>>>>>> 1.25
 
 typedef HLTJetCollectionsFilter<CaloJet, TriggerJet> HLTCaloJetCollectionsFilter;
 typedef HLTJetCollectionsFilter<CaloJet, TriggerBJet> HLTCaloBJetCollectionsFilter;
@@ -74,6 +79,10 @@ DEFINE_FWK_MODULE(HLTMhtFilter);
 DEFINE_FWK_MODULE(HLTMhtProducer);
 DEFINE_FWK_MODULE(HLTHtMhtProducer);
 DEFINE_FWK_MODULE(HLTHtMhtFilter);
+<<<<<<< SealModule.cc
+DEFINE_FWK_MODULE(HLTjetetasortedVBF);
+DEFINE_FWK_MODULE(HLTjetbtagsortedVBF);
+=======
 DEFINE_FWK_MODULE(HLTPFEnergyFractionsFilter);
 
 DEFINE_FWK_MODULE(HLTMonoCaloJetFilter);
@@ -88,3 +97,4 @@ DEFINE_FWK_MODULE(HLTCaloJetCollectionsForLeptonPlusJets);
 DEFINE_FWK_MODULE(HLTCaloJetCollectionsForLeptonPlusBJets);
 DEFINE_FWK_MODULE(HLTPFJetCollectionsForLeptonPlusJets);
 DEFINE_FWK_MODULE(HLTPFJetCollectionsForLeptonPlusBJets);
+>>>>>>> 1.25
