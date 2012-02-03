@@ -39,7 +39,12 @@ HFRecoEcalCandidateProducer::HFRecoEcalCandidateProducer(edm::ParameterSet const
 	conf.getParameter<std::vector<double> >("eCOREe9Cut"),
 	conf.getParameter<std::vector<double> >("eSeLCut"),
 	conf.getParameter<int>("era"),
-	conf.getParameter<bool>("CorrectForPileup")) {
+	conf.getParameter<bool>("CorrectForPileup"),
+	conf.getUntrackedParameter<std::vector<double> >("PileupSlopes"),
+	conf.getUntrackedParameter<std::vector<double> >("PileupIntercepts")
+
+
+) {
 
   produces<reco::RecoEcalCandidateCollection>();
 

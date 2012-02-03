@@ -24,7 +24,10 @@ HFRecoEcalCandidateAlgo::HFRecoEcalCandidateAlgo(bool correct,double e9e25Cut,do
 						 const std::vector<double>& eCOREe9Cut,
 						 const std::vector<double>& eSeLCut,
 						 int era,
-						 bool correctForPileup) :
+						 bool correctForPileup,
+						 const std::vector<double>& PileupSlopes,
+						 const std::vector<double>& PileupIntercepts
+) :
 
   m_correct(correct), 
   m_e9e25Cut(e9e25Cut),
@@ -37,7 +40,9 @@ HFRecoEcalCandidateAlgo::HFRecoEcalCandidateAlgo(bool correct,double e9e25Cut,do
   m_eCOREe9Cutlo(eCOREe9Cut[0]),
   m_eSeLCutlo(eSeLCut[0]),
   m_era(era),
-  m_correctForPileup(correctForPileup){
+  m_correctForPileup(correctForPileup),
+  m_PileupSlopes(PileupSlopes),
+  m_PileupIntercepts(PileupIntercepts){
 
 }
 
@@ -55,71 +60,36 @@ RecoEcalCandidate HFRecoEcalCandidateAlgo::correctEPosition(const SuperCluster& 
   double corPy=corEnergy*sin(corPhi)/cosh(corEta);
   double corPz=corEnergy*tanh(corEta);
   if(m_correctForPileup){
-    double m[30]={-0.0036,
-		  -0.0087,
-		  -0.0049,
-		  -0.0161,
-		  -0.0072,
-		  -0.0033,
-		  -0.0066,
-		  -0.0062,
-		  -0.0045,
-		  -0.0090,
-		  -0.0056,
-		  -0.0024,
-		  -0.0064,
-		  -0.0063,
-		  -0.0078,
-		  -0.0079,
-		  -0.0075,
-		  -0.0074,
-		  0.0009,
-		  -0.0180};
-    double b[30]={1.0565,
-		  1.0432,
-		  1.0714,
-		  1.1140,
-		  1.0908,
-		  1.0576,
-		  1.0821,
-		  1.0807,
-		  1.0885,
-		  1.1783,//end neg ieta
-		  1.1570,
-		  1.0631,
-		  1.0401,
-		  1.0803,
-		  1.0506,
-		  1.0491,
-		  1.0235,
-		  1.0643,
-		  0.9910,
-		  1.0489};
-    double etabounds[30]={2.964,3.139,3.314,3.489,3.664,3.839,4.013,4.191,4.363,4.538,4.716};
+    std::vector<double> m=m_PileupSlopes;
+
+    std::vector<double> b=m_PileupIntercepts;
+
+    double etabounds[30]={2.853,2.964,3.139,3.314,3.489,3.664,3.839,4.013,4.191,4.363,4.538,4.716,4.889,5.191};
    
-    int ieta=32;
-    for (int kk=0;kk<10;kk++){
-      double sign=corEta*1.0/fabs(corEta);
+    int ieta=99;
+    for (int kk=0;kk<12;kk++){
+     
       if((fabs(corEta) < etabounds[kk+1])&&(fabs(corEta) > etabounds[kk])){
-	ieta = sign*(kk+30);
+	ieta = (corEta > 0)?(kk+29):(-kk-29);
       }
     }
+    int neta=99;
     if(ieta<0)ieta=ieta+39;
     if(ieta>0)ieta=ieta-20;
-
-    corEnergy=(m[ieta]*(nvtx-1)+b[ieta])*corEnergy;
-    //    corEnergy=(m[ieta]*(vtx-1)+1.0)*corEnergy;
+    if((neta>=0)&&(neta<=19)){
+      corEnergy=(m[neta]*1.0*(nvtx-1)+b[neta]*1.0)*corEnergy*1.0;
+    }
   }//end vtx cor
   RecoEcalCandidate corCand(0,
-			      math::XYZTLorentzVector(corPx,corPy,corPz,corEnergy),
-			      math::XYZPoint(0,0,0));
-
- 
-
-
-
-
-    return corCand;
+			    math::XYZTLorentzVector(corPx,corPy,corPz,corEnergy),
+			    math::XYZPoint(0,0,0));
+  
+  
+  
+  
+  
+  
+  return corCand;
 }
 
 void HFRecoEcalCandidateAlgo::produce(const edm::Handle<SuperClusterCollection>& SuperClusters,
@@ -133,9 +103,9 @@ void HFRecoEcalCandidateAlgo::produce(const edm::Handle<SuperClusterCollection>&
   for (unsigned int i=0; i < SuperClusters->size(); ++i) {
     const SuperCluster& supClus=(*SuperClusters)[i];    
     reco::SuperClusterRef theClusRef=edm::Ref<SuperClusterCollection>(SuperClusters,i);
-  const HFEMClusterShapeRef clusShapeRef=AssocShapes.find(theClusRef)->val;
+    const HFEMClusterShapeRef clusShapeRef=AssocShapes.find(theClusRef)->val;
     const HFEMClusterShape& clusShape=*clusShapeRef;
-
+    
     // basic candidate
     double px=supClus.energy()*cos(supClus.phi())/cosh(supClus.eta());
     double py=supClus.energy()*sin(supClus.phi())/cosh(supClus.eta());
@@ -143,7 +113,7 @@ void HFRecoEcalCandidateAlgo::produce(const edm::Handle<SuperClusterCollection>&
     RecoEcalCandidate theCand(0,
 			      math::XYZTLorentzVector(px,py,pz,supClus.energy()),
 			      math::XYZPoint(0,0,0));
-
+    
     // correct it?
     if (m_correct)
       theCand=correctEPosition(supClus,clusShape,nvtx);
