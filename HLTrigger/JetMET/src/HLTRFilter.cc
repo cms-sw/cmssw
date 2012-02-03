@@ -114,7 +114,7 @@ HLTRFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      nMuons=1; break;
    case 10:
      nMuons=2; break;
-   Default:
+   default:
      return false; //invalid hemisphere collection
    }
 

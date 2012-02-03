@@ -115,18 +115,18 @@ HLTRHemisphere::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   if(doMuonCorrection_){
-    const int nMu=2;
-    int muonIndex[nMu]={-1,-1};
+    const int nMu = 2;
+    int muonIndex[nMu] = { -1, -1 };
     std::vector<reco::Muon>::const_iterator muonIt;
-    int index=0;
-    int nPassMu;
+    int index   = 0;
+    int nPassMu = 0;
     for(muonIt = muons->begin(); muonIt!=muons->end(); muonIt++,index++){ 
       if(fabs(muonIt->eta()) > muonEta_ || muonIt->pt() < min_Jet_Pt_) continue; // skip muons out of eta range or too low pT
-      if(nPassMu>=2){ // if we have already accepted two muons, accept the event
+      if(nPassMu >= 2){ // if we have already accepted two muons, accept the event
 	iEvent.put(Hemispheres); // too many muons, accept for timing      
 	return true;
       }
-      muonIndex[nPassMu++]=index;    
+      muonIndex[nPassMu++] = index;    
     }
     //muons as MET
     this->ComputeHemispheres(Hemispheres,JETS);
