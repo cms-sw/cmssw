@@ -6,3 +6,4 @@ from TrackingTools.MaterialEffects.RungeKuttaTrackerPropagator_cfi import *
 from TrackingTools.GeomPropagators.AnalyticalPropagator_cfi import *
 from TrackingTools.GeomPropagators.OppositeAnalyticalPropagator_cfi import *
 from TrackingTools.GeomPropagators.AnyDirectionAnalyticalPropagator_cfi import *
+from TrackingTools.MaterialEffects.PropagatorsForLoopers_cff import *

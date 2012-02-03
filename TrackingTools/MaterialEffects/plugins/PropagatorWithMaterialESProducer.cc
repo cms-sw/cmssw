@@ -36,6 +36,8 @@ PropagatorWithMaterialESProducer::produce(const TrackingComponentsRecord & iReco
   double mass      = pset_.getParameter<double>("Mass");
   double maxDPhi   = pset_.getParameter<double>("MaxDPhi");
   bool useRK       = pset_.getParameter<bool>("useRungeKutta");
+  bool useOldAnalPropLogic = pset_.existsAs<bool>("useOldAnalPropLogic") ? 
+    pset_.getParameter<bool>("useOldAnalPropLogic") : true;
   double ptMin     = pset_.existsAs<double>("ptMin") ? pset_.getParameter<double>("ptMin") : -1.0;
 
   PropagationDirection dir = alongMomentum;
@@ -44,7 +46,9 @@ PropagatorWithMaterialESProducer::produce(const TrackingComponentsRecord & iReco
   if (pdir == "alongMomentum") dir = alongMomentum;
   if (pdir == "anyDirection") dir = anyDirection;
   
-  _propagator  = boost::shared_ptr<Propagator>(new PropagatorWithMaterial(dir, mass, &(*magfield),maxDPhi,useRK,ptMin));
+  _propagator  = boost::shared_ptr<Propagator>(new PropagatorWithMaterial(dir, mass, &(*magfield),
+									  maxDPhi,useRK,ptMin,
+									  useOldAnalPropLogic));
   return _propagator;
 }
 
