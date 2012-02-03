@@ -37,8 +37,10 @@ class HLTMuonL3PreFilter : public HLTFilter {
       int    min_N_;            // minimum number of muons to fire the trigger
       double max_Eta_;          // Eta cut
       int    min_Nhits_;        // threshold on number of hits on muon
-      double max_Dr_;           // impact parameter cut
+      double max_Dr_;           // maximum impact parameter cut
+      double min_Dr_;           // minimum impact parameter cut
       double max_Dz_;           // dz cut
+      double min_DxySig_;       // dxy significance cut
       double min_Pt_;           // pt threshold in GeV 
       double nsigma_Pt_;        // pt uncertainty margin (in number of sigmas)
       double max_NormalizedChi2_; // cutoff in normalized chi2

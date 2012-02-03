@@ -63,8 +63,14 @@ class HLTMuonL2PreFilter : public HLTFilter {
     /// cut on impact parameter wrt to the beam spot
     double maxDr_;
 
+    /// cut on impact parameter wrt to the beam spot
+    double minDr_;
+
     /// cut on dz wrt to the beam spot
     double maxDz_;
+
+    /// dxy significance cut
+    double min_DxySig_;
 
     /// pt threshold in GeV
     double minPt_;

@@ -43,7 +43,9 @@ HLTMuonL3PreFilter::HLTMuonL3PreFilter(const ParameterSet& iConfig) : HLTFilter(
    max_Eta_   (iConfig.getParameter<double> ("MaxEta")),
    min_Nhits_ (iConfig.getParameter<int> ("MinNhits")),
    max_Dr_    (iConfig.getParameter<double> ("MaxDr")),
+   min_Dr_    (iConfig.getParameter<double> ("MinDr")),
    max_Dz_    (iConfig.getParameter<double> ("MaxDz")),
+   min_DxySig_(iConfig.getParameter<double> ("MinDxySig")),
    min_Pt_    (iConfig.getParameter<double> ("MinPt")),
    nsigma_Pt_  (iConfig.getParameter<double> ("NSigmaPt")), 
    max_NormalizedChi2_ (iConfig.getParameter<double> ("MaxNormalizedChi2")),
@@ -54,13 +56,15 @@ HLTMuonL3PreFilter::HLTMuonL3PreFilter(const ParameterSet& iConfig) : HLTFilter(
    devDebug_ (false)
 {
    LogDebug("HLTMuonL3PreFilter")
-      << " CandTag/MinN/MaxEta/MinNhits/MaxDr/MaxDz/MinPt/NSigmaPt : " 
+      << " CandTag/MinN/MaxEta/MinNhits/MaxDr/MinDr/MaxDz/MinDxySig/MinPt/NSigmaPt : "
       << candTag_.encode()
       << " " << min_N_ 
       << " " << max_Eta_
       << " " << min_Nhits_
       << " " << max_Dr_
+      << " " << min_Dr_
       << " " << max_Dz_
+      << " " << min_DxySig_
       << " " << min_Pt_
       << " " << nsigma_Pt_;
 }
@@ -81,7 +85,9 @@ HLTMuonL3PreFilter::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<double>("MaxEta",2.5);
   desc.add<int>("MinNhits",0);
   desc.add<double>("MaxDr",2.0);
+  desc.add<double>("MinDr",-1.0);
   desc.add<double>("MaxDz",9999.0);
+  desc.add<double>("MinDxySig",-1.0);
   desc.add<double>("MinPt",3.0);
   desc.add<double>("NSigmaPt",0.0);
   desc.add<double>("MaxNormalizedChi2",9999.0);
@@ -157,13 +163,18 @@ HLTMuonL3PreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, trigger::
        // cut on number of hits
        if (tk->numberOfValidHits()<min_Nhits_) continue;
        
-       //dr cut
+       //max dr cut
        //if (fabs(tk->d0())>max_Dr_) continue;
        if (fabs( (- (cand->vx()-beamSpot.x0()) * cand->py() + (cand->vy()-beamSpot.y0()) * cand->px() ) / cand->pt() ) >max_Dr_) continue;
+
+       //min dr cut
+       if (fabs( (- (cand->vx()-beamSpot.x0()) * cand->py() + (cand->vy()-beamSpot.y0()) * cand->px() ) / cand->pt() ) <min_Dr_) continue;
 
        //dz cut
        if (fabs((cand->vz()-beamSpot.z0()) - ((cand->vx()-beamSpot.x0())*cand->px()+(cand->vy()-beamSpot.y0())*cand->py())/cand->pt() * cand->pz()/cand->pt())>max_Dz_) continue;
 
+       // dxy significance cut (safeguard against bizarre values)
+       if (min_DxySig_ > 0 && (tk->dxyError() <= 0 || fabs(tk->dxy(beamSpot.position())/tk->dxyError()) < min_DxySig_)) continue;
 
        //normalizedChi2 cut
        if (tk->normalizedChi2() > max_NormalizedChi2_ ) continue;

@@ -37,7 +37,9 @@ HLTMuonL2PreFilter::HLTMuonL2PreFilter(const edm::ParameterSet& iConfig): HLTFil
   cutOnChambers_( iConfig.getParameter<bool>("CutOnChambers") ),
   minNchambers_( iConfig.getParameter<std::vector<int> >("MinNchambers") ),
   maxDr_( iConfig.getParameter<double>("MaxDr") ),
+  minDr_( iConfig.getParameter<double>("MinDr") ),
   maxDz_( iConfig.getParameter<double>("MaxDz") ),
+  min_DxySig_(iConfig.getParameter<double> ("MinDxySig")),
   minPt_( iConfig.getParameter<double>("MinPt") ),
   nSigmaPt_( iConfig.getParameter<double>("NSigmaPt") )
 {
@@ -87,7 +89,9 @@ HLTMuonL2PreFilter::HLTMuonL2PreFilter(const edm::ParameterSet& iConfig): HLTFil
     }
     ss<<endl;
     ss<<"    MaxDr = "<<maxDr_<<endl;
+    ss<<"    MinDr = "<<minDr_<<endl;
     ss<<"    MaxDz = "<<maxDz_<<endl;
+    ss<<"    MinDxySig = "<<min_DxySig_<<endl;
     ss<<"    MinPt = "<<minPt_<<endl;
     ss<<"    NSigmaPt = "<<nSigmaPt_<<endl;
     ss<<"    saveTags= "<<saveTags();
@@ -115,7 +119,9 @@ HLTMuonL2PreFilter::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<bool> ("CutOnChambers", 0);
   desc.add<std::vector<int> >("MinNchambers", std::vector<int>(1, 0));
   desc.add<double>("MaxDr",9999.0);
+  desc.add<double>("MinDr",-1.0);
   desc.add<double>("MaxDz",9999.0);
+  desc.add<double>("MinDxySig",-1.0);
   desc.add<double>("MinPt",0.0);
   desc.add<double>("NSigmaPt",0.0);
   descriptions.add("hltMuonL2PreFilter",desc);
@@ -190,8 +196,14 @@ bool HLTMuonL2PreFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
     //dr cut
     if(fabs(mu->dxy(beamSpot)) > maxDr_) continue;
 
+    //dr cut
+    if(fabs(mu->dxy(beamSpot)) < minDr_) continue;
+
     //dz cut
     if(fabs(mu->dz(beamSpot)) > maxDz_) continue;
+
+    // dxy significance cut (safeguard against bizarre values)
+    if (min_DxySig_ > 0 && (mu->dxyError() <= 0 || fabs(mu->dxy(beamSpot)/mu->dxyError()) < min_DxySig_)) continue;
 
     // Pt threshold cut
     double pt = mu->pt();
