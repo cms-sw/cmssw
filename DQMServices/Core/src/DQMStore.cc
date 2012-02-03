@@ -47,7 +47,7 @@ static std::string s_referenceDirName = "Reference";
 static std::string s_collateDirName = "Collate";
 static std::string s_safe = "/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-+=_()# ";
 
-static const lat::Regexp s_rxmeval ("^<(.*)>(i|f|s|t|qr)=(.*)</\\1>$");
+static const lat::Regexp s_rxmeval ("^<(.*)>(i|f|s|e|t|qr)=(.*)</\\1>$");
 static const lat::Regexp s_rxmeqr1 ("^st:(\\d+):([-+e.\\d]+):([^:]*):(.*)$");
 static const lat::Regexp s_rxmeqr2 ("^st\\.(\\d+)\\.(.*)$");
 
@@ -1724,6 +1724,18 @@ DQMStore::extract(TObject *obj, const std::string &dir, bool overwrite)
       else if (overwrite)
 	me->Fill(value);
     }
+    else if (kind == "e")
+    {
+      MonitorElement *me = findObject(dir, label);
+      if (! me)
+      {
+	std::cout << "*** DQMStore: WARNING: no monitor element '"
+		  << label << "' in directory '"
+		  << dir << "' to be marked as efficiency plot.\n";
+	return false;
+      }
+      me->setEfficiencyFlag();
+    }
     else if (kind == "t")
     {
       MonitorElement *me = findObject(dir, label);
@@ -2036,6 +2048,10 @@ DQMStore::save(const std::string &filename,
 	for ( ; qi != qe; ++qi)
 	  TObjString(mi->qualityTagString(*qi).c_str()).Write();
       }
+
+      // Save efficiency tag, if any
+      if (mi->data_.flags & DQMNet::DQM_PROP_EFFICIENCY_PLOT)
+	TObjString(mi->effLabelString().c_str()).Write();
 
       // Save tag if any
       if (mi->data_.flags & DQMNet::DQM_PROP_TAGGED)

@@ -22,56 +22,57 @@
 class DQMNet
 {
 public:
-  static const uint32_t DQM_PROP_TYPE_MASK	= 0x000000ff;
-  static const uint32_t DQM_PROP_TYPE_SCALAR	= 0x0000000f;
-  static const uint32_t DQM_PROP_TYPE_INVALID	= 0x00000000;
-  static const uint32_t DQM_PROP_TYPE_INT	= 0x00000001;
-  static const uint32_t DQM_PROP_TYPE_REAL	= 0x00000002;
-  static const uint32_t DQM_PROP_TYPE_STRING	= 0x00000003;
-  static const uint32_t DQM_PROP_TYPE_TH1F	= 0x00000010;
-  static const uint32_t DQM_PROP_TYPE_TH1S	= 0x00000011;
-  static const uint32_t DQM_PROP_TYPE_TH1D	= 0x00000012;
-  static const uint32_t DQM_PROP_TYPE_TH2F	= 0x00000020;
-  static const uint32_t DQM_PROP_TYPE_TH2S	= 0x00000021;
-  static const uint32_t DQM_PROP_TYPE_TH2D	= 0x00000022;
-  static const uint32_t DQM_PROP_TYPE_TH3F	= 0x00000030;
-  static const uint32_t DQM_PROP_TYPE_TH3S	= 0x00000031;
-  static const uint32_t DQM_PROP_TYPE_TH3D	= 0x00000032;
-  static const uint32_t DQM_PROP_TYPE_TPROF	= 0x00000040;
-  static const uint32_t DQM_PROP_TYPE_TPROF2D	= 0x00000041;
-  static const uint32_t DQM_PROP_TYPE_DATABLOB	= 0x00000050;
+  static const uint32_t DQM_PROP_TYPE_MASK	 = 0x000000ff;
+  static const uint32_t DQM_PROP_TYPE_SCALAR	 = 0x0000000f;
+  static const uint32_t DQM_PROP_TYPE_INVALID	 = 0x00000000;
+  static const uint32_t DQM_PROP_TYPE_INT	 = 0x00000001;
+  static const uint32_t DQM_PROP_TYPE_REAL	 = 0x00000002;
+  static const uint32_t DQM_PROP_TYPE_STRING	 = 0x00000003;
+  static const uint32_t DQM_PROP_TYPE_TH1F	 = 0x00000010;
+  static const uint32_t DQM_PROP_TYPE_TH1S	 = 0x00000011;
+  static const uint32_t DQM_PROP_TYPE_TH1D	 = 0x00000012;
+  static const uint32_t DQM_PROP_TYPE_TH2F	 = 0x00000020;
+  static const uint32_t DQM_PROP_TYPE_TH2S	 = 0x00000021;
+  static const uint32_t DQM_PROP_TYPE_TH2D	 = 0x00000022;
+  static const uint32_t DQM_PROP_TYPE_TH3F	 = 0x00000030;
+  static const uint32_t DQM_PROP_TYPE_TH3S	 = 0x00000031;
+  static const uint32_t DQM_PROP_TYPE_TH3D	 = 0x00000032;
+  static const uint32_t DQM_PROP_TYPE_TPROF	 = 0x00000040;
+  static const uint32_t DQM_PROP_TYPE_TPROF2D	 = 0x00000041;
+  static const uint32_t DQM_PROP_TYPE_DATABLOB	 = 0x00000050;
   
-  static const uint32_t DQM_PROP_REPORT_MASK	= 0x00000f00;
-  static const uint32_t DQM_PROP_REPORT_CLEAR	= 0x00000000;
-  static const uint32_t DQM_PROP_REPORT_ERROR	= 0x00000100;
-  static const uint32_t DQM_PROP_REPORT_WARN	= 0x00000200;
-  static const uint32_t DQM_PROP_REPORT_OTHER	= 0x00000400;
-  static const uint32_t DQM_PROP_REPORT_ALARM	= (DQM_PROP_REPORT_ERROR
-						   | DQM_PROP_REPORT_WARN
-						   | DQM_PROP_REPORT_OTHER);
+  static const uint32_t DQM_PROP_REPORT_MASK	 = 0x00000f00;
+  static const uint32_t DQM_PROP_REPORT_CLEAR	 = 0x00000000;
+  static const uint32_t DQM_PROP_REPORT_ERROR	 = 0x00000100;
+  static const uint32_t DQM_PROP_REPORT_WARN	 = 0x00000200;
+  static const uint32_t DQM_PROP_REPORT_OTHER	 = 0x00000400;
+  static const uint32_t DQM_PROP_REPORT_ALARM	 = (DQM_PROP_REPORT_ERROR
+						    | DQM_PROP_REPORT_WARN
+						    | DQM_PROP_REPORT_OTHER);
 
-  static const uint32_t DQM_PROP_HAS_REFERENCE	= 0x00001000;
-  static const uint32_t DQM_PROP_TAGGED		= 0x00002000;
-  static const uint32_t DQM_PROP_ACCUMULATE	= 0x00004000;
-  static const uint32_t DQM_PROP_RESET		= 0x00008000;
+  static const uint32_t DQM_PROP_HAS_REFERENCE	 = 0x00001000;
+  static const uint32_t DQM_PROP_TAGGED		 = 0x00002000;
+  static const uint32_t DQM_PROP_ACCUMULATE	 = 0x00004000;
+  static const uint32_t DQM_PROP_RESET		 = 0x00008000;
 
-  static const uint32_t DQM_PROP_NEW		= 0x00010000;
-  static const uint32_t DQM_PROP_RECEIVED	= 0x00020000;
-  static const uint32_t DQM_PROP_LUMI		= 0x00040000;
-  static const uint32_t DQM_PROP_DEAD		= 0x00080000;
-  static const uint32_t DQM_PROP_STALE		= 0x00100000;
+  static const uint32_t DQM_PROP_NEW		 = 0x00010000;
+  static const uint32_t DQM_PROP_RECEIVED	 = 0x00020000;
+  static const uint32_t DQM_PROP_LUMI		 = 0x00040000;
+  static const uint32_t DQM_PROP_DEAD		 = 0x00080000;
+  static const uint32_t DQM_PROP_STALE		 = 0x00100000;
+  static const uint32_t DQM_PROP_EFFICIENCY_PLOT = 0x00200000;
 
-  static const uint32_t DQM_MSG_HELLO		= 0;
-  static const uint32_t DQM_MSG_UPDATE_ME	= 1;
-  static const uint32_t DQM_MSG_LIST_OBJECTS	= 2;
-  static const uint32_t DQM_MSG_GET_OBJECT	= 3;
+  static const uint32_t DQM_MSG_HELLO		 = 0;
+  static const uint32_t DQM_MSG_UPDATE_ME	 = 1;
+  static const uint32_t DQM_MSG_LIST_OBJECTS	 = 2;
+  static const uint32_t DQM_MSG_GET_OBJECT	 = 3;
 
-  static const uint32_t DQM_REPLY_LIST_BEGIN	= 101;
-  static const uint32_t DQM_REPLY_LIST_END	= 102;
-  static const uint32_t DQM_REPLY_NONE		= 103;
-  static const uint32_t DQM_REPLY_OBJECT	= 104;
+  static const uint32_t DQM_REPLY_LIST_BEGIN	 = 101;
+  static const uint32_t DQM_REPLY_LIST_END	 = 102;
+  static const uint32_t DQM_REPLY_NONE		 = 103;
+  static const uint32_t DQM_REPLY_OBJECT	 = 104;
 
-  static const uint32_t MAX_PEER_WAITREQS	= 128;
+  static const uint32_t MAX_PEER_WAITREQS	 = 128;
 
   struct Peer;
   struct QValue;

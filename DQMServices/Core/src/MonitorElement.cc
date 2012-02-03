@@ -513,6 +513,19 @@ MonitorElement::tagLabelString(void) const
   return result;
 }
 
+/// return label string for the monitor element tag (eg. <name>t=12345</name>)
+std::string
+MonitorElement::effLabelString(void) const
+{
+  std::string result;
+
+  result.reserve(6 + 2*data_.objname.size() + 3);
+  result += '<'; result += data_.objname; result += '>';
+  result += "e=1";
+  result += '<'; result += '/'; result += data_.objname; result += '>';
+  return result;
+}
+
 std::string
 MonitorElement::qualityTagString(const DQMNet::QValue &qv) const
 {

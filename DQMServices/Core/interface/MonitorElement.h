@@ -136,6 +136,11 @@ public:
   void setLumiFlag(void)
     { data_.flags |= DQMNet::DQM_PROP_LUMI; }
 
+  /// this ME is meant to be an efficiency plot that must not be
+  /// normalized when drawn in the DQM GUI.
+  void setEfficiencyFlag(void)
+    { data_.flags |= DQMNet::DQM_PROP_EFFICIENCY_PLOT; }
+  
   // A static assert to check that T actually fits in
   // int64_t.
   template <typename T>
@@ -168,6 +173,7 @@ public:
   std::string valueString(void) const;
   std::string tagString(void) const;
   std::string tagLabelString(void) const;
+  std::string effLabelString(void) const;
   std::string qualityTagString(const DQMNet::QValue &qv) const;
   void packScalarData(std::string &into, const char *prefix) const;
   void packQualityData(std::string &into) const;
@@ -183,6 +189,11 @@ public:
   /// true if at least of one of the tests returned some other (non-ok) status
   bool hasOtherReport(void) const
     { return data_.flags & DQMNet::DQM_PROP_REPORT_OTHER; }
+
+    /// true if the plot has been marked as an efficiency plot, which
+    /// will not be normalized when rendered within the DQM GUI.
+  bool isEfficiency(void) const
+    { return data_.flags & DQMNet::DQM_PROP_EFFICIENCY_PLOT; }
 
   /// get QReport corresponding to <qtname> (null pointer if QReport does not exist)
   const QReport *getQReport(const std::string &qtname) const;
