@@ -22,8 +22,17 @@
 //#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
+//this class is designed to calculate dEtaIn,dPhiIn gsf track - supercluster pairs
+//it can take as input std::vector<Electron> which the gsf track-sc is already done
+//or it can run over the std::vector<GsfTrack> directly in which case it will pick the smallest dEta,dPhi
+//the dEta, dPhi do not have to be from the same track
+//it can optionally set dEta, dPhi to 0 based on the number of tracks found
+
+
 class EgammaHLTGsfTrackVarProducer : public edm::EDProducer {
 private:
+  //this is a helper class which performs the necessary track to ecal and track to vertex extrapolations
+  //based on the GsfElectronAlgo class
   class TrackExtrapolator {
     
     
@@ -69,6 +78,9 @@ private:
   edm::InputTag inputCollectionTag_;
   edm::InputTag beamSpotTag_;
   TrackExtrapolator trackExtrapolator_;
+  int upperTrackNrToRemoveCut_;
+  int lowerTrackNrToRemoveCut_;
+ 
 };
 
 #endif

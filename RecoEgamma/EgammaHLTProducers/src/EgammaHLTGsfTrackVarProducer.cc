@@ -2,7 +2,7 @@
  *
  *  \author Roberto Covarelli (CERN)
  * 
- * $Id: EgammaHLTGsfTrackVarProducer.cc,v 1.4 2011/12/19 11:17:28 sani Exp $
+ * $Id: EgammaHLTGsfTrackVarProducer.cc,v 1.1 2012/01/23 12:56:38 sharper Exp $
  *
  */
 
@@ -31,7 +31,8 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-
+#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 //#include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"//needed?
 //#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"//needed?
 
@@ -52,6 +53,10 @@ EgammaHLTGsfTrackVarProducer::EgammaHLTGsfTrackVarProducer(const edm::ParameterS
   recoEcalCandTag_ = config.getParameter<edm::InputTag>("recoEcalCandidateProducer");
   inputCollectionTag_             = config.getParameter<edm::InputTag>("inputCollection");
   beamSpotTag_                   = config.getParameter<edm::InputTag>("beamSpotProducer");
+  upperTrackNrToRemoveCut_  = config.getParameter<int>("upperTrackNrToRemoveCut"); //zeros out dEtaIn,dPhiIn if nrTracks>= this
+  lowerTrackNrToRemoveCut_  = config.getParameter<int>("lowerTrackNrToRemoveCut"); //zeros out dEtaIn,dPhiIn if nrTracks<= this
+ 
+  
   
   //register your products
   produces < reco::RecoEcalCandidateIsolationMap >( "Deta" ).setBranchAlias( "deta" );
@@ -79,6 +84,9 @@ EgammaHLTGsfTrackVarProducer::produce(edm::Event& iEvent, const edm::EventSetup&
   edm::Handle<reco::ElectronCollection> electronHandle;
   iEvent.getByLabel(inputCollectionTag_,electronHandle);
 
+  edm::Handle<reco::GsfTrackCollection> gsfTracksHandle;
+  if(!electronHandle.isValid()) iEvent.getByLabel (inputCollectionTag_,gsfTracksHandle);
+
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   iEvent.getByLabel(beamSpotTag_,recoBeamSpotHandle);
   // gets its position
@@ -94,24 +102,50 @@ EgammaHLTGsfTrackVarProducer::produce(edm::Event& iEvent, const edm::EventSetup&
     reco::RecoEcalCandidateRef recoEcalCandRef(recoEcalCandHandle,iRecoEcalCand-recoEcalCandHandle->begin());
    
     const reco::SuperClusterRef scRef = recoEcalCandRef->superCluster();
-    reco::GsfTrackRef gsfTrkRef;
-    for(reco::ElectronCollection::const_iterator eleIt = electronHandle->begin(); eleIt != electronHandle->end(); eleIt++){
-      if(eleIt->superCluster()==scRef){
-	gsfTrkRef=eleIt->gsfTrack();
-	break;
+   
+    //the idea is that we can take the tracks from properly associated electrons or just take all gsf tracks with that sc as a seed
+    std::vector<const reco::GsfTrack*> gsfTracks;
+    if(electronHandle.isValid()){
+      for(reco::ElectronCollection::const_iterator eleIt = electronHandle->begin(); eleIt != electronHandle->end(); eleIt++){
+	if(eleIt->superCluster()==scRef){
+	  gsfTracks.push_back(&*eleIt->gsfTrack());
+	}
       }
-    }
-    if(gsfTrkRef.isNonnull()){
-      GlobalPoint scPos(scRef->x(),scRef->y(),scRef->z());
-      GlobalPoint trackExtrapToSC = trackExtrapolator_.extrapolateTrackPosToPoint(*gsfTrkRef,scPos);
-      EleRelPointPair scAtVtx(scRef->position(),trackExtrapToSC,beamSpot.position());
-      
-      dEtaMap.insert(recoEcalCandRef, scAtVtx.dEta());
-      dPhiMap.insert(recoEcalCandRef, scAtVtx.dPhi());
     }else{ 
-      dEtaMap.insert(recoEcalCandRef, 999999);
-      dPhiMap.insert(recoEcalCandRef, 999999);
+      for(reco::GsfTrackCollection::const_iterator trkIt =gsfTracksHandle->begin();trkIt!=gsfTracksHandle->end();++trkIt){
+	edm::RefToBase<TrajectorySeed> seed = trkIt->extra()->seedRef() ;
+	reco::ElectronSeedRef elseed = seed.castTo<reco::ElectronSeedRef>() ;
+	edm::RefToBase<reco::CaloCluster> caloCluster = elseed->caloCluster() ;
+	reco::SuperClusterRef scRefFromTrk = caloCluster.castTo<reco::SuperClusterRef>() ;
+	if(scRefFromTrk==scRef){
+	  gsfTracks.push_back(&*trkIt);
+	}
+      }
+      
     }
+    float dEtaInValue=999999;
+    float dPhiInValue=999999;
+    
+    if(static_cast<int>(gsfTracks.size())>=upperTrackNrToRemoveCut_){
+      dEtaInValue=0;
+      dPhiInValue=0;
+    }else if(static_cast<int>(gsfTracks.size())<=lowerTrackNrToRemoveCut_){
+      dEtaInValue=0;
+      dPhiInValue=0;
+    }else{
+      for(size_t trkNr=0;trkNr<gsfTracks.size();trkNr++){
+      
+	GlobalPoint scPos(scRef->x(),scRef->y(),scRef->z());
+	GlobalPoint trackExtrapToSC = trackExtrapolator_.extrapolateTrackPosToPoint(*gsfTracks[trkNr],scPos);
+	EleRelPointPair scAtVtx(scRef->position(),trackExtrapToSC,beamSpot.position());
+	
+	if(fabs(scAtVtx.dEta())<dEtaInValue) dEtaInValue=fabs(scAtVtx.dEta()); //we are allowing them to come from different tracks
+	if(fabs(scAtVtx.dPhi())<dPhiInValue) dPhiInValue=fabs(scAtVtx.dPhi());//we are allowing them to come from different tracks
+      }	
+    }
+    
+    dEtaMap.insert(recoEcalCandRef, dEtaInValue);
+    dPhiMap.insert(recoEcalCandRef, dPhiInValue);
   }
 
   std::auto_ptr<reco::RecoEcalCandidateIsolationMap> dEtaMapForEvent(new reco::RecoEcalCandidateIsolationMap(dEtaMap));
