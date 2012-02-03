@@ -6,6 +6,10 @@
 <use   name="DataFormats/RecoCandidate"/>
 <use   name="DataFormats/TauReco"/>
 <use   name="DataFormats/MuonReco"/>
+<use   name="DataFormats/JetReco"/>
+<use   name="DataFormats/EgammaCandidates"/>
+<use   name="DataFormats/HepMCCandidate"/>
+<use   name="CommonTools/UtilAlgos"/>
 <library   file="*.cc" name="ValidationRecoTauPlugin">
   <flags   EDM_PLUGIN="1"/>
 </library>

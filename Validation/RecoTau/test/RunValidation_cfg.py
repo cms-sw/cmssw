@@ -17,7 +17,7 @@ if not calledBycmsRun() and not options.gridJob:
    print "Run 'cmsRun RunTauValidation_cfg.py help' for options."
    # quit here so we dont' create a bunch of directories
    #  if the user only wants the help
-#   sys.exit()
+   #sys.exit()
 
 # Make sure we dont' clobber another directory! Skip in batch mode (runs from an LSF machine)
 if not CMSSWEnvironmentIsCurrent() and options.batchNumber == -1 and not options.gridJob:
@@ -87,12 +87,11 @@ if not os.path.exists(configDir):
 ######################################
 
 def LoadDataCffFile(theFile):
-   if not os.path.isfile(theFile):
-      print "Error - %s is not a file!" % theFile
-      sys.exit()
-   outputFile = os.path.join(configDir, "DataSource_cff.py")
-   shutil.copy(theFile, outputFile)
-   process.load(theFile.replace(".py", ""))
+   outputFileName = os.path.join(configDir, "DataSource_cff.py")
+   process.load(theFile)
+   outputFile = open(outputFileName,'w')
+   outputFile.write('import FWCore.ParameterSet.Config as cms\n')
+   outputFile.write('source = %s\n'%process.source)
 
 process.schedule = cms.Schedule()
 
@@ -107,9 +106,21 @@ if options.dataSource.find('sim') != -1:
 if options.dataSource.find('recoFiles') != -1:
    myFile = options.sourceFile
    if myFile == 'none':
-      myFile = "EventSource_%s_RECO_cff.py" % options.eventType
+      myFile = "Validation.RecoTau.sources.EventSource_%s_RECO_cff" % options.eventType
       #myFile = os.path.join(ReleaseBase, "Validation/RecoTau/test", "EventSource_%s_RECO_cff.py" % options.eventType)
    LoadDataCffFile(myFile)
+   if len(process.source.fileNames) == 0:
+      import Validation.RecoTau.DBSApi_cff as mydbs
+      if os.path.isfile('SourcesDatabase.xml'):
+         print "Trying to retrieve the input files from SourcesDatabase.xml..."
+         xml = open('SourcesDatabase.xml','r')
+         mydbs.loadXML(xml,options.eventType,process.source)
+      if len(process.source.fileNames) == 0:
+         print "Accessing DBS to retrieve the input files..."
+         mydbs.FillSource(options.eventType,process.source)
+      if len(process.source.fileNames) == 0:
+         sys.exit(0)
+      print process.source
    # check if we want to rerun PFTau
    if options.dataSource.find('PFTau') != -1:
       process.load("Configuration.StandardSequences.Geometry_cff")
@@ -130,7 +141,7 @@ if options.dataSource.find('recoFiles') != -1:
 elif options.dataSource == 'digiFiles':
    myFile = options.sourceFile
    if myFile == 'none':
-      myFile = "EventSource_%s_DIGI_cff.py" % options.eventType
+      myFile = "Validation.RecoTau.EventSource_%s_DIGI_cff" % options.eventType
       #myFile = os.path.join(ReleaseBase, "Validation/RecoTau/test", "EventSource_%s_DIGI_cff.py" % options.eventType)
    LoadDataCffFile(myFile)
    # get the sequences need to redo RECO
@@ -202,6 +213,13 @@ if options.batchNumber >= 0:
    options.writeEDMFile = options.writeEDMFile.replace(".root", "_%i.root" % options.batchNumber)
 outputFileNameBase += ".root"
 
+if validation.StandardMatchingParameters.recoCuts.value() != "" and validation.StandardMatchingParameters.genCuts.value() != "":
+  print 'Matching: cut(s) set to: reco "%s", gen "%s".' % (validation.StandardMatchingParameters.recoCuts.value(), validation.StandardMatchingParameters.genCuts.value())
+else:
+  if validation.StandardMatchingParameters.recoCuts.value() != "":
+    print 'Matching: reco cut(s) set to: "%s".' % validation.StandardMatchingParameters.recoCuts.value()
+  if validation.StandardMatchingParameters.genCuts.value() != "":
+    print 'Matching: gen cut(s) set to: "%s".' % validation.StandardMatchingParameters.genCuts.value()
 
 if options.gridJob:
    outputFileName = 'TauVal_GridJob.root'
@@ -220,11 +238,13 @@ process.saveTauEff = cms.EDAnalyzer("DQMSimpleFileSaver",
   outputFileName = cms.string(outputFileName)
 )
 
-process.load("Validation.RecoTau.ValidateTausOn%s_cff" % options.eventType)
+process.load("Validation.RecoTau.dataTypes.ValidateTausOn%s_cff" % options.eventType)
+process.validation = cms.Path( process.produceDenominator )#getattr(process,'produceDenominator'+options.eventType) )
+
 if options.batchNumber >= 0 or options.gridJob:
-   process.validation = process.validationBatch #in batch mode, the efficiencies are not computed - only the num/denom
+   process.validation *= process.runTauValidationBatchMode #in batch mode, the efficiencies are not computed - only the num/denom
 else:
-   process.validation = process.validationStd
+   process.validation *= process.runTauValidation
 
 process.validation *= process.saveTauEff #save the output
 

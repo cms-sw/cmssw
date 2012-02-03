@@ -1,38 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import copy
 
-class Scanner(object):
-    """Class to scan a sequence and give a list of analyzer used and a list of their names"""
-    def __init__(self):
-        self._analyzerRef = []
-    def enter(self,visitee):
-        self._analyzerRef.append(visitee)
-    def modules(self):
-        return self._analyzerRef
-    def leave(self, visitee):
-        pass
-
-#     KEEP THIS FUNCTION, IS NOT USED SINCE I FOUND A WORKAROUND, BUT MAYBE WE'LL NEED IT!!!
-## def GetModuleLabel( module ):
-##     """GetModuleLabel( module ) --> String\n
-##     Gets what would be the Label of the module in case the module will be loaded in a process"""
-##     matched = []
-##     for entry in globals().iteritems():
-##         if module == entry[1] and entry[0] != 'module': #avoid counting the current variable name
-##             matched.append(entry[0])
-##     return matched
-
-def GetCurrentDiscriminators( algorithm, moduleList ):
-    """GetCurrentDiscriminators( algorithm, moduleList ) --> VPSet \n\nCreates a VPSet needed as input for TauTagValidation containing all the discriminators for the algorithm passed as    string argument, the selection cut is set to 0.5 and the plotStep boolean to false (the step by step plots will look empty, but the single discriminators not). moduleList is the list of names in the PFTau sequence (PFTau.moduleNames())"""
-    algoName = algorithm
-    if algorithm.find('Producer') != -1:
-        algoName = algorithm[0:algorithm.find('Producer')]
-    retVal = cms.VPSet()
-    for name in moduleList:
-        if name.find(algoName+'Discrimination') == 0:
-                retVal.append( cms.PSet(discriminator = cms.string(name),selectionCut = cms.double(0.5),plotStep = cms.bool(False)) )
-    return retVal
-    
 def CreatePlotEntry(analyzer, discriminatorLabel=None, step=True):
     """CreatePlotEntry(analyzer, discriminatorLabel)\n
     Creates a PSet with the informations used by DQMHistEffProducer\n
@@ -114,6 +82,49 @@ def PlotAnalyzer(pset, analyzer):
         label = currentDiscriminator.discriminator.pythonValue()[1:-1]
         step = currentDiscriminator.plotStep.value()
         setattr(pset,NameVariable(analyzer,label),CreatePlotEntry(analyzer,label,step))
+
+class Scanner(object):
+    """Class to scan a sequence and give a list of analyzer used and a list of their names"""
+    def __init__(self):
+        self._analyzerRef = []
+    def enter(self,visitee):
+        self._analyzerRef.append(visitee)
+    def modules(self):
+        return self._analyzerRef
+    def leave(self, visitee):
+        pass
+
+def DisableQCuts(sequence):
+   scanner = Scanner()
+   sequence.visit(scanner)
+   disabled = cms.PSet(
+    isolationQualityCuts = cms.PSet(
+        minTrackHits = cms.uint32(0),
+        minTrackVertexWeight = cms.double(-1),
+        minTrackPt = cms.double(0),
+        maxTrackChi2 = cms.double(9999),
+        minTrackPixelHits = cms.uint32(0),
+        minGammaEt = cms.double(0),
+        maxDeltaZ = cms.double(0.2),
+        maxTransverseImpactParameter = cms.double(9999)
+        ),
+    pvFindingAlgo = cms.string('highestWeightForLeadTrack'),
+    primaryVertexSrc = cms.InputTag("offlinePrimaryVertices"),
+    signalQualityCuts = cms.PSet(
+        minTrackHits = cms.uint32(0),
+        minTrackVertexWeight = cms.double(-1),
+        minTrackPt = cms.double(0),
+        maxTrackChi2 = cms.double(9999),
+        minTrackPixelHits = cms.uint32(0),
+        minGammaEt = cms.double(0),
+        maxDeltaZ = cms.double(0.2),
+        maxTransverseImpactParameter = cms.double(9999)
+        )
+    )
+   for module in scanner.modules():
+      if hasattr(module,'qualityCuts'):
+         setattr(module,'qualityCuts',disabled)
+
 
 def SetPlotSequence(sequence):
     """SetSequence(seqence)\n

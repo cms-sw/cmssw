@@ -5,7 +5,7 @@ export VALTEST=${CMSSW_BASE}/src/Validation/RecoTau/test
 export PFVALTOOLS=${CMSSW_RELEASE_BASE}/src/Validation/RecoParticleFlow/Benchmarks/Tools
 export PYTHONPATH=${PFVALTOOLS}:${PYTHONPATH}
 export PATH=${VALTOOLS}:${PATH}
-export PastResults=/afs/cern.ch/cms/Physics/particleflow/Validation/cms-project-pfvalidation/Releases/
+export PastResults=/afs/cern.ch/cms/Physics/tau/Validation/cms-project-tauvalidation/releases/
 
 cmsenv
 
@@ -13,7 +13,7 @@ alias MergeBatchJob='cmsRun ${VALTOOLS}/MergeFilesAndCalculateEfficiencies_cfg.p
 alias MergeGridJob='cmsRun ${VALTOOLS}/MergeFilesAndCalculateEfficiencies_cfg.py'
 alias Compare='cmsRun ${VALTOOLS}/Compare_cfg.py'
 alias Summarize='cmsRun ${VALTOOLS}/SummaryPlots_cfg.py'
-alias MultipleCompare='${VALTOOLS}/MultipleCompare.py'
+alias MultipleCompare='python ${VALTOOLS}/MultipleCompare.py'
 alias PerformanceCurves='python ${VALTOOLS}/PlotPerformanceCurves.py'
 alias BuildWebpage='python ${VALTOOLS}/BuildWebpage.py'
 alias SubmitResults='python ${PFVALTOOLS}/submit.py'

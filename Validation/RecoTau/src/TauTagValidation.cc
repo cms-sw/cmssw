@@ -15,7 +15,7 @@
 //
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  October 8, 2008
-// $Id: TauTagValidation.cc,v 1.26 2011/09/13 08:47:58 perchall Exp $
+// $Id: TauTagValidation.cc,v 1.26.2.5 2011/12/12 14:38:14 perchall Exp $
 //
 //
 // user include files
@@ -27,6 +27,8 @@
 
 #include "PhysicsTools/JetMCUtils/interface/JetMCTag.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
+
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 using namespace edm;
 using namespace std;
@@ -41,6 +43,11 @@ TauTagValidation::TauTagValidation(const edm::ParameterSet& iConfig)
   matchDeltaR_Leptons_ = iConfig.getParameter<double>("MatchDeltaR_Leptons");
   matchDeltaR_Jets_    = iConfig.getParameter<double>("MatchDeltaR_Jets");
   TauPtCut_     = iConfig.getParameter<double>("TauPtCut");
+  
+  //flexible cut interface to filter reco and gen collection. use an empty string to select all.
+  recoCuts_ = iConfig.getParameter<std::string>( "recoCuts" );
+  genCuts_ = iConfig.getParameter<std::string>( "genCuts" );
+  
   // The output histograms can be stored or not
   saveoutputhistograms_ = iConfig.getParameter<bool>("SaveOutputHistograms");
   
@@ -106,7 +113,7 @@ void TauTagValidation::beginJob()
   
   if(dbeTau_) {
     
-    MonitorElement * ptTemp,* etaTemp,* phiTemp, *pileupTemp, *resolutionTmp;
+    MonitorElement * ptTemp,* etaTemp,* phiTemp, *pileupTemp, *tmpME;
     
     dbeTau_->setCurrentFolder("RecoTauV/" + TauProducer_ + extensionName_ + "_ReferenceCollection" );
     
@@ -140,13 +147,15 @@ void TauTagValidation::beginJob()
     for ( std::vector< edm::ParameterSet >::iterator it = discriminators_.begin(); it!= discriminators_.end();  it++)
     {
       string DiscriminatorLabel = it->getParameter<string>("discriminator");
+      std::string histogramName;
+      stripDiscriminatorLabel(DiscriminatorLabel, histogramName);
       
       dbeTau_->setCurrentFolder("RecoTauV/" +  TauProducer_ + extensionName_ + "_" +  DiscriminatorLabel );
       
-      ptTemp    =  dbeTau_->book1D(DiscriminatorLabel + "_vs_ptTauVisible", DiscriminatorLabel +"_vs_ptTauVisible", 75, 0., 150.);
+      ptTemp    =  dbeTau_->book1D(DiscriminatorLabel + "_vs_ptTauVisible", histogramName +"_vs_ptTauVisible", 75, 0., 150.);
       etaTemp   =  dbeTau_->book1D(DiscriminatorLabel + "_vs_etaTauVisible", DiscriminatorLabel + "_vs_etaTauVisible", 60, -3.0, 3.0 );
-      phiTemp   =  dbeTau_->book1D(DiscriminatorLabel + "_vs_phiTauVisible", DiscriminatorLabel + "_vs_phiTauVisible", 36, -180., 180.);
-      pileupTemp =  dbeTau_->book1D(DiscriminatorLabel + "_vs_pileupTauVisible", DiscriminatorLabel + "_vs_pileupTauVisible", 25, 0., 25.0);
+      phiTemp   =  dbeTau_->book1D(DiscriminatorLabel + "_vs_phiTauVisible", histogramName + "_vs_phiTauVisible", 36, -180., 180.);
+      pileupTemp =  dbeTau_->book1D(DiscriminatorLabel + "_vs_pileupTauVisible", histogramName + "_vs_pileupTauVisible", 25, 0., 25.0);
       
       ptTauVisibleMap.insert( std::make_pair(DiscriminatorLabel,ptTemp));
       etaTauVisibleMap.insert( std::make_pair(DiscriminatorLabel,etaTemp));
@@ -156,27 +165,75 @@ void TauTagValidation::beginJob()
       
       
       // momentum resolution for several decay modes
-      
-      std::string tmpName = "_pTRatio_allHadronic";
-      resolutionTmp = dbeTau_->book1D(DiscriminatorLabel + tmpName, DiscriminatorLabel + tmpName, 40, 0., 2.);
-      plotMap_.insert( std::make_pair( DiscriminatorLabel + tmpName, resolutionTmp ) );
-      tmpName = "_pTRatio_oneProng0Pi0";
-      resolutionTmp = dbeTau_->book1D(DiscriminatorLabel + tmpName, DiscriminatorLabel + tmpName, 40, 0., 2.);
-      plotMap_.insert( std::make_pair( DiscriminatorLabel + tmpName, resolutionTmp ) );
-      tmpName = "_pTRatio_oneProng1Pi0";
-      resolutionTmp = dbeTau_->book1D(DiscriminatorLabel + tmpName, DiscriminatorLabel + tmpName, 40, 0., 2.);
-      plotMap_.insert( std::make_pair( DiscriminatorLabel + tmpName, resolutionTmp ) );
-      tmpName = "_pTRatio_oneProng2Pi0";
-      resolutionTmp = dbeTau_->book1D(DiscriminatorLabel + tmpName, DiscriminatorLabel + tmpName, 40, 0., 2.);
-      plotMap_.insert( std::make_pair( DiscriminatorLabel + tmpName, resolutionTmp ) );
-      tmpName = "_pTRatio_threeProng0Pi0";
-      resolutionTmp = dbeTau_->book1D(DiscriminatorLabel + tmpName, DiscriminatorLabel + tmpName, 40, 0., 2.);
-      plotMap_.insert( std::make_pair( DiscriminatorLabel + tmpName, resolutionTmp ) );
-      tmpName = "_pTRatio_threeProng1Pi0";
-      resolutionTmp = dbeTau_->book1D(DiscriminatorLabel + tmpName, DiscriminatorLabel + tmpName, 40, 0., 2.);
-      plotMap_.insert( std::make_pair( DiscriminatorLabel + tmpName, resolutionTmp ) );
+
+      std::string plotType = "_pTRatio_";//use underscores (this allows to parse plot type in later stages)
+      std::string xaxisLabel = ";p_{T}^{reco}/p_{T}^{gen}";
+      std::string yaxislabel = ";Frequency";
+      std::string plotName = plotType + "allHadronic";
+      int bins = 40;
+      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 2.);
+      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+      plotName = plotType + "oneProng0Pi0";
+      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 2.);
+      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+      plotName = plotType + "oneProng1Pi0";
+      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 2.);
+      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+      plotName = plotType + "oneProng2Pi0";
+      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 2.);
+      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+      plotName = plotType + "threeProng0Pi0";
+      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 2.);
+      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+      plotName = plotType + "threeProng1Pi0";
+      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 2.);
+      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
 
       
+      //size and sumPt within tau isolation
+
+      plotType = "_Size_";
+      xaxisLabel = ";size";
+      yaxislabel = ";Frequency";
+      plotName = plotType + "signalPFCands";
+      bins = 20;
+      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, -0.5, bins-0.5);
+      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+      plotName = plotType + "isolationPFCands";
+      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, -0.5, bins-0.5);
+      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+      plotName = plotType + "isolationPFChargedHadrCands";
+      bins = 10;
+      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, -0.5, bins-0.5);
+      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+      plotName = plotType + "isolationPFNeutrHadrCands";
+      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, -0.5, bins-0.5);
+      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+      plotName = plotType + "isolationPFGammaCands";
+      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, -0.5, bins-0.5);
+      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+
+      plotType = "_SumPt_";
+      xaxisLabel = ";p_{T}^{sum}/ GeV";
+      yaxislabel = ";Frequency";
+      bins = 20;
+      plotName = plotType + "signalPFCands";
+      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 50.);
+      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+      plotName = plotType + "isolationPFCands";
+      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 50.);
+      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+      plotName = plotType + "isolationPFChargedHadrCands";
+      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 10.);
+      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+      plotName = plotType + "isolationPFNeutrHadrCands";
+      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 30.);
+      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+      plotName = plotType + "isolationPFGammaCands";
+      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 20.);
+      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+
+
       //deprecated!
       
       //	if ( TauProducer_.find("PFTau") != string::npos)
@@ -275,6 +332,8 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     
     PFTauCollection::size_type thePFTauClosest;
     
+    std::map<std::string,  MonitorElement *>::const_iterator element = plotMap_.end();
+    
     for (genCandidateCollection::const_iterator RefJet= ReferenceCollection->begin() ; RefJet != ReferenceCollection->end(); RefJet++ ){
       
       ptTauVisibleMap.find(refCollection_)->second->Fill(RefJet->pt());
@@ -313,7 +372,19 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       
       Handle<PFTauDiscriminator> currentDiscriminator;
       
-      if(thePFTau->pt() < TauPtCut_ ) continue;
+      
+      //filter the candidates
+      if(thePFTau->pt() < TauPtCut_ ) continue;//almost deprecated, since recoCuts_ provides more flexibility
+      //reco
+      StringCutObjectSelector<PFTauRef> selectReco(recoCuts_);
+      bool pass = selectReco( thePFTau );
+      if( !pass ) continue;
+      //gen
+      StringCutObjectSelector<reco::Candidate> selectGen(genCuts_);
+      pass = selectGen( *gen_particle );
+      if( !pass ) continue;
+      //printf("TauTagValidation::analyze:selectGen: values: %f, %f\n", gen_particle->pt(), gen_particle->eta());
+      
       
       for ( std::vector< edm::ParameterSet >::iterator it = discriminators_.begin(); it!= discriminators_.end();  it++)
       {
@@ -334,13 +405,41 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
           const reco::GenJet *tauGenJet = dynamic_cast<const reco::GenJet*>(gen_particle);
           if(tauGenJet!=0){
             std::string genTauDecayMode =  JetMCTagUtils::genTauDecayMode(*tauGenJet); // gen_particle is the tauGenJet matched to the reconstructed tau
-            std::map<std::string,  MonitorElement *>::const_iterator element = plotMap_.find( currentDiscriminatorLabel + "_pTRatio_" + genTauDecayMode );
+            element = plotMap_.find( currentDiscriminatorLabel + "_pTRatio_" + genTauDecayMode );
             if( element != plotMap_.end() ) element->second->Fill(tauPtRes);
             //        else LogInfo("TauTagValidation") << "No plot required for decay mode "<<genTauDecayMode.c_str()<<".";
             //        else printf("No plot for decay mode %s required.\n", genTauDecayMode.c_str());
           }else{
             LogInfo("TauTagValidation") << " Failed to cast the MC candidate.";
           }
+          
+          //fill: size and sumPt within tau isolation
+          std::string plotType = "_Size_";
+          element = plotMap_.find( currentDiscriminatorLabel + plotType + "signalPFCands" );
+          if( element != plotMap_.end() ) element->second->Fill( thePFTau->signalPFCands().size() );
+          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFCands" );
+          if( element != plotMap_.end() ) element->second->Fill( thePFTau->isolationPFCands().size() );
+          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFChargedHadrCands" );
+          if( element != plotMap_.end() ) element->second->Fill( thePFTau->isolationPFChargedHadrCands().size() );
+          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFNeutrHadrCands" );
+          if( element != plotMap_.end() ) element->second->Fill( thePFTau->isolationPFNeutrHadrCands().size() );
+          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFGammaCands" );
+          if( element != plotMap_.end() ) element->second->Fill( thePFTau->isolationPFGammaCands().size() );
+
+          plotType = "_SumPt_";
+          element = plotMap_.find( currentDiscriminatorLabel + plotType + "signalPFCands" );
+          if( element != plotMap_.end() ) element->second->Fill( getSumPt( thePFTau->signalPFCands() ) );
+          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFCands" );
+          if( element != plotMap_.end() ) element->second->Fill( getSumPt( thePFTau->isolationPFCands() ) );
+          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFChargedHadrCands" );
+          if( element != plotMap_.end() ) element->second->Fill( getSumPt( thePFTau->isolationPFChargedHadrCands() ) );
+          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFNeutrHadrCands" );
+          if( element != plotMap_.end() ) element->second->Fill( getSumPt( thePFTau->isolationPFNeutrHadrCands() ) );
+          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFGammaCands" );
+          if( element != plotMap_.end() ) element->second->Fill( getSumPt( thePFTau->isolationPFGammaCands() ) );
+          
+          
+          //deprecated
           
           if( TauProducer_.find("PFTau") != string::npos ){
             if ( currentDiscriminatorLabel.find("LeadingTrackPtCut") != string::npos){
@@ -374,86 +473,40 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 // ---------------------------------------------------------------------------  endJob -----------------------------------------------------------------------
 
 void TauTagValidation::endJob(){
-  
-  //if(saveoutputhistograms_) //USED for debugging. I keep it here in case of need ;)
-  //{
-  // cout << "dumping entries for hpsTanc"<<endl;
-  // for(std::map<std::string,MonitorElement*>::iterator mapEntry = ptTauVisibleMap.begin(); mapEntry != ptTauVisibleMap.end(); mapEntry++)
-  // 	if( mapEntry->first.find("hpsTancTaus") !=string::npos)
-  // 	  cout << mapEntry->first << "      entries:   " <<  mapEntry->second->getTH1()->GetEntries() << endl;
-  //}
-  
-  // just fill the denominator histograms for the changing cone sizes
-  /*
-   double Denominator_Taus = nRefTaus_etaTauVisible_->getEntries();
-   double First_Taus = nPFJet_etaTauVisible_->getEntries();
-   double Second_Taus = nPFJet_LeadingChargedHadron_etaTauVisible_->getEntries();
-   double Third_Taus = nIsolated_NoChargedHadrons_etaTauVisible_->getEntries();
-   double Forth_Taus = nIsolated_NoChargedNoGammas_etaTauVisible_->getEntries();
-   
-   std::streamsize prec = cout.precision();
-   
-   cout<<setfill('-')<<setw(110)<<"-"<<endl;
-   
-   cout<<setfill('-')<<setw(55)<<" TAU TAG VALIDATION SUMMARY "<<setw(55)<<"-"<<endl;
-   
-   cout<<setfill('-')<<setw(92)<<"-"<<setfill(' ')<<setw(9)<<"Rel.Eff."<<setw(9)<<"Tot.Eff."<<endl;
-   cout<<setfill('-')<<setw(85)<<left<<" TOTAL NUMBER OF REF OBJECTS LEVEL: ";
-   
-   cout<<setfill(' ')<<setw(7) <<right<< Denominator_Taus <<setw(9)<<"--"<<setw(9)<<"--"<< endl;
-   
-   cout<<setfill('-')<<setw(85)<<left<<" Step 1. TOTAL NUMBER OF PFJETS MATCHED TO REF COLLECTION: ";
-   cout<<setfill(' ')<<setw(7) <<right<< First_Taus <<setw(9)<<"--";
-   if (Denominator_Taus > 0)
-   cout<<setw(9)<<setprecision(3)<< First_Taus/Denominator_Taus  << setprecision(prec)<<endl;
-   else
-   cout<<setw(9)<<"--"<<endl;
-   
-   cout<<setfill('-')<<setw(85)<<left<<" Step 2. PLUS LEADING CHARGED HADRON= 5.0 GeV: ";
-   cout<<setfill(' ')<<setw(7)<<right<<Second_Taus;
-   if (First_Taus > 0)
-   cout<<setw(9)<<setprecision(3)<< Second_Taus/First_Taus <<setprecision(prec);
-   else
-   cout<<setw(9)<<"--"<<endl;
-   
-   if (Denominator_Taus > 0)
-   cout<<setw(9)<<setprecision(3)<< Second_Taus/Denominator_Taus  << setprecision(prec)<<endl;
-   else
-   cout<<setw(9)<<"--"<<endl;
-   
-   
-   
-   cout<<setfill('-')<<setw(85)<<left<<" Step 3. PLUS CHARGED HADRON ISOLATION: ";
-   cout<<setfill(' ')<<setw(7) <<right<<Third_Taus;
-   if (Second_Taus > 0)
-   cout<<setw(9)<<setprecision(3)<< Third_Taus/Second_Taus <<setprecision(prec);
-   else
-   cout<<setw(9)<<"--"<<endl;
-   
-   if (Denominator_Taus > 0)
-   cout<<setw(9)<<setprecision(3)<< Third_Taus/Denominator_Taus  << setprecision(prec)<<endl;
-   else
-   cout<<setw(9)<<"--"<<endl;
-   
-   //  cout<<setfill('-')<<setw(110)<<"-"<<endl;
-   
-   cout<<setfill('-')<<setw(85)<<left<<" Step 4. PLUS GAMMA ISOLATION: ";
-   cout<<setfill(' ')<<setw(7) <<right<<Forth_Taus;
-   if (Third_Taus > 0)
-   cout<<setw(9)<<setprecision(3)<< Forth_Taus/Third_Taus <<setprecision(prec);
-   else
-   cout<<setw(9)<<"--"<<endl;
-   
-   if (Denominator_Taus > 0)
-   cout<<setw(9)<<setprecision(3)<< Forth_Taus/Denominator_Taus  << setprecision(prec)<<endl;
-   else
-   cout<<setw(9)<<"--"<<endl;
-   
-   cout<<setfill('-')<<setw(110)<<"-"<<endl;
-   */
-  
+  //store the output
   if (!outPutFile_.empty() && &*edm::Service<DQMStore>() && saveoutputhistograms_) dbeTau_->save (outPutFile_);
-  
 }
 
+
+double TauTagValidation::getSumPt(const reco::PFCandidateRefVector & 	candidates){
+  double sumPt = 0.;
+  for (reco::PFCandidateRefVector::const_iterator candidate = candidates.begin(); candidate!=candidates.end(); ++candidate) {
+    sumPt += (*candidate)->pt();
+  }
+
+  return sumPt;
+}
+
+
+bool TauTagValidation::stripDiscriminatorLabel(const std::string& discriminatorLabel, std::string & newLabel){
+  std::string separatorString = "DiscriminationBy";
+  std::string::size_type separator = discriminatorLabel.find(separatorString);
+  if(separator==std::string::npos){
+    separatorString = "Discrimination";//DiscriminationAgainst, keep the 'against' here
+    separator = discriminatorLabel.find(separatorString);
+    if(separator==std::string::npos){
+      //std::cout<<"TauTagValidation::splitDiscriminatorLabel: failed to split "<<discriminatorLabel<<std::endl;
+      return false;
+    }
+  }
+  
+  std::string prefix = discriminatorLabel.substr(0,separator);
+  std::string postfix = discriminatorLabel.substr(separator+separatorString.size());
+
+  //std::cout<<"TauTagValidation::splitDiscriminatorLabel: split "<<discriminatorLabel<<" into "<<prefix<<" and "<<postfix<<std::endl;
+  
+  newLabel = prefix+postfix;
+  
+  return true;  
+}
 

@@ -1,85 +1,46 @@
-import FWCore.ParameterSet.Config as cms
+from Validation.RecoTau.dataTypes.ValidateTausOnQCD_cff import *
+from Validation.RecoTau.dataTypes.ValidateTausOnRealData_cff import *
+from Validation.RecoTau.dataTypes.ValidateTausOnRealElectronsData_cff import *
+from Validation.RecoTau.dataTypes.ValidateTausOnRealMuonsData_cff import *
+from Validation.RecoTau.dataTypes.ValidateTausOnZEEFastSim_cff import *
+from Validation.RecoTau.dataTypes.ValidateTausOnZEE_cff import *
+from Validation.RecoTau.dataTypes.ValidateTausOnZMM_cff import *
+from Validation.RecoTau.dataTypes.ValidateTausOnZTTFastSim_cff import *
+from Validation.RecoTau.dataTypes.ValidateTausOnZTT_cff import *
 
-from Validation.RecoTau.ValidateTausOnZTT_cff import *
-from Validation.RecoTau.ValidateTausOnQCD_cff import *
-from Validation.RecoTau.ValidateTausOnZEE_cff import *
-from Validation.RecoTau.ValidateTausOnZMM_cff import *
+pfTauRunDQMValidation = cms.Sequence(
+    TauValNumeratorAndDenominatorQCD+
+    TauValNumeratorAndDenominatorRealData+
+    TauValNumeratorAndDenominatorRealElectronsData+
+    TauValNumeratorAndDenominatorRealMuonsData+
+    TauValNumeratorAndDenominatorZEEFastSim+
+    TauValNumeratorAndDenominatorZEE+
+    TauValNumeratorAndDenominatorZMM+
+    TauValNumeratorAndDenominatorZTTFastSim+
+    TauValNumeratorAndDenominatorZTT
+    )
 
-#------------------------------------------------------------
-#                     Producing Num e Denom
-#------------------------------------------------------------
+produceDenoms = cms.Sequence(
+    produceDenominatorQCD+
+    produceDenominatorRealData+
+    produceDenominatorRealElectronsData+
+    produceDenominatorRealMuonsData+
+    produceDenominatorZEEFastSim+
+    produceDenominatorZEE+
+    produceDenominatorZMM+
+    produceDenominatorZTTFastSim+
+    produceDenominatorZTT
+    )
 
-def PrintSeq(seq, tau=False):
-    scanner = Utils.Scanner()
-    seq.visit(scanner)
-    for module in scanner.modules():
-        print type(module)
-        if type(module) is cms.EDAnalyzer and tau:# or type(module) is cms.EDFilter:
-            print module.TauProducer.value() + module.ExtensionName.value()
+runTauEff = cms.Sequence(
+    TauEfficienciesQCD+
+    TauEfficienciesRealData+
+    TauEfficienciesRealElectronsData+
+    TauEfficienciesRealMuonsData+
+    TauEfficienciesZEEFastSim+
+    TauEfficienciesZEE+
+    TauEfficienciesZMM+
+    TauEfficienciesZTTFastSim+
+    TauEfficienciesZTT
+    )
 
-
-produceDenoms = cms.Sequence()
-produceDenoms += produceDenominatorZTT
-produceDenoms += produceDenominatorQCD
-produceDenoms += produceDenominatorZMM
-produceDenoms += produceDenominatorZEE
-
-pfTauRunDQMValidation = cms.Sequence()
-pfTauRunDQMValidation += runTauValidationBatchModeZTT
-pfTauRunDQMValidation += runTauValidationBatchModeQCD
-pfTauRunDQMValidation += runTauValidationBatchModeZMM
-pfTauRunDQMValidation += runTauValidationBatchModeZEE
-
-#-------------------------------------------------------------------------------------------------------
-#                     Producing Efficiencies (postValidation)
-#-------------------------------------------------------------------------------------------------------
-
-runTauEff = cms.Sequence()
-runTauEff += TauEfficienciesZTT
-runTauEff += TauEfficienciesQCD
-runTauEff += TauEfficienciesZMM
-runTauEff += TauEfficienciesZEE
-
-#--------------------------------------------------------------------------
-#         Making histograms look nicer (not working yet)
-#--------------------------------------------------------------------------
-
-def SetSignalPlotSet(module):
-    module.PrintToFile = False
-    del module.drawJobs.TauIdEffStepByStep
-    for subsetName in module.drawJobs.parameterNames_():
-        subset = getattr(module.drawJobs,subsetName)
-        if hasattr(subset,'plots'):
-            mEs = []
-            for monitorEl in subset.plots.dqmMonitorElements:
-                correcectME = monitorEl[13:]
-                lastUnderscore = correcectME.rfind('_',0,correcectME.rfind('/'))
-                correcectME = correcectME[:lastUnderscore]+'_Signal'+correcectME[lastUnderscore:]
-                mEs.append(correcectME)
-            subset.plots.dqmMonitorElements = cms.vstring(mEs)
-
-
-def SetFakePlotSet(module):
-    module.PrintToFile = False
-    del module.drawJobs.TauIdEffStepByStep
-    for subsetName in module.drawJobs.parameterNames_():
-        subset = getattr(module.drawJobs,subsetName)
-        if hasattr(subset,'plots'):
-#            subset.drawOptionSet = 'fakeRate'
-            subset.yAxis = 'fakeRate'
-#            subset.legend = 'fakeRate'
-            mEs = []
-            for monitorEl in subset.plots.dqmMonitorElements:
-                correcectME = monitorEl[13:]
-                lastUnderscore = correcectME.rfind('_',0,correcectME.rfind('/'))
-                correcectME = correcectME[:lastUnderscore]+'_Fakes'+correcectME[lastUnderscore:]
-                mEs.append(correcectME)
-            subset.plots.dqmMonitorElements = cms.vstring(mEs)
-
-zttModifier = ApplyFunctionToSequence(SetSignalPlotSet)
-plotTauValidation.visit(zttModifier)
-
-qcdModifier = ApplyFunctionToSequence(SetFakePlotSet)
-plotTauValidation2.visit(qcdModifier)        
-
-makeBetterPlots = cms.Sequence(plotTauValidation+plotTauValidation2)
