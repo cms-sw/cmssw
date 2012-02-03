@@ -133,7 +133,7 @@ namespace edm {
     // close the currently open file, if any, and delete the RootFile object.
     if(rootFile_) {
       if(inputType_ != InputType::SecondarySource) {
-        std::unique_ptr<InputSource::FileCloseSentry>
+        std::auto_ptr<InputSource::FileCloseSentry>
         sentry((inputType_ == InputType::Primary) ? new InputSource::FileCloseSentry(input_) : 0);
         rootFile_->close();
         if(duplicateChecker_) duplicateChecker_->inputFileClosed();
@@ -190,7 +190,7 @@ namespace edm {
 
     boost::shared_ptr<InputFile> filePtr;
     try {
-      std::unique_ptr<InputSource::FileOpenSentry>
+      std::auto_ptr<InputSource::FileOpenSentry>
         sentry(inputType_ == InputType::Primary ? new InputSource::FileOpenSentry(input_) : 0);
       filePtr.reset(new InputFile(gSystem->ExpandPathName(fileIter_->fileName().c_str()), "  Initiating request to open file "));
     }
@@ -205,6 +205,7 @@ namespace edm {
           InputFile::reportSkippedFile(fileIter_->fileName(), fileIter_->logicalFileName());
           Exception ex(errors::FileOpenError, "", e);
           ex.addContext("Calling RootInputFileSequence::initFile()");
+          ex.clearMessage();
           ex << "Input file " << fileIter_->fileName() << " was not found, could not be opened, or is corrupted.\n";
           throw ex;
         }
@@ -212,7 +213,7 @@ namespace edm {
     }
     if(!filePtr && (hasFallbackUrl)) {
       try {
-        std::unique_ptr<InputSource::FileOpenSentry>
+        std::auto_ptr<InputSource::FileOpenSentry>
           sentry(inputType_ == InputType::Primary ? new InputSource::FileOpenSentry(input_) : 0);
         filePtr.reset(new InputFile(gSystem->ExpandPathName(fallbackName.c_str()), "  Fallback request to file "));
       }
@@ -221,6 +222,7 @@ namespace edm {
           InputFile::reportSkippedFile(fileIter_->fileName(), fileIter_->logicalFileName());
           Exception ex(errors::FallbackFileOpenError, "", e);
           ex.addContext("Calling RootInputFileSequence::initFile()");
+          ex.clearMessage();
           ex << "Input file " << fileIter_->fileName() << " was not found, could not be opened, or is corrupted.\n";
           ex << "Fallback Input file " << fallbackName << " also was not found, could not be opened, or is corrupted.\n";
           throw ex;
@@ -586,7 +588,7 @@ namespace edm {
   RootInputFileSequence::dropUnwantedBranches_(std::vector<std::string> const& wantedBranches) {
     std::vector<std::string> rules;
     rules.reserve(wantedBranches.size() + 1);
-    rules.emplace_back("drop *");
+    rules.push_back(std::string("drop *"));
     for(std::vector<std::string>::const_iterator it = wantedBranches.begin(), itEnd = wantedBranches.end();
         it != itEnd; ++it) {
       rules.push_back("keep " + *it + "_*");
