@@ -1,6 +1,6 @@
 // Original author: Brock Tweedie (JHU)
 // Ported to CMSSW by: Sal Rappoccio (JHU)
-// $Id: CATopJetAlgorithm.cc,v 1.10 2012/01/29 10:29:34 eulisse Exp $
+// $Id: CATopJetAlgorithm.cc,v 1.11 2012/02/03 16:20:11 srappocc Exp $
 
 #include "RecoJets/JetAlgorithms/interface/CATopJetAlgorithm.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -206,19 +206,23 @@ void CATopJetAlgorithm::run( const vector<fastjet::PseudoJet> & cell_particles,
 		
 		// record the hard subjets
 		vector<fastjet::PseudoJet> hardSubjets;
-		
-		if ( subjet1.user_index() >= 0 )
-			hardSubjets.push_back(subjet1);
-		if ( subjet2.user_index() >= 0 )
-			hardSubjets.push_back(subjet2);
-		if ( subjet3.user_index() >= 0 )
-			hardSubjets.push_back(subjet3);
-		if ( subjet4.user_index() >= 0 )
-			hardSubjets.push_back(subjet4);
+
+
+		// Check to see if any subjects are counted amongst the "hard" subjets from previous
+		// lines. NOTE: In Fastjet 3.0, the default "user_index" changed from 0 to -1, so
+		// this can no longer be used as a designator for the veto of "blankJet" subjets,
+		// and now switch to pt > some small value. 
+		if ( subjet1.pt() > 0.0001 )
+		  hardSubjets.push_back(subjet1);
+		if ( subjet2.pt() > 0.0001 )
+		  hardSubjets.push_back(subjet2);
+		if ( subjet3.pt() > 0.0001 )
+		  hardSubjets.push_back(subjet3);
+		if ( subjet4.pt() > 0.0001 )
+		  hardSubjets.push_back(subjet4);
 		sort(hardSubjets.begin(), hardSubjets.end(), compEt );
 
-
-
+		
 		if ( verbose_ ) {
 		  std::cout << "HardA : user_index = " << hardA.user_index() << ", (Pt,Y,Phi,M) = (" 
 			    << hardA.perp() << ", " << hardA.rapidity() << ", " 
