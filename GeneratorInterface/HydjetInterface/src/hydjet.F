@@ -1592,7 +1592,7 @@ C     INTERPOLATION SUBROUTINES ARE TAKEN FROM
 C     G.E. FORSYTHE, M.A. MALCOLM AND C.B. MOLER,
 C     COMPUTER METHODS FOR MATHEMATICAL COMPUTATIONS (PRENTICE-HALL, 1977).
       IMPLICIT double precision (A-H,O-Z)
-      DIMENSION X(100),Y(100),B(100),C(100),D(100)
+      DIMENSION X(N),Y(N),B(N),C(N),D(N)
       NM1=N-1
       IF(N.LT.2) RETURN
       IF(N.LT.3) GO TO 250
@@ -1650,7 +1650,7 @@ C ---------------------------------------------------------------------
 c***************************************************************************
 C CALCULATE THE DISTRIBUTION AT XX BY CUBIC SPLINE INTERPOLATION.
       implicit double precision(A-H,O-Z)
-      DIMENSION X(100),Y(100),B(100),C(100),D(100)
+      DIMENSION X(N),Y(N),B(N),C(N),D(N)
       DATA I/1/
       IF(I.GE.N) I=1
       IF(XX.LT.X(I)) GO TO 310
