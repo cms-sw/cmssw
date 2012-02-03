@@ -203,7 +203,7 @@ def plotSigma(fileName,sl,dir='DQMData/Run 1/DT/Run summary/DTCalibValidation',o
     objs = plot(fileName,sl,dir,type,option)
     return objs
 
-def plotSigmaAll(fileName,dir='DQMData/Run 1/DT/Run summary/DTCalibValidation',option='HISTOPE1'):
+def plotSigmaAll(fileName,dir='DQMData/Run 1/DT/Run summary/DTCalibValidation',option='HISTOPE1',outputFileName=''):
     colors = (2,4,12,44,55,38,27,46)
     markers = (24,25,26,27,28,30,32,5)
 
@@ -249,4 +249,11 @@ def plotSigmaAll(fileName,dir='DQMData/Run 1/DT/Run summary/DTCalibValidation',o
     if not objects: objects = [legend]
     else:           objects.append(legend)
 
-    return (canvas,histos,objects)
+    if outputFileName:
+        outputFile = ROOT.TFile(outputFileName,'recreate')
+        outputFile.cd()
+        for histo in histos: histo.Write()
+        outputFile.Close()
+        return 0
+    else:       
+        return (canvas,histos,objects)
