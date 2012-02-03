@@ -53,7 +53,7 @@ public:
     theSeed(), seedRef_(),
     theChiSquared(0), theChiSquaredBad(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
-    theDirection(alongMomentum), theDirectionValidity(false), theValid(true)
+    theDirection(alongMomentum), theDirectionValidity(false), theValid(true),theDPhiCache(0)
     {}
 
 
@@ -67,7 +67,7 @@ public:
     theSeed( new TrajectorySeed(seed) ), seedRef_(),
     theChiSquared(0), theChiSquaredBad(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
-    theDirection(alongMomentum), theDirectionValidity(false), theValid(true)
+    theDirection(alongMomentum), theDirectionValidity(false), theValid(true),theDPhiCache(0)
   {}
 
   /** Constructor of an empty trajectory with defined direction.
@@ -78,7 +78,7 @@ public:
     theSeed( new TrajectorySeed(seed) ), seedRef_(),
     theChiSquared(0), theChiSquaredBad(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
-    theDirection(dir), theDirectionValidity(true), theValid(true)
+    theDirection(dir), theDirectionValidity(true), theValid(true),theDPhiCache(0)
    
   {}
 
@@ -90,7 +90,7 @@ public:
     theSeed( seed ), seedRef_(),
     theChiSquared(0), theChiSquaredBad(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
-    theDirection(dir), theDirectionValidity(true), theValid(true)
+    theDirection(dir), theDirectionValidity(true), theValid(true),theDPhiCache(0)
   {}
 
 
@@ -100,7 +100,8 @@ public:
     theData(rh.theData),
     theChiSquared(rh.theChiSquared), theChiSquaredBad(rh.theChiSquaredBad),
     theNumberOfFoundHits(rh.theNumberOfFoundHits), theNumberOfLostHits(rh.theNumberOfLostHits),
-    theDirection(rh.theDirection), theDirectionValidity(rh.theDirectionValidity), theValid(rh.theValid)
+    theDirection(rh.theDirection), theDirectionValidity(rh.theDirectionValidity), theValid(rh.theValid),
+    theDPhiCache(rh.theDPhiCache) 
   {}
 
 
@@ -109,7 +110,8 @@ public:
     theData(std::move(rh.theData)),
     theChiSquared(rh.theChiSquared), theChiSquaredBad(rh.theChiSquaredBad),
     theNumberOfFoundHits(rh.theNumberOfFoundHits), theNumberOfLostHits(rh.theNumberOfLostHits),
-    theDirection(rh.theDirection), theDirectionValidity(rh.theDirectionValidity), theValid(rh.theValid)
+    theDirection(rh.theDirection), theDirectionValidity(rh.theDirectionValidity), theValid(rh.theValid),
+    theDPhiCache(rh.theDPhiCache) 
   {}
 
   Trajectory & operator=(Trajectory && rh) {
@@ -118,6 +120,7 @@ public:
     theChiSquared=rh.theChiSquared;
     theChiSquaredBad=rh.theChiSquaredBad;
     theValid=rh.theValid;
+    theDPhiCache=rh.theDPhiCache; 
     theNumberOfFoundHits=rh.theNumberOfFoundHits;
     theNumberOfLostHits=rh.theNumberOfLostHits;
     theDirection=rh.theDirection; 
@@ -134,6 +137,7 @@ public:
     theChiSquared=rh.theChiSquared;
     theChiSquaredBad=rh.theChiSquaredBad;
     theValid=rh.theValid;
+    theDPhiCache=rh.theDPhiCache; 
     theNumberOfFoundHits=rh.theNumberOfFoundHits;
     theNumberOfLostHits=rh.theNumberOfLostHits;
     theDirection=rh.theDirection;
@@ -300,6 +304,15 @@ public:
   void reverse() ;
 
   const boost::shared_ptr<const TrajectorySeed> & sharedSeed() const { return theSeed; }
+
+  /// accessor to the delta phi angle betweem the directions of the two measurements on the last 
+  /// two layers crossed by the trajectory
+   float dPhiCacheForLoopersReconstruction() const { return theDPhiCache;}
+
+  /// method to set the delta phi angle betweem the directions of the two measurements on the last 
+  /// two layers crossed by the trajectory
+   void setDPhiCacheForLoopersReconstruction(float dphi) {  theDPhiCache = dphi;}
+
 private:
 
   boost::shared_ptr<const TrajectorySeed>    theSeed;
@@ -315,6 +328,8 @@ private:
   PropagationDirection theDirection;
   bool                 theDirectionValidity;
   bool theValid;
+
+  float theDPhiCache;
 
   void check() const;
 };
