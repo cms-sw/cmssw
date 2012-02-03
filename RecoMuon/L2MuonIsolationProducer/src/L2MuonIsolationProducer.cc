@@ -48,13 +48,19 @@ L2MuonIsolationProducer::L2MuonIsolationProducer(const ParameterSet& par) :
 
   
   edm::ParameterSet isolatorPSet = par.getParameter<edm::ParameterSet>("IsolatorPSet");
-  optOutputDecision = !isolatorPSet.empty();
+  bool haveIsolator = !isolatorPSet.empty();
+  optOutputDecision = haveIsolator;
   if (optOutputDecision){
     std::string type = isolatorPSet.getParameter<std::string>("ComponentName");
     theDepositIsolator = MuonIsolatorFactory::get()->create(type,isolatorPSet);
   }
   if (optOutputDecision) produces<edm::ValueMap<bool> >();
   produces<reco::IsoDepositMap>();
+
+  optOutputIsolatorFloat = par.getParameter<bool>("WriteIsolatorFloat");
+  if (optOutputIsolatorFloat && haveIsolator){
+    produces<edm::ValueMap<float> >();
+  }
 }
   
 /// destructor
@@ -83,12 +89,14 @@ void L2MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
   LogDebug(metname)<<" Get energy around";
   std::auto_ptr<reco::IsoDepositMap> depMap( new reco::IsoDepositMap());
   std::auto_ptr<edm::ValueMap<bool> > isoMap( new edm::ValueMap<bool> ());
+  std::auto_ptr<edm::ValueMap<float> > isoFloatMap( new edm::ValueMap<float> ());
 
   theExtractor->fillVetos(event,eventSetup,*tracks);
 
   unsigned int nTracks = tracks->size();
   std::vector<IsoDeposit> deps(nTracks);
   std::vector<bool> isos(nTracks, false);
+  std::vector<float> isoFloats(nTracks, 0);
 
   for (unsigned int i=0; i<nTracks; i++) {
       TrackRef tk(tracks,i);
@@ -97,7 +105,9 @@ void L2MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
 
       if (optOutputDecision){
 	muonisolation::MuIsoBaseIsolator::DepositContainer isoContainer(1,muonisolation::MuIsoBaseIsolator::DepositAndVetos(&deps[i]));
-	isos[i] = theDepositIsolator->result( isoContainer, *tk, &event ).valBool;
+	muonisolation::MuIsoBaseIsolator::Result isoResult = theDepositIsolator->result( isoContainer, *tk, &event );
+	isos[i] = isoResult.valBool;
+	isoFloats[i] = isoResult.valFloat;
       }
   }
 
@@ -114,6 +124,13 @@ void L2MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
     isoFiller.insert(tracks, isos.begin(), isos.end());
     isoFiller.fill();//! annoying -- I will forget it at some point
     event.put(isoMap);
+
+    if (optOutputIsolatorFloat){
+      edm::ValueMap<float> ::Filler isoFloatFiller(*isoFloatMap);
+      isoFloatFiller.insert(tracks, isoFloats.begin(), isoFloats.end());
+      isoFloatFiller.fill();//! annoying -- I will forget it at some point
+      event.put(isoFloatMap);
+    }
   }
   
   LogDebug(metname) <<" Event loaded"

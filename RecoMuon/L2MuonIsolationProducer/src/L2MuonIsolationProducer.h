@@ -41,6 +41,9 @@ class L2MuonIsolationProducer : public edm::EDProducer {
   // Option to write MuIsoDeposits into the event
   bool optOutputDecision;
 
+  // Option to write MuIsoDeposit sum into the event
+  bool optOutputIsolatorFloat;
+
   // MuIsoExtractor
   reco::isodeposit::IsoDepositExtractor* theExtractor;
 
