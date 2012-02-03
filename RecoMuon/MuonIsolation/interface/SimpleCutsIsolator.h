@@ -34,6 +34,7 @@ class SimpleCutsIsolator : public muonisolation::MuIsoBaseIsolator {
     for(unsigned int iDep = 0; iDep < nDeps; ++iDep ){
       dephlt += deposits[iDep].dep->depositWithin(conesize);
     }
+    answer.valFloat = dephlt;
     if (dephlt<cuts_here.threshold) {
       answer.valBool = true;
     } else {
