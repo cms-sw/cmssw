@@ -50,11 +50,15 @@ private:
 //     }
 //     normChi2 -= t.foundHits()*2*b;
 //     return normChi2+t.lostHits()*penalty;
-    return t.chiSquared()-t.foundHits()*bonus+t.lostHits()*penalty;
+
+
+    return t.chiSquared()-t.foundHits()*bonus+t.lostHits()*penalty 
+      + 0.5*(1-cos(t.dPhiCacheForLoopersReconstruction()))*penalty;
   }
   float score (const TempTrajectory& t) const
   {
-    return t.chiSquared()-t.foundHits()*bonus+t.lostHits()*penalty;
+    return t.chiSquared()-t.foundHits()*bonus+t.lostHits()*penalty 
+      + 0.5*(1-cos(t.dPhiCacheForLoopersReconstruction()))*penalty;
   }
 
  private:
