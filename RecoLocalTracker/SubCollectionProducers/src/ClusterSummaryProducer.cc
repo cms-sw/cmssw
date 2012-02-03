@@ -199,36 +199,39 @@ ClusterSummaryProducer::beginJob()
   decodeInput(v_pixelModuleTypes,pixelModules.c_str());
   decodeInput(v_pixelVariables,pixelVariables.c_str());  
 
-  std::cout << "+++++++++++++++++++++++++++++++ "  << std::endl;
-  std::cout << "FOR STRIPS: "  << std::endl;
-  std::cout << "Getting info on " ;
-  for (unsigned int ii = 0; ii < v_stripModuleTypes.size( ); ++ii) {
-    std::cout << v_stripModuleTypes[ii] << " " ;
+  if (verbose){
+    std::cout << "+++++++++++++++++++++++++++++++ "  << std::endl;
+    std::cout << "FOR STRIPS: "  << std::endl;
+    std::cout << "Getting info on " ;
+    for (unsigned int ii = 0; ii < v_stripModuleTypes.size( ); ++ii) {
+      std::cout << v_stripModuleTypes[ii] << " " ;
+    }
+    std::cout << std::endl;
   }
-  std::cout << std::endl;
-
-  std::cout << "Getting info on strip variables " ;
+  
+  if (verbose) std::cout << "Getting info on strip variables " ;
   for (unsigned int ii = 0; ii < v_stripVariables.size( ); ++ii) {
-    std::cout << v_stripVariables[ii] << " " ;
+    if (verbose) std::cout << v_stripVariables[ii] << " " ;
     v_userContent.push_back(v_stripVariables[ii]);
   }
-  std::cout << std::endl;
+  if (verbose) std::cout << std::endl;
 
-  
-  std::cout << "FOR PIXELS: " << std::endl;
-  std::cout << "Getting info on " ;
-  for (unsigned int ii = 0; ii < v_pixelModuleTypes.size( ); ++ii) {
-    std::cout << v_pixelModuleTypes[ii] << " " ;
+  if (verbose){
+    std::cout << "FOR PIXELS: " << std::endl;
+    std::cout << "Getting info on " ;
+    for (unsigned int ii = 0; ii < v_pixelModuleTypes.size( ); ++ii) {
+      std::cout << v_pixelModuleTypes[ii] << " " ;
+    }
+    std::cout << std::endl;
   }
-  std::cout << std::endl;
-
-  std::cout << "Getting info on pixel variables " ;
+  
+  if (verbose) std::cout << "Getting info on pixel variables " ;
   for (unsigned int ii = 0; ii < v_pixelVariables.size( ); ++ii) {
-    std::cout << v_pixelVariables[ii] << " " ;
+    if (verbose) std::cout << v_pixelVariables[ii] << " " ;
     v_userContent.push_back(v_pixelVariables[ii]);
   }
-  std::cout << std::endl;
-  std::cout << "+++++++++++++++++++++++++++++++ "  << std::endl;
+  if (verbose) std::cout << std::endl;
+  if (verbose) std::cout << "+++++++++++++++++++++++++++++++ "  << std::endl;
   
 
   //Create the summary info for output 

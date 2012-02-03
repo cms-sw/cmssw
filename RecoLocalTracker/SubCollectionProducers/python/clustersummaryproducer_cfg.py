@@ -29,7 +29,7 @@ process.ClusterSummaryProducer = cms.EDProducer('ClusterSummaryProducer',
                                         pixelVariables=cms.string('pHits,pSize,pCharge'),
                                         doStrips=cms.bool(True),
                                         doPixels=cms.bool(True),
-                                        verbose=cms.bool(True)
+                                        verbose=cms.bool(False)
                                         )
 
 process.out = cms.OutputModule("PoolOutputModule",
