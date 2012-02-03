@@ -60,6 +60,15 @@ Electron Cluster shapes
 ElectronMcFakeValidator/h_ele_HoE                                 1 1 0 0
 ElectronMcFakeValidator/h_ele_HoE_barrel                          1 1 0 0
 ElectronMcFakeValidator/h_ele_HoE_endcaps                         1 1 1 0
+ElectronMcFakeValidator/h_ele_HoE_bc                              1 1 0 0
+ElectronMcFakeValidator/h_ele_HoE_bc_barrel                       1 1 0 0
+ElectronMcFakeValidator/h_ele_HoE_bc_endcaps                      1 1 1 0
+ElectronMcFakeValidator/h_ele_hcalDepth1OverEcalBc		  1 1 0 0 
+ElectronMcFakeValidator/h_ele_hcalDepth1OverEcalBc_barrel	  1 1 0 0	
+ElectronMcFakeValidator/h_ele_hcalDepth1OverEcalBc_endcaps	  1 1 1 0
+ElectronMcFakeValidator/h_ele_hcalDepth2OverEcalBc		  1 1 0 0	
+ElectronMcFakeValidator/h_ele_hcalDepth2OverEcalBc_barrel	  1 1 0 0
+ElectronMcFakeValidator/h_ele_hcalDepth2OverEcalBc_endcaps        1 1 1 0
 ElectronMcFakeValidator/h_scl_sigietaieta                         1 1 0 0
 ElectronMcFakeValidator/h_scl_sigietaieta_barrel                  1 1 0 0
 ElectronMcFakeValidator/h_scl_sigietaieta_endcaps                 1 1 1 0
@@ -106,7 +115,9 @@ ElectronMcFakeValidator/h_ele_seedDrz2Pos_VsPt_pfx                0 1 1 1
 Brem fraction and related distributions
 
 ElectronMcFakeValidator/h_ele_fbrem                               1 1 1 0
-ElectronMcFakeValidator/h_ele_classes                             1	1 1 0
+ElectronMcFakeValidator/h_ele_fbrem_barrel                        1 1 0 0
+ElectronMcFakeValidator/h_ele_fbrem_endcaps                       1 1 1 0
+ElectronMcFakeValidator/h_ele_classes                             1 1 1 0
 ElectronMcFakeValidator/h_ele_eta_goldenFrac                      0 0 1 0 0 ElectronMcFakeValidator/h_ele_eta_golden  ElectronMcFakeValidator/h_ele_eta
 ElectronMcFakeValidator/h_ele_eta_bbremFrac                       0 0 1 0 0 ElectronMcFakeValidator/h_ele_eta_bbrem   ElectronMcFakeValidator/h_ele_eta
 ElectronMcFakeValidator/h_ele_eta_narrowFrac                      0 0 1 0 0 ElectronMcFakeValidator/h_ele_eta_narrow  ElectronMcFakeValidator/h_ele_eta
@@ -136,6 +147,18 @@ ElectronMcFakeValidator/h_ele_hcalTowerSumEt_dr04_depth1          1 1 0 0
 ElectronMcFakeValidator/h_ele_hcalTowerSumEt_dr04_depth1_barrel   1 1 0 0
 ElectronMcFakeValidator/h_ele_hcalTowerSumEt_dr04_depth1_endcaps  1 1 1 0
 ElectronMcFakeValidator/h_ele_hcalTowerSumEt_dr04_depth2          1 1 1 1
+ElectronMcFakeValidator/h_ele_hcalTowerSumEtBc_dr03_depth1         1 1 0 0
+ElectronMcFakeValidator/h_ele_hcalTowerSumEtBc_dr03_depth1_barrel  1 1 0 0
+ElectronMcFakeValidator/h_ele_hcalTowerSumEtBc_dr03_depth1_endcaps 1 1 1 0
+ElectronMcFakeValidator/h_ele_hcalTowerSumEtBc_dr03_depth2         1 1 0 0
+ElectronMcFakeValidator/h_ele_hcalTowerSumEtBc_dr03_depth2_barrel  1 1 0 0
+ElectronMcFakeValidator/h_ele_hcalTowerSumEtBc_dr03_depth2_endcaps 1 1 1 0
+ElectronMcFakeValidator/h_ele_hcalTowerSumEtBc_dr04_depth1         1 1 0 0
+ElectronMcFakeValidator/h_ele_hcalTowerSumEtBc_dr04_depth1_barrel  1 1 0 0
+ElectronMcFakeValidator/h_ele_hcalTowerSumEtBc_dr04_depth1_endcaps 1 1 1 0
+ElectronMcFakeValidator/h_ele_hcalTowerSumEtBc_dr04_depth2         1 1 0 0
+ElectronMcFakeValidator/h_ele_hcalTowerSumEtBc_dr04_depth2_barrel  1 1 0 0
+ElectronMcFakeValidator/h_ele_hcalTowerSumEtBc_dr04_depth2_endcaps 1 1 1 1
 
 Difference with isolation from deposits
 
@@ -159,14 +182,28 @@ ElectronMcFakeValidator/h_ele_dEtaSc_propVtx_all                  1 1 1 0
 ElectronMcFakeValidator/h_ele_dPhiSc_propVtx_all                  1 1 1 0
 ElectronMcFakeValidator/h_ele_dEtaCl_propOut_all                  1 1 1 0
 ElectronMcFakeValidator/h_ele_dPhiCl_propOut_all                  1 1 1 0
-ElectronMcFakeValidator/h_ele_HoE_all                             1	1 1 0
-ElectronMcFakeValidator/h_ele_mee_all                             1	1 1 0
+ElectronMcFakeValidator/h_ele_HoE_all                             1 1 1 0
+ElectronMcFakeValidator/h_ele_mee_all                             1 1 1 0
+ElectronMcFakeValidator/h_ele_HoE_bc_all                          1 1 1 0
 ElectronMcFakeValidator/h_ele_mee_os                              1 1 1 1
 
 Provenance and pflow data
 
 ElectronMcFakeValidator/h_ele_provenance                          1 1 1 0
+ElectronMcFakeValidator/h_ele_provenance_barrel                   1 1 0 0
+ElectronMcFakeValidator/h_ele_provenance_endcaps                  1 1 1 0
 ElectronMcFakeValidator/h_ele_mva                                 1 1 1 1
+ElectronMcFakeValidator/h_ele_mva_barrel                          1 1 0 0
+ElectronMcFakeValidator/h_ele_mva_endcaps                         1 1 1 0
+ElectronMcFakeValidator/h_ele_chargedHadronIso                    1 1 0 0
+ElectronMcFakeValidator/h_ele_chargedHadronIso_barrel             1 1 0 0
+ElectronMcFakeValidator/h_ele_chargedHadronIso_endcaps            1 1 1 0
+ElectronMcFakeValidator/h_ele_neutralHadronIso                    1 1 0 0
+ElectronMcFakeValidator/h_ele_neutralHadronIso_barrel             1 1 0 0
+ElectronMcFakeValidator/h_ele_neutralHadronIso_endcaps            1 1 1 0
+ElectronMcFakeValidator/h_ele_photonIso	                          1 1 0 0
+ElectronMcFakeValidator/h_ele_photonIso_barrel	                  1 1 0 0
+ElectronMcFakeValidator/h_ele_photonIso_endcaps	                  1 1 1 0
 
 Conversion rejection information
 

@@ -95,6 +95,7 @@ class ElectronMcFakeValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_ele_dPhiCl_propOut_all;
     MonitorElement *h1_ele_TIP_all;
     MonitorElement *h1_ele_HoE_all;
+    MonitorElement *h1_ele_HoE_bc_all;
     MonitorElement *h1_ele_vertexEta_all;
     MonitorElement *h1_ele_vertexPt_all;
     MonitorElement *h1_ele_mee_all;
@@ -329,8 +330,11 @@ class ElectronMcFakeValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_ele_eta_shower;
 
     MonitorElement *h1_ele_HoE;
+    MonitorElement *h1_ele_HoE_bc;
     MonitorElement *h1_ele_HoE_barrel;
     MonitorElement *h1_ele_HoE_endcaps;
+    MonitorElement *h1_ele_HoE_bc_barrel;
+    MonitorElement *h1_ele_HoE_bc_endcaps;
     MonitorElement *h1_ele_HoE_eg;
     MonitorElement *h1_ele_HoE_eg_barrel;
     MonitorElement *h1_ele_HoE_eg_endcaps;
@@ -340,6 +344,9 @@ class ElectronMcFakeValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h2_ele_HoEVsE;
 
     MonitorElement *h1_ele_fbrem;
+    MonitorElement *h1_ele_fbrem_barrel;
+    MonitorElement *h1_ele_fbrem_endcaps;
+
     MonitorElement *p1_ele_fbremVsEta_mode;
     MonitorElement *p1_ele_fbremVsEta_mean;
 
@@ -357,7 +364,22 @@ class ElectronMcFakeValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_scl_EoEmatchingObjectShowering_endcaps;
 
     MonitorElement *h1_ele_mva;
+    MonitorElement *h1_ele_mva_barrel;
+    MonitorElement *h1_ele_mva_endcaps;
     MonitorElement *h1_ele_provenance;
+    MonitorElement *h1_ele_provenance_barrel;
+    MonitorElement *h1_ele_provenance_endcaps;
+
+    // pflow isolation
+    MonitorElement *h1_ele_chargedHadronIso;
+    MonitorElement *h1_ele_chargedHadronIso_barrel;
+    MonitorElement *h1_ele_chargedHadronIso_endcaps;
+    MonitorElement *h1_ele_neutralHadronIso;
+    MonitorElement *h1_ele_neutralHadronIso_barrel;
+    MonitorElement *h1_ele_neutralHadronIso_endcaps;
+    MonitorElement *h1_ele_photonIso;
+    MonitorElement *h1_ele_photonIso_barrel;
+    MonitorElement *h1_ele_photonIso_endcaps;
 
     MonitorElement *h1_ele_tkSumPt_dr03;
     MonitorElement *h1_ele_tkSumPt_dr03_barrel;
@@ -388,6 +410,26 @@ class ElectronMcFakeValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_ele_dIso_ecalReducedRecHitSumEt_dr04;
     MonitorElement *h1_ele_dIso_hcalTowerSumEt_dr03;
     MonitorElement *h1_ele_dIso_hcalTowerSumEt_dr04;
+
+    MonitorElement *h1_ele_hcalDepth1OverEcalBc;
+    MonitorElement *h1_ele_hcalDepth1OverEcalBc_barrel;
+    MonitorElement *h1_ele_hcalDepth1OverEcalBc_endcaps;
+    MonitorElement *h1_ele_hcalDepth2OverEcalBc;
+    MonitorElement *h1_ele_hcalDepth2OverEcalBc_barrel;
+    MonitorElement *h1_ele_hcalDepth2OverEcalBc_endcaps;
+
+    MonitorElement *h1_ele_hcalTowerSumEtBc_dr03_depth1;   
+    MonitorElement *h1_ele_hcalTowerSumEtBc_dr03_depth1_barrel;    
+    MonitorElement *h1_ele_hcalTowerSumEtBc_dr03_depth1_endcaps;    
+    MonitorElement *h1_ele_hcalTowerSumEtBc_dr03_depth2;  
+    MonitorElement *h1_ele_hcalTowerSumEtBc_dr03_depth2_barrel;   
+    MonitorElement *h1_ele_hcalTowerSumEtBc_dr03_depth2_endcaps;
+    MonitorElement *h1_ele_hcalTowerSumEtBc_dr04_depth1;    
+    MonitorElement *h1_ele_hcalTowerSumEtBc_dr04_depth1_barrel;   
+    MonitorElement *h1_ele_hcalTowerSumEtBc_dr04_depth1_endcaps;   
+    MonitorElement *h1_ele_hcalTowerSumEtBc_dr04_depth2;    
+    MonitorElement *h1_ele_hcalTowerSumEtBc_dr04_depth2_barrel; 
+    MonitorElement *h1_ele_hcalTowerSumEtBc_dr04_depth2_endcaps;
 
     MonitorElement *h1_ele_convFlags;
     MonitorElement *h1_ele_convFlags_all;
