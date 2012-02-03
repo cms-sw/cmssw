@@ -257,3 +257,60 @@ def plotSigmaAll(fileName,dir='DQMData/Run 1/DT/Run summary/DTCalibValidation',o
         return 0
     else:       
         return (canvas,histos,objects)
+
+def plotDataVsMCFromFile(fileNameData,fileNameMC,labels=[]):
+
+    AddDirectoryStatus_ = ROOT.TH1.AddDirectoryStatus()
+    ROOT.TH1.AddDirectory(False)
+
+    fileData = ROOT.TFile(fileNameData,'read')
+    fileMC = ROOT.TFile(fileNameMC,'read')
+
+    variables = ['h_AverageAll_SL1_0',
+                 'h_AverageAll_SL2_1',
+                 'h_AverageAll_SL3_2']
+
+    objects = None
+    canvases = []
+    legends = []
+    histos = []
+    for var in variables:
+        print "Accessing",var 
+        histoData = fileData.Get(var)
+        histoData.SetName(histoData.GetName() + "_data")
+        histoMC = fileMC.Get(var)
+        histoMC.SetName(histoMC.GetName() + "_mc")
+        histoData.SetLineColor(1)
+        histoData.SetMarkerStyle(20)
+        histoData.SetMarkerSize(1.4)
+        histoData.SetMarkerColor(1)
+
+        histoMC.SetLineColor(2)
+        histoMC.SetMarkerStyle(24)
+        histoMC.SetMarkerSize(1.4)
+        histoMC.SetMarkerColor(2)
+
+        canvases.append( ROOT.TCanvas("c_" + var,var) ) 
+        canvases[-1].SetGridx()
+        canvases[-1].SetGridy()
+        canvases[-1].SetFillColor(0) 
+        canvases[-1].cd()
+        histoData.Draw()
+        histoMC.Draw("SAME")
+        histos.append( (histoData,histoMC) )
+
+        if len(labels):
+            labelData = labels[0]
+            labelMC = labels[1]
+	    legends.append( ROOT.TLegend(0.4,0.7,0.95,0.8) )
+	    legends[-1].AddEntry(histoData,labelData,"LP")
+	    legends[-1].AddEntry(histoMC,labelMC,"LP")
+	    legends[-1].SetFillColor( canvases[-1].GetFillColor() )
+	    legends[-1].Draw("SAME")
+ 
+    if not objects: objects = [legends]
+    else:           objects.append(legends)
+
+    ROOT.TH1.AddDirectory(AddDirectoryStatus_)
+
+    return (canvases,histos,objects)
