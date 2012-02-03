@@ -33,8 +33,8 @@ def plotResLayer(fileName,sl,layer,
     # (Wh-2 MB2 Sec1 ... Wh-2 MB2 Sec12 ... Wh-1 MB2 Sec1 ... Wh-1 MB1 Sec12 ...) ...  
     nBins = 250
     if slType == 2: nBins = 180
-    histoMean = ROOT.TH1F("h_ResMeanAll","Mean of residuals",nBins,0,nBins)
-    histoSigma = ROOT.TH1F("h_ResSigmaAll","Sigma of residuals",nBins,0,nBins)
+    histoMean = ROOT.TH1F("h_ResMeanAll_%s_%s" % (slStr,layerStr),"Mean of residuals",nBins,0,nBins)
+    histoSigma = ROOT.TH1F("h_ResSigmaAll_%s_%s" % (slStr,layerStr),"Sigma of residuals",nBins,0,nBins)
     for st in stations:
         nSectors = 12
         if st == 4: nSectors = 14
@@ -132,12 +132,14 @@ def plot(fileName,sl,
     import math
     wheels = (-2,-1,0,1,2)
     stations = (1,2,3,4)
+    slType = sl
+    slStr = "SL%d" % slType
+
     nBinsAve = len(stations)*len(wheels)
-    histoAverage = ROOT.TH1F("h_AverageAll","",nBinsAve,0,nBinsAve)
+    histoAverage = ROOT.TH1F("h_AverageAll_" + slStr,"",nBinsAve,0,nBinsAve)
     averages = {}
     averagesErr = {}
     averagesSumw = {}
-    slType = sl
     print "Averages:"
     for st in stations:
         nSectors = 12
@@ -182,8 +184,11 @@ def plot(fileName,sl,
         histoAverage.GetYaxis().SetTitle("Resolution (cm)")
         histoAverage.GetYaxis().SetRangeUser(sig_ymin,sig_ymax)
 
+    histoAverage.SetStats(0)
+    histoAverage.SetLineWidth(2)
     histoAverage.SetMarkerStyle( 27 )
     histoAverage.SetMarkerSize( 1.5 )
+    histoAverage.LabelsOption("d","X")
     histoAverage.Draw("E2")           
 
     return ( (canvas,canvasAverage),(histos,histoAverage),objects )
@@ -197,3 +202,51 @@ def plotSigma(fileName,sl,dir='DQMData/Run 1/DT/Run summary/DTCalibValidation',o
     type = 'sigma'
     objs = plot(fileName,sl,dir,type,option)
     return objs
+
+def plotSigmaAll(fileName,dir='DQMData/Run 1/DT/Run summary/DTCalibValidation',option='HISTOPE1'):
+    colors = (2,4,12,44,55,38,27,46)
+    markers = (24,25,26,27,28,30,32,5)
+
+    slList = (1,2,3)
+    labels = ('R-#phi SL1','R-z SL2','R-#phi SL3') 
+    canvas = None
+    objects = None
+    histos = []
+    idx = 0
+    for sl in slList:
+        draw = False
+        if not idx: draw = True
+
+        objs = plotSigma(fileName,sl,dir,option)
+        histos.append(objs[1][1])
+        histos[-1].SetName( "%s_%d" % (histos[-1].GetName(),idx) )
+        if not idx:
+            canvas = objs[0][1]
+            #objects = objs[2][1]
+
+        canvas.cd()
+        if idx:
+            histos[-1].SetLineColor(colors[ (idx - 1) % len(colors) ])
+            histos[-1].SetMarkerColor(colors[ (idx - 1) % len(colors) ])
+            histos[-1].SetMarkerStyle(markers[ (idx - 1) % len(markers) ])
+
+            histos[-1].Draw(option + "SAME")
+
+        idx += 1
+        
+    legend = ROOT.TLegend(0.4,0.7,0.95,0.8)
+    for idx in range( len(histos) ):
+	histo = histos[idx]
+        label = histo.GetName()
+        if len(labels): label = labels[idx]
+        legend.AddEntry(histo,label,"LP")
+
+        idx += 1
+
+    canvas.cd()
+    legend.SetFillColor( canvas.GetFillColor() )
+    legend.Draw("SAME")
+    if not objects: objects = [legend]
+    else:           objects.append(legend)
+
+    return (canvas,histos,objects)
