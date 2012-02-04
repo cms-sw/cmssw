@@ -2,7 +2,7 @@
  *
  * See header file for documentation
  *
- *  $Date: 2012/02/03 16:37:51 $
+ *  $Date: 2012/02/04 13:03:59 $
 
 
  *  $Revision: 1.1 $
@@ -104,7 +104,7 @@ HLTJetSortedVBFFilter<T,Tid>::hltFilter(edm::Event& event, const edm::EventSetup
 
    if (inputJetTags_.encode()=="") {
      if (jets->size()<4) return false;
-     for (typename TCollection::const_iterator jet=jets->begin(); jet!=jets->end(); ++jet) {
+     for (typename TCollection::const_iterator jet=jets->begin(); (jet!=jets->end()&& nJet<4); ++jet) {
        if (value_=="Pt") {
 	 value=jet->pt();
        } else if (value_=="Eta") {
@@ -124,7 +124,7 @@ HLTJetSortedVBFFilter<T,Tid>::hltFilter(edm::Event& event, const edm::EventSetup
    } else {
      event.getByLabel(inputJetTags_,jetTags);
      if (jetTags->size()<4) return false;
-     for (JetTagCollection::const_iterator jet = jetTags->begin(); jet!=jetTags->end(); ++jet) {
+     for (JetTagCollection::const_iterator jet = jetTags->begin(); (jet!=jetTags->end()&&nJet<4); ++jet) {
        value = jet->second;
        Sorted.push_back(make_pair(value,nJet));
        ++nJet;
@@ -136,10 +136,17 @@ HLTJetSortedVBFFilter<T,Tid>::hltFilter(edm::Event& event, const edm::EventSetup
    }
 
    Particle::LorentzVector b1,b2,q1,q2;
-   b1 = jetRefs[3]->p4();
-   b2 = jetRefs[2]->p4();
-   q1 = jetRefs[1]->p4();
-   q2 = jetRefs[0]->p4();
+   if (inputJetTags_.encode()==""){
+     q1 = jetRefs[3]->p4();
+     b1 = jetRefs[2]->p4();
+     b2 = jetRefs[1]->p4();
+     q2 = jetRefs[0]->p4();
+   } else {
+     b1 = jetRefs[3]->p4();
+     b2 = jetRefs[2]->p4();
+     q1 = jetRefs[1]->p4();
+     q2 = jetRefs[0]->p4();
+   }
 
    double mqq_bs     = (q1+q2).M();
    double deltaetaqq = std::abs(q1.Eta()-q2.Eta());
@@ -147,14 +154,14 @@ HLTJetSortedVBFFilter<T,Tid>::hltFilter(edm::Event& event, const edm::EventSetup
    double ptsqq_bs   = (q1+q2).Pt();
    double ptsbb_bs   = (b1+b2).Pt();
    double signeta    = q1.Eta()*q2.Eta();
-
+   
    if ( 
 	(mqq_bs     > mqq_    ) &&
 	(deltaetaqq > detaqq_ ) &&
-	(deltaetabb > detabb_ ) &&
+	(deltaetabb < detabb_ ) &&
 	(ptsqq_bs   > ptsqq_  ) &&
 	(ptsbb_bs   > ptsbb_  ) &&
-	(signeta    > seta_   )
+	(signeta    < seta_   )
 	) {
      accept=true;
      for (unsigned int i=0; i<4; ++i) {
