@@ -28,3 +28,6 @@ DEFINE_FWK_MODULE(GetJetsFromHLTobject);
 
 #include "ConeIsolation.h"
 DEFINE_FWK_MODULE(ConeIsolation);
+
+#include "HLTCaloJetPairDzMatchFilter.h"
+DEFINE_FWK_MODULE(HLTCaloJetPairDzMatchFilter);
