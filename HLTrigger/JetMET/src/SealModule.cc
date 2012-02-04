@@ -41,6 +41,9 @@
 #include "HLTrigger/JetMET/interface/HLTJetCollectionsFilter.h"
 #include "HLTrigger/JetMET/src/HLTJetCollectionsFilter.cc"
 #include "HLTrigger/JetMET/interface/HLTAlphaTFilter.h"
+
+#include "HLTrigger/JetMET/interface/PFJetsMatchedToFilteredCaloJetsProducer.h"
+
 using namespace reco;
 using namespace trigger;
 
@@ -102,3 +105,5 @@ DEFINE_FWK_MODULE(HLTPFJetCollectionsForLeptonPlusJets);
 DEFINE_FWK_MODULE(HLTPFJetCollectionsForLeptonPlusBJets);
 
 DEFINE_FWK_MODULE(HLTAlphaTFilter);
+
+DEFINE_FWK_MODULE(PFJetsMatchedToFilteredCaloJetsProducer);
