@@ -121,7 +121,7 @@ bool HLTmmkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
   for (RecoChargedCandidateCollection::const_iterator mucand1=mucands->begin(), endCand1=mucands->end(); mucand1!=endCand1; ++mucand1) {
   
   	if ( mucands->size()<2) break;
-  	if ( trkcands->size()<3) break;
+  	if ( trkcands->size()<1) break;
   
   	TrackRef trk1 = mucand1->get<TrackRef>();
 	LogDebug("HLTDisplacedMumukFilter") << " 1st muon: q*pt= " << trk1->charge()*trk1->pt() << ", eta= " << trk1->eta() << ", hits= " << trk1->numberOfValidHits();
@@ -170,7 +170,7 @@ bool HLTmmkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
 		}
 
 		//Not all overlapping candidates found, skip event
-		if (trkMuCands.size()!=2) continue;
+		//if (trkMuCands.size()!=2) continue;
 
 		//combine muons with all tracks
   		for ( trkcand = trkcands->begin(), endCandTrk=trkcands->end(), isUsedIter = isUsedCand.begin(), endIsUsedCand = isUsedCand.end(); trkcand != endCandTrk && isUsedIter != endIsUsedCand; ++trkcand, ++isUsedIter) {

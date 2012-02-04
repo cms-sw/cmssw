@@ -23,6 +23,9 @@ DEFINE_FWK_MODULE(HLTDisplacedmumumuVtxProducer);
 #include "HLTmmkFilter.h"
 DEFINE_FWK_MODULE(HLTmmkFilter);
 
+#include "HLTmmkkFilter.h"
+DEFINE_FWK_MODULE(HLTmmkkFilter);
+
 #include "GetJetsFromHLTobject.h"
 DEFINE_FWK_MODULE(GetJetsFromHLTobject);
 

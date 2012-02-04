@@ -23,6 +23,8 @@ public:
     theVertexSrc   = regionPSet.getParameter<std::string>("vertexSrc");
     theInputTrkSrc = regionPSet.getParameter<edm::InputTag>("TrkSrc");
 
+    useVtxTks = regionPSet.getParameter<bool>("UseVtxTks");
+
     thePtMin              = regionPSet.getParameter<double>("ptMin");
     theOriginRadius       = regionPSet.getParameter<double>("originRadius");
     theOriginHalfLength   = regionPSet.getParameter<double>("originHalfLength");
@@ -54,6 +56,18 @@ public:
             originz = theOriginZPos;
             deltaZVertex = 15.;
       }
+      if (useVtxTks) {
+
+        for(ci=vertCollection.begin();ci!=vertCollection.end();ci++)
+          for (reco::Vertex::trackRef_iterator trackIt =  ci->tracks_begin();trackIt !=  ci->tracks_end();trackIt++){
+	    reco::TrackRef iTrk =  (*trackIt).castTo<reco::TrackRef>() ;
+            GlobalVector dirVector((iTrk)->px(),(iTrk)->py(),(iTrk)->pz());
+            result.push_back(
+                             new RectangularEtaPhiTrackingRegion( dirVector, GlobalPoint(0,0,float(ci->z())),
+                                                                  thePtMin, theOriginRadius, deltaZVertex, theDeltaEta, theDeltaPhi) );
+          }
+        return result;
+      }
     }
 
     edm::Handle<reco::TrackCollection> trks;
@@ -72,6 +86,8 @@ private:
 
   std::string theVertexSrc;
   edm::InputTag theInputTrkSrc;
+
+  bool useVtxTks;
 
   double thePtMin; 
   double theOriginRadius; 
