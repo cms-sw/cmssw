@@ -6,13 +6,15 @@
 class LostHitsFractionTrajectoryFilter : public TrajectoryFilter {
 public:
 
-  explicit LostHitsFractionTrajectoryFilter( float maxLostHitsFraction=1./6,int transition=7 ): 
+  explicit LostHitsFractionTrajectoryFilter( float maxLostHitsFraction=1./10.,float constantValue=1 ): 
   theMaxLostHitsFraction( maxLostHitsFraction), 
-  theTransition( transition) {}
+  theConstantValue( constantValue) {}
   
   explicit LostHitsFractionTrajectoryFilter( const edm::ParameterSet & pset){
-    theMaxLostHitsFraction = pset.existsAs<double>("maxLostHitsFraction") ? pset.getParameter<double>("maxLostHitsFraction") : 999; 
-    theTransition =  pset.existsAs<int>("transition") ? pset.getParameter<int>("transition") : 0; 
+    theMaxLostHitsFraction = pset.existsAs<double>("maxLostHitsFraction") ? 
+      pset.getParameter<double>("maxLostHitsFraction") : 999; 
+    theConstantValue =  pset.existsAs<double>("constantValueForLostHitsFractionFilter") ? 
+      pset.getParameter<double>("constantValueForLostHitsFractionFilter") : 1; 
   }
 
   virtual bool qualityFilter( const Trajectory& traj) const { return TrajectoryFilter::qualityFilterIfNotContributing; }
@@ -26,14 +28,16 @@ public:
 protected:
 
   template<class T> bool TBC(const T& traj) const {
-    if( (traj.foundHits()>=theTransition &&  traj.lostHits() <= theMaxLostHitsFraction*traj.foundHits() ) ||
-	(traj.foundHits()<theTransition && traj.lostHits() <= 1) ) return true;
+    //if( (traj.foundHits()>=theTransition &&  traj.lostHits() <= theMaxLostHitsFraction*traj.foundHits() ) ||
+    //	(traj.foundHits()<theTransition && traj.lostHits() <= 1) ) return true;
+    if(traj.lostHits() <= theConstantValue + theMaxLostHitsFraction*traj.foundHits() )
+      return true;
     else
       return false;
   }
 
   float theMaxLostHitsFraction;
-  float theTransition;
+  float theConstantValue;
 
 };
 

@@ -24,7 +24,7 @@ CkfBaseTrajectoryFilter_block = cms.PSet(
 
 # Cuts on fraction of lost hits on track
     maxLostHitsFraction = cms.double(1./10),
-    transition = cms.int32(0),
+    constantValueForLostHitsFractionFilter = cms.double(1.),
 
 )
 ChargeSignificanceTrajectoryFilter_block = cms.PSet(
