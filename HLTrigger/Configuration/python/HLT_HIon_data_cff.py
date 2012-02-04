@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_1_0/HIon/V11 (CMSSW_5_2_0_pre3_HLT3)
+# /dev/CMSSW_5_1_0/HIon/V12 (CMSSW_5_2_0_pre3_HLT6)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/HIon/V11')
+  tableName = cms.string('/dev/CMSSW_5_1_0/HIon/V12')
 )
 
 streams = cms.PSet( 
@@ -3120,6 +3120,7 @@ hltHIPixelClusterVertices = cms.EDProducer( "HIPixelClusterVtxProducer",
     pixelRecHits = cms.string( "hltHISiPixelRecHits" )
 )
 hltPixelTracksForHITrackTrigger = cms.EDProducer( "PixelTrackProducer",
+    useFilterWithES = cms.bool( False ),
     FilterPSet = cms.PSet( 
       doVariablePtMin = cms.bool( True ),
       beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
@@ -3129,7 +3130,6 @@ hltPixelTracksForHITrackTrigger = cms.EDProducer( "PixelTrackProducer",
       siPixelRecHits = cms.InputTag( "hltHISiPixelRecHits" ),
       tipMax = cms.double( 1.0 )
     ),
-    useFilterWithES = cms.bool( False ),
     passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
     FitterPSet = cms.PSet( 
       ComponentName = cms.string( "PixelFitterByHelixProjections" ),
@@ -3817,11 +3817,13 @@ hltHIL2Mu3L2Filtered = cms.EDFilter( "HLTMuonL2PreFilter",
     SeedMapTag = cms.InputTag( "hltL2Muons" ),
     MaxEta = cms.double( 2.5 ),
     MinNhits = cms.vint32( 0 ),
+    MinDxySig = cms.double( -1.0 ),
     MinNchambers = cms.vint32( 0 ),
     AbsEtaBins = cms.vdouble( 5.0 ),
     MaxDz = cms.double( 9999.0 ),
     CandTag = cms.InputTag( "hltL2MuonCandidates" ),
     BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinDr = cms.double( -1.0 ),
     NSigmaPt = cms.double( 0.0 ),
     MinNstations = cms.vint32( 0 )
 )
@@ -3839,11 +3841,13 @@ hltHIL2Mu3NHitL2Filtered = cms.EDFilter( "HLTMuonL2PreFilter",
     SeedMapTag = cms.InputTag( "hltL2Muons" ),
     MaxEta = cms.double( 3.0 ),
     MinNhits = cms.vint32( 1 ),
+    MinDxySig = cms.double( -1.0 ),
     MinNchambers = cms.vint32( 0 ),
     AbsEtaBins = cms.vdouble( 5.0 ),
     MaxDz = cms.double( 9999.0 ),
     CandTag = cms.InputTag( "hltL2MuonCandidates" ),
     BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinDr = cms.double( -1.0 ),
     NSigmaPt = cms.double( 0.0 ),
     MinNstations = cms.vint32( 0 )
 )
@@ -3861,11 +3865,13 @@ hltHIL2Mu7L2Filtered = cms.EDFilter( "HLTMuonL2PreFilter",
     SeedMapTag = cms.InputTag( "hltL2Muons" ),
     MaxEta = cms.double( 2.5 ),
     MinNhits = cms.vint32( 0 ),
+    MinDxySig = cms.double( -1.0 ),
     MinNchambers = cms.vint32( 0 ),
     AbsEtaBins = cms.vdouble( 5.0 ),
     MaxDz = cms.double( 9999.0 ),
     CandTag = cms.InputTag( "hltL2MuonCandidates" ),
     BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinDr = cms.double( -1.0 ),
     NSigmaPt = cms.double( 0.0 ),
     MinNstations = cms.vint32( 0 )
 )
@@ -3883,11 +3889,13 @@ hltHIL2Mu15L2Filtered = cms.EDFilter( "HLTMuonL2PreFilter",
     SeedMapTag = cms.InputTag( "hltL2Muons" ),
     MaxEta = cms.double( 2.5 ),
     MinNhits = cms.vint32( 0 ),
+    MinDxySig = cms.double( -1.0 ),
     MinNchambers = cms.vint32( 0 ),
     AbsEtaBins = cms.vdouble( 5.0 ),
     MaxDz = cms.double( 9999.0 ),
     CandTag = cms.InputTag( "hltL2MuonCandidates" ),
     BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinDr = cms.double( -1.0 ),
     NSigmaPt = cms.double( 0.0 ),
     MinNstations = cms.vint32( 0 )
 )
@@ -3905,11 +3913,13 @@ hltHIL2DoubleMu0L2Filtered = cms.EDFilter( "HLTMuonL2PreFilter",
     SeedMapTag = cms.InputTag( "hltL2Muons" ),
     MaxEta = cms.double( 3.0 ),
     MinNhits = cms.vint32( 0 ),
+    MinDxySig = cms.double( -1.0 ),
     MinNchambers = cms.vint32( 0 ),
     AbsEtaBins = cms.vdouble( 5.0 ),
     MaxDz = cms.double( 9999.0 ),
     CandTag = cms.InputTag( "hltL2MuonCandidates" ),
     BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinDr = cms.double( -1.0 ),
     NSigmaPt = cms.double( 0.0 ),
     MinNstations = cms.vint32( 0 )
 )
@@ -3927,11 +3937,13 @@ hltHIL2DoubleMu0L2N1HitsFiltered = cms.EDFilter( "HLTMuonL2PreFilter",
     SeedMapTag = cms.InputTag( "hltL2Muons" ),
     MaxEta = cms.double( 3.0 ),
     MinNhits = cms.vint32( 1 ),
+    MinDxySig = cms.double( -1.0 ),
     MinNchambers = cms.vint32( 0 ),
     AbsEtaBins = cms.vdouble( 5.0 ),
     MaxDz = cms.double( 9999.0 ),
     CandTag = cms.InputTag( "hltL2MuonCandidates" ),
     BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinDr = cms.double( -1.0 ),
     NSigmaPt = cms.double( 0.0 ),
     MinNstations = cms.vint32( 0 )
 )
@@ -3953,11 +3965,13 @@ hltHIL2DoubleMu3L2Filtered = cms.EDFilter( "HLTMuonL2PreFilter",
     SeedMapTag = cms.InputTag( "hltL2Muons" ),
     MaxEta = cms.double( 3.0 ),
     MinNhits = cms.vint32( 0 ),
+    MinDxySig = cms.double( -1.0 ),
     MinNchambers = cms.vint32( 0 ),
     AbsEtaBins = cms.vdouble( 5.0 ),
     MaxDz = cms.double( 9999.0 ),
     CandTag = cms.InputTag( "hltL2MuonCandidates" ),
     BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinDr = cms.double( -1.0 ),
     NSigmaPt = cms.double( 0.0 ),
     MinNstations = cms.vint32( 0 )
 )
@@ -4775,11 +4789,13 @@ hltHISingleMu3L3Filtered = cms.EDFilter( "HLTMuonL3PreFilter",
     MaxEta = cms.double( 2.5 ),
     MaxDXYBeamSpot = cms.double( 9999.0 ),
     MinNhits = cms.int32( 0 ),
+    MinDxySig = cms.double( -1.0 ),
     NSigmaPt = cms.double( 0.0 ),
     MaxDz = cms.double( 9999.0 ),
     MaxPtDifference = cms.double( 9999.0 ),
     MaxDr = cms.double( 2.0 ),
     CandTag = cms.InputTag( "hltHIL3MuonCandidates" ),
+    MinDr = cms.double( -1.0 ),
     BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
     MinPt = cms.double( 3.0 )
 )
@@ -4797,11 +4813,13 @@ hltHIDimuonL2PreFiltered0 = cms.EDFilter( "HLTMuonL2PreFilter",
     SeedMapTag = cms.InputTag( "hltL2Muons" ),
     MaxEta = cms.double( 2.5 ),
     MinNhits = cms.vint32( 0 ),
+    MinDxySig = cms.double( -1.0 ),
     MinNchambers = cms.vint32( 0 ),
     AbsEtaBins = cms.vdouble( 5.0 ),
     MaxDz = cms.double( 9999.0 ),
     CandTag = cms.InputTag( "hltL2MuonCandidates" ),
     BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinDr = cms.double( -1.0 ),
     NSigmaPt = cms.double( 0.0 ),
     MinNstations = cms.vint32( 0 )
 )
@@ -5654,6 +5672,7 @@ hltHIPixelClusterVerticesForHITrackTrigger = cms.EDProducer( "HIPixelClusterVtxP
     pixelRecHits = cms.string( "hltHISiPixelRecHits" )
 )
 hltHIPixel3ProtoTracks = cms.EDProducer( "PixelTrackProducer",
+    useFilterWithES = cms.bool( False ),
     FilterPSet = cms.PSet( 
       chi2 = cms.double( 1000.0 ),
       ComponentName = cms.string( "HIProtoTrackFilter" ),
@@ -5663,7 +5682,6 @@ hltHIPixel3ProtoTracks = cms.EDProducer( "PixelTrackProducer",
       beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
       siPixelRecHits = cms.InputTag( "hltHISiPixelRecHits" )
     ),
-    useFilterWithES = cms.bool( False ),
     passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
     FitterPSet = cms.PSet( 
       ComponentName = cms.string( "PixelFitterByHelixProjections" ),
@@ -5762,6 +5780,7 @@ hltHISelectedVertex = cms.EDProducer( "HIBestVertexProducer",
     medianVertexCollection = cms.InputTag( "hltHIPixelMedianVertex" )
 )
 hltHIPixel3PrimTracks = cms.EDProducer( "PixelTrackProducer",
+    useFilterWithES = cms.bool( True ),
     FilterPSet = cms.PSet( 
       chi2 = cms.double( 1000.0 ),
       ComponentName = cms.string( "HIPixelTrackFilter" ),
@@ -5773,7 +5792,6 @@ hltHIPixel3PrimTracks = cms.EDProducer( "PixelTrackProducer",
       nSigmaLipMaxTolerance = cms.double( 0.0 ),
       lipMax = cms.double( 0.3 )
     ),
-    useFilterWithES = cms.bool( True ),
     passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
     FitterPSet = cms.PSet( 
       ComponentName = cms.string( "PixelFitterByHelixProjections" ),
