@@ -217,7 +217,8 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
   // Decide if the given track passes selection cuts.
 
   using namespace std; 
-
+  
+  if(tk.found()>30) return true;
   if ( tk.ndof() < 1E-5 ) return false;
 
   // Cuts on numbers of layers with hits/3D hits/lost hits.
