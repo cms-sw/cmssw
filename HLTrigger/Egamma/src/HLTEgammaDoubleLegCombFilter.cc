@@ -29,6 +29,7 @@ HLTEgammaDoubleLegCombFilter::HLTEgammaDoubleLegCombFilter(const edm::ParameterS
   secondLegLastFilterTag_= iConfig.getParameter<edm::InputTag>("secondLegLastFilter");
   nrRequiredFirstLeg_ = iConfig.getParameter<int> ("nrRequiredFirstLeg");
   nrRequiredSecondLeg_ = iConfig.getParameter<int> ("nrRequiredSecondLeg");
+  nrRequiredUniqueLeg_ = iConfig.getParameter<int> ("nrRequiredUniqueLeg");
   maxMatchDR_ = iConfig.getParameter<double> ("maxMatchDR");
 }
 
@@ -66,12 +67,14 @@ bool HLTEgammaDoubleLegCombFilter::hltFilter(edm::Event& iEvent, const edm::Even
   }
   
   bool accept=false;
-  if(nr1stLegOnly>=nrRequiredFirstLeg_ && nr2ndLegOnly>=nrRequiredSecondLeg_) accept=true;
-  else{ 
-    int nrNeededFirstLeg = std::max(0,nrRequiredFirstLeg_ - nr1stLegOnly);
-    int nrNeededSecondLeg = std::max(0,nrRequiredSecondLeg_ - nr2ndLegOnly);
+  if(nr1stLegOnly + nr2ndLegOnly + nrBoth >= nrRequiredUniqueLeg_) {
+    if(nr1stLegOnly>=nrRequiredFirstLeg_ && nr2ndLegOnly>=nrRequiredSecondLeg_) accept=true;
+    else{ 
+      int nrNeededFirstLeg = std::max(0,nrRequiredFirstLeg_ - nr1stLegOnly);
+      int nrNeededSecondLeg = std::max(0,nrRequiredSecondLeg_ - nr2ndLegOnly);
     
-    if(nrBoth >= nrNeededFirstLeg + nrNeededSecondLeg) accept = true;
+      if(nrBoth >= nrNeededFirstLeg + nrNeededSecondLeg) accept = true;
+    }
   }
   
   return accept;

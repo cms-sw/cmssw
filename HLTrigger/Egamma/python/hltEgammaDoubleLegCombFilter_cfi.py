@@ -5,6 +5,7 @@ hltEgammaDoubleLegCombFilter = cms.EDFilter("HLTEgammaDoubleLegCombFilter",
     secondLegLastFilter = cms.InputTag("secondFilter"),
     nrRequiredFirstLeg = cms.int32(0),
     nrRequiredSecondLeg = cms.int32(0),
+    nrRequiredUniqueLeg = cms.int32(0),
     maxMatchDR = cms.double(0.01),
     saveTags = cms.bool( False )
 )

@@ -24,6 +24,7 @@ class HLTEgammaDoubleLegCombFilter : public HLTFilter {
   edm::InputTag secondLegLastFilterTag_;
   int nrRequiredFirstLeg_;
   int nrRequiredSecondLeg_;
+  int nrRequiredUniqueLeg_;
   double maxMatchDR_;
 };
 
