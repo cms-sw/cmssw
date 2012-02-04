@@ -8,7 +8,7 @@
  *
  * Author     : Andreas Mussgiller
  * date       : 2010/08/30
- * last update: $Date: 2011/05/18 10:09:13 $
+ * last update: $Date: 2011/05/18 10:19:12 $
  * by         : $Author: mussgill $
  */
 
@@ -32,7 +32,7 @@ class BeamSpotTransientTrackingRecHit: public TransientTrackingRecHit {
   BeamSpotTransientTrackingRecHit(const reco::BeamSpot &beamSpot,
 				  const BeamSpotGeomDet * geom,
 				  double phi)
-    :TransientTrackingRecHit(geom, AlignableBeamSpot::detId(), valid, 1.0, 1.0) {
+    :TransientTrackingRecHit(geom, AlignableBeamSpot::detId(), valid) {
 
     localPosition_ = det()->toLocal(GlobalPoint(beamSpot.x0(), beamSpot.y0(), beamSpot.z0()));
     localError_ = LocalError(std::pow(beamSpot.BeamWidthX()*cos(phi), 2) +
