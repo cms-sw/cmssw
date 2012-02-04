@@ -2,10 +2,10 @@
  *
  * See header file for documentation
  *
- *  $Date: 2012/02/04 13:03:59 $
+ *  $Date: 2012/02/04 17:21:53 $
 
 
- *  $Revision: 1.1 $
+ *  $Revision: 1.2 $
  *
  *  \author Jacopo Bernardini
  *
@@ -79,32 +79,34 @@ bool
 HLTJetSortedVBFFilter<T,Tid>::hltFilter(edm::Event& event, const edm::EventSetup& setup,trigger::TriggerFilterObjectWithRefs& filterproduct)
 {
 
-   using namespace std;
+     using namespace std;
    using namespace edm;
    using namespace reco;
    using namespace trigger;
 
    typedef vector<T> TCollection;
    typedef Ref<TCollection> TRef;
-   vector<TRef> jetRefs(4);
      
    bool accept(false);
 
    if (saveTags()) filterproduct.addCollectionTag(inputJets_);
 
-   vector<Jpair> Sorted;
-   Sorted.clear();
+   const unsigned int nMax(4);
+   vector<Jpair> sorted(nMax);
+   vector<TRef> jetRefs(nMax);
 
    Handle<TCollection> jets;
    event.getByLabel(inputJets_,jets);
    Handle<JetTagCollection> jetTags;
 
-   int nJet=0;
+   unsigned int nJet=0;
    double value(0.0);
 
+   Particle::LorentzVector b1,b2,q1,q2;
+
    if (inputJetTags_.encode()=="") {
-     if (jets->size()<4) return false;
-     for (typename TCollection::const_iterator jet=jets->begin(); (jet!=jets->end()&& nJet<4); ++jet) {
+     if (jets->size()<nMax) return false;
+     for (typename TCollection::const_iterator jet=jets->begin(); (jet!=jets->end()&& nJet<nMax); ++jet) {
        if (value_=="Pt") {
 	 value=jet->pt();
        } else if (value_=="Eta") {
@@ -114,34 +116,33 @@ HLTJetSortedVBFFilter<T,Tid>::hltFilter(edm::Event& event, const edm::EventSetup
        } else {
 	 value = 0.0;
        }
-       Sorted.push_back(make_pair(value,nJet));
+       sorted[nJet] = make_pair(value,nJet);
        ++nJet;
      }
-     sort(Sorted.begin(),Sorted.end(),comparator);
-     for (unsigned int i=0; i<4; ++i) {
-       jetRefs[i]=TRef(jets,Sorted[i].second);
+     sort(sorted.begin(),sorted.end(),comparator);
+     for (unsigned int i=0; i<nMax; ++i) {
+       jetRefs[i]=TRef(jets,sorted[i].second);
      }
-   } else {
-     event.getByLabel(inputJetTags_,jetTags);
-     if (jetTags->size()<4) return false;
-     for (JetTagCollection::const_iterator jet = jetTags->begin(); (jet!=jetTags->end()&&nJet<4); ++jet) {
-       value = jet->second;
-       Sorted.push_back(make_pair(value,nJet));
-       ++nJet;
-     }
-     sort(Sorted.begin(),Sorted.end(),comparator);
-     for (unsigned int i=0; i<4; ++i) {
-       jetRefs[i]= TRef(jets,(*jetTags)[Sorted[i].second].first.key());
-     }
-   }
-
-   Particle::LorentzVector b1,b2,q1,q2;
-   if (inputJetTags_.encode()==""){
      q1 = jetRefs[3]->p4();
      b1 = jetRefs[2]->p4();
      b2 = jetRefs[1]->p4();
      q2 = jetRefs[0]->p4();
    } else {
+     event.getByLabel(inputJetTags_,jetTags);
+     if (jetTags->size()<nMax) return false;
+     for (JetTagCollection::const_iterator jet = jetTags->begin(); (jet!=jetTags->end()&&nJet<nMax); ++jet) {
+       if (value_=="second") {
+	 value = jet->second;
+       } else {
+	 value = 0.0;
+       }
+       sorted[nJet] = make_pair(value,nJet);
+       ++nJet;
+     }
+     sort(sorted.begin(),sorted.end(),comparator);
+     for (unsigned int i=0; i<nMax; ++i) {
+       jetRefs[i]= TRef(jets,(*jetTags)[sorted[i].second].first.key());
+     }
      b1 = jetRefs[3]->p4();
      b2 = jetRefs[2]->p4();
      q1 = jetRefs[1]->p4();
@@ -164,7 +165,7 @@ HLTJetSortedVBFFilter<T,Tid>::hltFilter(edm::Event& event, const edm::EventSetup
 	(signeta    < seta_   )
 	) {
      accept=true;
-     for (unsigned int i=0; i<4; ++i) {
+     for (unsigned int i=0; i<nMax; ++i) {
        filterproduct.addObject(static_cast<trigger::TriggerObjectType>(Tid),jetRefs[i]);
      }
    }

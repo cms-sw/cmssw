@@ -8,7 +8,7 @@
  *  single jet requirement with an Energy threshold (not Et!)
  *  Based on HLTSinglet
  *
- *  $Date: 2012/02/03 16:38:02 $
+ *  $Date: 2012/02/04 13:03:58 $
  *  $Revision: 1.1 $
  *
  *  \author Jacopo Bernardini
@@ -32,7 +32,7 @@ class HLTJetSortedVBFFilter : public HLTFilter {
 
  public:
 
-  typedef std::pair<double,int> Jpair;
+  typedef std::pair<double,unsigned int> Jpair;
   static bool comparator ( const Jpair& l, const Jpair& r) {
     return l.first < r.first;
   }
