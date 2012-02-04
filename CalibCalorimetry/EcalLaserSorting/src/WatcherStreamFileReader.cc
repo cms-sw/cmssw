@@ -22,7 +22,7 @@ using namespace std;
 std::string WatcherStreamFileReader::fileName_;
 
 
-#ifdef __APPLE__
+#if !defined(__linux__) && !(defined(__APPLE__) && __DARWIN_C_LEVEL >= 200809L)
 /* getline implementation is copied from glibc. */
 
 #ifndef SIZE_MAX
