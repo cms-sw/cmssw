@@ -8,9 +8,8 @@
 
 TSiStripRecHit1D::TSiStripRecHit1D (const GeomDet * geom, const SiStripRecHit1D* rh,
 				    const StripClusterParameterEstimator* cpe,
-				    float weight, float annealing,
 				    bool computeCoarseLocalPosition) : 
-TransientTrackingRecHit(geom, weight, annealing), theCPE(cpe) 
+TransientTrackingRecHit(geom), theCPE(cpe) 
 {
   if (rh->hasPositionAndError() || !computeCoarseLocalPosition)
     theHitData = SiStripRecHit1D(*rh);
@@ -38,26 +37,12 @@ TransientTrackingRecHit::RecHitPointer
 TSiStripRecHit1D::clone (const TrajectoryStateOnSurface& ts) const
 {
   if (theCPE != 0) {
-
     /// FIXME: this only uses the first cluster and ignores the others
-
-     if(!specificHit()->cluster().isNull()){
-       const SiStripCluster&  clust = *specificHit()->cluster();  
-       StripClusterParameterEstimator::LocalValues lv = 
-	 theCPE->localParameters( clust, *detUnit(), ts);
-       LocalError le(lv.second.xx(),0.,std::numeric_limits<float>::max()); //Correct??
-
-       return TSiStripRecHit1D::build( lv.first, le, det(), 
-				       specificHit()->cluster(), theCPE, weight(), getAnnealingFactor());
-     }else{
-       const SiStripCluster&  clust = *specificHit()->cluster_regional();  
-       StripClusterParameterEstimator::LocalValues lv = 
-	 theCPE->localParameters( clust, *detUnit(), ts);
-       LocalError le(lv.second.xx(),0.,std::numeric_limits<float>::max()); //Correct??
-       return TSiStripRecHit1D::build( lv.first, le, det(), 
-				       specificHit()->cluster_regional(), theCPE, weight(), getAnnealingFactor());       
-     }
-
+    const SiStripCluster&  clust = specificHit()->stripCluster();  
+    StripClusterParameterEstimator::LocalValues lv = 
+      theCPE->localParameters( clust, *detUnit(), ts);
+    LocalError le(lv.second.xx(),0.,std::numeric_limits<float>::max()); //Correct??
+    return TSiStripRecHit1D::build( lv.first, le, det(), specificHit()->omniClusterRef(), theCPE);
   }
   else {
     //FIXME. It should report the problem with a LogWarning;

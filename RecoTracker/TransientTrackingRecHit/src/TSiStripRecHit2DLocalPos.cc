@@ -9,23 +9,12 @@ TransientTrackingRecHit::RecHitPointer
 TSiStripRecHit2DLocalPos::clone (const TrajectoryStateOnSurface& ts) const
 {
   if (theCPE != 0) {
-
+    
     /// FIXME: this only uses the first cluster and ignores the others
-
-     if(!specificHit()->cluster().isNull()){
-       const SiStripCluster&  clust = *specificHit()->cluster();  
-           StripClusterParameterEstimator::LocalValues lv = 
+    const SiStripCluster&  clust = specificHit()->stripCluster();  
+    StripClusterParameterEstimator::LocalValues lv = 
       theCPE->localParameters( clust, *detUnit(), ts);
-	   return TSiStripRecHit2DLocalPos::build( lv.first, lv.second, det(), 
-						   specificHit()->cluster(), theCPE, weight(), getAnnealingFactor());
-     }else{
-       const SiStripCluster&  clust = *specificHit()->cluster_regional();  
-       StripClusterParameterEstimator::LocalValues lv = 
-	 theCPE->localParameters( clust, *detUnit(), ts);
-       return TSiStripRecHit2DLocalPos::build( lv.first, lv.second, det(), 
-					       specificHit()->cluster_regional(), theCPE, weight(), getAnnealingFactor());       
-     }
-
+    return TSiStripRecHit2DLocalPos::build( lv.first, lv.second, det(), specificHit()->omniClusterRef(), theCPE);					    
   }
   /// FIXME: should report the problem somehow
   else return clone();
@@ -42,6 +31,6 @@ TSiStripRecHit2DLocalPos::transientHits () const {
   SiStripRecHit1D hit1d(specificHit());
   result.push_back(TSiStripRecHit1D::build( det(),&hit1d,
 					    cpe()));
-
+  
   return result;
 }

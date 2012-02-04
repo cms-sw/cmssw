@@ -40,65 +40,64 @@ TkTransientTrackingRecHitBuilder::build (const TrackingRecHit * p) const
   std::type_info const & tp = typeid(*p);
  
   if (tp == typeid(SiPixelRecHit))
-      { 
-	const SiPixelRecHit* ph = reinterpret_cast<const SiPixelRecHit*>(p); 
-	return ( TSiPixelRecHit::build( tGeometry_->idToDet(p->geographicalId()), ph, pixelCPE, 1.,1.,theComputeCoarseLocalPosition) );
-      } 
-    else if (tp == typeid(SiStripRecHit2D))
-      {
-	const SiStripRecHit2D* sh = reinterpret_cast<const SiStripRecHit2D*>(p);
-	return ( TSiStripRecHit2DLocalPos::build(tGeometry_->idToDet(p->geographicalId()), sh, stripCPE, 1.,1., theComputeCoarseLocalPosition ) );
-      } 
-    else if (tp == typeid(SiStripRecHit1D))
-      {
-	const SiStripRecHit1D* sh = reinterpret_cast<const SiStripRecHit1D*>(p); 
-	return ( TSiStripRecHit1D::build(tGeometry_->idToDet(p->geographicalId()), sh, stripCPE, 1.,1., theComputeCoarseLocalPosition ) );
-      }
-    else if (tp == typeid(SiStripMatchedRecHit2D))
-      {
-	const SiStripMatchedRecHit2D* mh = reinterpret_cast<const SiStripMatchedRecHit2D*>(p);
-	return ( TSiStripMatchedRecHit::build(tGeometry_->idToDet(p->geographicalId()), mh, theMatcher, stripCPE, 1.,1., theComputeCoarseLocalPosition)); 
-      }
-    else if (tp == typeid(InvalidTrackingRecHit))
-      {
-	return ( InvalidTransientRecHit::build((p->geographicalId().rawId() == 0 ? 0 : 
-						tGeometry_->idToDet(p->geographicalId())),
-					       p->getType()
-					       ) );
-      }
-    else if (tp == typeid(ProjectedSiStripRecHit2D))
-      {
-	const ProjectedSiStripRecHit2D* ph = reinterpret_cast<const ProjectedSiStripRecHit2D*>(p);
-	return ProjectedRecHit2D::build(tGeometry_->idToDet(p->geographicalId()),
-					tGeometry_->idToDet(ph->originalHit().geographicalId()),
-					ph,stripCPE,
-					1.,1.,
-					theComputeCoarseLocalPosition);
-      }
-    else if (tp == typeid(SiTrackerGSRecHit2D))
-      {
-	const SiTrackerGSRecHit2D* gh = reinterpret_cast<const SiTrackerGSRecHit2D*>(p);
-	return ( GenericTransientTrackingRecHit::build(tGeometry_->idToDet(p->geographicalId()), gh )); 
-      }
-    else if (tp == typeid(SiTrackerGSMatchedRecHit2D))
-      {
-	const SiTrackerGSMatchedRecHit2D* gh = reinterpret_cast<const SiTrackerGSMatchedRecHit2D*>(p);
-	return ( GenericTransientTrackingRecHit::build(tGeometry_->idToDet(p->geographicalId()), gh )); 
-      } 
-      return oldbuild(p);
+    { 
+      const SiPixelRecHit* ph = reinterpret_cast<const SiPixelRecHit*>(p); 
+      return TSiPixelRecHit::build( tGeometry_->idToDet(p->geographicalId()), ph, pixelCPE, theComputeCoarseLocalPosition);
+    } 
+  else if (tp == typeid(SiStripRecHit2D))
+    {
+      const SiStripRecHit2D* sh = reinterpret_cast<const SiStripRecHit2D*>(p);
+      return TSiStripRecHit2DLocalPos::build(tGeometry_->idToDet(p->geographicalId()), sh, stripCPE,  theComputeCoarseLocalPosition );
+    } 
+  else if (tp == typeid(SiStripRecHit1D))
+    {
+      const SiStripRecHit1D* sh = reinterpret_cast<const SiStripRecHit1D*>(p); 
+      return TSiStripRecHit1D::build(tGeometry_->idToDet(p->geographicalId()), sh, stripCPE,  theComputeCoarseLocalPosition );
+    }
+  else if (tp == typeid(SiStripMatchedRecHit2D))
+    {
+      const SiStripMatchedRecHit2D* mh = reinterpret_cast<const SiStripMatchedRecHit2D*>(p);
+      return TSiStripMatchedRecHit::build(tGeometry_->idToDet(p->geographicalId()), mh, theMatcher, stripCPE,  theComputeCoarseLocalPosition); 
+    }
+  else if (tp == typeid(InvalidTrackingRecHit))
+    {
+      return InvalidTransientRecHit::build((p->geographicalId().rawId() == 0 ? 0 : 
+					    tGeometry_->idToDet(p->geographicalId())),
+					   p->getType()
+					   );
+    }
+  else if (tp == typeid(ProjectedSiStripRecHit2D))
+    {
+      const ProjectedSiStripRecHit2D* ph = reinterpret_cast<const ProjectedSiStripRecHit2D*>(p);
+      return ProjectedRecHit2D::build(tGeometry_->idToDet(p->geographicalId()),
+				      tGeometry_->idToDet(ph->originalHit().geographicalId()),
+				      ph,stripCPE,
+				      theComputeCoarseLocalPosition);
+    }
+  else if (tp == typeid(SiTrackerGSRecHit2D))
+    {
+      const SiTrackerGSRecHit2D* gh = reinterpret_cast<const SiTrackerGSRecHit2D*>(p);
+      return ( GenericTransientTrackingRecHit::build(tGeometry_->idToDet(p->geographicalId()), gh )); 
+    }
+  else if (tp == typeid(SiTrackerGSMatchedRecHit2D))
+    {
+      const SiTrackerGSMatchedRecHit2D* gh = reinterpret_cast<const SiTrackerGSMatchedRecHit2D*>(p);
+      return ( GenericTransientTrackingRecHit::build(tGeometry_->idToDet(p->geographicalId()), gh )); 
+    } 
+  return oldbuild(p);
 }
 
 TransientTrackingRecHit::RecHitPointer 
 TkTransientTrackingRecHitBuilder::oldbuild (const TrackingRecHit * p) const 
 {
   if ( const SiPixelRecHit* ph = dynamic_cast<const SiPixelRecHit*>(p)) {
-    return ( TSiPixelRecHit::build( tGeometry_->idToDet(p->geographicalId()), ph, pixelCPE, 1.,1.,theComputeCoarseLocalPosition) ); 
+    return ( TSiPixelRecHit::build( tGeometry_->idToDet(p->geographicalId()), ph, pixelCPE, theComputeCoarseLocalPosition) ); 
   } else if ( const SiStripRecHit2D* sh = dynamic_cast<const SiStripRecHit2D*>(p)) { 
-    return ( TSiStripRecHit2DLocalPos::build(tGeometry_->idToDet(p->geographicalId()), sh, stripCPE, 1.,1., theComputeCoarseLocalPosition ) ); 
+    return ( TSiStripRecHit2DLocalPos::build(tGeometry_->idToDet(p->geographicalId()), sh, stripCPE,  theComputeCoarseLocalPosition ) ); 
   } else if ( const SiStripRecHit1D* sh = dynamic_cast<const SiStripRecHit1D*>(p)) { 
-    return ( TSiStripRecHit1D::build(tGeometry_->idToDet(p->geographicalId()), sh, stripCPE, 1.,1., theComputeCoarseLocalPosition ) ); 
+    return ( TSiStripRecHit1D::build(tGeometry_->idToDet(p->geographicalId()), sh, stripCPE,  theComputeCoarseLocalPosition ) ); 
   } else if ( const SiStripMatchedRecHit2D* mh = dynamic_cast<const SiStripMatchedRecHit2D*>(p)) {
-    return ( TSiStripMatchedRecHit::build(tGeometry_->idToDet(p->geographicalId()), mh, theMatcher, stripCPE, 1.,1., theComputeCoarseLocalPosition)); 
+    return ( TSiStripMatchedRecHit::build(tGeometry_->idToDet(p->geographicalId()), mh, theMatcher, stripCPE,  theComputeCoarseLocalPosition)); 
   } else if (dynamic_cast<const InvalidTrackingRecHit*>(p)){
     return ( InvalidTransientRecHit::build((p->geographicalId().rawId() == 0 ? 0 : 
 					    tGeometry_->idToDet(p->geographicalId())),
@@ -109,7 +108,6 @@ TkTransientTrackingRecHitBuilder::oldbuild (const TrackingRecHit * p) const
     return ProjectedRecHit2D::build(tGeometry_->idToDet(p->geographicalId()),
 				    tGeometry_->idToDet(ph->originalHit().geographicalId()),
 				    ph,stripCPE,
-				    1.,1.,
 				    theComputeCoarseLocalPosition);
   } else if ( const SiTrackerGSRecHit2D* gh = dynamic_cast<const SiTrackerGSRecHit2D*>(p)) {
     return ( GenericTransientTrackingRecHit::build(tGeometry_->idToDet(p->geographicalId()), gh )); 

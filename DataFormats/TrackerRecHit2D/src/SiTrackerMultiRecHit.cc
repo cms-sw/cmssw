@@ -14,12 +14,6 @@ SiTrackerMultiRecHit::SiTrackerMultiRecHit(const LocalPoint& pos, const LocalErr
   }
 }
 
-float SiTrackerMultiRecHit::weight(unsigned int i) const {
-  if (i < theWeights.size()) return theWeights[i];
-  edm::LogError("SiTrackerMultiRecHit") << "You are requesting a the weight for a hit out of range, returning 0";
-  return 0; 
-}
-
 
 bool SiTrackerMultiRecHit::sharesInput(const TrackingRecHit* other,
 				       SharedInputType what) const

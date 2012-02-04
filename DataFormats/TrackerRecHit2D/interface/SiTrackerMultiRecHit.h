@@ -39,10 +39,12 @@ public:
   virtual std::vector<TrackingRecHit*> recHits() ;
   
   //vector of weights
-  std::vector<float> weights() const {return theWeights;}
-  
+  std::vector<float> const & weights() const {return theWeights;}
+  std::vector<float>  & weights() {return theWeights;}
+
   //returns the weight for the i component
-  float  weight(unsigned int i) const ;
+  float  weight(unsigned int i) const {return theWeights[i];}
+  float  & weight(unsigned int i) {return theWeights[i];}
 	
   bool sharesInput(const TrackingRecHit* other,
 		   SharedInputType what) const;

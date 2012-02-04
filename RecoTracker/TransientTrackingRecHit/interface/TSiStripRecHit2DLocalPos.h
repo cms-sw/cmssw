@@ -58,34 +58,30 @@ public:
   
   static RecHitPointer build( const GeomDet * geom, const SiStripRecHit2D* rh,
 			      const StripClusterParameterEstimator* cpe,
-			      float weight=1., float annealing=1.,
 			      bool computeCoarseLocalPosition=false) {
-    return RecHitPointer( new TSiStripRecHit2DLocalPos( geom, rh, cpe, weight, annealing,computeCoarseLocalPosition));
+    return RecHitPointer( new TSiStripRecHit2DLocalPos( geom, rh, cpe,computeCoarseLocalPosition));
   }
   
   
   static RecHitPointer build( const LocalPoint& pos, const LocalError& err,
 			      const GeomDet* det,
-			      const OmniClusterRef clust,
-			      const StripClusterParameterEstimator* cpe,
-			      float weight=1., float annealing=1.) {
-    return RecHitPointer( new TSiStripRecHit2DLocalPos( pos, err, det, clust, cpe, weight, annealing));
+			      const OmniClusterRef & clust,
+			      const StripClusterParameterEstimator* cpe) {
+    return RecHitPointer( new TSiStripRecHit2DLocalPos( pos, err, det, clust, cpe));
   }
 
   static RecHitPointer build( const LocalPoint& pos, const LocalError& err,
 			      const GeomDet* det,
-			      const SiStripClusterRef clust,
-			      const StripClusterParameterEstimator* cpe,
-			      float weight=1., float annealing=1.) {
-    return RecHitPointer( new TSiStripRecHit2DLocalPos( pos, err, det, clust, cpe, weight, annealing));
+			      const SiStripClusterRef & clust,
+			      const StripClusterParameterEstimator* cpe) {
+    return RecHitPointer( new TSiStripRecHit2DLocalPos( pos, err, det, OmniClusterRef(clust), cpe));
   }
   
   static RecHitPointer build( const LocalPoint& pos, const LocalError& err,
 			      const GeomDet* det,
-			      const SiStripRegionalClusterRef clust,
-			      const StripClusterParameterEstimator* cpe,
-			      float weight=1., float annealing=1.) {
-    return RecHitPointer( new TSiStripRecHit2DLocalPos( pos, err, det, clust, cpe, weight, annealing));
+			      const SiStripRegionalClusterRef & clust,
+			      const StripClusterParameterEstimator* cpe) {
+    return RecHitPointer( new TSiStripRecHit2DLocalPos( pos, err, det, OmniClusterRef(clust), cpe));
   }
   
   
@@ -97,9 +93,8 @@ private:
   
   TSiStripRecHit2DLocalPos (const GeomDet * geom, const SiStripRecHit2D* rh,
 			    const StripClusterParameterEstimator* cpe,
-			    float weight, float annealing,
 			    bool computeCoarseLocalPosition) : 
-    TransientTrackingRecHit(geom, weight, annealing), theCPE(cpe) 
+    TransientTrackingRecHit(geom), theCPE(cpe) 
   {
     if (rh->hasPositionAndError() || !computeCoarseLocalPosition) {
       theHitData = SiStripRecHit2D(*rh);
@@ -126,36 +121,11 @@ private:
   /// Creates the TrackingRecHit internally, avoids redundent cloning
   TSiStripRecHit2DLocalPos( const LocalPoint& pos, const LocalError& err,
 			    const GeomDet* det,
-			    const OmniClusterRef clust,
-			    const StripClusterParameterEstimator* cpe,
-			    float weight, float annealing) :
-    TransientTrackingRecHit(det, weight, annealing), theHitData(pos, err, det->geographicalId(), clust), 
+			    const OmniClusterRef & clust,
+			    const StripClusterParameterEstimator* cpe) :
+    TransientTrackingRecHit(det), theHitData(pos, err, det->geographicalId(), clust), 
     theCPE(cpe){} 
-  
-  /// Creates the TrackingRecHit internally, avoids redundent cloning
-  TSiStripRecHit2DLocalPos( const LocalPoint& pos, const LocalError& err,
-			    const GeomDet* det,
-			    const SiStripClusterRef clust,
-			    const StripClusterParameterEstimator* cpe,
-			    float weight, float annealing) :
-    TransientTrackingRecHit(det, weight, annealing), theHitData(pos, err, det->geographicalId(), clust), 
-    theCPE(cpe){} 
-  
-  //  TSiStripRecHit2DLocalPos( const TSiStripRecHit2DLocalPos& other ) :
-  //  TransientTrackingRecHit( other.det()), 
-  //  theHitData( other.specificHit()->clone()),
-  //  theCPE( other.cpe()) {}
-  
-  TSiStripRecHit2DLocalPos( const LocalPoint& pos, const LocalError& err,
-			    const GeomDet* det,
-			    const SiStripRegionalClusterRef clust,			    
-			    const StripClusterParameterEstimator* cpe,
-			    float weight, float annealing) :
-    TransientTrackingRecHit(det, weight, annealing), theHitData(pos, err, det->geographicalId(), clust), 
-    theCPE(cpe){} 
-  
-  
-  
+    
   virtual TSiStripRecHit2DLocalPos* clone() const {
     return new TSiStripRecHit2DLocalPos(*this);
   }

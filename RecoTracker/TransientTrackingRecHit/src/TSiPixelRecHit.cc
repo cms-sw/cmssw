@@ -7,12 +7,12 @@
 TSiPixelRecHit::RecHitPointer TSiPixelRecHit::clone (const TrajectoryStateOnSurface& ts) const
 {
   if (theCPE == 0){
-    return new TSiPixelRecHit( det(), &theHitData, 0, weight(), getAnnealingFactor(),false);
+    return new TSiPixelRecHit( det(), &theHitData, 0,false);
   }else{
     const SiPixelCluster& clust = *specificHit()->cluster();  
     PixelClusterParameterEstimator::LocalValues lv = 
       theCPE->localParameters( clust, *detUnit(), ts);
-    return TSiPixelRecHit::build( lv.first, lv.second, det(), specificHit()->cluster(), theCPE, weight(), getAnnealingFactor());
+    return TSiPixelRecHit::build( lv.first, lv.second, det(), specificHit()->cluster(), theCPE);
   }
 }
 
@@ -27,9 +27,8 @@ const GeomDetUnit* TSiPixelRecHit::detUnit() const
 // TrackingRecHit exist already in some collection.
 TSiPixelRecHit::TSiPixelRecHit(const GeomDet * geom, const SiPixelRecHit* rh, 
 			       const PixelClusterParameterEstimator* cpe,
-			       float weight, float annealing,
 			       bool computeCoarseLocalPosition) : 
-  TransientTrackingRecHit(geom, *rh, weight, annealing), theHitData(*rh), theCPE(cpe)
+  TransientTrackingRecHit(geom, *rh), theHitData(*rh), theCPE(cpe)
 {
   if (! (rh->hasPositionAndError() || !computeCoarseLocalPosition)) {
     const GeomDetUnit* gdu = dynamic_cast<const GeomDetUnit*>(geom);
@@ -54,11 +53,9 @@ TSiPixelRecHit::TSiPixelRecHit(const GeomDet * geom, const SiPixelRecHit* rh,
 // avoiding redundent cloning.
 TSiPixelRecHit::TSiPixelRecHit( const LocalPoint& pos, const LocalError& err,
 				const GeomDet* det, 
-				//				const SiPixelCluster& clust,
-				clusterRef clust,
-				const PixelClusterParameterEstimator* cpe,
-				float weight, float annealing) :
-  TransientTrackingRecHit(det,weight, annealing), 
+				clusterRef const & clust,
+				const PixelClusterParameterEstimator* cpe) :
+  TransientTrackingRecHit(det), 
   theHitData( pos, err, det->geographicalId(), clust),
   theCPE(cpe)
 {
@@ -67,11 +64,3 @@ TSiPixelRecHit::TSiPixelRecHit( const LocalPoint& pos, const LocalError& err,
   theClusterProbComputationFlag = cpe->clusterProbComputationFlag(); 
 }
 
-
-
-
-/*
-SiPixelRecHit( const LocalPoint&, const LocalError&,
-		 const DetId&, 
-		 const SiPixelCluster * cluster);  
-*/

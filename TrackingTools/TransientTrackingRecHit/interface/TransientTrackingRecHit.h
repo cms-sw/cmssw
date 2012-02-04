@@ -27,30 +27,30 @@ public:
   typedef std::vector<ConstRecHitPointer>                           RecHitContainer;
   typedef std::vector<ConstRecHitPointer>                           ConstRecHitContainer;
 
-  explicit TransientTrackingRecHit(const GeomDet * geom=0, float weight=1., float annealing=1.) : 
+  explicit TransientTrackingRecHit(const GeomDet * geom=0) : 
     TrackingRecHit(geom ? geom->geographicalId().rawId() : 0), 
-    geom_(geom), weight_(weight), annealing_(annealing),
+    geom_(geom),
     globalPosition_(0,0,0),
     errorR_(0),errorZ_(0),errorRPhi_(0),
     hasGlobalPosition_(false), hasGlobalError_(false){}
 
-  explicit TransientTrackingRecHit(const GeomDet * geom, DetId id, Type type=valid, float weight=1., float annealing=1. ) : 
+  explicit TransientTrackingRecHit(const GeomDet * geom, DetId id, Type type=valid) : 
     TrackingRecHit(id, type), 
-    geom_(geom), weight_(weight), annealing_(annealing),
+    geom_(geom),
     globalPosition_(0,0,0),
     errorR_(0),errorZ_(0),errorRPhi_(0),
     hasGlobalPosition_(false),hasGlobalError_(false){}
 
-  explicit TransientTrackingRecHit(const GeomDet * geom, TrackingRecHit::id_type id, Type type=valid, float weight=1., float annealing=1. ) : 
+  explicit TransientTrackingRecHit(const GeomDet * geom, TrackingRecHit::id_type id, Type type=valid) : 
     TrackingRecHit(id, type),
-    geom_(geom),  weight_(weight), annealing_(annealing),
+    geom_(geom),
     globalPosition_(0,0,0),
     errorR_(0),errorZ_(0),errorRPhi_(0),
     hasGlobalPosition_(false),hasGlobalError_(false){}
   
-  explicit TransientTrackingRecHit(const GeomDet * geom, TrackingRecHit const & rh, float weight=1., float annealing=1. ) : 
+  explicit TransientTrackingRecHit(const GeomDet * geom, TrackingRecHit const & rh) : 
     TrackingRecHit(rh.geographicalId(), rh.type()),
-    geom_(geom), weight_(weight), annealing_(annealing),
+    geom_(geom),
     globalPosition_(0,0,0),
     errorR_(0),errorZ_(0),errorRPhi_(0),
     hasGlobalPosition_(false),hasGlobalError_(false){}
@@ -92,28 +92,14 @@ public:
   /// Composite interface: returns the component hits, if any
   virtual ConstRecHitContainer transientHits() const;
 
-  /// interface needed to set the transient hit weight and to read it back
-  void setWeight(float weight){weight_ = weight;}
-
-  float weight() const {return weight_;}
   
-  /// interface needed to set and read back an annealing value that has been applied to the current hit error matrix when
-  /// using it as a component for a composite rec hit (useful for the DAF)
-
-  void setAnnealingFactor(float annealing) {annealing_ = annealing;} 
-
-  float getAnnealingFactor() const {return annealing_;} 
-
-  /// cluster probability, overloaded by pixel rechits.
+/// cluster probability, overloaded by pixel rechits.
   virtual float clusterProbability() const { return 1; }
 
 private:
   void setPositionErrors() const;
   
   const GeomDet * geom_ ;
-
-  float weight_;
-  float annealing_;
 
   // caching of some variable for fast access
   mutable GlobalPoint globalPosition_;  

@@ -71,7 +71,7 @@ TSiStripMatchedRecHit::clone( const TrajectoryStateOnSurface& ts) const
 	return this->clone();
       }
 
-      return RecHitPointer(new TSiStripMatchedRecHit( gdet, better, theMatcher,theCPE, weight(), getAnnealingFactor(), false, DontCloneRecHit()));
+      return RecHitPointer(new TSiStripMatchedRecHit( gdet, better, theMatcher,theCPE, false, DontCloneRecHit()));
       // delete better; //the ownership of the object is passed to the caller of the matcher
 
     }
@@ -83,7 +83,7 @@ TSiStripMatchedRecHit::clone( const TrajectoryStateOnSurface& ts) const
 	//edm::LogWarning("TSiStripMatchedRecHit") << "Refitting of a matched rechit returns NULL";
 	  return this->clone();        
 	}
-      return RecHitPointer(new TSiStripMatchedRecHit( gdet, better, theMatcher,theCPE, weight(), getAnnealingFactor(), false, DontCloneRecHit()));
+      return RecHitPointer(new TSiStripMatchedRecHit( gdet, better, theMatcher,theCPE, false, DontCloneRecHit()));
       // delete better; //the ownership of the object is passed to the caller of the matcher
     }
     */

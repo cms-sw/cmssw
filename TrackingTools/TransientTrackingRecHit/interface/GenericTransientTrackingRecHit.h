@@ -24,7 +24,7 @@ public:
 
   virtual bool canImproveWithTrack() const {return false;}
 
-  virtual const TrackingRecHit * hit() const {return trackingRecHit_;};
+  virtual const TrackingRecHit * hit() const {return trackingRecHit_;}
   
 
   virtual std::vector<const TrackingRecHit*> recHits() const {
@@ -41,22 +41,22 @@ public:
 protected:
 
   // private constructors enforce usage of builders
-  GenericTransientTrackingRecHit(const GeomDet * geom, const TrackingRecHit& rh, float weight=1., float annealing=1.) :
-    TransientTrackingRecHit(geom,rh,weight,annealing) {
+  GenericTransientTrackingRecHit(const GeomDet * geom, const TrackingRecHit& rh) :
+    TransientTrackingRecHit(geom) {
     trackingRecHit_ = rh.clone();
   }
 
   /// for derived classes convenience, does not clone!
-  GenericTransientTrackingRecHit(const GeomDet * geom, TrackingRecHit* rh, float weight=1., float annealing=1.) :
-    TransientTrackingRecHit(geom,*rh,weight,annealing), trackingRecHit_(rh) {}
-
+  GenericTransientTrackingRecHit(const GeomDet * geom, TrackingRecHit* rh) :
+    TransientTrackingRecHit(geom,*rh), trackingRecHit_(rh) {}
+  
   GenericTransientTrackingRecHit( const GenericTransientTrackingRecHit & other ) :
-    TransientTrackingRecHit( other.det(),other,other.weight(),other.getAnnealingFactor()) {
+  TransientTrackingRecHit( other.det(),other) {
     trackingRecHit_ = other.hit()->clone();
   }
-
+  
   TrackingRecHit * trackingRecHit_;
-
+  
  private:
   
   // should not have assignment operator (?)

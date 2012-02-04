@@ -20,6 +20,10 @@ public:
 
   SiStripRecHit1D( const LocalPoint& p, const LocalError& e,
 		   const DetId& id, 
+		   OmniClusterRef const&  clus) : TrackerSingleRecHit(p,e,id,clus), sigmaPitch_(-1.){}
+
+  SiStripRecHit1D( const LocalPoint& p, const LocalError& e,
+		   const DetId& id, 
 		   ClusterRef const&  clus) : TrackerSingleRecHit(p,e,id,clus), sigmaPitch_(-1.){}
 
   SiStripRecHit1D( const LocalPoint& p, const LocalError& e,

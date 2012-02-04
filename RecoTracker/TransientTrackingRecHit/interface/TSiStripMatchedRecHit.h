@@ -26,17 +26,15 @@ public:
   static RecHitPointer build( const GeomDet * geom, const TrackingRecHit * rh, 
 			      const SiStripRecHitMatcher *matcher,
 			      const StripClusterParameterEstimator* cpe=0,
-			      float weight=1., float annealing=1.,
-			      bool computeCoarseLocalPosition=false) {
-    return RecHitPointer( new TSiStripMatchedRecHit( geom, rh, matcher,cpe, weight, annealing, computeCoarseLocalPosition));
+			       bool computeCoarseLocalPosition=false) {
+    return RecHitPointer( new TSiStripMatchedRecHit( geom, rh, matcher,cpe, computeCoarseLocalPosition));
   }
 
   static RecHitPointer build( const GeomDet * geom, std::auto_ptr<TrackingRecHit> rh, 
 			      const SiStripRecHitMatcher *matcher,
 			      const StripClusterParameterEstimator* cpe=0,
-			      float weight=1., float annealing=1.,
 			      bool computeCoarseLocalPosition=false) {
-    return RecHitPointer( new TSiStripMatchedRecHit( geom, rh, matcher,cpe,weight, annealing, computeCoarseLocalPosition));
+    return RecHitPointer( new TSiStripMatchedRecHit( geom, rh, matcher,cpe, computeCoarseLocalPosition));
   }
 
   virtual RecHitPointer clone( const TrajectoryStateOnSurface& ts) const;
@@ -54,13 +52,12 @@ public:
                               const GeomDet * geom, const TrackingRecHit * rh,
                               const SiStripRecHitMatcher *matcher,
                               const StripClusterParameterEstimator* cpe=0,
-                              float weight=1., float annealing=1.,
                               bool computeCoarseLocalPosition=false) {
         if (memory.get()) {
             memory->~TSiStripMatchedRecHit(); // call destructor
-            new (memory.get()) TSiStripMatchedRecHit( geom, rh, matcher,cpe,weight, annealing, computeCoarseLocalPosition, DontCloneRecHit());
+            new (memory.get()) TSiStripMatchedRecHit( geom, rh, matcher,cpe, computeCoarseLocalPosition, DontCloneRecHit());
         } else {
-            memory.reset(new TSiStripMatchedRecHit( geom, rh, matcher,cpe,weight, annealing, computeCoarseLocalPosition, DontCloneRecHit()));
+            memory.reset(new TSiStripMatchedRecHit( geom, rh, matcher,cpe,computeCoarseLocalPosition, DontCloneRecHit()));
         }
   }
 
@@ -78,27 +75,24 @@ private:
   TSiStripMatchedRecHit (const GeomDet * geom, const TrackingRecHit * rh, 
 			 const SiStripRecHitMatcher *matcher,
 			 const StripClusterParameterEstimator* cpe,
-			 float weight, float annealing,
-			 bool computeCoarseLocalPosition) : 
-    GenericTransientTrackingRecHit(geom, *rh, weight, annealing), theMatcher(matcher),theCPE(cpe) {
+			  bool computeCoarseLocalPosition) : 
+    GenericTransientTrackingRecHit(geom, *rh), theMatcher(matcher),theCPE(cpe) {
     if (computeCoarseLocalPosition) ComputeCoarseLocalPosition();
   }
 
   TSiStripMatchedRecHit (const GeomDet * geom, std::auto_ptr<TrackingRecHit> rh,
 			 const SiStripRecHitMatcher *matcher,
 			 const StripClusterParameterEstimator* cpe,
-			 float weight, float annealing,
 			 bool computeCoarseLocalPosition) : 
-    GenericTransientTrackingRecHit(geom, rh.release(), weight, annealing), theMatcher(matcher),theCPE(cpe) {
+    GenericTransientTrackingRecHit(geom, rh.release()), theMatcher(matcher),theCPE(cpe) {
     if (computeCoarseLocalPosition) ComputeCoarseLocalPosition();
   }
   TSiStripMatchedRecHit (const GeomDet * geom, const TrackingRecHit * rh, 
 			 const SiStripRecHitMatcher *matcher,
 			 const StripClusterParameterEstimator* cpe,
-			 float weight, float annealing,
 			 bool computeCoarseLocalPosition,
                          const DontCloneRecHit &) : 
-    GenericTransientTrackingRecHit(geom, const_cast<TrackingRecHit *>(rh), weight, annealing), theMatcher(matcher),theCPE(cpe) {
+    GenericTransientTrackingRecHit(geom, const_cast<TrackingRecHit *>(rh)), theMatcher(matcher),theCPE(cpe) {
     if (computeCoarseLocalPosition) ComputeCoarseLocalPosition();
   }
 
