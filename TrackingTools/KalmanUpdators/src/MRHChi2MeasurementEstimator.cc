@@ -1,3 +1,4 @@
+#include "RecoTracker/TransientTrackingRecHit/interface/TSiTrackerMultiRecHit.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/KalmanUpdators/interface/MRHChi2MeasurementEstimator.h"
 #include "TrackingTools/PatternTools/interface/MeasurementExtractor.h"
@@ -14,10 +15,12 @@ MRHChi2MeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
 
   typedef AlgebraicROOTObject<2>::Vector Vec;
   typedef AlgebraicROOTObject<2>::SymMatrix Mat;
-  
+
+  //better be a multihit...
+  TSiTrackerMultiRecHit const & mHit = dynamic_cast<TSiTrackerMultiRecHit const &>(aRecHit);  
   MeasurementExtractor me(tsos);
   double est=0;
-  double annealing = aRecHit.getAnnealingFactor();
+  double annealing = mHit.getAnnealingFactor();
   LogDebug("MRHChi2MeasurementEstimator") << "Current annealing factor is " << annealing; 		
   TransientTrackingRecHit::ConstRecHitContainer components = aRecHit.transientHits();
   LogDebug("MRHChi2MeasurementEstimator") << "this hit has " << components.size() << " components";	
