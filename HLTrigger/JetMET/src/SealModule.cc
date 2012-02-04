@@ -23,8 +23,8 @@
 #include "HLTrigger/JetMET/interface/HLTHtMhtProducer.h"
 #include "HLTrigger/JetMET/interface/HLTHtMhtFilter.h"
 
-#include "HLTrigger/JetMET/interface/HLTJetEtaSortedVBF.h"
-#include "HLTrigger/JetMET/interface/HLTJetBTagSortedVBF.h"
+#include "HLTrigger/JetMET/interface/HLTJetSortedVBFFilter.h"
+#include "HLTrigger/JetMET/src/HLTJetSortedVBFFilter.cc"
 
 #include "HLTrigger/JetMET/interface/HLTPFEnergyFractionsFilter.h"
 
@@ -58,6 +58,9 @@ typedef HLTJetCollectionsForLeptonPlusJets<CaloJet, TriggerBJet> HLTCaloJetColle
 typedef HLTJetCollectionsForLeptonPlusJets<PFJet, TriggerJet> HLTPFJetCollectionsForLeptonPlusJets;
 typedef HLTJetCollectionsForLeptonPlusJets<PFJet, TriggerBJet> HLTPFJetCollectionsForLeptonPlusBJets;
 
+typedef HLTJetSortedVBFFilter<CaloJet, TriggerJet> HLTCaloJetSortedVBFFilter;
+typedef HLTJetSortedVBFFilter<PFJet,   TriggerJet> HLTPFJetSortedVBFFilter;
+
 DEFINE_FWK_MODULE(HLT2jetGapFilter);
 DEFINE_FWK_MODULE(HLTAcoFilter);
 DEFINE_FWK_MODULE(HLTDiJetAveFilter);
@@ -80,8 +83,8 @@ DEFINE_FWK_MODULE(HLTMhtProducer);
 DEFINE_FWK_MODULE(HLTHtMhtProducer);
 DEFINE_FWK_MODULE(HLTHtMhtFilter);
 
-DEFINE_FWK_MODULE(HLTJetEtaSortedVBF);
-DEFINE_FWK_MODULE(HLTJetBTagSortedVBF);
+DEFINE_FWK_MODULE(HLTCaloJetSortedVBFFilter);
+DEFINE_FWK_MODULE(HLTPFJetSortedVBFFilter);
 
 DEFINE_FWK_MODULE(HLTPFEnergyFractionsFilter);
 
