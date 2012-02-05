@@ -126,7 +126,7 @@ private:
 			    const OmniClusterRef & clust,
 			    const StripClusterParameterEstimator* cpe) :
     TransientTrackingRecHit(det), 
-    theCPE(cpe), , theHitData(pos, err, det->geographicalId(), clust) {} 
+    theCPE(cpe), theHitData(pos, err, det->geographicalId(), clust) {} 
     
   virtual TSiStripRecHit2DLocalPos* clone() const {
     return new TSiStripRecHit2DLocalPos(*this);
