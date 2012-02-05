@@ -26,11 +26,16 @@ DEFINE_FWK_MODULE(HLTmmkFilter);
 #include "HLTmmkkFilter.h"
 DEFINE_FWK_MODULE(HLTmmkkFilter);
 
-#include "GetJetsFromHLTobject.h"
-DEFINE_FWK_MODULE(GetJetsFromHLTobject);
-
 #include "ConeIsolation.h"
 DEFINE_FWK_MODULE(ConeIsolation);
 
 #include "HLTCaloJetPairDzMatchFilter.h"
 DEFINE_FWK_MODULE(HLTCaloJetPairDzMatchFilter);
+
+#include "GetJetsFromHLTobject.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+typedef GetJetsFromHLTobject<reco::CaloJet> GetCaloJetsFromHLTobject;
+typedef GetJetsFromHLTobject<reco::PFJet>   GetPFJetsFromHLTobject;
+DEFINE_FWK_MODULE(GetCaloJetsFromHLTobject);
+DEFINE_FWK_MODULE(GetPFJetsFromHLTobject);
