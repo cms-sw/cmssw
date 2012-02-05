@@ -211,6 +211,24 @@ if 'hltHfreco' in %(dict)s:
 #    %(process)shltDt4DSegments.debug = cms.untracked.bool( False )
 #"""
 
+    # if requested, override the L1 self from the GlobalTag (Xml)
+    self.overrideL1MenuXml()
+
+    # if running on MC, adapt the configuration accordingly
+    self.fixForMC()
+
+    # if requested, remove the HLT prescales
+    self.fixPrescales()
+
+    # if requested, override all ED/HLTfilters to always pass ("open" mode)
+    self.instrumentOpenMode()
+
+    # if requested, instrument the self with the modules and EndPath needed for timing studies
+    self.instrumentTiming()
+
+    # add version-specific customisations
+    self.releaseSpecificCustomize()
+
     if self.config.fragment:
       
       self.data += """
@@ -221,36 +239,13 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
     )
     %(process)sHLTriggerFirstPath.replace(%(process)shltGetConditions,%(process)shltDummyConditions)
 """
-      # if running on MC, adapt the configuration accordingly
-      self.fixForMC()
-
       # if requested, adapt the configuration for FastSim
       self.fixForFastSim()
 
-      # if requested, remove the HLT prescales
-      self.fixPrescales()
-
-      # if requested, override all ED/HLTfilters to always pass ("open" mode)
-      self.instrumentOpenMode()
-
-      # if requested, instrument the self with the modules and EndPath needed for timing studies
-      self.instrumentTiming()
-
-      # add version-specific customisations
-      self.releaseSpecificCustomize()
-
     else:
-      # if running on MC, adapt the configuration accordingly
-      self.fixForMC()
 
       # override the process name and adapt the relevant filters
       self.overrideProcessName()
-
-      # if required, remove the HLT prescales
-      self.fixPrescales()
-
-      # if requested, override all ED/HLTfilters to always pass ("open" mode)
-      self.instrumentOpenMode()
 
       # override the output modules to output root files
       self.overrideOutput()
@@ -269,12 +264,6 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
 
       # request summary informations from the MessageLogger
       self.updateMessageLogger()
-
-      # if requested, instrument the self with the modules and EndPath needed for timing studies
-      self.instrumentTiming()
-
-      # add version-specific customisations
-      self.releaseSpecificCustomize()
 
 
 #    # load 4.2.x JECs
@@ -465,6 +454,25 @@ if 'GlobalTag' in %%(dict)s:
         self.config.l1.connect = '%(connect)s/CMS_COND_31X_L1T'
       self.loadAdditionalConditions( 'override the L1 menu', self.config.l1.__dict__ )
 
+
+  def overrideL1MenuXml(self):
+    # if requested, override the L1 menu from the GlobalTag (Xml file)
+    if self.config.l1Xml.XmlFile:
+      text = """
+# override the L1 menu from an Xml file
+%%(process)sl1GtTriggerMenuXml = cms.ESProducer("L1GtTriggerMenuXmlProducer",
+  TriggerMenuLuminosity = cms.string('%(LumiDir)s'),
+  DefXmlFile = cms.string('%(XmlFile)s'),
+  VmeXmlFile = cms.string('')
+)
+%%(process)sL1GtTriggerMenuRcdSource = cms.ESSource("EmptyESSource",
+  recordName = cms.string('L1GtTriggerMenuRcd'),
+  iovIsRunNotTime = cms.bool(True),
+  firstValid = cms.vuint32(1)
+)
+%%(process)ses_prefer_l1GtParameters = cms.ESPrefer('L1GtTriggerMenuXmlProducer','l1GtTriggerMenuXml') 
+"""
+      self.data += text % self.config.l1Xml.__dict__
 
   def runL1Emulator(self):
     # if requested, run (part of) the L1 emulator

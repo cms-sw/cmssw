@@ -55,6 +55,13 @@ parser.add_argument('--l1',
                     default = defaults.l1,
                     metavar = 'MENU', 
                     help    = 'Override the L1 menu, using the given payload from the database. %(metavar)s should have the format "L1GtTriggerMenu_MENU_mc".\nThe default behaviour is to run with the L1 menu from the GlobalTag' )
+parser.add_argument('--l1Xml', 
+                    dest    = 'l1Xml', 
+                    action  = 'store',
+                    type    = options.ConnectionL1TMenuXml,
+                    default = defaults.l1Xml,
+                    metavar = 'MENU', 
+                    help    = 'Override the L1 menu, using the given Xml file. %(metavar)s should have the format "L1GtTriggerMenu_MENU_mc".\nThe default behaviour is to run with the L1 menu from the GlobalTag' )
 parser.add_argument('--l1-emulator',
                     dest    = 'emulator',
                     action  = 'store',

@@ -23,6 +23,22 @@ class ConnectionL1TMenu(object):
         self.connect  = None
 
 
+# type used to store a reference to an L1 menu
+class ConnectionL1TMenuXml(object):
+  def __init__(self, value):
+    self.XmlFile = None
+    self.LumiDir = None
+
+    # extract the override tag and the connection string
+    if value:
+      if ',' in value:
+        self.XmlFile = value.split(',')[0]
+        self.LumiDir = value.split(',')[1]
+      else:
+        self.XmlFile = value
+        self.LumiDir = "startup"
+
+
 # type used to store a reference to an HLT configuration
 class ConnectionHLTMenu(object):
   def __init__(self, value):
@@ -57,6 +73,7 @@ class HLTProcessOptions(object):
     self.online     = False       # (*) run online (true) or offline (false)
     self.globaltag  = None        # (*) if set, override the GlobalTag
     self.l1         = None        # (*) if set, override the L1 menu
+    self.l1Xml      = None        # (*) if set, override the L1 menu Xml
     self.emulator   = None        # (*) if set, run (part of) the L1 emulator instead of taking the L1 results from the data
     self.unprescale = False       # (*) if set, unprescale all paths
     self.open       = False       #     if set, cms.ignore all filters, making all paths run on and accept all events
@@ -77,6 +94,9 @@ class HLTProcessOptions(object):
     elif name is 'l1' and type(value) is not ConnectionL1TMenu:
       # format '--l1' as needed
       object.__setattr__(self, name, ConnectionL1TMenu(value))
+    elif name is 'l1Xml' and type(value) is not ConnectionL1TMenuXml:
+      # format '--l1Xml' as needed
+      object.__setattr__(self, name, ConnectionL1TMenuXml(value))
     elif name is 'fastsim' and value:
       # '--fastsim' implies '--fragment' and '--mc'
       object.__setattr__(self, 'fastsim',    True)
