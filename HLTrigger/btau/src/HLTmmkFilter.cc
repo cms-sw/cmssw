@@ -180,7 +180,9 @@ bool HLTmmkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
 			LogDebug("HLTDisplacedMumukFilter") << " 3rd track: q*pt= " << trk3->charge()*trk3->pt() << ", eta= " << trk3->eta() << ", hits= " << trk3->numberOfValidHits();
  
  			//skip overlapping muon candidates
- 			if(trk3==trkMuCands.at(0) || trk3==trkMuCands.at(1)) continue;
+			bool skip=false;
+ 			for (unsigned int itmc=0;itmc<trkMuCands.size();itmc++) if(trk3==trkMuCands.at(itmc)) skip=true;
+			if(skip) continue;
 
 			//skip already used tracks
 			if(*isUsedIter) continue;

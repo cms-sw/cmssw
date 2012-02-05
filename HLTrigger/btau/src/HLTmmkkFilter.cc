@@ -183,7 +183,9 @@ bool HLTmmkkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup,
 			LogDebug("HLTDisplacedMumukkFilter") << " 3rd track: q*pt= " << trk3->charge()*trk3->pt() << ", eta= " << trk3->eta() << ", hits= " << trk3->numberOfValidHits();
  
  			//skip overlapping muon candidates
- 			if(trk3==trkMuCands.at(0) || trk3==trkMuCands.at(1)) continue;
+			bool skip=false;
+ 			for (unsigned int itmc=0;itmc<trkMuCands.size();itmc++) if(trk3==trkMuCands.at(itmc)) skip=true;
+			if(skip) continue;
 
 			//skip already used tracks
 			if(*isUsedIter) continue;
@@ -207,7 +209,9 @@ bool HLTmmkkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup,
                           LogDebug("HLTDisplacedMumukkFilter") << " 4th track: q*pt= " << trk4->charge()*trk4->pt() << ", eta= " << trk4->eta() << ", hits= " << trk4->numberOfValidHits();
 
                           //skip overlapping muon candidates                                                                                                       
-                          if(trk4==trkMuCands.at(0) || trk4==trkMuCands.at(1)) continue;
+			  bool skip2=false;
+			  for (unsigned int itmc=0;itmc<trkMuCands.size();itmc++) if(trk4==trkMuCands.at(itmc)) skip2=true;
+			  if(skip2) continue;
 
                           //skip already used tracks                                                                                                               
                           if(*isUsedIter2) continue;
