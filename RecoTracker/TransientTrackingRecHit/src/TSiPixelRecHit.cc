@@ -28,7 +28,7 @@ const GeomDetUnit* TSiPixelRecHit::detUnit() const
 TSiPixelRecHit::TSiPixelRecHit(const GeomDet * geom, const SiPixelRecHit* rh, 
 			       const PixelClusterParameterEstimator* cpe,
 			       bool computeCoarseLocalPosition) : 
-  TransientTrackingRecHit(geom, *rh), theHitData(*rh), theCPE(cpe)
+  TransientTrackingRecHit(geom, *rh), theCPE(cpe), theHitData(*rh)
 {
   if (! (rh->hasPositionAndError() || !computeCoarseLocalPosition)) {
     const GeomDetUnit* gdu = dynamic_cast<const GeomDetUnit*>(geom);
@@ -55,9 +55,8 @@ TSiPixelRecHit::TSiPixelRecHit( const LocalPoint& pos, const LocalError& err,
 				const GeomDet* det, 
 				clusterRef const & clust,
 				const PixelClusterParameterEstimator* cpe) :
-  TransientTrackingRecHit(det), 
-  theHitData( pos, err, det->geographicalId(), clust),
-  theCPE(cpe)
+  TransientTrackingRecHit(det), theCPE(cpe),
+  theHitData( pos, err, det->geographicalId(), clust)
 {
   // Additionally, fill the SiPixeRecHitQuality from the PixelCPE.
   theHitData.setRawQualityWord( cpe->rawQualityWord() );

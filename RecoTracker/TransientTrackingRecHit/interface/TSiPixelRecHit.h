@@ -79,10 +79,10 @@ public:
 
 
 private:
-
-  SiPixelRecHit                         theHitData;
   const PixelClusterParameterEstimator* theCPE;
+  SiPixelRecHit                         theHitData;
   unsigned int                          theClusterProbComputationFlag;
+
 
   /// This private constructor copies the TrackingRecHit.  It should be used when the 
   /// TrackingRecHit exist already in some collection.

@@ -90,8 +90,9 @@ private:
   
   const StripClusterParameterEstimator* theCPE;
   SiStripRecHit2D              theHitData;
-//  const StripClusterParameterEstimator* theCPE;
-  
+ 
+
+ 
   TSiStripRecHit2DLocalPos (const GeomDet * geom, const SiStripRecHit2D* rh,
 			    const StripClusterParameterEstimator* cpe,
 			    bool computeCoarseLocalPosition) : 
@@ -124,8 +125,8 @@ private:
 			    const GeomDet* det,
 			    const OmniClusterRef & clust,
 			    const StripClusterParameterEstimator* cpe) :
-    TransientTrackingRecHit(det), theHitData(pos, err, det->geographicalId(), clust), 
-    theCPE(cpe){} 
+    TransientTrackingRecHit(det), 
+    theCPE(cpe), , theHitData(pos, err, det->geographicalId(), clust) {} 
     
   virtual TSiStripRecHit2DLocalPos* clone() const {
     return new TSiStripRecHit2DLocalPos(*this);

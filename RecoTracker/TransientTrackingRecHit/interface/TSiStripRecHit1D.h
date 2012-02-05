@@ -89,8 +89,8 @@ public:
 
 private:
 
-  SiStripRecHit1D              theHitData;
   const StripClusterParameterEstimator* theCPE;
+  SiStripRecHit1D              theHitData;
 
   TSiStripRecHit1D (const GeomDet * geom, const SiStripRecHit1D* rh,
 		    const StripClusterParameterEstimator* cpe,
@@ -101,8 +101,8 @@ private:
 		    const GeomDet* det,
 		    const OmniClusterRef & clust,
 		    const StripClusterParameterEstimator* cpe) :
-    TransientTrackingRecHit(det), theHitData(pos, err, det->geographicalId(), clust), 
-    theCPE(cpe){} 
+    TransientTrackingRecHit(det), 
+    theCPE(cpe), theHitData(pos, err, det->geographicalId(), clust){} 
 
 
   
