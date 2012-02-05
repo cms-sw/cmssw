@@ -30,6 +30,7 @@ public:
   explicit TransientTrackingRecHit(const GeomDet * geom=0) : 
     TrackingRecHit(geom ? geom->geographicalId().rawId() : 0), 
     globalPosition_(0,0,0),
+    geom_(geom),
     errorR_(0),errorZ_(0),errorRPhi_(0),
     hasGlobalPosition_(false), hasGlobalError_(false){}
 
