@@ -87,7 +87,7 @@ int SiStripTemplateSplit::StripTempSplit(int id, float cotalpha, float cotbeta, 
 	float ss2, ssa, sa2, rat, fq, qtotal, qavg;
 	float originx, bias, maxpix;
 	double chi2x, meanx, chi2xmin, chi21max;
-	double hchi2, hndof, q05;
+	double hchi2, hndof;
 	double prvav, mpv, sigmaQ, kappa, xvav, beta2;
 	float xsum[BSXSIZE];
 	float xsig2[BSXSIZE];
@@ -120,7 +120,6 @@ int SiStripTemplateSplit::StripTempSplit(int id, float cotalpha, float cotbeta, 
 	// Define size of pseudopixel
 	
 	pseudopix = templ.s50();
-	q05 = 0.05f*pseudopix;
 	
 	// Get charge scaling factor
 	

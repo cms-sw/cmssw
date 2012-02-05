@@ -1473,7 +1473,7 @@ int SiStripTemplate::qbin(int id, float cotalpha, float cotbeta, float qclus)
     
     // Local variables 
     int i, binq;
-	int ilow, ihigh, Ny, Nxx, Nyx, imidy, imaxx, index;
+	int ilow, ihigh, Ny, Nxx, Nyx, index;
 	float yratio;
 	float acotb, qscale, qavg, qmin, qmin2, fq, qtotal, qcorrect, cotalpha0;
 	
@@ -1526,8 +1526,6 @@ int SiStripTemplate::qbin(int id, float cotalpha, float cotbeta, float qclus)
 #else
 		assert(Ny > 1 && Nyx > 0 && Nxx > 1);
 #endif
-	   imaxx = Nyx - 1;
-	   imidy = Nxx/2;
         
 // next, loop over all y-angle entries   
 
