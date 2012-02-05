@@ -99,13 +99,16 @@ public:
 private:
   void setPositionErrors() const;
   
-  const GeomDet * geom_ ;
+//  const GeomDet * geom_ ;
 
   // caching of some variable for fast access
   mutable GlobalPoint globalPosition_;  
 #ifndef TTRH_NOGE
   mutable GlobalError globalError_;
 #endif
+
+  const GeomDet * geom_ ;
+
   mutable float errorR_,errorZ_,errorRPhi_;
   mutable bool hasGlobalPosition_;
   mutable bool hasGlobalError_;

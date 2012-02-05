@@ -88,8 +88,9 @@ public:
   
 private:
   
-  SiStripRecHit2D              theHitData;
   const StripClusterParameterEstimator* theCPE;
+  SiStripRecHit2D              theHitData;
+//  const StripClusterParameterEstimator* theCPE;
   
   TSiStripRecHit2DLocalPos (const GeomDet * geom, const SiStripRecHit2D* rh,
 			    const StripClusterParameterEstimator* cpe,
