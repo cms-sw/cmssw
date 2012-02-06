@@ -49,24 +49,20 @@
 using namespace reco;
 using namespace trigger;
 
-typedef HLTMonoJetFilter<CaloJet,TriggerJet> HLTMonoCaloJetFilter;
-typedef HLTMonoJetFilter<PFJet,TriggerJet> HLTMonoPFJetFilter;
+typedef HLTMonoJetFilter<CaloJet> HLTMonoCaloJetFilter;
+typedef HLTMonoJetFilter<  PFJet> HLTMonoPFJetFilter;
 
 typedef HLTJetL1MatchProducer<CaloJet> HLTCaloJetL1MatchProducer;
 typedef HLTJetL1MatchProducer<PFJet> HLTPFJetL1MatchProducer;
 
-typedef HLTJetCollectionsFilter<CaloJet, TriggerJet> HLTCaloJetCollectionsFilter;
-typedef HLTJetCollectionsFilter<CaloJet, TriggerBJet> HLTCaloBJetCollectionsFilter;
-typedef HLTJetCollectionsFilter<PFJet, TriggerJet> HLTPFJetCollectionsFilter;
-typedef HLTJetCollectionsFilter<PFJet, TriggerBJet> HLTPFBJetCollectionsFilter;
+typedef HLTJetCollectionsFilter<CaloJet> HLTCaloJetCollectionsFilter;
+typedef HLTJetCollectionsFilter<  PFJet> HLTPFJetCollectionsFilter;
 
-typedef HLTJetCollectionsForLeptonPlusJets<CaloJet, TriggerJet> HLTCaloJetCollectionsForLeptonPlusJets;
-typedef HLTJetCollectionsForLeptonPlusJets<CaloJet, TriggerBJet> HLTCaloJetCollectionsForLeptonPlusBJets;
-typedef HLTJetCollectionsForLeptonPlusJets<PFJet, TriggerJet> HLTPFJetCollectionsForLeptonPlusJets;
-typedef HLTJetCollectionsForLeptonPlusJets<PFJet, TriggerBJet> HLTPFJetCollectionsForLeptonPlusBJets;
+typedef HLTJetCollectionsForLeptonPlusJets<CaloJet> HLTCaloJetCollectionsForLeptonPlusJets;
+typedef HLTJetCollectionsForLeptonPlusJets<  PFJet> HLTPFJetCollectionsForLeptonPlusJets;
 
-typedef HLTJetSortedVBFFilter<CaloJet, TriggerJet> HLTCaloJetSortedVBFFilter;
-typedef HLTJetSortedVBFFilter<PFJet,   TriggerJet> HLTPFJetSortedVBFFilter;
+typedef HLTJetSortedVBFFilter<CaloJet> HLTCaloJetSortedVBFFilter;
+typedef HLTJetSortedVBFFilter<  PFJet> HLTPFJetSortedVBFFilter;
 
 DEFINE_FWK_MODULE(HLT2jetGapFilter);
 DEFINE_FWK_MODULE(HLTAcoFilter);
@@ -102,14 +98,10 @@ DEFINE_FWK_MODULE(HLTMonoCaloJetFilter);
 DEFINE_FWK_MODULE(HLTMonoPFJetFilter);
 
 DEFINE_FWK_MODULE(HLTCaloJetCollectionsFilter);
-DEFINE_FWK_MODULE(HLTCaloBJetCollectionsFilter);
 DEFINE_FWK_MODULE(HLTPFJetCollectionsFilter);
-DEFINE_FWK_MODULE(HLTPFBJetCollectionsFilter);
 
 DEFINE_FWK_MODULE(HLTCaloJetCollectionsForLeptonPlusJets);
-DEFINE_FWK_MODULE(HLTCaloJetCollectionsForLeptonPlusBJets);
 DEFINE_FWK_MODULE(HLTPFJetCollectionsForLeptonPlusJets);
-DEFINE_FWK_MODULE(HLTPFJetCollectionsForLeptonPlusBJets);
 
 DEFINE_FWK_MODULE(HLTAlphaTFilter);
 

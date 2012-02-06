@@ -33,23 +33,24 @@
 //
 // constructors and destructor
 //
-template <typename jetType, int Tid>
-HLTJetCollectionsFilter<jetType, Tid>::HLTJetCollectionsFilter(const edm::ParameterSet& iConfig):
+template <typename jetType>
+HLTJetCollectionsFilter<jetType>::HLTJetCollectionsFilter(const edm::ParameterSet& iConfig):
   HLTFilter(iConfig),
   inputTag_(iConfig.getParameter< edm::InputTag > ("inputTag")),
   originalTag_(iConfig.getParameter< edm::InputTag > ("originalTag")),
   minJetPt_(iConfig.getParameter<double> ("MinJetPt")),
   maxAbsJetEta_(iConfig.getParameter<double> ("MaxAbsJetEta")),
-  minNJets_(iConfig.getParameter<unsigned int> ("MinNJets"))
+  minNJets_(iConfig.getParameter<unsigned int> ("MinNJets")),
+  triggerType_(iConfig.getParameter<int> ("triggerType"))
 {
 }
 
-template <typename jetType, int Tid>
-HLTJetCollectionsFilter<jetType, Tid>::~HLTJetCollectionsFilter(){}
+template <typename jetType>
+HLTJetCollectionsFilter<jetType>::~HLTJetCollectionsFilter(){}
 
-template <typename jetType, int Tid>
+template <typename jetType>
 void
-HLTJetCollectionsFilter<jetType, Tid>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+HLTJetCollectionsFilter<jetType>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputTag",edm::InputTag("hltIterativeCone5CaloJets"));
@@ -57,13 +58,14 @@ HLTJetCollectionsFilter<jetType, Tid>::fillDescriptions(edm::ConfigurationDescri
   desc.add<double>("MinJetPt",30.0);
   desc.add<double>("MaxAbsJetEta",2.6);
   desc.add<unsigned int>("MinNJets",1);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTJetCollectionsFilter<jetType, Tid>).name()),desc);
+  desc.add<int>("triggerType",0);
+  descriptions.add(std::string("hlt")+std::string(typeid(HLTJetCollectionsFilter<jetType>).name()),desc);
 }
 
 // ------------ method called to produce the data  ------------
-template <typename jetType, int Tid>
+template <typename jetType>
 bool
-HLTJetCollectionsFilter<jetType, Tid>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTJetCollectionsFilter<jetType>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace std;
   using namespace edm;
@@ -113,7 +115,7 @@ HLTJetCollectionsFilter<jetType, Tid>::hltFilter(edm::Event& iEvent, const edm::
 
   //fill the filter object
   for (unsigned int refIndex = 0; refIndex < goodJetRefs.size(); ++refIndex) {
-    filterproduct.addObject(static_cast<trigger::TriggerObjectType>(Tid), goodJetRefs.at(refIndex));
+    filterproduct.addObject(static_cast<trigger::TriggerObjectType>(triggerType_), goodJetRefs.at(refIndex));
   }
 
   return accept;

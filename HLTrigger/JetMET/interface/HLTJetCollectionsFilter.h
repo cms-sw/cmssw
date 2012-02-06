@@ -15,7 +15,7 @@ namespace edm {
 // class declaration
 //
 
-template <typename jetType, int Tid>
+template <typename jetType>
 class HLTJetCollectionsFilter : public HLTFilter {
 
    public:
@@ -29,6 +29,7 @@ class HLTJetCollectionsFilter : public HLTFilter {
       double minJetPt_; // jet pt threshold in GeV
       double maxAbsJetEta_; // jet |eta| range
       unsigned int minNJets_; // number of required jets passing cuts after cleaning
+      int triggerType_;
 };
 
 #endif //HLTJetCollectionsFilter_h

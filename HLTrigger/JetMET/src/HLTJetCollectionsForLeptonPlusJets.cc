@@ -21,8 +21,8 @@
 
 
 
-template <typename jetType, int Tid>
-HLTJetCollectionsForLeptonPlusJets<jetType, Tid>::HLTJetCollectionsForLeptonPlusJets(const edm::ParameterSet& iConfig):
+template <typename jetType>
+HLTJetCollectionsForLeptonPlusJets<jetType>::HLTJetCollectionsForLeptonPlusJets(const edm::ParameterSet& iConfig):
   hltLeptonTag(iConfig.getParameter< edm::InputTag > ("HltLeptonTag")),
   sourceJetTag(iConfig.getParameter< edm::InputTag > ("SourceJetTag")),
   minDeltaR_(iConfig.getParameter< double > ("minDeltaR"))
@@ -33,22 +33,22 @@ HLTJetCollectionsForLeptonPlusJets<jetType, Tid>::HLTJetCollectionsForLeptonPlus
   produces<JetCollectionVector> ();
 }
 
-template <typename jetType, int Tid>
-HLTJetCollectionsForLeptonPlusJets<jetType, Tid>::~HLTJetCollectionsForLeptonPlusJets()
+template <typename jetType>
+HLTJetCollectionsForLeptonPlusJets<jetType>::~HLTJetCollectionsForLeptonPlusJets()
 {
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
 }
 
-template <typename jetType, int Tid>
+template <typename jetType>
 void
-HLTJetCollectionsForLeptonPlusJets<jetType, Tid>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+HLTJetCollectionsForLeptonPlusJets<jetType>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     desc.add<edm::InputTag> ("HltLeptonTag", edm::InputTag("triggerFilterObjectWithRefs"));
     desc.add<edm::InputTag> ("SourceJetTag", edm::InputTag("caloJetCollection"));
     desc.add<double> ("minDeltaR", 0.5);
-    descriptions.add(std::string("hlt")+std::string(typeid(HLTJetCollectionsForLeptonPlusJets<jetType, Tid>).name()),desc);
+    descriptions.add(std::string("hlt")+std::string(typeid(HLTJetCollectionsForLeptonPlusJets<jetType>).name()),desc);
 }
 
 //
@@ -58,9 +58,9 @@ HLTJetCollectionsForLeptonPlusJets<jetType, Tid>::fillDescriptions(edm::Configur
 
 // ------------ method called to produce the data  ------------
 // template <typename T>
-template <typename jetType, int Tid>
+template <typename jetType>
 void
-HLTJetCollectionsForLeptonPlusJets<jetType, Tid>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTJetCollectionsForLeptonPlusJets<jetType>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
   using namespace std;

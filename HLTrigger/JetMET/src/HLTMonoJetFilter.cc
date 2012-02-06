@@ -27,48 +27,43 @@
 #include<typeinfo>
 
 //
-// extract the candidate type
-//
-template<typename T, int Tid>
-trigger::TriggerObjectType getObjectType(const T &) {
-  return static_cast<trigger::TriggerObjectType>(Tid);
-}
-
-//
 // constructors and destructor
 //
-template<typename T, int Tid>
-HLTMonoJetFilter<T,Tid>::HLTMonoJetFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
+template<typename T>
+HLTMonoJetFilter<T>::HLTMonoJetFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
   inputJetTag_ (iConfig.template getParameter< edm::InputTag > ("inputJetTag")),
-  max_PtSecondJet_ (iConfig.template getParameter<double> ("max_PtSecondJet")),
-  max_DeltaPhi_ (iConfig.template getParameter<double> ("max_DeltaPhi"))
+  max_PtSecondJet_ (iConfig.template getParameter<double> ("maxPtSecondJet")),
+  max_DeltaPhi_ (iConfig.template getParameter<double> ("maxDeltaPhi")),
+  triggerType_ (iConfig.template getParameter<int> ("triggerType"))
 {
-  LogDebug("") << "MonoJet: Input/maxPtSecondJet/maxDeltaPhi : "
+  LogDebug("") << "MonoJet: Input/maxPtSecondJet/maxDeltaPhi/triggerType : "
 	       << inputJetTag_.encode() << " "
 	       << max_PtSecondJet_ << " " 
-	       << max_DeltaPhi_ ;
+	       << max_DeltaPhi_ << " "
+	       << triggerType_;
 }
 
-template<typename T, int Tid>
-HLTMonoJetFilter<T,Tid>::~HLTMonoJetFilter(){}
+template<typename T>
+HLTMonoJetFilter<T>::~HLTMonoJetFilter(){}
 
-template<typename T, int Tid>
+template<typename T>
 void 
-HLTMonoJetFilter<T,Tid>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+HLTMonoJetFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputJetTag",edm::InputTag("hltAntiKT5ConvPFJets"));
   desc.add<double>("max_PtSecondJet",9999.);
   desc.add<double>("max_DeltaPhi",99.);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTMonoJetFilter<T,Tid>).name()),desc);
+  desc.add<int>("triggerType",0);
+  descriptions.add(std::string("hlt")+std::string(typeid(HLTMonoJetFilter<T>).name()),desc);
 }
 
 //
 // ------------ method called to produce the data  ------------
 //
-template<typename T, int Tid>
+template<typename T>
 bool
-HLTMonoJetFilter<T,Tid>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTMonoJetFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace std;
   using namespace edm;
@@ -127,7 +122,7 @@ HLTMonoJetFilter<T,Tid>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
     }
   
     if(n==1){
-      filterproduct.addObject(getObjectType<T, Tid>(*ref),ref);
+      filterproduct.addObject(static_cast<trigger::TriggerObjectType>(triggerType_),ref);
     }
   }
 

@@ -2,10 +2,10 @@
  *
  * See header file for documentation
  *
- *  $Date: 2012/02/04 17:21:53 $
+ *  $Date: 2012/02/04 18:13:00 $
 
 
- *  $Revision: 1.2 $
+ *  $Revision: 1.3 $
  *
  *  \author Jacopo Bernardini
  *
@@ -32,8 +32,8 @@ using namespace std;
 //
 // constructors and destructor//
 //
-template<typename T, int Tid>
-HLTJetSortedVBFFilter<T,Tid>::HLTJetSortedVBFFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
+template<typename T>
+HLTJetSortedVBFFilter<T>::HLTJetSortedVBFFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
  ,inputJets_   (iConfig.getParameter<edm::InputTag>("inputJets"   ))
  ,inputJetTags_(iConfig.getParameter<edm::InputTag>("inputJetTags"))
  ,mqq_         (iConfig.getParameter<double>       ("Mqq"         ))
@@ -43,17 +43,18 @@ HLTJetSortedVBFFilter<T,Tid>::HLTJetSortedVBFFilter(const edm::ParameterSet& iCo
  ,ptsbb_       (iConfig.getParameter<double>       ("Ptsumbb"     ))
  ,seta_        (iConfig.getParameter<double>       ("Etaq1Etaq2"  ))
  ,value_       (iConfig.getParameter<std::string>  ("value"       ))
+ ,triggerType_ (iConfig.getParameter<int>          ("triggerType" ))
 {
 }
 
 
-template<typename T, int Tid>
-HLTJetSortedVBFFilter<T,Tid>::~HLTJetSortedVBFFilter()
+template<typename T>
+HLTJetSortedVBFFilter<T>::~HLTJetSortedVBFFilter()
 { }
 
-template<typename T, int Tid>
+template<typename T>
 void
-HLTJetSortedVBFFilter<T,Tid>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+HLTJetSortedVBFFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputJets",edm::InputTag("hltJetCollection"));
@@ -65,7 +66,8 @@ HLTJetSortedVBFFilter<T,Tid>::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<double>("Ptsumbb",0.);
   desc.add<double>("Etaq1Etaq2",40.);
   desc.add<std::string>("value","second");
-  descriptions.add(string("hlt")+string(typeid(HLTJetSortedVBFFilter<T,Tid>).name()),desc);
+  desc.add<int>("triggerType",0);
+  descriptions.add(string("hlt")+string(typeid(HLTJetSortedVBFFilter<T>).name()),desc);
 }
 
 
@@ -74,9 +76,9 @@ HLTJetSortedVBFFilter<T,Tid>::fillDescriptions(edm::ConfigurationDescriptions& d
 //
 
 // ------------ method called to produce the data  ------------
-template<typename T, int Tid>
+template<typename T>
 bool 
-HLTJetSortedVBFFilter<T,Tid>::hltFilter(edm::Event& event, const edm::EventSetup& setup,trigger::TriggerFilterObjectWithRefs& filterproduct)
+HLTJetSortedVBFFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& setup,trigger::TriggerFilterObjectWithRefs& filterproduct)
 {
 
      using namespace std;
@@ -166,7 +168,7 @@ HLTJetSortedVBFFilter<T,Tid>::hltFilter(edm::Event& event, const edm::EventSetup
 	) {
      accept=true;
      for (unsigned int i=0; i<nMax; ++i) {
-       filterproduct.addObject(static_cast<trigger::TriggerObjectType>(Tid),jetRefs[i]);
+       filterproduct.addObject(static_cast<trigger::TriggerObjectType>(triggerType_),jetRefs[i]);
      }
    }
 

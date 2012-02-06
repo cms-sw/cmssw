@@ -18,7 +18,7 @@ namespace edm {
 // class declaration
 //
 
-template<typename T, int Tid>
+template<typename T>
 class HLTMonoJetFilter : public HLTFilter {
 
    public:
@@ -31,6 +31,7 @@ class HLTMonoJetFilter : public HLTFilter {
       edm::InputTag inputJetTag_;   // input tag identifying jets
       double max_PtSecondJet_;
       double max_DeltaPhi_;
+      int    triggerType_;
 };
 
 #endif //HLTMonoJetFilter_h
