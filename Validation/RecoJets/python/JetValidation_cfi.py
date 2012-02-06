@@ -2,35 +2,35 @@ import FWCore.ParameterSet.Config as cms
 
 # IC5 Calo jets
 
-JetAnalyzerIC5Calo = cms.EDAnalyzer("CaloJetTesterUnCorr",
-    src = cms.InputTag("iterativeCone5CaloJets"),
-    srcGen = cms.InputTag("iterativeCone5GenJets"),
-    srcRho = cms.InputTag("iterativeCone5CaloJets","rho"),
+#JetAnalyzerIC5Calo = cms.EDAnalyzer("CaloJetTesterUnCorr",
+#    src = cms.InputTag("iterativeCone5CaloJets"),
+#    srcGen = cms.InputTag("iterativeCone5GenJets"),
+#    srcRho = cms.InputTag("iterativeCone5CaloJets","rho"),
 #    TurnOnEverything = cms.untracked.string('yes'),
 #    TurnOnEverything = cms.untracked.string('no'),
 #    outputFile = cms.untracked.string('histo.root'),
 #    outputFile = cms.untracked.string('test.root'),
-    genEnergyFractionThreshold = cms.double(0.05),
-    genPtThreshold = cms.double(1.0),
-    RThreshold = cms.double(0.3),
-    reverseEnergyFractionThreshold = cms.double(0.5)                                    
-)
+#    genEnergyFractionThreshold = cms.double(0.05),
+#    genPtThreshold = cms.double(1.0),
+#    RThreshold = cms.double(0.3),
+#    reverseEnergyFractionThreshold = cms.double(0.5)                                    
+#)
 
 # IC5 PFlow jets
 
-JetAnalyzerIC5PF = cms.EDAnalyzer("PFJetTesterUnCorr",
-    src = cms.InputTag("iterativeCone5PFJets"),
-    srcGen = cms.InputTag("iterativeCone5GenJets"),
-    srcRho = cms.InputTag("iterativeCone5PFJets","rho"),
+#JetAnalyzerIC5PF = cms.EDAnalyzer("PFJetTesterUnCorr",
+#    src = cms.InputTag("iterativeCone5PFJets"),
+#    srcGen = cms.InputTag("iterativeCone5GenJets"),
+#    srcRho = cms.InputTag("iterativeCone5PFJets","rho"),
 #    TurnOnEverything = cms.untracked.string('yes'),
 #    TurnOnEverything = cms.untracked.string('no'),
 #    outputFile = cms.untracked.string('histo.root'),                                    
 #    outputFile = cms.untracked.string('test.root'),
-    genEnergyFractionThreshold = cms.double(0.05),                                    
-    genPtThreshold = cms.double(1.0),           
-    RThreshold = cms.double(0.3),              
-    reverseEnergyFractionThreshold = cms.double(0.5)
-)
+#    genEnergyFractionThreshold = cms.double(0.05),                                    
+#    genPtThreshold = cms.double(1.0),           
+#    RThreshold = cms.double(0.3),              
+#    reverseEnergyFractionThreshold = cms.double(0.5)
+#)
 
 # kt4 Calo jets
 

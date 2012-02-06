@@ -10,8 +10,8 @@ from RecoJets.Configuration.RecoJetAssociations_cff import *
 from Validation.RecoJets.JetValidation_cfi import *
 
 JetValidation = cms.Sequence(
-                      JetAnalyzerIC5Calo*
-                      JetAnalyzerIC5PF*
+#                      JetAnalyzerIC5Calo*
+#                      JetAnalyzerIC5PF*
                       JetAnalyzerKt6PF*JetAnalyzerKt6Calo*
                       JetAnalyzerAk5Calo*JetAnalyzerAk7Calo
                       *JetAnalyzerAk5PF
