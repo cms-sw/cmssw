@@ -1,31 +1,41 @@
+#ifndef GetJetsFromHLTobject_h
+#define GetJetsFromHLTobject_h
 
-#include "DataFormats/Common/interface/RefVector.h"
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+//
+// Package:    GetJetsFromHLTobject
+// Class:      GetJetsFromHLTobject
+// 
+/**\class GetJetsFromHLTobject 
 
-#include "GetJetsFromHLTobject.h"
+ Description: 
+   HLT algorithms produced trigger::TriggerFilterObjectWithRefs containing the jets etc.
+   that caused the trigger to fire. This class gets these jets
+   and stores references to them directly in the event in a RefVector.
 
-GetJetsFromHLTobject::GetJetsFromHLTobject(const edm::ParameterSet& iConfig) :
-  m_jets( iConfig.getParameter<edm::InputTag>("jets") )
-{
-  produces<reco::CaloJetCollection>();
-}
+ Implementation:
+     <Notes on implementation>
+*/
+//
+// Original Author:  Ian Tomalin
+//
 
+// user include files
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
-void
-GetJetsFromHLTobject::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
-   using namespace reco;
-   std::auto_ptr<reco::CaloJetCollection> jets( new reco::CaloJetCollection() );
+//
+// class decleration
+//
 
-   Handle<trigger::TriggerFilterObjectWithRefs> hltObject;
-   iEvent.getByLabel(m_jets, hltObject);
-   std::vector<reco::CaloJetRef> refs;
-   hltObject->getObjects( trigger::TriggerBJet, refs );
-   for (size_t i = 0; i < refs.size(); i++) {
-     jets->push_back(* refs[i]);
-   }
-   
-   iEvent.put(jets);
-}
+class GetJetsFromHLTobject : public edm::EDProducer {
+   public:
+      explicit GetJetsFromHLTobject(const edm::ParameterSet&);
+      virtual void produce(edm::Event&, const edm::EventSetup&);
+
+  private:
+     edm::InputTag m_jets;
+};
+
+#endif //GetJetsFromHLTobject_h
