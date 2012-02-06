@@ -16,7 +16,6 @@
 #include "HLTrigger/JetMET/interface/HLTPhi2METFilter.h"
 #include "HLTrigger/JetMET/interface/HLTRapGapFilter.h"
 #include "HLTrigger/JetMET/interface/HLTJetIDProducer.h"
-#include "HLTrigger/JetMET/interface/HLTJetL1MatchProducer.h"
 #include "HLTrigger/JetMET/interface/HLTJetCollForElePlusJets.h"
 #include "HLTrigger/JetMET/interface/HLTMhtFilter.h"
 #include "HLTrigger/JetMET/interface/HLTMhtProducer.h"
@@ -25,6 +24,9 @@
 
 #include "HLTrigger/JetMET/interface/HLTJetSortedVBFFilter.h"
 #include "HLTrigger/JetMET/src/HLTJetSortedVBFFilter.cc"
+
+#include "HLTrigger/JetMET/interface/HLTJetL1MatchProducer.h"
+#include "HLTrigger/JetMET/src/HLTJetL1MatchProducer.cc"
 
 #include "HLTrigger/JetMET/interface/HLTPFEnergyFractionsFilter.h"
 
@@ -50,6 +52,8 @@ using namespace trigger;
 typedef HLTMonoJetFilter<CaloJet,TriggerJet> HLTMonoCaloJetFilter;
 typedef HLTMonoJetFilter<PFJet,TriggerJet> HLTMonoPFJetFilter;
 
+typedef HLTJetL1MatchProducer<CaloJet> HLTCaloJetL1MatchProducer;
+typedef HLTJetL1MatchProducer<PFJet> HLTPFJetL1MatchProducer;
 
 typedef HLTJetCollectionsFilter<CaloJet, TriggerJet> HLTCaloJetCollectionsFilter;
 typedef HLTJetCollectionsFilter<CaloJet, TriggerBJet> HLTCaloBJetCollectionsFilter;
@@ -79,7 +83,10 @@ DEFINE_FWK_MODULE(HLTNVFilter);
 DEFINE_FWK_MODULE(HLTPhi2METFilter);
 DEFINE_FWK_MODULE(HLTRapGapFilter);
 DEFINE_FWK_MODULE(HLTJetIDProducer);
-DEFINE_FWK_MODULE(HLTJetL1MatchProducer);
+
+DEFINE_FWK_MODULE(HLTCaloJetL1MatchProducer);
+DEFINE_FWK_MODULE(HLTPFJetL1MatchProducer);
+
 DEFINE_FWK_MODULE(HLTJetCollForElePlusJets);
 DEFINE_FWK_MODULE(HLTMhtFilter);
 DEFINE_FWK_MODULE(HLTMhtProducer);
