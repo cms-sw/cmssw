@@ -4,8 +4,8 @@
  *  tagged multi-jet trigger for b and tau. 
  *  It should be run after the normal multi-jet trigger.
  *
- *  $Date: 2012/01/21 14:57:05 $
- *  $Revision: 1.11 $
+ *  $Date: 2012/02/06 10:06:49 $
+ *  $Revision: 1.12 $
  *
  *  \author Arnaud Gay, Ian Tomalin
  *  \maintainer Andrea Bocci
@@ -32,30 +32,32 @@
 // constructors and destructor
 //
 
-template<typename T, int Tid>
-HLTJetTag<T,Tid>::HLTJetTag(const edm::ParameterSet & config) : HLTFilter(config),
+template<typename T>
+HLTJetTag<T>::HLTJetTag(const edm::ParameterSet & config) : HLTFilter(config),
   m_Jets   (config.getParameter<edm::InputTag> ("Jets") ),
   m_JetTags(config.getParameter<edm::InputTag> ("JetTags") ),
   m_MinTag (config.getParameter<double>        ("MinTag") ),
   m_MaxTag (config.getParameter<double>        ("MaxTag") ),
-  m_MinJets(config.getParameter<int>           ("MinJets") )
+  m_MinJets(config.getParameter<int>           ("MinJets") ),
+  m_TriggerType(config.getParameter<int>       ("TriggerType") )
 {
 
   edm::LogInfo("") << " (HLTJetTag) trigger cuts: " << std::endl
                    << "\ttype of        jets used: " << m_Jets.encode() << std::endl
                    << "\ttype of tagged jets used: " << m_JetTags.encode() << std::endl
                    << "\tmin/max tag value: [" << m_MinTag << ".." << m_MaxTag << "]" << std::endl
-                   << "\tmin no. tagged jets: " << m_MinJets << std::endl;
+                   << "\tmin no. tagged jets: " << m_MinJets
+		   << "\tTriggerType: " << m_TriggerType << std::endl;
 }
 
-template<typename T, int Tid>
-HLTJetTag<T,Tid>::~HLTJetTag()
+template<typename T>
+HLTJetTag<T>::~HLTJetTag()
 {
 }
 
-template<typename T, int Tid>
+template<typename T>
 void
-HLTJetTag<T,Tid>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+HLTJetTag<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("Jets",edm::InputTag("hltJetCollection"));
@@ -63,7 +65,8 @@ HLTJetTag<T,Tid>::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   desc.add<double>("MinTag",2.0);
   desc.add<double>("MaxTag",999999.0);
   desc.add<int>("MinJets",1);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTJetTag<T,Tid>).name()),desc);
+  desc.add<int>("TriggerType",0);
+  descriptions.add(std::string("hlt")+std::string(typeid(HLTJetTag<T>).name()),desc);
 }
 
 //
@@ -71,9 +74,9 @@ HLTJetTag<T,Tid>::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 //
 
 // ------------ method called to produce the data  ------------
-template<typename T, int Tid>
+template<typename T>
 bool
-HLTJetTag<T,Tid>::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTJetTag<T>::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace std;
   using namespace edm;
@@ -106,7 +109,7 @@ HLTJetTag<T,Tid>::hltFilter(edm::Event& event, const edm::EventSetup& setup, tri
 
       // Store a reference to the jets which passed tagging cuts
       // N.B. this *should* work as we start from a CaloJet in HLT
-      filterproduct.addObject(static_cast<trigger::TriggerObjectType>(Tid),jetRef);
+      filterproduct.addObject(static_cast<trigger::TriggerObjectType>(m_TriggerType),jetRef);
     }
   }
 

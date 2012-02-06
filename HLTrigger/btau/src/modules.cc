@@ -36,10 +36,10 @@ DEFINE_FWK_MODULE(HLTCaloJetPairDzMatchFilter);
 
 #include "HLTJetTag.h"
 #include "HLTJetTag.cc"
-typedef HLTJetTag<reco::CaloJet,trigger::TriggerBJet> HLTCaloBJetTag;
-typedef HLTJetTag<reco::PFJet  ,trigger::TriggerBJet> HLTPFBJetTag;
-DEFINE_FWK_MODULE(HLTCaloBJetTag);
-DEFINE_FWK_MODULE(HLTPFBJetTag);
+typedef HLTJetTag<reco::CaloJet> HLTCaloJetTag;
+typedef HLTJetTag<reco::  PFJet> HLTPFJetTag;
+DEFINE_FWK_MODULE(HLTCaloJetTag);
+DEFINE_FWK_MODULE(HLTPFJetTag);
 
 #include "HLTCollectionProducer.h"
 typedef HLTCollectionProducer<reco::CaloJet> HLTCaloJetCollectionProducer;

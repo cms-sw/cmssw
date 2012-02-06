@@ -7,8 +7,8 @@
  *  tagged multi-jet trigger for b and tau. 
  *  It should be run after the normal multi-jet trigger.
  *
- *  $Date: 2012/01/21 14:57:05 $
- *  $Revision: 1.5 $
+ *  $Date: 2012/02/06 10:06:49 $
+ *  $Revision: 1.6 $
  *
  *  \author Arnaud Gay, Ian Tomalin
  *  \maintainer Andrea Bocci
@@ -29,7 +29,7 @@ namespace edm {
 // class declaration
 //
 
-template<typename T, int Tid>
+template<typename T>
 class HLTJetTag : public HLTFilter {
 
   public:
@@ -43,6 +43,7 @@ private:
   edm::InputTag m_JetTags;      // module label of input JetTagCollection
   double m_MinTag, m_MaxTag;    // tag descriminator cuts applied to each jet
   int    m_MinJets;             // min. number of jets required to be tagged
+  int    m_TriggerType;
 
 };
 
