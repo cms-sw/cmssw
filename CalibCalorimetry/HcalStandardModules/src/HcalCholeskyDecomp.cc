@@ -24,7 +24,7 @@ HcalCholeskyDecomp::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    const HcalCovarianceMatrices* myCov = refCov.product(); //Fill emap from database
 
    double sig[4][10][10];
-   double c[4][10][10], cikik[4], cikjk[4], ct[4][10][10];
+   double c[4][10][10], cikik[4], cikjk[4];
 
    HcalCholeskyMatrices * outMatrices = new HcalCholeskyMatrices();
 
@@ -62,7 +62,6 @@ HcalCholeskyDecomp::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
          for(int j = 0; j!=10; j++){
             sig[m][i][j] = 0;
             c[m][i][j] = 0;
-	    ct[m][i][j] = 0;
             cikik[m] =0;
             cikjk[m] = 0;
             tempmatrix[m][i][j] = 0;
