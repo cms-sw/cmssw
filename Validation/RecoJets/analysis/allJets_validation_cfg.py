@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("JETVALIDATION")
 
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'START50_V5::All'
+process.GlobalTag.globaltag = 'START42_V17::All'
 #process.GlobalTag.globaltag = 'MC_38Y_V14::All'
 
 #process.load("Configuration.StandardSequences.Services_cff")
@@ -33,6 +33,10 @@ process.load("JetMETCorrections.Configuration.DefaultJEC_cff")
 #process.ak5L1JPTOffset.era = 'Jec11V0'
 #process.ak5L1JPTOffset.useCondDB = False
 
+process.load('RecoJets.Configuration.RecoPFJets_cff')
+process.kt6PFJets.doRhoFastjet = True
+process.ak5PFJets.doAreaFastjet = True
+
 # Validation module
 process.load("Validation.RecoJets.JetValidation_cff")
 
@@ -46,8 +50,7 @@ process.source = cms.Source("PoolSource",
 
     fileNames = cms.untracked.vstring(
 
-'/store/relval/CMSSW_5_0_0_pre6/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/START50_V5-v1/0195/8C427AE0-BA15-E111-B7AA-003048678A76.root'
-
+'file:/afs/cern.ch/user/k/kovitang/scratch0/60A53D23-A1BB-E011-987B-001A92971B90.root'
     )
 
 )
@@ -111,6 +114,8 @@ process.fileSaver = cms.EDAnalyzer("JetFileSaver",
 #)
 
 process.p1 = cms.Path(process.fileSaver
+	              *process.kt6PFJets 
+                      #* process.ak5PFJets 
                       #--- Non-Standard sequence (that involve Producers)
                       #*process.ak5CaloJetsL2L3
  #                     *process.ZSPJetCorrectionsIcone5
