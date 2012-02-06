@@ -100,7 +100,6 @@ int RPCSimAverageNoise::getClSize(float posX)
 
   int cnt = 1;
   int min = 1;
-  int max = 1;
   double func=0.0;
   std::vector<double> sum_clsize;
 
@@ -133,7 +132,6 @@ int RPCSimAverageNoise::getClSize(float posX)
       min = cnt;
     }
     else if(func < (*iter)){
-      max = cnt;
       break;
     }
   }

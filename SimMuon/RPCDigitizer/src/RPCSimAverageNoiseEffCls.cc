@@ -104,7 +104,6 @@ int RPCSimAverageNoiseEffCls::getClSize(uint32_t id,float posX)
 
   int cnt = 1;
   int min = 1;
-  int max = 1;
   double func=0.0;
   std::vector<double> sum_clsize;
 
@@ -142,7 +141,6 @@ int RPCSimAverageNoiseEffCls::getClSize(uint32_t id,float posX)
       min = cnt;
     }
     else if(func < clsForDetId[i]){
-      max = cnt;
       break;
     }
   }
@@ -156,7 +154,6 @@ int RPCSimAverageNoiseEffCls::getClSize(float posX)
 
   int cnt = 1;
   int min = 1;
-  int max = 1;
   double func=0.0;
   std::vector<double> sum_clsize;
 
@@ -189,7 +186,6 @@ int RPCSimAverageNoiseEffCls::getClSize(float posX)
       min = cnt;
     }
     else if(func < (*iter)){
-      max = cnt;
       break;
     }
   }

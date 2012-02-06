@@ -95,7 +95,6 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit)
     if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
       
       RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
-      RPCDetId detId=ch->id();
 
       std::vector< const RPCRoll*> rollsRaf = (ch->rolls());
       for(std::vector<const RPCRoll*>::iterator r = rollsRaf.begin();

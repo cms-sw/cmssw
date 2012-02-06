@@ -45,7 +45,6 @@ RPCSimSetUp::RPCSimSetUp(const edm::ParameterSet& ps) {
 
 void RPCSimSetUp::setRPCSetUp(std::vector<RPCStripNoises::NoiseItem> vnoise, std::vector<float> vcls){
 
-  double sum = 0;
   unsigned int counter = 1;
   unsigned int row = 1;
   std::vector<double> sum_clsize;
@@ -58,7 +57,6 @@ void RPCSimSetUp::setRPCSetUp(std::vector<RPCStripNoises::NoiseItem> vnoise, std
 
       _clsMap[row] = sum_clsize;
       row++;
-      sum = 0;
       sum_clsize.clear();
     }
     counter++;
