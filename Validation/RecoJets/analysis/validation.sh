@@ -22,9 +22,9 @@ if [ -n $title ]; then
     if [ -e $reference ]; then
 	if [ -e $new ]; then
 
-	    TAG=(CaloJetTask_iterativeCone5CaloJets CaloJetTask_L2L3CorJetAK5Calo JPTJetTask_JetPlusTrackZSPCorJetIcone5 PFJetTask_iterativeCone5PFJets PFJetTask_kt6PFJets CaloJetTask_kt6CaloJets CaloJetTask_ak5CaloJets CaloJetTask_ak7CaloJets PFJetTask_ak5PFJets JPTJetTask_JetPlusTrackZSPCorJetAntiKt5)
-	    TAGREF=(CaloJetTask_iterativeCone5CaloJets CaloJetTask_L2L3CorJetAK5Calo JPTJetTask_JetPlusTrackZSPCorJetIcone5 PFJetTask_iterativeCone5PFJets PFJetTask_kt6PFJets CaloJetTask_kt6CaloJets CaloJetTask_ak5CaloJets CaloJetTask_ak7CaloJets PFJetTask_ak5PFJets JPTJetTask_JetPlusTrackZSPCorJetAntiKt5)
-	    FOLDER=(Icone5 CorrAK5 JPTIC5 PFlow PFlowKt6 kt6 AntiKt5 AntiKt7 PFlowAntiKt5 JPTAntiKt5)
+	    TAG=(PFJetTask_kt6PFJets CaloJetTask_kt6CaloJets CaloJetTask_ak5CaloJets CaloJetTask_ak7CaloJets PFJetTask_ak5PFJets JPTJetTask_JetPlusTrackZSPCorJetAntiKt5)
+	    TAGREF=(PFJetTask_kt6PFJets CaloJetTask_kt6CaloJets CaloJetTask_ak5CaloJets CaloJetTask_ak7CaloJets PFJetTask_ak5PFJets JPTJetTask_JetPlusTrackZSPCorJetAntiKt5)
+	    FOLDER=(PFlowKt6 kt6 AntiKt5 AntiKt7 PFlowAntiKt5 JPTAntiKt5)
 	    ntag=${#TAG[@]}
 	    echo "Number of module tags: " $ntag
 	    for (( i=0;i<$ntag;i++ )); do
@@ -49,26 +49,17 @@ if [ -n $title ]; then
 		mv *.jpg $title/${FOLDER[${i}]}
 		cp html/spacer.gif $title/${FOLDER[${i}]}
 
-                # Icone PF
-		if [ ${FOLDER[${i}]} = ${FOLDER[3]} ]; then
-                cp html/htmlTemplate_PFUnCorr.html $title/${FOLDER[${i}]}
-                # Icone Calo
-                elif [ ${FOLDER[${i}]} = ${FOLDER[0]} ]; then
-                    cp html/htmlTemplateUnCorr.html $title/${FOLDER[${i}]}
                  # kt6 PF
-                elif [ ${FOLDER[${i}]} = ${FOLDER[4]} ]; then
+                if [ ${FOLDER[${i}]} = ${FOLDER[0]} ]; then
                     cp html/htmlTemplate_PFUnCorr.html $title/${FOLDER[${i}]}
                  # kt6 Calo
-                elif [ ${FOLDER[${i}]} = ${FOLDER[5]} ]; then
+                elif [ ${FOLDER[${i}]} = ${FOLDER[1]} ]; then
                     cp html/htmlTemplateUnCorr.html $title/${FOLDER[${i}]}
                 # AntiKt PF
-		elif [ ${FOLDER[${i}]} = ${FOLDER[8]} ]; then
+		elif [ ${FOLDER[${i}]} = ${FOLDER[4]} ]; then
 		    cp html/htmlTemplate_PF.html $title/${FOLDER[${i}]}
-                # JPT IC5
-		elif [ ${FOLDER[${i}]} = ${FOLDER[2]} ]; then
-		    cp html/JPTUnCorr.html $title/${FOLDER[${i}]}
                 # JPT AK5
-		elif [ ${FOLDER[${i}]} = ${FOLDER[9]} ]; then
+		elif [ ${FOLDER[${i}]} = ${FOLDER[5]} ]; then
 		    cp html/JPT.html $title/${FOLDER[${i}]}
 		else
 		    cp html/htmlTemplate.html $title/${FOLDER[${i}]}
