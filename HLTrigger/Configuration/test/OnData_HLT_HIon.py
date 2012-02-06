@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_1_0/HIon/V12 (CMSSW_5_2_0_pre3_HLT6)
+# /dev/CMSSW_5_1_0/HIon/V13 (CMSSW_5_2_0_pre3_HLT6)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/HIon/V12')
+  tableName = cms.string('/dev/CMSSW_5_1_0/HIon/V13')
 )
 
 process.streams = cms.PSet( 
@@ -8217,6 +8217,16 @@ process.source = cms.Source( "PoolSource",
 if 'hltHfreco' in process.__dict__:
     process.hltHfreco.setNoiseFlags = cms.bool( False )
 
+# remove the HLT prescales
+if 'PrescaleService' in process.__dict__:
+    process.PrescaleService.lvl1DefaultLabel = cms.untracked.string( '0' )
+    process.PrescaleService.lvl1Labels       = cms.vstring( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' )
+    process.PrescaleService.prescaleTable    = cms.VPSet( )
+
+# CMSSW version specific customizations
+import os
+cmsswVersion = os.environ['CMSSW_VERSION']
+
 # override the process name
 process.setName_('HLTHIon')
 
@@ -8252,12 +8262,6 @@ if 'hltDQMHLTScalers' in process.__dict__:
 if 'hltDQML1SeedLogicScalers' in process.__dict__:
     process.hltDQML1SeedLogicScalers.processname              = 'HLTHIon'
 
-# remove the HLT prescales
-if 'PrescaleService' in process.__dict__:
-    process.PrescaleService.lvl1DefaultLabel = cms.untracked.string( '0' )
-    process.PrescaleService.lvl1Labels       = cms.vstring( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' )
-    process.PrescaleService.prescaleTable    = cms.VPSet( )
-
 # limit the number of events to be processed
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32( 100 )
@@ -8290,8 +8294,4 @@ if 'MessageLogger' in process.__dict__:
     process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
     process.MessageLogger.categories.append('L1GtTrigReport')
     process.MessageLogger.categories.append('HLTrigReport')
-
-# CMSSW version specific customizations
-import os
-cmsswVersion = os.environ['CMSSW_VERSION']
 

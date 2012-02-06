@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_1_0/GRun/V12 (CMSSW_5_2_0_pre3_HLT6)
+# /dev/CMSSW_5_1_0/GRun/V13 (CMSSW_5_2_0_pre3_HLT6)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V12')
+  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V13')
 )
 
 process.streams = cms.PSet( 
@@ -28238,12 +28238,12 @@ process.hltMu17Eta2p1CenJetL3withL2QFiltered17 = cms.EDFilter( "HLTMuonL3PreFilt
     BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
     MinPt = cms.double( 17.0 )
 )
-process.hltMu172p1JetCollectionsForLeptonPlusJets = cms.EDProducer( "HLTJetCollectionsForLeptonPlusJets",
+process.hltMu172p1JetCollectionsForLeptonPlusJets = cms.EDProducer( "HLTCaloJetCollectionsForLeptonPlusJets",
     SourceJetTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     minDeltaR = cms.double( 0.3 ),
     HltLeptonTag = cms.InputTag( "hltMu17Eta2p1CenJetL3withL2QFiltered17" )
 )
-process.hltMu172p1CentralPFJet30Filter = cms.EDFilter( "HLTJetCollectionsFilter",
+process.hltMu172p1CentralPFJet30Filter = cms.EDFilter( "HLTCaloJetCollectionsFilter",
     saveTags = cms.bool( True ),
     originalTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     inputTag = cms.InputTag( "hltMu172p1JetCollectionsForLeptonPlusJets" ),
@@ -28255,7 +28255,7 @@ process.hltPreMu17eta2p1DiCentralPFJet30 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
-process.hltMu172p1DiCentralPFJet30Filter = cms.EDFilter( "HLTJetCollectionsFilter",
+process.hltMu172p1DiCentralPFJet30Filter = cms.EDFilter( "HLTCaloJetCollectionsFilter",
     saveTags = cms.bool( True ),
     originalTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     inputTag = cms.InputTag( "hltMu172p1JetCollectionsForLeptonPlusJets" ),
@@ -28267,7 +28267,7 @@ process.hltPreMu17eta2p1TriCentralPFJet30 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
-process.hltMu172p1TriCentralPFJet30Filter = cms.EDFilter( "HLTJetCollectionsFilter",
+process.hltMu172p1TriCentralPFJet30Filter = cms.EDFilter( "HLTCaloJetCollectionsFilter",
     saveTags = cms.bool( True ),
     originalTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     inputTag = cms.InputTag( "hltMu172p1JetCollectionsForLeptonPlusJets" ),
@@ -28279,7 +28279,7 @@ process.hltPreMu17eta2p1QuadCentralPFJet30 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
-process.hltMu172p1QuadCentralPFJet30Filter = cms.EDFilter( "HLTJetCollectionsFilter",
+process.hltMu172p1QuadCentralPFJet30Filter = cms.EDFilter( "HLTCaloJetCollectionsFilter",
     saveTags = cms.bool( True ),
     originalTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     inputTag = cms.InputTag( "hltMu172p1JetCollectionsForLeptonPlusJets" ),
@@ -29414,12 +29414,12 @@ process.hltPreIsoMu17eta2p1CentralPFJet30 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
-process.hltIsoMu172p1JetCollectionsForLeptonPlusJets = cms.EDProducer( "HLTJetCollectionsForLeptonPlusJets",
+process.hltIsoMu172p1JetCollectionsForLeptonPlusJets = cms.EDProducer( "HLTCaloJetCollectionsForLeptonPlusJets",
     SourceJetTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     minDeltaR = cms.double( 0.3 ),
     HltLeptonTag = cms.InputTag( "hltMuEta2p1IsoCenJetL3withL2QIsoFiltered17" )
 )
-process.hltIsoMu172p1CentralPFJet30Filter = cms.EDFilter( "HLTJetCollectionsFilter",
+process.hltIsoMu172p1CentralPFJet30Filter = cms.EDFilter( "HLTCaloJetCollectionsFilter",
     saveTags = cms.bool( True ),
     originalTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     inputTag = cms.InputTag( "hltIsoMu172p1JetCollectionsForLeptonPlusJets" ),
@@ -29431,7 +29431,7 @@ process.hltPreIsoMu17eta2p1DiCentralPFJet30 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
-process.hltIsoMu172p1DiCentralPFJet30Filter = cms.EDFilter( "HLTJetCollectionsFilter",
+process.hltIsoMu172p1DiCentralPFJet30Filter = cms.EDFilter( "HLTCaloJetCollectionsFilter",
     saveTags = cms.bool( True ),
     originalTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     inputTag = cms.InputTag( "hltIsoMu172p1JetCollectionsForLeptonPlusJets" ),
@@ -29443,7 +29443,7 @@ process.hltPreIsoMu17eta2p1TriCentralPFJet30 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
-process.hltIsoMu172p1TriCentralPFJet30Filter = cms.EDFilter( "HLTJetCollectionsFilter",
+process.hltIsoMu172p1TriCentralPFJet30Filter = cms.EDFilter( "HLTCaloJetCollectionsFilter",
     saveTags = cms.bool( True ),
     originalTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     inputTag = cms.InputTag( "hltIsoMu172p1JetCollectionsForLeptonPlusJets" ),
@@ -29455,7 +29455,7 @@ process.hltPreIsoMu17eta2p1QuadCentralPFJet30 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
-process.hltIsoMu172p1QuadCentralPFJet30Filter = cms.EDFilter( "HLTJetCollectionsFilter",
+process.hltIsoMu172p1QuadCentralPFJet30Filter = cms.EDFilter( "HLTCaloJetCollectionsFilter",
     saveTags = cms.bool( True ),
     originalTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     inputTag = cms.InputTag( "hltIsoMu172p1JetCollectionsForLeptonPlusJets" ),
@@ -29471,7 +29471,7 @@ process.hltPreMu17eta2p1DiCentralPFJet25PFMHT15 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
-process.hltMu172p1DiCentralPFJet25Filter = cms.EDFilter( "HLTJetCollectionsFilter",
+process.hltMu172p1DiCentralPFJet25Filter = cms.EDFilter( "HLTCaloJetCollectionsFilter",
     saveTags = cms.bool( True ),
     originalTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     inputTag = cms.InputTag( "hltMu172p1JetCollectionsForLeptonPlusJets" ),
@@ -29488,7 +29488,7 @@ process.hltPreIsoMu17eta2p1DiCentralPFJet25 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
-process.hltIsoMu172p1DiCentralPFJet25Filter = cms.EDFilter( "HLTJetCollectionsFilter",
+process.hltIsoMu172p1DiCentralPFJet25Filter = cms.EDFilter( "HLTCaloJetCollectionsFilter",
     saveTags = cms.bool( True ),
     originalTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     inputTag = cms.InputTag( "hltIsoMu172p1JetCollectionsForLeptonPlusJets" ),
@@ -31873,12 +31873,12 @@ process.hltPreEle25CaloIdVTTrkIdTCentralPFJet30 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
-process.hltEle25CaloIdVTTrkIdTJetCollectionsForLeptonPlusPFJets = cms.EDProducer( "HLTJetCollectionsForLeptonPlusJets",
+process.hltEle25CaloIdVTTrkIdTJetCollectionsForLeptonPlusPFJets = cms.EDProducer( "HLTCaloJetCollectionsForLeptonPlusJets",
     SourceJetTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     minDeltaR = cms.double( 0.3 ),
     HltLeptonTag = cms.InputTag( "hltEle25CaloIdVTTrkIdTDphiFilter" )
 )
-process.hltEle25CaloIdVTTrkIdTCentralPFJet30EleCleaned = cms.EDFilter( "HLTJetCollectionsFilter",
+process.hltEle25CaloIdVTTrkIdTCentralPFJet30EleCleaned = cms.EDFilter( "HLTCaloJetCollectionsFilter",
     saveTags = cms.bool( True ),
     originalTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     inputTag = cms.InputTag( "hltEle25CaloIdVTTrkIdTJetCollectionsForLeptonPlusPFJets" ),
@@ -31890,7 +31890,7 @@ process.hltPreEle25CaloIdVTTrkIdTDiCentralPFJet30 = cms.EDFilter( "HLTPrescaler"
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
-process.hltEle25CaloIdVTTrkIdTDiCentralPFJet30EleCleaned = cms.EDFilter( "HLTJetCollectionsFilter",
+process.hltEle25CaloIdVTTrkIdTDiCentralPFJet30EleCleaned = cms.EDFilter( "HLTCaloJetCollectionsFilter",
     saveTags = cms.bool( True ),
     originalTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     inputTag = cms.InputTag( "hltEle25CaloIdVTTrkIdTJetCollectionsForLeptonPlusPFJets" ),
@@ -31902,7 +31902,7 @@ process.hltPreEle25CaloIdVTTrkIdTTriCentralPFJet30 = cms.EDFilter( "HLTPrescaler
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
-process.hltEle25CaloIdVTTrkIdTTriCentralPFJet30EleCleaned = cms.EDFilter( "HLTJetCollectionsFilter",
+process.hltEle25CaloIdVTTrkIdTTriCentralPFJet30EleCleaned = cms.EDFilter( "HLTCaloJetCollectionsFilter",
     saveTags = cms.bool( True ),
     originalTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     inputTag = cms.InputTag( "hltEle25CaloIdVTTrkIdTJetCollectionsForLeptonPlusPFJets" ),
@@ -31914,7 +31914,7 @@ process.hltPreEle25CaloIdVTTrkIdTQuadCentralPFJet30 = cms.EDFilter( "HLTPrescale
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
-process.hltEle25CaloIdVTTrkIdTQuadCentralPFJet30EleCleaned = cms.EDFilter( "HLTJetCollectionsFilter",
+process.hltEle25CaloIdVTTrkIdTQuadCentralPFJet30EleCleaned = cms.EDFilter( "HLTCaloJetCollectionsFilter",
     saveTags = cms.bool( True ),
     originalTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     inputTag = cms.InputTag( "hltEle25CaloIdVTTrkIdTJetCollectionsForLeptonPlusPFJets" ),
@@ -32093,12 +32093,12 @@ process.hltPreEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTCentralPFJet30 = cms.EDFilter( "
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
-process.hltEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTJetCollectionsForLeptonPlusPFJets = cms.EDProducer( "HLTJetCollectionsForLeptonPlusJets",
+process.hltEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTJetCollectionsForLeptonPlusPFJets = cms.EDProducer( "HLTCaloJetCollectionsForLeptonPlusJets",
     SourceJetTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     minDeltaR = cms.double( 0.3 ),
     HltLeptonTag = cms.InputTag( "hltEle25CaloIdVTTrkIdTCaloIsoTTrkIsoTTrackIsolFilter" )
 )
-process.hltEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTCentralPFJet30EleCleaned = cms.EDFilter( "HLTJetCollectionsFilter",
+process.hltEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTCentralPFJet30EleCleaned = cms.EDFilter( "HLTCaloJetCollectionsFilter",
     saveTags = cms.bool( True ),
     originalTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     inputTag = cms.InputTag( "hltEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTJetCollectionsForLeptonPlusPFJets" ),
@@ -32110,7 +32110,7 @@ process.hltPreEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTDiCentralPFJet30 = cms.EDFilter(
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
-process.hltEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTDiCentralPFJet30EleCleaned = cms.EDFilter( "HLTJetCollectionsFilter",
+process.hltEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTDiCentralPFJet30EleCleaned = cms.EDFilter( "HLTCaloJetCollectionsFilter",
     saveTags = cms.bool( True ),
     originalTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     inputTag = cms.InputTag( "hltEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTJetCollectionsForLeptonPlusPFJets" ),
@@ -32122,7 +32122,7 @@ process.hltPreEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTTriCentralPFJet30 = cms.EDFilter
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
-process.hltEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTTriCentralPFJet30EleCleaned = cms.EDFilter( "HLTJetCollectionsFilter",
+process.hltEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTTriCentralPFJet30EleCleaned = cms.EDFilter( "HLTCaloJetCollectionsFilter",
     saveTags = cms.bool( True ),
     originalTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     inputTag = cms.InputTag( "hltEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTJetCollectionsForLeptonPlusPFJets" ),
@@ -32134,7 +32134,7 @@ process.hltPreEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTQuadCentralPFJet30 = cms.EDFilte
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
-process.hltEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTQuadCentralPFJet30EleCleaned = cms.EDFilter( "HLTJetCollectionsFilter",
+process.hltEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTQuadCentralPFJet30EleCleaned = cms.EDFilter( "HLTCaloJetCollectionsFilter",
     saveTags = cms.bool( True ),
     originalTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     inputTag = cms.InputTag( "hltEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTJetCollectionsForLeptonPlusPFJets" ),
@@ -32320,7 +32320,7 @@ process.hltEle27WP80CleanAK5PFJet25 = cms.EDProducer( "HLTJetCollectionsForElePl
     minDeltaR = cms.double( 0.3 ),
     HltElectronTag = cms.InputTag( "hltEle27WP80TrackIsoFilter" )
 )
-process.hltEle27WP80CentralDiPFJet25Cleaned = cms.EDFilter( "HLTJetCollectionsFilter",
+process.hltEle27WP80CentralDiPFJet25Cleaned = cms.EDFilter( "HLTCaloJetCollectionsFilter",
     saveTags = cms.bool( True ),
     originalTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     inputTag = cms.InputTag( "hltEle27WP80CleanAK5PFJet25" ),
@@ -32465,7 +32465,7 @@ process.hltEle27CaloIdTTrkIdTCleanAK5PFJet25 = cms.EDProducer( "HLTJetCollection
     minDeltaR = cms.double( 0.3 ),
     HltElectronTag = cms.InputTag( "hltEle27CaloIdVTTrkIdTDphiFilter" )
 )
-process.hltEle27CaloIdTTrkIdTCentralDiPFJet25Cleaned = cms.EDFilter( "HLTJetCollectionsFilter",
+process.hltEle27CaloIdTTrkIdTCentralDiPFJet25Cleaned = cms.EDFilter( "HLTCaloJetCollectionsFilter",
     saveTags = cms.bool( True ),
     originalTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     inputTag = cms.InputTag( "hltEle27CaloIdTTrkIdTCleanAK5PFJet25" ),
@@ -32647,7 +32647,7 @@ process.hltEle32WP80CleanAK5PFJet25 = cms.EDProducer( "HLTJetCollectionsForElePl
     minDeltaR = cms.double( 0.3 ),
     HltElectronTag = cms.InputTag( "hltEle32WP80TrackIsoFilter" )
 )
-process.hltEle32WP80CentralDiPFJet25Cleaned = cms.EDFilter( "HLTJetCollectionsFilter",
+process.hltEle32WP80CentralDiPFJet25Cleaned = cms.EDFilter( "HLTCaloJetCollectionsFilter",
     saveTags = cms.bool( True ),
     originalTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     inputTag = cms.InputTag( "hltEle32WP80CleanAK5PFJet25" ),
@@ -39162,6 +39162,16 @@ process.source = cms.Source( "PoolSource",
 if 'hltHfreco' in process.__dict__:
     process.hltHfreco.setNoiseFlags = cms.bool( True )
 
+# remove the HLT prescales
+if 'PrescaleService' in process.__dict__:
+    process.PrescaleService.lvl1DefaultLabel = cms.untracked.string( '0' )
+    process.PrescaleService.lvl1Labels       = cms.vstring( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' )
+    process.PrescaleService.prescaleTable    = cms.VPSet( )
+
+# CMSSW version specific customizations
+import os
+cmsswVersion = os.environ['CMSSW_VERSION']
+
 # override the process name
 process.setName_('HLTGRun')
 
@@ -39197,12 +39207,6 @@ if 'hltDQMHLTScalers' in process.__dict__:
 if 'hltDQML1SeedLogicScalers' in process.__dict__:
     process.hltDQML1SeedLogicScalers.processname              = 'HLTGRun'
 
-# remove the HLT prescales
-if 'PrescaleService' in process.__dict__:
-    process.PrescaleService.lvl1DefaultLabel = cms.untracked.string( '0' )
-    process.PrescaleService.lvl1Labels       = cms.vstring( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' )
-    process.PrescaleService.prescaleTable    = cms.VPSet( )
-
 # limit the number of events to be processed
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32( 100 )
@@ -39235,8 +39239,4 @@ if 'MessageLogger' in process.__dict__:
     process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
     process.MessageLogger.categories.append('L1GtTrigReport')
     process.MessageLogger.categories.append('HLTrigReport')
-
-# CMSSW version specific customizations
-import os
-cmsswVersion = os.environ['CMSSW_VERSION']
 

@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_1_0/HIon/V12 (CMSSW_5_2_0_pre3_HLT6)
+# /dev/CMSSW_5_1_0/HIon/V13 (CMSSW_5_2_0_pre3_HLT6)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/HIon/V12')
+  tableName = cms.string('/dev/CMSSW_5_1_0/HIon/V13')
 )
 
 streams = cms.PSet( 
@@ -6513,14 +6513,14 @@ HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_HIMET120_v1, HLT_HIMET200_
 if 'hltHfreco' in locals():
     hltHfreco.setNoiseFlags = cms.bool( False )
 
+# CMSSW version specific customizations
+import os
+cmsswVersion = os.environ['CMSSW_VERSION']
+
 # dummyfy hltGetConditions in cff's
 if 'hltGetConditions' in locals() and 'HLTriggerFirstPath' in locals() :
     hltDummyConditions = cms.EDFilter( "HLTBool",
         result = cms.bool( True )
     )
     HLTriggerFirstPath.replace(hltGetConditions,hltDummyConditions)
-
-# CMSSW version specific customizations
-import os
-cmsswVersion = os.environ['CMSSW_VERSION']
 
