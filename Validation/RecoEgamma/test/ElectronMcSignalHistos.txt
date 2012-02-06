@@ -163,7 +163,7 @@ ElectronMcSignalValidator/h_ele_seedDrz2Pos_VsPt_pfx        0 1 1 1
 Brem fraction and related distributions
 
 ElectronMcSignalValidator/h_ele_PinMnPout_mode              1 1 1 0
-ElectronMcSignalValidator/h_ele_fbrem                       1 1 1 0
+ElectronMcSignalValidator/h_ele_fbrem                       1 1 0 0
 ElectronMcSignalValidator/h_ele_fbrem_barrel                1 1 0 0
 ElectronMcSignalValidator/h_ele_fbrem_endcaps               1 1 1 0
 ElectronMcSignalValidator/h_ele_classes                     1 1 1 0
@@ -244,15 +244,15 @@ Charge mis-ID
 ElectronMcSignalValidator/h_ele_absetaQmisid  0 1 1 0 0 ElectronMcSignalValidator/h_mc_AbsEta_matched_qmisid ElectronMcSignalValidator/h_mc_AbsEta  
 ElectronMcSignalValidator/h_ele_etaQmisid     0 1 1 0 0 ElectronMcSignalValidator/h_mc_Eta_matched_qmisid    ElectronMcSignalValidator/h_mc_Eta     
 ElectronMcSignalValidator/h_ele_ptQmisid      0 1 1 0 0 ElectronMcSignalValidator/h_mc_Pt_matched_qmisid     ElectronMcSignalValidator/h_mc_Pt      
-ElectronMcSignalValidator/h_ele_zQmisid       0 1 1 1 0 ElectronMcSignalValidator/h_mc_Z_matched_qmisid      ElectronMcSignalValidator/h_mc_Z       
+ElectronMcSignalValidator/h_ele_zQmisid       0 1 1 0 0 ElectronMcSignalValidator/h_mc_Z_matched_qmisid      ElectronMcSignalValidator/h_mc_Z
 ElectronMcSignalValidator/h_ele_chargeInfo    0 1 1 1 0
 
 Provenance and pflow data
 
-ElectronMcSignalValidator/h_ele_provenance  1 1 1 0
+ElectronMcSignalValidator/h_ele_provenance                  1 1 0 0
 ElectronMcSignalValidator/h_ele_provenance_barrel           1 1 0 0
 ElectronMcSignalValidator/h_ele_provenance_endcaps          1 1 1 0
-ElectronMcSignalValidator/h_ele_mva         1 1 1 1
+ElectronMcSignalValidator/h_ele_mva                         1 1 0 0
 ElectronMcSignalValidator/h_ele_mva_barrel                  1 1 0 0
 ElectronMcSignalValidator/h_ele_mva_endcaps                 1 1 1 0
 ElectronMcSignalValidator/h_ele_chargedHadronIso           1 1 0 0
