@@ -14,6 +14,9 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
+#include<typeinfo>
+#include<string>
+
 template<typename T>
 HLTJetL1MatchProducer<T>::HLTJetL1MatchProducer(const edm::ParameterSet& iConfig)
 {
@@ -48,7 +51,7 @@ void HLTJetL1MatchProducer<T>::fillDescriptions(edm::ConfigurationDescriptions& 
   desc.add<edm::InputTag>("L1CenJets",edm::InputTag("hltL1extraParticles","Central"));
   desc.add<edm::InputTag>("L1ForJets",edm::InputTag("hltL1extraParticles","Forward"));
   desc.add<double>("DeltaR",0.5);
-  descriptions.add("HLTJetL1MatchProducer",desc);
+  descriptions.add(std::string("hlt")+std::string(typeid(HLTJetL1MatchProducer<T>).name()),desc);
 }
 
 template<typename T>

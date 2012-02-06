@@ -29,7 +29,7 @@ void PFJetsMatchedToFilteredCaloJetsProducer::fillDescriptions(edm::Configuratio
   desc.add<edm::InputTag>("PFJetSrc",edm::InputTag("hltPFJets"));
   desc.add<edm::InputTag>("CaloJetFilter",edm::InputTag("hltSingleJet240Regional"));
   desc.add<double>("DeltaR",0.5);
-  descriptions.add("PFJetsMatchedToFilteredCaloJetsProducer",desc);
+  descriptions.add("hltPFJetsMatchedToFilteredCaloJetsProducer",desc);
 }
 
 
