@@ -22,7 +22,7 @@ class HLTJetL1MatchProducer : public edm::EDProducer {
   edm::InputTag L1TauJets_;
   edm::InputTag L1CenJets_;
   edm::InputTag L1ForJets_;
-  std::string jetType_;
+  //  std::string jetType_;
   double DeltaR_;         // DeltaR(HLT,L1)
 };
 
