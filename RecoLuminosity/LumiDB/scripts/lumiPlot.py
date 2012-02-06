@@ -241,7 +241,7 @@ if __name__=='__main__':
 
     finecorrections=None
     driftcorrections=None
-    if not options.withoutFineCorrection:
+    if not options.withoutCorrection:
         rruns=irunlsdict.keys()
         session.transaction().start(True)
         schema=session.nominalSchema()
