@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTester.cc,v 1.34 2011/09/18 21:00:59 kovitang Exp $
+// $Id: CaloJetTester.cc,v 1.35 2011/09/20 22:56:35 kovitang Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -35,8 +35,8 @@
 
 #include <cmath>
 
-
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
+
 
 using namespace edm;
 using namespace reco;
@@ -94,7 +94,7 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     = mpTScale1DB_200_600   = mpTScale1DE_200_600   = mpTScale1DF_200_600 
     = mpTScale1DB_600_1500   = mpTScale1DE_600_1500   = mpTScale1DF_600_1500 
     = mpTScale1DB_1500_3500 = mpTScale1DE_1500_3500 = mpTScale1DF_1500_3500
-
+      
     = mPthat_80 = mPthat_3000
 
       //Corr Jet
@@ -104,7 +104,15 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
       = mpTResponseB_d = mpTResponseE_d = mpTResponseF_d
       = mpTResponse_30_200_d = mpTResponse_200_600_d = mpTResponse_600_1500_d = mpTResponse_1500_3500_d
       = mpTResponse_30_d =mjetArea
-      = 0;
+     
+      = nvtx_0_30 = nvtx_0_60 = mpTResponse_nvtx_0_5 = mpTResponse_nvtx_5_10 =mpTResponse_nvtx_10_15 = mpTResponse_nvtx_15_20 = mpTResponse_nvtx_20_30 = mpTResponse_nvtx_30_inf  
+      = mpTScale_a_nvtx_0_5 = mpTScale_b_nvtx_0_5 = mpTScale_c_nvtx_0_5 
+      = mpTScale_a_nvtx_5_10 = mpTScale_b_nvtx_5_10 = mpTScale_c_nvtx_5_10
+      = mpTScale_a_nvtx_10_15 = mpTScale_b_nvtx_10_15 = mpTScale_c_nvtx_10_15
+      = mpTScale_a_nvtx_15_20 = mpTScale_b_nvtx_15_20 = mpTScale_c_nvtx_15_20
+      = mpTScale_a_nvtx_20_30 = mpTScale_b_nvtx_20_30 = mpTScale_c_nvtx_20_30
+      = mpTScale_a_nvtx_30_inf = mpTScale_b_nvtx_30_inf = mpTScale_c_nvtx_30_inf
+      =0;
   
   DQMStore* dbe = &*edm::Service<DQMStore>();
   if (dbe) {
@@ -215,14 +223,14 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     mCorrJetPhi = dbe->book1D("CorrPhi", "CorrPhi", 70, -3.5, 3.5);
     mjetArea = dbe->book1D("jetArea","jetArea",26,-0.5,12.5);
 
+    //nvtx
+    nvtx_0_30 = dbe->book1D("nvtx_0_30","nvtx_0_30",31,-0.5,30.5);
+    nvtx_0_60 = dbe->book1D("nvtx_0_60","nvtx_0_60",61,-0.5,60.5);
 
     //
     double log10PtMin = 0.5; //=3.1622766
     double log10PtMax = 3.75; //=5623.41325
     int log10PtBins = 26; 
-    //double etaMin = -6.;
-    //double etaMax = 6.;
-    //int etaBins = 60;
     double etaRange[91] = {-6.0,-5.8,-5.6,-5.4,-5.2,-5.0,-4.8,-4.6,-4.4,-4.2,-4.0,-3.8,-3.6,-3.4,-3.2,-3.0,-2.9,-2.8,-2.7,-2.6,-2.5,-2.4,-2.3,-2.2,-2.1,-2.0,-1.9,-1.8,-1.7,-1.6,-1.5,-1.4,-1.3,-1.2,-1.1,-1.0,-0.9,-0.8,-0.7,-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2.0,2.1,2.2,2.3,2.4,2.5,2.6,2.7,2.8,2.9,3.0,3.2,3.4,3.6,3.8,4.0,4.2,4.4,4.6,4.8,5.0,5.2,5.4,5.6,5.8,6.0};
 
     int log10PtFineBins = 50;
@@ -231,22 +239,6 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     if (mTurnOnEverything.compare("yes")==0) {
 
     }
-
-    //
-    /*if (mTurnOnEverything.compare("yes")==0) {
- 
-    mDeltaEta = dbe->book3D("DeltaEta", "DeltaEta vs LOG(pT_gen) vs eta", 
-			      log10PtBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax, 100, -1, 1);
-    mDeltaPhi = dbe->book3D("DeltaPhi", "DeltaPhi vs LOG(pT_gen) vs eta", 
-			      log10PtBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax, 100, -1, 1);
-
-    //
-    mEScale_pt10 = dbe->book3D("EScale_pt10", "EnergyScale vs LOG(pT_gen) vs eta", 
-			    log10PtBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax, 100, 0, 2);
-    mEScaleFineBin = dbe->book3D("EScaleFineBins", "EnergyScale vs LOG(pT_gen) vs eta", 
-			    log10PtFineBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax, 100, 0, 2);
-    }*/
-
 
     mpTScaleB_d = dbe->bookProfile("pTScaleB_d", "pTScale_d_0<|eta|<1.5",
 				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
@@ -300,6 +292,43 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     mpTScale1DF_1500_3500 = dbe->book1D("pTScale1DF_1500_3500", "pTScale_distribution_for_3.0<|eta|<6.0_1500_3500",
 				   50, 0, 2);
 
+
+   mpTScale_a_nvtx_0_5  = dbe->bookProfile("pTScale_a_nvtx_0_5", "pTScale_a_nvtx_0_5_0<|eta|<1.3_60_120",
+				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
+   mpTScale_b_nvtx_0_5  = dbe->bookProfile("pTScale_b_nvtx_0_5", "pTScale_b_nvtx_0_5_0<|eta|<1.3_200_300",
+				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
+   mpTScale_c_nvtx_0_5  = dbe->bookProfile("pTScale_c_nvtx_0_5", "pTScale_c_nvtx_0_5_0<|eta|<1.3_600_900",
+				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
+   mpTScale_a_nvtx_5_10  = dbe->bookProfile("pTScale_a_nvtx_5_10", "pTScale_a_nvtx_5_10_0<|eta|<1.3_60_120",
+				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
+   mpTScale_b_nvtx_5_10  = dbe->bookProfile("pTScale_b_nvtx_5_10", "pTScale_b_nvtx_5_10_0<|eta|<1.3_200_300",
+				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
+   mpTScale_c_nvtx_5_10  = dbe->bookProfile("pTScale_c_nvtx_5_10", "pTScale_c_nvtx_5_10_0<|eta|<1.3_600_900",
+				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
+   mpTScale_a_nvtx_10_15  = dbe->bookProfile("pTScale_a_nvtx_10_15", "pTScale_a_nvtx_10_15_0<|eta|<1.3_60_120",
+				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
+   mpTScale_b_nvtx_10_15  = dbe->bookProfile("pTScale_b_nvtx_10_15", "pTScale_b_nvtx_10_15_0<|eta|<1.3_200_300",
+				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
+   mpTScale_c_nvtx_10_15  = dbe->bookProfile("pTScale_c_nvtx_10_15", "pTScale_c_nvtx_10_15_0<|eta|<1.3_600_900",
+				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
+   mpTScale_a_nvtx_15_20  = dbe->bookProfile("pTScale_a_nvtx_15_20", "pTScale_a_nvtx_15_20_0<|eta|<1.3_60_120",
+				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
+   mpTScale_b_nvtx_15_20  = dbe->bookProfile("pTScale_b_nvtx_15_20", "pTScale_b_nvtx_15_20_0<|eta|<1.3_200_300",
+				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
+   mpTScale_c_nvtx_15_20  = dbe->bookProfile("pTScale_c_nvtx_15_20", "pTScale_c_nvtx_15_20_0<|eta|<1.3_600_900",
+				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
+   mpTScale_a_nvtx_20_30  = dbe->bookProfile("pTScale_a_nvtx_20_30", "pTScale_a_nvtx_20_30_0<|eta|<1.3_60_120",
+				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
+   mpTScale_b_nvtx_20_30  = dbe->bookProfile("pTScale_b_nvtx_20_30", "pTScale_b_nvtx_20_30_0<|eta|<1.3_200_300",
+				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
+   mpTScale_c_nvtx_20_30  = dbe->bookProfile("pTScale_c_nvtx_20_30", "pTScale_c_nvtx_20_30_0<|eta|<1.3_600_900",
+				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
+   mpTScale_a_nvtx_30_inf  = dbe->bookProfile("pTScale_a_nvtx_30_inf", "pTScale_a_nvtx_30_inf_0<|eta|<1.3_60_120",
+				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
+   mpTScale_b_nvtx_30_inf  = dbe->bookProfile("pTScale_b_nvtx_30_inf", "pTScale_b_nvtx_30_inf_0<|eta|<1.3_200_300",
+				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
+   mpTScale_c_nvtx_30_inf  = dbe->bookProfile("pTScale_c_nvtx_30_inf", "pTScale_c_nvtx_30_inf_0<|eta|<1.3_600_900",
+				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
     ///////////Corr profile//////////////
     mpTRatio = dbe->bookProfile("pTRatio", "pTRatio",
 				log10PtBins, log10PtMin, log10PtMax, 100, 0.,5., " ");
@@ -335,7 +364,15 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
 					       90,etaRange, 0.8, 1.2, " ");
     mpTResponse_30_d = dbe->bookProfile("pTResponse_30_d", "pTResponse_d_pt>30",
 					       90,etaRange, 0.8, 1.2, " ");
-}
+
+
+   mpTResponse_nvtx_0_5 = dbe->bookProfile("pTResponse_nvtx_0_5", "pTResponse_nvtx_0_5", log10PtBins, log10PtMin, log10PtMax, 100, 0.8,1.2, " ");
+   mpTResponse_nvtx_5_10 = dbe->bookProfile("pTResponse_nvtx_5_10", "pTResponse_nvtx_5_10", log10PtBins, log10PtMin, log10PtMax, 100, 0.8,1.2, " ");
+   mpTResponse_nvtx_10_15 = dbe->bookProfile("pTResponse_nvtx_10_15", "pTResponse_nvtx_10_15", log10PtBins, log10PtMin, log10PtMax, 100, 0.8,1.2, " ");
+   mpTResponse_nvtx_15_20 = dbe->bookProfile("pTResponse_nvtx_15_20", "pTResponse_nvtx_15_20", log10PtBins, log10PtMin, log10PtMax, 100, 0.8,1.2, " ");
+   mpTResponse_nvtx_20_30 = dbe->bookProfile("pTResponse_nvtx_20_30", "pTResponse_nvtx_20_30", log10PtBins, log10PtMin, log10PtMax, 100, 0.8,1.2, " ");
+   mpTResponse_nvtx_30_inf = dbe->bookProfile("pTResponse_nvtx_30_inf", "pTResponse_nvtx_30_inf", log10PtBins, log10PtMin, log10PtMax, 100, 0.8,1.2, " ");
+  }
 
   if (mOutputFile.empty ()) {
     LogInfo("OutputInfo") << " CaloJet histograms will NOT be saved";
@@ -361,6 +398,25 @@ void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSe
 {
   double countsfornumberofevents = 1;
   numberofevents->Fill(countsfornumberofevents);
+
+  //get primary vertices
+  edm::Handle<vector<reco::Vertex> >pvHandle;
+  try {
+    mEvent.getByLabel( "offlinePrimaryVertices", pvHandle );
+  } catch ( cms::Exception & e ) {
+    //cout <<prefix<<"error: " << e.what() << endl;
+  }
+  vector<reco::Vertex> goodVertices;
+  for (unsigned i = 0; i < pvHandle->size(); i++) {
+    if ( (*pvHandle)[i].ndof() > 4 &&
+       ( fabs((*pvHandle)[i].z()) <= 24. ) &&
+       ( fabs((*pvHandle)[i].position().rho()) <= 2.0 ) )
+       goodVertices.push_back((*pvHandle)[i]);
+  }
+
+  nvtx_0_30->Fill(goodVertices.size());
+  nvtx_0_60->Fill(goodVertices.size());
+
   // *********************************
   // *** Get pThat
   // *********************************
@@ -392,25 +448,6 @@ if (!mEvent.isRealData()){
     const CaloMETCollection *calometcol = calo.product();
     calomet = &(calometcol->front());
     
-    //double caloSumET = calomet->sumEt();
-    //double caloMETSig = calomet->mEtSig();
-    //double caloMET = calomet->pt();
-    //double caloMEx = calomet->px();
-    //double caloMEy = calomet->py();
-    //double caloMETPhi = calomet->phi();
-    /*
-    mCaloMEx->Fill(caloMEx);
-    mCaloMEx_3000->Fill(caloMEx);
-    mCaloMEy->Fill(caloMEy);
-    mCaloMEy_3000->Fill(caloMEy);
-    mCaloMET->Fill(caloMET);
-    mCaloMET_3000->Fill(caloMET);
-    mCaloMETPhi->Fill(caloMETPhi);
-    mCaloSumET->Fill(caloSumET);
-    mCaloSumET_3000->Fill(caloSumET);
-    mCaloMETSig->Fill(caloMETSig);
-    mCaloMETSig_3000->Fill(caloMETSig);
-    */
   }
 
   // ***********************************
@@ -423,12 +460,6 @@ if (!mEvent.isRealData()){
 
     //To compensate for the index
     if (mTurnOnEverything.compare("yes")==0) {
-      /*
-      if (cal->ieta() >> 0 ){mHadEnergyProfile->Fill (cal->ieta()-1, cal->iphi(), cal->hadEnergy());
-      mEmEnergyProfile->Fill (cal->ieta()-1, cal->iphi(), cal->emEnergy());}
-      mHadEnergyProfile->Fill (cal->ieta(), cal->iphi(), cal->hadEnergy());
-      mEmEnergyProfile->Fill (cal->ieta(), cal->iphi(), cal->emEnergy());
-      */
     }
       
     mHadTiming->Fill (cal->hcalTime());
@@ -446,16 +477,6 @@ if (!mEvent.isRealData()){
     for (i=colls.begin(); i!=colls.end(); i++) {
       for (HBHERecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
         //      std::cout << *j << std::endl;
-	/*
-        if (j->id().subdet() == HcalBarrel) {
-          mHBEne->Fill(j->energy()); 
-          mHBTime->Fill(j->time()); 
-        }
-        if (j->id().subdet() == HcalEndcap) {
-          mHEEne->Fill(j->energy()); 
-          mHETime->Fill(j->time()); 
-        }
-	*/
       }
     }
   } catch (...) {
@@ -469,12 +490,6 @@ if (!mEvent.isRealData()){
     for (i=colls.begin(); i!=colls.end(); i++) {
       for (HFRecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
         //      std::cout << *j << std::endl;
-	/*
-        if (j->id().subdet() == HcalForward) {
-          mHFEne->Fill(j->energy()); 
-          mHFTime->Fill(j->time()); 
-        }
-	*/
       }
     }
   } catch (...) {
@@ -487,12 +502,6 @@ if (!mEvent.isRealData()){
     std::vector<edm::Handle<HORecHitCollection> >::iterator i;
     for (i=colls.begin(); i!=colls.end(); i++) {
       for (HORecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
-	/*
-        if (j->id().subdet() == HcalOuter) {
-          mHOEne->Fill(j->energy()); 
-          mHOTime->Fill(j->time()); 
-        }
-	*/
       }
     }
   } catch (...) {
@@ -504,12 +513,6 @@ if (!mEvent.isRealData()){
     std::vector<edm::Handle<EBRecHitCollection> >::iterator i;
     for (i=colls.begin(); i!=colls.end(); i++) {
       for (EBRecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
-        //      if (j->id() == EcalBarrel) {
-	//mEBEne->Fill(j->energy()); 
-	//mEBTime->Fill(j->time()); 
-	//    }
-        //      std::cout << *j << std::endl;
-        //      std::cout << j->id() << std::endl;
       }
     }
   } catch (...) {
@@ -522,11 +525,6 @@ if (!mEvent.isRealData()){
     std::vector<edm::Handle<EERecHitCollection> >::iterator i;
     for (i=colls.begin(); i!=colls.end(); i++) {
       for (EERecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
-        //      if (j->id().subdet() == EcalEndcap) {
-	//mEEEne->Fill(j->energy()); 
-	//mEETime->Fill(j->time()); 
-	//    }
-	//      std::cout << *j << std::endl;
       }
     }
   } catch (...) {
@@ -557,12 +555,6 @@ if (!mEvent.isRealData()){
     if (jet->pt() > 10.) {
       if (mEta) mEta->Fill (jet->eta());
       if (mEtaFineBin) mEtaFineBin->Fill (jet->eta());
-      //if (mEtaFineBin1p) mEtaFineBin1p->Fill (jet->eta());
-      //if (mEtaFineBin2p) mEtaFineBin2p->Fill (jet->eta());
-      //if (mEtaFineBin3p) mEtaFineBin3p->Fill (jet->eta());
-      //if (mEtaFineBin1m) mEtaFineBin1m->Fill (jet->eta());
-      //if (mEtaFineBin2m) mEtaFineBin2m->Fill (jet->eta());
-      //if (mEtaFineBin3m) mEtaFineBin3m->Fill (jet->eta());
       if (mPhiFineBin) mPhiFineBin->Fill (jet->phi());
     }
     if (mjetArea) mjetArea->Fill(jet->jetArea());
@@ -624,11 +616,6 @@ if (!mEvent.isRealData()){
 
 
     if (mN90) mN90->Fill (jet->n90());
-    /*
-    mJetEnergyProfile->Fill (jet->eta(), jet->phi(), jet->energy());
-    mHadJetEnergyProfile->Fill (jet->eta(), jet->phi(), jet->hadEnergyInHO()+jet->hadEnergyInHB()+jet->hadEnergyInHF()+jet->hadEnergyInHE());
-    mEMJetEnergyProfile->Fill (jet->eta(), jet->phi(), jet->emEnergyInEB()+jet->emEnergyInEE()+jet->emEnergyInHF());
-    */
   }
 
 
@@ -673,6 +660,7 @@ if (!mEvent.isRealData()){
       //double scale = corrector->correction(jet->p4());
       double scale = corrector->correction(*jet,mEvent,mSetup); 
       correctedJet.scaleEnergy(scale); 
+      if(correctedJet.pt()>30){
       mCorrJetPt->Fill(correctedJet.pt());
       mCorrJetPt_80->Fill(correctedJet.pt());
       if(correctedJet.pt() >10) mCorrJetEta->Fill(correctedJet.eta());
@@ -701,6 +689,7 @@ if (jet->pt()>600.0 && jet->pt()<1500.0) {
 if (jet->pt()>1500.0 && jet->pt()<3500.0) {
     mpTRatio_1500_3500_d->Fill (jet->eta(),correctedJet.pt()/jet->pt());
   }
+      }
   }
 
 if (!mEvent.isRealData()){
@@ -777,7 +766,7 @@ if (!mEvent.isRealData()){
 	  //mRMatch->Fill (logPtGen, genJet.eta(), deltaRBest);
 	}
 	if (deltaRBest < mRThreshold) { // Matched
-	  fillMatchHists (genJet, (*caloJets) [iCaloJetBest]);
+	  fillMatchHists (genJet, (*caloJets) [iCaloJetBest],goodVertices);
 	}
 
 	///////////pT Response///////////////
@@ -789,15 +778,24 @@ if (!mEvent.isRealData()){
           double scale = corrector->correction(*jet,mEvent,mSetup);
 	  correctedJet.scaleEnergy(scale);
 	  double CorrJetPt = correctedJet.pt();
+	  if(CorrJetPt>30){
 	  double CorrdR = deltaR (genJet.eta(), genJet.phi(), correctedJet.eta(), correctedJet.phi());
 	  if (CorrdR < CorrdeltaRBest) {
 	    CorrdeltaRBest = CorrdR;
 	    CorrJetPtBest = CorrJetPt;
 	  }
+	  }
 	}
 	if (deltaRBest < mRThreshold) { // Matched
 	  mpTResponse->Fill(log10(genJet.pt()),CorrJetPtBest/genJet.pt());
-	  
+
+	  if(goodVertices.size()<=5) mpTResponse_nvtx_0_5->Fill(log10(genJet.pt()),CorrJetPtBest/genJet.pt());
+	  if(goodVertices.size()>5 && goodVertices.size()<=10) mpTResponse_nvtx_5_10->Fill(log10(genJet.pt()),CorrJetPtBest/genJet.pt());
+	  if(goodVertices.size()>10 && goodVertices.size()<=15) mpTResponse_nvtx_10_15->Fill(log10(genJet.pt()),CorrJetPtBest/genJet.pt());	  
+	  if(goodVertices.size()>15 && goodVertices.size()<=20) mpTResponse_nvtx_15_20->Fill(log10(genJet.pt()),CorrJetPtBest/genJet.pt());
+	  if(goodVertices.size()>20 && goodVertices.size()<=30) mpTResponse_nvtx_20_30->Fill(log10(genJet.pt()),CorrJetPtBest/genJet.pt());
+	  if(goodVertices.size()>30) mpTResponse_nvtx_30_inf->Fill(log10(genJet.pt()),CorrJetPtBest/genJet.pt());
+
 	  if (fabs(genJet.eta())<1.5) {
 	    mpTResponseB_d->Fill(log10(genJet.pt()), CorrJetPtBest/genJet.pt());
 	  }	
@@ -848,7 +846,7 @@ if (!mEvent.isRealData()){
 	    //mReverseMatchEnergyFraction->Fill (logPtGen, genJet.eta(), reverseEnergyFraction);
 	  }
 	  if (reverseEnergyFraction > mReverseEnergyFractionThreshold) { // Matched
-	    fillMatchHists (genJet, (*caloJets) [iCaloJetBest]);
+	    fillMatchHists (genJet, (*caloJets) [iCaloJetBest], goodVertices);
 	  }
 	}
       }
@@ -858,7 +856,7 @@ if (!mEvent.isRealData()){
 
 }///// Gen close
 
-void CaloJetTester::fillMatchHists (const reco::GenJet& fGenJet, const reco::CaloJet& fCaloJet) {
+void CaloJetTester::fillMatchHists (const reco::GenJet& fGenJet, const reco::CaloJet& fCaloJet, std::vector<reco::Vertex> goodVertices) {
   double logPtGen = log10 (fGenJet.pt());
   double PtGen = fGenJet.pt();
   double PtCalo = fCaloJet.pt();
@@ -870,9 +868,6 @@ void CaloJetTester::fillMatchHists (const reco::GenJet& fGenJet, const reco::Cal
   if (mTurnOnEverything.compare("yes")==0) {
     mDeltaEta->Fill (logPtGen, fGenJet.eta(), fCaloJet.eta()-fGenJet.eta());
     mDeltaPhi->Fill (logPtGen, fGenJet.eta(), fCaloJet.phi()-fGenJet.phi());
-    //mEScale->Fill (logPtGen, fGenJet.eta(), fCaloJet.energy()/fGenJet.energy());
-    //mlinEScale->Fill (fGenJet.pt(), fGenJet.eta(), fCaloJet.energy()/fGenJet.energy());
-    //mDeltaE->Fill (logPtGen, fGenJet.eta(), fCaloJet.energy()-fGenJet.energy());
 
     mEScaleFineBin->Fill (logPtGen, fGenJet.eta(), fCaloJet.energy()/fGenJet.energy());
   
@@ -952,28 +947,83 @@ void CaloJetTester::fillMatchHists (const reco::GenJet& fGenJet, const reco::Cal
   }
 
   if (fGenJet.pt()>30.0 && fGenJet.pt()<200.0) {
-    //mpTScale_30_200_s->Fill (fGenJet.eta(),fCaloJet.pt()/fGenJet.pt());
     mpTScale_30_200_d->Fill (fGenJet.eta(),fCaloJet.pt()/fGenJet.pt());
-    //mpTScale1D_30_200->Fill (fCaloJet.pt()/fGenJet.pt());
   }
 
   if (fGenJet.pt()>200.0 && fGenJet.pt()<600.0) {
-    //mpTScale_200_600_s->Fill (fGenJet.eta(),fCaloJet.pt()/fGenJet.pt());
     mpTScale_200_600_d->Fill (fGenJet.eta(),fCaloJet.pt()/fGenJet.pt());
-    //mpTScale1D_200_600->Fill (fCaloJet.pt()/fGenJet.pt());
   }
 
   if (fGenJet.pt()>600.0 && fGenJet.pt()<1500.0) {
-    //mpTScale_600_1500_s->Fill (fGenJet.eta(),fCaloJet.pt()/fGenJet.pt());
     mpTScale_600_1500_d->Fill (fGenJet.eta(),fCaloJet.pt()/fGenJet.pt());
-    //mpTScale1D_600_1500->Fill (fCaloJet.pt()/fGenJet.pt());
   }
 
   if (fGenJet.pt()>1500.0 && fGenJet.pt()<3500.0) {
-    //mpTScale_1500_3500_s->Fill (fGenJet.eta(),fCaloJet.pt()/fGenJet.pt());
     mpTScale_1500_3500_d->Fill (fGenJet.eta(),fCaloJet.pt()/fGenJet.pt());
-    //mpTScale1D_1500_3500->Fill (fCaloJet.pt()/fGenJet.pt());
   }
+
+  if (fabs(fGenJet.eta())<1.3) {
+    if(fGenJet.pt()>60.0 && fGenJet.pt()<120.0) {
+     if(goodVertices.size()<=5) mpTScale_a_nvtx_0_5->Fill(log10(PtGen), PtCalo/PtGen); 
+    }
+    if(fGenJet.pt()>200.0 && fGenJet.pt()<300.0) {
+     if(goodVertices.size()<=5) mpTScale_b_nvtx_0_5->Fill(log10(PtGen), PtCalo/PtGen); 
+    }
+    if(fGenJet.pt()>600.0 && fGenJet.pt()<900.0) {
+     if(goodVertices.size()<=5) mpTScale_c_nvtx_0_5->Fill(log10(PtGen), PtCalo/PtGen); 
+    }
+    
+    if(fGenJet.pt()>60.0 && fGenJet.pt()<120.0) {
+     if(goodVertices.size()>5 && goodVertices.size()<=10) mpTScale_a_nvtx_5_10->Fill(log10(PtGen), PtCalo/PtGen); 
+    }
+    if(fGenJet.pt()>200.0 && fGenJet.pt()<300.0) {
+     if(goodVertices.size()>5 && goodVertices.size()<=10) mpTScale_b_nvtx_5_10->Fill(log10(PtGen), PtCalo/PtGen); 
+    }
+    if(fGenJet.pt()>600.0 && fGenJet.pt()<900.0) {
+     if(goodVertices.size()>5 && goodVertices.size()<=10) mpTScale_c_nvtx_5_10->Fill(log10(PtGen), PtCalo/PtGen); 
+    }
+
+    if(fGenJet.pt()>60.0 && fGenJet.pt()<120.0) {
+     if(goodVertices.size()>10 && goodVertices.size()<=15) mpTScale_a_nvtx_10_15->Fill(log10(PtGen), PtCalo/PtGen); 
+    }
+    if(fGenJet.pt()>200.0 && fGenJet.pt()<300.0) {
+     if(goodVertices.size()>10 && goodVertices.size()<=15) mpTScale_b_nvtx_10_15->Fill(log10(PtGen), PtCalo/PtGen); 
+    }
+    if(fGenJet.pt()>600.0 && fGenJet.pt()<900.0) {
+     if(goodVertices.size()>10 && goodVertices.size()<=15) mpTScale_c_nvtx_10_15->Fill(log10(PtGen), PtCalo/PtGen); 
+    }
+
+    if(fGenJet.pt()>60.0 && fGenJet.pt()<120.0) {
+     if(goodVertices.size()>15 && goodVertices.size()<=20) mpTScale_a_nvtx_15_20->Fill(log10(PtGen), PtCalo/PtGen); 
+    }
+    if(fGenJet.pt()>200.0 && fGenJet.pt()<300.0) {
+     if(goodVertices.size()>15 && goodVertices.size()<=20) mpTScale_b_nvtx_15_20->Fill(log10(PtGen), PtCalo/PtGen); 
+    }
+    if(fGenJet.pt()>600.0 && fGenJet.pt()<900.0) {
+     if(goodVertices.size()>15 && goodVertices.size()<=20) mpTScale_c_nvtx_15_20->Fill(log10(PtGen), PtCalo/PtGen); 
+    }
+
+    if(fGenJet.pt()>60.0 && fGenJet.pt()<120.0) {
+     if(goodVertices.size()>20 && goodVertices.size()<=30) mpTScale_a_nvtx_20_30->Fill(log10(PtGen), PtCalo/PtGen); 
+    }
+    if(fGenJet.pt()>200.0 && fGenJet.pt()<300.0) {
+     if(goodVertices.size()>20 && goodVertices.size()<=30) mpTScale_b_nvtx_20_30->Fill(log10(PtGen), PtCalo/PtGen); 
+    }
+    if(fGenJet.pt()>600.0 && fGenJet.pt()<900.0) {
+     if(goodVertices.size()>20 && goodVertices.size()<=30) mpTScale_c_nvtx_20_30->Fill(log10(PtGen), PtCalo/PtGen); 
+    }
+ 
+    if(fGenJet.pt()>60.0 && fGenJet.pt()<120.0) {
+     if(goodVertices.size()>30) mpTScale_a_nvtx_30_inf->Fill(log10(PtGen), PtCalo/PtGen); 
+    }
+    if(fGenJet.pt()>200.0 && fGenJet.pt()<300.0) {
+     if(goodVertices.size()>30) mpTScale_b_nvtx_30_inf->Fill(log10(PtGen), PtCalo/PtGen); 
+    }
+    if(fGenJet.pt()>600.0 && fGenJet.pt()<900.0) {
+     if(goodVertices.size()>30) mpTScale_c_nvtx_30_inf->Fill(log10(PtGen), PtCalo/PtGen); 
+    }
+   
+}
 
 }
 

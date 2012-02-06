@@ -4,7 +4,7 @@
 // Producer for validation histograms for JPTJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: JPTJetTester.h,v 1.7 2011/08/18 14:07:42 kovitang Exp $
+// $Id: JPTJetTester.h,v 1.8 2011/09/20 22:56:36 kovitang Exp $
 
 #include <string>
 
@@ -12,6 +12,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
 namespace reco {
   class JPTJet;
@@ -32,7 +33,7 @@ public:
  
 private:
   
-  void fillMatchHists (const reco::GenJet& fGenJet, const reco::JPTJet& fJPTJet);
+  void fillMatchHists (const reco::GenJet& fGenJet, const reco::JPTJet& fJPTJet, std::vector<reco::Vertex> goodVertices);
   double getSumPt (const reco::TrackRefVector& tracks);
 
   edm::InputTag mInputCollection;
@@ -99,6 +100,34 @@ private:
   MonitorElement* mpTResponse_1500_3500_d;
   MonitorElement* mpTResponse_30_d;
   MonitorElement* mjetArea;
+
+  // nvtx
+  MonitorElement* nvtx_0_30;
+  MonitorElement* nvtx_0_60;
+  MonitorElement* mpTResponse_nvtx_0_5;
+  MonitorElement* mpTResponse_nvtx_5_10; 
+  MonitorElement* mpTResponse_nvtx_10_15;
+  MonitorElement* mpTResponse_nvtx_15_20;
+  MonitorElement* mpTResponse_nvtx_20_30; 
+  MonitorElement* mpTResponse_nvtx_30_inf;
+  MonitorElement* mpTScale_a_nvtx_0_5;
+  MonitorElement* mpTScale_b_nvtx_0_5;
+  MonitorElement* mpTScale_c_nvtx_0_5;
+  MonitorElement* mpTScale_a_nvtx_5_10;
+  MonitorElement* mpTScale_b_nvtx_5_10;
+  MonitorElement* mpTScale_c_nvtx_5_10;
+  MonitorElement* mpTScale_a_nvtx_10_15;
+  MonitorElement* mpTScale_b_nvtx_10_15;
+  MonitorElement* mpTScale_c_nvtx_10_15;
+  MonitorElement* mpTScale_a_nvtx_15_20;
+  MonitorElement* mpTScale_b_nvtx_15_20;
+  MonitorElement* mpTScale_c_nvtx_15_20;
+  MonitorElement* mpTScale_a_nvtx_20_30;
+  MonitorElement* mpTScale_b_nvtx_20_30;
+  MonitorElement* mpTScale_c_nvtx_20_30;
+  MonitorElement* mpTScale_a_nvtx_30_inf;
+  MonitorElement* mpTScale_b_nvtx_30_inf;
+  MonitorElement* mpTScale_c_nvtx_30_inf;
 
   // Leading Jet Parameters
   MonitorElement* mEtaFirst;
