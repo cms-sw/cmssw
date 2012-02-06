@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_1_0/HLT/V25 (CMSSW_5_2_0_pre3_HLT6)
+# /dev/CMSSW_5_1_0/HLT/V27 (CMSSW_5_2_0_pre3_HLT7)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/HLT/V25')
+  tableName = cms.string('/dev/CMSSW_5_1_0/HLT/V27')
 )
 
 streams = cms.PSet( 
@@ -5127,7 +5127,7 @@ hltAntiKT5CaloJetsRegional = cms.EDProducer( "FastjetJetProducer",
     sumRecHits = cms.bool( False ),
     DxyTrVtxMax = cms.double( 0.0 )
 )
-hltCaloJetL1MatchedRegional = cms.EDProducer( "HLTJetL1MatchProducer",
+hltCaloJetL1MatchedRegional = cms.EDProducer( "HLTCaloJetL1MatchProducer",
     L1CenJets = cms.InputTag( 'hltL1extraParticles','Central' ),
     DeltaR = cms.double( 0.5 ),
     L1ForJets = cms.InputTag( 'hltL1extraParticles','Forward' ),
