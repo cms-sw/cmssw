@@ -103,8 +103,8 @@ step1['ZMuSkim2011B']={'INPUT':InputInfo(dataSet='/DoubleMu/Run2011B-ZMu-PromptS
 step1['ZElSkim2011B']={'INPUT':InputInfo(dataSet='/DoubleElectron/Run2011B-ZElectron-PromptSkim-v1/RAW-RECO',label='zEl2011B',run=Run2011BSk)}
 step1['HighMet2011B']={'INPUT':InputInfo(dataSet='/Jet/Run2011B-HighMET-PromptSkim-v1/RAW-RECO',label='hMet2011B',run=Run2011BSk)}
 
-step1['RunHI2010']={'INPUT':InputInfo(dataSet='/HIAllPhysics/HIRun2010-v1/RAW',label='hi2010',run=[152698],events=100000,location='STD')}
-step1['RunHI2011']={'INPUT':InputInfo(dataSet='/HIAllPhysics/HIRun2011A-v1/RAW',label='hi2011',run=[174773],events=100000,location='STD')}
+step1['RunHI2010']={'INPUT':InputInfo(dataSet='/HIAllPhysics/HIRun2010-v1/RAW',label='hi2010',run=[152698],events=10000,location='STD')}
+step1['RunHI2011']={'INPUT':InputInfo(dataSet='/HIAllPhysics/HIRun2011A-v1/RAW',label='hi2011',run=[174773],events=10000,location='STD')}
 
 #### Standard release validation samples ####
 
