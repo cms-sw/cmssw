@@ -325,6 +325,13 @@ public:
    Float_t ohMuL3Dr[1000]; //[NohMuL3]
    Float_t ohMuL3Dz[1000]; //[NohMuL3]
    Int_t ohMuL3L2idx[1000]; //[NohMuL3]
+   Int_t NpfMuon;
+   Float_t pfMuonPt[1000]; //
+   Float_t pfMuonPhi[1000]; //
+   Float_t pfMuonEta[1000]; //
+   Float_t pfMuonEt[1000]; //
+   Float_t pfMuonE[1000]; //
+   Int_t pfMuonCharge[1000]; //
    Int_t NohMuL2NoVtx; 
    Float_t ohMuL2NoVtxPt[2000]; //[NohMuL2NoVtx] 
    Float_t ohMuL2NoVtxPhi[2000]; //[NohMuL2NoVtx] 
@@ -8197,6 +8204,13 @@ public:
    TBranch *b_ohMuL3Dr; //!
    TBranch *b_ohMuL3Dz; //!
    TBranch *b_ohMuL3L2idx; //!
+   TBranch *b_NpfMuon; //!
+   TBranch *b_pfMuonPt; //!
+   TBranch *b_pfMuonPhi; //!
+   TBranch *b_pfMuonEta; //!
+   TBranch *b_pfMuonEt; //!
+   TBranch *b_pfMuonE; //!
+   TBranch *b_pfMuonCharge; //!
    TBranch *b_NohMuL2NoVtx; //! 
    TBranch *b_ohMuL2NoVtxPt; //! 
    TBranch *b_ohMuL2NoVtxPhi; //! 
@@ -17312,6 +17326,10 @@ void OHltTree::initMuThresholdMap(){
   map_muThresholds[20.].push_back(12.);
   map_muThresholds[20.].push_back(20.);
 
+  map_muThresholds[22.].push_back(0.);
+  map_muThresholds[22.].push_back(16.);
+  map_muThresholds[22.].push_back(22.);
+
   map_muThresholds[24.].push_back(0.);
   map_muThresholds[24.].push_back(12.);
   map_muThresholds[24.].push_back(24.);
@@ -17626,6 +17644,13 @@ void OHltTree::Init(TTree *tree)
    fChain->SetBranchAddress("ohMuL3Dr", ohMuL3Dr, &b_ohMuL3Dr);
    fChain->SetBranchAddress("ohMuL3Dz", ohMuL3Dz, &b_ohMuL3Dz);
    fChain->SetBranchAddress("ohMuL3L2idx", ohMuL3L2idx, &b_ohMuL3L2idx);
+   fChain->SetBranchAddress("NpfMuon", &NpfMuon, &b_NpfMuon);
+   fChain->SetBranchAddress("pfMuonPt", pfMuonPt, &b_pfMuonPt);
+   fChain->SetBranchAddress("pfMuonPhi", pfMuonPhi, &b_pfMuonPhi);
+   fChain->SetBranchAddress("pfMuonEta", pfMuonEta, &b_pfMuonEta);
+   fChain->SetBranchAddress("pfMuonEt", pfMuonEt, &b_pfMuonEt);
+   fChain->SetBranchAddress("pfMuonE", pfMuonE, &b_pfMuonE);
+   fChain->SetBranchAddress("pfMuonCharge", pfMuonCharge, &b_pfMuonCharge);
    fChain->SetBranchAddress("NohMuL2NoVtx", &NohMuL2NoVtx, &b_NohMuL2NoVtx); 
    fChain->SetBranchAddress("ohMuL2NoVtxPt", ohMuL2NoVtxPt, &b_ohMuL2NoVtxPt); 
    fChain->SetBranchAddress("ohMuL2NoVtxPhi", ohMuL2NoVtxPhi, &b_ohMuL2NoVtxPhi); 
