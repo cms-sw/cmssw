@@ -24,13 +24,11 @@ void MultipleAlgoIterator::offsetCorrectJets()
   (*fjInputs_) = fjOriginalInputs_;
   rescaleRMS(nSigmaPU_);
   subtractPedestal(*fjInputs_);
-  const fastjet::JetDefinition& def = fjClusterSeq_->jet_def();
+  const fastjet::JetDefinition& def = *fjJetDefinition_;
   if ( !doAreaFastjet_ && !doRhoFastjet_) {
-    fastjet::ClusterSequence newseq( *fjInputs_, def );
-    (*fjClusterSeq_) = newseq;
+    fjClusterSeq_ = ClusterSequencePtr( new fastjet::ClusterSequence( *fjInputs_, def ) );
   } else {
-    fastjet::ClusterSequenceArea newseq( *fjInputs_, def , *fjActiveArea_ );
-    (*fjClusterSeq_) = newseq;
+    fjClusterSeq_ = ClusterSequencePtr( new fastjet::ClusterSequenceArea( *fjInputs_, def, *fjActiveArea_ ) );
   }
   
   (*fjJets_) = fastjet::sorted_by_pt(fjClusterSeq_->inclusive_jets(jetPtMin_));
@@ -45,7 +43,7 @@ void MultipleAlgoIterator::offsetCorrectJets()
     jetOffset_[ijet] = 0;
     
     std::vector<fastjet::PseudoJet> towers =
-      sorted_by_pt(fjClusterSeq_->constituents(*pseudojetTMP));
+      sorted_by_pt(pseudojetTMP->constituents());
     
     double newjetet = 0.;
     for(vector<fastjet::PseudoJet>::const_iterator ito = towers.begin(),
@@ -95,10 +93,10 @@ void MultipleAlgoIterator::subtractPedestal(vector<fastjet::PseudoJet> & coll)
 				     input_object->pz()*mScale, input_object->e()*mScale);
     
       int index = input_object->user_index();
-      input_object->reset ( towP4.px(),
-			    towP4.py(),
-			    towP4.pz(),
-			    towP4.energy() );
+      input_object->reset_momentum ( towP4.px(),
+				     towP4.py(),
+				     towP4.pz(),
+				     towP4.energy() );
       input_object->set_user_index(index);
 
       if(etnew > 0. && dropZeroTowers_) newcoll.push_back(*input_object);

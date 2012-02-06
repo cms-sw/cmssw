@@ -332,19 +332,19 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
   // For Pileup subtraction using offset correction:
   // Subtract pedestal. 
   if ( doPUOffsetCorr_ ) {
+     subtractor_->setDefinition(fjJetDefinition_);
      subtractor_->reset(inputs_,fjInputs_,fjJets_);
      subtractor_->calculatePedestal(fjInputs_); 
      subtractor_->subtractPedestal(fjInputs_);    
      LogDebug("VirtualJetProducer") << "Subtracted pedestal\n";
   }
-
   // Run algorithm. Will modify fjJets_ and allocate fjClusterSeq_. 
   // This will use fjInputs_
   runAlgorithm( iEvent, iSetup );
 
-  if ( doPUOffsetCorr_ ) {
-     subtractor_->setAlgorithm(fjClusterSeq_);
-  }
+  // if ( doPUOffsetCorr_ ) {
+  //    subtractor_->setAlgorithm(fjClusterSeq_);
+  // }
 
   LogDebug("VirtualJetProducer") << "Ran algorithm\n";
   // For Pileup subtraction using offset correction:
@@ -360,7 +360,6 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
     subtractor_->calculatePedestal(orphanInput);
     subtractor_->offsetCorrectJets();
   }
-
   // Write the output jets.
   // This will (by default) call the member function template
   // "writeJets", but can be overridden. 
@@ -553,7 +552,6 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
   std::auto_ptr<std::vector<T> > jets(new std::vector<T>() );
   jets->reserve(fjJets_.size());
   
-
   // Distance between jet centers -- for disk-based area calculation
   std::vector<std::vector<double> >   rij(fjJets_.size());
 
@@ -592,7 +590,6 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
       jetArea  *= rParam_;
       jetArea  *= rParam_;
     }  
-
     // write the specifics to the jet (simultaneously sets 4-vector, vertex).
     // These are overridden functions that will call the appropriate
     // specific allocator. 
@@ -615,7 +612,6 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
     // add to the list
     jets->push_back(jet);        
   }
-  
   // put the jets in the collection
   iEvent.put(jets,jetCollInstanceName_);
   

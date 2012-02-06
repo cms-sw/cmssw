@@ -23,11 +23,12 @@ class PileUpSubtractor{
   typedef boost::shared_ptr<fastjet::ClusterSequence>        ClusterSequencePtr;
   typedef boost::shared_ptr<fastjet::GhostedAreaSpec>        ActiveAreaSpecPtr;
   typedef boost::shared_ptr<fastjet::RangeDefinition>        RangeDefPtr;
+  typedef boost::shared_ptr<fastjet::JetDefinition>          JetDefPtr;
   
   PileUpSubtractor(const edm::ParameterSet& iConfig); 
   ~PileUpSubtractor(){;}
 
-virtual void setAlgorithm(ClusterSequencePtr& algorithm);
+virtual void setDefinition(JetDefPtr const & jetDef);
 virtual void reset(std::vector<edm::Ptr<reco::Candidate> >& input,
 	     std::vector<fastjet::PseudoJet>& towers,
 	     std::vector<fastjet::PseudoJet>& output);
@@ -50,6 +51,7 @@ virtual double getPileUpEnergy(int ijet) const {return jetOffset_[ijet];}
  protected:
 
   // From jet producer
+  JetDefPtr                       fjJetDefinition_;  // fastjet jet definition
   ClusterSequencePtr              fjClusterSeq_;    // fastjet cluster sequence
   std::vector<edm::Ptr<reco::Candidate> >*       inputs_;          // input candidates
   std::vector<fastjet::PseudoJet>* fjInputs_;        // fastjet inputs
