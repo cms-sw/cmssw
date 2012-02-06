@@ -11,7 +11,8 @@ NEVTS=100
 MENU="GRun" # GRun for data or MC with >= CMSSW_3_8_X
 isRelval=0 # =0 for running on MC RelVals, =0 for standard production MC, no effect for data 
 
-isRaw=1 #  =1 changes the path to run lumiProducer from dbs on RAW, =0 if RAW+RECO will get lumi info from file intself
+isRaw=0 #  =1 changes the path to run lumiProducer from dbs on RAW, =0 if RAW+RECO will get lumi info from file intself
+        #  Note - rerunning the lumiProducer puts a heavy load on the DB and should be used only if really needed.  
 
 
 #WhichHLTProcess="HLT"
@@ -67,7 +68,8 @@ process.options = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
                              fileNames = cms.untracked.vstring(
     '/store/data/Run2011B/SingleMu/RAW/v1/000/180/250/041B0376-FA02-E111-B0C0-003048F1110E.root'
-#'/store/relval/CMSSW_4_4_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START44_V5-v2/0044/063F2082-D2E5-E011-99C8-00248C0BE018.root'
+   #'/store/relval/CMSSW_4_4_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START44_V5-v2/0044/063F2082-D2E5-E011-99C8-00248C0BE018.root'
+   #'/store/data/Run2011B/ZeroBiasHPF2/RAW/v1/000/179/828/8ED5066B-43FF-E011-BCD2-003048F024FE.root'
                                  )
                                  )
 
@@ -94,7 +96,9 @@ process.maxEvents = cms.untracked.PSet(
     )
 
 ##LUMI CODE
-##process.load('Configuration.StandardSequences.Reconstruction_cff')
+if(isRaw):
+    from RecoLuminosity.LumiProducer.lumiProducer_cff import *
+    process.load('RecoLuminosity.LumiProducer.lumiProducer_cff')
 
 process.load("HLTrigger.HLTanalyzers.HLT_ES_cff")
 
@@ -114,10 +118,10 @@ process.DQMStore = cms.Service( "DQMStore",)
 # Define the analyzer modules
 process.load("HLTrigger.HLTanalyzers.HLTAnalyser_cfi")
 ##LUMI CODE
-## if (isRaw):
-##     process.analyzeThis = cms.Path(process.lumiProducer + process.HLTBeginSequence + process.hltanalysis )   
-## else:
-process.analyzeThis = cms.Path( process.HLTBeginSequence + process.hltanalysis )
+if (isRaw):
+    process.analyzeThis = cms.Path(process.lumiProducer + process.HLTBeginSequence + process.hltanalysis )   
+else:
+    process.analyzeThis = cms.Path( process.HLTBeginSequence + process.hltanalysis )
 
 process.hltanalysis.RunParameters.HistogramFile=OUTPUT_HIST
 process.hltanalysis.xSection=XSECTION
