@@ -90,13 +90,11 @@ HepMC::GenEvent* ExternalDecayDriver::decay( HepMC::GenEvent* evt )
       if ( !evt ) return 0;
    }
    
-
    if ( fPhotosInterface )
    {
       evt = fPhotosInterface->apply( evt );
       if ( !evt ) return 0;
    }
-
          
    return evt;
 }

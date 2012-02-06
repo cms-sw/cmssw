@@ -98,7 +98,7 @@ process.Timing=cms.Service("Timing",
     summaryOnly=cms.untracked.bool(True))
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(2000)
+    input = cms.untracked.int32(20000)
 )
 
 process.GEN = cms.OutputModule("PoolOutputModule",

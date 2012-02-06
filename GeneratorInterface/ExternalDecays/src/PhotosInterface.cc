@@ -17,7 +17,6 @@ using namespace gen;
 using namespace edm;
 using namespace std;
 
-// const int NMXHEP = HepMC::HEPEVT_Wrapper::max_number_entries() ;
 
 extern "C"{
 
@@ -88,31 +87,13 @@ void PhotosInterface::init()
 HepMC::GenEvent* PhotosInterface::apply( HepMC::GenEvent* evt )
 {
    
-   // event record convertor 
-   // ...well, I'm not sure we need it here, 
-   // as we do it by hands, only part of the record
-   //
-   // HepMC::IO_HEPEVT conv;
    
    if ( !fIsInitialized ) return evt; // conv.read_next_event();
-   
-   // cross-check printout HepMC::GenEvent
-   //
-   //evt->print();
-   
-   // int numPartBefore = HepMC::HEPEVT_Wrapper::number_entries();
-   // HepMC::HEPEVT_Wrapper::print_hepevt();
-   
+      
    // loop over HepMC::GenEvent, find vertices
-
-   // std::vector<int> barcodes;   
-   // std::vector<Scaling> scaleFactors;
-   
-   fScaleFactors.clear();
-   
+      
    for ( int ip=0; ip<evt->particles_size(); ip++ )
    {
-      fScaleFactors.push_back( Scaling(HepMC::ThreeVector(1.,1.,1.),1) );
       phoqed_.qedrad[ip]=true;
    }
    
@@ -126,15 +107,25 @@ HepMC::GenEvent* PhotosInterface::apply( HepMC::GenEvent* evt )
    for ( int iv=1; iv<=evt->vertices_size(); iv++ )
    {
       
-      HepMC::GenVertex* vtx = evt->barcode_to_vertex( -iv ) ;
-      if ( vtx->particles_in_size() != 1 ) continue; // more complex than we need
-      if ( vtx->particles_out_size() <= 0 ) continue; // no outcoming particles
-      // --> if ( fOnlyPDG !=-1 && (*(vtx->particles_in_const_begin()))->pdg_id() == fOnlyPDG ) continue;
-      // now find at least one "legal" daughter
       bool legalVtx = false;
+      
+      HepMC::GenVertex* vtx = evt->barcode_to_vertex( -iv ) ;
+      
+      if ( vtx->particles_in_size() != 1 ) continue; // more complex than we need
+      if ( vtx->particles_out_size() <= 1 ) continue; // no outcoming particles
+      
+      if ( (*(vtx->particles_in_const_begin()))->pdg_id() == 111 ) continue; // pi0 decay vtx - no point to try
+      
+      // --> if ( fOnlyPDG !=-1 && (*(vtx->particles_in_const_begin()))->pdg_id() == fOnlyPDG ) continue;
+      
       for ( HepMC::GenVertex::particle_iterator pitr=vtx->particles_begin(HepMC::children);
             pitr != vtx->particles_end(HepMC::children); ++pitr) 
       {
+
+	 // quark or gluon out of this vertex - no good !
+	 if ( abs((*pitr)->pdg_id()) >=1 &&  abs((*pitr)->pdg_id()) <=8 ) break;
+	 if ( abs((*pitr)->pdg_id()) == 21 ) break;
+
          if ( (*pitr)->status() == 1 || (*pitr)->end_vertex() )
 	 {
 	    // OK, legal already !
@@ -144,7 +135,7 @@ HepMC::GenEvent* PhotosInterface::apply( HepMC::GenEvent* evt )
       }
       
       if ( !legalVtx ) continue;
-            
+      
       // now do all the loops again
       //
       // first, flush out HEPEVT & tmp barcode storage
@@ -182,7 +173,9 @@ HepMC::GenEvent* PhotosInterface::apply( HepMC::GenEvent* evt )
 	    }	 
          }
          if ( vtx->particles_begin(HepMC::children) == vtx->particles_begin(HepMC::descendants) && 
-              vtx->particles_end(HepMC::children) == vtx->particles_end(HepMC::descendants) ) 
+              vtx->particles_end(HepMC::children) == vtx->particles_end(HepMC::descendants) ) // FIXME !!!!!
+	                                                                                      // Maybe better vtx nested loop(s) 
+											      // instead of "descendants" ???
          {
 	    nTauDesc = vtx->particles_out_size();
          }
@@ -198,38 +191,14 @@ HepMC::GenEvent* PhotosInterface::apply( HepMC::GenEvent* evt )
 	 phoqed_.qedrad[index-1]=true;
 	 iTauDescCounter = 0;
       }
-     
-      // check if mother has ever been "altered" !
-      //
-      int mbcode =  (*(vtx->particles_in_const_begin()))->barcode();
-      
+           
       // add outcoming particles (decay products)
       //
       int lastDau = 1;
       for ( HepMC::GenVertex::particle_iterator pitr=vtx->particles_begin(HepMC::children);
             pitr != vtx->particles_end(HepMC::children); ++pitr) 
       {
-         if ( fScaleFactors[mbcode-1].flag != 1. )
-	 {
-	    // yes, mother has been changed - adjust daughters
-	    
-	    vec4 = (*pitr)->momentum();
-	    double mass2 = vec4.m2();
-	    double pxn = vec4.px() * fScaleFactors[mbcode-1].weights.x();
-	    double pyn = vec4.py() * fScaleFactors[mbcode-1].weights.y();
-	    double pzn = vec4.pz() * fScaleFactors[mbcode-1].weights.z();
-	    double en  = sqrt( pxn*pxn + pyn*pyn + pzn*pzn + mass2 );
-	    (*pitr)->set_momentum( HepMC::FourVector(pxn,pyn,pzn,en) );
-	    int curbcode = (*pitr)->barcode();
-	    double scale = fScaleFactors[curbcode-1].weights.x();
-	    fScaleFactors[curbcode-1].weights.setX( scale*fScaleFactors[mbcode-1].weights.x() );
-	    scale = fScaleFactors[curbcode-1].weights.y();
-	    fScaleFactors[curbcode-1].weights.setY( scale*fScaleFactors[mbcode-1].weights.y() );
-	    scale = fScaleFactors[curbcode-1].weights.z();
-	    fScaleFactors[curbcode-1].weights.setZ( scale*fScaleFactors[mbcode-1].weights.z() );
-	    fScaleFactors[curbcode-1].flag = 0;
-	 }
-	 	 	 
+
 	 if ( (*pitr)->status() == 1 || (*pitr)->end_vertex() )
 	 {
 	    index++;
@@ -275,7 +244,8 @@ HepMC::GenEvent* PhotosInterface::apply( HepMC::GenEvent* evt )
       // HepMC::HEPEVT_Wrapper::print_hepevt();
 
 
-      // now check if something has been generated
+      // now check if something has been generated 
+      // and make all adjustments to underlying vtx/parts
       //
       attachParticles( evt, vtx, nentries );
 
@@ -293,10 +263,6 @@ HepMC::GenEvent* PhotosInterface::apply( HepMC::GenEvent* evt )
    // restore event number in HEPEVT (safety measure, somehow needed by Hw6)
    HepMC::HEPEVT_Wrapper::set_event_number( evt->event_number() );
 
-   // cross-check printout MODIFIED HepMC::GenEvent
-   // evt->print();
-
-   // return conv.read_next_event();
    return evt;
       
 }
@@ -312,10 +278,15 @@ void PhotosInterface::attachParticles( HepMC::GenEvent* evt, HepMC::GenVertex* v
 	 // also, follow up each one and correct accordingly;
 	 // at the same time, add photon(s) to the GenVertex
 	 //	 
+	 
+	 // vtx->print();
+	 
 	 int largestBarcode = -1;
 	 int Nbcodes = fBarcodes.size();
+	 
 	 for ( int ip=1; ip<Nbcodes; ip++ )
 	 {
+
 	    int bcode = fBarcodes[ip];
 	    HepMC::GenParticle* prt = evt->barcode_to_particle( bcode );
 	    if ( bcode > largestBarcode ) largestBarcode = bcode;
@@ -323,26 +294,83 @@ void PhotosInterface::attachParticles( HepMC::GenEvent* evt, HepMC::GenVertex* v
 	    double py = HepMC::HEPEVT_Wrapper::py(ip+1);
 	    double pz = HepMC::HEPEVT_Wrapper::pz(ip+1);
 	    double e  = HepMC::HEPEVT_Wrapper::e(ip+1);
-	    HepMC::FourVector mom4 = prt->momentum();
-	    //double porg = sqrt( mom4.px()*mom4.px() 
-	     //                 + mom4.py()*mom4.py() 
-		//	      + mom4.pz()*mom4.pz() ) ;
-	    //double pnew = sqrt( px*px + py*py + pz*pz );
-	    double scale = fScaleFactors[bcode-1].weights.x();
-	    fScaleFactors[bcode-1].weights.setX( scale*(px/mom4.px()) ); 
-	    scale = fScaleFactors[bcode-1].weights.y();
-	    fScaleFactors[bcode-1].weights.setY( scale*(py/mom4.py()) ); 
-	    scale = fScaleFactors[bcode-1].weights.z();
-	    fScaleFactors[bcode-1].weights.setZ( scale*(pz/mom4.pz()) );
-	    fScaleFactors[bcode-1].flag = 0; 
+	    double m  = HepMC::HEPEVT_Wrapper::m(ip+1);	  
+	    	    
+	    if ( prt->end_vertex() )
+	    {
+	       
+	       HepMC::GenVertex* endVtx = prt->end_vertex();
+	       
+               std::vector<int> secVtxStorage;
+               secVtxStorage.clear();
+	       
+	       secVtxStorage.push_back( endVtx->barcode() );
+	    
+	       HepMC::FourVector mom4 = prt->momentum();
+	    
+	       // now rescale all descendants
+	       double bet1[3], bet2[3], gam1, gam2, pb;
+	       double mass = mom4.m();
+	       bet1[0] = -(mom4.px()/mass);
+	       bet1[1] = -(mom4.py()/mass);
+	       bet1[2] = -(mom4.pz()/mass);
+	       bet2[0] = px/m;
+	       bet2[1] = py/m;
+	       bet2[2] = pz/m;
+	       gam1 = mom4.e()/mass;
+	       gam2 = e/m;
+	    
+	       unsigned int vcounter = 0;
+	       	    
+               while ( vcounter < secVtxStorage.size() )
+	       {
+	          
+		  HepMC::GenVertex* theVtx = evt->barcode_to_vertex( secVtxStorage[vcounter] );
+		  	          
+		  for ( HepMC::GenVertex::particle_iterator pitr=theVtx->particles_begin(HepMC::children);
+                        pitr != theVtx->particles_end(HepMC::children); ++pitr) 
+                  {
+	       
+		     if ( (*pitr)->end_vertex() )
+		     {
+		        secVtxStorage.push_back( (*pitr)->end_vertex()->barcode() );
+		     }
+		     
+		     if ( theVtx->particles_out_size() == 1 && (*pitr)->pdg_id() == prt->pdg_id() ) 
+		     {
+		        // carbon copy
+			(*pitr)->set_momentum( HepMC::FourVector(px,py,pz,e) );
+			continue;
+		     }
+		     	       
+	             HepMC::FourVector dmom4 = (*pitr)->momentum();
+	       
+	             // Boost vector to parent rest frame...
+	             pb = bet1[0]*dmom4.px() + bet1[1]*dmom4.py() + bet1[2]*dmom4.pz();
+	             double dpx = dmom4.px() + bet1[0] * (dmom4.e() + pb/(gam1+1.) );
+	             double dpy = dmom4.py() + bet1[1] * (dmom4.e() + pb/(gam1+1.) );
+	             double dpz = dmom4.pz() + bet1[2] * (dmom4.e() + pb/(gam1+1.) );
+	             double de  = gam1*dmom4.e() + pb;
+	             // ...and boost back to modified parent frame
+	             pb = bet2[0]*dpx + bet2[1]*dpy + bet2[2]*dpz;
+	             dpx += bet2[0] * ( de + pb/(gam2+1.) );
+	             dpy += bet2[1] * ( de + pb/(gam2+1.) );
+	             dpz += bet2[2] * ( de + pb/(gam2+1.) );
+	             de *= gam2;
+	             de += pb;
+	       
+	             (*pitr)->set_momentum( HepMC::FourVector(dpx,dpy,dpz,de) );
+		     
+	          }		  		  
+		  vcounter++;	    
+               }
+	       
+	       secVtxStorage.clear();
+	    }
 	    
 	    prt->set_momentum( HepMC::FourVector(px,py,pz,e) );
 	    
-	    // we do NOT adjust chaldren, etc., here - because we do it 
-	    // above, based on whether mother (incoming particles) has
-	    // ever been modified
-	 
-	 }
+	 } // ok, all affected particles update, but the photon(s) still not inserted
 	 	 
 	 int newlyGen =  HepMC::HEPEVT_Wrapper::number_entries() - nentries;
 	 
@@ -376,10 +404,12 @@ void PhotosInterface::attachParticles( HepMC::GenEvent* evt, HepMC::GenVertex* v
 	     NewPart->set_generated_mass( m );
 	     NewPart->suggest_barcode( nbcode );
 	     vtx->add_particle_out( NewPart ) ;
-	     // add/shift scale factors towards the end of the list
-	     fScaleFactors.push_back( Scaling(HepMC::ThreeVector(1.,1.,1.),1) );
 	 }  
-   } // end of if-statement 
+   
+      // vtx->print();
+      // std::cout << " leaving attachParticles() " << std::endl;
+   
+   } // end of global if-statement 
 
    return;
 }
