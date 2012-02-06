@@ -37,10 +37,10 @@ PileUpSubtractor::PileUpSubtractor(const edm::ParameterSet& iConfig) :
       int    activeAreaRepeats = iConfig.getParameter<int> ("Active_Area_Repeats");
       // default GhostArea 0.01
       double ghostArea = iConfig.getParameter<double> ("GhostArea");
-      // fjActiveArea_ =  ActiveAreaSpecPtr(new fastjet::ActiveAreaSpec(ghostEtaMax,
-      // 								     activeAreaRepeats,
-      // 								     ghostArea));
-      // fjRangeDef_ = RangeDefPtr( new fastjet::RangeDefinition(ghostEtaMax) );
+      fjActiveArea_ =  ActiveAreaSpecPtr(new fastjet::ActiveAreaSpec(ghostEtaMax,
+       								     activeAreaRepeats,
+       								     ghostArea));
+      fjRangeDef_ = RangeDefPtr( new fastjet::RangeDefinition(ghostEtaMax) );
    } 
 }
 
