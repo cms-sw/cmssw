@@ -32,10 +32,10 @@ DEFINE_FWK_MODULE(ConeIsolation);
 #include "HLTCaloJetPairDzMatchFilter.h"
 DEFINE_FWK_MODULE(HLTCaloJetPairDzMatchFilter);
 
-#include "GetJetsFromHLTobject.h"
+#include "HLTCollectionProducer.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
-typedef GetJetsFromHLTobject<reco::CaloJet> GetCaloJetsFromHLTobject;
-typedef GetJetsFromHLTobject<reco::PFJet>   GetPFJetsFromHLTobject;
-DEFINE_FWK_MODULE(GetCaloJetsFromHLTobject);
-DEFINE_FWK_MODULE(GetPFJetsFromHLTobject);
+typedef HLTCollectionProducer<reco::CaloJet> HLTCaloJetCollectionProducer;
+typedef HLTCollectionProducer<reco::PFJet>   HLTPFJetCollectionProducer;
+DEFINE_FWK_MODULE(HLTCaloJetCollectionProducer);
+DEFINE_FWK_MODULE(HLTPFJetCollectionProducer);
