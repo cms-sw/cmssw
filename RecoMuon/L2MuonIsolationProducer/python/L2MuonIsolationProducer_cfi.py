@@ -23,6 +23,7 @@ L2MuonIsolations = cms.EDProducer("L2MuonIsolationProducer",
         1.785, 1.88, 1.9865, 2.1075, 2.247, 
         2.411)
     ),
+    WriteIsolatorFloat = cms.bool(False),
 #    OutputMuIsoDeposits = cms.bool(True),
     ExtractorPSet = cms.PSet(
         DR_Veto_H = cms.double(0.1),
