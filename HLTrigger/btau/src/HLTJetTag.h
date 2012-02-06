@@ -7,8 +7,8 @@
  *  tagged multi-jet trigger for b and tau. 
  *  It should be run after the normal multi-jet trigger.
  *
- *  $Date: 2011/05/01 08:24:58 $
- *  $Revision: 1.4 $
+ *  $Date: 2012/01/21 14:57:05 $
+ *  $Revision: 1.5 $
  *
  *  \author Arnaud Gay, Ian Tomalin
  *  \maintainer Andrea Bocci
@@ -21,25 +21,29 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 //
 // class declaration
 //
 
-class HLTJetTag : public HLTFilter
-{
-public:
-  explicit HLTJetTag(const edm::ParameterSet & config);
-  ~HLTJetTag();
+template<typename T, int Tid>
+class HLTJetTag : public HLTFilter {
 
-  virtual bool hltFilter(edm::Event & event, const edm::EventSetup & setup, trigger::TriggerFilterObjectWithRefs & filterproduct);
+  public:
+    explicit HLTJetTag(const edm::ParameterSet & config);
+    ~HLTJetTag();
+    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+    virtual bool hltFilter(edm::Event & event, const edm::EventSetup & setup, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
 private:
-  edm::InputTag m_jetTag;       // module label of input JetTagCollection
-  double m_minTag, m_maxTag;    // tag descriminator cuts applied to each jet
-  int    m_minJets;             // min. number of jets required to be tagged
-  bool   m_saveTags;             // save the tagged jets in the TriggerEvent
+  edm::InputTag m_Jets;         // module label of input JetCollection
+  edm::InputTag m_JetTags;      // module label of input JetTagCollection
+  double m_MinTag, m_MaxTag;    // tag descriminator cuts applied to each jet
+  int    m_MinJets;             // min. number of jets required to be tagged
 
-  std::string m_label;          // Label of this filter in configuration file.
 };
 
 #endif // HLTrigger_btau_HLTJetTag_h

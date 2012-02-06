@@ -5,8 +5,6 @@
 #include "L3MumuTrackingRegion.h"
 DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, L3MumuTrackingRegion, "L3MumuTrackingRegion");
 
-#include "HLTJetTag.h"
-DEFINE_FWK_MODULE(HLTJetTag);
 
 #include "HLTDisplacedmumuFilter.h"
 DEFINE_FWK_MODULE(HLTDisplacedmumuFilter);
@@ -32,9 +30,18 @@ DEFINE_FWK_MODULE(ConeIsolation);
 #include "HLTCaloJetPairDzMatchFilter.h"
 DEFINE_FWK_MODULE(HLTCaloJetPairDzMatchFilter);
 
-#include "HLTCollectionProducer.h"
+
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
+
+#include "HLTJetTag.h"
+#include "HLTJetTag.cc"
+typedef HLTJetTag<reco::CaloJet,trigger::TriggerBJet> HLTCaloBJetTag;
+typedef HLTJetTag<reco::PFJet  ,trigger::TriggerBJet> HLTPFBJetTag;
+DEFINE_FWK_MODULE(HLTCaloBJetTag);
+DEFINE_FWK_MODULE(HLTPFBJetTag);
+
+#include "HLTCollectionProducer.h"
 typedef HLTCollectionProducer<reco::CaloJet> HLTCaloJetCollectionProducer;
 typedef HLTCollectionProducer<reco::PFJet>   HLTPFJetCollectionProducer;
 DEFINE_FWK_MODULE(HLTCaloJetCollectionProducer);
