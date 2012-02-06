@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_1_0/GRun/V14 (CMSSW_5_2_0_pre3_HLT7)
+# /dev/CMSSW_5_1_0/GRun/V15 (CMSSW_5_2_0_pre3_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V14')
+  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V15')
 )
 
 process.streams = cms.PSet( 
@@ -28249,7 +28249,8 @@ process.hltMu172p1CentralPFJet30Filter = cms.EDFilter( "HLTCaloJetCollectionsFil
     inputTag = cms.InputTag( "hltMu172p1JetCollectionsForLeptonPlusJets" ),
     MaxAbsJetEta = cms.double( 2.6 ),
     MinNJets = cms.uint32( 2 ),
-    MinJetPt = cms.double( 30.0 )
+    MinJetPt = cms.double( 30.0 ),
+    triggerType = cms.int32( 0 )
 )
 process.hltPreMu17eta2p1DiCentralPFJet30 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -28261,7 +28262,8 @@ process.hltMu172p1DiCentralPFJet30Filter = cms.EDFilter( "HLTCaloJetCollectionsF
     inputTag = cms.InputTag( "hltMu172p1JetCollectionsForLeptonPlusJets" ),
     MaxAbsJetEta = cms.double( 2.6 ),
     MinNJets = cms.uint32( 2 ),
-    MinJetPt = cms.double( 30.0 )
+    MinJetPt = cms.double( 30.0 ),
+    triggerType = cms.int32( 0 )
 )
 process.hltPreMu17eta2p1TriCentralPFJet30 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -28273,7 +28275,8 @@ process.hltMu172p1TriCentralPFJet30Filter = cms.EDFilter( "HLTCaloJetCollections
     inputTag = cms.InputTag( "hltMu172p1JetCollectionsForLeptonPlusJets" ),
     MaxAbsJetEta = cms.double( 2.6 ),
     MinNJets = cms.uint32( 3 ),
-    MinJetPt = cms.double( 30.0 )
+    MinJetPt = cms.double( 30.0 ),
+    triggerType = cms.int32( 0 )
 )
 process.hltPreMu17eta2p1QuadCentralPFJet30 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -28285,7 +28288,8 @@ process.hltMu172p1QuadCentralPFJet30Filter = cms.EDFilter( "HLTCaloJetCollection
     inputTag = cms.InputTag( "hltMu172p1JetCollectionsForLeptonPlusJets" ),
     MaxAbsJetEta = cms.double( 2.6 ),
     MinNJets = cms.uint32( 4 ),
-    MinJetPt = cms.double( 30.0 )
+    MinJetPt = cms.double( 30.0 ),
+    triggerType = cms.int32( 0 )
 )
 process.hltPreMu17eta2p1CentralJet30BTagIP = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -29425,7 +29429,8 @@ process.hltIsoMu172p1CentralPFJet30Filter = cms.EDFilter( "HLTCaloJetCollections
     inputTag = cms.InputTag( "hltIsoMu172p1JetCollectionsForLeptonPlusJets" ),
     MaxAbsJetEta = cms.double( 2.6 ),
     MinNJets = cms.uint32( 1 ),
-    MinJetPt = cms.double( 30.0 )
+    MinJetPt = cms.double( 30.0 ),
+    triggerType = cms.int32( 0 )
 )
 process.hltPreIsoMu17eta2p1DiCentralPFJet30 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -29437,7 +29442,8 @@ process.hltIsoMu172p1DiCentralPFJet30Filter = cms.EDFilter( "HLTCaloJetCollectio
     inputTag = cms.InputTag( "hltIsoMu172p1JetCollectionsForLeptonPlusJets" ),
     MaxAbsJetEta = cms.double( 2.6 ),
     MinNJets = cms.uint32( 2 ),
-    MinJetPt = cms.double( 30.0 )
+    MinJetPt = cms.double( 30.0 ),
+    triggerType = cms.int32( 0 )
 )
 process.hltPreIsoMu17eta2p1TriCentralPFJet30 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -29449,7 +29455,8 @@ process.hltIsoMu172p1TriCentralPFJet30Filter = cms.EDFilter( "HLTCaloJetCollecti
     inputTag = cms.InputTag( "hltIsoMu172p1JetCollectionsForLeptonPlusJets" ),
     MaxAbsJetEta = cms.double( 2.6 ),
     MinNJets = cms.uint32( 3 ),
-    MinJetPt = cms.double( 30.0 )
+    MinJetPt = cms.double( 30.0 ),
+    triggerType = cms.int32( 0 )
 )
 process.hltPreIsoMu17eta2p1QuadCentralPFJet30 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -29461,7 +29468,8 @@ process.hltIsoMu172p1QuadCentralPFJet30Filter = cms.EDFilter( "HLTCaloJetCollect
     inputTag = cms.InputTag( "hltIsoMu172p1JetCollectionsForLeptonPlusJets" ),
     MaxAbsJetEta = cms.double( 2.6 ),
     MinNJets = cms.uint32( 4 ),
-    MinJetPt = cms.double( 30.0 )
+    MinJetPt = cms.double( 30.0 ),
+    triggerType = cms.int32( 0 )
 )
 process.hltPreIsoMu17eta2p1CentralJet30BTagIP = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -29477,7 +29485,8 @@ process.hltMu172p1DiCentralPFJet25Filter = cms.EDFilter( "HLTCaloJetCollectionsF
     inputTag = cms.InputTag( "hltMu172p1JetCollectionsForLeptonPlusJets" ),
     MaxAbsJetEta = cms.double( 2.6 ),
     MinNJets = cms.uint32( 2 ),
-    MinJetPt = cms.double( 25.0 )
+    MinJetPt = cms.double( 25.0 ),
+    triggerType = cms.int32( 0 )
 )
 process.hltPFMht15Filter = cms.EDFilter( "HLTMhtFilter",
     saveTags = cms.bool( True ),
@@ -29494,7 +29503,8 @@ process.hltIsoMu172p1DiCentralPFJet25Filter = cms.EDFilter( "HLTCaloJetCollectio
     inputTag = cms.InputTag( "hltIsoMu172p1JetCollectionsForLeptonPlusJets" ),
     MaxAbsJetEta = cms.double( 2.6 ),
     MinNJets = cms.uint32( 2 ),
-    MinJetPt = cms.double( 25.0 )
+    MinJetPt = cms.double( 25.0 ),
+    triggerType = cms.int32( 0 )
 )
 process.hltPreIsoMu17eta2p1DiCentralPFJet25PFMHT15 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -31884,7 +31894,8 @@ process.hltEle25CaloIdVTTrkIdTCentralPFJet30EleCleaned = cms.EDFilter( "HLTCaloJ
     inputTag = cms.InputTag( "hltEle25CaloIdVTTrkIdTJetCollectionsForLeptonPlusPFJets" ),
     MaxAbsJetEta = cms.double( 2.6 ),
     MinNJets = cms.uint32( 2 ),
-    MinJetPt = cms.double( 30.0 )
+    MinJetPt = cms.double( 30.0 ),
+    triggerType = cms.int32( 0 )
 )
 process.hltPreEle25CaloIdVTTrkIdTDiCentralPFJet30 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -31896,7 +31907,8 @@ process.hltEle25CaloIdVTTrkIdTDiCentralPFJet30EleCleaned = cms.EDFilter( "HLTCal
     inputTag = cms.InputTag( "hltEle25CaloIdVTTrkIdTJetCollectionsForLeptonPlusPFJets" ),
     MaxAbsJetEta = cms.double( 2.6 ),
     MinNJets = cms.uint32( 2 ),
-    MinJetPt = cms.double( 30.0 )
+    MinJetPt = cms.double( 30.0 ),
+    triggerType = cms.int32( 0 )
 )
 process.hltPreEle25CaloIdVTTrkIdTTriCentralPFJet30 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -31908,7 +31920,8 @@ process.hltEle25CaloIdVTTrkIdTTriCentralPFJet30EleCleaned = cms.EDFilter( "HLTCa
     inputTag = cms.InputTag( "hltEle25CaloIdVTTrkIdTJetCollectionsForLeptonPlusPFJets" ),
     MaxAbsJetEta = cms.double( 2.6 ),
     MinNJets = cms.uint32( 3 ),
-    MinJetPt = cms.double( 30.0 )
+    MinJetPt = cms.double( 30.0 ),
+    triggerType = cms.int32( 0 )
 )
 process.hltPreEle25CaloIdVTTrkIdTQuadCentralPFJet30 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -31920,7 +31933,8 @@ process.hltEle25CaloIdVTTrkIdTQuadCentralPFJet30EleCleaned = cms.EDFilter( "HLTC
     inputTag = cms.InputTag( "hltEle25CaloIdVTTrkIdTJetCollectionsForLeptonPlusPFJets" ),
     MaxAbsJetEta = cms.double( 2.6 ),
     MinNJets = cms.uint32( 4 ),
-    MinJetPt = cms.double( 30.0 )
+    MinJetPt = cms.double( 30.0 ),
+    triggerType = cms.int32( 0 )
 )
 process.hltPreEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTCentralJet30 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -32104,7 +32118,8 @@ process.hltEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTCentralPFJet30EleCleaned = cms.EDFi
     inputTag = cms.InputTag( "hltEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTJetCollectionsForLeptonPlusPFJets" ),
     MaxAbsJetEta = cms.double( 2.6 ),
     MinNJets = cms.uint32( 1 ),
-    MinJetPt = cms.double( 30.0 )
+    MinJetPt = cms.double( 30.0 ),
+    triggerType = cms.int32( 0 )
 )
 process.hltPreEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTDiCentralPFJet30 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -32116,7 +32131,8 @@ process.hltEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTDiCentralPFJet30EleCleaned = cms.ED
     inputTag = cms.InputTag( "hltEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTJetCollectionsForLeptonPlusPFJets" ),
     MaxAbsJetEta = cms.double( 2.6 ),
     MinNJets = cms.uint32( 2 ),
-    MinJetPt = cms.double( 30.0 )
+    MinJetPt = cms.double( 30.0 ),
+    triggerType = cms.int32( 0 )
 )
 process.hltPreEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTTriCentralPFJet30 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -32128,7 +32144,8 @@ process.hltEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTTriCentralPFJet30EleCleaned = cms.E
     inputTag = cms.InputTag( "hltEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTJetCollectionsForLeptonPlusPFJets" ),
     MaxAbsJetEta = cms.double( 2.6 ),
     MinNJets = cms.uint32( 3 ),
-    MinJetPt = cms.double( 30.0 )
+    MinJetPt = cms.double( 30.0 ),
+    triggerType = cms.int32( 0 )
 )
 process.hltPreEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTQuadCentralPFJet30 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -32140,7 +32157,8 @@ process.hltEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTQuadCentralPFJet30EleCleaned = cms.
     inputTag = cms.InputTag( "hltEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTJetCollectionsForLeptonPlusPFJets" ),
     MaxAbsJetEta = cms.double( 2.6 ),
     MinNJets = cms.uint32( 4 ),
-    MinJetPt = cms.double( 30.0 )
+    MinJetPt = cms.double( 30.0 ),
+    triggerType = cms.int32( 0 )
 )
 process.hltPreEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTCentralJet30BTagIP = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -32326,7 +32344,8 @@ process.hltEle27WP80CentralDiPFJet25Cleaned = cms.EDFilter( "HLTCaloJetCollectio
     inputTag = cms.InputTag( "hltEle27WP80CleanAK5PFJet25" ),
     MaxAbsJetEta = cms.double( 2.6 ),
     MinNJets = cms.uint32( 2 ),
-    MinJetPt = cms.double( 25.0 )
+    MinJetPt = cms.double( 25.0 ),
+    triggerType = cms.int32( 0 )
 )
 process.hltPFMHT15Filter = cms.EDFilter( "HLTMhtHtFilter",
     saveTags = cms.bool( True ),
@@ -32471,7 +32490,8 @@ process.hltEle27CaloIdTTrkIdTCentralDiPFJet25Cleaned = cms.EDFilter( "HLTCaloJet
     inputTag = cms.InputTag( "hltEle27CaloIdTTrkIdTCleanAK5PFJet25" ),
     MaxAbsJetEta = cms.double( 2.6 ),
     MinNJets = cms.uint32( 2 ),
-    MinJetPt = cms.double( 25.0 )
+    MinJetPt = cms.double( 25.0 ),
+    triggerType = cms.int32( 0 )
 )
 process.hltPreEle27CaloIdVTTrkIdTDiPFJet25Deta3 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -32653,7 +32673,8 @@ process.hltEle32WP80CentralDiPFJet25Cleaned = cms.EDFilter( "HLTCaloJetCollectio
     inputTag = cms.InputTag( "hltEle32WP80CleanAK5PFJet25" ),
     MaxAbsJetEta = cms.double( 2.6 ),
     MinNJets = cms.uint32( 2 ),
-    MinJetPt = cms.double( 25.0 )
+    MinJetPt = cms.double( 25.0 ),
+    triggerType = cms.int32( 0 )
 )
 process.hltPFMHT25Filter = cms.EDFilter( "HLTMhtHtFilter",
     saveTags = cms.bool( True ),
