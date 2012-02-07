@@ -343,7 +343,7 @@ namespace pos{
 //      std::cout << "[pos::PixelConfigFile::get()]\t\t\tExtracted base:"<<base<<std::endl;
 //      std::cout << "[pos::PixelConfigFile::get()]\t\t\tExtracted ext :"<<ext <<std::endl;
     
-      unsigned int version;
+      unsigned int version=0;
       int err=configList()[theKey].find(dir,version);   
       // assert(err==0);
       if(0!=err) 
@@ -527,7 +527,7 @@ namespace pos{
 //      std::cout << __LINE__ << mthn << "Extracted base:" << base <<std::endl;
 //      std::cout << __LINE__ << mthn << "Extracted ext :" << ext  <<std::endl;
     
-      unsigned int version;
+      unsigned int version=0;
       int err=configList()[theKey].find(dir,version);   
       // assert(err==0);
       if(0!=err) 
