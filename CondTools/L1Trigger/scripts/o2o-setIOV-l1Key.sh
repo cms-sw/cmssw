@@ -58,6 +58,7 @@ eval `scramv1 run -sh`
 if [ -f o2o-setIOV.lock ]
     then
     echo "$0 already running.  Aborting process."  | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
+    echo "$0 already running.  Aborting process."  1>&2
     tail -3 /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log >> /nfshome0/popcondev/L1Job/o2o.summary
     exit 50
 else
@@ -100,7 +101,11 @@ if [ ${nflag} -eq 0 ]
 fi
 
 tail -1 /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log >> /nfshome0/popcondev/L1Job/o2o.summary
-cat tmp.log | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
+
+# Filter CORAL debug output into different file, which gets deleted if no errors
+grep -E "CORAL.*Info|CORAL.*Debug" tmp.log >& /nfshome0/popcondev/L1Job/coraldebug-${run}.log
+grep -Ev "CORAL.*Info|CORAL.*Debug" tmp.log | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
+#cat tmp.log | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
 
 # log TSC key and RS keys
 echo "runNumber=${run} tscKey=${tscKey}" >> /nfshome0/popcondev/L1Job/keylogs/tsckeys.txt
@@ -120,8 +125,16 @@ echo "exit code ${o2ocode}" | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${vers
 if [ ${o2ocode} -eq 0 ]
     then
     echo "L1-O2O-INFO: o2o-setIOV-l1Key-slc5.sh successful"
+    rm -f /nfshome0/popcondev/L1Job/coraldebug-${run}.log
 else
-    echo "L1-O2O-ERROR: o2o-setIOV-l1Key-slc5.sh failed!" >&2
+    if [ ${o2ocode1} -eq 90 -o ${o2ocode2} -eq 90 ]
+	then
+	echo "L1-O2O-ERROR: problem with Oracle databases."
+	echo "L1-O2O-ERROR: problem with Oracle databases." 1>&2
+    else
+	echo "L1-O2O-ERROR: o2o-setIOV-l1Key-slc5.sh failed!"
+	echo "L1-O2O-ERROR: o2o-setIOV-l1Key-slc5.sh failed!" 1>&2
+    fi
 fi
 
 echo "`date` : o2o-setIOV-l1Key-slc5.sh finished : ${run} ${l1Key}" | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
