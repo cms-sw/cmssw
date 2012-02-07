@@ -5,8 +5,9 @@ import sys
 import fileinput
 import string
 
-NewRelease='CMSSW_5_1_0_pre1'
+NewRelease='CMSSW_5_2_0_pre3'
 RefRelease='CMSSW_5_0_0'
+#RefRelease='CMSSW_5_0_0_patch1'
 #NewRelease='Summer09'
 #RefRelease='Summer09_pre1'
 
@@ -49,16 +50,16 @@ GetRefsFrom='GUI'
 
 #DqmGuiNewRepository = 'https://cmsweb.cern.ch/dqm/dev/data/browse/Development/RelVal/CMSSW_4_2_x/'
 #DqmGuiNewRepository = 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/RelVal/CMSSW_4_3_x/'
-DqmGuiNewRepository = 'https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_5_1_x/'
+DqmGuiNewRepository = 'https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_5_2_x/'
 #DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/dev/data/browse/Development/RelVal/CMSSW_4_2_x/'
 #DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/RelVal/CMSSW_4_3_x/'
 DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_5_0_x/'
 CastorRepository = '/castor/cern.ch/user/a/aperrott/ValidationRecoMuon'
 
 # These are only needed if you copy any root file from the DQM GUI:
-NewLabel='START50_V8'
+NewLabel='START50_V13'
 if (NewCondition=='MC'):
-    NewLabel='MC_50_V8'
+    NewLabel='MC_50_V13'
 RefLabel='START50_V8'
 if (RefCondition=='MC'):
     RefLabel='MC_50_V8'
@@ -108,15 +109,17 @@ if (NewCondition=='PILEUP'):
     if (NewFastSim):
         NewLabel=NewLabel+'_PU_FlatDist10_2011EarlyData_50ns'
     else:
-        NewLabel=NewLabel+'_PU_XXX'  # There are no FullSim pileup relval produced yed
+        NewLabel='PU_'+NewLabel   # What about sticking on some kind of default ? 
+#        NewLabel=NewLabel+'_PU'
 if (RefCondition=='PILEUP'):
     if (RefFastSim):
         RefLabel=RefLabel+'_PU_FlatDist10_2011EarlyData_50ns'
     else:
-        RefLabel=RefLabel+'_PU_XXX'  # There are no FullSim pileup relval produced yed
+        RefLabel=RefLabel+'_PU'
 
 NewLabel=NewLabel+'-v1'
 RefLabel=RefLabel+'-v1'
+#RefLabel=RefLabel+'_special_120125-v2'  # This is for the PU ref's in 50X
 
 
 WebRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Validation/val'
