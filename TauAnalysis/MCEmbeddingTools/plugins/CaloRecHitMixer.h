@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Fri Apr  9 12:15:56 CEST 2010
-// $Id: CaloRecHitMixer.cc,v 1.1 2011/10/13 08:29:03 fruboes Exp $
+// $Id: CaloRecHitMixer.h,v 1.1 2012/02/07 15:48:49 fruboes Exp $
 //
 //
 
@@ -275,7 +275,7 @@ TMyType CaloRecHitMixer<TMyType>::mergeHCAL(const TMyType & rhZmumu, const TMyTy
   TMyType rhRet(rhZmumu.detid(), rhZmumu.energy()+rhTauTau.energy(), rhTauTau.time());
 
   // for now - take flags from Zmumu (data), since it is more likely to show problems than MC
-  rhRet.setFlags(rhMuMu.flags());
+  rhRet.setFlags(rhZmumu.flags());
 
   rhRet.setAux(rhTauTau.aux()); // 4_2_6 - aux seems not to be used anywere (LXR search), 
                                 // only in  Validation/HcalRecHits/src/HcalRecHitsValidation.cc
