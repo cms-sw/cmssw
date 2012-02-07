@@ -1,4 +1,4 @@
-<bin   name="cmsGLibCRun" file="cmsRun.cpp">
+<bin   name="cmsRunGlibC" file="cmsRun.cpp">
   <use   name="roothistmatrix"/>
   <use   name="boost"/>
   <use   name="boost_program_options"/>
@@ -11,7 +11,7 @@
   <use   name="FWCore/ParameterSet"/>
   <use   name="FWCore/PythonParameterSet"/>
 </bin>
-<bin   name="cmsTCRun" file="cmsRun.cpp">
+<bin   name="cmsRunTC" file="cmsRun.cpp">
   <use   name="boost"/>
   <use   name="boost_program_options"/>
   <use   name="boost_python"/>
