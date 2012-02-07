@@ -6,7 +6,9 @@
 //
 
 #include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include<vector>
 
 //
@@ -20,6 +22,7 @@ class HLTDoubletDZ : public HLTFilter {
 
       explicit HLTDoubletDZ(const edm::ParameterSet&);
       ~HLTDoubletDZ();
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
       virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
