@@ -105,6 +105,12 @@ namespace edm {
     return *this;
   }
 
+  void ParameterSet::copyForModify(ParameterSet const& other) {
+    ParameterSet temp(other);
+    swap(temp);
+    id_ = ParameterSetID();
+  }
+
   void ParameterSet::swap(ParameterSet& other) {
     tbl_.swap(other.tbl_);
     psetTable_.swap(other.psetTable_);

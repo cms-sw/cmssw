@@ -58,6 +58,8 @@ namespace edm {
 
     void swap(ParameterSet& other);
 
+    void copyForModify(ParameterSet const& other);
+
     // identification
     ParameterSetID id() const;
     void setID(ParameterSetID const& id) const;

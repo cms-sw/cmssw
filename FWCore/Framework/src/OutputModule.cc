@@ -438,7 +438,8 @@ namespace edm {
   OutputModule::setEventSelectionInfo(std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,
                                       bool anyProductProduced) {
 
-    ParameterSet selectEventsInfo = getParameterSet(selector_config_id_);
+    ParameterSet selectEventsInfo;
+    selectEventsInfo.copyForModify(getParameterSet(selector_config_id_));
     selectEventsInfo.addParameter<bool>("InProcessHistory", anyProductProduced);
     std::string const& label = description().moduleLabel();
     std::vector<std::string> endPaths;
