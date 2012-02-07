@@ -85,7 +85,7 @@ sub deletefiles()
                               "and fd.FILENAME is null ";
  
 # Sorting by time
-    my $endsql = " order by ITIME";
+    my $endsql = " order by fc.CTIME";
 
     
 # Additional constraints
@@ -924,7 +924,7 @@ if( abs($deltaT) < 1.5  ||  $now  ){
     debug( ">>>> DELETE:  $hostname: $hour6- AND $min ===> deltaTime= $deltaT  " );
     
     printtime "..execute DELETES cycle...";
-    if (!$skipdelete) { deletefiles(); }
+          if (!$skipdelete) { deletefiles(); }
     printtime "..DONE executing DELETES...";
     
     #if we did a file delete, kill the snooze time for the UNACCTFILES:
