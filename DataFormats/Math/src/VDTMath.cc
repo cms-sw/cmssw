@@ -74,11 +74,17 @@ void vdt::fast_exp_vect_46(double const * input,
 
   // for vectorisation
   double x;
+
+  for (unsigned int i = 0; i < arr_size; ++i)
+     nv[i] = n = std::floor( LOG2E * input[i] + 0.5 );
+
+
   //Profitability threshold = 7
   for (unsigned int i = 0; i < arr_size; ++i) {
     x = input[i];
 
-    nv[i] = n = int(LOG2E * x + 0.5);//std::floor( LOG2E * x + 0.5 );
+    //nv[i] = n = int(LOG2E * x + 0.5);//std::floor( LOG2E * x + 0.5 );
+    n=nv[i];
 
     px = n;
 

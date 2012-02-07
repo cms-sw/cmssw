@@ -226,7 +226,8 @@ inline double fast_exp(double x){
 
     double initial_x = x;
 
-    double px =int(LOG2E * x + 0.5); // std::floor(LOG2E * x + 0.5);
+//    double px =int(LOG2E * x + 0.5); // std::floor(LOG2E * x + 0.5);
+    double px = std::floor(LOG2E * x + 0.5);
 
     int n = px;
 
