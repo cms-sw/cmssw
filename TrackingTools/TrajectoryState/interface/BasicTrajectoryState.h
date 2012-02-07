@@ -158,12 +158,20 @@ public:
   double transverseCurvature() const {
     return freeTrajectoryState(false)->transverseCurvature();
   }
+
   const CartesianTrajectoryError cartesianError() const {
-    if unlikely(!hasError()) missingError(" accesing cartesian error.");
+    if unlikely(!hasError()) {
+	missingError(" accesing cartesian error.");
+	return CartesianTrajectoryError();
+      }
     return freeTrajectoryState()->cartesianError();
   }
   const CurvilinearTrajectoryError& curvilinearError() const {
-    if unlikely(!hasError()) missingError(" accesing curvilinearerror.");
+    if unlikely(!hasError()) {
+	missingError(" accesing curvilinearerror.");
+	static CurvilinearTrajectoryError crap;
+	return crap;
+      }
     return freeTrajectoryState()->curvilinearError();
   }
 
@@ -190,7 +198,10 @@ public:
   }
 
   const LocalTrajectoryError& localError() const {
-    if unlikely(!hasError()) missingError(" accessing local error.");
+    if unlikely(!hasError()) {
+	missingError(" accessing local error.");
+	return theLocalError;
+      }
     if unlikely(theLocalError.invalid()) createLocalError();
     return theLocalError;
   }
