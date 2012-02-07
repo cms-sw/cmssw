@@ -139,7 +139,8 @@ initPayloadWriter( process,
 process.L1CondDBPayloadWriter.writeL1TriggerKey = cms.bool(False)
 
 if options.logTransactions == 1:
-    initPayloadWriter.outputDB.logconnect = cms.untracked.string('oracle://cms_orcon_prod/CMS_COND_31X_POPCONLOG')
+#    initPayloadWriter.outputDB.logconnect = cms.untracked.string('oracle://cms_orcon_prod/CMS_COND_31X_POPCONLOG')
+    initPayloadWriter.outputDB.logconnect = cms.untracked.string('sqlite_file:l1o2o-log.db')
     process.L1CondDBPayloadWriter.logTransactions = True
 
 if options.overwriteKeys == 0:
@@ -156,7 +157,8 @@ initIOVWriter( process,
 process.L1CondDBIOVWriter.logKeys = True
 
 if options.logTransactions == 1:
-    initIOVWriter.outputDB.logconnect = cms.untracked.string('oracle://cms_orcon_prod/CMS_COND_31X_POPCONLOG')
+#    initIOVWriter.outputDB.logconnect = cms.untracked.string('oracle://cms_orcon_prod/CMS_COND_31X_POPCONLOG')
+    initIOVWriter.outputDB.logconnect = cms.untracked.string('sqlite_file:l1o2o-log.db')
     process.L1CondDBIOVWriter.logTransactions = True
 
 process.maxEvents = cms.untracked.PSet(
@@ -168,5 +170,8 @@ process.source = cms.Source("EmptyIOVSource",
     lastValue = cms.uint64(options.runNumber),
     interval = cms.uint64(1)
 )
+
+# CORAL debugging
+#process.outputDB.DBParameters.messageLevel = cms.untracked.int32(3)
 
 process.p = cms.Path(process.L1CondDBPayloadWriter*process.L1CondDBIOVWriter)

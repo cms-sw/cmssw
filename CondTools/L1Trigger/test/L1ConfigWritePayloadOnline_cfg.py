@@ -111,7 +111,8 @@ initPayloadWriter( process,
                    tagBaseVec = initL1O2OTags.tagBaseVec )
 
 if options.logTransactions == 1:
-    initPayloadWriter.outputDB.logconnect = cms.untracked.string('oracle://cms_orcon_prod/CMS_COND_31X_POPCONLOG')
+#    initPayloadWriter.outputDB.logconnect = cms.untracked.string('oracle://cms_orcon_prod/CMS_COND_31X_POPCONLOG')
+    initPayloadWriter.outputDB.logconnect = cms.untracked.string('sqlite_file:l1o2o-log.db')
     process.L1CondDBPayloadWriter.logTransactions = True
 
 if options.overwriteKeys == 0:

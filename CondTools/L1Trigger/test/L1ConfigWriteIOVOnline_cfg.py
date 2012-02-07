@@ -52,7 +52,8 @@ initIOVWriter( process,
                tscKey = options.tscKey )
 
 if options.logTransactions == 1:
-    initIOVWriter.outputDB.logconnect = cms.untracked.string('oracle://cms_orcon_prod/CMS_COND_31X_POPCONLOG')
+#    initIOVWriter.outputDB.logconnect = cms.untracked.string('oracle://cms_orcon_prod/CMS_COND_31X_POPCONLOG')
+    initIOVWriter.outputDB.logconnect = cms.untracked.string('sqlite_file:l1o2o-log.db')
     process.L1CondDBIOVWriter.logTransactions = True
 
 process.maxEvents = cms.untracked.PSet(
@@ -75,5 +76,8 @@ process.outputDB = cms.ESSource("PoolDBESSource",
                                 )
 process.outputDB.connect = cms.string(options.outputDBConnect)
 process.outputDB.DBParameters.authenticationPath = options.outputDBAuth
+
+# CORAL debugging
+process.outputDB.DBParameters.messageLevel = cms.untracked.int32(3)
 
 process.p = cms.Path(process.L1CondDBIOVWriter)
