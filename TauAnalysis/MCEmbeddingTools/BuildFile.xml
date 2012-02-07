@@ -15,6 +15,8 @@
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="GeneratorInterface/ExternalDecays"/>
 <use   name="DataFormats/MuonReco"/>
+<use   name="DataFormats/EcalRecHit"/>
+<flags CXXFLAGS="-O0 -g3 -fno-inline"/> 
 <flags   EDM_PLUGIN="1"/>
 <export>
 </export>
