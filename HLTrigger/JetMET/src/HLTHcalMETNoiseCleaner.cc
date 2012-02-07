@@ -149,7 +149,6 @@ bool HLTHcalMETNoiseCleaner::filter(edm::Event& iEvent, const edm::EventSetup& i
   iEvent.getByLabel(CaloMetCollectionTag_,met_h);
   
   if(not met_h.isValid() or met_h->size()==0 or met_h->front().pt()<0){ //No Valid MET, don't do anything and accept the event
-    edm::LogWarning("HLTHcalMETCleaner") << "#001#XX# No Valid MET!!!";
     return true;  // we shouldn't get here, but lets not crash
   }
   
@@ -320,7 +319,6 @@ bool HLTHcalMETNoiseCleaner::filter(edm::Event& iEvent, const edm::EventSetup& i
   }
 
   reco::CaloMET corMet = BuildCaloMet(CorMetSumEt,CorMetPt,CorMetPhi);
-  edm::LogWarning("HLTHcalMETCleaner") << "output MET: " << corMet.pt();  
   CleanedMET->push_back(corMet);
   iEvent.put(CleanedMET);
 
