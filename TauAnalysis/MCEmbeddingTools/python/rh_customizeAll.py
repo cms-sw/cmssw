@@ -124,6 +124,8 @@ def customise(process):
     import sys
     if hasattr(sys, "argv") == True:
       options.parseArguments()
+  else :
+    print "CL parsing disabled!"
 
   print "Setting mdtau to ", options.mdtau
   process.generator.ZTauTau.TauolaOptions.InputCards.mdtau = options.mdtau 
@@ -350,7 +352,6 @@ def customise(process):
 
   skimEnabled = False
   if hasattr(process,"doZmumuSkim"):
-    if process.doZmumuSkim.value == True:
       print "Enabling Zmumu skim"
       skimEnabled = True
       process.load("TauAnalysis/Skimming/goldenZmmSelectionVBTFrelPFIsolation_cfi")
@@ -375,8 +376,12 @@ def customise(process):
       print "Zmumu skim not enabled"
 
 
-
-
+  print "# ######################################################################################"
+  print "  Following parameters can be added before customize function "
+  print "  call in order to controll process  customization: " 
+  print "     process.doNotParse =  cms.PSet() # disables CL parsing for crab compat"
+  print "     process.doZmumuSkim = cms.PSet() # adds Zmumu skimming before embedding is run"
+  print "# ######################################################################################"
 
 
   return(process)
