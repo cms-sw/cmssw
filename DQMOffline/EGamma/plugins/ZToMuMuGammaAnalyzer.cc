@@ -10,7 +10,7 @@
  **
  **
  **  $Id: ZToMuMuGammaAnalyzer
- **  $Date: 2012/01/26 17:26:03 $
+ **  $Date: 2012/01/26 17:42:05 $
  **  authors:
  **   Nancy Marinelli, U. of Notre Dame, US
  **
@@ -88,79 +88,79 @@ void ZToMuMuGammaAnalyzer::beginJob()
 
 
 
-  double eMin = parameters_.getParameter<double>("eMin");
-  double eMax = parameters_.getParameter<double>("eMax");
-  int    eBin = parameters_.getParameter<int>("eBin");
+//   double eMin = parameters_.getParameter<double>("eMin");
+//   double eMax = parameters_.getParameter<double>("eMax");
+//   int    eBin = parameters_.getParameter<int>("eBin");
 
   double etMin = parameters_.getParameter<double>("etMin");
   double etMax = parameters_.getParameter<double>("etMax");
   int    etBin = parameters_.getParameter<int>("etBin");
 
-  double sumMin = parameters_.getParameter<double>("sumMin");
-  double sumMax = parameters_.getParameter<double>("sumMax");
-  int    sumBin = parameters_.getParameter<int>("sumBin");
+//   double sumMin = parameters_.getParameter<double>("sumMin");
+//   double sumMax = parameters_.getParameter<double>("sumMax");
+//   int    sumBin = parameters_.getParameter<int>("sumBin");
 
-  double etaMin = parameters_.getParameter<double>("etaMin");
-  double etaMax = parameters_.getParameter<double>("etaMax");
-  int    etaBin = parameters_.getParameter<int>("etaBin");
+//   double etaMin = parameters_.getParameter<double>("etaMin");
+//   double etaMax = parameters_.getParameter<double>("etaMax");
+//   int    etaBin = parameters_.getParameter<int>("etaBin");
 
-  double phiMin = parameters_.getParameter<double>("phiMin");
-  double phiMax = parameters_.getParameter<double>("phiMax");
-  int    phiBin = parameters_.getParameter<int>("phiBin");
+//   double phiMin = parameters_.getParameter<double>("phiMin");
+//   double phiMax = parameters_.getParameter<double>("phiMax");
+//   int    phiBin = parameters_.getParameter<int>("phiBin");
 
-  double r9Min = parameters_.getParameter<double>("r9Min");
-  double r9Max = parameters_.getParameter<double>("r9Max");
-  int    r9Bin = parameters_.getParameter<int>("r9Bin");
+//   double r9Min = parameters_.getParameter<double>("r9Min");
+//   double r9Max = parameters_.getParameter<double>("r9Max");
+//   int    r9Bin = parameters_.getParameter<int>("r9Bin");
 
-  double hOverEMin = parameters_.getParameter<double>("hOverEMin");
-  double hOverEMax = parameters_.getParameter<double>("hOverEMax");
-  int    hOverEBin = parameters_.getParameter<int>("hOverEBin");
+//   double hOverEMin = parameters_.getParameter<double>("hOverEMin");
+//   double hOverEMax = parameters_.getParameter<double>("hOverEMax");
+//   int    hOverEBin = parameters_.getParameter<int>("hOverEBin");
 
-  double xMin = parameters_.getParameter<double>("xMin");
-  double xMax = parameters_.getParameter<double>("xMax");
-  int    xBin = parameters_.getParameter<int>("xBin");
+//   double xMin = parameters_.getParameter<double>("xMin");
+//   double xMax = parameters_.getParameter<double>("xMax");
+//   int    xBin = parameters_.getParameter<int>("xBin");
 
-  double yMin = parameters_.getParameter<double>("yMin");
-  double yMax = parameters_.getParameter<double>("yMax");
-  int    yBin = parameters_.getParameter<int>("yBin");
+//   double yMin = parameters_.getParameter<double>("yMin");
+//   double yMax = parameters_.getParameter<double>("yMax");
+//   int    yBin = parameters_.getParameter<int>("yBin");
 
-  double numberMin = parameters_.getParameter<double>("numberMin");
-  double numberMax = parameters_.getParameter<double>("numberMax");
-  int    numberBin = parameters_.getParameter<int>("numberBin");
+//   double numberMin = parameters_.getParameter<double>("numberMin");
+//   double numberMax = parameters_.getParameter<double>("numberMax");
+//   int    numberBin = parameters_.getParameter<int>("numberBin");
 
-  double zMin = parameters_.getParameter<double>("zMin");
-  double zMax = parameters_.getParameter<double>("zMax");
-  int    zBin = parameters_.getParameter<int>("zBin");
+//   double zMin = parameters_.getParameter<double>("zMin");
+//   double zMax = parameters_.getParameter<double>("zMax");
+//   int    zBin = parameters_.getParameter<int>("zBin");
 
-  double rMin = parameters_.getParameter<double>("rMin");
-  double rMax = parameters_.getParameter<double>("rMax");
-  int    rBin = parameters_.getParameter<int>("rBin");
+//   double rMin = parameters_.getParameter<double>("rMin");
+//   double rMax = parameters_.getParameter<double>("rMax");
+//   int    rBin = parameters_.getParameter<int>("rBin");
 
-  double dPhiTracksMin = parameters_.getParameter<double>("dPhiTracksMin");
-  double dPhiTracksMax = parameters_.getParameter<double>("dPhiTracksMax");
-  int    dPhiTracksBin = parameters_.getParameter<int>("dPhiTracksBin");
+//   double dPhiTracksMin = parameters_.getParameter<double>("dPhiTracksMin");
+//   double dPhiTracksMax = parameters_.getParameter<double>("dPhiTracksMax");
+//   int    dPhiTracksBin = parameters_.getParameter<int>("dPhiTracksBin");
 
-  double dEtaTracksMin = parameters_.getParameter<double>("dEtaTracksMin");
-  double dEtaTracksMax = parameters_.getParameter<double>("dEtaTracksMax");
-  int    dEtaTracksBin = parameters_.getParameter<int>("dEtaTracksBin");
+//   double dEtaTracksMin = parameters_.getParameter<double>("dEtaTracksMin");
+//   double dEtaTracksMax = parameters_.getParameter<double>("dEtaTracksMax");
+//   int    dEtaTracksBin = parameters_.getParameter<int>("dEtaTracksBin");
 
-  double sigmaIetaMin = parameters_.getParameter<double>("sigmaIetaMin");
-  double sigmaIetaMax = parameters_.getParameter<double>("sigmaIetaMax");
-  int    sigmaIetaBin = parameters_.getParameter<int>("sigmaIetaBin");
+//   double sigmaIetaMin = parameters_.getParameter<double>("sigmaIetaMin");
+//   double sigmaIetaMax = parameters_.getParameter<double>("sigmaIetaMax");
+//   int    sigmaIetaBin = parameters_.getParameter<int>("sigmaIetaBin");
 
-  double eOverPMin = parameters_.getParameter<double>("eOverPMin");
-  double eOverPMax = parameters_.getParameter<double>("eOverPMax");
-  int    eOverPBin = parameters_.getParameter<int>("eOverPBin");
+//   double eOverPMin = parameters_.getParameter<double>("eOverPMin");
+//   double eOverPMax = parameters_.getParameter<double>("eOverPMax");
+//   int    eOverPBin = parameters_.getParameter<int>("eOverPBin");
 
-  double chi2Min = parameters_.getParameter<double>("chi2Min");
-  double chi2Max = parameters_.getParameter<double>("chi2Max");
-  int    chi2Bin = parameters_.getParameter<int>("chi2Bin");
+//   double chi2Min = parameters_.getParameter<double>("chi2Min");
+//   double chi2Max = parameters_.getParameter<double>("chi2Max");
+//   int    chi2Bin = parameters_.getParameter<int>("chi2Bin");
 
 
-  int reducedEtBin  = etBin/4;
-  int reducedEtaBin = etaBin/4;
-  int reducedSumBin = sumBin/4;
-  int reducedR9Bin  = r9Bin/4;
+//   int reducedEtBin  = etBin/4;
+//   int reducedEtaBin = etaBin/4;
+//   int reducedSumBin = sumBin/4;
+//   int reducedR9Bin  = r9Bin/4;
 
 
   ////////////////START OF BOOKING FOR ALL HISTOGRAMS////////////////
