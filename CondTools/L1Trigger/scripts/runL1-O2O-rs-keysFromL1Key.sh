@@ -61,11 +61,13 @@ if [ ${xflag} -eq 0 ]
 	then
 	if [ ${o2ocode} -eq 66 ]
 	    then
-	    echo "L1-O2O-ERROR: unable to connect to OMDS or ORCON.  Check that /nfshome0/centraltspro/secure/authentication.xml is up to date (OMDS)." >&2
+	    echo "L1-O2O-ERROR: unable to connect to OMDS or ORCON.  Check that /nfshome0/centraltspro/secure/authentication.xml is up to date (OMDS)."
+	    echo "L1-O2O-ERROR: unable to connect to OMDS or ORCON.  Check that /nfshome0/centraltspro/secure/authentication.xml is up to date (OMDS)." 1>&2
 	else
 	    if [ ${o2ocode} -eq 65 ]
 		then
-		echo "L1-O2O-ERROR: problem writing object to ORCON." >&2
+		echo "L1-O2O-ERROR: problem writing object to ORCON."
+		echo "L1-O2O-ERROR: problem writing object to ORCON." 1>&2
 	    fi
 	fi
     fi
@@ -76,11 +78,13 @@ else
 	then
 	if [ ${o2ocode} -eq 66 ]
 	    then
-	    echo "L1-O2O-ERROR: unable to connect to OMDS or ORCON.  Check that /nfshome0/centraltspro/secure/authentication.xml is up to date (OMDS)." >&2
+	    echo "L1-O2O-ERROR: unable to connect to OMDS or ORCON.  Check that /nfshome0/centraltspro/secure/authentication.xml is up to date (OMDS)."
+	    echo "L1-O2O-ERROR: unable to connect to OMDS or ORCON.  Check that /nfshome0/centraltspro/secure/authentication.xml is up to date (OMDS)." 1>&2
 	else
 	    if [ ${o2ocode} -eq 65 ]
 		then
-		echo "L1-O2O-ERROR: problem writing object to ORCON." >&2
+		echo "L1-O2O-ERROR: problem writing object to ORCON."
+		echo "L1-O2O-ERROR: problem writing object to ORCON." 1>&2
 	    fi
 	fi
     fi

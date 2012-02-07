@@ -65,7 +65,8 @@ if [ ${o2ocode} -eq 0 ]
     then
     echo "L1-O2O-INFO: TSC payloads OK"
 else
-    echo "L1-O2O-ERROR: TSC payloads not OK!" >&2
+    echo "L1-O2O-ERROR: TSC payloads not OK!"
+    echo "L1-O2O-ERROR: TSC payloads not OK!" 1>&2
     exit ${o2ocode}
 fi
 
@@ -77,7 +78,8 @@ if [ ${o2ocode} -eq 0 ]
     then
     echo "L1-O2O-INFO: TSC IOVs OK"
 else
-    echo "L1-O2O-ERROR: TSC IOVs not OK!" >&2
+    echo "L1-O2O-ERROR: TSC IOVs not OK!"
+    echo "L1-O2O-ERROR: TSC IOVs not OK!" 1>&2
     exit ${o2ocode}
 fi
 
@@ -91,7 +93,8 @@ if [ ${nflag} -eq 0 ]
 	then
 	echo "L1-O2O-INFO: RS OK"
     else
-	echo "L1-O2O-ERROR: RS not OK!" >&2
+	echo "L1-O2O-ERROR: RS not OK!"
+	echo "L1-O2O-ERROR: RS not OK!" 1>&2
 	exit ${o2ocode}
     fi
 else

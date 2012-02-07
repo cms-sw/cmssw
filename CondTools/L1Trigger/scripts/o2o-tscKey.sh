@@ -53,7 +53,8 @@ eval `scramv1 run -sh`
 # Check for semaphore file
 if [ -f o2o-tscKey.lock ]
     then
-    echo "$0 already running.  Aborting process."
+    echo "$0 already running.  Aborting process." | tee -a /nfshome0/popcondev/L1Job/o2o-tscKey-${version}.log
+    echo "$0 already running.  Aborting process." 1>&2
     exit 50
 else
     touch o2o-tscKey.lock
@@ -92,7 +93,14 @@ if [ ${o2ocode} -eq 0 ]
     then
     echo "L1-O2O-INFO: o2o-tscKey.sh successful"
 else
-    echo "L1-O2O-ERROR: o2o-tscKey.sh failed!" >&2
+    if [ ${o2ocode} -eq 90 ]
+	then
+	echo "L1-O2O-ERROR: problem with Oracle databases."
+	echo "L1-O2O-ERROR: problem with Oracle databases." 1>&2
+    else
+	echo "L1-O2O-ERROR: o2o-tscKey.sh failed!"
+	echo "L1-O2O-ERROR: o2o-tscKey.sh failed!" 1>&2
+    fi
 fi
 
 echo "`date` : o2o-tscKey-slc5.sh finished : ${key}" | tee -a /nfshome0/popcondev/L1Job/o2o-tscKey-${version}.log

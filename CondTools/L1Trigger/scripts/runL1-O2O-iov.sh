@@ -42,7 +42,8 @@ if [ ${xflag} -eq 0 ]
 	o2ocode=$?
 	if [ ${o2ocode} -ne 0 ]
 	    then
-	    echo "L1-O2O-ERROR: could not write TSC payloads" >&2
+	    echo "L1-O2O-ERROR: could not write TSC payloads"
+	    echo "L1-O2O-ERROR: could not write TSC payloads" 1>&2
 	    exit ${o2ocode}
 	fi
     fi
@@ -55,17 +56,20 @@ if [ ${xflag} -eq 0 ]
 	echo "`date` : checking O2O"
 	if cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/l1o2otestanalyzer_cfg.py inputDBConnect=sqlite_file:l1config.db inputDBAuth=. printL1TriggerKey=1 runNumber=${runnum} | grep ${tsckey} ; then echo "L1-O2O-INFO: IOV OK"
 	else
-	    echo "L1-O2O-ERROR: IOV NOT OK" >&2
+	    echo "L1-O2O-ERROR: IOV NOT OK"
+	    echo "L1-O2O-ERROR: IOV NOT OK" 1>&2
 	    exit 199
 	fi
     else
 	if [ ${o2ocode} -eq 66 ]
 	    then
-	    echo "L1-O2O-ERROR: unable to connect to OMDS or ORCON.  Check that /nfshome0/centraltspro/secure/authentication.xml is up to date (OMDS)." >&2
+	    echo "L1-O2O-ERROR: unable to connect to OMDS or ORCON.  Check that /nfshome0/centraltspro/secure/authentication.xml is up to date (OMDS)."
+	    echo "L1-O2O-ERROR: unable to connect to OMDS or ORCON.  Check that /nfshome0/centraltspro/secure/authentication.xml is up to date (OMDS)." 1>&2
         else
             if [ ${o2ocode} -eq 65 ]
                 then
-                echo "L1-O2O-ERROR: problem writing object to ORCON." >&2
+                echo "L1-O2O-ERROR: problem writing object to ORCON."
+                echo "L1-O2O-ERROR: problem writing object to ORCON." 1>&2
             fi
         fi
 	exit ${o2ocode}
@@ -79,7 +83,8 @@ else
 	o2ocode1=$?
 	if [ ${o2ocode1} -ne 0 ]
 	    then
-	    echo "L1-O2O-ERROR: could not write TSC payloads" >&2
+	    echo "L1-O2O-ERROR: could not write TSC payloads"
+	    echo "L1-O2O-ERROR: could not write TSC payloads" 1>&2
 #	    exit ${o2ocode1}
 	fi
 #    fi
@@ -93,17 +98,19 @@ else
 	echo "`date` : checking O2O"
 	if cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/l1o2otestanalyzer_cfg.py inputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T inputDBAuth=/nfshome0/popcondev/conddb_taskWriters/L1T printL1TriggerKey=1 runNumber=${runnum} | grep ${tsckey} ; then echo "L1-O2O-INFO: IOV OK"
 	else
-	    echo "L1-O2O-ERROR: IOV NOT OK" >&2
+	    echo "L1-O2O-ERROR: IOV NOT OK"
+	    echo "L1-O2O-ERROR: IOV NOT OK" 1>&2
 	    exit 199
 	fi
     else
 	if [ ${o2ocode2} -eq 66 ]
 	    then
-	    echo "L1-O2O-ERROR: unable to connect to OMDS or ORCON.  Check that /nfshome0/centraltspro/secure/authentication.xml is up to date (OMDS)." >&2
+	    echo "L1-O2O-ERROR: unable to connect to OMDS or ORCON.  Check that /nfshome0/centraltspro/secure/authentication.xml is up to date (OMDS)." 1>&2
         else
             if [ ${o2ocode2} -eq 65 ]
                 then
-                echo "L1-O2O-ERROR: problem writing object to ORCON." >&2
+                echo "L1-O2O-ERROR: problem writing object to ORCON."
+                echo "L1-O2O-ERROR: problem writing object to ORCON." 1>&2
             fi
         fi
 #	exit ${o2ocode}
