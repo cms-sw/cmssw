@@ -20,16 +20,21 @@ DAClusterizerInZ_vect::DAClusterizerInZ_vect(const edm::ParameterSet& conf) {
 
 	betamax_ = 0.1;
 	betastop_ = 1.0;
-	coolingFactor_ = 0.8;
+	coolingFactor_ = 0.6;
 	maxIterations_ = 100;
-	vertexSize_ = 0.05; // 0.5 mm
-	dzCutOff_ = 4.0; // Adaptive Fitter uses 3.0 but that appears to be a bit tight here sometimes
+	vertexSize_ = 0.01; // 0.1 mm
+	dzCutOff_ = 4.0;  
 
 	// configure
 
 	double Tmin = conf.getParameter<double> ("Tmin");
 	vertexSize_ = conf.getParameter<double> ("vertexSize");
 	coolingFactor_ = conf.getParameter<double> ("coolingFactor");
+	useTc_=true;
+	if(coolingFactor_<0){
+	  coolingFactor_=-coolingFactor_; 
+	  useTc_=false;
+	}
 	d0CutOff_ = conf.getParameter<double> ("d0CutOff");
 	dzCutOff_ = conf.getParameter<double> ("dzCutOff");
 	maxIterations_ = 100;
@@ -71,14 +76,15 @@ DAClusterizerInZ_vect::track_t DAClusterizerInZ_vect::fill(const vector<
 	{
 		double t_pi;
 		double t_z = ((*it).stateAtBeamLine().trackStateAtPCA()).position().z();
+		double phi=((*it).stateAtBeamLine().trackStateAtPCA()).momentum().phi();
 		double tantheta = tan(
 				((*it).stateAtBeamLine().trackStateAtPCA()).momentum().theta());
 		//  get the beam-spot
 		reco::BeamSpot beamspot = (it->stateAtBeamLine()).beamSpot();
-		double t_dz2 = pow((*it).track().dzError(), 2) // track errror
-				+ (pow(beamspot.BeamWidthX(), 2)
-						+ pow(beamspot.BeamWidthY(), 2)) / pow(tantheta, 2) // beam-width induced
-				+ pow(vertexSize_, 2); // intrinsic vertex size, safer for outliers and short lived decays
+		double t_dz2 = 
+                    pow((*it).track().dzError(), 2) // track errror
+		  + (pow(beamspot.BeamWidthX()*cos(phi),2)+pow(beamspot.BeamWidthY()*sin(phi),2))/pow(tantheta,2)  // beam-width
+		  + pow(vertexSize_, 2); // intrinsic vertex size, safer for outliers and short lived decays
 		if (d0CutOff_ > 0) {
 			Measurement1D IP =
 					(*it).stateAtBeamLine().transverseImpactParameter();// error constains beamspot
@@ -174,8 +180,9 @@ double DAClusterizerInZ_vect::update(double beta, track_t & gtracks,
 		for (unsigned int k = 0; k < nv; ++k) {
 			y_vec._se[k] += tmp_trk_pi* y_vec._ei[k] / tmp_trk_Z_sum;
 			w = y_vec._pk[k] * tmp_trk_pi * y_vec._ei[k] / tmp_trk_Z_sum / tmp_trk_dz2;
-			y_vec._sw[k] += w;
+			y_vec._sw[k]  += w;
 			y_vec._swz[k] += w * tmp_trk_z;
+			y_vec._swE[k] += w * y_vec._ei_cache[k]/(-beta);
 		}
 	};
 
@@ -184,6 +191,7 @@ double DAClusterizerInZ_vect::update(double beta, track_t & gtracks,
 		gvertices._se[ivertex] = 0.0;
 		gvertices._sw[ivertex] = 0.0;
 		gvertices._swz[ivertex] = 0.0;
+		gvertices._swE[ivertex] = 0.0;
 	}
 
 
@@ -246,6 +254,46 @@ double DAClusterizerInZ_vect::update(double beta, track_t & gtracks,
 	// return how much the prototypes moved
 	return delta;
 }
+
+
+
+bool DAClusterizerInZ_vect::merge(vertex_t & y, double & beta)const{
+  // merge clusters that collapsed or never separated,
+  // only merge if the estimated critical temperature of the merged vertex is below the current temperature
+  // return true if vertices were merged, false otherwise
+  const unsigned int nv = y.GetSize();
+
+  if (nv < 2)
+    return false;
+
+
+  for (unsigned int k = 0; (k + 1) < nv; k++) {
+    if (fabs(y._z[k + 1] - y._z[k]) < 2.e-2) {
+      double rho=y._pk[k] + y._pk[k+1];
+      double swE=y._swE[k]+y._swE[k+1] - y._pk[k]*y._pk[k+1] /rho *pow(y._z[k+1]-y._z[k],2);
+      double Tc=2*swE/(y._sw[k]+y._sw[k+1]);
+
+      if(Tc*beta<1){
+        if(rho>0){
+	  y._z[k] = (y._pk[k]*y._z[k] + y._pk[k+1]*y._z[k + 1])/rho;
+        }else{
+	  y._z[k] = 0.5 * (y._z[k] + y._z[k + 1]);
+        }
+        y._pk[k] = rho;
+        y._sw[k]+=y._sw[k+1];
+        y._swE[k]=swE;
+        y.RemoveItem(k+1);
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+
+
+
 
 bool DAClusterizerInZ_vect::merge(vertex_t & y) const {
 	// merge clusters that collapsed or never separated, return true if vertices were merged, false otherwise
@@ -367,6 +415,77 @@ double DAClusterizerInZ_vect::beta0(double betamax, track_t & tks, vertex_t & y)
 	}
 }
 
+
+bool DAClusterizerInZ_vect::split(const double beta,  track_t &tks, vertex_t & y ) const{
+  // split only critical vertices (Tc >~ T=1/beta   <==>   beta*Tc>~1)
+  // an update must have been made just before doing this (same beta, no merging)
+  // returns true if at least one cluster was split
+
+  double epsilon=1e-3;      // split all single vertices by 10 um
+  unsigned int nv = y.GetSize();
+
+  // avoid left-right biases by splitting highest Tc first
+
+  std::vector<std::pair<double, unsigned int> > critical;
+  for(unsigned int k=0; k<nv; k++){
+    double Tc= 2*y._swE[k]/y._sw[k];
+    if (beta*Tc > 1.){
+      critical.push_back( make_pair(Tc, k));
+    }
+  }
+  if (critical.size()==0) return false;
+  stable_sort(critical.begin(), critical.end(), std::greater<std::pair<double, unsigned int> >() );
+
+
+  bool split=false;
+  const unsigned int nt = tks.GetSize();
+
+  for(unsigned int ic=0; ic<critical.size(); ic++){
+    unsigned int k=critical[ic].second;
+    // estimate subcluster positions and weight
+    double p1=0, z1=0, w1=0;
+    double p2=0, z2=0, w2=0;
+    for(unsigned int i=0; i<nt; i++){
+      if (tks._Z_sum[i] > 0) {
+	double p = y._pk[k] * local_exp(-beta * Eik(tks._z[i], y._z[k],
+						    tks._dz2[i])) / tks._Z_sum[i];
+
+        double w=p/tks._dz2[i];
+        if(tks._z[i]<y._z[k]){
+          p1+=p; z1+=w*tks._z[i]; w1+=w;
+        }else{
+          p2+=p; z2+=w*tks._z[i]; w2+=w;
+        }
+      }
+    }
+    if(w1>0){  z1=z1/w1;} else{z1=y._z[k]-epsilon;}
+    if(w2>0){  z2=z2/w2;} else{z2=y._z[k]+epsilon;}
+
+    // reduce split size if there is not enough room
+    if( ( k   > 0 ) && ( y._z[k-1]>=z1 ) ){ z1=0.5*(y._z[k]+y._z[k-1]); }
+    if( ( k+1 < nv) && ( y._z[k+1]<=z2 ) ){ z2=0.5*(y._z[k]+y._z[k+1]); }
+
+    // split if the new subclusters are significantly separated
+    if( (z2-z1)>epsilon){
+      split=true;
+      double pk1=p1*y._pk[k]/(p1+p2);
+      double pk2=p2*y._pk[k]/(p1+p2);
+      y._z[k]  =  z2;
+      y._pk[k] = pk2;
+      y.InsertItem(k, z1, pk1);
+      nv++;
+
+     // adjust remaining pointers
+      for(unsigned int jc=ic; jc<critical.size(); jc++){
+        if (critical[jc].second>k) {critical[jc].second++;}
+      }
+    }
+  }
+  return split;
+}
+
+
+
 void DAClusterizerInZ_vect::splitAll( vertex_t & y) const {
 
 	const unsigned int nv = y.GetSize();
@@ -421,6 +540,7 @@ void DAClusterizerInZ_vect::splitAll( vertex_t & y) const {
 		y.DebugOut();
 	}
 }
+
 
 void DAClusterizerInZ_vect::dump(const double beta, const vertex_t & y,
 		const track_t & tks, int verbosity) const {
@@ -518,6 +638,7 @@ void DAClusterizerInZ_vect::dump(const double beta, const vertex_t & y,
 vector<TransientVertex> DAClusterizerInZ_vect::vertices(const vector<
 		reco::TransientTrack> & tracks, const int verbosity) const {
 
+
 	track_t tks = fill(tracks);
 	tks.ExtractRaw();
 
@@ -551,8 +672,17 @@ vector<TransientVertex> DAClusterizerInZ_vect::vertices(const vector<
 	// annealing loop, stop when T<Tmin  (i.e. beta>1/Tmin)
 	while (beta < betamax_) {
 
+
 		beta = beta / coolingFactor_;
-		splitAll(y);
+		if(useTc_){
+		  update(beta, tks,y, false, rho0);
+		  while(merge(y,beta)){update(beta, tks,y, false, rho0);}
+		  split(beta, tks,y);
+		  beta=beta/coolingFactor_;
+		}else{
+		  beta=beta/coolingFactor_;
+		  splitAll(y);
+		}
 
 		// make sure we are not too far from equilibrium before cooling further
 		niter = 0;
@@ -562,16 +692,30 @@ vector<TransientVertex> DAClusterizerInZ_vect::vertices(const vector<
 
 	}
 
-	// merge collapsed clusters
-	while (merge(y)) {
+
+	if(useTc_){
+	  // last round of splitting, make sure no critical clusters are left
+	  update(beta, tks,y, false, rho0);// make sure Tc is up-to-date
+	  while(merge(y,beta)){update(beta, tks,y, false, rho0);}
+	  unsigned int ntry=0;
+	  while( split(beta, tks,y) && (ntry++<10) ){
+	    niter=0; 
+	    while((update(beta, tks,y, false, rho0)>1.e-6)  && (niter++ < maxIterations_)){}
+	    merge(y,beta);
+	    update(beta, tks,y, false, rho0);
+	  }
+	}else{
+	  // merge collapsed clusters 
+	  while(merge(y,beta)){update(beta, tks,y, false, rho0);}  
+	  //while(merge(y)){}   original code 
 	}
+ 
 	if (verbose_) {
 		LogDebug("DAClusterizerinZ_vectorized")  << "dump after 1st merging " << endl;
 		dump(beta, y, tks, 2);
 	}
 
 	// switch on outlier rejection
-	//rho0=exp(beta*dzCutOff_*dzCutOff_)/nt; if(rho0>0.1) rho0=0.1;
 	rho0 = 1. / nt;
 	
 	// auto-vectorized

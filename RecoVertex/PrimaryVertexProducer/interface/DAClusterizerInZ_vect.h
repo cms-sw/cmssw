@@ -78,6 +78,7 @@ public:
 		std::vector<double> sw;
 		std::vector<double> swz;
 		std::vector<double> se;
+		std::vector<double> swE;
 
 
 		unsigned int GetSize() const
@@ -95,6 +96,22 @@ public:
 			sw.push_back( 0.0 );
 			swz.push_back( 0.0);
 			se.push_back( 0.0);
+			swE.push_back( 0.0);
+
+			ExtractRaw();
+		}
+
+	        void InsertItem( unsigned int i, double new_z, double new_pk   )
+		{
+		        z.insert(z.begin() + i, new_z);
+			pk.insert(pk.begin() + i, new_pk);
+
+			ei_cache.insert(ei_cache.begin() + i, 0.0 );
+			ei.insert( ei.begin()  + i, 0.0 );
+			sw.insert( sw.begin()  + i, 0.0 );
+			swz.insert(swz.begin() + i, 0.0 );
+			se.insert( se.begin()  + i, 0.0 );
+			swE.insert(swE.begin() + i, 0.0 );
 
 			ExtractRaw();
 		}
@@ -109,6 +126,7 @@ public:
 			sw.erase( sw.begin() + i);
 			swz.erase( swz.begin() + i);
 			se.erase(se.begin() + i);
+			swE.erase(swE.begin() + i);
 
 			ExtractRaw();
 		}
@@ -133,6 +151,7 @@ public:
 			_sw = &sw.front();
 			_swz = &swz.front();
 			_se = &se.front();
+			_swE = &swE.front();
 			_ei_cache = &ei_cache.front();
 
 		}
@@ -145,6 +164,7 @@ public:
 		double * __restrict__ _sw;
 		double * __restrict__ _swz;
 		double * __restrict__ _se;
+		double * __restrict__ _swE;
 
 	};
 
@@ -169,10 +189,12 @@ public:
 	void dump(const double beta, const vertex_t & y,
 			const track_t & tks, const int verbosity = 0) const;
 	bool merge(vertex_t &) const;
+	bool merge(vertex_t & y, double & beta)const;
 	bool purge(vertex_t &, track_t &, double &,
 			const double) const;
 
 	void splitAll( vertex_t & y) const;
+	bool split(const double beta,  track_t &t, vertex_t & y ) const;
 
 	double beta0(const double betamax, track_t & tks, vertex_t & y) const;
 
@@ -191,6 +213,7 @@ private:
 	double dzCutOff_;
 	double d0CutOff_;
 	bool use_vdt_;
+	bool useTc_;
 };
 
 // #ifdef __GXX_EXPERIMENTAL_CXX0X__

@@ -40,6 +40,9 @@ struct vertex_t{
   double sw;
   double swz;
   double se;
+  // ---for Tc
+  double swE;
+  double Tc;
 };
 
 
@@ -57,6 +60,13 @@ struct vertex_t{
 
   std::vector<track_t> fill(const std::vector<reco::TransientTrack> & tracks)const;
 
+ bool split(
+		     double beta,
+		     std::vector<track_t> & tks,
+		     std::vector<vertex_t> & y,
+		     double threshold
+	       )const;
+
   double update(
 		     double beta,
 		     std::vector<track_t> & tks,
@@ -72,10 +82,10 @@ struct vertex_t{
 
   void dump(const double beta, const std::vector<vertex_t> & y, const std::vector<track_t> & tks, const int verbosity=0)const;
   bool merge(std::vector<vertex_t> &,int )const;
+  bool merge(std::vector<vertex_t> &,double & )const;
   bool purge(std::vector<vertex_t> &, std::vector<track_t> & , double &, const double )const;
 
   void splitAll(
-	       std::vector<track_t> & tks,
 	       std::vector<vertex_t> & y
 	       )const;
 
@@ -90,6 +100,7 @@ struct vertex_t{
   
 private:
   bool verbose_;
+  bool useTc_;
   float vertexSize_;
   int maxIterations_;
   double coolingFactor_;

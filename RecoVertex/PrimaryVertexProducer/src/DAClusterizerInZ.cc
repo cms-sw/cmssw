@@ -26,10 +26,11 @@ vector<DAClusterizerInZ::track_t> DAClusterizerInZ::fill(
     track_t t;
     t.z=((*it).stateAtBeamLine().trackStateAtPCA()).position().z();
     double tantheta=tan(((*it).stateAtBeamLine().trackStateAtPCA()).momentum().theta());
+    double phi=((*it).stateAtBeamLine().trackStateAtPCA()).momentum().phi();
     //  get the beam-spot
     reco::BeamSpot beamspot=(it->stateAtBeamLine()).beamSpot();
     t.dz2= pow((*it).track().dzError(),2)          // track errror
-      + (pow(beamspot.BeamWidthX(),2)+pow(beamspot.BeamWidthY(),2))/pow(tantheta,2)  // beam-width induced
+      + (pow(beamspot.BeamWidthX()*cos(phi),2)+pow(beamspot.BeamWidthY()*sin(phi),2))/pow(tantheta,2)  // beam-width induced
       + pow(vertexSize_,2);                        // intrinsic vertex size, safer for outliers and short lived decays
     if (d0CutOff_>0){
       Measurement1D IP=(*it).stateAtBeamLine().transverseImpactParameter();// error constains beamspot
@@ -46,18 +47,6 @@ vector<DAClusterizerInZ::track_t> DAClusterizerInZ::fill(
 
 
 
-
-// double DAClusterizerInZ::pik(const double beta, const track_t & t, const vertex_t &k )const{
-//   //note: t.Z = sum_k exp(-beta*Eik ) is assumed to be valid, this is done in updateAndFit
-//   //      then we have sum_k pik(beta, t, k) = 1
-//   //      the last call of updateAndFit must have been made with the same temperature ! 
-//   //      at low T, the vertex position must be quite accurate (iterated)
-//   double Eik=pow(t.z-k.z,2)/t.dz2;
-//   double o= k.pk*exp(-beta*Eik); 
-//   if(isnan(o)){ cout << "NaN in pik " << k.pk << " " << beta << " " << Eik << " Z=" << t.Z << "   beta Eik=" << beta*Eik << endl;}
-//   if (t.Z>0) return k.pk*exp(-beta*Eik)/t.Z; 
-//   return 0;
-// }
 
 
 double DAClusterizerInZ::Eik(const track_t & t, const vertex_t &k )const{
@@ -76,13 +65,13 @@ double DAClusterizerInZ::update(
   // mass constrained annealing without noise
   // returns the squared sum of changes of vertex positions
 
-  //cout << endl << endl << "DAClusterizerInZ::update" << endl;
   unsigned int nt=tks.size();
 
   //initialize sums
   double sumpi=0;
   for(vector<vertex_t>::iterator k=y.begin(); k!=y.end(); k++){
     k->se=0;    k->sw=0;   k->swz=0;
+    k->swE=0;  k->Tc=0;
   }
 
 
@@ -106,6 +95,7 @@ double DAClusterizerInZ::update(
 	double w = k->pk * tks[i].pi* k->ei / Zi / tks[i].dz2;
 	k->sw  += w;
 	k->swz += w * tks[i].z;
+	k->swE+= w*Eik(tks[i],*k);
       }
     }else{
       sumpi += tks[i].pi;
@@ -122,9 +112,11 @@ double DAClusterizerInZ::update(
       double znew=k->swz/k->sw; 
       delta+=pow(k->z-znew,2);
       k->z=znew;
+      k->Tc=2*k->swE/k->sw;
     }else{
       edm::LogInfo("sumw") <<  "invalid sum of weights in fit: " << k->sw << endl;
       if(verbose_){cout << " a cluster melted away ?  pk=" << k->pk <<  " sumw=" << k->sw <<  endl;}
+      k->Tc=-1;
     }
 
     k->pk = k->pk * k->se / sumpi;
@@ -152,6 +144,7 @@ double DAClusterizerInZ::update(
   //initialize sums
   for(vector<vertex_t>::iterator k=y.begin(); k!=y.end(); k++){
     k->se=0;    k->sw=0;   k->swz=0;
+    k->swE=0;  k->Tc=0;
   }
 
 
@@ -168,35 +161,34 @@ double DAClusterizerInZ::update(
 
     // normalization
     if (tks[i].Z>0){
-      //double pi0=exp(-beta*dzCutOff_*dzCutOff_)/tks[i].Z;
-      //sumpi += tks[i].pi*(1.-pi0*rho0);  // exclude rho0 from the normalization of the cluster "mass"
        // accumulate weighted z and weights for vertex update
       for(vector<vertex_t>::iterator k=y.begin(); k!=y.end(); k++){
 	k->se += tks[i].pi* k->ei / Zi;
 	double w = k->pk * tks[i].pi* k->ei / Zi / tks[i].dz2;
 	k->sw  += w;
 	k->swz += w * tks[i].z;
+	k->swE+= w*Eik(tks[i],*k);
       }
     }
-    //else{  sumpi += tks[i].pi;  }
 
 
   } // end of track loop
 
 
-  // now update z and pk
+  // now update z
   double delta=0;
   for(vector<vertex_t>::iterator k=y.begin(); k!=y.end(); k++){
     if ( k->sw > 0){
       double znew=k->swz/k->sw; 
       delta+=pow(k->z-znew,2);
       k->z=znew;
+      k->Tc=2*k->swE/k->sw;
     }else{
       edm::LogInfo("sumw") <<  "invalid sum of weights in fit: " << k->sw << endl;
       if(verbose_){cout << " a cluster melted away ?  pk=" << k->pk <<  " sumw=" << k->sw <<  endl;}
+      k->Tc=0;
     }
 
-    //k->pk *= k->se / sumpi; 
   }
 
   // return how much the prototypes moved
@@ -210,13 +202,18 @@ double DAClusterizerInZ::update(
 bool DAClusterizerInZ::merge(vector<vertex_t> & y, int nt)const{
   // merge clusters that collapsed or never separated, return true if vertices were merged, false otherwise
 
- if(y.size()<2)  return false;
+  if(y.size()<2)  return false;
 
   for(vector<vertex_t>::iterator k=y.begin(); (k+1)!=y.end(); k++){
-    //if ((k+1)->z - k->z<1.e-2){  // note, no fabs here, maintains z-ordering  (with split()+merge() at every temperature)
-    if (fabs((k+1)->z - k->z)<1.e-2){  // with fabs if only called after freeze-out (splitAll() at highter T)
-      k->pk += (k+1)->pk;
-      k->z=0.5*(k->z+(k+1)->z);
+    if( fabs( (k+1)->z - k->z ) < 1.e-3 ){  // with fabs if only called after freeze-out (splitAll() at highter T)
+     double rho=k->pk + (k+1)->pk;
+      if(rho>0){
+	k->z=( k->pk * k->z + (k+1)->z * (k+1)->pk)/rho;
+      }else{
+	k->z=0.5*(k->z + (k+1)->z);
+      }
+      k->pk=rho;
+ 
       y.erase(k+1);
       return true;  
     }
@@ -224,6 +221,42 @@ bool DAClusterizerInZ::merge(vector<vertex_t> & y, int nt)const{
   
   return false;
 }
+
+
+
+
+bool DAClusterizerInZ::merge(vector<vertex_t> & y, double & beta)const{
+  // merge clusters that collapsed or never separated, 
+  // only merge if the estimated critical temperature of the merged vertex is below the current temperature
+  // return true if vertices were merged, false otherwise
+  if(y.size()<2)  return false;
+
+  for(vector<vertex_t>::iterator k=y.begin(); (k+1)!=y.end(); k++){
+    if (fabs((k+1)->z - k->z)<2.e-3){ 
+      double rho=k->pk + (k+1)->pk;
+      double swE=k->swE+(k+1)->swE - k->pk * (k+1)->pk /rho *pow((k+1)->z - k->z,2);
+      double Tc=2*swE/(k->sw+(k+1)->sw);
+      
+      if(Tc*beta<1){
+	if(rho>0){
+	  k->z=( k->pk * k->z + (k+1)->z * (k+1)->pk)/rho;
+	}else{
+	  k->z=0.5*(k->z + (k+1)->z);
+	}
+	k->pk=rho;
+	k->sw+=(k+1)->sw;
+	k->swE=swE;
+	k->Tc=Tc;
+	y.erase(k+1);
+	return true; 
+      }
+    }
+  }
+
+  return false;
+}
+
+
 
 
 
@@ -240,7 +273,6 @@ bool DAClusterizerInZ::purge(vector<vertex_t> & y, vector<track_t> & tks, double
     double pmax=k->pk/(k->pk+rho0*exp(-beta*dzCutOff_*dzCutOff_));
     for(unsigned int i=0; i<nt; i++){
       if(tks[i].Z>0){
-	//double p=pik(beta,tks[i],*k);
 	double p=k->pk * exp(-beta*Eik(tks[i],*k)) / tks[i].Z;
 	sump+=p;
 	if( (p > 0.9*pmax) && (tks[i].pi>0) ){ nUnique++; }
@@ -311,8 +343,83 @@ double DAClusterizerInZ::beta0(
 
 
 
-void DAClusterizerInZ::splitAll(
+
+bool DAClusterizerInZ::split(
+			 double beta,
 			 vector<track_t> & tks,
+			 vector<vertex_t> & y,
+			 double threshold
+			 )const{
+  // split only critical vertices (Tc >~ T=1/beta   <==>   beta*Tc>~1)
+  // an update must have been made just before doing this (same beta, no merging)
+  // returns true if at least one cluster was split
+
+  double epsilon=1e-3;      // split all single vertices by 10 um 
+  bool split=false;
+
+
+  // avoid left-right biases by splitting highest Tc first
+  
+  std::vector<std::pair<double, unsigned int> > critical;
+  for(unsigned int ik=0; ik<y.size(); ik++){
+    if (beta*y[ik].Tc > 1.){
+      critical.push_back( make_pair(y[ik].Tc, ik));
+    }
+  }
+  stable_sort(critical.begin(), critical.end(), std::greater<std::pair<double, unsigned int> >() );
+
+
+  for(unsigned int ic=0; ic<critical.size(); ic++){
+    unsigned int ik=critical[ic].second;
+    // estimate subcluster positions and weight
+    double p1=0, z1=0, w1=0;
+    double p2=0, z2=0, w2=0;
+    //double sumpi=0;
+    for(unsigned int i=0; i<tks.size(); i++){
+      if(tks[i].Z>0){
+	//sumpi+=tks[i].pi;
+	double p=y[ik].pk * exp(-beta*Eik(tks[i],y[ik])) / tks[i].Z*tks[i].pi;
+	double w=p/tks[i].dz2;
+	if(tks[i].z<y[ik].z){
+	  p1+=p; z1+=w*tks[i].z; w1+=w;
+	}else{
+	  p2+=p; z2+=w*tks[i].z; w2+=w;
+	}
+      }
+    }
+    if(w1>0){  z1=z1/w1;} else{z1=y[ik].z-epsilon;}
+    if(w2>0){  z2=z2/w2;} else{z2=y[ik].z+epsilon;}
+
+    // reduce split size if there is not enough room
+    if( ( ik   > 0       ) && ( y[ik-1].z>=z1 ) ){ z1=0.5*(y[ik].z+y[ik-1].z); }
+    if( ( ik+1 < y.size()) && ( y[ik+1].z<=z2 ) ){ z2=0.5*(y[ik].z+y[ik+1].z); }
+
+    // split if the new subclusters are significantly separated
+    if( (z2-z1)>epsilon){
+      split=true;
+      vertex_t vnew;
+      vnew.pk = p1*y[ik].pk/(p1+p2);
+      y[ik].pk= p2*y[ik].pk/(p1+p2);
+      vnew.z  = z1;
+      y[ik].z = z2;
+      y.insert(y.begin()+ik, vnew);
+
+     // adjust remaining pointers
+      for(unsigned int jc=ic; jc<critical.size(); jc++){
+	if (critical[jc].second>ik) {critical[jc].second++;}
+      }
+    }
+  }
+
+  //  stable_sort(y.begin(), y.end(), clusterLessZ);
+  return split;
+}
+
+
+
+
+
+void DAClusterizerInZ::splitAll(
 			 vector<vertex_t> & y
 			 )const{
 
@@ -349,6 +456,7 @@ DAClusterizerInZ::DAClusterizerInZ(const edm::ParameterSet& conf)
 {
   // some defaults to avoid uninitialized variables
   verbose_= conf.getUntrackedParameter<bool>("verbose", false);
+  useTc_=true;
   betamax_=0.1;
   betastop_  =1.0;
   coolingFactor_=0.8;
@@ -370,6 +478,11 @@ DAClusterizerInZ::DAClusterizerInZ(const edm::ParameterSet& conf)
     betamax_ = 1./Tmin;
   }
 
+  // for testing, negative cooling factor: revert to old splitting scheme
+  if(coolingFactor_<0){
+    coolingFactor_=-coolingFactor_; useTc_=false;
+  }
+
 }
 
 
@@ -387,7 +500,11 @@ void DAClusterizerInZ::dump(const double beta, const vector<vertex_t> & y, const
   for(vector<vertex_t>::const_iterator k=y.begin(); k!=y.end(); k++){
     cout  <<  setw(8) << fixed << k->z ;
   }
-  cout << endl << "T=" << setw(15) << 1./beta <<"                                            Tc= ";
+  cout << endl << "T=" << setw(15) << 1./beta <<"                                             Tc= ";
+  for(vector<vertex_t>::const_iterator k=y.begin(); k!=y.end(); k++){
+    cout  <<  setw(8) << fixed << k->Tc ;
+  }
+ 
   cout << endl << "                                                               pk=";
   double sumpk=0;
   for(vector<vertex_t>::const_iterator k=y.begin(); k!=y.end(); k++){
@@ -475,23 +592,43 @@ const
  // annealing loop, stop when T<Tmin  (i.e. beta>1/Tmin)
   while(beta<betamax_){ 
 
-    beta=beta/coolingFactor_;
-    splitAll(tks,y);
+    if(useTc_){
+      update(beta, tks,y);
+      while(merge(y,beta)){update(beta, tks,y);}
+      split(beta, tks,y, 1.);
+      beta=beta/coolingFactor_;
+    }else{
+      beta=beta/coolingFactor_;
+      splitAll(y);
+    }
 
-    // make sure we are not too far from equilibrium before cooling further
-    niter=0; while((update(beta, tks,y)>1.e-6)  && (niter++ < maxIterations_)){ }
+
+   // make sure we are not too far from equilibrium before cooling further
+   niter=0; while((update(beta, tks,y)>1.e-6)  && (niter++ < maxIterations_)){ }
 
   }
 
-
-  // merge collapsed clusters 
-  while(merge(y,tks.size())){} 
-  if(verbose_  ){ cout << "dump after 1st merging " << endl;  dump(beta,y,tks,2);}
+  if(useTc_){
+    // last round of splitting, make sure no critical clusters are left
+    update(beta, tks,y);
+    while(merge(y,beta)){update(beta, tks,y);}
+    unsigned int ntry=0;
+    while( split(beta, tks,y,1.) && (ntry++<10) ){
+      niter=0; 
+      while((update(beta, tks,y)>1.e-6)  && (niter++ < maxIterations_)){}
+      merge(y,beta);
+      update(beta, tks,y);
+    }
+  }else{
+    // merge collapsed clusters 
+    while(merge(y,beta)){update(beta, tks,y);}  
+    if(verbose_ ){ cout << "dump after 1st merging " << endl;  dump(beta,y,tks,2);}
+  }
+  
 
 
 
   // switch on outlier rejection
-  //rho0=exp(beta*dzCutOff_*dzCutOff_)/nt; if(rho0>0.1) rho0=0.1;
   rho0=1./nt; for(vector<vertex_t>::iterator k=y.begin(); k!=y.end(); k++){ k->pk =1.; }  // democratic
   niter=0; while((update(beta, tks,y,rho0) > 1.e-8)  && (niter++ < maxIterations_)){  }
   if(verbose_  ){ cout << "rho0=" << rho0 <<   " niter=" << niter <<  endl; dump(beta,y,tks,2);}
@@ -511,6 +648,13 @@ const
     niter=0; while((update(beta, tks,y,rho0) > 1.e-6)  && (niter++ < maxIterations_)){  }
   }
 
+
+//   // new, one last round of cleaning at T=Tstop
+//   while(purge(y,tks,rho0, beta)){
+//     niter=0; while((update(beta, tks,y,rho0) > 1.e-6)  && (niter++ < maxIterations_)){  }
+//   } 
+
+
   if(verbose_){
    cout << "Final result, rho0=" << rho0 << endl;
    dump(beta,y,tks,2);
@@ -521,7 +665,7 @@ const
   GlobalError dummyError; 
 
 
-  // ensure correct normalization of probabilities, should makes double assginment reasonably impossible
+  // ensure correct normalization of probabilities, should make double assginment reasonably impossible
   for(unsigned int i=0; i<nt; i++){  
     tks[i].Z=rho0*exp(-beta*dzCutOff_*dzCutOff_);
     for(vector<vertex_t>::iterator k=y.begin(); k!=y.end(); k++){ 
@@ -539,7 +683,7 @@ const
 	if( (tks[i].pi>0) && ( p > 0.5 ) ){ vertexTracks.push_back(*(tks[i].tt)); tks[i].Z=0; } // setting Z=0 excludes double assignment
       }
     }
-    TransientVertex v(pos, dummyError, vertexTracks, 0);
+    TransientVertex v(pos, dummyError, vertexTracks, 5);
     clusters.push_back(v);
   }
 
@@ -573,7 +717,7 @@ DAClusterizerInZ::clusterize(const vector<reco::TransientTrack> & tracks)
   vector< reco::TransientTrack>  aCluster=pv.begin()->originalTracks();
   
   for(vector<TransientVertex>::iterator k=pv.begin()+1; k!=pv.end(); k++){
-    if ( k->position().z() - (k-1)->position().z()> (2*vertexSize_) ){
+    if ( fabs(k->position().z() - (k-1)->position().z()) > (2*vertexSize_) ){
       // close a cluster
       clusters.push_back(aCluster);
       aCluster.clear();
