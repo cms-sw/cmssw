@@ -4,8 +4,8 @@
  *  tagged multi-jet trigger for b and tau. 
  *  It should be run after the normal multi-jet trigger.
  *
- *  $Date: 2012/02/06 15:16:43 $
- *  $Revision: 1.13 $
+ *  $Date: 2012/02/08 08:16:54 $
+ *  $Revision: 1.14 $
  *
  *  \author Arnaud Gay, Ian Tomalin
  *  \maintainer Andrea Bocci
@@ -108,7 +108,6 @@ HLTJetTag<T>::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger
       ++nTag;
 
       // Store a reference to the jets which passed tagging cuts
-      // N.B. this *should* work as we start from a CaloJet in HLT
       filterproduct.addObject(m_TriggerType,jetRef);
     }
   }
