@@ -24,11 +24,18 @@ class PFTauVertexSelector : public edm::EDFilter  {
    public:
       explicit PFTauVertexSelector(const edm::ParameterSet& iConfig){   
          tauSrc_ = iConfig.getParameter<edm::InputTag>("tauSrc");
+         useVertex_ = iConfig.getParameter<bool>("useVertex");
          vertexSrc_ = iConfig.getParameter<edm::InputTag>("vertexSrc");
+         useBeamSpot_ = iConfig.getParameter<bool>("useBeamSpot");
+         beamSpotSrc_ = iConfig.getParameter<edm::InputTag>("beamSpotSrc");
          useLeadingTrack_ = iConfig.getParameter<bool>("useLeadingTrack");
-         trackSrc_ = iConfig.getParameter<edm::InputTag>("trackSrc");
+         trackSrc_ = iConfig.getParameter<std::vector<edm::InputTag> >("trackSrc");
          useLeadingRecoCandidate_ = iConfig.getParameter<bool>("useLeadingRecoCandidate");
-         recoCandidateSrc_ = iConfig.getParameter<edm::InputTag>("recoCandidateSrc");
+         recoCandidateSrc_ = iConfig.getParameter<std::vector<edm::InputTag> >("recoCandidateSrc");
+         useTriggerFilterElectrons_ = iConfig.getParameter<bool>("useTriggerFilterElectrons");
+         triggerFilterElectronsSrc_ = iConfig.getParameter<edm::InputTag>("triggerFilterElectronsSrc");
+         useTriggerFilterMuons_ = iConfig.getParameter<bool>("useTriggerFilterMuons");
+         triggerFilterMuonsSrc_ = iConfig.getParameter<edm::InputTag>("triggerFilterMuonsSrc");
          dZ_ = iConfig.getParameter<double>("dZ");
          filterOnNTaus_ = iConfig.getParameter<uint32_t>("filterOnNTaus");
          produces<reco::PFTauCollection>();
@@ -37,11 +44,18 @@ class PFTauVertexSelector : public edm::EDFilter  {
    private:
       virtual bool filter(edm::Event&, const edm::EventSetup&);
       edm::InputTag tauSrc_;
+      bool useVertex_;
       edm::InputTag vertexSrc_;
+      bool useBeamSpot_;
+      edm::InputTag beamSpotSrc_;
       bool useLeadingTrack_;
-      edm::InputTag trackSrc_;
+      std::vector<edm::InputTag> trackSrc_;
       bool useLeadingRecoCandidate_;
-      edm::InputTag recoCandidateSrc_;
+      std::vector<edm::InputTag> recoCandidateSrc_;
+      bool useTriggerFilterElectrons_;
+      edm::InputTag triggerFilterElectronsSrc_;
+      bool useTriggerFilterMuons_;
+      edm::InputTag triggerFilterMuonsSrc_;
       double dZ_;
       uint32_t filterOnNTaus_;
 };
