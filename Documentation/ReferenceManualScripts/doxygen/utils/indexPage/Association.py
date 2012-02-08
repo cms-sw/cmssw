@@ -18,6 +18,27 @@ cvsBaseUrl = "http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW"     # NO SLASH I
 refmanfiles = {}
 packageDocLinks = []
 
+
+def parseJSON(url):
+    ret = {}
+    
+    html = os.popen("curl \""+url+"\"")
+    input = html.read()
+    print input
+    html.close()
+    
+    input = input.replace("{","").replace("}", "")
+    collections = input.split("], ")
+    
+    for collection in collections:
+        parts = collection.split(": [")
+        title = parts[0].replace('"', '')
+        list = parts[1].replace("]", "").replace('"', '').split(", ")
+        ret[title] = list
+    
+    return ret
+
+
 ## Prepate dictionary of doxygen generated html files
 def prepareRefManFiles(DOC_DIR):    
     output = os.popen("find "+DOC_DIR+" -wholename '*/class*.html' -not \( -name '*-members.html' \) -print")
@@ -26,7 +47,7 @@ def prepareRefManFiles(DOC_DIR):
     
     for line in lines:
         (head, tail) = os.path.split(line)
-        refmanfiles[tail.replace("class","").replace(".html","")] = line
+        refmanfiles[tail.replace("class","").replace(".html","")] = line[line.find(CMSSW_VERSION):]
 
 ## Extract links to package documentation
 def preparePackageDocumentationLinks(DOC_DIR):
@@ -52,7 +73,8 @@ def formatPackageDocumentationLink(package, subpackage):
 
 ## Fetches information about Subsystems/Packages/Subpackages from TagCollector
 def generateTree(release):
-    data = json.loads(urllib2.urlopen('https://cmstags.cern.ch/tc/CategoriesPackagesJSON?release=' + release).read())
+    #data = json.loads(urllib2.urlopen('https://cmstags.cern.ch/tc/CategoriesPackagesJSON?release=' + release).read())
+    data = parseJSON('http://cmssdt.cern.ch/SDT/doxygen/tcproxy.php?type=packages&release=' + release)
     
     tree = {}
     subsystems = sorted(data.keys())
@@ -144,7 +166,10 @@ try:
     ## Index Page Preparations
 
     # Loading responsibles for subsystems
-    (managers, users) = json.loads(urllib2.urlopen('https://cmstags.cern.ch/tc/CategoriesManagersJSON').read())
+    #(managers, users) = json.loads(urllib2.urlopen('https://cmstags.cern.ch/tc/CategoriesManagersJSON').read())
+    managers = parseJSON('http://cmssdt.cern.ch/SDT/doxygen/tcproxy.php?type=managers')
+    users = parseJSON('http://cmssdt.cern.ch/SDT/doxygen/tcproxy.php?type=users')
+
 except:
     ## Warning page
     fileIN = open(SCRIPTS_LOCATION+"/indexPage/indexpage_warning.html", "r")
