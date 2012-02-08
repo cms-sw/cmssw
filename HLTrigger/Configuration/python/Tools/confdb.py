@@ -636,9 +636,9 @@ if 'GlobalTag' in %%(dict)s:
         # add hltGetRaw
         text += """
 %%(process)shltGetRaw = cms.EDAnalyzer( "HLTGetRaw",
-    RawDataCollection = cms.InputTag( "%s" )
+    RawDataCollection = cms.InputTag( "rawDataCollector" )
 )
-""" % ( self.config.data and 'source' or 'rawDataCollector' )
+"""
 
       if not 'hltGetConditions' in self.data:
         # add hltGetConditions
