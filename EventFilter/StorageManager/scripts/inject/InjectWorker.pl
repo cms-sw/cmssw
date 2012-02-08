@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.77 2011/10/05 09:20:12 babar Exp $
+# $Id: InjectWorker.pl,v 1.78 2011/11/29 19:25:25 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -194,7 +194,7 @@ sub start {
     # Print a heartbeat regularly
     $kernel->delay( heartbeat => $heartbeat );
 
-    $kernel->post( 'logger', info => "Entering main while loop now" );
+    $kernel->call( 'logger', info => "Entering main while loop now" );
 }
 
 # lockfile
@@ -216,7 +216,7 @@ sub setup_lock {
               . " Stale lock file?";
         }
         else {
-            $kernel->post( 'logger',
+            $kernel->call( 'logger',
                 warn => "Warning: Lock \"$lockfile\""
                   . "exists, pid $pid (NOT running). Removing stale lock file?"
             );
@@ -226,7 +226,7 @@ sub setup_lock {
     print $fh "$$\n";    # Fill it with pid
     close $fh;
     $heap->{LockFile} = $lockfile;
-    $kernel->post( 'logger', info => "Set lock to $lockfile for $$" );
+    $kernel->call( 'logger', info => "Set lock to $lockfile for $$" );
 
     $kernel->sig( INT  => 'sig_abort' );
     $kernel->sig( TERM => 'sig_abort' );
@@ -241,7 +241,7 @@ sub setup_db {
     $ENV{'TNS_ADMIN'} = '/etc/tnsnames.ora';
 
     if ($nodbint) {
-        $kernel->post( 'logger', warning => "No DB (even!) access flag set" );
+        $kernel->call( 'logger', warning => "No DB (even!) access flag set" );
     }
     else {
         $kernel->yield( 'read_db_config', $config );
@@ -249,9 +249,9 @@ sub setup_db {
         if ($nodbwrite) {
 
             # XXX This will not work as there is no further code for that case
-            $kernel->post( 'logger',
+            $kernel->call( 'logger',
                 warning => "Don't write access DB flag set" );
-            $kernel->post( 'logger',
+            $kernel->call( 'logger',
                 debug => "Following commands would have been processed:" );
         }
         else {
@@ -263,7 +263,7 @@ sub setup_db {
 sub setup_main_db {
     my ( $kernel, $heap ) = @_[ KERNEL, HEAP ];
 
-    $kernel->post( 'logger',
+    $kernel->call( 'logger',
         debug => "Setting up DB connection for $heap->{dbi}"
           . " and $heap->{reader} write access" );
     my $failed = 0;
@@ -272,7 +272,7 @@ sub setup_main_db {
     $heap->{dbh} = DBI->connect_cached( @$heap{qw( dbi reader phrase )} )
       or $failed++;
     if ($failed) {
-        $kernel->post( 'logger',
+        $kernel->call( 'logger',
             error => "Connection to $heap->{dbi} failed: $DBI::errstr" );
         $kernel->delay( setup_main_db => $dbbackoff );
         $heap->{last_failed_main_db} = time;
@@ -327,17 +327,18 @@ sub setup_main_db {
     $sql =
         "insert into CMS_STOMGR.RUNS "
       . "(RUNNUMBER, INSTANCE, HOSTNAME, N_INSTANCES, N_LUMISECTIONS, "
-      . " STATUS, START_TIME)"
+      . " STATUS, MAX_LUMI, LAST_GOOD, START_TIME)"
       . " values "
       . "(        ?,        ?,        ?,           ?,              0, "
-      . "      1, TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'))";
+      . "      1,     NULL,      NULL, TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'))";
     $sths->{beginOfRun} = $heap->{dbh}->prepare($sql)
       or die "Error: Prepare failed for $sql: " . $heap->{dbh}->errstr;
 
     $sql =
         "update CMS_STOMGR.RUNS set "
       . "STATUS = 0, N_LUMISECTIONS = ?, "
-      . "END_TIME = TO_DATE(?,'YYYY-MM-DD HH24:MI:SS') "
+      . "END_TIME = TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'), "
+      . "MAX_LUMISECTION = ?, LAST_CONSECUTIVE = ? "
       . "where RUNNUMBER = ? and INSTANCE = ?";
     $sths->{endOfRun} = $heap->{dbh}->prepare($sql)
       or die "Error: Prepare failed for $sql: " . $heap->{dbh}->errstr;
@@ -352,6 +353,14 @@ sub setup_main_db {
     $sths->{endOfLumi} = $heap->{dbh}->prepare($sql)
       or die "Error: Prepare failed for $sql: " . $heap->{dbh}->errstr;
 
+    $sql =
+        "insert into CMS_STOMGR.BAD_RUNS "
+      . "(RUNNUMBER, INSTANCE, LUMISECTION)"
+      . " values "
+      . "(        ?,        ?,           ?)";
+    $sths->{badLumi} = $heap->{dbh}->prepare($sql)
+      or die "Error: Prepare failed for $sql: " . $heap->{dbh}->errstr;
+
 }
 
 # Setup the run conditions DB connection
@@ -359,7 +368,7 @@ sub setup_runcond_db {
     my ( $kernel, $heap ) = @_[ KERNEL, HEAP ];
 
     # this is for HLT key and number of SM queries
-    $kernel->post( 'logger',
+    $kernel->call( 'logger',
         debug => "Setting up DB connection for $heap->{dbi}"
           . " and $heap->{reader} read access" );
 
@@ -369,7 +378,7 @@ sub setup_runcond_db {
           or $failed++;
     }
     if ($failed) {
-        $kernel->post( 'logger',
+        $kernel->call( 'logger',
             error => "Connection to $heap->{dbi} failed: $DBI::errstr" );
         $kernel->delay( setup_runcond_db => 10 );
         return;
@@ -410,7 +419,7 @@ sub get_from_runcond {
         $kind      = 'Undefined kind of query' unless $kind;
         $key       = 'Undefined key'           unless $key;
         $runnumber = 'Undefined runnumber'     unless defined $runnumber;
-        $kernel->post( 'logger',
+        $kernel->call( 'logger',
             error =>
               "Trying to get $kind (key: $key) for runnumber $runnumber!" );
         return;
@@ -421,11 +430,11 @@ sub get_from_runcond {
     my $sth = $heap->{sths}->{runCond};
     unless ( defined $cached and $sth ) {
         my $errflag = 0;
-        $kernel->post( 'logger',
+        $kernel->call( 'logger',
             debug => "Querying DB for runnumber $runnumber" );
         $sth->execute( $runnumber, $key ) or $errflag = 1;
         if ($errflag) {
-            $kernel->post( 'logger',
+            $kernel->call( 'logger',
                 error =>
                   "DB query get $kind (key: $key) for run $runnumber returned "
                   . $sth->errstr );
@@ -434,13 +443,13 @@ sub get_from_runcond {
             ( $heap->{$kind}->{$runnumber} ) = ($cached) = $sth->fetchrow_array
               or $errflag = 1;
             if ($errflag) {
-                $kernel->post( 'logger',
+                $kernel->call( 'logger',
                     error =>
                       "Fetching $kind (key: $key) for run $runnumber returned "
                       . $sth->errstr );
             }
             else {
-                $kernel->post( 'logger',
+                $kernel->call( 'logger',
                     debug =>
                       "Obtained $kind key $key = $cached for run $runnumber" );
             }
@@ -451,7 +460,7 @@ sub get_from_runcond {
         my $delay = $args->{_RetryDelay} ||= $retrydelay;
         my $retries = ( $args->{_Retries} ||= $maxretries )--;
         if ($retries) {
-            $kernel->post( 'logger',
+            $kernel->call( 'logger',
                 error =>
                   "Could not retrieve $kind (key: $key) for run $runnumber."
                   . " Retrying ($retries left) in $delay" );
@@ -461,7 +470,7 @@ sub get_from_runcond {
             );
         }
         else {
-            $kernel->post( 'logger',
+            $kernel->call( 'logger',
                 error =>
                   "Could not retrieve $kind (key: $key) for run $runnumber."
                   . " Giving up after $maxretries tries." );
@@ -489,7 +498,7 @@ sub parse_line {
     # Test input parameters and return if something fishy is found
     return unless $kind =~ /^\.\/${callback}File\.pl$/;
     if ( @args % 2 ) {
-        $kernel->post( 'logger', error => "Could not parse line $line!" );
+        $kernel->call( 'logger', error => "Could not parse line $line!" );
         return;
     }
 
@@ -525,12 +534,12 @@ sub update_db {
             push @bind_params, $value;
         }
         else {
-            $kernel->post( 'logger',
+            $kernel->call( 'logger',
                 error => "$handler failed: Could not obtain parameter $_" );
             return;
         }
     }
-    $kernel->post( 'logger',
+    $kernel->call( 'logger',
         debug => "Updating $handler with:"
           . join( " ", map { "$params[$_]=$bind_params[$_]" } 0 .. $#params ) );
 
@@ -569,7 +578,7 @@ sub update_db {
                 $errorMessage = " Giving up after $maxretries tries.";
             }
         }
-        $kernel->post( 'logger',
+        $kernel->call( 'logger',
                 error => "DB access error (rows: $rows)"
               . " for $handler when executing ("
               . join( ', ', @bind_params )
@@ -581,11 +590,11 @@ sub update_db {
 
     # Print any messages from the DB's dbms output
     for ( $heap->{dbh}->func('dbms_output_get') ) {
-        $kernel->post( 'logger', info => $_ );
+        $kernel->call( 'logger', info => $_ );
     }
 
     if ( $rows != 1 ) {
-        $kernel->post( 'logger',
+        $kernel->call( 'logger',
                 error => "DB did not return one row for $handler ("
               . join( ', ', @bind_params )
               . "), but $rows. Will NOT notify!" );
@@ -594,7 +603,7 @@ sub update_db {
 
     # If injection was successful, update the summary tables
     if ( $handler =~ /^(?:insert|close)File$/ ) {
-        $kernel->post( 'logger',
+        $kernel->call( 'logger',
             info => "$handler successfull for $args->{FILENAME}" );
         $kernel->yield(
             update_db               => $args,
@@ -628,7 +637,7 @@ sub update_db {
         my $current = $heap->{offset}->{$wheelID};
         if ( $current > $offset ) {
             my $file = $heap->{watchlist}->{$wheelID};
-            $kernel->post( 'logger',
+            $kernel->call( 'logger',
                 warning =>
                   "$file was processed backwards: $offset < $current!" );
         }
@@ -638,7 +647,7 @@ sub update_db {
         }
     }
     else {
-        $kernel->post( 'logger', warning => "No offset information" );
+        $kernel->call( 'logger', warning => "No offset information" );
     }
 }
 
@@ -725,7 +734,7 @@ sub next_hook {
     while ( keys( %{ $heap->{task} } ) < $maxhooks ) {
         my $args = shift @{ $heap->{task_list} };
         last unless defined $args;
-        $kernel->post( 'logger',
+        $kernel->call( 'logger',
             debug => 'Running hook: ' .
               keys( %{ $heap->{task} } )
               . "/$maxhooks): "
@@ -746,13 +755,13 @@ sub next_hook {
 # Catch and display information from the hook's STDOUT.
 sub hook_result {
     my ( $kernel, $result ) = @_[ KERNEL, ARG0 ];
-    $kernel->post( 'logger', debug => "Hook output: $result" );
+    $kernel->call( 'logger', debug => "Hook output: $result" );
 }
 
 # Catch and display information from the hook's STDERR.
 sub hook_error {
     my ( $kernel, $result ) = @_[ KERNEL, ARG0 ];
-    $kernel->post( 'logger', info => "Hook error: $result" );
+    $kernel->call( 'logger', info => "Hook error: $result" );
 }
 
 # The task is done.  Delete the child wheel, and try to start a new
@@ -774,7 +783,7 @@ sub got_log_line {
     my ( $kernel, $heap, $line, $wheelID ) = @_[ KERNEL, HEAP, ARG0, ARG1 ];
     my $file   = $heap->{watchlist}->{$wheelID};
     my $offset = $heap->{watchlist}->{$file}->tell();
-    $kernel->post( 'logger', debug => "In $file, got line: $line" );
+    $kernel->call( 'logger', debug => "In $file, got line: $line" );
     if ( $line =~ /(?:(insert|close)File)/i ) {
         $kernel->yield( parse_line => $1 => $line, $wheelID => $offset );
     }
@@ -799,7 +808,7 @@ sub got_log_line {
         }
     }
     else {
-        $kernel->post( 'logger', info => "Got unknown log line: $line" );
+        $kernel->call( 'logger', info => "Got unknown log line: $line" );
     }
 }
 
@@ -807,12 +816,12 @@ sub got_log_line {
 sub parse_lumi_line {
     my ( $kernel, $heap, $callback, $line, $wheelID, $offset ) =
       @_[ KERNEL, HEAP, ARG0 .. ARG3 ];
-    $kernel->post( 'logger',
+    $kernel->call( 'logger',
         debug => "Got lumi line (callback: $callback): $line" );
     return unless $callback && $line;
     my %hash = map { split /:/ } split /\t/, $line;
     if ( grep !defined, @hash{qw(Timestamp run instance host)} ) {
-        $kernel->post( 'logger', warning => "Got unknown lumi line: $line" );
+        $kernel->call( 'logger', warning => "Got unknown lumi line: $line" );
         return;
     }
     $hash{Timestamp} =
@@ -834,16 +843,86 @@ sub got_begin_of_run {
         beginOfRun => qw( run instance host
           n_instances Timestamp )
     );
+
+    # Check consistency of EOLS in case we didn't get EoR for previous run
+    for my $runnumber ( keys %{ $heap->{_SeenEoLS} } ) {
+        my $seen = delete $heap->{_SeenEoLS}->{$runnumber};
+        next unless $seen->{max};    # Ignore empty run
+        $kernel->call( 'logger',
+            warning => "No EoR marker for run $runnumber"
+              . " ($seen->{max} lumisections)" );
+    }
+    my $run = $args->{run};
+    $heap->{_SeenEoLS}->{$run}->{0}++;    # Set fake LS 0 as processed
+    $heap->{_SeenEoLS}->{$run}->{max} = 0;    # Set default max to 0
 }
 
 # update RUNS set (STATUS = 0, N_LUMISECTIONS = 3065, END_TIME = '2010-06-11 02:10:10')
 # where RUNNUMBER = 137605 and INSTANCE = 2
 sub got_end_of_run {
     my ( $kernel, $heap, $args ) = @_[ KERNEL, HEAP, ARG0 ];
+    $kernel->call( check_eor_consistency => $args );
     $kernel->yield(
         update_db => $args,
-        endOfRun  => qw( LastLumi Timestamp run instance )
+        endOfRun  => qw( LastLumi Timestamp run instance maxLumi lastGood )
     );
+}
+
+# Check consistency of EOLS received during the run
+sub check_eor_consistency {
+    my ( $kernel, $heap, $args ) = @_[ KERNEL, HEAP, ARG0 ];
+    my $runnumber = $args->{run};
+
+    # Set defaults, in case we do not have enough information
+    $args->{maxLumi}  = 0;
+    $args->{lastGood} = 0;
+
+    if ( my $seen = delete $heap->{_SeenEoLS}->{$runnumber} ) {
+        unless ( delete $seen->{0} ) {    # In case we get EoR without a BoR
+            $kernel->call( 'logger',
+                warning => "No BoR marker for run $runnumber, or not seen" );
+
+            # XXX should do something, call SP?
+            return;
+        }
+        $args->{maxLumi} = $seen->{max};
+        return unless $seen->{max};       # In case we get EoR without any EoLS
+        my ( $seenBad, @badLS ) = (0);
+        for my $lumisection ( 1 .. $seen->{max} ) {
+            if ( delete $seen->{$lumisection} ) {
+                $args->{lastGood} = $lumisection if !$seenBad;
+            }
+            else {
+                $seenBad++;
+                push @badLS, $lumisection;
+            }
+        }
+
+        # Found some bad LS => run is bad
+        # Log and mark it bad in the database
+        if ($seenBad) {
+            $kernel->call( 'logger',
+                warning => "No EoLS marker for $seenBad LS of run $runnumber: "
+                  . join( ', ', @badLS ) );
+            for my $badLumi (@badLS) {
+                my %localArgs = (
+                    map { $_ => $args->{$_} } qw( run instance ),
+                    badLumi => $badLumi
+                );
+                $kernel->post(
+                    update_db => \%localArgs,
+                    badLumi   => qw( run instance badLumi )
+                );
+            }
+        }
+    }
+    else {
+        $kernel->call( 'logger',
+            warning => "No EoLS marker for run $runnumber" );
+
+        # XXX should do something, call SP?
+        return;
+    }
 }
 
 # insert into values STREAMS (137605, 767, 'Calibration',   2, 1, '2010-06-12 00:00:02');
@@ -862,12 +941,20 @@ sub got_end_of_lumi {
             $stream
         );
     }
+
+    # Mark the LS as processed, and update the max LS seen for integrity check
+    my ( $runnumber, $lumisection ) = @$args{qw(run LS)};
+    $heap->{_SeenEoLS}->{$runnumber}->{$lumisection}++;   # Mark it as processed
+    $heap->{_SeenEoLS}->{$runnumber}->{max} =             # Update max LS
+      $heap->{_SeenEoLS}->{$runnumber}->{max} || 0 > $lumisection
+      ? $heap->{_SeenEoLS}->{$runnumber}->{max}
+      : $lumisection;
 }
 
 sub got_log_rollover {
     my ( $kernel, $heap, $wheelID ) = @_[ KERNEL, HEAP, ARG0 ];
     my $file = $heap->{watchlist}->{$wheelID};
-    $kernel->post( 'logger', info => "$file rolled over" );
+    $kernel->call( 'logger', info => "$file rolled over" );
 }
 
 # Create a watcher for a file, if none exist already
@@ -879,12 +966,12 @@ sub read_changes {
     my $seek = $heap->{offset}->{$file} || 0;
     my $size = ( stat $file )[7];
     if ( $seek > $size ) {
-        $kernel->post( 'logger',
+        $kernel->call( 'logger',
             warning => "Saved seek ($seek) is greater than"
               . " current filesize ($size) for $file" );
         $seek = 0;
     }
-    $kernel->post( 'logger', info => "Watching $file, starting at $seek" );
+    $kernel->call( 'logger', info => "Watching $file, starting at $seek" );
     my $wheel = POE::Wheel::FollowTail->new(
         Filename   => $file,
         InputEvent => "got_log_line",
@@ -899,7 +986,7 @@ sub read_changes {
 # Some terminal signal got received
 sub sig_abort {
     my ( $kernel, $heap, $signal ) = @_[ KERNEL, HEAP, ARG0 ];
-    $kernel->post( 'logger', info => "Shutting down on signal SIG$signal" );
+    $kernel->call( 'logger', info => "Shutting down on signal SIG$signal" );
     $kernel->yield('save_offsets');
     $kernel->yield('shutdown');
     $kernel->sig_handled;
@@ -935,13 +1022,13 @@ sub watch_hdlr {
     my $name   = $event->fullname;
 
     if ( $event->IN_MODIFY ) {
-        $kernel->post( 'logger', debug => "$name was modified\n" );
+        $kernel->call( 'logger', debug => "$name was modified\n" );
         $kernel->yield( read_changes => $name );
     }
     else {
-        $kernel->post( 'logger', warning => "$name is no longer mounted" )
+        $kernel->call( 'logger', warning => "$name is no longer mounted" )
           if $event->IN_UNMOUNT;
-        $kernel->post( 'logger', error => "events for $name have been lost" )
+        $kernel->call( 'logger', error => "events for $name have been lost" )
           if $event->IN_Q_OVERFLOW;
     }
 }
@@ -959,7 +1046,7 @@ sub read_db_config {
                     next;
                 }
 
-                $kernel->post( 'logger',
+                $kernel->call( 'logger',
                     warning =>
                       "Ignoring unknown configuration variable: $key" );
             }
@@ -969,7 +1056,7 @@ sub read_db_config {
     unless ( $heap->{reader} && $heap->{phrase} ) {
         die "No DB configuration. Aborting.";
     }
-    $kernel->post( 'logger', info => "Read DB configuration from $config" );
+    $kernel->call( 'logger', info => "Read DB configuration from $config" );
 }
 
 # Save the offset for each file so processing can be resumed at any time
@@ -1006,7 +1093,7 @@ sub save_offsets {
 sub read_offsets {
     my ( $kernel, $heap ) = @_[ KERNEL, HEAP ];
     return unless -s $offsetfile;
-    $kernel->post( 'logger', debug => "Reading offset file $offsetfile..." );
+    $kernel->call( 'logger', debug => "Reading offset file $offsetfile..." );
 
     open my $save, '<', $offsetfile or die "Can't open $offsetfile: $!";
     while (<$save>) {
@@ -1015,17 +1102,17 @@ sub read_offsets {
         if ( -f $file ) {
             my $fsize = ( stat(_) )[7];
             if ( $offset != $fsize ) {
-                $kernel->post( 'logger',
+                $kernel->call( 'logger',
                     debug =>
                       "File $file has a different size: $offset != $fsize" );
                 $kernel->yield( read_changes => $file );
             }
             $heap->{offset}->{$file} = $offset;
-            $kernel->post( 'logger',
+            $kernel->call( 'logger',
                 debug => "Setting offset information for $file: $offset" );
         }
         else {
-            $kernel->post( 'logger',
+            $kernel->call( 'logger',
                 debug => "Discarding offset information"
                   . " for non-existing $file: $offset" );
         }
@@ -1039,7 +1126,7 @@ sub heartbeat {
     my $message = gettimestamp( time() ) . ' Still alive in main loop.';
     $message .=
       ' Kernel has ' . $kernel->get_event_count() . ' events to process';
-    $kernel->post( 'logger', info => $message );
+    $kernel->call( 'logger', info => $message );
     $kernel->delay( heartbeat => +$heartbeat );
 }
 
@@ -1049,7 +1136,7 @@ sub handle_default {
     print STDERR "WARNING: Session "
       . $_[SESSION]->ID
       . "caught unhandled event $event with (@$args).";
-    $kernel->post( 'logger',
+    $kernel->call( 'logger',
             warning => "Session "
           . $_[SESSION]->ID
           . " caught unhandled event $event with (@$args)." );
