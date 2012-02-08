@@ -256,18 +256,18 @@ TGraphAsymmErrors *theFcBelt(TFile *file, int doSyst, int whichChannel, BandType
         graph->SetPoint(ipoint, limit, quant); 
         graph->SetPointError(ipoint, 0, limitErr);
     }
-    std::cout << "Loaded " << dataset.size() << " masses " << std::endl;
+    //std::cout << "Loaded " << dataset.size() << " masses " << std::endl;
     TGraphAsymmErrors *tge = new TGraphAsymmErrors(); int ip = 0; 
     for (std::map<int,TGraphErrors*>::iterator it = dataset.begin(), ed = dataset.end(); it != ed; ++it) {
         TGraphErrors *graph = it->second; graph->Sort();
         int n = graph->GetN(); if (n < 3) continue;
-        std::cout << "For mass " << it->first/10 << " I have " << n << " points" << std::endl;
+        //std::cout << "For mass " << it->first/10 << " I have " << n << " points" << std::endl;
 
         double blow, bhigh, bmid;
 
         int imax = 0; double ymax = graph->GetY()[0];
         for (int i = 0; i < n; ++i) {
-            printf(" i = %2d mH = %.1f, r = %6.3f, pval = %8.6f +/- %8.6f\n", i, it->first/10., graph->GetX()[i], graph->GetY()[i], graph->GetEY()[i]);
+            //printf(" i = %2d mH = %.1f, r = %6.3f, pval = %8.6f +/- %8.6f\n", i, it->first/10., graph->GetX()[i], graph->GetY()[i], graph->GetEY()[i]);
             if (graph->GetY()[i] > ymax) {
                 imax = i; ymax = graph->GetY()[i];
             }
@@ -286,7 +286,7 @@ TGraphAsymmErrors *theFcBelt(TFile *file, int doSyst, int whichChannel, BandType
             bmid = sumxmax/sumwmax;
         }
 
-        std::cout << "band center for " << it->first/10 << " is at " << bmid << " (imax = " << imax << ")\n" << std::endl;
+        //std::cout << "band center for " << it->first/10 << " is at " << bmid << " (imax = " << imax << ")\n" << std::endl;
 
         if (graph->GetY()[0] > 1-width || imax == 0) {
             blow = graph->GetX()[0];
@@ -309,7 +309,7 @@ TGraphAsymmErrors *theFcBelt(TFile *file, int doSyst, int whichChannel, BandType
             fitErf.SetNpx(4);
             blow = fitErf.GetX(1-width,xmin,xmax);
             if (blow <= 2*0.0001) blow = 0;
-            std::cout << width << " band low end " << it->first/10 << " is at " << blow << " (xmin = " << xmin << ", xmax = " << xmax << ")\n" << std::endl;
+            //std::cout << width << " band low end " << it->first/10 << " is at " << blow << " (xmin = " << xmin << ", xmax = " << xmax << ")\n" << std::endl;
         }
         
         if (graph->GetY()[n-1] > 1-width || imax == n-1) {
@@ -327,9 +327,9 @@ TGraphAsymmErrors *theFcBelt(TFile *file, int doSyst, int whichChannel, BandType
             bhigh = fitExp.GetParameter(2);
             if (bhigh < graph->GetX()[0]) {
                 bhigh = graph->GetX()[0] + ((1-width)-graph->GetY()[0])*(graph->GetX()[1]-graph->GetX()[0])/(graph->GetY()[1]-graph->GetY()[0]);
-                std::cout << width << " band high end forces stupid linear interpolation" << std::endl;
+                //std::cout << width << " band high end forces stupid linear interpolation" << std::endl;
             }
-            std::cout << width << " band high end " << it->first/10 << " is at " << bhigh << " (xmin = " << xmin << ", xmax = " << xmax << ")\n" << std::endl;
+            //std::cout << width << " band high end " << it->first/10 << " is at " << bhigh << " (xmin = " << xmin << ", xmax = " << xmax << ")\n" << std::endl;
         } else {
             int ilo = 0, ihi = 0;
             for (ilo = imax+1;  ilo < n-2; ++ilo) {
@@ -344,7 +344,7 @@ TGraphAsymmErrors *theFcBelt(TFile *file, int doSyst, int whichChannel, BandType
             if (ihi - ilo <= 1) { 
                 double xmin = graph->GetX()[ilo], xmax = graph->GetX()[ihi];
                 bhigh = 0.5*(xmin+xmax);
-                std::cout << width << " band high end " << it->first/10 << " is " << bhigh << " (xmin = " << xmin << ", xmax = " << xmax << ", no fit)\n" << std::endl;
+                //std::cout << width << " band high end " << it->first/10 << " is " << bhigh << " (xmin = " << xmin << ", xmax = " << xmax << ", no fit)\n" << std::endl;
             } else {
                 double xmin = graph->GetX()[ilo], xmax = graph->GetX()[ihi];
                 fitExp.SetRange(xmin,xmax); fitExp.SetNpx(1000);
@@ -352,7 +352,7 @@ TGraphAsymmErrors *theFcBelt(TFile *file, int doSyst, int whichChannel, BandType
                 fitExp.FixParameter(0,1-width);
                 graph->Fit(&fitExp,"WNR EX0","",xmin,xmax);
                 bhigh = fitExp.GetParameter(2);
-                std::cout << width << " band high end " << it->first/10 << " is at " << bhigh << " (xmin = " << xmin << ", xmax = " << xmax << ")\n" << std::endl;
+                //std::cout << width << " band high end " << it->first/10 << " is at " << bhigh << " (xmin = " << xmin << ", xmax = " << xmax << ")\n" << std::endl;
             }
         }
 
@@ -547,6 +547,11 @@ void cutBands(TDirectory *bands, TString inName, TString outName, float mMin, fl
     cutBand(bands, inName+"_nosyst_asimov",    outName+"_nosyst_asimov",     mMin, mMax);
     cutBand(bands, inName+"_nosyst_ntoys",     outName+"_nosyst_ntoys",      mMin, mMax);
 }
+void cutFcBands(TDirectory *bands, TString inName, TString outName, float mMin, float mMax, int npostfix, char **postfixes) {
+    for (int i = 0; i < npostfix; ++i) {
+        cutBand(bands, inName+"_"+postfixes[i],   outName+"_"+postfixes[i],  mMin, mMax);
+    } 
+}
 
 void combineBand(TDirectory *in, TString band1, TString band2, TString comb) {
     TGraphAsymmErrors *b1 = (TGraphAsymmErrors *) in->Get(band1);
@@ -638,6 +643,12 @@ void pasteBands(TDirectory *in, TString band1, TString band2, TString comb) {
     pasteBand(in, band1+"_nosyst_asimov",    band2+"_nosyst_asimov",    comb+"_nosyst_asimov");
     pasteBand(in, band1+"_nosyst_ntoys",    band2+"_nosyst_ntoys",    comb+"_nosyst_ntoys");
 }
+void pasteFcBands(TDirectory *bands, TString band1, TString band2, TString comb, int npostfix, char **postfixes) {
+    for (int i = 0; i < npostfix; ++i) {
+        pasteBand(bands, band1+"_"+postfixes[i],   band2+"_"+postfixes[i],   comb+"_"+postfixes[i]);
+    } 
+}
+
 
 void stripPoint(TGraph *band, int m) {
     for (int i = 0, n = band->GetN(); i < n; ++i) {
@@ -653,7 +664,7 @@ void stripPoint(TGraph *band, int m) {
 }
 void stripBand(TDirectory *in, TString band1, int m1, int m2=0, int m3=0, int m4=0, int m5=0) {
     TGraphAsymmErrors *band = (TGraphAsymmErrors *) in->Get(band1);
-    if (band == 0 || band->GetN() == 0) return;
+    if (band == 0 || band->GetN() == 0) return; 
     if (m1) stripPoint(band,m1);
     if (m2) stripPoint(band,m2);
     if (m3) stripPoint(band,m3);
