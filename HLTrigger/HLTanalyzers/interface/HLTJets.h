@@ -144,7 +144,7 @@ private:
     float pfHT;
     float pfMHT;    
     int nohPFJet;
-    float *pfJetEta, *pfJetPhi, *pfJetPt, *pfJetE;
+    float *pfJetEta, *pfJetPhi, *pfJetPt, *pfJetE, *pfJetneutralHadronEnergyFraction, *pfJetchargedHadronFraction, *pfJetneutralMultiplicity, *pfJetchargedMultiplicity, *pfJetneutralEMFraction, *pfJetchargedEMFraction;
     //Reco PFTau
     int nRecoPFTau;
     float *recopfTauEta,*recopfTauPhi,*recopfTauPt,*recopfTauJetPt,*recopfTauLeadTrackPt,*recopfTauLeadPionPt;

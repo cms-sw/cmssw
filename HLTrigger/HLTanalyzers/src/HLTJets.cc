@@ -157,6 +157,12 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     pfJetPhi         = new float[kMaxPFJet];
     pfJetPt         = new float[kMaxPFJet];
     pfJetE         = new float[kMaxPFJet];
+    pfJetneutralHadronEnergyFraction = new float[kMaxPFJet];
+    pfJetchargedHadronFraction = new float[kMaxPFJet];
+    pfJetneutralMultiplicity = new float[kMaxPFJet];
+    pfJetchargedMultiplicity = new float[kMaxPFJet];
+    pfJetneutralEMFraction = new float[kMaxPFJet];
+    pfJetchargedEMFraction = new float[kMaxPFJet];
 
 
     const int kMaxTauIso = 5000;
@@ -349,6 +355,12 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     HltTree->Branch("pfJetE",pfJetE,"pfJetE[NohPFJet]/F");
     HltTree->Branch("pfJetEta",pfJetEta,"pfJetEta[NohPFJet]/F");
     HltTree->Branch("pfJetPhi",pfJetPhi,"pfJetPhi[NohPFJet]/F");
+    HltTree->Branch("pfJetneutralHadronEnergyFraction",pfJetneutralHadronEnergyFraction,"pfJetneutralHadronEnergyFraction[NohPFJet]/F");
+    HltTree->Branch("pfJetchargedHadronFraction",pfJetchargedHadronFraction,"pfJetchargedHadronFraction[NohPFJet]/F");
+    HltTree->Branch("pfJetneutralMultiplicity",pfJetneutralMultiplicity,"pfJetneutralMultiplicity[NohPFJet]/F");
+    HltTree->Branch("pfJetchargedMultiplicity",pfJetchargedMultiplicity,"pfJetchargedMultiplicity[NohPFJet]/F");
+    HltTree->Branch("pfJetneutralEMFraction",pfJetneutralEMFraction,"pfJetneutralEMFraction[NohPFJet]/F");
+    HltTree->Branch("pfJetchargedEMFraction",pfJetchargedEMFraction,"pfJetchargedEMFraction[NohPFJet]/F");
 
     //RECO PFJets
     HltTree->Branch("nrpj",&nrpj,"nrpj/I");
@@ -893,7 +905,14 @@ void HLTJets::analyze(edm::Event const& iEvent,
             pfJetPhi[ipfJet] = i->phi();
             pfJetPt[ipfJet] = i->pt();           
 	    pfJetE[ipfJet] = i->energy();
-            
+            pfJetneutralHadronEnergyFraction[ipfJet]=i->neutralHadronEnergyFraction();
+            pfJetchargedHadronFraction[ipfJet] = i->chargedHadronEnergyFraction ();
+            pfJetneutralMultiplicity[ipfJet] = i->neutralMultiplicity ();
+            pfJetchargedMultiplicity[ipfJet] = i->chargedMultiplicity ();
+            pfJetneutralEMFraction[ipfJet] = i->neutralEmEnergyFraction ();
+            pfJetchargedEMFraction[ipfJet] = i->chargedEmEnergyFraction ();
+	    //std::cout << "jet pT = " << i->pt() << " ; neutralHadronEnergyFraction = " << i->neutralHadronEnergyFraction() << std::endl;
+
 	    if (i->pt() > 40. && abs(i->eta())<3.0)
 	      pfHT  += i -> pt();
 	    if (i->pt() > 30.){
