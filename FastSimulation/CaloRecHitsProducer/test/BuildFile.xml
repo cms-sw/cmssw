@@ -11,6 +11,8 @@
 <use   name="FastSimulation/Particle"/>
 <use   name="FastSimulation/Utilities"/>
 <use   name="FastSimulation/CaloGeometryTools"/>
+<use   name="CondFormats/EcalObjects"/>
+<use   name="CondFormats/DataRecord"/>
 <use   name="DQMServices/Core"/>
 <use   name="Geometry/Records"/>
 <library   file="DigiCheck.cc" name="DigiCheck">
@@ -19,3 +21,7 @@
 <library   file="NoiseCheck.cc" name="NoiseCheck">
   <flags   EDM_PLUGIN="1"/>
 </library>
+<library   file="NoiseCheckBarrel.cc" name="NoiseCheckBarrel">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+

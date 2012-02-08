@@ -2,7 +2,7 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="hepmc"/>
-<use   name="pythia6"/>
+<use   name="GeneratorInterface/Pythia6Interface"/>
 <use   name="GeneratorInterface/AlpgenInterface"/>
 <use   name="GeneratorInterface/LHEInterface"/>
 <use   name="f77compiler"/>

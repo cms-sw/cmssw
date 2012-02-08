@@ -1,3 +1,30 @@
+2011-04-13  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-16-06
+	* fix stopping when all clients are dead
+
+2011-04-01  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-16-05
+	* yet small improvement to dqm diagnostic
+	
+2011-04-01  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-16-04
+	* acceptDQMdiscard flag now counting 
+	* moved flag for discard after sent for dqm cells
+	* added timeout on send for dqm cells
+	
+2011-03-21  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-16-03
+	* split spurious dqm discard message and demote one cat to WARN
+
+2011-02-04  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-16-02
+	* remove crash due to segv in FUResourceTable destructor 
+	
 2011-01-21  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V00-16-01

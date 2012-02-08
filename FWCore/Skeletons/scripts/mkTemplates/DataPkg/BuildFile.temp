@@ -1,7 +1,5 @@
-<use name=DataFormats/Common>
-<use name=rootrflx>
+<use name="DataFormats/Common"/>
+<use name="rootrflx"/>
 <export>
-  <lib name=skelsubsysdatapkgname>
-  <use name=DataFormats/Common>
-  <use name=rootrflx>
+  <lib name="1"/>
 </export>

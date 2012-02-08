@@ -1,4 +1,4 @@
-// $Id: Starting.cc,v 1.9 2010/03/19 13:24:05 mommsen Exp $
+// $Id: Starting.cc,v 1.10.6.1 2011/03/07 11:33:05 mommsen Exp $
 /// @file: Starting.cc
 
 #include "EventFilter/StorageManager/interface/CommandQueue.h"
@@ -31,24 +31,24 @@ void Starting::do_entryActionWork()
     outermost_context().getSharedResources();
 
   // Request DiskWriter to configure streams
-  EvtStrConfigListPtr evtCfgList = sharedResources->_configuration->
+  EvtStrConfigListPtr evtCfgList = sharedResources->configuration_->
     getCurrentEventStreamConfig();
-  ErrStrConfigListPtr errCfgList = sharedResources->_configuration->
+  ErrStrConfigListPtr errCfgList = sharedResources->configuration_->
     getCurrentErrorStreamConfig();
 
   WorkerThreadParams workerParams =
-    sharedResources->_configuration->getWorkerThreadParams();
-  sharedResources->_diskWriterResources->
+    sharedResources->configuration_->getWorkerThreadParams();
+  sharedResources->diskWriterResources_->
     requestStreamConfiguration(evtCfgList, errCfgList,
-      sharedResources->_configuration->getDiskWritingParams(),
-      sharedResources->_configuration->getRunNumber(),
-      workerParams._DWdeqWaitTime);
+      sharedResources->configuration_->getDiskWritingParams(),
+      sharedResources->configuration_->getRunNumber(),
+      workerParams.DWdeqWaitTime_);
 
   // Request configuration of DQMEventProcessor
-  sharedResources->_dqmEventProcessorResources->
+  sharedResources->dqmEventProcessorResources_->
     requestConfiguration(
-      sharedResources->_configuration->getDQMProcessingParams(),
-      workerParams._DQMEPdeqWaitTime);
+      sharedResources->configuration_->getDQMProcessingParams(),
+      workerParams.DQMEPdeqWaitTime_);
 }
 
 Starting::~Starting()
@@ -89,8 +89,8 @@ Starting::do_noFragmentToProcess() const
   {
     SharedResourcesPtr sharedResources =
       outermost_context().getSharedResources();
-    event_ptr stMachEvent( new StartRun() );
-    sharedResources->_commandQueue->enq_wait( stMachEvent );
+    EventPtr_t stMachEvent( new StartRun() );
+    sharedResources->commandQueue_->enqWait( stMachEvent );
   }
 }
 
@@ -101,9 +101,9 @@ Starting::workerThreadsConfigured() const
     outermost_context().getSharedResources();
 
   // check if the requests are still being processed
-  if ( sharedResources->_diskWriterResources->streamChangeOngoing() ) return false;
+  if ( sharedResources->diskWriterResources_->streamChangeOngoing() ) return false;
 
-  if ( sharedResources->_dqmEventProcessorResources->requestsOngoing() ) return false;
+  if ( sharedResources->dqmEventProcessorResources_->requestsOngoing() ) return false;
 
   return true; 
 }

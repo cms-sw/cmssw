@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.41 2010/12/01 21:40:31 amraktad Exp $
+// $Id: FWEveViewManager.cc,v 1.44 2011/01/31 16:36:20 matevz Exp $
 //
 
 // system include files
@@ -27,6 +27,7 @@
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWInteractionList.h"
 #include "Fireworks/Core/interface/CmsShowCommon.h"
+#include "Fireworks/Core/interface/fwLog.h"
 
 // PB
 #include "Fireworks/Core/interface/FWEDProductRepresentationChecker.h"
@@ -114,7 +115,7 @@ FWEveViewManager::FWEveViewManager(FWGUIManager* iGUIMgr) :
    FWGUIManager::ViewBuildFunctor f =  boost::bind(&FWEveViewManager::buildView, this, _1, _2);
    for (int i = 0; i < FWViewType::kTypeSize; i++)
    {
-      if ( i == FWViewType::kTable || i == FWViewType::kTableTrigger || i == FWViewType::kTableL1)
+      if ( i == FWViewType::kTable || i == FWViewType::kTableHLT || i == FWViewType::kTableL1)
          continue;
       iGUIMgr->registerViewBuilder(FWViewType::idToName(i), f);
    }
@@ -128,12 +129,8 @@ FWEveViewManager::FWEveViewManager(FWGUIManager* iGUIMgr) :
    eveSelection->Connect("SelectionRemoved(TEveElement*)","FWEveViewManager",this,"selectionRemoved(TEveElement*)");
    eveSelection->Connect("SelectionCleared()","FWEveViewManager",this,"selectionCleared()");
 
-
-
-#ifdef TEVEVIEW_TQSENDER_SIGNALS_FIX
    gEve->GetHighlight()->Connect("SelectionAdded(TEveElement*)","FWEveViewManager",this,"highlightAdded(TEveElement*)");
    gEve->GetHighlight()->Connect("SelectionRepeated(TEveElement*)","FWEveViewManager",this,"highlightAdded(TEveElement*)");
-#endif
 }
 
 FWEveViewManager::~FWEveViewManager()
@@ -197,7 +194,17 @@ FWEveViewManager::newItem(const FWEventItem* iItem)
       std::string builderName = info.m_name;
       int builderViewBit =  info.m_viewBit;
       
-      FWProxyBuilderBase* builder = FWProxyBuilderFactory::get()->create(builderName);
+      FWProxyBuilderBase* builder = 0;
+      try
+      {
+         builder = FWProxyBuilderFactory::get()->create(builderName);
+
+      }
+      catch (std::exception& exc)
+      {
+         fwLog(fwlog::kWarning) << "FWEveViewManager::newItem ignoring the following exception (probably edmplugincache mismatch):"
+                                << std::endl << exc.what();
+      }
       if (!builder)
          continue;
 

@@ -11,5 +11,5 @@ from DQM.HcalMonitorClient.HcalDAQInfo_cfi import *
 from DQM.RPCMonitorClient.RPCDaqInfo_cfi import *
 from DQM.EcalPreshowerMonitorModule.ESDaqInfoTask_cfi import *
 
-daq_dqmoffline = cms.Sequence(dtDAQInfo*rpcDaqInfo*ecalBarrelDaqInfoTask*ecalEndcapDaqInfoTask*siStripDaqInfo*cscDaqInfo*sipixelDaqInfo*hcalDAQInfo*rpcDaqInfo*ecalPreshowerDaqInfoTask)
+daq_dqmoffline = cms.Sequence(dtDAQInfo*rpcDaqInfo*ecalBarrelDaqInfoTask*ecalEndcapDaqInfoTask*siStripDaqInfo*cscDaqInfo*sipixelDaqInfo*hcalDAQInfo*ecalPreshowerDaqInfoTask)
 

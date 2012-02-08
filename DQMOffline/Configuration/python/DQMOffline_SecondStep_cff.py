@@ -19,7 +19,7 @@ DQMOffline_SecondStep_PreDPG = cms.Sequence( dqmDcsInfoClient *
                                              ecal_dqm_client_offline *
                                              hcalOfflineDQMClient *
                                              SiStripOfflineDQMClient *
-                                             PixelOfflineDQMClientWithDataCertification *
+                                             PixelOfflineDQMClientNoDataCertification *
                                              dtClients *
                                              rpcTier0Client *
                                              cscOfflineCollisionsClients *

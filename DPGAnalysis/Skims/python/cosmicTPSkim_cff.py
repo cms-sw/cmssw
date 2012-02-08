@@ -45,15 +45,3 @@ ctfWithMaterialTracksP5TkCntSequence   = cms.Sequence(ctfWithMaterialTracksP5TkC
 rsWithMaterialTracksP5TkCntSequence    = cms.Sequence(rsWithMaterialTracksP5TkCntFilter)
 
 
-cosmicTPSkim = cms.Sequence(cosmicMuonsBarrelOnlyTkSequence*
-                            cosmicMuonsEndCapsOnlyTkSequence*
-                            cosmicMuonsTkSequence*
-                            cosmicMuons1LegTkSequence*
-                            globalCosmicMuonsBarrelOnlyTkSequence*
-                            globalCosmicMuonsEndCapsOnlyTkSequence*
-                            globalCosmicMuonsTkSequence*
-                            globalCosmicMuons1LegTkSequence*
-                            cosmictrackfinderP5TkCntSequence*
-                            ctfWithMaterialTracksP5TkCntSequence*
-                            rsWithMaterialTracksP5TkCntSequence)
-

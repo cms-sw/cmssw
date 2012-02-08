@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+<link rel="stylesheet" href="jquery/jquery.treeview.css" />
+<link rel="stylesheet" href="jquery/red-treeview.css" />
+<link rel="stylesheet" href="jquery/screen.css" />
+
+<script src="jquery/lib/jquery.js" type="text/javascript"></script>
+<script src="jquery/lib/jquery.cookie.js" type="text/javascript"></script>
+<script src="jquery/jquery.treeview.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+		$(function() {
+			$("#tree").treeview({
+				collapsed: true,
+				animated: "medium",
+				control:"#sidetreecontrol",
+				persist: "location"
+			});
+		})
+		
+	</script>
+
+<title>@SUBSYSTEM@</title>
+<base href="http://cmssdt.cern.ch/SDT/doxygen/@CMSSW_VERSION@/doc/html/"/>
+</head>
+
+<body>
+
+<div id="main">
+
+<div id="sidetree">
+<div class="treeheader">&nbsp;</div>
+<span id="sidetreecontrol"><a href="?#">Collapse All</a> | <a href="?#">Expand All</a></span> 
+| <a target="_blank" href="@LINK_TO_TWIKI@" style="text-decoration:none;">
+	<img border="1" alt="Twiki" src="http://cmssdt.cern.ch/SDT/doxygen/common/twiki.gif"/>
+  </a>
+
+<ul id="tree">
+
+@TREE@
+
+</ul>
+</div>
+
+</div>
+
+</body>
+
+</html>

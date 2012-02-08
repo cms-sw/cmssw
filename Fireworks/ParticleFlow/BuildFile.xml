@@ -1,4 +1,5 @@
 <use name="Fireworks/Core"/>
+<use name="Fireworks/Tracks"/>
 <use name="DataFormats/ParticleFlowCandidate"/>
 <use name="rootcore"/>
 <lib name="Eve"/>

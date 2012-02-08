@@ -1,8 +1,8 @@
-// $Id: FileHandler.h,v 1.15 2010/11/05 10:33:38 mommsen Exp $
+// $Id: FileHandler.h,v 1.16.4.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: FileHandler.h 
 
-#ifndef StorageManager_FileHandler_h
-#define StorageManager_FileHandler_h
+#ifndef EventFilter_StorageManager_FileHandler_h
+#define EventFilter_StorageManager_FileHandler_h
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
 #include "EventFilter/StorageManager/interface/DbFileHandler.h"
@@ -25,8 +25,8 @@ namespace stor {
    * Abstract representation of a physical file
    *
    * $Author: mommsen $
-   * $Revision: 1.15 $
-   * $Date: 2010/11/05 10:33:38 $
+   * $Revision: 1.16.4.1 $
+   * $Date: 2011/03/07 11:33:04 $
    */
 
   class FileHandler
@@ -51,7 +51,7 @@ namespace stor {
     /**
      * Returns true if the file has not seen any recent events
      */
-    bool tooOld(const utils::time_point_t currentTime = utils::getCurrentTime());
+    bool tooOld(const utils::TimePoint_t currentTime = utils::getCurrentTime());
 
     /**
      * Returns true if the file corresponds to the given lumi section
@@ -78,7 +78,7 @@ namespace stor {
      * Return the luminosity section the file belongs to
      */
     uint32_t lumiSection() const
-    { return _fileRecord->lumiSection; }
+    { return fileRecord_->lumiSection; }
     
     /**
      * Return the size of the file in bytes
@@ -107,7 +107,7 @@ namespace stor {
      * Set the adler checksum for the file
      */
     inline void setAdler(uint32_t s)
-    { _adler = s; }
+    { adler_ = s; }
     
     
     //////////////////////
@@ -121,14 +121,14 @@ namespace stor {
 
     /**
      * Write command to update the file information in the CMS_STOMGR.TIER0_INJECTION table
-     * into the _logFile.
+     * into the logFile_.
      */
     void updateDatabase() const;
 
 
     /**
      * Write command to insert a new file into the CMS_STOMGR.TIER0_INJECTION table
-     * into the _logFile.
+     * into the logFile_.
      */
     void insertFileInDatabase() const;
 
@@ -195,28 +195,28 @@ namespace stor {
 
   protected:
 
-    FilesMonitorCollection::FileRecordPtr _fileRecord;
-    const DbFileHandlerPtr _dbFileHandler;
+    FilesMonitorCollection::FileRecordPtr fileRecord_;
+    const DbFileHandlerPtr dbFileHandler_;
 
-    utils::time_point_t _firstEntry;                // time when first event was writen
-    utils::time_point_t _lastEntry;                 // time when latest event was writen
+    utils::TimePoint_t firstEntry_;                // time when first event was writen
+    utils::TimePoint_t lastEntry_;                 // time when latest event was writen
 
-    const DiskWritingParams& _diskWritingParams;
+    const DiskWritingParams& diskWritingParams_;
     
   private:
     
-    const uint64_t _maxFileSize;                    // maximal file size in bytes
+    const uint64_t maxFileSize_;                    // maximal file size in bytes
     
-    const std::string  _logPath;                    // log path
-    const std::string  _logFile;                    // log file including path
-    std::string  _cmsver;                           // CMSSW version string
+    const std::string  logPath_;                    // log path
+    const std::string  logFile_;                    // log file including path
+    std::string  cmsver_;                           // CMSSW version string
 
-    uint32_t _adler;                                // adler32 checksum for streamer file
+    uint32_t adler_;                                // adler32 checksum for streamer file
   };
   
 } // stor namespace
 
-#endif // StorageManager_FileHandler_h
+#endif // EventFilter_StorageManager_FileHandler_h
 
 
 /// emacs configuration

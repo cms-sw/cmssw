@@ -1,4 +1,4 @@
-// $Id: InitMsgData.cc,v 1.6 2010/05/12 12:22:06 mommsen Exp $
+// $Id: InitMsgData.cc,v 1.7.6.1 2011/03/07 11:33:05 mommsen Exp $
 /// @file: InitMsgData.cc
 
 #include "EventFilter/StorageManager/src/ChainData.h"
@@ -13,7 +13,7 @@ namespace stor
 
     InitMsgData::InitMsgData(toolbox::mem::Reference* pRef) :
       ChainData(I2O_SM_PREAMBLE, Header::INIT),
-      _headerFieldsCached(false)
+      headerFieldsCached_(false)
     {
       addFirstFragment(pRef);
       parseI2OHeader();
@@ -31,8 +31,8 @@ namespace stor
         return 0;
       }
       
-      if (! _headerFieldsCached) {cacheHeaderFields();}
-      return _headerSize;
+      if (! headerFieldsCached_) {cacheHeaderFields();}
+      return headerSize_;
     }
 
     unsigned char* InitMsgData::do_headerLocation() const
@@ -42,8 +42,8 @@ namespace stor
         return 0;
       }
       
-      if (! _headerFieldsCached) {cacheHeaderFields();}
-      return _headerLocation;
+      if (! headerFieldsCached_) {cacheHeaderFields();}
+      return headerLocation_;
     }
 
     inline unsigned char*
@@ -71,8 +71,8 @@ namespace stor
         XCEPT_RAISE(stor::exception::IncompleteInitMessage, msg.str());
       }
       
-      if (! _headerFieldsCached) {cacheHeaderFields();}
-      return _adler32;
+      if (! headerFieldsCached_) {cacheHeaderFields();}
+      return adler32_;
     }
 
     uint32_t InitMsgData::do_outputModuleId() const
@@ -85,8 +85,8 @@ namespace stor
         XCEPT_RAISE(stor::exception::IncompleteInitMessage, msg.str());
       }
       
-      if (! _headerFieldsCached) {cacheHeaderFields();}
-      return _outputModuleId;
+      if (! headerFieldsCached_) {cacheHeaderFields();}
+      return outputModuleId_;
     }
 
     std::string InitMsgData::do_outputModuleLabel() const
@@ -99,8 +99,8 @@ namespace stor
         XCEPT_RAISE(stor::exception::IncompleteInitMessage, msg.str());
       }
       
-      if (! _headerFieldsCached) {cacheHeaderFields();}
-      return _outputModuleLabel;
+      if (! headerFieldsCached_) {cacheHeaderFields();}
+      return outputModuleLabel_;
     }
 
     void InitMsgData::do_hltTriggerNames(Strings& nameList) const
@@ -113,8 +113,8 @@ namespace stor
         XCEPT_RAISE(stor::exception::IncompleteInitMessage, msg.str());
       }
       
-      if (! _headerFieldsCached) {cacheHeaderFields();}
-      nameList = _hltTriggerNames;
+      if (! headerFieldsCached_) {cacheHeaderFields();}
+      nameList = hltTriggerNames_;
     }
 
     void InitMsgData::do_hltTriggerSelections(Strings& nameList) const
@@ -127,8 +127,8 @@ namespace stor
         XCEPT_RAISE(stor::exception::IncompleteInitMessage, msg.str());
       }
       
-      if (! _headerFieldsCached) {cacheHeaderFields();}
-      nameList = _hltTriggerSelections;
+      if (! headerFieldsCached_) {cacheHeaderFields();}
+      nameList = hltTriggerSelections_;
     }
 
     void InitMsgData::do_l1TriggerNames(Strings& nameList) const
@@ -141,8 +141,8 @@ namespace stor
         XCEPT_RAISE(stor::exception::IncompleteInitMessage, msg.str());
       }
       
-      if (! _headerFieldsCached) {cacheHeaderFields();}
-      nameList = _l1TriggerNames;
+      if (! headerFieldsCached_) {cacheHeaderFields();}
+      nameList = l1TriggerNames_;
     }
 
     inline void InitMsgData::parseI2OHeader()
@@ -150,19 +150,19 @@ namespace stor
       if ( parsable() )
       {
         I2O_SM_PREAMBLE_MESSAGE_FRAME *smMsg =
-          (I2O_SM_PREAMBLE_MESSAGE_FRAME*) _ref->getDataLocation();
-        _fragKey.code_ = _messageCode;
-        _fragKey.run_ = 0;
-        _fragKey.event_ = smMsg->hltTid;
-        _fragKey.secondaryId_ = smMsg->outModID;
-        _fragKey.originatorPid_ = smMsg->fuProcID;
-        _fragKey.originatorGuid_ = smMsg->fuGUID;
-        _rbBufferId = smMsg->rbBufferID;
-        _hltLocalId = smMsg->hltLocalId;
-        _hltInstance = smMsg->hltInstance;
-        _hltTid = smMsg->hltTid;
-        _fuProcessId = smMsg->fuProcID;
-        _fuGuid = smMsg->fuGUID;
+          (I2O_SM_PREAMBLE_MESSAGE_FRAME*) ref_->getDataLocation();
+        fragKey_.code_ = messageCode_;
+        fragKey_.run_ = 0;
+        fragKey_.event_ = smMsg->hltTid;
+        fragKey_.secondaryId_ = smMsg->outModID;
+        fragKey_.originatorPid_ = smMsg->fuProcID;
+        fragKey_.originatorGuid_ = smMsg->fuGUID;
+        rbBufferId_ = smMsg->rbBufferID;
+        hltLocalId_ = smMsg->hltLocalId;
+        hltInstance_ = smMsg->hltInstance;
+        hltTid_ = smMsg->hltTid;
+        fuProcessId_ = smMsg->fuProcID;
+        fuGuid_ = smMsg->fuGUID;
       }
     }
 
@@ -173,7 +173,7 @@ namespace stor
       bool useFirstFrag = false;
 
       // if there is only one fragment, use it
-      if (_fragmentCount == 1)
+      if (fragmentCount_ == 1)
       {
         useFirstFrag = true;
       }
@@ -197,32 +197,32 @@ namespace stor
       }
       else
       {
-        copyFragmentsIntoBuffer(_headerCopy);
-        msgView.reset(new InitMsgView(&_headerCopy[0]));
+        copyFragmentsIntoBuffer(headerCopy_);
+        msgView.reset(new InitMsgView(&headerCopy_[0]));
       }
       
-      _headerSize = msgView->headerSize();
-      _headerLocation = msgView->startAddress();
-      _adler32 = msgView->adler32_chksum();
-      _outputModuleId = msgView->outputModuleId();
-      _outputModuleLabel = msgView->outputModuleLabel();
-      msgView->hltTriggerNames(_hltTriggerNames);
-      msgView->hltTriggerSelections(_hltTriggerSelections);
-      msgView->l1TriggerNames(_l1TriggerNames);
+      headerSize_ = msgView->headerSize();
+      headerLocation_ = msgView->startAddress();
+      adler32_ = msgView->adler32_chksum();
+      outputModuleId_ = msgView->outputModuleId();
+      outputModuleLabel_ = msgView->outputModuleLabel();
+      msgView->hltTriggerNames(hltTriggerNames_);
+      msgView->hltTriggerSelections(hltTriggerSelections_);
+      msgView->l1TriggerNames(l1TriggerNames_);
 
-      _headerFieldsCached = true;
+      headerFieldsCached_ = true;
 
       #ifdef STOR_DEBUG_WRONG_ADLER
       double r = rand()/static_cast<double>(RAND_MAX);
       if (r < 0.01)
       {
         std::cout << "Simulating corrupt Adler calculation" << std::endl;
-        _headerSize += 3;
+        headerSize_ += 3;
       }
       else if (r < 0.02)
       {
         std::cout << "Simulating corrupt Adler entry" << std::endl;
-        _adler32 += r*10000;
+        adler32_ += r*10000;
       }
       #endif // STOR_DEBUG_WRONG_ADLER
     }

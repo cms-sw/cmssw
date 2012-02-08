@@ -214,10 +214,10 @@ def main():
         exit
     #print 'runList ',runList
     #print 'runDict ', runDict               
-    fig=Figure(figsize=(8,6),dpi=100)
+    fig=Figure(figsize=(6,4.5),dpi=100)
     m=matplotRender.matplotRender(fig)
 
-    logfig=Figure(figsize=(8,6),dpi=100)
+    logfig=Figure(figsize=(6,4.5),dpi=100)
     mlog=matplotRender.matplotRender(logfig)
     
     if args.action == 'peakperday':

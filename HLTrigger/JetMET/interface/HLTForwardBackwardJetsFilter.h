@@ -7,6 +7,10 @@
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
+namespace edm {
+   class ConfigurationDescriptions;
+}
+
 //
 // class decleration
 //
@@ -16,6 +20,7 @@ class HLTForwardBackwardJetsFilter : public HLTFilter {
    public:
       explicit HLTForwardBackwardJetsFilter(const edm::ParameterSet&);
       ~HLTForwardBackwardJetsFilter();
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
       virtual bool filter(edm::Event&, const edm::EventSetup&);
 
    private:

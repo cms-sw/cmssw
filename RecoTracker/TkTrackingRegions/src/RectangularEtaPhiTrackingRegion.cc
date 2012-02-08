@@ -52,8 +52,10 @@ checkRZOld(const DetLayer* layer, const TrackingRecHit *outerHit,const edm::Even
   iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
 
   bool isBarrel = (layer->location() == GeomDetEnumerators::barrel);
-   GlobalPoint ohit =  tracker->idToDet(outerHit->geographicalId())->surface().toGlobal(outerHit->localPosition());
-  PixelRecoPointRZ outer(ohit.perp(), ohit.z());
+  GlobalPoint ohit =  tracker->idToDet(outerHit->geographicalId())->surface().toGlobal(outerHit->localPosition());
+  float outerred_r = sqrt( sqr(ohit.x()-origin().x())+sqr(ohit.y()-origin().y()) );
+  //PixelRecoPointRZ outer(ohit.perp(), ohit.z());
+  PixelRecoPointRZ outer(outerred_r, ohit.z());
   
   float zMinOrigin = origin().z() - originZBound();
   float zMaxOrigin = origin().z() + originZBound();
@@ -282,9 +284,9 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(
 {
 
 
-
   //ESTIMATOR
   TrackingRegion::Hits result;
+
   const DetLayer * detLayer = layer->detLayer();
   OuterEstimator * est = 0;
   if (detLayer->location() == GeomDetEnumerators::barrel) {

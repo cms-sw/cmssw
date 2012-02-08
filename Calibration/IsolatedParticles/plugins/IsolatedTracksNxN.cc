@@ -26,8 +26,6 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
 IsolatedTracksNxN::IsolatedTracksNxN(const edm::ParameterSet& iConfig) {
 
@@ -630,23 +628,19 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
 	//e3x3P         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,1,1,   -100.0, -100.0);
 	//e5x5P         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,2,2,   -100.0, -100.0);
-
-	edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
-	iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
-
-	e7x7P         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,sevlv.product(),3,3,   -100.0, -100.0, tMinE_,tMaxE_);
-	e9x9P         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,sevlv.product(),4,4,   -100.0, -100.0, tMinE_,tMaxE_);
-	e11x11P       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,sevlv.product(),5,5,   -100.0, -100.0, tMinE_,tMaxE_);
+	e7x7P         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,3,3,   -100.0, -100.0, tMinE_,tMaxE_);
+	e9x9P         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,4,4,   -100.0, -100.0, tMinE_,tMaxE_);
+	e11x11P       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,5,5,   -100.0, -100.0, tMinE_,tMaxE_);
 	//e13x13P       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,6,6,   -100.0, -100.0);
-	e15x15P       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,sevlv.product(),7,7,   -100.0, -100.0, tMinE_,tMaxE_);
+	e15x15P       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,7,7,   -100.0, -100.0, tMinE_,tMaxE_);
 	//e21x21P       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,10,10, -100.0, -100.0);
 	//e25x25P       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,12,12, -100.0, -100.0);
 	//e31x31P       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,15,15, -100.0, -100.0);
 	
-	e7x7_10SigP   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,sevlv.product(),3,3,   0.030,  0.150, tMinE_,tMaxE_);
-	e9x9_10SigP   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,sevlv.product(),4,4,   0.030,  0.150, tMinE_,tMaxE_);
-	e11x11_10SigP = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,sevlv.product(),5,5,   0.030,  0.150, tMinE_,tMaxE_);
-	e15x15_10SigP = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,sevlv.product(),7,7,   0.030,  0.150, tMinE_,tMaxE_);
+	e7x7_10SigP   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,3,3,   0.030,  0.150, tMinE_,tMaxE_);
+	e9x9_10SigP   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,4,4,   0.030,  0.150, tMinE_,tMaxE_);
+	e11x11_10SigP = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,5,5,   0.030,  0.150, tMinE_,tMaxE_);
+	e15x15_10SigP = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,7,7,   0.030,  0.150, tMinE_,tMaxE_);
 
 	/*	
 	e7x7_15SigP   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,3,3,   0.045,  0.225);
@@ -654,25 +648,25 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	e11x11_15SigP = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,5,5,   0.045,  0.225);
 	e15x15_15SigP = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,7,7,   0.045,  0.225);
 	*/
-	e7x7_15SigP   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology, sevlv.product(),ttMap, 3,3, 0.20,0.45, tMinE_,tMaxE_);
-	e9x9_15SigP   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology, sevlv.product(),ttMap, 4,4, 0.20,0.45, tMinE_,tMaxE_);
-	e11x11_15SigP = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,sevlv.product(), ttMap, 5,5, 0.20,0.45, tMinE_,tMaxE_);
-	e15x15_15SigP = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology, sevlv.product(),ttMap, 7,7, 0.20,0.45, tMinE_,tMaxE_, false);
+	e7x7_15SigP   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology, ttMap, 3,3, 0.20,0.45, tMinE_,tMaxE_);
+	e9x9_15SigP   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology, ttMap, 4,4, 0.20,0.45, tMinE_,tMaxE_);
+	e11x11_15SigP = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology, ttMap, 5,5, 0.20,0.45, tMinE_,tMaxE_);
+	e15x15_15SigP = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology, ttMap, 7,7, 0.20,0.45, tMinE_,tMaxE_, false);
 	
-	e7x7_20SigP   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,sevlv.product(),3,3,   0.060,  0.300, tMinE_,tMaxE_);
-	e9x9_20SigP   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,sevlv.product(),4,4,   0.060,  0.300, tMinE_,tMaxE_);
-	e11x11_20SigP = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,sevlv.product(),5,5,   0.060,  0.300, tMinE_,tMaxE_);
-	e15x15_20SigP = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,sevlv.product(),7,7,   0.060,  0.300, tMinE_,tMaxE_);
+	e7x7_20SigP   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,3,3,   0.060,  0.300, tMinE_,tMaxE_);
+	e9x9_20SigP   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,4,4,   0.060,  0.300, tMinE_,tMaxE_);
+	e11x11_20SigP = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,5,5,   0.060,  0.300, tMinE_,tMaxE_);
+	e15x15_20SigP = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,7,7,   0.060,  0.300, tMinE_,tMaxE_);
 	
-	e7x7_25SigP   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,sevlv.product(),3,3,   0.075,  0.375, tMinE_,tMaxE_);
-	e9x9_25SigP   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,sevlv.product(),4,4,   0.075,  0.375, tMinE_,tMaxE_);
-	e11x11_25SigP = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,sevlv.product(),5,5,   0.075,  0.375, tMinE_,tMaxE_);
-	e15x15_25SigP = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,sevlv.product(),7,7,   0.075,  0.375, tMinE_,tMaxE_);
+	e7x7_25SigP   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,3,3,   0.075,  0.375, tMinE_,tMaxE_);
+	e9x9_25SigP   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,4,4,   0.075,  0.375, tMinE_,tMaxE_);
+	e11x11_25SigP = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,5,5,   0.075,  0.375, tMinE_,tMaxE_);
+	e15x15_25SigP = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,7,7,   0.075,  0.375, tMinE_,tMaxE_);
 	
-	e7x7_30SigP   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,sevlv.product(),3,3,   0.090,  0.450, tMinE_,tMaxE_);
-	e9x9_30SigP   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,sevlv.product(),4,4,   0.090,  0.450, tMinE_,tMaxE_);
-	e11x11_30SigP = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,sevlv.product(),5,5,   0.090,  0.450, tMinE_,tMaxE_);
-	e15x15_30SigP = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,sevlv.product(),7,7,   0.090,  0.450, tMinE_,tMaxE_);
+	e7x7_30SigP   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,3,3,   0.090,  0.450, tMinE_,tMaxE_);
+	e9x9_30SigP   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,4,4,   0.090,  0.450, tMinE_,tMaxE_);
+	e11x11_30SigP = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,5,5,   0.090,  0.450, tMinE_,tMaxE_);
+	e15x15_30SigP = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,7,7,   0.090,  0.450, tMinE_,tMaxE_);
 	if(myverbose_ == 2) {
 	  std::cout << "clean  ecal rechit " << std::endl;
 	  std::cout<<"e3x3 "<<e3x3P.first<<" e9x9 "<<e9x9P.first<<" e15x15 " << e15x15P.first << " e31x31 "<<e31x31P.first<<std::endl;

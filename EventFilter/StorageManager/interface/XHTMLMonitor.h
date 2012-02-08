@@ -1,36 +1,45 @@
-// $Id: XHTMLMonitor.h,v 1.4 2009/07/14 10:34:44 dshpakov Exp $
+// $Id: XHTMLMonitor.h,v 1.5.16.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: XHTMLMonitor.h 
 
-#ifndef XHTMLMONITOR_H
-#define XHTMLMONITOR_H
+#ifndef EventFilter_StorageManager_XHTMLMonitor_h
+#define EventFilter_StorageManager_XHTMLMonitor_h
 
-/**
-   Controls the use of XHTMLMaker (xerces is not thread-safe)
+#include "boost/thread/mutex.hpp"
 
-   $Author: dshpakov $
-   $Revision: 1.4 $
-   $Date: 2009/07/14 10:34:44 $
- */
-
-class XHTMLMonitor
-
-{
-
-public:
+namespace stor {
 
   /**
-     Constructor
+    Controls the use of XHTMLMaker (xerces is not thread-safe)
+
+    $Author: mommsen $
+    $Revision: 1.5.16.1 $
+    $Date: 2011/03/07 11:33:04 $
   */
-  XHTMLMonitor();
+  
+  class XHTMLMonitor
+  {
+    
+  public:
+    
+    /**
+      Constructor
+    */
+    XHTMLMonitor();
 
-  /**
-     Destructor
-  */
-  ~XHTMLMonitor();
+    /**
+      Destructor
+    */
+    ~XHTMLMonitor();
 
-};
+  private:
 
-#endif
+    static boost::mutex xhtmlMakerMutex_;
+
+  };
+
+} // namespace stor
+
+#endif // EventFilter_StorageManager_XHTMLMonitor_h
 
 
 /// emacs configuration

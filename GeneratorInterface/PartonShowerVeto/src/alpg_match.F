@@ -26,7 +26,7 @@ c process code
       integer itopprc
 c--event file data
       integer Nunit,NunitOut,NunitIni
-      character*512 filename,tmpstr
+      character*512 filename
 c total number of input events
       common/AHio/Nunit,NunitOut,NunitIni,filename
 c inputs for the matching algorithm
@@ -353,9 +353,9 @@ c global event cuts
      +        ptlmin,etalmax,drlmin,metmin,mllmin,mllmax
       CHARACTER *3 CSHO
 C     CALSIM AND JET VARIABLES                             
-      INTEGER NCY,NCPHI,NJMAX,JETNO,NCJET
+      INTEGER NCY,NCPHI
       DOUBLE PRECISION YCMIN,YCMAX,PI,ET,DELPHI,CPHCAL,SPHCAL,DELY,
-     &     CTHCAL,STHCAL,PCJET,ETJET
+     &     CTHCAL,STHCAL
       PARAMETER (NCY=100)
       PARAMETER (NCPHI=60,PI=3.141593D0)
       COMMON/CALOR/DELY,DELPHI,ET(NCY,NCPHI),
@@ -368,9 +368,7 @@ C
       COMMON/SHVETO/IEND,INORAD(MAXNUP)
 c     
 C     LOCAL VARIABLES
-      CHARACTER*70 STDUMMY
       INTEGER I,NTMP,IHEPMIN
-      DOUBLE PRECISION TMP
 C     USER ACCESS TO MATCHING PARAMETERS
       INTEGER IUSRMAT
       PARAMETER (IUSRMAT=1)
@@ -562,7 +560,7 @@ c process code
       integer itopprc
 c--event file data
       integer Nunit,NunitOut,NunitIni
-      character*512 filename,tmpstr
+      character*512 filename
 c total number of input events
       common/AHio/Nunit,NunitOut,NunitIni,filename
 c inputs for the matching algorithm
@@ -786,7 +784,7 @@ C            WEIGHT BY SIN(THETA)
         ET(IY,IPHI)=ET(IY,IPHI)+EIP*STHCAL(IY)
       ENDIF
   200 CONTINUE
-  999 END
+      END
       SUBROUTINE GETJET_ALPGEN(RJET,EJCUT,ETAJCUT)
 C                
 C          SIMPLE JET-FINDING ALGORITHM (SIMILAR TO UA1).
