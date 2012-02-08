@@ -1020,15 +1020,15 @@ void ElectronMcSignalValidator::book()
   h1_ele_provenance_endcaps = bookH1withSumw2("provenance_endcaps","ele provenance endcaps",5,-2.,3.);
 
   // pflow isolation variables
-  h1_ele_chargedHadronIso = bookH1withSumw2("chargedHadronIso","chargedHadronIso",100,0.0,20.,"ELE_LOGY E1 P);
-  h1_ele_chargedHadronIso_barrel = bookH1withSumw2("chargedHadronIso_barrel","chargedHadronIso for barrel",100,0.0,20.,"ELE_LOGY E1 P);
-  h1_ele_chargedHadronIso_endcaps = bookH1withSumw2("chargedHadronIso_endcaps","chargedHadronIso for endcaps",100,0.0,20.,"ELE_LOGY E1 P); 
-  h1_ele_neutralHadronIso = bookH1withSumw2("neutralHadronIso","neutralHadronIso",21,0.0,20.,"ELE_LOGY E1 P);
-  h1_ele_neutralHadronIso_barrel = bookH1withSumw2("neutralHadronIso_barrel","neutralHadronIso for barrel",21,0.0,20.,"ELE_LOGY E1 P);
-  h1_ele_neutralHadronIso_endcaps = bookH1withSumw2("neutralHadronIso_endcaps","neutralHadronIso for endcaps",21,0.0,20.,"ELE_LOGY E1 P);
-  h1_ele_photonIso = bookH1withSumw2("photonIso","photonIso",100,0.0,20.,"ELE_LOGY E1 P);
-  h1_ele_photonIso_barrel = bookH1withSumw2("photonIso_barrel","photonIso for barrel",100,0.0,20.,"ELE_LOGY E1 P);
-  h1_ele_photonIso_endcaps = bookH1withSumw2("photonIso_endcaps","photonIso for endcaps",100,0.0,20.,"ELE_LOGY E1 P);
+  h1_ele_chargedHadronIso = bookH1withSumw2("chargedHadronIso","chargedHadronIso",100,0.0,20.,"ELE_LOGY E1 P");
+  h1_ele_chargedHadronIso_barrel = bookH1withSumw2("chargedHadronIso_barrel","chargedHadronIso for barrel",100,0.0,20.,"ELE_LOGY E1 P");
+  h1_ele_chargedHadronIso_endcaps = bookH1withSumw2("chargedHadronIso_endcaps","chargedHadronIso for endcaps",100,0.0,20.,"ELE_LOGY E1 P"); 
+  h1_ele_neutralHadronIso = bookH1withSumw2("neutralHadronIso","neutralHadronIso",21,0.0,20.,"ELE_LOGY E1 P");
+  h1_ele_neutralHadronIso_barrel = bookH1withSumw2("neutralHadronIso_barrel","neutralHadronIso for barrel",21,0.0,20.,"ELE_LOGY E1 P");
+  h1_ele_neutralHadronIso_endcaps = bookH1withSumw2("neutralHadronIso_endcaps","neutralHadronIso for endcaps",21,0.0,20.,"ELE_LOGY E1 P");
+  h1_ele_photonIso = bookH1withSumw2("photonIso","photonIso",100,0.0,20.,"ELE_LOGY E1 P");
+  h1_ele_photonIso_barrel = bookH1withSumw2("photonIso_barrel","photonIso for barrel",100,0.0,20.,"ELE_LOGY E1 P");
+  h1_ele_photonIso_endcaps = bookH1withSumw2("photonIso_endcaps","photonIso for endcaps",100,0.0,20.,"ELE_LOGY E1 P");
 
   // conversion rejection information
   h1_ele_convFlags = bookH1withSumw2("convFlags","conversion rejection flag",5,-1.5,3.5);
