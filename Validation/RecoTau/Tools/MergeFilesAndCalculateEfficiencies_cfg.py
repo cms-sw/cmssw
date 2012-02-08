@@ -17,12 +17,13 @@ import os
 import sys
 import FWCore.ParameterSet.Config as cms
 
-if len(sys.argv) < 4:
-   print "Error. Expected at least 2 arguments\n\nUsage: MergeFilesAndCalculateEfficiencies.py OutputFile InputFileGlob"
+if len(sys.argv) < 5:
+   print "Error. Expected at least 3 arguments\n\nUsage: MergeFilesAndCalculateEfficiencies.py dataType OutputFile InputFileGlob"
    sys.exit()
 
-OutputFile = sys.argv[2]
-Inputs     = sys.argv[3:]
+dataType   = sys.argv[2]
+OutputFile = sys.argv[3]
+Inputs     = sys.argv[4:]
 
 for aFile in Inputs:
    if not os.path.exists(aFile):
@@ -60,7 +61,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.DQMStore = cms.Service("DQMStore")
-process.load("Validation.RecoTau.RecoTauValidation_cfi")
+process.load("Validation.RecoTau.dataTypes.ValidateTausOn%s_cff.py"%dataType)
 
 process.loadFile   = cms.EDAnalyzer("DQMFileLoader",
       myFiles = cms.PSet(
@@ -76,7 +77,7 @@ process.saveTauEff = cms.EDAnalyzer("DQMSimpleFileSaver",
 
 process.p = cms.Path(
       process.loadFile*
-      process.TauEfficiencies*
+      getattr(process,'TauEfficiencies%s'%dataType)*
       process.saveTauEff
       )
 
