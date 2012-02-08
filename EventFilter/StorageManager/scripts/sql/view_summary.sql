@@ -268,7 +268,7 @@ BEGIN
 END TRANS_RATE_CHECK;
 /
 
-CREATE or REPLACE FUNCTION DELETED_CHECK (n_hosts in number, Start_time in DATE,  s_closed in number, s_checked in number, s_repacked in number, s_notrepacked in number, s_deleted in number, LastTrans in DATE) 
+CREATE or REPLACE FUNCTION DELETED_CHECK (n_hosts in number, Start_time in DATE, s_created in number, s_closed in number, s_checked in number, s_repacked in number, s_notrepacked in number, s_deleted in number, LastTrans in DATE) 
    RETURN NUMBER AS
    result_1      number;
    --delete      frequency
@@ -282,7 +282,7 @@ BEGIN
 
     result_1 := 0;
     --: if all files "checked" are deleted then nothing to do:
-    IF (  s_checked = s_deleted OR s_repacked = s_deleted ) THEN
+    IF (  s_checked = s_deleted OR s_repacked = s_deleted OR s_created = s_deleted ) THEN
 	return result_1; 
     END IF;
 
@@ -331,9 +331,9 @@ BEGIN
 
           DBMS_OUTPUT.PUT_LINE (s_deleted/s_checked || '  < 1.0 - (' || toffset ||' -X*' || dfreq||'/'||time_diff(sysdate, LastTrans )||')/'  ||time_diff( LastTrans, Start_time ) );
 
-        IF (   s_deleted/s_checked < 1.0 - GREATEST(toffset +  2*dfreq - time_diff(sysdate, LastTrans ), 0.0)/time_diff( LastTrans, Start_time ) ) THEN
+        IF (   s_deleted/s_checked < 1.0 - GREATEST(toffset +  5*dfreq - time_diff(sysdate, LastTrans ), 0.0)/time_diff( LastTrans, Start_time ) ) THEN
           result_1 := 2;
-          IF ( s_deleted/s_checked < 1.0 - GREATEST(toffset + 12*dfreq - time_diff(sysdate, LastTrans ), 0.0)/time_diff( LastTrans, Start_time ) ) THEN
+          IF ( s_deleted/s_checked < 1.0 - GREATEST(toffset + 21*dfreq - time_diff(sysdate, LastTrans ), 0.0)/time_diff( LastTrans, Start_time ) ) THEN
              result_1 := 3;
           END IF;
         END IF;
@@ -473,7 +473,7 @@ FROM (  SELECT  TO_CHAR( RUNNUMBER )          AS RUN_NUMBER,
 	      TO_CHAR ( TRANSFERRED_CHECK(MAX(STOP_WRITE_TIME), MAX(STOP_TRANS_TIME), SUM(NVL(s_NEW,0)), SUM(NVL(s_Copied,0)), NVL(MAX(N_INSTANCE), MAX(M_INSTANCE) + 1)   ) )   AS TRANSFERRED_STATUS,
 	      TO_CHAR ( CHECKED_CHECK(MAX(STOP_WRITE_TIME),  MAX(STOP_TRANS_TIME), SUM(NVL(s_CHECKED,0)),  SUM(NVL(s_COPIED,0)), NVL(MAX(N_INSTANCE), MAX(M_INSTANCE) + 1) ) )   AS CHECKED_STATUS,
 	      TO_CHAR ( REPACKED_CHECK(MAX(STOP_WRITE_TIME), MAX(STOP_TRANS_TIME), SUM(NVL(s_REPACKED,0)),  SUM(NVL(s_NOTREPACKED,0)), SUM(NVL(s_CHECKED,0)), SUM(NVL(s_Deleted,0)) ) )   AS REPACKED_STATUS,
-	      TO_CHAR ( DELETED_CHECK( COUNT(DISTINCT N_INSTANCE), MIN(START_WRITE_TIME),  SUM(NVL(s_injected,0)),  SUM(NVL(s_Checked, 0)),  SUM(NVL(s_Repacked, 0)),  SUM(NVL(s_NotRepacked, 0)),  SUM(NVL(s_Deleted, 0)), MAX(STOP_TRANS_TIME) ) ) AS DELETED_STATUS,
+	      TO_CHAR ( DELETED_CHECK( COUNT(DISTINCT N_INSTANCE), MIN(START_WRITE_TIME),    SUM(NVL(s_created,0)), SUM(NVL(s_injected,0)),  SUM(NVL(s_Checked, 0)),  SUM(NVL(s_Repacked, 0)),  SUM(NVL(s_NotRepacked, 0)),  SUM(NVL(s_Deleted, 0)), MAX(STOP_TRANS_TIME) ) ) AS DELETED_STATUS,
               MAX(STOP_WRITE_TIME) AS MAX_STOP_WRITE
          FROM (  SELECT  RUNNUMBER, STREAM, SETUPLABEL, APP_VERSION, S_LUMISECTION, 
                  S_FILESIZE, S_FILESIZE2D, S_FILESIZE2T0, S_NEVENTS, S_CREATED, S_INJECTED, 
