@@ -191,7 +191,7 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
   bool filter_HLT          = false;
   bool filter_NPMTHits     = false;
   bool filter_NMultiPMTHits       = false;
-  bool filter_PKAM                = false;
+//  bool filter_PKAM                = false;
   bool filter_HFMET               = false;
   bool filter_NoiseSummary        = false;
   bool filter_NoiseSummaryEMF     = false;
@@ -724,7 +724,7 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
 
   if ((tC.size() > 100) && (clustColl.size() > 1000)) {
     _passPKAM++;
-    filter_PKAM = true;
+//    filter_PKAM = true;
   }
   //  std::cout << "N Tracks =  "  << tC.size() 
   //	    << " N Cluster = " << clustColl.size() << std::endl ;

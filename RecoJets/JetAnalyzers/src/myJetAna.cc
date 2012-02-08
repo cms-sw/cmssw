@@ -599,7 +599,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
  
   using namespace edm;
 
-  bool Pass, Pass_HFTime, Pass_DiJet, Pass_BunchCrossing, Pass_Trigger, Pass_Vertex;
+  bool Pass, Pass_HFTime, Pass_DiJet, Pass_BunchCrossing, Pass_Vertex;
 
   int EtaOk10, EtaOk13, EtaOk40;
 
@@ -607,7 +607,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 
   double HFRecHit[100][100][2];
   int HFRecHitFlag[100][100][2];
-  int HFRecHitFlagN[100][100][2];
 
   double towerEtCut, towerECut, towerE;
 
@@ -635,8 +634,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   double HFThreshold3   = 40.0;
   //double HOThreshold3   = 40.0;
   //double EBEEThreshold3 = 40.0;
-
-  float pt1;
 
   float minJetPt = 20.;
   float minJetPt10 = 10.;
@@ -717,14 +714,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
       //	   (triggerNames.triggerName(i) == "HLT_MinBias")   || 
       //	   (triggerNames.triggerName(i) == "HLT_MinBiasHcal") )  {
 
-      /***
-      if (triggerNames.triggerName(i) == "HLT_MinBiasBSC") {
-	Pass_Trigger = true;
-      } else {
-	Pass_Trigger = false;
-      }
-      ****/
-
     }
       
   } else {
@@ -740,8 +729,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
     edm::LogInfo("myJetAna") << "TriggerResults::HLT not found, "
       "automatically select events";
 
-    Pass_Trigger = true;
-
     //return;
   }
 
@@ -752,16 +739,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   evt.getByLabel("gtDigis",gtRecord);
   const TechnicalTriggerWord tWord = gtRecord->technicalTriggerWord();
 
-  if (gtRecord.isValid()) {
-    if (tWord.at(40)) {
-      Pass_Trigger = true;
-    } else {
-      Pass_Trigger = false;
-    }
-  } else {
-    Pass_Trigger = false;
-  }
-  ****/
+  ***/
 
 
   // *************************
@@ -836,8 +814,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
       HFRecHit[i][j][1] = -10.;
       HFRecHitFlag[i][j][0]  = 0;
       HFRecHitFlag[i][j][1]  = 0;
-      HFRecHitFlagN[i][j][0] = 0;
-      HFRecHitFlagN[i][j][1] = 0;
     }
   }
 
@@ -990,7 +966,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   // **************************
   double highestPt;
   double nextPt;
-  double dphi;
+  // double dphi;
   int    nDiJet, nJet;
 
   nJet      = 0;
@@ -1017,10 +993,10 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   
 
   if (nDiJet > 1) {
-    dphi = deltaPhi(p4tmp[0].phi(), p4tmp[1].phi());
+    //dphi = deltaPhi(p4tmp[0].phi(), p4tmp[1].phi());
     Pass_DiJet = true;
   } else {
-    dphi = INVALID;
+    // dphi = INVALID;
     Pass_DiJet = false;
   }
       
@@ -1533,7 +1509,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
       h_jet1Pt->Fill( cal->pt() );
       h_jet1Eta->Fill( cal->eta() );
       if (JetLoPass != 0) h_jet1PtHLT->Fill( cal->pt() );
-      pt1 = cal->pt();
       p4tmp[0] = cal->p4();
       if ( fabs(cal->eta()) < 1.0) EtaOk10++;
       if ( fabs(cal->eta()) < 1.3) EtaOk13++;
@@ -1664,8 +1639,10 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   double sumTowerAllEx(0);
   double sumTowerAllEy(0);
 
-  double HCALTotalE, HBTotalE, HETotalE, HOTotalE, HFTotalE;
-  double ECALTotalE, EBTotalE, EETotalE;
+  // double HCALTotalE;
+  double HBTotalE, HETotalE, HOTotalE, HFTotalE;
+  // double ECALTotalE;
+  double EBTotalE, EETotalE;
 
   std::vector<CaloTowerPtr>   UsedTowerList;
   std::vector<CaloTower>      TowerUsedInJets;
@@ -1677,7 +1654,8 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 
   edm::Handle<HcalSourcePositionData> spd;
 
-  HCALTotalE = HBTotalE = HETotalE = HOTotalE = HFTotalE = 0.;
+  // HCALTotalE = 0.;
+  HBTotalE = HETotalE = HOTotalE = HFTotalE = 0.;
   try {
     std::vector<edm::Handle<HBHERecHitCollection> > colls;
     evt.getManyByType(colls);
@@ -2072,7 +2050,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 	   //	   if (longF > 110.)  {
 	   //	   if (longF > 50.)  {
 	   if (longF > (162.4-10.19*abs(ieta-41)+.21*abs(ieta-41)*abs(ieta-41)) )  {
-	     HFRecHitFlagN[ieta+41][iphi][0] = 1;
 	     HFEtaFlaggedLN->Fill(ieta-41);
 
 	     HFLEneAllF->Fill(longF);
@@ -2082,7 +2059,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 	   //	   if (shortF > 70.)  {
 	   //	   if (shortF > 50.)  {
 	   if (shortF > (129.9-6.61*abs(ieta-41)+0.1153*abs(ieta-41)*abs(ieta-41)) ) {
-	     HFRecHitFlagN[ieta+41][iphi][1] = 1;
 	     HFEtaFlaggedSN->Fill(ieta-41);
 
 	     HFSEneAllF->Fill(shortF);
@@ -2194,8 +2170,9 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
     cout << "No HO RecHits." << endl;
   }
 
-  HCALTotalE = HBTotalE + HETotalE + HFTotalE + HOTotalE;
-  ECALTotalE = EBTotalE = EETotalE = 0.;
+  // HCALTotalE = HBTotalE + HETotalE + HFTotalE + HOTotalE;
+  // ECALTotalE = 0.;
+  EBTotalE = EETotalE = 0.;
 
 
   try {
@@ -2299,7 +2276,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   }
   ******/
 
-  ECALTotalE = EBTotalE + EETotalE;
+  // ECALTotalE = EBTotalE + EETotalE;
 
   if ( (EBTotalE > 320000)  && (EBTotalE < 330000) && 
        (HBTotalE > 2700000) && (HBTotalE < 2800000) ) {
