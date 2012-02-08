@@ -97,14 +97,12 @@ HLTJetCollectionsFilter<jetType>::hltFilter(edm::Event& iEvent, const edm::Event
     //empty the good jets collection
     goodJetRefs.clear();
 
-    JetRef ref;
     typename JetRefVector::const_iterator jet(refVector.begin());
     for (; jet != refVector.end(); jet++) {
       JetRef jetRef(*jet);
       if (jetRef->pt() >= minJetPt_ && fabs(jetRef->eta()) <= maxAbsJetEta_){
     	  numberOfGoodJets++;
-    	  ref = JetRef (refVector, distance(refVector.begin(), jet));
-    	  goodJetRefs.push_back(ref);
+    	  goodJetRefs.push_back(jetRef);
       }
     }
     if (numberOfGoodJets >= minNJets_) {
@@ -115,7 +113,7 @@ HLTJetCollectionsFilter<jetType>::hltFilter(edm::Event& iEvent, const edm::Event
 
   //fill the filter object
   for (unsigned int refIndex = 0; refIndex < goodJetRefs.size(); ++refIndex) {
-    filterproduct.addObject(static_cast<trigger::TriggerObjectType>(triggerType_), goodJetRefs.at(refIndex));
+    filterproduct.addObject(triggerType_,goodJetRefs.at(refIndex));
   }
 
   return accept;
