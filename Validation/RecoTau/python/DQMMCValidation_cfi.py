@@ -44,3 +44,4 @@ runTauEff = cms.Sequence(
     TauEfficienciesZTT
     )
 
+makeBetterPlots = cms.Sequence() #Not used anymore/by now
