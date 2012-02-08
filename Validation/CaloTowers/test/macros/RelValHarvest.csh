@@ -18,16 +18,21 @@
 
 #Check for correct number of arguments
 if ($#argv<3) then
-    echo "Script needs 3 input variables: RelValDataSetList.txt abbrOFvalidation relvalDIR"
+    echo "Script needs 3 input variables: RelValDataSetList.txt fullReleaseName relvalDIR"
     echo "RelValDataSetList.txt : text file from relval announcement"
-    echo "abbrOFvalidation : 520pre3"
+    echo "fullReleaseName : CMSSW_5_2_0_pre3"
     echo "relvalDIR : relval directory to get the harvested DQM files, e.g., CMSSW_5_2_x"
     exit
 endif
 
+source /uscmst1/prod/grid/gLite_SL5.csh
+voms-proxy-init -voms cms
+
 set filein=$1
 set label=$2
 set relvalDIR=$3
+
+set label=`echo ${label} | sed 's/CMSSW//g' | sed 's/_//g'`
 
 cat $filein | grep RelValTTbar            | grep "GEN-SIM-RECO"              >  temp.tmp
 cat $filein | grep RelValQCD_Pt_80_120    | grep "GEN-SIM-RECO"              >> temp.tmp
