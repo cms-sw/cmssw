@@ -33,14 +33,14 @@ options.register( 'eventType',
                         \n\t\t\tQCD\
                         \n\t\t\tZEE\
                         \n\t\t\tZMM\
-                        \n\t\t\tFastSimZTT\
-                        \n\t\t\tFastSimZEE\
+                        \n\t\t\tZTTFastSim\
+                        \n\t\t\tZEEFastSim\
                         \n\t\t\tRealData          (Jets faking taus)\
                         \n\t\t\tRealMuonsData     (Iso Muons faking taus)\
                         \n\t\t\tRealElectronsData (Iso Electrons faking taus)\n"
                  )
 
-allowedOptions['eventType'] = [ 'ZTT', 'QCD', 'ZEE', 'ZMM', 'RealData', 'RealMuonsData', 'RealElectronsData','FastSimZTT','FastSimZEE']
+allowedOptions['eventType'] = [ 'ZTT', 'QCD', 'ZEE', 'ZMM', 'RealData', 'RealMuonsData', 'RealElectronsData','ZTTFastSim','ZEEFastSim']
 
 options.register( 'label',
                   "none",
