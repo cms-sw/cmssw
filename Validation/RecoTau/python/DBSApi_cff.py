@@ -31,10 +31,10 @@ datasetDict={
     'RealMuonsData'     : { 'primds' : 'Mu',  'tier' : 'RECO', 'dataset' : '*RelVal*'},
     'RealElectronsData' : { 'primds' : 'Electron', 'tier' : 'RECO', 'dataset' : '*RelVal*'},
     #FastSim
-    'FastSimZTT' : { 'primds' : 'RelValZTT', 'tier' : 'GEN-SIM-DIGI-RECO','dataset' : '*FastSim*',},
+    'ZTTFastSim' : { 'primds' : 'RelValZTT', 'tier' : 'GEN-SIM-DIGI-RECO','dataset' : '*FastSim*',},
     #'FastSimQCD' : { 'primds' : 'RelValQCD_FlatPt_15_3000', 'tier' : 'GEN-SIM-DIGI-RECO','dataset' : '*FastSim*',}, NOT YET IN RELVAL CONTENT
     #'FastSimZMM' : { 'primds' : 'RelValZMM', 'tier' : 'GEN-SIM-DIGI-RECO','dataset' : '*FastSim*',},
-    'FastSimZEE' : { 'primds' : 'RelValZEE', 'tier' : 'GEN-SIM-DIGI-RECO','dataset' : '*FastSim*',},
+    'ZEEFastSim' : { 'primds' : 'RelValZEE', 'tier' : 'GEN-SIM-DIGI-RECO','dataset' : '*FastSim*',},
     }
 
 def FillSource(eventType,source):
