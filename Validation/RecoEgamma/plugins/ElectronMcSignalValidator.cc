@@ -548,7 +548,6 @@ ElectronMcSignalValidator::ElectronMcSignalValidator( const edm::ParameterSet & 
   h1_ele_convDcot_all = 0 ;
   h1_ele_convRadius = 0 ;
   h1_ele_convRadius_all = 0 ;
-
  }
 
 void ElectronMcSignalValidator::book()
@@ -691,12 +690,12 @@ void ElectronMcSignalValidator::book()
   h2_ele_PhiMnPhiTrueVsEta = bookH2("PhiMnPhiTrueVsEta","ele momentum  phi - gen  phi vs eta",eta2D_nbin,eta_min,eta_max,dphi_nbin/2,dphi_min,dphi_max);
   h2_ele_PhiMnPhiTrueVsPhi = bookH2("PhiMnPhiTrueVsPhi","ele momentum  phi - gen  phi vs phi",phi2D_nbin,phi_min,phi_max,dphi_nbin/2,dphi_min,dphi_max);
   h2_ele_PhiMnPhiTrueVsPt = bookH2("PhiMnPhiTrueVsPt","ele momentum  phi - gen  phi vs pt",pt2D_nbin,0.,pt_max,dphi_nbin/2,dphi_min,dphi_max);
-  h1_ele_ecalEnergyError = bookH1withSumw2("ecalEnergyError","",100,0,100);		    
-  h1_ele_ecalEnergyError_barrel = bookH1withSumw2("ecalEnergyError_barrel","",100,0,100);      
-  h1_ele_ecalEnergyError_endcaps = bookH1withSumw2("ecalEnergyError_endcaps","",100,0,100);     
-  h1_ele_combinedP4Error = bookH1withSumw2("combinedP4Error","",100,0,100);             
-  h1_ele_combinedP4Error_barrel = bookH1withSumw2("combinedP4Error_barrel","",100,0,100);      
-  h1_ele_combinedP4Error_endcaps = bookH1withSumw2("combinedP4Error_endcaps","",100,0,100);     
+  h1_ele_ecalEnergyError = bookH1withSumw2("ecalEnergyError","",30,0,30);		    
+  h1_ele_ecalEnergyError_barrel = bookH1withSumw2("ecalEnergyError_barrel","",30,0,30);      
+  h1_ele_ecalEnergyError_endcaps = bookH1withSumw2("ecalEnergyError_endcaps","",30,0,30);     
+  h1_ele_combinedP4Error = bookH1withSumw2("combinedP4Error","",30,0,30);             
+  h1_ele_combinedP4Error_barrel = bookH1withSumw2("combinedP4Error_barrel","",30,0,30);      
+  h1_ele_combinedP4Error_endcaps = bookH1withSumw2("combinedP4Error_endcaps","",30,0,30);     
 
   // matched electron, superclusters
   setBookPrefix("h_scl") ;
@@ -960,6 +959,8 @@ void ElectronMcSignalValidator::book()
   h1_ele_hcalTowerSumEt_dr03_depth1_barrel = bookH1withSumw2("hcalTowerSumEt_dr03_depth1_barrel","hcal depth1 isolation sum, dR=0.3, barrel",100,0.0,20.,"Hcal1IsoSum, cone 0.3 (GeV)","Events","ELE_LOGY E1 P");
   h1_ele_hcalTowerSumEt_dr03_depth1_endcaps = bookH1withSumw2("hcalTowerSumEt_dr03_depth1_endcaps","hcal depth1 isolation sum, dR=0.3, endcaps",100,0.0,20.,"Hcal1IsoSum, cone 0.3 (GeV)","Events","ELE_LOGY E1 P");
   h1_ele_hcalTowerSumEt_dr03_depth2 = bookH1withSumw2("hcalTowerSumEt_dr03_depth2","hcal depth2 isolation sum, dR=0.3",100,0.0,20.,"Hcal2IsoSum, cone 0.3 (GeV)","Events","ELE_LOGY E1 P");
+  h1_ele_hcalTowerSumEt_dr03_depth2_barrel = bookH1withSumw2("hcalTowerSumEt_dr03_depth2_barrel","hcal depth2 isolation sum, dR=0.3",100,0.0,20.,"Hcal2IsoSum, cone 0.3 (GeV)","Events","ELE_LOGY E1 P");
+  h1_ele_hcalTowerSumEt_dr03_depth2_endcaps = bookH1withSumw2("hcalTowerSumEt_dr03_depth2_endcaps","hcal depth2 isolation sum, dR=0.3",100,0.0,20.,"Hcal2IsoSum, cone 0.3 (GeV)","Events","ELE_LOGY E1 P");
   h1_ele_tkSumPt_dr04 = bookH1withSumw2("tkSumPt_dr04","tk isolation sum, dR=0.4",100,0.0,20.,"TkIsoSum, cone 0.4 (GeV/c)","Events","ELE_LOGY E1 P");
   h1_ele_tkSumPt_dr04_barrel = bookH1withSumw2("tkSumPt_dr04_barrel","tk isolation sum, dR=0.4, barrel",100,0.0,20.,"TkIsoSum, cone 0.4 (GeV/c)","Events","ELE_LOGY E1 P");
   h1_ele_tkSumPt_dr04_endcaps = bookH1withSumw2("tkSumPt_dr04_endcaps","tk isolation sum, dR=0.4, endcaps",100,0.0,20.,"TkIsoSum, cone 0.4 (GeV/c)","Events","ELE_LOGY E1 P");
@@ -970,6 +971,8 @@ void ElectronMcSignalValidator::book()
   h1_ele_hcalTowerSumEt_dr04_depth1_barrel = bookH1withSumw2("hcalTowerSumEt_dr04_depth1_barrel","hcal depth1 isolation sum, dR=0.4, barrel",100,0.0,20.,"Hcal1IsoSum, cone 0.4 (GeV)","Events","ELE_LOGY E1 P");
   h1_ele_hcalTowerSumEt_dr04_depth1_endcaps = bookH1withSumw2("hcalTowerSumEt_dr04_depth1_endcaps","hcal depth1 isolation sum, dR=0.4, endcaps",100,0.0,20.,"Hcal1IsoSum, cone 0.4 (GeV)","Events","ELE_LOGY E1 P");
   h1_ele_hcalTowerSumEt_dr04_depth2 = bookH1withSumw2("hcalTowerSumEt_dr04_depth2","hcal depth2 isolation sum, dR=0.4",100,0.0,20.,"Hcal2IsoSum, cone 0.4 (GeV)","Events","ELE_LOGY E1 P");
+  h1_ele_hcalTowerSumEt_dr04_depth2_barrel = bookH1withSumw2("hcalTowerSumEt_dr04_depth2_barrel","hcal depth2 isolation sum, dR=0.4",100,0.0,20.,"Hcal2IsoSum, cone 0.4 (GeV)","Events","ELE_LOGY E1 P");
+  h1_ele_hcalTowerSumEt_dr04_depth2_endcaps = bookH1withSumw2("hcalTowerSumEt_dr04_depth2_endcaps","hcal depth2 isolation sum, dR=0.4",100,0.0,20.,"Hcal2IsoSum, cone 0.4 (GeV)","Events","ELE_LOGY E1 P");
 
   h1_ele_dIso_tkSumPt_dr03 = bookH1withSumw2("dIso_tkSumPt_dr03","diff with iso from deposits, tk isolation sum, dR=0.3",21,-10.0,10.,"TkIsoSum diff, cone 0.3 (GeV/c)","Events","ELE_LOGY E1 P");
   h1_ele_dIso_tkSumPt_dr04 = bookH1withSumw2("dIso_tkSumPt_dr04","diff with iso from deposits, tk isolation sum, dR=0.4",21,-10.0,10.,"TkIsoSum diff, cone 0.4 (GeV/c)","Events","ELE_LOGY E1 P");
@@ -1017,15 +1020,15 @@ void ElectronMcSignalValidator::book()
   h1_ele_provenance_endcaps = bookH1withSumw2("provenance_endcaps","ele provenance endcaps",5,-2.,3.);
 
   // pflow isolation variables
-  h1_ele_chargedHadronIso = bookH1withSumw2("chargedHadronIso","chargedHadronIso",100,0.0,20.);
-  h1_ele_chargedHadronIso_barrel = bookH1withSumw2("chargedHadronIso_barrel","chargedHadronIso for barrel",100,0.0,20.);
-  h1_ele_chargedHadronIso_endcaps = bookH1withSumw2("chargedHadronIso_endcaps","chargedHadronIso for endcaps",100,0.0,20.); 
-  h1_ele_neutralHadronIso = bookH1withSumw2("neutralHadronIso","neutralHadronIso",21,-10.0,10.);
-  h1_ele_neutralHadronIso_barrel = bookH1withSumw2("neutralHadronIso_barrel","neutralHadronIso for barrel",21,-10.0,10.);
-  h1_ele_neutralHadronIso_endcaps = bookH1withSumw2("neutralHadronIso_endcaps","neutralHadronIso for endcaps",21,-10.0,10.);
-  h1_ele_photonIso = bookH1withSumw2("photonIso","photonIso",100,0.0,20.);
-  h1_ele_photonIso_barrel = bookH1withSumw2("photonIso_barrel","photonIso for barrel",100,0.0,20.);
-  h1_ele_photonIso_endcaps = bookH1withSumw2("photonIso_endcaps","photonIso for endcaps",100,0.0,20.);
+  h1_ele_chargedHadronIso = bookH1withSumw2("chargedHadronIso","chargedHadronIso",100,0.0,20.,"ELE_LOGY E1 P);
+  h1_ele_chargedHadronIso_barrel = bookH1withSumw2("chargedHadronIso_barrel","chargedHadronIso for barrel",100,0.0,20.,"ELE_LOGY E1 P);
+  h1_ele_chargedHadronIso_endcaps = bookH1withSumw2("chargedHadronIso_endcaps","chargedHadronIso for endcaps",100,0.0,20.,"ELE_LOGY E1 P); 
+  h1_ele_neutralHadronIso = bookH1withSumw2("neutralHadronIso","neutralHadronIso",21,0.0,20.,"ELE_LOGY E1 P);
+  h1_ele_neutralHadronIso_barrel = bookH1withSumw2("neutralHadronIso_barrel","neutralHadronIso for barrel",21,0.0,20.,"ELE_LOGY E1 P);
+  h1_ele_neutralHadronIso_endcaps = bookH1withSumw2("neutralHadronIso_endcaps","neutralHadronIso for endcaps",21,0.0,20.,"ELE_LOGY E1 P);
+  h1_ele_photonIso = bookH1withSumw2("photonIso","photonIso",100,0.0,20.,"ELE_LOGY E1 P);
+  h1_ele_photonIso_barrel = bookH1withSumw2("photonIso_barrel","photonIso for barrel",100,0.0,20.,"ELE_LOGY E1 P);
+  h1_ele_photonIso_endcaps = bookH1withSumw2("photonIso_endcaps","photonIso for endcaps",100,0.0,20.,"ELE_LOGY E1 P);
 
   // conversion rejection information
   h1_ele_convFlags = bookH1withSumw2("convFlags","conversion rejection flag",5,-1.5,3.5);
@@ -1043,7 +1046,7 @@ ElectronMcSignalValidator::~ElectronMcSignalValidator()
  {}
 
 void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::EventSetup & iSetup )
- {
+ { 
   // get collections
   edm::Handle<GsfElectronCollection> gsfElectrons ;
   iEvent.getByLabel(electronCollection_,gsfElectrons) ;
@@ -1074,7 +1077,6 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
   h1_recCoreNum->Fill((*gsfElectronCores).size());
   h1_recTrackNum->Fill((*gsfElectronTracks).size());
   h1_recSeedNum->Fill((*gsfElectronSeeds).size());
-
 
   //===============================================
   // all rec electrons
@@ -1747,14 +1749,12 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
     h1_ele_hcalTowerSumEt_dr03_depth2->Fill(bestGsfElectron.dr03HcalDepth2TowerSumEt());
     if (bestGsfElectron.isEB()) h1_ele_hcalTowerSumEt_dr03_depth2_barrel->Fill(bestGsfElectron.dr03HcalDepth2TowerSumEt());    
     if (bestGsfElectron.isEE()) h1_ele_hcalTowerSumEt_dr03_depth2_endcaps->Fill(bestGsfElectron.dr03HcalDepth2TowerSumEt());    
-    
     h1_ele_hcalTowerSumEtBc_dr03_depth1->Fill(bestGsfElectron.dr03HcalDepth1TowerSumEtBc());
     if (bestGsfElectron.isEB()) h1_ele_hcalTowerSumEtBc_dr03_depth1_barrel->Fill(bestGsfElectron.dr03HcalDepth1TowerSumEtBc());
     if (bestGsfElectron.isEE()) h1_ele_hcalTowerSumEtBc_dr03_depth1_endcaps->Fill(bestGsfElectron.dr03HcalDepth1TowerSumEtBc());
     h1_ele_hcalTowerSumEtBc_dr03_depth2->Fill(bestGsfElectron.dr03HcalDepth2TowerSumEtBc());
     if (bestGsfElectron.isEB()) h1_ele_hcalTowerSumEtBc_dr03_depth2_barrel->Fill(bestGsfElectron.dr03HcalDepth2TowerSumEtBc());
     if (bestGsfElectron.isEE()) h1_ele_hcalTowerSumEtBc_dr03_depth2_endcaps->Fill(bestGsfElectron.dr03HcalDepth2TowerSumEtBc());
-    
     h1_ele_tkSumPt_dr04->Fill(bestGsfElectron.dr04TkSumPt());
     if (bestGsfElectron.isEB()) h1_ele_tkSumPt_dr04_barrel->Fill(bestGsfElectron.dr04TkSumPt());
     if (bestGsfElectron.isEE()) h1_ele_tkSumPt_dr04_endcaps->Fill(bestGsfElectron.dr04TkSumPt());
@@ -1781,7 +1781,6 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
     h1_ele_hcalDepth2OverEcalBc->Fill(bestGsfElectron.hcalDepth2OverEcalBc());
     if (bestGsfElectron.isEB()) h1_ele_hcalDepth2OverEcalBc_barrel->Fill(bestGsfElectron.hcalDepth2OverEcalBc());
     if (bestGsfElectron.isEE()) h1_ele_hcalDepth2OverEcalBc_endcaps->Fill(bestGsfElectron.hcalDepth2OverEcalBc());    
-
 
     // isolation : difference with iso deposits
     if ( isoFromDepsTk03Handle.isValid() )
@@ -1813,7 +1812,6 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
      }
 
    } // loop over mc particle
-
   h1_mcNum->Fill(mcNum) ;
   h1_eleNum->Fill(eleNum) ;
  }
