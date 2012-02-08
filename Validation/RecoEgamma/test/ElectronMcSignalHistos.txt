@@ -12,10 +12,10 @@ ElectronMcSignalValidator/h_ele_charge                      1 1 1 0
 ElectronMcSignalValidator/h_ele_vertexPt                    1 1 1 0
 ElectronMcSignalValidator/h_ele_vertexEta                   1 1 1 0
 ElectronMcSignalValidator/h_ele_vertexPhi                   1 1 1 0
-ElectronMcSignalValidator/h_ele_vertexP                     1	1 1 0
+ElectronMcSignalValidator/h_ele_vertexP                     1 1 1 0
 ElectronMcSignalValidator/h_ele_vertexX                     1 1 1 0
-ElectronMcSignalValidator/h_ele_vertexY                     1	1 1 0
-ElectronMcSignalValidator/h_ele_vertexZ                     1	1 1 0
+ElectronMcSignalValidator/h_ele_vertexY                     1 1 1 0
+ElectronMcSignalValidator/h_ele_vertexZ                     1 1 1 0
 ElectronMcSignalValidator/h_ele_vertexTIP                   1 1 1 0
 ElectronMcSignalValidator/h_ele_Et                          1 1 1 0
 ElectronMcSignalValidator/h_ele_outerP_mode                 1 1 1 0
