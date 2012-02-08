@@ -11,12 +11,12 @@ __triggerTable = {
         'HLTrigger/Configuration/HLT_GRun_cff', 
     ),
 
-    # HLT GRun trigger table running offline
+    # HLT HIon trigger table running offline
     'HIon': ( 
         'HLTrigger/Configuration/HLT_HIon_cff', 
     ),
 
-    # HLT GRun trigger table running online
+    # HLT HIon trigger table running online
     'HIon_data': ( 
         'HLTrigger/Configuration/HLT_HIon_cff', 
     )
