@@ -12,6 +12,7 @@ hltGetConfiguration $HLT --process TEST    --globaltag auto:startup   --full --o
 # standard 'cff' dumps - in CVS
 hltGetConfiguration $HLT                                              --cff  --offline --data                                      > ../python/HLT_GRun_data_cff.py
 hltGetConfiguration $HLT                                              --cff  --offline --mc                                        > ../python/HLT_GRun_cff.py
+diff -C0 ../python/HLT_GRun_data_cff.py ../python/HLT_GRun_cff.py
 
 # standard 'cfg' dumps - in CVS
 hltGetConfiguration $HLT --process HLTGRun --globaltag auto:hltonline --full --offline --data --unprescale --l1 $L1T               > OnData_HLT_GRun.py

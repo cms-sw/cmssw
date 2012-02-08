@@ -41,6 +41,7 @@ function getConfigForCVS() {
   # do not use any L1 override
   hltGetConfiguration --cff --offline --mc   $CONFIG --type $NAME > HLT_${NAME}_cff.py
   hltGetConfiguration --cff --offline --data $CONFIG --type $NAME > HLT_${NAME}_data_cff.py
+  diff -C0 HLT_${NAME}_cff.py HLT_${NAME}_data_cff.py
 }
 
 function getContentForCVS() {
