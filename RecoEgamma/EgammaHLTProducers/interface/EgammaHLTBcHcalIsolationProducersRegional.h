@@ -19,11 +19,16 @@
 
 class EgammaTowerIsolation;
 
+//this class produces either Hcal isolation or H for H/E  depending if doEtSum=true or false
+//H for H/E = towers behind SC, hcal isolation has these towers excluded
+//a rho correction can be applied
+
 class EgammaHLTBcHcalIsolationProducersRegional : public edm::EDProducer {
 public:
   explicit EgammaHLTBcHcalIsolationProducersRegional(const edm::ParameterSet&);
   ~EgammaHLTBcHcalIsolationProducersRegional();
-  
+
+
 private:
   EgammaHLTBcHcalIsolationProducersRegional(const EgammaHLTBcHcalIsolationProducersRegional& rhs){}
   EgammaHLTBcHcalIsolationProducersRegional& operator=(const EgammaHLTBcHcalIsolationProducersRegional& rhs){ return *this; }
@@ -47,9 +52,7 @@ private:
   float effectiveAreaBarrel_;
   float effectiveAreaEndcap_;
 
-  ElectronHcalHelper::Configuration hcalCfg;
-
-  EgammaTowerIsolation *isoAlgo_;
-  ElectronHcalHelper *hcalHelper;
+  ElectronHcalHelper::Configuration hcalCfg_;
+  ElectronHcalHelper *hcalHelper_;
 };
 
