@@ -20,7 +20,7 @@
 //
 // Original Author:  Konstantinos Theofilatos, Ulla Gebbert and Christian Sander
 //         Created:  Sat Nov 14 18:43:21 CET 2009
-// $Id: EcalDeadCellBoundaryEnergyFilter.cc,v 1.2 2012/01/26 07:08:48 lhx Exp $
+// $Id: EcalDeadCellBoundaryEnergyFilter.cc,v 1.3 2012/02/02 05:32:39 lhx Exp $
 //
 //
 
@@ -167,9 +167,7 @@ EcalDeadCellBoundaryEnergyFilter::EcalDeadCellBoundaryEnergyFilter(const edm::Pa
 
    produces<bool>();
 
-   if (FilterAlgo_ == "TuningMode") {
-      produces<AnomalousECALVariables> ("anomalousECALVariables");
-   }
+   produces<AnomalousECALVariables> ("anomalousECALVariables");
 }
 
 EcalDeadCellBoundaryEnergyFilter::~EcalDeadCellBoundaryEnergyFilter() {

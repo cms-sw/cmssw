@@ -487,7 +487,7 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double &tpValCu
            if( towerTest <0 && bit2Itor->second.back() >= abs(towerTest) ) continue;
            towerTestCnt ++;
         }
-        if( towerTestCnt !=0 ) std::cout<<"towerTestCnt : "<<towerTestCnt<<"  for towerTest : "<<towerTest<<std::endl;
+        if( towerTestCnt !=0 && debug_ ) std::cout<<"towerTestCnt : "<<towerTestCnt<<"  for towerTest : "<<towerTest<<std::endl;
 
         std::vector<DetId>::iterator avoidItor; avoidItor = find( avoidDuplicateVec.begin(), avoidDuplicateVec.end(), det);
         if( avoidItor == avoidDuplicateVec.end() ){
@@ -521,7 +521,7 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double &tpValCu
      std::map<EcalTrigTowerDetId, int>::iterator ttzsideItor = TTzsideMap.find(ttDetId);
      if( ttzsideItor == TTzsideMap.end() ){ cout<<"\nERROR  cannot find ttDetId : "<<ttDetId<<" in TTzsideMap?!"<<endl<<endl; }
 
-     if( ttchnItor->second != 25 ) cout<<"WARNING ... ttchnCnt : "<<ttchnItor->second<<"  NOT equal  25!"<<endl;
+     if( ttchnItor->second != 25 && debug_ ) cout<<"WARNING ... ttchnCnt : "<<ttchnItor->second<<"  NOT equal  25!"<<endl;
 
      if( ttetVal >= tpValCut ){ isPassCut = 1; isPassCut *= ttzsideItor->second; }
 
