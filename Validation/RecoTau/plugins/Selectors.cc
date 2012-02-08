@@ -43,13 +43,15 @@ typedef SingleObjectSelector< reco::PFJetCollection      , StringCutObjectSelect
 typedef SingleObjectSelector< reco::MuonCollection       , StringCutObjectSelector<reco::Muon> >           TauValMuonSelector;
 typedef SingleObjectSelector< reco::GsfElectronCollection   , StringCutObjectSelector<reco::GsfElectron> > TauValElectronSelector;
 typedef SingleObjectSelector< reco::GenParticleCollection, StringCutObjectSelector<reco::GenParticle> >    TauValGenPSelector;
+typedef SingleObjectSelector< reco::GenParticleRefVector, StringCutObjectSelector<reco::GenParticleRef> >    TauValGenPRefSelector;
+
 
 DEFINE_FWK_MODULE( TauValPFJetSelector );
 //DEFINE_FWK_MODULE( TauValJetSelector );
 DEFINE_FWK_MODULE( TauValMuonSelector );
 DEFINE_FWK_MODULE( TauValElectronSelector );
 DEFINE_FWK_MODULE( TauValGenPSelector );
-
+DEFINE_FWK_MODULE( TauValGenPRefSelector );
 
 class ElectronIdFilter : public edm::EDFilter {
 public:
