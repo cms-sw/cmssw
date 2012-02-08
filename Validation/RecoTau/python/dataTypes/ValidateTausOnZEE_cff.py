@@ -25,7 +25,7 @@ selectStableElectrons = genParticlesForJets.clone(src = cms.InputTag("selectElec
 #objectTypeSelectedTauValDenominatorModule.src = cms.InputTag("selectElectronsForGenJets")
 
 kinematicSelectedTauValDenominatorZEE = cms.EDFilter(
-   "TauValGenPSelector", #"GenJetSelector"
+   "TauValGenPRefSelector", #"GenJetSelector"
    src = cms.InputTag('selectStableElectrons'),
    cut = kinematicSelectedTauValDenominatorCut,#cms.string('pt > 5. && abs(eta) < 2.5'), #Defined: Validation.RecoTau.RecoTauValidation_cfi 
    filter = cms.bool(False)
@@ -52,22 +52,20 @@ for newAttr in newProcAttributes:
     locals()[newAttr] = getattr(proc,newAttr)
 
 produceDenominatorZEE = cms.Sequence(
-    selectElectrons
-    +selectStableElectrons
-#      +selectElectronsForGenJets
-#      +objectTypeSelectedTauValDenominatorModule
-    +kinematicSelectedTauValDenominatorZEE
+    selectElectrons*
+    selectStableElectrons*
+    kinematicSelectedTauValDenominatorZEE
     )
 
 produceDenominator = produceDenominatorZEE
 
 runTauValidationBatchMode = cms.Sequence(
-      produceDenominatorZEE
-      +TauValNumeratorAndDenominatorZEE
+      produceDenominatorZEE*
+      TauValNumeratorAndDenominatorZEE
       )
 
 runTauValidation = cms.Sequence(
-      runTauValidationBatchMode
-      +TauEfficienciesZEE
+      runTauValidationBatchMode*
+      TauEfficienciesZEE
       )
 

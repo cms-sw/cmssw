@@ -22,8 +22,8 @@ selectMuons = cms.EDProducer(
 selectStableMuons = genParticlesForJets.clone(src = cms.InputTag("selectMuons"))
 
 kinematicSelectedTauValDenominatorZMM = cms.EDFilter(
-   "TauValGenPSelector", #"GenJetSelector"
-   src = cms.InputTag('selectMuons'),
+   "TauValGenPRefSelector", #"GenJetSelector"
+   src = cms.InputTag('selectStableMuons'),
    cut = kinematicSelectedTauValDenominatorCut,#cms.string('pt > 5. && abs(eta) < 2.5'), #Defined: Validation.RecoTau.RecoTauValidation_cfi 
    filter = cms.bool(False)
 )
