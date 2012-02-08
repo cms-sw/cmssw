@@ -307,7 +307,7 @@ if [ -e ${runfile} ]; then
   nenhfnc=0; nenhfnc=`check_occurence ${runfile} "enhance_function"`
   nenhobs=0; nenhobs=`check_occurence ${runfile} "enhance_observable"`
   sumenh=0; let sumenh=$nenhfac+$nenhfnc+$nenhobs
-  if []; then
+  if [ ${sumenh} -gt 1 ]; then
     echo " <E> mixed occurence of enhance options in "${runfile}
     echo "  -> stopping..."
     exit
