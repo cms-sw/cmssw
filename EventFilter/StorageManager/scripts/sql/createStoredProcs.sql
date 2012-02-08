@@ -21,16 +21,9 @@ BEGIN
 
     IF v_producer = 'StorageManager' THEN
         v_nrows := 0;
-        v_etime := to_char(systimestamp, 'Dy Mon DD HH24:MI:SS.FF5  YYYY');
-        DBMS_OUTPUT.PUT_LINE ( v_etime || '   1-FILES_CREATED_AI: preQuery  SM_SUMMARY   FILE: '|| v_filename || '   <<');
         SELECT COUNT(RUNNUMBER) into v_nrows  from SM_SUMMARY  WHERE RUNNUMBER = v_runnumber AND STREAM= v_stream;
-        v_etime := to_char(systimestamp, 'Dy Mon DD HH24:MI:SS.FF5  YYYY');
-        DBMS_OUTPUT.PUT_LINE ( v_etime || '   2-FILES_CREATED_AI: postQuery  SM_SUMMARY  rows found: ' ||  v_nrows || '  <<');
 
         IF  v_nrows = 0 THEN
-             v_etime := to_char(systimestamp, 'Dy Mon DD HH24:MI:SS.FF5  YYYY');
-             DBMS_OUTPUT.PUT_LINE ( v_etime || '  13-FILES_CREATED_AI: Query=0, try merge, initiate LOCK on  SM_SUMMARY  <<');
-
              LOCK TABLE SM_SUMMARY  IN EXCLUSIVE MODE;  
              v_etime := to_char(systimestamp, 'Dy Mon DD HH24:MI:SS.FF5  YYYY');
              DBMS_OUTPUT.PUT_LINE ( v_etime || '  14-FILES_CREATED_AI: Established LOCK  SM_SUMMARY, do MERGE  <<');
@@ -52,8 +45,6 @@ BEGIN
              DBMS_OUTPUT.PUT_LINE ( v_etime || '  15-FILES_CREATED_AI: done LOCK/INSERT SM_SUMMARY   SQL%ROWCOUNT: ' || SQL%ROWCOUNT  || ' SM_SUMMARY  FILE: '|| v_filename || '   <<');
  
         ELSE
-             v_etime := to_char(systimestamp, 'Dy Mon DD HH24:MI:SS.FF5  YYYY');
-             DBMS_OUTPUT.PUT_LINE ( v_etime || '  23-FILES_CREATED_AI: PreUpdate,  on  SM_SUMMARY  <<');
              UPDATE SM_SUMMARY
                    SET S_LUMISECTION = NVL(S_LUMISECTION,0) + NVL(v_lumisection,0),
                        S_CREATED = NVL(S_CREATED,0) + 1,
@@ -61,13 +52,10 @@ BEGIN
                        START_WRITE_TIME =  LEAST(v_timestamp, NVL(START_WRITE_TIME,v_timestamp)),
                        LAST_UPDATE_TIME = sysdate
                    WHERE RUNNUMBER = v_runnumber AND STREAM= v_stream;
-             v_etime := to_char(systimestamp, 'Dy Mon DD HH24:MI:SS.FF5  YYYY');
-             DBMS_OUTPUT.PUT_LINE ( v_etime || '  24-FILES_CREATED_AI: PostUpdate on  SM_SUMMARY   SQL%ROWCOUNT: ' || SQL%ROWCOUNT  || ' <<');
         END IF;
         
         v_etime := to_char(systimestamp, 'Dy Mon DD HH24:MI:SS.FF5  YYYY');
-        DBMS_OUTPUT.PUT_LINE ( v_etime || '  55-FILES_CREATED_AI: done  SM_SUMMARY   FILE: '|| v_filename || '   <<');
-     DBMS_OUTPUT.PUT_LINE ('-------FILES_CREATED Done SM_SUMMARY:' ||v_filename || '-------------------' );
+        DBMS_OUTPUT.PUT_LINE ( v_etime || ' -FILES_CREATED: done  SM_SUMMARY   FILE: '|| v_filename || '   <<');
    END IF;
 END;
 /
@@ -96,16 +84,9 @@ BEGIN
 
     IF v_producer = 'StorageManager' THEN
         v_nrows := 0;
-        v_etime := to_char(systimestamp, 'Dy Mon DD HH24:MI:SS.FF5  YYYY');
-        DBMS_OUTPUT.PUT_LINE ( v_etime || '101-FILES_CREATED_AI: preQuery  SM_INSTANCES    FILE: '|| v_filename || '   <<');
         SELECT COUNT(RUNNUMBER) into v_nrows  from SM_INSTANCES WHERE RUNNUMBER = v_runnumber AND INSTANCE = v_instance ;
-        v_etime := to_char(systimestamp, 'Dy Mon DD HH24:MI:SS.FF5  YYYY');
-        DBMS_OUTPUT.PUT_LINE ( v_etime || '102-FILES_CREATED_AI: postQuery  SM_INSTANCES  rows found: '||  v_nrows || '   <<');
 
         IF v_nrows = 0 THEN
-             v_etime := to_char(systimestamp, 'Dy Mon DD HH24:MI:SS.FF5  YYYY');
-             DBMS_OUTPUT.PUT_LINE ( v_etime || ' 113-FILES_CREATED_AI: Q-Failed, try merge, initiate LOCK on  SM_INSTANCES  <<');
-
              LOCK TABLE SM_INSTANCES  IN EXCLUSIVE MODE;  
              v_etime := to_char(systimestamp, 'Dy Mon DD HH24:MI:SS.FF5  YYYY');
              DBMS_OUTPUT.PUT_LINE ( v_etime || ' 114-FILES_CREATED_AI:  Established LOCK  SM_INSTANCES, do MERGE  <<');
@@ -120,18 +101,13 @@ BEGIN
              DBMS_OUTPUT.PUT_LINE ( v_etime || ' 115-FILES_CREATED_AI: Done LOCK/INSERT SM_INSTANCES SQL%ROWCOUNT: ' || SQL%ROWCOUNT  || ' SM_SUMMARY  FILE: '|| v_filename || '   <<');
 
         ELSE
-             v_etime := to_char(systimestamp, 'Dy Mon DD HH24:MI:SS.FF5  YYYY');
-             DBMS_OUTPUT.PUT_LINE ( v_etime || ' 123-FILES_CREATED_AI: preUpdate  SM_INSTANCES  <<');
              UPDATE SM_INSTANCES
                SET N_CREATED = NVL(N_CREATED,0) + 1
                WHERE RUNNUMBER = v_runnumber AND INSTANCE = v_instance;
-             v_etime := to_char(systimestamp, 'Dy Mon DD HH24:MI:SS.FF5  YYYY');
-             DBMS_OUTPUT.PUT_LINE ( v_etime || ' 124-FILES_CREATED_AI: postUpdate on  SM_INSTANCES  SQL%ROWCOUNT: ' || SQL%ROWCOUNT  || ' <<');
         END IF;
 
         v_etime := to_char(systimestamp, 'Dy Mon DD HH24:MI:SS.FF5  YYYY');
-        DBMS_OUTPUT.PUT_LINE ( v_etime || ' 155-FILES_CREATED_AI: done  SM_INSTANCES FILE: '|| v_filename || ' -----------  <<');
-     DBMS_OUTPUT.PUT_LINE ('-------FILES_CREATED Done SM_INSTANCES:' ||v_filename || '-------------------' );
+        DBMS_OUTPUT.PUT_LINE ( v_etime || ' -FILES_CREATED: done  SM_INSTANCES FILE: '|| v_filename || ' -----------  <<');
    END IF;
 END;
 /
@@ -163,8 +139,6 @@ BEGIN
          FROM FILES_INJECTED
          WHERE FILENAME = v_filename;
 
-         v_etime := to_char(systimestamp, 'Dy Mon DD HH24:MI:SS.FF5  YYYY');
-         DBMS_OUTPUT.PUT_LINE ( v_etime || '  1-FILES_INJECTED: pre UPDATE  SM_SUMMARY    <<'); 
        	 UPDATE SM_SUMMARY
                  SET S_NEVENTS = NVL(S_NEVENTS,0) + NVL(v_nevents,0),
             	 S_FILESIZE = NVL(S_FILESIZE,0) + NVL(v_filesize,0),
@@ -175,6 +149,8 @@ BEGIN
 	    	 HLTKEY = NVL(HLTKEY, v_comment_str),
             	 LAST_UPDATE_TIME = sysdate
       	 WHERE RUNNUMBER = v_runnumber AND STREAM=v_stream;
+         v_etime := to_char(systimestamp, 'Dy Mon DD HH24:MI:SS.FF5  YYYY');
+         DBMS_OUTPUT.PUT_LINE ( v_etime || ' -FILES_INJECTED: done  SM_SUMMARY   FILE: '|| v_filename || '   <<');
      END IF;
 END;
 /
@@ -205,7 +181,7 @@ BEGIN
                   LAST_WRITE_TIME = GREATEST(v_timestamp, NVL(LAST_WRITE_TIME, v_timestamp))
           WHERE RUNNUMBER = v_runnumber AND INSTANCE = v_instance;
           v_etime := to_char(systimestamp, 'Dy Mon DD HH24:MI:SS.FF5  YYYY');
-          DBMS_OUTPUT.PUT_LINE (v_etime || '  5-FILES_INJECTED: ALL done!  FILE: '|| v_filename || ' -------   <<');
+          DBMS_OUTPUT.PUT_LINE ( v_etime || ' -FILES_INJECTED: done  SM_INSTANCES FILE: '|| v_filename || ' -----------  <<');
      END IF;
 END;
 /
