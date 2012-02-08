@@ -1,24 +1,24 @@
 # mapping with the available HLT tables supported by cmsDriver.py
 __triggerTable = {
 
-    # HLT trigger table running online
+    # HLT GRun trigger table running offline
     'GRun': ( 
         'HLTrigger/Configuration/HLT_GRun_cff', 
     ),
 
-    # HLT trigger table running online
+    # HLT GRun trigger table running online
     'GRun_data': ( 
-        'HLTrigger/Configuration/HLT_GRun_data_cff', 
+        'HLTrigger/Configuration/HLT_GRun_cff', 
     ),
 
-    # HLT trigger table for the 2009 IDEAL Heavy-Ion menu
+    # HLT GRun trigger table running offline
     'HIon': ( 
         'HLTrigger/Configuration/HLT_HIon_cff', 
     ),
 
-    # HLT trigger table for the 2009 IDEAL Heavy-Ion menu
+    # HLT GRun trigger table running online
     'HIon_data': ( 
-        'HLTrigger/Configuration/HLT_HIon_data_cff', 
+        'HLTrigger/Configuration/HLT_HIon_cff', 
     )
 }
 
