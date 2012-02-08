@@ -531,7 +531,7 @@ std::pair<double, double> HybridNew::eval(RooWorkspace *w, RooStats::ModelConfig
                 double testStat = setup.qvar->Evaluate(data, nullPOI);
                 result->SetTestStatisticData(testStat + (isProfile ? -EPS : EPS));
             }
-            ret = eval(*result);
+            ret = eval(*result, rVal);
         }
         return ret;
     }
@@ -821,7 +821,7 @@ HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, doub
     } else {
         hcResult->SetTestStatisticData(hcResult->GetTestStatisticData()+EPS); // issue with < vs <= in discrete models
     }
-    std::pair<double,double> cls = eval(*hcResult);
+    std::pair<double,double> cls = eval(*hcResult, rVal);
     if (verbose) std::cout << (CLs_ ? "\tCLs = " : "\tCLsplusb = ") << cls.first << " +/- " << cls.second << std::endl;
     if (adaptive) {
         if (CLs_) {
@@ -839,7 +839,7 @@ HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, doub
             if (testStat_ == "LHC" || testStat_ == "LHCFC"  || testStat_ == "Profile") more->SetPValueIsRightTail(!more->GetPValueIsRightTail());
             hcResult->Append(more.get());
             if (expectedFromGrid_) applyExpectedQuantile(*hcResult);
-            cls = eval(*hcResult);
+            cls = eval(*hcResult, rVal);
             if (verbose) std::cout << (CLs_ ? "\tCLs = " : "\tCLsplusb = ") << cls.first << " +/- " << cls.second << std::endl;
         }
     } else if (iterations_ > 1) {
@@ -848,7 +848,7 @@ HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, doub
             if (testStat_ == "LHC" || testStat_ == "LHCFC"  || testStat_ == "Profile") more->SetPValueIsRightTail(!more->GetPValueIsRightTail());
             hcResult->Append(more.get());
             if (expectedFromGrid_) applyExpectedQuantile(*hcResult);
-            cls = eval(*hcResult);
+            cls = eval(*hcResult, rVal);
             if (verbose) std::cout << (CLs_ ? "\tCLs = " : "\tCLsplusb = ") << cls.first << " +/- " << cls.second << std::endl;
         }
     }
@@ -879,7 +879,7 @@ HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, doub
     return cls;
 } 
 
-std::pair<double,double> HybridNew::eval(RooStats::HypoTestResult &hcres) 
+std::pair<double,double> HybridNew::eval(const RooStats::HypoTestResult &hcres, double rVal) 
 {
     if (testStat_ == "LHCFC") {
         RooStats::SamplingDistribution * bDistribution = hcres.GetNullDistribution(), * sDistribution = hcres.GetAltDistribution();
@@ -899,6 +899,12 @@ std::pair<double,double> HybridNew::eval(RooStats::HypoTestResult &hcres)
             for (int i = 0, n = absbdist.size(); i < n; ++i) absbdist[i] = max(0., bdist[i]);
             for (int i = 0, n = abssdist.size(); i < n; ++i) abssdist[i] = max(0., sdist[i]);
             absdata = max(0., data) - EPS;
+        }
+        if (rVal == 0) { // S+B toys are equal to B ones!
+            abssdist.reserve(absbdist.size() + abssdist.size());
+            abssdist.insert(abssdist.end(), absbdist.begin(), absbdist.end());
+            abssweight.reserve(absbweight.size() + abssweight.size());
+            abssweight.insert(abssweight.end(), absbweight.begin(), absbweight.end());
         }
         RooStats::HypoTestResult result;
         RooStats::SamplingDistribution *abssDist = new RooStats::SamplingDistribution("s","s",abssdist,abssweight);
@@ -1327,7 +1333,7 @@ std::pair<double,double> HybridNew::updateGridPoint(RooWorkspace *w, RooStats::M
             std::endl;
     }
     
-    return eval(*point->second);
+    return eval(*point->second, point->first);
 }
 void HybridNew::useGrid() {
     typedef std::pair<double,double> CLs_t;
@@ -1337,9 +1343,9 @@ void HybridNew::useGrid() {
         if (itg->second->TestBit(1)) continue;
         CLs_t val(1,0);
         if (CLs_) {
-            if (itg->first > 0) val = eval(*itg->second);
+            if (itg->first > 0) val = eval(*itg->second, itg->first);
         } else {
-            val = eval(*itg->second);
+            val = eval(*itg->second, itg->first);
         }
         if (val.first == -1) continue;
         if (val.second == 0 && (val.first != 1 && val.first != 0)) continue;
