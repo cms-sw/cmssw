@@ -1,6 +1,6 @@
 #############################################################################
 #
-# $Id: cms-valgrind-memcheck.supp,v 1.6 2011/02/03 11:35:37 muzaffar Exp $
+# $Id: cms-valgrind-memcheck.supp,v 1.7 2012/01/26 17:06:35 eulisse Exp $
 #
 # Valgrind memcheck suppression file for CMS. This is meant primarily for
 # suppressing problems reported for external packages which are known to
@@ -677,3 +677,18 @@
    fun:XQueryExtension
 }
 
+{
+    Uninitialized buffer from zlib
+    Memcheck:Param
+    write(buf)
+    fun:__write_nocancel
+    fun:_ZN9IOChannel5writeEPKvm
+    fun:_ZN4File5writeEPKvm
+    fun:_ZN19StorageAccountProxy5writeEPKvm
+    fun:_ZN8IOOutput6xwriteEPKvm
+    fun:_ZN19TStorageFactoryFile11WriteBufferEPKci
+    fun:_ZN4TKey9WriteFileEiP5TFile
+    fun:_ZN14TDirectoryFile12WriteTObjectEPK7TObjectPKcS4_i
+    fun:_ZN5TTree8AutoSaveEPKc
+    fun:_ZN3edm14RootOutputFile13finishEndFileEv
+}
