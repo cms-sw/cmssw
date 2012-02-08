@@ -20,7 +20,7 @@ class ShapeBuilder(ModelBuilder):
     def doObservables(self):
         if (self.options.verbose > 1): stderr.write("Using shapes: qui si parra' la tua nobilitate\n")
         self.prepareAllShapes();
-        if len(self.DC.bins) > 1:
+        if len(self.DC.bins) > 1 or self.options.forceSimPdf:
             strexpr="CMS_channel[" + ",".join(["%s=%d" % (l,i) for i,l in enumerate(self.DC.bins)]) + "]";
             self.doVar(strexpr);
             self.out.binCat = self.out.cat("CMS_channel");
@@ -47,13 +47,14 @@ class ShapeBuilder(ModelBuilder):
                 pdfs.add(pdf); coeffs.add(coeff)
                 if not self.DC.isSignal[p]:
                     bgpdfs.add(pdf); bgcoeffs.add(coeff)
+            print "Creating RooAddPdf %s with %s elements" % ("pdf_bin"+b, coeffs.getSize())
             sum_s = ROOT.RooAddPdf("pdf_bin%s"       % b, "",   pdfs,   coeffs)
             sum_b = ROOT.RooAddPdf("pdf_bin%s_bonly" % b, "", bgpdfs, bgcoeffs)
             if b in self.pdfModes: 
                 sum_s.setAttribute('forceGen'+self.pdfModes[b].title())
                 sum_b.setAttribute('forceGen'+self.pdfModes[b].title())
             if len(self.DC.systs):
-                # rename the pdfs
+                ## rename the pdfs
                 sum_s.SetName("pdf_bin%s_nuis" % b); sum_b.SetName("pdf_bin%s_bonly_nuis" % b)
                 # now we multiply by all the nuisances, but avoiding nested products
                 # so we first make a list of all nuisances plus the RooAddPdf
@@ -73,7 +74,7 @@ class ShapeBuilder(ModelBuilder):
     def doCombination(self):
         ## Contrary to Number-counting models, here each channel PDF already contains the nuisances
         ## So we just have to build the combined pdf
-        if len(self.DC.bins) > 1:
+        if len(self.DC.bins) > 1 or self.options.forceSimPdf:
             for (postfixIn,postfixOut) in [ ("","_s"), ("_bonly","_b") ]:
                 simPdf = ROOT.RooSimultaneous("model"+postfixOut, "model"+postfixOut, self.out.binCat)
                 for b in self.DC.bins:
@@ -190,7 +191,7 @@ class ShapeBuilder(ModelBuilder):
             self.out.binVars = shapeObs.values()[0]
             self.out._import(self.out.binVars)
     def doCombinedDataset(self):
-        if len(self.DC.bins) == 1:
+        if len(self.DC.bins) == 1 and not self.options.forceSimPdf:
             data = self.getData(self.DC.bins[0],self.options.dataname).Clone(self.options.dataname)
             self.out._import(data)
             return
