@@ -3,6 +3,7 @@ process = cms.Process("photonAnalysis")
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("DQMOffline.EGamma.photonAnalyzer_cfi")
+process.load("DQMOffline.EGamma.zmumugammaAnalyzer_cfi")
 process.load("DQMOffline.EGamma.photonOfflineClient_cfi")
 process.load("DQMServices.Components.MEtoEDMConverter_cff")
 process.load("DQMServices.Components.DQMStoreStats_cfi")
@@ -10,16 +11,16 @@ process.load("DQMServices.Components.DQMStoreStats_cfi")
 DQMStore = cms.Service("DQMStore")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(2)
 )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
+'/store/relval/CMSSW_5_2_0_pre2/RelValZMM/GEN-SIM-RECO/START50_V9-v1/0214/C0CCF508-5244-E111-B211-00261894389E.root',
+'/store/relval/CMSSW_5_2_0_pre2/RelValZMM/GEN-SIM-RECO/START50_V9-v1/0217/10161C44-D444-E111-A1AC-003048679164.root',
+'/store/relval/CMSSW_5_2_0_pre2/RelValZMM/GEN-SIM-RECO/START50_V9-v1/0217/EC841A5E-A844-E111-84C1-0026189438DF.root'
 
-## 'file:/afs/crc.nd.edu/group/NDCMS/data01/PhotonDQM_rootfiles/RelVal370pre3Photons1.root',
-## 'file:/afs/crc.nd.edu/group/NDCMS/data01/PhotonDQM_rootfiles/RelVal370pre3Photons2.root',
-## 'file:/afs/crc.nd.edu/group/NDCMS/data01/PhotonDQM_rootfiles/RelVal370pre3Photons3.root'
-'file:/pscratch/ndcms/bestman/storage/cms/tauAnalysis/RelVelZEE_38X.root'
+
 ))
 
 from DQMOffline.EGamma.photonAnalyzer_cfi import *
@@ -38,7 +39,7 @@ photonOfflineClient.standAlone = cms.bool(True)
 
 #process.p1 = cms.Path(process.photonAnalysis)
 #process.p1 = cms.Path(process.photonAnalysis*process.dqmStoreStats)
-process.p1 = cms.Path(process.photonAnalysis*process.photonOfflineClient)
+process.p1 = cms.Path(process.photonAnalysis*process.zmumugammaAnalysis*process.photonOfflineClient*process.dqmStoreStats)
 #process.p1 = cms.Path(process.photonAnalysis*process.photonOfflineClient*process.dqmStoreStats)
 
 
