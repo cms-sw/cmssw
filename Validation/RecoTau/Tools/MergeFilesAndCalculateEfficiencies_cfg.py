@@ -67,7 +67,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.DQMStore = cms.Service("DQMStore")
-process.load("Validation.RecoTau.dataTypes.ValidateTausOn%s_cff.py"%dataType)
+process.load("Validation.RecoTau.dataTypes.ValidateTausOn%s_cff"%dataType)
 
 process.loadFile   = cms.EDAnalyzer("DQMFileLoader",
       myFiles = cms.PSet(
