@@ -18,8 +18,10 @@ process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 # Other statements
-process.GlobalTag.globaltag = 'GR_P_V20::All'
-
+#use two following lines to grab GlobalTag automatically
+#from Configuration.AlCa.autoCond import autoCond
+#process.GlobalTag.globaltag = autoCond['hltonline']
+process.GlobalTag.globaltag = 'GR_R_52_V1::All'
 #configure message logger to something sane
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.INFO.limit = 0
@@ -44,6 +46,7 @@ process.source.fileNames=[
        #'/store/relval/CMSSW_3_5_0/RelValZTT/GEN-SIM-RECO/START3X_V21-v1/0013/82ABD700-5613-DF11-92D2-0018F3D09664.root',
        #'/store/relval/CMSSW_3_5_0/RelValZTT/GEN-SIM-RECO/START3X_V21-v1/0013/3C397451-6213-DF11-B274-0018F3D095FA.root',
        #'/store/relval/CMSSW_3_5_0/RelValZTT/GEN-SIM-RECO/START3X_V21-v1/0013/385227FB-5413-DF11-8E1A-0018F3D09634.root'
+     '/store/relval/CMSSW_5_2_0_pre3/SingleElectron/RECO/GR_R_50_V11_RelVal_wEl2011B-v1/0000/00B5DE5B-224C-E111-811F-003048678B14.root',
   #  '/store/data/Run2011A/SingleElectron/RECO/PromptReco-v4/000/165/088/98CB07EF-E37F-E011-BAC2-003048F1183E.root',
   #  '/store/data/Run2011A/DoubleElectron/RECO/PromptReco-v4/000/165/088/66AD1342-E47F-E011-B825-003048F01E88.root',
   #  '/store/data/Run2011A/SingleElectron/RECO/PromptReco-v4/000/165/098/203C4130-DA7F-E011-9BD0-003048F11CF0.root',
@@ -63,7 +66,7 @@ process.source.fileNames=[
 
 process.maxEvents = cms.untracked.PSet(
 
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(1000)
 )
 
 
@@ -80,7 +83,7 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
     dataset = cms.untracked.PSet(dataTier = cms.untracked.string('RECO')),
  #   fileName = cms.untracked.string('/data/ndpc3/c/dmorse/HLTDQMrootFiles/May18/SourceTest_420_2.root')
  #   fileName = cms.untracked.string('Run2011A_SingleElectronRuns165364-166462Et40cut_RECO.root')
-    fileName = cms.untracked.string('Run2011A_SingleElectronRuns172620-173692EtCut35_RECO.root')
+    fileName = cms.untracked.string('SingleElectron_CMSSW_5_2_0_pre3_RECO.root')
 )
 process.FEVT.outputCommands = cms.untracked.vstring('drop *','keep *_MEtoEDMConverter_*_DQMTest')
 

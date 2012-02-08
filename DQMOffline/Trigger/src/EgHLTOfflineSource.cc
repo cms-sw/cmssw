@@ -95,7 +95,6 @@ void EgHLTOfflineSource::endJob()
 void EgHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
 {
   if(dbe_ && !isSetup_){
-
     HLTConfigProvider hltConfig;
     bool changed=false;
     hltConfig.init(run,c,hltTag_,changed);
@@ -135,23 +134,25 @@ void EgHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
     //tag and probe trigger efficiencies
     //this is to do measure the trigger efficiency with respect to a fully selected offline electron
     //using a tag and probe technique (note: this will be different to the trigger efficiency normally calculated) 
-    for(size_t i=0;i<eleHLTFilterNames_.size();i++){
-      dbe_->setCurrentFolder(dirName_+"/Source_Histos/"+eleHLTFilterNames_[i]);
-      MonElemFuncs::initTrigTagProbeHist(eleMonElems_,eleHLTFilterNames_[i],cutMasks_.trigTPEle,binData_);
+    bool doTrigTagProbeEff=false;
+    if(doTrigTagProbeEff){
+      for(size_t i=0;i<eleHLTFilterNames_.size();i++){
+	dbe_->setCurrentFolder(dirName_+"/Source_Histos/"+eleHLTFilterNames_[i]);
+	MonElemFuncs::initTrigTagProbeHist(eleMonElems_,eleHLTFilterNames_[i],cutMasks_.trigTPEle,binData_);
+      }
+      for(size_t i=0;i<phoHLTFilterNames_.size();i++){
+	dbe_->setCurrentFolder(dirName_+"/Source_Histos/"+phoHLTFilterNames_[i]);
+	MonElemFuncs::initTrigTagProbeHist(phoMonElems_,phoHLTFilterNames_[i],cutMasks_.trigTPPho,binData_);
+      }
+      for(size_t i=0;i<eleHLTFilterNames2Leg_.size();i++){
+	dbe_->setCurrentFolder(dirName_+"/Source_Histos/"+eleHLTFilterNames2Leg_[i].substr(eleHLTFilterNames2Leg_[i].find("::")+2));
+	//std::cout<<"FilterName: "<<eleHLTFilterNames2Leg_[i]<<std::endl;
+	//std::cout<<"Folder: "<<eleHLTFilterNames2Leg_[i].substr(eleHLTFilterNames2Leg_[i].find("::")+2)<<std::endl;
+	MonElemFuncs::initTrigTagProbeHist_2Leg(eleMonElems_,eleHLTFilterNames2Leg_[i],cutMasks_.trigTPEle,binData_);
+      }
+      //tag and probe not yet implimented for photons (attemping to see if it makes sense first)
+      // MonElemFuncs::initTrigTagProbeHists(phoMonElems,phoHLTFilterNames_);
     }
-    for(size_t i=0;i<phoHLTFilterNames_.size();i++){
-      dbe_->setCurrentFolder(dirName_+"/Source_Histos/"+phoHLTFilterNames_[i]);
-      MonElemFuncs::initTrigTagProbeHist(phoMonElems_,phoHLTFilterNames_[i],cutMasks_.trigTPPho,binData_);
-    }
-    for(size_t i=0;i<eleHLTFilterNames2Leg_.size();i++){
-      dbe_->setCurrentFolder(dirName_+"/Source_Histos/"+eleHLTFilterNames2Leg_[i].substr(eleHLTFilterNames2Leg_[i].find("::")+2));
-      //std::cout<<"FilterName: "<<eleHLTFilterNames2Leg_[i]<<std::endl;
-      //std::cout<<"Folder: "<<eleHLTFilterNames2Leg_[i].substr(eleHLTFilterNames2Leg_[i].find("::")+2)<<std::endl;
-      MonElemFuncs::initTrigTagProbeHist_2Leg(eleMonElems_,eleHLTFilterNames2Leg_[i],cutMasks_.trigTPEle,binData_);
-    }
-    //tag and probe not yet implimented for photons (attemping to see if it makes sense first)
-    // MonElemFuncs::initTrigTagProbeHists(phoMonElems,phoHLTFilterNames_);
-
     isSetup_=true;
     
     dbe_->setCurrentFolder(dirName_);

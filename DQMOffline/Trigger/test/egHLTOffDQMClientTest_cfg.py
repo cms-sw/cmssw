@@ -16,7 +16,11 @@ process.load("DQMOffline.Trigger.EgHLTOfflineSummaryClient_cfi")
 #process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 #process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 
-#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+#use two following lines to grab GlobalTag automatically
+#from Configuration.AlCa.autoCond import autoCond
+#process.GlobalTag.globaltag = autoCond['hltonline']
+process.GlobalTag.globaltag = 'GR_R_52_V1::All'
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
@@ -44,7 +48,7 @@ process.source.fileNames=cms.untracked.vstring(
 
   #  'file:/data/ndpc3/c/dmorse/HLTDQMrootFiles/May18/SourceTest_420_2.root',
   #  'rfio:/castor/cern.ch/user/d/dmorse/DQMOfflineSource/DQMOfflineSource_1_1_vMy.root'
-   
+   'file:SingleElectron_CMSSW_5_2_0_pre3_RECO.root'
     )
 process.source.fileNames.extend(
 [
@@ -81,4 +85,4 @@ process.dqmSaver.saveByRun = cms.untracked.int32(-1)
 process.dqmSaver.saveAtJobEnd = cms.untracked.bool(True)
 process.dqmSaver.workflow = cms.untracked.string('/Run2011A/SingleElectron/RECORuns172620-173692EtCut35')
 process.dqmSaver.forceRunNumber = cms.untracked.int32(1)
-process.dqmSaver.dirName = '/data/ndpc3/c/dmorse/HLTDQMrootFiles'
+#process.dqmSaver.dirName = '/data/ndpc3/c/dmorse/HLTDQMrootFiles'

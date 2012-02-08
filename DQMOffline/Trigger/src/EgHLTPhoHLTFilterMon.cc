@@ -16,6 +16,7 @@ PhoHLTFilterMon::PhoHLTFilterMon(const std::string& filterName,TrigCodes::TrigBi
   filterBit_(filterBit)
 {
   bool monHLTFailedPho=false;
+  bool doN1andSingleEffsPho=false;
 
   phoMonElems_.push_back(new MonElemContainer<OffPho>());
   //phoMonElems_.push_back(new MonElemContainer<OffPho>("_cut"," cut, debug hists ",new EgHLTDQMVarCut<OffPho>(~0x0,&OffPho::cutCode)));
@@ -30,15 +31,16 @@ PhoHLTFilterMon::PhoHLTFilterMon(const std::string& filterName,TrigCodes::TrigBi
   
   phoEffHists_.push_back(new MonElemContainer<OffPho>()); 
   // phoEffHists_.push_back(new MonElemContainer<OffPho>("_jetTag"," Tag and Probe ",new EgJetB2BCut<OffPho>(-M_PI/12,M_PI/12,0.3)));
-  for(size_t i=0;i<phoEffHists_.size();i++){ 
-    MonElemFuncs::initStdEffHists(phoEffHists_[i]->cutMonElems(),filterName_,
-				  filterName_+"_pho_effVsEt"+phoEffHists_[i]->name(),bins.et,&OffPho::et,masks);
-    MonElemFuncs::initStdEffHists(phoEffHists_[i]->cutMonElems(),filterName_,
-				  filterName_+"_pho_effVsEta"+phoEffHists_[i]->name(),bins.eta,&OffPho::eta,masks); 
-    /* MonElemFuncs::initStdEffHists(phoEffHists_[i]->cutMonElems(),filterName_,
-       filterName_+"_pho_effVsPhi"+phoEffHists_[i]->name(),bins.phi,&OffPho::phi,masks);*/
+  if(doN1andSingleEffsPho){
+    for(size_t i=0;i<phoEffHists_.size();i++){ 
+      MonElemFuncs::initStdEffHists(phoEffHists_[i]->cutMonElems(),filterName_,
+				    filterName_+"_pho_effVsEt"+phoEffHists_[i]->name(),bins.et,&OffPho::et,masks);
+      MonElemFuncs::initStdEffHists(phoEffHists_[i]->cutMonElems(),filterName_,
+				    filterName_+"_pho_effVsEta"+phoEffHists_[i]->name(),bins.eta,&OffPho::eta,masks); 
+      /* MonElemFuncs::initStdEffHists(phoEffHists_[i]->cutMonElems(),filterName_,
+	 filterName_+"_pho_effVsPhi"+phoEffHists_[i]->name(),bins.phi,&OffPho::phi,masks);*/
+    }
   }
-
   typedef MonElemManager<ParticlePair<OffPho>,float >  DiPhoMon;
   diPhoMassBothME_ = new DiPhoMon(filterName_+"_diPho_bothPassFilter_mass",
 				  filterName_+"_diPho_bothPassFilter Mass;M_{#gamma#gamma} (GeV/c^{2})",

@@ -19,6 +19,7 @@ EleHLTFilterMon::EleHLTFilterMon(const std::string& filterName,TrigCodes::TrigBi
   bool monHLTFailedEle = false;
   bool doFakeRate=false;
   bool doTagAndProbe=false;
+  bool doN1andSingleEffs=false;
 
   eleMonElems_.push_back(new MonElemContainer<OffEle>());
   //---Morse-------
@@ -50,17 +51,18 @@ EleHLTFilterMon::EleHLTFilterMon(const std::string& filterName,TrigCodes::TrigBi
   eleEffHists_.push_back(new MonElemContainer<OffEle>());
   if(doTagAndProbe) eleEffHists_.push_back(new MonElemContainer<OffEle>("_tagProbe"," Tag and Probe ",new EgTagProbeCut<OffEle>(effProbeCutCode,&OffEle::cutCode,effTagCutCode,&OffEle::cutCode)));
   if(doFakeRate) eleEffHists_.push_back(new MonElemContainer<OffEle>("_fakeRate"," Fake Rate ",new EgJetTagProbeCut<OffEle>(fakeRateProbeCut,&OffEle::looseCutCode)));
-  for(size_t i=0;i<eleEffHists_.size();i++){ 
-    MonElemFuncs::initStdEffHists(eleEffHists_[i]->cutMonElems(),filterName,
-				  filterName_+"_gsfEle_effVsEt"+eleEffHists_[i]->name(),bins.et,&OffEle::et,masks);
-    MonElemFuncs::initStdEffHists(eleEffHists_[i]->cutMonElems(),filterName,
-				  filterName_+"_gsfEle_effVsEta"+eleEffHists_[i]->name(),bins.eta,&OffEle::eta,masks); 
-    /*  MonElemFuncs::initStdEffHists(eleEffHists_[i]->cutMonElems(),filterName,
-	filterName_+"_gsfEle_effVsPhi"+eleEffHists_[i]->name(),bins.phi,&OffEle::phi,masks); */
-    // MonElemFuncs::initStdEffHists(eleEffHists_[i]->cutMonElems(),filterName,
-    //			  filterName_+"_gsfEle_effVsCharge"+eleEffHists_[i]->name(),bins.charge,&OffEle::chargeF);
+  if(doN1andSingleEffs){
+    for(size_t i=0;i<eleEffHists_.size();i++){ 
+      MonElemFuncs::initStdEffHists(eleEffHists_[i]->cutMonElems(),filterName,
+				    filterName_+"_gsfEle_effVsEt"+eleEffHists_[i]->name(),bins.et,&OffEle::et,masks);
+      MonElemFuncs::initStdEffHists(eleEffHists_[i]->cutMonElems(),filterName,
+				    filterName_+"_gsfEle_effVsEta"+eleEffHists_[i]->name(),bins.eta,&OffEle::eta,masks); 
+      /*  MonElemFuncs::initStdEffHists(eleEffHists_[i]->cutMonElems(),filterName,
+	  filterName_+"_gsfEle_effVsPhi"+eleEffHists_[i]->name(),bins.phi,&OffEle::phi,masks); */
+      // MonElemFuncs::initStdEffHists(eleEffHists_[i]->cutMonElems(),filterName,
+      //			  filterName_+"_gsfEle_effVsCharge"+eleEffHists_[i]->name(),bins.charge,&OffEle::chargeF);
+    }
   }
-
   typedef MonElemManager<ParticlePair<OffEle>,float >  DiEleMon;
   diEleMassBothME_ = new DiEleMon(filterName_+"_diEle_bothPassFilter_mass",
 				  filterName_+"_diEle_bothPassFilter Mass;M_{ee} (GeV/c^{2})",
