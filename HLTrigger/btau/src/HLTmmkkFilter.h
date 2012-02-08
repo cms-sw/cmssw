@@ -53,6 +53,7 @@ class HLTmmkkFilter : public HLTFilter {
   const double maxNormalisedChi2_;
   const double minLxySignificance_;
   const double minCosinePointingAngle_;
+  const double minD0Significance_;
   const bool fastAccept_;
   edm::InputTag beamSpotTag_;
 

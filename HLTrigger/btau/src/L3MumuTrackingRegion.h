@@ -32,6 +32,20 @@ public:
 
     theDeltaEta = regionPSet.getParameter<double>("deltaEtaRegion");
     theDeltaPhi =  regionPSet.getParameter<double>("deltaPhiRegion");
+    if (regionPSet.exists("searchOpt")){
+      m_searchOpt    = regionPSet.getParameter<bool>("searchOpt");
+    }
+    else{
+      m_searchOpt = false;
+    }
+    m_measurementTracker ="";
+    m_howToUseMeasurementTracker=0;
+    if (regionPSet.exists("measurementTrackerName")){
+      m_measurementTracker = regionPSet.getParameter<std::string>("measurementTrackerName");
+      if (regionPSet.exists("howToUseMeasurementTracker")){
+	m_howToUseMeasurementTracker = regionPSet.getParameter<double>("howToUseMeasurementTracker");
+      }
+    }
   }   
 
   virtual ~L3MumuTrackingRegion(){}
@@ -64,7 +78,11 @@ public:
             GlobalVector dirVector((iTrk)->px(),(iTrk)->py(),(iTrk)->pz());
             result.push_back(
                              new RectangularEtaPhiTrackingRegion( dirVector, GlobalPoint(0,0,float(ci->z())),
-                                                                  thePtMin, theOriginRadius, deltaZVertex, theDeltaEta, theDeltaPhi) );
+                                                                  thePtMin, theOriginRadius, deltaZVertex, theDeltaEta, theDeltaPhi,
+								  m_howToUseMeasurementTracker,
+								  true,
+								  m_measurementTracker,
+								  m_searchOpt) );
           }
         return result;
       }
@@ -77,7 +95,11 @@ public:
       GlobalVector dirVector((iTrk)->px(),(iTrk)->py(),(iTrk)->pz());
       result.push_back( 
           new RectangularEtaPhiTrackingRegion( dirVector, GlobalPoint(0,0,float(originz)), 
-          thePtMin, theOriginRadius, deltaZVertex, theDeltaEta, theDeltaPhi) );
+					       thePtMin, theOriginRadius, deltaZVertex, theDeltaEta, theDeltaPhi,
+					       m_howToUseMeasurementTracker,
+					       true,
+					       m_measurementTracker,
+					       m_searchOpt) );
     }
     return result;
   }
@@ -96,6 +118,9 @@ private:
 
   double theDeltaEta; 
   double theDeltaPhi;
+  std::string m_measurementTracker;
+  double m_howToUseMeasurementTracker;
+  bool m_searchOpt;
 };
 
 #endif 

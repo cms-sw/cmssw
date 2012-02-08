@@ -39,6 +39,7 @@ HLTmmkFilter::HLTmmkFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig
   maxNormalisedChi2_(iConfig.getParameter<double>("MaxNormalisedChi2")),
   minLxySignificance_(iConfig.getParameter<double>("MinLxySignificance")),
   minCosinePointingAngle_(iConfig.getParameter<double>("MinCosinePointingAngle")),
+  minD0Significance_(iConfig.getParameter<double>("MinD0Significance")),
   fastAccept_(iConfig.getParameter<bool>("FastAccept")),
   beamSpotTag_ (iConfig.getParameter<edm::InputTag> ("BeamSpotTag"))
 {
@@ -87,6 +88,10 @@ bool HLTmmkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   iEvent.getByLabel(beamSpotTag_,recoBeamSpotHandle);
   const reco::BeamSpot& vertexBeamSpot = *recoBeamSpotHandle;
+
+  const GlobalPoint ptBeamSpot = GlobalPoint(recoBeamSpotHandle->position().x(),
+					     recoBeamSpotHandle->position().y(),
+					     recoBeamSpotHandle->position().z());
 
   // Ref to Candidate object to be recorded in filter object
   RecoChargedCandidateRef refMu1;
@@ -218,6 +223,11 @@ bool HLTmmkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
 			t_tks.push_back((*theB).build(&trk3));
 						
 			if (t_tks.size()!=3) continue;
+
+			TrajectoryStateClosestToPoint traj = t_tks[2].trajectoryStateClosestToPoint( ptBeamSpot );
+			if (!traj.isValid()) continue;
+			double d0sig = traj.perigeeParameters().transverseImpactParameter()/traj.perigeeError().transverseImpactParameterError();
+			if (d0sig < minD0Significance_) continue;
 			
 			KalmanVertexFitter kvf;
 			TransientVertex tv = kvf.vertex(t_tks);
@@ -311,7 +321,7 @@ bool HLTmmkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
 // ----------------------------------------------------------------------
 int HLTmmkFilter::overlap(const reco::Candidate &a, const reco::Candidate &b) {
   
-  double eps(1.0e-5);
+  double eps(1.44e-4);
 
   double dpt = a.pt() - b.pt();
   dpt *= dpt;
