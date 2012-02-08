@@ -27,6 +27,8 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
               
     cutStep = cms.double(20.0),
     numberOfSteps = cms.int32(1),
+    minimalSetOfHistos = cms.bool(True),
+    excludeBkgHistos = cms.bool(True),                            
 
     isHeavyIon = cms.untracked.bool(False),
 

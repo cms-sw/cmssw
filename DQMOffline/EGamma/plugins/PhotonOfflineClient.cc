@@ -11,7 +11,7 @@
  **
  **
  **  $Id: PhotonOfflineClient
- **  $Date: 2010/11/17 18:04:36 $
+ **  $Date: 2011/04/08 15:55:00 $
  **  authors:
  **   Nancy Marinelli, U. of Notre Dame, US
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -57,7 +57,7 @@ PhotonOfflineClient::PhotonOfflineClient(const edm::ParameterSet& pset)
 
   types_.push_back("All");
   types_.push_back("GoodCandidate");
-  types_.push_back("Background");
+  if (!excludeBkgHistos_)  types_.push_back("Background");
 
   parts_.push_back("AllEcal");
   parts_.push_back("Barrel");

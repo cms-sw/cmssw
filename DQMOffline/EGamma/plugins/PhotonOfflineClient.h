@@ -40,7 +40,7 @@
  **  
  **
  **  $Id: PhotonOfflineClient
- **  $Date: 2010/11/29 00:25:44 $ 
+ **  $Date: 2011/04/08 15:55:00 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -122,6 +122,8 @@ class PhotonOfflineClient : public edm::EDAnalyzer
 
   double cutStep_;
   int numberOfSteps_;
+  bool minimalSetOfHistos_;
+  bool excludeBkgHistos_;
 
   double etMin;
   double etMax;

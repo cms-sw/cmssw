@@ -13,7 +13,8 @@ photonOfflineClient = cms.EDAnalyzer("PhotonOfflineClient",
 
     cutStep = photonAnalysis.cutStep,
     numberOfSteps = photonAnalysis.numberOfSteps,
-
+    minimalSetOfHistos = photonAnalysis.minimalSetOfHistos,                                
+    excludeBkgHistos = photonAnalysis.excludeBkgHistos,
 
     etBin = photonAnalysis.etBin,
     etMin = photonAnalysis.etMin,
