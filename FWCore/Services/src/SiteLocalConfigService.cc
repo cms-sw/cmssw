@@ -113,6 +113,7 @@ namespace edm {
           m_ttreeCacheSizePtr(0),
           m_timeout(0U),
           m_timeoutPtr(0),
+          m_debugLevel(0U),
           m_nativeProtocols(),
           m_nativeProtocolsPtr(0) {
 
@@ -132,6 +133,10 @@ namespace edm {
         overrideFromPSet("overrideSourceNativeProtocols", pset, m_nativeProtocols, m_nativeProtocolsPtr);
         overrideFromPSet("overrideSourceTTreeCacheSize", pset, m_ttreeCacheSize, m_ttreeCacheSizePtr);
         overrideFromPSet("overrideSourceTimeout", pset, m_timeout, m_timeoutPtr);
+
+       if(pset.exists("debugLevel")) {
+            m_debugLevel = pset.getUntrackedParameter<unsigned int>("debugLevel");
+       }
 
     }
 
@@ -268,6 +273,11 @@ namespace edm {
     unsigned int const*
     SiteLocalConfigService::sourceTimeout() const {
        return m_timeoutPtr;
+    }
+
+    unsigned int
+    SiteLocalConfigService::debugLevel() const {
+       return m_debugLevel;
     }
 
     std::vector<std::string> const*
@@ -456,6 +466,7 @@ namespace edm {
       desc.addOptionalUntracked<std::vector<std::string> >("overrideSourceNativeProtocols");
       desc.addOptionalUntracked<unsigned int>("overrideSourceTTreeCacheSize");
       desc.addOptionalUntracked<unsigned int>("overrideSourceTimeout");
+      desc.addOptionalUntracked<unsigned int>("debugLevel");
 
       descriptions.add("SiteLocalConfigService", desc);
     }

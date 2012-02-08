@@ -35,6 +35,7 @@ namespace edm {
             std::string const* sourceReadHint() const;
             unsigned int const* sourceTTreeCacheSize() const;
             unsigned int const* sourceTimeout() const;
+            unsigned int        debugLevel() const;
             std::vector<std::string> const* sourceNativeProtocols() const;
             // implicit copy constructor
             // implicit assignment operator
@@ -63,6 +64,7 @@ namespace edm {
             unsigned int const* m_ttreeCacheSizePtr;
             unsigned int        m_timeout;
             unsigned int const* m_timeoutPtr;
+            unsigned int        m_debugLevel;
             std::vector<std::string> m_nativeProtocols;
             std::vector<std::string> const* m_nativeProtocolsPtr;
          };
