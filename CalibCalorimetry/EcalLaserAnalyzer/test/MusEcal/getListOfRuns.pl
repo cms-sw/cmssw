@@ -12,11 +12,8 @@ $lastRun  = @ARGV[3];
 
 $laserdir       = "${datadir}/Laser/Analyzed";
 $testpulsedir   = "${datadir}/TestPulse/Analyzed";
-$leddir         = "${datadir}/LED/Analyzed";
 $runsdir        = "${datadir}/Runs";
 $listdir        = "$dir";
-
-print " datadir: $datadir , dir: $dir , firstRun: $firstRun , lastRun: $lastRun \n"; 
 
 if( $firstRun eq "" )
 {
@@ -31,69 +28,10 @@ elsif( $lastRun eq "" )
     $lastRun = $firstRun;
 }
 
-$runlistred="${listdir}/runlist_IRed_Laser";
-$runlistblue="${listdir}/runlist_Blue_Laser";
-$runlisttp="${listdir}/runlist_Test_Pulse";
-$runlistledred="${listdir}/runlist_Red_LED";
-$runlistledblue="${listdir}/runlist_Blue_LED";
 
-$runlistredtmp="${listdir}/runlist_IRed_Laser_tmp";
-$runlistbluetmp="${listdir}/runlist_Blue_Laser_tmp";
-$runlisttptmp="${listdir}/runlist_Test_Pulse_tmp";
-
-$runlistledredtmp="${listdir}/runlist_Red_LED_tmp";
-$runlistledbluetmp="${listdir}/runlist_Blue_LED_tmp";
-
-$runlistredinit="${listdir}/runlist_IRed_Laser_init_fromfiles";
-$runlistblueinit="${listdir}/runlist_Blue_Laser_init_fromfiles";
-$runlisttpinit="${listdir}/runlist_Test_Pulse_init_fromfiles";
-
-$runlistledredinit="${listdir}/runlist_Red_LED_init_fromfiles";
-$runlistledblueinit="${listdir}/runlist_Blue_LED_init_fromfiles";
-
-if( -e "$runlistredtmp"){
-    system "rm $runlistredtmp";
-}
-if( -e "$runlistbluetmp"){
-    system "rm $runlistbluetmp";
-}
-if( -e "$runlisttptmp"){
-    system "rm $runlisttptmp";
-}
-
-if( -e "$runlistledredtmp"){
-    system "rm $runlistledredtmp";
-}
-if( -e "$runlistledbluetmp"){
-    system "rm $runlistledbluetmp";
-}
-
-if( -e "$runlistredinit"){
-    system "cp  $runlistredinit $runlistredtmp";
-}
-if( -e "$runlistblueinit"){
-    system "cp  $runlistblueinit $runlistbluetmp";
-}
-if( -e "$runlisttpinit"){
-    system "cp  $runlisttpinit $runlisttptmp";
-}
-
-if( -e "$runlistledredinit"){
-    system "cp  $runlistledredinit $runlistledredtmp";
-}
-if( -e "$runlistledblueinit"){
-    system "cp  $runlistledblueinit $runlistledbluetmp";
-}
-if( $datadir  =~ /EB/ ){
-    open( LREDLIST,  ">>${listdir}/runlist_IRed_Laser_tmp")    || die "cannot open output file ${listdir}/runlist_IRed_Laser_tmp \n";
-}
-open( LBLUELIST, ">>${listdir}/runlist_Blue_Laser_tmp")   || die "cannot open output file ${listdir}/runlist_Blue_Laser_tmp\n";
-
-if( $datadir  =~ /EE/ ){
-    open( LEDREDLIST,  ">>${listdir}/runlist_Red_LED_tmp")    || die "cannot open output file ${listdir}/runlist_Red_LED_tmp \n";
-    open( LEDBLUELIST, ">>${listdir}/runlist_Blue_LED_tmp")   || die "cannot open output file ${listdir}/runlist_Blue_LED_tmp \n";
-}
-open( TPLIST,    ">>${listdir}/runlist_Test_Pulse_tmp")   || die "cannot open output file ${listdir}/runlist_Test_Pulse_tmp \n";
+open( LREDLIST,  ">${listdir}/runlist_Red_Laser")    || die "cannot open output file\n";
+open( LBLUELIST, ">${listdir}/runlist_Blue_Laser")   || die "cannot open output file\n";
+open( TPLIST,    ">${listdir}/runlist_Test_Pulse")   || die "cannot open output file\n";
 
 $firstLaser = 1;
 $firstTP    = 1;
@@ -155,12 +93,12 @@ foreach my $rundir (@runsdir)
         if( $theLine =~ /MPGA_GAIN = (.*)/ ){ $mgpagain = $1; }
         if( $theLine =~ /MEM_GAIN  = (.*)/ ){ $memgain = $1; }
         if( $theLine =~ /blue laser/ ){ $curcolor = "BLUE"; }
-        if( $theLine =~ /red laser/ ){  $curcolor = "IRED"; }
+        if( $theLine =~ /red laser/ ){  $curcolor = "RED"; }
 
         if( $theLine =~ /events = (.*)/ ){
             if( $curcolor eq "BLUE" ){
                 $blueevents = $1;
-            }elsif ( $curcolor eq "IRED" ){
+            }elsif ( $curcolor eq "RED" ){
 		$redevents = $1;
             }
         }
@@ -168,14 +106,14 @@ foreach my $rundir (@runsdir)
         if( $theLine =~ /power  = (.*)/ ){
             if( $curcolor eq "BLUE" ){
                 $bluepower = $1;
-            }elsif ( $curcolor eq "IRED" ){
+            }elsif ( $curcolor eq "RED" ){
                 $redpower = $1;
             }
         }
         if( $theLine =~ /filter = (.*)/ ){
             if( $curcolor eq "BLUE" ){
                 $bluefilter = $1;
-            }elsif ( $curcolor eq "IRED" ){
+            }elsif ( $curcolor eq "RED" ){
                 $redfilter = $1;
             }
         }
@@ -183,7 +121,7 @@ foreach my $rundir (@runsdir)
         if( $theLine =~ /delay  = (.*)/ ){
             if( $curcolor eq "BLUE" ){
                 $bluedelay = $1;
-            }elsif ( $curcolor eq "IRED" ){
+            }elsif ( $curcolor eq "RED" ){
                 $reddelay = $1;
             }
         }
@@ -198,19 +136,16 @@ foreach my $rundir (@runsdir)
         }
     }
     $diffTS = $timestampbeg - $firstTS ;
-    if($redevents >0 && $timestampbeg > 30000000000000){
+    if($redevents >0 ){
         print LREDLIST "Run${run}_LB${lumiblock}\t$run\t$lumiblock\t$redevents\t$timestampbeg\t$timestampend\t$mgpagain\t$memgain\t$redpower\t$redfilter\t$reddelay\n";
     }
-    if($blueevents > 0 && $timestampbeg > 30000000000000){
+    if($blueevents > 0 ){
         print LBLUELIST "Run${run}_LB${lumiblock}\t$run\t$lumiblock\t$blueevents\t$timestampbeg\t$timestampend\t$mgpagain\t$memgain\t$bluepower\t$bluefilter\t$bluedelay\n";
     }
 }
 closedir( RUNSDIR );
 close( LBLUELIST );
-
-if( $datadir  =~ /EB/ ){
-    close( LREDLIST );
-}
+close( LREDLIST );
 
 opendir( RUNSDIR, $testpulsedir ) || die "cannot open directory $dir\n";
 @runsdir = sort  readdir( RUNSDIR );
@@ -272,142 +207,9 @@ foreach my $rundir (@runsdir)
             $firstTS = $timestamp_beg;
         }
     }
-    if($events > 0 && $timestampbeg> 30000000000000 ){
+    if($events > 0 ){
         print TPLIST "Run${run}_LB${lumiblock}\t$run\t$lumiblock\t$events\t$timestampbeg\t$timestampend\t$mgpagain\t$memgain -1 -1 -1\n";
     }
 }
 closedir( RUNSDIR );
 close( TPLIST );
-
-if( $datadir  =~ /EE/ ){
-    opendir( RUNSDIR, $leddir) || die "cannot open directory $leddir\n";
-    @runsdir = sort  readdir( RUNSDIR );
-    foreach my $rundir (@runsdir)
-    {
-	next unless( $rundir =~  /Run(\d*)_LB(.*)/ );
-	$run = $1;
-	$lumiblock = $2;
-	
-	my $curtype = "LED";
-	next if( $run < $firstRun || $run > $lastRun );
-	next if( !open( HEADERFILE, "${leddir}/${rundir}/header.txt") );
-
-	
-	my $timestampbeg = 0;
-	my $timestampend = 0;
-	my $mgpagain = -1;
-	my $memgain  = -1;
-	
-	my $blueevents = 0;
-	my $bluepower  = -10;
-	my $bluefilter = -10;
-	my $bluedelay  = -10;
-	
-	my $redevents = 0;
-	my $redpower  = -10;
-	my $redfilter = -10;
-	my $reddelay  = -10;
-	
-	my $curcolor  = "NOCOLOR";
-	
-	while ( <HEADERFILE> )
-	{
-	    chomp($_);
-	    $theLine = $_;
-	    
-	    if( $theLine =~ /RUN = (.*)/ )
-	    {
-		if ( $run != $1 ) {
-		    print "Run number not properly filled: $run versus $1 \n";
-		}
-	    }
-	    if( $theLine =~ /(.*) Events/ )
-	    {
-		$curtype = $1;
-		($curtype =~ /LED/) || last;
-	    }
-	    
-	    if( $theLine =~ /RUNTYPE = (\d*)/ )
-	    {
-		$runtype = $1;
-		( $runtype == 12 || $runtype == 19 )  ||  last;
-	    }
-	    if( $theLine =~ /TIMESTAMP_BEG = (.*)/ ){ $timestampbeg = $1; }
-	    if( $theLine =~ /TIMESTAMP_END = (.*)/ ){ $timestampend = $1; }
-	    if( $theLine =~ /MPGA_GAIN = (.*)/ ){ $mgpagain = $1; }
-	    if( $theLine =~ /MEM_GAIN  = (.*)/ ){ $memgain = $1; }
-	    if( $theLine =~ /blue led/ ){ $curcolor = "BLUE"; }
-	    if( $theLine =~ /ired led/ ){  $curcolor = "IRED"; }
-	    
-	    if( $theLine =~ /events = (.*)/ ){
-		if( $curcolor eq "BLUE" ){
-		    $blueevents = $1;
-		}elsif ( $curcolor eq "IRED" ){
-		    $redevents = $1;
-		}
-	    }
-	    
-	    if( $theLine =~ /power  = (.*)/ ){
-		if( $curcolor eq "BLUE" ){
-		    $bluepower = $1;
-		}elsif ( $curcolor eq "IRED" ){
-		    $redpower = $1;
-		}
-	    }
-	    if( $theLine =~ /filter = (.*)/ ){
-		if( $curcolor eq "BLUE" ){
-		    $bluefilter = $1;
-		}elsif ( $curcolor eq "IRED" ){
-		    $redfilter = $1;
-		}
-	    }
-	    
-	    if( $theLine =~ /delay  = (.*)/ ){
-		if( $curcolor eq "BLUE" ){
-		    $bluedelay = $1;
-		}elsif ( $curcolor eq "IRED" ){
-		    $reddelay = $1;
-		}
-	    }
-	}
-	
-	if( $firstLed )
-	{
-	    $firstLed = 0;
-	    if( $firstTP )
-	    {
-		$firstTS    = $timestampbeg;
-	    }
-	}
-	$diffTS = $timestampbeg - $firstTS ;
-	if($redevents >0 && $timestampbeg > 30000000000000){
-	    print LEDREDLIST "Run${run}_LB${lumiblock}\t$run\t$lumiblock\t$redevents\t$timestampbeg\t$timestampend\t$mgpagain\t$memgain\t$redpower\t$redfilter\t$reddelay\n";
-	}
-	if($blueevents > 0 && $timestampbeg > 30000000000000){
-	    print LEDBLUELIST "Run${run}_LB${lumiblock}\t$run\t$lumiblock\t$blueevents\t$timestampbeg\t$timestampend\t$mgpagain\t$memgain\t$bluepower\t$bluefilter\t$bluedelay\n";
-	}
-    }
-    closedir( RUNSDIR );
-    close( LEDBLUELIST );
-    close( LEDREDLIST );
-}
-my $command;
-
-if( $datadir  =~ /EB/ ){
-    $command="mv $runlistredtmp $runlistred";
-    system ${command};
-}
-
-$command="mv $runlistbluetmp $runlistblue";
-system ${command};
-
-$command="mv $runlisttptmp $runlisttp";
-system ${command};
-
-if( $datadir  =~ /EE/){
-    $command="mv $runlistledredtmp $runlistledred"; 
-    system ${command};
-    
-    $command="mv $runlistledbluetmp $runlistledblue";
-    system ${command};
-}

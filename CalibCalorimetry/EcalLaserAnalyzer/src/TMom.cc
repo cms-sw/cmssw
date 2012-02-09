@@ -1,7 +1,7 @@
 /* 
  *  \class TMom
  *
- *  $Date: 2009/06/02 12:55:21 $
+ *  $Date: 2010/01/04 15:06:28 $
  *  \author: Julie Malcles - CEA/Saclay
  */
 
@@ -10,6 +10,7 @@
 #include <TMath.h>
 
 #include <cassert>
+
 using namespace std;
 
 //ClassImp(TMom)
@@ -121,7 +122,7 @@ void TMom::addEntry(double val, std::vector<double> valcut)
   
   for (int iCut=0;iCut<_dimCut;iCut++){
     int passing;
-    if( valcut[iCut]>_cutLow[iCut] && valcut[iCut] <=_cutHigh[iCut] ){
+    if( valcut.at(iCut)>_cutLow.at(iCut) && valcut.at(iCut) <=_cutHigh.at(iCut) ){
       passing=1;
     }else passing=0;
     passingAllCuts*=passing; 
@@ -196,20 +197,18 @@ std::vector<double> TMom::getPeak(){
     if(wbin <= 0.0)
       bung=1;
     else
-      bung= (int) ((_ampl[i]-min)/wbin)+1;
+      bung= (int) ((_ampl.at(i)-min)/wbin)+1;
     if(1 <= bung && bung <= 100)
       bing[bung]++;
   }
   
   TMarkov *peakM = new TMarkov();
 
-  int nbmax=0;
   int popmax=0;
   
   for(int k=1;k<101;k++) {
     if(bing[k] > popmax) {
       popmax=bing[k];
-      nbmax=k;
     }
   }
   

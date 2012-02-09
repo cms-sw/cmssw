@@ -1,4 +1,4 @@
-// $Id: EcalCalibAnalyzer.h
+// $Id: EcalLaserAnalyzer.h
 
 #include <memory>
 
@@ -6,8 +6,6 @@
 #include <map>
 
 #include <FWCore/Framework/interface/EDAnalyzer.h>
-
-using namespace std;
 
 class TFile;
 class TTree;
@@ -46,30 +44,22 @@ class TMem;
 #define NSIDES     2     // Number of sides
 #define NREFCHAN   2     // Ref number for APDB
 
-#define NGAINPN    2     // Number of gains for TP   
-#define NGAINAPD   4     // Number of gains for TP
-#define NSAMPSHAPES 250
-
-class EcalCalibAnalyzer: public edm::EDAnalyzer{  
+class EcalLaserAnalyzer: public edm::EDAnalyzer{  
 
  public:
   
-  explicit EcalCalibAnalyzer(const edm::ParameterSet& iConfig);  
-  ~EcalCalibAnalyzer();
+  explicit EcalLaserAnalyzer(const edm::ParameterSet& iConfig);  
+  ~EcalLaserAnalyzer();
   
   
   virtual void analyze( const edm::Event & e, const  edm::EventSetup& c);
   virtual void beginJob();
   virtual void endJob();
-
-  void beginJobAB();
-  void beginJobShape();
-  void beginJobMatacq();
-
-  void endJobAB();
-  void endJobShape();
-  void endJobLight();
-  void endJobTestPulse();
+  
+  void setGeomEB(int etaG, int phiG, int module, int tower, int strip, int xtal, 
+		 int apdRefTT, int channel, int lmr);
+  void setGeomEE(int etaG, int phiG,int iX, int iY, int iZ, int module, int tower, 
+		 int ch , int apdRefTT, int channel, int lmr);
 
   enum VarCol   { iBlue, iRed, nColor }; 
   
@@ -80,14 +70,11 @@ class EcalCalibAnalyzer: public edm::EDAnalyzer{
 
   // Framework parameters
   
-  string        _type; // LASER, LED, TESTPULSE
-  string        _typefit; // AB, SHAPE
-
-  unsigned int  _nsamples; // 10
-  unsigned int  _presample; // default samples number for pedestal calc
-  unsigned int  _firstsample; // samples number before max for ampl calc
-  unsigned int  _lastsample; // samples number after max for ampl calc
-  unsigned int  _nsamplesPN; 
+  unsigned int  _nsamples;
+  unsigned int  _presample;
+  unsigned int  _firstsample;
+  unsigned int  _lastsample;
+  unsigned int  _nsamplesPN;
   unsigned int  _presamplePN;
   unsigned int  _firstsamplePN;
   unsigned int  _lastsamplePN;
@@ -98,32 +85,20 @@ class EcalCalibAnalyzer: public edm::EDAnalyzer{
   double        _ratiomincutlow;
   double        _ratiomincuthigh;
   double        _ratiomaxcutlow;
-  double        _pulsemaxcutlow;
-  double        _pulsemaxcuthigh;
-  double        _qualpercent;
   double        _presamplecut;
   unsigned int  _niter ;
-  double        _chi2cut;
-  string        _ecalPart;
-  int           _fedid;
-  bool          _saveallevents;
-  int           _debug;
-
-  double        _noise;
-  bool          _docorpn;
-
   bool          _fitab ;
   double        _alpha;
   double        _beta;
   unsigned int  _nevtmax;
-  
-  bool          _saveshapes;
-  unsigned int  _nsamplesshapes;
-
-  unsigned int  _samplemin;
-  unsigned int  _samplemax;
-  double        _chi2max ;
-  double        _timeofmax ;
+  double        _noise;
+  double        _chi2cut;
+  std::string   _ecalPart;
+  bool          _docorpn;
+  int           _fedid;
+  bool          _saveallevents;
+  double        _qualpercent;
+  int           _debug;
 
   TAPDPulse *APDPulse;
   TPNPulse *PNPulse;
@@ -132,47 +107,26 @@ class EcalCalibAnalyzer: public edm::EDAnalyzer{
   TMom *Delta12;
   
   bool doesABTreeExist;
-  bool doesABInitTreeExist;
   
-  string  resdir_;
-  string  pncorfile_;
-  string  elecfile_;
-  string  digiCollection_;
-  string  digiPNCollection_;
-  string  digiProducer_;
-  string  eventHeaderCollection_;
-  string  eventHeaderProducer_;
+  std::string  resdir_;
+  std::string  pncorfile_;
+  std::string  digiCollection_;
+  std::string  digiPNCollection_;
+  std::string  digiProducer_;
+  std::string  eventHeaderCollection_;
+  std::string  eventHeaderProducer_;
 
   // Output file names
 
-  // LASER/LED: AB
-  string  alphafile;
-  string  alphainitfile;
-
-  // LASER/LED: SHAPES
-  string  shapefile;
-  string  matfile;
-
-  // COMMON:
-  string  ADCfile;
-  string  APDfile;
-  string  resfile;
+  std::string  alphafile;
+  std::string  alphainitfile;
+  std::string  ADCfile;
+  std::string  APDfile;
+  std::string  resfile;
 
   
-  // LASER/LED: AB
-
-  TShapeAnalysis * shapana[nColor];
+  TShapeAnalysis * shapana;
   unsigned int nevtAB[NCRYSEB];
-
-  // LASER/LED: SHAPES
-
-  vector<  double > shapesVec;
-  double shapes[NSAMPSHAPES];
-  double shapeCorrection;
-  bool isSPRFine;
-  bool getShapes();
-
-
 
   //  Define geometrical constants
 
@@ -198,8 +152,8 @@ class EcalCalibAnalyzer: public edm::EDAnalyzer{
   int lightside;
   int iZ;
 
-  // Count Events of defined type
-  int typeEvents;
+  // Count Laser Events
+  int laserEvents;
 
   // PN linearity corrections
 
@@ -208,20 +162,15 @@ class EcalCalibAnalyzer: public edm::EDAnalyzer{
   // Temporary root files and trees
 
   TFile *ADCFile; 
-  TTree *ADCTrees[NCRYSEB];
+  TTree *ADCtrees[NCRYSEB];
 
   TFile *APDFile; 
-  TTree *APDTrees[NCRYSEB];
-  TTree *refAPDTrees[NREFCHAN][NMODEE];
+  TTree *APDtrees[NCRYSEB];
+  TTree *RefAPDtrees[NREFCHAN][NMODEE];
 
   TFile *resFile; 
-  TTree *resTrees[nColor];
-  TTree *resPNTrees[nColor];
-  TTree *resTree;
-  TTree *resPNTree;
-
-  TFile *shapeFile; 
-  TProfile *pulseShape;
+  TTree *restrees[nColor];
+  TTree *respntrees[nColor];
 
   std::vector<int> colors;
   std::map<unsigned int, unsigned int> channelMapEE;
@@ -235,7 +184,6 @@ class EcalCalibAnalyzer: public edm::EDAnalyzer{
   int             event ;
   int             color ;
   double          adc[10];
-  int             adcGain;
   int             adcG[10];
   double          pn0,pn1;
   double          pn[50];
@@ -245,7 +193,6 @@ class EcalCalibAnalyzer: public edm::EDAnalyzer{
   double          apdAmplB;
   double          apdTime;
   double          pnAmpl;
-  int             pnGain;
 
   int             eventref;
   int             colorref;
@@ -261,21 +208,15 @@ class EcalCalibAnalyzer: public edm::EDAnalyzer{
   TAPD *APDFirstAnal[NCRYSEB][nColor];
   TAPD *APDAnal[NCRYSEB][nColor];
 
-  //declare stuff for TP:
-  TPN  *TPPNAnal[NMODEE][NPNPERMOD][NGAINPN];
-  TAPD  *TPAPDAnal[NCRYSEB][NGAINAPD];
-
-  int isThereDataADC[NCRYSEB][nColor];
+  int IsThereDataADC[NCRYSEB][nColor];
 
   // Declaration of leaves types for results tree
 
   int         pnID, moduleID, flag, flagAB;
   int         channelIteratorEE;
 
-  bool isMatacqOK;
-
   double      APD[6], Time[6], PN[6], APDoPN[6], APDoPNA[6], APDoPNB[6],
-    APDoAPD[6], APDoAPDA[6], APDoAPDB[6], PNoPN[6], PNoPNA[6], PNoPNB[6], ShapeCor; 
+    APDoAPDA[6], APDoAPDB[6], PNoPN[6], PNoPNA[6], PNoPNB[6]; 
 
   // [0]=mean, [1]=rms, [2]=L3, [3]=nevt, [4]=min, [5]=max 
   // flag is 1 if fit if there is data, 0 if there is no data
@@ -290,23 +231,14 @@ class EcalCalibAnalyzer: public edm::EDAnalyzer{
   
   int nEvtBadGain[NCRYSEB];
   int nEvtBadTiming[NCRYSEB];
-  int nEvtBadSignal[NCRYSEB];
-  double meanRawAmpl[NCRYSEB];
-  int nEvtRawAmpl[NCRYSEB];
   int nEvtTot[NCRYSEB];
-  double meanMeanRawAmpl;
-
-  unsigned int nGainPN; 
-  unsigned int nGainAPD;
 
   bool          wasGainOK[NCRYSEB];
   bool          wasTimingOK[NCRYSEB];
-  bool          wasSignalOK[NCRYSEB];
   bool          wasABCalcOK[NCRYSEB];
 
   bool          isGainOK;
   bool          isTimingOK;
-  bool          isSignalOK;
 
 };
 

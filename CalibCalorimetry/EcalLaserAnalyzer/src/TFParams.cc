@@ -11,7 +11,6 @@
 
 
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/TFParams.h>
-#include <malloc.h>
 #include "TMatrixD.h"
 #include "TMath.h"
 
@@ -35,10 +34,6 @@ for (int i=0 ; i<10 ; i++) {
   } 
 
 }
-// Destructor
-
-TFParams::~TFParams( ) {
-}
 
 double TFParams::fitpj(double **adcval , double *parout , double **db_i, double noise_val, int debug)
 {
@@ -55,31 +50,27 @@ double TFParams::fitpj(double **adcval , double *parout , double **db_i, double 
   // ******************************************************************
   
   
-  double a1,a2,a3,a1i,a2i,a3i,b1,b2;
+  double a1,a2,a3,b1,b2;
   int iter,nevt;
-  double errpj[dimmat][dimmat]  ;
+  //double errpj[dimmat][dimmat]  ;
   double bi[ntrack][2],dbi[ntrack][2];
   double zi[ntrack][2] ;
   double par3degre[3] ;
-  int    ioktk[ntrack],iokchi2[ntrack],nk;
-  int nborn_min=0;
-  int nborn_max=0 ;
+  int    ioktk[ntrack],nk,nborn_min=0,nborn_max=0;
   double cti[ntrack][6],dm1i[ntrack][4]; 
-  double aiter[10][3];       
   double par[4],tsig[1];
   double amp,delta[nsamp],delta2,fun;
   double num_fit_min[ntrack],num_fit_max[ntrack] ;
   int i,j,k,imax[ntrack];
 
-  double noise_initialvalue,one_over_noisesq ;
   double ampmax[ntrack],dt,t;
   double chi2, chi2s, da1[nsamp], da2[nsamp], db1[nsamp], db2[nsamp] ;
   double chi2tot;
-  double fact1,fact2,expo;
-  double albet,dtsbeta,variab,alpha,beta,puiss ;
-  double  unsurs1 ,unsurs2 ;
-  double fit3 ;
-  int numb_a,numb_b,numb_ab,numb_b2,numb_x,ndimi,ndimj ;
+  double fact2;
+  double albet,dtsbeta,variab,alpha,beta;
+  double  unsurs1 /*,unsurs2*/ ;
+//  double fit3 ;
+  int numb_a,numb_b,numb_x;
 
   fun=0; chi2s=0; chi2tot=0;
   matrice DA,DAT,BK,DB,DBT,C,CT,D,DM1,CDM1,CDM1CT,Z,CDM1Z,YK,Y,B,X,XINV,RES2 ;
@@ -92,19 +83,6 @@ double TFParams::fitpj(double **adcval , double *parout , double **db_i, double 
   parout[1] = 0. ;
   parout[2] = 0. ;
 
-  //
-  //  Define Error Matrix 
-  //
-
-  noise_initialvalue = noise_val ;
-  one_over_noisesq=1./(noise_initialvalue * noise_initialvalue)  ;
-  for ( i=0 ; i<dimmat ; i++ ) {
-    for ( j=0 ; j<dimmat ; j++ ) {
-      errpj[i][j] = 0.  ;
-    }
-    errpj[i][i]=one_over_noisesq  ;
-  }
-  
   //  
   //  Initialisation of fit parameters 
   //  
@@ -115,14 +93,10 @@ double TFParams::fitpj(double **adcval , double *parout , double **db_i, double 
   if( METHODE==2) {
     a2 = a3ini ;   // for lastshape BETA is the third parameter ( ... ! )
   }
-  a1i = a1 ;
-  a2i = a2 ;
-  a3i = a3 ;
   if (debug==1){
     printf(" ------> __> valeurs de a1 %f a2 %f a3 %f\n",a1,a2,a3) ;
   }
   for (i=0 ; i<ntrack ; i++) {
-    iokchi2[i]=1 ;
     for (j=0 ; j<2 ; j++ ) {
       bi[i][j] = (double)0. ;
       dbi[i][j] = (double)0. ;
@@ -132,8 +106,6 @@ double TFParams::fitpj(double **adcval , double *parout , double **db_i, double 
     }
   }
 
-  ndimi = 2 ;
-  ndimj = 2 ;
   numb_a = 2 ;
 
 
@@ -143,8 +115,6 @@ double TFParams::fitpj(double **adcval , double *parout , double **db_i, double 
 
   numb_x = 1 ;
   numb_b = 2 ;
-  numb_ab = numb_a*numb_b ;
-  numb_b2 = numb_b*numb_b ;
   DA = cree_mat(numb_a,numb_x) ;
   DAT = cree_mat(numb_x,numb_a) ;
   BK = cree_mat_prod(DA,DAT) ;
@@ -192,8 +162,6 @@ double TFParams::fitpj(double **adcval , double *parout , double **db_i, double 
 
 
     nk = -1 ;	
-    aiter[iter][0] = a1 ;
-    aiter[iter][1] = a2 ;
     if (debug==1){
       printf( " resultats injectes a iterations %d \n",iter) ;
       printf( " parametre a1 = %f \n",a1) ;
@@ -241,12 +209,12 @@ double TFParams::fitpj(double **adcval , double *parout , double **db_i, double 
 
         // start with degree 3 polynomial .... 
 	//fit3 =polfit(ns ,imax[nk] ,par3degre ,errpj ,amplu ) ;
-	//	cout << "Poly Fit Param  :"<< par3degre[0] <<" "<< par3degre[1]<< endl; 
+	//	std::cout << "Poly Fit Param  :"<< par3degre[0] <<" "<< par3degre[1]<< std::endl; 
         
 	// start with parabol
 	//fit3 = parab(amplu,4,12,par3degre) ;
-	fit3 = parab(amplu,2,9,par3degre) ;
-	//cout << "Parab Fit Param :"<< par3degre[0] <<" "<< par3degre[1]<< endl; 
+	/*fit3 =*/ parab(amplu,2,9,par3degre) ;
+	//std::cout << "Parab Fit Param :"<< par3degre[0] <<" "<< par3degre[1]<< std::endl; 
 
 
 	// start with basic initial values
@@ -316,7 +284,7 @@ double TFParams::fitpj(double **adcval , double *parout , double **db_i, double 
 	
 	
 	unsurs1=1./noise_val;
-	unsurs2=(1./noise_val)*(1./noise_val);
+	//unsurs2=(1./noise_val)*(1./noise_val);
 
 	//	 					     
 	// Pulse shape function used: pulseShapepj
@@ -324,7 +292,7 @@ double TFParams::fitpj(double **adcval , double *parout , double **db_i, double 
 	
 	nborn_min = (int)num_fit_min[nevt] ;
 	nborn_max = (int)num_fit_max[nevt] ;
-        if((k < nborn_min) || (k > nborn_max) ) continue ;
+        if(k < nborn_min || k > nborn_max ) continue ;
         tsig[0] =(double)k  ;
 
 	
@@ -353,9 +321,6 @@ double TFParams::fitpj(double **adcval , double *parout , double **db_i, double 
 	  if(dt > -albet)  { 
 	    variab = (double)1. + dt/albet ;
 	    dtsbeta = dt/beta ;
-	    expo = exp(-dtsbeta) ;	 
-	    puiss = pow(variab,alpha) ;
-	    fact1 = puiss*expo ;         
 	    db1[k] = unsurs1*fun/b1 ;
 	    fact2 =  fun ;
 	    db2[k] = unsurs1*fact2*dtsbeta/(albet*variab) ;
@@ -443,9 +408,9 @@ double TFParams::fitpj(double **adcval , double *parout , double **db_i, double 
 
       if (debug==1){
 	if (nevt==198 || nevt==199){
-	  cout << "adc123 pour l'evt " << nevt <<" = "<<adcval[nevt][nborn_min]<<" = "<<adcval[nevt][imax[nevt]]<<" = "<<adcval[nevt][nborn_max]<<endl;
-	  cout << "chi2s  pour l'evt " << nevt <<" = "<< chi2s<<" "<< chi2<<" "<< ns<<"  "<<iter<<endl;
-	  cout << "chi2tot           " << nevt <<" = "<< chi2tot<<"  "<<iter<<endl;
+	  std::cout << "adc123 pour l'evt " << nevt <<" = "<<adcval[nevt][nborn_min]<<" = "<<adcval[nevt][imax[nevt]]<<" = "<<adcval[nevt][nborn_max]<<std::endl;
+	  std::cout << "chi2s  pour l'evt " << nevt <<" = "<< chi2s<<" "<< chi2<<" "<< ns<<"  "<<iter<<std::endl;
+	  std::cout << "chi2tot           " << nevt <<" = "<< chi2tot<<"  "<<iter<<std::endl;
 	}
       }
       
@@ -569,12 +534,9 @@ double TFParams::fitpj(double **adcval , double *parout , double **db_i, double 
   }
 
   if (debug==1){
-    cout << " Final chi2 / NDOF  :  "<< chi2tot/nevtmax << endl;
-    cout << " Final (alpha,beta) : ("<< a1<<","<<a2<<")"<< endl;
+    std::cout << " Final chi2 / NDOF  :  "<< chi2tot/nevtmax << std::endl;
+    std::cout << " Final (alpha,beta) : ("<< a1<<","<<a2<<")"<< std::endl;
   }
-  
-  // testé
-  delete amplu;
 
   return chi2tot/nevtmax ;
 
@@ -907,11 +869,11 @@ double TFParams::f3deg (  int nmxu ,  double parom[dimout] , double mask[dimmat]
     errpj  inverse of the error matrix
     fplo3dg uses only the diagonal terms of errpj[][]
 */
-  int i , k , l , iworst ;
+  int i , k , l  /*,iworst*/ ;
   double  h , t2 , tm , delta , tmp ;
   double xki2 , dif , difmx , deglib   ;
   double t[dimmat] ,  f[dimmat][4]   ;
-  double cov[dimmat][dimmat] , bv[4] , invcov[dimmat][dimmat] , s , deter  ;
+  double cov[dimmat][dimmat] , bv[4] , invcov[dimmat][dimmat] , s /*, deter*/  ;
   
   deglib=(double)nmxu - 4.  ;
   for ( i=0 ; i<nmxu ; i++ ) {
@@ -937,7 +899,7 @@ double TFParams::f3deg (  int nmxu ,  double parom[dimout] , double mask[dimmat]
       bv[k]=s  ;
   }
 /*     parameters                          */
-  deter = inverpj ( 4 , cov , invcov );
+  /*deter =*/ inverpj ( 4 , cov , invcov );
   for ( k=0 ; k<4 ; k++ ) {
     s=0.  ;
     for ( l=0 ; l<4 ; l++ ) {
@@ -960,7 +922,7 @@ double TFParams::f3deg (  int nmxu ,  double parom[dimout] , double mask[dimmat]
       h= parom[0]+parom[1]*t[i]+parom[2]*t2+parom[3]*t2*t[i] ;
       dif=(adcpj[i]-h)*mask[i]     ;
         if(dif > difmx) {
-	  iworst=i  ;
+	  // iworst=i  ;
 	  difmx=dif ;
 	}
     }
@@ -1083,7 +1045,7 @@ double TFParams::pulseShapepj( Double_t *x, Double_t *par )
 
   Double_t fitfun;
   Double_t ped, h, tm, alpha, beta;
-  Double_t  dt, dtsbeta, albet, variab, puiss ;
+  Double_t  dt, dtsbeta, albet, variab, puiss;
   Double_t b1,b2,a1,a2 ;
   b1 = par[0] ;
   b2 = par[1] ;
@@ -1155,16 +1117,16 @@ Double_t TFParams::pulseShapepj2( Double_t *x, Double_t *par )
 {
 
   Double_t fitfun;
-  Double_t ped, h, tm, alpha, beta;
+  Double_t ped, h, /*tm,*/ alpha, beta;
   Double_t  dt, dtsbeta, albet, variab, puiss;
-  Double_t b1,b2,a1,a2 ;
+  Double_t b1,/*b2,*/a1,a2 ;
   b1 = par[0] ;
-  b2 = par[1] ;
+  //b2 = par[1] ;
   a1 = par[2] ;
   a2 = par[3] ;
   ped   =  0. ;
   h     =  b1 ;
-  tm    =  b2 ;
+  //tm    =  b2 ;
   alpha =  a1 ;
   beta  =  a2 ;
   dt= x[0]  ;
@@ -1222,8 +1184,7 @@ double TFParams::parab(Double_t ampl[nsamp],Int_t nmin,Int_t nmax,Double_t parou
 	parout[0] =amp2+(amp3-amp1)*dt*0.25 ;
 	parout[1] = (double)imax + dt ;
 	parout[2] = (double)imax ;
-	return denom ;
-
+return denom ;
 }
 
 double TFParams::mixShape( Double_t *x, Double_t *par )
@@ -1317,114 +1278,3 @@ double TFParams::computePulseWidth( int methode , double alpha_here , double bet
 }
 
 
-
-double TFParams::dpulseShapepj_dam( Double_t *x, Double_t *par )
-{
-
-  Double_t fitfun;
-  Double_t ped, h, tm, alpha, beta;
-  Double_t  dt, dtsbeta, albet, variab, puiss ;
-  Double_t b1,b2,a1,a2 ;
-  b1 = par[0] ;
-  b2 = par[1] ;
-  a1 = par[2] ;
-  a2 = par[3] ;
-
-  ped   =  0. ;
-  h     =  b1 ;
-  tm    =  b2 ;
-  alpha =  a1 ;
-  beta  =  a2 ;
-  dt= x[0] - tm  ;
-  albet = alpha*beta ;
-  if( albet <= 0 )return( (Double_t)0. );
-
-  if(dt > -albet)  {
-    dtsbeta=dt/beta ;
-    variab=1.+dt/albet ;
-    puiss=pow(variab,alpha);
-    fitfun=puiss*exp(-dtsbeta);
-  }
-  else {
-    fitfun = 0.;
-  }
-  
-  return fitfun;
-}
-
-double TFParams::dpulseShapepj_dtm( Double_t *x, Double_t *par )
-{
-Double_t fitfun;
-  Double_t ped, h, tm, alpha, beta;
-  Double_t  dt, dtsbeta, albet, variab, puiss ;
-  Double_t b1,b2,a1,a2 ;
-  b1 = par[0] ;
-  b2 = par[1] ;
-  a1 = par[2] ;
-  a2 = par[3] ;
-
-  ped   =  0. ;
-  h     =  b1 ;
-  tm    =  b2 ;
-  alpha =  a1 ;
-  beta  =  a2 ;
-  dt= x[0] - tm  ;
-  albet = alpha*beta ;
-  if( albet <= 0 )return( (Double_t)0. );
-
-  if(dt > -albet)  {
-    dtsbeta=dt/beta ;
-    variab=1.+dt/albet ;
-    puiss=pow(variab,alpha);
-    fitfun=h*(1.0/variab)*dt*puiss*exp(-dtsbeta)/(alpha*albet);
-  }
-  else {
-    fitfun = 0.;
-  }
-  
-  return fitfun;
-
-
-}
-
-double TFParams::dlastShape_dam( Double_t *x, Double_t *par )
-{
-
-  Double_t fitfun;
-  Double_t alpha, beta;
-  Double_t dt,alphadt,exponent ;
-  Double_t b1,b2 ;
-  b1 = par[0] ;
-  b2 = par[1] ;
-  alpha = par[2] ;
-  beta  = par[3] ;
-  //double am=b1;
-  double tm=b2;
-
-  dt= x[0] - tm  ;
-  alphadt = alpha*dt ;
-  exponent = -(alphadt+(exp(-alphadt)-1.))/beta ; 
-  fitfun =exp(exponent) ; 
-  return fitfun;
-}
-
-
-double TFParams::dlastShape_dtm( Double_t *x, Double_t *par )
-{ 
-  Double_t fitfun;
-  Double_t alpha, beta;
-  Double_t dt,alphadt,exponent ;
-  Double_t b1,b2 ;
-  b1 = par[0] ;
-  b2 = par[1] ;
-  alpha = par[2] ;
-  beta  = par[3] ;
-  double am=b1;
-  double tm=b2;
-
-  dt= x[0] - tm  ;
-  alphadt = alpha*dt ;
-  exponent = -(alphadt+(exp(-alphadt)-1.))/beta ; 
-  fitfun =am * (alpha/beta) * (dt-exp(-alphadt)) * exponent ; 
-  return fitfun;
-}

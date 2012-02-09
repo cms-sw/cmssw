@@ -1,7 +1,7 @@
 /* 
  *  \class TMarkov
  *
- *  $Date: 2009/06/02 12:55:21 $
+ *  $Date: 2010/01/04 15:06:28 $
  *  \author: Patrice Verrecchia - CEA/Saclay
  */
 
@@ -107,33 +107,34 @@ int TMarkov::computeChain(int *bing)
 
 void TMarkov::peakFinder(int *bing)
 {
-    int pass;int firstBin=0;int lastBin=0;
+    int firstBin=0;int lastBin=0;
     double barycentre=0.;
     double sum=0.;
     double maximum=0.;
 
     int nu= computeChain(&bing[0]);
-    
+
     for(int i=1;i<nu+1;i++)
-      {
-	sum += binu[i];
-	barycentre += (double)i * binu[i];
-	if(binu[i] > maximum){
-	  maximum=binu[i]; imax=i; 
-	}
-      }
+    {
+       sum += binu[i];
+       barycentre += (double)i * binu[i];
+       if(binu[i] > maximum)
+       { maximum=binu[i]; imax=i; }
+    }
     
     maximum *= 0.75;
-    pass=0;
-    for(int i=1,pass=0;i<nu+1;i++){
-      if(binu[i] > maximum){
-	if(pass == 0)
-	  { firstBin=i; lastBin=i; pass=1; }
-	else{
-	  lastBin=i;
-	}
-      }
+    for(int i=1,pass=0;i<nu+1;i++) {
+       if(binu[i] > maximum) {
+         if(pass == 0) {
+                firstBin=i;
+                lastBin=i;
+                pass=1;
+         } else {
+                 lastBin=i;
+         }
+       }
     }
+
     peak[0] = (barycentre/sum);
     peak[1]= (double)(lastBin-firstBin+1);
     peak[2]= sum;

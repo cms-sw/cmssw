@@ -1,17 +1,15 @@
 /* 
  *  \class TSFit
  *
- *  $Date: 2009/06/02 12:55:21 $
+ *  $Date: 2010/01/04 15:06:28 $
  *  \author: Jean-Pierre Pansart - CEA/Saclay
  */
 
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/TSFit.h>
-#include <cassert>
-#include <iostream>
-#include <cstring>
-#include <cstdlib>
+
 #include <cstdio>
-#include <math.h>
+#include <cmath>
+#include <cstring>
 
 //ClassImp(TSFit)
 
@@ -113,10 +111,10 @@ double TSFit::fpol3dg ( int nmxul,
   // fplo3dg uses only the diagonal terms of errmat[][]
   // errmat  inverse of the error matrix
 
-  int i, k, l, iworst;
+  int i, k, l;
   double  h, t2, tm, delta, tmp;
   double xki2, dif, difmx, deglib;
-  double bv[4], s, deter;
+  double bv[4], s;
 
   deglib=(double)nmxul - 4.;
   for(i=0;i<nmxul;i++){
@@ -142,7 +140,7 @@ double TSFit::fpol3dg ( int nmxul,
     bv[k]=s;
   }
   /*     parameters                          */
-  deter = inverms( 4, cov, invcov );
+  inverms( 4, cov, invcov );
   for(k=0;k<4;k++){
     s=0.;
     for(l=0;l<4;l++){
@@ -166,7 +164,6 @@ double TSFit::fpol3dg ( int nmxul,
     dif=(adc[i]-h)*mask[i];
     xki2=xki2+dif*dif*errmat[i][i];
     if(dif > difmx) {
-      iworst=i;
       difmx=dif;
     }
   }

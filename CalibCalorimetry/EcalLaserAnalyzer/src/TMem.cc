@@ -1,7 +1,7 @@
 /* 
  *  \class TMem
  *
- *  $Date: 2009/06/02 12:55:21 $
+ *  $Date: 2010/10/21 22:54:32 $
  *  \author: Julie Malcles - CEA/Saclay
  */
 
@@ -52,7 +52,7 @@ bool TMem::isMemRelevant(int mem){
 
 int TMem::Mem(int lmr, int n){
   
-  pair<int,int> mempair=ME::memFromLmr(lmr);
+  std::pair<int,int> mempair=ME::memFromLmr(lmr);
   if(n==0) return mempair.first;
   else return mempair.second;
   
