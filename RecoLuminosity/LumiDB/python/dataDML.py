@@ -1020,6 +1020,13 @@ def hltLSById(schema,dataid,hltpathname=None,hltpathpattern=None,withL1Pass=Fals
     #t1=time.time()
     #print 'tot hltLSById time ',t1-t0
     return (runnum,result)
+
+def guessLumiDataIdByRunInBranch(schema,runnum,tablename,branchName='DATA'):
+    revlist=revisionDML.revisionsInBranchName(schema,branchName)
+    lumientry_id=revisionDML.entryInBranch(schema,tablename,str(runnum),branchName)
+    latestrevision=revisionDML.latestDataRevisionOfEntry(schema,tablename,lumientry_id,revlist)
+    return latestrevision
+
 def guessLumiDataIdByRun(schema,runnum):
     result=None
     lumiids=[]
@@ -1333,13 +1340,16 @@ def addNormToBranch(schema,normname,amodetag,norm1,egev1,optionalnormdata,branch
 def addLumiRunDataToBranch(schema,runnumber,lumirundata,branchinfo):
     '''
     input:
-          lumirundata [datasource]
+          lumirundata [datasource,nominalenergy]
           branchinfo (branch_id,branch_name)
     output:
           (revision_id,entry_id,data_id)
     '''
     try:
          datasource=lumirundata[0]
+         nominalegev=3500.0
+         if len(lumirundata)>1:
+             nominalenergy=lumirundata[1]
          entry_id=revisionDML.entryInBranch(schema,nameDealer.lumidataTableName(),str(runnumber),branchinfo[1])
          if entry_id is None:
              (revision_id,entry_id,data_id)=revisionDML.bookNewEntry(schema,nameDealer.lumidataTableName())
@@ -1348,8 +1358,8 @@ def addLumiRunDataToBranch(schema,runnumber,lumirundata,branchinfo):
          else:
              (revision_id,data_id)=revisionDML.bookNewRevision( schema,nameDealer.lumidataTableName() )
              revisionDML.addRevision(schema,nameDealer.lumidataTableName(),(revision_id,data_id),branchinfo)
-         tabrowDefDict={'DATA_ID':'unsigned long long','ENTRY_ID':'unsigned long long','ENTRY_NAME':'string','RUNNUM':'unsigned int','SOURCE':'string'}
-         tabrowValueDict={'DATA_ID':data_id,'ENTRY_ID':entry_id,'ENTRY_NAME':str(runnumber),'RUNNUM':int(runnumber),'SOURCE':datasource}
+         tabrowDefDict={'DATA_ID':'unsigned long long','ENTRY_ID':'unsigned long long','ENTRY_NAME':'string','RUNNUM':'unsigned int','SOURCE':'string','NOMINALEGEV':'float'}
+         tabrowValueDict={'DATA_ID':data_id,'ENTRY_ID':entry_id,'ENTRY_NAME':str(runnumber),'RUNNUM':int(runnumber),'SOURCE':datasource,'NOMINALEGEV':nominalegev}
          db=dbUtil.dbUtil(schema)
          db.insertOneRow(nameDealer.lumidataTableName(),tabrowDefDict,tabrowValueDict)
          return (revision_id,entry_id,data_id)
@@ -1558,7 +1568,7 @@ def bulkInsertHltLSData(session,runnumber,data_id,hltlsdata,bulksize=500):
         print 'error in bulkInsertHltLSData'
         raise 
     
-def bulkInsertLumiLSSummary(session,runnumber,data_id,lumilsdata,bulksize=500):
+def bulkInsertLumiLSSummary(session,runnumber,data_id,lumilsdata,bulksize=500,withDetails=True):
     '''
     input:
           lumilsdata {lumilsnum:[cmslsnum,instlumi,instlumierror,instlumiquality,beamstatus,beamenergy,numorbit,startorbit,cmsbxindexblob,beam1intensity,beam2intensity,bxlumivalue_occ1,bxlumierror_occ1,bxlumiquality_occ1,bxlumivalue_occ2,bxlumierror_occ2,bxlumiquality_occ2,bxlumivalue_et,bxlumierror_et,bxlumiquality_et]}
@@ -1578,19 +1588,22 @@ def bulkInsertLumiLSSummary(session,runnumber,data_id,lumilsdata,bulksize=500):
             beamenergy=perlslumi[5]
             numorbit=perlslumi[6]
             startorbit=perlslumi[7]
-            cmsbxindexindexblob=perlslumi[8]
-            beam1intensity=perlslumi[9]
-            beam2intensity=perlslumi[10]
-            bxlumivalue_occ1=perlslumi[11]
-            bxlumierror_occ1=perlslumi[12]
-            bxlumiquality_occ1=perlslumi[13]
-            bxlumivalue_occ2=perlslumi[14]
-            bxlumierror_occ2=perlslumi[15]
-            bxlumiquality_occ2=perlslumi[16]
-            bxlumivalue_et=perlslumi[17]
-            bxlumierror_et=perlslumi[18]
-            bxlumiquality_et=perlslumi[19]
-            bulkvalues.append([('DATA_ID',data_id),('RUNNUM',runnumber),('LUMILSNUM',lumilsnum),('CMSLSNUM',cmslsnum),('INSTLUMI',instlumi),('INSTLUMIERROR',instlumierror),('INSTLUMIQUALITY',instlumiquality),('BEAMSTATUS',beamstatus),('BEAMENERGY',beamenergy),('NUMORBIT',numorbit),('STARTORBIT',startorbit),('CMSBXINDEXBLOB',cmsbxindexindexblob),('BEAMINTENSITYBLOB_1',beam1intensity),('BEAMINTENSITYBLOB_2',beam2intensity),('BXLUMIVALUE_OCC1',bxlumivalue_occ1),('BXLUMIERROR_OCC1',bxlumierror_occ1),('BXLUMIQUALITY_OCC1',bxlumiquality_occ1),('BXLUMIVALUE_OCC2',bxlumivalue_occ2),('BXLUMIERROR_OCC2',bxlumierror_occ2),('BXLUMIQUALITY_OCC2',bxlumiquality_occ2),('BXLUMIVALUE_ET',bxlumivalue_et),('BXLUMIERROR_ET',bxlumierror_et),('BXLUMIQUALITY_ET',bxlumiquality_et)])
+            if withDetails:
+                cmsbxindexindexblob=perlslumi[8]
+                beam1intensity=perlslumi[9]
+                beam2intensity=perlslumi[10]
+                bxlumivalue_occ1=perlslumi[11]
+                bxlumierror_occ1=perlslumi[12]
+                bxlumiquality_occ1=perlslumi[13]
+                bxlumivalue_occ2=perlslumi[14]
+                bxlumierror_occ2=perlslumi[15]
+                bxlumiquality_occ2=perlslumi[16]
+                bxlumivalue_et=perlslumi[17]
+                bxlumierror_et=perlslumi[18]
+                bxlumiquality_et=perlslumi[19]
+                bulkvalues.append([('DATA_ID',data_id),('RUNNUM',runnumber),('LUMILSNUM',lumilsnum),('CMSLSNUM',cmslsnum),('INSTLUMI',instlumi),('INSTLUMIERROR',instlumierror),('INSTLUMIQUALITY',instlumiquality),('BEAMSTATUS',beamstatus),('BEAMENERGY',beamenergy),('NUMORBIT',numorbit),('STARTORBIT',startorbit),('CMSBXINDEXBLOB',cmsbxindexindexblob),('BEAMINTENSITYBLOB_1',beam1intensity),('BEAMINTENSITYBLOB_2',beam2intensity),('BXLUMIVALUE_OCC1',bxlumivalue_occ1),('BXLUMIERROR_OCC1',bxlumierror_occ1),('BXLUMIQUALITY_OCC1',bxlumiquality_occ1),('BXLUMIVALUE_OCC2',bxlumivalue_occ2),('BXLUMIERROR_OCC2',bxlumierror_occ2),('BXLUMIQUALITY_OCC2',bxlumiquality_occ2),('BXLUMIVALUE_ET',bxlumivalue_et),('BXLUMIERROR_ET',bxlumierror_et),('BXLUMIQUALITY_ET',bxlumiquality_et)])
+            else:
+                bulkvalues.append([('DATA_ID',data_id),('RUNNUM',runnumber),('LUMILSNUM',lumilsnum),('CMSLSNUM',cmslsnum),('INSTLUMI',instlumi),('INSTLUMIERROR',instlumierror),('INSTLUMIQUALITY',instlumiquality),('BEAMSTATUS',beamstatus),('BEAMENERGY',beamenergy),('NUMORBIT',numorbit),('STARTORBIT',startorbit)])
             nrows+=1
             committedrows+=1
             if nrows==bulksize:
