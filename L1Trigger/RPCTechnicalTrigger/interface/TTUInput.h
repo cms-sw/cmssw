@@ -51,7 +51,9 @@ public:
   void reset();
   
   int m_bx;
+  
   int m_wheelId;
+  
   bool m_hasHits;
   
   std::bitset<6>  * input_sec;
