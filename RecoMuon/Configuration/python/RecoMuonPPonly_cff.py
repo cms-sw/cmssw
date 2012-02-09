@@ -21,6 +21,7 @@ from RecoMuon.MuonIdentification.muonSelectionTypeValueMapProducer_cff import *
 
 # Muon Isolation sequence
 from RecoMuon.MuonIsolationProducers.muIsolation_cff import *
+# Muon Tracking sequence
 muontracking = cms.Sequence(standAloneMuonSeeds*standAloneMuons*globalMuons)
 muontracking_with_TeVRefinement = cms.Sequence(muontracking*tevMuons)
 
@@ -48,6 +49,11 @@ muonreco_plus_isolation_plus_SET = cms.Sequence(muonrecowith_TeVRefinemen*muonre
 # .. plus muIDmaps
 # this makes me wonder if we should make this a new default name (drop all _plusX)
 muonreco_plus_isolation_plus_SET_plus_muIDmaps = cms.Sequence(muonreco_plus_isolation_plus_SET*muonSelectionTypeSequence)
+
+# Add the refitted stand-alone muons.
+refittedStandAloneMuons = standAloneMuons.clone()
+refittedStandAloneMuons.STATrajBuilderParameters.DoRefit = True
+muontracking *= refittedStandAloneMuons
 
 muonrecoComplete = cms.Sequence(muonreco_plus_isolation_plus_SET*muonSelectionTypeSequence)
 muonrecoComplete_minus_muIDmaps = cms.Sequence(muonreco_plus_isolation_plus_SET)
