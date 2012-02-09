@@ -14,7 +14,7 @@ except:
     errorOnImport = True    
 
 cvsBaseUrl = "http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW"     # NO SLASH IN THE END
-
+baseUrl = "http://cmssdt.cern.ch/SDT/doxygen/"
 refmanfiles = {}
 packageDocLinks = []
 
@@ -47,7 +47,7 @@ def prepareRefManFiles(DOC_DIR):
     
     for line in lines:
         (head, tail) = os.path.split(line)
-        refmanfiles[tail.replace("class","").replace(".html","")] = line[line.find(CMSSW_VERSION):]
+        refmanfiles[tail.replace("class","").replace(".html","")] = baseUrl+line[line.find(CMSSW_VERSION):]
 
 ## Extract links to package documentation
 def preparePackageDocumentationLinks(DOC_DIR):
