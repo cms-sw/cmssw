@@ -33,7 +33,7 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoParticleFlow/PFRootEvent/interface/JetRecoTypes.h"
-#include "fastjet/ActiveAreaSpec.hh"
+#include "fastjet/GhostedAreaSpec.hh"
 
 #include <vector>
 #include <string>
@@ -67,7 +67,7 @@ class FastJetFWLiteWrapper
   double theGhostArea_;
   double theMedian_Pt_Per_Area_;  
   fastjet::JetDefinition* mJetDefinition;
-  fastjet::ActiveAreaSpec* mActiveArea;
+  fastjet::GhostedAreaSpec* mActiveArea;
  
 
  public:  

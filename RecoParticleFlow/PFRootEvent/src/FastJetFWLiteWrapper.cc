@@ -16,7 +16,7 @@
 #include <string.h>
 #include "fastjet/ClusterSequence.hh"
 #include "fastjet/ClusterSequenceActiveArea.hh"
-#include "fastjet/ClusterSequenceWithArea.hh"
+#include "fastjet/ClusterSequenceArea.hh"
 //  Wrapper around fastjet-package written by Matteo Cacciari and Gavin Salam.
 //
 //  The algorithms that underlie FastJet have required considerable
@@ -61,7 +61,7 @@ FastJetFWLiteWrapper::FastJetFWLiteWrapper()
   theActive_Area_Repeats_=5;
   //default GhostArea 0.01  
   theGhostArea_=0.01;
-  mActiveArea = new fastjet::ActiveAreaSpec ( theGhost_EtaMax_, theActive_Area_Repeats_ , theGhostArea_);       
+  mActiveArea = new fastjet::GhostedAreaSpec ( theGhost_EtaMax_, theActive_Area_Repeats_ , theGhostArea_);       
 
   
   //configuring algorithm 
@@ -158,13 +158,13 @@ void FastJetFWLiteWrapper::run(const JetReco::InputCollection& fInput, JetReco::
 
   // here we need to keep both pointers, as "area" interfaces are missing in base class
   fastjet::ClusterSequenceActiveArea* clusterSequenceWithArea = 0;
-  fastjet::ClusterSequenceWithArea* clusterSequence = 0;
+  fastjet::ClusterSequenceArea* clusterSequence = 0;
   //  if (mActiveArea) {
   // clusterSequenceWithArea = new fastjet::ClusterSequenceActiveArea (fjInputs, *mJetDefinition, *mActiveArea);
   // clusterSequence = clusterSequenceWithArea;
   // }
   // else {
-  clusterSequence = new fastjet::ClusterSequenceWithArea (fjInputs, *mJetDefinition);
+  clusterSequence = new fastjet::ClusterSequenceArea (fjInputs, *mJetDefinition, *mActiveArea);
   // }
   // retrieve jets for selected mode
   std::vector<fastjet::PseudoJet> jets = clusterSequence->inclusive_jets (thePtMin_);
