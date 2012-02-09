@@ -159,6 +159,8 @@ class CSCTFPtMethods
   float Pt2Stn(int type, float eta, float dphi, int fr=-1) const;
   float Pt2Stn2010(int type, float eta, float dphi, int fr=-1, int method=11) const;
   float Pt2Stn2011(int type, float eta, float dphi, int fr=-1, int method=11, int phiSign=2) const;
+  float Pt2Stn2012(int type, float eta, float dphi, int PtbyMLH, float &theLH, int fr=-1, int method=11) const;
+  float Pt2Stn2012_DT(int type, float eta, float dphi, int PtbyMLH, float &theLH,int fr=-1, int method=11, int phiSign=2) const;
   double Likelihood2(double *phi12, double *par_m12, double *par_sig12, double *v) const;  
   double Likelihood2_2011(double *phi12, double *par_m12, double *par_sig12, double *v) const;
  
@@ -166,6 +168,8 @@ class CSCTFPtMethods
   float Pt3Stn(int type, float eta, float dphi1, float dphi2, int fr=-1) const;
   float Pt3Stn2010(int type, float eta, float dphi1, float dphi2, int fr=-1, int method=11) const;
   float Pt3Stn2011(int type, float eta, float dphi1, float dphi2, int fr=-1, int method=11) const;
+  float Pt3Stn2012(int type, float eta, float dphi1, float dphi2, int PtbyMLH, float &theLH, int fr=-1, int method=11) const;
+  float Pt3Stn2012_DT(int type, float eta, float dphi1, float dphi2, int PtbyMLH, float &theLH, int fr=-1, int method=11) const;
   double Likelihood(double *phi12, double *phi23, double *par_m12, double *par_m23, double *par_sig12, double *par_sig23, double *par_rho, double *v) const; 
   double Likelihood2011(double *phi12, double *phi23, double *par_m12, double *par_m23, double *par_sig12, double *par_sig23, double *par_rho, double *v) const;
   /** Second are the parameterizations of Acosta/Yeh */

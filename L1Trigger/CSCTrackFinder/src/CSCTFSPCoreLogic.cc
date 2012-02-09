@@ -13,7 +13,7 @@ vpp_generated_2010_09_01 CSCTFSPCoreLogic::sp_2010_09_01_;
 vpp_generated_2010_10_11 CSCTFSPCoreLogic::sp_2010_10_11_;
 vpp_generated_2010_12_10 CSCTFSPCoreLogic::sp_2010_12_10_;
 vpp_generated_2011_01_18 CSCTFSPCoreLogic::sp_2011_01_18_;
-
+vpp_generated_2012_01_31 CSCTFSPCoreLogic::sp_2012_01_31_;
 
 
 // takes a trigger container and loads the first n bx of data into io_
@@ -635,19 +635,19 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 	 (m_preTrigger<<7)|(m_allowCLCTonly<<5)|(m_allowALCTonly<<4)|(m_extend_length<<1)|(m_widePhi)
 	 );
       break;
-
-    default:
-      edm::LogInfo("CSCSTFSPCoreLogic") << "Warning: using the default core is what you want?"
-					<< " Core version is " << this->GetCoreFirmwareVersion();
-      sp_2010_01_22_.wrap
-	(
-	 io->me1aVp, io->me1aQp, io->me1aEtap, io->me1aPhip, io->me1aCSCIdp,
-	 io->me1bVp, io->me1bQp, io->me1bEtap, io->me1bPhip, io->me1bCSCIdp,
-	 io->me1cVp, io->me1cQp, io->me1cEtap, io->me1cPhip, io->me1cCSCIdp,
-	 
-	 io->me1dVp, io->me1dQp, io->me1dEtap, io->me1dPhip, io->me1dCSCIdp,
-	 io->me1eVp, io->me1eQp, io->me1eEtap, io->me1ePhip, io->me1eCSCIdp,
-	 io->me1fVp, io->me1fQp, io->me1fEtap, io->me1fPhip, io->me1fCSCIdp,
+      
+      case 20120131:
+      setNLBTables();
+      
+      sp_2012_01_31_.wrap
+      (
+	 io->me1aVp, io->me1aQp, io->me1aEtap, io->me1aPhip, io->me1aCSCIdp,  io->me1aCLCTp,
+	 io->me1bVp, io->me1bQp, io->me1bEtap, io->me1bPhip, io->me1bCSCIdp,  io->me1bCLCTp,
+	 io->me1cVp, io->me1cQp, io->me1cEtap, io->me1cPhip, io->me1cCSCIdp,  io->me1cCLCTp,
+	                                                                              
+	 io->me1dVp, io->me1dQp, io->me1dEtap, io->me1dPhip, io->me1dCSCIdp,  io->me1dCLCTp,
+	 io->me1eVp, io->me1eQp, io->me1eEtap, io->me1ePhip, io->me1eCSCIdp,  io->me1eCLCTp,
+	 io->me1fVp, io->me1fQp, io->me1fEtap, io->me1fPhip, io->me1fCSCIdp,  io->me1fCLCTp,
 	 
 	 io->me2aVp, io->me2aQp, io->me2aEtap, io->me2aPhip,
 	 io->me2bVp, io->me2bQp, io->me2bEtap, io->me2bPhip,
@@ -661,22 +661,22 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 	 io->me4bVp, io->me4bQp, io->me4bEtap, io->me4bPhip,
 	 io->me4cVp, io->me4cQp, io->me4cEtap, io->me4cPhip,
 	 
-	 io->mb1aVp, io->mb1aQp, io->mb1aPhip,
-	 io->mb1bVp, io->mb1bQp, io->mb1bPhip,
-	 io->mb1cVp, io->mb1cQp, io->mb1cPhip,
-	 io->mb1dVp, io->mb1dQp, io->mb1dPhip,
+	 io->mb1aVp, io->mb1aQp, io->mb1aPhip, io->mb1aBendp,
+	 io->mb1bVp, io->mb1bQp, io->mb1bPhip, io->mb1bBendp,
+	 io->mb1cVp, io->mb1cQp, io->mb1cPhip, io->mb1cBendp,
+	 io->mb1dVp, io->mb1dQp, io->mb1dPhip, io->mb1dBendp,
 	 
-	 io->ptHp, io->signHp, io->modeMemHp, io->etaPTHp, io->FRHp, io->phiHp,
-	 io->ptMp, io->signMp, io->modeMemMp, io->etaPTMp, io->FRMp, io->phiMp,
-	 io->ptLp, io->signLp, io->modeMemLp, io->etaPTLp, io->FRLp, io->phiLp,
+	 io->ptHp, io->signHp, io->modeMemHp, io->etaPTHp, io->FRHp, io->phiHp, io->phdiff_aHp, io->phdiff_bHp,
+	 io->ptMp, io->signMp, io->modeMemMp, io->etaPTMp, io->FRMp, io->phiMp, io->phdiff_aMp, io->phdiff_bMp,
+	 io->ptLp, io->signLp, io->modeMemLp, io->etaPTLp, io->FRLp, io->phiLp, io->phdiff_aLp, io->phdiff_bLp,
 	 
 	 io->me1idH, io->me2idH, io->me3idH, io->me4idH, io->mb1idH, io->mb2idH,
 	 io->me1idM, io->me2idM, io->me3idM, io->me4idM, io->mb1idM, io->mb2idM,
 	 io->me1idL, io->me2idL, io->me3idL, io->me4idL, io->mb1idL, io->mb2idL,
 	 
-	 etamin1,etamin2,etamin3,etamin4,etamin5,etamin6,etamin7,etamin8,
-	 etamax1,etamax2,etamax3,etamax4,etamax5,etamax6,etamax7,etamax8,
-	 etawin1, etawin2, etawin3, etawin4, etawin5, etawin6, etawin7, 
+	 etamin1, etamin2, etamin3, etamin4, etamin5, /*etamin6,*/ etamin7,etamin8,
+	 etamax1, etamax2, etamax3, etamax4, etamax5, /*etamax6,*/ etamax7,etamax8,
+	 etawin1, etawin2, etawin3, etawin4, etawin5, /*etawin6,*/ etawin7, 
 	 mindphip, mindetap,
 	 
 	 mindeta12_accp, maxdeta12_accp, maxdphi12_accp,
@@ -688,10 +688,70 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 	 
 	 straightp, curvedp,
 	 mbaPhiOff, mbbPhiOff,
-	 (m_preTrigger<<7)|(m_allowCLCTonly<<5)|(m_allowALCTonly<<4)|(m_extend_length<<1)|(m_widePhi));
+	 (m_preTrigger<<7)|(m_allowCLCTonly<<5)|(m_allowALCTonly<<4)|(m_extend_length<<1)|(m_widePhi)
+	 );
       break;
       
+  default:
+    edm::LogInfo("CSCSTFSPCoreLogic") << "Warning: using the default core is what you want?"
+                                      << " Core version is " << this->GetCoreFirmwareVersion();
+    setNLBTables();
+    sp_2012_01_31_.wrap
+      (
+	 io->me1aVp, io->me1aQp, io->me1aEtap, io->me1aPhip, io->me1aCSCIdp,  io->me1aCLCTp,
+	 io->me1bVp, io->me1bQp, io->me1bEtap, io->me1bPhip, io->me1bCSCIdp,  io->me1bCLCTp,
+	 io->me1cVp, io->me1cQp, io->me1cEtap, io->me1cPhip, io->me1cCSCIdp,  io->me1cCLCTp,
+	                                                                              
+	 io->me1dVp, io->me1dQp, io->me1dEtap, io->me1dPhip, io->me1dCSCIdp,  io->me1dCLCTp,
+	 io->me1eVp, io->me1eQp, io->me1eEtap, io->me1ePhip, io->me1eCSCIdp,  io->me1eCLCTp,
+	 io->me1fVp, io->me1fQp, io->me1fEtap, io->me1fPhip, io->me1fCSCIdp,  io->me1fCLCTp,
+	 
+	 io->me2aVp, io->me2aQp, io->me2aEtap, io->me2aPhip,
+	 io->me2bVp, io->me2bQp, io->me2bEtap, io->me2bPhip,
+	 io->me2cVp, io->me2cQp, io->me2cEtap, io->me2cPhip,
+	 
+	 io->me3aVp, io->me3aQp, io->me3aEtap, io->me3aPhip,
+	 io->me3bVp, io->me3bQp, io->me3bEtap, io->me3bPhip,
+	 io->me3cVp, io->me3cQp, io->me3cEtap, io->me3cPhip,
+	 
+	 io->me4aVp, io->me4aQp, io->me4aEtap, io->me4aPhip,
+	 io->me4bVp, io->me4bQp, io->me4bEtap, io->me4bPhip,
+	 io->me4cVp, io->me4cQp, io->me4cEtap, io->me4cPhip,
+	 
+	 io->mb1aVp, io->mb1aQp, io->mb1aPhip, io->mb1aBendp,
+	 io->mb1bVp, io->mb1bQp, io->mb1bPhip, io->mb1bBendp,
+	 io->mb1cVp, io->mb1cQp, io->mb1cPhip, io->mb1cBendp,
+	 io->mb1dVp, io->mb1dQp, io->mb1dPhip, io->mb1dBendp,
+	 
+	 io->ptHp, io->signHp, io->modeMemHp, io->etaPTHp, io->FRHp, io->phiHp, io->phdiff_aHp, io->phdiff_bHp,
+	 io->ptMp, io->signMp, io->modeMemMp, io->etaPTMp, io->FRMp, io->phiMp, io->phdiff_aMp, io->phdiff_bMp,
+	 io->ptLp, io->signLp, io->modeMemLp, io->etaPTLp, io->FRLp, io->phiLp, io->phdiff_aLp, io->phdiff_bLp,
+	 
+	 io->me1idH, io->me2idH, io->me3idH, io->me4idH, io->mb1idH, io->mb2idH,
+	 io->me1idM, io->me2idM, io->me3idM, io->me4idM, io->mb1idM, io->mb2idM,
+	 io->me1idL, io->me2idL, io->me3idL, io->me4idL, io->mb1idL, io->mb2idL,
+	 
+	 etamin1, etamin2, etamin3, etamin4, etamin5, /*etamin6,*/ etamin7,etamin8,
+	 etamax1, etamax2, etamax3, etamax4, etamax5, /*etamax6,*/ etamax7,etamax8,
+	 etawin1, etawin2, etawin3, etawin4, etawin5, /*etawin6,*/ etawin7, 
+	 mindphip, mindetap,
+	 
+	 mindeta12_accp, maxdeta12_accp, maxdphi12_accp,
+	 mindeta13_accp, maxdeta13_accp, maxdphi13_accp,
+	 
+	 mindeta112_accp, maxdeta112_accp, maxdphi112_accp,
+	 mindeta113_accp, maxdeta113_accp, maxdphi113_accp,
+	 mindphip_halo, mindetap_halo, 
+	 
+	 straightp, curvedp,
+	 mbaPhiOff, mbbPhiOff,
+	 (m_preTrigger<<7)|(m_allowCLCTonly<<5)|(m_allowALCTonly<<4)|(m_extend_length<<1)|(m_widePhi)
+	 );
+    break;
+    
     }
+
+
 
     if ( IsVerbose() ) {
       std::cout << "Core Verbose Output For Debugging\n";
@@ -826,6 +886,109 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
     }
   return runme;
 }
+
+void CSCTFSPCoreLogic::setNLBTables()
+{
+  /*
+    These arrays define the non-linear dPhi bins used by the SP core logic.
+    dPhi is mapped to an integer value value. The integer value is remapped
+    to phi-units in CSCTFPtLUT.
+  */
+  
+  // initialize the dphi arrays to maximum possible value
+  for (int i = 0; i < 1024; i++)
+    {
+      // 5-bit words
+      sp_2012_01_31_.spvpp_ptu2a_comp_dphi_5[i] = (1<<5)-1;
+      sp_2012_01_31_.spvpp_ptu2b_comp_dphi_5[i] = (1<<5)-1;
+      sp_2012_01_31_.spvpp_ptu2c_comp_dphi_5[i] = (1<<5)-1;
+
+      sp_2012_01_31_.spvpp_ptu3a_comp_dphi_5[i] = (1<<5)-1;
+      sp_2012_01_31_.spvpp_ptu3b_comp_dphi_5[i] = (1<<5)-1;
+      sp_2012_01_31_.spvpp_ptu3c_comp_dphi_5[i] = (1<<5)-1;
+      
+      
+      // 7-bit words
+      sp_2012_01_31_.spvpp_ptu2a_comp_dphi_7[i] = (1<<7)-1;
+      sp_2012_01_31_.spvpp_ptu2b_comp_dphi_7[i] = (1<<7)-1;
+      sp_2012_01_31_.spvpp_ptu2c_comp_dphi_7[i] = (1<<7)-1;
+
+      sp_2012_01_31_.spvpp_ptu3a_comp_dphi_7[i] = (1<<7)-1;
+      sp_2012_01_31_.spvpp_ptu3b_comp_dphi_7[i] = (1<<7)-1;
+      sp_2012_01_31_.spvpp_ptu3c_comp_dphi_7[i] = (1<<7)-1;
+
+      // 8-bit words
+      sp_2012_01_31_.spvpp_ptu2a_comp_dphi_8[i] = (1<<8)-1;
+      sp_2012_01_31_.spvpp_ptu2b_comp_dphi_8[i] = (1<<8)-1;
+      sp_2012_01_31_.spvpp_ptu2c_comp_dphi_8[i] = (1<<8)-1;
+      
+      sp_2012_01_31_.spvpp_ptu3a_comp_dphi_8[i] = (1<<8)-1;
+      sp_2012_01_31_.spvpp_ptu3b_comp_dphi_8[i] = (1<<8)-1;
+      sp_2012_01_31_.spvpp_ptu3c_comp_dphi_8[i] = (1<<8)-1;
+
+      sp_2012_01_31_.spvpp_ptu4a_comp_dphi_8[i] = (1<<8)-1;
+      sp_2012_01_31_.spvpp_ptu4b_comp_dphi_8[i] = (1<<8)-1;
+      sp_2012_01_31_.spvpp_ptu4c_comp_dphi_8[i] = (1<<8)-1;
+    }
+  
+  // define the non-linear bin map. This takes dphi (phi-units) --> integer value
+  
+  // 5-bit table
+  int dPhiTable_5b[256] =
+    {	0	,	1	,	2	,	2	,	3	,	4	,	4	,	5	,	5	,	6	,	6	,	7	,	7	,	8	,	8	,	9	,	9	,	9	,	10	,	10	,	10	,	11	,	11	,	11	,	12	,	12	,	12	,	12	,	13	,	13	,	13	,	13	,	14	,	14	,	14	,	14	,	14	,	15	,	15	,	15	,	15	,	16	,	16	,	16	,	16	,	16	,	16	,	17	,	17	,	17	,	17	,	17	,	17	,	18	,	18	,	18	,	18	,	18	,	18	,	18	,	19	,	19	,	19	,	19	,	19	,	19	,	19	,	20	,	20	,	20	,	20	,	20	,	20	,	20	,	20	,	21	,	21	,	21	,	21	,	21	,	21	,	21	,	21	,	21	,	22	,	22	,	22	,	22	,	22	,	22	,	22	,	22	,	22	,	22	,	23	,	23	,	23	,	23	,	23	,	23	,	23	,	23	,	23	,	23	,	23	,	24	,	24	,	24	,	24	,	24	,	24	,	24	,	24	,	24	,	24	,	24	,	24	,	25	,	25	,	25	,	25	,	25	,	25	,	25	,	25	,	25	,	25	,	25	,	25	,	25	,	25	,	26	,	26	,	26	,	26	,	26	,	26	,	26	,	26	,	26	,	26	,	26	,	26	,	26	,	26	,	27	,	27	,	27	,	27	,	27	,	27	,	27	,	27	,	27	,	27	,	27	,	27	,	27	,	27	,	27	,	27	,	27	,	28	,	28	,	28	,	28	,	28	,	28	,	28	,	28	,	28	,	28	,	28	,	28	,	28	,	28	,	28	,	28	,	28	,	28	,	29	,	29	,	29	,	29	,	29	,	29	,	29	,	29	,	29	,	29	,	29	,	29	,	29	,	29	,	29	,	29	,	29	,	29	,	29	,	29	,	30	,	30	,	30	,	30	,	30	,	30	,	30	,	30	,	30	,	30	,	30	,	30	,	30	,	30	,	30	,	30	,	30	,	30	,	30	,	30	,	30	,	30	,	31	,	31	,	31	,	31	,	31	,	31	,	31	,	31	,	31	,	31	,	31	,	31	,	31	,	31	,	31	,	31	,	31	,	31	,	31	,	31	,	31	,	31	,	31	,	31	,	31	,	31	,	31	,	31	,	31	,	31	,	31	,	31	,	31	,	31	};
+
+  // 7-bit table
+  int dPhiTable_7b[512] =
+    {	0	,	1	,	2	,	3	,	4	,	5	,	6	,	6	,	7	,	8	,	9	,	10	,	11	,	11	,	12	,	13	,	14	,	15	,	15	,	16	,	17	,	18	,	18	,	19	,	20	,	20	,	21	,	22	,	22	,	23	,	24	,	24	,	25	,	26	,	26	,	27	,	27	,	28	,	29	,	29	,	30	,	30	,	31	,	31	,	32	,	33	,	33	,	34	,	34	,	35	,	35	,	36	,	36	,	37	,	37	,	38	,	38	,	39	,	39	,	40	,	40	,	41	,	41	,	42	,	42	,	43	,	43	,	44	,	44	,	44	,	45	,	45	,	46	,	46	,	47	,	47	,	47	,	48	,	48	,	49	,	49	,	50	,	50	,	50	,	51	,	51	,	52	,	52	,	52	,	53	,	53	,	53	,	54	,	54	,	55	,	55	,	55	,	56	,	56	,	56	,	57	,	57	,	57	,	58	,	58	,	59	,	59	,	59	,	60	,	60	,	60	,	61	,	61	,	61	,	62	,	62	,	62	,	63	,	63	,	63	,	63	,	64	,	64	,	64	,	65	,	65	,	65	,	66	,	66	,	66	,	67	,	67	,	67	,	67	,	68	,	68	,	68	,	69	,	69	,	69	,	69	,	70	,	70	,	70	,	71	,	71	,	71	,	71	,	72	,	72	,	72	,	73	,	73	,	73	,	73	,	74	,	74	,	74	,	74	,	75	,	75	,	75	,	75	,	76	,	76	,	76	,	76	,	77	,	77	,	77	,	77	,	78	,	78	,	78	,	78	,	79	,	79	,	79	,	79	,	80	,	80	,	80	,	80	,	81	,	81	,	81	,	81	,	81	,	82	,	82	,	82	,	82	,	83	,	83	,	83	,	83	,	83	,	84	,	84	,	84	,	84	,	85	,	85	,	85	,	85	,	85	,	86	,	86	,	86	,	86	,	87	,	87	,	87	,	87	,	87	,	88	,	88	,	88	,	88	,	88	,	89	,	89	,	89	,	89	,	89	,	90	,	90	,	90	,	90	,	90	,	91	,	91	,	91	,	91	,	91	,	92	,	92	,	92	,	92	,	92	,	92	,	93	,	93	,	93	,	93	,	93	,	94	,	94	,	94	,	94	,	94	,	95	,	95	,	95	,	95	,	95	,	95	,	96	,	96	,	96	,	96	,	96	,	96	,	97	,	97	,	97	,	97	,	97	,	98	,	98	,	98	,	98	,	98	,	98	,	99	,	99	,	99	,	99	,	99	,	99	,	100	,	100	,	100	,	100	,	100	,	100	,	101	,	101	,	101	,	101	,	101	,	101	,	102	,	102	,	102	,	102	,	102	,	102	,	102	,	103	,	103	,	103	,	103	,	103	,	103	,	104	,	104	,	104	,	104	,	104	,	104	,	104	,	105	,	105	,	105	,	105	,	105	,	105	,	106	,	106	,	106	,	106	,	106	,	106	,	106	,	107	,	107	,	107	,	107	,	107	,	107	,	107	,	108	,	108	,	108	,	108	,	108	,	108	,	108	,	109	,	109	,	109	,	109	,	109	,	109	,	109	,	110	,	110	,	110	,	110	,	110	,	110	,	110	,	111	,	111	,	111	,	111	,	111	,	111	,	111	,	111	,	112	,	112	,	112	,	112	,	112	,	112	,	112	,	113	,	113	,	113	,	113	,	113	,	113	,	113	,	113	,	114	,	114	,	114	,	114	,	114	,	114	,	114	,	115	,	115	,	115	,	115	,	115	,	115	,	115	,	115	,	116	,	116	,	116	,	116	,	116	,	116	,	116	,	116	,	117	,	117	,	117	,	117	,	117	,	117	,	117	,	117	,	117	,	118	,	118	,	118	,	118	,	118	,	118	,	118	,	118	,	119	,	119	,	119	,	119	,	119	,	119	,	119	,	119	,	119	,	120	,	120	,	120	,	120	,	120	,	120	,	120	,	120	,	121	,	121	,	121	,	121	,	121	,	121	,	121	,	121	,	121	,	122	,	122	,	122	,	122	,	122	,	122	,	122	,	122	,	122	,	123	,	123	,	123	,	123	,	123	,	123	,	123	,	123	,	123	,	124	,	124	,	124	,	124	,	124	,	124	,	124	,	124	,	124	,	125	,	125	,	125	,	125	,	125	,	125	,	125	,	125	,	125	,	125	,	126	,	126	,	126	,	126	,	126	,	126	,	126	,	126	,	126	,	126	,	127	,	127	,	127	,	127	,	127	,	127	,	127	,	127	,	127	,	127	,	127	,	127	,	127	,	127	,	127	,	127	,	127	,	127	,	127	,	127	,	127	,	127	,	127	};
+
+  // 8-bit table
+  int dPhiTable_8b[512] =
+    {	0	,	1	,	2	,	3	,	4	,	5	,	6	,	7	,	8	,	9	,	10	,	11	,	12	,	13	,	14	,	14	,	15	,	16	,	17	,	18	,	19	,	20	,	21	,	22	,	23	,	24	,	24	,	25	,	26	,	27	,	28	,	29	,	30	,	31	,	31	,	32	,	33	,	34	,	35	,	36	,	37	,	37	,	38	,	39	,	40	,	41	,	42	,	42	,	43	,	44	,	45	,	46	,	46	,	47	,	48	,	49	,	50	,	50	,	51	,	52	,	53	,	54	,	54	,	55	,	56	,	57	,	57	,	58	,	59	,	60	,	61	,	61	,	62	,	63	,	64	,	64	,	65	,	66	,	66	,	67	,	68	,	69	,	69	,	70	,	71	,	72	,	72	,	73	,	74	,	74	,	75	,	76	,	77	,	77	,	78	,	79	,	79	,	80	,	81	,	81	,	82	,	83	,	83	,	84	,	85	,	86	,	86	,	87	,	88	,	88	,	89	,	90	,	90	,	91	,	91	,	92	,	93	,	93	,	94	,	95	,	95	,	96	,	97	,	97	,	98	,	99	,	99	,	100	,	100	,	101	,	102	,	102	,	103	,	104	,	104	,	105	,	105	,	106	,	107	,	107	,	108	,	109	,	109	,	110	,	110	,	111	,	112	,	112	,	113	,	113	,	114	,	115	,	115	,	116	,	116	,	117	,	117	,	118	,	119	,	119	,	120	,	120	,	121	,	122	,	122	,	123	,	123	,	124	,	124	,	125	,	125	,	126	,	127	,	127	,	128	,	128	,	129	,	129	,	130	,	130	,	131	,	132	,	132	,	133	,	133	,	134	,	134	,	135	,	135	,	136	,	136	,	137	,	138	,	138	,	139	,	139	,	140	,	140	,	141	,	141	,	142	,	142	,	143	,	143	,	144	,	144	,	145	,	145	,	146	,	146	,	147	,	147	,	148	,	148	,	149	,	149	,	150	,	150	,	151	,	151	,	152	,	152	,	153	,	153	,	154	,	154	,	155	,	155	,	156	,	156	,	157	,	157	,	158	,	158	,	159	,	159	,	160	,	160	,	161	,	161	,	162	,	162	,	163	,	163	,	164	,	164	,	165	,	165	,	165	,	166	,	166	,	167	,	167	,	168	,	168	,	169	,	169	,	170	,	170	,	171	,	171	,	172	,	172	,	172	,	173	,	173	,	174	,	174	,	175	,	175	,	176	,	176	,	176	,	177	,	177	,	178	,	178	,	179	,	179	,	180	,	180	,	180	,	181	,	181	,	182	,	182	,	183	,	183	,	183	,	184	,	184	,	185	,	185	,	186	,	186	,	186	,	187	,	187	,	188	,	188	,	189	,	189	,	189	,	190	,	190	,	191	,	191	,	192	,	192	,	192	,	193	,	193	,	194	,	194	,	194	,	195	,	195	,	196	,	196	,	196	,	197	,	197	,	198	,	198	,	199	,	199	,	199	,	200	,	200	,	201	,	201	,	201	,	202	,	202	,	203	,	203	,	203	,	204	,	204	,	204	,	205	,	205	,	206	,	206	,	206	,	207	,	207	,	208	,	208	,	208	,	209	,	209	,	210	,	210	,	210	,	211	,	211	,	211	,	212	,	212	,	213	,	213	,	213	,	214	,	214	,	214	,	215	,	215	,	216	,	216	,	216	,	217	,	217	,	217	,	218	,	218	,	219	,	219	,	219	,	220	,	220	,	220	,	221	,	221	,	221	,	222	,	222	,	223	,	223	,	223	,	224	,	224	,	224	,	225	,	225	,	225	,	226	,	226	,	227	,	227	,	227	,	228	,	228	,	228	,	229	,	229	,	229	,	230	,	230	,	230	,	231	,	231	,	231	,	232	,	232	,	232	,	233	,	233	,	233	,	234	,	234	,	235	,	235	,	235	,	236	,	236	,	236	,	237	,	237	,	237	,	238	,	238	,	238	,	239	,	239	,	239	,	240	,	240	,	240	,	241	,	241	,	241	,	242	,	242	,	242	,	243	,	243	,	243	,	244	,	244	,	244	,	245	,	245	,	245	,	246	,	246	,	246	,	247	,	247	,	247	,	247	,	248	,	248	,	248	,	249	,	249	,	249	,	250	,	250	,	250	,	251	,	251	,	251	,	252	,	252	,	252	,	253	,	253	,	253	,	254	,	254	,	254	,	254	,	255	,	255	,	255	,	255	,	255	,	255	,	255	,	255	,	255	,	255	,	255	,	255	,	255	,	255	,	255	,	255	,	255	,	255	,	255	,	255	,	255	,	255	,	255	,	255	,	255	,	255	,	255	,	255	,	255	};
+  
+  // Now set the arrays
+  
+ // 5-bit words
+  for (int i = 0; i < 256; i++)
+    {
+      sp_2012_01_31_.spvpp_ptu2a_comp_dphi_5[i] = dPhiTable_5b[i];
+      sp_2012_01_31_.spvpp_ptu2b_comp_dphi_5[i] = dPhiTable_5b[i];
+      sp_2012_01_31_.spvpp_ptu2c_comp_dphi_5[i] = dPhiTable_5b[i];
+
+      sp_2012_01_31_.spvpp_ptu3a_comp_dphi_5[i] = dPhiTable_5b[i];
+      sp_2012_01_31_.spvpp_ptu3b_comp_dphi_5[i] = dPhiTable_5b[i];
+      sp_2012_01_31_.spvpp_ptu3c_comp_dphi_5[i] = dPhiTable_5b[i];
+    }
+  
+  // 7-bit words
+  for (int i = 0; i < 512; i++)
+    {
+      sp_2012_01_31_.spvpp_ptu2a_comp_dphi_7[i] = dPhiTable_7b[i];
+      sp_2012_01_31_.spvpp_ptu2b_comp_dphi_7[i] = dPhiTable_7b[i];
+      sp_2012_01_31_.spvpp_ptu2c_comp_dphi_7[i] = dPhiTable_7b[i];
+
+      sp_2012_01_31_.spvpp_ptu3a_comp_dphi_7[i] = dPhiTable_7b[i];
+      sp_2012_01_31_.spvpp_ptu3b_comp_dphi_7[i] = dPhiTable_7b[i];
+      sp_2012_01_31_.spvpp_ptu3c_comp_dphi_7[i] = dPhiTable_7b[i];
+    }
+  
+   // 8-bit words
+  for (int i = 0; i < 512; i++)
+    {
+      sp_2012_01_31_.spvpp_ptu2a_comp_dphi_8[i] = dPhiTable_8b[i];
+      sp_2012_01_31_.spvpp_ptu2b_comp_dphi_8[i] = dPhiTable_8b[i];
+      sp_2012_01_31_.spvpp_ptu2c_comp_dphi_8[i] = dPhiTable_8b[i];
+
+      sp_2012_01_31_.spvpp_ptu3a_comp_dphi_8[i] = dPhiTable_8b[i];
+      sp_2012_01_31_.spvpp_ptu3b_comp_dphi_8[i] = dPhiTable_8b[i];
+      sp_2012_01_31_.spvpp_ptu3c_comp_dphi_8[i] = dPhiTable_8b[i];
+
+      sp_2012_01_31_.spvpp_ptu4a_comp_dphi_8[i] = dPhiTable_8b[i];
+      sp_2012_01_31_.spvpp_ptu4b_comp_dphi_8[i] = dPhiTable_8b[i];
+      sp_2012_01_31_.spvpp_ptu4c_comp_dphi_8[i] = dPhiTable_8b[i];
+    }
+
+}
+  
 
 CSCTriggerContainer<csc::L1Track> CSCTFSPCoreLogic::tracks()
 {

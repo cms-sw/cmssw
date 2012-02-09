@@ -17,6 +17,7 @@ const float CSCTFPtMethods::kGlobalScaleFactor = 1.36;
 // First ME1andME2, then ME1andME3, then MB1andME2
 // units are radians*GeV
 
+
 // These arrays contain the values for the best fit parameters for three station measurements
 
 const float CSCTFPtMethods::AkLowEta_Fit1[kME2andMB2][CSCTFPtMethods::kMaxParameters] = 
@@ -2769,7 +2770,7 @@ float CSCTFPtMethods::Pt3Stn2011(int type, float eta, float dphi1, float dphi2, 
               // calculate correlation rho
               double par_rho[5] = {0., 0., 0., 0., 0.};
               int iETA1 = iETA;
-              int iETA2 = iETA;
+              int iETA2 = iETA; 
 
 // defind which parameters will be use
         double (*Amean12F)[15] = AB_mu12F; 
@@ -3252,6 +3253,1692 @@ float CSCTFPtMethods::Pt3Stn2011(int type, float eta, float dphi1, float dphi2, 
 
     return (Pt > Pt_min)  ? Pt : Pt_min;
 }
+
+
+
+float CSCTFPtMethods::Pt2Stn2012(int type, float eta, float dphi, int PtbyMLH, float &bestLH, int fr, int method) const 
+{
+  int useBestMLH = PtbyMLH;
+  int useBOXcut = false;
+  int useDTBOXcut = true;
+  
+    if(fabs(eta) >= 2.4) eta = 2.35;  
+    double PTsolv = 1.; // for muon plus hypothesis
+    double PTsolvMinus = 1.;//for muon minus hypothesis
+    for(int iETA = 0; iETA < 15; iETA++){
+    if(fabs(eta) >= etabins[iETA] && fabs(eta) < etabins[iETA+1] ){
+
+// calculate curvers of mean and sigma 
+              // calculate phi12 mean  
+              double par1[4] = {0., 0., 0., 0.};
+              //double phi12mean = fitf5(v, par1); //mu12 
+              double par_sig1[3] = {0., 0., 0.};
+        int iETA1 = iETA; 
+        switch (type) // type = mode here
+          {
+          case 6 :  //1-2
+                 if(fr == 1){
+                   if(iETA1 < 3)iETA1 = 3;
+                   if(iETA1 > 11)iETA1 = 11;
+                   //if(fabs(eta)>1.56 && fabs(eta) < 1.6) iETA1 = iETA +1;
+                   par1[0] = A_mu12Front[0][iETA1];
+                   par1[1] = A_mu12Front[1][iETA1];
+                   par1[2] = A_mu12Front[2][iETA1];
+                   par1[3] = A_mu12Front[3][iETA1];
+                   par_sig1[0] = A_sig12Front[0][iETA1];
+                   par_sig1[1] = A_sig12Front[1][iETA1];
+                   par_sig1[2] = A_sig12Front[2][iETA1];
+                 }
+                 if(fr == 0){
+                   if(iETA1 < 1)iETA1 = 1;
+                   if(iETA1 > 11)iETA1 = 11;
+                   //if(fabs(eta)>1.56 && fabs(eta) < 1.6) iETA1 = iETA +1;
+                   par1[0] = A_mu12Rare[0][iETA1];
+                   par1[1] = A_mu12Rare[1][iETA1];
+                   par1[2] = A_mu12Rare[2][iETA1];
+                   par1[3] = A_mu12Rare[3][iETA1];
+                   par_sig1[0] = A_sig12Rare[0][iETA1];
+                   par_sig1[1] = A_sig12Rare[1][iETA1];
+                   par_sig1[2] = A_sig12Rare[2][iETA1];
+                 }
+          break;
+          case 7 :  //1-3
+                 if(fr == 1){
+                   if(iETA1 < 3)iETA1 = 3;
+                   if(iETA1 > 11)iETA1 = 11;
+                   //if(fabs(eta)>1.56 && fabs(eta) < 1.6) iETA1 = iETA +1;
+                   par1[0] = A_mu13Front[0][iETA1];
+                   par1[1] = A_mu13Front[1][iETA1];
+                   par1[2] = A_mu13Front[2][iETA1];
+                   par1[3] = A_mu13Front[3][iETA1];
+                   par_sig1[0] = A_sig13Front[0][iETA1];
+                   par_sig1[1] = A_sig13Front[1][iETA1];
+                   par_sig1[2] = A_sig13Front[2][iETA1];
+                 }
+                 if(fr == 0){
+                   if(iETA1 < 2)iETA1 = 2;
+                   if(iETA1 > 11)iETA1 = 11;
+                   //if(fabs(eta)>1.56 && fabs(eta) < 1.6) iETA1 = iETA +1;
+                   par1[0] = A_mu13Rare[0][iETA1];
+                   par1[1] = A_mu13Rare[1][iETA1];
+                   par1[2] = A_mu13Rare[2][iETA1];
+                   par1[3] = A_mu13Rare[3][iETA1];
+                   par_sig1[0] = A_sig13Rare[0][iETA1];
+                   par_sig1[1] = A_sig13Rare[1][iETA1];
+                   par_sig1[2] = A_sig13Rare[2][iETA1];
+                 }
+          break;
+          case 8 :  //2-3
+                 if(iETA1 < 2)iETA1 = 2;
+                 par1[0] = A_mu23[0][iETA1];
+                 par1[1] = A_mu23[1][iETA1];
+                 par1[2] = A_mu23[2][iETA1];
+                 par1[3] = A_mu23[3][iETA1];
+                 par_sig1[0] = A_sig23[0][iETA1];
+                 par_sig1[1] = A_sig23[1][iETA1];
+                 par_sig1[2] = A_sig23[2][iETA1];
+          break;
+          case 9 :  //2-4
+                 if(iETA1 < 9)iETA1 = 9;
+                 par1[0] = A_mu24[0][iETA1];
+                 par1[1] = A_mu24[1][iETA1];
+                 par1[2] = A_mu24[2][iETA1];
+                 par1[3] = A_mu24[3][iETA1];
+                 par_sig1[0] = A_sig24[0][iETA1];
+                 par_sig1[1] = A_sig24[1][iETA1];
+                 par_sig1[2] = A_sig24[2][iETA1];
+          break;
+          case 10 :  //3-4
+                 if(iETA1 < 9)iETA1 = 9;
+                 par1[0] = A_mu34[0][iETA1];
+                 par1[1] = A_mu34[1][iETA1];
+                 par1[2] = A_mu34[2][iETA1];
+                 par1[3] = A_mu34[3][iETA1];
+                 par_sig1[0] = A_sig34[0][iETA1];
+                 par_sig1[1] = A_sig34[1][iETA1];
+                 par_sig1[2] = A_sig34[2][iETA1];
+          break;
+          case 13 :  //1-4
+                 if(iETA1 < 9)iETA1 = 9;
+                 if(iETA1 > 12)iETA1 = 12;
+                 if(fr == 1){
+                   par1[0] = A_mu14Front[0][iETA1];
+                   par1[1] = A_mu14Front[1][iETA1];
+                   par1[2] = A_mu14Front[2][iETA1];
+                   par1[3] = A_mu14Front[3][iETA1];
+                   par_sig1[0] = A_sig14Front[0][iETA1];
+                   par_sig1[1] = A_sig14Front[1][iETA1];
+                   par_sig1[2] = A_sig14Front[2][iETA1];
+                 }
+                 if(fr == 0){
+                   par1[0] = A_mu14Rare[0][iETA1];
+                   par1[1] = A_mu14Rare[1][iETA1];
+                   par1[2] = A_mu14Rare[2][iETA1];
+                   par1[3] = A_mu14Rare[3][iETA1];
+                   par_sig1[0] = A_sig14Rare[0][iETA1];
+                   par_sig1[1] = A_sig14Rare[1][iETA1];
+                   par_sig1[2] = A_sig14Rare[2][iETA1];
+                 }
+          break;
+          case 11 : // b1-3
+                 if(iETA1 != 2)iETA1 = 2;
+                 par1[0] = A_mu53[0][iETA1];
+                 par1[1] = A_mu53[1][iETA1];
+                 par1[2] = A_mu53[2][iETA1];
+                 par1[3] = A_mu53[3][iETA1];
+                 par_sig1[0] = A_sig53[0][iETA1];
+                 par_sig1[1] = A_sig53[1][iETA1];
+                 par_sig1[2] = A_sig53[2][iETA1];
+                
+          break;
+          case 12 :  //1-2-b1 = 2-b1 for pt_method < 10, for pt_method > 10: b1-2
+                 if(iETA1 < 1)iETA1 = 1;
+                 if(iETA1 > 2)iETA1 = 2;
+                 par1[0] = A_mu52[0][iETA1];
+                 par1[1] = A_mu52[1][iETA1];
+                 par1[2] = A_mu52[2][iETA1];
+                 par1[3] = A_mu52[3][iETA1];
+                 par_sig1[0] = A_sig52[0][iETA1];
+                 par_sig1[1] = A_sig52[1][iETA1];
+                 par_sig1[2] = A_sig52[2][iETA1];
+          break;
+          case 14 :  //2-b1 for pt_method < 10 and b1-1 for pt_method > 10
+                 if(method < 10){
+                    if(iETA1 < 1)iETA1 = 1;
+                    if(iETA1 > 2)iETA1 = 2;
+                 }
+                 par1[0] = A_mu52[0][iETA1];
+                 par1[1] = A_mu52[1][iETA1];
+                 par1[2] = A_mu52[2][iETA1];
+                 par1[3] = A_mu52[3][iETA1];
+                 par_sig1[0] = A_sig52[0][iETA1];
+                 par_sig1[1] = A_sig52[1][iETA1];
+                 par_sig1[2] = A_sig52[2][iETA1];
+                 if(method > 10){
+                    if(iETA1 > 2)iETA1 = 2;
+                    par1[0] = A_mu51[0][iETA1];
+                    par1[1] = A_mu51[1][iETA1];
+                    par1[2] = A_mu51[2][iETA1];
+                    par1[3] = A_mu51[3][iETA1];
+                    par_sig1[0] = A_sig51[0][iETA1];
+                    par_sig1[1] = A_sig51[1][iETA1];
+                    par_sig1[2] = A_sig51[2][iETA1];
+                 }
+          break;
+          //default:
+          //return 0.0;
+          }    
+
+//************* solve equation dLog(Likelihood)/dpt = 0 for muon + ;
+          //if(fabs(dphi) >= 0.002)
+          //if(fabs(dphi) >= 0.00)
+          //if(fabs(dphi) >= 0.002 || (fabs(dphi) >= 0.01 && (type == 12 || type == 14)))
+          //{
+        double muPlusMaxLH = -1e9;
+                  double pt = 140;
+                  double dpt = 0.1;
+                  double step = 5.;
+                  double maxLH = -1e9;
+                  
+                  while(pt > 2. )
+                    {
+                      double par_phi12[1] = {dphi};
+                      double v[1], lpt1_1;
+                      v[0] = 0; lpt1_1 = 1.; 
+                      v[0] = pt;
+                      lpt1_1 = Likelihood2(par_phi12, par1, par_sig1, v);
+                      
+                      if (lpt1_1 > maxLH)
+                        {
+                          maxLH = lpt1_1;
+                          PTsolv = pt;
+                        }
+                      
+                             
+                      if(pt <= 100) {step = 10.0/4.0;}
+                      if(pt <= 50) {step = 5.0/4.0;}
+                      if(pt <= 20) {step = 2.0/4.0;}
+                      if(pt <= 10) {step = 1.0/4.0;}
+                      if(pt <=5) {step = 0.5/4.0;}
+                      
+                      pt = pt - step;
+                  }// end while
+                  muPlusMaxLH = maxLH;
+                  
+//*********** end solve equation for muon plus
+//************* solve equation dLog(Likelihood)/dpt = 0 for muon minus ;
+// for one station method we know sing of muon: dphi > 0 for muon minus!!! => dphi = -dphi < 0
+                  double muMinusMaxLH = -1e9;
+                  dphi = - dphi;
+                  pt = 140;
+                  dpt = 0.1;
+                  step = 5.;
+                  maxLH = -1e9;
+                  while(pt > 2. )
+                    {
+                      double par_phi12[1] = {dphi};
+                      double v[1], lpt1_1;
+                      v[0] = 0; lpt1_1 = 1.;
+                      v[0] = pt;
+                      lpt1_1 = Likelihood2(par_phi12, par1, par_sig1, v);
+                      
+                      if (lpt1_1 > maxLH)
+                        {
+                          maxLH = lpt1_1;
+                          PTsolvMinus = pt;
+                        }
+
+                     
+                      if(pt <= 100) {step = 10.0/4.0;}
+                      if(pt <= 50) {step = 5.0/4.0;}
+                      if(pt <= 20) {step = 2.0/4.0;}
+                      if(pt <= 10) {step = 1.0/4.0;}
+                      if(pt <=5) {step = 0.5/4.0;}
+                      
+                      pt = pt - step;
+                    }// end while
+                  muMinusMaxLH = maxLH;
+                  
+                  //          }// if(fabs(dphi) >= 0.002)
+                  //          else 
+//          {PTsolv = 137.5;} 
+                  
+//*********** end solve equation for muon minus 
+                  if (useBestMLH)
+                    PTsolv = (muPlusMaxLH > muMinusMaxLH) ? PTsolv: PTsolvMinus; // select Maximum solution from muon plus and moun minus hypotesis
+                  else
+                    PTsolv = (PTsolv > PTsolvMinus) ? PTsolv: PTsolvMinus; // select Maximum solution from muon plus and moun minus hypotesis
+                  
+                  bestLH = (muPlusMaxLH > muMinusMaxLH) ? muPlusMaxLH : muMinusMaxLH;
+                  
+                  
+                  PTsolv = PTsolv*1.2;
+          if(PTsolv > 137.5) PTsolv = 137.5;
+          
+          if (useBOXcut)
+            if(fabs(dphi) <= 0.002 && PTsolv < 120.)PTsolv = 140.;
+          if (useDTBOXcut)
+            if( fabs(dphi) <= 0.01 && (type == 11 || type == 12 || type == 14) && PTsolv < 120.)PTsolv = 140.;
+
+          dphi = - dphi; //return to correct sing dphi
+
+    } //if(fabs(eta_TracMy) 
+    } //end "for by iETA"
+
+    float Pt = PTsolv;
+    if(Pt > 10 && fabs(dphi) >= 0.1 ) std::cout << "iF = 0 for dphi = " << dphi <<" and Pt = " << Pt << std::endl;
+                                                                    
+    //if(Pt > 100 && (type == 12 || type == 14) && fabs(eta) <= 1.2 && dphi > 0.015 )std::cout << "dphi = " << dphi << " eta = " << eta << std::endl; 
+    //if(Pt < 10 && (type == 12 || type == 14) && fabs(eta) <= 1.2 && dphi < 0.01)std::cout << "dphi = " << dphi << " eta = " << eta <<   std::endl; 
+    //      return (Pt>0.0) ? Pt : 0.0;
+
+    float Pt_min = trigger_scale->getPtScale()->getLowEdge(1);// 0 GeV
+    if(method > 10) Pt_min = trigger_scale->getPtScale()->getLowEdge(3);// 2 GeV 
+
+    return (Pt > Pt_min)  ? Pt : Pt_min;
+}
+
+
+
+
+float CSCTFPtMethods::Pt3Stn2012(int type, float eta, float dphi1, float dphi2,  int PtbyMLH, float &bestLH, int fr, int method) const 
+{
+
+  int useBestMLH = PtbyMLH;
+  int use2Stn = false;
+  int use2StnDT = true;
+  
+    if(fabs(eta) >= 2.4)eta = 2.35;
+    float Pt = 0.;
+    double PTsolv = 1.; // for muon plus hypothesis
+    double PTsolvMinus = 1.;//for muon minus hypothesis
+    for(int iETA = 0; iETA < 15; iETA++){
+    if(fabs(eta) >= etabins[iETA] && fabs(eta) < etabins[iETA+1] ){
+
+// calculate curvers of mean and sigma 
+              // calculate phi12 mean  
+              double par1[4] = {0., 0., 0., 0.};
+              //double phi12mean = fitf5(v, par1); //mu12 
+              double par_sig1[3] = {0., 0., 0.};
+              // calculate phi23 mean  
+              double par2[4] = {0., 0., 0., 0.};
+              // calculate phi23 sig
+              double par_sig2[3] = {0., 0., 0.};
+              // calculate correlation rho
+              double par_rho[5] = {0., 0., 0., 0., 0.};
+              int iETA1 = iETA;
+              int iETA2 = iETA;
+        switch (type) // type = mode here
+          {
+          case 2 :  //1-2-3
+                 if(fr == 1){
+                   if(iETA1 < 3)iETA1 = 3;
+                   if(iETA1 > 11)iETA1 = 11;
+                   //if(fabs(eta)>1.56 && fabs(eta) < 1.6) iETA1 = iETA +1;
+                   par1[0] = A_mu12Front[0][iETA1];
+                   par1[1] = A_mu12Front[1][iETA1];
+                   par1[2] = A_mu12Front[2][iETA1];
+                   par1[3] = A_mu12Front[3][iETA1];
+                   par_sig1[0] = A_sig12Front[0][iETA1];
+                   par_sig1[1] = A_sig12Front[1][iETA1];
+                   par_sig1[2] = A_sig12Front[2][iETA1];
+                   par_rho[0] = A_rho123FrontCSCTF[0][iETA1];
+                   par_rho[1] = A_rho123FrontCSCTF[1][iETA1];
+                   par_rho[2] = A_rho123FrontCSCTF[2][iETA1];
+                   par_rho[3] = A_rho123FrontCSCTF[3][iETA1];
+                   par_rho[4] = A_rho123FrontCSCTF[4][iETA1];
+                 }
+                 if(fr == 0){
+                   if(iETA1 < 1)iETA1 = 1;
+                   if(iETA1 > 11)iETA1 = 11;
+                   //if(fabs(eta)>1.56 && fabs(eta) < 1.6) iETA1 = iETA +1;
+                   par1[0] = A_mu12Rare[0][iETA1];
+                   par1[1] = A_mu12Rare[1][iETA1];
+                   par1[2] = A_mu12Rare[2][iETA1];
+                   par1[3] = A_mu12Rare[3][iETA1];
+                   par_sig1[0] = A_sig12Rare[0][iETA1];
+                   par_sig1[1] = A_sig12Rare[1][iETA1];
+                   par_sig1[2] = A_sig12Rare[2][iETA1];
+                   par_rho[0] = A_rho123RareCSCTF[0][iETA1];
+                   par_rho[1] = A_rho123RareCSCTF[1][iETA1];
+                   par_rho[2] = A_rho123RareCSCTF[2][iETA1];
+                   par_rho[3] = A_rho123RareCSCTF[3][iETA1];
+                   par_rho[4] = A_rho123RareCSCTF[4][iETA1];
+                 }
+                 if(iETA2 < 2)iETA2 = 2;
+                 par2[0] = A_mu23[0][iETA2];
+                 par2[1] = A_mu23[1][iETA2];
+                 par2[2] = A_mu23[2][iETA2];
+                 par2[3] = A_mu23[3][iETA2];
+                 par_sig2[0] = A_sig23[0][iETA2];
+                 par_sig2[1] = A_sig23[1][iETA2];
+                 par_sig2[2] = A_sig23[2][iETA2];
+
+          break;
+          case 3 : //1-2-4
+                 if(fr == 1){
+                   if(iETA1 < 3)iETA1 = 3;
+                   if(iETA1 > 11)iETA1 = 11;
+                   par1[0] = A_mu12Front[0][iETA1];
+                   par1[1] = A_mu12Front[1][iETA1];
+                   par1[2] = A_mu12Front[2][iETA1];
+                   par1[3] = A_mu12Front[3][iETA1];
+                   par_sig1[0] = A_sig12Front[0][iETA1];
+                   par_sig1[1] = A_sig12Front[1][iETA1];
+                   par_sig1[2] = A_sig12Front[2][iETA1];
+                   par_rho[0] = A_rho124FrontCSCTF[0][iETA1];
+                   par_rho[1] = A_rho124FrontCSCTF[1][iETA1];
+                   par_rho[2] = A_rho124FrontCSCTF[2][iETA1];
+                   par_rho[3] = A_rho124FrontCSCTF[3][iETA1];
+                   par_rho[4] = A_rho124FrontCSCTF[4][iETA1];
+                 }
+                 if(fr == 0){
+                   if(iETA1 < 1)iETA1 = 1;
+                   if(iETA1 > 11)iETA1 = 11;
+                   par1[0] = A_mu12Rare[0][iETA1];
+                   par1[1] = A_mu12Rare[1][iETA1];
+                   par1[2] = A_mu12Rare[2][iETA1];
+                   par1[3] = A_mu12Rare[3][iETA1];
+                   par_sig1[0] = A_sig12Rare[0][iETA1];
+                   par_sig1[1] = A_sig12Rare[1][iETA1];
+                   par_sig1[2] = A_sig12Rare[2][iETA1];
+                   par_rho[0] = A_rho124RareCSCTF[0][iETA1];
+                   par_rho[1] = A_rho124RareCSCTF[1][iETA1];
+                   par_rho[2] = A_rho124RareCSCTF[2][iETA1];
+                   par_rho[3] = A_rho124RareCSCTF[3][iETA1];
+                   par_rho[4] = A_rho124RareCSCTF[4][iETA1];
+                 }
+                 if(iETA2 < 9)iETA2 = 9;
+                 par2[0] = A_mu24[0][iETA2];
+                 par2[1] = A_mu24[1][iETA2];
+                 par2[2] = A_mu24[2][iETA2];
+                 par2[3] = A_mu24[3][iETA2];
+                 par_sig2[0] = A_sig24[0][iETA2];
+                 par_sig2[1] = A_sig24[1][iETA2];
+                 par_sig2[2] = A_sig24[2][iETA2];
+          break;
+          case 4 : //1-3-4
+                 if(fr == 1){
+                   if(iETA1 < 3)iETA1 = 3;
+                   if(iETA1 > 11)iETA1 = 11;
+                   par1[0] = A_mu13Front[0][iETA1];
+                   par1[1] = A_mu13Front[1][iETA1];
+                   par1[2] = A_mu13Front[2][iETA1];
+                   par1[3] = A_mu13Front[3][iETA1];
+                   par_sig1[0] = A_sig13Front[0][iETA1];
+                   par_sig1[1] = A_sig13Front[1][iETA1];
+                   par_sig1[2] = A_sig13Front[2][iETA1];
+                   par_rho[0] = A_rho134FrontCSCTF[0][iETA1];
+                   par_rho[1] = A_rho134FrontCSCTF[1][iETA1];
+                   par_rho[2] = A_rho134FrontCSCTF[2][iETA1];
+                   par_rho[3] = A_rho134FrontCSCTF[3][iETA1];
+                   par_rho[4] = A_rho134FrontCSCTF[4][iETA1];                 
+                 }
+                 if(fr == 0){
+                   if(iETA1 < 2)iETA1 = 2;
+                   if(iETA1 > 11)iETA1 = 11;
+                   par1[0] = A_mu13Rare[0][iETA1];
+                   par1[1] = A_mu13Rare[1][iETA1];
+                   par1[2] = A_mu13Rare[2][iETA1];
+                   par1[3] = A_mu13Rare[3][iETA1];
+                   par_sig1[0] = A_sig13Rare[0][iETA1];
+                   par_sig1[1] = A_sig13Rare[1][iETA1];
+                   par_sig1[2] = A_sig13Rare[2][iETA1];
+                   par_rho[0] = A_rho134RareCSCTF[0][iETA1];
+                   par_rho[1] = A_rho134RareCSCTF[1][iETA1];
+                   par_rho[2] = A_rho134RareCSCTF[2][iETA1];
+                   par_rho[3] = A_rho134RareCSCTF[3][iETA1];
+                   par_rho[4] = A_rho134RareCSCTF[4][iETA1];
+                 }
+                 if(iETA2 < 9)iETA2 = 9;
+                 par2[0] = A_mu34[0][iETA2];
+                 par2[1] = A_mu34[1][iETA2];
+                 par2[2] = A_mu34[2][iETA2];
+                 par2[3] = A_mu34[3][iETA2];
+                 par_sig2[0] = A_sig34[0][iETA2];
+                 par_sig2[1] = A_sig34[1][iETA2];
+                 par_sig2[2] = A_sig34[2][iETA2];
+          break;
+          case 5 ://2-3-4
+                 if(iETA1 < 9)iETA1 = 9;
+                 par1[0] = A_mu23[0][iETA1];
+                 par1[1] = A_mu23[1][iETA1];
+                 par1[2] = A_mu23[2][iETA1];
+                 par1[3] = A_mu23[3][iETA1];
+                 par_sig1[0] = A_sig23[0][iETA1];
+                 par_sig1[1] = A_sig23[1][iETA1];
+                 par_sig1[2] = A_sig23[2][iETA1];
+                 par_rho[0] = A_rho234CSCTF[0][iETA1];
+                 par_rho[1] = A_rho234CSCTF[1][iETA1];
+                 par_rho[2] = A_rho234CSCTF[2][iETA1];
+                 par_rho[3] = A_rho234CSCTF[3][iETA1];
+                 par_rho[4] = A_rho234CSCTF[4][iETA1];
+
+                 par2[0] = A_mu34[0][iETA1];
+                 par2[1] = A_mu34[1][iETA1];
+                 par2[2] = A_mu34[2][iETA1];
+                 par2[3] = A_mu34[3][iETA1];
+                 par_sig2[0] = A_sig34[0][iETA1];
+                 par_sig2[1] = A_sig34[1][iETA1];
+                 par_sig2[2] = A_sig34[2][iETA1];
+          break;
+          case 11 : // b1-1-3
+                 if(iETA1 != 2)iETA1 = 2;
+                 par1[0] = A_mu51[0][iETA1];
+                 par1[1] = A_mu51[1][iETA1];
+                 par1[2] = A_mu51[2][iETA1];
+                 par1[3] = A_mu51[3][iETA1];
+                 par_sig1[0] = A_sig51[0][iETA1];
+                 par_sig1[1] = A_sig51[1][iETA1];
+                 par_sig1[2] = A_sig51[2][iETA1];
+                 par_rho[0] = A_rho513[0][iETA1]; 
+                 par_rho[1] = A_rho513[0][iETA1]; 
+                 par_rho[2] = A_rho513[0][iETA1]; 
+                 par_rho[3] = A_rho513[0][iETA1]; 
+                 par_rho[4] = A_rho513[0][iETA1]; 
+
+                 par2[0] = A_mu13Rare[0][iETA1];
+                 par2[1] = A_mu13Rare[1][iETA1];
+                 par2[2] = A_mu13Rare[2][iETA1];
+                 par2[3] = A_mu13Rare[3][iETA1];
+                 par_sig2[0] = A_sig13Rare[0][iETA1];
+                 par_sig2[1] = A_sig13Rare[1][iETA1];
+                 par_sig2[2] = A_sig13Rare[2][iETA1];
+          break;
+          case 12 : // b1-2-3
+                 if(iETA1 != 2)iETA1 = 2;
+                 par1[0] = A_mu52[0][iETA1];
+                 par1[1] = A_mu52[1][iETA1];
+                 par1[2] = A_mu52[2][iETA1];
+                 par1[3] = A_mu52[3][iETA1];
+                 par_sig1[0] = A_sig52[0][iETA1];
+                 par_sig1[1] = A_sig52[1][iETA1];
+                 par_sig1[2] = A_sig52[2][iETA1];
+                 par_rho[0] = A_rho523[0][iETA1];
+                 par_rho[1] = A_rho523[0][iETA1];
+                 par_rho[2] = A_rho523[0][iETA1];
+                 par_rho[3] = A_rho523[0][iETA1];
+                 par_rho[4] = A_rho523[0][iETA1];
+                 
+                 par2[0] = A_mu23[0][iETA1];
+                 par2[1] = A_mu23[1][iETA1];
+                 par2[2] = A_mu23[2][iETA1];
+                 par2[3] = A_mu23[3][iETA1];
+                 par_sig2[0] = A_sig23[0][iETA1];
+                 par_sig2[1] = A_sig23[1][iETA1];
+                 par_sig2[2] = A_sig23[2][iETA1];
+          break;
+          case 14 : // b1-1-2-(3)
+                 if(iETA1 < 1)iETA1 = 1;
+                 if(iETA1 > 2)iETA1 = 2;
+                 par1[0] = A_mu51[0][iETA1];
+                 par1[1] = A_mu51[1][iETA1];
+                 par1[2] = A_mu51[2][iETA1];
+                 par1[3] = A_mu51[3][iETA1];
+                 par_sig1[0] = A_sig51[0][iETA1];
+                 par_sig1[1] = A_sig51[1][iETA1];
+                 par_sig1[2] = A_sig51[2][iETA1];
+                 par_rho[0] = A_rho512[0][iETA1];
+                 par_rho[1] = A_rho512[0][iETA1];
+                 par_rho[2] = A_rho512[0][iETA1];
+                 par_rho[3] = A_rho512[0][iETA1];
+                 par_rho[4] = A_rho512[0][iETA1];
+                 
+                 par2[0] = A_mu12Rare[0][iETA1];
+                 par2[1] = A_mu12Rare[1][iETA1];
+                 par2[2] = A_mu12Rare[2][iETA1];
+                 par2[3] = A_mu12Rare[3][iETA1];
+                 par_sig2[0] = A_sig12Rare[0][iETA1];
+                 par_sig2[1] = A_sig12Rare[1][iETA1];
+                 par_sig2[2] = A_sig12Rare[2][iETA1]; 
+          break;
+          //default:
+          //return 0.0;
+          }
+
+        // Switch to 2-Station measurement if dphi is too small 
+        // box cut around Pt of 10 GeV
+        if ( fabs(static_cast<double>(dphi2))<0.004  && ((type >= 11 && use2StnDT) || (type>=2 && type<=5 && use2Stn)))
+          {
+            if (use2Stn)
+              {
+                if(type == 2 || type == 3) type = 6; // 1-2-3(or 4) -> 1-2 
+                if(type == 4) type = 7; // 1-3-4 -> 1-3
+                if(type == 5) type = 8; // 2-3-4 -> 2-3
+                Pt = Pt2Stn2012(type, eta, dphi1, useBestMLH, bestLH, fr, method);
+              }
+            if (use2StnDT)
+              {
+                if(type == 11) type = 14; // b1-1-3 -> b1-1 for pt_method > 10
+                Pt = Pt2Stn2012(type, eta, dphi1, useBestMLH, bestLH, fr, method);
+              }
+          }
+        else 
+          {
+//************* solve equation dLog(Likelihood)/dpt = 0 for muon + ;
+            double muPlusMaxLH = -1e9;
+                  double pt = 140;
+                  double dpt = 0.1;
+                  double step = 5.;
+                  double maxLH = -1e9;
+                  
+                  while(pt > 2. )
+                    {
+                      double par_phi12[1] = {dphi1};
+                      double par_phi23[1] = {dphi2};
+                      double v[1], lpt1_1; 
+                      v[0] = 0; lpt1_1 = 1.;
+                      v[0] = pt;
+                      lpt1_1 = Likelihood(par_phi12, par_phi23, par1, par2, par_sig1, par_sig2, par_rho, v);
+                      
+                      if (lpt1_1 > maxLH)
+                        {
+                          maxLH = lpt1_1;
+                          PTsolv = pt;
+                        }
+
+                                           
+                      if(pt <= 100) {step = 10.0/4.0;}
+                      if(pt <= 50) {step = 5.0/4.0;}
+                      if(pt <= 20) {step = 2.0/4.0;}
+                      if(pt <= 10) {step = 1.0/4.0;}
+                      if(pt <=5) {step = 0.5/4.0;}
+
+                      pt = pt - step;
+                  }// end while
+                  muPlusMaxLH = maxLH;
+                  
+//*********** end solve equation for muon plus
+//************* solve equation dLog(Likelihood)/dpt = 0 for muon minus ;
+// for one station method we know sing of muon: dphi1 > 0 for muon minus!!! => dphi1 = -dphi1 < 0
+                  double muMinusMaxLH = -1e9;
+                  dphi1 = - dphi1;
+                  dphi2 = - dphi2;      
+                  pt = 140;
+                  dpt = 0.1;
+                  step = 5.;
+                  maxLH = -1e9;
+                  
+                  while(pt > 2. )
+                    {
+                      double par_phi12[1] = {dphi1};
+                      double par_phi23[1] = {dphi2};
+                      double v[1], lpt1_1;
+                      v[0] = 0; lpt1_1 = 1.; 
+                      v[0] = pt;
+                      lpt1_1 = Likelihood(par_phi12, par_phi23, par1, par2, par_sig1, par_sig2, par_rho, v);
+                      
+                      if (lpt1_1 > maxLH)
+                        {
+                          maxLH = lpt1_1;
+                          PTsolvMinus = pt;
+                        }
+                      
+                      if(pt <= 100) {step = 10.0/4.0;}
+                      if(pt <= 50) {step = 5.0/4.0;}
+                      if(pt <= 20) {step = 2.0/4.0;}
+                      if(pt <= 10) {step = 1.0/4.0;}
+                      if(pt <=5) {step = 0.5/4.0;}
+                      
+                      pt = pt - step;
+                    }// end while
+                  muMinusMaxLH = maxLH;
+
+                  if (useBestMLH)
+                    PTsolv = (muPlusMaxLH > muMinusMaxLH) ? PTsolv: PTsolvMinus; // select Maximum solution from muon plus and moun minus hypotesis
+                  else
+                    PTsolv = (PTsolv > PTsolvMinus) ? PTsolv: PTsolvMinus; // select Maximum solution from muon plus and moun minus hypotesis
+                  
+                  bestLH = (muPlusMaxLH > muMinusMaxLH) ? muPlusMaxLH : muMinusMaxLH;
+                  //*********** end solve equation for muon minus 
+                  
+                  PTsolv = PTsolv*1.2; // correction to have 90% efficiency for trigger cuts
+                  if(PTsolv > 137.5) PTsolv = 137.5;
+                  //if(fabs(dphi1) < 0.002 && fabs(dphi2) <= CutPhi23){PTsolv = 140;}
+                  dphi1 = - dphi1; //return to correct sing dphi
+                  dphi2 = - dphi2; //return to correct sing dphi
+                  Pt = PTsolv;
+          } // end 2 or 3 station method
+    }
+    }
+           // if ( fabs(static_cast<double>(dphi2))>0.004 ) std::cout << "Pt = " << Pt << " Mode = " << type << " dphi1 = " << dphi1 << " dphi2 = " << dphi2 << std::endl;
+
+    float Pt_min = trigger_scale->getPtScale()->getLowEdge(1);// 0 GeV
+    if(method > 10) Pt_min = trigger_scale->getPtScale()->getLowEdge(3);// 2 GeV 
+
+    return (Pt > Pt_min)  ? Pt : Pt_min;
+}
+
+
+
+float CSCTFPtMethods::Pt3Stn2012_DT(int type, float eta, float dphi1, float dphi2,  int PtbyMLH, float &bestLH, int fr, int method) const 
+{
+  int useBestMLH = PtbyMLH;
+  int useBOXcutDT = true;
+  int use2Stn = false;
+  int use2StnDT = true;
+  
+    //if(fabs(eta) >= 2.4)eta = 2.35;
+    if(fabs(eta) >= 2.2) eta = 2.15;  
+    float Pt = 0.;
+    double PTsolv = 1.; // for muon plus hypothesis
+    double PTsolvMinus = 1.;//for muon minus hypothesis
+    for(int iETA = 0; iETA < 15; iETA++){
+    if(fabs(eta) >= etabins[iETA] && fabs(eta) < etabins[iETA+1] ){
+
+// calculate curvers of mean and sigma 
+              // calculate phi12 mean  
+              double par1[4] = {0., 0., 0., 0.};
+              //double phi12mean = fitf5(v, par1); //mu12 
+              double par_sig1[4] = {0., 0., 0., 0};
+              // calculate phi23 mean  
+              double par2[4] = {0., 0., 0., 0.};
+              // calculate phi23 sig
+              double par_sig2[4] = {0., 0., 0., 0.};
+              // calculate correlation rho
+              double par_rho[5] = {0., 0., 0., 0., 0.};
+              int iETA1 = iETA;
+              int iETA2 = iETA;
+
+// defind which parameters will be use
+        double (*Amean12F)[15] = AB_mu12F; 
+        double (*Asig12F)[15] = AB_sig12F; 
+        double (*Amean12R)[15] = AB_mu12R; 
+        double (*Asig12R)[15] = AB_sig12R; 
+
+        double (*Amean13F)[15] = AB_mu13F; 
+        double (*Asig13F)[15] = AB_sig13F; 
+        double (*Amean13R)[15] = AB_mu13R; 
+        double (*Asig13R)[15] = AB_sig13R; 
+
+        //double (*Amean14F)[15] = AB_mu14F; 
+        //double (*Asig14F)[15] = AB_sig14F; 
+        //double (*Amean14R)[15] = AB_mu14R; 
+        //double (*Asig14R)[15] = AB_sig14R; 
+
+        double (*Amean23)[15] = AB_mu23;
+        double (*Asig23)[15] = AB_sig23;
+        double (*Amean24)[15] = AB_mu24;
+        double (*Asig24)[15] = AB_sig24;
+        double (*Amean34)[15] = AB_mu34;
+        double (*Asig34)[15] = AB_sig34;
+
+        double (*Amean5)[15] = AB_mu5;
+        double (*Asig5)[15] = AB_sig5;
+        double (*Amean51)[15] = AB_mu51;
+        double (*Asig51)[15] = AB_sig51;
+        double (*Amean52)[15] = AB_mu52;
+        double (*Asig52)[15] = AB_sig52;
+        double (*Amean53)[15] = AB_mu53;
+        double (*Asig53)[15] = AB_sig53;
+
+        double (*Arho123F)[15] = AB_rho123F;
+        double (*Arho123R)[15] = AB_rho123R;
+        double (*Arho124F)[15] = AB_rho124F;
+        double (*Arho124R)[15] = AB_rho124R;
+        double (*Arho134F)[15] = AB_rho134F;
+        double (*Arho134R)[15] = AB_rho134R;
+        double (*Arho234)[15] = AB_rho234;
+
+        double (*Arho51B)[15] = AB_rho51B;
+        double (*Arho52B)[15] = AB_rho52B;
+        double (*Arho53B)[15] = AB_rho53B;
+        double (*Arho512)[15] = AB_rho512;
+        double (*Arho513)[15] = AB_rho513;
+        double (*Arho523)[15] = AB_rho523;
+
+        //cout << "iETA = " << iETA 
+        //     << " AB_mu51[0][iETA] = " << AB_mu51[0][iETA] << " pointer = " << (*(Amean51+0))[iETA]   
+        //     << " AB_mu51[3][iETA] = " << AB_mu51[3][iETA] << " pointer = " << (*(Amean51+3))[iETA]   
+        //     << endl;
+ 
+        switch (type) // type = mode here
+          {
+          case 2 :  //1-2-3
+                 if(iETA < 2)iETA2 = 2;
+                 if(fr == 1){
+                   if(iETA < 3)iETA1 = 3;
+                   par1[0] = (*(Amean12F+0))[iETA1];
+                   par1[1] = (*(Amean12F+1))[iETA1];
+                   par1[2] = (*(Amean12F+2))[iETA1];
+                   par1[3] = (*(Amean12F+3))[iETA1];
+                   par_sig1[0] = (*(Asig12F+0))[iETA1];
+                   par_sig1[1] = (*(Asig12F+1))[iETA1];
+                   par_sig1[2] = (*(Asig12F+2))[iETA1];
+                   par_sig1[3] = (*(Asig12F+3))[iETA1];
+                   par_rho[0] = (*(Arho123F+0))[iETA2];
+                   par_rho[1] = (*(Arho123F+1))[iETA2];
+                   par_rho[2] = (*(Arho123F+2))[iETA2];
+                   par_rho[3] = (*(Arho123F+3))[iETA2];
+                   par_rho[4] = (*(Arho123F+4))[iETA2];
+                 
+                 }
+                 if(fr == 0){
+                   if(iETA < 1)iETA1 = 1;
+                   par1[0] = (*(Amean12R+0))[iETA1];
+                   par1[1] = (*(Amean12R+1))[iETA1];
+                   par1[2] = (*(Amean12R+2))[iETA1];
+                   par1[3] = (*(Amean12R+3))[iETA1];
+                   par_sig1[0] = (*(Asig12R+0))[iETA1];
+                   par_sig1[1] = (*(Asig12R+1))[iETA1];
+                   par_sig1[2] = (*(Asig12R+2))[iETA1];
+                   par_sig1[3] = (*(Asig12R+3))[iETA1];
+                   par_rho[0] = (*(Arho123R+0))[iETA2];
+                   par_rho[1] = (*(Arho123R+1))[iETA2];
+                   par_rho[2] = (*(Arho123R+2))[iETA2];
+                   par_rho[3] = (*(Arho123R+3))[iETA2];
+                   par_rho[4] = (*(Arho123R+4))[iETA2];
+                 }
+                 par2[0] = (*(Amean23+0))[iETA2];
+                 par2[1] = (*(Amean23+1))[iETA2];
+                 par2[2] = (*(Amean23+2))[iETA2];
+                 par2[3] = (*(Amean23+3))[iETA2];
+                 par_sig2[0] = (*(Asig23+0))[iETA2];
+                 par_sig2[1] = (*(Asig23+1))[iETA2];
+                 par_sig2[2] = (*(Asig23+2))[iETA2]; 
+                 par_sig2[3] = (*(Asig23+3))[iETA2]; 
+
+          break;
+          case 3 : //1-2-4
+                 if(iETA < 3)iETA2 = 3;
+                 if(fr == 1){
+                   if(iETA < 3)iETA1 = 3;
+                   par1[0] = (*(Amean12F+0))[iETA1];
+                   par1[1] = (*(Amean12F+1))[iETA1];
+                   par1[2] = (*(Amean12F+2))[iETA1];
+                   par1[3] = (*(Amean12F+3))[iETA1];
+                   par_sig1[0] = (*(Asig12F+0))[iETA1];
+                   par_sig1[1] = (*(Asig12F+1))[iETA1];
+                   par_sig1[2] = (*(Asig12F+2))[iETA1];
+                   par_sig1[3] = (*(Asig12F+3))[iETA1];
+                   par_rho[0] = (*(Arho124F+0))[iETA2];
+                   par_rho[1] = (*(Arho124F+1))[iETA2];
+                   par_rho[2] = (*(Arho124F+2))[iETA2];
+                   par_rho[3] = (*(Arho124F+3))[iETA2];
+                   par_rho[4] = (*(Arho124F+4))[iETA2];
+                 
+                 }
+                 if(fr == 0){
+                   if(iETA < 1)iETA1 = 1;
+                   par1[0] = (*(Amean12R+0))[iETA1];
+                   par1[1] = (*(Amean12R+1))[iETA1];
+                   par1[2] = (*(Amean12R+2))[iETA1];
+                   par1[3] = (*(Amean12R+3))[iETA1];
+                   par_sig1[0] = (*(Asig12R+0))[iETA1];
+                   par_sig1[1] = (*(Asig12R+1))[iETA1];
+                   par_sig1[2] = (*(Asig12R+2))[iETA1];
+                   par_sig1[3] = (*(Asig12R+3))[iETA1];
+                   par_rho[0] = (*(Arho124R+0))[iETA2];
+                   par_rho[1] = (*(Arho124R+1))[iETA2];
+                   par_rho[2] = (*(Arho124R+2))[iETA2];
+                   par_rho[3] = (*(Arho124R+3))[iETA2];
+                   par_rho[4] = (*(Arho124R+4))[iETA2];
+                 }
+                 par2[0] = (*(Amean24+0))[iETA2];
+                 par2[1] = (*(Amean24+1))[iETA2];
+                 par2[2] = (*(Amean24+2))[iETA2];
+                 par2[3] = (*(Amean24+3))[iETA2];
+                 par_sig2[0] = (*(Asig24+0))[iETA2];
+                 par_sig2[1] = (*(Asig24+1))[iETA2];
+                 par_sig2[2] = (*(Asig24+2))[iETA2]; 
+                 par_sig2[3] = (*(Asig24+3))[iETA2]; 
+          break;
+          case 4 : //1-3-4
+                 if(iETA < 3)iETA2 = 3;
+                 if(fr == 1){
+                   if(iETA < 3)iETA1 = 3;
+                   par1[0] = (*(Amean13F+0))[iETA1];
+                   par1[1] = (*(Amean13F+1))[iETA1];
+                   par1[2] = (*(Amean13F+2))[iETA1];
+                   par1[3] = (*(Amean13F+3))[iETA1];
+                   par_sig1[0] = (*(Asig13F+0))[iETA1];
+                   par_sig1[1] = (*(Asig13F+1))[iETA1];
+                   par_sig1[2] = (*(Asig13F+2))[iETA1];
+                   par_sig1[3] = (*(Asig13F+3))[iETA1];
+                   par_rho[0] = (*(Arho134F+0))[iETA2];
+                   par_rho[1] = (*(Arho134F+1))[iETA2];
+                   par_rho[2] = (*(Arho134F+2))[iETA2];
+                   par_rho[3] = (*(Arho134F+3))[iETA2];
+                   par_rho[4] = (*(Arho134F+4))[iETA2];
+                 
+                 }
+                 if(fr == 0){
+                   if(iETA < 3)iETA1 = 3;
+                   par1[0] = (*(Amean13R+0))[iETA1];
+                   par1[1] = (*(Amean13R+1))[iETA1];
+                   par1[2] = (*(Amean13R+2))[iETA1];
+                   par1[3] = (*(Amean13R+3))[iETA1];
+                   par_sig1[0] = (*(Asig13R+0))[iETA1];
+                   par_sig1[1] = (*(Asig13R+1))[iETA1];
+                   par_sig1[2] = (*(Asig13R+2))[iETA1];
+                   par_sig1[3] = (*(Asig13R+3))[iETA1];
+                   par_rho[0] = (*(Arho134R+0))[iETA2];
+                   par_rho[1] = (*(Arho134R+1))[iETA2];
+                   par_rho[2] = (*(Arho134R+2))[iETA2];
+                   par_rho[3] = (*(Arho134R+3))[iETA2];
+                   par_rho[4] = (*(Arho134R+4))[iETA2];
+                 }
+                 par2[0] = (*(Amean34+0))[iETA2];
+                 par2[1] = (*(Amean34+1))[iETA2];
+                 par2[2] = (*(Amean34+2))[iETA2];
+                 par2[3] = (*(Amean34+3))[iETA2];
+                 par_sig2[0] = (*(Asig34+0))[iETA2];
+                 par_sig2[1] = (*(Asig34+1))[iETA2];
+                 par_sig2[2] = (*(Asig34+2))[iETA2]; 
+                 par_sig2[3] = (*(Asig34+3))[iETA2]; 
+          break;
+          case 5 ://2-3-4
+                 if(iETA < 2)iETA1 = 2;
+                 if(iETA < 3)iETA2 = 3;
+                 par1[0] = (*(Amean23+0))[iETA1];
+                 par1[1] = (*(Amean23+1))[iETA1];
+                 par1[2] = (*(Amean23+2))[iETA1];
+                 par1[3] = (*(Amean23+3))[iETA1];
+                 par_sig1[0] = (*(Asig23+0))[iETA1];
+                 par_sig1[1] = (*(Asig23+1))[iETA1];
+                 par_sig1[2] = (*(Asig23+2))[iETA1];
+                 par_sig1[3] = (*(Asig23+3))[iETA1];
+                 par_rho[0] = (*(Arho234+0))[iETA2];
+                 par_rho[1] = (*(Arho234+1))[iETA2];
+                 par_rho[2] = (*(Arho234+2))[iETA2];
+                 par_rho[3] = (*(Arho234+3))[iETA2];
+                 par_rho[4] = (*(Arho234+4))[iETA2];
+                 
+                 par2[0] = (*(Amean34+0))[iETA2];
+                 par2[1] = (*(Amean34+1))[iETA2];
+                 par2[2] = (*(Amean34+2))[iETA2];
+                 par2[3] = (*(Amean34+3))[iETA2];
+                 par_sig2[0] = (*(Asig34+0))[iETA2];
+                 par_sig2[1] = (*(Asig34+1))[iETA2];
+                 par_sig2[2] = (*(Asig34+2))[iETA2]; 
+                 par_sig2[3] = (*(Asig34+3))[iETA2]; 
+          break;
+          case 11 : // singles for method < 10, for method > 10: fr = 1 -> b1-1-3, fr = 0 -> b1-3-phiBend
+                 if(iETA != 2)iETA1 = 2;
+                 par1[0] = (*(Amean53+0))[iETA1];
+                 par1[1] = (*(Amean53+1))[iETA1];
+                 par1[2] = (*(Amean53+2))[iETA1];
+                 par1[3] = (*(Amean53+3))[iETA1];
+                 par_sig1[0] = (*(Asig53+0))[iETA1];
+                 par_sig1[1] = (*(Asig53+1))[iETA1];
+                 par_sig1[2] = (*(Asig53+2))[iETA1];
+                 par_sig1[3] = (*(Asig53+3))[iETA1];
+                 par_rho[0] = (*(Arho53B+0))[iETA1];
+                 par_rho[1] = (*(Arho53B+1))[iETA1];
+                 par_rho[2] = (*(Arho53B+2))[iETA1];
+                 par_rho[3] = (*(Arho53B+3))[iETA1];
+                 par_rho[4] = (*(Arho53B+4))[iETA1];
+               
+                 par2[0] = (*(Amean5+0))[iETA1];
+                 par2[1] = (*(Amean5+1))[iETA1];
+                 par2[2] = (*(Amean5+2))[iETA1];
+                 par2[3] = (*(Amean5+3))[iETA1];
+                 par_sig2[0] = (*(Asig5+0))[iETA1];
+                 par_sig2[1] = (*(Asig5+1))[iETA1];
+                 par_sig2[2] = (*(Asig5+2))[iETA1]; 
+                 par_sig2[3] = (*(Asig5+3))[iETA1]; 
+
+                 if(fr == 1){
+                   par1[0] = (*(Amean51+0))[iETA1];
+                   par1[1] = (*(Amean51+1))[iETA1];
+                   par1[2] = (*(Amean51+2))[iETA1];
+                   par1[3] = (*(Amean51+3))[iETA1];
+                   par_sig1[0] = (*(Asig51+0))[iETA1];
+                   par_sig1[1] = (*(Asig51+1))[iETA1];
+                   par_sig1[2] = (*(Asig51+2))[iETA1];
+                   par_sig1[3] = (*(Asig51+3))[iETA1];
+                   par_rho[0] = (*(Arho513+0))[iETA1];
+                   par_rho[1] = (*(Arho513+1))[iETA1];
+                   par_rho[2] = (*(Arho513+2))[iETA1];
+                   par_rho[3] = (*(Arho513+3))[iETA1];
+                   par_rho[4] = (*(Arho513+4))[iETA1];
+                 
+                   par2[0] = (*(Amean13R+0))[iETA1];
+                   par2[1] = (*(Amean13R+1))[iETA1];
+                   par2[2] = (*(Amean13R+2))[iETA1];
+                   par2[3] = (*(Amean13R+3))[iETA1];
+                   par_sig2[0] = (*(Asig13R+0))[iETA1];
+                   par_sig2[1] = (*(Asig13R+1))[iETA1];
+                   par_sig2[2] = (*(Asig13R+2))[iETA1]; 
+                   par_sig2[3] = (*(Asig13R+3))[iETA1]; 
+                 }    
+          break;
+          case 12 : // b1-1-2 for method < 10; for method > 10: fr = 1 -> b1-2-3, fr = 0 -> b1-2-phiBend
+                 if(iETA < 1)iETA1 = 1;
+                 if(iETA > 2)iETA1 = 2;
+                 par1[0] = (*(Amean52+0))[iETA1];
+                 par1[1] = (*(Amean52+1))[iETA1];
+                 par1[2] = (*(Amean52+2))[iETA1];
+                 par1[3] = (*(Amean52+3))[iETA1];
+                 par_sig1[0] = (*(Asig52+0))[iETA1];
+                 par_sig1[1] = (*(Asig52+1))[iETA1];
+                 par_sig1[2] = (*(Asig52+2))[iETA1];
+                 par_sig1[3] = (*(Asig52+3))[iETA1];
+                 par_rho[0] = (*(Arho52B+0))[iETA1];
+                 par_rho[1] = (*(Arho52B+1))[iETA1];
+                 par_rho[2] = (*(Arho52B+2))[iETA1];
+                 par_rho[3] = (*(Arho52B+3))[iETA1];
+                 par_rho[4] = (*(Arho52B+4))[iETA1];
+               
+                 par2[0] = (*(Amean5+0))[iETA1];
+                 par2[1] = (*(Amean5+1))[iETA1];
+                 par2[2] = (*(Amean5+2))[iETA1];
+                 par2[3] = (*(Amean5+3))[iETA1];
+                 par_sig2[0] = (*(Asig5+0))[iETA1];
+                 par_sig2[1] = (*(Asig5+1))[iETA1];
+                 par_sig2[2] = (*(Asig5+2))[iETA1]; 
+                 par_sig2[3] = (*(Asig5+3))[iETA1]; 
+
+                 if(fr == 1){
+                   if(iETA != 2)iETA1 = 2;
+                   par1[0] = (*(Amean52+0))[iETA1];
+                   par1[1] = (*(Amean52+1))[iETA1];
+                   par1[2] = (*(Amean52+2))[iETA1];
+                   par1[3] = (*(Amean52+3))[iETA1];
+                   par_sig1[0] = (*(Asig52+0))[iETA1];
+                   par_sig1[1] = (*(Asig52+1))[iETA1];
+                   par_sig1[2] = (*(Asig52+2))[iETA1];
+                   par_sig1[3] = (*(Asig52+3))[iETA1];
+                   par_rho[0] = (*(Arho523+0))[iETA1];
+                   par_rho[1] = (*(Arho523+1))[iETA1];
+                   par_rho[2] = (*(Arho523+2))[iETA1];
+                   par_rho[3] = (*(Arho523+3))[iETA1];
+                   par_rho[4] = (*(Arho523+4))[iETA1];
+                 
+                   par2[0] = (*(Amean23+0))[iETA1];
+                   par2[1] = (*(Amean23+1))[iETA1];
+                   par2[2] = (*(Amean23+2))[iETA1];
+                   par2[3] = (*(Amean23+3))[iETA1];
+                   par_sig2[0] = (*(Asig23+0))[iETA1];
+                   par_sig2[1] = (*(Asig23+1))[iETA1];
+                   par_sig2[2] = (*(Asig23+2))[iETA1]; 
+                   par_sig2[3] = (*(Asig23+3))[iETA1]; 
+                 }    
+          break;
+          case 14 : // b1-2 for method < 10; for method > 10: fr = 1 -> b1-1-2-(3), fr = 0 -> b1-1-phiBend
+                 if(iETA > 2)iETA1 = 2;
+                 par1[0] = (*(Amean51+0))[iETA1];
+                 par1[1] = (*(Amean51+1))[iETA1];
+                 par1[2] = (*(Amean51+2))[iETA1];
+                 par1[3] = (*(Amean51+3))[iETA1];
+                 par_sig1[0] = (*(Asig51+0))[iETA1];
+                 par_sig1[1] = (*(Asig51+1))[iETA1];
+                 par_sig1[2] = (*(Asig51+2))[iETA1];
+                 par_sig1[3] = (*(Asig51+3))[iETA1];
+                 par_rho[0] = (*(Arho51B+0))[iETA1];
+                 par_rho[1] = (*(Arho51B+1))[iETA1];
+                 par_rho[2] = (*(Arho51B+2))[iETA1];
+                 par_rho[3] = (*(Arho51B+3))[iETA1];
+                 par_rho[4] = (*(Arho51B+4))[iETA1];
+               
+                 par2[0] = (*(Amean5+0))[iETA1];
+                 par2[1] = (*(Amean5+1))[iETA1];
+                 par2[2] = (*(Amean5+2))[iETA1];
+                 par2[3] = (*(Amean5+3))[iETA1];
+                 par_sig2[0] = (*(Asig5+0))[iETA1];
+                 par_sig2[1] = (*(Asig5+1))[iETA1];
+                 par_sig2[2] = (*(Asig5+2))[iETA1]; 
+                 par_sig2[3] = (*(Asig5+3))[iETA1]; 
+
+                 if(fr == 1){
+                   if(iETA < 1)iETA1 = 1;
+                   if(iETA > 2)iETA1 = 2;
+                   par1[0] = (*(Amean51+0))[iETA1];
+                   par1[1] = (*(Amean51+1))[iETA1];
+                   par1[2] = (*(Amean51+2))[iETA1];
+                   par1[3] = (*(Amean51+3))[iETA1];
+                   par_sig1[0] = (*(Asig51+0))[iETA1];
+                   par_sig1[1] = (*(Asig51+1))[iETA1];
+                   par_sig1[2] = (*(Asig51+2))[iETA1];
+                   par_sig1[3] = (*(Asig51+3))[iETA1];
+                   par_rho[0] = (*(Arho512+0))[iETA1];
+                   par_rho[1] = (*(Arho512+1))[iETA1];
+                   par_rho[2] = (*(Arho512+2))[iETA1];
+                   par_rho[3] = (*(Arho512+3))[iETA1];
+                   par_rho[4] = (*(Arho512+4))[iETA1];
+                 
+                   par2[0] = (*(Amean12R+0))[iETA1];
+                   par2[1] = (*(Amean12R+1))[iETA1];
+                   par2[2] = (*(Amean12R+2))[iETA1];
+                   par2[3] = (*(Amean12R+3))[iETA1];
+                   par_sig2[0] = (*(Asig12R+0))[iETA1];
+                   par_sig2[1] = (*(Asig12R+1))[iETA1];
+                   par_sig2[2] = (*(Asig12R+2))[iETA1]; 
+                   par_sig2[3] = (*(Asig12R+3))[iETA1]; 
+                 }   
+          break;
+          //default:
+          //return 0.0;
+          }
+
+        // Switch to 2-Station measurement if dphi is too small
+        // box cut around Pt of 10 GeV
+        if ( ( ( (fabs(static_cast<double>(dphi2))<0.004  && type != 12 && method < 25)||
+                 (fabs(static_cast<double>(dphi2))<0.004  && type != 12 && type != 14 && type != 11 && method >= 25))) &&
+             ((type>=2 && type<=5 && use2Stn) || (type >= 11 && use2StnDT)))
+          {
+            if (use2Stn)
+              {
+                //if(type == 12 || type == 14 || type == 11) std::cout << "mode = " << type << " dphi23 = " << dphi2 << " method = " << method << std::endl; //test  
+                if(type == 2 || type == 3) type = 6; // 1-2-3(or 4) -> 1-2 
+                if(type == 4) type = 7; // 1-3-4 -> 1-3
+                if(type == 5) type = 8; // 2-3-4 -> 2-3
+                Pt = Pt2Stn2012_DT(type, eta, dphi1, useBestMLH, bestLH, fr, method,int(2));//in 3 station track there is no information to which ME1/1 or ME1/2 track belong
+              }
+            if (use2StnDT)
+            {
+              if(type == 11) type = 14; // b1-1-3 -> b1-1 for pt_method > 10
+              //if(type == 14) type = 11;
+              //phiSign
+              Pt = Pt2Stn2012_DT(type, eta, dphi1,  useBestMLH, bestLH, fr, method,int(2));//in 3 station track there is no information to which ME1/1 or ME1/2 track belong
+            }
+          }
+        else 
+          {
+            //************* solve equation dLog(Likelihood)/dpt = 0 for muon + ;
+            double muPlusMaxLH = -1e9;
+            double pt = 140;
+            double dpt = 0.1;
+                  double step = 5.;
+                  double maxLH = -1e9;
+                  while(pt > 2. )
+                    {
+                      double par_phi12[1] = {dphi1};
+                      double par_phi23[1] = {dphi2};
+                      double v[1], lpt1_1;
+                      v[0] = 0; lpt1_1 = 1.; 
+                      v[0] = pt;
+                      lpt1_1 = Likelihood2011(par_phi12, par_phi23, par1, par2, par_sig1, par_sig2, par_rho, v);
+                      
+                      if (lpt1_1 > maxLH)
+                        {
+                          maxLH = lpt1_1;
+                          PTsolv = pt;
+                        }
+                                         
+                      if(pt <= 100) {step = 10.0/4.0;}
+                      if(pt <= 50) {step = 5.0/4.0;}
+                      if(pt <= 20) {step = 2.0/4.0;}
+                      if(pt <= 10) {step = 1.0/4.0;}
+                      if(pt <=5) {step = 0.5/4.0;}
+                      
+                      pt = pt - step;
+                  }// end while
+                  muPlusMaxLH = maxLH;
+//*********** end solve equation for muon plus
+//************* solve equation dLog(Likelihood)/dpt = 0 for muon minus ;
+// for one station method we know sing of muon: dphi1 > 0 for muon minus!!! => dphi1 = -dphi1 < 0
+                  double muMinusMaxLH = -1e9;
+                  dphi1 = - dphi1;
+                  dphi2 = - dphi2;      
+                  pt = 140;
+                  dpt = 0.1;
+                  step = 5.;
+                  maxLH = -1e9;
+                  
+                  while(pt > 2. )
+                    {
+                      double par_phi12[1] = {dphi1};
+                      double par_phi23[1] = {dphi2};
+                      double v[1], lpt1_1;
+                       v[0] = 0; lpt1_1 = 1.; 
+                       v[0] = pt;
+                       lpt1_1 = Likelihood2011(par_phi12, par_phi23, par1, par2, par_sig1, par_sig2, par_rho, v);
+                       
+                       if (lpt1_1 > maxLH)
+                         {
+                           maxLH = lpt1_1;
+                           PTsolvMinus = pt;
+                         }
+                                          
+                       if(pt <= 100) {step = 10.0/4.0;}
+                       if(pt <= 50) {step = 5.0/4.0;}
+                       if(pt <= 20) {step = 2.0/4.0;}
+                       if(pt <= 10) {step = 1.0/4.0;}
+                       if(pt <=5) {step = 0.5/4.0;} 
+                       pt = pt - step;
+                    }// end while
+                  muMinusMaxLH = maxLH;
+
+                  if (useBestMLH)
+                    PTsolv = (muPlusMaxLH > muMinusMaxLH) ? PTsolv: PTsolvMinus; // select Maximum solution from muon plus and moun minus hypotesis
+                  else
+                    PTsolv = (PTsolv > PTsolvMinus) ? PTsolv: PTsolvMinus; // select Maximum solution from muon plus and moun minus hypotesis
+                  
+                  bestLH = (muPlusMaxLH > muMinusMaxLH) ? muPlusMaxLH : muMinusMaxLH;
+
+                  PTsolv = PTsolv*1.2; // correction to have 90% efficiency for trigger cuts
+                  if(PTsolv > 137.5) PTsolv = 137.5;
+                  //if(fabs(dphi1) < 0.002 && fabs(dphi2) <= CutPhi23){PTsolv = 140;}
+                  dphi1 = - dphi1; //return to correct sing dphi
+                  dphi2 = - dphi2; //return to correct sing dphi
+                  Pt = PTsolv;
+          } // end 2 or 3 station method
+    }}
+    // fix overlap region high pt:
+    if (useBOXcutDT)
+      if(method >= 25 && (type == 12 || type == 14 || type == 11) && fabs(dphi1)<0.003 && fabs(dphi2) <2) Pt = 140.; 
+           // if ( fabs(static_cast<double>(dphi2))>0.004 ) std::cout << "Pt = " << Pt << " Mode = " << type << " dphi1 = " << dphi1 << " dphi2 = " << dphi2 << std::endl;
+
+    //float Pt_min = trigger_scale->getPtScale()->getLowEdge(1);// 0 GeV
+    //if(method > 10) Pt_min = trigger_scale->getPtScale()->getLowEdge(3);// 2 GeV 
+    float Pt_min = 2;// 2 GeV
+
+    return (Pt > Pt_min)  ? Pt : Pt_min;
+}
+
+
+float CSCTFPtMethods::Pt2Stn2012_DT(int type, float eta, float dphi, int PtbyMLH, float &bestLH, int fr, int method, int phiSign) const 
+{
+  int useBestMLH = PtbyMLH;
+  int useBOXcut = true;
+ 
+    //if(fabs(eta) >= 2.4) eta = 2.35;  
+    if(fabs(eta) >= 2.2) eta = 2.15;  
+    double PTsolv = 1.; // for muon plus hypothesis
+    double PTsolvMinus = 1.;//for muon minus hypothesis
+    for(int iETA = 0; iETA < 15; iETA++){
+    if(fabs(eta) >= etabins[iETA] && fabs(eta) < etabins[iETA+1] ){
+
+// calculate curvers of mean and sigma 
+              // calculate phi12 mean  
+              double par1[4] = {0., 0., 0., 0.};
+              //double phi12mean = fitf5(v, par1); //mu12 
+              double par_sig1[4] = {0., 0., 0.,0};
+        int iETA1 = iETA; 
+        int iETA2 = iETA; 
+
+        double (*Amean12FnoME11)[15] = AB_mu12FnoME11; 
+        double (*Asig12FnoME11)[15] = AB_sig12FnoME11; 
+        double (*Amean12RnoME11)[15] = AB_mu12RnoME11; 
+        double (*Asig12RnoME11)[15] = AB_sig12RnoME11; 
+
+        double (*Amean13FnoME11)[15] = AB_mu13FnoME11; 
+        double (*Asig13FnoME11)[15] = AB_sig13FnoME11; 
+        double (*Amean13RnoME11)[15] = AB_mu13RnoME11; 
+        double (*Asig13RnoME11)[15] = AB_sig13RnoME11; 
+
+        double (*Amean14FnoME11)[15] = AB_mu14FnoME11; 
+        double (*Asig14FnoME11)[15] = AB_sig14FnoME11; 
+        double (*Amean14RnoME11)[15] = AB_mu14RnoME11; 
+        double (*Asig14RnoME11)[15] = AB_sig14RnoME11; 
+        //
+        double (*Amean12FME11)[15] = AB_mu12FME11; 
+        double (*Asig12FME11)[15] = AB_sig12FME11; 
+        double (*Amean12RME11)[15] = AB_mu12RME11; 
+        double (*Asig12RME11)[15] = AB_sig12RME11; 
+
+        double (*Amean13FME11)[15] = AB_mu13FME11; 
+        double (*Asig13FME11)[15] = AB_sig13FME11; 
+        double (*Amean13RME11)[15] = AB_mu13RME11; 
+        double (*Asig13RME11)[15] = AB_sig13RME11; 
+
+        double (*Amean14FME11)[15] = AB_mu14FME11; 
+        double (*Asig14FME11)[15] = AB_sig14FME11; 
+        double (*Amean14RME11)[15] = AB_mu14RME11; 
+        double (*Asig14RME11)[15] = AB_sig14RME11; 
+        //
+        double (*Amean12F)[15] = AB_mu12F; 
+        double (*Asig12F)[15] = AB_sig12F; 
+        double (*Amean12R)[15] = AB_mu12R; 
+        double (*Asig12R)[15] = AB_sig12R; 
+
+        double (*Amean13F)[15] = AB_mu13F; 
+        double (*Asig13F)[15] = AB_sig13F; 
+        double (*Amean13R)[15] = AB_mu13R; 
+        double (*Asig13R)[15] = AB_sig13R; 
+
+        double (*Amean14F)[15] = AB_mu14F; 
+        double (*Asig14F)[15] = AB_sig14F; 
+        double (*Amean14R)[15] = AB_mu14R; 
+        double (*Asig14R)[15] = AB_sig14R; 
+
+        double (*Amean23)[15] = AB_mu23;
+        double (*Asig23)[15] = AB_sig23;
+        double (*Amean24)[15] = AB_mu24;
+        double (*Asig24)[15] = AB_sig24;
+        double (*Amean34)[15] = AB_mu34;
+        double (*Asig34)[15] = AB_sig34;
+
+        double (*Amean51)[15] = AB_mu51;
+        double (*Asig51)[15] = AB_sig51;
+        double (*Amean52)[15] = AB_mu52;
+        double (*Asig52)[15] = AB_sig52;
+        double (*Amean53)[15] = AB_mu53;
+        double (*Asig53)[15] = AB_sig53;
+
+        switch (type) // type = mode here
+          {
+          case 6 :  //1-2
+                 if(fr == 1){
+                   if(iETA1 < 3)iETA1 = 3;
+                   //if(iETA1 > 11)iETA1 = 11;
+                   par1[0] = (*(Amean12F+0))[iETA1];
+                   par1[1] = (*(Amean12F+1))[iETA1];
+                   par1[2] = (*(Amean12F+2))[iETA1];
+                   par1[3] = (*(Amean12F+3))[iETA1];
+                   par_sig1[0] = (*(Asig12F+0))[iETA1];
+                   par_sig1[1] = (*(Asig12F+1))[iETA1];
+                   par_sig1[2] = (*(Asig12F+2))[iETA1];
+                   par_sig1[3] = (*(Asig12F+3))[iETA1];
+                 }
+                 if(fr == 0){
+                   if(iETA1 < 1)iETA1 = 1;
+                   //if(iETA1 > 11)iETA1 = 11;
+                   par1[0] = (*(Amean12R+0))[iETA1];
+                   par1[1] = (*(Amean12R+1))[iETA1];
+                   par1[2] = (*(Amean12R+2))[iETA1];
+                   par1[3] = (*(Amean12R+3))[iETA1];
+                   par_sig1[0] = (*(Asig12R+0))[iETA1];
+                   par_sig1[1] = (*(Asig12R+1))[iETA1];
+                   par_sig1[2] = (*(Asig12R+2))[iETA1];
+                   par_sig1[3] = (*(Asig12R+3))[iETA1];
+                 }
+            if(phiSign == 0){ // track belong to ME11 station
+                 if(fr == 1){
+                   if(iETA2 < 7)iETA2 = 7;
+                   par1[0] = (*(Amean12FME11+0))[iETA2];
+                   par1[1] = (*(Amean12FME11+1))[iETA2];
+                   par1[2] = (*(Amean12FME11+2))[iETA2];
+                   par1[3] = (*(Amean12FME11+3))[iETA2];
+                   par_sig1[0] = (*(Asig12FME11+0))[iETA2];
+                   par_sig1[1] = (*(Asig12FME11+1))[iETA2];
+                   par_sig1[2] = (*(Asig12FME11+2))[iETA2];
+                   par_sig1[3] = (*(Asig12FME11+3))[iETA2];
+                 }
+                 if(fr == 0){
+                   if(iETA2 < 7)iETA2 = 7;
+                   par1[0] = (*(Amean12RME11+0))[iETA2];
+                   par1[1] = (*(Amean12RME11+1))[iETA2];
+                   par1[2] = (*(Amean12RME11+2))[iETA2];
+                   par1[3] = (*(Amean12RME11+3))[iETA2];
+                   par_sig1[0] = (*(Asig12RME11+0))[iETA2];
+                   par_sig1[1] = (*(Asig12RME11+1))[iETA2];
+                   par_sig1[2] = (*(Asig12RME11+2))[iETA2];
+                   par_sig1[3] = (*(Asig12RME11+3))[iETA2];
+                 }
+            }
+            if(phiSign == 1){ // track belong to ME1/2 or ME1/3 station
+                 if(fr == 1){
+                   if(iETA2 < 3)iETA2 = 3;
+                   if(iETA2 > 7)iETA2 = 7;
+                   par1[0] = (*(Amean12FnoME11+0))[iETA2];
+                   par1[1] = (*(Amean12FnoME11+1))[iETA2];
+                   par1[2] = (*(Amean12FnoME11+2))[iETA2];
+                   par1[3] = (*(Amean12FnoME11+3))[iETA2];
+                   par_sig1[0] = (*(Asig12FnoME11+0))[iETA2];
+                   par_sig1[1] = (*(Asig12FnoME11+1))[iETA2];
+                   par_sig1[2] = (*(Asig12FnoME11+2))[iETA2];
+                   par_sig1[3] = (*(Asig12FnoME11+3))[iETA2];
+                 }
+                 if(fr == 0){
+                   if(iETA2 < 1)iETA2 = 1;
+                   if(iETA2 > 6)iETA2 = 6;// rare ME1/2 only till 1.6
+                   par1[0] = (*(Amean12RnoME11+0))[iETA2];
+                   par1[1] = (*(Amean12RnoME11+1))[iETA2];
+                   par1[2] = (*(Amean12RnoME11+2))[iETA2];
+                   par1[3] = (*(Amean12RnoME11+3))[iETA2];
+                   par_sig1[0] = (*(Asig12RnoME11+0))[iETA2];
+                   par_sig1[1] = (*(Asig12RnoME11+1))[iETA2];
+                   par_sig1[2] = (*(Asig12RnoME11+2))[iETA2];
+                   par_sig1[3] = (*(Asig12RnoME11+3))[iETA2];
+                 }
+            }
+
+          break;
+          case 7 :  //1-3
+                 if(fr == 1){
+                   if(iETA1 < 3)iETA1 = 3;
+                   //if(iETA1 > 11)iETA1 = 11;
+                   par1[0] = (*(Amean13F+0))[iETA1];
+                   par1[1] = (*(Amean13F+1))[iETA1];
+                   par1[2] = (*(Amean13F+2))[iETA1];
+                   par1[3] = (*(Amean13F+3))[iETA1];
+                   par_sig1[0] = (*(Asig13F+0))[iETA1];
+                   par_sig1[1] = (*(Asig13F+1))[iETA1];
+                   par_sig1[2] = (*(Asig13F+2))[iETA1];
+                   par_sig1[3] = (*(Asig13F+3))[iETA1];
+                 }
+                 if(fr == 0){
+                   if(iETA1 < 3)iETA1 = 3;
+                   //if(iETA1 > 11)iETA1 = 11;
+                   par1[0] = (*(Amean13R+0))[iETA1];
+                   par1[1] = (*(Amean13R+1))[iETA1];
+                   par1[2] = (*(Amean13R+2))[iETA1];
+                   par1[3] = (*(Amean13R+3))[iETA1];
+                   par_sig1[0] = (*(Asig13R+0))[iETA1];
+                   par_sig1[1] = (*(Asig13R+1))[iETA1];
+                   par_sig1[2] = (*(Asig13R+2))[iETA1];
+                   par_sig1[3] = (*(Asig13R+3))[iETA1];
+                 }
+            if(phiSign == 0){ // track belong to ME11 station
+                 if(fr == 1){
+                   if(iETA2 < 7)iETA2 = 7;
+                   par1[0] = (*(Amean13FME11+0))[iETA2];
+                   par1[1] = (*(Amean13FME11+1))[iETA2];
+                   par1[2] = (*(Amean13FME11+2))[iETA2];
+                   par1[3] = (*(Amean13FME11+3))[iETA2];
+                   par_sig1[0] = (*(Asig13FME11+0))[iETA2];
+                   par_sig1[1] = (*(Asig13FME11+1))[iETA2];
+                   par_sig1[2] = (*(Asig13FME11+2))[iETA2];
+                   par_sig1[3] = (*(Asig13FME11+3))[iETA2];
+                 }
+                 if(fr == 0){
+                   if(iETA2 < 7)iETA2 = 7;
+                   par1[0] = (*(Amean13RME11+0))[iETA2];
+                   par1[1] = (*(Amean13RME11+1))[iETA2];
+                   par1[2] = (*(Amean13RME11+2))[iETA2];
+                   par1[3] = (*(Amean13RME11+3))[iETA2];
+                   par_sig1[0] = (*(Asig13RME11+0))[iETA2];
+                   par_sig1[1] = (*(Asig13RME11+1))[iETA2];
+                   par_sig1[2] = (*(Asig13RME11+2))[iETA2];
+                   par_sig1[3] = (*(Asig13RME11+3))[iETA2];
+                 }
+            }
+            if(phiSign == 1){ // track belong to ME1/2 or ME1/3 station
+                 if(fr == 1){
+                   if(iETA2 < 3)iETA2 = 3;
+                   if(iETA2 > 7)iETA2 = 7;
+                   par1[0] = (*(Amean13FnoME11+0))[iETA2];
+                   par1[1] = (*(Amean13FnoME11+1))[iETA2];
+                   par1[2] = (*(Amean13FnoME11+2))[iETA2];
+                   par1[3] = (*(Amean13FnoME11+3))[iETA2];
+                   par_sig1[0] = (*(Asig13FnoME11+0))[iETA2];
+                   par_sig1[1] = (*(Asig13FnoME11+1))[iETA2];
+                   par_sig1[2] = (*(Asig13FnoME11+2))[iETA2];
+                   par_sig1[3] = (*(Asig13FnoME11+3))[iETA2];
+                 }
+                 if(fr == 0){
+                   if(iETA2 < 3)iETA2 = 3;
+                   if(iETA2 > 6)iETA2 = 6;// rare ME1/2 only till 1.6
+                   par1[0] = (*(Amean13RnoME11+0))[iETA2];
+                   par1[1] = (*(Amean13RnoME11+1))[iETA2];
+                   par1[2] = (*(Amean13RnoME11+2))[iETA2];
+                   par1[3] = (*(Amean13RnoME11+3))[iETA2];
+                   par_sig1[0] = (*(Asig13RnoME11+0))[iETA2];
+                   par_sig1[1] = (*(Asig13RnoME11+1))[iETA2];
+                   par_sig1[2] = (*(Asig13RnoME11+2))[iETA2];
+                   par_sig1[3] = (*(Asig13RnoME11+3))[iETA2];
+                 }
+            }
+          break;
+          case 8 :  //2-3
+                 if(iETA1 < 2)iETA1 = 2;
+                   par1[0] = (*(Amean23+0))[iETA1];
+                   par1[1] = (*(Amean23+1))[iETA1];
+                   par1[2] = (*(Amean23+2))[iETA1];
+                   par1[3] = (*(Amean23+3))[iETA1];
+                   par_sig1[0] = (*(Asig23+0))[iETA1];
+                   par_sig1[1] = (*(Asig23+1))[iETA1];
+                   par_sig1[2] = (*(Asig23+2))[iETA1];
+                   par_sig1[3] = (*(Asig23+3))[iETA1];
+
+          break;
+          case 9 :  //2-4
+                 if(iETA1 < 3)iETA1 = 3;
+                   par1[0] = (*(Amean24+0))[iETA1];
+                   par1[1] = (*(Amean24+1))[iETA1];
+                   par1[2] = (*(Amean24+2))[iETA1];
+                   par1[3] = (*(Amean24+3))[iETA1];
+                   par_sig1[0] = (*(Asig24+0))[iETA1];
+                   par_sig1[1] = (*(Asig24+1))[iETA1];
+                   par_sig1[2] = (*(Asig24+2))[iETA1];
+                   par_sig1[3] = (*(Asig24+3))[iETA1];
+          break;
+          case 10 :  //3-4
+                 if(iETA1 < 3)iETA1 = 3;
+                   par1[0] = (*(Amean34+0))[iETA1];
+                   par1[1] = (*(Amean34+1))[iETA1];
+                   par1[2] = (*(Amean34+2))[iETA1];
+                   par1[3] = (*(Amean34+3))[iETA1];
+                   par_sig1[0] = (*(Asig34+0))[iETA1];
+                   par_sig1[1] = (*(Asig34+1))[iETA1];
+                   par_sig1[2] = (*(Asig34+2))[iETA1];
+                   par_sig1[3] = (*(Asig34+3))[iETA1];
+          break;
+          case 13 :  //1-4
+                 if(fr == 1){
+                   if(iETA1 < 3)iETA1 = 3;
+                   //if(iETA1 > 11)iETA1 = 11;
+                   par1[0] = (*(Amean14F+0))[iETA1];
+                   par1[1] = (*(Amean14F+1))[iETA1];
+                   par1[2] = (*(Amean14F+2))[iETA1];
+                   par1[3] = (*(Amean14F+3))[iETA1];
+                   par_sig1[0] = (*(Asig14F+0))[iETA1];
+                   par_sig1[1] = (*(Asig14F+1))[iETA1];
+                   par_sig1[2] = (*(Asig14F+2))[iETA1];
+                   par_sig1[3] = (*(Asig14F+3))[iETA1];
+                 }
+                 if(fr == 0){
+                   if(iETA1 < 2)iETA1 = 2;
+                   //if(iETA1 > 11)iETA1 = 11;
+                   par1[0] = (*(Amean14R+0))[iETA1];
+                   par1[1] = (*(Amean14R+1))[iETA1];
+                   par1[2] = (*(Amean14R+2))[iETA1];
+                   par1[3] = (*(Amean14R+3))[iETA1];
+                   par_sig1[0] = (*(Asig14R+0))[iETA1];
+                   par_sig1[1] = (*(Asig14R+1))[iETA1];
+                   par_sig1[2] = (*(Asig14R+2))[iETA1];
+                   par_sig1[3] = (*(Asig14R+3))[iETA1];
+                 }
+            if(phiSign == 0){ // track belong to ME11 station
+                 if(fr == 1){
+                   if(iETA2 < 9)iETA2 = 9;
+                   par1[0] = (*(Amean14FME11+0))[iETA2];
+                   par1[1] = (*(Amean14FME11+1))[iETA2];
+                   par1[2] = (*(Amean14FME11+2))[iETA2];
+                   par1[3] = (*(Amean14FME11+3))[iETA2];
+                   par_sig1[0] = (*(Asig14FME11+0))[iETA2];
+                   par_sig1[1] = (*(Asig14FME11+1))[iETA2];
+                   par_sig1[2] = (*(Asig14FME11+2))[iETA2];
+                   par_sig1[3] = (*(Asig14FME11+3))[iETA2];
+                 }
+                 if(fr == 0){
+                   if(iETA2 < 9)iETA2 = 9;
+                   par1[0] = (*(Amean14RME11+0))[iETA2];
+                   par1[1] = (*(Amean14RME11+1))[iETA2];
+                   par1[2] = (*(Amean14RME11+2))[iETA2];
+                   par1[3] = (*(Amean14RME11+3))[iETA2];
+                   par_sig1[0] = (*(Asig14RME11+0))[iETA2];
+                   par_sig1[1] = (*(Asig14RME11+1))[iETA2];
+                   par_sig1[2] = (*(Asig14RME11+2))[iETA2];
+                   par_sig1[3] = (*(Asig14RME11+3))[iETA2];
+                 }
+            }
+            if(phiSign == 1){ // track belong to ME1/2 or ME1/3 station
+                 if(fr == 1){
+                   if(iETA2 < 4)iETA2 = 4;
+                   if(iETA2 > 7)iETA2 = 7;
+                   par1[0] = (*(Amean14FnoME11+0))[iETA2];
+                   par1[1] = (*(Amean14FnoME11+1))[iETA2];
+                   par1[2] = (*(Amean14FnoME11+2))[iETA2];
+                   par1[3] = (*(Amean14FnoME11+3))[iETA2];
+                   par_sig1[0] = (*(Asig14FnoME11+0))[iETA2];
+                   par_sig1[1] = (*(Asig14FnoME11+1))[iETA2];
+                   par_sig1[2] = (*(Asig14FnoME11+2))[iETA2];
+                   par_sig1[3] = (*(Asig14FnoME11+3))[iETA2];
+                 }
+                 if(fr == 0){
+                   if(iETA2 < 4)iETA2 = 4;
+                   if(iETA2 > 6)iETA2 = 6;// rare ME1/2 only till 1.6
+                   par1[0] = (*(Amean14RnoME11+0))[iETA2];
+                   par1[1] = (*(Amean14RnoME11+1))[iETA2];
+                   par1[2] = (*(Amean14RnoME11+2))[iETA2];
+                   par1[3] = (*(Amean14RnoME11+3))[iETA2];
+                   par_sig1[0] = (*(Asig14RnoME11+0))[iETA2];
+                   par_sig1[1] = (*(Asig14RnoME11+1))[iETA2];
+                   par_sig1[2] = (*(Asig14RnoME11+2))[iETA2];
+                   par_sig1[3] = (*(Asig14RnoME11+3))[iETA2];
+                 }
+            }
+
+          break;
+          case 11 : // b1-3 for pt_method > 10 & fr = 0, singles for pt_method < 10 
+                 if(iETA1 != 2)iETA1 = 2;
+                   par1[0] = (*(Amean53+0))[iETA1];
+                   par1[1] = (*(Amean53+1))[iETA1];
+                   par1[2] = (*(Amean53+2))[iETA1];
+                   par1[3] = (*(Amean53+3))[iETA1];
+                   par_sig1[0] = (*(Asig53+0))[iETA1];
+                   par_sig1[1] = (*(Asig53+1))[iETA1];
+                   par_sig1[2] = (*(Asig53+2))[iETA1];
+                   par_sig1[3] = (*(Asig53+3))[iETA1];
+          break;
+
+          case 12 :  //1-2-b1 = 2-b1 for pt_method < 10, for pt_method > 10 & fr = 0: b1-2
+                 if(iETA1 < 1)iETA1 = 1;
+                 if(iETA1 > 2)iETA1 = 2;
+
+                 par1[0] = (*(Amean52+0))[iETA1];
+                 par1[1] = (*(Amean52+1))[iETA1];
+                 par1[2] = (*(Amean52+2))[iETA1];
+                 par1[3] = (*(Amean52+3))[iETA1];
+                 par_sig1[0] = (*(Asig52+0))[iETA1];
+                 par_sig1[1] = (*(Asig52+1))[iETA1];
+                 par_sig1[2] = (*(Asig52+2))[iETA1];
+                 par_sig1[3] = (*(Asig52+3))[iETA1];
+
+          break;
+          case 14 :  //2-b1 for pt_method < 10 and b1-1 for pt_method > 10 & fr = 0
+                 if(method < 10){
+                    if(iETA1 < 1)iETA1 = 1;
+                    if(iETA1 > 2)iETA1 = 2;
+                 }
+                 par1[0] = (*(Amean52+0))[iETA1];
+                 par1[1] = (*(Amean52+1))[iETA1];
+                 par1[2] = (*(Amean52+2))[iETA1];
+                 par1[3] = (*(Amean52+3))[iETA1];
+                 par_sig1[0] = (*(Asig52+0))[iETA1];
+                 par_sig1[1] = (*(Asig52+1))[iETA1];
+                 par_sig1[2] = (*(Asig52+2))[iETA1];
+                 par_sig1[3] = (*(Asig52+3))[iETA1];
+
+                 if(method > 10){
+                    if(iETA1 > 2)iETA1 = 2;
+                    par1[0] = (*(Amean51+0))[iETA1];
+                    par1[1] = (*(Amean51+1))[iETA1];
+                    par1[2] = (*(Amean51+2))[iETA1];
+                    par1[3] = (*(Amean51+3))[iETA1];
+                    par_sig1[0] = (*(Asig51+0))[iETA1];
+                    par_sig1[1] = (*(Asig51+1))[iETA1];
+                    par_sig1[2] = (*(Asig51+2))[iETA1];
+                    par_sig1[3] = (*(Asig51+3))[iETA1];
+                 }
+          break;
+          //default:
+          //return 0.0;
+          }    
+
+//************* solve equation dLog(Likelihood)/dpt = 0 for muon + ;
+          //if(fabs(dphi) >= 0.002)
+          //if(fabs(dphi) >= 0.00)
+          //if(fabs(dphi) >= 0.002 || (fabs(dphi) >= 0.01 && (type == 12 || type == 14)))
+          //{
+        double muPlusMaxLH = -1e9;
+                  double pt = 140;
+                  double dpt = 0.1;
+                  double step = 5.;
+                  double maxLH = -1e9;
+                  while(pt > 2. )
+                    {
+                      double par_phi12[1] = {dphi};
+                      double v[1], lpt1_1;
+                      v[0] = 0; lpt1_1 = 1.;
+                      v[0] = pt;
+                      lpt1_1 = Likelihood2_2011(par_phi12, par1, par_sig1, v);
+                      
+                      if (lpt1_1 > maxLH)
+                        {
+                          maxLH = lpt1_1;
+                          PTsolv = pt;
+                        }
+                                          
+                      if(pt <= 100) {step = 10.0/4.0;}
+                      if(pt <= 50) {step = 5.0/4.0;}
+                      if(pt <= 20) {step = 2.0/4.0;}
+                      if(pt <= 10) {step = 1.0/4.0;}
+                      if(pt <=5) {step = 0.5/4.0;}
+
+                      
+                      pt = pt - step;
+                    }// end while
+                    muPlusMaxLH = maxLH;
+                  
+//*********** end solve equation for muon plus
+//************* solve equation dLog(Likelihood)/dpt = 0 for muon minus ;
+// for one station method we know sing of muon: dphi > 0 for muon minus!!! => dphi = -dphi < 0
+                      double muMinusMaxLH = -1e9;
+                    dphi = - dphi;
+                  pt = 140;
+                  dpt = 0.1;
+                  step = 5.;
+                  maxLH = -1e9;
+                  while(pt > 2. )
+                    {
+                      double par_phi12[1] = {dphi};
+                      double v[1], lpt1_1;
+                      v[0] = 0; lpt1_1 = 1.; 
+                      v[0] = pt;
+                      lpt1_1 = Likelihood2_2011(par_phi12, par1, par_sig1, v);
+                      
+                      if (lpt1_1 > maxLH)
+                        {
+                          maxLH = lpt1_1;
+                          PTsolvMinus = pt;
+                        }
+                      
+                      if(pt <= 100) {step = 10.0/4.0;}
+                      if(pt <= 50) {step = 5.0/4.0;}
+                      if(pt <= 20) {step = 2.0/4.0;}
+                      if(pt <= 10) {step = 1.0/4.0;}
+                      if(pt <=5) {step = 0.5/4.0;}
+                         
+
+                         
+                      pt = pt - step;
+                  }// end while
+                  muMinusMaxLH = maxLH;
+                  
+//          }// if(fabs(dphi) >= 0.002)
+//          else 
+//          {PTsolv = 137.5;} 
+
+//*********** end solve equation for muon minus 
+                  if (useBestMLH)
+                    PTsolv = (muPlusMaxLH > muMinusMaxLH) ? PTsolv: PTsolvMinus; // select Maximum solution from muon plus and moun minus hypotesis
+                  else
+                    PTsolv = (PTsolv > PTsolvMinus) ? PTsolv: PTsolvMinus; // select Maximum solution from muon plus and moun minus hypotesis
+                  
+                  bestLH = (muPlusMaxLH > muMinusMaxLH) ? muPlusMaxLH : muMinusMaxLH;
+                  
+
+                  
+          PTsolv = PTsolv*1.2;
+          if(PTsolv > 137.5) PTsolv = 137.5;
+
+          if (useBOXcut)
+            if(fabs(dphi) <= 0.002 && PTsolv < 120.)PTsolv = 140.;
+          //if( fabs(dphi) <= 0.01 && (type == 11 || type == 12 || type == 14) && PTsolv < 120.)PTsolv = 140.;
+          dphi = - dphi; //return to correct sing dphi
+
+    } //if(fabs(eta_TracMy) 
+    } //end "for by iETA"
+
+    float Pt = PTsolv;
+                                                                    
+    //float Pt_min = trigger_scale->getPtScale()->getLowEdge(1);// 0 GeV
+    //if(method > 10) Pt_min = trigger_scale->getPtScale()->getLowEdge(3);// 2 GeV 
+    float Pt_min = 2;// 0 GeV
+
+    return (Pt > Pt_min)  ? Pt : Pt_min;
+}
+
+
+
+
+
+
+
 
 // These arrays contain mean dphi values for each pt and eta bin.  
 // They are split into fr=0 and fr=1.

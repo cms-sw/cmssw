@@ -18,7 +18,7 @@ csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
 		PTLUT = cms.PSet(
 			LowQualityFlag = cms.untracked.uint32(4),
 			ReadPtLUT = cms.bool(False),
-			PtMethod = cms.untracked.uint32(28)
+			PtMethod = cms.untracked.uint32(29)
 		),
 		
 		# Operational mode control
@@ -94,7 +94,7 @@ csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
 		QualityEnableME4b  = cms.uint32(65535),
 		QualityEnableME4c  = cms.uint32(65535),
 
-		firmwareSP = cms.uint32(20110204),
+		firmwareSP = cms.uint32(20120131),
 		firmwareFA = cms.uint32(20091026),
 		firmwareDD = cms.uint32(20091026),
 		firmwareVM = cms.uint32(20091026),

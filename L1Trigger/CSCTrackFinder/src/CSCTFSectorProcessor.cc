@@ -160,6 +160,8 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
   firmSP_Map.insert(std::pair<int,int>(20101210,20101210));
   firmSP_Map.insert(std::pair<int,int>(20110204,20110118));
   firmSP_Map.insert(std::pair<int,int>(20110322,20110118));
+  
+  firmSP_Map.insert(std::pair<int,int>(20120131,20120131));
 }
 
 
@@ -815,4 +817,7 @@ void CSCTFSectorProcessor::printDisclaimer(int firmSP, int firmFA){
                                            << "\t * New Ghost Busting Algorithm Removing Tracks\n"
                                            << "\t   Sharing at Least One LCT\n"
                                            << "\t * Passing CLCT and PhiBend for PT LUTs\n";
+  if (firmSP==20120131)
+    edm::LogInfo( "CSCTFSectorProcessor" ) << "\t **** WARNING THIS FIRMWARE IS UNDER TEST ****\n"
+                                           << "\t * non-linear dphi12 dphi23, use deta for PTLUTs \n";
 }

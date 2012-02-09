@@ -39,6 +39,20 @@ public:
 	   const unsigned& track_mode, const unsigned& track_fr,
 	   const unsigned& delta_phi_sign) const;
 
+  static const int dPhiNLBMap_5bit[32];
+  static const int dPhiNLBMap_7bit[128];
+  static const int dPhiNLBMap_8bit[256];
+  
+   
+  static const int dEtaCut_Low[24];
+  static const int dEtaCut_Mid[24];
+  static const int dEtaCut_High_A[24];
+  static const int dEtaCut_High_B[24];
+  static const int dEtaCut_High_C[24];
+  static const int dEtaCut_Open[24];
+
+  static const int getPtbyMLH;
+    
  private:
   static ptdat* pt_lut;
   static bool lut_read_in;

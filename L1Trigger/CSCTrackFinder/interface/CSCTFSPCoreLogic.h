@@ -13,7 +13,7 @@
 #include <L1Trigger/CSCTrackFinder/src/core_2010_10_11/vpp_generated.h>
 #include <L1Trigger/CSCTrackFinder/src/core_2010_12_10/vpp_generated.h>
 #include <L1Trigger/CSCTrackFinder/src/core_2011_01_18/vpp_generated.h>
-
+#include <L1Trigger/CSCTrackFinder/src/core_2012_01_31/vpp_generated.h> 
 
 class vpp_generated_2010_01_22;
 class vpp_generated_2010_07_28;
@@ -21,6 +21,7 @@ class vpp_generated_2010_09_01;
 class vpp_generated_2010_10_11;
 class vpp_generated_2010_12_10;
 class vpp_generated_2011_01_18;
+class vpp_generated_2012_01_31;
 
 class CSCTFSPCoreLogic
 {
@@ -56,9 +57,9 @@ class CSCTFSPCoreLogic
       unsigned mb2cVp; unsigned mb2cQp; unsigned mb2cPhip;
       unsigned mb2dVp; unsigned mb2dQp; unsigned mb2dPhip;
 
-      unsigned ptHp; unsigned signHp; unsigned modeMemHp; unsigned etaPTHp; unsigned FRHp; unsigned phiHp;
-      unsigned ptMp; unsigned signMp; unsigned modeMemMp; unsigned etaPTMp; unsigned FRMp; unsigned phiMp;
-      unsigned ptLp; unsigned signLp; unsigned modeMemLp; unsigned etaPTLp; unsigned FRLp; unsigned phiLp;
+      unsigned ptHp; unsigned signHp; unsigned modeMemHp; unsigned etaPTHp; unsigned FRHp; unsigned phiHp; unsigned phdiff_aHp;  unsigned phdiff_bHp; 
+      unsigned ptMp; unsigned signMp; unsigned modeMemMp; unsigned etaPTMp; unsigned FRMp; unsigned phiMp; unsigned phdiff_aMp;  unsigned phdiff_bMp; 
+      unsigned ptLp; unsigned signLp; unsigned modeMemLp; unsigned etaPTLp; unsigned FRLp; unsigned phiLp; unsigned phdiff_aLp;  unsigned phdiff_bLp; 
 
       unsigned me1idH; unsigned me2idH; unsigned me3idH; unsigned me4idH; unsigned mb1idH; unsigned mb2idH;
       unsigned me1idM; unsigned me2idM; unsigned me3idM; unsigned me4idM; unsigned mb1idM; unsigned mb2idM;
@@ -109,7 +110,8 @@ class CSCTFSPCoreLogic
 
   void SetVerbose(const bool verb) { verboseCore=verb; }
   bool IsVerbose() { return verboseCore; }
-
+  void setNLBTables();
+  
  private:
   static vpp_generated_2010_01_22 sp_2010_01_22_;
   static vpp_generated_2010_07_28 sp_2010_07_28_;
@@ -117,6 +119,8 @@ class CSCTFSPCoreLogic
   static vpp_generated_2010_10_11 sp_2010_10_11_;
   static vpp_generated_2010_12_10 sp_2010_12_10_;
   static vpp_generated_2011_01_18 sp_2011_01_18_;
+  static vpp_generated_2012_01_31 sp_2012_01_31_;
+   
   std::vector<SPio> io_;
   bool runme;
   CSCTriggerContainer<csc::L1Track> mytracks;
