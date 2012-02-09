@@ -81,10 +81,10 @@ DAClusterizerInZ_vect::track_t DAClusterizerInZ_vect::fill(const vector<
 				((*it).stateAtBeamLine().trackStateAtPCA()).momentum().theta());
 		//  get the beam-spot
 		reco::BeamSpot beamspot = (it->stateAtBeamLine()).beamSpot();
-		double t_dz2 = 
-                    pow((*it).track().dzError(), 2) // track errror
-		  + (pow(beamspot.BeamWidthX()*cos(phi),2)+pow(beamspot.BeamWidthY()*sin(phi),2))/pow(tantheta,2)  // beam-width
-		  + pow(vertexSize_, 2); // intrinsic vertex size, safer for outliers and short lived decays
+ 		double t_dz2 = 
+		      pow((*it).track().dzError(), 2) // track errror
+ 		  + (pow(beamspot.BeamWidthX()*cos(phi),2)+pow(beamspot.BeamWidthY()*sin(phi),2))/pow(tantheta,2)  // beam-width
+ 		  + pow(vertexSize_, 2); // intrinsic vertex size, safer for outliers and short lived decays
 		if (d0CutOff_ > 0) {
 			Measurement1D IP =
 					(*it).stateAtBeamLine().transverseImpactParameter();// error constains beamspot
@@ -673,7 +673,6 @@ vector<TransientVertex> DAClusterizerInZ_vect::vertices(const vector<
 	while (beta < betamax_) {
 
 
-		beta = beta / coolingFactor_;
 		if(useTc_){
 		  update(beta, tks,y, false, rho0);
 		  while(merge(y,beta)){update(beta, tks,y, false, rho0);}
@@ -707,7 +706,7 @@ vector<TransientVertex> DAClusterizerInZ_vect::vertices(const vector<
 	}else{
 	  // merge collapsed clusters 
 	  while(merge(y,beta)){update(beta, tks,y, false, rho0);}  
-	  //while(merge(y)){}   original code 
+	  //while(merge(y)){}   original code
 	}
  
 	if (verbose_) {
@@ -823,7 +822,7 @@ vector<vector<reco::TransientTrack> > DAClusterizerInZ_vect::clusterize(
 	vector<reco::TransientTrack> aCluster = pv.begin()->originalTracks();
 
 	for (vector<TransientVertex>::iterator k = pv.begin() + 1; k != pv.end(); k++) {
-		if (k->position().z() - (k - 1)->position().z() > (2 * vertexSize_)) {
+	        if ( fabs(k->position().z() - (k - 1)->position().z()) > (2 * vertexSize_)) {
 			// close a cluster
 			clusters.push_back(aCluster);
 			aCluster.clear();
