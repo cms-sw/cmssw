@@ -44,6 +44,8 @@ namespace edm {
     bool limitReached() const;
 
     void configure(OutputModuleDescription const& desc);
+    
+    SelectionsArray const& keptProducts() const;
   };
 
 }

@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: OutputWorker.cc,v 1.37 2008/01/15 06:51:58 wmtan Exp $
+$Id: OutputWorker.cc,v 1.38 2008/07/29 02:17:36 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/OutputModule.h"
@@ -53,4 +53,8 @@ namespace edm {
   bool OutputWorker::limitReached() const {return module().limitReached();}
 
   void OutputWorker::configure(OutputModuleDescription const& desc) {module().configure(desc);}
+  
+  SelectionsArray const& OutputWorker::keptProducts() const {
+    return module().keptProducts();
+  }
 }
