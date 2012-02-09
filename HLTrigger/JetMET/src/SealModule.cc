@@ -8,6 +8,7 @@
 #include "HLTrigger/JetMET/interface/HLTForwardBackwardJetsFilter.h"
 #include "HLTrigger/JetMET/interface/HLTHcalMETNoiseFilter.h"
 #include "HLTrigger/JetMET/interface/HLTHcalMETNoiseCleaner.h"
+#include "HLTrigger/JetMET/interface/HLTHcalTowerNoiseCleaner.h"
 #include "HLTrigger/JetMET/interface/HLTHPDFilter.h"
 #include "HLTrigger/JetMET/interface/HLTJetVBFFilter.h"
 #include "HLTrigger/JetMET/interface/HLTJetCollectionsVBFFilter.h"
@@ -71,6 +72,7 @@ DEFINE_FWK_MODULE(HLTExclDiJetFilter);
 DEFINE_FWK_MODULE(HLTForwardBackwardJetsFilter);
 DEFINE_FWK_MODULE(HLTHcalMETNoiseFilter);
 DEFINE_FWK_MODULE(HLTHcalMETNoiseCleaner);
+DEFINE_FWK_MODULE(HLTHcalTowerNoiseCleaner);
 DEFINE_FWK_MODULE(HLTHPDFilter);
 DEFINE_FWK_MODULE(HLTJetVBFFilter);
 DEFINE_FWK_MODULE(HLTJetCollectionsVBFFilter);
