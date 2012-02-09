@@ -142,8 +142,11 @@ gzip -f millepede.eve
 
 #list IOVs
 cmscond_list_iov -c sqlite_file:alignments_MP.db -t Alignments
+cmscond_list_iov -c sqlite_file:alignments_MP.db -t Deformations
+
 #split the IOVs
 aligncond_split_iov -s sqlite_file:alignments_MP.db -i Alignments -d sqlite_file:alignments_split_MP.db -t Alignments
+aligncond_split_iov -s sqlite_file:alignments_MP.db -i Deformations -d sqlite_file:alignments_deformations_split_MP.db -t Deformations
 
 echo "\nDirectory content after running cmsRun, zipping log file and merging histogram files:"
 ls -lh
