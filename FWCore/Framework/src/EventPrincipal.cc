@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/Group.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/UnscheduledHandler.h"
+#include "FWCore/Framework/interface/ProductDeletedException.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
@@ -195,6 +196,16 @@ namespace edm {
     return ProductID();
   }
 
+  static void throwProductDeletedException(ProductID const&pid, edm::EventPrincipal::ConstGroupPtr const g) {
+    ProductDeletedException exception;
+    exception<<"get by product ID: The product with given id: "<<pid
+    <<"\ntype: "<<edm::TypeID(g->productType().TypeInfo())
+    <<"\nproduct instance name: "<<g->productInstanceName()
+    <<"\nprocess name: "<<g->processName()
+    <<"\nwas already deleted. This is a configuration error. Please change the configuration of the module which caused this exception to state it reads this data.";
+    throw exception;    
+  }
+  
   BasicHandle
   EventPrincipal::getByProductID(ProductID const& pid) const {
     BranchID bid = pidToBid(pid);
@@ -206,6 +217,10 @@ namespace edm {
       return BasicHandle(whyFailed);
     }
 
+    // Was this already deleted?
+    if(g->productWasDeleted()) {
+      throwProductDeletedException(pid,g);
+    }
     // Check for case where we tried on demand production and
     // it failed to produce the object
     if(g->onDemand()) {
