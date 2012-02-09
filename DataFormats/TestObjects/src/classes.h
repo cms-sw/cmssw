@@ -14,6 +14,8 @@
 #include "DataFormats/TestObjects/interface/StreamTestThing.h"
 #include "DataFormats/TestObjects/interface/StreamTestTmpl.h"
 
+#include "DataFormats/TestObjects/interface/DeleteEarly.h"
+
 #include "DataFormats/Common/interface/Holder.h"
 #include "DataFormats/Common/interface/RefToBaseProd.h"
 
@@ -65,5 +67,7 @@ struct dictionary {
   
   edm::Ptr<edmtest::Thing> ptrThing;
   edm::PtrVector<edmtest::Thing> ptrVecThing;
+  
+  edm::Wrapper<edmtest::DeleteEarly> wrapperDeleteEarly;
 };
 }

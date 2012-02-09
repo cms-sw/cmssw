@@ -121,4 +121,8 @@
   <version ClassVersion="10" checksum="3326113499"/>
  </class>
  <class name="edm::Wrapper<edmtestprod::X0123456789012345678901234567890123456789012345678901234567890123456789012345678901>"/>
+ <class name="edmtest::DeleteEarly" ClassVersion="3">
+   <version ClassVersion="3" checksum="1338867524"/>
+</class>   
+ <class name="edm::Wrapper<edmtest::DeleteEarly>"/>
 </lcgdict>
