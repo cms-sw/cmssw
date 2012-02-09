@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/src/edmodule_mightGet_config.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -125,7 +126,8 @@ namespace edm {
   }
   
   void
-  EDProducer::prevalidate(ConfigurationDescriptions& ) {
+  EDProducer::prevalidate(ConfigurationDescriptions& iConfig) {
+    edmodule_mightGet_config(iConfig);
   }
   
   static const std::string kBaseType("EDProducer");
