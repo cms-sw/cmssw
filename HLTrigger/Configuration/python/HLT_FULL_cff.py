@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_1_0/HLT/V35 (CMSSW_5_2_0_pre4_HLT2)
+# /dev/CMSSW_5_1_0/HLT/V36 (CMSSW_5_2_0_pre4_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/HLT/V35')
+  tableName = cms.string('/dev/CMSSW_5_1_0/HLT/V36')
 )
 
 streams = cms.PSet( 
@@ -9762,6 +9762,7 @@ hltSelectedPFTausTightIsoTrackFinding = cms.EDFilter( "PFTauSelector",
         selectionCut = cms.double( 0.5 )
       )
     ),
+    cut = cms.string( "pt > 0" ),
     src = cms.InputTag( "hltPFTausTightIso" )
 )
 hltSelectedPFTausTightIsoTrackFindingIsolation = cms.EDFilter( "PFTauSelector",
@@ -9773,6 +9774,7 @@ hltSelectedPFTausTightIsoTrackFindingIsolation = cms.EDFilter( "PFTauSelector",
         selectionCut = cms.double( 0.5 )
       )
     ),
+    cut = cms.string( "pt > 0" ),
     src = cms.InputTag( "hltPFTausTightIso" )
 )
 hltConvPFTausTightIsoTrackFinding = cms.EDProducer( "PFTauToJetProducer",
@@ -9805,6 +9807,7 @@ hltSelectedPFTausTightIsoTrackPt5 = cms.EDFilter( "PFTauSelector",
         selectionCut = cms.double( 0.5 )
       )
     ),
+    cut = cms.string( "pt > 0" ),
     src = cms.InputTag( "hltPFTausTightIso" )
 )
 hltConvPFTausTightIsoTrackPt5 = cms.EDProducer( "PFTauToJetProducer",
@@ -9828,6 +9831,7 @@ hltSelectedPFTausTightIsoTrackPt5Isolation = cms.EDFilter( "PFTauSelector",
         selectionCut = cms.double( 0.5 )
       )
     ),
+    cut = cms.string( "pt > 0" ),
     src = cms.InputTag( "hltPFTausTightIso" )
 )
 hltConvPFTausTightIsoTrackPt5Isolation = cms.EDProducer( "PFTauToJetProducer",
@@ -24241,6 +24245,7 @@ hltSelectedPFTausMediumIsoTrackFinding = cms.EDFilter( "PFTauSelector",
         selectionCut = cms.double( 0.5 )
       )
     ),
+    cut = cms.string( "pt > 0" ),
     src = cms.InputTag( "hltPFTausMediumIso" )
 )
 hltSelectedPFTausMediumIsoTrackFindingIsolation = cms.EDFilter( "PFTauSelector",
@@ -24252,6 +24257,7 @@ hltSelectedPFTausMediumIsoTrackFindingIsolation = cms.EDFilter( "PFTauSelector",
         selectionCut = cms.double( 0.5 )
       )
     ),
+    cut = cms.string( "pt > 0" ),
     src = cms.InputTag( "hltPFTausMediumIso" )
 )
 hltConvPFTausMediumIsoTrackFinding = cms.EDProducer( "PFTauToJetProducer",
@@ -24293,6 +24299,7 @@ hltSelectedPFTauMediumIsoTrackPt20 = cms.EDFilter( "PFTauSelector",
         selectionCut = cms.double( 0.5 )
       )
     ),
+    cut = cms.string( "pt > 0" ),
     src = cms.InputTag( "hltPFTausMediumIso" )
 )
 hltConvPFTauMediumIsoTrackPt20 = cms.EDProducer( "PFTauToJetProducer",
@@ -24316,6 +24323,7 @@ hltSelectedPFTauMediumIsoTrackPt20Isolation = cms.EDFilter( "PFTauSelector",
         selectionCut = cms.double( 0.5 )
       )
     ),
+    cut = cms.string( "pt > 0" ),
     src = cms.InputTag( "hltPFTausMediumIso" )
 )
 hltConvPFTauMediumIsoTrackPt20Isolation = cms.EDProducer( "PFTauToJetProducer",
@@ -24593,6 +24601,7 @@ hltSelectedPFTausTrackPt3FindingTightIsolation = cms.EDFilter( "PFTauSelector",
         selectionCut = cms.double( 0.5 )
       )
     ),
+    cut = cms.string( "pt > 0" ),
     src = cms.InputTag( "hltPFTausTightIso" )
 )
 hltConvPFTausTrackPt3TightIsolation = cms.EDProducer( "PFTauToJetProducer",
@@ -27306,6 +27315,7 @@ hltSelectedPFTausTrackFinding = cms.EDFilter( "PFTauSelector",
         selectionCut = cms.double( 0.5 )
       )
     ),
+    cut = cms.string( "pt > 0" ),
     src = cms.InputTag( "hltPFTaus" )
 )
 hltSelectedPFTausTrackFindingLooseIsolation = cms.EDFilter( "PFTauSelector",
@@ -27317,6 +27327,7 @@ hltSelectedPFTausTrackFindingLooseIsolation = cms.EDFilter( "PFTauSelector",
         selectionCut = cms.double( 0.5 )
       )
     ),
+    cut = cms.string( "pt > 0" ),
     src = cms.InputTag( "hltPFTaus" )
 )
 hltConvPFTausTrackFinding = cms.EDProducer( "PFTauToJetProducer",
