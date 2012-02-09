@@ -39,7 +39,8 @@ namespace edm {
     initMisc(ParameterSet& parameterSet);
 
     std::auto_ptr<Schedule>
-    initSchedule(ParameterSet& parameterSet);
+    initSchedule(ParameterSet& parameterSet,
+                 ParameterSet const* subProcessPSet);
 
     void
     clear();

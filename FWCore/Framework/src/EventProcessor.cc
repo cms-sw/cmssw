@@ -642,7 +642,7 @@ namespace edm {
     input_ = makeInput(*parameterSet, *common, *items.preg_, principalCache_, items.actReg_, items.processConfiguration_);
 
     // intialize the Schedule
-    schedule_ = items.initSchedule(*parameterSet);
+    schedule_ = items.initSchedule(*parameterSet,subProcessParameterSet.get());
 
     // set the data members
     act_table_ = items.act_table_;

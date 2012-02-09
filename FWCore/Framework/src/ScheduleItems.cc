@@ -97,14 +97,16 @@ namespace edm {
   }
 
   std::auto_ptr<Schedule>
-  ScheduleItems::initSchedule(ParameterSet& parameterSet) {
+  ScheduleItems::initSchedule(ParameterSet& parameterSet,
+                              ParameterSet const* subProcessPSet) {
     std::auto_ptr<Schedule> schedule(
         new Schedule(parameterSet,
                      ServiceRegistry::instance().get<service::TriggerNamesService>(),
                      *preg_,
                      *act_table_,
                      actReg_,
-                     processConfiguration_));
+                     processConfiguration_,
+                     subProcessPSet));
     return schedule;
   }
 

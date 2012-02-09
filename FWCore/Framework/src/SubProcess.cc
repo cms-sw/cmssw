@@ -100,7 +100,7 @@ namespace edm {
     esp_ = esController.makeProvider(*processParameterSet, *common);
 
     // intialize the Schedule
-    schedule_ = items.initSchedule(*processParameterSet);
+    schedule_ = items.initSchedule(*processParameterSet,subProcessParameterSet.get());
 
     // set the items
     act_table_ = items.act_table_;
