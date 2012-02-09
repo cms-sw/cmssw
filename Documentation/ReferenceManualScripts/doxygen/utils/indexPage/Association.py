@@ -24,7 +24,6 @@ def parseJSON(url):
     
     html = os.popen("curl \""+url+"\"")
     input = html.read()
-    print input
     html.close()
     
     input = input.replace("{","").replace("}", "")
