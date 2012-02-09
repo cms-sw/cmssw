@@ -184,6 +184,5 @@ class RPCEfficiency : public edm::EDAnalyzer {
       
       bool EffSaveRootFile;
       std::string EffRootFileName;
-      double fiducialCut_;
       DQMStore * dbe;
 };
