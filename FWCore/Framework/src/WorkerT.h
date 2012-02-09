@@ -95,6 +95,7 @@ namespace edm {
   bool 
   WorkerT<T>::implDoBegin(EventPrincipal& ep, EventSetup const& c, CurrentProcessingContext const* cpc) {
     UnscheduledHandlerSentry s(ep.unscheduledHandler().get(), cpc);
+    boost::shared_ptr<Worker> sentry(this,[&ep](Worker* obj) {obj->postDoEvent(ep);});
     return module_->doEvent(ep, c, cpc);
   }
 
