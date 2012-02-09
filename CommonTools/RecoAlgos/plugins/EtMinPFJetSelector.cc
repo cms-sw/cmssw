@@ -1,6 +1,6 @@
-/* \class EtMinCaloJetSelector
+/* \class EtMinPFJetSelector
  *
- * selects calo-jet above a minumum Et cut
+ * selects pf-jet above a minumum Et cut
  *
  * \author: Luca Lista, INFN
  *
