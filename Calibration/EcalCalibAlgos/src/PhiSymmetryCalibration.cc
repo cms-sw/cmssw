@@ -357,7 +357,7 @@ void PhiSymmetryCalibration::analyze( const edm::Event& event, const edm::EventS
   for (ite=endcapRecHitsHandle->begin(); ite!=endcapRecHitsHandle->end(); ite++) {
     EEDetId hit = EEDetId(ite->id());
     float eta = abs(endcapGeometry->getGeometry(hit)->getPosition().eta());
-    float phi = endcapGeometry->getGeometry(hit)->getPosition().phi();
+    //float phi = endcapGeometry->getGeometry(hit)->getPosition().phi();
 
     float et = ite->energy()/cosh(eta);
     float e  = ite->energy();
@@ -417,9 +417,9 @@ void PhiSymmetryCalibration::analyze( const edm::Event& event, const edm::EventS
 
 	  if(ring==16)
 	    {
-	      int iphi_endc = 0;
+	      //int iphi_endc = 0;
 	      for (int ip=0; ip<e_.nRing_[ring]; ip++) {
-		if (phi==e_.phi_endc_[ip][ring]) iphi_endc=ip;
+		//if (phi==e_.phi_endc_[ip][ring]) iphi_endc=ip;
 	      }
 
 	    }

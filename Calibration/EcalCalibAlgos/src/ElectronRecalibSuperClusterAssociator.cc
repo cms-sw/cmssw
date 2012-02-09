@@ -124,7 +124,6 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
       iSC = 0;
       
       // second loop is on EE superClusters
-      int iscRefendcap=-1;
       
       for(reco::SuperClusterCollection::const_iterator scItEndcap = scIslandCollection->begin();
 	  scItEndcap != scIslandCollection->end(); scItEndcap++){
@@ -138,7 +137,6 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
 	  {
 	    DeltaRMineleSCendcap = DeltaReleSC;
 	    nearestSCendcap = &*scItEndcap;
-	    iscRefendcap = iSC;
 	  }
 	iSC++;
       }

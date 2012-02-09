@@ -876,8 +876,6 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
   std::cout<<"[ZeeCalibration::duringLoop] Done with myZeePlots_->fillZMCInfo( & (*myGenEvent) ); "<<std::endl;
 #endif
   
-      HepMC::GenParticle* genZ=0;
-      
       
       for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
             p != myGenEvent->particles_end(); ++p ) {
@@ -885,7 +883,6 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
         if ( (*p)->pdg_id() == 23 && (*p)->status()==2){
 
 	  myGenZMass = (*p)->momentum().m();
-	 	          genZ=(*p);
         }
       }
       //DUMP GENERATED Z MASS - END

@@ -329,9 +329,9 @@ ElectronCalibrationUniv::endJob() {
       if (IChannelDetId.ieta()> maxeta_){continue;}
       if (IChannelDetId.iphi()< minphi_){continue;} 
       if (IChannelDetId.iphi()> maxphi_){continue;}
-      float Compare=1;
-      std::map<EBDetId,float>::iterator iter = OldCoeff.find(itmap->first);
-      if( iter != OldCoeff.end() )Compare = iter->second;
+//      float Compare=1;
+//      std::map<EBDetId,float>::iterator iter = OldCoeff.find(itmap->first);
+//      if( iter != OldCoeff.end() )Compare = iter->second;
       Map3Dcalib->Fill(IChannelDetId.ieta(),IChannelDetId.iphi(),itmap->second) ;
       calibs->Fill(itmap->second);
       //DiffCalibs->Fill(newCalibs[icry]-miscalib[IChannelDetId.ieta()-1][IChannelDetId.iphi()-21]);
@@ -351,9 +351,9 @@ ElectronCalibrationUniv::endJob() {
 //       if (IChannelDetId.ix()>100 ){continue;}
 //       if (IChannelDetId.iy()<0 ){continue;} 
 //       if (IChannelDetId.iy()>100 ){continue;}
-     std::map<EEDetId,float>::iterator iter = OldCoeffEndCap.find(itmap->first);
-      float Compare=1;
-      if( iter != OldCoeffEndCap.end() )Compare = iter->second;
+//     std::map<EEDetId,float>::iterator iter = OldCoeffEndCap.find(itmap->first);
+//      float Compare=1;
+//      if( iter != OldCoeffEndCap.end() )Compare = iter->second;
       if(IChannelDetId.zside()<0){
  	Map3DcalibEndCapMinus->Fill(IChannelDetId.ix(),IChannelDetId.iy(),itmap->second) ;
  	calibsEndCapMinus->Fill(itmap->second);

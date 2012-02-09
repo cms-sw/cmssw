@@ -407,8 +407,6 @@ Pi0FixedMassWindowCalibration::duringLoop(const edm::Event& event,
   float etIslandBCEB[MAXBCEB];
   float etaIslandBCEB[MAXBCEB];
   float phiIslandBCEB[MAXBCEB];
-  int ietaIslandBCEB[MAXBCEB];
-  int iphiIslandBCEB[MAXBCEB];
   float e2x2IslandBCEB[MAXBCEB];
   float e3x3IslandBCEB[MAXBCEB];
   float e5x5IslandBCEB[MAXBCEB];
@@ -427,8 +425,6 @@ Pi0FixedMassWindowCalibration::duringLoop(const edm::Event& event,
     etIslandBCEB[i] = 0;
     etaIslandBCEB[i] = 0;
     phiIslandBCEB[i] = 0;
-    ietaIslandBCEB[i] = 0;
-    iphiIslandBCEB[i] = 0;
     e2x2IslandBCEB[i] = 0;
     e3x3IslandBCEB[i] = 0;
     e5x5IslandBCEB[i] = 0;
