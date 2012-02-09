@@ -68,6 +68,7 @@
 #include "FWCore/Framework/src/RunStopwatch.h"
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/WorkerRegistry.h"
+#include "FWCore/Framework/src/EarlyDeleteHelper.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -116,7 +117,8 @@ namespace edm {
              ProductRegistry& pregistry,
              ActionTable const& actions,
              boost::shared_ptr<ActivityRegistry> areg,
-             boost::shared_ptr<ProcessConfiguration> processConfiguration);
+             boost::shared_ptr<ProcessConfiguration> processConfiguration,
+             const ParameterSet* subProcPSet);
 
     enum State { Ready = 0, Running, Latched };
 
@@ -276,6 +278,8 @@ namespace edm {
     void limitOutput(ParameterSet const& proc_pset);
 
     void addToAllWorkers(Worker* w);
+    
+    void resetEarlyDelete();
 
     WorkerRegistry                                worker_reg_;
     ActionTable const*                            act_table_;
@@ -293,6 +297,13 @@ namespace edm {
     AllOutputWorkers         all_output_workers_;
     TrigPaths                trig_paths_;
     TrigPaths                end_paths_;
+    
+    std::vector<std::pair<BranchID,unsigned int>> earlyDeleteBranchToCount_;
+    //NOTE the following is effectively internal data for each EarlyDeleteHelper
+    // but putting it into one vector makes for better allocation as well as
+    // faster iteration when used to reset the earlyDeleteBranchToCount_
+    std::vector<unsigned int> earlyDeleteHelperToBranchIndicies_;
+    std::vector<EarlyDeleteHelper> earlyDeleteHelpers_;
 
     bool                           wantSummary_;
     int                            total_events_;
@@ -460,6 +471,7 @@ namespace edm {
         }
 
         if (endpathsAreActive_) runEndPaths<T>(ep, es);
+        if(T::isEvent_) resetEarlyDelete();
       }
       catch (cms::Exception& e) { throw; }
       catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }

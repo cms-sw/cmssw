@@ -95,6 +95,51 @@ namespace edm {
     bool binary_search_string(std::vector<std::string> const& v, std::string const& s) {
       return std::binary_search(v.begin(), v.end(), s);
     }
+    
+    void
+    initializeBranchToReadingWorker(ParameterSet const& opts,
+                                    ProductRegistry const& preg,
+                                    std::multimap<std::string,Worker*>& branchToReadingWorker)
+    {
+      // See if any data has been marked to be deleted early (removing any duplicates)
+      auto vBranchesToDeleteEarly = opts.getUntrackedParameter<std::vector<std::string>>("canDeleteEarly",std::vector<std::string>());
+      if(not vBranchesToDeleteEarly.empty()) {
+        std::sort(vBranchesToDeleteEarly.begin(),vBranchesToDeleteEarly.end(),std::less<std::string>());
+        vBranchesToDeleteEarly.erase(std::unique(vBranchesToDeleteEarly.begin(),vBranchesToDeleteEarly.end()),
+                                     vBranchesToDeleteEarly.end());
+        
+        // Are the requested items in the product registry?
+        auto allBranchNames = preg.allBranchNames();
+        //the branch names all end with a period, which we do not want to compare with
+        for(auto & b:allBranchNames) {
+          b.resize(b.size()-1);
+        }
+        std::sort(allBranchNames.begin(),allBranchNames.end(),std::less<std::string>());
+        std::vector<std::string> temp;
+        temp.reserve(vBranchesToDeleteEarly.size());  
+        
+        std::set_intersection(vBranchesToDeleteEarly.begin(),vBranchesToDeleteEarly.end(),
+                              allBranchNames.begin(),allBranchNames.end(),
+                              std::back_inserter(temp));
+        vBranchesToDeleteEarly.swap(temp);
+        if(temp.size() != vBranchesToDeleteEarly.size()) {
+          std::vector<std::string> missingProducts;
+          std::set_difference(temp.begin(),temp.end(),
+                              vBranchesToDeleteEarly.begin(),vBranchesToDeleteEarly.end(),
+                              std::back_inserter(missingProducts));
+          LogInfo l("MissingProductsForCanDeleteEarly");
+          l<<"The following products in the 'canDeleteEarly' list are not available in this job and will be ignored.";
+          for(auto const& n:missingProducts){
+            l<<"\n "<<n;
+          }
+        }
+        //set placeholder for the branch, we will remove the nullptr if a
+        // module actually wants the branch.
+        for(auto const& branch:vBranchesToDeleteEarly) {
+          branchToReadingWorker.insert(make_pair(branch,nullptr));
+        }
+      }
+    }
   }
 
   // -----------------------------
@@ -108,7 +153,8 @@ namespace edm {
                      ProductRegistry& preg,
                      ActionTable const& actions,
                      boost::shared_ptr<ActivityRegistry> areg,
-                     boost::shared_ptr<ProcessConfiguration> processConfiguration) :
+                     boost::shared_ptr<ProcessConfiguration> processConfiguration,
+                     const ParameterSet* subProcPSet) :
     worker_reg_(areg),
     act_table_(&actions),
     actReg_(areg),
@@ -245,10 +291,26 @@ namespace edm {
     pset::Registry::instance()->extra().setID(proc_pset.id());
     processConfiguration->setParameterSetID(proc_pset.id());
 
+    //see if 'canDeleteEarly' was set and if so setup the list with those products actually
+    // registered for this job
+    std::multimap<std::string,Worker*> branchToReadingWorker;
+    initializeBranchToReadingWorker(opts,preg,branchToReadingWorker);
+      
+    if(subProcPSet) {
+      //for now, if have a subProcess, don't allow early delete
+      // In the future we should use the SubProcess's 'keep list' to decide what can be kept
+      branchToReadingWorker.erase(branchToReadingWorker.begin(),branchToReadingWorker.end());
+    }
+    
     // This is used for a little sanity-check to make sure no code
     // modifications alter the number of workers at a later date.
     size_t all_workers_count = all_workers_.size();
 
+    const std::vector<std::string> kEmpty;
+    std::map<Worker*,unsigned int> reserveSizeForWorker;
+    unsigned int upperLimitOnReadingWorker =0;
+    unsigned int upperLimitOnIndicies = 0;
+    unsigned int nUniqueBranchesToDelete=branchToReadingWorker.size();
     for (AllWorkers::iterator i = all_workers_.begin(), e = all_workers_.end();
          i != e;
          ++i) {
@@ -256,9 +318,143 @@ namespace edm {
       // All the workers should be in all_workers_ by this point. Thus
       // we can now fill all_output_workers_.
       OutputWorker* ow = dynamic_cast<OutputWorker*>(*i);
-      if (ow) all_output_workers_.push_back(ow);
+      if (ow) {
+        all_output_workers_.push_back(ow);
+        
+        if(branchToReadingWorker.size()>0) {
+          //If an OutputModule needs a product, we can't delete it early
+          // so we should remove it from our list
+          SelectionsArray const&kept = ow->keptProducts();
+          for( auto const& item: kept[InEvent]) {
+            auto found = branchToReadingWorker.equal_range(item->branchName());
+            if(found.first !=found.second) {
+              --nUniqueBranchesToDelete;
+              branchToReadingWorker.erase(found.first,found.second);
+            }
+          }
+        }
+      } else {
+        if(branchToReadingWorker.size()>0) {
+          //determine if this module could read a branch we want to delete early
+          auto pset = pset::Registry::instance()->getMapped((*i)->description().parameterSetID());
+          if(0!=pset) {
+            auto branches = pset->getUntrackedParameter<std::vector<std::string>>("mightGet",kEmpty);
+            if(not branches.empty()) {
+              ++upperLimitOnReadingWorker;
+            }
+            for(auto const& branch:branches){ 
+              auto found = branchToReadingWorker.equal_range(branch);
+              if(found.first != found.second) {
+                ++upperLimitOnIndicies;
+                ++reserveSizeForWorker[*i];
+                if(nullptr == found.first->second) {
+                  found.first->second = *i;
+                } else {
+                  branchToReadingWorker.insert(make_pair(found.first->first,*i));
+                }
+              }
+            }
+          }
+        }
+      }
     }
-
+    {
+      auto it = branchToReadingWorker.begin();
+      std::vector<std::string> unusedBranches;
+      while(it !=branchToReadingWorker.end()) {
+        if(it->second == nullptr) {
+          unusedBranches.push_back(it->first);
+          //erasing the object invalidates the iterator so must advance it first
+          auto temp = it;
+          ++it;
+          branchToReadingWorker.erase(temp);
+        } else {
+          ++it;
+        }
+      }
+      if(not unusedBranches.empty()) {
+        LogWarning l("UnusedProductsForCanDeleteEarly");
+        l<<"The following products in the 'canDeleteEarly' list are not used in this job and will be ignored.\n"
+        " If possible, remove the producer from the job or add the product to the producer's own 'mightGet' list.";
+        for(auto const& n:unusedBranches){
+          l<<"\n "<<n;
+        }
+      }
+    }  
+    if(0!=branchToReadingWorker.size()) {
+      earlyDeleteHelpers_.reserve(upperLimitOnReadingWorker);
+      earlyDeleteHelperToBranchIndicies_.resize(upperLimitOnIndicies,0);
+      earlyDeleteBranchToCount_.reserve(nUniqueBranchesToDelete);
+      std::map<const Worker*,EarlyDeleteHelper*> alreadySeenWorkers;
+      std::string lastBranchName;
+      size_t nextOpenIndex = 0;
+      unsigned int* beginAddress = &(earlyDeleteHelperToBranchIndicies_.front());
+      for(auto& branchAndWorker:branchToReadingWorker) {
+        if(lastBranchName != branchAndWorker.first) {
+          //have to put back the period we removed earlier in order to get the proper name
+          BranchID bid(branchAndWorker.first+".");
+          earlyDeleteBranchToCount_.emplace_back(std::make_pair(bid,0U));
+          lastBranchName = branchAndWorker.first;
+        }
+        auto found = alreadySeenWorkers.find(branchAndWorker.second);
+        if(alreadySeenWorkers.end() == found) {
+          //NOTE: we will set aside enough space in earlyDeleteHelperToBranchIndicies_ to accommodate
+          // all the branches that might be read by this worker. However, initially we will only tell the
+          // EarlyDeleteHelper about the first one. As additional branches are added via 'appendIndex' the
+          // EarlyDeleteHelper will automatically advance its internal end pointer.
+          size_t index = nextOpenIndex;
+          size_t nIndices = reserveSizeForWorker[branchAndWorker.second];
+          earlyDeleteHelperToBranchIndicies_[index]=earlyDeleteBranchToCount_.size()-1;
+          earlyDeleteHelpers_.emplace_back(EarlyDeleteHelper(beginAddress+index,
+                                                             beginAddress+index+1,
+                                                             &earlyDeleteBranchToCount_));
+          branchAndWorker.second->setEarlyDeleteHelper(&(earlyDeleteHelpers_.back()));
+          alreadySeenWorkers.insert(std::make_pair(branchAndWorker.second,&(earlyDeleteHelpers_.back())));
+          nextOpenIndex +=nIndices;
+        } else {
+          found->second->appendIndex(earlyDeleteBranchToCount_.size()-1);
+        }
+      }
+      
+      //Now we can compactify the earlyDeleteHelperToBranchIndicies_ since we may have over estimated the
+      // space needed for each module
+      auto itLast = earlyDeleteHelpers_.begin();
+      for(auto it = earlyDeleteHelpers_.begin()+1;it != earlyDeleteHelpers_.end();++it) {
+        if(itLast->end() != it->begin()) {
+          //figure the offset for next Worker since it hasn't been moved yet so it has the original address
+          unsigned int delta = it->begin()- itLast->end();
+          it->shiftIndexPointers(delta);
+          
+          earlyDeleteHelperToBranchIndicies_.erase(earlyDeleteHelperToBranchIndicies_.begin()+
+                                                   (itLast->end()-beginAddress),
+                                                   earlyDeleteHelperToBranchIndicies_.begin()+
+                                                   (it->begin()-beginAddress));
+        }
+        itLast = it;
+      }
+      earlyDeleteHelperToBranchIndicies_.erase(earlyDeleteHelperToBranchIndicies_.begin()+(itLast->end()-beginAddress),
+                                               earlyDeleteHelperToBranchIndicies_.end());
+      
+      //now determine how many paths are associated with each Worker
+      for(auto& p : trig_paths_) {
+        for(unsigned int index=0; index !=p.size();++index) {
+          auto found = alreadySeenWorkers.find(p.getWorker(index));
+          if(found != alreadySeenWorkers.end()) {
+            found->second->addedToPath();
+          }
+        }
+      }
+      for(auto& p : end_paths_) {
+        for(unsigned int index=0; index !=p.size();++index) {
+          auto found = alreadySeenWorkers.find(p.getWorker(index));
+          if(found != alreadySeenWorkers.end()) {
+            found->second->addedToPath();
+          }
+        }
+      }
+      resetEarlyDelete();
+      
+    }
     // Now that the output workers are filled in, set any output limits.
     limitOutput(proc_pset);
 
@@ -1131,4 +1327,20 @@ namespace edm {
     unscheduled_->setEventSetup(es);
     ep.setUnscheduledHandler(unscheduled_);
   }
+  
+  void 
+  Schedule::resetEarlyDelete() {
+    //must be sure we have cleared the count first
+    for(auto& count:earlyDeleteBranchToCount_) {
+      count.second = 0;
+    }
+    //now reset based on how many helpers use that branch
+    for(auto& index: earlyDeleteHelperToBranchIndicies_) {
+      ++(earlyDeleteBranchToCount_[index].second);
+    }
+    for(auto& helper: earlyDeleteHelpers_) {
+      helper.reset();
+    }
+  }
+
 }
