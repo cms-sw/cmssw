@@ -15,6 +15,7 @@
 #include "TFile.h"
 #include "TDirectoryFile.h"
 #include "TLegend.h"
+#include "TPaveLabel.h"
 #include "TChain.h"
 #include "TMath.h"
 #include "TLatex.h"
@@ -50,7 +51,7 @@ void momentumBiasValidation(TString variable = "eta", TString path = "/scratch/h
   gStyle->SetLineStyleString(4,"20 16");
 
   // create canvas
-  TCanvas *c = new TCanvas("c","Canvas",0,0,1150,800);
+  TCanvas *c = new TCanvas("c","Canvas",0,0,1150,880);
   TCanvas* ccontrol = new TCanvas("ccontrol","controlCanvas",0,0,600,300);
 
   // create angular binning
@@ -361,7 +362,7 @@ void momentumBiasValidation(TString variable = "eta", TString path = "/scratch/h
   }
 
   // create legend
-  TLegend *leg = new TLegend(0.13,0.78,0.98, 0.98);
+  TLegend *leg = new TLegend(0.13,0.74,0.98, 0.94);
   leg->SetFillColor(10);
   leg->SetTextFont(42);
   leg->SetTextSize(0.038);
@@ -373,11 +374,11 @@ void momentumBiasValidation(TString variable = "eta", TString path = "/scratch/h
     // configure final histogram
     if(binVar == "track_eta"){
       overallhisto[isample]->GetXaxis()->SetTitle("z [cm]");
-      overallhisto[isample]->GetYaxis()->SetTitle("misalignment #Delta#phi[#murad]");
+      overallhisto[isample]->GetYaxis()->SetTitle("#Delta#phi [#murad]");
     }
     if(binVar == "track_phi"){
       overallhisto[isample]->GetXaxis()->SetTitle("#phi");
-      overallhisto[isample]->GetYaxis()->SetTitle("misalignment #Delta#phi[a.u.]");
+      overallhisto[isample]->GetYaxis()->SetTitle("#Delta#phi [a.u.]");
     }
     overallhisto[isample]->GetYaxis()->SetTitleOffset(1.05);
     overallhisto[isample]->GetYaxis()->SetTitleSize(0.065);
@@ -391,6 +392,12 @@ void momentumBiasValidation(TString variable = "eta", TString path = "/scratch/h
     overallGraph[isample]->SetLineWidth(2);
     overallGraph[isample]->SetLineColor(isample+1);
     overallGraph[isample]->SetMarkerColor(isample+1);
+    if(isample==2){
+      overallhisto[isample]->SetLineColor(kGreen+3);
+      overallhisto[isample]->SetMarkerColor(kGreen+3);
+      overallGraph[isample]->SetLineColor(kGreen+3);
+      overallGraph[isample]->SetMarkerColor(kGreen+3);
+    }
     overallGraph[isample]->SetMarkerStyle(isample+20);
     overallGraph[isample]->SetMarkerSize(2);
 
@@ -402,6 +409,7 @@ void momentumBiasValidation(TString variable = "eta", TString path = "/scratch/h
     if(binVar == "track_phi")f2.push_back(new TF1(func,"[0]+[1]*TMath::Cos(x+[2])",-500,500));
     
     f2[isample]->SetLineColor(isample+1);
+    if(isample==2)f2[isample]->SetLineColor(kGreen+3);
     f2[isample]->SetLineStyle(isample+1);
     f2[isample]->SetLineWidth(2);
     
@@ -464,7 +472,7 @@ void momentumBiasValidation(TString variable = "eta", TString path = "/scratch/h
 
     // set pad margins
     c->cd();
-    gPad->SetTopMargin(0.02);
+    gPad->SetTopMargin(0.06);
     gPad->SetBottomMargin(0.12);
     gPad->SetLeftMargin(0.13);
     gPad->SetRightMargin(0.02);
@@ -496,6 +504,14 @@ void momentumBiasValidation(TString variable = "eta", TString path = "/scratch/h
     leg->AddEntry(overallGraph[isample],label[isample]+" ("+misalignmentfit[isample]+")","Lp");   
   }
   leg->Draw();
+
+  TPaveLabel *CMSlabel = new TPaveLabel(0.13, 0.94, 0.5, 1., "CMS preliminary 2012", "br NDC");
+  CMSlabel->SetFillStyle(0);
+  CMSlabel->SetBorderSize(0);
+  CMSlabel->SetTextSize(0.95);
+  CMSlabel->SetTextAlign(12);
+  CMSlabel->SetTextFont(42);
+  CMSlabel->Draw("same");
 
   // print plots
   if(variable == "eta"){
