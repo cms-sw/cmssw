@@ -495,6 +495,16 @@ generated for each configuration with a module label.
                         type: PSet 
                         see Section 1.1.21
 
+    mightGet
+                        type: untracked vstring optional
+                        default: none (do not write to cfi)
+                        List contains the branch names for the EDProducts which 
+                        might be requested by the module.
+                        The format for identifying the EDProduct is the same as 
+                        the one used for OutputModules, except no wild cards 
+                        are allowed. E.g.
+                        Foos_foomodule_whichFoo_RECO
+
     Section 1.1.1 vuint5 default contents: (vector size = 6)
         [0]: 4294967295
         [1]: 0
@@ -1958,6 +1968,16 @@ generated for each configuration with a module label.
                         type: PSet 
                         see Section 1.2.2
 
+    mightGet
+                        type: untracked vstring optional
+                        default: none (do not write to cfi)
+                        List contains the branch names for the EDProducts which 
+                        might be requested by the module.
+                        The format for identifying the EDProduct is the same as 
+                        the one used for OutputModules, except no wild cards 
+                        are allowed. E.g.
+                        Foos_foomodule_whichFoo_RECO
+
     Section 1.2.1 noDefaultPset1 PSet description:
 
         noDefault1
@@ -2159,4 +2179,14 @@ generated for each configuration with a module label.
     p_int
                         type: int32 
                         default: 2
+
+    mightGet
+                        type: untracked vstring optional
+                        default: none (do not write to cfi)
+                        List contains the branch names for the EDProducts which 
+                        might be requested by the module.
+                        The format for identifying the EDProduct is the same as 
+                        the one used for OutputModules, except no wild cards 
+                        are allowed. E.g.
+                        Foos_foomodule_whichFoo_RECO
 
