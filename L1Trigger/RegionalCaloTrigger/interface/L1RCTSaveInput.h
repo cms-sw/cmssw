@@ -50,6 +50,5 @@ private:
   edm::InputTag ecalDigisLabel;
   edm::InputTag hcalDigisLabel;
   bool useDebugTpgScales;
-  bool digiFile;
   std::ofstream ofs;
 };

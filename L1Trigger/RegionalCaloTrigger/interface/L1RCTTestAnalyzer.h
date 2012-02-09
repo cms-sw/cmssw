@@ -39,15 +39,6 @@
 
 #include "TH1F.h"
 #include "TH2F.h"
-#include "TTree.h"
-
-
-// // outside of class
-// bool compareEmCands(const L1CaloEmCand& cand1, const L1CaloEmCand& cand2)
-// {
-//   return (cand1.rank() < cand2.rank());
-// }
-
 
 //
 // class declaration
@@ -61,8 +52,6 @@ public:
   
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 private:
-  static bool compareEmCands(const L1CaloEmCand& cand1, const L1CaloEmCand& cand2);
-
   // ----------member data ---------------------------
   std::string m_HepMCProduct;
   bool showEmCands;
@@ -70,16 +59,6 @@ private:
   edm::InputTag ecalDigisLabel;
   edm::InputTag hcalDigisLabel;
   edm::InputTag rctDigisLabel;
-
-  TTree * emTree;
-//   float emRank[8];
-//   float emIeta[8];
-//   float emIphi[8];
-//   float emIso[8];
-  std::vector<int> emRank;
-  std::vector<int> emIeta;
-  std::vector<int> emIphi;
-  std::vector<int> emIso;
 
   TH1F * h_emRank;
   TH1F * h_emRankOutOfTime;
