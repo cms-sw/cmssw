@@ -24,6 +24,11 @@
   <use name="FWCore/PluginManager"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+<library file="HLT2DB.cc" name="HLT2DB">
+  <use name="RecoLuminosity/LumiProducer"/>
+  <use name="FWCore/PluginManager"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
 <library file="HLTV32DB.cc" name="HLTV32DB">
   <use name="RecoLuminosity/LumiProducer"/>
   <use name="FWCore/PluginManager"/>
@@ -52,6 +57,11 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 <library file="TRGDummy2DB.cc" name="TRGDummy2DB">
+  <use name="RecoLuminosity/LumiProducer"/>
+  <use name="FWCore/PluginManager"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+<library file="TRG2DB.cc" name="TRG2DB">
   <use name="RecoLuminosity/LumiProducer"/>
   <use name="FWCore/PluginManager"/>
   <flags EDM_PLUGIN="1"/>

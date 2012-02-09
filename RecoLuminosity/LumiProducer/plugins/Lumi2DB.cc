@@ -99,7 +99,7 @@ namespace lumi{
 //implementation
 //
 float
-lumi::Lumi2DB::applyCalibration(float varToCalibrate)const{ //#only used for writing into schema_v1
+lumi::Lumi2DB::applyCalibration(float varToCalibrate)const{
   return float(varToCalibrate)*m_norm;
 }
 bool
@@ -331,6 +331,7 @@ lumi::Lumi2DB::writeAllLumiData(
     numorbit = lumiIt->numorbit;
     beamenergy = lumiIt->beamenergy;
     beamstatus = lumiIt->beammode;
+
     short nlivebx=lumiIt->nlivebx;
     //std::cout<<"nlivebx "<<nlivebx<<std::endl;
     if(nlivebx!=0){
@@ -749,8 +750,6 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
   hlxtree->SetBranchAddress("Detail.",&lumidetail);
    
   size_t nentries=hlxtree->GetEntries();
-  unsigned int nstablebeam=0;
-  float bgev=0.0;
   //source->GetListOfKeys()->Print();
   std::map<unsigned int, Lumi2DB::beamData> dipmap;
   TTree *diptree= (TTree*)source->Get("DIPCombined");
@@ -761,15 +760,6 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     size_t ndipentries=diptree->GetEntries();
     for(size_t i=0;i<ndipentries;++i){
       diptree->GetEntry(i);
-      //unsigned int fillnumber=dipdata->FillNumber;
-      //std::vector<short> collidingidx;collidingidx.reserve(LUMI::N_BX);
-      //for(unsigned int i=0;i<lumi::N_BX;++i){
-      //int isb1colliding=dipdata->beam[0].beamConfig[i];
-      //int isb2colliding=dipdata->beam[1].beamConfig[i];
-      //if(isb1colliding && isb2colliding&&isb1colliding==1&&isb2colliding==1){
-      //  collidingidx.push_back(i);
-      //	}
-      //}
       beamData b;
       //std::cout<<"Beam Mode : "<<dipdata->beamMode<<"\n";
       //std::cout<<"Beam Energy : "<<dipdata->Energy<<"\n";
@@ -781,10 +771,6 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
 	b.mode=dipdata->beamMode;
       }
       b.energy=dipdata->Energy;
-      if(b.mode=="STABLE BEAMS"){
-	++nstablebeam;
-	bgev+=b.energy;
-      }
       this->retrieveBeamIntensity(dipdata.get(),b);
       dipmap.insert(std::make_pair(dipls,b));
     }
@@ -807,6 +793,7 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
   //
   //hardcode the first LS is always alive
   //
+  float bgev=0.0;
   for(size_t i=0;i<nentries;++i){
     lumi::Lumi2DB::PerLumiData h;
     h.cmsalive=1;
@@ -862,6 +849,7 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
       h.beamintensity_1=0;
       h.beamintensity_2=0;
     }
+    bgev+=h.beamenergy;
     h.startorbit=lumiheader->startOrbit;
     h.numorbit=lumiheader->numOrbits;
     if(h.cmsalive==0){
@@ -909,10 +897,10 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     lumiresult.push_back(h);
   }
   std::cout<<std::endl;
-  if(nstablebeam!=0){
-    bgev=bgev/nstablebeam;//nominal beam energy=sum(energy)/nstablebeams
+  if(nentries!=0){
+     bgev=bgev/nentries;
   }
-  std::cout<<"avg stable beam energy "<<bgev<<std::endl;
+  std::cout<<"nominal energy "<<bgev<<std::endl;
   if( !m_novalidate && !isLumiDataValid(lumiresult.begin(),lumiresult.end()) ){
     throw lumi::invalidDataException("all lumi values are <0.5e-08","isLumiDataValid","Lumi2DB");
   }
