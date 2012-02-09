@@ -3,6 +3,7 @@
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/Worker.h"
+#include "FWCore/Framework/src/EarlyDeleteHelper.h"
 
 namespace edm {
   namespace {
@@ -52,7 +53,8 @@ private:
     md_(iMD),
     actions_(iWP.actions_),
     cached_exception_(),
-    actReg_()
+    actReg_(),
+    earlyDeleteHelper_(0)
   {
   }
 
@@ -63,6 +65,10 @@ private:
     actReg_ = areg;
   }
 
+  void Worker::setEarlyDeleteHelper(EarlyDeleteHelper* iHelper) {
+    earlyDeleteHelper_=iHelper;
+  }
+  
   void Worker::beginJob() {
     try {
       try {
@@ -111,4 +117,14 @@ private:
     stopwatch_.reset(new RunStopwatch::StopwatchPointer::element_type);
   }
   
+  void Worker::pathFinished(EventPrincipal& iEvent) {
+    if(earlyDeleteHelper_) {
+      earlyDeleteHelper_->pathFinished(iEvent);
+    }
+  }
+  void Worker::postDoEvent(EventPrincipal& iEvent) {
+    if(earlyDeleteHelper_) {
+      earlyDeleteHelper_->moduleRan(iEvent);
+    }
+  }
 }

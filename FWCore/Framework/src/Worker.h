@@ -41,6 +41,8 @@ the worker is reset().
 #include <sstream>
 
 namespace edm {
+  class EventPrincipal;
+  class EarlyDeleteHelper;
 
   class Worker : private boost::noncopyable {
   public:
@@ -65,11 +67,16 @@ namespace edm {
 
     void reset() { state_ = Ready; }
 
+    void pathFinished(EventPrincipal&);
+    void postDoEvent(EventPrincipal&);
+    
     ModuleDescription const& description() const {return md_;}
     ModuleDescription const* descPtr() const {return &md_; }
     ///The signals are required to live longer than the last call to 'doWork'
     /// this was done to improve performance based on profiling
     void setActivityRegistry(boost::shared_ptr<ActivityRegistry> areg);
+    
+    void setEarlyDeleteHelper(EarlyDeleteHelper* iHelper);
 
     std::pair<double, double> timeCpuReal() const {
       return std::pair<double, double>(stopwatch_->cpuTime(), stopwatch_->realTime());
@@ -130,6 +137,8 @@ namespace edm {
     boost::shared_ptr<cms::Exception> cached_exception_; // if state is 'exception'
 
     boost::shared_ptr<ActivityRegistry> actReg_;
+    
+    EarlyDeleteHelper* earlyDeleteHelper_;
   };
 
   namespace {
