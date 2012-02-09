@@ -148,6 +148,9 @@ public:
   void setVersionSortRankEtaQLUT(const unsigned VersionSortRankEtaQLUT) {m_VersionSortRankEtaQLUT = VersionSortRankEtaQLUT;}
   unsigned getVersionSortRankEtaQLUT() const {return m_VersionSortRankEtaQLUT;}
 
+  void setVersionLUTs(const unsigned VersionLUTs) {m_VersionLUTs = VersionLUTs;}
+  unsigned getVersionLUTs() const {return m_VersionLUTs;}
+
 private:
 
   double m_EtaWeight_barrel;
@@ -191,6 +194,7 @@ private:
   unsigned m_CDLConfigWordbRPCCSC;
   unsigned m_CDLConfigWordfRPCDT;
   unsigned m_VersionSortRankEtaQLUT;
+  unsigned m_VersionLUTs;
 
 };
 
