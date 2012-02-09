@@ -506,7 +506,6 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		    LocalVector segmentDirectionMB4=segmentDirection;
 		    LocalPoint segmentPositionMB4=segmentPosition;
 		    
-		    bool compatiblesegments=false;
 		    
 		    const BoundPlane& DTSurface4 = dtGeo->idToDet(DTId)->surface();
 		    
@@ -528,9 +527,6 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 			LocalVector segmentDirectionMB3 =  segMB3->localDirection();
 			GlobalPoint segmentPositionMB3inGlobal = DTSurface3.toGlobal(segMB3->localPosition());
 			
-			LocalVector segDirMB4inMB3Frame=DTSurface3.toLocal(DTSurface4.toGlobal(segmentDirectionMB4));
-			LocalVector segDirMB3inMB4Frame=DTSurface4.toLocal(DTSurface3.toGlobal(segmentDirectionMB3));
-			
 			GlobalVector segDirMB4inGlobalFrame=DTSurface4.toGlobal(segmentDirectionMB4);
 			GlobalVector segDirMB3inGlobalFrame=DTSurface3.toGlobal(segmentDirectionMB3);
 			
@@ -545,7 +541,6 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 			double cosAng=fabs(dx*dx3+dy*dy3/sqrt((dx3*dx3+dy3*dy3)*(dx*dx+dy*dy)));
 			
 			if(cosAng>MinCosAng){
-			  compatiblesegments=true;
 			  if(dtSector==13){
 			    dtSector=4;
 			  }
@@ -559,7 +554,6 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 			  
 			  for (std::set<RPCDetId>::iterator iteraRoll=rollsForThisDT.begin();iteraRoll != rollsForThisDT.end(); iteraRoll++){
 			    const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll); //roll asociado a MB4
-			    RPCDetId rpcId = rollasociated->id();
 			    const BoundPlane & RPCSurfaceRB4 = rollasociated->surface(); //surface MB4
 			    
 			    //   RPCGeomServ rpcsrv(rpcId);
@@ -568,7 +562,6 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 			    GlobalPoint CenterPointRollGlobal=RPCSurfaceRB4.toGlobal(LocalPoint(0,0,0));
 			    LocalPoint CenterRollinMB4Frame = DTSurface4.toLocal(CenterPointRollGlobal); //In MB4
 			    LocalPoint segmentPositionMB3inMB4Frame = DTSurface4.toLocal(segmentPositionMB3inGlobal); //In MB4
-			    LocalPoint segmentPositionMB3inRB4Frame = RPCSurfaceRB4.toLocal(segmentPositionMB3inGlobal); //In MB4
 			    LocalVector segmentDirectionMB3inMB4Frame = DTSurface4.toLocal(segDirMB3inGlobalFrame); //In MB4
 			    
 			    //The exptrapolation is done in MB4 frame. for local x and z is done from MB4,
@@ -672,7 +665,6 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 			    }
 			  }//loop over all the rollsasociated
 			}else{
-			  compatiblesegments=false;
 			  if(debug) std::cout<<"MB4 \t \t \t \t I found segments in MB4 and MB3 adjacent or same wheel and sector but not compatibles Diferent Directions"<<std::endl;
 			}
 		      }else{//if dtid3.station()==3&&dtid3.sector()==DTId.sector()&&dtid3.wheel()==DTId.wheel()&&segMB3->dim()==4
@@ -768,8 +760,6 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		  const BoundPlane & RPCSurface = rollasociated->surface(); 
 		  
 		  GlobalPoint CenterPointRollGlobal = RPCSurface.toGlobal(LocalPoint(0,0,0));
-		  GlobalPoint CenterPointCSCGlobal = TheChamber->toGlobal(LocalPoint(0,0,0));
-		  GlobalPoint segmentPositionInGlobal=TheChamber->toGlobal(segmentPosition); //new way to convert to global
 		  LocalPoint CenterRollinCSCFrame = TheChamber->toLocal(CenterPointRollGlobal);
 		  
 		  float D=CenterRollinCSCFrame.z();
