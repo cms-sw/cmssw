@@ -29,8 +29,8 @@ class HLTMonoJetFilter : public HLTFilter {
 
    private:
       edm::InputTag inputJetTag_;   // input tag identifying jets
-      double max_PtSecondJet_;
-      double max_DeltaPhi_;
+      double maxPtSecondJet_;
+      double maxDeltaPhi_;
       int    triggerType_;
 };
 

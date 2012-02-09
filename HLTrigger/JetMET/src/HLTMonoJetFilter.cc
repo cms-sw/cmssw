@@ -32,14 +32,14 @@
 template<typename T>
 HLTMonoJetFilter<T>::HLTMonoJetFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
   inputJetTag_ (iConfig.template getParameter< edm::InputTag > ("inputJetTag")),
-  max_PtSecondJet_ (iConfig.template getParameter<double> ("maxPtSecondJet")),
-  max_DeltaPhi_ (iConfig.template getParameter<double> ("maxDeltaPhi")),
+  maxPtSecondJet_ (iConfig.template getParameter<double> ("maxPtSecondJet")),
+  maxDeltaPhi_ (iConfig.template getParameter<double> ("maxDeltaPhi")),
   triggerType_ (iConfig.template getParameter<int> ("triggerType"))
 {
   LogDebug("") << "MonoJet: Input/maxPtSecondJet/maxDeltaPhi/triggerType : "
 	       << inputJetTag_.encode() << " "
-	       << max_PtSecondJet_ << " " 
-	       << max_DeltaPhi_ << " "
+	       << maxPtSecondJet_ << " " 
+	       << maxDeltaPhi_ << " "
 	       << triggerType_;
 }
 
@@ -52,8 +52,8 @@ HLTMonoJetFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputJetTag",edm::InputTag("hltAntiKT5ConvPFJets"));
-  desc.add<double>("max_PtSecondJet",9999.);
-  desc.add<double>("max_DeltaPhi",99.);
+  desc.add<double>("maxPtSecondJet",9999.);
+  desc.add<double>("maxDeltaPhi",99.);
   desc.add<int>("triggerType",0);
   descriptions.add(std::string("hlt")+std::string(typeid(HLTMonoJetFilter<T>).name()),desc);
 }
@@ -109,12 +109,12 @@ HLTMonoJetFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup
     if(countJet==1){
       n=1;
     }
-    else if(countJet>1 && jet2Pt<max_PtSecondJet_){
+    else if(countJet>1 && jet2Pt<maxPtSecondJet_){
       n=1;
     }
-    else if(countJet>1 && jet2Pt>=max_PtSecondJet_){
+    else if(countJet>1 && jet2Pt>=maxPtSecondJet_){
       double Dphi=fabs(deltaPhi(jet1Phi,jet2Phi));
-      if(Dphi>=max_DeltaPhi_) n=-1;
+      if(Dphi>=maxDeltaPhi_) n=-1;
       else n=1;
     }
     else{
