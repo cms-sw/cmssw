@@ -14,6 +14,7 @@
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -92,7 +93,7 @@ HLTRHemisphere::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel (inputTag_,jets);
 
    // get hold of the muons, if necessary
-   Handle<vector<reco::Muon> > muons;
+   Handle<vector<reco::RecoChargedCandidate> > muons;
    if(doMuonCorrection_) iEvent.getByLabel( muonTag_,muons );
 
    // The output Collection
@@ -117,7 +118,7 @@ HLTRHemisphere::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if(doMuonCorrection_){
     const int nMu = 2;
     int muonIndex[nMu] = { -1, -1 };
-    std::vector<reco::Muon>::const_iterator muonIt;
+    std::vector<reco::RecoChargedCandidate>::const_iterator muonIt;
     int index   = 0;
     int nPassMu = 0;
     for(muonIt = muons->begin(); muonIt!=muons->end(); muonIt++,index++){ 
@@ -133,13 +134,13 @@ HLTRHemisphere::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     //lead muon as jet
     if(nPassMu>0){
       std::vector<math::XYZTLorentzVector> muonJets;
-      reco::Muon leadMu = muons->at(muonIndex[0]);
+      reco::RecoChargedCandidate leadMu = muons->at(muonIndex[0]);
       muonJets.push_back(leadMu.p4());
       Hemispheres->push_back(leadMu.p4());
       this->ComputeHemispheres(Hemispheres,JETS,&muonJets); // lead muon as jet
       if(nPassMu>1){ // two passing muons
 	muonJets.pop_back();
-	reco::Muon secondMu = muons->at(muonIndex[1]);
+	reco::RecoChargedCandidate secondMu = muons->at(muonIndex[1]);
 	muonJets.push_back(secondMu.p4());
 	Hemispheres->push_back(secondMu.p4());
 	this->ComputeHemispheres(Hemispheres,JETS,&muonJets); // lead muon as v, second muon as jet
