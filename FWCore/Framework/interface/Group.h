@@ -35,6 +35,11 @@ namespace edm {
       resetStatus();
     }
 
+    void deleteProduct() {
+      productData().resetProductData();
+      setProductDeleted();
+    }
+    
     // product is not available (dropped or never created)
     bool productUnavailable() const {return productUnavailable_();}
 
@@ -43,6 +48,9 @@ namespace edm {
 
     // Scheduled for on demand production
     bool onDemand() const {return onDemand_();}
+    
+    // Product was deleted early in order to save memory
+    bool productWasDeleted() const {return productWasDeleted_();}
 
     // Retrieves a shared pointer to the wrapped product.
     boost::shared_ptr<void const> product() const { return productData().wrapper_; }
@@ -139,6 +147,7 @@ namespace edm {
     virtual void swap_(Group& rhs) = 0;
     virtual bool onDemand_() const = 0;
     virtual bool productUnavailable_() const = 0;
+    virtual bool productWasDeleted_() const = 0;
     virtual void putProduct_(WrapperOwningHolder const& edp, ProductProvenance const& productProvenance) = 0;
     virtual void putProduct_(WrapperOwningHolder const& edp) const = 0;
     virtual void mergeProduct_(WrapperOwningHolder const&  edp, ProductProvenance& productProvenance) = 0;
@@ -146,6 +155,7 @@ namespace edm {
     virtual bool putOrMergeProduct_() const = 0;
     virtual void checkType_(WrapperOwningHolder const& prod) const = 0;
     virtual void resetStatus() = 0;
+    virtual void setProductDeleted() =0;
   };
 
   inline
@@ -158,7 +168,8 @@ namespace edm {
   class InputGroup : public Group {
     public:
       explicit InputGroup(boost::shared_ptr<ConstBranchDescription> bd) :
-        Group(), productData_(bd), productIsUnavailable_(false) {}
+        Group(), productData_(bd), productIsUnavailable_(false),
+        productHasBeenDeleted_(false) {}
       virtual ~InputGroup();
 
       // The following is const because we can add an EDProduct to the
@@ -180,13 +191,18 @@ namespace edm {
       virtual void mergeProduct_(WrapperOwningHolder const& edp) const;
       virtual bool putOrMergeProduct_() const;
       virtual void checkType_(WrapperOwningHolder const&) const {}
-      virtual void resetStatus() {productIsUnavailable_ = false;}
+      virtual void resetStatus() {productIsUnavailable_ = false;
+        productHasBeenDeleted_=false;}
       virtual bool onDemand_() const {return false;}
       virtual bool productUnavailable_() const;
+      virtual bool productWasDeleted_() const {return productHasBeenDeleted_;}
       virtual ProductData const& productData() const {return productData_;}
       virtual ProductData& productData() {return productData_;}
+      virtual void setProductDeleted() {productHasBeenDeleted_=true;}
+
       ProductData productData_;
       mutable bool productIsUnavailable_;
+      mutable bool productHasBeenDeleted_;
   };
 
   // Free swap function
@@ -202,6 +218,7 @@ namespace edm {
       NotCompleted = 4,
       NotPut = 5,
       UnscheduledNotRun = 6,
+      ProductDeleted =7,
       Uninitialized = 0xff
     };
     public:
@@ -221,6 +238,9 @@ namespace edm {
       }
       virtual GroupStatus& status_() const = 0;
       virtual bool productUnavailable_() const;
+      virtual bool productWasDeleted_() const;
+      virtual void setProductDeleted();
+ 
   };
 
   class ScheduledGroup : public ProducedGroup {

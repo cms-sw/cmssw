@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Framework/interface/Selector.h"
+#include "FWCore/Framework/interface/ProductDeletedException.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/ReflexTools.h"
@@ -76,10 +77,24 @@ namespace edm {
 
   static
   void
+  throwProductDeletedException(const char* where, TypeID const& productType,std::string const& label, std::string const& instance, std::string const& process) {
+    boost::shared_ptr<cms::Exception> exception(new ProductDeletedException());
+    *exception << "Principal::" << where << ": The product matching all criteria\nLooking for type: " << productType << "\n"
+    << "Looking for module label: " << label << "\n" << "Looking for productInstanceName: " << instance << "\n"
+    << (process.empty() ? "" : "Looking for process: ") << process << "\n"
+    << "Was already deleted. This means there is a configuration error.\nThe module which is asking for this data must be configured to state that it will read this data.";
+    throw exception;
+    
+  }
+
+  
+  static
+  void
   throwNotFoundException(char const* where, TypeID const& productType, InputTag const& tag) {
     boost::shared_ptr<cms::Exception> exception = makeNotFoundException(where, productType, tag.label(), tag.instance(), tag.process());
     throw *exception;
   }
+  
 
   Principal::Principal(boost::shared_ptr<ProductRegistry const> reg,
                        ProcessConfiguration const& pc,
@@ -198,6 +213,12 @@ namespace edm {
     productPtrs_.clear();
   }
 
+  void
+  Principal::deleteProduct(BranchID const& id) {
+    Group* g = getExistingGroup(id);
+    g->deleteProduct();
+  }
+  
   // Set the principal for the Event, Lumi, or Run.
   void
   Principal::fillPrincipal(ProcessHistoryID const& hist, DelayedReader* reader) {
@@ -434,8 +455,18 @@ namespace edm {
 
         //now see if the data is actually available
         ConstGroupPtr const& group = getGroupByIndex(it->index(), false, false);
+        //NOTE sometimes 'group->productUnavailable()' is true if was already deleted
+        if(group && group->productWasDeleted()) {
+          throwProductDeletedException("findGroups",
+                                       typeID,
+                                       it->branchDescription()->moduleLabel(),
+                                       it->branchDescription()->productInstanceName(),
+                                       it->branchDescription()->processName());
+        }
+
         // Skip product if not available.
         if(group && !group->productUnavailable()) {
+
           this->resolveProduct(*group, true);
           // If the product is a dummy filler, group will now be marked unavailable.
           // Unscheduled execution can fail to produce the EDProduct so check
@@ -479,8 +510,17 @@ namespace edm {
 
         //now see if the data is actually available
         ConstGroupPtr const& group = getGroupByIndex(it->index(), false, false);
+        if(group && group->productWasDeleted()) {
+          throwProductDeletedException("findGroup",
+                                       typeID,
+                                       it->branchDescription()->moduleLabel(),
+                                       it->branchDescription()->productInstanceName(),
+                                       it->branchDescription()->processName());
+        }
+
         // Skip product if not available.
         if(group && !group->productUnavailable()) {
+
           this->resolveProduct(*group, true);
           // If the product is a dummy filler, group will now be marked unavailable.
           // Unscheduled execution can fail to produce the EDProduct so check
@@ -572,6 +612,14 @@ namespace edm {
       }
       //now see if the data is actually available
       ConstGroupPtr const& group = getGroupByIndex(it->index(), false, false);
+      if(group && group->productWasDeleted()) {
+        throwProductDeletedException("findGroupByLabel",
+                                     typeID,
+                                     moduleLabel,
+                                     productInstanceName,
+                                     processName);
+      }
+
       // Skip product if not available.
       if(group && !group->productUnavailable()) {
         this->resolveProduct(*group, true);
@@ -607,6 +655,12 @@ namespace edm {
     ConstGroupPtr const g = getGroup(bid, getProd, false);
     if(g == 0) {
       throwGroupNotFoundException("getForOutput", errors::LogicError, bid);
+    }
+    if (g->productWasDeleted()) {
+      throwProductDeletedException("getForOutput",edm::TypeID(g->productType().TypeInfo()),
+                                   g->moduleLabel(),
+                                   g->productInstanceName(),
+                                   g->processName());
     }
     if(!g->provenance() || (!g->product() && !g->productProvenancePtr())) {
       return OutputHandle();

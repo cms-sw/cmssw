@@ -84,6 +84,8 @@ namespace edm {
 
     void clearPrincipal();
 
+    void deleteProduct(BranchID const& id);
+    
     EDProductGetter const* prodGetter() const {return this;}
 
     OutputHandle getForOutput(BranchID const& bid, bool getProd) const;

@@ -187,6 +187,18 @@ namespace edm {
     return unavailable;
   }
 
+  // This routine returns true if the product was deleted early in order to save memory
+  bool
+  ProducedGroup::productWasDeleted_() const {
+    return status() == ProductDeleted;
+  }
+
+  void 
+  ProducedGroup::setProductDeleted() {
+    status() = ProductDeleted;
+  }
+
+  
   bool
   Group::provenanceAvailable() const {
     // If this product is from a the current process,
