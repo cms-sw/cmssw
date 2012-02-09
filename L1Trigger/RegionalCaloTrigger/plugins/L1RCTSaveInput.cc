@@ -84,10 +84,6 @@ L1RCTSaveInput::analyze(const edm::Event& event,
   rctLookupTables->setChannelMask(c);
   rctLookupTables->setL1CaloEtScale(s);
 
-  // use dummies to get delete right when creating new scales from old
-  L1CaloEcalScale* dummyE(0);
-  L1CaloHcalScale* dummyH(0);
-
   if (useDebugTpgScales)
     {
       // use old-style scales
@@ -164,9 +160,6 @@ L1RCTSaveInput::analyze(const edm::Event& event,
       // set the input scales
       rctLookupTables->setEcalScale(ecalScale);
       rctLookupTables->setHcalScale(hcalScale);
-      
-      dummyE = ecalScale;
-      dummyH = hcalScale;
       
       delete e_tpg;
       
