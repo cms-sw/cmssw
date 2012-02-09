@@ -74,6 +74,7 @@ class testEvent: public CppUnit::TestFixture {
   CPPUNIT_TEST(getByLabel);
   CPPUNIT_TEST(getByType);
   CPPUNIT_TEST(printHistory);
+  CPPUNIT_TEST(deleteProduct);
   CPPUNIT_TEST_SUITE_END();
 
  public:
@@ -92,6 +93,7 @@ class testEvent: public CppUnit::TestFixture {
   void getByLabel();
   void getByType();
   void printHistory();
+  void deleteProduct();
 
  private:
 
@@ -686,4 +688,29 @@ void testEvent::printHistory() {
   std::ofstream out("history.log");
 
   copy_all(history, std::ostream_iterator<ProcessHistory::const_iterator::value_type>(out, "\n"));
+}
+
+void testEvent::deleteProduct() {
+  
+  typedef edmtest::IntProduct product_t;
+  typedef std::auto_ptr<product_t> ap_t;
+  typedef Handle<product_t> handle_t;
+  
+  ap_t one(new product_t(1));
+  addProduct(one,   "int1_tag", "int1");
+  
+  BranchID id;
+  
+  availableProducts_->callForEachBranch([&id](const BranchDescription& iDesc){ 
+    if(iDesc.moduleLabel()=="modMulti" && iDesc.productInstanceName()=="int1") {
+      id = iDesc.branchID();
+    }});
+
+  const Group* g = principal_->getGroup(id,false,false);
+  CPPUNIT_ASSERT(g!=0);
+  
+  CPPUNIT_ASSERT(!g->productWasDeleted());  
+  principal_->deleteProduct(id);
+  CPPUNIT_ASSERT(g->productWasDeleted());
+  
 }

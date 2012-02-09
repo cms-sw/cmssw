@@ -51,7 +51,7 @@
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/ParameterSet"/>
 </library>
-<library   file="stubs/ToyModules.cc" name="TestToyModules">
+<library   file="stubs/ToyModules.cc,stubs/DeleteEarlyModules.cc" name="TestToyModules">
   <flags   EDM_PLUGIN="1"/>
   <use   name="DataFormats/Common"/>
   <use   name="DataFormats/TestObjects"/>
@@ -264,5 +264,9 @@
 </bin>
 <bin   name="TestFWCoreFrameworkInputTagFailure" file="TestDriver.cpp">
   <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test test_InputTag_cache_failure.sh"/>
+  <use   name="FWCore/Utilities"/>
+</bin>
+<bin   name="TestFWCoreFrameworkDeleteEarly" file="TestDriver.cpp">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test test_deleteEarly.sh"/>
   <use   name="FWCore/Utilities"/>
 </bin>
