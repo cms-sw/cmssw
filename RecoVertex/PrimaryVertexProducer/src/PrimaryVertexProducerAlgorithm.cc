@@ -193,7 +193,16 @@ PrimaryVertexProducerAlgorithm::vertices(const std::vector<reco::TransientTrack>
   if(pvs.size()>0){
 
     // sort vertices by pt**2  vertex (aka signal vertex tagging)
-    sort(pvs.begin(), pvs.end(), VertexHigherPtSquared());
+    // sort(pvs.begin(), pvs.end(), VertexHigherPtSquared());
+
+    // avoid re-evaluating sumptsquared for each comparison
+    VertexHigherPtSquared V;
+    std::vector< std::pair< double , unsigned int > > ptsqpv;
+    for(unsigned int i=0; i<pvs.size(); i++){ ptsqpv.push_back( std::make_pair(V.sumPtSquared(pvs.at(i)), i));}
+    std::stable_sort(ptsqpv.begin(), ptsqpv.end());
+    std::vector<TransientVertex> pvsorted( pvs.size());
+    for(unsigned int i=0; i<pvs.size(); i++){ pvsorted.push_back(pvs.at(ptsqpv[i].second));}
+    return pvsorted;
 
   }else{
 
