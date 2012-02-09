@@ -12,8 +12,8 @@
  *  single-object-type filters so that the access is thorugh
  *  RefToBases and polymorphic.
  *
- *  $Date: 2010/09/26 10:38:10 $
- *  $Revision: 1.4 $
+ *  $Date: 2012/01/21 14:56:58 $
+ *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
@@ -21,6 +21,7 @@
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include<vector>
 
 //
@@ -34,6 +35,7 @@ class HLTDoublet : public HLTFilter {
 
       explicit HLTDoublet(const edm::ParameterSet&);
       ~HLTDoublet();
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
       virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
@@ -57,7 +59,6 @@ class HLTDoublet : public HLTFilter {
       typedef std::vector<T2> T2Collection;
       typedef edm::Ref<T2Collection> T2Ref;
       std::vector<T2Ref> coll2_;
-
 
 };
 

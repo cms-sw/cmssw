@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/05/01 14:41:36 $
- *  $Revision: 1.16 $
+ *  $Date: 2012/01/21 14:56:59 $
+ *  $Revision: 1.17 $
  *
  *  \author Martin Grunewald
  *
@@ -64,6 +64,25 @@ HLTDoublet<T1,Tid1,T2,Tid2>::HLTDoublet(const edm::ParameterSet& iConfig) : HLTF
 template<typename T1, int Tid1, typename T2, int Tid2>
 HLTDoublet<T1,Tid1,T2,Tid2>::~HLTDoublet()
 {
+}
+template<typename T1, int Tid1, typename T2, int Tid2>
+void
+HLTDoublet<T1,Tid1,T2,Tid2>::fillDescriptions(edm::ConfigurationDescriptions& descriptions \
+				    ) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("inputTag1",edm::InputTag("hltCollection1"));
+  desc.add<edm::InputTag>("inputTag2",edm::InputTag("hltCollection2"));
+  desc.add<double>("MinDphi",+1.0);
+  desc.add<double>("MaxDphi",-1.0);
+  desc.add<double>("MinDeta",+1.0);
+  desc.add<double>("MaxDeta",-1.0);
+  desc.add<double>("MinMinv",+1.0);
+  desc.add<double>("MaxMinv",-1.0);
+  desc.add<double>("MinDelR",+1.0);
+  desc.add<double>("MaxDelR",-1.0);
+  desc.add<int>("MinN",1);
+  descriptions.add(std::string("hlt")+std::string(typeid(HLTDoublet<T1,Tid1,T2,Tid2>).name()),desc);
 }
 
 //
