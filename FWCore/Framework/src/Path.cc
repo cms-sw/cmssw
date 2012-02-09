@@ -154,5 +154,12 @@ namespace edm {
     }
   }
 
+  void 
+  Path::handleEarlyFinish(EventPrincipal& iEvent, size_t iLastIndex) {
+    if(iLastIndex>=workers_.size()) {return;}
+    for(auto it = workers_.begin()+iLastIndex; it != workers_.end(); ++it) {
+      it->getWorker()->pathFinished(iEvent);
+    }
+  }
 
 }

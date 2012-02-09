@@ -30,6 +30,9 @@
 #include "FWCore/Framework/src/RunStopwatch.h"
 
 namespace edm {
+  class EventPrincipal;
+  class RunPrincipal;
+  class LuminosityBlockPrincipal;
 
   class Path {
   public:
@@ -116,6 +119,10 @@ namespace edm {
                                  std::string const& id);
     void recordStatus(int nwrwue, bool isEvent);
     void updateCounters(bool succeed, bool isEvent);
+    
+    void handleEarlyFinish(EventPrincipal&, size_t);
+    void handleEarlyFinish(RunPrincipal&, size_t) {}
+    void handleEarlyFinish(LuminosityBlockPrincipal&, size_t) {}
   };
 
   namespace {
@@ -187,6 +194,9 @@ namespace edm {
         ost << ep.id();
         should_continue = handleWorkerFailure(ex, nwrwue, T::isEvent_, T::begin_, T::branchType_, cpc, ost.str());
       }
+    }
+    if (not should_continue) {
+      handleEarlyFinish(ep,idx);
     }
     updateCounters(should_continue, T::isEvent_);
     recordStatus(nwrwue, T::isEvent_);
