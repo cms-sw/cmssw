@@ -54,7 +54,7 @@
 class ZeeRescaleFactorPlots {
  
  public:
-  ZeeRescaleFactorPlots( const char* );
+  ZeeRescaleFactorPlots( char* );
   ~ZeeRescaleFactorPlots();
   
   void writeHistograms( ZIterativeAlgorithmWithFit* );
@@ -62,7 +62,7 @@ class ZeeRescaleFactorPlots {
  private:
   
   TFile* file_;
-  const char* fileName_;
+  char* fileName_;
   
 };
 #endif

@@ -84,7 +84,7 @@ class ZeeCalibration : public edm::ESProducerLooper {
   virtual void produce(edm::Event&, const edm::EventSetup&) {};
   
   /// Called at beginning of job
-  virtual void beginOfJob(edm::EventSetup const&);
+  virtual void beginOfJob();
   
   /// Called at end of job
   virtual void endOfJob();
@@ -205,7 +205,6 @@ class ZeeCalibration : public edm::ESProducerLooper {
   edm::ParameterSet theParameterSet;
 
   //  TGraph* graph;
-  TH1F* h1_Selection_;
 
   TH1F* h1_eventsBeforeEWKSelection_;
   TH1F* h1_eventsAfterEWKSelection_;
