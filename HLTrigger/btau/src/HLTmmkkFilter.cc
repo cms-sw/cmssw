@@ -16,6 +16,9 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
+#include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
@@ -91,9 +94,12 @@ bool HLTmmkkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup,
   iEvent.getByLabel(beamSpotTag_,recoBeamSpotHandle);
   const reco::BeamSpot& vertexBeamSpot = *recoBeamSpotHandle;
 
-  const GlobalPoint ptBeamSpot = GlobalPoint(recoBeamSpotHandle->position().x(),
-					     recoBeamSpotHandle->position().y(),
-					     recoBeamSpotHandle->position().z());
+  ESHandle<MagneticField> bFieldHandle;
+  iSetup.get<IdealMagneticFieldRecord>().get(bFieldHandle);
+
+  const MagneticField* magField = bFieldHandle.product();
+
+  TSCBLBuilderNoMaterial blsBuilder;
 
   // Ref to Candidate object to be recorded in filter object
   RecoChargedCandidateRef refMu1;
@@ -245,6 +251,18 @@ bool HLTmmkkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup,
 			  
 			  LogDebug("HLTDisplacedMumukkFilter") << " Invmass= " << invmass;
 			  
+			  FreeTrajectoryState InitialFTS = initialFreeState(*trk3, magField);
+			  TrajectoryStateClosestToBeamLine tscb( blsBuilder(InitialFTS, *recoBeamSpotHandle) );
+			  double d0sig = tscb.transverseImpactParameter().value()/tscb.transverseImpactParameter().significance();
+			  
+			  if (d0sig < minD0Significance_) continue;
+			  
+			  FreeTrajectoryState InitialFTS2 = initialFreeState(*trk4, magField);
+			  TrajectoryStateClosestToBeamLine tscb2( blsBuilder(InitialFTS2, *recoBeamSpotHandle) );
+			  d0sig = tscb2.transverseImpactParameter().value()/tscb2.transverseImpactParameter().significance();
+			  
+			  if (d0sig < minD0Significance_) continue;
+			
 			  if (invmass>maxInvMass_ || invmass<minInvMass_) continue;
 			  
 			  // do the vertex fit
@@ -256,18 +274,6 @@ bool HLTmmkkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup,
 			  
 			  if (t_tks.size()!=4) continue;
 			  
-			  TrajectoryStateClosestToPoint traj = t_tks[2].trajectoryStateClosestToPoint( ptBeamSpot );
-			  if (!traj.isValid()) continue;
-			  double d0sig = traj.perigeeParameters().transverseImpactParameter()/traj.perigeeError().transverseImpactParameterError();
-			  if (d0sig < minD0Significance_) continue;
-			  
-			  TrajectoryStateClosestToPoint traj2 = t_tks[3].trajectoryStateClosestToPoint( ptBeamSpot );
-			  if (!traj2.isValid()) continue;
-			  d0sig = traj2.perigeeParameters().transverseImpactParameter()/traj2.perigeeError().transverseImpactParameterError();
-			  if (d0sig < minD0Significance_) continue;
-			
-
-
 			  KalmanVertexFitter kvf;
 			  TransientVertex tv = kvf.vertex(t_tks);
 			  
@@ -366,6 +372,18 @@ bool HLTmmkkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup,
 }
 
 // ----------------------------------------------------------------------
+FreeTrajectoryState HLTmmkkFilter::initialFreeState( const reco::Track& tk,
+						    const MagneticField* field)
+{
+  Basic3DVector<float> pos( tk.vertex());
+  GlobalPoint gpos( pos);
+  Basic3DVector<float> mom( tk.momentum());
+  GlobalVector gmom( mom);
+  GlobalTrajectoryParameters par( gpos, gmom, tk.charge(), field);
+  CurvilinearTrajectoryError err( tk.covariance());
+  return FreeTrajectoryState( par, err);
+}
+
 int HLTmmkkFilter::overlap(const reco::Candidate &a, const reco::Candidate &b) {
   
   double eps(1.44e-4);
