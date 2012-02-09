@@ -253,7 +253,7 @@ bool HLTmmkkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup,
 			  
 			  FreeTrajectoryState InitialFTS = initialFreeState(*trk3, magField);
 			  TrajectoryStateClosestToBeamLine tscb( blsBuilder(InitialFTS, *recoBeamSpotHandle) );
-			  double d0sig = tscb.transverseImpactParameter().value()/tscb.transverseImpactParameter().significance();
+			  double d0sig = tscb.transverseImpactParameter().significance();
 			  
 			  if (d0sig < minD0Significance_) continue;
 			  
