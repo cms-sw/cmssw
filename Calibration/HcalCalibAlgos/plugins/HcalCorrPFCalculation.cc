@@ -1,4 +1,4 @@
-// $Id: HcalCorrPFCalculation.cc,v 1.25 2010/04/23 19:47:11 andrey Exp $
+// $Id: HcalCorrPFCalculation.cc,v 1.26 2011/04/27 13:40:35 kodolova Exp $
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
@@ -232,10 +232,10 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
   //2.322,2.500,2.650,2.853,3.000,3.139,3.314,3.489,3.664,3.839,4.013,4.191,4.363,4.538,4.716,4.889,5.191};
   
   // MC info 
-  double phi_MC = -999999.;  // phi of initial particle from HepMC
-  double eta_MC = -999999.;  // eta of initial particle from HepMC
+  //double phi_MC = -999999.;  // phi of initial particle from HepMC
+  //double eta_MC = -999999.;  // eta of initial particle from HepMC
   double mom_MC = 50.;  // P of initial particle from HepMC
-  bool MC = false;
+  //bool MC = false;
   
   // MC information
    
@@ -249,7 +249,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
     } 
   else 
     {
-      MC=true;
+      //MC=true;
       //    std::cout << "*** source HepMCProduct found"<< std::endl;
     }  
   
@@ -267,7 +267,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
        etaParticle = (*p)->momentum().eta();
       double pt  = (*p)->momentum().perp();
       mom_MC = (*p)->momentum().rho();
-      if(pt > maxPt) { npart++; maxPt = pt; phi_MC = phiParticle; eta_MC = etaParticle; }
+      if(pt > maxPt) { npart++; maxPt = pt; /*phi_MC = phiParticle; eta_MC = etaParticle;*/ }
       GlobalVector mom ((*p)->momentum().x(),(*p)->momentum().y(),(*p)->momentum().z());
       int charge = -1;
       
