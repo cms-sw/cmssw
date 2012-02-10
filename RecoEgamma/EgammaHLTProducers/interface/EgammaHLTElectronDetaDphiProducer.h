@@ -8,7 +8,7 @@
 //
 // Original Author:  Roberto Covarelli (CERN)
 //
-// $Id: EgammaHLTElectronDetaDphiProducer.h,v 1.2 2011/12/19 11:16:45 sani Exp $
+// $Id: EgammaHLTElectronDetaDphiProducer.h,v 1.3 2012/01/23 12:56:37 sharper Exp $
 //
 //
 
@@ -34,6 +34,8 @@
 class MagneticField;
 
 #include "TTree.h"
+
+class MagneticField;
 //
 // class declaration
 //
@@ -45,7 +47,8 @@ class EgammaHLTElectronDetaDphiProducer : public edm::EDProducer {
 
 
       virtual void produce(edm::Event&, const edm::EventSetup&);
-  
+      virtual void beginRun(edm::Run&, edm::EventSetup const&);
+      virtual void endRun(edm::Run&, edm::EventSetup const&);
    private:
   std::pair<float,float> calDEtaDPhiSCTrk(reco::ElectronRef& eleref, const reco::BeamSpot::Point& BSPosition,const MagneticField *magField);
   static reco::ElectronRef getEleRef(const reco::RecoEcalCandidateRef& recoEcalCandRef,const edm::Handle<reco::ElectronCollection>& electronHandle);
@@ -55,7 +58,10 @@ class EgammaHLTElectronDetaDphiProducer : public edm::EDProducer {
 
   bool useSCRefs_;
   bool useTrackProjectionToEcal_;
+  bool variablesAtVtx_;
+  edm::InputTag BSProducer_;
+  const MagneticField* magField_;
   edm::InputTag bsProducer_;
-  
+
 };
 

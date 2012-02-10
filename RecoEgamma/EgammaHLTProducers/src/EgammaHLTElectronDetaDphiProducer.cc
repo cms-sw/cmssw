@@ -2,7 +2,7 @@
  *
  *  \author Roberto Covarelli (CERN)
  * 
- * $Id: EgammaHLTElectronDetaDphiProducer.cc,v 1.4 2011/12/19 11:17:28 sani Exp $
+ * $Id: EgammaHLTElectronDetaDphiProducer.cc,v 1.5 2012/01/23 12:56:38 sharper Exp $
  *
  */
 
@@ -28,6 +28,8 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
@@ -50,6 +52,7 @@ EgammaHLTElectronDetaDphiProducer::EgammaHLTElectronDetaDphiProducer(const edm::
   electronProducer_             = config.getParameter<edm::InputTag>("electronProducer");
   bsProducer_                   = config.getParameter<edm::InputTag>("BSProducer");
   useTrackProjectionToEcal_     = config.getParameter<bool>("useTrackProjectionToEcal");
+  variablesAtVtx_               = config.getParameter<bool>("variablesAtVtx");
   recoEcalCandidateProducer_ = config.getParameter<edm::InputTag>("recoEcalCandidateProducer"); 
   useSCRefs_ = config.getParameter<bool>("useSCRefs");
 
@@ -138,7 +141,16 @@ std::pair<float,float> EgammaHLTElectronDetaDphiProducer::calDEtaDPhiSCTrk(reco:
   float deltaeta = fabs(SCcorrPosition.eta()-eleref->track()->eta());
   float deltaphi;
   
-  if (useTrackProjectionToEcal_) { 
+  if (variablesAtVtx_) {
+
+    reco::TrackRef track = eleref->track();
+    reco::TransientTrack tt( track, magField_);
+    TrajectoryStateOnSurface sclTSOS = tt.stateOnSurface(GlobalPoint(theClus->x(),theClus->y(),theClus->z()));
+    EleRelPointPair scAtVtx(theClus->position(), sclTSOS.globalPosition(), bsPosition) ;
+    deltaeta = fabs(scAtVtx.dEta());
+    deltaphi = fabs(scAtVtx.dPhi());
+    
+  } else if (useTrackProjectionToEcal_) { 
     
     ECALPositionCalculator posCalc;
     const math::XYZPoint vertex(bsPosition.x(),bsPosition.y(),eleref->track()->vz());
@@ -179,6 +191,17 @@ reco::ElectronRef EgammaHLTElectronDetaDphiProducer::getEleRef(const reco::RecoE
   return eleRef;
 }
   
+
+void EgammaHLTElectronDetaDphiProducer::beginRun(edm::Run&, edm::EventSetup const& iSetup) {
+  using namespace edm;
+
+  ESHandle<MagneticField> magneticField;
+  iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+  magField_ = magneticField.product();
+
+}
+
+void EgammaHLTElectronDetaDphiProducer::endRun(edm::Run&, edm::EventSetup const&){}
 
 //define this as a plug-in
 //DEFINE_FWK_MODULE(EgammaHLTTrackIsolationProducers);
