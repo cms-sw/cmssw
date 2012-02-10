@@ -482,7 +482,6 @@ steps['TIER0']=merge([{'--customise':'Configuration/DataProcessing/RecoTLR.custo
                        '--eventcontent':'RECO,AOD,ALCARECO,DQMROOT',
                        '--process':'RECO'
                        },dataReco])
-#steps['TIER0'].pop('--inputCommands')
 steps['TIER0EXP']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:@StreamExpress,L1HwVal,DQM,ENDJOB',
                           '--datatier':'ALCARECO,DQM',
                           '--eventcontent':'ALCARECO,DQM',
