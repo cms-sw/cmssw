@@ -576,6 +576,50 @@ bool isFJHTX_PFHTXTrigger(TString triggerName, vector<double> &thresholds)
     return false;
 }
 
+bool isFJHTX_PFHTX_DiCentralPFJetX_CenPFJetXTrigger(TString triggerName, vector<double> &thresholds)
+{
+	
+  TString pattern = "(OpenHLT_FJHT([0-9]+)_PFHT([0-9]+)_DiCentralPFJet([0-9]+)_CenPFJet([0-9]+))$";
+  TPRegexp matchThreshold(pattern);
+	
+  if (matchThreshold.MatchB(triggerName))
+    {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdFJHT = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdPFHT = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      double thresholdDiJet = (((TObjString *)subStrL->At(4))->GetString()).Atof();
+      double thresholdThirdJet = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      thresholds.push_back(thresholdFJHT);
+      thresholds.push_back(thresholdPFHT);
+      thresholds.push_back(thresholdDiJet);
+      thresholds.push_back(thresholdThirdJet);
+      delete subStrL;
+      return true;
+    }
+  else
+    return false;
+}
+
+bool isFJHTX_MHTXTrigger(TString triggerName, vector<double> &thresholds)
+{
+	
+  TString pattern = "(OpenHLT_FJHT([0-9]+)_MHT([0-9]+))$";
+  TPRegexp matchThreshold(pattern);
+	
+  if (matchThreshold.MatchB(triggerName))
+    {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdFJHT = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdMHT  = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      thresholds.push_back(thresholdFJHT);
+      thresholds.push_back(thresholdMHT);
+      delete subStrL;
+      return true;
+    }
+  else
+    return false;
+}
+
 bool isHTX_CentralJetX_BTagIPTrigger(TString triggerName, vector<double> &thresholds)
 {
 	
@@ -850,22 +894,22 @@ bool isPFJetXTrigger(TString triggerName, vector<double> &thresholds)
     return false;
 }
 
-bool isFJHTX_PFHTX_PFMETX_OrMETXTrigger(TString triggerName, vector<double> &thresholds)
+bool isFJHTX_PFHTX_PFMETX_OrMHTXTrigger(TString triggerName, vector<double> &thresholds)
 {
 	
-  TString pattern = "(OpenHLT_FJHT([0-9]+)_PFHT([0-9]+)_PFMET([0-9]+)_OrMET([0-9]+))$";
+  TString pattern = "(OpenHLT_FJHT([0-9]+)_PFHT([0-9]+)_PFMET([0-9]+)_OrMHT([0-9]+))$";
   TPRegexp matchThreshold(pattern);
 	
   if (matchThreshold.MatchB(triggerName))
     {
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
-      double thresholdPFHT  = (((TObjString *)subStrL->At(2))->GetString()).Atof();
-      double thresholdPFMHT = (((TObjString *)subStrL->At(3))->GetString()).Atof();
-      double thresholdHT    = (((TObjString *)subStrL->At(4))->GetString()).Atof();
+      double thresholdFJHT  = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdPFHT  = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      double thresholdPFMHT = (((TObjString *)subStrL->At(4))->GetString()).Atof();
       double thresholdMHT   = (((TObjString *)subStrL->At(5))->GetString()).Atof();
+      thresholds.push_back(thresholdFJHT);
       thresholds.push_back(thresholdPFHT);
       thresholds.push_back(thresholdPFMHT);
-      thresholds.push_back(thresholdHT);
       thresholds.push_back(thresholdMHT);
       delete subStrL;
       return true;
@@ -3423,7 +3467,25 @@ void OHltTree::CheckOpenHlt(
 	    }
 	}
     }
-	
+
+  else if (isFJHTX_PFHTX_DiCentralPFJetX_CenPFJetXTrigger(triggerName, thresholds))
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second>0)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+	      if (OpenHltSumFJCorHTPassed(thresholds[0], 40.) == 1 
+		  && OpenHltSumPFHTPassed(thresholds[1], 40.) == 1
+		  && OpenHltNPFJetPassed(3, thresholds[3], 2.6)
+		  && OpenHltNPFJetPassed(2, thresholds[2], 2.6)
+		  )
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
+    }	
+
   else if (triggerName.CompareTo("OpenHLT_SumET120") == 0)
     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
@@ -13401,7 +13463,7 @@ else if (triggerName.CompareTo("OpenHLT_Ele32_WP70_PFMT50_v1")  == 0)
     }
   }
 
- else if (isFJHTX_PFHTX_PFMETX_OrMETXTrigger(triggerName, thresholds))
+ else if (isFJHTX_PFHTX_PFMETX_OrMHTXTrigger(triggerName, thresholds))
     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
 	{
@@ -13409,9 +13471,27 @@ else if (triggerName.CompareTo("OpenHLT_Ele32_WP70_PFMT50_v1")  == 0)
 	    {
 
 	      if 
-		  ( (OpenHltSumFJCorHTPassed(thresholds[0], 40.) == 1 
-		    &&   OpenHltSumPFHTPassed(thresholds[1], 40.) == 1 )
-		    && ( OpenHltPFMHT(thresholds[2], 0.)==1 || recoMetCal > thresholds[3])
+		  ( OpenHltSumFJCorHTPassed(thresholds[0], 40.) == 1 
+		    &&   OpenHltSumPFHTPassed(thresholds[1], 40.) == 1 
+		     &&  ((OpenHltPFMHT(thresholds[2], 0.)==1) || (OpenHltMHT(thresholds[3], 30.)==1))
+		  )
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
+    }
+
+ else if (isFJHTX_MHTXTrigger(triggerName, thresholds))
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+
+	      if 
+		  ( OpenHltSumFJCorHTPassed(thresholds[0], 40.) == 1 
+		   &&  OpenHltMHT(thresholds[1], 30.)==1
 		  )
 		{
 		  triggerBit[it] = true;
