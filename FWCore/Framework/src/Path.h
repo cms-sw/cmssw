@@ -24,6 +24,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 #include <exception>
 #include <sstream>
 
@@ -33,6 +34,7 @@ namespace edm {
   class EventPrincipal;
   class RunPrincipal;
   class LuminosityBlockPrincipal;
+  class EarlyDeleteHelper;
 
   class Path {
   public:
@@ -81,6 +83,8 @@ namespace edm {
     int timesFailed (size_type i) const { return workers_.at(i).timesFailed() ; }
     int timesExcept (size_type i) const { return workers_.at(i).timesExcept() ; }
     Worker const* getWorker(size_type i) const { return workers_.at(i).getWorker(); }
+    
+    void setEarlyDeleteHelpers(std::map<const Worker*,EarlyDeleteHelper*> const&);
 
     void useStopwatch();
   private:
@@ -99,6 +103,7 @@ namespace edm {
     ActionTable const* act_table_;
 
     WorkersInPath workers_;
+    std::vector<EarlyDeleteHelper*> earlyDeleteHelpers_;
 
     bool isEndPath_;
 
@@ -120,9 +125,9 @@ namespace edm {
     void recordStatus(int nwrwue, bool isEvent);
     void updateCounters(bool succeed, bool isEvent);
     
-    void handleEarlyFinish(EventPrincipal&, size_t);
-    void handleEarlyFinish(RunPrincipal&, size_t) {}
-    void handleEarlyFinish(LuminosityBlockPrincipal&, size_t) {}
+    void handleEarlyFinish(EventPrincipal&);
+    void handleEarlyFinish(RunPrincipal&) {}
+    void handleEarlyFinish(LuminosityBlockPrincipal&) {}
   };
 
   namespace {
@@ -196,7 +201,7 @@ namespace edm {
       }
     }
     if (not should_continue) {
-      handleEarlyFinish(ep,idx);
+      handleEarlyFinish(ep);
     }
     updateCounters(should_continue, T::isEvent_);
     recordStatus(nwrwue, T::isEvent_);

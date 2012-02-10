@@ -1,6 +1,7 @@
 
 #include "FWCore/Framework/src/Path.h"
 #include "FWCore/Framework/interface/Actions.h"
+#include "FWCore/Framework/src/EarlyDeleteHelper.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -155,10 +156,26 @@ namespace edm {
   }
 
   void 
-  Path::handleEarlyFinish(EventPrincipal& iEvent, size_t iLastIndex) {
-    if(iLastIndex>=workers_.size()) {return;}
-    for(auto it = workers_.begin()+iLastIndex; it != workers_.end(); ++it) {
-      it->getWorker()->pathFinished(iEvent);
+  Path::setEarlyDeleteHelpers(std::map<const Worker*,EarlyDeleteHelper*> const& iWorkerToDeleter) {
+    //we use a temp so we can overset the size but then when moving to earlyDeleteHelpers we only
+    // have to use the space necessary
+    std::vector<EarlyDeleteHelper*> temp;
+    temp.reserve(iWorkerToDeleter.size());
+    for(unsigned int index=0; index !=size();++index) {
+      auto found = iWorkerToDeleter.find(getWorker(index));
+      if(found != iWorkerToDeleter.end()) {
+        temp.push_back(found->second);
+        found->second->addedToPath();
+      }
+    }
+    std::vector<EarlyDeleteHelper*> tempCorrectSize(temp.begin(),temp.end());
+    earlyDeleteHelpers_.swap(tempCorrectSize);
+  }
+
+  void
+  Path::handleEarlyFinish(EventPrincipal& iEvent) {
+    for(auto helper: earlyDeleteHelpers_) {
+      helper->pathFinished(iEvent);
     }
   }
 
