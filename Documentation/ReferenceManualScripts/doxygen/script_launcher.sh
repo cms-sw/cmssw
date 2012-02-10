@@ -13,9 +13,19 @@ if (-e $LOCALTOP/doc/html/splittedTree ) then
 	rm -Rf $LOCALTOP/doc/html/splittedTree
 endif
 
+	if (-e $LOCALTOP/doc ) then
+		rm -Rf $LOCALTOP/doc
+		mkdir doc
+	endif
+
+
 if (-e $LOCALTOP/$CMSSW_xyz.index) then
 	rm -f $LOCALTOP/$CMSSW_xyz.index
 endif
+
+	if (-e $LOCALTOP/tagList.txt) then
+		rm -f $LOCALTOP/tagList.txt
+	endif
 
 if (-e $LOCALTOP/doc/html/ReferenceManual.html) then
 	rm $LOCALTOP/doc/html/ReferenceManual.html
@@ -43,6 +53,12 @@ cp $SCRIPTS/other/ReferenceManual.html $LOCALTOP/doc/html
 time python $SCRIPTS/splitter/splitter.py $LOCALTOP /doc/html/namespaces.html namespaceList_ 
 time python $SCRIPTS/splitter/splitter.py $LOCALTOP /doc/html/configfiles.html configfilesList_ 
 time python $SCRIPTS/splitter/splitter.py $LOCALTOP /doc/html/annotated.html annotatedList_ 
-time python $SCRIPTS/splitter/packageDocSplitter.py pages.html $LOCALTOP  
+
+# package documetation
+cd src
+showtags -t> ../tagList.txt
+cd ..
+
+time python $SCRIPTS/splitter/packageDocSplitter.py pages.html $LOCALTOP tagList.txt 
 
 find $LOCALTOP/doc/html/ -name "*.html" ! \( -name "*dir_*" -o -name "*globals_*" -o -name "*namespacemembers_*" -o -name "*functions_*" \) -print | sort > $LOCALTOP/$CMSSW_xyz.index
