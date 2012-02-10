@@ -13,11 +13,6 @@ if (-e $LOCALTOP/doc/html/splittedTree ) then
 	rm -Rf $LOCALTOP/doc/html/splittedTree
 endif
 
-	if (-e $LOCALTOP/doc ) then
-		rm -Rf $LOCALTOP/doc
-		mkdir doc
-	endif
-
 
 if (-e $LOCALTOP/$CMSSW_xyz.index) then
 	rm -f $LOCALTOP/$CMSSW_xyz.index
