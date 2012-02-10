@@ -240,8 +240,8 @@ class MatrixReader(object):
         return 
                     
 
-    def showWorkFlows(self, selected=None):
-        selected = map(float,selected)
+    def showWorkFlows(self, selected=None, extended=True):
+        if selected: selected = map(float,selected)
         maxLen = 100 # for summary, limit width of output
         fmt1   = "%-6s %-35s [1]: %s ..."
         fmt2   = "       %35s [%d]: %s ..."
@@ -256,17 +256,21 @@ class MatrixReader(object):
         N=[]
         for wf in self.workFlows:
             if selected and float(wf.numId) not in selected: continue
-            print ''
+            if extended: print ''
             #pad with zeros
             for i in range(len(N),len(wf.cmds)):                N.append(0)
             N[len(wf.cmds)-1]+=1
             wfName, stepNames = wf.nameId.split('+',1)
             for i,s in enumerate(wf.cmds):
-                if i==0:
-                    print fmt1 % (wf.numId, stepNames, (str(s)+' ')[:maxLen])
+                if extended:
+                    if i==0:
+                        print fmt1 % (wf.numId, stepNames, (str(s)+' ')[:maxLen])
+                    else:
+                        print fmt2 % ( ' ', 2, (str(s)+' ')[:maxLen])
                 else:
-                    print fmt2 % ( ' ', 2, (str(s)+' ')[:maxLen])
-
+                    print "%-6s %-35s "% (wf.numId, stepNames)
+                    break
+        print ''
         for i,n in enumerate(N):
             if n:            print n,'workflows with',i+1,'steps'
 
@@ -354,9 +358,9 @@ class MatrixReader(object):
                 raise
             
                 
-    def show(self, selected=None):    
+    def show(self, selected=None, extended=True):    
 
-        self.showWorkFlows(selected)
+        self.showWorkFlows(selected,extended)
         print '\n','-'*80,'\n'
 
 
