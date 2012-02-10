@@ -50,7 +50,7 @@ time python $SCRIPTS/splitter/splitter.py $LOCALTOP /doc/html/configfiles.html c
 time python $SCRIPTS/splitter/splitter.py $LOCALTOP /doc/html/annotated.html annotatedList_ 
 
 # package documetation
-cd src
+cd $LOCALTOP/src
 showtags -t> ../tagList.txt
 cd ..
 
