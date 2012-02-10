@@ -13,7 +13,7 @@
 //
 // Original Author:  Justin Hugon,Ivan's graduate student,jhugon@phys.ufl.edu
 //         Created:  Thu Jun 10 10:40:10 EDT 2010
-// $Id: CSCTFEfficiency.cc,v 1.5 2010/07/06 17:01:14 jhugon Exp $
+// $Id: CSCTFEfficiency.cc,v 1.1 2011/10/18 18:46:09 jhugon Exp $
 //
 //
 //
@@ -24,6 +24,8 @@
 #include "DataFormats/Scalers/interface/LumiScalers.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
+#include <algorithm>
+#include "TStyle.h"
 using namespace std;
 int counterTFT;      // Added By Daniel 07/02
 int counterRLimit; // Added By Daniel 07/02
@@ -45,6 +47,7 @@ CSCTFEfficiency::CSCTFEfficiency(const edm::ParameterSet& iConfig)
   saveHistImages = iConfig.getUntrackedParameter<bool>("SaveHistImages");
   singleMuSample = iConfig.getUntrackedParameter<bool>("SingleMuSample");
   noRefTracks = iConfig.getUntrackedParameter<bool>("NoRefTracks");
+  cutOnModes = iConfig.getUntrackedParameter<std::vector<unsigned> >("CutOnModes");
   nEvents = 0;
   configuration= &iConfig;
     }
@@ -136,35 +139,36 @@ void CSCTFEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   }
   else //If you want the new production of sim csctf tracks with modes and ghost modes information/plots
   {
-      
 	edm::Handle<L1CSCTrackCollection> trackFinderTracks;
 	iEvent.getByLabel(inputTag,trackFinderTracks);
 	L1CSCTrackCollection::const_iterator BaseTFTrk;
 
-
-
 	for(BaseTFTrk=trackFinderTracks->begin();BaseTFTrk != trackFinderTracks->end(); BaseTFTrk++)
 	{
 	    TFTrack tfTrackTemp= TFTrack(*BaseTFTrk,iSetup);
+
+	    //Skips track if mode is not found in cutOnModes;
+	    if(cutOnModes.size() > 0)
+	    {
+	      std::vector<unsigned>::iterator found;
+	      found = std::find(cutOnModes.begin(),cutOnModes.end(), tfTrackTemp.getMode());
+	      if(found == cutOnModes.end())
+		continue;
+	    }
+
 
 	    if(tfTrackTemp.getQuality() >= minQualityTF && tfTrackTemp.getPt() >= minPtTF )
             {
 		  tfTrackTemp.setHistList(tfHistList);
 		  trackFinderTrack->push_back(tfTrackTemp);
             }
-	    
-
 	}
-      
   }
   multHistList->FillMultiplicityHist(trackFinderTrack);
   if(trackFinderTrack->size()>=2)
   {
 	rHistogram->fillR(trackFinderTrack->at(0),trackFinderTrack->at(1));
   }
-
-
-
 
   //////////////////////////////////////
   //////// Track Matching //////////////
@@ -247,7 +251,6 @@ void CSCTFEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   for(tfTrack=trackFinderTrack->begin(); tfTrack != trackFinderTrack->end(); tfTrack++)  
     {
 	
-    	int mode = tfTrack->getMode();
       	tfTrack->fillHist();
 	if(tfTrack->getPt()>highestPt){iHighest=i; highestPt=tfTrack->getPt();}
       	if(tfTrack->getMatched())
@@ -349,6 +352,7 @@ void CSCTFEfficiency::beginJob()
 {
   using namespace csctf_analysis;
   
+  gStyle->SetOptStat(0);
   tfHistList = new TrackHistogramList("TrackFinder",configuration);
   refHistList = new TrackHistogramList("Reference",configuration);
   effhistlist = new EffHistogramList("Efficiency",configuration);

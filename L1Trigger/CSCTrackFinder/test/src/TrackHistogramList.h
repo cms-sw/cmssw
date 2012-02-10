@@ -27,7 +27,7 @@ namespace csctf_analysis
   	TH2F* SimPt_vs_TFPt_DT;
   	TH1F* matchedRefPt_FWD;
   	TH1F* matchedRefPt_DT;
-  	TH1F* modeOcc, *modeOccDT, *modeOccCSCOnly, *modeOccOverlap;
+  	TH1F* modeOcc, *modeOccDT, *modeOccCSCOnly, *modeOccOverlap, *modeOccHighEta;
   	TH1F* FR;
   	TH1F* Eta, *signedEta, *Phi, *Phi_mod_10_endcap1,*Phi_mod_10_endcap2, *Pt, *Pz, *P, *Quality, *Radius;//,*EHalo;
   	TH1F* matchPhi, *matchPhi_mod_10_Q3_endcap1, *matchPhi_mod_10_Q2_endcap1,*matchPhi_mod_10_Q3_endcap2, *matchPhi_mod_10_Q2_endcap2;
@@ -46,10 +46,11 @@ namespace csctf_analysis
   	TH1F* matchTFPt10CSCOnly,*matchTFPt12CSCOnly,*matchTFPt16CSCOnly, *matchTFPt20CSCOnly, *matchTFPt40CSCOnly, *matchTFPt60CSCOnly;
   	TH1F* matchTFPt10CSCRestricted,*matchTFPt12CSCRestricted,*matchTFPt16CSCRestricted, *matchTFPt20CSCRestricted, *matchTFPt40CSCRestricted, *matchTFPt60CSCRestricted;
   	TH1F* matchTFPt10Overlap,*matchTFPt12Overlap,*matchTFPt16Overlap, *matchTFPt20Overlap, *matchTFPt40Overlap, *matchTFPt60Overlap;
+  	TH1F* matchTFPt10HighEta,*matchTFPt12HighEta,*matchTFPt16HighEta, *matchTFPt20HighEta, *matchTFPt40HighEta, *matchTFPt60HighEta;
   	TH1F* matchTFPt10DTOnly,*matchTFPt12DTOnly,*matchTFPt16DTOnly, *matchTFPt20DTOnly, *matchTFPt40DTOnly, *matchTFPt60DTOnly;
-  	TH1F* matchPtCSCOnly, *matchPtOverlap, *matchPtOverall, *matchPtDTOnly, *matchPtCSCRestricted;
+  	TH1F* matchPtCSCOnly, *matchPtOverlap, *matchPtHighEta, *matchPtOverall, *matchPtDTOnly, *matchPtCSCRestricted;
 	TH1F* matchMode;
-  	TH1F* fidPtDen,*ptDenOverall, *ptDenCSCOnly, *ptDenOverlap, *ptDenDTOnly, *ptDenCSCRestricted;
+  	TH1F* fidPtDen,*ptDenOverall, *ptDenCSCOnly, *ptDenOverlap, *ptDenHighEta, *ptDenDTOnly, *ptDenCSCRestricted;
 	TH1F* rateHist;
 	double getPtStep(){return ptStep;};
     private:

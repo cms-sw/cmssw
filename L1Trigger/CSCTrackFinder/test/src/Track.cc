@@ -163,6 +163,11 @@ void Track::fillHist()
               histlist->ptDenOverlap->Fill(pt);       
               histlist->modeOccOverlap->Fill(mode);
       }
+      if(fabsEta >= 2.1)
+      {
+              histlist->ptDenHighEta->Fill(pt);       
+              histlist->modeOccHighEta->Fill(mode);
+      }
 }
 void Track::fillMatchHist() 
 {
@@ -382,6 +387,35 @@ void Track::fillMatchHist()
               if (tfpt>60)
               {
         	      histlist->matchTFPt60Overlap->Fill(simpt);
+              }
+      }
+      //High Eta
+      if(fabsEta>=2.1&&qual>1)
+      {
+              histlist->matchPtHighEta->Fill(simpt);  
+              if (tfpt>10)
+              {
+        	      histlist->matchTFPt10HighEta->Fill(simpt);
+              }
+	      if (tfpt>12)
+              {
+        	      histlist->matchTFPt12HighEta->Fill(simpt);
+              }
+	      if (tfpt>16)
+              {
+        	      histlist->matchTFPt16HighEta->Fill(simpt);
+              }
+              if (tfpt>20)
+              {
+        	      histlist->matchTFPt20HighEta->Fill(simpt);
+              }
+              if (tfpt>40)
+              {
+        	      histlist->matchTFPt40HighEta->Fill(simpt);
+              }
+              if (tfpt>60)
+              {
+        	      histlist->matchTFPt60HighEta->Fill(simpt);
               }
       }
       

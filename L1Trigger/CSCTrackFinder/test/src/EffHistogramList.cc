@@ -8,7 +8,6 @@ namespace csctf_analysis
 
 EffHistogramList::EffHistogramList(const std::string dirname, const edm::ParameterSet* parameters)
 {
-
 	TFileDirectory dir = fs->mkdir(dirname);
 	TFileDirectory ptSubdir = dir.mkdir("Pt_Efficiencies");
 	TFileDirectory ptSubdirOverall = ptSubdir.mkdir("Overall");
@@ -16,6 +15,7 @@ EffHistogramList::EffHistogramList(const std::string dirname, const edm::Paramet
 	TFileDirectory ptSubdirCSCRestricted = ptSubdir.mkdir("CSCRestricted");
 	TFileDirectory ptSubdirDTOnly = ptSubdir.mkdir("DTOnly");
 	TFileDirectory ptSubdirOverlap = ptSubdir.mkdir("Overlap");
+	TFileDirectory ptSubdirHighEta = ptSubdir.mkdir("HighEta");
 	
 	TFileDirectory etaSubdir = dir.mkdir("Eta_Efficiency");
 	TFileDirectory phiSubdir = dir.mkdir("Phi_Efficiency");
@@ -25,7 +25,11 @@ EffHistogramList::EffHistogramList(const std::string dirname, const edm::Paramet
 	int ptbins=parameters->getUntrackedParameter<double>("BinsPtHist");
 	PtEffStatsFilename=parameters->getUntrackedParameter<std::string>("PtEffStatsFilename");
 	
+	std::string histoDescription = parameters->getUntrackedParameter<std::string>("HistoDescription");
+	latexDescription = new TLatex(0.121,0.883,histoDescription.c_str());
 
+	latexDescription->SetTextAlign(13);
+	latexDescription->SetNDC();
 
     	EffPhi = phiSubdir.make<TH1F>("EffPhi","Efficiency v #phi",144,0,6.283);
     	EffPhi_mod_10_Q2_endcap1 = phiSubdir.make<TH1F>("EffPhi_mod_10_Q2_endcap1","Efficiency v #phi mod 10,Q>=2, Endcap 1",140,-2,12);
@@ -38,6 +42,7 @@ EffHistogramList::EffHistogramList(const std::string dirname, const edm::Paramet
     	EffPtCSCRestricted = ptSubdirCSCRestricted.make<TH1F>("EffPtCSCRestricted","Efficiency v Pt; 1.2<= #eta <=2.1",ptbins, minpt, maxpt);
 	EffPtOverall = ptSubdirOverall.make<TH1F>("EffPtOverall","Efficiency v Overall Pt",ptbins, minpt, maxpt);
     	EffPtOverlap = ptSubdirOverlap.make<TH1F>("EffPtOverlap","Efficiency v Pt; 0.9<= #eta <=1.2",ptbins, minpt, maxpt);
+    	EffPtHighEta = ptSubdirHighEta.make<TH1F>("EffPtHighEta","Efficiency v Pt; 2.1<= #eta",ptbins, minpt, maxpt);
     	EffTFPt10Overall = ptSubdirOverall.make<TH1F>("EffTFPt10Overall","Efficiency v Overall Pt Tf > 10",ptbins, minpt, maxpt);
 	EffTFPt12Overall = ptSubdirOverall.make<TH1F>("EffTFPt12Overall","Efficiency v Overall Pt Tf > 12",ptbins, minpt, maxpt);
     	EffTFPt16Overall = ptSubdirOverall.make<TH1F>("EffTFPt16Overall","Efficiency v Overall Pt Tf > 16",ptbins, minpt, maxpt);
@@ -68,6 +73,16 @@ EffHistogramList::EffHistogramList(const std::string dirname, const edm::Paramet
     	EffTFPt20Overlap = ptSubdirOverlap.make<TH1F>("EffTFPt20Overlap","Efficiency v Pt Tf > 20; 0.9<= #eta <=1.2",ptbins, minpt, maxpt);
     	EffTFPt40Overlap = ptSubdirOverlap.make<TH1F>("EffTFPt40Overlap","Efficiency v Pt Tf > 40; 0.9<= #eta <=1.2",ptbins, minpt, maxpt);
     	EffTFPt60Overlap = ptSubdirOverlap.make<TH1F>("EffTFPt60Overlap","Efficiency v Pt Tf > 60; 0.9<= #eta <=1.2",ptbins, minpt, maxpt);
+
+
+    	EffTFPt10HighEta = ptSubdirHighEta.make<TH1F>("EffTFPt10HighEta","Efficiency v Pt Tf > 10; 2.1<= #eta",ptbins, minpt, maxpt);
+	EffTFPt12HighEta = ptSubdirHighEta.make<TH1F>("EffTFPt12HighEta","Efficiency v Pt Tf > 12; 2.1<= #eta",ptbins, minpt, maxpt);
+	EffTFPt16HighEta = ptSubdirHighEta.make<TH1F>("EffTFPt16HighEta","Efficiency v Pt Tf > 16; 2.1<= #eta",ptbins, minpt, maxpt);
+    	EffTFPt20HighEta = ptSubdirHighEta.make<TH1F>("EffTFPt20HighEta","Efficiency v Pt Tf > 20; 2.1<= #eta",ptbins, minpt, maxpt);
+    	EffTFPt40HighEta = ptSubdirHighEta.make<TH1F>("EffTFPt40HighEta","Efficiency v Pt Tf > 40; 2.1<= #eta",ptbins, minpt, maxpt);
+    	EffTFPt60HighEta = ptSubdirHighEta.make<TH1F>("EffTFPt60HighEta","Efficiency v Pt Tf > 60; 2.1<= #eta",ptbins, minpt, maxpt);
+
+
     	EffEtaAll = etaSubdir.make<TH1F>("EffEtaAll","Efficiency v eta for all Tracks", 50, 0, 2.5);
     	EffEtaQ3 = etaSubdir.make<TH1F>("EffEtaQ3","Efficiency v #eta for Quality >= 3 Tracks", 50, 0, 2.5);
     	EffEtaQ2 = etaSubdir.make<TH1F>("EffEtaQ2","Efficiency v #eta for Quality >= 2 Tracks", 50, 0, 2.5);
@@ -126,6 +141,13 @@ void EffHistogramList::ComputeEff(TrackHistogramList* refHists)
     Overlaphists.push_back(EffTFPt20Overlap);
     Overlaphists.push_back(EffTFPt40Overlap);
     Overlaphists.push_back(EffTFPt60Overlap);
+
+    std::vector<TH1F*> HighEtahists;
+    HighEtahists.push_back(EffPtHighEta);
+    HighEtahists.push_back(EffTFPt12HighEta);
+    HighEtahists.push_back(EffTFPt20HighEta);
+    HighEtahists.push_back(EffTFPt40HighEta);
+    HighEtahists.push_back(EffTFPt60HighEta);
     
     //must match the threshold order of the histograms pushed into
     //the vectors directly above
@@ -159,6 +181,8 @@ void EffHistogramList::ComputeEff(TrackHistogramList* refHists)
     computePtPlateauEff(PtStats, PlateauDefinitions,thresholds,DTOnlyhists);
     (*PtStats)<<"\n\nPt Plateau Efficiencies for Overlap region (1.2<=|eta|<=0.9)";
     computePtPlateauEff(PtStats, PlateauDefinitions,thresholds,Overlaphists);
+    (*PtStats)<<"\n\nPt Plateau Efficiencies for HighEta region (2.1<=|eta|)";
+    computePtPlateauEff(PtStats, PlateauDefinitions,thresholds,HighEtahists);
     PtStats->close();
     
     //Drawing Pt Histograms
@@ -167,9 +191,7 @@ void EffHistogramList::ComputeEff(TrackHistogramList* refHists)
     DrawPtEffHists("CSCRestricted",PtEffAllCSCRestricted,fitThreshCSCRestricted,TrackerLeg1CSCRestricted,thresholds,CSCRestrictedhists);
     DrawPtEffHists("DTOnly",PtEffAllDTOnly,fitThreshDTOnly,TrackerLeg1DTOnly,thresholds,DTOnlyhists);
     DrawPtEffHists("Overlap",PtEffAllOverlap,fitThreshOverlap,TrackerLeg1Overlap,thresholds,Overlaphists);
-    
-    
-     
+    DrawPtEffHists("HighEta",PtEffAllHighEta,fitThreshHighEta,TrackerLeg1HighEta,thresholds,HighEtahists);
    
     ///////////////////
     //Overall Eta Eff//
@@ -198,6 +220,7 @@ void EffHistogramList::ComputeEff(TrackHistogramList* refHists)
     TrackerLeg2->AddEntry(EffEtaQ2,"Quality > 1","f");
     TrackerLeg2->AddEntry(EffEtaQ3,"Quality > 2","f");
     TrackerLeg2->Draw();
+    latexDescription->Draw();
     gPad->SetTicks(1,0);
     //EtaEff->Print("EffEta.png","png");
     
@@ -228,6 +251,7 @@ void EffHistogramList::ComputeEff(TrackHistogramList* refHists)
     TrackerLeg3->AddEntry(EffSignedEtaQ2,"Quality > 1","f");
     TrackerLeg3->AddEntry(EffSignedEtaQ3,"Quality > 2","f");
     TrackerLeg3->Draw();
+    latexDescription->Draw();
     gPad->SetTicks(1,0);
     //EtaEff->Print("EffEta.png","png");
     
@@ -257,6 +281,7 @@ void EffHistogramList::ComputeEff(TrackHistogramList* refHists)
     TrackerLeg2->AddEntry(EffPhiQ2,"Quality > 1","f"); 
     TrackerLeg2->AddEntry(EffPhiQ3,"Quality > 2","f");
     TrackerLeg2->Draw();
+    latexDescription->Draw();
     gPad->SetTicks(1,0);
     //PhiEff->Print("EffPhi.png","png");
     
@@ -274,6 +299,7 @@ void EffHistogramList::Print()
 {
     PtEffAllOverall->Print("EffPtOverall.png","png");
     PtEffAllOverlap->Print("EffPtOverlap.png","png");
+    PtEffAllHighEta->Print("EffPtHighEta.png","png");
     PtEffAllCSCOnly->Print("EffPtCSCOnly.png","png");
     EtaEff->Print("EffEta.png","png");
     SignedEtaEff->Print("EffSignedEta.png","png");
@@ -323,6 +349,7 @@ void EffHistogramList::DrawPtEffHists(std::string region, TCanvas* canvas, TF1* 
     for(iHist=PtEffHists.begin();iHist!=PtEffHists.end();iHist++){PtEffHists[i]->Draw("Hist Same"); i++;}
  
     legend->Draw("same");
+    latexDescription->Draw();
     gPad->SetTicks(1,0);
 }
 
@@ -343,9 +370,11 @@ void EffHistogramList::computeErrors(TrackHistogramList* refHists)
 
 	refHists->matchTFPt10Overlap->Sumw2();	refHists->matchTFPt12Overlap->Sumw2();	refHists->matchTFPt16Overlap->Sumw2();
 	refHists->matchTFPt20Overlap->Sumw2();	refHists->matchTFPt40Overlap->Sumw2();	refHists->matchTFPt60Overlap->Sumw2();
+	refHists->matchTFPt10HighEta->Sumw2();	refHists->matchTFPt12HighEta->Sumw2();	refHists->matchTFPt16HighEta->Sumw2();
+	refHists->matchTFPt20HighEta->Sumw2();	refHists->matchTFPt40HighEta->Sumw2();	refHists->matchTFPt60HighEta->Sumw2();
 
 	refHists->matchPtOverall->Sumw2();	refHists->matchPtCSCOnly->Sumw2();	refHists->matchPtDTOnly->Sumw2();
-	refHists->matchPtOverlap->Sumw2();	refHists->ptDenOverlap->Sumw2();	refHists->ptDenCSCOnly->Sumw2();
+	refHists->matchPtHighEta->Sumw2();	refHists->ptDenHighEta->Sumw2();	refHists->ptDenCSCOnly->Sumw2();
 
 	refHists->ptDenDTOnly->Sumw2();	refHists->ptDenCSCRestricted->Sumw2();	refHists->ptDenOverall->Sumw2();
 }
@@ -385,12 +414,21 @@ void EffHistogramList::divideHistograms(TrackHistogramList* refHists)
 	EffTFPt20Overlap->Divide(refHists->matchTFPt20Overlap, refHists->ptDenOverlap);
     	EffTFPt40Overlap->Divide(refHists->matchTFPt40Overlap, refHists->ptDenOverlap);
     	EffTFPt60Overlap->Divide(refHists->matchTFPt60Overlap, refHists->ptDenOverlap);
+    	EffTFPt10HighEta->Divide(refHists->matchTFPt10HighEta, refHists->ptDenHighEta);
+	EffTFPt12HighEta->Divide(refHists->matchTFPt12HighEta, refHists->ptDenHighEta);
+    	EffTFPt16HighEta->Divide(refHists->matchTFPt16HighEta, refHists->ptDenHighEta);
+	EffTFPt20HighEta->Divide(refHists->matchTFPt20HighEta, refHists->ptDenHighEta);
+    	EffTFPt40HighEta->Divide(refHists->matchTFPt40HighEta, refHists->ptDenHighEta);
+    	EffTFPt60HighEta->Divide(refHists->matchTFPt60HighEta, refHists->ptDenHighEta);
+
+
     	//EffPt->Divide(refHists->matchPt, refHists->fidPtDen);
 	EffPtOverall->Divide(refHists->matchPtOverall, refHists->ptDenOverall);
     	EffPtCSCOnly->Divide(refHists->matchPtCSCOnly, refHists->ptDenCSCOnly);
 	EffPtCSCRestricted->Divide(refHists->matchPtCSCRestricted, refHists->ptDenCSCRestricted);
     	EffPtDTOnly->Divide(refHists->matchPtDTOnly, refHists->ptDenDTOnly); 
     	EffPtOverlap->Divide(refHists->matchPtOverlap, refHists->ptDenOverlap);
+    	EffPtHighEta->Divide(refHists->matchPtHighEta, refHists->ptDenHighEta);
 	
     	EffEtaAll->Divide(refHists->matchEta, refHists->Eta);
 	EffEtaQ3->Divide(refHists->EtaQ3, refHists->Eta);

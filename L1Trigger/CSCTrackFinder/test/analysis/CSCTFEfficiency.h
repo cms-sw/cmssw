@@ -14,7 +14,7 @@ Implementation:
 //
 // Original Author:  Justin Hugon,Ivan's graduate student,jhugon@phys.ufl.edu
 //         Created:  Thu Jun 10 10:40:10 EDT 2010
-// $Id: CSCTFEfficiency.h,v 1.3 2010/07/06 17:01:06 jhugon Exp $
+// $Id: CSCTFEfficiency.h,v 1.1 2011/10/18 18:46:09 jhugon Exp $
 //
 //
 #ifndef jhugon_CSCTFEfficiency_h
@@ -128,6 +128,7 @@ private:
   bool singleMuSample;
   bool noRefTracks;
   int dataType;
+  std::vector<unsigned> cutOnModes;
 
 };
 #endif
