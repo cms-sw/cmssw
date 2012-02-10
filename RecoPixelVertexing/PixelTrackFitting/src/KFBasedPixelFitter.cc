@@ -99,10 +99,10 @@ reco::Track* KFBasedPixelFitter::run(
   //
   // initial error
   //
-  AlgebraicSymMatrix C(5,1);
+  AlgebraicSymMatrix55 C = ROOT::Math::SMatrixIdentity();
   float sin2th = sqr(sin(theta));
   float minC00 = 1.0;
-  C[0][0] = std::max(sin2th/sqr(ptMin), minC00); //needs optimisation
+  C[0][0] = std::max(sin2th/sqr(ptMin), minC00);
   float zErr = vertexErr.czz();
   float transverseErr = vertexErr.cxx(); // assume equal cxx cyy
   C[3][3] = transverseErr;
@@ -167,6 +167,6 @@ reco::Track* KFBasedPixelFitter::run(
   reco::Track * track = new reco::Track( chi2, ndof, pos, mom,
         impactPointState.charge(), impactPointState.curvilinearError());
 
-  std::cout <<"TRACK CREATED" << std::endl;
+//  std::cout <<"TRACK CREATED" << std::endl;
   return track;
 }
