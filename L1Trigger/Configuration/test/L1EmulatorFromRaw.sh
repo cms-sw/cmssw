@@ -35,8 +35,9 @@ if [[ $1 == "-help" || $1 == "--help" || $# == 0 ]]; then
     echo
     echo "Default:"
     echo "   data: auto:com10"
-    echo "   mc: auto:mc"
+    echo "   mc: auto:startup"
     echo
+    echo "NOTE: the sample and the global tag must be consistent"
 
     if [[ $# < ${NR_ARG} ]]; then
       echo -e "\n $# arguments available, while ${NR_ARG} are required. \n Check command again."
@@ -78,7 +79,7 @@ if [[ ${EventSampleType} == "data" ]]; then
 elif [[ ${EventSampleType} == "mc" ]]; then
 
     if [[ ${GlobalTag} == '' ]]; then
-        GlobalTag='auto:mc'
+        GlobalTag='auto:startup'
         echo "No global tag given. Using by default: ${GlobalTag}"
     fi
 
@@ -92,7 +93,8 @@ elif [[ ${EventSampleType} == "mc" ]]; then
         --conditions ${gTag} \
         --datatier 'DIGI-RECO' \
         --eventcontent FEVTDEBUGHLT \
-        --filein /store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v2/0068/BC61B16D-647C-E011-9972-0030486791BA.root,/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v2/0063/FE440F3F-847B-E011-8E8F-0018F3D096CA.root \
+        --mc \
+        --filein /store/relval/CMSSW_5_2_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V1-v1/0033/02B4D46B-BB51-E111-A789-003048678A76.root,/store/relval/CMSSW_5_2_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V1-v1/0033/0EAB51E9-BD51-E111-8C43-003048679228.root \
         --customise=L1Trigger/Configuration/customise_l1EmulatorFromRaw \
         --processName='L1EmulRaw' \
         --no_exec
