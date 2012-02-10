@@ -299,9 +299,19 @@ bool utils::checkModel(const RooStats::ModelConfig &model, bool throwOnFail) {
     std::auto_ptr<RooArgSet> params(pdf->getParameters(*model.GetObservables()));
     iter.reset(params->createIterator());
     for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
+        if (a->getAttribute("flatParam") && a->isConstant()) {
+            ok = false; errors << "ERROR: parameter " << a->GetName() << " is declared as flatParam but is constant.\n";
+        }
         if (a->isConstant() || allowedToFloat.contains(*a)) continue;
-        if (a->getAttribute("flatParam")) continue;
-        errors << "WARNING: pdf parameter " << a->GetName() << " (type " << a->ClassName() << ") is not allowed to float (it's not nuisance, poi, observable or global observable\n"; 
+        if (a->getAttribute("flatParam")) {
+            RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
+            if (rrv->getVal() > rrv->getMax() || rrv->getVal() < rrv->getMin()) {
+                ok = false; errors << "ERROR: flatParam " << rrv->GetName() << " has a value " << rrv->getVal() << 
+                                      " outside of the defined range [" << rrv->getMin() << ", " << rrv->getMax() << "]\n";
+            }
+        } else {
+            errors << "WARNING: pdf parameter " << a->GetName() << " (type " << a->ClassName() << ") is not allowed to float (it's not nuisance, poi, observable or global observable\n"; 
+        }
     }
     iter.reset();
     std::cout << errors.str() << std::endl;
