@@ -78,7 +78,7 @@ class WorkFlowRunner(Thread):
             if not isinstance(com,str):
                 print "going to run with file input ... "
                 #cmd+=self.wf.input.dbs() #should be taken from the com object
-                cmd+=scom.dbs()
+                cmd+=com.dbs()
                 cmd+=closeCmd(istep,'dbsquery')
                 retStep = self.doCmd(cmd)
                 #don't use the file list executed, but use the dbs command of cmsDriver for next step

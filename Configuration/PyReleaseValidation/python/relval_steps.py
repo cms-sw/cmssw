@@ -17,8 +17,8 @@ class Steps(dict):
             print "overwritting",key,"not allowed"
         else:
             self.update({key:value})
-            if not '--python_config' in value:
-                self[key].update({'--python_config':'%s.py'%(key,)})
+            if not '--python' in value:
+                self[key].update({'--python':'%s.py'%(key,)})
                 
 class WF(list):
     def __init__(self,n,l):
