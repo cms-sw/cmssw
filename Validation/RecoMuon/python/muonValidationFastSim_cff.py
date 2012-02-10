@@ -65,6 +65,20 @@ staUpdMuonTrackVMuonAssocFS.associatormap = 'tpToStaUpdMuonAssociationFS'
 staUpdMuonTrackVMuonAssocFS.label_tp_effic = 'mergedtruthMuon:MergedTrackTruth'
 staUpdMuonTrackVMuonAssocFS.label_tp_fake = 'mergedtruthMuon:MergedTrackTruth'
 
+from Validation.RecoMuon.muonValidation_cff import staRefitMuonTrackVMuonAssoc
+
+staRefitMuonTrackVMuonAssocFS = staRefitMuonTrackVMuonAssoc.clone()
+staRefitMuonTrackVMuonAssocFS.associatormap = 'tpToStaRefitMuonAssociationFS'
+staRefitMuonTrackVMuonAssocFS.label_tp_effic = 'mergedtruthMuon:MergedTrackTruth'
+staRefitMuonTrackVMuonAssocFS.label_tp_fake = 'mergedtruthMuon:MergedTrackTruth'
+
+from Validation.RecoMuon.muonValidation_cff import staRefitUpdMuonTrackVMuonAssoc
+
+staRefitUpdMuonTrackVMuonAssocFS = staRefitUpdMuonTrackVMuonAssoc.clone()
+staRefitUpdMuonTrackVMuonAssocFS.associatormap = 'tpToStaRefitUpdMuonAssociationFS'
+staRefitUpdMuonTrackVMuonAssocFS.label_tp_effic = 'mergedtruthMuon:MergedTrackTruth'
+staRefitUpdMuonTrackVMuonAssocFS.label_tp_fake = 'mergedtruthMuon:MergedTrackTruth'
+
 from Validation.RecoMuon.muonValidation_cff import glbMuonTrackVMuonAssoc
 
 glbMuonTrackVMuonAssocFS = glbMuonTrackVMuonAssoc.clone()
@@ -100,6 +114,7 @@ from Validation.RecoMuon.muonValidation_cff import *
 # Muon validation sequence
 muonValidationFastSim_seq = cms.Sequence(trkMuonTrackVTrackAssocFS
                                          +staMuonTrackVMuonAssocFS+staUpdMuonTrackVMuonAssocFS+glbMuonTrackVMuonAssocFS
+                                         +staRefitMuonTrackVMuonAssocFS+staRefitUpdMuonTrackVMuonAssocFS
                                          +tevMuonFirstTrackVMuonAssocFS+tevMuonPickyTrackVMuonAssocFS+tevMuonDytTrackVMuonAssocFS
                                          +recoMuonVMuAssoc_trk+recoMuonVMuAssoc_sta+recoMuonVMuAssoc_glb+recoMuonVMuAssoc_tgt
                                          +recoMuonVMuAssoc_trkPF+recoMuonVMuAssoc_staPF+recoMuonVMuAssoc_glbPF)

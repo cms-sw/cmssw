@@ -420,8 +420,8 @@ baseMuonAssociatorFS.ROUList = ['famosSimHitsTrackerHits']
 tpToTkMuonAssociationFS   = baseMuonAssociatorFS.clone()
 tpToStaMuonAssociationFS  = baseMuonAssociatorFS.clone()
 tpToStaUpdMuonAssociationFS  = baseMuonAssociatorFS.clone()
-#tpToStaRefitMuonAssociationFS  = baseMuonAssociatorFS.clone()
-#tpToStaRefitUpdMuonAssociationFS  = baseMuonAssociatorFS.clone()
+tpToStaRefitMuonAssociationFS  = baseMuonAssociatorFS.clone()
+tpToStaRefitUpdMuonAssociationFS  = baseMuonAssociatorFS.clone()
 tpToGlbMuonAssociationFS  = baseMuonAssociatorFS.clone()
 tpToTevFirstMuonAssociationFS = baseMuonAssociatorFS.clone()
 tpToTevPickyMuonAssociationFS = baseMuonAssociatorFS.clone()
@@ -444,13 +444,13 @@ tpToStaUpdMuonAssociationFS.tracksTag = 'standAloneMuons:UpdatedAtVtx'
 tpToStaUpdMuonAssociationFS.UseTracker = False
 tpToStaUpdMuonAssociationFS.UseMuon = True
 
-#tpToStaRefitMuonAssociationFS.tracksTag = 'refittedStandAloneMuons'
-#tpToStaRefitMuonAssociationFS.UseTracker = False
-#tpToStaRefitMuonAssociationFS.UseMuon = True
-#
-#tpToStaRefitUpdMuonAssociationFS.tracksTag = 'refittedStandAloneMuons:UpdatedAtVtx'
-#tpToStaRefitUpdMuonAssociationFS.UseTracker = False
-#tpToStaRefitUpdMuonAssociationFS.UseMuon = True
+tpToStaRefitMuonAssociationFS.tracksTag = 'refittedStandAloneMuons'
+tpToStaRefitMuonAssociationFS.UseTracker = False
+tpToStaRefitMuonAssociationFS.UseMuon = True
+
+tpToStaRefitUpdMuonAssociationFS.tracksTag = 'refittedStandAloneMuons:UpdatedAtVtx'
+tpToStaRefitUpdMuonAssociationFS.UseTracker = False
+tpToStaRefitUpdMuonAssociationFS.UseMuon = True
 
 tpToGlbMuonAssociationFS.tracksTag = 'extractedGlobalMuons'
 tpToGlbMuonAssociationFS.tpTag = 'mergedtruth:MergedTrackTruth'
@@ -503,7 +503,7 @@ tpToL3MuonAssociationFS.UseGrouped = False
 muonAssociationFastSim_seq = cms.Sequence(
         extractedMuonTracks_seq
         +(tpToTkMuonAssociationFS+tpToStaMuonAssociationFS+tpToStaUpdMuonAssociationFS+tpToGlbMuonAssociationFS)
-#        +(tpToStaRefitMuonAssociationFS+tpToStaRefitUpdMuonAssociationFS)
+        +(tpToStaRefitMuonAssociationFS+tpToStaRefitUpdMuonAssociationFS)
         +(tpToTevFirstMuonAssociationFS+tpToTevPickyMuonAssociationFS+tpToTevDytMuonAssociationFS)
         +tpToTkmuTrackAssociationFS
 #        +tpToStaTrackAssociationFS+tpToStaUpdTrackAssociationFS+tpToGlbTrackAssociationFS
