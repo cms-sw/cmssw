@@ -145,8 +145,8 @@ class MatrixReader(object):
 
     def showRaw(self, useInput, refRel='CMSSW_4_2_0_pre2', fromScratch=None, what='all',step1Only=False,selected=None):
 
-        selected=list(map(float,selected))
-        print selected
+        if selected:
+            selected=map(float,selected)
         for matrixFile in self.files:
 
             self.reset(what)
@@ -170,7 +170,8 @@ class MatrixReader(object):
             ids = self.workFlowSteps.keys()
             ids.sort()
             indexAndSteps=[]
-            
+
+            writtenWF=0
             for key in ids:
                 if selected and not (float(key[0]) in selected):
                     continue
@@ -216,7 +217,9 @@ class MatrixReader(object):
                 else:
                     line += ' @@@ '+commands[0]
                 line=line.replace('DQMROOT','DQM')
+                writtenWF+=1
                 outFile.write(line+'\n')
+
 
             outFile.write('\n'+'\n')
             if step1Only: continue
@@ -231,6 +234,7 @@ class MatrixReader(object):
                     outFile.write(line+'\n')
                 outFile.write('\n'+'\n')
             outFile.close()
+            print "wrote ",writtenWF, ' workflow'+('s' if (writtenWF!=1) else ''),' to ', outFile.name
         return 
                     
 
