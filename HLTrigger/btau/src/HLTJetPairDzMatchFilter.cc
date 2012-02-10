@@ -1,4 +1,4 @@
-// $Id: HLTJetPairDzMatchFilter.cc,v 1.1 2012/02/04 13:53:45 gruen Exp $
+// $Id: HLTJetPairDzMatchFilter.cc,v 1.1 2012/02/10 06:38:03 gruen Exp $
 
 #include "HLTrigger/btau/src/HLTJetPairDzMatchFilter.h"
 
@@ -39,11 +39,11 @@ void
 HLTJetPairDzMatchFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
-  desc.add<edm::InputTag>("inputJetTag",edm::InputTag("hltMatchL2Tau30ToPixelTrk5"));
+  desc.add<edm::InputTag>("JetSrc",edm::InputTag("hltMatchL2Tau30ToPixelTrk5"));
   desc.add<double>("JetMinPt",25.0);
   desc.add<double>("JetMaxEta",2.4);
-  desc.add<double>("JetMinDr",0.2);
-  desc.add<double>("JetMaxDz",0.2);
+  desc.add<double>("JetMinDR",0.2);
+  desc.add<double>("JetMaxDZ",0.2);
   desc.add<int>("TriggerType",84);
   descriptions.add(std::string("hlt")+std::string(typeid(HLTJetPairDzMatchFilter<T>).name()),desc);
 }
