@@ -118,6 +118,20 @@ glbMuonTrackVMuonAssoc.label = ('extractedGlobalMuons',)
 glbMuonTrackVMuonAssoc.usetracker = True
 glbMuonTrackVMuonAssoc.usemuon = True
 
+staRefitMuonTrackVMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
+staRefitMuonTrackVMuonAssoc.associatormap = 'tpToStaRefitMuonAssociation'
+staRefitMuonTrackVMuonAssoc.associators = ('MuonAssociationByHits',)
+staRefitMuonTrackVMuonAssoc.label = ('refittedStandAloneMuons',)
+staRefitMuonTrackVMuonAssoc.usetracker = False
+staRefitMuonTrackVMuonAssoc.usemuon = True
+
+staRefitUpdMuonTrackVMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
+staRefitUpdMuonTrackVMuonAssoc.associatormap = 'tpToStaRefitUpdMuonAssociation'
+staRefitUpdMuonTrackVMuonAssoc.associators = ('MuonAssociationByHits',)
+staRefitUpdMuonTrackVMuonAssoc.label = ('refittedStandAloneMuons:UpdatedAtVtx',)
+staRefitUpdMuonTrackVMuonAssoc.usetracker = False
+staRefitUpdMuonTrackVMuonAssoc.usemuon = True
+
 staSETMuonTrackVMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
 staSETMuonTrackVMuonAssoc.associatormap = 'tpToStaSETMuonAssociation'
 staSETMuonTrackVMuonAssoc.associators = ('MuonAssociationByHits',)
@@ -279,6 +293,8 @@ muonValidation_seq = cms.Sequence(trkMuonTrackVTrackAssoc
 
 muonValidationTEV_seq = cms.Sequence(tevMuonFirstTrackVMuonAssoc+tevMuonPickyTrackVMuonAssoc+tevMuonDytTrackVMuonAssoc)
 
+muonValidationRefit_seq = cms.Sequence(staRefitMuonTrackVMuonAssoc+staRefitUpdMuonTrackVMuonAssoc)
+
 muonValidationSET_seq = cms.Sequence(staSETMuonTrackVMuonAssoc+staSETUpdMuonTrackVMuonAssoc+glbSETMuonTrackVMuonAssoc)
 
 muonValidationCosmic_seq = cms.Sequence(trkCosmicMuonTrackVTrackAssoc
@@ -289,6 +305,7 @@ muonValidationCosmic_seq = cms.Sequence(trkCosmicMuonTrackVTrackAssoc
 recoMuonValidation = cms.Sequence((muonAssociation_seq*muonValidation_seq)
                                  +(muonAssociationTEV_seq*muonValidationTEV_seq)
                                  +(muonAssociationSET_seq*muonValidationSET_seq)
+                                 +(muonAssociationRefit_seq*muonValidationRefit_seq)
                                  )
 
 recoCosmicMuonValidation = cms.Sequence(muonAssociationCosmic_seq*muonValidationCosmic_seq)

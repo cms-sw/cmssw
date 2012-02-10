@@ -139,6 +139,8 @@ tpToTkMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorB
 tpToStaMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToStaUpdMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToGlbMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
+tpToStaRefitMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
+tpToStaRefitUpdMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToStaSETMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToStaSETUpdMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToGlbSETMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
@@ -169,6 +171,16 @@ tpToGlbMuonAssociation.tpTag = 'mergedtruth:MergedTrackTruth'
 tpToGlbMuonAssociation.tracksTag = 'extractedGlobalMuons'
 tpToGlbMuonAssociation.UseTracker = True
 tpToGlbMuonAssociation.UseMuon = True
+
+tpToStaRefitMuonAssociation.tpTag = 'mergedtruth:MergedTrackTruth'
+tpToStaRefitMuonAssociation.tracksTag = 'refittedStandAloneMuons'
+tpToStaRefitMuonAssociation.UseTracker = False
+tpToStaRefitMuonAssociation.UseMuon = True
+
+tpToStaRefitUpdMuonAssociation.tpTag = 'mergedtruth:MergedTrackTruth'
+tpToStaRefitUpdMuonAssociation.tracksTag = 'refittedStandAloneMuons:UpdatedAtVtx'
+tpToStaRefitUpdMuonAssociation.UseTracker = False
+tpToStaRefitUpdMuonAssociation.UseMuon = True
 
 tpToStaSETMuonAssociation.tpTag = 'mergedtruth:MergedTrackTruth'
 tpToStaSETMuonAssociation.tracksTag = 'standAloneSETMuons'
@@ -288,6 +300,9 @@ muonAssociationTEV_seq = cms.Sequence(
     (tpToTevFirstMuonAssociation+tpToTevPickyMuonAssociation+tpToTevDytMuonAssociation)
 #    +(tpToTevFirstTrackAssociation+tpToTevPickyTrackAssociation)
 )
+muonAssociationRefit_seq = cms.Sequence(
+    (tpToStaRefitMuonAssociation+tpToStaRefitUpdMuonAssociation)
+)
 muonAssociationSET_seq = cms.Sequence(
     (tpToStaSETMuonAssociation+tpToStaSETUpdMuonAssociation+tpToGlbSETMuonAssociation)
 #    +(tpToStaSETTrackAssociation+tpToStaSETUpdTrackAssociation+tpToGlbSETTrackAssociation)
@@ -405,6 +420,8 @@ baseMuonAssociatorFS.ROUList = ['famosSimHitsTrackerHits']
 tpToTkMuonAssociationFS   = baseMuonAssociatorFS.clone()
 tpToStaMuonAssociationFS  = baseMuonAssociatorFS.clone()
 tpToStaUpdMuonAssociationFS  = baseMuonAssociatorFS.clone()
+#tpToStaRefitMuonAssociationFS  = baseMuonAssociatorFS.clone()
+#tpToStaRefitUpdMuonAssociationFS  = baseMuonAssociatorFS.clone()
 tpToGlbMuonAssociationFS  = baseMuonAssociatorFS.clone()
 tpToTevFirstMuonAssociationFS = baseMuonAssociatorFS.clone()
 tpToTevPickyMuonAssociationFS = baseMuonAssociatorFS.clone()
@@ -426,6 +443,14 @@ tpToStaMuonAssociationFS.UseMuon = True
 tpToStaUpdMuonAssociationFS.tracksTag = 'standAloneMuons:UpdatedAtVtx'
 tpToStaUpdMuonAssociationFS.UseTracker = False
 tpToStaUpdMuonAssociationFS.UseMuon = True
+
+#tpToStaRefitMuonAssociationFS.tracksTag = 'refittedStandAloneMuons'
+#tpToStaRefitMuonAssociationFS.UseTracker = False
+#tpToStaRefitMuonAssociationFS.UseMuon = True
+#
+#tpToStaRefitUpdMuonAssociationFS.tracksTag = 'refittedStandAloneMuons:UpdatedAtVtx'
+#tpToStaRefitUpdMuonAssociationFS.UseTracker = False
+#tpToStaRefitUpdMuonAssociationFS.UseMuon = True
 
 tpToGlbMuonAssociationFS.tracksTag = 'extractedGlobalMuons'
 tpToGlbMuonAssociationFS.tpTag = 'mergedtruth:MergedTrackTruth'
@@ -478,6 +503,7 @@ tpToL3MuonAssociationFS.UseGrouped = False
 muonAssociationFastSim_seq = cms.Sequence(
         extractedMuonTracks_seq
         +(tpToTkMuonAssociationFS+tpToStaMuonAssociationFS+tpToStaUpdMuonAssociationFS+tpToGlbMuonAssociationFS)
+#        +(tpToStaRefitMuonAssociationFS+tpToStaRefitUpdMuonAssociationFS)
         +(tpToTevFirstMuonAssociationFS+tpToTevPickyMuonAssociationFS+tpToTevDytMuonAssociationFS)
         +tpToTkmuTrackAssociationFS
 #        +tpToStaTrackAssociationFS+tpToStaUpdTrackAssociationFS+tpToGlbTrackAssociationFS
