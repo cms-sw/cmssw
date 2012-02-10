@@ -7,7 +7,9 @@
 #include <cassert>
 int main() {
 
-  ClusterShapeHitFilter filter(nullptr,nullptr,nullptr,nullptr);
+  ClusterShapeHitFilter filter;
+  filter.loadPixelLimits();
+  filter.loadStripLimits();
 
   const float out = 10e12;
   const float eps = 0.01;

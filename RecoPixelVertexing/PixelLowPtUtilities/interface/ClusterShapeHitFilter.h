@@ -198,6 +198,8 @@ class ClusterShapeHitFilter
 
 
  private:
+  // for testing purposes only
+  ClusterShapeHitFilter(){}
 
   const PixelData & getpd(const SiPixelRecHit   & recHit, PixelData const * pd=nullptr) const{
     if (pd) return *pd;
