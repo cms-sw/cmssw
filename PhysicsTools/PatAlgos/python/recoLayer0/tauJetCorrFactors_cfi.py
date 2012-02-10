@@ -5,7 +5,7 @@ from RecoTauTag.TauTagTools.tauDecayModes_cfi import *
 # module to produce tau-jet energy correction factors 
 patTauJetCorrFactors = cms.EDProducer("TauJetCorrFactorsProducer",
     # input collection of jets
-    src = cms.InputTag('shrinkingConePFTauProducer'),
+    src = cms.InputTag('hpsPFTauProducer'),
     # mapping of tau decay modes to payloads:
     # for reco::PFTaus, the decay modes are defined in DataFormats/TauReco/interface/PFTau.h ;
     # 'other' is taken for all reconstructed decay modes not explicitely specified
