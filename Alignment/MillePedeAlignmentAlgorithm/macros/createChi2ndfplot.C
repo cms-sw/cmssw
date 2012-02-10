@@ -11,7 +11,7 @@
 // createChi2ndfplot("chi2pedehis.txt");
 //
 // Or on the command line:
-// root -l -x -b -q 'initcreateChi2ndfplot.C("chi2pedehis.txt")'
+// root -l -x -b -q 'createChi2ndfplot.C+(\"chi2pedehis.txt\")'
 
 #include <fstream>
 #include <vector>
