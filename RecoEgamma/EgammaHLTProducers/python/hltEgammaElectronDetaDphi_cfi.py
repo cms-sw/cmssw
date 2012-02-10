@@ -5,6 +5,7 @@ hltEgammaElectronDetaDphi = cms.EDProducer( "EgammaHLTElectronDetaDphiProducer",
     recoEcalCandidateProducer = cms.InputTag(""),
     useSCRefs = cms.bool(False),
     BSProducer = cms.InputTag( "hltOfflineBeamSpot" ),
-    useTrackProjectionToEcal = cms.bool(True)
+    useTrackProjectionToEcal = cms.bool(True),
+    variablesAtVtx = cms.bool(False)                                                
 )
 
