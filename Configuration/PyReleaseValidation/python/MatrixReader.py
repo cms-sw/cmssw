@@ -49,7 +49,7 @@ class MatrixReader(object):
         
         return
 
-    def makeCmd(self, step):
+    def makeCmd(self, step, index=0):
 
         cmd = ''
         cfg = None
@@ -64,7 +64,9 @@ class MatrixReader(object):
             if k.lower() == 'input':
                 input = v #of type InputInfo
                 continue # do not append to cmd, return separately
-            #print k,v
+            #chain the configs
+            if k.lower() == '--python':
+                v = 'step%d_%s'%(index,v)
             cmd += ' ' + k + ' ' + str(v)
         if self.noRun:
             cmd += ' --no_exec '
@@ -173,7 +175,7 @@ class MatrixReader(object):
 
             writtenWF=0
             for key in ids:
-                if selected and not (float(key[0]) in selected):
+                if selected and not (key[0] in selected):
                     continue
                 #trick to skip the HImix IB test
                 if key[0]==203.1 or key[0]==204.1 or key[0]==205.1 or key[0]==4.51 or key[0]==4.52: continue
