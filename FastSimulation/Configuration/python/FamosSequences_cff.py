@@ -129,6 +129,7 @@ from RecoMuon.TrackingTools.MuonTrackLoader_cff import *
 KFSmootherForMuonTrackLoader.Propagator = 'SmartPropagatorAny'
 from RecoMuon.MuonSeedGenerator.standAloneMuonSeeds_cff import *
 from RecoMuon.StandAloneMuonProducer.standAloneMuons_cff import *
+from RecoMuon.Configuration.RecoMuonPPonly_cff import refittedStandAloneMuons
 from FastSimulation.Configuration.globalMuons_cff import *
 globalMuons.GLBTrajBuilderParameters.TrackTransformer.TrackerRecHitBuilder = 'WithoutRefit'
 globalMuons.GLBTrajBuilderParameters.TrackerRecHitBuilder = 'WithoutRefit'
@@ -151,6 +152,7 @@ famosMuonSequence = cms.Sequence(
     muonlocalreco+
     ancientMuonSeed+
     standAloneMuons+
+    refittedStandAloneMuons+    
     globalMuons+
     tevMuons
 )
