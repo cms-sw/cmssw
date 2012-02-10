@@ -65,8 +65,8 @@ class MatrixReader(object):
                 input = v #of type InputInfo
                 continue # do not append to cmd, return separately
             #chain the configs
-            if k.lower() == '--python':
-                v = 'step%d_%s'%(index,v)
+            #if k.lower() == '--python':
+            #    v = 'step%d_%s'%(index,v)
             cmd += ' ' + k + ' ' + str(v)
         if self.noRun:
             cmd += ' --no_exec '
@@ -241,7 +241,7 @@ class MatrixReader(object):
                     
 
     def showWorkFlows(self, selected=None):
-
+        selected = map(float,selected)
         maxLen = 100 # for summary, limit width of output
         fmt1   = "%-6s %-35s [1]: %s ..."
         fmt2   = "       %35s [%d]: %s ..."

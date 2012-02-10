@@ -420,7 +420,7 @@ steps['TTbarFSPU']=merge([{'--pileup':'FlatDist10_2011EarlyData_50ns'},steps['TT
 
 
 # step2 
-step2Defaults = { 'cfg'           : 'step2',
+step2Defaults = { 
                   '-s'            : 'DIGI,L1,DIGI2RAW,HLT,RAW2DIGI,L1Reco',
                   '--datatier'    : 'GEN-SIM-DIGI-RAW-HLTDEBUG',
                   '--eventcontent': 'FEVTDEBUGHLT',
@@ -503,16 +503,15 @@ steps['Pyquen_DiJet_pt80to120_2760GeV']=merge([{'cfg':'Pyquen_DiJet_pt80to120_27
 steps['Pyquen_ZeemumuJets_pt10_2760GeV']=merge([{'cfg':'Pyquen_ZeemumuJets_pt10_2760GeV_cfi'},step2HImixDefaults])
 
 # step3 
-step3Defaults = { 'cfg'           : 'step3',
+step3Defaults = {
                   '-s'            : 'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
-                  #'--filein'      : 'file:reco.root',
                   '--conditions'  : 'auto:startup',
                   '--no_exec'     : '',
                   '--datatier'    : 'GEN-SIM-RECO,DQM',
                   '--eventcontent': 'RECOSIM,DQM'
                   }
 
-steps['DIGIPU']=merge([{'cfg':'step3','--process':'REDIGI'},steps['DIGIPU1']])
+steps['DIGIPU']=merge([{'--process':'REDIGI'},steps['DIGIPU1']])
 
 steps['RECODst3']=merge([{'--hltProcess':'reHLT'},steps['RECOD']])
 steps['RECO']=merge([step3Defaults])
@@ -530,7 +529,7 @@ steps['RERECOPU1']=merge([{'--hltProcess':'REDIGI'},steps['RECOPU1']])
 steps['RECOHI']=merge([hiDefaults,step3Defaults])
 steps['DIGIHISt3']=steps['DIGIHI']
 
-steps['RECOHID11St3']=merge([{'cfg':'step3',
+steps['RECOHID11St3']=merge([{
                               '--process':'ZStoRECO'},
                              steps['RECOHID11']])
 steps['RECOHIR10D11']=merge([{'--filein':'file:step2_inREPACKRAW.root',
@@ -560,7 +559,7 @@ steps['HARVESTD']={'-s':'HARVESTING:dqmHarvesting',
                    '--scenario':'pp'}
 
 # step4
-step4Defaults = { 'cfg'           : 'step4',
+step4Defaults = { 
                   '-s'            : 'ALCA:TkAlMuonIsolated+TkAlMinBias+EcalCalElectron+HcalCalIsoTrk+MuAlOverlaps',
                   '-n'            : 1000,
                   #'--filein'      : 'file:reco.root',
@@ -569,7 +568,7 @@ step4Defaults = { 'cfg'           : 'step4',
                   '--eventcontent': 'ALCARECO',
                   }
 
-steps['RERECOPU']=merge([{'cfg':'step4'},steps['RERECOPU1']])
+steps['RERECOPU']=steps['RERECOPU1']
 
 steps['ALCATT1']=merge([step4Defaults])
 steps['ALCATT2']=merge([stCond,step4Defaults])
@@ -588,7 +587,7 @@ steps['ALCAHARVD']={'-s':'ALCAHARVEST:BeamSpotByRun+BeamSpotByLumi',
 
 steps['RECOHISt4']=steps['RECOHI']
 
-steps['ALCANZS']=merge([{'-s':'ALCA:HcalCalMinBias','cfg':'step3','--mc':''},step4Defaults])
+steps['ALCANZS']=merge([{'-s':'ALCA:HcalCalMinBias','--mc':''},step4Defaults])
 steps['HARVGEN']={'-s':'HARVESTING:genHarvesting',
                   '--harvesting':'AtJobEnd',
                   '--conditions':'auto:startup',
@@ -634,18 +633,18 @@ steps['SKIMCOSD']={'-s':'SKIM:all',
 #                           '--process':'RECO',
 #                           '--eventcontent':'RECOSIM,DQM',
 #                           '--datatier':'GEN-SIM-RECO,DQM',
-#                           'cfg':'step2'},
+#                           },
 #                            stCond,step3Defaults])
 steps['RECOFROMRECO']=merge([{'-s':'RECO',
                               '--filtername':'RECOfromRECO',
                               '--process':'reRECO',
                               '--datatier':'AODSIM',
                               '--eventcontent':'AODSIM',
-                              'cfg':'step4'},
+                              },
                              stCond,step3Defaults])
 
 
-steps['RECOFROMRECOSt2']=merge([{'cfg':'step2'},steps['RECOFROMRECO']])
+steps['RECOFROMRECOSt2']=steps['RECOFROMRECO']
 
 steps['RECODFROMRAWRECO']=merge([{'-s':'RAW2DIGI:RawToDigi_noTk,L1Reco,RECO:reconstruction_noTracking',
                                   '--filtername':'RECOfromRAWRECO',
@@ -653,7 +652,7 @@ steps['RECODFROMRAWRECO']=merge([{'-s':'RAW2DIGI:RawToDigi_noTk,L1Reco,RECO:reco
                                   '--datatier':'AOD',
                                   '--eventcontent':'AOD',
                                   '--secondfilein':'filelist:step1_dbsquery.log',
-                                  'cfg':'step3'},
+                                  },
                                  steps['RECOD']])
 
 
