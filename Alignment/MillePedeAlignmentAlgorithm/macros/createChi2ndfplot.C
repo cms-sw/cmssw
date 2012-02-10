@@ -107,9 +107,9 @@ void pad_cfg(
 }
 
 //This methods checks whether a histogram is existing, books a new histogram if nessesary, and fills the histogram.
-void fillhisto(std::map<string,TH1D*> &histomap, std::string name, int value, double wtx, int nbins, double lower, double upper)
+void fillhisto(std::map<std::string,TH1D*> &histomap, const std::string name, const int value, const double wtx, const int nbins, const double lower, const double upper)
 {
-  std::map<string,TH1D*>::iterator it = histomap.find(name); //histogram existing?
+  std::map<std::string,TH1D*>::iterator it = histomap.find(name); //histogram existing?
   if(it != histomap.end())
     it->second->Fill(static_cast<double>(value),wtx);
   else
@@ -127,15 +127,15 @@ void createChi2ndfplot(const char *txtFile)
     ::Error("createChi2ndfplot", "file %s could not be opened", txtFile);
   } else {
     //the collection of histograms.
-    std::map<string,TH1D*> histomap; 
+    std::map<std::string,TH1D*> histomap; 
     
     //The data read from file txtFile
     std::list<histdata> h;
 
     //Variables needed for reading
-    std::string name;
-    int number;
-    double value;
+    std::string name("");
+    int number = 0;
+    double value = 0.0;
   
     //Read the data
     while(
@@ -200,7 +200,7 @@ void createChi2ndfplot(const char *txtFile)
         const int kcolors[ncolors] = {kRed, kBlue, kBlack, kOrange, kGreen, kMagenta, kBlue+1, kBlue-1, kBlue+2, kBlue-2, kMagenta-2};
         
         int histocounter = 0;
-        for( std::map<string,TH1D*>::iterator it = histomap.begin(); it != histomap.end(); it++)
+        for( std::map<std::string,TH1D*>::iterator it = histomap.begin(); it != histomap.end(); it++)
           {
             int color = 1;
             //assign a color.
@@ -239,7 +239,7 @@ void createChi2ndfplot(const char *txtFile)
         delete c;
         delete leg;
         delete haxis;
-        for( std::map<string,TH1D*>::iterator it = histomap.begin(); it != histomap.end(); it++)
+        for( std::map<std::string,TH1D*>::iterator it = histomap.begin(); it != histomap.end(); it++)
           {
             delete it->second;
           }    
