@@ -18,21 +18,8 @@ def showRaw(opt):
 
 def runSelected(opt):
 
-    stdList = ['5.2', # SingleMu10 FastSim
-               '7',   # Cosmics+RECOCOS+ALCACOS
-               '8',   # BeamHalo+RECOCOS+ALCABH
-               '25',  # TTbar+RECO2+ALCATT2  STARTUP
-               ]
-    hiStatList = [
-                  '121',   # TTbar_Tauola
-                  '123.3', # TTBar FastSim
-                   ]
-
     mrd = MatrixReader(noRun=(opt.nThreads==0),what=opt.what)
     mrd.prepare(opt.useInput, opt.refRel, opt.fromScratch)
-
-    if opt.testList == []:
-        opt.testList = [float(x) for x in stdList+hiStatList]
 
     ret = 0
     if opt.show:
@@ -110,12 +97,20 @@ if __name__ == '__main__':
                       dest='refRel',
                       default=''
                       )
+    parser.add_option('--wmcontrol',
+                      help='Create the workflows for injection to WMAgent. In the WORKING',
+                      dest='wmcontrol',
+                      default=False,
+                      action='store_true'
+                      )
     
     opt,args = parser.parse_args()
-    if opt.testList: opt.testList = opt.testList.split(',')
+    if opt.testList: opt.testList = map(float,opt.testList.split(','))
     if opt.restricted:
-        if opt.testList: print 'going for selected matrix, -l option is concurrent and arguments are dropped'
-        opt.testList=[]
+        if opt.testList:
+            opt.testList.extend([5.2,7,8,25,121,123.3])
+        else:
+            opt.testList=[5.2,7,8,25,121,123.3]
     if opt.useInput: opt.useInput = opt.useInput.split(',')
     if opt.fromScratch: opt.fromScratch = opt.fromScratch.split(',')
                      
@@ -131,5 +126,6 @@ if __name__ == '__main__':
         ret = showRaw(opt)
     else:
         ret = runSelected(opt)
+
 
     sys.exit(ret)
