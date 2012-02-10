@@ -47,7 +47,7 @@ class ShapeBuilder(ModelBuilder):
                 pdfs.add(pdf); coeffs.add(coeff)
                 if not self.DC.isSignal[p]:
                     bgpdfs.add(pdf); bgcoeffs.add(coeff)
-            print "Creating RooAddPdf %s with %s elements" % ("pdf_bin"+b, coeffs.getSize())
+            if self.options.verbose: print "Creating RooAddPdf %s with %s elements" % ("pdf_bin"+b, coeffs.getSize())
             sum_s = ROOT.RooAddPdf("pdf_bin%s"       % b, "",   pdfs,   coeffs)
             sum_b = ROOT.RooAddPdf("pdf_bin%s_bonly" % b, "", bgpdfs, bgcoeffs)
             if b in self.pdfModes: 
