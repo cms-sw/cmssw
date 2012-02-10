@@ -52,9 +52,6 @@ class MatrixRunner(object):
     	    
     	    print '\nPreparing to run %s %s' % (wf.numId, item)
           
-##            if testList: # if we only run a selection, run only 5 events instead of 10
-##                wf.cmdStep1 = wf.cmdStep1.replace('-n 10', '-n 5')
-                
     	    current = WorkFlowRunner(wf)
     	    self.threadList.append(current)
     	    current.start()
@@ -63,49 +60,37 @@ class MatrixRunner(object):
     	# wait until all threads are finished
         while self.activeThreads() > 0:
     	    time.sleep(5)
-    	    
-    	# all threads are done now, check status ...
-    	nfail1 = 0
-    	nfail2 = 0
-        nfail3 = 0
-        nfail4 = 0
-    	npass  = 0
-        npass1 = 0
-        npass2 = 0
-        npass3 = 0
-        npass4 = 0
-    	for pingle in self.threadList:
-    	    pingle.join()
+
+
+        #wrap up !
+        totpassed=[]
+        totfailed=[]
+        def count(collect,result):
+            #pad with zeros
+            for i in range(len(collect),len(result)):
+                collect.append(0)
+            for i,c in enumerate(result):
+                collect[i]+=c
+                
+        for pingle in self.threadList:
+            pingle.join()
             try:
-                nfail1 += pingle.nfail[0]
-                nfail2 += pingle.nfail[1]
-                nfail3 += pingle.nfail[2]
-                nfail4 += pingle.nfail[3]
-                npass1 += pingle.npass[0]
-                npass2 += pingle.npass[1]
-                npass3 += pingle.npass[2]
-                npass4 += pingle.npass[3]
-                npass  += npass1+npass2+npass3+npass4
-                report += pingle.report
-                # print pingle.report
+                count(totpassed,pingle.npass)
+                count(totfailed,pingle.nfail)
+                report+=pingle.report
             except Exception, e:
                 msg = "ERROR retrieving info from thread: " + str(e)
-                nfail1 += 1
-                nfail2 += 1
-                nfail3 += 1
-                nfail4 += 1
                 report += msg
-                print msg
                 
-    	report+='\n %s %s %s %s tests passed, %s %s %s %s failed\n' %(npass1, npass2, npass3, npass4, nfail1, nfail2, nfail3, nfail4)
-    	print report
-    	
-    	runall_report_name='runall-report-step123-.log'
-    	runall_report=open(runall_report_name,'w')
-    	runall_report.write(report)
-    	runall_report.close()
+        report+=' '.join(map(str,totpassed))+' tests passed, '+' '.join(map(str,totfailed))+' failed\n'
+        print report
 
+        runall_report_name='runall-report-step123-.log'
+        runall_report=open(runall_report_name,'w')
+        runall_report.write(report)
+        runall_report.close()
         os.chdir(startDir)
-    	
-    	return
+        
+                                        
+        return
 

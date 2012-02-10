@@ -50,6 +50,114 @@ class WorkFlowRunner(Thread):
        
         startime='date %s' %time.asctime()
 
+        # check where we are running:
+        onCAF = False
+        if 'cms/caf/cms' in os.environ['CMS_PATH']:
+            onCAF = True
+
+        ##needs to set
+        #self.report
+        self.npass  = [] #size 4
+        self.nfail = [] #size 4
+        self.stat = []
+        self.retStep = []
+
+        def closeCmd(i,ID):
+            return ' > %s 2>&1; ' % ('step%d_'%(i,)+ID+'.log ',)
+
+        inFile=None
+        aborted=False
+        for (istep,com) in enumerate(self.wf.cmds):
+            cmd = preamble
+            if aborted:
+                self.npass.append(0)
+                self.nfail.append(0)
+                self.retStep.append(0)
+                self.stat.append('NOTRUN')
+                continue
+            if not isinstance(com,str):
+                print "going to run with file input ... "
+                #cmd+=self.wf.input.dbs() #should be taken from the com object
+                cmd+=scom.dbs()
+                cmd+=closeCmd(istep,'dbsquery')
+                retStep = self.doCmd(cmd)
+                #don't use the file list executed, but use the dbs command of cmsDriver for next step
+                inFile='filelist:step%d_dbsquery.log'%(istep,)
+                print "---"
+            else:
+                print "regular cmsRun ..."
+                #chaining IO , which should be done in WF object already and not using stepX.root but <stepName>.root
+                cmd += com
+                if inFile: #in case previous step used DBS query (either filelist of dbs:)
+                    cmd += ' --filein '+inFile
+                    inFile=None
+                if 'HARVESTING' in cmd and not '134' in str(self.wf.numId):
+                    cmd+=' --filein file:step%d_inDQM.root --fileout file:step%d.root '%(istep-1,istep)
+                else:
+                    if istep!=0 and not '--filein' in cmd:
+                        cmd+=' --filein file:step%s.root '%(istep-1,)
+                    if not '--fileout' in com:
+                        cmd+=' --fileout file:step%s.root '%(istep,)
+                    
+                                
+
+                cmd+=closeCmd(istep,self.wf.nameId)            
+                retStep = self.doCmd(cmd)
+            
+            self.retStep.append(retStep)
+            if (retStep!=0):
+                #error occured
+                self.npass.append(0)
+                self.nfail.append(1)
+                self.stat.append('FAILED')
+                #to skip processing
+                aborted=True
+            else:
+                #things went fine
+                self.npass.append(1)
+                self.nfail.append(0)
+                self.stat.append('PASSED')
+
+
+        os.chdir(startDir)
+
+        endtime='date %s' %time.asctime()
+        tottime='%s-%s'%(endtime,startime)
+        
+
+        #### wrap up ####
+
+        #pad with NOTRUN
+        if True:
+            logStat=''
+            for i,s in enumerate(self.stat):
+                logStat+='Step%d-%s '%(i,s)
+            self.report='%s_%s %s - time %s; exit: '%(self.wf.numId,self.wf.nameId,logStat,tottime)+' '.join(map(str,self.retStep))+'\n'
+        else:
+            #backward compatible
+            for i in range(len(self.npass),4):
+                if i>=len(self.wf.cmds):
+                    self.stat.append('NOSTEP')
+                else:
+                    self.stat.append('NOTRUN')
+                self.npass.append(0)
+                self.nfail.append(0)
+                self.retStep.append(0)
+
+            logStat=''
+            for i,s in enumerate(self.stat):
+                logStat+='Step%d-%s '%(i,s)
+            self.report='%s_%s %s - time %s; exit: %s %s %s %s \n' % (self.wf.numId,
+                                                                      self.wf.nameId,
+                                                                      logStat,
+                                                                      tottime,
+                                                                      self.retStep[0],
+                                                                      self.retStep[1],
+                                                                      self.retStep[2],
+                                                                      self.retStep[3])
+
+
+        return 
         # set defaults for the statuses
         stat1 = 'PASSED'
         stat2 = 'PASSED' 
@@ -62,10 +170,6 @@ class WorkFlowRunner(Thread):
         # run the first workflow:
         cmd = preamble
 
-        # check where we are running:
-        onCAF = False
-        if 'cms/caf/cms' in os.environ['CMS_PATH']:
-            onCAF = True
 
         inFile = None
         if self.wf.cmdStep1.startswith('DATAINPUT'):
@@ -144,21 +248,6 @@ class WorkFlowRunner(Thread):
                 fullcmd += ' --fileout file:reco.root '
             print '=====>>> ', self.wf.nameId, self.wf.numId
 
-            # for HI B0 step2 use a file from a previous relval production as step1 doesn't write
-            # any output in 1 hour. Add himix flag here as this is only needed when run on the mixed
-            # input files (the relvals are OK)
-            # useInput in the IB
-            #if ( '40.0' in str(self.wf.numId) ) :
-            #    #nono fullcmd += ' --himix '
-            #    #nono inFile = '/store/relval/CMSSW_3_9_7/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/START39_V7HI-v1/0054/102FF831-9B0F-E011-A3E9-003048678BC6.root'
-            #    #nono fullcmd += ' --process HIMIX '
-            #    inFile = '/store/relval/CMSSW_4_4_0_pre5/RelValHydjetQ_MinBias_2760GeV/GEN-SIM/STARTHI44_V1-v1/0018/34C7FA16-59B2-E011-BC88-002618943843.root'
-            # just taken out
-            #if ( '41.0' in str(self.wf.numId) ) : 
-            #    fullcmd += ' --himix '
-            #    inFile = '/store/relval/CMSSW_3_9_7/RelValPyquen_GammaJet_pt20_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/START39_V7HI-v1/0054/06B4F699-A50F-E011-AD62-0018F3D0962E.root'
-            #    fullcmd += ' --process HIMIX '
-                
             if (not '--filein' in self.wf.cmdStep2) or inFile:
                 fullcmd += ' --filein '+inFile+ ' '
                 
@@ -180,14 +269,8 @@ class WorkFlowRunner(Thread):
                             fullcmd += ' --filein file:step2.root'
                         if not 'fileout' in fullcmd:
                             fullcmd += '--fileout file:step3.root '
-                # this trick is not necessary anymore
-                #if ( '40.0' in str(self.wf.numId) or '41.0' in str(self.wf.numId) ) :
-                #    fullcmd += '--hltProcess=HIMIX'
-                    
                 fullcmd += ' > %s 2>&1; ' % ('step3_'+self.wf.nameId+'.log ',)
-                # print fullcmd
                 retStep3 = self.doCmd(fullcmd)
-#                if random.randint(0,100) < 40 : retStep3 = -42
                 if self.wf.cmdStep4 and retStep3 == 0:
                     fullcmd = preamble
                     fullcmd += self.wf.cmdStep4

@@ -1,4 +1,35 @@
 
+
+class Matrix(dict):
+    def __setitem__(self,key,value):
+        if key in self:
+            print "ERROR in Matrix"
+            print "overwritting",key,"not allowed"
+        else:
+            self.update({key:WF(key,value)})
+
+            
+#the class to collect all possible steps
+class Steps(dict):
+    def __setitem__(self,key,value):
+        if key in self:
+            print "ERROR in Step"
+            print "overwritting",key,"not allowed"
+        else:
+            self.update({key:value})
+
+class WF(list):
+    def __init__(self,n,l):
+        self.extend(l)
+        self.num=n
+        #the actual steps of this WF
+        self.steps=[]
+
+        
+    def interpret(self,stepsDict):
+        for s in self:
+            steps.append(stepsDict[s])
+    
 InputInfoNDefault=2000000    
 class InputInfo(object):
     def __init__(self,dataSet,label='',run=[],files=1000,events=InputInfoNDefault,location='CAF') :
@@ -9,6 +40,17 @@ class InputInfo(object):
         self.label = label
         self.dataSet = dataSet
 
+    def dbs(self):
+        command='dbs search --noheader --query "find file where dataset like '+self.dataSet
+        def requ(r):
+            return 'run=%d'%(r,)
+        if len(self.run)!=0:
+            command+=' and ('+' or '.join(map(requ,self.run))+' )'
+        command+='"'
+        return command
+    def __str__(self):
+        return 'input from: %s with run: %s'%(self.dataSet,str(self.run))
+    
 # merge dictionaries, with prioty on the [0] index
 def merge(dictlist,TELL=False):
     import copy
@@ -38,7 +80,7 @@ step1Defaults = {'--relval'      : None, # need to be explicitly set
                  '--eventcontent': 'RAWSIM',
                  }
 
-step1 = {}
+step1 = Steps()
 
 #### Production test section ####
 step1['ProdMinBias']=merge([{'cfg':'MinBias_7TeV_cfi','--relval':'9000,100'},step1Defaults])
@@ -380,7 +422,7 @@ step2Defaults = { 'cfg'           : 'step2',
                   '--conditions'  : 'auto:startup',
                   }
 
-step2 = {}
+step2 = Steps()
 
 step2['DIGIPROD1']=merge([{'--eventcontent':'RAWSIM','--datatier':'GEN-SIM-RAW'},step2Defaults])
 step2['DIGI']=merge([step2Defaults])
@@ -403,7 +445,6 @@ dataReco={'--conditions':'auto:com10',
           '--datatier':'RECO,DQMROOT',
           '--eventcontent':'RECO,DQMROOT',
           '--data':'',
-          '--customise':'Configuration/DataProcessing/RecoTLR.customisePPData',
           '--process':'reRECO',
           '--scenario':'pp',
           }
@@ -420,7 +461,6 @@ step2['REPACKHID']=merge([{'--scenario':'HeavyIons',
                          '--datatier':'RAW',
                          '--eventcontent':'REPACKRAW'},
                         step2['RECOD']])
-step2['REPACKHID'].pop('--customise')
 step2['RECOHID10']=merge([{'--scenario':'HeavyIons',
                          '-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBiasHI+HcalCalMinBias,DQM',
                          '--datatier':'RECO,DQMROOT',
@@ -469,7 +509,7 @@ step3Defaults = { 'cfg'           : 'step3',
                   '--eventcontent': 'RECOSIM,DQM'
                   }
 
-step3 = {}
+step3 = Steps()
 step3['DIGIPU']=merge([{'cfg':'step3','--process':'REDIGI'},step2['DIGIPU1']])
 
 step3['RECODst3']=merge([{'--hltProcess':'reHLT'},step2['RECOD']])
@@ -526,7 +566,7 @@ step4Defaults = { 'cfg'           : 'step4',
                   '--datatier'    : 'ALCARECO',
                   '--eventcontent': 'ALCARECO',
                   }
-step4 = {}
+step4 = Steps()
 step4['RERECOPU']=merge([{'cfg':'step4'},step3['RERECOPU1']])
 
 step4['ALCATT1']=merge([step4Defaults])
@@ -622,4 +662,9 @@ step3['RECODFROMRAWRECO']=merge([{'-s':'RAW2DIGI:RawToDigi_noTk,L1Reco,RECO:reco
 # to handle things easier in other places, make a list of all the steps:
 stepList = [step1, step2, step3, step4]
 
-
+#temporary solution
+steps = Steps()
+steps.update(step1)
+steps.update(step2)
+steps.update(step3)
+steps.update(step4)

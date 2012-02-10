@@ -7,10 +7,10 @@ from Configuration.PyReleaseValidation.MatrixRunner import MatrixRunner
         
 # ================================================================================
 
-def showRaw(useInput=None, refRel='', fromScratch=None, what='standard',step1Only=False) :
+def showRaw(useInput=None, refRel='', fromScratch=None, what='standard',step1Only=False,testList=None) :
 
     mrd = MatrixReader()
-    mrd.showRaw(useInput, refRel, fromScratch, what, step1Only)
+    mrd.showRaw(useInput, refRel, fromScratch, what, step1Only, selected=testList)
 
     return 0
         
@@ -32,71 +32,20 @@ def runSelected(testList, nThreads=4, show=False, useInput=None, refRel='', from
     mrd.prepare(useInput, refRel, fromScratch)
 
     if testList == []:
-        testList = stdList+hiStatList
+        testList = [float(x) for x in stdList+hiStatList]
 
     ret = 0
     if show:
-        mrd.show([float(x) for x in testList])
-        print 'selected items:', testList
+        mrd.show(testList)
+        if testList : print 'selected items:', testList
     else:
         mRunnerHi = MatrixRunner(mrd.workFlows, nThreads)
         ret = mRunnerHi.runTests(testList)
 
     return ret
 
-# ================================================================================
-
-def runData(testList, nThreads=4, show=False, useInput=None, refRel='', fromScratch=None) :
-
-    mrd = MatrixReader()
-    mrd.prepare(useInput, refRel, fromScratch)
-
-    ret = 0
-    if show:
-        if not testList or testList == ['all']:
-            mrd.show()
-        else:
-            mrd.show([float(x) for x in testList])
-        print 'selected items:', testList
-    else:
-        mRunnerHi = MatrixRunner(mrd.workFlows, nThreads)
-        if not testList or testList == ['all']:
-            ret = mRunnerHi.runTests()
-        else:
-            ret = mRunnerHi.runTests(testList)
-
-    return ret
-
 # --------------------------------------------------------------------------------
 
-def runAll(testList=None, nThreads=4, show=False, useInput=None, refRel='', fromScratch=None,what='all') :
-
-    mrd = MatrixReader(noRun=(nThreads==0),what=what)
-    mrd.prepare(useInput, refRel, fromScratch)
-
-    ret = 0
-    
-    if show:
-        mrd.show()
-        print "nThreads = ",nThreads
-    else:
-        mRunnerHi = MatrixRunner(mrd.workFlows, nThreads)
-        ret = mRunnerHi.runTests()
-
-    return ret
-
-
-# --------------------------------------------------------------------------------
-
-def runOnly(only, show, nThreads=4, useInput=None, refRel='', fromScratch=None):
-
-    if not only: return
-    
-    for what in only:
-        print "found request to run relvals only for ",what
-        print "not implemented, nothing done"
-
-# --------------------------------------------------------------------------------
 
 def usage():
     print "Usage:", sys.argv[0], ' [options] '
@@ -138,7 +87,6 @@ if __name__ == '__main__':
     sel = None
     fromScratch = None
     show = False
-    only = None
     data = None
     raw  = None
     refRel = ''
@@ -154,8 +102,6 @@ if __name__ == '__main__':
             show = True
         if opt in ('-s','--selected',) :
             sel = []
-        if opt in ('-o','--only',) :
-            only = []
         if opt in ('-l','--list',) :
             sel = arg.split(',')
         if opt in ('--fromScratch',) :
@@ -181,17 +127,9 @@ if __name__ == '__main__':
                 sys.exit(-1)
         
     if raw and show:
-        ret = showRaw(useInput=useInput, refRel=refRel,fromScratch=fromScratch, what=raw, step1Only=step1Only)
+        ret = showRaw(useInput=useInput, refRel=refRel,fromScratch=fromScratch, what=raw, step1Only=step1Only,testList=sel)
         sys.exit(ret)
 
-    ret = 0
-    if sel != None: # explicit distinguish from empty list (which is also false)
-        ret = runSelected(testList=sel, nThreads=np, show=show, useInput=useInput, refRel=refRel,fromScratch=fromScratch)
-    elif only != None:
-        ret = runOnly(only=only, show=show, nThreads=np, useInput=useInput, refRel=refRel,fromScratch=fromScratch)
-    elif data != None:
-        ret = runData(testList=data, show=show, nThreads=np, useInput=useInput, refRel=refRel,fromScratch=fromScratch)
-    else:
-        ret = runAll(show=show, nThreads=np, useInput=useInput, refRel=refRel,fromScratch=fromScratch,what=what)
+    ret = runSelected(testList=sel, nThreads=np, show=show, useInput=useInput, refRel=refRel,fromScratch=fromScratch)
 
     sys.exit(ret)
