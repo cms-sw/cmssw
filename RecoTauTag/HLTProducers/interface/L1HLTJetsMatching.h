@@ -12,12 +12,12 @@
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/TauReco/interface/PFTauFwd.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 
 #include <map>
 #include <vector>
-
 class L1HLTJetsMatching: public edm::EDProducer {
  public:
   explicit L1HLTJetsMatching(const edm::ParameterSet&);

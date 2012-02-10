@@ -4,6 +4,8 @@
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "DataFormats/TauReco/interface/PFTau.h"
+
 //
 // class decleration
 //
@@ -18,9 +20,8 @@ L1HLTJetsMatching::L1HLTJetsMatching(const edm::ParameterSet& iConfig)
   tauTrigger = iConfig.getParameter<InputTag>("L1TauTrigger");
   mEt_Min = iConfig.getParameter<double>("EtMin");
   
-  produces<CaloJetCollection>();
+  produces<PFTauCollection>();
 }
-
 L1HLTJetsMatching::~L1HLTJetsMatching(){ }
 
 void L1HLTJetsMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES)
@@ -33,8 +34,8 @@ void L1HLTJetsMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	using namespace l1extra;
 	
 	typedef std::vector<LeafCandidate> LeafCandidateCollection;
-	
-	auto_ptr<CaloJetCollection> tauL2jets(new CaloJetCollection);
+
+	  auto_ptr<PFTauCollection> tauL2jets(new PFTauCollection);
 	
 	double deltaR = 1.0;
 	double matchingR = 0.5;
@@ -65,10 +66,10 @@ void L1HLTJetsMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 				deltaR = ROOT::Math::VectorUtil::DeltaR(myJet.p4().Vect(), (tauCandRefVec[iL1Tau]->p4()).Vect());
 				if(deltaR < matchingR ) {
 					//		 LeafCandidate myLC(myJet);
-					CaloJet myCaloJet(myJet.p4(),a,f);
+				  PFTau myPFTau(std::numeric_limits<int>::quiet_NaN(), myJet.p4());
 					if(myJet.pt() > mEt_Min) {
 						//		  tauL2LC->push_back(myLC);
-						tauL2jets->push_back(myCaloJet);
+						tauL2jets->push_back(myPFTau);
 					}
 					break;
 				}
@@ -84,10 +85,10 @@ void L1HLTJetsMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 				deltaR = ROOT::Math::VectorUtil::DeltaR(myJet.p4().Vect(), (jetCandRefVec[iL1Tau]->p4()).Vect());
 				if(deltaR < matchingR ) {
 					//		 LeafCandidate myLC(myJet);
-					CaloJet myCaloJet(myJet.p4(),a,f);
+				  PFTau myPFTau(std::numeric_limits<int>::quiet_NaN(), myJet.p4());
 					if(myJet.pt() > mEt_Min) {
 						//tauL2LC->push_back(myLC);
-						tauL2jets->push_back(myCaloJet);
+						tauL2jets->push_back(myPFTau);
 					}
 					break;
 				}
