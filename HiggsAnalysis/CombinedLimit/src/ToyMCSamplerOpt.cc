@@ -143,7 +143,6 @@ toymcoptutils::SinglePdfGenInfo::generateWithHisto(RooRealVar *&weightVar, bool 
             for (int iy = 1, ny = h2.GetNbinsY(); iy <= ny; ++iy) {
                 x->setVal(h2.GetXaxis()->GetBinCenter(ix));
                 y->setVal(h2.GetYaxis()->GetBinCenter(iy));
-                data->add(observables_, h2.GetBinContent(ix,iy));
                 data->add(observables_, asimov ? h2.GetBinContent(ix,iy) : RooRandom::randomGenerator()->Poisson(h2.GetBinContent(ix,iy)) );
             } }
             }
