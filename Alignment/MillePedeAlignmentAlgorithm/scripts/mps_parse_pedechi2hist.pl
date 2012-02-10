@@ -120,6 +120,10 @@ else
       {
         my $line = $ph[$i];
         $foundchi2start = 1 if ($line =~ /final \<Chi\^2\/Ndf\> from accepted local fits vs file number/i);
+        if($foundchi2start)
+          {
+            last if($line =~ /end of xy\-data/i);
+          }
         next unless($line =~ /\d/);
         next if($line =~ /[a-z]/i);
         if($foundchi2start)
