@@ -291,26 +291,12 @@ namespace edm {
     pset::Registry::instance()->extra().setID(proc_pset.id());
     processConfiguration->setParameterSetID(proc_pset.id());
 
-    //see if 'canDeleteEarly' was set and if so setup the list with those products actually
-    // registered for this job
-    std::multimap<std::string,Worker*> branchToReadingWorker;
-    initializeBranchToReadingWorker(opts,preg,branchToReadingWorker);
-      
-    if(subProcPSet) {
-      //for now, if have a subProcess, don't allow early delete
-      // In the future we should use the SubProcess's 'keep list' to decide what can be kept
-      branchToReadingWorker.erase(branchToReadingWorker.begin(),branchToReadingWorker.end());
-    }
+    initializeEarlyDelete(opts,preg,subProcPSet);
     
     // This is used for a little sanity-check to make sure no code
     // modifications alter the number of workers at a later date.
     size_t all_workers_count = all_workers_.size();
 
-    const std::vector<std::string> kEmpty;
-    std::map<Worker*,unsigned int> reserveSizeForWorker;
-    unsigned int upperLimitOnReadingWorker =0;
-    unsigned int upperLimitOnIndicies = 0;
-    unsigned int nUniqueBranchesToDelete=branchToReadingWorker.size();
     for (AllWorkers::iterator i = all_workers_.begin(), e = all_workers_.end();
          i != e;
          ++i) {
@@ -320,7 +306,54 @@ namespace edm {
       OutputWorker* ow = dynamic_cast<OutputWorker*>(*i);
       if (ow) {
         all_output_workers_.push_back(ow);
-        
+      }
+    }
+    // Now that the output workers are filled in, set any output limits.
+    limitOutput(proc_pset);
+
+    loadMissingDictionaries();
+    preg.setFrozen();
+
+    for (AllOutputWorkers::iterator i = all_output_workers_.begin(), e = all_output_workers_.end();
+         i != e; ++i) {
+      (*i)->setEventSelectionInfo(outputModulePathPositions, preg.anyProductProduced());
+    }
+
+    // Sanity check: make sure nobody has added a worker after we've
+    // already relied on all_workers_ being full.
+    assert (all_workers_count == all_workers_.size());
+
+    ProcessConfigurationRegistry::instance()->insertMapped(*processConfiguration);
+    BranchIDListHelper::updateRegistries(preg);
+    fillProductRegistryTransients(*processConfiguration, preg);
+  } // Schedule::Schedule
+
+  
+  void Schedule::initializeEarlyDelete(edm::ParameterSet const& opts, edm::ProductRegistry const& preg, 
+                                       edm::ParameterSet const* subProcPSet) {
+    //for now, if have a subProcess, don't allow early delete
+    // In the future we should use the SubProcess's 'keep list' to decide what can be kept
+    if(subProcPSet)  return;
+
+    //see if 'canDeleteEarly' was set and if so setup the list with those products actually
+    // registered for this job
+    std::multimap<std::string,Worker*> branchToReadingWorker;
+    initializeBranchToReadingWorker(opts,preg,branchToReadingWorker);
+    
+    //If no delete early items have been specified we don't have to do anything
+    if(branchToReadingWorker.size()==0) {
+      return;
+    }
+    const std::vector<std::string> kEmpty;
+    std::map<Worker*,unsigned int> reserveSizeForWorker;
+    unsigned int upperLimitOnReadingWorker =0;
+    unsigned int upperLimitOnIndicies = 0;
+    unsigned int nUniqueBranchesToDelete=branchToReadingWorker.size();
+    for (AllWorkers::iterator i = all_workers_.begin(), e = all_workers_.end();
+         i != e;
+         ++i) {
+      OutputWorker* ow = dynamic_cast<OutputWorker*>(*i);
+      if (ow) {
         if(branchToReadingWorker.size()>0) {
           //If an OutputModule needs a product, we can't delete it early
           // so we should remove it from our list
@@ -435,45 +468,16 @@ namespace edm {
       earlyDeleteHelperToBranchIndicies_.erase(earlyDeleteHelperToBranchIndicies_.begin()+(itLast->end()-beginAddress),
                                                earlyDeleteHelperToBranchIndicies_.end());
       
-      //now determine how many paths are associated with each Worker
+      //now tell the paths about the deleters
       for(auto& p : trig_paths_) {
-        for(unsigned int index=0; index !=p.size();++index) {
-          auto found = alreadySeenWorkers.find(p.getWorker(index));
-          if(found != alreadySeenWorkers.end()) {
-            found->second->addedToPath();
-          }
-        }
+        p.setEarlyDeleteHelpers(alreadySeenWorkers);
       }
       for(auto& p : end_paths_) {
-        for(unsigned int index=0; index !=p.size();++index) {
-          auto found = alreadySeenWorkers.find(p.getWorker(index));
-          if(found != alreadySeenWorkers.end()) {
-            found->second->addedToPath();
-          }
-        }
+        p.setEarlyDeleteHelpers(alreadySeenWorkers);
       }
       resetEarlyDelete();
-      
     }
-    // Now that the output workers are filled in, set any output limits.
-    limitOutput(proc_pset);
-
-    loadMissingDictionaries();
-    preg.setFrozen();
-
-    for (AllOutputWorkers::iterator i = all_output_workers_.begin(), e = all_output_workers_.end();
-         i != e; ++i) {
-      (*i)->setEventSelectionInfo(outputModulePathPositions, preg.anyProductProduced());
-    }
-
-    // Sanity check: make sure nobody has added a worker after we've
-    // already relied on all_workers_ being full.
-    assert (all_workers_count == all_workers_.size());
-
-    ProcessConfigurationRegistry::instance()->insertMapped(*processConfiguration);
-    BranchIDListHelper::updateRegistries(preg);
-    fillProductRegistryTransients(*processConfiguration, preg);
-  } // Schedule::Schedule
+  }
 
   void Schedule::reduceParameterSet(ParameterSet& proc_pset,
                                     vstring& modulesInConfig,

@@ -280,6 +280,9 @@ namespace edm {
     void addToAllWorkers(Worker* w);
     
     void resetEarlyDelete();
+    void initializeEarlyDelete(edm::ParameterSet const& opts,
+                               edm::ProductRegistry const& preg, 
+                               edm::ParameterSet const* subProcPSet);
 
     WorkerRegistry                                worker_reg_;
     ActionTable const*                            act_table_;
@@ -297,12 +300,20 @@ namespace edm {
     AllOutputWorkers         all_output_workers_;
     TrigPaths                trig_paths_;
     TrigPaths                end_paths_;
-    
+
+    //For each branch that has been marked for early deletion
+    // keep track of how many modules are left that read this data but have
+    // not yet been run in this event
     std::vector<std::pair<BranchID,unsigned int>> earlyDeleteBranchToCount_;
     //NOTE the following is effectively internal data for each EarlyDeleteHelper
     // but putting it into one vector makes for better allocation as well as
     // faster iteration when used to reset the earlyDeleteBranchToCount_
+    // Each EarlyDeleteHelper hold a begin and end range into this vector. The values
+    // of this vector correspond to indexes into earlyDeleteBranchToCount_ so 
+    // tell which EarlyDeleteHelper is associated with which BranchIDs.
     std::vector<unsigned int> earlyDeleteHelperToBranchIndicies_;
+    //There is one EarlyDeleteHelper per Module which are reading data that
+    // has been marked for early deletion
     std::vector<EarlyDeleteHelper> earlyDeleteHelpers_;
 
     bool                           wantSummary_;
