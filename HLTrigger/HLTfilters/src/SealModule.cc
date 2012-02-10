@@ -23,6 +23,10 @@
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METFwd.h"
+#include "DataFormats/TauReco/interface/CaloTau.h"
+#include "DataFormats/TauReco/interface/CaloTauFwd.h"
+#include "DataFormats/TauReco/interface/HLTTau.h"
+#include "DataFormats/TauReco/interface/HLTTauFwd.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
@@ -90,8 +94,15 @@ typedef HLTGlobalSums<MET    ,TriggerTHT> HLTGlobalSumsMET    ;
 #include "HLTrigger/HLTfilters/src/HLTDoublet.cc"
 typedef HLTDoublet<CaloJet ,TriggerJet,CaloJet,TriggerJet> HLT2CaloJetCaloJet;
 typedef HLTDoublet<CaloJet ,TriggerJet,CaloMET,TriggerMET> HLT2CaloJetCaloMET;
+
 typedef HLTDoublet<Electron,TriggerElectron,CaloJet,TriggerTau> HLT2ElectronTau;
 typedef HLTDoublet<RecoChargedCandidate,TriggerMuon,CaloJet,TriggerTau> HLT2MuonTau;
+typedef HLTDoublet<Electron,TriggerElectron,CaloTau,TriggerTau> HLT2ElectronCaloTau;
+typedef HLTDoublet<RecoChargedCandidate,TriggerMuon,CaloTau,TriggerTau> HLT2MuonCaloTau;
+typedef HLTDoublet<Electron,TriggerElectron,HLTTau,TriggerTau> HLT2ElectronHLTTau;
+typedef HLTDoublet<RecoChargedCandidate,TriggerMuon,HLTTau,TriggerTau> HLT2MuonHLTTau;
+typedef HLTDoublet<Electron,TriggerElectron,PFTau,TriggerTau> HLT2ElectronPFTau;
+typedef HLTDoublet<RecoChargedCandidate,TriggerMuon,PFTau,TriggerTau> HLT2MuonPFTau;
 
 #include "HLTrigger/HLTfilters/interface/HLTDoubletDZ.h"
 #include "HLTrigger/HLTfilters/src/HLTDoubletDZ.cc"
@@ -108,6 +119,12 @@ DEFINE_FWK_MODULE(HLT2CaloJetCaloJet);
 DEFINE_FWK_MODULE(HLT2CaloJetCaloMET);
 DEFINE_FWK_MODULE(HLT2ElectronTau);
 DEFINE_FWK_MODULE(HLT2MuonTau);
+//DEFINE_FWK_MODULE(HLT2ElectronCaloTau);
+//DEFINE_FWK_MODULE(HLT2MuonCaloTau);
+//DEFINE_FWK_MODULE(HLT2ElectronHLTTau);
+//DEFINE_FWK_MODULE(HLT2MuonHLTTau);
+DEFINE_FWK_MODULE(HLT2ElectronPFTau);
+DEFINE_FWK_MODULE(HLT2MuonPFTau);
 
 DEFINE_FWK_MODULE(HLT1Electron);
 DEFINE_FWK_MODULE(HLT1Photon);
