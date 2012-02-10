@@ -904,7 +904,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       if ( ecalElems.empty() ) { 
 	(*pfCandidates_)[tmpi[0]].setEcalEnergy( 0., 0. );
 	(*pfCandidates_)[tmpi[0]].setHcalEnergy( 0., 0. );
-	//	(*pfCandidates_)[tmpi[0]].setHOEnergy( 0., 0. );
+	(*pfCandidates_)[tmpi[0]].setHoEnergy( 0., 0. );
 	(*pfCandidates_)[tmpi[0]].setPs1Energy( 0 );
 	(*pfCandidates_)[tmpi[0]].setPs2Energy( 0 );
 	(*pfCandidates_)[tmpi[0]].addElementInBlock( blockref, kTrack[0] );
@@ -921,7 +921,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	(*pfCandidates_)[tmpi[0]].setEcalEnergy( clusterRef->energy(),
 						 std::min(clusterRef->energy(), muonECAL_[0]) );
 	(*pfCandidates_)[tmpi[0]].setHcalEnergy( 0., 0. );
-	//	(*pfCandidates_)[tmpi[0]].setHOEnergy( 0., 0. );
+	(*pfCandidates_)[tmpi[0]].setHoEnergy( 0., 0. );
 	(*pfCandidates_)[tmpi[0]].setPs1Energy( 0 );
 	(*pfCandidates_)[tmpi[0]].setPs2Energy( 0 );
 	(*pfCandidates_)[tmpi[0]].addElementInBlock( blockref, kTrack[0] );
@@ -1009,7 +1009,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  (*pfCandidates_)[tmpi.back()].setEcalEnergy(clusterRef->energy(),
 						      std::min(clusterRef->energy(),muonECAL_[0]));
 	  (*pfCandidates_)[tmpi.back()].setHcalEnergy( 0., 0. );
-	  //	  (*pfCandidates_)[tmpi.back()].setHOEnergy( 0., 0. );
+	  (*pfCandidates_)[tmpi.back()].setHoEnergy( 0., 0. );
 	  (*pfCandidates_)[tmpi.back()].setPs1Energy( 0 );
 	  (*pfCandidates_)[tmpi.back()].setPs2Energy( 0 );
 	  (*pfCandidates_)[tmpi.back()].addElementInBlock( blockref, kTrack.back() );
@@ -1117,7 +1117,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  unsigned tmpe = reconstructCluster( *clusterRef, ecalEnergy ); 
 	  (*pfCandidates_)[tmpe].setEcalEnergy( clusterRef->energy(), ecalEnergy );
 	  (*pfCandidates_)[tmpe].setHcalEnergy( 0., 0. );
-	  //	  (*pfCandidates_)[tmpe].setHOEnergy( 0., 0. );
+	  (*pfCandidates_)[tmpe].setHoEnergy( 0., 0. );
 	  (*pfCandidates_)[tmpe].setPs1Energy( ps1Ene[0] );
 	  (*pfCandidates_)[tmpe].setPs2Energy( ps2Ene[0] );
 	  (*pfCandidates_)[tmpe].addElementInBlock( blockref, index );
@@ -1192,7 +1192,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  unsigned tmpj = reconstructCluster( *pivotalRef, neutralEnergy ); 
 	  (*pfCandidates_)[tmpj].setEcalEnergy( pivotalRef->energy(), neutralEnergy );
 	  (*pfCandidates_)[tmpj].setHcalEnergy( 0., 0. );
-	  //	  (*pfCandidates_)[tmpj].setHOEnergy( 0., 0. );
+	  (*pfCandidates_)[tmpj].setHoEnergy( 0., 0. );
 	  (*pfCandidates_)[tmpj].setPs1Energy( 0. );
 	  (*pfCandidates_)[tmpj].setPs2Energy( 0. );
 	  (*pfCandidates_)[tmpj].addElementInBlock(blockref, iEcal);
@@ -1216,7 +1216,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
 	  (*pfCandidates_)[tmpi[ic]].setEcalEnergy( ecalRaw, ecalCal );
 	  (*pfCandidates_)[tmpi[ic]].setHcalEnergy( 0., 0. );
-	  //	  (*pfCandidates_)[tmpi[ic]].setHOEnergy( 0., 0. );
+	  (*pfCandidates_)[tmpi[ic]].setHoEnergy( 0., 0. );
 	  (*pfCandidates_)[tmpi[ic]].setPs1Energy( 0 );
 	  (*pfCandidates_)[tmpi[ic]].setPs2Energy( 0 );
 	  (*pfCandidates_)[tmpi[ic]].addElementInBlock( blockref, kTrack[ic] );
@@ -1300,7 +1300,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	tmpi = reconstructCluster( *clusterRef, energyHF );     
 	(*pfCandidates_)[tmpi].setEcalEnergy( uncalibratedenergyHF, energyHF );
 	(*pfCandidates_)[tmpi].setHcalEnergy( 0., 0.);
-	//	(*pfCandidates_)[tmpi].setHOEnergy( 0., 0.);
+	(*pfCandidates_)[tmpi].setHoEnergy( 0., 0.);
 	(*pfCandidates_)[tmpi].setPs1Energy( 0. );
 	(*pfCandidates_)[tmpi].setPs2Energy( 0. );
 	(*pfCandidates_)[tmpi].addElementInBlock( blockref, hfEmIs[0] );
@@ -1318,7 +1318,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	tmpi = reconstructCluster( *clusterRef, energyHF );     
 	(*pfCandidates_)[tmpi].setHcalEnergy( uncalibratedenergyHF, energyHF );
 	(*pfCandidates_)[tmpi].setEcalEnergy( 0., 0.);
-	//	(*pfCandidates_)[tmpi].setHOEnergy( 0., 0.);
+	(*pfCandidates_)[tmpi].setHoEnergy( 0., 0.);
 	(*pfCandidates_)[tmpi].setPs1Energy( 0. );
 	(*pfCandidates_)[tmpi].setPs2Energy( 0. );
 	(*pfCandidates_)[tmpi].addElementInBlock( blockref, hfHadIs[0] );
@@ -1361,7 +1361,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	unsigned tmpi = reconstructCluster( *chad, energyHfEm+energyHfHad );     
 	(*pfCandidates_)[tmpi].setEcalEnergy( uncalibratedenergyHFEm, energyHfEm );
 	(*pfCandidates_)[tmpi].setHcalEnergy( uncalibratedenergyHFHad, energyHfHad);
-	//	(*pfCandidates_)[tmpi].setHOEnergy( 0., 0.);
+	(*pfCandidates_)[tmpi].setHoEnergy( 0., 0.);
 	(*pfCandidates_)[tmpi].setPs1Energy( 0. );
 	(*pfCandidates_)[tmpi].setPs2Energy( 0. );
 	(*pfCandidates_)[tmpi].addElementInBlock( blockref, hfEmIs[0] );
@@ -1606,7 +1606,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	    if(letMuonEatCaloEnergy) muonHO = hoclusterref->energy();
 	    // If the muon expected energy accounts for the whole HO cluster energy, lock the HO cluster
 	    if ( hoclusterref->energy() - muonHO  < 0.2 ) active[iHO] = false;	    
-	    (*pfCandidates_)[tmpi].setHcalEnergy(totalHcal+hoclusterref->energy(), muonHcal+muonHO);
+	    (*pfCandidates_)[tmpi].setHcalEnergy(totalHcal, muonHcal);
+	    (*pfCandidates_)[tmpi].setHoEnergy(hoclusterref->energy(), muonHO);
 	  }
 	} else {
 	  (*pfCandidates_)[tmpi].setHcalEnergy(totalHcal, muonHcal);
@@ -1976,7 +1977,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	    PFClusterRef hoclusterref = elements[iHO].clusterRef();
 	    (*pfCandidates_)[tmpi].addElementInBlock( blockref, iHO);
 	    muonHO = std::min(muonHO_[0]+muonHO_[1],hoclusterref->energy());
-	    (*pfCandidates_)[tmpi].setHcalEnergy(totalHcal-totalHO+hoclusterref->energy(),muonHcal+muonHO);
+	    (*pfCandidates_)[tmpi].setHcalEnergy(totalHcal-totalHO,muonHcal);
+	    (*pfCandidates_)[tmpi].setHoEnergy(hoclusterref->energy(),muonHO);
 	  }
 	  reco::PFCandidate::ParticleType particleType = reco::PFCandidate::mu;
 	  (*pfCandidates_)[tmpi].setParticleType(particleType);
@@ -2478,8 +2480,13 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
       
 	(*pfCandidates_)[tmpi].setEcalEnergy( rawecalEnergy[iPivot],ecalEnergy[iPivot] );
-	(*pfCandidates_)[tmpi].setHcalEnergy( rawhcalEnergy[iPivot],hcalEnergy[iPivot] );
-	//	(*pfCandidates_)[tmpi].setHOEnergy(0., 0.);
+	if ( !useHO_ ) { 
+	  (*pfCandidates_)[tmpi].setHcalEnergy( rawhcalEnergy[iPivot],hcalEnergy[iPivot] );
+	  (*pfCandidates_)[tmpi].setHoEnergy(0., 0.);
+	} else { 
+	  (*pfCandidates_)[tmpi].setHcalEnergy( rawhcalEnergy[iPivot]-totalHO,hcalEnergy[iPivot]*(1.-totalHO/rawhcalEnergy[iPivot]));
+	  (*pfCandidates_)[tmpi].setHoEnergy(totalHO, totalHO * hcalEnergy[iPivot]/rawhcalEnergy[iPivot]);
+	} 
 	(*pfCandidates_)[tmpi].setPs1Energy( 0. );
 	(*pfCandidates_)[tmpi].setPs2Energy( 0. );
 	(*pfCandidates_)[tmpi].set_mva_nothing_gamma( -1. );
@@ -2545,7 +2552,13 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       reco::PFCandidate& chargedHadron = (*pfCandidates_)[index];
       float fraction = chargedHadron.energy()/chargedHadronsTotalEnergy;
 
-      chargedHadron.setHcalEnergy(  fraction * totalHcal, fraction * totalHcalEnergyCalibrated );          
+      if ( !useHO_ ) { 
+	chargedHadron.setHcalEnergy(  fraction * totalHcal, fraction * totalHcalEnergyCalibrated );          
+	chargedHadron.setHoEnergy(  0., 0. ); 
+      } else { 
+	chargedHadron.setHcalEnergy(  fraction * (totalHcal-totalHO), fraction * totalHcalEnergyCalibrated * (1.-totalHO/totalHcal) );          
+	chargedHadron.setHoEnergy( fraction * totalHO, fraction * totalHO * totalHcalEnergyCalibrated / totalHcal ); 
+      }
       //JB: fixing up (previously omitted) setting of ECAL energy gouzevit
       chargedHadron.setEcalEnergy( fraction * totalEcal, fraction * totalEcalEnergyCalibrated );
     }
@@ -2577,7 +2590,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       unsigned tmpi = reconstructCluster( *eclusterref, sqrt(is->second.second.Mag2()) ); 
       (*pfCandidates_)[tmpi].setEcalEnergy( eclusterref->energy(),sqrt(is->second.second.Mag2()) );
       (*pfCandidates_)[tmpi].setHcalEnergy( 0., 0. );
-      //      (*pfCandidates_)[tmpi].setHOEnergy( 0., 0. );
+      (*pfCandidates_)[tmpi].setHoEnergy( 0., 0. );
       (*pfCandidates_)[tmpi].setPs1Energy( associatedPSs[iEcal].first );
       (*pfCandidates_)[tmpi].setPs2Energy( associatedPSs[iEcal].second );
       (*pfCandidates_)[tmpi].addElementInBlock( blockref, iEcal );
@@ -2829,8 +2842,13 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
     
     (*pfCandidates_)[tmpi].setEcalEnergy( totalEcal, calibEcal );
-    (*pfCandidates_)[tmpi].setHcalEnergy( totalHcal, calibHcal );
-    //    (*pfCandidates_)[tmpi].setHOEnergy(0.,0.);
+    if ( !useHO_ ) { 
+      (*pfCandidates_)[tmpi].setHcalEnergy( totalHcal, calibHcal );
+      (*pfCandidates_)[tmpi].setHoEnergy(0.,0.);
+    } else { 
+      (*pfCandidates_)[tmpi].setHcalEnergy( totalHcal-totalHO, calibHcal*(1.-totalHO/totalHcal));
+      (*pfCandidates_)[tmpi].setHoEnergy(totalHO,totalHO*calibHcal/totalHcal);
+    }
     (*pfCandidates_)[tmpi].setPs1Energy( 0. );
     (*pfCandidates_)[tmpi].setPs2Energy( 0. );
     (*pfCandidates_)[tmpi].addElementInBlock( blockref, iHcal );
@@ -2886,7 +2904,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
  
     (*pfCandidates_)[tmpi].setEcalEnergy( clusterref->energy(),ecalEnergy );
     (*pfCandidates_)[tmpi].setHcalEnergy( 0., 0. );
-    //    (*pfCandidates_)[tmpi].setHOEnergy( 0., 0. );
+    (*pfCandidates_)[tmpi].setHoEnergy( 0., 0. );
     (*pfCandidates_)[tmpi].setPs1Energy( 0. );
     (*pfCandidates_)[tmpi].setPs2Energy( 0. );
     (*pfCandidates_)[tmpi].addElementInBlock( blockref, iEcal );

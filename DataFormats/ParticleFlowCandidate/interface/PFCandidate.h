@@ -201,6 +201,16 @@ namespace reco {
     /// return raw Hcal energy
     double rawHcalEnergy() const { return rawHcalEnergy_;}
 
+    /// set corrected Hcal energy 
+    void setHoEnergy( float eoRaw, float eoCorr ) {
+      rawHoEnergy_ = eoRaw; hoERatio_= std::abs(eoRaw)<1.e-6 ? 1.0 : eoCorr/eoRaw;}
+
+    /// return corrected Hcal energy
+    double hoEnergy() const { return hoERatio_*rawHoEnergy_;}
+
+    /// return raw Hcal energy
+    double rawHoEnergy() const { return rawHoEnergy_;}
+
     /// set GsfElectronRef 
     void setGsfElectronRef (const reco::GsfElectronRef & ref);
 
@@ -390,11 +400,17 @@ namespace reco {
     /// corrected HCAL energy ratio (corrected/raw)
     float       hcalERatio_;
 
+    /// corrected HO energy ratio (corrected/raw)
+    float       hoERatio_;
+
     /// raw ECAL energy
     float       rawEcalEnergy_;
 
     /// raw HCAL energy
     float       rawHcalEnergy_;
+
+    /// raw HO energy 
+    float       rawHoEnergy_;
 
     /// corrected PS1 energy
     float       ps1Energy_;
