@@ -4,8 +4,8 @@
  *  Configuration parameters for L1GlobalMuonTrigger.
 */
 //
-//   $Date: 2008/11/05 17:24:58 $
-//   $Revision: 1.12 $
+//   $Date: 2009/12/04 04:11:48 $
+//   $Revision: 1.13 $
 //
 //   Author :
 //   N. Neumeister             CERN EP
@@ -136,6 +136,7 @@ class L1MuGMTConfig {
     static bool getPropagatePhi() { return m_PropagatePhi; }
     
     static unsigned getVersionSortRankEtaQLUT() { return m_VersionSortRankEtaQLUT; }
+    static unsigned getVersionLUTs() { return m_VersionLUTs; }
 
     // Register getters
     static L1MuGMTRegCDLConfig* getRegCDLConfig() { return m_RegCDLConfig; }
@@ -241,6 +242,7 @@ class L1MuGMTConfig {
     static bool m_PropagatePhi;
     
     static unsigned m_VersionSortRankEtaQLUT;
+    static unsigned m_VersionLUTs;
     
     // Register pointers
     static L1MuGMTRegCDLConfig* m_RegCDLConfig;

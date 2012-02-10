@@ -7,8 +7,8 @@
  * 
 */ 
 //
-//   $Date: 2007/03/23 18:51:35 $
-//   $Revision: 1.5 $
+//   $Date: 2011/12/31 12:54:38 $
+//   $Revision: 1.6 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -29,6 +29,8 @@
 #include <sstream>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTConfig.h"
 
 using namespace std;
 
@@ -69,6 +71,7 @@ void L1MuGMTLUT::Init(const char* name, const vector<string>& instances,
          << "has to match the VME address width. Core Generation will not work."; 
   }
 
+  m_GeneralLUTVersion = L1MuGMTConfig::getVersionLUTs();
   m_initialized = true; 
 }
 

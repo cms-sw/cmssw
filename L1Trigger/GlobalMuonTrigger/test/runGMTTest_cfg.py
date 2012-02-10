@@ -22,7 +22,7 @@ process.gmtDump = cms.EDAnalyzer("L1MuGMTDump",
 )
     
 process.source = cms.Source("L1MuGMTHWFileReader",
-    fileNames = cms.untracked.vstring("file:gmt_testfile.h4mu.dat")
+    fileNames = cms.untracked.vstring("file:gmt_testfile.h4mu.1000.dat")
 )
 
 process.gmtDigis.DTCandidates = "source:DT"
@@ -37,5 +37,10 @@ process.gmtDigis.BX_min_readout = -1
 process.gmtDigis.BX_max_readout = 1
 
 #process.L1MuGMTParameters.SubsystemMask = 0
+process.L1MuGMTParameters.MergeMethodPtBrl=cms.string("byRank")
+process.L1MuGMTParameters.MergeMethodPtFwd=cms.string("byCombi")
+process.L1MuGMTParameters.VersionSortRankEtaQLUT = cms.uint32(275)
+process.L1MuGMTParameters.VersionLUTs = cms.uint32(1)
+
 
 process.p = cms.Path(process.gmtDigis * process.gmtDump)

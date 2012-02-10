@@ -47,7 +47,12 @@ L1MuGMTParameters = cms.ESProducer("L1MuGMTParametersProducer",
 #   VersionSortRankEtaQLUT - quality assign LUT
 #   1 = full geometry tuned with ORCA
 #   2 = staged RPC geometry - accept q=2 CSC candidates
+#   275 = modification used since May 2011
     VersionSortRankEtaQLUT = cms.uint32(2),
+#   General versioning of GMT LUTs introduced Feb 2012
+#   0 = version until the end 2011
+#   1 = version to be used in 2012
+    VersionLUTs = cms.uint32(0),
 #   Subsystem Mask:
 #   4 bits: 1..off; 0..on
 #   bit0:DTTF, bit1:RPCb, bit2:CSC, bit3:RPCf

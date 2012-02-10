@@ -5,8 +5,8 @@
 //   Description: Configuration parameters for L1GlobalMuonTrigger
 //
 //
-//   $Date: 2008/11/05 17:24:58 $
-//   $Revision: 1.12 $
+//   $Date: 2010/02/11 00:12:34 $
+//   $Revision: 1.13 $
 //
 //   Author :
 //   N. Neumeister             CERN EP
@@ -136,6 +136,7 @@ void L1MuGMTConfig::setDefaults() {
   m_PropagatePhi = m_GMTParams->getPropagatePhi();
   
   m_VersionSortRankEtaQLUT = m_GMTParams->getVersionSortRankEtaQLUT();
+  m_VersionLUTs = m_GMTParams->getVersionLUTs();
 
   if ( Debug(1) ) {
     stringstream stdss;
@@ -167,7 +168,8 @@ void L1MuGMTConfig::setDefaults() {
         << "L1 Global Muon Trigger : muon isolation cell size (phi) : " << m_IsolationCellSizePhi << endl
         << "L1 Global Muon Trigger : require confirmation by RPC in overlap region : " << m_DoOvlRpcAnd << endl
         << "L1 Global Muon Trigger : propagate phi to vertex : " << m_PropagatePhi << endl
-        << "L1 Global Muon Trigger : version of low quality assignment LUT : " << m_VersionSortRankEtaQLUT << endl;
+        << "L1 Global Muon Trigger : version of low quality assignment LUT : " << m_VersionSortRankEtaQLUT << endl
+        << "L1 Global Muon Trigger : general LUTs version : " << m_VersionLUTs << endl;
     edm::LogVerbatim("GMT_Config_info") << stdss.str();
   }
 }
@@ -352,6 +354,7 @@ bool  L1MuGMTConfig::m_DoOvlRpcAnd = false;
 
 bool  L1MuGMTConfig::m_PropagatePhi = false;
 unsigned L1MuGMTConfig::m_VersionSortRankEtaQLUT = 2;
+unsigned L1MuGMTConfig::m_VersionLUTs = 0;
 
 L1MuGMTRegCDLConfig* L1MuGMTConfig::m_RegCDLConfig=0;
 L1MuGMTRegMMConfigPhi* L1MuGMTConfig::m_RegMMConfigPhi=0;

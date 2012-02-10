@@ -5,8 +5,8 @@
 //   Description:  A class to produce the L1 GMT emulator Parameters record in the event setup
 //                 by reading them from the online database.
 //
-//   $Date: 2008/11/24 19:00:38 $
-//   $Revision: 1.1 $
+//   $Date: 2010/08/06 20:24:41 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   Thomas Themel
@@ -83,6 +83,7 @@ boost::shared_ptr<L1MuGMTParameters> L1MuGMTParametersOnlineProducer::newObject(
   ADD_FIELD(helper, L1MuGMTParameters, CDLConfigWordbRPCCSC);
   ADD_FIELD(helper, L1MuGMTParameters, CDLConfigWordfRPCDT);
   ADD_FIELD(helper, L1MuGMTParameters, VersionSortRankEtaQLUT);
+  ADD_FIELD(helper, L1MuGMTParameters, VersionLUTs);
 
   boost::shared_ptr<L1MuGMTParameters> ptrResult(new L1MuGMTParameters);
 

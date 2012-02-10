@@ -32,8 +32,8 @@
  * 
 */ 
 //
-//   $Date: 2006/08/21 14:23:13 $
-//   $Revision: 1.3 $
+//   $Date: 2007/03/23 18:51:35 $
+//   $Revision: 1.4 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -208,6 +208,7 @@ class L1MuGMTLUT {
     bool m_distrRAM;
     std::string m_name;
     bool m_saveFlag;
+    unsigned m_GeneralLUTVersion;
 };
 
 //--------------------------------------------------------------------------------

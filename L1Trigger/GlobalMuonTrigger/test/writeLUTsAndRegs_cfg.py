@@ -19,7 +19,7 @@ process.source = cms.Source('EmptySource')
 # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
  
-process.GlobalTag.globaltag = 'START42_V13::All'
+process.GlobalTag.globaltag = 'GR_R_50_V11::All'
 #process.GlobalTag.globaltag = 'GR_R_42_V18::All'
 
 ######################

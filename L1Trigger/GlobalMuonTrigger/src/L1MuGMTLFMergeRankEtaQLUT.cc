@@ -3,8 +3,8 @@
 //   Class: L1MuGMTLFMergeRankEtaQLUT
 //
 // 
-//   $Date: 2011/09/06 08:48:59 $
-//   $Revision: 1.5 $
+//   $Date: 2012/02/06 18:56:22 $
+//   $Revision: 1.6 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -60,11 +60,11 @@ unsigned L1MuGMTLFMergeRankEtaQLUT::TheLookupFunction (int idx, unsigned eta, un
   case 0: // DT
 //    if ( (q==1 || q==4 || q==6 || q==7) ||
 //	       ( (q==2 || q==3) && (fabs(etaValue) < 0.9) ) ) flag=1;
-		flag =1;
+	flag =1;
     break;
   case 1: // bRPC
 //    if (q==0) flag=1;
-		flag =1;
+    flag =1;
     break;  
   case 2: // CSC
 //    if ( (q==2 || fabs(etaValue) < 1.2) ||  q==3) flag =1;
@@ -79,8 +79,10 @@ unsigned L1MuGMTLFMergeRankEtaQLUT::TheLookupFunction (int idx, unsigned eta, un
   unsigned rank_etaq = q;
   // add 1 to RPC in order to promote it in case of equality (should go with the fix in L1MuGMTMerger.cc)
   if( idx==1 || idx==3 ) rank_etaq++;
-  // in the overlap region promote RPC
-  if( (idx==1 || idx==3) && (fabs(etaValue)>1. && fabs(etaValue)<1.23) ) rank_etaq=7;
+  if(m_GeneralLUTVersion == 0) {
+	  // in the overlap region promote RPC (valid for 2011 data)
+	  if( (idx==1 || idx==3) && (fabs(etaValue)>1. && fabs(etaValue)<1.23) ) rank_etaq=7;
+  }
 
   return flag << 7 | rank_etaq;
 }

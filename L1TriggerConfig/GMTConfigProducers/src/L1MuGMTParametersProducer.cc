@@ -81,6 +81,7 @@ L1MuGMTParametersProducer::produceL1MuGMTParameters(const L1MuGMTParametersRcd& 
   gmtparams->setCDLConfigWordbRPCCSC(m_ps->getParameter<unsigned>("CDLConfigWordbRPCCSC"));
   gmtparams->setCDLConfigWordfRPCDT(m_ps->getParameter<unsigned>("CDLConfigWordfRPCDT"));
   gmtparams->setVersionSortRankEtaQLUT(m_ps->getParameter<unsigned>("VersionSortRankEtaQLUT"));
+  gmtparams->setVersionLUTs(m_ps->getParameter<unsigned>("VersionLUTs"));
 
   return gmtparams ;
 }
