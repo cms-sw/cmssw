@@ -3,7 +3,9 @@ import FWCore.ParameterSet.Config as cms
 dtSegmentSelectionResiduals = cms.PSet(
     checkNoisyChannels = cms.bool(False),
     minHitsPhi = cms.int32(7),
+    #minHitsPhi = cms.int32(5),
     minHitsZ = cms.int32(4),
+    #minHitsZ = cms.int32(3),
     maxChi2 = cms.double(1000.0),
     maxAnglePhi = cms.double(25.),
     maxAngleZ = cms.double(999.)
