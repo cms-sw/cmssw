@@ -34,8 +34,10 @@ onlineHLTSource = cms.Sequence(EcalPi0Mon*EcalPhiSymMon*hltMonMuBits*hltMonTauRe
 # HLT Offline -----------------------------------
 
 # FourVector
-from DQMOffline.Trigger.FourVectorHLTOffline_cfi import *
+#from DQMOffline.Trigger.FourVectorHLTOffline_cfi import *
 # Egamma
+from DQMOffline.Trigger.HLTGeneralOffline_cfi import *
+
 from DQMOffline.Trigger.EgHLTOfflineSource_cfi import *
 #from DQMOffline.Trigger.TopElectronHLTOfflineSource_cfi import *
 # Muon
