@@ -27,9 +27,12 @@ DEFINE_FWK_MODULE(HLTmmkkFilter);
 #include "ConeIsolation.h"
 DEFINE_FWK_MODULE(ConeIsolation);
 
-#include "HLTCaloJetPairDzMatchFilter.h"
+#include "HLTJetPairDzMatchFilter.h"
+#include "HLTJetPairDzMatchFilter.cc"
+typedef   HLTJetPairDzMatchFilter<reco::CaloJet> HLTCaloJetPairDzMatchFilter;
+typedef   HLTJetPairDzMatchFilter<reco::PFJet> HLTPFJetPairDzMatchFilter;
 DEFINE_FWK_MODULE(HLTCaloJetPairDzMatchFilter);
-
+DEFINE_FWK_MODULE(HLTPFJetPairDzMatchFilter);
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
