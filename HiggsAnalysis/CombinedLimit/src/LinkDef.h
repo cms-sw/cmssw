@@ -7,9 +7,10 @@
 #include "../interface/TH1Keys.h"
 #include "../interface/RooSimultaneousOpt.h"
 #include "../interface/SimpleCacheSentry.h"
-#include "../interface/HZZ4LRooPdfs.h"
 #include "../interface/th1fmorph.h"
+#include "../interface/HZZ4LRooPdfs.h"
 #include "../interface/HZZ2L2QRooPdfs.h"
+#include "../interface/HGGRooPdfs.h"
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,29,99)
 #include "../interface/FlexibleInterpVar.h"
 #endif
@@ -51,6 +52,8 @@
 #pragma link C++ class RooCB+;
 #pragma link C++ class RooFermi+;
 #pragma link C++ class Triangle+;
+#pragma link C++ class RooLevelledExp+;
+#pragma link C++ class RooPower+;
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,29,99)
 #pragma link C++ class RooStats::HistFactory::FlexibleInterpVar+;
 #endif

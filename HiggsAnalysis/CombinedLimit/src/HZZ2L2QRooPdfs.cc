@@ -217,7 +217,6 @@ Triangle::Triangle(const Triangle& other, const char* name) :
 
 Double_t Triangle::evaluate() const 
 {
-
   //std::cout << m << " "<<1.+(start-m)/turn << " " << 1+(turn-m)/stop << std::endl;
   if(m<turn  && m > turn+start)
     return 1.+(turn-m)/start;
@@ -254,4 +253,52 @@ Double_t Triangle::analyticalIntegral(Int_t code, const char* rangeName) const
   
 
   return sumleft+sumright;    
+}
+
+
+
+
+ClassImp(RooLevelledExp)
+
+  RooLevelledExp::RooLevelledExp(){}
+
+RooLevelledExp::RooLevelledExp(const char *name, const char *title,
+			       RooAbsReal& _x,
+			       RooAbsReal& _sigma, 
+			       RooAbsReal& _alpha,
+			       RooAbsReal& _m,
+			       RooAbsReal& _theta):
+  RooAbsPdf(name,title),
+  x("x","x",this,_x),
+  sigma("sigma","sigma",this,_sigma),
+  alpha("alpha","alpha",this,_alpha),
+  m("m","m",this,_m),
+  //  k("k","k",this,_k),
+  theta("theta","theta",this,_theta)
+{
+}
+
+RooLevelledExp::RooLevelledExp(const RooLevelledExp& other, const char* name) :
+  RooAbsPdf(other,name),
+  x("x",this,other.x),
+  sigma("sigma",this,other.sigma),
+  alpha("alpha",this,other.alpha),
+  m("m",this,other.m),
+  theta("theta",this,other.theta)
+{
+}
+
+double RooLevelledExp::evaluate() const
+{
+  double res=0.0;
+  double s = cos(theta)*sigma - sin(theta)*alpha;
+  double a = sin(theta)*sigma + cos(theta)*alpha;
+    
+  //original
+  double t = fabs(x-m);
+  double den = (s + a*t);
+  res=exp(-1.0*t/den);
+  
+
+  return res;
 }

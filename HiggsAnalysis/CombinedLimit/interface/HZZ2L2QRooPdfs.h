@@ -156,4 +156,38 @@ private:
 };
 
 
+class RooLevelledExp : public RooAbsPdf {
+ public:
+  RooLevelledExp();
+  RooLevelledExp(const char *name, const char *title,
+		 RooAbsReal& _x,
+		 RooAbsReal& _sigma,
+		 RooAbsReal& _alpha,
+		 RooAbsReal& _m,
+		 //RooAbsReal& _k,
+		 RooAbsReal& _theta
+		);
+
+  RooLevelledExp(const RooLevelledExp& other, const char* name=0) ;
+  virtual TObject* clone(const char* newname) const { return new RooLevelledExp(*this,newname); }
+  inline virtual ~RooLevelledExp() { }
+
+ protected:
+
+  RooRealProxy x ;
+  RooRealProxy sigma;
+  RooRealProxy alpha;
+  RooRealProxy m;
+  // RooRealProxy k;
+  RooRealProxy theta;
+  
+
+  Double_t evaluate() const ;
+
+ private:
+
+  ClassDef(RooLevelledExp,1)
+    };
+
+
 #endif
