@@ -127,20 +127,27 @@ def reconfigurePF2PATTaus(process,
    # Set as the source for the pf2pat taus (pfTaus) selector
    applyPostfix(process,"pfTaus", postfix).src = producerName+postfix
    # Start our pf2pat taus base sequence
+   oldTauSansRefs = getattr(process,'pfTausProducerSansRefs'+postfix)
    oldTau = getattr(process,'pfTausProducer'+postfix)
    ## copy tau and setup it properly
+   newTauSansRefs = None
    newTau = getattr(process,producerName).clone()
    ## adapted to new structure in RecoTauProducers PLEASE CHECK!!!
-   if tauType=='shrinkingConePFTau': #Only shrCone tau has modifiers???
-       # like this, it should have it already definied??
-       newTau.modifiers[1] = cms.PSet(
+   if tauType=='shrinkingConePFTau':
+       newTauSansRefs = getattr(process,producerName+"SansRefs").clone()
+       newTauSansRefs.modifiers[1] = cms.PSet(
            pfTauTagInfoSrc = cms.InputTag("pfTauTagInfoProducer"+postfix),
            name = cms.string('pfTauTTIworkaround'+postfix),
            plugin = cms.string('RecoTauTagInfoWorkaroundModifer')
            )
-       newTau.piZeroSrc = "pfJetsLegacyTaNCPiZeros"+postfix
+       newTau.modifiers[1] = newTauSansRefs.modifiers[1]
+       newTauSansRefs.piZeroSrc = "pfJetsLegacyTaNCPiZeros"+postfix
+       newTau.piZeroSrc = newTauSansRefs.piZeroSrc 
+       newTauSansRefs.builders[0].pfCandSrc = oldTauSansRefs.builders[0].pfCandSrc
+       newTauSansRefs.jetRegionSrc = oldTauSansRefs.jetRegionSrc
+       newTauSansRefs.jetSrc = oldTauSansRefs.jetSrc
    elif tauType=='fixedConePFTau':
-       newTau.piZeroSrc = "pfJetsPiZeros"+postfix
+       newTau.piZeroSrc = "pfJetsLegacyTaNCPiZeros"+postfix
    elif tauType=='hpsPFTau':
        newTau = process.combinatoricRecoTaus.clone()
        newTau.piZeroSrc="pfJetsLegacyHPSPiZeros"+postfix
@@ -148,11 +155,15 @@ def reconfigurePF2PATTaus(process,
            pfTauTagInfoSrc = cms.InputTag("pfTauTagInfoProducer"+postfix),
            name = cms.string('pfTauTTIworkaround'+postfix),
            plugin = cms.string('RecoTauTagInfoWorkaroundModifer')
-        )
+           )
        from PhysicsTools.PatAlgos.tools.helpers import cloneProcessingSnippet
        cloneProcessingSnippet(process, process.produceHPSPFTaus, postfix)
        massSearchReplaceParam(getattr(process,"produceHPSPFTaus"+postfix),
                               "PFTauProducer",
+                              cms.InputTag("combinatoricRecoTaus"),
+                              cms.InputTag("pfTausBase"+postfix) )
+       massSearchReplaceParam(getattr(process,"produceHPSPFTaus"+postfix),
+                              "src",
                               cms.InputTag("combinatoricRecoTaus"),
                               cms.InputTag("pfTausBase"+postfix) )
        getattr(process,"hpsPFTauProducer"+postfix).src = "pfTausBase"+postfix
@@ -163,6 +174,10 @@ def reconfigurePF2PATTaus(process,
 
    # replace old tau producer by new one put it into baseSequence
    setattr(process,"pfTausBase"+postfix,newTau)
+   if tauType=='shrinkingConePFTau':
+       setattr(process,"pfTausBaseSansRefs"+postfix,newTauSansRefs)
+       getattr(process,"pfTausBase"+postfix).src = "pfTausBaseSansRefs"+postfix
+       baseSequence += getattr(process,"pfTausBaseSansRefs"+postfix)
    baseSequence += getattr(process,"pfTausBase"+postfix)
    if tauType=='hpsPFTau':
        baseSequence += getattr(process,"produceHPSPFTaus"+postfix)
@@ -239,10 +254,17 @@ def adaptPFTaus(process,tauType = 'shrinkingConePFTau', postfix = ""):
         reconfigurePF2PATTaus(process, tauType, postfix=postfix)
     else:
         reconfigurePF2PATTaus(process, tauType,
-                              ["DiscriminationByLooseChargedIsolation","DiscriminationByLooseIsolation"],
+                              ["DiscriminationByLooseCombinedIsolationDBSumPtCorr"],
                               ["DiscriminationByDecayModeFinding"],
                               postfix=postfix)
-    applyPostfix(process,"patTaus", postfix).tauSource = cms.InputTag("pfTaus"+postfix)
+    # new default use unselected taus (selected only for jet cleaning)
+    if tauType != 'hpsPFTau' :
+        applyPostfix(process,"patTaus", postfix).tauSource = cms.InputTag("pfTausBase"+postfix)
+    else:
+        applyPostfix(process,"patTaus", postfix).tauSource = cms.InputTag("hpsPFTauProducer"+postfix)
+    # to use preselected collection (old default) uncomment line below
+    #applyPostfix(process,"patTaus", postfix).tauSource = cms.InputTag("pfTaus"+postfix)    
+
 
     redoPFTauDiscriminators(process,
                             cms.InputTag(tauType+'Producer'),
@@ -479,9 +501,9 @@ def usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix="", 
                         jetCorrections=jetCorrections, type1=typeIMetCorrections, outputModules=outputModules )
 
     # Taus
-    adaptPFTaus( process, tauType='shrinkingConePFTau', postfix=postfix )
+    #adaptPFTaus( process, tauType='shrinkingConePFTau', postfix=postfix )
     #adaptPFTaus( process, tauType='fixedConePFTau', postfix=postfix )
-    #adaptPFTaus( process, tauType='hpsPFTau', postfix=postfix )
+    adaptPFTaus( process, tauType='hpsPFTau', postfix=postfix )
 
     # MET
     switchToPFMET(process, cms.InputTag('pfMET'+postfix), type1=typeIMetCorrections, postfix=postfix)

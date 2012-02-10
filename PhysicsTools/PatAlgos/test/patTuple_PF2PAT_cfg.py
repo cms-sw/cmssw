@@ -34,8 +34,11 @@ usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=True, postfix=postfix
 # to use tau-cleaned jet collection uncomment the following:
 #getattr(process,"pfNoTau"+postfix).enable = True
 
-# to switch default tau to HPS tau uncomment the following:
-#adaptPFTaus(process,"hpsPFTau",postfix=postfix)
+# to switch default tau (HPS) to old default tau (shrinking cone) uncomment
+# the following:
+# note: in current default taus are not preselected i.e. you have to apply
+# selection yourself at analysis level!
+#adaptPFTaus(process,"shrinkingConePFTau",postfix=postfix)
 
 
 # Let it run
