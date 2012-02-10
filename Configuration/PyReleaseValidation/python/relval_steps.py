@@ -185,23 +185,25 @@ steps['Wjet_Pt_3000_3500']=gen('Wjet_Pt_3000_3500_7TeV_cfi',K9by100)
 steps['LM1_sfts']=gen('LM1_sfts_7TeV_cfi',K9by100)
 steps['QCD_FlatPt_15_3000']=gen('QCDForPF_7TeV_cfi',K9by100)
 
-steps['MinBiasINPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/CMSSW_5_0_0-START50_V8-v3/GEN-SIM',location='STD')}
-steps['QCD_Pt_3000_3500INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_3000_3500/CMSSW_5_0_0-START50_V8-v3/GEN-SIM',location='STD')}
-steps['QCD_Pt_80_120INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_80_120/CMSSW_5_0_0-START50_V8-v3/GEN-SIM',location='STD')}
-steps['SingleElectronPt10INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleElectronPt10/CMSSW_5_0_0-START50_V8-v3/GEN-SIM',location='STD')}
-steps['SingleElectronPt35INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleElectronPt35/CMSSW_5_0_0-START50_V8-v3/GEN-SIM',location='STD')}
-steps['SingleGammaPt10INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleGammaPt10/CMSSW_5_0_0-START50_V8-v3/GEN-SIM',location='STD')}
-steps['SingleGammaPt35INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleGammaPt35/CMSSW_5_0_0-START50_V8-v3/GEN-SIM',location='STD')}
-steps['SingleMuPt10INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt10/CMSSW_5_0_0-START50_V8-v3/GEN-SIM',location='STD')}
-steps['SingleMuPt100INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt100/CMSSW_5_0_0-START50_V8-v3/GEN-SIM',location='STD')}
-steps['SingleMuPt1000INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt1000/CMSSW_5_0_0-START50_V8-v3/GEN-SIM',location='STD')}
-steps['TTbarINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar/CMSSW_5_0_0-START50_V8-v3/GEN-SIM',location='STD')}
+baseDataSetRelease=['CMSSW_5_0_0-START50_V8-v3']
+
+steps['MinBiasINPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
+steps['QCD_Pt_3000_3500INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_3000_3500/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
+steps['QCD_Pt_80_120INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_80_120/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
+steps['SingleElectronPt10INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleElectronPt10/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
+steps['SingleElectronPt35INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleElectronPt35/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
+steps['SingleGammaPt10INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleGammaPt10/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
+steps['SingleGammaPt35INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleGammaPt35/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
+steps['SingleMuPt10INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt10/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
+steps['SingleMuPt100INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt100/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
+steps['SingleMuPt1000INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt1000/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
+steps['TTbarINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['OldTTbarINPUT']={'INPUT':InputInfo(dataSet='/RelValProdTTbar/CMSSW_5_0_0_pre6-START50_V5-v1/GEN-SIM-RECO',location='STD')}
 steps['OldGenSimINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar/CMSSW_4_4_2-START44_V7-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',location='STD')}
-steps['Wjet_Pt_80_120INPUT']={'INPUT':InputInfo(dataSet='/RelValWjet_Pt_80_120/CMSSW_5_0_0-START50_V8-v3/GEN-SIM',location='STD')}
-steps['Wjet_Pt_3000_3500INPUT']={'INPUT':InputInfo(dataSet='/RelValWjet_Pt_3000_3500/CMSSW_5_0_0-START50_V8-v3/GEN-SIM',location='STD')}
-steps['LM1_sftsINPUT']={'INPUT':InputInfo(dataSet='/RelValLM1_sfts/CMSSW_5_0_0-START50_V8-v3/GEN-SIM',location='STD')}
-steps['QCD_FlatPt_15_3000INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_FlatPt_15_3000/CMSSW_5_0_0-START50_V8-v3/GEN-SIM',location='STD')}
+steps['Wjet_Pt_80_120INPUT']={'INPUT':InputInfo(dataSet='/RelValWjet_Pt_80_120/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
+steps['Wjet_Pt_3000_3500INPUT']={'INPUT':InputInfo(dataSet='/RelValWjet_Pt_3000_3500/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
+steps['LM1_sftsINPUT']={'INPUT':InputInfo(dataSet='/RelValLM1_sfts/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
+steps['QCD_FlatPt_15_3000INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_FlatPt_15_3000/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 
 ## high stat step1
 K700by280={'--relval': '70000,280'}
@@ -254,28 +256,28 @@ steps['PhotonJets_Pt_10']=genS('PhotonJet_Pt_10_7TeV_cfi',K9by100)
 steps['QQH1352T_Tauola']=genS('QQH1352T_Tauola_7TeV_cfi',K9by100)
 steps['ZmumuJets_Pt_20_300']=gen('ZmumuJets_Pt_20_300_GEN_7TeV_cfg',K250by100)
 
-steps['MinBias2INPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/CMSSW_5_0_0-START50_V8-v3/GEN-SIM',location='STD')}
-steps['Higgs200ChargedTausINPUT']={'INPUT':InputInfo(dataSet='/RelValHiggs200ChargedTaus/CMSSW_5_0_0-START50_V8-v3/GEN-SIM',location='STD')}
-steps['QCD_Pt_3000_3500_2INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_3000_3500/CMSSW_5_0_0-START50_V8-v3/GEN-SIM',location='STD')}
-steps['QCD_Pt_80_120_2INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_80_120/CMSSW_5_0_0-START50_V8-v3/GEN-SIM',location='STD')}
-steps['JpsiMMINPUT']={'INPUT':InputInfo(dataSet='/RelValJpsiMM/CMSSW_5_0_0-START50_V8-v3/GEN-SIM',location='STD')}
-steps['TTbar2INPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar/CMSSW_5_0_0-START50_V8-v3/GEN-SIM',location='STD')}
-steps['WEINPUT']={'INPUT':InputInfo(dataSet='/RelValWE/CMSSW_5_0_0-START50_V8-v3/GEN-SIM',location='STD')}
-steps['WMINPUT']={'INPUT':InputInfo(dataSet='/RelValWM/CMSSW_5_0_0-START50_V8-v3/GEN-SIM',location='STD')}
-steps['ZEEINPUT']={'INPUT':InputInfo(dataSet='/RelValZEE/CMSSW_5_0_0-START50_V8-v3/GEN-SIM',location='STD')}
-steps['ZMMINPUT']={'INPUT':InputInfo(dataSet='/RelValZMM/CMSSW_5_0_0-START50_V8-v3/GEN-SIM',location='STD')}
-steps['ZTTINPUT']={'INPUT':InputInfo(dataSet='/RelValZTT/CMSSW_5_0_0-START50_V8-v3/GEN-SIM',location='STD')}
-steps['H130GGgluonfusionINPUT']={'INPUT':InputInfo(dataSet='/RelValH130GGgluonfusion/CMSSW_5_0_0-START50_V8-v3/GEN-SIM',location='STD')}
-steps['PhotonJets_Pt_10INPUT']={'INPUT':InputInfo(dataSet='/RelValPhotonJets_Pt_10/CMSSW_5_0_0-START50_V8-v3/GEN-SIM',location='STD')}
-steps['QQH1352T_TauolaINPUT']={'INPUT':InputInfo(dataSet='/RelValQQH1352T_Tauola/CMSSW_5_0_0-START50_V8-v3/GEN-SIM',location='STD')}
+steps['MinBias2INPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
+steps['Higgs200ChargedTausINPUT']={'INPUT':InputInfo(dataSet='/RelValHiggs200ChargedTaus/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
+steps['QCD_Pt_3000_3500_2INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_3000_3500/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
+steps['QCD_Pt_80_120_2INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_80_120/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
+steps['JpsiMMINPUT']={'INPUT':InputInfo(dataSet='/RelValJpsiMM/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
+steps['TTbar2INPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
+steps['WEINPUT']={'INPUT':InputInfo(dataSet='/RelValWE/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
+steps['WMINPUT']={'INPUT':InputInfo(dataSet='/RelValWM/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
+steps['ZEEINPUT']={'INPUT':InputInfo(dataSet='/RelValZEE/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
+steps['ZMMINPUT']={'INPUT':InputInfo(dataSet='/RelValZMM/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
+steps['ZTTINPUT']={'INPUT':InputInfo(dataSet='/RelValZTT/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
+steps['H130GGgluonfusionINPUT']={'INPUT':InputInfo(dataSet='/RelValH130GGgluonfusion/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
+steps['PhotonJets_Pt_10INPUT']={'INPUT':InputInfo(dataSet='/RelValPhotonJets_Pt_10/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
+steps['QQH1352T_TauolaINPUT']={'INPUT':InputInfo(dataSet='/RelValQQH1352T_Tauola/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 
 steps['ZmumuJets_Pt_20_300INPUT']={'INPUT':InputInfo(dataSet='/RelValZmumuJets_Pt_20_300PU1/CMSSW_5_0_0_patch1-START50_V8_PU_E7TeV_FlatDist10_2011EarlyData_50ns_PoissonOOT_special_120124-v1/GEN-SIM',location='STD')}
 
 steps['Cosmics']=merge([{'cfg':'UndergroundCosmicMu_cfi.py','--relval':'666000,3000','--scenario':'cosmics'},step1Defaults])
 steps['BeamHalo']=merge([{'cfg':'BeamHalo_cfi.py','--scenario':'cosmics'},K9by100,step1Defaults])
 
-steps['CosmicsINPUT']={'INPUT':InputInfo(dataSet='/RelValCosmics/CMSSW_5_0_0-START50_V8-v3/GEN-SIM',location='STD')}
-steps['BeamHaloINPUT']={'INPUT':InputInfo(dataSet='/RelValBeamHalo/CMSSW_5_0_0-START50_V8-v3/GEN-SIM',location='STD')}
+steps['CosmicsINPUT']={'INPUT':InputInfo(dataSet='/RelValCosmics/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
+steps['BeamHaloINPUT']={'INPUT':InputInfo(dataSet='/RelValBeamHalo/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 
 steps['QCD_Pt_50_80']=genS('QCD_Pt_50_80_7TeV_cfi',K250by100)
 steps['QCD_Pt_15_20']=genS('QCD_Pt_15_20_7TeV_cfi',K250by100)
@@ -315,7 +317,7 @@ def changeRefRelease(step1s,listOfPairs):
     for s in step1s:
         if ('INPUT' in step1s[s]):
             oldD=steps[s]['INPUT'].dataSet
-            for ref,newRef in listOfPairs:
+            for (ref,newRef) in listOfPairs:
                 if  ref in oldD:
                     steps[s]['INPUT'].dataSet=oldD.replace(ref,newRef)
                                         
@@ -412,7 +414,7 @@ steps['Z2Jets_Pt-0To100_TuneZ2_7TeV_alpgen_tauola']=genvalid('Hadronizer_Et20Exc
 steps['Z3Jets-Pt_0To100_TuneZ2_7TeV_alpgen_tauola']=genvalid('Hadronizer_Et20ExclTuneZ2_7TeV_alpgen_tauola_cff',step1GenDefaults,'dy',443)
 steps['ZJetsLNu_Tune4C_7TeV_madgraph-pythia8']=genvalid('Hadronizer_MgmMatchTune4C_7TeV_madgraph_pythia8_cff',step1GenDefaults,'dy',2925)
 
-PU={'--pileup':'E7TeV_FlatDist10_2011EarlyData_50ns_PoissonOOT','--pileup_input':'dbs:/RelValProdMinBias/CMSSW_5_0_0-START50_V8-v3/GEN-SIM-RAW'}
+PU={'--pileup':'E7TeV_FlatDist10_2011EarlyData_50ns_PoissonOOT','--pileup_input':'dbs:/RelValProdMinBias/%s/GEN-SIM-RAW'%(baseDataSetRelease[0],)}
 
 steps['TTbarFSPU']=merge([{'--pileup':'FlatDist10_2011EarlyData_50ns'},steps['TTbarFS']])
 ##########################

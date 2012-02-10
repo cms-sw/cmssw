@@ -10,7 +10,7 @@ from Configuration.PyReleaseValidation.MatrixRunner import MatrixRunner
 def showRaw(opt):
 
     mrd = MatrixReader()
-    mrd.showRaw(opt.useInput, opt.refRel, opt.fromScratch, opt.what, opt.step1Only, selected=opt.testList)
+    mrd.showRaw(opt.useInput, opt.refRel, opt.fromScratch, opt.raw, opt.step1Only, selected=opt.testList)
 
     return 0
         
@@ -95,7 +95,7 @@ if __name__ == '__main__':
     parser.add_option('--refRelease',
                       help='Allow to modify the recycling dataset version',
                       dest='refRel',
-                      default=''
+                      default=None
                       )
     parser.add_option('--wmcontrol',
                       help='Create the workflows for injection to WMAgent. In the WORKING',
@@ -114,7 +114,6 @@ if __name__ == '__main__':
     if opt.useInput: opt.useInput = opt.useInput.split(',')
     if opt.fromScratch: opt.fromScratch = opt.fromScratch.split(',')
                      
-    
     # some sanity checking:
     if opt.useInput and opt.useInput != 'all' :
         for item in opt.useInput:

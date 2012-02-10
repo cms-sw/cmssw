@@ -72,7 +72,7 @@ class MatrixReader(object):
             cmd += ' --no_exec '
         return cfg, input, cmd
     
-    def readMatrix(self, fileNameIn, useInput=None, refRel='CMSSW_4_2_0_pre2', fromScratch=None):
+    def readMatrix(self, fileNameIn, useInput=None, refRel=None, fromScratch=None):
         
         prefix = self.filesPrefMap[fileNameIn]
         
@@ -86,6 +86,14 @@ class MatrixReader(object):
             return
 
         print "request for INPUT for ", useInput
+
+        #change the origin of dataset on the fly
+        if refRel:
+            self.relvalModule.changeRefRelease(
+                self.relvalModule.steps,
+                [(x,refRel) for x in self.relvalModule.baseDataSetRelease]
+                )
+            
 
         for num, wfInfo in self.relvalModule.workflows.items():
             commands=[]
@@ -145,7 +153,7 @@ class MatrixReader(object):
         return
 
 
-    def showRaw(self, useInput, refRel='CMSSW_4_2_0_pre2', fromScratch=None, what='all',step1Only=False,selected=None):
+    def showRaw(self, useInput, refRel=None, fromScratch=None, what='all',step1Only=False,selected=None):
 
         if selected:
             selected=map(float,selected)
