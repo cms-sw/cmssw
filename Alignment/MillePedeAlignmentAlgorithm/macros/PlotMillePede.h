@@ -1,7 +1,7 @@
 #ifndef PLOTMILLEPEDE_H
 #define PLOTMILLEPEDE_H
 // Original Author: Gero Flucke
-// last change    : $Date: 2011/08/08 21:55:48 $
+// last change    : $Date: 2011/11/14 10:37:25 $
 // by             : $Author: flucke $
 //
 // PlotMillePede is a class to interprete the content of the ROOT
@@ -33,6 +33,10 @@
 // A title can be set by 'void SetTitle(const char *title)':
 // The title will appear as part of all histogram titles.
 //
+// The x-axis ranges of many histograms can be controlled by calling
+//   Float_t SetMaxDev(Float_t maxDev); // set x-axis range for result plots
+// before calling s Draw-method.  SetMaxDev returns the previous set value.
+//
 // Several cuts can be set and are active until reset for all drawing routines
 // called after setting them. Active selections are mentioned in histogram titles.
 // The possibilites to set cuts are:
@@ -44,6 +48,10 @@
 //  * using (repeated) calls of
 //    void AddSubDetId(Int_t subDetId);
 //    leads to an OR selection of subdetectors
+//  * can use void SetSubDetIds(Int_t id1, Int_t id2,
+//                              Int_t id3 = -1, Int_t id4 = -1, Int_t id5 = -1);
+//    i.e. call 'SetSubDetId(id1)' and subsequently AddSubDetId(id<n>) for all
+//    n > 1 with id<n> > 0.
 //
 // 2) Special alignable types:
 // Int_t SetAlignableTypeId(Int_t alignableTypeId);
@@ -131,7 +139,7 @@ class PlotMillePede : public MillePedeTrees
   void DrawSurfaceDeformationsLayer(Option_t *option = "", const unsigned int firstDetLayer = 22,
 				    const unsigned int lastDetLayer = 33,
 				    const TString &whichOne = "result",
-				    unsigned int maxNumPars = 12);//"add", "verbose", "nolimit", "spread"; which det layers; "start", "result", "diff" 
+				    unsigned int maxNumPars = 12);//"add", "verbose", "verboseByParam", "nolimit", "spread"; which det layers; "start", "result", "diff" 
 
 
 
@@ -165,10 +173,11 @@ class PlotMillePede : public MillePedeTrees
   const TArrayI* GetSubDetIds() const { return &fSubDetIds;} // selected subdets
   void SetSubDetId(Int_t subDetId); // 1-6 are TPB, TPE, TIB, TID, TOB, TEC, -1 means: take all
   void AddSubDetId(Int_t subDetId); // 1-6 are TPB, TPE, TIB, TID, TOB, TEC
+  void SetSubDetIds(Int_t id1, Int_t id2, Int_t id3 = -1, Int_t id4 = -1, Int_t id5 = -1); // ignores id<n> <= 0
   Int_t SetAlignableTypeId(Int_t alignableTypeId);//detunit=1,det=2,...,TIBString=15,etc. from StructureType.h (-1: all)
   Int_t SetHieraLevel(Int_t hieraLevel); // select hierarchical level (-1: all)
   void AddAdditionalSel(const char *selection);// special select; StripDoubleOr1D,StripRphi,StripStereo (may be prepended by 'Not')
-  void AddAdditionalSel(const TString &xyzrPhiNhit, Float_t min, Float_t max); // x,y,z,r,phi,Nhit
+  void AddAdditionalSel(const TString &xyzrPhiNhit, Float_t min, Float_t max); // min <= x,y,z,r,phi,Nhit < max
 
   const TString GetAdditionalSel () const { return fAdditionalSel;}
   void ClearAdditionalSel () { fAdditionalSel = ""; fAdditionalSelTitle = "";}

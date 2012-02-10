@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2011/08/08 21:55:48 $
+// last change    : $Date: 2011/11/14 10:37:25 $
 // by             : $Author: flucke $
 
 #include "PlotMillePede.h"
@@ -440,6 +440,7 @@ void PlotMillePede::DrawSurfaceDeformationsLayer(Option_t *option, const unsigne
   const bool noLimit = opt.Contains("nolimit", TString::kIgnoreCase);
   const bool spread = opt.Contains("spread", TString::kIgnoreCase);
   const bool verbose = opt.Contains("verbose", TString::kIgnoreCase);
+  const bool verbose2 = opt.Contains("verboseByParam", TString::kIgnoreCase);
 
   this->SetDetLayerCuts(0, false); // just to generate warnings if needed!
   // loop on deformation parameters
@@ -488,7 +489,8 @@ void PlotMillePede::DrawSurfaceDeformationsLayer(Option_t *option, const unsigne
 	h->SetTitle(("SurfaceDeformation " + whichOne) += " "
 		    + NameSurfDef(iPar) += this->TitleAdd() + ";"
 		    + NameSurfDef(iPar) += UnitSurfDef(iPar));
-	fHistManager->AddHist(h, firstLayer + 2 + iDetLayer);
+	if (verbose2) fHistManager->AddHist(h, firstLayer + 2 + iPar);
+	else          fHistManager->AddHist(h, firstLayer + 2 + iDetLayerUsed);
       } else delete h;
     }
     layerHist->LabelsDeflate(); // adjust to avoid empty bins
@@ -1752,6 +1754,17 @@ void PlotMillePede::AddSubDetId(Int_t subDetId)
   fSubDetIds.Set(last+1); // enlarge by one
   fSubDetIds[last] = subDetId;
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+void PlotMillePede::SetSubDetIds(Int_t id1, Int_t id2, Int_t id3, Int_t id4, Int_t id5)
+{
+  this->SetSubDetId(id1);
+  const Int_t ids[] = {id2, id3, id4, id5};
+  for (unsigned int i = 0; i < sizeof(ids)/sizeof(ids[0]); ++i) {
+    if (ids[i] > 0) this->AddSubDetId(ids[i]);
+  }
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 TString PlotMillePede::TitleAdd() const
