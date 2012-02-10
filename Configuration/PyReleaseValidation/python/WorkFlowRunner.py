@@ -67,7 +67,8 @@ class WorkFlowRunner(Thread):
 
         inFile=None
         aborted=False
-        for (istep,com) in enumerate(self.wf.cmds):
+        for (istepmone,com) in enumerate(self.wf.cmds):
+            istep=istepmone+1
             cmd = preamble
             if aborted:
                 self.npass.append(0)
@@ -76,6 +77,14 @@ class WorkFlowRunner(Thread):
                 self.stat.append('NOTRUN')
                 continue
             if not isinstance(com,str):
+                if com.location == 'CAF' and not onCAF:
+                    print "You need to be no CAF to run",self.wf.numId
+                    self.npass.append(0)
+                    self.nfail.append(0)
+                    self.retStep.append(0)
+                    self.stat.append('NOTRUN')
+                    aborted=True
+                    continue
                 print "going to run with file input ... "
                 #cmd+=self.wf.input.dbs() #should be taken from the com object
                 cmd+=com.dbs()
@@ -91,10 +100,10 @@ class WorkFlowRunner(Thread):
                 if inFile: #in case previous step used DBS query (either filelist of dbs:)
                     cmd += ' --filein '+inFile
                     inFile=None
-                if 'HARVESTING' in cmd and not '134' in str(self.wf.numId):
+                if 'HARVESTING' in cmd and not '134' in str(self.wf.numId) and not '--filein' in cmd:
                     cmd+=' --filein file:step%d_inDQM.root --fileout file:step%d.root '%(istep-1,istep)
                 else:
-                    if istep!=0 and not '--filein' in cmd:
+                    if istep!=1 and not '--filein' in cmd:
                         cmd+=' --filein file:step%s.root '%(istep-1,)
                     if not '--fileout' in com:
                         cmd+=' --fileout file:step%s.root '%(istep,)
