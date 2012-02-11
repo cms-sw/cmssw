@@ -399,7 +399,7 @@ HLT_DoubleEle10_CaloIdL_TrkIdVL_Ele10_CaloIdT_TrkIdVL_v*
 HLT_TripleEle10_CaloIdL_TrkIdVL_v*
 HLT_PixelTracks_Multiplicity80_v*
 HLT_PixelTracks_Multiplicity100_v*
-HLT_BeamGas_HF_v*
+# HLT_BeamGas_HF_v*                                      # removed sr #126174
 HLT_BeamGas_HF_Beam1_v*
 HLT_BeamGas_HF_Beam2_v*
 HLT_BeamHalo_v*

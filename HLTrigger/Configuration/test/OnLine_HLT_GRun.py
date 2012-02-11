@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_1_0/GRun/V20 (CMSSW_5_2_0_pre4_HLT6)
+# /dev/CMSSW_5_1_0/GRun/V22 (CMSSW_5_2_0_pre4_HLT6)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V20')
+  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V22')
 )
 
 process.streams = cms.PSet( 
@@ -63,7 +63,6 @@ process.datasets = cms.PSet(
   Commissioning = cms.vstring( 'HLT_Activity_Ecal_SC7_v9',
     'HLT_BeamGas_HF_Beam1_v3',
     'HLT_BeamGas_HF_Beam2_v3',
-    'HLT_BeamGas_HF_v7',
     'HLT_IsoTrackHB_v10',
     'HLT_IsoTrackHE_v11',
     'HLT_L1SingleEG12_v4',
@@ -424,7 +423,6 @@ process.datasets = cms.PSet(
     'HLT_BTagMu_DiJet70_Mu5_v15',
     'HLT_BeamGas_HF_Beam1_v3',
     'HLT_BeamGas_HF_Beam2_v3',
-    'HLT_BeamGas_HF_v7',
     'HLT_BeamHalo_v9',
     'HLT_CentralJet46_CentralJet38_DiBTagIP3D_v8',
     'HLT_CentralJet60_CentralJet53_DiBTagIP3D_v7',
@@ -658,8 +656,8 @@ process.datasets = cms.PSet(
     'HLT_L1DoubleMu0_v5',
     'HLT_L1SingleEG12_v4',
     'HLT_L1SingleEG5_v4',
-    'HLT_L1SingleJet16_v5')+cms.vstring( 'HLT_L1SingleJet36_v5',
-    'HLT_L1SingleMu10_v5',
+    'HLT_L1SingleJet16_v5',
+    'HLT_L1SingleJet36_v5')+cms.vstring( 'HLT_L1SingleMu10_v5',
     'HLT_L1SingleMu20_v5',
     'HLT_L1SingleMuOpen_AntiBPTX_v4',
     'HLT_L1SingleMuOpen_DT_v5',
@@ -852,7 +850,6 @@ process.datasets = cms.PSet(
     'HLT_BTagMu_DiJet70_Mu5_v15',
     'HLT_BeamGas_HF_Beam1_v3',
     'HLT_BeamGas_HF_Beam2_v3',
-    'HLT_BeamGas_HF_v7',
     'HLT_BeamHalo_v9',
     'HLT_CentralJet46_CentralJet38_DiBTagIP3D_v8',
     'HLT_CentralJet60_CentralJet53_DiBTagIP3D_v7',
@@ -1086,8 +1083,8 @@ process.datasets = cms.PSet(
     'HLT_L1SingleEG12_v4',
     'HLT_L1SingleEG5_v4',
     'HLT_L1SingleJet16_v5',
-    'HLT_L1SingleJet36_v5')+cms.vstring( 'HLT_L1SingleMu10_v5',
-    'HLT_L1SingleMu20_v5',
+    'HLT_L1SingleJet36_v5',
+    'HLT_L1SingleMu10_v5')+cms.vstring( 'HLT_L1SingleMu20_v5',
     'HLT_L1SingleMuOpen_AntiBPTX_v4',
     'HLT_L1SingleMuOpen_DT_v5',
     'HLT_L1SingleMuOpen_v5',
@@ -1273,7 +1270,6 @@ process.datasets = cms.PSet(
     'HLT_BTagMu_DiJet70_Mu5_v15',
     'HLT_BeamGas_HF_Beam1_v3',
     'HLT_BeamGas_HF_Beam2_v3',
-    'HLT_BeamGas_HF_v7',
     'HLT_BeamHalo_v9',
     'HLT_CentralJet46_CentralJet38_DiBTagIP3D_v8',
     'HLT_CentralJet60_CentralJet53_DiBTagIP3D_v7',
@@ -1514,8 +1510,8 @@ process.datasets = cms.PSet(
     'HLT_L1SingleMu10_v5',
     'HLT_L1SingleMu20_v5',
     'HLT_L1SingleMuOpen_AntiBPTX_v4',
-    'HLT_L1SingleMuOpen_DT_v5')+cms.vstring( 'HLT_L1SingleMuOpen_v5',
-    'HLT_L1Tech_CASTOR_HaloMuon_v2',
+    'HLT_L1SingleMuOpen_DT_v5',
+    'HLT_L1SingleMuOpen_v5')+cms.vstring( 'HLT_L1Tech_CASTOR_HaloMuon_v2',
     'HLT_L1Tech_DT_GlobalOR_v2',
     'HLT_L1Tech_HBHEHO_totalOR_v4',
     'HLT_L1Tech_HCAL_HF_single_channel_v2',
@@ -1812,7 +1808,7 @@ process.GlobalTag = cms.ESSource( "PoolDBESSource",
     toGet = cms.VPSet( 
     ),
     connect = cms.string( "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG" ),
-    globaltag = cms.string( "GR_H_V25::All" )
+    globaltag = cms.string( "GR_H_V26::All" )
 )
 process.HepPDTESSource = cms.ESSource( "HepPDTESSource",
     pdtFileName = cms.FileInPath( "SimGeneral/HepPDTESSource/data/pythiaparticle.tbl" )
@@ -3924,6 +3920,17 @@ process.siStripLorentzAngleDepESProducer = cms.ESProducer( "SiStripLorentzAngleD
 )
 process.sistripconn = cms.ESProducer( "SiStripConnectivity" )
 
+process.FastTimerService = cms.Service( "FastTimerService",
+    dqmPath = cms.untracked.string( "HLT/TimerService" ),
+    useRealTimeClock = cms.untracked.bool( True ),
+    dqmTimeResolution = cms.untracked.double( 1.0 ),
+    enableDQMbyLumi = cms.untracked.bool( False ),
+    enableTimingPaths = cms.untracked.bool( True ),
+    enableTimingModules = cms.untracked.bool( True ),
+    enableDQM = cms.untracked.bool( True ),
+    dqmTimeRange = cms.untracked.double( 200.0 ),
+    enableTimingSummary = cms.untracked.bool( True )
+)
 process.DQM = cms.Service( "DQM",
     publishFrequency = cms.untracked.double( 5.0 ),
     debug = cms.untracked.bool( False ),
@@ -5211,9 +5218,6 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 10, 10, 10, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_PixelTracks_Multiplicity100_v9" ),
-        prescales = cms.vuint32( 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 )
-      ),
-      cms.PSet(  pathName = cms.string( "HLT_BeamGas_HF_v7" ),
         prescales = cms.vuint32( 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_BeamGas_HF_Beam1_v3" ),
@@ -33379,28 +33383,6 @@ process.hlt1HighMult100 = cms.EDFilter( "HLTSingleVertexPixelTrackFilter",
     MaxPt = cms.double( 10000.0 ),
     MinSep = cms.double( 0.05 )
 )
-process.hltL1sL1BeamGasHf = cms.EDFilter( "HLTLevel1GTSeed",
-    saveTags = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_BeamGas_Hf" ),
-    L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
-    L1UseL1TriggerObjectMaps = cms.bool( True ),
-    L1UseAliasesForSeeding = cms.bool( True ),
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
-    L1NrBxInEvent = cms.int32( 3 ),
-    L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
-    L1TechTriggerSeeding = cms.bool( False )
-)
-process.hltPreBeamGasHF = cms.EDFilter( "HLTPrescaler",
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    offset = cms.uint32( 0 )
-)
-process.hltHFAsymmetryFilter = cms.EDFilter( "HLTHFAsymmetryFilter",
-    ECut_HF = cms.double( 3.0 ),
-    SS_Asym_min = cms.double( 0.8 ),
-    HFHitCollection = cms.InputTag( "hltHfreco" ),
-    OS_Asym_max = cms.double( 0.2 )
-)
 process.hltL1sL1BeamGasHfBptxPlusPostQuiet = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( True ),
     L1SeedsLogicalExpression = cms.string( "L1_BeamGas_Hf_BptxPlusPostQuiet" ),
@@ -33419,7 +33401,7 @@ process.hltPreBeamGasHFBeam1 = cms.EDFilter( "HLTPrescaler",
 )
 process.hltHFAsymmetryFilterTight = cms.EDFilter( "HLTHFAsymmetryFilter",
     ECut_HF = cms.double( 5.0 ),
-    SS_Asym_min = cms.double( 0.6 ),
+    SS_Asym_min = cms.double( 0.45 ),
     HFHitCollection = cms.InputTag( "hltHfreco" ),
     OS_Asym_max = cms.double( -1.0 )
 )
@@ -35330,7 +35312,6 @@ process.hltPreDQMForPPOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_TripleEle10_CaloIdL_TrkIdVL_v12',
       'HLT_PixelTracks_Multiplicity80_v9',
       'HLT_PixelTracks_Multiplicity100_v9',
-      'HLT_BeamGas_HF_v7',
       'HLT_BeamGas_HF_Beam1_v3',
       'HLT_BeamGas_HF_Beam2_v3',
       'HLT_BeamHalo_v9',
@@ -35819,7 +35800,6 @@ process.hltPreHLTDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_TripleEle10_CaloIdL_TrkIdVL_v12',
       'HLT_PixelTracks_Multiplicity80_v9',
       'HLT_PixelTracks_Multiplicity100_v9',
-      'HLT_BeamGas_HF_v7',
       'HLT_BeamGas_HF_Beam1_v3',
       'HLT_BeamGas_HF_Beam2_v3',
       'HLT_BeamHalo_v9',
@@ -36271,7 +36251,6 @@ process.hltPreHLTMONOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_TripleEle10_CaloIdL_TrkIdVL_v12',
       'HLT_PixelTracks_Multiplicity80_v9',
       'HLT_PixelTracks_Multiplicity100_v9',
-      'HLT_BeamGas_HF_v7',
       'HLT_BeamGas_HF_Beam1_v3',
       'HLT_BeamGas_HF_Beam2_v3',
       'HLT_BeamHalo_v9',
@@ -36344,7 +36323,6 @@ process.hltOutputAForPP = cms.OutputModule( "PoolOutputModule",
   'HLT_BTagMu_DiJet70_Mu5_v15',
   'HLT_BeamGas_HF_Beam1_v3',
   'HLT_BeamGas_HF_Beam2_v3',
-  'HLT_BeamGas_HF_v7',
   'HLT_BeamHalo_v9',
   'HLT_CentralJet46_CentralJet38_DiBTagIP3D_v8',
   'HLT_CentralJet60_CentralJet53_DiBTagIP3D_v7',
@@ -36585,8 +36563,8 @@ process.hltOutputAForPP = cms.OutputModule( "PoolOutputModule",
   'HLT_L1SingleMuOpen_DT_v5',
   'HLT_L1SingleMuOpen_v5',
   'HLT_L1Tech_CASTOR_HaloMuon_v2',
-  'HLT_L1Tech_DT_GlobalOR_v2')+cms.vstring( 'HLT_L1Tech_HBHEHO_totalOR_v4',
-  'HLT_L1Tech_HCAL_HF_single_channel_v2',
+  'HLT_L1Tech_DT_GlobalOR_v2',
+  'HLT_L1Tech_HBHEHO_totalOR_v4')+cms.vstring( 'HLT_L1Tech_HCAL_HF_single_channel_v2',
   'HLT_L1TrackerCosmics_v5',
   'HLT_L1_Interbunch_BSC_v4',
   'HLT_L1_PreCollisions_v4',
@@ -36836,7 +36814,6 @@ process.hltOutputDQMForPP = cms.OutputModule( "PoolOutputModule",
   'HLT_BTagMu_DiJet70_Mu5_v15',
   'HLT_BeamGas_HF_Beam1_v3',
   'HLT_BeamGas_HF_Beam2_v3',
-  'HLT_BeamGas_HF_v7',
   'HLT_BeamHalo_v9',
   'HLT_CentralJet46_CentralJet38_DiBTagIP3D_v8',
   'HLT_CentralJet60_CentralJet53_DiBTagIP3D_v7',
@@ -37077,8 +37054,8 @@ process.hltOutputDQMForPP = cms.OutputModule( "PoolOutputModule",
   'HLT_L1SingleMu10_v5',
   'HLT_L1SingleMu20_v5',
   'HLT_L1SingleMuOpen_AntiBPTX_v4',
-  'HLT_L1SingleMuOpen_DT_v5')+cms.vstring( 'HLT_L1SingleMuOpen_v5',
-  'HLT_L1Tech_CASTOR_HaloMuon_v2',
+  'HLT_L1SingleMuOpen_DT_v5',
+  'HLT_L1SingleMuOpen_v5')+cms.vstring( 'HLT_L1Tech_CASTOR_HaloMuon_v2',
   'HLT_L1Tech_DT_GlobalOR_v2',
   'HLT_L1Tech_HBHEHO_totalOR_v4',
   'HLT_L1Tech_HCAL_HF_single_channel_v2',
@@ -37349,7 +37326,6 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_BTagMu_DiJet70_Mu5_v15',
   'HLT_BeamGas_HF_Beam1_v3',
   'HLT_BeamGas_HF_Beam2_v3',
-  'HLT_BeamGas_HF_v7',
   'HLT_BeamHalo_v9',
   'HLT_CentralJet46_CentralJet38_DiBTagIP3D_v8',
   'HLT_CentralJet60_CentralJet53_DiBTagIP3D_v7',
@@ -37583,8 +37559,8 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_L1SingleEG12_v4',
   'HLT_L1SingleEG5_v4',
   'HLT_L1SingleJet16_v5',
-  'HLT_L1SingleJet36_v5')+cms.vstring( 'HLT_L1SingleMu10_v5',
-  'HLT_L1SingleMu20_v5',
+  'HLT_L1SingleJet36_v5',
+  'HLT_L1SingleMu10_v5')+cms.vstring( 'HLT_L1SingleMu20_v5',
   'HLT_L1SingleMuOpen_AntiBPTX_v4',
   'HLT_L1SingleMuOpen_DT_v5',
   'HLT_L1SingleMuOpen_v5',
@@ -37965,7 +37941,6 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
   'HLT_BTagMu_DiJet70_Mu5_v15',
   'HLT_BeamGas_HF_Beam1_v3',
   'HLT_BeamGas_HF_Beam2_v3',
-  'HLT_BeamGas_HF_v7',
   'HLT_BeamHalo_v9',
   'HLT_CentralJet46_CentralJet38_DiBTagIP3D_v8',
   'HLT_CentralJet60_CentralJet53_DiBTagIP3D_v7',
@@ -38199,8 +38174,8 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
   'HLT_L1DoubleMu0_v5',
   'HLT_L1SingleEG12_v4',
   'HLT_L1SingleEG5_v4',
-  'HLT_L1SingleJet16_v5')+cms.vstring( 'HLT_L1SingleJet36_v5',
-  'HLT_L1SingleMu10_v5',
+  'HLT_L1SingleJet16_v5',
+  'HLT_L1SingleJet36_v5')+cms.vstring( 'HLT_L1SingleMu10_v5',
   'HLT_L1SingleMu20_v5',
   'HLT_L1SingleMuOpen_AntiBPTX_v4',
   'HLT_L1SingleMuOpen_DT_v5',
@@ -39186,7 +39161,6 @@ process.HLT_DoubleEle10_CaloIdL_TrkIdVL_Ele10_CaloIdT_TrkIdVL_v6 = cms.Path( pro
 process.HLT_TripleEle10_CaloIdL_TrkIdVL_v12 = cms.Path( process.HLTBeginSequence + process.hltL1sL1TripleEG7 + process.hltPreTripleEle10CaloIdLTrkIdVL + process.HLTTripleElectronEt10L1NonIsoHLTNonIsoSequence + process.HLTDoEgammaClusterShapeSequence + process.hltL1NonIsoHLT3LegEleIdTripleElectronEt10ClusterShapeFilter + process.HLTPixelMatchElectronL1IsoTrackingSequence + process.HLTPixelMatchElectronL1NonIsoTrackingSequence + process.hltL1NonIsoHLT3LegEleIdTripleElectronEt10OneOEMinusOneOPFilter + process.HLTDoElectronDetaDphiSequence + process.hltL1NonIsoHLT3LegEleIdTripleElectronEt10EleIdDetaFilter + process.hltL1NonIsoHLT3LegEleIdTripleElectronEt10EleIdDphiFilter + process.HLTEndSequence )
 process.HLT_PixelTracks_Multiplicity80_v9 = cms.Path( process.HLTBeginSequence + process.hltL1sETT220 + process.hltPrePixelTracksMultiplicity80 + process.HLTDoLocalPixelSequence + process.hltPixelClusterShapeFilter + process.HLTRecopixelvertexingForHighMultSequence + process.hltPixelCandsForHighMult + process.hlt1HighMult80 + process.HLTEndSequence )
 process.HLT_PixelTracks_Multiplicity100_v9 = cms.Path( process.HLTBeginSequence + process.hltL1sETT220 + process.hltPrePixelTracksMultiplicity100 + process.HLTDoLocalPixelSequence + process.hltPixelClusterShapeFilter + process.HLTRecopixelvertexingForHighMultSequence + process.hltPixelCandsForHighMult + process.hlt1HighMult100 + process.HLTEndSequence )
-process.HLT_BeamGas_HF_v7 = cms.Path( process.HLTBeginSequence + process.hltL1sL1BeamGasHf + process.hltPreBeamGasHF + process.hltHcalDigis + process.hltHfreco + process.hltHFAsymmetryFilter + process.HLTEndSequence )
 process.HLT_BeamGas_HF_Beam1_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sL1BeamGasHfBptxPlusPostQuiet + process.hltPreBeamGasHFBeam1 + process.hltHcalDigis + process.hltHfreco + process.hltHFAsymmetryFilterTight + process.HLTEndSequence )
 process.HLT_BeamGas_HF_Beam2_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sL1BeamGasHfBptxMinusPostQuiet + process.hltPreBeamGasHFBeam2 + process.hltHcalDigis + process.hltHfreco + process.hltHFAsymmetryFilterTight + process.HLTEndSequence )
 process.HLT_BeamHalo_v9 = cms.Path( process.HLTBeginSequence + process.hltL1sL1BeamHalo + process.hltPreBeamHalo + process.HLTDoLocalPixelClustersSequence + process.hltPixelActivityFilterForHalo + process.HLTDoLocalStripSequence + process.hltTrackerHaloFilter + process.HLTEndSequence )

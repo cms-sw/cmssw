@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_1_0/HIon/V20 (CMSSW_5_2_0_pre4_HLT6)
+# /dev/CMSSW_5_1_0/HIon/V22 (CMSSW_5_2_0_pre4_HLT6)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/HIon/V20')
+  tableName = cms.string('/dev/CMSSW_5_1_0/HIon/V22')
 )
 
 streams = cms.PSet( 
@@ -2248,6 +2248,17 @@ siStripLorentzAngleDepESProducer = cms.ESProducer( "SiStripLorentzAngleDepESProd
   )
 )
 
+FastTimerService = cms.Service( "FastTimerService",
+  dqmPath = cms.untracked.string( "HLT/TimerService" ),
+  useRealTimeClock = cms.untracked.bool( True ),
+  dqmTimeResolution = cms.untracked.double( 1.0 ),
+  enableDQMbyLumi = cms.untracked.bool( False ),
+  enableTimingPaths = cms.untracked.bool( True ),
+  enableTimingModules = cms.untracked.bool( True ),
+  enableDQM = cms.untracked.bool( True ),
+  dqmTimeRange = cms.untracked.double( 200.0 ),
+  enableTimingSummary = cms.untracked.bool( True )
+)
 DTDataIntegrityTask = cms.Service( "DTDataIntegrityTask",
   processingMode = cms.untracked.string( "HLT" ),
   fedIntegrityFolder = cms.untracked.string( "DT/FEDIntegrity_EvF" ),
