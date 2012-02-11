@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_1_0/GRun/V22 (CMSSW_5_2_0_pre4_HLT6)
+# /dev/CMSSW_5_1_0/GRun/V23 (CMSSW_5_2_0_pre4_HLT7)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V22')
+  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V23')
 )
 
 process.streams = cms.PSet( 
@@ -21087,17 +21087,19 @@ process.hltEle8CaloIdLTrkIdVLOneOEMinusOneOPFilter = cms.EDFilter( "HLTElectronO
     endcapcut = cms.double( 999.9 )
 )
 process.hltElectronL1IsoDetaDphi = cms.EDProducer( "EgammaHLTElectronDetaDphiProducer",
-    electronProducer = cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
-    BSProducer = cms.InputTag( "hltOnlineBeamSpot" ),
-    recoEcalCandidateProducer = cms.InputTag( "" ),
+    variablesAtVtx = cms.bool( False ),
     useSCRefs = cms.bool( False ),
+    BSProducer = cms.InputTag( "hltOnlineBeamSpot" ),
+    electronProducer = cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
+    recoEcalCandidateProducer = cms.InputTag( "" ),
     useTrackProjectionToEcal = cms.bool( False )
 )
 process.hltElectronL1NonIsoDetaDphi = cms.EDProducer( "EgammaHLTElectronDetaDphiProducer",
-    electronProducer = cms.InputTag( "hltPixelMatchElectronsL1NonIso" ),
-    BSProducer = cms.InputTag( "hltOnlineBeamSpot" ),
-    recoEcalCandidateProducer = cms.InputTag( "" ),
+    variablesAtVtx = cms.bool( False ),
     useSCRefs = cms.bool( False ),
+    BSProducer = cms.InputTag( "hltOnlineBeamSpot" ),
+    electronProducer = cms.InputTag( "hltPixelMatchElectronsL1NonIso" ),
+    recoEcalCandidateProducer = cms.InputTag( "" ),
     useTrackProjectionToEcal = cms.bool( False )
 )
 process.hltEle8CaloIdLTrkIdVLDetaFilter = cms.EDFilter( "HLTElectronGenericFilter",
@@ -21306,17 +21308,19 @@ process.hltEle8TightIdLooseIsoOneOEMinusOneOPFilter = cms.EDFilter( "HLTElectron
     endcapcut = cms.double( 999.9 )
 )
 process.hlt3HitElectronL1IsoDetaDphi = cms.EDProducer( "EgammaHLTElectronDetaDphiProducer",
-    electronProducer = cms.InputTag( "hltPixelMatch3HitElectronsL1Iso" ),
-    BSProducer = cms.InputTag( "hltOnlineBeamSpot" ),
-    recoEcalCandidateProducer = cms.InputTag( "" ),
+    variablesAtVtx = cms.bool( False ),
     useSCRefs = cms.bool( False ),
+    BSProducer = cms.InputTag( "hltOnlineBeamSpot" ),
+    electronProducer = cms.InputTag( "hltPixelMatch3HitElectronsL1Iso" ),
+    recoEcalCandidateProducer = cms.InputTag( "" ),
     useTrackProjectionToEcal = cms.bool( False )
 )
 process.hlt3HitElectronL1NonIsoDetaDphi = cms.EDProducer( "EgammaHLTElectronDetaDphiProducer",
-    electronProducer = cms.InputTag( "hltPixelMatch3HitElectronsL1NonIso" ),
-    BSProducer = cms.InputTag( "hltOnlineBeamSpot" ),
-    recoEcalCandidateProducer = cms.InputTag( "" ),
+    variablesAtVtx = cms.bool( False ),
     useSCRefs = cms.bool( False ),
+    BSProducer = cms.InputTag( "hltOnlineBeamSpot" ),
+    electronProducer = cms.InputTag( "hltPixelMatch3HitElectronsL1NonIso" ),
+    recoEcalCandidateProducer = cms.InputTag( "" ),
     useTrackProjectionToEcal = cms.bool( False )
 )
 process.hltEle8TightIdLooseIsoDetaFilter = cms.EDFilter( "HLTElectronGenericFilter",
@@ -22176,10 +22180,11 @@ process.hltEle17TightIdLooseIsoEle8TightIdLooseIsoOneOEMinusOneOPDoubleFilter = 
     endcapcut = cms.double( 999.9 )
 )
 process.hlt3HitElectronActivityDetaDphi = cms.EDProducer( "EgammaHLTElectronDetaDphiProducer",
-    electronProducer = cms.InputTag( "hltPixelMatch3HitElectronsActivity" ),
-    BSProducer = cms.InputTag( "hltOnlineBeamSpot" ),
-    recoEcalCandidateProducer = cms.InputTag( "" ),
+    variablesAtVtx = cms.bool( False ),
     useSCRefs = cms.bool( False ),
+    BSProducer = cms.InputTag( "hltOnlineBeamSpot" ),
+    electronProducer = cms.InputTag( "hltPixelMatch3HitElectronsActivity" ),
+    recoEcalCandidateProducer = cms.InputTag( "" ),
     useTrackProjectionToEcal = cms.bool( False )
 )
 process.hltEle17TightIdLooseIsoEle8TightIdLooseIsoDetaDoubleFilter = cms.EDFilter( "HLTElectronGenericFilter",
@@ -25635,10 +25640,11 @@ process.hltEle5NoL1SeedOneOEMinusOneOPFilterforDR = cms.EDFilter( "HLTElectronOn
     endcapcut = cms.double( 999.9 )
 )
 process.hltElectronActivityDetaDphi = cms.EDProducer( "EgammaHLTElectronDetaDphiProducer",
-    electronProducer = cms.InputTag( "hltPixelMatchElectronsActivity" ),
-    BSProducer = cms.InputTag( "hltOnlineBeamSpot" ),
-    recoEcalCandidateProducer = cms.InputTag( "" ),
+    variablesAtVtx = cms.bool( False ),
     useSCRefs = cms.bool( False ),
+    BSProducer = cms.InputTag( "hltOnlineBeamSpot" ),
+    electronProducer = cms.InputTag( "hltPixelMatchElectronsActivity" ),
+    recoEcalCandidateProducer = cms.InputTag( "" ),
     useTrackProjectionToEcal = cms.bool( False )
 )
 process.hltEle5NoL1SeedDetaFilterforDR = cms.EDFilter( "HLTElectronGenericFilter",
