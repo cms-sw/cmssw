@@ -3,6 +3,7 @@
 
 # include "Utilities/StorageFactory/interface/Storage.h"
 # include "Utilities/StorageFactory/interface/IOFlags.h"
+# include "FWCore/Utilities/interface/Exception.h"
 # include "XrdClient/XrdClient.hh"
 # include <string>
 
@@ -48,6 +49,9 @@ public:
   virtual void		abort (void);
 
 private:
+
+  void                  addConnection(cms::Exception &);
+
   XrdClient		*m_client;
   IOOffset		m_offset;
   XrdClientStatInfo	m_stat;

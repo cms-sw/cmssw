@@ -1,8 +1,8 @@
 #include "Utilities/XrdAdaptor/src/XrdFile.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
+#include <sstream>
 
 XrdFile::XrdFile (void)
   : m_client (0),
@@ -138,6 +138,7 @@ XrdFile::open (const char *name,
        << ") => error '" << m_client->LastServerError()->errmsg
        << "' (errno=" << m_client->LastServerError()->errnum << ")";
     ex.addContext("Calling XrdFile::open()");
+    addConnection(ex);
     throw ex;
   }
   if (! m_client->Stat(&m_stat)) {
@@ -146,11 +147,15 @@ XrdFile::open (const char *name,
       << ") => error '" << m_client->LastServerError()->errmsg
       << "' (errno=" << m_client->LastServerError()->errnum << ")";
     ex.addContext("Calling XrdFile::open()");
+    addConnection(ex);
     throw ex;
   }
   m_offset = 0;
   m_close = true;
   edm::LogInfo("XrdFileInfo") << "Opened " << m_name;
+
+  XrdClientConn *conn = m_client->GetClientConn();
+  edm::LogInfo("XrdFileInfo") << "Connection URL " << conn->GetCurrentUrl().GetUrl().c_str();
 }
 
 void
@@ -198,6 +203,7 @@ XrdFile::read (void *into, IOSize n)
     ex << "XrdFile::read(name='" << m_name << "', n=" << n
        << ") too many bytes, limit is 0x7fffffff";
     ex.addContext("Calling XrdFile::read()");
+    addConnection(ex);
     throw ex;
   }
   int s = m_client->Read(into, m_offset, n);
@@ -208,6 +214,7 @@ XrdFile::read (void *into, IOSize n)
        << ") failed with error '" << m_client->LastServerError()->errmsg
        << "' (errno=" << m_client->LastServerError()->errnum << ")";
     ex.addContext("Calling XrdFile::read()");
+    addConnection(ex);
     throw ex;
   }
   m_offset += s;
@@ -222,6 +229,7 @@ XrdFile::read (void *into, IOSize n, IOOffset pos)
     ex << "XrdFile::read(name='" << m_name << "', n=" << n
        << ") exceeds read size limit 0x7fffffff";
     ex.addContext("Calling XrdFile::read()");
+    addConnection(ex);
     throw ex;
   }
   int s = m_client->Read(into, pos, n);
@@ -232,6 +240,7 @@ XrdFile::read (void *into, IOSize n, IOOffset pos)
        << ") failed with error '" << m_client->LastServerError()->errmsg
        << "' (errno=" << m_client->LastServerError()->errnum << ")";
     ex.addContext("Calling XrdFile::read()");
+    addConnection(ex);
     throw ex;
   }
   return s;
@@ -258,6 +267,7 @@ XrdFile::readv (IOBuffer *into, IOSize n)
       ex << "XrdFile::readv(name='" << m_name << "')[" << i
          << "].size=" << len << " exceeds read size limit 0x7fffffff";
       ex.addContext("Calling XrdFile::readv()");
+      addConnection(ex);
       throw ex;
     }
     offsets[i] = pos;
@@ -272,6 +282,7 @@ XrdFile::readv (IOBuffer *into, IOSize n)
        << "') failed with error '" << m_client->LastServerError()->errmsg
        << "' (errno=" << m_client->LastServerError()->errnum << ")";
     ex.addContext("Calling XrdFile::readv()");
+    addConnection(ex);
     throw ex;
   }
 
@@ -290,6 +301,7 @@ XrdFile::readv (IOBuffer *into, IOSize n)
          << ") failed with error '" << m_client->LastServerError()->errmsg
          << "' (errno=" << m_client->LastServerError()->errnum << ")";
       ex.addContext("Calling XrdFile::readv()");
+      addConnection(ex);
       throw ex;
     }
     total += s;
@@ -313,6 +325,7 @@ XrdFile::readv (IOPosBuffer *into, IOSize n)
       ex << "XrdFile::readv(name='" << m_name << "')[" << i
          << "].size=" << len << " exceeds read size limit 0x7fffffff";
       ex.addContext("Calling XrdFile::readv()");
+      addConnection(ex);
       throw ex;
     }
     offsets[i] = into[i].offset();
@@ -326,6 +339,7 @@ XrdFile::readv (IOPosBuffer *into, IOSize n)
        << "') failed with error '" << m_client->LastServerError()->errmsg
        << "' (errno=" << m_client->LastServerError()->errnum << ")";
     ex.addContext("Calling XrdFile::readv()");
+    addConnection(ex);
     throw ex;
   }
   // Issue actual reads.
@@ -343,6 +357,7 @@ XrdFile::readv (IOPosBuffer *into, IOSize n)
          << ") failed with error '" << m_client->LastServerError()->errmsg
          << "' (errno=" << m_client->LastServerError()->errnum << ")";
       ex.addContext("Calling XrdFile::readv()");
+      addConnection(ex);
       throw ex;
     }
     total += s;
@@ -359,6 +374,7 @@ XrdFile::write (const void *from, IOSize n)
     ex << "XrdFile::write(name='" << m_name << "', n=" << n
        << ") too many bytes, limit is 0x7fffffff";
     ex.addContext("Calling XrdFile::write()");
+    addConnection(ex);
     throw ex;
   }
   ssize_t s = m_client->Write(from, m_offset, n);
@@ -368,6 +384,7 @@ XrdFile::write (const void *from, IOSize n)
        << ") failed with error '" << m_client->LastServerError()->errmsg
        << "' (errno=" << m_client->LastServerError()->errnum << ")";
     ex.addContext("Calling XrdFile::write()");
+    addConnection(ex);
     throw ex;
   }
   m_offset += s;
@@ -385,6 +402,7 @@ XrdFile::write (const void *from, IOSize n, IOOffset pos)
     ex << "XrdFile::write(name='" << m_name << "', n=" << n
        << ") too many bytes, limit is 0x7fffffff";
     ex.addContext("Calling XrdFile::write()");
+    addConnection(ex);
     throw ex;
   }
   ssize_t s = m_client->Write(from, pos, n);
@@ -394,6 +412,7 @@ XrdFile::write (const void *from, IOSize n, IOOffset pos)
        << ") failed with error '" << m_client->LastServerError()->errmsg
        << "' (errno=" << m_client->LastServerError()->errnum << ")";
     ex.addContext("Calling XrdFile::write()");
+    addConnection(ex);
     throw ex;
   }
   if (pos + s > m_stat.size)
@@ -421,6 +440,7 @@ XrdFile::position (IOOffset offset, Relative whence /* = SET */)
     cms::Exception ex("FilePositionError");
     ex << "XrdFile::position() called on a closed file";
     ex.addContext("Calling XrdFile::position()");
+    addConnection(ex);
     throw ex;
   }
   switch (whence)
@@ -441,6 +461,7 @@ XrdFile::position (IOOffset offset, Relative whence /* = SET */)
     cms::Exception ex("FilePositionError");
     ex << "XrdFile::position() called with incorrect 'whence' parameter";
     ex.addContext("Calling XrdFile::position()");
+    addConnection(ex);
     throw ex;
   }
 
@@ -458,5 +479,18 @@ XrdFile::resize (IOOffset /* size */)
   cms::Exception ex("FileResizeError");
   ex << "XrdFile::resize(name='" << m_name << "') not implemented";
   ex.addContext("Calling XrdFile::resize()");
+  addConnection(ex);
   throw ex;
 }
+
+void
+XrdFile::addConnection (cms::Exception &ex)
+{
+  XrdClientConn *conn = m_client->GetClientConn();
+  if (conn) {
+    std::stringstream ss;
+    ss << "Current server connection: " << conn->GetCurrentUrl().GetUrl().c_str();
+    ex.addAdditionalInfo(ss.str());
+  }
+}
+

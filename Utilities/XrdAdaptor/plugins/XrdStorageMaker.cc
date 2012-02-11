@@ -3,6 +3,7 @@
 #include "Utilities/XrdAdaptor/src/XrdFile.h"
 #include "XrdClient/XrdClientAdmin.hh"
 #include "XrdClient/XrdClientUrlSet.hh"
+#include "XrdClient/XrdClientEnv.hh"
 
 class XrdStorageMaker : public StorageMaker
 {
@@ -51,6 +52,11 @@ public:
 
     *size = xrdsize;
     return true;
+  }
+
+  virtual void setDebugLevel (unsigned int level)
+  {
+    EnvPutInt("DebugLevel", level);
   }
 };
 
