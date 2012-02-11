@@ -39,7 +39,7 @@ void FitSlicesYTool::getFittedMean(MonitorElement * me){
   if (h1->GetNbinsX()==me->getNbinsX()){
     for (int bin=0;bin!=h1->GetNbinsX();bin++){
       me->setBinContent(bin+1,h1->GetBinContent(bin+1));
-      me->setBinEntries(bin+1, 1.);
+//       me->setBinEntries(bin+1, 1.);
     }
   } else {
     throw cms::Exception("FitSlicesYTool") << "Different number of bins!";
@@ -50,7 +50,7 @@ void FitSlicesYTool::getFittedSigma(MonitorElement * me){
   if (h2->GetNbinsX()==me->getNbinsX()){
     for (int bin=0;bin!=h2->GetNbinsX();bin++){
       me->setBinContent(bin+1,h2->GetBinContent(bin+1));
-      me->setBinEntries(bin+1, 1.);
+//       me->setBinEntries(bin+1, 1.);
     }
   } else {
     throw cms::Exception("FitSlicesYTool") << "Different number of bins!";
@@ -61,7 +61,7 @@ void FitSlicesYTool::getFittedMeanWithError(MonitorElement * me){
   if (h1->GetNbinsX()==me->getNbinsX()){
     for (int bin=0;bin!=h1->GetNbinsX();bin++){
       me->setBinContent(bin+1,h1->GetBinContent(bin+1));
-      me->setBinEntries(bin+1, 1.);
+//       me->setBinEntries(bin+1, 1.);
       me->setBinError(bin+1,h1->GetBinError(bin+1));
     }
   } else {
@@ -73,7 +73,7 @@ void FitSlicesYTool::getFittedSigmaWithError(MonitorElement * me){
   if (h2->GetNbinsX()==me->getNbinsX()){
     for (int bin=0;bin!=h2->GetNbinsX();bin++){
       me->setBinContent(bin+1,h2->GetBinContent(bin+1));
-      me->setBinEntries(bin+1, 1.);
+//       me->setBinEntries(bin+1, 1.);
       me->setBinError(bin+1,h2->GetBinError(bin+1));
     }
   } else {

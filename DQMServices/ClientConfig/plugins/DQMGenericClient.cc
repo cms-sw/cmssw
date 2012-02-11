@@ -2,8 +2,8 @@
  *  Class:DQMGenericClient 
  *
  *
- *  $Date: 2011/11/16 08:13:09 $
- *  $Revision: 1.29 $
+ *  $Date: 2011/12/15 18:35:40 $
+ *  $Revision: 1.30 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -595,9 +595,13 @@ void DQMGenericClient::computeResolution(const string& startDir, const string& n
 
   theDQM->setCurrentFolder(newDir);
 
-  ME* meanME = theDQM->bookProfile(newPrefix+"_Mean", titlePrefix+" Mean", nBin, xMin, xMax, 10, yMin, yMax);
-  ME* sigmaME = theDQM->bookProfile(newPrefix+"_Sigma", titlePrefix+" Sigma", nBin, xMin, xMax, 10, yMin, yMax);
-//  ME* chi2ME  = theDQM->book1D(namePrefix+"_Chi2" , titlePrefix+" #Chi^{2}", nBin, xMin, xMax); // N/A
+//   ME* meanME = theDQM->bookProfile(newPrefix+"_Mean", titlePrefix+" Mean", nBin, xMin, xMax, 10, yMin, yMax);
+//   ME* sigmaME = theDQM->bookProfile(newPrefix+"_Sigma", titlePrefix+" Sigma", nBin, xMin, xMax, 10, yMin, yMax);
+  ME* meanME = theDQM->book1D(newPrefix+"_Mean", titlePrefix+" Mean", nBin, xMin, xMax);
+  ME* sigmaME = theDQM->book1D(newPrefix+"_Sigma", titlePrefix+" Sigma", nBin, xMin, xMax);
+  meanME->setEfficiencyFlag();
+  sigmaME->setEfficiencyFlag();
+  //  ME* chi2ME  = theDQM->book1D(namePrefix+"_Chi2" , titlePrefix+" #Chi^{2}", nBin, xMin, xMax); // N/A
 
   if (! resLimitedFit_ ) {
     FitSlicesYTool fitTool(srcME);
@@ -742,12 +746,14 @@ void DQMGenericClient::limitedFit(MonitorElement * srcME, MonitorElement * meanM
       double *err = fitFcn->GetParErrors();
 
       meanME->setBinContent(i, par[1]);
-      meanME->setBinEntries(i, 1.);
-      meanME->setBinError(i,sqrt(err[1]*err[1]+par[1]*par[1]));
+      meanME->setBinError(i, err[1]);
+//       meanME->setBinEntries(i, 1.);
+//       meanME->setBinError(i,sqrt(err[1]*err[1]+par[1]*par[1]));
 
       sigmaME->setBinContent(i, par[2]);
-      sigmaME->setBinEntries(i, 1.);
-      sigmaME->setBinError(i,sqrt(err[2]*err[2]+par[2]*par[2]));
+      sigmaME->setBinError(i, err[2]);
+//       sigmaME->setBinEntries(i, 1.);
+//       sigmaME->setBinError(i,sqrt(err[2]*err[2]+par[2]*par[2]));
 
       if(fitFcn) delete fitFcn;
       if(histoY) delete histoY;
