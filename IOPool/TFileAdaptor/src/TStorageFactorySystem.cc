@@ -3,6 +3,12 @@
 
 ClassImp(TStorageFactorySystem)
 
+
+TStorageFactorySystem::TStorageFactorySystem(const char *, Bool_t)
+  : TSystem("-StorageFactory", "Storage Factory System"),
+    fDirp(0)
+{ SetName("StorageFactory"); }
+
 TStorageFactorySystem::TStorageFactorySystem(void)
   : TSystem("-StorageFactory", "Storage Factory System"),
     fDirp(0)

@@ -22,18 +22,33 @@
 
 // Driver for configuring ROOT plug-in manager to use TStorageFactoryFile.
   void
-  TFileAdaptor::addType(TPluginManager* mgr, char const* type) {
+  TFileAdaptor::addType(TPluginManager* mgr, char const* type, int altType /*=0*/) {
+
     mgr->AddHandler("TFile",
                     type,
                     "TStorageFactoryFile",
                     "IOPoolTFileAdaptor",
                     "TStorageFactoryFile(char const*,Option_t*,char const*,Int_t)");
 
-    mgr->AddHandler("TSystem",
-                    type,
-                    "TStorageFactorySystem",
-                    "IOPoolTFileAdaptor",
-                    "TStorageFactorySystem()");
+    // HACK:
+    // The ROOT plug-in manager does not understand loading plugins with different
+    // signatures.  So, because TXNetSystem is registered with a different constructor
+    // than all the other plugins, we must match its interface in order to override
+    // it.
+    if (altType == 0) {
+      mgr->AddHandler("TSystem",
+                      type,
+                      "TStorageFactorySystem",
+                      "IOPoolTFileAdaptor",
+                      "TStorageFactorySystem()");
+    } else if (altType == 1) {
+      mgr->AddHandler("TSystem",
+                      type,
+                      "TStorageFactorySystem",
+                      "IOPoolTFileAdaptor",
+                      "TStorageFactorySystem(const char *,Bool_t)");
+    }
+
   }
 
   bool
@@ -50,6 +65,7 @@
       tempDir_(),
       minFree_(0),
       timeout_(0U),
+      debugLevel_(0U),
       native_() {
     if (!(enabled_ = pset.getUntrackedParameter<bool> ("enable", enabled_)))
       return;
@@ -91,6 +107,7 @@
       if (std::vector<std::string> const* p = pSLC->sourceNativeProtocols()) {
         native_ = *p;
       }
+      debugLevel_ = pSLC->debugLevel();
     }
 
     // tell factory how clients should access files
@@ -121,6 +138,7 @@
         << " 'read-ahead-buffered', 'auto-detect'";
 
     f->setTimeout(timeout_);
+    f->setDebugLevel(debugLevel_);
 
     // enable file access stats accounting if requested
     f->enableAccounting(doStats_);
@@ -145,6 +163,7 @@
     if (!native("storm"))     addType(mgr, "^storm:");
     if (!native("storm-lcg")) addType(mgr, "^storm-lcg:");
     if (!native("lstore"))    addType(mgr, "^lstore:");
+    if (!native("root"))      addType(mgr, "^root:", 1); // See comments in addType
   }
 
   void

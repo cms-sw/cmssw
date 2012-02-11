@@ -93,11 +93,12 @@ TStorageFactoryFile::TStorageFactoryFile(void)
   stats.tick(0);
 }
 
-
 TStorageFactoryFile::TStorageFactoryFile(const char *path,
                                          Option_t *option /* = "" */,
                                          const char *ftitle /* = "" */,
-                                         Int_t compress /* = 1 */)
+                                         Int_t compress /* = 1 */,
+                                         Int_t netopt /* = 0 */,
+                                         Bool_t parallelopen /* = kFALSE*/)
   : TFile(path, "NET", ftitle, compress), // Pass "NET" to prevent local access in base class
     storage_(0)
 {

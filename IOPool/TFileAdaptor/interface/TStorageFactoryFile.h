@@ -13,8 +13,14 @@ class TStorageFactoryFile : public TFile
 public:
   ClassDef(TStorageFactoryFile, 0); // ROOT File operating on CMS Storage.
 
+  // Due to limitations in the ROOT plugin manager, TStorageFactoryFile must
+  // provide a constructor matching all the different variants that other
+  // ROOT plugins might use
+
   TStorageFactoryFile(const char *name, Option_t *option = "",
-		      const char *ftitle = "", Int_t compress = 1);
+                      const char *ftitle = "", Int_t compress = 1, Int_t netopt = 0,
+                      Bool_t parallelopen = kFALSE);
+
   ~TStorageFactoryFile(void);
 
   virtual Bool_t	ReadBuffer(char *buf, Int_t len);
