@@ -45,6 +45,9 @@ public:
   void		setTimeout(unsigned int timeout);
   unsigned int	timeout(void) const;
 
+  void          setDebugLevel(unsigned int level);
+  unsigned int  debugLevel(void) const;
+
   void		setTempDir (const std::string &s, double minFreeSpace);
   std::string	tempDir (void) const;
   std::string	tempPath (void) const;
@@ -79,6 +82,7 @@ protected:
   std::string	m_temppath;
   std::string	m_tempdir;
   unsigned int  m_timeout;
+  unsigned int  m_debugLevel;
   LocalFileSystem m_lfs;
   static StorageFactory s_instance;
 };

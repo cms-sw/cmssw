@@ -22,6 +22,7 @@ public:
 			       const std::string &path,
 			       IOOffset *size = 0);
   virtual void		setTimeout (unsigned int timeout);
+  virtual void          setDebugLevel (unsigned int debugLevel);
 };
 
 #endif // STORAGE_FACTORY_STORAGE_MAKER_H

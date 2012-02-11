@@ -18,6 +18,10 @@ void
 StorageMaker::setTimeout (unsigned int /*timeout*/)
 {}
 
+void
+StorageMaker::setDebugLevel (unsigned int /*level*/)
+{}
+
 bool
 StorageMaker::check (const std::string &proto,
 		     const std::string &path,

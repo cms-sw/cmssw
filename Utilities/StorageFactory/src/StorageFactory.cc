@@ -17,7 +17,8 @@ StorageFactory::StorageFactory (void)
     m_accounting (false),
     m_tempfree (4.), // GB
     m_temppath (".:$TMPDIR"),
-    m_timeout(0U)
+    m_timeout(0U),
+    m_debugLevel(0U)
 {
   setTempDir(m_temppath, m_tempfree);
 }
@@ -67,6 +68,14 @@ StorageFactory::setTimeout(unsigned int timeout)
 unsigned int
 StorageFactory::timeout(void) const
 { return m_timeout; }
+
+void
+StorageFactory::setDebugLevel(unsigned int level)
+{ m_debugLevel = level; }
+
+unsigned int
+StorageFactory::debugLevel(void) const
+{ return m_debugLevel; }
 
 void
 StorageFactory::setTempDir(const std::string &s, double minFreeSpace)
@@ -160,6 +169,7 @@ StorageFactory::open (const std::string &url, int mode /* = IOFlags::OpenRead */
   boost::shared_ptr<StorageAccount::Stamp> stats;
   if (StorageMaker *maker = getMaker (url, protocol, rest))
   {
+    maker->setDebugLevel(m_debugLevel);
     if (m_accounting) 
       stats.reset(new StorageAccount::Stamp(StorageAccount::counter (protocol, "open")));
     try
