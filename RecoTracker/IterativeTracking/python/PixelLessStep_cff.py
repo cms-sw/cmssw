@@ -22,7 +22,6 @@ pixelLessStepClusters = cms.EDProducer("TrackClusterRemover",
 pixelLessStepSeedLayers = cms.ESProducer("SeedingLayersESProducer",
     ComponentName = cms.string('pixelLessStepSeedLayers'),
     layerList = cms.vstring('TIB1+TIB2',
-        'TIB1+TID1_pos','TIB1+TID1_neg',
         'TID1_pos+TID2_pos','TID2_pos+TID3_pos',
         'TEC1_pos+TEC2_pos','TEC2_pos+TEC3_pos','TEC3_pos+TEC4_pos','TEC3_pos+TEC5_pos','TEC4_pos+TEC5_pos',
         'TID1_neg+TID2_neg','TID2_neg+TID3_neg',
@@ -58,6 +57,13 @@ pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.6
 pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 10.0
 pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 2.0
 
+pixelLessStepSeeds.SeedComparitorPSet = cms.PSet(
+        ComponentName = cms.string('PixelClusterShapeSeedComparitor'),
+        FilterAtHelixStage = cms.bool(True),
+        FilterPixelHits = cms.bool(False),
+        FilterStripHits = cms.bool(True),
+        ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter')
+    )
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
@@ -86,6 +92,7 @@ pixelLessStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuil
     trajectoryFilterName = 'pixelLessStepTrajectoryFilter',
     minNrOfHitsForRebuild = 4,
     maxCand = 2,
+    alwaysUseInvalidHits = False,
     estimator = cms.string('pixelLessStepChi2Est')
     )
 

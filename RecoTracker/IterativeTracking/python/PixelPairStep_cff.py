@@ -20,9 +20,7 @@ pixelPairStepSeedLayers = cms.ESProducer("SeedingLayersESProducer",
     ComponentName = cms.string('pixelPairStepSeedLayers'),
     layerList = cms.vstring('BPix1+BPix2', 'BPix1+BPix3', 'BPix2+BPix3', 
         'BPix1+FPix1_pos', 'BPix1+FPix1_neg', 
-        'BPix1+FPix2_pos', 'BPix1+FPix2_neg', 
         'BPix2+FPix1_pos', 'BPix2+FPix1_neg', 
-        'BPix2+FPix2_pos', 'BPix2+FPix2_neg', 
         'FPix1_pos+FPix2_pos', 'FPix1_neg+FPix2_neg'),
     BPix = cms.PSet(
         useErrorsFromParam = cms.bool(True),
@@ -46,10 +44,17 @@ pixelPairStepSeedLayers = cms.ESProducer("SeedingLayersESProducer",
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff
 pixelPairStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff.globalSeedsFromPairsWithVertices.clone()
 pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.6
-pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 0.01
+pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 0.015
 pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.fixedError = 0.03
 pixelPairStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = cms.string('pixelPairStepSeedLayers')
 
+pixelPairStepSeeds.SeedComparitorPSet = cms.PSet(
+        ComponentName = cms.string('PixelClusterShapeSeedComparitor'),
+        FilterAtHelixStage = cms.bool(True),
+        FilterPixelHits = cms.bool(True),
+        FilterStripHits = cms.bool(False),
+        ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter')
+    )
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi

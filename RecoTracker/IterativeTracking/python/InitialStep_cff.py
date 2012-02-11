@@ -14,7 +14,7 @@ initialStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globa
     ComponentName = cms.string('GlobalRegionProducerFromBeamSpot'),
     RegionPSet = RegionPsetFomBeamSpotBlock.RegionPSet.clone(
     ptMin = 0.6,
-    originRadius = 0.03,
+    originRadius = 0.02,
     nSigmaZ = 4.0
     )
     )

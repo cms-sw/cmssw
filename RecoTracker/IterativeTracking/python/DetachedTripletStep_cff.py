@@ -28,23 +28,25 @@ detachedTripletStepSeedLayers.BPix.skipClusters = cms.InputTag('detachedTripletS
 detachedTripletStepSeedLayers.FPix.skipClusters = cms.InputTag('detachedTripletStepClusters')
 
 # SEEDS
+from RecoPixelVertexing.PixelTriplets.PixelTripletLargeTipGenerator_cfi import *
+PixelTripletLargeTipGenerator.extraHitRZtolerance = 0.0
+PixelTripletLargeTipGenerator.extraHitRPhitolerance = 0.0
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
-from RecoTracker.TkTrackingRegions.GlobalTrackingRegionFromBeamSpot_cfi import RegionPsetFomBeamSpotBlock
-detachedTripletStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone(
-    RegionFactoryPSet = RegionPsetFomBeamSpotBlock.clone(
-    ComponentName = cms.string('GlobalRegionProducerFromBeamSpot'),
-    RegionPSet = RegionPsetFomBeamSpotBlock.RegionPSet.clone(
-    ptMin = 0.2,
-    originRadius = 1.0,
-    nSigmaZ = 4.0
-    )
-    )
-    )
+detachedTripletStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone()
 detachedTripletStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'detachedTripletStepSeedLayers'
+detachedTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet = cms.PSet(PixelTripletLargeTipGenerator)
+detachedTripletStepSeeds.SeedCreatorPSet.ComponentName = 'SeedFromConsecutiveHitsTripletOnlyCreator'
+detachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.3
+detachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 15.0
+detachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 1.5
 
-
-from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
-detachedTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet.ComponentName = 'LowPtClusterShapeSeedComparitor'
+detachedTripletStepSeeds.SeedComparitorPSet = cms.PSet(
+        ComponentName = cms.string('PixelClusterShapeSeedComparitor'),
+        FilterAtHelixStage = cms.bool(False),
+        FilterPixelHits = cms.bool(True),
+        FilterStripHits = cms.bool(False),
+        ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter')
+    )
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
@@ -72,6 +74,7 @@ detachedTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajecto
     trajectoryFilterName = 'detachedTripletStepTrajectoryFilter',
     clustersToSkip = cms.InputTag('detachedTripletStepClusters'),
     maxCand = 2,
+    alwaysUseInvalidHits = False,
     estimator = cms.string('detachedTripletStepChi2Est')
     )
 

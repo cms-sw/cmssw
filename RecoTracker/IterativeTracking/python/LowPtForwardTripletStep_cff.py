@@ -88,7 +88,7 @@ lowPtForwardTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidat
 import RecoTracker.TrackProducer.TrackProducer_cfi
 lowPtForwardTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'lowPtForwardTripletStepTrackCandidates',
-    AlgorithmName = cms.string('cosmics') #FIXME: have to find a better algorithm name
+    AlgorithmName = cms.string('iter1')
     )
 
 
