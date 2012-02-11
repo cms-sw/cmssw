@@ -51,11 +51,13 @@ HLTMuonDimuonL3Filter::HLTMuonDimuonL3Filter(const edm::ParameterSet& iConfig) :
    max_Dr_      (iConfig.getParameter<double> ("MaxDr")),
    max_Dz_      (iConfig.getParameter<double> ("MaxDz")),
    chargeOpt_   (iConfig.getParameter<int> ("ChargeOpt")),
-   min_PtPair_  (iConfig.getParameter<double> ("MinPtPair")),
-   min_PtMax_   (iConfig.getParameter<double> ("MinPtMax")),
-   min_PtMin_   (iConfig.getParameter<double> ("MinPtMin")),
-   min_InvMass_ (iConfig.getParameter<double> ("MinInvMass")),
-   max_InvMass_ (iConfig.getParameter<double> ("MaxInvMass")),
+   min_PtPair_  (iConfig.getParameter< vector<double> > ("MinPtPair")),
+   max_PtPair_  (iConfig.getParameter< vector<double> > ("MaxPtPair")),
+   min_PtMax_   (iConfig.getParameter< vector<double> > ("MinPtMax")),
+   min_PtMin_   (iConfig.getParameter< vector<double> > ("MinPtMin")),
+   max_PtMin_   (iConfig.getParameter< vector<double> > ("MaxPtMin")),
+   min_InvMass_ (iConfig.getParameter< vector<double> > ("MinInvMass")),
+   max_InvMass_ (iConfig.getParameter< vector<double> > ("MaxInvMass")),
    min_Acop_    (iConfig.getParameter<double> ("MinAcop")),
    max_Acop_    (iConfig.getParameter<double> ("MaxAcop")),
    min_PtBalance_ (iConfig.getParameter<double> ("MinPtBalance")),
@@ -101,11 +103,20 @@ HLTMuonDimuonL3Filter::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<double>("MaxDr",2.0);
   desc.add<double>("MaxDz",9999.0);
   desc.add<int>("ChargeOpt",0);
-  desc.add<double>("MinPtPair",0.0);
-  desc.add<double>("MinPtMax",3.0);
-  desc.add<double>("MinPtMin",3.0);
-  desc.add<double>("MinInvMass",2.8);
-  desc.add<double>("MaxInvMass",3.4);
+  vector<double> v1; v1.push_back(0.0);
+  vector<double> v2; v2.push_back(9999.);
+  vector<double> v3; v3.push_back(3.0);
+  vector<double> v4; v4.push_back(3.0);
+  vector<double> v5; v5.push_back(9999.);
+  vector<double> v6; v6.push_back(2.8);
+  vector<double> v7; v7.push_back(3.4);
+  desc.add<vector<double> >("MinPtPair",v1);
+  desc.add<vector<double> >("MaxPtPair",v2);
+  desc.add<vector<double> >("MinPtMax",v3);
+  desc.add<vector<double> >("MinPtMin",v4);
+  desc.add<vector<double> >("MaxPtMin",v5);
+  desc.add<vector<double> >("MinInvMass",v6);
+  desc.add<vector<double> >("MaxInvMass",v7);
   desc.add<double>("MinAcop",-1.0);
   desc.add<double>("MaxAcop",3.15);
   desc.add<double>("MinPtBalance",-1.0);
@@ -127,6 +138,13 @@ bool
 HLTMuonDimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
 
+   if (min_InvMass_.size() != min_PtPair_.size()) {cout << "ERROR!!! Vector sizes don't match!" << endl; return false;}
+   if (min_InvMass_.size() != max_PtPair_.size()) {cout << "ERROR!!! Vector sizes don't match!" << endl; return false;}
+   if (min_InvMass_.size() != min_PtMax_.size()) {cout << "ERROR!!! Vector sizes don't match!" << endl; return false;}
+   if (min_InvMass_.size() != min_PtMin_.size()) {cout << "ERROR!!! Vector sizes don't match!" << endl; return false;}
+   if (min_InvMass_.size() != max_PtMin_.size()) {cout << "ERROR!!! Vector sizes don't match!" << endl; return false;}
+   if (min_InvMass_.size() != max_InvMass_.size()) {cout << "ERROR!!! Vector sizes don't match!" << endl; return false;}
+  
    double const MuMass = 0.106;
    double const MuMass2 = MuMass*MuMass;
    // All HLT filters must create and fill an HLT filter object,
@@ -240,14 +258,6 @@ HLTMuonDimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
 	      LogDebug("HLTMuonDimuonL3Filter") << " ... 2nd muon in loop, pt2= "
 						<< pt2 << ", ptLx2= " << ptLx2;
 	      
-	      if (ptLx1>ptLx2) {
-		if (ptLx1<min_PtMax_) continue;
-		if (ptLx2<min_PtMin_) continue;
-	      } else {
-		if (ptLx2<min_PtMax_) continue;
-		if (ptLx1<min_PtMin_) continue;
-	      }
-	      
 	      if (chargeOpt_<0) {
 		if (cand1->charge()*cand2->charge()>0) continue;
 	      } else if (chargeOpt_>0) {
@@ -276,13 +286,28 @@ HLTMuonDimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
 	      
 	      double pt12 = p.pt();
 	      LogDebug("HLTMuonDimuonL3Filter") << " ... 1-2 pt12= " << pt12;
-	      if (pt12<min_PtPair_) continue;
 	      
 	      double invmass = abs(p.mass());
 	      // if (invmass>0) invmass = sqrt(invmass); else invmass = 0;
 	      LogDebug("HLTMuonDimuonL3Filter") << " ... 1-2 invmass= " << invmass;
-	      if (invmass<min_InvMass_) continue;
-	      if (invmass>max_InvMass_) continue;
+	      bool proceed=false;
+	      for (uint iv=0 ; iv<min_InvMass_.size(); iv++) {
+		if (invmass<min_InvMass_[iv]) continue;
+		if (invmass>max_InvMass_[iv]) continue;
+		if (ptLx1>ptLx2) {
+		  if (ptLx1<min_PtMax_[iv]) continue;
+		  if (ptLx2<min_PtMin_[iv]) continue;
+		  if (ptLx2>max_PtMin_[iv]) continue;
+		} else {
+		  if (ptLx2<min_PtMax_[iv]) continue;
+		  if (ptLx1<min_PtMin_[iv]) continue;
+		  if (ptLx1>max_PtMin_[iv]) continue;
+		}
+		if (pt12<min_PtPair_[iv]) continue;
+		if (pt12>max_PtPair_[iv]) continue;
+		proceed=true;
+	      }
+	      if (!proceed) continue;
 
               // Delta Z between the two muons
               //double DeltaZMuMu = fabs(tk2->dz(beamSpot.position())-tk1->dz(beamSpot.position()));
