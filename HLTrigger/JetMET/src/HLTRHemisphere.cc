@@ -7,6 +7,7 @@
 
 #include "DataFormats/Common/interface/Ref.h"
 
+#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
@@ -89,7 +90,8 @@ HLTRHemisphere::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    typedef XYZTLorentzVector LorentzVector;
 
    // get hold of collection of objects
-   Handle<CaloJetCollection> jets;
+   //   Handle<CaloJetCollection> jets;
+   Handle<View<Jet> > jets;
    iEvent.getByLabel (inputTag_,jets);
 
    // get hold of the muons, if necessary
@@ -101,11 +103,10 @@ HLTRHemisphere::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // look at all objects, check cuts and add to filter object
    int n(0);
-   reco::CaloJetCollection JETS;
-   CaloJetCollection::const_iterator i ( jets->begin() );
+   vector<math::XYZTLorentzVector> JETS;
    for (unsigned int i=0; i<jets->size(); i++) {
      if(std::abs(jets->at(i).eta()) < max_Eta_ && jets->at(i).pt() >= min_Jet_Pt_){
-       JETS.push_back(jets->at(i));
+       JETS.push_back(jets->at(i).p4());
        n++;
      }
    }
@@ -161,8 +162,8 @@ HLTRHemisphere::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 void
-HLTRHemisphere::ComputeHemispheres(std::auto_ptr<std::vector<math::XYZTLorentzVector> >& hlist, reco::CaloJetCollection JETS,
-				   std::vector<math::XYZTLorentzVector> *extraJets){
+HLTRHemisphere::ComputeHemispheres(std::auto_ptr<std::vector<math::XYZTLorentzVector> >& hlist, const std::vector<math::XYZTLorentzVector>& JETS,
+				   std::vector<math::XYZTLorentzVector>* extraJets){
   using namespace math;
   using namespace reco;
   XYZTLorentzVector j1R(0.1, 0., 0., 0.1);
@@ -186,10 +187,10 @@ HLTRHemisphere::ComputeHemispheres(std::auto_ptr<std::vector<math::XYZTLorentzVe
     unsigned int count = 0;
     while (j_count > 0) {
       if (itemp/j_count == 1){
-	if(count<JETS.size()) j_temp1 += JETS.at(count).p4();
+	if(count<JETS.size()) j_temp1 += JETS.at(count);
 	else j_temp1 +=extraJets->at(count-JETS.size());
       } else {
-	if(count<JETS.size()) j_temp2 += JETS.at(count).p4();
+	if(count<JETS.size()) j_temp2 += JETS.at(count);
 	else j_temp2 +=extraJets->at(count-JETS.size());
       }
       itemp -= j_count * (itemp/j_count);
