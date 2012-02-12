@@ -7,7 +7,6 @@
 #include "HLTrigger/JetMET/interface/HLTAcoFilter.h"
 #include "HLTrigger/JetMET/interface/HLTHemiDPhiFilter.h"
 #include "HLTrigger/JetMET/interface/HLTJetCollForElePlusJets.h"
-#include "HLTrigger/JetMET/interface/HLTJetCollectionsForElePlusJets.h"
 #include "HLTrigger/JetMET/interface/HLTPhi2METFilter.h"
 #include "HLTrigger/JetMET/interface/HLTRapGapFilter.h"
 #include "HLTrigger/JetMET/interface/HLTJetCollectionsVBFFilter.h"
@@ -48,6 +47,9 @@
 #include "HLTrigger/JetMET/interface/HLTMonoJetFilter.h"
 #include "HLTrigger/JetMET/src/HLTMonoJetFilter.cc"
 //
+#include "HLTrigger/JetMET/interface/HLTJetCollectionsForElePlusJets.h"
+#include "HLTrigger/JetMET/src/HLTJetCollectionsForElePlusJets.cc"
+//
 #include "HLTrigger/JetMET/interface/HLTJetCollectionsForLeptonPlusJets.h"
 #include "HLTrigger/JetMET/src/HLTJetCollectionsForLeptonPlusJets.cc"
 //
@@ -87,6 +89,9 @@ typedef HLTJetL1MatchProducer<  PFJet> HLTPFJetL1MatchProducer;
 typedef HLTMonoJetFilter<CaloJet> HLTMonoCaloJetFilter;
 typedef HLTMonoJetFilter<  PFJet> HLTMonoPFJetFilter;
 
+typedef HLTJetCollectionsForElePlusJets<CaloJet> HLTCaloJetCollectionsForElePlusJets;
+typedef HLTJetCollectionsForElePlusJets<  PFJet> HLTPFJetCollectionsForElePlusJets;
+
 typedef HLTJetCollectionsForLeptonPlusJets<CaloJet> HLTCaloJetCollectionsForLeptonPlusJets;
 typedef HLTJetCollectionsForLeptonPlusJets<  PFJet> HLTPFJetCollectionsForLeptonPlusJets;
 
@@ -116,7 +121,6 @@ DEFINE_FWK_MODULE(HLTHemiDPhiFilter);
 DEFINE_FWK_MODULE(HLTPhi2METFilter);
 DEFINE_FWK_MODULE(HLTRapGapFilter);
 DEFINE_FWK_MODULE(HLTJetCollForElePlusJets);
-DEFINE_FWK_MODULE(HLTJetCollectionsForElePlusJets);
 DEFINE_FWK_MODULE(HLTJetCollectionsVBFFilter);
 DEFINE_FWK_MODULE(HLTPFEnergyFractionsFilter);
 DEFINE_FWK_MODULE(HLTHtMhtFilter);
@@ -146,6 +150,9 @@ DEFINE_FWK_MODULE(HLTMonoPFJetFilter);
 
 DEFINE_FWK_MODULE(HLTCaloJetCollectionsFilter);
 DEFINE_FWK_MODULE(HLTPFJetCollectionsFilter);
+
+DEFINE_FWK_MODULE(HLTCaloJetCollectionsForElePlusJets);
+DEFINE_FWK_MODULE(HLTPFJetCollectionsForElePlusJets);
 
 DEFINE_FWK_MODULE(HLTCaloJetCollectionsForLeptonPlusJets);
 DEFINE_FWK_MODULE(HLTPFJetCollectionsForLeptonPlusJets);

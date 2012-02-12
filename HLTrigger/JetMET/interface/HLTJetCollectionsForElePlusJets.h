@@ -11,7 +11,7 @@
  *  combination of one electron + jets cleaned against this electrons satisfy the cuts.
  *  These jets are then added to a cleaned jet collection which is put into the event.
  *
- *  $Date: 2011/05/11 23:27:13 $
+ *  $Date: 2011/06/23 08:39:12 $
  *  $Revision: 1.1 $
  *
  *  \author Lukasz Kreczko
@@ -36,6 +36,7 @@ namespace edm {
 // class declaration
 //
 
+template<typename T>
 class HLTJetCollectionsForElePlusJets: public edm::EDProducer {
   public:
     explicit HLTJetCollectionsForElePlusJets(const edm::ParameterSet&);
@@ -43,9 +44,7 @@ class HLTJetCollectionsForElePlusJets: public edm::EDProducer {
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
   private:
-    virtual void beginJob();
     virtual void produce(edm::Event&, const edm::EventSetup&);
-    virtual void endJob();
 
     edm::InputTag hltElectronTag;
     edm::InputTag sourceJetTag;

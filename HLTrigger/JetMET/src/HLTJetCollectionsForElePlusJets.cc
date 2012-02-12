@@ -5,6 +5,7 @@
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
@@ -15,9 +16,12 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "TVector3.h"
 
-typedef std::vector<edm::RefVector<std::vector<reco::CaloJet>,reco::CaloJet,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloJet>,reco::CaloJet> > > JetCollectionVector;
+#include <string>
+#include <vector>
+#include <typeinfo>
 
-HLTJetCollectionsForElePlusJets::HLTJetCollectionsForElePlusJets(const edm::ParameterSet& iConfig):
+template<typename T>
+HLTJetCollectionsForElePlusJets<T>::HLTJetCollectionsForElePlusJets(const edm::ParameterSet& iConfig):
   hltElectronTag(iConfig.getParameter< edm::InputTag > ("HltElectronTag")),
   sourceJetTag(iConfig.getParameter< edm::InputTag > ("SourceJetTag")),
   //minJetPt_(iConfig.getParameter<double> ("MinJetPt")),
@@ -28,21 +32,24 @@ HLTJetCollectionsForElePlusJets::HLTJetCollectionsForElePlusJets(const edm::Para
   //minSoftJetPt_(iConfig.getParameter< double > ("MinSoftJetPt")),
   //minDeltaEta_(iConfig.getParameter< double > ("MinDeltaEta"))
 {
-  produces<JetCollectionVector> ();
+  typedef std::vector<edm::RefVector<std::vector<T>,T,edm::refhelper::FindUsingAdvance<std::vector<T>,T> > > TCollectionVector;
+  produces<TCollectionVector> ();
 }
 
 
-HLTJetCollectionsForElePlusJets::~HLTJetCollectionsForElePlusJets()
+template<typename T>
+HLTJetCollectionsForElePlusJets<T>::~HLTJetCollectionsForElePlusJets()
 {
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
 }
 
-void HLTJetCollectionsForElePlusJets::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+template<typename T>
+void HLTJetCollectionsForElePlusJets<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     desc.add<edm::InputTag> ("HltElectronTag", edm::InputTag("triggerFilterObjectWithRefs"));
-    desc.add<edm::InputTag> ("SourceJetTag", edm::InputTag("caloJetCollection"));
+    desc.add<edm::InputTag> ("SourceJetTag", edm::InputTag("jetCollection"));
    // desc.add<double> ("MinJetPt", 30.);
    // desc.add<double> ("MaxAbsJetEta", 2.6);
    // desc.add<unsigned int> ("MinNJets", 1);
@@ -50,7 +57,7 @@ void HLTJetCollectionsForElePlusJets::fillDescriptions(edm::ConfigurationDescrip
     //Only for VBF
    // desc.add<double> ("MinSoftJetPt", 25.);
     //desc.add<double> ("MinDeltaEta", -1.);
-    descriptions.add("hltJetCollectionsForElePlusJets", desc);
+    descriptions.add(std::string("hlt")+std::string(typeid(HLTJetCollectionsForElePlusJets<T>).name()),desc);
 }
 
 //
@@ -59,11 +66,19 @@ void HLTJetCollectionsForElePlusJets::fillDescriptions(edm::ConfigurationDescrip
 
 
 // ------------ method called to produce the data  ------------
-// template <typename T>
+template <typename T>
 void
-HLTJetCollectionsForElePlusJets::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTJetCollectionsForElePlusJets<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
+  using namespace std;
+
+  typedef vector<T> TCollection;
+  typedef Ref<TCollection> TRef;
+
+  typedef edm::RefVector<TCollection> TRefVector;
+
+  typedef std::vector<edm::RefVector<std::vector<T>,T,edm::refhelper::FindUsingAdvance<std::vector<T>,T> > > TCollectionVector;
   
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
   iEvent.getByLabel(hltElectronTag,PrevFilterOutput);
@@ -96,15 +111,15 @@ HLTJetCollectionsForElePlusJets::produce(edm::Event& iEvent, const edm::EventSet
     }
   }
   
-  edm::Handle<reco::CaloJetCollection> theCaloJetCollectionHandle;
-  iEvent.getByLabel(sourceJetTag, theCaloJetCollectionHandle);
-  //const reco::CaloJetCollection* theCaloJetCollection = theCaloJetCollectionHandle.product();
+  edm::Handle<TCollection> theJetCollectionHandle;
+  iEvent.getByLabel(sourceJetTag, theJetCollectionHandle);
+  //const TCollection* theJetCollection = theJetCollectionHandle.product();
   
-  const reco::CaloJetCollection & theCaloJetCollection = *theCaloJetCollectionHandle;
+  const TCollection & theJetCollection = *theJetCollectionHandle;
   
-  //std::auto_ptr< reco::CaloJetCollection >  theFilteredCaloJetCollection(new reco::CaloJetCollection);
+  //std::auto_ptr< TCollection >  theFilteredJetCollection(new TCollection);
   
-  std::auto_ptr < JetCollectionVector > allSelections(new JetCollectionVector());
+  std::auto_ptr < TCollectionVector > allSelections(new TCollectionVector());
   
  //bool foundSolution(false);
 
@@ -112,32 +127,21 @@ HLTJetCollectionsForElePlusJets::produce(edm::Event& iEvent, const edm::EventSet
 
        // bool VBFJetPair = false;
         //std::vector<int> store_jet;
-        reco::CaloJetRefVector refVector;
+        TRefVector refVector;
 
-        for (unsigned int j = 0; j < theCaloJetCollection.size(); j++) {
-            TVector3 JetP(theCaloJetCollection[j].px(), theCaloJetCollection[j].py(), theCaloJetCollection[j].pz());
+        for (unsigned int j = 0; j < theJetCollection.size(); j++) {
+            TVector3 JetP(theJetCollection[j].px(), theJetCollection[j].py(), theJetCollection[j].pz());
             double DR = ElePs[i].DeltaR(JetP);
 
             if (DR > minDeltaR_)
-        refVector.push_back(reco::CaloJetRef(theCaloJetCollectionHandle, j));
+        refVector.push_back(TRef(theJetCollectionHandle, j));
         }
     allSelections->push_back(refVector);
     }
 
-    //iEvent.put(theFilteredCaloJetCollection);
+    //iEvent.put(theFilteredJetCollection);
     iEvent.put(allSelections);
   
   return;
   
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void HLTJetCollectionsForElePlusJets::beginJob() {
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void HLTJetCollectionsForElePlusJets::endJob() {
-}
-
-//define this as a plug-in
-
