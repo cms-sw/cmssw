@@ -2,8 +2,8 @@
  *  Class:DQMGenericClient 
  *
  *
- *  $Date: 2011/12/15 18:35:40 $
- *  $Revision: 1.30 $
+ *  $Date: 2012/02/11 07:55:38 $
+ *  $Revision: 1.31 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -582,8 +582,8 @@ void DQMGenericClient::computeResolution(const string& startDir, const string& n
   const int nBin = hSrc->GetNbinsX();
   const double xMin = hSrc->GetXaxis()->GetXmin();
   const double xMax = hSrc->GetXaxis()->GetXmax();
-  const double yMin = hSrc->GetYaxis()->GetXmin();
-  const double yMax = hSrc->GetYaxis()->GetXmax();
+//  const double yMin = hSrc->GetYaxis()->GetXmin();
+//  const double yMax = hSrc->GetYaxis()->GetXmax();
 
   string newDir = startDir;
   string newPrefix = namePrefix;
