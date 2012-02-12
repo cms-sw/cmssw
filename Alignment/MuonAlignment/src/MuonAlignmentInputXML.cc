@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Mon Mar 10 16:37:40 CDT 2008
-// $Id: MuonAlignmentInputXML.cc,v 1.16 2011/03/22 09:49:50 innocent Exp $
+// $Id: MuonAlignmentInputXML.cc,v 1.15 2010/07/30 04:20:13 pivarski Exp $
 //
 
 // system include files
@@ -213,8 +213,8 @@ MuonAlignmentInputXML::~MuonAlignmentInputXML() {
 // member functions
 //
 
-void MuonAlignmentInputXML::recursiveGetId(std::map<unsigned int, Alignable*> &alignableNavigator, const align::Alignables &alignables) const {
-   for (align::Alignables::const_iterator ali = alignables.begin();  ali != alignables.end();  ++ali) {
+void MuonAlignmentInputXML::recursiveGetId(std::map<unsigned int, Alignable*> &alignableNavigator, const std::vector<Alignable*> &alignables) const {
+   for (std::vector<Alignable*>::const_iterator ali = alignables.begin();  ali != alignables.end();  ++ali) {
       if ((*ali)->alignableObjectId() == align::AlignableDetUnit  ||  (*ali)->alignableObjectId() == align::AlignableDet  ||
 	  (*ali)->alignableObjectId() == align::AlignableDTChamber  ||  (*ali)->alignableObjectId() == align::AlignableDTSuperLayer  ||  (*ali)->alignableObjectId() == align::AlignableDTLayer  ||
 	  (*ali)->alignableObjectId() == align::AlignableCSCChamber  ||  (*ali)->alignableObjectId() == align::AlignableCSCLayer) {
@@ -224,9 +224,9 @@ void MuonAlignmentInputXML::recursiveGetId(std::map<unsigned int, Alignable*> &a
    }
 }
 
-void MuonAlignmentInputXML::fillAliToIdeal(std::map<Alignable*, Alignable*> &alitoideal, const align::Alignables alignables, const align::Alignables ideals) const {
-   align::Alignables::const_iterator alignable = alignables.begin();
-   align::Alignables::const_iterator ideal = ideals.begin();
+void MuonAlignmentInputXML::fillAliToIdeal(std::map<Alignable*, Alignable*> &alitoideal, const std::vector<Alignable*> alignables, const std::vector<Alignable*> ideals) const {
+   std::vector<Alignable*>::const_iterator alignable = alignables.begin();
+   std::vector<Alignable*>::const_iterator ideal = ideals.begin();
 
    while (alignable != alignables.end()  &&  ideal != ideals.end()) {
       alitoideal[*alignable] = *ideal;
@@ -1022,7 +1022,7 @@ void MuonAlignmentInputXML::do_moveglobal(const XERCES_CPP_NAMESPACE::DOMElement
    double x = parseDouble(node_x->getValue(), "x");
    double y = parseDouble(node_y->getValue(), "y");
    double z = parseDouble(node_z->getValue(), "z");
-   align::GlobalVector vect(x, y, z);
+   GlobalVector vect(x, y, z);
 
    for (std::map<Alignable*, bool>::const_iterator aliiter = aliset.begin();  aliiter != aliset.end();  ++aliiter) {
       Alignable *ali = aliiter->first;
@@ -1051,12 +1051,12 @@ void MuonAlignmentInputXML::do_movelocal(const XERCES_CPP_NAMESPACE::DOMElement 
    double x = parseDouble(node_x->getValue(), "x");
    double y = parseDouble(node_y->getValue(), "y");
    double z = parseDouble(node_z->getValue(), "z");
-   align::LocalVector vect(x, y, z);
+   LocalVector vect(x, y, z);
 
    for (std::map<Alignable*, bool>::const_iterator aliiter = aliset.begin();  aliiter != aliset.end();  ++aliiter) {
       Alignable *ali = aliiter->first;
 
-      align::GlobalVector globalVector = ali->surface().toGlobal(vect);
+      GlobalVector globalVector = ali->surface().toGlobal(vect);
       ali->move(globalVector);
 
       align::ErrorMatrix matrix6x6 = ROOT::Math::SMatrixIdentity();
@@ -1084,7 +1084,7 @@ void MuonAlignmentInputXML::do_rotatelocal(const XERCES_CPP_NAMESPACE::DOMElemen
    double y = parseDouble(node_axisy->getValue(), "y");
    double z = parseDouble(node_axisz->getValue(), "z");
    double angle = parseDouble(node_angle->getValue(), "angle");
-   align::LocalVector vect(x, y, z);
+   LocalVector vect(x, y, z);
 
    for (std::map<Alignable*, bool>::const_iterator aliiter = aliset.begin();  aliiter != aliset.end();  ++aliiter) {
       Alignable *ali = aliiter->first;
@@ -1119,7 +1119,7 @@ void MuonAlignmentInputXML::do_rotatebeamline(const XERCES_CPP_NAMESPACE::DOMEle
    for (std::map<Alignable*, bool>::const_iterator aliiter = aliset.begin();  aliiter != aliset.end();  ++aliiter) {
       Alignable *ali = aliiter->first;
 
-      align::GlobalPoint pos = ali->surface().toGlobal(align::LocalPoint(0,0,0));
+      GlobalPoint pos = ali->surface().toGlobal(LocalPoint(0,0,0));
 
       double radius = pos.perp();
       double phi0 = pos.phi();
@@ -1127,9 +1127,9 @@ void MuonAlignmentInputXML::do_rotatebeamline(const XERCES_CPP_NAMESPACE::DOMEle
       if (node_rphi != NULL) deltaphi = value / radius;
 
       ali->rotateAroundGlobalZ(deltaphi);
-      ali->move(align::GlobalVector(radius * (cos(phi0 + deltaphi) - cos(phi0)),
-                                    radius * (sin(phi0 + deltaphi) - sin(phi0)),
-                                    0.));
+      ali->move(GlobalVector(radius * (cos(phi0 + deltaphi) - cos(phi0)),
+                             radius * (sin(phi0 + deltaphi) - sin(phi0)),
+                             0.));
 
       align::ErrorMatrix matrix6x6 = ROOT::Math::SMatrixIdentity();
       matrix6x6 *= 1000.;  // initial assumption: infinitely weak constraint
@@ -1159,9 +1159,9 @@ void MuonAlignmentInputXML::do_rotateglobalaxis(const XERCES_CPP_NAMESPACE::DOME
 
    for (std::map<Alignable*, bool>::const_iterator aliiter = aliset.begin();  aliiter != aliset.end();  ++aliiter) {
       Alignable *ali = aliiter->first;
-      align::GlobalPoint pos = ali->surface().toGlobal(align::LocalPoint(0,0,0));
+      GlobalPoint pos = ali->surface().toGlobal(LocalPoint(0,0,0));
 
-      ali->rotateAroundGlobalAxis(align::GlobalVector(x, y, z), angle);
+      ali->rotateAroundGlobalAxis(GlobalVector(x, y, z), angle);
 
       double aprime = x/sqrt(x*x + y*y + z*z);
       double bprime = y/sqrt(x*x + y*y + z*z);
@@ -1178,7 +1178,7 @@ void MuonAlignmentInputXML::do_rotateglobalaxis(const XERCES_CPP_NAMESPACE::DOME
       double movex = pos2x - pos.x();
       double movey = pos2y - pos.y();
       double movez = pos2z - pos.z();
-      ali->move(align::GlobalVector(movex, movey, movez));
+      ali->move(GlobalVector(movex, movey, movez));
 
       align::ErrorMatrix matrix6x6 = ROOT::Math::SMatrixIdentity();
       matrix6x6 *= 1000.;  // initial assumption: infinitely weak constraint

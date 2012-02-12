@@ -15,34 +15,14 @@
 
 import os
 import sys
-import glob
 import FWCore.ParameterSet.Config as cms
-import FWCore.ParameterSet.VarParsing as VarParsing
 
-#options = VarParsing.VarParsing ('standard')
-options = VarParsing.VarParsing ()
-options.register( 'out', 'Same name of the fisrt input file + _Eff', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Sets the name of the output file")
-options.register( 'type', "ZTT", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Sets the type of events to which calculate efficiency, Available types [ZTT, ZMM, ZEE, QCD]")
-options.register( 'inputs', [],VarParsing.VarParsing.multiplicity.list, VarParsing.VarParsing.varType.string, "Sets the input file names")
+if len(sys.argv) < 4:
+   print "Error. Expected at least 2 arguments\n\nUsage: MergeFilesAndCalculateEfficiencies.py OutputFile InputFileGlob"
+   sys.exit()
 
-options.parseArguments()
-Inputs = []
-for entry in options.inputs:
-   Inputs.extend(glob.glob(entry) )
-
-if len(Inputs) == 0:
-   print 'No inputs provided! Exiting...'
-   sys.exit(0)
-
-if not options.type in ['ZTT', 'ZMM', 'ZEE', 'QCD']:
-   print 'Inexisting event type! Exiting...'
-   sys.exit(0)
-
-if options.out == 'Same name of the fisrt input file + _Eff':
-   OutputFile = Inputs[0][0:Inputs[0].find('.root')]+'_Eff.root'
-else:
-   OutputFile = options.out
-
+OutputFile = sys.argv[2]
+Inputs     = sys.argv[3:]
 
 for aFile in Inputs:
    if not os.path.exists(aFile):
@@ -76,11 +56,11 @@ process = cms.Process("TEST")
 process.source = cms.Source("EmptySource")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(0)
+    input = cms.untracked.int32(1)
 )
 
 process.DQMStore = cms.Service("DQMStore")
-process.load("Validation.RecoTau.ValidateTausOn%s_cff" % options.type)
+process.load("Validation.RecoTau.RecoTauValidation_cfi")
 
 process.loadFile   = cms.EDAnalyzer("DQMFileLoader",
       myFiles = cms.PSet(
@@ -96,7 +76,7 @@ process.saveTauEff = cms.EDAnalyzer("DQMSimpleFileSaver",
 
 process.p = cms.Path(
       process.loadFile*
-      getattr(process,'TauEfficiencies%s' % options.type)*
+      process.TauEfficiencies*
       process.saveTauEff
       )
 

@@ -207,7 +207,7 @@ void CaloRecHitsProducer::produce(edm::Event & iEvent, const edm::EventSetup & e
       {
 	// ecal barrel
 	std::auto_ptr<EBRecHitCollection> receb(new EBRecHitCollection);  // ECAL Barrel
-	std::auto_ptr<EBDigiCollection> digieb(new EBDigiCollection(2));
+	std::auto_ptr<EBDigiCollection> digieb(new EBDigiCollection(1));
 	EcalBarrelRecHitsMaker_->loadEcalBarrelRecHits(iEvent,*receb,*digieb);
 	//	std::cout << " ECALBarrel " << receb->size() << std::endl;
 	if ( theOutputRecHitCollections.size()&&theOutputRecHitCollections[input].size())
@@ -223,7 +223,7 @@ void CaloRecHitsProducer::produce(edm::Event & iEvent, const edm::EventSetup & e
       {
 	// ecal endcap
 	std::auto_ptr<EERecHitCollection> recee(new EERecHitCollection);  // ECAL Endcap
-	std::auto_ptr<EEDigiCollection> digiee(new EEDigiCollection(2));
+	std::auto_ptr<EEDigiCollection> digiee(new EEDigiCollection(1));
 	EcalEndcapRecHitsMaker_->loadEcalEndcapRecHits(iEvent,*recee,*digiee);
 	//	std::cout << " ECALEndcap " << recee->size() << std::endl;
 	if ( theOutputRecHitCollections.size()&& theOutputRecHitCollections[input].size())

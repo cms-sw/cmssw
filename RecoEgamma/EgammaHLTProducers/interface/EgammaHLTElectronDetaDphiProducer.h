@@ -8,7 +8,7 @@
 //
 // Original Author:  Roberto Covarelli (CERN)
 //
-// $Id: EgammaHLTElectronDetaDphiProducer.h,v 1.2 2008/10/10 14:05:43 covarell Exp $
+// $Id: EgammaHLTElectronDetaDphiProducer.h,v 1.1 2009/01/15 14:28:27 covarell Exp $
 //
 //
 
@@ -25,6 +25,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "TTree.h"
 //
 // class declaration
 //
@@ -44,6 +45,8 @@ class EgammaHLTElectronDetaDphiProducer : public edm::EDProducer {
 
   bool useTrackProjectionToEcal_;
   edm::InputTag BSProducer_;
-
+  TTree * tree;
+  float mydphi;
+  Int_t myevent, myrun;
 };
 

@@ -31,17 +31,4 @@
    <class name="edm::Wrapper<susybsm::HSCPCaloInfo>"/>
    <class name="edm::Wrapper<susybsm::HSCPCaloInfoCollection>"/>
    <class name="edm::Wrapper<susybsm::HSCPCaloInfoValueMap>"/>
-
-   <class name="susybsm::HSCPDeDxInfo" ClassVersion="10">
-    <version ClassVersion="10" checksum="4126283559"/>
-   </class>
-   <class name="susybsm::HSCPDeDxInfoCollection"/>
-   <class name="susybsm::HSCPDeDxInfoValueMap"/>
-   <class name="susybsm::HSCPDeDxInfoRef"/>
-   <class name="susybsm::HSCPDeDxInfoRefProd"/>
-   <class name="susybsm::HSCPDeDxInfoRefVector"/>
-   <class name="edm::Wrapper<susybsm::HSCPDeDxInfo>"/>
-   <class name="edm::Wrapper<susybsm::HSCPDeDxInfoCollection>"/>
-   <class name="edm::Wrapper<susybsm::HSCPDeDxInfoValueMap>"/>
-
 </lcgdict>

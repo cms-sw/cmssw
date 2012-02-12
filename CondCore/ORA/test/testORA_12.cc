@@ -25,14 +25,17 @@ namespace ora {
       //db.configuration().setMessageVerbosity( coral::Debug );
       db.connect( connStr );
       ora::ScopedTransaction trans( db.transaction() );
+      //creating database
       trans.start( false );
       if(!db.exists()){
 	db.create();
       }
       std::set< std::string > conts = db.containers();
       if( conts.find( "Cont0" )!= conts.end() ) db.dropContainer( "Cont0" );
+      //creating container
       ora::Container cont0 = db.createContainer<SG>("Cont0");
       cont0.extendSchema<D0>();
+      //inserting
       std::vector<boost::shared_ptr<SG> > buff0;
       for( unsigned int i = 0; i<10; i++){
 	boost::shared_ptr<SG> data( new SG( i ) );
@@ -45,7 +48,7 @@ namespace ora {
       buff0.clear();
       trans.commit();
       db.disconnect();
-      ::sleep(1);
+      sleep();
       // reading back...
       db.connect( connStr );
       trans.start( true );
@@ -68,6 +71,7 @@ namespace ora {
       trans.commit();
       db.disconnect();
       db.disconnect();
+      //inserting an instance of a class inherithing from the same base class
       std::cout << "************** writing more data..."<<std::endl;
       db.configuration().properties().setFlag( ora::Configuration::automaticContainerCreation() );
       db.connect( connStr );
@@ -84,7 +88,8 @@ namespace ora {
       buff0.clear();
       trans.commit();
       db.disconnect();
-      ::sleep(1);
+      sleep();
+      //reading back again
       db.connect( connStr );
       trans.start( true );
       for( std::vector<ora::OId>::iterator iO = oids.begin();
@@ -107,6 +112,7 @@ namespace ora {
       }
       
       trans.commit();
+      //clean up
       db.transaction().start( false );
       db.drop();
       db.transaction().commit();

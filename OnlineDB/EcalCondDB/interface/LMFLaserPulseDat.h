@@ -45,26 +45,14 @@ class LMFLaserPulseDat : public LMFColoredTable {
   LMFLaserPulseDat& setMTQFW80(EcalLogicID &id, float v);
   LMFLaserPulseDat& setMTQSliding(EcalLogicID &id, float v);
 
-  int getFitMethod(EcalLogicID &id) { return getFitMethod(id.getLogicID()); }
-  float getMTQAmplification(EcalLogicID &id) { 
-    return getMTQAmplification(id.getLogicID()); 
-  }
-  float getMTQTime(EcalLogicID &id) { return getMTQTime(id.getLogicID()); }
-  float getMTQRise(EcalLogicID &id) { return getMTQRise(id.getLogicID()); }
-  float getMTQFWHM(EcalLogicID &id) { return getMTQFWHM(id.getLogicID()); }
-  float getMTQFW20(EcalLogicID &id) { return getMTQFW20(id.getLogicID()); }
-  float getMTQFW80(EcalLogicID &id) { return getMTQFW80(id.getLogicID()); }
-  float getMTQSliding(EcalLogicID &id) { 
-    return getMTQSliding(id.getLogicID()); 
-  }
-  int getFitMethod(int id);
-  float getMTQAmplification(int id);
-  float getMTQTime(int id);
-  float getMTQRise(int id);
-  float getMTQFWHM(int id);
-  float getMTQFW20(int id);
-  float getMTQFW80(int id);
-  float getMTQSliding(int id);
+  int getFitMethod(EcalLogicID &id);
+  float getMTQAmplification(EcalLogicID &id);
+  float getMTQTime(EcalLogicID &id);
+  float getMTQRise(EcalLogicID &id);
+  float getMTQFWHM(EcalLogicID &id);
+  float getMTQFW20(EcalLogicID &id);
+  float getMTQFW80(EcalLogicID &id);
+  float getMTQSliding(EcalLogicID &id);
 
   bool isValid();
   // to do: complete list of set/get methods

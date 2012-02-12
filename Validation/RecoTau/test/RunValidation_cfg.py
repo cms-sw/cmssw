@@ -17,7 +17,7 @@ if not calledBycmsRun() and not options.gridJob:
    print "Run 'cmsRun RunTauValidation_cfg.py help' for options."
    # quit here so we dont' create a bunch of directories
    #  if the user only wants the help
-#   sys.exit()
+   sys.exit()
 
 # Make sure we dont' clobber another directory! Skip in batch mode (runs from an LSF machine)
 if not CMSSWEnvironmentIsCurrent() and options.batchNumber == -1 and not options.gridJob:
@@ -202,6 +202,15 @@ if options.batchNumber >= 0:
    options.writeEDMFile = options.writeEDMFile.replace(".root", "_%i.root" % options.batchNumber)
 outputFileNameBase += ".root"
 
+print "HPSTanc pt Cut set to: %i. If you want a different one change it in RecoTauValidation_cfi" % validation.RunHPSTanc_HPSValidation.TauPtCut.value()
+
+if validation.StandardMatchingParameters.recoCuts.value() != "" and validation.StandardMatchingParameters.genCuts.value() != "":
+  print 'Matching: cut(s) set to: reco "%s", gen "%s".' % (validation.StandardMatchingParameters.recoCuts.value(), validation.StandardMatchingParameters.genCuts.value())
+else:
+  if validation.StandardMatchingParameters.recoCuts.value() != "":
+    print 'Matching: reco cut(s) set to: "%s".' % validation.StandardMatchingParameters.recoCuts.value()
+  if validation.StandardMatchingParameters.genCuts.value() != "":
+    print 'Matching: gen cut(s) set to: "%s".' % validation.StandardMatchingParameters.genCuts.value()
 
 if options.gridJob:
    outputFileName = 'TauVal_GridJob.root'
@@ -221,10 +230,12 @@ process.saveTauEff = cms.EDAnalyzer("DQMSimpleFileSaver",
 )
 
 process.load("Validation.RecoTau.ValidateTausOn%s_cff" % options.eventType)
+process.validation = cms.Path(process.produceDenominator)
+
 if options.batchNumber >= 0 or options.gridJob:
-   process.validation = process.validationBatch #in batch mode, the efficiencies are not computed - only the num/denom
+   process.validation *= process.runTauValidationBatchMode #in batch mode, the efficiencies are not computed - only the num/denom
 else:
-   process.validation = process.validationStd
+   process.validation *= process.runTauValidation
 
 process.validation *= process.saveTauEff #save the output
 

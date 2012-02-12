@@ -207,7 +207,7 @@ class TestORABasicException : public ora::TestBase {
       db.transaction().commit();
       std::cout << "# disconnecting..."<<std::endl;
       db.disconnect();
-      ::sleep(1);
+      sleep();
       std::cout <<"####### Case4: Update Transaction started."<<std::endl; 
       db.connect( connStr );
       db.transaction().start( false );

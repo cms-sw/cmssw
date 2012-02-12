@@ -27,13 +27,16 @@ ecalRecHit = cms.EDProducer("EcalRecHitProducer",
     # reco flags association to DB flag
     # the vector index corresponds to the DB flag
     # the value correspond to the reco flag
-    flagsMapDBReco = cms.PSet(
-	    kGood = cms.vuint32(0,1,2,3),
-	    kNoisy = cms.vuint32(4,8,9),
-	    kLeadingEdgeRecovered = cms.vuint32(10,11,12),
-	    kNeighboursRecovered = cms.vuint32(13),
-	    kTowerRecovered = cms.vuint32(14)
+    flagsMapDBReco = cms.vint32(
+             0,   0,   0,  0, # standard reco
+             4,               # faulty hardware (noisy)
+            -1,  -1,  -1,     # not yet assigned
+             4,   4,          # faulty hardware (fixed gain)
+             7,   7,   7,     # dead channel with trigger
+             8,               # dead FE
+             9                # dead or recovery failed
             ),
+    
     # for channel recovery
     algoRecover = cms.string("EcalRecHitWorkerRecover"),
     recoverEBIsolatedChannels = cms.bool(False),

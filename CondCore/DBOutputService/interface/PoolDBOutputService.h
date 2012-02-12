@@ -27,7 +27,6 @@
 */
 //
 // Author:      Zhen Xie
-// Fixes and other changes: Giacomo Govi
 //
 namespace edm{
   class Event;
@@ -255,11 +254,9 @@ namespace cond{
     private:
 
       struct Record{
-	Record(): m_tag(),
-		  m_isNewTag(false),
+	Record(): m_tag(),m_isNewTag(false),
 		  m_idName(),
 		  m_iovtoken(),
-		  m_timetype(cond::runnumber),
                   m_closeIOV(false),
 		  m_freeInsert(false)
 	{}

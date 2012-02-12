@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2011/08/30 09:28:42 $
- * $Revision: 1.57 $
+ * $Date: 2010/08/08 08:46:09 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  *
  */
@@ -132,7 +132,7 @@ void EEIntegrityTask::setup(void){
     name = "EEIT DCC size error";
     meIntegrityDCCSize = dqmStore_->book1D(name, name, 18, 1., 19.);
     for (int i = 0; i < 18; i++) {
-      meIntegrityDCCSize->setBinLabel(i+1, Numbers::sEE(i+1), 1);
+      meIntegrityDCCSize->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
     // checking the number of integrity errors in each DCC for each lumi
@@ -143,7 +143,7 @@ void EEIntegrityTask::setup(void){
     meIntegrityErrorsByLumi = dqmStore_->book1D(name, name, 18, 1., 19.);
     meIntegrityErrorsByLumi->setLumiFlag();
     for (int i = 0; i < 18; i++) {
-      meIntegrityErrorsByLumi->setBinLabel(i+1, Numbers::sEE(i+1), 1);
+      meIntegrityErrorsByLumi->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
     // checking when the gain is 0

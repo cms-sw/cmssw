@@ -3,9 +3,9 @@
 /** \class PhotonProducer
  **  
  **
- **  $Id: PhotonProducer.h,v 1.39 2011/07/22 14:40:01 nancy Exp $ 
- **  $Date: 2011/07/22 14:40:01 $ 
- **  $Revision: 1.39 $
+ **  $Id: PhotonProducer.h,v 1.40 2011/11/02 19:09:37 nancy Exp $ 
+ **  $Date: 2011/11/02 19:09:37 $ 
+ **  $Revision: 1.40 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -57,7 +57,8 @@ class PhotonProducer : public edm::EDProducer {
 			    const EcalRecHitCollection* ecalBarrelHits,
 			    const EcalRecHitCollection* ecalEndcapHits,
 			    const edm::Handle<CaloTowerCollection> & hcalTowersHandle,
-			    math::XYZPoint & vtx,
+			    //math::XYZPoint & vtx,
+			    reco::VertexCollection& pvVertices,
 			    reco::PhotonCollection & outputCollection,
 			    int& iSC);
 

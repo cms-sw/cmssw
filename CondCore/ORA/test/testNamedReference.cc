@@ -23,6 +23,7 @@ namespace ora {
       //db.configuration().setMessageVerbosity( coral::Debug );
       db.connect( connStr );
       ora::ScopedTransaction trans0( db.transaction() );
+      //creating database
       trans0.start( false );
       if(!db.exists()){
 	db.create();
@@ -30,9 +31,10 @@ namespace ora {
       std::set< std::string > conts = db.containers();
       if( conts.find( "Cont0" )!= conts.end() ) db.dropContainer( "Cont0" );
       if( conts.find( "Cont1" )!= conts.end() ) db.dropContainer( "Cont1" );
-      // ***
+      //creating containers
       ora::Container contH0 = db.createContainer<SimpleClass>("Cont0");
       ora::Container contH1 = db.createContainer<SH>("Cont1");
+      //inserting
       boost::shared_ptr<SimpleClass> s0(new SimpleClass(999));
       int oid0 = contH0.insert( *s0 );
       contH0.flush();
@@ -50,7 +52,7 @@ namespace ora {
       trans0.commit();
       db.disconnect();
       // reading back...
-      ::sleep(1);
+      sleep();
       db.connect( connStr );
       ora::ScopedTransaction trans1( db.transaction() );
       trans1.start( true );
@@ -142,6 +144,7 @@ namespace ora {
       }
       
       trans1.commit();
+      //clean up
       trans1.start( false );
       db.drop();
       trans1.commit();

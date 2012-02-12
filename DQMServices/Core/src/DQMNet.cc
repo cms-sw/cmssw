@@ -22,13 +22,8 @@
 #include <cfloat>
 #include <inttypes.h>
 
-#if __APPLE__
-# define MESSAGE_SIZE_LIMIT (1*1024*1024)
-# define SOCKET_BUF_SIZE    (1*1024*1024)
-#else
-# define MESSAGE_SIZE_LIMIT (8*1024*1024)
-# define SOCKET_BUF_SIZE    (8*1024*1024)
-#endif
+#define MESSAGE_SIZE_LIMIT	(8*1024*1024)
+#define SOCKET_BUF_SIZE		(8*1024*1024)
 #define SOCKET_READ_SIZE	(SOCKET_BUF_SIZE/8)
 #define SOCKET_READ_GROWTH	(SOCKET_BUF_SIZE)
 

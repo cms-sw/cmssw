@@ -21,6 +21,7 @@ namespace ora {
     void execute( const std::string& connStr ){
       ora::OId id0, id1, id2, id3;
       {
+	//clean up if needed
 	ora::Database db;
 	db.connect( connStr );
 	db.transaction().start( false );
@@ -29,6 +30,7 @@ namespace ora {
 	db.disconnect();
       }
       {
+	//inserting with automatic database schema creation
 	ora::Database db;
 	db.configuration().properties().setFlag( ora::Configuration::automaticDatabaseCreation() );
 	db.connect( connStr );
@@ -45,7 +47,8 @@ namespace ora {
 	db.transaction().commit();
       }
       {
-	::sleep(1);
+	//reading back
+	sleep();
 	ora::Database db;
 	db.connect( connStr );
 	db.transaction().start();
@@ -56,6 +59,7 @@ namespace ora {
 	db.transaction().commit();
       }
       {
+	//clean up
 	ora::Database db;
 	db.connect( connStr );
 	db.transaction().start( false );
@@ -64,6 +68,7 @@ namespace ora {
 	db.disconnect();
       }
       {
+	//inserting with automatic container creation: requires explicit database creation, or it throws
 	ora::Database db;
 	db.configuration().properties().setFlag( ora::Configuration::automaticContainerCreation() );
 	db.connect( connStr );
@@ -89,7 +94,8 @@ namespace ora {
 	db.transaction().commit();
       }
       {
-	::sleep(1);
+	//reading back
+	sleep();
 	ora::Database db;
 	//db.configuration().setMessageVerbosity( coral::Debug );
 	db.connect( connStr );
@@ -101,7 +107,7 @@ namespace ora {
 	db.transaction().commit();
       }
       {
-	::sleep(1);
+	//clean up
 	ora::Database db;
 	//db.configuration().setMessageVerbosity( coral::Debug );
 	db.connect( connStr );

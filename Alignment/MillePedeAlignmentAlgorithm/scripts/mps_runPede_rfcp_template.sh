@@ -12,23 +12,6 @@ RUNDIR=$HOME/scratch0/some/path
 MSSDIR=/castor/cern.ch/user/u/username/another/path
 MSSDIRPOOL=
 
-clean_up () {
-#try to recover log files and root files
-    echo try to recover log files and root files ...
-    cp -p pede.dump* $RUNDIR
-    cp -p *.txt.* $RUNDIR
-    cp -p *.log $RUNDIR
-    cp -p *.log.gz $RUNDIR
-    cp -p millePedeMonitor*root $RUNDIR
-    cp -p millepede.res* $RUNDIR
-    cp -p millepede.his* $RUNDIR
-    cp -p *.db $RUNDIR
-    exit
-}
-#LSF signals according to http://batch.web.cern.ch/batch/lsf-return-codes.html
-trap clean_up HUP INT TERM SEGV USR2 XCPU XFSZ IO
-
-
 # a helper function to repeatedly try failing copy commands
 untilSuccess () {
 # trying "$1 $2 $3 > /dev/null" until success,
@@ -74,9 +57,7 @@ if [ "$MSSDIRPOOL" != "cmscafuser" ]; then
 else
 # Using cmscafuser pool => cmsStageIn command must be used
   . /afs/cern.ch/cms/caf/setup.sh
-  #MSSCAFDIR=`echo $MSSDIR | awk 'sub("/castor/cern.ch/cms","")'`
-  MSSCAFDIR=`echo $MSSDIR | perl -pe 's/\/castor\/cern.ch\/cms//gi'`
-  
+  MSSCAFDIR=`echo $MSSDIR | awk 'sub("/castor/cern.ch/cms","")'`
   untilSuccess cmsStageIn $MSSCAFDIR/milleBinaryISN.dat.gz milleBinaryISN.dat.gz
   untilSuccess cmsStageIn $MSSCAFDIR/treeFileISN.root treeFileISN.root
 fi
@@ -100,16 +81,13 @@ ls -lh
 time cmsRun the.cfg
 
 # clean up what has been staged in (to avoid copy mistakes...)
-rm treeFileISN.root
+rm  treeFileISN.root
 rm milleBinaryISN.dat.gz milleBinaryISN.dat
 
 # Gzip one by one in case one argument cannot be expanded:
 gzip -f *.log
 gzip -f *.txt
 gzip -f *.dump
-
-#Try to merge millepede monitor files. This only works successfully if names were assigned to jobs.
-mps_merge_millepedemonitor.pl $RUNDIR/../../mps.db $RUNDIR/../../
 
 # Merge possible alignment monitor and millepede monitor hists...
 # ...and remove individual histogram files after merging to save space (if success):
@@ -119,9 +97,9 @@ mps_merge_millepedemonitor.pl $RUNDIR/../../mps.db $RUNDIR/../../
 #if [ $? -eq 0 ]; then
 #    rm $RUNDIR/../job???/histograms.root
 #fi
-hadd millePedeMonitor_merge.root $RUNDIR/../job???/millePedeMonitor*.root
+hadd millePedeMonitor_merge.root $RUNDIR/../job???/millePedeMonitor.root
 if [ $? -eq 0 ]; then
-    rm $RUNDIR/../job???/millePedeMonitor*.root
+    rm $RUNDIR/../job???/millePedeMonitor.root
 fi
 
 # Macro creating millepede.his.ps with pede information hists:

@@ -24,7 +24,7 @@ QCriterion::init(void)
   verbose_ = 0; // 0 = silent, 1 = algorithmic failures, 2 = info
 }
 
-float QCriterion::runTest(const MonitorElement * /* me */)
+float QCriterion::runTest(const MonitorElement *me)
 {
   raiseDQMError("QCriterion", "virtual runTest method called" );
   return 0.;

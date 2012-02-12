@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2011/02/12 17:55:25 $
- *  $Revision: 1.75 $
+ *  $Date: 2011/07/13 08:07:29 $
+ *  $Revision: 1.76 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.75 2011/02/12 17:55:25 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.76 2011/07/13 08:07:29 slava77 Exp $
 //
 //
 
@@ -2157,7 +2157,7 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
     else {
       //get here if all faces in the corr direction were skipped
       Point gPointEst(sv.r3);
-      double lDist = fabs(distToFace[iDistMin]);
+      double lDist = iDistMin == -1 ? fastSkipDist : fabs(distToFace[iDistMin]);
       if (lDist > fastSkipDist) lDist = fastSkipDist;
       Vector lDelta(sv.p3); lDelta *= sign/curP*lDist;
       gPointEst += lDelta;

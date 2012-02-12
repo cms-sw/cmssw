@@ -189,8 +189,8 @@ void MuonDTLocalMillepedeAlgorithm::run(const edm::EventSetup& setup, const Even
             myTrack1D.sl[ch_counter] = mLayer.superlayer();
             myTrack1D.la[ch_counter] = mLayer.layer();
             myTrack1D.erx[ch_counter] = (*ihit)->localPositionError().xx();
-            align::GlobalPoint globhit = det->toGlobal((*ihit)->localPosition());
-            align::LocalPoint seghit = aliDet->surface().toLocal(globhit);
+	    GlobalPoint globhit = det->toGlobal((*ihit)->localPosition());
+            LocalPoint seghit = aliDet->surface().toLocal(globhit);
             myTrack1D.xc[ch_counter] = seghit.x();
 	    myTrack1D.yc[ch_counter] = seghit.y();
 	    myTrack1D.zc[ch_counter] = seghit.z();

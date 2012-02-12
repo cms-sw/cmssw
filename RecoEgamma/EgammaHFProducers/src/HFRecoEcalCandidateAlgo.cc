@@ -14,28 +14,23 @@
 #include <iostream>
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "RecoEgamma/EgammaHFProducers/interface/HFRecoEcalCandidateAlgo.h"
-#include "RecoEgamma/EgammaHFProducers/interface/HFEGammaSLCorrector.h"
-
 using namespace std;
 using namespace reco;
 
-HFRecoEcalCandidateAlgo::HFRecoEcalCandidateAlgo(bool correct,double e9e25Cut,double intercept2DCut,double intercept2DSlope,
+HFRecoEcalCandidateAlgo::HFRecoEcalCandidateAlgo(bool correct,double e9e25Cut,double intercept2DCut,
 						 const std::vector<double>& e1e9Cut,
 						 const std::vector<double>& eCOREe9Cut,
-						 const std::vector<double>& eSeLCut,
-						 int era) :
+						 const std::vector<double>& eSeLCut) :
 
   m_correct(correct), 
   m_e9e25Cut(e9e25Cut),
   m_intercept2DCut(intercept2DCut),
-  m_intercept2DSlope(intercept2DSlope),
   m_e1e9Cuthi(e1e9Cut[1]),
   m_eCOREe9Cuthi(eCOREe9Cut[1]),
   m_eSeLCuthi(eSeLCut[1]),
   m_e1e9Cutlo(e1e9Cut[0]),
   m_eCOREe9Cutlo(eCOREe9Cut[0]),
-  m_eSeLCutlo(eSeLCut[0]),
-  m_era(era){
+  m_eSeLCutlo(eSeLCut[0]){
 
 }
 
@@ -86,8 +81,10 @@ void HFRecoEcalCandidateAlgo::produce(const edm::Handle<SuperClusterCollection>&
 
     double e9e25=clusShape.eLong3x3()/clusShape.eLong5x5();
     double e1e9=clusShape.eLong1x1()/clusShape.eLong3x3();
-    double eSeL=hf_egamma::eSeLCorrected(clusShape.eShort3x3(),clusShape.eLong3x3(),4);
-    double var2d=(clusShape.eCOREe9()-(eSeL*m_intercept2DSlope));
+    // EMID cuts...  
+    //if((clusShape.e9e25()> m_e9e25Cut)&&((clusShape.eCOREe9()-(clusShape.eSeL()*1.125)) > m_intercept2DCut)){
+    //  if((e9e25> m_e9e25Cut)&&((clusShape.eCOREe9()-(clusShape.eSeL()*1.125)) > m_intercept2DCut)){
+    double var2d=(clusShape.eCOREe9()-(clusShape.eSeL()*1.125));
  
     bool isAcceptable=true;
     isAcceptable=isAcceptable && (e9e25> m_e9e25Cut);
@@ -106,4 +103,4 @@ void HFRecoEcalCandidateAlgo::produce(const edm::Handle<SuperClusterCollection>&
 }
  
 
-
+//&&((clusShape.e1e9()< m_e1e9Cuthi)&&(clusShape.e1e9()> m_e1e9Cutlo))&&((clusShape.eCOREe9()< m_eCOREe9Cuthi)&&(clusShape.eCOREe9()>  m_eCOREe9Cutlo))&&((clusShape.eSeL()<m_eSeLCuthi)&&(clusShape.eSeL()>  m_eSeLCutlo))

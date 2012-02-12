@@ -6,20 +6,15 @@
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
-#include "DataFormats/Scalers/interface/DcsStatus.h"
 
 #define DIGI_BQ_FRAC_NBINS 101
 #define DIGI_NUM 9072
 #define DIGI_SUBDET_NUM 2593 
 
-#define ETABINS   85
-#define PHIBINS   72
-#define DEPTHBINS  4
-
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2011/06/28 21:46:08 $
-  * $Revision: 1.67 $
+  * $Date: 2011/05/31 13:48:08 $
+  * $Revision: 1.66 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -112,9 +107,6 @@ private:  ///Methods, variables accessible only within class code
   int shapeThreshHF_;
   int shapeThreshHO_;
 
-  int alarmer_counter_;
-  bool hbhedcsON, hfdcsON;
-
   int mindigisizeHBHE_, maxdigisizeHBHE_;
   int mindigisizeHO_, maxdigisizeHO_;
   int mindigisizeHF_, maxdigisizeHF_;
@@ -129,7 +121,6 @@ private:  ///Methods, variables accessible only within class code
 
   int DigiMonitor_ExpectedOrbitMessageTime_;
   int hbcount_, hecount_, hocount_, hfcount_;  // Counter # of good digis each event
-  uint64_t uniqcounter[ETABINS][PHIBINS][DEPTHBINS]; // HFd1,2 at 'depths' 3,4 to avoid collision with HE
 
   // Monitoring elements
 
@@ -161,7 +152,6 @@ private:  ///Methods, variables accessible only within class code
   MonitorElement* DigiOccupancyPhi;
   MonitorElement* DigiOccupancyVME;
   MonitorElement* DigiOccupancySpigot;
-  MonitorElement *ProblemDigisInLastNLB_HBHEHF_alarm;
   
   // Counters for good and bad digis
   int occupancyEtaPhi[85][72][4];

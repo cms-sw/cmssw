@@ -43,6 +43,8 @@ HLTMuonDimuonL2Filter::HLTMuonDimuonL2Filter(const edm::ParameterSet& iConfig):
    fast_Accept_ (iConfig.getParameter<bool> ("FastAccept")),
    max_Eta_     (iConfig.getParameter<double> ("MaxEta")),
    min_Nhits_   (iConfig.getParameter<int> ("MinNhits")),
+   min_Nstations_(iConfig.getParameter<int> ("MinNstations")),
+   min_Nchambers_(iConfig.getParameter<int> ("MinNchambers")),
    max_Dr_      (iConfig.getParameter<double> ("MaxDr")),
    max_Dz_      (iConfig.getParameter<double> ("MaxDz")),
    chargeOpt_   (iConfig.getParameter<int> ("ChargeOpt")),
@@ -53,6 +55,8 @@ HLTMuonDimuonL2Filter::HLTMuonDimuonL2Filter(const edm::ParameterSet& iConfig):
    max_InvMass_ (iConfig.getParameter<double> ("MaxInvMass")),
    min_Acop_    (iConfig.getParameter<double> ("MinAcop")),
    max_Acop_    (iConfig.getParameter<double> ("MaxAcop")),
+   min_Angle_   (iConfig.getParameter<double> ("MinAngle")),
+   max_Angle_   (iConfig.getParameter<double> ("MaxAngle")),
    min_PtBalance_ (iConfig.getParameter<double> ("MinPtBalance")),
    max_PtBalance_ (iConfig.getParameter<double> ("MaxPtBalance")),
    nsigma_Pt_   (iConfig.getParameter<double> ("NSigmaPt")),
@@ -60,17 +64,20 @@ HLTMuonDimuonL2Filter::HLTMuonDimuonL2Filter(const edm::ParameterSet& iConfig):
 {
 
    LogDebug("HLTMuonDimuonL2Filter")
-      << " CandTag/MinN/MaxEta/MinNhits/MaxDr/MaxDz/MinPt1/MinPt2/MinInvMass/MaxInvMass/MinAcop/MaxAcop/MinPtBalance/MaxPtBalance/NSigmaPt : " 
+      << " CandTag/MinN/MaxEta/MinNhits/MinNstations/MinNchambers/MaxDr/MaxDz/MinPt1/MinPt2/MinInvMass/MaxInvMass/MinAcop/MaxAcop/MinAngle/MaxAngle/MinPtBalance/MaxPtBalance/NSigmaPt : " 
       << candTag_.encode()
       << " " << fast_Accept_
       << " " << max_Eta_
       << " " << min_Nhits_
+      << " " << min_Nstations_
+      << " " << min_Nchambers_
       << " " << max_Dr_
       << " " << max_Dz_
       << " " << chargeOpt_ << " " << min_PtPair_
       << " " << min_PtMax_ << " " << min_PtMin_
       << " " << min_InvMass_ << " " << max_InvMass_
       << " " << min_Acop_ << " " << max_Acop_
+      << " " << min_Angle_ << " " << max_Angle_
       << " " << min_PtBalance_ << " " << max_PtBalance_
       << " " << nsigma_Pt_;
 
@@ -139,6 +146,13 @@ HLTMuonDimuonL2Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       // cut on number of hits
       if (tk1->numberOfValidHits()<min_Nhits_) continue;
 
+      // number of stations
+      if (tk1->hitPattern().muonStationsWithAnyHits() < min_Nstations_) continue;
+      
+      // number of chambers
+      if(tk1->hitPattern().dtStationsWithAnyHits() +
+	 tk1->hitPattern().cscStationsWithAnyHits() < min_Nchambers_) continue;
+
       //dr cut
       //if (fabs(tk1->d0())>max_Dr_) continue;
       if (fabs(tk1->dxy(beamSpot.position()))>max_Dr_) continue;
@@ -168,6 +182,13 @@ HLTMuonDimuonL2Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
             // cut on number of hits
             if (tk2->numberOfValidHits()<min_Nhits_) continue;
+
+	    // number of stations
+	    if (tk2->hitPattern().muonStationsWithAnyHits() < min_Nstations_) continue;
+
+	    // number of chambers
+	    if(tk2->hitPattern().dtStationsWithAnyHits() +
+	       tk2->hitPattern().cscStationsWithAnyHits() < min_Nchambers_) continue;
 
             //dr cut
             //if (fabs(tk2->d0())>max_Dr_) continue;
@@ -207,6 +228,12 @@ HLTMuonDimuonL2Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
             LogDebug("HLTMuonDimuonL2Filter") << " ... 1-2 acop= " << acop;
             if (acop<min_Acop_) continue;
             if (acop>max_Acop_) continue;
+
+	    // 3D angle
+	    double angle = acos((tk1->px()*tk2->px() + tk1->py()*tk2->py() + tk1->pz()*tk2->pz())/(tk1->p()*tk2->p()));
+	    LogDebug("HLTMuonDimuonL2Filter") << " ... 1-2 angle= " << angle;
+	    if (angle < min_Angle_) continue;
+	    if (angle > max_Angle_) continue;
 
             // Pt balance
             double ptbalance = fabs(tk1->pt()-tk2->pt());

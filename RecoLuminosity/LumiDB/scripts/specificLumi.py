@@ -22,7 +22,7 @@ def listfilldir(indir):
         if p.match(fname) and os.path.isdir(os.path.join(indir,fname)):#found fill dir
             allfs=os.listdir(os.path.join(indir,fname))
             for myfile in allfs:
-                sumfilenamepat=r'^[0-9]{4}_bxsum_CMS.txt$'
+                sumfilenamepat=r'^[0-9]{4}_summary_CMS.txt$'
                 s=re.compile(sumfilenamepat)
                 if s.match(myfile):
                     #only if fill_summary_CMS.txt file exists
@@ -256,7 +256,7 @@ def specificlumiTofile(fillnum,filldata,outdir):
     if f is not None:
         f.close()
     #print 'writing summary file'
-    fillsummaryfilename=str(fillnum)+'_bxsum_CMS.txt'
+    fillsummaryfilename=str(fillnum)+'_summary_CMS.txt'
     f=open(os.path.join(filloutdir,fillsummaryfilename),'w')    
     if len(fillseg)==0:
         print >>f,'%s'%('#no stable beams')
@@ -297,15 +297,12 @@ if __name__ == '__main__':
     parser.add_argument('-i',dest='inputdir',action='store',required=False,help='output dir',default='.')
     parser.add_argument('-o',dest='outputdir',action='store',required=False,help='output dir',default='.')
     parser.add_argument('-f',dest='fillnum',action='store',required=False,help='specific fill',default=None)
-    parser.add_argument('-minfill',dest='minfill',action='store',required=False,help='min fill',default=None)
     parser.add_argument('-norm',dest='norm',action='store',required=False,help='norm',default=None)
     parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',help='specific path to site-local-config.xml file, optional. If path undefined, fallback to cern proxy&server')
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
     parser.add_argument('--with-correction',dest='withFineCorrection',action='store_true',required=False,help='with fine correction',default=None)
     parser.add_argument('--toscreen',dest='toscreen',action='store_true',help='dump to screen')
     options=parser.parse_args()
-    if options.minfill:
-        MINFILL=int(options.minfill)
     if options.authpath:
         os.environ['CORAL_AUTH_PATH'] = options.authpath
     parameters = lumiQueryAPI.ParametersObject()

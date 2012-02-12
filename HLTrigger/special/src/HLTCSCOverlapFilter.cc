@@ -19,10 +19,6 @@ HLTCSCOverlapFilter::HLTCSCOverlapFilter(const edm::ParameterSet& iConfig)
      , m_ring1(iConfig.getParameter<bool>("ring1"))
      , m_ring2(iConfig.getParameter<bool>("ring2"))
      , m_fillHists(iConfig.getParameter<bool>("fillHists"))
-     , m_nhitsNoWindowCut(0)
-     , m_xdiff(0)
-     , m_ydiff(0)
-     , m_pairsWithWindowCut(0)
 {
    if (m_fillHists) {
       edm::Service<TFileService> tfile;

@@ -217,6 +217,25 @@
 	</Histogram>
 
 	<Histogram ref="FEDIntegrityMap">
+                <Title>CSC FED-DDUs L1A mismatch (events with CSC data)</Title>
+                <Name>FED_DDU_L1A_mismatch_with_CSC_data</Name>
+        </Histogram>
+
+        <Histogram>
+                <Prefix>EMU</Prefix>
+                <SetOption>bar1text</SetOption>
+                <SetStats>0</SetStats>
+                <Title>CSC FED-DDUs L1A mismatch fraction (events with CSC data)</Title>
+                <Type>h1</Type>
+                <XBins>8</XBins>
+                <XMax>758</XMax>
+                <XMin>750</XMin>
+                <XTitle>FED ID</XTitle>
+                <YTitle>Fraction of Events</YTitle>
+                <Name>FED_DDU_L1A_mismatch_with_CSC_data_fract</Name>
+        </Histogram>
+
+	<Histogram ref="FEDIntegrityMap">
                 <Title>CSC FED-DDUs L1A mismatch</Title>
                 <Name>FED_DDU_L1A_mismatch</Name>
         </Histogram>
@@ -233,6 +252,48 @@
                 <XTitle>FED ID</XTitle>
 		<YTitle>Fraction of Events</YTitle>
 		<Name>FED_DDU_L1A_mismatch_fract</Name>
+        </Histogram>
+
+	<Histogram>
+                <Prefix>EMU</Prefix>
+                <SetOption>bar1text</SetOption>
+                <SetStats>0</SetStats>
+                <Title>CSC Number of DDUs with FED-DDUs L1A mismatch</Title>
+                <Type>h1</Type>
+                <XBins>36</XBins>
+                <XMax>37</XMax>
+                <XMin>1</XMin>
+                <XTitle># of DDUs</XTitle>
+                <YTitle># of Events</YTitle>
+                <Name>FED_DDU_L1A_mismatch_cnt</Name>
+        </Histogram>
+
+	<Histogram>
+                <Prefix>EMU</Prefix>
+                <SetOption>bar1text</SetOption>
+                <SetStats>0</SetStats>
+                <Title>CSC Number of DDUs with FED-DDUs L1A mismatch (with CSC data)</Title>
+                <Type>h1</Type>
+                <XBins>37</XBins>
+                <XMax>37</XMax>
+                <XMin>0</XMin>
+                <XTitle># of DDUs</XTitle>
+                <YTitle># of Events</YTitle>
+                <Name>FED_DDU_L1A_mismatch_with_CSC_data_cnt</Name>
+        </Histogram>
+
+	 <Histogram>
+                <Prefix>EMU</Prefix>
+                <SetOption>bar1text</SetOption>
+                <SetStats>0</SetStats>
+                <SetXLabels>1='Total Events'|2='L1A mismatch'|3='L1A mismatch w/data'|</SetXLabels>
+                <Title>CSC All Events statistics</Title>
+                <Type>h1</Type>
+                <XBins>3</XBins>
+                <XMax>3</XMax>
+                <XMin>0</XMin>
+                <YTitle># of Events</YTitle>
+                <Name>FED_Stats</Name>
         </Histogram>
 
 

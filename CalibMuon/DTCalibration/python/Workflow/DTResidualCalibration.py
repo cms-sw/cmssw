@@ -33,10 +33,10 @@ class DTResidualCalibration:
                               moduleName = 'calibDB',record = 'DTTtrigRcd',tag = 'ttrig',label = label,
                               connect = 'sqlite_file:%s' % os.path.basename(self.inputdb))
 
-        if hasattr(self.config,'inputVDriftDB') and self.config.inputVDriftDB:
+        if hasattr(self.config,'inputVdriftDB') and self.config.inputVdriftDB:
             addPoolDBESSource(process = self.process,
                               moduleName = 'vDriftDB',record = 'DTMtimeRcd',tag = 'vDrift',
-                              connect = 'sqlite_file:%s' % os.path.basename(self.config.inputVDriftDB))
+                              connect = 'sqlite_file:%s' % os.path.basename(self.config.inputVdriftDB))
 
         if hasattr(self.config,'runOnRAW') and self.config.runOnRAW:
             prependPaths(self.process,self.config.digilabel)
@@ -56,8 +56,8 @@ class DTResidualCalibration:
         if self.inputdb:
             addCrabInputFile(crab_cfg_parser,self.inputdb)
 
-        if hasattr(self.config,'inputVDriftDB') and self.config.inputVDriftDB:
-            addCrabInputFile(crab_cfg_parser,self.config.inputVDriftDB)
+        if hasattr(self.config,'inputVdriftDB') and self.config.inputVdriftDB:
+            addCrabInputFile(crab_cfg_parser,self.config.inputVdriftDB)
 
         self.crab_cfg = crab_cfg_parser
 

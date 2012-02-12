@@ -9,23 +9,17 @@ using std::endl;
 LMFDat::LMFDat() : LMFUnique() { 
   m_tableName = ""; 
   m_max = -1; 
-  _where = "";
-  _wherePars.clear();
 }
 
 LMFDat::LMFDat(EcalDBConnection *c) : LMFUnique(c) {
   m_tableName = "";
   m_max = -1;
-  _where = "";
-  _wherePars.clear();
 }
 
 LMFDat::LMFDat(oracle::occi::Environment* env,
 	       oracle::occi::Connection* conn) : LMFUnique(env, conn) {
   m_tableName = "";
   m_max = -1;
-  _where = "";
-  _wherePars.clear();
 }
 
 std::string LMFDat::foreignKeyName() const {
@@ -120,40 +114,16 @@ std::string LMFDat::getIovIdFieldName() const {
   return "LMF_IOV_ID";
 }
 
-void LMFDat::setWhereClause(std::string where) {
-  // to be used by experts to restrict the results of a query
-  _where = where;
-}
-
-void LMFDat::setWhereClause(std::string where, 
-			    std::vector<std::string> parameters) {
-  // to be used by experts to restrict the results of a query
-  // in this case the where clause can contains positional parameter,
-  // identified as :/I, :/S, :/F for, respectively, integer, string or
-  // float parameters. The parameters are all passed as strings
-  // in parameters
-  _wherePars  = parameters;
-  _where      = where;
-}
-
 std::string LMFDat::buildSelectSql(int logic_id, int direction) {
   // create the insert statement
   // if logic_id = 0 select all channels for a given iov_id
   std::stringstream sql;
   int count = 1;
   if (getLMFRunIOVID() > 0) {
-    if (_where.length() > 0) {
-      // check if this is an expert query. If so, add a WHERE clause
-      _where = " AND " + _where;
-    }
     // in this case we are looking for all data collected during the same
     // IOV. There can be many logic_ids per IOV.
-    sql << "SELECT * FROM CMS_ECAL_LASER_COND." << getTableName() << " WHERE "
-	<< getIovIdFieldName() << " = " << getLMFRunIOVID() 
-	<< _where;
-    // the expert query must be specified each time the expert makes the query
-    // then empty it
-    _where = "";
+    sql << "SELECT * FROM " << getTableName() << " WHERE "
+	<< getIovIdFieldName() << " = " << getLMFRunIOVID();
   } else {
     // in this case we are looking for a specific logic_id whose
     // data have been collected at a given time. There is only
@@ -164,8 +134,7 @@ std::string LMFDat::buildSelectSql(int logic_id, int direction) {
       op = "<";
       order = "DESC";
     }
-    sql << "SELECT * FROM (SELECT CMS_ECAL_LASER_COND." 
-	<< getTableName() << ".* FROM CMS_ECAL_LASER_COND." 
+    sql << "SELECT * FROM (SELECT " << getTableName() << ".* FROM " 
 	<< getTableName() 
 	<< " JOIN LMF_RUN_IOV ON " 
 	<< "LMF_RUN_IOV.LMF_IOV_ID = " 
@@ -252,32 +221,6 @@ void LMFDat::fetch(int logic_id, const Tm &tm)
   fetch(logic_id, &tm, 1);
 }
 
-void LMFDat::adjustParameters(int count, std::string &sql, 
-			      Statement *stmt) {
-  // adjust positional parameters and change them according to their
-  // decalred type
-  std::size_t nw = 0;
-  std::size_t n = sql.find(":"); 
-  for (int done = 1; done < count; done++) {
-    // skip already bound variables
-    n = sql.find(":", n + 1);
-  }
-  while (n != std::string::npos) {
-    char type = sql.at(n + 1);
-    if (type == 'S') {
-      stmt->setString(nw + count, _wherePars[nw]);
-      nw++;
-    } else if (type == 'F') {
-      stmt->setFloat(nw + count, atof(_wherePars[nw].c_str()));
-      nw++;
-    } else if (type == 'I') {
-      stmt->setInt(nw + count, atoi(_wherePars[nw].c_str()));
-      nw++; 
-    } 
-    n = sql.find(":", n + 1); 
-  }
-}
-
 void LMFDat::fetch(int logic_id, const Tm *timestamp, int direction) 
   throw(std::runtime_error)
 {
@@ -308,14 +251,13 @@ void LMFDat::fetch(int logic_id, const Tm *timestamp, int direction)
 	  stmt->setString(count, timestamp->str());
 	  count++;
 	}
-	stmt->setInt(count++, logic_id);
+	stmt->setInt(count, logic_id);
       }
-      adjustParameters(count, sql, stmt);
       ResultSet *rset = stmt->executeQuery();
       std::vector<float> x;
       int nData = m_keys.size();
       x.reserve(nData);
-      while (rset->next() != 0) {
+      while (rset->next()) {
 	for (int i = 0; i < nData; i++) {
 	  x.push_back(rset->getFloat(i + 3));
 	}
@@ -354,8 +296,7 @@ std::map<int, std::vector<float> > LMFDat::fetchData()
 {
   // see if any of the data is already in the database
   std::map<int, std::vector<float> > s = m_data;
-  std::string sql = "SELECT LOGIC_ID FROM CMS_ECAL_LASER_COND." + 
-    getTableName() + " WHERE "
+  std::string sql = "SELECT LOGIC_ID FROM " + getTableName() + " WHERE "
     + getIovIdFieldName() + " = :1";
   if (m_debug) {
     cout << m_className << ":: candidate data items to be written = " 
@@ -372,7 +313,7 @@ std::map<int, std::vector<float> > LMFDat::fetchData()
     ResultSet* rset = stmt->executeQuery();
     std::map<int, std::vector<float> >::iterator i = s.end();
     std::map<int, std::vector<float> >::iterator e = s.end();
-    while (rset->next() != 0) {
+    while (rset->next()) {
       if (m_debug) {
 	cout << m_className << ":: checking " << rset->getInt(1) << endl
 	     << std::flush;
@@ -521,10 +462,6 @@ int LMFDat::writeDB()
       } catch (oracle::occi::SQLException &e) {
 	debug();
 	setMaxDataToDump(nData);
-	// get the Foreign Key
-	LMFRunIOV *runiov = (LMFRunIOV*)m_foreignKeys[foreignKeyName()];
-        int iov_id = runiov->getID();
-	std::cout << "==== This object refers to IOV " << iov_id << std::endl;
 	dump();
 	m_conn->rollback();
 	throw(std::runtime_error(m_className + "::writeDB: " + 
@@ -550,18 +487,13 @@ void LMFDat::getKeyTypes()
   std::string sql = "";
   try {
     Statement *stmt = m_conn->createStatement();
-    sql = "SELECT * FROM TABLE(CMS_ECAL_LASER_COND.LMF_TAB_COLS(:1, :2))";
-    /*
     sql = "SELECT COLUMN_NAME, DATA_TYPE FROM " 
       "USER_TAB_COLS WHERE TABLE_NAME = '" + getTableName() + "' " 
       "AND COLUMN_NAME != '" + getIovIdFieldName() +  "' AND COLUMN_NAME != " 
       "'LOGIC_ID'";
-    */
     stmt->setSQL(sql);
-    stmt->setString(1, getTableName());
-    stmt->setString(2, getIovIdFieldName());
     ResultSet *rset = stmt->executeQuery();
-    while (rset->next() != 0) {
+    while (rset->next()) {
       std::string name = rset->getString(1);
       std::string t = rset->getString(2);
       m_type[m_keys[name]] = t;

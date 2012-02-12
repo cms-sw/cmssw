@@ -102,7 +102,11 @@ JetPlusTrackCorrector::~JetPlusTrackCorrector() {;}
 double JetPlusTrackCorrector::correction( const reco::Jet& fJet, const reco::Jet& fJetcalo,
 					  const edm::Event& event,
 					  const edm::EventSetup& setup,
-					  P4& corrected) const 
+					  P4& corrected,
+					  MatchedTracks &pions,
+					  MatchedTracks &muons,
+					  MatchedTracks &elecs,
+					  bool &validMatches) const 
 {
 
 //  std::cout<<" JetPlusTrackCorrector::correction "<<std::endl;
@@ -117,18 +121,16 @@ double JetPlusTrackCorrector::correction( const reco::Jet& fJet, const reco::Jet
   
   // Corrected 4-momentum for jet
   corrected = fJet.p4();
+
+  // Match tracks to different particle types
+  validMatches = matchTracks( fJetcalo, event, setup, pions, muons, elecs );
+  if ( !validMatches ) { return 1.; }
   
   // Check if jet can be JPT-corrected
   if ( !canCorrect(fJet) ) { return 1.; }
 
 //  std::cout<<" Jet can be corrected "<<std::endl;
   
-  // Match tracks to different particle types
-  MatchedTracks pions;
-  MatchedTracks muons;
-  MatchedTracks elecs;
-  bool ok = matchTracks( fJetcalo, event, setup, pions, muons, elecs );
-  if ( !ok ) { return 1.; }
 
  // std::cout<<" Tracks are matched "<<std::endl;
   
@@ -1147,27 +1149,33 @@ void JetPlusTrackCorrector::rebuildJta( const reco::Jet& fJet,
 
   int tr=0;
 
+
+  double jetEta=fJet.eta();
+  double jetPhi=fJet.phi();
+  double jetEtIn=1.0/fJet.et();
+
   for(TrackRefs::iterator it = tracks.begin(); it != tracks.end(); it++ )
     {
-
-      double dR2this = deltaR2( fJet.eta(), fJet.phi(), (**it).eta(), (**it).phi() );
+      double trkEta=(**it).eta();
+      double trkPhi=(**it).phi();
+      double dR2this = deltaR2( jetEta, jetPhi, trkEta, trkPhi );
       //       double dfi = fabs(fJet.phi()-(**it).phi());
       //       if(dfi>4.*atan(1.))dfi = 8.*atan(1.)-dfi;
       //       double deta = fJet.eta() - (**it).eta();
       //       double dR2check = sqrt(dfi*dfi+deta*deta);
       
       double scalethis = dR2this;
-      if(jetSplitMerge_ == 0) scalethis = 1./fJet.et();
-      if(jetSplitMerge_ == 2) scalethis = dR2this/fJet.et();
+      if(jetSplitMerge_ == 0) scalethis = 1.*jetEtIn;
+      if(jetSplitMerge_ == 2) scalethis = dR2this*jetEtIn;
       tr++;
       int flag = 1;
       for(JetBaseRefIterator ii = theJets.begin(); ii != theJets.end(); ii++)
 	{
 	  if(&(**ii) == &fJet ) {continue;}
-	  double dR2 = deltaR2( (*ii)->eta(), (*ii)->phi(), (**it).eta(), (**it).phi() );
+	  double dR2 = deltaR2( (*ii)->eta(), (*ii)->phi(), trkEta, trkPhi );
 	  double scale = dR2;
-	  if(jetSplitMerge_ == 0) scale = 1./fJet.et();
-	  if(jetSplitMerge_ == 2) scale = dR2/fJet.et();
+	  if(jetSplitMerge_ == 0) scale = 1.*jetEtIn;
+	  if(jetSplitMerge_ == 2) scale = dR2*jetEtIn;
 	  if(scale < scalethis) flag = 0;
 
 	  if(flag == 0) {

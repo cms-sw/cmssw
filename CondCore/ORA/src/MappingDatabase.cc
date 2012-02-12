@@ -175,14 +175,12 @@ void ora::MappingDatabase::removeMapping( const std::string& version ){
 }
 
 bool
-ora::MappingDatabase::getMappingForContainer( const Reflex::Type& containerClass,
-                                              int containerId,
-                                              MappingTree& destination ){
-
+ora::MappingDatabase::getMappingForContainer( const std::string& className, 
+					      const std::string& classVersion, 
+					      int containerId, 
+					      MappingTree& destination  ){
   bool ret = false;
-  // The class parameters
-  std::string className = containerClass.Name(Reflex::SCOPED);
-  std::string classVersion = versionOfClass( containerClass );
+  // The classId parameter
   std::string classId = MappingRules::classId( className, classVersion );
 
   std::string version("");

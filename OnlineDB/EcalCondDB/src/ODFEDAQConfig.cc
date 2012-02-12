@@ -163,23 +163,21 @@ void ODFEDAQConfig::fetchData(ODFEDAQConfig * result)
     throw(std::runtime_error("ODFEDAQConfig::fetchData(): no Id defined for this ODFEDAQConfig "));
   }
 
-  m_readStmt = m_conn->createStatement(); 
   if(result->getConfigTag()!="" && result->getVersion() ==0  ){
     int new_version=0;
     std::cout<< "using new method : retrieving last version for this tag "<<endl;
     try {
       this->checkConnection();
-
+      
       m_readStmt->setSQL("select max(version) from "+getTable()+" where tag=:tag " );
       m_readStmt->setString(1, result->getConfigTag());
-      std::cout << "Getting last ver" << std::endl << std::flush; 
-     ResultSet* rset = m_readStmt->executeQuery();
+      ResultSet* rset = m_readStmt->executeQuery();
       while (rset->next ()){
 	new_version= rset->getInt(1);
       }
       m_conn->terminateStatement(m_readStmt);
 
-      //      m_readStmt = m_conn->createStatement(); 
+      m_readStmt = m_conn->createStatement(); 
       
       result->setVersion(new_version);
       

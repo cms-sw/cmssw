@@ -87,7 +87,7 @@ std::string LMFSeqDat::fetchIdSql(Statement *stmt)
     std::cout << "SEQ #     : " << getSequenceNumber() << std::endl;
     std::cout << "Versions  : " << getVmin() << " - " << getVmax() << endl;
   }
-  std::string sql = "SELECT SEQ_ID FROM CMS_ECAL_LASER_COND.LMF_SEQ_DAT "
+  std::string sql = "SELECT SEQ_ID FROM LMF_SEQ_DAT "
     "WHERE "
     "RUN_IOV_ID   = :1 AND "
     "SEQ_NUM      = :2 AND "
@@ -109,7 +109,7 @@ std::string LMFSeqDat::fetchIdSql(Statement *stmt)
 
 std::string LMFSeqDat::setByIDSql(Statement *stmt, int id) {
   std::string sql = "SELECT RUN_IOV_ID, SEQ_NUM, SEQ_START, SEQ_STOP, " 
-    "VMIN, VMAX FROM CMS_ECAL_LASER_COND.LMF_SEQ_DAT WHERE SEQ_ID = :1";
+    "VMIN, VMAX FROM LMF_SEQ_DAT WHERE SEQ_ID = :1";
   stmt->setSQL(sql);
   stmt->setInt(1, id);
   return sql;
@@ -233,7 +233,7 @@ std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(std::vector<std::string> pars,
       }
     }
     ResultSet *rset = stmt->executeQuery();
-    while (rset->next() != 0) {
+    while (rset->next()) {
       int seq_id = rset->getInt(1);
       LMFSeqDat s;
       s.setConnection(m_env, m_conn);
@@ -251,10 +251,8 @@ std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(std::vector<std::string> pars,
 LMFSeqDat LMFSeqDat::fetchLast() {
   LMFSeqDat ret;
   std::map<int, LMFSeqDat> m = 
-    fetchByRunIOV("SELECT SEQ_ID FROM CMS_ECAL_LASER_COND.LMF_SEQ_DAT "
-		  "WHERE SEQ_ID = "
-		  "(SELECT MAX(SEQ_ID) FROM CMS_ECAL_LASER_COND.LMF_SEQ_DAT)",
-		  "fetchLast");
+    fetchByRunIOV("SELECT SEQ_ID FROM LMF_SEQ_DAT WHERE SEQ_ID = "
+		  "(SELECT MAX(SEQ_ID) FROM LMF_SEQ_DAT)", "fetchLast");
   if (m.size() > 0) {
     ret = m.begin()->second;
   }
@@ -268,8 +266,7 @@ RunIOV LMFSeqDat::fetchLastRun() {
 std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(RunIOV &iov) {
   int runIOVID = iov.getID();
   return fetchByRunIOV(runIOVID, 
-		       "SELECT SEQ_ID FROM CMS_ECAL_LASER_COND.LMF_SEQ_DAT "
-		       "WHERE RUN_IOV_ID = :1",
+		       "SELECT SEQ_ID FROM LMF_SEQ_DAT WHERE RUN_IOV_ID = :1",
 		       "fetchByRunIOV");
 }
 
@@ -285,8 +282,7 @@ std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(RunIOV &iov,
   ss << "I" << colorId;
   pars.push_back(ss.str());
   return fetchByRunIOV(pars, 
-		       "SELECT S.SEQ_ID FROM CMS_ECAL_LASER_COND.LMF_SEQ_DAT "
-		       "S JOIN CMS_ECAL_LASER_COND.LMF_RUN_IOV R"
+		       "SELECT S.SEQ_ID FROM LMF_SEQ_DAT S JOIN LMF_RUN_IOV R"
 		       " ON S.SEQ_ID = R.SEQ_ID WHERE RUN_IOV_ID = :1 AND "
 		       " COLOR_ID = :2",
 		       "fetchByRunIOVAndColor");
@@ -294,8 +290,7 @@ std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(RunIOV &iov,
 
 std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunNumber(int runno) {
   return fetchByRunIOV(runno, 
-		       "SELECT SEQ_ID FROM CMS_ECAL_LASER_COND.LMF_SEQ_DAT D "
-		       "JOIN CMS_ECAL_COND.RUN_IOV R ON "
+		       "SELECT SEQ_ID FROM LMF_SEQ_DAT D JOIN RUN_IOV R ON "
 		       "D.RUN_IOV_ID = R.IOV_ID WHERE RUN_NUM = :1",
 		       "fetchByRunNumber");
 }
@@ -313,8 +308,7 @@ LMFSeqDat LMFSeqDat::fetchByRunNumber(int runno, std::string taken_at) {
   ss.str(std::string());
   ss << "S" << taken_at;
   pars.push_back(ss.str());
-  std::string q = "SELECT SEQ_ID FROM CMS_ECAL_LASER_COND.LMF_SEQ_DAT D "
-    "JOIN CMS_ECAL_COND.RUN_IOV R ON "
+  std::string q = "SELECT SEQ_ID FROM LMF_SEQ_DAT D JOIN RUN_IOV R ON "
     "D.RUN_IOV_ID = R.IOV_ID WHERE RUN_NUM = :1 AND "
     "SEQ_START >= TO_DATE(:2, 'YYYY-MM-DD HH24:MI:SS') "
     "AND SEQ_STOP <= TO_DATE(:2, 'YYYY-MM-DD HH24:MI:SS')";
