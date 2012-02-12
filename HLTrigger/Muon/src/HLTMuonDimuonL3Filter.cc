@@ -104,10 +104,10 @@ HLTMuonDimuonL3Filter::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<double>("MaxDz",9999.0);
   desc.add<int>("ChargeOpt",0);
   vector<double> v1; v1.push_back(0.0);
-  vector<double> v2; v2.push_back(9999.);
+  vector<double> v2; v2.push_back(1e125);
   vector<double> v3; v3.push_back(3.0);
   vector<double> v4; v4.push_back(3.0);
-  vector<double> v5; v5.push_back(9999.);
+  vector<double> v5; v5.push_back(1e125);
   vector<double> v6; v6.push_back(2.8);
   vector<double> v7; v7.push_back(3.4);
   desc.add<vector<double> >("MinPtPair",v1);
