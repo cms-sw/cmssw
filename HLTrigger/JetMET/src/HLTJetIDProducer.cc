@@ -36,7 +36,7 @@ void HLTJetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   for (reco::CaloJetCollection::const_iterator calojetc = calojets->begin(); 
        calojetc != calojets->end(); ++calojetc) {
       
-    if (fabs(calojetc->eta()) >= 2.6) {
+    if (std::abs(calojetc->eta()) >= 2.6) {
       result->push_back(*calojetc);
     } else {
       if (min_N90hits_>0) jetID_.calculate( iEvent, *calojetc );

@@ -88,7 +88,7 @@ HLTPhi2METFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
       }
       countjets++;
     }
-    double Dphi= fabs(phimiss-phijet2);
+    double Dphi= std::abs(phimiss-phijet2);
     if (Dphi>M_PI) Dphi=2.0*M_PI-Dphi;
     if(etjet1>minEtjet1_  && etjet2>minEtjet2_ && Dphi>=minDPhi_ && Dphi<=maxDPhi_){
 	filterproduct.addObject(TriggerMET,metRef);

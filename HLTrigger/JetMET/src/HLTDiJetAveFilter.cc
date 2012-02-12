@@ -53,7 +53,7 @@ HLTDiJetAveFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<double>("minPtAve",100.0);
   desc.add<double>("minPtJet3",99999.0);
   desc.add<double>("minDphi",-1.0);
-  desc.add<int>("triggerType",0);
+  desc.add<int>("triggerType",trigger::TriggerJet);
   descriptions.add(std::string("hlt")+std::string(typeid(HLTDiJetAveFilter<T>).name()),desc);
 }
 
@@ -111,11 +111,11 @@ HLTDiJetAveFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetu
     }
     
     double PtAve=(ptjet1 + ptjet2) / 2.;
-    double Dphi = fabs(deltaPhi(phijet1,phijet2));
+    double Dphi = std::abs(deltaPhi(phijet1,phijet2));
     
     if( PtAve>minPtAve_ && ptjet3<minPtJet3_ && Dphi>minDphi_){
-      filterproduct.addObject(static_cast<trigger::TriggerObjectType>(triggerType_),JetRef1);
-      filterproduct.addObject(static_cast<trigger::TriggerObjectType>(triggerType_),JetRef2);
+      filterproduct.addObject(triggerType_,JetRef1);
+      filterproduct.addObject(triggerType_,JetRef2);
       ++n;
     }
     

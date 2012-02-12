@@ -76,11 +76,11 @@ void HLTHtMhtProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   //for (reco::CaloJetCollection::const_iterator jet = jets->begin(); jet != jets->end(); jet++) {
   for(edm::View<reco::Jet>::const_iterator jet = jets->begin(); jet != jets->end(); jet++ ) {
     double mom = (usePt_ ? jet->pt() : jet->et());
-    if (mom > minPtJetHt_ and fabs(jet->eta()) < maxEtaJetHt_) {
+    if (mom > minPtJetHt_ and std::abs(jet->eta()) < maxEtaJetHt_) {
       ht += mom;
       ++nj_ht;
     }
-    if (mom > minPtJetMht_ and fabs(jet->eta()) < maxEtaJetMht_) {
+    if (mom > minPtJetMht_ and std::abs(jet->eta()) < maxEtaJetMht_) {
       mhtx -= mom*cos(jet->phi());
       mhty -= mom*sin(jet->phi());
       ++nj_mht;
@@ -88,10 +88,10 @@ void HLTHtMhtProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   }
   if (useTracks_) {
     for (reco::TrackCollection::const_iterator track = tracks->begin(); track != tracks->end(); track++) {
-      if (track->pt() > minPtJetHt_ and fabs(track->eta()) < maxEtaJetHt_) {
+      if (track->pt() > minPtJetHt_ and std::abs(track->eta()) < maxEtaJetHt_) {
         ht += track->pt();
       }
-      if (track->pt() > minPtJetMht_ and fabs(track->eta()) < maxEtaJetMht_) {
+      if (track->pt() > minPtJetMht_ and std::abs(track->eta()) < maxEtaJetMht_) {
         mhtx -= track->px();
         mhty -= track->py();
       }

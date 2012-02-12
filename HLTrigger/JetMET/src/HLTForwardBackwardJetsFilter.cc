@@ -1,6 +1,6 @@
 /** \class HLTForwardBackwardJetsFilter
  *
- * $Id: HLTForwardBackwardJetsFilter.cc,v 1.6 2012/01/21 14:57:01 fwyzard Exp $
+ * $Id: HLTForwardBackwardJetsFilter.cc,v 1.7 2012/02/12 01:08:55 srimanob Exp $
  *
  *
  */
@@ -53,6 +53,7 @@ HLTForwardBackwardJetsFilter<T>::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<double>("minPt",15.0);
   desc.add<double>("minEta",3.0);
   desc.add<double>("maxEta",5.1);
+  desc.add<int>("triggerType",trigger::TriggerJet);
   descriptions.add(std::string("hlt")+std::string(typeid(HLTForwardBackwardJetsFilter<T>).name()),desc);
 }
 
@@ -92,7 +93,7 @@ HLTForwardBackwardJetsFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventS
 	if ( etajet > minEta_ && etajet < maxEta_ ){
 	  nplusjets++;
 	  TRef ref = TRef(objects,distance(objects->begin(),jet));
-	  filterproduct.addObject(static_cast<trigger::TriggerObjectType>(triggerType_),ref);
+	  filterproduct.addObject(triggerType_,ref);
 	}
       }
     }
@@ -105,7 +106,7 @@ HLTForwardBackwardJetsFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventS
 	  if ( etajet < -minEta_ && etajet > -maxEta_ ){
 	    nminusjets++;
 	    TRef ref = TRef(objects,distance(objects->begin(),jet));
-	    filterproduct.addObject(static_cast<trigger::TriggerObjectType>(triggerType_),ref);
+	    filterproduct.addObject(triggerType_,ref);
 	  }
 	}
       }

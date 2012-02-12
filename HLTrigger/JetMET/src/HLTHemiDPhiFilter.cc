@@ -98,7 +98,7 @@ HLTHemiDPhiFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
 double HLTHemiDPhiFilter::deltaPhi(double v1, double v2)
 { // Computes the correctly normalized phi difference
   // v1, v2 = phi of object 1 and 2
- double diff = fabs(v2 - v1);
+  double diff = std::abs(v2 - v1);
  double corr = 2*acos(-1.) - diff;
  if (diff < acos(-1.)){ return diff;} else { return corr;} 
  

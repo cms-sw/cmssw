@@ -72,7 +72,7 @@ HLT2jetGapFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
       countjets++;
     }
 
-  if(etjet1>minEt_ && etjet2>minEt_ && (etajet1*etajet2)<0 && fabs(etajet1)>minEta_ && fabs(etajet2)>minEta_){
+  if(etjet1>minEt_ && etjet2>minEt_ && (etajet1*etajet2)<0 && std::abs(etajet1)>minEta_ && std::abs(etajet2)>minEta_){
       for (reco::CaloJetCollection::const_iterator recocalojet = recocalojets->begin(); 
 	   recocalojet<=(recocalojets->begin()+1); recocalojet++) {
 	reco::CaloJetRef ref(reco::CaloJetRef(recocalojets,distance(recocalojets->begin(),recocalojet)));

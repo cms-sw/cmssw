@@ -17,7 +17,7 @@ namespace edm {
 //
 // class declaration
 //
-
+template<typename T>
 class HLTAlphaTFilter : public HLTFilter {
 
    public:
@@ -33,6 +33,7 @@ class HLTAlphaTFilter : public HLTFilter {
       std::vector<double> etaJet_;
       double minHt_;
       double minAlphaT_;
+      int triggerType_;
 };
 
 
@@ -42,7 +43,7 @@ struct AlphaT {
   // -----------------------------------------------------------------------------
   //
   struct fabs_less {
-    bool operator()( const double x, const double y ) const { return fabs(x) < fabs(y); }
+    bool operator()( const double x, const double y ) const { return std::abs(x) < std::abs(y); }
   };
 
   // -----------------------------------------------------------------------------
@@ -154,8 +155,8 @@ struct AlphaT {
   delta_sum_et += et[j] * ( 1 - 2 * (int(i>>j)&1) );
   if ( list ) { jet.push_back( (int(i>>j)&1) == 0 ); }
       }
-      if ( ( fabs(delta_sum_et) < min_delta_sum_et || min_delta_sum_et < 0. ) ) {
-  min_delta_sum_et = fabs(delta_sum_et);
+      if ( ( std::abs(delta_sum_et) < min_delta_sum_et || min_delta_sum_et < 0. ) ) {
+  min_delta_sum_et = std::abs(delta_sum_et);
   if ( list && jet.size() == et.size() ) {
     pseudo_jet1.resize(jet.size());
     std::copy( jet.begin(), jet.end(), pseudo_jet1.begin() );

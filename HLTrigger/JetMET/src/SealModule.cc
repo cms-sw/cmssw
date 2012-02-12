@@ -10,7 +10,6 @@
 #include "HLTrigger/JetMET/interface/HLTJetCollectionsForElePlusJets.h"
 #include "HLTrigger/JetMET/interface/HLTPhi2METFilter.h"
 #include "HLTrigger/JetMET/interface/HLTRapGapFilter.h"
-#include "HLTrigger/JetMET/interface/HLTAlphaTFilter.h"
 #include "HLTrigger/JetMET/interface/HLTJetCollectionsVBFFilter.h"
 #include "HLTrigger/JetMET/interface/HLTPFEnergyFractionsFilter.h"
 #include "HLTrigger/JetMET/interface/HLTHtMhtFilter.h"
@@ -33,6 +32,9 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
+//
+#include "HLTrigger/JetMET/interface/HLTAlphaTFilter.h"
+#include "HLTrigger/JetMET/src/HLTAlphaTFilter.cc"
 //
 #include "HLTrigger/JetMET/interface/HLTDiJetAveFilter.h"
 #include "HLTrigger/JetMET/src/HLTDiJetAveFilter.cc"
@@ -69,6 +71,9 @@
 
 using namespace reco;
 using namespace trigger;
+
+typedef HLTAlphaTFilter<CaloJet> HLTAlphaTCaloJetFilter;
+typedef HLTAlphaTFilter<  PFJet> HLTAlphaTPFJetFilter;
 
 typedef HLTDiJetAveFilter<CaloJet> HLTDiCaloJetAveFilter;
 typedef HLTDiJetAveFilter<  PFJet> HLTDiPFJetAveFilter;
@@ -112,7 +117,6 @@ DEFINE_FWK_MODULE(HLTPhi2METFilter);
 DEFINE_FWK_MODULE(HLTRapGapFilter);
 DEFINE_FWK_MODULE(HLTJetCollForElePlusJets);
 DEFINE_FWK_MODULE(HLTJetCollectionsForElePlusJets);
-DEFINE_FWK_MODULE(HLTAlphaTFilter);
 DEFINE_FWK_MODULE(HLTJetCollectionsVBFFilter);
 DEFINE_FWK_MODULE(HLTPFEnergyFractionsFilter);
 DEFINE_FWK_MODULE(HLTHtMhtFilter);
@@ -130,6 +134,10 @@ DEFINE_FWK_MODULE(HLTMhtProducer);
 DEFINE_FWK_MODULE(HLTHtMhtProducer);
 
 //Templates
+
+DEFINE_FWK_MODULE(HLTAlphaTCaloJetFilter);
+DEFINE_FWK_MODULE(HLTAlphaTPFJetFilter);
+
 DEFINE_FWK_MODULE(HLTCaloJetSortedVBFFilter);
 DEFINE_FWK_MODULE(HLTPFJetSortedVBFFilter);
 

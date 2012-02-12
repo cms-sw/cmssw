@@ -57,7 +57,7 @@ HLTExclDiJetFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<double>("minPtJet",30.0);
   desc.add<double>("minHFe",50.0);
   desc.add<bool>("HF_OR",false);
-  desc.add<int>("triggerType",0);
+  desc.add<int>("triggerType",trigger::TriggerJet);
   descriptions.add(std::string("hlt")+std::string(typeid(HLTExclDiJetFilter<T>).name()),desc);
 }
 
@@ -114,11 +114,11 @@ HLTExclDiJetFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
     }
 
     if(ptjet1>minPtJet_ && ptjet2>minPtJet_ ){
-      double Dphi=fabs(phijet1-phijet2);
+      double Dphi=std::abs(phijet1-phijet2);
       if(Dphi>M_PI) Dphi=2.0*M_PI-Dphi;
       if(Dphi>0.5*M_PI) {
-	filterproduct.addObject(static_cast<trigger::TriggerObjectType>(triggerType_),JetRef1);
-	filterproduct.addObject(static_cast<trigger::TriggerObjectType>(triggerType_),JetRef2);
+	filterproduct.addObject(triggerType_,JetRef1);
+	filterproduct.addObject(triggerType_,JetRef2);
 	++n;
       }
     } // pt(jet1,jet2) > minPtJet_
@@ -136,7 +136,7 @@ HLTExclDiJetFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
      iEvent.getByLabel("hltTowerMakerForAll",o);
 //     if( o.isValid()) {
       for( CaloTowerCollection::const_iterator cc = o->begin(); cc != o->end(); ++cc ) {
-       if(fabs(cc->ieta())>28 && cc->energy()<4.0) continue;
+       if(std::abs(cc->ieta())>28 && cc->energy()<4.0) continue;
         if(cc->ieta()>28)  ehfp+=cc->energy();  // HF+ energy
         if(cc->ieta()<-28) ehfm+=cc->energy();  // HF- energy
       }

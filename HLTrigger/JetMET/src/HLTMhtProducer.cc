@@ -76,7 +76,7 @@ void
       if (!usePt_) jetVar = jet->et();
 
       //---get MHT
-      if (jetVar > minPtJet_ && fabs(jet->eta()) < etaJet_) {
+      if (jetVar > minPtJet_ && std::abs(jet->eta()) < etaJet_) {
 	mhtx -= jetVar*cos(jet->phi());
 	mhty -= jetVar*sin(jet->phi());
       }

@@ -104,7 +104,7 @@ HLTRHemisphere::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    reco::CaloJetCollection JETS;
    CaloJetCollection::const_iterator i ( jets->begin() );
    for (unsigned int i=0; i<jets->size(); i++) {
-     if(fabs(jets->at(i).eta()) < max_Eta_ && jets->at(i).pt() >= min_Jet_Pt_){
+     if(std::abs(jets->at(i).eta()) < max_Eta_ && jets->at(i).pt() >= min_Jet_Pt_){
        JETS.push_back(jets->at(i));
        n++;
      }
@@ -122,7 +122,7 @@ HLTRHemisphere::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     int index   = 0;
     int nPassMu = 0;
     for(muonIt = muons->begin(); muonIt!=muons->end(); muonIt++,index++){ 
-      if(fabs(muonIt->eta()) > muonEta_ || muonIt->pt() < min_Jet_Pt_) continue; // skip muons out of eta range or too low pT
+      if(std::abs(muonIt->eta()) > muonEta_ || muonIt->pt() < min_Jet_Pt_) continue; // skip muons out of eta range or too low pT
       if(nPassMu >= 2){ // if we have already accepted two muons, accept the event
 	iEvent.put(Hemispheres); // too many muons, accept for timing      
 	return true;

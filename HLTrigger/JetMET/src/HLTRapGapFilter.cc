@@ -1,6 +1,6 @@
 /** \class HLTRapGapFilter
  *
- * $Id: HLTRapGapFilter.cc,v 1.10 2011/05/01 14:35:45 gruen Exp $
+ * $Id: HLTRapGapFilter.cc,v 1.11 2012/01/21 14:57:02 fwyzard Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -66,7 +66,7 @@ HLTRapGapFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, tr
       etjet = recocalojet->energy();
       etajet = recocalojet->eta();
       
-      if(fabs(etajet) > absEtaMin_ && fabs(etajet) < absEtaMax_)
+      if(std::abs(etajet) > absEtaMin_ && std::abs(etajet) < absEtaMax_)
 	{
 	  sumets += etjet;
 	  //std::cout << "Adding jet with eta = " << etajet << ", and e = " 

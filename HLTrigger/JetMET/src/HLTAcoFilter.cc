@@ -98,15 +98,15 @@ HLTAcoFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigg
     int JetSel = 0;
     
     if (AcoString_ == "Jet2Met") {
-      Dphi = fabs(phimiss-phijet2);
+      Dphi = std::abs(phimiss-phijet2);
       if (JetNum>=2 && etjet1>minEtjet1_  && etjet2>minEtjet2_) {JetSel=1;} 
     }
     if (AcoString_ == "Jet1Jet2") {
-      Dphi = fabs(phijet1-phijet2);
+      Dphi = std::abs(phijet1-phijet2);
       if (JetNum>=2 && etjet1>minEtjet1_  && etjet2>minEtjet2_) {JetSel=1;} 
     }
     if (AcoString_ == "Jet1Met") { 
-      Dphi = fabs(phimiss-phijet1);
+      Dphi = std::abs(phimiss-phijet1);
       if (JetNum>=1 && etjet1>minEtjet1_ ) {JetSel=1;} 
     }
     

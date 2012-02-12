@@ -1,6 +1,6 @@
 /** \class HLTJetVBFFilter
  *
- * $Id: HLTJetVBFFilter.cc,v 1.12 2012/01/21 14:57:01 fwyzard Exp $
+ * $Id: HLTJetVBFFilter.cc,v 1.13 2012/02/12 01:08:55 srimanob Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -60,7 +60,7 @@ HLTJetVBFFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<double>("minInvMass",1000.);
   desc.add<double>("maxEta",5.0);
   desc.add<bool>("leadingJetOnly",false);
-  desc.add<int>("triggerType",0);
+  desc.add<int>("triggerType",trigger::TriggerJet);
   descriptions.add(std::string("hlt")+std::string(typeid(HLTJetVBFFilter<T>).name()),desc);
 }
 
@@ -145,8 +145,8 @@ HLTJetVBFFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup,
         if ( (ptjet1 > minPtHigh_) && 
 	     (ptjet2 > minPtLow_) &&
              ( (etaOpposite_ == true && etajet1*etajet2 < 0) || (etaOpposite_ == false) ) &&
-             (fabs(deltaetajet) > minDeltaEta_) &&
-	     (fabs(invmassjet) > minInvMass_) ){
+             (std::abs(deltaetajet) > minDeltaEta_) &&
+	     (std::abs(invmassjet) > minInvMass_) ){
    	  ++n;
           TRef ref1 = TRef(objects,distance(objects->begin(),jet1));
 	  TRef ref2 = TRef(objects,distance(objects->begin(),jet2));

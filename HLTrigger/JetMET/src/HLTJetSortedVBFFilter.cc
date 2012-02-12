@@ -2,10 +2,10 @@
  *
  * See header file for documentation
  *
- *  $Date: 2012/02/04 18:13:00 $
+ *  $Date: 2012/02/06 15:09:21 $
 
 
- *  $Revision: 1.3 $
+ *  $Revision: 1.4 $
  *
  *  \author Jacopo Bernardini
  *
@@ -66,7 +66,7 @@ HLTJetSortedVBFFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<double>("Ptsumbb",0.);
   desc.add<double>("Etaq1Etaq2",40.);
   desc.add<std::string>("value","second");
-  desc.add<int>("triggerType",0);
+  desc.add<int>("triggerType",trigger::TriggerJet);
   descriptions.add(string("hlt")+string(typeid(HLTJetSortedVBFFilter<T>).name()),desc);
 }
 

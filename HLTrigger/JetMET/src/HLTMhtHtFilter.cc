@@ -97,7 +97,7 @@ HLTMhtHtFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions
   desc.add<double>("minAlphaT",0.0);
   desc.add<bool>("useTracks",false);
   desc.add<edm::InputTag>("inputTracksTag",edm::InputTag("hltL3Mouns"));
-  desc.add<int>("triggerType",0);
+  desc.add<int>("triggerType",trigger::TriggerJet);
   descriptions.add(std::string("hlt")+std::string(typeid(HLTMhtHtFilter<T>).name()),desc);
 }
 
@@ -144,20 +144,20 @@ HLTMhtHtFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
       if (!usePt_ || mode_==3 ) jetVar = jet->et();
 
       if (mode_==1 || mode_==2 || mode_ == 5) {//---get MHT
-        if (jetVar > minPtJet_.at(1) && fabs(jet->eta()) < etaJet_.at(1)) {
+        if (jetVar > minPtJet_.at(1) && std::abs(jet->eta()) < etaJet_.at(1)) {
           mhtx -= jetVar*cos(jet->phi());
           mhty -= jetVar*sin(jet->phi());
           if (mode_==1) ++nj;
         }
       }
       if (mode_==2 || mode_==4 || mode_==5) {//---get HT
-        if (jetVar > minPtJet_.at(0) && fabs(jet->eta()) < etaJet_.at(0)) {
+        if (jetVar > minPtJet_.at(0) && std::abs(jet->eta()) < etaJet_.at(0)) {
           ht += jetVar;
           nj++;
         }
       }
       if (mode_==3) {//---get PT12
-        if (jetVar > minPtJet_.at(0) && fabs(jet->eta()) < etaJet_.at(0)) {
+        if (jetVar > minPtJet_.at(0) && std::abs(jet->eta()) < etaJet_.at(0)) {
           nj++;
           mhtx -= jetVar*cos(jet->phi());
           mhty -= jetVar*sin(jet->phi());
@@ -167,11 +167,11 @@ HLTMhtHtFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
       if(mode_ == 5){
         double mHT = sqrt( (mhtx*mhtx) + (mhty*mhty) );
 	// Make sure to apply jet selection to the jets going into deltaHT as well!!!!!
-        if (jetVar > minPtJet_.at(0) && fabs(jet->eta()) < etaJet_.at(0)) {
+        if (jetVar > minPtJet_.at(0) && std::abs(jet->eta()) < etaJet_.at(0)) {
 	  dht += ( nj < 2 ? jetVar : -1.* jetVar ); //@@ only use for njets < 4
         }
         if ( nj == 2 || nj == 3 ) {
-          aT = ( ht - fabs(dht) ) / ( 2. * sqrt( ( ht*ht ) - ( mHT*mHT  ) ) );
+          aT = ( ht - std::abs(dht) ) / ( 2. * sqrt( ( ht*ht ) - ( mHT*mHT  ) ) );
         } else if ( nj > 3 ) {
           aT = ht / ( 2.*sqrt( ( ht*ht ) - ( mHT*mHT  ) ) );
         }
@@ -185,13 +185,13 @@ HLTMhtHtFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
       for (TrackCollection::const_iterator track = tracks->begin();
            track != tracks->end(); track++) {
         if (mode_==1 || mode_==2 || mode_ == 5) {//---get MHT
-          if (track->pt() > minPtJet_.at(1) && fabs(track->eta()) < etaJet_.at(1)) {
+          if (track->pt() > minPtJet_.at(1) && std::abs(track->eta()) < etaJet_.at(1)) {
             mhtx -= track->px();
             mhty -= track->py();
 	  }
 	}
         if (mode_==2 || mode_==4 || mode_==5) {//---get HT
-          if (track->pt() > minPtJet_.at(0) && fabs(track->eta()) < etaJet_.at(0)) {
+          if (track->pt() > minPtJet_.at(0) && std::abs(track->eta()) < etaJet_.at(0)) {
             ht += track->pt();
             nj++;
 	  }
@@ -212,7 +212,7 @@ HLTMhtHtFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
 	
 	if (jetVar > minPtJet_.at(0)) {
 	  ref = TRef(objects,distance(objects->begin(),jet));
-	  filterproduct.addObject(static_cast<trigger::TriggerObjectType>(triggerType_),ref);
+	  filterproduct.addObject(triggerType_,ref);
 	  n++;
 	}
       }

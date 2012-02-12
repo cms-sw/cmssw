@@ -103,7 +103,7 @@ HLTJetCollectionsVBFFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup&
             
       if ( thereAreVBFJets ) break;
       if ( jetOneRef->pt() < hardJetPt_ ) break;
-      if ( fabs(jetOneRef->eta()) > maxAbsJetEta_ ) continue;
+      if ( std::abs(jetOneRef->eta()) > maxAbsJetEta_ ) continue;
       
       reco::CaloJetRefVector::const_iterator jetTwo = jetOne + 1;
       secondJetIndex = firstJetIndex; 
@@ -111,9 +111,9 @@ HLTJetCollectionsVBFFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup&
         reco::CaloJetRef jetTwoRef(*jetTwo);
       
         if ( jetTwoRef->pt() < softJetPt_ ) break;
-        if ( fabs(jetTwoRef->eta()) > maxAbsJetEta_ ) continue;
+        if ( std::abs(jetTwoRef->eta()) > maxAbsJetEta_ ) continue;
         
-        if ( fabs(jetTwoRef->eta() - jetOneRef->eta()) < minDeltaEta_ ) continue;
+        if ( std::abs(jetTwoRef->eta() - jetOneRef->eta()) < minDeltaEta_ ) continue;
         
         thereAreVBFJets = true;
         refOne = Ref<CaloJetCollection> (refVector, distance(refVector.begin(), jetOne));
@@ -140,7 +140,7 @@ HLTJetCollectionsVBFFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup&
           
         if ( thirdJetIndex == firstJetIndex || thirdJetIndex == secondJetIndex ) continue;
       
-        if (jetThreeRef->pt() >= thirdJetPt_ && fabs(jetThreeRef->eta()) <= maxAbsThirdJetEta_) {
+        if (jetThreeRef->pt() >= thirdJetPt_ && std::abs(jetThreeRef->eta()) <= maxAbsThirdJetEta_) {
           goodThirdJet = true;
           refThree = Ref<CaloJetCollection> (refVector, distance(refVector.begin(), jetThree));
           goodJetRefs.push_back(refThree);

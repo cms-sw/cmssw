@@ -58,7 +58,7 @@ HLTJetCollectionsFilter<jetType>::fillDescriptions(edm::ConfigurationDescription
   desc.add<double>("MinJetPt",30.0);
   desc.add<double>("MaxAbsJetEta",2.6);
   desc.add<unsigned int>("MinNJets",1);
-  desc.add<int>("triggerType",0);
+  desc.add<int>("triggerType",trigger::TriggerJet);
   descriptions.add(std::string("hlt")+std::string(typeid(HLTJetCollectionsFilter<jetType>).name()),desc);
 }
 
@@ -100,7 +100,7 @@ HLTJetCollectionsFilter<jetType>::hltFilter(edm::Event& iEvent, const edm::Event
     typename JetRefVector::const_iterator jet(refVector.begin());
     for (; jet != refVector.end(); jet++) {
       JetRef jetRef(*jet);
-      if (jetRef->pt() >= minJetPt_ && fabs(jetRef->eta()) <= maxAbsJetEta_){
+      if (jetRef->pt() >= minJetPt_ && std::abs(jetRef->eta()) <= maxAbsJetEta_){
     	  numberOfGoodJets++;
     	  goodJetRefs.push_back(jetRef);
       }

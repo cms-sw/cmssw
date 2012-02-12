@@ -50,7 +50,7 @@ HLTMonoJetFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<edm::InputTag>("inputJetTag",edm::InputTag("hltAntiKT5ConvPFJets"));
   desc.add<double>("maxPtSecondJet",9999.);
   desc.add<double>("maxDeltaPhi",99.);
-  desc.add<int>("triggerType",0);
+  desc.add<int>("triggerType",trigger::TriggerJet);
   descriptions.add(std::string("hlt")+std::string(typeid(HLTMonoJetFilter<T>).name()),desc);
 }
 
@@ -110,7 +110,7 @@ HLTMonoJetFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup
       n=1;
     }
     else if(countJet>1 && jet2Pt>=maxPtSecondJet_){
-      double Dphi=fabs(deltaPhi(jet1Phi,jet2Phi));
+      double Dphi=std::abs(deltaPhi(jet1Phi,jet2Phi));
       if(Dphi>=maxDeltaPhi_) n=-1;
       else n=1;
     }
@@ -119,8 +119,8 @@ HLTMonoJetFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup
     }
   
     if(n==1){
-      filterproduct.addObject(static_cast<trigger::TriggerObjectType>(triggerType_),ref1);
-      if(countJet>1) filterproduct.addObject(static_cast<trigger::TriggerObjectType>(triggerType_),ref2);
+      filterproduct.addObject(triggerType_,ref1);
+      if(countJet>1) filterproduct.addObject(triggerType_,ref2);
     }
   }
 

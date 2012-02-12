@@ -66,7 +66,7 @@ HLTFatJetMassFilter<jetType>::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<double>("maxDeltaEta",10.0);
   desc.add<double>("maxJetEta",3.0);
   desc.add<double>("minJetPt",30.0);
-  desc.add<int>("triggerType",0);
+  desc.add<int>("triggerType",trigger::TriggerJet);
   descriptions.add(std::string("hlt")+std::string(typeid(HLTFatJetMassFilter<jetType>).name()),desc);
 }
 
@@ -93,7 +93,7 @@ HLTFatJetMassFilter<jetType>::hltFilter(edm::Event& iEvent, const edm::EventSetu
   CaloJetCollection recojets;
   typename JetCollection::const_iterator i ( objects->begin() );
   for(;i != objects->end(); i++){
-    if(fabs(i->eta()) < maxJetEta_ && i->pt() >= minJetPt_){ 
+    if(std::abs(i->eta()) < maxJetEta_ && i->pt() >= minJetPt_){ 
       reco::CaloJet jet(i->p4(), i->vertex(), reco::CaloJet::Specific()); 
       recojets.push_back(jet);
     }
@@ -125,7 +125,7 @@ HLTFatJetMassFilter<jetType>::hltFilter(edm::Event& iEvent, const edm::EventSetu
   }
   
   // apply DeltaEta cut
-  double DeltaEta = fabs(j1.eta() - j2.eta());
+  double DeltaEta = std::abs(j1.eta() - j2.eta());
   if(DeltaEta > maxDeltaEta_) return false;
   
   math::PtEtaPhiMLorentzVector fj1;
