@@ -31,7 +31,7 @@ HLTJetCollForElePlusJets<T>::HLTJetCollForElePlusJets(const edm::ParameterSet& i
   minDeltaEta_(iConfig.getParameter< double > ("MinDeltaEta"))
 {
   typedef std::vector<T> TCollection;
-  produces<T>();
+  produces<TCollection>();
 }
 
 
