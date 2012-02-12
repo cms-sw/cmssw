@@ -8,7 +8,6 @@
 #include "HLTrigger/JetMET/interface/HLTHemiDPhiFilter.h"
 #include "HLTrigger/JetMET/interface/HLTPhi2METFilter.h"
 #include "HLTrigger/JetMET/interface/HLTRapGapFilter.h"
-#include "HLTrigger/JetMET/interface/HLTJetCollectionsVBFFilter.h"
 #include "HLTrigger/JetMET/interface/HLTPFEnergyFractionsFilter.h"
 #include "HLTrigger/JetMET/interface/HLTHtMhtFilter.h"
 #include "HLTrigger/JetMET/interface/HLTMhtFilter.h"
@@ -58,6 +57,9 @@
 #include "HLTrigger/JetMET/interface/HLTJetCollectionsFilter.h"
 #include "HLTrigger/JetMET/src/HLTJetCollectionsFilter.cc"
 //
+#include "HLTrigger/JetMET/interface/HLTJetCollectionsVBFFilter.h"
+#include "HLTrigger/JetMET/src/HLTJetCollectionsVBFFilter.cc"
+//
 #include "HLTrigger/JetMET/interface/HLTJetVBFFilter.h"
 #include "HLTrigger/JetMET/src/HLTJetVBFFilter.cc"
 //
@@ -103,6 +105,9 @@ typedef HLTJetCollectionsForLeptonPlusJets<  PFJet> HLTPFJetCollectionsForLepton
 typedef HLTJetCollectionsFilter<CaloJet> HLTCaloJetCollectionsFilter;
 typedef HLTJetCollectionsFilter<  PFJet> HLTPFJetCollectionsFilter;
 
+typedef HLTJetCollectionsVBFFilter<CaloJet> HLTCaloJetCollectionsVBFFilter;
+typedef HLTJetCollectionsVBFFilter<  PFJet> HLTPFJetCollectionsVBFFilter;
+
 typedef HLTJetVBFFilter<CaloJet> HLTCaloJetVBFFilter;
 typedef HLTJetVBFFilter<  PFJet> HLTPFJetVBFFilter;
 
@@ -125,7 +130,6 @@ DEFINE_FWK_MODULE(HLTAcoFilter);
 DEFINE_FWK_MODULE(HLTHemiDPhiFilter);
 DEFINE_FWK_MODULE(HLTPhi2METFilter);
 DEFINE_FWK_MODULE(HLTRapGapFilter);
-DEFINE_FWK_MODULE(HLTJetCollectionsVBFFilter);
 DEFINE_FWK_MODULE(HLTPFEnergyFractionsFilter);
 DEFINE_FWK_MODULE(HLTHtMhtFilter);
 DEFINE_FWK_MODULE(HLTMhtFilter);
@@ -154,6 +158,9 @@ DEFINE_FWK_MODULE(HLTMonoPFJetFilter);
 
 DEFINE_FWK_MODULE(HLTCaloJetCollectionsFilter);
 DEFINE_FWK_MODULE(HLTPFJetCollectionsFilter);
+
+DEFINE_FWK_MODULE(HLTCaloJetCollectionsVBFFilter);
+DEFINE_FWK_MODULE(HLTPFJetCollectionsVBFFilter);
 
 DEFINE_FWK_MODULE(HLTCaloJetCollForElePlusJets);
 DEFINE_FWK_MODULE(HLTPFJetCollForElePlusJets);

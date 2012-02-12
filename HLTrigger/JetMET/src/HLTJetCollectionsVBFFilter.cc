@@ -14,6 +14,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -24,12 +25,14 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-typedef std::vector<edm::RefVector<std::vector<reco::CaloJet>,reco::CaloJet,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloJet>,reco::CaloJet> > > JetCollectionVector;
+#include<typeinfo>
+
 
 //
 // constructors and destructor
 //
-HLTJetCollectionsVBFFilter::HLTJetCollectionsVBFFilter(const edm::ParameterSet& iConfig): HLTFilter(iConfig),
+template <typename T>
+HLTJetCollectionsVBFFilter<T>::HLTJetCollectionsVBFFilter(const edm::ParameterSet& iConfig): HLTFilter(iConfig),
    inputTag_(iConfig.getParameter< edm::InputTag > ("inputTag")),
    originalTag_(iConfig.getParameter< edm::InputTag > ("originalTag")),
    softJetPt_(iConfig.getParameter<double> ("SoftJetPt")),
@@ -42,10 +45,12 @@ HLTJetCollectionsVBFFilter::HLTJetCollectionsVBFFilter(const edm::ParameterSet& 
 {
 }
 
-HLTJetCollectionsVBFFilter::~HLTJetCollectionsVBFFilter(){}
+template <typename T>
+HLTJetCollectionsVBFFilter<T>::~HLTJetCollectionsVBFFilter(){}
 
+template <typename T>
 void
-HLTJetCollectionsVBFFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+HLTJetCollectionsVBFFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("inputTag",edm::InputTag("hltIterativeCone5CaloJets"));
   desc.add<edm::InputTag>("originalTag",edm::InputTag("hltIterativeCone5CaloJets"));
@@ -57,30 +62,38 @@ HLTJetCollectionsVBFFilter::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<double>("MaxAbsJetEta",9999.);
   desc.add<double>("MaxAbsThirdJetEta",2.6);
   desc.add<unsigned int>("MinNJets",2);
-  descriptions.add("hltJetCollectionsVBFFilter",desc);
+  desc.add<int>("TriggerType",trigger::TriggerJet);
+  descriptions.add(std::string("hlt")+std::string(typeid(HLTJetCollectionsVBFFilter<T>).name()),desc);
 }
 
 // ------------ method called to produce the data  ------------
+template <typename T>
 bool
-HLTJetCollectionsVBFFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTJetCollectionsVBFFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace std;
   using namespace edm;
   using namespace reco;
   using namespace trigger;
+
+  typedef vector<T> TCollection;
+  typedef Ref<TCollection> TRef;
+  typedef edm::RefVector<TCollection> TRefVector;
+  typedef std::vector<edm::RefVector<std::vector<T>,T,edm::refhelper::FindUsingAdvance<std::vector<T>,T> > > TCollectionVector;
+
   // The filter object
   if (saveTags()) filterproduct.addCollectionTag(originalTag_);
 
-  Handle<JetCollectionVector> theCaloJetCollectionsHandle;
-  iEvent.getByLabel(inputTag_,theCaloJetCollectionsHandle);
-  const JetCollectionVector & theCaloJetCollections = *theCaloJetCollectionsHandle;
+  Handle<TCollectionVector> theJetCollectionsHandle;
+  iEvent.getByLabel(inputTag_,theJetCollectionsHandle);
+  const TCollectionVector & theJetCollections = *theJetCollectionsHandle;
   // filter decision
   bool accept(false);
-  std::vector < Ref<CaloJetCollection> > goodJetRefs;
+  std::vector < TRef > goodJetRefs;
   
-  for(unsigned int collection = 0; collection < theCaloJetCollections.size(); ++ collection) {
+  for(unsigned int collection = 0; collection < theJetCollections.size(); ++ collection) {
     
-    const reco::CaloJetRefVector & refVector =  theCaloJetCollections[collection];
+    const TRefVector & refVector =  theJetCollections[collection];
     if(refVector.size() < minNJets_) continue;
 
     // VBF decision
@@ -92,23 +105,23 @@ HLTJetCollectionsVBFFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup&
     //empty the good jets collection
     goodJetRefs.clear();
             
-    Ref<CaloJetCollection> refOne;
-    Ref<CaloJetCollection> refTwo;
-    reco::CaloJetRefVector::const_iterator jetOne ( refVector.begin() );
+    TRef refOne;
+    TRef refTwo;
+    typename TRefVector::const_iterator jetOne ( refVector.begin() );
     int firstJetIndex=100, secondJetIndex=100, thirdJetIndex=100;
 
     // Cycle to look for VBF jets 
     for (; jetOne != refVector.end(); jetOne++) {
-      reco::CaloJetRef jetOneRef(*jetOne);
+      TRef jetOneRef(*jetOne);
             
       if ( thereAreVBFJets ) break;
       if ( jetOneRef->pt() < hardJetPt_ ) break;
       if ( std::abs(jetOneRef->eta()) > maxAbsJetEta_ ) continue;
       
-      reco::CaloJetRefVector::const_iterator jetTwo = jetOne + 1;
+      typename TRefVector::const_iterator jetTwo = jetOne + 1;
       secondJetIndex = firstJetIndex; 
       for (; jetTwo != refVector.end(); jetTwo++) {
-        reco::CaloJetRef jetTwoRef(*jetTwo);
+        TRef jetTwoRef(*jetTwo);
       
         if ( jetTwoRef->pt() < softJetPt_ ) break;
         if ( std::abs(jetTwoRef->eta()) > maxAbsJetEta_ ) continue;
@@ -116,9 +129,9 @@ HLTJetCollectionsVBFFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup&
         if ( std::abs(jetTwoRef->eta() - jetOneRef->eta()) < minDeltaEta_ ) continue;
         
         thereAreVBFJets = true;
-        refOne = Ref<CaloJetCollection> (refVector, distance(refVector.begin(), jetOne));
+        refOne = TRef(refVector, distance(refVector.begin(), jetOne));
         goodJetRefs.push_back(refOne);
-        refTwo = Ref<CaloJetCollection> (refVector, distance(refVector.begin(), jetTwo));
+        refTwo = TRef(refVector, distance(refVector.begin(), jetTwo));
         goodJetRefs.push_back(refTwo);
         
         firstJetIndex = (int) (jetOne - refVector.begin());
@@ -131,18 +144,18 @@ HLTJetCollectionsVBFFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup&
         
     // Look for a third jet, if you've found the previous 2
     if ( minNJets_ > 2 && thereAreVBFJets ) {
-      Ref<CaloJetCollection> refThree;
-      reco::CaloJetRefVector::const_iterator jetThree ( refVector.begin() );
+      TRef refThree;
+      typename TRefVector::const_iterator jetThree ( refVector.begin() );
       for (; jetThree != refVector.end(); jetThree++) {
         thirdJetIndex = (int) (jetThree - refVector.begin());
 
-        reco::CaloJetRef jetThreeRef(*jetThree);
+        TRef jetThreeRef(*jetThree);
           
         if ( thirdJetIndex == firstJetIndex || thirdJetIndex == secondJetIndex ) continue;
       
         if (jetThreeRef->pt() >= thirdJetPt_ && std::abs(jetThreeRef->eta()) <= maxAbsThirdJetEta_) {
           goodThirdJet = true;
-          refThree = Ref<CaloJetCollection> (refVector, distance(refVector.begin(), jetThree));
+          refThree = TRef(refVector, distance(refVector.begin(), jetThree));
           goodJetRefs.push_back(refThree);
           break;
         }
@@ -158,7 +171,7 @@ HLTJetCollectionsVBFFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup&
 
   //fill the filter object
   for (unsigned int refIndex = 0; refIndex < goodJetRefs.size(); ++refIndex) {
-    filterproduct.addObject(TriggerJet, goodJetRefs.at(refIndex));
+    filterproduct.addObject(triggerType_, goodJetRefs.at(refIndex));
   }
 
   return accept;

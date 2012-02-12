@@ -17,6 +17,7 @@ namespace edm {
 // class decleration
 //
 
+template <typename T>
 class HLTJetCollectionsVBFFilter : public HLTFilter {
 
    public:
@@ -35,6 +36,7 @@ class HLTJetCollectionsVBFFilter : public HLTFilter {
       double maxAbsJetEta_;
       double maxAbsThirdJetEta_;
       unsigned int minNJets_; // number of required jets passing cuts after cleaning
+      int triggerType_;
 
 };
 
