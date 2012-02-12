@@ -1,6 +1,6 @@
 /** \class HLTJetVBFFilter
  *
- * $Id: HLTJetVBFFilter.cc,v 1.13 2012/02/12 01:08:55 srimanob Exp $
+ * $Id: HLTJetVBFFilter.cc,v 1.14 2012/02/12 09:34:06 gruen Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -150,8 +150,8 @@ HLTJetVBFFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup,
    	  ++n;
           TRef ref1 = TRef(objects,distance(objects->begin(),jet1));
 	  TRef ref2 = TRef(objects,distance(objects->begin(),jet2));
-          filterproduct.addObject(static_cast<trigger::TriggerObjectType>(triggerType_),ref1);
-          filterproduct.addObject(static_cast<trigger::TriggerObjectType>(triggerType_),ref2);
+          filterproduct.addObject(triggerType_,ref1);
+          filterproduct.addObject(triggerType_,ref2);
 	  break;
         } // VBF cuts
       }
