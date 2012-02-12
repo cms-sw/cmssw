@@ -96,6 +96,9 @@ public:
 		 const edm::Handle<reco::PFTauDiscriminator>     & theRecoPFTauDiscrAgainstMuon,
 		 const edm::Handle<reco::PFJetCollection>        & recoPFJets,                
 		 const edm::Handle<CaloTowerCollection>          & caloTowers,	      
+                 const edm::Handle<CaloTowerCollection>          & caloTowersCleanerUpperR45,
+                 const edm::Handle<CaloTowerCollection>          & caloTowersCleanerLowerR45,
+                 const edm::Handle<CaloTowerCollection>          & caloTowersCleanerNoR45,
 		 const edm::Handle<reco::PFMETCollection>        & pfmets,  
                  double thresholdForSavingTowers,
                  double                minPtCH,
@@ -115,6 +118,7 @@ private:
 
     float *jgenpt, *jgenphi, *jgeneta, *jgene;
     float *towet, *toweta, *towphi, *towen, *towem, *towhd, *towoe;
+    int *towR45upper, *towR45lower, *towR45none;
     float mcalmet,mcalphi,mcalsum;
     float htcalet,htcalphi,htcalsum;
     float mgenmet,mgenphi,mgensum;

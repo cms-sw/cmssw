@@ -31,29 +31,32 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
     // variables. Example as follows:
     std::cout << " Beginning HLTAnalyzer Analysis " << std::endl;
 
-    hltjets_          = conf.getParameter<edm::InputTag> ("hltjets");
-    hltcorjets_       = conf.getParameter<edm::InputTag> ("hltcorjets");    
-    hltcorL1L2L3jets_ = conf.getParameter<edm::InputTag> ("hltcorL1L2L3jets");    
-    rho_              = edm::InputTag("hltKT6CaloJets", "rho");    
-    recjets_          = conf.getParameter<edm::InputTag> ("recjets");
-    reccorjets_       = conf.getParameter<edm::InputTag> ("reccorjets");
-    genjets_          = conf.getParameter<edm::InputTag> ("genjets");
-    recmet_           = conf.getParameter<edm::InputTag> ("recmet");
-    recoPFMet_        = conf.getParameter<edm::InputTag> ("pfmet"); 
-    genmet_           = conf.getParameter<edm::InputTag> ("genmet");
-    ht_               = conf.getParameter<edm::InputTag> ("ht");
-    recoPFJets_       = conf.getParameter<edm::InputTag> ("recoPFJets"); 
-    calotowers_       = conf.getParameter<edm::InputTag> ("calotowers");
-    muon_             = conf.getParameter<edm::InputTag> ("muon");
-    pfmuon_           = conf.getParameter<edm::InputTag> ("pfmuon");
-    mctruth_          = conf.getParameter<edm::InputTag> ("mctruth");
-    genEventInfo_     = conf.getParameter<edm::InputTag> ("genEventInfo");
-    simhits_          = conf.getParameter<edm::InputTag> ("simhits");
-    xSection_         = conf.getUntrackedParameter<double> ("xSection",1.);
-    filterEff_        = conf.getUntrackedParameter<double> ("filterEff",1.);
-    firstLumi_        = conf.getUntrackedParameter<int> ("firstLumi",0);
-    lastLumi_         = conf.getUntrackedParameter<int> ("lastLumi",-1);
-    towerThreshold_   = conf.getParameter<double>("caloTowerThreshold");
+    hltjets_            = conf.getParameter<edm::InputTag> ("hltjets");
+    hltcorjets_         = conf.getParameter<edm::InputTag> ("hltcorjets");    
+    hltcorL1L2L3jets_   = conf.getParameter<edm::InputTag> ("hltcorL1L2L3jets");    
+    rho_                = edm::InputTag("hltKT6CaloJets", "rho");    
+    recjets_            = conf.getParameter<edm::InputTag> ("recjets");
+    reccorjets_         = conf.getParameter<edm::InputTag> ("reccorjets");
+    genjets_            = conf.getParameter<edm::InputTag> ("genjets");
+    recmet_             = conf.getParameter<edm::InputTag> ("recmet");
+    recoPFMet_          = conf.getParameter<edm::InputTag> ("pfmet"); 
+    genmet_             = conf.getParameter<edm::InputTag> ("genmet");
+    ht_                 = conf.getParameter<edm::InputTag> ("ht");
+    recoPFJets_         = conf.getParameter<edm::InputTag> ("recoPFJets"); 
+    calotowers_         = conf.getParameter<edm::InputTag> ("calotowers");
+    calotowersUpperR45_ = conf.getParameter<edm::InputTag> ("calotowersUpperR45");
+    calotowersLowerR45_ = conf.getParameter<edm::InputTag> ("calotowersLowerR45");
+    calotowersNoR45_    = conf.getParameter<edm::InputTag> ("calotowersNoR45");
+    muon_               = conf.getParameter<edm::InputTag> ("muon");
+    pfmuon_             = conf.getParameter<edm::InputTag> ("pfmuon");
+    mctruth_            = conf.getParameter<edm::InputTag> ("mctruth");
+    genEventInfo_       = conf.getParameter<edm::InputTag> ("genEventInfo");
+    simhits_            = conf.getParameter<edm::InputTag> ("simhits");
+    xSection_           = conf.getUntrackedParameter<double> ("xSection",1.);
+    filterEff_          = conf.getUntrackedParameter<double> ("filterEff",1.);
+    firstLumi_          = conf.getUntrackedParameter<int> ("firstLumi",0);
+    lastLumi_           = conf.getUntrackedParameter<int> ("lastLumi",-1);
+    towerThreshold_     = conf.getParameter<double>("caloTowerThreshold");
        
     // keep this separate from l1extramc_ as needed by FastSim:
     //    This is purposefully done this way to allow FastSim to run with OpenHLT: 
@@ -242,6 +245,9 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     edm::Handle<reco::CaloJetCollection>              reccorjets;
     edm::Handle<reco::GenJetCollection>               genjets;
     edm::Handle<CaloTowerCollection>                  caloTowers;
+    edm::Handle<CaloTowerCollection>                  caloTowersCleanerUpperR45;
+    edm::Handle<CaloTowerCollection>                  caloTowersCleanerLowerR45;
+    edm::Handle<CaloTowerCollection>                  caloTowersCleanerNoR45;
     edm::Handle<reco::CaloMETCollection>              recmet;
     edm::Handle<reco::PFMETCollection>                recoPFMet;
     edm::Handle<reco::GenMETCollection>               genmet;
@@ -405,6 +411,9 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     getCollection( iEvent, missing, recoPFMet,       recoPFMet_,         kPFMet );
     getCollection( iEvent, missing, genmet,          genmet_,            kGenmet );
     getCollection( iEvent, missing, caloTowers,      calotowers_,        kCaloTowers );
+    getCollection( iEvent, missing, caloTowersCleanerUpperR45, calotowersUpperR45_,        kCaloTowersUpperR45 );
+    getCollection( iEvent, missing, caloTowersCleanerLowerR45, calotowersLowerR45_,        kCaloTowersLowerR45 );
+    getCollection( iEvent, missing, caloTowersCleanerNoR45,    calotowersNoR45_,           kCaloTowersNoR45 );
     getCollection( iEvent, missing, ht,              ht_,                kHt );
     getCollection( iEvent, missing, recoPFJets,      recoPFJets_,        kRecoPFJets );   
     getCollection( iEvent, missing, muon,            muon_,              kMuon );
@@ -566,6 +575,9 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
 			  theRecoPFTauDiscrAgainstElec,
                           recoPFJets, 
                           caloTowers,
+			  caloTowersCleanerUpperR45,
+			  caloTowersCleanerLowerR45,
+			  caloTowersCleanerNoR45,
 			  recoPFMet,
                           towerThreshold_,
                           _MinPtGammas,

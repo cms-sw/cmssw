@@ -105,6 +105,9 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     towem = new float[kMaxTower];
     towhd = new float[kMaxTower];
     towoe = new float[kMaxTower];
+    towR45upper = new int[kMaxTower];
+    towR45lower = new int[kMaxTower];
+    towR45none = new int[kMaxTower];
     const int kMaxTau = 500;
     l2tauemiso = new float[kMaxTau];
     l25tauPt = new float[kMaxTau];
@@ -275,6 +278,10 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     HltTree->Branch("recoTowEm",towem,"recoTowEm[NrecoTowCal]/F");
     HltTree->Branch("recoTowHad",towhd,"recoTowHad[NrecoTowCal]/F");
     HltTree->Branch("recoTowOE",towoe,"recoTowOE[NrecoTowCal]/F");
+    HltTree->Branch("recoTowHCalNoiseR45Upper",towR45upper,"recoTowHCalNoiseR45Upper[NrecoTowCal]/I");
+    HltTree->Branch("recoTowHCalNoiseR45Lower",towR45lower,"recoTowHCalNoiseR45Lower[NrecoTowCal]/I");
+    HltTree->Branch("recoTowHCalNoiseR45None",towR45none,"recoTowHCalNoiseR45None[NrecoTowCal]/I");
+
     HltTree->Branch("recoMetCal",&mcalmet,"recoMetCal/F");
     HltTree->Branch("recoMetCalPhi",&mcalphi,"recoMetCalPhi/F");
     HltTree->Branch("recoMetCalSum",&mcalsum,"recoMetCalSum/F");
@@ -403,6 +410,9 @@ void HLTJets::analyze(edm::Event const& iEvent,
 		      const edm::Handle<reco::PFTauDiscriminator>	      & theRecoPFTauDiscrAgainstMuon,
                       const edm::Handle<reco::PFJetCollection>        & recoPFJets,
 		      const edm::Handle<CaloTowerCollection>          & caloTowers,
+		      const edm::Handle<CaloTowerCollection>          & caloTowersCleanerUpperR45,
+		      const edm::Handle<CaloTowerCollection>          & caloTowersCleanerLowerR45,
+		      const edm::Handle<CaloTowerCollection>          & caloTowersCleanerNoR45,
 		      const edm::Handle<reco::PFMETCollection>        & pfmets, 
                       double thresholdForSavingTowers, 
                       double		    minPtCH,

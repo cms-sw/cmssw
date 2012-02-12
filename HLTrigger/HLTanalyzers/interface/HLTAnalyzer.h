@@ -79,6 +79,7 @@ private:
   double xSection_, filterEff_, treeWeight;
 
   edm::InputTag recjets_,reccorjets_,genjets_,recmet_,recoPFMet_,genmet_,ht_,recoPFJets_,calotowers_,hltresults_,genEventInfo_;
+  edm::InputTag calotowersUpperR45_, calotowersLowerR45_, calotowersNoR45_;
   edm::InputTag hltjets_, hltcorjets_, hltcorL1L2L3jets_, rho_;
   edm::InputTag muon_;
   edm::InputTag pfmuon_;

@@ -3,21 +3,20 @@ import FWCore.ParameterSet.Config as cms
 # import the whole HLT menu
 from HLTrigger.HLTanalyzers.HLT_FULL_cff import *
 
-hltL1IsoR9shape = cms.EDProducer( "EgammaHLTR9Producer",
-                                  recoEcalCandidateProducer = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
-                                  ecalRechitEB = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEB' ),
-                                  ecalRechitEE = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEE' ),
-                                 useSwissCross = cms.bool( False )
-                                  )
-hltL1NonIsoR9shape = cms.EDProducer( "EgammaHLTR9Producer",
-                                     recoEcalCandidateProducer = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" ),
-                                     ecalRechitEB = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEB' ),
-                                     ecalRechitEE = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEE' ),
-                                     useSwissCross = cms.bool( False )
-                                     )
+########################################################
+# Customizations
+########################################################
 
-HLTEgammaR9ShapeSequence = cms.Sequence( hltL1IsoR9shape + hltL1NonIsoR9shape )
+# HBHE noise
+from HLTrigger.HLTanalyzers.Alex_cff import *
 
+# BTag
+from HLTrigger.HLTanalyzers.OpenHLT_BJet_cff import *
+
+# Tau
+from HLTrigger.HLTanalyzers.OpenHLT_Tau_cff import *
+
+# Dimuon TP
 hltMuTrackJpsiPixelTrackSelector.MinMasses  = cms.vdouble ( 2.0, 60.0 )
 hltMuTrackJpsiPixelTrackSelector.MaxMasses  = cms.vdouble ( 4.6, 120.0 )
 hltMu5Track1JpsiPixelMassFiltered.MinMasses = cms.vdouble ( 2.0, 60.0 )
@@ -30,18 +29,9 @@ hltMu5Track2JpsiTrackMassFiltered.MaxMasses = cms.vdouble ( 3.5, 120.0 )
 hltMu5L2Mu2JpsiTrackMassFiltered.MinMasses = cms.vdouble ( 1.8, 50.0 )
 hltMu5L2Mu2JpsiTrackMassFiltered.MaxMasses = cms.vdouble ( 4.5, 130.0 )
 
-
-#hltLowMassDisplacedL3Filtered.MaxEta      = cms.double(3.0)
-#hltLowMassDisplacedL3Filtered.MinPtPair   = cms.double( 0.0 )
-#hltLowMassDisplacedL3Filtered.MinPtMin    = cms.double( 0.0 )
-#hltLowMassDisplacedL3Filtered.MaxInvMass  = cms.double( 11.5 )
-#
-#hltDisplacedmumuFilterLowMass.MinLxySignificance     = cms.double( 0.0 )
-#hltDisplacedmumuFilterLowMass.MinVtxProbability      = cms.double( 0.0 )
-#hltDisplacedmumuFilterLowMass.MinCosinePointingAngle = cms.double( -2.0 )
-
-
-#HLTDisplacemumuSequence = cms.Sequence(  hltL1sL1DoubleMu0 + hltDimuonL1Filtered0 + hltDimuonL2PreFiltered0 + hltLowMassDisplacedL3Filtered + hltDisplacedmumuVtxProducerLowMass + hltDisplacedmumuFilterLowMass)
+########################################################
+# Paths without filters
+########################################################
 
 # create the jetMET HLT reco path
 DoHLTJets = cms.Path(
@@ -49,7 +39,8 @@ DoHLTJets = cms.Path(
     HLTRecoJetSequenceAK5Corrected +
     HLTRecoJetSequenceAK5L1FastJetCorrected +
     HLTRecoMETSequence +
-    HLTDoLocalHcalWithoutHOSequence                  
+    HLTDoLocalHcalWithoutHOSequence +                 
+    OpenHLTHCalNoiseTowerCleanerSequence
 )
 DoHLTJetsU = cms.Path(HLTBeginSequence +
     HLTBeginSequence +
@@ -92,7 +83,6 @@ DoHLTPhoton = cms.Path(
     HLTL1NonIsolatedEcalClustersSequence + 
     hltL1IsoRecoEcalCandidate + 
     hltL1NonIsoRecoEcalCandidate + 
-    HLTEgammaR9ShapeSequence +
     HLTEgammaR9IDSequence +
     hltL1IsolatedPhotonEcalIsol + 
     hltL1NonIsolatedPhotonEcalIsol + 
@@ -127,7 +117,6 @@ DoHLTElectron = cms.Path(
     HLTL1NonIsolatedEcalClustersSequence +
     hltL1IsoRecoEcalCandidate +
     hltL1NonIsoRecoEcalCandidate +
-    HLTEgammaR9ShapeSequence +#was commented out for HT jobs
     HLTEgammaR9IDSequence +
     hltL1IsoHLTClusterShape +
     hltL1NonIsoHLTClusterShape +
@@ -160,7 +149,6 @@ DoHLTElectron = cms.Path(
 
 
 # create the tau HLT reco path
-from HLTrigger.HLTanalyzers.OpenHLT_Tau_cff import *
 DoHLTTau = cms.Path(HLTBeginSequence +
                     OpenHLTCaloTausCreatorSequence +
                     openhltL2TauJets +
@@ -178,7 +166,6 @@ DoHLTTau = cms.Path(HLTBeginSequence +
                     HLTEndSequence)
 
 # create the b-jet HLT paths
-from HLTrigger.HLTanalyzers.OpenHLT_BJet_cff import *
 DoHLTBTag = cms.Path(
         HLTBeginSequence +
         OpenHLTBLifetimeL25recoSequence +
