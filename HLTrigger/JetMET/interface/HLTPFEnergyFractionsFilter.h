@@ -37,6 +37,7 @@ class HLTPFEnergyFractionsFilter : public HLTFilter {
       double max_CHEF_;
       double min_NHEF_;
       double max_NHEF_;
+      int triggerType_;
 };
 
 #endif //HLTPFEnergyFractionsFilter_h

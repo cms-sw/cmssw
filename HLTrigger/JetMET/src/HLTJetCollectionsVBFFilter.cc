@@ -41,7 +41,8 @@ HLTJetCollectionsVBFFilter<T>::HLTJetCollectionsVBFFilter(const edm::ParameterSe
    thirdJetPt_(iConfig.getParameter<double> ("ThirdJetPt")),
    maxAbsJetEta_(iConfig.getParameter<double> ("MaxAbsJetEta")),
    maxAbsThirdJetEta_(iConfig.getParameter<double> ("MaxAbsThirdJetEta")),
-   minNJets_(iConfig.getParameter<unsigned int> ("MinNJets"))
+   minNJets_(iConfig.getParameter<unsigned int> ("MinNJets")),
+   triggerType_(iConfig.getParameter<unsigned int> ("TriggerType"))
 {
 }
 

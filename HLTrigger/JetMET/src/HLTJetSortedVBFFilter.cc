@@ -2,10 +2,10 @@
  *
  * See header file for documentation
  *
- *  $Date: 2012/02/06 15:09:21 $
+ *  $Date: 2012/02/12 09:34:06 $
 
 
- *  $Revision: 1.4 $
+ *  $Revision: 1.5 $
  *
  *  \author Jacopo Bernardini
  *
@@ -168,7 +168,7 @@ HLTJetSortedVBFFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& se
 	) {
      accept=true;
      for (unsigned int i=0; i<nMax; ++i) {
-       filterproduct.addObject(static_cast<trigger::TriggerObjectType>(triggerType_),jetRefs[i]);
+       filterproduct.addObject(triggerType_,jetRefs[i]);
      }
    }
 

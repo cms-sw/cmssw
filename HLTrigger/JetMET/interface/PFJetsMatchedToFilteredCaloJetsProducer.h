@@ -38,6 +38,7 @@ class PFJetsMatchedToFilteredCaloJetsProducer: public edm::EDProducer {
   edm::InputTag PFJetSrc;
   edm::InputTag CaloJetFilter;
   double DeltaR_;         // DeltaR(HLT,L1)
+  int TriggerType_;
 
 };
 #endif
