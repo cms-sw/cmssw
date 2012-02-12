@@ -7,6 +7,7 @@
  *
  */
 
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
 namespace edm {
@@ -18,6 +19,7 @@ namespace edm {
 // class declaration
 //
 
+template<typename jetType>
 class HLTFatJetMassFilter : public HLTFilter {
 
    public:
@@ -33,6 +35,7 @@ class HLTFatJetMassFilter : public HLTFilter {
       double maxDeltaEta_;
       double maxJetEta_;
       double minJetPt_;
+      int    triggerType_;
 };
 
 #endif //HLTFatJetMassFilter_h

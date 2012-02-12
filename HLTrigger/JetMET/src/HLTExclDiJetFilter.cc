@@ -7,111 +7,125 @@
 
 #include "HLTrigger/JetMET/interface/HLTExclDiJetFilter.h"
 
+#include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/Handle.h"
-
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+//#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+//#include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
-//#include "DataFormats/Math/interface/deltaPhi.h"
-#include <cmath>
-
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <cmath>
+#include <typeinfo>
 
 //
 // constructors and destructor
 //
-HLTExclDiJetFilter::HLTExclDiJetFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
+template<typename T>
+HLTExclDiJetFilter<T>::HLTExclDiJetFilter(const edm::ParameterSet& iConfig) : 
+  HLTFilter(iConfig),
+  inputJetTag_ (iConfig.template getParameter< edm::InputTag > ("inputJetTag")),
+  minPtJet_    (iConfig.template getParameter<double> ("minPtJet")), 
+  minHFe_      (iConfig.template getParameter<double> ("minHFe")), 
+  HF_OR_       (iConfig.template getParameter<bool> ("HF_OR")),
+  triggerType_    (iConfig.template getParameter<int> ("triggerType"))
 {
-   inputJetTag_ = iConfig.getParameter< edm::InputTag > ("inputJetTag");
-   minPtJet_    = iConfig.getParameter<double> ("minPtJet"); 
-   minHFe_      = iConfig.getParameter<double> ("minHFe"); 
-   HF_OR_       = iConfig.getParameter<bool> ("HF_OR"); 
+  LogDebug("") << "HLTExclDiJetFilter: Input/minPtJet/minHFe/HF_OR/triggerType : "
+	       << inputJetTag_.encode() << " "
+	       << minPtJet_ << " " 
+	       << minHFe_ << " "
+	       << HF_OR_ << " "
+	       << triggerType_;
 }
 
-HLTExclDiJetFilter::~HLTExclDiJetFilter(){}
+template<typename T>
+HLTExclDiJetFilter<T>::~HLTExclDiJetFilter(){}
 
+template<typename T>
 void
-HLTExclDiJetFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  edm::ParameterSetDescription desc;
+HLTExclDiJetFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc; 
+  makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputJetTag",edm::InputTag("hltMCJetCorJetIcone5HF07"));
-  desc.add<bool>("saveTags",false);
   desc.add<double>("minPtJet",30.0);
   desc.add<double>("minHFe",50.0);
   desc.add<bool>("HF_OR",false);
-  descriptions.add("hltExclDiJetFilter",desc);
+  desc.add<int>("triggerType",0);
+  descriptions.add(std::string("hlt")+std::string(typeid(HLTExclDiJetFilter<T>).name()),desc);
 }
 
 // ------------ method called to produce the data  ------------
+template<typename T>
 bool
-HLTExclDiJetFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTExclDiJetFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace std;
   using namespace edm;
   using namespace reco;
   using namespace trigger;
 
+  typedef vector<T> TCollection;
+  typedef Ref<TCollection> TRef;
+
   // The filter object
   if (saveTags()) filterproduct.addCollectionTag(inputJetTag_);
 
-  Handle<CaloJetCollection> recocalojets;
-  iEvent.getByLabel(inputJetTag_,recocalojets);
+  Handle<TCollection> recojets; //recojets can be any jet collections
+  iEvent.getByLabel(inputJetTag_,recojets);
 
   // look at all candidates,  check cuts and add to filter object
-    int n(0);
-
-    double ptjet1=0., ptjet2=0.;  
-    double phijet1=0., phijet2=0.;
-
-  if(recocalojets->size() > 1){
+  int n(0);
+  
+  double ptjet1=0., ptjet2=0.;  
+  double phijet1=0., phijet2=0.;
+  
+  if(recojets->size() > 1){
     // events with two or more jets
-
+    
     int countjets =0;
+    
+    TRef JetRef1,JetRef2;
 
-    CaloJetRef JetRef1,JetRef2;
-
-    for (CaloJetCollection::const_iterator recocalojet = recocalojets->begin(); 
-	 recocalojet<=(recocalojets->begin()+1); ++recocalojet) {
-      
+    typename TCollection::const_iterator recojet ( recojets->begin() );
+    for (;recojet<=(recojets->begin()+1); ++recojet) {
+      //
       if(countjets==0) {
-	ptjet1 = recocalojet->pt();
-        phijet1 = recocalojet->phi();
-
-	JetRef1 = CaloJetRef(recocalojets,distance(recocalojets->begin(),recocalojet));
+	ptjet1 = recojet->pt();
+        phijet1 = recojet->phi();
+	
+	JetRef1 = TRef(recojets,distance(recojets->begin(),recojet));
       }
+      //
       if(countjets==1) {
-	ptjet2 = recocalojet->pt();
-        phijet2 = recocalojet->phi(); 
+	ptjet2 = recojet->pt();
+        phijet2 = recojet->phi(); 
 
-	JetRef2 = CaloJetRef(recocalojets,distance(recocalojets->begin(),recocalojet));
+	JetRef2 = TRef(recojets,distance(recojets->begin(),recojet));
       }
-
+      //
       ++countjets;
     }
 
     if(ptjet1>minPtJet_ && ptjet2>minPtJet_ ){
       double Dphi=fabs(phijet1-phijet2);
       if(Dphi>M_PI) Dphi=2.0*M_PI-Dphi;
-    if(Dphi>0.5*M_PI) {
-       filterproduct.addObject(TriggerJet,JetRef1);
-       filterproduct.addObject(TriggerJet,JetRef2);
-       ++n;
-    }
-    }
+      if(Dphi>0.5*M_PI) {
+	filterproduct.addObject(static_cast<trigger::TriggerObjectType>(triggerType_),JetRef1);
+	filterproduct.addObject(static_cast<trigger::TriggerObjectType>(triggerType_),JetRef2);
+	++n;
+      }
+    } // pt(jet1,jet2) > minPtJet_
 
   } // events with two or more jets
 
-// calotowers
-
+  // calotowers
   bool hf_accept=false; 
 
   if(n>0) {

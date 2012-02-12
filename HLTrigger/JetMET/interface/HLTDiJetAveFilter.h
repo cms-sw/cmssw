@@ -7,6 +7,7 @@
  *
  */
 
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
 namespace edm {
@@ -17,6 +18,7 @@ namespace edm {
 // class declaration
 //
 
+template<typename T>
 class HLTDiJetAveFilter : public HLTFilter {
 
    public:
@@ -30,6 +32,7 @@ class HLTDiJetAveFilter : public HLTFilter {
       double minPtAve_;
       double minPtJet3_;
       double minDphi_;
+      int    triggerType_;
 };
 
 #endif //HLTDiJetAveFilter_h

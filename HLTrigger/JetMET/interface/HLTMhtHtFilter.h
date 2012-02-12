@@ -7,17 +7,18 @@
  *
  */
 
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
 namespace edm {
    class ConfigurationDescriptions;
 }
 
-
 //
 // class declaration
 //
 
+template<typename T>
 class HLTMhtHtFilter : public HLTFilter {
 
    public:
@@ -44,7 +45,8 @@ class HLTMhtHtFilter : public HLTFilter {
                                                 //----mode = 4 for HT only
                                                 //----mode = 5 for HT and AlphaT cross trigger (ALWAYS uses jet ET, not pT)
       const bool                usePt_;
-      const bool                useTracks_;
+      const bool                useTracks_; 
+      int   triggerType_;
 };
 
 #endif //HLTMhtHtFilter_h

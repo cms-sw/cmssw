@@ -7,6 +7,7 @@
 
 #include "HLTrigger/JetMET/interface/HLTMhtProducer.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
@@ -59,23 +60,25 @@ void
 
   math::XYZPoint vtx(0,0,0);
   
-  Handle<CaloJetCollection> recocalojets;
-  iEvent.getByLabel(inputJetTag_,recocalojets);
+  //Handle<CaloJetCollection> recocalojets;
+  edm::Handle<edm::View<reco::Jet> > jets;
+  iEvent.getByLabel(inputJetTag_,jets);
 
   // look at all candidates,  check cuts and add to result object
   double mhtx=0., mhty=0., mht;
   double jetVar;
   
-  if(recocalojets->size() > 0){
+  if(jets->size() > 0){
     // events with at least one jet
-    for (CaloJetCollection::const_iterator recocalojet = recocalojets->begin(); recocalojet != recocalojets->end(); recocalojet++) {
-      jetVar = recocalojet->pt();
-      if (!usePt_) jetVar = recocalojet->et();
+    //for (CaloJetCollection::const_iterator jet = jets->begin(); jet != jets->end(); jet++) {
+    for(edm::View<reco::Jet>::const_iterator jet = jets->begin(); jet != jets->end(); jet++ ) {
+      jetVar = jet->pt();
+      if (!usePt_) jetVar = jet->et();
 
       //---get MHT
-      if (jetVar > minPtJet_ && fabs(recocalojet->eta()) < etaJet_) {
-	mhtx -= jetVar*cos(recocalojet->phi());
-	mhty -= jetVar*sin(recocalojet->phi());
+      if (jetVar > minPtJet_ && fabs(jet->eta()) < etaJet_) {
+	mhtx -= jetVar*cos(jet->phi());
+	mhty -= jetVar*sin(jet->phi());
       }
     }
     mht = sqrt(mhtx*mhtx + mhty*mhty);

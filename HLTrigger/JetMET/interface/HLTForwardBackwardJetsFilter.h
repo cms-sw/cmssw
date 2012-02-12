@@ -5,6 +5,7 @@
  *
  */
 
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
 namespace edm {
@@ -14,7 +15,7 @@ namespace edm {
 //
 // class decleration
 //
-
+template<typename T>
 class HLTForwardBackwardJetsFilter : public HLTFilter {
 
    public:
@@ -28,6 +29,7 @@ class HLTForwardBackwardJetsFilter : public HLTFilter {
       double minPt_;
       double minEta_;
       double maxEta_;
+      int    triggerType_;
 };
 
 #endif //HLTForwardBackwardJetsFilter_h

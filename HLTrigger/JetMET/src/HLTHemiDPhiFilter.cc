@@ -104,5 +104,4 @@ double HLTHemiDPhiFilter::deltaPhi(double v1, double v2)
  
 }
 
-DEFINE_FWK_MODULE(HLTHemiDPhiFilter);
 

@@ -7,6 +7,7 @@
  *
  */
 
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
 namespace edm {
@@ -16,7 +17,7 @@ namespace edm {
 //
 // class declaration
 //
-
+template<typename T>
 class HLTExclDiJetFilter : public HLTFilter {
 
    public:
@@ -29,7 +30,8 @@ class HLTExclDiJetFilter : public HLTFilter {
       edm::InputTag inputJetTag_; // input tag identifying jets
       double minPtJet_;
       double minHFe_;
-      bool HF_OR_;
+      bool   HF_OR_;
+      int    triggerType_;
 };
 
 #endif //HLTExclDiJetFilter_h

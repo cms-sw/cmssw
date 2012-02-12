@@ -1,96 +1,111 @@
 /** \class HLTForwardBackwardJetsFilter
  *
- * $Id: HLTForwardBackwardJetsFilter.cc,v 1.5 2011/10/27 13:41:48 gruen Exp $
+ * $Id: HLTForwardBackwardJetsFilter.cc,v 1.6 2012/01/21 14:57:01 fwyzard Exp $
  *
  *
  */
 
 #include "HLTrigger/JetMET/interface/HLTForwardBackwardJetsFilter.h"
 
+#include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/Handle.h"
-
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+
+#include<typeinfo>
 
 //
 // constructors and destructor
 //
-HLTForwardBackwardJetsFilter::HLTForwardBackwardJetsFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
+template<typename T>
+HLTForwardBackwardJetsFilter<T>::HLTForwardBackwardJetsFilter(const edm::ParameterSet& iConfig) : 
+  HLTFilter(iConfig),
+  inputTag_ (iConfig.template getParameter< edm::InputTag > ("inputTag")),
+  minPt_    (iConfig.template getParameter<double> ("minPt")),
+  minEta_   (iConfig.template getParameter<double> ("minEta")), 
+  maxEta_   (iConfig.template getParameter<double> ("maxEta")),
+  triggerType_ (iConfig.template getParameter<int> ("triggerType"))
 {
-   inputTag_ = iConfig.getParameter< edm::InputTag > ("inputTag");
-   minPt_    = iConfig.getParameter<double> ("minPt");
-   minEta_   = iConfig.getParameter<double> ("minEta"); 
-   maxEta_   = iConfig.getParameter<double> ("maxEta"); 
+  LogDebug("") << "HLTForwardBackwardJetsFilter: Input/minPt/minEta/maxEta/triggerType : "
+	       << inputTag_.encode() << " "
+	       << minPt_ << " " 
+	       << minEta_ << " "
+	       << maxEta_ << " "
+	       << triggerType_;
 }
 
-HLTForwardBackwardJetsFilter::~HLTForwardBackwardJetsFilter(){}
+template<typename T>
+HLTForwardBackwardJetsFilter<T>::~HLTForwardBackwardJetsFilter(){}
 
+template<typename T>
 void
-HLTForwardBackwardJetsFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+HLTForwardBackwardJetsFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputTag",edm::InputTag("hltIterativeCone5CaloJetsRegional"));
-  desc.add<bool>("saveTags",false);
   desc.add<double>("minPt",15.0);
   desc.add<double>("minEta",3.0);
   desc.add<double>("maxEta",5.1);
-  descriptions.add("hltForwardBackwardJetsFilter",desc);
+  descriptions.add(std::string("hlt")+std::string(typeid(HLTForwardBackwardJetsFilter<T>).name()),desc);
 }
 
 // ------------ method called to produce the data  ------------
+template<typename T>
 bool
-HLTForwardBackwardJetsFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTForwardBackwardJetsFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
-  using namespace trigger;
+  using namespace std;
+  using namespace edm;
+  using namespace reco;
+  using namespace trigger; 
 
+  typedef vector<T> TCollection;
+  typedef Ref<TCollection> TRef;
+  
   // The filter object
   if (saveTags()) filterproduct.addCollectionTag(inputTag_);
 
-  edm::Handle<reco::CaloJetCollection> recocalojets;
-  iEvent.getByLabel(inputTag_,recocalojets);
-
+  // get hold of collection of objects
+  Handle<TCollection> objects;
+  iEvent.getByLabel(inputTag_,objects);
+  
   // look at all candidates,  check cuts and add to filter object
   unsigned int nplusjets(0);
   unsigned int nminusjets(0);
-
-  if(recocalojets->size() > 1){
+  
+  if(objects->size() > 1){
     // events with two or more jets
 
     // look for jets satifying pt and eta cuts; first on the plus side, then the minus side
-    for (reco::CaloJetCollection::const_iterator recocalojet = recocalojets->begin(); 
-	 recocalojet!=(recocalojets->end()); recocalojet++) {
-
-      float ptjet=recocalojet->pt();
-      float etajet=recocalojet->eta();
+    typename TCollection::const_iterator jet ( objects->begin() );
+    for (; jet!=objects->end(); jet++) {
+      float ptjet  = jet->pt();
+      float etajet = jet->eta();
       if( ptjet > minPt_ ){
 	if ( etajet > minEta_ && etajet < maxEta_ ){
 	  nplusjets++;
-	  reco::CaloJetRef ref(reco::CaloJetRef(recocalojets,distance(recocalojets->begin(),recocalojet)));
-	  filterproduct.addObject(TriggerJet,ref);
+	  TRef ref = TRef(objects,distance(objects->begin(),jet));
+	  filterproduct.addObject(static_cast<trigger::TriggerObjectType>(triggerType_),ref);
 	}
       }
     }
     if (nplusjets > 0) {   
-      for (reco::CaloJetCollection::const_iterator recocalojet = recocalojets->begin(); 
-	   recocalojet!=(recocalojets->end()); recocalojet++) {
-
-	float ptjet=recocalojet->pt();
-	float etajet=recocalojet->eta();
-
+      typename TCollection::const_iterator jet ( objects->begin() );
+      for (; jet!=objects->end(); jet++) {
+	float ptjet  = jet->pt();
+	float etajet = jet->eta();
 	if( ptjet > minPt_ ){
 	  if ( etajet < -minEta_ && etajet > -maxEta_ ){
 	    nminusjets++;
-	    reco::CaloJetRef ref(reco::CaloJetRef(recocalojets,distance(recocalojets->begin(),recocalojet)));
-	    filterproduct.addObject(TriggerJet,ref);
+	    TRef ref = TRef(objects,distance(objects->begin(),jet));
+	    filterproduct.addObject(static_cast<trigger::TriggerObjectType>(triggerType_),ref);
 	  }
 	}
       }

@@ -8,6 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/View.h"
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/METReco/interface/METCollection.h"
@@ -60,7 +61,8 @@ void HLTHtMhtProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   std::auto_ptr<reco::METCollection> metobject(new reco::METCollection());
 
-  edm::Handle<reco::CaloJetCollection> jets;
+  //edm::Handle<reco::CaloJetCollection> jets;
+  edm::Handle<edm::View<reco::Jet> > jets;
   iEvent.getByLabel(jetsLabel_, jets);
   edm::Handle<reco::TrackCollection> tracks;
   if (useTracks_) iEvent.getByLabel(tracksLabel_, tracks);
@@ -71,7 +73,8 @@ void HLTHtMhtProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   double ht=0.;
   double mhtx=0., mhty=0.;
 
-  for (reco::CaloJetCollection::const_iterator jet = jets->begin(); jet != jets->end(); jet++) {
+  //for (reco::CaloJetCollection::const_iterator jet = jets->begin(); jet != jets->end(); jet++) {
+  for(edm::View<reco::Jet>::const_iterator jet = jets->begin(); jet != jets->end(); jet++ ) {
     double mom = (usePt_ ? jet->pt() : jet->et());
     if (mom > minPtJetHt_ and fabs(jet->eta()) < maxEtaJetHt_) {
       ht += mom;

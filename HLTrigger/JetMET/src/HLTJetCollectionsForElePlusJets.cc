@@ -140,4 +140,4 @@ void HLTJetCollectionsForElePlusJets::endJob() {
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(HLTJetCollectionsForElePlusJets);
+

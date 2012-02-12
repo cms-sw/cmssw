@@ -5,47 +5,59 @@
 *
 */
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "HLTrigger/JetMET/interface/HLTFatJetMassFilter.h"
 
-#include "DataFormats/Common/interface/Handle.h"
-
 #include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
-
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include <vector>
 
+#include <typeinfo>
+
 
 //
 // constructors and destructor
 //
-HLTFatJetMassFilter::HLTFatJetMassFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
+template<typename jetType>
+HLTFatJetMassFilter<jetType>::HLTFatJetMassFilter(const edm::ParameterSet& iConfig) : 
+  HLTFilter(iConfig),
+  inputJetTag_  (iConfig.template getParameter< edm::InputTag > ("inputJetTag")),
+  minMass_      (iConfig.template getParameter<double> ("minMass")),
+  fatJetDeltaR_ (iConfig.template getParameter<double> ("fatJetDeltaR")),
+  maxDeltaEta_  (iConfig.template getParameter<double> ("maxDeltaEta")),
+  maxJetEta_    (iConfig.template getParameter<double> ("maxJetEta")),
+  minJetPt_     (iConfig.template getParameter<double> ("minJetPt")),
+  triggerType_  (iConfig.template getParameter<int> ("triggerType"))
 {
-  inputJetTag_  = iConfig.getParameter< edm::InputTag > ("inputJetTag");
-  minMass_      = iConfig.getParameter<double> ("minMass");
-  fatJetDeltaR_ = iConfig.getParameter<double> ("fatJetDeltaR");
-  maxDeltaEta_  = iConfig.getParameter<double> ("maxDeltaEta");
-  maxJetEta_    = iConfig.getParameter<double> ("maxJetEta");
-  minJetPt_     = iConfig.getParameter<double> ("minJetPt");
+  LogDebug("") << "HLTFatJetMassFilter: Input/minMass/fatJetDeltaR/maxDeltaEta/maxJetEta/minJetPt/triggerType : "
+	       << inputJetTag_.encode() << " "
+	       << minMass_ << " " 
+	       << fatJetDeltaR_ << " "
+	       << maxDeltaEta_ << " "
+	       << maxJetEta_ << " "
+	       << minJetPt_ << " "
+	       << triggerType_;
 }
 
-HLTFatJetMassFilter::~HLTFatJetMassFilter(){}
+template<typename jetType>
+HLTFatJetMassFilter<jetType>::~HLTFatJetMassFilter(){}
 
-void HLTFatJetMassFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+template<typename jetType>
+void 
+HLTFatJetMassFilter<jetType>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputJetTag",edm::InputTag("hltCollection"));
@@ -54,74 +66,79 @@ void HLTFatJetMassFilter::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<double>("maxDeltaEta",10.0);
   desc.add<double>("maxJetEta",3.0);
   desc.add<double>("minJetPt",30.0);
-  descriptions.add("hltFatJetMassFilter",desc);
+  desc.add<int>("triggerType",0);
+  descriptions.add(std::string("hlt")+std::string(typeid(HLTFatJetMassFilter<jetType>).name()),desc);
 }
 
 // ------------ method called to produce the data  ------------
+template<typename jetType>
 bool
-  HLTFatJetMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTFatJetMassFilter<jetType>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace std;
   using namespace edm;
   using namespace reco;
 
+  typedef vector<jetType> JetCollection;
+  typedef Ref<JetCollection> JetRef;
+
   // The filter object
   if (saveTags()) filterproduct.addCollectionTag(inputJetTag_);
-
-  // All jets 
-  Handle<CaloJetCollection> allrecocalojets;
-  iEvent.getByLabel(inputJetTag_,allrecocalojets);
-
-  // Selected jets          
-  CaloJetCollection recocalojets;
-  CaloJetCollection::const_iterator aBegin ( allrecocalojets->begin() );
-  CaloJetCollection::const_iterator aEnd ( allrecocalojets->end() );
-  for (CaloJetCollection::const_iterator allrecojet = aBegin ; allrecojet != aEnd; allrecojet++) {
-    if(fabs(allrecojet->eta()) < maxJetEta_ && allrecojet->pt() >= minJetPt_) {
-      recocalojets.push_back(*allrecojet);
+  
+  // All jets
+  Handle<JetCollection> objects;
+  iEvent.getByLabel (inputJetTag_,objects);
+  
+  // Selected jets
+  CaloJetCollection recojets;
+  typename JetCollection::const_iterator i ( objects->begin() );
+  for(;i != objects->end(); i++){
+    if(fabs(i->eta()) < maxJetEta_ && i->pt() >= minJetPt_){ 
+      reco::CaloJet jet(i->p4(), i->vertex(), reco::CaloJet::Specific()); 
+      recojets.push_back(jet);
     }
   }
-
+  
   // events with at least two jets
-  if(recocalojets.size() < 2) return false;
+  if(recojets.size() < 2) return false;
 
   math::PtEtaPhiMLorentzVector j1(0.1, 0., 0., 0.);
   math::PtEtaPhiMLorentzVector j2(0.1, 0., 0., 0.);
   double jetPt1 = 0.;
   double jetPt2 = 0.;
+  
   // look for the two highest-pT jet
-  for (CaloJetCollection::const_iterator recocalojet = recocalojets.begin();
-       recocalojet != recocalojets.end(); recocalojet++) {
-    if(recocalojet->pt() > jetPt1) {
+  CaloJetCollection::const_iterator recojet ( recojets.begin() );
+  for (; recojet != recojets.end() ; recojet++) {
+    if(recojet->pt() > jetPt1) {
       // downgrade the 1st jet to 2nd jet
       j2 = j1;
       jetPt2 = j2.pt();
       // promote this jet to 1st jet
-      j1 = recocalojet->p4();
-      jetPt1 = recocalojet->pt();
-    } else if(recocalojet->pt() > jetPt2) {
+      j1 = recojet->p4();
+      jetPt1 = recojet->pt();
+    } else if(recojet->pt() > jetPt2) {
       // promote this jet to 2nd jet
-      j2 = recocalojet->p4();
-      jetPt2 = recocalojet->pt();
+      j2 = recojet->p4();
+      jetPt2 = recojet->pt();
     }
   }
-
+  
   // apply DeltaEta cut
   double DeltaEta = fabs(j1.eta() - j2.eta());
   if(DeltaEta > maxDeltaEta_) return false;
-
+  
   math::PtEtaPhiMLorentzVector fj1;
   math::PtEtaPhiMLorentzVector fj2;
   
   // apply radiation recovery
-  for (CaloJetCollection::const_iterator recocalojet = recocalojets.begin();
-       recocalojet != recocalojets.end(); recocalojet++) {
-    double DeltaR1 = sqrt(pow(recocalojet->phi()-j1.phi(), 2.)+pow(recocalojet->eta()-j1.eta(),2.));
-    double DeltaR2 = sqrt(pow(recocalojet->phi()-j2.phi(), 2.)+pow(recocalojet->eta()-j2.eta(),2.));
+  for ( recojet = recojets.begin() ; recojet != recojets.end() ; recojet++) {
+    double DeltaR1 = sqrt(pow(recojet->phi()-j1.phi(), 2.)+pow(recojet->eta()-j1.eta(),2.));
+    double DeltaR2 = sqrt(pow(recojet->phi()-j2.phi(), 2.)+pow(recojet->eta()-j2.eta(),2.));
     if(DeltaR1 < DeltaR2 && DeltaR1 < fatJetDeltaR_) {
-      fj1 += recocalojet->p4();
+      fj1 += recojet->p4();
     } else if(DeltaR2 < fatJetDeltaR_) {
-      fj2 += recocalojet->p4();
+      fj2 += recojet->p4();
     }
   }
 
@@ -131,5 +148,3 @@ bool
 
   return true;
 }
-
-DEFINE_FWK_MODULE(HLTFatJetMassFilter);

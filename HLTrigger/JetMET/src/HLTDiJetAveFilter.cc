@@ -7,66 +7,80 @@
 
 #include "HLTrigger/JetMET/interface/HLTDiJetAveFilter.h"
 
+#include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/Handle.h"
-
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
-#include "DataFormats/Math/interface/deltaPhi.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+
+#include<typeinfo>
 
 //
 // constructors and destructor
 //
-HLTDiJetAveFilter::HLTDiJetAveFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
+template<typename T>
+HLTDiJetAveFilter<T>::HLTDiJetAveFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
+  inputJetTag_ (iConfig.template getParameter< edm::InputTag > ("inputJetTag")),
+  minPtAve_    (iConfig.template getParameter<double> ("minPtAve")),
+  minPtJet3_   (iConfig.template getParameter<double> ("minPtJet3")), 
+  minDphi_     (iConfig.template getParameter<double> ("minDphi")),
+  triggerType_ (iConfig.template getParameter<int> ("triggerType"))
 {
-   inputJetTag_ = iConfig.getParameter< edm::InputTag > ("inputJetTag");
-   minPtAve_    = iConfig.getParameter<double> ("minPtAve"); 
-   minPtJet3_   = iConfig.getParameter<double> ("minPtJet3"); 
-   minDphi_     = iConfig.getParameter<double> ("minDphi"); 
+  LogDebug("") << "HLTDiJetAveFilter: Input/minPtAve/minPtJet3/minDphi/triggerType : "
+	       << inputJetTag_.encode() << " "
+	       << minPtAve_ << " " 
+	       << minPtJet3_ << " "
+	       << minDphi_ << " "
+	       << triggerType_;
 }
 
-HLTDiJetAveFilter::~HLTDiJetAveFilter(){}
+template<typename T>
+HLTDiJetAveFilter<T>::~HLTDiJetAveFilter(){}
 
+template<typename T>
 void
-HLTDiJetAveFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+HLTDiJetAveFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputJetTag",edm::InputTag("hltIterativeCone5CaloJets"));
-  desc.add<bool>("saveTags",false);
   desc.add<double>("minPtAve",100.0);
   desc.add<double>("minPtJet3",99999.0);
   desc.add<double>("minDphi",-1.0);
-  descriptions.add("hltDiJetAveFilter",desc);
+  desc.add<int>("triggerType",0);
+  descriptions.add(std::string("hlt")+std::string(typeid(HLTDiJetAveFilter<T>).name()),desc);
 }
 
 // ------------ method called to produce the data  ------------
+template<typename T>
 bool
-HLTDiJetAveFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTDiJetAveFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace std;
   using namespace edm;
   using namespace reco;
-  using namespace trigger;
+  using namespace trigger; 
+
+  typedef vector<T> TCollection;
+  typedef Ref<TCollection> TRef;
 
   // The filter object
   if (saveTags()) filterproduct.addCollectionTag(inputJetTag_);
 
-  Handle<CaloJetCollection> recocalojets;
-  iEvent.getByLabel(inputJetTag_,recocalojets);
-
+  // get hold of collection of objects
+  Handle<TCollection> objects;
+  iEvent.getByLabel (inputJetTag_,objects);
+  
   // look at all candidates,  check cuts and add to filter object
   int n(0);
 
-  if(recocalojets->size() > 1){
+  if(objects->size() > 1){
     // events with two or more jets
 
     double ptjet1=0., ptjet2=0.,ptjet3=0.;
@@ -74,35 +88,34 @@ HLTDiJetAveFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
     int countjets =0;
 
     int nmax=1;
-    if (recocalojets->size() > 2) nmax=2;
+    if (objects->size() > 2) nmax=2;
 
-    CaloJetRef JetRef1,JetRef2;
+    TRef JetRef1,JetRef2; 
 
-    for (CaloJetCollection::const_iterator recocalojet = recocalojets->begin(); 
-	 recocalojet<=(recocalojets->begin()+nmax); ++recocalojet) {
-      
+    typename TCollection::const_iterator i ( objects->begin() );
+    for (; i<=(objects->begin()+nmax); i++) {
       if(countjets==0) {
-	ptjet1 = recocalojet->pt();
-	phijet1 = recocalojet->phi();
-	JetRef1 = CaloJetRef(recocalojets,distance(recocalojets->begin(),recocalojet));
+	ptjet1 = i->pt();
+	phijet1 = i->phi();
+	JetRef1 = TRef(objects,distance(objects->begin(),i));
       }
       if(countjets==1) {
-	ptjet2 = recocalojet->pt();
-	phijet2 = recocalojet->phi();
-	JetRef2 = CaloJetRef(recocalojets,distance(recocalojets->begin(),recocalojet));
+	ptjet2 = i->pt();
+	phijet2 = i->phi();
+	JetRef2 = TRef(objects,distance(objects->begin(),i));
       }
       if(countjets==2) {
-	ptjet3 = recocalojet->pt();
+	ptjet3 = i->pt();
       }
       ++countjets;
     }
     
     double PtAve=(ptjet1 + ptjet2) / 2.;
     double Dphi = fabs(deltaPhi(phijet1,phijet2));
-
-    if( PtAve>minPtAve_  && ptjet3<minPtJet3_ && Dphi>minDphi_){
-      filterproduct.addObject(TriggerJet,JetRef1);
-      filterproduct.addObject(TriggerJet,JetRef2);
+    
+    if( PtAve>minPtAve_ && ptjet3<minPtJet3_ && Dphi>minDphi_){
+      filterproduct.addObject(static_cast<trigger::TriggerObjectType>(triggerType_),JetRef1);
+      filterproduct.addObject(static_cast<trigger::TriggerObjectType>(triggerType_),JetRef2);
       ++n;
     }
     
