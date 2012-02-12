@@ -58,7 +58,7 @@ public:
 
   virtual double transverseCurvature() const = 0;
 
-  virtual const CartesianTrajectoryError cartesianError() const = 0;
+  virtual const CartesianTrajectoryError& cartesianError() const = 0;
 
   virtual const CurvilinearTrajectoryError& curvilinearError() const = 0;
 

@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsBfieldAngleFitter_H
 
 /** \class MuonResidualsBfieldAngleFitter
- *  $Date: 2010/03/12 22:23:26 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/10/08 03:44:24 $
+ *  $Revision: 1.4 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -28,20 +28,20 @@ public:
     kNData
   };
 
-  MuonResidualsBfieldAngleFitter(int residualsModel, int minHitsPerRegion, int useResiduals, bool weightAlignment=true): MuonResidualsFitter(residualsModel, minHitsPerRegion, useResiduals, weightAlignment) {}
+  MuonResidualsBfieldAngleFitter(int residualsModel, int minHitsPerRegion, bool weightAlignment=true): MuonResidualsFitter(residualsModel, minHitsPerRegion, weightAlignment) {};
 
-  int type() const { return MuonResidualsFitter::kAngleBfieldFitter; }
+  int type() const { return MuonResidualsFitter::kAngleBfieldFitter; };
 
   int npar() {
     if (residualsModel() == kPureGaussian || residualsModel() == kGaussPowerTails) return kNPar - 1;
     else if (residualsModel() == kPowerLawTails) return kNPar;
     else if (residualsModel() == kROOTVoigt) return kNPar;
     else assert(false);
-  }
-  int ndata() { return kNData; }
+  };
+  int ndata() { return kNData; };
 
   bool fit(Alignable *ali);
-  double sumofweights() { return numResiduals(); }
+  double sumofweights() { return numResiduals(); };
   double plot(std::string name, TFileDirectory *dir, Alignable *ali);
 
 protected:

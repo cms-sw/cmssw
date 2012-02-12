@@ -106,10 +106,15 @@ protected:
 
 class WorkingDummyProxy : public eventsetup::DataProxyTemplate<DummyRecord, Dummy> {
 public:
-   WorkingDummyProxy(const Dummy* iDummy) : data_(iDummy), invalidateCalled_(false) {}
+   WorkingDummyProxy(const Dummy* iDummy) : data_(iDummy), invalidateCalled_(false),
+  invalidateTransientCalled_(false){}
 
    bool invalidateCalled() const {
       return invalidateCalled_;
+  }
+  
+  bool invalidateTransientCalled() const {
+    return invalidateTransientCalled_;
   }
    
   void set(Dummy* iDummy) {
@@ -119,15 +124,24 @@ protected:
    
    const value_type* make(const record_type&, const DataKey&) {
       invalidateCalled_=false;
+      invalidateTransientCalled_=false;
       return data_ ;
    }
    void invalidateCache() {
       invalidateCalled_=true;
    }
   
+   void invalidateTransientCache() {
+     invalidateTransientCalled_=true;
+     //check default behavior
+     eventsetup::DataProxyTemplate<DummyRecord, Dummy>::invalidateTransientCache();
+   }
+  
 private:
    const Dummy* data_;
    bool invalidateCalled_;
+   bool invalidateTransientCalled_;
+
 };
 
 class WorkingDummyProvider : public edm::eventsetup::DataProxyProvider {
@@ -433,10 +447,12 @@ void testEventsetupRecord::transientTest()
    CPPUNIT_ASSERT(&myDummy == &(*hTDummy));
    CPPUNIT_ASSERT(cacheID == dummyRecord.cacheIdentifier());
    CPPUNIT_ASSERT(workingProxy->invalidateCalled()==false);
+   CPPUNIT_ASSERT(workingProxy->invalidateTransientCalled()==false);
 
    CPPUNIT_ASSERT(nonConstDummyRecord.transientReset());
    wdProv->resetProxiesIfTransient(dummyRecord.key());//   workingProxy->resetIfTransient();
    CPPUNIT_ASSERT(workingProxy->invalidateCalled());
+   CPPUNIT_ASSERT(workingProxy->invalidateTransientCalled());
 
 
    Dummy myDummy2;
@@ -452,6 +468,7 @@ void testEventsetupRecord::transientTest()
    CPPUNIT_ASSERT(not nonConstDummyRecord.transientReset());
    wdProv->resetProxiesIfTransient(dummyRecord.key());//workingProxy->resetIfTransient();
    CPPUNIT_ASSERT(workingProxy->invalidateCalled()==false);
+   CPPUNIT_ASSERT(workingProxy->invalidateTransientCalled()==false);
 
    //do another transient access which should not do a reset since we have a non-transient access outstanding
    dummyRecord.get(hDummy);
@@ -460,7 +477,26 @@ void testEventsetupRecord::transientTest()
    CPPUNIT_ASSERT(nonConstDummyRecord.transientReset());
    wdProv->resetProxiesIfTransient(dummyRecord.key());//workingProxy->resetIfTransient();
    CPPUNIT_ASSERT(workingProxy->invalidateCalled()==false);
+   CPPUNIT_ASSERT(workingProxy->invalidateTransientCalled()==false);
 
+  
+   //Ask for a transient then a non transient to be sure we don't have an ordering problem
+   {
+     prov->resetProxies();
+     Dummy myDummy3;
+     workingProxy->set(&myDummy3);
+     
+     dummyRecord.get(hTDummy);
+     dummyRecord.get(hDummy);
+
+     CPPUNIT_ASSERT(&myDummy3 == &(*hDummy));
+     CPPUNIT_ASSERT(&myDummy3 == &(*hTDummy));
+     CPPUNIT_ASSERT(nonConstDummyRecord.transientReset());
+     wdProv->resetProxiesIfTransient(dummyRecord.key());//workingProxy->resetIfTransient();
+     CPPUNIT_ASSERT(workingProxy->invalidateCalled()==false);
+     CPPUNIT_ASSERT(workingProxy->invalidateTransientCalled()==false);
+
+   }
    //system should wait until the second event of a run before invalidating the transients
    // need to do 'resetProxies' in order to force the Record to reset since we do not have a Finder
    // associated with the record provider

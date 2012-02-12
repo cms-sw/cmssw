@@ -6,6 +6,7 @@
 <use   name="RecoEcal/EgammaClusterAlgos"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="RecoEgamma/EgammaHLTAlgos"/>
+<use   name="RecoEgamma/EgammaElectronAlgos"/>
 <use   name="RecoEgamma/EgammaIsolationAlgos"/>
 <use   name="MagneticField/Engine"/>
 <use   name="MagneticField/Records"/>
@@ -23,4 +24,6 @@
 <use   name="DataFormats/EcalRawData"/>
 <use   name="RecoEgamma/EgammaTools"/>
 <use   name="RecoTracker/TkTrackingRegions"/>
+<use name="PhysicsTools/UtilAlgos"/>
+<use name="FWCore/ServiceRegistry"/>
 <flags   EDM_PLUGIN="1"/>

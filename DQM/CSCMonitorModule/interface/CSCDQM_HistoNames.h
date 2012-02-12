@@ -429,6 +429,11 @@ namespace h {
   (( FED_BUFFER_SIZE, "DCCBufferSize" )) \
   (( EMU_FED_FORMAT_ERRORS,"FEDFormat_Errors" )) \
   (( EMU_FED_DDU_L1A_MISMATCH_FRACT, "FED_DDU_L1A_mismatch_fract" )) \
+  (( EMU_FED_DDU_L1A_MISMATCH_WITH_CSC_DATA, "FED_DDU_L1A_mismatch_with_CSC_data" )) \
+  (( EMU_FED_DDU_L1A_MISMATCH_WITH_CSC_DATA_FRACT, "FED_DDU_L1A_mismatch_with_CSC_data_fract" )) \
+  (( EMU_FED_DDU_L1A_MISMATCH_CNT, "FED_DDU_L1A_mismatch_cnt" )) \
+  (( EMU_FED_DDU_L1A_MISMATCH_WITH_CSC_DATA_CNT, "FED_DDU_L1A_mismatch_with_CSC_data_cnt" )) \
+  (( EMU_FED_STATS, "FED_Stats" )) \
   \
   \
 

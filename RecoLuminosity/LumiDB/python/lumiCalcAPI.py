@@ -26,12 +26,6 @@ def _decidenormForRun(schema,run):
     normresult=dataDML.luminormById(schema,normdataid)
     return normresult[2]
 #public functions
-def fillInRange(schema,fillmin=1000,fillmax=9999,amodetag='PROTPHYS',startT=None,stopT=None):
-    '''
-    output [fill]
-    '''
-    fills=dataDML.fillInRange(schema,fillmin,fillmax,amodetag,startT,stopT)
-    return fills
 def fillrunMap(schema,fillnum=None,runmin=None,runmax=None,startT=None,stopT=None,l1keyPattern=None,hltkeyPattern=None,amodetag=None):
     '''
     output: {fill:[runnum,...]}
@@ -713,14 +707,10 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
                                 if l1bitname :
                                     l1prescale=trgprescalemap[l1bitname]#need to match double quoted string!
                             except KeyError:
-                                l1prescale=None                           
-                        if l1prescale and thisprescale :#normal both prescaled
+                                l1prescale=None
+                        if l1prescale and thisprescale:
                             efflumi=recordedlumi/(float(l1prescale)*float(thisprescale))
                             efflumidict[thispathname]=[l1bitname,l1prescale,thisprescale,efflumi]
-                        elif l1prescale and thisprescale==0: #hltpath in menu but masked
-                            efflumi=0.0
-                            efflumidict[thispathname]=[l1bitname,l1prescale,thisprescale,efflumi]
-                
             bxvaluelist=[]
             bxerrorlist=[]
             bxdata=None

@@ -6,12 +6,6 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 DDLinear::DDLinear( void )
-  : m_n( 1 ),
-    m_startCopyNo( 1 ),
-    m_incrCopyNo( 1 ),
-    m_theta( 0. ),
-    m_phi( 0. ),
-    m_delta( 0. )
 {
   LogDebug( "DDAlgorithm" ) << "DDLinear: Creating an instance.";
 }

@@ -4,6 +4,7 @@
 <use   name="DataFormats/TauReco"/>
 <use   name="DQMServices/Core"/>
 <use   name="PhysicsTools/JetMCUtils"/>
+<use   name="CommonTools/Utils"/>
 <flags   EDM_PLUGIN="1"/>
 <export>
   <lib   name="1"/>

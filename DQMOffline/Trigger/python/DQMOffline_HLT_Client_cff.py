@@ -21,7 +21,7 @@ hltOfflineDQMClient = cms.Sequence(
     hltMuonPostVal *
     jetMETHLTOfflineClient *
     #tagAndProbeEfficiencyPostProcessor *
-    HLTTauPostSeq *
+    HLTTauPostAnalysis *
     dqmOfflineHLTCert *
     topHLTDiMuonClient)
 

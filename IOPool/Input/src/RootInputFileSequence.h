@@ -55,11 +55,14 @@ namespace edm {
     InputSource::ItemType getNextItemType();
     bool skipEvents(int offset, PrincipalCache& cache);
     bool goToEvent(EventID const& eventID);
-    bool skipToItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event);
+    bool skipToItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool currentFileFirst = true);
+    bool skipToItemInNewFile(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event);
     void rewind_();
     void reset(PrincipalCache& cache);
     EventPrincipal* readOneRandom();
+    EventPrincipal* readOneRandomWithID(LuminosityBlockID const& id);
     EventPrincipal* readOneSequential();
+    EventPrincipal* readOneSequentialWithID(LuminosityBlockID const& id);
     EventPrincipal* readOneSpecified(EventID const& id);
 
     void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches);

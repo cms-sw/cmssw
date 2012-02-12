@@ -12,9 +12,6 @@
 <use   name="SimDataFormats/EncodedEventId"/>
 <use   name="rootgraphics"/>
 
-<use name="FWCore/ParameterSet"/>
-<use name="PhysicsTools/UtilAlgos"/>
-
 # the following blocks are used by CSCTF experts 
 # to generate and test PT and SR LUTs, 
 # please don't remove them
@@ -23,28 +20,27 @@
 #     <flags EDM_PLUGIN="1"/>
 #</library>
 
+#<library file="analysis/CSCCompareSRLUTs.cc" name="CSCCompareSRLUTs">
+#     <flags EDM_PLUGIN="1"/>
+#</library>
+
+#<library file="analysis/CSCTFEfficiencies.cc" name="CSCTFEfficiencies">
+#  <flags EDM_PLUGIN="1"/>
+#</library>
+
+#<library file="analysis/CSCTrackStubAnalysis.cc" name="CSCTrackStubAnalysis">
+#     <flags EDM_PLUGIN="1"/>
+#</library>
+
+#<library file="analysis/CSCTFStubReader.cc" name="CSCTFStubReader">
+#     <flags EDM_PLUGIN="1"/>
+#</library>
+
 #<library file="analysis/CSCMakePTLUT.cc" name="CSCMakePTLUT">
 #     <flags EDM_PLUGIN="1"/>
 #</library>
 
-#The following plugins require this library to be built
-
-#<library file="src/*.cc" name="CSCTFAnaHelpers">
-#</library>
-
-#<library file="analysis/CSCTFEfficiency.cc" name="CSCTFEfficiency">
+#<library file="analysis/CSCCompareLUTs.cc" name="CSCCompareLUTs">
 #     <flags EDM_PLUGIN="1"/>
-#     <lib name="CSCTFAnaHelpers"/>
 #</library>
-
-#<library file="analysis/LCT*.cc" name="CSCTFLCTAna">
-#     <flags EDM_PLUGIN="1"/>
-#     <lib name="CSCTFAnaHelpers"/>
-#</library>
-
-#<library file="analysis/CSCTFFilter.cc" name="CSCTFFilter">
-#     <flags EDM_PLUGIN="1"/>
-#     <lib name="CSCTFAnaHelpers"/>
-#</library>
-
 

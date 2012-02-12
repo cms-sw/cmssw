@@ -4,14 +4,12 @@
 // Producer for validation histograms for JPTJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: JPTJetTester.h,v 1.7 2011/08/18 14:07:42 kovitang Exp $
+// $Id: JPTJetTester.h,v 1.17 2009/12/18 20:45:13 wmtan Exp $
 
 #include <string>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
 namespace reco {
   class JPTJet;
@@ -69,36 +67,11 @@ private:
   MonitorElement* mMass;
   MonitorElement* mMass_80;
   MonitorElement* mMass_3000;
-  //  MonitorElement* mConstituents;
-  //  MonitorElement* mConstituents_80;
-  //  MonitorElement* mConstituents_3000;
+  MonitorElement* mConstituents;
+  MonitorElement* mConstituents_80;
+  MonitorElement* mConstituents_3000;
   MonitorElement* mHadTiming;
   MonitorElement* mEmTiming;
-
-  //Corr jets
-  MonitorElement* mCorrJetPt;
-  MonitorElement* mCorrJetPt_80;
-  MonitorElement* mCorrJetPt_3000;
-  MonitorElement* mCorrJetEta;
-  MonitorElement* mCorrJetPhi;
-  MonitorElement* mpTRatio;
-  MonitorElement* mpTRatioB_d;
-  MonitorElement* mpTRatioE_d;
-  MonitorElement* mpTRatioF_d;
-  MonitorElement* mpTRatio_30_200_d;
-  MonitorElement* mpTRatio_200_600_d;
-  MonitorElement* mpTRatio_600_1500_d;
-  MonitorElement* mpTRatio_1500_3500_d;
-  MonitorElement* mpTResponse;
-  MonitorElement* mpTResponseB_d;
-  MonitorElement* mpTResponseE_d;
-  MonitorElement* mpTResponseF_d;
-  MonitorElement* mpTResponse_30_200_d;
-  MonitorElement* mpTResponse_200_600_d;
-  MonitorElement* mpTResponse_600_1500_d;
-  MonitorElement* mpTResponse_1500_3500_d;
-  MonitorElement* mpTResponse_30_d;
-  MonitorElement* mjetArea;
 
   // Leading Jet Parameters
   MonitorElement* mEtaFirst;
@@ -217,36 +190,33 @@ private:
   MonitorElement* mpTScaleB_d;
   MonitorElement* mpTScaleE_d;
   MonitorElement* mpTScaleF_d;
-  MonitorElement* mpTScalePhiB_d;
-  MonitorElement* mpTScalePhiE_d;
-  MonitorElement* mpTScalePhiF_d;
 
-  MonitorElement* mpTScale_30_200_s;
-  MonitorElement* mpTScale_200_600_s;
-  MonitorElement* mpTScale_600_1500_s;
-  MonitorElement* mpTScale_1500_3500_s;
+  MonitorElement* mpTScale_60_120_s;
+  MonitorElement* mpTScale_200_300_s;
+  MonitorElement* mpTScale_600_900_s;
+  MonitorElement* mpTScale_2700_3500_s;
 
-  MonitorElement* mpTScale_30_200_d;
-  MonitorElement* mpTScale_200_600_d;
-  MonitorElement* mpTScale_600_1500_d;
-  MonitorElement* mpTScale_1500_3500_d;
+  MonitorElement* mpTScale_60_120_d;
+  MonitorElement* mpTScale_200_300_d;
+  MonitorElement* mpTScale_600_900_d;
+  MonitorElement* mpTScale_2700_3500_d;
 
-  MonitorElement* mpTScale1DB_30_200;
-  MonitorElement* mpTScale1DE_30_200;
-  MonitorElement* mpTScale1DF_30_200;
-  MonitorElement* mpTScale1DB_200_600;
-  MonitorElement* mpTScale1DE_200_600;
-  MonitorElement* mpTScale1DF_200_600;
-  MonitorElement* mpTScale1DB_600_1500;
-  MonitorElement* mpTScale1DE_600_1500;
-  MonitorElement* mpTScale1DF_600_1500;
-  MonitorElement* mpTScale1DB_1500_3500;
-  MonitorElement* mpTScale1DE_1500_3500;
-  MonitorElement* mpTScale1DF_1500_3500;
-  MonitorElement* mpTScale1D_30_200;
-  MonitorElement* mpTScale1D_200_600;
-  MonitorElement* mpTScale1D_600_1500;
-  MonitorElement* mpTScale1D_1500_3500;
+  MonitorElement* mpTScale1DB_60_120;
+  MonitorElement* mpTScale1DE_60_120;
+  MonitorElement* mpTScale1DF_60_120;
+  MonitorElement* mpTScale1DB_200_300;
+  MonitorElement* mpTScale1DE_200_300;
+  MonitorElement* mpTScale1DF_200_300;
+  MonitorElement* mpTScale1DB_600_900;
+  MonitorElement* mpTScale1DE_600_900;
+  MonitorElement* mpTScale1DF_600_900;
+  MonitorElement* mpTScale1DB_2700_3500;
+  MonitorElement* mpTScale1DE_2700_3500;
+  MonitorElement* mpTScale1DF_2700_3500;
+  MonitorElement* mpTScale1D_60_120;
+  MonitorElement* mpTScale1D_200_300;
+  MonitorElement* mpTScale1D_600_900;
+  MonitorElement* mpTScale1D_2700_3500;
 
   MonitorElement* mDelEta;
   MonitorElement* mDelPhi;
@@ -257,8 +227,6 @@ private:
   double mGenEnergyFractionThreshold;
   double mReverseEnergyFractionThreshold;
   double mRThreshold;
-
-  std::string JetCorrectionService;
 
   // Switch on/off unimportant histogram
   std::string  mTurnOnEverything;

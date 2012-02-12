@@ -4,7 +4,20 @@ from ConfigParser import ConfigParser
 from copy import copy
 from optparse import OptionParser, Option, OptionValueError
 import coral
-from CondCore.TagCollection import Node,tagInventory
+from CondCore.TagCollection import Node,tagInventory,connectstrParser,cacheconfigParser
+
+def update_frontier_connection(conn_str):
+    '''updates frontier connection with proxy server information'''
+    parser=connectstrParser.connectstrParser(conn_str)
+    parser.parse()
+    if parser.needsitelocalinfo():
+        sitelocalconfig = os.environ.get('$CMS_PATH', '/afs/cern.ch/cms/' ) + "SITECONF/CERN/JobConfig/site-local-config.xml"
+        frontierparser=cacheconfigParser.cacheconfigParser()
+        frontierparser.parse(sitelocalconfig)
+        #print "full frontier string: " + str(parser.fullfrontierStr(parser.schemaname(),frontierparser.parameterdict()))
+        return str(parser.fullfrontierStr(parser.schemaname(),frontierparser.parameterdict())) #str because default unicode
+    return str(conn_str)
+
 class tagInventoryPrinter:
     def __init__(self):
         """
@@ -45,7 +58,7 @@ class tagInventoryPrinter:
         (options, args) = self.__parser.parse_args()
         if not self.__parser.values.connectstring:
             raise OptionValueError("option -%s is required"%('c'))
-        self.__connectstring=self.__parser.values.connectstring
+        self.__connectstring=update_frontier_connection(self.__parser.values.connectstring)
         self.__user=self.__parser.values.user
         self.__password=self.__parser.values.password
         self.__authpath=self.__parser.values.authpath
@@ -70,7 +83,7 @@ class tagInventoryPrinter:
         config=svc.configuration()
         os.environ['CORAL_AUTH_PATH']=self.__authpath
         config.setDefaultAuthenticationService('CORAL/Services/XMLAuthenticationService')
-        session = svc.connect( self.__connectstring,accessMode = coral.access_Update )
+        session = svc.connect( self.__connectstring,accessMode = coral.access_ReadOnly )
         inv=tagInventory.tagInventory(session)
         try:
             result=inv.getAllEntries()

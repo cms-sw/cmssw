@@ -137,6 +137,7 @@ void RecoMuonValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE"
    //===== reco muon distributions: GLB
    rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Glb"+fastSim+"/ErrPt",rh1);
    sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Glb"+fastSim+"/ErrPt",sh1);
+ //  if(! rh1 && sh1) continue;
    rh1->GetYaxis()->SetTitle("GlobalMuon(GLB) #Delta p_{T}/p_{T}");
    rh1->GetYaxis()->SetTitleSize(0.05);
    rh1->GetYaxis()->SetTitleOffset(1.2);
@@ -148,17 +149,13 @@ void RecoMuonValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE"
    rh2->GetYaxis()->SetTitleOffset(1.2);
 
    rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Glb"+fastSim+"/ErrPt_vs_Eta_Sigma",rh3);
-   if (!rh3) rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Glb"+fastSim+"/ErrPt_vs_Eta_Sigma",(TProfile*)rh3);
    sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Glb"+fastSim+"/ErrPt_vs_Eta_Sigma",sh3);
-   if (!sh3) sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Glb"+fastSim+"/ErrPt_vs_Eta_Sigma",(TProfile*)sh3);
    rh3->GetYaxis()->SetTitle("GlobalMuon(GLB) #Delta p_{T}/p_{T} vs #sigma(#eta)");
    rh3->GetYaxis()->SetTitleSize(0.05);
    rh3->GetYaxis()->SetTitleOffset(1.2);
 
    rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Glb"+fastSim+"/ErrPt_vs_Pt_Sigma",rh4);
-   if (!rh4) rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Glb"+fastSim+"/ErrPt_vs_Pt_Sigma",(TProfile*)rh4);
    sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Glb"+fastSim+"/ErrPt_vs_Pt_Sigma",sh4);
-   if (!sh4) sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Glb"+fastSim+"/ErrPt_vs_Pt_Sigma",(TProfile*)sh4);
    rh4->GetYaxis()->SetTitle("GlobalMuon(GLB) #Delta p_{T}/p_{T} vs #sigma(p_{T})");
    rh4->GetYaxis()->SetTitleSize(0.05);
    rh4->GetYaxis()->SetTitleOffset(1.2);
@@ -254,17 +251,13 @@ void RecoMuonValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE"
    rh2->GetYaxis()->SetTitleOffset(1.2);
 
    rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_GlbPF"+fastSim+"/ErrPt_vs_Eta_Sigma",rh3);
-   if (!rh3) rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_GlbPF"+fastSim+"/ErrPt_vs_Eta_Sigma",(TProfile*)rh3);
    sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_GlbPF"+fastSim+"/ErrPt_vs_Eta_Sigma",sh3);
-   if (!sh3) sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_GlbPF"+fastSim+"/ErrPt_vs_Eta_Sigma",(TProfile*)sh3);
    rh3->GetYaxis()->SetTitle("PFGlobalMuon(GLBPF) #Delta p_{T}/p_{T} vs #sigma(#eta)");
    rh3->GetYaxis()->SetTitleSize(0.05);
    rh3->GetYaxis()->SetTitleOffset(1.2);
 
    rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_GlbPF"+fastSim+"/ErrPt_vs_Pt_Sigma",rh4);
-   if (!rh4) rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_GlbPF"+fastSim+"/ErrPt_vs_Pt_Sigma",(TProfile*)rh4);
    sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_GlbPF"+fastSim+"/ErrPt_vs_Pt_Sigma",sh4);
-   if (!sh4) sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_GlbPF"+fastSim+"/ErrPt_vs_Pt_Sigma",(TProfile*)sh4);
    rh4->GetYaxis()->SetTitle("PFGlobalMuon(GLBPF) #Delta p_{T}/p_{T} vs #sigma(p_{T})");
    rh4->GetYaxis()->SetTitleSize(0.05);
    rh4->GetYaxis()->SetTitleOffset(1.2);
@@ -361,17 +354,13 @@ void RecoMuonValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE"
    rh2->GetYaxis()->SetTitleOffset(1.2);
 
    rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Sta"+fastSim+"/ErrPt_vs_Eta_Sigma",rh3);
-   if (!rh3) rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Sta"+fastSim+"/ErrPt_vs_Eta_Sigma",(TProfile*)rh3);
    sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Sta"+fastSim+"/ErrPt_vs_Eta_Sigma",sh3);
-   if (!sh3) sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Sta"+fastSim+"/ErrPt_vs_Eta_Sigma",(TProfile*)sh3);
    rh3->GetYaxis()->SetTitle("StandAloneMuon(STA) #Delta p_{T}/p_{T} vs #sigma(#eta)");
    rh3->GetYaxis()->SetTitleSize(0.05);
    rh3->GetYaxis()->SetTitleOffset(1.2);
 
    rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Sta"+fastSim+"/ErrPt_vs_Pt_Sigma",rh4);
-   if (!rh4) rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Sta"+fastSim+"/ErrPt_vs_Pt_Sigma",(TProfile*)rh4);
    sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Sta"+fastSim+"/ErrPt_vs_Pt_Sigma",sh4);
-   if (!sh4) sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Sta"+fastSim+"/ErrPt_vs_Pt_Sigma",(TProfile*)sh4);
    rh4->GetYaxis()->SetTitle("StandAloneMuon(STA) #Delta p_{T}/p_{T} vs #sigma(p_{T})");
    rh4->GetYaxis()->SetTitleSize(0.05);
    rh4->GetYaxis()->SetTitleOffset(1.2);
@@ -467,17 +456,13 @@ void RecoMuonValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE"
    rh2->GetYaxis()->SetTitleOffset(1.2);
 
    rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Trk"+fastSim+"/ErrPt_vs_Eta_Sigma",rh3);
-   if (!rh3) rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Trk"+fastSim+"/ErrPt_vs_Eta_Sigma",(TProfile*)rh3);
    sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Trk"+fastSim+"/ErrPt_vs_Eta_Sigma",sh3);
-   if (!sh3) sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Trk"+fastSim+"/ErrPt_vs_Eta_Sigma",(TProfile*)sh3);
    rh3->GetYaxis()->SetTitle("TrackerMuon(TRK) #Delta p_{T}/p_{T} vs #sigma(#eta)");
    rh3->GetYaxis()->SetTitleSize(0.05);
    rh3->GetYaxis()->SetTitleOffset(1.2);
 
    rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Trk"+fastSim+"/ErrPt_vs_Pt_Sigma",rh4);
-   if (!rh4) rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Trk"+fastSim+"/ErrPt_vs_Pt_Sigma",(TProfile*)rh4);
    sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Trk"+fastSim+"/ErrPt_vs_Pt_Sigma",sh4);
-   if (!sh4) sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Trk"+fastSim+"/ErrPt_vs_Pt_Sigma",(TProfile*)sh4);
    rh4->GetYaxis()->SetTitle("TrackerMuon(TRK) #Delta p_{T}/p_{T} vs #sigma(p_{T})");
    rh4->GetYaxis()->SetTitleSize(0.05);
    rh4->GetYaxis()->SetTitleOffset(1.2);
@@ -576,17 +561,13 @@ void RecoMuonValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE"
    rh2->GetYaxis()->SetTitleOffset(1.2);
 
    rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Tgt"+fastSim+"/ErrPt_vs_Eta_Sigma",rh3);
-   if (!rh3) rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Tgt"+fastSim+"/ErrPt_vs_Eta_Sigma",(TProfile*)rh3);
    sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Tgt"+fastSim+"/ErrPt_vs_Eta_Sigma",sh3);
-   if (!sh3) sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Tgt"+fastSim+"/ErrPt_vs_Eta_Sigma",(TProfile*)sh3);
    rh3->GetYaxis()->SetTitle("Tight Muon #Delta p_{T}/p_{T} vs #sigma(#eta)");
    rh3->GetYaxis()->SetTitleSize(0.05);
    rh3->GetYaxis()->SetTitleOffset(1.2);
 
    rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Tgt"+fastSim+"/ErrPt_vs_Pt_Sigma",rh4);
-   if (!rh4) rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Tgt"+fastSim+"/ErrPt_vs_Pt_Sigma",(TProfile*)rh4);
    sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Tgt"+fastSim+"/ErrPt_vs_Pt_Sigma",sh4);
-   if (!sh4) sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Tgt"+fastSim+"/ErrPt_vs_Pt_Sigma",(TProfile*)sh4);
    rh4->GetYaxis()->SetTitle("Tigh Muon) #Delta p_{T}/p_{T} vs #sigma(p_{T})");
    rh4->GetYaxis()->SetTitleSize(0.05);
    rh4->GetYaxis()->SetTitleOffset(1.2);

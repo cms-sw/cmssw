@@ -2,7 +2,7 @@
  *
  *  \author Roberto Covarelli (CERN)
  * 
- * $Id: EgammaHLTElectronDetaDphiProducer.cc,v 1.1 2009/01/15 14:28:28 covarell Exp $
+ * $Id: EgammaHLTElectronDetaDphiProducer.cc,v 1.3 2011/12/08 14:29:17 sani Exp $
  *
  */
 
@@ -30,8 +30,8 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
-#include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"//needed?
-#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"//needed?
+//#include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"//needed?
+//#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"//needed?
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Math/interface/Point3D.h"
@@ -47,12 +47,11 @@ EgammaHLTElectronDetaDphiProducer::EgammaHLTElectronDetaDphiProducer(const edm::
 
   electronProducer_             = conf_.getParameter<edm::InputTag>("electronProducer");
   BSProducer_                   = conf_.getParameter<edm::InputTag>("BSProducer");
-  useTrackProjectionToEcal_     = conf_.getUntrackedParameter<bool>("useTrackProjectionToEcal",false);
+  useTrackProjectionToEcal_     = conf_.getParameter<bool>("useTrackProjectionToEcal");
 
   //register your products
   produces < reco::ElectronIsolationMap >( "Deta" ).setBranchAlias( "deta" );
-  produces < reco::ElectronIsolationMap >( "Dphi" ).setBranchAlias( "dphi" );
-
+  produces < reco::ElectronIsolationMap >( "Dphi" ).setBranchAlias( "dphi" ); 
 }
 
 EgammaHLTElectronDetaDphiProducer::~EgammaHLTElectronDetaDphiProducer(){}
@@ -110,18 +109,15 @@ EgammaHLTElectronDetaDphiProducer::produce(edm::Event& iEvent, const edm::EventS
 
       deltaphi = deltaphi1;
       if(deltaphi2<deltaphi1){ deltaphi = deltaphi2;}
-
     } else {
 
       deltaphi=fabs(eleref->track()->outerPosition().phi()-theClus->phi());
       if(deltaphi>6.283185308) deltaphi -= 6.283185308;
       if(deltaphi>3.141592654) deltaphi = 6.283185308-deltaphi;
-
     }
       
     detaMap.insert(eleref, deltaeta);
     dphiMap.insert(eleref, deltaphi);
-      
   }
 
   std::auto_ptr<reco::ElectronIsolationMap> detMap(new reco::ElectronIsolationMap(detaMap));

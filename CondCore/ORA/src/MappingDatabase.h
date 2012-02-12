@@ -46,7 +46,7 @@ namespace ora {
     
     void removeMapping( const std::string& version );
 
-    bool getMappingForContainer( const Reflex::Type& containerClass, int containerId, MappingTree& destination  );
+    bool getMappingForContainer( const std::string& className, const std::string& classVersion, int containerId, MappingTree& destination  );
 
     bool getBaseMappingForContainer( const std::string& className, int containerId, MappingTree& destination  );
 

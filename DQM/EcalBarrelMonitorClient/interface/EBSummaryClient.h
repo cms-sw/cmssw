@@ -4,8 +4,8 @@
 /*
  * \file EBSummaryClient.h
  *
- * $Date: 2010/06/30 15:08:11 $
- * $Revision: 1.57 $
+ * $Date: 2010/03/28 09:21:48 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  *
 */
@@ -14,7 +14,6 @@
 #include <string>
 
 #include "TROOT.h"
-#include "TH1F.h"
 #include "TProfile2D.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -78,7 +77,6 @@ int ievt_;
 int jevt_;
 
 float synchErrorThreshold_;
-float timingNHitThreshold_;
 
 bool cloneME_;
 
@@ -170,7 +168,7 @@ TProfile2D* hot01_[36];
 TProfile2D* hpot01_[36];
 TProfile2D* httt01_[36];
 TProfile2D* htmt01_[36];
-TH1F *synch01_;
+TH1F* norm01_, *synch01_;
 
 };
 

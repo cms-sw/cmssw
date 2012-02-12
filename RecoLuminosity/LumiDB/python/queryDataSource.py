@@ -171,9 +171,9 @@ def hltFromOldLumi(session,runnumber):
         qHandle.addToOrderList('pathname')
         cursor=qHandle.execute()
         pathnameList=[]
-        inputcountArray=array.array('I')
-        acceptcountArray=array.array('I')
-        prescaleArray=array.array('I')
+        inputcountArray=array.array('l')
+        acceptcountArray=array.array('l')
+        prescaleArray=array.array('l')
         ipath=0
         pathnHLT_PixelTracksVdMames=''
         while cursor.next():
@@ -195,9 +195,9 @@ def hltFromOldLumi(session,runnumber):
                 prescaleBlob=CommonUtil.packArraytoBlob(prescaleArray)
                 databuffer[cmslsnum]=[inputcountBlob,acceptcountBlob,prescaleBlob]
                 pathnameList=[]
-                inputcountArray=array.array('I')
-                acceptcountArray=array.array('I')
-                prescaleArray=array.array('I')
+                inputcountArray=array.array('l')
+                acceptcountArray=array.array('l')
+                prescaleArray=array.array('l')
                 ipath=0
         del qHandle
         session.transaction().commit()
@@ -265,8 +265,8 @@ def trgFromOldLumi(session,runnumber):
         qHandle.addToOrderList('CMSLSNUM')
         qHandle.addToOrderList('BITNUM')
         cursor=qHandle.execute()
-        trgcountArray=array.array('I')
-        prescaleArray=array.array('I')
+        trgcountArray=array.array('l')
+        prescaleArray=array.array('l')
         while cursor.next():
             cmslsnum=cursor.currentRow()['cmslsnum'].data()
             bitnum=cursor.currentRow()['bitnum'].data()
@@ -286,8 +286,8 @@ def trgFromOldLumi(session,runnumber):
                 prescaleBlob=CommonUtil.packArraytoBlob(prescaleArray)
                 databuffer[cmslsnum].append(trgcountBlob)
                 databuffer[cmslsnum].append(prescaleBlob)
-                trgcountArray=array.array('I')
-                prescaleArray=array.array('I')
+                trgcountArray=array.array('l')
+                prescaleArray=array.array('l')
         del qHandle            
         session.transaction().commit()
         return [bitnames,databuffer]
@@ -653,13 +653,13 @@ def trgFromOldGT(session,runnumber):
         for cmslsnum,deadcount in deadtimeresult.items():
             bitzerocount=bitzerocountDict[cmslsnum]
             bitzeroprescale=bitzeroprescaleDict[cmslsnum]
-            trgcounts=array.array('I')
+            trgcounts=array.array('l')
             for acounts in algocount[cmslsnum]:
                 trgcounts.append(acounts)
             for tcounts in techcount[cmslsnum]:
                 trgcounts.append(tcounts)
             trgcountBlob=CommonUtil.packArraytoBlob(trgcounts)
-            trgprescale=array.array('I')
+            trgprescale=array.array('l')
             for aprescale in prescaleResult[cmslsnum]:
                 trgprescale.append(aprescale)
             trgprescaleBlob=CommonUtil.packArraytoBlob(trgprescale)
@@ -723,9 +723,9 @@ def hltFromRuninfoV2(session,runnumber):
         currentLumiSection=0
         allpaths=[]
         ipath=0
-        hltinputs=array.array('I')
-        hltaccepts=array.array('I')
-        prescales=array.array('I')
+        hltinputs=array.array('l')
+        hltaccepts=array.array('l')
+        prescales=array.array('l')
         while cursor.next():
             row=cursor.currentRow()
             cmsluminr=row['lsnumber'].data()
@@ -751,9 +751,9 @@ def hltFromRuninfoV2(session,runnumber):
                 prescalesBlob=CommonUtil.packArraytoBlob(prescales)
                 hltdict[cmsluminr].extend([hltinputsBlob,hltacceptsBlob,hltacceptsBlob])
                 ipath=0
-                hltinputs=array.array('I')
-                hltaccepts=array.array('I')
-                prescales=array.array('I')
+                hltinputs=array.array('l')
+                hltaccepts=array.array('l')
+                prescales=array.array('l')
         pathnameclob=','.join(pathnames)  
         del q
         session.transaction().commit()

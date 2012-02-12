@@ -33,11 +33,10 @@
 using namespace edm;
 
 CSCGeometryESModule::CSCGeometryESModule(const edm::ParameterSet & p)
-  : alignmentsLabel_(p.getParameter<std::string>("alignmentsLabel")),
+  : recreateGeometry_(true),
+    alignmentsLabel_(p.getParameter<std::string>("alignmentsLabel")),
     myLabel_(p.getParameter<std::string>("appendToDataLabel"))
 {
-
-  setWhatProduced(this, dependsOn(&CSCGeometryESModule::geometryCallback_) );
 
   // Choose wire geometry modelling
   // We now _require_ some wire geometry specification in the CSCOrcaSpec.xml file
@@ -78,6 +77,11 @@ CSCGeometryESModule::CSCGeometryESModule(const edm::ParameterSet & p)
 			   << "Label '" << myLabel_ << "' "
 			   << (applyAlignment_ ? "looking for" : "IGNORING")
 			   << " alignment labels '" << alignmentsLabel_ << "'.";
+  if(useDDD_) {
+    setWhatProduced(this, dependsOn(&CSCGeometryESModule::muonNumberingChanged_) );
+  } else {
+    setWhatProduced(this, dependsOn(&CSCGeometryESModule::cscRecoGeometryChanged_) & (&CSCGeometryESModule::cscRecoDigiParametersChanged_) );
+  }
 }
 
 
@@ -85,6 +89,8 @@ CSCGeometryESModule::~CSCGeometryESModule(){}
 
 
 boost::shared_ptr<CSCGeometry> CSCGeometryESModule::produce(const MuonGeometryRecord& record) {
+
+  initCSCGeometry_(record);
 
   // Called whenever the alignments or alignment errors change
 
@@ -122,9 +128,11 @@ boost::shared_ptr<CSCGeometry> CSCGeometryESModule::produce(const MuonGeometryRe
 }
 
 
-void CSCGeometryESModule::geometryCallback_( const MuonNumberingRecord& record )
+void CSCGeometryESModule::initCSCGeometry_( const MuonGeometryRecord& record )
 {
-  // Called whenever the muon numbering (or ideal geometry) changes
+  if(not recreateGeometry_) return;
+
+  // Updates whenever a dependent Record was changed
 
   cscGeometry = boost::shared_ptr<CSCGeometry>( new CSCGeometry );
 
@@ -141,7 +149,7 @@ void CSCGeometryESModule::geometryCallback_( const MuonNumberingRecord& record )
     edm::ESTransientHandle<DDCompactView> cpv;
     edm::ESHandle<MuonDDDConstants> mdc;
     record.getRecord<IdealGeometryRecord>().get(cpv);
-    record.get( mdc );
+    record.getRecord<MuonNumberingRecord>().get( mdc );
     CSCGeometryBuilderFromDDD builder;
     //    _cscGeometry = boost::shared_ptr<CSCGeometry>(builder.build(_cscGeometry, &(*cpv), *mdc));
     builder.build(cscGeometry, &(*cpv), *mdc);
@@ -154,7 +162,18 @@ void CSCGeometryESModule::geometryCallback_( const MuonNumberingRecord& record )
     //    _cscGeometry = boost::shared_ptr<CSCGeometry>(cscgb.build(_cscGeometry, *rig, *rdp));
     cscgb.build(cscGeometry, *rig, *rdp);
   }
-
+  recreateGeometry_=false;
 }
+
+void CSCGeometryESModule::muonNumberingChanged_( const MuonNumberingRecord& ) {
+  recreateGeometry_=true;
+}
+void CSCGeometryESModule::cscRecoGeometryChanged_( const CSCRecoGeometryRcd& ) {
+  recreateGeometry_=true;
+}
+void CSCGeometryESModule::cscRecoDigiParametersChanged_( const CSCRecoDigiParametersRcd& ) {
+  recreateGeometry_=true;
+}
+
 
 DEFINE_FWK_EVENTSETUP_MODULE(CSCGeometryESModule);

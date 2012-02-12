@@ -11,12 +11,7 @@
  */
 class LMFSextuple {
  public:
-  LMFSextuple() {
-    for (int i = 0; i < 3; i++) {
-      p[i] = 0;
-      t[i].setNull();
-    }
-  };
+  LMFSextuple() {};
   float p[3];
   Tm    t[3];
 };

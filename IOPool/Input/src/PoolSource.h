@@ -49,7 +49,9 @@ namespace edm {
     virtual bool goToEvent_(EventID const& eventID);
     virtual void rewind_();
     virtual EventPrincipal* readOneRandom();
+    virtual EventPrincipal* readOneRandomWithID(LuminosityBlockID const& lumiID);
     virtual EventPrincipal* readOneSequential();
+    virtual EventPrincipal* readOneSequentialWithID(LuminosityBlockID const& lumiID);
     virtual EventPrincipal* readOneSpecified(EventID const& id);
     virtual void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches);
     virtual void preForkReleaseResources();

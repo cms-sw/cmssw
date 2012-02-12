@@ -112,6 +112,7 @@ namespace edm {
     bool setEntryAtEvent(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event);
     bool setEntryAtLumi(RunNumber_t run, LuminosityBlockNumber_t lumi);
     bool setEntryAtRun(RunNumber_t run);
+    bool setEntryAtNextEventInLumi(RunNumber_t run, LuminosityBlockNumber_t lumi);
     void setAtEventEntry(IndexIntoFile::EntryNumber_t entry);
 
     void rewind() {

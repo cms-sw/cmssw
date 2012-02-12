@@ -306,7 +306,20 @@ namespace edm
     
     produces<CrossingFramePlaybackInfoExtended>();
   }
- 
+
+  void MixingModule::reload(const edm::EventSetup & setup){
+    //change the basic parameters.
+    edm::ESHandle<MixingModuleConfig> config;   
+    setup.get<MixingRcd>().get(config);                       
+    minBunch_=config->minBunch();                
+    maxBunch_=config->maxBunch();               
+    bunchSpace_=config->bunchSpace();            
+
+    //propagate to change the workers
+    for (unsigned int ii=0;ii<workersObjects_.size();ii++){
+      workersObjects_[ii]->reload(setup);
+    }
+  }
 
   void MixingModule::branchesActivate(const std::string &friendlyName, const std::string &subdet, InputTag &tag, std::string &label) {
        
@@ -433,14 +446,14 @@ namespace edm
 
 	int NumPU_Events = 0;
 
-	if(readSrcIdx ==0) { NumPU_Events = PileupList[bunchIdx - minBunch_];}
+	if(readSrcIdx ==0 && !playback_) { NumPU_Events = PileupList[bunchIdx - minBunch_];}
 	else { NumPU_Events = 1;}  // non-minbias pileup only gets one event for now. Fix later if desired.
 
 	//        int eventId = 0;
 	int vertexOffset = 0;
 
         if (!playback_) {
-          inputSources_[readSrcIdx]->readPileUp(recordEventID,
+          inputSources_[readSrcIdx]->readPileUp(e.id(), recordEventID,
             boost::bind(&MixingModule::pileAllWorkers, boost::ref(*this), _1, bunchIdx,
                         _2, vertexOffset), NumPU_Events
             );

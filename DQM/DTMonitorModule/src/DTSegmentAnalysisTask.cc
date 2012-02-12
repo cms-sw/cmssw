@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/11/12 09:18:42 $
- *  $Revision: 1.31 $
+ *  $Date: 2011/06/14 08:53:04 $
+ *  $Revision: 1.30 $
  *  \author G. Cerminara - INFN Torino
  *  revised by G. Mila - INFN Torino
  */
@@ -78,10 +78,8 @@ void DTSegmentAnalysisTask::beginRun(const Run& run, const edm::EventSetup& cont
    // Get the DT Geometry
   context.get<MuonGeometryRecord>().get(dtGeom);
 
-  if (!hltDQMMode) {
-    theDbe->setCurrentFolder("DT/EventInfo/Counters");
-    nEventMonitor = theDbe->bookFloat("nProcessedEventsSegment");
-  }
+  theDbe->setCurrentFolder("DT/EventInfo/Counters");
+  nEventMonitor = theDbe->bookFloat("nProcessedEventsSegment");
     
   // loop over all the DT chambers & book the histos
   vector<DTChamber*> chambers = dtGeom->chambers();

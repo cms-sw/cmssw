@@ -178,7 +178,9 @@ namespace edm {
       // We make sure the treeCache_ is detached from the file,
       // so that ROOT does not also delete it.
       filePtr_->SetCacheRead(0);
-      throw Exception(errors::FileReadError, "", e);
+      Exception t(errors::FileReadError, "", e);
+      t.addContext(std::string("Reading branch ")+branch->GetName());
+      throw t;
     }
   }
 
