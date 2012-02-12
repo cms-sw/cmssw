@@ -837,11 +837,11 @@ if 'GlobalTag' in %%(dict)s:
       self.options['services'].append( "-PrescaleService" )
       self.options['services'].append( "-MessageLogger" )
       self.options['services'].append( "-DQM" )
+      self.options['services'].append( "-DQMStore" )
       self.options['services'].append( "-MicroStateService" )
       self.options['services'].append( "-ModuleWebRegistry" )
       self.options['services'].append( "-TimeProfilerService" )
-      if not self.config.fastsim:
-        self.options['services'].append( "-DQMStore" )
+      self.options['services'].append( "-FastTimerService" )
 
       self.options['psets'].append( "-maxEvents" )
       self.options['psets'].append( "-options" )
