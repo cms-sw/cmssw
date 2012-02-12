@@ -18,6 +18,7 @@ PFJetsMatchedToFilteredCaloJetsProducer::PFJetsMatchedToFilteredCaloJetsProducer
   PFJetSrc = iConfig.getParameter<InputTag>("PFJetSrc");
   CaloJetFilter = iConfig.getParameter<InputTag>("CaloJetFilter");
   DeltaR_ = iConfig.getParameter<double>("DeltaR");
+  TriggerType_ = iConfig.getParameter<int>("TriggerType");
   
   produces<PFJetCollection>();
 }
@@ -29,6 +30,7 @@ void PFJetsMatchedToFilteredCaloJetsProducer::fillDescriptions(edm::Configuratio
   desc.add<edm::InputTag>("PFJetSrc",edm::InputTag("hltPFJets"));
   desc.add<edm::InputTag>("CaloJetFilter",edm::InputTag("hltSingleJet240Regional"));
   desc.add<double>("DeltaR",0.5);
+  desc.add<int>("TriggerType",trigger::TriggerJet);
   descriptions.add("hltPFJetsMatchedToFilteredCaloJetsProducer",desc);
 }
 
@@ -55,7 +57,7 @@ void PFJetsMatchedToFilteredCaloJetsProducer::produce(edm::Event& iEvent, const 
 		
 	jetRefVec.clear();
 		
-	TriggeredCaloJets->getObjects( trigger::TriggerJet,jetRefVec);
+	TriggeredCaloJets->getObjects( TriggerType_,jetRefVec);
 	// std::cout <<"Size of input triggered jet collection "<<jetRefVec.size()<<std::endl;
 	math::XYZPoint a(0.,0.,0.);
 	PFJet::Specific f;

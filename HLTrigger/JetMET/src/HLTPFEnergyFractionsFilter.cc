@@ -38,6 +38,7 @@ HLTPFEnergyFractionsFilter::HLTPFEnergyFractionsFilter(const edm::ParameterSet& 
   max_CHEF_              = iConfig.getParameter<double> ("max_CHEF");
   min_NHEF_              = iConfig.getParameter<double> ("min_NHEF");
   max_NHEF_              = iConfig.getParameter<double> ("max_NHEF");
+  triggerType_           = iConfig.getParameter<int> ("triggerType");
 }
 
 HLTPFEnergyFractionsFilter::~HLTPFEnergyFractionsFilter(){}
@@ -56,6 +57,7 @@ HLTPFEnergyFractionsFilter::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<double>("max_CHEF",99.);
   desc.add<double>("min_NHEF",-99.);
   desc.add<double>("max_NHEF",99.);
+  desc.add<int>("triggerType",trigger::TriggerJet);
   descriptions.add("hltPFEnergyFractionsFilter",desc);
 }
 
@@ -107,7 +109,7 @@ HLTPFEnergyFractionsFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup&
     
     //Store only 1st pt jet which pass conditions
     if(n>0){
-      filterproduct.addObject(TriggerJet,JetRef1);
+      filterproduct.addObject(triggerType_,JetRef1);
     }
   }
   
