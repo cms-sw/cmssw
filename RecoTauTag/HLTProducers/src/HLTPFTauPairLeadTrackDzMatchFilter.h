@@ -5,6 +5,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 /** class HLTPFTauPairLeadTrackDzMatchFilter
  * an HLT filter which picks up a PFTauCollection
@@ -16,9 +18,10 @@ class HLTPFTauPairLeadTrackDzMatchFilter : public HLTFilter {
 
   public:
 
-    explicit HLTPFTauPairLeadTrackDzMatchFilter(const edm::ParameterSet&);
+    explicit HLTPFTauPairLeadTrackDzMatchFilter(const edm::ParameterSet& conf);
     ~HLTPFTauPairLeadTrackDzMatchFilter();
-    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+    virtual bool hltFilter(edm::Event& ev, const edm::EventSetup& es, trigger::TriggerFilterObjectWithRefs& filterproduct);
     
   private:
 

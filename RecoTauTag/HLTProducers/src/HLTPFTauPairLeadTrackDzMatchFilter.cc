@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: HLTPFTauPairLeadTrackDzMatchFilter.cc,v 1.1 2012/02/13 15:47:42 mbluj Exp $
 
 #include "HLTPFTauPairLeadTrackDzMatchFilter.h"
 
@@ -13,8 +13,8 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 
-HLTPFTauPairLeadTrackDzMatchFilter::HLTPFTauPairLeadTrackDzMatchFilter(const edm::ParameterSet& conf) : HLTFilter(conf)
-{ 
+HLTPFTauPairLeadTrackDzMatchFilter::HLTPFTauPairLeadTrackDzMatchFilter(const edm::ParameterSet& conf) : HLTFilter(conf){
+ 
   tauSrc_	        = conf.getParameter<edm::InputTag>("tauSrc");
   tauMinPt_	        = conf.getParameter<double>("tauMinPt");
   tauMaxEta_	        = conf.getParameter<double>("tauMaxEta");
@@ -30,8 +30,22 @@ HLTPFTauPairLeadTrackDzMatchFilter::HLTPFTauPairLeadTrackDzMatchFilter(const edm
 
 HLTPFTauPairLeadTrackDzMatchFilter::~HLTPFTauPairLeadTrackDzMatchFilter(){}
 
-bool HLTPFTauPairLeadTrackDzMatchFilter::hltFilter(edm::Event& ev, const edm::EventSetup& es, trigger::TriggerFilterObjectWithRefs & filterproduct)
-{
+void HLTPFTauPairLeadTrackDzMatchFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions){
+
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+
+  desc.add<edm::InputTag>("tauSrc",edm::InputTag("hltPFTaus") );
+  desc.add<double>("tauMinPt",5.0);
+  desc.add<double>("tauMaxEta",2.5);
+  desc.add<double>("tauMinDR",0.1);
+  desc.add<double>("tauLeadTrackMaxDZ",0.2);
+  desc.add<int>("TriggerType",84); //84 - Tau
+  descriptions.add("hltPFTauPairLeadTrackDzMatchFilter",desc);
+}
+
+bool HLTPFTauPairLeadTrackDzMatchFilter::hltFilter(edm::Event& ev, const edm::EventSetup& es, trigger::TriggerFilterObjectWithRefs& filterproduct){
+
   using namespace std;
   using namespace reco;
   
@@ -48,7 +62,6 @@ bool HLTPFTauPairLeadTrackDzMatchFilter::hltFilter(edm::Event& ev, const edm::Ev
   const size_t n_taus = taus.size();
 
   // Combine taus into pairs and check the dz matching
-
   size_t npairs = 0, nfail_dz = 0;
   if(n_taus > 1) for(size_t t1 = 0; t1 < n_taus; ++t1) { 
     if( taus[t1].leadPFChargedHadrCand().isNull() ||

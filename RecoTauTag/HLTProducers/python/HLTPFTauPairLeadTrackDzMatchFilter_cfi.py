@@ -12,9 +12,9 @@ hltPFTauPairLeadTrackDzMatchFilter = cms.EDFilter(
     
     ## Tau preselection
     # min Pt of Tau
-    tauMinPt = cms.double(0.0),
+    tauMinPt = cms.double(5.0),
     # max eta of Tau
-    tauMaxEta = cms.double(100.0),
+    tauMaxEta = cms.double(2.5),
     # min dR distance between Taus (to avoid overlap)
     tauMinDR = cms.double(0.1), # 0.1 is the minimal value hardcoded in .cc  
 
