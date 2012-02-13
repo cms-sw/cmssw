@@ -5,10 +5,11 @@
 # This script reads the histogram file produced by pede and it extracts the plot showing the average chi2/ndf per Mille binary number.
 # After reading the MPS library, for which the file name has to be provided as first argument, an output file (name chi2pedehis.txt) is produced
 # where the first column corresponds to the associated name, the second column corresponds to Mille binary number, and the last column
-# is <chi2/ndf>. As second argument this scripts expects the file name of the pede histogram file (usually millepede.his).
+# is <chi2/ndf>. As second argument this scripts expects the file name of the pede histogram file (usually millepede.his). The last argument
+# represents the location of the python config which is used by CMSSW.
 #
 # Standalone usage:
-# mps_parse_pedechi2hist.pl mps.db millepede.his
+# mps_parse_pedechi2hist.pl mps.db millepede.his $RUNDIR/alignment_merge.py
 #
 # Use createChi2ndfplot.C to plot the output of this script.
 
@@ -16,11 +17,12 @@ use strict;
 
 my $db = $ARGV[0];
 my $pedehis = $ARGV[1];
+my $pyconfig = $ARGV[2];
 
 
-if(!defined $ARGV[0] || !defined $ARGV[1])
+if(!defined $ARGV[0] || !defined $ARGV[1] || !defined $ARGV[2])
   {
-    print "The location of the mps.db file and the path to the jobData directory has to be specified.\n";
+    print "The location of the mps.db file, the path to the jobData directory and the python config for CMSSW has to be specified.\n";
     exit(-1);
   }
 
@@ -33,6 +35,12 @@ unless(-e "$db")
 unless(-e "$pedehis")
   {
     print "Could not find pedehis file: $pedehis\n";
+    exit(-1);
+  }
+
+unless(-e "$pyconfig")
+  {
+    print "Could not find python config file: $pyconfig\n";
     exit(-1);
   }
 
@@ -85,7 +93,7 @@ if(@names == 0)
 else
   {
     #now try to guess the used binaries. extract the file number of those
-    open INPY, "< alignment_merge.py" || die "error when opening alignment_merge.py: $!";
+    open INPY, "< $pyconfig" || die "error when opening alignment_merge.py: $!";
     my @pycontent = <INPY>;
     close INPY;
     chomp @pycontent;
