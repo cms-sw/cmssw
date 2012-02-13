@@ -329,28 +329,51 @@ class RunMEtUncertainties(ConfigToolBase):
         #--------------------------------------------------------------------------------------------
         # produce collection of jets shifted up/down in energy    
         #--------------------------------------------------------------------------------------------     
- 
-        jetsEnUp = cms.EDProducer("ShiftedPATJetProducer",
+
+        # in case of "raw" (uncorrected) MET,
+        # add residual jet energy corrections in quadrature to jet energy uncertainties:
+        # cf. https://twiki.cern.ch/twiki/bin/view/CMS/MissingETUncertaintyPrescription
+        jetsEnUpForRawMEt = cms.EDProducer("ShiftedPATJetProducer",
             src = cms.InputTag(lastJetCollection),
             #jetCorrPayloadName = cms.string(jetCorrPayloadName),
             #jetCorrUncertaintyTag = cms.string('Uncertainty'),
             jetCorrInputFileName = cms.FileInPath('PhysicsTools/PatUtils/data/JEC11_V12_AK5PF_UncertaintySources.txt'),
             jetCorrUncertaintyTag = cms.string("SubTotalDataMC"),
+            addResidualJES = cms.bool(True),
+            jetCorrLabelUpToL3 = cms.string("ak5PFL1FastL2L3"),
+            jetCorrLabelUpToL3Res = cms.string("ak5PFL1FastL2L3Residual"),                               
             shiftBy = cms.double(+1.*varyByNsigmas)
         )
-        jetCollectionEnUp = \
-          self._addModuleToSequence(process, jetsEnUp,
-                                    [ "shifted", jetCollection.value(), "EnUp" ],
+        jetCollectionEnUpForRawMEt = \
+          self._addModuleToSequence(process, jetsEnUpForRawMEt,
+                                    [ "shifted", jetCollection.value(), "EnUpForRawMEt" ],
                                     process.metUncertaintySequence)
-        collectionsToKeep.append(jetCollectionEnUp)
-        jetsEnDown = jetsEnUp.clone(
+        collectionsToKeep.append(jetCollectionEnUpForRawMEt)
+        jetsEnDownForRawMEt = jetsEnUpForRawMEt.clone(
             shiftBy = cms.double(-1.*varyByNsigmas)
         )
-        jetCollectionEnDown = \
-          self._addModuleToSequence(process, jetsEnDown,
-                                    [ "shifted", jetCollection.value(), "EnDown" ],
+        jetCollectionEnDownForRawMEt = \
+          self._addModuleToSequence(process, jetsEnDownForRawMEt,
+                                    [ "shifted", jetCollection.value(), "EnDownForRawMEt" ],
                                     process.metUncertaintySequence) 
-        collectionsToKeep.append(jetCollectionEnDown)
+        collectionsToKeep.append(jetCollectionEnDownForRawMEt)
+
+        jetsEnUpForCorrMEt = jetsEnUpForRawMEt.clone(
+            addResidualJES = cms.bool(False)
+        )
+        jetCollectionEnUpForCorrMEt = \
+          self._addModuleToSequence(process, jetsEnUpForCorrMEt,
+                                    [ "shifted", jetCollection.value(), "EnUpForCorrMEt" ],
+                                    process.metUncertaintySequence)
+        collectionsToKeep.append(jetCollectionEnUpForCorrMEt)
+        jetsEnDownForCorrMEt = jetsEnUpForCorrMEt.clone(
+            shiftBy = cms.double(-1.*varyByNsigmas)
+        )
+        jetCollectionEnDownForCorrMEt = \
+          self._addModuleToSequence(process, jetsEnDownForCorrMEt,
+                                    [ "shifted", jetCollection.value(), "EnDownForCorrMEt" ],
+                                    process.metUncertaintySequence) 
+        collectionsToKeep.append(jetCollectionEnDownForCorrMEt)
 
         #--------------------------------------------------------------------------------------------
         # produce collection of electrons shifted up/down in energy
@@ -364,11 +387,11 @@ class RunMEtUncertainties(ConfigToolBase):
                 binning = cms.VPSet(
                     cms.PSet(
                         binSelection = cms.string('isEB'),
-                        binUncertainty = cms.double(0.01)
+                        binUncertainty = cms.double(0.006)
                     ),
                     cms.PSet(
                         binSelection = cms.string('!isEB'),
-                        binUncertainty = cms.double(0.025)
+                        binUncertainty = cms.double(0.015)
                     ),
                 ),      
                 shiftBy = cms.double(+1.*varyByNsigmas)
@@ -498,19 +521,19 @@ class RunMEtUncertainties(ConfigToolBase):
         #         https://hypernews.cern.ch/HyperNews/CMS/get/jes/270.html
         #         https://hypernews.cern.ch/HyperNews/CMS/get/JetMET/1259/1.html )
         #
-        process.selectedPatJetsForMETtype1p2CorrEnUp = getattr(process, jetCollectionEnUp).clone(
+        process.selectedPatJetsForMETtype1p2CorrEnUp = getattr(process, jetCollectionEnUpForCorrMEt).clone(
             src = cms.InputTag('selectedPatJetsForMETtype1p2Corr')
         )
         process.metUncertaintySequence += process.selectedPatJetsForMETtype1p2CorrEnUp
-        process.selectedPatJetsForMETtype2CorrEnUp = getattr(process, jetCollectionEnUp).clone(
+        process.selectedPatJetsForMETtype2CorrEnUp = getattr(process, jetCollectionEnUpForCorrMEt).clone(
             src = cms.InputTag('selectedPatJetsForMETtype2Corr')
         )
         process.metUncertaintySequence += process.selectedPatJetsForMETtype2CorrEnUp
-        process.selectedPatJetsForMETtype1p2CorrEnDown = getattr(process, jetCollectionEnDown).clone(
+        process.selectedPatJetsForMETtype1p2CorrEnDown = getattr(process, jetCollectionEnDownForCorrMEt).clone(
             src = cms.InputTag('selectedPatJetsForMETtype1p2Corr')
         )
         process.metUncertaintySequence += process.selectedPatJetsForMETtype1p2CorrEnDown
-        process.selectedPatJetsForMETtype2CorrEnDown = getattr(process, jetCollectionEnDown).clone(
+        process.selectedPatJetsForMETtype2CorrEnDown = getattr(process, jetCollectionEnDownForCorrMEt).clone(
             src = cms.InputTag('selectedPatJetsForMETtype2Corr')
         )
         process.metUncertaintySequence += process.selectedPatJetsForMETtype2CorrEnDown    
@@ -554,14 +577,17 @@ class RunMEtUncertainties(ConfigToolBase):
             process.metUncertaintySequence += process.smearedPatPFMetSequence 
 
         # propagate shifts in jet energy to "raw" (uncorrected) and Type 1 corrected MET
-        for metProducer in [ process.patPFMet,
-                             process.patType1CorrectedPFMet ]:
-            
-            metCollectionsUp_Down = \
-                self._propagateMEtUncertainties(
-                    process, lastJetCollection, "Jet", "En", jetCollectionEnUp, jetCollectionEnDown,
-                    metProducer, process.metUncertaintySequence)
-            collectionsToKeep.extend(metCollectionsUp_Down)
+        metCollectionsUp_DownForRawMEt = \
+            self._propagateMEtUncertainties(
+                process, lastJetCollection, "Jet", "En", jetCollectionEnUpForRawMEt, jetCollectionEnDownForRawMEt,
+                process.patPFMet, process.metUncertaintySequence)
+        collectionsToKeep.extend(metCollectionsUp_DownForRawMEt)
+
+        metCollectionsUp_DownForCorrMEt = \
+            self._propagateMEtUncertainties(
+                process, lastJetCollection, "Jet", "En", jetCollectionEnUpForCorrMEt, jetCollectionEnDownForCorrMEt,
+                process.patType1CorrectedPFMet, process.metUncertaintySequence)
+        collectionsToKeep.extend(metCollectionsUp_DownForCorrMEt)
 
         # propagate shifts in jet energy to Type 1 + 2 corrected MET
         process.patPFJetMETtype1p2CorrEnUp = process.patPFJetMETtype1p2Corr.clone(

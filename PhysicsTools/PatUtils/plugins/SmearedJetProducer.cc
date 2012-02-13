@@ -3,6 +3,8 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 
+#include "JetMETCorrections/Type1MET/interface/JetCorrExtractorT.h"
+
 #include "RecoMET/METAlgorithms/interface/SignAlgoResolutions.h"
 #include "RecoMET/METAlgorithms/interface/SigInputObj.h"
 #include "RecoMET/METAlgorithms/interface/significanceAlgo.h"
@@ -31,22 +33,10 @@ namespace SmearedJetProducer_namespace
 
      metsig::SignAlgoResolutions jetResolutions_;
   };
-
-  template <>
-  class RawJetExtractorT<pat::Jet>
-  {
-    public:
-
-     reco::Candidate::LorentzVector operator()(const pat::Jet& jet) const 
-     { 
-       if ( jet.jecSetsAvailable() ) return jet.correctedP4("Uncorrected");
-       else return jet.p4();
-     } 
-  };
 }
 
-typedef SmearedJetProducerT<reco::CaloJet> SmearedCaloJetProducer;
-typedef SmearedJetProducerT<reco::PFJet> SmearedPFJetProducer;
+typedef SmearedJetProducerT<reco::CaloJet, JetCorrExtractorT<reco::CaloJet> > SmearedCaloJetProducer;
+typedef SmearedJetProducerT<reco::PFJet, JetCorrExtractorT<reco::PFJet> > SmearedPFJetProducer;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 

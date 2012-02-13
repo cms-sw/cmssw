@@ -11,9 +11,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.5 $
+ * \version $Revision: 1.6 $
  *
- * $Id: SmearedJetProducerT.h,v 1.5 2011/11/20 10:27:58 veelken Exp $
+ * $Id: SmearedJetProducerT.h,v 1.6 2011/11/30 08:31:30 veelken Exp $
  *
  */
 
@@ -111,9 +111,21 @@ namespace SmearedJetProducer_namespace
        return jet.p4();
      } 
   };
+
+  template <>
+  class RawJetExtractorT<pat::Jet>
+  {
+    public:
+
+     reco::Candidate::LorentzVector operator()(const pat::Jet& jet) const 
+     { 
+       if ( jet.jecSetsAvailable() ) return jet.correctedP4("Uncorrected");
+       else return jet.p4();
+     } 
+  };
 }
 
-template <typename T>
+template <typename T, typename Textractor>
 class SmearedJetProducerT : public edm::EDProducer 
 {
   typedef std::vector<T> JetCollection;
@@ -142,6 +154,8 @@ class SmearedJetProducerT : public edm::EDProducer
 
     jetCorrLabel_ = ( cfg.exists("jetCorrLabel") ) ?
       cfg.getParameter<std::string>("jetCorrLabel") : "";
+    jetCorrEtaMax_ = ( cfg.exists("jetCorrEtaMax") ) ?
+      cfg.getParameter<double>("jetCorrEtaMax") : 9.9;
 
     smearBy_ = ( cfg.exists("smearBy") ) ? cfg.getParameter<double>("smearBy") : 1.0;
 
@@ -259,13 +273,12 @@ class SmearedJetProducerT : public edm::EDProducer
   TRandom3 rnd_;
 
   std::string jetCorrLabel_; // e.g. 'ak5PFJetL1FastL2L3' (reco::PFJets) / '' (pat::Jets)
-  JetCorrExtractorT<T> jetCorrExtractor_;
-
   double jetCorrEtaMax_; // do not use JEC factors for |eta| above this threshold (recommended default = 4.7),
                          // in order to work around problem with CMSSW_4_2_x JEC factors at high eta,
                          // reported in
                          //  https://hypernews.cern.ch/HyperNews/CMS/get/jes/270.html
                          //  https://hypernews.cern.ch/HyperNews/CMS/get/JetMET/1259/1.html
+  Textractor jetCorrExtractor_;
 
   double smearBy_; // option to "smear" jet energy by N standard-deviations, useful for template morphing
 

@@ -7,7 +7,7 @@
 namespace PFJetMETcorrInputProducer_namespace
 {
   template <>
-  class InputTypeCheckerT<pat::Jet>
+  class InputTypeCheckerT<pat::Jet, PATJetCorrExtractor>
   {
     public:
 
@@ -33,7 +33,7 @@ namespace PFJetMETcorrInputProducer_namespace
   };
 }
 
-typedef PFJetMETcorrInputProducerT<pat::Jet> PATPFJetMETcorrInputProducer;
+typedef PFJetMETcorrInputProducerT<pat::Jet, PATJetCorrExtractor> PATPFJetMETcorrInputProducer;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 

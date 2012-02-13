@@ -2,7 +2,9 @@
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
-typedef ShiftedJetProducerT<pat::Jet> ShiftedPATJetProducer;
+#include "JetMETCorrections/Type1MET/interface/JetCorrExtractorT.h"
+
+typedef ShiftedJetProducerT<pat::Jet, JetCorrExtractorT<pat::Jet> > ShiftedPATJetProducer;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 

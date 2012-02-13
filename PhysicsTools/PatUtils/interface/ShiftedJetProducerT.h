@@ -10,9 +10,9 @@
  *
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: ShiftedJetProducerT.h,v 1.1 2011/10/14 11:18:24 veelken Exp $
+ * $Id: ShiftedJetProducerT.h,v 1.2 2012/02/02 11:00:20 veelken Exp $
  *
  */
 
@@ -25,13 +25,18 @@
 
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
+#include "JetMETCorrections/Type1MET/interface/JetCorrExtractorT.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include "PhysicsTools/PatUtils/interface/SmearedJetProducerT.h"
+
+#include <TMath.h>
+
 #include <string>
 
-template <typename T>
+template <typename T, typename Textractor>
 class ShiftedJetProducerT : public edm::EDProducer  
 {
   typedef std::vector<T> JetCollection;
@@ -64,6 +69,14 @@ class ShiftedJetProducerT : public edm::EDProducer
 	jetCorrPayloadName_ = cfg.getParameter<std::string>("jetCorrPayloadName");
       }
     }
+
+    addResidualJES_ = cfg.getParameter<bool>("addResidualJES");
+    jetCorrLabelUpToL3_ = ( cfg.exists("jetCorrLabelUpToL3") ) ?
+      cfg.getParameter<std::string>("jetCorrLabelUpToL3") : "";
+    jetCorrLabelUpToL3Res_ = ( cfg.exists("jetCorrLabelUpToL3Res") ) ?
+      cfg.getParameter<std::string>("jetCorrLabelUpToL3Res") : "";
+    jetCorrEtaMax_ = ( cfg.exists("jetCorrEtaMax") ) ?
+      cfg.getParameter<double>("jetCorrEtaMax") : 9.9;
 
     shiftBy_ = cfg.getParameter<double>("shiftBy");
 
@@ -105,6 +118,22 @@ class ShiftedJetProducerT : public edm::EDProducer
 	
 	shift = jecUncertainty_->getUncertainty(true);
       }
+
+      if ( addResidualJES_ ) {
+	static SmearedJetProducer_namespace::RawJetExtractorT<T> rawJetExtractor;
+	reco::Candidate::LorentzVector rawJetP4 = rawJetExtractor(*originalJet);
+	if ( rawJetP4.E() > 1.e-1 ) {
+	  reco::Candidate::LorentzVector corrJetP4upToL3 = 
+	    jetCorrExtractor_(*originalJet, jetCorrLabelUpToL3_, &evt, &es, jetCorrEtaMax_, &rawJetP4);
+	  reco::Candidate::LorentzVector corrJetP4upToL3Res = 
+	    jetCorrExtractor_(*originalJet, jetCorrLabelUpToL3Res_, &evt, &es, jetCorrEtaMax_, &rawJetP4);
+	  if ( corrJetP4upToL3.E() > 1.e-1 && corrJetP4upToL3Res.E() > 1.e-1 ) {
+	    double residualJES = (corrJetP4upToL3Res.E()/corrJetP4upToL3.E()) - 1.;
+	    shift = TMath::Sqrt(shift*shift + residualJES*residualJES);
+	  }
+	}
+      }
+
       shift *= shiftBy_;
 
       reco::Candidate::LorentzVector originalJetP4 = originalJet->p4();
@@ -125,6 +154,16 @@ class ShiftedJetProducerT : public edm::EDProducer
   std::string jetCorrUncertaintyTag_;
   JetCorrectorParameters* jetCorrParameters_;
   JetCorrectionUncertainty* jecUncertainty_;
+
+  bool addResidualJES_;
+  std::string jetCorrLabelUpToL3_;    // L1+L2+L3 correction
+  std::string jetCorrLabelUpToL3Res_; // L1+L2+L3+Residual correction
+  double jetCorrEtaMax_; // do not use JEC factors for |eta| above this threshold (recommended default = 4.7),
+                         // in order to work around problem with CMSSW_4_2_x JEC factors at high eta,
+                         // reported in
+                         //  https://hypernews.cern.ch/HyperNews/CMS/get/jes/270.html
+                         //  https://hypernews.cern.ch/HyperNews/CMS/get/JetMET/1259/1.html
+  Textractor jetCorrExtractor_; 
 
   double jecUncertaintyValue_;
 

@@ -35,7 +35,7 @@ namespace CaloJetMETcorrInputProducer_namespace
   };
 }
 
-typedef CaloJetMETcorrInputProducerT<pat::Jet> PATCaloJetMETcorrInputProducer;
+typedef CaloJetMETcorrInputProducerT<pat::Jet, PATJetCorrExtractor> PATCaloJetMETcorrInputProducer;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 

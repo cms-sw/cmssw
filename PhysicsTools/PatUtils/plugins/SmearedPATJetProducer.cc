@@ -7,6 +7,8 @@
 #include "RecoMET/METAlgorithms/interface/significanceAlgo.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 
+#include "PhysicsTools/PatUtils/interface/PATJetCorrExtractor.h"
+
 namespace SmearedJetProducer_namespace
 {
   template <>
@@ -51,21 +53,9 @@ namespace SmearedJetProducer_namespace
 
      metsig::SignAlgoResolutions jetResolutions_;
   };
-
-  template <>
-  class RawJetExtractorT<pat::Jet>
-  {
-    public:
-
-     reco::Candidate::LorentzVector operator()(const pat::Jet& jet) const 
-     { 
-       if ( jet.jecSetsAvailable() ) return jet.correctedP4("Uncorrected");
-       else return jet.p4();
-     } 
-  };
 }
 
-typedef SmearedJetProducerT<pat::Jet> SmearedPATJetProducer;
+typedef SmearedJetProducerT<pat::Jet, PATJetCorrExtractor> SmearedPATJetProducer;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 

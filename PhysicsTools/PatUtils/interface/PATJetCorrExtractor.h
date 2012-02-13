@@ -11,9 +11,9 @@
  *
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.4 $
  *
- * $Id: PATJetCorrExtractor.h,v 1.3 2011/09/30 10:58:01 veelken Exp $
+ * $Id: PATJetCorrExtractor.h,v 1.4 2011/11/20 10:26:47 veelken Exp $
  *
  */
 
@@ -50,8 +50,7 @@ namespace
   }
 }
 
-template <>
-class JetCorrExtractorT<pat::Jet>
+class PATJetCorrExtractor
 {
  public:
 
