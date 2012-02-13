@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_1_0/GRun/V26 (CMSSW_5_2_0_pre4_HLT8)
+# /dev/CMSSW_5_1_0/GRun/V27 (CMSSW_5_2_0_pre4_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V26')
+  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V27')
 )
 
 process.streams = cms.PSet( 
@@ -292,9 +292,9 @@ process.datasets = cms.PSet(
     'HLT_R030_MR200_CentralJet40_BTagIP_v5',
     'HLT_R030_MR250_CentralJet40_BTagIP_v5' ),
   MinimumBias = cms.vstring( 'HLT_JetE30_NoBPTX3BX_NoHalo_v11',
-    'HLT_JetE30_NoBPTX_NoHalo_v11',
     'HLT_JetE30_NoBPTX_v9',
     'HLT_JetE50_NoBPTX3BX_NoHalo_v6',
+    'HLT_JetE70_NoBPTX3BX_NoHalo_v1',
     'HLT_Physics_v3',
     'HLT_PixelTracks_Multiplicity100_v9',
     'HLT_PixelTracks_Multiplicity80_v9',
@@ -649,9 +649,9 @@ process.datasets = cms.PSet(
     'HLT_Jet60_v10',
     'HLT_Jet800_v6',
     'HLT_JetE30_NoBPTX3BX_NoHalo_v11',
-    'HLT_JetE30_NoBPTX_NoHalo_v11',
     'HLT_JetE30_NoBPTX_v9',
     'HLT_JetE50_NoBPTX3BX_NoHalo_v6',
+    'HLT_JetE70_NoBPTX3BX_NoHalo_v1',
     'HLT_L1DoubleJet36Central_v5',
     'HLT_L1DoubleMu0_v5',
     'HLT_L1SingleEG12_v4',
@@ -1075,9 +1075,9 @@ process.datasets = cms.PSet(
     'HLT_Jet60_v10',
     'HLT_Jet800_v6',
     'HLT_JetE30_NoBPTX3BX_NoHalo_v11',
-    'HLT_JetE30_NoBPTX_NoHalo_v11',
     'HLT_JetE30_NoBPTX_v9',
     'HLT_JetE50_NoBPTX3BX_NoHalo_v6',
+    'HLT_JetE70_NoBPTX3BX_NoHalo_v1',
     'HLT_L1DoubleJet36Central_v5',
     'HLT_L1DoubleMu0_v5',
     'HLT_L1SingleEG12_v4',
@@ -1498,9 +1498,9 @@ process.datasets = cms.PSet(
     'HLT_Jet60_v10',
     'HLT_Jet800_v6',
     'HLT_JetE30_NoBPTX3BX_NoHalo_v11',
-    'HLT_JetE30_NoBPTX_NoHalo_v11',
     'HLT_JetE30_NoBPTX_v9',
     'HLT_JetE50_NoBPTX3BX_NoHalo_v6',
+    'HLT_JetE70_NoBPTX3BX_NoHalo_v1',
     'HLT_L1DoubleJet36Central_v5',
     'HLT_L1DoubleMu0_v5',
     'HLT_L1SingleEG12_v4',
@@ -4235,9 +4235,6 @@ process.PrescaleService = cms.Service( "PrescaleService",
       ),
       cms.PSet(  pathName = cms.string( "HLT_JetE30_NoBPTX_v9" ),
         prescales = cms.vuint32( 60, 30, 24, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 )
-      ),
-      cms.PSet(  pathName = cms.string( "HLT_JetE30_NoBPTX_NoHalo_v11" ),
-        prescales = cms.vuint32( 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_JetE30_NoBPTX3BX_NoHalo_v11" ),
         prescales = cms.vuint32( 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 )
@@ -11403,7 +11400,7 @@ process.hltExclDiJet60HFAND = cms.EDFilter( "HLTExclDiCaloJetFilter",
 )
 process.hltL1sL1SingleJet20CentralNoBPTX = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( False ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJet20_Central_NotBptxOR" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJetC20_NotBptxOR" ),
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
     L1UseL1TriggerObjectMaps = cms.bool( True ),
     L1UseAliasesForSeeding = cms.bool( True ),
@@ -11534,9 +11531,19 @@ process.hltStoppedHSCP1CaloJetEnergy30 = cms.EDFilter( "HLT1CaloJet",
     inputTag = cms.InputTag( "hltStoppedHSCPIterativeCone5CaloJets" ),
     MinE = cms.double( 30.0 )
 )
+process.hltBPTXAntiCoincidence = cms.EDFilter( "HLTLevel1Activity",
+    technicalBits = cms.uint64( 0x11 ),
+    ignoreL1Mask = cms.bool( True ),
+    invert = cms.bool( True ),
+    physicsLoBits = cms.uint64( 0x1 ),
+    physicsHiBits = cms.uint64( 0x0 ),
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    daqPartitions = cms.uint32( 1 ),
+    bunchCrossings = cms.vint32( 0, 1, -1 )
+)
 process.hltL1sL1SingleJet20CentralNoBPTXNoHalo = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( False ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJet20_Central_NotBptxOR_NotMuBeamHalo" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJetC20_NotBptxOR" ),
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
     L1UseL1TriggerObjectMaps = cms.bool( True ),
     L1UseAliasesForSeeding = cms.bool( True ),
@@ -11556,7 +11563,7 @@ process.hltL1BeamHaloAntiCoincidence3BX = cms.EDFilter( "HLTLevel1Activity",
     daqPartitions = cms.uint32( 1 ),
     bunchCrossings = cms.vint32( 0, 1, -1 )
 )
-process.hltPreJetE30NoBPTXNoHalo = cms.EDFilter( "HLTPrescaler",
+process.hltPreJetE30NoBPTX3BXNoHalo = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
@@ -11568,23 +11575,9 @@ process.hltStoppedHSCPHpdFilter = cms.EDFilter( "HLTHPDFilter",
     hpdSpikeEnergy = cms.double( 10.0 ),
     rbxSpikeUnbalance = cms.double( 0.2 )
 )
-process.hltBPTXAntiCoincidence = cms.EDFilter( "HLTLevel1Activity",
-    technicalBits = cms.uint64( 0x11 ),
-    ignoreL1Mask = cms.bool( True ),
-    invert = cms.bool( True ),
-    physicsLoBits = cms.uint64( 0x1 ),
-    physicsHiBits = cms.uint64( 0x0 ),
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    daqPartitions = cms.uint32( 1 ),
-    bunchCrossings = cms.vint32( 0, 1, -1 )
-)
-process.hltPreJetE30NoBPTX3BXNoHalo = cms.EDFilter( "HLTPrescaler",
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    offset = cms.uint32( 0 )
-)
 process.hltL1sL1SingleJet32NoBPTXNoHalo = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( False ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJet32_NotBptxOR_NotMuBeamHalo" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJetC32_NotBptxOR" ),
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
     L1UseL1TriggerObjectMaps = cms.bool( True ),
     L1UseAliasesForSeeding = cms.bool( True ),
@@ -11606,6 +11599,19 @@ process.hltStoppedHSCP1CaloJetEnergy50 = cms.EDFilter( "HLT1CaloJet",
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltStoppedHSCPIterativeCone5CaloJets" ),
     MinE = cms.double( 50.0 )
+)
+process.hltPreJetE70NoBPTX3BXNoHalo = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    offset = cms.uint32( 0 )
+)
+process.hltStoppedHSCP1CaloJetEnergy70 = cms.EDFilter( "HLT1CaloJet",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( -1.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 3.0 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltStoppedHSCPIterativeCone5CaloJets" ),
+    MinE = cms.double( 70.0 )
 )
 process.hltL1sL1HTT50 = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( True ),
@@ -35097,9 +35103,9 @@ process.hltPreDQMForPPOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_ExclDiJet60_HFOR_v10',
       'HLT_ExclDiJet60_HFAND_v10',
       'HLT_JetE30_NoBPTX_v9',
-      'HLT_JetE30_NoBPTX_NoHalo_v11',
       'HLT_JetE30_NoBPTX3BX_NoHalo_v11',
       'HLT_JetE50_NoBPTX3BX_NoHalo_v6',
+      'HLT_JetE70_NoBPTX3BX_NoHalo_v1',
       'HLT_HT150_v12',
       'HLT_HT200_v12',
       'HLT_HT250_v12',
@@ -35585,9 +35591,9 @@ process.hltPreHLTDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_ExclDiJet60_HFOR_v10',
       'HLT_ExclDiJet60_HFAND_v10',
       'HLT_JetE30_NoBPTX_v9',
-      'HLT_JetE30_NoBPTX_NoHalo_v11',
       'HLT_JetE30_NoBPTX3BX_NoHalo_v11',
       'HLT_JetE50_NoBPTX3BX_NoHalo_v6',
+      'HLT_JetE70_NoBPTX3BX_NoHalo_v1',
       'HLT_HT150_v12',
       'HLT_HT200_v12',
       'HLT_HT250_v12',
@@ -36036,9 +36042,9 @@ process.hltPreHLTMONOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_ExclDiJet60_HFOR_v10',
       'HLT_ExclDiJet60_HFAND_v10',
       'HLT_JetE30_NoBPTX_v9',
-      'HLT_JetE30_NoBPTX_NoHalo_v11',
       'HLT_JetE30_NoBPTX3BX_NoHalo_v11',
       'HLT_JetE50_NoBPTX3BX_NoHalo_v6',
+      'HLT_JetE70_NoBPTX3BX_NoHalo_v1',
       'HLT_HT150_v12',
       'HLT_HT200_v12',
       'HLT_HT250_v12',
@@ -36659,9 +36665,9 @@ process.hltOutputAForPP = cms.OutputModule( "PoolOutputModule",
   'HLT_Jet60_v10',
   'HLT_Jet800_v6',
   'HLT_JetE30_NoBPTX3BX_NoHalo_v11',
-  'HLT_JetE30_NoBPTX_NoHalo_v11',
   'HLT_JetE30_NoBPTX_v9',
   'HLT_JetE50_NoBPTX3BX_NoHalo_v6',
+  'HLT_JetE70_NoBPTX3BX_NoHalo_v1',
   'HLT_L1DoubleJet36Central_v5',
   'HLT_L1DoubleMu0_v5',
   'HLT_L1SingleEG12_v4',
@@ -37153,9 +37159,9 @@ process.hltOutputDQMForPP = cms.OutputModule( "PoolOutputModule",
   'HLT_Jet60_v10',
   'HLT_Jet800_v6',
   'HLT_JetE30_NoBPTX3BX_NoHalo_v11',
-  'HLT_JetE30_NoBPTX_NoHalo_v11',
   'HLT_JetE30_NoBPTX_v9',
   'HLT_JetE50_NoBPTX3BX_NoHalo_v6',
+  'HLT_JetE70_NoBPTX3BX_NoHalo_v1',
   'HLT_L1DoubleJet36Central_v5',
   'HLT_L1DoubleMu0_v5',
   'HLT_L1SingleEG12_v4',
@@ -37662,9 +37668,9 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_Jet60_v10',
   'HLT_Jet800_v6',
   'HLT_JetE30_NoBPTX3BX_NoHalo_v11',
-  'HLT_JetE30_NoBPTX_NoHalo_v11',
   'HLT_JetE30_NoBPTX_v9',
   'HLT_JetE50_NoBPTX3BX_NoHalo_v6',
+  'HLT_JetE70_NoBPTX3BX_NoHalo_v1',
   'HLT_L1DoubleJet36Central_v5',
   'HLT_L1DoubleMu0_v5',
   'HLT_L1SingleEG12_v4',
@@ -38278,9 +38284,9 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
   'HLT_Jet60_v10',
   'HLT_Jet800_v6',
   'HLT_JetE30_NoBPTX3BX_NoHalo_v11',
-  'HLT_JetE30_NoBPTX_NoHalo_v11',
   'HLT_JetE30_NoBPTX_v9',
   'HLT_JetE50_NoBPTX3BX_NoHalo_v6',
+  'HLT_JetE70_NoBPTX3BX_NoHalo_v1',
   'HLT_L1DoubleJet36Central_v5',
   'HLT_L1DoubleMu0_v5',
   'HLT_L1SingleEG12_v4',
@@ -38944,9 +38950,9 @@ process.HLT_300Tower0p8_v2 = cms.Path( process.HLTBeginSequence + process.hltL1s
 process.HLT_ExclDiJet60_HFOR_v10 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet36 + process.hltPreExclDiJet60HFOR + process.HLTRecoJetSequenceAK5Corrected + process.hltExclDiJet60HFOR + process.HLTEndSequence )
 process.HLT_ExclDiJet60_HFAND_v10 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet36FwdVeto + process.hltPreExclDiJet60HFAND + process.HLTRecoJetSequenceAK5Corrected + process.hltExclDiJet60HFAND + process.HLTEndSequence )
 process.HLT_JetE30_NoBPTX_v9 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet20CentralNoBPTX + process.hltPreJetE30NoBPTX + process.HLTStoppedHSCPLocalHcalReco + process.HLTStoppedHSCPJetSequence + process.hltStoppedHSCP1CaloJetEnergy30 + process.HLTEndSequence )
-process.HLT_JetE30_NoBPTX_NoHalo_v11 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet20CentralNoBPTXNoHalo + process.hltL1BeamHaloAntiCoincidence3BX + process.hltPreJetE30NoBPTXNoHalo + process.HLTStoppedHSCPLocalHcalReco + process.hltStoppedHSCPHpdFilter + process.HLTStoppedHSCPJetSequence + process.hltStoppedHSCP1CaloJetEnergy30 + process.HLTEndSequence )
 process.HLT_JetE30_NoBPTX3BX_NoHalo_v11 = cms.Path( process.HLTBeginSequenceAntiBPTX + process.hltL1sL1SingleJet20CentralNoBPTXNoHalo + process.hltL1BeamHaloAntiCoincidence3BX + process.hltPreJetE30NoBPTX3BXNoHalo + process.HLTStoppedHSCPLocalHcalReco + process.hltStoppedHSCPHpdFilter + process.HLTStoppedHSCPJetSequence + process.hltStoppedHSCP1CaloJetEnergy30 + process.HLTEndSequence )
 process.HLT_JetE50_NoBPTX3BX_NoHalo_v6 = cms.Path( process.HLTBeginSequenceAntiBPTX + process.hltL1sL1SingleJet32NoBPTXNoHalo + process.hltL1BeamHaloAntiCoincidence3BX + process.hltPreJetE50NoBPTX3BXNoHalo + process.HLTStoppedHSCPLocalHcalReco + process.hltStoppedHSCPHpdFilter + process.HLTStoppedHSCPJetSequence + process.hltStoppedHSCP1CaloJetEnergy50 + process.HLTEndSequence )
+process.HLT_JetE70_NoBPTX3BX_NoHalo_v1 = cms.Path( process.HLTBeginSequenceAntiBPTX + process.hltL1sL1SingleJet32NoBPTXNoHalo + process.hltL1BeamHaloAntiCoincidence3BX + process.hltPreJetE70NoBPTX3BXNoHalo + process.HLTStoppedHSCPLocalHcalReco + process.hltStoppedHSCPHpdFilter + process.HLTStoppedHSCPJetSequence + process.hltStoppedHSCP1CaloJetEnergy70 + process.HLTEndSequence )
 process.HLT_HT150_v12 = cms.Path( process.HLTBeginSequence + process.hltL1sL1HTT50 + process.hltPreHT150 + process.HLTRecoJetSequenceAK5Corrected + process.hltHT150 + process.HLTEndSequence )
 process.HLT_HT200_v12 = cms.Path( process.HLTBeginSequence + process.hltL1sL1HTT75 + process.hltPreHT200 + process.HLTRecoJetSequenceAK5Corrected + process.hltHT200 + process.HLTEndSequence )
 process.HLT_HT250_v12 = cms.Path( process.HLTBeginSequence + process.hltL1sL1HTT100 + process.hltPreHT250 + process.HLTRecoJetSequenceAK5Corrected + process.hltHT250 + process.HLTEndSequence )

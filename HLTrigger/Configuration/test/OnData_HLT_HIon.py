@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_1_0/HIon/V26 (CMSSW_5_2_0_pre4_HLT8)
+# /dev/CMSSW_5_1_0/HIon/V27 (CMSSW_5_2_0_pre4_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/HIon/V26')
+  tableName = cms.string('/dev/CMSSW_5_1_0/HIon/V27')
 )
 
 process.streams = cms.PSet( 
@@ -7134,7 +7134,11 @@ process.hltPreHLTDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
     l1tResults = cms.InputTag( "hltGtDigis" ),
     l1techIgnorePrescales = cms.bool( False ),
     hltResults = cms.InputTag( "TriggerResults" ),
-    triggerConditions = cms.vstring( 'HLT_HIZeroBias_v1',
+    triggerConditions = cms.vstring( 'HLT_HIMET120_v1',
+      'HLT_HIMET200_v1',
+      'HLT_HIMET220_v1',
+      'HLT_HIPhysics_v1',
+      'HLT_HIZeroBias_v1',
       'HLT_HIZeroBiasXOR_v1',
       'HLT_HIZeroBiasPixel_SingleTrack_v1',
       'HLT_HIMinBiasBSC_v1',
@@ -7182,10 +7186,6 @@ process.hltPreHLTDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_HIJet65_Jet55_v1',
       'HLT_HIJetE30_NoBPTX_v1',
       'HLT_HIJetE50_NoBPTX3BX_NoHalo_v1',
-      'HLT_HIMET120_v1',
-      'HLT_HIMET200_v1',
-      'HLT_HIMET220_v1',
-      'HLT_HIPhysics_v1',
       'HLT_HIActivityHF_Coincidence3_v1',
       'HLT_HIActivityHF_Single3_v1',
       'HLT_HIClusterVertexCompatibility_v1',
@@ -7233,7 +7233,11 @@ process.hltPreHLTMONOutputSmart = cms.EDFilter( "TriggerResultsFilter",
     l1tResults = cms.InputTag( "hltGtDigis" ),
     l1techIgnorePrescales = cms.bool( False ),
     hltResults = cms.InputTag( "TriggerResults" ),
-    triggerConditions = cms.vstring( 'HLT_HIZeroBias_v1',
+    triggerConditions = cms.vstring( 'HLT_HIMET120_v1',
+      'HLT_HIMET200_v1',
+      'HLT_HIMET220_v1',
+      'HLT_HIPhysics_v1',
+      'HLT_HIZeroBias_v1',
       'HLT_HIZeroBiasXOR_v1',
       'HLT_HIZeroBiasPixel_SingleTrack_v1',
       'HLT_HIMinBiasBSC_v1',
@@ -7281,10 +7285,6 @@ process.hltPreHLTMONOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_HIJet65_Jet55_v1',
       'HLT_HIJetE30_NoBPTX_v1',
       'HLT_HIJetE50_NoBPTX3BX_NoHalo_v1',
-      'HLT_HIMET120_v1',
-      'HLT_HIMET200_v1',
-      'HLT_HIMET220_v1',
-      'HLT_HIPhysics_v1',
       'HLT_HIActivityHF_Coincidence3_v1',
       'HLT_HIActivityHF_Single3_v1',
       'HLT_HIClusterVertexCompatibility_v1',

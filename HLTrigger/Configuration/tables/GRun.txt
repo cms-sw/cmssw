@@ -70,9 +70,10 @@ HLT_300Tower0p8_v*
 HLT_ExclDiJet60_HFOR_v*
 HLT_ExclDiJet60_HFAND_v*
 HLT_JetE30_NoBPTX_v*
-HLT_JetE30_NoBPTX_NoHalo_v*
+#HLT_JetE30_NoBPTX_NoHalo_v*			#removed in Feb 2012 5e33 menu (sr #126248)
 HLT_JetE30_NoBPTX3BX_NoHalo_v*
 HLT_JetE50_NoBPTX3BX_NoHalo_v*
+HLT_JetE70_NoBPTX3BX_NoHalo_v*			#added in Feb 2012 5e33 menu (sr #126248)
 HLT_HT150_v*
 HLT_HT200_v*
 HLT_HT250_v*
