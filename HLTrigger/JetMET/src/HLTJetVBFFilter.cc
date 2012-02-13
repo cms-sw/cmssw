@@ -1,6 +1,6 @@
 /** \class HLTJetVBFFilter
  *
- * $Id: HLTJetVBFFilter.cc,v 1.14 2012/02/12 09:34:06 gruen Exp $
+ * $Id: HLTJetVBFFilter.cc,v 1.15 2012/02/12 12:23:23 gruen Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -152,10 +152,12 @@ HLTJetVBFFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup,
 	  TRef ref2 = TRef(objects,distance(objects->begin(),jet2));
           filterproduct.addObject(triggerType_,ref1);
           filterproduct.addObject(triggerType_,ref2);
-	  break;
-        } // VBF cuts
+        }// VBF cuts
+	if(n>=1) break;
+	if( leadingJetOnly_==true ) break;
       }
       if(n>=1) break;
+      if( leadingJetOnly_==true ) break;
     }// loop on all jets 
   }// events with two or more jets
   
