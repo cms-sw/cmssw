@@ -19,6 +19,12 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/src/DQMError.h"
+
+
+//Regexp handling
+#include "classlib/utils/RegexpMatch.h"
+#include "classlib/utils/Regexp.h"
 
 
 #include <string>
@@ -39,6 +45,7 @@ class DQMHistNormalizer : public edm::EDAnalyzer
   virtual void endRun(const edm::Run& r, const edm::EventSetup& c);
 
 private:
+  lat::Regexp* buildRegex(const string & expr);
   vector<string> plotNamesToNormalize_; //root name used by all the plots that must be normalized
   string reference_;
 };
@@ -60,6 +67,22 @@ void DQMHistNormalizer::analyze(const edm::Event&, const edm::EventSetup&)
 //--- nothing to be done yet
 }
 
+lat::Regexp* DQMHistNormalizer::buildRegex(const string & expr)
+{
+  lat::Regexp* rx;
+  try
+  {
+    rx = new lat::Regexp(expr, 0, lat::Regexp::Wildcard);
+    rx->study();
+  }
+  catch (lat::Error &e)
+  {
+    raiseDQMError("DQMStore", "Invalid regular expression '%s': %s",
+		  expr.c_str(), e.explain().c_str());
+  }
+  return rx;
+}
+
 void DQMHistNormalizer::endRun(const edm::Run& r, const edm::EventSetup& c)
 {
   //std::cout << "<DQMHistNormalizer::endJob>:" << std::endl;
@@ -72,47 +95,65 @@ void DQMHistNormalizer::endRun(const edm::Run& r, const edm::EventSetup& c)
 
   DQMStore& dqmStore = (*edm::Service<DQMStore>());
 
-  string refRegex = "*RecoTauV/*/" + reference_;
-  vector<MonitorElement *> refelements = dqmStore.getMatchingContents(refRegex);
-  map<string, vector<MonitorElement *>::const_iterator > refsMap;
-  for(vector<MonitorElement *>::const_iterator refElem = refelements.begin(); refElem != refelements.end(); ++refElem){
-    string meName = (*refElem)->getFullname();
-    string dir = (*refElem)->getFullname().substr(0, meName.rfind("/"));
-    if(refsMap.find(dir) != refsMap.end()){
-      edm::LogInfo("DQMHistNormalizer")<<"DQMHistNormalizer::endRun: Warning! found multiple normalizing references for dir: "<<dir<<"!";
-      edm::LogInfo("DQMHistNormalizer")<<"     " << (*refsMap[dir])->getFullname();
-      edm::LogInfo("DQMHistNormalizer")<<"     " << (*refElem)->getFullname();
+  vector<MonitorElement *> allOurMEs = dqmStore.getAllContents("RecoTauV/");
+  lat::Regexp* refregex = buildRegex("*RecoTauV/*/" + reference_);
+  vector<lat::Regexp*> toNormRegex;
+  for ( std::vector<string>::const_iterator toNorm = plotNamesToNormalize_.begin(); toNorm != plotNamesToNormalize_.end(); ++toNorm )
+    toNormRegex.push_back( buildRegex("*RecoTauV/*/" + *toNorm) );
+
+  map<string, MonitorElement *> refsMap;
+  vector<MonitorElement *> toNormElements;
+
+  for(vector<MonitorElement *>::const_iterator element = allOurMEs.begin(); element != allOurMEs.end(); ++element){
+    string pathname = (*element)->getFullname();
+    //cout << pathname << endl;
+    //Matches reference
+    if(refregex->match(pathname)){
+      //cout << "Matched to ref" << endl;
+      string dir = pathname.substr(0, pathname.rfind("/"));
+      if(refsMap.find(dir) != refsMap.end()){
+	edm::LogInfo("DQMHistNormalizer")<<"DQMHistNormalizer::endRun: Warning! found multiple normalizing references for dir: "<<dir<<"!";
+	edm::LogInfo("DQMHistNormalizer")<<"     " << (refsMap[dir])->getFullname();
+	edm::LogInfo("DQMHistNormalizer")<<"     " << pathname;
+      }
+      else{
+	refsMap[dir] = *element;
+      }
     }
-    else{
-      refsMap[dir] = refElem;
+
+    //Matches targets
+    for(vector<lat::Regexp*>::const_iterator reg = toNormRegex.begin(); reg != toNormRegex.end(); ++reg){
+      if((*reg)->match(pathname)){
+	//cout << "Matched to target" << endl;
+	toNormElements.push_back(*element);
+	//cout << "Filled the collection" << endl;
+      }
     }
   }
 
-  for ( std::vector<string>::const_iterator toNorm = plotNamesToNormalize_.begin(); toNorm != plotNamesToNormalize_.end(); ++toNorm ) {
-    //std::cout << "plot->numerator_ = " << plot->numerator_ << std::endl;
-    string regexp = "*RecoTauV/*/" + *toNorm;
-    vector<MonitorElement *> matchingElemts = (dqmStore.getMatchingContents(regexp));
-    
-    for(vector<MonitorElement *>::const_iterator matchingElement = matchingElemts.begin(); matchingElement != matchingElemts.end(); ++matchingElement){
-      string meName = (*matchingElement)->getFullname();
-      string dir = meName.substr(0, meName.rfind("/"));
+  delete refregex;
+  for(vector<lat::Regexp*>::const_iterator reg = toNormRegex.begin(); reg != toNormRegex.end(); ++reg)
+    delete *reg;
 
-      if(refsMap.find(dir) == refsMap.end()){
-        edm::LogInfo("DQMHistNormalizer")<<"DQMHistNormalizer::endRun: Error! normalizing references for "<<meName<<" not found! Skipping...";
-        continue;
-      }
+  for(vector<MonitorElement *>::const_iterator matchingElement = toNormElements.begin(); matchingElement != toNormElements.end(); ++matchingElement){
+    string meName = (*matchingElement)->getFullname();
+    string dir = meName.substr(0, meName.rfind("/"));
+    
+    if(refsMap.find(dir) == refsMap.end()){
+      edm::LogInfo("DQMHistNormalizer")<<"DQMHistNormalizer::endRun: Error! normalizing references for "<<meName<<" not found! Skipping...";
+      continue;
+    }
       
-      float norm = (*refsMap[dir])->getTH1()->GetEntries();
-      TH1* hist = (*matchingElement)->getTH1();
-      if ( norm != 0. ) {
-        if( !hist->GetSumw2N() ) hist->Sumw2();
-        hist->Scale(1/norm);//use option "width" to divide the bin contents and errors by the bin width?
-      }else{
-        edm::LogInfo("DQMHistNormalizer")<<"DQMHistNormalizer::endRun: Error! Normalization failed in "<<hist->GetTitle()<<"!";
-      }
+    float norm = refsMap[dir]->getTH1()->GetEntries();
+    TH1* hist = (*matchingElement)->getTH1();
+    if ( norm != 0. ) {
+      if( !hist->GetSumw2N() ) hist->Sumw2();
+      hist->Scale(1/norm);//use option "width" to divide the bin contents and errors by the bin width?
+    }else{
+      edm::LogInfo("DQMHistNormalizer")<<"DQMHistNormalizer::endRun: Error! Normalization failed in "<<hist->GetTitle()<<"!";
+    }
       
-    }//    for(vector<MonitorElement *>::const_iterator matchingElement = matchingElemts.begin(); matchingElement = matchingElemts.end(); ++matchingElement)
-  }//  for ( std::vector<string>::const_iterator toNorm = plotNamesToNormalize_.begin(); toNorm != plotNamesToNormalize_.end(); ++toNorm ) {
+  }//    for(vector<MonitorElement *>::const_iterator matchingElement = matchingElemts.begin(); matchingElement = matchingElemts.end(); ++matchingElement)
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
