@@ -12,9 +12,9 @@
  *          Florent Lacroix, University of Illinois at Chicago
  *          Christian Veelken, LLR
  *
- * \version $Revision: 1.5 $
+ * \version $Revision: 1.6 $
  *
- * $Id: PFJetMETcorrInputProducerT.h,v 1.5 2011/11/20 10:25:47 veelken Exp $
+ * $Id: PFJetMETcorrInputProducerT.h,v 1.6 2011/12/16 13:23:42 veelken Exp $
  *
  */
 
@@ -41,7 +41,7 @@
 
 namespace PFJetMETcorrInputProducer_namespace
 {
-  template <typename T>
+  template <typename T, typename Textractor>
   class InputTypeCheckerT
   {
     public:
@@ -62,7 +62,7 @@ namespace PFJetMETcorrInputProducer_namespace
   };
 }
 
-template <typename T>
+template <typename T, typename Textractor>
 class PFJetMETcorrInputProducerT : public edm::EDProducer  
 {
  public:
@@ -140,7 +140,7 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
     for ( int jetIndex = 0; jetIndex < numJets; ++jetIndex ) {
       const T& rawJet = jets->at(jetIndex);
       
-      static PFJetMETcorrInputProducer_namespace::InputTypeCheckerT<T> checkInputType;
+      static PFJetMETcorrInputProducer_namespace::InputTypeCheckerT<T, Textractor> checkInputType;
       checkInputType(rawJet);
       
       double emEnergyFraction = rawJet.chargedEmEnergyFraction() + rawJet.neutralEmEnergyFraction();
@@ -213,7 +213,7 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
 
   std::string offsetCorrLabel_; // e.g. 'ak5PFJetL1Fastjet'
   std::string jetCorrLabel_;    // e.g. 'ak5PFJetL1FastL2L3' (MC) / 'ak5PFJetL1FastL2L3Residual' (Data)
-  JetCorrExtractorT<T> jetCorrExtractor_;
+  Textractor jetCorrExtractor_;
 
   double jetCorrEtaMax_; // do not use JEC factors for |eta| above this threshold (recommended default = 4.7),
                          // in order to work around problem with CMSSW_4_2_x JEC factors at high eta,
