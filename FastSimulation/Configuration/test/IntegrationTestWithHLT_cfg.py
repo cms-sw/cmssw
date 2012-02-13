@@ -7,6 +7,9 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
 )
 
+# Include DQMStore, needed by the famosSimHits
+process.DQMStore = cms.Service( "DQMStore")
+
 # Include the RandomNumberGeneratorService definition
 process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
 
@@ -58,8 +61,8 @@ process.schedule = cms.Schedule()
 process.schedule.extend(process.HLTSchedule)
 
 # If uncommented : All events are reconstructed, including those rejected at L1/HLT
-# process.reconstruction = cms.Path(process.reconstructionWithFamos)
-# process.schedule.append(process.reconstruction)
+#process.reconstruction = cms.Path(process.reconstructionWithFamos)
+#process.schedule.append(process.reconstruction)
 
 # Simulation sequence
 #process.simulation = cms.Sequence(process.ProductionFilterSequence*process.simulationWithFamos)

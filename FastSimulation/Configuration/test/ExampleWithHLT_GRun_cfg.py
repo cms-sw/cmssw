@@ -7,6 +7,9 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1000)
 )
 
+# Include DQMStore, needed by the famosSimHits
+process.DQMStore = cms.Service( "DQMStore")
+
 # Include the RandomNumberGeneratorService definition
 process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
 

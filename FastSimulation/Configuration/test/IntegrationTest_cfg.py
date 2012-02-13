@@ -7,6 +7,9 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
 )
 
+# Include DQMStore, needed by the famosSimHits
+process.DQMStore = cms.Service( "DQMStore")
+
 # Include the RandomNumberGeneratorService definition
 process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
 
@@ -54,7 +57,6 @@ process.misalignedCSCGeometry.applyAlignment = True
 #process.p1 = cms.Path(process.ProductionFilterSequence*process.famosWithEverything)
 process.source = cms.Source("EmptySource")
 process.p1 = cms.Path(process.generator*process.famosWithEverything)
-
 
 # To write out events
 process.load("FastSimulation.Configuration.EventContent_cff")
