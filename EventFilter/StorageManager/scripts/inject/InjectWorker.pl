@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.79 2012/02/08 09:27:24 babar Exp $
+# $Id: InjectWorker.pl,v 1.80 2012/02/13 10:35:05 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -458,7 +458,9 @@ sub get_from_runcond {
     }
     unless ( defined $cached ) {
         my $delay = $args->{_RetryDelay} ||= $retrydelay;
-        my $retries = ( $args->{_Retries} ||= $maxretries )--;
+        my $retries =
+          ( $args->{_Retries} =
+              defined $args->{_Retries} ? $args->{_Retries} : $maxretries )--;
         if ($retries) {
             $kernel->call( 'logger',
                 error =>
