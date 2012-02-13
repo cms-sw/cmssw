@@ -2,8 +2,8 @@
  *  
  *  Class to produce efficiency histograms by dividing nominator by denominator histograms
  *
- *  $Date: 2012/02/03 10:06:44 $
- *  $Revision: 1.2 $
+ *  $Date: 2012/02/13 14:40:25 $
+ *  $Revision: 1.4 $
  *  \author Christian Veelken, UC Davis
  */
 
@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -155,8 +156,6 @@ void DQMHistNormalizer::endRun(const edm::Run& r, const edm::EventSetup& c)
       
   }//    for(vector<MonitorElement *>::const_iterator matchingElement = matchingElemts.begin(); matchingElement = matchingElemts.end(); ++matchingElement)
 }
-
-#include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE(DQMHistNormalizer);
 
