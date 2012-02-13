@@ -398,14 +398,18 @@ void FastTimerService::postSource() {
 void FastTimerService::prePathBeginRun(std::string const & path ) {
   // cache the pointers to the names of the first and last path and endpath
   edm::service::TriggerNamesService & tns = * edm::Service<edm::service::TriggerNamesService>();
-  if (path == tns.getTrigPaths().front())
-    m_first_path = & path;
-  if (path == tns.getTrigPaths().back())
-    m_last_path = & path;
-  if (path == tns.getEndPaths().front())
-    m_first_endpath = & path;
-  if (path == tns.getEndPaths().back())
-    m_last_endpath = & path;
+  if (not tns.getTrigPaths().empty()) {
+    if (path == tns.getTrigPaths().front())
+      m_first_path = & path;
+    if (path == tns.getTrigPaths().back())
+      m_last_path = & path;
+  }
+  if (not tns.getEndPaths().empty()) {
+    if (path == tns.getEndPaths().front())
+      m_first_endpath = & path;
+    if (path == tns.getEndPaths().back())
+      m_last_endpath = & path;
+  }
 }
 
 void FastTimerService::preProcessPath(std::string const & path ) {
