@@ -11,9 +11,8 @@ from Validation.RecoTau.dataTypes.ValidateTausOnZTT_cff import *
 pfTauRunDQMValidation = cms.Sequence(
     TauValNumeratorAndDenominatorRealData+
     TauValNumeratorAndDenominatorRealElectronsData+
-    TauValNumeratorAndDenominatorRealMuonsData+
-    TauValNumeratorAndDenominatorZTT
-)
+    TauValNumeratorAndDenominatorRealMuonsData
+    )
 
 produceDenoms = cms.Sequence(
     produceDenominatorRealData+
@@ -22,8 +21,13 @@ produceDenoms = cms.Sequence(
     )
 
 runTauEff = cms.Sequence(
-    TauEfficienciesRealData+
-    TauEfficienciesRealElectronsData+
-    TauEfficienciesRealMuonsData
+    efficienciesRealData+
+    efficienciesRealElectronsData+
+    efficienciesRealMuonsData+
+    normalizePlotsRealMuonsData
     )
+##Full sequences, including normalizations
+## TauEfficienciesRealData+
+## TauEfficienciesRealElectronsData+
+## TauEfficienciesRealMuonsData
 

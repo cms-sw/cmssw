@@ -13,10 +13,8 @@ pfTauRunDQMValidation = cms.Sequence(
     TauValNumeratorAndDenominatorRealData+
     TauValNumeratorAndDenominatorRealElectronsData+
     TauValNumeratorAndDenominatorRealMuonsData+
-    TauValNumeratorAndDenominatorZEEFastSim+
     TauValNumeratorAndDenominatorZEE+
     TauValNumeratorAndDenominatorZMM+
-    TauValNumeratorAndDenominatorZTTFastSim+
     TauValNumeratorAndDenominatorZTT
     )
 
@@ -25,23 +23,31 @@ produceDenoms = cms.Sequence(
     produceDenominatorRealData+
     produceDenominatorRealElectronsData+
     produceDenominatorRealMuonsData+
-    produceDenominatorZEEFastSim+
     produceDenominatorZEE+
     produceDenominatorZMM+
-    produceDenominatorZTTFastSim+
     produceDenominatorZTT
     )
 
 runTauEff = cms.Sequence(
-    TauEfficienciesQCD+
-    TauEfficienciesRealData+
-    TauEfficienciesRealElectronsData+
-    TauEfficienciesRealMuonsData+
-    TauEfficienciesZEEFastSim+
-    TauEfficienciesZEE+
-    TauEfficienciesZMM+
-    TauEfficienciesZTTFastSim+
-    TauEfficienciesZTT
+    efficienciesQCD+
+    efficienciesRealData+
+    efficienciesRealElectronsData+
+    efficienciesRealMuonsData+
+    efficienciesZEE+
+    efficienciesZMM+
+    efficienciesZTT+
+    normalizePlotsZTT
     )
+##Full sequences, including normalizations
+## TauEfficienciesQCD+
+## TauEfficienciesRealData+
+## TauEfficienciesRealElectronsData+
+## TauEfficienciesRealMuonsData+
+## TauEfficienciesZEEFastSim+
+## TauEfficienciesZEE+
+## TauEfficienciesZMM+
+## TauEfficienciesZTTFastSim+
+## TauEfficienciesZTT
+
 
 makeBetterPlots = cms.Sequence() #Not used anymore/by now
