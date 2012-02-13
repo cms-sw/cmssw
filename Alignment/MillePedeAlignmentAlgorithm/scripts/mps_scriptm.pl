@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     06-Jul-2007
 #     A. Parenti, DESY Hamburg    27-Mar-2008
-#     $Revision: 1.7 $
-#     $Date: 2011/06/15 14:24:52 $
+#     $Revision: 1.8 $
+#     $Date: 2011/06/15 14:51:45 $
 #
 #  Prepare the run script for the merge job.
 #  The main action is to embed the output directory
@@ -119,6 +119,7 @@ if ($castorPool ne "undefined") {
 
 # replace the cfg name
 $nn = ($body =~ m/cmsRun +([A-Z,a-z,0-9\-\.])/g);
+
 # $nn = ($body =~ m/cmsRun +(.+)/g);
 if ($nn <1) {
   print "Warning: mps_script matches cfg: $nn\n";
@@ -126,6 +127,8 @@ if ($nn <1) {
 # $nn = ($body =~ s/cmsRun\s([A-Za-z0-9]+?\.cfg)/cmsRun $cfgName/g);
 # $nn = ($body =~ s/cmsRun +(.+)/cmsRun $cfgName/g);
 $nn = ($body =~ s/cmsRun +[a-zA-Z_0-9\-]+\.cfg/cmsRun \$RUNDIR\/$cfgName/g);
+
+$nn = $body =~ s/mps_parse_pedechi2hist\.pl\s(.+)\s\w*?\.cfg/mps_parse_pedechi2hist\.pl $1 \$RUNDIR\/$cfgName/gi;
 
 # now we have to expand lines that contain the ISN directive
 @LINES = split "\n",$body;
