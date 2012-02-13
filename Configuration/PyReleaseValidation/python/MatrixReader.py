@@ -191,9 +191,9 @@ class MatrixReader(object):
                 wfName,stepNames= name.split('+',1)
                 stepNames=stepNames.replace('+RECODFROMRAWRECO','')
                 stepNames=stepNames.replace('+SKIMCOSD','')
-                #stepNames=stepNames.replace('+SKIMD','')
-                #stepNames=stepNames.replace('+HARVESTD','')
-                #stepNames=stepNames.replace('+HARVEST','')
+                stepNames=stepNames.replace('+SKIMD','')
+                stepNames=stepNames.replace('+HARVESTD','')
+                stepNames=stepNames.replace('+HARVEST','')
                 otherSteps = None
                 if '+' in stepNames:
                     step1,otherSteps = stepNames.split('+',1)
