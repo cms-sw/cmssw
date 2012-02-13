@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.78 2011/11/29 19:25:25 babar Exp $
+# $Id: InjectWorker.pl,v 1.79 2012/02/08 09:27:24 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -327,10 +327,10 @@ sub setup_main_db {
     $sql =
         "insert into CMS_STOMGR.RUNS "
       . "(RUNNUMBER, INSTANCE, HOSTNAME, N_INSTANCES, N_LUMISECTIONS, "
-      . " STATUS, MAX_LUMI, LAST_GOOD, START_TIME)"
+      . " STATUS, MAX_LUMISECTION, LAST_CONSECUTIVE, START_TIME)"
       . " values "
       . "(        ?,        ?,        ?,           ?,              0, "
-      . "      1,     NULL,      NULL, TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'))";
+      . "      1,            NULL,             NULL, TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'))";
     $sths->{beginOfRun} = $heap->{dbh}->prepare($sql)
       or die "Error: Prepare failed for $sql: " . $heap->{dbh}->errstr;
 
