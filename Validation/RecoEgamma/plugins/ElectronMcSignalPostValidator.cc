@@ -88,6 +88,48 @@ void ElectronMcSignalPostValidator::finalize()
   profileX("seedDphi2Pos_VsPt","mean ele seed dphi 2nd layer positron vs pt","p_{T} (GeV/c)","<#phi_{pred} - #phi_{hit}, 2nd layer> (rad)",-0.004,0.004);
   profileX("seedDrz2Pos_VsEta","mean ele seed dr(dz) 2nd layer positron vs eta","#eta","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
   profileX("seedDrz2Pos_VsPt","mean ele seed dr(dz) 2nd layer positron vs pt","p_{T} (GeV/c)","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
- }
+
+//  // investigation
+//  TH2F * h2 = get("PoPtrueVsEta")->getTH2F() ;
+//  std::cout<<"H2   entries : "<<h2->GetEntries()<<std::endl ;
+//  std::cout<<"H2 effective entries : "<<h2->GetEffectiveEntries()<<std::endl ;
+//  Int_t ix, nx = h2->GetNbinsX(), iy, ny = h2->GetNbinsY(), is, nu = 0, no = 0, nb = 0 ;
+//  for ( iy = 0 ; iy<=(ny+1) ; ++iy )
+//    for ( ix = 0 ; ix<=(nx+1) ; ++ix )
+//     {
+//      is = iy*(nx+2) + ix ;
+//      if (h2->IsBinUnderflow(is)) ++nu ;
+//      if (h2->IsBinOverflow(is)) ++no ;
+//     }
+//  ix = 0 ;
+//  for ( iy = 0 ; iy<=(ny+1) ; ++iy )
+//   {
+//    is = iy*(nx+2) + ix ;
+//    nb += (*h2->GetSumw2())[is] ;
+//   }
+//  ix = nx+1 ;
+//  for ( iy = 0 ; iy<=(ny+1) ; ++iy )
+//   {
+//    is = iy*(nx+2) + ix ;
+//    nb += (*h2->GetSumw2())[is] ;
+//   }
+//  for ( ix = 1 ; ix<=nx ; ++ix )
+//   {
+//    iy = 0 ;
+//    is = iy*(nx+2) + ix ;
+//    nb += (*h2->GetSumw2())[is] ;
+//    iy = ny+1 ;
+//    is = iy*(nx+2) + ix ;
+//    nb += (*h2->GetSumw2())[is] ;
+//   }
+//  std::cout<<"H2   nx      : "<<nx<<std::endl ;
+//  std::cout<<"H2   ny      : "<<ny<<std::endl ;
+//  std::cout<<"H2   nsumw2  : "<<(*h2->GetSumw2()).fN<<std::endl ;
+//  std::cout<<"H2   nu      : "<<nu<<std::endl ;
+//  std::cout<<"H2   no      : "<<no<<std::endl ;
+//  std::cout<<"H2   outside : "<<nb<<std::endl ;
+//  std::cout<<"PFX  entries : "<<h2->ProfileX()->GetEntries()<<std::endl ;
+//  std::cout<<"PFX effective entries : "<<h2->ProfileX()->GetEffectiveEntries()<<std::endl ;
+}
 
 

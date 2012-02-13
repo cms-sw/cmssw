@@ -658,6 +658,15 @@ with the local modified code.
       <executable name="cmsRun" args="ElectronRedoFromRaw_cfg.py">
     </environment>
   
+    <environment name="RedoFromRawPt10Startup">
+      <var name="DBS_SAMPLE" value="RelValSingleElectronPt10">
+      <var name="TEST_HISTOS_FILE" value="${TEST_AFS_DIR}/${DBS_SAMPLE}-START-RECO.root">
+      <var name="TEST_GLOBAL_TAG" value="${TEST_GLOBAL_STARTUP_TAG}">
+      <var name="DBS_COND" value="${TEST_GLOBAL_TAG}-${TEST_GLOBAL_VERSION}">
+      <target name="dbs" cmd="electronDbsDiscovery.py">
+      <target name="reco" cmd="cmsRun ElectronRedoFromRawStartup_cfg.py">
+    </environment>
+  
     <environment name="RedoFromRawTTbar">
       <var name="DBS_SAMPLE" value="RelValTTbar">
       <var name="TEST_HISTOS_FILE" value="${TEST_AFS_DIR}/${DBS_SAMPLE}-MC-RECO.root">
