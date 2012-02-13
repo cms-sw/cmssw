@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_1_0/HIon/V24 (CMSSW_5_2_0_pre4_HLT8)
+# /dev/CMSSW_5_1_0/HIon/V25 (CMSSW_5_2_0_pre4_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/HIon/V24')
+  tableName = cms.string('/dev/CMSSW_5_1_0/HIon/V25')
 )
 
 process.streams = cms.PSet( 
@@ -2523,17 +2523,6 @@ process.siStripLorentzAngleDepESProducer = cms.ESProducer( "SiStripLorentzAngleD
 )
 process.sistripconn = cms.ESProducer( "SiStripConnectivity" )
 
-process.FastTimerService = cms.Service( "FastTimerService",
-    dqmPath = cms.untracked.string( "HLT/TimerService" ),
-    useRealTimeClock = cms.untracked.bool( True ),
-    dqmTimeResolution = cms.untracked.double( 1.0 ),
-    enableDQMbyLumi = cms.untracked.bool( False ),
-    enableTimingPaths = cms.untracked.bool( True ),
-    enableTimingModules = cms.untracked.bool( True ),
-    enableDQM = cms.untracked.bool( True ),
-    dqmTimeRange = cms.untracked.double( 200.0 ),
-    enableTimingSummary = cms.untracked.bool( True )
-)
 process.DQM = cms.Service( "DQM",
     publishFrequency = cms.untracked.double( 5.0 ),
     debug = cms.untracked.bool( False ),
