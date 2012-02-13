@@ -291,7 +291,7 @@ HLTMuonDimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
 	      // if (invmass>0) invmass = sqrt(invmass); else invmass = 0;
 	      LogDebug("HLTMuonDimuonL3Filter") << " ... 1-2 invmass= " << invmass;
 	      bool proceed=false;
-	      for (uint iv=0 ; iv<min_InvMass_.size(); iv++) {
+	      for (unsigned int iv=0 ; iv<min_InvMass_.size(); iv++) {
 		if (invmass<min_InvMass_[iv]) continue;
 		if (invmass>max_InvMass_[iv]) continue;
 		if (ptLx1>ptLx2) {
