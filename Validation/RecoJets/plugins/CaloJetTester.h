@@ -4,7 +4,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTester.h,v 1.22 2011/09/20 22:56:35 kovitang Exp $
+// $Id: CaloJetTester.h,v 1.23 2012/02/06 02:54:20 kovitang Exp $
 
 #include <string>
 
@@ -128,6 +128,12 @@ private:
   MonitorElement* mpTScale_a_nvtx_30_inf;
   MonitorElement* mpTScale_b_nvtx_30_inf;
   MonitorElement* mpTScale_c_nvtx_30_inf;
+  MonitorElement* mpTScale_nvtx_0_5;
+  MonitorElement* mpTScale_nvtx_5_10;
+  MonitorElement* mpTScale_nvtx_10_15;
+  MonitorElement* mpTScale_nvtx_15_20;
+  MonitorElement* mpTScale_nvtx_20_30;
+  MonitorElement* mpTScale_nvtx_30_inf;
 
   // Leading Jet Parameters
   MonitorElement* mEtaFirst;

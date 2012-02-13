@@ -2,7 +2,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: JPTJetTester.cc,v 1.18 2011/09/20 22:56:36 kovitang Exp $
+// $Id: JPTJetTester.cc,v 1.19 2012/02/06 02:54:50 kovitang Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -91,7 +91,9 @@ JPTJetTester::JPTJetTester(const edm::ParameterSet& iConfig)
       = mpTScale_a_nvtx_15_20 = mpTScale_b_nvtx_15_20 = mpTScale_c_nvtx_15_20
       = mpTScale_a_nvtx_20_30 = mpTScale_b_nvtx_20_30 = mpTScale_c_nvtx_20_30
       = mpTScale_a_nvtx_30_inf = mpTScale_b_nvtx_30_inf = mpTScale_c_nvtx_30_inf
-    = 0;
+      = mpTScale_nvtx_0_5 = mpTScale_nvtx_5_10 = mpTScale_nvtx_10_15 
+      = mpTScale_nvtx_15_20 = mpTScale_nvtx_20_30 = mpTScale_nvtx_30_inf
+      = 0;
   
   DQMStore* dbe = &*edm::Service<DQMStore>();
   if (dbe) {
@@ -163,6 +165,26 @@ JPTJetTester::JPTJetTester(const edm::ParameterSet& iConfig)
     nvtx_0_30 = dbe->book1D("nvtx_0_30","nvtx_0_30",31,-0.5,30.5);
     nvtx_0_60 = dbe->book1D("nvtx_0_60","nvtx_0_60",61,-0.5,60.5);
 
+    //pT scale with nvtx
+    mpTScale_a_nvtx_0_5 = dbe->book1D("mpTScale_a_nvtx_0_5", "pTScale_a_nvtx_0_5_0<|eta|<1.3_60_120",100, 0, 2);
+    mpTScale_b_nvtx_0_5 = dbe->book1D("mpTScale_b_nvtx_0_5", "pTScale_b_nvtx_0_5_0<|eta|<1.3_200_300",100, 0, 2);
+    mpTScale_c_nvtx_0_5 = dbe->book1D("mpTScale_c_nvtx_0_5", "pTScale_c_nvtx_0_5_0<|eta|<1.3_600_900",100, 0, 2);
+    mpTScale_a_nvtx_5_10 = dbe->book1D("mpTScale_a_nvtx_5_10", "pTScale_a_nvtx_5_10_0<|eta|<1.3_60_120",100, 0, 2);
+    mpTScale_b_nvtx_5_10 = dbe->book1D("mpTScale_b_nvtx_5_10", "pTScale_b_nvtx_5_10_0<|eta|<1.3_200_300",100, 0, 2);
+    mpTScale_c_nvtx_5_10 = dbe->book1D("mpTScale_c_nvtx_5_10", "pTScale_c_nvtx_5_10_0<|eta|<1.3_600_900",100, 0, 2);
+    mpTScale_a_nvtx_10_15 = dbe->book1D("mpTScale_a_nvtx_10_15", "pTScale_a_nvtx_10_15_0<|eta|<1.3_60_120",100, 0, 2);
+    mpTScale_b_nvtx_10_15 = dbe->book1D("mpTScale_b_nvtx_10_15", "pTScale_b_nvtx_10_15_0<|eta|<1.3_200_300",100, 0, 2);
+    mpTScale_c_nvtx_10_15 = dbe->book1D("mpTScale_c_nvtx_10_15", "pTScale_c_nvtx_10_15_0<|eta|<1.3_600_900",100, 0, 2);
+    mpTScale_a_nvtx_15_20 = dbe->book1D("mpTScale_a_nvtx_15_20", "pTScale_a_nvtx_15_20_0<|eta|<1.3_60_120",100, 0, 2);
+    mpTScale_b_nvtx_15_20 = dbe->book1D("mpTScale_b_nvtx_15_20", "pTScale_b_nvtx_15_20_0<|eta|<1.3_200_300",100, 0, 2);
+    mpTScale_c_nvtx_15_20 = dbe->book1D("mpTScale_c_nvtx_15_20", "pTScale_c_nvtx_15_20_0<|eta|<1.3_600_900",100, 0, 2);
+    mpTScale_a_nvtx_20_30 = dbe->book1D("mpTScale_a_nvtx_20_30", "pTScale_a_nvtx_20_30_0<|eta|<1.3_60_120",100, 0, 2);
+    mpTScale_b_nvtx_20_30 = dbe->book1D("mpTScale_b_nvtx_20_30", "pTScale_b_nvtx_20_30_0<|eta|<1.3_200_300",100, 0, 2);
+    mpTScale_c_nvtx_20_30 = dbe->book1D("mpTScale_c_nvtx_20_30", "pTScale_c_nvtx_20_30_0<|eta|<1.3_600_900",100, 0, 2);
+    mpTScale_a_nvtx_30_inf = dbe->book1D("mpTScale_a_nvtx_30_inf", "pTScale_a_nvtx_30_inf_0<|eta|<1.3_60_120",100, 0, 2);
+    mpTScale_b_nvtx_30_inf = dbe->book1D("mpTScale_b_nvtx_30_inf", "pTScale_b_nvtx_30_inf_0<|eta|<1.3_200_300",100, 0, 2);
+    mpTScale_c_nvtx_30_inf = dbe->book1D("mpTScale_c_nvtx_30_inf", "pTScale_c_nvtx_30_inf_0<|eta|<1.3_600_900",100, 0, 2);
+
     //
     double log10PtMin = 0.5; //=3.1622766
     double log10PtMax = 3.75; //=5623.41325
@@ -227,44 +249,20 @@ JPTJetTester::JPTJetTester(const edm::ParameterSet& iConfig)
     mpTScale1DF_1500_3500 = dbe->book1D("pTScale1DF_1500_3500", "pTScale_distribution_for_3.0<|eta|<6.0_1500_3500",
 				   50, 0, 2);
 
-    mpTScale_a_nvtx_0_5  = dbe->bookProfile("pTScale_a_nvtx_0_5", "pTScale_a_nvtx_0_5_0<|eta|<1.3_60_120",
-				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
-   mpTScale_b_nvtx_0_5  = dbe->bookProfile("pTScale_b_nvtx_0_5", "pTScale_b_nvtx_0_5_0<|eta|<1.3_200_300",
-				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
-   mpTScale_c_nvtx_0_5  = dbe->bookProfile("pTScale_c_nvtx_0_5", "pTScale_c_nvtx_0_5_0<|eta|<1.3_600_900",
-				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
-   mpTScale_a_nvtx_5_10  = dbe->bookProfile("pTScale_a_nvtx_5_10", "pTScale_a_nvtx_5_10_0<|eta|<1.3_60_120",
-				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
-   mpTScale_b_nvtx_5_10  = dbe->bookProfile("pTScale_b_nvtx_5_10", "pTScale_b_nvtx_5_10_0<|eta|<1.3_200_300",
-				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
-   mpTScale_c_nvtx_5_10  = dbe->bookProfile("pTScale_c_nvtx_5_10", "pTScale_c_nvtx_5_10_0<|eta|<1.3_600_900",
-				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
-   mpTScale_a_nvtx_10_15  = dbe->bookProfile("pTScale_a_nvtx_10_15", "pTScale_a_nvtx_10_15_0<|eta|<1.3_60_120",
-				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
-   mpTScale_b_nvtx_10_15  = dbe->bookProfile("pTScale_b_nvtx_10_15", "pTScale_b_nvtx_10_15_0<|eta|<1.3_200_300",
-				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
-   mpTScale_c_nvtx_10_15  = dbe->bookProfile("pTScale_c_nvtx_10_15", "pTScale_c_nvtx_10_15_0<|eta|<1.3_600_900",
-				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
-   mpTScale_a_nvtx_15_20  = dbe->bookProfile("pTScale_a_nvtx_15_20", "pTScale_a_nvtx_15_20_0<|eta|<1.3_60_120",
-				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
-   mpTScale_b_nvtx_15_20  = dbe->bookProfile("pTScale_b_nvtx_15_20", "pTScale_b_nvtx_15_20_0<|eta|<1.3_200_300",
-				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
-   mpTScale_c_nvtx_15_20  = dbe->bookProfile("pTScale_c_nvtx_15_20", "pTScale_c_nvtx_15_20_0<|eta|<1.3_600_900",
-				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
-   mpTScale_a_nvtx_20_30  = dbe->bookProfile("pTScale_a_nvtx_20_30", "pTScale_a_nvtx_20_30_0<|eta|<1.3_60_120",
-				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
-   mpTScale_b_nvtx_20_30  = dbe->bookProfile("pTScale_b_nvtx_20_30", "pTScale_b_nvtx_20_30_0<|eta|<1.3_200_300",
-				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
-   mpTScale_c_nvtx_20_30  = dbe->bookProfile("pTScale_c_nvtx_20_30", "pTScale_c_nvtx_20_30_0<|eta|<1.3_600_900",
-				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
-   mpTScale_a_nvtx_30_inf  = dbe->bookProfile("pTScale_a_nvtx_30_inf", "pTScale_a_nvtx_30_inf_0<|eta|<1.3_60_120",
-				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
-   mpTScale_b_nvtx_30_inf  = dbe->bookProfile("pTScale_b_nvtx_30_inf", "pTScale_b_nvtx_30_inf_0<|eta|<1.3_200_300",
-				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
-   mpTScale_c_nvtx_30_inf  = dbe->bookProfile("pTScale_c_nvtx_30_inf", "pTScale_c_nvtx_30_inf_0<|eta|<1.3_600_900",
-				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
-
- ///////////Corr profile//////////////
+  mpTScale_nvtx_0_5  = dbe->bookProfile("pTScale_nvtx_0_5", "pTScale_nvtx_0_5_0<|eta|<1.3",
+                                   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
+   mpTScale_nvtx_5_10  = dbe->bookProfile("pTScale_nvtx_5_10", "pTScale_nvtx_5_10_0<|eta|<1.3",
+                                   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
+   mpTScale_nvtx_10_15  = dbe->bookProfile("pTScale_nvtx_10_15", "pTScale_nvtx_10_15_0<|eta|<1.3",
+                                   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
+   mpTScale_nvtx_15_20  = dbe->bookProfile("pTScale_nvtx_15_20", "pTScale_nvtx_15_20_0<|eta|<1.3",
+                                   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
+   mpTScale_nvtx_20_30  = dbe->bookProfile("pTScale_nvtx_20_30", "pTScale_nvtx_20_30_0<|eta|<1.3",
+                                   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
+   mpTScale_nvtx_30_inf  = dbe->bookProfile("pTScale_nvtx_30_inf", "pTScale_nvtx_30_inf_0<|eta|<1.3",
+                                   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
+ 
+///////////Corr profile//////////////
     mpTRatio = dbe->bookProfile("pTRatio", "pTRatio",
                                 log10PtBins, log10PtMin, log10PtMax, 100, 0.,5., " ");
     mpTRatioB_d = dbe->bookProfile("pTRatioB_d", "pTRatio_d_0<|eta|<1.5",
@@ -825,66 +823,72 @@ void JPTJetTester::fillMatchHists (const reco::GenJet& fGenJet, const reco::JPTJ
 
   if (fabs(fGenJet.eta())<1.3) {
     if(fGenJet.pt()>60.0 && fGenJet.pt()<120.0) {
-     if(goodVertices.size()<=5) mpTScale_a_nvtx_0_5->Fill(log10(PtGen), PtJpt/PtGen); 
+     if(goodVertices.size()<=5) mpTScale_a_nvtx_0_5->Fill( PtJpt/PtGen);
     }
     if(fGenJet.pt()>200.0 && fGenJet.pt()<300.0) {
-     if(goodVertices.size()<=5) mpTScale_b_nvtx_0_5->Fill(log10(PtGen), PtJpt/PtGen); 
+     if(goodVertices.size()<=5) mpTScale_b_nvtx_0_5->Fill( PtJpt/PtGen);
     }
     if(fGenJet.pt()>600.0 && fGenJet.pt()<900.0) {
-     if(goodVertices.size()<=5) mpTScale_c_nvtx_0_5->Fill(log10(PtGen), PtJpt/PtGen); 
-    }
-    
-    if(fGenJet.pt()>60.0 && fGenJet.pt()<120.0) {
-     if(goodVertices.size()>5 && goodVertices.size()<=10) mpTScale_a_nvtx_5_10->Fill(log10(PtGen), PtJpt/PtGen); 
-    }
-    if(fGenJet.pt()>200.0 && fGenJet.pt()<300.0) {
-     if(goodVertices.size()>5 && goodVertices.size()<=10) mpTScale_b_nvtx_5_10->Fill(log10(PtGen), PtJpt/PtGen); 
-    }
-    if(fGenJet.pt()>600.0 && fGenJet.pt()<900.0) {
-     if(goodVertices.size()>5 && goodVertices.size()<=10) mpTScale_c_nvtx_5_10->Fill(log10(PtGen), PtJpt/PtGen); 
+     if(goodVertices.size()<=5) mpTScale_c_nvtx_0_5->Fill( PtJpt/PtGen);
     }
 
     if(fGenJet.pt()>60.0 && fGenJet.pt()<120.0) {
-     if(goodVertices.size()>10 && goodVertices.size()<=15) mpTScale_a_nvtx_10_15->Fill(log10(PtGen), PtJpt/PtGen); 
+     if(goodVertices.size()>5 && goodVertices.size()<=10) mpTScale_a_nvtx_5_10->Fill( PtJpt/PtGen);
     }
     if(fGenJet.pt()>200.0 && fGenJet.pt()<300.0) {
-     if(goodVertices.size()>10 && goodVertices.size()<=15) mpTScale_b_nvtx_10_15->Fill(log10(PtGen), PtJpt/PtGen); 
+     if(goodVertices.size()>5 && goodVertices.size()<=10) mpTScale_b_nvtx_5_10->Fill( PtJpt/PtGen);
     }
     if(fGenJet.pt()>600.0 && fGenJet.pt()<900.0) {
-     if(goodVertices.size()>10 && goodVertices.size()<=15) mpTScale_c_nvtx_10_15->Fill(log10(PtGen), PtJpt/PtGen); 
+     if(goodVertices.size()>5 && goodVertices.size()<=10) mpTScale_c_nvtx_5_10->Fill( PtJpt/PtGen);
     }
 
     if(fGenJet.pt()>60.0 && fGenJet.pt()<120.0) {
-     if(goodVertices.size()>15 && goodVertices.size()<=20) mpTScale_a_nvtx_15_20->Fill(log10(PtGen), PtJpt/PtGen); 
+     if(goodVertices.size()>10 && goodVertices.size()<=15) mpTScale_a_nvtx_10_15->Fill( PtJpt/PtGen);
     }
     if(fGenJet.pt()>200.0 && fGenJet.pt()<300.0) {
-     if(goodVertices.size()>15 && goodVertices.size()<=20) mpTScale_b_nvtx_15_20->Fill(log10(PtGen), PtJpt/PtGen); 
+     if(goodVertices.size()>10 && goodVertices.size()<=15) mpTScale_b_nvtx_10_15->Fill( PtJpt/PtGen);
     }
     if(fGenJet.pt()>600.0 && fGenJet.pt()<900.0) {
-     if(goodVertices.size()>15 && goodVertices.size()<=20) mpTScale_c_nvtx_15_20->Fill(log10(PtGen), PtJpt/PtGen); 
+     if(goodVertices.size()>10 && goodVertices.size()<=15) mpTScale_c_nvtx_10_15->Fill( PtJpt/PtGen);
     }
 
     if(fGenJet.pt()>60.0 && fGenJet.pt()<120.0) {
-     if(goodVertices.size()>20 && goodVertices.size()<=30) mpTScale_a_nvtx_20_30->Fill(log10(PtGen), PtJpt/PtGen); 
+     if(goodVertices.size()>15 && goodVertices.size()<=20) mpTScale_a_nvtx_15_20->Fill( PtJpt/PtGen);
     }
     if(fGenJet.pt()>200.0 && fGenJet.pt()<300.0) {
-     if(goodVertices.size()>20 && goodVertices.size()<=30) mpTScale_b_nvtx_20_30->Fill(log10(PtGen), PtJpt/PtGen); 
+     if(goodVertices.size()>15 && goodVertices.size()<=20) mpTScale_b_nvtx_15_20->Fill( PtJpt/PtGen);
     }
     if(fGenJet.pt()>600.0 && fGenJet.pt()<900.0) {
-     if(goodVertices.size()>20 && goodVertices.size()<=30) mpTScale_c_nvtx_20_30->Fill(log10(PtGen), PtJpt/PtGen); 
-    }
- 
-    if(fGenJet.pt()>60.0 && fGenJet.pt()<120.0) {
-     if(goodVertices.size()>30) mpTScale_a_nvtx_30_inf->Fill(log10(PtGen), PtJpt/PtGen); 
-    }
-    if(fGenJet.pt()>200.0 && fGenJet.pt()<300.0) {
-     if(goodVertices.size()>30) mpTScale_b_nvtx_30_inf->Fill(log10(PtGen), PtJpt/PtGen); 
-    }
-    if(fGenJet.pt()>600.0 && fGenJet.pt()<900.0) {
-     if(goodVertices.size()>30) mpTScale_c_nvtx_30_inf->Fill(log10(PtGen), PtJpt/PtGen); 
+     if(goodVertices.size()>15 && goodVertices.size()<=20) mpTScale_c_nvtx_15_20->Fill( PtJpt/PtGen);
     }
 
-  }
+if(fGenJet.pt()>60.0 && fGenJet.pt()<120.0) {
+     if(goodVertices.size()>20 && goodVertices.size()<=30) mpTScale_a_nvtx_20_30->Fill( PtJpt/PtGen);
+    }
+    if(fGenJet.pt()>200.0 && fGenJet.pt()<300.0) {
+     if(goodVertices.size()>20 && goodVertices.size()<=30) mpTScale_b_nvtx_20_30->Fill( PtJpt/PtGen);
+    }
+    if(fGenJet.pt()>600.0 && fGenJet.pt()<900.0) {
+     if(goodVertices.size()>20 && goodVertices.size()<=30) mpTScale_c_nvtx_20_30->Fill( PtJpt/PtGen);
+    }
+
+if(fGenJet.pt()>60.0 && fGenJet.pt()<120.0) {
+     if(goodVertices.size()>30) mpTScale_a_nvtx_30_inf->Fill( PtJpt/PtGen);
+    }
+    if(fGenJet.pt()>200.0 && fGenJet.pt()<300.0) {
+     if(goodVertices.size()>30) mpTScale_b_nvtx_30_inf->Fill( PtJpt/PtGen);
+    }
+    if(fGenJet.pt()>600.0 && fGenJet.pt()<900.0) {
+     if(goodVertices.size()>30) mpTScale_c_nvtx_30_inf->Fill( PtJpt/PtGen);
+    }
+
+    if(goodVertices.size()<=5) mpTScale_nvtx_0_5->Fill(log10(PtGen),PtJpt/PtGen);
+    if(goodVertices.size()>5 && goodVertices.size()<=10) mpTScale_nvtx_5_10->Fill(log10(PtGen),PtJpt/PtGen);
+    if(goodVertices.size()>10 && goodVertices.size()<=15) mpTScale_nvtx_10_15->Fill(log10(PtGen),PtJpt/PtGen);
+    if(goodVertices.size()>15 && goodVertices.size()<=20) mpTScale_nvtx_15_20->Fill(log10(PtGen), PtJpt/PtGen);
+    if(goodVertices.size()>20 && goodVertices.size()<=30) mpTScale_nvtx_20_30->Fill(log10(PtGen), PtJpt/PtGen);
+    if(goodVertices.size()>30) mpTScale_nvtx_30_inf->Fill(log10(PtGen), PtJpt/PtGen);
+}
 }
 
 double JPTJetTester::getSumPt(const reco::TrackRefVector& tracks){
