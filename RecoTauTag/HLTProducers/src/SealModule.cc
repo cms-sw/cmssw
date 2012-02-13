@@ -25,7 +25,7 @@
 #include "RecoTauTag/HLTProducers/interface/PFTauVertexSelector.h"
 #include "RecoTauTag/HLTProducers/interface/VertexFromTrackProducer.h"
 #include "RecoTauTag/HLTProducers/interface/L2TauPixelTrackMatch.h"
-
+#include "HLTPFTauPairLeadTrackDzMatchFilter.h"
  	 
 DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, TauRegionalPixelSeedGenerator, "TauRegionalPixelSeedGenerator"); 	 
 DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, TrackingRegionsFromBeamSpotAndL2Tau, "TrackingRegionsFromBeamSpotAndL2Tau");
@@ -52,3 +52,4 @@ DEFINE_FWK_MODULE(TauJetSelectorForHLTTrackSeeding);
 DEFINE_FWK_MODULE(PFTauVertexSelector);
 DEFINE_FWK_MODULE(VertexFromTrackProducer);
 DEFINE_FWK_MODULE(L2TauPixelTrackMatch);
+DEFINE_FWK_MODULE(HLTPFTauPairLeadTrackDzMatchFilter);

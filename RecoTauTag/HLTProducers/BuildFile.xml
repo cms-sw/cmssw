@@ -19,6 +19,7 @@
 <use   name="DataFormats/VertexReco"/>
 <use   name="DataFormats/L1Trigger"/>
 <use   name="DataFormats/HLTReco"/>
+<use   name="HLTrigger/HLTcore"/>
 <use   name="DataFormats/L1GlobalTrigger"/>
 <use   name="RecoPixelVertexing/PixelTrackFitting"/>
 <use   name="root"/>
