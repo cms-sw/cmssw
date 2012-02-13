@@ -2,8 +2,8 @@
  *  
  *  Class to produce efficiency histograms by dividing nominator by denominator histograms
  *
- *  $Date: 2011/12/12 14:38:14 $
- *  $Revision: 1.1.2.3 $
+ *  $Date: 2012/02/03 10:06:44 $
+ *  $Revision: 1.2 $
  *  \author Christian Veelken, UC Davis
  */
 
@@ -23,6 +23,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 using namespace std;
 
@@ -71,29 +72,37 @@ void DQMHistNormalizer::endRun(const edm::Run& r, const edm::EventSetup& c)
 
   DQMStore& dqmStore = (*edm::Service<DQMStore>());
 
+  string refRegex = "*RecoTauV/*/" + reference_;
+  vector<MonitorElement *> refelements = dqmStore.getMatchingContents(refRegex);
+  map<string, vector<MonitorElement *>::const_iterator > refsMap;
+  for(vector<MonitorElement *>::const_iterator refElem = refelements.begin(); refElem != refelements.end(); ++refElem){
+    string meName = (*refElem)->getFullname();
+    string dir = (*refElem)->getFullname().substr(0, meName.rfind("/"));
+    if(refsMap.find(dir) != refsMap.end()){
+      edm::LogInfo("DQMHistNormalizer")<<"DQMHistNormalizer::endRun: Warning! found multiple normalizing references for dir: "<<dir<<"!";
+      edm::LogInfo("DQMHistNormalizer")<<"     " << (*refsMap[dir])->getFullname();
+      edm::LogInfo("DQMHistNormalizer")<<"     " << (*refElem)->getFullname();
+    }
+    else{
+      refsMap[dir] = refElem;
+    }
+  }
+
   for ( std::vector<string>::const_iterator toNorm = plotNamesToNormalize_.begin(); toNorm != plotNamesToNormalize_.end(); ++toNorm ) {
     //std::cout << "plot->numerator_ = " << plot->numerator_ << std::endl;
     string regexp = "*RecoTauV/*/" + *toNorm;
     vector<MonitorElement *> matchingElemts = (dqmStore.getMatchingContents(regexp));
+    
     for(vector<MonitorElement *>::const_iterator matchingElement = matchingElemts.begin(); matchingElement != matchingElemts.end(); ++matchingElement){
       string meName = (*matchingElement)->getFullname();
-      string refRegex = meName.substr(0, meName.rfind("/")) + reference_;
-      vector<MonitorElement *> refelement = dqmStore.getMatchingContents(refRegex);
-      
-      //Error handling
-      if(refelement.size() > 1){
-        edm::LogInfo("DQMHistNormalizer")<<"DQMHistNormalizer::endRun: Warning! found multiple normalizing references for "<<meName<<"!";
-        for(vector<MonitorElement *>::const_iterator multiple = refelement.begin(); multiple != refelement.end(); ++multiple){
-          edm::LogInfo("DQMHistNormalizer")<<"     " << (*multiple)->getFullname();
-        }
-        continue;        
-      }
-      else if(refelement.size() == 0){
+      string dir = meName.substr(0, meName.rfind("/"));
+
+      if(refsMap.find(dir) == refsMap.end()){
         edm::LogInfo("DQMHistNormalizer")<<"DQMHistNormalizer::endRun: Error! normalizing references for "<<meName<<" not found! Skipping...";
         continue;
       }
       
-      float norm = refelement[0]->getTH1()->GetEntries();
+      float norm = (*refsMap[dir])->getTH1()->GetEntries();
       TH1* hist = (*matchingElement)->getTH1();
       if ( norm != 0. ) {
         if( !hist->GetSumw2N() ) hist->Sumw2();
