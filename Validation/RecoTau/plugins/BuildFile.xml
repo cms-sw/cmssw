@@ -1,5 +1,6 @@
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/PluginManager"/>
+<use   name="classlib"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="DQMServices/Core"/>
 <use   name="rootgraphics"/>
@@ -10,6 +11,7 @@
 <use   name="DataFormats/EgammaCandidates"/>
 <use   name="DataFormats/HepMCCandidate"/>
 <use   name="CommonTools/UtilAlgos"/>
+<use   name="DQMServices/Core"/>
 <library   file="*.cc" name="ValidationRecoTauPlugin">
   <flags   EDM_PLUGIN="1"/>
 </library>
