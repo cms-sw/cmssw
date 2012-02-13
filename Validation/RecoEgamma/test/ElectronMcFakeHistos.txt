@@ -203,7 +203,7 @@ ElectronMcFakeValidator/h_ele_neutralHadronIso_barrel             1 1 0 0
 ElectronMcFakeValidator/h_ele_neutralHadronIso_endcaps            1 1 1 0
 ElectronMcFakeValidator/h_ele_photonIso	                          1 1 0 0
 ElectronMcFakeValidator/h_ele_photonIso_barrel	                  1 1 0 0
-ElectronMcFakeValidator/h_ele_photonIso_endcaps	                  1 1 1 0
+ElectronMcFakeValidator/h_ele_photonIso_endcaps	                  1 1 1 1
 
 Conversion rejection information
 
