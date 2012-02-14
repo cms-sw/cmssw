@@ -11,7 +11,7 @@
  **
  **
  **  $Id: PhotonOfflineClient
- **  $Date: 2011/04/08 15:55:00 $
+ **  $Date: 2012/02/08 16:03:37 $
  **  authors:
  **   Nancy Marinelli, U. of Notre Dame, US
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -46,6 +46,7 @@ PhotonOfflineClient::PhotonOfflineClient(const edm::ParameterSet& pset)
 
   standAlone_ = pset.getParameter<bool>("standAlone");
   batch_ = pset.getParameter<bool>("batch");
+  excludeBkgHistos_ =  pset.getParameter<bool>("excludeBkgHistos");
 
   outputFileName_ = pset.getParameter<string>("OutputFileName");
   inputFileName_  = pset.getUntrackedParameter<string>("InputFileName");
@@ -246,7 +247,6 @@ void PhotonOfflineClient::runClient()
   dbe_->removeElement("convEtaTight");
   dbe_->removeElement("convEtLoose");
   dbe_->removeElement("convEtTight");
-
 
 
   for(uint type=0;type!=types_.size();++type){
