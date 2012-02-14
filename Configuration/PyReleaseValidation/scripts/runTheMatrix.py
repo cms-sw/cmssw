@@ -113,14 +113,15 @@ if __name__ == '__main__':
             opt.testList=[5.2,7,8,25,121,123.3]
     if opt.useInput: opt.useInput = opt.useInput.split(',')
     if opt.fromScratch: opt.fromScratch = opt.fromScratch.split(',')
-                     
+    if opt.nThreads: opt.nThreads=int(opt.nThreads)
+    
     # some sanity checking:
     if opt.useInput and opt.useInput != 'all' :
         for item in opt.useInput:
             if opt.fromScratch and item in opt.fromScratch:
                 print 'FATAL error: request to run workflow ',item,'from scratch and using input. '
                 sys.exit(-1)
-        
+
     if opt.raw and opt.show: ###prodAgent to be discontinued
         ret = showRaw(opt)
     else:
