@@ -53,7 +53,7 @@ namespace popcon {
        void write(Source const & source);
 
      template<typename T>
-     void writeOne(T * payload, Summary * summary, Time_t time);
+     void writeOne(T * payload, Time_t time);
 
    
     
@@ -89,8 +89,8 @@ namespace popcon {
 
 
   template<typename T>
-  void PopCon::writeOne(T * payload, Summary * summary, Time_t time) {
-    m_dbService->writeOne(payload, summary, time, m_record, m_LoggingOn);
+  void PopCon::writeOne(T * payload, Time_t time) {
+    m_dbService->writeOne(payload, time, m_record, m_LoggingOn);
   }
 
   
@@ -140,7 +140,6 @@ namespace popcon {
     std::for_each(payloads.begin(),payloads.end(),
 		  boost::bind(&popcon::PopCon::writeOne<value_type>,this,
 			      boost::bind(&Container::value_type::payload,_1),
-			      boost::bind(&Container::value_type::summary,_1),
 			      boost::bind(&Container::value_type::time,_1)
 			      )
 		   );
