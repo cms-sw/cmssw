@@ -178,7 +178,8 @@ HLT_DoubleMu3_v*
 HLT_DoubleMu5_v*
 HLT_DoubleMu7_v*
 HLT_DoubleMu45_v*
-HLT_DoubleMu7_Acoplanarity03_v*
+#HLT_DoubleMu7_Acoplanarity03_v*							#removed in Feb 2012 5e33 menu (sr #126250)
+HLT_DoubleMu11_Acoplanarity03_v*							#added in Feb 2012 5e33 menu (sr #126250) 
 HLT_DoubleMu4_Dimuon4_Bs_Barrel_v*
 HLT_DoubleMu4_Dimuon6_Bs_v*
 HLT_DoubleMu4_Jpsi_Displaced_v*
