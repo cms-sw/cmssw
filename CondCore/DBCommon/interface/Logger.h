@@ -26,6 +26,8 @@ namespace cond{
   public:
     explicit Logger(DbSession& sessionHandle);
     ~Logger();
+
+    void connect( const std::string& logConnectionString );
     //NB. for oracle only schema owner can do this 
     void createLogDBIfNonExist();
     //

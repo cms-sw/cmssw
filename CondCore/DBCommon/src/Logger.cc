@@ -28,7 +28,17 @@ namespace cond{
     return ss.str();
   }
 }
-cond::Logger::Logger(cond::DbSession& sessionHandle):m_sessionHandle(sessionHandle),m_locked(false),m_statusEditorHandle(0),m_sequenceManager(0),m_logTableExists(false){
+
+cond::Logger::Logger(cond::DbSession& sessionHandle):
+  m_sessionHandle(sessionHandle),
+  m_locked(false),
+  m_statusEditorHandle(0),
+  m_sequenceManager(0),
+  m_logTableExists(false){
+}
+
+void cond::Logger::connect( const std::string& logConnectionString ){
+  m_sessionHandle.open( logConnectionString );
 }
 
 void 
