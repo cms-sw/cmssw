@@ -82,8 +82,10 @@ class PFRecoTauDiscriminationByIsolation :
         vertexAssociator_.reset(
             new tau::RecoTauVertexAssociator(qualityCutsPSet_));
 
-        applyDeltaBeta_ = false;
-        if (pset.exists("applyDeltaBetaCorrection")) {
+        applyDeltaBeta_ = pset.exists("applyDeltaBetaCorrection") ? 
+          pset.getParameter<bool>("applyDeltaBetaCorrection") : false;
+
+        if (applyDeltaBeta_) {
           // Factorize the isolation QCuts into those that are used to
           // select PU and those that are not.
           std::pair<edm::ParameterSet, edm::ParameterSet> puFactorizedIsoQCuts =
@@ -108,8 +110,6 @@ class PFRecoTauDiscriminationByIsolation :
           pileupQcutsGeneralQCuts_.reset(new tau::RecoTauQualityCuts(
                 puFactorizedIsoQCuts.second));
 
-          applyDeltaBeta_ = pset.getParameter<bool>(
-              "applyDeltaBetaCorrection");
           pfCandSrc_ = pset.getParameter<edm::InputTag>("particleFlowSrc");
           vertexSrc_ = pset.getParameter<edm::InputTag>("vertexSrc");
           deltaBetaCollectionCone_ = pset.getParameter<double>(
