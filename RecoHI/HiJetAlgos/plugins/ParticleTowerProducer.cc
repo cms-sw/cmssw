@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz,32 4-A08,+41227673039,
 //         Created:  Thu Jan 20 19:53:58 CET 2011
-// $Id: ParticleTowerProducer.cc,v 1.7 2011/11/13 13:40:08 mnguyen Exp $
+// $Id: ParticleTowerProducer.cc,v 1.8 2012/02/13 12:38:34 mnguyen Exp $
 //
 //
 
@@ -33,6 +33,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "RecoHI/HiJetAlgos/plugins/ParticleTowerProducer.h"
+
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
@@ -46,115 +48,7 @@
 #include "TRandom.h"
 
 
-// tower boundaries from fast sim, used starting from eta = 3
 
-double etatow [42] = {
-  0.000, 0.087, 0.174, 0.261, 0.348, 0.435, 0.522, 0.609, 0.696, 0.783, 0.870,    0.957, 1.044, 1.131, 1.218, 1.305, 1.392, 1.479, 1.566, 1.653, 1.740, 1.830,    1.930, 2.043, 2.172, 2.322, 2.500, 2.650, 2.853, 3.000, 3.139, 3.314, 3.489,    3.664, 3.839, 4.013, 4.191, 4.363, 4.538, 4.716, 4.889, 5.191
-};
-
-/*
-// pseudo-tower boundaries, derived directly from HCAL tower boundaries
-double etatow [42] = {
-  0.000, 0.087, 0.174, 0.261, 0.348, 0.435, 0.522, 0.609, 0.696, 0.783, 0.870, 0.957, 1.044, 1.131, 1.218, 1.305, 1.392, 1.479, 1.566, 1.653, 1.7730, 1.8178, 1.9212, 2.0345, 2.1577, 2.3247, 2.5029, 2.6336, 2.8793, 2.9607, 3.1319, 3.3069, 3.4821, 3.6573, 3.8322, 4.0072, 4.1825, 4.3571, 4.5323, 4.6864, 4.9145, 5.191    
-};
-*/
-
-// tower central eta values evaluated by looping over towers, only used until eta = 3.  After that use fastsim values, otherwise difficult to deal with endcap/HF interace
-
-double etacent [40] = {
-  0.0435, // 1
-  0.1305, // 2
-  0.2175, // 3
-  0.3045, // 4
-  0.3915, // 5
-  0.4785, // 6
-  0.5655, // 7
-  0.6525, // 8
-  0.7395, // 9
-  0.8265, // 10
-  0.9135, // 11
-  1.0005, // 12
-  1.0875, // 13
-  1.1745, // 14
-  1.2615, // 15
-  1.3485, // 16
-  1.4355, // 17
-  1.5225, // 18
-  1.6095, // 19
-  1.6965, // 20
-  1.785 , // 21
-  1.88  , // 22
-  1.9865, // 23
-  2.1075, // 24
-  2.247 , // 25
-  2.411 , // 26
-  2.575 , // 27
-  2.759 , // 28
-  2.934 , // 29
-  2.90138,// 29
-  3.04448,// 30 
-  3.21932,// 31
-  3.39462,// 32
-  3.56966,// 33 
-  3.74485,// 34 
-  3.91956,// 35 
-  4.09497,// 36 
-  4.27007,// 37 
-  4.44417,// 38 
-  4.62046 // 39 
-};
-
-
-double etaedge[42];
-
-// class declaration
-//
-
-class iAngle{
-public:
-   int ieta;
-   int iphi;
-
-   int mag() const { return ieta*1000+iphi;}
-
-   bool operator < (const iAngle& b) {return mag() < b.mag();}
-   bool operator > (const iAngle& b) {return mag() > b.mag();}
-
-   friend bool operator < (const iAngle& a, const iAngle& b) {return a.mag() < b.mag();}
-   friend bool operator > (const iAngle& a, const iAngle& b) {return a.mag() > b.mag();}
-
-
-};
-
-
-class ParticleTowerProducer : public edm::EDProducer {
-   public:
-      explicit ParticleTowerProducer(const edm::ParameterSet&);
-      ~ParticleTowerProducer();
-
-   private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-  void resetTowers(edm::Event& iEvent,const edm::EventSetup& iSetup);
-  DetId getNearestTower(const reco::PFCandidate & in) const;
-  DetId getNearestTower(double eta, double phi) const;
-  uint32_t denseIndex(int ieta, int iphi, double eta) const;
-  int eta2ieta(double eta) const;
-
-      // ----------member data ---------------------------
-
-  edm::InputTag src_;
-  
-  std::map<DetId,double> towers_;
-  
-  
-  double PI;
-  TRandom* random_;
-  
-  CaloGeometry const *  geo_;                       // geometry
-  
-};
 
 //
 // constants, enums and typedefs
@@ -173,6 +67,7 @@ ParticleTowerProducer::ParticleTowerProducer(const edm::ParameterSet& iConfig):
 {
    //register your products  
   src_ = iConfig.getParameter<edm::InputTag>("src");
+  useHF_ = iConfig.getUntrackedParameter<bool>("useHF");
   
   produces<CaloTowerCollection>();
   
@@ -224,32 +119,20 @@ ParticleTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     // put a cutoff if you want
     //if(particle.et() < 0.3) continue;      
     
-
-    int ieta = eta2ieta(particle.eta());
-
     double eta = particle.eta();
-    
-    if(eta<0) ieta  *= -1;
-    
-    double phitest = particle.phi();
-    if(phitest<0) phitest += 2.*PI;
-    else if(phitest> 2.*PI) phitest -= 2.*PI;
 
-    int iphi = (int) TMath::Ceil(phitest/2.0/PI*72.);
-    // take into account larger granularity in endcap (x2) and at the end of the HF (x4)
-    if(abs(ieta)>20){
-      if(abs(ieta)<40) iphi -= (iphi+1)%2;
-      else {
-	iphi -= (iphi+1)%4;
-	if(iphi==-1) iphi=71;
-      }
-    }
-    
-    
+    if(!useHF_ && fabs(eta) > 3. ) continue;
+
+    int ieta = eta2ieta(eta);
+    if(eta<0) ieta  *= -1;
+
+    int iphi = phi2iphi(particle.phi(),ieta);
+       
     
     HcalDetId hid = HcalDetId::detIdFromDenseIndex(denseIndex(ieta,iphi,eta));
-    /*
+
     // check against the old method (boundaries slightly shifted in the endcaps
+    /*
     HcalDetId hid_orig = getNearestTower(particle);
     
     if(hid != hid_orig)
@@ -284,6 +167,8 @@ ParticleTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
        GlobalPoint pos =geo_->getGeometry(newTowerId)->getPosition();
        
+       if(!useHF_ && fabs(pos.eta()) > 3. ) continue;
+
        // currently sets et =  pt, mass to zero
        // pt, eta , phi, mass
        reco::Particle::PolarLorentzVector p4(et,pos.eta(),pos.phi(),0.);
@@ -320,17 +205,66 @@ ParticleTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 void 
 ParticleTowerProducer::beginJob()
 {
+  // tower edges from fast sim, used starting at index 30 for the HF
+  const double etatow[42] = {0.000, 0.087, 0.174, 0.261, 0.348, 0.435, 0.522, 0.609, 0.696, 0.783, 0.870, 0.957, 1.044, 1.131, 1.218, 1.305, 1.392, 1.479, 1.566, 1.653, 1.740, 1.830, 1.930, 2.043, 2.172, 2.322, 2.500, 2.650, 2.853, 3.000, 3.139, 3.314, 3.489, 3.664, 3.839, 4.013, 4.191, 4.363, 4.538, 4.716, 4.889, 5.191};
+  
+  // tower centers derived directly from by looping over HCAL towers and printing out the values, used up until eta = 3 where the HF/Endcap interface becomes problematic
+  const double etacent[40] = {
+    0.0435, // 1
+    0.1305, // 2
+    0.2175, // 3
+    0.3045, // 4
+    0.3915, // 5
+    0.4785, // 6
+    0.5655, // 7
+    0.6525, // 8
+    0.7395, // 9
+    0.8265, // 10
+    0.9135, // 11
+    1.0005, // 12
+    1.0875, // 13
+    1.1745, // 14
+    1.2615, // 15
+    1.3485, // 16
+    1.4355, // 17
+    1.5225, // 18
+    1.6095, // 19
+    1.6965, // 20
+    1.785 , // 21
+    1.88  , // 22
+    1.9865, // 23
+    2.1075, // 24
+    2.247 , // 25
+    2.411 , // 26
+    2.575 , // 27
+    2.759 , // 28
+    2.934 , // 29
+    2.90138,// 29
+    3.04448,// 30 
+    3.21932,// 31
+    3.39462,// 32
+    3.56966,// 33 
+    3.74485,// 34 
+    3.91956,// 35 
+    4.09497,// 36 
+    4.27007,// 37 
+    4.44417,// 38 
+    4.62046 // 39 
+      };
 
+  // Use the real towers centrers for the barrel and endcap up to eta=3
   etaedge[0] = 0.;
   for(int i=1;i<30;i++){
     etaedge[i] = (etacent[i-1]-etaedge[i-1])*2.0 + etaedge[i-1];
     //std::cout<<" i "<<i<<" etaedge "<<etaedge[i]<<std::endl;  
   }
-  for(int i=30;i<42;i++){
-    etaedge[i]=etatow[i];
-    //std::cout<<" i "<<i<<" etaedge "<<etaedge[i]<<std::endl;  
+  // beyond eta = 3 just use the fast sim values
+  if(useHF_){
+    for(int i=30;i<42;i++){
+      etaedge[i]=etatow[i];
+      //std::cout<<" i "<<i<<" etaedge "<<etaedge[i]<<std::endl;  
+    }
   }
-  
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -348,9 +282,12 @@ void ParticleTowerProducer::resetTowers(edm::Event& iEvent,const edm::EventSetup
     if( (*did).det() == DetId::Hcal ){
        HcalDetId hid = HcalDetId(*did);
        if( hid.depth() == 1 ) {
-
-	 //GlobalPoint pos =geo_->getGeometry(hid)->getPosition();	 
-	 //if((hid).iphi()==1)std::cout<<" ieta "<<(hid).ieta()<<" eta "<<pos.eta()<<" iphi "<<(hid).iphi()<<" phi "<<pos.phi()<<std::endl;
+	 
+	 if(!useHF_){
+	   GlobalPoint pos =geo_->getGeometry(hid)->getPosition();	 
+	   //if((hid).iphi()==1)std::cout<<" ieta "<<(hid).ieta()<<" eta "<<pos.eta()<<" iphi "<<(hid).iphi()<<" phi "<<pos.phi()<<std::endl;
+	   if(fabs(pos.eta())>3.) continue;
+	 }
 	  towers_[(*did)] = 0.;
        }
        
@@ -525,6 +462,7 @@ DetId ParticleTowerProducer::getNearestTower(double eta, double phi) const {
 int ParticleTowerProducer::eta2ieta(double eta) const {
   // binary search in the array of towers eta edges
   int size = 42;
+  if(!useHF_) size = 30;
 
   double x = fabs(eta);
   int curr = size / 2;
@@ -565,7 +503,24 @@ int ParticleTowerProducer::eta2ieta(double eta) const {
   return curr;
 }
 
+int ParticleTowerProducer::phi2iphi(double phi, int ieta) const {
+  
+  if(phi<0) phi += 2.*PI;
+  else if(phi> 2.*PI) phi -= 2.*PI;
+  
+  int iphi = (int) TMath::Ceil(phi/2.0/PI*72.);
+  // take into account larger granularity in endcap (x2) and at the end of the HF (x4)
+  if(abs(ieta)>20){
+    if(abs(ieta)<40) iphi -= (iphi+1)%2;
+    else {
+      iphi -= (iphi+1)%4;
+      if(iphi==-1) iphi=71;
+      }
+  }
+  
+  return iphi;
 
+}
 
 uint32_t 
 ParticleTowerProducer::denseIndex(int ieta, int iphi, double eta) const 
