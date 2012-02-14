@@ -22,7 +22,7 @@
 
 class L1MuGMTParameters {
 public:
-  L1MuGMTParameters() {}
+  L1MuGMTParameters() : m_VersionLUTs( 0 ) {}
   ~L1MuGMTParameters() {}
 
   void setEtaWeight_barrel(const double EtaWeight_barrel) {m_EtaWeight_barrel = EtaWeight_barrel;}
