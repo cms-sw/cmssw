@@ -177,6 +177,7 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
     // std::cout << "m_verbosity = " << m_verbosity << std::endl;
 
     bool condResult = false;
+    bool reqObjResult = false;
 
     // number of objects in condition (it is 2, no need to retrieve from
     // condition template) and their type
@@ -203,7 +204,7 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
                     m_cond0NrL1Objects, m_cond0EtaBits);
 
             muCondition.evaluateConditionStoreResult();
-            condResult = muCondition.condLastResult();
+            reqObjResult = muCondition.condLastResult();
 
             cond0Comb = (muCondition.getCombinationsInCond());
             cndObjTypeVec[0] = (corrMuon->objectType())[0];
@@ -224,7 +225,7 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
                     m_cond0NrL1Objects, m_cond0NrL1Objects, m_cond0EtaBits);
 
             caloCondition.evaluateConditionStoreResult();
-            condResult = caloCondition.condLastResult();
+            reqObjResult = caloCondition.condLastResult();
 
             cond0Comb = (caloCondition.getCombinationsInCond());
             cndObjTypeVec[0] = (corrCalo->objectType())[0];
@@ -242,7 +243,7 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
             L1GtEnergySumCondition eSumCondition(corrEnergySum, m_gtPSB);
 
             eSumCondition.evaluateConditionStoreResult();
-            condResult = eSumCondition.condLastResult();
+            reqObjResult = eSumCondition.condLastResult();
 
             cond0Comb = (eSumCondition.getCombinationsInCond());
             cndObjTypeVec[0] = (corrEnergySum->objectType())[0];
@@ -256,14 +257,14 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
         }
             break;
         default: {
-            // should not arrive here
-            condResult = false;
+            // should not arrive here, there are no correlation conditions defined for this object
+            return false;
         }
             break;
     }
 
     // return if first subcondition is false
-    if (!condResult) {
+    if (!reqObjResult) {
         if (m_verbosity && m_isDebugEnabled) {
             LogTrace("L1GlobalTrigger")
                     << "\n  First sub-condition false, second sub-condition not evaluated and not printed."
@@ -272,6 +273,8 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
         return false;
     }
 
+    // second object
+    reqObjResult = false;
 
     switch (cond1Categ) {
         case CondMuon: {
@@ -280,7 +283,7 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
                     m_cond1NrL1Objects, m_cond1EtaBits);
 
             muCondition.evaluateConditionStoreResult();
-            condResult = muCondition.condLastResult();
+            reqObjResult = muCondition.condLastResult();
 
             cond1Comb = (muCondition.getCombinationsInCond());
             cndObjTypeVec[1] = (corrMuon->objectType())[0];
@@ -300,7 +303,7 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
                     m_cond1NrL1Objects, m_cond1NrL1Objects, m_cond1EtaBits);
 
             caloCondition.evaluateConditionStoreResult();
-            condResult = caloCondition.condLastResult();
+            reqObjResult = caloCondition.condLastResult();
 
             cond1Comb = (caloCondition.getCombinationsInCond());
             cndObjTypeVec[1] = (corrCalo->objectType())[0];
@@ -318,7 +321,7 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
             corrEnergySum = static_cast<const L1GtEnergySumTemplate*>(m_gtCond1);
             L1GtEnergySumCondition eSumCondition(corrEnergySum, m_gtPSB);
             eSumCondition.evaluateConditionStoreResult();
-            condResult = eSumCondition.condLastResult();
+            reqObjResult = eSumCondition.condLastResult();
 
             cond1Comb = (eSumCondition.getCombinationsInCond());
             cndObjTypeVec[1] = (corrEnergySum->objectType())[0];
@@ -332,14 +335,14 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
         }
             break;
         default: {
-            // should not arrive here
-            condResult = false;
+            // should not arrive here, there are no correlation conditions defined for this object
+            return false;
         }
             break;
     }
 
     // return if second sub-condition is false
-    if (!condResult) {
+    if (!reqObjResult) {
         return false;
     } else {
         LogTrace("L1GlobalTrigger") << "\n"
@@ -555,8 +558,8 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
             }
                 break;
             default: {
-                // should not arrive here
-                condResult = false;
+                // should not arrive here, there are no correlation conditions defined for this object
+                return false;
             }
                 break;
         }
@@ -678,8 +681,8 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
                 }
                     break;
                 default: {
-                    // should not arrive here
-                    condResult = false;
+                    // should not arrive here, there are no correlation conditions defined for this object
+                    return false;
                 }
                     break;
             }
@@ -698,6 +701,9 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
                         << "] \n" << std::endl;
             }
 
+            // the conversions were successful, need to evaluate requirements now
+
+            bool reqEtaPhiResult = false;
 
             // evaluate candDeltaPhi requirements
 
@@ -761,7 +767,9 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
                             << std::endl;
                 }
 
+                reqEtaPhiResult = false;
                 continue;
+
             } else {
                 if (m_verbosity && m_isDebugEnabled ) {
                     LogTrace("L1GlobalTrigger") << "      object delta phi = "
@@ -802,6 +810,7 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
                             << std::endl;
                 }
 
+                reqEtaPhiResult = false;
                 continue;
 
             } else {
@@ -812,6 +821,9 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
                             << "\n      Pair passes correlation condition.\n"
                             << std::endl;
                 }
+
+                reqEtaPhiResult = true;
+
             }
 
 
@@ -824,8 +836,12 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
             // if we get here all checks were successful for this combination
             // set the general result for evaluateCondition to "true"
 
-            condResult = true;
-            (combinationsInCond()).push_back(objectsInComb);
+            if (reqEtaPhiResult) {
+
+                condResult = true;
+                (combinationsInCond()).push_back(objectsInComb);
+
+            }
 
         }
 
