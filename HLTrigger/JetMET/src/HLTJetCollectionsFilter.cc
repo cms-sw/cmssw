@@ -5,31 +5,22 @@
  *
  */
 
-#include "HLTrigger/JetMET/interface/HLTJetCollectionsFilter.h"
-
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "DataFormats/Common/interface/Handle.h"
-
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include <typeinfo>
+#include <string>
+#include <vector>
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
-#include "DataFormats/Math/interface/deltaPhi.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+#include "HLTrigger/JetMET/interface/HLTJetCollectionsFilter.h"
 
-#include<typeinfo>
-#include<string>
 //
 // constructors and destructor
 //
@@ -86,34 +77,30 @@ HLTJetCollectionsFilter<jetType>::hltFilter(edm::Event& iEvent, const edm::Event
 
   // filter decision
   bool accept(false);
-  std::vector < JetRef > goodJetRefs;
+  std::set<JetRef> goodJetRefs;
 
   for (unsigned int collection = 0; collection < theJetCollections.size(); ++collection) {
     unsigned int numberOfGoodJets(0);
     const JetRefVector & refVector = theJetCollections[collection];
 
-    if (refVector.size() < minNJets_) continue;
-
-    //empty the good jets collection
-    goodJetRefs.clear();
-
     typename JetRefVector::const_iterator jet(refVector.begin());
     for (; jet != refVector.end(); jet++) {
       JetRef jetRef(*jet);
       if (jetRef->pt() >= minJetPt_ && std::abs(jetRef->eta()) <= maxAbsJetEta_){
-    	  numberOfGoodJets++;
-    	  goodJetRefs.push_back(jetRef);
+        numberOfGoodJets++;
+        goodJetRefs.insert(jetRef);
       }
     }
+
     if (numberOfGoodJets >= minNJets_) {
       accept = true;
-      break;
+      // keep looping through collections to save all possible jets 
     }
   }
 
-  //fill the filter object
-  for (unsigned int refIndex = 0; refIndex < goodJetRefs.size(); ++refIndex) {
-    filterproduct.addObject(triggerType_,goodJetRefs.at(refIndex));
+  // fill the filter object
+  for (typename std::set<JetRef>::const_iterator ref = goodJetRefs.begin(); ref != goodJetRefs.end(); ++ref) {
+    filterproduct.addObject(triggerType_, *ref);
   }
 
   return accept;
