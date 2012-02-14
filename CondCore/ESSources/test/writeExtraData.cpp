@@ -2,7 +2,6 @@
 #include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/DBCommon/interface/Time.h"
 #include "CondCore/DBCommon/interface/Exception.h"
-#include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondFormats/Calibration/interface/Pedestals.h"
@@ -22,10 +21,9 @@ int main(){
     connection.configure();
     cond::DbSession session = connection.createSession();
     session.open( "sqlite_file:extradata.db" );
-    cond::IOVService iovmanager(session);
-    cond::IOVEditor* ioveditor=iovmanager.newIOVEditor();
+    cond::IOVEditor ioveditor( session );
     session.transaction().start(false);
-    ioveditor->create(timetype,globalTill);
+    ioveditor.create(timetype,globalTill);
     std::string mytestiovtoken;
     for(unsigned int i=0; i<3; ++i){ //inserting 3 payloads
       boost::shared_ptr<Pedestals> myped( new Pedestals );
@@ -37,14 +35,10 @@ int main(){
       }
       std::string payloadToken = session.storeObject(myped.get(),"anotherPedestalsRcd");
       std::cout<<"payloadToken "<<payloadToken<<std::endl;
-      ioveditor->append(cond::Time_t(2+2*i),payloadToken);
+      ioveditor.append(cond::Time_t(2+2*i),payloadToken);
     }
-    std::string mytoken=ioveditor->token();
-    session.transaction().commit();
-    delete ioveditor;
-    
+    std::string mytoken=ioveditor.token();
     cond::MetaData metadata(session);
-    session.transaction().start(false);
     metadata.addMapping("anothertag",mytoken,cond::runnumber);
     session.transaction().commit();
   }catch(const cond::Exception& er){

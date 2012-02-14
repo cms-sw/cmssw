@@ -2,7 +2,6 @@
 #include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/DBCommon/interface/Time.h"
 #include "CondCore/DBCommon/interface/Exception.h"
-#include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondFormats/Calibration/interface/Pedestals.h"
@@ -23,10 +22,9 @@ int main(){
     cond::DbSession session = connection.createSession();
     session.open( "sqlite_file:mytest.db" );
 
-    cond::IOVService iovmanager( session );
-    cond::IOVEditor* ioveditor=iovmanager.newIOVEditor();
+    cond::IOVEditor ioveditor( session );
     session.transaction().start(false);
-    ioveditor->create(timetype,globalTill);
+    ioveditor.create(timetype,globalTill);
     std::string mytestiovtoken;
     for(unsigned int i=0; i<3; ++i){ //inserting 3 payloads
       boost::shared_ptr<Pedestals> myped( new Pedestals );
@@ -38,7 +36,7 @@ int main(){
       }
       
       std::string payloadToken = session.storeObject(myped.get(),"PedestalsRcd");
-      ioveditor->append(cond::Time_t(2+2*i),payloadToken);
+      ioveditor.append(cond::Time_t(2+2*i),payloadToken);
     }
     //last one
     boost::shared_ptr<Pedestals> myped( new Pedestals );
@@ -49,16 +47,15 @@ int main(){
       myped->m_pedestals.push_back(item);
     }
     std::string payloadToken = session.storeObject(myped.get(),"PedestalsRcd");
-    ioveditor->append(9001,payloadToken);
-    mytestiovtoken=ioveditor->token();
+    ioveditor.append(9001,payloadToken);
+    mytestiovtoken=ioveditor.token();
     std::cout<<"mytest iov token "<<mytestiovtoken<<std::endl;
     session.transaction().commit();
-    delete ioveditor;
     
     std::string mypedestalsiovtoken;
-    cond::IOVEditor* ioveditor2=iovmanager.newIOVEditor();
+    cond::IOVEditor ioveditor2( session );
     session.transaction().start(false);
-    ioveditor2->create(timetype,globalTill);
+    ioveditor2.create(timetype,globalTill);
     for(unsigned int i=0; i<2; ++i){ //inserting 3 payloads
       boost::shared_ptr<Pedestals> myped( new Pedestals );
       for(int ichannel=1; ichannel<=5; ++ichannel){
@@ -68,20 +65,19 @@ int main(){
         myped->m_pedestals.push_back(item);
       }
       std::string payloadToken = session.storeObject(myped.get(),"PedestalsRcd");
-      ioveditor2->append(cond::Time_t(5+2*i),payloadToken);
+      ioveditor2.append(cond::Time_t(5+2*i),payloadToken);
     }
-    mypedestalsiovtoken=ioveditor2->token();
+    mypedestalsiovtoken=ioveditor2.token();
     std::cout<<"mytest iov token "<<mypedestalsiovtoken<<std::endl;
     session.transaction().commit();
-    delete ioveditor2;
 
     //
     ///I write different pedestals in another record
     //
     std::string anothermytestiovtoken;
-    cond::IOVEditor* anotherioveditor=iovmanager.newIOVEditor();
+    cond::IOVEditor anotherioveditor( session );
     session.transaction().start(false);
-    anotherioveditor->create(timetype,globalTill);
+    anotherioveditor.create(timetype,globalTill);
     for(unsigned int i=0; i<2; ++i){ //inserting 2 payloads to another Rcd
       boost::shared_ptr<Pedestals> myped( new Pedestals );
       for(int ichannel=1; ichannel<=3; ++ichannel){
@@ -91,12 +87,11 @@ int main(){
         myped->m_pedestals.push_back(item);
       }
       std::string payloadToken = session.storeObject(myped.get(),"anotherPedestalsRcd");
-      anotherioveditor->append(cond::Time_t(2+2*i),payloadToken);
+      anotherioveditor.append(cond::Time_t(2+2*i),payloadToken);
     }
-    anothermytestiovtoken=anotherioveditor->token();
+    anothermytestiovtoken=anotherioveditor.token();
     session.transaction().commit();
     std::cout<<"anothermytest iov token "<<anothermytestiovtoken<<std::endl;
-    delete anotherioveditor;
     
     cond::MetaData metadata( session );
     session.transaction().start(false);
