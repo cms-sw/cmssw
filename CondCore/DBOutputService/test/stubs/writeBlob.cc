@@ -4,7 +4,6 @@
 #include <boost/random/linear_congruential.hpp>
 #include <boost/random/uniform_real.hpp>
 #include <boost/random/variate_generator.hpp>
-#include "CondFormats/Common/interface/GenericSummary.h"
 
 #include "writeBlob.h"
 
@@ -46,9 +45,7 @@ writeBlob::analyze( const edm::Event& evt, const edm::EventSetup& evtSetup)
       me->put(detid,theSiStripVector);
     }
 
-    mydbservice->writeOne(me,new cond::GenericSummary("100*256"),
-			  mydbservice->currentTime(),
-			  m_StripRecordName);
+    mydbservice->writeOne(me,mydbservice->currentTime(),m_StripRecordName);
   }catch(const cond::Exception& er){
     throw cms::Exception("DBOutputServiceUnitTestFailure","failed writeBlob",er);
     //std::cout<<er.what()<<std::endl;

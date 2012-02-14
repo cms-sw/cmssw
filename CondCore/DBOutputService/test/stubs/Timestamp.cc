@@ -4,7 +4,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/Calibration/interface/Pedestals.h"
-#include "CondFormats/Common/interface/GenericSummary.h"
 
 #include "Timestamp.h"
 
@@ -36,8 +35,7 @@ void Timestamp::analyze( const edm::Event& evt, const edm::EventSetup& evtSetup)
   std::cout<<myped.m_pedestals[1].m_mean<<std::endl;
   std::cout<<"currentTime "<<mydbservice->currentTime()<<std::endl;
   if(mydbservice->currentTime()%5==0){
-    mydbservice->writeOne(&myped,new cond::GenericSummary("5"),
-			  mydbservice->currentTime(),m_record,false);
+    mydbservice->writeOne(&myped,mydbservice->currentTime(),m_record,false);
   }
 }
 void Timestamp::endJob(){ 

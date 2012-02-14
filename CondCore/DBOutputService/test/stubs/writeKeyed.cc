@@ -50,7 +50,7 @@ writeKeyed::endJob() {
 			   bk = new condex::ConfF(dict[i]+nums[j],i+0.1*j),      
 			   dict[i]+nums[j]);
       std::cout << k.m_skey << " " << k.m_key << std::endl;
-      outdb->writeOne(k.m_obj,0,k.m_key,confcont);
+      outdb->writeOne(k.m_obj,k.m_key,confcont);
     }
 
   // populate the master payload
@@ -59,8 +59,7 @@ writeKeyed::endJob() {
     std::vector<cond::Time_t> * kl = new std::vector<cond::Time_t>(dict.size());
     for (size_t i=0; i<dict.size(); ++i)
       (*kl)[i]=cond::KeyedElement::convert(dict[i]+nums[j]);
-    // outdb->writeOne(kl,new cond::GenericSummary(nums[j]),run,names);
-    outdb->writeOne(kl,0,run,confiov);
+    outdb->writeOne(kl,run,confiov);
     run+=10;
   }
 

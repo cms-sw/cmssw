@@ -7,7 +7,6 @@
 #include <boost/random/uniform_real.hpp>
 #include <boost/random/variate_generator.hpp>
 #include "writeMultipleRecords.h"
-#include "CondFormats/Common/interface/GenericSummary.h"
 
 
 typedef boost::minstd_rand base_generator_type;
@@ -51,8 +50,7 @@ writeMultipleRecords::analyze( const edm::Event& evt, const edm::EventSetup& evt
       me->put(detid,theSiStripVector);
     }
     
-    mydbservice->writeOne(me,new cond::GenericSummary("100*256"),
-			  mydbservice->currentTime(),m_StripRecordName);
+    mydbservice->writeOne(me,mydbservice->currentTime(),m_StripRecordName);
  
   
     Pedestals* myped=new Pedestals;
@@ -62,7 +60,7 @@ writeMultipleRecords::analyze( const edm::Event& evt, const edm::EventSetup& evt
       item.m_variance=1.12*ichannel;
       myped->m_pedestals.push_back(item);
     }
-    mydbservice->writeOne(myped,new cond::GenericSummary("5"),mydbservice->currentTime(),m_PedRecordName);
+    mydbservice->writeOne(myped,mydbservice->currentTime(),m_PedRecordName);
   }catch(const cond::Exception& er){
     throw cms::Exception("DBOutputServiceUnitTestFailure","failed writeMultipleRecords",er);
     //std::cout<<er.what()<<std::endl;

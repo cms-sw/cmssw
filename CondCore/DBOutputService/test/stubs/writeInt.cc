@@ -3,7 +3,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "CondFormats/Common/interface/GenericSummary.h"
 
 #include<vector>
 #include<sstream>
@@ -37,9 +36,7 @@ writeInt::endJob() {
 
   edm::Service<cond::service::PoolDBOutputService> outdb;
   
-  outdb->writeOne(new std::vector<int>(1,me),
-		  new cond::GenericSummary(toa(me)),
-		  me,cont);
+  outdb->writeOne(new std::vector<int>(1,me),me,cont);
 
 }
 

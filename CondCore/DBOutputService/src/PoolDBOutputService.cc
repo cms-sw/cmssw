@@ -1,5 +1,6 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondCore/DBOutputService/interface/Exception.h"
+#include "CondCore/DBCommon/interface/DbConnection.h"
 #include "CondCore/DBCommon/interface/DbOpenTransaction.h"
 #include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/DBCommon/interface/TagInfo.h"
@@ -33,23 +34,25 @@ cond::service::PoolDBOutputService::fillRecord( edm::ParameterSet & pset) {
 
   m_callbacks.insert(std::make_pair(thisrecord.m_idName,thisrecord));
  
-  if(m_logdbOn){
+  if( !m_logConnectionString.empty() ){
       cond::UserLogInfo userloginfo;
       m_logheaders.insert(std::make_pair(thisrecord.m_idName,userloginfo));
   }
 }
 
-
 cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet & iConfig,edm::ActivityRegistry & iAR ): 
+  m_timetypestr(""),
   m_currentTime( 0 ),
-  m_connection(),
+  m_connectionString(""),
   m_session(),
-  m_logSession(),
+  m_logConnectionString(""),
+  m_logdb(),
   m_dbstarted( false ),
-  m_logdb( 0 ),
-  m_logdbOn( false ),
+  m_callbacks(),
+  m_newtags(),
   m_closeIOV(false),
-  m_freeInsert(false)
+  m_freeInsert(false),
+  m_logheaders()
 {
   m_closeIOV=iConfig.getUntrackedParameter<bool>("closeIOV",m_closeIOV);
 
@@ -60,26 +63,19 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
   m_timetypestr=iConfig.getUntrackedParameter< std::string >("timetype","runnumber");
   m_timetype=cond::findSpecs( m_timetypestr).type;
 
-  std::string connect=iConfig.getParameter<std::string>("connect");
-  std::string logconnect("");
-  if( iConfig.exists("logconnect") ){
-    logconnect=iConfig.getUntrackedParameter<std::string>("logconnect");
-  }  
-
   edm::ParameterSet connectionPset = iConfig.getParameter<edm::ParameterSet>("DBParameters");
-  m_connection.configuration().setParameters( connectionPset );
-  m_connection.configure();
-  
-  m_session = m_connection.createSession();
+  cond::DbConnection connection;
+  connection.configuration().setParameters( connectionPset );
+  connection.configure();
 
-  m_session.open( connect );
+  m_connectionString = iConfig.getParameter<std::string>("connect");
+  m_session = connection.createSession();
+  if( iConfig.exists("logconnect") ){
+    m_logConnectionString = iConfig.getUntrackedParameter<std::string>("logconnect");
+    cond::DbSession logSession = connection.createSession();
+    m_logdb.reset( new cond::Logger( logSession ) );
+  }  
   
-  if( !logconnect.empty() ){
-    m_logdbOn=true;
-    m_logSession = m_connection.createSession();
-    m_logSession.open( logconnect );
-  }
-
   typedef std::vector< edm::ParameterSet > Parameters;
   Parameters toPut=iConfig.getParameter<Parameters>("toPut");
   for(Parameters::iterator itToPut = toPut.begin(); itToPut != toPut.end(); ++itToPut)
@@ -112,20 +108,21 @@ cond::service::PoolDBOutputService::isNewTagRequest( const std::string& recordNa
 void 
 cond::service::PoolDBOutputService::initDB( bool forReading )
 {
+  m_session.open( m_connectionString );  
   m_session.transaction().start(false);
   DbOpenTransaction trans( m_session.transaction() );
-  try{
+  try{ 
     if(!forReading) {
       cond::IOVSchemaUtility schemaUtil( m_session );
-      schemaUtil.createIOVContainerIfNecessary();
+      schemaUtil.createIOVContainer();
       m_session.storage().lockContainer( IOVNames::container() );
     }
     //init logdb if required
-    if(m_logdbOn){
-      m_logdb=new cond::Logger(m_logSession);
+    if(!m_logConnectionString.empty()){
+      m_logdb->connect( m_logConnectionString );
       m_logdb->createLogDBIfNonExist();
     }
-  }catch( const std::exception& er ){
+  } catch( const std::exception& er ){
     throw cond::Exception( std::string(er.what()) + " from PoolDBOutputService::initDB" );
   }
   trans.ok();
@@ -138,9 +135,6 @@ cond::service::PoolDBOutputService::postEndJob()
   if( m_dbstarted) {
     m_session.transaction().commit();
     m_dbstarted = false;
-  }
-  if(m_logdb){
-    delete m_logdb;
   }
 }
 
@@ -201,7 +195,7 @@ cond::service::PoolDBOutputService::createNewIOV( GetToken const & payloadToken,
   }
   std::string iovToken;
   if(withlogging){
-    if(!m_logdb) {
+    if( m_logConnectionString.empty() ) {
        throw cond::Exception("Log db was not set from PoolDBOutputService::createNewIOV");
     }
   }
@@ -248,10 +242,10 @@ cond::service::PoolDBOutputService::add( GetToken const & payloadToken,
 					 cond::Time_t time,
 					 const std::string& recordName,
 					 bool withlogging) {
-    DbOpenTransaction trans( m_session.transaction() );
+  DbOpenTransaction trans( m_session.transaction() );
   Record& myrecord=this->lookUpRecord(recordName);
   if(withlogging){
-    if(!m_logdb) {
+    if( m_logConnectionString.empty() ) {
        throw cond::Exception("Log db was not set from PoolDBOutputService::add");
     }
   }
@@ -357,7 +351,7 @@ cond::service::PoolDBOutputService::setLogHeaderForRecord(const std::string& rec
 
 const cond::Logger& 
 cond::service::PoolDBOutputService::queryLog()const{
-  if(!m_logdb) throw cond::Exception("Log database is not set from PoolDBOutputService::queryLog");
+  if( !m_logdb.get() ) throw cond::Exception("Log database is not set from PoolDBOutputService::queryLog");
   return *m_logdb;
 }
 
@@ -365,7 +359,6 @@ cond::service::PoolDBOutputService::queryLog()const{
 void 
 cond::service::PoolDBOutputService::tagInfo(const std::string& recordName,cond::TagInfo& result ){
   Record& record = lookUpRecord(recordName);
-  if (!m_dbstarted) initDB();
   result.name=record.m_tag;
   result.token=record.m_iovtoken;
   //use iovproxy to find out.

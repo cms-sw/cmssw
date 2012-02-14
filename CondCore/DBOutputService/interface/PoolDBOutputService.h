@@ -1,7 +1,6 @@
 #ifndef CondCore_PoolDBOutputService_h
 #define CondCore_PoolDBOutputService_h
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "CondCore/DBCommon/interface/DbConnection.h"
 #include "CondCore/DBCommon/interface/Time.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondCore/DBCommon/interface/Logger.h"
@@ -41,8 +40,6 @@ namespace cond{
     //FIXME: should become Reflex::SCOPED?
     return reflexType.Name();
   }
-  //FIXME
-  class Summary;
   
   namespace service {
 
@@ -51,10 +48,7 @@ namespace cond{
 	start write metadata transaction only if the first pool commit 
 	successful;
 	for append,start readonly metadata transaction. start pool transaction only if metadata transaction successful.
-	
-	
     */
-    
     
     struct GetToken {
       virtual std::string operator()(cond::DbSession&) const =0;
@@ -80,8 +74,8 @@ namespace cond{
         return classNameForTypeId( typeid(*pointer) );
       }
 
-      GetTokenFromPointer(T * p, Summary * s=0) :
-	m_p(p), m_s(s){}
+      explicit GetTokenFromPointer(T * p) :
+	m_p(p){}
       
       virtual std::string operator()(cond::DbSession& pooldb) const {
 	std::string className = classNameForPointer( m_p );
@@ -89,7 +83,6 @@ namespace cond{
 	return pooldb.storeObject(m_p,className);
       }
       T* m_p;
-      cond::Summary * m_s;
     };
 
     
@@ -118,58 +111,34 @@ namespace cond{
       bool isNewTagRequest( const std::string& recordName );
       const cond::Logger& queryLog() const;
       
-      // BW-compatible signature
+      // 
       template<typename T>
       void writeOne( T * payload, Time_t time, const std::string& recordName, bool withlogging=false ) {
-        this->writeOne<T>(payload, 0, time, recordName, withlogging);
-      }
-
-      /* write one (either create or append)
-       * The ONE and ONLY interface supported in future!
-       */
-      template<typename T>
-      void writeOne( T * payload, Summary * summary, Time_t time, const std::string& recordName, bool withlogging=false) {
 	if (isNewTagRequest(recordName) ){
-	  createNewIOV<T>(payload, summary,
-                          time, endOfTime(), recordName, withlogging);
+	  createNewIOV<T>(payload, time, endOfTime(), recordName, withlogging);
         }else{
-	  appendSinceTime<T>(payload, summary, time, recordName, withlogging);
+	  appendSinceTime<T>(payload, time, recordName, withlogging);
         }	
       }
-      
+
       // close the IOVSequence setting lastTill
       void closeIOV(Time_t lastTill, const std::string& recordName, 
                     bool withlogging=false);
 
-      // BW-compatible signature
+      // 
       template<typename T>
       void createNewIOV( T* firstPayloadObj,
 			 cond::Time_t firstSinceTime,
 			 cond::Time_t firstTillTime,
 			 const std::string& recordName,
                          bool withlogging=false){
-        this->createNewIOV(firstPayloadObj, 0, firstSinceTime, firstTillTime, recordName, withlogging);
-      }
-      
-      //
-      // insert the payload and its valid since time into the database
-      // Note: user looses the ownership of the pointer to the payloadObj
-      // The payload object will be stored as well
-      // 
-      template<typename T> 
-      void createNewIOV( T* firstPayloadObj,  
-                         Summary * summary,
-                         cond::Time_t firstSinceTime,
-                         cond::Time_t firstTillTime,
-                         const std::string& recordName,
-                         bool withlogging=false ){
-        createNewIOV( GetTokenFromPointer<T>(firstPayloadObj, summary),
+        createNewIOV( GetTokenFromPointer<T>(firstPayloadObj),
                       firstSinceTime,
                       firstTillTime,
                       recordName,
                       withlogging);	
       }
-      
+            
       void createNewIOV( const std::string& firstPayloadToken,
                          cond::Time_t firstSinceTime,
                          cond::Time_t firstTillTime,
@@ -183,20 +152,12 @@ namespace cond{
       }
 
       
-      // BW-compatible signature
+      // 
       template<typename T> void appendSinceTime( T* payloadObj,
                                                  cond::Time_t sinceTime,
                                                  const std::string& recordName,
                                                  bool withlogging=false){
-        this->appendSinceTime<T>(payloadObj, 0, sinceTime, recordName, withlogging);
-      }
-      
-      template<typename T>
-      void appendSinceTime( T* payloadObj, Summary * summary,
-			    cond::Time_t sinceTime,
-                              const std::string& recordName,
-			    bool withlogging=false){
-        add( GetTokenFromPointer<T>(payloadObj,summary),
+        add( GetTokenFromPointer<T>(payloadObj),
 	     sinceTime,
 	     recordName,
 	     withlogging);
@@ -311,19 +272,17 @@ namespace cond{
       cond::TimeType m_timetype; 
       std::string m_timetypestr;
       cond::Time_t m_currentTime;
-      cond::DbConnection m_connection;
+
+      std::string m_connectionString;
       cond::DbSession m_session;
-      cond::DbSession m_logSession;
+      std::string m_logConnectionString;
+      std::auto_ptr<cond::Logger> m_logdb;
+      bool m_dbstarted;
+
       std::map<std::string, Record> m_callbacks;
       std::vector< std::pair<std::string,std::string> > m_newtags;
-      bool m_dbstarted;
-      cond::Logger* m_logdb;
-      bool m_logdbOn;
-
       bool m_closeIOV;
-      
       bool m_freeInsert;
-      
       std::map<std::string, cond::UserLogInfo> m_logheaders;
 
     };//PoolDBOutputService
