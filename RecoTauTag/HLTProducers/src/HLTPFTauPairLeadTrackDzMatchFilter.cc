@@ -1,4 +1,4 @@
-// $Id: HLTPFTauPairLeadTrackDzMatchFilter.cc,v 1.1 2012/02/13 15:47:42 mbluj Exp $
+// $Id: HLTPFTauPairLeadTrackDzMatchFilter.cc,v 1.2 2012/02/13 18:31:45 mbluj Exp $
 
 #include "HLTPFTauPairLeadTrackDzMatchFilter.h"
 
@@ -20,6 +20,7 @@ HLTPFTauPairLeadTrackDzMatchFilter::HLTPFTauPairLeadTrackDzMatchFilter(const edm
   tauMaxEta_	        = conf.getParameter<double>("tauMaxEta");
   tauMinDR_	        = conf.getParameter<double>("tauMinDR");
   tauLeadTrackMaxDZ_	= conf.getParameter<double>("tauLeadTrackMaxDZ");
+  triggerType_          = conf.getParameter<int>("triggerType");
 
   // set the minimum DR between taus, so that one never has a chance 
   // to create a pair out of the same Tau replicated with two
@@ -40,7 +41,7 @@ void HLTPFTauPairLeadTrackDzMatchFilter::fillDescriptions(edm::ConfigurationDesc
   desc.add<double>("tauMaxEta",2.5);
   desc.add<double>("tauMinDR",0.1);
   desc.add<double>("tauLeadTrackMaxDZ",0.2);
-  desc.add<int>("TriggerType",84); //84 - Tau
+  desc.add<int>("triggerType",trigger::TriggerTau);
   descriptions.add("hltPFTauPairLeadTrackDzMatchFilter",desc);
 }
 
@@ -98,10 +99,10 @@ bool HLTPFTauPairLeadTrackDzMatchFilter::hltFilter(edm::Event& ev, const edm::Ev
       
       // add references to both jets
       ref = PFTauRef(tausHandle, t1);
-      filterproduct.addObject(trigger::TriggerTau, ref);
+      filterproduct.addObject(triggerType_, ref);
       
       ref = PFTauRef(tausHandle, t2);
-      filterproduct.addObject(trigger::TriggerTau, ref);
+      filterproduct.addObject(triggerType_, ref);
 
       ++npairs;
       

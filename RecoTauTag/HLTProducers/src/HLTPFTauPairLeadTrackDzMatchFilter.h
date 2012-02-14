@@ -30,6 +30,7 @@ class HLTPFTauPairLeadTrackDzMatchFilter : public HLTFilter {
     double tauMaxEta_;
     double tauMinDR_;
     double tauLeadTrackMaxDZ_;
+    int    triggerType_;
 
 };
 
