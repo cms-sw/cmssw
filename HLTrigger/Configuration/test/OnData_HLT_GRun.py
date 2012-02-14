@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_1_0/GRun/V27 (CMSSW_5_2_0_pre4_HLT8)
+# /dev/CMSSW_5_1_0/GRun/V28 (CMSSW_5_2_0_pre4_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V27')
+  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V28')
 )
 
 process.streams = cms.PSet( 
@@ -11400,7 +11400,7 @@ process.hltExclDiJet60HFAND = cms.EDFilter( "HLTExclDiCaloJetFilter",
 )
 process.hltL1sL1SingleJet20CentralNoBPTX = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( False ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJetC20_NotBptxOR" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJet20_Central_NotBptxOR" ),
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
     L1UseL1TriggerObjectMaps = cms.bool( True ),
     L1UseAliasesForSeeding = cms.bool( True ),
@@ -11543,7 +11543,7 @@ process.hltBPTXAntiCoincidence = cms.EDFilter( "HLTLevel1Activity",
 )
 process.hltL1sL1SingleJet20CentralNoBPTXNoHalo = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( False ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJetC20_NotBptxOR" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJet20_Central_NotBptxOR_NotMuBeamHalo" ),
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
     L1UseL1TriggerObjectMaps = cms.bool( True ),
     L1UseAliasesForSeeding = cms.bool( True ),
@@ -11577,7 +11577,7 @@ process.hltStoppedHSCPHpdFilter = cms.EDFilter( "HLTHPDFilter",
 )
 process.hltL1sL1SingleJet32NoBPTXNoHalo = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( False ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJetC32_NotBptxOR" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJet32_NotBptxOR_NotMuBeamHalo" ),
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
     L1UseL1TriggerObjectMaps = cms.bool( True ),
     L1UseAliasesForSeeding = cms.bool( True ),
