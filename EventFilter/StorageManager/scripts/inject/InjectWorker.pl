@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.80 2012/02/13 10:35:05 babar Exp $
+# $Id: InjectWorker.pl,v 1.81 2012/02/13 12:07:09 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -120,39 +120,40 @@ POE::Session->create(
         inotify_poll => sub {
             $_[HEAP]{inotify}->poll;
         },
-        watch_hdlr       => \&watch_hdlr,
-        save_offsets     => \&save_offsets,
-        update_db        => \&update_db,
-        read_db_config   => \&read_db_config,
-        setup_db         => \&setup_db,
-        setup_main_db    => \&setup_main_db,
-        setup_runcond_db => \&setup_runcond_db,
-        get_num_sm       => \&get_num_sm,
-        get_hlt_key      => \&get_hlt_key,
-        get_from_runcond => \&get_from_runcond,
-        start_hook       => \&start_hook,
-        next_hook        => \&next_hook,
-        hook_result      => \&hook_result,
-        hook_error       => \&hook_error,
-        hook_done        => \&hook_done,
-        parse_line       => \&parse_line,
-        parse_lumi_line  => \&parse_lumi_line,
-        got_begin_of_run => \&got_begin_of_run,
-        got_end_of_run   => \&got_end_of_run,
-        got_end_of_lumi  => \&got_end_of_lumi,
-        read_offsets     => \&read_offsets,
-        read_changes     => \&read_changes,
-        got_log_line     => \&got_log_line,
-        got_log_rollover => \&got_log_rollover,
-        insert_file      => \&insert_file,
-        close_file       => \&close_file,
-        shutdown         => \&shutdown,
-        heartbeat        => \&heartbeat,
-        setup_lock       => \&setup_lock,
-        sig_child        => \&sig_child,
-        sig_abort        => \&sig_abort,
-        _stop            => \&shutdown,
-        _default         => \&handle_default,
+        watch_hdlr            => \&watch_hdlr,
+        save_offsets          => \&save_offsets,
+        update_db             => \&update_db,
+        read_db_config        => \&read_db_config,
+        setup_db              => \&setup_db,
+        setup_main_db         => \&setup_main_db,
+        setup_runcond_db      => \&setup_runcond_db,
+        get_num_sm            => \&get_num_sm,
+        get_hlt_key           => \&get_hlt_key,
+        get_from_runcond      => \&get_from_runcond,
+        start_hook            => \&start_hook,
+        next_hook             => \&next_hook,
+        hook_result           => \&hook_result,
+        hook_error            => \&hook_error,
+        hook_done             => \&hook_done,
+        parse_line            => \&parse_line,
+        parse_lumi_line       => \&parse_lumi_line,
+        got_begin_of_run      => \&got_begin_of_run,
+        got_end_of_run        => \&got_end_of_run,
+        check_eor_consistency => \&check_eor_consistency,
+        got_end_of_lumi       => \&got_end_of_lumi,
+        read_offsets          => \&read_offsets,
+        read_changes          => \&read_changes,
+        got_log_line          => \&got_log_line,
+        got_log_rollover      => \&got_log_rollover,
+        insert_file           => \&insert_file,
+        close_file            => \&close_file,
+        shutdown              => \&shutdown,
+        heartbeat             => \&heartbeat,
+        setup_lock            => \&setup_lock,
+        sig_child             => \&sig_child,
+        sig_abort             => \&sig_abort,
+        _stop                 => \&shutdown,
+        _default              => \&handle_default,
     },
 
     #    options  => { trace => 1 },
@@ -862,8 +863,8 @@ sub got_begin_of_run {
 # update RUNS set (STATUS = 0, N_LUMISECTIONS = 3065, END_TIME = '2010-06-11 02:10:10')
 # where RUNNUMBER = 137605 and INSTANCE = 2
 sub got_end_of_run {
-    my ( $kernel, $heap, $args ) = @_[ KERNEL, HEAP, ARG0 ];
-    $kernel->call( check_eor_consistency => $args );
+    my ( $kernel, $session, $heap, $args ) = @_[ KERNEL, SESSION, HEAP, ARG0 ];
+    $kernel->call( $session => check_eor_consistency => $args );
     $kernel->yield(
         update_db => $args,
         endOfRun  => qw( LastLumi Timestamp run instance maxLumi lastGood )
