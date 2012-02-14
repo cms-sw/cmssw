@@ -205,8 +205,7 @@ BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
   
   class_<cond::IOVProxy>("IOV", init<>())
     .def("size", &cond::IOVProxy::size)
-    .def("resetRange", &cond::IOVProxy::resetRange)
-    .def("setRange", &cond::IOVProxy::setRange)
+    .def("range", &cond::IOVProxy::range)
     .def("head", &cond::IOVProxy::head)
     .def("tail", &cond::IOVProxy::tail)
     .def("timetype", &cond::IOVProxy::timetype)

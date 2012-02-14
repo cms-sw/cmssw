@@ -154,7 +154,7 @@ int cond::ListIOVUtilities::execute(){
       cond::IOVProxy iov( session, token );
       unsigned int counter=0;
       const std::set<std::string>& payloadClasses=iov.payloadClasses();
-      size_t maxClassSize = 16;
+      size_t maxClassSize = 13;
       for( std::set<std::string>::const_iterator iCl = payloadClasses.begin(); iCl !=payloadClasses.end(); iCl++){
         if(iCl->size()>maxClassSize) maxClassSize = iCl->size();
       }
@@ -172,6 +172,7 @@ int cond::ListIOVUtilities::execute(){
                   << "  Time: " <<  cond::time::to_boost(iov.iov().timestamp())
                   << ";  Revision: " << iov.iov().revision()<<std::endl;
       }
+      std::cout <<"\tOID: "<<token<<std::endl;
       std::string scopeType("");
       int scope = iov.iov().scope();
       if( scope == cond::IOVSequence::Unknown ){
@@ -192,7 +193,7 @@ int cond::ListIOVUtilities::execute(){
       std::cout <<"\tTimeType: " << cond::timeTypeSpecs[iov.timetype()].name<<std::endl;
       std::cout <<"\t";
       std::string headerValLine = printValidityHeader( cond::timeTypeSpecs[iov.timetype()].type );
-      std::cout << "  "<<std::setw(13)<<"Payload token";
+      std::cout << "  "<<std::setw(13)<<"Payload OID";
       std::cout << "  "<<std::setw(maxClassSize)<<"Payload Class";
       std::cout << std::endl;
       std::cout << std::setfill('-');

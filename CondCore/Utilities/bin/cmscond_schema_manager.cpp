@@ -60,7 +60,7 @@ int cond::SchemaManager::execute(){
       util.dropPayloadContainer( payloadName );
     }
     if( create ){
-      util.createIOVContainerIfNecessary();
+      util.createIOVContainer();
       if(!payloadName.empty()) util.createPayloadContainer( payloadName, typeName );
     }
     trans.commit();

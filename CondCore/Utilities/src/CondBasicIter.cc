@@ -9,16 +9,22 @@ CondBasicIter::CondBasicIter(
 			     const std::string & User,
 			     const std::string & Pass,
 			     const std::string & nameBlob) :
-  rdbms(User,Pass), db(rdbms.getDB(NameDB)), iov(db.iov(Tag))
-{
+  rdbms(User,Pass), 
+  db(rdbms.getDB(NameDB)), 
+  iov(db.iov(Tag)),
+  m_begin( iov.begin() ),
+  m_end( iov.end() ){
 }
 
 CondBasicIter::CondBasicIter(const std::string & NameDB,
 	      const std::string & Tag,
 	      const std::string & auth
 	      ):
-  rdbms(auth), db(rdbms.getDB(NameDB)), iov(db.iov(Tag))
-{
+  rdbms(auth), 
+  db(rdbms.getDB(NameDB)), 
+  iov(db.iov(Tag)),
+  m_begin( iov.begin() ),
+  m_end( iov.end() ){
 }
 
 void CondBasicIter::create(
@@ -45,21 +51,25 @@ void CondBasicIter::create(const std::string & NameDB,
 
 
 void CondBasicIter::setRange(unsigned int min,unsigned int max){
-  iov.setRange(min,max);
+  cond::IOVRange rg = iov.range( min, max );
+  m_begin = rg.begin();
+  m_end = rg.end();
   clear();
 }
 
 void CondBasicIter::setMin(unsigned int min){
-  iov.setRange(min,0);
+  cond::IOVRange rg = iov.range( min, 0 );
+  m_begin = rg.begin();
+  m_end = rg.end();
   clear();
 }
 
 void CondBasicIter::setMax(unsigned int max){
-  iov.setRange(1,max);
+  cond::IOVRange rg = iov.range( 1, max );
+  m_begin = rg.begin();
+  m_end = rg.end();
   clear();
 }
-
-
 
 unsigned int CondBasicIter::getTime()  const {return (getStartTime()+getStopTime())/2;}
 
@@ -69,16 +79,15 @@ unsigned int CondBasicIter::getStopTime() const {return (*iter).till();}
 
 std::string const & CondBasicIter::getToken() const  {return (*iter).token();}
 
-
 bool CondBasicIter::init() {
-  iter=iov.begin();
-  return iter!=iov.end();
+  iter = m_begin;
+  return iter!=m_end;
 
 }
 
 bool CondBasicIter::forward(){
   ++iter;
-  return iter!=iov.end();
+  return iter!=m_end;
 }
 
 

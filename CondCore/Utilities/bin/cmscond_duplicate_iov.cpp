@@ -4,7 +4,6 @@
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 
-#include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/IOVService/interface/IOVProxy.h"
 
@@ -64,9 +63,9 @@ int cond::DuplicateIOVUtilities::execute(){
   
   cond::DbSession destDb = openDbSession( "connect" );
 
-  std::string iovtoken("");
-  std::string destiovtoken("");
-  cond::TimeType iovtype;
+  std::string iovToken("");
+  std::string destIovToken("");
+  cond::TimeType iovType;
   std::string timetypestr("");
    
   if(debug){
@@ -74,77 +73,45 @@ int cond::DuplicateIOVUtilities::execute(){
     std::cout << "dest   tag  " << destTag << std::endl;
   }  
     
-  cond::IOVService sourceIOVsvc(destDb);
-  cond::IOVService destIOVsvc(destDb);
+  cond::IOVProxy sourceIov(destDb);
+  cond::IOVEditor destIov(destDb);
   // find tag
   cond::DbScopedTransaction transaction(destDb);
   transaction.start(false);
   destDb.storage().lockContainer(  IOVNames::container() );
   cond::MetaData  metadata(destDb);
-  iovtoken = metadata.getToken(sourceTag);
-  if(iovtoken.empty()) 
+  iovToken = metadata.getToken(sourceTag);
+  if(iovToken.empty()) 
     throw std::runtime_error(std::string("tag ")+sourceTag+std::string(" not found") );
-  iovtype=sourceIOVsvc.timeType(iovtoken);
-  timetypestr = cond::timeTypeSpecs[iovtype].name;
+  sourceIov.load( iovToken );
+  iovType=sourceIov.timetype();
+  timetypestr = cond::timeTypeSpecs[iovType].name;
   if( metadata.hasTag(destTag) ){
-    destiovtoken=metadata.getToken(destTag);
-    if (iovtype!=destIOVsvc.timeType(destiovtoken)) {
+    destIovToken=metadata.getToken(destTag);
+    destIov.load( destIovToken );
+    if (iovType!=destIov.proxy().timetype()) {
       throw std::runtime_error("iov type in source and dest differs");
     }
+  } else {
+    destIovToken = destIov.create( iovType );
+    metadata.addMapping(destTag,destIovToken,iovType);
   }
   if(debug){
-    std::cout<<"source iov token "<< iovtoken<<std::endl;
-    std::cout<<"dest   iov token "<< destiovtoken<<std::endl;
+    std::cout<<"source iov token "<< iovToken<<std::endl;
+    std::cout<<"dest   iov token "<< destIovToken<<std::endl;
     std::cout<<"iov type "<<  timetypestr<<std::endl;
   }
-  std::string payload = sourceIOVsvc.payloadToken(iovtoken,from);
-  std::string payloadClass = destDb.classNameForItem( payload );
-  if (payload.empty()) {
+  cond::IOVProxy::const_iterator iElem = sourceIov.find( from );
+  if( iElem == sourceIov.end() ){
     std::cerr <<"[Error] no payload found for time " << from << std::endl;
-    return 1;
-  };
-  
-  int size=0;
-  bool newIOV = destiovtoken.empty();
-  /* we allow multiple iov pointing to the same payload...
-  if (!newIOV) {
-    // to be streamlined
-    cond::IOVProxy iov( destDb,destiovtoken,false,true);
-    size = iov.size();
-    if ( (iov.end()-1)->wrapperToken()==payload) {
-      std::cerr <<"[Warning] payload for time " << from
-                <<" equal to last inserted payload, no new IOV will be created" <<  std::endl;
-      return 0;
-    }
-    if (payload == iovmanager.payloadToken(destiovtoken,since)) {
-      std::cerr <<"[Warning] payload for time " << from
-                <<" equal to payload valid at time "<< since
-                <<", no new IOV will be created" <<  std::endl;
-      return 0;
-    }
+    return 1;    
   }
-  */
+  std::string payload = iElem->token();
+  std::string payloadClass = destDb.classNameForItem( payload );
 
-  
-  // create if does not exist;
-  if (newIOV) {
-    cond::IOVEditor editor(destDb);
-    editor.create(iovtype);
-    destiovtoken=editor.token();
-    editor.append(since,payload);
-    cond::MetaData destMetadata( destDb );
-    destMetadata.addMapping(destTag,destiovtoken,iovtype);
-    if(debug){
-      std::cout<<"dest iov token "<<destiovtoken<<std::endl;
-      std::cout<<"dest iov type "<<iovtype<<std::endl;
-    }
-  } else {
-    //append it
-    cond::IOVEditor editor(destDb,destiovtoken);
-    editor.append(since,payload);
-    editor.stamp(cond::userInfo(),false);
-  }
-  
+  destIov.append(since,payload);
+  destIov.stamp(cond::userInfo(),false);
+
   transaction.commit();
 
   ::sleep(1);
@@ -163,7 +130,7 @@ int cond::DuplicateIOVUtilities::execute(){
     ss << "From="<< from <<"; Since="<< since <<"; " << usertext;
     a.usertext +=ss.str();
 
-    logdb->logOperationNow(a,destConnect,payloadClass,payload,destTag,timetypestr,size,since);
+    logdb->logOperationNow(a,destConnect,payloadClass,payload,destTag,timetypestr,0,since);
   }
 
   return 0;

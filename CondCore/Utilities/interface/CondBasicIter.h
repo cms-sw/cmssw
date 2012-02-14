@@ -9,13 +9,7 @@ namespace cond {
 
 class CondBasicIter{
 
-protected:
-  cond::RDBMS rdbms;
-  cond::CondDB db;
-  cond::IOVProxy iov;
-  cond::IOVProxy::const_iterator iter;
- 
- public:
+public:
   
   CondBasicIter();    
   ~CondBasicIter();    
@@ -101,6 +95,17 @@ protected:
   bool make();
   virtual bool load(cond::DbSession& sess, std::string const & token) =0;
   virtual void clear() =0;
+
+protected:
+  cond::RDBMS rdbms;
+  cond::CondDB db;
+  cond::IOVProxy iov;
+  cond::IOVProxy::const_iterator iter;
+ 
+private:
+  cond::iov_range_iterator m_begin;
+  cond::iov_range_iterator m_end;
+  
 };
 
 

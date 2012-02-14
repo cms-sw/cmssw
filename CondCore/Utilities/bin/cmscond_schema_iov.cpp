@@ -42,7 +42,7 @@ int cond::SchemaIOVUtilities::execute(){
       util.dropIOVContainer();
     }
     if( createSchema ){
-      util.createIOVContainerIfNecessary();
+      util.createIOVContainer();
     }
     trans.commit();
     return 0;

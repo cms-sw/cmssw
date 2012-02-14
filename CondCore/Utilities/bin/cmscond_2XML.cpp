@@ -72,7 +72,7 @@ int cond::XMLUtilities::execute(){
 
   since = std::max(since, cond::timeTypeSpecs[iov.timetype()].beginValue);
   till  = std::min(till,  cond::timeTypeSpecs[iov.timetype()].endValue);
-  iov.setRange(since,till);
+  cond::IOVRange rg = iov.range(since,till);
  
   if (verbose)
     std::cout << "dumping " << tag << " from "<< since << " to " << till
@@ -89,7 +89,7 @@ int cond::XMLUtilities::execute(){
     std::cout <<"\nTimeType " << cond::timeTypeSpecs[iov.timetype()].name
 	      <<"since \t till \t payloadToken"<<std::endl;
   }
-  for (cond::IOVProxy::const_iterator ioviterator=iov.begin(); ioviterator!=iov.end(); ioviterator++) {
+  for (iov_range_iterator ioviterator=rg.begin(); ioviterator!=rg.end(); ioviterator++) {
     if (verbose)
       std::cout<<ioviterator->since() << " \t "<<ioviterator->till() <<" \t "
 	       <<ioviterator->token()<<std::endl;

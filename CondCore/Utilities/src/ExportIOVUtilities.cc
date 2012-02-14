@@ -6,7 +6,6 @@
 #include "CondCore/DBCommon/interface/Exception.h"
 
 #include "CondCore/MetaDataService/interface/MetaData.h"
-#include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVProxy.h"
 
 #include "CondCore/DBCommon/interface/Logger.h"
@@ -35,7 +34,7 @@ cond::ExportIOVUtilities::ExportIOVUtilities(std::string const & name):Utilities
   addOption<cond::Time_t>("beginTime","b","begin time (first since) (optional)");
   addOption<cond::Time_t>("endTime","e","end time (last till) (optional)");
   addOption<bool>("outOfOrder","o","allow out of order merge (optional, default=false)");
-  addOption<bool>("exportMapping","m","export the mapping as in the source db (optional, default=false)");
+  addOption<size_t>("bunchSize","n","iterate with bunches of specific size (optional)");
   addOption<std::string>("usertext","x","user text, to be included in usertext column (optional, must be enclosed in double quotes)");
   addSQLOutputOption();
 }
@@ -60,19 +59,22 @@ int cond::ExportIOVUtilities::execute(){
   cond::Time_t till = std::numeric_limits<cond::Time_t>::max();
   if( hasOptionValue("endTime" )) till = getOptionValue<cond::Time_t>("endTime");
   
+  size_t bunchSize = 1;
+  if(hasOptionValue("bunchSize")) bunchSize = getOptionValue<size_t>("bunchSize"); 
+  
   std::string sqlOutputFileName("sqlmonitoring.out");
   bool debug=hasDebug();
   bool outOfOrder = hasOptionValue("outOfOrder");
 
-  std::string sourceiovtoken("");
-  std::string destiovtoken("");
+  std::string sourceIovToken("");
+  std::string destIovToken("");
   bool newIOV = true;
-  cond::TimeType sourceiovtype;
+  cond::TimeType sourceIovType;
 
-  cond::DbSession sourcedb = openDbSession("sourceConnect", true);
-  cond::DbSession destdb = openDbSession("destConnect");
+  cond::DbSession sourceDb = openDbSession("sourceConnect", true);
+  cond::DbSession destDb = openDbSession("destConnect");
     
-  std::auto_ptr<cond::Logger> logdb;
+  std::auto_ptr<cond::Logger> logDb;
   cond::DbSession logSession;
 
   std::string payloadToken("");
@@ -82,34 +84,34 @@ int cond::ExportIOVUtilities::execute(){
   cond::UserLogInfo a;
   if (doLog) {
     logSession = openDbSession( "logDB");
-    logdb.reset(new cond::Logger(logSession));
-    logdb->createLogDBIfNonExist();
+    logDb.reset(new cond::Logger(logSession));
+    logDb->createLogDBIfNonExist();
     a.provenance=sourceConnect+"/"+inputTag;
     a.usertext="exportIOV V4.0;";
   }
 
   // find tag in source
-  sourcedb.transaction().start(true);
-  cond::MetaData  sourceMetadata(sourcedb);
-  sourceiovtoken=sourceMetadata.getToken(inputTag);
-  if(sourceiovtoken.empty()) 
+  sourceDb.transaction().start(true);
+  cond::MetaData  sourceMetadata(sourceDb);
+  sourceIovToken=sourceMetadata.getToken(inputTag);
+  if(sourceIovToken.empty()) 
     throw std::runtime_error(std::string("tag ")+inputTag+std::string(" not found") );
   
   if(debug){
-    std::cout<<"source iov token "<<sourceiovtoken<<std::endl;
+    std::cout<<"source iov token "<<sourceIovToken<<std::endl;
   }
   
-  cond::IOVService iovmanager(sourcedb);
-  sourceiovtype=iovmanager.timeType(sourceiovtoken);
-  std::string const & timetypestr = cond::timeTypeSpecs[sourceiovtype].name;
+  cond::IOVProxy sourceIov( sourceDb );
+  sourceIov.load( sourceIovToken );
+  sourceIovType = sourceIov.timetype();
+  std::string const & timetypestr = cond::timeTypeSpecs[sourceIovType].name;
   if(debug){
-    std::cout<<"source iov type "<<sourceiovtype<<std::endl;
+    std::cout<<"source iov type "<<sourceIovType<<std::endl;
   }
-
-  std::set<std::string> pclasses = iovmanager.payloadClasses( sourceiovtoken );
-  
+ 
   if( doLog ){
-    iovSize = iovmanager.iovSize( sourceiovtoken );
+    std::set<std::string> pclasses = sourceIov.payloadClasses();
+    iovSize = sourceIov.size();
     std::ostringstream stream;
     std::copy(pclasses.begin(), pclasses.end(), std::ostream_iterator<std::string>(stream, ", "));
     payloadClasses = stream.str();
@@ -117,76 +119,84 @@ int cond::ExportIOVUtilities::execute(){
 
   try{
     // find tag in destination
-    cond::DbScopedTransaction transaction(destdb);
+    cond::DbScopedTransaction transaction(destDb);
     transaction.start(false);
 
-    cond::IOVSchemaUtility schemaUtil( destdb, std::cout );
-    schemaUtil.createIOVContainerIfNecessary();
-
-    destdb.storage().lockContainer( IOVNames::container() );
     int oldSize=0;
-    cond::MetaData  metadata( destdb );
-    if( metadata.hasTag(destTag) ){
-      destiovtoken=metadata.getToken(destTag);
-      newIOV = false;
-      // grab info
-      IOVProxy iov(destdb, destiovtoken);
-      oldSize=iov.size();
-      if (sourceiovtype!=iov.timetype()) {
+    cond::IOVEditor destIov( destDb );
+    destIov.createIOVContainerIfNecessary();
+    destDb.storage().lockContainer( IOVNames::container() );
+
+    cond::MetaData  destMetadata( destDb );
+    if( destMetadata.hasTag(destTag) ){
+      destIovToken=destMetadata.getToken(destTag);
+      destIov.load( destIovToken );
+      oldSize = destIov.proxy().size();
+      if (sourceIovType!=destIov.timetype()) {
 	throw std::runtime_error("iov type in source and dest differs");
       }
+    } else {
+      newIOV = true;
+      destIovToken=destIov.create( sourceIovType, sourceIov.iov().lastTill(),sourceIov.iov().metadata() );
+      destMetadata.addMapping(destTag,destIovToken,sourceIovType);
+      destIov.setScope( cond::IOVSequence::Tag );
     }
     if(debug){
-      std::cout<<"destination iov token "<< destiovtoken <<std::endl;
+      std::cout<<"dest iov token "<<destIovToken<<std::endl;
+      std::cout<<"dest iov type "<<sourceIovType<<std::endl;
     }
     
-    since = std::max(since, cond::timeTypeSpecs[sourceiovtype].beginValue);
-    till  = std::min(till,  cond::timeTypeSpecs[sourceiovtype].endValue);
+    since = std::max(since, cond::timeTypeSpecs[sourceIovType].beginValue);
+    till  = std::min(till,  cond::timeTypeSpecs[sourceIovType].endValue);
     
-    destiovtoken=iovmanager.exportIOVRangeWithPayload( destdb,
-						       sourceiovtoken,
-						       destiovtoken,
-						       since, till,
-						       outOfOrder );
-    if (newIOV) {
-      cond::MetaData destMetadata(destdb);
-      destMetadata.addMapping(destTag,destiovtoken,sourceiovtype);
-      if(debug){
-	std::cout<<"dest iov token "<<destiovtoken<<std::endl;
-	std::cout<<"dest iov type "<<sourceiovtype<<std::endl;
+    boost::shared_ptr<IOVImportIterator> importIterator = destIov.importIterator();
+    importIterator->setUp( sourceIov, since, till, outOfOrder, bunchSize );
+
+    size_t totalImported = 0;
+    if( bunchSize>1 ){
+      unsigned int iter = 0;
+      while( importIterator->hasMoreElements() ){
+	if(iter>0){
+	  transaction.commit();
+	  transaction.start();
+	  destIov.reload();
+	}
+        iter++;
+        size_t imported = importIterator->importMoreElements();
+        totalImported += imported; 
+	std::cout <<"Iteration #"<<iter<<": "<<imported<<" element(s)."<<std::endl;
       }
-      cond::IOVEditor iovEditor( destdb, destiovtoken );
-      iovEditor.setScope( cond::IOVSequence::Tag );
-    }
-    
-    
-    ::sleep(1);
+    } else {
+      totalImported = importIterator->importAll();
+    }    
+    std::cout <<totalImported<<" element(s) exported."<<std::endl;
+
+   ::sleep(1);
     
     // grab info
     // call IOV proxy with keep open option: it is required to lookup the payload class. A explicit commit will be needed at the end.
     if (doLog) {
-      IOVProxy iov(destdb, destiovtoken);
+      IOVProxy diov = destIov.proxy();
       std::ostringstream stream;
-      std::copy(iov.payloadClasses().begin(), iov.payloadClasses().end(), std::ostream_iterator<std::string>(stream, ", "));
+      std::copy(diov.payloadClasses().begin(), diov.payloadClasses().end(), std::ostream_iterator<std::string>(stream, ", "));
       payloadClasses = stream.str();
-      iovSize = iov.size();
+      iovSize = diov.size();
       ncopied = iovSize-oldSize; 
       if ( ncopied == 1) {
 	// get last object
-	iov.tail(1);
-	cond::IOVElementProxy last = *iov.begin();
+        const IOVElement& last = diov.iov().iovs().back();
 	payloadToken=last.token();
-	payloadClasses = destdb.classNameForItem( payloadToken );
+	payloadClasses = destDb.classNameForItem( payloadToken );
       } 
       if (newIOV) a.usertext+= "new tag;";
       std::ostringstream ss;
       ss << "since="<< since <<", till="<< till << ", " << usertext << ";";
       ss << " copied="<< ncopied <<";";
       a.usertext +=ss.str();  
-      logdb->logOperationNow(a,destConnect,payloadClasses,payloadToken,destTag,timetypestr,iovSize-1,since);
+      logDb->logOperationNow(a,destConnect,payloadClasses,payloadToken,destTag,timetypestr,iovSize-1,since);
     }
     transaction.commit();
-    sourcedb.transaction().commit();
+    sourceDb.transaction().commit();
   }catch ( cond::Exception const& er ){
     if (doLog) {
       if (newIOV) a.usertext+= "new tag;";
@@ -194,9 +204,9 @@ int cond::ExportIOVUtilities::execute(){
       ss << "since="<< since <<", till="<< till << ", " << usertext << ";";
       ss << " copied="<< ncopied <<";";
       a.usertext +=ss.str();
-      logdb->logFailedOperationNow(a,destConnect,payloadClasses,payloadToken,destTag,timetypestr,iovSize-1,since,std::string(er.what()));
+      logDb->logFailedOperationNow(a,destConnect,payloadClasses,payloadToken,destTag,timetypestr,iovSize-1,since,std::string(er.what()));
     }   
-    sourcedb.transaction().commit();
+    sourceDb.transaction().commit();
     throw;
   }
       

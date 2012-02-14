@@ -2,7 +2,6 @@
 #include "CondCore/DBCommon/interface/DbScopedTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
-#include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/Utilities/interface/Utilities.h"
 #include <iostream>
@@ -20,8 +19,7 @@ cond::DeleteIOVUtilities::DeleteIOVUtilities():Utilities("cmscond_delete_iov"){
   addConnectOption();
   addAuthenticationOptions();
   addDictionaryOption();
-  addOption<bool>("all","a","delete all tags");
-  addOption<std::string>("tag","t","delete the specified tag and IOV");
+  addOption<std::string>("tag","t","delete the specified tag and IOV (required)");
   addOption<bool>("withPayload","w","delete payload data associated with the specified tag (default off)");
   addOption<bool>("onlyTag","o","delete only the tag, leaving the IOV (default off)");
 }
@@ -30,37 +28,29 @@ cond::DeleteIOVUtilities::~DeleteIOVUtilities(){
 }
 
 int cond::DeleteIOVUtilities::execute(){
-  bool deleteAll = hasOptionValue("all");
+  if( !hasOptionValue("tag") ){
+    cond::Exception("Mandatory option \"tag\" not provided.");
+  }
+  std::string tag = getOptionValue<std::string>("tag");
   bool withPayload = hasOptionValue("withPayload");
   bool onlyTag = hasOptionValue("onlyTag");
   cond::DbSession rdbms = openDbSession( "connect" );
 
   cond::DbScopedTransaction transaction( rdbms );
   transaction.start(false);
-  if( deleteAll ){
-    // irrelevant which tymestamp
-    if(!onlyTag){
-      cond::IOVService iovservice(rdbms);
-      iovservice.deleteAll(withPayload);
-    }
-    cond::MetaData metadata_svc(rdbms);
-    metadata_svc.deleteAllEntries();
-  }else{
-    std::string tag = getOptionValue<std::string>("tag");
     
-    cond::MetaData metadata_svc(rdbms);
-    std::string token=metadata_svc.getToken(tag);
-    if( token.empty() ) {
-      std::cout<<"non-existing tag "<<tag<<std::endl;
-      return 11;
-    }
-    if(!onlyTag){
-      cond::IOVService iovservice(rdbms);
-      std::auto_ptr<cond::IOVEditor> ioveditor(iovservice.newIOVEditor(token));
-      ioveditor->deleteEntries(withPayload);
-    }
-    metadata_svc.deleteEntryByTag(tag);
+  cond::MetaData metadata_svc(rdbms);
+  std::string token=metadata_svc.getToken(tag);
+  if( token.empty() ) {
+    std::cout<<"non-existing tag "<<tag<<std::endl;
+    return 11;
   }
+  if(!onlyTag){
+    cond::IOVEditor editor(rdbms, token );
+    editor.deleteEntries(withPayload);
+  }
+  metadata_svc.deleteEntryByTag(tag);
+
   transaction.commit();
   return 0;
 }
