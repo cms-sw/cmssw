@@ -10,8 +10,8 @@ photonPostprocessing = cms.EDAnalyzer("PhotonPostprocessing",
     standAlone = cms.bool(False),
     batch = cms.bool(False),                                     
     Verbosity = cms.untracked.int32(0),
-
-
+    isRunCentrally = photonValidation.isRunCentrally,
+                                      
     etBin = photonValidation.etBin,
     etMin = photonValidation.etMin,
     etMax = photonValidation.etMax,
