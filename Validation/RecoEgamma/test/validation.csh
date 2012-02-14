@@ -22,17 +22,20 @@ setenv RUNTYPE Central
 #setenv RUNTYPE Local
 setenv STARTUP True
 
+
+
 setenv CMSSWver1 5_0_0
-setenv CMSSWver2 5_0_1
+setenv CMSSWver2 5_2_0
 setenv OLDRELEASE 5_0_0
-setenv NEWRELEASE 5_0_1
+setenv NEWRELEASE 5_2_0
 setenv OLDPRERELEASE pre4
-setenv NEWPRERELEASE patch1
+setenv NEWPRERELEASE pre4
+
 
 
 if ( $STARTUP == True) then
 setenv OLDGLOBALTAG START50_V3-v1
-setenv NEWGLOBALTAG START50_V13_special_120203-v1
+setenv NEWGLOBALTAG START52_V1-v1
 else
 setenv OLDGLOBALTAG START50_V8-v3
 setenv NEWGLOBALTAG START50_V8-v3
@@ -61,13 +64,11 @@ setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver
 
 #Name of sample (affects output directory name and htmldescription only) 
 
-
-
 #setenv SAMPLE SingleGammaPt10
 #setenv SAMPLE SingleGammaPt35
 #setenv SAMPLE SingleGammaFlatPt10_100
-#setenv SAMPLE H130GGgluonfusion
-setenv SAMPLE PhotonJets_Pt_10
+setenv SAMPLE H130GGgluonfusion
+#setenv SAMPLE PhotonJets_Pt_10
 #setenv SAMPLE GammaJets_Pt_80_120
 #setenv SAMPLE QCD_Pt_80_120
 
@@ -308,6 +309,8 @@ pEcalRecHitSumEtConeDR04VsEtEndcap
 pHcalTowerSumEtConeDR04VsEtaAll
 pHcalTowerSumEtConeDR04VsEtBarrel
 pHcalTowerSumEtConeDR04VsEtEndcap
+pHoverEVsEtaAll
+pHoverEVsEtAll
 
 
 EOF
@@ -319,7 +322,6 @@ cat > 2dhistosForPhotons <<EOF
   R1VsEtaAll
   R2VsEtaAll
   sigmaIetaIetaVsEtaAll
-  hOverEVsEtaAll
   ecalRecHitSumEtConeDR04VsEtaAll
   hcalTowerSumEtConeDR04VsEtaAll
   isoTrkSolidConeDR04VsEtaAll
@@ -328,7 +330,6 @@ cat > 2dhistosForPhotons <<EOF
   R1VsEtAll
   R2VsEtAll
   sigmaIetaIetaVsEtAll
-  hOverEVsEtAll
   ecalRecHitSumEtConeDR04VsEtBarrel
   ecalRecHitSumEtConeDR04VsEtEndcap
   hcalTowerSumEtConeDR04VsEtBarrel
@@ -642,6 +643,10 @@ $i->GetYaxis()->SetRangeUser(0.,5.);
 { $i->GetYaxis()->SetRangeUser(0.,5.);
 } else if ( $i==pHcalTowerSumEtConeDR04VsEtEndcap  ) 
 { $i->GetYaxis()->SetRangeUser(0.,5.);
+} else if ( $i==pHoverEVsEtaAll  ) 
+{ $i->GetYaxis()->SetRangeUser(-0.05,0.05);
+} else if ( $i==pHoverEVsEtAll  ) 
+{ $i->GetYaxis()->SetRangeUser(-0.05,0.05);
 } else  {
 $i->SetMinimum(0.8);
 $i->SetMaximum(1.1);
