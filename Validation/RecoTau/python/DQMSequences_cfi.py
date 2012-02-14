@@ -2,16 +2,16 @@ from Validation.RecoTau.dataTypes.ValidateTausOnRealData_cff import *
 from Validation.RecoTau.dataTypes.ValidateTausOnRealElectronsData_cff import *
 from Validation.RecoTau.dataTypes.ValidateTausOnRealMuonsData_cff import *
 
-pfTauRunDQMValidation = cms.Sequence(
-    TauValNumeratorAndDenominatorRealData+
-    TauValNumeratorAndDenominatorRealElectronsData+
-    TauValNumeratorAndDenominatorRealMuonsData
-    )
-
 produceDenoms = cms.Sequence(
     produceDenominatorRealData+
     produceDenominatorRealElectronsData+
     produceDenominatorRealMuonsData
+    )
+
+pfTauRunDQMValidation = cms.Sequence(
+    TauValNumeratorAndDenominatorRealData+
+    TauValNumeratorAndDenominatorRealElectronsData+
+    TauValNumeratorAndDenominatorRealMuonsData
     )
 
 runTauEff = cms.Sequence(
@@ -21,22 +21,45 @@ runTauEff = cms.Sequence(
     normalizePlotsRealMuonsData
     )
 
-runTauEffSingleMu = cms.Sequence(
-        efficienciesRealMuonsData+
-            efficienciesRealData+
-            normalizePlotsRealMuonsData
-            )
+#Denominators according to dataset
+produceDenomsMu = cms.Sequence(
+    produceDenominatorRealData+
+    produceDenominatorRealMuonsData
+    )
+produceDenomsSingleMu = produceDenomsMu
 
-runTauEffJet = cms.Sequence(
-        TauEfficienciesRealData
-            )
+produceDenomsJet = produceDenominatorRealData
+produceDenomsMultiJet = produceDenomsJet
 
+produceDenomsDoubleElectron = produceDenominatorRealElectronsData
+produceDenomsTauPlusX = produceDenomsDoubleElectron
+
+#Main modules according to dataset
+pfTauRunDQMValidationMu = cms.Sequence(
+    TauValNumeratorAndDenominatorRealData+
+    TauValNumeratorAndDenominatorRealMuonsData
+    )
+pfTauRunDQMValidationSingleMu = pfTauRunDQMValidationMu
+
+pfTauRunDQMValidationJet = TauValNumeratorAndDenominatorRealData
+pfTauRunDQMValidationMultiJet = pfTauRunDQMValidationJet
+
+pfTauRunDQMValidationDoubleElectron = TauValNumeratorAndDenominatorRealElectronsData
+pfTauRunDQMValidationTauPlusX = pfTauRunDQMValidationDoubleElectron
+
+#Efficiencies production according to dataset
+runTauEffMu = cms.Sequence(
+    efficienciesRealMuonsData+
+    efficienciesRealData+
+    normalizePlotsRealMuonsData
+    )
+runTauEffSingleMu = runTauEffMu
+
+runTauEffJet = TauEfficienciesRealData
 runTauEffMutiJet = runTauEffJet
 
-runTauEffSingleE = cms.Sequence(
-        produceDenominatorRealElectronsData
-            )
-runTauEffTausPlusE = runTauEffSingleE
+runTauEffDoubleElectron = produceDenominatorRealElectronsData
+runTauEffTauPlusX = runTauEffDoubleElectron
 
 ##Full sequences, including normalizations
 ## TauEfficienciesRealData+
