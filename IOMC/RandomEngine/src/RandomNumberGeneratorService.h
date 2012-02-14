@@ -12,6 +12,7 @@
 */
 
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "boost/shared_ptr.hpp"
 
@@ -169,11 +170,12 @@ namespace edm {
       // from being thrown in those methods.
       std::vector<std::vector<unsigned long> > engineStateStack_;
 
-      // This holds the module label used in a previous process
-      // to store the state of the random number engines.  The
-      // empty string is used to signal that we are not trying
-      // to restore the random numbers.
-      std::string restoreStateLabel_;
+      // These hold the input tags needed to retrieve the states
+      // of the random number engines stored in a previous process.
+      // If the label in the tag is the empty string (the default),
+      // then the service does not try to restore the random numbers.
+      edm::InputTag restoreStateTag_;
+      edm::InputTag restoreStateBeginLumiTag_;
 
       std::vector<RandomEngineState> lumiCache_;
       std::vector<RandomEngineState> eventCache_;

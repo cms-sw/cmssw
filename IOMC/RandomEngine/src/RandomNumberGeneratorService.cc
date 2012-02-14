@@ -45,7 +45,6 @@ namespace edm {
 
     RandomNumberGeneratorService::RandomNumberGeneratorService(ParameterSet const& pset,
                                                                ActivityRegistry& activityRegistry):
-      restoreStateLabel_(pset.getUntrackedParameter<std::string>("restoreStateLabel")),
       saveFileName_(pset.getUntrackedParameter<std::string>("saveFileName")),
       saveFileNameRecorded_(false),
       restoreFileName_(pset.getUntrackedParameter<std::string>("restoreFileName")),
@@ -55,7 +54,14 @@ namespace edm {
       eventSeedOffset_(pset.getUntrackedParameter<unsigned>("eventSeedOffset")),
       failedToFindStatesInLumi_(false) {
 
-      if(!restoreFileName_.empty() && !restoreStateLabel_.empty()) {
+      if(pset.exists("restoreStateTag")) {
+        restoreStateTag_ = pset.getUntrackedParameter<edm::InputTag>("restoreStateTag");
+      } else {
+        restoreStateTag_ = edm::InputTag(pset.getUntrackedParameter<std::string>("restoreStateLabel"), "", "");
+      }
+      restoreStateBeginLumiTag_ = edm::InputTag(restoreStateTag_.label(), "beginLumi", restoreStateTag_.process()); 
+
+      if(!restoreFileName_.empty() && !restoreStateTag_.label().empty()) {
         throw Exception(errors::Configuration)
           << "In the configuration for the RandomNumberGeneratorService both\n"
           << "restoreFileName and restoreStateLabel were set to nonempty values\n"
@@ -294,7 +300,11 @@ namespace edm {
       ParameterSetDescription desc;
 
       std::string emptyString;
-      desc.addUntracked<std::string>("restoreStateLabel", emptyString);
+      edm::InputTag emptyInputTag("", "", "");
+
+      desc.addNode( edm::ParameterDescription<edm::InputTag>("restoreStateTag", emptyInputTag, false) xor
+                    edm::ParameterDescription<std::string>("restoreStateLabel", emptyString, false) );
+
       desc.addUntracked<std::string>("saveFileName", emptyString);
       desc.addUntracked<std::string>("restoreFileName", emptyString);
       desc.addUntracked<bool>("enableChecking", false);
@@ -357,11 +367,11 @@ namespace edm {
       }
 
       // copy state from LuminosityBlock to lumi cache
-      if(!restoreStateLabel_.empty()) {
+      if(!restoreStateTag_.label().empty()) {
         readFromLuminosityBlock(lumi);
       }
 
-      if(!firstLumi_ || !restoreFileName_.empty() || !restoreStateLabel_.empty()) {
+      if(!firstLumi_ || !restoreFileName_.empty() || !restoreStateTag_.label().empty()) {
         // copy state from lumi cache to engines
         restoreFromCache(lumiCache_);
       }
@@ -393,7 +403,7 @@ namespace edm {
     void
     RandomNumberGeneratorService::postEventRead(Event const& event) {
       // copy from Event to event cache
-      if(!restoreStateLabel_.empty()) {
+      if(!restoreStateTag_.label().empty()) {
         snapShot(eventCache_);
         readFromEvent(event);
 
@@ -659,7 +669,7 @@ namespace edm {
         }
       }
 
-      std::cout << "    restoreStateLabel_ = " << restoreStateLabel_ << "\n";
+      std::cout << "    restoreStateTag_ = " << restoreStateTag_ << "\n";
       std::cout << "    saveFileName_ = " << saveFileName_ << "\n";
       std::cout << "    restoreFileName_ = " << restoreFileName_ << "\n";
     }
@@ -686,8 +696,7 @@ namespace edm {
     RandomNumberGeneratorService::readFromLuminosityBlock(LuminosityBlock const& lumi) {
 
       Handle<RandomEngineStates> states;
-
-      lumi.getByLabel(restoreStateLabel_, "beginLumi", states);
+      lumi.getByLabel(restoreStateBeginLumiTag_, states);
 
       if(!states.isValid()) {
         failedToFindStatesInLumi_ = true;
@@ -702,7 +711,7 @@ namespace edm {
 
       Handle<RandomEngineStates> states;
 
-      event.getByLabel(restoreStateLabel_, states);
+      event.getByLabel(restoreStateTag_, states);
 
       if(!states.isValid()) {
         if(failedToFindStatesInLumi_ && backwardCompatibilityRead(event)) {
@@ -711,7 +720,7 @@ namespace edm {
           throw Exception(errors::ProductNotFound)
             << "The RandomNumberGeneratorService is trying to restore\n"
             << "the state of the random engines by reading a product from\n"
-            << "the Event with label \"" << restoreStateLabel_ << "\".  It\n"
+            << "the Event with input tag \"" << restoreStateTag_ << "\".  It\n"
             << "fails to find one.  The label used in the request for the product\n"
             << "is set in the configuration. It is probably set to the wrong value\n"
             << "in the configuration file.  It must match the module label\n"
@@ -723,7 +732,7 @@ namespace edm {
         throw Exception(errors::ProductNotFound)
           << "The RandomNumberGeneratorService is trying to restore\n"
           << "the state of the random engines by reading a product from\n"
-          << "the Event and LuminosityBlock with label \"" << restoreStateLabel_ << "\".\n"
+          << "the Event and LuminosityBlock with input tag \"" << restoreStateTag_ << "\".\n"
           << "It found the product in the Event but not the one in the LuminosityBlock.\n"
           << "Either the product in the LuminosityBlock was dropped or\n"
           << "there is a bug somewhere\n";
@@ -736,7 +745,7 @@ namespace edm {
 
       Handle<std::vector<RandomEngineState> > states;
 
-      event.getByLabel(restoreStateLabel_, states);
+      event.getByLabel(restoreStateTag_, states);
       if(!states.isValid()) {
         return false;
       }
