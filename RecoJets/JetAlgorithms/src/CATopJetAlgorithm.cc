@@ -1,6 +1,6 @@
 // Original author: Brock Tweedie (JHU)
 // Ported to CMSSW by: Sal Rappoccio (JHU)
-// $Id: CATopJetAlgorithm.cc,v 1.11 2012/02/03 16:20:11 srappocc Exp $
+// $Id: CATopJetAlgorithm.cc,v 1.12 2012/02/03 20:41:56 srappocc Exp $
 
 #include "RecoJets/JetAlgorithms/interface/CATopJetAlgorithm.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -18,7 +18,9 @@ using namespace edm;
 //  Run the algorithm
 //  ------------------
 void CATopJetAlgorithm::run( const vector<fastjet::PseudoJet> & cell_particles, 
-			     vector<CompoundPseudoJet> & hardjetsOutput )  
+			     vector<fastjet::PseudoJet> & hardjetsOutput,
+			     boost::shared_ptr<fastjet::ClusterSequence> & fjClusterSeq
+			     )  
 {
 	if ( verbose_ ) cout << "Welcome to CATopSubJetAlgorithm::run" << endl;
 	
@@ -60,26 +62,19 @@ void CATopJetAlgorithm::run( const vector<fastjet::PseudoJet> & cell_particles,
 	if ( verbose_ && useAdjacency_==1)cout << "Using deltarcut = " << deltarcut << endl;
 	if ( verbose_ && useAdjacency_==3)cout << "Using nCellMin = " << nCellMin << endl;
 	
-	
-	// Define strategy, recombination scheme, and jet definition
-	fastjet::JetDefinition jetDef( fjJetDefinition_->jet_algorithm(), 
-				       rBins_[sumEtBinId], 
-				       fjJetDefinition_->recombination_scheme(), 
-				       fjJetDefinition_->strategy() );
-	
 	if ( verbose_ ) cout << "About to do jet clustering in CA" << endl;
 	// run the jet clustering
 
 	//cluster the jets with the jet definition jetDef:
 	// run algorithm
-	boost::shared_ptr<fastjet::ClusterSequence> fjClusterSeq;
-	if ( !doAreaFastjet_ ) {
-	  fjClusterSeq = boost::shared_ptr<fastjet::ClusterSequence>( new fastjet::ClusterSequence( cell_particles, jetDef ) );
-	} else if (voronoiRfact_ <= 0) {
-	  fjClusterSeq = boost::shared_ptr<fastjet::ClusterSequence>( new fastjet::ClusterSequenceArea( cell_particles, jetDef , *fjActiveArea_ ) );
-	} else {
-	  fjClusterSeq = boost::shared_ptr<fastjet::ClusterSequence>( new fastjet::ClusterSequenceVoronoiArea( cell_particles, jetDef , fastjet::VoronoiAreaSpec(voronoiRfact_) ) );
-	}
+	// boost::shared_ptr<fastjet::ClusterSequence> fjClusterSeq;
+	// if ( !doAreaFastjet_ ) {
+	//   fjClusterSeq = boost::shared_ptr<fastjet::ClusterSequence>( new fastjet::ClusterSequence( cell_particles, jetDef ) );
+	// } else if (voronoiRfact_ <= 0) {
+	//   fjClusterSeq = boost::shared_ptr<fastjet::ClusterSequence>( new fastjet::ClusterSequenceArea( cell_particles, jetDef , *fjActiveArea_ ) );
+	// } else {
+	//   fjClusterSeq = boost::shared_ptr<fastjet::ClusterSequence>( new fastjet::ClusterSequenceVoronoiArea( cell_particles, jetDef , fastjet::VoronoiAreaSpec(voronoiRfact_) ) );
+	// }
 	
 	if ( verbose_ ) cout << "Getting inclusive jets" << endl;
 	// Get the transient inclusive jets
@@ -207,73 +202,58 @@ void CATopJetAlgorithm::run( const vector<fastjet::PseudoJet> & cell_particles,
 		// record the hard subjets
 		vector<fastjet::PseudoJet> hardSubjets;
 
+		if ( verbose_ ) {
+		  std::cout << "HardA : user_index = " << hardA.user_index() << ", (Pt,Y,Phi,M) = (" 
+			    << hardA.pt() << ", " << hardA.rapidity() << ", " 
+			    << hardA.phi() << ", " << hardA.m() << ")" << std::endl;
+
+		  std::cout << "HardB : user_index = " << hardB.user_index() << ", (Pt,Y,Phi,M) = (" 
+			    << hardB.pt() << ", " << hardB.rapidity() << ", " 
+			    << hardB.phi() << ", " << hardB.m() << ")" << std::endl;
+
+		  std::cout << "HardC : user_index = " << hardC.user_index() << ", (Pt,Y,Phi,M) = (" 
+			    << hardC.pt() << ", " << hardC.rapidity() << ", " 
+			    << hardC.phi() << ", " << hardC.m() << ")" << std::endl;
+
+		  std::cout << "HardD : user_index = " << hardD.user_index() << ", (Pt,Y,Phi,M) = (" 
+			    << hardD.pt() << ", " << hardD.rapidity() << ", " 
+			    << hardD.phi() << ", " << hardD.m() << ")" << std::endl;
+		}
 
 		// Check to see if any subjects are counted amongst the "hard" subjets from previous
 		// lines. NOTE: In Fastjet 3.0, the default "user_index" changed from 0 to -1, so
 		// this can no longer be used as a designator for the veto of "blankJet" subjets,
 		// and now switch to pt > some small value. 
 		if ( subjet1.pt() > 0.0001 )
-		  hardSubjets.push_back(subjet1);
+			hardSubjets.push_back(subjet1);
 		if ( subjet2.pt() > 0.0001 )
-		  hardSubjets.push_back(subjet2);
+			hardSubjets.push_back(subjet2);
 		if ( subjet3.pt() > 0.0001 )
-		  hardSubjets.push_back(subjet3);
+			hardSubjets.push_back(subjet3);
 		if ( subjet4.pt() > 0.0001 )
-		  hardSubjets.push_back(subjet4);
+			hardSubjets.push_back(subjet4);
 		sort(hardSubjets.begin(), hardSubjets.end(), compEt );
 
-		
+		// Use new fastjet functionality to create a Pseudojet from constituents
+		fastjet::PseudoJet candidate = join(hardSubjets);
+		// Reset the jet's 4-vector to the "ungroomed" value
+		candidate.reset_momentum( jetIt->px(), jetIt->py(), jetIt->pz(), jetIt->e() );
+
 		if ( verbose_ ) {
-		  std::cout << "HardA : user_index = " << hardA.user_index() << ", (Pt,Y,Phi,M) = (" 
-			    << hardA.perp() << ", " << hardA.rapidity() << ", " 
-			    << hardA.phi() << ", " << hardA.m() << ")" << std::endl;
-
-		  std::cout << "HardB : user_index = " << hardB.user_index() << ", (Pt,Y,Phi,M) = (" 
-			    << hardB.perp() << ", " << hardB.rapidity() << ", " 
-			    << hardB.phi() << ", " << hardB.m() << ")" << std::endl;
-
-		  std::cout << "HardC : user_index = " << hardC.user_index() << ", (Pt,Y,Phi,M) = (" 
-			    << hardC.perp() << ", " << hardC.rapidity() << ", " 
-			    << hardC.phi() << ", " << hardC.m() << ")" << std::endl;
-
-		  std::cout << "HardD : user_index = " << hardD.user_index() << ", (Pt,Y,Phi,M) = (" 
-			    << hardD.perp() << ", " << hardD.rapidity() << ", " 
-			    << hardD.phi() << ", " << hardD.m() << ")" << std::endl;
+		  std::cout << "Final top-jet candidate: (Pt,Y,Phi,M) = (" 
+			    << candidate.pt() << ", " << candidate.rapidity() << ", " 
+			    << candidate.phi() << ", " << candidate.m() << ")" << std::endl;
+		  std::vector<fastjet::PseudoJet> pieces = candidate.pieces();
+		  std::cout << "Number of pieces = " << pieces.size() << std::endl;
+		  for ( std::vector<fastjet::PseudoJet>::const_iterator ibegin = pieces.begin(), iend = pieces.end(), i = ibegin;
+			i != iend; ++i ) {
+		    std::cout << "   Piece : " << i - ibegin << ", (Pt,Y,Phi,M) = (" 
+			      << i->pt() << ", " << i->rapidity() << ", " 
+			      << i->phi() << ", " << i->m() << ")" << std::endl;
+		  }
 		}
-		
-		// create the subjets objects to put into the "output" objects
-		vector<CompoundPseudoSubJet>  subjetsOutput;
-		std::vector<fastjet::PseudoJet>::const_iterator itSubJetBegin = hardSubjets.begin(),
-		itSubJet = itSubJetBegin, itSubJetEnd = hardSubjets.end();
-		for (; itSubJet != itSubJetEnd; ++itSubJet ){
-			//       if ( verbose_ ) cout << "Adding input collection element " << (*itSubJet).user_index() << endl;
-			//       if ( (*itSubJet).user_index() >= 0 && (*itSubJet).user_index() < cell_particles.size() )
-			
-			// Get the transient subjet constituents from fastjet
-			vector<fastjet::PseudoJet> subjetFastjetConstituents = fjClusterSeq->constituents( *itSubJet );
-			
-			// Get the indices of the constituents
-			vector<int> constituents;
-			
-			// Loop over the constituents and get the indices
-			vector<fastjet::PseudoJet>::const_iterator fastSubIt = subjetFastjetConstituents.begin(),
-			transConstEnd = subjetFastjetConstituents.end();
-			for ( ; fastSubIt != transConstEnd; ++fastSubIt ) {
-				if ( fastSubIt->user_index() >= 0 && static_cast<unsigned int>(fastSubIt->user_index()) < cell_particles.size() ) {
-					constituents.push_back( fastSubIt->user_index() );
-				}
-			}
-			
-			// Make a CompoundPseudoSubJet object to hold this subjet and the indices of its constituents
-			subjetsOutput.push_back( CompoundPseudoSubJet( *itSubJet, constituents ) );
-		}
-		
-
-		double fatJetArea = (doAreaFastjet_) ?
-		  ((fastjet::ClusterSequenceArea&)*fjClusterSeq).area(*jetIt) : 0.0;
-		
-		// Make a CompoundPseudoJet object to hold this hard jet, and the subjets that make it up
-		hardjetsOutput.push_back( CompoundPseudoJet( *jetIt,fatJetArea,subjetsOutput));		
+		// Add to the list
+		hardjetsOutput.push_back( candidate );		
 	}
 }
 

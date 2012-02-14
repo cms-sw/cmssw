@@ -6,7 +6,7 @@ using namespace cms;
 using namespace reco;
 
 CATopJetProducer::CATopJetProducer(edm::ParameterSet const& conf):
-       CompoundJetProducer( conf ),
+       FastjetJetProducer( conf ),
   	   alg_(src_,
        conf.getParameter<bool>  ("verbose"),              
        conf.getParameter<int>	("algorithm"),                  // 0 = KT, 1 = CA, 2 = anti-KT
@@ -25,23 +25,26 @@ CATopJetProducer::CATopJetProducer(edm::ParameterSet const& conf):
        conf.getParameter<double>("inputEtMin"),                	// seed threshold - NOT USED
        conf.getParameter<bool>  ("useMaxTower"),               	// use max tower as adjacency criterion, otherwise use centroid - NOT USED
        conf.getParameter<double>("sumEtEtaCut"),               	// eta for event SumEt - NOT USED
-       conf.getParameter<double>("etFrac"),                    	// fraction of event sumEt / 2 for a jet to be considered "hard" -NOT USED
-       fjJetDefinition_,
-       doAreaFastjet_,
-       fjActiveArea_,
-       voronoiRfact_
+       conf.getParameter<double>("etFrac")                    	// fraction of event sumEt / 2 for a jet to be considered "hard" -NOT USED
        )
 {}
 
 void CATopJetProducer::produce(  edm::Event & e, const edm::EventSetup & c ) 
 {
-  CompoundJetProducer::produce(e, c);
+  FastjetJetProducer::produce(e, c);
 }
 
 void CATopJetProducer::runAlgorithm( edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  if ( !doAreaFastjet_ && !doRhoFastjet_) {
+    fjClusterSeq_ = ClusterSequencePtr( new fastjet::ClusterSequence( fjInputs_, *fjJetDefinition_ ) );
+  } else if (voronoiRfact_ <= 0) {
+    fjClusterSeq_ = ClusterSequencePtr( new fastjet::ClusterSequenceArea( fjInputs_, *fjJetDefinition_ , *fjAreaDefinition_ ) );
+  } else {
+    fjClusterSeq_ = ClusterSequencePtr( new fastjet::ClusterSequenceVoronoiArea( fjInputs_, *fjJetDefinition_ , fastjet::VoronoiAreaSpec(voronoiRfact_) ) );
+  }
 
-  alg_.run( fjInputs_, fjCompoundJets_ );
+  alg_.run( fjInputs_, fjJets_, fjClusterSeq_ );
 
 }
 

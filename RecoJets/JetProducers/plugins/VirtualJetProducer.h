@@ -133,6 +133,10 @@ protected:
   template< typename T >
   void writeJets( edm::Event & iEvent, edm::EventSetup const& iSetup );
   
+  template< typename T>
+  void writeCompoundJets(  edm::Event & iEvent, edm::EventSetup const& iSetup);
+
+
   // This method copies the constituents from the fjConstituents method
   // to an output of CandidatePtr's. 
   virtual std::vector<reco::CandidatePtr>
@@ -188,6 +192,7 @@ protected:
   unsigned int                    nExclude_;
 
   std::string                     jetCollInstanceName_;       // instance name for output jet collection
+  bool                            writeCompound_;    // write compound jets (i.e. jets of jets)
   boost::shared_ptr<PileUpSubtractor>  subtractor_;
 
   bool                            useDeterministicSeed_; // If desired, use a deterministic seed to fastjet

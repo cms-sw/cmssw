@@ -61,13 +61,12 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
-#include "RecoJets/JetProducers/plugins/CompoundJetProducer.h"
+#include "RecoJets/JetProducers/plugins/FastjetJetProducer.h"
 #include "RecoJets/JetAlgorithms/interface/CATopJetAlgorithm.h"
-#include "RecoJets/JetAlgorithms/interface/CompoundPseudoJet.h"
 
 namespace cms
 {
-  class CATopJetProducer : public CompoundJetProducer
+  class CATopJetProducer : public FastjetJetProducer
   {
   public:
 

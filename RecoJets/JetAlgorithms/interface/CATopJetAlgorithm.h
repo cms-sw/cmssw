@@ -59,11 +59,7 @@ class CATopJetAlgorithm{
 		    double seedThreshold,            
 		    bool   useMaxTower,
 		    double sumEtEtaCut,
-		    double etFrac,
-		    boost::shared_ptr<fastjet::JetDefinition> fjJetDefinition,
-		    bool doAreaFastjet,
-		    boost::shared_ptr<fastjet::GhostedAreaSpec> fjActiveArea,
-		    double voronoiRfact) :
+		    double etFrac) :
     mSrc_          (mSrc          ),
     verbose_   	   (verbose       ),
     algorithm_     (algorithm     ),
@@ -73,21 +69,19 @@ class CATopJetAlgorithm{
     sumEtBins_     (sumEtBins     ),        
     rBins_         (rBins         ),         
     ptFracBins_    (ptFracBins    ),  
-	deltarBins_    (deltarBins    ),
+    deltarBins_    (deltarBins    ),
     nCellBins_     (nCellBins     ),
     seedThreshold_ (seedThreshold ), 
     useMaxTower_   (useMaxTower   ),
     sumEtEtaCut_   (sumEtEtaCut   ),   
-    etFrac_        (etFrac        ),
-    fjJetDefinition_(fjJetDefinition),
-    doAreaFastjet_ (doAreaFastjet),
-    fjActiveArea_  (fjActiveArea),
-    voronoiRfact_  (voronoiRfact)
+    etFrac_        (etFrac        )
+
       { }
 
     /// Find the ProtoJets from the collection of input Candidates.
     void run( const std::vector<fastjet::PseudoJet> & cell_particles, 
-	      std::vector<CompoundPseudoJet> & hardjetsOutput 
+	      std::vector<fastjet::PseudoJet> & hardjetsOutput ,
+	      boost::shared_ptr<fastjet::ClusterSequence> & fjClusterSeq
 	      );
 
  private:
@@ -113,10 +107,7 @@ class CATopJetAlgorithm{
   double              sumEtEtaCut_;   			//<! eta for event SumEt - NOT USED                                 
   double              etFrac_;	      			//<! fraction of event sumEt / 2 for a jet to be considered "hard" - NOT USED 
   std::string         jetType_;       			//<! CaloJets or GenJets - NOT USED
-  boost::shared_ptr<fastjet::JetDefinition> fjJetDefinition_; //<! jet definition to use
-  bool                doAreaFastjet_; //<! whether or not to use the fastjet area
-  boost::shared_ptr<fastjet::GhostedAreaSpec> fjActiveArea_; //<! fastjet area spec
-  double              voronoiRfact_;  //<! fastjet voronoi area R factor
+
 
   // Decide if the two jets are in adjacent cells    
   bool adjacentCells(const fastjet::PseudoJet & jet1, const fastjet::PseudoJet & jet2, 

@@ -4,6 +4,8 @@ from RecoJets.JetProducers.sc5PFJets_cfi import sisCone5PFJets
 from RecoJets.JetProducers.ic5PFJets_cfi import iterativeCone5PFJets
 from RecoJets.JetProducers.ak5PFJets_cfi import ak5PFJets
 from RecoJets.JetProducers.ak5PFJetsTrimmed_cfi import ak5PFJetsTrimmed
+from RecoJets.JetProducers.ak5PFJetsFiltered_cfi import ak5PFJetsFiltered, ak5PFJetsMassDropFiltered
+from RecoJets.JetProducers.ak5PFJetsPruned_cfi import ak5PFJetsPruned
 from RecoJets.JetProducers.gk5PFJets_cfi import gk5PFJets
 from RecoJets.JetProducers.kt4PFJets_cfi import kt4PFJets
 from RecoJets.JetProducers.ca4PFJets_cfi import ca4PFJets
@@ -57,6 +59,8 @@ recoAllPFJets=cms.Sequence(sisCone5PFJets+sisCone7PFJets+
                            kt6PFJetsCentralNeutral+
                            kt6PFJetsCentralNeutralTight+
                            iterativeCone5PFJets+
-                           ak5PFJets+ak7PFJets+ak5PFJetsTrimmed+
+                           ak5PFJets+ak7PFJets+
+                           ak5PFJetsTrimmed+ak5PFJetsPruned+
+                           ak5PFJetsFiltered+ak5PFJetsMassDropFiltered+
                            gk5PFJets+gk7PFJets+
                            ca4PFJets+ca6PFJets)

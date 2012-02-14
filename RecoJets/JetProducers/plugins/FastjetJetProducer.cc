@@ -36,6 +36,8 @@
 #include "fastjet/ATLASConePlugin.hh"
 #include "fastjet/CDFMidPointPlugin.hh"
 #include "fastjet/tools/Filter.hh"
+#include "fastjet/tools/Pruner.hh"
+#include "fastjet/tools/MassDropTagger.hh"
 
 #include <iostream>
 #include <memory>
@@ -54,9 +56,20 @@ using namespace std;
 
 //______________________________________________________________________________
 FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
-  : VirtualJetProducer( iConfig )
+  : VirtualJetProducer( iConfig ),
+    useMassDropTagger_(false),
+    useFiltering_(false),
+    useTrimming_(false),
+    usePruning_(false),
+    muCut_(-1.0),
+    yCut_(-1.0),
+    rFilt_(-1.0),
+    nFilt_(-1),
+    trimPtFracMin_(-1.0),
+    zCut_(-1.0),
+    RcutFactor_(-1.0)
 {
-  
+
   if ( iConfig.exists("UseOnlyVertexTracks") )
     useOnlyVertexTracks_ = iConfig.getParameter<bool>("UseOnlyVertexTracks");
   else 
@@ -83,16 +96,51 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
     maxVtxZ_ = iConfig.getParameter<double>("MaxVtxZ");
   else
     maxVtxZ_ = 15;
-  if ( iConfig.exists("useTrimming") ) {
-    useTrimming_ = true;
-    rFilt_ = iConfig.getParameter<double>("rFilt");
-    trimPtFracMin_ = iConfig.getParameter<double>("trimPtFracMin");
+
+
+  if ( iConfig.exists("useFiltering") ||
+       iConfig.exists("useTrimming") ||
+       iConfig.exists("usePruning") ||
+       iConfig.exists("useMassDropTagger") ) {
+    useMassDropTagger_=false;
+    useFiltering_=false;
+    useTrimming_=false;
+    usePruning_=false;
+    rFilt_=-1.0;
+    nFilt_=-1;
+    trimPtFracMin_=-1.0;
+    zCut_=-1.0;
+    RcutFactor_=-1.0;
+    muCut_=-1.0;
+    yCut_=-1.0;
     useExplicitGhosts_ = true;
-  }
-  else {
-    useTrimming_ = false;
-    rFilt_ = -1.0;
-    trimPtFracMin_ = -1.0;
+
+
+    if ( iConfig.exists("useMassDropTagger") ) {
+      useMassDropTagger_ = true;
+      muCut_ = iConfig.getParameter<double>("muCut");
+      yCut_ = iConfig.getParameter<double>("yCut");
+    }
+
+    if ( iConfig.exists("useFiltering") ) {
+      useFiltering_ = true;
+      rFilt_ = iConfig.getParameter<double>("rFilt");
+      nFilt_ = iConfig.getParameter<int>("nFilt");
+    }
+  
+    if ( iConfig.exists("useTrimming") ) {
+      useTrimming_ = true;
+      rFilt_ = iConfig.getParameter<double>("rFilt");
+      trimPtFracMin_ = iConfig.getParameter<double>("trimPtFracMin");
+    }
+
+    if ( iConfig.exists("usePruning") ) {
+      usePruning_ = true;
+      zCut_ = iConfig.getParameter<double>("zcut");
+      RcutFactor_ = iConfig.getParameter<double>("rcut_factor");
+      nFilt_ = iConfig.getParameter<int>("nFilt");
+    }
+
   }
 
 }
@@ -271,6 +319,7 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
   }
   fin.close();
   */
+
   if ( !doAreaFastjet_ && !doRhoFastjet_) {
     fjClusterSeq_ = ClusterSequencePtr( new fastjet::ClusterSequence( fjInputs_, *fjJetDefinition_ ) );
   } else if (voronoiRfact_ <= 0) {
@@ -279,20 +328,51 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
     fjClusterSeq_ = ClusterSequencePtr( new fastjet::ClusterSequenceVoronoiArea( fjInputs_, *fjJetDefinition_ , fastjet::VoronoiAreaSpec(voronoiRfact_) ) );
   }
 
-
-  if ( !useTrimming_ ) {
+  if ( !useTrimming_ && !useFiltering_ && !usePruning_ ) {
     fjJets_ = fastjet::sorted_by_pt(fjClusterSeq_->inclusive_jets(jetPtMin_));
   }
   else {
     fjJets_.clear();
-    fastjet::Filter trimmer( fastjet::Filter(fastjet::JetDefinition(fastjet::kt_algorithm, rFilt_), fastjet::SelectorPtFractionMin(trimPtFracMin_)));
     std::vector<fastjet::PseudoJet> tempJets = fastjet::sorted_by_pt(fjClusterSeq_->inclusive_jets(jetPtMin_));
+
+    fastjet::MassDropTagger md_tagger( muCut_, yCut_ );
+    fastjet::Filter trimmer( fastjet::Filter(fastjet::JetDefinition(fastjet::kt_algorithm, rFilt_), fastjet::SelectorPtFractionMin(trimPtFracMin_)));
+    fastjet::Filter filter( fastjet::Filter(fastjet::JetDefinition(fastjet::cambridge_algorithm, rFilt_), fastjet::SelectorNHardest(nFilt_)));
+    fastjet::Pruner pruner(fastjet::cambridge_algorithm, zCut_, RcutFactor_);
+
+    std::vector<fastjet::Transformer const *> transformers;
+
+    if ( useMassDropTagger_ ) {
+      transformers.push_back(&md_tagger);
+    }
+    if ( useTrimming_ ) {
+      transformers.push_back(&trimmer);
+    } 
+    if ( useFiltering_ ) {
+      transformers.push_back(&filter);
+    } 
+    if ( usePruning_ ) {
+      transformers.push_back(&pruner);
+    }
+
+
 
     for ( std::vector<fastjet::PseudoJet>::const_iterator ijet = tempJets.begin(),
 	    ijetEnd = tempJets.end(); ijet != ijetEnd; ++ijet ) {
-      fastjet::PseudoJet trimmedJet = trimmer(*ijet);
-      fjJets_.push_back( trimmedJet );
 
+      fastjet::PseudoJet transformedJet = *ijet;
+      bool passed = true;
+      for ( std::vector<fastjet::Transformer const *>::const_iterator itransf = transformers.begin(),
+	      itransfEnd = transformers.end(); itransf != itransfEnd; ++itransf ) {
+	if ( transformedJet != 0 ) {
+	  transformedJet = (**itransf)(transformedJet);
+	}
+	else {
+	  passed=false;
+	}
+      }
+      if ( passed ) 
+	fjJets_.push_back( transformedJet );
     }
   }
 
