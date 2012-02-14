@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.81 2012/02/13 12:07:09 babar Exp $
+# $Id: InjectWorker.pl,v 1.82 2012/02/14 16:48:54 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -867,7 +867,7 @@ sub got_end_of_run {
     $kernel->call( $session => check_eor_consistency => $args );
     $kernel->yield(
         update_db => $args,
-        endOfRun  => qw( LastLumi Timestamp run instance maxLumi lastGood )
+        endOfRun  => qw( LastLumi Timestamp maxLumi lastGood run instance )
     );
 }
 
