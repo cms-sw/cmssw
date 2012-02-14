@@ -11,7 +11,7 @@
  **
  **
  **  $Id: PhotonPostprocessing
- **  $Date: 2011/05/20 13:55:42 $
+ **  $Date: 2011/05/25 16:20:19 $
  **  author:
  **   Nancy Marinelli, U. of Notre Dame, US
  **
@@ -36,8 +36,7 @@ PhotonPostprocessing::PhotonPostprocessing(const edm::ParameterSet& pset)
   batch_ = pset.getParameter<bool>("batch");
   outputFileName_ = pset.getParameter<string>("OutputFileName");
   inputFileName_  = pset.getParameter<std::string>("InputFileName");
-
-
+  isRunCentrally_=   pset.getParameter<bool>("isRunCentrally");
 
   etMin = parameters_.getParameter<double>("etMin");
   etMax = parameters_.getParameter<double>("etMax");
@@ -119,11 +118,11 @@ void PhotonPostprocessing::runPostprocessing()
   histname = "deadChVsEt";
   phoDeadChEt_ =  dbe_->book1D(histname,"Fraction of photons with >=1 dead Xtal vs simulated Et",etBin,etMin, etMax) ;
 
-
-  histname = "convVsEt";
-  convVsEt_[0] =  dbe_->book1D(histname+"Barrel","Fraction of good conversions in R9<0.93 vs Et ",etBin,etMin, etMax) ;
-  convVsEt_[1] =  dbe_->book1D(histname+"Endcap","Fraction of good conversions in R9<0.93 vs Et ",etBin,etMin, etMax) ;
-
+  if ( ! isRunCentrally_ ) {
+    histname = "convVsEt";
+    convVsEt_[0] =  dbe_->book1D(histname+"Barrel","Fraction of good conversions in R9<0.93 vs Et ",etBin,etMin, etMax) ;
+    convVsEt_[1] =  dbe_->book1D(histname+"Endcap","Fraction of good conversions in R9<0.93 vs Et ",etBin,etMin, etMax) ;
+  }
 
 
 
@@ -187,10 +186,10 @@ void PhotonPostprocessing::runPostprocessing()
 
 
   // efficiencies
-  dividePlots(dbe_->get(effPathName+"convVsEtBarrel"),dbe_->get(photonPathName+"EtR9Less093ConvBarrel"),dbe_->get(photonPathName+"EtR9Less093Barrel"), "effic");
-  dividePlots(dbe_->get(effPathName+"convVsEtEndcap"),dbe_->get(photonPathName+"EtR9Less093ConvEndcap"),dbe_->get(photonPathName+"EtR9Less093Endcap"), "effic");
-
-
+  if ( ! isRunCentrally_ ) {
+    dividePlots(dbe_->get(effPathName+"convVsEtBarrel"),dbe_->get(photonPathName+"EtR9Less093ConvBarrel"),dbe_->get(photonPathName+"EtR9Less093Barrel"), "effic");
+    dividePlots(dbe_->get(effPathName+"convVsEtEndcap"),dbe_->get(photonPathName+"EtR9Less093ConvEndcap"),dbe_->get(photonPathName+"EtR9Less093Endcap"), "effic");
+  }
 
   dividePlots(dbe_->get(effPathName+"recoEffVsEta"),dbe_->get(simInfoPathName+"h_MatchedSimPhoEta"),dbe_->get(simInfoPathName+"h_SimPhoEta"), "effic");
   dividePlots(dbe_->get(effPathName+"recoEffVsPhi"),dbe_->get(simInfoPathName+"h_MatchedSimPhoPhi"),dbe_->get(simInfoPathName+"h_SimPhoPhi"),"effic");
