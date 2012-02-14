@@ -5,7 +5,6 @@
 #include "CondCore/DBCommon/interface/DbConnection.h"
 #include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
-#include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/IOVService/interface/IOVProxy.h"
 #include "CondCore/IOVService/interface/KeyList.h"
@@ -88,7 +87,6 @@ int main(){
     cond::DbSession pooldb = connection.createSession();
     pooldb.open("sqlite_file:mytest.db");
     pooldb.transaction().start(false);
-    cond::IOVService iovmanager( pooldb );
     cond::IOVEditor editor( pooldb );
     editor.create(cond::timestamp,60);
     Add add(pooldb, editor);
@@ -96,40 +94,47 @@ int main(){
     add(21,"pay2");
     add(41,"pay3");
     pooldb.transaction().commit();
-    std::string iovtok=editor.token();
+    
+    cond::IOVProxy iov0 = editor.proxy();
+    std::string iovtok=iov0.token();
 
     pooldb.transaction().start(true);
 
-    std::cout<<"is 30 valid? "<<iovmanager.isValid(iovtok,30)<<std::endl;
-    std::pair<cond::Time_t, cond::Time_t> v =  iovmanager.validity(iovtok,30);
-    std::cout<<"30 validity "<< v.first << " : " << v.second <<std::endl;
-    std::cout<<"30 token "<< iovmanager.payloadToken(iovtok,30)<<std::endl;
+    iov0.refresh();
 
+    std::cout<<"is 30 valid? "<<iov0.isValid(30)<<std::endl;
+    std::pair<cond::Time_t, cond::Time_t> v =  iov0.validity(30);
+    std::cout<<"30 validity "<< v.first << " : " << v.second <<std::endl;
+    cond::IOVProxy::const_iterator iP = iov0.find( 30 );
+    if( iP != iov0.end() ){
+      std::cout<<"30 token "<< iP->token()<<std::endl;
+    }
     pooldb.transaction().commit();
+
+    pooldb.transaction().start(true);
     // use Proxy
     {
+      cond::IOVProxy iov( pooldb,iovtok);
       std::cout<<"test proxy "<<std::endl;
-      cond::IOVProxy iov(pooldb,iovtok);
       std::cout << "size " << iov.size()
 		<<", Time Type " << iov.timetype() << std::endl;
       std::for_each(iov.begin(),iov.end(),boost::bind(&print,_1));
       std::cout << "range 5,45" << std::endl;
-      iov.setRange(5,45);
-      std::for_each(iov.begin(),iov.end(),boost::bind(&print,_1));
+      cond::IOVRange rg = iov.range(5,45);
+      std::for_each(rg.begin(),rg.end(),boost::bind(&print,_1));
       std::cout << "range 35,45" << std::endl;
-      iov.setRange(35,45);
-      std::for_each(iov.begin(),iov.end(),boost::bind(&print,_1));
+      rg = iov.range(35,45);
+      std::for_each(rg.begin(),rg.end(),boost::bind(&print,_1));
       std::cout << "range 45,70" << std::endl;
-      iov.setRange(45,70);
-      std::for_each(iov.begin(),iov.end(),boost::bind(&print,_1));
+      rg = iov.range(45,70);
+      std::for_each(rg.begin(),rg.end(),boost::bind(&print,_1));
       std::cout << "range 45,47" << std::endl;
-      iov.setRange(45,47);
-      std::for_each(iov.begin(),iov.end(),boost::bind(&print,_1));
+      rg = iov.range(45,47);
+      std::for_each(rg.begin(),rg.end(),boost::bind(&print,_1));
     }
     {
       // test "copy shallow"
       cond::IOVProxy iov( pooldb,iovtok);
-      pooldb.close();
       std::cout << "size " << iov.size()
 		<<", Time Type " << iov.timetype() << std::endl;
       std::cout << "head 2" << std::endl;
@@ -140,17 +145,16 @@ int main(){
       print(*iov.find(23));
       print(*iov.find(43));
       print(*iov.find(63));
-      iov.setRange(1,90);
-      print(*iov.find(63));
-      iov.resetRange();
+      cond::IOVRange rg =  iov.range(1,90);
+      print(*rg.find(63));
       std::cout << "back" << std::endl;
       print(*(iov.end()-1));
-      iov.tail(1);
-      print(*iov.begin());
+      rg =  iov.tail(1);
+      print(*rg.begin());
 
     }
+    pooldb.transaction().commit();
     {
-      pooldb.open("sqlite_file:mytest.db");
       // test PayloadProxy
       cond::PayloadProxy<cond::IOVElement> data(pooldb,iovtok,false);
       printT(data,3);
@@ -194,6 +198,7 @@ int main(){
 	
       }
       */
+      cond::IOVProxy iov(pooldb,iovtok);
     }
   }catch(const cond::Exception& er){
     std::cout<<"error "<<er.what()<<std::endl;

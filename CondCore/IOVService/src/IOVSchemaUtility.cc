@@ -14,7 +14,17 @@ cond::IOVSchemaUtility::IOVSchemaUtility(cond::DbSession& session, std::ostream&
 }
 cond::IOVSchemaUtility::~IOVSchemaUtility(){}
 
-bool cond::IOVSchemaUtility::createIOVContainerIfNecessary(){
+bool cond::IOVSchemaUtility::existsIOVContainer(){
+  bool ret = false;
+  ora::Database& db = m_session.storage();
+  if( db.exists() ){
+    std::set<std::string> conts = db.containers();
+    ret = ( conts.find( cond::IOVNames::container() )!=conts.end() );
+  }
+  return ret;
+}
+
+bool cond::IOVSchemaUtility::createIOVContainer(){
   ora::Database& db = m_session.storage();
   if( !db.exists() ){
     if(m_log) *m_log << "INFO: Creating condition database in "<<db.connectionString()<<std::endl;

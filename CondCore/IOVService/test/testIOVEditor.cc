@@ -152,7 +152,7 @@ int main(){
       //std::cout<<"truncate. new last position "<<pos<<std::endl;
       
       
-      token=editor.token();
+      token=editor.proxy().token();
       std::cout<<"iov token "<<token<<std::endl;
       transaction.commit();
     }

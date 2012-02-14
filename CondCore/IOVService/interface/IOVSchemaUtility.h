@@ -8,8 +8,11 @@ namespace cond{
     explicit IOVSchemaUtility(DbSession& session);
     IOVSchemaUtility(DbSession& session, std::ostream& log);
     ~IOVSchemaUtility();
-    /// create iov tables if not existing
-    bool createIOVContainerIfNecessary();
+
+    bool existsIOVContainer();
+
+    /// create iov tables
+    bool createIOVContainer();
 
     /// drop iov tables if existing
     bool dropIOVContainer();

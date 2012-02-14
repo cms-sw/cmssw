@@ -1,11 +1,10 @@
 #ifndef CondCore_IOVService_IOVEditor_h
 #define CondCore_IOVService_IOVEditor_h
-#include <string>
-#include <vector>
+
+#include "CondCore/IOVService/interface/IOVProxy.h"
+
 #include "CondCore/DBCommon/interface/Time.h"
-#include "CondCore/DBCommon/interface/DbSession.h"
 #include "CondFormats/Common/interface/IOVSequence.h"
-#include<iosfwd>
 
 //
 // Package:     CondCore/IOVService
@@ -16,12 +15,43 @@
 */
 //
 // Author:      Zhen Xie
+// Fixes and other changes: Giacomo Govi
 //
 
 namespace cond{
 
   class IOVElement;
   class IOVSequence;
+
+  class IOVImportIterator {
+  public:
+    explicit IOVImportIterator( boost::shared_ptr<cond::IOVProxyData>& destIov );
+
+    virtual ~IOVImportIterator();
+
+    void setUp( cond::IOVProxy& sourceIov, cond::Time_t since, cond::Time_t till, bool outOfOrder, size_t bulkSize = 1 );
+
+    void setUp( cond::DbSession& sourceSess, const std::string& sourceIovToken, cond::Time_t since, cond::Time_t till,
+		bool outOfOrder, size_t bulkSize = 1 );
+
+    void setUp( cond::IOVProxy& sourceIov, size_t bulkSize = 1 );
+
+    void setUp( cond::DbSession& sourceSess, const std::string& sourceIovToken, size_t bulkSize = 1 );
+
+    bool hasMoreElements();
+
+    size_t importMoreElements();
+
+    size_t importAll();
+
+  private:
+    cond::IOVProxy m_sourceIov;
+    boost::shared_ptr<cond::IOVProxyData> m_destIov;
+    cond::Time_t m_lastSince;
+    size_t m_bulkSize;
+    IOVSequence::const_iterator m_cursor;
+    IOVSequence::const_iterator m_till;
+  };
 
   class IOVEditor{
   public:
@@ -35,14 +65,20 @@ namespace cond{
     /// Destructor
     ~IOVEditor();
 
+    void reload();
+
+    void load( const std::string& token );
+
+    bool createIOVContainerIfNecessary();
+
     // create empty default sequence
-    void create( cond::TimeType timetype );
+    std::string create( cond::TimeType timetype );
 
     // create empty sequence with fixed time boundary
-    void create(cond::TimeType timetype, cond::Time_t lastTill );
+    std::string create(cond::TimeType timetype, cond::Time_t lastTill, const std::string& metadata );
 
-    // return the current sequence
-    IOVSequence & iov();
+    // ####### TO BE REOMOVED ONLY USED IN TESTS
+    std::string create(cond::TimeType timetype, cond::Time_t lastTill );
 
     /// Assign a payload with till time. Returns the payload index in the iov sequence
     unsigned int insert( cond::Time_t tillTime, const std::string& payloadToken );
@@ -78,25 +114,19 @@ namespace cond{
     void deleteEntries( bool withPayload=false);
 
     // 
-    void import( const std::string& sourceIOVtoken );
+    size_t import( cond::DbSession& sourceSess, const std::string& sourceIovToken );
 
-    /// Returns the token of the iov sequence associated with this editor
-    std::string const & token() const { return m_token;}
+    // 
+    boost::shared_ptr<IOVImportIterator> importIterator();
 
-    Time_t firstSince() const;
-  
-    Time_t lastTill() const;
-  
     TimeType timetype() const;
- 
+
+    std::string const & token() const; 
+
+    cond::IOVProxy proxy();
 
   private:
 
-    void loadData( const std::string& token );
-    void flushInserts();
-    void flushUpdates();
-
-    void init();
     bool validTime(cond::Time_t time, cond::TimeType timetype) const;
     bool validTime(cond::Time_t time) const;
 
@@ -106,10 +136,8 @@ namespace cond{
 
   private:
 
-    cond::DbSession m_dbSess;
-    std::string m_token;
-    bool m_isActive;
-    boost::shared_ptr<cond::IOVSequence> m_iov;  
+    bool m_isLoaded;
+    boost::shared_ptr<cond::IOVProxyData> m_iov;
   };
 }//ns cond
 #endif

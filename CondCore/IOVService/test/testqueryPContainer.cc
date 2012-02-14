@@ -4,7 +4,6 @@
 #include "CondCore/DBCommon/interface/DbConnection.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/DbTransaction.h"
-#include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "testPayloadObj.h"
 int main(){
@@ -23,21 +22,19 @@ int main(){
     boost::shared_ptr<testPayloadObj> myPtr( myobj );
     std::string token = pooldb.storeObject(myPtr.get(),"mypayloadcontainer");
     std::cout<<"payload token "<<token<<std::endl;
-    cond::IOVService iovmanager(pooldb);
-    cond::IOVEditor* editor=iovmanager.newIOVEditor();
+    cond::IOVEditor editor( pooldb );
     std::cout << "creating\n";
-    editor->create(cond::timestamp, 2);
+    editor.create(cond::timestamp, 2);
     std::cout << "appending";
-    editor->append(1,token);
-    std::string iovtok=editor->token();
+    editor.append(1,token);
+    std::string iovtok=editor.proxy().token();
     std::cout<<"iov token "<<iovtok<<std::endl;
-    std::set<std::string> cnames=iovmanager.payloadClasses(iovtok );
+    std::set<std::string> cnames=editor.proxy().payloadClasses();
     pooldb.transaction().commit();
     std::cout<<"Payload Class Names: "<<std::endl;
     for( std::set<std::string>::iterator iC = cnames.begin(); iC != cnames.end(); ++iC ){
       std::cout << *iC <<std::endl;
     }
-    delete editor;
   }catch(const cond::Exception& er){
     std::cout<<"error "<<er.what()<<std::endl;
   }catch(const std::exception& er){
