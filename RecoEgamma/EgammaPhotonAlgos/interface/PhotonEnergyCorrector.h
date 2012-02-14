@@ -3,9 +3,9 @@
 /** \class PhotonEnergyCorrector
  **  
  **
- **  $Id: PhotonEnergyCorrector.h,v 1.4 2012/01/11 11:11:29 nancy Exp $ 
- **  $Date: 2012/01/11 11:11:29 $ 
- **  $Revision: 1.4 $
+ **  $Id: PhotonEnergyCorrector.h,v 1.5 2012/01/16 12:15:13 nancy Exp $ 
+ **  $Date: 2012/01/16 12:15:13 $ 
+ **  $Revision: 1.5 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -20,6 +20,13 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
+
+#include "RecoEgamma/EgammaPhotonAlgos/interface/EnergyUncertaintyPhotonSpecific.h"
+
+#include <iostream>
+
+using std::cout;
+using std::endl;
 
 class PhotonEnergyCorrector
  {
@@ -48,6 +55,8 @@ class PhotonEnergyCorrector
    edm::ESHandle<CaloGeometry> theCaloGeom_; 
    edm::InputTag barrelEcalHits_;
    edm::InputTag endcapEcalHits_;
+
+   EnergyUncertaintyPhotonSpecific* photonUncertaintyCalculator_;
    
  } ;
 

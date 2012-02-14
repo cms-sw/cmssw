@@ -8,7 +8,7 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
-
+#include "RecoEgamma/EgammaPhotonAlgos/interface/EnergyUncertaintyPhotonSpecific.h"
 
 PhotonEnergyCorrector::PhotonEnergyCorrector( const edm::ParameterSet& config ) {
 
@@ -44,7 +44,9 @@ PhotonEnergyCorrector::PhotonEnergyCorrector( const edm::ParameterSet& config ) 
   photonEcalEnergyCorrFunction_=0;
   std::string photonEnergyFunctionName = config.getParameter<std::string>("photonEcalEnergyCorrFunction") ;
   photonEcalEnergyCorrFunction_ = EcalClusterFunctionFactory::get()->create(photonEnergyFunctionName, config);
-
+  //ingredient for photon uncertainty
+  photonUncertaintyCalculator_ = new EnergyUncertaintyPhotonSpecific(config);
+ 
 
 
   // ingredient for energy regression
@@ -60,12 +62,14 @@ PhotonEnergyCorrector::PhotonEnergyCorrector( const edm::ParameterSet& config ) 
 
 PhotonEnergyCorrector::~PhotonEnergyCorrector() {
   delete regressionCorrector_;
+  delete photonUncertaintyCalculator_;
 }
 
 
 
 void PhotonEnergyCorrector::init (  const edm::EventSetup& theEventSetup ) {
   theEventSetup.get<CaloGeometryRecord>().get(theCaloGeom_);
+
 
   scEnergyFunction_->init(theEventSetup); 
   scCrackEnergyFunction_->init(theEventSetup); 
@@ -78,6 +82,9 @@ void PhotonEnergyCorrector::init (  const edm::EventSetup& theEventSetup ) {
   if ( !weightsfromDB_ &&  !(w_file_ == "none")  ) {
     if (!regressionCorrector_->IsInitialized()) regressionCorrector_->Initialize(theEventSetup,w_file_,weightsfromDB_);
   }  
+
+ 
+  photonUncertaintyCalculator_->init(theEventSetup);
 
 
 }
@@ -103,6 +110,7 @@ void PhotonEnergyCorrector::calculate(edm::Event& evt, reco::Photon & thePhoton,
   EcalClusterLazyTools lazyTools(evt, iSetup, barrelEcalHits_,endcapEcalHits_);  
 
 
+
   ////////////// Here default Ecal corrections based on electrons  ////////////////////////
   if ( thePhoton.r9() > minR9 ) {
     // f(eta) correction to e5x5
@@ -119,6 +127,9 @@ void PhotonEnergyCorrector::calculate(edm::Event& evt, reco::Photon & thePhoton,
   ////////////// Here Ecal corrections specific for photons ////////////////////////
 
   if ( thePhoton.r9() > minR9 ) {
+
+   
+
     // f(eta) correction to e5x5
     double deltaE = scEnergyFunction_->getValue(*(thePhoton.superCluster()), 1);
     float e5x5=thePhoton.e5x5();
@@ -126,14 +137,16 @@ void PhotonEnergyCorrector::calculate(edm::Event& evt, reco::Photon & thePhoton,
     phoEcalEnergy =  e5x5    +  thePhoton.superCluster()->preshowerEnergy() ;  
     // add correction for cracks
     phoEcalEnergy *=  scCrackEnergyFunction_->getValue(*(thePhoton.superCluster()));
+    phoEcalEnergyError = photonUncertaintyCalculator_->computePhotonEnergyUncertainty_highR9(thePhoton.superCluster()->eta(), thePhoton.superCluster()->phiWidth()/thePhoton.superCluster()->etaWidth(), phoEcalEnergy);
   } else {
+
+  
     // correction for low r9 
     phoEcalEnergy =  photonEcalEnergyCorrFunction_->getValue(*(thePhoton.superCluster()), 1);
     phoEcalEnergy *= applyCrackCorrection(*(thePhoton.superCluster()), scCrackEnergyFunction_);
+    phoEcalEnergyError = photonUncertaintyCalculator_->computePhotonEnergyUncertainty_lowR9(thePhoton.superCluster()->eta(), thePhoton.superCluster()->phiWidth()/thePhoton.superCluster()->etaWidth(), phoEcalEnergy);
   }
 
-  // as for the erros use the error on the SC old energy corrections TEMPORARY for both low and high r9. Final calculations in the next release
-  phoEcalEnergyError =   scEnergyErrorFunction_->getValue(*(thePhoton.superCluster()), 0);  
   
   // store the value in the Photon.h
   thePhoton.setCorrectedEnergy( reco::Photon::ecal_photons, phoEcalEnergy, phoEcalEnergyError,  false);
