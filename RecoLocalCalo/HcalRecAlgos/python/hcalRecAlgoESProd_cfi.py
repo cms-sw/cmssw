@@ -43,11 +43,18 @@ hcalRecAlgos = cms.ESProducer("HcalRecAlgoESProducer",
                   ChannelStatus = cms.vstring('')
                 ),
         cms.PSet( Level = cms.int32(8),
-                  RecHitFlags = cms.vstring('HBHEHpdHitMultiplicity', 'HBHEPulseShape', 'HOBit',
+                  RecHitFlags = cms.vstring('HBHEHpdHitMultiplicity', 
+                                            'HBHEPulseShape', 
+                                            'HOBit',
                                             'HFDigiTime',
                                             'HFInTimeWindow',
                                             'ZDCBit', 'CalibrationBit',
-                                            'TimingErrorBit'),
+                                            'TimingErrorBit',
+                                            'HBHEFlatNoise',
+                                            'HBHESpikeNoise',
+                                            'HBHETriangleNoise',
+                                            'HBHETS4TS5Noise'
+                                           ),
                   ChannelStatus = cms.vstring('')
                 ),
         # March 2010:  HFLongShort now tested, and should be excluded from CaloTowers by default
