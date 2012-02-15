@@ -2,7 +2,7 @@
 from  Configuration.PyReleaseValidation.relval_steps import *
 
 # here only define the workflows as a combination of the steps defined above:
-workflows = {}
+workflows = Matrix()
 
 # each workflow defines a name and a list of steps to be done. 
 # if no explicit name/label given for the workflow (first arg),
