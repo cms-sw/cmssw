@@ -14,7 +14,7 @@
 //
 // Original Author:  Stephen Sanders
 //         Created:  Sat Jun 26 16:04:04 EDT 2010
-// $Id: HiEvtPlaneFlatProducer.cc,v 1.9 2011/10/07 09:41:29 yilmaz Exp $
+// $Id: HiEvtPlaneFlatProducer.cc,v 1.13 2012/02/15 10:33:36 eulisse Exp $
 //
 //
 
@@ -138,12 +138,6 @@ HiEvtPlaneFlatProducer::HiEvtPlaneFlatProducer(const edm::ParameterSet& iConfig)
   for(int i = 0; i<NumEPNames; i++) {
     flat[i] = new HiEvtPlaneFlatten();
     flat[i]->Init(FlatOrder,11,4,EPNames[i],EPOrder[i]);
-    Double_t psirange = 4;
-    if(EPOrder[i]==2 ) psirange = 2;
-    if(EPOrder[i]==3 ) psirange = 1.5;
-    if(EPOrder[i]==4 ) psirange = 1;
-    if(EPOrder[i]==5) psirange = 0.8;
-    if(EPOrder[i]==6) psirange = 0.6;
   }
   
 }
@@ -219,10 +213,6 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     //    cout << "Error! Can't get hiEvtPlane product!" << endl;
     return ;
   }
-  double psiFull[NumEPNames];
-  for(int i = 0; i<NumEPNames; i++) {
-    psiFull[i] = -10;
-  }
 
   std::auto_ptr<EvtPlaneCollection> evtplaneOutput(new EvtPlaneCollection);
   EvtPlane * ep[NumEPNames];
@@ -237,7 +227,6 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	  double psiFlat = flat[i]->GetFlatPsi(rp->angle(),vzr_sell,bin);
 	  epang[i]=psiFlat;
 	  if(EPNames[i].compare(rp->label())==0) {	    
-	    psiFull[i] = psiFlat;
 	    if(storeNames_) ep[i]= new EvtPlane(psiFlat, rp->sumSin(), rp->sumCos(),rp->label().data());
 	    else ep[i]= new EvtPlane(psiFlat, rp->sumSin(), rp->sumCos(),"");
 	  } 

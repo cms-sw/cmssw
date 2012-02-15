@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Sergey Petrushanko
 //         Created:  Fri Jul 11 10:05:00 2008
-// $Id: EvtPlaneProducer.cc,v 1.18 2011/10/07 09:41:29 yilmaz Exp $
+// $Id: EvtPlaneProducer.cc,v 1.20 2012/02/15 10:33:36 eulisse Exp $
 //
 //
 #define TRACKCOLLECTION 1
@@ -216,7 +216,6 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   int vs_sell;
   float vzr_sell;
-  float vzErr_sell;
   //
   //Get Vertex
   //
@@ -226,7 +225,6 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   vs_sell = vertices3->size();
   if(vs_sell>0) {
     vzr_sell = vertices3->begin()->z();
-    vzErr_sell = vertices3->begin()->zError();
   } else
     vzr_sell = -999.9;
   //
@@ -235,9 +233,8 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     //calorimetry part
     
     double tower_eta, tower_phi;
-    double tower_energy, tower_energy_e, tower_energy_h;
     double tower_energyet, tower_energyet_e, tower_energyet_h;
-    double s1, s2, s11, s21,s13,s23,s14,s24,s15,s25,s16,s26;
+    double s1, s2, s13,s23,s14,s24,s15,s25,s16,s26;
     Handle<CaloTowerCollection> calotower;
     iEvent.getByLabel(caloCollection_,calotower);
     
@@ -246,17 +243,12 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       for (CaloTowerCollection::const_iterator j = calotower->begin();j !=calotower->end(); j++) {   
 	tower_eta        = j->eta();
 	tower_phi        = j->phi();
-	tower_energy_e   = j->emEnergy();
-	tower_energy_h   = j->hadEnergy();
-	tower_energy     = tower_energy_e + tower_energy_h;
 	tower_energyet_e   = j->emEt();
 	tower_energyet_h   = j->hadEt();
 	tower_energyet     = tower_energyet_e + tower_energyet_h;
 	
 	s1 = sin(2.*tower_phi);
 	s2 = cos(2.*tower_phi);    
-	s11 = sin(tower_phi);
-	s21 = cos(tower_phi);
 	s13 = sin(3.*tower_phi);
 	s23 = cos(3.*tower_phi);
 	s14 = sin(4.*tower_phi);
@@ -303,7 +295,6 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double track_eta;
     double track_phi;
     double track_pt;
-    double track_charge;
 #ifdef TRACKCOLLECTION  
     Handle<reco::TrackCollection> tracks;
     iEvent.getByLabel(trackCollection_, tracks);
@@ -374,7 +365,6 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  track_eta = j->eta();
 	  track_phi = j->phi();
 	  track_pt = j->pt();
-	  track_charge = j->charge();
 	  double s =sin(2*track_phi);
 	  double c =cos(2*track_phi);
 	  double s3 =sin(3*track_phi);

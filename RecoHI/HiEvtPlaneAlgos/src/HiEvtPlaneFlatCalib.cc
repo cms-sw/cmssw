@@ -14,7 +14,7 @@
 //
 // Original Author:  Stephen Sanders
 //         Created:  Sat Jun 26 16:04:04 EDT 2010
-// $Id: HiEvtPlaneFlatCalib.cc,v 1.4 2011/10/07 09:41:29 yilmaz Exp $
+// $Id: HiEvtPlaneFlatCalib.cc,v 1.6 2012/02/15 10:33:36 eulisse Exp $
 //
 //
 
@@ -254,15 +254,7 @@ HiEvtPlaneFlatCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     //cout << "Error! Can't get hiEvtPlane product!" << endl;
     return ;
   }
-  double psiFull[NumEPNames];
-  for(int i = 0; i<NumEPNames; i++) {
-    psiFull[i] = -10;
-  }
 
-  EvtPlane * ep[NumEPNames];
-  for(int i = 0; i<NumEPNames; i++) {
-    ep[i]=0;
-  }
   for (EvtPlaneCollection::const_iterator rp = evtPlanes->begin();rp !=evtPlanes->end(); rp++) {
     if(rp->angle() > -5) {
       string baseName = rp->label();
@@ -275,7 +267,6 @@ HiEvtPlaneFlatCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	    if(i==0)  hvtx->Fill(vzr_sell);
 
 	    if(centval<=80) hPsi[i]->Fill(rp->angle());
-	    psiFull[i] = psiFlat;
 	    if(genFlatPsi_) {
 	      if(centval<=80) hPsiFlat[i]->Fill(psiFlat);
 	      for(int j = 0; j<NumCentBins; j++) {
