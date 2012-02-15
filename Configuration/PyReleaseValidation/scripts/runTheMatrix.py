@@ -109,7 +109,7 @@ if __name__ == '__main__':
                       default=None
                       )
     parser.add_option('--wmcontrol',
-                      help='Create the workflows for injection to WMAgent. In the WORKING',
+                      help='Create the workflows for injection to WMAgent. In the WORKING. -wmcontrol init will create the the workflows, -wmcontrol test will dryRun a test, -wmcontrol submit will submit to wmagent',
                       dest='wmcontrol',
                       default=None,
                       )
