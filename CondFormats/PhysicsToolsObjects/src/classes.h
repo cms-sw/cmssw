@@ -61,6 +61,7 @@ PerformanceWorkingPoint c7;
 
 // TFormula stuff
 PhysicsTFormulaPayload p10;          
+std::vector<PhysicsTFormulaPayload> pv10;
 PerformancePayloadFromTFormula p11;
 
 }; // struct dictionary

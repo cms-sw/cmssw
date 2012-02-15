@@ -18,6 +18,7 @@
 	</class>
 
 	<class name="PhysicsTFormulaPayload"/>
+        <class name="std::vector<PhysicsTFormulaPayload>"/>
 
 
 	<!-- Histogram -->

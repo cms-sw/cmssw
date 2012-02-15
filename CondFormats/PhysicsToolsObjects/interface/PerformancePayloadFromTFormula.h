@@ -17,13 +17,10 @@ class PerformancePayloadFromTFormula : public PerformancePayload {
 
   static int InvalidPos;
 
-  PerformancePayloadFromTFormula(std::vector<PerformanceResult::ResultType> r, std::vector<BinningVariables::BinningVariablesType> b  ,  PhysicsTFormulaPayload& in) : pl(in), results_(r), variables_(b) {}
+  PerformancePayloadFromTFormula(std::vector<PerformanceResult::ResultType> r, std::vector<BinningVariables::BinningVariablesType> b  ,  std::vector<PhysicsTFormulaPayload> in) : pls(in), results_(r), variables_(b) {}
 
   PerformancePayloadFromTFormula(){}
   virtual ~PerformancePayloadFromTFormula(){
-    for (unsigned int i=0; i< compiledFormulas_.size(); ++i){
-      delete compiledFormulas_[i];
-    }
     compiledFormulas_.clear();
   }
 
@@ -35,9 +32,9 @@ class PerformancePayloadFromTFormula : public PerformancePayload {
   
   virtual bool isInPayload(PerformanceResult::ResultType,BinningPointByMap) const ;
   
-  const PhysicsTFormulaPayload & formulaPayload() const {return pl;}
+  const std::vector<PhysicsTFormulaPayload> & formulaPayloads() const {return pls;}
   
-  void printFormula(PerformanceResult::ResultType res) const;
+  void printFormula(PerformanceResult::ResultType res, BinningPointByMap) const;
   
 
  protected:
@@ -60,20 +57,25 @@ class PerformancePayloadFromTFormula : public PerformancePayload {
   }
 
 
-  bool isOk(BinningPointByMap p) const; 
+  bool isOk(BinningPointByMap p, unsigned int & ) const; 
+
+  TFormula * getFormula(PerformanceResult::ResultType,BinningPointByMap) const;
 
   void check() const;
-
-  PhysicsTFormulaPayload pl;
+  //
+  // now this is a vector, since we can have different rectangular regions in the same object
+  //
+  std::vector<PhysicsTFormulaPayload> pls;
   //
   // the variable mapping
   //
   std::vector<PerformanceResult::ResultType> results_;
   std::vector<BinningVariables::BinningVariablesType> variables_;
+  
   //
-  // the transient part
+  // the transient part; now a vector of vector; CHANGE CHECK!!!!!
   //
-  mutable   std::vector<TFormula *> compiledFormulas_;
+  mutable   std::vector<std::vector<TFormula *> > compiledFormulas_;
 };
 
 #endif

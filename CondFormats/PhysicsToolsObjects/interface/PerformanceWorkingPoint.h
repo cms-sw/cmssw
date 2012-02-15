@@ -10,7 +10,8 @@ class PerformanceWorkingPoint {
   PerformanceWorkingPoint(float c, std::string s) : cut_(c), dname_ (s) {}
   float cut()const {return cut_;}
   std::string discriminantName()const {return dname_;}
-  
+  bool cutBased()const {if (cut_==-9999) return false; return true;}
+
  private: 
   float cut_;
   std::string dname_;
