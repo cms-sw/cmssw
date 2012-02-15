@@ -3,7 +3,7 @@
 #include "CondTools/L1Trigger/interface/DataWriter.h"
 #include "CondTools/L1Trigger/interface/Exception.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
-#include "CondCore/IOVService/interface/IOVService.h"
+#include "CondCore/IOVService/interface/IOVProxy.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 
 #include <utility>
@@ -180,9 +180,13 @@ DataWriter::payloadToken( const std::string& recordName,
 
   // Get payload token for run number.
 
-  cond::IOVService iovService( session ) ;
-  std::string payloadToken = iovService.payloadToken( iovToken, runNumber ) ;
-
+  cond::IOVProxy iov( session );
+  iov.load(iovToken ) ;
+  std::string payloadToken("");
+  cond::IOVProxy::const_iterator iP = iov.find( runNumber );
+  if( iP != iov.end() ){
+    payloadToken = iP->token(); 
+  }
   tr.commit() ;
   return payloadToken ;
 }
