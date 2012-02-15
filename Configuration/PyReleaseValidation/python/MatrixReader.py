@@ -15,10 +15,12 @@ class MatrixException(Exception):
 
 class MatrixReader(object):
 
-    def __init__(self, what='all',noRun=False):
+    def __init__(self, opt):
 
-        self.reset(what)
-        self.noRun = noRun
+        self.reset(opt.what)
+
+        self.wm=opt.wmcontrol
+        
         return
 
     def reset(self, what='all'):
@@ -49,27 +51,24 @@ class MatrixReader(object):
         
         return
 
-    def makeCmd(self, step, index=0):
+    def makeCmd(self, step):
 
         cmd = ''
         cfg = None
         input = None
-        #print step
-        #print defaults
         for k,v in step.items():
             if 'no_exec' in k : continue  # we want to really run it ...
             if k.lower() == 'cfg':
                 cfg = v
                 continue # do not append to cmd, return separately
             if k.lower() == 'input':
-                input = v #of type InputInfo
+                input = v 
                 continue # do not append to cmd, return separately
+            
             #chain the configs
             #if k.lower() == '--python':
             #    v = 'step%d_%s'%(index,v)
             cmd += ' ' + k + ' ' + str(v)
-        if self.noRun:
-            cmd += ' --no_exec '
         return cfg, input, cmd
     
     def readMatrix(self, fileNameIn, useInput=None, refRel=None, fromScratch=None):
@@ -115,18 +114,29 @@ class MatrixReader(object):
                         addTo.append(0)
 
             name=wfName
-            for (stepIndex,step) in enumerate(stepList):
+            stepIndex=0
+            ranStepList=[]
+            for (stepI,step) in enumerate(stepList):
                 stepName=step
+                if self.wm:
+                    #cannot put a certain number of things in wm
+                    if stepName in ['SKIMD','HARVESTD','HARVEST','HARVESTD','RECODFROMRAWRECO']:
+                        continue
+                #replace stepName is needed
+                #if stepName in self.replaceStep
                 if len(name) > 0 : name += '+'
                 #any step can be mirrored with INPUT
                 ## maybe we want too level deep input
                 if useInput and (str(num) in useInput or "all" in useInput):
                     if step+'INPUT' in self.relvalModule.steps.keys():
                         stepName = step+"INPUT"
+                        stepList.remove(step)
+                        stepList.insert(stepIndex,stepName)
                     if fromScratch and (str(num) in fromScratch or "all" in fromScratch):
                         msg = "FATAL ERROR: request for both fromScratch and input for workflow "+str(num)
                         raise MatrixException(msg)
                 name += stepName
+
                 if addCom and (not addTo or addTo[stepIndex]==1):
                     from Configuration.PyReleaseValidation.relval_steps import merge
                     copyStep=merge(addCom+[self.relvalModule.steps[stepName]])
@@ -145,10 +155,14 @@ class MatrixReader(object):
                         cmd  = 'cmsDriver.py '+cfg+' '+opts
                     else:
                         cmd  = 'cmsDriver.py step'+str(stepIndex+1)+' '+opts
+                    if self.wm:
+                        cmd+=' --io %s.io --python %s.py'%(stepName,stepName)
 
                 commands.append(cmd)
-
-            self.workFlowSteps[(float(num),prefix)] = (str(float(num)), name, commands)
+                ranStepList.append(stepName)
+                stepIndex+=1
+                
+            self.workFlowSteps[(num,prefix)] = (num, name, commands, ranStepList)
         
         return
 
@@ -187,8 +201,10 @@ class MatrixReader(object):
                     continue
                 #trick to skip the HImix IB test
                 if key[0]==203.1 or key[0]==204.1 or key[0]==205.1 or key[0]==4.51 or key[0]==4.52: continue
-                num, name, commands = self.workFlowSteps[key]
+                num, name, commands, stepList = self.workFlowSteps[key]
+                
                 wfName,stepNames= name.split('+',1)
+                
                 stepNames=stepNames.replace('+RECODFROMRAWRECO','')
                 stepNames=stepNames.replace('+SKIMCOSD','')
                 stepNames=stepNames.replace('+SKIMD','')
@@ -289,19 +305,18 @@ class MatrixReader(object):
         prefixIn = self.filesPrefMap[fileNameIn]
 
         # get through the list of items and update the requested workflows only
-        #keyList = self.step1WorkFlows.keys()
         keyList = self.workFlowSteps.keys()
         ids = []
         for item in keyList:
             id, pref = item
             if pref != prefixIn : continue
-            ids.append( float(id) )
+            ids.append(id)
         ids.sort()
         for key in ids:
             val = self.workFlowSteps[(key,prefixIn)]
-            num, name, commands = val
-            nameId = num+'_'+name
-            if nameId in self.nameList.keys():
+            num, name, commands, stepList = val
+            nameId = str(num)+'_'+name
+            if nameId in self.nameList:
                 print "==> duplicate name found for ", nameId
                 print '    keeping  : ', self.nameList[nameId]
                 print '    ignoring : ', val
@@ -310,40 +325,6 @@ class MatrixReader(object):
 
             self.workFlows.append(WorkFlow(num, name, commands=commands))
 
-        return
-    
-        n1 = 0
-        n2 = 0
-        n3 = 0
-        n4 = 0
-        for key in ids:
-            val = self.step1WorkFlows[(key,prefixIn)]
-            num, name, cmd, step2, step3, step4, inputInfo = val
-            nameId = num+'_'+name
-            if nameId in self.nameList.keys():
-                print "==> duplicate name found for ", nameId
-                print '    keeping  : ', self.nameList[nameId]
-                print '    ignoring : ', val
-            else:
-                self.nameList[nameId] = val
-
-            cmd2 = None
-            cmd3 = None
-            cmd4 = None
-            
-            n1 += 1
-
-            if step2.lower() != '':
-                n2 += 1
-                cmd2 = step2
-                if step3.lower() != '':
-                    n3 += 1
-                    cmd3 = step3
-                    if step4.lower() != '':
-                        n4 += 1
-                        cmd4 = step4
-                    #print '\tstep3 : ', self.step3WorkFlows[step3]
-            self.workFlows.append( WorkFlow(num, name, cmd, cmd2, cmd3, cmd4, inputInfo) )
         return
 
     def prepare(self, useInput=None, refRel='', fromScratch=None):
