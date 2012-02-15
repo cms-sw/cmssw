@@ -289,10 +289,15 @@ HLT_DoubleIsoPFTau45_Trk5_eta2p1_v*
 HLT_DoubleIsoPFTau55_Trk5_eta2p1_v*
 HLT_HT350_DoubleIsoPFTau10_Trk3_PFMHT45_v*
 HLT_HT400_DoubleIsoPFTau10_Trk3_PFMHT50_v*
-HLT_BTagMu_DiJet20_Mu5_v*
-HLT_BTagMu_DiJet40_Mu5_v*
-HLT_BTagMu_DiJet70_Mu5_v*
-HLT_BTagMu_DiJet110_Mu5_v*
+#HLT_BTagMu_DiJet20_Mu5_v*                                              #removed in Feb 2012 5e33 menu (sr #126192)
+HLT_BTagMu_DiJet20_L1FastJet_Mu5_v*                                     #added in Feb 2012 5e33 menu (sr #126192)
+#HLT_BTagMu_DiJet40_Mu5_v*                                              #removed in Feb 2012 5e33 menu (sr #126192)
+HLT_BTagMu_DiJet40_L1FastJet_Mu5_v*                                     #added in Feb 2012 5e33 menu (sr #126192)
+#HLT_BTagMu_DiJet70_Mu5_v*                                              #removed in Feb 2012 5e33 menu (sr #126192)
+HLT_BTagMu_DiJet70_L1FastJet_Mu5_v*                                     #added in Feb 2012 5e33 menu (sr #126192)
+#HLT_BTagMu_DiJet110_Mu5_v*                                             #removed in Feb 2012 5e33 menu (sr #126192)
+HLT_BTagMu_DiJet110_L1FastJet_Mu5_v*                                    #added in Feb 2012 5e33 menu (sr #126192)
+HLT_BTagMu_Jet300_L1FastJet_Mu5_v*	                                #added in Feb 2012 5e33 menu (sr #126192)
 HLT_Mu5_Ele8_CaloIdT_CaloIsoVL_v*
 HLT_Mu5_Ele8_CaloIdT_TrkIdVL_Mass8_HT150_v*
 HLT_Mu8_Ele8_CaloIdT_TrkIdVL_Mass8_HT150_v*
