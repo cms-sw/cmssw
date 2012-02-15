@@ -37,12 +37,18 @@ hiRegitMixedTripletStepSeedLayersA =  RecoTracker.IterativeTracking.MixedTriplet
 hiRegitMixedTripletStepSeedLayersA.BPix.skipClusters = cms.InputTag('hiRegitMixedTripletStepClusters')
 hiRegitMixedTripletStepSeedLayersA.FPix.skipClusters = cms.InputTag('hiRegitMixedTripletStepClusters')
 hiRegitMixedTripletStepSeedLayersA.TEC.skipClusters  = cms.InputTag('hiRegitMixedTripletStepClusters')
+hiRegitMixedTripletStepSeedLayersA.layerList = cms.vstring('BPix1+BPix2+BPix3',
+                                                           'BPix1+BPix2+FPix1_pos', 'BPix1+BPix2+FPix1_neg',
+                                                           'BPix1+FPix1_pos+FPix2_pos', 'BPix1+FPix1_neg+FPix2_neg',
+                                                           'BPix2+FPix1_pos+FPix2_pos', 'BPix2+FPix1_neg+FPix2_neg',
+                                                           'FPix1_pos+FPix2_pos+TEC1_pos', 'FPix1_neg+FPix2_neg+TEC1_neg',)
 
 # SEEDS A
 hiRegitMixedTripletStepSeedsA = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsA.clone()
 hiRegitMixedTripletStepSeedsA.RegionFactoryPSet                                           = HiTrackingRegionFactoryFromJetsBlock.clone()
 hiRegitMixedTripletStepSeedsA.ClusterCheckPSet.doClusterCheck                             = False # do not check for max number of clusters pixel or strips
 hiRegitMixedTripletStepSeedsA.OrderedHitsFactoryPSet.SeedingLayers = 'hiRegitMixedTripletStepSeedLayersA'
+hiRegitMixedTripletStepSeedsA.RegionFactoryPSet.RegionPSet.ptMin = 1.0
 
 # SEEDING LAYERS B
 hiRegitMixedTripletStepSeedLayersB =  RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedLayersB.clone(
@@ -50,12 +56,13 @@ hiRegitMixedTripletStepSeedLayersB =  RecoTracker.IterativeTracking.MixedTriplet
     )
 hiRegitMixedTripletStepSeedLayersB.BPix.skipClusters = cms.InputTag('hiRegitMixedTripletStepClusters')
 hiRegitMixedTripletStepSeedLayersB.TIB.skipClusters  = cms.InputTag('hiRegitMixedTripletStepClusters')
-
+hiRegitMixedTripletStepSeedLayersB.layerList = cms.vstring('BPix2+BPix3+TIB1','BPix2+BPix3+TIB2')
 
 hiRegitMixedTripletStepSeedsB = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsB.clone()
 hiRegitMixedTripletStepSeedsB.RegionFactoryPSet                                           = HiTrackingRegionFactoryFromJetsBlock.clone()
 hiRegitMixedTripletStepSeedsB.ClusterCheckPSet.doClusterCheck                             = False # do not check for max number of clusters pixel or strips
 hiRegitMixedTripletStepSeedsB.OrderedHitsFactoryPSet.SeedingLayers = 'hiRegitMixedTripletStepSeedLayersB'
+hiRegitMixedTripletStepSeedsB.RegionFactoryPSet.RegionPSet.ptMin = 1.0
 
 # combine seeds
 hiRegitMixedTripletStepSeeds = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeeds.clone(
@@ -68,8 +75,7 @@ hiRegitMixedTripletStepSeeds = RecoTracker.IterativeTracking.MixedTripletStep_cf
 # track building
 hiRegitMixedTripletStepTrajectoryFilter = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepTrajectoryFilter.clone(
     ComponentName        = 'hiRegitMixedTripletStepTrajectoryFilter'
-    )
-#hiRegitMixedTripletStepTrajectoryFilter.filterPset.minPt     = 1.15 # after each new hit, apply pT cut for traj w/ at least minHitsMinPt = cms.int32(3),
+   )
 
 hiRegitMixedTripletStepTrajectoryBuilder = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepTrajectoryBuilder.clone(
     ComponentName        = 'hiRegitMixedTripletStepTrajectoryBuilder',
@@ -79,7 +85,8 @@ hiRegitMixedTripletStepTrajectoryBuilder = RecoTracker.IterativeTracking.MixedTr
 
 hiRegitMixedTripletStepTrackCandidates        =  RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepTrackCandidates.clone(
     src               = cms.InputTag('hiRegitMixedTripletStepSeeds'),
-    TrajectoryBuilder = 'hiRegitMixedTripletStepTrajectoryBuilder'
+    TrajectoryBuilder = 'hiRegitMixedTripletStepTrajectoryBuilder',
+    maxNSeeds = 100000
     )
 
 # fitting: feed new-names
