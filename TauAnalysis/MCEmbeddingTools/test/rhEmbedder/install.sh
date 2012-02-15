@@ -2,7 +2,7 @@
 
 echo 
 echo
-echo Warning. All changes made locally to TauAnalysis/MCEmbeddingTools will be lost in 10 seconds
+echo Warning. All changes made locally in your dev area will be lost in 10 seconds
 echo 
 echo
 sleep 10s
