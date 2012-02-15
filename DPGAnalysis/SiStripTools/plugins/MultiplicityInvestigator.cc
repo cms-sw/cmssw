@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Venturi
 //         Created:  Mon Oct 27 17:37:53 CET 2008
-// $Id: MultiplicityInvestigator.cc,v 1.3 2011/11/26 00:37:34 venturia Exp $
+// $Id: MultiplicityInvestigator.cc,v 1.4 2011/12/11 09:59:11 venturia Exp $
 //
 //
 
@@ -161,6 +161,7 @@ MultiplicityInvestigator::beginRun(const edm::Run& iRun, const edm::EventSetup& 
 
   m_digiinvesthmevent.beginRun(iRun.run());
   m_digivtxcorrhmevent.beginRun(iRun);
+  m_digilumicorrhmevent.beginRun(iRun);
 
 }
 

@@ -9,10 +9,13 @@
 namespace edm {
   class ParameterSet;
   class Event;
+  class Run;
 }
 class TH2F;
 class TProfile;
+class TProfile2D;
 class TFileDirectory;
+class RunHistogramManager;
 
 class DigiLumiCorrHistogramMaker {
 
@@ -24,12 +27,14 @@ class DigiLumiCorrHistogramMaker {
 
   void book(const std::string dirname, const std::map<unsigned int, std::string>& labels);
   void book(const std::string dirname);
-  void beginRun(const unsigned int nrun);
+  void beginRun(const edm::Run& iRun);
   void fill(const edm::Event& iEvent, const std::map<unsigned int,int>& ndigi);
 
  private:
 
   const edm::InputTag m_lumiProducer;
+  std::map<unsigned int,RunHistogramManager*> m_fhm;
+  bool m_runHisto;
   std::string m_hitname;
   const int m_nbins;
   const int m_scalefact; 
@@ -38,6 +43,7 @@ class DigiLumiCorrHistogramMaker {
 
   std::map<unsigned int,TH2F*> m_nmultvslumi;
   std::map<unsigned int,TProfile*> m_nmultvslumiprof;
+  std::map<unsigned int,TProfile2D**> m_nmultvslumivsbxprofrun;
   std::map<unsigned int,TFileDirectory*> m_subdirs;
 
 };
