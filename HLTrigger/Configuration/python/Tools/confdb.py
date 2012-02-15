@@ -55,6 +55,9 @@ class HLTProcess(object):
     "HLT_Mu7_Track5_Jpsi_v*",
     "HLT_Mu7_Track7_Jpsi_v*",
 
+    # TODO: paths removed from the 2012 menu, for which a recovery should be attempted as soon as that menu is more stabel
+    "HLT_HT250_L1FastJet_DoubleDisplacedPFJet60_v"
+
   )
 
   def __init__(self, configuration):
