@@ -4,6 +4,7 @@ import sys
 
 from Configuration.PyReleaseValidation.MatrixReader import MatrixReader
 from Configuration.PyReleaseValidation.MatrixRunner import MatrixRunner
+from Configuration.PyReleaseValidation.MatrixInjector import MatrixInjector
         
 # ================================================================================
 
@@ -18,7 +19,7 @@ def showRaw(opt):
 
 def runSelected(opt):
 
-    mrd = MatrixReader(noRun=(opt.nThreads==0),what=opt.what)
+    mrd = MatrixReader(opt)
     mrd.prepare(opt.useInput, opt.refRel, opt.fromScratch)
 
     ret = 0
@@ -27,8 +28,18 @@ def runSelected(opt):
         if opt.testList : print 'testListected items:', opt.testList
     else:
         mRunnerHi = MatrixRunner(mrd.workFlows, opt.nThreads)
-        ret = mRunnerHi.runTests(opt.testList)
+        ret = mRunnerHi.runTests(opt.testList,dryRun=(opt.wmcontrol=='test'))
 
+    if opt.wmcontrol:
+        if ret!=0:
+            print 'Cannot go on with wmagent injection with failing workflows'
+        else:
+            wfInjector = MatrixInjector(mode=opt.wmcontrol)
+            ret= wfInjector.prepare(mrd,
+                                    mRunnerHi.runDirs)
+            if ret==0:
+                wfInjector.upload()
+                wfInjector.submit()
     return ret
 
 # ================================================================================
@@ -100,8 +111,7 @@ if __name__ == '__main__':
     parser.add_option('--wmcontrol',
                       help='Create the workflows for injection to WMAgent. In the WORKING',
                       dest='wmcontrol',
-                      default=False,
-                      action='store_true'
+                      default=None,
                       )
     
     opt,args = parser.parse_args()
@@ -114,7 +124,17 @@ if __name__ == '__main__':
     if opt.useInput: opt.useInput = opt.useInput.split(',')
     if opt.fromScratch: opt.fromScratch = opt.fromScratch.split(',')
     if opt.nThreads: opt.nThreads=int(opt.nThreads)
-    
+
+    if opt.wmcontrol:
+        if opt.show:
+            print 'Not injecting to wmagent in --show mode. Need to run the worklfows.'
+            sys.exit(-1)
+        if opt.wmcontrol=='submit' and opt.nThreads==0:
+            print 'Not injecting to wmagent in -j 0 mode. Need to run the worklfows.'
+            sys.exit(-1)
+        if opt.wmcontrol=='init':        opt.nThreads=0
+
+        
     # some sanity checking:
     if opt.useInput and opt.useInput != 'all' :
         for item in opt.useInput:
