@@ -19,7 +19,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//$Id: EcalRecHitWorkerRecover.cc,v 1.32 2011/11/09 22:51:59 argiro Exp $
+//$Id: EcalRecHitWorkerRecover.cc,v 1.33 2012/01/31 19:22:05 wmtan Exp $
 
 EcalRecHitWorkerRecover::EcalRecHitWorkerRecover(const edm::ParameterSet&ps) :
         EcalRecHitWorkerBaseClass(ps)
@@ -37,7 +37,8 @@ EcalRecHitWorkerRecover::EcalRecHitWorkerRecover(const edm::ParameterSet&ps) :
         recoverEEFE_ = ps.getParameter<bool>("recoverEEFE");
 
 	dbStatusToBeExcludedEE_ = ps.getParameter<std::vector<int> >("dbStatusToBeExcludedEE");
-
+	dbStatusToBeExcludedEB_ = ps.getParameter<std::vector<int> >("dbStatusToBeExcludedEB");
+	
         tpDigiCollection_        = ps.getParameter<edm::InputTag>("triggerPrimitiveDigiCollection");
         logWarningEtThreshold_EB_FE_ = ps.getParameter<double>("logWarningEtThreshold_EB_FE");
         logWarningEtThreshold_EE_FE_ = ps.getParameter<double>("logWarningEtThreshold_EE_FE");
@@ -148,6 +149,28 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                 insertRecHit( hit, result );
         } else if ( flags == EcalRecHitWorkerRecover::EB_FE ) {
                 // recover as dead TT
+
+			// from the constituents, remove dead channels
+			std::vector<DetId>::iterator ttcons1 = v.begin();
+			while (ttcons1 != v.end()){
+			  if (!checkChannelStatus(*ttcons1,dbStatusToBeExcludedEE_)){
+				ttcons1=v.erase(ttcons1);
+			  } else {
+			    ++ttcons1;
+			  }
+			}// while 
+			 
+                        
+                        edm::Handle<EcalTrigPrimDigiCollection> pTPDigis;
+                        evt.getByLabel(tpDigiCollection_, pTPDigis);
+                        const EcalTrigPrimDigiCollection * tpDigis = 0;
+                        if ( pTPDigis.isValid() ) {
+                                tpDigis = pTPDigis.product();
+                        } else {
+
+
+
+
                 EcalTrigTowerDetId ttDetId( ((EBDetId)detId).tower() );
                 edm::Handle<EcalTrigPrimDigiCollection> pTPDigis;
                 evt.getByLabel(tpDigiCollection_, pTPDigis);
@@ -171,17 +194,19 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                         }
                         if ( !killDeadChannels_ || recoverEBFE_ ) {  
                                 // democratic energy sharing
+                                
                                 for ( std::vector<DetId>::const_iterator dit = vid.begin(); dit != vid.end(); ++dit ) {
 				        if (alreadyInserted(*dit)) continue;
 				        float theta = ebGeom_->getGeometry(*dit)->getPosition().theta();
                                         float tpEt  = ecalScale_.getTPGInGeV( tp->compressedEt(), tp->id() );
-                                        EcalRecHit hit( *dit, tpEt / (float)vid.size() / sin(theta), 0.);
-                                        hit.setFlag( EcalRecHit::kTowerRecovered ) ;
-                                        if ( tp->compressedEt() == 0xFF ) hit.setFlag( EcalRecHit::kTPSaturated );
-                                        if ( tp->sFGVB() ) hit.setFlag( EcalRecHit::kL1SpikeFlag );
-                                        insertRecHit( hit, result );
-                                }
-                        }
+                                        if(!checkChannelStatus(*dit, dbStatusToBeExcludedEB_)){
+						EcalRecHit hit( *dit, tpEt /((float)vid.size()) / sin(theta), 0.);
+						hit.setFlag( EcalRecHit::kTowerRecovered ) ;
+						if ( tp->compressedEt() == 0xFF ) hit.setFlag( EcalRecHit::kTPSaturated );
+                                        	if ( tp->sFGVB() ) hit.setFlag( EcalRecHit::kL1SpikeFlag );
+                                        	insertRecHit( hit, result );
+                                	}
+				}
                 } else {
                         // tp not found => recovery failed
                         std::vector<DetId> vid = ttMap_->constituentsOf( ttDetId );
