@@ -42,8 +42,11 @@ ecalRecHit = cms.EDProducer("EcalRecHitProducer",
     recoverEEVFE  = cms.bool(False),
     recoverEBFE = cms.bool(True),
     recoverEEFE = cms.bool(True),
-    #db statuses for which recovery in EE should not be attempted           
+    #db statuses for which recovery in EE/EB should not be attempted           
     dbStatusToBeExcludedEE = cms.vint32(
+                                        142
+                                        ), # dead,LV off
+    dbStatusToBeExcludedEB = cms.vint32(
                                         142
                                         ), # dead,LV off
                             
