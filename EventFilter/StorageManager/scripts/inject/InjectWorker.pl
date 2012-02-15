@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.82 2012/02/14 16:48:54 babar Exp $
+# $Id: InjectWorker.pl,v 1.83 2012/02/14 17:15:42 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -14,12 +14,14 @@ use Linux::Inotify2;
 use POE qw( Wheel::FollowTail Component::Log4perl Wheel::Run Filter::Line );
 use POSIX qw( strftime );
 use File::Basename;
+use FindBin;
 use DBI;
 use Getopt::Long;
 
 ################################################################################
 my $nodbint     = 0; # SM_DONTACCESSDB: no access any DB at all
 my $nodbwrite   = 0; # SM_DONTWRITEDB : no write to DB but retrieve HLT key
+my $norunconddb = 0; # SM_NORUNCONDDB : do not access ConfDB at all, fake
 my $nofilecheck = 0; # SM_NOFILECHECK : no check if files are locally accessible
 my $maxhooks    = 3; # Number of parallel hooks
 ################################################################################
@@ -60,6 +62,10 @@ if ( defined $ENV{'SM_DONTWRITEDB'} ) {
     $nodbwrite = 1;
 }
 
+if ( defined $ENV{'SM_NORUNCONDDB'} ) {
+    $norunconddb = 1;
+}
+
 # check arguments
 unless ( $#ARGV == 2 ) {
     die "Syntax: ./InjectWorker.pl inputpath logpath configfile";
@@ -88,8 +94,8 @@ my $savedelay  = 300;    # Frequency to save offset file, in seconds
 my $retrydelay = 30;     # Backoff time before retrying a DB query, in seconds
 my $maxretries = 10;     # Maximum number of DB retries
 my $dbbackoff  = 10;     # Seconds to wait between 2 DB connection tries
-my $log4perlConfig = '/opt/injectworker/inject/log4perl.conf';
 my $offsetfile     = $logpath . '/offset.txt';
+my $log4perlConfig = $FindBin::Bin . '/log4perl.conf';
 
 # To rotate logfiles daily
 sub get_logfile {
@@ -282,7 +288,6 @@ sub setup_main_db {
 
     # Enable DBMS to get statistics
     $heap->{dbh}->func( 1000000, 'dbms_output_enable' );
-    my $sths = $heap->{sths};
 
     # For new files
     my $sql =
@@ -291,17 +296,17 @@ sub setup_main_db {
       . "RUNNUMBER,LUMISECTION,COUNT,INSTANCE,CTIME) "
       . "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,"
       . "TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'))";
-    $sths->{insertFile} = $heap->{dbh}->prepare($sql)
+    $heap->{sths}->{insertFile} = $heap->{dbh}->prepare($sql)
       or die "Error: Prepare failed for $sql: " . $heap->{dbh}->errstr;
 
     # For new files: update SM_SUMMARY
     $sql = "BEGIN CMS_STOMGR.FILES_CREATED_PROC_SUMMARY( ? ); END;";
-    $sths->{insertFileSummaryProc} = $heap->{dbh}->prepare($sql)
+    $heap->{sths}->{insertFileSummaryProc} = $heap->{dbh}->prepare($sql)
       or die "Error: Prepare failed for $sql: " . $heap->{dbh}->errstr;
 
     # For new files: update SM_INSTANCES
     $sql = "BEGIN CMS_STOMGR.FILES_CREATED_PROC_INSTANCES( ? ); END;";
-    $sths->{insertFileInstancesProc} = $heap->{dbh}->prepare($sql)
+    $heap->{sths}->{insertFileInstancesProc} = $heap->{dbh}->prepare($sql)
       or die "Error: Prepare failed for $sql: " . $heap->{dbh}->errstr;
 
     # For closed files
@@ -310,17 +315,17 @@ sub setup_main_db {
       . "(FILENAME,PATHNAME,DESTINATION,NEVENTS,FILESIZE,CHECKSUM,ITIME,INDFILENAME,INDFILESIZE,COMMENT_STR) "
       . "VALUES (?,?,?,?,?,?,"
       . "TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'),?,?,?)";
-    $sths->{closeFile} = $heap->{dbh}->prepare($sql)
+    $heap->{sths}->{closeFile} = $heap->{dbh}->prepare($sql)
       or die "Error: Prepare failed for $sql: " . $heap->{dbh}->errstr;
 
     # For closed files: update SM_SUMMARY
     $sql = "BEGIN CMS_STOMGR.FILES_INJECTED_PROC_SUMMARY( ? ); END;";
-    $sths->{closeFileSummaryProc} = $heap->{dbh}->prepare($sql)
+    $heap->{sths}->{closeFileSummaryProc} = $heap->{dbh}->prepare($sql)
       or die "Error: Prepare failed for $sql: " . $heap->{dbh}->errstr;
 
     # For closed files: update SM_INSTANCES
     $sql = "BEGIN CMS_STOMGR.FILES_INJECTED_PROC_INSTANCES( ? ); END;";
-    $sths->{closeFileInstancesProc} = $heap->{dbh}->prepare($sql)
+    $heap->{sths}->{closeFileInstancesProc} = $heap->{dbh}->prepare($sql)
       or die "Error: Prepare failed for $sql: " . $heap->{dbh}->errstr;
 
   # For explanation, see:
@@ -332,7 +337,7 @@ sub setup_main_db {
       . " values "
       . "(        ?,        ?,        ?,           ?,              0, "
       . "      1,            NULL,             NULL, TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'))";
-    $sths->{beginOfRun} = $heap->{dbh}->prepare($sql)
+    $heap->{sths}->{beginOfRun} = $heap->{dbh}->prepare($sql)
       or die "Error: Prepare failed for $sql: " . $heap->{dbh}->errstr;
 
     $sql =
@@ -341,7 +346,7 @@ sub setup_main_db {
       . "END_TIME = TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'), "
       . "MAX_LUMISECTION = ?, LAST_CONSECUTIVE = ? "
       . "where RUNNUMBER = ? and INSTANCE = ?";
-    $sths->{endOfRun} = $heap->{dbh}->prepare($sql)
+    $heap->{sths}->{endOfRun} = $heap->{dbh}->prepare($sql)
       or die "Error: Prepare failed for $sql: " . $heap->{dbh}->errstr;
 
     $sql =
@@ -351,7 +356,7 @@ sub setup_main_db {
       . " values "
       . "(        ?,           ?,      ?,        ?,"
       . " TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'), ?,         ?)";
-    $sths->{endOfLumi} = $heap->{dbh}->prepare($sql)
+    $heap->{sths}->{endOfLumi} = $heap->{dbh}->prepare($sql)
       or die "Error: Prepare failed for $sql: " . $heap->{dbh}->errstr;
 
     $sql =
@@ -359,7 +364,7 @@ sub setup_main_db {
       . "(RUNNUMBER, INSTANCE, LUMISECTION)"
       . " values "
       . "(        ?,        ?,           ?)";
-    $sths->{badLumi} = $heap->{dbh}->prepare($sql)
+    $heap->{sths}->{badLumi} = $heap->{dbh}->prepare($sql)
       or die "Error: Prepare failed for $sql: " . $heap->{dbh}->errstr;
 
 }
@@ -367,6 +372,8 @@ sub setup_main_db {
 # Setup the run conditions DB connection
 sub setup_runcond_db {
     my ( $kernel, $heap ) = @_[ KERNEL, HEAP ];
+
+    return if $norunconddb;    # Skip for daqval
 
     # this is for HLT key and number of SM queries
     $kernel->call( 'logger',
@@ -427,9 +434,15 @@ sub get_from_runcond {
     }
     my $cached = $heap->{$kind}->{$runnumber};    # Try to get it from the cache
 
+    # Fake for daqval
+    if ($norunconddb) {
+        $cached = $heap->{$kind}->{$runnumber} =
+          $kind eq 'HLTkey' ? 'DumbDBTest' : 2;
+    }
+
     # query run conditions db if key was not already obtained for this run
     my $sth = $heap->{sths}->{runCond};
-    unless ( defined $cached and $sth ) {
+    if ( !defined $cached && $sth ) {
         my $errflag = 0;
         $kernel->call( 'logger',
             debug => "Querying DB for runnumber $runnumber" );
@@ -480,7 +493,7 @@ sub get_from_runcond {
         }
         return;
     }
-    elsif ( $kind eq 'HLTkey' ) {
+    if ( $kind eq 'HLTkey' ) {
         $args->{COMMENT} = 'HLTKEY=' . $cached;
         $args->{HLTKEY}  = $cached;
     }
@@ -848,16 +861,17 @@ sub got_begin_of_run {
     );
 
     # Check consistency of EOLS in case we didn't get EoR for previous run
+    my $run = $args->{run};
     for my $runnumber ( keys %{ $heap->{_SeenEoLS} } ) {
+        next if $runnumber == $run;    # race condition
         my $seen = delete $heap->{_SeenEoLS}->{$runnumber};
-        next unless $seen->{max};    # Ignore empty run
+        next unless $seen->{max};      # Ignore empty run
         $kernel->call( 'logger',
             warning => "No EoR marker for run $runnumber"
               . " ($seen->{max} lumisections)" );
     }
-    my $run = $args->{run};
     $heap->{_SeenEoLS}->{$run}->{0}++;    # Set fake LS 0 as processed
-    $heap->{_SeenEoLS}->{$run}->{max} = 0;    # Set default max to 0
+    $heap->{_SeenEoLS}->{$run}->{max} ||= 0;    # Set default max to 0
 }
 
 # update RUNS set (STATUS = 0, N_LUMISECTIONS = 3065, END_TIME = '2010-06-11 02:10:10')
@@ -949,7 +963,7 @@ sub got_end_of_lumi {
     my ( $runnumber, $lumisection ) = @$args{qw(run LS)};
     $heap->{_SeenEoLS}->{$runnumber}->{$lumisection}++;   # Mark it as processed
     $heap->{_SeenEoLS}->{$runnumber}->{max} =             # Update max LS
-      $heap->{_SeenEoLS}->{$runnumber}->{max} || 0 > $lumisection
+      ( $heap->{_SeenEoLS}->{$runnumber}->{max} || 0 ) > $lumisection
       ? $heap->{_SeenEoLS}->{$runnumber}->{max}
       : $lumisection;
 }
