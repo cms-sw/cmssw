@@ -62,14 +62,21 @@ const char * kTrkMucands                  = "Unseeded trackerMuons";
 
 const char * kBTagJets                    = "L2 b-jet collection";
 const char * kBTagCorrectedJets           = "L2 calibrated b-jet collection";
+const char * kBTagCorrectedJetsL1FastJet  = "L2 calibrated b-jet collection (L1FastJet)";
+const char * kBTagPFJets                  = "L2 b-jet collection (PF jets)";
 const char * kBTagLifetimeBJetsL25        = "L2.5 b-jet lifetime tags";
 const char * kBTagLifetimeBJetsL3         = "L3 b-jet lifetime tags";
+const char * kBTagLifetimeBJetsL25L1FastJet        = "L2.5 b-jet lifetime tags (L1FastJet)";
+const char * kBTagLifetimeBJetsL3L1FastJet         = "L3 b-jet lifetime tags (L1FastJet)";
+const char * kBTagLifetimePFBJetsL3         = "L3 b-jet lifetime tags (PF jets)";
 const char * kBTagLifetimeBJetsL25SingleTrack = "L2.5 b-jet lifetime tags (SingleTrack)";
 const char * kBTagLifetimeBJetsL3SingleTrack  = "L3 b-jet lifetime tags (SingleTrack)";
 const char * kBTagSoftmuonBJetsL25        = "L2.5 b-jet soft muon tags";
 const char * kBTagSoftmuonBJetsL3         = "L3 b-jet soft muon tags";
 const char * kBTagPerformanceBJetsL25     = "L2.5 b-jet perf. meas. tag";
 const char * kBTagPerformanceBJetsL3      = "L3 b-jet perf. meas. tag";
+const char * kBTagPerformanceBJetsL25L1FastJet     = "L2.5 b-jet perf. meas. tag (L1FastJet)";
+const char * kBTagPerformanceBJetsL3L1FastJet      = "L3 b-jet perf. meas. tag (L1FastJet)";
 
 const char * kElectrons                   = "RECO electron candidates";
 const char * kPhotons                     = "RECO photon candidates";

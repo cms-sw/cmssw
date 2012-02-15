@@ -117,12 +117,19 @@ private:
   // btag OpenHLT input collections
   edm::InputTag m_rawBJets;
   edm::InputTag m_correctedBJets;
+  edm::InputTag m_correctedBJetsL1FastJet;
+  edm::InputTag m_pfBJets;
   edm::InputTag m_lifetimeBJetsL25;
   edm::InputTag m_lifetimeBJetsL3;
+  edm::InputTag m_lifetimeBJetsL25L1FastJet;
+  edm::InputTag m_lifetimeBJetsL3L1FastJet;
+  edm::InputTag m_lifetimePFBJetsL3;
   edm::InputTag m_lifetimeBJetsL25SingleTrack;
   edm::InputTag m_lifetimeBJetsL3SingleTrack;
   edm::InputTag m_performanceBJetsL25;
   edm::InputTag m_performanceBJetsL3;
+  edm::InputTag m_performanceBJetsL25L1FastJet;
+  edm::InputTag m_performanceBJetsL3L1FastJet;
 
   // egamma OpenHLT input collections
   edm::InputTag Electron_;

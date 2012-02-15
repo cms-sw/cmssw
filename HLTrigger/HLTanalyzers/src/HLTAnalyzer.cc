@@ -115,12 +115,19 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
     // btag OpenHLT input collections
     m_rawBJets                = conf.getParameter<edm::InputTag>("CommonBJetsL2");
     m_correctedBJets          = conf.getParameter<edm::InputTag>("CorrectedBJetsL2");
-    m_lifetimeBJetsL25        = conf.getParameter<edm::InputTag>("LifetimeBJetsL25");
-    m_lifetimeBJetsL3         = conf.getParameter<edm::InputTag>("LifetimeBJetsL3");
-    m_lifetimeBJetsL25SingleTrack = conf.getParameter<edm::InputTag>("LifetimeBJetsL25SingleTrack");
-    m_lifetimeBJetsL3SingleTrack  = conf.getParameter<edm::InputTag>("LifetimeBJetsL3SingleTrack");
-    m_performanceBJetsL25     = conf.getParameter<edm::InputTag>("PerformanceBJetsL25");
-    m_performanceBJetsL3      = conf.getParameter<edm::InputTag>("PerformanceBJetsL3");
+    m_correctedBJetsL1FastJet = conf.getParameter<edm::InputTag>("CorrectedBJetsL2L1FastJet");
+    m_pfBJets                 = conf.getParameter<edm::InputTag>("PFlowBJetsL2");
+    m_lifetimeBJetsL25             = conf.getParameter<edm::InputTag>("LifetimeBJetsL25");
+    m_lifetimeBJetsL3              = conf.getParameter<edm::InputTag>("LifetimeBJetsL3");
+    m_lifetimeBJetsL25L1FastJet    = conf.getParameter<edm::InputTag>("LifetimeBJetsL25L1FastJet");
+    m_lifetimeBJetsL3L1FastJet     = conf.getParameter<edm::InputTag>("LifetimeBJetsL3L1FastJet");
+    m_lifetimePFBJetsL3            = conf.getParameter<edm::InputTag>("LifetimePFlowBJetsL3");
+    m_lifetimeBJetsL25SingleTrack  = conf.getParameter<edm::InputTag>("LifetimeBJetsL25SingleTrack");
+    m_lifetimeBJetsL3SingleTrack   = conf.getParameter<edm::InputTag>("LifetimeBJetsL3SingleTrack");
+    m_performanceBJetsL25          = conf.getParameter<edm::InputTag>("PerformanceBJetsL25");
+    m_performanceBJetsL3           = conf.getParameter<edm::InputTag>("PerformanceBJetsL3");
+    m_performanceBJetsL25L1FastJet = conf.getParameter<edm::InputTag>("PerformanceBJetsL25L1FastJet");
+    m_performanceBJetsL3L1FastJet  = conf.getParameter<edm::InputTag>("PerformanceBJetsL3L1FastJet");
     
     // egamma OpenHLT input collections
     Electron_                 = conf.getParameter<edm::InputTag> ("Electron");
@@ -293,12 +300,19 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     // btag OpenHLT input collections
     edm::Handle<edm::View<reco::Jet> >                hRawBJets;
     edm::Handle<edm::View<reco::Jet> >                hCorrectedBJets;
+    edm::Handle<edm::View<reco::Jet> >                hCorrectedBJetsL1FastJet;
+    edm::Handle<edm::View<reco::Jet> >                hPFBJets;
     edm::Handle<reco::JetTagCollection>               hLifetimeBJetsL25;
+    edm::Handle<reco::JetTagCollection>               hLifetimeBJetsL3L1FastJet;
+    edm::Handle<reco::JetTagCollection>               hLifetimeBJetsL25L1FastJet;
     edm::Handle<reco::JetTagCollection>               hLifetimeBJetsL3;
+    edm::Handle<reco::JetTagCollection>               hLifetimePFBJetsL3;
     edm::Handle<reco::JetTagCollection>               hLifetimeBJetsL25SingleTrack;
     edm::Handle<reco::JetTagCollection>               hLifetimeBJetsL3SingleTrack;
     edm::Handle<reco::JetTagCollection>               hPerformanceBJetsL25;
     edm::Handle<reco::JetTagCollection>               hPerformanceBJetsL3;
+    edm::Handle<reco::JetTagCollection>               hPerformanceBJetsL25L1FastJet;
+    edm::Handle<reco::JetTagCollection>               hPerformanceBJetsL3L1FastJet;
     
     // egamma OpenHLT input collections
     edm::Handle<reco::GsfElectronCollection>          electrons;
@@ -380,16 +394,16 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     // get EventSetup stuff needed for the AlCa pi0 path
     //    edm::ESHandle< EcalElectronicsMapping > ecalmapping;
     //    iSetup.get< EcalMappingRcd >().get(ecalmapping);
-    
+   
     //    edm::ESHandle<CaloGeometry> geoHandle;
     //    iSetup.get<CaloGeometryRecord>().get(geoHandle); 
-    
+   
     //    edm::ESHandle<CaloTopology> pTopology;
     //    iSetup.get<CaloTopologyRecord>().get(pTopology);
-    
+   
     //    edm::ESHandle<L1CaloGeometry> l1CaloGeom ;
     //    iSetup.get<L1CaloGeometryRecord>().get(l1CaloGeom) ;
-    
+   
     
     // extract the collections from the event, check their validity and log which are missing
     std::vector<MissingCollectionInfo> missing;
@@ -457,14 +471,21 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     getCollection( iEvent, missing, isoMap2,         MuIsolTag2_,        kIsoMap2 );
     getCollection( iEvent, missing, isoMap3,         MuIsolTag3_,        kIsoMap3 );
     getCollection( iEvent, missing, isoTrk10Map3,    MuTrkIsolTag3_,     kIsoTrk10Map3 ); 
-    getCollection( iEvent, missing, hRawBJets,                m_rawBJets,                 kBTagJets );
-    getCollection( iEvent, missing, hCorrectedBJets,          m_correctedBJets,           kBTagCorrectedJets );
-    getCollection( iEvent, missing, hLifetimeBJetsL25,        m_lifetimeBJetsL25,         kBTagLifetimeBJetsL25 );
-    getCollection( iEvent, missing, hLifetimeBJetsL3,         m_lifetimeBJetsL3,          kBTagLifetimeBJetsL3 );
-    getCollection( iEvent, missing, hLifetimeBJetsL25SingleTrack,        m_lifetimeBJetsL25SingleTrack,         kBTagLifetimeBJetsL25SingleTrack );
-    getCollection( iEvent, missing, hLifetimeBJetsL3SingleTrack,         m_lifetimeBJetsL3SingleTrack,          kBTagLifetimeBJetsL3SingleTrack );
-    getCollection( iEvent, missing, hPerformanceBJetsL25,     m_performanceBJetsL25,      kBTagPerformanceBJetsL25 );
-    getCollection( iEvent, missing, hPerformanceBJetsL3,      m_performanceBJetsL3,       kBTagPerformanceBJetsL3 );
+    getCollection( iEvent, missing, hRawBJets,                    m_rawBJets,                     kBTagJets );
+    getCollection( iEvent, missing, hCorrectedBJets,              m_correctedBJets,               kBTagCorrectedJets );
+    getCollection( iEvent, missing, hCorrectedBJetsL1FastJet,     m_correctedBJetsL1FastJet,      kBTagCorrectedJetsL1FastJet );
+    getCollection( iEvent, missing, hPFBJets,                     m_pfBJets,                      kBTagPFJets );
+    getCollection( iEvent, missing, hLifetimeBJetsL25,            m_lifetimeBJetsL25,             kBTagLifetimeBJetsL25 );
+    getCollection( iEvent, missing, hLifetimeBJetsL3,             m_lifetimeBJetsL3,              kBTagLifetimeBJetsL3 );
+    getCollection( iEvent, missing, hLifetimeBJetsL25L1FastJet,   m_lifetimeBJetsL25L1FastJet,    kBTagLifetimeBJetsL25L1FastJet );
+    getCollection( iEvent, missing, hLifetimeBJetsL3L1FastJet,    m_lifetimeBJetsL3L1FastJet,     kBTagLifetimeBJetsL3L1FastJet );
+    getCollection( iEvent, missing, hLifetimePFBJetsL3,           m_lifetimePFBJetsL3,            kBTagLifetimePFBJetsL3 );
+    getCollection( iEvent, missing, hLifetimeBJetsL25SingleTrack, m_lifetimeBJetsL25SingleTrack,  kBTagLifetimeBJetsL25SingleTrack );
+    getCollection( iEvent, missing, hLifetimeBJetsL3SingleTrack,  m_lifetimeBJetsL3SingleTrack,   kBTagLifetimeBJetsL3SingleTrack );
+    getCollection( iEvent, missing, hPerformanceBJetsL25,         m_performanceBJetsL25,          kBTagPerformanceBJetsL25 );
+    getCollection( iEvent, missing, hPerformanceBJetsL3,          m_performanceBJetsL3,           kBTagPerformanceBJetsL3 );
+    getCollection( iEvent, missing, hPerformanceBJetsL25L1FastJet,m_performanceBJetsL25L1FastJet, kBTagPerformanceBJetsL25L1FastJet );
+    getCollection( iEvent, missing, hPerformanceBJetsL3L1FastJet, m_performanceBJetsL3L1FastJet,  kBTagPerformanceBJetsL3L1FastJet );
     getCollection( iEvent, missing, electrons,                Electron_,                  kElectrons );
     getCollection( iEvent, missing, photons,                  Photon_,                    kPhotons );
     getCollection( iEvent, missing, ActivityCandsHandle, ECALActivity_,                    kECALActivity);       
@@ -684,12 +705,19 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     bjet_analysis_.analyze(
                            hRawBJets, 
                            hCorrectedBJets,
+                           hCorrectedBJetsL1FastJet,
+                           hPFBJets, 
                            hLifetimeBJetsL25,
                            hLifetimeBJetsL3,
+                           hLifetimeBJetsL25L1FastJet,
+                           hLifetimeBJetsL3L1FastJet,
+                           hLifetimePFBJetsL3,
                            hLifetimeBJetsL25SingleTrack,
                            hLifetimeBJetsL3SingleTrack,
                            hPerformanceBJetsL25,
                            hPerformanceBJetsL3,
+                           hPerformanceBJetsL25L1FastJet,
+                           hPerformanceBJetsL3L1FastJet,
                            HltTree);
 
     vrt_analysisHLT_.analyze(

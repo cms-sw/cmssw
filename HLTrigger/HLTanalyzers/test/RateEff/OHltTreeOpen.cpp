@@ -1544,6 +1544,47 @@ bool isBTagMu_DiJetX_MuXTrigger(TString triggerName, vector<double> &thresholds)
 }
 
 
+bool isBTagMu_DiJetX_L1FastJet_MuXTrigger(TString triggerName, vector<double> &thresholds)
+{
+	
+  TString pattern = "(OpenHLT_BTagMu_DiJet([0-9]+)_L1FastJet_Mu([0-9]+){1})$";
+  TPRegexp matchThreshold(pattern);
+	
+  if (matchThreshold.MatchB(triggerName))
+    {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdDiJet = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdL3Mu = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      thresholds.push_back(thresholdDiJet);
+      thresholds.push_back(thresholdL3Mu);
+      delete subStrL;
+      return true;
+    }
+  else
+    return false;
+}
+
+
+bool isBTagMu_JetX_L1FastJet_MuXTrigger(TString triggerName, vector<double> &thresholds)
+{
+	
+  TString pattern = "(OpenHLT_BTagMu_Jet([0-9]+)_L1FastJet_Mu([0-9]+){1})$";
+  TPRegexp matchThreshold(pattern);
+	
+  if (matchThreshold.MatchB(triggerName))
+    {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdJet = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdL3Mu = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      thresholds.push_back(thresholdJet);
+      thresholds.push_back(thresholdL3Mu);
+      delete subStrL;
+      return true;
+    }
+  else
+    return false;
+}
+
 bool isBTagIP_JetXTrigger(TString triggerName, vector<double> &thresholds)
 {
 	
@@ -8520,7 +8561,7 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
 				
 	      // apply L2 cut on jets
 	      for (int i = 0; i < NohBJetL2Corrected; i++)
-		if (ohBJetL2CorrectedEt[i] > thresholds[0] && fabs(ohBJetL2Eta[i]) < 3.0)
+		if (ohBJetL2CorrectedEt[i] > thresholds[0] && fabs(ohBJetL2CorrectedEta[i]) < 3.0)
 		  njets++;
 				
 	      // apply b-tag cut
@@ -8548,6 +8589,86 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
 	}
     }
 	
+  /**********Available in 2012 menu: BTagMu_DiJetX_L1FastJet_MuX***************************************/
+  else if (isBTagMu_DiJetX_L1FastJet_MuXTrigger(triggerName, thresholds))
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+	      int rc = 0;
+	      int njets = 0;
+				
+	      // apply L2 cut on jets
+	      for (int i = 0; i < NohBJetL2CorrectedL1FastJet; i++)
+		if (ohBJetL2CorrectedEtL1FastJet[i] > thresholds[0] && fabs(ohBJetL2CorrectedEtaL1FastJet[i]) < 3.0)
+		  njets++;
+				
+	      // apply b-tag cut
+	      for (int i = 0; i < NohBJetL2CorrectedL1FastJet; i++)
+		{
+		  if (ohBJetL2CorrectedEtL1FastJet[i] > thresholds[0])
+		    { // keep this at 10 even for all btag mu paths
+		      if (ohBJetPerfL25TagL1FastJet[i] > 0.5)
+			{ // Level 2.5 b tag
+			  if (OpenHlt1L3MuonPassed(thresholds[1], 5.0) >=1)
+			    {//require at least one L3 muon
+			      if (ohBJetPerfL3TagL1FastJet[i] > 0.5)
+				{ // Level 3 b tag
+				  rc++;
+				}
+			    }
+			}
+		    }
+		}
+	      if (rc >= 1 && njets>=2)
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
+    }
+    
+  /**********Available in 2012 menu: BTagMu_JetX_L1FastJet_MuX***************************************/
+  else if (isBTagMu_JetX_L1FastJet_MuXTrigger(triggerName, thresholds))
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+	      int rc = 0;
+	      int njets = 0;
+				
+	      // apply L2 cut on jets
+	      for (int i = 0; i < NohBJetL2CorrectedL1FastJet; i++)
+		if (ohBJetL2CorrectedEtL1FastJet[i] > thresholds[0] && fabs(ohBJetL2CorrectedEtaL1FastJet[i]) < 3.0)
+		  njets++;
+				
+	      // apply b-tag cut
+	      for (int i = 0; i < NohBJetL2CorrectedL1FastJet; i++)
+		{
+		  if (ohBJetL2CorrectedEtL1FastJet[i] > thresholds[0])
+		    { // keep this at 10 even for all btag mu paths
+		      if (ohBJetPerfL25TagL1FastJet[i] > 0.5)
+			{ // Level 2.5 b tag
+			  if (OpenHlt1L3MuonPassed(thresholds[1], 5.0) >=1)
+			    {//require at least one L3 muon
+			      if (ohBJetPerfL3TagL1FastJet[i] > 0.5)
+				{ // Level 3 b tag
+				  rc++;
+				}
+			    }
+			}
+		    }
+		}
+	      if (rc >= 1 && njets>=1)
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
+    }
+    
   /****************BTagIP_JetX*********************************/
 	
   else if (isBTagIP_JetXTrigger(triggerName, thresholds))

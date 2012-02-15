@@ -155,6 +155,13 @@ public:
    Float_t ohBJetL2Pt[5000]; //[NohBJetL2]  
    Float_t ohBJetL2Eta[5000]; //[NohBJetL2]  
    Float_t ohBJetL2Phi[5000]; //[NohBJetL2]  
+   Int_t NohpfBJetL2; //
+   Float_t ohpfBJetL2Et[10]; //[NohpfBJetL2] 
+   Float_t ohpfBJetL2Energy[10]; //[NohpfBJetL2]  
+   Float_t ohpfBJetL2Pt[10]; //[NohpfBJetL2]  
+   Float_t ohpfBJetL2Eta[10]; //[NopfhBJetL2]  
+   Float_t ohpfBJetL2Phi[10]; //[NopfhBJetL2]  
+   Float_t ohpfBJetIPL3Tag[10]; //[NopfhBJetL2] 
    Int_t NohPixelTracksL3;
    Float_t ohPixelTracksL3Pt[10000]; //[NohPixelTracks]
    Float_t ohPixelTracksL3Eta[10000]; //[NohPixelTracks]
@@ -217,14 +224,24 @@ public:
    Float_t ohBJetL2CorrectedPt[10]; //[NohBJetL2Corrected] 
    Float_t ohBJetL2CorrectedEta[10]; //[NohBJetL2Corrected] 
    Float_t ohBJetL2CorrectedPhi[10]; //[NohBJetL2Corrected] 
-   Float_t ohBJetIPL25Tag[10]; //[NohBJetL2] 
-   Float_t ohBJetIPL3Tag[10]; //[NohBJetL2] 
-   Float_t ohBJetIPL25TagSingleTrack[10]; //[NohBJetL2] 
-   Float_t ohBJetIPL3TagSingleTrack[10]; //[NohBJetL2] 
-   Int_t ohBJetMuL25Tag[10]; //[NohBJetL2] 
-   Float_t ohBJetMuL3Tag[10]; //[NohBJetL2] 
-   Int_t ohBJetPerfL25Tag[10]; //[NohBJetL2] 
-   Int_t ohBJetPerfL3Tag[10]; //[NohBJetL2] 
+   Float_t ohBJetIPL25Tag[10]; //[NohBJetL2Corrected] 
+   Float_t ohBJetIPL3Tag[10]; //[NohBJetL2Corrected] 
+   Float_t ohBJetIPL25TagSingleTrack[10]; //[NohBJetL2Corrected] 
+   Float_t ohBJetIPL3TagSingleTrack[10]; //[NohBJetL2Corrected] 
+   Int_t ohBJetMuL25Tag[10]; //[NohBJetL2Corrected] 
+   Float_t ohBJetMuL3Tag[10]; //[NohBJetL2Corrected] 
+   Int_t ohBJetPerfL25Tag[10]; //[NohBJetL2Corrected] 
+   Int_t ohBJetPerfL3Tag[10]; //[NohBJetL2Corrected] 
+   Int_t NohBJetL2CorrectedL1FastJet;
+   Float_t ohBJetL2CorrectedEnergyL1FastJet[10]; //[NohBJetL2CorrectedL1FastJet] 
+   Float_t ohBJetL2CorrectedEtL1FastJet[10]; //[NohBJetL2CorrectedL1FastJet] 
+   Float_t ohBJetL2CorrectedPtL1FastJet[10]; //[NohBJetL2CorrectedL1FastJet] 
+   Float_t ohBJetL2CorrectedEtaL1FastJet[10]; //[NohBJetL2CorrectedL1FastJet] 
+   Float_t ohBJetL2CorrectedPhiL1FastJet[10]; //[NohBJetL2CorrectedL1FastJet] 
+   Float_t ohBJetIPL25TagL1FastJet[10]; //[NohBJetL2CorrectedL1FastJet] 
+   Float_t ohBJetIPL3TagL1FastJet[10]; //[NohBJetL2CorrectedL1FastJet] 
+   Int_t ohBJetPerfL25TagL1FastJet[10]; //[NohBJetL2CorrectedL1FastJet] 
+   Int_t ohBJetPerfL3TagL1FastJet[10]; //[NohBJetL2CorrectedL1FastJet] 
    Int_t recoNVrt; // reconstructed vertex info
    Float_t recoVrtX[10]; //
    Float_t recoVrtY[10]; //
@@ -512,6 +529,8 @@ public:
   Int_t           L1_Mu3_Jet28_Central;
   Int_t           L1_Mu3_Jet16_Central;
   Int_t           L1_Mu7_Jet20_Central;
+  Int_t           L1_Mu3_JetC16_WdEtaPhi2;
+  Int_t           L1_Mu3_JetC52_WdEtaPhi2;
 
   Int_t           L1_DoubleEG5_HTT50;
   Int_t           L1_EG5_HTT75;
@@ -810,6 +829,8 @@ public:
   Int_t           L1_Mu3_Jet28_Central_Prescl;
   Int_t           L1_Mu3_Jet16_Central_Prescl;
   Int_t           L1_Mu7_Jet20_Central_Prescl;
+  Int_t           L1_Mu3_JetC16_WdEtaPhi2_Prescl;
+  Int_t           L1_Mu3_JetC52_WdEtaPhi2_Prescl;
 
   Int_t           L1_DoubleEG5_HTT50_Prescl;
   Int_t           L1_EG5_HTT75_Prescl;
@@ -8065,6 +8086,12 @@ public:
    TBranch *b_ohBJetL2Pt; //! 
    TBranch *b_ohBJetL2Eta; //! 
    TBranch *b_ohBJetL2Phi; //! 
+   TBranch *b_NohpfBJetL2; //! 
+   TBranch *b_ohpfBJetL2Energy; //! 
+   TBranch *b_ohpfBJetL2Et; //! 
+   TBranch *b_ohpfBJetL2Pt; //! 
+   TBranch *b_ohpfBJetL2Eta; //! 
+   TBranch *b_ohpfBJetL2Phi; //! 
    TBranch *b_NohBJetL2Corrected; //! 
    TBranch *b_ohBJetL2CorrectedEnergy; //! 
    TBranch *b_ohBJetL2CorrectedEt; //! 
@@ -8079,6 +8106,17 @@ public:
    TBranch *b_ohBJetMuL3Tag; //! 
    TBranch *b_ohBJetPerfL25Tag; //! 
    TBranch *b_ohBJetPerfL3Tag; //! 
+   TBranch *b_NohBJetL2CorrectedL1FastJet; //! 
+   TBranch *b_ohBJetL2CorrectedEnergyL1FastJet; //! 
+   TBranch *b_ohBJetL2CorrectedEtL1FastJet; //! 
+   TBranch *b_ohBJetL2CorrectedPtL1FastJet; //! 
+   TBranch *b_ohBJetL2CorrectedEtaL1FastJet; //! 
+   TBranch *b_ohBJetL2CorrectedPhiL1FastJet; //! 
+   TBranch *b_ohBJetIPL25TagL1FastJet; //! 
+   TBranch *b_ohBJetIPL3TagL1FastJet; //! 
+   TBranch *b_ohBJetPerfL25TagL1FastJet; //! 
+   TBranch *b_ohBJetPerfL3TagL1FastJet; //! 
+
    TBranch *b_NohPixelTracksL3; //!
    TBranch *b_ohPixelTracksL3Pt; //!
    TBranch *b_ohPixelTracksL3Eta; //!
@@ -8405,6 +8443,8 @@ public:
   TBranch        *b_L1_Mu3_Jet28_Central;   //!
   TBranch        *b_L1_Mu3_Jet16_Central;   //!
   TBranch        *b_L1_Mu7_Jet20_Central;   //!
+  TBranch        *b_L1_Mu3_JetC16_WdEtaPhi2;   //!
+  TBranch        *b_L1_Mu3_JetC52_WdEtaPhi2;   //!
 
   TBranch        *b_L1_DoubleEG5_HTT50;   //!
   TBranch        *b_L1_EG5_HTT75;   //!
@@ -8701,6 +8741,8 @@ public:
   TBranch        *b_L1_Mu3_Jet28_Central_Prescl;   //!
   TBranch        *b_L1_Mu3_Jet16_Central_Prescl;   //!
   TBranch        *b_L1_Mu7_Jet20_Central_Prescl;   //!
+  TBranch        *b_L1_Mu3_JetC16_WdEtaPhi2_Prescl;   //!
+  TBranch        *b_L1_Mu3_JetC52_WdEtaPhi2_Prescl;   //!
 
   TBranch        *b_L1_DoubleEG5_HTT50_Prescl;   //!
   TBranch        *b_L1_EG5_HTT75_Prescl;   //!
@@ -17500,7 +17542,6 @@ void OHltTree::Init(TTree *tree)
    fChain->SetBranchAddress("recoVrtChi2", &recoVrtChi2, &b_recoVrtChi2);
    fChain->SetBranchAddress("recoVrtNdof", &recoVrtNdof, &b_recoVrtNdof);
 
-   fChain->SetBranchAddress("NohBJetL2", &NohBJetL2, &b_NohBJetL2);
    fChain->SetBranchAddress("NohBJetLife", &NohBJetLife, &b_NohBJetLife);
    fChain->SetBranchAddress("ohBJetLifeL2E", ohBJetLifeL2E, &b_ohBJetLifeL2E);
    fChain->SetBranchAddress("ohBJetLifeL2ET", ohBJetLifeL2ET, &b_ohBJetLifeL2ET);
@@ -17532,17 +17573,24 @@ void OHltTree::Init(TTree *tree)
    fChain->SetBranchAddress("ohBJetPerfL2ET", ohBJetPerfL2ET, &b_ohBJetPerfL2ET);
    fChain->SetBranchAddress("ohBJetPerfL2Eta", ohBJetPerfL2Eta, &b_ohBJetPerfL2Eta);
    fChain->SetBranchAddress("ohBJetPerfL2Phi", ohBJetPerfL2Phi, &b_ohBJetPerfL2Phi);
+   fChain->SetBranchAddress("NohBJetL2", &NohBJetL2, &b_NohBJetL2);
    fChain->SetBranchAddress("ohBJetL2Energy", ohBJetL2Energy, &b_ohBJetL2Energy);
    fChain->SetBranchAddress("ohBJetL2Et", ohBJetL2Et, &b_ohBJetL2Et);
    fChain->SetBranchAddress("ohBJetL2Pt", ohBJetL2Pt, &b_ohBJetL2Pt);
    fChain->SetBranchAddress("ohBJetL2Eta", ohBJetL2Eta, &b_ohBJetL2Eta);
    fChain->SetBranchAddress("ohBJetL2Phi", ohBJetL2Phi, &b_ohBJetL2Phi);
+   fChain->SetBranchAddress("NohpfBJetL2", &NohpfBJetL2, &b_NohpfBJetL2);
+   fChain->SetBranchAddress("ohpfBJetL2Energy", ohpfBJetL2Energy, &b_ohpfBJetL2Energy);
+   fChain->SetBranchAddress("ohpfBJetL2Et", ohpfBJetL2Et, &b_ohpfBJetL2Et);
+   fChain->SetBranchAddress("ohpfBJetL2Pt", ohpfBJetL2Pt, &b_ohpfBJetL2Pt);
+   fChain->SetBranchAddress("ohpfBJetL2Eta", ohpfBJetL2Eta, &b_ohpfBJetL2Eta);
+   fChain->SetBranchAddress("ohpfBJetL2Phi", ohpfBJetL2Phi, &b_ohpfBJetL2Phi);   
    fChain->SetBranchAddress("NohBJetL2Corrected", &NohBJetL2Corrected, &b_NohBJetL2Corrected);
    fChain->SetBranchAddress("ohBJetL2CorrectedEnergy", ohBJetL2CorrectedEnergy, &b_ohBJetL2CorrectedEnergy);
    fChain->SetBranchAddress("ohBJetL2CorrectedEt", ohBJetL2CorrectedEt, &b_ohBJetL2CorrectedEt);
    fChain->SetBranchAddress("ohBJetL2CorrectedPt", ohBJetL2CorrectedPt, &b_ohBJetL2CorrectedPt);
    fChain->SetBranchAddress("ohBJetL2CorrectedEta", ohBJetL2CorrectedEta, &b_ohBJetL2CorrectedEta);
-   fChain->SetBranchAddress("ohBJetL2CorrectedPhi", ohBJetL2CorrectedPhi, &b_ohBJetL2CorrectedPhi);
+   fChain->SetBranchAddress("ohBJetL2CorrectedPhi", ohBJetL2CorrectedPhi, &b_ohBJetL2CorrectedPhi);   
    fChain->SetBranchAddress("ohBJetIPL25Tag", ohBJetIPL25Tag, &b_ohBJetIPL25Tag);
    fChain->SetBranchAddress("ohBJetIPL3Tag", ohBJetIPL3Tag, &b_ohBJetIPL3Tag);
    fChain->SetBranchAddress("ohBJetIPL25TagSingleTrack", ohBJetIPL25TagSingleTrack, &b_ohBJetIPL25TagSingleTrack);
@@ -17551,6 +17599,16 @@ void OHltTree::Init(TTree *tree)
    fChain->SetBranchAddress("ohBJetMuL3Tag", ohBJetMuL3Tag, &b_ohBJetMuL3Tag);
    fChain->SetBranchAddress("ohBJetPerfL25Tag", ohBJetPerfL25Tag, &b_ohBJetPerfL25Tag);
    fChain->SetBranchAddress("ohBJetPerfL3Tag", ohBJetPerfL3Tag, &b_ohBJetPerfL3Tag);
+   fChain->SetBranchAddress("NohBJetL2CorrectedL1FastJet", &NohBJetL2CorrectedL1FastJet, &b_NohBJetL2CorrectedL1FastJet);
+   fChain->SetBranchAddress("ohBJetL2CorrectedEnergyL1FastJet", ohBJetL2CorrectedEnergyL1FastJet, &b_ohBJetL2CorrectedEnergyL1FastJet);
+   fChain->SetBranchAddress("ohBJetL2CorrectedEtL1FastJet", ohBJetL2CorrectedEtL1FastJet, &b_ohBJetL2CorrectedEtL1FastJet);
+   fChain->SetBranchAddress("ohBJetL2CorrectedPtL1FastJet", ohBJetL2CorrectedPtL1FastJet, &b_ohBJetL2CorrectedPtL1FastJet);
+   fChain->SetBranchAddress("ohBJetL2CorrectedEtaL1FastJet", ohBJetL2CorrectedEtaL1FastJet, &b_ohBJetL2CorrectedEtaL1FastJet);
+   fChain->SetBranchAddress("ohBJetL2CorrectedPhiL1FastJet", ohBJetL2CorrectedPhiL1FastJet, &b_ohBJetL2CorrectedPhiL1FastJet);
+   fChain->SetBranchAddress("ohBJetIPL25TagL1FastJet", ohBJetIPL25TagL1FastJet, &b_ohBJetIPL25TagL1FastJet);
+   fChain->SetBranchAddress("ohBJetIPL3TagL1FastJet", ohBJetIPL3TagL1FastJet, &b_ohBJetIPL3TagL1FastJet);
+   fChain->SetBranchAddress("ohBJetPerfL25TagL1FastJet", ohBJetPerfL25TagL1FastJet, &b_ohBJetPerfL25TagL1FastJet);
+   fChain->SetBranchAddress("ohBJetPerfL3TagL1FastJet", ohBJetPerfL3TagL1FastJet, &b_ohBJetPerfL3TagL1FastJet);   
    fChain->SetBranchAddress("NrecoElec", &NrecoElec, &b_NrecoElec);
    fChain->SetBranchAddress("recoElecPt", &recoElecPt, &b_recoElecPt);
    fChain->SetBranchAddress("recoElecPhi", &recoElecPhi, &b_recoElecPhi);
@@ -17870,6 +17928,8 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_Mu3_Jet28_Central", &L1_Mu3_Jet28_Central, &b_L1_Mu3_Jet28_Central);
   fChain->SetBranchAddress("L1_Mu3_Jet16_Central", &L1_Mu3_Jet16_Central, &b_L1_Mu3_Jet16_Central);
   fChain->SetBranchAddress("L1_Mu7_Jet20_Central", &L1_Mu7_Jet20_Central, &b_L1_Mu7_Jet20_Central);
+  fChain->SetBranchAddress("L1_Mu3_JetC16_WdEtaPhi2", &L1_Mu3_JetC16_WdEtaPhi2, &b_L1_Mu3_JetC16_WdEtaPhi2);
+  fChain->SetBranchAddress("L1_Mu3_JetC52_WdEtaPhi2", &L1_Mu3_JetC52_WdEtaPhi2, &b_L1_Mu3_JetC52_WdEtaPhi2);
 
   fChain->SetBranchAddress("L1_DoubleEG5_HTT50", &L1_DoubleEG5_HTT50, &b_L1_DoubleEG5_HTT50);
   fChain->SetBranchAddress("L1_EG5_HTT75", &L1_EG5_HTT75, &b_L1_EG5_HTT75);
@@ -18165,6 +18225,8 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_Mu3_Jet28_Central_Prescl", &L1_Mu3_Jet28_Central_Prescl, &b_L1_Mu3_Jet28_Central_Prescl);
   fChain->SetBranchAddress("L1_Mu3_Jet16_Central_Prescl", &L1_Mu3_Jet16_Central_Prescl, &b_L1_Mu3_Jet16_Central_Prescl);
   fChain->SetBranchAddress("L1_Mu7_Jet20_Central_Prescl", &L1_Mu7_Jet20_Central_Prescl, &b_L1_Mu7_Jet20_Central_Prescl);
+  fChain->SetBranchAddress("L1_Mu3_JetC16_WdEtaPhi2_Prescl", &L1_Mu3_JetC16_WdEtaPhi2_Prescl, &b_L1_Mu3_JetC16_WdEtaPhi2_Prescl);
+  fChain->SetBranchAddress("L1_Mu3_JetC52_WdEtaPhi2_Prescl", &L1_Mu3_JetC52_WdEtaPhi2_Prescl, &b_L1_Mu3_JetC52_WdEtaPhi2_Prescl);
 
   fChain->SetBranchAddress("L1_DoubleEG5_HTT50_Prescl", &L1_DoubleEG5_HTT50_Prescl, &b_L1_DoubleEG5_HTT50_Prescl);
   fChain->SetBranchAddress("L1_EG5_HTT75_Prescl", &L1_EG5_HTT75_Prescl, &b_L1_EG5_HTT75_Prescl);
@@ -25321,6 +25383,8 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_Mu3_Jet28_Central", &map_BitOfStandardHLTPath["L1_Mu3_Jet28_Central"], &b_L1_Mu3_Jet28_Central);
   fChain->SetBranchAddress("L1_Mu3_Jet16_Central", &map_BitOfStandardHLTPath["L1_Mu3_Jet16_Central"], &b_L1_Mu3_Jet16_Central);
   fChain->SetBranchAddress("L1_Mu7_Jet20_Central", &map_BitOfStandardHLTPath["L1_Mu7_Jet20_Central"], &b_L1_Mu7_Jet20_Central);
+  fChain->SetBranchAddress("L1_Mu3_JetC16_WdEtaPhi2", &map_BitOfStandardHLTPath["L1_Mu3_JetC16_WdEtaPhi2"], &b_L1_Mu3_JetC16_WdEtaPhi2);
+  fChain->SetBranchAddress("L1_Mu3_JetC52_WdEtaPhi2", &map_BitOfStandardHLTPath["L1_Mu3_JetC52_WdEtaPhi2"], &b_L1_Mu3_JetC52_WdEtaPhi2);
 
   fChain->SetBranchAddress("L1_DoubleEG5_HTT50", &map_BitOfStandardHLTPath["L1_DoubleEG5_HTT50"], &b_L1_DoubleEG5_HTT50);
   fChain->SetBranchAddress("L1_EG5_HTT75", &map_BitOfStandardHLTPath["L1_EG5_HTT75"], &b_L1_EG5_HTT75);
@@ -25539,6 +25603,8 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_Mu3_Jet28_Central_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_Mu3_Jet28_Central"], &b_L1_Mu3_Jet28_Central_Prescl);
   fChain->SetBranchAddress("L1_Mu3_Jet16_Central_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_Mu3_Jet16_Central"], &b_L1_Mu3_Jet16_Central_Prescl);
   fChain->SetBranchAddress("L1_Mu7_Jet20_Central_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_Mu7_Jet20_Central"], &b_L1_Mu7_Jet20_Central_Prescl);
+  fChain->SetBranchAddress("L1_Mu3_JetC16_WdEtaPhi2_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_Mu3_JetC16_WdEtaPhi2"], &b_L1_Mu3_JetC16_WdEtaPhi2_Prescl);
+  fChain->SetBranchAddress("L1_Mu3_JetC52_WdEtaPhi2_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_Mu3_JetC52_WdEtaPhi2"], &b_L1_Mu3_JetC52_WdEtaPhi2_Prescl);
 
   fChain->SetBranchAddress("L1_DoubleEG5_HTT50_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_DoubleEG5_HTT50"], &b_L1_DoubleEG5_HTT50_Prescl);
   fChain->SetBranchAddress("L1_EG5_HTT75_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_EG5_HTT75"], &b_L1_EG5_HTT75_Prescl);
