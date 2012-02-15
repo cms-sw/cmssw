@@ -14,6 +14,20 @@ MINFILL=1800
 MAXFILL=9999
 allfillname='allfills.txt'
 
+def getFillFromDB(schema,fillnum):
+    '''
+    output: {run:starttime}
+    '''
+    runtimesInFill={}
+    fillrundict=lumiCalcAPI.fillrunMap(schema,fillnum)
+    if len(fillrundict)>0:
+        runs=fillrundict.values()[0]
+        runlsdict=dict(zip(runs,[None]*len(runs)))
+        runresult=lumiCalcAPI.runsummary(schema,runlsdict)    
+        for perrundata in runresult:
+            runtimesInFill[perrundata[0]]=perrundata[7]
+    return runtimesInFill
+
 def listfilldir(indir):
     '''
     list all fills contained in the given dir
