@@ -33,14 +33,12 @@ void L1HLTTauMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	using namespace trigger;
 	using namespace l1extra;
 	
-	typedef std::vector<LeafCandidate> LeafCandidateCollection;
-
 	  auto_ptr<PFTauCollection> tauL2jets(new PFTauCollection);
 	
 	double deltaR = 1.0;
 	double matchingR = 0.5;
 	//Getting HLT jets to be matched
-	edm::Handle<edm::View<Candidate> > tauJets;
+	edm::Handle<PFTauCollection > tauJets;
 	iEvent.getByLabel( jetSrc, tauJets );
 
 //		std::cout <<"Size of input jet collection "<<tauJets->size()<<std::endl;
@@ -62,11 +60,14 @@ void L1HLTTauMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 			for(unsigned int iJet=0;iJet<tauJets->size();iJet++)
 			{
 				//Find the relative L2TauJets, to see if it has been reconstructed
-				const Candidate &  myJet = (*tauJets)[iJet];
+				const PFTau &  myJet = (*tauJets)[iJet];
 				deltaR = ROOT::Math::VectorUtil::DeltaR(myJet.p4().Vect(), (tauCandRefVec[iL1Tau]->p4()).Vect());
 				if(deltaR < matchingR ) {
 					//		 LeafCandidate myLC(myJet);
-				  PFTau myPFTau(std::numeric_limits<int>::quiet_NaN(), myJet.p4());
+                    if(myJet.leadPFChargedHadrCand().isNonnull()){
+                        a =  myJet.leadPFChargedHadrCand()->vertex();  
+                    }
+				  PFTau myPFTau(std::numeric_limits<int>::quiet_NaN(), myJet.p4(), a);
 					if(myJet.pt() > mEt_Min) {
 						//		  tauL2LC->push_back(myLC);
 						tauL2jets->push_back(myPFTau);
@@ -80,12 +81,16 @@ void L1HLTTauMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 		{  
 			for(unsigned int iJet=0;iJet<tauJets->size();iJet++)
 			{
-				const Candidate & myJet = (*tauJets)[iJet];
+				const PFTau &  myJet = (*tauJets)[iJet];
 				//Find the relative L2TauJets, to see if it has been reconstructed
 				deltaR = ROOT::Math::VectorUtil::DeltaR(myJet.p4().Vect(), (jetCandRefVec[iL1Tau]->p4()).Vect());
 				if(deltaR < matchingR ) {
 					//		 LeafCandidate myLC(myJet);
-				  PFTau myPFTau(std::numeric_limits<int>::quiet_NaN(), myJet.p4());
+                    if(myJet.leadPFChargedHadrCand().isNonnull()){
+                        a =  myJet.leadPFChargedHadrCand()->vertex();  
+                    }
+                    
+				  PFTau myPFTau(std::numeric_limits<int>::quiet_NaN(), myJet.p4(),a);
 					if(myJet.pt() > mEt_Min) {
 						//tauL2LC->push_back(myLC);
 						tauL2jets->push_back(myPFTau);
