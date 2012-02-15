@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_1_0/HIon/V33 (CMSSW_5_2_0_pre5_HLT3)
+# /dev/CMSSW_5_1_0/HIon/V34 (CMSSW_5_2_0_pre5_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/HIon/V33')
+  tableName = cms.string('/dev/CMSSW_5_1_0/HIon/V34')
 )
 
 process.streams = cms.PSet( 
@@ -3025,7 +3025,7 @@ process.hltHcalDigis = cms.EDProducer( "HcalRawToDigi",
     firstSample = cms.int32( 0 )
 )
 process.hltHbhereco = cms.EDProducer( "HcalHitReconstructor",
-    digiTimeFromDB = cms.bool( False ),
+    digiTimeFromDB = cms.bool( True ),
     S9S1stat = cms.PSet( 
       longETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
       shortEnergyParams = cms.vdouble( 35.1773, 35.37, 35.7933, 36.4472, 37.3317, 38.4468, 39.7925, 41.3688, 43.1757, 45.2132, 47.4813, 49.98, 52.7093 ),
@@ -3228,7 +3228,7 @@ process.hltHfreco = cms.EDProducer( "HcalHitReconstructor",
     )
 )
 process.hltHoreco = cms.EDProducer( "HcalHitReconstructor",
-    digiTimeFromDB = cms.bool( False ),
+    digiTimeFromDB = cms.bool( True ),
     S9S1stat = cms.PSet( 
       longETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
       HcalAcceptSeverityLevel = cms.int32( 9 ),
