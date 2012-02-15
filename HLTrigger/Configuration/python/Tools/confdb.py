@@ -56,7 +56,10 @@ class HLTProcess(object):
     "HLT_Mu7_Track7_Jpsi_v*",
 
     # TODO: paths removed from the 2012 menu, for which a recovery should be attempted as soon as that menu is more stabel
-    "HLT_HT250_L1FastJet_DoubleDisplacedPFJet60_v"
+    "HLT_HT250_L1FastJet_DoubleDisplacedPFJet60_v*"
+    "HLT_HT250_L1FastJet_DoubleDisplacedPFJet60_ChgFraction10_v*"
+    "HLT_HT250_L1FastJet_SingleDisplacedPFJet60_v*"
+    "HLT_HT250_L1FastJet_SingleDisplacedPFJet60_ChgFraction10_v*"
 
   )
 
