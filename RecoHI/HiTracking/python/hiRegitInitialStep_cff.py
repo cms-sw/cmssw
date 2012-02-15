@@ -37,12 +37,12 @@ hiRegitInitialStepSeeds     = RecoTracker.IterativeTracking.InitialStep_cff.init
 hiRegitInitialStepSeeds.RegionFactoryPSet                                           = HiTrackingRegionFactoryFromJetsBlock.clone()
 hiRegitInitialStepSeeds.ClusterCheckPSet.doClusterCheck                             = False # do not check for max number of clusters pixel or strips
 hiRegitInitialStepSeeds.skipClusters = cms.InputTag('hiRegitInitialStepClusters')
+hiRegitInitialStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 1.2
 
 # building: feed the new-named seeds
 hiRegitInitialStepTrajectoryFilter = RecoTracker.IterativeTracking.InitialStep_cff.initialStepTrajectoryFilter.clone(
     ComponentName = 'hiRegitInitialStepTrajectoryFilter'
     )
-#hiRegitInitialStepTrajectoryFilter.filterPset.minPt              = 1.4 # after each new hit, apply pT cut for traj w/ at least minHitsMinPt = cms.int32(3),
 
 
 hiRegitInitialStepTrajectoryBuilder = RecoTracker.IterativeTracking.InitialStep_cff.initialStepTrajectoryBuilder.clone(
@@ -54,7 +54,8 @@ hiRegitInitialStepTrajectoryBuilder = RecoTracker.IterativeTracking.InitialStep_
 # track candidates
 hiRegitInitialStepTrackCandidates        =  RecoTracker.IterativeTracking.InitialStep_cff.initialStepTrackCandidates.clone(
     src               = cms.InputTag('hiRegitInitialStepSeeds'),
-    TrajectoryBuilder = 'hiRegitInitialStepTrajectoryBuilder'
+    TrajectoryBuilder = 'hiRegitInitialStepTrajectoryBuilder',
+    maxNSeeds = 100000
     )
 
 # fitting: feed new-names

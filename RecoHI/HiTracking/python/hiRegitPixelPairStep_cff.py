@@ -43,13 +43,13 @@ hiRegitPixelPairStepSeeds     = RecoTracker.IterativeTracking.PixelPairStep_cff.
 hiRegitPixelPairStepSeeds.RegionFactoryPSet                                           = HiTrackingRegionFactoryFromJetsBlock.clone()
 hiRegitPixelPairStepSeeds.ClusterCheckPSet.doClusterCheck                             = False # do not check for max number of clusters pixel or strips
 hiRegitPixelPairStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'hiRegitPixelPairStepSeedLayers'
+hiRegitPixelPairStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 1.2
 
 
 # building: feed the new-named seeds
 hiRegitPixelPairStepTrajectoryFilter = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTrajectoryFilter.clone(
     ComponentName    = 'hiRegitPixelPairStepTrajectoryFilter'
     )
-#hiRegitPixelPairStepTrajectoryFilter.filterPset.minPt = 1.4 # after each new hit, apply pT cut for traj w/ at least minHitsMinPt = cms.int32(3),
 
 hiRegitPixelPairStepTrajectoryBuilder = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTrajectoryBuilder.clone(
     ComponentName        = 'hiRegitPixelPairStepTrajectoryBuilder',
@@ -60,7 +60,8 @@ hiRegitPixelPairStepTrajectoryBuilder = RecoTracker.IterativeTracking.PixelPairS
 # trackign candidate
 hiRegitPixelPairStepTrackCandidates        =  RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTrackCandidates.clone(
     src               = cms.InputTag('hiRegitPixelPairStepSeeds'),
-    TrajectoryBuilder = 'hiRegitPixelPairStepTrajectoryBuilder'
+    TrajectoryBuilder = 'hiRegitPixelPairStepTrajectoryBuilder',
+    maxNSeeds = 100000
     )
 
 # fitting: feed new-names

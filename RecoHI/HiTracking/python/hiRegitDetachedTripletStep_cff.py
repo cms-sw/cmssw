@@ -44,12 +44,12 @@ hiRegitDetachedTripletStepSeeds.ClusterCheckPSet.doClusterCheck                 
 hiRegitDetachedTripletStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'hiRegitDetachedTripletStepSeedLayers'
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 hiRegitDetachedTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet.ComponentName = 'LowPtClusterShapeSeedComparitor'
+hiRegitDetachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 1.2
 
 # building: feed the new-named seeds
 hiRegitDetachedTripletStepTrajectoryFilter = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepTrajectoryFilter.clone(
     ComponentName    = 'hiRegitDetachedTripletStepTrajectoryFilter'
     )
-#hiRegitDetachedTripletStepTrajectoryFilter.filterPset.minPt = 1. # after each new hit, apply pT cut for traj w/ at least minHitsMinPt = cms.int32(3),
 
 hiRegitDetachedTripletStepTrajectoryBuilder = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepTrajectoryBuilder.clone(
     ComponentName        = 'hiRegitDetachedTripletStepTrajectoryBuilder',
@@ -59,7 +59,8 @@ hiRegitDetachedTripletStepTrajectoryBuilder = RecoTracker.IterativeTracking.Deta
 
 hiRegitDetachedTripletStepTrackCandidates        =  RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepTrackCandidates.clone(
     src               = cms.InputTag('hiRegitDetachedTripletStepSeeds'),
-    TrajectoryBuilder = 'hiRegitDetachedTripletStepTrajectoryBuilder'
+    TrajectoryBuilder = 'hiRegitDetachedTripletStepTrajectoryBuilder',
+    maxNSeeds=100000
     )
 
 # fitting: feed new-names
