@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_1_0/GRun/V32 (CMSSW_5_2_0_pre4_HLT9)
+# /dev/CMSSW_5_1_0/GRun/V33 (CMSSW_5_2_0_pre5_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V32')
+  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V33')
 )
 
 process.streams = cms.PSet( 
@@ -2023,7 +2023,9 @@ process.SiStripGainESProducer = cms.ESProducer( "SiStripGainESProducer",
 process.SiStripQualityESProducer = cms.ESProducer( "SiStripQualityESProducer",
   appendToDataLabel = cms.string( "" ),
   PrintDebugOutput = cms.bool( False ),
-  PrintDebug = cms.untracked.bool( True ),
+  ThresholdForReducedGranularity = cms.double( 0.3 ),
+  UseEmptyRunInfo = cms.bool( False ),
+  ReduceGranularity = cms.bool( False ),
   ListOfRecordToMerge = cms.VPSet( 
     cms.PSet(  record = cms.string( "SiStripDetVOffRcd" ),
       tag = cms.string( "" )
@@ -2040,10 +2042,7 @@ process.SiStripQualityESProducer = cms.ESProducer( "SiStripQualityESProducer",
     cms.PSet(  record = cms.string( "SiStripBadModuleRcd" ),
       tag = cms.string( "" )
     )
-  ),
-  UseEmptyRunInfo = cms.bool( False ),
-  ReduceGranularity = cms.bool( False ),
-  ThresholdForReducedGranularity = cms.double( 0.3 )
+  )
 )
 process.SiStripRecHitMatcherESProducer = cms.ESProducer( "SiStripRecHitMatcherESProducer",
   ComponentName = cms.string( "StandardMatcher" ),
@@ -8058,7 +8057,6 @@ process.hltL3MuonCandidates = cms.EDProducer( "L3MuonCandidateProducer",
     MuonPtOption = cms.string( "Tracker" )
 )
 process.hltPixelTracks = cms.EDProducer( "PixelTrackProducer",
-    useFilterWithES = cms.bool( False ),
     FilterPSet = cms.PSet( 
       chi2 = cms.double( 1000.0 ),
       nSigmaTipMaxTolerance = cms.double( 0.0 ),
@@ -8067,6 +8065,7 @@ process.hltPixelTracks = cms.EDProducer( "PixelTrackProducer",
       ptMin = cms.double( 0.1 ),
       tipMax = cms.double( 1.0 )
     ),
+    useFilterWithES = cms.bool( False ),
     passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
     FitterPSet = cms.PSet( 
       ComponentName = cms.string( "PixelFitterByHelixProjections" ),
@@ -11039,7 +11038,8 @@ process.hltPFTauTightIsoIsolationDiscriminator = cms.EDProducer( "PFRecoTauDiscr
     particleFlowSrc = cms.InputTag( "particleFlow" ),
     applyRelativeSumPtCut = cms.bool( False ),
     customOuterCone = cms.double( -1.0 ),
-    deltaBetaPUTrackPtCutOverride = cms.double( 0.5 )
+    deltaBetaPUTrackPtCutOverride = cms.double( 0.5 ),
+    storeRawSumPt = cms.bool( False )
 )
 process.hltSelectedPFTausTightIsoTrackFinding = cms.EDFilter( "PFTauSelector",
     discriminators = cms.VPSet( 
@@ -25677,7 +25677,8 @@ process.hltPFTauMediumIsoIsolationDiscriminator = cms.EDProducer( "PFRecoTauDisc
     particleFlowSrc = cms.InputTag( "particleFlow" ),
     applyRelativeSumPtCut = cms.bool( False ),
     customOuterCone = cms.double( -1.0 ),
-    deltaBetaPUTrackPtCutOverride = cms.double( 0.5 )
+    deltaBetaPUTrackPtCutOverride = cms.double( 0.5 ),
+    storeRawSumPt = cms.bool( False )
 )
 process.hltSelectedPFTausMediumIsoTrackFinding = cms.EDFilter( "PFTauSelector",
     discriminators = cms.VPSet( 
@@ -28751,7 +28752,8 @@ process.hltPFTauLooseIsolationDiscriminator = cms.EDProducer( "PFRecoTauDiscrimi
     particleFlowSrc = cms.InputTag( "particleFlow" ),
     applyRelativeSumPtCut = cms.bool( False ),
     customOuterCone = cms.double( -1.0 ),
-    deltaBetaPUTrackPtCutOverride = cms.double( 0.5 )
+    deltaBetaPUTrackPtCutOverride = cms.double( 0.5 ),
+    storeRawSumPt = cms.bool( False )
 )
 process.hltSelectedPFTausTrackFinding = cms.EDFilter( "PFTauSelector",
     discriminators = cms.VPSet( 
@@ -33901,7 +33903,6 @@ process.hltPixelClusterShapeFilter = cms.EDFilter( "HLTPixelClusterShapeFilter",
     clusterPars = cms.vdouble( 0.0, 0.0045 )
 )
 process.hltPixelTracksForHighMult = cms.EDProducer( "PixelTrackProducer",
-    useFilterWithES = cms.bool( False ),
     FilterPSet = cms.PSet( 
       chi2 = cms.double( 1000.0 ),
       nSigmaTipMaxTolerance = cms.double( 0.0 ),
@@ -33910,6 +33911,7 @@ process.hltPixelTracksForHighMult = cms.EDProducer( "PixelTrackProducer",
       ptMin = cms.double( 0.4 ),
       tipMax = cms.double( 1.0 )
     ),
+    useFilterWithES = cms.bool( False ),
     passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
     FitterPSet = cms.PSet( 
       ComponentName = cms.string( "PixelFitterByHelixProjections" ),
@@ -34124,7 +34126,6 @@ process.hltPreIsoTrackHE = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 process.hltHITPixelTracksHB = cms.EDProducer( "PixelTrackProducer",
-    useFilterWithES = cms.bool( False ),
     FilterPSet = cms.PSet( 
       chi2 = cms.double( 1000.0 ),
       nSigmaTipMaxTolerance = cms.double( 0.0 ),
@@ -34133,6 +34134,7 @@ process.hltHITPixelTracksHB = cms.EDProducer( "PixelTrackProducer",
       ptMin = cms.double( 0.7 ),
       tipMax = cms.double( 1.0 )
     ),
+    useFilterWithES = cms.bool( False ),
     passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
     FitterPSet = cms.PSet( 
       ComponentName = cms.string( "PixelFitterByConformalMappingAndLine" ),
@@ -34167,7 +34169,6 @@ process.hltHITPixelTracksHB = cms.EDProducer( "PixelTrackProducer",
     )
 )
 process.hltHITPixelTracksHE = cms.EDProducer( "PixelTrackProducer",
-    useFilterWithES = cms.bool( False ),
     FilterPSet = cms.PSet( 
       chi2 = cms.double( 1000.0 ),
       nSigmaTipMaxTolerance = cms.double( 0.0 ),
@@ -34176,6 +34177,7 @@ process.hltHITPixelTracksHE = cms.EDProducer( "PixelTrackProducer",
       ptMin = cms.double( 0.35 ),
       tipMax = cms.double( 1.0 )
     ),
+    useFilterWithES = cms.bool( False ),
     passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
     FitterPSet = cms.PSet( 
       ComponentName = cms.string( "PixelFitterByConformalMappingAndLine" ),

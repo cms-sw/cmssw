@@ -42,6 +42,9 @@ function getConfigForCVS() {
   hltGetConfiguration --cff --offline --mc   $CONFIG --type $NAME > HLT_${NAME}_cff.py
   hltGetConfiguration --cff --offline --data $CONFIG --type $NAME > HLT_${NAME}_data_cff.py
   diff -C0 HLT_${NAME}_cff.py HLT_${NAME}_data_cff.py
+
+  hltGetConfiguration --fastsim              $CONFIG --type $NAME > HLT_${NAME}_Famos_cff.py
+
 }
 
 function getContentForCVS() {
