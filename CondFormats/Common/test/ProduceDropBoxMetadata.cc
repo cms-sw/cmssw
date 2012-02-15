@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/02/23 16:55:18 $
- *  $Revision: 1.1 $
+ *  $Date: 2011/03/02 17:09:28 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - CERN
  */
 
@@ -58,7 +58,7 @@ void ProduceDropBoxMetadata::beginRun(const edm::Run& run, const edm::EventSetup
 
   if(write) {
     
-    DropBoxMetadata *metadata = new DropBoxMetadata();
+    DropBoxMetadata metadata;
 
     // loop over all the pSets for the TF1 that we want to write to DB
     for(vector<ParameterSet>::const_iterator fSetup = fToWrite.begin();
@@ -78,14 +78,14 @@ void ProduceDropBoxMetadata::beginRun(const edm::Run& run, const edm::EventSetup
 	  cout << "           key: " << *key << " value: " << value << endl;
 	}
       }
-      metadata->addRecordParameters(record, params);
+      metadata.addRecordParameters(record, params);
     }
 
 
     // actually write to DB
     edm::Service<cond::service::PoolDBOutputService> dbOut;
     if(dbOut.isAvailable()) {
-      dbOut->writeOne(metadata, 1, plRecord);
+      dbOut->writeOne(&metadata, 1, plRecord);
     }
 
   }

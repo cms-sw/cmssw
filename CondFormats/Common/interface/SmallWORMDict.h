@@ -24,7 +24,7 @@ namespace cond {
     ~SmallWORMDict();
     
     struct Frame {
-      Frame(){}
+      Frame(): b(0){}
       Frame(char const * ib,
 	    unsigned int il,
 	    unsigned int iind) :
