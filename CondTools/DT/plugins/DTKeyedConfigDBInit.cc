@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/05/14 11:43:08 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/06/01 10:34:12 $
+ *  $Revision: 1.3 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -66,11 +66,11 @@ void DTKeyedConfigDBInit::endJob() {
   bk->setId( 999999999 );
   bk->add( "dummy" );
   cond::KeyedElement k( bk, 999999999 );
-  outdb->writeOne( k.m_obj, 0, k.m_key, container );
+  outdb->writeOne( k.m_obj, k.m_key, container );
 
   std::vector<cond::Time_t> * kl = new std::vector<cond::Time_t>;
   kl->push_back( 999999999 );
-  outdb->writeOne(kl,0,1,iov);
+  outdb->writeOne(kl,1,iov);
 
   return;
 
