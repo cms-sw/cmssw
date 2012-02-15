@@ -70,7 +70,7 @@ bool
   if (flag==1) {
     for (METCollection::const_iterator recomht = recomhts->begin(); recomht != recomhts->end(); recomht++) {
       ref = METRef(recomhts,distance(recomhts->begin(),recomht));
-      filterproduct.addObject(TriggerMET,ref);
+      filterproduct.addObject(TriggerMHT,ref);
       n++;
     } 
   }
