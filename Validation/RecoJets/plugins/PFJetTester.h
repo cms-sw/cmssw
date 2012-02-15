@@ -4,7 +4,7 @@
 // Producer for validation histograms for PFJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by Chiyoung.Jeong Feb 2, 2010
-// $Id: PFJetTester.h,v 1.13 2012/02/06 02:54:51 kovitang Exp $
+// $Id: PFJetTester.h,v 1.14 2012/02/13 17:28:43 kovitang Exp $
 
 #include <string>
 
@@ -132,6 +132,11 @@ private:
   MonitorElement* mpTScale_nvtx_15_20;
   MonitorElement* mpTScale_nvtx_20_30;
   MonitorElement* mpTScale_nvtx_30_inf;
+  MonitorElement* mNJetsEtaF_30;
+  MonitorElement* mpTScale_a;
+  MonitorElement* mpTScale_b;
+  MonitorElement* mpTScale_c;
+  MonitorElement* mpTScale_pT;
 
   // Leading Jet Parameters
   MonitorElement* mEtaFirst;

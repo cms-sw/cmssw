@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: PFJetTester.cc,v 1.27 2012/02/06 02:54:51 kovitang Exp $
+// $Id: PFJetTester.cc,v 1.28 2012/02/13 17:28:43 kovitang Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -126,6 +126,8 @@ PFJetTester::PFJetTester(const edm::ParameterSet& iConfig)
       = mpTScale_a_nvtx_30_inf = mpTScale_b_nvtx_30_inf = mpTScale_c_nvtx_30_inf
       = mpTScale_nvtx_0_5 = mpTScale_nvtx_5_10 = mpTScale_nvtx_10_15 
       = mpTScale_nvtx_15_20 = mpTScale_nvtx_20_30 = mpTScale_nvtx_30_inf
+      = mNJetsEtaF_30
+      = mpTScale_a = mpTScale_b = mpTScale_c = mpTScale_pT
       = 0;
   
   DQMStore* dbe = &*edm::Service<DQMStore>();
@@ -266,6 +268,7 @@ PFJetTester::PFJetTester(const edm::ParameterSet& iConfig)
     //
     mNJetsEtaC        = dbe->book1D("NJetsEtaC_Pt10", "NJetsEtaC_Pt10", 15, 0, 15);
     mNJetsEtaF        = dbe->book1D("NJetsEtaF_Pt10", "NJetsEtaF_Pt10", 15, 0, 15);
+    mNJetsEtaF_30        = dbe->book1D("NJetsEtaF_Pt30", "NJetsEtaF_Pt30", 15, 0, 15);
     //
     mNJets1           = dbe->bookProfile("NJets1", "NJets1", 100, 0, 200,  100, 0, 50, "s");
     mNJets2           = dbe->bookProfile("NJets2", "NJets2", 100, 0, 4000, 100, 0, 50, "s");
@@ -319,7 +322,9 @@ PFJetTester::PFJetTester(const edm::ParameterSet& iConfig)
     mpTScale_a_nvtx_30_inf = dbe->book1D("mpTScale_a_nvtx_30_inf", "pTScale_a_nvtx_30_inf_0<|eta|<1.3_60_120",100, 0, 2);
     mpTScale_b_nvtx_30_inf = dbe->book1D("mpTScale_b_nvtx_30_inf", "pTScale_b_nvtx_30_inf_0<|eta|<1.3_200_300",100, 0, 2);
     mpTScale_c_nvtx_30_inf = dbe->book1D("mpTScale_c_nvtx_30_inf", "pTScale_c_nvtx_30_inf_0<|eta|<1.3_600_900",100, 0, 2);
- 
+    mpTScale_a = dbe->book1D("mpTScale_a", "pTScale_a_60_120",100, 0, 2);
+    mpTScale_b = dbe->book1D("mpTScale_b", "pTScale_b_200_300",100, 0, 2);
+    mpTScale_c = dbe->book1D("mpTScale_c", "pTScale_c_600_900",100, 0, 2);
     //
     double log10PtMin = 0.5; //=3.1622766
     double log10PtMax = 3.75; //=5623.41325
@@ -473,6 +478,8 @@ PFJetTester::PFJetTester(const edm::ParameterSet& iConfig)
    mpTScale_nvtx_20_30  = dbe->bookProfile("pTScale_nvtx_20_30", "pTScale_nvtx_20_30_0<|eta|<1.3",
                                    log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
    mpTScale_nvtx_30_inf  = dbe->bookProfile("pTScale_nvtx_30_inf", "pTScale_nvtx_30_inf_0<|eta|<1.3",
+                                   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
+   mpTScale_pT = dbe->bookProfile("pTScale_pT", "pTScale_vs_pT",
                                    log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
  ///////////Corr profile//////////////
     mpTRatio = dbe->bookProfile("pTRatio", "pTRatio",
@@ -744,6 +751,7 @@ if (!mEvent.isRealData()){
   int nJet = 0;
   int nJetF = 0;
   int nJetC = 0;
+  int nJetF_30 =0;
   for (; jet != pfJets->end (); jet++, jetIndex++) {
 
     if (jet->pt() > 10.) {
@@ -752,6 +760,7 @@ if (!mEvent.isRealData()){
       else 
 	nJetC++;	  
     }
+    if (jet->pt() > 30.) nJetF_30++;
     if (jet->pt() > 10.) {
       if (mEta) mEta->Fill (jet->eta());
       if (mEtaFineBin) mEtaFineBin->Fill (jet->eta());
@@ -856,11 +865,9 @@ if (!mEvent.isRealData()){
     //    mEMJetEnergyProfile->Fill (jet->eta(), jet->phi(), jet->emEnergyInEB()+jet->emEnergyInEE()+jet->emEnergyInHF());
   }
 
-
-
-
   if (mNJetsEtaC) mNJetsEtaC->Fill( nJetC );
   if (mNJetsEtaF) mNJetsEtaF->Fill( nJetF );
+  if (mNJetsEtaF_30) mNJetsEtaF_30->Fill( nJetF_30 );  
 
   if (nJet == 2) {
     if (mMjj) mMjj->Fill( (p4tmp[0]+p4tmp[1]).mass() );
@@ -1282,7 +1289,9 @@ if(fGenJet.pt()>60.0 && fGenJet.pt()<120.0) {
     if(goodVertices.size()>15 && goodVertices.size()<=20) mpTScale_nvtx_15_20->Fill(log10(PtGen), PtPF/PtGen);
     if(goodVertices.size()>20 && goodVertices.size()<=30) mpTScale_nvtx_20_30->Fill(log10(PtGen), PtPF/PtGen);
     if(goodVertices.size()>30) mpTScale_nvtx_30_inf->Fill(log10(PtGen), PtPF/PtGen);
-
 }
-
+  if(fGenJet.pt()>60.0 && fGenJet.pt()<120.0) mpTScale_a->Fill(PtPF/PtGen);
+  if(fGenJet.pt()>200.0 && fGenJet.pt()<300.0) mpTScale_b->Fill(PtPF/PtGen);
+  if(fGenJet.pt()>600.0 && fGenJet.pt()<900.0) mpTScale_c->Fill(PtPF/PtGen);
+  mpTScale_pT->Fill (log10(PtGen), PtPF/PtGen);
 }
