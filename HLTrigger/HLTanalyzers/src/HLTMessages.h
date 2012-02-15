@@ -71,6 +71,8 @@ extern const char * kBTagLifetimeBJetsL3L1FastJet;
 extern const char * kBTagLifetimePFBJetsL3;
 extern const char * kBTagLifetimeBJetsL25SingleTrack;
 extern const char * kBTagLifetimeBJetsL3SingleTrack;
+extern const char * kBTagLifetimeBJetsL25SingleTrackL1FastJet;
+extern const char * kBTagLifetimeBJetsL3SingleTrackL1FastJet;
 extern const char * kBTagSoftmuonBJetsL25;
 extern const char * kBTagSoftmuonBJetsL3;
 extern const char * kBTagPerformanceBJetsL25;

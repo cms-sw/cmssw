@@ -29,6 +29,8 @@ public:
                const edm::Handle<reco::JetTagCollection> & lifetimePFBJetsL3,
                const edm::Handle<reco::JetTagCollection> & lifetimeBJetsL25SingleTrack,
                const edm::Handle<reco::JetTagCollection> & lifetimeBJetsL3SingleTrack,
+               const edm::Handle<reco::JetTagCollection> & lifetimeBJetsL25SingleTrackL1FastJet,
+               const edm::Handle<reco::JetTagCollection> & lifetimeBJetsL3SingleTrackL1FastJet,
                const edm::Handle<reco::JetTagCollection> & performanceBJetsL25,
                const edm::Handle<reco::JetTagCollection> & performanceBJetsL3,
                const edm::Handle<reco::JetTagCollection> & performanceBJetsL25L1FastJet,
@@ -63,6 +65,11 @@ private:
       const reco::JetTagCollection & tagsL3);
 
   void analyseLifetimeSingleTrack(
+      const edm::View<reco::Jet>   & jets, 
+      const reco::JetTagCollection & tagsL25, 
+      const reco::JetTagCollection & tagsL3);
+
+  void analyseLifetimeSingleTrackL1FastJet(
       const edm::View<reco::Jet>   & jets, 
       const reco::JetTagCollection & tagsL25, 
       const reco::JetTagCollection & tagsL3);
@@ -123,6 +130,8 @@ private:
   // set of variables for lifetime-based b-tag Single Track
   float * ohBJetIPL25TagSingleTrack;
   float * ohBJetIPL3TagSingleTrack;
+  float * ohBJetIPL25TagSingleTrackL1FastJet;
+  float * ohBJetIPL3TagSingleTrackL1FastJet;
   
   // set of variables for b-tagging performance measurements
   int   * ohBJetPerfL25Tag;         // do not optimize 

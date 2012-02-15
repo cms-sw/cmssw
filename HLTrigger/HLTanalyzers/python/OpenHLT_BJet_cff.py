@@ -63,9 +63,26 @@ hltBLifetimeL3BJetTagsSingleTrack = cms.EDProducer( "JetTagProducer",
                                                     tagInfos = cms.VInputTag( 'hltBLifetimeL3TagInfosSingleTop' )
                                                     )
 
+hltBLifetimeL25BJetTagsSingleTrackL1FastJet = cms.EDProducer( "JetTagProducer",
+                                                     jetTagComputer = cms.string( "hltESPTrackCounting3D1st" ),
+                                                     tagInfos = cms.VInputTag( 'openHltBLifetimeL25TagInfosL1FastJet' )
+                                                     )
+
+
+hltBLifetimeL3BJetTagsSingleTrackL1FastJet = cms.EDProducer( "JetTagProducer",
+                                                    jetTagComputer = cms.string( "hltESPTrackCounting3D1st" ),
+                                                    tagInfos = cms.VInputTag( 'openHltBLifetimeL3TagInfosL1FastJet' )
+                                                    )
+
 # Single Track TC
 openHltBLifetimeL25BJetTagsSingleTrack = copy.deepcopy(hltBLifetimeL25BJetTagsSingleTrack)
 openHltBLifetimeL25BJetTagsSingleTrack.tagInfos = cms.VInputTag(cms.InputTag("openHltBLifetimeL25TagInfos"))
+
+openHltBLifetimeL25BJetTagsSingleTrackL1FastJet = copy.deepcopy(hltBLifetimeL25BJetTagsSingleTrackL1FastJet)
+openHltBLifetimeL25BJetTagsSingleTrackL1FastJet.tagInfos = cms.VInputTag(cms.InputTag("openHltBLifetimeL25TagInfos"))
+
+
+
 
 # L2.5 reco sequence for lifetime tagger
 OpenHLTBLifetimeL25recoSequence = cms.Sequence(
@@ -76,6 +93,7 @@ OpenHLTBLifetimeL25recoSequence = cms.Sequence(
         openHltBLifetimeL25AssociatorL1FastJet +
         openHltBLifetimeL25TagInfosL1FastJet +
         openHltBLifetimeL25BJetTagsSingleTrack +
+        openHltBLifetimeL25BJetTagsSingleTrackL1FastJet +
         openHltBLifetimeL25BJetTags +
         openHltBLifetimeL25BJetTagsL1FastJet )
 
@@ -135,6 +153,9 @@ openHltBLifetimeL3BJetTagsPF.tagInfos = cms.VInputTag(cms.InputTag("openHltBLife
 openHltBLifetimeL3BJetTagsSingleTrack = copy.deepcopy(hltBLifetimeL3BJetTagsSingleTrack)
 openHltBLifetimeL3BJetTagsSingleTrack.tagInfos = cms.VInputTag(cms.InputTag("openHltBLifetimeL3TagInfos"))
 
+openHltBLifetimeL3BJetTagsSingleTrackL1FastJet = copy.deepcopy(hltBLifetimeL3BJetTagsSingleTrackL1FastJet)
+openHltBLifetimeL3BJetTagsSingleTrackL1FastJet.tagInfos = cms.VInputTag(cms.InputTag("openHltBLifetimeL3TagInfosL1FastJet"))
+
 # L3 reco sequence for lifetime tagger
 OpenHLTBLifetimeL3recoSequence = cms.Sequence(
     HLTDoLocalPixelSequence +
@@ -154,6 +175,7 @@ OpenHLTBLifetimeL3recoSequence = cms.Sequence(
     openHltBLifetimeL3AssociatorPF +
     openHltBLifetimeL3TagInfosPF +
     openHltBLifetimeL3BJetTagsSingleTrack +
+    openHltBLifetimeL3BJetTagsSingleTrackL1FastJet +
     openHltBLifetimeL3BJetTags +
     openHltBLifetimeL3BJetTagsL1FastJet +
     openHltBLifetimeL3BJetTagsPF )

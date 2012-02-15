@@ -126,6 +126,8 @@ private:
   edm::InputTag m_lifetimePFBJetsL3;
   edm::InputTag m_lifetimeBJetsL25SingleTrack;
   edm::InputTag m_lifetimeBJetsL3SingleTrack;
+  edm::InputTag m_lifetimeBJetsL25SingleTrackL1FastJet;
+  edm::InputTag m_lifetimeBJetsL3SingleTrackL1FastJet;
   edm::InputTag m_performanceBJetsL25;
   edm::InputTag m_performanceBJetsL3;
   edm::InputTag m_performanceBJetsL25L1FastJet;

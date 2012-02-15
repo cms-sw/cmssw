@@ -124,6 +124,8 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
     m_lifetimePFBJetsL3            = conf.getParameter<edm::InputTag>("LifetimePFlowBJetsL3");
     m_lifetimeBJetsL25SingleTrack  = conf.getParameter<edm::InputTag>("LifetimeBJetsL25SingleTrack");
     m_lifetimeBJetsL3SingleTrack   = conf.getParameter<edm::InputTag>("LifetimeBJetsL3SingleTrack");
+    m_lifetimeBJetsL25SingleTrackL1FastJet  = conf.getParameter<edm::InputTag>("LifetimeBJetsL25SingleTrackL1FastJet");
+    m_lifetimeBJetsL3SingleTrackL1FastJet   = conf.getParameter<edm::InputTag>("LifetimeBJetsL3SingleTrackL1FastJet");
     m_performanceBJetsL25          = conf.getParameter<edm::InputTag>("PerformanceBJetsL25");
     m_performanceBJetsL3           = conf.getParameter<edm::InputTag>("PerformanceBJetsL3");
     m_performanceBJetsL25L1FastJet = conf.getParameter<edm::InputTag>("PerformanceBJetsL25L1FastJet");
@@ -309,6 +311,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     edm::Handle<reco::JetTagCollection>               hLifetimePFBJetsL3;
     edm::Handle<reco::JetTagCollection>               hLifetimeBJetsL25SingleTrack;
     edm::Handle<reco::JetTagCollection>               hLifetimeBJetsL3SingleTrack;
+    edm::Handle<reco::JetTagCollection>               hLifetimeBJetsL25SingleTrackL1FastJet;
+    edm::Handle<reco::JetTagCollection>               hLifetimeBJetsL3SingleTrackL1FastJet;
     edm::Handle<reco::JetTagCollection>               hPerformanceBJetsL25;
     edm::Handle<reco::JetTagCollection>               hPerformanceBJetsL3;
     edm::Handle<reco::JetTagCollection>               hPerformanceBJetsL25L1FastJet;
@@ -482,6 +486,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     getCollection( iEvent, missing, hLifetimePFBJetsL3,           m_lifetimePFBJetsL3,            kBTagLifetimePFBJetsL3 );
     getCollection( iEvent, missing, hLifetimeBJetsL25SingleTrack, m_lifetimeBJetsL25SingleTrack,  kBTagLifetimeBJetsL25SingleTrack );
     getCollection( iEvent, missing, hLifetimeBJetsL3SingleTrack,  m_lifetimeBJetsL3SingleTrack,   kBTagLifetimeBJetsL3SingleTrack );
+    getCollection( iEvent, missing, hLifetimeBJetsL25SingleTrackL1FastJet, m_lifetimeBJetsL25SingleTrackL1FastJet,  kBTagLifetimeBJetsL25SingleTrackL1FastJet );
+    getCollection( iEvent, missing, hLifetimeBJetsL3SingleTrackL1FastJet,  m_lifetimeBJetsL3SingleTrackL1FastJet,   kBTagLifetimeBJetsL3SingleTrackL1FastJet );
     getCollection( iEvent, missing, hPerformanceBJetsL25,         m_performanceBJetsL25,          kBTagPerformanceBJetsL25 );
     getCollection( iEvent, missing, hPerformanceBJetsL3,          m_performanceBJetsL3,           kBTagPerformanceBJetsL3 );
     getCollection( iEvent, missing, hPerformanceBJetsL25L1FastJet,m_performanceBJetsL25L1FastJet, kBTagPerformanceBJetsL25L1FastJet );
@@ -714,6 +720,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
                            hLifetimePFBJetsL3,
                            hLifetimeBJetsL25SingleTrack,
                            hLifetimeBJetsL3SingleTrack,
+                           hLifetimeBJetsL25SingleTrackL1FastJet,
+                           hLifetimeBJetsL3SingleTrackL1FastJet,
                            hPerformanceBJetsL25,
                            hPerformanceBJetsL3,
                            hPerformanceBJetsL25L1FastJet,
