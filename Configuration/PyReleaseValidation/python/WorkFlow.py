@@ -7,7 +7,7 @@ class WorkFlow(object):
 
     def __init__(self, num, nameID, cmd1=None, cmd2=None, cmd3=None, cmd4=None, inputInfo=None, commands=None):
 
-        self.numId  = num.strip()
+        self.numId  = num
         self.nameId = nameID
         self.cmds = []
         self.check(cmd1)

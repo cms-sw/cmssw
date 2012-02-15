@@ -6,7 +6,7 @@ class Matrix(dict):
             print "ERROR in Matrix"
             print "overwritting",key,"not allowed"
         else:
-            self.update({key:WF(key,value)})
+            self.update({float(key):WF(float(key),value)})
 
             
 #the class to collect all possible steps
@@ -19,6 +19,7 @@ class Steps(dict):
             self.update({key:value})
             # make the python file named <step>.py
             #if not '--python' in value:                self[key].update({'--python':'%s.py'%(key,)})
+            
     def overwrite(self,key,value):
         print "overwritting step",key,"with",str(value)
         self.update({key:value})
@@ -564,7 +565,6 @@ steps['HARVESTD']={'-s':'HARVESTING:dqmHarvesting',
 step4Defaults = { 
                   '-s'            : 'ALCA:TkAlMuonIsolated+TkAlMinBias+EcalCalElectron+HcalCalIsoTrk+MuAlOverlaps',
                   '-n'            : 1000,
-                  #'--filein'      : 'file:reco.root',
                   '--conditions'  : 'auto:startup',
                   '--datatier'    : 'ALCARECO',
                   '--eventcontent': 'ALCARECO',
@@ -572,8 +572,7 @@ step4Defaults = {
 
 steps['RERECOPU']=steps['RERECOPU1']
 
-steps['ALCATT1']=merge([step4Defaults])
-steps['ALCATT2']=merge([stCond,step4Defaults])
+steps['ALCATT']=merge([step4Defaults])
 steps['ALCAMIN']=merge([{'-s':'ALCA:TkAlMinBias'},stCond,step4Defaults])
 #steps['ALCAQCD']=merge([{'-s':'ALCA:HcalCalIsoTrk+HcalCalDijets'},stCond,step4Defaults])
 #steps['ALCAMU']=merge([{'-s':'ALCA:@Mu'},stCond,step4Defaults])
