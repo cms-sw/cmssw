@@ -4,9 +4,9 @@
 /** \class EcalRecHitWorkerRecover
   *  Algorithms to recover dead channels
   *
-  *  $Id: EcalRecHitWorkerRecover.h,v 1.9 2011/07/19 19:56:33 argiro Exp $
-  *  $Date: 2011/07/19 19:56:33 $
-  *  $Revision: 1.9 $
+  *  $Id: EcalRecHitWorkerRecover.h,v 1.10 2011/07/21 13:43:34 argiro Exp $
+  *  $Date: 2011/07/21 13:43:34 $
+  *  $Revision: 1.10 $
   */
 
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalRecHitWorkerBaseClass.h"
@@ -68,6 +68,7 @@ class EcalRecHitWorkerRecover : public EcalRecHitWorkerBaseClass {
 		// list of channel statuses for which recovery in EE should 
                 // not be attempted 
 		std::vector<int> dbStatusToBeExcludedEE_;
+		std::vector<int> dbStatusToBeExcludedEB_;
 
                 // dead FE
                 EcalTPGScale ecalScale_;
