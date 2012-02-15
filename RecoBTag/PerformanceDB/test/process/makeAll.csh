@@ -31,7 +31,7 @@ cat templates/Btag_pre.fragment > Btag_$setName.py
 
 #"mistag" measurements go here
 #Create a single measurement with ./makeSingle.csh <file path> <measurement name> <set name>
-# ./makeSingle.csh BTAG/BTAGCSVL.txt BTAGCSVL $setName $version
+ ./makeSingle.csh BTAG/BTAGCSVL.txt BTAGCSVL $setName $version
 # ./makeSingle.csh BTAG/BTAGCSVM.txt BTAGCSVM $setName $version
 # ./makeSingle.csh BTAG/BTAGCSVT.txt BTAGCSVT $setName $version
 # ./makeSingle.csh BTAG/BTAGJBPL.txt BTAGJBPL $setName $version
@@ -43,8 +43,8 @@ cat templates/Btag_pre.fragment > Btag_$setName.py
 # ./makeSingle.csh BTAG/BTAGSSVHEM.txt BTAGSSVHEM $setName $version
 # ./makeSingle.csh BTAG/BTAGSSVHPT.txt BTAGSSVHPT $setName $version
 # ./makeSingle.csh BTAG/BTAGTCHEL.txt BTAGTCHEL $setName $version
-./makeSingle.csh BTAG/BTAGTCHEM.txt BTAGTCHEM $setName $version
-./makeSingle.csh BTAG/BTAGTCHPM.txt BTAGTCHPM $setName $version
+#./makeSingle.csh BTAG/BTAGTCHEM.txt BTAGTCHEM $setName $version
+#./makeSingle.csh BTAG/BTAGTCHPM.txt BTAGTCHPM $setName $version
 # ./makeSingle.csh BTAG/BTAGTCHPT.txt BTAGTCHPT $setName $version
 
 # cat templates/Pool_post.fragment | sed "s#SETNAME#$setName#g" >> Pool_$setName.py

@@ -8,6 +8,8 @@ process.load("CondCore.DBCommon.CondDBCommon_cfi")
 process.load ("RecoBTag.PerformanceDB.PoolBTagPerformanceDB1107")
 process.load ("RecoBTag.PerformanceDB.BTagPerformanceDB1107")
 
+process.CondDBCommon.connect = 'sqlite_file:PhysicsPerformance.db'
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )

@@ -38,7 +38,7 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
                                                         )
 )
 
-process.demo2 = cms.EDAnalyzer('TestPerformanceFW_ES',
+process.demo2 = cms.EDAnalyzer('TestPerformanceFW_ES_TFormula',
                        AlgoName = cms.string('JetProbability_loose'))
 
 #

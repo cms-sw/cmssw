@@ -48,8 +48,9 @@ void PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL::beginJob()
   // - tagger name
   // - cut
   // - concrete class name
-  // number of results (== number of formulas)
-  // number of variables in the parameterization
+  // number of results (btageff, btagSF....)
+  // number of binning variables in the parameterization (eta, pt ...)
+  // number of bins 
   // - results (as ints)
   // - variables (as ints)
   // - formulas
@@ -62,8 +63,6 @@ void PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL::beginJob()
   float cut;
  
   std::string concreteType;
-  std::vector< std::pair<float, float> > limits;
-  std::vector<std::string> formulas;
 
   in >> tagger;
   std::cout << "WP Tagger is "<<tagger<<std::endl;
@@ -79,7 +78,13 @@ void PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL::beginJob()
   in >> nres;
   in >> nvar;
 
-  std::cout <<" Using "<<nres<<" results and "<< nvar<<" variables"<<std::endl;
+  std::cout <<"Using "<<nres<<" results and "<< nvar<<" variables"<<std::endl;
+
+  unsigned int bins = 0;        //temporary for now!!!!!!
+
+  in >> bins;
+
+  std::cout <<"Using "<<bins<<" bins"<<std::endl;
 
   int number=0;;
 
@@ -105,6 +110,12 @@ void PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL::beginJob()
   //
 
 
+
+  PerformanceWorkingPoint * wp = new PerformanceWorkingPoint(cut, tagger);
+  PerformancePayloadFromTFormula * btagpl = 0;
+  
+  std::vector<PhysicsTFormulaPayload> v_ppl;
+  
   number=0;
   while (number<nvar && !in.eof()) {
     int tmp;
@@ -116,99 +127,110 @@ void PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL::beginJob()
   if (number != nvar){
     std::cout <<" Table not well formed"<<std::endl;
   }
-
-
-  //
+  
+    //
   // now read the formulas
   //
-  number =0;
+  
+  for (unsigned int recregion =0 ; recregion<bins; ++recregion){
 
-  while (number < nres && (!in.eof())){
-    std::string temp;
-    in >> temp;
-    std::cout <<" Inserting "<<temp<< " as formula in position "<<number<<std::endl;
-    number++;
-    formulas.push_back(temp);
+    std::vector< std::pair<float, float> > limits;
+    std::vector<std::string> formulas;
+    
+    number =0;
+    
+    while (number < nres && (!in.eof())){
+      std::string temp;
+      in >> temp;
+      std::cout <<" Inserting "<<temp<< " as formula in position "<<number<<std::endl;
+      number++;
+      formulas.push_back(temp);
+    }
+    /*
+      if (nres!= number ){
+      std::cout <<" NOT OK, this is not what I would expect"<<std::endl;
+      abort();
+      }
+    */
+    
+    number=0;
+    while (number < nvar && (!in.eof())){
+      float temp1,temp2;
+      in >> temp1;
+      in >> temp2;
+      std::cout <<" Inserting "<<temp1<<","<<temp2<< " as limits in position "<<number<<std::endl;
+      number++;
+      limits.push_back(std::pair<float, float>(temp1,temp2));
+    }
+    /*
+      if (nvar != number ){
+      std::cout <<" NOT OK, this is not what I would expect"<<std::endl;
+      abort();
+      }
+    */
+
+    //
+    // push it
+    //
+
+    PhysicsTFormulaPayload ppl(limits, formulas);
+    v_ppl.push_back(ppl);
+    
   }
-
-  if (nres!= number ){
-    std::cout <<" NOT OK, this is not what I would expect"<<std::endl;
-    abort();
-  }
-
-
-  number=0;
-  while (number < nvar && (!in.eof())){
-    float temp1,temp2;
-    in >> temp1;
-    in >> temp2;
-    std::cout <<" Inserting "<<temp1<<","<<temp2<< " as limits in position "<<number<<std::endl;
-    number++;
-    limits.push_back(std::pair<float, float>(temp1,temp2));
-  }
-  if (nvar != number ){
-    std::cout <<" NOT OK, this is not what I would expect"<<std::endl;
-    abort();
-  }
-
   in.close();
-
-
-  PerformanceWorkingPoint * wp = new PerformanceWorkingPoint(cut, tagger);
-  PerformancePayloadFromTFormula * btagpl = 0;
-
-  PhysicsTFormulaPayload ppl(limits, formulas);
-
+  
 
   if (concreteType == "PerformancePayloadFromTFormula"){
-    btagpl = new PerformancePayloadFromTFormula(res, bin, ppl);
+    btagpl = new PerformancePayloadFromTFormula(res, bin, v_ppl);
+    std::cout <<" CHECK: "<<btagpl->formulaPayloads().size()<<std::endl;
   }else{
     std::cout <<" Non existing request: " <<concreteType<<std::endl;
   }
   
   std::cout <<" Created the "<<concreteType <<" object"<<std::endl;
   
+  std::cout << "Start writing the payload" << std::endl;
   edm::Service<cond::service::PoolDBOutputService> s;
   if (s.isAvailable())
     {
       if (s->isNewTagRequest(rec1))
 	{
 	  s->createNewIOV<PerformancePayload>(btagpl,
-						  s->beginOfTime(),
-						  s->endOfTime(),
-						  rec1);
+					      s->beginOfTime(),
+					      s->endOfTime(),
+					      rec1);
 	}
       else
 	{
-	  
 	  s->appendSinceTime<PerformancePayload>(btagpl,
-						     // JUST A STUPID PATCH
-						     111,
-						     rec1);
+						 // JUST A STUPID PATCH
+						 111,
+						 rec1);
 	}
     }
+  std::cout << "Finised writing the payload" << std::endl;
 
   // write also the WP
-  
+  std::cout << "Start writing the WP" << std::endl;
   if (s.isAvailable())
     {
       if (s->isNewTagRequest(rec2))
 	{
 	  s->createNewIOV<PerformanceWorkingPoint>(wp,
-					    s->beginOfTime(),
-					    s->endOfTime(),
-					    rec2);
+						   s->beginOfTime(),
+						   s->endOfTime(),
+						   rec2);
 	}
       else
 	{
 	  
 	  s->appendSinceTime<PerformanceWorkingPoint>(wp,
-					       /// JUST A STUPID PATCH
-					       111,
-					       rec2);
+						      /// JUST A STUPID PATCH
+						      111,
+						      rec2);
 	}
     }
-  
+  std::cout << "Finished writing the WP" << std::endl;
   
   
 }

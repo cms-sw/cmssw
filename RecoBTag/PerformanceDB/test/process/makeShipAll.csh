@@ -1,7 +1,7 @@
 #!/bin/tcsh
 
 #Unique version number for the DB, should match makeAll.csh
-set version=v7
+set version=v8
 
 foreach db(`ls DBs | sed "s#.db##"`)
     echo "Setting up " $db
