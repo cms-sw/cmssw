@@ -107,7 +107,7 @@ public:
     double correction = 0;
     for(int k = 0; k<hOrder; k++) {
       int indx = GetCutIndx(cent,vtx,k);
-      if(indx>=0) correction+=(2./(double)((k+1)*vorder))*(flatXDB[indx]*sin(vorder*(k+1)*psi)-flatYDB[indx]*cos(vorder*(k+1)*psi));
+      correction+=(2./(double)((k+1)*vorder))*(flatXDB[indx]*sin(vorder*(k+1)*psi)-flatYDB[indx]*cos(vorder*(k+1)*psi));
     }
     psi+=correction;
     psi=bounds(psi);
