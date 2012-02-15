@@ -91,7 +91,10 @@ ReducedRecHitCollectionProducer::produce (edm::Event& iEvent,
        EcalRecHitCollection::const_iterator iRecHit = recHitsHandle->find(xtalsToStore[iCry]);
        if ( (iRecHit != recHitsHandle->end()) && (miniRecHitCollection->find(xtalsToStore[iCry]) == miniRecHitCollection->end()) )
 	 miniRecHitCollection->push_back(*iRecHit);
-     }     
+     }  
+
+	std::sort(xtalsToStore.begin(), xtalsToStore.end());   
+	std::unique(xtalsToStore.begin(), xtalsToStore.end());   
    
    //   std::cout << "New Collection " << reducedHitsCollection_ << " size is " << miniRecHitCollection->size() << " original is " << recHitsHandle->size() << std::endl;
    iEvent.put( miniRecHitCollection,reducedHitsCollection_ );
