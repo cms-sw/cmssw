@@ -14,12 +14,14 @@ rpcPointProducer = cms.EDProducer("RPCPointProducer",
   MaxDrb4 = cms.untracked.double(150.0),
   ExtrapolatedRegion = cms.untracked.double(0.5), #in stripl/2 in Y and stripw*nstrips/2 in X
 
-  cscSegments = cms.InputTag('hltCscSegments'),
-  dt4DSegments = cms.InputTag('hltDt4DSegments'),
-#  cscSegments = cms.InputTag('cscSegments'),
-#  dt4DSegments = cms.InputTag('dt4DSegments'),
-#  cscSegments = cms.InputTag('SelectedCscSegments'),
-#  dt4DSegments = cms.InputTag('SelectedDtSegments'),
+#  cscSegments = cms.InputTag('hltCscSegments'),
+#  dt4DSegments = cms.InputTag('hltDt4DSegments'),
+# cscSegments = cms.InputTag('cscSegments'),
+# dt4DSegments = cms.InputTag('dt4DSegments'),
+  cscSegments = cms.InputTag('SelectedCscSegments'),
+  dt4DSegments = cms.InputTag('SelectedDtSegments'),
+
+
 
   tracks = cms.InputTag("standAloneMuons","UpdatedAtVtx"),
 
