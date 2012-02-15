@@ -582,7 +582,6 @@ namespace lumi{
     //
     std::stringstream ss;
     for(size_t techidx=0;techidx<lumi::N_TRGTECHBIT;++techidx){
-      std::map<unsigned int,std::string>::iterator pos=techtriggernamemap.find(techidx);
       ss<<techidx;
       technames.push_back(ss.str());
       ss.str(""); //clear the string buffer after usage
