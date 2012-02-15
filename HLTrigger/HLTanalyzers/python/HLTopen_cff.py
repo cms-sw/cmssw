@@ -8,7 +8,7 @@ from HLTrigger.HLTanalyzers.HLT_FULL_cff import *
 ########################################################
 
 # HBHE noise
-from HLTrigger.HLTanalyzers.Alex_cff import *
+from HLTrigger.HLTanalyzers.OpenHLT_HBHEnoise_cff import *
 
 # BTag
 from HLTrigger.HLTanalyzers.OpenHLT_BJet_cff import *

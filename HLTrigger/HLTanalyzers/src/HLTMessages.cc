@@ -71,8 +71,8 @@ const char * kBTagSoftmuonBJetsL3         = "L3 b-jet soft muon tags";
 const char * kBTagPerformanceBJetsL25     = "L2.5 b-jet perf. meas. tag";
 const char * kBTagPerformanceBJetsL3      = "L3 b-jet perf. meas. tag";
 
-const char * kElectrons                   = "electron candidates";
-const char * kPhotons                     = "photon candidates";
+const char * kElectrons                   = "RECO electron candidates";
+const char * kPhotons                     = "RECO photon candidates";
 const char * kCandIso                     = "isol eg candidate";
 const char * kCandNonIso                  = "non-isol eg candidate";
 const char * kEcalIso                     = "Ecal isol map";
@@ -114,8 +114,8 @@ const char * kPixelTracksL3               = "L3 Pixel Tracks";
 const char * kPixelFEDSize                = "Pixel FED size";
 const char * kPixelClusters               = "Pixel Clusters"; 
 
-const char * kRecoVerticesHLT             = "Reconstructed vertices, HLT"; 
-const char * kRecoVerticesOffline0        = "Reconstructed vertices, Offline0";
+const char * kRecoVerticesHLT             = "HLT primary vertices"; 
+const char * kRecoVerticesOffline0        = "RECO primary vertices, Offline0";
 const char * kECALActivity                = "ECAL Actvity clust";
 const char * kECALActivityEcalIso         = "ECAL Actvity EIso";
 const char * kECALActivityHcalIso         = "ECAL Activity HIso";
