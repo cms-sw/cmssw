@@ -4,8 +4,6 @@
 #include "CondCore/DBCommon/interface/Exception.h"
 
 #include "CondCore/MetaDataService/interface/MetaData.h"
-#include "CondCore/IOVService/interface/IOVService.h"
-#include "CondCore/IOVService/interface/IOVProxy.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
 
 #include "CondCore/DBCommon/interface/IOVInfo.h"
@@ -97,15 +95,14 @@ int cond::AlignSplitIOV::execute()
   if (verbose)
     std::cout << "source iov token: " << sourceiovtoken << std::endl;
 
-  cond::IOVService iovmanager(sourcedb);
-  sourceiovtype = iovmanager.timeType(sourceiovtoken);
+  cond::IOVProxy iov(sourcedb, sourceiovtoken);
+  sourceiovtype = iov.timetype();
   if (verbose)
     std::cout << "source iov type " << sourceiovtype << std::endl;
 
   since = std::max(since, cond::timeTypeSpecs[sourceiovtype].beginValue);
   till  = std::min(till,  cond::timeTypeSpecs[sourceiovtype].endValue);
   
-  cond::IOVProxy iov(sourcedb, sourceiovtoken);
   unsigned int counter = 0;
   for (cond::IOVProxy::const_iterator ioviterator = iov.begin();
        ioviterator != iov.end();
