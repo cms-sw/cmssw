@@ -40,13 +40,22 @@ echo "%MSG-MG5 number of events requested = $nevt"
 rnum=${12}
 echo "%MSG-MG5 random seed used for the run = $rnum"
 
-# retrieve the wanted gridpack from the official repository 
-
 mkdir madevent; cd madevent
+# retrieve the wanted gridpack from the official repository 
 wget --no-check-certificate http://cms-project-generators.web.cern.ch/cms-project-generators/${repo}/${name}_tarball.tar.gz 
 #repo=/shome/bortigno/MadGraph/MG5_v1_3_27/WPlus1Jet
 #cp ${repo}/${name}_tarball.tar.gz ./ 
 tar xzf ${name}_tarball.tar.gz ; rm -f ${name}_tarball.tar.gz ;
+
+#check the structure of the tarball
+if [[ -d madevent ]]
+    then
+    echo 'madevent directory found'
+    echo 'Setting up the environment'
+    mv madevent/* ./
+    rm -rf madevent
+fi
+
 
 # force the f77 compiler to be the CMS defined one
 ln -sf `which gfortran` f77
@@ -124,7 +133,7 @@ if [ "${decay}" == true ] ; then
         if [ -f ${file}.lhe ] ; then
            mv ${file}.lhe ${file}_in.lhe 
         fi 
-		madevent/bin/decay < madevent/decay_$i\.in
+		madevent/bin/decay < decay_$i\.in
 	done
 fi
 
