@@ -14,8 +14,10 @@ class MatrixRunner(object):
         self.workFlows = wfIn
 
         self.threadList = []
-        self.maxThreads = int(nThrMax) # make sure we get a number ...
+        self.maxThreads = nThrMax
 
+        #the directories in which it happened
+        self.runDirs={}
 
     def activeThreads(self):
 
@@ -26,12 +28,14 @@ class MatrixRunner(object):
         return nActive
 
         
-    def runTests(self, testList=None):
+    def runTests(self, testList=None,dryRun=False):
 
         startDir = os.getcwd()
 
-    	report=''    	
-        if self.maxThreads == 0:
+    	report=''
+        noRun=(self.maxThreads==0)
+        if noRun:
+            print 'Not running the wf, only creating cfgs and logs'
             print 'resetting to default number of threads'
             self.maxThreads=4
 
@@ -52,14 +56,15 @@ class MatrixRunner(object):
     	    
     	    print '\nPreparing to run %s %s' % (wf.numId, item)
           
-    	    current = WorkFlowRunner(wf)
+    	    current = WorkFlowRunner(wf,noRun,dryRun)
     	    self.threadList.append(current)
     	    current.start()
-            time.sleep(random.randint(1,5)) # try to avoid race cond by sleeping random amount of time [1,5] sec 
+            if not dryRun:
+                time.sleep(random.randint(1,5)) # try to avoid race cond by sleeping random amount of time [1,5] sec
 
     	# wait until all threads are finished
         while self.activeThreads() > 0:
-    	    time.sleep(5)
+    	    time.sleep(0.5)
 
 
         #wrap up !
@@ -78,6 +83,7 @@ class MatrixRunner(object):
                 count(totpassed,pingle.npass)
                 count(totfailed,pingle.nfail)
                 report+=pingle.report
+                self.runDirs[pingle.wf.numId]=pingle.wfDir
             except Exception, e:
                 msg = "ERROR retrieving info from thread: " + str(e)
                 report += msg
@@ -90,7 +96,8 @@ class MatrixRunner(object):
         runall_report.write(report)
         runall_report.close()
         os.chdir(startDir)
-        
+
+        anyFail=sum(totfailed)
                                         
-        return
+        return anyFail
 
