@@ -15,6 +15,9 @@ if __name__ == '__main__':
     parser.add_option("--preselection", dest="preselection", help="configuration fragment and sequence name, separated by a ':', defining a pre-selection filter")
     parser.add_option("--inputVDriftDB", dest="inputVDriftDB", help="uses local SQLITE vDrift DB (instead of using the one in the GT)")
     parser.add_option("--inputTTrigDB", dest="inputTTrigDB", help="uses local SQLITE tTrig DB (instead of using the one in the GT)")
+    parser.add_option("--inputDBTag", dest="inputDBTag", help="uses custom ORCOFF tag (instead of using the one in the GT)")
+    parser.add_option("--inputDBRcd", dest="inputDBRcd", help="record for custom ORCOFF tag")
+    parser.add_option("--connect", dest="connectStrDBTag", default='frontier://FrontierProd/CMS_COND_31X_DT', help="connect string (default: 'frontier://FrontierProd/CMS_COND_31X_DT')")
     parser.add_option("--runOnCosmics", action="store_true", dest="runOnCosmics", default=False, help="set this option to run on Cosmics")
     parser.add_option("--runOnRAW", action="store_true", dest="runOnRAW", default=False, help="set this option to run on RAW")
     parser.add_option("--runOnMC", action="store_true", dest="runOnMC", default=False, help="set this option to run on MC")
@@ -27,8 +30,8 @@ if __name__ == '__main__':
     #parser.add_option_group(group_residuals)
     # Option group - DB validation options
     group_dbValid = optparse.OptionGroup(parser,"DB validation options")
-    group_dbValid.add_option("--refDBTag", dest="refDBTag", default='', help="reference DB tag")
-    group_dbValid.add_option("--connect", dest="connectStr", default='oracle://cms_orcoff_prod/CMS_COND_31X_DT', help="connect string (default: 'oracle://cms_orcoff_prod/CMS_COND_31X_DT')")
+    group_dbValid.add_option("--refDBTag", dest="refDBTag", default='', help="reference DB tag for validation")
+    group_dbValid.add_option("--connectRefDB", dest="connectStrRefDBTag", help="connect string for validation tag (if not set will point to '--connect')")
     group_dbValid.add_option("--dbFiles", dest="dbFiles", help="DB files to validate")
     group_dbValid.add_option("--dbValidRuns", dest="dbValidRuns", help="Run list corresponding to DB files (for DQM output)")
     parser.add_option_group(group_dbValid)
@@ -112,6 +115,10 @@ if __name__ == '__main__':
     config.runselection = runselection
     if hasattr(input,'inputVDriftDB') and input.inputVDriftDB: config.inputVDriftDB = os.path.abspath(input.inputVDriftDB)
     if hasattr(input,'inputTTrigDB') and input.inputTTrigDB: config.inputTTrigDB = os.path.abspath(input.inputTTrigDB)
+    if hasattr(input,'inputDBTag') and input.inputDBTag:
+        config.inputDBTag = input.inputDBTag
+        config.inputDBRcd = input.inputDBRcd 
+	config.connectStrDBTag = input.connectStrDBTag
 
     config.runOnRAW = False 
     if hasattr(input,'runOnRAW') and input.runOnRAW: config.runOnRAW = input.runOnRAW
@@ -173,8 +180,14 @@ if __name__ == '__main__':
 
     config.jobsFinishedThreshold = input.jobsFinishedThreshold
 
+    # DB validation options
     config.refDBTag = input.refDBTag
-    config.connectStr = input.connectStr
+    if hasattr(input,'connectStrRefDBTag') and input.connectStrRefDBTag: 
+	config.connectStrRefDBTag = input.connectStrRefDBTag
+    else:
+        if hasattr(input,'connectStrDBTag') and input.connectStrDBTag:
+	    config.connectStrRefDBTag = input.connectStrDBTag
+
     if hasattr(input,'dbFiles') and input.dbFiles: config.dbFiles = input.dbFiles.split(',')
     config.dbValidRuns = []
     if hasattr(input,'dbValidRuns') and input.dbValidRuns: config.dbValidRuns = [int(item) for item in input.dbValidRuns.split(',')]

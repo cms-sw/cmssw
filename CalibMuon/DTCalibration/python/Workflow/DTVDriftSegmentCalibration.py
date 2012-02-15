@@ -37,6 +37,15 @@ class DTVDriftSegmentCalibration:
                               moduleName = 'vDriftDB',record = 'DTMtimeRcd',tag = 'vDrift',
                               connect = 'sqlite_file:%s' % os.path.basename(self.config.inputVDriftDB))
 
+	if hasattr(self.config,'inputDBTag') and self.config.inputDBTag:
+	    tag = self.config.inputDBTag
+	    record = self.config.inputDBRcd
+	    connect = self.config.connectStrDBTag
+	    moduleName = 'customDB%s' % record 
+	    addPoolDBESSource(process = self.process,
+			      moduleName = moduleName,record = record,tag = tag,
+			      connect = connect)
+
         # Prepend paths with unpacker if running on RAW
         if hasattr(self.config,'runOnRAW') and self.config.runOnRAW:
             if hasattr(self.config,'runOnMC') and self.config.runOnMC:

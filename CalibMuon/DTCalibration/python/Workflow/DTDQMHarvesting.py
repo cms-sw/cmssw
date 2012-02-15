@@ -36,6 +36,15 @@ class DTDQMHarvesting:
                               moduleName = 'vDriftDB',record = 'DTMtimeRcd',tag = 'vDrift',
                               connect = 'sqlite_file:%s' % os.path.abspath(self.config.inputVDriftDB))
 
+	if hasattr(self.config,'inputDBTag') and self.config.inputDBTag:
+	    tag = self.config.inputDBTag
+	    record = self.config.inputDBRcd
+	    connect = self.config.connectStrDBTag
+	    moduleName = 'customDB%s' % record 
+	    addPoolDBESSource(process = self.process,
+			      moduleName = moduleName,record = record,tag = tag,
+			      connect = connect)
+
         self.process.source.fileNames = self.dqm_files
         self.process.dqmSaver.dirName = os.path.abspath(self.result_dir)
         if self.config:

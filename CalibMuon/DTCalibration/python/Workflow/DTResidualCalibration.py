@@ -26,17 +26,26 @@ class DTResidualCalibration:
         self.process.GlobalTag.globaltag = self.config.globaltag
         self.process.dtResidualCalibration.rootFileName = self.outputfile 
 
+        if hasattr(self.config,'inputVDriftDB') and self.config.inputVDriftDB:
+            addPoolDBESSource(process = self.process,
+                              moduleName = 'vDriftDB',record = 'DTMtimeRcd',tag = 'vDrift',
+                              connect = 'sqlite_file:%s' % os.path.basename(self.config.inputVDriftDB))
+
+	if hasattr(self.config,'inputDBTag') and self.config.inputDBTag:
+	    tag = self.config.inputDBTag
+	    record = self.config.inputDBRcd
+	    connect = self.config.connectStrDBTag
+	    moduleName = 'customDB%s' % record 
+	    addPoolDBESSource(process = self.process,
+			      moduleName = moduleName,record = record,tag = tag,
+			      connect = connect)
+
         if(self.inputdb):
             label = ''
             if hasattr(self.config,'runOnCosmics') and self.config.runOnCosmics: label = 'cosmics'
             addPoolDBESSource(process = self.process,
                               moduleName = 'calibDB',record = 'DTTtrigRcd',tag = 'ttrig',label = label,
                               connect = 'sqlite_file:%s' % os.path.basename(self.inputdb))
-
-        if hasattr(self.config,'inputVDriftDB') and self.config.inputVDriftDB:
-            addPoolDBESSource(process = self.process,
-                              moduleName = 'vDriftDB',record = 'DTMtimeRcd',tag = 'vDrift',
-                              connect = 'sqlite_file:%s' % os.path.basename(self.config.inputVDriftDB))
 
         if hasattr(self.config,'runOnRAW') and self.config.runOnRAW:
             if hasattr(self.config,'runOnMC') and self.config.runOnMC:

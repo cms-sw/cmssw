@@ -26,6 +26,15 @@ class DTNoiseCalibration:
         self.process.GlobalTag.globaltag = self.config.globaltag
         self.process.dtNoiseCalibration.rootFileName = self.outputROOT 
 
+	if hasattr(self.config,'inputDBTag') and self.config.inputDBTag:
+	    tag = self.config.inputDBTag
+	    record = self.config.inputDBRcd
+	    connect = self.config.connectStrDBTag
+	    moduleName = 'customDB%s' % record 
+	    addPoolDBESSource(process = self.process,
+			      moduleName = moduleName,record = record,tag = tag,
+			      connect = connect)
+
         if hasattr(self.config,'runOnRAW') and self.config.runOnRAW:
             if hasattr(self.config,'runOnMC') and self.config.runOnMC:
                 getattr(self.process,self.config.digilabel).inputLabel = 'rawDataCollector' 

@@ -12,5 +12,7 @@ def addPoolDBESSource(process,moduleName,record,tag,label='',connect='sqlite_fil
                            )),
                            connect = cms.string(connect),
                            authenticationMethod = cms.untracked.uint32(0))
+    #if authPath: calibDB.DBParameters.authenticationPath = authPath
+    if connect.find('oracle:') != -1: calibDB.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
     setattr(process,moduleName,calibDB)
     setattr(process,"es_prefer_" + moduleName,cms.ESPrefer('PoolDBESSource',moduleName))

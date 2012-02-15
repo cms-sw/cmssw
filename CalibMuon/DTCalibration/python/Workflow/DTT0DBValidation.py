@@ -21,7 +21,7 @@ class DTT0DBValidation:
         refDBTag = ''
         if hasattr(self.config,'refDBTag') and self.config.refDBTag: refDBTag = self.config.refDBTag
         connect = ''
-        if hasattr(self.config,'connectStr') and self.config.connectStr: connect = self.config.connectStr
+        if hasattr(self.config,'config.connectStrRefDBTag') and self.config.config.connectStrRefDBTag: connect = self.config.config.connectStrRefDBTag
         runNumbersToFiles = []
         if hasattr(self.config,'dbValidRuns') and self.config.dbValidRuns and len(self.config.dbValidRuns) == len(self.input_files): runNumbersToFiles = self.config.dbValidRuns
 
