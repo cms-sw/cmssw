@@ -320,3 +320,8 @@ expertSettings.add_option("--profile",
                           help="add the IgprofService with the parameter provided PROFILER:START:STEP:PEREVENOUTPUTFORMAT:ENDOFJOBOUTPUTFORMAT",
                           default=None,
                           dest="profile")
+
+expertSettings.add_option("--io",
+                          help="Create a json file with io informations",
+                          default=None,
+                          dest="io")

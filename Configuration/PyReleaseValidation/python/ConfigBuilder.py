@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.356 $"
+__version__ = "$Revision: 1.357 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -61,6 +61,8 @@ defaultOptions.profile = None
 defaultOptions.isRepacked = False
 defaultOptions.restoreRNDSeeds = False
 defaultOptions.donotDropOnInput = ''
+defaultOptions.python_filename =''
+defaultOptions.io=None
 
 # some helper routines
 def dumpPython(process,name):
@@ -1657,7 +1659,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.356 $"),
+                                            (version=cms.untracked.string("$Revision: 1.357 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
@@ -1790,6 +1792,25 @@ class ConfigBuilder(object):
 
         # dump customise fragment
 	self.pythonCfgCode += self.addCustomise()
+
+	# make the .io file
+
+	if self._options.io:
+		#io=open(self._options.python_filename.replace('.py','.io'),'w')
+		if not self._options.io.endswith('.io'): self._option.io+='.io'
+		io=open(self._options.io,'w')
+		ioJson={}
+		if hasattr(self.process.source,"fileNames"):
+			if len(self.process.source.fileNames.value()):
+				ioJson['primary']=self.process.source.fileNames.value()
+		if hasattr(self.process.source,"secondaryFileNames"):
+			if len(self.process.source.secondaryFileNames.value()):
+				ioJson['secondary']=self.process.source.secondaryFileNames.value()
+		
+		for (o,om) in self.process.outputModules_().items():
+			ioJson[o]=om.fileName.value()
+		import json
+		io.write(json.dumps(ioJson))
 	return
 
 
