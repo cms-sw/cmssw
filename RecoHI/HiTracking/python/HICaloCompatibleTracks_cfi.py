@@ -19,7 +19,7 @@ hiCaloCompatibleTracks  = cms.EDProducer("HICaloCompatibleTrackSelector",
                                          qualityToMatch = cms.string("tight"),
                                          minimumQuality = cms.string("loose"),
                                          # root syntax, pt dependent calo-compatibility cut
-                                         funcCaloComp = cms.string("0.75*(x-35.)"),
+                                         funcCaloComp = cms.string("0.75*(x-10.)"),
                                          # root syntax, pt dependent deltaR matching cut
                                          funcDeltaRTowerMatch = cms.string("0.087/(1.0+0.1*exp(-0.28*(x-20.)))") 
 )
