@@ -8,10 +8,12 @@
 namespace ora {
 
   class IDatabaseSchema;
+  class ISequenceTable;
 
   class Sequences {
     public:
     explicit Sequences( IDatabaseSchema& dbSchema );
+    explicit Sequences( ISequenceTable& table );
     virtual ~Sequences();
     void create( const std::string& sequenceName );
     int getNextId( const std::string& sequenceName, bool sinchronize = false );
@@ -21,7 +23,7 @@ namespace ora {
     void clear();
     private:
     std::map<std::string, int> m_lastIds;
-    IDatabaseSchema& m_schema;
+    ISequenceTable& m_table;
   };
 
   class NamedSequence {

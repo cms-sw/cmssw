@@ -34,6 +34,7 @@ namespace ora {
     static std::string sequenceValueColumn();    
     public:
     explicit OraSequenceTable( coral::ISchema& dbSchema );
+    OraSequenceTable( const std::string& tableName, coral::ISchema& dbSchema );
     virtual ~OraSequenceTable();
     bool add( const std::string& sequenceName );
     bool getLastId( const std::string& sequenceName, int& lastId );
@@ -43,7 +44,9 @@ namespace ora {
     std::string name();
     bool exists();
     void create();
-    void drop();    
+    void drop();   
+    private:
+    std::string m_tableName;
   };
 
   class OraMappingVersionTable: public IDatabaseTable {

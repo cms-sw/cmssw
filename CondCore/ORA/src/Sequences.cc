@@ -4,21 +4,26 @@
 
 ora::Sequences::Sequences( ora::IDatabaseSchema& schema ):
   m_lastIds(),
-  m_schema( schema){
+  m_table( schema.sequenceTable()){
+}
+
+ora::Sequences::Sequences( ora::ISequenceTable& table ):
+  m_lastIds(),
+  m_table( table ){
 }
 
 ora::Sequences::~Sequences(){
 }
 
 void ora::Sequences::create( const std::string& sequenceName ){
-  m_schema.sequenceTable().add( sequenceName );
+  m_table.add( sequenceName );
 }
 
 int ora::Sequences::getNextId( const std::string& sequenceName, bool sinchronize ){
   int next = 0;
   std::map<std::string,int>::iterator iS = m_lastIds.find( sequenceName );
   if( iS == m_lastIds.end() ){
-    bool found = m_schema.sequenceTable().getLastId( sequenceName, next );
+    bool found = m_table.getLastId( sequenceName, next );
     if( ! found ) {
       throwException("Sequence \""+sequenceName+"\" does not exists.","Sequences::getNextId");
     } else {
@@ -30,7 +35,7 @@ int ora::Sequences::getNextId( const std::string& sequenceName, bool sinchronize
   }
 
   if( sinchronize){
-    m_schema.sequenceTable().sinchronize( sequenceName, next );
+    m_table.sinchronize( sequenceName, next );
   }  
   return next;
 }
@@ -39,8 +44,8 @@ void ora::Sequences::sinchronize( const std::string& sequenceName ){
   std::map<std::string,int>::iterator iS = m_lastIds.find( sequenceName );
   if( iS != m_lastIds.end() ){
     int lastOnDb = 0;
-    m_schema.sequenceTable().getLastId( sequenceName, lastOnDb );
-    if( lastOnDb < iS->second ) m_schema.sequenceTable().sinchronize( sequenceName, iS->second );
+    m_table.getLastId( sequenceName, lastOnDb );
+    if( lastOnDb < iS->second ) m_table.sinchronize( sequenceName, iS->second );
     m_lastIds.erase( sequenceName );
   }
 }
@@ -49,14 +54,14 @@ void ora::Sequences::sinchronizeAll(){
   for( std::map<std::string,int>::iterator iS = m_lastIds.begin();
        iS != m_lastIds.end(); iS++ ){
     int lastOnDb = 0;
-    m_schema.sequenceTable().getLastId( iS->first, lastOnDb );
-    if( lastOnDb < iS->second ) m_schema.sequenceTable().sinchronize( iS->first, iS->second );    
+    m_table.getLastId( iS->first, lastOnDb );
+    if( lastOnDb < iS->second ) m_table.sinchronize( iS->first, iS->second );    
   }
   clear();
 }
 
 void ora::Sequences::erase( const std::string& sequenceName ){
-  m_schema.sequenceTable().erase( sequenceName );
+  m_table.erase( sequenceName );
 }
 
 void ora::Sequences::clear(){

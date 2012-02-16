@@ -98,7 +98,6 @@ void ora::OraMainTable::create(){
   descr.setPrimaryKey( std::vector<std::string>( 1, parameterNameColumn() ) );
 
   coral::ITable& table = schema().createTable( descr );
-  //table.privilegeManager().grantToPublic( coral::ITablePrivilegeManager::Select );
 
   coral::AttributeList dataToInsert;
   dataToInsert.extend<std::string>( parameterNameColumn());
@@ -128,7 +127,14 @@ std::string ora::OraSequenceTable::sequenceValueColumn(){
 }
 
 ora::OraSequenceTable::OraSequenceTable( coral::ISchema& schema ):
-  ISequenceTable( schema){
+  ISequenceTable( schema),
+  m_tableName( tableName() ){
+}
+
+ora::OraSequenceTable::OraSequenceTable( const std::string& tname, 
+					 coral::ISchema& schema ):
+  ISequenceTable( schema),
+  m_tableName( tname ){
 }
 
 ora::OraSequenceTable::~OraSequenceTable(){
@@ -144,14 +150,14 @@ ora::OraSequenceTable::add( const std::string& sequenceName ){
   iAttribute->data< std::string >() = sequenceName;
   ++iAttribute;
   iAttribute->data< int >() = -1;
-  schema().tableHandle( tableName() ).dataEditor().insertRow( insertData );
+  schema().tableHandle( name() ).dataEditor().insertRow( insertData );
   return true;
 }
 
 bool
 ora::OraSequenceTable::getLastId( const std::string& sequenceName,
                                   int& lastId ) {
-  std::auto_ptr< coral::IQuery > query( schema().tableHandle( tableName() ).newQuery() );
+  std::auto_ptr< coral::IQuery > query( schema().tableHandle( name() ).newQuery() );
   query->limitReturnedRows( 1, 0 );
   query->addToOutputList( sequenceValueColumn() );
   query->defineOutputType( sequenceValueColumn(), coral::AttributeSpecification::typeNameForType<int>() );
@@ -181,33 +187,33 @@ void ora::OraSequenceTable::sinchronize( const std::string& sequenceName,
   iAttribute->data< std::string >() = sequenceName;
   ++iAttribute;
   iAttribute->data< int >() = lastValue;
-  schema().tableHandle( tableName() ).dataEditor().updateRows( setClause,whereClause,updateData );
+  schema().tableHandle( name() ).dataEditor().updateRows( setClause,whereClause,updateData );
 }
 
-void ora::OraSequenceTable::erase( const std::string& name ){
+void ora::OraSequenceTable::erase( const std::string& sequenceName ){
   coral::AttributeList whereData;
   whereData.extend<std::string>(sequenceNameColumn());
-  whereData[ sequenceNameColumn() ].data<std::string>() = name;
+  whereData[ sequenceNameColumn() ].data<std::string>() = sequenceName;
   std::string whereClause( sequenceNameColumn() + " = :" + sequenceNameColumn() );
-  schema().tableHandle( tableName() ).dataEditor().deleteRows( whereClause, whereData );
+  schema().tableHandle( name() ).dataEditor().deleteRows( whereClause, whereData );
 }
 
 std::string ora::OraSequenceTable::name(){
-  return tableName();
+  return m_tableName;
 }
 
 bool ora::OraSequenceTable::exists(){
-  return schema().existsTable( tableName() );
+  return schema().existsTable( name() );
 }
 
 void ora::OraSequenceTable::create(){
-  if( schema().existsTable( tableName() )){
+  if( schema().existsTable( name() )){
     throwException( "ORA database sequence table already exists in this schema.",
                     "OraSequenceTable::create");
   }
   
   coral::TableDescription description( "OraDb" );
-  description.setName( tableName() );
+  description.setName( name() );
 
   description.insertColumn( sequenceNameColumn(), coral::AttributeSpecification::typeNameForType<std::string>() );
   description.setNotNullConstraint( sequenceNameColumn() );
@@ -217,11 +223,10 @@ void ora::OraSequenceTable::create(){
 
   description.setPrimaryKey( std::vector< std::string >( 1, sequenceNameColumn() ) );
   schema().createTable( description );
-  //.privilegeManager().grantToPublic( coral::ITablePrivilegeManager::Select );
 }
 
 void ora::OraSequenceTable::drop(){
-  schema().dropIfExistsTable( tableName() );
+  schema().dropIfExistsTable( name() );
 }
 
 std::string ora::OraMappingVersionTable::tableName(){
@@ -262,7 +267,6 @@ void ora::OraMappingVersionTable::create(){
   description0.setNotNullConstraint( mappingVersionColumn() );
   description0.setPrimaryKey( mappingVersionColumn() );
   schema().createTable( description0 );
-  //.privilegeManager().grantToPublic( coral::ITablePrivilegeManager::Select );
 }
 
 void ora::OraMappingVersionTable::drop(){
@@ -380,7 +384,6 @@ void ora::OraMappingElementTable::create(){
   description2.createForeignKey( fkName20, mappingVersionColumn(),
                                  OraMappingVersionTable::tableName(),OraMappingVersionTable::mappingVersionColumn());
   schema().createTable( description2 );
-  //.privilegeManager().grantToPublic( coral::ITablePrivilegeManager::Select );
   
 }
 
@@ -577,7 +580,6 @@ void ora::OraContainerHeaderTable::create(){
   descr.setPrimaryKey( std::vector<std::string>( 1, containerIdColumn() ) );
   descr.setUniqueConstraint( containerNameColumn() );
   schema().createTable( descr );
-  //.privilegeManager().grantToPublic( coral::ITablePrivilegeManager::Select );
 }
 
 void ora::OraContainerHeaderTable::drop(){
@@ -673,7 +675,6 @@ void ora::OraClassVersionTable::create(){
   description1.createForeignKey( fk11Name, containerIdColumn(),
                                  ora::OraContainerHeaderTable::tableName(),ora::OraContainerHeaderTable::containerIdColumn());
   schema().createTable( description1 );
-  //.privilegeManager().grantToPublic( coral::ITablePrivilegeManager::Select );
 }
 
 void ora::OraClassVersionTable::drop(){
@@ -1123,7 +1124,6 @@ void ora::OraNamingServiceTable::create(){
   descr.setPrimaryKey( std::vector<std::string>( 1, objectNameColumn() ) );
 
   schema().createTable( descr );
-  //.privilegeManager().grantToPublic( coral::ITablePrivilegeManager::Select );
 }
 
 void ora::OraNamingServiceTable::drop(){
