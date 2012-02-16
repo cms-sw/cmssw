@@ -19,7 +19,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//$Id: EcalRecHitWorkerRecover.cc,v 1.33 2012/01/31 19:22:05 wmtan Exp $
+//$Id: EcalRecHitWorkerRecover.cc,v 1.34 2012/02/15 14:37:18 vieri Exp $
 
 EcalRecHitWorkerRecover::EcalRecHitWorkerRecover(const edm::ParameterSet&ps) :
         EcalRecHitWorkerBaseClass(ps)
@@ -150,27 +150,6 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
         } else if ( flags == EcalRecHitWorkerRecover::EB_FE ) {
                 // recover as dead TT
 
-			// from the constituents, remove dead channels
-			std::vector<DetId>::iterator ttcons1 = v.begin();
-			while (ttcons1 != v.end()){
-			  if (!checkChannelStatus(*ttcons1,dbStatusToBeExcludedEE_)){
-				ttcons1=v.erase(ttcons1);
-			  } else {
-			    ++ttcons1;
-			  }
-			}// while 
-			 
-                        
-                        edm::Handle<EcalTrigPrimDigiCollection> pTPDigis;
-                        evt.getByLabel(tpDigiCollection_, pTPDigis);
-                        const EcalTrigPrimDigiCollection * tpDigis = 0;
-                        if ( pTPDigis.isValid() ) {
-                                tpDigis = pTPDigis.product();
-                        } else {
-
-
-
-
                 EcalTrigTowerDetId ttDetId( ((EBDetId)detId).tower() );
                 edm::Handle<EcalTrigPrimDigiCollection> pTPDigis;
                 evt.getByLabel(tpDigiCollection_, pTPDigis);
@@ -215,6 +194,7 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
 			  EcalRecHit hit( *dit,0., 0. );
                                 hit.setFlag( EcalRecHit::kDead ) ;
                                 insertRecHit( hit, result );
+			}
                         }
                 }
         } else if ( flags == EcalRecHitWorkerRecover::EE_FE ) {
@@ -470,7 +450,6 @@ bool EcalRecHitWorkerRecover::checkChannelStatus(const DetId& id,
 
   return true;
 }
-
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalRecHitWorkerFactory.h"
