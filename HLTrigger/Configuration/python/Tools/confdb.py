@@ -60,7 +60,11 @@ class HLTProcess(object):
     "HLT_HT250_L1FastJet_DoubleDisplacedPFJet60_ChgFraction10_v*",
     "HLT_HT250_L1FastJet_SingleDisplacedPFJet60_v*",
     "HLT_HT250_L1FastJet_SingleDisplacedPFJet60_ChgFraction10_v*",
-
+    "HLT_Jet80Eta1p7_Jet70Eta1p7_L1FastJet_DiBTagIP3D_v*",
+    "HLT_Jet60Eta1p7_Jet53Eta1p7_L1FastJet_DiBTagIP3D_v*",
+    "HLT_Jet160Eta2p4_Jet120Eta2p4_L1FastJet_DiBTagIP3DLoose_v*",
+    "HLT_DiJet80Eta2p6_L1FastJet_BTagIP3DLoose_v*",
+    "HLT_DiJet40Eta2p6_L1FastJet_BTagIP3D_v*",
   )
 
   def __init__(self, configuration):
