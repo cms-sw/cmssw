@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_1_0/GRun/V36 (CMSSW_5_2_0_pre5_HLT3)
+# /dev/CMSSW_5_1_0/GRun/V37 (CMSSW_5_2_0_pre5_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V36')
+  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V37')
 )
 
 hltESSBTagRecord = cms.ESSource( "EmptyESSource",
