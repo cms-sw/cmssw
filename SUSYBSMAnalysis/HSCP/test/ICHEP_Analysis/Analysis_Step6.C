@@ -1902,17 +1902,25 @@ void DrawRatioBands(string InputPattern, string inputmodel)
    TCutG**  Exp2SigmaAErr= new TCutG*[TModels.size()];
    TPad** padA= new  TPad*[TModels.size()];
    string  ModelNames[TModels.size()];
-   double step= 1.0/(TModels.size()+2);
+   double step, top;
+   if(IsTkOnly) {
+     top= 1.0/(TModels.size()+2);
+     step=(1.0-2.*top)/(TModels.size());
+   }
+   else {
+     top=1.0/(TModels.size()+4);
+     step=(1.-2.*top)/(TModels.size());
+   }
    for(int k=0;k<TModels.size();k++){
      TPad* pad;
      //TPad* pad = new TPad(Form("pad%i",k),Form("ExpErr%i",k),0.1,1-(k+2)*step,0.9,1-step*(k+1));//lower left x, y, topright x, y
      if(k<(TModels.size()-1)) {
-       pad = new TPad(Form("pad%i",k),Form("ExpErr%i",k),0.1,1-(k+2)*step,0.9,1-step*(k+1));//lower left x, y, topright x, y
+       pad = new TPad(Form("pad%i",k),Form("ExpErr%i",k),0.1,1-top-(k+1)*step,0.9,1-top-step*k);//lower left x, y, topright x, y
        pad->SetBottomMargin(0.);
      }
      else {
-       pad = new TPad(Form("pad%i",k),Form("ExpErr%i",k),0.1,1-(k+3)*step,0.9,1-step*(k+1));//lower left x, y, topright x, y
-       pad->SetBottomMargin(0.5);
+       pad = new TPad(Form("pad%i",k),Form("ExpErr%i",k),0.1,1-2*top-(k+1)*step+0.00001,0.9,1-top-step*(k));//lower left x, y, topright x, y
+       pad->SetBottomMargin(top/(step+top));
      }
       pad->SetLeftMargin(0.1);
       pad->SetRightMargin(0.);
@@ -1943,8 +1951,8 @@ void DrawRatioBands(string InputPattern, string inputmodel)
       TGraph* graphtheory= new TGraph(N,Mass,XSecTh);
       TGraph* graphobs = new TGraph(N,Mass,XSecObs);
       TGraph* graphexp = new TGraph(N,Mass,XSecExp);
-      TCutG*  ExpErr = GetErrorBand(Form("ExpErr%i",k),N,Mass,XSecExpDown,XSecExpUp,0.5, 2.5);
-      TCutG*  Exp2SigmaErr = GetErrorBand(Form("Exp2SigmaErr%i",k),N,Mass,XSecExp2Down,XSecExp2Up, 0.5, 2.5);
+      TCutG*  ExpErr = GetErrorBand(Form("ExpErr%i",k),N,Mass,XSecExpDown,XSecExpUp,0.0, 3.0);
+      TCutG*  Exp2SigmaErr = GetErrorBand(Form("Exp2SigmaErr%i",k),N,Mass,XSecExp2Down,XSecExp2Up, 0.0, 3.0);
 
       graphAtheory[k] = graphtheory;      
       graphAobs[k] =graphobs;
@@ -1977,7 +1985,9 @@ void DrawRatioBands(string InputPattern, string inputmodel)
       MG->Add(graphAobs[k]      ,"LP");
       MG->Draw("A");
       if(k==0){
-         TLegend* LEG = new TLegend(0.11,0.01,0.7,0.99);
+	TLegend* LEG;
+	if(IsTkOnly) LEG = new TLegend(0.11,0.01,0.7,0.99);
+	else LEG = new TLegend(0.11,0.01,0.5,0.99);
          string headerstr;
          headerstr = " Tk + TOF";
          if(IsTkOnly) headerstr = " Tk - Only";
@@ -2003,8 +2013,8 @@ void DrawRatioBands(string InputPattern, string inputmodel)
 
       TPaveText *pt;
       if(IsTkOnly) {
-	if(k!=TModels.size()-1) pt = new TPaveText(0.45, 0.6, 0.95, 0.87,"LBNDC");
-	else pt = new TPaveText(0.45, 0.8, 0.95, 0.935,"LBNDC");
+	if(k!=TModels.size()-1) pt = new TPaveText(0.62, 0.6, 0.95, 0.87,"LBNDC");
+	else pt = new TPaveText(0.62, 0.82, 0.95, 0.935,"LBNDC");
       }
       else {
 	  if(k!=TModels.size()-1) pt = new TPaveText(0.65, 0.7, 0.95, 0.85,"LBNDC");
@@ -2014,17 +2024,17 @@ void DrawRatioBands(string InputPattern, string inputmodel)
       pt->SetLineWidth(0);
       pt->SetFillColor(kWhite);
       TText *text = pt->AddText(ModelNames[k].c_str()); 
-      text ->SetTextAlign(11);
+      text ->SetTextAlign(12);
       text ->SetTextSize(0.3);
-      if(IsTkOnly) text ->SetTextSize(0.35);
+      if(IsTkOnly) text ->SetTextSize(0.3);
       if(k==TModels.size()-1) text ->SetTextSize(0.5*text ->GetTextSize());
       pt->Draw();
       
       MG->GetXaxis()->SetRangeUser(0,1250);    
       MG->GetXaxis()->SetNdivisions(506,"Z");
 
-      MG->GetYaxis()->SetRangeUser(0.5,2.5);
-      MG->GetYaxis()->SetNdivisions(202,"Z");
+      MG->GetYaxis()->SetRangeUser(0.001,2.99);
+      MG->GetYaxis()->SetNdivisions(303, "Z");
       MG->GetYaxis()->SetLabelSize(0.2);
       if(k==(TModels.size()-1)) {
 	MG->GetYaxis()->SetLabelSize(0.1);

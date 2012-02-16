@@ -114,7 +114,7 @@ void Analysis_Step5()
    //SelectionPlot(InputDir, CutIndex);
    //PredictionAndControlPlot(InputDir, CutIndex);
    //GetSystematicOnPrediction(InputDir);
-   //return;
+   return;
 
    InputDir = "Results/dedxASmi/combined/Eta15/PtMin45/Type0/";   CutIndex = 11;/*65;*//*39;*/  MassPredictionTight(InputDir, CutIndex, "Mass");
    CutIndex=50;
@@ -1473,11 +1473,11 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
       MCPredErr->SetBinError(i,error);
       if(MCPredErr->GetBinContent(i)<Min && i>5){for(unsigned int j=i+1;j<(unsigned int)MCPredErr->GetNbinsX();j++)MCPredErr->SetBinContent(j,0);}
    }
-   PredErr->SetLineColor(8);
-   PredErr->SetFillColor(8);
-   PredErr->SetFillStyle(3001);
+   PredErr->SetLineColor(5);
+   PredErr->SetFillColor(5);
+   PredErr->SetFillStyle(1001);
    PredErr->SetMarkerStyle(22);
-   PredErr->SetMarkerColor(2);
+   PredErr->SetMarkerColor(5);
    PredErr->SetMarkerSize(1.0);
    PredErr->GetXaxis()->SetNdivisions(505);
    PredErr->SetTitle("");
@@ -1491,24 +1491,24 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    PredErr->Draw("AXIS");
 
    Signal->SetMarkerStyle(21);
-   Signal->SetMarkerColor(4);
+   Signal->SetMarkerColor(5);
    Signal->SetMarkerSize(1.5);
-   Signal->SetLineColor(4);
-   Signal->SetFillColor(38);
+   Signal->SetLineColor(3);
+   Signal->SetFillColor(3);
    Signal->Draw("same HIST");
 
-   MCPredErr->SetLineColor(5);
-   MCPredErr->SetFillColor(5);
-   MCPredErr->SetFillStyle(3017);
+   MCPredErr->SetLineColor(7);
+   MCPredErr->SetFillColor(7);
+   MCPredErr->SetFillStyle(1001);
    MCPredErr->SetMarkerStyle(23);
-   MCPredErr->SetMarkerColor(5);
+   MCPredErr->SetMarkerColor(7);
    MCPredErr->SetMarkerSize(1.0);
    MCPredErr->Draw("same E5");
 
    MCPred->SetMarkerStyle(23);
-   MCPred->SetMarkerColor(5);
+   MCPred->SetMarkerColor(4);
    MCPred->SetMarkerSize(1.5);
-   MCPred->SetLineColor(5);
+   MCPred->SetLineColor(4);
    MCPred->SetFillColor(0);
    MCPred->Draw("same HIST P");
 

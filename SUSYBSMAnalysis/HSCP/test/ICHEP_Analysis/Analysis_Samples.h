@@ -20,7 +20,7 @@
 #define SID_GL900N    16
 #define SID_GL1000N   17
 #define SID_GL1100N   18
-#define SID_GL1100N   19
+#define SID_GL1200N   19
 #define SID_ST130     20
 #define SID_ST200     21
 #define SID_ST300     22
@@ -93,7 +93,7 @@
 
 int                  RunningPeriods = 2;
 double               IntegratedLuminosity = 4679; //3168; //2410;//2125; //2080; //1912; //1947; //1631; //976.204518023; //705.273820; //342.603275; //204.160928; //191.04;
-double               IntegratedLuminosityBeforeTriggerChange = 355.227; //353.494; // Total luminosity taken before RPC L1 trigger change (went into effect on run 165970)
+double               IntegratedLuminosityBeforeTriggerChange = 355.263; //353.494; // Total luminosity taken before RPC L1 trigger change (went into effect on run 165970)
 float                Event_Weight = 1;
 int                  MaxEntry = -1;
 
@@ -240,7 +240,7 @@ void GetMCDefinition(std::vector<stMC>& MC){
    MC.push_back(stMC("MC_DYToMuMu"              ,     1.300E3  , -1, -1, 0));
    MC.push_back(stMC("MC_WJetsToLNu"            ,     2.777E4  , -1, -1, 1));
    MC.push_back(stMC("MC_TTJets"                ,     9.400E1  , -1, -1, 1));
-   MC.push_back(stMC("MC_QCD_Pt-15to30"         ,     8.16E8  , -1, -1, 0));
+   //MC.push_back(stMC("MC_QCD_Pt-15to30"         ,     8.16E8  , -1, -1, 0));
    MC.push_back(stMC("MC_QCD_Pt-30to50"         ,     5.310E7  , -1, -1, 0));
    MC.push_back(stMC("MC_QCD_Pt-50to80"         ,     6.360E6  , -1, -1, 0));
    MC.push_back(stMC("MC_QCD_Pt-80to120"        ,     7.840E5  , -1, -1, 0));
@@ -271,7 +271,8 @@ void GetMCDefinition(std::vector<stMC>& MC){
 void GetInputFiles(std::vector<std::string>& inputFiles, std::string SampleName, int period=0){
 //  std::string BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_2_3/11_08_03/";
 //   std::string BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/jchen/11_09_13_HSCP2011EDM/";
-  std::string BaseDirectory = "/uscmst1b_scratch/lpc1/lpcphys/jchen/HSCPEDM_11_01_11/";
+  //std::string BaseDirectory = "/uscmst1b_scratch/lpc1/lpcphys/jchen/HSCPEDM_11_01_11/";
+  std::string BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/farrell3/NewDTError26Dec2011/";
    if(SampleName=="Data"){
      inputFiles.push_back(BaseDirectory + "Data_RunA_160404_163869.root");
      inputFiles.push_back(BaseDirectory + "Data_RunA_165001_166033.root");
@@ -295,6 +296,7 @@ void GetInputFiles(std::vector<std::string>& inputFiles, std::string SampleName,
      inputFiles.push_back(BaseDirectory + "Data_RunA_178420_179411.root");
      inputFiles.push_back(BaseDirectory + "Data_RunA_179434_180252.root");
    }else if(SampleName.find("MC_",0)<std::string::npos){
+     BaseDirectory = "/uscmst1b_scratch/lpc1/3DayLifetime/farrell//NewDTError/";
      inputFiles.push_back(BaseDirectory + SampleName + ".root");
    }else{
      if (period==0) inputFiles.push_back(BaseDirectory + SampleName + ".root");
