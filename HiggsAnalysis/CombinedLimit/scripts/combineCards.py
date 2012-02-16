@@ -4,11 +4,18 @@ from sys import argv
 import os.path
 from optparse import OptionParser
 parser = OptionParser()
-parser.add_option("-s", "--stat",   dest="stat",          default=False, action="store_true")  # ignore systematic uncertainties to consider statistical uncertainties only
-parser.add_option("-S", "--force-shape", dest="shape",    default=False, action="store_true")  # ignore systematic uncertainties to consider statistical uncertainties only
-parser.add_option("-a", "--asimov", dest="asimov",  default=False, action="store_true")
+parser.add_option("-s", "--stat",   dest="stat",          default=False, action="store_true", help="Drop all systematics")
+parser.add_option("-S", "--force-shape", dest="shape",    default=False, action="store_true", help="Treat all channels as shape analysis. Useful for mixed combinations") 
+parser.add_option("-a", "--asimov", dest="asimov",  default=False, action="store_true", help="Replace observation with asimov dataset. Works only for counting experiments")
+parser.add_option("--xc", "--exclude-channel", type="string", dest="channelVetos", default=[], action="append", help="Exclude channels that match this regexp; can specify multiple ones")
 (options, args) = parser.parse_args()
 options.bin = True # fake that is a binary output, so that we parse shape lines
+
+def isVetoed(channel):
+    global options
+    for veto in options.channelVetos:
+        if re.match(veto, channel): return True
+    return False
 
 from HiggsAnalysis.CombinedLimit.DatacardParser import *
 
@@ -28,6 +35,7 @@ for ich,fname in enumerate(args):
     # expectations
     for b in DC.bins:
         bout = label if singlebin else label+b
+        if isVetoed(bout): continue
         obskeyline.append(bout)
         for (p,e) in DC.exp[b].items(): # so that we get only self.DC.processes contributing to this bin
             if DC.isSignal[p] == False: continue
@@ -50,6 +58,7 @@ for ich,fname in enumerate(args):
             continue
         for b in DC.bins:
             bout = label if singlebin else label+b
+            if isVetoed(bout): continue
             if not systeffect.has_key(bout): systeffect[bout] = {} 
             for p in DC.exp[b].keys(): # so that we get only self.DC.processes contributing to this bin
                 r = str(errline[b][p]);
@@ -87,6 +96,7 @@ for ich,fname in enumerate(args):
     if len(DC.shapeMap):
         for b in DC.bins:
             bout = label if singlebin else label+b
+            if isVetoed(bout): continue
             p2sMap  = DC.shapeMap[b]   if DC.shapeMap.has_key(b)   else {}
             p2sMapD = DC.shapeMap['*'] if DC.shapeMap.has_key('*') else {}
             for p, x in p2sMap.items():
@@ -106,7 +116,10 @@ for ich,fname in enumerate(args):
     if len(DC.obs) == 0:
         obsline = None
     elif obsline != None:
-        obsline += [str(DC.obs[b]) for b in DC.bins]; 
+        for b in DC.bins:
+            bout = label if singlebin else label+b
+            if isVetoed(bout): continue
+            obsline += [str(DC.obs[b])]; 
 
 bins = []
 for (b,p,s) in keyline:
