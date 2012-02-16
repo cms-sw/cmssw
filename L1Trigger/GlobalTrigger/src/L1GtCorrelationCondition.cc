@@ -723,7 +723,7 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
             int nMaxLoop = 10;
             int iLoop = 0;
 
-            while (candDeltaPhi > corrParDeltaPhiNrBins) {
+            while (candDeltaPhi >= corrParDeltaPhiNrBins) {
 
                 unsigned int candDeltaPhiInitial = candDeltaPhi;
 

@@ -748,20 +748,20 @@ void L1GlobalTriggerPSB::fillPsbBlock(
                     writeBoard = true;
                 }
 
-                LogTrace("L1GlobalTrigger")
-                    << "\nBoard " << std::hex << (itBoard->gtBoardId()) << std::dec
-                    << "\naltNrBxBoard = " << altNrBxBoard << " recLength " << recLength
-                    << " lowBxInEvent " << lowBxInEvent
-                    << " uppBxInEvent " << uppBxInEvent
-                    << std::endl;
+                //LogTrace("L1GlobalTrigger")
+                //    << "\nBoard " << std::hex << (itBoard->gtBoardId()) << std::dec
+                //    << "\naltNrBxBoard = " << altNrBxBoard << " recLength " << recLength
+                //    << " lowBxInEvent " << lowBxInEvent
+                //    << " uppBxInEvent " << uppBxInEvent
+                //    << std::endl;
             }
 
-            LogTrace("L1GlobalTrigger")
-                << "\nBoard " << std::hex << (itBoard->gtBoardId()) << std::dec
-                << "\niBxInEvent = " << iBxInEvent << " iActiveBit " << iActiveBit
-                << " activeBoard " << activeBoard
-                << " writeBoard " << writeBoard
-                << std::endl;
+            //LogTrace("L1GlobalTrigger")
+            //    << "\nBoard " << std::hex << (itBoard->gtBoardId()) << std::dec
+            //    << "\niBxInEvent = " << iBxInEvent << " iActiveBit " << iActiveBit
+            //    << " activeBoard " << activeBoard
+            //    << " writeBoard " << writeBoard
+            //    << std::endl;
 
             if (activeBoard && writeBoard && (itBoard->gtBoardType() == PSB)) {
 

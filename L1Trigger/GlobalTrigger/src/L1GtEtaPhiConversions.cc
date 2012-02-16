@@ -1315,8 +1315,13 @@ void L1GtEtaPhiConversions::convertL1Scales(
         for (unsigned int iBin = m_nrBinsEtaCommon;; --iBin) {
 
             double etaLowEdge = m_l1CaloGeometry->globalEtaBinLowEdge(iBin);
-            double etaHighEdge =
-                    m_l1CaloGeometry->globalEtaBinLowEdge(iBin + 1);
+
+            double etaHighEdge = 0.0;
+            if (iBin == m_nrBinsEtaCommon) {
+                etaHighEdge = etaLowEdge;
+            } else {
+                etaHighEdge = m_l1CaloGeometry->globalEtaBinLowEdge(iBin + 1);
+            }
 
             if (etaMuLowEdge >= etaLowEdge) {
                 m_lutEtaMuToCommonCalo[etaMuInd] = iBin % m_nrBinsEtaCommon;

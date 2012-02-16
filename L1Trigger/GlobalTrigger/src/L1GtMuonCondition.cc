@@ -340,7 +340,7 @@ const bool L1GtMuonCondition::evaluateCondition() const {
             int nMaxLoop = 10;
             int iLoop = 0;
 
-            while (candDeltaPhi > m_corrParDeltaPhiNrBins) {
+            while (candDeltaPhi >= m_corrParDeltaPhiNrBins) {
 
                 unsigned int candDeltaPhiInitial = candDeltaPhi;
 
