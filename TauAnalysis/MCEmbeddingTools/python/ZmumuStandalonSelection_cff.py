@@ -86,5 +86,6 @@ goldenZmumuSelectionSequence = cms.Sequence(
   * goodMuonsPFIso 
   * goldenZmumuCandidatesGe0IsoMuons 
   * goldenZmumuCandidatesGe1IsoMuons
+  * goldenZmumuCandidatesGe2IsoMuons
   * goldenZmumuFilter
 )

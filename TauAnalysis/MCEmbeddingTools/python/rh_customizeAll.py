@@ -354,7 +354,8 @@ def customise(process):
   if hasattr(process,"doZmumuSkim"):
       print "Enabling Zmumu skim"
       skimEnabled = True
-      process.load("TauAnalysis/Skimming/goldenZmmSelectionVBTFrelPFIsolation_cfi")
+      #process.load("TauAnalysis/Skimming/goldenZmmSelectionVBTFrelPFIsolation_cfi")
+      process.load("TauAnalysis/MCEmbeddingTools/ZmumuStandalonSelection_cff")
       process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
 
       # we are allready selecting events from generation step, so following way is ok
