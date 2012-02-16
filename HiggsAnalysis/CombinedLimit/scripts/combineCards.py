@@ -31,8 +31,10 @@ for ich,fname in enumerate(args):
     file = open(fname, "r")
     DC = parseCard(file, options)
     singlebin = (len(DC.bins) == 1)
-    if not singlebin: label += "_";
-    # expectations
+    if label == ".":
+        label=b if singlebin else "";
+    elif not singlebin: 
+        label += "_";
     for b in DC.bins:
         bout = label if singlebin else label+b
         if isVetoed(bout): continue
