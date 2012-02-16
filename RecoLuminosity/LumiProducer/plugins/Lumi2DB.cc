@@ -937,9 +937,11 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
       writeBeamIntensityOnly(session,runnumber,lversion,lumiresult.begin(),lumiresult.end());
       std::cout<<"done"<<std::endl;
     }else{
-      std::cout<<"writing all lumi data to old lumisummary table "<<std::endl;
-      writeAllLumiData(session,runnumber,lversion,lumiresult.begin(),lumiresult.end());     
-      std::cout<<"done"<<std::endl;
+       if(m_mode=="loadoldschema"){
+	  std::cout<<"writing all lumi data to old lumisummary table "<<std::endl;
+	  writeAllLumiData(session,runnumber,lversion,lumiresult.begin(),lumiresult.end());     
+	  std::cout<<"done"<<std::endl;
+       }
     }
     std::cout<<"writing all lumi data to lumisummary_V2 table "<<std::endl;
     writeAllLumiDataToSchema2(session,m_source,runnumber,bgev,lumiresult.begin(),lumiresult.end());

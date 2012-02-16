@@ -46,6 +46,7 @@ int main(int argc, char** argv){
     ("without-hconf","exclude hltconf loading")
     ("use-wbm","use wbmdb for trigger info")
     ("collision-only","load collision/physics run only")
+    ("schemav2-only","load only to schemav2")
     ("nocheckingstablebeam","do not require any presence of stable beam")
     ("novalidate","do not validate lumi data")
     ("dryrun","dryrun print parameter only")
@@ -72,6 +73,7 @@ int main(int argc, char** argv){
   bool debug=false;
   bool novalidate=false;
   bool collision_only=false;
+  bool schemav2_only=false;
   bool nocheckingstablebeam=false;
   bool dryrun=false;
   boost::program_options::variables_map vm;
@@ -149,6 +151,9 @@ int main(int argc, char** argv){
     if(vm.count("collision-only") ){
        collision_only=true;
     }
+    if(vm.count("schemav2-only") ){
+      schemav2_only=true;
+    }
     if(vm.count("nocheckingstablebeam") ){
       nocheckingstablebeam=true;
     }
@@ -194,6 +199,8 @@ int main(int argc, char** argv){
     std::cout<<"validate data? "<<answer<<std::endl;
     (collision_only)?(answer=std::string("Yes")):(answer=std::string("No"));
     std::cout<<"collision only ? "<<answer<<std::endl;
+    (schemav2_only)?(answer=std::string("Yes")):(answer=std::string("No"));
+    std::cout<<"schemav2 only ? "<<answer<<std::endl;
     (nocheckingstablebeam)?(answer=std::string("No")):(answer=std::string("Yes"));
     std::cout<<"checking stablebeam ? "<<answer<<std::endl;
     (dryrun)?(answer=std::string("Yes")):(answer=std::string("No"));    
@@ -224,6 +231,9 @@ int main(int argc, char** argv){
 	
       }
       //lumiptr->setMode("beamintensity_only");
+      if(!schemav2_only){
+	 lumiptr->setMode("loadoldschema");	 
+      }
       startClock=clock();
       time(&t1);
       lumiptr->retrieveData(runnumber);
@@ -314,6 +324,9 @@ int main(int argc, char** argv){
 	std::auto_ptr<lumi::DataPipe> trgptr(lumi::DataPipeFactory::get()->create(trgpluginName,destconnect));
 	trgptr->setAuthPath(authpath);
 	trgptr->setSource(trgdb);
+	if(!schemav2_only){
+	   trgptr->setMode("loadoldschema");	 
+	}
 	startClock=clock();
 	time(&t1);
 	trgptr->retrieveData(runnumber);
@@ -349,6 +362,9 @@ int main(int argc, char** argv){
       std::auto_ptr<lumi::DataPipe> hltptr(lumi::DataPipeFactory::get()->create(hltpluginName,destconnect));
       hltptr->setSource(runinfodb);
       hltptr->setAuthPath(authpath);
+      if(!schemav2_only){
+	 hltptr->setMode("loadoldschema");	 
+      }
       startClock=clock();
       time(&t1);
       hltptr->retrieveData(runnumber);

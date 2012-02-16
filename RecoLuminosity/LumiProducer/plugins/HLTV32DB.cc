@@ -266,20 +266,22 @@ namespace lumi{
     //HltResult::iterator hltItBeg=hltresult.begin();
     //HltResult::iterator hltItEnd=hltresult.end();
     try{     
-      std::cout<<"writing hlt data to old hlt table"<<std::endl;
-      writeHltData(destsession,runnumber,dbsource,npath,hltresult.begin(),hltresult.end(),COMMITINTERVAL);
-      std::cout<<"done"<<std::endl;
-      std::cout<<"writing hlt data to new lshlt table"<<std::endl;
-      writeHltDataToSchema2(destsession,runnumber,dbsource,npath,hltresult.begin(),hltresult.end(), hltpathmap,COMMITLSINTERVAL);
-      std::cout<<"done"<<std::endl;
-      delete destsession;
-      delete svc;
+       if(m_mode=="loadoldschema"){
+	  std::cout<<"writing hlt data to old hlt table"<<std::endl;
+	  writeHltData(destsession,runnumber,dbsource,npath,hltresult.begin(),hltresult.end(),COMMITINTERVAL);
+	  std::cout<<"done"<<std::endl;
+       }
+       std::cout<<"writing hlt data to new lshlt table"<<std::endl;
+       writeHltDataToSchema2(destsession,runnumber,dbsource,npath,hltresult.begin(),hltresult.end(), hltpathmap,COMMITLSINTERVAL);
+       std::cout<<"done"<<std::endl;
+       delete destsession;
+       delete svc;
     }catch( const coral::Exception& er){
-      std::cout<<"database problem "<<er.what()<<std::endl;
-      destsession->transaction().rollback();
-      delete destsession;
-      delete svc;
-      throw er;
+       std::cout<<"database problem "<<er.what()<<std::endl;
+       destsession->transaction().rollback();
+       delete destsession;
+       delete svc;
+       throw er;
     }
   }
   void 

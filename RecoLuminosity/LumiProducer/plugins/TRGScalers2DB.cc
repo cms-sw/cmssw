@@ -646,9 +646,11 @@ namespace lumi{
     lumitpc.setCppTypeForSqlType("unsigned int","NUMBER(10)");
     lumitpc.setCppTypeForSqlType("unsigned long long","NUMBER(20)");
     try{
-      std::cout<<"writing trg data to old trg table "<<std::endl;
-      writeTrgData(lumisession,runnumber,m_source,deadtimeresult.begin(),deadtimeresult.end(),deadfracresult,algonames,technames,algocount,techcount,algoprescale,techprescale,COMMITLSINTERVAL);
-      std::cout<<"done"<<std::endl;
+      if(m_mode=="loadoldschema"){ 
+	 std::cout<<"writing trg data to old trg table "<<std::endl;
+	 writeTrgData(lumisession,runnumber,m_source,deadtimeresult.begin(),deadtimeresult.end(),deadfracresult,algonames,technames,algocount,techcount,algoprescale,techprescale,COMMITLSINTERVAL);
+	 std::cout<<"done"<<std::endl;
+      }
       std::cout<<"writing trg data to new lstrg table "<<std::endl;
       writeTrgDataToSchema2(lumisession,runnumber,m_source,deadtimeresult.begin(),deadtimeresult.end(),deadfracresult,algonames,technames,algocount,techcount,algoprescale,techprescale,COMMITLSTRGINTERVAL);
       std::cout<<"done"<<std::endl;
