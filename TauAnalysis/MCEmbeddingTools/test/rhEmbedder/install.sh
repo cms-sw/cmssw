@@ -66,11 +66,13 @@ cvs co -r CMSSW_4_2_4_patch1 DataFormats/MuonReco
 cvs up -r 1.1 DataFormats/MuonReco/interface/MuonPFIsolation.h
 cvs co -r b4_2_x_2012Feb02 TauAnalysis
 cvs up -r 1.5 TauAnalysis/CandidateTools/interface/VBFCompositePtrCandidateT1T2MEtEventT3Producer.h
-#cvs co -r b4_2_x_2012Feb02 AnalysisDataFormats/TauAnalysis
+cvs co -r b4_2_x_2012Feb02 AnalysisDataFormats/TauAnalysis
+
 rm -rf TauAnalysis/MCEmbeddingTools/
+rm -rf TauAnalysis/TauIdEfficiency
+
 cvs co TauAnalysis/MCEmbeddingTools
 rm -rf TauAnalysis/MCEmbeddingTools/test/rhEmbedder/install.sh
-
 
 cvs co TauAnalysis/Skimming/python/goldenZmmSelectionVBTFrelPFIsolation_cfi.py
 
