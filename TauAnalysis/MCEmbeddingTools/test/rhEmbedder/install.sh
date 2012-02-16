@@ -77,3 +77,5 @@ rm -rf TauAnalysis/MCEmbeddingTools/test/rhEmbedder/install.sh
 cvs co TauAnalysis/Skimming/python/goldenZmmSelectionVBTFrelPFIsolation_cfi.py
 
 scramv1 b -j 12
+cd $wd
+
