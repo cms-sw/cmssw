@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# last update: $Date: 2011/02/16 12:55:03 $ by $Author: cerminar $
+# last update: $Date: 2011/07/01 09:42:52 $ by $Author: mussgill $
 
 # AlCaReco sequence definitions:
 
@@ -75,6 +75,7 @@ from CalibMuon.RPCCalibration.ALCARECORpcCalHLT_cff import *
 # DT calibration
 ###############################################################
 from CalibMuon.DTCalibration.ALCARECODtCalib_cff import *
+from CalibMuon.DTCalibration.ALCARECODtCalibCosmics_cff import *
 
 
 ###############################################################
@@ -122,6 +123,7 @@ pathALCARECOMuAlZMuMu = cms.Path(seqALCARECOMuAlZMuMu*ALCARECOMuAlZMuMuDQM)
 pathALCARECOMuAlOverlaps = cms.Path(seqALCARECOMuAlOverlaps*ALCARECOMuAlOverlapsDQM)
 pathALCARECORpcCalHLT = cms.Path(seqALCARECORpcCalHLT)
 pathALCARECODtCalib = cms.Path(seqALCARECODtCalib*ALCARECODTCalibSynchDQM)
+pathALCARECODtCalibCosmics = cms.Path(seqALCARECODtCalibCosmics*ALCARECODTCalibSynchCosmicsDQM)
 pathALCARECOTkAlBeamHalo = cms.Path(seqALCARECOTkAlBeamHalo*ALCARECOTkAlBeamHaloDQM)
 pathALCARECOMuAlBeamHaloOverlaps = cms.Path(seqALCARECOMuAlBeamHaloOverlaps*ALCARECOMuAlBeamHaloOverlapsDQM)
 pathALCARECOMuAlBeamHalo = cms.Path(seqALCARECOMuAlBeamHalo*ALCARECOMuAlBeamHaloDQM)
@@ -328,6 +330,15 @@ ALCARECOStreamDtCalib = cms.FilteredStream(
 	paths  = (pathALCARECODtCalib),
 	content = OutALCARECODtCalib.outputCommands,
 	selectEvents = OutALCARECODtCalib.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
+ALCARECOStreamDtCalibCosmics = cms.FilteredStream(
+	responsible = 'Antonio Vilela Pereira',
+	name = 'DtCalibCosmics',
+	paths  = (pathALCARECODtCalibCosmics),
+	content = OutALCARECODtCalibCosmics.outputCommands,
+	selectEvents = OutALCARECODtCalibCosmics.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 

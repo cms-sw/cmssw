@@ -158,7 +158,7 @@ public:
   double transverseCurvature() const {
     return data().transverseCurvature();
   }
-  const CartesianTrajectoryError cartesianError() const {
+  const CartesianTrajectoryError& cartesianError() const {
     return data().cartesianError();
   }
   const CurvilinearTrajectoryError& curvilinearError() const {

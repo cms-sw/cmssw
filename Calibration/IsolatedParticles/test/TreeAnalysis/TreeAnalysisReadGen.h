@@ -32,13 +32,13 @@ public :
   std::string                l1Name;
   static const int NEtaBins = 4;
   static const int NPBins   = 21;
-  double genPartPBins[22], genPartEtaBins[5];
+  double genPartPBins[NPBins+1], genPartEtaBins[NEtaBins+1];
   TFile *fout;
   double dRCut;
   unsigned int iRangeBin, nentries;
   bool debug;
   // inclusive distributions
-  static const int PTypes = 3;
+  static const int PTypes = 4;
   TH1F *h_trkPAll[PTypes][NRanges+1],      *h_trkPtAll[PTypes][NRanges+1],      *h_trkEtaAll[PTypes][NRanges+1],      *h_trkPhiAll[PTypes][NRanges+1];
   TH1F *h_trkPIsoNxN[PTypes][NRanges+1], *h_trkPtIsoNxN[PTypes][NRanges+1], *h_trkEtaIsoNxN[PTypes][NRanges+1], *h_trkPhiIsoNxN[PTypes][NRanges+1];
   TH1F *h_trkPIsoR[PTypes][NRanges+1], *h_trkPtIsoR[PTypes][NRanges+1], *h_trkEtaIsoR[PTypes][NRanges+1], *h_trkPhiIsoR[PTypes][NRanges+1];
@@ -58,7 +58,11 @@ public :
        *h_maxNearP25x25[NPBins][NEtaBins][NRanges+1], 
        *h_maxNearP21x21[NPBins][NEtaBins][NRanges+1], 
        *h_maxNearP15x15[NPBins][NEtaBins][NRanges+1], 
-       *h_maxNearP11x11[NPBins][NEtaBins][NRanges+1];
+       *h_maxNearP11x11[NPBins][NEtaBins][NRanges+1],
+       *h_maxNearPIsoR[NPBins][NEtaBins][NRanges+1],
+       *h_maxNearPIsoHCR[NPBins][NEtaBins][NRanges+1];
+  TH1F *h_maxNearPIsoHCR_allbins[NRanges+1];
+  TH1F *h_maxNearPIsoHCR_pbins[NPBins][NRanges+1];
   TH1F *h_trkP_iso31x31[NRanges+1],
        *h_trkP_iso25x25[NRanges+1],
        *h_trkP_iso21x21[NRanges+1],
@@ -451,9 +455,9 @@ public :
   void             BookHistograms(const char *outFileName,std::vector<std::string>& ranges);
   double           DeltaPhi(double v1, double v2);
   double           DeltaR(double eta1, double phi1, double eta2, double phi2);
-  void clear();
-  void setRange(unsigned int ir);
-  void AddWeight();
+  void             AddWeight();
+  void             setRange(unsigned int ir);
+  void             clear();
 
 };
 

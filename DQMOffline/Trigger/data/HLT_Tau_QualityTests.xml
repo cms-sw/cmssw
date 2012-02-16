@@ -98,10 +98,10 @@ https://twiki.cern.ch/twiki/bin/view/CMS/DQMQualityTests
 </QTEST>
 
 
-<LINK name="HLT/TauOffline/Inclusive/DoubleTau/TriggerBits">
+<LINK name="HLT/TauOffline/Inclusive/DoubleLooseIsoTau/TriggerBits">
       <TestName activate="true">hasEntries</TestName>
 </LINK>
-<LINK name="HLT/TauOffline/Inclusive/SingleTau/TriggerBits">
+<LINK name="HLT/TauOffline/Inclusive/SingleLooseIsoTau/TriggerBits">
       <TestName activate="true">hasEntries</TestName>
 </LINK>
 

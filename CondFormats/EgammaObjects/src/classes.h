@@ -3,7 +3,6 @@
 #include "CondFormats/EgammaObjects/interface/ElectronLikelihoodCalibration.h"
 #include "CondFormats/EgammaObjects/interface/GBRTree.h"
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
-#include "CondFormats/EgammaObjects/interface/GBRWrapper.h"
 
 namespace {
   struct dictionary {
@@ -16,6 +15,6 @@ namespace {
     std::vector<ElectronLikelihoodCalibration::Entry>::const_iterator d2;
     GBRTree e1;
     GBRForest e2;
-    GBRWrapper e3;
+
   };
 }

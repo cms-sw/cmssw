@@ -3,7 +3,7 @@ import Validation.RecoTau.ValidationUtils as Utils
 import copy
 import re
 import os
-#from RecoTauTag.Configuration.RecoPFTauTag_cff import * #needed for self setting of the analyzers
+
 #from Validation.RecoTau.ValidationOptions_cff import *
 
 
@@ -97,188 +97,162 @@ StandardMatchingParameters = cms.PSet(
    SaveOutputHistograms         = cms.bool(False), #TRUE FOR TEST ONLY
    #RefCollection                = cms.InputTag("TauGenJetProducer","selectedGenTauDecaysToHadronsPt5Cumulative"),
    RefCollection                = denominator,
-   ExtensionName                = cms.string(""),
-   TauPtCut                     = cms.double(0.),
+   TauPtCut                     = cms.double(0.), #almost deprecated, since recoCuts provides more flexibility
+   recoCuts                     = cms.string(''), #filter reconstructed candidates. leave this empty to select all. or use sth like: pt > 20 & abs(eta) < 2.3
+   genCuts                      = cms.string(''), #filter generated candidates. leave this empty to select all. or use sth like: pt > 20 & abs(eta) < 2.3
    chainCuts                    = cms.bool(False) #Decide whether to chain discriminators or not
 )
 
-proc = cms.Process('helper')
-proc.load('RecoTauTag.Configuration.RecoPFTauTag_cff')
-proc.load('RecoTauTag.Configuration.RecoTauTag_EventContent_cff')
+PFTausHighEfficiencyLeadingPionBothProngs = cms.EDAnalyzer("TauTagValidation",
+   StandardMatchingParameters,
+   ExtensionName                = cms.string("LeadingPion"),
+   TauProducer                  = cms.InputTag('shrinkingConePFTauProducer'),
+   discriminators               = cms.VPSet(
+    cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationByLeadingTrackFinding"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+    cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationByLeadingPionPtCut"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)), #not plotted
+    cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationByTrackIsolationUsingLeadingPion"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+    cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationByECALIsolationUsingLeadingPion"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+    cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationAgainstElectron"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+    cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationAgainstMuon"),selectionCut = cms.double(0.5),plotStep = cms.bool(True))
+ )
+)
+#Clone for DQM. Is there a smarter way? I passed three days on that and I can live with this
+PFTausHighEfficiencyLeadingPionBothProngs2 = PFTausHighEfficiencyLeadingPionBothProngs.clone()
 
-splitter = re.compile('[_,*]')
-aodProducts = [filter(lambda x: x != '' and x.find('keep') == -1, splitter.split(kept) )[0] for kept in proc.RecoTauTagAOD.outputCommands.value()] #I admit it, it was just to test if it could work :)
-#what it does: takes each element of proc.RecoTauTagAOD.outputCommands.value() expressed as 'keep *_hpsTancTausDiscrimination*_*_*' splits them taking as separators _ or * (regular expression) and filters the output removing '' and 'keep' expression, takes the fisrts (only) element and puts into a list. Maybe a better knowledge of regular expression would make it easier
+PFTausHighEfficiencyBothProngs = cms.EDAnalyzer("TauTagValidation",
+   StandardMatchingParameters,
+   ExtensionName                = cms.string(""),
+   TauProducer                  = cms.InputTag('shrinkingConePFTauProducer'),
+   discriminators               = cms.VPSet(
+    cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationByLeadingTrackFinding"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+    cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationByLeadingTrackPtCut"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)), #not plotted
+    cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationByTrackIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+    cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationByECALIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+    cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationAgainstElectron"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+    cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationAgainstMuon"),selectionCut = cms.double(0.5),plotStep = cms.bool(True))
+ )
+)
+#Clone for DQM.
+PFTausHighEfficiencyBothProngs2 = PFTausHighEfficiencyBothProngs.clone()
 
-keptProduct = lambda label: len( filter(lambda kept: kept in label, aodProducts) ) != 0
-#Returns true if at least one of the AOD product label matches (even partially, allowing the use of * in the keep statement) the label given
+RunTancValidation = copy.deepcopy(PFTausHighEfficiencyBothProngs)
+RunTancValidation.ExtensionName = "Tanc"
+RunTancValidation.discriminators = cms.VPSet(
+    cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationByLeadingTrackFinding"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+    cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationByLeadingPionPtCut"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)), #not plotted
+    cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationByTaNCfrOnePercent"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+    cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationByTaNCfrHalfPercent"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+    cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+    cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationByTaNCfrTenthPercent"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+    cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationAgainstElectron"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+    cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationAgainstMuon"),selectionCut = cms.double(0.5),plotStep = cms.bool(True))
+)
+#Clone for DQM.
+RunTancValidation2 = RunTancValidation.clone()
 
-scanner = Utils.Scanner()
-proc.PFTau.visit(scanner)
-proc.TauValNumeratorAndDenominator = cms.Sequence() #this sequence will be imported, but NOT loaded in any process!
-TauValNumeratorAndDenominator = proc.TauValNumeratorAndDenominator #To be changed #Passing by reference: actually they point to the same object. This sequence will be imported, and loaded in a process
-for module in scanner.modules():
-   if type(module) == cms.EDProducer and (module._TypedParameterizable__type == 'RecoTauCleaner' or module._TypedParameterizable__type == 'RecoTauProducer') and keptProduct(module._Labelable__label):
-      producer = module._Labelable__label#filter(lambda x: x.lower().find('tau') != -1, Utils.GetModuleLabel( module ) )[0]
-      analyzerName = producer + 'NumAndDen'
-      locals()[analyzerName] = cms.EDAnalyzer("TauTagValidation",
-                                              StandardMatchingParameters,
-                                              TauProducer                  = cms.InputTag(producer),
-                                              discriminators               = Utils.GetCurrentDiscriminators(producer, proc.PFTau.moduleNames())
-                                              )
-      setattr(proc,analyzerName,locals()[analyzerName])
-      proc.TauValNumeratorAndDenominator += getattr(proc,analyzerName)
-      #testSequence += locals()[analyzerName]
+RunHPSValidation = copy.deepcopy(PFTausHighEfficiencyBothProngs)
+RunHPSValidation.ExtensionName = ""
+#RunHPSValidation.TauPtCut = cms.double(15.)
+RunHPSValidation.TauProducer   = cms.InputTag('hpsPFTauProducer')
+RunHPSValidation.discriminators = cms.VPSet(
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByDecayModeFinding"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVLooseChargedIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseChargedIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumChargedIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightChargedIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVLooseIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVLooseIsolationDBSumPtCorr"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseIsolationDBSumPtCorr"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumIsolationDBSumPtCorr"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightIsolationDBSumPtCorr"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseMuonRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightMuonRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+)
+#Clone for DQM.
+RunHPSValidation2 = RunHPSValidation.clone()
 
-## PFTausHighEfficiencyLeadingPionBothProngs = cms.EDAnalyzer("TauTagValidation",
-##    StandardMatchingParameters,
-##    ExtensionName                = cms.string("LeadingPion"),
-##    TauProducer                  = cms.InputTag('shrinkingConePFTauProducer'),
-##    discriminators               = cms.VPSet(
-##     cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationByLeadingTrackFinding"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-##     cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationByLeadingPionPtCut"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)), #not plotted
-##     cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationByTrackIsolationUsingLeadingPion"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-##     cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationByECALIsolationUsingLeadingPion"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-##     cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationAgainstElectron"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-##     cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationAgainstMuon"),selectionCut = cms.double(0.5),plotStep = cms.bool(True))
-##  )
-## )
-## #Clone for DQM. Is there a smarter way? I passed three days on that and I can live with this
-## PFTausHighEfficiencyLeadingPionBothProngs2 = PFTausHighEfficiencyLeadingPionBothProngs.clone()
+RunHPSTanc_HPSValidation = copy.deepcopy(PFTausHighEfficiencyBothProngs)
+RunHPSTanc_HPSValidation.ExtensionName = "_HPS"
+#RunHPSTanc_HPSValidation.TauPtCut      = cms.double(15.)
+RunHPSTanc_HPSValidation.TauProducer   = cms.InputTag('hpsTancTaus')
+RunHPSTanc_HPSValidation.discriminators = cms.VPSet(
+   cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByDecayModeSelection"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+   cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByVLooseIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+   cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByLooseIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+   cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByMediumIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+   cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByTightIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+   cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByLooseElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByMediumElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+   cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByTightElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByLooseMuonRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+   cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByTightMuonRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False))
+)
+#Clone for DQM.
+RunHPSTanc_HPSValidation2 = RunHPSTanc_HPSValidation.clone()
 
-## PFTausHighEfficiencyBothProngs = cms.EDAnalyzer("TauTagValidation",
-##    StandardMatchingParameters,
-##    ExtensionName                = cms.string(""),
-##    TauProducer                  = cms.InputTag('shrinkingConePFTauProducer'),
-##    discriminators               = cms.VPSet(
-##     cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationByLeadingTrackFinding"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-##     cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationByLeadingTrackPtCut"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)), #not plotted
-##     cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationByTrackIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-##     cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationByECALIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-##     cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationAgainstElectron"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-##     cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationAgainstMuon"),selectionCut = cms.double(0.5),plotStep = cms.bool(True))
-##  )
-## )
-## #Clone for DQM.
-## PFTausHighEfficiencyBothProngs2 = PFTausHighEfficiencyBothProngs.clone()
+RunHPSTanc_TANCValidation = copy.deepcopy(PFTausHighEfficiencyBothProngs)
+RunHPSTanc_TANCValidation.ExtensionName = "_TANC"
+RunHPSTanc_TANCValidation.TauProducer   = cms.InputTag('hpsTancTaus')
+RunHPSTanc_TANCValidation.discriminators = cms.VPSet(
+    cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByDecayModeSelection"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+    cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByLeadingPionPtCut"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)), #not plotted
+    cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByLeadingTrackFinding"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+    cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByLeadingTrackPtCut"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)), #not plotted
+    cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByTanc"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+    cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByTancVLoose"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+    cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByTancLoose"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+    cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByTancMedium"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+    cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByTancRaw"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+    cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByTancTight"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+)
+#Clone for DQM.
+RunHPSTanc_TANCValidation2 = RunHPSTanc_TANCValidation.clone()
 
-## RunTancValidation = copy.deepcopy(PFTausHighEfficiencyBothProngs)
-## RunTancValidation.ExtensionName = "Tanc"
-## RunTancValidation.discriminators = cms.VPSet(
-##     cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationByLeadingTrackFinding"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-##     cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationByLeadingPionPtCut"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)), #not plotted
-##     cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationByTaNCfrOnePercent"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-##     cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationByTaNCfrHalfPercent"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-##     cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-##     cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationByTaNCfrTenthPercent"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-##     cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationAgainstElectron"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-##     cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationAgainstMuon"),selectionCut = cms.double(0.5),plotStep = cms.bool(True))
-## )
-## #Clone for DQM.
-## RunTancValidation2 = RunTancValidation.clone()
+CaloTausBothProngs = cms.EDAnalyzer("TauTagValidation",
+   StandardMatchingParameters,
+   ExtensionName                = cms.string(""),
+   TauProducer                  = cms.InputTag('caloRecoTauProducer'),
+   discriminators = cms.VPSet(
+    cms.PSet( discriminator = cms.string("caloRecoTauDiscriminationByLeadingTrackFinding"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+    cms.PSet( discriminator = cms.string("caloRecoTauDiscriminationByLeadingTrackPtCut"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)), #not plotted
+    cms.PSet( discriminator = cms.string("caloRecoTauDiscriminationByIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+    cms.PSet( discriminator = cms.string("caloRecoTauDiscriminationAgainstElectron"),selectionCut = cms.double(0.5),plotStep = cms.bool(True))
+ )
+)
+#Clone for DQM.
+CaloTausBothProngs2 = CaloTausBothProngs.clone()
 
-## RunHPSValidation = copy.deepcopy(PFTausHighEfficiencyBothProngs)
-## RunHPSValidation.ExtensionName = ""
-## #RunHPSValidation.TauPtCut = cms.double(15.)
-## RunHPSValidation.TauProducer   = cms.InputTag('hpsPFTauProducer')
-## RunHPSValidation.discriminators = cms.VPSet(
-##    cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByDecayModeFinding"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-##    cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVLooseChargedIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-##    cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseChargedIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-##    cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumChargedIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-##    cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightChargedIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-##    cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVLooseIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-##    cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-##    cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-##    cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-##    cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVLooseIsolationDBSumPtCorr"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-##    cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseIsolationDBSumPtCorr"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-##    cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumIsolationDBSumPtCorr"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-##    cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightIsolationDBSumPtCorr"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-##    cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-##    cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-##    cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-##    cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-##    cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-##    cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-##    cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-##    cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseMuonRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-##    cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightMuonRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-## )
-## #Clone for DQM.
-## RunHPSValidation2 = RunHPSValidation.clone()
+TauValNumeratorAndDenominator = cms.Sequence(
+#      PFTausBothProngs+ OLD
+      RunHPSTanc_HPSValidation+
+      RunHPSTanc_TANCValidation+
+#      CaloTausBothProngs+ #Kept for compatibility. In the DQM is removed for lightness reason
+      PFTausHighEfficiencyBothProngs+
+      PFTausHighEfficiencyLeadingPionBothProngs+
+      RunTancValidation+
+      RunHPSValidation
+   )
 
-## RunHPSTanc_HPSValidation = copy.deepcopy(PFTausHighEfficiencyBothProngs)
-## RunHPSTanc_HPSValidation.ExtensionName = "_HPS"
-## #RunHPSTanc_HPSValidation.TauPtCut      = cms.double(15.)
-## RunHPSTanc_HPSValidation.TauProducer   = cms.InputTag('hpsTancTaus')
-## RunHPSTanc_HPSValidation.discriminators = cms.VPSet(
-##    cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByDecayModeSelection"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-##    cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByVLooseIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-##    cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByLooseIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-##    cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByMediumIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-##    cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByTightIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-##    cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByLooseElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-##    cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByMediumElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-##    cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByTightElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-##    cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByLooseMuonRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-##    cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByTightMuonRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False))
-## )
-## #Clone for DQM.
-## RunHPSTanc_HPSValidation2 = RunHPSTanc_HPSValidation.clone()
-
-## RunHPSTanc_TANCValidation = copy.deepcopy(PFTausHighEfficiencyBothProngs)
-## RunHPSTanc_TANCValidation.ExtensionName = "_TANC"
-## RunHPSTanc_TANCValidation.TauProducer   = cms.InputTag('hpsTancTaus')
-## RunHPSTanc_TANCValidation.discriminators = cms.VPSet(
-##     cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByDecayModeSelection"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-##     cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByLeadingPionPtCut"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)), #not plotted
-##     cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByLeadingTrackFinding"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-##     cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByLeadingTrackPtCut"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)), #not plotted
-##     cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByTanc"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-##     cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByTancVLoose"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-##     cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByTancLoose"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-##     cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByTancMedium"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-##     cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByTancRaw"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-##     cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByTancTight"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-## )
-## #Clone for DQM.
-## RunHPSTanc_TANCValidation2 = RunHPSTanc_TANCValidation.clone()
-## CaloTausBothProngs = cms.EDAnalyzer("TauTagValidation",
-##    StandardMatchingParameters,
-##    ExtensionName                = cms.string(""),
-##    TauProducer                  = cms.InputTag('caloRecoTauProducer'),
-##    discriminators = cms.VPSet(
-##     cms.PSet( discriminator = cms.string("caloRecoTauDiscriminationByLeadingTrackFinding"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-##     cms.PSet( discriminator = cms.string("caloRecoTauDiscriminationByLeadingTrackPtCut"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)), #not plotted
-##     cms.PSet( discriminator = cms.string("caloRecoTauDiscriminationByIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-##     cms.PSet( discriminator = cms.string("caloRecoTauDiscriminationAgainstElectron"),selectionCut = cms.double(0.5),plotStep = cms.bool(True))
-##  )
-## )
-## #Clone for DQM.
-## CaloTausBothProngs2 = CaloTausBothProngs.clone()
-
-## TauValNumeratorAndDenominator = cms.Sequence(
-## #      PFTausBothProngs+ OLD
-##       RunHPSTanc_HPSValidation+
-##       RunHPSTanc_TANCValidation+
-## #      CaloTausBothProngs+ #Kept for compatibility. In the DQM is removed for lightness reason
-##       PFTausHighEfficiencyBothProngs+
-##       PFTausHighEfficiencyLeadingPionBothProngs+
-##       RunTancValidation+
-##       RunHPSValidation
-##    )
-
-## TauValNumeratorAndDenominator2 = cms.Sequence(
-## #      PFTausBothProngs2+ OLD
-##       RunHPSTanc_HPSValidation2+
-##       RunHPSTanc_TANCValidation2+
-## #      CaloTausBothProngs2+ #Kept for compatibility. In the DQM is removed for lightness reason
-##       PFTausHighEfficiencyBothProngs2+
-##       PFTausHighEfficiencyLeadingPionBothProngs2+
-##       RunTancValidation2+
-##       RunHPSValidation2
-##    )
+TauValNumeratorAndDenominator2 = cms.Sequence(
+#      PFTausBothProngs2+ OLD
+      RunHPSTanc_HPSValidation2+
+      RunHPSTanc_TANCValidation2+
+#      CaloTausBothProngs2+ #Kept for compatibility. In the DQM is removed for lightness reason
+      PFTausHighEfficiencyBothProngs2+
+      PFTausHighEfficiencyLeadingPionBothProngs2+
+      RunTancValidation2+
+      RunHPSValidation2
+   )
 """
 
 EFFICIENCY
@@ -440,132 +414,132 @@ standardCompareTestAndReference = cms.PSet(
   ),
 )
         
-## ##################################################
-## #
-## #   The plotting of all the HPS TaNC efficiencies
-## #
-## ##################################################
-## plotPFTauEfficiencies_hps = cms.EDAnalyzer("DQMHistPlotter",
-##                                            standardDrawingStuff,
-##                                            standardCompareTestAndReference,
-##                                            drawJobs = Utils.SpawnDrawJobs(RunHPSTanc_HPSValidation, plotPset),
-##                                            outputFilePath = cms.string('./HPSTancTaus_HPS/'),
-##                                            PrintToFile = cms.bool(True)
-##                                            )
-## #clone for DQM
-## plotPFTauEfficiencies_hps2 = plotPFTauEfficiencies_hps.clone()
+##################################################
+#
+#   The plotting of all the HPS TaNC efficiencies
+#
+##################################################
+plotPFTauEfficiencies_hps = cms.EDAnalyzer("DQMHistPlotter",
+                                           standardDrawingStuff,
+                                           standardCompareTestAndReference,
+                                           drawJobs = Utils.SpawnDrawJobs(RunHPSTanc_HPSValidation, plotPset),
+                                           outputFilePath = cms.string('./HPSTancTaus_HPS/'),
+                                           PrintToFile = cms.bool(True)
+                                           )
+#clone for DQM
+plotPFTauEfficiencies_hps2 = plotPFTauEfficiencies_hps.clone()
 
-## plotPFTauEfficiencies_tanc = cms.EDAnalyzer("DQMHistPlotter",
-##                                             standardDrawingStuff,
-##                                             standardCompareTestAndReference,
-##                                             drawJobs = Utils.SpawnDrawJobs(RunHPSTanc_TANCValidation, plotPset),
-##                                             outputFilePath = cms.string('./HPSTancTaus_TANC/'),
-##                                             PrintToFile = cms.bool(True)
-##                                             )
-## #clone for DQM
-## plotPFTauEfficiencies_tanc2 =plotPFTauEfficiencies_tanc.clone()
+plotPFTauEfficiencies_tanc = cms.EDAnalyzer("DQMHistPlotter",
+                                            standardDrawingStuff,
+                                            standardCompareTestAndReference,
+                                            drawJobs = Utils.SpawnDrawJobs(RunHPSTanc_TANCValidation, plotPset),
+                                            outputFilePath = cms.string('./HPSTancTaus_TANC/'),
+                                            PrintToFile = cms.bool(True)
+                                            )
+#clone for DQM
+plotPFTauEfficiencies_tanc2 =plotPFTauEfficiencies_tanc.clone()
 
-## ##################################################
-## #
-## #   The plotting of HPS Efficiencies
-## #
-## ##################################################
-## plotHPSEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
-##                                      standardDrawingStuff,
-##                                      standardCompareTestAndReference,
-##                                      drawJobs = Utils.SpawnDrawJobs(RunHPSValidation, plotPset),
-##                                      outputFilePath = cms.string('./hpsPFTauProducer/'),
-##                                      PrintToFile = cms.bool(True)
-##                                      )
-## #clone for DQM
-## plotHPSEfficiencies2 = plotHPSEfficiencies.clone()
+##################################################
+#
+#   The plotting of HPS Efficiencies
+#
+##################################################
+plotHPSEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
+                                     standardDrawingStuff,
+                                     standardCompareTestAndReference,
+                                     drawJobs = Utils.SpawnDrawJobs(RunHPSValidation, plotPset),
+                                     outputFilePath = cms.string('./hpsPFTauProducer/'),
+                                     PrintToFile = cms.bool(True)
+                                     )
+#clone for DQM
+plotHPSEfficiencies2 = plotHPSEfficiencies.clone()
 
-## ##################################################
-## #
-## #   The plotting of all the PFTauHighEfficiencies ID efficiencies
-## #
-## ##################################################
-## plotPFTauHighEfficiencyEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
-##                                                      standardDrawingStuff,
-##                                                      standardCompareTestAndReference,
-##                                                      drawJobs = Utils.SpawnDrawJobs(PFTausHighEfficiencyBothProngs, plotPset),
-##                                                      outputFilePath = cms.string('./shrinkingConePFTauProducer/'),
-##                                                      PrintToFile = cms.bool(True)
-##                                                      )
-## #clone for DQM
-## plotPFTauHighEfficiencyEfficiencies2 = plotPFTauHighEfficiencyEfficiencies.clone()
+##################################################
+#
+#   The plotting of all the PFTauHighEfficiencies ID efficiencies
+#
+##################################################
+plotPFTauHighEfficiencyEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
+                                                     standardDrawingStuff,
+                                                     standardCompareTestAndReference,
+                                                     drawJobs = Utils.SpawnDrawJobs(PFTausHighEfficiencyBothProngs, plotPset),
+                                                     outputFilePath = cms.string('./shrinkingConePFTauProducer/'),
+                                                     PrintToFile = cms.bool(True)
+                                                     )
+#clone for DQM
+plotPFTauHighEfficiencyEfficiencies2 = plotPFTauHighEfficiencyEfficiencies.clone()
 
-## ##################################################
-## #
-## #   The plotting of all the CaloTau ID efficiencies
-## #
-## ##################################################
-## plotCaloTauEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
-##                                          standardDrawingStuff,
-##                                          standardCompareTestAndReference,
-##                                          drawJobs = Utils.SpawnDrawJobs(CaloTausBothProngs, plotPset),
-##                                          outputFilePath = cms.string('./caloRecoTauProducer/'),
-##                                          PrintToFile = cms.bool(True)
-##                                          )
-## #clone for DQM
-## plotCaloTauEfficiencies2 = plotCaloTauEfficiencies.clone()
+##################################################
+#
+#   The plotting of all the CaloTau ID efficiencies
+#
+##################################################
+plotCaloTauEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
+                                         standardDrawingStuff,
+                                         standardCompareTestAndReference,
+                                         drawJobs = Utils.SpawnDrawJobs(CaloTausBothProngs, plotPset),
+                                         outputFilePath = cms.string('./caloRecoTauProducer/'),
+                                         PrintToFile = cms.bool(True)
+                                         )
+#clone for DQM
+plotCaloTauEfficiencies2 = plotCaloTauEfficiencies.clone()
 
-## ##################################################
-## #
-## #   The plotting of all the TaNC efficiencies
-## #
-## ##################################################
-## plotTancValidation = cms.EDAnalyzer("DQMHistPlotter",
-##                                     standardDrawingStuff,
-##                                     standardCompareTestAndReference,
-##                                     drawJobs = Utils.SpawnDrawJobs(RunTancValidation, plotPset),
-##                                     outputFilePath = cms.string('./shrinkingConePFTauProducerTanc/'),
-##                                     PrintToFile = cms.bool(True),
-##                                     )
-## #clone for DQM
-## plotTancValidation2 = plotTancValidation.clone()
+##################################################
+#
+#   The plotting of all the TaNC efficiencies
+#
+##################################################
+plotTancValidation = cms.EDAnalyzer("DQMHistPlotter",
+                                    standardDrawingStuff,
+                                    standardCompareTestAndReference,
+                                    drawJobs = Utils.SpawnDrawJobs(RunTancValidation, plotPset),
+                                    outputFilePath = cms.string('./shrinkingConePFTauProducerTanc/'),
+                                    PrintToFile = cms.bool(True),
+                                    )
+#clone for DQM
+plotTancValidation2 = plotTancValidation.clone()
 
-## ##################################################
-## #
-## #   The plotting of all the Shrinking cone leading pion efficiencies
-## #
-## ##################################################
-## plotPFTauHighEfficiencyEfficienciesLeadingPion = cms.EDAnalyzer("DQMHistPlotter",
-##                                                                 standardDrawingStuff,
-##                                                                 standardCompareTestAndReference,
-##                                                                 drawJobs = Utils.SpawnDrawJobs(PFTausHighEfficiencyLeadingPionBothProngs, plotPset),
-##                                                                 outputFilePath = cms.string('./shrinkingConePFTauProducerLeadingPion/'),
-##                                                                 PrintToFile = cms.bool(True)
-##                                                                 )
-## #clone for DQM
-## plotPFTauHighEfficiencyEfficienciesLeadingPion2 = plotPFTauHighEfficiencyEfficienciesLeadingPion.clone()
-
-
-## plotTauValidation = cms.Sequence(
-##       plotPFTauEfficiencies_hps
-##       +plotPFTauEfficiencies_tanc
-##       +plotPFTauHighEfficiencyEfficiencies
-## #     +plotCaloTauEfficiencies  #Kept for compatibility. In the DQM is removed for lightness reason
-##       +plotTancValidation
-##       +plotPFTauHighEfficiencyEfficienciesLeadingPion
-##       +plotHPSEfficiencies
-##       )
-
-## plotTauValidation2 = cms.Sequence(
-##       plotPFTauEfficiencies_hps2
-##       +plotPFTauEfficiencies_tanc2
-##       +plotPFTauHighEfficiencyEfficiencies2
-## #     +plotCaloTauEfficiencies2  #Kept for compatibility. In the DQM is removed for lightness reason
-##       +plotTancValidation2
-##       +plotPFTauHighEfficiencyEfficienciesLeadingPion2
-##       +plotHPSEfficiencies2
-##       )
+##################################################
+#
+#   The plotting of all the Shrinking cone leading pion efficiencies
+#
+##################################################
+plotPFTauHighEfficiencyEfficienciesLeadingPion = cms.EDAnalyzer("DQMHistPlotter",
+                                                                standardDrawingStuff,
+                                                                standardCompareTestAndReference,
+                                                                drawJobs = Utils.SpawnDrawJobs(PFTausHighEfficiencyLeadingPionBothProngs, plotPset),
+                                                                outputFilePath = cms.string('./shrinkingConePFTauProducerLeadingPion/'),
+                                                                PrintToFile = cms.bool(True)
+                                                                )
+#clone for DQM
+plotPFTauHighEfficiencyEfficienciesLeadingPion2 = plotPFTauHighEfficiencyEfficienciesLeadingPion.clone()
 
 
-## loadAndPlotTauValidation = cms.Sequence(
-##       loadTau
-##       +plotTauValidation
-##       )
+plotTauValidation = cms.Sequence(
+      plotPFTauEfficiencies_hps
+      +plotPFTauEfficiencies_tanc
+      +plotPFTauHighEfficiencyEfficiencies
+#     +plotCaloTauEfficiencies  #Kept for compatibility. In the DQM is removed for lightness reason
+      +plotTancValidation
+      +plotPFTauHighEfficiencyEfficienciesLeadingPion
+      +plotHPSEfficiencies
+      )
+
+plotTauValidation2 = cms.Sequence(
+      plotPFTauEfficiencies_hps2
+      +plotPFTauEfficiencies_tanc2
+      +plotPFTauHighEfficiencyEfficiencies2
+#     +plotCaloTauEfficiencies2  #Kept for compatibility. In the DQM is removed for lightness reason
+      +plotTancValidation2
+      +plotPFTauHighEfficiencyEfficienciesLeadingPion2
+      +plotHPSEfficiencies2
+      )
+
+
+loadAndPlotTauValidation = cms.Sequence(
+      loadTau
+      +plotTauValidation
+      )
 
 """
 
@@ -715,6 +689,3 @@ def SetPlotOnlyStepByStep(myPlottingSequence):
    myFunctor = ApplyFunctionToSequence(RemoveComparisonPlotCommands)
    myPlottingSequence.visit(myFunctor)
 
-def SetValidationAttributes(module, extension, refcolllection):
-    module.ExtensionName = (extension)
-    module.RefCollection = refcolllection

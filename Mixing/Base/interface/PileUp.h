@@ -8,6 +8,7 @@
 #include "FWCore/Sources/interface/VectorInputSource.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CLHEP/Random/RandPoissonQ.h"
 #include "CLHEP/Random/RandFlat.h"
@@ -33,7 +34,7 @@ namespace edm {
     ~PileUp();
 
     template<typename T>
-      void readPileUp(std::vector<edm::EventID> &ids, T eventOperator, const int NumPU );
+      void readPileUp(edm::EventID const & signal, std::vector<edm::EventID> &ids, T eventOperator, const int NumPU );
 
     template<typename T>
       void playPileUp(const std::vector<edm::EventID> &ids, T eventOperator);
@@ -48,22 +49,28 @@ namespace edm {
       input_->doEndJob();
     }
 
+    void reload(const edm::EventSetup & setup);
+
     void CalculatePileup(int MinBunch, int MaxBunch, std::vector<int>& PileupSelection, std::vector<float>& TrueNumInteractions);
 
     //template<typename T>
     // void recordEventForPlayback(EventPrincipal const& eventPrincipal,
 	//			  std::vector<edm::EventID> &ids, T& eventOperator);
 
+    const unsigned int & input()const{return inputType_;}
+    void input(unsigned int s){inputType_=s;}
+
   private:
-    std::string const type_;
-    double const averageNumber_;
+    unsigned int  inputType_;
+    std::string type_;
+    double averageNumber_;
     int const intAverage_;
-    TH1F* const histo_;
-    bool const histoDistribution_;
-    bool const probFunctionDistribution_;
-    bool const poisson_;
-    bool const fixed_;
-    bool const none_;
+    TH1F* histo_;
+    bool histoDistribution_;
+    bool probFunctionDistribution_;
+    bool poisson_;
+    bool fixed_;
+    bool none_;
     bool manage_OOT_;
     bool poisson_OOT_;
     bool fixed_OOT_;
@@ -83,6 +90,9 @@ namespace edm {
 
     // sequential reading
     bool sequential_;
+
+    // force reading pileup events from the same lumisection as the signal event
+    bool samelumi_;
     
     // read the seed for the histo and probability function cases
     int seed_;
@@ -113,33 +123,47 @@ namespace edm {
    *  The ids are either ids to read or ids to store while reading.
    *  eventOperator has a type that matches the eventOperator in
    *  VectorInputSource::loopRandom.
+   *
+   *  The "signal" event is optionally used to restrict 
+   *  the secondary events used for pileup and mixing.
    */
   template<typename T>
   void
-    PileUp::readPileUp(std::vector<edm::EventID> &ids, T eventOperator, const int pileEventCnt) {
+    PileUp::readPileUp(edm::EventID const & signal, std::vector<edm::EventID> &ids, T eventOperator, const int pileEventCnt) {
 
     // One reason PileUp is responsible for recording event IDs is
     // that it is the one that knows how many events will be read.
     ids.reserve(pileEventCnt);
     RecordEventID<T> recorder(ids,eventOperator);
-    if (sequential_) {
-      // boost::bind creates a functor from recordEventForPlayback
-      // so that recordEventForPlayback can insert itself before
-      // the original eventOperator.
+    int read;
+    if (samelumi_) {
+      const edm::LuminosityBlockID lumi(signal.run(), signal.luminosityBlock());
+      if (sequential_)
+        read = input_->loopSequentialWithID(lumi, pileEventCnt, recorder);
+      else
+        read = input_->loopRandomWithID(lumi, pileEventCnt, recorder);
+    } else {
+      if (sequential_) {
+        // boost::bind creates a functor from recordEventForPlayback
+        // so that recordEventForPlayback can insert itself before
+        // the original eventOperator.
 
-      input_->loopSequential(pileEventCnt, recorder);
-      //boost::bind(&PileUp::recordEventForPlayback<T>,
-      //                    boost::ref(*this), _1, boost::ref(ids),
-      //                             boost::ref(eventOperator))
-      //  );
-        
-    } else  {
-      input_->loopRandom(pileEventCnt, recorder);
-      //               boost::bind(&PileUp::recordEventForPlayback<T>,
-      //                             boost::ref(*this), _1, boost::ref(ids),
-      //                             boost::ref(eventOperator))
-      //                 );
+        read = input_->loopSequential(pileEventCnt, recorder);
+        //boost::bind(&PileUp::recordEventForPlayback<T>,
+        //                    boost::ref(*this), _1, boost::ref(ids),
+        //                             boost::ref(eventOperator))
+        //  );
+          
+      } else  {
+        read = input_->loopRandom(pileEventCnt, recorder);
+        //               boost::bind(&PileUp::recordEventForPlayback<T>,
+        //                             boost::ref(*this), _1, boost::ref(ids),
+        //                             boost::ref(eventOperator))
+        //                 );
+      }
     }
+    if (read != pileEventCnt)
+      edm::LogWarning("PileUp") << "Could not read enough pileup events: only " << read << " out of " << pileEventCnt << " requested.";
   }
 
 

@@ -9,6 +9,11 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "CondFormats/DataRecord/interface/MixingRcd.h"
+#include "CondFormats/RunInfo/interface/MixingModuleConfig.h"
+
 #include <algorithm>
 
 namespace edm {
@@ -27,10 +32,14 @@ namespace edm {
     poissonDistr_OOT_(0),
     playback_(playback),
     sequential_(pset.getUntrackedParameter<bool>("sequential", false)),
-    seed_(pset.getParameter<edm::ParameterSet>("nbPileupEvents").getUntrackedParameter<int>("seed",0))
+    samelumi_(pset.getUntrackedParameter<bool>("sameLumiBlock", false)),
+    seed_(0)
    {
+     if (pset.exists("nbPileupEvents"))
+       seed_=pset.getParameter<edm::ParameterSet>("nbPileupEvents").getUntrackedParameter<int>("seed",0);
 
-    
+    bool DB=type_=="readDB";
+
     edm::Service<edm::RandomNumberGenerator> rng;
     if (!rng.isAvailable()) {
       throw cms::Exception("Configuration")
@@ -43,7 +52,7 @@ namespace edm {
     poissonDistribution_ = new CLHEP::RandPoissonQ(engine, averageNumber_);
     
     // Get seed for the case when using user histogram or probability function
-    if (histoDistribution_ || probFunctionDistribution_){ 
+    if (histoDistribution_ || probFunctionDistribution_ || DB){ 
       if(seed_ !=0) {
 	gRandom->SetSeed(seed_);
 	LogInfo("MixingModule") << " Change seed for " << type_ << " mode. The seed is set to " << seed_;
@@ -54,18 +63,19 @@ namespace edm {
     } 
      
         
-    if (!(histoDistribution_ || probFunctionDistribution_ || poisson_ || fixed_ || none_)) {
+    if (!(histoDistribution_ || probFunctionDistribution_ || poisson_ || fixed_ || none_) && !DB) {
       throw cms::Exception("Illegal parameter value","PileUp::PileUp(ParameterSet const& pset)")
         << "'type' parameter (a string) has a value of '" << type_ << "'.\n"
         << "Legal values are 'poisson', 'fixed', or 'none'\n";
     }
 
+    if (!DB){
     manage_OOT_ = pset.getUntrackedParameter<bool>("manage_OOT", false);
 
     if(manage_OOT_) { // figure out what the parameters are
 
-      if (playback_) throw cms::Exception("Illegal parameter clash","PileUp::PileUp(ParameterSet const& pset)")
-	<< " manage_OOT option not allowed with playback ";
+      //      if (playback_) throw cms::Exception("Illegal parameter clash","PileUp::PileUp(ParameterSet const& pset)")
+      // << " manage_OOT option not allowed with playback ";
 
       std::string OOT_type = pset.getUntrackedParameter<std::string>("OOT_type");
 
@@ -89,9 +99,111 @@ namespace edm {
       }
       edm::LogInfo("MixingModule") <<" Out-of-time pileup will be generated with a " << OOT_type << " distribution. " ;
     }
+    }
     
   }
 
+  void PileUp::reload(const edm::EventSetup & setup){
+    //get the required parameters from DB.
+    edm::ESHandle<MixingModuleConfig> configM;
+    setup.get<MixingRcd>().get(configM);
+
+    const MixingInputConfig & config=configM->config(inputType_);
+
+    //get the type
+    type_=config.type();
+    //set booleans
+    histoDistribution_=type_ == "histo";
+    probFunctionDistribution_=type_ == "probFunction";
+    poisson_=type_ == "poisson";
+    fixed_=type_ == "fixed";
+    none_=type_ == "none";
+    
+    if (histoDistribution_) edm::LogError("MisConfiguration")<<"type histo cannot be reloaded from DB, yet";
+    
+    if (fixed_){
+      averageNumber_=averageNumber();
+    }
+    else if (poisson_)
+      {
+	averageNumber_=config.averageNumber();
+	edm::Service<edm::RandomNumberGenerator> rng; 
+	CLHEP::HepRandomEngine& engine = rng->getEngine();            
+	delete poissonDistribution_;
+	poissonDistribution_ = new CLHEP::RandPoissonQ(engine, averageNumber_);  
+      }
+    else if (probFunctionDistribution_)
+      {
+	//need to reload the histogram from DB
+	const std::vector<int> & dataProbFunctionVar = config.probFunctionVariable();
+	std::vector<double> dataProb = config.probValue();
+	
+	int varSize = (int) dataProbFunctionVar.size();
+	int probSize = (int) dataProb.size();
+		
+	if ((dataProbFunctionVar[0] != 0) || (dataProbFunctionVar[varSize - 1] != (varSize - 1))) 
+	  throw cms::Exception("BadProbFunction") << "Please, check the variables of the probability function! The first variable should be 0 and the difference between two variables should be 1." << std::endl;
+		
+	// Complete the vector containing the probability  function data
+	// with the values "0"
+	if (probSize < varSize){
+	  edm::LogWarning("MixingModule") << " The probability function data will be completed with " <<(varSize - probSize)  <<" values 0.";
+	  
+	  for (int i=0; i<(varSize - probSize); i++) dataProb.push_back(0);
+	  
+	  probSize = dataProb.size();
+	  edm::LogInfo("MixingModule") << " The number of the P(x) data set after adding the values 0 is " << probSize;
+	}
+	
+	// Create an histogram with the data from the probability function provided by the user		  
+	int xmin = (int) dataProbFunctionVar[0];
+	int xmax = (int) dataProbFunctionVar[varSize-1]+1;  // need upper edge to be one beyond last value
+	int numBins = varSize;
+	
+	edm::LogInfo("MixingModule") << "An histogram will be created with " << numBins << " bins in the range ("<< xmin << "," << xmax << ")." << std::endl;
+
+	if (histo_) delete histo_;
+	histo_ = new TH1F("h","Histo from the user's probability function",numBins,xmin,xmax); 
+	
+	LogDebug("MixingModule") << "Filling histogram with the following data:" << std::endl;
+	
+	for (int j=0; j < numBins ; j++){
+	  LogDebug("MixingModule") << " x = " << dataProbFunctionVar[j ]<< " P(x) = " << dataProb[j];
+	  histo_->Fill(dataProbFunctionVar[j]+0.5,dataProb[j]); // assuming integer values for the bins, fill bin centers, not edges 
+	}
+	
+	// Check if the histogram is normalized
+	if ( ((histo_->Integral() - 1) > 1.0e-02) && ((histo_->Integral() - 1) < -1.0e-02)){ 
+	  throw cms::Exception("BadProbFunction") << "The probability function should be normalized!!! " << std::endl;
+	}
+	averageNumber_=histo_->GetMean();
+      }
+
+    int oot=config.outOfTime();
+    manage_OOT_=false;
+    if (oot==1)
+      {
+	manage_OOT_=true;
+	poisson_OOT_ = false;
+	if (poissonDistr_OOT_){delete poissonDistr_OOT_; poissonDistr_OOT_=0; }
+	fixed_OOT_ = true;
+	intFixed_OOT_=config.fixedOutOfTime();
+      }
+    else if (oot==2)
+      {
+	manage_OOT_=true;
+	poisson_OOT_ = true;
+	fixed_OOT_ = false;
+	if (!poissonDistr_OOT_) {
+	  //no need to trash the previous one if already there
+	  edm::Service<edm::RandomNumberGenerator> rng; 
+	  CLHEP::HepRandomEngine& engine = rng->getEngine();            	  
+	  poissonDistr_OOT_ = new CLHEP::RandPoisson(engine);
+	}
+      }
+
+    
+  }
   PileUp::~PileUp() {
     delete poissonDistribution_;
     delete poissonDistr_OOT_ ;

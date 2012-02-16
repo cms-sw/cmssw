@@ -59,8 +59,6 @@ RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
   EffSaveRootFile  = iConfig.getUntrackedParameter<bool>("EffSaveRootFile", false); 
   EffRootFileName  = iConfig.getUntrackedParameter<std::string>("EffRootFileName", "RPCEfficiency.root"); 
 
-  fiducialCut_ = iConfig.getUntrackedParameter<double>("fiducialCut", 8);
-
   //Interface
 
   dbe = edm::Service<DQMStore>().operator->();
@@ -68,24 +66,40 @@ RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
   std::string folder;
   dbe->setCurrentFolder(folderPath);
   statistics = dbe->book1D("Statistics","All Statistics",33,0.5,33.5);
-  
-  std::stringstream statLabel;
+   
   statistics->setBinLabel(1,"Events ",1);
   statistics->setBinLabel(2,"Events with DT seg",1);
-
-  for (int i = 3 ; i <=17 ; i++){
-    statLabel.str("");
-    statLabel<<i-2<<" DT seg"; 
-    statistics->setBinLabel(i,statLabel.str(),1);
-  }
-
+  statistics->setBinLabel(3,"1 DT seg",1);
+  statistics->setBinLabel(4,"2 DT seg",1);
+  statistics->setBinLabel(5,"3 DT seg",1);
+  statistics->setBinLabel(6,"4 DT seg",1);
+  statistics->setBinLabel(7,"5 DT seg",1);
+  statistics->setBinLabel(8,"6 DT seg",1);
+  statistics->setBinLabel(9,"7 DT seg",1);
+  statistics->setBinLabel(10,"8 DT seg",1);
+  statistics->setBinLabel(11,"9 DT seg",1);
+  statistics->setBinLabel(12,"10 DT seg",1);
+  statistics->setBinLabel(13,"11 DT seg",1);
+  statistics->setBinLabel(14,"12 DT seg",1);
+  statistics->setBinLabel(15,"13 DT seg",1);
+  statistics->setBinLabel(16,"14 DT seg",1);
+  statistics->setBinLabel(17,"15 DT seg",1);
   statistics->setBinLabel(18,"Events with CSC seg",1);
-
-  for (int i = 19 ; i <=33 ; i++){
-    statLabel.str("");
-    statLabel<<i-18<<" CSC seg"; 
-    statistics->setBinLabel(i, statLabel.str(),1);
-  }
+  statistics->setBinLabel(16+3,"1 CSC seg",1);
+  statistics->setBinLabel(16+4,"2 CSC seg",1);
+  statistics->setBinLabel(16+5,"3 CSC seg",1);
+  statistics->setBinLabel(16+6,"4 CSC seg",1);
+  statistics->setBinLabel(16+7,"5 CSC seg",1);
+  statistics->setBinLabel(16+8,"6 CSC seg",1);
+  statistics->setBinLabel(16+9,"7 CSC seg",1);
+  statistics->setBinLabel(16+10,"8 CSC seg",1);
+  statistics->setBinLabel(16+11,"9 CSC seg",1);
+  statistics->setBinLabel(16+12,"10 CSC seg",1);
+  statistics->setBinLabel(16+13,"11 CSC seg",1);
+  statistics->setBinLabel(16+14,"12 CSC seg",1);
+  statistics->setBinLabel(16+15,"13 CSC seg",1);
+  statistics->setBinLabel(16+16,"14 CSC seg",1);
+  statistics->setBinLabel(16+17,"15 CSC seg",1);
 
   if(debug) std::cout<<"booking Global histograms with "<<folderPath<<std::endl;
    
@@ -359,8 +373,8 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		  LocalPoint PointExtrapolatedRPCFrame = RPCSurface.toLocal(GlobalPointExtrapolated);
 		  
 		  if(fabs(PointExtrapolatedRPCFrame.z()) < 10. && 
-		     fabs(PointExtrapolatedRPCFrame.x()) < (rsize*0.5-fiducialCut_) && 
-		     fabs(PointExtrapolatedRPCFrame.y()) < (stripl*0.5-fiducialCut_)){
+		     fabs(PointExtrapolatedRPCFrame.x()) < rsize*0.5 && 
+		     fabs(PointExtrapolatedRPCFrame.y()) < stripl*0.5){
 		    
 		    RPCDetId  rollId = rollasociated->id();		      
 		    RPCGeomServ rpcsrv(rollId);
@@ -590,11 +604,14 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 			      LocalPoint PointExtrapolatedRPCFrame = RPCSurfaceRB4.toLocal(GlobalPointExtrapolated);
 			      
 			      if(fabs(PointExtrapolatedRPCFrame.z()) < 5.  &&
-				 fabs(PointExtrapolatedRPCFrame.x()) < (rsize*0.5-fiducialCut_) &&
-				 fabs(PointExtrapolatedRPCFrame.y()) < (stripl*0.5-fiducialCut_)){
+				 fabs(PointExtrapolatedRPCFrame.x()) < rsize*0.5 &&
+				 fabs(PointExtrapolatedRPCFrame.y()) < stripl*0.5){
 				
 				RPCDetId  rollId = rollasociated->id();
 				
+			// 	RPCGeomServ rpcsrv(rollId);
+// 				std::string nameRoll = rpcsrv.name();
+// 				if(debug) std::cout<<"MB4 \t \t \t \t \t The RPCName is "<<nameRoll<<std::endl;
 				const float stripPredicted=
 				  rollasociated->strip(LocalPoint(PointExtrapolatedRPCFrame.x(),PointExtrapolatedRPCFrame.y(),0.)); 
 				
@@ -770,7 +787,6 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		  if(debug) std::cout<<"CSC \t \t \t Roll Size "<<rsize<<"cm"<<std::endl;
 		  float stripl = top_->stripLength();
 		  float stripw = top_->pitch();
-		  float radiusCenterRoll = top_->radius();
 		  
 		  
 		  float extrapolatedDistance = sqrt((X-Xo)*(X-Xo)+(Y-Yo)*(Y-Yo)+(Z-Zo)*(Z-Zo));
@@ -780,15 +796,11 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		    
 		    GlobalPoint GlobalPointExtrapolated=TheChamber->toGlobal(LocalPoint(X,Y,Z));
 		    LocalPoint PointExtrapolatedRPCFrame = RPCSurface.toLocal(GlobalPointExtrapolated);
-
-		    double extX = PointExtrapolatedRPCFrame.x();
-		    double extY = PointExtrapolatedRPCFrame.y();
-		    double extZ = PointExtrapolatedRPCFrame.z();
-		    double localRollWidth = rsize;
-		    if(extY > 0) localRollWidth = rsize * (1 + extY/radiusCenterRoll);
-		    else if(extY < 0) localRollWidth = rsize * (1 - extY/radiusCenterRoll);
-
-		    if(fabs(extZ) < 10. && fabs(extX) < (localRollWidth*0.5-fiducialCut_) &&  fabs(extY) < (stripl*0.5-fiducialCut_)){ 
+		    
+		    
+		    if(fabs(PointExtrapolatedRPCFrame.z()) < 10. && 
+		       fabs(PointExtrapolatedRPCFrame.x()) < rsize*0.5 && 
+		       fabs(PointExtrapolatedRPCFrame.y()) < stripl*0.5){ 
 		      
 		      RPCDetId  rollId = rollasociated->id();
 		      RPCGeomServ rpcsrv(rollId);
@@ -797,7 +809,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		      if(debug) std::cout<<"CSC \t \t \t \t The RPCName is "<<nameRoll<<std::endl;
 		      
 		      const float stripPredicted = 
-			rollasociated->strip(LocalPoint(extX, extY,0.)); 
+			rollasociated->strip(LocalPoint(PointExtrapolatedRPCFrame.x(),PointExtrapolatedRPCFrame.y(),0.)); 
 		      
 		      if(debug) std::cout<<"CSC  \t \t \t \t \t Candidate"<<rollId<<" "<<"(from CSC Segment) STRIP---> "<<stripPredicted<< std::endl;
 		      //--------- HISTOGRAM STRIP PREDICTED FROM CSC  -------------------
@@ -890,8 +902,8 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	if(debug) std::cout<<"CSC This Event doesn't have any CSCSegment"<<std::endl;
       }
     }
-  }
-  
+    }
+    
 }
 
 
@@ -905,8 +917,3 @@ void RPCEfficiency::endRun(const edm::Run& r, const edm::EventSetup& iSetup){
 void RPCEfficiency::endJob(){
   dbe =0;
 }
-
-
-
-
-

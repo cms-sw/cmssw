@@ -126,10 +126,6 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
 	      cout << " status = " << (*iprint)->status() << ", pdg id = " << (*iprint)->pdgId() << ", pt = " << (*iprint)->pt() << endl;
 	  }
 	  
-	  // boolean to check if there are status 3 partons of the same flavor.
-	  // If this is false, then the event is gluon splitting
-	  bool status3AncestorOfSameFlavor = false;
-
 	  // -------------------------------------------------------------
 	  // Identify the ancestry of the Quark
 	  // 
@@ -165,9 +161,6 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
 
 	    int aParentId = std::abs(aParent->pdgId());
 	    
-	    // This will be used to check if there is gluon splitting present
-	    if ( aParent->status() == 3 && aParent->pdgId() == p->pdgId() ) status3AncestorOfSameFlavor = true;
-
 	    // -----------------------------------------------------------------------
 	    // Here we examine particles that were produced after the collision
 	    // -----------------------------------------------------------------------

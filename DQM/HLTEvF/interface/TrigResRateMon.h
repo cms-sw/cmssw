@@ -16,7 +16,7 @@
 //        Vladimir Rekovic, July 2010
 //
 //
-// $Id: TrigResRateMon.h,v 1.10 2011/09/14 16:34:55 lwming Exp $
+// $Id: TrigResRateMon.h,v 1.1 2010/07/21 12:34:41 rekovic Exp $
 //
 //
 
@@ -74,7 +74,6 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <set>
 
 namespace edm {
    class TriggerNames;
@@ -113,24 +112,7 @@ class TrigResRateMon : public edm::EDAnalyzer {
       void countHLTGroupL1HitsEndLumiBlock(const int & lumi);
       void countHLTGroupBXHitsEndLumiBlock(const int & lumi);
 
-  void fillHltMatrix(const edm::TriggerNames & triggerNames, const edm::Event& iEvent, const edm::EventSetup& iSetup);
-
-
-  // JMS counts
-  // need to fill counts per path with the prescales
-  void fillCountsPerPath(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-  void bookCountsPerPath();
-  void printCountsPerPathThisLumi();
-  void clearCountsPerPath();
-  void fillXsecPerDataset(const int& lumi);
-
-  void filltestHisto(const int& lumi); //Robin
-  void bookTestHisto(); //Robin
-  // JMS lumi average
-  void addLumiToAverage (double lumi);
-  void clearLumiAverage ();
-  
-
+      void fillHltMatrix(const edm::TriggerNames & triggerNames);
       void normalizeHLTMatrix();
 
       int getTriggerTypeParsePathName(const std::string & pathname);
@@ -145,9 +127,6 @@ class TrigResRateMon : public edm::EDAnalyzer {
 
       // ----------member data --------------------------- 
       int nev_;
-      int nStream_;  //Robin
-      int nPass_;  //Robin
-      bool passAny;  //Robin 
       DQMStore * dbe_;
       bool fLumiFlag;
       bool fIsSetup;
@@ -155,10 +134,7 @@ class TrigResRateMon : public edm::EDAnalyzer {
       // JetID helper
       //reco::helper::JetIDHelper *jetID;
 
-  bool jmsDebug;
-  bool jmsFakeZBCounts;
-  unsigned int zbIndex;
-  bool found_zbIndex;
+
 
       MonitorElement* ME_HLTAll_LS;
       MonitorElement* ME_HLT_BX;
@@ -171,7 +147,6 @@ class TrigResRateMon : public edm::EDAnalyzer {
       std::vector<MonitorElement*> v_ME_HLTPassPass_Normalized;
       std::vector<MonitorElement*> v_ME_HLTPass_Normalized_Any;
 
-      std::string testPathsFolder_;  //Robin
       std::string pathsSummaryFolder_;
       std::string pathsSummaryStreamsFolder_;
       std::string pathsSummaryHLTCorrelationsFolder_;
@@ -185,47 +160,6 @@ class TrigResRateMon : public edm::EDAnalyzer {
       std::vector<std::string> fGroupName;
 
 
-  // JMS Keep track of rates and average lumi
-  std::vector<unsigned> rawCountsPerPD; //Robin 
-  std::vector<unsigned> rawCountsPerPath; //Robin
-  std::vector<unsigned> finalCountsPerPath;  //Robin
-  double averageInstLumi;
-  double averageInstLumi3LS;
-  MonitorElement * meAverageLumiPerLS;
-
-  //Robin---
-  int64_t TotalDroppedCounts ;
-  MonitorElement * meDiagnostic;
-  MonitorElement * meCountsDroppedPerLS;
-  MonitorElement * meCountsPassPerLS;
-  MonitorElement * meCountsStreamPerLS;
-  MonitorElement * meXsecStreamPerLS;
-  //  MonitorElement * meXsecPerLS;
-  //  MonitorElement * meXsec;
-  //  MonitorElement * meXsecPerIL;
-
-  MonitorElement * meXsecPerTestPath;
-  std::vector<MonitorElement*> v_ME_XsecPerLS;
-  std::vector<MonitorElement*> v_ME_CountsPerLS;
-  std::vector<MonitorElement*> v_ME_Xsec;
-
-  // JMS Mask off some paths so that they don't mess with your plots
-
-  std::vector< std::string > maskedPaths_; 
-  std::vector< std::string > testPaths_; //Robin
-
-  // JMS calcuate a reference cross section
-  // then scale
-  std::string referenceTrigInput_;
-  std::string referenceTrigName_;
-  unsigned referenceTrigIndex_;
-  bool foundReferenceTrigger_;
-  unsigned referenceTrigCountsPS_;
-  //  unsigned testTrigCountsPS_; //Robin
-  void findReferenceTriggerIndex();
-  //unsigned referenceTrigCounts_;
-  
-  
       unsigned int nLS_; 
       double LSsize_ ;
       double thresholdFactor_ ;
@@ -301,10 +235,6 @@ class TrigResRateMon : public edm::EDAnalyzer {
       std::vector <std::pair<std::string, std::vector<int> > > fPathBxTempCountPair;
       std::vector <std::pair<std::string, float> > fGroupTempCountPair;
       std::vector <std::pair<std::string, float> > fGroupL1TempCountPair;
-
-
-      // This variable contains the list of PD, then the list of paths per PD
-  
       std::vector <std::pair<std::string, std::vector<std::string> > > fGroupNamePathsPair;
 
       std::vector<std::string> specialPaths_;
@@ -323,176 +253,6 @@ class TrigResRateMon : public edm::EDAnalyzer {
       // helper class to store the data path
 
       edm::Handle<edm::TriggerResults> triggerResults_;
-
-
-  // create a class that can store all the strings
-  // associated with a primary dataset
-  // the 
-  class DatasetInfo {
-
-  public:
-    std::string datasetName;
-    std::vector<std::string> pathNames;
-    std::set<std::string> maskedPaths;
-    std::set<std::string> testPaths; //Robin
-    // this tells you the name of the monitor element
-    // that has the counts per path saved
-    std::string countsPerPathME_Name;
-
-    // name of monitor element that has xsec per path saved
-    std::string xsecPerPathME_Name;
-
-    // name of monitor element that has xsec per path saved
-    std::string scaledXsecPerPathME_Name;
-
-    std::string ratePerLSME_Name;
-    // this tells you the name of the ME that has
-    // raw counts (no prescale accounting)
-    // for each path
-
-    std::string rawCountsPerPathME_Name;
-
-    // counts per path
-
-    std::map<std::string, unsigned int> countsPerPath;
-    
-    //empty default constructor
-    DatasetInfo () {};
-
-    // do we need a copy constructor?
-
-    // function to set the paths and
-    // create zeroed counts per path
-    
-    void setPaths (std::vector<std::string> inputPaths){
-      pathNames = inputPaths;
-      for (std::vector<std::string>::const_iterator iPath = pathNames.begin();
-           iPath != pathNames.end();
-           iPath++) {
-        countsPerPath[*iPath] = 0;
-      }
-    }//end setPaths
-
-    void clearCountsPerPath () {
-      std::map<std::string, unsigned int>::iterator iCounts;
-      for (iCounts = countsPerPath.begin();
-           iCounts != countsPerPath.end();
-           iCounts++){
-        iCounts->second = 0;
-      }
-      
-    }// end clearCountsPerPath
-
-    // put this here so that external people
-    // don't care how you store counts
-    void incrementCountsForPath (std::string targetPath){
-      countsPerPath[targetPath]++;
-    }
-    
-    void incrementCountsForPath (std::string targetPath, unsigned preScale){
-      countsPerPath[targetPath] += preScale;
-    }
-    
-    void printCountsPerPath () const {
-      std::map<std::string, unsigned int>::const_iterator iCounts;
-      for (iCounts = countsPerPath.begin();
-           iCounts != countsPerPath.end();
-           iCounts++){
-        std::cout << datasetName
-                  << "   " << iCounts->first
-                  << "   " << iCounts->second
-                  << std::endl;
-      }
-      
-    }// end clearCountsPerPath
-
-
-    void fillXsecPlot (MonitorElement * myXsecPlot, double currentInstLumi, double secondsPerLS, double referenceXSec) {
-      // this will put the reference cross section in the denominator
-      fillXsecPlot( myXsecPlot, currentInstLumi*referenceXSec, secondsPerLS);
-    }
-    
-    void fillXsecPlot (MonitorElement * myXsecPlot, double currentInstLumi, double secondsPerLS) {
-
-      
-      for (unsigned iPath = 0;
-           iPath < pathNames.size();
-           iPath++) {
-        std::string thisPathName = pathNames[iPath];
-        unsigned thisPathCounts = countsPerPath[thisPathName];
-
-        // if this is a masked path, then skip it        
-        if (maskedPaths.find(thisPathName) != maskedPaths.end()) {
-          //std::cout << "Path " << thisPathName << " is masked, not filling it " << std::endl;
-          continue;
-        }
-	///////
-	TString thisName = thisPathName.c_str();
-	if ( thisName.Contains("L1") || thisName.Contains("L2") ){
-	  continue;
-	}
-
-        double xsec = 1.0;
-	// what should we fill when averageLumi == 0 ???
-        if (currentInstLumi > 0) {
-          xsec = thisPathCounts / (currentInstLumi*secondsPerLS);
-        } else if ( secondsPerLS > 0) {
-	  xsec = (9e-10) ;
-	  //          xsec = thisPathCounts / secondsPerLS;
-        } else {
-	  xsec = (9e-20) ;
-	  //          xsec = thisPathCounts;
-        }
-
-	myXsecPlot->Fill(iPath, xsec);
-        //Robin ???
-	//	if (currentInstLumi > 0)  myXsecPlot->Fill(iPath, xsec);
-        //std::cout << datasetName << "  " << thisPathName << " filled with xsec  " << xsec << std::endl;
-        
-      }
-    } // end fill Xsec plot
-
-    void fillRawCountsForPath (MonitorElement * myRawCountsPlot, std::string pathName) {
-      TH1F* tempRawCounts = myRawCountsPlot->getTH1F();
-      int binNumber = tempRawCounts->GetXaxis()->FindBin(pathName.c_str());
-      if (binNumber > 0) {
-        tempRawCounts->Fill(binNumber);
-      } else {
-        //std::cout << "Problem finding bin " << pathName << " in plot " << tempRawCounts->GetTitle() << std::endl;
-      }
-    }// end fill RawCountsForPath
-
-    void setMaskedPaths (std::vector<std::string> inputPaths) {
-      for (unsigned i=0; i < inputPaths.size(); i++) {
-        std::string maskSubString = inputPaths[i];
-        for (unsigned j=0; j < pathNames.size(); j++) {
-          // If a path in the DS contains a masked substring
-          // Then mask that path
-          //
-          std::string candidateForRemoval = pathNames[j];
-          TString pNameTS (candidateForRemoval);
-          if ( pNameTS.Contains(maskSubString)){
-            
-            maskedPaths.insert(candidateForRemoval);
-          } // end if path contains substring
-        }// end for each path in ds
-      }
-    }// end setMaskedPaths
-
-    void printMaskedPaths () {
-      std::cout << "========  Printing masked paths for " << datasetName  <<" ======== " << std::endl;
-      for ( std::set<std::string>::const_iterator iMask = maskedPaths.begin();
-            iMask != maskedPaths.end();
-            iMask++) {
-        std::cout << (*iMask) << std::endl; 
-      }
-      std::cout << "======DONE PRINTING=====" << std::endl;
-    }
-    
-  };
-
-  // create a vector of the information
-    std::vector<DatasetInfo> primaryDataSetInformation;
 
       class PathInfo {
 

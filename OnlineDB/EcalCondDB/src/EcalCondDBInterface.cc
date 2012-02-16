@@ -1,4 +1,4 @@
-// $Id: EcalCondDBInterface.cc,v 1.34 2011/05/27 14:37:14 organtin Exp $
+// $Id: EcalCondDBInterface.cc,v 1.30 2011/02/07 10:23:33 organtin Exp $
 
 #include <iostream>
 #include <string>
@@ -25,46 +25,6 @@
 
 using namespace std;
 using namespace oracle::occi;
-
-void EcalCondDBInterface::fillLogicId2DetIdMaps() {
-  // retrieve the lists of logic_ids, to build the detids
-  std::vector<EcalLogicID> crystals_EB  =
-    getEcalLogicIDSetOrdered( "EB_crystal_angle",
-			      -85,85,1,360,
-			      EcalLogicID::NULLID,EcalLogicID::NULLID,
-			      "EB_crystal_number", 4 );
-  std::vector<EcalLogicID> crystals_EE  =
-    getEcalLogicIDSetOrdered( "EE_crystal_number",
-			      -1,1,1,100,
-			      1,100,
-			      "EE_crystal_number", 4 );
-  // fill the barrel map
-  std::vector<EcalLogicID>::const_iterator ieb = crystals_EB.begin();
-  std::vector<EcalLogicID>::const_iterator eeb = crystals_EB.end();
-  while (ieb != eeb) {
-    int iEta = ieb->getID1();
-    int iPhi = ieb->getID2();
-    EBDetId ebdetid(iEta,iPhi);
-    _logicId2DetId[ieb->getLogicID()] = ebdetid;
-    _detId2LogicId[ebdetid] = ieb->getLogicID();
-    ieb++;
-  }
-
-  // fill the endcap map
-  std::vector<EcalLogicID>::const_iterator iee = crystals_EE.begin();
-  std::vector<EcalLogicID>::const_iterator eee = crystals_EE.end();
-
-  while (iee != eee) {
-    int iSide = iee->getID1();
-    int iX    = iee->getID2();
-    int iY    = iee->getID3();
-    EEDetId eedetidpos(iX,iY,iSide);
-    _logicId2DetId[iee->getLogicID()] = eedetidpos;
-    _detId2LogicId[eedetidpos] = iee->getLogicID();
-    iee++;
-  }
-  
-}
 
 
 EcalLogicID EcalCondDBInterface::getEcalLogicID( int logicID )
@@ -104,39 +64,7 @@ EcalLogicID EcalCondDBInterface::getEcalLogicID( int logicID )
   return EcalLogicID( name, logicID, id1, id2, id3, mapsTo );  
 }
 
-std::list<ODDelaysDat> EcalCondDBInterface::fetchFEDelaysForRun(RunIOV *iov)
-  throw(std::runtime_error)
-{
-  std::list<ODDelaysDat> ret;
-  RunFEConfigDat d;
-  std::map<EcalLogicID, RunFEConfigDat > fillMap;
-  try {
-    d.setConnection(env, conn);
-    d.fetchData(&fillMap, iov);
-  } catch (std::runtime_error &e) {
-    throw e;
-  }
-  std::map<EcalLogicID, RunFEConfigDat >::const_iterator i = fillMap.begin();
-  std::map<EcalLogicID, RunFEConfigDat >::const_iterator e = fillMap.end();
-  while (i != e) {
-    ODFEDAQConfig feDaqConfig;
-    ODFEDAQConfig temp;
-    temp.setId(i->second.getConfigId());
-    feDaqConfig.setConnection(env, conn);
-    feDaqConfig.fetchData(&temp);
-    std::vector<ODDelaysDat> delays;
-    ODDelaysDat temp2;
-    temp2.setConnection(env, conn);
-    temp2.fetchData(&delays, temp.getDelayId());
-    std::vector<ODDelaysDat>::const_iterator di = delays.begin();
-    std::vector<ODDelaysDat>::const_iterator de = delays.end();
-    while (di != de) {
-      ret.push_back(*di++);
-    }
-    i++;
-  }
-  return ret;
-}
+
 
 EcalLogicID EcalCondDBInterface::getEcalLogicID( string name,
 						 int id1,
@@ -329,73 +257,6 @@ std::map<int, int> EcalCondDBInterface::getEcalLogicID2LmrMap() {
     ret[crystals_EE[i].getLogicID()] = EE_lmr[i].getLogicID() % 100;
   }
   return ret;
-}
-
-std::vector<EcalLogicID> EcalCondDBInterface::getEcalLogicIDMappedTo(int lmr_logic_id, std::string maps_to) {
-  std::string name = "EB_crystal_angle";
-  std::string sql = "SELECT LOGIC_ID, ID1, ID2, ID3 "
-    "FROM CHANNELVIEW WHERE NAME = 'EB_crystal_angle' AND LOGIC_ID IN "
-    "(SELECT LOGIC_ID FROM CHANNELVIEW WHERE NAME = 'EB_crystal_number' AND "
-    "ID1*10000+ID2 IN (SELECT DISTINCT ID1*10000+ID2 FROM CHANNELVIEW "
-    "WHERE LOGIC_ID = :1 AND NAME = 'EB_crystal_number' AND MAPS_TO = :2) "
-    "AND NAME = MAPS_TO)"; 
-  if ((lmr_logic_id / 1000000000) == 2) {
-    name = "EE_crystal_number";
-    sql = "SELECT LOGIC_ID, ID1, ID2, ID3 "
-      "FROM CHANNELVIEW WHERE NAME = 'EE_crystal_number' AND LOGIC_ID IN "
-      "(SELECT LOGIC_ID FROM CHANNELVIEW WHERE NAME = 'EE_crystal_number' AND "
-      "ID1*10000000+ID2*10000+ID3 IN (SELECT DISTINCT "
-      "ID1*10000000+ID2*10000+ID3 FROM CHANNELVIEW "
-      "WHERE LOGIC_ID = :1 AND NAME = 'EE_crystal_number' AND MAPS_TO = :2) "
-      "AND NAME = MAPS_TO) AND NAME = MAPS_TO"; 
-  }
-  std::vector<EcalLogicID> ret;
-  try {
-    stmt->setSQL(sql.c_str());
-    stmt->setInt(1, lmr_logic_id);
-    stmt->setString(2, maps_to);
-    stmt->setPrefetchRowCount(IDBObject::ECALDB_NROWS);    
-    
-    ResultSet* rset = stmt->executeQuery();
-    
-    while (rset->next()) {
-      int logic_id = rset->getInt(1);
-      int id1 = rset->getInt(2);
-      if (rset->isNull(2)) { id1 = EcalLogicID::NULLID; }
-      int id2 = rset->getInt(3);
-      if (rset->isNull(3)) { id2 = EcalLogicID::NULLID; }
-      int id3 = rset->getInt(4);
-      if (rset->isNull(4)) { id3 = EcalLogicID::NULLID; }
-      
-      EcalLogicID ecid = EcalLogicID( name, logic_id, id1, id2, id3, maps_to );
-      ret.push_back(ecid);
-    }
-    stmt->setPrefetchRowCount(0);
-  }
-  catch (SQLException &e) {
-    throw(std::runtime_error("ERROR:  Failure while getting EcalLogicID set:  " + e.getMessage() ));
-  }
-  return ret;
-}
-
-std::vector<EcalLogicID> EcalCondDBInterface::getEcalLogicIDForLMR(int lmr) {
-  return getEcalLogicIDMappedTo(lmr, "ECAL_LMR");
-}
-
-std::vector<EcalLogicID> EcalCondDBInterface::getEcalLogicIDForLMR(const EcalLogicID &lmr) {
-  return getEcalLogicIDForLMR(lmr.getLogicID());
-}
-
-std::vector<EcalLogicID> EcalCondDBInterface::getEcalLogicIDForLMPN(int lmr) {
-  if ((lmr / 1000000000) == 2) {
-    return getEcalLogicIDMappedTo(lmr, "EE_LM_PN");
-  } else {
-    return getEcalLogicIDMappedTo(lmr, "EB_LM_PN");
-  }
-}
-
-std::vector<EcalLogicID> EcalCondDBInterface::getEcalLogicIDForLMPN(const EcalLogicID &lmr) {
-  return getEcalLogicIDForLMR(lmr.getLogicID());
 }
 
 std::vector<EcalLogicID> EcalCondDBInterface::getEcalLogicIDSetOrdered( string name,
@@ -684,14 +545,8 @@ RunIOV EcalCondDBInterface::fetchRunIOV(std::string location, run_t run)
   return iov;
 }
 
-RunIOV EcalCondDBInterface::fetchRunIOV(std::string location, const Tm &t) 
-  throw(std::runtime_error)
-{
-  RunIOV iov;
-  iov.setConnection(env, conn);
-  iov.setByTime(location, t);
-  return iov;
-}
+
+
 
 void EcalCondDBInterface::insertMonRunIOV(MonRunIOV* iov)
   throw(std::runtime_error)

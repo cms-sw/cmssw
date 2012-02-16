@@ -8,16 +8,16 @@
 //
 // Author:      Marcello Maggi
 // Created:     Wed Nov  2 12:09:10 CET 2011
-// $Id: RPCCompDetId.cc,v 1.1 2011/11/05 10:39:54 mmaggi Exp $
+// $Id$
 #include <iostream>
 #include <sstream>
 #include <iomanip>
 #include "DataFormats/MuonDetId/interface/RPCCompDetId.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h" 
 
-RPCCompDetId::RPCCompDetId():DetId(DetId::Muon, MuonSubdetId::RPC),_dbname(""),_type(GAS){}
+RPCCompDetId::RPCCompDetId():DetId(DetId::Muon, MuonSubdetId::RPC),_dbname(""),_type(0){}
 
-RPCCompDetId::RPCCompDetId(uint32_t id, supply_t type):DetId(id),_dbname(""),_type(type) {
+RPCCompDetId::RPCCompDetId(uint32_t id):DetId(id),_dbname(""),_type(0) {
   if (det()!=DetId::Muon || subdetId()!=MuonSubdetId::RPC) {
     throw cms::Exception("InvalidDetId") << "RPCCompDetId ctor:"
 					 << " det: " << det()
@@ -28,7 +28,7 @@ RPCCompDetId::RPCCompDetId(uint32_t id, supply_t type):DetId(id),_dbname(""),_ty
 
 
 
-RPCCompDetId::RPCCompDetId(DetId id, supply_t type ):DetId(id),_dbname(""),_type(type) {
+RPCCompDetId::RPCCompDetId(DetId id):DetId(id),_dbname(""),_type(0) {
   if (det()!=DetId::Muon || subdetId()!=MuonSubdetId::RPC) {
     throw cms::Exception("InvalidDetId") << "RPCCompDetId ctor:"
 					 << " det: " << det()
@@ -45,13 +45,13 @@ RPCCompDetId::RPCCompDetId(int region,
 			   int sector,
 			   int layer,
 			   int subsector,
-			   supply_t type):
+			   int type):
   DetId(DetId::Muon, MuonSubdetId::RPC),_dbname(""),_type(type)
 {
   this->init(region,ring,station,sector,layer,subsector); 
 }
 
-RPCCompDetId::RPCCompDetId(const std::string& name, supply_t type):
+RPCCompDetId::RPCCompDetId(const std::string& name, int type):
   DetId(DetId::Muon, MuonSubdetId::RPC),_dbname(name),_type(type)
 {
   this->init();
@@ -113,7 +113,7 @@ RPCCompDetId::subsector() const{
 }
 
 
-RPCCompDetId::supply_t
+int
 RPCCompDetId::type() const{
   return _type;
 }
@@ -124,8 +124,6 @@ RPCCompDetId::dbname() const{
   if (a.size() == 0){
     if(this->type() == 0){
       a=this->gasDBname();
-    }else if (this->type() == 1){
-      a=this->tDBname();
     }
   }
   return a;
@@ -182,10 +180,8 @@ RPCCompDetId::init(int region,
 void 
 RPCCompDetId::init()
 {
-  if (this->type()==GAS){
+  if (this->type()==0){
     this->initGas();
-  } else if (this->type()==TEMPERATURE){
-    this->initT();
   }
 }
 
@@ -277,96 +273,6 @@ RPCCompDetId::initGas()
   this->init(region,ring,station,sector,layer,subsector); 
 }
 
-void
-RPCCompDetId::initT()
-{
-  std::string buf(this->dbname()); 
-  // check if the name contains the dcs namespace
-  if (buf.find("RPC_") != buf.npos){
-    buf = buf.substr(buf.find("RPC_")+4,buf.npos);
-  }
-  _dbname=buf;
-  // Check if endcap o barrel
-  int region=0;
-  if(buf.substr(0,1)=="W"){
-    region=0;
-  }else if(buf.substr(0,2)=="EP"){
-    region=1;
-  }else if(buf.substr(0,2)=="EM"){
-    region=-1;
-  }else{
-    throw cms::Exception("InvalidDBName")<<" RPCCompDetId: "<<this->dbname()
-					 <<" is not a valid DB Name for RPCCompDetId"
-                                         << " det: " << det()
-					 << " subdet: " << subdetId();
-  }
-  int ring=allRingId;
-  int station = allStationId;
-  int sector=allSectorId;
-  int layer=allLayerId;
-  int subsector=allSubSectorId;
-    //Barrel
-  if (region==0) {
-    // Extract the Wheel (named ring)
-    {
-      std::stringstream os;
-      os<<buf.substr(2,1);
-      os>>ring;
-      if (buf.substr(1,1)=="M"){
-	ring *= -1;
-      }
-    }
-    //Extract the station
-    {
-      std::stringstream os;
-      os<<buf.substr(buf.find("RB")+2,1);
-      os>>station;
-    }
-    //Extract the layer
-    {
-      if (station <3){
-	if (buf.find("in")!=buf.npos)
-	  layer = 1;
-	if (buf.find("out")!=buf.npos)
-	  layer = 2;
-      }
-    }
-    //Extract the sector
-    {
-      std::stringstream os;
-      os<<buf.substr(buf.find("S")+1,2);
-      os>>sector;
-    }
-    //Extract subsector of sectors 4 and 10
-    {
-      if (buf.find("4minus")!=buf.npos)
-	subsector=1;
-      if (buf.find("4plus")!=buf.npos)
-	subsector=2;
-    }
-  }else{
-  // Extract the Ring 
-    {
-      std::stringstream os;
-      os<<buf.substr(buf.find("_R")+2,1);
-      os>>ring;
-    }
-  //Extract the disk (named station)
-    {
-      std::stringstream os;
-      os<<buf.substr(2,1);
-      os>>station;
-    }
-    //Extract the sector or chamber
-    {
-      std::stringstream os;
-      os<<buf.substr(buf.find("_C")+2,2);
-      os>>sector;
-    }
-  }
-  this->init(region,ring,station,sector,layer,subsector); 
-}
-
 std::string
 RPCCompDetId::gasDBname() const{
   std::stringstream os;
@@ -410,39 +316,15 @@ RPCCompDetId::gasDBname() const{
   return os.str();
 }
 
-
-
-std::string
-RPCCompDetId::tDBname() const{
-  std::stringstream os;
-  if(this->region()==0){
-    // Barrel
-    std::string wsign="0";
-    if (this->wheel()<0)wsign= "M";
-    if (this->wheel()>0)wsign= "P";
-    std::string lr="";
-    if (this->subsector()==1) lr="minus";
-    if (this->subsector()==2) lr="plus";
-    std::string la="";
-    if (this->layer()==1) la="in";
-    if (this->layer()==2) la="out";
-
-    os<<"W"<<wsign<<abs(this->wheel())<<"_S"<<std::setw(2)<<std::setfill('0')<<this->sector()<<"_RB"<<this->station()<<la<<lr;
-  } else {
-    // Endcap
-    std::string esign="P";
-    if (this->region()<0)
-      esign="M";
-
-    os<<"E"<<esign<<this->disk()<<"_R"<<this->ring()
-      <<"_C"<<std::setw(2)<<std::setfill('0')<<this->sector();
-  }
-  return os.str();
-}
-
 std::ostream& operator<<( std::ostream& os, const RPCCompDetId& id ){
 
   os <<id.dbname();
 
   return os;
 }
+
+
+
+
+
+

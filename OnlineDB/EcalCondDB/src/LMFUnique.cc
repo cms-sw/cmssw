@@ -78,7 +78,7 @@ boost::ptr_list<LMFUnique> LMFUnique::fetchAll() const
 	cout << m_className + ": Query " + sql << endl;
       }
       ResultSet* rset = stmt->executeQuery();
-      while (rset->next() != 0) {
+      while (rset->next()) {
 	LMFUnique *o = createObject();
 	if (m_debug) {
 	  o->debug();
@@ -88,13 +88,7 @@ boost::ptr_list<LMFUnique> LMFUnique::fetchAll() const
 	  if (m_debug) {
 	    o->dump();
 	  }
-	  try {
-	    l.push_back(o);
-	  }
-	  catch (boost::bad_pointer &e) {
-	    throw(std::runtime_error(m_className + "::fetchAll:  " + 
-				     e.what()));
-	  }
+	  l.push_back(o);
 	}
       }
     }
@@ -242,7 +236,7 @@ int LMFUnique::fetchID()
       }
       
       ResultSet* rset = stmt->executeQuery();
-      if (rset->next() != 0) {
+      if (rset->next()) {
 	m_ID = rset->getInt(1);
       } else {
 	m_ID = 0;
@@ -304,7 +298,7 @@ void LMFUnique::setByID(int id)
     }
 
     ResultSet* rset = stmt->executeQuery();
-    if (rset->next() != 0) {
+    if (rset->next()) {
       // setup the concrete object
       getParameters(rset);
       m_ID = id;

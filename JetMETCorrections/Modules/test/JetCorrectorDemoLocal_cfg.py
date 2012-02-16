@@ -14,20 +14,29 @@ process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
 
 from CondCore.DBCommon.CondDBSetup_cfi import *
 process.jec = cms.ESSource("PoolDBESSource",CondDBSetup,
-                   connect = cms.string("sqlite:Jec11_V9.db"),
+                   connect = cms.string("sqlite:Jec11_V3.db"),
                    toGet =  cms.VPSet(
                        cms.PSet(record = cms.string("JetCorrectionsRecord"),
-                                tag = cms.string("JetCorrectorParametersCollection_Jec11_V9_AK5Calo"),
+                                tag = cms.string("JetCorrectorParametersCollection_Jec11_V3_AK5Calo"),
                                 label=cms.untracked.string("AK5Calo")),
                        cms.PSet(record = cms.string("JetCorrectionsRecord"),
-                                tag = cms.string("JetCorrectorParametersCollection_Jec11_V9_AK5PF"),
-                                label=cms.untracked.string("AK5PF")),
+                                tag = cms.string("JetCorrectorParametersCollection_Jec11_V3_AK5PF"),
+                                label=cms.untracked.string("AK5PF")),                                   
                        cms.PSet(record = cms.string("JetCorrectionsRecord"),
-                                tag = cms.string("JetCorrectorParametersCollection_Jec11_V9_AK5PFchs"),
-                                label=cms.untracked.string("AK5PFchs")),
+                                tag = cms.string("JetCorrectorParametersCollection_Jec11_V3_AK5JPT"),
+                                label=cms.untracked.string("AK5JPT")),
                        cms.PSet(record = cms.string("JetCorrectionsRecord"),
-                                tag = cms.string("JetCorrectorParametersCollection_Jec11_V9_AK5JPT"),
-                                label=cms.untracked.string("AK5JPT"))
+                                tag = cms.string("JetCorrectorParametersCollection_Jec11_V3_IC5Calo"),
+                                label=cms.untracked.string("IC5Calo")),
+                       cms.PSet(record = cms.string("JetCorrectionsRecord"),
+                                tag = cms.string("JetCorrectorParametersCollection_Jec11_V3_KT6Calo"),
+                                label=cms.untracked.string("KT6Calo")),
+                       cms.PSet(record = cms.string("JetCorrectionsRecord"),
+                                tag = cms.string("JetCorrectorParametersCollection_Jec11_V3_KT4Calo"),
+                                label=cms.untracked.string("KT4Calo")),
+                       cms.PSet(record = cms.string("JetCorrectionsRecord"),
+                                tag = cms.string("JetCorrectorParametersCollection_Jec11_V3_AK7Calo"),
+                                label=cms.untracked.string("AK7Calo")),
                        )
                    
                    )

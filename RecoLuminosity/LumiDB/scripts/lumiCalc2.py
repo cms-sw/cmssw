@@ -2,9 +2,10 @@
 VERSION='2.00'
 import os,sys,time
 import coral
+#import optparse
 from RecoLuminosity.LumiDB import sessionManager,lumiTime,inputFilesetParser,csvSelectionParser,selectionParser,csvReporter,argparse,CommonUtil,lumiCalcAPI,lumiReport,lumiCorrections
 
-beamChoices=['PROTPHYS','IONPHYS','PAPHYS']
+beamChoices=['PROTPHYS','IONPHYS']
 
 def parseInputFiles(inputfilename,dbrunlist,optaction):
     '''
@@ -54,9 +55,9 @@ def getValidationData(dbsession,run=None,cmsls=None):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description = "Lumi Calculation",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    allowedActions = ['overview', 'delivered', 'recorded', 'lumibyls','lumibylsXing','status','checkforupdate']
+    allowedActions = ['overview', 'delivered', 'recorded', 'lumibyls','lumibylsXing','status']
     beamModeChoices = [ "stable", "quiet", "either"]
-    amodetagChoices = [ "PROTPHYS","IONPHYS",'PAPHYS' ]
+    amodetagChoices = [ "PROTPHYS","IONPHYS" ]
     xingAlgoChoices =[ "OCC1","OCC2","ET"]
     #
     # parse arguments
@@ -105,7 +106,7 @@ if __name__ == '__main__':
     parser.add_argument('-amodetag',dest='amodetag',action='store',
                         choices=amodetagChoices,
                         required=False,
-                        help='specific accelerator mode choices [PROTOPHYS,IONPHYS,PAPHYS] (optional)')
+                        help='specific accelerator mode choices [PROTOPHYS,IONPHYS] (optional)')
     parser.add_argument('-beamenergy',dest='beamenergy',action='store',
                         type=float,
                         default=None,
@@ -170,13 +171,6 @@ if __name__ == '__main__':
                         help='debug')
     
     options=parser.parse_args()
-    if options.action=='checkforupdate':
-        from RecoLuminosity.LumiDB import checkforupdate
-        cmsswWorkingBase=os.environ['CMSSW_BASE']
-        c=checkforupdate.checkforupdate()
-        workingversion=c.runningVersion(cmsswWorkingBase,'lumiCalc2.py')
-        c.checkforupdate(workingversion)
-        exit(0)
     if options.authpath:
         os.environ['CORAL_AUTH_PATH'] = options.authpath
         
@@ -191,7 +185,7 @@ if __name__ == '__main__':
         print '\tlumi data version: ',options.lumiversion
         print '\tsiteconfpath: ',options.siteconfpath
         print '\toutputfile: ',options.outputfile
-        print '\tscalefactor: ',options.scalefactor        
+        print '\tscalefactor: ',options.scalefactor
         if options.action=='recorded' and options.hltpath:
             print 'Action: effective luminosity in hltpath: ',options.hltpath
         else:
@@ -229,9 +223,10 @@ if __name__ == '__main__':
     else:
         reqTrg=False
         reqHlt=False
-        if options.action=='recorded':
+        if options.action!='delivered' and  options.action!='status':
             reqTrg=True
-            reqHlt=True
+            if options.action=='recorded':
+                reqHlt=True
         session.transaction().start(True)
         schema=session.nominalSchema()
         runlist=lumiCalcAPI.runList(schema,options.fillnum,runmin=None,runmax=None,startT=options.begin,stopT=options.end,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt)

@@ -22,6 +22,7 @@ namespace ora {
       ora::Database db;
       db.connect( connStr );
       ora::ScopedTransaction trans0( db.transaction() );
+      //creating database
       trans0.start( false );
       if(!db.exists()){
 	db.create();
@@ -30,9 +31,11 @@ namespace ora {
       if( conts.find( "Cont0" )!= conts.end() ) db.dropContainer( "Cont0" );
       if( conts.find( "Cont1" )!= conts.end() ) db.dropContainer( "Cont1" );
       if( conts.find( "std::vector<std::vector<int> >" )!= conts.end() ) db.dropContainer( "std::vector<std::vector<int> >" );
+      //creating containers
       ora::Container contH0 = db.createContainer<std::vector<int> >("Cont0");    
       ora::Container contH1 = db.createContainer<std::vector<SimpleMember> >("Cont1");
       int contId = db.createContainer<std::vector<std::vector<int> > >().id();
+      //inserting
       ora::Container contH2 = db.containerHandle( contId );
       std::vector<int> v0;
       int oid0 = contH0.insert( v0 );
@@ -67,7 +70,7 @@ namespace ora {
       //
       trans0.commit();
       db.disconnect();
-      ::sleep(1);
+      sleep();
       // reading back...
       db.connect( connStr );
       trans0.start( true );
@@ -155,6 +158,7 @@ namespace ora {
 	std::cout << "Data read on oid="<<oid3<<" after update is correct."<<std::endl;
       }
       trans0.commit();
+      //clean up
       trans0.start( false );
       db.drop();
       trans0.commit();

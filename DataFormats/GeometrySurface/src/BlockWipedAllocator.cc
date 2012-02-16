@@ -5,7 +5,7 @@ BlockWipedAllocator::BlockWipedAllocator( std::size_t typeSize,
 					  std::size_t blockSize,
 					  std::size_t  maxRecycle):
   m_typeSize(typeSize), m_blockSize(blockSize), m_maxRecycle(maxRecycle), m_alive(0){
-  //  if (typeSize<32) abort(); // throw std::bad_alloc();
+  if (typeSize<32) abort(); // throw std::bad_alloc();
   recycled.reserve(m_maxRecycle);
   wipe();
 }
@@ -24,13 +24,7 @@ BlockWipedAllocator& BlockWipedAllocator::operator=(BlockWipedAllocator const & 
   wipe();
   return *this;
 }
- 
-
-BlockWipedAllocator::~BlockWipedAllocator() {
-  clear();
-}
-
-   
+    
 // cannot keep the count as dealloc is never called...
 
 void * BlockWipedAllocator::alloc() {
@@ -94,9 +88,6 @@ void BlockWipedAllocator::nextBlock(bool advance) {
 
 BlockWipedPool::BlockWipedPool(std::size_t blockSize, std::size_t  maxRecycle) : 
   m_blockSize(blockSize),  m_maxRecycle(maxRecycle), m_last(0), m_lastSize(0){}
-
-BlockWipedPool::~BlockWipedPool() {clear();}
-
 
 
 BlockWipedPool::Allocator & BlockWipedPool::allocator( std::size_t typeSize) {

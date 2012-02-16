@@ -63,6 +63,10 @@ L1GtUtils::L1GtUtils() :
 
     m_l1EventSetupValid(false),
 
+    m_runIDCache(0),
+
+    m_provRunIDCache(0),
+
     m_l1GtMenuLiteValid(false),
 
     m_beginRunCache(false),
@@ -365,7 +369,7 @@ void L1GtUtils::getL1GtRunCache(const edm::Event& iEvent,
     // cached per run
 
     const edm::Run& iRun = iEvent.getRun();
-    const edm::RunID* runID = &(iRun.runAuxiliary().id());
+    edm::RunID runID = iRun.runAuxiliary().id();
 
     if (runID != m_runIDCache) {
 
@@ -399,7 +403,7 @@ void L1GtUtils::getL1GtRunCache(const edm::Event& iEvent,
     if (!m_beginRunCache) {
 
         const edm::Run& iRun = iEvent.getRun();
-        const edm::RunID* runID = &(iRun.runAuxiliary().id());
+        edm::RunID runID = iRun.runAuxiliary().id();
 
         if (runID != m_provRunIDCache) {
 

@@ -158,7 +158,9 @@ def OptionsFromItems(items):
     # Setting name of process
     # if not set explicitly it needs some thinking
     if not options.name:
-        if 'HLT' in options.trimmedStep:    
+        if 'REDIGI' in options.trimmedStep:
+            options.name = 'REDIGI'
+        elif 'HLT' in options.trimmedStep:    
             options.name = 'HLT'
         elif 'RECO' in options.trimmedStep:
             options.name = 'RECO'
@@ -210,7 +212,7 @@ def OptionsFromItems(items):
         else:	
             raise Exception("Not a valid profiler type %s. Alternatives are pp, mp, fp=<function>."%(profilerType))
 
-        options.prefix = "igprof -%s" % profilerType
+        options.prefix = "igprof -t cmsRun -%s" % profilerType
         
     return options
 

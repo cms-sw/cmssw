@@ -2,8 +2,8 @@
 
 <QTEST name="tTrigOffSet">
 	<TYPE>ContentsYRange</TYPE>	
-	<PARAM name="ymin">-2</PARAM>
-	<PARAM name="ymax">2</PARAM>
+	<PARAM name="ymin">-10</PARAM>
+	<PARAM name="ymax">10</PARAM>
 	<PARAM name="error">0.30</PARAM>
 	<PARAM name="warning">0.70</PARAM>
 	<PARAM name="useEmptyBins">1</PARAM>
@@ -25,8 +25,8 @@
 
 <QTEST name="ResidualsMeanInRange">
 	<TYPE>ContentsYRange</TYPE>	
-	<PARAM name="ymin">-0.01</PARAM>
-	<PARAM name="ymax">0.01</PARAM>
+	<PARAM name="ymin">-0.02</PARAM>
+	<PARAM name="ymax">0.02</PARAM>
 	<PARAM name="error">0.30</PARAM>
 	<PARAM name="warning">0.70</PARAM>
 	<PARAM name="useEmptyBins">1</PARAM>
@@ -36,7 +36,7 @@
 <QTEST name="ResidualsSigmaInRange">
 	<TYPE>ContentsYRange</TYPE>	
 	<PARAM name="ymin">0</PARAM>
-	<PARAM name="ymax">0.04</PARAM>
+	<PARAM name="ymax">0.08</PARAM>
 	<PARAM name="error">0.30</PARAM>
 	<PARAM name="warning">0.70</PARAM>
 	<PARAM name="useEmptyBins">1</PARAM>

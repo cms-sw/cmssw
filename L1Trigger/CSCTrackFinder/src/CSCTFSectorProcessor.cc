@@ -107,6 +107,8 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
   m_firmDD = -1;
   m_firmVM = -1;
 
+  initFail_ = false;
+
   isCoreVerbose = pset.getParameter<bool>("isCoreVerbose");
 
   if(initializeFromPSet) readParameters(pset);
@@ -164,6 +166,7 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
 
 
 void CSCTFSectorProcessor::initialize(const edm::EventSetup& c){
+  initFail_ = false;
   if(!initializeFromPSet){
     // Only pT lut can be initialized from EventSetup, all front LUTs are initialized locally from their parametrizations
     LogDebug("CSCTFSectorProcessor") <<"Initializing endcap: "<<m_endcap<<" sector:"<<m_sector << "SP:" << (m_endcap-1)*6+(m_sector-1);
@@ -300,78 +303,316 @@ void CSCTFSectorProcessor::initialize(const edm::EventSetup& c){
   // ---------------------------------------------------------------------------
 
   // Check if parameters were not initialized in both: constuctor (from .cf? file) and initialize method (from EventSetup)
-  if(m_bxa_depth<0) throw cms::Exception("CSCTFSectorProcessor")<<"BXAdepth parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
-  if(m_allowALCTonly<0) throw cms::Exception("CSCTFSectorProcessor")<<"AllowALCTonly parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
-  if(m_allowCLCTonly<0) throw cms::Exception("CSCTFSectorProcessor")<<"AllowCLCTonly parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
-  if(m_preTrigger<0) throw cms::Exception("CSCTFSectorProcessor")<<"PreTrigger parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
-  if(m_mindphip<0) throw cms::Exception("CSCTFSectorProcessor")<<"mindphip parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
-  if(m_mindetap<0) throw cms::Exception("CSCTFSectorProcessor")<<"mindeta parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
-  if(m_straightp<0) throw cms::Exception("CSCTFSectorProcessor")<<"straightp parameter left unitialized for endcap="<<m_endcap<<", sector="<<m_sector;
-  if(m_curvedp<0) throw cms::Exception("CSCTFSectorProcessor")<<"curvedp parameter left unitialized for endcap="<<m_endcap<<",sector="<<m_sector;
-  if(m_mbaPhiOff<0) throw cms::Exception("CSCTFSectorProcessor")<<"mbaPhiOff parameter left unitialized for endcap="<<m_endcap<<",sector="<<m_sector;
-  if(m_mbbPhiOff<0) throw cms::Exception("CSCTFSectorProcessor")<<"mbbPhiOff parameter left unitialized for endcap="<<m_endcap<<",sector="<<m_sector;
-  if(m_mindeta12_accp<0) throw cms::Exception("CSCTFSectorProcessor")<<"mindeta_accp12 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
-  if(m_maxdeta12_accp<0) throw cms::Exception("CSCTFSectorProcessor")<<"maxdeta_accp12 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
-  if(m_maxdphi12_accp<0) throw cms::Exception("CSCTFSectorProcessor")<<"maxdphi_accp12 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
-  if(m_mindeta13_accp<0) throw cms::Exception("CSCTFSectorProcessor")<<"mindeta_accp13 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
-  if(m_maxdeta13_accp<0) throw cms::Exception("CSCTFSectorProcessor")<<"maxdeta_accp13 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
-  if(m_maxdphi13_accp<0) throw cms::Exception("CSCTFSectorProcessor")<<"maxdphi_accp13 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
-  if(m_mindeta112_accp<0) throw cms::Exception("CSCTFSectorProcessor")<<"mindeta_accp112 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
-  if(m_maxdeta112_accp<0) throw cms::Exception("CSCTFSectorProcessor")<<"maxdeta_accp112 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
-  if(m_maxdphi112_accp<0) throw cms::Exception("CSCTFSectorProcessor")<<"maxdphi_accp112 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
-  if(m_mindeta113_accp<0) throw cms::Exception("CSCTFSectorProcessor")<<"mindeta_accp113 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
-  if(m_maxdeta113_accp<0) throw cms::Exception("CSCTFSectorProcessor")<<"maxdeta_accp113 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
-  if(m_maxdphi113_accp<0) throw cms::Exception("CSCTFSectorProcessor")<<"maxdphi_accp113 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
-  if(m_mindphip_halo<0) throw cms::Exception("CSCTFSectorProcessor")<<"mindphip_halo parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
-  if(m_mindetap_halo<0) throw cms::Exception("CSCTFSectorProcessor")<<"mindetep_halo parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
-
-  if(m_widePhi<0) throw cms::Exception("CSCTFSectorProcessor")<<"widePhi parameter left unitialized for endcap="<<m_endcap<<", sector="<<m_sector;
-
-  for(int index=0; index<8; index++) if(m_etamax[index]<0) throw cms::Exception("CSCTFSectorProcessor")<<"Some ("<<(8-index)<<") of EtaMax parameters left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
-  for(int index=0; index<8; index++) if(m_etamin[index]<0) throw cms::Exception("CSCTFSectorProcessor")<<"Some ("<<(8-index)<<") of EtaMin parameters left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
-  for(int index=0; index<7; index++) if(m_etawin[index]<0) throw cms::Exception("CSCTFSectorProcessor")<<"Some ("<<(6-index)<<") of EtaWindows parameters left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
-  if(kill_fiber<0) throw cms::Exception("CSCTFTrackBuilder")<<"kill_fiber parameter left uninitialized";
-  if(run_core<0) throw cms::Exception("CSCTFTrackBuilder")<<"run_core parameter left uninitialized";
-  if(trigger_on_ME1a<0) throw cms::Exception("CSCTFTrackBuilder")<<"trigger_on_ME1a parameter left uninitialized";
-  if(trigger_on_ME1b<0) throw cms::Exception("CSCTFTrackBuilder")<<"trigger_on_ME1b parameter left uninitialized";
-  if(trigger_on_ME2 <0) throw cms::Exception("CSCTFTrackBuilder")<<"trigger_on_ME2 parameter left uninitialized";
-  if(trigger_on_ME3 <0) throw cms::Exception("CSCTFTrackBuilder")<<"trigger_on_ME3 parameter left uninitialized";
-  if(trigger_on_ME4 <0) throw cms::Exception("CSCTFTrackBuilder")<<"trigger_on_ME4 parameter left uninitialized";
-  if(trigger_on_MB1a<0) throw cms::Exception("CSCTFTrackBuilder")<<"trigger_on_MB1a parameter left uninitialized";
-  if(trigger_on_MB1d<0) throw cms::Exception("CSCTFTrackBuilder")<<"trigger_on_MB1d parameter left uninitialized";
-  if( trigger_on_ME1a>0 || trigger_on_ME1b>0 ||trigger_on_ME2>0  ||
-      trigger_on_ME3>0  || trigger_on_ME4>0  ||trigger_on_MB1a>0 ||trigger_on_MB1d>0 ){
-
-    if(singlesTrackOutput==999) throw cms::Exception("CSCTFTrackBuilder")<<"singlesTrackOutput parameter left uninitialized";
-    if(rescaleSinglesPhi<0)  throw cms::Exception("CSCTFTrackBuilder")<<"rescaleSinglesPhi parameter left uninitialized";
+  if(m_bxa_depth<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFSectorProcessor")<<"BXAdepth parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
   }
-  if(QualityEnableME1a<0) throw cms::Exception("CSCTFTrackBuilder")<<"QualityEnableME1a parameter left uninitialized";
-  if(QualityEnableME1b<0) throw cms::Exception("CSCTFTrackBuilder")<<"QualityEnableME1b parameter left uninitialized";
-  if(QualityEnableME1c<0) throw cms::Exception("CSCTFTrackBuilder")<<"QualityEnableME1c parameter left uninitialized";
-  if(QualityEnableME1d<0) throw cms::Exception("CSCTFTrackBuilder")<<"QualityEnableME1d parameter left uninitialized";
-  if(QualityEnableME1e<0) throw cms::Exception("CSCTFTrackBuilder")<<"QualityEnableME1e parameter left uninitialized";
-  if(QualityEnableME1f<0) throw cms::Exception("CSCTFTrackBuilder")<<"QualityEnableME1f parameter left uninitialized";
-  if(QualityEnableME2a<0) throw cms::Exception("CSCTFTrackBuilder")<<"QualityEnableME2a parameter left uninitialized";
-  if(QualityEnableME2b<0) throw cms::Exception("CSCTFTrackBuilder")<<"QualityEnableME2b parameter left uninitialized";
-  if(QualityEnableME2c<0) throw cms::Exception("CSCTFTrackBuilder")<<"QualityEnableME2c parameter left uninitialized";
-  if(QualityEnableME3a<0) throw cms::Exception("CSCTFTrackBuilder")<<"QualityEnableME3a parameter left uninitialized";
-  if(QualityEnableME3b<0) throw cms::Exception("CSCTFTrackBuilder")<<"QualityEnableME3b parameter left uninitialized";
-  if(QualityEnableME3c<0) throw cms::Exception("CSCTFTrackBuilder")<<"QualityEnableME3c parameter left uninitialized";
-  if(QualityEnableME4a<0) throw cms::Exception("CSCTFTrackBuilder")<<"QualityEnableME4a parameter left uninitialized";
-  if(QualityEnableME4b<0) throw cms::Exception("CSCTFTrackBuilder")<<"QualityEnableME4b parameter left uninitialized";
-  if(QualityEnableME4c<0) throw cms::Exception("CSCTFTrackBuilder")<<"QualityEnableME4c parameter left uninitialized";
+  if(m_allowALCTonly<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFSectorProcessor")<<"AllowALCTonly parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  }
+  if(m_allowCLCTonly<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFSectorProcessor")<<"AllowCLCTonly parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  }
+  if(m_preTrigger<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFSectorProcessor")<<"PreTrigger parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  }
+  if(m_mindphip<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFSectorProcessor")<<"mindphip parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  }
+  if(m_mindetap<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFSectorProcessor")<<"mindeta parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  }
+  if(m_straightp<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFSectorProcessor")<<"straightp parameter left unitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  }
+  if(m_curvedp<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFSectorProcessor")<<"curvedp parameter left unitialized for endcap="<<m_endcap<<",sector="<<m_sector;
+  }
+  if(m_mbaPhiOff<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFSectorProcessor")<<"mbaPhiOff parameter left unitialized for endcap="<<m_endcap<<",sector="<<m_sector;
+  }
+  if(m_mbbPhiOff<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFSectorProcessor")<<"mbbPhiOff parameter left unitialized for endcap="<<m_endcap<<",sector="<<m_sector;
+  }
+  if(m_mindeta12_accp<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFSectorProcessor")<<"mindeta_accp12 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  }
+  if(m_maxdeta12_accp<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFSectorProcessor")<<"maxdeta_accp12 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  }
+  if(m_maxdphi12_accp<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFSectorProcessor")<<"maxdphi_accp12 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  }
+  if(m_mindeta13_accp<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFSectorProcessor")<<"mindeta_accp13 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  }
+  if(m_maxdeta13_accp<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFSectorProcessor")<<"maxdeta_accp13 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  }
+  if(m_maxdphi13_accp<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFSectorProcessor")<<"maxdphi_accp13 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  }
+  if(m_mindeta112_accp<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFSectorProcessor")<<"mindeta_accp112 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  }
+  if(m_maxdeta112_accp<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFSectorProcessor")<<"maxdeta_accp112 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  }
+  if(m_maxdphi112_accp<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFSectorProcessor")<<"maxdphi_accp112 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  }
+  if(m_mindeta113_accp<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFSectorProcessor")<<"mindeta_accp113 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  }
+  if(m_maxdeta113_accp<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFSectorProcessor")<<"maxdeta_accp113 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  }
+  if(m_maxdphi113_accp<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFSectorProcessor")<<"maxdphi_accp113 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  }
+  if(m_mindphip_halo<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFSectorProcessor")<<"mindphip_halo parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  }
+  if(m_mindetap_halo<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFSectorProcessor")<<"mindetep_halo parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  }
 
-  if (m_firmSP<1) throw cms::Exception("CSCTFSectorProcessor")<< " firmwareSP parameter left uninitialized!!!\n";
-  if (m_firmFA<1) throw cms::Exception("CSCTFSectorProcessor")<< " firmwareFA parameter left uninitialized!!!\n";
-  if (m_firmDD<1) throw cms::Exception("CSCTFSectorProcessor")<< " firmwareDD parameter left uninitialized!!!\n";
-  if (m_firmVM<1) throw cms::Exception("CSCTFSectorProcessor")<< " firmwareVM parameter left uninitialized!!!\n";
+  if(m_widePhi<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFSectorProcessor")<<"widePhi parameter left unitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  }
+
+  for(int index=0; index<8; index++)
+    if(m_etamax[index]<0) 
+    {
+      initFail_ = true;
+      edm::LogError("CSCTFSectorProcessor")<<"Some ("<<(8-index)<<") of EtaMax parameters left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+    }
+  for(int index=0; index<8; index++)
+    if(m_etamin[index]<0) 
+    {
+      initFail_ = true;
+      edm::LogError("CSCTFSectorProcessor")<<"Some ("<<(8-index)<<") of EtaMin parameters left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+    }
+  for(int index=0; index<7; index++)
+    if(m_etawin[index]<0) 
+    {
+      initFail_ = true;
+      edm::LogError("CSCTFSectorProcessor")<<"Some ("<<(6-index)<<") of EtaWindows parameters left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+    }
+  if(kill_fiber<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFTrackBuilder")<<"kill_fiber parameter left uninitialized";
+  }
+  if(run_core<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFTrackBuilder")<<"run_core parameter left uninitialized";
+  }
+  if(trigger_on_ME1a<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFTrackBuilder")<<"trigger_on_ME1a parameter left uninitialized";
+  }
+  if(trigger_on_ME1b<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFTrackBuilder")<<"trigger_on_ME1b parameter left uninitialized";
+  }
+  if(trigger_on_ME2 <0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFTrackBuilder")<<"trigger_on_ME2 parameter left uninitialized";
+  }
+  if(trigger_on_ME3 <0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFTrackBuilder")<<"trigger_on_ME3 parameter left uninitialized";
+  }
+  if(trigger_on_ME4 <0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFTrackBuilder")<<"trigger_on_ME4 parameter left uninitialized";
+  }
+  if(trigger_on_MB1a<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFTrackBuilder")<<"trigger_on_MB1a parameter left uninitialized";
+  }
+  if(trigger_on_MB1d<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFTrackBuilder")<<"trigger_on_MB1d parameter left uninitialized";
+  }
+  if( trigger_on_ME1a>0 || trigger_on_ME1b>0 ||trigger_on_ME2>0  ||
+      trigger_on_ME3>0  || trigger_on_ME4>0  ||trigger_on_MB1a>0 ||trigger_on_MB1d>0 )
+  {
+    if(singlesTrackOutput==999)
+    {
+       initFail_ = true;
+       edm::LogError("CSCTFTrackBuilder")<<"singlesTrackOutput parameter left uninitialized";
+    }
+    if(rescaleSinglesPhi<0)
+    {
+       initFail_ = true;
+       edm::LogError("CSCTFTrackBuilder")<<"rescaleSinglesPhi parameter left uninitialized";
+    }
+  }
+  if(QualityEnableME1a<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFTrackBuilder")<<"QualityEnableME1a parameter left uninitialized";
+  }
+  if(QualityEnableME1b<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFTrackBuilder")<<"QualityEnableME1b parameter left uninitialized";
+  }
+  if(QualityEnableME1c<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFTrackBuilder")<<"QualityEnableME1c parameter left uninitialized";
+  }
+  if(QualityEnableME1d<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFTrackBuilder")<<"QualityEnableME1d parameter left uninitialized";
+  }
+  if(QualityEnableME1e<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFTrackBuilder")<<"QualityEnableME1e parameter left uninitialized";
+  }
+  if(QualityEnableME1f<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFTrackBuilder")<<"QualityEnableME1f parameter left uninitialized";
+  }
+  if(QualityEnableME2a<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFTrackBuilder")<<"QualityEnableME2a parameter left uninitialized";
+  }
+  if(QualityEnableME2b<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFTrackBuilder")<<"QualityEnableME2b parameter left uninitialized";
+  }
+  if(QualityEnableME2c<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFTrackBuilder")<<"QualityEnableME2c parameter left uninitialized";
+  }
+  if(QualityEnableME3a<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFTrackBuilder")<<"QualityEnableME3a parameter left uninitialized";
+  }
+  if(QualityEnableME3b<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFTrackBuilder")<<"QualityEnableME3b parameter left uninitialized";
+  }
+  if(QualityEnableME3c<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFTrackBuilder")<<"QualityEnableME3c parameter left uninitialized";
+  }
+  if(QualityEnableME4a<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFTrackBuilder")<<"QualityEnableME4a parameter left uninitialized";
+  }
+  if(QualityEnableME4b<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFTrackBuilder")<<"QualityEnableME4b parameter left uninitialized";
+  }
+  if(QualityEnableME4c<0)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFTrackBuilder")<<"QualityEnableME4c parameter left uninitialized";
+  }
+
+  if (m_firmSP<1)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFSectorProcessor")<< " firmwareSP parameter left uninitialized!!!\n";
+  }
+  if (m_firmFA<1)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFSectorProcessor")<< " firmwareFA parameter left uninitialized!!!\n";
+  }
+  if (m_firmDD<1)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFSectorProcessor")<< " firmwareDD parameter left uninitialized!!!\n";
+  }
+  if (m_firmVM<1)
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFSectorProcessor")<< " firmwareVM parameter left uninitialized!!!\n";
+  }
 
   if ( (m_firmFA != m_firmDD) ||
        (m_firmFA != m_firmVM) ||
        (m_firmDD != m_firmVM)  )
-    throw cms::Exception("CSCTFSectorProcessor")<< " firmwareFA (=" << m_firmFA << "), " 
-						<< " firmwareDD (=" << m_firmDD << "), " 
-						<< " firmwareVM (=" << m_firmVM << ") are NOT identical: it shoultd NOT happen!";
+  {
+    initFail_ = true;
+    edm::LogError("CSCTFSectorProcessor::initialize")<< " firmwareFA (=" << m_firmFA << "), " 
+   						<< " firmwareDD (=" << m_firmDD << "), " 
+						<< " firmwareVM (=" << m_firmVM << ") are NOT identical: it shoultd NOT happen!\n";
+  }
 
 }
 
@@ -461,11 +702,18 @@ CSCTFSectorProcessor::~CSCTFSectorProcessor()
   ptLUT_ = NULL;
 }
 
-bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs)
+//returns 0 for no tracks, 1 tracks found, and -1 for "exception" (what used to throw an exception)
+// on -1, Producer should produce empty collections for event
+int CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs)
 {
+  if(initFail_)
+    return -1;
 
   if( !ptLUT_ )
-    throw cms::Exception("Initialize CSC TF LUTs first (missed call to CSCTFTrackProducer::beginJob?)")<<"CSCTFSectorProcessor::run";
+  {
+    edm::LogError("CSCTFSectorProcessor::run()") << "No CSCTF PTLUTs: Initialize CSC TF LUTs first (missed call to CSCTFTrackProducer::beginJob?\n";
+    return -1;
+  }
 
 
   l1_tracks.clear();

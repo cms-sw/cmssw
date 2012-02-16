@@ -23,7 +23,8 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "Mixing/Base/interface/PileUp.h"
-
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "CondFormats/DataRecord/interface/MixingRcd.h"
 
 namespace edm {
   class BMixingModule : public edm::EDProducer {
@@ -36,6 +37,12 @@ namespace edm {
 
       /**Cumulates the pileup events onto this event*/
       virtual void produce(edm::Event& e1, const edm::EventSetup& c);
+
+      virtual void beginRun(edm::Run & r, const edm::EventSetup & setup);
+      virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
+
+      // to be overloaded by dependent class
+      virtual void reload(const edm::EventSetup & setup){};
 
       // Should 'averageNumber' return 0 or 1 if there is no mixing? It is the average number of
       // *crossings*, including the hard scatter, or the average number of overlapping events?
@@ -58,14 +65,16 @@ namespace edm {
   protected:
       void dropUnwantedBranches(std::vector<std::string> const& wantedBranches);
       virtual void endJob();
+      //      std::string type_;
       int bunchSpace_;
       static int vertexoffset;
       bool checktof_;
-      int const minBunch_;
-      int const maxBunch_;
+      int minBunch_;
+      int maxBunch_;
       bool const mixProdStep1_;	       	
       bool const mixProdStep2_;
       	
+      bool readDB_;
       bool playback_;
       const static unsigned int maxNbSources_;
       std::vector<std::string> sourceNames_;
@@ -77,6 +86,8 @@ namespace edm {
       // input, cosmics, beamhalo_plus, beamhalo_minus
       std::vector<boost::shared_ptr<PileUp> > inputSources_;
 
+      void update(edm::EventSetup const&);
+      edm::ESWatcher<MixingRcd> parameterWatcher_;
   };
 
 }//edm

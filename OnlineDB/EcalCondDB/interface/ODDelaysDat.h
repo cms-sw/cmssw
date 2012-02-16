@@ -43,8 +43,6 @@ class ODDelaysDat : public IODConfig {
     throw(std::runtime_error);
 
 
-  void fetchData(std::vector< ODDelaysDat >* fillMap, int id)
-     throw(std::runtime_error);
   void fetchData(std::vector< ODDelaysDat >* fillMap, ODFEDelaysInfo* iov)
      throw(std::runtime_error);
 

@@ -16,20 +16,10 @@ hcalTrigPrimMonitor=cms.EDAnalyzer("HcalTrigPrimMonitor",
    # TrigPrimMonitor
    dataLabel              = cms.InputTag('hcalDigis'),
    emulLabel              = cms.InputTag('valHcalTriggerPrimitiveDigis'),
-   ZSBadTPThreshold       = cms.vint32( 0,
-                                        2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-                                        2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-                                        2, 2, 2, 2, 2, 2, 2, 2,
-                                        2, 2, 2, 2
-                                      ),                                        
    ZSAlarmThreshold       = cms.vint32( 0,
-#                                       10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
-#                                       10, 10, 10, 10, 40, 40, 10, 20, 20, 20,
-#                                       13, 13, 13, 13, 13, 13, 10, 10,
-#                                       3, 3, 2, 2
-                                        10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
-                                        10, 10, 10, 10, 40, 50, 10, 30, 30, 30,
-                                        20, 15, 15, 15, 15, 15, 10, 10,
-                                        5, 5, 5, 5
+                                       10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+                                       10, 10, 10, 10, 40, 40, 10, 20, 20, 20,
+                                       13, 13, 13, 13, 13, 13, 10, 10,
+                                       3, 3, 2, 2
                                       )
 )
