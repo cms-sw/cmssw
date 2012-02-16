@@ -9,7 +9,8 @@ from RecoJets.JetProducers.ak5PFJetsPruned_cfi import ak5PFJetsPruned
 from RecoJets.JetProducers.gk5PFJets_cfi import gk5PFJets
 from RecoJets.JetProducers.kt4PFJets_cfi import kt4PFJets
 from RecoJets.JetProducers.ca4PFJets_cfi import ca4PFJets
-
+from RecoJets.JetProducers.fixedGridRhoProducer_cfi import fixedGridRhoAll
+from RecoJets.JetProducers.fixedGridRhoProducerFastjet_cfi import fixedGridRhoFastjetAll
 
 sisCone7PFJets = sisCone5PFJets.clone( rParam = 0.7 )
 ak7PFJets = ak5PFJets.clone( rParam = 0.7 )
@@ -21,10 +22,13 @@ ca6PFJets = ca4PFJets.clone( rParam = 0.6 )
 kt6PFJets.doRhoFastjet = True
 kt6PFJets.doAreaFastjet = True
 #use active areas and not Voronoi tessellation for the moment
-#kt6PFJets.voronoiRfact = 0.9
+kt6PFJets.voronoiRfact = 0.9
 ak5PFJets.doAreaFastjet = True
 ak5PFJetsTrimmed.doAreaFastjet = True
 ak7PFJets.doAreaFastjet = True
+
+
+
 
 kt6PFJetsCentralChargedPileUp = kt6PFJets.clone(
     src = cms.InputTag("pfPileUpAllChargedParticles"),
@@ -50,6 +54,8 @@ recoPFJets   =cms.Sequence(kt4PFJets+kt6PFJets+
                            kt6PFJetsCentralChargedPileUp+
                            kt6PFJetsCentralNeutral+
                            kt6PFJetsCentralNeutralTight+
+                           fixedGridRhoAll+
+                           fixedGridRhoFastjetAll+
                            iterativeCone5PFJets+
                            ak5PFJets+ak7PFJets)
 
@@ -58,6 +64,8 @@ recoAllPFJets=cms.Sequence(sisCone5PFJets+sisCone7PFJets+
                            kt6PFJetsCentralChargedPileUp+
                            kt6PFJetsCentralNeutral+
                            kt6PFJetsCentralNeutralTight+
+                           fixedGridRhoAll+
+                           fixedGridRhoFastjetAll+
                            iterativeCone5PFJets+
                            ak5PFJets+ak7PFJets+
                            ak5PFJetsTrimmed+ak5PFJetsPruned+
