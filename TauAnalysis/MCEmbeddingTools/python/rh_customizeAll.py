@@ -25,7 +25,7 @@ def customise(process):
 
   keepMC = cms.untracked.vstring("keep *_*_zMusExtracted_*",
                                  "keep *_*_zmmCands_*",
-                                 "keep *_dimuonsGlobal_*_*",
+                                 "keep *_removedInputMuons_*_*",
                                  "keep *_generator_*_*",
                                  "keep *_PhotonIDProd_*_*",
                                  "keep *_photons_*_*",
@@ -173,7 +173,7 @@ def customise(process):
   process.generalTracksORG = process.generalTracks.clone()
 
   process.generalTracks = cms.EDProducer("RecoTracksMixer",
-      trackCol1 = cms.InputTag("dimuonsGlobal"),
+      trackCol1 = cms.InputTag("removedInputMuons","tracks"),
       trackCol2 = cms.InputTag("generalTracksORG","","EmbeddedRECO")
   )  
 
