@@ -59,6 +59,14 @@ void EfficiencyPlotter::beginJob(void){
   h_eff_pt_barrel_TightMu = theDbe->book1D("Eff_pt_barrel_TightMu", "Barrel: TightMu Efficiency vs Pt", ptBin, ptMin, ptMax);
   h_eff_pt_endcap_TightMu = theDbe->book1D("Eff_pt_endcap_TightMu", "Endcap: TightMu Efficiency vs Pt", ptBin, ptMin, ptMax);
 
+
+  h_eff_eta_TightMu->setEfficiencyFlag();
+  h_eff_hp_eta_TightMu->setEfficiencyFlag();
+  h_eff_phi_TightMu->setEfficiencyFlag();
+  h_eff_pt_TightMu->setEfficiencyFlag();
+  h_eff_pt_barrel_TightMu->setEfficiencyFlag();
+  h_eff_pt_endcap_TightMu->setEfficiencyFlag();
+
 }
 
 
