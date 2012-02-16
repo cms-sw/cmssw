@@ -208,6 +208,9 @@ struct ConfigParam {
 	PARM_N1_O1(kDouble,  jmparm, JMRAD),
 	PARM_N0   (kInt,     jmparm, JMUEO),
 	PARM_N0   (kDouble,  jmparm, PTJIM),
+	PARM_N3_O1 (kDouble,  hwrpar, LAMDA1),    // Added for RPV (orig. fomr L. Sonnenschein)
+	PARM_N3_O1 (kDouble,  hwrpar, LAMDA2),    //  \"
+	PARM_N3_O1 (kDouble,  hwrpar, LAMDA3),    //  \"
 	PARM_LAST
 };
 
