@@ -49,7 +49,7 @@ csc2DRecHits = cms.EDProducer("CSCRecHitDProducer",
     CSCUseTimingCorrections = cms.bool(True),
     #
     # Do we correct the energy deposited for gas gains?
-    CSCUseGasGainCorrections = cms.bool(False),
+    CSCUseGasGainCorrections = cms.bool(True),
     #
     #    Parameters which are not used currently
     #
