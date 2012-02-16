@@ -23,13 +23,11 @@ ecalGlobalUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
     outOfTimeThresholdGain12pEB    = cms.double(5),      # times estimated precision
     outOfTimeThresholdGain12mEB    = cms.double(5),      # times estimated precision
     outOfTimeThresholdGain61pEB    = cms.double(5),      # times estimated precision
-    #outOfTimeThresholdGain61pEB    = cms.double(1.e+05), # times estimated precision
     outOfTimeThresholdGain61mEB    = cms.double(5),      # times estimated precision
-    outOfTimeThresholdGain12pEE    = cms.double(5),      # times estimated precision
-    outOfTimeThresholdGain12mEE    = cms.double(5),      # times estimated precision
-    outOfTimeThresholdGain61pEE    = cms.double(5),      # times estimated precision
-    #outOfTimeThresholdGain61pEE    = cms.double(1.e+05), # times estimated precision
-    outOfTimeThresholdGain61mEE    = cms.double(5),      # times estimated precision
+    outOfTimeThresholdGain12pEE    = cms.double(10),      # times estimated precision
+    outOfTimeThresholdGain12mEE    = cms.double(10),      # times estimated precision
+    outOfTimeThresholdGain61pEE    = cms.double(10),      # times estimated precision
+    outOfTimeThresholdGain61mEE    = cms.double(10),      # times estimated precision
     amplitudeThresholdEB    = cms.double(10),
     amplitudeThresholdEE    = cms.double(10),
     #amplitude-dependent time corrections; EE and EB have separate corrections
