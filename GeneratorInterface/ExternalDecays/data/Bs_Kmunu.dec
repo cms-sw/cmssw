@@ -1,13 +1,9 @@
-# $Id: Bs_Kmunu.dec,v 1.1 2009/07/16 16:14:46 covarell Exp $
-#
-# This is the decay file for the decay BS0 -> K+ mu- nu
-#
-Alias      MyB_s0   B_s0
-Alias      Myanti-B_s0   anti-B_s0
-ChargeConj Myanti-B_s0   MyB_s0 
+Alias      MyB_s0      B_s0
+Alias      Myanti-B_s0 anti-B_s0
+ChargeConj Myanti-B_s0 MyB_s0 
 #
 Decay MyB_s0
-1.000      K+  mu-   anti-nu_mu                        ISGW2;
+1.000      K-  mu+   nu_mu     PHOTOS   ISGW2;
 Enddecay
 CDecay Myanti-B_s0
 #
