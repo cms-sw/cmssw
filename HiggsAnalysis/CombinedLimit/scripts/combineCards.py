@@ -32,7 +32,7 @@ for ich,fname in enumerate(args):
     DC = parseCard(file, options)
     singlebin = (len(DC.bins) == 1)
     if label == ".":
-        label=b if singlebin else "";
+        label=DC.bins[0] if singlebin else "";
     elif not singlebin: 
         label += "_";
     for b in DC.bins:
