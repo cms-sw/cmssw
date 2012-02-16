@@ -154,20 +154,36 @@ bool Asymptotic::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats
   }
 
   double clsTarget = 1-cl;
-  double rMin = std::max<double>(0, r->getVal()), rMax = rMin + 3 * ((RooRealVar*)fitFreeD_->floatParsFinal().find(r->GetName()))->getError();
+  double rErr = std::max<double>(((RooRealVar*)fitFreeD_->floatParsFinal().find(r->GetName()))->getError(), 0.02 * (r->getMax() - r->getMin()));
+  double rMin = std::max<double>(0, r->getVal()), rMax = rMin + 3 * rErr;
+  double clsMax = 1, clsMin = 0;
   for (int tries = 0; tries < 5; ++tries) {
     double cls = getCLs(*r, rMax);
     if (cls == -999) { std::cerr << "Minimization failed in an unrecoverable way" << std::endl; break; }
-    if (cls < clsTarget) break;
+    if (cls < clsTarget) { clsMin = cls; break; }
     rMax *= 2;
   }
+  
   do {
-    limit = 0.5*(rMin + rMax); limitErr = 0.5*(rMax - rMin);
+    if (clsMax < 3*clsTarget && clsMin > 0.3*clsTarget) {
+        double rCross = rMin + (rMax-rMin)*log(clsMax/clsTarget)/log(clsMax/clsMin);
+        if ((rCross-rMin) < (rMax - rCross)) {
+            limit = 0.8*rCross + 0.2*rMax;
+        } else {
+            limit = 0.8*rCross + 0.2*rMin;
+        }
+        limitErr = 0.5*(rMax - rMin);
+    } else {
+        limit = 0.5*(rMin + rMax); 
+        limitErr = 0.5*(rMax - rMin);
+    }
     double cls = getCLs(*r, limit);
     if (cls == -999) { std::cerr << "Minimization failed in an unrecoverable way" << std::endl; break; }
     if (cls > clsTarget) {
+        clsMax = cls;
         rMin = limit;
     } else {
+        clsMin = cls;
         rMax = limit;
     }
   } while (limitErr > std::max(rRelAccuracy_ * limit, rAbsAccuracy_));
@@ -248,6 +264,9 @@ std::vector<std::pair<float,float> > Asymptotic::runLimitExpected(RooWorkspace *
     //r->setMin(0);
     r->setMin(qtilde_ ? 0 : -r->getMax()); // FIXME TEST
     r->setVal(0.01*r->getMax());
+    r->setError(0.1*r->getMax());
+    double rMax0 = r->getMax();
+    //r->removeMax();
     
     std::auto_ptr<RooAbsReal> nll(mc_s->GetPdf()->createNLL(*asimov, RooFit::Constrain(*mc_s->GetNuisanceParameters())));
     RooMinimizer minim(*nll);
@@ -265,15 +284,19 @@ std::vector<std::pair<float,float> > Asymptotic::runLimitExpected(RooWorkspace *
     }
     int minosStat = -1;
     if (minosAlgo_ == "minos") {
-        CloseCoutSentry sentry2(verbose < 3);
-        double rMax0 = r->getMax();
+        //CloseCoutSentry sentry2(verbose < 3);
         for (int tries = 0; tries < 3; ++tries) {
             minosStat = minim.minos(RooArgSet(*r));
             if (minosStat != -1) {
-                if ((r->getVal() + r->getAsymErrorHi())/r->getMax() > 0.9) {
+                while ((minosStat != -1) && (r->getVal()+r->getAsymErrorHi())/r->getMax() > 0.9) {
+                    if (r->getMax() >= 100*rMax0) { minosStat = -1; break; }
                     r->setMax(2*r->getMax());
-                    if (r->getMax()/rMax0 > 100) { minosStat = -1; break; }
-                    continue;
+                    RooMinimizer minim2(*nll);
+                    minim2.setStrategy(minimizerStrategy_);
+                    minim2.setPrintLevel(-1);
+                    minim2.setErrorLevel(0.5*pow(ROOT::Math::normal_quantile(1-0.5*(1-cl),1.0), 2)); 
+                    nllutils::robustMinimize(*nll, minim2, verbose-1);
+                    minosStat = minim2.minos(RooArgSet(*r));
                 }
                 break;
             }
