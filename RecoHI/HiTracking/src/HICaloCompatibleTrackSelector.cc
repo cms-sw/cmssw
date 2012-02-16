@@ -50,7 +50,7 @@ HICaloCompatibleTrackSelector::HICaloCompatibleTrackSelector( const edm::Paramet
   srcTower_(cfg.getParameter<edm::InputTag>("srcTower")),
   usePFCandMatching_(cfg.getUntrackedParameter<bool>("usePFCandMatching", true)),
   trkMatchPtMin_(cfg.getUntrackedParameter<double>("trkMatchPtMin",10.0)),
-  trkCompPtMin_(cfg.getUntrackedParameter<double>("trkCompPtMin",35.0)),
+  trkCompPtMin_(cfg.getUntrackedParameter<double>("trkCompPtMin",10.0)),
   trkEtaMax_(cfg.getUntrackedParameter<double>("trkEtaMax",2.4)),
   towerPtMin_(cfg.getUntrackedParameter<double>("towerPtMin",5.0)),
   matchConeRadius_(cfg.getUntrackedParameter<double>("matchConeRadius",0.087)),
@@ -214,16 +214,14 @@ HICaloCompatibleTrackSelector::selectByPFCands(TI ti, edm::Handle<TrackCollectio
 
   // If it passes this quality threshold or is under the minimum match pT, automatically save it
   if(trk.quality(reco::TrackBase::qualityByName(qualityToSkip_))){
-    if(trk.pt()>14.77&&trk.pt()<14.78)std::cout<<" skipping this one "<<trk.pt()<<std::endl;
     return true;
   }
   else if(!trk.quality(reco::TrackBase::qualityByName(minimumQuality_))){
-    if(trk.pt()>14.77&&trk.pt()<14.78)std::cout<<" this one doesn't meet min quality requirement "<<trk.pt()<<std::endl;
     return false;
   }
   else
     {      
-
+      
       double trkPt = trk.pt();
       //if(trkPt < trkMatchPtMin_ ) return false;
       
@@ -235,7 +233,6 @@ HICaloCompatibleTrackSelector::selectByPFCands(TI ti, edm::Handle<TrackCollectio
 	}
       }
       
-      if(trk.pt()>14.77&&trk.pt()<14.78)std::cout<<" caloEt "<<caloEt<<" trk pt "<<trk.pt()<<std::endl;
       // Set quality bit based on calo matching
       if(!(caloEt>0.)) return false;
       
