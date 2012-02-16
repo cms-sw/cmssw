@@ -4,6 +4,3 @@
 <use   name="CondFormats/EcalCorrections"/>
 <use   name="DataFormats/EcalDetId"/>
 <flags   EDM_PLUGIN="1"/>
-<export>
-  <lib   name="1"/>
-</export>
