@@ -163,7 +163,7 @@ namespace cms
     int trackCollNum[rSize];
     int trackQuals[rSize];
     for (unsigned int j=0; j<rSize;j++) {
-      selected[j]=1; trkUpdated[i]=false; trackCollNum[j]=0; trackQuals[j]=0;
+      selected[j]=1; trkUpdated[j]=false; trackCollNum[j]=0; trackQuals[j]=0;
     }
     
     for (unsigned int j=0; j< trackColls.size(); j++) {
