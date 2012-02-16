@@ -9,15 +9,35 @@ class MatrixInjector(object):
     def __init__(self,mode='init'):
         self.count=1040
         self.testMode=(mode!='submit')
+        self.version ='v1'
+
+        #couch stuff
+        self.couch = 'https://cmsweb.cern.ch/couchdb'
+        self.couchDB = 'reqmgr_config_cache'
+        self.user = os.getenv('USER')
+        self.group = 'ppd'
+        self.label = 'RelValSet_'+os.getenv('CMSSW_VERSION').replace('-','')+'_'+self.version
+
+        #wagemt stuff
+        self.wmagent = 'cmsweb.cern.ch'
+
+        if not os.getenv('WMCORE_ROOT'):
+            print '\n\twmclient is not setup properly. Will not be able to upload or submit requests.\n'
+            if not self.testMode:
+                print '\n\t QUIT\n'
+                sys.exit(-18)
+        else:
+            print '\n\tFound wmclient\n'
+            
         self.defaultChain={
             "AcquisitionEra": "ReleaseValidation",            #Acq Era
-            "Requestor": "vlimant@cern.ch",                   #Person responsible
+            "Requestor": self.user+'@cern.ch',                #Person responsible
             "CMSSWVersion": os.getenv('CMSSW_VERSION'),       #CMSSW Version (used for all tasks in chain)
             "ScramArch": os.getenv('SCRAM_ARCH'),             #Scram Arch (used for all tasks in chain)
-            "ProcessingVersion": "v1",                        #Processing Version (used for all tasks in chain)
+            "ProcessingVersion": self.version,                #Processing Version (used for all tasks in chain)
             "GlobalTag": None,                                #Global Tag (used for all tasks)
-            "CouchURL": "http://couchserver.cern.ch",         #URL of CouchDB containing Config Cache
-            "CouchDBName": "config_cache",                    #Name of Couch Database containing config cache
+            "CouchURL": self.couch,                           #URL of CouchDB containing Config Cache
+            "CouchDBName": self.couchDB,                      #Name of Couch Database containing config cache
             #- Will contain all configs for all Tasks
             "SiteWhitelist" : ["T1_CH_CERN", "T1_US_FNAL"],   #Site whitelist
             "TaskChain" : None,                                  #Define number of tasks in chain.
@@ -51,6 +71,7 @@ class MatrixInjector(object):
             }
 
         self.chainDicts={}
+
 
     def prepare(self,mReader, directories, mode='init'):
         
@@ -129,25 +150,43 @@ class MatrixInjector(object):
             self.chainDicts[n]=chainDict
         return 0
 
-    def uploadConf(self,filePath):
+    def uploadConf(self,filePath,label):
+        labelInCouch=self.label+'_'+label
         if self.testMode:
             self.count+=1
+            print '\tFake upload to couch with label',labelInCouch
             return self.count
         else:
-            return 0
+            try:
+                from wmcontrol2_newauth import upload_to_couch,loadConfig
+            except:
+                print '\n\tUnable to find wmcontrol modules. Please include it in your python path\n'
+                print '\n\t QUIT\n'
+                sys.exit(-16)
+            return upload_to_couch(filePath,
+                                   self.group,
+                                   self.user,
+                                   labelInCouch)
     
     def upload(self):
         for (n,d) in self.chainDicts.items():
-            #look for toload:
-            #upload it get couchID
-            #replace the couchID
             for it in d:
                 if it.startswith("Task") and it!='TaskChain':
-                    couchID=self.uploadConf(d[it]['ConfigCacheID'])
-                    print "uploading",d[it]['ConfigCacheID'],"to couchDB for",str(n),"got ID",couchID
+                    #upload
+                    couchID=self.uploadConf(d[it]['ConfigCacheID'],str(n)+d[it]['TaskName'])
+                    print d[it]['ConfigCacheID']," uploaded to couchDB for",str(n),"with ID",couchID
                     d[it]['ConfigCacheID']=couchID
             
     def submit(self):
+        try:
+            from wmcontrol2_newauth import makeRequest,approveRequest,random_sleep
+            print '\n\tFound wmcontrol\n'
+        except:
+            print '\n\tUnable to find wmcontrol modules. Please include it in your python path\n'
+            if not self.testMode:
+                print '\n\t QUIT\n'
+                sys.exit(-17)
+
         import pprint
         for (n,d) in self.chainDicts.items():
             if self.testMode:
@@ -155,9 +194,11 @@ class MatrixInjector(object):
                 print pprint.pprint(d)
             else:
                 #submit to wmagent each dict
-                print "submitting",n
-                #do submit
-
+                print "Submitting",n,"..........."
+                workFlow=makeRequest(self.wmagent,d)
+                approveRequest(self.wmagent,workFlow)
+                print "...........",n,"submitted"
+                random_sleep()
             
 
         
