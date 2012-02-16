@@ -327,9 +327,10 @@ def plotFromFile(fileNames,labels=[]):
             idx = 0
             for histo in histos[-1]:
 		legends[-1].AddEntry(histo,labels[idx],"LP")
-		legends[-1].SetFillColor( canvases[-1].GetFillColor() )
-		legends[-1].Draw("SAME")
                 idx += 1
+
+	    legends[-1].SetFillColor( canvases[-1].GetFillColor() )
+	    legends[-1].Draw("SAME")
  
         idx_var += 1
 
