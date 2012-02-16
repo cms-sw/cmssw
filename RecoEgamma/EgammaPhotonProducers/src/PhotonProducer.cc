@@ -55,7 +55,7 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
     config.getParameter<edm::ParameterSet>("posCalcParameters");
   posCalculator_ = PositionCalc(posCalcParameters);
 
-  thePhotonEnergyCorrector_ = new PhotonEnergyCorrector(conf_);
+
 
   // Parameters for the position calculation:
   //  std::map<std::string,double> providedParameters;
@@ -113,6 +113,7 @@ void  PhotonProducer::beginRun (edm::Run& r, edm::EventSetup const & theEventSet
     thePhotonMIPHaloTagger_ = new PhotonMIPHaloTagger();
     edm::ParameterSet mipVariableSet = conf_.getParameter<edm::ParameterSet>("mipVariableSet"); 
     thePhotonMIPHaloTagger_->setup(mipVariableSet);
+    thePhotonEnergyCorrector_ = new PhotonEnergyCorrector(conf_);
     thePhotonEnergyCorrector_ -> init(theEventSetup); 
 
 
