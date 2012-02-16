@@ -39,7 +39,9 @@ public:
 
   ~CSCTFSectorProcessor();
 
-  bool run(const CSCTriggerContainer<csctf::TrackStub>&);
+  //returns 0 for normal fail, 1 for success, and -1 for exception
+  // on -1, Producer should produce empty collections for event
+  int run(const CSCTriggerContainer<csctf::TrackStub>&);
 
   CSCTriggerContainer<csc::L1Track> tracks() const { return l1_tracks; }
   std::vector<csctf::TrackStub> filteredStubs() const { return stub_vec_filtered; }
@@ -106,6 +108,7 @@ public:
   // firmware map
   std::map<int, int> firmSP_Map; 
   bool isCoreVerbose;
+  bool initFail_;
 };
 
 #endif
