@@ -40,9 +40,14 @@ HLT_DiJet60_MET45_v*
 HLT_DiCentralJet20_MET100_HBHENoiseFiltered_v*
 HLT_DiCentralJet20_MET80_v*
 HLT_DiCentralJet20_BTagIP_MET65_v*
-HLT_DiCentralJet36_BTagIP3DLoose_v*
-HLT_CentralJet46_CentralJet38_DiBTagIP3D_v*
-HLT_CentralJet60_CentralJet53_DiBTagIP3D_v*
+#HLT_DiCentralJet36_BTagIP3DLoose_v*								#removed in Feb 2012 5e33 menu (sr #126241)
+HLT_DiJet80Eta2p6_L1FastJet_BTagIP3DLoose_v*							#added in Feb 2012 5e33 menu (sr #126241)
+HLT_DiJet40Eta2p6_L1FastJet_BTagIP3D_v*								#added in Feb 2012 5e33 menu (sr #126241)
+#HLT_CentralJet46_CentralJet38_DiBTagIP3D_v*							#removed in Feb 2012 5e33 menu (sr #126241)
+#HLT_CentralJet60_CentralJet53_DiBTagIP3D_v*							#removed in Feb 2012 5e33 menu (sr #126241)
+HLT_Jet60Eta1p7_Jet53Eta1p7_L1FastJet_DiBTagIP3D_v*						#added in Feb 2012 5e33 menu (sr #126241)
+HLT_Jet80Eta1p7_Jet70Eta1p7_L1FastJet_DiBTagIP3D_v*						#added in Feb 2012 5e33 menu (sr #126241)
+HLT_Jet160Eta2p4_Jet120Eta2p4_L1FastJet_DiBTagIP3DLoose_v*					#added in Feb 2012 5e33 menu (sr #126241)
 HLT_QuadJet40_v*
 HLT_QuadJet40_IsoPFTau40_v*
 HLT_QuadJet45_DiJet40_v*
