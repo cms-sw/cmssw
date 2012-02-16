@@ -368,12 +368,12 @@ void CSCTFSectorProcessor::initialize(const edm::EventSetup& c){
   if (m_firmDD<1) throw cms::Exception("CSCTFSectorProcessor")<< " firmwareDD parameter left uninitialized!!!\n";
   if (m_firmVM<1) throw cms::Exception("CSCTFSectorProcessor")<< " firmwareVM parameter left uninitialized!!!\n";
 
-  if ( (m_firmFA != m_firmDD) ||
-       (m_firmFA != m_firmVM) ||
-       (m_firmDD != m_firmVM)  )
-    throw cms::Exception("CSCTFSectorProcessor")<< " firmwareFA (=" << m_firmFA << "), " 
-						<< " firmwareDD (=" << m_firmDD << "), " 
-						<< " firmwareVM (=" << m_firmVM << ") are NOT identical: it shoultd NOT happen!";
+//  if ( (m_firmFA != m_firmDD) ||
+//       (m_firmFA != m_firmVM) ||
+//       (m_firmDD != m_firmVM)  )
+//    throw cms::Exception("CSCTFSectorProcessor")<< " firmwareFA (=" << m_firmFA << "), " 
+//   						<< " firmwareDD (=" << m_firmDD << "), " 
+//						<< " firmwareVM (=" << m_firmVM << ") are NOT identical: it shoultd NOT happen!";
 
 }
 
