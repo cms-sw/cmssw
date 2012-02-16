@@ -20,12 +20,16 @@ if errorUserOptions == True :
 # L1 menu selection via L1Trigger_custom - expert choice, do it only if you know what you do
 # if True, modify correspondingly L1Trigger_custom
 
-customL1Menu = False
+customL1Menu = True
+#customL1Menu = False
 
 if customL1Menu == True :
     from L1Trigger.Configuration.L1Trigger_custom import customiseL1Menu
     process=customiseL1Menu(process)
 
+# reset all prescale factors and masks
+from L1Trigger.Configuration.L1Trigger_custom import customiseResetPrescalesAndMasks
+process = customiseResetPrescalesAndMasks(process)
 
 # source according to data type
 if dataType == 'StreamFile' :
@@ -122,12 +126,12 @@ else :
 #    1 (BxInEvent = 0); 3 (F 0 1) (standard record); 5 (E F 0 1 2) (debug record)
 # even numbers (except 0) "rounded" to the nearest lower odd number
 # negative value: emulate TotalBxInEvent as given in EventSetup  
-#process.l1GtEmulDigis.EmulateBxInEvent = 3
+process.l1GtEmulDigis.EmulateBxInEvent = 1
  
 # number of BXs in the event corresponding to alternative 0 and 1 in altNrBxBoard()
 # EmulateBxInEvent >= max(RecordLength[0], RecordLength[1])
 # negative values: take the numbers from event setup, from L1GtParameters
-process.l1GtEmulDigis.RecordLength = cms.vint32(3, 5)
+process.l1GtEmulDigis.RecordLength = cms.vint32(1, 1)
 
 # alternative for number of BX per active board in GT DAQ record: 0 or 1
 # the position is identical with the active board bit
@@ -148,7 +152,7 @@ process.l1GtEmulDigis.AlgorithmTriggersUnprescaled = True
     
 #     if true, unmasked - all enabled (all trigger masks set to 0)
 #     will overwrite the event setup
-#process.l1GtEmulDigis.AlgorithmTriggersUnmasked = True
+process.l1GtEmulDigis.AlgorithmTriggersUnmasked = True
 
 # run technical triggers
 #     if true, unprescaled (all prescale factors 1)
@@ -157,7 +161,7 @@ process.l1GtEmulDigis.TechnicalTriggersUnprescaled = True
     
 #     if true, unmasked - all enabled (all trigger masks set to 0)
 #     will overwrite the event setup
-#process.l1GtEmulDigis.TechnicalTriggersUnmasked = True
+process.l1GtEmulDigis.TechnicalTriggersUnmasked = True
 
 #     if true, veto unmasked - all enabled (all trigger veto masks set to 0)
 #     will overwrite the event setup

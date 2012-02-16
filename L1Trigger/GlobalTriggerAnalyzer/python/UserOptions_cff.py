@@ -26,7 +26,7 @@ useRelValSample = False
 #
 # comment/uncomment the next line to choose sample type 
 # (un-commented selects MC RelVal)
-#useRelValSample=True
+useRelValSample=True
 
 if useRelValSample == False :
     
@@ -48,9 +48,12 @@ if useRelValSample == False :
     #runNumber = 'MinimumBias_Commissioning10-May13thReReco_preproduction-v1_RECO'
     #runNumber = '137028'
     #runNumber = '156508'
-    runNumber = '156508_137028'
+    #runNumber = '156508_137028'
     #runNumber = '165633-CAFDQM'
     #runNumber = '180250'
+    
+    # high PU run 2011
+    runNumber = '179828' 
 
 else :
 
@@ -70,7 +73,8 @@ else :
     #useSample = 'RelValQCD_Pt_80_120'
      
     # choose (pre)release used to produce the RelVal samples (data are release independent)
-    sampleFromRelease = 'CMSSW_4_2_8'
+    sampleFromRelease = 'CMSSW_5_2_X'
+    #sampleFromRelease = 'CMSSW_4_2_8'
     #sampleFromRelease = 'CMSSW_3_11_0'
     #sampleFromRelease = 'CMSSW_3_5_6'
     #sampleFromRelease = 'CMSSW_3_5_2'
@@ -337,7 +341,25 @@ if (useRelValSample == True) and (useLocalFiles == False) :
 
     elif globalTag == 'auto:startup' :
         
-        if (sampleFromRelease == 'CMSSW_4_2_8') and (useSample == 'RelValTTbar') and (dataType == 'RAW') :
+        if (sampleFromRelease == 'CMSSW_5_2_X') and (useSample == 'RelValTTbar') and (dataType == 'RAW') :
+
+            dataset = '/RelValTTbar/CMSSW_5_2_0_pre4-START52_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG'
+            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', globalTag  
+            
+            readFiles.extend( [
+                    '/store/relval/CMSSW_5_2_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V1-v1/0033/02B4D46B-BB51-E111-A789-003048678A76.root',
+                    '/store/relval/CMSSW_5_2_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V1-v1/0033/0EAB51E9-BD51-E111-8C43-003048679228.root',
+                    '/store/relval/CMSSW_5_2_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V1-v1/0033/16B22002-C251-E111-822B-002618FDA208.root',
+                    '/store/relval/CMSSW_5_2_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V1-v1/0033/28C19137-C351-E111-80CD-003048FFCBF0.root',
+                    '/store/relval/CMSSW_5_2_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V1-v1/0033/3034CA86-C051-E111-84F5-00304867D446.root',
+                    '/store/relval/CMSSW_5_2_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V1-v1/0033/30850A05-C051-E111-9BA8-002618FDA262.root',
+                    '/store/relval/CMSSW_5_2_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V1-v1/0033/3A0C39F6-BE51-E111-BEAE-0026189438E9.root',
+                    '/store/relval/CMSSW_5_2_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V1-v1/0033/7ADEB285-C151-E111-888F-0018F3D0960C.root',
+                    '/store/relval/CMSSW_5_2_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V1-v1/0033/A2810EE7-BB51-E111-9C4D-0026189438A0.root'
+            
+                    ] );
+             
+        elif (sampleFromRelease == 'CMSSW_4_2_8') and (useSample == 'RelValTTbar') and (dataType == 'RAW') :
 
             dataset = '/RelValTTbar/CMSSW_4_2_8-START42_V12-v1/GEN-SIM-DIGI-RAW-HLTDEBUG'
             print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', globalTag  
@@ -647,8 +669,15 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
 
     if dataType == 'RAW' : 
 
-        if runNumber == '180250' :
-            dataset = '/MinimumBias/Run2011B-v1/RAW'
+        # temporary hack until I code a das function
+        if (runNumber == '180250') or (runNumber == '179828') :
+            
+            if (runNumber == '180250') :
+                dataset = '/MinimumBias/Run2011B-v1/RAW'
+            elif (runNumber == '179828') :
+                #dataset = '/HighPileUpHPF/Run2011B-v1/RAW'
+                dataset = '/ZeroBiasHPF0/Run2011B-v1/RAW'
+             
             print '   Running on dataset:', dataset, 'with global tag ', globalTag
             print
             print '   List of files retrieved by das_client:\n'
@@ -667,7 +696,7 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
             filePaths    = []
             
             # query DAS
-            query =  'file dataset=/MinimumBias/Run2011B-v1/RAW run=180250 | grep file.name'
+            query =  'file dataset=' + dataset + ' run=' + runNumber + ' | grep file.name'
             dasData = das_client.get_data(host, query, idx, limit, debug)
             
             jsondict    = json.loads( dasData )

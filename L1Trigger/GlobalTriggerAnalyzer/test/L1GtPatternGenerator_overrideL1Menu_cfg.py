@@ -10,73 +10,54 @@
 import FWCore.ParameterSet.Config as cms
 import sys
 
+# 
+processName = "L1GtPatternGenerator"
+process = cms.Process(processName)
+
+
 # choose one (and only one) of the following source
 # usually the global tag must be used
 
 # data or RelVal
 useRelValSample = True
-useRelValSample = False
+#useRelValSample = False
 
 # Frontier GlobalTag to use for EventSetup, should match source data
 
 if useRelValSample == True :
-    useGlobalTag = "START42_V14A"
+    globalTag = 'auto:startup'
 else :
-    useGlobalTag = "GR_P_V22"
-    
-
-#l1MenuSource='globalTag'
-l1MenuSource='sqlFile'
-#l1MenuSource='xmlFile'
+    globalTag = 'auto:com10'        # GR_R_*
 
 
-if l1MenuSource == 'sqlFile' :
-    # the menu will be read from the SQL file instead of the global tag
-    
-    
-    # pp menu
-    #useSqlFile = '/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_Collisions2011_v6/sqlFile/L1Menu_Collisions2011_v6_mc.db'
-    #menuDbTag = 'L1GtTriggerMenu_L1Menu_Collisions2011_v6_mc'
+# L1 menu selection via L1Trigger_custom  - if True, modify correspondingly L1Trigger_custom
 
-    
-    # HI menu
-    useSqlFile = '/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_CollisionsHeavyIons2011_v0/sqlFile/L1Menu_CollisionsHeavyIons2011_v0_mc.db'
-    menuDbTag = 'L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2011_v0_mc'
+customL1Menu = True
+#customL1Menu = False
 
-elif l1MenuSource == 'xmlFile' :
-    # explicit choice of the L1 menu
-    # un-comment the corresponding menu in the list of the menus
-    triggerMenuXml = 'L1Menu_Commissioning2010_v6.xml'
-    print '   Using', triggerMenuXml, ' file to overwrite the L1 menu from the global tag'    
+if customL1Menu == True :
+    from L1Trigger.Configuration.L1Trigger_custom import customiseL1Menu
+    process=customiseL1Menu(process)
 
-else :
-    print '   Using default L1 trigger menu from Global Tag ', useGlobalTag    
+# reset all prescale factors and masks
+from L1Trigger.Configuration.L1Trigger_custom import customiseResetPrescalesAndMasks
+process = customiseResetPrescalesAndMasks(process)
+
 
 # Input files
 if useRelValSample == True :
     dataFiles = [
-        '/store/relval/CMSSW_4_2_9_HLT1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V14A-v1/0031/1C7012EE-6FCB-E011-8B5A-0026189438EA.root',
-       '/store/relval/CMSSW_4_2_9_HLT1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V14A-v1/0031/46152DEC-6ECB-E011-A1DB-002618943972.root',
-       '/store/relval/CMSSW_4_2_9_HLT1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V14A-v1/0031/5AA78A97-6FCB-E011-A278-00304867D838.root',
-       '/store/relval/CMSSW_4_2_9_HLT1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V14A-v1/0031/5E0236EB-70CB-E011-BD1E-001A928116F8.root',
-       '/store/relval/CMSSW_4_2_9_HLT1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V14A-v1/0031/6619DC9A-6FCB-E011-9B02-0018F3D0967E.root',
-       '/store/relval/CMSSW_4_2_9_HLT1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V14A-v1/0031/66D97CEE-6FCB-E011-AB81-003048678B00.root',
-       '/store/relval/CMSSW_4_2_9_HLT1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V14A-v1/0031/687EA375-70CB-E011-BA43-0030486792DE.root',
-       '/store/relval/CMSSW_4_2_9_HLT1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V14A-v1/0031/7A6D8570-6FCB-E011-9AF3-001A92810AD2.root',
-       '/store/relval/CMSSW_4_2_9_HLT1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V14A-v1/0031/7A95B566-71CB-E011-8751-0026189438D8.root',
-       '/store/relval/CMSSW_4_2_9_HLT1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V14A-v1/0031/7C5B3369-6FCB-E011-948D-002618943916.root',
-       '/store/relval/CMSSW_4_2_9_HLT1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V14A-v1/0031/AE3E29EA-6FCB-E011-BE15-00261894396B.root',
-       '/store/relval/CMSSW_4_2_9_HLT1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V14A-v1/0031/AEC978ED-6ECB-E011-990B-002618943896.root',
-       '/store/relval/CMSSW_4_2_9_HLT1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V14A-v1/0032/1475B74E-BDCB-E011-B012-001A92810AC8.root',
-       '/store/relval/CMSSW_4_2_9_HLT1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V14A-v1/0031/C474D1F0-6FCB-E011-9CA2-003048678F92.root',
-       '/store/relval/CMSSW_4_2_9_HLT1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V14A-v1/0031/CEACF46C-70CB-E011-A857-002618943906.root',
-       '/store/relval/CMSSW_4_2_9_HLT1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V14A-v1/0031/E47CD6EA-75CB-E011-8FC7-0018F3D096A6.root',
-       '/store/relval/CMSSW_4_2_9_HLT1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V14A-v1/0031/F815BFEC-6FCB-E011-B6C7-001A92971BB2.root' 
+            '/store/relval/CMSSW_5_2_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V1-v1/0033/02B4D46B-BB51-E111-A789-003048678A76.root',
+            '/store/relval/CMSSW_5_2_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V1-v1/0033/0EAB51E9-BD51-E111-8C43-003048679228.root',
+            '/store/relval/CMSSW_5_2_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V1-v1/0033/16B22002-C251-E111-822B-002618FDA208.root',
+            '/store/relval/CMSSW_5_2_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V1-v1/0033/28C19137-C351-E111-80CD-003048FFCBF0.root',
+            '/store/relval/CMSSW_5_2_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V1-v1/0033/3034CA86-C051-E111-84F5-00304867D446.root',
+            '/store/relval/CMSSW_5_2_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V1-v1/0033/30850A05-C051-E111-9BA8-002618FDA262.root',
+            '/store/relval/CMSSW_5_2_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V1-v1/0033/3A0C39F6-BE51-E111-BEAE-0026189438E9.root',
+            '/store/relval/CMSSW_5_2_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V1-v1/0033/7ADEB285-C151-E111-888F-0018F3D0960C.root',
+            '/store/relval/CMSSW_5_2_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V1-v1/0033/A2810EE7-BB51-E111-9C4D-0026189438A0.root'
        ]
 
-
-    # FEDRawDataCollection label
-    fedLabel='rawDataCollector'
 else :
     # run 143657
     #dataFiles = [
@@ -101,18 +82,14 @@ else :
                  '/store/data/Run2011A/MinimumBias/RAW/v1/000/165/514/48379944-F084-E011-8022-0030487CD178.root',
                  '/store/data/Run2011A/MinimumBias/RAW/v1/000/165/514/4A1297CC-EC84-E011-BCF8-0030487CD6E6.root'
                  ]
-    
-    # FEDRawDataCollection label
-    fedLabel='source'
-    
-    
+
+# FEDRawDataCollection label
+fedLabel='rawDataCollector'
+   
 
 ###############
 # Process setup
 ###############
-processName = "L1GtPatternGenerator"
-
-process = cms.Process(processName)
 
 # Run on one orbit of events at most - more doesn't make sense
 # because the pattern file can contain at most 3564 lines.
@@ -128,17 +105,13 @@ process.source = cms.Source("PoolSource",
 # Load and configure modules via global tag
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = useGlobalTag+'::All'
 
-if useRelValSample == True :
-    print 
+if globalTag.count('auto') :
+    from Configuration.AlCa.autoCond import autoCond
+    useGlobalTag = autoCond[globalTag.replace('auto:', '')]
 else :
-    
-    import L1Trigger.Configuration.L1Trigger_custom
-
-    # reset the prescale factors when running on data
-    process = L1Trigger.Configuration.L1Trigger_custom.customiseResetPrescalesAndMasks( process )
-
+    useGlobalTag = globalTag+'::All'    
+process.GlobalTag.globaltag = useGlobalTag
 
 # Global Trigger unpacker - produce decision & regional muons from readout record
 process.load("EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi")
@@ -179,36 +152,9 @@ process.gtDigis.RecordLength = cms.vint32(3, 5)
 process.gtDigis.AlternativeNrBxBoardDaq = 0x101
 process.gtDigis.AlternativeNrBxBoardEvm = 0x2
 
-# explicit choice of the L1 menu, overwriting the Global Tag menu
+# verbosity on for emulator
+process.gtDigis.Verbosity = cms.untracked.int32(1)
 
-if l1MenuSource == 'xmlFile' :
-    process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMenuConfig_cff')
-    process.es_prefer_l1GtParameters = cms.ESPrefer('L1GtTriggerMenuXmlProducer','l1GtTriggerMenuXml')
-    
-    process.l1GtTriggerMenuXml.DefXmlFile = triggerMenuXml
-
-elif l1MenuSource == 'sqlFile' :
-    if useSqlFile != '' :
-        print '   Retrieve L1 trigger menu only from SQLlite file ' 
-        print '       ', useSqlFile   
-        print '       '
-
-        from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup
-        process.l1conddb = cms.ESSource("PoolDBESSource",
-                                CondDBSetup,
-                                connect = cms.string('sqlite_file:' + useSqlFile),
-                                toGet = cms.VPSet(cms.PSet(
-                                            record = cms.string('L1GtTriggerMenuRcd'),
-                                            tag = cms.string(menuDbTag))),
-                                            BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService')
-                                            )
-        process.es_prefer_l1conddb = cms.ESPrefer("PoolDBESSource","l1conddb")
-       
-    else :
-        print '   Error: no SQL file is given; please provide a valid SQL file for option sqlFile'    
-
-else :
-    print '   Printing default L1 trigger menu from Global Tag ', useGlobalTag    
 
 # Global Trigger report (emulator)
 import L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi
@@ -232,8 +178,8 @@ process.MessageLogger = cms.Service("MessageLogger",
          threshold = cms.untracked.string('DEBUG'), ## DEBUG mode 
 
          DEBUG = cms.untracked.PSet( 
-             #limit = cms.untracked.int32(-1)          ## DEBUG mode, all messages  
-             limit = cms.untracked.int32(0)          ## DEBUG mode, max 10 messages 
+             limit = cms.untracked.int32(-1)          ## DEBUG mode, all messages  
+             #limit = cms.untracked.int32(0)          ## DEBUG mode, max 10 messages 
          ),
          INFO = cms.untracked.PSet(
              limit = cms.untracked.int32(-1)

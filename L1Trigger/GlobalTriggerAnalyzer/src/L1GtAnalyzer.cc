@@ -264,17 +264,27 @@ void L1GtAnalyzer::analyzeDecisionLiteRecord(const edm::Event& iEvent,
 
     }
 
-    const DecisionWord gtDecisionWord = gtRecord->decisionWord();
+    // FIXME - un-comment when new tag for CondFormats ready
+//    const DecisionWord gtDecisionWord = gtRecord->decisionWord();
+//
+//    edm::ESHandle<L1GtTriggerMenu> l1GtMenu;
+//    evSetup.get<L1GtTriggerMenuRcd>().get(l1GtMenu) ;
+//    const L1GtTriggerMenu* m_l1GtMenu = l1GtMenu.product();
+//
 
-    edm::ESHandle<L1GtTriggerMenu> l1GtMenu;
-    evSetup.get<L1GtTriggerMenuRcd>().get(l1GtMenu) ;
-    const L1GtTriggerMenu* m_l1GtMenu = l1GtMenu.product();
-
-    const bool algResult = m_l1GtMenu->gtAlgorithmResult(m_nameAlgTechTrig,
-            gtDecisionWord);
-
-    edm::LogVerbatim("L1GtAnalyzer") << "\nResult for algorithm " << m_nameAlgTechTrig
-            << ": " << algResult << "\n" << std::endl;
+//    bool trigResult = false;
+//
+//    if (m_l1GtMenu->gtTriggerResult(m_nameAlgTechTrig, gtDecisionWord,
+//            trigResult)) {
+//
+//        edm::LogVerbatim("L1GtAnalyzer") << "\nResult for trigger "
+//                << m_nameAlgTechTrig << ": " << trigResult << "\n" << std::endl;
+//    } else {
+//        edm::LogVerbatim("L1GtAnalyzer")
+//                << "\nError retrieving result for trigger " << m_nameAlgTechTrig
+//                << ": " << trigResult << "\n" << std::endl;
+//
+//    }
 
 }
 
