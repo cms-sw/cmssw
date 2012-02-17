@@ -54,25 +54,21 @@ process.MessageLogger = cms.Service("MessageLogger",
 #process.GlobalTag.globaltag ='GR10_P_V5::All'
 #process.GlobalTag.globaltag ='CRAFT09_R_V10::All'
 #process.GlobalTag.globaltag ='GR_R_35X_V7::All'
-process.GlobalTag.globaltag = 'GR_R_50_V1::All'
+#process.GlobalTag.globaltag = 'GR_R_50_V1::All' GR_P_V28
+process.GlobalTag.globaltag = 'GR_P_V28::All'
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
 process.source = cms.Source("PoolSource",
     #debugFlag = cms.untracked.bool(True),
-    #skipEvents = cms.untracked.uint32(3912),
+    skipEvents = cms.untracked.uint32(2),
     #skipEvents = cms.untracked.uint32(37), # for 440
     #skipEvents = cms.untracked.uint32(719),
     #skipEvents = cms.untracked.uint32(1392),
     #debugVebosity = cms.untracked.uint32(10),
     fileNames = cms.untracked.vstring(
-    #'rfio:/castor/cern.ch/cms/store/mc/Spring10/MinBias/GEN-SIM-RAW/START3X_V25B-v1/0101/FEE113B8-5239-DF11-AEF2-0026189438A2.root'
-   #'rfio:/tmp/asakharo/FC58EA9C-4D40-DF11-928D-000423D98804.root',
-   #'/store/data/Commissioning10/MinimumBias/RAW/v4/000/132/601/FC58EA9C-4D40-DF11-928D-000423D98804.root'
-   # 'rfio:/tmp/asakharo/FE5D634A-6ACE-DE11-8CB8-0030487A18F2.root'
-   #'/store/data/BeamCommissioning09/Cosmics/RAW/v1/000/120/331/FE5D634A-6ACE-DE11-8CB8-0030487A18F2.root'
-   #'rfio:/tmp/asakharo/440.root'  #from 13601 run
-   'rfio:/tmp/asakharo/RUN2011B/SingleMu/176848/32F69BAB-5AE4-E011-A3D0-E0CB4E553651.root'
+   #'rfio:/home/asakharo/data/MWGR/CC97177B-CE57-E111-B008-0025901D5D78.root'
+   'rfio:/tmp/asakharo/MWGR/CC97177B-CE57-E111-B008-0025901D5D78.root'
     )
 )
 
