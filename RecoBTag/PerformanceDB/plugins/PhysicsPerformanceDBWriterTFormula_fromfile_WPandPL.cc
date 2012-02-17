@@ -9,9 +9,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-//#include "CondFormats/PhysicsPerformance/interface/PhysicsPerformancePayload.h"
-//#include "CondFormats/DataRecord/interface/PerformancePayloadRecord.h"
-#include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTFormula.h"
+#include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromBinnedTFormula.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PerformanceWorkingPoint.h"
 
 class PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL : public edm::EDAnalyzer
@@ -112,7 +110,7 @@ void PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL::beginJob()
 
 
   PerformanceWorkingPoint * wp = new PerformanceWorkingPoint(cut, tagger);
-  PerformancePayloadFromTFormula * btagpl = 0;
+  PerformancePayloadFromBinnedTFormula * btagpl = 0;
   
   std::vector<PhysicsTFormulaPayload> v_ppl;
   
@@ -180,8 +178,8 @@ void PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL::beginJob()
   in.close();
   
 
-  if (concreteType == "PerformancePayloadFromTFormula"){
-    btagpl = new PerformancePayloadFromTFormula(res, bin, v_ppl);
+  if (concreteType == "PerformancePayloadFromBinnedTFormula"){
+    btagpl = new PerformancePayloadFromBinnedTFormula(res, bin, v_ppl);
     std::cout <<" CHECK: "<<btagpl->formulaPayloads().size()<<std::endl;
   }else{
     std::cout <<" Non existing request: " <<concreteType<<std::endl;

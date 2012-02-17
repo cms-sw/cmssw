@@ -13,7 +13,7 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Nov 25 15:50:50 CET 2008
-// $Id: TestPerformanceFW_ES.cc,v 1.3 2009/12/14 22:23:35 wmtan Exp $
+// $Id: TestPerformanceFW_ES_TFormula.cc,v 1.1 2012/02/15 21:34:17 msegala Exp $
 //
 //
 
@@ -118,7 +118,7 @@ TestPerformanceFW_ES_TFormula::analyze(const edm::Event& iEvent, const edm::Even
   std::cout <<" Is cut based WP "<<perf.workingPoint().cutBased()<<std::endl;
 
 
-  /*
+  
   p.insert(BinningVariables::JetEta,0.6);
   p.insert(BinningVariables::Discriminator,2.3);
 
@@ -154,7 +154,7 @@ TestPerformanceFW_ES_TFormula::analyze(const edm::Event& iEvent, const edm::Even
   std::cout <<" beff/berr ="<<perf.getResult(PerformanceResult::BTAGBEFF,p)<<"/"<<perf.getResult(PerformanceResult::BTAGBERR,p)<<std::endl;
   std::cout <<" bSF/bFSerr ?"<<perf.isResultOk(PerformanceResult::BTAGBEFFCORR,p)<<"/"<<perf.isResultOk(PerformanceResult::BTAGBERRCORR,p)<<std::endl;
   std::cout <<" bSF/bSFerr ="<<perf.getResult(PerformanceResult::BTAGBEFFCORR,p)<<"/"<<perf.getResult(PerformanceResult::BTAGBERRCORR,p)<<std::endl;
-  */
+  
 
   
   /*
@@ -178,7 +178,7 @@ TestPerformanceFW_ES_TFormula::analyze(const edm::Event& iEvent, const edm::Even
 
 
   
-  
+  /*
   std::cout <<" The WP is defined by a cut at "<<perf.workingPoint().cut()<<std::endl;
   std::cout <<" Discriminant is "<<perf.workingPoint().discriminantName()<<std::endl;
 
@@ -189,7 +189,7 @@ TestPerformanceFW_ES_TFormula::analyze(const edm::Event& iEvent, const edm::Even
   std::cout <<" bSF/bSFerr ="<<perf.getResult(PerformanceResult::BTAGLEFFCORR,p)<<"/"<<perf.getResult(PerformanceResult::BTAGLERRCORR,p)<<std::endl;
   std::cout <<" beff/berr ?"<<perf.isResultOk(PerformanceResult::BTAGLEFF,p)<<"/"<<perf.isResultOk(PerformanceResult::BTAGLERR,p)<<std::endl;
   std::cout <<" bSF/bSFerr ="<<perf.getResult(PerformanceResult::BTAGLEFF,p)<<"/"<<perf.getResult(PerformanceResult::BTAGLERR,p)<<std::endl;
-  
+  */
 
 
   /*
