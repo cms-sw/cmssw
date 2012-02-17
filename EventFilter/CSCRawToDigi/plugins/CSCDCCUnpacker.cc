@@ -1192,9 +1192,6 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
 	std::cout << "||||||||||||||||||||" << std::endl;
 	std::cout << std::endl << std::endl;
 	std::cout << alct_t1_coll.size() <<"  "<< alct_common << "  "<<alct_tr1 << "  "<< "found" << std::endl;
-        //std::cout << " alct_t1_coll: " << alct_t1_coll.size() << std::endl;
-        //std::cout << " alct_wcnt1_coll: " << alct_wcnt1_coll.size() << std::endl;
-        //std::cout << " alct_wcnt2_coll: " << alct_wcnt2_coll.size() << std::endl;
 	for(unsigned int k=0; k<alct_t1_coll.size();++k){
          /*
 	        sprintf(sign,"%s%6i%5s %s %s %i %s %i","Line: ",
