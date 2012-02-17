@@ -1,10 +1,8 @@
-/* L1CaloTower class
-Keeps both ECAL/HCAL Tower information .
-Used as input for Clustering
+/* L1CaloTower class Keeps both ECAL/HCAL Tower information . Used as input for Clustering
 
-M.Bachtis,S.Dasu
-University of Wisconsin-Madison
-*/
+   M.Bachtis,S.Dasu University of Wisconsin-Madison
+
+   Modified Andrew W. Rose Imperial College, London */
 
 
 #ifndef L1CaloTower_h
@@ -12,44 +10,51 @@ University of Wisconsin-Madison
 
 #include <vector>
 
-namespace l1slhc {
 
-class L1CaloTower 
+namespace l1slhc
 {
 
-public:
+	class L1CaloTower
+	{
 
-  L1CaloTower();
-  ~L1CaloTower();
-  
+	  public:
 
-  //Setters
-  void setPos( const int& , const int& );//Set Tower position (iEta,iPhi)
-//  void setParams( const int& , const int& , const bool& ); //Set ECAL,HCAL Energy and finegrain 
-
-  void setEcal( const int& , const bool& );
-  void setHcal( const int& , const bool& );
-
-  //getters 
-  const int& E() const; 
-  const int& H() const;
-  const int& iEta() const;
-  const int& iPhi() const;
-  const bool& EcalFG() const;
-  const bool& HcalFG() const;
-
-private:
-  int mEcal;
-  int mHcal;
-  int mIeta;
-  int mIphi;
-  bool mEcalFG;
-  bool mHcalFG;
+		L1CaloTower(  );
+		L1CaloTower( const int &, const int & );	// Set Tower position (iEta,iPhi)
+		 ~L1CaloTower(  );
 
 
-};
+		// Setters
+		void setPos( const int &, const int & );	// Set Tower position (iEta,iPhi)
+		// void setParams( const int& , const int& , const bool& ); //Set ECAL,HCAL Energy and finegrain 
 
- typedef std::vector<L1CaloTower> L1CaloTowerCollection;
+		void setEcal( const int &, const bool & );
+		void setHcal( const int &, const bool & );
+
+		// getters 
+		const int &E(  ) const;
+		const int &H(  ) const;
+		const int &iEta(  ) const;
+		const int &iPhi(  ) const;
+		const bool & EcalFG(  ) const;
+		const bool & HcalFG(  ) const;
+
+	  private:
+		int mEcal;
+		int mHcal;
+		int mIeta;
+		int mIphi;
+		bool mEcalFG;
+		bool mHcalFG;
+
+
+	};
+
 }
-#endif
 
+// Sorting functor
+namespace std{
+	bool operator< ( const l1slhc::L1CaloTower & aLeft,  const l1slhc::L1CaloTower & aRight );
+}
+
+#endif

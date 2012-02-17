@@ -1,88 +1,57 @@
-/// ////////////////////////////////////////
-/// Stacked Tracker Simulations          ///
-/// Written by:                          ///
-/// Unknown                              ///
-///                                      ///
-/// Changed by:                          ///
-/// Emmanuele Salvati                    ///
-/// Cornell                              ///
-/// 2010, June                           ///
-///                                      ///
-/// Removed TrackTriggerHits             ///
-/// Fixed some issues about Clusters     ///
-/// ////////////////////////////////////////
-
-
-/** Begin Tracking Trigger **/
-
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "SimDataFormats/SLHC/interface/StackedTrackerTypes.h"
+
+/* ========================================================================================= */
+/* ==================================== CALO TRIGGER INCLUDES ==================================== */
+/* ========================================================================================= */
+
+#include "SimDataFormats/SLHC/interface/L1CaloTriggerSetup.h"
+#include "SimDataFormats/SLHC/interface/L1CaloTower.h"
+#include "SimDataFormats/SLHC/interface/L1CaloTowerFwd.h"
+#include "SimDataFormats/SLHC/interface/L1CaloCluster.h"
+#include "SimDataFormats/SLHC/interface/L1CaloClusterFwd.h"
+#include "SimDataFormats/SLHC/interface/L1CaloJet.h"
+#include "SimDataFormats/SLHC/interface/L1CaloJetFwd.h"
+#include "SimDataFormats/SLHC/interface/L1CaloRegion.h"
+#include "SimDataFormats/SLHC/interface/L1CaloRegionFwd.h"
+
+#include "SimDataFormats/SLHC/interface/EtaPhiContainer.h"
+
 
 namespace {
   namespace {
 
-    cmsUpgrades::Ref_PSimHit_    PSH_;
-    cmsUpgrades::Ref_PixelDigi_  PD_;
+    l1slhc::L1CaloTower      tower;
+    std::vector<l1slhc::L1CaloCluster>    l1calotl;
+    l1slhc::L1CaloTowerRef   towerRef;
 
-    /// SimHit type
-    cmsUpgrades::L1TkStub_PSimHit_                         S_PSH_;
-    cmsUpgrades::L1TkStub_PSimHit_Collection               S_PSH_C;
-    edm::Wrapper<cmsUpgrades::L1TkStub_PSimHit_Collection> S_PSH_CW;
+    l1slhc::L1CaloTowerCollection towerColl;
+    l1slhc::L1CaloTowerRefVector  towerRefColl;
+    edm::Wrapper<l1slhc::L1CaloTowerCollection>   wtowerColl;
+    edm::Wrapper<l1slhc::L1CaloTowerRefVector>   wtowerRefColl;
 
-    cmsUpgrades::L1TkTracklet_PSimHit_                         T_PSH_;
-    cmsUpgrades::L1TkTracklet_PSimHit_Collection               T_PSH_C;
-    edm::Wrapper<cmsUpgrades::L1TkTracklet_PSimHit_Collection> T_PSH_CW;
-
-    cmsUpgrades::L1Track_PSimHit_                         L1T_PSH_;
-    cmsUpgrades::L1Track_PSimHit_Collection               L1T_PSH_C;
-    edm::Wrapper<cmsUpgrades::L1Track_PSimHit_Collection> L1T_PSH_CW;
-
-    /// PixelDigi type
-    cmsUpgrades::L1TkStub_PixelDigi_                         S_PD_;
-    cmsUpgrades::L1TkStub_PixelDigi_Collection               S_PD_C;
-    edm::Wrapper<cmsUpgrades::L1TkStub_PixelDigi_Collection> S_PD_CW;
-
-    cmsUpgrades::L1TkTracklet_PixelDigi_                         T_PD_;
-    cmsUpgrades::L1TkTracklet_PixelDigi_Collection               T_PD_C;
-    edm::Wrapper<cmsUpgrades::L1TkTracklet_PixelDigi_Collection> T_PD_CW;
-
-    cmsUpgrades::L1Track_PixelDigi_                         L1T_PD_;
-    cmsUpgrades::L1Track_PixelDigi_Collection               L1T_PD_C;
-    edm::Wrapper<cmsUpgrades::L1Track_PixelDigi_Collection> L1T_PD_CW;
+    l1slhc::L1CaloCluster                 calocl;
+    std::vector<l1slhc::L1CaloCluster>    l1calocl;
+	l1slhc::L1CaloClusterCollection		  l1caloclcoll;
+    edm::Wrapper< l1slhc::L1CaloClusterCollection >   wl1calocl;
 
 
-/// WARNING NP** This has to be crosschecked after new class
-/// of Clusters has been setup
-/* ========================================================================== */      
-//Cluster types
-    std::vector< std::vector< cmsUpgrades::Ref_PixelDigi_ > > STV_PD;
+    l1slhc::L1CaloJet                     calojet;
+    std::vector<l1slhc::L1CaloJet>       l1calojetvec;
+ 	l1slhc::L1CaloJetCollection		  l1calojetcoll;
+    edm::Wrapper< l1slhc::L1CaloJetCollection >   wl1calojetcol;
 
-    std::pair<cmsUpgrades::StackedTrackerDetId,int> STP_STDI_I; // why ???
+    l1slhc::L1CaloRegion                                caloregion;
+    std::vector<l1slhc::L1CaloRegion>   				l1caloregion;
+    l1slhc::L1CaloRegionRef                             caloregionRef;
+    l1slhc::L1CaloRegionCollection                      caloregionC;
+    l1slhc::L1CaloRegionRefVector                       caloregionRefC;
 
-    // Emmanuele's modification 
-    cmsUpgrades::L1TkCluster_PSimHit_                         CL_PSH_;
-    cmsUpgrades::L1TkCluster_PSimHit_Map                      CL_PSH_M;
-    edm::Wrapper<cmsUpgrades::L1TkCluster_PSimHit_Map>        CL_PSH_MW;
-    cmsUpgrades::L1TkCluster_PSimHit_Collection               CL_PSH_C;
-    edm::Wrapper<cmsUpgrades::L1TkCluster_PSimHit_Collection> CL_PSH_CW;
-    cmsUpgrades::L1TkCluster_PSimHit_Pointer                  CL_PSH_P;
-    edm::Wrapper<cmsUpgrades::L1TkCluster_PSimHit_Pointer>    CL_PSH_PW;
 
-    cmsUpgrades::L1TkCluster_PixelDigi_                         CL_PD_; 
-    cmsUpgrades::L1TkCluster_PixelDigi_Map                      CL_PD_M;
-    edm::Wrapper<cmsUpgrades::L1TkCluster_PixelDigi_Map>        CL_PD_MW;
-    cmsUpgrades::L1TkCluster_PixelDigi_Collection               CL_PD_C;
-    edm::Wrapper<cmsUpgrades::L1TkCluster_PixelDigi_Collection> CL_PD_CW;
-    cmsUpgrades::L1TkCluster_PixelDigi_Pointer                  CL_PD_P;
-    edm::Wrapper<cmsUpgrades::L1TkCluster_PixelDigi_Pointer>    CL_PD_PW;
+    edm::Wrapper<l1slhc::L1CaloRegionCollection>        wcaloregionC;
+    edm::Wrapper<l1slhc::L1CaloRegionRefVector>         qaloregionRefC;
+   
 
-    std::pair<unsigned int, cmsUpgrades::L1TkCluster_PSimHit_ >   P_INT_PSHC;
-    std::pair<unsigned int, cmsUpgrades::L1TkCluster_PixelDigi_ > P_INT_PDC;
-
-    std::pair<unsigned int , edm::Ptr< cmsUpgrades::L1TkStub_PSimHit_ > >   P_INT_PTRS_PSH; 
-    std::pair<unsigned int , edm::Ptr< cmsUpgrades::L1TkStub_PixelDigi_ > > P_INT_PTRS_PD; 
 
   }
 }
-
 
