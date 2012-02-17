@@ -8,7 +8,7 @@ Monitoring source for general quantities related to tracks.
 */
 // Original Author:  Suchandra Dutta, Giorgia Mila
 //         Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackAnalyzer.h,v 1.11 2011/10/25 09:11:42 borrell Exp $
+// $Id: TrackAnalyzer.h,v 1.12 2012/02/17 15:31:54 tosi Exp $
 
 #include <memory>
 #include <fstream>
@@ -74,7 +74,6 @@ class TrackAnalyzer
 	bool doTestPlots_;
 
         MonitorElement* NumberOfRecHitsPerTrack;
-        MonitorElement* TESTNumberOfRecHitsPerTrack;
         MonitorElement* NumberOfRecHitsFoundPerTrack;
         MonitorElement* NumberOfRecHitsLostPerTrack;
         MonitorElement* NumberOfLayersPerTrack;
@@ -90,17 +89,17 @@ class TrackAnalyzer
         MonitorElement* DistanceOfClosestApproachToBSVsPhi;
         MonitorElement* DistanceOfClosestApproachVsEta;
         MonitorElement* xPointOfClosestApproach;
-        MonitorElement* xPointOfClosestApproachVsZ0;
+        MonitorElement* xPointOfClosestApproachVsZ0wrt000;
+        MonitorElement* xPointOfClosestApproachVsZ0wrtBS;
         MonitorElement* yPointOfClosestApproach;
-        MonitorElement* yPointOfClosestApproachVsZ0;
+        MonitorElement* yPointOfClosestApproachVsZ0wrt000;
+        MonitorElement* yPointOfClosestApproachVsZ0wrtBS;
         MonitorElement* zPointOfClosestApproach;
+        MonitorElement* zPointOfClosestApproachVsPhi;
 	MonitorElement* algorithm;
 	// TESTING MEs
-        MonitorElement* TESTxPointOfClosestApproachVsZ0;
-        MonitorElement* TESTyPointOfClosestApproachVsZ0;
         MonitorElement* TESTDistanceOfClosestApproachToBS;
         MonitorElement* TESTDistanceOfClosestApproachToBSVsPhi;
-        MonitorElement* zPointOfClosestApproachVsZ0;
 
         MonitorElement* NumberOfTOBRecHitsPerTrack;
         MonitorElement* NumberOfTOBRecHitsPerTrackVsPhiProfile;
@@ -146,6 +145,8 @@ class TrackAnalyzer
 
         MonitorElement* GoodTrackNumberOfRecHitVsPhiVsEtaPerTrack;
         MonitorElement* GoodTrackNumberOfLayersVsPhiVsEtaPerTrack;
+        MonitorElement* GoodTrackNumberOfRecHitsPerTrackVsPhiProfile;
+        MonitorElement* GoodTrackNumberOfRecHitsPerTrackVsEtaProfile;
         MonitorElement* GoodTrackNumberOfFoundRecHitsPerTrackVsPhiProfile;
         MonitorElement* GoodTrackNumberOfFoundRecHitsPerTrackVsEtaProfile;
         MonitorElement* GoodTrackChi2oNDF;

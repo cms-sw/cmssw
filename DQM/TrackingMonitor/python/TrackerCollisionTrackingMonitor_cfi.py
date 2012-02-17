@@ -35,8 +35,6 @@ TrackerCollisionTrackMon.doGoodTrackRecHitVsPhiVsEtaPerTrack = cms.bool(True)
 TrackerCollisionTrackMon.doLayersVsPhiVsEtaPerTrack          = cms.bool(True)
 TrackerCollisionTrackMon.doGoodTrackLayersVsPhiVsEtaPerTrack = cms.bool(True)
 
-TrackerCollisionTrackMon.doTestPlots = cms.bool(True)
-
 TrackerCollisionTrackMon.doSeedNumberHisto    = cms.bool(False)
 TrackerCollisionTrackMon.doSeedETAHisto       = cms.bool(False)
 TrackerCollisionTrackMon.doSeedVsClusterHisto = cms.bool(False)
