@@ -11,7 +11,7 @@ process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load("TauAnalysis/MCEmbeddingTools/ZmumuStandalonSelection_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-process.GlobalTag.globaltag = 'START42_V13::All'
+process.GlobalTag.globaltag = 'START44_V9B::All'
 
 
 process.maxEvents = cms.untracked.PSet(
@@ -21,7 +21,7 @@ process.maxEvents = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     skipEvents = cms.untracked.uint32(0),
-    fileNames = cms.untracked.vstring('file:F89E8977-949B-E011-87BA-E0CB4E1A1187.root')
+    fileNames = cms.untracked.vstring('file:/scratch/hh/current/cms/user/aburgmei/testFiles/_DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola_Fall11-PU_S6_START44_V9B-v1_GEN-SIM-RECO/00337699-5B3D-E111-BF90-E0CB4E1A1194.root')
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
@@ -31,14 +31,9 @@ process.out = cms.OutputModule("PoolOutputModule",
     )
 )
 
-
-
-
 process.p = cms.Path(process.goldenZmumuSelectionSequence)
 process.outp = cms.EndPath(process.out)
 
 process.options = cms.untracked.PSet(
   wantSummary = cms.untracked.bool(True)
 )
-
-
