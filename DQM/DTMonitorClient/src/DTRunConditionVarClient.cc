@@ -95,7 +95,7 @@ void DTRunConditionVarClient::beginJob()
   allwheelHistos["allSigmaT0"] = theDbe -> book1D("T0SigmaAllWheels","sigma T0 for alla chambers",50,0,25);
 
   for(int wh=-2; wh<=2; wh++) {
-    bookWheelHistos("MeanVDrift","02-MeanVDrift",wh,60,0.0048,0.006);
+    bookWheelHistos("MeanVDrift","02-MeanVDrift",wh,60,0.0048,0.006,true);
     bookWheelHistos("SigmaVDrift","02-SigmaVDrift",wh,30,0.,0.0006);
     bookWheelHistos("MeanT0","03-MeanT0",wh,100,-25.,25.);
     bookWheelHistos("SigmaT0","03-SigmaT0",wh,50,0,25);
@@ -302,7 +302,7 @@ void DTRunConditionVarClient::percDevVDrift(DTChamberId indexCh, float meanVD, f
   return;
 }
 
-void DTRunConditionVarClient::bookWheelHistos(string histoType, string subfolder, int wh, int nbins, float min, float max)
+void DTRunConditionVarClient::bookWheelHistos(string histoType, string subfolder, int wh, int nbins, float min, float max, bool isVDCorr )
 {
   stringstream wheel; wheel << wh;
 
@@ -315,8 +315,14 @@ void DTRunConditionVarClient::bookWheelHistos(string histoType, string subfolder
 
   (wheelHistos[wh])[histoType] = theDbe -> book1D(histoName, histoLabel, nbins, min, max);
 
-  histoName = histoType + "Summary_W" + wheel.str();
-  histoLabel = histoType + "Summary";
+
+  if( isVDCorr ) {
+    histoLabel = "Summary of corrections to VDrift DB values";
+    histoName = "CorrTo" + histoType + "Summary_W" + wheel.str();
+  } else {
+    histoLabel = histoType + "Summary";
+    histoName = histoType + "Summary_W" + wheel.str();
+  }
 
   MonitorElement* me = theDbe -> book2D(histoName, histoLabel,12,1,13,4,1,5);
 

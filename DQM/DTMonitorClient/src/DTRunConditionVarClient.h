@@ -9,7 +9,7 @@
  *
  * \author : Paolo Bellan, Antonio Branca
  * $date   : 23/09/2011 15:42:04 CET $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  *
  * Modification:
  *
@@ -58,7 +58,7 @@ class DTRunConditionVarClient: public edm::EDAnalyzer{
     void endJob();
 
     /// book the report summary
-    void bookWheelHistos(std::string histoType, std::string subfolder, int wh, int nbins, float min, float max);
+    void bookWheelHistos(std::string histoType, std::string subfolder, int wh, int nbins, float min, float max, bool isVDCorr=false);
 
     /// DQM Client Diagnostic
     void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context);
