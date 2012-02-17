@@ -66,20 +66,20 @@ void PhotonConversionTrajectorySeedProducerFromSingleLeg::produce(edm::Event& ev
 
 
   std::auto_ptr<TrajectorySeedCollection> result( new TrajectorySeedCollection() );  
-  try{
-    _theFinder->analyze(ev,es);
-    if(_theFinder->getTrajectorySeedCollection()->size())
-      result->insert(result->end(),
-		     _theFinder->getTrajectorySeedCollection()->begin(),
-		     _theFinder->getTrajectorySeedCollection()->end());
-  }catch(cms::Exception& er){
-    edm::LogError("SeedingConversion") << " Problem in the Single Leg Conversion Seed Producer " <<er.what()<<std::endl;
-  }catch(std::exception& er){
-    edm::LogError("SeedingConversion") << " Problem in the Single Leg Conversion Seed Producer " << er.what()<<std::endl;
-  }
+  //try{
+  _theFinder->analyze(ev,es);
+  if(_theFinder->getTrajectorySeedCollection()->size())
+    result->insert(result->end(),
+		   _theFinder->getTrajectorySeedCollection()->begin(),
+		   _theFinder->getTrajectorySeedCollection()->end());
+  //}catch(cms::Exception& er){
+  //  edm::LogError("SeedingConversion") << " Problem in the Single Leg Conversion Seed Producer " <<er.what()<<std::endl;
+  //}catch(std::exception& er){
+  //  edm::LogError("SeedingConversion") << " Problem in the Single Leg Conversion Seed Producer " << er.what()<<std::endl;
+  //}
 
   
-  edm::LogInfo("debugTrajSeedFromSingleLeg") << " TrajectorySeedCollection size " << result->size();
+  //edm::LogInfo("debugTrajSeedFromSingleLeg") << " TrajectorySeedCollection size " << result->size();
   ev.put(result, _newSeedCandidates);  
 
   //FIXME 

@@ -5,7 +5,6 @@
 #include "TH1D.h"
 #include "TLegend.h"
 
-#include "TROOT.h"
 #include <map>
 #include <iostream>
 
@@ -20,7 +19,6 @@ void getHistograms(const TString canvasName, TH1F * & histo1, TH1D * & histo2, c
  */
 void ShowMassComparison(const TString & resonance = "Z")
 {
-  gROOT->SetBatch(true);
   TString canvasName("Allres");
   if( resonance == "Psis" || resonance == "Upsilons" || resonance == "LowPtResonances" || resonance == "AllResonances" ) {
     canvasName += "Together";

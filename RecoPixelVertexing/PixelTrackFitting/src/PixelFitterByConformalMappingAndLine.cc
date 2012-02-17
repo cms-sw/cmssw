@@ -92,11 +92,10 @@ reco::Track* PixelFitterByConformalMappingAndLine::run(
     errRPhi2.push_back( point.perp2()*phiErr2);
   }
   ConformalMappingFit parabola(xy, errRPhi2);
-  if (theConfig.exists("fixImpactParameter") || nhits < 3) 
-      parabola.fixImpactParmaeter(theConfig.getParameter<double>("fixImpactParameter"));
-  else if (nhits < 3) {
-      parabola.fixImpactParmaeter(0.);
-  }
+  if (theConfig.exists("fixImpactParameter")) 
+    parabola.fixImpactParmaeter(theConfig.getParameter<double>("fixImpactParameter"));
+  else if (nhits < 3) parabola.fixImpactParmaeter(0.);
+ 
 
   Measurement1D curv = parabola.curvature();
   float invPt = PixelRecoUtilities::inversePt( curv.value(), es);

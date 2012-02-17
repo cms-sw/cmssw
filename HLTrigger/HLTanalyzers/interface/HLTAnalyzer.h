@@ -69,8 +69,8 @@ private:
   HLTMCtruth  mct_analysis_;
   /*
   HLTAlCa     alca_analysis_; 
-  HLTTrack    track_analysis_;
   */
+  HLTTrack    track_analysis_;
   HLTInfo     hlt_analysis_;
   RECOVertex  vrt_analysisHLT_;
   RECOVertex  vrt_analysisOffline0_;
@@ -78,8 +78,8 @@ private:
   int firstLumi_, lastLumi_, towerThreshold_;
   double xSection_, filterEff_, treeWeight;
 
-  edm::InputTag recjets_,reccorjets_,genjets_,recmet_,genmet_,ht_,recoPFJets_,calotowers_,hltresults_,genEventInfo_;
-  edm::InputTag hltjets_, hltcorjets_;
+  edm::InputTag recjets_,reccorjets_,genjets_,recmet_,recoPFMet_,genmet_,ht_,recoPFJets_,calotowers_,hltresults_,genEventInfo_;
+  edm::InputTag hltjets_, hltcorjets_, hltcorL1L2L3jets_;
   edm::InputTag muon_;
   std::string l1extramc_, l1extramu_;
   edm::InputTag m_l1extramu;
@@ -95,8 +95,8 @@ private:
   edm::InputTag gtReadoutRecord_,gtObjectMap_; 
   edm::InputTag gctBitCounts_,gctRingSums_;
 
-  edm::InputTag MuCandTag2_,MuIsolTag2_,MuNoVtxCandTag2_,MuCandTag3_,MuIsolTag3_;
-  edm::InputTag oniaPixelTag_,oniaTrackTag_,DiMuVtx_;
+  edm::InputTag MuCandTag2_,MuIsolTag2_,MuNoVtxCandTag2_,MuCandTag3_,MuIsolTag3_,MuTrkIsolTag3_;
+  edm::InputTag oniaPixelTag_,oniaTrackTag_,DiMuVtx_,TrackerMuonTag_;
   edm::InputTag HLTTau_, PFTau_, PFTauTightCone_;
   edm::InputTag PFJets_;
   
@@ -165,23 +165,25 @@ private:
   edm::InputTag pi0EBRecHitTag_;   
   edm::InputTag HBHERecHitTag_;   
   edm::InputTag HORecHitTag_;   
-  edm::InputTag HFRecHitTag_;   
+  edm::InputTag HFRecHitTag_;
+  */   
   edm::InputTag IsoPixelTrackTagL3_;
   edm::InputTag IsoPixelTrackTagL2_; 
   edm::InputTag IsoPixelTrackVerticesTag_;
-  */
+
 
   // Track OpenHLT input collections
-  /*
+
   edm::InputTag PixelTracksTagL3_; 
-  */
+  edm::InputTag PixelFEDSizeTag_;
+  edm::InputTag PixelClustersTag_;
 
   // Reco vertex collection
   edm::InputTag VertexTagHLT_;
   edm::InputTag VertexTagOffline0_;
 
   int errCnt;
-  const int errMax(){return 100;}
+  static int errMax() { return 100; }
 
   std::string _HistName; // Name of histogram file
   double _EtaMin,_EtaMax;

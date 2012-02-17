@@ -16,9 +16,9 @@ int main(){
   std::vector<float> pedChi2;
   
   std::ifstream dbdata; 
-  dbdata.open("FileName",std::ios::in); 
+  dbdata.open("/nfshome0/boeriu/cal_data/merged_data/pedSummary2010_03_18_run131361.dat",std::ios::in); 
   if(!dbdata) {
-    std::cerr <<"Error: FileName -> no such file!"<< std::endl;
+    std::cerr <<"Error: pedSummary2010_03_18_run131361.dat -> no such file!"<< std::endl;
     exit(1);
   }
 
@@ -30,13 +30,16 @@ int main(){
     nrlines++;
   }
   dbdata.close();
-  std::ofstream myPedsFile("GoodVals_FileName",std::ios::out);
- 
+  std::ofstream myPedsFile("goodPeds2010_03_18_run131361.dat",std::ios::out);
+
   for(int i=0; i<nrlines-1;++i){
-    if (Ped[i]>400.0 && Ped[i]<1000.0){
+    if (Ped[i]!=0.0 && Ped[i]>400.0 && Ped[i]<1000.0){
       myPedsFile<<index_id[i]<<"  "<<Ped[i]<<"  "<<pedChi2[i]<<std::endl;
+      if (Ped[i]<400.){
+	std::cout<<"Index "<<index_id[i]<<"  "<<Ped[i]<<std::endl;
+      }
       if (flag==1 || flag1==1){
-  std::cout<<"Flag not 0: "<<index_id[i]<<" " <<flag<<"  "<<flag1<<std::endl;
+	std::cout<<"Flag not 0: "<<index_id[i]<<" " <<flag<<"  "<<flag1<<std::endl;
       }
     }
   }

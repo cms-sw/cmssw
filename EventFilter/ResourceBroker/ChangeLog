@@ -1,3 +1,14 @@
+2011-10-21  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-16-14
+	* handle case where all EP slaves stuck and shmem is full
+	* promote timeout of EP processing to ERROR level
+
+2011-09-27  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-16-13 (12 used by e ulisse for compiler compat)
+	* hopefully fix handling of oversize or otherwise corrupt events
+
 2011-06-08  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V00-16-11

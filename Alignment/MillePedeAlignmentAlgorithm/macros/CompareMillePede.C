@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2011/02/11 10:46:31 $
+// last change    : $Date: 2010/10/26 21:34:25 $
 // by             : $Author: flucke $
 
 #include "CompareMillePede.h"
@@ -652,63 +652,6 @@ void CompareMillePede::DrawNumHits(Option_t *option)
   fHistManager->Draw();
 }
 
-//_________________________________________________________________________________________________
-void CompareMillePede::DrawAbsPos(Option_t *option)
-{
-//"start": at start (else end), "add": keep old canvas
-
-  const TString opt(option);
-
-  const Int_t layer = this->PrepareAdd(opt.Contains("add", TString::kIgnoreCase));
-  const TString titleAdd = this->TitleAdd();
-
-  const TString tree1(opt.Contains("start", TString::kIgnoreCase) ? fPlotMp1->OrgPosT() : fPlotMp1->PosT()); 
-  const TString tree2(opt.Contains("start", TString::kIgnoreCase) ? fPlotMp2->OrgPosT() : fPlotMp2->PosT()); 
-
-  const PlotMillePede *m = fPlotMp1;
-  //UInt_t nPlot = 0;
-
-  // const TString posNames[] = {"rphi", "r", "z", "phi", "x", "y"};
-
-//   for (UInt_t iPos = 0; iPos < sizeof(posNames)/sizeof(posNames[0]); ++iPos) {
-//     const TString &posName = posNames[iPos];
-  for (UInt_t iPos = 0; iPos < 3; ++iPos) { // 
-    TString sel("");
-    //this->AddIsFreeSel(sel, opt, iPar);
-    fPlotMp1->AddBasicSelection(sel);
-    fPlotMp2->AddBasicSelection(sel);
-    
-//   // values: absolute positions and orientations; need a 'position tree' as argument or in front
-//   TString Pos() const { return "Pos";}
-//   TString Pos(UInt_t ui) const { return Pos() += Bracket(ui);}
-//   TString XPos() const { return Pos(0);}
-//   TString YPos() const { return Pos(1);}
-//   TString ZPos() const { return Pos(2);}
-
-//   TString DelPos(UInt_t ui, const TString &tree1, const TString &tree2) const;
-
-//   // units and names for position strings (r, rphi, phi, x, y, z)
-//   TString ToMumMuRad(const TString &pos) const;
-//   TString Name(const TString &pos) const;
-
-//   TString OrgPosT() const { return fOrgPos + Dot();} // nominal global positions
-//   TString PosT() const { return fPos + Dot();} // aligned global positions
-
-
-    const TString deltaName(m->Unique(Form("deltaPos%d", iPos))); // 
-    //const TString deltaName(m->Unique("deltaPos" + posName)); // 
-    TH1 *h = fPlotMp1->CreateHist(m->DelPos(iPos, tree2, tree1), sel, deltaName);
-    if (0. == h->GetEntries()) continue;
-
-    const TString diff(Form("%s_{2}-%s_{1}", m->NamePos(iPos).Data(), m->NamePos(iPos).Data()));
-    h->SetTitle(diff + titleAdd + ";" + diff + " [cm];#alignables");
-
-    fHistManager->AddHist(h, layer);
-    //    ++nPlot;
-  }
-
-  fHistManager->Draw();
-}
 //_________________________________________________________________________________________________
 //_________________________________________________________________________________________________
 //_________________________________________________________________________________________________

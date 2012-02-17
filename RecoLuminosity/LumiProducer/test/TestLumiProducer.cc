@@ -49,6 +49,13 @@ namespace edmtest
 
   void TestLumiProducer::analyze(edm::Event const& e,edm::EventSetup const&)
   {
+    LuminosityBlock const& lumiBlock = e.getLuminosityBlock();
+
+    Handle<LumiDetails> lumiDetails;
+    lumiBlock.getByLabel("lumiProducer", lumiDetails);
+
+    Handle<LumiSummary> lumiSummary;
+    lumiBlock.getByLabel("lumiProducer", lumiSummary);
   }
 
   // -----------------------------------------------------------------

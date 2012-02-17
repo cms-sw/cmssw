@@ -40,6 +40,9 @@ namespace edm {
       for(unsigned int i=0;i!=n;++i) {
         modulenames_.push_back(pset.getParameter<Strings>(trignames_[i]));
       }
+      for(unsigned int i = 0; i != end_names_.size(); ++i) {
+        end_modulenames_.push_back(pset.getParameter<Strings>(end_names_[i]));
+      }
     }
 
     bool

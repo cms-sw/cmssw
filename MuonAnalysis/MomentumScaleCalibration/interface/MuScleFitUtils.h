@@ -5,8 +5,8 @@
  *
  *  Provide basic functionalities useful for MuScleFit
  *
- *  $Date: 2011/03/31 15:57:45 $
- *  $Revision: 1.30 $
+ *  $Date: 2010/08/03 10:51:59 $
+ *  $Revision: 1.25 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo - INFN Padova
  */
 
@@ -81,10 +81,8 @@ public:
   static double massResolution( const lorentzVector & mu1, const lorentzVector & mu2, double* parval );
 
   static double massProb( const double & mass, const double & rapidity, const int ires, const double & massResol );
-  /* static double massProb( const double & mass, const double & resEta, const double & rapidity, const double & massResol, const std::vector<double> & parval, const bool doUseBkgrWindow = false ); */
-  /* static double massProb( const double & mass, const double & resEta, const double & rapidity, const double & massResol, double * parval, const bool doUseBkgrWindow = false ); */
-  static double massProb( const double & mass, const double & resEta, const double & rapidity, const double & massResol, const std::vector<double> & parval, const bool doUseBkgrWindow, const double & eta1, const double & eta2 );
-  static double massProb( const double & mass, const double & resEta, const double & rapidity, const double & massResol, double * parval, const bool doUseBkgrWindow, const double & eta1, const double & eta2 );
+  static double massProb( const double & mass, const double & resEta, const double & rapidity, const double & massResol, const std::vector<double> & parval, const bool doUseBkgrWindow = false );
+  static double massProb( const double & mass, const double & resEta, const double & rapidity, const double & massResol, double * parval, const bool doUseBkgrWindow = false );
   static double computeWeight( const double & mass, const int iev, const bool doUseBkgrWindow = false );
 
   static double deltaPhi( const double & phi1, const double & phi2 )
@@ -170,13 +168,7 @@ public:
   static std::vector<double> parSmear;
   static std::vector<double> parBias;
   static std::vector<double> parResol;
-  static std::vector<double> parResolStep;
-  static std::vector<double> parResolMin;
-  static std::vector<double> parResolMax;
   static std::vector<double> parScale;
-  static std::vector<double> parScaleStep;
-  static std::vector<double> parScaleMin;
-  static std::vector<double> parScaleMax;
   static std::vector<double> parCrossSection;
   static std::vector<double> parBgr;
   static std::vector<int> parResolFix;
@@ -193,10 +185,10 @@ public:
   static double x[7][10000]; // smearing values set by MuScleFit constructor
   static int goodmuon;       // number of events with a usable resonance
   static int counter_resprob;// number of times there are resolution problems
-  static double GLZValue[40][1002][1002]; // matrix with integral values of Lorentz * Gaussian
-  static double GLZNorm[40][1002];        // normalization values per each sigma
-  static double GLValue[6][1002][1002]; // matrix with integral values of Lorentz * Gaussian
-  static double GLNorm[6][1002];        // normalization values per each sigma
+  static double GLZValue[40][1001][1001]; // matrix with integral values of Lorentz * Gaussian
+  static double GLZNorm[40][1001];        // normalization values per each sigma
+  static double GLValue[6][1001][1001]; // matrix with integral values of Lorentz * Gaussian
+  static double GLNorm[6][1001];        // normalization values per each sigma
   static double ResMaxSigma[6];         // max sigma of matrix
   static double ResHalfWidth[6];        // halfwidth in matrix
   static int nbins;                     // number of bins in matrix
@@ -233,15 +225,12 @@ public:
   static bool useProbsFile_;
 
   // Cuts on the muons to use in the fit
-  static bool separateRanges_;
   static double minMuonPt_;
   static double maxMuonPt_;
   static double minMuonEtaFirstRange_;
   static double maxMuonEtaFirstRange_;
   static double minMuonEtaSecondRange_;
   static double maxMuonEtaSecondRange_;
-  static double deltaPhiMinCut_;
-  static double deltaPhiMaxCut_;
 
   static bool debugMassResol_;
   static struct massResolComponentsStruct
@@ -265,7 +254,7 @@ public:
 
   /// Computes the probability given the mass, mass resolution and the arrays with the probabilities and the normalizations.
   static double probability( const double & mass, const double & massResol,
-                             const double GLvalue[][1002][1002], const double GLnorm[][1002],
+                             const double GLvalue[][1001][1001], const double GLnorm[][1001],
                              const int iRes, const int iY );
 
 protected:

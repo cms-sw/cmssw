@@ -61,7 +61,7 @@ root Photon_inputTag         photons
 root caloTowers_inputTag     towerMaker
 
 // Muon branch
-root muon_inputTag           muons
+root muon_inputTag           muons1stStep
 
 // HepMCProduct branch
 root MCTruth_inputTag        generator
@@ -94,7 +94,7 @@ root TCMET_inputTag	       tcMet
 
 
 // Particle Flow Candidates
-root particleFlowCand_inputTag    particleFlow
+root particleFlowCand_inputTag    particleFlowTmp
 
 
 
@@ -348,9 +348,12 @@ PFAlgo debug 0
 // Re-run particle flow	
 particle_flow	on/off	1
 
+// Optimized ECAL/track linking from Yuri
+particle_flow useKDTreeTrackEcalLinker 1
+
 // Track Quality Cut: Tracks are kept if DPt/Pt < Cut * sigma(Had) 
 // and if nHit >= nHitCut
-particle_flow DPtoverPt_Cut  -1. -1. -1. -1. -1. 
+particle_flow DPtoverPt_Cut  -1. -1. -1. 1. 1. 
 particle_flow NHit_Cut 3 3 3 3 3
 particle_flow useIterTracking 1
 
@@ -543,7 +546,7 @@ print genParticles_ptmin 0.0
 print verbosity 0
 
 // Perform comparison of pf candidates (CMSSW/PFRootEvent)
-particle_flow   comparison  0
+particle_flow   comparison  1
 
 //tau benchmark options ---------------------------------------------------
 

@@ -143,42 +143,13 @@ c*******************************************************
 c...there list some typical ways for recording the data.
 c...users may use one convenient way/or their own way.
 c******************************************************
-c***********find highest weight*******************    
-      MAXWGT=0.0D0
-      do iev=1,10000
-      call pyevnt
-      if (MAXWGT.le.xwgtup) then
-         MAXWGT=xwgtup
-      end if
-      end do 
-c---------------------------------------------------
-      do iev=1,nev
+
+
+	do iev=1,nev
 		call pyevnt
-c     call bcvegpy_write_lhe
-c**************The unweighting scheme**************** 
-c******the ratio of xwgtup and the xwgtup_max setted at the beginning******
-      xwt_r=xwgtup/MAXWGT
-
-      x_r = ran(0)
-
-      if (x_r.le.xwt_r.and.xwt_r.le.1) then
-c         write(*,*) "random number ",x_r," ratio ",xwt_r 
-c         write(*,*) "max xwgtup",MAXWGT
-         call bcvegpy_write_lhe
-      end if
-      if(xwt_r.gt.1) then
-         do ic=1,int(xwt_r)
-c         write(*,*) "fill times",ic
-         call bcvegpy_write_lhe
-         end do
-         sxwt=xwt_r-int(xwt_r)
-         x_r = ran(0)
-         if (x_r.le.sxwt) then
-         call bcvegpy_write_lhe
-         end if
-      end if
-   
-c****************************************************************
+		call bcvegpy_write_lhe
+c....CALL PYUPEV
+c
 		if (idwtup.eq.1.and.iev.ne.1.and.generate) then
 	        call pylist(7)
 c	        call time(end_time)

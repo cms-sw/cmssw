@@ -1,7 +1,5 @@
 <lcgdict>
- <class name="edm::EDProductGetter" ClassVersion="10">
-  <version ClassVersion="10" checksum="2702412727"/>
- </class>
+ <class name="edm::EDProductGetter"/>
  <class name="edm::RefCore" ClassVersion="10">
   <version ClassVersion="10" checksum="641105393"/>
    <field name="cachePtr_" transient = "true"/>
@@ -103,20 +101,11 @@
   <version ClassVersion="10" checksum="547571379"/>
  </class>
  <class name="edm::Wrapper<edm::TriggerResults>" splitLevel="0"/>
- <class name="edm::Other" ClassVersion="10">
-  <version ClassVersion="10" checksum="2949726"/>
- </class>
- <class name="edm::DoNotSortUponInsertion" ClassVersion="10">
-  <version ClassVersion="10" checksum="862111625"/>
- </class>
- <class name="edm::DoNotRecordParents" ClassVersion="10">
-  <version ClassVersion="10" checksum="2234517662"/>
- </class>
- <class name="edm::helpers::DoNoPostReadFixup" ClassVersion="10">
-  <version ClassVersion="10" checksum="724444167"/>
- </class>
- <class name="edm::helpers::PostReadFixup" ClassVersion="10">
-  <version ClassVersion="10" checksum="3252059443"/>
+ <class name="edm::Other"/>
+ <class name="edm::DoNotSortUponInsertion"/>
+ <class name="edm::DoNotRecordParents"/>
+ <class name="edm::helpers::DoNoPostReadFixup"/>
+ <class name="edm::helpers::PostReadFixup">
    <field name="fixed_" transient="true"/>
  </class>
  <class name="edm::RangeMap<int,std::vector<float>,edm::CopyPolicy<float> >"/>

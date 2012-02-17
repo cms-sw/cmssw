@@ -22,19 +22,16 @@ Glossary: FK=Foreign Key, PK=Primary Key
 table a:  LUMIVALIDATION 
 columns:  runnum(uint32,PK), NOT NULL
           cmslsnum(uint32,PK), NOT NULL 
-	  flag(string), NOT NULL (28)
-          comment(string), NOT NULL (1024)
+	  flag(string), NOT NULL
+          comment(string), NOT NULL
 
 ========
 table 1:  CMSRUNSUMMARY 
 columns:  runnum(uint32,PK), NOT NULL
           fillnum(uint32) 
-          sequence(string),  NOT NULL 56
-          hltkey(string),    NOT NULL 128
-          l1key(string), 128
-          fillscheme(string), 128,
-	  ncollidingbunches (uint32),
-          startime(timestamp(6)) ,
+          sequence(string),  NOT NULL
+          hltkey(string),    NOT NULL
+          startime(timestamp(6)) 
           stoptime(timestamp(6))
 
 =======
@@ -44,7 +41,7 @@ columns:
           runnum(uint32),            NOT NULL range index
           cmslsnum(uint32),	     
           lumilsnum(uint32),         NOT NULL
-          lumiversion(string),       NOT NULL 28
+          lumiversion(string),       NOT NULL
           dtnorm(float),             NOT NULL
           lhcnorm(float),            NOT NULL
           instlumi(float),           NOT NULL
@@ -55,7 +52,7 @@ columns:
           numorbit(uint32),          NOT NULL 
           lumisectionquality(short)  NOT NULL // use max 3 bits [HLX,HF,BRAN]
           beamenergy(float)          NOT NULL 
-          beamstatus(string)         NOT NULL 56
+          beamstatus(string)         NOT NULL 
 	  cmsbxindexblob(blob)
           beamintensityblob_1(blob)
           beamintensityblob_2(blob)
@@ -67,7 +64,7 @@ columns:
 	  bxlumivalue(blob),//blob of float                        NOT NULL
           bxlumierror(blob), //blob of float                       NOT NULL
           bxlumiquality(blob), //blob of short                     NOT NULL
-          algoname(string), //occ1,occ2,et,bran        (28)        NOT NULL
+          algoname(string), //occ1,occ2,et,bran                    NOT NULL
           
 ======
 table 4:  TRG (insert 192 rows per run+cmsls/populate from GT-DB)
@@ -77,7 +74,7 @@ columns:
           cmslsnum(uint32),     NOT NULL 
                                //lumi section id taken by cmsdaq,count from 1
           bitnum(uint32),       NOT NULL //range : 0-127 algo;128-192 tech
-          bitname(string),      NOT NULL 128
+          bitname(string),      NOT NULL
           trgcount(uint32),     NOT NULL
           deadtime(uint64),     NOT NULL //deadtimebeamactive 
           prescale(uint32),     NOT NULL
@@ -89,29 +86,50 @@ table 5: HLT (insert n-hltpath rows per run+cmsls/populate from RunInfo-HLT)
          hlt_id(uint64, PK),    NOT NULL
 	 runnum(uint32),        NOT NULL range index
          cmslsnum(uint32),    NOT NULL
-         pathname(string),      NOT NULL 256
+         pathname(string),      NOT NULL
          inputcount(uint32),    NOT NULL
          acceptcount(uint32),   NOT NULL
          prescale(uint32)       NOT NULL
 	  
 ======
 table 6: TRGHLTMAP (insert 1 row per hltpath-l1seed / populated from ConfDB+L1Seed expression parser)
-         hltkey(string),        NOT NULL 128
-         hltpathname(string),   NOT NULL 256
-         l1seed(string)         NOT NULL 1024
+         hltkey(string),        NOT NULL
+         hltpathname(string),   NOT NULL
+         l1seed(string)         NOT NULL
 
-======
-table 7: FILLSCHEME (insert 1 row per fillscheme)
-         fillscheme_id(uint64),        NOT NULL PK
-         fillschemepattern(string),    NOT NULL (128)
-	 correctionfactor(float),            NOT NULL
+======== tables for global versioning and norm factors ======
+table 7: LUMIVERSION (insert 1 row per either of lumirawversion,norm or bxnorm change)
+         globalversion(string)         PK
+         lumirawversion(string)        NOT NULL        
+         norm(unsigned int)            NOT NULL
+         bxnorm(blob)                  NOT NULL
+         startrun(unsigned int)        (optional)
+         startdate(string)             (optional) 
 
+ ====== result tables not there======
+table 7: INTLUMI (insert 1 row per combinatorial of run+lumiversion)
+columns:  
+         runnum(uint32),
+         lumiversion(string),
+         deliveredlumi( float ), 
+         recordedlumi( float ) //total recordedlumi deadtimecorrected
+
+table 8: INTLUMIHLT (insert 1 row per combinatorial of run+lumiversion+hltpath)
+         runnum(uint32),
+         lumiversion(string),
+	 hltpath(string),
+         recordedlumi( float )
+
+====== bookkeeping tables ===== (to be added in a 2nd phase)
+table 9: LATEST_OFFICIAL_RUN (one entry represents the most recent official run fectched from the cms run info db, can be used to trigger new data pulling chain )
+         runnum(uint32),
+         hltkey(string)
+     
  ====== other helper id tables======
          lumisummary_id, NEXTID (uint64,PK)
          lumidetail_id, NEXTID (uint64,PK),
          hlt_id, NEXTID (uint64),
          trg_id, NEXTID (uint64)       
-         fillscheme_id, NEXTID (uint64)
  
 From LumiProducer, we query lumisummary,lumidetail,trg,hlt data in 100 LS(tunable parameter) batch into memory in one DB connection then close the connection. When a new LS is requested, we open a new DB connection asking for this LS+100 into memory.  
 

@@ -1,12 +1,12 @@
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/PercentileCMNSubtractor.h"
 
-void PercentileCMNSubtractor::subtract(const uint32_t& detId,std::vector<int16_t>& digis) {subtract_(detId,digis);}
-void PercentileCMNSubtractor::subtract(const uint32_t& detId,std::vector<float>& digis) {subtract_(detId,digis);}
+void PercentileCMNSubtractor::subtract(const uint32_t& detId, const uint16_t& firstAPV, std::vector<int16_t>& digis) {subtract_(detId, firstAPV, digis);}
+void PercentileCMNSubtractor::subtract(const uint32_t& detId, const uint16_t& firstAPV, std::vector<float>& digis) {subtract_(detId,firstAPV, digis);}
 
 template<typename T> 
 inline
 void PercentileCMNSubtractor::
-subtract_(const uint32_t& detId,std::vector<T>& digis){
+subtract_(const uint32_t& detId,const uint16_t& firstAPV, std::vector<T>& digis){
   
   std::vector<T> tmp;  tmp.reserve(128);  
   typename std::vector<T>::iterator  
@@ -21,7 +21,7 @@ subtract_(const uint32_t& detId,std::vector<T>& digis){
     tmp.insert(tmp.end(),strip,endAPV);
     const float offset = percentile(tmp,percentile_);
 
-    _vmedians.push_back(std::pair<short,float>((strip-digis.begin())/128,offset));
+    _vmedians.push_back(std::pair<short,float>((strip-digis.begin())/128+firstAPV,offset));
 
     while (strip < endAPV) {
       *strip = static_cast<T>(*strip-offset);

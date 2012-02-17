@@ -121,6 +121,22 @@ void CaloTowerAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iS
     hCT_Occ_ieta_iphi->getTH2F()->SetOption("colz");
     hCT_Occ_ieta_iphi->setAxisTitle("ieta",1);
     hCT_Occ_ieta_iphi->setAxisTitle("ephi",2);
+
+    hCT_Occ_EM_Et_ieta_iphi         = dbe_->book2D("METTask_CT_Occ_EM_Et_ieta_iphi","",83,-41,42, 72,1,73);
+    hCT_Occ_EM_Et_ieta_iphi->getTH2F()->SetOption("colz");
+    hCT_Occ_EM_Et_ieta_iphi->setAxisTitle("ieta",1);
+    hCT_Occ_EM_Et_ieta_iphi->setAxisTitle("ephi",2);
+
+    hCT_Occ_HAD_Et_ieta_iphi         = dbe_->book2D("METTask_CT_Occ_HAD_Et_ieta_iphi","",83,-41,42, 72,1,73);
+    hCT_Occ_HAD_Et_ieta_iphi->getTH2F()->SetOption("colz");
+    hCT_Occ_HAD_Et_ieta_iphi->setAxisTitle("ieta",1);
+    hCT_Occ_HAD_Et_ieta_iphi->setAxisTitle("ephi",2);
+
+    hCT_Occ_Outer_Et_ieta_iphi         = dbe_->book2D("METTask_CT_Occ_Outer_Et_ieta_iphi","",83,-41,42, 72,1,73);
+    hCT_Occ_Outer_Et_ieta_iphi->getTH2F()->SetOption("colz");
+    hCT_Occ_Outer_Et_ieta_iphi->setAxisTitle("ieta",1);
+    hCT_Occ_Outer_Et_ieta_iphi->setAxisTitle("ephi",2);
+
     //--Data over eta-rings
 
     // CaloTower values
@@ -298,8 +314,15 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	  if (Tower_ET>ETTowerMin)
 	    vMET_EtaRing[EtaRing]-=v_;
 	  
-	  // Fill Histograms
-	  hCT_Occ_ieta_iphi->Fill(Tower_ieta,Tower_iphi);
+	  // Fill Histograms                                                                                                                                                                                                   
+          hCT_Occ_ieta_iphi->Fill(Tower_ieta,Tower_iphi);
+          if (calotower->emEt() > 0 && calotower->emEt() + calotower->hadEt() > 0.3)
+            hCT_Occ_EM_Et_ieta_iphi->Fill(Tower_ieta,Tower_iphi);
+          if (calotower->hadEt() > 0 && calotower->emEt() + calotower->hadEt() > 0.3)
+            hCT_Occ_HAD_Et_ieta_iphi->Fill(Tower_ieta,Tower_iphi);
+          if (calotower->outerEt() > 0 && calotower->emEt() + calotower->hadEt() > 0.3)
+            hCT_Occ_Outer_Et_ieta_iphi->Fill(Tower_ieta,Tower_iphi);
+
 	  hCT_et_ieta_iphi->Fill(Tower_ieta,Tower_iphi,Tower_ET);
 	  hCT_emEt_ieta_iphi->Fill(Tower_ieta,Tower_iphi,Tower_EMEt);
 	  hCT_hadEt_ieta_iphi->Fill(Tower_ieta,Tower_iphi,Tower_HadEt);

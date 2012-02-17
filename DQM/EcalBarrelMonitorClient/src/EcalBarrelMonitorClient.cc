@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2010/11/08 18:17:28 $
- * $Revision: 1.502 $
+ * $Date: 2010/11/10 16:52:35 $
+ * $Revision: 1.503 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -639,40 +639,37 @@ void EcalBarrelMonitorClient::beginJob(void) {
 
   // summary for DQM GUI
 
-  char histo[200];
-
   MonitorElement* me;
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
 
-  sprintf(histo, "reportSummary");
-  me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo);
+  me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary");
   if ( me ) {
     dqmStore_->removeElement(me->getName());
   }
-  me = dqmStore_->bookFloat(histo);
+  me = dqmStore_->bookFloat("reportSummary");
   me->Fill(-1.0);
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );
 
+  std::string name;
   for (int i = 0; i < 36; i++) {
-    sprintf(histo, "EcalBarrel_%s", Numbers::sEB(i+1).c_str());
-    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
+    name = "EcalBarrel_" + Numbers::sEB(i+1);
+    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + name);
     if ( me ) {
       dqmStore_->removeElement(me->getName());
     }
-    me = dqmStore_->bookFloat(histo);
+    me = dqmStore_->bookFloat(name);
     me->Fill(-1.0);
   }
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
 
-  sprintf(histo, "reportSummaryMap");
-  me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo);
+  me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
   if ( me ) {
     dqmStore_->removeElement(me->getName());
   }
-  me = dqmStore_->book2D(histo, histo, 72, 0., 72., 34, 0., 34);
+  me = dqmStore_->book2D("reportSummaryMap","reportSummaryMap", 72, 0., 72., 34, 0., 34);
   for ( int iettx = 0; iettx < 34; iettx++ ) {
     for ( int ipttx = 0; ipttx < 72; ipttx++ ) {
       me->setBinContent( ipttx+1, iettx+1, -1.0 );
@@ -870,22 +867,17 @@ void EcalBarrelMonitorClient::endRun(const edm::Run& r, const edm::EventSetup& c
 
   if ( run_ != -1 && evt_ != -1 && runType_ == -1 )  {
 
-    char histo[200];
-
     MonitorElement* me;
 
-    sprintf(histo, "reportSummary");
-    me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo);
+    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary");
     if ( me ) me->Fill(-1.0);
 
     for (int i = 0; i < 36; i++) {
-      sprintf(histo, "EcalBarrel_%s", Numbers::sEB(i+1).c_str());
-      me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
+      me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/EcalBarrel_" + Numbers::sEB(i+1));
       if ( me ) me->Fill(-1.0);
     }
 
-    sprintf(histo, "reportSummaryMap");
-    me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo);
+    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
     for ( int iettx = 0; iettx < 34; iettx++ ) {
       for ( int ipttx = 0; ipttx < 72; ipttx++ ) {
         if ( me ) me->setBinContent( ipttx+1, iettx+1, -1.0 );

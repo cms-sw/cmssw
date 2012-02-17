@@ -193,7 +193,7 @@ TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj, T& track,
 
     int counter = 0;
     for(vector<const DetLayer *>::const_iterator it=innerCompLayers.begin(); it!=innerCompLayers.end();
-	++it,++counter){
+	++it){
       if ((*it)->basicComponents().empty()) {
 	//this should never happen. but better protect for it
 	edm::LogWarning("TrackProducer")<<"a detlayer with no components: I cannot figure out a DetId from this layer. please investigate.";
@@ -208,7 +208,7 @@ TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj, T& track,
       //if(measDet->isActive() && !measDet->hasBadComponents(detWithState.front().second)){	
       if(measDet->isActive()){	  
 	InvalidTrackingRecHit  tmpHit(id,TrackingRecHit::missing);
-	track.setTrackerExpectedHitsInner(tmpHit,counter); 	 
+	track.setTrackerExpectedHitsInner(tmpHit,counter); counter++;
 	//cout << "WARNING: this hit is marked as lost because the detector was marked as active" << endl;
       }else{
 	//cout << "WARNING: this hit is NOT marked as lost because the detector was marked as inactive" << endl;
@@ -217,7 +217,7 @@ TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj, T& track,
     
     counter=0;
     for(vector<const DetLayer *>::const_iterator it=outerCompLayers.begin(); it!=outerCompLayers.end();
-	++it,++counter){
+	++it){
       if ((*it)->basicComponents().empty()){
 	//this should never happen. but better protect for it
 	edm::LogWarning("TrackProducer")<<"a detlayer with no components: I cannot figure out a DetId from this layer. please investigate.";
@@ -232,7 +232,7 @@ TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj, T& track,
       //if(measDet->isActive() && !measDet->hasBadComponents(detWithState.front().second)){	
       if(measDet->isActive()){	  
 	InvalidTrackingRecHit  tmpHit(id,TrackingRecHit::missing);
-	track.setTrackerExpectedHitsOuter(tmpHit,counter); 	 
+	track.setTrackerExpectedHitsOuter(tmpHit,counter); counter++;
 	//cout << "WARNING: this hit is marked as lost because the detector was marked as active" << endl;
       }else{
 	//cout << "WARNING: this hit is NOT marked as lost because the detector was marked as inactive" << endl;

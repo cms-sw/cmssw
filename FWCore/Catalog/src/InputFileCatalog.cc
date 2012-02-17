@@ -11,7 +11,7 @@
 
 namespace edm {
 
-  InputFileCatalog::InputFileCatalog(std::vector<std::string> const& fileNames, std::string const& override, bool noThrow) :
+  InputFileCatalog::InputFileCatalog(std::vector<std::string> const& fileNames, std::string const& override, bool useLFNasPFNifLFNnotFound) :
     logicalFileNames_(fileNames),
     fileNames_(fileNames),
     fallbackFileNames_(fileNames.size()),
@@ -21,10 +21,10 @@ namespace edm {
     fallbackFileLocator_(),
     overrideFallbackFileLocator_() {
 
-    init(override, "", noThrow);
+    init(override, "", useLFNasPFNifLFNnotFound);
   }
 
-  InputFileCatalog::InputFileCatalog(std::vector<std::string> const& fileNames, std::string const& override, std::string const& overrideFallback, bool noThrow) :
+  InputFileCatalog::InputFileCatalog(std::vector<std::string> const& fileNames, std::string const& override, std::string const& overrideFallback, bool useLFNasPFNifLFNnotFound) :
     logicalFileNames_(fileNames),
     fileNames_(fileNames),
     fallbackFileNames_(fileNames.size()),
@@ -34,12 +34,12 @@ namespace edm {
     fallbackFileLocator_(),
     overrideFallbackFileLocator_() {
 
-    init(override, overrideFallback, noThrow);
+    init(override, overrideFallback, useLFNasPFNifLFNnotFound);
   }
 
   InputFileCatalog::~InputFileCatalog() {}
 
-  void InputFileCatalog::init(std::string const& inputOverride, std::string const& inputOverrideFallback, bool noThrow) {
+  void InputFileCatalog::init(std::string const& inputOverride, std::string const& inputOverrideFallback, bool useLFNasPFNifLFNnotFound) {
 
     fileCatalogItems_.reserve(fileNames_.size());
     typedef std::vector<std::string>::iterator iter;
@@ -71,13 +71,13 @@ namespace edm {
           overrideFallbackFileLocator_.reset(new FileLocator(inputOverrideFallback, true));
         }
         boost::trim(*lt);
-        findFile(*it, *ft, *lt, noThrow);
+        findFile(*it, *ft, *lt, useLFNasPFNifLFNnotFound);
       }
       fileCatalogItems_.push_back(FileCatalogItem(*it, *lt, *ft));
     }
   }
 
-  void InputFileCatalog::findFile(std::string& pfn, std::string& fallbackPfn, std::string const& lfn, bool noThrow) {
+  void InputFileCatalog::findFile(std::string& pfn, std::string& fallbackPfn, std::string const& lfn, bool useLFNasPFNifLFNnotFound) {
     if (overrideFileLocator_) {
       pfn = overrideFileLocator_->pfn(lfn);
       if (pfn.empty()) {
@@ -86,15 +86,11 @@ namespace edm {
     } else {
       pfn = fileLocator_->pfn(lfn);
     }
-    if (pfn.empty()) {
-      if (!noThrow) {
-        throw cms::Exception("LogicalFileNameNotFound", "FileCatalog::findFile()\n")
-          << "Logical file name '" << lfn << "' was not found in the file catalog.\n"
-          << "If you wanted a local file, you forgot the 'file:' prefix\n"
-          << "before the file name in your configuration file.\n";
-      }
+    if (pfn.empty() && useLFNasPFNifLFNnotFound) {
       pfn = lfn;
     }
+    // Empty PFN will be found by caller.
+
     if (overrideFallbackFileLocator_) {
       fallbackPfn = overrideFallbackFileLocator_->pfn(lfn);
       if (fallbackFileLocator_ && fallbackPfn.empty()) {

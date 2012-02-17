@@ -13,10 +13,11 @@ HLTTauPostAnalysis = cms.EDAnalyzer("HLTTauPostProcessor",
 
     ),
     pathDirs                = cms.vstring(
-    "HLT/TauOffline/PFTaus/DoubleLooseIsoTau",
-    "HLT/TauOffline/PFTaus/SingleLooseIsoTau",
+    "HLT/TauOffline/PFTaus/DoubleTau",
+    "HLT/TauOffline/PFTaus/SingleTau",
     "HLT/TauOffline/PFTaus/EleTau",
     "HLT/TauOffline/PFTaus/MuLooseTau",
+    "HLT/TauOffline/PFTaus/MuMediumTau",
     "HLT/TauOffline/PFTaus/MuTightTau",
     ),
     pathSummaryDirs         = cms.vstring(

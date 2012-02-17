@@ -128,7 +128,7 @@ const bool L1GtEnergySumCondition::evaluateCondition() const {
     SingleCombInCond objectsInComb;
 
     // clear the m_combinationsInCond vector
-    (combinationsInCond()).clear();
+    (*m_combinationsInCond).clear();
 
     // clear the indices in the combination
     objectsInComb.clear();
@@ -271,7 +271,7 @@ const bool L1GtEnergySumCondition::evaluateCondition() const {
     int indexObj = 0;
 
     objectsInComb.push_back(indexObj);
-    (combinationsInCond()).push_back(objectsInComb);
+    (*m_combinationsInCond).push_back(objectsInComb);
 
     // if we get here all checks were successfull for this combination
     // set the general result for evaluateCondition to "true"

@@ -422,6 +422,7 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu)
    TH1F *throughput = new TH1F("throughput","throughput",nTrig,1,nTrig+1);
    TH1F *eventsize = new TH1F("eventsize","eventsize",nTrig,1,nTrig+1);
    TH2F *overlap = new TH2F("overlap","overlap",nTrig,1,nTrig+1,nTrig,1,nTrig+1);
+   TH1F *unique = new TH1F("unique","unique",nTrig,1,nTrig+1);
 
    int RunLSn = RatePerLS.size();
 
@@ -460,6 +461,8 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu)
       individual->GetXaxis()->SetBinLabel(i+1, menu->GetTriggerName(i));
       cumulative->SetBinContent(i+1, cumulRate);
       cumulative->GetXaxis()->SetBinLabel(i+1, menu->GetTriggerName(i));
+      unique->SetBinContent(i+1, pureRate[i]); 
+      unique->GetXaxis()->SetBinLabel(i+1, menu->GetTriggerName(i));
 
       throughput->SetBinContent(i+1, cuThru);
       throughput->GetXaxis()->SetBinLabel(i+1, menu->GetTriggerName(i));
@@ -563,11 +566,15 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu)
    cumulative->SetTitle("Cumulative trigger rate");
    overlap->SetStats(0);
    overlap->SetTitle("Overlap");
+   unique->SetStats(0); 
+   unique->SetYTitle("Rate (Hz)"); 
+   unique->SetTitle("Unique trigger rate"); 
    individual->Write();
    cumulative->Write();
    eventsize->Write();
    throughput->Write();
    overlap->Write();
+   unique->Write();
    individualPerLS->SetStats(0);
    individualPerLS->SetZTitle("Rate (Hz)");
    individualPerLS->SetTitle("Individual trigger rate vs Run/LumiSection");
@@ -597,8 +604,8 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu)
 TString OHltRatePrinter::GetFileName(OHltConfig *cfg, OHltMenu *menu)
 {
    char sLumi[10], sEnergy[10];
-   sprintf(sEnergy, "%1.0f", cfg->cmsEnergy);
-   sprintf(sLumi, "%1.1e", cfg->iLumi);
+   snprintf(sEnergy, 10, "%1.0f", cfg->cmsEnergy);
+   snprintf(sLumi,   10, "%1.1e", cfg->iLumi);
 
    TString menuTag;
    if (menu->IsL1Menu())
@@ -647,8 +654,8 @@ void OHltRatePrinter::printL1RatesTex(OHltConfig *cfg, OHltMenu *menu)
    TString tableFileName = GetFileName(cfg, menu);
 
    char sLumi[10], sEnergy[10];
-   sprintf(sEnergy, "%1.0f", cfg->cmsEnergy);
-   sprintf(sLumi, "%1.1e", cfg->iLumi);
+   snprintf(sEnergy, 10, "%1.0f", cfg->cmsEnergy);
+   snprintf(sLumi,   10, "%1.1e", cfg->iLumi);
 
    TString texFile = tableFileName + TString(".tex");
    ofstream outFile(texFile.Data());
@@ -754,8 +761,8 @@ void OHltRatePrinter::printHltRatesTex(OHltConfig *cfg, OHltMenu *menu)
    TString tableFileName = GetFileName(cfg, menu);
 
    char sLumi[10], sEnergy[10];
-   sprintf(sEnergy, "%1.0f", cfg->cmsEnergy);
-   sprintf(sLumi, "%1.1e", cfg->iLumi);
+   snprintf(sEnergy, 10, "%1.0f", cfg->cmsEnergy);
+   snprintf(sLumi,   10, "%1.1e", cfg->iLumi);
 
    TString texFile = tableFileName + TString(".tex");
    ofstream outFile(texFile.Data());
@@ -1063,7 +1070,7 @@ void OHltRatePrinter::printHLTDatasets(
 {
    //  TString tableFileName = GetFileName(cfg,menu);
    char sLumi[10];
-   sprintf(sLumi, "%1.1e", cfg->iLumi);
+   snprintf(sLumi, 10, "%1.1e", cfg->iLumi);
    // 	printf("OHltRatePrinter::printHLTDatasets. About to call hltDatasets.report\n"); //RR
    hltDatasets.report(sLumi, fullPathTableName+ "_PS_", significantDigits); //SAK -- prints PDF tables
    // 	printf("OHltRatePrinter::printHLTDatasets. About to call hltDatasets.write\n"); //RR

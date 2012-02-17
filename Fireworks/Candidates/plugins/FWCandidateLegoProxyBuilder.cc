@@ -19,7 +19,7 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-#include "Fireworks/Candidates/plugins/FWLegoCandidate.h"
+#include "Fireworks/Candidates/interface/FWLegoCandidate.h"
 
 //-----------------------------------------------------------------------------
 // FWCandidateLegoProxyBuilder

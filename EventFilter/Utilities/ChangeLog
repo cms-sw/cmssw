@@ -1,3 +1,24 @@
+2011-10-21  Emilio Meschi <emilio.meschi@cern.ch>
+	
+	* tag V00-19-20
+	* fix crash of Vulture
+	* add instance and number of processes to cpustat report 
+	* bug fixes os ascii charts 
+
+2011-08-17  Emilio Meschi <emilio.meschi@cern.ch>
+	
+	* tag V00-19-19 
+	* added ascii chart to cpustat
+	
+2011-08-31  Andrei Spataru <andrei.cristian.spataru@cern.ch>
+	
+	* added BUFUInterface and documentation
+
+2011-08-17  Emilio Meschi <emilio.meschi@cern.ch>
+	
+	* tag V00-19-18 (16 fix for missing src file by fwyzard)
+	* remove circular dep with Modules
+
 2011-06-09  Emilio Meschi <emilio.meschi@cern.ch>
 	
 	* tag V00-19-15

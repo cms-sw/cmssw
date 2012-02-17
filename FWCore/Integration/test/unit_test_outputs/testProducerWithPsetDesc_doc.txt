@@ -1943,8 +1943,8 @@ generated for each configuration with a module label.
   1.2 module label: testLabel1
   A comment for a ParameterSetDescription
 
-    Description allows anything and requires nothing.
-    The configured PSet will not be validated.
+    Description allows anything. If the configured PSet contains illegal parameters,
+    then validation will ignore them instead of throwing an exception.
 
     p_int
                         type: int32 

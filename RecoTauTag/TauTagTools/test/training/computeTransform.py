@@ -38,14 +38,8 @@ background_file = ROOT.TFile(options.b, "READ")
 
 signal_denominator_histo = signal_file.Get("plotInputJets/pt")
 background_denominator_histo = background_file.Get("plotInputJets/pt")
-signal_histo = signal_file.Get(
-    "cleanTauPlots/hpsTancTausDiscriminationByTancRaw")
-# Right now this is versus RECO pt.  in the future, embed the truth information
-# so we can use the generator pt.
-signal_histo_vs_truept = signal_file.Get(
-    "cleanTauPlots/hpsTancTausDiscriminationByTancRaw_pt")
-background_histo = background_file.Get(
-    "cleanTauPlots/hpsTancTausDiscriminationByTancRaw")
+signal_histo = signal_file.Get("cleanTauPlots/hpsTancTausDiscriminationByTancRaw")
+background_histo = background_file.Get("cleanTauPlots/hpsTancTausDiscriminationByTancRaw")
 
 print "Signal has %i entries in clean, %i in total" % (
     signal_histo.Integral(), signal_denominator_histo.Integral())
@@ -67,16 +61,8 @@ output_object = cms.PSet(
 
 transform_values = []
 
-# Define the minimum pt for finding the cut thresholds.  Do this to try
-# and comptue the threshold on the plateu
-min_true_pt_for_cut_finder = 25
-signal_histo_selected_pt = signal_histo_vs_truept.ProjectionX(
-    "selected_pt",
-    signal_histo_vs_truept.GetYaxis().FindBin(min_true_pt_for_cut_finder),
-    signal_histo_vs_truept.GetNbinsY()+1)
-# Get the cut for a signal efficiencies of
-# 80%, 60%, 40%, 20% (loose, medium, tight)
-thresholds = [0.8, 0.6, 0.45, 0.3]
+# Get the cut for a signal efficiencies of 60%, 40%, 20% (loose, medium, tight)
+thresholds = [0.7, 0.6, 0.5]
 threshold_values = []
 
 def make_cdf(histogram):
@@ -121,9 +107,6 @@ def compute_transform(raw_cut, signal_cdf, signal_scale,
 # Build the cumulative distribution functions
 print "Building signal c.d.f"
 signal_cdf = make_cdf(signal_histo)
-# Make the CDF for the signal events about our threshold
-print "Building selected signal c.d.f"
-selected_signal_cdf = make_cdf(signal_histo_selected_pt)
 print "Building background c.d.f"
 background_cdf = make_cdf(background_histo)
 transform = lambda x: compute_transform(x, signal_cdf, signal_scale,
@@ -134,8 +117,9 @@ for ix in range(npoints):
     transform_result = transform(x)
     transform_values.append(transform_result['transform'])
     # Check if this is one of our cuts
-    if thresholds and (1 - selected_signal_cdf.Eval(x)) < thresholds[0]:
-        print 'Found cut for threshold @ %0.0f%%: %0.03f' % (thresholds[0]*100, x)
+    if thresholds and transform_result['signal_passing'] < thresholds[0]:
+        print "***********"
+        print x, transform_result
         thresholds.pop(0)
         threshold_values.append((x, transform_result['transform']))
 
@@ -144,18 +128,18 @@ output_object.transform = cms.vdouble(transform_values)
 output_object.signalDecayModeWeight = cms.double(signal_scale)
 output_object.backgroundDecayModeWeight = cms.double(background_scale)
 
+print threshold_values
+
 # On the chance that a decay mode has nothing in it
 if not threshold_values:
-    threshold_values = [(-1,-1)]*4
+    threshold_values = [(-1,-1)]*3
 # Store the loose medium and tight cut thresholds
-output_object.vlooseCutRaw = cms.double(threshold_values[0][0])
-output_object.vlooseCut = cms.double(threshold_values[0][1])
-output_object.looseCutRaw = cms.double(threshold_values[1][0])
-output_object.looseCut = cms.double(threshold_values[1][1])
-output_object.mediumCutRaw = cms.double(threshold_values[2][0])
-output_object.mediumCut = cms.double(threshold_values[2][1])
-output_object.tightCutRaw = cms.double(threshold_values[3][0])
-output_object.tightCut = cms.double(threshold_values[3][1])
+output_object.looseCutRaw = cms.double(threshold_values[0][0])
+output_object.looseCut = cms.double(threshold_values[0][1])
+output_object.mediumCutRaw = cms.double(threshold_values[1][0])
+output_object.mediumCut = cms.double(threshold_values[1][1])
+output_object.tightCutRaw = cms.double(threshold_values[2][0])
+output_object.tightCut = cms.double(threshold_values[2][1])
 
 output_file = open(options.o, 'w')
 output_file.write('import FWCore.ParameterSet.Config as cms\n')

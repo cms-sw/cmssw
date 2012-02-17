@@ -98,6 +98,7 @@ namespace reco {
     std::vector<std::pair<double, double> > TS4TS5LowerCut_;
 
     uint32_t HcalAcceptSeverityLevel_;
+    std::vector<int> HcalRecHitFlagsToBeExcluded_;
     
   };
   

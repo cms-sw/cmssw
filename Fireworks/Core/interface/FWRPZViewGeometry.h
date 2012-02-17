@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 21:01:12 CET 2010
-// $Id: FWRPZViewGeometry.h,v 1.8 2010/09/15 11:48:42 amraktad Exp $
+// $Id: FWRPZViewGeometry.h,v 1.9 2010/09/17 16:18:55 amraktad Exp $
 //
 
 // system include files
@@ -41,7 +41,12 @@ public:
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-   TEveElement* getGeoElements(const FWViewType::EType id);
+   void initStdGeoElements(const FWViewType::EType id);
+
+   void showPixelBarrel( bool );
+   void showPixelEndcap( bool );
+   void showTrackerBarrel( bool );
+   void showTrackerEndcap( bool );
 
 private:
    FWRPZViewGeometry(const FWRPZViewGeometry&); // stop default
@@ -57,10 +62,18 @@ private:
    void estimateProjectionSizeCSC( const FWGeometry::GeomDetInfo& info, float&, float&, float&, float& );
    void estimateProjectionSize( const float*, float&, float&, float&, float& );
 
+   void importNew(TEveElementList* x);
+
    TEveGeoShape* makeShape( double, double, double, double );
 
    TEveElementList*  m_rhoPhiGeo;
    TEveElementList*  m_rhoZGeo;
+
+
+   TEveElementList*   m_pixelBarrelElements;
+   TEveElementList*   m_pixelEndcapElements;
+   TEveElementList*   m_trackerBarrelElements;
+   TEveElementList*   m_trackerEndcapElements;
 };
 
 

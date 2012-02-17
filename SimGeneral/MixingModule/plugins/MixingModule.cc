@@ -394,17 +394,47 @@ namespace edm
       }
     }
 
+    // source[0] is "real" pileup.  Check to see that this is what we are doing.
+
+    std::vector<int> PileupList;
+    PileupList.clear();
+    TrueNumInteractions_.clear();
+
+    boost::shared_ptr<PileUp> source0 = inputSources_[0];
+
+    if( (source0 && source0->doPileUp() ) && !playback_ ) {
+      //    if( (!inputSources_[0] || !inputSources_[0]->doPileUp()) && !playback_ ) {
+
+      // Pre-calculate all pileup distributions before we go fishing for events
+
+      source0->CalculatePileup(minBunch_, maxBunch_, PileupList, TrueNumInteractions_);      
+
+    }
+
+    //    for (int bunchIdx = minBunch_; bunchIdx <= maxBunch_; ++bunchIdx) {
+    //  std::cout << " bunch ID, Pileup, True " << bunchIdx << " " << PileupList[bunchIdx-minBunch_] << " " <<  TrueNumInteractions_[bunchIdx-minBunch_] << std::endl;
+    //}
+
     for (int bunchIdx = minBunch_; bunchIdx <= maxBunch_; ++bunchIdx) {
       for ( size_t setBcrIdx=0; setBcrIdx<workers_.size(); setBcrIdx++) {
         workers_[setBcrIdx]->setBcrOffset();
       }
 
       for ( size_t readSrcIdx=0; readSrcIdx<maxNbSources_; readSrcIdx++ ) {
-        boost::shared_ptr<PileUp> source = inputSources_[readSrcIdx];
+        boost::shared_ptr<PileUp> source = inputSources_[readSrcIdx];   // this looks like we create
+                                                                        // new PileUp objects for each
+                                                                        // source for each event?
+                                                                        // Why?
+
         for ( size_t setSrcIdx=0; setSrcIdx<workers_.size(); setSrcIdx++) {
           workers_[setSrcIdx]->setSourceOffset(readSrcIdx);
         }
         if (!source || !source->doPileUp()) continue;
+
+	int NumPU_Events = 0;
+
+	if(readSrcIdx ==0) { NumPU_Events = PileupList[bunchIdx - minBunch_];}
+	else { NumPU_Events = 1;}  // non-minbias pileup only gets one event for now. Fix later if desired.
 
 	//        int eventId = 0;
 	int vertexOffset = 0;
@@ -412,31 +442,35 @@ namespace edm
         if (!playback_) {
           inputSources_[readSrcIdx]->readPileUp(recordEventID,
             boost::bind(&MixingModule::pileAllWorkers, boost::ref(*this), _1, bunchIdx,
-                        _2, vertexOffset),
-						TrueNumInteractions_[readSrcIdx], bunchIdx
+                        _2, vertexOffset), NumPU_Events
             );
           playbackInfo_->setStartEventId(recordEventID, readSrcIdx, bunchIdx);
         } else {
 	  int dummyId = 0 ;
           const std::vector<edm::EventID>& playEventID =
             playbackInfo_H->getStartEventId(readSrcIdx, bunchIdx);
+	  if(readSrcIdx == 0) {
+	    PileupList.push_back(playEventID.size());
+	    TrueNumInteractions_.push_back(playEventID.size());
+	  }
           inputSources_[readSrcIdx]->playPileUp(
             playEventID,
             boost::bind(&MixingModule::pileAllWorkers, boost::ref(*this), _1, bunchIdx,
-                        dummyId, vertexOffset),
-	    TrueNumInteractions_[readSrcIdx]
+                        dummyId, vertexOffset)
             );
         }
       }
     }
 
+    // Keep track of pileup accounting...
+
     std::auto_ptr< PileupMixingContent > PileupMixing_;
     
-    std::vector<int> bunchCrossingList;
     std::vector<int> numInteractionList;
+    std::vector<int> bunchCrossingList;
     std::vector<float> TrueInteractionList;
     
-    //Makin' a list:
+    //Makin' a list: Basically, we don't care about the "other" sources at this point.
     for (int bunchCrossing=minBunch_;bunchCrossing<=maxBunch_;++bunchCrossing) {
       bunchCrossingList.push_back(bunchCrossing);
       if(!inputSources_[0] || !inputSources_[0]->doPileUp()) {
@@ -444,8 +478,8 @@ namespace edm
         TrueInteractionList.push_back(0);
       }
       else {
-        numInteractionList.push_back(playbackInfo_->getStartEventId(0,bunchCrossing).size());
-        TrueInteractionList.push_back((TrueNumInteractions_[0])[bunchCrossing-minBunch_]);	
+        numInteractionList.push_back(PileupList[bunchCrossing-minBunch_]);
+        TrueInteractionList.push_back((TrueNumInteractions_)[bunchCrossing-minBunch_]);	
       }
     }
 

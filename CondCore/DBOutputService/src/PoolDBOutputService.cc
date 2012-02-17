@@ -116,12 +116,8 @@ cond::service::PoolDBOutputService::initDB( bool forReading )
   DbOpenTransaction trans( m_session.transaction() );
   try{
     if(!forReading) {
-      bool createIOVContainer = true;
-      if(!m_session.createDatabase()){
-	std::set<std::string> conts = m_session.storage().containers();
-        if( conts.find( IOVNames::container() )!=conts.end()) createIOVContainer = false;
-      }
-      if( createIOVContainer) m_session.storage().createContainer( IOVNames::container() );
+      cond::IOVSchemaUtility schemaUtil( m_session );
+      schemaUtil.createIOVContainerIfNecessary();
       m_session.storage().lockContainer( IOVNames::container() );
     }
     //init logdb if required
@@ -221,6 +217,7 @@ cond::service::PoolDBOutputService::createNewIOV( GetToken const & payloadToken,
     unsigned int payloadIdx=editor.append(firstSinceTime, objToken);
     iovToken=editor.token();
     editor.stamp(cond::userInfo(),false);
+    editor.setScope( cond::IOVSequence::Tag );
     
     cond::MetaData metadata(m_session);
 

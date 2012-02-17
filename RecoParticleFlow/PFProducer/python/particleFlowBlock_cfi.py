@@ -43,6 +43,9 @@ particleFlowBlock = cms.EDProducer("PFBlockProducer",
     PFConversions = cms.InputTag("pfConversions"),
     useConversions = cms.bool(True),
 
+    # Glowinski & Gouzevitch                             
+    useKDTreeTrackEcalLinker = cms.bool(True),
+
     # input V0
     PFV0 = cms.InputTag("pfV0"),
     useV0 = cms.bool(False),

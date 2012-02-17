@@ -8,14 +8,14 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 # source
 process.source = cms.Source("PoolSource", 
      fileNames = cms.untracked.vstring(
-    'file:/scratch1/cms/data/relval_382/zmm/62C86D62-BFAF-DF11-85B3-003048678A6C.root'
+    'file:/scratch2/users/fabozzi/spring10/zmm/38262142-DF46-DF11-8238-0030487C6A90.root'
   )
 )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('START38_V9::All')
+process.GlobalTag.globaltag = cms.string('START3X_V26::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 process.load("ElectroWeakAnalysis.Skimming.dimuons_SkimPaths_cff")

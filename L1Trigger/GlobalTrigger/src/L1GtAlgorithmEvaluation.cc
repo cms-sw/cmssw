@@ -32,6 +32,8 @@
 
 // user include files
 
+//   base class
+#include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
 
 //
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
@@ -42,17 +44,47 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+// constructor
+L1GtAlgorithmEvaluation::L1GtAlgorithmEvaluation() :
+    L1GtLogicParser() {
+
+    m_algoResult = false;
+
+    // the rest is properly initialized by default
+}
 
 /// constructor from an algorithm from event setup
 L1GtAlgorithmEvaluation::L1GtAlgorithmEvaluation(const L1GtAlgorithm& alg) :
-  m_algoResult(false),
-  m_logicalExpression(alg.algoLogicalExpression()),
-  m_rpnVector(alg.algoRpnVector()){
+    L1GtLogicParser() {
+
+    m_logicalExpression = alg.algoLogicalExpression();
+    m_rpnVector = alg.algoRpnVector();
+    
+    m_algoResult = false;
 
     // the rest is properly initialized by default
 
 }
 
+// copy constructor
+L1GtAlgorithmEvaluation::L1GtAlgorithmEvaluation(L1GtAlgorithmEvaluation& cp) {
+
+    // parser part
+    m_logicalExpression = cp.logicalExpression();
+    RpnVector m_rpnVector = cp.rpnVector();
+
+    // L1GtAlgorithmEvaluation part
+    m_algoResult = cp.gtAlgoResult();
+    m_algoCombinationVector = *(cp.gtAlgoCombinationVector());
+
+}
+
+// destructor
+L1GtAlgorithmEvaluation::~L1GtAlgorithmEvaluation() {
+
+    // empty
+
+}
 
 // methods
 
@@ -79,33 +111,24 @@ void L1GtAlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
     m_operandTokenVector.reserve(rpnVectorSize);
 
     // stack containing temporary results
-    // FIXME we shall find a better solution than static
-    static  std::stack<bool, std::vector<bool> > resultStack;
+    std::stack<bool> resultStack;
     bool b1, b2;
 
     int opNumber = 0;
 
     for (RpnVector::const_iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
 
-        //LogTrace("L1GlobalTrigger")
+        //LogTrace("L1GtAlgorithmEvaluation")
         //<< "\nit->operation = " << it->operation
         //<< "\nit->operand =   '" << it->operand << "'\n"
         //<< std::endl;
 
         switch (it->operation) {
 
-            case L1GtLogicParser::OP_OPERAND: {
+            case OP_OPERAND: {
 
                 CItEvalMap itCond = (conditionResultMaps.at(chipNumber)).find(it->operand);
                 if (itCond != (conditionResultMaps[chipNumber]).end()) {
-
-                    if (0 == itCond->second) {
-                        // it should never be happen, only valid conditions are in the maps
-                        throw cms::Exception("FailModule") << "\nCondition "
-                                << (it->operand)
-                                << " NULL pointer found in condition map"
-                                << std::endl;
-                    }
 
                     //
                     bool condResult = (itCond->second)->condLastResult();
@@ -123,8 +146,8 @@ void L1GtAlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
                     opNumber++;
                     
                     //
-                    CombinationsInCond const & combInCondition = (itCond->second)->getCombinationsInCond();
-                    m_algoCombinationVector.push_back(combInCondition);
+                    CombinationsInCond* combInCondition = (itCond->second)->getCombinationsInCond();
+                    m_algoCombinationVector.push_back(*combInCondition);
 
                 }
                 else {
@@ -139,14 +162,14 @@ void L1GtAlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
             }
 
                 break;
-	case  L1GtLogicParser::OP_NOT: {
+            case OP_NOT: {
                 b1 = resultStack.top();
                 resultStack.pop(); // pop the top
                 resultStack.push(!b1); // and push the result
             }
 
                 break;
-            case L1GtLogicParser::OP_OR: {
+            case OP_OR: {
                 b1 = resultStack.top();
                 resultStack.pop();
                 b2 = resultStack.top();
@@ -155,7 +178,7 @@ void L1GtAlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
             }
 
                 break;
-            case L1GtLogicParser::OP_AND: {
+            case OP_AND: {
                 b1 = resultStack.top();
                 resultStack.pop();
                 b2 = resultStack.top();
@@ -177,8 +200,6 @@ void L1GtAlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
 
     m_algoResult = resultStack.top();
 
-    // clear resultStack
-    while(!resultStack.empty()) resultStack.pop();
 
 }
 

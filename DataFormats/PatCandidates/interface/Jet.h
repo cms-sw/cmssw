@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.54 2011/06/08 20:40:18 rwolf Exp $
+// $Id: Jet.h,v 1.55 2011/08/01 17:15:21 eschliec Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette, Giovanni Petrucciani, Roger Wolf, Christian Autermann
-  \version  $Id: Jet.h,v 1.54 2011/06/08 20:40:18 rwolf Exp $
+  \version  $Id: Jet.h,v 1.55 2011/08/01 17:15:21 eschliec Exp $
 */
 
 
@@ -338,35 +338,35 @@ namespace pat {
       float neutralHadronEnergy() const;
 
       /// chargedHadronEnergyFraction (relative to uncorrected jet energy)
-      float chargedHadronEnergyFraction() const {return chargedHadronEnergy()/(jecFactor(0)*energy());}
+      float chargedHadronEnergyFraction() const {return chargedHadronEnergy()/((jecSetsAvailable() ? jecFactor(0) : 1.)*energy());}
       /// neutralHadronEnergyFraction (relative to uncorrected jet energy)
-      float neutralHadronEnergyFraction() const {return neutralHadronEnergy()/(jecFactor(0)*energy());}
+      float neutralHadronEnergyFraction() const {return neutralHadronEnergy()/((jecSetsAvailable() ? jecFactor(0) : 1.)*energy());}
       /// chargedEmEnergyFraction (relative to uncorrected jet energy)
-      float chargedEmEnergyFraction()     const {return chargedEmEnergy()/(jecFactor(0)*energy());}
+      float chargedEmEnergyFraction()     const {return chargedEmEnergy()/((jecSetsAvailable() ? jecFactor(0) : 1.)*energy());}
       /// neutralEmEnergyFraction (relative to uncorrected jet energy)
-      float neutralEmEnergyFraction()     const {return neutralEmEnergy()/(jecFactor(0)*energy());}
+      float neutralEmEnergyFraction()     const {return neutralEmEnergy()/((jecSetsAvailable() ? jecFactor(0) : 1.)*energy());}
 
       // ---- PF Jet specific information ----
       /// photonEnergy
       float photonEnergy () const {return pfSpecific().mPhotonEnergy;}
       /// photonEnergyFraction (relative to corrected jet energy)
-      float photonEnergyFraction () const {return photonEnergy()/(jecFactor(0)*energy());}
+      float photonEnergyFraction () const {return photonEnergy()/((jecSetsAvailable() ? jecFactor(0) : 1.)*energy());}
       /// electronEnergy
       float electronEnergy () const {return pfSpecific().mElectronEnergy;}
       /// electronEnergyFraction (relative to corrected jet energy)
-      float electronEnergyFraction () const {return electronEnergy()/(jecFactor(0)*energy());}
+      float electronEnergyFraction () const {return electronEnergy()/((jecSetsAvailable() ? jecFactor(0) : 1.)*energy());}
       /// muonEnergy
       float muonEnergy () const {return pfSpecific().mMuonEnergy;}
       /// muonEnergyFraction (relative to corrected jet energy)
-      float muonEnergyFraction () const {return muonEnergy()/(jecFactor(0)*energy());}
+      float muonEnergyFraction () const {return muonEnergy()/((jecSetsAvailable() ? jecFactor(0) : 1.)*energy());}
       /// HFHadronEnergy
       float HFHadronEnergy () const {return pfSpecific().mHFHadronEnergy;}
       /// HFHadronEnergyFraction (relative to corrected jet energy)
-      float HFHadronEnergyFraction () const {return HFHadronEnergy()/(jecFactor(0)*energy());}
+      float HFHadronEnergyFraction () const {return HFHadronEnergy()/((jecSetsAvailable() ? jecFactor(0) : 1.)*energy());}
       /// HFEMEnergy
       float HFEMEnergy () const {return pfSpecific().mHFEMEnergy;}
       /// HFEMEnergyFraction (relative to corrected jet energy)
-      float HFEMEnergyFraction () const {return HFEMEnergy()/(jecFactor(0)*energy());}
+      float HFEMEnergyFraction () const {return HFEMEnergy()/((jecSetsAvailable() ? jecFactor(0) : 1.)*energy());}
 
       /// chargedHadronMultiplicity
       int chargedHadronMultiplicity () const {return pfSpecific().mChargedHadronMultiplicity;}
@@ -385,7 +385,7 @@ namespace pat {
       /// chargedMuEnergy
       float chargedMuEnergy () const {return pfSpecific().mChargedMuEnergy;}
       /// chargedMuEnergyFraction
-      float chargedMuEnergyFraction () const {return chargedMuEnergy()/(jecFactor(0)*energy());}
+      float chargedMuEnergyFraction () const {return chargedMuEnergy()/((jecSetsAvailable() ? jecFactor(0) : 1.)*energy());}
 
       /// neutralMultiplicity
       int neutralMultiplicity () const {return pfSpecific().mNeutralMultiplicity;}

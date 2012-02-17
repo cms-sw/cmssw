@@ -7,12 +7,8 @@ import RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi
 offlinePrimaryVerticesFromCTFTracksAVF = RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi.offlinePrimaryVertices.clone()
 import RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi
 offlinePrimaryVerticesFromCTFTracksKVF = RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi.offlinePrimaryVertices.clone()
-import RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi
-offlinePrimaryVerticesFromCTFTracksTKF = RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi.offlinePrimaryVertices.clone()
-#include "Validation/RecoVertex/data/OffLinePVFromRSTracks.cfi"
-vertexreco = cms.Sequence(offlinePrimaryVerticesFromCTFTracksAVF*offlinePrimaryVerticesFromCTFTracksKVF)
-offlinePrimaryVerticesFromCTFTracksAVF.algorithm = 'AdaptiveVertexFitter'
-offlinePrimaryVerticesFromCTFTracksKVF.algorithm = 'KalmanVertexFitter'
-offlinePrimaryVerticesFromCTFTracksTKF.algorithm = 'TrimmedKalmanFinder'
 
+vertexreco = cms.Sequence(offlinePrimaryVerticesFromCTFTracksAVF*offlinePrimaryVerticesFromCTFTracksKVF)
+offlinePrimaryVerticesFromCTFTracksAVF.vertexCollections[0].algorithm = 'AdaptiveVertexFitter'
+offlinePrimaryVerticesFromCTFTracksKVF.vertexCollections[0].algorithm = 'KalmanVertexFitter'
 

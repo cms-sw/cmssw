@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2010/08/08 08:46:02 $
- * $Revision: 1.229 $
+ * $Date: 2011/08/30 09:33:51 $
+ * $Revision: 1.231 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -17,6 +17,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
@@ -141,7 +142,7 @@ void EBIntegrityClient::endRun(void) {
 
 void EBIntegrityClient::setup(void) {
 
-  char histo[200];
+  std::string name;
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EBIntegrityClient" );
 
@@ -150,14 +151,14 @@ void EBIntegrityClient::setup(void) {
     int ism = superModules_[i];
 
     if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
-    sprintf(histo, "EBIT data integrity quality %s", Numbers::sEB(ism).c_str());
-    meg01_[ism-1] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    name = "EBIT data integrity quality " + Numbers::sEB(ism);
+    meg01_[ism-1] = dqmStore_->book2D(name, name, 85, 0., 85., 20, 0., 20.);
     meg01_[ism-1]->setAxisTitle("ieta", 1);
     meg01_[ism-1]->setAxisTitle("iphi", 2);
 
     if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getName() );
-    sprintf(histo, "EBIT data integrity quality MEM %s", Numbers::sEB(ism).c_str());
-    meg02_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 5, 0.,5.);
+    name = "EBIT data integrity quality MEM " + Numbers::sEB(ism);
+    meg02_[ism-1] = dqmStore_->book2D(name, name, 10, 0., 10., 5, 0.,5.);
     meg02_[ism-1]->setAxisTitle("pseudo-strip", 1);
     meg02_[ism-1]->setAxisTitle("channel", 2);
 
@@ -647,61 +648,48 @@ void EBIntegrityClient::analyze(void) {
   bits01 |= 1 << EcalDQMStatusHelper::TT_ID_ERROR;
   bits01 |= 1 << EcalDQMStatusHelper::TT_SIZE_ERROR;
 
-  char histo[200];
 
   MonitorElement* me;
 
-  sprintf(histo, (prefixME_ + "/EBIntegrityTask/EBIT DCC size error").c_str());
-  me = dqmStore_->get(histo);
-  h00_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, h00_ );
+  me = dqmStore_->get( prefixME_ + "/EBIntegrityTask/EBIT DCC size error" );
+  h00_ = UtilsClient::getHisto( me, cloneME_, h00_ );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    sprintf(histo, (prefixME_ + "/EBOccupancyTask/EBOT digi occupancy %s").c_str(), Numbers::sEB(ism).c_str());
-    me = dqmStore_->get(histo);
-    h_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h_[ism-1] );
+    me = dqmStore_->get( prefixME_ + "/EBOccupancyTask/EBOT digi occupancy " + Numbers::sEB(ism) );
+    h_[ism-1] = UtilsClient::getHisto( me, cloneME_, h_[ism-1] );
 
-    sprintf(histo, (prefixME_ + "/EBOccupancyTask/EBOT MEM digi occupancy %s").c_str(), Numbers::sEB(ism).c_str());
-    me = dqmStore_->get(histo);
-    hmem_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, hmem_[ism-1] );
+    me = dqmStore_->get( prefixME_ + "/EBOccupancyTask/EBOT MEM digi occupancy " + Numbers::sEB(ism) );
+    hmem_[ism-1] = UtilsClient::getHisto( me, cloneME_, hmem_[ism-1] );
 
-    sprintf(histo, (prefixME_ + "/EBIntegrityTask/Gain/EBIT gain %s").c_str(), Numbers::sEB(ism).c_str());
-    me = dqmStore_->get(histo);
-    h01_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h01_[ism-1] );
+    me = dqmStore_->get( prefixME_ + "/EBIntegrityTask/Gain/EBIT gain " + Numbers::sEB(ism) );
+    h01_[ism-1] = UtilsClient::getHisto( me, cloneME_, h01_[ism-1] );
 
-    sprintf(histo, (prefixME_ + "/EBIntegrityTask/ChId/EBIT ChId %s").c_str(), Numbers::sEB(ism).c_str());
-    me = dqmStore_->get(histo);
-    h02_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h02_[ism-1] );
+    me = dqmStore_->get( prefixME_ + "/EBIntegrityTask/ChId/EBIT ChId " + Numbers::sEB(ism) );
+    h02_[ism-1] = UtilsClient::getHisto( me, cloneME_, h02_[ism-1] );
 
-    sprintf(histo, (prefixME_ + "/EBIntegrityTask/GainSwitch/EBIT gain switch %s").c_str(), Numbers::sEB(ism).c_str());
-    me = dqmStore_->get(histo);
-    h03_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h03_[ism-1] );
+    me = dqmStore_->get( prefixME_ + "/EBIntegrityTask/GainSwitch/EBIT gain switch " + Numbers::sEB(ism) );
+    h03_[ism-1] = UtilsClient::getHisto( me, cloneME_, h03_[ism-1] );
 
-    sprintf(histo, (prefixME_ + "/EBIntegrityTask/TTId/EBIT TTId %s").c_str(), Numbers::sEB(ism).c_str());
-    me = dqmStore_->get(histo);
-    h04_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h04_[ism-1] );
+    me = dqmStore_->get( prefixME_ + "/EBIntegrityTask/TTId/EBIT TTId " + Numbers::sEB(ism) );
+    h04_[ism-1] = UtilsClient::getHisto( me, cloneME_, h04_[ism-1] );
 
-    sprintf(histo, (prefixME_ + "/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize %s").c_str(), Numbers::sEB(ism).c_str());
-    me = dqmStore_->get(histo);
-    h05_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h05_[ism-1] );
+    me = dqmStore_->get( prefixME_ + "/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize " + Numbers::sEB(ism) );
+    h05_[ism-1] = UtilsClient::getHisto( me, cloneME_, h05_[ism-1] );
 
-    sprintf(histo, (prefixME_ + "/EBIntegrityTask/MemChId/EBIT MemChId %s").c_str(), Numbers::sEB(ism).c_str());
-    me = dqmStore_->get(histo);
-    h06_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h06_[ism-1] );
+    me = dqmStore_->get( prefixME_ + "/EBIntegrityTask/MemChId/EBIT MemChId " + Numbers::sEB(ism) );
+    h06_[ism-1] = UtilsClient::getHisto( me, cloneME_, h06_[ism-1] );
 
-    sprintf(histo, (prefixME_ + "/EBIntegrityTask/MemGain/EBIT MemGain %s").c_str(), Numbers::sEB(ism).c_str());
-    me = dqmStore_->get(histo);
-    h07_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h07_[ism-1] );
+    me = dqmStore_->get( prefixME_ + "/EBIntegrityTask/MemGain/EBIT MemGain " + Numbers::sEB(ism) );
+    h07_[ism-1] = UtilsClient::getHisto( me, cloneME_, h07_[ism-1] );
 
-    sprintf(histo, (prefixME_ + "/EBIntegrityTask/MemTTId/EBIT MemTTId %s").c_str(), Numbers::sEB(ism).c_str());
-    me = dqmStore_->get(histo);
-    h08_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h08_[ism-1] );
+    me = dqmStore_->get( prefixME_ + "/EBIntegrityTask/MemTTId/EBIT MemTTId " + Numbers::sEB(ism) );
+    h08_[ism-1] = UtilsClient::getHisto( me, cloneME_, h08_[ism-1] );
 
-    sprintf(histo, (prefixME_ + "/EBIntegrityTask/MemSize/EBIT MemSize %s").c_str(), Numbers::sEB(ism).c_str());
-    me = dqmStore_->get(histo);
-    h09_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h09_[ism-1] );
+    me = dqmStore_->get( prefixME_ + "/EBIntegrityTask/MemSize/EBIT MemSize " + Numbers::sEB(ism) );
+    h09_[ism-1] = UtilsClient::getHisto( me, cloneME_, h09_[ism-1] );
 
     float num00;
 

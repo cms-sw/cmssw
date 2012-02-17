@@ -535,16 +535,22 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
 
   // -- CTF [cathode strip chamber track finder]
+
   edm::Handle<L1MuRegionalCandCollection> ctf_data, ctf_emul;
   edm::Handle<L1CSCTrackCollection> ctf_trk_data_, ctf_trk_emul_; 
+
   CSCCorrelatedLCTDigiCollection_ const* ctf_trk_data(new CSCCorrelatedLCTDigiCollection_);
   CSCCorrelatedLCTDigiCollection_ const* ctf_trk_emul(new CSCCorrelatedLCTDigiCollection_);
+
   L1MuRegionalCandCollection      const* ctf_trc_data(new L1MuRegionalCandCollection);
   L1MuRegionalCandCollection      const* ctf_trc_emul(new L1MuRegionalCandCollection);
+
   edm::Handle<L1CSCStatusDigiCollection> ctf_sta_data_;
   edm::Handle<L1CSCStatusDigiCollection> ctf_sta_emul_;
+
   L1CSCSPStatusDigiCollection_    const* ctf_sta_data(new L1CSCSPStatusDigiCollection_);
   L1CSCSPStatusDigiCollection_    const* ctf_sta_emul(new L1CSCSPStatusDigiCollection_);
+
   if(m_doSys[CTF]) {
     iEvent.getByLabel(m_DEsource[CTF][2],ctf_trk_data_);
     iEvent.getByLabel(m_DEsource[CTF][3],ctf_trk_emul_);
@@ -555,16 +561,21 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     iEvent.getByLabel(m_DEsource[CTF][0].label(),"MuonL1CSCStatusDigiCollection",ctf_sta_data_);
     iEvent.getByLabel(m_DEsource[CTF][1].label(),"MuonL1CSCStatusDigiCollection",ctf_sta_emul_);
   }
+
   if(ctf_sta_data_.isValid())
     ctf_sta_data = &(ctf_sta_data_->second);
+
   if(ctf_sta_emul_.isValid())
     ctf_sta_emul = &(ctf_sta_emul_->second);
+
+  CSCCorrelatedLCTDigiCollection_ ctf_trk_data_v, ctf_trk_emul_v; //vector
+  L1MuRegionalCandCollection      ctf_trc_data_v, ctf_trc_emul_v; //vector
+
   if(ctf_trk_data_.isValid() && ctf_trk_emul_.isValid()) {
     typedef CSCCorrelatedLCTDigiCollection::DigiRangeIterator mapIt;//map iterator
     typedef CSCCorrelatedLCTDigiCollection::const_iterator    vecIt;//vec iterator
-    CSCCorrelatedLCTDigiCollection_ ctf_trk_data_v, ctf_trk_emul_v; //vector
-    L1MuRegionalCandCollection      ctf_trc_data_v, ctf_trc_emul_v; //vector
     typedef L1CSCTrackCollection::const_iterator ctcIt;
+
     //loop over csc-tracks (ie pairs<l1track,digi_vec>)
     for(ctcIt tcit=ctf_trk_data_->begin(); tcit!=ctf_trk_data_->end(); tcit++) {
       /// restrict comparison to middle of readout window
@@ -587,8 +598,10 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	     vit != ldc.get((*mit).first).second; vit++) 
 	  ctf_trk_data_v.push_back(*vit);
     }
+
     ctf_trk_data = &ctf_trk_data_v;
     ctf_trc_data = &ctf_trc_data_v;
+
     //same for emulator collection
     for(ctcIt tcit=ctf_trk_emul_->begin();tcit!=ctf_trk_emul_->end(); tcit++) {
       if((tcit->first.bx() < -1) || (tcit->first.bx() > 1))
@@ -600,8 +613,10 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	     vit != ldc.get((*mit).first).second; vit++) 
 	  ctf_trk_emul_v.push_back(*vit);
     }
+
     ctf_trk_emul = &ctf_trk_emul_v;
     ctf_trc_emul = &ctf_trc_emul_v;
+
   }
   
   // -- RPC [resistive plate chambers regional trigger] 

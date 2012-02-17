@@ -1,7 +1,8 @@
 #include "CondCore/DBCommon/interface/DbSession.h"
-#include "CondCore/ORA/interface/ScopedTransaction.h"
+#include "CondCore/DBCommon/interface/DbScopedTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/IOVService/interface/IOVNames.h"
+#include "CondCore/IOVService/interface/IOVSchemaUtility.h"
 #include "CondCore/Utilities/interface/Utilities.h"
 #include <iostream>
 
@@ -32,53 +33,22 @@ int cond::SchemaIOVUtilities::execute(){
   
   cond::DbSession session = openDbSession("connect");
 
-  if( !dropSchema && !createSchema ){
-    throw cond::Exception("Option create or drop not provided.");
-  }
+  cond::IOVSchemaUtility util( session, std::cout );
 
-  if( createSchema ){
-    ora::Database& db = session.storage();
-    ora::ScopedTransaction trans( db.transaction() );
+  cond::DbScopedTransaction trans( session );
+  if( dropSchema || createSchema ){
     trans.start(false);
-    if( !db.exists() ){
-      std::cout << "INFO: Creating database "<<std::endl;
-      db.create(cond::DbSession::COND_SCHEMA_VERSION);
-      db.setAccessPermission(cond::DbSession::CONDITIONS_GENERAL_READER, false );
-      db.setAccessPermission( cond::DbSession::CONDITIONS_GENERAL_WRITER, true );
-    } 
-
-    std::set<std::string> conts = db.containers();
-    if( conts.find( cond::IOVNames::container() )!=conts.end() ){
-      std::cout << "WARNING: container \"" << cond::IOVNames::container() << "\" already exists in the database."<<std::endl;
-      return 0;
+    if( dropSchema ){
+      util.dropIOVContainer();
     }
-          
-    std::cout << "INFO: Creating container \"" << cond::IOVNames::container() << "\"."<<std::endl;
-    db.createContainer( cond::IOVNames::container(), cond::IOVNames::container() );
-    db.setAccessPermission(cond::DbSession::CONDITIONS_GENERAL_READER, false );
-    db.setAccessPermission( cond::DbSession::CONDITIONS_GENERAL_WRITER, true );
+    if( createSchema ){
+      util.createIOVContainerIfNecessary();
+    }
     trans.commit();
     return 0;
   } 
-  if( dropSchema ){
-    ora::Database& db = session.storage();
-    ora::ScopedTransaction trans( db.transaction() );
-    trans.start(false);
-    if( !db.exists() ){
-      std::cout << "ERROR: Condition database does not exist."<<std::endl;
-      return 0;
-    }
-    std::set<std::string> conts = db.containers();
-    if( conts.find( cond::IOVNames::container() )==conts.end() ){
-      std::cout << "WARNING: container \"" << cond::IOVNames::container() << "\" does not exist in the database."<<std::endl;
-      return 0;
-    }
-    std::cout << "INFO: Dropping container \"" << cond::IOVNames::container() << "\"."<<std::endl;
-    db.dropContainer( cond::IOVNames::container() );
-    trans.commit();
-    return 0;
-  }
-  return 0;
+
+  throw cond::Exception("Option create or drop not provided.");
 }
 
 int main( int argc, char** argv ){

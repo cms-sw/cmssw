@@ -5,7 +5,6 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-#include "DataFormats/Common/interface/BoolCache.h"
 
 namespace pat {
   class CandKinResolution  {
@@ -134,7 +133,7 @@ namespace pat {
         // transient
 
         /// Did we make the Matrix from the vector?
-        mutable edm::BoolCache       hasMatrix_;
+        mutable bool       hasMatrix_;
     
         /// Transient copy of the full 4x4 covariance matrix
         mutable AlgebraicSymMatrix44 covmatrix_;

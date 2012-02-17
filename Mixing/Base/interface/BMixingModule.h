@@ -70,7 +70,7 @@ namespace edm {
       const static unsigned int maxNbSources_;
       std::vector<std::string> sourceNames_;
       bool doit_[4];//FIXME
-      std::vector< float > TrueNumInteractions_[4];
+      std::vector< float > TrueNumInteractions_;
 
       unsigned int eventId_;
 

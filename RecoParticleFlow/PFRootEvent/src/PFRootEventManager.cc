@@ -907,6 +907,11 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("particle_flow", "on/off", doParticleFlow_);  
   options_->GetOpt("particle_flow", "comparison", doCompare_);  
 
+  useKDTreeTrackEcalLinker_ = true;
+  options_->GetOpt("particle_flow", "useKDTreeTrackEcalLinker", useKDTreeTrackEcalLinker_);  
+  std::cout << "Use Track-ECAL link optimization: " << useKDTreeTrackEcalLinker_ << std::endl;
+  pfBlockAlgo_.setUseOptimization(useKDTreeTrackEcalLinker_);
+
   std::vector<double> DPtovPtCut;
   std::vector<unsigned> NHitCut;
   bool useIterTracking;
@@ -1670,6 +1675,7 @@ bool PFRootEventManager::processEntry(int entry) {
 
   if(verbosity_ == VERBOSE  || 
      //entry < 10000 ||
+     entry < 10 ||
      (entry < 100 && entry%10 == 0) || 
      (entry < 1000 && entry%100 == 0) || 
      entry%1000 == 0 ) 
@@ -2268,6 +2274,7 @@ bool PFRootEventManager::readFromSimulation(int entry) {
     PreprocessRecHits( rechitsPS_ , findRecHitNeighbours_);
   }
 
+  /*
   if ( recTracks_.size() ) { 
     PreprocessRecTracks( recTracks_);
   }
@@ -2285,6 +2292,7 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   if(convBremGsfrecTracks_.size()) {
     PreprocessRecTracks( convBremGsfrecTracks_);
   }
+  */
 
   return goodevent;
 }
@@ -2460,17 +2468,21 @@ int PFRootEventManager::chargeValue(const int& Id) const {
 
 void 
 PFRootEventManager::PreprocessRecTracks(reco::PFRecTrackCollection& recTracks) {  
+  /*
   for( unsigned i=0; i<recTracks.size(); ++i ) {     
     recTracks[i].calculatePositionREP();
   }
+  */
 }
 
 void 
 PFRootEventManager::PreprocessRecTracks(reco::GsfPFRecTrackCollection& recTracks) {  
+  /*
   for( unsigned i=0; i<recTracks.size(); ++i ) {     
     recTracks[i].calculatePositionREP();
     recTracks[i].calculateBremPositionREP();
   }
+  */
 }
 
 
@@ -2867,7 +2879,7 @@ void PFRootEventManager::pfCandCompare(int entry) {
       double deltaE = (*pfCandidates_)[i].energy()-pfCandCMSSW_[i].energy();
       double deltaEta = (*pfCandidates_)[i].eta()-pfCandCMSSW_[i].eta();
       double deltaPhi = (*pfCandidates_)[i].phi()-pfCandCMSSW_[i].phi();
-      if ( fabs(deltaE) > 1E-5 ||
+      if ( fabs(deltaE) > 2E-5 ||
 	   fabs(deltaEta) > 1E-9 ||
 	   fabs(deltaPhi) > 1E-9 ) { 
 	cout << "+++WARNING+++ PFCandidate " << i 

@@ -68,7 +68,7 @@ void L1GtEtaPhiConversions::convert(const L1CaloGeometry* l1CaloGeometry,
     
     if (edm::isDebugEnabled() ) {
         
-        LogTrace("L1GlobalTrigger") << "\n nrGctEmJetPhiBins = "
+        LogTrace("L1GtEtaPhiConversions") << "\n nrGctEmJetPhiBins = "
                 << nrGctEmJetPhiBins << "\n" << std::endl;
 
         for (unsigned int iCalo = 0; iCalo < nrGctEmJetPhiBins; ++iCalo) {
@@ -77,27 +77,27 @@ void L1GtEtaPhiConversions::convert(const L1CaloGeometry* l1CaloGeometry,
             double phiCaloHighEdge =
                     l1CaloGeometry->emJetPhiBinHighEdge(iCalo);
 
-            LogTrace("L1GlobalTrigger") << "Bin " << iCalo
+            LogTrace("L1GtEtaPhiConversions") << "Bin " << iCalo
                     << "\t phiCaloLowEdge = " << phiCaloLowEdge
                     << "\t phiCaloHighEdge = " << phiCaloHighEdge
                     << std::endl;
 
         }
 
-        LogTrace("L1GlobalTrigger") << "\n nrMuPhiBins = "
+        LogTrace("L1GtEtaPhiConversions") << "\n nrMuPhiBins = "
                 << nrMuPhiBins << "\n" << std::endl;
 
         for (unsigned int iBin = 0; iBin < nrMuPhiBins; ++iBin) {
             double phiMuLowEdge = l1MuTriggerScales->getPhiScale()->getLowEdge(iBin);
             double phiMuHighEdge = l1MuTriggerScales->getPhiScale()->getHighEdge(iBin);
 
-            LogTrace("L1GlobalTrigger") << "Bin " << iBin
+            LogTrace("L1GtEtaPhiConversions") << "Bin " << iBin
                     << "\t phiMuLowEdge = " << phiMuLowEdge
                     << "\t phiMuHighEdge = " << phiMuHighEdge << std::endl;
 
         }
 
-        LogTrace("L1GlobalTrigger") << "\n"
+        LogTrace("L1GtEtaPhiConversions") << "\n"
                 << l1MuTriggerScales->getPhiScale()->print() << "\n" << std::endl;
 
     }
@@ -119,7 +119,7 @@ void L1GtEtaPhiConversions::convert(const L1CaloGeometry* l1CaloGeometry,
             if (phiMuLowEdge >= phiCaloLowEdge) {
                 m_lutPhiMuCalo[phiMuInd] = iCalo%nrGctEmJetPhiBins;
                                     
-                LogTrace("L1GlobalTrigger")
+                LogTrace("L1GtEtaPhiConversions") 
                         << " phiMuLowEdge[" << phiMuInd << "] = " << phiMuLowEdge                            
                         << " phiMuHighEdge[" << phiMuInd << "] = " << phiMuHighEdge                            
                         << "\n phiCaloLowEdge[" << iCalo << "] = " << phiCaloLowEdge
@@ -133,14 +133,14 @@ void L1GtEtaPhiConversions::convert(const L1CaloGeometry* l1CaloGeometry,
     }
         
     if (edm::isDebugEnabled() ) {
-        LogTrace("L1GlobalTrigger") << std::endl;
+        LogTrace("L1GtEtaPhiConversions") << std::endl;
         for (unsigned int iBin = 0; iBin < m_lutPhiMuCalo.size(); ++iBin) {
-            LogTrace("L1GlobalTrigger") << "Mu phiIndex = " << iBin
+            LogTrace("L1GtEtaPhiConversions") << "Mu phiIndex = " << iBin
                     << " converted to index " << m_lutPhiMuCalo[iBin]
                     << std::endl;
 
         }
-        LogTrace("L1GlobalTrigger") << std::endl;
+        LogTrace("L1GtEtaPhiConversions") << std::endl;
     }
     
     //
@@ -168,8 +168,8 @@ void L1GtEtaPhiConversions::convert(const L1CaloGeometry* l1CaloGeometry,
     }
         
     if (edm::isDebugEnabled() ) {
-        LogTrace("L1GlobalTrigger") << std::endl;
-        LogTrace("L1GlobalTrigger") << std::endl;
+        LogTrace("L1GtEtaPhiConversions") << std::endl;
+        LogTrace("L1GtEtaPhiConversions") << std::endl;
     }
 
 

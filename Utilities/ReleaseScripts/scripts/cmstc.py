@@ -9,7 +9,7 @@ __maintainer__ = "Miguel Ojeda"
 __email__ = "mojedasa@cern.ch"
 __status__ = "Staging"
 
-_tagcollector_url = 'https://cmstags.cern.ch/tc/'
+_tagcollector_url = 'https://cmssdt.cern.ch/tc/'
 
 import urllib
 import urllib2
@@ -24,6 +24,10 @@ class TagCollector(object):
 		self._url = _tagcollector_url
 		self._cj = cookielib.CookieJar()
 		self._opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self._cj))
+		self.login = False
+
+        def __del__(self):
+ 		if self.login: self.signOut()
 
 	def _open(self, page, params = None, data = None):
 		url = self._url + page + '?'
@@ -41,7 +45,8 @@ class TagCollector(object):
 
 	def signIn(self, username, password):
 		"""Sign in to TagCollector."""
-		self._open('CmsTCLogin', data = {'username': username, 'password': password})
+		self._open('signIn', data = {'password': password, 'user_name': username})
+		self.login = True
 
 	def signInInteractive(self):
 		"""Sign in to TagCollector, asking for the username and password."""
@@ -52,6 +57,7 @@ class TagCollector(object):
 	def signOut(self):
 		"""Sign out of TagCollector."""
 		self._open('signOut')
+		self.login = False
 
 	def getPackageTags(self, package):
 		"""Get the tags published in TagCollector for a package.

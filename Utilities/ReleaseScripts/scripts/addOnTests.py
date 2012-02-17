@@ -8,7 +8,6 @@ import random
 from threading import Thread
 
 scriptPath = os.path.dirname( os.path.abspath(sys.argv[0]) )
-print "scriptPath:", scriptPath
 if scriptPath not in sys.path:
     sys.path.append(scriptPath)
 
@@ -30,8 +29,6 @@ class testit(Thread):
         startime='date %s' %time.asctime()
         exitCodes = []
 
-        startDir = os.getcwd()
-        
         for command in self.commandList:
 
             if not os.path.exists(self.dirName):
@@ -40,13 +37,7 @@ class testit(Thread):
             commandbase = command.replace(' ','_').replace('/','_')
             logfile='%s.log' % commandbase[:150].replace("'",'').replace('../','')
             
-            if os.path.exists( os.path.join(os.environ['CMS_PATH'],'cmsset_default.sh') ) :
-                executable = 'source $CMS_PATH/cmsset_default.sh; eval `scram run -sh`;'
-            else:
-                executable = 'source $CMS_PATH/sw/cmsset_default.sh; eval `scram run -sh`;'
-            # only if needed! executable += 'export FRONTIER_FORCERELOAD=long;' # force reload of db
-            executable += 'cd '+self.dirName+';'
-            executable += '%s > %s 2>&1' %(command, logfile)
+            executable = 'cd '+self.dirName+'; '+command+' > '+logfile+' 2>&1'
 
             ret = os.system(executable)
             exitCodes.append( ret )
@@ -68,8 +59,6 @@ class testit(Thread):
                 self.nfail.append(0)
                 self.npass.append(1)
 
-        os.chdir(startDir)
-        
         return
 
 class StandardTester(object):
@@ -78,6 +67,7 @@ class StandardTester(object):
 
         self.threadList = []
         self.maxThreads = nThrMax
+        self.prepare()
 
         return
 
@@ -90,72 +80,46 @@ class StandardTester(object):
         return nActive
 
     def prepare(self):
+    
+        self.devPath = os.environ['LOCALRT'] + '/src/'
+        self.relPath = self.devPath
+        if os.environ.has_key('CMSSW_RELEASE_BASE') and (os.environ['CMSSW_RELEASE_BASE'] != ""): self.relPath = os.environ['CMSSW_RELEASE_BASE'] + '/src/'
 
-        cmd = 'ln -s /afs/cern.ch/user/a/andreasp/public/IBTests/read*.py .'
-        try:
-            os.system(cmd)
-        except:
-            pass
-
-
-        tstPkgs = { 'FastSimulation' : [ 'Configuration' ],
-	            'HLTrigger'      : [ 'Configuration' ],
-		    'PhysicsTools'   : [ 'PatAlgos'      ],
-		  }
-
-	#-ap: make sure the actual package is there, not just the subsystem ...
-        # and set symlinks accordingly ...
-        pkgPath = os.environ['CMSSW_BASE'] + '/src/'
-        relPath = '$CMSSW_RELEASE_BASE/src/'
-        cmd = ''
-        for tstSys in tstPkgs:
-          if not os.path.exists(pkgPath + tstSys):
-             cmd  = 'ln -s ' + relPath + tstSys + ' .;'
-             try:
-                print 'setting up symlink for ' + tstSys + ' using ' + cmd
-                os.system(cmd)
-             except:
-                pass
-          else:
-	    for tstPkg in tstPkgs[tstSys]:
-              if not os.path.exists(pkgPath + tstSys + "/" + tstPkg):
-                 cmd  = 'mkdir -p ' + tstSys + '; ln -s ' + relPath + tstSys + '/' + tstPkg + ' ' + tstSys +';'
-              else:
-                 cmd  = 'mkdir -p ' + tstSys + '; ln -s ' + pkgPath + tstSys + '/' + tstPkg + ' ' + tstSys +';'
-              try:
-                print 'setting up symlink for ' + tstSys + '/' + tstPkg + ' using ' + cmd
-                os.system(cmd)
-              except:
-                pass
-
-        return
-
-
-    def runTests(self):
-
-    	# make sure we have a way to set the environment in the threads ...
-    	if not os.environ.has_key('CMS_PATH'):
-    	    cmsPath = '/afs/cern.ch/cms'
-    	    print "setting default for CMS_PATH to", cmsPath
-    	    os.environ['CMS_PATH'] = cmsPath
-
-        lines = { 'read312RV' : ['cmsRun ../read312RV_cfg.py'], 
-                  'fastsim1' : ['cmsRun ../FastSimulation/Configuration/test/IntegrationTestFake_cfg.py'],
-                  'fastsim2' : ['cmsRun ../FastSimulation/Configuration/test/IntegrationTest_cfg.py'],
-                  #'fastsim3' : ['cmsRun ../FastSimulation/Configuration/test/ExampleWithHLT_1E31_cfg.py'],
-                  'fastsim4' : ['cmsRun ../FastSimulation/Configuration/test/IntegrationTestWithHLT_cfg.py'],
-                  'pat1'     : ['cmsRun ../PhysicsTools/PatAlgos/test/IntegrationTest_cfg.py'],
+        lines = { 'read312RV' : ['cmsRun '+self.file2Path('Utilities/ReleaseScripts/scripts/read312RV_cfg.py')], 
+                  'fastsim1'  : ['cmsRun '+self.file2Path('FastSimulation/Configuration/test/IntegrationTestFake_cfg.py')],
+                  'fastsim2'  : ['cmsRun '+self.file2Path('FastSimulation/Configuration/test/IntegrationTest_cfg.py')],
+                  #'fastsim3'  : ['cmsRun '+self.file2Path('FastSimulation/Configuration/test/ExampleWithHLT_1E31_cfg.py')],
+                  'fastsim4'  : ['cmsRun '+self.file2Path('FastSimulation/Configuration/test/IntegrationTestWithHLT_cfg.py')],
+                  'pat1'      : ['cmsRun '+self.file2Path('PhysicsTools/PatAlgos/test/IntegrationTest_cfg.py')],
                 }
 
         hltTests = { 'hlt1' : ['cmsDriver.py TTbar_Tauola.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW -n 10 --conditions auto:startup --relval 9000,50 --datatier "GEN-SIM-RAW" --eventcontent RAW --fileout file:RelVal_DigiL1Raw_GRun.root',
-                      'cmsRun ../HLTrigger/Configuration/test/OnLine_HLT_GRun.py' ], 
+                               'cmsRun '+self.file2Path('HLTrigger/Configuration/test/OnLine_HLT_GRun.py')], 
                      'hlt2' : ['cmsDriver.py TTbar_Tauola.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW -n 10 --conditions auto:starthi --relval 9000,50 --datatier "GEN-SIM-RAW" --eventcontent RAW --fileout file:RelVal_DigiL1Raw_HIon.root',
-                      'cmsRun ../HLTrigger/Configuration/test/OnLine_HLT_HIon.py'],
-                     'hlt3' : ['cmsRun ../HLTrigger/Configuration/test/OnData_HLT_GRun.py'],
-                     'hlt4' : ['cmsRun ../HLTrigger/Configuration/test/OnData_HLT_HIon.py'],
+                               'cmsRun '+self.file2Path('HLTrigger/Configuration/test/OnLine_HLT_HIon.py')],
+                     'hlt3' : ['cmsRun '+self.file2Path('HLTrigger/Configuration/test/OnData_HLT_GRun.py')],
+                     'hlt4' : ['cmsRun '+self.file2Path('HLTrigger/Configuration/test/OnData_HLT_HIon.py')],
                      }
 
-    	commands={}
+        self.commands={}
+        for dirName, command in lines.items():
+            self.commands[dirName] = command
+
+        for dirName, commandList in hltTests.items():
+            self.commands[dirName] = commandList
+        return
+	
+    def dumpTest(self):
+        print ",".join(self.commands.keys())
+        return
+
+    def file2Path(self,rFile):
+
+        fullPath = self.relPath + rFile
+        if os.path.exists(self.devPath + rFile): fullPath = self.devPath + rFile
+        return fullPath
+
+    def runTests(self, testList = None):
 
         actDir = os.getcwd()
 
@@ -163,25 +127,19 @@ class StandardTester(object):
             os.makedirs('addOnTests')
         os.chdir('addOnTests')
 
-        self.prepare()
-
-    	for dirName, command in lines.items():
-    	        commands[dirName] = command
-    	        # print 'Will do: '+command
-
-        for dirName, commandList in hltTests.items():
-            cmds = commandList
-            commands[dirName] = cmds
-
         nfail=0
     	npass=0
     	report=''
     	
     	print 'Running in %s thread(s)' % self.maxThreads
     	
-        for dirName, command in commands.items():
+        for dirName, command in self.commands.items():
 
-    	    # make sure we don't run more than the allowed number of threads:
+    	    if testList and not dirName in testList:
+                del self.commands[dirName]
+                continue
+
+            # make sure we don't run more than the allowed number of threads:
     	    while self.activeThreads() >= self.maxThreads:
     	        time.sleep(10)
                 continue
@@ -192,7 +150,7 @@ class StandardTester(object):
     	    current.start()
             time.sleep(random.randint(1,5)) # try to avoid race cond by sleeping random amount of time [1,5] sec 
             
-    	# wait until all threads are finished
+        # wait until all threads are finished
         while self.activeThreads() > 0:
     	    time.sleep(5)
     	    
@@ -218,13 +176,13 @@ class StandardTester(object):
         print '    going to copy log files to logs dir ...'
         if not os.path.exists('logs'):
             os.makedirs('logs')
-        for dirName in commands.keys():
+        for dirName in self.commands:
             cmd = "for L in `ls "+dirName+"/*.log`; do cp $L logs/cmsDriver-`dirname $L`_`basename $L` ; done"
             print "going to ",cmd
             os.system(cmd)
 
         import pickle
-        pickle.dump(commands, open('logs/addOnTests.pkl', 'w') )
+        pickle.dump(self.commands, open('logs/addOnTests.pkl', 'w') )
 
         os.chdir(actDir)
         
@@ -233,10 +191,6 @@ class StandardTester(object):
     def upload(self, tgtDir):
 
         print "in ", os.getcwd()
-
-    	# wait until all threads are finished
-        while self.activeThreads() > 0:
-    	    time.sleep(5)
 
         if not os.path.exists(tgtDir):
             os.makedirs(tgtDir)
@@ -258,17 +212,16 @@ def main(argv) :
     import getopt
     
     try:
-        opts, args = getopt.getopt(argv, "j:", ["nproc=", 'uploadDir=', 'noRun'])
+        opts, args = getopt.getopt(argv, "dj:t:", ["nproc=", 'uploadDir=', 'tests=','noRun','dump'])
     except getopt.GetoptError, e:
         print "unknown option", str(e)
         sys.exit(2)
         
-# check command line parameter
-
-    np=4 # default: four threads
-
+    np        = 4
     uploadDir = None
     runTests  = True
+    testList  = None
+    dump      = False
     for opt, arg in opts :
         if opt in ('-j', "--nproc" ):
             np=int(arg)
@@ -276,13 +229,20 @@ def main(argv) :
             uploadDir = arg
         if opt in ('--noRun', ):
             runTests = False
+        if opt in ('-d','--dump', ):
+            dump = True
+        if opt in ('-t','--tests', ):
+            testList = arg.split(",")
 
     tester = StandardTester(np)
-    if runTests:
-        tester.runTests()
-    if uploadDir:
-        tester.upload(uploadDir)
+    if dump:
+        tester.dumpTest()
+    else:
+        if runTests:
+            tester.runTests(testList)
+        if uploadDir:
+            tester.upload(uploadDir)
+    return
     
-
 if __name__ == '__main__' :
     main(sys.argv[1:])

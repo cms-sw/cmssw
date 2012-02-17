@@ -1,5 +1,5 @@
 //
-// $Id: TriggerAlgorithm.cc,v 1.2 2010/12/16 18:39:17 vadler Exp $
+// $Id: TriggerAlgorithm.cc,v 1.3 2011/02/22 18:29:50 vadler Exp $
 //
 
 
@@ -19,6 +19,7 @@ TriggerAlgorithm::TriggerAlgorithm() :
   logic_(),
   tech_(),
   bit_(),
+  gtlResult_(),
   prescale_(),
   mask_(),
   decisionBeforeMask_(),

@@ -1,9 +1,11 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
 #include "DataFormats/GeometrySurface/interface/Surface.h" 
 #include "Alignment/ReferenceTrajectories/interface/TwoBodyDecayTrajectory.h"
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h" 
 #include "DataFormats/Math/interface/Error.h" 
+#include "Alignment/TwoBodyDecay/interface/TwoBodyDecayParameters.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
@@ -23,7 +25,7 @@ TwoBodyDecayTrajectory::TwoBodyDecayTrajectory( const TwoBodyDecayTrajectoryStat
   : ReferenceTrajectoryBase( 
      TwoBodyDecayParameters::dimension, recHits.first.size() + recHits.second.size(),
   (materialEffects >= breakPoints) ? 2*(recHits.first.size() + recHits.second.size())-4 : 0,
-  (materialEffects >= breakPoints) ? 2*(recHits.first.size() + recHits.second.size())-4 : 0 )
+  (materialEffects >= breakPoints) ? 2*(recHits.first.size() + recHits.second.size())-3 : 1 )
 {
   if ( hitsAreReverse )
   {
@@ -118,7 +120,7 @@ bool TwoBodyDecayTrajectory::construct( const TwoBodyDecayTrajectoryState& state
   theNumberOfHits = trajectory1.numberOfHits() + trajectory2.numberOfHits(); 
   theNumberOfPars = nPar1 + nPar2;
   theNumberOfMsPars = nMsPar1 + nMsPar2;
-  theNumberOfMsMeas = nMsMeas1 + nMsMeas2;
+  theNumberOfMsMeas = nMsMeas1 + nMsMeas2 + 1; // add virtual mass measurement
   
   // hit measurements from trajectory 1
   int rowOffset = 1;
@@ -159,11 +161,18 @@ bool TwoBodyDecayTrajectory::construct( const TwoBodyDecayTrajectoryState& state
   theTrajectoryPositions.sub( nHitMeas1 + 1, trajectory2.trajectoryPositions() );
 
   theTrajectoryPositionCov = state.decayParameters().covariance().similarity( theDerivatives.sub(1, nHitMeas1 + nHitMeas2, 1, 9) );
-  
+
   theParameters = state.decayParameters().parameters();
 
   theRecHits.insert( theRecHits.end(), recHits.first.begin(), recHits.first.end() );
   theRecHits.insert( theRecHits.end(), recHits.second.begin(), recHits.second.end() );
+
+  // add virtual mass measurement
+  rowOffset += nMsMeas2;
+  int indMass = rowOffset-1;
+  theMeasurements[indMass] = state.primaryMass() - state.decayParameters()[TwoBodyDecayParameters::mass];
+  theMeasurementsCov[indMass][indMass] = state.primaryWidth() * state.primaryWidth();
+  theDerivatives[indMass][TwoBodyDecayParameters::mass] = 1.0;
 
   if ( constructTsosWithErrors )
   {
