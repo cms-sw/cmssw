@@ -17,7 +17,15 @@ patMuons.embedTcMETMuonCorrs = cms.bool(False)
 #    embedPickyMuon = cms.bool(True)
 
 
+goodVertex = cms.EDFilter("VertexSelector",
+    src = cms.InputTag("offlinePrimaryVertices"),
+    cut = cms.string("(!isFake) & ndof > 3 & abs(z) < 15 & position.Rho < 2"),
+    filter = cms.bool(True)
+)
 
+
+
+'''
 muonsWithPFIso = cms.EDProducer("MuonWithPFIsoProducer",
          MuonTag = cms.untracked.InputTag("muons")
        , PfTag = cms.untracked.InputTag("pfNoPileUp")
@@ -26,9 +34,9 @@ muonsWithPFIso = cms.EDProducer("MuonWithPFIsoProducer",
        , GammaIsoVeto = cms.untracked.double(0.07)
        , NeutralHadronIsoVeto = cms.untracked.double(0.1)
 )
+'''
 
-
-patMuons.muonSource = cms.InputTag("muonsWithPFIso")
+#patMuons.muonSource = cms.InputTag("muonsWithPFIso")
 
 goodMuons = cms.EDFilter("PATMuonSelector",
   src = cms.InputTag("patMuons"),
@@ -41,16 +49,13 @@ goodMuons = cms.EDFilter("PATMuonSelector",
   filter = cms.bool(True)
 )
 
-#patMuonsPFIso = patMuons.clone()
-#patMuonsPFIso.muonSource = cms.InputTag("muonsWithPFIso")
 
-#goodMuonsPFIso = goodMuons.clone()
-#goodMuonsPFIso.src = cms.InputTag("patMuonsPFIso")
 
 goodMuonsPFIso =cms.EDFilter("PATMuonSelector",
   src = cms.InputTag("goodMuons"),
   #cut = cms.string("iso03.sumPt/pt < 0.1 "  ),
-  cut = cms.string("trackIso() < 0.1*pt "  ),
+  #cut = cms.string("trackIso() < 0.1*pt "  ),
+  cut = cms.string("trackIso() < 1000*pt "  ),# temporarly disable isolation
   filter = cms.bool(False)
 )
 
@@ -79,8 +84,9 @@ goldenZmumuFilter = cms.EDFilter("CandViewCountFilter",
 
 
 goldenZmumuSelectionSequence = cms.Sequence(
-  pfNoPileUpSequence 
-  * muonsWithPFIso 
+  goodVertex
+  * pfNoPileUpSequence 
+  #* muonsWithPFIso 
   * patMuons 
   * goodMuons
   * goodMuonsPFIso 
