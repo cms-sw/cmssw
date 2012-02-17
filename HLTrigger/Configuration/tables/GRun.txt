@@ -181,8 +181,10 @@ HLT_IsoMu30_eta2p1_v*
 HLT_IsoMu34_eta2p1_v*
 HLT_IsoMu40_eta2p1_v*
 HLT_L2DoubleMu23_NoVertex_v*
-HLT_L2DoubleMu30_NoVertex_v*
-HLT_L2DoubleMu30_NoVertex_dPhi2p5_v*							#added in "5e33" menu (sr #124053)
+HLT_L2DoubleMu23_NoVertex_2Cha_Angle2p5_v*						#added in "5e33" menu (sr #126251)
+HLT_L2DoubleMu38_NoVertex_2Cha_Angle2p5_v*						#added in "5e33" menu (sr #126251)
+#HLT_L2DoubleMu30_NoVertex_v*								#removed in "5e33" menu (sr #126251)
+#HLT_L2DoubleMu30_NoVertex_dPhi2p5_v*							#added in "5e33" menu (sr #124053) and removed in (sr #126251)
 #HLT_L2DoubleMu45_NoVertex_v*								#removed in "5e33" menu (sr #124053)
 HLT_DoubleMu3_v*
 HLT_DoubleMu5_v*
