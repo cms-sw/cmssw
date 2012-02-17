@@ -48,7 +48,7 @@ muonAnalyzer = cms.EDAnalyzer("MuonAnalyzer",
     etaMax = cms.double(3.0),
     pMax = cms.double(500.0),
     phiMax = cms.double(3.2),
-    chi2Max = cms.double(50)
+    chi2Max = cms.double(20)
     ),
                               DoMuonSeedAnalysis = cms.untracked.bool(True),
                               DoTrackSegmentsAnalysis = cms.untracked.bool(True),
@@ -140,21 +140,22 @@ muonAnalyzer = cms.EDAnalyzer("MuonAnalyzer",
     ),
                               DoMuonRecoOneHLT = cms.untracked.bool(True),                           
                               muonRecoOneHLTAnalysis = cms.PSet(
-    ptBin = cms.int32(100),
+    MuonCollection = cms.InputTag("muons"),
+    ptBin = cms.int32(50),
     ptMin = cms.double(0.0),
     ptMax = cms.double(100.0),
     
-    etaBin = cms.int32(100),
+    etaBin = cms.int32(50),
     etaMin = cms.double(-3.0),
     etaMax = cms.double(3.0),
     
-    phiBin = cms.int32(100),
+    phiBin = cms.int32(50),
     phiMin = cms.double(-3.2),
     phiMax = cms.double(3.2),
 
-    chi2Bin = cms.int32(100),
+    chi2Bin = cms.int32(50),
     chi2Min = cms.double(0.),
-    chi2Max = cms.double(50),
+    chi2Max = cms.double(20),
     
     SingleMuonTrigger = cms.PSet(
       andOr         = cms.bool( True ),

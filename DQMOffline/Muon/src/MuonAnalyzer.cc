@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/11/01 11:40:09 $
- *  $Revision: 1.26 $
+ *  $Date: 2011/11/01 19:43:21 $
+ *  $Revision: 1.27 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -150,10 +150,15 @@ void MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	LogTrace(metname)<<"[MuonAnalyzer] Call to the muon KinVsEta analyzer";
 	theMuonKinVsEtaAnalyzer->analyze(iEvent, iSetup, *recoMu);
       }
-      if(theMuonRecoOneHLTAnalyzerFlag) {
-	LogTrace(metname)<<"[MuonAnalyzer] Call to the muon reco One HLT analyzer";
-	theMuonRecoOneHLTAnalyzer->analyze(iEvent, iSetup, *recoMu, *triggerResults);
-      }
+      //      if(theMuonRecoOneHLTAnalyzerFlag) {
+      //	LogTrace(metname)<<"[MuonAnalyzer] Call to the muon reco One HLT analyzer";
+	//	theMuonRecoOneHLTAnalyzer->analyze(iEvent, iSetup, *recoMu, *triggerResults);
+      //	theMuonRecoOneHLTAnalyzer->analyze(iEvent, iSetup, *triggerResults);
+      //      }
+    }
+    if(theMuonRecoOneHLTAnalyzerFlag) {
+      LogTrace(metname)<<"[MuonAnalyzer] Call to the muon reco One HLT analyzer";
+      theMuonRecoOneHLTAnalyzer->analyze(iEvent, iSetup, *triggerResults);
     }
     if (theEfficiencyAnalyzerFlag){
       LogTrace(metname)<<"[MuonAnalyzer] Call to the efficiency analyzer";
