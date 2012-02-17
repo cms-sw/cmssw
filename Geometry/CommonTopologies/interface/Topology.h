@@ -46,8 +46,8 @@ public:
     typedef  Basic2DVector<double> Base;
     LocalTrackAngles(const Base & v) : Base(v) {}
     LocalTrackAngles(double dxdz, double dydz) : Base(dxdz,dydz) {}
-    double dydz() const { return x(); }
-    double dxdz() const { return y(); }
+    double dxdz() const { return x(); }
+    double dydz() const { return y(); }
   };
     typedef Point2DBase <double, LocalTag> Local2DPoint;
     /** Track prediction in local frame (2D point and angles), 
