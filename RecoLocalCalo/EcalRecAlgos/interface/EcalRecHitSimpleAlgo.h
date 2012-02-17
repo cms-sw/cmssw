@@ -4,9 +4,9 @@
 /** \class EcalRecHitSimpleAlgo
   *  Simple algoritm to make rechits from uncalibrated rechits
   *
-  *  $Id: EcalRecHitSimpleAlgo.h,v 1.15 2011/11/02 13:10:21 theofil Exp $
-  *  $Date: 2011/11/02 13:10:21 $
-  *  $Revision: 1.15 $
+  *  $Id: EcalRecHitSimpleAlgo.h,v 1.16 2012/02/17 21:22:54 franzoni Exp $
+  *  $Date: 2012/02/17 21:22:54 $
+  *  $Revision: 1.16 $
   *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
   */
 
@@ -80,12 +80,12 @@ class EcalRecHitSimpleAlgo : public EcalRecHitAbsAlgo {
             good=false;
     }
     if ( uncalibRH.checkFlag( EcalUncalibratedRecHit::kHasSwitchToGain6 ) ) {
-      rh.setFlag(EcalRecHit::kHasSwitchToGain6);
+            rh.setFlag(EcalRecHit::kHasSwitchToGain6);
     }
     if (uncalibRH.checkFlag( EcalUncalibratedRecHit::kHasSwitchToGain1 ) ) {
-      rh.setFlag(EcalRecHit::kHasSwitchToGain1);
+            rh.setFlag(EcalRecHit::kHasSwitchToGain1);
     }
-
+    
     if (good) rh.setFlag(EcalRecHit::kGood);
     return rh;
   }
