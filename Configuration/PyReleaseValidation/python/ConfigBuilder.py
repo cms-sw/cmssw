@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.358 $"
+__version__ = "$Revision: 1.359 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -29,7 +29,7 @@ defaultOptions.number = 0
 defaultOptions.arguments = ""
 defaultOptions.name = "NO NAME GIVEN"
 defaultOptions.evt_type = ""
-defaultOptions.filein = []
+defaultOptions.filein = ""
 defaultOptions.dbsquery=""
 defaultOptions.secondfilein = ""
 defaultOptions.customisation_file = ""
@@ -1320,7 +1320,8 @@ class ConfigBuilder(object):
     def prepare_L1HwVal(self, sequence = 'L1HwVal'):
         ''' Enrich the schedule with L1 HW validation '''
         self.loadDefaultOrSpecifiedCFF(sequence,self.L1HwValDefaultCFF)
-	self.scheduleSequence(sequence.split('.')[-1],'l1hwval_step')
+	#self.scheduleSequence(sequence.split('.')[-1],'l1hwval_step')
+	print '\n\n\n DEPRECATED this has no action \n\n\n'
         return
 
     def prepare_L1Reco(self, sequence = "L1Reco"):
@@ -1659,7 +1660,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.358 $"),
+                                            (version=cms.untracked.string("$Revision: 1.359 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
