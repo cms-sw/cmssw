@@ -2,21 +2,21 @@
 
 import os, sys
 if len(sys.argv) > 1:
-  os.environ['DBS_STRATEGY'] = sys.argv[1]
+  os.environ['DD_SOURCE'] = sys.argv[1]
 
-import DQMOffline.EGamma.electronDbsDiscovery as dbs
+import DQMOffline.EGamma.electronDataDiscovery as dd
 
-if os.environ['DBS_TIER_SECONDARY'] == "":
-  files = dbs.search()
+if os.environ['DD_TIER_SECONDARY'] == "":
+  files = dd.search()
   print "dataset has", len(files), "files:"
   for file in files:
     print file
 else:
-  files = dbs.search()
+  files = dd.search()
   print "dataset has", len(files), "primary files:"
   for file in files:
     print file
-  files = dbs.search2()
+  files = dd.search2()
   print "dataset has", len(files), "secondary files:"
   for file in files:
     print file

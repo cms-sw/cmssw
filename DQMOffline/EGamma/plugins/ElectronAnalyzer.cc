@@ -1,4 +1,3 @@
-
 #include "DQMOffline/EGamma/plugins/ElectronAnalyzer.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -503,7 +502,7 @@ void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup 
    }
 
   // association matching object-reco electrons
-//  int matchingObjectNum=0;
+  int matchingObjectNum=0;
   reco::SuperClusterCollection::const_iterator moIter ;
   for
    ( moIter=recoClusters->begin() ;
@@ -511,7 +510,7 @@ void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup 
      moIter++ )
    {
 //    // number of matching objects
-//    matchingObjectNum++;
+     matchingObjectNum++;
 
     if
      ( moIter->energy()/cosh(moIter->eta())>maxPtMatchingObject_ ||
@@ -546,8 +545,8 @@ void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup 
          gsfIter2++ )
        {
         float invMass = computeInvMass(*gsfIter,*gsfIter2) ;
-        h1_mee->Fill(invMass) ;
-        if (((gsfIter->charge())*(gsfIter2->charge()))<0.)
+        if(matchingObjectNum == 1){h1_mee->Fill(invMass) ;}
+        if ((matchingObjectNum == 1) && (((gsfIter->charge())*(gsfIter2->charge()))<0.))
          { h1_mee_os->Fill(invMass) ; }
        }
 

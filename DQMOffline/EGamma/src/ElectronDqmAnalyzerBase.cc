@@ -301,6 +301,7 @@ MonitorElement * ElectronDqmAnalyzerBase::bookH1andDivide
    const std::string & titleX, const std::string & titleY,
    const std::string & title )
  {
+  if ((!num)||(!denom)) return 0 ;
   std::string name2 = newName(name) ;
   TH1F * h_temp = (TH1F *)num->getTH1F()->Clone(name2.c_str()) ;
   h_temp->Reset() ;
@@ -319,6 +320,7 @@ MonitorElement * ElectronDqmAnalyzerBase::bookH2andDivide
    const std::string & titleX, const std::string & titleY,
    const std::string & title )
  {
+  if ((!num)||(!denom)) return 0 ;
   std::string name2 = newName(name) ;
   TH2F * h_temp = (TH2F *)num->getTH2F()->Clone(name2.c_str()) ;
   h_temp->Reset() ;
@@ -336,6 +338,7 @@ MonitorElement * ElectronDqmAnalyzerBase::cloneH1
  ( const std::string & name, MonitorElement * original,
    const std::string & title )
  {
+  if (!original) return 0 ;
   std::string name2 = newName(name) ;
   TH1F * h_temp = (TH1F *)original->getTH1F()->Clone(name2.c_str()) ;
   h_temp->Reset() ;

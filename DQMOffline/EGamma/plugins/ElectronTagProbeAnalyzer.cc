@@ -1,4 +1,3 @@
-
 #include "DQMOffline/EGamma/plugins/ElectronTagProbeAnalyzer.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -25,6 +24,7 @@
 #include "TMath.h"
 
 #include <iostream>
+#include <vector>
 
 using namespace reco ;
 
@@ -214,7 +214,7 @@ void ElectronTagProbeAnalyzer::book()
 
   // di-electron mass
   setBookIndex(200) ;
-  h1_mee = bookH1("mee","ele pairs invariant mass", nbinmee, meemin, meemax,"m_{ee} (GeV/c^{2})");
+  h1_mee = bookH1("mesc","Tag ele Probe SC invariant mass", nbinmee, meemin, meemax,"m_{eSC} (GeV/c^{2})");
   h1_mee_os = bookH1("mee_os","ele pairs invariant mass, opposite sign", nbinmee, meemin, meemax,"m_{e^{+}e^{-}} (GeV/c^{2})");
 
 
@@ -272,6 +272,9 @@ void ElectronTagProbeAnalyzer::analyze( const edm::Event& iEvent, const edm::Eve
     <<" from event "<<ievt<<" in run "<<irun<<" and lumiblock "<<ils ;
   //h1_num_->Fill((*gsfElectrons).size()) ;
 
+  std::vector<std::pair<double,double> > TTCheck;
+  std::vector<std::pair<double,double> > TTscCheck;
+
   // selected rec electrons
   reco::GsfElectronCollection::const_iterator gsfIter ;
   for
@@ -323,7 +326,7 @@ void ElectronTagProbeAnalyzer::analyze( const edm::Event& iEvent, const edm::Eve
       float invMass = sqrt(mee2);
 
       if( invMass < massLow_ || invMass > massHigh_ ) continue ;
-      h1_mee->Fill(invMass) ;
+      
 
       h1_matchingObject_Eta->Fill( moIter->eta() );
       h1_matchingObject_Pt->Fill( moIter->energy()/cosh(moIter->eta()) );
@@ -352,7 +355,9 @@ void ElectronTagProbeAnalyzer::analyze( const edm::Event& iEvent, const edm::Eve
           // opposite sign checking
           bool opsign = (((gsfIter->charge())*(bestGsfElectron.charge()))<0.) ;
           if ( TPchecksign_ && !opsign )
-           { okGsfFound = false ; break ; }
+           { okGsfFound = false ; 
+	     h1_mee->Fill(invMass) ;
+	     break ; }
           else
            { okGsfFound = true ; }
          } //fi on gsfEleSC.eta == probeSC.eta
@@ -445,10 +450,32 @@ void ElectronTagProbeAnalyzer::analyze( const edm::Event& iEvent, const edm::Eve
         h1_hcalTowerSumEt_dr03->Fill(bestGsfElectron.dr03HcalTowerSumEt());
 
         // inv Mass with opposite sign
-        if (((gsfIter->charge())*(bestGsfElectron.charge()))<0.)
-        { h1_mee_os->Fill(invMass) ; }
+	bool invMassTTAlreadyFilled = false;
+	if(TTCheck.size() != 0){
+	  int TTCheckDim = TTCheck.size();
+	  for(int i=0 ;i<TTCheckDim;i++){
+	    if((bestGsfElectron.eta() == TTCheck.at(i).first) && (gsfIter->eta() == TTCheck.at(i).second)){
+	      invMassTTAlreadyFilled=true;
+	    }
+	  }
+	}
+	
+
+        if (!invMassTTAlreadyFilled && (((gsfIter->charge())*(bestGsfElectron.charge()))<0.))
+        { 
+	  h1_mee->Fill(invMass);
+	  math::XYZTLorentzVector p12bis = (*gsfIter).p4()+ bestGsfElectron.p4() ;
+	  float mee2bis = p12.Dot(p12bis);
+	  float invMassEE = sqrt(mee2bis);
+	  if(invMassEE >= massLow_ && invMassEE <= massHigh_){h1_mee_os->Fill(invMassEE);}
+	  std::pair<double,double> p(gsfIter->eta(),bestGsfElectron.eta());
+	  TTCheck.push_back(p);
+	}
 
        }// fi on OkGsfFound
+      else{
+	h1_mee->Fill(invMass) ;
+      }
 
      } // end of loop on SC to find probe SC
 
@@ -631,6 +658,3 @@ bool ElectronTagProbeAnalyzer::idCut( const reco::GsfElectronCollection::const_i
 
   return false ;
  }
-
-
-
