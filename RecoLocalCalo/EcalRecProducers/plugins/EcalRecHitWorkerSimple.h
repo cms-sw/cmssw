@@ -4,9 +4,9 @@
 /** \class EcalRecHitSimpleAlgo
   *  Simple algoritm to make rechits from uncalibrated rechits
   *
-  *  $Id: EcalRecHitWorkerSimple.h,v 1.8 2011/11/10 11:44:15 vieri Exp $
-  *  $Date: 2011/11/10 11:44:15 $
-  *  $Revision: 1.8 $
+  *  $Id: EcalRecHitWorkerSimple.h,v 1.9 2011/11/24 16:08:53 vieri Exp $
+  *  $Date: 2011/11/24 16:08:53 $
+  *  $Revision: 1.9 $
   *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
   */
 
@@ -26,18 +26,21 @@
 class EcalRecHitWorkerSimple : public EcalRecHitWorkerBaseClass {
         public:
                 EcalRecHitWorkerSimple(const edm::ParameterSet&);
-                virtual ~EcalRecHitWorkerSimple() {};
-
+                virtual ~EcalRecHitWorkerSimple();                       
+        
                 void set(const edm::EventSetup& es);
                 bool run(const edm::Event& evt, const EcalUncalibratedRecHit& uncalibRH, EcalRecHitCollection & result);
+
+
+
+        protected:
+
 		double EBLaserMIN_;
 		double EELaserMIN_;
 		double EBLaserMAX_;
 		double EELaserMAX_;
 
 		std::vector<uint32_t> recoflags_;
-        protected:
-
                 edm::ESHandle<EcalIntercalibConstants> ical;
                 edm::ESHandle<EcalTimeCalibConstants> itime;
                 edm::ESHandle<EcalTimeOffsetConstant> offtime;
@@ -45,7 +48,7 @@ class EcalRecHitWorkerSimple : public EcalRecHitWorkerBaseClass {
                 edm::ESHandle<EcalChannelStatus> chStatus;
                 std::vector<int> v_chstatus_;
                 edm::ESHandle<EcalLaserDbService> laser;
-                std::vector<int> v_DB_reco_flags_;
+
                 bool killDeadChannels_;
                 bool laserCorrection_;
 

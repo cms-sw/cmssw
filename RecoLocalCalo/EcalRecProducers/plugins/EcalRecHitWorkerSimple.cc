@@ -17,7 +17,6 @@ EcalRecHitWorkerSimple::EcalRecHitWorkerSimple(const edm::ParameterSet&ps) :
 {
         rechitMaker_ = new EcalRecHitSimpleAlgo();
         v_chstatus_ = ps.getParameter<std::vector<int> >("ChannelStatusToBeExcluded");
-        //v_DB_reco_flags_ = ps.getParameter<std::vector<int> >("flagsMapDBReco");
         killDeadChannels_ = ps.getParameter<bool>("killDeadChannels");
         laserCorrection_ = ps.getParameter<bool>("laserCorrection");
 	EBLaserMIN_ = ps.getParameter<double>("EBLaserMIN");
@@ -137,11 +136,11 @@ EcalRecHitWorkerSimple::run( const edm::Event & evt,
           bool iscorrected=false;	
 	  
 	  for (size_t i=0; i< recoflags_.size();++i){
-            if (recoflags_[i]<=3) iscorrected=true; 
+            if (recoflags_[i]<= EcalRecHit::kLeadingEdgeRecovered) iscorrected=true; 
           }
 
         // make the rechit and put in the output collection
-        if (/*recoflags_ <= EcalRecHit::kLeadingEdgeRecovered*/ iscorrected || !killDeadChannels_) {
+        if (iscorrected || !killDeadChannels_) {
           EcalRecHit myrechit( rechitMaker_->makeRecHit(uncalibRH, icalconst * lasercalib, (itimeconst + offsetTime), /*recoflags_*/ 0) );	
 	  if (detid.subdetId() == EcalBarrel && (lasercalib < EBLaserMIN_ || lasercalib > EBLaserMAX_)) myrechit.setFlag(EcalRecHit::kPoorCalib);
 	  if (detid.subdetId() == EcalEndcap && (lasercalib < EELaserMIN_ || lasercalib > EELaserMAX_)) myrechit.setFlag(EcalRecHit::kPoorCalib);
@@ -150,6 +149,12 @@ EcalRecHitWorkerSimple::run( const edm::Event & evt,
 
         return true;
 }
+
+EcalRecHitWorkerSimple::~EcalRecHitWorkerSimple(){
+  std::cout << "entering destr " <<std::endl;
+  delete rechitMaker_;
+}
+
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalRecHitWorkerFactory.h"
