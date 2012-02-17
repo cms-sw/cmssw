@@ -21,6 +21,21 @@
 #include <sstream>
 
 // Driver for configuring ROOT plug-in manager to use TStorageFactoryFile.
+
+/**
+   Register TFileAdaptor to be the handler for a given type.
+
+   Once registered, URLs matching a specified regexp (for example, ^lstore: to
+   manage files starting with lstore://) will be managed by a TFileAdaptor instance,
+   possibly overriding any built-in ROOT adaptors.
+
+   @param[in] mgr      The ROOT plugin manager object.
+   @param[in] type     A regexp-string; URLs matching this string will use TFileAdaptor.
+   @param[in] altType  Due to a limitation in the TPluginManager, if the type was 
+                       previously managed by TXNetFile, we must invoke AddHandler with
+                       a slightly different syntax.  Set this parameter to 1 if this
+                       applies to you.  Otherwise, leave it at the default (0)
+ */
   void
   TFileAdaptor::addType(TPluginManager* mgr, char const* type, int altType /*=0*/) {
 
@@ -163,7 +178,9 @@
     if (!native("storm"))     addType(mgr, "^storm:");
     if (!native("storm-lcg")) addType(mgr, "^storm-lcg:");
     if (!native("lstore"))    addType(mgr, "^lstore:");
-    if (!native("root"))      addType(mgr, "^root:", 1); // See comments in addType
+    // This is ready to go from a code point-of-view.
+    // Waiting on the validation "OK" from Computing.
+    //if (!native("root"))      addType(mgr, "^root:", 1); // See comments in addType
   }
 
   void

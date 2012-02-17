@@ -28,7 +28,7 @@ public:
   void statsXML(std::map<std::string, std::string> &data) const;
 
 private:
-  static void addType(TPluginManager* mgr, char const* type, int addType=0);
+  static void addType(TPluginManager* mgr, char const* type, int altType=0);
   bool native(char const* proto) const;
 
   bool enabled_;

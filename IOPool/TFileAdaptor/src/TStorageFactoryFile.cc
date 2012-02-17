@@ -93,6 +93,10 @@ TStorageFactoryFile::TStorageFactoryFile(void)
   stats.tick(0);
 }
 
+// This constructor must be compatible with *all* the various built-in TFile plugins,
+// including TXNetFile.  This is why some arguments in the constructor is ignored.
+// If there's a future T*File that is incompatible with this constructor, a new
+// constructor will have to be added.
 TStorageFactoryFile::TStorageFactoryFile(const char *path,
                                          Option_t *option /* = "" */,
                                          const char *ftitle /* = "" */,
