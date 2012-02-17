@@ -8,6 +8,7 @@
 #include <functional>
 #include <stdlib.h>
 #include <string.h>
+#include <set>
 
 #include "HLTrigger/HLTanalyzers/interface/HLTJets.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -564,26 +565,54 @@ void HLTJets::analyze(edm::Event const& iEvent,
    if (_Debug) std::cout << "rho not found" << std::endl;
  }
 
+ std::set<unsigned int> towersUpper;
+ std::set<unsigned int> towersLower;
+ std::set<unsigned int> towersNone;
 
-    if (caloTowers.isValid()) {
-        //    ntowcal = caloTowers->size();
-        int jtow = 0;
-        for ( CaloTowerCollection::const_iterator tower=caloTowers->begin(); tower!=caloTowers->end(); tower++) {
-            if(tower->energy() > thresholdForSavingTowers)
-            {
-                towet[jtow] = tower->et();
-                toweta[jtow] = tower->eta();
-                towphi[jtow] = tower->phi();
-                towen[jtow] = tower->energy();
-                towem[jtow] = tower->emEnergy();
-                towhd[jtow] = tower->hadEnergy();
-                towoe[jtow] = tower->outerEnergy();
-                jtow++;
-            }
-        }
-        ntowcal = jtow;
-    }
-    else {ntowcal = 0;}
+ bool towersUpperValid=false;
+ bool towersLowerValid=false;
+ bool towersNoneValid=false;
+ if( caloTowersCleanerUpperR45.isValid() ){
+   towersUpperValid = true;
+   for( CaloTowerCollection::const_iterator tow = caloTowersCleanerUpperR45->begin(); tow != caloTowersCleanerUpperR45->end(); tow++){
+     towersUpper.insert(tow->id().denseIndex());
+   }
+ }
+ if( caloTowersCleanerLowerR45.isValid() ){
+   towersLowerValid = true;
+   for( CaloTowerCollection::const_iterator tow = caloTowersCleanerLowerR45->begin(); tow != caloTowersCleanerLowerR45->end(); tow++){
+     towersLower.insert(tow->id().denseIndex());
+   }
+ }
+ if( caloTowersCleanerNoR45.isValid() ){
+   towersNoneValid = true;
+   for( CaloTowerCollection::const_iterator tow = caloTowersCleanerNoR45->begin(); tow != caloTowersCleanerNoR45->end(); tow++){
+     towersNone.insert(tow->id().denseIndex());
+   }
+ }
+ if (caloTowers.isValid()) {
+   //    ntowcal = caloTowers->size();
+   int jtow = 0;
+   for ( CaloTowerCollection::const_iterator tower=caloTowers->begin(); tower!=caloTowers->end(); tower++) {
+     if(tower->energy() > thresholdForSavingTowers)
+       {
+	 towet[jtow] = tower->et();
+	 toweta[jtow] = tower->eta();
+	 towphi[jtow] = tower->phi();
+	 towen[jtow] = tower->energy();
+	 towem[jtow] = tower->emEnergy();
+	 towhd[jtow] = tower->hadEnergy();
+	 towoe[jtow] = tower->outerEnergy();
+	 // noise filters: true = no noise, false = noise
+	 if(towersUpperValid) {if(towersUpper.find(tower->id().denseIndex()) == towersUpper.end()) towR45upper[jtow]=true; else towR45upper[jtow]=false;}
+	 if(towersLowerValid) {if(towersLower.find(tower->id().denseIndex()) == towersLower.end()) towR45lower[jtow]=true; else towR45lower[jtow]=false;}
+	 if(towersNoneValid) {if(towersNone.find(tower->id().denseIndex()) == towersNone.end()) towR45none[jtow]=true; else towR45none[jtow]=false;}
+	 jtow++;
+       }
+   }
+   ntowcal = jtow;
+ }
+ else {ntowcal = 0;}
     
     if (recmets.isValid()) {
         typedef reco::CaloMETCollection::const_iterator cmiter;
