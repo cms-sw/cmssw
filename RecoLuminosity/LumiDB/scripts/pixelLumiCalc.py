@@ -145,6 +145,8 @@ if __name__ == '__main__':
                 print '\t%d : all'%run
     session.transaction().start(True)
     finecorrections=lumiCorrections.pixelcorrectionsForRange(session.nominalSchema(),irunlsdict.keys())
+    if options.verbose:
+        print 'afterglow ',finecorrections
     #print finecorrections
     session.transaction().commit()
     if options.action == 'delivered':
