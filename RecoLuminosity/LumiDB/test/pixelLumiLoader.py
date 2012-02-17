@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import os,sys,time,json
-from RecoLuminosity.LumiDB import sessionManager,argparse,nameDealer,revisionDML,dataDML,generateDummyData
+from RecoLuminosity.LumiDB import sessionManager,argparse,nameDealer,revisionDML,dataDML
 
 def generateLumiRundata(filename,nominalegev,runlist):
     '''
@@ -35,7 +35,7 @@ def inversem2toinverseub(i):
     input: number in m-2
     output: number in /ub
     '''
-    return float(i)*(10e-34)
+    return float(i)*(1.0e-34)
 def toinstlumi(i):
     '''
     input: luminosity integrated in ls
@@ -61,12 +61,12 @@ def parseInputFile(filename):
                instlumi=toinstlumi(intglumiinub)#unit Hz/ub
             result.setdefault(int(runnum),[]).append((cmsls,instlumi))
     return result
-def createBranch(schema):
-    try:
-        pixellumiinfo=revisionDML.createBranch(schema,'PIXELLUMI','TRUNK',comment='pixel lumi data')
-        print 'branch PIXELLUMI created: ',pixellumiinfo
-    except:
-        print 'branch already exists, do nothing'
+#def createBranch(schema):
+#    try:
+#        pixellumiinfo=revisionDML.createBranch(schema,'PIXELLUMI','TRUNK',comment='pixel lumi data')
+#        print 'branch PIXELLUMI created: ',pixellumiinfo
+#    except:
+#        print 'branch already exists, do nothing'
 ##############################
 ## ######################## ##
 ## ## ################## ## ##
@@ -76,9 +76,6 @@ def createBranch(schema):
 ##############################
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description = "pixel lumi loader",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    allowedActions = ['createbranch','load']
-    parser.add_argument('action',choices=allowedActions,
-                        help='command actions')
     parser.add_argument('-c',dest='connect',action='store',
                         required=True,
                         help='connect string to lumiDB (required)',
@@ -100,32 +97,29 @@ if __name__ == "__main__":
                                       debugON=options.debug)
     session=svc.openSession(isReadOnly=False,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
     inputfilename=os.path.abspath(options.inputfile)
-    if options.action=='createbranch':
+ 
+    session.transaction().start(True)
+    (pixellumibranchid,pixellumibranchparent)=revisionDML.branchInfoByName(session.nominalSchema(),'DATA')
+    print 'pixellumibranchid ',pixellumibranchid,' pixellumibranchparent ',pixellumibranchparent
+    pixellumibranchinfo=(pixellumibranchid,'DATA')
+    session.transaction().commit()
+    print 'DATA branch info ',pixellumibranchinfo
+    print 'data source ',inputfilename
+    beamenergy=3500.0
+    parseresult=parseInputFile(inputfilename)
+    alllumirundata=generateLumiRundata(inputfilename,beamenergy,parseresult.keys())
+    allruns=alllumirundata.keys()
+    allruns.sort()
+    for runnum in allruns:
+        print runnum
+    alllumilsdata={}
+    for runnum,perrundata in parseresult.items():
+        alllumilsdata[runnum]=generateLumiLSdataForRun(perrundata)
+        pixellumirundata=alllumirundata[runnum]
         session.transaction().start(False)
-        createBranch()
+        (pixellumirevid,pixellumientryid,pixellumidataid)=dataDML.addLumiRunDataToBranch(session.nominalSchema(),runnum,pixellumirundata,pixellumibranchinfo,nameDealer.pixellumidataTableName())
+        pixellumilsdata=alllumilsdata[runnum]
+        dataDML.bulkInsertLumiLSSummary(session,runnum,pixellumidataid,pixellumilsdata,nameDealer.pixellumisummaryv2TableName(),withDetails=False)
         session.transaction().commit()
-    
-    if options.action=='load':
-        session.transaction().start(True)
-        (pixellumibranchid,pixellumibranchparent)=revisionDML.branchInfoByName(session.nominalSchema(),'PIXELLUMI')
-        pixellumibranchinfo=(pixellumibranchid,'PIXELLUMI')
-        session.transaction().commit()
-        print 'PIXELLUMI branch info ',pixellumibranchinfo
-        print 'data source ',inputfilename
-        beamenergy=3500.0
-        parseresult=parseInputFile(inputfilename)
-        alllumirundata=generateLumiRundata(inputfilename,beamenergy,parseresult.keys())
-        alllumilsdata={}
-        for runnum,perrundata in parseresult.items():
-            alllumilsdata[runnum]=generateLumiLSdataForRun(perrundata)
-        #print 'runlevel data ',alllumirundata
-        #print 'lslevel data ',alllumilsdata        
-        for runnum,pixellumirundata in alllumirundata.items():
-            print runnum
-            session.transaction().start(False)
-            (pixellumirevid,pixellumientryid,pixellumidataid)=dataDML.addLumiRunDataToBranch(session.nominalSchema(),runnum,pixellumirundata,pixellumibranchinfo)
-            pixellumilsdata=alllumilsdata[runnum]
-            dataDML.bulkInsertLumiLSSummary(session,runnum,pixellumidataid,pixellumilsdata,withDetails=False)
-            session.transaction().commit()
     del session
     del svc
