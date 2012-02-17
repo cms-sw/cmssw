@@ -63,3 +63,40 @@ DQMOfflinePOGMC = cms.Sequence( DQMOfflinePrePOGMC *
     
 DQMOfflinePhysics = cms.Sequence( dqmPhysics )
 
+
+DQMOfflineCommon = cms.Sequence( dqmDcsInfo *
+                                 DQMMessageLogger *
+                                 SiStripDQMTier0 *
+                                 siPixelOfflineDQM_source *
+                                 l1TriggerDqmOffline *
+                                 triggerOfflineDQMSource *
+                                 alcaBeamMonitor *
+                                 castorSources *
+                                 piZeroAnalysis *
+                                 dqmPhysics
+                                )
+DQMOfflineMuon = cms.Sequence( dtSources *
+                               rpcTier0Source *
+                               cscSources *
+                               muonMonitors
+                              )
+DQMOfflineHcal = cms.Sequence( hcalOfflineDQMSource )
+
+DQMOfflineEcal = cms.Sequence( ecal_dqm_source_offline *
+                               es_dqm_source_offline
+                             )
+DQMOfflineJetMET = cms.Sequence( jetMETDQMOfflineSource )
+
+DQMStepOne_Common = cms.Sequence( DQMOfflineCommon )
+
+DQMStepOne_Common_Muon = cms.Sequence( DQMOfflineCommon *
+                                       DQMOfflineMuon
+                                     )
+
+DQMStepOne_Common_Hcal_JetMET = cms.Sequence(DQMOfflineCommon*DQMOfflineHcal*DQMOfflineJetMET)
+
+DQMStepOne_Common_Ecal = cms.Sequence(DQMOfflineCommon*DQMOfflineEcal)
+
+DQMStepOne_Common_Ecal_Hcal = cms.Sequence(DQMOfflineCommon*DQMOfflineEcal*DQMOfflineHcal)
+                                   
+DQMStepOne_Common_Muon_JetMET = cms.Sequence(DQMOfflineCommon*DQMOfflineMuon*DQMOfflineJetMET)
