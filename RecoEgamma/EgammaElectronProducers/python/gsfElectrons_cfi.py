@@ -133,7 +133,7 @@ ecalDrivenGsfElectrons = cms.EDProducer("GsfElectronEcalDrivenProducer",
     ),
     
     # Corrections
-    superClusterErrorFunction = cms.string("EcalClusterEnergyUncertainty"),
+    superClusterErrorFunction = cms.string("EcalClusterEnergyUncertaintyObjectSpecific"),
     crackCorrectionFunction = cms.string("EcalClusterCrackCorrection")
 
 )
@@ -274,7 +274,7 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
     ),
     
     # Corrections
-    superClusterErrorFunction = cms.string("EcalClusterEnergyUncertainty"),
+    superClusterErrorFunction = cms.string("EcalClusterEnergyUncertaintyObjectSpecific"),
     crackCorrectionFunction = cms.string("EcalClusterCrackCorrection")
 
 )

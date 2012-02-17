@@ -138,7 +138,7 @@ void GsfElectronBaseProducer::fillDescription( edm::ParameterSetDescription & de
   desc.add<edm::ParameterSetDescription>("TransientInitialStateEstimatorParameters",descNested) ;
 
   // Corrections
-  desc.add<std::string>("superClusterErrorFunction","EcalClusterEnergyUncertainty") ;
+  desc.add<std::string>("superClusterErrorFunction","EcalClusterEnergyUncertaintyObjectSpecific") ;
   desc.add<std::string>("crackCorrectionFunction","EcalClusterCrackCorrection") ;
  }
 
