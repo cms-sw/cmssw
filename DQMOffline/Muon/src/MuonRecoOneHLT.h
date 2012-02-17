@@ -36,7 +36,8 @@ class MuonRecoOneHLT : public MuonAnalyzerBase {
   void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
   
   /// Get the analysis
-  void analyze(const edm::Event&, const edm::EventSetup&, const reco::Muon&, const edm::TriggerResults&);
+  //  void analyze(const edm::Event&, const edm::EventSetup&, const reco::Muon&, const edm::TriggerResults&);
+  void analyze(const edm::Event&, const edm::EventSetup&, const edm::TriggerResults&);
 
  private:
   // ----------member data ---------------------------
@@ -44,6 +45,7 @@ class MuonRecoOneHLT : public MuonAnalyzerBase {
   // Switch for verbosity
   std::string metname;
   // STA Label
+  edm::InputTag theMuonCollectionLabel;
   edm::InputTag theSTACollectionLabel;
   
   std::vector<std::string> singlemuonExpr_;
@@ -76,6 +78,12 @@ class MuonRecoOneHLT : public MuonAnalyzerBase {
   std::vector<MonitorElement*> phiGlbTrack;
   std::vector<MonitorElement*> chi2OvDFGlbTrack;
   std::vector<MonitorElement*> ptGlbTrack;
+
+  // tight muon
+  MonitorElement* etaTight;
+  MonitorElement* phiTight;
+  MonitorElement* chi2OvDFTight;
+  MonitorElement* ptTight;
 
   // tracker muon
   MonitorElement* etaTrack;
