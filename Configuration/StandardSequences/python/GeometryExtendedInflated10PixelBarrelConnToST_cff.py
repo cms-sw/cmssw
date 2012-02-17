@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 # Geometry master configuration
 #
 # Ideal geometry, needed for simulation
-from Geometry.CMSCommonData.cmsExtendedGeometryTIBFlangeXML_cfi import *
+from Geometry.CMSCommonData.cmsExtendedGeometryInflated10PixelBarrelConnToSTXML_cfi import *
 from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
 # Reconstruction geometry services
 #  Tracking Geometry
