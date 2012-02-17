@@ -40,8 +40,12 @@ HLTriggerAOD  = cms.PSet(
 HLTDebugRAW   = cms.PSet(
     outputCommands = cms.vstring( *(
         'drop *_hlt*_*_*',
+        'keep *_hltAlCaEtaRecHitsFilterEBonly_*_*',
+        'keep *_hltAlCaEtaRecHitsFilterEEonly_*_*',
         'keep *_hltAlCaEtaRecHitsFilter_*_*',
         'keep *_hltAlCaPhiSymStream_*_*',
+        'keep *_hltAlCaPi0RecHitsFilterEBonly_*_*',
+        'keep *_hltAlCaPi0RecHitsFilterEEonly_*_*',
         'keep *_hltAlCaPi0RecHitsFilter_*_*',
         'keep *_hltAntiKT5CaloJets_*_*',
         'keep *_hltAntiKT5PFJetsForTaus_*_*',
@@ -230,8 +234,12 @@ HLTDebugRAW   = cms.PSet(
 HLTDebugFEVT  = cms.PSet(
     outputCommands = cms.vstring( *(
         'drop *_hlt*_*_*',
+        'keep *_hltAlCaEtaRecHitsFilterEBonly_*_*',
+        'keep *_hltAlCaEtaRecHitsFilterEEonly_*_*',
         'keep *_hltAlCaEtaRecHitsFilter_*_*',
         'keep *_hltAlCaPhiSymStream_*_*',
+        'keep *_hltAlCaPi0RecHitsFilterEBonly_*_*',
+        'keep *_hltAlCaPi0RecHitsFilterEEonly_*_*',
         'keep *_hltAlCaPi0RecHitsFilter_*_*',
         'keep *_hltAntiKT5CaloJets_*_*',
         'keep *_hltAntiKT5PFJetsForTaus_*_*',

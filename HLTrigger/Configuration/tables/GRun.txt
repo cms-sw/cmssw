@@ -448,8 +448,12 @@ HLT_L3MuonsCosmicTracking_v*                                                    
 HLT_LogMonitor_v*
 HLT_DTErrors_v*
 HLT_L1DoubleJet36Central_v*
-AlCa_EcalPi0_v*
-AlCa_EcalEta_v*
+#AlCa_EcalPi0_v*                                                                                #removed in Feb 2012 5e33 menu (sr #126320)
+AlCa_EcalPi0EBonly_v*                                                                           #added in Feb 2012 5e33 menu (sr #126320)
+AlCa_EcalPi0EEonly_v*                                                                           #added in Feb 2012 5e33 menu (sr #126320)
+#AlCa_EcalEta_v*                                                                                #removed in Feb 2012 5e33 menu (sr #126320)
+AlCa_EcalEtaEBonly_v*                                                                           #added in Feb 2012 5e33 menu (sr #126320)
+AlCa_EcalEtaEEonly_v*                                                                           #added in Feb 2012 5e33 menu (sr #126320)
 AlCa_EcalPhiSym_v*
 AlCa_RPCMuonNoTriggers_v*
 AlCa_RPCMuonNoHits_v*
