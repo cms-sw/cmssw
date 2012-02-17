@@ -1,17 +1,14 @@
-# /dev/CMSSW_5_1_0/HLT/V68 (CMSSW_5_2_0_pre5_HLT3)
+# /dev/CMSSW_5_1_0/HLT/V71 (CMSSW_5_2_0_pre5_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/HLT/V68')
+  tableName = cms.string('/dev/CMSSW_5_1_0/HLT/V71')
 )
 
 streams = cms.PSet( 
-  A = cms.vstring( 'HIDiMuon',
-    'HIHighPt',
-    'HIMinBiasUPC' ),
-  AForPP = cms.vstring( 'BTag',
+  A = cms.vstring( 'BTag',
     'Commissioning',
     'Cosmics',
     'DoubleElectron',
@@ -37,16 +34,19 @@ streams = cms.PSet(
     'SingleMu',
     'Tau',
     'TauPlusX' ),
+  AForHI = cms.vstring( 'HIDiMuon',
+    'HIHighPt',
+    'HIMinBiasUPC' ),
   ALCALUMIPIXELS = cms.vstring( 'AlCaLumiPixels' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSym' ),
   Calibration = cms.vstring( 'TestEnablesEcalHcalDT' ),
-  DQM = cms.vstring( 'OnlineMonitorHI' ),
-  DQMForPP = cms.vstring( 'OnlineMonitor' ),
+  DQM = cms.vstring( 'OnlineMonitor' ),
+  DQMForHI = cms.vstring( 'OnlineMonitorHI' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
-  Express = cms.vstring( 'ExpressPhysics' ),
-  ExpressCosmics = cms.vstring( 'ExpressCosmics' ),
-  HIExpress = cms.vstring( 'HIExpressPhysics' ),
+  ExpressForCosmics = cms.vstring( 'ExpressCosmics' ),
+  ExpressForHI = cms.vstring( 'HIExpressPhysics' ),
+  ExpressForPP = cms.vstring( 'ExpressPhysics' ),
   HLTDQM = cms.vstring( 'OnlineHltMonitor',
     'OnlineHltMonitorHI' ),
   HLTDQMResults = cms.vstring( 'OnlineHltResults' ),

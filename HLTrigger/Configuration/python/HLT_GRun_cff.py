@@ -1,14 +1,14 @@
-# /dev/CMSSW_5_1_0/GRun/V41 (CMSSW_5_2_0_pre5_HLT3)
+# /dev/CMSSW_5_1_0/GRun/V43 (CMSSW_5_2_0_pre5_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V41')
+  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V43')
 )
 
 streams = cms.PSet( 
-  AForPP = cms.vstring( 'BTag',
+  A = cms.vstring( 'BTag',
     'Commissioning',
     'Cosmics',
     'DoubleElectron',
@@ -38,10 +38,10 @@ streams = cms.PSet(
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSym' ),
   Calibration = cms.vstring( 'TestEnablesEcalHcalDT' ),
-  DQMForPP = cms.vstring( 'OnlineMonitor' ),
+  DQM = cms.vstring( 'OnlineMonitor' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
-  Express = cms.vstring( 'ExpressPhysics' ),
-  ExpressCosmics = cms.vstring( 'ExpressCosmics' ),
+  ExpressForCosmics = cms.vstring( 'ExpressCosmics' ),
+  ExpressForPP = cms.vstring( 'ExpressPhysics' ),
   HLTDQM = cms.vstring( 'OnlineHltMonitor' ),
   HLTDQMResults = cms.vstring( 'OnlineHltResults' ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),

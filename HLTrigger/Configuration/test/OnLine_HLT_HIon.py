@@ -1,21 +1,21 @@
-# /dev/CMSSW_5_1_0/HIon/V41 (CMSSW_5_2_0_pre5_HLT3)
+# /dev/CMSSW_5_1_0/HIon/V43 (CMSSW_5_2_0_pre5_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/HIon/V41')
+  tableName = cms.string('/dev/CMSSW_5_1_0/HIon/V43')
 )
 
 process.streams = cms.PSet( 
-  A = cms.vstring( 'HIDiMuon',
+  AForHI = cms.vstring( 'HIDiMuon',
     'HIHighPt',
     'HIMinBiasUPC' ),
   Calibration = cms.vstring( 'TestEnablesEcalHcalDT' ),
-  DQM = cms.vstring( 'OnlineMonitorHI' ),
+  DQMForHI = cms.vstring( 'OnlineMonitorHI' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
-  HIExpress = cms.vstring( 'HIExpressPhysics' ),
+  ExpressForHI = cms.vstring( 'HIExpressPhysics' ),
   HLTDQM = cms.vstring( 'OnlineHltMonitorHI' ),
   HLTDQMResults = cms.vstring( 'OnlineHltResults' ),
   HLTMON = cms.vstring( 'OfflineMonitorHI' )
@@ -7194,8 +7194,8 @@ process.hltPreRPCMONOutput = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 
-process.hltOutputA = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputA.root" ),
+process.hltOutputAForHI = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputAForHI.root" ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -7296,8 +7296,8 @@ process.hltOutputCalibration = cms.OutputModule( "PoolOutputModule",
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
 )
-process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputDQM.root" ),
+process.hltOutputDQMForHI = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputDQMForHI.root" ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -7402,8 +7402,8 @@ process.hltOutputEcalCalibration = cms.OutputModule( "PoolOutputModule",
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
 )
-process.hltOutputHIExpress = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputHIExpress.root" ),
+process.hltOutputExpressForHI = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputExpressForHI.root" ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -8083,14 +8083,14 @@ process.HLT_HIUPCNeuHcalHfEG2Pixel_SingleTrack_v1 = cms.Path( process.HLTBeginSe
 process.HLT_HIUPCNeuHcalHfEG5Pixel_SingleTrack_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sHIUPCNeuHcalHfEG5 + process.hltPreHIUPCNeuHcalHfEG5PixelSingleTrack + process.HLTDoHILocalPixelSequence + process.HLTPixelTrackingForHITrackTrigger + process.hltHISinglePixelTrackFilter + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
 process.HLTriggerFinalPath = cms.Path( process.hltGtDigis + process.hltScalersRawToDigi + process.hltFEDSelector + process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW )
 process.HLTAnalyzerEndpath = cms.EndPath( process.hltL1GtTrigReport + process.hltTrigReport )
-process.AForHIOutput = cms.EndPath( process.hltOutputA )
+process.AForHIOutput = cms.EndPath( process.hltOutputAForHI )
 process.ALCAP0Output = cms.EndPath( process.hltPreALCAP0Output )
 process.ALCAPHISYMOutput = cms.EndPath( process.hltPreALCAPHISYMOutput )
 process.ALCALUMIPIXELSOutput = cms.EndPath( process.hltPreALCALUMIPIXELSOutput )
 process.CalibrationOutput = cms.EndPath( process.hltPreCalibrationOutput + process.hltOutputCalibration )
-process.DQMForHIOutput = cms.EndPath( process.hltDQML1Scalers + process.hltDQML1SeedLogicScalers + process.hltDQMHLTScalers + process.hltPreDQMForHIOutput + process.hltPreDQMForHIOutputSmart + process.hltOutputDQM )
+process.DQMForHIOutput = cms.EndPath( process.hltDQML1Scalers + process.hltDQML1SeedLogicScalers + process.hltDQMHLTScalers + process.hltPreDQMForHIOutput + process.hltPreDQMForHIOutputSmart + process.hltOutputDQMForHI )
 process.EcalCalibrationOutput = cms.EndPath( process.hltPreEcalCalibrationOutput + process.hltOutputEcalCalibration )
-process.ExpressForHIOutput = cms.EndPath( process.hltPreExpressForHIOutput + process.hltPreExpressForHIOutputSmart + process.hltOutputHIExpress )
+process.ExpressForHIOutput = cms.EndPath( process.hltPreExpressForHIOutput + process.hltPreExpressForHIOutputSmart + process.hltOutputExpressForHI )
 process.HLTDQMOutput = cms.EndPath( process.hltPreHLTDQMOutput + process.hltPreHLTDQMOutputSmart + process.hltOutputHLTDQM )
 process.HLTDQMResultsOutput = cms.EndPath( process.hltPreHLTDQMResultsOutput + process.hltPreHLTDQMResultsOutputSmart + process.hltOutputHLTDQMResults )
 process.HLTMONOutput = cms.EndPath( process.hltPreHLTMONOutput + process.hltPreHLTMONOutputSmart + process.hltOutputHLTMON )

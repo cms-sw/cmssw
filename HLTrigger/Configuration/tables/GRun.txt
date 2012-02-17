@@ -470,7 +470,7 @@ ALCALUMIPIXELSOutput
 CalibrationOutput
 DQMForPPOutput
 EcalCalibrationOutput
-ExpressCosmicsOutput                                                                            # only in 'GRun' and 'cosmics', not in 'online'
+ExpressForCosmicsOutput                                                                         # only in 'GRun' and 'cosmics', not in 'online'
 ExpressForPPOutput
 HLTDQMOutput
 HLTDQMResultsOutput

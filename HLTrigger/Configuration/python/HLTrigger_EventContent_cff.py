@@ -12,8 +12,8 @@ HLTriggerRAW  = cms.PSet(
     outputCommands = cms.vstring( *(
         'drop *_hlt*_*_*',
         'keep *_hltL1GtObjectMap_*_*',
-        'keep FEDRawDataCollection_rawDataRepacker_*_*',
-        'keep FEDRawDataCollection_virginRawDataRepacker_*_*',
+        'keep FEDRawDataCollection_rawDataCollector_*_*',
+        'keep FEDRawDataCollection_source_*_*',
         'keep edmTriggerResults_*_*_*',
         'keep triggerTriggerEvent_*_*_*'
     ) )

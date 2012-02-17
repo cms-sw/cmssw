@@ -1,20 +1,20 @@
-# /dev/CMSSW_5_1_0/HIon/V41 (CMSSW_5_2_0_pre5_HLT3)
+# /dev/CMSSW_5_1_0/HIon/V43 (CMSSW_5_2_0_pre5_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/HIon/V41')
+  tableName = cms.string('/dev/CMSSW_5_1_0/HIon/V43')
 )
 
 streams = cms.PSet( 
-  A = cms.vstring( 'HIDiMuon',
+  AForHI = cms.vstring( 'HIDiMuon',
     'HIHighPt',
     'HIMinBiasUPC' ),
   Calibration = cms.vstring( 'TestEnablesEcalHcalDT' ),
-  DQM = cms.vstring( 'OnlineMonitorHI' ),
+  DQMForHI = cms.vstring( 'OnlineMonitorHI' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
-  HIExpress = cms.vstring( 'HIExpressPhysics' ),
+  ExpressForHI = cms.vstring( 'HIExpressPhysics' ),
   HLTDQM = cms.vstring( 'OnlineHltMonitorHI' ),
   HLTDQMResults = cms.vstring( 'OnlineHltResults' ),
   HLTMON = cms.vstring( 'OfflineMonitorHI' )
