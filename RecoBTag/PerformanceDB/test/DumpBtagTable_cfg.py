@@ -5,10 +5,8 @@ process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
 #Load up our measurements!
 #Data measurements from Spring11
-#process.load ("RecoBTag.PerformanceDB.PoolBTagPerformanceDB1107")
-#process.load ("RecoBTag.PerformanceDB.BTagPerformanceDB1107")
-process.load ("RecoBTag.PerformanceDB.PoolBTagPerformanceDB1202")
-process.load ("RecoBTag.PerformanceDB.BTagPerformanceDB1202")
+process.load ("RecoBTag.PerformanceDB.PoolBTagPerformanceDB1107")
+process.load ("RecoBTag.PerformanceDB.BTagPerformanceDB1107")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
@@ -27,20 +25,13 @@ process.source = cms.Source("EmptySource")
 #                               )
 
 ## DUMP Tables for CSVM: data b-tag efficiencies, SF_b, data mistag efficiencies, SF_mistag  
-#process.demo2 = cms.EDAnalyzer('DumpBtagTable',
-#                               AlgoName = cms.string('CombinedSecondaryVertex_medium'),
-#                               measureName = cms.vstring("BTAGCSVM","BTAGCSVM","MISTAGCSVM","MISTAGCSVM"),
-#                               measureType = cms.vstring("BTAGBEFF", "BTAGBEFFCORR", "BTAGLEFF", "BTAGLEFFCORR")
-#                               )
-
-print 'aaaaaaa'
-process.demo3 = cms.EDAnalyzer('DumpBtagTable',
-                               AlgoName = cms.string('TrackCountingHighPurityT'),
-                               measureName = cms.vstring("BTAGTCHPT","BTAGTCHPT"),
-                               measureType = cms.vstring( "BTAGBEFFCORR", "BTAGBERRCORR")
+process.demo2 = cms.EDAnalyzer('DumpBtagTable',
+                               AlgoName = cms.string('CombinedSecondaryVertex_medium'),
+                               measureName = cms.vstring("BTAGCSVM","BTAGCSVM","MISTAGCSVM","MISTAGCSVM"),
+                               measureType = cms.vstring("BTAGBEFF", "BTAGBEFFCORR", "BTAGLEFF", "BTAGLEFFCORR")
                                )
 
 #process.p = cms.Path(process.demo2 * process.demo3)
-process.p = cms.Path(process.demo3)
+process.p = cms.Path(process.demo2)
 
 

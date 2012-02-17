@@ -23,29 +23,31 @@ mkdir -p test/text
 rm -f tmp.py
 
 #For a set of measurements we want a unique name
-set setName=btag
+set setName=btagTtbarWp
 #Unique version number for DB
-set version=v7
+set version=v8
 cat templates/Pool_pre.fragment | sed "s#SETNAME#$setName#g"  > Pool_$setName.py
 cat templates/Btag_pre.fragment > Btag_$setName.py
 
 #"mistag" measurements go here
 #Create a single measurement with ./makeSingle.csh <file path> <measurement name> <set name>
- ./makeSingle.csh BTAG/BTAGCSVL.txt BTAGCSVL $setName $version
-# ./makeSingle.csh BTAG/BTAGCSVM.txt BTAGCSVM $setName $version
-# ./makeSingle.csh BTAG/BTAGCSVT.txt BTAGCSVT $setName $version
+ ./makeSingle.csh BTAG/ttbar_wp/BTAGCSVL.txt BTAGCSVL $setName $version
+ ./makeSingle.csh BTAG/ttbar_wp/BTAGCSVM.txt BTAGCSVM $setName $version
+ ./makeSingle.csh BTAG/ttbar_wp/BTAGCSVT.txt BTAGCSVT $setName $version
 # ./makeSingle.csh BTAG/BTAGJBPL.txt BTAGJBPL $setName $version
 # ./makeSingle.csh BTAG/BTAGJBPM.txt BTAGJBPM $setName $version
 # ./makeSingle.csh BTAG/BTAGJBPT.txt BTAGJBPT $setName $version
 # ./makeSingle.csh BTAG/BTAGJPL.txt BTAGJPL $setName $version
 # ./makeSingle.csh BTAG/BTAGJPM.txt BTAGJPM $setName $version
 # ./makeSingle.csh BTAG/BTAGJPT.txt BTAGJPT $setName $version
-# ./makeSingle.csh BTAG/BTAGSSVHEM.txt BTAGSSVHEM $setName $version
-# ./makeSingle.csh BTAG/BTAGSSVHPT.txt BTAGSSVHPT $setName $version
-# ./makeSingle.csh BTAG/BTAGTCHEL.txt BTAGTCHEL $setName $version
-#./makeSingle.csh BTAG/BTAGTCHEM.txt BTAGTCHEM $setName $version
-#./makeSingle.csh BTAG/BTAGTCHPM.txt BTAGTCHPM $setName $version
-# ./makeSingle.csh BTAG/BTAGTCHPT.txt BTAGTCHPT $setName $version
+ ./makeSingle.csh BTAG/ttbar_wp/BTAGSSVHEM.txt BTAGSSVHEM $setName $version
+ ./makeSingle.csh BTAG/ttbar_wp/BTAGSSVHPT.txt BTAGSSVHPT $setName $version
+ ./makeSingle.csh BTAG/ttbar_wp/BTAGTCHEL.txt BTAGTCHEL $setName $version
+./makeSingle.csh BTAG/ttbar_wp/BTAGTCHEM.txt BTAGTCHEM $setName $version
+./makeSingle.csh BTAG/ttbar_wp/BTAGTCHET.txt BTAGTCHET $setName $version
+./makeSingle.csh BTAG/ttbar_wp/BTAGTCHPL.txt BTAGTCHPL $setName $version
+./makeSingle.csh BTAG/ttbar_wp/BTAGTCHPM.txt BTAGTCHPM $setName $version
+ ./makeSingle.csh BTAG/ttbar_wp/BTAGTCHPT.txt BTAGTCHPT $setName $version
 
 # cat templates/Pool_post.fragment | sed "s#SETNAME#$setName#g" >> Pool_$setName.py
 

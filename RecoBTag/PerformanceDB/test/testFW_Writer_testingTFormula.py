@@ -1,4 +1,4 @@
-.qimport FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("myprocess")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
@@ -28,6 +28,7 @@ cms.PSet(
 
 process.mywriter = cms.EDAnalyzer("PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL",
                                 inputTxtFile = cms.untracked.string('tformulainput_SFb_ttbar.txt'),
+                                RecordPayload = cms.untracked.string('pippo1'),
                                 RecordWP = cms.untracked.string('pippo2')
                                 )
 

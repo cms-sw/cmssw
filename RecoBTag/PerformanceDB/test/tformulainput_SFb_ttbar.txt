@@ -1,6 +1,6 @@
 TrackCountingHigheff
 -9999
-PerformancePayloadFromTFormula
+PerformancePayloadFromBinnedTFormula
 4
 2
 1
