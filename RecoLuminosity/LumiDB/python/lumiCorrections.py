@@ -18,6 +18,9 @@ class nonlinearV3(correctionTerm):
     t2=-0.0037 # slop2
         
 def afterglowByFillscheme(fillscheme,afterglowPatterns):
+    '''
+    search in the list of (pattern,afterglowfactor) for a match in regex
+    '''
     for (apattern,cfactor) in afterglowPatterns:
         if re.match(apattern,fillscheme):
             return cfactor
@@ -310,6 +313,82 @@ def correctionsForRange(schema,inputRange,correctionTerm):
     for run in runs:
         if run not in result.keys():
             result[run]=(1.0,1.0,0.0) #those have no fillscheme 2011 runs
+    return result
+#=======================================================================================================
+#below : correction on pixellumi, afterglow only
+#======================================================================================================
+def pixelcorrectionsForRange(schema,inputRange):
+    '''
+    select fillschemepattern,correctionfactor from fillscheme; 
+       [(fillschemepattern,afterglow),...]
+    select fillnum,runnum,fillscheme from cmsrunsummary where amodetag='PROTPHYS' 
+        {runnum: (fillnum,fillscheme),...}
+    output:
+        {runnum:(afterglowfactor)}
+    '''
+    runs=[]
+    result={}
+    if isinstance(inputRange,str):
+        runs.append(int(inputRange))
+    else:
+        runs=inputRange
+    afterglows=[]
+    s=nameDealer.fillschemeTableName()
+    r=nameDealer.cmsrunsummaryTableName()
+    qHandle=schema.newQuery()
+    try:
+        qHandle.addToTableList(s)
+        qResult=coral.AttributeList()
+        qResult.extend('FILLSCHEMEPATTERN','string')
+        qResult.extend('PIXELCORRECTIONFACTOR','float')
+        qHandle.defineOutput(qResult)
+        qHandle.addToOutputList('FILLSCHEMEPATTERN')
+        qHandle.addToOutputList('PIXELCORRECTIONFACTOR')
+        cursor=qHandle.execute()
+        while cursor.next():
+            fillschemePattern=cursor.currentRow()['FILLSCHEMEPATTERN'].data()
+            afterglowfac=cursor.currentRow()['PIXELCORRECTIONFACTOR'].data()
+            afterglows.append((fillschemePattern,afterglowfac))
+    except :
+        del qHandle
+        raise
+    del qHandle
+    qHandle=schema.newQuery()
+    try:
+        qConditionStr='FILLNUM>:minfillnum'
+        qCondition=coral.AttributeList()
+        qCondition.extend('minfillnum','unsigned int')
+        qCondition['minfillnum'].setData(1600)
+        qHandle.addToTableList(r)
+        qHandle.addToOutputList('FILLNUM', 'fillnum')
+        qHandle.addToOutputList('RUNNUM', 'runnum')
+        qHandle.addToOutputList('FILLSCHEME','fillscheme')
+        qResult=coral.AttributeList()
+        qResult.extend('fillnum','unsigned int')
+        qResult.extend('runnum','unsigned int')
+        qResult.extend('fillscheme','string')
+        qHandle.setCondition(qConditionStr,qCondition)
+        qHandle.defineOutput(qResult)
+        cursor=qHandle.execute()
+        while cursor.next():
+            runnum=cursor.currentRow()['runnum'].data()
+            if runnum not in runs or result.has_key(runnum):
+                continue
+            fillnum=cursor.currentRow()['fillnum'].data()
+            afterglow=1.0
+            fillscheme=''
+            if cursor.currentRow()['fillscheme']:
+                fillscheme=cursor.currentRow()['fillscheme'].data()
+            if fillscheme and len(fillscheme)!=0:
+                afterglow=afterglowByFillscheme(fillscheme,afterglows)
+            result[runnum]=afterglow
+    except :
+        del qHandle
+        raise
+    del qHandle
+    for run in runs:
+        if run not in result.keys():
+            result[run]=1.0 #those have no fillscheme 
     return result
 
 if __name__ == "__main__":

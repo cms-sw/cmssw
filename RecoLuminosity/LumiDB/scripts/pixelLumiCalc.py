@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import os,sys,time
 import coral
-from RecoLuminosity.LumiDB import sessionManager,lumiTime,inputFilesetParser,csvSelectionParser,selectionParser,csvReporter,argparse,CommonUtil,lumiCalcAPI,lumiReport
+from RecoLuminosity.LumiDB import sessionManager,lumiTime,inputFilesetParser,csvSelectionParser,selectionParser,csvReporter,argparse,CommonUtil,lumiCalcAPI,lumiReport,lumiCorrections
 
 def parseInputFiles(inputfilename,dbrunlist,optaction):
     '''
@@ -143,10 +143,13 @@ if __name__ == '__main__':
                 print '\t%d : %s'%(run,','.join([str(ls) for ls in irunlsdict[run]]))
             else:
                 print '\t%d : all'%run
-        
+    session.transaction().start(True)
+    finecorrections=lumiCorrections.pixelcorrectionsForRange(session.nominalSchema(),irunlsdict.keys())
+    #print finecorrections
+    session.transaction().commit()
     if options.action == 'delivered':
         session.transaction().start(True)
-        result=lumiCalcAPI.deliveredLumiForRange(session.nominalSchema(),irunlsdict,amodetag=None,egev=None,beamstatus=None,norm=1.0,finecorrections=None,driftcorrections=None,usecorrectionv2=False,lumitype='PIXEL',branchName='DATA')
+        result=lumiCalcAPI.deliveredLumiForRange(session.nominalSchema(),irunlsdict,amodetag=None,egev=None,beamstatus=None,norm=1.0,finecorrections=finecorrections,driftcorrections=None,usecorrectionv2=False,lumitype='PIXEL',branchName='DATA')
         session.transaction().commit()
         if not options.outputfile:
             lumiReport.toScreenTotDelivered(result,iresults,options.scalefactor,options.verbose)
@@ -154,7 +157,7 @@ if __name__ == '__main__':
             lumiReport.toCSVTotDelivered(result,options.outputfile,iresults,options.scalefactor,options.verbose)           
     if options.action == 'overview':
        session.transaction().start(True)
-       result=lumiCalcAPI.lumiForRange(session.nominalSchema(),irunlsdict,amodetag=None,egev=None,beamstatus=None,norm=1.0,finecorrections=None,driftcorrections=None,usecorrectionv2=False,lumitype='PIXEL',branchName='DATA')
+       result=lumiCalcAPI.lumiForRange(session.nominalSchema(),irunlsdict,amodetag=None,egev=None,beamstatus=None,norm=1.0,finecorrections=finecorrections,driftcorrections=None,usecorrectionv2=False,lumitype='PIXEL',branchName='DATA')
        session.transaction().commit()
        if not options.outputfile:
            lumiReport.toScreenOverview(result,iresults,options.scalefactor,options.verbose)
@@ -163,7 +166,7 @@ if __name__ == '__main__':
     if options.action == 'lumibyls':
        if not options.hltpath:
            session.transaction().start(True)
-           result=lumiCalcAPI.lumiForRange(session.nominalSchema(),irunlsdict,amodetag=None,egev=None,beamstatus=None,norm=1.0,finecorrections=None,driftcorrections=None,usecorrectionv2=False,lumitype='PIXEL',branchName='DATA')
+           result=lumiCalcAPI.lumiForRange(session.nominalSchema(),irunlsdict,amodetag=None,egev=None,beamstatus=None,norm=1.0,finecorrections=finecorrections,driftcorrections=None,usecorrectionv2=False,lumitype='PIXEL',branchName='DATA')
            session.transaction().commit()
            if not options.outputfile:
                lumiReport.toScreenLumiByLS(result,iresults,options.scalefactor,options.verbose)
@@ -178,7 +181,7 @@ if __name__ == '__main__':
               hltpat=hltname
               hltname=None
            session.transaction().start(True)
-           result=lumiCalcAPI.effectiveLumiForRange(session.nominalSchema(),irunlsdict,hltpathname=hltname,hltpathpattern=hltpat,amodetag=None,egev=None,beamstatus=None,norm=1.0,finecorrections=None,driftcorrections=None,usecorrectionv2=False,lumitype='PIXEL',branchName='DATA')
+           result=lumiCalcAPI.effectiveLumiForRange(session.nominalSchema(),irunlsdict,hltpathname=hltname,hltpathpattern=hltpat,amodetag=None,egev=None,beamstatus=None,norm=1.0,finecorrections=finecorrections,driftcorrections=None,usecorrectionv2=False,lumitype='PIXEL',branchName='DATA')
            session.transaction().commit()
            if not options.outputfile:
                lumiReport.toScreenLSEffective(result,iresults,options.scalefactor,options.verbose)
@@ -194,7 +197,7 @@ if __name__ == '__main__':
           elif 1 in [c in hltname for c in '*?[]']: #is a fnmatch pattern
               hltpat=hltname
               hltname=None
-       result=lumiCalcAPI.effectiveLumiForRange(session.nominalSchema(),irunlsdict,hltpathname=hltname,hltpathpattern=hltpat,amodetag=None,egev=None,beamstatus=None,norm=1.0,finecorrections=None,driftcorrections=None,usecorrectionv2=False,lumitype='PIXEL',branchName='DATA')
+       result=lumiCalcAPI.effectiveLumiForRange(session.nominalSchema(),irunlsdict,hltpathname=hltname,hltpathpattern=hltpat,amodetag=None,egev=None,beamstatus=None,norm=1.0,finecorrections=finecorrections,driftcorrections=None,usecorrectionv2=False,lumitype='PIXEL',branchName='DATA')
        session.transaction().commit()
        if not options.outputfile:
            lumiReport.toScreenTotEffective(result,iresults,options.scalefactor,options.verbose)

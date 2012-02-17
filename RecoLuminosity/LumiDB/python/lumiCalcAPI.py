@@ -1,7 +1,6 @@
 import os,coral,datetime,fnmatch,time
 from RecoLuminosity.LumiDB import nameDealer,revisionDML,dataDML,lumiTime,CommonUtil,selectionParser,hltTrgSeedMapper,lumiCorrections
 
-
 #internal functions
 #
 #to decide on the norm value to use
@@ -391,7 +390,7 @@ def instCalibratedLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,e
             avglumi=perlsdata[5]*normval
             calibratedlumi=avglumi
             bxdata=perlsdata[9]
-            if finecorrections and finecorrections[run]:
+            if lumitype=='HF' and finecorrections and finecorrections[run]:
                 if usecorrectionv2:
                     if driftcorrections and driftcorrections[run]:
                         calibratedlumi=lumiCorrections.applyfinecorrectionV2(avglumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],driftcorrections[run])
@@ -399,6 +398,8 @@ def instCalibratedLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,e
                         calibratedlumi=lumiCorrections.applyfinecorrectionV2(avglumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],1.0)
                 else:
                     calibratedlumi=lumiCorrections.applyfinecorrection(avglumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])
+            if lumitype=='PIXEL' and finecorrections :
+                calibratedlumi=finecorrections[run]*avglumi
             calibratedlumierr=perlsdata[6]*normval
             startorbit=perlsdata[7]
             numorbit=perlsdata[8]
@@ -485,14 +486,16 @@ def deliveredLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=N
             bs=perlsdata[3]
             beamenergy=perlsdata[4]
             calibratedlumi=perlsdata[5]*normval#inst lumi
-            if finecorrections and finecorrections[run]:
+            if lumitype=='HF' and finecorrections and finecorrections[run]:
                 if usecorrectionv2:
                     if driftcorrections and driftcorrections[run]:
                         calibratedlumi=lumiCorrections.applyfinecorrectionV2(calibratedlumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],driftcorrections[run])
                     else:
                         calibratedlumi=lumiCorrections.applyfinecorrectionV2(calibratedlumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],1.0)
                 else:
-                    calibratedlumi=lumiCorrections.applyfinecorrection(calibratedlumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])    
+                    calibratedlumi=lumiCorrections.applyfinecorrection(calibratedlumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])
+            if lumitype=='PIXEL':
+                calibratedlumi=finecorrections[run]*calibratedlumi
             calibratedlumierr=perlsdata[6]*normval
             numorbit=perlsdata[8]
             numbx=3564
@@ -596,8 +599,7 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
             instlumierror=perlsdata[2]
             avglumi=instlumi*normval
             calibratedlumi=avglumi
-
-            if finecorrections and finecorrections[run]:
+            if lumitype=='HF' and finecorrections and finecorrections[run]:
                 if usecorrectionv2:
                     if driftcorrections and driftcorrections[run]:
                         calibratedlumi=lumiCorrections.applyfinecorrectionV2(avglumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],driftcorrections[run])
@@ -605,6 +607,8 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
                         calibratedlumi=lumiCorrections.applyfinecorrectionV2(avglumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],1.0)
                 else:
                     calibratedlumi=lumiCorrections.applyfinecorrection(avglumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])
+            if lumitype=='PIXEL':
+                calibratedlumi=finecorrections[run]*avglumi
             calibratedlumierror=instlumierror*normval
             bstatus=perlsdata[4]
             begev=perlsdata[5]
@@ -767,7 +771,7 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
             instlumierror=perlsdata[2]
             avglumi=instlumi*normval
             calibratedlumi=avglumi 
-            if finecorrections and finecorrections[run]:
+            if lumitype=='HF' and finecorrections and finecorrections[run]:
                 if usecorrectionv2:
                     if driftcorrections and driftcorrections[run]:
                         calibratedlumi=lumiCorrections.applyfinecorrectionV2(avglumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],driftcorrections[run])
@@ -775,6 +779,8 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
                         calibratedlumi=lumiCorrections.applyfinecorrectionV2(avglumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],1.0)
                 else:
                     calibratedlumi=lumiCorrections.applyfinecorrection(avglumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])
+            if lumitype=='PIXEL':
+                calibratedlumi=finecorrections[run]*avglumi
             calibratedlumierror=instlumierror*normval
             bstatus=perlsdata[4]
             begev=perlsdata[5]
