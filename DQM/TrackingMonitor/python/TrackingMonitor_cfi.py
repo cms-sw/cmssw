@@ -15,7 +15,7 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     Quality             = cms.string(''),
     OutputFileName      = cms.string('MonitorTrack.root'),
     FolderName          = cms.string('Tracking/GlobalParameters'),
-    BSFolderName        = cms.string('Tracking/BeamSpotParameters'),
+    BSFolderName        = cms.string('Tracking/ParametersVsBeamSpot'),
     
     # determines where to evaluate track parameters
     # options: 'default'      --> straight up track parametes
@@ -26,19 +26,26 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     MeasurementState = cms.string('ImpactPoint'),
     
     # which plots to do
-    doAllPlots                 = cms.bool(True),
-    doTrackerSpecific          = cms.bool(False),
-    doBeamSpotPlots            = cms.bool(False),
-    doSeedParameterHistos      = cms.bool(False),
-    doTrackCandHistos          = cms.bool(False),
-    doDCAPlots                 = cms.bool(False),
-    doGeneralPropertiesPlots   = cms.bool(False),
-    doHitPropertiesPlots       = cms.bool(False),              
-    doGoodTrackPlots           = cms.bool(False),
-    doMeasurementStatePlots    = cms.bool(True),
-    doProfilesVsLS             = cms.bool(False),
-    doRecHitVsPhiVsEtaPerTrack = cms.bool(False),
+    doTestPlots                         = cms.bool(False),
+    doAllPlots                          = cms.bool(True),
+    doTrackerSpecific                   = cms.bool(False),
+    doBeamSpotPlots                     = cms.bool(False),
+    doSeedParameterHistos               = cms.bool(False),
+    doTrackCandHistos                   = cms.bool(False),
+    doDCAPlots                          = cms.bool(False),
+    doDCAwrt000Plots                    = cms.bool(False),
+    doGeneralPropertiesPlots            = cms.bool(False),
+    doHitPropertiesPlots                = cms.bool(False),              
+    doGoodTrackPlots                    = cms.bool(False),
+    doMeasurementStatePlots             = cms.bool(True),
+    doProfilesVsLS                      = cms.bool(False),
+    doRecHitVsPhiVsEtaPerTrack          = cms.bool(False),
     doGoodTrackRecHitVsPhiVsEtaPerTrack = cms.bool(False),                          
+    doLayersVsPhiVsEtaPerTrack          = cms.bool(False),
+    doGoodTrackLayersVsPhiVsEtaPerTrack = cms.bool(False),
+    doGoodTrack2DChi2Plots              = cms.bool(False),
+    doThetaPlots                        = cms.bool(False),
+    doTrackPxPyPlots                    = cms.bool(False),
 
     #which seed plots to do
     doSeedNumberHisto = cms.bool(False),
@@ -55,9 +62,15 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     doSeedNVsPhiProf= cms.bool(False),
     doSeedNVsEtaProf= cms.bool(False),
 
+    TTRHBuilder = cms.string('WithTrackAngle'),
 
+    # Luminosity based analysis
+    doLumiAnalysis = cms.bool(False),                       
+    # For plots vs LS
+    LSBin = cms.int32(2000),
+    LSMin = cms.double(0),
+    LSMax = cms.double(2000.),
 
-    
     # paramters of the Track
     # ============================================================ 
     
@@ -217,19 +230,19 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     TrackPzMin = cms.double(-50.0),
                             
     # track theta
-    ThetaBin = cms.int32(100),
+    ThetaBin = cms.int32(32),
     ThetaMax = cms.double(3.2),
     ThetaMin = cms.double(0.0),
 
     # track eta
-    EtaBin = cms.int32(32),
-    EtaMax = cms.double(3.2),
-    EtaMin = cms.double(-3.2),
+    EtaBin = cms.int32(26),
+    EtaMax = cms.double(2.5),
+    EtaMin = cms.double(-2.5),
 
     # track phi
     PhiBin = cms.int32(32),
-    PhiMax = cms.double(3.2),
-    PhiMin = cms.double(-3.2),
+    PhiMax = cms.double(3.141592654),
+    PhiMin = cms.double(-3.141592654),
 
     # Track |p|	error
     pErrBin = cms.int32(50),
@@ -321,6 +334,9 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     TCDzMax = cms.double(400.0),
     TCDzMin = cms.double(-400.0),                                                
 
+#######################################
+## needed for tracksVScluster and seedVScluster
+
     # NCluster Pixel
     NClusPxBin = cms.int32(200),
     NClusPxMax = cms.double(19999.5),                      
@@ -332,20 +348,8 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     NClusStrMin = cms.double(-0.5),
 
     # NCluster Vs Tracks
-    NClus2DTotBin = cms.int32(1000),
-    NClus2DTotMax = cms.double(99999.5),                      
-    NClus2DTotMin = cms.double(-0.5),
     NTrk2DBin     = cms.int32(50),
     NTrk2DMax     = cms.double(1999.5),                      
     NTrk2DMin     = cms.double(-0.5),
                           
-    TTRHBuilder = cms.string('WithTrackAngle'),
-
-    # For plots vs LS
-    LSBin = cms.int32(2000),
-    LSMin = cms.double(0),
-    LSMax = cms.double(2000.),
-
-    # Luminosity based analysis
-    doLumiAnalysis = cms.bool(False)                       
 )

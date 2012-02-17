@@ -10,7 +10,7 @@ Monitoring source for general quantities related to tracks.
 */
 // Original Author:  Suchandra Dutta, Giorgia Mila
 //         Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackingMonitor.h,v 1.13 2011/07/07 13:13:37 fiori Exp $
+// $Id: TrackingMonitor.h,v 1.14 2011/07/18 14:32:48 fiori Exp $
 
 #include <memory>
 #include <fstream>
@@ -82,10 +82,16 @@ class TrackingMonitor : public edm::EDAnalyzer
         MonitorElement * NumberOfTrackCandidates;
 
         // Cluster Properties
+	/*
         MonitorElement* NumberOfPixelClus;
         MonitorElement* NumberOfStripClus;
         MonitorElement* RatioOfPixelAndStripClus;
+	*/
+	std::vector<MonitorElement*> NumberOfTrkVsClusters;
         MonitorElement* NumberOfTrkVsClus;
+        MonitorElement* NumberOfTrkVsStripClus;
+        MonitorElement* NumberOfTrkVsPixelClus;
+        MonitorElement* NumberOfGoodTrkVsClus;
 
 	// Monitoring vs LS
 	MonitorElement* GoodTracksFractionVsLS;
@@ -106,6 +112,8 @@ class TrackingMonitor : public edm::EDAnalyzer
 	bool doSeedNumberPlot;
 	bool doSeedVsClusterPlot;
 	bool runTrackBuildingAnalyzerForSeed;
+	// ADD by Mia in order to have GoodTrack plots only for collision
+	bool doGoodTrackPlots_;
 
         GenericTriggerEventFlag* genTriggerEventFlag_;
 };

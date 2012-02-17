@@ -8,7 +8,7 @@ Monitoring source for general quantities related to tracks.
 */
 // Original Author:  Suchandra Dutta, Giorgia Mila
 //         Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackAnalyzer.h,v 1.10 2011/07/18 14:32:47 fiori Exp $
+// $Id: TrackAnalyzer.h,v 1.11 2011/10/25 09:11:42 borrell Exp $
 
 #include <memory>
 #include <fstream>
@@ -56,14 +56,30 @@ class TrackAnalyzer
 	bool doMeasurementStatePlots_;
 	bool doHitPropertiesPlots_;
 	bool doRecHitVsPhiVsEtaPerTrack_;
+	// ADD by Mia
+	bool doLayersVsPhiVsEtaPerTrack_;
 	bool doGoodTrackRecHitVsPhiVsEtaPerTrack_;
+	bool doGoodTrackLayersVsPhiVsEtaPerTrack_;
+	bool doGoodTrack2DChi2Plots_;
+
+	// ADD by Mia in order to clean the tracking MEs
+	// do not plot *Theta* and TrackPx* and TrackPy*
+	bool doThetaPlots_;
+	bool doTrackPxPyPlots_;
+	// ADD by Mia in order to not plot DistanceOfClosestApproach w.r.t. (0,0,0)
+	// the DistanceOfClosestApproach w.r.t. the beam-spot is already shown in DistanceOfClosestApproachToBS
+	bool doDCAwrt000Plots_;
+
+	// ADD by Mia in order to turnON test MEs
+	bool doTestPlots_;
 
         MonitorElement* NumberOfRecHitsPerTrack;
+        MonitorElement* TESTNumberOfRecHitsPerTrack;
         MonitorElement* NumberOfRecHitsFoundPerTrack;
         MonitorElement* NumberOfRecHitsLostPerTrack;
         MonitorElement* NumberOfLayersPerTrack;
         MonitorElement* NumberOfRecHitVsPhiVsEtaPerTrack;
-        MonitorElement* GoodTrackNumberOfRecHitVsPhiVsEtaPerTrack;
+        MonitorElement* NumberOfLayersVsPhiVsEtaPerTrack;
         MonitorElement* Chi2;
         MonitorElement* Chi2Prob;
         MonitorElement* Chi2oNDF;
@@ -79,6 +95,12 @@ class TrackAnalyzer
         MonitorElement* yPointOfClosestApproachVsZ0;
         MonitorElement* zPointOfClosestApproach;
 	MonitorElement* algorithm;
+	// TESTING MEs
+        MonitorElement* TESTxPointOfClosestApproachVsZ0;
+        MonitorElement* TESTyPointOfClosestApproachVsZ0;
+        MonitorElement* TESTDistanceOfClosestApproachToBS;
+        MonitorElement* TESTDistanceOfClosestApproachToBSVsPhi;
+        MonitorElement* zPointOfClosestApproachVsZ0;
 
         MonitorElement* NumberOfTOBRecHitsPerTrack;
         MonitorElement* NumberOfTOBRecHitsPerTrackVsPhiProfile;
@@ -122,8 +144,19 @@ class TrackAnalyzer
         MonitorElement* NumberOfPixEndcapLayersPerTrackVsPhiProfile;
         MonitorElement* NumberOfPixEndcapLayersPerTrackVsEtaProfile;
 
+        MonitorElement* GoodTrackNumberOfRecHitVsPhiVsEtaPerTrack;
+        MonitorElement* GoodTrackNumberOfLayersVsPhiVsEtaPerTrack;
+        MonitorElement* GoodTrackNumberOfFoundRecHitsPerTrackVsPhiProfile;
+        MonitorElement* GoodTrackNumberOfFoundRecHitsPerTrackVsEtaProfile;
         MonitorElement* GoodTrackChi2oNDF;
+        MonitorElement* GoodTrackChi2Prob;
+        MonitorElement* GoodTrackChi2oNDFVsPhi;
+        MonitorElement* GoodTrackChi2ProbVsPhi;
+        MonitorElement* GoodTrackChi2oNDFVsEta;
+        MonitorElement* GoodTrackChi2ProbVsEta;
         MonitorElement* GoodTrackNumberOfRecHitsPerTrack;
+        MonitorElement* GoodTrackNumberOfFoundRecHitsPerTrack;
+	MonitorElement* GoodTrackAlgorithm;
 
         struct TkParameterMEs 
         {
@@ -139,6 +172,8 @@ class TrackAnalyzer
                 , TrackPzErr(NULL)
                 , TrackPtErr(NULL)
                 , TrackPErr(NULL)
+
+                , TrackPtErrVsEta(NULL)
 
                 , TrackQ(NULL)
 
@@ -186,6 +221,8 @@ class TrackAnalyzer
             MonitorElement* TrackPzErr;
             MonitorElement* TrackPtErr;
             MonitorElement* TrackPErr;
+
+            MonitorElement* TrackPtErrVsEta;
 
             MonitorElement* TrackQ;
 

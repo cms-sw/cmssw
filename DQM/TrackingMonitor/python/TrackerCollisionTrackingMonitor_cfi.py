@@ -5,33 +5,40 @@ TrackerCollisionTrackMon = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clon
 
 # Update specific parameters
 
-TrackerCollisionTrackMon.doGoodTrackPlots      = cms.bool(True)
-
+# input tags
 TrackerCollisionTrackMon.TrackProducer         = cms.InputTag("generalTracks")
 TrackerCollisionTrackMon.SeedProducer          = cms.InputTag("initialStepSeeds")
 TrackerCollisionTrackMon.TCProducer            = cms.InputTag("initialStepTrackCandidates")
+TrackerCollisionTrackMon.ClusterLabels         = cms.vstring('Tot','Strip','Pix') # to decide which Seeds-Clusters correlation plots to have default is Total other options 'Strip', 'Pix'
 TrackerCollisionTrackMon.beamSpot              = cms.InputTag("offlineBeamSpot")
 
+# output parameters
 TrackerCollisionTrackMon.AlgoName              = cms.string('GenTk')
 TrackerCollisionTrackMon.Quality               = cms.string('')
 TrackerCollisionTrackMon.FolderName            = cms.string('Tracking/GlobalParameters')
-TrackerCollisionTrackMon.BSFolderName          = cms.string('Tracking/BeamSpotParameters')
+TrackerCollisionTrackMon.BSFolderName          = cms.string('Tracking/ParametersVsBeamSpot')
 
+# determines where to evaluate track parameters
+# 'ImpactPoint'  --> evalutate at impact point 
 TrackerCollisionTrackMon.MeasurementState      = cms.string('ImpactPoint')
 
-TrackerCollisionTrackMon.doTrackerSpecific     = cms.bool(True)
-TrackerCollisionTrackMon.doAllPlots            = cms.bool(False)
-TrackerCollisionTrackMon.doHitPropertiesPlots  = cms.bool(True)
-TrackerCollisionTrackMon.doGeneralPropertiesPlots  = cms.bool(True)
-TrackerCollisionTrackMon.doBeamSpotPlots       = cms.bool(True)
-TrackerCollisionTrackMon.doSeedParameterHistos = cms.bool(False)
-TrackerCollisionTrackMon.doRecHitVsPhiVsEtaPerTrack = cms.bool(True)
+# which plots to do
+TrackerCollisionTrackMon.doAllPlots                          = cms.bool(False)
+TrackerCollisionTrackMon.doGoodTrackPlots                    = cms.bool(True)
+TrackerCollisionTrackMon.doTrackerSpecific                   = cms.bool(True)
+TrackerCollisionTrackMon.doHitPropertiesPlots                = cms.bool(True)
+TrackerCollisionTrackMon.doGeneralPropertiesPlots            = cms.bool(True)
+TrackerCollisionTrackMon.doBeamSpotPlots                     = cms.bool(True)
+TrackerCollisionTrackMon.doSeedParameterHistos               = cms.bool(False)
+TrackerCollisionTrackMon.doRecHitVsPhiVsEtaPerTrack          = cms.bool(True)
 TrackerCollisionTrackMon.doGoodTrackRecHitVsPhiVsEtaPerTrack = cms.bool(True)
+TrackerCollisionTrackMon.doLayersVsPhiVsEtaPerTrack          = cms.bool(True)
+TrackerCollisionTrackMon.doGoodTrackLayersVsPhiVsEtaPerTrack = cms.bool(True)
 
-TrackerCollisionTrackMon.doLumiAnalysis        = cms.bool(True)                       
+TrackerCollisionTrackMon.doTestPlots = cms.bool(True)
 
-TrackerCollisionTrackMon.doSeedNumberHisto = cms.bool(False)
-TrackerCollisionTrackMon.doSeedETAHisto    = cms.bool(False)
+TrackerCollisionTrackMon.doSeedNumberHisto    = cms.bool(False)
+TrackerCollisionTrackMon.doSeedETAHisto       = cms.bool(False)
 TrackerCollisionTrackMon.doSeedVsClusterHisto = cms.bool(False)
 
 # Number of Tracks per Event
