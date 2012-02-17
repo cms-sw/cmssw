@@ -117,7 +117,7 @@ EcalRecHitWorkerSimple::run( const edm::Event & evt,
           
 	 
         // make the rechit and put in the output collection
-	if (recoFlag<<EcalRecHit::kLeadingEdgeRecovered || !killDeadChannels_) {
+	if (recoFlag<=EcalRecHit::kLeadingEdgeRecovered || !killDeadChannels_) {
           EcalRecHit myrechit( rechitMaker_->makeRecHit(uncalibRH, icalconst * lasercalib, (itimeconst + offsetTime), /*recoflags_*/ 0) );	
 	  if (detid.subdetId() == EcalBarrel && (lasercalib < EBLaserMIN_ || lasercalib > EBLaserMAX_)) myrechit.setFlag(EcalRecHit::kPoorCalib);
 	  if (detid.subdetId() == EcalEndcap && (lasercalib < EELaserMIN_ || lasercalib > EELaserMAX_)) myrechit.setFlag(EcalRecHit::kPoorCalib);
