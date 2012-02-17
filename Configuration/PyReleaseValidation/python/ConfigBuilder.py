@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.359 $"
+__version__ = "$Revision: 1.360 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -1529,21 +1529,27 @@ class ConfigBuilder(object):
         # this one needs replacement
 
         self.loadDefaultOrSpecifiedCFF(sequence,self.DQMOFFLINEDefaultCFF)
-        sequence=sequence.split('.')[-1]
+        sequenceList=sequence.split('.')[-1].split('+')
+	if len(set(sequenceList))!=len(sequenceList):
+		sequenceList=list(set(sequenceList))
+		print "Duplicate entries for DQM:, using",sequenceList
+	pathName='dqmoffline_step'
+	for (i,sequence) in enumerate(sequenceList):
+		if (i!=0):
+			pathName='dqmoffline_%d_step'%(i)
+			
+		if 'HLT' in self.stepMap.keys() or self._options.hltProcess:
+			self.renameHLTprocessInSequence(sequence)
 
-	if 'HLT' in self.stepMap.keys() or self._options.hltProcess:
-		self.renameHLTprocessInSequence(sequence)
+		# if both HLT and DQM are run in the same process, schedule [HLT]DQM in an EndPath
+		if 'HLT' in self.stepMap.keys():
+			# need to put [HLT]DQM in an EndPath, to access the HLT trigger results
+			setattr(self.process,pathName, cms.EndPath( getattr(self.process, sequence ) ) )
+		else:
+			# schedule DQM as a standard Path
+			setattr(self.process,pathName, cms.Path( getattr(self.process, sequence) ) ) 
+		self.schedule.append(getattr(self.process,pathName))
 
-        # if both HLT and DQM are run in the same process, schedule [HLT]DQM in an EndPath
-        if 'HLT' in self.stepMap.keys():
-                # need to put [HLT]DQM in an EndPath, to access the HLT trigger results
-                self.process.dqmoffline_step = cms.EndPath( getattr(self.process, sequence ) )
-        else:
-                # schedule DQM as a standard Path
-                self.process.dqmoffline_step = cms.Path( getattr(self.process, sequence) )
-        self.schedule.append(self.process.dqmoffline_step)
-	#if self._options.isRepacked:
-	#	self.renameInputTagsInSequence(sequence)
 
     def prepare_HARVESTING(self, sequence = None):
         """ Enrich the process with harvesting step """
@@ -1660,7 +1666,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.359 $"),
+                                            (version=cms.untracked.string("$Revision: 1.360 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
