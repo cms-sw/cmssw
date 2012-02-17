@@ -5,7 +5,6 @@ from RecoHI.HiTracking.MergeTrackCollectionsHI_cff import *
 
 hiIterTracking = cms.Sequence(
     hiSecondPixelTripletStep
-    *hiMixedTripletStep
     *hiPixelPairStep
     *hiGeneralTracks
-)
+    )

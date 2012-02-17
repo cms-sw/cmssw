@@ -5,9 +5,9 @@ import FWCore.ParameterSet.Config as cms
 # NEW CLUSTERS (remove previously used clusters)
 hiPixelPairClusters = cms.EDProducer("TrackClusterRemover",
                                      clusterLessSolution= cms.bool(True),
-                                     oldClusterRemovalInfo = cms.InputTag("hiMixedTripletClusters"),
-                                     trajectories = cms.InputTag("hiMixedTripletGlobalPrimTracks"),
-                                     overrideTrkQuals = cms.InputTag('hiMixedTripletStepSelector','hiMixedTripletStep'),
+                                     oldClusterRemovalInfo = cms.InputTag("hiSecondPixelTripletClusters"),
+                                     trajectories = cms.InputTag("hiSecondPixelTripletGlobalPrimTracks"),
+                                     overrideTrkQuals = cms.InputTag('hiSecondPixelTripletStepSelector','hiSecondPixelTripletStep'),
                                      TrackQuality = cms.string('highPurity'),
                                      pixelClusters = cms.InputTag("siPixelClusters"),
                                      stripClusters = cms.InputTag("siStripClusters"),
@@ -35,7 +35,7 @@ hiPixelPairSeeds.RegionFactoryPSet.RegionPSet.VertexCollection=cms.InputTag("hiS
 hiPixelPairSeeds.RegionFactoryPSet.RegionPSet.ptMin = 4.0
 hiPixelPairSeeds.RegionFactoryPSet.RegionPSet.originRadius = 0.005
 hiPixelPairSeeds.RegionFactoryPSet.RegionPSet.nSigmaZ = 4.0
-# only used for pixel tracking? -Matt
+# sigmaZVertex is only used when usedFixedError is True -Matt
 hiPixelPairSeeds.RegionFactoryPSet.RegionPSet.sigmaZVertex = 4.0
 # Using a fixed error to determine the tracking region seems like a bad idea to me -Matt
 hiPixelPairSeeds.RegionFactoryPSet.RegionPSet.useFixedError = cms.bool(False)
@@ -51,7 +51,9 @@ import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
 hiPixelPairTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone(
     ComponentName = 'hiPixelPairTrajectoryFilter',
     filterPset = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.filterPset.clone(
+    #maxLostHits = 0,
     minimumNumberOfHits = 6,
+    #minimumNumberOfHits = 8,
     minPt = 1.0
     )
     )
@@ -67,19 +69,19 @@ hiPixelPairChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProd
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
 hiPixelPairTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone(
         ComponentName = 'hiPixelPairTrajectoryBuilder',
-            MeasurementTrackerName = '',
-            trajectoryFilterName = 'hiPixelPairTrajectoryFilter',
-            clustersToSkip = cms.InputTag('hiPixelPairClusters'),
-            maxCand = 3,
-            estimator = cms.string('hiPixelPairChi2Est')
-            )
+        MeasurementTrackerName = '',
+        trajectoryFilterName = 'hiPixelPairTrajectoryFilter',
+        clustersToSkip = cms.InputTag('hiPixelPairClusters'),
+        maxCand = 3,
+        estimator = cms.string('hiPixelPairChi2Est')
+        )
 
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 hiPixelPairTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
-        src = cms.InputTag('hiPixelPairSeeds'),
-            TrajectoryBuilder = 'hiPixelPairTrajectoryBuilder'
-            )
+    src = cms.InputTag('hiPixelPairSeeds'),
+    TrajectoryBuilder = 'hiPixelPairTrajectoryBuilder'
+    )
 
 
 # TRACK FITTING
