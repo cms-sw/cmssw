@@ -10,6 +10,7 @@
 #include "CondFormats/PhysicsToolsObjects/interface/PerformanceWorkingPoint.h"   
 
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTFormula.h"
+#include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromBinnedTFormula.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PhysicsTFormulaPayload.h"
 
 
@@ -63,6 +64,7 @@ PerformanceWorkingPoint c7;
 PhysicsTFormulaPayload p10;          
 std::vector<PhysicsTFormulaPayload> pv10;
 PerformancePayloadFromTFormula p11;
+PerformancePayloadFromBinnedTFormula p12;
 
 }; // struct dictionary
 } // anonymous namespace

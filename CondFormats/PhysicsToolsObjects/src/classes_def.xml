@@ -17,6 +17,10 @@
 		<field name="compiledFormulas_" transient="true"/>
 	</class>
 
+	<class name="PerformancePayloadFromBinnedTFormula">
+		<field name="compiledFormulas_" transient="true"/>
+	</class>
+
 	<class name="PhysicsTFormulaPayload"/>
         <class name="std::vector<PhysicsTFormulaPayload>"/>
 

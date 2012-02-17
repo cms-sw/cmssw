@@ -5,20 +5,6 @@ int PerformancePayloadFromTFormula::InvalidPos=-1;
 #include <iostream>
 using namespace std;
 
-
-TFormula * PerformancePayloadFromTFormula::getFormula(PerformanceResult::ResultType r ,BinningPointByMap p ) const {
-  //
-  // chooses the correct rectangular region
-  //
-  if (! isInPayload(r,p)) return NULL;
-  unsigned int region;
-  bool ok =  isOk(p,region);
-  if (ok == false) return NULL;
-
-  return compiledFormulas_[region][resultPos(r)];
-
-}
-
 float PerformancePayloadFromTFormula::getResult(PerformanceResult::ResultType r ,BinningPointByMap p) const {
   check();
   //
@@ -27,11 +13,8 @@ float PerformancePayloadFromTFormula::getResult(PerformanceResult::ResultType r 
   if (! isInPayload(r,p)) return PerformancePayload::InvalidResult;
 
   // nice, what to do here???
-  //  TFormula * formula = compiledFormulas_[resultPos(r)];
+  TFormula * formula = compiledFormulas_[resultPos(r)];
   //
-
-  TFormula * formula = getFormula(r,p);
-
   // prepare the vector to pass, order counts!!!
   //
   std::vector<BinningVariables::BinningVariablesType> t = myBinning();
@@ -47,65 +30,43 @@ float PerformancePayloadFromTFormula::getResult(PerformanceResult::ResultType r 
   return formula->EvalPar(values);
 }
 
-bool PerformancePayloadFromTFormula::isOk(BinningPointByMap p,unsigned int& whichone) const {
+bool PerformancePayloadFromTFormula::isOk(BinningPointByMap p) const {
   
-  //
-  // change: look on whether a single rectangularr region matches
-  //
-  for (unsigned int ti=0; ti< pls.size(); ++ti){
-    bool result = true;
-    std::vector<BinningVariables::BinningVariablesType>  t = myBinning();
-    for (std::vector<BinningVariables::BinningVariablesType>::const_iterator it = t.begin(); it != t.end();++it){
-      //
-      // now looking into a single payload
-      //
-      if (!   p.isKeyAvailable(*it)) return false;
-      float v = p.value(*it);
-      int pos = limitPos(*it);
-      std::pair<float, float> limits = (pls[ti].limits())[pos];
-      if (v<limits.first || v>limits.second) result= false;
-    }
-    if (result == true)  {
-      whichone = ti;
-      return true;
-    }
+  std::vector<BinningVariables::BinningVariablesType> t = myBinning();
+  
+  for (std::vector<BinningVariables::BinningVariablesType>::const_iterator it = t.begin(); it != t.end();++it){
+    if (!   p.isKeyAvailable(*it)) return false;
+    float v = p.value(*it);
+    int pos = limitPos(*it);
+    std::pair<float, float> limits = (pl.limits())[pos];
+    if (v<limits.first || v>limits.second) return false;
   }
-  whichone = 9999;
-  return false;
+  return true;
 }
 
 bool PerformancePayloadFromTFormula::isInPayload(PerformanceResult::ResultType res,BinningPointByMap point) const {
   check();
   // first, let's see if it is available at all
   if (resultPos(res) == PerformancePayloadFromTFormula::InvalidPos) return false;
-  unsigned int whocares;
-  if ( ! isOk(point,whocares)) return false;
+  
+  if ( ! isOk(point)) return false;
   return true;
 }
 
 
 void PerformancePayloadFromTFormula::check() const {
-  if (pls.size()== compiledFormulas_.size()) return;
+  if (pl.formulas().size() == compiledFormulas_.size()) return;
   //
   // otherwise, compile!
   //
-  compiledFormulas_.clear();
-  for (unsigned int t=0; t< pls.size(); ++t){
-    std::vector <TFormula *> temp;
-    for (unsigned int i=0; i< (pls[t].formulas()).size(); ++i){
-      PhysicsTFormulaPayload  tmp = pls[t];
-      TFormula* tt = new TFormula("rr",((tmp.formulas())[i]).c_str()); //FIXME: "rr" should be unique!
-      tt->Compile();
-      temp.push_back(tt);
-    }
-    compiledFormulas_.push_back(temp);
+  for (unsigned int i=0; i< pl.formulas().size(); ++i){
+    TFormula* t = new TFormula("rr",(pl.formulas()[i]).c_str()); //FIXME: "rr" should be unique!
+    t->Compile();
+    compiledFormulas_.push_back(t);
   }
 }
 
-
-
-
-void PerformancePayloadFromTFormula::printFormula(PerformanceResult::ResultType res,BinningPointByMap point) const {
+void PerformancePayloadFromTFormula::printFormula(PerformanceResult::ResultType res) const {
   check();
   //
   // which formula to use?
@@ -115,9 +76,7 @@ void PerformancePayloadFromTFormula::printFormula(PerformanceResult::ResultType 
   }
   
   // nice, what to do here???
-  TFormula * formula = getFormula(res, point);
-  unsigned int whichone;
-  bool ok =  isOk(point,whichone);
+  TFormula * formula = compiledFormulas_[resultPos(res)];
   cout << "-- Formula: " << formula->GetExpFormula("p") << endl;
   // prepare the vector to pass, order counts!!!
   //
@@ -125,7 +84,7 @@ void PerformancePayloadFromTFormula::printFormula(PerformanceResult::ResultType 
   
   for (std::vector<BinningVariables::BinningVariablesType>::const_iterator it = t.begin(); it != t.end();++it){
     int pos = limitPos(*it);
-    std::pair<float, float> limits = (pls[whichone].limits())[pos];
+    std::pair<float, float> limits = (pl.limits())[pos];
     cout << "      Variable: " << *it << " with limits: " << "from: " << limits.first  << " to: " << limits.second << endl;
   }
 
