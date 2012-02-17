@@ -61,55 +61,55 @@ void MuonRecoOneHLT::beginJob(DQMStore * dbe) {
   etaMax = parameters.getParameter<double>("etaMax");
   
   std::string histname = "GlbMuon_";
-  etaGlbTrack.push_back(dbe->book1D(histname+"Glb_eta", "#eta_{GLB}", etaBin, etaMin, etaMax));
-  etaGlbTrack.push_back(dbe->book1D(histname+"Tk_eta", "#eta_{TKfromGLB}", etaBin, etaMin, etaMax));
-  etaGlbTrack.push_back(dbe->book1D(histname+"Sta_eta", "#eta_{STAfromGLB}", etaBin, etaMin, etaMax));
-  etaTight = dbe->book1D("TightMuon_eta", "#eta_{TK}", etaBin, etaMin, etaMax);
-  etaTrack = dbe->book1D("TkMuon_eta", "#eta_{TK}", etaBin, etaMin, etaMax);
-  etaStaTrack = dbe->book1D("StaMuon_eta", "#eta_{STA}", etaBin, etaMin, etaMax);
+  etaGlbTrack.push_back(dbe->book1D(histname+"Glb_eta", "Glb Mu #eta_{GLB}", etaBin, etaMin, etaMax));
+  etaGlbTrack.push_back(dbe->book1D(histname+"Tk_eta", "Glb Mu #eta_{TKfromGLB}", etaBin, etaMin, etaMax));
+  etaGlbTrack.push_back(dbe->book1D(histname+"Sta_eta", "Glb Mu #eta_{STAfromGLB}", etaBin, etaMin, etaMax));
+  etaTight = dbe->book1D("TightMuon_eta", "Tight Mu #eta_{GLB}", etaBin, etaMin, etaMax);
+  etaTrack = dbe->book1D("TkMuon_eta", "Track Mu #eta_{TK}", etaBin, etaMin, etaMax);
+  etaStaTrack = dbe->book1D("StaMuon_eta", "Sta Mu #eta_{STA}", etaBin, etaMin, etaMax);
 
   // monitoring of phi paramater
   phiBin = parameters.getParameter<int>("phiBin");
   phiMin = parameters.getParameter<double>("phiMin");
   phiMax = parameters.getParameter<double>("phiMax");
-  phiGlbTrack.push_back(dbe->book1D(histname+"Glb_phi", "#phi_{GLB}", phiBin, phiMin, phiMax));
+  phiGlbTrack.push_back(dbe->book1D(histname+"Glb_phi", "Glb Mu #phi_{GLB}", phiBin, phiMin, phiMax));
   phiGlbTrack[0]->setAxisTitle("rad");
-  phiGlbTrack.push_back(dbe->book1D(histname+"Tk_phi", "#phi_{TKfromGLB}", phiBin, phiMin, phiMax));
+  phiGlbTrack.push_back(dbe->book1D(histname+"Tk_phi", "Glb Mu #phi_{TKfromGLB}", phiBin, phiMin, phiMax));
   phiGlbTrack[1]->setAxisTitle("rad");
-  phiGlbTrack.push_back(dbe->book1D(histname+"Sta_phi", "#phi_{STAfromGLB}", phiBin, phiMin, phiMax));
+  phiGlbTrack.push_back(dbe->book1D(histname+"Sta_phi", "Glb Mu #phi_{STAfromGLB}", phiBin, phiMin, phiMax));
   phiGlbTrack[2]->setAxisTitle("rad");
-  phiTight = dbe->book1D("TightMuon_phi", "#phi_{TK}", phiBin, phiMin, phiMax);
-  phiTrack = dbe->book1D("TkMuon_phi", "#phi_{TK}", phiBin, phiMin, phiMax);
+  phiTight = dbe->book1D("TightMuon_phi", "Tight Mu #phi_{GLB}", phiBin, phiMin, phiMax);
+  phiTrack = dbe->book1D("TkMuon_phi", "Track Mu #phi_{TK}", phiBin, phiMin, phiMax);
   phiTrack->setAxisTitle("rad"); 
-  phiStaTrack = dbe->book1D("StaMuon_phi", "#phi_{STA}", phiBin, phiMin, phiMax);
+  phiStaTrack = dbe->book1D("StaMuon_phi", "Sta Mu #phi_{STA}", phiBin, phiMin, phiMax);
   phiStaTrack->setAxisTitle("rad"); 
   
   // monitoring of the chi2 parameter
   chi2Bin = parameters.getParameter<int>("chi2Bin");
   chi2Min = parameters.getParameter<double>("chi2Min");
   chi2Max = parameters.getParameter<double>("chi2Max");
-  chi2OvDFGlbTrack.push_back(dbe->book1D(histname+"Glb_chi2OverDf", "#chi_{2}OverDF_{GLB}", chi2Bin, chi2Min, chi2Max));
-  chi2OvDFGlbTrack.push_back(dbe->book1D(histname+"Tk_chi2OverDf", "#chi_{2}OverDF_{TKfromGLB}", phiBin, chi2Min, chi2Max));
-  chi2OvDFGlbTrack.push_back(dbe->book1D(histname+"Sta_chi2OverDf", "#chi_{2}OverDF_{STAfromGLB}", chi2Bin, chi2Min, chi2Max));
-  chi2OvDFTight = dbe->book1D("TightMuon_chi2OverDf", "#chi_{2}OverDF_{TK}", chi2Bin, chi2Min, chi2Max);
-  chi2OvDFTrack = dbe->book1D("TkMuon_chi2OverDf", "#chi_{2}OverDF_{TK}", chi2Bin, chi2Min, chi2Max);
-  chi2OvDFStaTrack = dbe->book1D("StaMuon_chi2OverDf", "#chi_{2}OverDF_{STA}", chi2Bin, chi2Min, chi2Max);
+  chi2OvDFGlbTrack.push_back(dbe->book1D(histname+"Glb_chi2OverDf", "Glb Mu #chi_{2}OverDF_{GLB}", chi2Bin, chi2Min, chi2Max));
+  chi2OvDFGlbTrack.push_back(dbe->book1D(histname+"Tk_chi2OverDf",  "Glb Mu #chi_{2}OverDF_{TKfromGLB}", phiBin, chi2Min, chi2Max));
+  chi2OvDFGlbTrack.push_back(dbe->book1D(histname+"Sta_chi2OverDf", "Glb Mu #chi_{2}OverDF_{STAfromGLB}", chi2Bin, chi2Min, chi2Max));
+  chi2OvDFTight    = dbe->book1D("TightMuon_chi2OverDf", "Tight Mu #chi_{2}OverDF_{GLB}", chi2Bin, chi2Min, chi2Max);
+  chi2OvDFTrack    = dbe->book1D("TkMuon_chi2OverDf",    "Track Mu #chi_{2}OverDF_{TK}", chi2Bin, chi2Min, chi2Max);
+  chi2OvDFStaTrack = dbe->book1D("StaMuon_chi2OverDf",   "Sta Mu #chi_{2}OverDF_{STA}", chi2Bin, chi2Min, chi2Max);
 
   // monitoring of the transverse momentum
   ptBin = parameters.getParameter<int>("ptBin");
   ptMin = parameters.getParameter<double>("ptMin");
   ptMax = parameters.getParameter<double>("ptMax");
-  ptGlbTrack.push_back(dbe->book1D(histname+"Glb_pt", "pt_{GLB}", ptBin, ptMin, ptMax));
+  ptGlbTrack.push_back(dbe->book1D(histname+"Glb_pt", "Glb Mu pt_{GLB}", ptBin, ptMin, ptMax));
   ptGlbTrack[0]->setAxisTitle("GeV"); 
-  ptGlbTrack.push_back(dbe->book1D(histname+"Tk_pt", "pt_{TKfromGLB}", ptBin, ptMin, ptMax));
+  ptGlbTrack.push_back(dbe->book1D(histname+"Tk_pt", "Glb Mu pt_{TKfromGLB}", ptBin, ptMin, ptMax));
   ptGlbTrack[1]->setAxisTitle("GeV"); 
-  ptGlbTrack.push_back(dbe->book1D(histname+"Sta_pt", "pt_{STAfromGLB}", ptBin, ptMin, ptMax));
+  ptGlbTrack.push_back(dbe->book1D(histname+"Sta_pt", "Glb Mu pt_{STAfromGLB}", ptBin, ptMin, ptMax));
   ptGlbTrack[2]->setAxisTitle("GeV"); 
-  ptTight = dbe->book1D("TightMuon_pt", "pt_{TK}", ptBin, ptMin, ptMax);
+  ptTight = dbe->book1D("TightMuon_pt", "Tight Mu pt_{GLB}", ptBin, ptMin, ptMax);
   ptTight->setAxisTitle("GeV"); 
-  ptTrack = dbe->book1D("TkMuon_pt", "pt_{TK}", ptBin, ptMin, ptMax);
+  ptTrack = dbe->book1D("TkMuon_pt", "Track Mu pt_{TK}", ptBin, ptMin, ptMax);
   ptTrack->setAxisTitle("GeV"); 
-  ptStaTrack = dbe->book1D("StaMuon_pt", "pt_{STA}", ptBin, ptMin, ptMax);
+  ptStaTrack = dbe->book1D("StaMuon_pt", "Sta Mu pt_{STA}", ptBin, ptMin, ptMax);
   ptStaTrack->setAxisTitle("GeV"); 
 }
 
