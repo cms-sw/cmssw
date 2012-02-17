@@ -16428,32 +16428,71 @@ public:
          float HisoBR,
          float HisoEC);
    
-   std::vector<int> VectorOpenHlt1PhotonPassed(
-         float Et,
-         int L1iso,
-         float Tiso,
-         float Eiso,
-         float HisoBR,
-         float HisoEC,
-         float HoverEEB=999,
-         float HoverEEC=999,
-         float R9=999,
-         float ClusShapEB=999,
-         float ClusShapEC=999);
+   std::vector<int>  VectorOpenHlt1PhotonPassed(
+						float Et, 
+						int L1iso, 
+						float Tiso, 
+						float Eiso, 
+						float HisoBR, 
+						float HisoEC,
+						float HoverE, 
+						float R9, 
+						float ClusShapEB=999, 
+						float ClusShapEC=999);
 
-   std::vector<int> VectorOpenHlt1PhotonPassedR9ID(
-         float Et,
-         float R9ID,
-         int L1iso,
-         float Tiso,
-         float Eiso,
-         float HisoBR,
-         float HisoEC,
-         float HoverEEB=999,
-         float HoverEEC=999,
-         float R9=999,
-         float ClusShapEB=999,
-         float ClusShapEC=999);
+   std::vector<int> VectorOpenHlt1PhotonPassedEcalActiv(
+							float Et, 
+							int L1iso, 
+							float Tiso, 
+							float Eiso, 
+							float HisoBR, 
+							float HisoEC, 
+							float HoverEBR=999,
+							float HoverEEC=999, 
+							float R9=999, 
+							float ClusShapEB=999, 
+							float ClusShapEC=999);
+
+   std::vector<int>  VectorOpenHlt1PhotonPassedR9ID(
+						    float Et,
+						    float R9ID, 
+						    int L1iso, 
+						    float Tiso, 
+						    float Eiso, 
+						    float HisoBR, 
+						    float HisoEC, 
+						    float HoverEBR=999, 
+						    float HoverEEC=999,
+						    float R9=999, 
+						    float ClusShapEB=999, 
+						    float ClusShapEC=999);
+
+   std::vector<int>  VectorOpenHlt1PhotonPassedNew(
+						   float Et, 
+						   int L1iso, 
+						   float Tiso, 
+						   float Eiso, 
+						   float HisoBR, 
+						   float HisoEC, 
+						   float HoverEBR=999, 
+						   float HoverEEC=999, 
+						   float R9=999, 
+						   float ClusShapEB=999, 
+						   float ClusShapEC=999);
+
+   std::vector<int>  VectorOpenHlt1PhotonPassedR9IDEcalActiv(
+							     float Et, 
+							     float R9ID, 
+							     int L1iso, 
+							     float Tiso, 
+							     float Eiso, 
+							     float HisoBR, 
+							     float HisoEC, 
+							     float HoverEBR=999, 
+							     float HoverEEC=999,
+							     float R9=999, 
+							     float ClusShapEB=999, 
+							     float ClusShapEC=999);
 
    int OpenHlt2PhotonMassWinPassed(
          float Et,
