@@ -35,7 +35,7 @@ EcalRecHitWorkerSimple::EcalRecHitWorkerSimple(const edm::ParameterSet&ps) :
   
         for (unsigned int is=0;is!=dbseverities.size();++is){
             
-              EcalSeverityLevel::SeverityLevel snum = (EcalSeverityLevel::SeverityLevel) StringToEnumValue<EcalSeverityLevel::SeverityLevel>(dbseverities[is]); 
+	  EcalRecHit::Flags snum = (EcalRecHit::Flags) StringToEnumValue<EcalRecHit::Flags>(dbseverities[is]); 
               dbflags=dbps.getParameter<std::vector<uint32_t> >(dbseverities[is]);
               uint32_t mask=0;
               for (unsigned int ifi=0;ifi!=dbflags.size();++ifi){
