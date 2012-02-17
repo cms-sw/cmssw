@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/05 10:14:40 $
- *  $Revision: 1.21 $
+ *  $Date: 2010/07/20 02:58:24 $
+ *  $Revision: 1.22 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -46,6 +46,9 @@ DTResolutionAnalysisTask::DTResolutionAnalysisTask(const ParameterSet& pset) {
   resetCycle = pset.getUntrackedParameter<int>("ResetCycle", -1);
   // top folder for the histograms in DQMStore
   topHistoFolder = pset.getUntrackedParameter<string>("topHistoFolder","DT/02-Segments");
+
+  thePhiHitsCut = pset.getUntrackedParameter<u_int32_t>("phiHitsCut",8);
+  theZHitsCut = pset.getUntrackedParameter<u_int32_t>("zHitsCut",4);
 
 }
 
@@ -164,7 +167,7 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
 	const DTChamberRecSegment2D* phiSeg = (*segment4D).phiSegment();
 	vector<DTRecHit1D> phiRecHits = phiSeg->specificRecHits();
 
-	if(phiRecHits.size() != 8) {
+	if(phiRecHits.size() < thePhiHitsCut) {
 	  //edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "[DTResolutionAnalysisTask] Phi segments has: " << phiRecHits.size()
 	  //<< " hits" << endl; // FIXME: info output
 	  continue;
@@ -177,7 +180,7 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
       if((*segment4D).hasZed()) {
 	const DTSLRecSegment2D* zSeg = (*segment4D).zSegment();
 	vector<DTRecHit1D> zRecHits = zSeg->specificRecHits();
-	if(zRecHits.size() != 4) {
+	if(zRecHits.size() < theZHitsCut) {
 	  //edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "[DTResolutionAnalysisTask] Theta segments has: " << zRecHits.size()
 	  //<< " hits, skipping" << endl; // FIXME: info output
  	  continue;

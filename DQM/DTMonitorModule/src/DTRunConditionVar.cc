@@ -6,7 +6,7 @@
  *
  * \author : Paolo Bellan, Antonio Branca
  * $date   : 23/09/2011 15:42:04 CET $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  *
  * Modification:
  *
@@ -176,8 +176,8 @@ void DTRunConditionVar::analyze(const Event & event,
 
         double segmentT0 = segment->phiSegment()->t0();
 
-        (chamberHistos[indexCh])["T0_FromSegm"]->Fill(segmentT0);
-        (chamberHistos[indexCh])["VDrift_FromSegm"]->Fill(segmentVDrift);
+        if( segment->phiSegment()->ist0Valid() ) (chamberHistos[indexCh])["T0_FromSegm"]->Fill(segmentT0);
+        if( segmentVDrift != vDriftMed ) (chamberHistos[indexCh])["VDrift_FromSegm"]->Fill(segmentVDrift);
 
       }
     }

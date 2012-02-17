@@ -17,7 +17,7 @@ physicsEventsFilter = cms.EDFilter("HLTTriggerTypeFilter",
 # GT unpacker
 import EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi
 gtDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi.l1GtUnpack.clone()
-gtDigis.DaqGtInputTag = 'source'
+gtDigis.DaqGtInputTag = 'rawDataCollector'
 
 
 # filter on L1 trigger bits:
@@ -27,9 +27,11 @@ l1Filter.algorithms = cms.vstring('L1_SingleMuOpen_BptxAND', 'L1_SingleMu0_BptxA
 
 # Scalers info
 from EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi import *
+scalersRawToDigi.scalersInputTag = 'rawDataCollector'
 
 # DT digitization and reconstruction
 from EventFilter.DTTFRawToDigi.dttfunpacker_cfi import *
+dttfunpacker.DTTF_FED_Source = 'rawDataCollector'
 
 from EventFilter.DTRawToDigi.dtunpackerDDUGlobal_cfi import *
 #from EventFilter.DTRawToDigi.dtunpackerDDULocal_cfi import *
@@ -38,6 +40,7 @@ dtunpacker.readOutParameters.rosParameters.performDataIntegrityMonitor = True
 dtunpacker.readOutParameters.debug = False
 dtunpacker.readOutParameters.rosParameters.debug = False
 dtunpacker.fedbyType = False
+dtunpacker.inputLabel = 'rawDataCollector'
 
 from RecoLocalMuon.Configuration.RecoLocalMuon_cff import *
 dt1DRecHits.dtDigiLabel = 'dtunpacker'
