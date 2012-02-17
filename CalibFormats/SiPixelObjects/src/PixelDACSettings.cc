@@ -24,8 +24,8 @@
 using namespace pos;
 
 namespace {
-  const bool readTemperatures = false;
-  //const bool readTemperatures = true;
+  //const bool readTemperatures = false;
+  const bool readTemperatures = true;
 }
 
 
