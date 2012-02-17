@@ -278,9 +278,9 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
                                 leadingEdgeMethod_barrel_.setLeadingEdgeSample( -1 );
                         }
                 }
-
-                uncalibRecHit.setChi2(0);         // do not propagate the default chi2 = -1 value to the calib rechit (mapped to 64), set it to 0 when saturation
-                uncalibRecHit.setOutOfTimeChi2(0);
+		// do not propagate the default chi2 = -1 value to the calib rechit (mapped to 64), set it to 0 when saturation
+                uncalibRecHit.setChi2(0);
+		uncalibRecHit.setOutOfTimeChi2(0);
         } else {
                 // weights method
                 EcalTBWeights::EcalTDCId tdcid(1);
@@ -335,7 +335,8 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
 				      if (GainId!=1) {
 					outOfTimeThreshP = outOfTimeThreshG61pEE_;
 					outOfTimeThreshM = outOfTimeThreshG61mEE_;
-					break;}
+					break;
+				      }
 				    }}
 				  float correctedTime = (crh.timeMax-5) * clockToNsConstant + itimeconst + offsetTime;
 				  float cterm         = EEtimeConstantTerm_;
@@ -355,13 +356,7 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
                                 EcalUncalibRecHitRatioMethodAlgo<EBDataFrame>::CalculatedRecHit crh = ratioMethod_barrel_.getCalculatedRecHit();
 				double theTimeCorrectionEB=0;
 				if(doEBtimeCorrection_) theTimeCorrectionEB = timeCorrectionEB( uncalibRecHit.amplitude() );
-				// the correction for gain switch (when the sample before is ignored in ratioAlgo) is now included in the configurable correction
-				//      bool gainSwitch = ratioMethod_barrel_.fixMGPAslew(*itdg);
-				//	if(gainSwitch){
-				//	  uncalibRecHit.setJitter( crh.timeMax - 5 - 0.04 + theTimeCorrectionEB);  // introduce additional 1ns shift
-				//	}else{
-				//	  uncalibRecHit.setJitter( crh.timeMax - 5 + theTimeCorrectionEB);
-				//	}
+
 				uncalibRecHit.setJitter( crh.timeMax - 5 + theTimeCorrectionEB);
 
                                 uncalibRecHit.setJitterError( std::sqrt(std::pow(crh.timeError,2) + std::pow(EBtimeConstantTerm_,2)/std::pow(clockToNsConstant,2)) );
@@ -391,7 +386,7 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
 				    {   uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kOutOfTime );  }
 				}
 		}
-
+		
 		// === chi2express ===
 		if (detid.subdetId()==EcalEndcap) {
 		      
@@ -452,14 +447,9 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
 		}
         }
 
-        // remove setting of kFake, which can be misleading for the time being
-        //if ( detid.subdetId()==EcalBarrel ) {
-        //        if ( uncalibRecHit.jitter()*25. > -5 ) {
-        //                EBDataFrame dt(*itdg);
-        //                if ( dt.spikeEstimator() < ebSpikeThresh_ ) uncalibRecHit.setRecoFlag( EcalUncalibratedRecHit::kFake );
-        //        }
-        //}
-	
+	// set flags if gain switch has occurred
+	if( ((EcalDataFrame)(*itdg)).hasSwitchToGain6()  ) uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kHasSwitchToGain6 );
+	if( ((EcalDataFrame)(*itdg)).hasSwitchToGain1()  ) uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kHasSwitchToGain1 );
 
         // put the recHit in the collection
         if (detid.subdetId()==EcalEndcap) {
@@ -467,6 +457,7 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
         } else {
                 result.push_back( uncalibRecHit );
         }
+
         return true;
 }
 
