@@ -1204,7 +1204,7 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
                 if(alct_wcnt2_coll.size()>0){
                 std::cout << alct_wcnt2_coll[k] << std::endl;}
                 else {
-                std::cout << "Undefined (ALCT Header or Trailer is not found) " << std::endl;} 
+                std::cout << "Undefined (ALCT Header is not found) " << std::endl;} 
 	   }
 	   
 	std::cout << std::endl << std::endl;
