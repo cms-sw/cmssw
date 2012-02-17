@@ -46,7 +46,7 @@ class HeavyIons(Scenario):
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "HeavyIons"
-        options.step = 'RAW2DIGI,L1Reco,RECO'+step+',L1HwVal,DQM,ENDJOB'
+        options.step = 'RAW2DIGI,L1Reco,RECO'+step+',DQM,ENDJOB'
         options.isMC = False
         options.isData = True
         options.isRepacked = True
@@ -89,7 +89,7 @@ class HeavyIons(Scenario):
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "HeavyIons"
-        options.step = 'RAW2DIGI,L1Reco,RECO'+step+',L1HwVal,DQM,ENDJOB'
+        options.step = 'RAW2DIGI,L1Reco,RECO'+step+',DQM,ENDJOB'
         options.isMC = False
         options.isData = True
         options.isRepacked = True
