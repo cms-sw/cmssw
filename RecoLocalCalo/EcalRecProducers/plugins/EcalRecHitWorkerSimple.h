@@ -4,9 +4,9 @@
 /** \class EcalRecHitSimpleAlgo
   *  Simple algoritm to make rechits from uncalibrated rechits
   *
-  *  $Id: EcalRecHitWorkerSimple.h,v 1.9 2011/11/24 16:08:53 vieri Exp $
-  *  $Date: 2011/11/24 16:08:53 $
-  *  $Revision: 1.9 $
+  *  $Id: EcalRecHitWorkerSimple.h,v 1.10 2012/02/17 09:25:21 argiro Exp $
+  *  $Date: 2012/02/17 09:25:21 $
+  *  $Revision: 1.10 $
   *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
   */
 
@@ -40,7 +40,7 @@ class EcalRecHitWorkerSimple : public EcalRecHitWorkerBaseClass {
 		double EBLaserMAX_;
 		double EELaserMAX_;
 
-		std::vector<uint32_t> recoflags_;
+
                 edm::ESHandle<EcalIntercalibConstants> ical;
                 edm::ESHandle<EcalTimeCalibConstants> itime;
                 edm::ESHandle<EcalTimeOffsetConstant> offtime;
@@ -48,6 +48,8 @@ class EcalRecHitWorkerSimple : public EcalRecHitWorkerBaseClass {
                 edm::ESHandle<EcalChannelStatus> chStatus;
                 std::vector<int> v_chstatus_;
                 edm::ESHandle<EcalLaserDbService> laser;
+
+		std::vector<int> v_DB_reco_flags_;
 
                 bool killDeadChannels_;
                 bool laserCorrection_;
