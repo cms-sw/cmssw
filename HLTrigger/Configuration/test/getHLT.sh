@@ -102,14 +102,11 @@ getConfigForCVS  $MASTER FULL
 getContentForCVS $MASTER
 for TABLE in $TABLES; do
   getConfigForCVS $(eval echo $TARGET) $TABLE
-# getDatasetsForCVS $(eval echo $TARGET) HLTrigger_Datasets_${TABLE}_cff.py
-done
-for TABLE in "HIon"; do
-  getDatasetsForCVS $(eval echo $TARGET) HLTrigger_Datasets_cff.py
+  getDatasetsForCVS $(eval echo $TARGET) HLTrigger_Datasets_${TABLE}_cff.py
 done
 log "Done"
-ls -l HLT_*_cff.py HLTrigger_EventContent_cff.py HLTrigger_Datasets_cff.py
-mv -f HLT_*_cff.py HLTrigger_EventContent_cff.py HLTrigger_Datasets_cff.py ../python/
+ls -l HLT_*_cff.py HLTrigger_EventContent_cff.py HLTrigger_Datasets_*_cff.py
+mv -f HLT_*_cff.py HLTrigger_EventContent_cff.py HLTrigger_Datasets_*_cff.py ../python/
 echo
 
 # for things now also in CMSSW CVS:

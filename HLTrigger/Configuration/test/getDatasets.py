@@ -66,14 +66,18 @@ dump.write('''# %s
 
 import FWCore.ParameterSet.Config as cms
 
-# dump of the Stream A Datasets defined in the HLT table
-
 ''' % process.HLTConfigVersion.tableName.value())
 
-if 'A' in process.streams.__dict__:
-  ds = process.streams.__dict__['A']
-  ds.sort()
-  for dataset in ds:
-    dump.write( dumpDataset(process, 'A', dataset) )
+list_of_streams = ['A','AForPP','AForHI']
+for stream in list_of_streams:
+  if stream  in process.streams.__dict__:
+    dump.write('''
+# dump of the Stream %s Datasets defined in the HLT table as Stream A Datasets
+
+''' % stream)
+    ds = process.streams.__dict__[stream]
+    ds.sort()
+    for dataset in ds:
+      dump.write( dumpDataset(process, 'A', dataset) )
 
 dump.close()
