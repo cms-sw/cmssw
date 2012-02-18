@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/02/17 15:32:34 $
- *  $Revision: 1.19 $
+ *  $Date: 2012/02/17 17:22:42 $
+ *  $Revision: 1.20 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -386,19 +386,22 @@ void TrackAnalyzer::beginJob(DQMStore * dqmStore_)
 	  DistanceOfClosestApproachVsEta = dqmStore_->bookProfile(histname+CatagoryName,histname+CatagoryName, EtaBin, EtaMin, EtaMax, DxyMin, DxyMax,"");
 	  DistanceOfClosestApproachVsEta->setAxisTitle("Track #eta",1);
 	  DistanceOfClosestApproachVsEta->setAxisTitle("Track d_{xy} wrt (0,0,0) (cm)",2);
-	  
-	  histname = "DistanceOfClosestApproach_";
-	  DistanceOfClosestApproach = dqmStore_->book1D(histname+CatagoryName,histname+CatagoryName,DxyBin,DxyMin,DxyMax);
-	  DistanceOfClosestApproach->setAxisTitle("Track d_{xy} wrt (0,0,0) (cm)",1);
-	  DistanceOfClosestApproach->setAxisTitle("Number of Tracks",2);
-	  
-	  histname = "DistanceOfClosestApproachVsPhi_";
-	  DistanceOfClosestApproachVsPhi = dqmStore_->bookProfile(histname+CatagoryName,histname+CatagoryName, PhiBin, PhiMin, PhiMax, DxyMin,DxyMax,"");
-	  DistanceOfClosestApproachVsPhi->getTH1()->SetBit(TH1::kCanRebin);
-	  DistanceOfClosestApproachVsPhi->setAxisTitle("Track #phi",1);
-	  DistanceOfClosestApproachVsPhi->setAxisTitle("Track d_{xy} wrt (0,0,0) (cm)",2);
+	  // temporary patch in order to put back those MEs in Muon Workspace
+
 	}
       }
+    histname = "DistanceOfClosestApproach_";
+    DistanceOfClosestApproach = dqmStore_->book1D(histname+CatagoryName,histname+CatagoryName,DxyBin,DxyMin,DxyMax);
+    DistanceOfClosestApproach->setAxisTitle("Track d_{xy} wrt (0,0,0) (cm)",1);
+    DistanceOfClosestApproach->setAxisTitle("Number of Tracks",2);
+    
+    histname = "DistanceOfClosestApproachVsPhi_";
+    DistanceOfClosestApproachVsPhi = dqmStore_->bookProfile(histname+CatagoryName,histname+CatagoryName, PhiBin, PhiMin, PhiMax, DxyMin,DxyMax,"");
+    DistanceOfClosestApproachVsPhi->getTH1()->SetBit(TH1::kCanRebin);
+    DistanceOfClosestApproachVsPhi->setAxisTitle("Track #phi",1);
+    DistanceOfClosestApproachVsPhi->setAxisTitle("Track d_{xy} wrt (0,0,0) (cm)",2);
+    //	}
+    //      }
 
 
     // book tracker specific related histograms
@@ -566,10 +569,11 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     Chi2oNDF->Fill(track.normalizedChi2());
 
     // DCA
-    if (doDCAwrt000Plots_) {
+    // temporary patch in order to put back those MEs in Muon Workspace
+    //    if (doDCAwrt000Plots_) {
       DistanceOfClosestApproach->Fill(track.dxy());
       DistanceOfClosestApproachVsPhi->Fill(track.phi(), track.dxy());
-    }
+      //    }
     /*
       http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/DataFormats/TrackReco/interface/TrackBase.h?view=markup
       vertex() is DEPRECATED !!

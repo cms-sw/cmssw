@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/10/01 10:11:54 $
- *  $Revision: 1.30 $
+ *  $Date: 2012/02/17 15:32:27 $
+ *  $Revision: 1.31 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -172,7 +172,8 @@ void TrackingMonitor::beginJob(void)
       NumberOfMeanLayersPerTrack->setAxisTitle("Mean number of Layers per Track", 1);
       NumberOfMeanLayersPerTrack->setAxisTitle("Entries", 2);
       
-      if (doGoodTrackPlots_) {
+      // temporary patch in order to put back those MEs in Muon Workspace
+      //      if (doGoodTrackPlots_) {
 	histname = "NumberOfGoodTracks_" + CategoryName;
 	NumberOfGoodTracks = dqmStore_->book1D(histname, histname, TKNoBin, TKNoMin, TKNoMax);
 	NumberOfGoodTracks->setAxisTitle("Number of Good Tracks per Event", 1);
@@ -182,7 +183,7 @@ void TrackingMonitor::beginJob(void)
 	FractionOfGoodTracks = dqmStore_->book1D(histname, histname, 101, -0.005, 1.005);
 	FractionOfGoodTracks->setAxisTitle("Fraction of High Purity Tracks (Tracks with Pt>1GeV)", 1);
 	FractionOfGoodTracks->setAxisTitle("Entries", 2);
-      }
+	//      }
     }
 
 
@@ -482,15 +483,19 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 	if (doGeneralPropertiesPlots_ || doAllPlots){
 	  NumberOfTracks->Fill(totalNumTracks);
-	  if (doGoodTrackPlots_) {
+	  // temporary patch in order to put back those MEs in Muon Workspace
+	  //      if (doGoodTrackPlots_) {
 	    NumberOfGoodTracks->Fill(totalNumHPPt1Tracks);
-	  }
+	    //	  }
 	}
 
 	  double frac = 0.;
 	  if (totalNumPt1Tracks > 0) frac = static_cast<double>(totalNumHPPt1Tracks)/static_cast<double>(totalNumPt1Tracks);
+	    // temporary patch in order to put back those MEs in Muon Workspace
+	    //      if (doGoodTrackPlots_) {
+	  if (doGeneralPropertiesPlots_ || doAllPlots) FractionOfGoodTracks->Fill(frac);
+	    //}
 	  if (doGoodTrackPlots_) {
-	    if (doGeneralPropertiesPlots_ || doAllPlots) FractionOfGoodTracks->Fill(frac);
 	    if ( doProfilesVsLS_ || doAllPlots) GoodTracksFractionVsLS->Fill(static_cast<double>(iEvent.id().luminosityBlock()),frac);
 	  }
 	  if (doGeneralPropertiesPlots_ || doAllPlots){
