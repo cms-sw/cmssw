@@ -169,7 +169,10 @@ def runList(schema,fillnum=None,runmin=None,runmax=None,startT=None,stopT=None,l
     lumitableName=''
     if lumitype=='HF':
         lumitableName=nameDealer.lumidataTableName()
-        
+    elif lumitype == 'PIXEL':
+        lumitableName = nameDealer.pixellumidataTableName()
+    else:
+        assert False, "ERROR Unknown lumitype '%s'" % lumitype
     result=[]
     timelesslist=[]
     qHandle=schema.newQuery()
