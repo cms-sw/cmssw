@@ -332,10 +332,10 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
       Vec2D mult; mult.set1(1./(m00*si.m11 - m01*si.m10));
       Vec2D resultmatmul = mult * (minv10 * c0vec + minv00 * si.c1vec);
       
-      LocalPoint position(resultmatmul.arr[0], resultmatmul.arr[1]);
+      Local2DPoint position(resultmatmul.arr[0], resultmatmul.arr[1]);
       
-      LocalError tempError (100,0,100);
-      if (!((gluedDet->surface()).bounds().inside(position,tempError,scale_))) continue;                                                       
+      // LocalError tempError (100,0,100);
+      if (!((gluedDet->surface()).bounds().inside(position,10.f*scale_))) continue;                                                       
       
       double c2 = -si.m10;
       double s2 = -si.m11;
@@ -361,7 +361,7 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
 	//Change NSigmaInside in the configuration file to accept more hits
 	//...and add it to the Rechit collection 
 	
-	collectorHelper.collector()(SiStripMatchedRecHit2D(position, error,gluedDet->geographicalId() ,
+	collectorHelper.collector()(SiStripMatchedRecHit2D(LocalPoint(position), error,gluedDet->geographicalId() ,
 							   &monoRH,si.secondHit));
       }
       
