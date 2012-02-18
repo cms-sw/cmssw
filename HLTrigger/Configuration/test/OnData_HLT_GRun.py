@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_1_0/GRun/V43 (CMSSW_5_2_0_pre5_HLT3)
+# /dev/CMSSW_5_1_0/GRun/V44 (CMSSW_5_2_0_pre5_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V43')
+  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V44')
 )
 
 process.streams = cms.PSet( 
@@ -37602,10 +37602,8 @@ process.hltOutputALCAP0 = cms.OutputModule( "PoolOutputModule",
     outputCommands = cms.untracked.vstring( 'drop *',
       'keep *_hltAlCaEtaRecHitsFilterEBonly_*_*',
       'keep *_hltAlCaEtaRecHitsFilterEEonly_*_*',
-      'keep *_hltAlCaEtaRecHitsFilter_*_*',
       'keep *_hltAlCaPi0RecHitsFilterEBonly_*_*',
       'keep *_hltAlCaPi0RecHitsFilterEEonly_*_*',
-      'keep *_hltAlCaPi0RecHitsFilter_*_*',
       'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
       'keep edmTriggerResults_*_*_*' )
 )

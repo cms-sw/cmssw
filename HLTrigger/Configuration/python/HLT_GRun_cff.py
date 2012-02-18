@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_1_0/GRun/V43 (CMSSW_5_2_0_pre5_HLT3)
+# /dev/CMSSW_5_1_0/GRun/V44 (CMSSW_5_2_0_pre5_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V43')
+  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V44')
 )
 
 streams = cms.PSet( 
@@ -34620,11 +34620,4 @@ if 'hltHfreco' in locals():
 # CMSSW version specific customizations
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
-
-# dummyfy hltGetConditions in cff's
-if 'hltGetConditions' in locals() and 'HLTriggerFirstPath' in locals() :
-    hltDummyConditions = cms.EDFilter( "HLTBool",
-        result = cms.bool( True )
-    )
-    HLTriggerFirstPath.replace(hltGetConditions,hltDummyConditions)
 
