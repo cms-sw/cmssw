@@ -48,7 +48,7 @@ int cond::EncodeDbFileUtilities::execute() {
 
   inputFile.read(inputFileName);
   cont = inputFile.content();
-  cond::DecodingKey::validateKey(key);
+  //cond::DecodingKey::validateKey(key);
   std::string outputData =(decode? coral::Cipher::decode(cont,key): coral::Cipher::encode(cont,key));
   if(debug){
     std::cout << "inputFileName=\""<<inputFileName<<"\""<<std::endl;
