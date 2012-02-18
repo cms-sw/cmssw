@@ -37,6 +37,8 @@
 </bin>
 <bin   file="testDbScopedTransaction.cc" name="testDbScopedTransaction">
 </bin>
+<bin   file="testCipher.cc" name="testCipher">
+</bin>
 <bin   file="testBlobStreaming.cpp" name="testBlobStreaming">
   <use   name="rootcintex"/>
   <use   name="zlib"/>

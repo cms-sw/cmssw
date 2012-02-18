@@ -1,4 +1,4 @@
-#include "CondCore/DBCommon/interface/DecodingKey.h"
+//#include "CondCore/DBCommon/interface/DecodingKey.h"
 #include "CondCore/DBCommon/interface/FileUtils.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "RelationalAccess/AuthenticationCredentials.h"
@@ -73,12 +73,15 @@ cond::XMLAuthenticationService::DataSourceEntry::credentials() const
 const coral::IAuthenticationCredentials&
 cond::XMLAuthenticationService::DataSourceEntry::credentials( const std::string& role ) const
 {
+  /**
   std::map< std::string, coral::AuthenticationCredentials* >::const_iterator iRole = m_data.find( role );
   if ( iRole == m_data.end() )
     throw coral::UnknownRoleException( m_serviceName,
                                        m_connectionName,
                                        role );
   return *( iRole->second );
+  **/
+  return *m_default;
 }
 
 cond::XMLAuthenticationService::XMLAuthenticationService::XMLAuthenticationService( const std::string& key )
@@ -135,6 +138,7 @@ cond::XMLAuthenticationService::XMLAuthenticationService::processFile( const std
 #else
   std::string name = filePath.leaf();
 #endif
+  /**
   if(name!=XML_AUTHENTICATION_FILE){
     cond::DecodingKey key;
     try{
@@ -153,6 +157,7 @@ cond::XMLAuthenticationService::XMLAuthenticationService::processFile( const std
     //seal::MessageStream log( this, this->name(),seal::Msg::Verbose );
     log<<coral::Debug<< "Authentication file is expected standard XML."<<coral::MessageStream::endmsg;
   }
+  **/
   
   xercesc::MemBufInputSource* memBufInputSource = 0;
   

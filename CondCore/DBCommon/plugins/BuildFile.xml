@@ -16,6 +16,9 @@
   <use   name="xerces-c"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
+<library   file="RelationalAuthenticationService.cc" name="CondCoreDBCommonRelationalAuthenticationService">
+  <flags   EDM_PLUGIN="1"/>
+</library>
 <library   file="SQLMonitoringService.cc" name="CondCoreDBCommonSQLMonitoringService">
   <flags   EDM_PLUGIN="1"/>
 </library>
