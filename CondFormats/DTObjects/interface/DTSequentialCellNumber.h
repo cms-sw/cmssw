@@ -5,8 +5,8 @@
  *  Description:
  *       Class to compute a sequential number for drift tube cells
  *
- *  $Date: 2010/05/06 16:23:00 $
- *  $Revision: 1.1 $
+ *  $Date: 2012/02/07 18:34:59 $
+ *  $Revision: 1.1.2.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -37,8 +37,8 @@ class DTSequentialCellNumber {
   DTSequentialCellNumber();
   ~DTSequentialCellNumber();
 
-  int id( int      wheel, int station, int sector,
-          int superlayer, int   layer, int cell );
+  static int id( int      wheel, int station, int sector,
+                 int superlayer, int   layer, int cell );
   static int max();
 
  private:

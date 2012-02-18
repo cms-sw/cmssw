@@ -6,8 +6,8 @@
  *       Class to hold drift tubes T0s
  *             ( cell by cell time offsets )
  *
- *  $Date: 2010/03/01 10:27:08 $
- *  $Revision: 1.10 $
+ *  $Date: 2012/02/07 18:35:00 $
+ *  $Revision: 1.11.2.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -35,23 +35,6 @@
 //              -- Class Interface --
 //              ---------------------
 
-class DTT0Id {
-
- public:
-
-  DTT0Id();
-  ~DTT0Id();
-
-  int   wheelId;
-  int stationId;
-  int  sectorId;
-  int      slId;
-  int   layerId;
-  int    cellId;
-
-};
-
-
 class DTT0Data {
 
  public:
@@ -59,6 +42,7 @@ class DTT0Data {
   DTT0Data();
   ~DTT0Data();
 
+  uint32_t channelId;
   float t0mean;
   float t0rms;
 
@@ -150,12 +134,9 @@ class DTT0 {
            float t0rms,
            DTTimeUnits::type unit );
   void setUnit( float unit );
-  void sortData();
 
   /// Access methods to data
-  typedef std::vector< std::pair<DTT0Id,
-                                 DTT0Data> >::const_iterator
-                                              const_iterator;
+  typedef std::vector<DTT0Data>::const_iterator const_iterator;
   const_iterator begin() const;
   const_iterator end() const;
 
@@ -164,37 +145,7 @@ class DTT0 {
   std::string dataVersion;
   float nsPerCount;
 
-  std::vector< std::pair<DTT0Id,DTT0Data> > dataList;
-
-  mutable std::vector<int>* sequencePtr;
-  mutable DTBufferTree<int,int>* sortedLayers;
-  mutable DTBufferTree<int,int>* dBuf;
-//  mutable std::map<int,int>* sortedLayers;
-//  mutable std::map<int,int>* dBuf;
-
-  /// read and store full content
-  bool checkOrder() const;
-  void cacheMap() const;
-  std::string mapName() const;
-  int maxCellsPerLayer() const;
-  int getRandom( int   wheelId,
-                 int stationId,
-                 int  sectorId,
-                 int      slId,
-                 int   layerId,
-                 int    cellId,
-                 float& t0mean,
-                 float& t0rms,
-                 DTTimeUnits::type unit ) const;
-  int getSorted( int   wheelId,
-                 int stationId,
-                 int  sectorId,
-                 int      slId,
-                 int   layerId,
-                 int    cellId,
-                 float& t0mean,
-                 float& t0rms,
-                 DTTimeUnits::type unit ) const;
+  std::vector< DTT0Data > dataList;
 
 };
 

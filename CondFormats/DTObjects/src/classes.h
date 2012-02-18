@@ -29,7 +29,7 @@
 
 namespace {
   struct dictionary {
-    std::pair<           DTT0Id,           DTT0Data>          t0Pair;
+//    std::pair<           DTT0Id,           DTT0Data>          t0Pair;
     std::pair<        DTTtrigId,        DTTtrigData>       tTrigPair;
     std::pair<        DTMtimeId,        DTMtimeData>       mTimePair;
     std::pair<      DTRangeT0Id,      DTRangeT0Data>     rangeT0Pair;
@@ -42,8 +42,9 @@ namespace {
     std::pair<DTTPGParametersId,DTTPGParametersData>         tpgPair;
 
     std::vector< DTReadOutGeometryLink >            readoutMap;
-    std::vector< std::pair<           DTT0Id,
-                                    DTT0Data> >          t0Map;
+//    std::vector< std::pair<           DTT0Id,
+//                                    DTT0Data> >          t0Map;
+    std::vector< DTT0Data                     >          t0Map;
     std::vector< std::pair<        DTTtrigId,
                                  DTTtrigData> >       tTrigMap;
     std::vector< std::pair<        DTMtimeId,

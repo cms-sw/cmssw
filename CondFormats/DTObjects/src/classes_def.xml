@@ -13,13 +13,9 @@
   <class name="std::vector<DTReadOutGeometryLink>"/> 
   <class name="DTReadOutGeometryLink" id="C428DA7A-EE34-DA11-89FB-000E0C5CE283"/>
   <class name="DTT0" id="FAEFE9C5-2A00-DA11-89E6-000E0C4DE431">
-    <field name="dBuf" transient="true"/>
-    <field name="sequencePtr" transient="true"/>
-    <field name="sortedLayers" transient="true"/>
+    <field name="dataList" mapping="blob"/>
   </class>
-  <class name="std::pair<DTT0Id,DTT0Data>"/>
-  <class name="std::vector<std::pair<DTT0Id,DTT0Data> >"/>
-  <class name="DTT0Id" id="D2569A91-6C07-DB11-8994-000E0C5CE283"/>
+  <class name="std::vector<DTT0Data>"/>
   <class name="DTT0Data" id="604A5767-1B3B-DA11-9D99-000E0C5CE283"/>
   <class name="DTTtrig" id="FA524625-415C-DA11-A1AE-000E0C5CE283">
     <field name="dBuf" transient="true"/>

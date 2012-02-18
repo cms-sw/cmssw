@@ -65,35 +65,30 @@ void DTT0ValidateDBRead::analyze( const edm::Event& e,
   DTT0::const_iterator iter = t0->begin();
   DTT0::const_iterator iend = t0->end();
   while ( iter != iend ) {
-    const DTT0Id&   t0Id   = iter->first;
-    const DTT0Data& t0Data = iter->second;
-    status = t0->get( t0Id.wheelId,
-                      t0Id.stationId,
-                      t0Id.sectorId,
-                      t0Id.slId,
-                      t0Id.layerId,
-                      t0Id.cellId,
-                      t0mean, t0rms, DTTimeUnits::counts );
+    const DTT0Data& t0Data = *iter++;
+    int channelId = t0Data.channelId;
+    if ( channelId == 0 ) continue;
+    DTWireId id( channelId );
+    status = t0->get( id, t0mean, t0rms, DTTimeUnits::counts );
     if ( status ) logFile << "ERROR while getting cell T0 "
-                          << t0Id.wheelId   << " "
-                          << t0Id.stationId << " "
-                          << t0Id.sectorId  << " "
-                          << t0Id.slId      << " "
-                          << t0Id.layerId   << " "
-                          << t0Id.cellId    << " , status = "
+                          << id.wheel()      << " "
+                          << id.station()    << " "
+                          << id.sector()     << " "
+                          << id.superlayer() << " "
+                          << id.layer()      << " "
+                          << id.wire()       << " , status = "
                           << status << std::endl;
     if ( ( fabs( t0Data.t0mean - t0mean ) > 0.0001 ) ||
          ( fabs( t0Data.t0rms  - t0rms  ) > 0.0001 ) )
          logFile << "MISMATCH WHEN READING cell T0 "
-                 << t0Id.wheelId   << " "
-                 << t0Id.stationId << " "
-                 << t0Id.sectorId  << " "
-                 << t0Id.slId      << " "
-                 << t0Id.layerId   << " "
-                 << t0Id.cellId    << " : "
+                 << id.wheel()      << " "
+                 << id.station()    << " "
+                 << id.sector()     << " "
+                 << id.superlayer() << " "
+                 << id.layer()      << " "
+                 << id.wire()       << " : "
                  << t0Data.t0mean << " " << t0Data.t0rms << " -> "
                  <<        t0mean << " " <<        t0rms << std::endl;
-    iter++;
   }
 
   while ( chkFile >> whe
