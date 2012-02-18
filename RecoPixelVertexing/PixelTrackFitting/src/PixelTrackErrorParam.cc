@@ -84,7 +84,10 @@ PixelTrackErrorParam::PixelTrackErrorParam(double eta, double pt)
 double PixelTrackErrorParam::errPt()  const
 {
   double err = ptPar0_[theIEta]*thePt + ptPar1_[theIEta]*thePt2;  
-  double corr = std::min( 1.5, 7.68857e-01 + 6.79391e-02*thePt + 2.65445e-02/thePt  -3.02932e-03*thePt2 + -9.57928e-04/thePt2);
+  double corr;
+  if (thePt > 11.2) corr = 1.152; 
+  else if (thePt < 0.1)  corr = 0.95;
+  else corr =  7.68857e-01 + 6.79391e-02*thePt + 2.65445e-02/thePt  -3.02932e-03*thePt2 + -9.57928e-04/thePt2;
   err *= corr; 
   return err;
 } 
