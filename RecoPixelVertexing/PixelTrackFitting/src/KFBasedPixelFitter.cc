@@ -1,6 +1,7 @@
 #include "RecoPixelVertexing/PixelTrackFitting/interface/KFBasedPixelFitter.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -31,8 +32,54 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "CircleFromThreePoints.h"
 
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/GeometrySurface/interface/OpenBounds.h"
+
+/*
+#include "RecoVertex/KalmanVertexFit/interface/SingleTrackVertexConstraint.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackFromFTSFactory.h"
+
+#include "TrackingTools/TransientTrack/interface/TransientTrackFromFTSFactory.h"
+#include "Alignment/ReferenceTrajectories/interface/BeamSpotTransientTrackingRecHit.h"
+#include "Alignment/ReferenceTrajectories/interface/BeamSpotGeomDet.h"
+#include <TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h>
+#include <TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h>
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToBeamLine.h"
+*/
+
+
 #include <sstream>
 template <class T> inline T sqr( T t) {return t*t;}
+
+KFBasedPixelFitter::MyBeamSpotHit::MyBeamSpotHit (const reco::BeamSpot &beamSpot, const GeomDet * geom)
+  : TransientTrackingRecHit(geom, DetId(0))
+{
+  localPosition_ = LocalPoint(0.,0.,0.);
+  localError_ = LocalError( sqr(beamSpot.BeamWidthX()), 0.0, sqr(beamSpot.sigmaZ())); //neglect XY differences and BS slope
+}
+
+AlgebraicVector KFBasedPixelFitter::MyBeamSpotHit::parameters() const 
+{
+    AlgebraicVector result(1);
+    result[0] = localPosition().x();
+    return result;
+}
+AlgebraicSymMatrix KFBasedPixelFitter::MyBeamSpotHit::parametersError() const
+{
+  LocalError le = localPositionError();
+  AlgebraicSymMatrix m(1);
+  m[0][0] = le.xx();
+  return m;
+}
+AlgebraicMatrix KFBasedPixelFitter::MyBeamSpotHit::projectionMatrix() const 
+{
+  AlgebraicMatrix matrix( 1, 5, 0);
+  matrix[0][3] = 1;
+  return matrix;
+}
+
 
 KFBasedPixelFitter::KFBasedPixelFitter( const edm::ParameterSet& cfg)
  :  
@@ -45,6 +92,7 @@ KFBasedPixelFitter::KFBasedPixelFitter( const edm::ParameterSet& cfg)
 }
 
 reco::Track* KFBasedPixelFitter::run(
+    const edm::Event& ev,
     const edm::EventSetup& es,
     const std::vector<const TrackingRecHit * > & hits,
     const TrackingRegion & region) const
@@ -120,7 +168,6 @@ reco::Track* KFBasedPixelFitter::run(
 
   // Now update initial state track using information from hits.
   TrajectoryStateOnSurface updatedState;
-  edm::OwnVector<TrackingRecHit> seedHits;
 
   const TrackingRecHit* hit = 0;
   for ( unsigned int iHit = 0; iHit < hits.size(); iHit++) {
@@ -129,7 +176,7 @@ reco::Track* KFBasedPixelFitter::run(
     TrajectoryStateOnSurface state = propagator->propagate(updatedState, tracker->idToDet(hit->geographicalId())->surface());
     if (!state.isValid()) return 0;
 //    TransientTrackingRecHit::RecHitPointer recHit = (ttrhb->build(hit))->clone(state);
-    TransientTrackingRecHit::RecHitPointer recHit =  (ttrhb->build(hit));
+    TransientTrackingRecHit::RecHitPointer recHit =  ttrhb->build(hit);
     updatedState =  updator.update(state, *recHit);
     if (!updatedState.isValid()) return 0;
   }
@@ -144,18 +191,30 @@ reco::Track* KFBasedPixelFitter::run(
     TrajectoryStateOnSurface state = 
        opropagator->propagate(updatedState, tracker->idToDet(hit->geographicalId())->surface());
     if (!state.isValid()) return 0;
-
-//    TransientTrackingRecHit::RecHitPointer recHit = (ttrhb->build(hit))->clone(state);
+//  TransientTrackingRecHit::RecHitPointer recHit = (ttrhb->build(hit))->clone(state);
     TransientTrackingRecHit::RecHitPointer recHit = ttrhb->build(hit);
     updatedState =  updator.update(state, *recHit);
     if (!updatedState.isValid()) return 0;
   }
 
-  TrajectoryStateOnSurface  impactPointState =  
-      TransverseImpactPointExtrapolator(&*field).extrapolate( updatedState, vertexPos);
+
+  // extrapolate to vertex
+  TrajectoryStateOnSurface  impactPointState =  TransverseImpactPointExtrapolator(&*field).extrapolate( updatedState, vertexPos);
   if (!impactPointState.isValid()) return 0;
 
-
+  //
+  // optionally update impact point state with Bs constraint
+  // using this potion makes sense if vertexPos (from TrackingRegion is centerewd at BeamSpot).
+  //
+  if (theUseBeamSpot) {
+    edm::Handle<reco::BeamSpot> beamSpot;
+    ev.getByLabel( "offlineBeamSpot", beamSpot);
+    MyBeamSpotGeomDet bsgd(BoundPlane::build(impactPointState.surface().position(), impactPointState.surface().rotation(),OpenBounds()));
+    MyBeamSpotHit     bsrh(*beamSpot, &bsgd);
+    impactPointState = updator.update(impactPointState, bsrh); //update
+    impactPointState = TransverseImpactPointExtrapolator(&*field).extrapolate( impactPointState, vertexPos); //reextrapolate
+    if (!impactPointState.isValid()) return 0;
+  }
 
   int ndof = 2*hits.size()-5;
   GlobalPoint vv = impactPointState.globalPosition();

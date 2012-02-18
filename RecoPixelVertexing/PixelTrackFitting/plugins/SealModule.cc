@@ -17,7 +17,7 @@ DEFINE_EDM_PLUGIN(PixelTrackFilterFactory, PixelTrackFilterByKinematics, "PixelT
 #include "RecoPixelVertexing/PixelTrackFitting/interface/KFBasedPixelFitter.h"
 DEFINE_EDM_PLUGIN(PixelFitterFactory, PixelFitterByConformalMappingAndLine, "PixelFitterByConformalMappingAndLine");
 DEFINE_EDM_PLUGIN(PixelFitterFactory, PixelFitterByHelixProjections, "PixelFitterByHelixProjections");
-DEFINE_EDM_PLUGIN(PixelFitterFactory, KFBasedPixelFitter, "KFBasedPixelFitter");
+ DEFINE_EDM_PLUGIN(PixelFitterFactory, KFBasedPixelFitter, "KFBasedPixelFitter");
 
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleaner.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleanerFactory.h"

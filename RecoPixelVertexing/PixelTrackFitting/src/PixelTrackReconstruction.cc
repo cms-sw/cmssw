@@ -102,7 +102,7 @@ void PixelTrackReconstruction::run(TracksWithTTRHs& tracks, edm::Event& ev, cons
       }
 
       // fitting
-      reco::Track* track = theFitter->run(es, hits, region);
+      reco::Track* track = theFitter->run( ev, es, hits, region);
       if (!track) continue;
 
       // decide if track should be skipped according to filter

@@ -34,6 +34,7 @@
 #include "RZLine.h"
 #include "CircleFromThreePoints.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackBuilder.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackErrorParam.h"
 #include "DataFormats/GeometryVector/interface/Pi.h"
 
 using namespace std;
@@ -90,72 +91,11 @@ namespace {
       return z1-std::sqrt(r1s)*(z2-z1)/dr;
     }
   }
-  
-  double errZip( float apt, float eta) {
-    double ziperr=0;
-    double pt = (apt <= 10.) ? apt: 10.;
-    double p1=0, p2=0,p3=0,p4=0;
-    float feta = std::abs(eta);
-    if (feta<=0.8){
-      p1 = 0.12676e-1;
-      p2 = -0.22411e-2;
-      p3 = 0.2987e-3;
-      p4 = -0.12779e-4;
-    } else if (feta <=1.6){
-      p1 = 0.24047e-1;
-      p2 = -0.66935e-2;
-      p3 = 0.88111e-3;
-      p4 = -0.38482e-4;
-    } else {
-      p1 = 0.56084e-1;
-      p2 = -0.13960e-1;
-      p3 = 0.15744e-2;
-      p4 = -0.60757e-4;
-    }
-    ziperr = p1 + p2*pt + p3*pt*pt +p4*pt*pt*pt;
-    return ziperr;
-  }
-  
-  double errZip2( float apt, float eta) {
-    double err = errZip(apt,eta);
-    return err*err;
-  }
-
-
-  double errTip(float apt, float eta) {
-    double pt = (apt <= 10.) ? apt : 10.;
-    double p1=0, p2=0;
-    float feta = std::abs(eta);
-    if (feta<=0.8)
-      {
-	p1=5.9e-3;
-	p2=4.7e-3;
-      }
-    else if (feta <=1.6){
-      p1 = 4.9e-3;
-      p2 = 7.1e-3;
-    }
-    else {
-      p1 = 6.4e-3;
-      p2 = 1.0e-2;
-    }
-    double err=0;
-    if (pt != 0) err = (p1 + p2/pt);
-    return err;
-  }
-  
-  double errTip2(float apt, float eta) {
-    double err = errTip(apt,eta);
-    return err*err;
-  }
-
-
 }
-
-
+  
 PixelFitterByHelixProjections::PixelFitterByHelixProjections(
    const edm::ParameterSet& cfg) 
- : theConfig(cfg), theTracker(0), theField(0), theTTRecHitBuilder(0) { }
+ : theConfig(cfg), theTracker(0), theField(0), theTTRecHitBuilder(0) {}
 
 reco::Track* PixelFitterByHelixProjections::run(
     const edm::EventSetup& es,
@@ -225,15 +165,17 @@ reco::Track* PixelFitterByHelixProjections::run(
     valTip = -points[0].x()*sin(valPhi) + points[0].y()*cos(valPhi); 
   }
 
-  float errPt = 0.055f*valPt + 0.017f*valPt*valPt;
-  float errValTip = errTip(valPt, points.back().eta());
-  float errPhi = 0.002f;
-
-  float valZip = zip(valTip, valPhi, curvature, points[0],points[1]);
-  float errValZip = errZip(valPt, points.back().eta());
-
   float valCotTheta = cotTheta(points[0],points[1]);
-  float errCotTheta = 0.002f;
+  float valEta = asinh(valCotTheta);
+  float valZip = zip(valTip, valPhi, curvature, points[0],points[1]);
+
+  PixelTrackErrorParam param(valEta, valPt);
+  float errValPt  = param.errPt();
+  float errValCot = param.errCot();
+  float errValTip = param.errTip();
+  float errValPhi = param.errPhi();
+  float errValZip = param.errZip();
+
 
   float chi2 = 0;
   if (nhits > 2) {
@@ -244,9 +186,9 @@ reco::Track* PixelFitterByHelixProjections::run(
   }
 
   PixelTrackBuilder builder;
-  Measurement1D pt(valPt, errPt);
-  Measurement1D phi(valPhi, errPhi);
-  Measurement1D cotTheta(valCotTheta, errCotTheta);
+  Measurement1D pt(valPt, errValPt);
+  Measurement1D phi(valPhi, errValPhi);
+  Measurement1D cotTheta(valCotTheta, errValCot);
   Measurement1D tip(valTip, errValTip);
   Measurement1D zip(valZip, errValZip);
 
