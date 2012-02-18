@@ -10,7 +10,7 @@ void en(){}
 
 int main() {
 
-  RectangularPlaneBounds bound(1.,1.,1);
+  RectangularPlaneBounds bound(1.,1.,1.);
 
   Local3DPoint a(10.,10.,10.);
 
@@ -30,7 +30,7 @@ int main() {
     ok = bound.inside(a);
     edm::HRTimeType e = edm::hrRealTime();
     std::cout << e-s << std::endl;
-    if (ok) std::cout << "not inside?" << std::endl;
+    if (ok) std::cout << "inside?" << std::endl;
   }
 
   {
@@ -40,7 +40,7 @@ int main() {
     en();
     edm::HRTimeType e = edm::hrRealTime();
     std::cout << e-s << std::endl;
-    if (ok) std::cout << "not inside?" << std::endl;
+    if (ok) std::cout << "inside?" << std::endl;
   }
 
  {
@@ -71,6 +71,36 @@ int main() {
     edm::HRTimeType e = edm::hrRealTime();
     std::cout << e-s << std::endl;
     if (ok) std::cout << "inside?" << std::endl;
+  }
+
+
+  {
+    edm::HRTimeType s= edm::hrRealTime();
+    st();
+    ok = bound.inside(Local2DPoint(in.x(),in.y()),1.f);
+    en();
+    edm::HRTimeType e = edm::hrRealTime();
+    std::cout << e-s << std::endl;
+    if (!ok) std::cout << "not inside?" << std::endl;
+  }
+
+  {
+    edm::HRTimeType s= edm::hrRealTime();
+    st();
+    ok = bound.inside(Local2DPoint(outY.x(),outY.y()),1.f);
+    en();
+    edm::HRTimeType e = edm::hrRealTime();
+    std::cout << e-s << std::endl;
+    if (ok) std::cout << "inside?" << std::endl;
+  }
+  {
+    edm::HRTimeType s= edm::hrRealTime();
+    st();
+    ok = bound.inside(Local2DPoint(outY.x(),outY.y()),10.f);
+    en();
+    edm::HRTimeType e = edm::hrRealTime();
+    std::cout << e-s << std::endl;
+    if (!ok) std::cout << "not inside?" << std::endl;
   }
 
   
