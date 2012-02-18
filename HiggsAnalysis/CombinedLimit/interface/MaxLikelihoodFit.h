@@ -26,6 +26,7 @@ protected:
 
   static std::string minos_;
 
+  static bool justFit_;
   static std::string out_; 
   static bool        makePlots_;
   static float       rebinFactor_;

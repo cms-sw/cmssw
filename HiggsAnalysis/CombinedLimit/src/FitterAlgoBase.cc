@@ -30,8 +30,8 @@ using namespace RooStats;
 
 std::string FitterAlgoBase::minimizerAlgo_ = "Minuit2";
 std::string FitterAlgoBase::minimizerAlgoForMinos_ = "Minuit2";
-float       FitterAlgoBase::minimizerTolerance_ = 1e-4;
-float       FitterAlgoBase::minimizerToleranceForMinos_ = 1e-2;
+float       FitterAlgoBase::minimizerTolerance_ = 1e-2;
+float       FitterAlgoBase::minimizerToleranceForMinos_ = 1e-4;
 int         FitterAlgoBase::minimizerStrategy_  = 1;
 int         FitterAlgoBase::minimizerStrategyForMinos_ = 0;
 float       FitterAlgoBase::preFitValue_ = 1.0;
