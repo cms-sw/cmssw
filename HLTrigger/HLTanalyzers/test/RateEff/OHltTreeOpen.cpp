@@ -8862,6 +8862,41 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
 	    }
 	}
     }
+
+/****************************************************************/
+// PFJets with no (mu, PFJet) cleanind and muonHLT improvements!! 
+//
+  else if (triggerName.CompareTo("OpenHLT_IsoMu20_eta2p1_CentralPFJet30_BTagIP") == 0)
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+	      int rc = 0;
+	      
+	      int max = (NohpfBJetL2 > 4) ? 4 : NohpfBJetL2;
+	      for (int j = 0; j < max; j++)     
+		{//loop over jets
+		  
+		  if (ohpfBJetL2Et[j] > 30. && fabs(ohpfBJetL2Eta[j]) < 3.) { // ET and eta cuts
+		    
+		    if (ohpfBJetIPL3Tag[j] >= 3.3)
+		      { // Level 3 "iterative" b tag  
+			rc++;
+		      }
+
+		  } // ET and eta cuts
+		}//loop over jets
+	      
+	      if (rc >= 1 && OpenHlt1MuonPassed(0., 16., 20., 2., 1, 2.1, 2.1, 1, 2)>=1)
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
+    }
+
+
 	
   /**********************************************/
 	
@@ -8962,6 +8997,66 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
 		}	 
 	    }	 
 	}	 
+    }
+
+/****************************************************************/
+// Isolated Ele + btag PF jet path
+// Needs Helper function provided below....to do (ele, PF bjet) cleaning
+//
+  else if (triggerName.CompareTo("OpenHLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFJet30_BTagIP")
+	   == 0)
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+	      if (OpenHlt1ElectronSamHarperPassed(25., 0, // ET, L1isolation 
+						  999.,
+						  999., // Track iso barrel, Track iso endcap 
+						  0.125,
+						  0.075, // Track/pT iso barrel, Track/pT iso endcap 
+						  0.125,
+						  0.075, // H/ET iso barrel, H/ET iso endcap 
+						  0.125,
+						  0.075, // E/ET iso barrel, E/ET iso endcap 
+						  0.05,
+						  0.05, // H/E barrel, H/E endcap 
+						  0.011,
+						  0.031, // cluster shape barrel, cluster shape endcap 
+						  0.98,
+						  1.0, // R9 barrel, R9 endcap 
+						  0.008,
+						  0.008, // Deta barrel, Deta endcap 
+						  0.07,
+						  0.05 // Dphi barrel, Dphi endcap 
+						  )>=1 && OpenHlt1BPFJetPassedEleRemoval(30., 3.0, 0.3, // jet ET, eta, DrCut
+										       3.3, // discL25, discL3
+										       25.,
+										       0, // ET, L1isolation 
+										       999.,
+										       999., // Track iso barrel, Track iso endcap 
+										       0.125,
+										       0.075, // Track/pT iso barrel, Track/pT iso endcap 
+										       0.125,
+										       0.075, // H/ET iso barrel, H/ET iso endcap 
+										       0.125,
+										       0.075, // E/ET iso barrel, E/ET iso endcap 
+										       0.05,
+										       0.05, // H/E barrel, H/E endcap 
+										       0.011,
+										       0.031, // cluster shape barrel, cluster shape endcap 
+										       0.98,
+										       1.0, // R9 barrel, R9 endcap 
+										       0.008,
+										       0.008, // Deta barrel, Deta endcap 
+										       0.07,
+										       0.05 // Dphi barrel, Dphi endcap
+										       )>=1)
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
     }
 
   ///VBF Paths
@@ -16657,6 +16752,156 @@ int OHltTree::OpenHlt1BJetPassedEleRemoval(
 
    return rc;
 }
+
+/*********************************************************************************/
+// Helper function to do (ele, PF bjet) cleaning
+
+int OHltTree::OpenHlt1BPFJetPassedEleRemoval(
+					   float jetEt,
+					   float jetEta,
+					   float drcut,
+					   float discL3,
+					   float Et,
+					   int L1iso,
+					   float Tisobarrel,
+					   float Tisoendcap,
+					   float Tisoratiobarrel,
+					   float Tisoratioendcap,
+					   float HisooverETbarrel,
+					   float HisooverETendcap,
+					   float EisooverETbarrel,
+					   float EisooverETendcap,
+					   float hoverebarrel,
+					   float hovereendcap,
+					   float clusshapebarrel,
+					   float clusshapeendcap,
+					   float r9barrel,
+					   float r9endcap,
+					   float detabarrel,
+					   float detaendcap,
+					   float dphibarrel,
+					   float dphiendcap)
+{
+
+  int rc = 0;
+  int njets = 0;
+  
+  //Loop over corrected oh b-jets
+  for (int j = 0; j < NohpfBJetL2; j++)
+    {//loop over jets
+     
+      bool isOverlapping = false;
+     
+      // ****************************************************
+      // Exclude jets which are matched to electrons
+      // ****************************************************
+      float barreleta = 1.479;
+      float endcapeta = 2.65;
+     
+      // Loop over all oh electrons
+      for (int i=0; i<NohEle; i++)
+	{//loop over electrons
+
+	  int isbarrel = 0;
+	  int isendcap = 0;
+	  if (TMath::Abs(ohEleEta[i]) < barreleta)
+	    isbarrel = 1;
+	  if (barreleta < TMath::Abs(ohEleEta[i]) && TMath::Abs(ohEleEta[i])
+	      < endcapeta)
+	    isendcap = 1;
+
+	  if (ohEleEt[i] > Et)
+	    {
+	      if (TMath::Abs(ohEleEta[i]) < endcapeta)
+		{
+		  if (ohEleNewSC[i]<=1)
+		    {
+		      if (ohElePixelSeeds[i]>0)
+			{
+			  if (ohEleL1iso[i] >= L1iso)
+			    { // L1iso is 0 or 1 
+			      if (ohEleL1Dupl[i] == false)
+				{ // remove double-counted L1 SCs 
+				  if ( (isbarrel && ((ohEleHiso[i]/ohEleEt[i]) < HisooverETbarrel)) || 
+				       (isendcap && ((ohEleHiso[i]/ohEleEt[i]) < HisooverETendcap)))
+				    {
+				      if ( (isbarrel && ((ohEleEiso[i]/ohEleEt[i]) < EisooverETbarrel)) || 
+					   (isendcap && ((ohEleEiso[i]/ohEleEt[i]) < EisooverETendcap)))
+					{
+					  if ( ((isbarrel) && (ohEleHforHoverE[i]/ohEleE[i] < hoverebarrel)) || 
+					       ((isendcap) && (ohEleHforHoverE[i]/ohEleE[i] < hovereendcap)))
+					    {
+					      if ( (isbarrel && (((ohEleTiso[i] < Tisobarrel && ohEleTiso[i] != -999.) || 
+								  (Tisobarrel == 999.))))
+						   || (isendcap && (((ohEleTiso[i] < Tisoendcap && ohEleTiso[i] != -999.) || 
+								     (Tisoendcap == 999.)))))
+						{
+						  if (((isbarrel) && (ohEleTiso[i]/ohEleEt[i] < Tisoratiobarrel)) || 
+						      ((isendcap) && (ohEleTiso[i]/ohEleEt[i] < Tisoratioendcap)))
+						    {
+						      if ( (isbarrel && ohEleClusShap[i] < clusshapebarrel)
+							   || (isendcap && ohEleClusShap[i] < clusshapeendcap))
+							{
+							  if ( (isbarrel && ohEleR9[i] < r9barrel) || 
+							       (isendcap && ohEleR9[i] < r9endcap))
+							    {
+							      if ( (isbarrel && TMath::Abs(ohEleDeta[i]) < detabarrel) || 
+								   (isendcap && TMath::Abs(ohEleDeta[i]) < detaendcap))
+								{
+								  if ( (isbarrel && ohEleDphi[i] < dphibarrel) || 
+								       (isendcap && ohEleDphi[i] < dphiendcap))
+								    {
+								           
+								      double deltaphi = fabs(ohpfBJetL2Phi[j] - ohElePhi[i]);
+								      if (deltaphi > 3.14159)
+									deltaphi = (2.0 * 3.14159) - deltaphi;
+								      
+								      double deltaRJetEle = sqrt((ohpfBJetL2Eta[j]-ohEleEta[i])
+												 *(ohpfBJetL2Eta[j]-ohEleEta[i])
+												 + (deltaphi*deltaphi));
+								           
+								      if (deltaRJetEle < drcut)
+									{
+									  isOverlapping = true;
+									  break;
+									}
+								    }
+								}
+							    }
+							}
+						    }
+						}
+					    }
+					}
+				    }
+				}
+			    }
+			}
+		    }
+		}
+	    }
+	}//loop over electrons
+
+      if (!isOverlapping)
+	{//overlap
+	  
+	  if (ohpfBJetL2Et[j] > jetEt && fabs(ohpfBJetL2Eta[j]) < jetEta) { // ET and eta cuts                                                           
+	    
+	    if (ohpfBJetIPL3Tag[j] >= discL3)
+	      { // Level 3 "iterative" b tag
+		njets++;
+	      }
+	    
+	  }//ET and eta cuts
+	}//overlap  
+    }//loop over jets
+   
+  if (njets >= 1) rc = true;
+
+  return rc;
+}
+
+
 
 bool OHltTree::OpenHltNCorJetPassedEleRemoval(
       int N,

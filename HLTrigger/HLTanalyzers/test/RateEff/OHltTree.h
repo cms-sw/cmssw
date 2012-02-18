@@ -16828,6 +16828,32 @@ public:
          float dphibarrel,
          float dphiendcap);
 
+   int OpenHlt1BPFJetPassedEleRemoval(
+				      float jetEt,
+				      float jetEta,
+				      float drcut,
+				      float discL3,
+				      float Et,
+				      int L1iso,
+				      float Tisobarrel,
+				      float Tisoendcap,
+				      float Tisoratiobarrel,
+				      float Tisoratioendcap,
+				      float HisooverETbarrel,
+				      float HisooverETendcap,
+				      float EisooverETbarrel,
+				      float EisooverETendcap,
+				      float hoverebarrel,
+				      float hovereendcap,
+				      float clusshapebarrel,
+				      float clusshapeendcap,
+				      float r9barrel,
+				      float r9endcap,
+				      float detabarrel,
+				      float detaendcap,
+				      float dphibarrel,
+				      float dphiendcap);
+
    bool OpenHltNCorJetPassedEleRemoval(
 	 int N,
          float jetPt,
