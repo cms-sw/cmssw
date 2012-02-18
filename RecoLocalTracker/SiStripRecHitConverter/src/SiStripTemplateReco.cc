@@ -1,5 +1,5 @@
 //
-//  SiStripTemplateReco.cc Version 2.00 (V1.00 based on SiPixelTemplateReco Version 8.20)
+//  SiStripTemplateReco.cc Version 2.01 (V1.00 based on SiPixelTemplateReco Version 8.20)
 //
 //  V1.05 - add VI optimizations from pixel reco
 //  V1.07 - Improve cluster centering
@@ -7,6 +7,7 @@
 //        - Increase buffer size to avoid truncation
 //        - Change pseudo-strip weighting to accommodate asymmetric clusters (deco mode)
 //        - Remove obsolete sorting of signal for weighting (truncation makes it worthless)
+//  V2.01 - Add barycenter bias correction
 //  
 //
 //
@@ -464,7 +465,7 @@ int SiStripTemplateReco::StripTempReco1D(int id, float cotalpha, float cotbeta, 
 		
 		if((bias*bias+sigmax*sigmax) > (biasbcn*biasbcn+sigmaxbcn*sigmaxbcn)) {
 	   			
-			xrec = barycenter;
+			xrec = barycenter - biasbcn;
 			sigmax = sigmaxbcn;
             
 		}	
