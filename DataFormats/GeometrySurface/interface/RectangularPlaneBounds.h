@@ -30,6 +30,9 @@ public:
 
   virtual bool inside( const Local3DPoint& p) const;
 
+  virtual bool inside(const Local2DPoint& p, float tollerance) const;
+
+
   virtual bool inside( const Local3DPoint& p, const LocalError& err,
 		       float scale=1.) const;
 

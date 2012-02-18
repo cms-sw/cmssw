@@ -17,6 +17,12 @@ bool RectangularPlaneBounds::inside( const Local3DPoint& p) const {
     fabs(p.z()) < halfThickness;
 }
 
+bool RectangularPlaneBounds::inside(const Local2DPoint& p, float tollerance) const {
+  return std::abs(p.x()) < halfWidth  + tollerance &&
+         std::abs(p.y()) < halfLength + tollerance;
+
+}
+
 bool RectangularPlaneBounds::inside(const Local3DPoint& p, const LocalError& err,
 				    float scale) const {
   if(scale >=0){

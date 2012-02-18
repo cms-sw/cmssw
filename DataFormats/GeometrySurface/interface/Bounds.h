@@ -3,8 +3,8 @@
 
 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometrySurface/interface/LocalError.h" 
 
-class LocalError;
 
 /** \class Bounds 
  *
@@ -39,7 +39,12 @@ public:
   virtual bool inside( const Local2DPoint& p) const {
     return inside( Local3DPoint(p.x(), p.y(), 0) );
   }
-  
+
+  /// Determine if a point is inside the bounds, taking a tollerance into account
+  virtual bool inside(const Local2DPoint& p, float tollerance) const {
+    return inside(p,LocalError(tollerance*tollerance,0.f,tollerance*tollerance));
+  }
+
   // For propagation with uncertainties - one has to know by how
   // much one missed a surface
   // virtual Local2DVector<float> howFar( const Local2DPoint&) = 0;
