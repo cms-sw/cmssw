@@ -188,10 +188,10 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
   
   
   
-  std::vector<StereoInfo> cache;
-  cache.reserve(std::distance(seconditer,seconditerend));
+  StereoInfo cache[std::distance(seconditer,seconditerend)];
   //iterate on stereo rechits
   // fill cache with relevant info
+  int  cacheSize=0;
   for (;seconditer!=seconditerend; ++seconditer){
     
     const SiStripRecHit2D & secondHit = CollectorHelper::stereoHit(seconditer);
@@ -243,7 +243,7 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
     
     // store
     StereoInfo info = {c1vec,&secondHit,sigmap22,m10,m11};
-    cache.push_back(info);
+    cache[cacheSize++] = info;
   }
   
   
@@ -324,7 +324,7 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
     const Vec3F cslsimd = scc1 * ssc1 * l1vec;
     Vec3F sigmap12simd; sigmap12simd.set1(sigmap12);
     
-    for (size_t i=0; i!=cache.size(); ++i) {
+    for (int i=0; i!=cacheSize; ++i) {
       StereoInfo const si = cache[i];
       
       // match 
