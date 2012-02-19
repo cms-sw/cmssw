@@ -29,8 +29,13 @@ if len(args) == 0:
     parser.print_usage()
     exit(1)
 
-file = open(args[0], "r")
 options.fileName = args[0]
+if options.fileName.endswith(".gz"):
+    import gzip
+    file = gzip.open(options.fileName, "rb")
+    options.fileName = options.fileName[:-3]
+else:
+    file = open(options.fileName, "r")
 
 from HiggsAnalysis.CombinedLimit.DatacardParser import *
 from HiggsAnalysis.CombinedLimit.ModelTools import *
