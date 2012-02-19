@@ -76,3 +76,9 @@ hltMuCtfTracks.Propagator = 'PropagatorWithMaterial'
 #HLTMuTrackingSequence = cms.Sequence(hltMuCkfTrackCandidates+
 #                                     hltMuCtfTracks+
 #                                     cms.SequencePlaceholder("hltMuTracking"))
+
+
+# L3 muon isolation sequence
+from FastSimulation.Tracking.HLTPixelTracksProducer_cfi import *
+HLTRegionalCKFTracksForL3Isolation = cms.Sequence( hltPixelTracks)
+
