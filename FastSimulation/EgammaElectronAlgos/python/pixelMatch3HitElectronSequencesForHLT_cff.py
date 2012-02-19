@@ -11,6 +11,36 @@ import FWCore.ParameterSet.Config as cms
 # (Not-so) Regional Tracking - needed because the ElectronSeedProducer needs the seeds 
 from FastSimulation.Tracking.GlobalPixelTracking_cff import *
 
+#### Modified 52X filter sequence
+
+# CKFTrackCandidateMaker
+import FastSimulation.Tracking.TrackCandidateProducer_cfi
+
+hltCkf3HitL1SeededTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
+hltCkf3HitL1SeededTrackCandidates.SeedProducer = cms.InputTag("hltL1SeededStartUpElectronPixelSeeds")
+hltCkf3HitL1SeededTrackCandidates.TrackProducers = []
+hltCkf3HitL1SeededTrackCandidates.MaxNumberOfCrossedLayers = 999
+hltCkf3HitL1SeededTrackCandidates.SeedCleaning = True
+hltCkf3HitL1SeededTrackCandidates.SplitHits = False
+
+# CTF track fit with material
+import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
+
+hltCtf3HitL1SeededWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
+hltCtf3HitL1SeededWithMaterialTracks.src = 'hltCkfL1SeededTrackCandidates'
+hltCtf3HitL1SeededWithMaterialTracks.TTRHBuilder = 'WithoutRefit'
+hltCtf3HitL1SeededWithMaterialTracks.Fitter = 'KFFittingSmootherForElectrons'
+hltCtf3HitL1SeededWithMaterialTracks.Propagator = 'PropagatorWithMaterial'
+
+
+#hltL1SeededStartUpElectronPixelSeedsSequence = cms.Sequence(globalPixelTracking+
+#                                                         cms.SequencePlaceholder("hltL1SeededStartUpElectronPixelSeeds"))
+
+HLTPixelMatch3HitElectronL1SeededTrackingSequence = cms.Sequence(hltCkf3HitL1SeededTrackCandidates+
+                                                          hltCtf3HitL1SeededWithMaterialTracks+
+                                                          cms.SequencePlaceholder("hltPixelMatch3HitElectronsL1Seeded"))
+
+
 #### ISO sequence
 
 # CKFTrackCandidateMaker
