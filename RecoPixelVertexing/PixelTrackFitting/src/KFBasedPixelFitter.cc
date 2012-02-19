@@ -25,6 +25,7 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
+
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 
@@ -167,39 +168,43 @@ reco::Track* KFBasedPixelFitter::run(
   KFUpdator  updator;
 
   // Now update initial state track using information from hits.
-  TrajectoryStateOnSurface updatedState;
-
+  TrajectoryStateOnSurface outerState;
+  DetId outerDetId = 0;
   const TrackingRecHit* hit = 0;
   for ( unsigned int iHit = 0; iHit < hits.size(); iHit++) {
     hit = hits[iHit];
-    if (iHit==0) updatedState = propagator->propagate(fts,tracker->idToDet(hit->geographicalId())->surface());
-    TrajectoryStateOnSurface state = propagator->propagate(updatedState, tracker->idToDet(hit->geographicalId())->surface());
+    if (iHit==0) outerState = propagator->propagate(fts,tracker->idToDet(hit->geographicalId())->surface());
+    outerDetId = hit->geographicalId();
+    TrajectoryStateOnSurface state = propagator->propagate(outerState, tracker->idToDet(outerDetId)->surface());
     if (!state.isValid()) return 0;
 //    TransientTrackingRecHit::RecHitPointer recHit = (ttrhb->build(hit))->clone(state);
     TransientTrackingRecHit::RecHitPointer recHit =  ttrhb->build(hit);
-    updatedState =  updator.update(state, *recHit);
-    if (!updatedState.isValid()) return 0;
+    outerState =  updator.update(state, *recHit);
+    if (!outerState.isValid()) return 0;
   }
+  
 
 
   // get propagator
   edm::ESHandle<Propagator>  opropagator;
   es.get<TrackingComponentsRecord>().get(thePropagatorOppositeLabel, opropagator);
-  updatedState.rescaleError(100000.);
+  TrajectoryStateOnSurface innerState = outerState;
+  DetId innerDetId = 0;
+  innerState.rescaleError(100000.);
   for ( int iHit = 2; iHit >= 0; --iHit) {
     hit = hits[iHit];
-    TrajectoryStateOnSurface state = 
-       opropagator->propagate(updatedState, tracker->idToDet(hit->geographicalId())->surface());
+    innerDetId = hit->geographicalId();
+    TrajectoryStateOnSurface state = opropagator->propagate(innerState, tracker->idToDet(innerDetId)->surface());
     if (!state.isValid()) return 0;
 //  TransientTrackingRecHit::RecHitPointer recHit = (ttrhb->build(hit))->clone(state);
     TransientTrackingRecHit::RecHitPointer recHit = ttrhb->build(hit);
-    updatedState =  updator.update(state, *recHit);
-    if (!updatedState.isValid()) return 0;
+    innerState =  updator.update(state, *recHit);
+    if (!innerState.isValid()) return 0;
   }
 
 
   // extrapolate to vertex
-  TrajectoryStateOnSurface  impactPointState =  TransverseImpactPointExtrapolator(&*field).extrapolate( updatedState, vertexPos);
+  TrajectoryStateOnSurface  impactPointState =  TransverseImpactPointExtrapolator(&*field).extrapolate( innerState, vertexPos);
   if (!impactPointState.isValid()) return 0;
 
   //
@@ -225,6 +230,23 @@ reco::Track* KFBasedPixelFitter::run(
   float chi2 = 0.;
   reco::Track * track = new reco::Track( chi2, ndof, pos, mom,
         impactPointState.charge(), impactPointState.curvilinearError());
+
+/*
+    vv = outerState.globalPosition(); 
+    pp = outerState.globalMomentum();
+    math::XYZPoint  outerPosition( vv.x(), vv.y(), vv.z()); 
+    math::XYZVector outerMomentum( pp.x(), pp.y(), pp.z());
+    vv = innerState.globalPosition(); 
+    pp = innerState.globalMomentum();
+    math::XYZPoint  innerPosition( vv.x(), vv.y(), vv.z()); 
+    math::XYZVector innerMomentum( pp.x(), pp.y(), pp.z());
+
+    reco::TrackExtra extra( outerPosition, outerMomentum, true,
+                      innerPosition, innerMomentum, true,
+                      outerState.curvilinearError(), outerDetId,
+                      innerState.curvilinearError(), innerDetId,  
+                      anyDirection);
+*/
 
 //  std::cout <<"TRACK CREATED" << std::endl;
   return track;
