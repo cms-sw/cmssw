@@ -6,9 +6,9 @@
  * 
  * \author David Lange
  *
- * \version $Revision: 1.6 $
+ * \version $Revision: 1.5 $
  *
- * $Id: MultiTrackSelector.h,v 1.6 2011/09/29 19:07:40 sungho Exp $
+ * $Id: MultiTrackSelector.h,v 1.5 2011/10/05 00:52:22 dlange Exp $
  *
  */
 
@@ -95,6 +95,7 @@ namespace reco { namespace modules {
 	    std::vector<uint32_t> min_layers_;
 	    std::vector<uint32_t> min_3Dlayers_;
 	    std::vector<uint32_t> max_lostLayers_;
+	    std::vector<uint32_t> min_hits_bypass_;
 
 	    // pterror and nvalid hits cuts
 	    std::vector<double> max_relpterr_;

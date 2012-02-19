@@ -28,6 +28,7 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
     min_layers_.reserve(1);
     min_3Dlayers_.reserve(1);
     max_lostLayers_.reserve(1);
+    min_hits_bypass_.reserve(1);
     applyAbsCutsIfNoPV_.reserve(1);
     max_d0NoPV_.reserve(1);
     max_z0NoPV_.reserve(1);
@@ -66,6 +67,7 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
     min_layers_.push_back(cfg.getParameter<uint32_t>("minNumberLayers") );
     min_3Dlayers_.push_back(cfg.getParameter<uint32_t>("minNumber3DLayers") );
     max_lostLayers_.push_back(cfg.getParameter<uint32_t>("maxNumberLostLayers"));
+    min_hits_bypass_.push_back(cfg.getParameter<uint32_t>("minHitsToBypassChecks"));
     max_relpterr_.push_back(cfg.getParameter<double>("max_relpterr"));
     min_nhits_.push_back(cfg.getParameter<uint32_t>("min_nhits"));
 

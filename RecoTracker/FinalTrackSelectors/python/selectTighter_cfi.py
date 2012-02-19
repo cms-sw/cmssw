@@ -37,6 +37,7 @@ selectTight = cms.EDProducer("AnalyticalTrackSelector",
     minNumberLayers = cms.uint32(4),
     minNumber3DLayers = cms.uint32(4),
     maxNumberLostLayers = cms.uint32(2),
+    minHitsToBypassChecks = cms.uint32(20),
 
     # Absolute cuts in case of no PV. If yes, please define also max_d0NoPV and max_z0NoPV
     applyAbsCutsIfNoPV = cms.bool(False),
@@ -46,8 +47,5 @@ selectTight = cms.EDProducer("AnalyticalTrackSelector",
     # parameters for cutting on pterror/pt and number of valid hits
     max_relpterr = cms.double(9999.),
     min_nhits = cms.uint32(0)
-                             
 
 )
-
-

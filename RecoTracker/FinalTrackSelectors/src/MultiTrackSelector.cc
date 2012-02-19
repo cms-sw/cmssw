@@ -34,6 +34,7 @@ MultiTrackSelector::MultiTrackSelector( const edm::ParameterSet & cfg ) :
   min_layers_.reserve(trkSelectors.size());
   min_3Dlayers_.reserve(trkSelectors.size());
   max_lostLayers_.reserve(trkSelectors.size());
+  min_hits_bypass_.reserve(trkSelectors.size());
   applyAbsCutsIfNoPV_.reserve(trkSelectors.size());
   max_d0NoPV_.reserve(trkSelectors.size());
   max_z0NoPV_.reserve(trkSelectors.size());
@@ -65,6 +66,7 @@ MultiTrackSelector::MultiTrackSelector( const edm::ParameterSet & cfg ) :
     min_layers_.push_back(trkSelectors[i].getParameter<uint32_t>("minNumberLayers") );
     min_3Dlayers_.push_back(trkSelectors[i].getParameter<uint32_t>("minNumber3DLayers") );
     max_lostLayers_.push_back(trkSelectors[i].getParameter<uint32_t>("maxNumberLostLayers"));
+    min_hits_bypass_.push_back(trkSelectors[i].getParameter<uint32_t>("minHitsToBypassChecks"));
     // Flag to apply absolute cuts if no PV passes the selection
     applyAbsCutsIfNoPV_.push_back(trkSelectors[i].getParameter<bool>("applyAbsCutsIfNoPV"));
     keepAllTracks_.push_back( trkSelectors[i].getParameter<bool>("keepAllTracks")); 
@@ -218,7 +220,7 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
 
   using namespace std; 
   
-  if(tk.found()>30) return true;
+  if(tk.found()>=min_hits_bypass_[tsNum]) return true;
   if ( tk.ndof() < 1E-5 ) return false;
 
   // Cuts on numbers of layers with hits/3D hits/lost hits.

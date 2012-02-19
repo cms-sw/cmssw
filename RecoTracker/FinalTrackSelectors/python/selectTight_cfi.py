@@ -7,8 +7,8 @@ selectTight = cms.EDProducer("AnalyticalTrackSelector",
 
     # vertex selection 
     useVertices = cms.bool(True),
-    vertices = cms.InputTag("pixelVertices"),
     useVtxError = cms.bool(False),
+    vertices = cms.InputTag("pixelVertices"),
     vtxNumber = cms.int32(-1),
     vertexCut = cms.string('ndof>=2&!isFake'),
 
@@ -37,7 +37,8 @@ selectTight = cms.EDProducer("AnalyticalTrackSelector",
     minNumberLayers = cms.uint32(3),
     minNumber3DLayers = cms.uint32(3),
     maxNumberLostLayers = cms.uint32(2),
-                           
+    minHitsToBypassChecks = cms.uint32(20),
+
     # Absolute cuts in case of no PV. If yes, please define also max_d0NoPV and max_z0NoPV 
     applyAbsCutsIfNoPV = cms.bool(False),
     max_d0NoPV = cms.double( 100.0 ),
@@ -46,7 +47,5 @@ selectTight = cms.EDProducer("AnalyticalTrackSelector",
     # parameters for cutting on pterror/pt and number of valid hits
     max_relpterr = cms.double(9999.),
     min_nhits = cms.uint32(0)
-                             
+
 )
-
-

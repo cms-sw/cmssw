@@ -57,6 +57,8 @@ namespace cms
     epsilon_ =  conf.getParameter<double>("Epsilon");
     shareFrac_ =  conf.getParameter<double>("ShareFrac");
     allowFirstHitShare_ = conf.getParameter<bool>("allowFirstHitShare");
+    foundHitBonus_ = conf.getParameter<double>("FoundHitBonus");
+    lostHitPenalty_ = conf.getParameter<double>("LostHitPenalty");
     std::string qualityStr = conf.getParameter<std::string>("newQuality");
     
     if (qualityStr != "") {
@@ -221,13 +223,16 @@ namespace cms
     //cache the rechits and valid hits
     std::vector<const TrackingRecHit*> rh1[rSize];  // an array of vectors!
     int validHits[rSize];
+    int lostHits[rSize];
     for ( unsigned int i=0; i<rSize; i++) {
       validHits[i]=0;
+      lostHits[i]=0;
       if (selected[i]==0) continue;
       unsigned int collNum=trackCollNum[i];
       unsigned int trackNum=i-trackCollFirsts[collNum];
       const reco::Track *track=&((trackColls[collNum])->at(trackNum)); 
       validHits[i]=track->numberOfValidHits();
+      lostHits[i]=track->numberOfLostHits();
       
       rh1[i].reserve(track->recHitsSize());
       for (trackingRecHit_iterator it = track->recHitsBegin();  it != track->recHitsEnd(); ++it) { 
@@ -258,6 +263,7 @@ namespace cms
 	int qualityMaskT1 = trackQuals[i];
 	
 	int nhit1 = validHits[i];
+	int lhit1 = lostHits[i];
 	
 	for ( unsigned int j=i+1; j<rSize; j++) {
 	  if (selected[j]==0) continue;
@@ -305,40 +311,31 @@ namespace cms
 	    newQualityMask =(maskT1 | maskT2); // take OR of trackQuality 
 	  }
 	  int nhit2 = validHits[j];
+	  int lhit2 = lostHits[j];
 	  
 	  if ( (noverlap-firstoverlap) > (std::min(nhit1,nhit2)-firstoverlap)*shareFrac_ ) {
-	    if ( nhit1 > nhit2 ){
-	      selected[j]=0; 
+	    double score1 = foundHitBonus_*nhit1 - lostHitPenalty_*lhit1 - track->chi2();
+	    double score2 = foundHitBonus_*nhit2 - lostHitPenalty_*lhit2 - track2->chi2();
+	    const double almostSame = 1.001;
+	    if ( score1 > almostSame * score2 ) {
+	      selected[j]=0;
 	      selected[i]=10+newQualityMask; // add 10 to avoid the case where mask = 1
 	      trkUpdated[i]=true;
+	    } else if ( score2 > almostSame * score1 ) {
+	      selected[i]=0;
+	      selected[j]=10+newQualityMask;  // add 10 to avoid the case where mask = 1
+	      trkUpdated[j]=true;
 	    }else{
-	      if ( nhit1 < nhit2 ){
-		selected[i]=0; 
-		selected[j]=10+newQualityMask;  // add 10 to avoid the case where mask = 1
-		trkUpdated[j]=true;
+	      // If tracks from both iterations are virtually identical, choose the one from the first iteration.
+	      if (track->algo() <= track2->algo()) {
+		selected[j]=0;
+		selected[i]=10+newQualityMask; // add 10 to avoid the case where mask = 1
+		trkUpdated[i]=true;
 	      }else{
-		const double almostSame = 1.001;
-		if (track->normalizedChi2() > almostSame * track2->normalizedChi2()) {
-		  selected[i]=0;
-		  selected[j]=10+newQualityMask; // add 10 to avoid the case where mask = 1
-		  trkUpdated[j]=true;
-		}else if (track2->normalizedChi2() > almostSame * track->normalizedChi2()) {
-		  selected[j]=0;
-		  selected[i]=10+newQualityMask; // add 10 to avoid the case where mask = 1
-		  trkUpdated[i]=true;
-		}else{
-		  // If tracks from both iterations are virtually identical, choose the one from the first iteration.
-		  if (track->algo() <= track2->algo()) {
-		    selected[j]=0;
-		    selected[i]=10+newQualityMask; // add 10 to avoid the case where mask = 1
-		    trkUpdated[i]=true;
-		  }else{
-		    selected[i]=0;
-		    selected[j]=10+newQualityMask; // add 10 to avoid the case where mask = 1
-		    trkUpdated[j]=true;
-		  }
-		}
-	      }//end fi > or = fj
+		selected[i]=0;
+		selected[j]=10+newQualityMask; // add 10 to avoid the case where mask = 1
+		trkUpdated[j]=true;
+	      }
 	    }//end fi < fj
 	  }//end got a duplicate
 	  //stop if the ith track is now unselected

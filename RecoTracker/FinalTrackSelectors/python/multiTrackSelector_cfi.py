@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-looseMTS = cms.PSet(                                 
+looseMTS = cms.PSet(
     preFilterName=cms.string(''),
     name= cms.string('TrkLoose'),                           
     
@@ -33,7 +33,8 @@ looseMTS = cms.PSet(
     minNumberLayers = cms.uint32(0),
     minNumber3DLayers = cms.uint32(0),
     maxNumberLostLayers = cms.uint32(999),
-    
+    minHitsToBypassChecks = cms.uint32(20),
+
     # Absolute cuts in case of no PV. If yes, please define also max_d0NoPV and max_z0NoPV 
     applyAbsCutsIfNoPV = cms.bool(False),
     keepAllTracks= cms.bool(False),
@@ -41,7 +42,7 @@ looseMTS = cms.PSet(
     # parameters for cutting on pterror/pt and number of valid hits
     max_relpterr = cms.double(9999.),
     min_nhits = cms.uint32(0)
-                             
+
     ) # end of pset
 
 tightMTS=looseMTS.clone(
@@ -52,7 +53,7 @@ tightMTS=looseMTS.clone(
     dz_par2 = cms.vdouble(0.4, 4.0),
     chi2n_par = cms.double(0.7),
     chi2n_no1Dmod_par = cms.double(9999),
-    name= cms.string('TrkTight'),                           
+    name= cms.string('TrkTight'),
     minNumberLayers = cms.uint32(3),
     minNumber3DLayers = cms.uint32(3),
     maxNumberLostLayers = cms.uint32(2),
@@ -79,6 +80,3 @@ multiTrackSelector = cms.EDProducer("MultiTrackSelector",
                                tightMTS,
                                highpurityMTS)
  ) 
-
-
-
