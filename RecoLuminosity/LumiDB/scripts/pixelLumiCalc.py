@@ -1,8 +1,20 @@
 #!/usr/bin/env python
-import os,sys,time
+import os,sys,time,re
 import coral
 from RecoLuminosity.LumiDB import sessionManager,lumiTime,inputFilesetParser,csvSelectionParser,selectionParser,csvReporter,argparse,CommonUtil,lumiCalcAPI,lumiReport,lumiCorrections
+class RegexValidator(object):
+    def __init__(self, pattern, statement=None):
+        self.pattern = re.compile(pattern)
+        self.statement = statement
+        if not self.statement:
+            self.statement = "must match pattern %s" % self.pattern
 
+    def __call__(self, string):
+        match = self.pattern.search(string)
+        if not match:
+            raise ValueError(self.statement)
+        return string 
+        
 def parseInputFiles(inputfilename,dbrunlist,optaction):
     '''
     output ({run:[cmsls,cmsls,...]},[[resultlines]])
@@ -75,13 +87,16 @@ if __name__ == '__main__':
     parser.add_argument('-fill',dest='fillnum',action='store',
                         default=None,required=False,
                         help='fill number (optional) ')
-    parser.add_argument('-begin',dest='begin',action='store',
-                        default=None,
+    
+    parser.add_argument('-Begin',dest='begin',action='store',
                         required=False,
-                        help='min run start time, mm/dd/yy hh:mm:ss (optional)')
-    parser.add_argument('-end',dest='end',action='store',
-                        default=None,required=False,
-                        help='max run start time, mm/dd/yy hh:mm:ss (optional)')    
+                        type=RegexValidator("^\d\d/\d\d/\d\d \d\d:\d\d:\d\d$","must be form mm/dd/yy hh:mm:ss"),
+                        help='min run start time, mm/dd/yy hh:mm:ss')
+    
+    parser.add_argument('-End',dest='end',action='store',
+                        required=False,
+                        type=RegexValidator("^\d\d/\d\d/\d\d \d\d:\d\d:\d\d$","must be form mm/dd/yy hh:mm:ss"),
+                        help='max run start time, mm/dd/yy hh:mm:ss')    
     #
     #optional args for data and normalization version control
     #
@@ -107,7 +122,8 @@ if __name__ == '__main__':
     parser.add_argument('--debug',dest='debug',action='store_true',
                         help='debug')
     
-    options=parser.parse_args()   
+    options=parser.parse_args()
+    
     if options.authpath:
         os.environ['CORAL_AUTH_PATH'] = options.authpath
         
@@ -121,7 +137,7 @@ if __name__ == '__main__':
     iresults=[]
     if options.runnumber: # if runnumber specified, do not go through other run selection criteria
         irunlsdict[options.runnumber]=None
-    else:
+    elif options.inputfile:
         reqTrg=False
         reqHlt=False
         if options.action=='recorded':
@@ -136,6 +152,9 @@ if __name__ == '__main__':
         else:
             for run in runlist:
                 irunlsdict[run]=None
+    else:
+        print '-i or -r option is required'
+        exit(-1)
     if options.verbose:
         print 'Selected run:ls'
         for run in sorted(irunlsdict):
@@ -143,6 +162,7 @@ if __name__ == '__main__':
                 print '\t%d : %s'%(run,','.join([str(ls) for ls in irunlsdict[run]]))
             else:
                 print '\t%d : all'%run
+    
     session.transaction().start(True)
     finecorrections=lumiCorrections.pixelcorrectionsForRange(session.nominalSchema(),irunlsdict.keys())
     if options.verbose:
