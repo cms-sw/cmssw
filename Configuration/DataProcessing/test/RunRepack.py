@@ -77,8 +77,6 @@ python RunRepack.py --select-events HLT:path1,HLT:path2 --lfn /store/whatever
 
     repackinator = RunRepack()
 
-    print opts
-
     for opt, arg in opts:
         if opt == "--select-events":
             repackinator.selectEvents = arg
