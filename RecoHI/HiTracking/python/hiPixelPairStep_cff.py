@@ -26,7 +26,11 @@ hiPixelPairClusters = cms.EDProducer("TrackClusterRemover",
 import RecoTracker.TkSeedingLayers.PixelLayerPairs_cfi
 hiPixelPairSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerPairs_cfi.pixellayerpairs.clone(
             ComponentName = 'hiPixelPairSeedLayers',
-                        )
+            layerList = cms.vstring('BPix1+BPix2', 'BPix1+BPix3', 'BPix2+BPix3',
+                                    'BPix1+FPix1_pos', 'BPix1+FPix1_neg',
+                                    'BPix2+FPix1_pos', 'BPix2+FPix1_neg',
+                                    'FPix1_pos+FPix2_pos', 'FPix1_neg+FPix2_neg'),
+            )
 
 # SEEDS
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff
@@ -37,10 +41,7 @@ hiPixelPairSeeds.RegionFactoryPSet.RegionPSet.originRadius = 0.005
 hiPixelPairSeeds.RegionFactoryPSet.RegionPSet.nSigmaZ = 4.0
 # sigmaZVertex is only used when usedFixedError is True -Matt
 hiPixelPairSeeds.RegionFactoryPSet.RegionPSet.sigmaZVertex = 4.0
-# Using a fixed error to determine the tracking region seems like a bad idea to me -Matt
 hiPixelPairSeeds.RegionFactoryPSet.RegionPSet.useFixedError = cms.bool(False)
-# From pp settings, Ed's config used 0.005
-#hiPixelPairSeeds.RegionFactoryPSet.RegionPSet.fixedError = 0.03
 hiPixelPairSeeds.OrderedHitsFactoryPSet.SeedingLayers = cms.string('hiPixelPairSeedLayers')
 hiPixelPairSeeds.OrderedHitsFactoryPSet.maxElement = 5000000
 hiPixelPairSeeds.ClusterCheckPSet.MaxNumberOfPixelClusters = 5000000
@@ -53,7 +54,6 @@ hiPixelPairTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter
     filterPset = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.filterPset.clone(
     #maxLostHits = 0,
     minimumNumberOfHits = 6,
-    #minimumNumberOfHits = 8,
     minPt = 1.0
     )
     )
