@@ -114,7 +114,7 @@ Where options are:
 
 
 Example:
-python2.4 RunPromptReco.py --scenario=cosmics --reco --aod -alcareco --dqm --global-tag GLOBALTAG::ALL --lfn=/store/whatever
+python RunPromptReco.py --scenario=cosmics --reco --aod --alcareco --dqm --global-tag GLOBALTAG::ALL --lfn=/store/whatever
 
 """
     try:
