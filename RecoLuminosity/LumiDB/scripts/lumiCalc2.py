@@ -1,9 +1,22 @@
 #!/usr/bin/env python
 VERSION='2.00'
-import os,sys,time
+import os,sys,time,re
 import coral
 from RecoLuminosity.LumiDB import sessionManager,lumiTime,inputFilesetParser,csvSelectionParser,selectionParser,csvReporter,argparse,CommonUtil,lumiCalcAPI,lumiReport,lumiCorrections
 
+class RegexValidator(object):
+    def __init__(self, pattern, statement=None):
+        self.pattern = re.compile(pattern)
+        self.statement = statement
+        if not self.statement:
+            self.statement = "must match pattern %s" % self.pattern
+
+    def __call__(self, string):
+        match = self.pattern.search(string)
+        if not match:
+            raise ValueError(self.statement)
+        return string 
+        
 beamChoices=['PROTPHYS','IONPHYS','PAPHYS']
 
 def parseInputFiles(inputfilename,dbrunlist,optaction):
@@ -96,14 +109,20 @@ if __name__ == '__main__':
                         type=float,action='store',
                         default=0.2,
                         required=False,
-                        help='fluctuation in fraction allowed to nominal beam energy, default 0.2, to be used together with -beamenergy  (optional)')
-    parser.add_argument('-begin',dest='begin',action='store',
+                        help='fluctuation in fraction allowed to nominal beam energy, default 0.2, to be used together with -beamenergy  (optional)'
+                        )
+    parser.add_argument('-Begin',dest='begin',action='store',
                         default=None,
                         required=False,
-                        help='min run start time, mm/dd/yy hh:mm:ss (optional)')
-    parser.add_argument('-end',dest='end',action='store',
-                        default=None,required=False,
-                        help='max run start time, mm/dd/yy hh:mm:ss (optional)')    
+                        type=RegexValidator("^\d\d/\d\d/\d\d \d\d:\d\d:\d\d$","must be form mm/dd/yy hh:mm:ss"),
+                        help='min run start time, mm/dd/yy hh:mm:ss (optional)'
+                        )
+    parser.add_argument('-End',dest='end',action='store',
+                        default=None,
+                        required=False,
+                        type=RegexValidator("^\d\d/\d\d/\d\d \d\d:\d\d:\d\d$","must be form mm/dd/yy hh:mm:ss"),
+                        help='max run start time, mm/dd/yy hh:mm:ss (optional)'
+                        )    
     #
     #optional args to filter ls
     #
