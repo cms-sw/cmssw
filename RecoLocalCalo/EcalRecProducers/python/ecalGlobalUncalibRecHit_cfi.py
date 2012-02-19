@@ -18,7 +18,7 @@ ecalGlobalUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
     # for kOutOfTime flag
     EBtimeConstantTerm= cms.double(.6),
     EBtimeNconst      = cms.double(28.5),
-    EEtimeConstantTerm= cms.double(.6),
+    EEtimeConstantTerm= cms.double(1.0),
     EEtimeNconst      = cms.double(31.8),
     outOfTimeThresholdGain12pEB    = cms.double(5),      # times estimated precision
     outOfTimeThresholdGain12mEB    = cms.double(5),      # times estimated precision
