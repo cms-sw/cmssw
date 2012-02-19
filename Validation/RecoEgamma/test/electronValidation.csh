@@ -14,7 +14,7 @@
 #   is the default base name of the files containing the histograms ; it is
 #   also used to build some default value for other variables.
 # $2 : eventual second command-line argument, immediatly duplicated into VAL_WEB_SUB_DIR,
-#   is the name of the web subdirectory. Default is close to ${DBS_SAMPLE}_{DBS_COND}.
+#   is the name of the web subdirectory. Default is close to ${DD_SAMPLE}_{DD_COND}.
 #
 # VAL_COMMENT : a comment to insert at the beginning of the web page, which generally
 #   explains the specificity of the new release if this is not straightforward.
@@ -33,10 +33,10 @@
 # VAL_ANALYZER : name of the analyzer used.
 # VAL_CONFIGURATION : name of the cmsRun python configuration used.
 #
-# DBS_SAMPLE : short chosen name for the current dataset ; used in web pages
+# DD_SAMPLE : short chosen name for the current dataset ; used in web pages
 #   and used to build the subdirectory where the web pages will be
 #   stored ($VAL_WEB_SUB_DIR) unless it was given as the 3rd command line argument.
-# DBS_COND : expression for the current conditions tag ; used to build the subdirectory
+# DD_COND : expression for the current conditions tag ; used to build the subdirectory
 #   where the web pages will be stored ($VAL_WEB_SUB_DIR) unless it was given as the
 #   3rd command line argument.
 #=========================================================================================
@@ -129,18 +129,18 @@ echo "VAL_REF_FILE = ${VAL_REF_FILE}"
 #============== Prepare sample/cond subdirectory ==================
 
 if ( ${VAL_WEB_SUB_DIR} == "" ) then
-  if ( "${DBS_COND}" =~ *MC* ) then
-    setenv VAL_WEB_SUB_DIR ${DBS_SAMPLE}_Mc
-  else if ( "${DBS_COND}" =~ *IDEAL* ) then
-    setenv VAL_WEB_SUB_DIR ${DBS_SAMPLE}_Ideal
-  else if ( "${DBS_COND}" =~ *START* ) then
-    setenv VAL_WEB_SUB_DIR ${DBS_SAMPLE}_Startup
+  if ( "${DD_COND}" =~ *MC* ) then
+    setenv VAL_WEB_SUB_DIR ${DD_SAMPLE}_Mc
+  else if ( "${DD_COND}" =~ *IDEAL* ) then
+    setenv VAL_WEB_SUB_DIR ${DD_SAMPLE}_Ideal
+  else if ( "${DD_COND}" =~ *START* ) then
+    setenv VAL_WEB_SUB_DIR ${DD_SAMPLE}_Startup
   else
-    setenv VAL_WEB_SUB_DIR ${DBS_SAMPLE}
+    setenv VAL_WEB_SUB_DIR ${DD_SAMPLE}
   endif
 endif
 
-if ( "${DBS_COND}" =~ *FastSim* ) then
+if ( "${DD_COND}" =~ *FastSim* ) then
       setenv VAL_WEB_SUB_DIR FastSim_${VAL_WEB_SUB_DIR}
 endif
 
