@@ -989,6 +989,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['sequences'].append( "-HLTBeginSequenceAntiBPTX" )
       self.options['sequences'].append( "-HLTHBHENoiseSequence" )
       self.options['sequences'].append( "-HLTIterativeTracking" )
+      self.options['sequences'].append( "-HLTRegionalCKFTracksForL3Isolation" )
 
       # remove HLTAnalyzerEndpath from fastsim cff's
       if self.config.fragment:

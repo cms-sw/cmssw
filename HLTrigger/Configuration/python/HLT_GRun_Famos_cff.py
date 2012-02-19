@@ -8013,114 +8013,6 @@ hltTowerMakerForMuons = cms.EDProducer( "CaloTowersCreator",
     HOGrid = cms.vdouble(  ),
     EBGrid = cms.vdouble(  )
 )
-hltRegionalSeedsForL3MuonIsolation = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
-    RegionFactoryPSet = cms.PSet( 
-      ComponentName = cms.string( "IsolationRegionAroundL3Muon" ),
-      RegionPSet = cms.PSet( 
-        precise = cms.bool( True ),
-        originRadius = cms.double( 0.2 ),
-        beamSpot = cms.InputTag( "offlineBeamSpot" ),
-        originHalfLength = cms.double( 15.0 ),
-        ptMin = cms.double( 1.0 ),
-        deltaPhiRegion = cms.double( 0.24 ),
-        measurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
-        zVertex = cms.double( 5.0 ),
-        deltaEtaRegion = cms.double( 0.24 ),
-        rVertex = cms.double( 5.0 ),
-        vertexSrc = cms.string( "" ),
-        vertexZConstrained = cms.bool( False ),
-        vertexZDefault = cms.double( 0.0 ),
-        TrkSrc = cms.InputTag( "hltL3Muons" )
-      ),
-      CollectionsPSet = cms.PSet( 
-        recoL2MuonsCollection = cms.InputTag( "" ),
-        recoTrackMuonsCollection = cms.InputTag( "cosmicMuons" ),
-        recoMuonsCollection = cms.InputTag( "" )
-      ),
-      RegionInJetsCheckPSet = cms.PSet( 
-        recoCaloJetsCollection = cms.InputTag( "ak5CaloJets" ),
-        deltaRExclusionSize = cms.double( 0.3 ),
-        jetsPtMin = cms.double( 5.0 ),
-        doJetsExclusionCheck = cms.bool( True )
-      ),
-      ToolsPSet = cms.PSet( 
-        regionBase = cms.string( "seedOnCosmicMuon" ),
-        thePropagatorName = cms.string( "AnalyticalPropagator" )
-      )
-    ),
-    SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) ),
-    ClusterCheckPSet = cms.PSet( 
-      MaxNumberOfPixelClusters = cms.uint32( 20000 ),
-      PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClusters" ),
-      MaxNumberOfCosmicClusters = cms.uint32( 50000 ),
-      ClusterCollectionLabel = cms.InputTag( "hltSiStripClusters" ),
-      doClusterCheck = cms.bool( False )
-    ),
-    OrderedHitsFactoryPSet = cms.PSet( 
-      maxElement = cms.uint32( 100000 ),
-      ComponentName = cms.string( "StandardHitPairGenerator" ),
-      SeedingLayers = cms.string( "hltESPMixedLayerPairs" ),
-      LayerPSet = cms.PSet( 
-        TOB = cms.PSet(  TTRHBuilder = cms.string( "WithTrackAngle" ) ),
-        layerList = cms.vstring( 'TOB6+TOB5',
-          'TOB6+TOB4',
-          'TOB6+TOB3',
-          'TOB5+TOB4',
-          'TOB5+TOB3',
-          'TOB4+TOB3',
-          'TEC1_neg+TOB6',
-          'TEC1_neg+TOB5',
-          'TEC1_neg+TOB4',
-          'TEC1_pos+TOB6',
-          'TEC1_pos+TOB5',
-          'TEC1_pos+TOB4' ),
-        TEC = cms.PSet( 
-          useRingSlector = cms.bool( False ),
-          TTRHBuilder = cms.string( "WithTrackAngle" ),
-          minRing = cms.int32( 6 ),
-          maxRing = cms.int32( 7 )
-        )
-      )
-    ),
-    SeedCreatorPSet = cms.PSet( 
-      ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
-      SeedMomentumForBOFF = cms.double( 5.0 ),
-      propagator = cms.string( "PropagatorWithMaterial" ),
-      maxseeds = cms.int32( 10000 )
-    ),
-    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
-)
-hltRegionalCandidatesForL3MuonIsolation = cms.EDProducer( "CkfTrackCandidateMaker",
-    src = cms.InputTag( "hltRegionalSeedsForL3MuonIsolation" ),
-    maxSeedsBeforeCleaning = cms.uint32( 1000 ),
-    TransientInitialStateEstimatorParameters = cms.PSet( 
-      propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
-      numberMeasurementsForFit = cms.int32( 4 ),
-      propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
-    ),
-    TrajectoryCleaner = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
-    cleanTrajectoryAfterInOut = cms.bool( False ),
-    useHitsSplitting = cms.bool( False ),
-    RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
-    doSeedingRegionRebuilding = cms.bool( False ),
-    maxNSeeds = cms.uint32( 100000 ),
-    NavigationSchool = cms.string( "SimpleNavigationSchool" ),
-    TrajectoryBuilder = cms.string( "hltESPCkfTrajectoryBuilder" )
-)
-hltRegionalTracksForL3MuonIsolation = cms.EDProducer( "TrackProducer",
-    src = cms.InputTag( "hltRegionalCandidatesForL3MuonIsolation" ),
-    clusterRemovalInfo = cms.InputTag( "" ),
-    beamSpot = cms.InputTag( "offlineBeamSpot" ),
-    Fitter = cms.string( "hltESPKFFittingSmoother" ),
-    useHitsSplitting = cms.bool( False ),
-    MeasurementTracker = cms.string( "" ),
-    alias = cms.untracked.string( "ctfWithMaterialTracks" ),
-    NavigationSchool = cms.string( "" ),
-    TrajectoryInEvent = cms.bool( False ),
-    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-    AlgorithmName = cms.string( "undefAlgorithm" ),
-    Propagator = cms.string( "PropagatorWithMaterial" )
-)
 hltL3MuonCombRelIsolations = cms.EDProducer( "L3MuonCombinedRelativeIsolationProducer",
     printDebug = cms.bool( False ),
     CutsPSet = cms.PSet( 
@@ -26293,9 +26185,7 @@ HLTBTagIPSequenceL3RAzr = cms.Sequence( HLTDoLocalPixelSequence + HLTDoLocalStri
 HLTL2muonrecoSequenceNoVtx = cms.Sequence( HLTL2muonrecoNocandSequence + hltL2MuonCandidatesNoVtx )
 HLTPFJetsNeutralSequence = cms.Sequence( hltPFNeutralHadronsAndPartons + hltAntiKT5PFJetsNeutral + hltAntiKT5ConvPFJetsNeutral )
 HLTL3muoncaloisorecoSequenceNoBools = cms.Sequence( hltEcalRawToRecHitFacility + hltEcalRegionalMuonsFEDs + hltEcalRegionalMuonsRecHit + HLTDoLocalHcalSequence + hltTowerMakerForMuons )
-#HLTRegionalCKFTracksForL3Isolation = cms.Sequence( hltRegionalSeedsForL3MuonIsolation + hltRegionalCandidatesForL3MuonIsolation + hltRegionalTracksForL3MuonIsolation )
-#HLTL3muonisorecoSequence = cms.Sequence( HLTDoLocalPixelSequence + HLTDoLocalStripSequence + HLTRegionalCKFTracksForL3Isolation + hltL3MuonCombRelIsolations )
-HLTL3muonisorecoSequence = cms.Sequence( pixelTracks + hltL3MuonCombRelIsolations )
+HLTL3muonisorecoSequence = cms.Sequence( HLTDoLocalPixelSequence + HLTDoLocalStripSequence + HLTRegionalCKFTracksForL3Isolation + hltL3MuonCombRelIsolations )
 HLTL2muonisorecoSequence = cms.Sequence( hltEcalRawToRecHitFacility + hltEcalRegionalMuonsFEDs + hltEcalRegionalMuonsRecHit + HLTDoLocalHcalSequence + hltTowerMakerForMuons + hltL2MuonIsolations )
 HLTDoRegionalEgammaEcalSequence = cms.Sequence( hltESRawToRecHitFacility + hltEcalRawToRecHitFacility + hltEcalRegionalEgammaFEDs + hltEcalRegionalEgammaRecHit + hltESRegionalEgammaRecHit )
 HLTMulti5x5SuperClusterL1Seeded = cms.Sequence( hltMulti5x5BasicClustersL1Seeded + hltMulti5x5SuperClustersL1Seeded + hltMulti5x5EndcapSuperClustersWithPreshowerL1Seeded + hltCorrectedMulti5x5EndcapSuperClustersWithPreshowerL1Seeded )
