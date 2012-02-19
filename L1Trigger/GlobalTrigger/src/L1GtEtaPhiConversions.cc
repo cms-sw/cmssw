@@ -988,6 +988,10 @@ void L1GtEtaPhiConversions::convertL1Scales(
         double phiMuHighEdge = m_l1MuTriggerScales->getPhiScale()->getHighEdge(
                 phiMuInd);
 
+        // to avoid precision problems, add a small quantity to phiMuLowEdge
+        double phiMuLowEdgeSmallShiftRight = phiMuLowEdge + (phiMuHighEdge
+                - phiMuLowEdge) / 100.;
+
         // phi Mu -> (*Jet, EG)
 
         unsigned int nrBins = m_nrBinsPhiJetEg;
@@ -997,7 +1001,7 @@ void L1GtEtaPhiConversions::convertL1Scales(
             double phiLowEdge = m_l1CaloGeometry->emJetPhiBinLowEdge(iBin);
             double phiHighEdge = m_l1CaloGeometry->emJetPhiBinHighEdge(iBin);
 
-            if (phiMuLowEdge >= phiLowEdge) {
+            if (phiMuLowEdgeSmallShiftRight >= phiLowEdge) {
                 m_lutPhiMuToJetEg[phiMuInd] = iBin % nrBins;
 
                 LogTrace("L1GlobalTrigger") << " phiMuIndex \t" << phiMuInd
@@ -1020,7 +1024,7 @@ void L1GtEtaPhiConversions::convertL1Scales(
             double phiLowEdge = m_l1CaloGeometry->etSumPhiBinLowEdge(iBin);
             double phiHighEdge = m_l1CaloGeometry->etSumPhiBinHighEdge(iBin);
 
-            if (phiMuLowEdge >= phiLowEdge) {
+            if (phiMuLowEdgeSmallShiftRight >= phiLowEdge) {
                 m_lutPhiMuToEtm[phiMuInd] = iBin % nrBins;
 
                 LogTrace("L1GlobalTrigger") << " phiMuIndex \t" << phiMuInd
@@ -1042,7 +1046,7 @@ void L1GtEtaPhiConversions::convertL1Scales(
             double phiLowEdge = m_l1CaloGeometry->htSumPhiBinLowEdge(iBin);
             double phiHighEdge = m_l1CaloGeometry->htSumPhiBinHighEdge(iBin);
 
-            if (phiMuLowEdge >= phiLowEdge) {
+            if (phiMuLowEdgeSmallShiftRight >= phiLowEdge) {
                 m_lutPhiMuToHtm[phiMuInd] = iBin % nrBins;
 
                 LogTrace("L1GlobalTrigger") << " phiMuIndex \t" << phiMuInd
@@ -1089,6 +1093,10 @@ void L1GtEtaPhiConversions::convertL1Scales(
         double phiEtmLowEdge = m_l1CaloGeometry->etSumPhiBinLowEdge(phiEtmInd);
         double phiEtmHighEdge = m_l1CaloGeometry->etSumPhiBinHighEdge(phiEtmInd);
 
+        // to avoid precision problems, add a small quantity to phiEtmLowEdge
+        double phiEtmLowEdgeSmallShiftRight = phiEtmLowEdge + (phiEtmHighEdge
+                - phiEtmLowEdge) / 100.;
+
         // phi ETM -> (*Jet, EG)
 
         unsigned int nrBins = m_nrBinsPhiJetEg;
@@ -1098,7 +1106,7 @@ void L1GtEtaPhiConversions::convertL1Scales(
             double phiLowEdge = m_l1CaloGeometry->emJetPhiBinLowEdge(iBin);
             double phiHighEdge = m_l1CaloGeometry->emJetPhiBinHighEdge(iBin);
 
-            if (phiEtmLowEdge >= phiLowEdge) {
+            if (phiEtmLowEdgeSmallShiftRight >= phiLowEdge) {
                 m_lutPhiEtmToJetEg[phiEtmInd] = iBin % nrBins;
 
                 LogTrace("L1GlobalTrigger") << " phiEtmIndex \t" << phiEtmInd
@@ -1121,7 +1129,7 @@ void L1GtEtaPhiConversions::convertL1Scales(
             double phiLowEdge = m_l1CaloGeometry->htSumPhiBinLowEdge(iBin);
             double phiHighEdge = m_l1CaloGeometry->htSumPhiBinHighEdge(iBin);
 
-            if (phiEtmLowEdge >= phiLowEdge) {
+            if (phiEtmLowEdgeSmallShiftRight >= phiLowEdge) {
                 m_lutPhiEtmToHtm[phiEtmInd] = iBin % nrBins;
 
                 LogTrace("L1GlobalTrigger") << " phiEtmIndex \t" << phiEtmInd
@@ -1151,6 +1159,10 @@ void L1GtEtaPhiConversions::convertL1Scales(
         double phiHtmLowEdge = m_l1CaloGeometry->htSumPhiBinLowEdge(phiHtmInd);
         double phiHtmHighEdge = m_l1CaloGeometry->htSumPhiBinHighEdge(phiHtmInd);
 
+        // to avoid precision problems, add a small quantity to phiHtmLowEdge
+        double phiHtmLowEdgeSmallShiftRight = phiHtmLowEdge + (phiHtmHighEdge
+                - phiHtmLowEdge) / 100.;
+
         unsigned int nrBins = m_nrBinsPhiJetEg;
 
         for (unsigned int iBin = nrBins;; --iBin) {
@@ -1158,7 +1170,7 @@ void L1GtEtaPhiConversions::convertL1Scales(
             double phiLowEdge = m_l1CaloGeometry->emJetPhiBinLowEdge(iBin);
             double phiHighEdge = m_l1CaloGeometry->emJetPhiBinHighEdge(iBin);
 
-            if (phiHtmLowEdge >= phiLowEdge) {
+            if (phiHtmLowEdgeSmallShiftRight >= phiLowEdge) {
                 m_lutPhiHtmToJetEg[phiHtmInd] = iBin % nrBins;
 
                 LogTrace("L1GlobalTrigger") << " phiHtmIndex \t" << phiHtmInd
@@ -1311,6 +1323,10 @@ void L1GtEtaPhiConversions::convertL1Scales(
         double etaMuHighEdge = m_l1MuTriggerScales->getGMTEtaScale()->getValue(
                 etaMuInd + 1);
 
+        // to avoid precision problems, add a small quantity to etaMuLowEdge
+        double etaMuLowEdgeSmallShiftRight = etaMuLowEdge + (etaMuHighEdge
+                - etaMuLowEdge) / 100.;
+
         // positive values
         for (unsigned int iBin = m_nrBinsEtaCommon;; --iBin) {
 
@@ -1323,7 +1339,7 @@ void L1GtEtaPhiConversions::convertL1Scales(
                 etaHighEdge = m_l1CaloGeometry->globalEtaBinLowEdge(iBin + 1);
             }
 
-            if (etaMuLowEdge >= etaLowEdge) {
+            if (etaMuLowEdgeSmallShiftRight >= etaLowEdge) {
                 m_lutEtaMuToCommonCalo[etaMuInd] = iBin % m_nrBinsEtaCommon;
 
                 LogTrace("L1GlobalTrigger") << " etaMuIndex \t" << etaMuInd
@@ -1364,6 +1380,9 @@ void L1GtEtaPhiConversions::convertL1Scales(
 
 // print all the performed conversions
 void L1GtEtaPhiConversions::print(std::ostream& myCout) const {
+
+    // force a page break before each group
+    myCout << "<p style=\"page-break-before: always\">&nbsp;</p>";
 
     myCout
             << "\n---++Conversion tables for phi and eta variables of the trigger objects used in correlation conditions \n"
@@ -1427,6 +1446,9 @@ void L1GtEtaPhiConversions::print(std::ostream& myCout) const {
 
     // phi Mu -> ETM
 
+    // force a page break before each group
+    myCout << "<p style=\"page-break-before: always\">&nbsp;</p>";
+
     myCout << "\n---+++Phi conversion for muons to ETM phi scale \n"
             << std::endl;
 
@@ -1478,6 +1500,9 @@ void L1GtEtaPhiConversions::print(std::ostream& myCout) const {
 
     // phi Mu -> HTM
 
+    // force a page break before each group
+    myCout << "<p style=\"page-break-before: always\">&nbsp;</p>";
+
     myCout << "\n---+++Phi conversion for muons to HTM phi scale \n"
             << std::endl;
 
@@ -1528,6 +1553,9 @@ void L1GtEtaPhiConversions::print(std::ostream& myCout) const {
     }
 
     // phi ETM -> (*Jet, EG)
+
+    // force a page break before each group
+    myCout << "<p style=\"page-break-before: always\">&nbsp;</p>";
 
     myCout
             << "\n---+++Phi conversion for ETM to jets and e-gamma scale common phi scale \n"
@@ -1581,6 +1609,9 @@ void L1GtEtaPhiConversions::print(std::ostream& myCout) const {
 
     // phi ETM -> HTM
 
+    // force a page break before each group
+    myCout << "<p style=\"page-break-before: always\">&nbsp;</p>";
+
     myCout << "\n---+++Phi conversion for ETM to HTM phi scale \n" << std::endl;
 
     size_t lutPhiEtmToHtmSize = m_lutPhiEtmToHtm.size();
@@ -1631,6 +1662,9 @@ void L1GtEtaPhiConversions::print(std::ostream& myCout) const {
 
     // phi HTM -> (*Jet, EG)
 
+
+    // force a page break before each group
+    myCout << "<p style=\"page-break-before: always\">&nbsp;</p>";
 
     myCout
             << "\n---+++Phi conversion for HTM to jets and e-gamma scale common phi scale \n"
@@ -1690,6 +1724,9 @@ void L1GtEtaPhiConversions::print(std::ostream& myCout) const {
     // CenJet/TauJet & IsoEG/NoIsoEG to a common central / forward calorimeter eta scale
 
 
+    // force a page break before each group
+    myCout << "<p style=\"page-break-before: always\">&nbsp;</p>";
+
     myCout
             << "\n---+++Eta conversion for central and tau jets and e-gamma objects to a common central and forward calorimeter eta scale \n"
             << std::endl;
@@ -1743,6 +1780,9 @@ void L1GtEtaPhiConversions::print(std::ostream& myCout) const {
 
     // ForJet to a common central / forward calorimeter eta scale
 
+
+    // force a page break before each group
+    myCout << "<p style=\"page-break-before: always\">&nbsp;</p>";
 
     myCout
             << "\n---+++Eta conversion for forward jets to a common central and forward calorimeter eta scale \n"
@@ -1798,6 +1838,9 @@ void L1GtEtaPhiConversions::print(std::ostream& myCout) const {
     }
 
     // Mu to a common central / forward calorimeter eta scale
+
+    // force a page break before each group
+    myCout << "<p style=\"page-break-before: always\">&nbsp;</p>";
 
     myCout
             << "\n---+++Eta conversion for muons to a common central and forward calorimeter eta scale \n"
