@@ -45,9 +45,8 @@ import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
 lowPtTripletStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone(
     ComponentName = 'lowPtTripletStepTrajectoryFilter',
     filterPset = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.filterPset.clone(
-    maxLostHits = 1,
     minimumNumberOfHits = 3,
-    minPt = 0.1
+    minPt = 0.075
     )
     )
 
