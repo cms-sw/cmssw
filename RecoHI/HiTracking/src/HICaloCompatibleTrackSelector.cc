@@ -50,7 +50,7 @@ HICaloCompatibleTrackSelector::HICaloCompatibleTrackSelector( const edm::Paramet
   srcTower_(cfg.getParameter<edm::InputTag>("srcTower")),
   usePFCandMatching_(cfg.getUntrackedParameter<bool>("usePFCandMatching", true)),
   trkMatchPtMin_(cfg.getUntrackedParameter<double>("trkMatchPtMin",10.0)),
-  trkCompPtMin_(cfg.getUntrackedParameter<double>("trkCompPtMin",10.0)),
+  trkCompPtMin_(cfg.getUntrackedParameter<double>("trkCompPtMin",35.0)),
   trkEtaMax_(cfg.getUntrackedParameter<double>("trkEtaMax",2.4)),
   towerPtMin_(cfg.getUntrackedParameter<double>("towerPtMin",5.0)),
   matchConeRadius_(cfg.getUntrackedParameter<double>("matchConeRadius",0.087)),
