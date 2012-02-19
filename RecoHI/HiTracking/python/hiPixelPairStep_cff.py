@@ -47,6 +47,14 @@ hiPixelPairSeeds.OrderedHitsFactoryPSet.maxElement = 5000000
 hiPixelPairSeeds.ClusterCheckPSet.MaxNumberOfPixelClusters = 5000000
 hiPixelPairSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 50000000
 
+hiPixelPairSeeds.SeedComparitorPSet = cms.PSet(
+    ComponentName = cms.string('PixelClusterShapeSeedComparitor'),
+    FilterAtHelixStage = cms.bool(True),
+    FilterPixelHits = cms.bool(True),
+    FilterStripHits = cms.bool(False),
+    ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter')
+    )
+
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
 hiPixelPairTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone(
