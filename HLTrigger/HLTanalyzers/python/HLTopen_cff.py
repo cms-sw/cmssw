@@ -60,7 +60,6 @@ DoHltMuon = cms.Path(
     HLTMuTrackJpsiPixelRecoSequence + 
     HLTMuTrackJpsiTrackRecoSequence +
 ##    HLTDisplacemumuSequence +
-
     HLTDoLocalPixelSequence +
     hltPixelTracks +
     HLTDoLocalStripSequence +
@@ -79,25 +78,18 @@ DoHltMuon = cms.Path(
 DoHLTPhoton = cms.Path( 
     HLTBeginSequence + 
     HLTDoRegionalEgammaEcalSequence + 
-    HLTL1IsolatedEcalClustersSequence + 
-    HLTL1NonIsolatedEcalClustersSequence + 
-    hltL1IsoRecoEcalCandidate + 
-    hltL1NonIsoRecoEcalCandidate + 
+    HLTL1SeededEcalClustersSequence +
+    hltL1SeededRecoEcalCandidate +
+    hltL1SeededHLTClusterShape +
     HLTEgammaR9IDSequence +
-    hltL1IsolatedPhotonEcalIsol + 
-    hltL1NonIsolatedPhotonEcalIsol + 
-    hltL1IsolatedPhotonHcalIsol + 
-    hltL1NonIsolatedPhotonHcalIsol + 
+    hltL1SeededPhotonEcalIsol +
+    HLTDoLocalHcalWithoutHOSequence +
+    hltL1SeededPhotonHcalForHE +
+    hltL1SeededPhotonHcalIsol +
     HLTDoLocalPixelSequence +
     HLTDoLocalStripSequence +
-    hltL1IsoEgammaRegionalPixelSeedGenerator +
-    hltL1IsoEgammaRegionalCkfTrackCandidates +
-    hltL1IsoEgammaRegionalCTFFinalFitWithMaterial +
-    hltL1NonIsoEgammaRegionalPixelSeedGenerator +
-    hltL1NonIsoEgammaRegionalCkfTrackCandidates +
-    hltL1NonIsoEgammaRegionalCTFFinalFitWithMaterial +
-    hltL1IsolatedPhotonHollowTrackIsol +
-    hltL1NonIsolatedPhotonHollowTrackIsol +
+    HLTL1SeededEgammaRegionalRecoTrackerSequence +
+    hltL1SeededPhotonHollowTrackIsol + 
     HLTEcalActivitySequence +
     hltActivityPhotonHcalForHE +
     hltActivityR9ID +
@@ -107,42 +99,29 @@ DoHLTPhoton = cms.Path(
     HLTEcalActivityEgammaRegionalRecoTrackerSequence +
     hltEcalActivityEgammaRegionalAnalyticalTrackSelector + 
     hltActivityPhotonHollowTrackIsolWithId
-    ##    hltActivityPhotonHollowTrackIsol
     )
 
 DoHLTElectron = cms.Path(
     HLTBeginSequence +
     HLTDoRegionalEgammaEcalSequence +
-    HLTL1IsolatedEcalClustersSequence +
-    HLTL1NonIsolatedEcalClustersSequence +
-    hltL1IsoRecoEcalCandidate +
-    hltL1NonIsoRecoEcalCandidate +
+    HLTL1SeededEcalClustersSequence +
+    hltL1SeededRecoEcalCandidate +
+    hltL1SeededHLTClusterShape +
     HLTEgammaR9IDSequence +
-    hltL1IsoHLTClusterShape +
-    hltL1NonIsoHLTClusterShape +
-    hltL1IsolatedPhotonEcalIsol +
-    hltL1NonIsolatedPhotonEcalIsol +
+    hltL1SeededPhotonEcalIsol +
     HLTDoLocalHcalWithoutHOSequence +
-    hltL1IsolatedPhotonHcalForHE +
-    hltL1NonIsolatedPhotonHcalForHE +
-    hltL1IsolatedPhotonHcalIsol +
-    hltL1NonIsolatedPhotonHcalIsol +
+    hltL1SeededPhotonHcalForHE +
+    hltL1SeededPhotonHcalIsol +
     HLTDoLocalPixelSequence +
     HLTDoLocalStripSequence +
-    hltL1IsoStartUpElectronPixelSeeds +
-    hltL1NonIsoStartUpElectronPixelSeeds +
-    hltCkfL1IsoTrackCandidates +
-    hltCtfL1IsoWithMaterialTracks +
-    hltPixelMatchElectronsL1Iso +
-    hltCkfL1NonIsoTrackCandidates +
-    hltCtfL1NonIsoWithMaterialTracks +
-    hltPixelMatchElectronsL1NonIso +
-    hltElectronL1IsoDetaDphi +
-    hltElectronL1NonIsoDetaDphi +
-    HLTL1IsoEgammaRegionalRecoTrackerSequence +
-    HLTL1NonIsoEgammaRegionalRecoTrackerSequence +
-    hltL1IsoElectronTrackIsol + 
-    hltL1NonIsoElectronTrackIsol +
+    HLTL1SeededEgammaRegionalRecoTrackerSequence +
+    hltL1SeededStartUpElectronPixelSeeds +
+    hltCkfL1SeededTrackCandidates +
+    hltCtfL1SeededWithMaterialTracks +
+    hltPixelMatchElectronsL1Seeded +
+    hltElectronL1SeededDetaDphi +
+    HLTL1SeededEgammaRegionalRecoTrackerSequence +
+    hltL1SeededElectronTrackIsol +
     hltHFEMClusters +
     hltHFRecoEcalTightCandidate
 )
