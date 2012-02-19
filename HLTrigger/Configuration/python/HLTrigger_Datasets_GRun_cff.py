@@ -1,4 +1,4 @@
-# /dev/CMSSW_5_1_0/GRun/V50
+# /dev/CMSSW_5_1_0/GRun/V51
 
 import FWCore.ParameterSet.Config as cms
 
@@ -519,6 +519,10 @@ streamA_datasetSingleMu_selector.triggerConditions = cms.vstring('HLT_IsoMu20_et
     'HLT_IsoMu30_eta2p1_v8', 
     'HLT_IsoMu34_eta2p1_v6', 
     'HLT_IsoMu40_eta2p1_v3', 
+    'HLT_L2Mu10_NoVertex_NoBPTX3BX_NoHalo_v1', 
+    'HLT_L2Mu20_NoVertex_NoBPTX3BX_NoHalo_v1', 
+    'HLT_L2Mu20_eta2p1_NoVertex_v1', 
+    'HLT_L2Mu30_NoVertex_NoBPTX3BX_NoHalo_v1', 
     'HLT_Mu12_v13', 
     'HLT_Mu15_eta2p1_v1', 
     'HLT_Mu17_v1', 
