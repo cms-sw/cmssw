@@ -1,4 +1,4 @@
-# /dev/CMSSW_5_1_0/GRun/V49
+# /dev/CMSSW_5_1_0/GRun/V50
 
 import FWCore.ParameterSet.Config as cms
 
@@ -74,19 +74,16 @@ streamA_datasetDoubleMu_selector.hltResults = cms.InputTag('TriggerResults', '',
 streamA_datasetDoubleMu_selector.l1tResults = cms.InputTag('')
 streamA_datasetDoubleMu_selector.throw      = cms.bool(False)
 streamA_datasetDoubleMu_selector.triggerConditions = cms.vstring('HLT_DoubleMu11_Acoplanarity03_v1', 
-    'HLT_DoubleMu3_v15', 
-    'HLT_DoubleMu45_v11', 
     'HLT_DoubleMu5_IsoMu5_v13', 
-    'HLT_DoubleMu5_v6', 
-    'HLT_DoubleMu7_v13', 
     'HLT_L1DoubleMu0_v5', 
     'HLT_L2DoubleMu0_v8', 
     'HLT_L2DoubleMu23_NoVertex_2Cha_Angle2p5_v1', 
     'HLT_L2DoubleMu23_NoVertex_v9', 
     'HLT_L2DoubleMu38_NoVertex_2Cha_Angle2p5_v1', 
-    'HLT_Mu13_Mu8_v12', 
     'HLT_Mu17_Mu8_v12', 
     'HLT_Mu17_TkMu8_v5', 
+    'HLT_Mu22_TkMu22_v1', 
+    'HLT_Mu22_TkMu8_v1', 
     'HLT_Mu8_Jet40_v16', 
     'HLT_TripleMu5_v14')
 
@@ -517,26 +514,19 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetSingleMu_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetSingleMu_selector.l1tResults = cms.InputTag('')
 streamA_datasetSingleMu_selector.throw      = cms.bool(False)
-streamA_datasetSingleMu_selector.triggerConditions = cms.vstring('HLT_IsoMu15_eta2p1_v6', 
-    'HLT_IsoMu15_v19', 
-    'HLT_IsoMu20_v14', 
+streamA_datasetSingleMu_selector.triggerConditions = cms.vstring('HLT_IsoMu20_eta2p1_v1', 
     'HLT_IsoMu24_eta2p1_v8', 
-    'HLT_IsoMu24_v14', 
     'HLT_IsoMu30_eta2p1_v8', 
     'HLT_IsoMu34_eta2p1_v6', 
     'HLT_IsoMu40_eta2p1_v3', 
-    'HLT_Mu100_eta2p1_v6', 
     'HLT_Mu12_v13', 
-    'HLT_Mu15_v14', 
-    'HLT_Mu200_eta2p1_v3', 
-    'HLT_Mu20_v13', 
-    'HLT_Mu24_v13', 
-    'HLT_Mu30_v13', 
+    'HLT_Mu15_eta2p1_v1', 
+    'HLT_Mu17_v1', 
+    'HLT_Mu24_eta2p1_v1', 
+    'HLT_Mu30_eta2p1_v1', 
     'HLT_Mu40_eta2p1_v6', 
-    'HLT_Mu40_v11', 
     'HLT_Mu50_eta2p1_v3', 
     'HLT_Mu5_v15', 
-    'HLT_Mu60_eta2p1_v6', 
     'HLT_Mu8_v13')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTau_selector

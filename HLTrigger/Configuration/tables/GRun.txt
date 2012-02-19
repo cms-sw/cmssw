@@ -162,20 +162,25 @@ HLT_L2DoubleMu0_v*
 HLT_Mu5_v*
 HLT_Mu8_v*
 HLT_Mu12_v*
-HLT_Mu15_v*
-HLT_Mu20_v*
-HLT_Mu24_v*
-HLT_Mu30_v*
-HLT_Mu40_v*
+#HLT_Mu15_v*						#removed in "5e33" menu (sr #126489)
+HLT_Mu17_v*						#added in "5e33" menu (sr #126489)
+#HLT_Mu20_v*						#removed in "5e33" menu (sr #126489)
+#HLT_Mu24_v*						#removed in "5e33" menu (sr #126489)
+#HLT_Mu30_v*						#removed in "5e33" menu (sr #126489)
+#HLT_Mu40_v*						#removed in "5e33" menu (sr #126489)
+HLT_Mu15_eta2p1_v*						#added in "5e33" menu (sr #126489)
+HLT_Mu24_eta2p1_v*						#added in "5e33" menu (sr #126489)
+HLT_Mu30_eta2p1_v*						#added in "5e33" menu (sr #126489)
 HLT_Mu40_eta2p1_v*
 HLT_Mu50_eta2p1_v*
-HLT_Mu60_eta2p1_v*
-HLT_Mu100_eta2p1_v*
-HLT_Mu200_eta2p1_v*
-HLT_IsoMu15_v*
-HLT_IsoMu15_eta2p1_v*
-HLT_IsoMu20_v*
-HLT_IsoMu24_v*
+#HLT_Mu60_eta2p1_v*						#removed in "5e33" menu (sr #126489)
+#HLT_Mu100_eta2p1_v*						#removed in "5e33" menu (sr #126489)
+#HLT_Mu200_eta2p1_v*						#removed in "5e33" menu (sr #126489)
+#HLT_IsoMu15_v*						#removed in "5e33" menu (sr #126489)
+#HLT_IsoMu15_eta2p1_v*						#removed in "5e33" menu (sr #126489)
+HLT_IsoMu20_eta2p1_v*						#added in "5e33" menu (sr #126489)
+#HLT_IsoMu20_v*						#removed in "5e33" menu (sr #126489)
+#HLT_IsoMu24_v*						#removed in "5e33" menu (sr #126489)
 HLT_IsoMu24_eta2p1_v*
 HLT_IsoMu30_eta2p1_v*
 HLT_IsoMu34_eta2p1_v*
@@ -186,10 +191,10 @@ HLT_L2DoubleMu38_NoVertex_2Cha_Angle2p5_v*						#added in "5e33" menu (sr #12625
 #HLT_L2DoubleMu30_NoVertex_v*								#removed in "5e33" menu (sr #126251)
 #HLT_L2DoubleMu30_NoVertex_dPhi2p5_v*							#added in "5e33" menu (sr #124053) and removed in (sr #126251)
 #HLT_L2DoubleMu45_NoVertex_v*								#removed in "5e33" menu (sr #124053)
-HLT_DoubleMu3_v*
-HLT_DoubleMu5_v*
-HLT_DoubleMu7_v*
-HLT_DoubleMu45_v*
+#HLT_DoubleMu3_v*						#removed in "5e33" menu (sr #126489)
+#HLT_DoubleMu5_v*						#removed in "5e33" menu (sr #126489)
+#HLT_DoubleMu7_v*						#removed in "5e33" menu (sr #126489)
+#HLT_DoubleMu45_v*						#removed in "5e33" menu (sr #126489)
 #HLT_DoubleMu7_Acoplanarity03_v*							#removed in Feb 2012 5e33 menu (sr #126250)
 HLT_DoubleMu11_Acoplanarity03_v*							#added in Feb 2012 5e33 menu (sr #126250)
 HLT_DoubleMu4_Dimuon4_Bs_Barrel_v*
@@ -211,9 +216,11 @@ HLT_Dimuon10_Jpsi_Barrel_v*
 HLT_Dimuon13_Jpsi_Barrel_v*
 HLT_Dimuon9_PsiPrime_v*
 HLT_Dimuon11_PsiPrime_v*
-HLT_Mu13_Mu8_v*
+#HLT_Mu13_Mu8_v*						#removed in "5e33" menu (sr #126489)
 HLT_Mu17_Mu8_v*
 HLT_Mu17_TkMu8_v*
+HLT_Mu22_TkMu8_v*						#added in "5e33" menu (sr #126489)
+HLT_Mu22_TkMu22_v*						#added in "5e33" menu (sr #126489)
 HLT_TripleMu0_TauTo3Mu_v*                                                                                                                                                                                                        
 HLT_TripleMu5_v*
 HLT_DoubleMu5_IsoMu5_v*
