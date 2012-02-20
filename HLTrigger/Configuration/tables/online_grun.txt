@@ -204,28 +204,47 @@ HLT_DoubleMu11_Acoplanarity03_v*							#added in Feb 2012 5e33 menu (sr #126250)
 HLT_DoubleMu4_Dimuon4_Bs_Barrel_v*
 HLT_DoubleMu4_Dimuon6_Bs_v*
 HLT_DoubleMu4_Jpsi_Displaced_v*
-HLT_DoubleMu5_Jpsi_Displaced_v*
-HLT_DoubleMu4p5_LowMass_Displaced_v*
-HLT_DoubleMu5_LowMass_Displaced_v*
-HLT_Dimuon0_Omega_Phi_v*
+HLT_DoubleMu4_JpsiTk_Displaced_v*                                                       #added in Feb 2012 5e33 menu (sr #126442)
+#HLT_DoubleMu5_Jpsi_Displaced_v*
+HLT_DoubleMu3p5_LowMass_Displaced_v*                                                    #added in Feb 2012 5e33 menu (sr #126442)
+#HLT_DoubleMu4p5_LowMass_Displaced_v*
+#HLT_DoubleMu5_LowMass_Displaced_v*
+#HLT_Dimuon0_Omega_Phi_v*
 HLT_Dimuon0_Jpsi_NoVertexing_v*
 HLT_Dimuon0_Jpsi_v*
 HLT_Dimuon0_Jpsi_Muon_v*
 HLT_Dimuon0_Upsilon_v*
 HLT_Dimuon0_Upsilon_Muon_v*
+HLT_Dimuon0_PsiPrime_v*                                                                 #added in Feb 2012 5e33 menu (sr #126442)
+HLT_Dimuon3p5_SameSign_v*                                                               #added in Feb 2012 5e33 menu (sr #126442)
+HLT_Dimuon5_Upsilon_v*                                                                  #added in Feb 2012 5e33 menu (sr #126442)
+HLT_Dimuon5_PsiPrime_v*                                                                 #added in Feb 2012 5e33 menu (sr #126442)
+HLT_Dimuon5_Jpsi_v*                                                                     #added in Feb 2012 5e33 menu (sr #126442)
 HLT_Dimuon6_LowMass_v*
-HLT_Dimuon7_Upsilon_Barrel_v*
-HLT_Dimuon9_Upsilon_Barrel_v*
-HLT_Dimuon10_Jpsi_Barrel_v*
-HLT_Dimuon13_Jpsi_Barrel_v*
+#HLT_Dimuon7_Upsilon_Barrel_v*
+HLT_Dimuon8_Upsilon_v*                                                                  #added in Feb 2012 5e33 menu (sr #126442)
+#HLT_Dimuon9_Upsilon_Barrel_v*
+HLT_Dimuon9_PsiPrime_v*                                                                 #added in Feb 2012 5e33 menu (sr #126442)
+HLT_Dimuon9_Jpsi_v*                                                                     #added in Feb 2012 5e33 menu (sr #126442)
+#HLT_Dimuon10_Jpsi_Barrel_v*
+#HLT_Dimuon13_Jpsi_Barrel_v*
 HLT_Dimuon9_PsiPrime_v*
 HLT_Dimuon11_PsiPrime_v*
-#HLT_Mu13_Mu8_v*						#removed in "5e33" menu (sr #126489)
+#HLT_Mu13_Mu8_v*                                                                        #removed in "5e33" menu (sr #126489)
 HLT_Mu17_Mu8_v*
 HLT_Mu17_TkMu8_v*
-HLT_Mu22_TkMu8_v*						#added in "5e33" menu (sr #126489)
-HLT_Mu22_TkMu22_v*						#added in "5e33" menu (sr #126489)
-HLT_TripleMu0_TauTo3Mu_v*                                                                                                                                                                                                        
+HLT_Mu22_TkMu8_v*                                                                       #added in "5e33" menu (sr #126489)
+HLT_Mu22_TkMu22_v*                                                                      #added in "5e33" menu (sr #126489)
+#HLT_TripleMu0_TauTo3Mu_v*
+HLT_Tau2Mu_RegPixTrack_v*                                                               #added in Feb 2012 5e33 menu (sr #126442)
+HLT_TripleMu5_v*
+HLT_DoubleMu5_IsoMu5_v*
+HLT_Mu5_TkMu0_OST_Jpsi_Tight_B5Q7_v*
+#HLT_Mu5_L2Mu2_Jpsi_v*
+HLT_Mu5_L2Mu3_Jpsi_v*                                                                   #added in Feb 2012 5e33 menu (sr #126442)
+HLT_Mu5_Track2_Jpsi_v*
+HLT_Mu5_Track3p5_Jpsi_v*                                                                #added in Feb 2012 5e33 menu (sr #126442)
+#HLT_Mu7_Track7_Jpsi_v*
 HLT_TripleMu5_v*
 HLT_DoubleMu5_IsoMu5_v*
 HLT_Mu5_TkMu0_OST_Jpsi_Tight_B5Q7_v*

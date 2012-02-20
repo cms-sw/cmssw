@@ -1,4 +1,4 @@
-# /dev/CMSSW_5_1_0/GRun/V55
+# /dev/CMSSW_5_1_0/GRun/V56
 
 import FWCore.ParameterSet.Config as cms
 
@@ -372,26 +372,27 @@ streamA_datasetMuOnia_selector.throw      = cms.bool(False)
 streamA_datasetMuOnia_selector.triggerConditions = cms.vstring('HLT_Dimuon0_Jpsi_Muon_v12', 
     'HLT_Dimuon0_Jpsi_NoVertexing_v8', 
     'HLT_Dimuon0_Jpsi_v11', 
-    'HLT_Dimuon0_Omega_Phi_v5', 
+    'HLT_Dimuon0_PsiPrime_v1', 
     'HLT_Dimuon0_Upsilon_Muon_v12', 
     'HLT_Dimuon0_Upsilon_v11', 
-    'HLT_Dimuon10_Jpsi_Barrel_v11', 
     'HLT_Dimuon11_PsiPrime_v6', 
-    'HLT_Dimuon13_Jpsi_Barrel_v6', 
+    'HLT_Dimuon3p5_SameSign_v1', 
+    'HLT_Dimuon5_Jpsi_v1', 
+    'HLT_Dimuon5_PsiPrime_v1', 
+    'HLT_Dimuon5_Upsilon_v1', 
     'HLT_Dimuon6_LowMass_v6', 
-    'HLT_Dimuon7_Upsilon_Barrel_v6', 
+    'HLT_Dimuon8_Upsilon_v1', 
+    'HLT_Dimuon9_Jpsi_v1', 
     'HLT_Dimuon9_PsiPrime_v6', 
-    'HLT_Dimuon9_Upsilon_Barrel_v6', 
+    'HLT_DoubleMu3p5_LowMass_Displaced_v1', 
     'HLT_DoubleMu4_Dimuon4_Bs_Barrel_v6', 
     'HLT_DoubleMu4_Dimuon6_Bs_v6', 
+    'HLT_DoubleMu4_JpsiTk_Displaced_v1', 
     'HLT_DoubleMu4_Jpsi_Displaced_v6', 
-    'HLT_DoubleMu4p5_LowMass_Displaced_v6', 
-    'HLT_DoubleMu5_Jpsi_Displaced_v6', 
-    'HLT_DoubleMu5_LowMass_Displaced_v6', 
-    'HLT_Mu5_L2Mu2_Jpsi_v14', 
+    'HLT_Mu5_L2Mu3_Jpsi_v1', 
     'HLT_Mu5_Track2_Jpsi_v14', 
-    'HLT_Mu7_Track7_Jpsi_v15', 
-    'HLT_TripleMu0_TauTo3Mu_v2')
+    'HLT_Mu5_Track3p5_Jpsi_v1', 
+    'HLT_Tau2Mu_RegPixTrack_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMultiJet_selector
 streamA_datasetMultiJet_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
