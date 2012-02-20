@@ -10,9 +10,9 @@ process.DQMStore = cms.Service("DQMStore")
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
 # input file
-import DQMOffline.EGamma.electronDbsDiscovery as dbs
+import DQMOffline.EGamma.electronDataDiscovery as dd
 process.source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring(),secondaryFileNames = cms.untracked.vstring())
-process.source.fileNames.extend(dbs.search())
+process.source.fileNames.extend(dd.search())
 
 process.load("Validation.RecoEgamma.ElectronWebGetter_cfi")
 #process.load("Configuration.StandardSequences.EDMtoMEAtJobEnd_cff")
