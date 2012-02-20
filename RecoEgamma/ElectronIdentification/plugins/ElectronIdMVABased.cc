@@ -13,7 +13,7 @@
 //
 // Original Author:  Zablocki Jakub
 //         Created:  Thu Feb  9 10:47:50 CST 2012
-// $Id$
+// $Id: ElectronIdMVABased.cc,v 1.1 2012/02/17 18:45:22 benedet Exp $
 //
 //
 
@@ -129,8 +129,13 @@ bool ElectronIdMVABased::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 	    mvaElectrons->push_back( *egIter );
 	  else if (eleEta > 1.485 && mvaVal > thresholdEndcap)
 	    mvaElectrons->push_back( *egIter );
+	  
+	  reco::GsfElectron::MvaOutput myMvaOutput;
+	  myMvaOutput.mva = mvaVal;
+	  mvaElectrons->back().setMvaOutput(myMvaOutput);
 	}
 	
+
 	iEvent.put(mvaElectrons);
 
 	return true;
