@@ -10,7 +10,7 @@ import os
 import sys
 
 from Configuration.DataProcessing.Scenario import Scenario
-from Configuration.DataProcessing.Utils import stepALCAPRODUCER,addMonitoring
+from Configuration.DataProcessing.Utils import stepALCAPRODUCER,addMonitoring,dictIO,dqmIOSource
 import FWCore.ParameterSet.Config as cms
 from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder
 from Configuration.PyReleaseValidation.ConfigBuilder import Options
@@ -52,7 +52,7 @@ class HeavyIons(Scenario):
         options.conditions = globalTag
         
         process = cms.Process('RECO')
-        cb = ConfigBuilder(options, process = process, with_ouput=True)
+        cb = ConfigBuilder(options, process = process, with_output=True)
 
         # Input source
         process.source = cms.Source("PoolSource",
@@ -86,7 +86,7 @@ class HeavyIons(Scenario):
         options.conditions = globalTag
         
         process = cms.Process('RECO')
-        cb = ConfigBuilder(options, process = process, with_ouput=True)
+        cb = ConfigBuilder(options, process = process, with_output=True)
 
         # Input source
         process.source = cms.Source("NewEventStreamFileReader",
