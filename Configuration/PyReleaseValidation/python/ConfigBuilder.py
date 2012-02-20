@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.361 $"
+__version__ = "$Revision: 1.362 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -511,7 +511,7 @@ class ConfigBuilder(object):
 		##ends the --output options model
 		return result
 
-	streamTypes=self.eventcontent.split(',')
+	streamTypes=self._options.eventcontent.split(',')
 	tiers=self._options.datatier.split(',')
 	if not self._options.outputDefinition and len(streamTypes)!=len(tiers):
 		raise Exception("number of event content arguments does not match number of datatier arguments")
@@ -892,7 +892,6 @@ class ConfigBuilder(object):
             self.HARVESTINGDefaultCFF="Configuration/StandardSequences/HarvestingCosmics_cff"
             self.RECODefaultSeq='reconstructionCosmics'
             self.DQMDefaultSeq='DQMOfflineCosmics'
-            self.eventcontent='FEVT'
 
         if self._options.himix:
                 print "From the presence of the himix option, we have determined that this is heavy ions and will use '--scenario HeavyIons'."
@@ -953,8 +952,6 @@ class ConfigBuilder(object):
         elif self._options.isMC==True and self._options.himix==True:
 		self._options.pileup='HiMix'
 
-        if self._options.eventcontent != None:
-            self.eventcontent=self._options.eventcontent
 
 	if self._options.slhc:
 		if 'stdgeom' not in self._options.slhc:
@@ -1672,7 +1669,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.361 $"),
+                                            (version=cms.untracked.string("$Revision: 1.362 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
