@@ -17,10 +17,7 @@ def stepALCAPRODUCER(skims):
 
     step = ''
     if len(skims) >0:
-        step = ',ALCAPRODUCER:'
-        for skim in skims:
-            step += (skim+"+")
-        step = step.rstrip('+')
+        step = ',ALCAPRODUCER:'+('+'.join(skims))
     return step
 
 def addMonitoring(process):
