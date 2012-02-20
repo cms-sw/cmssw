@@ -10,7 +10,7 @@ import os
 import sys
 
 from Configuration.DataProcessing.Scenario import Scenario
-from Configuration.DataProcessing.Utils import stepALCAPRODUCER,dqmIOSource,harvestingMode
+from Configuration.DataProcessing.Utils import stepALCAPRODUCER,dqmIOSource,harvestingMode,dictIO
 import FWCore.ParameterSet.Config as cms
 from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder
 from Configuration.PyReleaseValidation.ConfigBuilder import Options
