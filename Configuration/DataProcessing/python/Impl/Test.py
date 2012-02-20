@@ -21,28 +21,31 @@ class Test(Scenario):
     """
 
     
-    def promptReco(self, globalTag, skims = [], writeTiers = ['RECO','ALCARECO']):
+    def promptReco(self, globalTag):
         """
-        _installPromptReco_
+        _promptReco_
 
-        given a skeleton process object and references
-        to the output modules for the products it produces,
-        install the standard reco sequences and event content for this
-        scenario
+        Returns skeleton process object
 
         """
         return cms.Process("RECO")
 
+
+    def expressProcessing(self, globalTag):
+        """
+        _expressProcessing_
+
+        Returns skeleton process object
+
+        """
+        return cms.Process("Express")
 
 
     def alcaSkim(self, skims):
         """
         _alcaSkim_
 
-        Given a skeleton process install the alcareco sequences and
-        skims.
-        For each skim name in the list of skims, install the appropriate
-        output module with the name of the skim
+        Returns skeleton process object
 
         """
         return cms.Process("ALCARECO")
@@ -104,38 +107,11 @@ class Test(Scenario):
         return process
 
 
-    def expressProcessing(self, globalTag):
-        """
-        _expressProcessing_
-
-        Build an express processing configuration for this scenario.
-
-        Express processing runs conversion, reco and alca reco on each
-        streamer file in the express stream and writes out RAW, RECO and
-        a combined ALCA file that gets mergepacked in a later step
-
-        """
-        return cms.Process("Express")
-
-
-    def expressMergepacking(self, *outputModules):
-        """
-        _expressMergepacking_
-
-        Build/customise a mergepacking configuration
-
-        """
-        return cms.Process("MPack")
-
-    
     def skimming(self, *skims):
         """
         _skimming_
 
-        Given a process install the sequences for Tier 1 skimming
-        and the appropriate output modules
+        Returns skeleton process object
 
         """
         return cms.Process("Skimming")
-        
-
