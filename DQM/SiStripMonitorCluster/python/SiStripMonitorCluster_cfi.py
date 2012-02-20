@@ -226,6 +226,19 @@ SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
         xmax           = cms.double(2.),
         globalswitchon = cms.bool(False)
         ),                            
+# Nunmber of Cluster in Pixel
+    TH1NClusPx = cms.PSet(
+        Nbinsx = cms.int32(200),
+        xmax = cms.double(19999.5),                      
+        xmin = cms.double(-0.5)
+        ),
+                                       
+# Number of Cluster in Strip
+    TH1NClusStrip = cms.PSet(
+        Nbinsx = cms.int32(500),
+        xmax = cms.double(99999.5),                      
+        xmin = cms.double(-0.5)
+        ),
 
     TH1StripNoise2ApvCycle = cms.PSet(
         Nbinsx = cms.int32(70),
@@ -242,6 +255,7 @@ SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
         ),
                                        
     Mod_On = cms.bool(True),
+    ClusterHisto = cms.bool(False),
 
     HistoryProducer = cms.InputTag("consecutiveHEs"),
     ApvPhaseProducer = cms.InputTag("APVPhases"),
