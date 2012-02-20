@@ -15,6 +15,7 @@ configurations for the various types of job
 
 import FWCore.ParameterSet.Config as cms
 from Configuration.DataProcessing.Merge import mergeProcess
+from Configuration.DataProcessing.Repack import repackProcess
 
 class Scenario(object):
     """
@@ -25,7 +26,7 @@ class Scenario(object):
         pass
 
 
-    def promptReco(self, globalTag, writeTiers = ['RECO'], **options):
+    def promptReco(self, globalTag, **options):
         """
         _installPromptReco_
 
@@ -40,7 +41,7 @@ class Scenario(object):
         raise NotImplementedError, msg
 
 
-    def expressProcessing(self, globalTag, writeTiers = [], **options):
+    def expressProcessing(self, globalTag, **options):
         """
         _expressProcessing_
 
@@ -150,6 +151,17 @@ class Scenario(object):
         return mergeProcess(*inputFiles, **options)
 
 
+    def repack(self, **options):
+        """
+        _repack_
+
+        builds a repack configuration
+
+        """
+        msg = "Scenario Implementation %s\n" % self.__class__.__name__
+        return repackProcess(**options)
+
+
     #
     # helper methods
     #
@@ -163,34 +175,3 @@ class Scenario(object):
         """
         del process._Process__outputmodules[moduleName]
         return
-
-
-    def addExpressOutputModules(self, process, tiers, datasets):
-        """
-        _addExpressOutputModules_
-
-        Util method to unpack and install the set of data tier
-        output modules corresponding to the list of tiers and datasets
-        provided
-
-        """
-        for tier in tiers:
-            for dataset in datasets:
-                moduleName = "write%s%s" % (tier, dataset)
-                contentName = "%sEventContent" % tier
-                contentAttr = getattr(process, contentName)
-                setattr(process, moduleName, 
-
-                        cms.OutputModule(
-                    "PoolOutputModule", 
-                    fileName = cms.untracked.string('%s.root' % moduleName), 
-                    dataset = cms.untracked.PSet( 
-                    dataTier = cms.untracked.string(tier), 
-                    ),
-                    eventContent = contentAttr
-                    )
-                        
-                        )
-        return
-
-
