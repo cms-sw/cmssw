@@ -56,9 +56,7 @@ RecoEcalCandidate HFRecoEcalCandidateAlgo::correctEPosition(const SuperCluster& 
   double corEta=original.eta();
   corEta+=(original.eta()>0)?(etaCorrect):(-etaCorrect);
   double corPhi=original.phi()+phiAmpCorrect*sin(phiFreqCorrect*shape.CellPhi());
-  double corPx=corEnergy*cos(corPhi)/cosh(corEta);
-  double corPy=corEnergy*sin(corPhi)/cosh(corEta);
-  double corPz=corEnergy*tanh(corEta);
+  
   if(m_correctForPileup){
     std::vector<double> m=m_PileupSlopes;
 
@@ -73,13 +71,19 @@ RecoEcalCandidate HFRecoEcalCandidateAlgo::correctEPosition(const SuperCluster& 
 	ieta = (corEta > 0)?(kk+29):(-kk-29);
       }
     }
-    int neta=99;
-    if(ieta<0)ieta=ieta+39;
-    if(ieta>0)ieta=ieta-20;
+    int neta=ieta;
+    if(ieta<0)neta=ieta+39;
+    if(ieta>0)neta=ieta-20;
     if((neta>=0)&&(neta<=19)){
       corEnergy=(m[neta]*1.0*(nvtx-1)+b[neta]*1.0)*corEnergy*1.0;
     }
   }//end vtx cor
+
+  double corPx=corEnergy*cos(corPhi)/cosh(corEta);
+  double corPy=corEnergy*sin(corPhi)/cosh(corEta);
+  double corPz=corEnergy*tanh(corEta);
+  
+  
   RecoEcalCandidate corCand(0,
 			    math::XYZTLorentzVector(corPx,corPy,corPz,corEnergy),
 			    math::XYZPoint(0,0,0));
