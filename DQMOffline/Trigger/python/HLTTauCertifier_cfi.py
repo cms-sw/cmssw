@@ -4,7 +4,9 @@ hltTauOfflineCertification = cms.EDAnalyzer("HLTTauCertifier",
                                    targetDir = cms.string("HLT/EventInfo/reportSummaryContents"),
                                    targetME  = cms.string("HLT_Tau"),
                                    inputMEs = cms.vstring(
-                                      "HLT/TauOffline/Inclusive/DoubleTau/TriggerBits",
+                                      "HLT/TauOffline/Inclusive/DoubleLooseIsoTauTau/TriggerBits",
+                                      "HLT/TauOffline/Inclusive/DoubleLooseIsoTauTau/TriggerBits",
+
                                    ),
                                    setBadRunOnWarnings = cms.bool(False),
                                    setBadRunOnErrors   = cms.bool(True)

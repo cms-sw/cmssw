@@ -47,7 +47,7 @@ fi
 
 if [ ${cflag} -eq 1 ]
     then
-    copyorcon="copyNonO2OPayloads=1 copyDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T copyDBAuth=/nfshome0/popcondev/conddb_taskWriters/L1T"
+    copyorcon="copyNonO2OPayloads=1 copyDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T copyDBAuth=/nfshome0/popcondev/conddb"
 fi
 
 if [ ${xflag} -eq 0 ]
@@ -78,13 +78,13 @@ if [ ${xflag} -eq 0 ]
     fi
 else
     echo "Writing to cms_orcon_prod."
-    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWritePayloadOnline_cfg.py tscKey=${tsckey} outputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T outputDBAuth=/nfshome0/popcondev/conddb_taskWriters/L1T ${overwrite} ${copyorcon} print
+    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWritePayloadOnline_cfg.py tscKey=${tsckey} outputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T outputDBAuth=/nfshome0/popcondev/conddb ${overwrite} ${copyorcon} print
     o2ocode=$?
     if [ ${o2ocode} -eq 0 ]
 	then
 	echo
 	echo "`date` : checking O2O"
-	if cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/l1o2otestanalyzer_cfg.py inputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T inputDBAuth=/nfshome0/popcondev/conddb_taskWriters/L1T printL1TriggerKeyList=1 | grep ${tsckey} ; then echo "L1TRIGGERKEY WRITTEN SUCCESSFULLY"
+	if cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/l1o2otestanalyzer_cfg.py inputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T inputDBAuth=/nfshome0/popcondev/conddb printL1TriggerKeyList=1 | grep ${tsckey} ; then echo "L1TRIGGERKEY WRITTEN SUCCESSFULLY"
 	else
 	    echo "L1-O2O-ERROR: L1TRIGGERKEY WRITING FAILED" >&2
 	    exit 199

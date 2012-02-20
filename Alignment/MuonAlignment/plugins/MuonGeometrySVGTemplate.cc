@@ -113,7 +113,7 @@ MuonGeometrySVGTemplate::analyze(const edm::Event &iEvent, const edm::EventSetup
 	 double y = -height/2.;
 
 	 // phi position of chamber
-	 align::GlobalVector direction = chamber->surface().toGlobal(LocalVector(1., 0., 0.));
+	 GlobalVector direction = chamber->surface().toGlobal(LocalVector(1., 0., 0.));
 	 double phi = atan2(direction.y(), direction.x());
 	 
 	 // we'll apply a translation to put the chamber in its place

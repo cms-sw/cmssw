@@ -26,7 +26,7 @@ LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track,
 
   bool barrel = false;
   bool hcal = false;
-//  double distance = 999999.9;
+  double distance = 999999.9;
 
   //track extrapolation
   const reco::PFTrajectoryPoint& atVertex 
@@ -65,12 +65,12 @@ LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track,
     track_Y  = atECAL.position().Y();
     track_Z  = atECAL.position().Z();
 
-/*    distance 
+    distance 
       = std::sqrt( (track_X-clusterX)*(track_X-clusterX)
 		  +(track_Y-clusterY)*(track_Y-clusterY)
 		  +(track_Z-clusterZ)*(track_Z-clusterZ)
 		   );
-*/			           
+			           
     break;
    
   case PFLayer::HCAL_BARREL1: barrel = true; 
@@ -101,12 +101,12 @@ LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track,
       track_X  = atHCAL.position().X();
       track_Y  = atHCAL.position().Y();
       track_Z  = atHCAL.position().Z();
-/*      distance 
+      distance 
 	= -std::sqrt( (track_X-clusterX)*(track_X-clusterX)
 		     +(track_Y-clusterY)*(track_Y-clusterY)
 		     +(track_Z-clusterZ)*(track_Z-clusterZ)
 		     );
-*/			           
+			           
     }
     break;
   case PFLayer::PS1:

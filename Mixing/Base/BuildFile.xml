@@ -10,6 +10,8 @@
 <use   name="boost"/>
 <use   name="clhep"/>
 <use   name="roothistmatrix"/>
+<use   name="CondFormats/RunInfo"/>
+<use   name="CondFormats/DataRecord"/>
 <export>
   <lib   name="1"/>
 </export>

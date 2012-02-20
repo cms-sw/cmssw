@@ -121,8 +121,8 @@ private:
   std::string algoBitToName[nL1BitsMax];
   double a_coneR, a_charIsoR, a_neutIsoR, a_mipR;
 
-  bool   debug, debugL1Info_;
-  int    debugTrks_;
+  bool   debugL1Info_;
+  int    verbosity, debugTrks_;
   bool   printTrkHitPattern_;
   int    myverbose_;
   bool   useJetTrigger_;

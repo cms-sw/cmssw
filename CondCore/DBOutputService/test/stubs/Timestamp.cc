@@ -26,17 +26,17 @@ void Timestamp::analyze( const edm::Event& evt, const edm::EventSetup& evtSetup)
   std::string tag=mydbservice->tag(m_record);
   std::cout<<"tag "<<tag<<std::endl;
   std::cout<<"time "<<itime<<std::endl;
-  Pedestals myped;
+  Pedestals* myped=new Pedestals;
   for(int ichannel=1; ichannel<=5; ++ichannel){
     Pedestals::Item item;
     item.m_mean=1.11*ichannel+itime;
     item.m_variance=1.12*ichannel+itime;
-    myped.m_pedestals.push_back(item);
+    myped->m_pedestals.push_back(item);
     }
-  std::cout<<myped.m_pedestals[1].m_mean<<std::endl;
+  std::cout<<myped->m_pedestals[1].m_mean<<std::endl;
   std::cout<<"currentTime "<<mydbservice->currentTime()<<std::endl;
   if(mydbservice->currentTime()%5==0){
-    mydbservice->writeOne(&myped,new cond::GenericSummary("5"),
+    mydbservice->writeOne(myped,new cond::GenericSummary("5"),
 			  mydbservice->currentTime(),m_record,false);
   }
 }

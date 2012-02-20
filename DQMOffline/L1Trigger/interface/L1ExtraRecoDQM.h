@@ -12,8 +12,8 @@
  *
  * \author: Vasile Mihai Ghete   - HEPHY Vienna
  *
- * $Date: 2011/11/15 15:50:18 $
- * $Revision: 1.1 $
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -84,17 +84,11 @@ public:
 private:
 
     virtual void beginJob();
-    virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-    virtual void beginLuminosityBlock(const edm::LuminosityBlock&,
-            const edm::EventSetup&);
+    void beginRun(const edm::Run&, const edm::EventSetup&);
 
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-    /// end section
-    virtual void endLuminosityBlock(const edm::LuminosityBlock&,
-            const edm::EventSetup&);
-    virtual void endRun(const edm::Run&, const edm::EventSetup&);
-
+    void endRun(const edm::Run&, const edm::EventSetup&);
     virtual void endJob();
 
 private:

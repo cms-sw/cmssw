@@ -119,8 +119,6 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
 
     adc2.clear();
     adc2Raw.clear();
-    adc2.reserve(4);
-    adc2Raw.reserve(4);
     for ( int t = 0; t < 4; ++t ){
       adc2.push_back(adc[t+iStrip*4]);
       adc2Raw.push_back(adcRaw[t+iStrip*4]);

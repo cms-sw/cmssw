@@ -96,8 +96,6 @@ namespace cond {
 
 const char* cond::DbSession::COND_SCHEMA_VERSION = "2.0.0";   
 const char* cond::DbSession::CHANGE_SCHEMA_VERSION = "2.0.0";
-const std::string cond::DbSession::CONDITIONS_GENERAL_WRITER("CMS_COND_GENERAL_W");
-const std::string cond::DbSession::CONDITIONS_GENERAL_READER("CMS_COND_READER_ROLE");
 
 cond::DbSession::DbSession():
   m_implementation( new SessionImpl ){ 

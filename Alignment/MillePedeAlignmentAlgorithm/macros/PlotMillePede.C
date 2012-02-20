@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2011/08/08 21:55:48 $
+// last change    : $Date: 2011/08/08 16:47:33 $
 // by             : $Author: flucke $
 
 #include "PlotMillePede.h"
@@ -52,7 +52,7 @@ void PlotMillePede::DrawAll(Option_t *opt)
   fHistManager->Clear();
   
 //   if (o.Contains("d", TString::kIgnoreCase)) this->DrawParamDiff(true);
-  if (o.Contains("r", TString::kIgnoreCase)) this->DrawParamResult("add");
+  if (o.Contains("r", TString::kIgnoreCase)) this->DrawParamResult(true);
   if (o.Contains("o", TString::kIgnoreCase)) this->DrawOrigParam(true);
   if (o.Contains("g", TString::kIgnoreCase)) this->DrawGlobCorr(true);
   if (o.Contains("p", TString::kIgnoreCase)) this->DrawPull("add");
@@ -791,15 +791,14 @@ void PlotMillePede::DrawOrigPos(bool addPlots, const TString &sel)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void PlotMillePede::DrawParamResult(Option_t *option)
+void PlotMillePede::DrawParamResult(bool addPlots)
 {
-  const TString opt(option);
-  const Int_t layer = this->PrepareAdd(opt.Contains("add", TString::kIgnoreCase));
+  const Int_t layer = this->PrepareAdd(addPlots);
 
   const TString titleAdd = this->TitleAdd();
   UInt_t nPlot = 0;
   for (UInt_t iPar = 0; iPar < kNpar; ++iPar) { // 
-    TString sel(opt.Contains("withfixed", TString::kIgnoreCase) ? "" : Fixed(iPar,false).Data());
+    TString sel(Fixed(iPar,false));
     this->AddBasicSelection(sel);
 
     const TString toMu(this->ToMumMuRad(iPar));

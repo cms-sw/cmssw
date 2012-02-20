@@ -27,8 +27,8 @@
 
 /** \class HcalRawDataMonitor
  *
- * $Date: 2011/03/04 19:02:20 $
- * $Revision: 1.4 $
+ * $Date: 2010/05/12 22:33:27 $
+ * $Revision: 1.3 $
  * \author J. St. John - Boston University
  */
 class HcalRawDataMonitor: public HcalBaseDQMonitor {
@@ -68,7 +68,6 @@ class HcalRawDataMonitor: public HcalBaseDQMonitor {
 	     ?(HcalDetId::Undefined)
 	     :(hashedHcalDetId_[thehash]));
   };
-  uint64_t uniqcounter[ETABINS][PHIBINS][DEPTHBINS]; // HFd1,2 at 'depths' 3,4 to avoid collision with HE
   uint64_t problemcount[ETABINS][PHIBINS][DEPTHBINS]; // HFd1,2 at 'depths' 3,4 to avoid collision with HE
   bool     problemfound[ETABINS][PHIBINS][DEPTHBINS]; // HFd1,2 at 'depths' 3,4 to avoid collision with HE
   void mapDCCproblem  (int dcc);                          // Set problemfound[][][] = true for the hardware's ieta/iphi/depth's

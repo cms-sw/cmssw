@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2011/10/30 15:01:26 $
- * $Revision: 1.216 $
+ * $Date: 2011/09/15 21:02:09 $
+ * $Revision: 1.214 $
  * \author G. Della Ricca
  *
 */
@@ -214,8 +214,7 @@ EESummaryClient::EESummaryClient(const edm::ParameterSet& ps) {
 
   }
 
-  timingNHitThreshold_ = ps.getUntrackedParameter<int>("timingNHitThreshold", 5);
-  synchErrorThreshold_ = ps.getUntrackedParameter<int>("synchErrorThreshold", 5);
+  synchErrorThreshold_ = 0.0;
 
 }
 
@@ -1588,15 +1587,6 @@ void EESummaryClient::analyze(void) {
   if ( meGlobalSummary_[0] ) meGlobalSummary_[0]->setEntries( 0 );
   if ( meGlobalSummary_[1] ) meGlobalSummary_[1]->setEntries( 0 );
 
-  MonitorElement *me(0);
-  me = dqmStore_->get(prefixME_ + "/EETimingTask/EETMT timing map EE +");
-  TProfile2D *htmtp(0);
-  htmtp = UtilsClient::getHisto(me, false, htmtp);
-
-  me = dqmStore_->get(prefixME_ + "/EETimingTask/EETMT timing map EE -");
-  TProfile2D *htmtm(0);
-  htmtm = UtilsClient::getHisto(me, false, htmtm);
-
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
 
     EEIntegrityClient* eeic = dynamic_cast<EEIntegrityClient*>(clients_[i]);
@@ -1611,6 +1601,7 @@ void EESummaryClient::analyze(void) {
     EETimingClient* eetmc = dynamic_cast<EETimingClient*>(clients_[i]);
     EETriggerTowerClient* eetttc = dynamic_cast<EETriggerTowerClient*>(clients_[i]);
 
+    MonitorElement *me;
     MonitorElement *me_01, *me_02, *me_03;
     MonitorElement *me_04, *me_05;
     //    MonitorElement *me_f[6], *me_fg[2];
@@ -1632,6 +1623,9 @@ void EESummaryClient::analyze(void) {
 
       me = dqmStore_->get( prefixME_ + "/EETimingTask/EETMT timing " + Numbers::sEE(ism) );
       htmt01_[ism-1] = UtilsClient::getHisto( me, cloneME_, htmt01_[ism-1] );
+
+      me = dqmStore_->get( prefixME_ + "/EcalInfo/EEMM DCC" );
+      norm01_ = UtilsClient::getHisto( me, cloneME_, norm01_ );
 
       me = dqmStore_->get( prefixME_ + "/EERawDataTask/EERDT L1A FE errors" );
       synch01_ = UtilsClient::getHisto( me, cloneME_, synch01_ );
@@ -2100,7 +2094,7 @@ void EESummaryClient::analyze(void) {
           if ( eetmc ) {
 
 	    float num01, mean01, rms01;
-	    bool update01 = UtilsClient::getBinStatistics(htmt01_[ism-1], ix, iy, num01, mean01, rms01, timingNHitThreshold_);
+	    bool update01 = UtilsClient::getBinStatistics(htmt01_[ism-1], ix, iy, num01, mean01, rms01, 1.);
 	    mean01 -= 50.;
 
 	    if( update01 ){
@@ -2142,55 +2136,60 @@ void EESummaryClient::analyze(void) {
 
             if ( htmt01_[ism-1] ) {
 
-	      int ixedge((ix-1) * 5);
-	      int iyedge((iy-1) * 5);
-	      int jxedge((jx-1) * 5);
-	      int jyedge((jy-1) * 5);
+	      int ixedge = (ix-1) * 5;
+	      int iyedge = (iy-1) * 5;
+	      int jxedge = (jx-1) * 5;
+	      int jyedge = (jy-1) * 5;
 
-	      float num(0);
-	      int nValid(0);
-	      bool mask(false);
+	      float nvalid = 0.;
+	      float ent, cont, err;
+	      float num, sum, sumw2;
+	      num = sum = sumw2 = 0.;
+	      bool mask = false;
+	      float eta = 999.;
 
 	      for(int cx=1; cx<=5; cx++){
 		for(int cy=1; cy<=5; cy++){
-		  int scjx((ism >= 1 && ism <= 9) ? 101 - (jxedge + cx) : jxedge + cx);
-		  int scjy(jyedge + cy);
-		  int scix(ixedge + cx);
-		  int sciy(iyedge + cy);
+		  int scjx = (ism >= 1 && ism <= 9) ? 101 - (jxedge + cx) : jxedge + cx;
+		  int scjy = jyedge + cy;
+		  int scix = ixedge + cx;
+		  int sciy = iyedge + cy;
 
 		  if ( ! Numbers::validEE(ism, scjx, scjy) ) continue;
 
-		  nValid++;
+		  nvalid += 1.;
 
-		  num += htmt01_[ism-1]->GetBinEntries(htmt01_[ism-1]->GetBin(scix, sciy));
+		  if( eta > 4.0 ){ // EE |eta| is < 3.0
+		    EEDetId id(scjx, scjy, (ism / 10) * 2 - 1);
+		    eta = Numbers::eta(id);
+		  }
 
-		  if( Masks::maskChannel(ism, scix, sciy, chWarnBit, EcalEndcap) ) mask = true;
+		  int bin = htmt01_[ism-1]->GetBin(scix, sciy);
+
+		  // htmt01_ are booked with option "s" -> error = RMS not RMS/sqrt(N)
+		  ent = htmt01_[ism-1]->GetBinEntries( bin );
+		  cont = htmt01_[ism-1]->GetBinContent( bin ) - 50.;
+		  err = htmt01_[ism-1]->GetBinError( bin );
+
+		  num += ent;
+		  sum += cont * ent;
+		  sumw2 += (err * err + cont * cont) * ent;
+
+		  float rmsThreshold = std::abs(eta) > 2.6 ? 10. : 4.;
+
+		  if( ent > 1 && (std::abs(cont) > 3. || err > rmsThreshold) && Masks::maskChannel(ism, scix, sciy, chWarnBit, EcalEndcap) ) mask = true;
 		}
 	      }
 
-	      float nHitThreshold(timingNHitThreshold_ * 15. * nValid / 25.);
-
-	      bool update01(false);
-	      float num01, mean01, rms01;
-	      if(ism >= 1 && ism <= 9)
-		update01 = UtilsClient::getBinStatistics(htmtm, 21 - jx, jy, num01, mean01, rms01, nHitThreshold);
-	      else
-		update01 = UtilsClient::getBinStatistics(htmtp, jx, jy, num01, mean01, rms01, nHitThreshold);
-
-	      mean01 -= 50.;
-
-	      if(!update01){
-		mean01 = 0.;
-		rms01 = 0.;
-	      }
-
-	      update01 |= num > 1.4 * nHitThreshold; // allow 40% outliers
-
 	      float xval = 2.;
-	      if( update01 ){
+	      if( num > (10. * nvalid / 25.) ){
 
-		// quality BAD if mean large, rms large, or significantly more outliers (num: # events in +-20 ns time window)
-		if( std::abs(mean01) > 3. || rms01 > 6. || num > 1.4 * num01 ) xval = 0.;
+		float mean = sum / num;
+		float rms = std::sqrt( sumw2 / num - mean * mean );
+
+		float rmsThreshold = std::abs(eta) > 2.6 ? 10. : 4.;
+
+		if( std::abs(mean) > 3. || rms > rmsThreshold ) xval = 0.;
 		else xval = 1.;
 
 	      }
@@ -2760,9 +2759,12 @@ void EESummaryClient::analyze(void) {
               validCry = true;
 
               // recycle the validEE for the synch check of the DCC
-              if(synch01_) {
-                float synchErrors = synch01_->GetBinContent(ism);
-                if(synchErrors >= synchErrorThreshold_) xval=0;
+              if(norm01_ && synch01_) {
+                float frac_synch_errors = 0.;
+                float norm = norm01_->GetBinContent(ism);
+                if(norm > 0) frac_synch_errors = float(synch01_->GetBinContent(ism))/float(norm);
+                float val_sy = (frac_synch_errors <= synchErrorThreshold_);
+                if(val_sy==0) xval=0;
               }
 
               for ( unsigned int i=0; i<clients_.size(); i++ ) {
@@ -2887,10 +2889,14 @@ void EESummaryClient::analyze(void) {
           if (iter != superModules_.end()) {
             if ( Numbers::validEE(ism, jx, jy) ) {
               validCry = true;
+
               // recycle the validEE for the synch check of the DCC
-              if(synch01_) {
-		float synchErrors = synch01_->GetBinContent(ism);
-                if(synchErrors >= synchErrorThreshold_) xval=0;
+              if(norm01_ && synch01_) {
+                float frac_synch_errors = 0.;
+                float norm = norm01_->GetBinContent(ism);
+                if(norm > 0) frac_synch_errors = float(synch01_->GetBinContent(ism))/float(norm);
+                float val_sy = (frac_synch_errors <= synchErrorThreshold_);
+                if(val_sy==0) xval=0;
               }
 
               for ( unsigned int i=0; i<clients_.size(); i++ ) {
@@ -2932,6 +2938,9 @@ void EESummaryClient::analyze(void) {
     }
   }
 
+
+
+  MonitorElement* me;
 
   float reportSummary = -1.0;
   if ( nValidChannels != 0 )

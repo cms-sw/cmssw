@@ -1,7 +1,4 @@
 <flags   EDM_PLUGIN="1"/>
-<export>
-  <lib   name="1"/>
-</export>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/ParameterSet"/>
@@ -11,3 +8,6 @@
 <use   name="boost"/>
 <use   name="clhep"/>
 <use   name="hepmc"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="CondFormats/BeamSpotObjects"/>
+<use   name="CondCore/DBOutputService"/>

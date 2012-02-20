@@ -19,7 +19,7 @@ static const int FATAL_OPTS = (lat::Signal::FATAL_DEFAULT
 
 volatile sig_atomic_t s_stop = 0;
 static void
-interrupt (int /*sig*/)
+interrupt (int sig) 
 {
   s_stop = 1;
 }

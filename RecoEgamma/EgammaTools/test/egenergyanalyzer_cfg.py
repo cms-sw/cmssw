@@ -22,7 +22,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 
 process.source = cms.Source("PoolSource",
-   fileNames = cms.untracked.vstring('/store/relval/CMSSW_5_0_0_pre4/RelValH130GGgluonfusion/GEN-SIM-RECO/START50_V3-v1/0025/86AD5E15-BC04-E111-B5DC-002618943969.root'),
+   fileNames = cms.untracked.vstring('/store/relval/CMSSW_5_0_0_pre7/RelValH130GGgluonfusion/GEN-SIM-RECO/START50_V7-v1/0070/903C7DE3-7722-E111-A53A-003048678B86.root'),
 )
 
         
@@ -31,7 +31,7 @@ process.egenergyanalyzer = cms.EDAnalyzer('EGEnergyAnalyzer'
 )
 
 
-process.GlobalTag.globaltag = 'START50_V3::All'    
+process.GlobalTag.globaltag = 'START50_V7::All'    
 
             
 process.load("CondCore.DBCommon.CondDBCommon_cfi")

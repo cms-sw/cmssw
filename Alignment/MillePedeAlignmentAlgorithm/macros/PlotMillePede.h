@@ -1,7 +1,7 @@
 #ifndef PLOTMILLEPEDE_H
 #define PLOTMILLEPEDE_H
 // Original Author: Gero Flucke
-// last change    : $Date: 2011/08/08 21:55:48 $
+// last change    : $Date: 2011/08/08 16:47:33 $
 // by             : $Author: flucke $
 //
 // PlotMillePede is a class to interprete the content of the ROOT
@@ -139,7 +139,7 @@ class PlotMillePede : public MillePedeTrees
   void DrawOrigPos(bool addPlots = false, const TString &sel = "");
 
 /*   void DrawParamDiff(bool addPlots = false); */
-  void DrawParamResult(Option_t *option = ""); // 'add' to add plots, 'withFixed' to plot also fixed 
+  void DrawParamResult(bool addPlots = false);
   void DrawPosResult(bool addPlots = false, const TString &selection = "");// sel=SelIs2D()/SelIs1D()
   void DrawPosMisVsLocation(bool addPlots=false, const TString &selection="", Option_t *option="");// sel=e.g. SelIs2D()/SelIs1D(), opt="start" starting misalignment profile
   void DrawGlobCorr(bool addPlots = false, const TString &sel = "", Option_t *opt = "",

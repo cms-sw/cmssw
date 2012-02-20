@@ -29,18 +29,18 @@ void IOVPayloadEndOfJob::endJob(){
   }
   try{
     std::string tag=mydbservice->tag(m_record);
-    Pedestals myped;
+    Pedestals* myped=new Pedestals;
     if( mydbservice->isNewTagRequest(m_record) ){
       for(int ichannel=1; ichannel<=5; ++ichannel){
 	Pedestals::Item item;
 	item.m_mean=1.11*ichannel;
 	item.m_variance=1.12*ichannel;
-	myped.m_pedestals.push_back(item);
+	myped->m_pedestals.push_back(item);
       }
       //create 
       cond::Time_t firstSinceTime=mydbservice->beginOfTime();
        std::cout<<"firstSinceTime is begin of time "<<firstSinceTime<<std::endl;
-       mydbservice->writeOne(&myped,new cond::GenericSummary("first"),firstSinceTime,m_record);
+       mydbservice->writeOne(myped,new cond::GenericSummary("first"),firstSinceTime,m_record);
     }else{
       //append 
       cond::Time_t current=mydbservice->currentTime();
@@ -51,11 +51,11 @@ void IOVPayloadEndOfJob::endJob(){
 	  Pedestals::Item item;
 	  item.m_mean=0.15*ichannel;
 	  item.m_variance=0.32*ichannel;
-	  myped.m_pedestals.push_back(item);
+	  myped->m_pedestals.push_back(item);
 	}
 	cond::Time_t thisPayload_valid_since=current;
 	std::cout<<"appeding since time "<<thisPayload_valid_since<<std::endl;
-	mydbservice->writeOne(&myped,new cond::GenericSummary("second"),thisPayload_valid_since,m_record);
+	mydbservice->writeOne(myped,new cond::GenericSummary("second"),thisPayload_valid_since,m_record);
 	std::cout<<"done"<<std::endl;
 	//std::cout<<myped->m_pedestals[1].m_mean<<std::endl;
       }

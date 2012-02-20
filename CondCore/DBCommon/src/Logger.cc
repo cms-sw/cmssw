@@ -91,12 +91,7 @@ cond::Logger::createLogDBIfNonExist(){
 	  coral::AttributeSpecification::typeNameForType<std::string>() );
   description.insertColumn(std::string("EXECMESSAGE"),
 	  coral::AttributeSpecification::typeNameForType<std::string>() );
-  coral::ITable& table = m_sessionHandle.nominalSchema().createTable( description );
-  table.privilegeManager().grantToUser( DbSession::CONDITIONS_GENERAL_READER, coral::ITablePrivilegeManager::Select );
-  table.privilegeManager().grantToUser( DbSession::CONDITIONS_GENERAL_WRITER, coral::ITablePrivilegeManager::Select );
-  table.privilegeManager().grantToUser( DbSession::CONDITIONS_GENERAL_WRITER, coral::ITablePrivilegeManager::Update );
-  table.privilegeManager().grantToUser( DbSession::CONDITIONS_GENERAL_WRITER, coral::ITablePrivilegeManager::Insert );
-  table.privilegeManager().grantToUser( DbSession::CONDITIONS_GENERAL_WRITER, coral::ITablePrivilegeManager::Delete );
+  m_sessionHandle.nominalSchema().createTable( description );
   m_logTableExists=true;
   trans.commit();
 }

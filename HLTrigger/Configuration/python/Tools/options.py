@@ -51,7 +51,7 @@ class ConnectionHLTMenu(object):
 class HLTProcessOptions(object):
   def __init__(self):
     self.menu       = None        #     hlt menu
-    self.name       = None        # (*) if set, override the process name
+    self.name       = 'HLTX'      # (*) if set, override the process name
     self.type       = 'GRun'      #     defines global options for 'GRun', 'HIon' or 'online' menus
     self.data       = True        #     run on data (true) or mc (false)
     self.online     = False       # (*) run online (true) or offline (false)

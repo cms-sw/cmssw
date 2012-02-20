@@ -4,7 +4,6 @@
 HcalTrigPrimMonitor::HcalTrigPrimMonitor (const edm::ParameterSet& ps) :
    dataLabel_(ps.getParameter<edm::InputTag>("dataLabel")),
    emulLabel_(ps.getParameter<edm::InputTag>("emulLabel")),
-   ZSBadTPThreshold_(ps.getParameter< std::vector<int> >("ZSBadTPThreshold")),
    ZSAlarmThreshold_(ps.getParameter< std::vector<int> >("ZSAlarmThreshold"))
 {
    Online_                = ps.getUntrackedParameter<bool>("online",false);
@@ -242,9 +241,6 @@ HcalTrigPrimMonitor::processEvent (
 
             int diff = abs(dataEt - emulEt);
             bool fill_corr_ZS = true;
-
-	    if (std::max(dataEt, emulEt) < ZSAlarmThreshold_.at(abs(ieta)))
-	      continue;
             
             if (diff == 0) {
                if (dataFG != emulFG) {
@@ -264,10 +260,9 @@ HcalTrigPrimMonitor::processEvent (
             }
             else {
                mismatchedEt_noZS = true;
-	       //if (diff > ZSAlarmThreshold_.at(abs(ieta))) {
-	       if (diff > ZSBadTPThreshold_.at(abs(ieta))) {
-		 mismatchedEt_ZS = true;
-		 fill_corr_ZS = false;
+               if (diff > ZSAlarmThreshold_.at(abs(ieta))) {
+                  mismatchedEt_ZS = true;
+                  fill_corr_ZS = false;
                }
             } // mismatche et
 

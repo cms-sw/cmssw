@@ -1,4 +1,3 @@
-
 // -*- C++ -*-
 //
 // Package:    SiPixelMonitorDigi
@@ -14,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.50 2011/09/08 10:06:32 merkelp Exp $
+// $Id: SiPixelDigiSource.cc,v 1.49 2010/11/09 10:55:36 merkelp Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -173,8 +172,6 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 				twoDimOn, reducedSet, twoDimModOn, twoDimOnlyLayDisk,
 				nDigisA, nDigisB);
     if(numberOfDigisMod>0){
-      //if((*struct_iter).first == I_detId[39]) 
-      //std::cout << "FED " << (*struct_iter).first << " NDigis all modules..." << numberOfDigisMod << std::endl;
       nEventDigis = nEventDigis + numberOfDigisMod;  
       nActiveModules++;  
       bool barrel = DetId((*struct_iter).first).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
@@ -184,24 +181,23 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
         //cout<<"AAbpix: "<<numberOfDigisMod<<" + "<<nBPIXDigis<<" = ";
         nBPIXDigis = nBPIXDigis + numberOfDigisMod;
 	//cout<<nBPIXDigis<<endl;
-        for(int i=0; i!=768; ++i){
+        for(int i=0; i!=768; i++){
           //cout<<"\t\t\t bpix: "<<i<<" , "<<(*struct_iter).first<<" , "<<I_detId[i]<<endl;
           if((*struct_iter).first == I_detId[i]){
 	    //if(I_fedId[i]>=32&&I_fedId[i]<=39) std::cout<<"Attention: a BPIX module matched to an FPIX FED!"<<std::endl;
 	    nDigisPerFed[I_fedId[i]]=nDigisPerFed[I_fedId[i]]+numberOfDigisMod;
 	    //cout<<"BPIX: "<<i<<" , "<<I_fedId[i]<<" , "<<numberOfDigisMod<<" , "<<nDigisPerFed[I_fedId[i]]<<endl;
-	    int index1 = 0; int index2 = 0;
+	    int index1 = -1; int index2 = -1;
 	    if(I_linkId1[i]>0) index1 = I_fedId[i]*36+(I_linkId1[i]-1); 
 	    if(I_linkId2[i]>0) index2 = I_fedId[i]*36+(I_linkId2[i]-1);
-	    if(nDigisA>0 && I_linkId1[i]>0) nDigisPerChan[index1]=nDigisPerChan[index1]+nDigisA;
-	    if(nDigisB>0 && I_linkId2[i]>0) nDigisPerChan[index2]=nDigisPerChan[index2]+nDigisB;
+	    if(nDigisA>0) nDigisPerChan[index1]=nDigisPerChan[index1]+nDigisA;
+	    if(nDigisB>0) nDigisPerChan[index2]=nDigisPerChan[index2]+nDigisB;
 	    //if (index1==35 || index2==35) cout<<"BPIX 35: "<<I_detId[i]<<" : "<<I_fedId[i]<<"  "<<I_linkId1[i]<<" , "<<I_fedId[i]<<"  "<<I_linkId2[i]<<" , "<<nDigisA<<" , "<<nDigisB<<endl;
 	    i=767;
 	  }
         }
       //}else if((*struct_iter).first >= 343999748 && (*struct_iter).first <= 352477708 ){ // Endcap
       }else if(endcap){ // Endcap
-
         //cout<<"AAfpix: "<<nFPIXDigis<<" = ";
         nFPIXDigis = nFPIXDigis + numberOfDigisMod;
 	//cout<<nFPIXDigis<<endl;
@@ -342,7 +338,7 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
           if((*struct_iter).first == I_detId[i]){
 	    //if(I_fedId[i]<32||I_fedId[i]>39) std::cout<<"Attention: an FPIX module matched to a BPIX FED!"<<std::endl;
 	    nDigisPerFed[I_fedId[i]]=nDigisPerFed[I_fedId[i]]+numberOfDigisMod;
-	    //cout<<"FPIX: "<<i<<" , "<<I_fedId[i]<<" , "<<nDigisPerFed[I_fedId[i]]<< ", "<<numberOfDigisMod << endl;
+	    //cout<<"FPIX: "<<i<<" , "<<I_fedId[i]<<" , "<<nDigisPerFed[I_fedId[i]]<<endl;
 	    i=1439;
 	  }
         }
