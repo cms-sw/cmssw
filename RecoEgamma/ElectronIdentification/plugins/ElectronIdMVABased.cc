@@ -13,7 +13,7 @@
 //
 // Original Author:  Zablocki Jakub
 //         Created:  Thu Feb  9 10:47:50 CST 2012
-// $Id: ElectronIdMVABased.cc,v 1.1 2012/02/17 18:45:22 benedet Exp $
+// $Id: ElectronIdMVABased.cc,v 1.2 2012/02/20 18:21:29 benedet Exp $
 //
 //
 
@@ -125,14 +125,20 @@ bool ElectronIdMVABased::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 	for ( reco::GsfElectronCollection::const_iterator egIter = egCandidates.begin(); egIter != egCandidates.end(); ++egIter) {
 	  double mvaVal = mvaID_->mva( *egIter, nVtx );
 	  double eleEta = fabs(egIter->eta());
-	  if (eleEta <= 1.485 && mvaVal > thresholdBarrel)
+	  if (eleEta <= 1.485 && mvaVal > thresholdBarrel) {
 	    mvaElectrons->push_back( *egIter );
-	  else if (eleEta > 1.485 && mvaVal > thresholdEndcap)
+	    reco::GsfElectron::MvaOutput myMvaOutput;
+	    myMvaOutput.mva = mvaVal;
+	    mvaElectrons->back().setMvaOutput(myMvaOutput);
+	  }
+	  else if (eleEta > 1.485 && mvaVal > thresholdEndcap) {
 	    mvaElectrons->push_back( *egIter );
+	    reco::GsfElectron::MvaOutput myMvaOutput;
+	    myMvaOutput.mva = mvaVal;
+	    mvaElectrons->back().setMvaOutput(myMvaOutput);
+	  }
 	  
-	  reco::GsfElectron::MvaOutput myMvaOutput;
-	  myMvaOutput.mva = mvaVal;
-	  mvaElectrons->back().setMvaOutput(myMvaOutput);
+
 	}
 	
 
