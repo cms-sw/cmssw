@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.363 $"
+__version__ = "$Revision: 1.364 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -17,12 +17,13 @@ defaultOptions.datamix = 'DataOnSim'
 from Configuration.StandardSequences.Mixing import MixingDefaultKey
 defaultOptions.isMC=False
 defaultOptions.isData=True
+defaultOptions.step=''
 defaultOptions.pileup=MixingDefaultKey
 defaultOptions.pileup_input = None
 defaultOptions.geometry = 'DB'
 defaultOptions.geometryExtendedOptions = ['ExtendedGFlash','Extended','NoCastor']
 defaultOptions.magField = '38T'
-defaultOptions.conditions = 'auto:startup'
+defaultOptions.conditions = None
 defaultOptions.scenarioOptions=['pp','cosmics','nocoll','HeavyIons']
 defaultOptions.harvesting= 'AtRunEnd'
 defaultOptions.gflash = False
@@ -159,8 +160,8 @@ class ConfigBuilder(object):
 
         if self._options.isData and options.isMC:
                 raise Exception("ERROR: You may specify only --data or --mc, not both")
-        if not self._options.conditions:
-                raise Exception("ERROR: No conditions given!\nPlease specify conditions. E.g. via --conditions=IDEAL_30X::All")
+        #if not self._options.conditions:
+        #        raise Exception("ERROR: No conditions given!\nPlease specify conditions. E.g. via --conditions=IDEAL_30X::All")
 
 	if hasattr(self._options,"datatier") and self._options.datatier and 'DQMROOT' in self._options.datatier and 'ENDJOB' in self._options.step:
 		self._options.step=self._options.step.replace(',ENDJOB','')
@@ -324,7 +325,7 @@ class ConfigBuilder(object):
 					self.process.source.secondaryFileNames.extend((filesFromDBSQuery(entry[4:]))[0])
 				else:
 					self.process.source.secondaryFileNames.append(self._options.dirin+entry)
-		
+
         if self._options.filein:
 	   if self._options.filetype == "EDM":
 		   self.process.source=cms.Source("PoolSource",
@@ -332,7 +333,7 @@ class ConfigBuilder(object):
 						  secondaryFileNames= cms.untracked.vstring())
 		   filesFromOption(self)
 	   elif self._options.filetype == "DAT":
-		   sel.process.source=cms.Source("NewEventStreamFileReader",fileNames = cms.untracked.vstring())
+		   self.process.source=cms.Source("NewEventStreamFileReader",fileNames = cms.untracked.vstring())
 		   filesFromOption(self)
            elif self._options.filetype == "LHE":
 		   self.process.source=cms.Source("LHESource", fileNames = cms.untracked.vstring())
@@ -603,12 +604,14 @@ class ConfigBuilder(object):
 		
         # load the geometry file
         try:
-                self.loadAndRemember(self.GeometryCFF)
+		if len(self.stepMap):
+			self.loadAndRemember(self.GeometryCFF)
         except ImportError:
                 print "Geometry option",self._options.geometry,"unknown."
                 raise
 
-        self.loadAndRemember(self.magFieldCFF)
+	if len(self.stepMap):
+		self.loadAndRemember(self.magFieldCFF)
 
 	if self._options.restoreRNDSeeds:
 		self.executeAndRemember('process.RandomNumberGeneratorService.restoreStateLabel=cms.untracked.string("randomEngineStateProducer")')
@@ -647,7 +650,8 @@ class ConfigBuilder(object):
 
     def addConditions(self):
         """Add conditions to the process"""
-
+	if not self._options.conditions: return
+	
         if 'auto:' in self._options.conditions:
                 from Configuration.AlCa.autoCond import autoCond
                 key=self._options.conditions.split(':')[-1]
@@ -785,14 +789,15 @@ class ConfigBuilder(object):
     # conditions
     #----------------------------------------------------------------------------
     def define_Configs(self):
-
-        self.loadAndRemember('Configuration/StandardSequences/Services_cff')
+        if len(self.stepMap):
+		self.loadAndRemember('Configuration/StandardSequences/Services_cff')
         if self._options.particleTable not in defaultOptions.particleTableList:
             print 'Invalid particle table provided. Options are:'
             print defaultOptions.particleTable
             sys.exit(-1)
         else:
-            self.loadAndRemember('SimGeneral.HepPDTESSource.'+self._options.particleTable+'_cfi')
+	    if len(self.stepMap):
+		    self.loadAndRemember('SimGeneral.HepPDTESSource.'+self._options.particleTable+'_cfi')
 
         self.loadAndRemember('FWCore/MessageService/MessageLogger_cfi')
 
@@ -1669,7 +1674,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.363 $"),
+                                            (version=cms.untracked.string("$Revision: 1.364 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
@@ -1698,7 +1703,7 @@ class ConfigBuilder(object):
         self.pythonCfgCode += "# using: \n# "+__version__[1:-1]+"\n# "+__source__[1:-1]+'\n'
         self.pythonCfgCode += "# with command line options: "+self._options.arguments+'\n'
         self.pythonCfgCode += "import FWCore.ParameterSet.Config as cms\n\n"
-        self.pythonCfgCode += "process = cms.Process('"+self._options.name+"')\n\n"
+        self.pythonCfgCode += "process = cms.Process('"+self.process.name_()+"')\n\n"
 
         self.pythonCfgCode += "# import of standard configurations\n"
         for module in self.imports:
