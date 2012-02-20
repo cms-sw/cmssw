@@ -14,7 +14,7 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder
 from Configuration.PyReleaseValidation.ConfigBuilder import Options
 from Configuration.PyReleaseValidation.ConfigBuilder import defaultOptions
-from Configuration.PyReleaseValidation.ConfigBuilder import installFilteredStream
+
 
 
 class preprodmc(Scenario):
@@ -24,93 +24,6 @@ class preprodmc(Scenario):
     Implement configuration building for RelVal MC production 
 
     """
-
-
-    def promptReco(self, globalTag, writeTiers = ['RECO'], **args):
-        """
-        _promptReco_
-
-        Prompt reco for pre-production
-
-        """
-        
-        options = Options()
-        options.__dict__.update(defaultOptions.__dict__)
-        options.scenario = "pp"
-        options.step = 'RAW2DIGI,L1Reco,RECO,VALIDATION:validation_preprod,DQM:DQMOfflinePOG,ENDJOB'
-        options.isMC = True
-        options.isData = False
-        options.beamspot = None
-        options.eventcontent = ','.join(writeTiers)
-        options.datatier = ','.join(writeTiers)
-        options.magField = 'AutoFromDBCurrent'
-        options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
-
-        process = cms.Process('RECO')
-        cb = ConfigBuilder(options, process = process, with_output = True)
-
-        # Input source
-        process.source = cms.Source("PoolSource",
-            fileNames = cms.untracked.vstring()
-        )
-        cb.prepare()
-
-        return process
-
-
-    def alcaReco(self, skims, **args):
-        """
-        _alcaReco_
-
-        AlcaReco processing & skims for pre-production
-
-        """
-        options = Options()
-        options.__dict__.update(defaultOptions.__dict__)
-        options.scenario = "pp"
-        options.step = 'ALCA:MuAlStandAloneCosmics+DQM,ENDJOB'
-        options.isMC = True
-        options.isData = False
-        options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
-        options.beamspot = None
-        options.eventcontent = None
-        options.relval = None
-        
-        process = cms.Process('ALCA')
-        cb = ConfigBuilder(options, process = process)
-
-        # Input source
-        process.source = cms.Source(
-           "PoolSource",
-           fileNames = cms.untracked.vstring()
-        )
-
-        cb.prepare() 
-
-        #  //
-        # // Verify and Edit the list of skims to be written out
-        #//  by this job
-        availableStreams = process.outputModules_().keys()
-
-        #  //
-        # // First up: Verify skims are available by output module name
-        #//
-        for skim in skims:
-            if skim not in availableStreams:
-                msg = "Skim named: %s not available " % skim
-                msg += "in Alca Reco Config:\n"
-                msg += "Known Skims: %s\n" % availableStreams
-                raise RuntimeError, msg
-
-        #  //
-        # // Prune any undesired skims
-        #//
-        for availSkim in availableStreams:
-            if availSkim not in skims:
-                self.dropOutputModule(process, availSkim)
-
-        return process
-
 
     def dqmHarvesting(self, datasetName, runNumber, globalTag, **args):
         """

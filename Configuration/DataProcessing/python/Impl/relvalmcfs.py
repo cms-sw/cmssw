@@ -26,26 +26,6 @@ class relvalmcfs(Scenario):
     """
 
 
-    def promptReco(self, globalTag, writeTiers = ['RECO'], **args):
-        """
-        _promptReco_
-
-        Prompt reco for RelVal MC FastSim production
-
-        """
-        print "DEPRECATED. Noone is using me"
-        return None
-
-    def alcaReco(self, skims, **args):
-        """
-        _alcaReco_
-
-        AlcaReco processing & skims for RelVal MC production
-
-        """
-        print "DEPRECATED. Noone is using me"
-        return None        
-
     def dqmHarvesting(self, datasetName, runNumber, globalTag, **args):
         """
         _dqmHarvesting_
