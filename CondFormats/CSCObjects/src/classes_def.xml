@@ -41,7 +41,9 @@
  <class name="CSCDBCrosstalk::Item"/>
  <class name="std::vector<CSCDBCrosstalk::Item>"/>
 
- <class name="CSCBadStrips"/>
+ <class name="CSCBadStrips">
+   <field name ="channels" mapping = "blob"/>
+ </class>
  <class name="CSCBadStrips::BadChamber"/>
  <class name="CSCBadStrips::BadChannel"/>
  <class name="std::vector<CSCBadStrips::BadChamber>"/>
@@ -110,4 +112,5 @@
   <class name="cscdqm::LVIMeasType"/>
   <class name="std::vector<cscdqm::LVIMeasType>"/>
 
-</lcgdict>   
+</lcgdict>  
+
