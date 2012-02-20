@@ -38,10 +38,11 @@ class Reco(Scenario):
 
         """
         step = stepALCAPRODUCER(args['skims'])
+        dqmStep= ':'+'+'.join(args['dqmSeq']) if ('dqmSeq' in args) else ''
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = self.cbSc
-        options.step = 'RAW2DIGI,L1Reco,RECO'+self.recoSeq+step+',DQM,ENDJOB'
+        options.step = 'RAW2DIGI,L1Reco,RECO'+self.recoSeq+step+',DQM'+dqmStep+',ENDJOB'
         dictIO(options,args)
         options.conditions = globalTag
         
@@ -67,12 +68,13 @@ class Reco(Scenario):
 
         """
         step = stepALCAPRODUCER(args['skims'])
+        dqmStep= ':'+'+'.join(args['dqmSeq']) if ('dqmSeq' in args) else ''
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = self.cbSc
-        options.step = 'RAW2DIGI,L1Reco,RECO'+step+',DQM,ENDJOB'
+        options.step = 'RAW2DIGI,L1Reco,RECO'+step+',DQM'+dqmStep+',ENDJOB'
         dictIO(options,args)
-        options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
+        options.conditions = globalTag
         
         process = cms.Process('RECO')
         cb = ConfigBuilder(options, process = process, with_output = True)
@@ -141,9 +143,9 @@ class Reco(Scenario):
         """
         options = defaultOptions
         options.scenario = self.cbSc
-        options.step = "HARVESTING:dqmHarvesting"
+        options.step = "HARVESTING:"+'+'.join(args['dqmSeq']) if ('dqmSeq' in args) else 'dqmHarvesting'
         options.name = "EDMtoMEConvert"
-        options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
+        options.conditions = globalTag
  
         process = cms.Process("HARVESTING")
         process.source = dqmIOSource(args)
