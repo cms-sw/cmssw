@@ -53,7 +53,7 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     ### muon OpenHLT objects                             
     MuCandTag2                      = cms.InputTag("hltL2MuonCandidates"),
     MuCandTag3                      = cms.InputTag("hltL3MuonCandidates"),
-    MuIsolTag3                      = cms.InputTag("hltL3MuonIsolations"),
+    MuIsolTag3                      = cms.InputTag("hltL3MuonCombRelIsolations"),
     MuIsolTag2                      = cms.InputTag("hltL2MuonIsolations"),
     MuTrkIsolTag3                   = cms.InputTag("hltL3MuonTkIsolations10"),
     MuNoVtxCandTag2                 = cms.InputTag("hltL2MuonCandidatesNoVtx"),
