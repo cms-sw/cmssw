@@ -53,14 +53,9 @@ class pp(Scenario):
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "pp"
         options.step = 'RAW2DIGI,L1Reco,RECO'+step+',DQM,ENDJOB'
-        options.isMC = False
-        options.isData = True
-        options.beamspot = None
         options.eventcontent = ','.join(writeTiers)
         options.datatier = ','.join(writeTiers)
-        options.magField = 'AutoFromDBCurrent'
-        options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
-        options.relval = False
+        options.conditions = globalTag
         
         process = cms.Process('RECO')
         cb = ConfigBuilder(options, process = process, with_output = True)
@@ -96,14 +91,9 @@ class pp(Scenario):
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "pp"
         options.step = 'RAW2DIGI,L1Reco,RECO'+step+',DQM,ENDJOB'
-        options.isMC = False
-        options.isData = True
-        options.beamspot = None
         options.eventcontent = ','.join(writeTiers)
         options.datatier = ','.join(writeTiers)
-        options.magField = 'AutoFromDBCurrent'
         options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
-        options.relval = False
         
         process = cms.Process('RECO')
         cb = ConfigBuilder(options, process = process, with_output = True)
@@ -129,10 +119,6 @@ class pp(Scenario):
 
         """
 
-        globalTag = None
-        if 'globaltag' in args:
-            globalTag = args['globaltag']
-
         step = ""
         if 'PromptCalibProd' in skims:
             step = "ALCA:PromptCalibProd" 
@@ -141,21 +127,13 @@ class pp(Scenario):
         if len( skims ) > 0:
             if step != "":
                 step += ","
-            step += "ALCAOUTPUT:"
+            step += "ALCAOUTPUT:"+('+'.join(skims))
                 
-        for skim in skims:
-          step += (skim+"+")
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "pp"
-        options.step = step.rstrip('+')
-        options.isMC = False
-        options.isData = True
-        options.beamspot = None
-        options.eventcontent = None
-        options.relval = None
-        if globalTag != None :
-            options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
+        options.step = step
+        options.conditions = args['globaltag'] if 'globaltag' in args else 'None'
         options.triggerResultsProcess = 'RECO'
         
         process = cms.Process('ALCA')
@@ -187,15 +165,8 @@ class pp(Scenario):
         options = defaultOptions
         options.scenario = "pp"
         options.step = "HARVESTING:dqmHarvesting"
-        options.isMC = False
-        options.isData = True
-        options.beamspot = None
-        options.eventcontent = None
         options.name = "EDMtoMEConvert"
         options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
-        options.arguments = ""
-        options.evt_type = ""
-        options.filein = []
  
         process = cms.Process("HARVESTING")
         if args.get('newDQMIO', False):
@@ -229,15 +200,8 @@ class pp(Scenario):
         options = defaultOptions
         options.scenario = "pp"
         options.step = "ALCAHARVEST:BeamSpotByRun+BeamSpotByLumi+SiStripQuality"
-        options.isMC = False
-        options.isData = True
-        options.beamspot = None
-        options.eventcontent = None
         options.name = "ALCAHARVEST"
         options.conditions = globalTag
-        options.arguments = ""
-        options.evt_type = ""
-        options.filein = []
  
         process = cms.Process("ALCAHARVEST")
         process.source = cms.Source("PoolSource")
