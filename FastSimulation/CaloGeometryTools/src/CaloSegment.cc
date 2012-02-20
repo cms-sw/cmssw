@@ -6,6 +6,8 @@
 #include "FastSimulation/CalorimeterProperties/interface/HCALProperties.h"
 #include "FastSimulation/CalorimeterProperties/interface/ECALProperties.h"
 
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+
 CaloSegment::CaloSegment(const CaloPoint& in,
 			 const CaloPoint& out,
 			 double si,
@@ -35,10 +37,15 @@ CaloSegment::CaloSegment(const CaloPoint& in,
     {
     case PbWO4:
       {
+
+	int det = 0;
+	if (in.whichSubDetector()==EcalBarrel) det = 1;
+	if (in.whichSubDetector()==EcalEndcap) det = 2;
+
 	radLenIncm =
-	  myCalorimeter->ecalProperties(1)->radLenIncm();
+	  myCalorimeter->ecalProperties(det)->radLenIncm();
 	intLenIncm =
-	  myCalorimeter->ecalProperties(1)->interactionLength();
+	  myCalorimeter->ecalProperties(det)->interactionLength();
       }
       break;
     case CRACK:
