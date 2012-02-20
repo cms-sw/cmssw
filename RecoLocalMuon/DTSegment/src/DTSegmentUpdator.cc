@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2011/11/24 14:59:00 $
- * $Revision: 1.45 $
+ * $Date: 2012/01/31 18:05:58 $
+ * $Revision: 1.46 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  * \       A.Meneguzzo - Padova University  <anna.meneguzzo@pd.infn.it>
@@ -451,9 +451,9 @@ void DTSegmentUpdator::rejectBadHits(DTChamberRecSegment2D* phiSeg) const {
   if(debug) cout << "fit 2 parameters done ----> par0: "<< par[0] << "  par1: "<< par[1] << endl;
 
   // Calc residuals:
-  float residuals[10];
+  float residuals[N];
 	
-  for(int i = 0; i < 10;++i)
+  for(int i = 0; i < N;++i)
     residuals[i] = 0;
 	
   for(int i = 0; i < N;++i)		
