@@ -27,8 +27,8 @@ class RunRepack:
         outputs.append( { 'moduleLabel' : "write_PrimDS1_RAW" } )
         outputs.append( { 'moduleLabel' : "write_PrimDS2_RAW" } )
         if self.selectEvents != None:
-            outputs[0]['selectEvents'] = self.selectEvents
-            outputs[1]['selectEvents'] = self.selectEvents
+            outputs[0]['selectEvents'] = self.selectEvents.split(',')
+            outputs[1]['selectEvents'] = self.selectEvents.split(',')
 
         try:
             process = repackProcess(outputs = outputs)
