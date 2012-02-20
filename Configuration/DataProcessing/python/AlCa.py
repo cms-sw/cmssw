@@ -26,7 +26,7 @@ class AlCa(Scenario):
     """
 
 
-    def promptRecoImpl(self, globalTag, skim, writeTiers = ['ALCARECO'], **args):
+    def promptRecoImpl(self, globalTag, skim, writeTiers = ['ALCARECO'], args={}):
         step = stepALCAPRODUCER(skims)
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
@@ -48,7 +48,7 @@ class AlCa(Scenario):
         return process
 
 
-    def alcaSkim(self, skims, **args):
+    def alcaSkim(self, skims, args):
         """
         _alcaSkim_
 
@@ -76,7 +76,7 @@ class AlCa(Scenario):
         return process
 
 
-    def dqmHarvesting(self, datasetName, runNumber, globalTag, **args):
+    def dqmHarvesting(self, datasetName, runNumber, globalTag, args):
         """
         _dqmHarvesting_
 

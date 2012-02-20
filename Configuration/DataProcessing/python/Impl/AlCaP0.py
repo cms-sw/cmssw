@@ -6,7 +6,7 @@ Scenario supporting proton collisions
 
 """
 
-from Configuration.DataProcessing.Scenario import AlCa
+from Configuration.DataProcessing.AlCa import AlCa
 
 class AlCaP0(AlCa):
     """
