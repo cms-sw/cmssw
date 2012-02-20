@@ -398,7 +398,7 @@ def instCalibratedLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,e
                         calibratedlumi=lumiCorrections.applyfinecorrectionV2(avglumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],1.0)
                 else:
                     calibratedlumi=lumiCorrections.applyfinecorrection(avglumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])
-            if lumitype=='PIXEL' and finecorrections :
+            if lumitype=='PIXEL' and finecorrections is not None:
                 calibratedlumi=finecorrections[run]*avglumi
             calibratedlumierr=perlsdata[6]*normval
             startorbit=perlsdata[7]
@@ -494,7 +494,7 @@ def deliveredLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=N
                         calibratedlumi=lumiCorrections.applyfinecorrectionV2(calibratedlumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],1.0)
                 else:
                     calibratedlumi=lumiCorrections.applyfinecorrection(calibratedlumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])
-            if lumitype=='PIXEL':
+            if lumitype=='PIXEL' and finecorrections is not None:
                 calibratedlumi=finecorrections[run]*calibratedlumi
             calibratedlumierr=perlsdata[6]*normval
             numorbit=perlsdata[8]
@@ -607,7 +607,7 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
                         calibratedlumi=lumiCorrections.applyfinecorrectionV2(avglumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],1.0)
                 else:
                     calibratedlumi=lumiCorrections.applyfinecorrection(avglumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])
-            if lumitype=='PIXEL':
+            if lumitype=='PIXEL' and finecorrections is not None:
                 calibratedlumi=finecorrections[run]*avglumi
             calibratedlumierror=instlumierror*normval
             bstatus=perlsdata[4]
@@ -779,7 +779,7 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
                         calibratedlumi=lumiCorrections.applyfinecorrectionV2(avglumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],1.0)
                 else:
                     calibratedlumi=lumiCorrections.applyfinecorrection(avglumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])
-            if lumitype=='PIXEL':
+            if lumitype=='PIXEL' and finecorrections is not None:
                 calibratedlumi=finecorrections[run]*avglumi
             calibratedlumierror=instlumierror*normval
             bstatus=perlsdata[4]
