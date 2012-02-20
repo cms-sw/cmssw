@@ -60,7 +60,7 @@ namespace reco {
     // filldigis() depends on fillrechits() being called first
     //
     void fillrechits(edm::Event&, const edm::EventSetup&, HcalNoiseRBXArray&, HcalNoiseSummary&) const;
-    void filldigis(edm::Event&, const edm::EventSetup&, HcalNoiseRBXArray&) const;
+    void filldigis(edm::Event&, const edm::EventSetup&, HcalNoiseRBXArray&);
     void fillcalotwrs(edm::Event&, const edm::EventSetup&, HcalNoiseRBXArray&, HcalNoiseSummary&) const;
     void filltracks(edm::Event&, const edm::EventSetup&, HcalNoiseSummary&) const;
 
@@ -90,6 +90,8 @@ namespace reco {
     std::string caloTowerCollName_;    // name of the caloTower collection
     std::string trackCollName_;        // name of the track collection
 
+    double TotalCalibCharge;    // placeholder to calculate total charge in calibration channels
+
     double minRecHitE_, minLowHitE_, minHighHitE_; // parameters used to determine noise status
     HcalNoiseAlgo algo_; // algorithms to determine if an RBX is noisy
 
@@ -100,6 +102,7 @@ namespace reco {
     uint32_t HcalAcceptSeverityLevel_;
     std::vector<int> HcalRecHitFlagsToBeExcluded_;
     
+    float adc2fC[128];
   };
   
 } // end of namespace

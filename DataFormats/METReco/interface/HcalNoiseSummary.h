@@ -124,6 +124,13 @@ class HcalNoiseSummary
   float TS4TS5NoiseSumE(void) const;
   float TS4TS5NoiseSumEt(void) const;
 
+  int GetRecHitCount(void) const;
+  int GetRecHitCount15(void) const;
+  double GetRecHitEnergy(void) const;
+  double GetRecHitEnergy15(void) const;
+
+  double GetTotalCalibCharge(void) const;
+
   bool HasBadRBXTS4TS5(void) const;
 
   // reference to problematic jets
@@ -158,6 +165,12 @@ class HcalNoiseSummary
   float trianglenoisee_, trianglenoiseet_;
   int nts4ts5noise_;
   float ts4ts5noisee_, ts4ts5noiseet_;
+
+  int rechitCount_;
+  int rechitCount15_;
+  double rechitEnergy_;
+  double rechitEnergy15_;
+  double calibCharge_;
 
   bool hasBadRBXTS4TS5_;
 

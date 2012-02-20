@@ -26,6 +26,7 @@ HcalNoiseSummary::HcalNoiseSummary()
     nspikenoise_(0), spikenoisee_(0), spikenoiseet_(0),
     ntrianglenoise_(0), trianglenoisee_(0), trianglenoiseet_(0),
     nts4ts5noise_(0), ts4ts5noisee_(0), ts4ts5noiseet_(0),
+    rechitCount_(0), rechitCount15_(0), rechitEnergy_(0), rechitEnergy15_(0), calibCharge_(0),
     hasBadRBXTS4TS5_(false)
 {
 }
@@ -268,6 +269,31 @@ float HcalNoiseSummary::TS4TS5NoiseSumE(void) const
 float HcalNoiseSummary::TS4TS5NoiseSumEt(void) const
 {
   return ts4ts5noiseet_;
+}
+
+int HcalNoiseSummary::GetRecHitCount(void) const
+{
+   return rechitCount_;
+}
+
+int HcalNoiseSummary::GetRecHitCount15(void) const
+{
+   return rechitCount15_;
+}
+
+double HcalNoiseSummary::GetRecHitEnergy(void) const
+{
+   return rechitEnergy_;
+}
+
+double HcalNoiseSummary::GetRecHitEnergy15(void) const
+{
+   return rechitEnergy15_;
+}
+
+double HcalNoiseSummary::GetTotalCalibCharge(void) const
+{
+   return calibCharge_;
 }
 
 bool HcalNoiseSummary::HasBadRBXTS4TS5(void) const
