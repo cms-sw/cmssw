@@ -41,14 +41,9 @@ class AlCaP0(Scenario):
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "pp"
         options.step = step
-        options.isMC = False
-        options.isData = True
-        options.beamspot = None
         options.eventcontent = ','.join(writeTiers)
         options.datatier = ','.join(writeTiers)
-        options.magField = 'AutoFromDBCurrent'
-        options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
-        options.relval = False
+        options.conditions = globalTag
         
         process = cms.Process('RECO')
         cb = ConfigBuilder(options, process = process, with_output = True)
@@ -69,25 +64,11 @@ class AlCaP0(Scenario):
         AlcaReco processing & skims for proton collisions
 
         """
-
-        globalTag = None
-        if 'globaltag' in args:
-            globalTag = args['globaltag']
-        
-        step = "ALCAOUTPUT:"
-        for skim in skims:
-          step += (skim+"+")
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "pp"
-        options.step = step.rstrip('+')
-        options.isMC = False
-        options.isData = True
-        options.beamspot = None
-        options.eventcontent = None
-        options.relval = None
-        if globalTag != None :
-            options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
+        options.step = "ALCAOUTPUT:"+('+'.join(skims))
+        options.conditions = args['globaltag'] if 'globaltag' in args else 'None'
         options.triggerResultsProcess = 'RECO'
         
         process = cms.Process('ALCA')
@@ -114,15 +95,8 @@ class AlCaP0(Scenario):
         options = defaultOptions
         options.scenario = "pp"
         options.step = "HARVESTING:alcaHarvesting"
-        options.isMC = False
-        options.isData = True
-        options.beamspot = None
-        options.eventcontent = None
         options.name = "EDMtoMEConvert"
-        options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
-        options.arguments = ""
-        options.evt_type = ""
-        options.filein = []
+        options.conditions = globalTag
  
         process = cms.Process("HARVESTING")
         if args.get('newDQMIO', False):
