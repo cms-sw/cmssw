@@ -29,7 +29,7 @@ class HeavyIons(Scenario):
     """
 
 
-    def promptReco(self, globalTag, writeTiers = ['RECO'], **args):
+    def promptReco(self, globalTag, **args):
         """
         _promptReco_
 
@@ -47,17 +47,12 @@ class HeavyIons(Scenario):
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "HeavyIons"
         options.step = 'RAW2DIGI,L1Reco,RECO'+step+',DQM,ENDJOB'
-        options.isMC = False
-        options.isData = True
         options.isRepacked = True
-        options.beamspot = None
-        options.eventcontent = None
-        options.magField = 'AutoFromDBCurrent'
-        options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
-        options.relval = False
+        dictIO(options,args)
+        options.conditions = globalTag
         
         process = cms.Process('RECO')
-        cb = ConfigBuilder(options, process = process)
+        cb = ConfigBuilder(options, process = process, with_ouput=True)
 
         # Input source
         process.source = cms.Source("PoolSource",
@@ -65,17 +60,13 @@ class HeavyIons(Scenario):
         )
         cb.prepare()
 
-        for tier in writeTiers: 
-          addOutputModule(process, tier, tier)
-          
-        #add the former top level patches here
         customisePromptHI(process)
         addMonitoring(process)
         
         return process
 
 
-    def expressProcessing(self, globalTag, writeTiers = [], **args):
+    def expressProcessing(self, globalTag, **args):
         """
         _expressProcessing_
 
@@ -90,17 +81,12 @@ class HeavyIons(Scenario):
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "HeavyIons"
         options.step = 'RAW2DIGI,L1Reco,RECO'+step+',DQM,ENDJOB'
-        options.isMC = False
-        options.isData = True
         options.isRepacked = True
-        options.beamspot = None
-        options.eventcontent = None
-        options.magField = 'AutoFromDBCurrent'
-        options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
-        options.relval = False
+        dictIO(options,args)
+        options.conditions = globalTag
         
         process = cms.Process('RECO')
-        cb = ConfigBuilder(options, process = process)
+        cb = ConfigBuilder(options, process = process, with_ouput=True)
 
         # Input source
         process.source = cms.Source("NewEventStreamFileReader",
@@ -108,10 +94,6 @@ class HeavyIons(Scenario):
         )
         cb.prepare() 
 
-        for tier in writeTiers: 
-          addOutputModule(process, tier, tier)
-
-        #add the former top level patches here
         customiseExpressHI(process)
         addMonitoring(process)
         
