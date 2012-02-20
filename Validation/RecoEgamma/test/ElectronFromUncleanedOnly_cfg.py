@@ -1,10 +1,10 @@
 from ElectronRedoFromRaw_driver_cfg import *
 
 import os, sys
-import DQMOffline.EGamma.electronDbsDiscovery as dbs
+import DQMOffline.EGamma.electronDataDiscovery as dd
 
 process.source.fileNames = cms.untracked.vstring()
-process.source.fileNames.extend(dbs.search())
+process.source.fileNames.extend(dd.search())
 process.source.secondaryFileNames = cms.untracked.vstring()
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
@@ -27,8 +27,8 @@ process.RECOSIMoutput.outputCommands = cms.untracked.vstring('drop *',
   'keep *_gsfElectrons_*_*'
 )
 
-from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['mc']
+#from Configuration.AlCa.autoCond import autoCond
+#process.GlobalTag.globaltag = autoCond[os.environ['TEST_GLOBAL_AUTOCOND']]
 
 process.dumpPython(None)
 

@@ -5,7 +5,7 @@
 
 import sys
 import os
-import DQMOffline.EGamma.electronDbsDiscovery as dbs
+import DQMOffline.EGamma.electronDataDiscovery as dbs
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("electronRedoFromTrackSeeds")
@@ -19,9 +19,8 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 
-#from Configuration.AlCa.autoCond import autoCond
-#process.GlobalTag.globaltag = autoCond['mc']
-process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG']+'::All'
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond[os.environ['TEST_GLOBAL_AUTOCOND']]
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 process.source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring(),secondaryFileNames = cms.untracked.vstring())
