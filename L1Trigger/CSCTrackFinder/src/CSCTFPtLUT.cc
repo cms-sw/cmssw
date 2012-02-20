@@ -376,35 +376,29 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
               {
                 float best_pt_front = ptR_front;
                 float best_LH_front = bestLH_front;
-                float best_dphi_front = dphi12R;
                 if (bestLH_front_min > best_LH_front)
                   {
                     best_pt_front = ptR_front_min;
                     best_LH_front = bestLH_front_min;
-                    best_dphi_front = dphi12Rmin;
                   }
                 if (bestLH_front_max > best_LH_front)
                   {
                     best_pt_front = ptR_front_max;
                     best_LH_front = bestLH_front_max;
-                    best_dphi_front = dphi12Rmax;
                   }
                 ptR_front = best_pt_front;
 
                 float best_pt_rear = ptR_rear;
                 float best_LH_rear = bestLH_rear;
-                float best_dphi_rear = dphi12R;
                 if (bestLH_rear_min > best_LH_rear)
                   {
                     best_pt_rear = ptR_rear_min;
                     best_LH_rear = bestLH_rear_min;
-                    best_dphi_rear = dphi12Rmin;
                   }
                 if (bestLH_rear_max > best_LH_rear)
                   {
                     best_pt_rear = ptR_rear_max;
                     best_LH_rear = bestLH_rear_max;
-                    best_dphi_rear = dphi12Rmax;
                   }
                 ptR_rear = best_pt_rear;
               }

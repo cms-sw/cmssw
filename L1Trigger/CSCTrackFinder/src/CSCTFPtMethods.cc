@@ -3436,7 +3436,6 @@ float CSCTFPtMethods::Pt2Stn2012(int type, float eta, float dphi, int PtbyMLH, f
           //{
         double muPlusMaxLH = -1e9;
                   double pt = 140;
-                  double dpt = 0.1;
                   double step = 5.;
                   double maxLH = -1e9;
                   
@@ -3471,7 +3470,6 @@ float CSCTFPtMethods::Pt2Stn2012(int type, float eta, float dphi, int PtbyMLH, f
                   double muMinusMaxLH = -1e9;
                   dphi = - dphi;
                   pt = 140;
-                  dpt = 0.1;
                   step = 5.;
                   maxLH = -1e9;
                   while(pt > 2. )
@@ -3818,7 +3816,6 @@ float CSCTFPtMethods::Pt3Stn2012(int type, float eta, float dphi1, float dphi2, 
 //************* solve equation dLog(Likelihood)/dpt = 0 for muon + ;
             double muPlusMaxLH = -1e9;
                   double pt = 140;
-                  double dpt = 0.1;
                   double step = 5.;
                   double maxLH = -1e9;
                   
@@ -3855,7 +3852,6 @@ float CSCTFPtMethods::Pt3Stn2012(int type, float eta, float dphi1, float dphi2, 
                   dphi1 = - dphi1;
                   dphi2 = - dphi2;      
                   pt = 140;
-                  dpt = 0.1;
                   step = 5.;
                   maxLH = -1e9;
                   
@@ -4338,7 +4334,6 @@ float CSCTFPtMethods::Pt3Stn2012_DT(int type, float eta, float dphi1, float dphi
             //************* solve equation dLog(Likelihood)/dpt = 0 for muon + ;
             double muPlusMaxLH = -1e9;
             double pt = 140;
-            double dpt = 0.1;
                   double step = 5.;
                   double maxLH = -1e9;
                   while(pt > 2. )
@@ -4372,7 +4367,6 @@ float CSCTFPtMethods::Pt3Stn2012_DT(int type, float eta, float dphi1, float dphi
                   dphi1 = - dphi1;
                   dphi2 = - dphi2;      
                   pt = 140;
-                  dpt = 0.1;
                   step = 5.;
                   maxLH = -1e9;
                   
@@ -4836,7 +4830,6 @@ float CSCTFPtMethods::Pt2Stn2012_DT(int type, float eta, float dphi, int PtbyMLH
           //{
         double muPlusMaxLH = -1e9;
                   double pt = 140;
-                  double dpt = 0.1;
                   double step = 5.;
                   double maxLH = -1e9;
                   while(pt > 2. )
@@ -4870,7 +4863,6 @@ float CSCTFPtMethods::Pt2Stn2012_DT(int type, float eta, float dphi, int PtbyMLH
                       double muMinusMaxLH = -1e9;
                     dphi = - dphi;
                   pt = 140;
-                  dpt = 0.1;
                   step = 5.;
                   maxLH = -1e9;
                   while(pt > 2. )
