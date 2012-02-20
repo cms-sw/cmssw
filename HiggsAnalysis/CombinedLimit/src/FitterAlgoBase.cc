@@ -17,7 +17,7 @@
 #include <RooStats/ModelConfig.h>
 #include "../interface/Combine.h"
 #include "../interface/ProfileLikelihood.h"
-#include "../interface/ProfiledLikelihoodRatioTestStatExt.h"
+#include "../interface/CascadeMinimizer.h"
 #include "../interface/CloseCoutSentry.h"
 #include "../interface/utils.h"
 
@@ -29,7 +29,7 @@
 using namespace RooStats;
 
 std::string FitterAlgoBase::minimizerAlgo_ = "Minuit2";
-std::string FitterAlgoBase::minimizerAlgoForMinos_ = "Minuit2";
+std::string FitterAlgoBase::minimizerAlgoForMinos_ = "Minuit2,simplex";
 float       FitterAlgoBase::minimizerTolerance_ = 1e-2;
 float       FitterAlgoBase::minimizerToleranceForMinos_ = 1e-4;
 int         FitterAlgoBase::minimizerStrategy_  = 1;
@@ -80,13 +80,12 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, RooArgList
     RooFitResult *ret = 0;
     std::auto_ptr<RooAbsReal> nll(pdf.createNLL(data, constrain, RooFit::Extended(pdf.canBeExtended())));
 
-    RooMinimizer minim(*nll);
+    CascadeMinimizer minim(*nll, CascadeMinimizer::Unconstrained, rs.getSize() ? dynamic_cast<RooRealVar*>(rs.first()) : 0);
     minim.setStrategy(minimizerStrategy_);
-    minim.setPrintLevel(-1);
     CloseCoutSentry sentry(verbose < 3);    
-    bool ok = nllutils::robustMinimize(*nll, minim, verbose-1);
+    bool ok = minim.minimize(verbose-1);
     if (!ok) { std::cout << "Initial minimization failed. Aborting." << std::endl; return 0; }
-    if (doHesse) minim.hesse();
+    if (doHesse) minim.minimizer().hesse();
     sentry.clear();
     ret = minim.save();
     if (verbose > 1) { ret->Print("V");  }
@@ -108,23 +107,22 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, RooArgList
         if (!robustFit_) {
             if (do95_) {
                 minim.setErrorLevel(1.92);
-                nllutils::robustMinimize(*nll, minim, verbose-1);
-                if (minim.minos(RooArgSet(r)) != -1) {
+                minim.minimize(verbose-1);
+                if (minim.minimizer().minos(RooArgSet(r)) != -1) {
                     rf.setRange("err95", r.getVal() + r.getAsymErrorLo(), r.getVal() + r.getAsymErrorHi());
                 }
                 minim.setErrorLevel(0.5);
-                nllutils::robustMinimize(*nll, minim, verbose-1);
+                minim.minimize(verbose-1);
             }
-            if (minim.minos(RooArgSet(r)) != -1) {
+            if (minim.minimizer().minos(RooArgSet(r)) != -1) {
                 rf.setRange("err68", r.getVal() + r.getAsymErrorLo(), r.getVal() + r.getAsymErrorHi());
                 rf.setAsymError(r.getAsymErrorLo(), r.getAsymErrorHi());
             }
        } else {
             r.setVal(r0); r.setConstant(true);
             
-            RooMinimizer minim2(*nll);
+            CascadeMinimizer minim2(*nll, CascadeMinimizer::Constrained);
             minim2.setStrategy(minimizerStrategyForMinos_);
-            minim2.setPrintLevel(-1);
 
             std::auto_ptr<RooArgSet> allpars(nll->getParameters((const RooArgSet *)0));
 
@@ -155,7 +153,7 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, RooArgList
     return ret;
 }
 
-double FitterAlgoBase::findCrossing(RooMinimizer &minim, RooAbsReal &nll, RooRealVar &r, double level, double rStart, double rBound) {
+double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, RooRealVar &r, double level, double rStart, double rBound) {
     ProfileLikelihood::MinimizerSentry minimizerConfig(minimizerAlgoForMinos_, minimizerToleranceForMinos_);
     if (verbose) std::cout << "Searching for crossing at nll = " << level << " in the interval " << rStart << ", " << rBound << std::endl; 
     bool overshot = false;
@@ -166,12 +164,13 @@ double FitterAlgoBase::findCrossing(RooMinimizer &minim, RooAbsReal &nll, RooRea
     bool ok = false;
     {
         CloseCoutSentry sentry(verbose < 3);    
-        ok = nllutils::robustMinimize(nll, minim, verbose-1);
+        ok = minim.minimize(verbose-1);
         checkpoint.reset(minim.save());
     }
     if (!ok) { std::cout << "Error: minimization failed at " << r.GetName() << " = " << rStart << std::endl; return NAN; }
     double here = nll.getVal();
     int nfail = 0;
+    if (verbose > 0) { printf("      %s      lvl-here  lvl-there   stepping\n", r.GetName()); fflush(stdout); }
     do {
         rStart += rInc;
         if (rInc*(rStart - rBound) > 0) { // went beyond bounds
@@ -184,7 +183,7 @@ double FitterAlgoBase::findCrossing(RooMinimizer &minim, RooAbsReal &nll, RooRea
             ok = false;
         } else {
             CloseCoutSentry sentry(verbose < 3);    
-            ok = nllutils::robustMinimize(nll, minim, verbose-1);
+            ok = minim.minimize(verbose-1);
         }
         if (!ok) { 
             nfail++;
@@ -197,18 +196,25 @@ double FitterAlgoBase::findCrossing(RooMinimizer &minim, RooAbsReal &nll, RooRea
         } else nfail = 0;
         double there = here;
         here = nll.getVal();
-        if (verbose > 0) { printf("At %s = %f:\tdelta(nll) = %.5f\n", r.GetName(), rStart, level-here); fflush(stdout); }
+        if (verbose > 0) { printf("%f    %+.5f  %+.5f    %f\n", rStart, level-here, level-there, rInc); fflush(stdout); }
         if ( fabs(here - level) < 4*minimizerToleranceForMinos_ ) {
             // set to the right point with interpolation
             r.setVal(rStart + (level-here)*(level-there)/(here-there));
             return r.getVal();
         } else if (here > level) {
+            // I'm above the level that I wanted, this means I stepped too long
+            // First I take back all the step
             rStart -= rInc; 
+            // Then I try to figure out a better step
             if (runtimedef::get("FITTER_DYN_STEP")) {
-                if (fabs(here - level) > 0.05) { // we still have to step carefully
-                    rInc *= std::max(0.2, std::min(0.5, 0.75*(level-there)/(here-there)));
+                if (fabs(there - level) > 0.05) { // If started from far away, I still have to step carefully
+                    double rIncFactor = std::max(0.2, std::min(0.7, 0.75*(level-there)/(here-there)));
+                    //printf("\t\t\t\t\tCase A1: level-there = %f,  here-there = %f,   rInc(Old) = %f,  rInFactor = %f,  rInc(New) = %f\n", level-there, here-there, rInc, rIncFactor, rInc*rIncFactor);
+                    rInc *= rIncFactor;
                 } else { // close enough to jump straight to target
-                    rInc *= std::max(0.05, std::min(0.95, 0.95*(level-there)/(here-there)));
+                    double rIncFactor = std::max(0.05, std::min(0.95, 0.95*(level-there)/(here-there)));
+                    //printf("\t\t\t\t\tCase A2: level-there = %f,  here-there = %f,   rInc(Old) = %f,  rInFactor = %f,  rInc(New) = %f\n", level-there, here-there, rInc, rIncFactor, rInc*rIncFactor);
+                    rInc *= rIncFactor;
                 }
             } else {
                 rInc *= 0.3;
@@ -224,14 +230,19 @@ double FitterAlgoBase::findCrossing(RooMinimizer &minim, RooAbsReal &nll, RooRea
             *allpars = oldparams;
             rStart -= rInc; rInc *= 0.5;
         } else {
+            // I did this step, and I'm not there yet
             if (runtimedef::get("FITTER_DYN_STEP")) {
                 if (fabs(here - level) > 0.05) { // we still have to step carefully
                     if ((here-there)*(level-there) > 0) { // if we went in the right direction
                         // then optimize step size
-                        rInc *= std::max(0.2, std::min(2.0, 0.75*(level-there)/(here-there)));
-                    }
+                        double rIncFactor = std::max(0.2, std::min(2.0, 0.75*(level-there)/(here-there)));
+                        //printf("\t\t\t\t\tCase B1: level-there = %f,  here-there = %f,   rInc(Old) = %f,  rInFactor = %f,  rInc(New) = %f\n", level-there, here-there, rInc, rIncFactor, rInc*rIncFactor);
+                        rInc *= rIncFactor;
+                    } //else printf("\t\t\t\t\tCase B3: level-there = %f,  here-there = %f,   rInc(Old) = %f\n", level-there, here-there, rInc);
                 } else { // close enough to jump straight to target
-                    rInc *= std::max(0.05, std::min(4.0, 0.95*(level-there)/(here-there)));
+                    double rIncFactor = std::max(0.05, std::min(4.0, 0.95*(level-there)/(here-there)));
+                    //printf("\t\t\t\t\tCase B2: level-there = %f,  here-there = %f,   rInc(Old) = %f,  rInFactor = %f,  rInc(New) = %f\n", level-there, here-there, rInc, rIncFactor, rInc*rIncFactor);
+                    rInc *= rIncFactor;
                 }
             } else {
                 //nothing?

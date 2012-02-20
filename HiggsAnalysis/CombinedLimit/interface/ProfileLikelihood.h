@@ -2,9 +2,9 @@
 #define HiggsAnalysis_CombinedLimit_ProfileLikelihood_h
 /** \class ProfileLikelihood
  *
- * abstract interface for physics objects
+ * Class for computing limits and significances from naive Profile Likelihood asymptotics (i.e. no Asimov dataset) 
  *
- * \author Luca Lista (INFN), from initial implementation by Giovanni Petrucciani (UCSD)
+ * \author Giovanni Petrucciani (UCSD) 
  *
  *
  */
@@ -25,7 +25,7 @@ public:
   /// Setup Minimizer configuration on creation, reset the previous one on destruction.
   class MinimizerSentry {
      public:
-        MinimizerSentry(std::string &algo, double tolerance);
+        MinimizerSentry(const std::string &algo, double tolerance);
         ~MinimizerSentry();
      private:
         std::string minimizerTypeBackup, minimizerAlgoBackup;

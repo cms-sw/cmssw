@@ -1,4 +1,5 @@
 #include "../interface/ProfiledLikelihoodRatioTestStatExt.h"
+#include "../interface/CascadeMinimizer.h"
 #include "../interface/CloseCoutSentry.h"
 #include "../interface/utils.h"
 #include <stdexcept>
@@ -181,7 +182,7 @@ Double_t ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& /*
     DBG(DBG_PLTestStat_pars, std::cout << "r before the fit: ") DBG(DBG_PLTestStat_pars, r->Print("")) DBG(DBG_PLTestStat_pars, std::cout << std::endl)
 
     //std::cout << "PERFORMING UNCONSTRAINED FIT " << r->GetName() << " [ " << r->getMin() << " - " << r->getMax() << " ] "<< std::endl;
-    double nullNLL = minNLL();
+    double nullNLL = minNLL(/*constrained=*/false, r);
     double bestFitR = r->getVal();
 
     DBG(DBG_PLTestStat_pars, (std::cout << "r after the fit: ")) DBG(DBG_PLTestStat_pars, (r->Print(""))) DBG(DBG_PLTestStat_pars, std::cout << std::endl)
@@ -195,11 +196,11 @@ Double_t ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& /*
     if (initialR == 0 || oneSided_ != oneSidedDef || bestFitR < initialR) { 
         // must do constrained fit (if there's something to fit besides XS)
         //std::cout << "PERFORMING CONSTRAINED FIT " << r->GetName() << " == " << r->getVal() << std::endl;
-        thisNLL = (nuisances_.getSize() > 0 ? minNLL() : nll_->getVal());
+        thisNLL = (nuisances_.getSize() > 0 ? minNLL(/*constrained=*/true, r) : nll_->getVal());
         if (thisNLL - nullNLL < -0.02) { 
             DBG(DBG_PLTestStat_main, (printf("  --> constrained fit is better... will repeat unconstrained fit\n")))
             r->setConstant(false);
-            nullNLL = minNLL();
+            nullNLL = minNLL(/*constrained=*/false, r);
             bestFitR = r->getVal();
             if (bestFitR > initialR && oneSided_ == oneSidedDef) {
                 DBG(DBG_PLTestStat_main, (printf("   after re-fit, signal %7.4f > %7.4f, test statistics will be zero.\n", bestFitR, initialR)))
@@ -265,7 +266,7 @@ std::vector<Double_t> ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, 
     DBG(DBG_PLTestStat_pars, std::cout << "r before the fit: ") DBG(DBG_PLTestStat_pars, r->Print("")) DBG(DBG_PLTestStat_pars, std::cout << std::endl)
 
     if (do_debug) std::cout << "PERFORMING UNCONSTRAINED FIT " << r->GetName() << " [ " << r->getMin() << " - " << r->getVal() << " - " << r->getMax() << " ] "<< std::endl;
-    double nullNLL = minNLL();
+    double nullNLL = minNLL(/*constrained=*/false, r);
     double bestFitR = r->getVal();
     // Take snapshot of initial state, to restore it at the end 
     RooArgSet bestFitState; params_->snapshot(bestFitState);
@@ -287,7 +288,7 @@ std::vector<Double_t> ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, 
         if (initialR == 0 || oneSided_ != oneSidedDef || bestFitR < initialR) { 
             // must do constrained fit (if there's something to fit besides XS)
             //std::cout << "PERFORMING CONSTRAINED FIT " << r->GetName() << " == " << r->getVal() << std::endl;
-            thisNLL = (nuisances_.getSize() > 0 ? minNLL() : nll_->getVal());
+            thisNLL = (nuisances_.getSize() > 0 ? minNLL(/*constrained=*/true, r) : nll_->getVal());
             if (thisNLL - nullNLL < 0 && thisNLL - nullNLL >= -EPS) {
                 thisNLL = nullNLL;
             } else if (thisNLL - nullNLL < 0) {
@@ -295,7 +296,7 @@ std::vector<Double_t> ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, 
                 r->setConstant(false);
                 r->setVal(bestFitR);
                 double oldNullNLL = nullNLL;
-                nullNLL = minNLL();
+                nullNLL = minNLL(/*constrained=*/false, r);
                 bestFitR = r->getVal();
                 bestFitState.removeAll(); params_->snapshot(bestFitState);
                 for (int iR2 = 0; iR2 < iR; ++iR2) {
@@ -337,12 +338,11 @@ bool ProfiledLikelihoodTestStatOpt::createNLL(RooAbsPdf &pdf, RooAbsData &data)
     }
 }
 
-double ProfiledLikelihoodTestStatOpt::minNLL() 
+double ProfiledLikelihoodTestStatOpt::minNLL(bool constrained, RooRealVar *r) 
 {
-    RooMinimizer minim(*nll_);
-    minim.setPrintLevel(verbosity_-2);  
-    minim.setStrategy(0);
-    nllutils::robustMinimize(*nll_, minim, verbosity_);
+    CascadeMinimizer::Mode mode(constrained ? CascadeMinimizer::Constrained : CascadeMinimizer::Unconstrained);
+    CascadeMinimizer minim(*nll_, mode, r);
+    minim.minimize(verbosity_);
     return nll_->getVal();
 }
 

@@ -69,7 +69,7 @@ void ProfileLikelihood::applyOptions(const boost::program_options::variables_map
     reportPVal_ = vm.count("pvalue");
 }
 
-ProfileLikelihood::MinimizerSentry::MinimizerSentry(std::string &minimizerAlgo, double tolerance) :
+ProfileLikelihood::MinimizerSentry::MinimizerSentry(const std::string &minimizerAlgo, double tolerance) :
     minimizerTypeBackup(ROOT::Math::MinimizerOptions::DefaultMinimizerType()),
     minimizerAlgoBackup(ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo()),
     minimizerTollBackup(ROOT::Math::MinimizerOptions::DefaultTolerance())

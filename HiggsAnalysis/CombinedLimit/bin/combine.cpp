@@ -20,6 +20,7 @@
 #include "../interface/Asymptotic.h"
 #include "../interface/GoodnessOfFit.h"
 #include "../interface/ChannelCompatibilityCheck.h"
+#include "../interface/CascadeMinimizer.h"
 #include "../interface/ProfilingTools.h"
 #include <map>
 
@@ -38,7 +39,7 @@ int main(int argc, char **argv) {
   string toysFile;
 
   vector<string> librariesToLoad;
-  vector<string> runtime_defines;
+  vector<string> runtimeDefines;
 
   Combine combiner;
 
@@ -54,6 +55,8 @@ int main(int argc, char **argv) {
   algo = new GoodnessOfFit();  methods.insert(make_pair(algo->name(), algo));
   algo = new ChannelCompatibilityCheck();  methods.insert(make_pair(algo->name(), algo));
   
+  CascadeMinimizer::initOptions();
+
   string methodsDesc("Method to extract upper limit. Supported methods are: ");
   for(map<string, LimitAlgo *>::const_iterator i = methods.begin(); i != methods.end(); ++i) {
     if(i != methods.begin()) methodsDesc += ", ";
@@ -82,10 +85,11 @@ int main(int argc, char **argv) {
     ("igpMem", "Setup support for memory profiling using IgProf")
     ("perfCounters", "Dump performance counters at end of job")
     ("LoadLibrary,L", po::value<vector<string> >(&librariesToLoad), "Load library through gSystem->Load(...). Can specify multiple libraries using this option multiple times")
-    ("X-rtd",  po::value<vector<string> >(&runtime_defines), "Define some constants to be used at runtime (for debugging purposes). The syntax is --X-rtd identifier[=value], where value is an integer and defaults to 1. Can specify multiple times")
+    ("X-rtd",  po::value<vector<string> >(&runtimeDefines), "Define some constants to be used at runtime (for debugging purposes). The syntax is --X-rtd identifier[=value], where value is an integer and defaults to 1. Can specify multiple times")
     ;
   desc.add(combiner.statOptions());
   desc.add(combiner.ioOptions());
+  desc.add(CascadeMinimizer::options());
   desc.add(combiner.miscOptions());
   po::positional_options_description p;
   p.add("datacard", -1);
@@ -148,6 +152,7 @@ int main(int argc, char **argv) {
 
   try {
     combiner.applyOptions(vm);
+    CascadeMinimizer::applyOptions(vm);
   } catch (std::exception &ex) {
     cerr << "Error when configuring the combiner:\n\t" << ex.what() << std::endl;
     return 2001;
@@ -224,7 +229,7 @@ int main(int argc, char **argv) {
   if (vm.count("igpMem")) setupIgProfDumpHook();
 
   // if you have libraries, it's time to load them now
-  for (vector<string>::const_iterator rtdp = runtime_defines.begin(), endrtdp = runtime_defines.end(); rtdp != endrtdp; ++rtdp) {
+  for (vector<string>::const_iterator rtdp = runtimeDefines.begin(), endrtdp = runtimeDefines.end(); rtdp != endrtdp; ++rtdp) {
     std::string::size_type idx = rtdp->find('=');
     if (idx == std::string::npos) {
         runtimedef::set(*rtdp, 1); 

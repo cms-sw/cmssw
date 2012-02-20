@@ -15,6 +15,7 @@ class RooMinimizer;
 class RooCmdArg;
 class RooAbsReal;
 class RooArgList;
+class CascadeMinimizer;
 
 class FitterAlgoBase : public LimitAlgo {
 public:
@@ -42,7 +43,7 @@ protected:
   // utilities
   RooFitResult *doFit(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &r,  const RooCmdArg &constrain, bool doHesse=true) ;
   RooFitResult *doFit(RooAbsPdf &pdf, RooAbsData &data, RooArgList &rs, const RooCmdArg &constrain, bool doHesse=true) ;
-  double findCrossing(RooMinimizer &minim, RooAbsReal &nll, RooRealVar &r, double level, double rStart, double rBound) ;
+  double findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, RooRealVar &r, double level, double rStart, double rBound) ;
 };
 
 

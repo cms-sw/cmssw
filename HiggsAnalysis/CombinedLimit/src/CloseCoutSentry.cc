@@ -33,10 +33,23 @@ CloseCoutSentry::~CloseCoutSentry()
 void CloseCoutSentry::clear() 
 {
     if (silent_) {
+        reallyClear();
+        silent_ = false;
+    }
+}
+
+void CloseCoutSentry::reallyClear() 
+{
+    if (fdOut_ != fdErr_) {
         char buf[50];
         sprintf(buf, "/dev/fd/%d", fdOut_); freopen(buf, "w", stdout);
         sprintf(buf, "/dev/fd/%d", fdErr_); freopen(buf, "w", stderr);
         open_   = true;
-        silent_ = false;
+        fdOut_ = fdErr_ = 0; 
     }
+}
+
+void CloseCoutSentry::breakFree() 
+{
+    reallyClear();
 }
