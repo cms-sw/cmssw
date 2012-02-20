@@ -78,22 +78,22 @@ if __name__ == '__main__':
     #
     #optional arg to select exact hltpath or pattern
     #
-    parser.add_argument('-hltpath',dest='hltpath',action='store',
+    parser.add_argument('--hltpath',dest='hltpath',action='store',
                         default=None,required=False,
                         help='specific hltpath or hltpath pattern to calculate the effectived luminosity (optional)')
     #
     #optional args to filter *runs*, they do not select on LS level.
     #    
-    parser.add_argument('-fill',dest='fillnum',action='store',
+    parser.add_argument('--fill',dest='fillnum',action='store',
                         default=None,required=False,
                         help='fill number (optional) ')
     
-    parser.add_argument('-Begin',dest='begin',action='store',
+    parser.add_argument('--begin',dest='begin',action='store',
                         required=False,
                         type=RegexValidator("^\d\d/\d\d/\d\d \d\d:\d\d:\d\d$","must be form mm/dd/yy hh:mm:ss"),
                         help='min run start time, mm/dd/yy hh:mm:ss')
     
-    parser.add_argument('-End',dest='end',action='store',
+    parser.add_argument('--end',dest='end',action='store',
                         required=False,
                         type=RegexValidator("^\d\d/\d\d/\d\d \d\d:\d\d:\d\d$","must be form mm/dd/yy hh:mm:ss"),
                         help='max run start time, mm/dd/yy hh:mm:ss')    
@@ -108,7 +108,7 @@ if __name__ == '__main__':
     #
     #command configuration 
     #
-    parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',
+    parser.add_argument('--siteconfpath',dest='siteconfpath',action='store',
                         default=None,
                         required=False,
                         help='specific path to site-local-config.xml file, optional. If path undefined, fallback to cern proxy&server')
