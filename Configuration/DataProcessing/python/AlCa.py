@@ -26,14 +26,13 @@ class AlCa(Scenario):
     """
 
 
-    def promptRecoImpl(self, globalTag, skim, writeTiers = ['ALCARECO'], args={}):
+    def promptRecoImpl(self, globalTag, skims, args={}):
         step = stepALCAPRODUCER(skims)
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "pp"
         options.step = step
-        options.eventcontent = ','.join(writeTiers)
-        options.datatier = ','.join(writeTiers)
+        dictIO(options,args)
         options.conditions = globalTag
         
         process = cms.Process('RECO')

@@ -18,7 +18,7 @@ class AlCaPhiSymEcal(AlCa):
     """
 
 
-    def promptReco(self, globalTag, writeTiers = ['ALCARECO'], **args):
+    def promptReco(self, globalTag, **args):
         """
         _promptReco_
 
@@ -26,6 +26,6 @@ class AlCaPhiSymEcal(AlCa):
 
         """
         skims = ['EcalCalPhiSym']
-        return self.promptRecoImpl(globalTag, skims, writeTiers, args)
+        return self.promptRecoImpl(globalTag, skims, args)
 
 

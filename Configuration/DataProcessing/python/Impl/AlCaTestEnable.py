@@ -17,7 +17,7 @@ class AlCaTestEnable(AlCa):
 
     """
 
-    def promptReco(self, globalTag, writeTiers = ['ALCARECO'], **args):
+    def promptReco(self, globalTag, **args):
         """
         _promptReco_
 
@@ -25,4 +25,4 @@ class AlCaTestEnable(AlCa):
 
         """
         skims = ['TkAlLAS']
-        return self.promptRecoImpl( globalTag, skims, writeTiers, args)
+        return self.promptRecoImpl( globalTag, skims, args)
