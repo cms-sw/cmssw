@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.360 $"
+__version__ = "$Revision: 1.361 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -15,6 +15,8 @@ class Options:
 defaultOptions = Options()
 defaultOptions.datamix = 'DataOnSim'
 from Configuration.StandardSequences.Mixing import MixingDefaultKey
+defaultOptions.isMC=False
+defaultOptions.isData=True
 defaultOptions.pileup=MixingDefaultKey
 defaultOptions.pileup_input = None
 defaultOptions.geometry = 'DB'
@@ -46,6 +48,7 @@ defaultOptions.lazy_download = False
 defaultOptions.custom_conditions = ''
 defaultOptions.hltProcess = ''
 defaultOptions.eventcontent = None
+defaultOptions.datatier = None
 defaultOptions.inlineEventContent = True
 defaultOptions.inlineObjets =''
 defaultOptions.hideGen=False
@@ -411,10 +414,6 @@ class ConfigBuilder(object):
     def addOutput(self):
         """ Add output module to the process """
 	result=""
-	streamTypes=self.eventcontent.split(',')
-	tiers=self._options.datatier.split(',')
-	if not self._options.outputDefinition and len(streamTypes)!=len(tiers):
-		raise Exception("number of event content arguments does not match number of datatier arguments")
 	if self._options.outputDefinition:
 		if self._options.datatier:
 			print "--datatier & --eventcontent options ignored"
@@ -511,7 +510,12 @@ class ConfigBuilder(object):
 
 		##ends the --output options model
 		return result
-	
+
+	streamTypes=self.eventcontent.split(',')
+	tiers=self._options.datatier.split(',')
+	if not self._options.outputDefinition and len(streamTypes)!=len(tiers):
+		raise Exception("number of event content arguments does not match number of datatier arguments")
+
         # if the only step is alca we don't need to put in an output
         if self._options.step.split(',')[0].split(':')[0] == 'ALCA':
             return "\n"
@@ -866,7 +870,9 @@ class ConfigBuilder(object):
 		self.RECODefaultCFF="Configuration/StandardSequences/Reconstruction_cff"
                 self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineMC_cff"
                 self.ALCADefaultCFF="Configuration/StandardSequences/AlCaRecoStreamsMC_cff"
-
+	else:
+		self._options.beamspot = None
+		
 	#patch for gen, due to backward incompatibility
 	if 'reGEN' in self.stepMap:
 		self.GENDefaultSeq='fixGenInfo'
@@ -1666,7 +1672,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.360 $"),
+                                            (version=cms.untracked.string("$Revision: 1.361 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
