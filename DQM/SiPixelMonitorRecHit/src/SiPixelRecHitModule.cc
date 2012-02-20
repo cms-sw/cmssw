@@ -83,9 +83,10 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type,
     meErrorY_ = theDMBE->book1D(hid, "RecHit error Y", 100,0.,0.02);
     meErrorY_->setAxisTitle("RecHit error Y", 1);
 
-    hid = theHistogramId->setHistoId("nRecHits",id_);
-    menRecHits_ = theDMBE->book1D(hid, "# of rechits in this module", 8, 0, 8);
-    menRecHits_->setAxisTitle("number of rechits",1);  
+    //Removed to save offline memory
+    //hid = theHistogramId->setHistoId("nRecHits",id_);
+    //menRecHits_ = theDMBE->book1D(hid, "# of rechits in this module", 8, 0, 8);
+    //menRecHits_->setAxisTitle("number of rechits",1);  
     delete theHistogramId;
   }
 
@@ -381,7 +382,7 @@ void SiPixelRecHitModule::nfill(const int& nrec, bool modon, bool ladon, bool la
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
 
-  if(modon) menRecHits_->Fill(nrec);
+  //if(modon) menRecHits_->Fill(nrec);
   //barrel
   if(ladon && barrel) menRecHitsLad_->Fill(nrec);
   if(layon && barrel) menRecHitsLay_->Fill(nrec);
