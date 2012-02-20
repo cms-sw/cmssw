@@ -8,12 +8,20 @@ endif
 
 #Check for correct number of arguments
 if ($#argv<2) then
-    echo "Script needs 2 input variable"
+    echo "Script needs at least 2 input variables"
     exit
 endif
 
 set NEW_VERS=$1
 set OLD_VERS=$2
+
+#If only 2 arguments are given, assume it is FullSim
+if ($#argv<3) then
+    echo "No 3rd argument given, by default this is FullSim"
+    set FASTSIM=false
+else
+    set FASTSIM=$3
+endif
 
 #Go to CaloTowers test directory
 cd $CMSSW_BASE/src/Validation/CaloTowers/test/macros
@@ -30,11 +38,15 @@ cd ${NEW_VERS}_vs_${OLD_VERS}_SinglePi
 
 #Single Pions
 
-cp ../html_indices/SinglePiScan.html  index.html
+if ($FASTSIM != true) then
+    cp ../html_indices/SinglePiScan.html  index.html
+else
+    cp ../html_indices/SinglePiScanFastSim.html  index.html
+endif
 
 cd ../
 
-root -b -q 'SinglePi.C("'${OLD_VERS}'","'${NEW_VERS}'")'
+root -b -q 'SinglePi.C("'${OLD_VERS}'","'${NEW_VERS}'",'${FASTSIM}')'
 mv *gif                 ${NEW_VERS}_vs_${OLD_VERS}_SinglePi/
 
 exit
