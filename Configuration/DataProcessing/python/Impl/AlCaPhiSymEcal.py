@@ -15,8 +15,6 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder
 from Configuration.PyReleaseValidation.ConfigBuilder import Options
 from Configuration.PyReleaseValidation.ConfigBuilder import defaultOptions
-from Configuration.PyReleaseValidation.ConfigBuilder import installFilteredStream
-from Configuration.DataProcessing.RecoTLR import customisePrompt,customiseExpress
 
 class AlCaPhiSymEcal(Scenario):
     """
@@ -59,10 +57,6 @@ class AlCaPhiSymEcal(Scenario):
             fileNames = cms.untracked.vstring()
         )
         cb.prepare()
-
-        #add the former top level patches here
-        # customisePrompt(process)
-
 
         return process
 
