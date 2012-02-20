@@ -1,4 +1,4 @@
-# /dev/CMSSW_5_1_0/GRun/V57
+# /dev/CMSSW_5_1_0/GRun/V58
 
 import FWCore.ParameterSet.Config as cms
 
@@ -391,7 +391,6 @@ streamA_datasetMuOnia_selector.triggerConditions = cms.vstring('HLT_Dimuon0_Jpsi
     'HLT_DoubleMu4_Jpsi_Displaced_v6', 
     'HLT_Mu5_L2Mu3_Jpsi_v1', 
     'HLT_Mu5_Track2_Jpsi_v14', 
-    'HLT_Mu5_Track3p5_Jpsi_v1', 
     'HLT_Tau2Mu_RegPixTrack_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMultiJet_selector

@@ -243,7 +243,7 @@ HLT_Mu5_TkMu0_OST_Jpsi_Tight_B5Q7_v*
 #HLT_Mu5_L2Mu2_Jpsi_v*
 HLT_Mu5_L2Mu3_Jpsi_v*									#added in Feb 2012 5e33 menu (sr #126442)
 HLT_Mu5_Track2_Jpsi_v*
-HLT_Mu5_Track3p5_Jpsi_v*								#added in Feb 2012 5e33 menu (sr #126442)
+#HLT_Mu5_Track3p5_Jpsi_v*								#added in Feb 2012 5e33 menu (sr #126442)
 #HLT_Mu7_Track7_Jpsi_v*
 HLT_Photon20_CaloIdVL_IsoL_v*
 HLT_Photon20_R9Id_Photon18_R9Id_v*
