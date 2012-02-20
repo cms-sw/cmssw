@@ -336,7 +336,8 @@ HLT_Mu8_Ele17_CaloIdL_v*
 HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_v*
 HLT_Mu8_Photon20_CaloIdVT_IsoT_v*
 HLT_Mu8_Jet40_v*
-HLT_Mu15_L1ETM20_v*
+#HLT_Mu15_L1ETM20_v*						#removed in Feb 2012 5e33 menu (sr #126183)
+HLT_Mu15_eta2p1_L1ETM20_v*					#added in Feb 2012 5e33 menu (sr #126183)
 HLT_Mu15_Photon20_CaloIdL_v*
 HLT_Mu15_DoublePhoton15_CaloIdL_v*
 HLT_Mu17_eta2p1_CentralPFJet30_v*
@@ -349,7 +350,8 @@ HLT_Mu12_eta2p1_DiCentralJet20_BTagIP3D1stTrack_v*
 HLT_Mu12_eta2p1_DiCentralJet20_DiBTagIP3D1stTrack_v*
 HLT_Mu40_HT300_v*
 HLT_Mu60_HT300_v*
-HLT_IsoMu15_L1ETM20_v*
+#HLT_IsoMu15_L1ETM20_v*						#removed in Feb 2012 5e33 menu (sr #126183)
+HLT_IsoMu15_eta2p1_L1ETM20_v*					#added in Feb 2012 5e33 menu (sr #126183)
 HLT_Mu15_LooseIsoPFTau15_v*
 HLT_IsoMu15_eta2p1_LooseIsoPFTau20_v*
 HLT_IsoMu15_eta2p1_MediumIsoPFTau20_v*
