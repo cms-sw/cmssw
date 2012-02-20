@@ -115,6 +115,11 @@ if __name__ == '__main__':
     #
     #switches
     #
+    parser.add_argument('--without-correction',
+                        dest='withoutCorrection',
+                        action='store_true',
+                        help='without afterglow correction'
+                        )
     parser.add_argument('--verbose',dest='verbose',action='store_true',
                         help='verbose mode for printing' )
     parser.add_argument('--nowarning',dest='nowarning',action='store_true',
@@ -162,13 +167,13 @@ if __name__ == '__main__':
                 print '\t%d : %s'%(run,','.join([str(ls) for ls in irunlsdict[run]]))
             else:
                 print '\t%d : all'%run
-    
-    session.transaction().start(True)
-    finecorrections=lumiCorrections.pixelcorrectionsForRange(session.nominalSchema(),irunlsdict.keys())
+    finecorrections=None
+    if not options.withoutCorrection:
+        session.transaction().start(True)
+        finecorrections=lumiCorrections.pixelcorrectionsForRange(session.nominalSchema(),irunlsdict.keys())
+        session.transaction().commit()
     if options.verbose:
-        print 'afterglow ',finecorrections
-    #print finecorrections
-    session.transaction().commit()
+            print 'afterglow ',finecorrections
     if options.action == 'delivered':
         session.transaction().start(True)
         result=lumiCalcAPI.deliveredLumiForRange(session.nominalSchema(),irunlsdict,amodetag=None,egev=None,beamstatus=None,norm=1.0,finecorrections=finecorrections,driftcorrections=None,usecorrectionv2=False,lumitype='PIXEL',branchName='DATA')
