@@ -105,7 +105,7 @@ def common_search(dd_tier):
       
     result = []
     for i in range(0,data['nresults']):
-      result.append(data['data'][i]['file'][0]['name'])
+      result.append(str(data['data'][i]['file'][0]['name']))
     
   elif os.environ['DD_SOURCE'] == "dbs":
   
