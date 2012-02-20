@@ -162,11 +162,10 @@ void driver3()
  void driver4()
 {
   ub1 buf[1];
-  ub8 h,i,state[HASHSTATE];
+  ub8 h,i;
 
 
   buf[0] = ~0;
-  for (i=0; i<HASHSTATE; ++i) state[i] = 1;
   printf("These should all be different\n");
   for (i=0, h=0; i<8; ++i)
   {
