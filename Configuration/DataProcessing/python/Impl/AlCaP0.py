@@ -6,7 +6,7 @@ Scenario supporting proton collisions
 
 """
 
-from Configuration.DataProcessing.AlCa import AlCa
+from Configuration.DataProcessing.Impl.AlCa import AlCa
 
 class AlCaP0(AlCa):
     def __init__(self):
