@@ -66,44 +66,6 @@ class AlCaTestEnable(Scenario):
         return process
 
 
-    def expressProcessing(self, globalTag, writeTiers = [], **args):
-        """
-        _expressProcessing_
-
-        Proton collision data taking express processing
-
-        """
-
-        skims = ['TkAlLAS']
-        step = stepALCAPRODUCER(skims)
-        options = Options()
-        options.__dict__.update(defaultOptions.__dict__)
-        options.scenario = "pp"
-        options.step = step
-        options.isMC = False
-        options.isData = True
-        options.beamspot = None
-        options.eventcontent = ','.join(writeTiers)
-        options.datatier = ','.join(writeTiers)
-        options.magField = 'AutoFromDBCurrent'
-        options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
-        options.relval = False
-        
-        process = cms.Process('RECO')
-        cb = ConfigBuilder(options, process = process, with_output = True)
-
-        # Input source
-        process.source = cms.Source("PoolSource",
-            fileNames = cms.untracked.vstring()
-        )
-        cb.prepare()
-
-        #add the former top level patches here
-        customisePrompt(process)
-        
-        return process
-
-
     def alcaSkim(self, skims, **args):
         """
         _alcaSkim_
