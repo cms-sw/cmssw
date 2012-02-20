@@ -378,7 +378,7 @@ HLT_IsoMu15_eta2p1_MediumIsoPFTau20_v*
 HLT_IsoMu15_eta2p1_TightIsoPFTau20_v*
 HLT_Mu17_eta2p1_CentralJet30_BTagIP_v*
 #HLT_IsoMu17_eta2p1_CentralJet30_BTagIP_v*					#removed in Feb 2012 5e33 menu (sr #126286)
-#HLT_IsoMu17_eta2p1_CentralJet30_v*					#removed in Feb 2012 5e33 menu (sr #126286)
+HLT_IsoMu17_eta2p1_CentralJet30_v*
 #HLT_IsoMu17_eta2p1_CentralPFJet30_v*					#removed in Feb 2012 5e33 menu (sr #126286)
 #HLT_IsoMu17_eta2p1_DiCentralPFJet30_v*					#removed in Feb 2012 5e33 menu (sr #126286)
 #HLT_IsoMu17_eta2p1_TriCentralPFJet30_v*					#removed in Feb 2012 5e33 menu (sr #126286)
@@ -428,11 +428,11 @@ HLT_Ele12_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_R033_MR200_v*
 HLT_Ele18_CaloIdVT_TrkIdT_MediumIsoPFTau20_v*
 HLT_Ele20_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_MediumIsoPFTau20_v*
 HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_MediumIsoPFTau25_v*
-#HLT_Ele25_CaloIdVT_TrkIdT_CentralPFJet30_v*					#removed in Feb 2012 5e33 menu (sr #126183)
-#HLT_Ele25_CaloIdVT_TrkIdT_DiCentralPFJet30_v*					#removed in Feb 2012 5e33 menu (sr #126183)
+HLT_Ele25_CaloIdVT_TrkIdT_CentralPFJet30_v*
+HLT_Ele25_CaloIdVT_TrkIdT_DiCentralPFJet30_v*
 HLT_Ele25_CaloIdVT_TrkIdT_TriCentralPFJet30_v*
 HLT_Ele25_CaloIdVT_TrkIdT_QuadCentralPFJet30_v*
-#HLT_Ele25_CaloIdVT_TrkIdT_CentralJet30_BTagIP_v*				#removed in Feb 2012 5e33 menu (sr #126183)
+HLT_Ele25_CaloIdVT_TrkIdT_CentralJet30_BTagIP_v*
 HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_v*
 HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_BTagIP_v*
 HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFJet30_v*
