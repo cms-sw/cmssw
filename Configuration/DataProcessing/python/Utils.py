@@ -88,3 +88,30 @@ def validateProcess(process):
             raise RuntimeError, msg
 
         
+def dqmIOSource(args):
+    import FWCore.ParameterSet.Config as cms
+    if args.get('newDQMIO', False):
+        return cms.Source("DQMRootSource",
+                          fileNames = cms.untracked(cms.vstring())
+                          )
+    else:
+        return cms.Source("PoolSource",
+                          fileNames = cms.untracked(cms.vstring())
+                          )
+
+def harvestingMode(process, datasetName, args,rANDl=True):
+    import FWCore.ParameterSet.Config as cms
+    if rANDl:
+        process.source.processingMode = cms.untracked.string('RunsAndLumis')
+    process.dqmSaver.workflow = datasetName
+    process.dqmSaver.saveByLumiSection = 1
+    if args.has_key('referenceFile') and args.get('referenceFile', ''):
+        process.DQMStore.referenceFileName = cms.untracked.string(args['referenceFile'])
+
+def dictIO(options,args):
+    if args.has_key('outputs'):
+        options.outputDefinition = args['outputs'].__str__()
+    else:
+        writeTiers = args.get('writeTiers', [])
+        options.eventcontent = ','.join(writeTiers)
+        options.datatier = ','.join(writeTiers)
