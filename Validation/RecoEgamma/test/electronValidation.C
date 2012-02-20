@@ -290,9 +290,10 @@ int electronValidation()
   std::string cat, line, histo_path, num, denom ;
   int eol ; // end of line
   int eoc ; // enf of category
+  double rescale_factor = 0. ;
 
   std::ifstream histo_file1(histos_path.c_str()) ;
-  
+
   web_page
     <<"<br><table border=\"1\" cellpadding=\"5\" width=\"100%\">"
     <<"<tr valign=\"top\"><td width=\"20%\">\n" ;
@@ -312,11 +313,11 @@ int electronValidation()
     std::size_t first = line.find_first_not_of(" \t") ;
     if (first==std::string::npos) continue ;
     if (line[first]=='#') continue ;
-    
+
     std::istringstream linestream(line) ;
     divide = 0 ; num = denom = "" ;
     linestream >> histo_path >> scaled >> err >> eol >> eoc >> divide >> num >> denom ;
-   
+
     histo_name = histo_path ;
     Ssiz_t pos = histo_name.Last('/') ;
     if (pos!=kNPOS) histo_name.Remove(0,pos+1) ;
@@ -391,7 +392,7 @@ int electronValidation()
     std::size_t first = line.find_first_not_of(" \t") ;
     if (first==std::string::npos) continue ;
     if (line[first]=='#') continue ;
-    
+
     std::istrstream linestream(line) ;
     divide = 0 ; num = denom = "" ;
     linestream >> histo_path >> scaled >> err >> eol >> eoc >> divide >> num >> denom ;
@@ -447,7 +448,12 @@ int electronValidation()
       if (new_entries==0)
        { std::cerr<<"DO NOT KNOW HOW TO RESCALE "<<histo_name<<std::endl ; }
       else
-       { histo_ref->Scale(new_entries/histo_ref->GetEntries()) ; }
+       {
+        // we want to reuse the rescale factor of the first histogram
+        // for all the subsequent histograms.
+        if (rescale_factor==0.) { rescale_factor = new_entries/histo_ref->GetEntries() ; }
+        histo_ref->Scale(rescale_factor) ;
+       }
      }
     if ((histo_new!=0)&&(histo_ref!=0)&&(histo_ref->GetMaximum()>histo_new->GetMaximum()))
      { histo_new->SetMaximum(histo_ref->GetMaximum()*1.1) ; }
