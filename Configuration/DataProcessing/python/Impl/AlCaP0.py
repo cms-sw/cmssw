@@ -9,6 +9,9 @@ Scenario supporting proton collisions
 from Configuration.DataProcessing.AlCa import AlCa
 
 class AlCaP0(AlCa):
+    def __init__(self):
+        self.skims=['EcalCalPi0Calib',
+                    'EcalCalEtaCalib']
     """
     _AlCaP0_
 
@@ -17,15 +20,4 @@ class AlCaP0(AlCa):
 
     """
 
-
-    def promptReco(self, globalTag, **args):
-        """
-        _promptReco_
-
-        Proton collision data taking prompt reco
-
-        """
-        skims = ['EcalCalPi0Calib',
-                 'EcalCalEtaCalib']
-        return self.promptRecoImpl(globalTag, skims, args)
 

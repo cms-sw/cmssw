@@ -25,9 +25,14 @@ class AlCa(Scenario):
 
     """
 
+    def skimsIfNotGiven(self,args,sl):
+        if not 'skims' in args:
+            args['skims']=sl
 
-    def promptRecoImpl(self, globalTag, skims, args={}):
-        step = stepALCAPRODUCER(skims)
+    def promptReco(self, globalTag, **args):
+        if not 'skims' in args:
+            args['skims']=self.skims
+        step = stepALCAPRODUCER(args['skims'])
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "pp"
@@ -46,8 +51,7 @@ class AlCa(Scenario):
 
         return process
 
-
-    def alcaSkim(self, skims, args):
+    def alcaSkim(self, skims, **args):
         """
         _alcaSkim_
 

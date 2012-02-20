@@ -9,6 +9,8 @@ Scenario supporting proton collisions
 from Configuration.DataProcessing.AlCa import AlCa
 
 class AlCaTestEnable(AlCa):
+    def __init__(self):
+        self.skims=['TkAlLAS']
     """
     _AlCaTestEnable_
 
@@ -16,13 +18,3 @@ class AlCaTestEnable(AlCa):
     collision data taking
 
     """
-
-    def promptReco(self, globalTag, **args):
-        """
-        _promptReco_
-
-        Proton collision data taking prompt reco
-
-        """
-        skims = ['TkAlLAS']
-        return self.promptRecoImpl( globalTag, skims, args)
