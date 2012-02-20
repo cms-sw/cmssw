@@ -84,7 +84,7 @@ if __name__ == '__main__':
     #
     #optional arg to select exact hltpath or pattern
     #
-    parser.add_argument('-hltpath',dest='hltpath',action='store',
+    parser.add_argument('--hltpath',dest='hltpath',action='store',
                         default=None,required=False,
                         help='specific hltpath or hltpath pattern to calculate the effectived luminosity (optional)')
     #
@@ -94,30 +94,30 @@ if __name__ == '__main__':
                         choices=beamModeChoices,
                         required=False,
                         help='beam mode choices [stable] (optional)')
-    parser.add_argument('-fill',dest='fillnum',action='store',
+    parser.add_argument('--fill',dest='fillnum',action='store',
                         default=None,required=False,
                         help='fill number (optional) ')
-    parser.add_argument('-amodetag',dest='amodetag',action='store',
+    parser.add_argument('--amodetag',dest='amodetag',action='store',
                         choices=amodetagChoices,
                         required=False,
                         help='specific accelerator mode choices [PROTOPHYS,IONPHYS,PAPHYS] (optional)')
-    parser.add_argument('-beamenergy',dest='beamenergy',action='store',
+    parser.add_argument('--beamenergy',dest='beamenergy',action='store',
                         type=float,
                         default=None,
                         help='nominal beam energy in GeV')
-    parser.add_argument('-beamfluctuation',dest='beamfluctuation',
+    parser.add_argument('--beamfluctuation',dest='beamfluctuation',
                         type=float,action='store',
                         default=0.2,
                         required=False,
                         help='fluctuation in fraction allowed to nominal beam energy, default 0.2, to be used together with -beamenergy  (optional)'
                         )
-    parser.add_argument('-Begin',dest='begin',action='store',
+    parser.add_argument('--begin',dest='begin',action='store',
                         default=None,
                         required=False,
                         type=RegexValidator("^\d\d/\d\d/\d\d \d\d:\d\d:\d\d$","must be form mm/dd/yy hh:mm:ss"),
                         help='min run start time, mm/dd/yy hh:mm:ss (optional)'
                         )
-    parser.add_argument('-End',dest='end',action='store',
+    parser.add_argument('--end',dest='end',action='store',
                         default=None,
                         required=False,
                         type=RegexValidator("^\d\d/\d\d/\d\d \d\d:\d\d:\d\d$","must be form mm/dd/yy hh:mm:ss"),
@@ -126,23 +126,23 @@ if __name__ == '__main__':
     #
     #optional args to filter ls
     #
-    parser.add_argument('-xingMinLum', dest = 'xingMinLum',
+    parser.add_argument('--xingMinLum', dest = 'xingMinLum',
                         type=float,
                         default=1e-03,
                         required=False,
                         help='Minimum luminosity considered for lumibylsXing action, default=1e-03')
-    parser.add_argument('-xingAlgo', dest = 'xingAlgo',
+    parser.add_argument('--xingAlgo', dest = 'xingAlgo',
                         default='OCC1',
                         required=False,
                         help='algorithm name for per-bunch lumi ')
     #
     #optional args for data and normalization version control
     #
-    parser.add_argument('-lumiversion',dest='lumiversion',action='store',
+    parser.add_argument('--lumiversion',dest='lumiversion',action='store',
                         default=None,
                         required=False,
                         help='data version, optional')
-    parser.add_argument('-norm',dest='normfactor',action='store',
+    parser.add_argument('--norm',dest='normfactor',action='store',
                         default=None,
                         required=False,
                         help='use specify the name or the value of the normalization to use,optional')
@@ -154,7 +154,7 @@ if __name__ == '__main__':
     #
     #command configuration 
     #
-    parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',
+    parser.add_argument('--siteconfpath',dest='siteconfpath',action='store',
                         default=None,
                         required=False,
                         help='specific path to site-local-config.xml file, optional. If path undefined, fallback to cern proxy&server')

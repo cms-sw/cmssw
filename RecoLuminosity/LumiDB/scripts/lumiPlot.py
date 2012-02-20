@@ -68,46 +68,46 @@ if __name__=='__main__':
                         dest='amodetag',
                         action='store',
                         help='accelerator mode')
-    parser.add_argument('-beamenergy',
+    parser.add_argument('--beamenergy',
                         dest='beamenergy',
                         action='store',
                         type=float,
                         default=3500,
                         help='beamenergy (in GeV) selection criteria')
-    parser.add_argument('-beamfluctuation',
+    parser.add_argument('--beamfluctuation',
                         dest='beamfluctuation',
                         action='store',
                         type=float,
                         default=0.2,
                         help='allowed fraction of beamenergy to fluctuate')
-    parser.add_argument('-hltpath',
+    parser.add_argument('--hltpath',
                         dest='hltpath',
                         action='store',
                         help='specific hltpath to calculate the recorded luminosity. If specified aoverlays the recorded luminosity for the hltpath on the plot')
-    parser.add_argument('-beginTime',
+    parser.add_argument('--beginTime',
                         dest='begintime',
                         action='store',
                         default='03/01/10 00:00:00',
                         help='min run start time,mm/dd/yy hh:mm:ss')
-    parser.add_argument('-endTime',
+    parser.add_argument('--endTime',
                         dest='endtime',
                         action='store',
                         help='max run start time,mm/dd/yy hh:mm:ss')
-    parser.add_argument('-siteconfpath',
+    parser.add_argument('--siteconfpath',
                         dest='siteconfpath',
                         action='store',
                         help='specific path to site-local-config.xml file, default to $CMS_PATH/SITECONF/local/JobConfig, if path undefined, fallback to cern proxy&server')
     
     ####plot options
-    parser.add_argument('-inplot',
+    parser.add_argument('--inplot',
                         dest='inplot',
                         action='store',
                         help='existing base plot(s) in text format')
-    parser.add_argument('-outplot',
+    parser.add_argument('--outplot',
                         dest='outplot',
                         action='store',
                         help='output plot. By default, a text dump of the plot is produced.')
-    parser.add_argument('-yscale',
+    parser.add_argument('--yscale',
                         dest='yscale',
                         action='store',
                         default='linear',

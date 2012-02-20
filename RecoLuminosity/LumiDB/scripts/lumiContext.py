@@ -62,7 +62,7 @@ if __name__ == '__main__':
     parser.add_argument('-i',dest='inputfile',action='store',
                         required=False,
                         help='run/ls selection file (optional)')
-    parser.add_argument('-name',dest='name',action='store',
+    parser.add_argument('--name',dest='name',action='store',
                        help='hltpath/l1bit name/pattern'
                        )
     #
@@ -72,32 +72,32 @@ if __name__ == '__main__':
                         choices=beamModeChoices,
                         required=False,
                         help='beam mode choices [stable] (optional)')
-    parser.add_argument('-fill',dest='fillnum',action='store',
+    parser.add_argument('--fill',dest='fillnum',action='store',
                         default=None,required=False,
                         help='fill number (optional) ')
-    parser.add_argument('-amodetag',dest='amodetag',action='store',
+    parser.add_argument('--amodetag',dest='amodetag',action='store',
                         choices=amodetagChoices,
                         required=False,
                         help='specific accelerator mode choices [PROTOPHYS,IONPHYS] (optional)')
-    parser.add_argument('-beamenergy',dest='beamenergy',action='store',
+    parser.add_argument('--beamenergy',dest='beamenergy',action='store',
                         type=float,
                         default=None,
                         help='nominal beam energy in GeV')
-    parser.add_argument('-beamfluctuation',dest='beamfluctuation',
+    parser.add_argument('--beamfluctuation',dest='beamfluctuation',
                         type=float,action='store',
                         default=0.2,
                         required=False,
                         help='fluctuation in fraction allowed to nominal beam energy, default 0.2, to be used together with -beamenergy  (optional)')
-    parser.add_argument('-minintensity',dest='minintensity',
+    parser.add_argument('--minintensity',dest='minintensity',
                         type=float,action='store',
                         default=0.1,
                         required=False,
                         help='filter on beam intensity , effective with --with-beamintensity (optional)')
-    parser.add_argument('-begin',dest='begin',action='store',
+    parser.add_argument('--begin',dest='begin',action='store',
                         default=None,
                         required=False,
                         help='min run start time, mm/dd/yy hh:mm:ss (optional)')
-    parser.add_argument('-end',dest='end',action='store',
+    parser.add_argument('--end',dest='end',action='store',
                         default=None,required=False,
                         help='max run start time, mm/dd/yy hh:mm:ss (optional)')
     
@@ -105,7 +105,7 @@ if __name__ == '__main__':
     #
     #command configuration 
     #
-    parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',
+    parser.add_argument('--siteconfpath',dest='siteconfpath',action='store',
                         default=None,
                         required=False,
                         help='specific path to site-local-config.xml file, optional. If path undefined, fallback to cern proxy&server')

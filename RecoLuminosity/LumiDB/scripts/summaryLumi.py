@@ -44,10 +44,10 @@ if __name__ == '__main__':
     parser.add_argument('-i',dest='inputdir',action='store',required=False,help='output dir',default='.')
     parser.add_argument('-o',dest='outputdir',action='store',required=False,help='output dir',default='.')
     parser.add_argument('-f',dest='fillnum',action='store',required=False,help='specific fill',default=None)
-    parser.add_argument('-norm',dest='norm',action='store',required=False,help='norm',default='pp7TeV')
-    parser.add_argument('-minfill',dest='minfill',action='store',required=False,help='minimal fillnumber ',default=None)
-    parser.add_argument('-maxfill',dest='maxfill',action='store',required=False,help='maximum fillnumber ',default=MAXFILL)
-    parser.add_argument('-amodetag',dest='amodetag',action='store',required=False,help='accelerator mode tag ',default='PROTPHYS')
+    parser.add_argument('--norm',dest='norm',action='store',required=False,help='norm',default='pp7TeV')
+    parser.add_argument('--minfill',dest='minfill',action='store',required=False,help='minimal fillnumber ',default=None)
+    parser.add_argument('--maxfill',dest='maxfill',action='store',required=False,help='maximum fillnumber ',default=MAXFILL)
+    parser.add_argument('--amodetag',dest='amodetag',action='store',required=False,help='accelerator mode tag ',default='PROTPHYS')
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
     parser.add_argument('--without-stablebeam',dest='withoutStablebeam',action='store_true',required=False,help='without requirement on stable beams')
     parser.add_argument('--without-correction',dest='withoutFineCorrection',action='store_true',required=False,help='without fine correction')
@@ -95,7 +95,7 @@ if __name__ == '__main__':
             clineElements.append('-b stable')
         if options.withoutFineCorrection:
             clineElements.append('--without-correction')
-        clineElements.append('-norm '+options.norm)
+        clineElements.append('--norm '+options.norm)
         finalcmmd=' '.join(clineElements)
         print 'cmmd executed:',finalcmmd
         (exestat,resultStr)=commands.getstatusoutput(finalcmmd)

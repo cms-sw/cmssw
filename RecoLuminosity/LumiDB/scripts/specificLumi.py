@@ -359,41 +359,41 @@ if __name__ == '__main__':
                         required=False,
                         help='specific fill',
                         default=None)
-    parser.add_argument('-minfill',dest='minfill',
+    parser.add_argument('--minfill',dest='minfill',
                         type=int,
                         action='store',
                         required=False,
                         default=MINFILL,
                         help='min fill')
-    parser.add_argument('-maxfill',dest='maxfill',
+    parser.add_argument('--maxfill',dest='maxfill',
                         type=int,
                         action='store',
                         required=False,
                         default=MAXFILL,
                         help='maximum fillnumber '
                         )
-    parser.add_argument('-amodetag',dest='amodetag',
+    parser.add_argument('--amodetag',dest='amodetag',
                         action='store',
                         choices=amodetagChoices,
                         required=False,
                         help='specific accelerator mode choices [PROTOPHYS,IONPHYS,PAPHYS] (optional)')
-    parser.add_argument('-xingMinLum', dest = 'xingMinLum',
+    parser.add_argument('--xingMinLum', dest = 'xingMinLum',
                         type=float,
                         default=1e-03,
                         required=False,
                         help='Minimum luminosity considered for lumibylsXing action')
-    parser.add_argument('-xingAlgo', dest = 'bxAlgo',
+    parser.add_argument('--xingAlgo', dest = 'bxAlgo',
                         default='OCC1',
                         required=False,
                         help='algorithm name for per-bunch lumi ')
-    parser.add_argument('-norm',dest='normfactor',action='store',
+    parser.add_argument('--norm',dest='normfactor',action='store',
                         required=False,
                         help='norm',
                         default=None)
     #
     #command configuration 
     #
-    parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',
+    parser.add_argument('--siteconfpath',dest='siteconfpath',action='store',
                         help='specific path to site-local-config.xml file, optional. If path undefined, fallback to cern proxy&server')
     #
     #switches
