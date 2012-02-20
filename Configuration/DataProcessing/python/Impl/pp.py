@@ -33,20 +33,20 @@ class pp(Reco):
         Proton collision data taking prompt reco
 
         """
-        skims = ['TkAlMinBias',
-                 'TkAlMuonIsolated',
-                 'MuAlCalIsolatedMu',
-                 'MuAlOverlaps',
-                 'HcalCalIsoTrk',
-                 'HcalCalDijets',
-                 'SiStripCalMinBias',
-                 'EcalCalElectron',
-                 'DtCalib',
-                 'TkAlJpsiMuMu',
-                 'TkAlUpsilonMuMu',
-                 'TkAlZMuMu']
-
-        process = self.promptRecoImp(self,globalTag, skims, args)
+        if not 'skims' in args:
+            args['skims']=['TkAlMinBias',
+                           'TkAlMuonIsolated',
+                           'MuAlCalIsolatedMu',
+                           'MuAlOverlaps',
+                           'HcalCalIsoTrk',
+                           'HcalCalDijets',
+                           'SiStripCalMinBias',
+                           'EcalCalElectron',
+                           'DtCalib',
+                           'TkAlJpsiMuMu',
+                           'TkAlUpsilonMuMu',
+                           'TkAlZMuMu']
+        process = Reco.promptReco(self,globalTag, **args)
 
         #add the former top level patches here
         customisePrompt(process)
@@ -61,14 +61,14 @@ class pp(Reco):
         Proton collision data taking express processing
 
         """
-
-        self.skims = ['SiStripCalZeroBias',
-                      'TkAlMinBias',
-                      'DtCalib',
-                      'MuAlCalIsolatedMu',
-                      'SiStripPCLHistos']
-        process = self.expressProcessingImp(self, globalTag, skims, args)
-
+        if not 'skims' in args:
+            args['skims']=['SiStripCalZeroBias',
+                           'TkAlMinBias',
+                           'DtCalib',
+                           'MuAlCalIsolatedMu',
+                           'SiStripPCLHistos']
+        process = Reco.expressProcessing(self,globalTag, **args)
+        
         customiseExpress(process)
                 
         return process
@@ -81,28 +81,10 @@ class pp(Reco):
         Proton collisions data taking AlCa Harvesting
 
         """
-        skims=['BeamSpotByRun'+
-               'BeamSpotByLumi'+
-               'SiStripQuality']
-        
-        options = defaultOptions
-        options.scenario = "pp"
-        options.step = "ALCAHARVEST:"+('+'.join(skims))
-        options.name = "ALCAHARVEST"
-        options.conditions = globalTag
- 
-        process = cms.Process("ALCAHARVEST")
-        process.source = cms.Source("PoolSource")
-        configBuilder = ConfigBuilder(options, process = process)
-        configBuilder.prepare()
-
-        #
-        # customise process for particular job
-        #
-        process.source.processingMode = cms.untracked.string('RunsAndLumis')
-        process.source.fileNames = cms.untracked(cms.vstring())
-        process.maxEvents.input = -1
-        process.dqmSaver.workflow = datasetName
-        
-        return process
+        if not 'skims' in args:
+            args['skims']=['BeamSpotByRun',
+                           'BeamSpotByLumi',
+                           'SiStripQuality']
+            
+        return Reco.alcaHarvesting(self, globalTag, datasetName, **args)
 

@@ -30,7 +30,7 @@ class hcalnzs(pp):
         Proton collision data taking prompt reco
 
         """
-        skims=['HcalCalMinBias']
-        process = self.promptRecoImp(self,globalTag, skims, args)
-        customisePrompt(process)
+        if not 'skims' in args:
+            args['skims']=['HcalCalMinBias']
+        process = pp.promptReco(self,globalTag,**args)
         return process

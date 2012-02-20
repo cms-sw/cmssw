@@ -10,7 +10,7 @@ import os
 import sys
 
 from Configuration.DataProcessing.Scenario import Scenario
-from Configuration.DataProcessing.Utils import stepALCAPRODUCER,addMonitoring
+from Configuration.DataProcessing.Utils import stepALCAPRODUCER,addMonitoring,dictIO,dqmIOSource,harvestingMode
 import FWCore.ParameterSet.Config as cms
 from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder
 from Configuration.PyReleaseValidation.ConfigBuilder import Options
@@ -30,14 +30,14 @@ class Reco(Scenario):
 
     """
 
-    def promptRecoImp(self, globalTag, skims, args):
+    def promptReco(self, globalTag, **args):
         """
         _promptReco_
 
         Proton collision data taking prompt reco
 
         """
-        step = stepALCAPRODUCER(skims)
+        step = stepALCAPRODUCER(args['skims'])
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = self.cbSc
@@ -59,14 +59,14 @@ class Reco(Scenario):
         return process
 
 
-    def expressProcessingImp(self, globalTag, skims, args):
+    def expressProcessing(self, globalTag, **args):
         """
         _expressProcessing_
 
         Proton collision data taking express processing
 
         """
-        step = stepALCAPRODUCER(skims)
+        step = stepALCAPRODUCER(args['skims'])
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = self.cbSc
@@ -154,16 +154,17 @@ class Reco(Scenario):
         return process
 
 
-    def alcaHarvestingImp(self, globalTag, datasetName, skims, **args):
+    def alcaHarvesting(self, globalTag, datasetName, **args):
         """
         _alcaHarvesting_
 
         Proton collisions data taking AlCa Harvesting
 
         """
+        if not 'skims' in args: return None
         options = defaultOptions
         options.scenario = self.cbSc if hasattr(self,'cbSc') else self.__class__.__name__ 
-        options.step = "ALCAHARVEST:"+('+'.join(skims))
+        options.step = "ALCAHARVEST:"+('+'.join(args['skims']))
         options.name = "ALCAHARVEST"
         options.conditions = globalTag
  
@@ -182,3 +183,16 @@ class Reco(Scenario):
         
         return process
 
+    """
+    def repack(self, **args):
+        options = defaultOptions
+        dictIO(options,args)
+        options.filein='file.dat'
+        options.filetype='DAT'
+        options.scenario = self.cbSc if hasattr(self,'cbSc') else self.__class__.__name__
+        process = cms.Process('REPACK')
+        cb = ConfigBuilder(options, process = process, with_output = True,with_input=True)
+        cb.prepare()
+        print cb.pythonCfgCode
+        return process
+    """

@@ -29,17 +29,17 @@ class cosmics(Reco):
         Cosmic data taking prompt reco
 
         """
-
-        skims = ['TkAlBeamHalo',
-                 'MuAlBeamHaloOverlaps',
-                 'MuAlBeamHalo',
-                 'TkAlCosmics0T',
-                 'MuAlGlobalCosmics',
-                 'MuAlCalIsolatedMu',
-                 'HcalCalHOCosmics',
-                 'DtCalib',
-                 'DtCalibCosmics']
-        process = self.promptRecoImp(globalTag, skims, args)
+        if not 'skims' in args:
+            args['skims']= ['TkAlBeamHalo',
+                            'MuAlBeamHaloOverlaps',
+                            'MuAlBeamHalo',
+                            'TkAlCosmics0T',
+                            'MuAlGlobalCosmics',
+                            'MuAlCalIsolatedMu',
+                            'HcalCalHOCosmics',
+                            'DtCalib',
+                            'DtCalibCosmics']
+        process = Reco.promptReco(self,globalTag, **args)
 
         customiseCosmicData(process)  
         return process
@@ -53,9 +53,10 @@ class cosmics(Reco):
 
         """
 
-        skims = ['SiStripCalZeroBias',
-                 'MuAlCalIsolatedMu']
-        process = self.expressProcessingImp(globalTag, skims, args)
+        if not 'skims' in args:
+            args['skims']= ['SiStripCalZeroBias',
+                            'MuAlCalIsolatedMu']
+        process = Reco.expressProcessing(self,globalTag, **args)
 
         customiseCosmicData(process)  
         return process
