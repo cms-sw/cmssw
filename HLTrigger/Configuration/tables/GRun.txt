@@ -59,6 +59,7 @@ HLT_QuadJet70_v*
 HLT_QuadJet80_v*
 HLT_QuadJet80_L1FastJet_v*
 HLT_QuadJet90_v*
+HLT_QuadL1FastJet_BTagIP_VBF_v*									#added in Feb 2012 5e33 menu (sr #126239)
 HLT_SixJet45_v*
 HLT_SixJet45_L1FastJet_v*
 HLT_EightJet35_v*
