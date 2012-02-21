@@ -57,13 +57,13 @@ hfRecoEcalCandidate = cms.EDProducer("HFRecoEcalCandidateProducer",
 #
 ##                                       hard cut
 ##                                      intercept2DCut = cms.double(0.92),
-##                                      intercept2Dslope = cms.double(0.20),
+##                                      intercept2DSlope = cms.double(0.20),
 
 ##                                      medium cut
 ##                                      intercept2DCut = cms.double(0.875),
-##                                      intercept2Dslope = cms.double(0.275),
+##                                      intercept2DSlope = cms.double(0.275),
 
 ##                                      loose cut
 ##                                      intercept2DCut = cms.double(0.815),
-##                                      intercept2Dslope = cms.double(0.475),
+##                                      intercept2DSlope = cms.double(0.475),
 ##                                      era 4=data july 05 3=summer11 MC 2=spring11 MC 1=fall10 MC 0=Data 41
