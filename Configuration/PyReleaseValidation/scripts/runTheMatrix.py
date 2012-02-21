@@ -10,7 +10,7 @@ from Configuration.PyReleaseValidation.MatrixInjector import MatrixInjector
 
 def showRaw(opt):
 
-    mrd = MatrixReader()
+    mrd = MatrixReader(opt)
     mrd.showRaw(opt.useInput, opt.refRel, opt.fromScratch, opt.raw, opt.step1Only, selected=opt.testList)
 
     return 0
