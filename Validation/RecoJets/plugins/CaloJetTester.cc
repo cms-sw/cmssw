@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTester.cc,v 1.37 2012/02/13 17:28:43 kovitang Exp $
+// $Id: CaloJetTester.cc,v 1.38 2012/02/15 21:41:52 kovitang Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -1040,10 +1040,11 @@ void CaloJetTester::fillMatchHists (const reco::GenJet& fGenJet, const reco::Cal
     if(goodVertices.size()>20 && goodVertices.size()<=30) mpTScale_nvtx_20_30->Fill(log10(PtGen), PtCalo/PtGen);
     if(goodVertices.size()>30) mpTScale_nvtx_30_inf->Fill(log10(PtGen), PtCalo/PtGen);
 }
-
+  if (fabs(fGenJet.eta())<1.3) {
   if(fGenJet.pt()>60.0 && fGenJet.pt()<120.0) mpTScale_a->Fill(PtCalo/PtGen);
   if(fGenJet.pt()>200.0 && fGenJet.pt()<300.0) mpTScale_b->Fill(PtCalo/PtGen);
   if(fGenJet.pt()>600.0 && fGenJet.pt()<900.0) mpTScale_c->Fill(PtCalo/PtGen);
+  }
   mpTScale_pT->Fill (log10(PtGen), PtCalo/PtGen);
 }
 
