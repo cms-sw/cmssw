@@ -303,8 +303,12 @@ HLT_Ele17_CaloIdL_CaloIsoVL_v*
 HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC8_Mass30_v*
 HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v*
 HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_Ele8_Mass30_v*
+HLT_Ele22_CaloIdL_CaloIsoVL_v*                                                                  #added in Feb 2012 5e33 menu (sr #126316)
 HLT_Ele22_CaloIdL_CaloIsoVL_Ele15_HFT_v*
+HLT_Ele23_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_HFT30_v*                           
 HLT_Ele27_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v*
+HLT_Ele27_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele15_CaloIdT_CaloIsoVL_trackless_v*               #added in Feb 2012 5e33 menu (sr #126316)
+HLT_Ele27_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_HFT15_v*                                           #added in Feb 2012 5e33 menu (sr #126316)
 HLT_Ele27_WP80_v*
 HLT_Ele27_WP80_PFMT50_v*
 HLT_Ele32_WP70_v*
@@ -395,6 +399,7 @@ HLT_IsoMu17_eta2p1_DiCentralPFJet25_v*
 HLT_IsoMu17_eta2p1_DiCentralPFJet25_PFMHT15_v*
 HLT_IsoMu17_eta2p1_DiCentralPFJet25_PFMHT25_v*
 HLT_Mu17_eta2p1_DiPFJet25_Deta3_v*
+HLT_IsoMu20_eta2p1_CentralPFJet80_v*                                    #added in Feb 2012 5e33 menu (sr #126316)
 HLT_IsoMu17_eta2p1_DiPFJet25_Deta3_v*
 HLT_IsoMu17_eta2p1_DiPFJet25_Deta3_PFJet25_v*
 HLT_DoubleDisplacedMu4_DiPFJet40Neutral_L1FastJet_v*			#added in Feb 2012 5e33 menu (sr #126258)
@@ -447,6 +452,7 @@ HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_DiCentralPFJet30_v*
 HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TriCentralPFJet30_v*
 HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_QuadCentralPFJet30_v*
 HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFJet30_BTagIPIter_v*			#added in Feb 2012 5e33 menu (sr #126286)
+HLT_Ele27_WP80_CentralPFJet80_v*                                                        #added in Feb 2012 5e33 menu (sr #126316)
 HLT_Ele27_WP80_DiCentralPFJet25_PFMHT15_v*
 HLT_Ele27_CaloIdVT_TrkIdT_DiCentralPFJet25_v*
 HLT_Ele27_WP80_DiCentralPFJet25_v*

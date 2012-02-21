@@ -1,4 +1,4 @@
-# /dev/CMSSW_5_1_0/GRun/V62
+# /dev/CMSSW_5_1_0/GRun/V65
 
 import FWCore.ParameterSet.Config as cms
 
@@ -59,6 +59,9 @@ streamA_datasetDoubleElectron_selector.triggerConditions = cms.vstring('HLT_Doub
     'HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_Ele8_Mass30_v10', 
     'HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC8_Mass30_v11', 
     'HLT_Ele22_CaloIdL_CaloIsoVL_Ele15_HFT_v4', 
+    'HLT_Ele23_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_HFT30_v1', 
+    'HLT_Ele27_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele15_CaloIdT_CaloIsoVL_trackless_v1', 
+    'HLT_Ele27_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_HFT15_v1', 
     'HLT_Ele32_CaloIdT_CaloIsoT_TrkIdT_TrkIsoT_Ele17_v4', 
     'HLT_Ele32_CaloIdT_CaloIsoT_TrkIdT_TrkIsoT_SC17_v9', 
     'HLT_Ele8_CaloIdL_CaloIsoVL_Jet40_v13', 
@@ -112,6 +115,7 @@ streamA_datasetElectronHad_selector.triggerConditions = cms.vstring('HLT_DoubleE
     'HLT_Ele25_CaloIdVT_TrkIdT_TriCentralPFJet30_v4', 
     'HLT_Ele27_CaloIdVT_TrkIdT_DiCentralPFJet25_v6', 
     'HLT_Ele27_CaloIdVT_TrkIdT_DiPFJet25_Deta3_v6', 
+    'HLT_Ele27_WP80_CentralPFJet80_v1', 
     'HLT_Ele27_WP80_DiCentralPFJet25_PFMHT15_v6', 
     'HLT_Ele27_WP80_DiCentralPFJet25_v6', 
     'HLT_Ele27_WP80_DiPFJet25_Deta3_v6', 
@@ -343,6 +347,7 @@ streamA_datasetMuHad_selector.triggerConditions = cms.vstring('HLT_DoubleDisplac
     'HLT_IsoMu17_eta2p1_DiCentralPFJet25_v6', 
     'HLT_IsoMu17_eta2p1_DiPFJet25_Deta3_PFJet25_v6', 
     'HLT_IsoMu17_eta2p1_DiPFJet25_Deta3_v6', 
+    'HLT_IsoMu20_eta2p1_CentralPFJet80_v1', 
     'HLT_L2TripleMu10_0_0_NoVertex_PFJet40Neutral_L1FastJet_v1', 
     'HLT_Mu10_R014_MR200_v6', 
     'HLT_Mu10_R025_MR200_v7', 
@@ -497,6 +502,7 @@ streamA_datasetSingleElectron_selector.hltResults = cms.InputTag('TriggerResults
 streamA_datasetSingleElectron_selector.l1tResults = cms.InputTag('')
 streamA_datasetSingleElectron_selector.throw      = cms.bool(False)
 streamA_datasetSingleElectron_selector.triggerConditions = cms.vstring('HLT_Ele100_CaloIdVT_TrkIdT_v4', 
+    'HLT_Ele22_CaloIdL_CaloIsoVL_v1', 
     'HLT_Ele27_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v4', 
     'HLT_Ele27_WP80_PFMT50_v10', 
     'HLT_Ele27_WP80_v4', 
