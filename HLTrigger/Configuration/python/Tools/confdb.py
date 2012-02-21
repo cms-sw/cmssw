@@ -72,6 +72,7 @@ class HLTProcess(object):
     "HLT_Jet160Eta2p4_Jet120Eta2p4_L1FastJet_DiBTagIP3DLoose_v*",
     "HLT_DiJet80Eta2p6_L1FastJet_BTagIP3DLoose_v*",
     "HLT_DiJet40Eta2p6_L1FastJet_BTagIP3D_v*",
+    "HLT_Tau2Mu_RegPixTrack_v*",
   )
 
   def __init__(self, configuration):
