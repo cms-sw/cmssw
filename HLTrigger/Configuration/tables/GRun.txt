@@ -153,6 +153,7 @@ HLT_RMR65_v*
 HLT_L1SingleMuOpen_v*
 HLT_L1SingleMuOpen_DT_v*
 HLT_L1SingleMu10_v*
+HLT_L1SingleMu12_v*				#added in 5e33 menu, sr#126489
 HLT_L1SingleMu20_v*
 HLT_L1DoubleMu0_v*
 HLT_L2Mu10_v*
