@@ -117,7 +117,7 @@ void PerformancePayloadFromBinnedTFormula::printFormula(PerformanceResult::Resul
   // nice, what to do here???
   TFormula * formula = getFormula(res, point);
   unsigned int whichone;
-  bool ok =  isOk(point,whichone);
+  isOk(point,whichone);
   cout << "-- Formula: " << formula->GetExpFormula("p") << endl;
   // prepare the vector to pass, order counts!!!
   //
