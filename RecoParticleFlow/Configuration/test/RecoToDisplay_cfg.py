@@ -18,10 +18,8 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-    '/store/relval/CMSSW_5_0_0/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/START50_V8-v2/0073/324BAB7B-C328-E111-B624-00261894389E.root',
-    '/store/relval/CMSSW_5_0_0/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/START50_V8-v2/0073/72BA0554-C328-E111-B2A6-002618943972.root',
-    '/store/relval/CMSSW_5_0_0/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/START50_V8-v2/0073/B44EAD5D-C328-E111-8057-0018F3D096BC.root',
-    '/store/relval/CMSSW_5_0_0/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/START50_V8-v2/0073/EE7D4C4A-0529-E111-84F5-002618943900.root'
+    'root://eoscms//eos/cms/store/relval/CMSSW_5_2_0_pre5/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/START52_V1-v1/0105/2AAA5F86-8D57-E111-B6E8-003048678B84.root',
+    'root://eoscms//eos/cms/store/relval/CMSSW_5_2_0_pre5/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/START52_V1-v1/0105/38D32839-8A57-E111-849D-0026189438E4.root'
     ),
     eventsToProcess = cms.untracked.VEventRange(),
     #eventsToProcess = cms.untracked.VEventRange('1:1217421-1:1217421'),
