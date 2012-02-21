@@ -50,10 +50,10 @@ time python $SCRIPTS/splitter/splitter.py $LOCALTOP /doc/html/configfiles.html c
 time python $SCRIPTS/splitter/splitter.py $LOCALTOP /doc/html/annotated.html annotatedList_ 
 
 # package documetation
-cd $LOCALTOP/src
-showtags -t> ../tagList.txt
-cd ..
+
+cd $LOCALTOP
+curl "http://cmssdt.cern.ch/SDT/doxygen/tcproxy.php?type=tags&release=$CMSSW_xyz" > tagList.txt
 
 time python $SCRIPTS/splitter/packageDocSplitter.py pages.html $LOCALTOP tagList.txt 
 
-find $LOCALTOP/doc/html/ -name "*.html" ! \( -name "*dir_*" -o -name "*globals_*" -o -name "*namespacemembers_*" -o -name "*functions_*" \) -print | sort > $LOCALTOP/$CMSSW_xyz.index
+find $LOCALTOP/doc/html/ -name "*.html" ! \( -name "*dir_*" -o -name "*globals_*" -o -name "*namespacemembers_*" -o -name "*functions_*" \) -print | sed -e 's|'$LOCALTOP'|'$CMSSW_xyz'|g' | sort > $LOCALTOP/$CMSSW_xyz.index
