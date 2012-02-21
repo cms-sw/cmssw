@@ -4,7 +4,8 @@ process = cms.Process("Demo")
 process.load('Configuration/StandardSequences/GeometryExtended_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 
-process.GlobalTag.globaltag = 'MC_31X_V8::All'
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['mc']
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
