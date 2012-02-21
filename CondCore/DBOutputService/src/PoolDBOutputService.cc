@@ -70,6 +70,8 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
 
   m_connectionString = iConfig.getParameter<std::string>("connect");
   m_session = connection.createSession();
+  m_session.open( m_connectionString );  
+  
   if( iConfig.exists("logconnect") ){
     m_logConnectionString = iConfig.getUntrackedParameter<std::string>("logconnect");
     cond::DbSession logSession = connection.createSession();
@@ -108,7 +110,6 @@ cond::service::PoolDBOutputService::isNewTagRequest( const std::string& recordNa
 void 
 cond::service::PoolDBOutputService::initDB( bool forReading )
 {
-  m_session.open( m_connectionString );  
   m_session.transaction().start(false);
   DbOpenTransaction trans( m_session.transaction() );
   try{ 
