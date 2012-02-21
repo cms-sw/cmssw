@@ -71,7 +71,7 @@ class MatrixReader(object):
             cmd += ' ' + k + ' ' + str(v)
         return cfg, input, cmd
     
-    def readMatrix(self, fileNameIn, useInput=None, refRel=None, fromScratch=None):
+    def readMatrix(self, fileNameIn, useInput=None, refRel=None, fromScratch=None, profile=None):
         
         prefix = self.filesPrefMap[fileNameIn]
         
@@ -157,7 +157,8 @@ class MatrixReader(object):
                         cmd  = 'cmsDriver.py step'+str(stepIndex+1)+' '+opts
                     if self.wm:
                         cmd+=' --io %s.io --python %s.py'%(stepName,stepName)
-
+                    if profile:
+                      cmd += ' --profile %s' % profile
                 commands.append(cmd)
                 ranStepList.append(stepName)
                 stepIndex+=1
@@ -167,7 +168,7 @@ class MatrixReader(object):
         return
 
 
-    def showRaw(self, useInput, refRel=None, fromScratch=None, what='all',step1Only=False,selected=None):
+    def showRaw(self, useInput, refRel=None, fromScratch=None, what='all',step1Only=False,selected=None, profile=None):
 
         if selected:
             selected=map(float,selected)
@@ -180,7 +181,7 @@ class MatrixReader(object):
                 continue
 
             try:
-                self.readMatrix(matrixFile, useInput, refRel, fromScratch)
+                self.readMatrix(matrixFile, useInput, refRel, fromScratch, profile)
             except Exception, e:
                 print "ERROR reading file:", matrixFile, str(e)
                 raise
@@ -327,7 +328,7 @@ class MatrixReader(object):
 
         return
 
-    def prepare(self, useInput=None, refRel='', fromScratch=None):
+    def prepare(self, useInput=None, refRel='', fromScratch=None, profile=None):
         
         for matrixFile in self.files:
             if self.what != 'all' and self.what not in matrixFile:
@@ -335,7 +336,7 @@ class MatrixReader(object):
                 continue
 
             try:
-                self.readMatrix(matrixFile, useInput, refRel, fromScratch)
+                self.readMatrix(matrixFile, useInput, refRel, fromScratch, profile)
             except Exception, e:
                 print "ERROR reading file:", matrixFile, str(e)
                 raise
