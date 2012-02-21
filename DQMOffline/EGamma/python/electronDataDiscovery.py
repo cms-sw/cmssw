@@ -21,6 +21,9 @@
 #     /castor/cern.ch/cms/...: assumed to be the path of a castor directory containing the input data files
 #       for relvals: '/castor/cern.ch/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}/${DD_TIER}/${DD_COND}/'
 #       for harvested dqm: '/castor/cern.ch/cms/store/unmerged/dqm/${DD_SAMPLE}-${DD_RELEASE}-${DD_COND}-DQM-DQMHarvest-OfflineDQM'
+#     /eos/cms/...: assumed to be the path of a castor directory containing the input data files
+#       for relvals: '/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}/${DD_TIER}/${DD_COND}/'
+#       for harvested dqm: '/eos/cms/store/unmerged/dqm/${DD_SAMPLE}-${DD_RELEASE}-${DD_COND}-DQM-DQMHarvest-OfflineDQM'
 #     /...: assumed to be the path of a text file containing the list of input data files
 #
 # All except DD_SOURCE can use wildcard *.
@@ -50,6 +53,8 @@ dd_cond_re = re.compile(os.environ['DD_COND'].replace('*','.*')) ;
 dd_run_re = re.compile(os.environ['DD_RUN'].replace('*','.*')) ;
 
 def common_search(dd_tier):
+
+  dd_tier_re = re.compile(dd_tier.replace('*','.*')) ;
 
   if os.environ['DD_SOURCE'] == "das":
   
@@ -195,7 +200,7 @@ def common_search(dd_tier):
       
   elif os.environ['DD_SOURCE'].startswith('/castor/cern.ch/cms/'): # assumed to be a castor dir
   
-    castor_dir = os.environ['DD_SOURCE'].replace('/castor/cern.ch/cms/','',1)
+    castor_dir = os.environ['DD_SOURCE'].replace('/castor/cern.ch/cms/','/',1)
     result = []
     data = os.popen('rfdir /castor/cern.ch/cms'+castor_dir)
     subdirs = data.readlines()
@@ -213,10 +218,23 @@ def common_search(dd_tier):
           result.append(castor_dir+'/'+subdir+'/'+file)
       data.close()
       
+  elif os.environ['DD_SOURCE'].startswith('/eos/cms/'): # assumed to be an eos dir
+  
+    data = os.popen('/afs/cern.ch/project/eos/installation/pro/bin/eos.select find -f '+os.environ['DD_SOURCE'])
+    lines = data.readlines()
+    data.close()
+    result = []
+    for line in lines:
+      line = line.strip().replace('/eos/cms/','/',1)
+      if line == "": continue
+      if dd_sample_re.search(line) == None: continue
+      if dd_cond_re.search(line) == None: continue
+      if dd_tier_re.search(line) == None: continue
+      if dd_run_re.search(line) == None: continue
+      result.append(line)
+      
   else: # os.environ['DD_SOURCE'] is assumed to be a file name
   
-    dd_tier_re = re.compile(dd_tier.replace('*','.*')) ;
-
     result = []
     for line in open(os.environ['DD_SOURCE']).readlines():
       line = os.path.expandvars(line.strip())
