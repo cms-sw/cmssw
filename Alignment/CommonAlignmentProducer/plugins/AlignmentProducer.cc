@@ -731,7 +731,7 @@ void AlignmentProducer::applyDB(G* geometry, const edm::EventSetup &iSetup,
     const edm::ValidityInterval & validity = record.validityInterval();
     const edm::IOVSyncValue first = validity.first();
     const edm::IOVSyncValue last = validity.last();
-    if (first!=edm::IOVSyncValue::beginOfTime() &&
+    if (first!=edm::IOVSyncValue::beginOfTime() ||
 	last!=edm::IOVSyncValue::endOfTime()) {
       throw cms::Exception("DatabaseError")
 	<< "@SUB=AlignmentProducer::applyDB"
@@ -769,7 +769,7 @@ void AlignmentProducer::applyDB(G* geometry, const edm::EventSetup &iSetup) cons
     const edm::ValidityInterval & validity = record.validityInterval();
     const edm::IOVSyncValue first = validity.first();
     const edm::IOVSyncValue last = validity.last();
-    if (first!=edm::IOVSyncValue::beginOfTime() &&
+    if (first!=edm::IOVSyncValue::beginOfTime() ||
 	last!=edm::IOVSyncValue::endOfTime()) {
       throw cms::Exception("DatabaseError")
 	<< "@SUB=AlignmentProducer::applyDB"
@@ -872,14 +872,14 @@ void AlignmentProducer::writeDB(Alignments *alignments,
   
   if (saveToDB_) {
     edm::LogInfo("Alignment") << "Writing Alignments to " << alignRcd << ".";
-    poolDb->writeOne<Alignments>(tempAlignments, time, alignRcd);
+    poolDb->writeOne<Alignments>(tempAlignments, 0, time, alignRcd);
   } else { // poolDb->writeOne(..) takes over 'alignments' ownership,...
     delete tempAlignments; // ...otherwise we have to delete, as promised!
   }
 
   if (saveApeToDB_) {
     edm::LogInfo("Alignment") << "Writing AlignmentErrors to " << errRcd << ".";
-    poolDb->writeOne<AlignmentErrors>(tempAlignmentErrors, time, errRcd);
+    poolDb->writeOne<AlignmentErrors>(tempAlignmentErrors, 0, time, errRcd);
   } else { // poolDb->writeOne(..) takes over 'alignmentErrors' ownership,...
     delete tempAlignmentErrors; // ...otherwise we have to delete, as promised!
   }
@@ -901,7 +901,7 @@ void AlignmentProducer::writeDB(AlignmentSurfaceDeformations *alignmentSurfaceDe
   if (saveDeformationsToDB_) {
     edm::LogInfo("Alignment") << "Writing AlignmentSurfaceDeformations to "
 			      << surfaceDeformationRcd  << ".";
-    poolDb->writeOne<AlignmentSurfaceDeformations>(alignmentSurfaceDeformations, time,
+    poolDb->writeOne<AlignmentSurfaceDeformations>(alignmentSurfaceDeformations, 0, time,
 						   surfaceDeformationRcd);
   } else { // poolDb->writeOne(..) takes over 'surfaceDeformation' ownership,...
     delete alignmentSurfaceDeformations; // ...otherwise we have to delete, as promised!
