@@ -17,9 +17,14 @@ public:
   // provide a constructor matching all the different variants that other
   // ROOT plugins might use
 
+  // This one is to match TXNetFile
+  TStorageFactoryFile(const char *name, Option_t *option,
+                      const char *ftitle, Int_t compress, Int_t netopt,
+                      Bool_t parallelopen);
+
+  // This matches everything else.
   TStorageFactoryFile(const char *name, Option_t *option = "",
-                      const char *ftitle = "", Int_t compress = 1, Int_t netopt = 0,
-                      Bool_t parallelopen = kFALSE);
+                      const char *ftitle = "", Int_t compress = 1);
 
   ~TStorageFactoryFile(void);
 
@@ -39,6 +44,8 @@ protected:
   virtual Int_t		SysSync(Int_t fd);
 
 private:
+  void                  Initialize(const char *name, Option_t *option = "");
+
   TStorageFactoryFile(void);
 
   Storage		*storage_;		//< Real underlying storage

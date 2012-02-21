@@ -98,13 +98,30 @@ TStorageFactoryFile::TStorageFactoryFile(void)
 // If there's a future T*File that is incompatible with this constructor, a new
 // constructor will have to be added.
 TStorageFactoryFile::TStorageFactoryFile(const char *path,
-                                         Option_t *option /* = "" */,
-                                         const char *ftitle /* = "" */,
-                                         Int_t compress /* = 1 */,
-                                         Int_t netopt /* = 0 */,
-                                         Bool_t parallelopen /* = kFALSE*/)
+                                         Option_t *option,
+                                         const char *ftitle,
+                                         Int_t compress,
+                                         Int_t netopt,
+                                         Bool_t parallelopen)
   : TFile(path, "NET", ftitle, compress), // Pass "NET" to prevent local access in base class
     storage_(0)
+{
+  Initialize(path, option);
+}
+
+TStorageFactoryFile::TStorageFactoryFile(const char *path,
+                                         Option_t *option /* = "" */,
+                                         const char *ftitle /* = "" */,
+                                         Int_t compress /* = 1 */)
+  : TFile(path, "NET", ftitle, compress), // Pass "NET" to prevent local access in base class
+    storage_(0)
+{
+  Initialize(path, option);
+}
+
+void
+TStorageFactoryFile::Initialize(const char *path,
+                                Option_t *option /* = "" */)
 {
   StorageAccount::Stamp stats(storageCounter(s_statsCtor, "construct"));
 
