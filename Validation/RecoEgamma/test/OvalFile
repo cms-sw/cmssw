@@ -105,6 +105,7 @@ This set of targets is currently used for the validation of electrons.
   The tags below are to be used when you want to process some files
   made with a modified code, and generated locally, thanks to the
   targets RedoFrom% defined later on.
+  <!--var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}"-->
   <!--var name="DD_SOURCE" value="electronInputDataFiles.txt"-->
   <!--var name="DD_COND" value="STARTUP"-->
     
