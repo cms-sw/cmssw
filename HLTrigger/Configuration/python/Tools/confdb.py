@@ -58,6 +58,7 @@ class HLTProcess(object):
     "HLT_Mu5_TkMu0_OST_Jpsi_Tight_B5Q7_v*",
     "HLT_Mu5_Track0_Jpsi_B5Q7_v*",
     "HLT_Mu5_Track2_Jpsi_v*",
+    "HLT_Mu5_Track3p5_Jpsi_v*",
     "HLT_Mu5_Track5_Jpsi_v*",
     "HLT_Mu7_Track5_Jpsi_v*",
     "HLT_Mu7_Track7_Jpsi_v*",
