@@ -5,24 +5,24 @@
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
-using namespace edm;
-using namespace std;
+//using namespace edm;
+//using namespace std;
 
 class BoundaryInformation {
    public:
       BoundaryInformation() {
-         recHits = vector<EcalRecHit> ();
-         detIds = vector<DetId> ();
-         channelStatus = vector<int> ();
+         recHits = std::vector<EcalRecHit> ();
+         detIds = std::vector<DetId> ();
+         channelStatus = std::vector<int> ();
          boundaryEnergy = 0.;
          boundaryET = 0.;
          subdet = EcalSubdetector();
          nextToBorder = false;
       }
       ;
-      vector<EcalRecHit> recHits;
-      vector<DetId> detIds;
-      vector<int> channelStatus;
+      std::vector<EcalRecHit> recHits;
+      std::vector<DetId> detIds;
+      std::vector<int> channelStatus;
       double boundaryEnergy;
       double boundaryET;
       EcalSubdetector subdet;

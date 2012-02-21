@@ -9,8 +9,8 @@
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-using namespace edm;
-using namespace std;
+//using namespace edm;
+//using namespace std;
 /*
  * This class summarizes the information about the boundary energy calculated in EcalAnomalousEventFilter:
  * 1. next to ECAL border/gap
@@ -30,8 +30,8 @@ class AnomalousECALVariables {
          v_enNeighboursGap_EE.clear();
 
          //energy around dead cells
-         v_boundaryInfoDeadCells_EB = vector<BoundaryInformation> ();
-         v_boundaryInfoDeadCells_EE = vector<BoundaryInformation> ();
+         v_boundaryInfoDeadCells_EB = std::vector<BoundaryInformation> ();
+         v_boundaryInfoDeadCells_EE = std::vector<BoundaryInformation> ();
          v_boundaryInfoDeadCells_EB.reserve(50);
          v_boundaryInfoDeadCells_EE.reserve(50);
          v_boundaryInfoDeadCells_EB.clear();
@@ -40,12 +40,12 @@ class AnomalousECALVariables {
       }
       ;
 
-      AnomalousECALVariables(vector<BoundaryInformation> p_enNeighboursGap_EB,
-            vector<BoundaryInformation> p_enNeighboursGap_EE, vector<BoundaryInformation> p_boundaryInfoDeadCells_EB,
-            vector<BoundaryInformation> p_boundaryInfoDeadCells_EE) {
+      AnomalousECALVariables(std::vector<BoundaryInformation> p_enNeighboursGap_EB,
+            std::vector<BoundaryInformation> p_enNeighboursGap_EE, std::vector<BoundaryInformation> p_boundaryInfoDeadCells_EB,
+            std::vector<BoundaryInformation> p_boundaryInfoDeadCells_EE) {
 
-         v_boundaryInfoDeadCells_EB = vector<BoundaryInformation> ();
-         v_boundaryInfoDeadCells_EE = vector<BoundaryInformation> ();
+         v_boundaryInfoDeadCells_EB = std::vector<BoundaryInformation> ();
+         v_boundaryInfoDeadCells_EE = std::vector<BoundaryInformation> ();
          v_boundaryInfoDeadCells_EB.reserve(50);
          v_boundaryInfoDeadCells_EE.reserve(50);
          v_boundaryInfoDeadCells_EB.clear();
@@ -72,8 +72,8 @@ class AnomalousECALVariables {
       //Note: no sense to change this cut BELOW the threshold given in EcalAnomalousEventFilter
 
       bool isDeadEcalCluster(double maxBoundaryEnergy = 10,
-            vector<int> limitDeadCellToChannelStatusEB = vector<int> (), vector<int> limitDeadCellToChannelStatusEE =
-                  vector<int> ()) const {
+            std::vector<int> limitDeadCellToChannelStatusEB = std::vector<int> (), std::vector<int> limitDeadCellToChannelStatusEE =
+                  std::vector<int> ()) const {
 
          float highestEnergyDepositAroundDeadCell = 0;
 
@@ -82,12 +82,12 @@ class AnomalousECALVariables {
 
             //check if channel limitation rejectsbInfo
             bool passChannelLimitation = false;
-            vector<int> status = bInfo.channelStatus;
+            std::vector<int> status = bInfo.channelStatus;
 
             for (int cs = 0; cs < (int) limitDeadCellToChannelStatusEB.size(); ++cs) {
                int channelAllowed = limitDeadCellToChannelStatusEB[cs];
 
-               for (vector<int>::iterator st_it = status.begin(); st_it != status.end(); ++st_it) {
+               for (std::vector<int>::iterator st_it = status.begin(); st_it != status.end(); ++st_it) {
 
                   if (channelAllowed == *st_it || (channelAllowed < 0 && abs(channelAllowed) <= *st_it)) {
                      passChannelLimitation = true;
@@ -110,12 +110,12 @@ class AnomalousECALVariables {
 
             //check if channel limitation rejectsbInfo
             bool passChannelLimitation = false;
-            vector<int> status = bInfo.channelStatus;
+            std::vector<int> status = bInfo.channelStatus;
 
             for (int cs = 0; cs < (int) limitDeadCellToChannelStatusEE.size(); ++cs) {
                int channelAllowed = limitDeadCellToChannelStatusEE[cs];
 
-               for (vector<int>::iterator st_it = status.begin(); st_it != status.end(); ++st_it) {
+               for (std::vector<int>::iterator st_it = status.begin(); st_it != status.end(); ++st_it) {
 
                   if (channelAllowed == *st_it || (channelAllowed < 0 && abs(channelAllowed) <= *st_it)) {
                      passChannelLimitation = true;
@@ -141,7 +141,7 @@ class AnomalousECALVariables {
             //               cout << "no of neighbouring DetIds:" << bInfo.detIds.size() << endl;
             //               cout << "boundary energy:" << bInfo.boundaryEnergy << endl;
             //               cout << "Channel stati: ";
-            //               for (vector<int>::iterator it = bInfo.channelStatus.begin(); it != bInfo.channelStatus.end(); ++it) {
+            //               for (std::vector<int>::iterator it = bInfo.channelStatus.begin(); it != bInfo.channelStatus.end(); ++it) {
             //                  cout << *it << " ";
             //               }
             //               cout << endl;
@@ -153,7 +153,7 @@ class AnomalousECALVariables {
             //               cout << "no of neighbouring DetIds:" << bInfo.detIds.size() << endl;
             //               cout << "boundary energy:" << bInfo.boundaryEnergy << endl;
             //               cout << "Channel stati: ";
-            //               for (vector<int>::iterator it = bInfo.channelStatus.begin(); it != bInfo.channelStatus.end(); ++it) {
+            //               for (std::vector<int>::iterator it = bInfo.channelStatus.begin(); it != bInfo.channelStatus.end(); ++it) {
             //                  cout << *it << " ";
             //               }
             //               cout << endl;
@@ -207,11 +207,11 @@ class AnomalousECALVariables {
             return false;
       }
 
-      vector<BoundaryInformation> v_enNeighboursGap_EB;
-      vector<BoundaryInformation> v_enNeighboursGap_EE;
+      std::vector<BoundaryInformation> v_enNeighboursGap_EB;
+      std::vector<BoundaryInformation> v_enNeighboursGap_EE;
 
-      vector<BoundaryInformation> v_boundaryInfoDeadCells_EB;
-      vector<BoundaryInformation> v_boundaryInfoDeadCells_EE;
+      std::vector<BoundaryInformation> v_boundaryInfoDeadCells_EB;
+      std::vector<BoundaryInformation> v_boundaryInfoDeadCells_EE;
 
    private:
 
