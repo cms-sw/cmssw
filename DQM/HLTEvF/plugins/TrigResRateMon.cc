@@ -1,4 +1,4 @@
-// $Id: TrigResRateMon.cc,v 1.23 2011/10/26 13:16:45 lwming Exp $
+// $Id: TrigResRateMon.cc,v 1.25 2012/01/31 15:59:03 davidlt Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "TString.h"
@@ -1080,7 +1080,7 @@ void TrigResRateMon::setupHltMatrix(const std::string& label, vector<std::string
     h_name= "HLT_"+label+"_Rate";
     h_title = "HLT_"+label+"_Rate -- histogram shows Average Rate per LS;LS;Rate [Hz]";
 
-    MonitorElement* ME_Rate = dbe_->book1D(h_name.c_str(), h_title.c_str(),nLS_, 0, nLS_);
+    // MonitorElement* ME_Rate = dbe_->book1D(h_name.c_str(), h_title.c_str(),nLS_, 0, nLS_);
 
 
 //     dbe_->setCurrentFolder(pathsSummaryHLTCorrelationsFolder_.c_str());
@@ -1259,7 +1259,7 @@ void TrigResRateMon::fillHltMatrix(const edm::TriggerNames & triggerNames, const
   
   
   bool groupPassed = false;
-  bool groupL1Passed = false;
+  //bool groupL1Passed = false;
 
   // Main loop over paths
   // --------------------
@@ -1287,7 +1287,7 @@ void TrigResRateMon::fillHltMatrix(const edm::TriggerNames & triggerNames, const
     if(triggerResults_->accept(pathByIndex)){
 
       groupPassed = true;
-      groupL1Passed = true;
+      //groupL1Passed = true;
 
 // //       hist_2d->Fill(i,anyBinNumber-1);//binNumber1 = 0 = first filter
 // //       hist_2d->Fill(anyBinNumber-1,i);//binNumber1 = 0 = first filter
