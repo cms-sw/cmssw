@@ -28,7 +28,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:40:52 EST 2009
-// $Id: FWTableManagerBase.h,v 1.6 2011/03/07 13:13:51 amraktad Exp $
+// $Id: FWTableManagerBase.h,v 1.7 2011/03/09 14:20:45 amraktad Exp $
 //
 
 // system include files
@@ -80,6 +80,9 @@ class FWTableManagerBase : public TQObject
       virtual bool hasRowHeaders() const ;
       ///Returns the renderer for the row header for the sorted row number iSortedRowNumber
       virtual FWTableCellRendererBase* rowHeader(int iSortedRowNumber) const ;
+  
+      virtual bool cellDataIsSortable() const { return true ; } 
+  
 
       ///Called if mouse button pressed in Row Header, defaults is to do nothing
       virtual void buttonPressedInRowHeader(Int_t row, Event_t* event, Int_t relX, Int_t relY);

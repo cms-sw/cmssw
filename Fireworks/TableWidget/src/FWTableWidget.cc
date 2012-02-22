@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:42 EST 2009
-// $Id: FWTableWidget.cc,v 1.23 2011/03/07 13:13:51 amraktad Exp $
+// $Id: FWTableWidget.cc,v 1.24 2011/03/09 14:20:45 amraktad Exp $
 //
 
 // system include files
@@ -61,7 +61,7 @@ TGCompositeFrame(p),
    if(0!=m_headerTable) {
       m_header = new FWTabularWidget(m_headerTable,this);
       AddFrame(m_header, new TGTableLayoutHints(1,2,0,1,kLHintsTop|kLHintsLeft|kRowOptions));	
-      m_header->Connect("buttonReleased(Int_t,Int_t,Event_t*,Int_t,Int_t)","FWTableWidget",this,"buttonReleasedInHeader(Int_t,Int_t,Event_t*,Int_t,Int_t)");
+      if (m_bodyTable->cellDataIsSortable()) m_header->Connect("buttonReleased(Int_t,Int_t,Event_t*,Int_t,Int_t)","FWTableWidget",this,"buttonReleasedInHeader(Int_t,Int_t,Event_t*,Int_t,Int_t)");
    }
    m_body = new FWTabularWidget(iManager,this,GetWhiteGC()());
    //m_body->SetBackgroundColor(kWidgetColor);
