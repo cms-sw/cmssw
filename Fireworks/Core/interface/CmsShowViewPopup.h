@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:12 EDT 2008
-// $Id: CmsShowViewPopup.h,v 1.20 2010/11/10 20:07:07 amraktad Exp $
+// $Id: CmsShowViewPopup.h,v 1.21.12.1 2012/02/18 01:58:25 matevz Exp $
 //
 
 // system include files
@@ -46,7 +46,9 @@ class FWColorManager;
 class FWDialogBuilder;
 
 /* Helper class to organise parameters in view controller */
-class ViewerParameterGUI : public TGCompositeFrame, public FWParameterSetterEditorBase
+
+class ViewerParameterGUI : public TGCompositeFrame,
+                           public FWParameterSetterEditorBase
 {
 public:
    ViewerParameterGUI(const TGFrame*);
@@ -60,10 +62,9 @@ public:
 
    TGCompositeFrame* getTabContainer();
    void addFrameToContainer(TGCompositeFrame*);
-   
 
 private:
-   TGTab* m_tab;
+   TGTab*      m_tab;
    std::string m_selectedTabName;
 #ifndef __CINT__
    std::vector<boost::shared_ptr<FWParameterSetterBase> > m_setters;
@@ -83,6 +84,7 @@ public:
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
+
    virtual void CloseWindow();
    virtual void MapWindow();
    virtual void UnmapWindow();
@@ -102,22 +104,21 @@ public:
    ClassDef(CmsShowViewPopup, 0);
 
 private:
-   CmsShowViewPopup(const CmsShowViewPopup&);    // stop default
-
-   const CmsShowViewPopup& operator=(const CmsShowViewPopup&);    // stop default
+   CmsShowViewPopup(const CmsShowViewPopup&);                  // stop default
+   const CmsShowViewPopup& operator=(const CmsShowViewPopup&); // stop default
 
    // ---------- member data --------------------------------
-   bool              m_mapped;
 
-   TGLabel*          m_viewLabel;
-   ViewerParameterGUI*     m_paramGUI;
-   TGButton*         m_saveImageButton;
-   TGTextButton*     m_changeBackground;
+   bool                m_mapped;
 
-   FWColorManager* m_colorManager;
-   FWViewBase*     m_viewBase;
-   TEveWindow*     m_eveWindow;
+   TGLabel*            m_viewLabel;
+   ViewerParameterGUI* m_paramGUI;
+   TGButton*           m_saveImageButton;
+   TGTextButton*       m_changeBackground;
+
+   FWColorManager*     m_colorManager;
+   FWViewBase*         m_viewBase;
+   TEveWindow*         m_eveWindow;
 };
-
 
 #endif

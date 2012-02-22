@@ -1,11 +1,11 @@
-#ifndef Fireworks_Core_FWGeometryTableManager_h
-#define Fireworks_Core_FWGeometryTableManager_h
+#ifndef Fireworks_Core_FWGeometryTableManagerBase_h
+#define Fireworks_Core_FWGeometryTableManagerBase_h
 // -*- C++ -*-
 //
 // Package:     Core
-// Class  :     FWGeometryTableManager
+// Class  :     FWGeometryTableManagerBase
 // 
-/**\class FWGeometryTableManager FWGeometryTableManager.h Fireworks/Core/interface/FWGeometryTableManager.h
+/**\class FWGeometryTableManagerBase FWGeometryTableManagerBase.h Fireworks/Core/interface/FWGeometryTableManagerBase.h
 
  Description: [one line class summary]
 
@@ -16,13 +16,13 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:40 CET 2011
-// $Id: FWGeometryTableManager.h,v 1.32 2011/09/12 12:51:08 yana Exp $
+// $Id: FWGeometryTableManagerBase.h,v 1.1.2.6 2012/02/22 00:18:25 amraktad Exp $
 //
 
 #include <sigc++/sigc++.h>
 #include <boost/tr1/unordered_map.hpp>
 
-#include "Fireworks/Core/interface/FWGeometryTableView.h"
+#include "Fireworks/Core/interface/FWGeometryTableViewBase.h"
 
 #include "Fireworks/TableWidget/interface/FWTableManagerBase.h"
 #include "Fireworks/TableWidget/interface/FWTextTreeCellRenderer.h"
@@ -33,36 +33,36 @@
 #include "TGeoVolume.h"
 
 class FWTableCellRendererBase;
-// class FWGeometryTableView;
+// class FWGeometryTableViewBase;
 //class TGeoManager;
 class TGeoNode;
+class TEvePointSet;
 
-class FWGeometryTableManager : public FWTableManagerBase
+class FWGeometryTableManagerBase : public FWTableManagerBase
 {
-   friend class FWGeometryTableView;
+   friend class FWGeometryTableViewBase;
 
 public:
-   enum   ECol { kName, kColor,  kVisSelf, kVisChild, kMaterial, kPosX, kPosY, kPosZ /*, kDiagonal*/, kNumCol };
+   //   enum   ESelectionState { kNone, kSelected, kHighlighted, kFiltered };
 
    enum Bits
    {
       kExpanded        =  BIT(0),
-      kMatches         =  BIT(1),
-      kChildMatches    =  BIT(2),
-      kFilterCached    =  BIT(3),
 
-      kVisNode         =  BIT(4),
-      kVisNodeChld     =  BIT(5)
-      //   kVisVol          =  BIT(6),
-      //   kVisVolChld      =  BIT(7),
+      kVisNodeSelf     =  BIT(1),
+      kVisNodeChld     =  BIT(2),
 
+      kHighlighted   =  BIT(3),
+      kSelected      =  BIT(4)
    };
 
    struct NodeInfo
    {
       NodeInfo():m_node(0), m_parent(-1), m_color(0), m_level(-1), 
-                 m_flags(kVisNode|kVisNodeChld)
-      {}  
+                 m_flags(kVisNodeSelf|kVisNodeChld) {}  
+
+      NodeInfo(TGeoNode* n, Int_t p, Color_t col, Char_t l, UChar_t f = kVisNodeSelf|kVisNodeChld ):m_node(n), m_parent(p), m_color(col), m_level(l), 
+                 m_flags(f) {}  
 
       TGeoNode*   m_node;
       Int_t       m_parent;
@@ -71,7 +71,7 @@ public:
       UChar_t     m_flags;
 
       const char* name() const;
-     //  const char* nameIndent() const;
+      //  const char* nameIndent() const;
 
       void setBit(UChar_t f)    { m_flags  |= f;}
       void resetBit(UChar_t f)  { m_flags &= ~f; }
@@ -98,7 +98,9 @@ public:
    typedef boost::unordered_map<TGeoVolume*, Match>  Volumes_t;
    typedef Volumes_t::iterator               Volumes_i; 
 
-private: 
+   int m_highlightIdx;
+
+   //private: 
    // AMT: this could be a common base class with FWCollectionSummaryModelCellRenderer ..
    class ColorBoxRenderer : public FWTableCellRendererBase
    { 
@@ -118,114 +120,95 @@ private:
       TGGC*   m_colorContext;
    };
 
+protected:
+   virtual bool nodeIsParent(const NodeInfo&) const { return false; }
+   //   virtual ESelectionState nodeSelectionState(int idx) const;
+
 public:
-   FWGeometryTableManager(FWGeometryTableView*);
-   virtual ~FWGeometryTableManager();
+   FWGeometryTableManagerBase();
+   virtual ~FWGeometryTableManagerBase();
+   //   virtual std::string& cellName(const NodeInfo& ) const { return &std::string("ddd");} 
+   virtual const char* cellName(const NodeInfo& ) const { return 0;} 
 
    // virtual functions of FWTableManagerBase
    
    virtual int unsortedRowNumber(int unsorted) const;
    virtual int numberOfRows() const;
-   virtual int numberOfColumns() const;
    virtual std::vector<std::string> getTitles() const;
-   virtual FWTableCellRendererBase* cellRenderer(int iSortedRowNumber, int iCol) const;
 
    virtual const std::string title() const;
 
-   int selectedRow() const;
-   int selectedColumn() const;
-   virtual bool rowIsSelected(int row) const;
+   //int selectedRow() const;
+   //int selectedColumn() const;
+   //virtual bool rowIsSelected(int row) const;
 
    std::vector<int> rowToIndex() { return m_row_to_index; }
 
-   void setSelection(int row, int column, int mask); 
+   //   void setSelection(int row, int column, int mask); 
    virtual void implSort(int, bool) {}
 
-   void printChildren(int) const;
    bool nodeImported(int idx) const;
    // geo stuff
-   Entries_i refSelected();
+
+   NodeInfo* getSelected();
+
    Entries_v& refEntries() {return m_entries;}
 
    void loadGeometry( TGeoNode* , TObjArray*);
+
    void setBackgroundToWhite(bool);
    void getNodePath(int, std::string&) const;
 
    int getLevelOffset() const { return m_levelOffset; }
-
-   void assertNodeFilterCache(NodeInfo& data);
+   void setLevelOffset(int x) { m_levelOffset =x; }
 
    void setDaughtersSelfVisibility(bool);
 
    void getNodeMatrix(const NodeInfo& nodeInfo, TGeoHMatrix& mat) const;
 
-   void setVisibility(NodeInfo& nodeInfo, bool );
-   void setVisibilityChld(NodeInfo& nodeInfo, bool);
+   virtual void setVisibility(NodeInfo& nodeInfo, bool );
+   virtual void setVisibilityChld(NodeInfo& nodeInfo, bool);
 
-   bool getVisibilityChld(const NodeInfo& nodeInfo) const;
-   bool getVisibility (const NodeInfo& nodeInfo) const;
+   virtual bool getVisibilityChld(const NodeInfo& nodeInfo) const;
+   virtual bool getVisibility (const NodeInfo& nodeInfo) const;
+
 
    static  void getNNodesTotal(TGeoNode* geoNode, int& off);
 
-private:
-   FWGeometryTableManager(const FWGeometryTableManager&); // stop default
-   const FWGeometryTableManager& operator=(const FWGeometryTableManager&); // stop default
+
+   // protected:
+   FWGeometryTableManagerBase(const FWGeometryTableManagerBase&); // stop default
+   const FWGeometryTableManagerBase& operator=(const FWGeometryTableManagerBase&); // stop default
 
    
-   void firstColumnClicked(int row);
+   bool firstColumnClicked(int row, int xPos);
+   //   void changeSelection(int iRow, int iColumn);
 
-   // table mng
-   void changeSelection(int iRow, int iColumn);
-   void redrawTable();
+   void redrawTable(bool setExpand = false);
 
-   void recalculateVisibility();
-   void recalculateVisibilityNodeRec(int);
-   void recalculateVisibilityVolumeRec(int);
-   
-   // geo
-   void checkChildMatches(TGeoVolume* v,  std::vector<TGeoVolume*>&);
-   void importChildren(int parent_idx);
-   void checkHierarchy();
+   virtual void recalculateVisibility() = 0;
 
-
-   // signal callbacks
-   void updateFilter();
-   void checkExpandLevel();
-   void topGeoNodeChanged(int);
-   void printMaterials();
-
-   //   const std::string& getStatusMessage() const { return m_statusMessage; }
+  
+   virtual bool cellDataIsSortable() const { return false ; }
    // ---------- member data --------------------------------
    
    
    // table stuff
+   mutable TGGC* m_highlightContext; 
    mutable FWTextTreeCellRenderer m_renderer;  
    mutable ColorBoxRenderer       m_colorBoxRenderer;  
 
    std::vector<int>  m_row_to_index;
-   int               m_selectedRow;
-   int               m_selectedIdx;
-   int               m_selectedColumn;
    
-   // geo stuff
-   FWGeometryTableView*   m_browser;
-      
-   mutable Volumes_t  m_volumes;
    Entries_v          m_entries;
 
-   bool               m_filterOff; //cached
-   int                m_numVolumesMatched; //cached
 
-  //int m_topGeoNodeIdx; 
    int m_levelOffset;
-   //  int m_geoTopNodeIdx;
-
-   //   std::string m_statusMessage;
 };
 
 
 
-inline void FWGeometryTableManager::getNNodesTotal(TGeoNode* geoNode, int& off)
+inline void FWGeometryTableManagerBase::getNNodesTotal(TGeoNode* geoNode, int& off)
 {   
    int nD =  geoNode->GetNdaughters();
    off += nD;

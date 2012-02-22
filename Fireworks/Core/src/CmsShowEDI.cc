@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.45 2011/08/13 04:05:19 amraktad Exp $
+// $Id: CmsShowEDI.cc,v 1.46.2.1 2012/02/18 01:58:26 matevz Exp $
 //
 
 // system include files
@@ -64,7 +64,7 @@
 CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager* selMgr, FWColorManager* colorMgr) :
    TGTransientFrame(gClient->GetDefaultRoot(), p, w, h),
    m_item(0),
-   m_validator( new FWExpressionValidator),
+   m_validator(new FWExpressionValidator),
    m_colorManager(colorMgr),
    m_settersFrame(0)
 {
@@ -447,14 +447,14 @@ CmsShowEDI::runFilter() {
    }
 }
 
-
-
 void
 CmsShowEDI::runSelection() {
    FWModelExpressionSelector selector;
    const std::string selection(m_selectExpressionEntry->GetText());
-   if (m_item != 0){
-      try {
+   if (m_item != 0)
+   {
+      try
+      {
          m_selectError->Clear();
          //NOTE call clearModelSelectionLeaveItem so that the item does not get deselected
          // just for safety use a copy of the pointer to m_item
@@ -462,10 +462,13 @@ CmsShowEDI::runSelection() {
          item->selectionManager()-> clearModelSelectionLeaveItem();
 
          selector.select(item, selection);
-      } catch( const FWExpressionException& e) {
+      }
+      catch( const FWExpressionException& e)
+      {
          m_selectError->AddLine(e.what().c_str());
          m_selectError->Update();
-         if(e.column() > -1) {
+         if (e.column() > -1)
+         {
             m_selectExpressionEntry->SetCursorPosition(e.column());
          }
       }
@@ -473,9 +476,11 @@ CmsShowEDI::runSelection() {
 }
 
 void
-CmsShowEDI::selectAll() {
+CmsShowEDI::selectAll()
+{
    FWChangeSentry sentry(*(m_item->changeManager()));
-   for (int i = 0; i < static_cast<int>(m_item->size()); i++) {
+   for (int i = 0; i < static_cast<int>(m_item->size()); i++)
+   {
       m_item->select(i);
    }
 }

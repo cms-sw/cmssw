@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 23 13:35:15 EST 2008
-// $Id: FWParameterBase.h,v 1.2 2008/11/06 22:05:23 amraktad Exp $
+// $Id: FWParameterBase.h,v 1.3.40.1 2012/02/18 01:58:26 matevz Exp $
 //
 
 // system include files
@@ -31,16 +31,14 @@ class FWParameterizable;
 
 class FWParameterBase : public FWConfigurable
 {
-
 public:
    FWParameterBase(FWParameterizable* iParent, const std::string& iName);
    virtual ~FWParameterBase();
 
    // ---------- const member functions ---------------------
+
    //virtual void addTo(FWConfiguration& ) const = 0;
-   const std::string& name() const {
-      return m_name;
-   }
+   const std::string& name() const { return m_name; }
 
    // ---------- static member functions --------------------
 
@@ -48,13 +46,12 @@ public:
    //virtual void setFrom(const FWConfiguration&) = 0;
 
 private:
-   FWParameterBase(const FWParameterBase&);    // stop default
-
-   const FWParameterBase& operator=(const FWParameterBase&);    // stop default
+   FWParameterBase(const FWParameterBase&);                  // stop default
+   const FWParameterBase& operator=(const FWParameterBase&); // stop default
 
    // ---------- member data --------------------------------
+
    std::string m_name;
 };
-
 
 #endif

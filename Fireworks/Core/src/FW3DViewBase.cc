@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DViewBase.cc,v 1.25 2011/10/14 22:07:53 amraktad Exp $
+// $Id: FW3DViewBase.cc,v 1.26.2.1 2011/12/07 22:39:59 amraktad Exp $
 //
 #include <boost/bind.hpp>
 
@@ -105,7 +105,7 @@ public:
 // constructors and destructor
 //
 FW3DViewBase::FW3DViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId):
-   FWEveView(iParent, typeId),
+   FWEveView(iParent, typeId, 8),
    m_geometry(0),
    m_glClip(0),
    m_showMuonBarrel(this, "Show Muon Barrel",  0l, 0l, 2l ),

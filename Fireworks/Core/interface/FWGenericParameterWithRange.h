@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:36:34 EST 2008
-// $Id: FWGenericParameterWithRange.h,v 1.2 2010/02/13 14:01:33 eulisse Exp $
+// $Id: FWGenericParameterWithRange.h,v 1.3.12.1 2012/02/18 01:58:25 matevz Exp $
 //
 
 // user include files
@@ -27,22 +27,21 @@
 template<class T>
 class FWGenericParameterWithRange : public FWGenericParameter<T>
 {
-
 public:
-   FWGenericParameterWithRange(void)
-   :FWGenericParameter<T>(),
-    m_min(-1),
-    m_max(-1)
+   FWGenericParameterWithRange(void) :
+      FWGenericParameter<T>(),
+      m_min(-1),
+      m_max(-1)
    {}
 
    FWGenericParameterWithRange(FWParameterizable* iParent,
                                const std::string& iName,
                                const T &iDefault=T(),
                                T iMin=-1,
-                               T iMax=-1)
-   : FWGenericParameter<T>(iParent, iName, iDefault),
-     m_min(iMin),
-     m_max(iMax)
+                               T iMax=-1) :
+      FWGenericParameter<T>(iParent, iName, iDefault),
+      m_min(iMin),
+      m_max(iMax)
    {}
 
    template <class K>
@@ -51,21 +50,19 @@ public:
                                K iCallback,
                                const T &iDefault=T(),
                                T iMin=-1,
-                               T iMax=-1)
-   : FWGenericParameter<T>(iParent, iName, iCallback, iDefault),
-     m_min(iMin),
-     m_max(iMax)
+                               T iMax=-1) :
+      FWGenericParameter<T>(iParent, iName, iCallback, iDefault),
+      m_min(iMin),
+      m_max(iMax)
    {}
 
    // ---------- const member functions ---------------------
-   T min() const {
-      return m_min;
-   }
-   T max() const {
-      return m_max;
-   }
+
+   T min() const { return m_min; }
+   T max() const { return m_max; }
 
 private:
+
    T m_min;
    T m_max;
 };

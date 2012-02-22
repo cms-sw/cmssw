@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Mar 26 12:25:02 CET 2010
-// $Id: FWViewType.cc,v 1.21 2011/06/03 04:44:30 amraktad Exp $
+// $Id: FWViewType.cc,v 1.22.2.1 2011/12/23 02:24:33 amraktad Exp $
 //
 
 // system include files
@@ -46,6 +46,7 @@ FWViewType::static_initializer::static_initializer()
   sName[kLegoPFECAL   ] = "PF ECAL Lego";
   sName[kRhoPhiPF     ] = "PF Rho Phi";
   sName[kGeometryTable] = "Geometry Table";
+  sName[kOverlapTable ] = "Overlap Table";
 }
 
 FWViewType::static_initializer init_statics;

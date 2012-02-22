@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:16:14 EST 2008
-// $Id: FWParameterSetterBase.h,v 1.6.8.1 2011/02/11 19:42:15 amraktad Exp $
+// $Id: FWParameterSetterBase.h,v 1.7.4.1 2012/02/18 01:58:26 matevz Exp $
 //
 
 // system include files
@@ -26,13 +26,11 @@
 
 // forward declarations
 class FWParameterBase;
-class TGFrame;
-//class TGedFrame;
 class FWParameterSetterEditorBase;
+class TGFrame;
 
 class FWParameterSetterBase
 {
-
 public:
    FWParameterSetterBase();
    virtual ~FWParameterSetterBase();
@@ -42,27 +40,27 @@ public:
    // ---------- static member functions --------------------
 
    static boost::shared_ptr<FWParameterSetterBase> makeSetterFor(FWParameterBase*);
+
    // ---------- member functions ---------------------------
-   void attach(FWParameterBase*, FWParameterSetterEditorBase*);
+
+   void             attach(FWParameterBase*, FWParameterSetterEditorBase*);
    virtual TGFrame* build(TGFrame* iParent, bool labelBack = true) = 0;
 
-   virtual void setEnabled(bool);
+   virtual void     setEnabled(bool);
 
 protected:
    void update() const;
-   FWParameterSetterEditorBase* frame() const {
-      return m_frame;
-   }
+   FWParameterSetterEditorBase* frame() const { return m_frame; }
+
 private:
    virtual void attach(FWParameterBase*) = 0;
 
-   FWParameterSetterBase(const FWParameterSetterBase&);    // stop default
-
-   const FWParameterSetterBase& operator=(const FWParameterSetterBase&);    // stop default
+   FWParameterSetterBase(const FWParameterSetterBase&);                  // stop default
+   const FWParameterSetterBase& operator=(const FWParameterSetterBase&); // stop default
 
    // ---------- member data --------------------------------
+
    FWParameterSetterEditorBase* m_frame;
 };
-
 
 #endif

@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:04 EDT 2008
-// $Id: CmsShowViewPopup.cc,v 1.29 2011/02/22 18:37:31 amraktad Exp $
+// $Id: CmsShowViewPopup.cc,v 1.30.2.1 2012/02/18 01:58:26 matevz Exp $
 //
 
 // system include files
@@ -110,7 +110,8 @@ CmsShowViewPopup::reset(FWViewBase* vb, TEveWindow* ew)
    m_paramGUI->reset();
 
    // fill content
-   if(m_viewBase) {
+   if (m_viewBase)
+   {
       m_saveImageButton->SetEnabled(kTRUE);
       m_viewLabel->SetText(m_viewBase->typeName().c_str());
       m_viewBase->populateController(*m_paramGUI);
@@ -118,7 +119,8 @@ CmsShowViewPopup::reset(FWViewBase* vb, TEveWindow* ew)
 
       fMain = m_eveWindow->GetEveFrame();
    }
-   else {
+   else
+   {
       fMain = 0;
       m_viewLabel->SetText("No view selected");
       m_saveImageButton->SetEnabled(kFALSE);
@@ -157,7 +159,7 @@ CmsShowViewPopup::UnmapWindow()
 void
 CmsShowViewPopup::saveImage()
 {
-   if(m_viewBase)
+   if (m_viewBase)
       m_viewBase->promptForSaveImageTo(this);
 }
 
@@ -172,7 +174,7 @@ CmsShowViewPopup::changeBackground()
 void
 CmsShowViewPopup::backgroundColorWasChanged()
 {
-   if(FWColorManager::kBlackIndex == m_colorManager->backgroundColorIndex()) {
+   if (FWColorManager::kBlackIndex == m_colorManager->backgroundColorIndex()) {
       m_changeBackground->SetText("Change Background Color to White");
    } else {
       m_changeBackground->SetText("Change Background Color to Black");
@@ -202,14 +204,14 @@ ViewerParameterGUI::reset()
    m_setters.clear();
    if (m_tab)
    {
-      assert( GetList()->GetSize() == 1);
+      assert(GetList()->GetSize() == 1);
       TGFrameElement *el = (TGFrameElement*) GetList()->First();
       TGFrame* f = el->fFrame;
 
       assert (f == m_tab);
       f->UnmapWindow();
       RemoveFrame(f);
-      f->DestroyWindow();
+      f->DeleteWindow();
       m_tab = 0;
    }
 }
@@ -296,4 +298,3 @@ ViewerParameterGUI::populateComplete()
       if (!x) m_tab->SetTab("Style");
    }
 }
-

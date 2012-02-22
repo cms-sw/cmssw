@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.249 2011/09/12 22:56:09 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.250.2.3 2012/02/18 01:58:26 matevz Exp $
 
 
 //
@@ -46,7 +46,7 @@
 #include "Fireworks/Core/interface/FWDetailViewManager.h"
 #include "Fireworks/Core/interface/FWViewBase.h"
 #include "Fireworks/Core/interface/FWViewType.h"
-#include "Fireworks/Core/interface/FWGeometryTableView.h"
+#include "Fireworks/Core/interface/FWGeometryTableViewBase.h"
 #include "Fireworks/Core/interface/FWJobMetadataManager.h"
 #include "Fireworks/Core/interface/FWInvMassDialog.h"
 
@@ -491,9 +491,8 @@ FWGUIManager::checkSubviewAreaIconState(TEveWindow* /*ew*/)
 void
 FWGUIManager::subviewIsBeingDestroyed(FWGUISubviewArea* sva)
 {
-   if(sva->isSelected()) {
+   if (sva->isSelected())
       setViewPopup(0);
-   }
 
    CmsShowTaskExecutor::TaskFunctor f;
    f = boost::bind(&FWGUIManager::subviewDestroy, this, sva);
@@ -522,7 +521,7 @@ FWGUIManager::subviewDestroyAll()
 
    for (std::vector<FWGUISubviewArea*>::iterator i= sd.begin(); i !=sd.end(); ++i)
    {
-      if((*i)->isSelected())
+      if ((*i)->isSelected())
          setViewPopup(0);
       subviewDestroy(*i);
    }
@@ -614,8 +613,10 @@ FWGUIManager::createViews(TEveWindowSlot *slot)
 }
 
 void
-FWGUIManager::createEDIFrame() {
-   if (m_ediFrame == 0) {
+FWGUIManager::createEDIFrame()
+{
+   if (m_ediFrame == 0)
+   {
       m_ediFrame = new CmsShowEDI(m_cmsShowMainFrame, 200, 200, m_context->selectionManager(),m_context->colorManager());
       m_ediFrame->CenterOnParent(kTRUE,TGTransientFrame::kTopRight);
       m_cmsShowMainFrame->bindCSGActionKeys(m_ediFrame);
@@ -626,8 +627,9 @@ void
 FWGUIManager::showEDIFrame(int iToShow)
 {
    createEDIFrame();
-   if(-1 != iToShow) {
-      m_ediFrame->show(static_cast<FWDataCategories> (iToShow));
+   if (-1 != iToShow)
+   {
+      m_ediFrame->show(static_cast<FWDataCategories>(iToShow));
    }
    m_ediFrame->MapRaised();
 }
@@ -654,7 +656,7 @@ FWGUIManager::createModelPopup()
 void
 FWGUIManager::showModelPopup()
 {
-   if (!m_modelPopup) createModelPopup();
+   if (! m_modelPopup) createModelPopup();
    m_modelPopup->MapRaised();
 }
 
@@ -669,13 +671,15 @@ FWGUIManager::popupViewClosed()
 }
 
 void
-FWGUIManager::showViewPopup() {
-   // CSG action .
+FWGUIManager::showViewPopup()
+{
+   // CSG action.
    setViewPopup(0);
 }
 
 void
-FWGUIManager::setViewPopup(TEveWindow* ew) {
+FWGUIManager::setViewPopup(TEveWindow* ew)
+{
    FWViewBase* vb = ew ? m_viewMap[ew] : 0;
    if (m_viewPopup == 0)
    {
@@ -704,7 +708,8 @@ FWGUIManager::showInvMassDialog()
 void
 FWGUIManager::createHelpPopup ()
 {
-   if (m_helpPopup == 0) {
+   if (m_helpPopup == 0)
+   {
       m_helpPopup = new CmsShowHelpPopup("help.html", "CmsShow Help",
                                          m_cmsShowMainFrame,
                                          800, 600);
@@ -717,7 +722,8 @@ FWGUIManager::createHelpPopup ()
 void
 FWGUIManager::createShortcutPopup ()
 {
-   if (m_shortcutPopup == 0) {
+   if (m_shortcutPopup == 0)
+   {
       m_shortcutPopup = new CmsShowHelpPopup("shortcuts.html",
                                              getAction(cmsshow::sKeyboardShort)->getName().c_str(),
                                               m_cmsShowMainFrame, 800, 600);
@@ -729,7 +735,8 @@ FWGUIManager::createShortcutPopup ()
 
 void FWGUIManager::createHelpGLPopup ()
 {
-   if (m_helpGLPopup == 0) {
+   if (m_helpGLPopup == 0)
+   {
       m_helpGLPopup = new CmsShowHelpPopup("helpGL.html",
                                             getAction(cmsshow::sHelpGL)->getName().c_str(),
                                             m_cmsShowMainFrame, 800, 600);
@@ -742,7 +749,8 @@ void FWGUIManager::createHelpGLPopup ()
 void 
 FWGUIManager::showSelectedModelContextMenu(Int_t iGlobalX, Int_t iGlobalY, FWViewContextMenuHandlerBase* iHandler)
 {
-   if(!m_context->selectionManager()->selected().empty()) {
+   if (! m_context->selectionManager()->selected().empty())
+   {
       m_contextMenuHandler->showSelectedModelContext(iGlobalX,iGlobalY, iHandler);
    }
 }
@@ -1255,15 +1263,17 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
 
    //handle controllers
    const FWConfiguration* controllers = iFrom.valueForKey(kControllers);
-   if(0!=controllers) {
+   if (0 != controllers)
+   {
       const FWConfiguration::KeyValues* keyVals = controllers->keyValues();
-      if(0!=keyVals) {
+      if (0 != keyVals)
+      {
          //we have open controllers
          for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it != keyVals->end(); ++it)
          {
             const std::string& controllerName = it->first;
             // std::cout <<"found controller "<<controllerName<<std::endl;
-            if(controllerName == kCollectionController) {
+            if (controllerName == kCollectionController) {
                showEDIFrame();
                setWindowInfoFrom(it->second,m_ediFrame);
             } else if (controllerName == kViewController) {
@@ -1283,9 +1293,9 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
 
    for(ViewMap_i it = m_viewMap.begin(); it != m_viewMap.end(); ++it)
    {
-      if (it->second->typeId() == FWViewType::kGeometryTable)
+      if (it->second->typeId() >= FWViewType::kGeometryTable)
       {
-         FWGeometryTableView* gv = ( FWGeometryTableView*)it->second;
+         FWGeometryTableViewBase* gv = ( FWGeometryTableViewBase*)it->second;
          gv->populate3DViewsFromConfig();
       }
    }

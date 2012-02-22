@@ -64,29 +64,29 @@
  <config name="GUI" version="1">
   <config name="main window" version="3">
    <config name="x" version="0">
-     <string>227</string>
+     <string>166</string>
    </config>
    <config name="y" version="0">
-     <string>50</string>
+     <string>44</string>
    </config>
    <config name="width" version="0">
-     <string>1080</string>
+     <string>909</string>
    </config>
    <config name="height" version="0">
-     <string>735</string>
+     <string>683</string>
    </config>
    <config name="summaryWeight" version="0">
-     <string>0.0857178</string>
+     <string>0.220997</string>
    </config>
    <config name="leftWeight" version="0">
-     <string>1.00321</string>
+     <string>0.747305</string>
    </config>
    <config name="rightWeight" version="0">
-     <string>0.996796</string>
+     <string>1.25269</string>
    </config>
   </config>
   <config name="views" version="1">
-   <config name="3D RecHit" version="8">
+   <config name="3D Tower" version="8">
     <config name="Image Scale" version="0">
       <string>1</string>
     </config>
@@ -178,22 +178,22 @@
       <string>1</string>
     </config>
     <config name="cameraMatrix0Plain3D" version="0">
-      <string>0.290922</string>
+      <string>0.925261</string>
     </config>
     <config name="cameraMatrix1Plain3D" version="0">
-      <string>-0.956717</string>
+      <string>-0.378874</string>
     </config>
     <config name="cameraMatrix2Plain3D" version="0">
-      <string>0.00757307</string>
+      <string>-0.0186158</string>
     </config>
     <config name="cameraMatrix3Plain3D" version="0">
       <string>0</string>
     </config>
     <config name="cameraMatrix4Plain3D" version="0">
-      <string>0.956744</string>
+      <string>0.37894</string>
     </config>
     <config name="cameraMatrix5Plain3D" version="0">
-      <string>0.29093</string>
+      <string>0.925421</string>
     </config>
     <config name="cameraMatrix6Plain3D" version="0">
       <string>0</string>
@@ -202,25 +202,25 @@
       <string>0</string>
     </config>
     <config name="cameraMatrix8Plain3D" version="0">
-      <string>-0.00220312</string>
+      <string>0.0172274</string>
     </config>
     <config name="cameraMatrix9Plain3D" version="0">
-      <string>0.00724566</string>
+      <string>-0.00705426</string>
     </config>
     <config name="cameraMatrix10Plain3D" version="0">
-      <string>0.999972</string>
+      <string>0.999827</string>
     </config>
     <config name="cameraMatrix11Plain3D" version="0">
       <string>0</string>
     </config>
     <config name="cameraMatrix12Plain3D" version="0">
-      <string>1676.42</string>
+      <string>1111.09</string>
     </config>
     <config name="cameraMatrix13Plain3D" version="0">
-      <string>-5513.03</string>
+      <string>-454.967</string>
     </config>
     <config name="cameraMatrix14Plain3D" version="0">
-      <string>43.6384</string>
+      <string>-22.3546</string>
     </config>
     <config name="cameraMatrix15Plain3D" version="0">
       <string>1</string>
@@ -274,44 +274,41 @@
       <string>1</string>
     </config>
     <config name="Plain3D FOV" version="0">
-      <string>28.5297</string>
+      <string>87.48</string>
     </config>
    </config>
-   <config name="Geometry Table" version="1">
-    <config name="Mode:" version="0">
-      <string>0</string>
-    </config>
-    <config name="Materials:" version="0">
-      <string></string>
-    </config>
-    <config name="ExpandList:" version="0">
-      <string>1</string>
-    </config>
-    <config name="VisLevel:" version="0">
-      <string>1</string>
-    </config>
-    <config name="IgnoreVisLevelOnFilter" version="0">
-      <string>1</string>
-    </config>
+   <config name="Overlap Table" version="1">
     <config name="TopNodeIndex" version="0">
       <string>1791211</string>
     </config>
+    <config name="Overlap" version="0">
+      <string>1</string>
+    </config>
+    <config name="Extrusion" version="0">
+      <string>1</string>
+    </config>
+    <config name="DrawPoints" version="0">
+      <string>1</string>
+    </config>
+    <config name="PointSize:" version="0">
+      <string>1</string>
+    </config>
     <config name="Viewers" version="1">
-     <config name="3D RecHit" version="1">
+     <config name="3D Tower" version="1">
      </config>
     </config>
    </config>
   </config>
   <config name="view area" version="3">
-   <config name="3D RecHit" version="3">
+   <config name="3D Tower" version="3">
     <config name="weight" version="0">
-      <string>1.00321</string>
+      <string>0.747305</string>
     </config>
     <config name="undocked" version="0">
       <string>0</string>
     </config>
    </config>
-   <config name="Geometry Table" version="3">
+   <config name="Overlap Table" version="3">
     <config name="weight" version="0">
       <string>1</string>
     </config>

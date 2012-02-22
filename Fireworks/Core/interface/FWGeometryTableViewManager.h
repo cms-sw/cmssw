@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Jul  8 00:40:50 CEST 2011
-// $Id: FWGeometryTableViewManager.h,v 1.5 2011/07/13 20:52:35 amraktad Exp $
+// $Id: FWGeometryTableViewManager.h,v 1.6.2.1 2012/01/04 02:39:45 amraktad Exp $
 //
 
 class FWViewBase;
@@ -25,7 +25,7 @@ class TEveWindowSlot;
 class TGeoManager;
 
 #include "Fireworks/Core/interface/FWViewManagerBase.h"
-#include "Fireworks/Core/interface/FWGeometryTableView.h"
+#include "Fireworks/Core/interface/FWGeometryTableViewBase.h"
 
 class FWGeometryTableViewManager : public FWViewManagerBase
 {
@@ -50,7 +50,7 @@ protected:
    virtual void modelChangesComing() {}
    virtual void modelChangesDone() {}
 
-   std::vector<boost::shared_ptr<FWGeometryTableView> > m_views;
+   std::vector<boost::shared_ptr<FWGeometryTableViewBase> > m_views;
 
 private:
    FWGeometryTableViewManager(const FWGeometryTableViewManager&); // stop default

@@ -5,7 +5,8 @@
 #include "TGLViewer.h"
 #include "TGLWidget.h"
 #include "TGLPhysicalShape.h"
-
+#include "TGLLogicalShape.h"
+#include "FWGeoTopNodeScene.h"
 
 FWGLEventHandler::FWGLEventHandler(TGWindow *w, TObject *obj, TEveCaloLego* l):
    TEveLegoEventHandler(w, obj, l)
@@ -24,10 +25,16 @@ FWGLEventHandler::PopupContextMenu(TGLPhysicalShape* pshp,  Event_t *event, Int_
       return;
    }
 
-   if (pshp)
+  
+   if (pshp && pshp->GetLogical())
    {
       SelectForClicked(event);
-      openSelectedModelContextMenu_(gx,gy);
+
+      FWGeoTopNodeGLScene* js = dynamic_cast<FWGeoTopNodeGLScene*>(pshp->GetLogical()->GetScene());
+      if (js)
+         js->GeoPopupMenu(gx, gy);
+      else
+         openSelectedModelContextMenu_(gx,gy);
    }
 }
 

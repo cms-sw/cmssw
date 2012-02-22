@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Mon Mar 22 12:08:40 CET 2010
-// $Id: FWViewType.h,v 1.20 2011/07/02 02:57:58 amraktad Exp $
+// $Id: FWViewType.h,v 1.21.2.1 2011/12/23 02:24:33 amraktad Exp $
 //
 #include <string>
 
@@ -34,7 +34,7 @@ public:
    enum EType { kRhoPhi, kRhoZ, k3D, kISpy, kLego, kLegoHF, kGlimpse,
                 kTable, kTableL1, kTableHLT,
                 kRhoPhiPF, kLegoPFECAL,
-                kGeometryTable,
+                kGeometryTable,kOverlapTable,
                 kTypeSize };
    
    enum EBit
@@ -51,7 +51,8 @@ public:
       kTableBit      = 1 << kTable,
       kTableHLTBit   = 1 << kTableHLT,
       kTableL1Bit    = 1 << kTableL1,
-      kGeometryBit   = 1 << kGeometryTable
+      kGeometryBit   = 1 << kGeometryTable,
+      kOverlapBit   = 1 << kOverlapTable
    };
 
    // shortcuts

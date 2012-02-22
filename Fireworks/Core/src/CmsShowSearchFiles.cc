@@ -19,6 +19,7 @@
 #include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Core/interface/fwPaths.h"
 
+/*
 const  char* getFireworksSamplePath( bool isUCSD)
 {
   if (gSystem->Getenv("CMSSW_VERSION"))
@@ -42,7 +43,7 @@ const  char* getFireworksSamplePath( bool isUCSD)
     else 
       return isUCSD ? "http://fireworks.web.cern.ch/fireworks/samples-5.0/" : "http://uaf-2.t2.ucsd.edu/fireworks/5.0/";
   }
-}
+  }*/
 
 class FWHtml : public TGHtml {
 public:
@@ -61,11 +62,10 @@ public:
 private:
    std::set<std::string> m_visited;
 };
-
 static const unsigned int s_columns = 3;
 static const char* const s_prefixes[][s_columns] ={ 
-  {getFireworksSamplePath(true), "Pre-selected example files","t"},
-  {getFireworksSamplePath(false) , "Pre-selected example files","t"},
+  {"http://fireworks.web.cern.ch/fireworks/samples-4.2/", "Pre-selected example files","t"},
+  {"http://uaf-2.t2.ucsd.edu/fireworks-4.2/"            , "Pre-selected example files","t"},
   {"http://", "Web site known by you",0},
   {"file:","Local file [you must type full path name]",0},
   {"dcap://","dCache [FNAL]",0},
