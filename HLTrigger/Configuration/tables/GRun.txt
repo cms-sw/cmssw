@@ -75,7 +75,16 @@ HLT_L2Mu10_NoVertex_NoBPTX3BX_NoHalo_v*			#sr126302
 HLT_L2Mu20_NoVertex_NoBPTX3BX_NoHalo_v*			#sr126302
 HLT_L2Mu30_NoVertex_NoBPTX3BX_NoHalo_v*			#sr126302
 
-
+# SUSY list to be remade, because it keeps changing...
+#HLT_HT250_AlphaT0p55_v1					#sr126304, still to get integrated
+#HLT_HT300_AlphaT0p54_v1					#sr126304, still to get integrated
+#HLT_HT350_AlphaT0p53_v1					#sr126304, still to get integrated
+#HLT_HT400_AlphaT0p52_v1					#sr126304, still to get integrated
+#HLT_HT450_AlphaT0p51_v1					#sr126304, still to get integrated
+#HLT_HT300_AlphaT0p53_v1					#sr126304, still to get integrated
+#HLT_HT350_AlphaT0p52_v1					#sr126304, still to get integrated
+#HLT_HT400_AlphaT0p51_v1					#sr126304, still to get integrated
+#HLT_HT200_AlphaT0p57_v1					#sr126304, still to get integrated
 #HLT_HT200_L1FastJet_v*					#sr126304, still to get integrated
 #HLT_HT250_L1FastJet_v*					#sr126304, still to get integrated
 #HLT_HT300_L1FastJet_v*					#sr126304, still to get integrated
@@ -258,8 +267,8 @@ HLT_Dimuon9_Jpsi_v*			#sr126442
 #HLT_Photon50_CaloIdVL_v*					#sr126475, still to get integrated
 #HLT_Photon75_CaloIdVL_v*					#sr126475, still to get integrated
 #HLT_Photon90_CaloIdVL_v*					#sr126475, still to get integrated
-#HLT_DoublePhoton43_HEVT_v*					#sr126475, still to get integrated
-#HLT_DoublePhoton48_HEVT_v*					#sr126475, still to get integrated
+#already in sr126541 -> #HLT_DoublePhoton43_HEVT_v*					#sr126475, still to get integrated
+#already in sr126541 -> #HLT_DoublePhoton48_HEVT_v*					#sr126475, still to get integrated
 
 #HLT_PFJet40					#sr126484, still to get integrated
 #HLT_PFJet80					#sr126484, still to get integrated
@@ -402,8 +411,6 @@ HLT_Random_v*
 
 HLT_L1SingleMuOpen_AntiBPTX_v*
 HLT_L1TrackerCosmics_v*
-HLT_RegionalCosmicTracking_v*
-HLT_L3MuonsCosmicTracking_v*                                                                    # only in 'GRun' and 'cosmics', not in 'online'
 HLT_LogMonitor_v*
 HLT_DTErrors_v*
 
