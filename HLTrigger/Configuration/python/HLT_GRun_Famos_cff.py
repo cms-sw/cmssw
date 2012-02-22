@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_1_0/GRun/V80 (CMSSW_5_2_0_pre5_HLT6)
+# /dev/CMSSW_5_1_0/GRun/V81 (CMSSW_5_2_0_pre5_HLT6)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V80')
+  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V81')
 )
 
 hltESSBTagRecord = cms.ESSource( "EmptyESSource",
@@ -7840,7 +7840,7 @@ hltEG70HEFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     useEt = cms.bool( False ),
     ncandcut = cms.int32( 1 ),
     isoTag = cms.InputTag( "hltL1SeededPhotonHcalForHE" ),
-    candTag = cms.InputTag( "hltEG70EtFilter" ),
+    candTag = cms.InputTag( "hltEG70EtFilterL1EG30" ),
     thrOverE2EE = cms.double( -1.0 )
 )
 hltDoubleEG70EtDoubleFilter = cms.EDFilter( "HLTEgammaEtFilter",
@@ -7900,7 +7900,7 @@ hltEG80HEFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     useEt = cms.bool( False ),
     ncandcut = cms.int32( 1 ),
     isoTag = cms.InputTag( "hltL1SeededPhotonHcalForHE" ),
-    candTag = cms.InputTag( "hltEG80EtFilter" ),
+    candTag = cms.InputTag( "hltEG80EtFilterL1EG30" ),
     thrOverE2EE = cms.double( -1.0 )
 )
 hltDoubleIsoEG80EtFilterUnseededTight = cms.EDFilter( "HLTEgammaEtFilter",
