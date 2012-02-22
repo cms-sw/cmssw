@@ -707,7 +707,8 @@ double HcalRecHitsMaker::noiseInfCfromDB(const HcalDbService * conditions,const 
   double ssqq_4 = pedWidth->getSigma(3,3);
 
   // correction factors (hb,he,ho,hf)
-  static float corrfac[4]={1.39,1.32,1.17,3.76};
+  //  static float corrfac[4]={1.39,1.32,1.17,3.76};
+  static float corrfac[4]={0.93,0.88,1.17,2.51}; // divided HB, HE, HF by 1.5 (to take into account the halving of the number of time slices), HO did not change
 
   int sub   = detId.subdet();
 
