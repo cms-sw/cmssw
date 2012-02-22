@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:06:35 CET 2012
-// $Id: FWOverlapTableView.cc,v 1.1.2.19 2012/02/20 20:26:00 amraktad Exp $
+// $Id: FWOverlapTableView.cc,v 1.2 2012/02/22 03:46:00 amraktad Exp $
 //
 
 // system include files
@@ -51,7 +51,7 @@
 #include "TEveViewer.h"
 #include "TGeoOverlap.h"
 
-static const std::string sUpdateMsg = " Please press Apply button to update overlaps.\n";
+static const std::string sUpdateMsg = "Please press Apply button to update overlaps.\n";
 
 
 FWOverlapTableView::FWOverlapTableView(TEveWindowSlot* iParent, FWColorManager* colMng) : 
@@ -59,7 +59,7 @@ FWOverlapTableView::FWOverlapTableView(TEveWindowSlot* iParent, FWColorManager* 
    m_tableManager(0),
    m_numEntry(0),
    m_path(this,"Path:", std::string("/cms:World_1/cms:CMSE_1")),
-   m_precision(this, "Precision", 0.5, 0.000001, 10),
+   m_precision(this, "Precision", 0.05, 0.000001, 10),
    m_rnrOverlap(this, "Overlap", true),
    m_rnrExtrusion(this, "Extrusion", true),
    m_drawPoints(this, "DrawPoints", true),
@@ -216,20 +216,12 @@ void FWOverlapTableView::pointSize()
    m_marker->ElementChanged();
    gEve->Redraw3D();
 }
-
-
-void FWOverlapTableView::setPath(int i, std::string& s)
-{
-  FWGeometryTableViewBase::setPath(i, s);
-   std::cout << sUpdateMsg;
- // recalculate();
-}
 //______________________________________________________________________________
 
 void FWOverlapTableView::chosenItem(int menuIdx)
 {
-
-   FWGeometryTableManagerBase::NodeInfo& ni = getTableManager()->refEntries().at(m_eveTopNode->getFirstSelectedTableIndex());
+   int selectedIdx =  m_eveTopNode->getFirstSelectedTableIndex();
+   FWGeometryTableManagerBase::NodeInfo& ni = getTableManager()->refEntry(m_eveTopNode->getFirstSelectedTableIndex());
   
    // printf(" FWOverlapTableView::chosenItem chosen item %s \n", ni->name());
 
@@ -262,7 +254,15 @@ void FWOverlapTableView::chosenItem(int menuIdx)
             break;
 
          case FWEveOverlap::kOvlSetTopNode:
-            cdNode(m_eveTopNode->getFirstSelectedTableIndex());
+            if (m_topNodeIdx.value() > selectedIdx )
+            {
+               cdNode(m_eveTopNode->getFirstSelectedTableIndex());
+            }
+            else
+            {
+               cdNode(m_eveTopNode->getFirstSelectedTableIndex());
+               std::cout << sUpdateMsg;
+            }
             break; 
 
          case FWEveOverlap::kOvlVisMother:
@@ -300,7 +300,7 @@ void FWOverlapTableView::chosenItem(int menuIdx)
          case FWEveOverlap::kOvlPrintOvl:
          {
             std::cout << "=============================================================================" <<  std::endl << std::endl;
-           m_tableManager->printOverlaps(m_eveTopNode->getFirstSelectedTableIndex());
+            m_tableManager->printOverlaps(m_eveTopNode->getFirstSelectedTableIndex());
             break;
          }
          case FWEveOverlap::kOvlPrintPath:
@@ -317,29 +317,37 @@ void FWOverlapTableView::chosenItem(int menuIdx)
 //______________________________________________________________________________
 void FWOverlapTableView::refreshTable3D()
 {
-  using namespace TMath;
-  if (!m_enableRedraw) return;
-  FWGeometryTableViewBase::refreshTable3D();
+   using namespace TMath;
+   if (!m_enableRedraw) return;
+   FWGeometryTableViewBase::refreshTable3D();
   
-  std::vector<float> pnts;
-  int cnt = 0;
+   std::vector<float> pnts;
+   int cnt = 0;
   
-  //   std::cout << "WOverlapTableView::refreshTable3D() "<< std::endl;
-  if (m_drawPoints.value()) {
-    for (std::vector<int>::iterator i = m_markerIndices.begin(); i!=m_markerIndices.end(); i++, cnt+=3)
-    {
-      FWGeometryTableManagerBase::NodeInfo& data = m_tableManager->refEntries().at(Abs(*i));
-      if ( data.testBit(FWOverlapTableManager::kVisMarker)  && 
-          ( (( *i > 0 ) && m_rnrOverlap.value()) ||  ((*i < 0) && m_rnrExtrusion.value()) )) 
+   //   std::cout << "WOverlapTableView::refreshTable3D() "<< std::endl;
+   int n0 =  m_topNodeIdx.value();
+   int nd = 0; 
+    m_tableManager->getNNodesTotal(m_tableManager->refEntries().at(n0).m_node, nd);
+   int n1 = n0+nd; 
+   //  printf("marker rnf %d %d \n", n0, n1);
+   if (m_drawPoints.value()) {
+      for (std::vector<int>::iterator i = m_markerIndices.begin(); i!=m_markerIndices.end(); i++, cnt+=3)
       {
-        pnts.push_back(m_markerVertices[cnt]);
-        pnts.push_back(m_markerVertices[cnt+1]);
-        pnts.push_back(m_markerVertices[cnt+2]);
-      }
-    } 
-  }
+         if (*i >= n0 && *i <= n1)
+         {
+            FWGeometryTableManagerBase::NodeInfo& data = m_tableManager->refEntries().at(Abs(*i));
+            if ( data.testBit(FWOverlapTableManager::kVisMarker)  && 
+                 ( (( *i > 0 ) && m_rnrOverlap.value()) ||  ((*i < 0) && m_rnrExtrusion.value()) )) 
+            {
+               pnts.push_back(m_markerVertices[cnt]);
+               pnts.push_back(m_markerVertices[cnt+1]);
+               pnts.push_back(m_markerVertices[cnt+2]);
+            }
+         }
+      } 
+   }
   
-  m_marker->SetPolyMarker(int(pnts.size()/3), &pnts[0], 4);
-  m_marker->ElementChanged();
-  gEve->FullRedraw3D(false, true);
+   m_marker->SetPolyMarker(int(pnts.size()/3), &pnts[0], 4);
+   m_marker->ElementChanged();
+   gEve->FullRedraw3D(false, true);
 }
