@@ -149,6 +149,12 @@ HLT_L2Mu30_NoVertex_NoBPTX3BX_NoHalo_v*			#sr126302
 #HLT_CleanPFHT300_Ele15_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_PFMET50_v*		#sr126304, still to get integrated
 #HLT_CleanPFHT300_Ele40_CaloIdVT_TrkIdT_v*					#sr126304, still to get integrated
 #HLT_CleanPFHT300_Ele60_CaloIdVT_TrkIdT_v*					#sr126304, still to get integrated
+#HLT_Photon20_CaloIdVL_IsoL_v*					#sr126304, already in the menu
+#HLT_Photon30_CaloIdVL_IsoL_v*					#sr126304, already in the menu
+#HLT_Photon50_CaloIdVL_IsoL_v*					#sr126304, already in the menu
+#HLT_Photon75_CaloIdVL_IsoL_v*					#sr126304, already in the menu
+#HLT_Photon90_CaloIdVL_IsoL_v*					#sr126304, already in the menu
+
 
 HLT_IsoMu20_eta2p1_CentralPFJet80_v*							#sr126316
 HLT_Ele27_WP80_CentralPFJet80_v*							#sr126316
