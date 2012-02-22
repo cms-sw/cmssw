@@ -248,8 +248,12 @@ namespace edm {
   }
   
   void PrincipalCache::adjustIndexesAfterProductRegistryAddition() {
-    runPrincipal_->adjustIndexesAfterProductRegistryAddition();
-    lumiPrincipal_->adjustIndexesAfterProductRegistryAddition();
+    if (runPrincipal_) {
+      runPrincipal_->adjustIndexesAfterProductRegistryAddition();
+    }
+    if (lumiPrincipal_) {
+      lumiPrincipal_->adjustIndexesAfterProductRegistryAddition();
+    }
   }
 
   void
