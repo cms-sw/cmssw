@@ -331,15 +331,14 @@ FWGeometryTableViewBase::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, I
             if (gEve->GetHighlight()->HasChild( m_eveTopNode))
                gEve->GetHighlight()->RemoveElement( m_eveTopNode);
 
+            // reset bits and sets for old selected table entry
+            m_eveTopNode->UnSelected();
+            m_eveTopNode->UnHighlighted();
+
+
             if (m_eveTopNode->selectPhysicalFromTable(idx))
-            {
                gEve->GetSelection()->AddElement(m_eveTopNode);
-            }
-            else
-            {
-              int si = m_eveTopNode->getFirstSelectedTableIndex();
-              if (si >= 0) getTableManager()->refEntries().at(si).resetBit(FWGeometryTableManagerBase::kSelected);
-            }
+
             ni.setBit(FWGeometryTableManagerBase::kSelected);
             getTableManager()->redrawTable();
 	 }
