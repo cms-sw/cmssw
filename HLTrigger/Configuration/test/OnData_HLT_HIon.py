@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_1_0/HIon/V67 (CMSSW_5_2_0_pre5_HLT4)
+# /dev/CMSSW_5_1_0/HIon/V74 (CMSSW_5_2_0_pre5_HLT6)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/HIon/V67')
+  tableName = cms.string('/dev/CMSSW_5_1_0/HIon/V74')
 )
 
 process.streams = cms.PSet( 
@@ -1887,15 +1887,19 @@ process.hltESPTrajectoryBuilderL3 = cms.ESProducer( "CkfTrajectoryBuilderESProdu
   lostHitPenalty = cms.double( 30.0 )
 )
 process.hltESPTrajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
-  ComponentType = cms.string( "TrajectoryCleanerBySharedHits" ),
   ComponentName = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
   fractionShared = cms.double( 0.5 ),
+  ValidHitBonus = cms.double( 5.0 ),
+  ComponentType = cms.string( "TrajectoryCleanerBySharedHits" ),
+  MissingHitPenalty = cms.double( 20.0 ),
   allowSharedFirstHit = cms.bool( False )
 )
 process.hltESPTrajectoryCleanerBySharedSeeds = cms.ESProducer( "TrajectoryCleanerESProducer",
-  ComponentType = cms.string( "TrajectoryCleanerBySharedSeeds" ),
   ComponentName = cms.string( "hltESPTrajectoryCleanerBySharedSeeds" ),
   fractionShared = cms.double( 0.5 ),
+  ValidHitBonus = cms.double( 5.0 ),
+  ComponentType = cms.string( "TrajectoryCleanerBySharedSeeds" ),
+  MissingHitPenalty = cms.double( 20.0 ),
   allowSharedFirstHit = cms.bool( True )
 )
 process.hltESPTrajectoryFilterIT = cms.ESProducer( "TrajectoryFilterESProducer",
@@ -6565,7 +6569,8 @@ process.hltHIGoodLooseTracks = cms.EDProducer( "AnalyticalTrackSelector",
     vertices = cms.InputTag( "hltHISelectedVertex" ),
     d0_par2 = cms.vdouble( 5.0, 0.0 ),
     d0_par1 = cms.vdouble( 9999.0, 0.0 ),
-    res_par = cms.vdouble( 99999.0, 99999.0 )
+    res_par = cms.vdouble( 99999.0, 99999.0 ),
+    minHitsToBypassChecks = cms.uint32( 20 )
 )
 process.hltHIFullTrackCandsForHITrackTrigger = cms.EDProducer( "ConcreteChargedCandidateProducer",
     src = cms.InputTag( "hltHIGoodLooseTracks" ),

@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_1_0/HIon/V67 (CMSSW_5_2_0_pre5_HLT4)
+# /dev/CMSSW_5_1_0/HIon/V74 (CMSSW_5_2_0_pre5_HLT6)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/HIon/V67')
+  tableName = cms.string('/dev/CMSSW_5_1_0/HIon/V74')
 )
 
 streams = cms.PSet( 
@@ -1614,15 +1614,19 @@ hltESPTrajectoryBuilderL3 = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
   lostHitPenalty = cms.double( 30.0 )
 )
 hltESPTrajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
-  ComponentType = cms.string( "TrajectoryCleanerBySharedHits" ),
   ComponentName = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
   fractionShared = cms.double( 0.5 ),
+  ValidHitBonus = cms.double( 5.0 ),
+  ComponentType = cms.string( "TrajectoryCleanerBySharedHits" ),
+  MissingHitPenalty = cms.double( 20.0 ),
   allowSharedFirstHit = cms.bool( False )
 )
 hltESPTrajectoryCleanerBySharedSeeds = cms.ESProducer( "TrajectoryCleanerESProducer",
-  ComponentType = cms.string( "TrajectoryCleanerBySharedSeeds" ),
   ComponentName = cms.string( "hltESPTrajectoryCleanerBySharedSeeds" ),
   fractionShared = cms.double( 0.5 ),
+  ValidHitBonus = cms.double( 5.0 ),
+  ComponentType = cms.string( "TrajectoryCleanerBySharedSeeds" ),
+  MissingHitPenalty = cms.double( 20.0 ),
   allowSharedFirstHit = cms.bool( True )
 )
 hltESPTrajectoryFilterIT = cms.ESProducer( "TrajectoryFilterESProducer",
@@ -5931,7 +5935,8 @@ hltHIGoodLooseTracks = cms.EDProducer( "AnalyticalTrackSelector",
     vertices = cms.InputTag( "hltHISelectedVertex" ),
     d0_par2 = cms.vdouble( 5.0, 0.0 ),
     d0_par1 = cms.vdouble( 9999.0, 0.0 ),
-    res_par = cms.vdouble( 99999.0, 99999.0 )
+    res_par = cms.vdouble( 99999.0, 99999.0 ),
+    minHitsToBypassChecks = cms.uint32( 20 )
 )
 hltHIFullTrackCandsForHITrackTrigger = cms.EDProducer( "ConcreteChargedCandidateProducer",
     src = cms.InputTag( "hltHIGoodLooseTracks" ),
@@ -6516,6 +6521,19 @@ HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_HIMET120_v1, HLT_HIMET200_
 # Disable HF Noise filters in HIon menu
 if 'hltHfreco' in locals():
     hltHfreco.setNoiseFlags = cms.bool( False )
+
+# override the L1 menu from an Xml file
+l1GtTriggerMenuXml = cms.ESProducer("L1GtTriggerMenuXmlProducer",
+  TriggerMenuLuminosity = cms.string('startup'),
+  DefXmlFile = cms.string('L1Menu_Collisions2012_v0_L1T_Scales_20101224_Imp0_0x1027.xml'),
+  VmeXmlFile = cms.string('')
+)
+L1GtTriggerMenuRcdSource = cms.ESSource("EmptyESSource",
+  recordName = cms.string('L1GtTriggerMenuRcd'),
+  iovIsRunNotTime = cms.bool(True),
+  firstValid = cms.vuint32(1)
+)
+es_prefer_l1GtParameters = cms.ESPrefer('L1GtTriggerMenuXmlProducer','l1GtTriggerMenuXml') 
 
 # CMSSW version specific customizations
 import os

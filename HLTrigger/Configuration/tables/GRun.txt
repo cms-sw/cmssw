@@ -203,8 +203,8 @@ HLT_Dimuon5_Upsilon_v*			#sr126442
 HLT_Dimuon5_PsiPrime_v*			#sr126442
 HLT_Dimuon0_PsiPrime_v*			#sr126442
 HLT_Dimuon5_Jpsi_v*			#sr126442
-HLT_Dimuon0_Jpsi_Muon_v*		#sr126442
-HLT_Dimuon0_Upsilon_Muon_v*		#sr126442
+#HLT_Dimuon0_Jpsi_Muon_v*		#sr126442 - L1 seed problem
+#HLT_Dimuon0_Upsilon_Muon_v*		#sr126442 - L1 seed problem
 HLT_Mu5_L2Mu3_Jpsi_v*			#sr126442
 HLT_Mu5_Track3p5_Jpsi_v*		#sr126442
 HLT_Mu5_Track2_Jpsi_v*			#sr126442
@@ -339,15 +339,17 @@ HLT_IsoMu20_eta2p1_v*					#sr126489
 #HLT_Photon90_R9Id90_HE10_Iso40_v*			#sr126493, still to get integrated
 #HLT_Ele27_WP70_v*					#sr126493, still to get integrated
 #HLT_Ele27_WP80_v*					#sr126493, still to get integrated
-#HLT_Ele27_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v*			#sr126493, still to get integrated
-#HLT_Ele32_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v*			#sr126493, still to get integrated
-#HLT_Ele65_CaloIdVT_TrkIdT_v*			#sr126493, still to get integrated
-#HLT_Ele80_CaloIdVT_TrkIdT_v*			#sr126493, still to get integrated
-#HLT_Ele100_CaloIdVT_TrkIdT_v*			#sr126493, still to get integrated
-#HLT_Ele27_WP80_v*				#sr126493, still to get integrated
-#HLT_Ele27_WP80_PFMT50_v*			#sr126493, still to get integrated
-#HLT_Ele32_WP70_v*				#sr126493, still to get integrated
-#HLT_Ele32_WP70_PFMT50_v*			#sr126493, still to get integrated
+HLT_Ele27_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v*	#sr126493, kept from 2011
+HLT_Ele32_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v*	#sr126493, kept from 2011
+HLT_Ele65_CaloIdVT_TrkIdT_v*			#sr126493, kept from 2011
+HLT_Ele80_CaloIdVT_TrkIdT_v*			#sr126493, kept from 2011
+HLT_Ele100_CaloIdVT_TrkIdT_v*			#sr126493, kept from 2011
+HLT_Ele27_WP80_v*				#sr126493, kept from 2011
+HLT_Ele27_WP80_PFMT50_v*			#sr126493, kept from 2011
+HLT_Ele32_WP70_v*				#sr126493, kept from 2011
+HLT_Ele32_WP70_PFMT50_v*			#sr126493, kept from 2011
+HLT_Ele8_CaloIdL_CaloIsoVL_v*                   #sr126493, kept from 2011
+HLT_Ele17_CaloIdL_CaloIsoVL_v*                  #sr126493, kept from 2011
 
 #HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v*			#sr126497, still to get integrated
 #HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v*			#sr126497, still to get integrated
@@ -380,12 +382,12 @@ HLT_Photon90_CaloIdVL_IsoL_v*					#sr126541
 HLT_BeamGas_HF_Beam1_v*
 HLT_BeamGas_HF_Beam2_v*
 HLT_BeamHalo_v*
-HLT_L1_PreCollisions_v*
-HLT_L1_Interbunch_BSC_v*
+#HLT_L1_PreCollisions_v*         # L1 seed L1_PreCollisions no longer available
+#HLT_L1_Interbunch_BSC_v*       # L1 seed L1_InterBunch_Bsc no longer available
 HLT_IsoTrackHE_v*
 HLT_IsoTrackHB_v*
-HLT_HcalPhiSym_v*
-HLT_HcalNZS_v*
+#HLT_HcalPhiSym_v*                          # some L1 seeds no longer available
+#HLT_HcalNZS_v*                             # some L1 seeds no longer available
 HLT_GlobalRunHPDNoise_v*
 HLT_L1Tech_HBHEHO_totalOR_v*
 HLT_L1Tech_HCAL_HF_single_channel_v*
@@ -412,9 +414,9 @@ AlCa_EcalPi0EEonly_v*                                                           
 AlCa_EcalEtaEBonly_v*                                                                           #added in Feb 2012 5e33 menu (sr #126320)
 AlCa_EcalEtaEEonly_v*                                                                           #added in Feb 2012 5e33 menu (sr #126320)
 AlCa_EcalPhiSym_v*
-AlCa_RPCMuonNoTriggers_v*
-AlCa_RPCMuonNoHits_v*
-AlCa_RPCMuonNormalisation_v*
+#AlCa_RPCMuonNoTriggers_v*                  # some L1 seeds no longer available
+#AlCa_RPCMuonNoHits_v*                      # some L1 seeds no longer available
+#AlCa_RPCMuonNormalisation_v*               # some L1 seeds no longer available
 AlCa_LumiPixels_v*
 
 DQM_FEDIntegrity_v*
