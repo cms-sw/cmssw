@@ -57,7 +57,7 @@ def parseInputFile(filename):
         for cmsls in range(1,max(allls)+1):
             instlumi=0.0
             if cmsls in allls:
-               intglumiinub=inversem2toinverseub(perrundata[str(cmsls)][0])
+               intglumiinub=inversem2toinverseub(perrundata[str(cmsls)])
                instlumi=toinstlumi(intglumiinub)#unit Hz/ub
             result.setdefault(int(runnum),[]).append((cmsls,instlumi))
     return result
