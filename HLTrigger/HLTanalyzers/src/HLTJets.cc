@@ -124,6 +124,7 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     ohpfTauPt          =  new float[kMaxPFTau];
     ohpfTauJetPt       =  new float[kMaxPFTau];
     ohpfTauLeadTrackPt =  new float[kMaxPFTau];
+    ohpfTauLeadTrackVtxZ = new float[kMaxPFTau];
     ohpfTauLeadPionPt  =  new float[kMaxPFTau];
     ohpfTauTrkIso      =  new float[kMaxPFTau];
     ohpfTauGammaIso    =  new float[kMaxPFTau];
@@ -317,6 +318,7 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     HltTree->Branch("ohpfTauEta",ohpfTauEta,"ohpfTauEta[NohpfTau]/F");
     HltTree->Branch("ohpfTauPhi",ohpfTauPhi,"ohpfTauPhi[NohpfTau]/F");
     HltTree->Branch("ohpfTauLeadTrackPt",ohpfTauLeadTrackPt,"ohpfTauLeadTrackPt[NohpfTau]/F");
+    HltTree->Branch("ohpfTauLeadTrackVtxZ",ohpfTauLeadTrackVtxZ,"ohpfTauLeadTrackVtxZ[NohpfTau]/F");
     HltTree->Branch("ohpfTauLeadPionPt",ohpfTauLeadPionPt,"ohpfTauLeadPionPt[NohpfTau]/F");
     HltTree->Branch("ohpfTauTrkIso",ohpfTauTrkIso,"ohpfTauTrkIso[NohpfTau]/F");
     HltTree->Branch("ohpfTauGammaIso",ohpfTauGammaIso,"ohpfTauGammaIso[NohpfTau]/F");
@@ -729,11 +731,13 @@ void HLTJets::analyze(edm::Event const& iEvent,
             else 
                 ohpfTauLeadPionPt[ipftau] = -999.0;
 
-            if((i->leadPFChargedHadrCand()).isNonnull())
+            if((i->leadPFChargedHadrCand()).isNonnull()){
                 ohpfTauLeadTrackPt[ipftau] = i->leadPFChargedHadrCand()->pt();
-            else
+                ohpfTauLeadTrackVtxZ[ipftau] = i->leadPFChargedHadrCand()->vertex().z(); 
+            }else{
                 ohpfTauLeadTrackPt[ipftau] = -999.0;
-  
+                ohpfTauLeadTrackVtxZ[ipftau] = -999.0;  
+            }
 
             float maxPtTrkIso = 0;
             for (unsigned int iTrk = 0; iTrk < i->isolationPFChargedHadrCands().size(); iTrk++)

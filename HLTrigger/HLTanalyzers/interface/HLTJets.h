@@ -137,7 +137,7 @@ private:
     //PFTau
     int nohPFTau;
     int *ohpfTauProngs;
-    float *ohpfTauEta,*ohpfTauPhi,*ohpfTauPt,*ohpfTauJetPt,*ohpfTauLeadTrackPt,*ohpfTauLeadPionPt;
+    float *ohpfTauEta,*ohpfTauPhi,*ohpfTauPt,*ohpfTauJetPt,*ohpfTauLeadTrackPt,*ohpfTauLeadTrackVtxZ,*ohpfTauLeadPionPt;
     float *ohpfTauTrkIso, *ohpfTauGammaIso;
     //PFTau with tight cone
     int nohPFTauTightCone;

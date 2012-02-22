@@ -137,9 +137,11 @@ public:
    Float_t ohpfTauPt[500];
    Float_t ohpfTauJetPt[500];
    Float_t ohpfTauLeadTrackPt[500];
+   Float_t ohpfTauLeadTrackVtxZ[500];
    Float_t ohpfTauLeadPionPt[500];
    Float_t ohpfTauTrkIso[500];
    Float_t ohpfTauGammaIso[500];
+   Int_t   ohpfTauProngs[500];
    Int_t           NRecoPFTau;
    Float_t         pfTauEta[500];
    Float_t         pfTauPhi[500];
@@ -8315,9 +8317,11 @@ public:
    TBranch *b_ohpfTauEta; //! 
    TBranch *b_ohpfTauPhi; //! 
    TBranch *b_ohpfTauLeadTrackPt; //! 
+   TBranch *b_ohpfTauLeadTrackVtxZ; //!
    TBranch *b_ohpfTauLeadPionPt; //! 
    TBranch *b_ohpfTauTrkIso; //! 
-   TBranch *b_ohpfTauGammaIso; //! 
+   TBranch *b_ohpfTauGammaIso; //!
+   TBranch *b_ohpfTauProngs; //! 
    TBranch *b_ohpfTauJetPt; //! 
    TBranch *b_pfMHT; //! 
    TBranch *b_NohPFJet; //! 
@@ -16059,6 +16063,13 @@ public:
 		float L1TauThr,
 		float L1CenJetThr);
 
+   int OpenHltLooseIsoPFTauPassed(
+                float Et,
+                float eta,
+                float LTpT,
+                float L1_ETMThr,
+                float L2TauEtThr,
+                int   nprongs);
 
    int OpenHltTauL2SCMETPassed(
          float Et,
@@ -16119,7 +16130,8 @@ public:
          float L25TrkPt,
          float L3TrkIso,
          float L3GammaIso,
-         float PFMHTCut);
+         float PFMHTCut,
+         float dz);
 
    /**
     * tells if single electron with given threshold and R9 cut passes
@@ -17858,9 +17870,11 @@ void OHltTree::Init(TTree *tree)
    fChain->SetBranchAddress("ohpfTauEta", ohpfTauEta, &b_ohpfTauEta);
    fChain->SetBranchAddress("ohpfTauPhi", ohpfTauPhi, &b_ohpfTauPhi);
    fChain->SetBranchAddress("ohpfTauLeadTrackPt", ohpfTauLeadTrackPt, &b_ohpfTauLeadTrackPt);
+   fChain->SetBranchAddress("ohpfTauLeadTrackVtxZ", ohpfTauLeadTrackVtxZ, &b_ohpfTauLeadTrackVtxZ);
    fChain->SetBranchAddress("ohpfTauLeadPionPt", ohpfTauLeadPionPt, &b_ohpfTauLeadPionPt);
    fChain->SetBranchAddress("ohpfTauTrkIso", ohpfTauTrkIso, &b_ohpfTauTrkIso);
    fChain->SetBranchAddress("ohpfTauGammaIso", ohpfTauGammaIso, &b_ohpfTauGammaIso);
+   fChain->SetBranchAddress("ohpfTauProngs", ohpfTauProngs, &b_ohpfTauProngs);
    fChain->SetBranchAddress("ohpfTauJetPt", ohpfTauJetPt, &b_ohpfTauJetPt);
    fChain->SetBranchAddress("NRecoPFTau", &NRecoPFTau, &b_NRecoPFTau);
    fChain->SetBranchAddress("pfTauPt", pfTauPt, &b_pfTauPt);
