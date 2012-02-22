@@ -1023,7 +1023,7 @@ if 'GlobalTag' in %%(dict)s:
       self.source = [ "/store/data/Run2011B/MinimumBias/RAW/v1/000/178/479/3E364D71-F4F5-E011-ABD2-001D09F29146.root" ]
     else:
       # ...or on mc
-      self.source = [ "file:RelVal_DigiL1Raw_%s.root" % self.config.type ]
+      self.source = [ "file:RelVal_Raw_%s.root" % self.config.type ]
 
     self.data += """
 %(process)ssource = cms.Source( "PoolSource",

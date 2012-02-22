@@ -8223,7 +8223,7 @@ process.RPCMONOutput = cms.EndPath( process.hltPreRPCMONOutput )
 
 process.source = cms.Source( "PoolSource",
     fileNames = cms.untracked.vstring(
-        'file:RelVal_DigiL1Raw_HIon.root',
+        'file:RelVal_Raw_HIon.root',
     ),
     secondaryFileNames = cms.untracked.vstring(
     ),
