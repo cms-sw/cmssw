@@ -547,8 +547,8 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
       
       // Old algorithm
       //      cout<<"TRACKandHO1"<<trackref->pt()<<" "<<trackref->eta()<<" "<<trackref->phi()<<endl;
-      //Same value is used in PFTrackTransformer::addPoints() for HOLayer
-      if ( lowEl->trackRef()->pt() > 3.0 && trackref->extrapolatedPoint( reco::PFTrajectoryPoint::HOLayer ).isValid() ) {
+      //Same value is used in PFTrackTransformer::addPoints() for HOLayer, but allow for some rounding precision
+      if ( lowEl->trackRef()->pt() > 3.00001 && trackref->extrapolatedPoint( reco::PFTrajectoryPoint::HOLayer ).isValid() ) {
 	//	cout<<"TRACKandHO2"<<endl;
 	dist = LinkByRecHit::testTrackAndClusterByRecHit( *trackref, *clusterref, false, debug_ );
 	
