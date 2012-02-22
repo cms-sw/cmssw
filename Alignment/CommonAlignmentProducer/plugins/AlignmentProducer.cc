@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.59 $
-///  last update: $Date: 2012/02/01 13:55:23 $
-///  by         : $Author: mussgill $
+///  Revision   : $Revision: 1.60 $
+///  last update: $Date: 2012/02/15 15:39:52 $
+///  by         : $Author: andreasp $
 
 #include "AlignmentProducer.h"
 #include "FWCore/Framework/interface/LooperFactory.h" 
@@ -872,14 +872,14 @@ void AlignmentProducer::writeDB(Alignments *alignments,
   
   if (saveToDB_) {
     edm::LogInfo("Alignment") << "Writing Alignments to " << alignRcd << ".";
-    poolDb->writeOne<Alignments>(tempAlignments, 0, time, alignRcd);
+    poolDb->writeOne<Alignments>(tempAlignments, time, alignRcd);
   } else { // poolDb->writeOne(..) takes over 'alignments' ownership,...
     delete tempAlignments; // ...otherwise we have to delete, as promised!
   }
 
   if (saveApeToDB_) {
     edm::LogInfo("Alignment") << "Writing AlignmentErrors to " << errRcd << ".";
-    poolDb->writeOne<AlignmentErrors>(tempAlignmentErrors, 0, time, errRcd);
+    poolDb->writeOne<AlignmentErrors>(tempAlignmentErrors, time, errRcd);
   } else { // poolDb->writeOne(..) takes over 'alignmentErrors' ownership,...
     delete tempAlignmentErrors; // ...otherwise we have to delete, as promised!
   }
@@ -901,7 +901,7 @@ void AlignmentProducer::writeDB(AlignmentSurfaceDeformations *alignmentSurfaceDe
   if (saveDeformationsToDB_) {
     edm::LogInfo("Alignment") << "Writing AlignmentSurfaceDeformations to "
 			      << surfaceDeformationRcd  << ".";
-    poolDb->writeOne<AlignmentSurfaceDeformations>(alignmentSurfaceDeformations, 0, time,
+    poolDb->writeOne<AlignmentSurfaceDeformations>(alignmentSurfaceDeformations, time,
 						   surfaceDeformationRcd);
   } else { // poolDb->writeOne(..) takes over 'surfaceDeformation' ownership,...
     delete alignmentSurfaceDeformations; // ...otherwise we have to delete, as promised!
