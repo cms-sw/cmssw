@@ -47,7 +47,7 @@
 //==============================================================================
 
 
-Bool_t  FWGeometryTableViewBase::FWViewCombo::HandleButton(Event_t* event) 
+Bool_t FWGeometryTableViewBase::FWViewCombo::HandleButton(Event_t* event) 
 {
    if (event->fType == kButtonPress)
    {
@@ -126,7 +126,8 @@ FWGeometryTableViewBase::FWGeometryTableViewBase(TEveWindowSlot* iParent,FWViewT
      m_enableRedraw(true),
      m_marker(0),
      m_eveTopNode(0),
-     m_eveScene(0)
+     m_eveScene(0),
+     m_tableRowIndexForColorPopup(-1)
 {
    m_eveWindow = iParent->MakeFrame(0);
    TGCompositeFrame* xf = m_eveWindow->GetGUICompositeFrame();
@@ -272,6 +273,7 @@ FWGeometryTableViewBase::populate3DViewsFromConfig()
       }
    }
 }
+
 //==============================================================================
 
 void 
@@ -285,10 +287,10 @@ FWGeometryTableViewBase::selectView(int idx)
    std::advance(it, idx);
    TEveViewer* v = (TEveViewer*)(*it);
 
-   TEveScene* s = 0;         
-   for (TEveElement::List_i eit = v->BeginChildren(); eit != v->EndChildren(); ++eit ){
-      TEveScene* ts = ((TEveSceneInfo*)*eit)->GetScene();
-      if ((((TEveSceneInfo*)(*eit))->GetScene()) == m_eveScene) {
+   for (TEveElement::List_i eit = v->BeginChildren(); eit != v->EndChildren(); ++eit )
+   {
+      if ((((TEveSceneInfo*)(*eit))->GetScene()) == m_eveScene)
+      {
         v->RemoveElement(*eit);
         if (m_marker) getMarkerScene(v)->RemoveElement(m_marker);
         gEve->Redraw3D();
@@ -296,14 +298,13 @@ FWGeometryTableViewBase::selectView(int idx)
       }
    }
 
-  
-  if (m_marker) getMarkerScene(v)->AddElement(m_marker); 
+   if (m_marker) getMarkerScene(v)->AddElement(m_marker); 
    v->AddScene(m_eveScene);
    gEve->Redraw3D();
 }
 
-int colorHackRowIdx = -1;
 //==============================================================================
+
 void 
 FWGeometryTableViewBase::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t iKeyMod, Int_t x, Int_t y)
 {
@@ -317,10 +318,9 @@ FWGeometryTableViewBase::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, I
       {
          Window_t wdummy;
          Int_t xLoc,yLoc;
-         gVirtualX->TranslateCoordinates(gClient->GetDefaultRoot()->GetId(), m_tableWidget->GetId(),  x, y, xLoc, yLoc, wdummy);  
+         gVirtualX->TranslateCoordinates(gClient->GetDefaultRoot()->GetId(), m_tableWidget->GetId(),  x, y, xLoc, yLoc, wdummy);
 
-
-         bool sel =  getTableManager()->firstColumnClicked(iRow, xLoc);
+         bool sel = getTableManager()->firstColumnClicked(iRow, xLoc);
 
          if (sel) {
             int idx =getTableManager()->rowToIndex()[iRow];
@@ -331,12 +331,12 @@ FWGeometryTableViewBase::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, I
             if (gEve->GetHighlight()->HasChild( m_eveTopNode))
                gEve->GetHighlight()->RemoveElement( m_eveTopNode);
 
-            bool a = m_eveTopNode->selectPhysicalFromTable(idx);
-            if (a)
+            if (m_eveTopNode->selectPhysicalFromTable(idx))
             {
-               gEve->GetSelection()->AddElement( m_eveTopNode);
+               gEve->GetSelection()->AddElement(m_eveTopNode);
             }
-            else {
+            else
+            {
               int si = m_eveTopNode->getFirstSelectedTableIndex();
               if (si >= 0) getTableManager()->refEntries().at(si).resetBit(FWGeometryTableManagerBase::kSelected);
             }
@@ -354,7 +354,7 @@ FWGeometryTableViewBase::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, I
             m_colorPopup->InitContent("", colors);
             m_colorPopup->Connect("ColorSelected(Color_t)","FWGeometryTableViewBase", const_cast<FWGeometryTableViewBase*>(this), "nodeColorChangeRequested(Color_t");
          }
-         colorHackRowIdx = idx;
+         m_tableRowIndexForColorPopup = idx;
          m_colorPopup->SetName("Selected");
          m_colorPopup->ResetColors(colors, m_colorManager->backgroundColorIndex()==FWColorManager::kBlackIndex);
          m_colorPopup->PlacePopup(x, y, m_colorPopup->GetDefaultWidth(), m_colorPopup->GetDefaultHeight());
@@ -363,19 +363,17 @@ FWGeometryTableViewBase::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, I
       else
       {
          bool elementChanged = false;
-         if (iColumn ==  2)
+         if (iColumn == 2)
          {
             getTableManager()->setVisibility(ni, !getTableManager()->getVisibility(ni));
             elementChanged = true;
          }
-         if (iColumn ==  3)
+         else if (iColumn == 3)
          { 
             getTableManager()->setVisibilityChld(ni, !getTableManager()->getVisibilityChld(ni));; 
             elementChanged = true;
          }
-
-
-         if (iColumn ==  5)
+         else if (iColumn == 5)
          {
             // used in overlaps for RnrMarker column
             ni.switchBit(BIT(5));
@@ -387,12 +385,11 @@ FWGeometryTableViewBase::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, I
             refreshTable3D();
          }
       }
-        
 
       getTableManager()->dataChanged();
 
    }
-   else if  (iColumn == 0)
+   else if (iColumn == 0)
    {
       m_eveTopNode->popupMenu(x, y);
    }
@@ -417,35 +414,32 @@ void FWGeometryTableViewBase::setBackgroundColor()
 
 void FWGeometryTableViewBase::nodeColorChangeRequested(Color_t col)
 {
-   //   printf("color change %d \n", colorHackRowIdx);
-   if (colorHackRowIdx >= 0) {
-      FWGeometryTableManagerBase::NodeInfo& ni = getTableManager()->refEntries()[colorHackRowIdx];
+   //   printf("color change %d \n", m_tableRowIndexForColorPopup);
+   if (m_tableRowIndexForColorPopup >= 0) {
+      FWGeometryTableManagerBase::NodeInfo& ni = getTableManager()->refEntries()[m_tableRowIndexForColorPopup];
       ni.m_color = col;
       ni.m_node->GetVolume()->SetLineColor(col);
       refreshTable3D();
-      colorHackRowIdx = -1;
+      m_tableRowIndexForColorPopup = -1;
    }
 }
-
-
 
 //______________________________________________________________________________
 
 void FWGeometryTableViewBase::refreshTable3D()
 {
-   if (gEve->GetSelection()->HasChild( m_eveTopNode))
-      gEve->GetSelection()->RemoveElement( m_eveTopNode);
+   if (gEve->GetSelection()->HasChild(m_eveTopNode))
+      gEve->GetSelection()->RemoveElement(m_eveTopNode);
 
-   if (gEve->GetHighlight()->HasChild( m_eveTopNode))
-      gEve->GetHighlight()->RemoveElement( m_eveTopNode);
+   if (gEve->GetHighlight()->HasChild(m_eveTopNode))
+      gEve->GetHighlight()->RemoveElement(m_eveTopNode);
 
-
-   m_eveTopNode->fSceneJebo->PadPaint( m_eveTopNode->fSceneJebo->GetPad());
+   m_eveTopNode->fSceneJebo->PadPaint(m_eveTopNode->fSceneJebo->GetPad());
    gEve->Redraw3D(); 
 
    getTableManager()->redrawTable();
 }
- 
+
 //______________________________________________________________________________
 
 void FWGeometryTableViewBase::addTo(FWConfiguration& iTo) const

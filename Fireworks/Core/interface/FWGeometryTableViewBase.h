@@ -140,9 +140,11 @@ protected:
    void enableHighlight();
 
    void postConst();
-private:
-   FWGeometryTableViewBase(const FWGeometryTableViewBase&); // stop default
 
+private:
+   int m_tableRowIndexForColorPopup;
+
+   FWGeometryTableViewBase(const FWGeometryTableViewBase&);                  // stop default
    const FWGeometryTableViewBase& operator=(const FWGeometryTableViewBase&); // stop default
 
    ClassDef(FWGeometryTableViewBase, 0);
