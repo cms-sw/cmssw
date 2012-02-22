@@ -49,7 +49,7 @@ alcaBeamSpotProducer = cms.EDProducer("AlcaBeamSpotProducer",
         maxVertexR = cms.untracked.double(2),
         maxVertexZ = cms.untracked.double(10),
         errorScale = cms.untracked.double(0.9),
-        nSigmaCut = cms.untracked.double(5.),
+        nSigmaCut = cms.untracked.double(50.),
         FitPerBunchCrossing = cms.untracked.bool(False)
      )
 )
