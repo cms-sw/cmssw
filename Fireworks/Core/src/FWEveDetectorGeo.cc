@@ -42,11 +42,11 @@ void FWEveDetectorGeo::Paint(Option_t* opt)
       std::advance(sit, topIdx);
       m_browser->getTableManager()->getNodeMatrix(*sit, mtx);
 
-      if (sit->testBit(FWGeometryTableManagerBase::kVisNodeSelf) && m_browser->getTableManager()->getVisibility(*sit))
+      if (sit->testBit(FWGeometryTableManagerBase::kVisNodeSelf) && ((FWGeometryTableManager*)tableManager())->getVisibility(*sit))
          paintShape(*sit,  topIdx,mtx, m_browser->getVolumeMode() );
    }
 
-   if ( m_browser->getTableManager()->getVisibilityChld(*sit))
+   if ( ((FWGeometryTableManager*)tableManager())->getVisibilityChld(*sit))
       paintChildNodesRecurse( sit, topIdx, mtx);
 }
 
@@ -75,20 +75,20 @@ void FWEveDetectorGeo::paintChildNodesRecurse (FWGeometryTableManagerBase::Entri
   
       if (m_filterOff)
       {
-         if ( m_browser->getTableManager()->getVisibility(*it))
+         if ( ((FWGeometryTableManager*)tableManager())->getVisibility(*it))
             paintShape(*it, cnt , nm, m_browser->getVolumeMode() );
 
-         if  ( m_browser->getTableManager()->getVisibilityChld(*it) && ( it->m_level < m_maxLevel  || it->testBit(FWGeometryTableManagerBase::kExpanded) )) {
+         if  ( ((FWGeometryTableManager*)tableManager())->getVisibilityChld(*it) && ( it->m_level < m_maxLevel  || it->testBit(FWGeometryTableManagerBase::kExpanded) )) {
             paintChildNodesRecurse(it,cnt , nm);
          }
 
       }
       else
       {
-         if ( m_browser->getTableManager()->getVisibility(*it))
+         if ( ((FWGeometryTableManager*)tableManager())->getVisibility(*it))
             paintShape(*it,cnt , nm, m_browser->getVolumeMode()  );
 
-         if ( m_browser->getTableManager()->getVisibilityChld(*it) && ( it->m_level < m_maxLevel || m_browser->getIgnoreVisLevelWhenFilter() ))
+         if ( ((FWGeometryTableManager*)tableManager())->getVisibilityChld(*it) && ( it->m_level < m_maxLevel || m_browser->getIgnoreVisLevelWhenFilter() ))
          {
             paintChildNodesRecurse(it,cnt , nm);
          }

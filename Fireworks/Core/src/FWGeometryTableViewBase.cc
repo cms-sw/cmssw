@@ -341,6 +341,7 @@ FWGeometryTableViewBase::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, I
 
             ni.setBit(FWGeometryTableManagerBase::kSelected);
             getTableManager()->redrawTable();
+            gEve->Redraw3D();
 	 }
       }
       else if (iColumn == 1)
@@ -364,12 +365,12 @@ FWGeometryTableViewBase::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, I
          bool elementChanged = false;
          if (iColumn == 2)
          {
-            getTableManager()->setVisibility(ni, !getTableManager()->getVisibility(ni));
+            ni.switchBit(FWGeometryTableManagerBase::kVisNodeSelf);
             elementChanged = true;
          }
          else if (iColumn == 3)
          { 
-            getTableManager()->setVisibilityChld(ni, !getTableManager()->getVisibilityChld(ni));; 
+            ni.switchBit(FWGeometryTableManagerBase::kVisNodeChld); 
             elementChanged = true;
          }
          else if (iColumn == 5)

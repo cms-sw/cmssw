@@ -38,7 +38,7 @@ void FWEveOverlap::Paint(Option_t*)
     paintShape(*sit,  topNodeIdx,mtx, false );
   
   
-  if ( m_browser->getTableManager()->getVisibilityChld(*sit))
+  if ( (*sit).testBit(FWGeometryTableManagerBase::kVisNodeChld))
    paintChildNodesRecurse( sit, topNodeIdx, mtx);
 }
 

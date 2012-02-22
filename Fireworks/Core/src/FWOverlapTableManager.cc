@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 20:31:32 CET 2012
-// $Id: FWOverlapTableManager.cc,v 1.1.2.24 2012/02/19 21:35:24 amraktad Exp $
+// $Id: FWOverlapTableManager.cc,v 1.2 2012/02/22 03:45:59 amraktad Exp $
 //
 
 // system include files
@@ -470,12 +470,12 @@ FWTableCellRendererBase* FWOverlapTableManager::cellRenderer(int iSortedRowNumbe
       }
       else if (iCol == 2 )
       {
-         m_renderer.setData(getVisibility(data)  ? "On" : "-",  isSelected );
+         m_renderer.setData(data.testBit(kVisNodeSelf)  ? "On" : "-",  isSelected );
 
       }
       else if (iCol == 3 )
       {
-         m_renderer.setData( getVisibilityChld(data) ? "On" : "-",  isSelected);
+         m_renderer.setData(data.testBit(kVisNodeChld)  ? "On" : "-",  isSelected);
 
       }
       else if (iCol == 5)

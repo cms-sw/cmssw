@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 20:31:25 CET 2012
-// $Id: FWGeometryTableManager.cc,v 1.43.2.10 2012/02/16 04:50:21 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.44 2012/02/22 03:45:59 amraktad Exp $
 //
 
 // system include files
@@ -438,6 +438,24 @@ void FWGeometryTableManager::setVisibilityChld(NodeInfo& data, bool x)
    }
    else
       data.setBitVal(kVisNodeChld, x);
+}
+//______________________________________________________________________________
+
+void FWGeometryTableManager::setDaughtersSelfVisibility(int selectedIdx, bool v)
+{
+   int dOff = 0;
+   TGeoNode* parentNode = m_entries[selectedIdx].m_node;
+   int nD = parentNode->GetNdaughters();
+   for (int n = 0; n != nD; ++n)
+   {
+      int idx = selectedIdx + 1 + n + dOff;
+      NodeInfo& data = m_entries[idx];
+
+      setVisibility(data, v);
+      setVisibilityChld(data, v);
+
+      FWGeometryTableManager::getNNodesTotal(parentNode->GetDaughter(n), dOff);
+   }
 }
 
 //______________________________________________________________________________

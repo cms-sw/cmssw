@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManagerBase.cc,v 1.1.2.8 2012/02/16 04:50:21 amraktad Exp $
+// $Id: FWGeometryTableManagerBase.cc,v 1.2 2012/02/22 03:45:59 amraktad Exp $
 //
 
 //#define PERFTOOL_GEO_TABLE
@@ -21,8 +21,6 @@
 #include <google/profiler.h>
 #endif
 #include "Fireworks/Core/interface/FWGeometryTableManagerBase.h"
-//#include "Fireworks/Core/interface/FWGeometryTableViewBase.h"
-//#include "Fireworks/Core/interface/FWGeometryTableViewManager.h"
 #include "Fireworks/Core/src/FWColorBoxIcon.h"
 #include "Fireworks/TableWidget/interface/GlobalContexts.h"
 #include "Fireworks/TableWidget/src/FWTabularWidget.h"
@@ -149,43 +147,12 @@ std::vector<std::string> FWGeometryTableManagerBase::getTitles() const
    returnValue.push_back("Material");
    return returnValue;
 }
-  
-/*
-void FWGeometryTableManagerBase::setSelection (int row, int column, int mask) 
-{
-   changeSelection(row, column);
-}
-*/
+ 
 const std::string FWGeometryTableManagerBase::title() const 
 {
    return "Geometry";
 }
 
-/*
-int FWGeometryTableManagerBase::selectedRow() const 
-{
-   return m_selectedIdx;
-}
-
-int FWGeometryTableManagerBase::selectedColumn() const 
-{
-   return m_selectedColumn;
-}
- 
-bool FWGeometryTableManagerBase::rowIsSelected(int row) const 
-{
-   return m_selectedIdx == row;
-}
-
-void FWGeometryTableManagerBase::changeSelection(int iRow, int iColumn)
-{     
-   if (iRow < 0) return; 
-
-   //   m_selectedRow = iRow;
-    m_selectedColumn = iColumn;
-
-   visualPropertiesChanged();
-   }  */  
 
 void  FWGeometryTableManagerBase::setBackgroundToWhite(bool iToWhite )
 {
@@ -282,48 +249,4 @@ void FWGeometryTableManagerBase::getNodePath(int idx, std::string& path) const
       // printf("push_back add to path %s\n", path.c_str());
    }
 }
-
-//______________________________________________________________________________
-
-void FWGeometryTableManagerBase::setDaughtersSelfVisibility(bool v)
-{/*
-   int dOff = 0;
-   TGeoNode* parentNode = m_entries[m_selectedIdx].m_node;
-   int nD = parentNode->GetNdaughters();
-   for (int n = 0; n != nD; ++n)
-   {
-      int idx = m_selectedIdx + 1 + n + dOff;
-      NodeInfo& data = m_entries[idx];
-
-      setVisibility(data, v);
-      setVisibilityChld(data, v);
-
-      FWGeometryTableManagerBase::getNNodesTotal(parentNode->GetDaughter(n), dOff);
-      }*/
-}
-
-
-//______________________________________________________________________________
-void FWGeometryTableManagerBase::setVisibility(NodeInfo& data, bool x)
-{
-   data.setBitVal(kVisNodeSelf, x);
-}
-
-
-void FWGeometryTableManagerBase::setVisibilityChld(NodeInfo& data, bool x)
-{
-   data.setBitVal(kVisNodeChld, x);
-}
-
-//______________________________________________________________________________
-
-bool  FWGeometryTableManagerBase::getVisibility(const NodeInfo& data) const
-{
-   return  data.testBit(kVisNodeSelf);   
-}
-
-bool  FWGeometryTableManagerBase::getVisibilityChld(const NodeInfo& data) const
-{
-
-   return  data.testBit(kVisNodeChld);   
-}
+/

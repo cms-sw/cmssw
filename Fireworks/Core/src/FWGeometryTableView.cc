@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:05:34 CET 2012
-// $Id: FWGeometryTableView.cc,v 1.22.2.19 2012/02/18 04:39:15 amraktad Exp $
+// $Id: FWGeometryTableView.cc,v 1.23 2012/02/22 03:45:59 amraktad Exp $
 //
 
 // system include files
@@ -367,7 +367,8 @@ void FWGeometryTableView::setFrom(const FWConfiguration& iFrom)
 
 void FWGeometryTableView::chosenItem(int x)
 {
-   FWGeometryTableManagerBase::NodeInfo& ni = getTableManager()->refEntries().at(m_eveTopNode->getFirstSelectedTableIndex());
+   int selectedIdx = m_eveTopNode->getFirstSelectedTableIndex();
+   FWGeometryTableManagerBase::NodeInfo& ni = getTableManager()->refEntry(selectedIdx);
    // printf("chosen item %s \n", ni.name());
 
    TGeoVolume *gv = ni.m_node->GetVolume();
@@ -377,11 +378,11 @@ void FWGeometryTableView::chosenItem(int x)
       switch (x)
       {
          case FWEveDetectorGeo::kGeoVisOff:
-            getTableManager()->setDaughtersSelfVisibility(false);
+            m_tableManager->setDaughtersSelfVisibility(selectedIdx, false);
             refreshTable3D();
             break;
          case FWEveDetectorGeo::kGeoVisOn:
-            getTableManager()->setDaughtersSelfVisibility(true);
+            m_tableManager->setDaughtersSelfVisibility(selectedIdx,  true);
             refreshTable3D();
             break;
 
@@ -393,11 +394,11 @@ void FWGeometryTableView::chosenItem(int x)
             break;
 
          case FWEveDetectorGeo::kGeoSetTopNode:
-            cdNode(m_eveTopNode->getFirstSelectedTableIndex());
+            cdNode(selectedIdx);
             break;         
 
          case FWEveDetectorGeo::kGeoSetTopNodeCam:
-            cdNode(m_eveTopNode->getFirstSelectedTableIndex());
+            cdNode(selectedIdx);
             resetHome = true;
 
          case FWEveDetectorGeo::kGeoCamera:

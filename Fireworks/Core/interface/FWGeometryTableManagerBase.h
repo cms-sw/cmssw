@@ -16,11 +16,10 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:40 CET 2011
-// $Id: FWGeometryTableManagerBase.h,v 1.1.2.6 2012/02/22 00:18:25 amraktad Exp $
+// $Id: FWGeometryTableManagerBase.h,v 1.2 2012/02/22 03:45:57 amraktad Exp $
 //
 
 #include <sigc++/sigc++.h>
-#include <boost/tr1/unordered_map.hpp>
 
 #include "Fireworks/Core/interface/FWGeometryTableViewBase.h"
 
@@ -30,11 +29,8 @@
 #include "Fireworks/TableWidget/interface/FWTableCellRendererBase.h"
 
 #include "TGeoNode.h"
-#include "TGeoVolume.h"
 
 class FWTableCellRendererBase;
-// class FWGeometryTableViewBase;
-//class TGeoManager;
 class TGeoNode;
 class TEvePointSet;
 
@@ -83,21 +79,10 @@ public:
       void switchBit(UChar_t f) { testBit(f) ? resetBit(f) : setBit(f); }
    };
 
-   struct Match
-   {
-      bool m_matches;
-      bool m_childMatches;
-      Match() : m_matches(false), m_childMatches(false) {}
-   
-      bool accepted() { return m_matches || m_childMatches; }
-   };
 
    typedef std::vector<NodeInfo> Entries_v;
    typedef Entries_v::iterator Entries_i;
    
-   typedef boost::unordered_map<TGeoVolume*, Match>  Volumes_t;
-   typedef Volumes_t::iterator               Volumes_i; 
-
    int m_highlightIdx;
 
    //private: 
@@ -153,6 +138,7 @@ public:
    NodeInfo* getSelected();
 
    Entries_v& refEntries() {return m_entries;}
+  NodeInfo& refEntry(int i) {return m_entries[i];}
 
    void loadGeometry( TGeoNode* , TObjArray*);
 
@@ -166,12 +152,13 @@ public:
 
    void getNodeMatrix(const NodeInfo& nodeInfo, TGeoHMatrix& mat) const;
 
+   /*
    virtual void setVisibility(NodeInfo& nodeInfo, bool );
    virtual void setVisibilityChld(NodeInfo& nodeInfo, bool);
 
    virtual bool getVisibilityChld(const NodeInfo& nodeInfo) const;
    virtual bool getVisibility (const NodeInfo& nodeInfo) const;
-
+   */
 
    static  void getNNodesTotal(TGeoNode* geoNode, int& off);
 

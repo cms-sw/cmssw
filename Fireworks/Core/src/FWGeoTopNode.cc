@@ -8,7 +8,7 @@
 //
 // Original Author:  Matevz Tadel, Alja Mrak Tadel  
 //         Created:  Thu Jun 23 01:24:51 CEST 2011
-// $Id: FWGeoTopNode.cc,v 1.19.2.18 2012/02/17 05:40:59 amraktad Exp $
+// $Id: FWGeoTopNode.cc,v 1.20 2012/02/22 03:45:59 amraktad Exp $
 //
 
 // system include files
@@ -42,7 +42,6 @@
 
 #include "Fireworks/Core/interface/FWGeoTopNode.h"
 #include "Fireworks/Core/src/FWGeoTopNodeScene.h"
-#include "Fireworks/Core/src/FWGeometryTableView.h"
 #include "Fireworks/Core/interface/FWViewType.h"
 #include "Fireworks/Core/interface/fwLog.h"
 

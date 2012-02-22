@@ -16,17 +16,24 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 20:34:22 CET 2012
-// $Id: FWGeometryTableManager.h,v 1.1.2.3 2012/02/16 04:50:21 amraktad Exp $
+// $Id: FWGeometryTableManager.h,v 1.2 2012/02/22 03:45:59 amraktad Exp $
 //
 
 #include "Fireworks/Core/interface/FWGeometryTableManagerBase.h"
+#include <string>
+#include <boost/tr1/unordered_map.hpp>
 
 class FWGeometryTableViewBase;
 class FWGeometryTableView;
-#include <string>
+
+#include "TGeoVolume.h"
+
+
 class FWGeometryTableManager : public FWGeometryTableManagerBase
 {
 public:
+   enum   ECol   { kNameColumn, kColorColumn,  kVisSelfColumn, kVisChildColumn, kMaterialColumn, kNumColumn };
+
    enum GeometryBits
    {
       kMatches         =  BIT(5),
@@ -34,7 +41,18 @@ public:
       kFilterCached    =  BIT(7)
    };
 
-   enum   ECol   { kNameColumn, kColorColumn,  kVisSelfColumn, kVisChildColumn, kMaterialColumn, kNumColumn };
+   struct Match
+   {
+      bool m_matches;
+      bool m_childMatches;
+      Match() : m_matches(false), m_childMatches(false) {}
+   
+      bool accepted() { return m_matches || m_childMatches; }
+   };
+
+ 
+   typedef boost::unordered_map<TGeoVolume*, Match>  Volumes_t;
+   typedef Volumes_t::iterator               Volumes_i; 
 
    FWGeometryTableManager(FWGeometryTableView*);
    virtual ~FWGeometryTableManager();
@@ -52,11 +70,12 @@ public:
    void updateFilter();
    void printMaterials();
 
-   virtual void setVisibility(NodeInfo& nodeInfo, bool );
-   virtual void setVisibilityChld(NodeInfo& nodeInfo, bool);
+   void setDaughtersSelfVisibility(int i, bool v);
+   void setVisibility(NodeInfo& nodeInfo, bool );
+    void setVisibilityChld(NodeInfo& nodeInfo, bool);
 
-   virtual bool getVisibilityChld(const NodeInfo& nodeInfo) const;
-   virtual bool getVisibility (const NodeInfo& nodeInfo) const;
+    bool getVisibilityChld(const NodeInfo& nodeInfo) const;
+    bool getVisibility (const NodeInfo& nodeInfo) const;
 
    void assertNodeFilterCache(NodeInfo& data);
  
