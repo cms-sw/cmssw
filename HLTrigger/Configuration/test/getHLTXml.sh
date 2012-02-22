@@ -87,8 +87,8 @@ function getConfigForOnline() {
   log "    dumping full HLT for $NAME"
   # override L1 menus
   if [ "$NAME" == "GRun" ]; then
-    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1Xml $L1Xml --globaltag auto:hltonline     > OnData_HLT_$NAME.py
-    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1Xml $L1Xml --globaltag auto:startup       > OnLine_HLT_$NAME.py 
+    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1Xml $L1Xml --l1-emulator --globaltag auto:hltonline     > OnData_HLT_$NAME.py
+    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1Xml $L1Xml --l1-emulator --globaltag auto:startup       > OnLine_HLT_$NAME.py 
   elif [ "$NAME" == "HIon" ]; then
     hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1THI    --globaltag auto:hltonline     > OnData_HLT_$NAME.py
     hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1THI    --globaltag auto:starthi       > OnLine_HLT_$NAME.py

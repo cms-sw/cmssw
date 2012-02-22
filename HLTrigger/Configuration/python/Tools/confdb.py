@@ -528,7 +528,7 @@ if 'GlobalTag' in %%(dict)s:
         emulator['CustomHLT'] = 'switchToSimGmtGctGtDigis'
 
       self.data += """
-# customize the L1 emulator to run only the GT, and take the GCT and GMT from data
+# customize the L1 emulator to run %(CustomL1T)s with HLT to %(CustomHLT)s
 process.load( 'Configuration.StandardSequences.%(RawToDigi)s' )
 process.load( 'Configuration.StandardSequences.SimL1Emulator_cff' )
 import L1Trigger.Configuration.L1Trigger_custom
