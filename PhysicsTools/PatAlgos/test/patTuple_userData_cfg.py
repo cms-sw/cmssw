@@ -79,6 +79,6 @@ process.out.outputCommands = cms.untracked.vstring('drop *',
 #                                         ##
 #   process.out.fileName = ...            ##  (e.g. 'myTuple.root')
 #                                         ##
-#   process.options.wantSummary = True    ##  (to suppress the long output at the end of the job)    
 
+process.options.wantSummary = True
 process.MessageLogger.cerr.FwkReport.reportEvery = 10
