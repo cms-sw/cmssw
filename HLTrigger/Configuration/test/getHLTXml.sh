@@ -34,18 +34,26 @@ GETCONTENT=$(findHltScript getEventContent.py)
 GETDATASETS=$(findHltScript getDatasets.py)
 
 function getConfigForCVS() {
-  local L1Xml="L1Menu_Collisions2012_v0_L1T_Scales_20101224_Imp0_0x1027.xml"
   local CONFIG="$1"
   local NAME="$2"
   log "    dumping HLT cff for $NAME"
 
   # do not use any L1 override
-  hltGetConfiguration --cff --offline --mc   $CONFIG --type $NAME --l1Xml $L1Xml > HLT_${NAME}_cff.py
-  hltGetConfiguration --cff --offline --data $CONFIG --type $NAME --l1Xml $L1Xml > HLT_${NAME}_data_cff.py
+  if [ "$NAME" == "GRun" ]; then
+    local L1Xml="L1Menu_Collisions2012_v0_L1T_Scales_20101224_Imp0_0x1027.xml"
+    hltGetConfiguration --cff --offline --mc   $CONFIG --type $NAME --l1Xml $L1Xml > HLT_${NAME}_cff.py
+    hltGetConfiguration --cff --offline --data $CONFIG --type $NAME --l1Xml $L1Xml > HLT_${NAME}_data_cff.py
+    hltGetConfiguration --fastsim              $CONFIG --type $NAME --l1Xml $L1Xml > HLT_${NAME}_Famos_cff.py
+  elif [ "$NAME" == "HIon" ]; then
+    hltGetConfiguration --cff --offline --mc   $CONFIG --type $NAME                > HLT_${NAME}_cff.py
+    hltGetConfiguration --cff --offline --data $CONFIG --type $NAME                > HLT_${NAME}_data_cff.py
+    hltGetConfiguration --fastsim              $CONFIG --type $NAME                > HLT_${NAME}_Famos_cff.py
+  else
+    hltGetConfiguration --cff --offline --mc   $CONFIG --type $NAME                > HLT_${NAME}_cff.py
+    hltGetConfiguration --cff --offline --data $CONFIG --type $NAME                > HLT_${NAME}_data_cff.py
+    hltGetConfiguration --fastsim              $CONFIG --type $NAME                > HLT_${NAME}_Famos_cff.py
+  fi
   diff -C0 HLT_${NAME}_cff.py HLT_${NAME}_data_cff.py
-
-  hltGetConfiguration --fastsim              $CONFIG --type $NAME --l1Xml $L1Xml > HLT_${NAME}_Famos_cff.py
-
 }
 
 function getContentForCVS() {
@@ -82,11 +90,11 @@ function getConfigForOnline() {
     hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1Xml $L1Xml --globaltag auto:hltonline     > OnData_HLT_$NAME.py
     hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1Xml $L1Xml --globaltag auto:startup       > OnLine_HLT_$NAME.py 
   elif [ "$NAME" == "HIon" ]; then
-    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1THI --globaltag auto:hltonline     > OnData_HLT_$NAME.py
-    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1THI --globaltag auto:starthi       > OnLine_HLT_$NAME.py
+    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1THI    --globaltag auto:hltonline     > OnData_HLT_$NAME.py
+    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1THI    --globaltag auto:starthi       > OnLine_HLT_$NAME.py
   else
-    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME             --globaltag auto:hltonline     > OnData_HLT_$NAME.py
-    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME                                            > OnLine_HLT_$NAME.py
+    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME                --globaltag auto:hltonline     > OnData_HLT_$NAME.py
+    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME                                               > OnLine_HLT_$NAME.py
   fi
 
   # do not use any L1 override
