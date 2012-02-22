@@ -1,4 +1,5 @@
 #include "TauAnalysis/MCEmbeddingTools/plugins/SelectReplacementCandidates.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 SelectReplacementCandidates::SelectReplacementCandidates(const edm::ParameterSet& iConfig)
 {
