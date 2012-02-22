@@ -2,14 +2,15 @@
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 ## switch to RECO input
-process.source.fileNames = cms.untracked.vstring( pickRelValInputFiles( cmsswVersion  = 'CMSSW_5_0_0'
-                                                                      , relVal        = 'RelValProdTTbar'
-                                                                      , globalTag     = 'START50_V8'
-                                                                      , dataTier      = 'GEN-SIM-RECO'
-                                                                      , maxVersions   = 3
-                                                                      , numberOfFiles = 1
-                                                                      )
-                                                )
+process.source.fileNames = cms.untracked.vstring(
+    pickRelValInputFiles( cmsswVersion  = 'CMSSW_5_0_0'
+                          , relVal        = 'RelValProdTTbar'
+                          , globalTag     = 'START50_V8'
+                          , dataTier      = 'GEN-SIM-RECO'
+                          , maxVersions   = 3
+                          , numberOfFiles = 1
+                          )
+    )
 
 ## add inFlightMuons
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
@@ -42,11 +43,15 @@ process.patMuons.genParticleMatch = cms.VInputTag(
     cms.InputTag("muMatchF"),
 )
 
+## dump event content
+process.content = cms.EDAnalyzer("EventContentAnalyzer")
+
 ## add the in flight muons to the output
 process.out.outputCommands.append('keep *_inFlightMuons_*_*')
 
 ## let it run
 process.p = cms.Path(
-    process.inFlightMuons +
-    process.patDefaultSequence
+    #process.content +
+    process.inFlightMuons + 
+    process.patDefaultSequence  
 )
