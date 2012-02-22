@@ -41,7 +41,7 @@ if cmsswVersion > "CMSSW_5_0" :
     if (isData) :
         GLOBAL_TAG='GR_R_52_V1::All' # 2011 Collisions data, CMSSW_5_0_X
     else :
-        GLOBAL_TAG='START50_V9::All'
+        GLOBAL_TAG='START52_V1::All'
 
 else : # == if 44X
     if (isData):

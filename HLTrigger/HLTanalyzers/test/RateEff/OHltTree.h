@@ -306,6 +306,8 @@ public:
    Float_t ohEleR9[8000]; //[NohEle] 
    Float_t ohEleHforHoverE[8000]; //[NohEle] 
    Float_t ohEleEiso[8000]; //[NohEle] 
+   Float_t ohEleVtxZ[8000]; //[NohEle]
+
 
    Int_t NohHFEle;
    Float_t ohHFElePt[10000]; //[NohHFEle]
@@ -8208,6 +8210,7 @@ public:
    TBranch *b_ohEleR9; //! 
    TBranch *b_ohEleHforHoverE; //! 
    TBranch *b_ohEleEiso; //!  
+   TBranch *b_ohEleVtxZ; //!
 
    TBranch *b_NohHFEle; // !
    TBranch *b_ohHFElePt; //!
@@ -17745,6 +17748,7 @@ void OHltTree::Init(TTree *tree)
    fChain->SetBranchAddress("ohEleR9", ohEleR9, &b_ohEleR9);
    fChain->SetBranchAddress("ohEleHforHoverE", ohEleHforHoverE, &b_ohEleHforHoverE);
    fChain->SetBranchAddress("ohEleEiso", ohEleEiso, &b_ohEleEiso);
+   fChain->SetBranchAddress("ohEleVtxZ", ohEleVtxZ, &b_ohEleVtxZ);
 	
    fChain->SetBranchAddress("NohHFEle", &NohHFEle, &b_NohHFEle);
    fChain->SetBranchAddress("ohHFElePt", ohHFElePt, &b_ohHFElePt);

@@ -19,7 +19,7 @@ run:{
     doDeterministicPrescale =true;
     dsList = "Datasets.list";
     readRefPrescalesFromNtuple = true;
-    nonlinearPileupFit = "pol2";
+    nonlinearPileupFit = "none";
 };
 
 ########################################## 
