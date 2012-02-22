@@ -1,9 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-#
-# Geometry master configuration
-from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *
-
 #  Tracking Geometry
 from Geometry.CommonDetUnit.globalTrackingGeometryDB_cfi import *
 
