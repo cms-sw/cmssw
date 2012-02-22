@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_1_0/HIon/V76 (CMSSW_5_2_0_pre5_HLT6)
+# /dev/CMSSW_5_1_0/HIon/V78 (CMSSW_5_2_0_pre5_HLT6)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/HIon/V76')
+  tableName = cms.string('/dev/CMSSW_5_1_0/HIon/V78')
 )
 
 process.streams = cms.PSet( 
@@ -896,6 +896,19 @@ process.hltESPAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProd
   ComponentName = cms.string( "hltESPAnalyticalPropagator" ),
   PropagationDirection = cms.string( "alongMomentum" )
 )
+process.hltESPBwdAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
+  MaxDPhi = cms.double( 1.6 ),
+  ComponentName = cms.string( "hltESPBwdAnalyticalPropagator" ),
+  PropagationDirection = cms.string( '""oppositeToMomentum"' )
+)
+process.hltESPBwdElectronPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
+  PropagationDirection = cms.string( '"oppositeToMomentum""' ),
+  ComponentName = cms.string( "hltESPBwdElectronPropagator" ),
+  Mass = cms.double( 5.11E-4 ),
+  ptMin = cms.double( -1.0 ),
+  MaxDPhi = cms.double( 1.6 ),
+  useRungeKutta = cms.bool( False )
+)
 process.hltESPChi2EstimatorForRefit = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
   MaxChi2 = cms.double( 100000.0 ),
   nSigma = cms.double( 3.0 ),
@@ -1000,6 +1013,11 @@ process.hltESPCkfTrajectoryFilterForHI = cms.ESProducer( "TrajectoryFilterESProd
   ),
   ComponentName = cms.string( "hltESPCkfTrajectoryFilterForHI" )
 )
+process.hltESPCloseComponentsMerger5D = cms.ESProducer( "CloseComponentsMergerESProducer5D",
+  ComponentName = cms.string( "hltESPCloseComponentsMerger5D" ),
+  MaxComponents = cms.int32( 12 ),
+  DistanceMeasure = cms.string( "hltESPKullbackLeiblerDistance5D" )
+)
 process.hltESPDummyDetLayerGeometry = cms.ESProducer( "DetLayerGeometryESProducer",
   ComponentName = cms.string( "hltESPDummyDetLayerGeometry" )
 )
@@ -1016,6 +1034,19 @@ process.hltESPEcalRegionCablingESProducer = cms.ESProducer( "EcalRegionCablingES
 )
 process.hltESPEcalTrigTowerConstituentsMapBuilder = cms.ESProducer( "EcalTrigTowerConstituentsMapBuilder",
   MapFile = cms.untracked.string( "Geometry/EcalMapping/data/EndCap_TTMap.txt" )
+)
+process.hltESPElectronChi2 = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
+  MaxChi2 = cms.double( 2000.0 ),
+  nSigma = cms.double( 3.0 ),
+  ComponentName = cms.string( "hltESPElectronChi2" )
+)
+process.hltESPElectronMaterialEffects = cms.ESProducer( "GsfMaterialEffectsESProducer",
+  BetheHeitlerParametrization = cms.string( "BetheHeitler_cdfmom_nC6_O5.par" ),
+  EnergyLossUpdator = cms.string( "GsfBetheHeitlerUpdator" ),
+  ComponentName = cms.string( "hltESPElectronMaterialEffects" ),
+  MultipleScatteringUpdator = cms.string( "MultipleScatteringUpdator" ),
+  Mass = cms.double( 5.11E-4 ),
+  BetheHeitlerCorrection = cms.int32( 2 )
 )
 process.hltESPFastSteppingHelixPropagatorAny = cms.ESProducer( "SteppingHelixPropagatorESProducer",
   NoErrorPropagation = cms.bool( False ),
@@ -1079,10 +1110,44 @@ process.hltESPFittingSmootherRK = cms.ESProducer( "KFFittingSmootherESProducer",
   NoInvalidHitsBeginEnd = cms.bool( False ),
   RejectTracks = cms.bool( True )
 )
+process.hltESPFwdElectronPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
+  PropagationDirection = cms.string( "alongMomentum" ),
+  ComponentName = cms.string( "hltESPFwdElectronPropagator" ),
+  Mass = cms.double( 5.11E-4 ),
+  ptMin = cms.double( -1.0 ),
+  MaxDPhi = cms.double( 1.6 ),
+  useRungeKutta = cms.bool( False )
+)
 process.hltESPGlobalDetLayerGeometry = cms.ESProducer( "GlobalDetLayerGeometryESProducer",
   ComponentName = cms.string( "hltESPGlobalDetLayerGeometry" )
 )
 process.hltESPGlobalTrackingGeometryESProducer = cms.ESProducer( "GlobalTrackingGeometryESProducer" )
+process.hltESPGsfTrajectoryFitter = cms.ESProducer( "GsfTrajectoryFitterESProducer",
+  Merger = cms.string( "hltESPCloseComponentsMerger5D" ),
+  ComponentName = cms.string( "hltESPGsfTrajectoryFitter" ),
+  MaterialEffectsUpdator = cms.string( "hltESPElectronMaterialEffects" ),
+  RecoGeometry = cms.string( "hltESPGlobalDetLayerGeometry" ),
+  GeometricalPropagator = cms.string( "hltESPAnalyticalPropagator" )
+)
+process.hltESPGsfTrajectorySmoother = cms.ESProducer( "GsfTrajectorySmootherESProducer",
+  ErrorRescaling = cms.double( 100.0 ),
+  RecoGeometry = cms.string( "hltESPGlobalDetLayerGeometry" ),
+  Merger = cms.string( "hltESPCloseComponentsMerger5D" ),
+  ComponentName = cms.string( "hltESPGsfTrajectorySmoother" ),
+  GeometricalPropagator = cms.string( "hltESPBwdAnalyticalPropagator" ),
+  MaterialEffectsUpdator = cms.string( "hltESPElectronMaterialEffects" )
+)
+process.hltESPGsfElectronFittingSmoother = cms.ESProducer( "KFFittingSmootherESProducer",
+  EstimateCut = cms.double( -1.0 ),
+  LogPixelProbabilityCut = cms.double( -16.0 ),
+  Fitter = cms.string( "hltESPGsfTrajectoryFitter" ),
+  MinNumberOfHits = cms.int32( 5 ),
+  Smoother = cms.string( "hltESPGsfTrajectorySmoother" ),
+  BreakTrajWith2ConsecutiveMissing = cms.bool( True ),
+  ComponentName = cms.string( "hltESPGsfElectronFittingSmoother" ),
+  NoInvalidHitsBeginEnd = cms.bool( True ),
+  RejectTracks = cms.bool( True )
+)
 process.hltESPHIMixedLayerPairs = cms.ESProducer( "SeedingLayersESProducer",
   layerList = cms.vstring( 'BPix1+BPix2',
     'BPix1+BPix3',
@@ -1275,6 +1340,10 @@ process.hltESPKFTrajectorySmootherForMuonTrackLoader = cms.ESProducer( "KFTrajec
 )
 process.hltESPKFUpdator = cms.ESProducer( "KFUpdatorESProducer",
   ComponentName = cms.string( "hltESPKFUpdator" )
+)
+process.hltESPKullbackLeiblerDistance5D = cms.ESProducer( "DistanceBetweenComponentsESProducer5D",
+  ComponentName = cms.string( "hltESPKullbackLeiblerDistance5D" ),
+  DistanceMeasure = cms.string( "KullbackLeibler" )
 )
 process.hltESPL1FastJetCorrectionESProducer = cms.ESProducer( "L1FastjetCorrectionESProducer",
   appendToDataLabel = cms.string( "" ),
@@ -1886,6 +1955,20 @@ process.hltESPTrajectoryBuilderL3 = cms.ESProducer( "CkfTrajectoryBuilderESProdu
   intermediateCleaning = cms.bool( True ),
   lostHitPenalty = cms.double( 30.0 )
 )
+process.hltESPTrajectoryBuilderForElectrons = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
+  propagatorAlong = cms.string( "hltESPFwdElectronPropagator" ),
+  trajectoryFilterName = cms.string( "hltESPTrajectoryFilterForElectrons" ),
+  maxCand = cms.int32( 5 ),
+  ComponentName = cms.string( "hltESPTrajectoryBuilderForElectrons" ),
+  propagatorOpposite = cms.string( "hltESPBwdElectronPropagator" ),
+  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
+  estimator = cms.string( "hltESPElectronChi2" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( True ),
+  intermediateCleaning = cms.bool( False ),
+  lostHitPenalty = cms.double( 90.0 )
+)
 process.hltESPTrajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
   ComponentName = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
   fractionShared = cms.double( 0.5 ),
@@ -1937,6 +2020,20 @@ process.hltESPTrajectoryFitterRK = cms.ESProducer( "KFTrajectoryFitterESProducer
   Updator = cms.string( "hltESPKFUpdator" ),
   Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" ),
   RecoGeometry = cms.string( "hltESPDummyDetLayerGeometry" )
+)
+process.hltESPTrajectoryFilterForElectrons = cms.ESProducer( "TrajectoryFilterESProducer",
+  filterPset = cms.PSet( 
+    ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+    minPt = cms.double( 2.0 ),
+    minHitsMinPt = cms.int32( -1 ),
+    maxLostHits = cms.int32( 1 ),
+    maxNumberOfHits = cms.int32( -1 ),
+    maxConsecLostHits = cms.int32( 1 ),
+    nSigmaMinPt = cms.double( 5.0 ),
+    minimumNumberOfHits = cms.int32( 3 ),
+    chargeSignificance = cms.double( -1.0 )
+  ),
+  ComponentName = cms.string( "hltESPTrajectoryFilterForElectrons" )
 )
 process.hltESPTrajectorySmootherRK = cms.ESProducer( "KFTrajectorySmootherESProducer",
   errorRescaling = cms.double( 100.0 ),
