@@ -20,8 +20,6 @@
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-#include "Validation/RecoTau/interface/prettyPrint.h"
-
 #include <memory>
 #include <vector>
 #include <sstream>
@@ -87,24 +85,13 @@ void ZllArbitrator<T1>::produce(edm::Event& iEvent,const edm::EventSetup& iSetup
     return ;
   }
   
-//   ss << "Zmumu size: "
-//      << ZCandidatesHandle->size()
-//      << ": " 
-//      << srcZCand_;
-//   STDLINE(ss.str()) ;
-
   double ZmassPDG  = 91.18;
   double DeltaMass = 10000;
   
   typename std::vector<T1>::const_iterator ZCandIt   ;
   typename std::vector<T1>::const_iterator bestZCand ;
-//  T1 bestZCand;
 
   for (ZCandIt = ZCandidatesHandle->begin(); ZCandIt != ZCandidatesHandle->end(); ++ZCandIt) {
-//      ss.str("") ;
-//   	ss << "Zmumu mass: "
-//   	   << ZCandIt->mass();
-//   	STDLINE(ss.str()) ;
 
 	if( fabs(ZCandIt->mass()-ZmassPDG) < DeltaMass ){
 	  DeltaMass = fabs(ZCandIt->mass()-ZmassPDG) ;
