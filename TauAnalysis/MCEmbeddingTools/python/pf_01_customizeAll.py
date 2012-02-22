@@ -162,7 +162,8 @@ def customise(process):
 
   import sys
   if hasattr(sys, "argv") == True:
-    options.parseArguments()
+    if not sys.argv[0].endswith('cmsDriver.py'):
+      options.parseArguments()
 
   print "Setting mdtau to ", options.mdtau
   process.generator.ZTauTau.TauolaOptions.InputCards.mdtau = options.mdtau 
