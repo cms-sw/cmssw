@@ -53,6 +53,7 @@ PFClusterWidthAlgo::PFClusterWidthAlgo(const std::vector<const reco::PFCluster *
     double SeedClusEnergy = -1.;
     unsigned int SeedDetID = 0;
     double SeedEta = -1.;
+    double SeedPhi = -1.;
 
     for(unsigned int icl=0; icl<nclust; ++icl) {
       const std::vector< reco::PFRecHitFraction >& PFRecHits =  pfclust[icl]->recHitFractions();
@@ -95,6 +96,7 @@ PFClusterWidthAlgo::PFClusterWidthAlgo(const std::vector<const reco::PFCluster *
 	  if (energyHit > SeedClusEnergy) {
 	    SeedClusEnergy = energyHit;
 	    SeedEta = RefPFRecHit->position().eta();
+	    SeedPhi =  RefPFRecHit->position().phi();
 	    SeedDetID = RefPFRecHit->detId();
 	  }
 	}

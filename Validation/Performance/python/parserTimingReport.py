@@ -26,7 +26,7 @@ Performance profiling:
 
 
 """ given two lines returns the VSIZE and RSS values along with event number """
-def extractRSS_VSIZE(line1, line2, record_number):
+def extractRSS_VSIZE(line1, line2):
 	""" 
 	>>> extractRSS_VSIZE("%MSG-w MemoryCheck:  PostModule 19-Jun-2009 13:06:08 CEST Run: 1 Event: 1", \
 			     "MemoryCheck: event : VSIZE 923.07 0 RSS 760.25 0")
@@ -41,9 +41,7 @@ def extractRSS_VSIZE(line1, line2, record_number):
 	if ("VSIZE" in line2) and ("RSS" in line2): # the second line
 		RSS = line2.split("RSS")[1].strip().split(" ")[0].strip() #changed partition into split for backward compatability with py2.3
 		VSIZE = line2.split("RSS")[0].strip().split("VSIZE")[1].strip().split(" ")[0].strip()
-		#Hack to return the record number instea of event number for now... can always switch back of add event number on top
-		#return ((event_number, RSS), (event_number, VSIZE))
-		return ((record_number, RSS), (record_number, VSIZE))
+		return ((event_number, RSS), (event_number, VSIZE))
 	else: return False
 
 
@@ -73,40 +71,29 @@ def loadTimeLog(log_filename, maxsize_rad = 0): #TODO: remove maxsize to read, u
 				
 	memcheck_line1 = False
 
-	record_number=0
-	last_record=0
-	last_event=0
+
 	for line in logfile.xreadlines():
 		if 'TimeModule>' in line.strip():
 			line = line.strip()
 			line_content_list = line.split(' ')[0:]
-			#Hack to avoid issues with the non-consecutive run numbers:
+	
 			event_number = int(line_content_list[1])
-			if event_number != last_event:
-				record_number=record_number+1
-				last_event=event_number
 				# module label and name were mixed up in the original doc
 			module_label = str(line_content_list[4])
 			module_name = str(line_content_list[3])
 			seconds = float(line_content_list[5])
-			#For now let's try to switch to the record_number... if we need to also have the event_number we can always add it back.
-			#mod_data.append((event_number, module_label, module_name, seconds))
-			mod_data.append((record_number, module_label, module_name, seconds))
+	
+			mod_data.append((event_number, module_label, module_name, seconds))
+
 		if 'TimeEvent>' in line.strip():
 			line = line.strip()
 			line_content_list = line.split(' ')[0:]
-			#Hack to avoid issues with the non-consecutive run numbers:
+	
 			event_number = int(line_content_list[1])
-			if event_number != last_event:
-				record_number=record_number+1
-				last_event=event_number
-				# module label and name were mixed up in the original doc
 			time_seconds = str(line_content_list[3])
 			
 			#TODO: what are the other [last two] numbers? Real time? smf else? TimeEvent> 1 1 15.3982 13.451 13.451
-			#For now let's try to switch to the record_number... if we need to also have the event_number we can always add it back.
-			#evt_data.append((event_number, time_seconds))
-			evt_data.append((record_number, time_seconds))
+			evt_data.append((event_number, time_seconds))
 		""" 
 			%MSG-w MemoryCheck:  PostModule 19-Jun-2009 13:06:08 CEST Run: 1 Event: 1
 			MemoryCheck: event : VSIZE 923.07 0 RSS 760.25 0
@@ -115,10 +102,8 @@ def loadTimeLog(log_filename, maxsize_rad = 0): #TODO: remove maxsize to read, u
 			# this is the first line out of two
 			if (not memcheck_line1):
 				memcheck_line1 = line.strip()
-			else:
-				#FIXME (eventually)
-				#Hacking in the record_number extracted from the TimeEvent and TimeModule parsing... NOT ROBUST...
-				(rss, vsize) = extractRSS_VSIZE(memcheck_line1, line.strip(), record_number)
+			else: 
+				(rss, vsize) = extractRSS_VSIZE(memcheck_line1, line.strip())
 				rss_data.append(rss)
 				vsize_data.append(vsize)
 		else: 

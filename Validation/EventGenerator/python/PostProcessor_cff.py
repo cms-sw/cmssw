@@ -81,7 +81,7 @@ postProcessorBasicHepMCValidation = cms.EDAnalyzer(
                                           "tauplusMomentum nEvt",
                                           "nutaubarMomentum nEvt",
                                           "gluMomentum nEvt",
-                                          "partonPt nEvt",
+                                          "partonpT nEvt",
                                           "WplusMomentum nEvt",
                                           "WminusMomentum nEvt",
                                           "ZMomentum nEvt",
@@ -122,7 +122,9 @@ postProcessorBasicHepMCValidation = cms.EDAnalyzer(
                                           "vrtxRadius nEvt",
                                           "unknownPDTNumber nEvt",
                                           "genPtclStatus nEvt",
-                                          "Bjorken_x nEvt")
+                                          "Bjorken_x nEvt",
+                                          "status1ShortLived nEvt",
+                                          "gluonMomentum nEvt")
 )    
 
 postProcessorBasicGenParticleValidation = cms.EDAnalyzer(
@@ -203,32 +205,33 @@ postProcessorMBUEandQCDValidation = cms.EDAnalyzer(
                                           "EmpzHFm nHFSD",
                                           "ntHFm nHFSD",
                                           "eneHFmSel nHFSD",
-                                          "_JM25njets nHFflow",
-                                          "_JM25ht nHFflow",
-                                          "_JM25pt1 nHFflow",
-                                          "_JM25pt2 nHFflow",
-                                          "_JM25pt3 nHFflow",
-                                          "_JM25pt4 nHFflow",
-                                          "_JM80njets nHFflow",
-                                          "_JM80ht nHFflow",
-                                          "_JM80pt1 nHFflow",
-                                          "_JM80pt2 nHFflow",
-                                          "_JM80pt3 nHFflow",
-                                          "_JM80pt4 nHFflow",
+                                          "JM25njets nHFflow",
+                                          "JM25ht nHFflow",
+                                          "JM25pt1 nHFflow",
+                                          "JM25pt2 nHFflow",
+                                          "JM25pt3 nHFflow",
+                                          "JM25pt4 nHFflow",
+                                          "JM80njets nHFflow",
+                                          "JM80ht nHFflow",
+                                          "JM80pt1 nHFflow",
+                                          "JM80pt2 nHFflow",
+                                          "JM80pt3 nHFflow",
+                                          "JM80pt4 nHFflow",
                                           "djr10 nEvt",
                                           "djr21 nEvt",
                                           "djr32 nEvt",
                                           "djr43 nEvt",
-                                          "_sumEt nEvt",
-                                          "_sumEt1 nEvt",
-                                          "_sumEt2 nEvt",
-                                          "_sumEt3 nEvt",
-                                          "_sumEt4 nEvt", 
-                                          "_sumEt5 nEvt",
+                                          "sumET nEvt",
+                                          "sumET1 nEvt",
+                                          "sumET2 nEvt",
+                                          "sumET3 nEvt",
+                                          "sumET4 nEvt", 
+                                          "sumET5 nEvt",
                                           "nEvt1 nEvt",
                                           "nEvt2 nEvt",
                                           "nHFflow nEvt",
-                                          "nHFSD nEvt")
+                                          "nHFSD nEvt",
+                                          "Tracketa nEvt")
 )        
 
 postProcessorWValidation = cms.EDAnalyzer(
@@ -250,7 +253,9 @@ postProcessorWValidation = cms.EDAnalyzer(
                                           "cos_theta_gamma_lepton nEvt",
                                           "leppt nEvt",
                                           "met nEvt",
-                                          "lepeta nEvt")
+                                          "lepeta nEvt",
+                                          "leadpt nEvt",
+                                          "leadeta nEvt")
 )    
 
 postProcessorDrellYanValidation = cms.EDAnalyzer(

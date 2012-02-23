@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Sat Sep 26 02:50:24 CEST 2009
-// $Id: StandAloneTest.cc,v 1.2 2010/01/06 15:38:44 mussgill Exp $
+// $Id: StandAloneTest.cc,v 1.1 2009/11/16 21:49:39 pivarski Exp $
 //
 //
 
@@ -157,7 +157,7 @@ StandAloneTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (track->pt() > 20.  &&  traj != NULL  &&  traj->isValid()) {
 
 	 // calculate all residuals on this track
-	 MuonResidualsFromTrack muonResidualsFromTrack(globalGeometry, traj, &(*track), m_muonAlignment->getAlignableNavigator(), 1000.);
+	 MuonResidualsFromTrack muonResidualsFromTrack(globalGeometry, traj, m_muonAlignment->getAlignableNavigator(), 1000.);
 	 std::vector<DetId> chamberIds = muonResidualsFromTrack.chamberIds();
 
 	 // if the tracker part of refit is okay

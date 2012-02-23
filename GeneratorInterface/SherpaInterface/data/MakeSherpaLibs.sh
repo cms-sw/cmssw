@@ -6,8 +6,8 @@
 #  uses:        the required SHERPA data cards (+ libraries) [see below]
 #
 #  author:      Markus Merschmeyer, RWTH Aachen
-#  date:        6th July 2011
-#  version:     3.4
+#  date:        31st January 2012
+#  version:     3.5
 #  changed: 	Martin Niegel, KIT, 2011/06/07
 #		Fix for Sherpa 1.3.0
 #
@@ -20,7 +20,7 @@
 
 print_help() {
     echo "" && \
-    echo "MakeSherpaLibs version 3.4" && echo && \
+    echo "MakeSherpaLibs version 3.5" && echo && \
     echo "options: -d  path       (optional) path to your SHERPA installation (otherwise the SHERPA" && \
     echo "                         package belonging to the release under '\$CMSSW_BASE' is used)" && \
     echo "                         -> ( "${shr}" )" && \
@@ -41,55 +41,25 @@ print_help() {
     echo "         -h             display this help and exit" && echo
 }
 
-check_md5() {
-# $1 : what is to be checked ('CRDS','CRDFILE','LIBS''LIBFILE','CRSS','CRSFILE') ?
-# $2 : who is requesting the check ('CRDS','LIBS','CRSS','EVTS') ?
-# $3 : name of the file containing the checksums
-IMD=`which md5sum | grep -c -i "not found"`
-if [ $IMD -eq 0 ]; then
-  if [ -e $3 ]; then
-    echo " <I> performing MD5 check: "$1" "$2" "$3
-    rslt=`md5sum --check $3`
-    fpatt="OK"
-    nok=`echo $rslt | grep -o -i $fpatt | grep -c -i $fpatt`
-    fpatt="FAILED"
-    nfail=`echo $rslt | grep -o -i $fpatt | grep -c -i $fpatt`
-    nline=`cat $3 |wc -l`
-    echo " <I> MD5 file has "$nline" entries"
-    echo " <I>  -> OK: "$nok", FAILED: "$nfail
-    if [ $nfail -gt 0 ]; then
-      if [ "$1" = "CRDS" ] && [ "$2" = "CRDS" ]; then
-        echo " <E> data cards do not match their own MD5 sums,"
-        echo " <E>  stopping..."
-        exit 1
-      fi
-      if [ "$1" = "CRDFILE" ] && [ "$2" = "LIBS" ]; then
-        echo " <W> libraries were probably not generated with this data card file"
-      fi
-      if [ "$1" = "CRDS" ] && [ "$2" = "LIBS" ]; then
-        echo " <W> some of the data cards have changed since library generation"
-        echo " <W>  please make sure these changes are harmless:"
-        cnt=1
-        while [ $cnt -le $nline ]; do
-          let fidx=$cnt+1
-          cfile=`echo $rslt |cut -f $cnt -d ":" | cut -f 3 -d " "`
-          cstat=`echo $rslt |cut -f $fidx -d ":" | cut -f 2 -d " "`
-          if [ "$cstat" = "FAILED" ]; then
-            echo " <W>  -> file '"$cfile"' does not match MD5 sum"
-          fi
-          let cnt=$cnt+1
-        done
-      fi
-      if [ "$1" = "LIBS" ] && [ "$2" = "LIBS" ]; then
-        echo " <E> libraries do not match their own MD5 sums,"
-        echo " <E>  stopping..."
-        exit 1
-      fi
+check_occurence() {
+# $1: name of a text file
+# $2: string to search in file named $1
+# returns: number of occurences of string $2 in file $1
+  if [ -e $1 ]; then
+    cnt=0
+    if [ $# -eq 3 ]; then
+      cnt=`cat $1 | grep -i $2 | grep -i -c $3`
+    else
+      cnt=`cat $1 | grep -i $2 | grep -i -c $2`
+    fi
+    if [ $cnt -gt 0 ]; then
+      echo 1
+    else
+      echo 0
     fi
   else
-    echo " <W> file "$3" does not exist, skipping MD5 test"
-  fi # check existence od md5sum file
-fi   # check availability of 'md5sum'
+    echo " <E> file "$1" not found!"
+  fi
 }
 
 clean_libs() {
@@ -244,17 +214,9 @@ if [ "${lbo}" = "CRSS" ]; then
 elif [ "${lbo}" = "EVTS" ]; then
   cardfile=${outflbs}_crdE.tgz
 fi
-crdsmd5s=md5sums_crds.md5                 # MD5 sums -> cards
-crdfmd5s=md5sums_crdsfile.md5             # MD5 sum -> cardfile
 libsfile=${outflbs}_libs.tgz              # output libs
-libsmd5s=md5sums_libs.md5                 # MD5 sums -> libs
-libfmd5s=md5sums_libsfile.md5             # MD5 sum -> libfile
 crssfile=${outflbs}_crss.tgz              # output cross sections
-crssmd5s=md5sums_crss.md5                 # MD5 sums -> cross sections
-crsfmd5s=md5sums_crssfile.md5             # MD5 sum -> cross section file
 evtsfile=${outflbs}_evts.tgz              # output events
-evtsmd5s=md5sums_evts.md5                 # MD5 sums -> events
-evtfmd5s=md5sums_evtsfile.md5             # MD5 sum -> eventfile
 if [ ! "${cfdc}" = "" ]; then
   cardfile=${cfdc}                        # custom input data card file
   echo " <I> using custom data card file: "${cardfile}
@@ -316,7 +278,6 @@ if [ -e ${cardfile} ]; then
   echo " data card file '"${cardfile}"' exists,"
   echo "  -> unpacking data card file"
   tar -xzf ${cardfile}
-  check_md5 "CRDS" "CRDS" ${crdsmd5s}
 else
   echo " <E> no data card file found"
   echo "  -> stopping..."
@@ -327,7 +288,7 @@ fi
 ### find out whether COMIX or AMEGIC is being used
 runfile="Run.dat"
 if [ -e ${runfile} ]; then
-  iamegic=`cat ${runfile} | grep -i "ME_SIGNAL_GENERATOR" | grep -i -c "AMEGIC"`
+  iamegic=`check_occurence ${runfile} "ME_SIGNAL_GENERATOR" "AMEGIC"`
   if [ ${iamegic} -gt 0 ]; then
     FLGCOMIX="FALSE"                   # use AMEGIC
     echo " <I> using AMEGIC ME generator"
@@ -338,6 +299,35 @@ if [ -e ${runfile} ]; then
   fi
 fi
 ###exit
+
+### reject mixed occurences of Sherpa's "Enhance" options
+runfile="Run.dat"
+if [ -e ${runfile} ]; then
+  nenhfac=0; nenhfac=`check_occurence ${runfile} "enhance_factor"`
+  nenhfnc=0; nenhfnc=`check_occurence ${runfile} "enhance_function"`
+  nenhobs=0; nenhobs=`check_occurence ${runfile} "enhance_observable"`
+  sumenh=0; let sumenh=$nenhfac+$nenhfnc+$nenhobs
+  if [ ${sumenh} -gt 1 ]; then
+    echo " <E> mixed occurence of enhance options in "${runfile}
+    echo "  -> stopping..."
+    exit
+  fi
+  flgwgt=0; flgwgt=`check_occurence ${runfile} "EVENT_GENERATION_MODE" "Weighted"`
+  if [ ${flgwgt} -eq 0 ] && [ ${nenhfnc} -eq 1 ]; then
+    echo " <E> unweighted production and enhance_function not supported by Sherpa!"
+    echo "  -> stopping..."
+    exit
+  fi
+  if [ ${flgwgt} -eq 0 ] && [ ${nenhobs} -eq 1 ]; then
+    echo " <E> unweighted production and enhance_observable currently not supported!"
+    echo "  -> stopping..."
+    exit
+  fi
+fi
+###exit
+
+
+
 
 
 ### check required subdirectories
@@ -364,9 +354,6 @@ if [ "${lbo}" = "CRSS" ] || [ "${lbo}" = "EVTS" ]; then
     echo " <I> library file '"${libsfile}"' exists,"
     echo "  -> unpacking library file"
     tar -xzf ${libsfile}
-#    check_md5 "CRDFILE" "LIBS" ${crdfmd5s}
-#    rm ${cardfile}
-    check_md5 "CRDS"    "LIBS" ${crdsmd5s}
   else
     echo " <E> no library file found"
     echo "  -> stopping..."
@@ -380,10 +367,6 @@ if [ "${lbo}" = "EVTS" ]; then
     echo " <I> cross section file '"${crssfile}"' exists,"
     echo "  -> unpacking cross section file"
     tar -xzf ${crssfile}
-    check_md5 "CRDFILE" "CRSS" ${crdfmd5s}
-    check_md5 "CRDS"    "CRSS" ${crdsmd5s}
-    check_md5 "LIBFILE" "CRSS" ${libfmd5s}
-    check_md5 "LIBS"    "CRSS" ${libsmd5s}
   else
     echo " <E> no cross section file found"
     echo "  -> stopping..."
@@ -456,45 +439,26 @@ cd ${pth} ##Sherpa 1.3.0 needs full path MN 070611
 
 ## libraries & cross sections
 if [ "${lbo}" = "LIBS" ] || [ "${lbo}" = "LBCR" ]; then
-  find ./${dir1}/ -type f -name '*' -exec md5sum {} \; > ${libsmd5s}
   touch ${libsfile}.tmp
-  find ./         -type f -name '*.md5' > tmp.lst && tar --no-recursion -rf ${libsfile}.tmp -T tmp.lst; rm tmp.lst
-##  find ./${dir1}/ -type f -name '*'     > tmp.lst && tar --no-recursion -rf ${libsfile}.tmp -T tmp.lst; rm tmp.lst
   find ./${dir1}/ -name '*'     > tmp.lst && tar --no-recursion -rf ${libsfile}.tmp -T tmp.lst; rm tmp.lst
   gzip -9 ${libsfile}.tmp && mv ${libsfile}.tmp.gz ${libsfile}
-  md5sum ${libsfile} > ${libfmd5s}
   mv ${libsfile} ${shrun}/
 fi
 
 if [ "${lbo}" = "LBCR" ] || [ "${lbo}" = "CRSS" ]; then
-  if [ -e ${libsfile} ]; then
-    find ./${dir1}/ -type f -name '*' -exec md5sum {} \; > ${libsmd5s}
-    md5sum ${libsfile} > ${libfmd5s}
-  fi
-  find ./${dir2}/ -type f -name '*' -exec md5sum {} \; > ${crssmd5s}
   touch ${crssfile}.tmp
-  find ./         -type f -name '*.md5' > tmp.lst && tar --no-recursion -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
-##  find ./${dir2}/ -type f -name '*'     > tmp.lst && tar --no-recursion -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
   find ./${dir2}/ -name '*'     > tmp.lst && tar --no-recursion -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
   if [ -e ${dir3} ]; then
-##  find ./${dir3}/ -type f -name '*'     > tmp.lst && tar --no-recursion -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
   find ./${dir3}/ -name '*'     > tmp.lst && tar --no-recursion -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
   fi
   gzip -9 ${crssfile}.tmp && mv ${crssfile}.tmp.gz ${crssfile}
-  md5sum ${crssfile} > ${crsfmd5s}
   mv ${crssfile} ${shrun}/
 fi
 
 if [ "${lbo}" = "EVTS" ]; then
-  find ./${dir1}/ -type f -name '*' -exec md5sum {} \; > ${libsmd5s}
-  md5sum ${libsfile} > ${libfmd5s}
   rm ${libsfile}
-  find ./${dir2}/ -type f -name '*' -exec md5sum {} \; > ${crssmd5s}
-  md5sum ${crssfile} > ${crsfmd5s}
   rm ${crssfile}
-  md5sum *.*         > ${evtsmd5s}
   tar -czf ${evtsfile} *.*
-  md5sum ${evtsfile} > ${evtfmd5s}
   mv ${evtsfile} ${shrun}/
 fi
 #rm -rf ${dir1}/*
@@ -503,43 +467,26 @@ fi
 #rm *.md5
 
 ## data cards
-touch ${crdsmd5s}
-for FILE in `ls *.dat *slha.out 2> /dev/null`; do
-  md5sum ${FILE} >> ${crdsmd5s}
-done
 FILES=`ls *.md5 *.dat *slha.out 2> /dev/null`
 if [ "${lbo}" = "LIBS" ]; then
-#  tar -czf ${crdlfile} ${FILES}
-#  md5sum ${crdlfile} > ${crdfmd5s}
   tar -czf ${crdcfile} ${FILES}
-  md5sum ${crdcfile} > ${crdfmd5s}
   mv ${crdcfile} ${shrun}/
 elif [ "${lbo}" = "LBCR" ]; then
-#  tar -czf ${crdlfile} ${FILES}
-#  md5sum ${crdlfile} > ${crdfmd5s}
-# switch on multiple interactions
   if [ "${FLGAMISIC}" = "TRUE" ]; then
     sed -e 's:MI_HANDLER.*:MI_HANDLER   = Amisic:' < Run.dat > Run.dat.tmp
     mv Run.dat.tmp Run.dat
   fi
   tar -czf ${crdefile} ${FILES}
-  md5sum ${crdefile} > ${evtfmd5s}
   mv ${crdefile} ${shrun}/
 elif [ "${lbo}" = "CRSS" ]; then
-#  tar -czf ${crdcfile} ${FILES}
-#  md5sum ${crdcfile} > ${crdfmd5s}
-# switch on multiple interactions
   if [ "${FLGAMISIC}" = "TRUE" ]; then
     sed -e 's:MI_HANDLER.*:MI_HANDLER   = Amisic:' < Run.dat > Run.dat.tmp
     mv Run.dat.tmp Run.dat
   fi
   tar -czf ${crdefile} ${FILES}
-  md5sum ${crdefile} > ${evtfmd5s}
   mv ${crdefile} ${shrun}/
 elif [ "${lbo}" = "EVTS" ]; then
   echo evts
-#  tar -czf ${crdefile} ${FILES}
-#  md5sum ${crdefile} > ${evtfmd5s}
 fi
 
 ## log files

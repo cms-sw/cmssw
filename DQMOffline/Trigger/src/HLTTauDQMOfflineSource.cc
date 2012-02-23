@@ -9,216 +9,151 @@ using namespace trigger;
 //
 // constructors and destructor
 //
-HLTTauDQMOfflineSource::HLTTauDQMOfflineSource( const edm::ParameterSet& ps ) {
-    //Get Initialization
-    moduleName_     = ps.getUntrackedParameter<std::string>("ModuleName");
-    dqmBaseFolder_  = ps.getUntrackedParameter<std::string>("DQMBaseFolder");
-    hltProcessName_ = ps.getUntrackedParameter<std::string>("HLTProcessName","HLT");
-    L1MatchDr_      = ps.getUntrackedParameter<double>("L1MatchDeltaR",0.5);
-    HLTMatchDr_     = ps.getUntrackedParameter<double>("HLTMatchDeltaR",0.2);
-    verbose_        = ps.getUntrackedParameter<bool>("Verbose",false);
-    counterEvt_     = 0;
-    hltMenuChanged_ = true;
-    automation_     = HLTTauDQMAutomation(hltProcessName_, L1MatchDr_, HLTMatchDr_);        
-    ps_             = ps;
-}
-
-HLTTauDQMOfflineSource::~HLTTauDQMOfflineSource() {
-    //Clear the plotter collections
-    while (!l1Plotters.empty()) delete l1Plotters.back(), l1Plotters.pop_back();
-    while (!caloPlotters.empty()) delete caloPlotters.back(), caloPlotters.pop_back();
-    while (!trackPlotters.empty()) delete trackPlotters.back(), trackPlotters.pop_back();
-    while (!pathPlotters.empty()) delete pathPlotters.back(), pathPlotters.pop_back();
-    while (!litePathPlotters.empty()) delete litePathPlotters.back(), litePathPlotters.pop_back();
-}
-
-//--------------------------------------------------------
-void HLTTauDQMOfflineSource::beginJob() {    
-}
-
-//--------------------------------------------------------
-void HLTTauDQMOfflineSource::beginRun( const edm::Run& iRun, const EventSetup& iSetup ) {
-    //Evaluate configuration for every new trigger menu
-    if ( HLTCP_.init(iRun, iSetup, hltProcessName_, hltMenuChanged_) ) {
-        if ( hltMenuChanged_ ) {
-            processPSet(ps_);
-            if (verbose_) {
-                std::cout << "Configuration of '" << moduleName_ << "' for trigger menu '" << HLTCP_.tableName() << "'" << std::endl;
-                for ( unsigned int i = 0; i < config_.size(); ++i ) {
-                    std::cout << config_[i].dump() << std::endl;
-                }
-                std::cout << matching_.dump() << std::endl << std::endl;
-            }
+HLTTauDQMOfflineSource::HLTTauDQMOfflineSource( const edm::ParameterSet& ps ) :counterEvt_(0)
+{
+    //Get General Monitoring Parameters
+    config_                 = ps.getParameter<std::vector<edm::ParameterSet> >("MonitorSetup");
+    doRefAnalysis_          = ps.getParameter<bool>("doMatching");
+    NPtBins_                = ps.getUntrackedParameter<int>("PtHistoBins",20);
+    NEtaBins_               = ps.getUntrackedParameter<int>("EtaHistoBins",25);
+    NPhiBins_               = ps.getUntrackedParameter<int>("PhiHistoBins",32);
+    EtMax_                  = ps.getUntrackedParameter<double>("EtHistoMax",100);
+    L1MatchDr_              = ps.getUntrackedParameter<double>("L1MatchDeltaR",0.5);
+    HLTMatchDr_             = ps.getUntrackedParameter<double>("HLTMatchDeltaR",0.3);
+    
+    refObjects_             = ps.getUntrackedParameter<std::vector<edm::InputTag> >("refObjects");
+    
+    prescaleEvt_            = ps.getUntrackedParameter<int>("prescaleEvt", -1);
+    
+    //Read The Configuration
+    for (unsigned int i=0;i<config_.size();++i) {
+        if (config_[i].getUntrackedParameter<std::string>("ConfigType") == "L1") {
+            HLTTauDQML1Plotter tmp(config_[i],NPtBins_,NEtaBins_,NPhiBins_,EtMax_,doRefAnalysis_,L1MatchDr_);
+            l1Plotters.push_back(tmp);
         }
-    } else {
-        edm::LogWarning("HLTTauDQMOfflineSource") << "HLT config extraction failure with process name '" << hltProcessName_ << "'";
+        
+        else if (config_[i].getUntrackedParameter<std::string>("ConfigType") == "Calo") {
+            HLTTauDQMCaloPlotter tmp(config_[i],NPtBins_,NEtaBins_,NPhiBins_,EtMax_,doRefAnalysis_,HLTMatchDr_);
+            caloPlotters.push_back(tmp);
+        }
+        
+        else if (config_[i].getUntrackedParameter<std::string>("ConfigType") == "Track") {
+            HLTTauDQMTrkPlotter tmp(config_[i],NPtBins_,NEtaBins_,NPhiBins_,EtMax_,doRefAnalysis_,HLTMatchDr_);
+            trackPlotters.push_back(tmp);
+        }
+        
+        else if (config_[i].getUntrackedParameter<std::string>("ConfigType") == "Path") {
+            HLTTauDQMPathPlotter tmp(config_[i],doRefAnalysis_);
+            pathPlotters.push_back(tmp);
+        }
+        
+        else if (config_[i].getUntrackedParameter<std::string>("ConfigType") == "LitePath") {
+            HLTTauDQMLitePathPlotter tmp(config_[i],NPtBins_,NEtaBins_,NPhiBins_,EtMax_,doRefAnalysis_,HLTMatchDr_);
+            litePathPlotters.push_back(tmp);
+        }
     }
 }
 
+HLTTauDQMOfflineSource::~HLTTauDQMOfflineSource()
+{
+    
+    // do anything here that needs to be done at desctruction time
+    // (e.g. close files, deallocate resources etc.)
+    
+}
+
+
 //--------------------------------------------------------
-void HLTTauDQMOfflineSource::beginLuminosityBlock( const LuminosityBlock& lumiSeg, const EventSetup& context ) {
+void 
+HLTTauDQMOfflineSource::beginJob(){
+    
+}
+
+//--------------------------------------------------------
+void HLTTauDQMOfflineSource::beginRun(const edm::Run& r, const EventSetup& iSetup) {
+    
+}
+
+//--------------------------------------------------------
+void HLTTauDQMOfflineSource::beginLuminosityBlock(const LuminosityBlock& lumiSeg, 
+                                                  const EventSetup& context) {
+    
 }
 
 // ----------------------------------------------------------
-void HLTTauDQMOfflineSource::analyze(const Event& iEvent, const EventSetup& iSetup ) {
+void 
+HLTTauDQMOfflineSource::analyze(const Event& iEvent, const EventSetup& iSetup )
+{  
     //Apply the prescaler
-    if (counterEvt_ > prescaleEvt_) {
+    if(counterEvt_ > prescaleEvt_)
+    {
         //Do Analysis here
-        counterEvt_ = 0;
-
-        //Create match collections
-        std::map<int,LVColl> refC;
         
-        if (doRefAnalysis_) {
-            for ( std::vector<edm::ParameterSet>::const_iterator iter = refObjects_.begin(); iter != refObjects_.end(); ++iter ) {
-                int objID = iter->getUntrackedParameter<int>("matchObjectID");
-                
+        //Create dummy Match Collections
+        std::vector<LVColl> refC;
+        
+        if(doRefAnalysis_)
+        {
+            for(unsigned int i=0;i<refObjects_.size();++i)
+            {
                 Handle<LVColl> collHandle;
-                if ( iEvent.getByLabel(iter->getUntrackedParameter<edm::InputTag>("FilterName"),collHandle) ) {
-                    std::map<int,LVColl>::iterator it;
-                    
-                    if ( std::abs(objID) == 15 ) {
-                        it = refC.find(15);
-                        if ( it == refC.end() ) {
-                            refC.insert(std::pair<int,LVColl>(15,*collHandle));
-                        } else {
-                            it->second.insert(it->second.end(),collHandle->begin(),collHandle->end());
-                        }
-                    } else if ( std::abs(objID) == 11 ) {
-                        it = refC.find(11);
-                        if ( it == refC.end() ) {
-                            refC.insert(std::pair<int,LVColl>(11,*collHandle));
-                        } else {
-                            it->second.insert(it->second.end(),collHandle->begin(),collHandle->end());
-                        }
-                    } else if ( std::abs(objID) == 13 ) {
-                        it = refC.find(13);
-                        if ( it == refC.end() ) {
-                            refC.insert(std::pair<int,LVColl>(13,*collHandle));
-                        } else {
-                            it->second.insert(it->second.end(),collHandle->begin(),collHandle->end());
-                        }
-                    } else {
-                        it = refC.find(objID);
-                        if ( it == refC.end() ) {
-                            refC.insert(std::pair<int,LVColl>(objID,*collHandle));
-                        } else {
-                            it->second.insert(it->second.end(),collHandle->begin(),collHandle->end());
-                        }
-                    }
+                if(iEvent.getByLabel(refObjects_[i],collHandle))
+                {
+                    refC.push_back(*collHandle);
                 }
             }
         }
         
-        //Path Plotters
-        for ( unsigned int i = 0; i < pathPlotters.size(); ++i ) {
-            if (pathPlotters[i]->isValid()) pathPlotters[i]->analyze(iEvent,iSetup,refC);
+        
+        
+        //fill the empty slots with empty collections
+        LVColl dummy;
+        for(int k=refC.size();k<3;k++)
+        {
+            refC.push_back(dummy);
         }
+        
+        
+        
+        //Path Plotters
+        for(unsigned int i=0;i<pathPlotters.size();++i)
+            pathPlotters[i].analyze(iEvent,iSetup,refC);
         
         //Lite Path Plotters
-        for ( unsigned int i = 0; i < litePathPlotters.size(); ++i ) {
-            if (litePathPlotters[i]->isValid()) litePathPlotters[i]->analyze(iEvent,iSetup,refC);
-        }
+        for(unsigned int i=0;i<litePathPlotters.size();++i)
+            litePathPlotters[i].analyze(iEvent,iSetup,refC);
         
-        //L1 Plotters
-        for ( unsigned int i = 0; i < l1Plotters.size(); ++i ) {
-            if (l1Plotters[i]->isValid()) l1Plotters[i]->analyze(iEvent,iSetup,refC);
-        }
+        //L1  Plotters
+        for(unsigned int i=0;i<l1Plotters.size();++i)
+            l1Plotters[i].analyze(iEvent,iSetup,refC);
         
         //Calo Plotters
-        for ( unsigned int i = 0; i < caloPlotters.size(); ++i ) {
-            if (caloPlotters[i]->isValid()) caloPlotters[i]->analyze(iEvent,iSetup,refC);            
-        }
+        for(unsigned int i=0;i<caloPlotters.size();++i)
+            caloPlotters[i].analyze(iEvent,iSetup,refC[0]);
         
         //Track Plotters
-        for ( unsigned int i = 0; i < trackPlotters.size(); ++i ) {
-            if (trackPlotters[i]->isValid()) trackPlotters[i]->analyze(iEvent,iSetup,refC);
-        }
-    } else {
-        counterEvt_++;
+        for(unsigned int i=0;i<trackPlotters.size();++i)
+            trackPlotters[i].analyze(iEvent,iSetup,refC[0]);
     }
+    else
+        counterEvt_++;
+    
 }
 
-//--------------------------------------------------------
-void HLTTauDQMOfflineSource::endLuminosityBlock( const LuminosityBlock& lumiSeg, const EventSetup& context ) {
-}
+
+
 
 //--------------------------------------------------------
-void HLTTauDQMOfflineSource::endRun( const Run& r, const EventSetup& context ) {
+void HLTTauDQMOfflineSource::endLuminosityBlock(const LuminosityBlock& lumiSeg, 
+                                                const EventSetup& context) {
 }
-
 //--------------------------------------------------------
-void HLTTauDQMOfflineSource::endJob() {
+void HLTTauDQMOfflineSource::endRun(const Run& r, const EventSetup& context){
+}
+//--------------------------------------------------------
+void HLTTauDQMOfflineSource::endJob(){
     return;
 }
 
-void HLTTauDQMOfflineSource::processPSet( const edm::ParameterSet& pset ) {
-    //Get General Monitoring Parameters
-    config_        = pset.getParameter<std::vector<edm::ParameterSet> >("MonitorSetup");
-    matching_      = pset.getParameter<edm::ParameterSet>("Matching");
-    NPtBins_       = pset.getUntrackedParameter<int>("PtHistoBins",20);
-    NEtaBins_      = pset.getUntrackedParameter<int>("EtaHistoBins",25);
-    NPhiBins_      = pset.getUntrackedParameter<int>("PhiHistoBins",32);
-    EtMax_         = pset.getUntrackedParameter<double>("EtHistoMax",100);
-    prescaleEvt_   = pset.getUntrackedParameter<int>("prescaleEvt", -1);
-    doRefAnalysis_ = matching_.getUntrackedParameter<bool>("doMatching");
-    refObjects_    = matching_.getUntrackedParameter<std::vector<edm::ParameterSet> >("matchFilters");
-    
-    //Clear the plotter collections first
-    while (!l1Plotters.empty()) delete l1Plotters.back(), l1Plotters.pop_back();
-    while (!caloPlotters.empty()) delete caloPlotters.back(), caloPlotters.pop_back();
-    while (!trackPlotters.empty()) delete trackPlotters.back(), trackPlotters.pop_back();
-    while (!pathPlotters.empty()) delete pathPlotters.back(), pathPlotters.pop_back();
-    while (!litePathPlotters.empty()) delete litePathPlotters.back(), litePathPlotters.pop_back();
-    
-    //Automatic Configuration
-    automation_.AutoCompleteConfig( config_, HLTCP_ );
 
-    //Read The Configuration
-    for ( unsigned int i = 0; i < config_.size(); ++i ) {
-        std::string configtype;
-        try {
-            configtype = config_[i].getUntrackedParameter<std::string>("ConfigType");
-        } catch ( cms::Exception &e ) {
-            edm::LogWarning("HLTTauDQMOfflineSource")
-            << e.what() << std::endl;
-            continue;
-        }
-        if (configtype == "L1") {
-            try {
-                l1Plotters.push_back(new HLTTauDQML1Plotter(config_[i],NPtBins_,NEtaBins_,NPhiBins_,EtMax_,doRefAnalysis_,L1MatchDr_,dqmBaseFolder_));
-            } catch ( cms::Exception &e ) {
-                edm::LogWarning("HLTTauDQMSource") << e.what() << std::endl;
-                continue;
-            }
-        } else if (configtype == "Calo") {
-            try {
-                caloPlotters.push_back(new HLTTauDQMCaloPlotter(config_[i],NPtBins_,NEtaBins_,NPhiBins_,EtMax_,doRefAnalysis_,HLTMatchDr_,dqmBaseFolder_));
-            } catch ( cms::Exception &e ) {
-                edm::LogWarning("HLTTauDQMSource") << e.what() << std::endl;
-                continue;
-            }
-        } else if (configtype == "Track") {
-            try {
-                trackPlotters.push_back(new HLTTauDQMTrkPlotter(config_[i],NPtBins_,NEtaBins_,NPhiBins_,EtMax_,doRefAnalysis_,HLTMatchDr_,dqmBaseFolder_));    
-            } catch ( cms::Exception &e ) {
-                edm::LogWarning("HLTTauDQMSource") << e.what() << std::endl;
-                continue;
-            }
-        } else if (configtype == "Path") {
-            try {
-                pathPlotters.push_back(new HLTTauDQMPathPlotter(config_[i],doRefAnalysis_,dqmBaseFolder_));
-            } catch ( cms::Exception &e ) {
-                edm::LogWarning("HLTTauDQMSource") << e.what() << std::endl;
-                continue;
-            }
-        } else if (configtype == "LitePath") {
-            try {
-                litePathPlotters.push_back(new HLTTauDQMLitePathPlotter(config_[i],NPtBins_,NEtaBins_,NPhiBins_,EtMax_,doRefAnalysis_,HLTMatchDr_,dqmBaseFolder_));   
-            } catch ( cms::Exception &e ) {
-                edm::LogWarning("HLTTauDQMSource") << e.what() << std::endl;
-                continue;
-            }
-        }
-    }
-}
+

@@ -15,31 +15,28 @@ void FreeTrajectoryState::missingError() {
 // Warning: these methods violate constness
 
 // convert curvilinear errors to cartesian
-void FreeTrajectoryState::createCartesianError(CartesianTrajectoryError & aCartesianError) const{
+void FreeTrajectoryState::createCartesianError() const{
   
   JacobianCurvilinearToCartesian curv2Cart(theGlobalParameters);
   const AlgebraicMatrix65& jac = curv2Cart.jacobian();
 
-  aCartesianError = 
+  theCartesianError = 
     ROOT::Math::Similarity(jac, theCurvilinearError.matrix());
-#ifdef ENABLE_CACHE_CARTESIAN
   theCartesianErrorValid = true;
-#endif
 }
 
 // convert cartesian errors to curvilinear
-void FreeTrajectoryState::createCurvilinearError(CartesianTrajectoryError const& aCartesianError) const{
+void FreeTrajectoryState::createCurvilinearError() const{
   
   JacobianCartesianToCurvilinear cart2Curv(theGlobalParameters);
   const AlgebraicMatrix56& jac = cart2Curv.jacobian();
   
   theCurvilinearError = 
-    ROOT::Math::Similarity(jac, aCartesianError.matrix());
+    ROOT::Math::Similarity(jac, theCartesianError.matrix());
   theCurvilinearErrorValid = true;
 } 
 
 
-#ifdef ENABLE_CACHE_CARTESIAN
 void FreeTrajectoryState::rescaleError(double factor) {
   bool zeroField = parameters().magneticFieldInInverseGeV(GlobalPoint(0,0,0)).mag2()==0;
   if unlikely(zeroField) {
@@ -58,19 +55,7 @@ void FreeTrajectoryState::rescaleError(double factor) {
     }
   }
 }
-#else
-void FreeTrajectoryState::rescaleError(double factor) {
-  bool zeroField = parameters().magneticFieldInInverseGeV(GlobalPoint(0,0,0)).mag2()==0;
-  if unlikely(zeroField) {
-      if (theCurvilinearErrorValid) theCurvilinearError.zeroFieldScaling(factor*factor);
-  } else{
-    if (theCurvilinearErrorValid){
-      theCurvilinearError *= (factor*factor);
-    }
-  }
-}
 
-#endif
 
 // check if trajectory can reach given radius
 

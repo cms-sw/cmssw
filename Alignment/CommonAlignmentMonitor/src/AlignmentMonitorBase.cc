@@ -8,27 +8,58 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri Mar 30 12:21:07 CDT 2007
-// $Id: AlignmentMonitorBase.cc,v 1.11 2010/01/06 15:23:09 mussgill Exp $
+// $Id: AlignmentMonitorBase.cc,v 1.10 2009/09/15 17:09:50 pivarski Exp $
 //
 
+// system include files
+
+// user include files
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h" 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
+//
+// constants, enums and typedefs
+//
+
+//
+// static data member definitions
+//
+
+//
+// constructors and destructor
+//
+
+// AlignmentMonitorBase::AlignmentMonitorBase(const AlignmentMonitorBase& rhs)
+// {
+//    // do actual copying here;
+// }
 
 AlignmentMonitorBase::AlignmentMonitorBase(const edm::ParameterSet& cfg, std::string name)
-   : m_beamSpotTag(cfg.getUntrackedParameter<edm::InputTag>("beamSpotTag",edm::InputTag("offlineBeamSpot")))
-   , m_iteration(0), mp_tracker(0), mp_muon(0), mp_store(0)
-{
+   : m_iteration(0), mp_tracker(0), mp_muon(0), mp_store(0) {
    edm::Service<TFileService> tFileService;
    m_baseDirMap[std::vector<std::string>()] = new TFileDirectory(tFileService->mkdir(name));
 }
 
+//
+// assignment operators
+//
+// const AlignmentMonitorBase& AlignmentMonitorBase::operator=(const AlignmentMonitorBase& rhs)
+// {
+//   //An exception safe implementation is
+//   AlignmentMonitorBase temp(rhs);
+//   swap(rhs);
+//
+//   return *this;
+// }
 
-void AlignmentMonitorBase::beginOfJob(AlignableTracker *pTracker, AlignableMuon *pMuon, AlignmentParameterStore *pStore)
-{
+//
+// member functions
+//
+
+void AlignmentMonitorBase::beginOfJob(AlignableTracker *pTracker, AlignableMuon *pMuon, AlignmentParameterStore *pStore) {
    mp_tracker = pTracker;
    mp_muon = pMuon;
    mp_store = pStore;
@@ -38,9 +69,7 @@ void AlignmentMonitorBase::beginOfJob(AlignableTracker *pTracker, AlignableMuon 
    else                 mp_navigator = new AlignableNavigator(pTracker, pMuon);
 }
 
-
-void AlignmentMonitorBase::startingNewLoop()
-{
+void AlignmentMonitorBase::startingNewLoop() {
    m_iteration++;
 
    for (std::map<std::vector<std::string>, TFileDirectory*>::const_iterator i = m_iterDirMap.begin();  i != m_iterDirMap.end();  ++i) {
@@ -55,21 +84,18 @@ void AlignmentMonitorBase::startingNewLoop()
    book();
 }
 
-
-void AlignmentMonitorBase::duringLoop(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection &iTrajTracks)
-{
+void AlignmentMonitorBase::duringLoop(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection &iTrajTracks) {
    event(iEvent, iSetup, iTrajTracks);
 }
 
-
-void AlignmentMonitorBase::endOfLoop(const edm::EventSetup &iSetup)
-{
+void AlignmentMonitorBase::endOfLoop(const edm::EventSetup &iSetup) {
    afterAlignment(iSetup);
 }
 
+void AlignmentMonitorBase::endOfJob() {
+}
 
-TFileDirectory *AlignmentMonitorBase::directory(std::string dir)
-{
+TFileDirectory *AlignmentMonitorBase::directory(std::string dir) {
    std::string::size_type lastPos = dir.find_first_not_of("/", 0);
    std::string::size_type pos = dir.find_first_of("/", lastPos);
    std::vector<std::string> dirs;
@@ -103,15 +129,11 @@ TFileDirectory *AlignmentMonitorBase::directory(std::string dir)
    return last;
 }
 
-
-TH1F *AlignmentMonitorBase::book1D(std::string dir, std::string name, std::string title, int nchX, double lowX, double highX)
-{
+TH1F *AlignmentMonitorBase::book1D(std::string dir, std::string name, std::string title, int nchX, double lowX, double highX) {
    return directory(dir)->make<TH1F>(name.c_str(), title.c_str(), nchX, lowX, highX);
 }
 
-
-TProfile *AlignmentMonitorBase::bookProfile(std::string dir, std::string name, std::string title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, const char *option)
-{
+TProfile *AlignmentMonitorBase::bookProfile(std::string dir, std::string name, std::string title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, const char *option) {
    if (lowY == highY) {
       return directory(dir)->make<TProfile>(name.c_str(), title.c_str(), nchX, lowX, highX, option);
    }
@@ -120,8 +142,14 @@ TProfile *AlignmentMonitorBase::bookProfile(std::string dir, std::string name, s
    }
 }
 
-
-TH2F *AlignmentMonitorBase::book2D(std::string dir, std::string name, std::string title, int nchX, double lowX, double highX, int nchY, double lowY, double highY)
-{
+TH2F *AlignmentMonitorBase::book2D(std::string dir, std::string name, std::string title, int nchX, double lowX, double highX, int nchY, double lowY, double highY) {
    return directory(dir)->make<TH2F>(name.c_str(), title.c_str(), nchX, lowX, highX, nchY, lowY, highY);
 }
+
+//
+// const member functions
+//
+
+//
+// static member functions
+//

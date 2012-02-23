@@ -29,9 +29,7 @@ namespace
   { 
     boost::shared_ptr<edm::PileUp> pileup; // value to be returned
     // Make sure we have a parameter named 'sourceName'
-    vector<string> names = ps.getParameterNames();
-    if (find(names.begin(), names.end(), sourceName)
-	!= names.end())
+    if (ps.exists(sourceName))
       {
 	// We have the parameter
 	// and if we have either averageNumber or cfg by luminosity... make the PileUp
@@ -41,26 +39,26 @@ namespace
 	TH1F * h = new TH1F("h","h",10,0,10);
 	vector<int> dataProbFunctionVar;
 	vector<double> dataProb;
+
 	
-	edm::ParameterSet psin=ps.getParameter<edm::ParameterSet>(sourceName);
-        if (psin.getParameter<std::string>("type")!="none") {
-	  vector<string> namesIn = psin.getParameterNames();
-	  if (find(namesIn.begin(), namesIn.end(), std::string("nbPileupEvents"))
-	      != namesIn.end()) {
+	const edm::ParameterSet & psin=ps.getParameter<edm::ParameterSet>(sourceName);
+	std::string type_=psin.getParameter<std::string>("type");
+	if (ps.exists("readDB") && ps.getParameter<bool>("readDB")){
+	  //in case of DB access, do not try to load anything from the PSet, but wait for beginRun.
+	  edm::LogError("BMixingModule")<<"Will read from DB: reset to a dummy PileUp object.";
+	  pileup.reset(new edm::PileUp(psin,0,0,playback));
+	  return pileup;
+	}
+	if (type_!="none"){
+	  if (psin.exists("nbPileupEvents")) {
 	    edm::ParameterSet psin_average=psin.getParameter<edm::ParameterSet>("nbPileupEvents");
-	    vector<string> namesAverage = psin_average.getParameterNames();
-	    if (find(namesAverage.begin(), namesAverage.end(), std::string("averageNumber"))
-		!= namesAverage.end()) 
+	    if (psin_average.exists("averageNumber"))
 	      {
 		averageNumber=psin_average.getParameter<double>("averageNumber");
-		pileup.reset(new edm::PileUp(ps.getParameter<edm::ParameterSet>(sourceName),averageNumber,h,playback));
+		pileup.reset(new edm::PileUp(psin,averageNumber,h,playback));
 		edm::LogInfo("MixingModule") <<" Created source "<<sourceName<<" with averageNumber "<<averageNumber;
 	      }
-	    else if (find(namesAverage.begin(), namesAverage.end(), std::string("fileName"))
-		!= namesAverage.end() && find(namesAverage.begin(), namesAverage.end(), std::string("histoName"))
-		!= namesAverage.end()){
-		
-	       
+	    else if (psin_average.exists("fileName") && psin_average.exists("histoName")) {
 		std::string histoFileName = psin_average.getUntrackedParameter<std::string>("fileName");
 		std::string histoName = psin_average.getUntrackedParameter<std::string>("histoName");
 						
@@ -82,14 +80,16 @@ namespace
 		// Get the averageNumber from the histo 
 		averageNumber = h->GetMean();
 		
-		pileup.reset(new edm::PileUp(ps.getParameter<edm::ParameterSet>(sourceName),averageNumber,h,playback));
+		pileup.reset(new edm::PileUp(psin,averageNumber,h,playback));
 		edm::LogInfo("MixingModule") <<" Created source "<<sourceName<<" with averageNumber "<<averageNumber;
 	      
 	      }
-	    else if (find(namesAverage.begin(), namesAverage.end(), std::string("probFunctionVariable"))
-		!= namesAverage.end() && find(namesAverage.begin(), namesAverage.end(), std::string("probValue"))
-		!= namesAverage.end() && find(namesAverage.begin(), namesAverage.end(), std::string("histoFileName"))
-		!= namesAverage.end()){
+	    else if (psin_average.exists("probFunctionVariable") && psin_average.exists("probValue") && psin_average.exists("histoFileName"))
+	      {
+		if (type_!="probFunction") {
+		  edm::LogError("MisConfiguration")<<"type is set to: "<<type_<<" while parameters implies probFunction; changing.";
+		  type_="probFunction";
+		}
 
 	        dataProbFunctionVar = psin_average.getParameter<vector<int> >("probFunctionVariable");
   		dataProb = psin_average.getParameter<vector<double> >("probValue");
@@ -144,18 +144,15 @@ namespace
 		outfile->Close();
 		outfile->Delete();		
 		
-		pileup.reset(new edm::PileUp(ps.getParameter<edm::ParameterSet>(sourceName),averageNumber,hprob,playback));
+		pileup.reset(new edm::PileUp(psin,averageNumber,hprob,playback));
 		edm::LogInfo("MixingModule") <<" Created source "<<sourceName<<" with averageNumber "<<averageNumber;
 		
 	      } 
 	    //special for pileup input
-	    else if (sourceName=="input" && find(namesAverage.begin(), namesAverage.end(), std::string("Lumi")) 
-		     != namesAverage.end() && find(namesAverage.begin(), namesAverage.end(), std::string("sigmaInel"))
-		     != namesAverage.end()) {
-	       	     
+	    else if (sourceName=="input" && psin_average.exists("Lumi") && psin_average.exists("sigmaInel")) {
 	      averageNumber=psin_average.getParameter<double>("Lumi")*psin_average.getParameter<double>("sigmaInel")*ps.getParameter<int>("bunchspace")/1000*3564./2808.;  //FIXME
 	      pileup.reset(new
-	      edm::PileUp(ps.getParameter<edm::ParameterSet>(sourceName),averageNumber,h,playback));
+	      edm::PileUp(psin,averageNumber,h,playback));
 	      edm::LogInfo("MixingModule") <<" Created source "<<sourceName<<" with minBunch,maxBunch "<<minb<<" "<<maxb;
 	      edm::LogInfo("MixingModule")<<" Luminosity configuration, average number used is "<<averageNumber;
 	    }
@@ -174,18 +171,15 @@ namespace edm {
     minBunch_((pset.getParameter<int>("minBunch")*25)/pset.getParameter<int>("bunchspace")),
     maxBunch_((pset.getParameter<int>("maxBunch")*25)/pset.getParameter<int>("bunchspace")),
     mixProdStep1_(pset.getParameter<bool>("mixProdStep1")),
-    mixProdStep2_(pset.getParameter<bool>("mixProdStep2"))	
-  {  
-    // FIXME: temporary to keep bwds compatibility for cfg files
-    vector<string> names = pset.getParameterNames();
-    if (find(names.begin(), names.end(),"playback")
-	!= names.end()) {
-      playback_=pset.getUntrackedParameter<bool>("playback");
-    } else
-      playback_=false;
+    mixProdStep2_(pset.getParameter<bool>("mixProdStep2")),
+    readDB_(false)
+  { 
+    if (pset.exists("readDB"))      readDB_=pset.getParameter<bool>("readDB");
 
-    //We use std::cout in order to make sure the message appears in all possible configurations of the Message Logger
+    playback_=pset.getUntrackedParameter<bool>("playback",false);
+
     if (playback_) {
+      //this could be explicitely checked
       LogInfo("MixingModule") <<" ATTENTION:Mixing will be done in playback mode! \n"
                               <<" ATTENTION:Mixing Configuration must be the same as for the original mixing!";
     }
@@ -199,11 +193,29 @@ namespace edm {
     for (size_t makeIdx = 0; makeIdx < maxNbSources_; makeIdx++ ) {
       inputSources_.push_back(maybeMakePileUp(pset,sourceNames_[makeIdx],
                                               minBunch_,maxBunch_,playback_));
+      if (inputSources_.back()) inputSources_.back()->input(makeIdx);
     }
   }
 
   // Virtual destructor needed.
   BMixingModule::~BMixingModule() {;}
+
+  // method call at begin run/lumi to reload the mixing configuration
+  void BMixingModule::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&setup){
+    update(setup);
+  }
+  void BMixingModule::beginRun(edm::Run & r, const edm::EventSetup & setup){
+    update(setup);
+  }
+
+  void BMixingModule::update(const edm::EventSetup & setup){
+    if (readDB_ && parameterWatcher_.check(setup)){
+      for (size_t makeIdx = 0; makeIdx < maxNbSources_; makeIdx++ ) {
+	if (inputSources_[makeIdx]) inputSources_[makeIdx]->reload(setup);
+      }
+      reload(setup);
+    }
+  }
 
   // Functions that get called by framework every event
   void BMixingModule::produce(edm::Event& e, const edm::EventSetup& setup) { 

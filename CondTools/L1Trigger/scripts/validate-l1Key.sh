@@ -23,11 +23,11 @@ shift $(($OPTIND - 1))
 # Environment
 #==============================================================================
 
-release=CMSSW_4_2_3_ONLINE
+release=CMSSW_3_11_0_ONLINE
 # Emulator cannot run in online releases because of missing packages
 #emulatorRelease=CMSSW_3_11_0
 emulatorRelease=CMSSW_4_2_3
-version=011
+version=010
 
 #==============================================================================
 # File containing TSC keys that have been tested and written (+ status)

@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.341 $"
+__version__ = "$Revision: 1.351 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -54,6 +54,7 @@ defaultOptions.beamspot=VtxSmearedDefaultKey
 defaultOptions.outputDefinition =''
 defaultOptions.inputCommands = None
 defaultOptions.inputEventContent = None
+defaultOptions.dropDescendant = False
 defaultOptions.relval = None
 defaultOptions.slhc = None
 defaultOptions.profile = None
@@ -307,7 +308,7 @@ class ConfigBuilder(object):
 				self.process.source.fileNames.append(self._options.dirin+entry)
 		if self._options.secondfilein:
 			if not hasattr(self.process.source,"secondaryFileNames"):
-				raise Execption("--secondfilein not compatible with "+self._options.filetype+"input type")
+				raise Exception("--secondfilein not compatible with "+self._options.filetype+"input type")
 			for entry in self._options.secondfilein.split(','):
 				print "entry",entry
 				if entry.startswith("filelist:"):
@@ -362,8 +363,8 @@ class ConfigBuilder(object):
 		self.process.source.inputCommands = cms.untracked.vstring()
 		for command in self._options.inputCommands.split(','):
 			self.process.source.inputCommands.append(command)
-		#I do not want to drop descendants
-		self.process.source.dropDescendantsOfDroppedBranches = cms.untracked.bool(False)
+		if not self._options.dropDescendant:
+			self.process.source.dropDescendantsOfDroppedBranches = cms.untracked.bool(False)
 
 	if self._options.inputEventContent:
 		import copy
@@ -372,6 +373,8 @@ class ConfigBuilder(object):
 			self.process.source.inputCommands=copy.copy(theEventContent.outputCommands)
 		if hasattr(theEventContent,'inputCommands'):
 			self.process.source.inputCommands=copy.copy(theEventContent.inputCommands)
+		if not self._options.dropDescendant:
+			self.process.source.dropDescendantsOfDroppedBranches = cms.untracked.bool(False)
 		
         if 'GEN' in self.stepMap.keys() or (not self._options.filein and hasattr(self._options, "evt_type")):
             if self.process.source is None:
@@ -552,7 +555,10 @@ class ConfigBuilder(object):
 		self.loadAndRemember(mixingDict['file'])
 		mixingDict.pop('file')
 		if self._options.pileup_input:
-			mixingDict['F']=self._options.pileup_input.split(',')
+			if self._options.pileup_input.startswith('dbs'):
+				mixingDict['F']=filesFromDBSQuery('find file where dataset = %s'%(self._options.pileup_input[4:],))[0]
+			else:
+				mixingDict['F']=self._options.pileup_input.split(',')
 		specialization=defineMixing(mixingDict,'FASTSIM' in self.stepMap)
 		for command in specialization:
 			self.executeAndRemember(command)
@@ -756,7 +762,7 @@ class ConfigBuilder(object):
         self.HLTDefaultCFF="Configuration/StandardSequences/HLTtable_cff"
         self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_Data_cff"
         self.L1RecoDefaultCFF="Configuration/StandardSequences/L1Reco_cff"
-        self.RECODefaultCFF="Configuration/StandardSequences/Reconstruction_cff"
+        self.RECODefaultCFF="Configuration/StandardSequences/Reconstruction_Data_cff"
         self.SKIMDefaultCFF="Configuration/StandardSequences/Skims_cff"
         self.POSTRECODefaultCFF="Configuration/StandardSequences/PostRecoGenerator_cff"
         self.VALIDATIONDefaultCFF="Configuration/StandardSequences/Validation_cff"
@@ -817,10 +823,13 @@ class ConfigBuilder(object):
         # if its MC then change the raw2digi
         if self._options.isMC==True:
                 self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_cff"
+		self.RECODefaultCFF="Configuration/StandardSequences/Reconstruction_cff"
                 self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineMC_cff"
                 self.ALCADefaultCFF="Configuration/StandardSequences/AlCaRecoStreamsMC_cff"
 
-        # now for #%#$#! different scenarios
+	#patch for gen, due to backward incompatibility
+	if 'REDIGI' in self.stepMap:
+		self.GENDefaultSeq='fixGenInfo'
 
         if self._options.scenario=='nocoll' or self._options.scenario=='cosmics':
             self.SIMDefaultCFF="Configuration/StandardSequences/SimNOBEAM_cff"
@@ -865,6 +874,8 @@ class ConfigBuilder(object):
 
         self.RAW2RECODefaultSeq=','.join([self.RAW2DIGIDefaultSeq,self.RECODefaultSeq])
 
+	self.USERDefaultSeq='user'
+	self.USERDefaultCFF=None
 
         # the magnetic field
         self.magFieldCFF = 'Configuration/StandardSequences/MagneticField_'+self._options.magField.replace('.','')+'_cff'
@@ -901,7 +912,9 @@ class ConfigBuilder(object):
 		self.DIGIDefaultCFF='SLHCUpgradeSimulations/Geometry/Digi_%s_cff'%(self._options.slhc,)
 		if self._options.pileup!=defaultOptions.pileup:
 			self._options.pileup='SLHC_%s_%s'%(self._options.pileup,self._options.slhc)
-		
+
+	self.REDIGIDefaultSeq=self.DIGIDefaultSeq
+
     # for alca, skims, etc
     def addExtraStream(self,name,stream,workflow='full'):
             # define output module and go from there
@@ -1136,6 +1149,10 @@ class ConfigBuilder(object):
         self.process.generation_step = cms.Path( getattr(self.process,genSeqName) )
         self.schedule.append(self.process.generation_step)
 
+	if 'REDIGI' in self.stepMap:
+		#stop here
+		return 
+
         """ Enrich the schedule with the summary of the filter step """
         #the gen filter in the endpath
         self.loadAndRemember("GeneratorInterface/Core/genFilterSummary_cff")
@@ -1172,6 +1189,18 @@ class ConfigBuilder(object):
 
 	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
         return
+
+    def prepare_REDIGI(self, sequence = None):
+	    """same as the DIGI step, but with some extra stuff"""
+	    self.prepare_DIGI(sequence)
+
+	    if self._options.inputEventContent:
+		    raise Exception('--inputEventContent and REDIGI are incompatible')
+	    self._options.inputEventContent='REDIGI'
+	    #self.executeAndRemember('process.RandomNumberGeneratorService.restoreStateLabel=cms.untracked.string("randomEngineStateProducer")')
+	    #if self._options.pileup and self._options.pileup!='NoPileUp':
+	    #self.executeAndRemember("process.mix.playback = True")
+	    return
 
     def prepare_CFWRITER(self, sequence = None):
 	    """ Enrich the schedule with the crossing frame writer step"""
@@ -1223,16 +1252,14 @@ class ConfigBuilder(object):
                         #case where HLT:something:something was provided
                         self.executeAndRemember('import HLTrigger.Configuration.Utilities')
                         optionsForHLT = {}
-                        optionsForHLT['data'] = self._options.isData
-                        optionsForHLT['type'] = 'GRun'
-                        if self._options.scenario == 'HeavyIons': optionsForHLT['type'] = 'HIon'
+                        if self._options.scenario == 'HeavyIons':
+                          optionsForHLT['type'] = 'HIon'
+                        else:
+                          optionsForHLT['type'] = 'GRun'
                         optionsForHLTConfig = ', '.join('%s=%s' % (key, repr(val)) for (key, val) in optionsForHLT.iteritems())
                         self.executeAndRemember('process.loadHltConfiguration("%s",%s)'%(sequence.replace(',',':'),optionsForHLTConfig))
                 else:
-                        dataSpec=''
-                        if self._options.isData:
-                                dataSpec='_data'
-                        self.loadAndRemember('%s/Configuration/HLT_%s%s_cff'%(loadDir,sequence,dataSpec))
+                        self.loadAndRemember('%s/Configuration/HLT_%s_cff' % (loadDir, sequence))
 
         self.schedule.append(self.process.HLTSchedule)
         [self.blacklist_paths.append(path) for path in self.process.HLTSchedule if isinstance(path,(cms.Path,cms.EndPath))]
@@ -1328,6 +1355,12 @@ class ConfigBuilder(object):
                 print 'WARNING, possible typo with SKIM:'+'+'.join(skimlist)
                 raise Exception('WARNING, possible typo with SKIM:'+'+'.join(skimlist))
 
+    def prepare_USER(self, sequence = None):
+        ''' Enrich the schedule with a user defined sequence '''
+        self.loadDefaultOrSpecifiedCFF(sequence,self.USERDefaultCFF)
+	self.scheduleSequence(sequence.split('.')[-1],'user_step')
+        return
+
     def prepare_POSTRECO(self, sequence = None):
         """ Enrich the schedule with the postreco step """
         self.loadAndRemember(self.POSTRECODefaultCFF)
@@ -1369,6 +1402,9 @@ class ConfigBuilder(object):
             else:
                     self.process.validation_step = cms.EndPath( getattr(self.process,valSeqName ) )
             self.schedule.append(self.process.validation_step)
+
+	    if (not 'DIGI' in self.stepMap and not 'FASTSIM' in self.stepMap):
+		    self.executeAndRemember("process.mix.playback = True")
 
             return
 
@@ -1591,7 +1627,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.341 $"),
+                                            (version=cms.untracked.string("$Revision: 1.351 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
@@ -1604,9 +1640,9 @@ class ConfigBuilder(object):
 
         self.loadAndRemember(self.EVTCONTDefaultCFF)  #load the event contents regardless
         self.addMaxEvents()
+	self.addStandardSequences()
         if self.with_input:
            self.addSource()	
-        self.addStandardSequences()
         self.addConditions()
 
 

@@ -19,10 +19,10 @@ gamIsoFromDepsEcalFromHits = cms.EDProducer("CandIsolatorFromDeposits",
         deltaR = cms.double(0.4),
         vetos = cms.vstring('EcalBarrel:0.045', 
                             'EcalBarrel:RectangularEtaPhiVeto(-0.02,0.02,-0.5,0.5)', 
-                            'EcalBarrel:AbsThresholdFromTransverse(0.080)', 
+                            'EcalBarrel:AbsThresholdFromTransverse(0.095)', 
                             'EcalEndcaps:0.070', 
                             'EcalEndcaps:RectangularEtaPhiVeto(-0.02,0.02,-0.5,0.5)', 
-                            'EcalEndcaps:AbsThreshold(0.100)'),
+                            'EcalEndcaps:AbsThreshold(0.110)'),
         skipDefaultVeto = cms.bool(True)
     ))
 )
@@ -35,8 +35,8 @@ gamIsoFromDepsEcalFromHitsByCrystal = cms.EDProducer("CandIsolatorFromDeposits",
         deltaR = cms.double(0.4),
         vetos = cms.vstring('NumCrystalVeto(3.0)', 
                             'NumCrystalEtaPhiVeto(1.0,9999.0)',
-                            'EcalBarrel:AbsThresholdFromTransverse(0.08)',
-                            'EcalEndcaps:AbsThreshold(0.100)'),
+                            'EcalBarrel:AbsThresholdFromTransverse(0.095)',
+                            'EcalEndcaps:AbsThreshold(0.110)'),
         skipDefaultVeto = cms.bool(True)
     ))
 )

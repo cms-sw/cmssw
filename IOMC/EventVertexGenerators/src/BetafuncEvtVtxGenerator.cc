@@ -1,5 +1,5 @@
 
-// $Id: BetafuncEvtVtxGenerator.cc,v 1.11 2010/12/06 10:57:25 yumiceva Exp $
+// $Id: BetafuncEvtVtxGenerator.cc,v 1.13 2012/01/17 11:58:52 vlimant Exp $
 /*
 ________________________________________________________________________
 
@@ -22,12 +22,17 @@ ________________________________________________________________________
 #include "IOMC/EventVertexGenerators/interface/BetafuncEvtVtxGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 //#include "CLHEP/Vector/ThreeVector.h"
 #include "HepMC/SimpleVector.h"
+
+#include "CondFormats/DataRecord/interface/SimBeamSpotObjectsRcd.h"
+#include "CondFormats/BeamSpotObjects/interface/SimBeamSpotObjects.h"
 
 #include <iostream>
 
@@ -39,20 +44,23 @@ BetafuncEvtVtxGenerator::BetafuncEvtVtxGenerator(const edm::ParameterSet & p )
   
   fRandom = new CLHEP::RandGaussQ(getEngine());
 
-  fX0 =        p.getParameter<double>("X0")*cm;
-  fY0 =        p.getParameter<double>("Y0")*cm;
-  fZ0 =        p.getParameter<double>("Z0")*cm;
-  fSigmaZ =    p.getParameter<double>("SigmaZ")*cm;
-  alpha_ =     p.getParameter<double>("Alpha")*radian;
-  phi_ =       p.getParameter<double>("Phi")*radian;
-  fbetastar =  p.getParameter<double>("BetaStar")*cm;
-  femittance = p.getParameter<double>("Emittance")*cm; // this is not the normalized emittance
-  fTimeOffset = p.getParameter<double>("TimeOffset")*ns*c_light; // HepMC time units are mm
- 
-  if (fSigmaZ <= 0) {
-	  throw cms::Exception("Configuration")
-		  << "Error in BetafuncEvtVtxGenerator: "
-		  << "Illegal resolution in Z (SigmaZ is negative)";
+  readDB_=p.getParameter<bool>("readDB");
+  if (!readDB_){
+    fX0 =        p.getParameter<double>("X0")*cm;
+    fY0 =        p.getParameter<double>("Y0")*cm;
+    fZ0 =        p.getParameter<double>("Z0")*cm;
+    fSigmaZ =    p.getParameter<double>("SigmaZ")*cm;
+    alpha_ =     p.getParameter<double>("Alpha")*radian;
+    phi_ =       p.getParameter<double>("Phi")*radian;
+    fbetastar =  p.getParameter<double>("BetaStar")*cm;
+    femittance = p.getParameter<double>("Emittance")*cm; // this is not the normalized emittance
+    fTimeOffset = p.getParameter<double>("TimeOffset")*ns*c_light; // HepMC time units are mm
+    
+    if (fSigmaZ <= 0) {
+      throw cms::Exception("Configuration")
+	<< "Error in BetafuncEvtVtxGenerator: "
+	<< "Illegal resolution in Z (SigmaZ is negative)";
+    }
   }
 
   
@@ -63,6 +71,34 @@ BetafuncEvtVtxGenerator::~BetafuncEvtVtxGenerator()
     delete fRandom; 
 }
 
+void BetafuncEvtVtxGenerator::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const& iEventSetup){
+  update(iEventSetup);
+}
+void BetafuncEvtVtxGenerator::beginRun( edm::Run & , const edm::EventSetup& iEventSetup){
+  update(iEventSetup);
+}
+
+void BetafuncEvtVtxGenerator::update(const edm::EventSetup& iEventSetup){
+  if (readDB_ &&  parameterWatcher_.check(iEventSetup)){
+    edm::ESHandle< SimBeamSpotObjects > beamhandle;
+    iEventSetup.get<SimBeamSpotObjectsRcd>().get(beamhandle);
+
+    fX0=beamhandle->fX0;
+    fY0=beamhandle->fY0;
+    fZ0=beamhandle->fZ0;
+    //    falpha=beamhandle->fAlpha;
+    alpha_=beamhandle->fAlpha;
+    phi_=beamhandle->fPhi;
+    fSigmaZ=beamhandle->fSigmaZ;
+    fTimeOffset=beamhandle->fTimeOffset;
+    fbetastar=beamhandle->fbetastar;
+    femittance=beamhandle->femittance;
+
+    //re-initialize the boost matrix
+    delete boost_;
+    boost_=0;
+  }
+}
 
 //Hep3Vector* BetafuncEvtVtxGenerator::newVertex() {
 HepMC::FourVector* BetafuncEvtVtxGenerator::newVertex() {

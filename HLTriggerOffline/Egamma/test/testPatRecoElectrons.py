@@ -66,7 +66,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 
-# from Configuration.AlCa.autoCond import autoCond
+# from Configuration.PyReleaseValidation.autoCond import autoCond
 # process.GlobalTag.globaltag = autoCond['startup']
 
 # taken from the configuration of the skim (and the reco

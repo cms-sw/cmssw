@@ -3,21 +3,14 @@
 
 /** \class MuonResiduals6DOFrphiFitter
  *  $Date: Thu Apr 16 21:29:15 CDT 2009
- *  $Revision: 1.5 $ 
+ *  $Revision: 1.3 $ 
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
-#ifdef STANDALONE_FITTER
-#include "MuonResidualsFitter.h"
-#else
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonResidualsFitter.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
-#endif
 
-class TTree;
-
-class MuonResiduals6DOFrphiFitter: public MuonResidualsFitter
-{
+class MuonResiduals6DOFrphiFitter: public MuonResidualsFitter {
 public:
   enum {
     kAlignX = 0,
@@ -42,46 +35,33 @@ public:
     kAngleX,
     kAngleY,
     kRedChi2,
-    kPz,
-    kPt,
-    kCharge,
     kNData
   };
 
-  MuonResiduals6DOFrphiFitter(int residualsModel, int minHits, int useResiduals, bool weightAlignment=true):
-    MuonResidualsFitter(residualsModel, minHits, useResiduals, weightAlignment) {}
+  MuonResiduals6DOFrphiFitter(int residualsModel, int minHits, const CSCGeometry *cscGeometry, bool weightAlignment=true): MuonResidualsFitter(residualsModel, minHits, weightAlignment), m_cscGeometry(cscGeometry) {};
 
-#ifndef STANDALONE_FITTER
-  MuonResiduals6DOFrphiFitter(int residualsModel, int minHits, int useResiduals, const CSCGeometry *cscGeometry, bool weightAlignment=true):
-    MuonResidualsFitter(residualsModel, minHits, useResiduals, weightAlignment)  {}
-#endif
+  int type() const { return MuonResidualsFitter::k6DOFrphi; };
 
-  virtual ~MuonResiduals6DOFrphiFitter() {}
-
-  int type() const { return MuonResidualsFitter::k6DOFrphi; }
-
-  int npar()
-  {
-    if (residualsModel() == kPureGaussian || residualsModel() == kPureGaussian2D || residualsModel() == kGaussPowerTails) return kNPar - 2;
+  int npar() {
+    if (residualsModel() == kPureGaussian || residualsModel() == kGaussPowerTails) return kNPar - 2;
     else if (residualsModel() == kPowerLawTails) return kNPar;
     else if (residualsModel() == kROOTVoigt) return kNPar;
     else assert(false);
-  }
-  int ndata() { return kNData; }
+  };
+  int ndata() { return kNData; };
 
   double sumofweights();
   bool fit(Alignable *ali);
   double plot(std::string name, TFileDirectory *dir, Alignable *ali);
 
-  void correctBField();
-
-  TTree * readNtuple(std::string fname, unsigned int endcap, unsigned int station, unsigned int ring, unsigned int chamber, unsigned int preselected = 1);
-
 protected:
   void inform(TMinuit *tMinuit);
 
 private:
-  //const CSCGeometry *m_cscGeometry;
+  const CSCGeometry *m_cscGeometry;
 };
+
+double MuonResiduals6DOFrphiFitter_residual(double delta_x, double delta_y, double delta_z, double delta_phix, double delta_phiy, double delta_phiz, double track_x, double track_y, double track_dxdz, double track_dydz, double R, double alpha, double resslope);
+double MuonResiduals6DOFrphiFitter_resslope(double delta_x, double delta_y, double delta_z, double delta_phix, double delta_phiy, double delta_phiz, double track_x, double track_y, double track_dxdz, double track_dydz, double R);
 
 #endif // Alignment_MuonAlignmentAlgorithms_MuonResiduals6DOFrphiFitter_H

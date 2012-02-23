@@ -9,8 +9,6 @@
 #include "CondFormats/RPCObjects/interface/RPCStripNoises.h"
 #include "CondFormats/RPCObjects/interface/RPCClusterSize.h"
 #include "CondFormats/RPCObjects/interface/RPCDQMObject.h"
-#include "CondFormats/RPCObjects/interface/RPCNoiseObject.h"
-#include "CondFormats/RPCObjects/interface/RPCNoiseStripsObject.h"
 
 #include "CondFormats/RPCObjects/interface/RPCObGas.h"
 #include "CondFormats/RPCObjects/interface/RPCObCond.h"

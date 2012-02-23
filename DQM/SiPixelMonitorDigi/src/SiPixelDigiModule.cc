@@ -64,17 +64,17 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type, bool tw
   DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
 
   int nbinx=ncols_/2, nbiny=nrows_/2;
-  std::string twodtitle    = "Number of Digis (1bin=four pixels)"; 
-  std::string pxtitle      = "Number of Digis (1bin=two columns)";
-  std::string pytitle      = "Number of Digis (1bin=two rows)";
-  std::string twodroctitle = "ROC Occupancy (1bin=one ROC)";
+  std::string twodtitle = "Number of Digis (1bin=four pixels)"; 
+  std::string pxtitle = "Number of Digis (1bin=two columns)";
+  std::string pytitle = "Number of Digis (1bin=two rows)";
   if(hiRes){
     nbinx = ncols_;
     nbiny = nrows_;
-    twodtitle    = "Number of Digis (1bin=one pixel)";
+    twodtitle = "Number of Digis (1bin=one pixel)";
     pxtitle = "Number of Digis (1bin=one column)";
     pytitle = "Number of Digis (1bin=one row)";
   }
+  
   if(type==0){
     SiPixelHistogramId* theHistogramId = new SiPixelHistogramId( src.label() );
     // Number of digis
@@ -94,7 +94,6 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type, bool tw
 	mePixDigis_ = theDMBE->book2D(hid,twodtitle,nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
 	mePixDigis_->setAxisTitle("Columns",1);
 	mePixDigis_->setAxisTitle("Rows",2);
-	//std::cout << "During booking: type is "<< type << ", ID is "<< id_ << ", pwd for booking is " << theDMBE->pwd() << ", Plot name: " << hid << std::endl;
       }
     }
     else{
@@ -129,7 +128,6 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type, bool tw
       mePixDigisLad_ = theDMBE->book2D("hitmap_"+hid,twodtitle,nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
       mePixDigisLad_->setAxisTitle("Columns",1);
       mePixDigisLad_->setAxisTitle("Rows",2);
-      //std::cout << "During booking: type is "<< type << ", ID is "<< id_ << ", pwd for booking is " << theDMBE->pwd() << ", Plot name: " << hid << std::endl;
     }
     else{
       // projections of 2D hit map
@@ -160,16 +158,9 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type, bool tw
 	}
 	else{
 	  mePixDigisLay_ = theDMBE->book2D("hitmap_"+hid,twodtitle,nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
-
 	}
 	mePixDigisLay_->setAxisTitle("Columns",1);
 	mePixDigisLay_->setAxisTitle("Rows",2);
-	
-	//std::cout << "During booking: type is "<< type << ", ID is "<< id_ << ", pwd for booking is " << theDMBE->pwd() << ", Plot name: " << hid << std::endl;
-	int yROCbins[3] = {18,30,42};
-	mePixRocsLay_ = theDMBE->book2D("rocmap_"+hid,twodroctitle,32,0.,32.,yROCbins[DBlayer-1],1.5,1.5+float(yROCbins[DBlayer-1]/2));
-	mePixRocsLay_->setAxisTitle("ROCs per Module",1);
-	mePixRocsLay_->setAxisTitle("ROCs per 1/2 Ladder",2);
       }
       if(!twoD && !additInfo){
 	// projections of 2D hit map
@@ -208,7 +199,6 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type, bool tw
 	  }
 	  mePixDigisPhi_->setAxisTitle("Columns",1);
 	  mePixDigisPhi_->setAxisTitle("Rows",2);
-	  //std::cout << "During booking: type is "<< type << ", ID is "<< id_ << ", pwd for booking is " << theDMBE->pwd() << ", Plot name: " << hid << std::endl;
 	}
 	else{
 	  // projections of 2D hit map
@@ -253,10 +243,6 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type, bool tw
       mePixDigisDisk_ = theDMBE->book2D("hitmap_"+hid,twodtitle,260,0.,260.,160,0.,160.);
       mePixDigisDisk_->setAxisTitle("Columns",1);
       mePixDigisDisk_->setAxisTitle("Rows",2);
-      //ROC information in disks
-      mePixRocsDisk_  = theDMBE->book2D("rocmap_"+hid,twodroctitle,26,0.,26.,24,1.,13.);
-      mePixRocsDisk_ ->setAxisTitle("ROCs per Module (2 Panels)",1);
-      mePixRocsDisk_ ->setAxisTitle("Blade Number",2);
     }
   }
   if(type==6 && endcap){
@@ -277,7 +263,6 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type, bool tw
       mePixDigisRing_ = theDMBE->book2D("hitmap_"+hid,twodtitle,nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
       mePixDigisRing_->setAxisTitle("Columns",1);
       mePixDigisRing_->setAxisTitle("Rows",2);
-      //std::cout << "During booking: type is "<< type << ", ID is "<< id_ << ", pwd for booking is " << theDMBE->pwd() << ", Plot name: " << hid << std::endl;
     }
     else{
       // projections of 2D hit map
@@ -333,8 +318,7 @@ int SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input, bool modo
         DBladder = PixelBarrelName(DetId(id_)).ladderName();
       }
       PixelBarrelName::Shell DBshell = PixelBarrelName(DetId(id_)).shell();
-      int DBlayer  = PixelBarrelName(DetId(id_)).layerName();
-      int DBmodule = PixelBarrelName(DetId(id_)).moduleName();
+      int DBlayer = PixelBarrelName(DetId(id_)).layerName();
       if(barrel){
         if(isHalfModule){
           if(DBshell==PixelBarrelName::pI||DBshell==PixelBarrelName::pO){
@@ -367,8 +351,6 @@ int SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input, bool modo
 	if(!reducedSet){
 	  if(twoD) {
 	    if(twoDimModOn) (mePixDigis_)->Fill((float)col,(float)row);
-	    //std::cout << "Col: " << col << ", Row: " << row << ", for DBlayer " << DBlayer << " and isladder " << DBladder << " and module " << PixelBarrelName(DetId(id_)).moduleName() << " and side is " << DBshell << std::endl;
-	    //std::cout<<"id_ = "<<id_<<" , dmbe="<<theDMBE->pwd()<<std::endl;                                                                                                                  
 	  }
 	  else {
 	    (mePixDigis_px_)->Fill((float)col);
@@ -391,16 +373,6 @@ int SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input, bool modo
 	if(!twoDimOnlyLayDisk) (meADCLay_)->Fill((float)adc);
 	if(!reducedSet){
 	  if((layon && twoD) || twoDimOnlyLayDisk){
-	    //ROC histos...
-	    float rocx = (float)col/52. + 8.0*float(DBmodule-1);
-	    float rocy = (float)row/160.+float(DBladder);
-	    //Shift 1st ladder (half modules) up by 1 bin
-	    if(DBladder==1) rocy = rocy + 0.5;
-	    mePixRocsLay_->Fill(rocx,rocy);
-	    //Copying full 1/2 module to empty 1/2 module...
-	    //if(isHalfModule) mePixRocsLay_->Fill(rocx,rocy+0.5);
-	    //end of ROC filling...
-
 	    if(isHalfModule && DBladder==1){
 	      (mePixDigisLay_)->Fill((float)col,(float)row+80);
 	    }
@@ -437,25 +409,10 @@ int SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input, bool modo
       if(bladeon && endcap){
 	(meADCBlade_)->Fill((float)adc);
       }
-
       if((diskon || twoDimOnlyLayDisk) && endcap){
 	if(!twoDimOnlyLayDisk) (meADCDisk_)->Fill((float)adc);
 	if(twoDimOnlyLayDisk){
 	  (mePixDigisDisk_)->Fill((float)col,(float)row);
-	  //ROC monitoring
-	  int DBpanel= PixelEndcapName(DetId(id_)).pannelName();
-	  int DBblade= PixelEndcapName(DetId(id_)).bladeName();
-	  float offx = 0.;
-	  //This crazy offset takes into account the roc and module fpix configuration
-	  for (int i = DBpanel; i < DBmodule; ++i) {offx = offx + float(5+DBpanel-i);}
-	  float rocx = (float)col/52. + offx + 14.0*float(DBpanel-1);
-	  float rocy = (float)row/160.+float(DBblade);
-	  mePixRocsDisk_->Fill(rocx,rocy);
-	  //Now handle the 1/2 module cases by cloning those bins and filling...
-	  //if (DBpanel==1 && (DBmodule==1||DBmodule==4)){
-	  //rocy = rocy + 0.5;
-	  //mePixRocsDisk_->Fill(rocx,rocy);}
-	  //end ROC monitoring
 	}
       }
       if(ringon && endcap){

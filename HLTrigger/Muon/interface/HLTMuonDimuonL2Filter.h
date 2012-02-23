@@ -30,6 +30,8 @@ class HLTMuonDimuonL2Filter : public HLTFilter {
       bool   fast_Accept_;      // flag to save time: stop processing after identification of the first valid pair
       double max_Eta_;          // Eta cut
       int    min_Nhits_;        // threshold on number of hits on muon
+      int    min_Nstations_;    // threshold on number of valid stations for muon
+      int    min_Nchambers_;    // threshold on number of valid chambers for muon
       double max_Dr_;           // impact parameter cut
       double max_Dz_;           // dz cut
       int    chargeOpt_;        // Charge option (0:nothing; +1:same charge, -1:opposite charge)
@@ -40,6 +42,8 @@ class HLTMuonDimuonL2Filter : public HLTFilter {
       double max_InvMass_;      // maximum invariant mass of pair
       double min_Acop_;         // minimum acoplanarity
       double max_Acop_;         // maximum acoplanarity
+      double min_Angle_;        // minimum 3D angle
+      double max_Angle_;        // maximum 3D angle
       double min_PtBalance_;    // minimum Pt difference
       double max_PtBalance_;    // maximum Pt difference
       double nsigma_Pt_;        // pt uncertainty margin (in number of sigmas)

@@ -9,8 +9,8 @@
  *
  * \author: Philipp Wagner
  *
- * $Date: 2008/02/27 18:46:18 $
- * $Revision: 1.4 $
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -238,7 +238,6 @@ bool L1GtVhdlTemplateFile::insert(const std::string &atLine, std::vector<std::st
 
 bool L1GtVhdlTemplateFile::insert(const std::string atLine, L1GtVhdlTemplateFile file)
 {
-    std::vector<std::string>::iterator iter = lines_.begin();
     std::vector<std::string> temp = file.returnLines();
 
     if (insert(atLine,temp)) return true;

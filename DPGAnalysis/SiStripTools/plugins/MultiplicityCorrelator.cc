@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Venturi
 //         Created:  Mon Oct 27 17:37:53 CET 2008
-// $Id: MultiplicityCorrelator.cc,v 1.1 2011/03/10 16:15:13 venturia Exp $
+// $Id: MultiplicityCorrelator.cc,v 1.1 2010/05/04 08:33:47 venturia Exp $
 //
 //
 
@@ -57,14 +57,14 @@ private:
 
       // ----------member data ---------------------------
 
-  std::vector<MultiplicityCorrelatorHistogramMaker*> m_mchms;
+  std::vector<MultiplicityCorrelatorHistogramMaker> _mchms;
 
-  std::vector<edm::InputTag> m_xMultiplicityMaps;
-  std::vector<edm::InputTag> m_yMultiplicityMaps;
-  std::vector<std::string> m_xLabels;
-  std::vector<std::string> m_yLabels;
-  std::vector<unsigned int> m_xSelections;
-  std::vector<unsigned int> m_ySelections;
+  std::vector<edm::InputTag> _xMultiplicityMaps;
+  std::vector<edm::InputTag> _yMultiplicityMaps;
+  std::vector<std::string> _xLabels;
+  std::vector<std::string> _yLabels;
+  std::vector<unsigned int> _xSelections;
+  std::vector<unsigned int> _ySelections;
 
 
 };
@@ -81,9 +81,9 @@ private:
 // constructors and destructor
 //
 MultiplicityCorrelator::MultiplicityCorrelator(const edm::ParameterSet& iConfig):
-  m_mchms(),
-  m_xMultiplicityMaps(),m_yMultiplicityMaps(),
-  m_xLabels(),m_yLabels(), m_xSelections(),m_ySelections()
+  _mchms(),
+  _xMultiplicityMaps(),_yMultiplicityMaps(),
+  _xLabels(),_yLabels(), _xSelections(),_ySelections()
 {
    //now do what ever initialization is needed
 
@@ -92,14 +92,14 @@ MultiplicityCorrelator::MultiplicityCorrelator(const edm::ParameterSet& iConfig)
 
   for(std::vector<edm::ParameterSet>::const_iterator ps=correlationConfigs.begin();ps!=correlationConfigs.end();++ps) {
 
-    m_xMultiplicityMaps.push_back(ps->getParameter<edm::InputTag>("xMultiplicityMap"));
-    m_yMultiplicityMaps.push_back(ps->getParameter<edm::InputTag>("yMultiplicityMap"));
-    m_xLabels.push_back(ps->getParameter<std::string>("xDetLabel"));
-    m_yLabels.push_back(ps->getParameter<std::string>("yDetLabel"));
-    m_xSelections.push_back(ps->getParameter<unsigned int>("xDetSelection"));
-    m_ySelections.push_back(ps->getParameter<unsigned int>("yDetSelection"));
+    _xMultiplicityMaps.push_back(ps->getParameter<edm::InputTag>("xMultiplicityMap"));
+    _yMultiplicityMaps.push_back(ps->getParameter<edm::InputTag>("yMultiplicityMap"));
+    _xLabels.push_back(ps->getParameter<std::string>("xDetLabel"));
+    _yLabels.push_back(ps->getParameter<std::string>("yDetLabel"));
+    _xSelections.push_back(ps->getParameter<unsigned int>("xDetSelection"));
+    _ySelections.push_back(ps->getParameter<unsigned int>("yDetSelection"));
 
-    m_mchms.push_back(new MultiplicityCorrelatorHistogramMaker(*ps));
+    _mchms.push_back(MultiplicityCorrelatorHistogramMaker(*ps));
 
   }
 
@@ -109,9 +109,8 @@ MultiplicityCorrelator::MultiplicityCorrelator(const edm::ParameterSet& iConfig)
 MultiplicityCorrelator::~MultiplicityCorrelator()
 {
  
-  for(unsigned int i=0;i<m_mchms.size();++i) {
-    delete m_mchms[i];
-  }
+   // do anything here that needs to be done at desctruction time
+   // (e.g. close files, deallocate resources etc.)
 
 }
 
@@ -126,27 +125,27 @@ MultiplicityCorrelator::analyze(const edm::Event& iEvent, const edm::EventSetup&
 {
   using namespace edm;
   
-  for(unsigned int i=0;i<m_mchms.size();++i) {
+  for(unsigned int i=0;i<_mchms.size();++i) {
     Handle<std::map<unsigned int, int> > xMults;
-    iEvent.getByLabel(m_xMultiplicityMaps[i],xMults);
+    iEvent.getByLabel(_xMultiplicityMaps[i],xMults);
     Handle<std::map<unsigned int, int> > yMults;
-    iEvent.getByLabel(m_yMultiplicityMaps[i],yMults);
+    iEvent.getByLabel(_yMultiplicityMaps[i],yMults);
 
     // check if the selection exists
 
-    std::map<unsigned int, int>::const_iterator xmult = xMults->find(m_xSelections[i]);
-    std::map<unsigned int, int>::const_iterator ymult = yMults->find(m_ySelections[i]);
+    std::map<unsigned int, int>::const_iterator xmult = xMults->find(_xSelections[i]);
+    std::map<unsigned int, int>::const_iterator ymult = yMults->find(_ySelections[i]);
 
     if(xmult!=xMults->end() && ymult!=yMults->end()) {
 
 
-      m_mchms[i]->fill(xmult->second,ymult->second,iEvent.bunchCrossing());
+      _mchms[i].fill(xmult->second,ymult->second);
 
     }
     else {
       edm::LogWarning("DetSelectionNotFound") << " DetSelection " 
-					      << m_xSelections[i] << " " 
-					      << m_ySelections[i] << " not found"; 
+					      << _xSelections[i] << " " 
+					      << _ySelections[i] << " not found"; 
     }
   }
   
@@ -163,9 +162,7 @@ MultiplicityCorrelator::beginJob()
 void
 MultiplicityCorrelator::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
 
-  for(unsigned int i=0;i<m_mchms.size();++i) {
-    m_mchms[i]->beginRun(iRun.run());
-  }
+
 }
 
 void

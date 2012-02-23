@@ -11,10 +11,11 @@
  * \authors Michael Schmitt, Richard Cavanaugh, The University of Florida
  *          Florent Lacroix, University of Illinois at Chicago
  *          Christian Veelken, LLR
+ *          Tai Sakuma, Texas A&M
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: METCorrectionAlgorithm.h,v 1.1 2011/09/13 14:35:34 veelken Exp $
+ * $Id: METCorrectionAlgorithm.h,v 1.2 2011/10/14 10:14:35 veelken Exp $
  *
  */
 
@@ -41,10 +42,15 @@ class METCorrectionAlgorithm
  private:
 
   typedef std::vector<edm::InputTag> vInputTag;
+  vInputTag srcCHSSums_;
   vInputTag srcType1Corrections_;
 
+  bool applyType0Corrections_;
   bool applyType1Corrections_;
   bool applyType2Corrections_;
+
+  double type0Rsoft_;
+  double type0Cuncl_;
   
   typedef std::vector<std::string> vstring;
   struct type2BinningEntryType

@@ -10,19 +10,7 @@
       <PARAM name="xmin">0.0</PARAM>
       <PARAM name="xmax">50.0</PARAM>
 </QTEST>
-<QTEST name="MeanWithinExpectedRange:ProblemDigisInLastNLB_HBHEHF">
-      <TYPE>MeanWithinExpected</TYPE>
-      <PARAM name="error">0.05</PARAM>
-      <PARAM name="warning">0.3</PARAM>
-      <PARAM name="mean">1.0</PARAM>
-      <PARAM name="useRMS">0</PARAM>
-      <PARAM name="useSigma">0</PARAM>
-      <PARAM name="useRange">1</PARAM>
-      <PARAM name="xmin">0.0</PARAM>
-      <PARAM name="xmax">50.0</PARAM>
-</QTEST>
-
-<LINK name="*ProblemDigisInLastNLB_HBHEHF_alarm">
-  <TestName activate="true">MeanWithinExpectedRange:ProblemDigisInLastNLB_HBHEHF</TestName>
+<LINK name="*ProblemsInLastNLB_HBHEHF_alarm">
+  <TestName activate="true">MeanWithinExpectedRange:DeadInLastNLB_HBHEHF</TestName>
 </LINK>
 </TESTCONFIGURATION>

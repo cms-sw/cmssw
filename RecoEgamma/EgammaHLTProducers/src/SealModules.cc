@@ -21,6 +21,7 @@
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTR9Producer.h"
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTR9IDProducer.h"
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTHcalIsolationProducersRegional.h"
+#include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTBcHcalIsolationProducersRegional.h"
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTEcalIsolationProducersRegional.h"
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTEcalRecIsolationProducer.h"
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTHcalIsolationDoubleConeProducers.h"
@@ -47,6 +48,7 @@ DEFINE_FWK_MODULE(EgammaHLTMulti5x5ClusterProducer);
 DEFINE_FWK_MODULE(EgammaHLTEcalIsolationProducersRegional);
 DEFINE_FWK_MODULE(EgammaHLTEcalRecIsolationProducer);
 DEFINE_FWK_MODULE(EgammaHLTHcalIsolationProducersRegional);
+DEFINE_FWK_MODULE(EgammaHLTBcHcalIsolationProducersRegional);
 DEFINE_FWK_MODULE(EgammaHLTHcalIsolationDoubleConeProducers);
 DEFINE_FWK_MODULE(EgammaHLTPhotonTrackIsolationProducersRegional);
 DEFINE_FWK_MODULE(EgammaHLTRemoveDuplicatedSC);

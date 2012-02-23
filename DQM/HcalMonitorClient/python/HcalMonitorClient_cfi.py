@@ -45,7 +45,6 @@ hcalClient = cms.EDAnalyzer("HcalMonitorClient",
                             RecHit_BadChannelStatusMask =  cms.untracked.int32((1<<5) | (1<<1)),
                             Digi_BadChannelStatusMask  =  cms.untracked.int32((1<<5) | (1<<1)),
                             CoarsePedestal_BadChannelStatusMask = cms.untracked.int32((1<<5) | (1<<6) | (1<<1)),
-                            HotCell_BadChannelStatusMask        = cms.untracked.int32((1<<5) | (1<<1)),
                             
                             excludeHOring2_backup          = cms.untracked.bool(True), # This is only a 'backup' result, and is overwritten by what was used by the task when the task information
                                                                                        # can be found in the DQM output. If the task info can't be found, this backup value is used in its place.

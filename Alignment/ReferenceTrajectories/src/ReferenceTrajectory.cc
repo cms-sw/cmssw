@@ -1,6 +1,6 @@
 //  Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
 //  date       : 2006/09/17
-//  last update: $Date: 2011/09/06 13:50:18 $
+//  last update: $Date: 2011/05/18 10:19:48 $
 //  by         : $Author: mussgill $
 
 #include <memory>
@@ -151,12 +151,6 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
     GlobalPoint bs(beamSpot.x0(), beamSpot.y0(), beamSpot.z0());
     
     TrajectoryStateClosestToBeamLine tsctbl(TSCBLBuilderNoMaterial()(*(refTsos.freeState()), beamSpot));
-    if (!tsctbl.isValid()) {
-      edm::LogError("Alignment") << "@SUB=ReferenceTrajectory::construct" 
-				 << "TrajectoryStateClostestToBeamLine invalid. Skip track.";
-      return false;
-    }
-
     FreeTrajectoryState pcaFts = tsctbl.trackStateAtPCA();
     GlobalVector bd(beamSpot.dxdz(), beamSpot.dydz(), 1.0);
     

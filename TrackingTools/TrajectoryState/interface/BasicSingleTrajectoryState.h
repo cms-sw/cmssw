@@ -122,7 +122,7 @@ public:
   double transverseCurvature() const {
     return freeTrajectoryState(false)->transverseCurvature();
   }
-  const CartesianTrajectoryError cartesianError() const {
+  const CartesianTrajectoryError& cartesianError() const {
     if unlikely(!hasError()) missingError(" accesing cartesian error.");
     return freeTrajectoryState()->cartesianError();
   }

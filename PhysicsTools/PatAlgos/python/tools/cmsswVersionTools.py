@@ -999,11 +999,19 @@ class PickRelValInputFiles( ConfigToolBase ):
             filePathsTmp = []
             fileCount    = 0
             dataset = '/%s/%s-%s-v%i/%s'%( relVal, cmsswVersion, globalTag, version, dataTier )
+            dasQuery = 'file dataset=%s | grep file.name'%( dataset )
             if debug:
-                print '%s DEBUG: Querying dataset \'%s\''%( self._label, dataset )
+                print '%s DEBUG: Querying dataset \'%s\' with'%( self._label, dataset )
+                print '    \'%s\''%( dasQuery )
             # partially stolen from das_client.py for option '--format=plain', needs filter ("grep") in the query
-            dasData     = das_client.get_data( 'https://cmsweb.cern.ch', 'file dataset=%s | grep file.name'%( dataset ), 0, dasLimit, False )
+            dasData     = das_client.get_data( 'https://cmsweb.cern.ch', dasQuery, 0, dasLimit, False )
             jsondict    = json.loads( dasData )
+            if jsondict[ 'status' ] != 'ok':
+                print 'There was a problem while querying DAS with query \'%s\'. Server reply was:\n %s' % (dasQuery, dasData)
+#                 if debug:
+#                     self.messageEmptyList()
+#                 return filePaths
+                exit( 1 )
             mongo_query = jsondict[ 'mongo_query' ]
             filters     = mongo_query[ 'filters' ]
             data        = jsondict[ 'data' ]

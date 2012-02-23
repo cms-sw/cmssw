@@ -30,7 +30,7 @@
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
-ZeeRescaleFactorPlots::ZeeRescaleFactorPlots( const char* fileName )
+ZeeRescaleFactorPlots::ZeeRescaleFactorPlots( char* fileName )
 {
 
   fileName_ = fileName;

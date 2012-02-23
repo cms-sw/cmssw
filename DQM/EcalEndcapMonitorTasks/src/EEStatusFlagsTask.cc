@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsTask.cc
  *
- * $Date: 2011/08/30 09:28:42 $
- * $Revision: 1.39 $
+ * $Date: 2010/10/04 11:16:02 $
+ * $Revision: 1.38 $
  * \author G. Della Ricca
  *
 */
@@ -184,7 +184,7 @@ void EEStatusFlagsTask::setup(void){
     meFEchErrorsByLumi_ = dqmStore_->book1D(name, name, 18, 1., 19.);
     meFEchErrorsByLumi_->setLumiFlag();
     for (int i = 0; i < 18; i++) {
-      meFEchErrorsByLumi_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
+      meFEchErrorsByLumi_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
   }

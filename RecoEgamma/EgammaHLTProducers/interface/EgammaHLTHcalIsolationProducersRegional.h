@@ -8,7 +8,7 @@
 //
 // Original Author:  Monica Vazquez Acosta (CERN)
 //         Created:  Tue Jun 13 14:48:33 CEST 2006
-// $Id: EgammaHLTHcalIsolationProducersRegional.h,v 1.1 2007/03/23 17:22:54 ghezzi Exp $
+// $Id: EgammaHLTHcalIsolationProducersRegional.h,v 1.3 2011/12/19 11:17:28 sani Exp $
 //
 //
 
@@ -24,8 +24,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-
 
 class EgammaHLTHcalIsolation;
 
@@ -51,11 +49,14 @@ private:
 
   edm::InputTag recoEcalCandidateProducer_;
   edm::InputTag hbheRecHitProducer_;
-  // edm::InputTag hfRecHitProducer_;
-
-
+  edm::InputTag rhoProducer_;
+  bool doRhoCorrection_;
+  float rhoScale_;
+  float rhoMax_;
   bool doEtSum_;
-  EgammaHLTHcalIsolation* isolAlgo_; //we own this
+  float effectiveAreaBarrel_;
+  float effectiveAreaEndcap_;
 
+  EgammaHLTHcalIsolation* isolAlgo_;
 };
 

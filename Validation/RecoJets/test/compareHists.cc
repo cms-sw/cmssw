@@ -279,28 +279,19 @@ double makeGifHists4 (TH1* fHist, TH1* fRefHist, TCanvas* fCanvas, const std::st
   int hibin=fHist->GetNbinsX()+1;
   double hiedge = fHist->GetBinLowEdge(hibin);
 
-  if(std::string(fRefHist->GetName()).find("pTResponse")!=std::string::npos)
-  {
-  fRefHist->SetMaximum(1.2);
-  fRefHist->SetMinimum(0.8);
-  }
+  fRefHist->SetMaximum(1.3);
+  fRefHist->SetMinimum(0.0);
 
   if (lowedge==0.5 && hiedge==3.75){
     fRefHist->GetXaxis()->SetTickLength(0);
     fRefHist->GetXaxis()->SetLabelSize(0);
     TGaxis *axis = new TGaxis(0.5,0.0,3.75,0.0,3.1622766,5623.41325,50510,"G");
     fRefHist->Draw ();
-    if(std::string(fRefHist->GetName()).find("pTResponse")!=std::string::npos)
-      {
-	TGaxis *axis2 = new TGaxis(0.5,0.8,3.75,0.8,3.1622766,5623.41325,50510,"G");
-	axis2->Draw();
-      } else{
     axis->Draw();
-    }
   } else {
     fRefHist->Draw ();
   }
-   
+
   fHist->Draw ("e1p,same");
   std::string filename = name + ".gif";
   fCanvas->Print (filename.c_str());
@@ -365,12 +356,12 @@ int main (int argn, char* argv []) {
   }
 
   TDirectory* dirIn = 0;
-  std::string workDir = std::string ("DQMData/Run 1/JetMET/Run summary/RecoJetsV/") + moduleName ; // new format
+  std::string workDir = std::string ("DQMData/JetMET/RecoJetsV/") + moduleName ; // new format
   inputFile->GetObject (workDir.c_str(), dirIn);
 
   if (!dirIn) {
     std::cout << "Fall back to old format for file " << inputFileName << std::endl;
-    workDir = std::string ("DQMData/JetMET/RecoJetsV/") + moduleName; // old format
+    workDir = std::string ("DQMData/") + moduleName; // old format
     inputFile->GetObject (workDir.c_str(), dirIn);
     if (!dirIn) {
       std::cerr << "Can't access workDir in file " << inputFileName << std::endl;
@@ -388,13 +379,13 @@ int main (int argn, char* argv []) {
 
   TDirectory* dirRef = 0;
   //  workDir = std::string ("DQMData/JetMET/RecoJetsV/CaloJetTask_") + refmoduleName; // new format
-  workDir = std::string ("DQMData/Run 1/JetMET/Run summary/RecoJetsV/") + refmoduleName; // new format
+  workDir = std::string ("DQMData/JetMET/RecoJetsV/") + refmoduleName; // new format
   refFile->GetObject (workDir.c_str(), dirRef);
 
   if (!dirRef) {
     std::cout << "Fall back to old format for file " << refFileName << std::endl;
     //    workDir = std::string ("DQMData/CaloJetTask_") + refmoduleName; // old format
-    workDir = std::string ("DQMData/JetMET/RecoJetsV/") + refmoduleName; // old format
+    workDir = std::string ("DQMData/") + refmoduleName; // old format
     refFile->GetObject (workDir.c_str(), dirRef);
     if (!dirRef) {
       std::cerr << "Can't access workDir in file " << refFileName << std::endl;

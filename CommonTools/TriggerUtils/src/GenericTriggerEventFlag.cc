@@ -1,5 +1,5 @@
 //
-// $Id: GenericTriggerEventFlag.cc,v 1.6 2011/04/30 19:13:48 vadler Exp $
+// $Id: GenericTriggerEventFlag.cc,v 1.7 2011/08/08 14:49:34 vadler Exp $
 //
 
 
@@ -14,6 +14,11 @@
 #include <vector>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+
+// Constants' definitions
+static const bool useL1EventSetup( true );
+static const bool useL1GtTriggerMenuLite( false );
 
 
 /// To be called from the ED module's c'tor
@@ -344,7 +349,7 @@ bool GenericTriggerEventFlag::acceptL1( const edm::Event & event, const edm::Eve
   if ( ! onL1_ || l1LogicalExpressions_.empty() ) return ( ! andOr_ ); // logically neutral, depending on base logical connective
 
   // Getting the L1 event setup
-  l1Gt_.retrieveL1EventSetup( setup ); // FIXME This can possibly go to initRun()
+  l1Gt_.getL1GtRunCache( event, setup, useL1EventSetup, useL1GtTriggerMenuLite ); // FIXME This can possibly go to initRun()
 
   // Determine decision of L1 logical expression combination and return
   if ( andOrL1_ ) { // OR combination

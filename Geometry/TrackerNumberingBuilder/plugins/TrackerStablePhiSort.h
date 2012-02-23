@@ -23,8 +23,7 @@ namespace details {
       return self(&o, extr(o));
     }
     
-    PhiSortElement()
-      : pointer(0) {}
+    PhiSortElement(){}
     PhiSortElement(Object * p, Scalar v):
       pointer(p),
       value(v) {}

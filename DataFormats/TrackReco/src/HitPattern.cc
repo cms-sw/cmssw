@@ -47,7 +47,7 @@ void HitPattern::set(const TrackingRecHit & hit, unsigned int i) {
       layer = TECDetId(id).wheel();
   } else if (detid == DetId::Muon) {
     if (subdet == (uint32_t) MuonSubdetId::DT) 
-      layer = ((DTLayerId(id.rawId()).station()-1)<<2) + (DTLayerId(id.rawId()).superLayer()-1);
+      layer = ((DTLayerId(id.rawId()).station()-1)<<2) + DTLayerId(id.rawId()).superLayer();
     else if (subdet == (uint32_t) MuonSubdetId::CSC)
       layer = ((CSCDetId(id.rawId()).station()-1)<<2) +  (CSCDetId(id.rawId()).ring()-1);
     else if (subdet == (uint32_t) MuonSubdetId::RPC) {

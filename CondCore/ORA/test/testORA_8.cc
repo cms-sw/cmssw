@@ -50,6 +50,7 @@ namespace ora {
       //db.configuration().setMessageVerbosity( coral::Debug );
       db.connect( connStr );
       ora::ScopedTransaction trans( db.transaction() );
+      //creating database
       trans.start( false );
       if(!db.exists()){
 	db.create();
@@ -57,13 +58,14 @@ namespace ora {
       std::set< std::string > conts = db.containers();
       if( conts.find( "Cont0" )!= conts.end() ) db.dropContainer( "Cont0" );
       if( conts.find( "Cont1" )!= conts.end() ) db.dropContainer( "Cont1" );
-      //
+      //creating containers
       db.createContainer<SC>("Cont0");
       db.createContainer<SimpleClass>("Cont1");
       std::vector<boost::shared_ptr<SimpleClass> > buff0;
       std::vector<boost::shared_ptr<SC> > buff1;
       std::vector<ora::OId> oids;
       std::vector<Ref<SimpleClass> > refs;
+      //inserting
       for( unsigned int i = 0; i<10; i++){
 	boost::shared_ptr<SimpleClass> data0( new SimpleClass(i) );
 	buff0.push_back( data0 );
@@ -84,7 +86,7 @@ namespace ora {
       buff0.clear();
       trans.commit();
       db.disconnect();
-      ::sleep(1);
+      sleep();
       // reading back...
       db.connect( connStr );
       trans.start( true );
@@ -118,11 +120,10 @@ namespace ora {
 	}
       }
       trans.commit();
-      trans.commit();
+      //clean up
       trans.start( false );
       db.drop();
       trans.commit();
-      db.disconnect();
       db.disconnect();
     }
   };

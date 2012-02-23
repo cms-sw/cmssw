@@ -15,17 +15,28 @@
 #include <iostream>
 
 DigiCheck::DigiCheck(const edm::ParameterSet&){;}
-DigiCheck::~DigiCheck(){
-  std::cout <<  " Saving histos " ;
-  dbe->save("Digicheck.root");
-  std::cout << " done " << std::endl;
-}
+DigiCheck::~DigiCheck(){;}
 typedef math::XYZVector XYZPoint;
 
 void  DigiCheck::beginRun(edm::Run const& run, edm::EventSetup const& es){
 
   m_firstTimeAnalyze = true ;
+
   dbe = edm::Service<DQMStore>().operator->();
+  h0b = dbe->book2D("h0b","Gain vs Gev",100,0.,1700.,5,-0.5,4.5);
+  h0e = dbe->book2D("h0e","Gain vs Gev",100,0.,3000.,5,-0.5,4.5);
+  h1b = dbe->book2D("h1b","Gain 3 ADC vs GeV - Barrel",140,0.,140.,1000,0,5000);
+  h2b = dbe->book2D("h2b","Gain 2 ADC vs GeV - Barrel",140,0,820,1000,0,5000);
+  h3b = dbe->book2D("h3b","Gain 1 ADC vs GeV - Barrel",140,0,1700,1000,0,5000);
+  h1e = dbe->book2D("h1e","Gain 3 ADC vs GeV- Endcap",140,0,250,1000,0,5000);
+  h2e = dbe->book2D("h2e","Gain 2 ADC vs GeV- Endcap",140,0,1400,1000,0,5000);
+  h3e = dbe->book2D("h3e","Gain 1 ADC vs GeV- Endcap",140,0,3000,1000,0,5000);
+  h4  = dbe->book2D("h4","HBHE GeV adc",1000,0,1000,1000,0,1000);
+  h5  = dbe->book2D("h5","digis vs rechits ",400,0,200,400,0,200);
+  h6  = dbe->book2D("h6","digis vs rechits ",400,0,200,400,0,200);
+  h7  = dbe->book1D("h7","TP digis vs calohits ",100,-10,10);
+  h8  = dbe->book2D("h8","ieta vs TP/calohits ",64,-31.5,31.5,200,-2,2);
+  h9  = dbe->book2D("h9","iphi vs TP/calohits ",100,-0.5,99.5,200,-2,2);
 }
 
 void  DigiCheck::beginJobAnalyze(const edm::EventSetup & c){
@@ -43,24 +54,6 @@ void  DigiCheck::beginJobAnalyze(const edm::EventSetup & c){
   edm::ESHandle<EcalTrigTowerConstituentsMap> hetm;
   c.get<IdealGeometryRecord>().get(hetm);
   eTTmap_ = &(*hetm);
-  std::cout << " Booking histos in " << dbe->pwd().c_str() << std::endl;
-  dbe->setCurrentFolder( "FastSim/Digis" );
-  h0b = dbe->book2D("h0b","Gain vs Gev",100,0.,1700.,5,-0.5,4.5);
-  h0e = dbe->book2D("h0e","Gain vs Gev",100,0.,3000.,5,-0.5,4.5);
-  h1b = dbe->book2D("h1b","Gain 3 ADC vs GeV - Barrel",140,0.,140.,1000,0,5000);
-  h2b = dbe->book2D("h2b","Gain 2 ADC vs GeV - Barrel",140,0,820,1000,0,5000);
-  h3b = dbe->book2D("h3b","Gain 1 ADC vs GeV - Barrel",140,0,1700,1000,0,5000);
-  h1e = dbe->book2D("h1e","Gain 3 ADC vs GeV- Endcap",140,0,250,1000,0,5000);
-  h2e = dbe->book2D("h2e","Gain 2 ADC vs GeV- Endcap",140,0,1400,1000,0,5000);
-  h3e = dbe->book2D("h3e","Gain 1 ADC vs GeV- Endcap",140,0,3000,1000,0,5000);
-  h4  = dbe->book2D("h4","HBHE GeV adc",1000,0,1000,1000,0,1000);
-  h5  = dbe->book2D("h5","digis vs rechits barrel",400,0,200,400,0,200);
-  h6  = dbe->book2D("h6","digis vs rechits endcaps ",400,0,200,400,0,200);
-  h7  = dbe->book1D("h7","TP digis vs calohits ",100,-10,10);
-  h8  = dbe->book2D("h8","ieta vs TP/calohits ",64,-31.5,31.5,200,-2,2);
-  h9  = dbe->book2D("h9","iphi vs TP/calohits ",100,-0.5,99.5,200,-2,2);
-  std::cout << " done " << std::endl;
-
 }
 
 void  DigiCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -132,15 +125,15 @@ void  DigiCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     }
 
   edm::Handle<EBDigiCollection> ebDigis;
-  iEvent.getByLabel("ecalRecHit",ebDigis);
+  iEvent.getByLabel("caloRecHits",ebDigis);
   
   edm::Handle<EEDigiCollection> eeDigis;
-  iEvent.getByLabel("ecalRecHit",eeDigis);
+  iEvent.getByLabel("caloRecHits",eeDigis);
 
   std::map<EcalTrigTowerDetId,double> mapTow_et;
   
   //EBDigiCollection::const_iterator i;
-  std::cout << " Barrel digis / Endcap digis " << ebDigis->size() << " " << eeDigis->size() << std::endl;
+  //  std::cout << " Barrel digis " << std::endl;
   //for(i=ebDigis->begin();i!=ebDigis->end();++i)
   for(unsigned int idigi = 0; idigi < ebDigis->size(); ++idigi)
     {
@@ -231,7 +224,7 @@ void  DigiCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     }
   
   edm::Handle<HBHEDigiCollection> hbheDigis;
-  iEvent.getByLabel("hbhereco",hbheDigis);
+  iEvent.getByLabel("caloRecHits",hbheDigis);
   HBHEDigiCollection::const_iterator k;
   for(k=hbheDigis->begin();k!=hbheDigis->end();++k)
     {
@@ -242,13 +235,13 @@ void  DigiCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 //	std::cout << k->id() << " "  << simHitEnergy << std::endl;
     }
   edm::Handle<EBRecHitCollection> hrechit_EB_col;
-  iEvent.getByLabel("ecalRecHit","EcalRecHitsEB",hrechit_EB_col);
+  iEvent.getByLabel("caloRecHits","EcalRecHitsEB",hrechit_EB_col);
 
   edm::Handle<EERecHitCollection> hrechit_EE_col;
-  iEvent.getByLabel("ecalRecHit", "EcalRecHitsEE",hrechit_EE_col);
+  iEvent.getByLabel("caloRecHits", "EcalRecHitsEE",hrechit_EE_col);
 
   std::map<EcalTrigTowerDetId,double> mapTow_et_rechits;
-  std::cout <<  " Number of RecHits " << hrechit_EB_col->size() << " " << hrechit_EE_col->size() << std::endl;
+  
   EcalRecHitCollection::const_iterator rhit=hrechit_EB_col.product()->begin();
   EcalRecHitCollection::const_iterator rhitend=hrechit_EB_col.product()->end();
   for(;rhit!=rhitend;++rhit)
@@ -312,29 +305,24 @@ void  DigiCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   // Finally fill the histo
   std::map<EcalTrigTowerDetId,double>::const_iterator mytowerit=mapTow_et.begin();
   std::map<EcalTrigTowerDetId,double>::const_iterator mytoweritend=mapTow_et.end();
-  std::cout << " Number of trigger towers from digis " << mapTow_et.size() << std::endl;
-  std::cout << " Number of trigger towers from RecHits " << mapTow_et_rechits.size() << std::endl;
   for(;mytowerit!=mytoweritend;++mytowerit)
     {
       // Look for the same tower in the RecHits collection 
       std::map<EcalTrigTowerDetId,double>::const_iterator theotherTower=mapTow_et_rechits.find(mytowerit->first);
       if(theotherTower==mapTow_et_rechits.end())
 	{
-	  //	  std::cout << " Strange - in one collection but not in the other " << std::endl;	  
+	  std::cout << " Strange - in one collection but not in the other " << std::endl;	  
 	  continue;
 	}
       double energy1=mytowerit->second*mapTow_sintheta[mytowerit->first];
       double energy2=theotherTower->second*mapTow_sintheta[mytowerit->first];
-      if(mytowerit->first.ietaAbs()<=17)
-	h5->Fill(energy1,energy2);
-      else
-	h6->Fill(energy1,energy2);
+      h5->Fill(energy1,energy2);
     }
 }
 
 void DigiCheck::endRun()
 {
-  //  dbe->save("Digicheck.root");
+  dbe->save("Digicheck.root");
 }
 
 

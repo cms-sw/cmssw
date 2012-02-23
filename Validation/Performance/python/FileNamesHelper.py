@@ -69,10 +69,9 @@ def read_ConfigurationFromSimulationCandles(path, step, is_pileup):
 		#print simCandlesRules[2][1].match(line) and simCandlesRules[2][1].match(line).groups() or ""
 
 		info, missing_fields = parsingRulesHelper.rulesParser(simCandlesRules, [line], compileRules = False)
-		#print info
 		#Massaging the info dictionary conditions entry to allow for new cmsDriver.py --conditions option:
 		if 'auto:' in info['conditions']:
-			from Configuration.AlCa.autoCond import autoCond
+			from Configuration.PyReleaseValidation.autoCond import autoCond
 			info['conditions'] = autoCond[ info['conditions'].split(':')[1] ].split("::")[0] 
 		else:
 			if 'FrontierConditions_GlobalTag' in info['conditions']:
@@ -110,7 +109,7 @@ def getJobID_fromFileName(logfile_name, suffix, givenPath =""):
 	"""
 	import os
 	
-	# get the actual filename (no path
+	# get the actual filename (no path)
 	(path, filename) = os.path.split(logfile_name)
 	if givenPath:
 		path = givenPath
@@ -134,7 +133,7 @@ def getJobID_fromFileName(logfile_name, suffix, givenPath =""):
 		#print result.groups()
 		#print "result: %s" % str(result.groups())
 		candle = result.groups()[0]
-		step = result.groups()[1].replace('-', ',')
+		step = result.groups()[1]
 		is_pileup = result.groups()[2]
 		if is_pileup:
 			is_pileup = "PILEUP"
@@ -216,55 +215,8 @@ def getJobID_fromTimeReportLogName(logfile_name):
 	>>> getJobID_fromTimeReportLogName("TTBAR__DIGI_PILEUP_TimingReport.log")
 	('TTBAR', 'DIGI', 'PILEUP', '')
 	"""
-	return getJobID_fromFileName(logfile_name, "_TimingReport.log")
+	return getJobID_fromFileName(logfile_name, "_TimingReport.log")	
 
-def getJobID_fromMemcheckLogName(logfile_name):
-	""" 
-	Returns the candle and STEP out of filename:
-	
-	* otherwise after candle we have two underscores:
-	>>> getJobID_fromTimeReportLogName("test_data/TTBAR__RAW2DIGI,RECO_memcheck_vlgd.xml")
-	('TTBAR', 'RAW2DIGI,RECO', '', '')
-	
-	* and lastly we have the PILEUP possibility:
-	>>> getJobID_fromTimeReportLogName("TTBAR__DIGI_PILEUP_memcheck_vlgd.xml")
-	('TTBAR', 'DIGI', 'PILEUP', '')
-	"""
-	return getJobID_fromFileName(logfile_name, "_memcheck_vlgd.xml")	
-
-def getJobID_fromIgProfLogName(logfile_name):
-	""" 
-	Returns the candle and STEP out of .sql3 filename:
-
-	everything is given, just have to split it...
-	like:
-	TTbar___GEN,FASTSIM___LowLumiPileUp___MC_37Y_V5___RAWSIM___MEM_LIVE___1.sql3
-	and correct the conditions!
-	
-	"""
-
-	(path, filename) = os.path.split(logfile_name)
-
-	params = filename.split("___")
-	candle = params[0].upper()
-	step = params[1]
-	pileup_type = params[2]
-	if pileup_type == "NOPILEUP":
-		pileup_type = ""
-	elif pileup_type == "LowLumiPileUp":
-		pileup_type = "PILEUP"
-	#conditions = params[3] + "::All"
-	#event_content = params[4]
-	
-	#get the conditions from the SimulationCandles!!
-	conf = read_ConfigurationFromSimulationCandles(path = path, step = step, is_pileup= pileup_type)
-	if conf:
-		is_pileup = conf["pileup_type"]
-		conditions = conf["conditions"]
-		event_content = conf["event_content"]
-		return (candle, step, is_pileup, conditions, event_content)
-	else:
-		return (None, None, None, None, None)			
 
 """ Get the root file size for the candle, step in current dir """
 def getRootFileSize(path, candle, step):

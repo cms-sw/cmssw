@@ -141,6 +141,9 @@ private:
   float CrysPhi_, CrysEta_, CrysIPhi_, CrysIEta_, VtxZ_, ClusPhi_, ClusEta_, 
     ClusR9_, Clus5x5ratio_, PFCrysPhiCrack_, PFCrysEtaCrack_, logPFClusE_, e3x3_;
   float EB;
+  //Cluster Shapes:
+  float eSeed_, e1x3_,e3x1_, e1x5_, e2x5Top_,  e2x5Bottom_, e2x5Left_,  e2x5Right_ ; 
+  float e2x5Max_;
   //For Global Corrections:
   float PFPhoEta_, PFPhoPhi_, PFPhoR9_, SCPhiWidth_, SCEtaWidth_, PFPhoEt_, RConv_;
   float dEta_, dPhi_, LowClusE_, nPFClus_;

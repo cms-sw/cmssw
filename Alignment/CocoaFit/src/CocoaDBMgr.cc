@@ -1,3 +1,7 @@
+#include "CondFormats/Alignment/interface/Alignments.h"
+#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignTransform.h"
+#include "CondFormats/Alignment/interface/AlignTransformError.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBCommon/interface/Exception.h"
@@ -5,7 +9,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h" 
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "../interface/CocoaDBMgr.h"
+#include "Alignment/CocoaFit/interface/CocoaDBMgr.h"
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignMeasurementInfo.h" 
 #include "CondFormats/DataRecord/interface/OpticalAlignmentsRcd.h" 
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h" 
@@ -27,10 +31,6 @@
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignments.h"
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignInfo.h"
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignMeasurements.h"
-#include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
-#include "CondFormats/Alignment/interface/AlignTransform.h"
-#include "CondFormats/Alignment/interface/AlignTransformError.h"
 
 CocoaDBMgr* CocoaDBMgr::instance = 0;
 
@@ -190,31 +190,31 @@ OpticalAlignInfo CocoaDBMgr::GetOptAlignInfoFromOptO( OpticalObject* opto )
   std::cout << " CocoaDBMgr::GetOptAlignInfoFromOptO starting coord " <<std::endl;
 
   data.x_.value_= centreLocal.x() / 100.; // in cm
-  //x  std::cout << " matrix " << Fit::GetAtWAMatrix() << std::endl;
-  std::cout << " matrix " << Fit::GetAtWAMatrix().Mat() << " " << theCoordinateEntryVector[0]->fitPos() << std::endl;
+  std::cout << " matrix " << Fit::GetAtWAMatrix() << std::endl;
+  std::cout << " matrix " << Fit::GetAtWAMatrix()->Mat() << " " << theCoordinateEntryVector[0]->fitPos() << std::endl;
   data.x_.error_= GetEntryError( theCoordinateEntryVector[0] ) / 100.; // in cm
 
   data.y_.value_= centreLocal.y() / 100.; // in cm
-  std::cout << " matrix " << Fit::GetAtWAMatrix().Mat()  << " " << theCoordinateEntryVector[1]->fitPos() << std::endl;
+  std::cout << " matrix " << Fit::GetAtWAMatrix()->Mat()  << " " << theCoordinateEntryVector[1]->fitPos() << std::endl;
   data.y_.error_= GetEntryError( theCoordinateEntryVector[1] ) / 100.; // in cm
 
   data.z_.value_= centreLocal.z() / 100.; // in cm
-  std::cout << " matrix " << Fit::GetAtWAMatrix().Mat()  << " " << theCoordinateEntryVector[2]->fitPos() << std::endl;
+  std::cout << " matrix " << Fit::GetAtWAMatrix()->Mat()  << " " << theCoordinateEntryVector[2]->fitPos() << std::endl;
   data.z_.error_= GetEntryError( theCoordinateEntryVector[2] ) / 100.; // in cm
 
   //----- angles in local coordinates
   std::vector<double> anglocal = opto->getLocalRotationAngles( theCoordinateEntryVector );
 
   data.angx_.value_= anglocal[0] *180./M_PI; // in deg
-  std::cout << " matrix " << Fit::GetAtWAMatrix().Mat() << theCoordinateEntryVector[3]->fitPos() << std::endl;
+  std::cout << " matrix " << Fit::GetAtWAMatrix()->Mat() << theCoordinateEntryVector[3]->fitPos() << std::endl;
   data.angx_.error_= GetEntryError( theCoordinateEntryVector[3] ) * 180./M_PI; // in deg;
 
   data.angy_.value_= anglocal[1] * 180./M_PI; // in deg
-  std::cout << " matrix " << Fit::GetAtWAMatrix().Mat() << theCoordinateEntryVector[4]->fitPos() << std::endl;
+  std::cout << " matrix " << Fit::GetAtWAMatrix()->Mat() << theCoordinateEntryVector[4]->fitPos() << std::endl;
   data.angy_.error_= GetEntryError( theCoordinateEntryVector[4] ) * 180./M_PI; // in deg;;
 
   data.angz_.value_= anglocal[2] *180./M_PI; // in deg
-  std::cout << " matrix " << Fit::GetAtWAMatrix().Mat() << theCoordinateEntryVector[5]->fitPos() << std::endl;
+  std::cout << " matrix " << Fit::GetAtWAMatrix()->Mat() << theCoordinateEntryVector[5]->fitPos() << std::endl;
   data.angz_.error_= GetEntryError( theCoordinateEntryVector[5] ) * 180./M_PI; // in deg;
 
   
@@ -241,7 +241,7 @@ OpticalAlignInfo CocoaDBMgr::GetOptAlignInfoFromOptO( OpticalObject* opto )
 double CocoaDBMgr::GetEntryError( const Entry* entry )
 {
   if( entry->quality() > 0 ) {
-    return sqrt(Fit::GetAtWAMatrix().Mat()->me[entry->fitPos()][entry->fitPos()]);
+    return sqrt(Fit::GetAtWAMatrix()->Mat()->me[entry->fitPos()][entry->fitPos()]);
   } else { //entry not fitted, return original error
     return entry->sigma();
   }
@@ -254,7 +254,7 @@ double CocoaDBMgr::GetEntryError( const Entry* entry1, const Entry* entry2 )
   if( entry1 == entry2 ) return GetEntryError( entry1 );
 
   if( entry1->quality() > 0 && entry2->quality() > 0 ) {
-    return sqrt(Fit::GetAtWAMatrix().Mat()->me[entry1->fitPos()][entry2->fitPos()]);
+    return sqrt(Fit::GetAtWAMatrix()->Mat()->me[entry1->fitPos()][entry2->fitPos()]);
   } else { //entries not fitted, correlation is 0
     return 0.;
   }
@@ -343,9 +343,8 @@ AlignTransformError* CocoaDBMgr::GetAlignInfoErrorFromOptO( OpticalObject* opto 
 		  0.,
 		  0.,
 		  1.);
-  //double(dx*dx),  0., double(dy*dy),     0., 0., double(dz*dz) ) ;
- // Does not compile on slc5_ia32_gcc434  CLHEP::HepSymMatrix errms = asHepMatrix(gerr.matrix());
-  CLHEP::HepSymMatrix errms = gerr.matrix();
+ //double(dx*dx),  0., double(dy*dy),     0., 0., double(dz*dz) ) ;
+  CLHEP::HepSymMatrix errms = asHepMatrix(gerr.matrix());
   AlignTransformError* alignError = new AlignTransformError( errms, cmsswID );
   return alignError;
 

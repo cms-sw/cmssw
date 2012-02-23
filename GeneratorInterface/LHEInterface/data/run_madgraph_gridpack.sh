@@ -103,10 +103,13 @@ fi
 if [ "${decay}" == true ] ; then
 
     echo "%MSG-MG5 Running DECAY..."
-	sed -i 's/  5 0.000000 # b : 0/  5  4.700000 # b/g' ${file}.lhe
-    
+	sed 's/  5 0.000000 # b : 0.0/  5  4.700000 # b/' ${file}.lhe > ${file}_in.lhe ; rm -f ${file}.lhe
+
 	# if you want to do not-inclusive top-decays you have to modify the switch in the decay_1.in and decay_2.in
 	for (( i = 1; i <=2; i++)) ; do
+        if [ -f ${file}.lhe ] ; then
+           mv ${file}.lhe ${file}_in.lhe 
+        fi 
 		madevent/bin/decay < decay_$i\.in
 	done
 fi

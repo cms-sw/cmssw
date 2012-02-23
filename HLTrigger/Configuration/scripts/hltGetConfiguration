@@ -18,6 +18,9 @@ parser = argparse.ArgumentParser(
   formatter_class   = formatter,
   add_help          = False )
 
+# read defaults
+defaults = options.HLTProcessOptions()
+
 # required argument
 parser.add_argument('menu',
                     action  = 'store', 
@@ -29,7 +32,7 @@ parser.add_argument('menu',
 parser.add_argument('--process', 
                     dest    = 'name', 
                     action  = 'store', 
-                    default = 'HLT', 
+                    default = defaults.name,
                     metavar = 'PROCESS', 
                     help    = 'Override the process name (the default is %(default)s)' )
 parser.add_argument('--type', 
@@ -37,19 +40,19 @@ parser.add_argument('--type',
                     action  = 'store', 
                     metavar = 'TYPE', 
                     choices = options.globalTag, 
-                    default = None,
+                    default = defaults.type,
                     help    = 'Set global options acording to a specific HLT luminosity and type (%(choices)s).' )
 parser.add_argument('--globaltag', 
                     dest    = 'globaltag', 
                     action  = 'store', 
                     metavar = 'TAG', 
-                    default = None,
+                    default = defaults.globaltag,
                     help    = 'Override the GlobalTag in the HLT menu:\n- when running on data, the default behaviour is to not override the GobalTag in the HLT menu\n- when running on MC, the default behaviour is to use the GlobalTag from "type" and the current PyRelVal configuration.\nTo run on data with a different release than the menu was designed for, try "auto:hltonline"' )
 parser.add_argument('--l1', 
                     dest    = 'l1', 
                     action  = 'store',
                     type    = options.ConnectionL1TMenu,
-                    default = None,
+                    default = defaults.l1,
                     metavar = 'MENU', 
                     help    = 'Override the L1 menu, using the given payload from the database. %(metavar)s should have the format "L1GtTriggerMenu_MENU_mc".\nThe default behaviour is to run with the L1 menu from the GlobalTag' )
 parser.add_argument('--l1-emulator',
@@ -58,41 +61,41 @@ parser.add_argument('--l1-emulator',
                     metavar = 'EMULATOR',
                     nargs   = '?',
                     choices = [ 'gt', 'gmt,gt', 'gct,gt', 'gmt,gct,gt', 'gct,gmt,gt', 'all' ], 
-                    default = None,
+                    default = defaults.emulator,
                     const   = 'gt',
                     help    = 'Run the L1 emulator. Possible sub-options are:\n- "gt": run only the GT emulator. Trigger primitives, GMT and GCT are taken from the data\n- "gct,gt": emulate calo primitives, RCT, GCT and GT. Muon primitives and GMT are taken from the data\n- "gmt,gt": emulate muon primitives, GMT and GT. Calo primitives, RCT and GCT are taken from the data\n - "gmt,gct,gt", "gct,gmt,gt", "all": run the whole L1 emulator.\nThe default behaviour is to not run the L1 emulator.\nIf the option is used without arguments, "gt" is assumed.' )
 parser.add_argument('--unprescale', 
                     dest    = 'unprescale', 
                     action  = 'store_true', 
-                    default = False, 
+                    default = defaults.unprescale, 
                     help    = 'Run without any HLT prescales' )
 parser.add_argument('--open', 
                     dest    = 'open', 
                     action  = 'store_true', 
-                    default = False, 
+                    default = defaults.open, 
                     help    = 'Run the HLT in "open" mode, overriding all ED/HLTFilters to always pass (implies --unprescale)' )
 parser.add_argument('--profiling', 
                     dest    = 'profiling', 
                     action  = 'store_true', 
-                    default = False,
+                    default = defaults.profiling,
                     help    = 'Instrument the menu with the modules for profiling studies (hltGetaw and hltGetConditions), disable options, and remove all EndPaths (implies --no-output)' )
 parser.add_argument('--timing', 
                     dest    = 'timing', 
                     action  = 'store_true', 
-                    default = False,
+                    default = defaults.timing,
                     help    = 'Instrument the menu with the Servie, EDModules and EndPath needed for timing studies (implies --profiling and --no-output)' )
 parser.add_argument('--paths',
                     dest    = 'paths',
                     action  = 'store',
                     type    = str,
-                    default = None,
+                    default = defaults.paths,
                     metavar = 'PATHS',
                     help    = 'Include only the given comma-separated-list of paths in the dump (wildcards are accepted)\nNote that in a full dump the "smart prescale" modules will likely fail, unless removed with --output none or minimal' )
 parser.add_argument('--input',
                     dest    = 'input',
                     action  = 'store',
                     type    = str,
-                    default = None,
+                    default = defaults.input,
                     metavar = 'SOURCE',
                     help    = 'If specified, run over the specified SOURCE file. Otherwise a default is chosen up depending on the other options' )
 
@@ -102,7 +105,7 @@ group.add_argument('--output',
                     action  = 'store',
                     metavar = 'OUTPUT',
                     choices = [ 'all', 'minimal', 'none', 'full' ], 
-                    default = 'all',
+                    default = defaults.output,
                     help    = 'Use:\n- "all" to output all output modules (default)\n- "minimal" to only output the TriggerResults\n- "none" to remove all output modules\n- "full" to output a single root file with "keep *" event content.' )
 group.add_argument('--no-output',
                     dest    = 'output',
@@ -114,38 +117,41 @@ group = parser.add_mutually_exclusive_group()
 group.add_argument('--data', 
                     dest    = 'data', 
                     action  = 'store_true', 
-                    default = True, 
+                    default = defaults.data, 
                     help    = 'Prepare a menu for running on data (raw events in "source") (default)' )
 group.add_argument('--mc', 
                     dest    = 'data', 
                     action  = 'store_false', 
+                    default = not defaults.data, 
                     help    = 'Prepare a menu for running on MC (raw events in "rawDataCollector")' )
 group.add_argument('--fastsim',
                     dest    = 'fastsim',
                     action  = 'store_true',
-                    default = False,
+                    default = defaults.fastsim,
                     help    = 'Prepare a menu suitable for Fast Simulation (implies --mc and --fragment)' )
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument('--full', 
                     dest    = 'fragment', 
                     action  = 'store_false', 
-                    default = False, 
+                    default = not defaults.fragment, 
                     help    = 'Generate a full configuration file, with minimal modifications (default)' )
 group.add_argument('--cff', 
                     dest    = 'fragment', 
                     action  = 'store_true', 
+                    default = defaults.fragment, 
                     help    = 'Generate a stripped down configuration file fragment, for inclusion by e.g. cmsDriver.py (with no input or output sections)' )
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument('--online', 
                     dest    = 'online', 
                     action  = 'store_true', 
+                    default = defaults.online, 
                     help    = 'Generate a configuration file suitable for running online (use the online compliant connection string)' )
 group.add_argument('--offline', 
                     dest    = 'online', 
                     action  = 'store_false', 
-                    default = False, 
+                    default = not defaults.online, 
                     help    = 'Generate a configuration file suitable for running offline (override the connection string) (default)' )
 
 # redefine "--help" to be the last option, and use a customized message 

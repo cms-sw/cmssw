@@ -1510,7 +1510,7 @@ class GenObject (object):
     @staticmethod
     def _convertStringToParameters (string):
         """Convert comma-separated string into a python list of
-        parameters.  Currently only understands strings, floats,  and
+        parameters.  Currently only understands strings, floats, and
         integers."""
         retval = []        
         words = GenObject._commaRE.split (string)
@@ -1636,4 +1636,3 @@ class GenObject (object):
             else:
                 retval = retval + "%s:%s  " % (varName, value)
         return retval
-

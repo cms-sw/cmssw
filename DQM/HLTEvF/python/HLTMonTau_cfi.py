@@ -3,110 +3,236 @@ import FWCore.ParameterSet.Config as cms
 hltTauDQMProcess = "HLT"
 
 hltTauMonitor = cms.EDAnalyzer("HLTTauDQMSource",
-    HLTProcessName = cms.untracked.string(hltTauDQMProcess),
-    ModuleName = cms.untracked.string("hltTauMonitor"),
-    DQMBaseFolder = cms.untracked.string("HLT/TauOnline/Inclusive/"),
+
     MonitorSetup = cms.VPSet(
         cms.PSet(
-            ConfigType            = cms.untracked.string("Path"),
-            TriggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauDQMProcess),
-            DQMFolder             = cms.untracked.string('DoubleTau'),
+            triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauDQMProcess),
+            DQMFolder             = cms.untracked.string('HLT/TauOnline/Inclusive/DoubleTau'),
+            Filter                = cms.untracked.VInputTag(
+                                        cms.InputTag("hltL1sDoubleIsoTau25Trk5","",hltTauDQMProcess), 
+                                        cms.InputTag("hltFilterL2EtCutDoublePFIsoTau25Trk5","",hltTauDQMProcess),
+                                        cms.InputTag("hltDoublePFTauTightIso25Track","",hltTauDQMProcess),
+                                        cms.InputTag("hltDoublePFTauTightIso25Track5","",hltTauDQMProcess),
+                                        cms.InputTag("hltFilterDoubleIsoPFTau25Trk5LeadTrack5IsolationL1HLTMatched","",hltTauDQMProcess)
+                                        ),
+            MatchDeltaR           = cms.untracked.vdouble(0.5,0.2,0.2,0.2,0.2),    #One per filter
+            NTriggeredTaus        = cms.untracked.vuint32(2,2,2,2,2,2), #The first one is for the ref events
+            NTriggeredLeptons     = cms.untracked.vuint32(0,0,0,0,0,0), #the first one is for the ref events
+            TauType               = cms.untracked.vint32(-86,84,84,84,84),
+            LeptonType            = cms.untracked.vint32(0,0,0,0,0)                            
         ),
+        
         cms.PSet(
-            ConfigType            = cms.untracked.string("Path"),
-            TriggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauDQMProcess),
-            DQMFolder             = cms.untracked.string('Ele.+?Tau'),
-            Alias                 = cms.untracked.string('EleTau'),
+            triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauDQMProcess),
+            DQMFolder             = cms.untracked.string('HLT/TauOnline/Inclusive/EleTau'),
+            Filter                = cms.untracked.VInputTag(
+                                        cms.InputTag("hltL1sL1SingleEG12","",hltTauDQMProcess), 
+                                        cms.InputTag("hltEle15CaloIdVTTrkIdTCaloIsoTTrkIsoTTrackIsolFilter","",hltTauDQMProcess),
+                                        cms.InputTag("hltPFTau15","",hltTauDQMProcess),
+                                        cms.InputTag("hltPFTau15Track","",hltTauDQMProcess),
+                                        cms.InputTag("hltPFTau15TrackLooseIso","",hltTauDQMProcess),
+                                        cms.InputTag("hltOverlapFilterIsoEle15IsoPFTau15","",hltTauDQMProcess)
+                                        ),
+            MatchDeltaR           = cms.untracked.vdouble(0.5,0.2,0.2,0.2,0.2,0.2),    #One per filter
+            NTriggeredTaus        = cms.untracked.vuint32(1,0,0,1,1,1,1), #The first one is for the ref events
+            NTriggeredLeptons     = cms.untracked.vuint32(1,1,1,0,0,0,1), #the first one is for the ref events
+            TauType               = cms.untracked.vint32(0,0,84,84,84,84),
+            LeptonType            = cms.untracked.vint32(-83,82,0,0,0,82)                            
         ),
+        
         cms.PSet(
-            ConfigType            = cms.untracked.string("Path"),
-            TriggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauDQMProcess),
-            DQMFolder             = cms.untracked.string('Mu.+?Tau'),
-            Alias                 = cms.untracked.string('MuTau'),
+            triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauDQMProcess),
+            DQMFolder             = cms.untracked.string('HLT/TauOnline/Inclusive/MuTau'),
+            Filter                = cms.untracked.VInputTag(
+                                        cms.InputTag("hltL1sL1SingleMu10","",hltTauDQMProcess), 
+                                        cms.InputTag("hltSingleMuIsoL3IsoFiltered15","",hltTauDQMProcess),
+                                        cms.InputTag("hltPFTau15Track","",hltTauDQMProcess),
+                                        cms.InputTag("hltPFTau15TrackLooseIso","",hltTauDQMProcess),
+                                        cms.InputTag("hltOverlapFilterIsoMu15IsoPFTau15","",hltTauDQMProcess)
+                                        ),
+            MatchDeltaR           = cms.untracked.vdouble(0.5,0.2,0.2,0.2,0.2),    #One per filter
+            NTriggeredTaus        = cms.untracked.vuint32(1,0,0,1,1,1), #The first one is for the ref events
+            NTriggeredLeptons     = cms.untracked.vuint32(1,1,1,0,0,1), #the first one is for the ref events
+            TauType               = cms.untracked.vint32(0,0,84,84,84),
+            LeptonType            = cms.untracked.vint32(-81,83,0,0,83)                            
         ),
+        
         cms.PSet(
-            ConfigType            = cms.untracked.string("Path"),
-            TriggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauDQMProcess),
-            DQMFolder             = cms.untracked.string('Single.+?Tau_MET'),
-            Alias                 = cms.untracked.string('SingleTau'),
+            triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryAOD","",hltTauDQMProcess),
+            DQMFolder             = cms.untracked.string('HLT/TauOnline/Inclusive/Summary'),
+            Filter                = cms.untracked.VInputTag(
+                                        cms.InputTag("hltFilterDoubleIsoPFTau25Trk5LeadTrack5IsolationL1HLTMatched","",hltTauDQMProcess),
+                                        cms.InputTag("hltOverlapFilterIsoEle15IsoPFTau15","",hltTauDQMProcess),
+                                        cms.InputTag("hltOverlapFilterIsoMu15IsoPFTau15","",hltTauDQMProcess),
+                                        cms.InputTag("hltFilterSingleIsoPFTau35Trk20LeadTrackPt20","",hltTauDQMProcess)
+                                        ),
+            PathName              = cms.untracked.vstring(
+                                        'DoubleIsoTau',
+                                        'EleTau',
+                                        'MuTau',
+                                        'SingleIsoTau'
+                                        ),
+            NTriggeredTaus        = cms.untracked.vuint32(2,1,1,1), 
+            NTriggeredLeptons     = cms.untracked.vuint32(0,1,1,0), 
+            TauType               = cms.untracked.vint32(15,15,15,15),
+            LeptonType            = cms.untracked.vint32(0,11,13,0)                            
         ),
+        
         cms.PSet(
-            ConfigType            = cms.untracked.string("LitePath"),
-            TriggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryAOD","",hltTauDQMProcess),
-            DQMFolder             = cms.untracked.string('Summary'),
+            triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauDQMProcess),
+            DQMFolder             = cms.untracked.string('HLT/TauOnline/Inclusive/SingleTau'),
+            Filter                = cms.untracked.VInputTag(
+                                        cms.InputTag("hltL1sSingleIsoTau35Trk20MET45","",hltTauDQMProcess), 
+                                        cms.InputTag("hltFilterL2EtCutSingleIsoPFTau35Trk20MET45","",hltTauDQMProcess),
+                                        cms.InputTag("hltPFTauTightIso35","",hltTauDQMProcess),
+                                        cms.InputTag("hltPFTauTightIso35Track","",hltTauDQMProcess),
+                                        cms.InputTag("hltFilterSingleIsoPFTau35Trk20LeadTrackPt20","",hltTauDQMProcess),
+                                        cms.InputTag("hltFilterSingleIsoPFTau35Trk20MET45LeadTrack20MET45IsolationL1HLTMatched","",hltTauDQMProcess)
+                                        ),
+            MatchDeltaR           = cms.untracked.vdouble(0.5,0.2,0.2,0.2,0.2,0.2),    #One per filter
+            NTriggeredTaus        = cms.untracked.vuint32(1,1,1,1,1,1,1), #The first one is for the ref events
+            NTriggeredLeptons     = cms.untracked.vuint32(0,0,0,0,0,0,0), #the first one is for the ref events
+            TauType               = cms.untracked.vint32(-86,84,84,84,84,84),
+            LeptonType            = cms.untracked.vint32(0,0,0,0,0,0)                         
         ),
+        
         cms.PSet(
-            ConfigType            = cms.untracked.string("L1"),
-            DQMFolder             = cms.untracked.string('L1'),
-            L1Taus                = cms.InputTag("hltL1extraParticles","Tau"),
-            L1Jets                = cms.InputTag("hltL1extraParticles","Central"),
-            L1Electrons           = cms.InputTag("hltL1extraParticles","Isolated"),
-            L1Muons               = cms.InputTag("hltL1extraParticles"),
+            DQMFolder              = cms.string('HLT/TauOnline/Inclusive/L1'),
+            L1Taus                 = cms.InputTag("hltL1extraParticles","Tau"),
+            L1Jets                 = cms.InputTag("hltL1extraParticles","Central"),
+            L1Electrons            = cms.InputTag("hltL1extraParticles","Isolated"),
+            L1Muons                = cms.InputTag("hltL1extraParticles"),
         ),
+
+    
     ),
-    Matching = cms.PSet(
-        doMatching            = cms.untracked.bool(False),
-        TriggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryAOD","",hltTauDQMProcess),
-        matchFilters          = cms.untracked.VPSet(),
+
+
+    ConfigType = cms.vstring(
+        "Path",
+        "Path",
+        "Path",
+        "LitePath",
+        "Path",
+        "L1"
+
     ),
+    
+   doMatching = cms.bool(False),
+
+   matchFilter         = cms.untracked.VInputTag(cms.InputTag("","",hltTauDQMProcess) ),
+   matchObjectID       = cms.untracked.vint32(0),
+   matchObjectMinPt    = cms.untracked.vdouble(15),
+   TriggerEvent = cms.InputTag("hltTriggerSummaryAOD","",hltTauDQMProcess )                          
 )
 
+
+
+
 hltTauElectronMonitor = cms.EDAnalyzer("HLTTauDQMSource",
-    HLTProcessName = cms.untracked.string(hltTauDQMProcess),
-    ModuleName = cms.untracked.string("hltTauElectronMonitor"),
-    DQMBaseFolder = cms.untracked.string("HLT/TauOnline/Electrons/"),
     MonitorSetup = cms.VPSet(
         cms.PSet(
-            ConfigType            = cms.untracked.string("Path"),
-            TriggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauDQMProcess),
-            DQMFolder             = cms.untracked.string('DoubleTau'),
+            triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauDQMProcess),
+            DQMFolder             = cms.untracked.string('HLT/TauOnline/Electrons/DoubleTau'),
+            Filter                = cms.untracked.VInputTag(
+                                        cms.InputTag("hltL1sDoubleIsoTau25Trk5","",hltTauDQMProcess), 
+                                        cms.InputTag("hltFilterL2EtCutDoublePFIsoTau25Trk5","",hltTauDQMProcess),
+                                        cms.InputTag("hltDoublePFTauTightIso25Track","",hltTauDQMProcess),
+                                        cms.InputTag("hltDoublePFTauTightIso25Track5","",hltTauDQMProcess),
+                                        cms.InputTag("hltFilterDoubleIsoPFTau25Trk5LeadTrack5IsolationL1HLTMatched","",hltTauDQMProcess)
+                                        ),
+            MatchDeltaR           = cms.untracked.vdouble(0.5,0.2,0.2,0.2,0.2),    #One per filter
+            NTriggeredTaus        = cms.untracked.vuint32(2,2,2,2,2,2), #The first one is for the ref events
+            NTriggeredLeptons     = cms.untracked.vuint32(0,0,0,0,0,0), #the first one is for the ref events
+            TauType               = cms.untracked.vint32(-86,84,84,84,84),
+            LeptonType            = cms.untracked.vint32(0,0,0,0,0)                            
+        ),
+        
+        cms.PSet(
+            triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauDQMProcess),
+            DQMFolder             = cms.untracked.string('HLT/TauOnline/Electrons/SingleTau'),
+            Filter                = cms.untracked.VInputTag(
+                                        cms.InputTag("hltL1sSingleIsoTau35Trk20MET45","",hltTauDQMProcess), 
+                                        cms.InputTag("hltFilterL2EtCutSingleIsoPFTau35Trk20MET45","",hltTauDQMProcess),
+                                        cms.InputTag("hltPFTauTightIso35","",hltTauDQMProcess),
+                                        cms.InputTag("hltPFTauTightIso35Track","",hltTauDQMProcess),
+                                        cms.InputTag("hltFilterSingleIsoPFTau35Trk20LeadTrackPt20","",hltTauDQMProcess),
+                                        cms.InputTag("hltFilterSingleIsoPFTau35Trk20MET45LeadTrack20MET45IsolationL1HLTMatched","",hltTauDQMProcess)
+                                        ),
+            MatchDeltaR           = cms.untracked.vdouble(0.5,0.2,0.2,0.2,0.2,0.2),    #One per filter
+            NTriggeredTaus        = cms.untracked.vuint32(1,1,1,1,1,1,1), #The first one is for the ref events
+            NTriggeredLeptons     = cms.untracked.vuint32(0,0,0,0,0,0,0), #the first one is for the ref events
+            TauType               = cms.untracked.vint32(-86,84,84,84,84,84),
+            LeptonType            = cms.untracked.vint32(0,0,0,0,0,0)                         
+        ),
+        
+        cms.PSet(
+            triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauDQMProcess),
+            DQMFolder             = cms.untracked.string('HLT/TauOnline/Electrons/LoosePFTau'),
+            Filter                = cms.untracked.VInputTag(
+                                        cms.InputTag("hltPFTau15","",hltTauDQMProcess),
+                                        cms.InputTag("hltPFTau15Track","",hltTauDQMProcess),
+                                        cms.InputTag("hltPFTau15TrackLooseIso","",hltTauDQMProcess)
+                                	),
+            MatchDeltaR           = cms.untracked.vdouble(0.2,0.2,0.2),    #One per filter
+            NTriggeredTaus        = cms.untracked.vuint32(1,1,1,1), #The first one is for the ref events
+            NTriggeredLeptons     = cms.untracked.vuint32(0,0,0,0), #the first one is for the ref events
+            TauType               = cms.untracked.vint32(84,84,84),
+            LeptonType            = cms.untracked.vint32(0,0,0)                         
+        ),
+        
+        cms.PSet(
+            triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryAOD","",hltTauDQMProcess),
+            DQMFolder             = cms.untracked.string('HLT/TauOnline/Electrons/Summary'),
+            Filter                = cms.untracked.VInputTag(
+                                        cms.InputTag("hltFilterDoubleIsoPFTau25Trk5LeadTrack5IsolationL1HLTMatched","",hltTauDQMProcess),
+                                        cms.InputTag("hltFilterSingleIsoPFTau35Trk20MET45LeadTrack20MET45IsolationL1HLTMatched","",hltTauDQMProcess)
+                                        ),
+            PathName              = cms.untracked.vstring(
+                                        'DoubleIsoTau',
+                                        'SingleTau'
+                                        ),
+            NTriggeredTaus        = cms.untracked.vuint32(2,1), 
+            NTriggeredLeptons     = cms.untracked.vuint32(0,0), 
+            TauType               = cms.untracked.vint32(15,15),
+            LeptonType            = cms.untracked.vint32(0,0)
         ),
         cms.PSet(
-            ConfigType            = cms.untracked.string("Path"),
-            TriggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauDQMProcess),
-            DQMFolder             = cms.untracked.string('Single.+?Tau_MET'),
-            Alias                 = cms.untracked.string('SingleTau'),
+            DQMFolder              = cms.string('HLT/TauOnline/Electrons/L1'),
+            L1Taus                 = cms.InputTag("hltL1extraParticles","Tau"),
+            L1Jets                 = cms.InputTag("hltL1extraParticles","Central"),
+            L1Electrons            = cms.InputTag("hltL1extraParticles","Isolated"),
+            L1Muons                = cms.InputTag("hltL1extraParticles"),
         ),
         cms.PSet(
-            ConfigType            = cms.untracked.string("Path"),
-            TriggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauDQMProcess),
-            DQMFolder             = cms.untracked.string('LoosePFTau'),
+            L1Dirs                  = cms.vstring("HLT/TauOnline/Electrons/L1"),
+            caloDirs                = cms.vstring(""),
+            trackDirs               = cms.vstring(""),
+            pathDirs                = cms.vstring("HLT/TauOnline/Electrons/DoubleTau","HLT/TauOnline/Electrons/SingleTau","HLT/TauOnline/Electrons/LoosePFTau"),
+            pathSummaryDirs         = cms.vstring("HLT/TauOnline/Electrons/Summary")
         ),
-        cms.PSet(
-            ConfigType            = cms.untracked.string("Path"),
-            TriggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauDQMProcess),
-            DQMFolder             = cms.untracked.string('MediumPFTau'),
-        ),
-        cms.PSet(
-            ConfigType            = cms.untracked.string("Path"),
-            TriggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauDQMProcess),
-            DQMFolder             = cms.untracked.string('TightPFTau'),
-        ),
-        cms.PSet(
-            ConfigType            = cms.untracked.string("LitePath"),
-            TriggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryAOD","",hltTauDQMProcess),
-            DQMFolder             = cms.untracked.string('Summary'),
-        ),
-        cms.PSet(
-            ConfigType            = cms.untracked.string("L1"),
-            DQMFolder             = cms.untracked.string('L1'),
-            L1Taus                = cms.InputTag("hltL1extraParticles","Tau"),
-            L1Jets                = cms.InputTag("hltL1extraParticles","Central"),
-            L1Electrons           = cms.InputTag("hltL1extraParticles","Isolated"),
-            L1Muons               = cms.InputTag("hltL1extraParticles"),
-        ),
+    
     ),
-    Matching = cms.PSet(
-        doMatching            = cms.untracked.bool(True),
-        TriggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryAOD","",hltTauDQMProcess),
-        matchFilters          = cms.untracked.VPSet(
-                                    cms.untracked.PSet(
-                                        AutomaticFilterName   = cms.untracked.string('Ele.+?Tau'),
-                                        matchObjectID         = cms.untracked.int32(11),
-                                        matchObjectMinPt      = cms.untracked.double(10),
-                                    ),
-                                ),
+                                     
+
+    ConfigType = cms.vstring(
+        "Path",
+        "Path",
+        "Path",
+        "LitePath",
+        "L1",
+        "Summary"
     ),
+    
+   doMatching = cms.bool(True),
+   matchFilter       = cms.untracked.VInputTag(cms.InputTag("hltEle15CaloIdVTTrkIdTCaloIsoTTrkIsoTTrackIsolFilter","",hltTauDQMProcess) ),
+   matchObjectID       = cms.untracked.vint32(11),
+   matchObjectMinPt    = cms.untracked.vdouble(10),
+   TriggerEvent = cms.InputTag("hltTriggerSummaryAOD","",hltTauDQMProcess )                          
 )
 
 hltMonTauReco =cms.Sequence(hltTauMonitor+hltTauElectronMonitor)
+
+
+
+
