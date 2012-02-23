@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:06:35 CET 2012
-// $Id: FWOverlapTableView.cc,v 1.3 2012/02/22 21:00:31 amraktad Exp $
+// $Id: FWOverlapTableView.cc,v 1.4 2012/02/23 01:32:30 amraktad Exp $
 //
 
 // system include files
@@ -230,6 +230,17 @@ void FWOverlapTableView::chosenItem(int menuIdx)
    if (gv)
    {
       switch (menuIdx) {
+         case FWEveOverlap::kOvlDaugtersVisOff:
+            m_tableManager->setDaughtersSelfVisibility(selectedIdx, false);
+            refreshTable3D();
+            break;
+         case  FWEveOverlap::kOvlDaugtersVisOn:
+            m_tableManager->setDaughtersSelfVisibility(selectedIdx,  true);
+            refreshTable3D();
+            break;
+
+
+            /*
          case FWEveOverlap::kOvlVisOff:
             // std::cout << "VIS OFF \n";
             for (FWGeometryTableManagerBase::Entries_i i = m_tableManager->refEntries().begin(); i !=  m_tableManager->refEntries().end(); ++i)
@@ -252,7 +263,7 @@ void FWOverlapTableView::chosenItem(int menuIdx)
             for (FWGeometryTableManagerBase::Entries_i i = m_tableManager->refEntries().begin(); i !=  m_tableManager->refEntries().end(); ++i)
                if (i->m_parent == 0 )i->setBit(FWGeometryTableManagerBase::kVisNodeSelf);
             break;
-
+            */
          case FWEveOverlap::kOvlSetTopNode:
             if (m_topNodeIdx.value() > selectedIdx )
             {
@@ -264,13 +275,14 @@ void FWOverlapTableView::chosenItem(int menuIdx)
                std::cout << sUpdateMsg;
             }
             break; 
-
+            /*
          case FWEveOverlap::kOvlVisMother:
             m_tableManager->refEntries().at(ni.m_parent).switchBit(FWGeometryTableManagerBase::kVisNodeSelf);
             break;
          case FWEveOverlap::kOvlSwitchVis:
             ni.switchBit(FWGeometryTableManagerBase::kVisNodeSelf);
-            break;
+            break
+            */;
          case FWEveOverlap::kOvlCamera:
          {
             TGeoHMatrix mtx;
@@ -333,7 +345,7 @@ void FWOverlapTableView::refreshTable3D()
    if (m_drawPoints.value()) {
       for (std::vector<int>::iterator i = m_markerIndices.begin(); i!=m_markerIndices.end(); i++, cnt+=3)
       {
-         if (*i >= n0 && *i <= n1)
+         if (Abs(*i) >= n0 && Abs(*i) <= n1)
          {
             FWGeometryTableManagerBase::NodeInfo& data = m_tableManager->refEntries().at(Abs(*i));
             if ( data.testBit(FWOverlapTableManager::kVisMarker)  && 

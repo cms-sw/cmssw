@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 20:34:38 CET 2012
-// $Id: FWOverlapTableManager.h,v 1.1.2.12 2012/02/19 20:55:13 amraktad Exp $
+// $Id: FWOverlapTableManager.h,v 1.2 2012/02/22 03:45:59 amraktad Exp $
 //
 
 #include "Fireworks/Core/interface/FWGeometryTableManagerBase.h"
@@ -54,6 +54,7 @@ public:
   void getOverlapTitles(int,TString&) const;
   void printOverlaps(int) const;
 
+   void setDaughtersSelfVisibility(int i, bool v);
 protected:
    virtual bool nodeIsParent(const NodeInfo&) const;
    //   virtual  const char* cellName(const NodeInfo& data) const;

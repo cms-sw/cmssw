@@ -106,9 +106,9 @@ void FWEveOverlap::popupMenu(int x, int y)
    FWPopupMenu* nodePopup = new FWPopupMenu();
 
    
-   nodePopup->AddEntry("Switch Visibility Self ", kOvlSwitchVis);
+   nodePopup->AddEntry("Rnr On For All Children",kOvlDaugtersVisOn);
 
-   nodePopup->AddEntry("Swithc Visibility Mother ", kOvlVisMother);
+   nodePopup->AddEntry("Rnr Off For All Children", kOvlDaugtersVisOff);
 
    if (tableManager()->refEntry(getFirstSelectedTableIndex()).testBit(FWOverlapTableManager::kOverlap))
    {

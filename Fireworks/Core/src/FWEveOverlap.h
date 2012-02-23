@@ -12,11 +12,14 @@ class FWEveOverlap : public FWGeoTopNode
 public:
 
    enum MenuOptions {
-      kOvlVisOff,
-      kOvlVisOnOvl,
-      kOvlVisOnAllMother,
-      kOvlVisMother,
-      kOvlSwitchVis,
+      //      kOvlVisOff,
+      //  kOvlVisOnOvl,
+      // kOvlVisOnAllMother,
+      //kOvlVisMother,
+      //kOvlSwitchVis,
+
+      kOvlDaugtersVisOn,
+      kOvlDaugtersVisOff,
       kOvlCamera,
       kOvlSetTopNode,
       kOvlPrintOvl,

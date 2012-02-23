@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 20:31:32 CET 2012
-// $Id: FWOverlapTableManager.cc,v 1.3 2012/02/22 23:03:47 amraktad Exp $
+// $Id: FWOverlapTableManager.cc,v 1.4 2012/02/23 00:07:37 amraktad Exp $
 //
 
 // system include files
@@ -504,3 +504,22 @@ FWTableCellRendererBase* FWOverlapTableManager::cellRenderer(int iSortedRowNumbe
 
 
 
+//______________________________________________________________________________
+
+void FWOverlapTableManager::setDaughtersSelfVisibility(int selectedIdx, bool v)
+{
+   int dOff = 0;
+   TGeoNode* parentNode = m_entries[selectedIdx].m_node;
+   int nD = parentNode->GetNdaughters();
+   for (int n = 0; n != nD; ++n)
+   {
+      int idx = selectedIdx + 1 + n + dOff;
+      NodeInfo& data = m_entries[idx];
+
+      data.setBitVal(FWGeometryTableManagerBase::kVisNodeChld, v);
+      data.setBitVal(FWGeometryTableManagerBase::kVisNodeSelf, v);
+
+
+      FWGeometryTableManagerBase::getNNodesTotal(parentNode->GetDaughter(n), dOff);
+   }
+}
