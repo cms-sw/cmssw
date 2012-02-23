@@ -1,4 +1,4 @@
-# /dev/CMSSW_5_1_0/GRun/V82
+# /dev/CMSSW_5_1_0/GRun/V83
 
 import FWCore.ParameterSet.Config as cms
 
@@ -33,9 +33,7 @@ streamA_datasetCosmics_selector.l1tResults = cms.InputTag('')
 streamA_datasetCosmics_selector.throw      = cms.bool(False)
 streamA_datasetCosmics_selector.triggerConditions = cms.vstring('HLT_BeamHalo_v9', 
     'HLT_L1SingleMuOpen_AntiBPTX_v4', 
-    'HLT_L1TrackerCosmics_v5', 
-    'HLT_L3MuonsCosmicTracking_v6', 
-    'HLT_RegionalCosmicTracking_v10')
+    'HLT_L1TrackerCosmics_v5')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetDoubleElectron_selector
 streamA_datasetDoubleElectron_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -75,7 +73,10 @@ streamA_datasetElectronHad_selector.triggerConditions = cms.vstring('HLT_Ele25_C
     'HLT_Ele25_CaloIdVT_TrkIdT_TriCentralPFJet30_v4', 
     'HLT_Ele27_WP80_CentralPFJet80_v1', 
     'HLT_Ele30_CaloIdVT_TrkIdT_PFJet100_PFJet25_v1', 
-    'HLT_Ele30_CaloIdVT_TrkIdT_PFJet150_PFJet25_v1')
+    'HLT_Ele30_CaloIdVT_TrkIdT_PFJet150_PFJet25_v1', 
+    'HLT_MET80_Track50_dEdx3p6_v1', 
+    'HLT_MET80_Track60_dEdx3p7_v1', 
+    'HLT_MET80_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetFEDMonitor_selector
 streamA_datasetFEDMonitor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -255,6 +256,8 @@ streamA_datasetSingleMu_selector.triggerConditions = cms.vstring('HLT_IsoMu20_et
     'HLT_Mu17_v1', 
     'HLT_Mu24_eta2p1_v1', 
     'HLT_Mu30_eta2p1_v1', 
+    'HLT_Mu40_eta2p1_Track50_dEdx3p6_v1', 
+    'HLT_Mu40_eta2p1_Track60_dEdx3p7_v1', 
     'HLT_Mu40_eta2p1_v6', 
     'HLT_Mu50_eta2p1_v3', 
     'HLT_Mu5_v15', 

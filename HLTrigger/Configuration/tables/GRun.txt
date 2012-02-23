@@ -175,11 +175,11 @@ HLT_Ele22_CaloIdL_CaloIsoVL_v*								#sr126316
 #AlCa_EcalPi0EBonly_v*							#sr126320
 #AlCa_EcalPi0EEonly_v*							#sr126320
 
-#HLT_Mu40_eta2p1_Track50_dEdx3p6_v* 				#sr126412, still to get integrated 
-#HLT_Mu40_eta2p1_Track60_dEdx3p7_v* 				#sr126412, still to get integrated 
-#HLT_MET80_Track50_dEdx3p6_v* 					#sr126412, still to get integrated 
-#HLT_MET80_Track60_dEdx3p7_v* 					#sr126412, still to get integrated 
-#HLT_MET80_v*							#sr126412, still to get integrated 
+HLT_Mu40_eta2p1_Track50_dEdx3p6_v* 				#sr126412
+HLT_Mu40_eta2p1_Track60_dEdx3p7_v* 				#sr126412
+HLT_MET80_Track50_dEdx3p6_v* 					#sr126412
+HLT_MET80_Track60_dEdx3p7_v* 					#sr126412
+HLT_MET80_v*							#sr126412
 #HLT_L1EG20_Track5_dEdx5p0_v* 					#sr126412, still to get integrated 
 #HLT_L1EG20_Track6_dEdx6p0_v* 					#sr126412, still to get integrated 
 #HLT_L1EG20_Track7_dEdx6p5_v* 					#sr126412, still to get integrated 
