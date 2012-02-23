@@ -244,8 +244,8 @@ HLT_Dimuon9_Jpsi_v*			#sr126442
 #HLT_IsoMu15_eta2p1_LooseIsoPFTau35_Trk20_L1ETM20_v*	#sr126469, still to get integrated
 #HLT_DoubleLooseIsoPFTau45_Trk5_eta2p1_v*		#sr126469, still to get integrated
 
-#HLT_DiPFJet40L1FastJet_PFMHTWOM65_M800VBF_ALLJETS_v*		#sr126471, still to get integrated
-#HLT_DiPFJet40L1FastJet_PFMHTWOM65_M600VBF_LEADINGJETS_v*	#sr126471, still to get integrated
+HLT_DiPFJet40L1FastJet_PFMHTWOM65_M800VBF_ALLJETS_v*		#sr126471, still to get integrated
+HLT_DiPFJet40L1FastJet_PFMHTWOM65_M600VBF_LEADINGJETS_v*	#sr126471, still to get integrated
 
 #HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_v*					#sr126475, still to get integrated
 #HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass60_v*	#sr126475, still to get integrated

@@ -1,4 +1,8 @@
+<<<<<<< HLTrigger_Datasets_GRun_cff.py
+# /dev/CMSSW_5_1_0/GRun/V85
+=======
 # /dev/CMSSW_5_1_0/GRun/V84
+>>>>>>> 1.26
 
 import FWCore.ParameterSet.Config as cms
 
@@ -190,6 +194,8 @@ streamA_datasetMultiJet_selector.l1tResults = cms.InputTag('')
 streamA_datasetMultiJet_selector.throw      = cms.bool(False)
 streamA_datasetMultiJet_selector.triggerConditions = cms.vstring('HLT_DiJet40Eta2p6_L1FastJet_BTagIP3D_v1', 
     'HLT_DiJet80Eta2p6_L1FastJet_BTagIP3DLoose_v1', 
+    'HLT_DiPFJet40L1FastJet_PFMHTWOM65_M600VBF_LEADINGJETS_v1', 
+    'HLT_DiPFJet40L1FastJet_PFMHTWOM65_M800VBF_ALLJETS_v1', 
     'HLT_ExclDiJet80_HFAND_v1', 
     'HLT_Jet160Eta2p4_Jet120Eta2p4_L1FastJet_DiBTagIP3DLoose_v1', 
     'HLT_Jet60Eta1p7_Jet53Eta1p7_L1FastJet_DiBTagIP3D_v1', 

@@ -1,4 +1,8 @@
+<<<<<<< HLTrigger_Datasets_HIon_cff.py
+# /dev/CMSSW_5_1_0/HIon/V85
+=======
 # /dev/CMSSW_5_1_0/HIon/V84
+>>>>>>> 1.26
 
 import FWCore.ParameterSet.Config as cms
 
