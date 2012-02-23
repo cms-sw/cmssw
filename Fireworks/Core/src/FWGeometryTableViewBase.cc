@@ -215,7 +215,7 @@ void FWGeometryTableViewBase::setPath(int parentIdx, std::string&)
 {
    m_eveTopNode->clearSelection();
 
-   printf("set path %d \n", parentIdx);
+   // printf("set path %d \n", parentIdx);
    m_topNodeIdx.set(parentIdx);
    // getTableManager()->refEntries().at(getTopNodeIdx()).setBitVal(FWGeometryTableManagerBase::kVisNodeSelf,!m_disableTopNode.value() );
    getTableManager()->setLevelOffset(getTableManager()->refEntries().at(getTopNodeIdx()).m_level);
