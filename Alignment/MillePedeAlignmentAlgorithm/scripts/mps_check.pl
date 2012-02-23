@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     09-Jul-2007
 #     A. Parenti, DESY Hamburg    24-Apr-2008
-#     $Revision: 1.26 $ by $Author: jbehr $
-#     $Date: 2011/09/22 13:48:11 $
+#     $Revision: 1.27 $ by $Author: jbehr $
+#     $Date: 2012/01/20 10:19:27 $
 #
 #  Check output from jobs that have FETCH status
 #  
@@ -117,7 +117,8 @@ for ($i=0; $i<@JOBID; ++$i) {
 	if (($line =~ m/segmentation violation/) eq 1) { $segviol = 1;}
 	if (($line =~ m/failed RFIO error/) eq 1) { $rfioerr = 1;}
 	if (($line =~ m/Request exceeds quota/) eq 1) { $quota = 1;}
-	if (($line =~ m/Exception caught in cmsRun/) eq 1) { $exceptionCaught = 1;}
+	# check for newer (e.g. CMSSW_5_1_X) and older CMSSW:
+	if (($line =~ m/Fatal Exception/) eq 1 || ($line =~ m/Exception caught in cmsRun/)) { $exceptionCaught = 1;}
 # AP 07.09.2009 - Check that the job got to a normal end
 	if (($line =~ m/AlignmentProducer::endOfJob()/) eq 1) { $endofjob = 1;}
 	if (($line =~ m/FwkReport            -i main_input:sourc/) eq 1) {
