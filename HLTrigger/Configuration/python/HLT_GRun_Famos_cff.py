@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_1_0/GRun/V87 (CMSSW_5_2_0_pre5_HLT7)
+# /dev/CMSSW_5_1_0/GRun/V88 (CMSSW_5_2_0_pre5_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V87')
+  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V88')
 )
 
 hltESSBTagRecord = cms.ESSource( "EmptyESSource",
@@ -2349,7 +2349,8 @@ hltCentralJet65L1FastJet = cms.EDFilter( "HLT1CaloJet",
     MaxEta = cms.double( 2.6 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltCaloJetL1FastJetCorrected" ),
-    MinE = cms.double( -1.0 )
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 85 )
 )
 hltMet = cms.EDProducer( "METProducer",
     resolutionsEra = cms.string( "Spring10" ),
@@ -2475,7 +2476,8 @@ hltMET65 = cms.EDFilter( "HLT1CaloMET",
     MaxEta = cms.double( -1.0 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltMet" ),
-    MinE = cms.double( -1.0 )
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 87 )
 )
 hltMonoCaloJet65Dphi29L1FastJetFilter = cms.EDFilter( "HLTMonoCaloJetFilter",
     inputJetTag = cms.InputTag( "hltCaloJetL1FastJetCorrected" ),
@@ -4191,7 +4193,8 @@ hltCentralPFJet80 = cms.EDFilter( "HLT1PFJet",
     MaxEta = cms.double( 2.6 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltAntiKT5PFJets" ),
-    MinE = cms.double( -1.0 )
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 85 )
 )
 hltMonoPFJet50DPhi29Filter = cms.EDFilter( "HLTMonoPFJetFilter",
     inputJetTag = cms.InputTag( "hltAntiKT5PFJets" ),
@@ -4234,7 +4237,8 @@ hltDiJet30L1FastJet = cms.EDFilter( "HLT1CaloJet",
     MaxEta = cms.double( 5.0 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltCaloJetL1FastJetCorrected" ),
-    MinE = cms.double( -1.0 )
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 85 )
 )
 hltDiPFJet40MJJ800VBFFilter = cms.EDFilter( "HLTPFJetVBFFilter",
     saveTags = cms.bool( True ),
@@ -4324,7 +4328,8 @@ hltMET80 = cms.EDFilter( "HLT1CaloMET",
     MaxEta = cms.double( -1.0 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltMet" ),
-    MinE = cms.double( -1.0 )
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 87 )
 )
 hltPreMET80Track50dEdx3p6 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "gtDigis" ),
@@ -4543,7 +4548,8 @@ hltDijet40L1FastJet = cms.EDFilter( "HLT1CaloJet",
     MaxEta = cms.double( 3.0 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltCaloJetL1FastJetCorrected" ),
-    MinE = cms.double( -1.0 )
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 85 )
 )
 hltPFNeutralHadronsAndPartons = cms.EDFilter( "PdgIdPFCandidateSelector",
     pdgId = cms.vint32( 22, 111, 130, 310, 2112 ),
@@ -4599,7 +4605,8 @@ hltCentralPFJet40Neutral = cms.EDFilter( "HLT1CaloJet",
     MaxEta = cms.double( 2.6 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltAntiKT5ConvPFJetsNeutral" ),
-    MinE = cms.double( -1.0 )
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 85 )
 )
 hltL1sL1DoubleMu0erHighQ = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( True ),
@@ -4675,7 +4682,8 @@ hltDiCentralPFJet40Neutral = cms.EDFilter( "HLT1CaloJet",
     MaxEta = cms.double( 2.6 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltAntiKT5ConvPFJetsNeutral" ),
-    MinE = cms.double( -1.0 )
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 85 )
 )
 hltL1sL1SingleMu3 = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( True ),
@@ -7692,7 +7700,8 @@ hltTriPFJet25 = cms.EDFilter( "HLT1CaloJet",
     MaxEta = cms.double( 5.0 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
-    MinE = cms.double( -1.0 )
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 85 )
 )
 hltPho90EBOnlyTriPFJet25DupRemover = cms.EDFilter( "HLTEgammaDoubleLegCombFilter",
     saveTags = cms.bool( False ),
@@ -7714,7 +7723,8 @@ hltTriPFJet30 = cms.EDFilter( "HLT1CaloJet",
     MaxEta = cms.double( 5.0 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
-    MinE = cms.double( -1.0 )
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 85 )
 )
 hltPho90EBOnlyTriPFJet30DupRemover = cms.EDFilter( "HLTEgammaDoubleLegCombFilter",
     saveTags = cms.bool( False ),
@@ -9095,7 +9105,8 @@ hltHFEMTightFilter = cms.EDFilter( "HLT1Photon",
     MaxEta = cms.double( 5.0 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltHFRecoEcalTightCandidate" ),
-    MinE = cms.double( -1.0 )
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 81 )
 )
 hltPreEle23CaloIdTCaloIsoVLTrkIdVLTrkIsoVLHFT30 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "gtDigis" ),
@@ -9262,7 +9273,8 @@ hltHFEMPt30TightFilter = cms.EDFilter( "HLT1Photon",
     MaxEta = cms.double( 5.0 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltHFRecoEcalTightCandidate" ),
-    MinE = cms.double( -1.0 )
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 81 )
 )
 hltPreEle27WP80 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "gtDigis" ),
@@ -10498,7 +10510,8 @@ hltBDiJet20L1FastJetCentral = cms.EDFilter( "HLT1CaloBJet",
     MaxEta = cms.double( 3.0 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltCaloJetL1FastJetCorrected" ),
-    MinE = cms.double( -1.0 )
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 86 )
 )
 hltBSoftMuonGetJetsFromDiJet20L1FastJet = cms.EDProducer( "HLTCaloJetCollectionProducer",
     TriggerTypes = cms.vint32( 86 ),
@@ -10587,7 +10600,8 @@ hltBDiJet40L1FastJetCentral = cms.EDFilter( "HLT1CaloBJet",
     MaxEta = cms.double( 3.0 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltCaloJetL1FastJetCorrected" ),
-    MinE = cms.double( -1.0 )
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 86 )
 )
 hltBSoftMuonGetJetsFromDiJet40L1FastJet = cms.EDProducer( "HLTCaloJetCollectionProducer",
     TriggerTypes = cms.vint32( 86 ),
@@ -10674,7 +10688,8 @@ hltBDiJet70L1FastJetCentral = cms.EDFilter( "HLT1CaloBJet",
     MaxEta = cms.double( 3.0 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltCaloJetL1FastJetCorrected" ),
-    MinE = cms.double( -1.0 )
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 86 )
 )
 hltBSoftMuonGetJetsFromDiJet70L1FastJet = cms.EDProducer( "HLTCaloJetCollectionProducer",
     TriggerTypes = cms.vint32( 86 ),
@@ -10749,7 +10764,8 @@ hltBDiJet110L1FastJetCentral = cms.EDFilter( "HLT1CaloBJet",
     MaxEta = cms.double( 3.0 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltCaloJetL1FastJetCorrected" ),
-    MinE = cms.double( -1.0 )
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 86 )
 )
 hltBSoftMuonGetJetsFromDiJet110L1FastJet = cms.EDProducer( "HLTCaloJetCollectionProducer",
     TriggerTypes = cms.vint32( 86 ),
@@ -10836,7 +10852,8 @@ hltBJet300L1FastJetCentral = cms.EDFilter( "HLT1CaloBJet",
     MaxEta = cms.double( 3.0 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltCaloJetL1FastJetCorrected" ),
-    MinE = cms.double( -1.0 )
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 86 )
 )
 hltBSoftMuonGetJetsFromJet300L1FastJet = cms.EDProducer( "HLTCaloJetCollectionProducer",
     TriggerTypes = cms.vint32( 86 ),
@@ -11799,7 +11816,8 @@ hltDiPFJet25 = cms.EDFilter( "HLT1PFJet",
     MaxEta = cms.double( 5.0 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltAntiKT5PFJets" ),
-    MinE = cms.double( -1.0 )
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 85 )
 )
 hltEle30CaloIdVTTrkIdTCleanAK5PFJet = cms.EDProducer( "HLTPFJetCollectionsForElePlusJets",
     SourceJetTag = cms.InputTag( "hltAntiKT5PFJets" ),

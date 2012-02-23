@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_1_0/HIon/V87 (CMSSW_5_2_0_pre5_HLT7)
+# /dev/CMSSW_5_1_0/HIon/V88 (CMSSW_5_2_0_pre5_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/HIon/V87')
+  tableName = cms.string('/dev/CMSSW_5_1_0/HIon/V88')
 )
 
 streams = cms.PSet( 
@@ -2885,7 +2885,8 @@ hltHIMET120 = cms.EDFilter( "HLT1CaloMET",
     MaxEta = cms.double( -1.0 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltMet" ),
-    MinE = cms.double( -1.0 )
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 87 )
 )
 hltSiStripRawToDigi = cms.EDProducer( "SiStripRawToDigiModule",
     UseDaqRegister = cms.bool( False ),
@@ -2993,7 +2994,8 @@ hltHIMET200 = cms.EDFilter( "HLT1CaloMET",
     MaxEta = cms.double( -1.0 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltMet" ),
-    MinE = cms.double( -1.0 )
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 87 )
 )
 hltPreHIMET220 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -3006,7 +3008,8 @@ hltHIMET220 = cms.EDFilter( "HLT1CaloMET",
     MaxEta = cms.double( -1.0 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltMet" ),
-    MinE = cms.double( -1.0 )
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 87 )
 )
 hltPreHIPhysics = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -5189,7 +5192,8 @@ hltHIPhoton15 = cms.EDFilter( "HLT1Photon",
     MaxEta = cms.double( 2.0 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate" ),
-    MinE = cms.double( -1.0 )
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 81 )
 )
 hltPreHIPhoton20 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -5202,7 +5206,8 @@ hltHIPhoton20 = cms.EDFilter( "HLT1Photon",
     MaxEta = cms.double( 2.0 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate" ),
-    MinE = cms.double( -1.0 )
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 81 )
 )
 hltPreHIPhoton30 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -5215,7 +5220,8 @@ hltHIPhoton30 = cms.EDFilter( "HLT1Photon",
     MaxEta = cms.double( 2.0 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate" ),
-    MinE = cms.double( -1.0 )
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 81 )
 )
 hltPreHIPhoton40 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -5228,7 +5234,8 @@ hltHIPhoton40 = cms.EDFilter( "HLT1Photon",
     MaxEta = cms.double( 2.0 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate" ),
-    MinE = cms.double( -1.0 )
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 81 )
 )
 hltL1sL1DoubleEG5BptxAND = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( True ),
@@ -5253,7 +5260,8 @@ hltHIDoublePhoton1015Filter1 = cms.EDFilter( "HLT1Photon",
     MaxEta = cms.double( 2.0 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate" ),
-    MinE = cms.double( -1.0 )
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 81 )
 )
 hltHIDoublePhoton1015Filter2 = cms.EDFilter( "HLT1Photon",
     saveTags = cms.bool( False ),
@@ -5262,7 +5270,8 @@ hltHIDoublePhoton1015Filter2 = cms.EDFilter( "HLT1Photon",
     MaxEta = cms.double( 2.0 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate" ),
-    MinE = cms.double( -1.0 )
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 81 )
 )
 hltPreHIDoublePhoton15and20 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -5275,7 +5284,8 @@ hltHIDoublePhoton1520Filter1 = cms.EDFilter( "HLT1Photon",
     MaxEta = cms.double( 2.0 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate" ),
-    MinE = cms.double( -1.0 )
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 81 )
 )
 hltHIDoublePhoton1520Filter2 = cms.EDFilter( "HLT1Photon",
     saveTags = cms.bool( False ),
@@ -5284,7 +5294,8 @@ hltHIDoublePhoton1520Filter2 = cms.EDFilter( "HLT1Photon",
     MaxEta = cms.double( 2.0 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate" ),
-    MinE = cms.double( -1.0 )
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 81 )
 )
 hltPreHIDoublePhoton10 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -5297,7 +5308,8 @@ hltHIDoublePhoton10 = cms.EDFilter( "HLT1Photon",
     MaxEta = cms.double( 2.0 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate" ),
-    MinE = cms.double( -1.0 )
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 81 )
 )
 hltPreHIDoublePhoton15 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -5310,7 +5322,8 @@ hltHIDoublePhoton15 = cms.EDFilter( "HLT1Photon",
     MaxEta = cms.double( 2.0 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate" ),
-    MinE = cms.double( -1.0 )
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 81 )
 )
 hltPreHIDoublePhoton20 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -5323,7 +5336,8 @@ hltHIDoublePhoton20 = cms.EDFilter( "HLT1Photon",
     MaxEta = cms.double( 2.0 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate" ),
-    MinE = cms.double( -1.0 )
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 81 )
 )
 hltL1sL1SingleJet36BptxAND = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( True ),
@@ -5407,7 +5421,8 @@ hltHI1jet55 = cms.EDFilter( "HLT1CaloJet",
     MaxEta = cms.double( 5.0 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltHICaloJetCorrected" ),
-    MinE = cms.double( -1.0 )
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 85 )
 )
 hltPreHIJet65 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -5420,7 +5435,8 @@ hltHI1jet65 = cms.EDFilter( "HLT1CaloJet",
     MaxEta = cms.double( 5.0 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltHICaloJetCorrected" ),
-    MinE = cms.double( -1.0 )
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 85 )
 )
 hltL1sL1SingleJet52BptxAND = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( True ),
@@ -5445,7 +5461,8 @@ hltHI1jet80 = cms.EDFilter( "HLT1CaloJet",
     MaxEta = cms.double( 5.0 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltHICaloJetCorrected" ),
-    MinE = cms.double( -1.0 )
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 85 )
 )
 hltL1sL1SingleJet68BptxAND = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( True ),
@@ -5470,7 +5487,8 @@ hltHI1jet95 = cms.EDFilter( "HLT1CaloJet",
     MaxEta = cms.double( 5.0 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltHICaloJetCorrected" ),
-    MinE = cms.double( -1.0 )
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 85 )
 )
 hltPreHIDiJet55and55 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -5483,7 +5501,8 @@ hltHIDiJet55and55 = cms.EDFilter( "HLT1CaloJet",
     MaxEta = cms.double( 5.0 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltHICaloJetCorrected" ),
-    MinE = cms.double( -1.0 )
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 85 )
 )
 hltPreHIDiJet65and55 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -5620,7 +5639,8 @@ hltStoppedHSCP1CaloJetEnergy30 = cms.EDFilter( "HLT1CaloJet",
     MaxEta = cms.double( 3.0 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltStoppedHSCPIterativeCone5CaloJets" ),
-    MinE = cms.double( 30.0 )
+    MinE = cms.double( 30.0 ),
+    triggerType = cms.int32( 85 )
 )
 hltBPTXAntiCoincidence = cms.EDFilter( "HLTLevel1Activity",
     technicalBits = cms.uint64( 0x11 ),
@@ -5673,7 +5693,8 @@ hltStoppedHSCP1CaloJetEnergy50 = cms.EDFilter( "HLT1CaloJet",
     MaxEta = cms.double( 3.0 ),
     MinMass = cms.double( -1.0 ),
     inputTag = cms.InputTag( "hltStoppedHSCPIterativeCone5CaloJets" ),
-    MinE = cms.double( 50.0 )
+    MinE = cms.double( 50.0 ),
+    triggerType = cms.int32( 85 )
 )
 hltL1sL1GlobalDecision = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( True ),
@@ -6339,7 +6360,8 @@ hltGlobalSumETHfFilter3200 = cms.EDFilter( "HLTGlobalSumsCaloMET",
     MinN = cms.int32( 1 ),
     Min = cms.double( 3200.0 ),
     Max = cms.double( -1.0 ),
-    inputTag = cms.InputTag( "hltMetForHf" )
+    inputTag = cms.InputTag( "hltMetForHf" ),
+    triggerType = cms.int32( 88 )
 )
 hltPixelActivityFilter51500 = cms.EDFilter( "HLTPixelActivityFilter",
     maxClusters = cms.uint32( 1000000 ),
@@ -6357,7 +6379,8 @@ hltGlobalSumETHfFilter3100 = cms.EDFilter( "HLTGlobalSumsCaloMET",
     MinN = cms.int32( 1 ),
     Min = cms.double( 3100.0 ),
     Max = cms.double( -1.0 ),
-    inputTag = cms.InputTag( "hltMetForHf" )
+    inputTag = cms.InputTag( "hltMetForHf" ),
+    triggerType = cms.int32( 88 )
 )
 hltPixelActivityFilter51400 = cms.EDFilter( "HLTPixelActivityFilter",
     maxClusters = cms.uint32( 1000000 ),
@@ -6375,7 +6398,8 @@ hltGlobalSumETHfFilter0 = cms.EDFilter( "HLTGlobalSumsCaloMET",
     MinN = cms.int32( 1 ),
     Min = cms.double( 0.0 ),
     Max = cms.double( -1.0 ),
-    inputTag = cms.InputTag( "hltMetForHf" )
+    inputTag = cms.InputTag( "hltMetForHf" ),
+    triggerType = cms.int32( 88 )
 )
 hltPixelActivityFilter0 = cms.EDFilter( "HLTPixelActivityFilter",
     maxClusters = cms.uint32( 1000000 ),
