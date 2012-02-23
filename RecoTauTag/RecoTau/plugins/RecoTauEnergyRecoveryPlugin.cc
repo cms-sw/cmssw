@@ -2,8 +2,8 @@
  * =============================================================================
  *       Filename:  RecoTauEnergyRecoveryPlugin.cc
  *
- *    Description:  Recovery energy of visible decay products 
- *                  lost due to photon conversions/nuclear interactions 
+ *    Description:  Recovery energy of visible decay products
+ *                  lost due to photon conversions/nuclear interactions
  *                  in tracker material.
  *        Created:  09/02/2011 10:28:00
  *
@@ -28,7 +28,7 @@
 
 namespace reco { namespace tau {
 
-class RecoTauEnergyRecoveryPlugin : public RecoTauModifierPlugin 
+class RecoTauEnergyRecoveryPlugin : public RecoTauModifierPlugin
 {
  public:
 
@@ -67,20 +67,20 @@ RecoTauEnergyRecoveryPlugin::~RecoTauEnergyRecoveryPlugin()
   delete qcuts_;
 }
 
-void RecoTauEnergyRecoveryPlugin::beginEvent() 
+void RecoTauEnergyRecoveryPlugin::beginEvent()
 {
   edm::Handle<reco::VertexCollection> vertices;
   evt()->getByLabel(srcVertices_, vertices);
 
   if ( vertices->size() >= 1 ) {
-    qcuts_->setPV(reco::VertexRef(vertices, 0));    
+    qcuts_->setPV(reco::VertexRef(vertices, 0));
     theEventVertex_ = &vertices->at(0);
   } else {
     theEventVertex_ = 0;
   }
 }
 
-const reco::TrackBaseRef getTrack(const reco::PFCandidate& cand) 
+const reco::TrackBaseRef getTrack(const reco::PFCandidate& cand)
 {
   if      ( cand.trackRef().isNonnull()    ) return reco::TrackBaseRef(cand.trackRef());
   else if ( cand.gsfTrackRef().isNonnull() ) return reco::TrackBaseRef(cand.gsfTrackRef());
@@ -90,13 +90,13 @@ const reco::TrackBaseRef getTrack(const reco::PFCandidate& cand)
 bool isTauSignalPFCandidate(const reco::PFTau& tau, const reco::PFCandidatePtr& pfJetConstituent)
 {
   bool retVal = false;
-  
+
   const reco::PFCandidateRefVector& signalPFCandidates = tau.signalPFCands();
   for ( reco::PFCandidateRefVector::const_iterator signalPFCandidate = signalPFCandidates.begin();
 	signalPFCandidate != signalPFCandidates.end(); ++signalPFCandidate ) {
     if ( pfJetConstituent.key() == signalPFCandidate->key() ) retVal = true;
   }
-  
+
   return retVal;
 }
 
@@ -105,7 +105,7 @@ double square(double x)
   return x*x;
 }
 
-void RecoTauEnergyRecoveryPlugin::operator()(PFTau& tau) const 
+void RecoTauEnergyRecoveryPlugin::operator()(PFTau& tau) const
 {
   double tauEnergyCorr = 0.;
 
@@ -145,7 +145,7 @@ void RecoTauEnergyRecoveryPlugin::operator()(PFTau& tau) const
   }
 
   if ( corrLevel_ & 2 && theEventVertex_ ) {
-        
+
     double leadTrackMom = 0.;
     double leadTrackMomErr = 0.;
     double jetCaloEn = 0.;
@@ -157,7 +157,7 @@ void RecoTauEnergyRecoveryPlugin::operator()(PFTau& tau) const
       if ( track.isNonnull() ) {
 	double trackPt = track->pt();
 	double trackPtErr = track->ptError();
-	if ( qcuts_->filter(**pfJetConstituent) && 
+	if ( qcuts_->filter(**pfJetConstituent) &&
 	     trackPtErr < (0.20*trackPt) && track->normalizedChi2() < 5.0 && track->hitPattern().numberOfValidPixelHits() >= 1 &&
 	     (trackPt - 3.*trackPtErr) > (*pfJetConstituent)->pt() && trackPt < (3.*tau.jetRef()->pt()) ) {
 	  if ( track->p() > leadTrackMom ) {
@@ -187,13 +187,13 @@ void RecoTauEnergyRecoveryPlugin::operator()(PFTau& tau) const
     double tauPx_corrected = scaleFactor*tau.px();
     double tauPy_corrected = scaleFactor*tau.py();
     double tauPz_corrected = scaleFactor*tau.pz();
-    tau.setP4(reco::Candidate::LorentzVector(tauPx_corrected, tauPy_corrected, tauPz_corrected, tauEnergy_corrected));
+    tau.setalternatLorentzVect(reco::Candidate::LorentzVector(tauPx_corrected, tauPy_corrected, tauPz_corrected, tauEnergy_corrected));
   }
 }
 
 }} // end namespace reco::tau
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_EDM_PLUGIN(RecoTauModifierPluginFactory, 
+DEFINE_EDM_PLUGIN(RecoTauModifierPluginFactory,
     reco::tau::RecoTauEnergyRecoveryPlugin,
     "RecoTauEnergyRecoveryPlugin");

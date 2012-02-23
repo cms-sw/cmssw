@@ -109,11 +109,11 @@ combinatoricRecoTaus = cms.EDProducer(
             maximumForElectrionPreIDOutput       = cms.double(-0.1),
             DataType = cms.string("AOD"),
         ),
-        # "Tau energy recovery algorithm"
-        #cms.PSet(
-        #    pfTauEnergyRecoveryPlugin,
-        #    name = cms.string("tau_en_recovery"),
-        #    plugin = cms.string("RecoTauEnergyRecoveryPlugin")
-        #)
+        # Tau energy recovery algorithm
+        cms.PSet(
+            pfTauEnergyRecoveryPlugin,
+            name = cms.string("tau_en_recovery"),
+            plugin = cms.string("RecoTauEnergyRecoveryPlugin")
+        )
     ),
 )
