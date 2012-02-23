@@ -1,27 +1,11 @@
-<<<<<<< OnLine_HLT_GRun.py
-# /dev/CMSSW_5_1_0/GRun/V86 (CMSSW_5_2_0_pre5_HLT7)
-=======
-<<<<<<< OnLine_HLT_GRun.py
-# /dev/CMSSW_5_1_0/GRun/V85 (CMSSW_5_2_0_pre5_HLT7)
-=======
-# /dev/CMSSW_5_1_0/GRun/V84 (CMSSW_5_2_0_pre5_HLT7)
->>>>>>> 1.739
->>>>>>> 1.740
+# /dev/CMSSW_5_1_0/GRun/V87 (CMSSW_5_2_0_pre5_HLT7)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-<<<<<<< OnLine_HLT_GRun.py
-  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V86')
-=======
-<<<<<<< OnLine_HLT_GRun.py
-  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V85')
-=======
-  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V84')
->>>>>>> 1.739
->>>>>>> 1.740
+  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V87')
 )
 
 process.streams = cms.PSet( 
