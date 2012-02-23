@@ -50,6 +50,22 @@
 typedef math::XYZTLorentzVectorD  LV;
 typedef std::vector<LV>  LVCollection;
 
+struct hinfo{
+  int nbins;
+  double min;
+  double max;
+  hinfo(int n, double m, double M){
+    nbins = n;
+    min = m;
+    max = M;
+  }
+  hinfo(const edm::ParameterSet& config){
+    nbins = config.getParameter<int>("nbins");
+    min = config.getParameter<double>("min");
+    max = config.getParameter<double>("max");
+  }
+};
+
 // class declaration
 class TauTagValidation : public edm::EDAnalyzer {
 
@@ -68,6 +84,7 @@ private:
   ///get rid of redundant parts to shorten the label
   bool stripDiscriminatorLabel(const std::string& discriminatorLabel, std::string & newLabel);
 
+  edm::ParameterSet histoSettings_;
 
   // What's the reference for the Validation Leptons or Jets
   std::string dataType_;

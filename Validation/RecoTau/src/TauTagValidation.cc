@@ -15,7 +15,7 @@
 //
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  October 8, 2008
-// $Id: TauTagValidation.cc,v 1.26.2.5 2011/12/12 14:38:14 perchall Exp $
+// $Id: TauTagValidation.cc,v 1.30 2012/02/03 09:48:24 perchall Exp $
 //
 //
 // user include files
@@ -62,6 +62,7 @@ TauTagValidation::TauTagValidation(const edm::ParameterSet& iConfig)
   TauProducerInputTag_ = iConfig.getParameter<InputTag>("TauProducer");
   TauProducer_ = TauProducerInputTag_.label();
   
+  histoSettings_= (iConfig.exists("histoSettings")) ? iConfig.getParameter<edm::ParameterSet>("histoSettings") : edm::ParameterSet();
   PrimaryVertexCollection_ = (iConfig.exists("PrimaryVertexCollection")) ? iConfig.getParameter<InputTag>("PrimaryVertexCollection") : edm::InputTag("offlinePrimaryVertices");
   // The vector of Tau Discriminators to be monitored
   // TauProducerDiscriminators_ = iConfig.getUntrackedParameter<std::vector<string> >("TauProducerDiscriminators");
@@ -117,12 +118,18 @@ void TauTagValidation::beginJob()
     
     dbeTau_->setCurrentFolder("RecoTauV/" + TauProducer_ + extensionName_ + "_ReferenceCollection" );
     
+    //Histograms settings
+    hinfo ptHinfo = (histoSettings_.exists("pt")) ? hinfo(histoSettings_.getParameter<edm::ParameterSet>("pt")) : hinfo(75, 0., 150.);
+    hinfo etaHinfo = (histoSettings_.exists("eta")) ? hinfo(histoSettings_.getParameter<edm::ParameterSet>("eta")) : hinfo(60, -3.0, 3.0);
+    hinfo phiHinfo = (histoSettings_.exists("phi")) ? hinfo(histoSettings_.getParameter<edm::ParameterSet>("phi")) : hinfo(36, -180., 180.);
+    hinfo pileupHinfo = (histoSettings_.exists("pileup")) ? hinfo(histoSettings_.getParameter<edm::ParameterSet>("pileup")) : hinfo(25, 0., 25.0);
+
     // What kind of Taus do we originally have!
     
-    ptTemp    =  dbeTau_->book1D("nRef_Taus_vs_ptTauVisible", "nRef_Taus_vs_ptTauVisible", 75, 0., 150.);
-    etaTemp   =  dbeTau_->book1D("nRef_Taus_vs_etaTauVisible", "nRef_Taus_vs_etaTauVisible", 60, -3.0, 3.0 );
-    phiTemp   =  dbeTau_->book1D("nRef_Taus_vs_phiTauVisible", "nRef_Taus_vs_phiTauVisible", 36, -180., 180.);
-    pileupTemp =  dbeTau_->book1D("nRef_Taus_vs_pileupTauVisible", "nRef_Taus_vs_pileupTauVisible", 25, 0., 25.0);
+    ptTemp    =  dbeTau_->book1D("nRef_Taus_vs_ptTauVisible", "nRef_Taus_vs_ptTauVisible", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
+    etaTemp   =  dbeTau_->book1D("nRef_Taus_vs_etaTauVisible", "nRef_Taus_vs_etaTauVisible", etaHinfo.nbins, etaHinfo.min, etaHinfo.max );
+    phiTemp   =  dbeTau_->book1D("nRef_Taus_vs_phiTauVisible", "nRef_Taus_vs_phiTauVisible", phiHinfo.nbins, phiHinfo.min, phiHinfo.max);
+    pileupTemp =  dbeTau_->book1D("nRef_Taus_vs_pileupTauVisible", "nRef_Taus_vs_pileupTauVisible", pileupHinfo.nbins, pileupHinfo.min, pileupHinfo.max);
     
     ptTauVisibleMap.insert( std::make_pair( refCollection_,ptTemp));
     etaTauVisibleMap.insert( std::make_pair(refCollection_,etaTemp));
@@ -133,10 +140,10 @@ void TauTagValidation::beginJob()
     
     dbeTau_->setCurrentFolder("RecoTauV/"+ TauProducer_ + extensionName_ + "_Matched");
     
-    ptTemp    =  dbeTau_->book1D(TauProducer_ +"Matched_vs_ptTauVisible", TauProducer_ +"Matched_vs_ptTauVisible", 75, 0., 150.);
-    etaTemp   =  dbeTau_->book1D(TauProducer_ +"Matched_vs_etaTauVisible", TauProducer_ +"Matched_vs_etaTauVisible", 60, -3.0, 3.0 );
-    phiTemp   =  dbeTau_->book1D(TauProducer_ +"Matched_vs_phiTauVisible", TauProducer_ +"Matched_vs_phiTauVisible", 36, -180., 180.);
-    pileupTemp =  dbeTau_->book1D(TauProducer_ +"Matched_vs_pileupTauVisible", TauProducer_ +"Matched_vs_pileupTauVisible", 25, 0., 25.0);
+    ptTemp    =  dbeTau_->book1D(TauProducer_ +"Matched_vs_ptTauVisible", TauProducer_ +"Matched_vs_ptTauVisible", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
+    etaTemp   =  dbeTau_->book1D(TauProducer_ +"Matched_vs_etaTauVisible", TauProducer_ +"Matched_vs_etaTauVisible", etaHinfo.nbins, etaHinfo.min, etaHinfo.max );
+    phiTemp   =  dbeTau_->book1D(TauProducer_ +"Matched_vs_phiTauVisible", TauProducer_ +"Matched_vs_phiTauVisible", phiHinfo.nbins, phiHinfo.min, phiHinfo.max );
+    pileupTemp =  dbeTau_->book1D(TauProducer_ +"Matched_vs_pileupTauVisible", TauProducer_ +"Matched_vs_pileupTauVisible", pileupHinfo.nbins, pileupHinfo.min, pileupHinfo.max);
     
     ptTauVisibleMap.insert( std::make_pair( TauProducer_+"Matched" ,ptTemp));
     etaTauVisibleMap.insert( std::make_pair(TauProducer_+"Matched" ,etaTemp));
@@ -152,10 +159,10 @@ void TauTagValidation::beginJob()
       
       dbeTau_->setCurrentFolder("RecoTauV/" +  TauProducer_ + extensionName_ + "_" +  DiscriminatorLabel );
       
-      ptTemp    =  dbeTau_->book1D(DiscriminatorLabel + "_vs_ptTauVisible", histogramName +"_vs_ptTauVisible", 75, 0., 150.);
-      etaTemp   =  dbeTau_->book1D(DiscriminatorLabel + "_vs_etaTauVisible", DiscriminatorLabel + "_vs_etaTauVisible", 60, -3.0, 3.0 );
-      phiTemp   =  dbeTau_->book1D(DiscriminatorLabel + "_vs_phiTauVisible", histogramName + "_vs_phiTauVisible", 36, -180., 180.);
-      pileupTemp =  dbeTau_->book1D(DiscriminatorLabel + "_vs_pileupTauVisible", histogramName + "_vs_pileupTauVisible", 25, 0., 25.0);
+      ptTemp    =  dbeTau_->book1D(DiscriminatorLabel + "_vs_ptTauVisible", histogramName +"_vs_ptTauVisible", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
+      etaTemp   =  dbeTau_->book1D(DiscriminatorLabel + "_vs_etaTauVisible", DiscriminatorLabel + "_vs_etaTauVisible", etaHinfo.nbins, etaHinfo.min, etaHinfo.max );
+      phiTemp   =  dbeTau_->book1D(DiscriminatorLabel + "_vs_phiTauVisible", histogramName + "_vs_phiTauVisible", phiHinfo.nbins, phiHinfo.min, phiHinfo.max);
+      pileupTemp =  dbeTau_->book1D(DiscriminatorLabel + "_vs_pileupTauVisible", histogramName + "_vs_pileupTauVisible", pileupHinfo.nbins, pileupHinfo.min, pileupHinfo.max);
       
       ptTauVisibleMap.insert( std::make_pair(DiscriminatorLabel,ptTemp));
       etaTauVisibleMap.insert( std::make_pair(DiscriminatorLabel,etaTemp));
