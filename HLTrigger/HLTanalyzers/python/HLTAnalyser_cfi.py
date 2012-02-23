@@ -98,6 +98,7 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     NonIsoEleTrackIsol              = cms.InputTag("hltL1NonIsoElectronTrackIsol"),
                              
     ### tau OpenHLT related objects
+    L2Tau                           = cms.InputTag("openhltL2TauJets"),
     HLTTau                          = cms.InputTag("TauOpenHLT"),
     HLTPFTau                        = cms.InputTag("hltPFTaus"),
     HLTPFTauTightCone               = cms.InputTag("hltPFTausTightIso"),

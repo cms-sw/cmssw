@@ -93,6 +93,7 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
     oniaPixelTag_        = conf.getParameter<edm::InputTag> ("OniaPixelTag");
     oniaTrackTag_        = conf.getParameter<edm::InputTag> ("OniaTrackTag");
     DiMuVtx_             = conf.getParameter<edm::InputTag> ("DiMuVtx");
+    L2Tau_               = conf.getParameter<edm::InputTag> ("L2Tau");
     HLTTau_              = conf.getParameter<edm::InputTag> ("HLTTau");
     PFTau_               = conf.getParameter<edm::InputTag> ("HLTPFTau");
     PFTauTightCone_      = conf.getParameter<edm::InputTag> ("HLTPFTauTightCone");
@@ -283,6 +284,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     edm::Handle<reco::VertexCollection>               dimuvtxcands3;
     edm::Handle<reco::MuonCollection>                 trkmucands;
     edm::Handle<edm::ValueMap<bool> >                 isoMap2,  isoMap3, isoTrk10Map3;
+    edm::Handle<reco::HLTTauCollection>               l2taus;
     edm::Handle<reco::HLTTauCollection>               taus;
     edm::Handle<reco::PFTauCollection>                pftaus;
     edm::Handle<reco::PFTauCollection>                pftausTightCone;
@@ -436,6 +438,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     getCollection( iEvent, missing, recoPFJets,      recoPFJets_,        kRecoPFJets );   
     getCollection( iEvent, missing, muon,            muon_,              kMuon );
     getCollection( iEvent, missing, pfmuon,          pfmuon_,            kpfMuon );
+    getCollection( iEvent, missing, l2taus,          L2Tau_,             kTaus );
     getCollection( iEvent, missing, taus,            HLTTau_,            kTaus );
     getCollection( iEvent, missing, pftaus,          PFTau_,		 kPFTaus );
     getCollection( iEvent, missing, pftausTightCone, PFTauTightCone_,    kPFTausTightCone );
@@ -588,6 +591,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
                           recmet,
                           genmet,
                           ht,
+                          l2taus,
                           taus,
                           pftaus,
                           pftausTightCone,

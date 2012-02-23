@@ -82,6 +82,7 @@ public:
                  const edm::Handle<reco::CaloMETCollection>      & rmets,
                  const edm::Handle<reco::GenMETCollection>       & gmets,
                  const edm::Handle<reco::METCollection>          & ht,                
+                 const edm::Handle<reco::HLTTauCollection>       & myHLTL2Tau,
                  const edm::Handle<reco::HLTTauCollection>       & myHLTTau,
                  const edm::Handle<reco::PFTauCollection>        & myHLTPFTau,
                  const edm::Handle<reco::PFTauCollection>        & myHLTPFTauTightCone,
@@ -130,9 +131,9 @@ private:
     int nrjetcal,nrcorjetcal;
     
     // Taus
-    float *l2tauemiso, *l25tauPt;
+    float *l2tauPt, *l2tauEta, *l2tauPhi, *l2tauemiso, *l25tauPt;
     int *l3tautckiso;
-    int nohtau;
+    int nohl2tau, nohtau;
     float *tauEta, *tauPt, *tauPhi; 
     //PFTau
     int nohPFTau;

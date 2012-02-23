@@ -110,6 +110,9 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     towR45lower = new int[kMaxTower];
     towR45none = new int[kMaxTower];
     const int kMaxTau = 500;
+    l2tauPt    = new float[kMaxTau];
+    l2tauEta   = new float[kMaxTau];
+    l2tauPhi   = new float[kMaxTau];
     l2tauemiso = new float[kMaxTau];
     l25tauPt = new float[kMaxTau];
     l3tautckiso = new int[kMaxTau];
@@ -301,6 +304,12 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     
     
     // Taus
+    nohl2tau = 0;
+    HltTree->Branch("NohTauL2",&nohl2tau,"NohTauL2/I");
+    HltTree->Branch("ohTauL2Pt",l2tauPt,"ohTauL2Pt[NohTauL2]/F");
+    HltTree->Branch("ohTauL2Eta",l2tauEta,"ohTauL2Eta[NohTauL2]/F");
+    HltTree->Branch("ohTauL2Phi",l2tauPhi,"ohTauL2Phi[NohTauL2]/F");
+
     nohtau = 0;
     HltTree->Branch("NohTau",&nohtau,"NohTau/I");
     HltTree->Branch("ohTauEta",tauEta,"ohTauEta[NohTau]/F");
@@ -399,6 +408,7 @@ void HLTJets::analyze(edm::Event const& iEvent,
                       const edm::Handle<reco::CaloMETCollection>      & recmets,
                       const edm::Handle<reco::GenMETCollection>       & genmets,
                       const edm::Handle<reco::METCollection>          & ht,
+                      const edm::Handle<reco::HLTTauCollection>       & l2taujets,
                       const edm::Handle<reco::HLTTauCollection>       & taujets,
                       const edm::Handle<reco::PFTauCollection>        & pfTaus,
                       const edm::Handle<reco::PFTauCollection>        & pfTausTightCone,
@@ -679,6 +689,21 @@ void HLTJets::analyze(edm::Event const& iEvent,
     
     
     /////////////////////////////// Open-HLT Taus ///////////////////////////////
+    if (l2taujets.isValid()) {
+        nohl2tau = l2taujets->size();
+        reco::HLTTauCollection l2taus = *l2taujets;
+        std::sort(l2taus.begin(),l2taus.end(),GetPtGreater());
+        int itau=0;
+        for(reco::HLTTauCollection::const_iterator i = l2taus.begin();
+                                                   i!= l2taus.end(); ++i){
+            l2tauPt[itau]  = i->getPt();
+            l2tauEta[itau] = i->getEta();
+            l2tauPhi[itau] = i->getPhi();
+            itau++;
+        }
+    }else{
+      nohl2tau = 0;
+    }
     if (taujets.isValid()) {      
         nohtau = taujets->size();
         reco::HLTTauCollection mytaujets;
