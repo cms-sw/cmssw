@@ -110,17 +110,20 @@ void FWEveOverlap::popupMenu(int x, int y)
 
    nodePopup->AddEntry("Swithc Visibility Mother ", kOvlVisMother);
 
-   nodePopup->AddSeparator();
-   nodePopup->AddEntry("Print Overlap Info", kOvlPrintOvl);
-   nodePopup->AddEntry("Print Path ", kOvlPrintPath);
+   if (tableManager()->refEntry(getFirstSelectedTableIndex()).testBit(FWOverlapTableManager::kOverlap))
+   {
+      nodePopup->AddSeparator();
+      nodePopup->AddEntry("Print Overlap Info", kOvlPrintOvl);
+   }
+   // nodePopup->AddEntry("Print Path ", kOvlPrintPath);
    nodePopup->AddSeparator();
    nodePopup->AddEntry("Set As Top Node", kOvlSetTopNode);
    nodePopup->AddEntry("Set Camera Center", kOvlCamera);
    /*
-   nodePopup->AddSeparator();
-   nodePopup->AddEntry("Rnr Off Everything", kOvlVisOff);
-   nodePopup->AddEntry("Rnr On Overlaps, Extrusions", kOvlVisOnOvl);
-   nodePopup->AddEntry("Rnr On Mother Volumes", kOvlVisOnAllMother);
+     nodePopup->AddSeparator();
+     nodePopup->AddEntry("Rnr Off Everything", kOvlVisOff);
+     nodePopup->AddEntry("Rnr On Overlaps, Extrusions", kOvlVisOnOvl);
+     nodePopup->AddEntry("Rnr On Mother Volumes", kOvlVisOnAllMother);
    */
 
    nodePopup->PlaceMenu(x, y,true,true); 
