@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_1_0/GRun/V83 (CMSSW_5_2_0_pre5_HLT6)
+# /dev/CMSSW_5_1_0/GRun/V84 (CMSSW_5_2_0_pre5_HLT7)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V83')
+  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V84')
 )
 
 hltESSBTagRecord = cms.ESSource( "EmptyESSource",
@@ -6468,7 +6468,11 @@ hltL3fL1DoubleMu10MuOpenL1f0L2f10L3Filtered13 = cms.EDFilter( "HLTMuonL3PreFilte
 )
 hltDiMuonMu13Mu8DzFiltered0p2 = cms.EDFilter( "HLT2MuonMuonDZ",
     saveTags = cms.bool( True ),
+    originTag1 = cms.InputTag( "hltOriginal1" ),
+    originTag2 = cms.InputTag( "hltOriginal2" ),
     MinN = cms.int32( 1 ),
+    triggerType1 = cms.int32( 83 ),
+    triggerType2 = cms.int32( 83 ),
     MinDR = cms.double( -1.0 ),
     MaxDZ = cms.double( 0.2 ),
     inputTag1 = cms.InputTag( "hltL3pfL1DoubleMu10MuOpenL1f0L2pf0L3PreFiltered8" ),
@@ -6500,7 +6504,11 @@ hltL3fL1DoubleMu10MuOpenL1f0L2f10L3Filtered17 = cms.EDFilter( "HLTMuonL3PreFilte
 )
 hltDiMuonMu17Mu8DzFiltered0p2 = cms.EDFilter( "HLT2MuonMuonDZ",
     saveTags = cms.bool( True ),
+    originTag1 = cms.InputTag( "hltOriginal1" ),
+    originTag2 = cms.InputTag( "hltOriginal2" ),
     MinN = cms.int32( 1 ),
+    triggerType1 = cms.int32( 83 ),
+    triggerType2 = cms.int32( 83 ),
     MinDR = cms.double( -1.0 ),
     MaxDZ = cms.double( 0.2 ),
     inputTag1 = cms.InputTag( "hltL3pfL1DoubleMu10MuOpenL1f0L2pf0L3PreFiltered8" ),
@@ -6872,7 +6880,11 @@ hltDiMuonGlbFiltered17TrkFiltered8 = cms.EDFilter( "HLTDiMuonGlbTrkFilter",
 )
 hltDiMuonGlb17Trk8DzFiltered0p2 = cms.EDFilter( "HLT2MuonMuonDZ",
     saveTags = cms.bool( True ),
+    originTag1 = cms.InputTag( "hltOriginal1" ),
+    originTag2 = cms.InputTag( "hltOriginal2" ),
     MinN = cms.int32( 1 ),
+    triggerType1 = cms.int32( 83 ),
+    triggerType2 = cms.int32( 83 ),
     MinDR = cms.double( -1.0 ),
     MaxDZ = cms.double( 0.2 ),
     inputTag1 = cms.InputTag( "hltDiMuonGlbFiltered17TrkFiltered8" ),
@@ -6919,7 +6931,11 @@ hltDiMuonGlbFiltered22TrkFiltered8 = cms.EDFilter( "HLTDiMuonGlbTrkFilter",
 )
 hltDiMuonGlb22Trk8DzFiltered0p2 = cms.EDFilter( "HLT2MuonMuonDZ",
     saveTags = cms.bool( True ),
+    originTag1 = cms.InputTag( "hltOriginal1" ),
+    originTag2 = cms.InputTag( "hltOriginal2" ),
     MinN = cms.int32( 1 ),
+    triggerType1 = cms.int32( 83 ),
+    triggerType2 = cms.int32( 83 ),
     MinDR = cms.double( -1.0 ),
     MaxDZ = cms.double( 0.2 ),
     inputTag1 = cms.InputTag( "hltDiMuonGlbFiltered22TrkFiltered8" ),
@@ -6946,7 +6962,11 @@ hltDiMuonGlbFiltered22TrkFiltered22 = cms.EDFilter( "HLTDiMuonGlbTrkFilter",
 )
 hltDiMuonGlb22Trk22DzFiltered0p2 = cms.EDFilter( "HLT2MuonMuonDZ",
     saveTags = cms.bool( True ),
+    originTag1 = cms.InputTag( "hltOriginal1" ),
+    originTag2 = cms.InputTag( "hltOriginal2" ),
     MinN = cms.int32( 1 ),
+    triggerType1 = cms.int32( 83 ),
+    triggerType2 = cms.int32( 83 ),
     MinDR = cms.double( -1.0 ),
     MaxDZ = cms.double( 0.2 ),
     inputTag1 = cms.InputTag( "hltDiMuonGlbFiltered22TrkFiltered22" ),
