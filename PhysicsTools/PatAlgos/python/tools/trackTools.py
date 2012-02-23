@@ -216,7 +216,8 @@ class MakePATTrackCandidates(ConfigToolBase):
                 isoModules.append( getattr(process, 'pat'+label+'IsoDepositCaloTowers') )
         for m in isoModules:
             process.patDefaultSequence.replace(l1cands, m * l1cands)
-        
+        # ES
+        process.load( 'TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff' ) 
         # MC
         from PhysicsTools.PatAlgos.tools.helpers import MassSearchParamVisitor
         if(type(mcAs) != type(None)):
