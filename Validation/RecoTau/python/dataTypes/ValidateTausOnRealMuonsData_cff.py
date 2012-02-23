@@ -61,6 +61,17 @@ zttLabeler = lambda module : SetValidationExtention(module, 'RealMuonsData')
 zttModifier = ApplyFunctionToSequence(zttLabeler)
 proc.TauValNumeratorAndDenominatorRealMuonsData.visit(zttModifier)
 
+#-----------------------------------------Sets binning
+binning = cms.PSet(
+    pt = cms.PSet( nbins = cms.int32(8), min = cms.double(0.), max = cms.double(300.) ), #hinfo(75, 0., 150.)
+    eta = cms.PSet( nbins = cms.int32(4), min = cms.double(-3.), max = cms.double(3.) ), #hinfo(60, -3.0, 3.0);
+    phi = cms.PSet( nbins = cms.int32(4), min = cms.double(-180.), max = cms.double(180.) ), #hinfo(36, -180., 180.);
+    pileup = cms.PSet( nbins = cms.int32(16), min = cms.double(0.), max = cms.double(80.) ),#hinfo(25, 0., 25.0);
+    )
+zttModifier = ApplyFunctionToSequence(lambda m: setBinning(m,binning))
+proc.TauValNumeratorAndDenominatorRealMuonsData.visit(zttModifier)
+#-----------------------------------------
+
 #Sets the correct naming to efficiency histograms
 proc.efficienciesRealMuonsData.plots = Utils.SetPlotSequence(proc.TauValNumeratorAndDenominatorRealMuonsData)
 

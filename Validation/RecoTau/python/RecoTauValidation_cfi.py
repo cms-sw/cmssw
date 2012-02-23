@@ -520,3 +520,7 @@ def SetPlotOnlyStepByStep(myPlottingSequence):
 
 def SetValidationExtention(module, extension):
     module.ExtensionName = module.ExtensionName.value()+extension
+
+def setBinning(module,pset):
+    if module._TypedParameterizable__type == 'TauTagValidation':
+        module.histoSettings = pset
