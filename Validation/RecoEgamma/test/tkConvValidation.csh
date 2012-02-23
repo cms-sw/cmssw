@@ -63,9 +63,9 @@ setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver
 
 
 #Name of sample (affects output directory name and htmldescription only) 
-setenv SAMPLE SingleGammaPt10
+#setenv SAMPLE SingleGammaPt10
 #setenv SAMPLE SingleGammaPt35
-#setenv SAMPLE QCD_Pt_80_120
+setenv SAMPLE QCD_Pt_80_120
 #setenv SAMPLE QCD_Pt_20_30
 #setenv SAMPLE H130GGgluonfusion
 
@@ -255,6 +255,15 @@ hTkPtPullAll
 hTkPtPullBarrel
 hTkPtPullEndcap
 
+nSharedHitsBarrel
+nSharedHitsEndcap
+nHitsBeforeVtxBarrel
+nHitsBeforeVtxEndcap
+maxNHitsBeforeVtxBarrel
+maxNHitsBeforeVtxEndcap
+maxDlClosestHitToVtxBarrel
+maxDlClosestHitToVtxEndcap
+
 EOF
 
 cat > logYScaledHistos <<EOF
@@ -340,6 +349,32 @@ $i->SetMaximum (2*250);
 $i->SetMaximum (2*150);
 }  else if ( $i==hTkPtPullEndcap ) {
 $i->SetMaximum (2*200);
+} else if ( $i==nSharedHitsBarrel ) {
+$i->SetTitle(" Number of shared hits: barrel");
+$i->SetMaximum(3000);
+$i->GetXaxis()->SetRangeUser(-0.5,10.);
+} else if ( $i==nSharedHitsEndcap ) {
+$i->SetTitle(" Number of shared hits: endcap");
+$i->SetMaximum(3200);
+$i->GetXaxis()->SetRangeUser(-0.5,10.);
+} else if ( $i==nHitsBeforeVtxBarrel ) {
+$i->SetTitle(" Number of hits before the vtx: barrel");
+$i->GetXaxis()->SetRangeUser(-0.5,10.);
+} else if ( $i==nHitsBeforeVtxEndcap ) {
+$i->SetTitle(" Number of hits before the vtx: endcap");
+$i->GetXaxis()->SetRangeUser(-0.5,10.);
+} else if ( $i==maxNHitsBeforeVtxBarrel ) {
+$i->SetTitle(" Max number of hits before the vtx: barrel");
+$i->GetXaxis()->SetRangeUser(-0.5,10.);
+} else if ( $i==maxNHitsBeforeVtxEndcap ) {
+$i->SetTitle(" Max number of hits before the vtx: endcap");
+$i->GetXaxis()->SetRangeUser(-0.5,10.);
+} else if ( $i==maxDlClosestHitToVtxBarrel ) {
+$i->SetTitle(" Max Dl closest hit  to vtx: barrel");
+} else if ( $i==maxDlClosestHitToVtxEndcap ) {
+$i->SetTitle(" Max Dl closest hit  to vtx: endcap");
+
+
 }
 
 $i->SetLineColor(kPink+8);
