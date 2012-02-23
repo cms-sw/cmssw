@@ -1,8 +1,12 @@
 <<<<<<< OnLine_HLT_HIon.py
+# /dev/CMSSW_5_1_0/HIon/V86 (CMSSW_5_2_0_pre5_HLT7)
+=======
+<<<<<<< OnLine_HLT_HIon.py
 # /dev/CMSSW_5_1_0/HIon/V85 (CMSSW_5_2_0_pre5_HLT7)
 =======
 # /dev/CMSSW_5_1_0/HIon/V84 (CMSSW_5_2_0_pre5_HLT7)
 >>>>>>> 1.719
+>>>>>>> 1.720
 
 import FWCore.ParameterSet.Config as cms
 
@@ -10,10 +14,14 @@ process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
 <<<<<<< OnLine_HLT_HIon.py
+  tableName = cms.string('/dev/CMSSW_5_1_0/HIon/V86')
+=======
+<<<<<<< OnLine_HLT_HIon.py
   tableName = cms.string('/dev/CMSSW_5_1_0/HIon/V85')
 =======
   tableName = cms.string('/dev/CMSSW_5_1_0/HIon/V84')
 >>>>>>> 1.719
+>>>>>>> 1.720
 )
 
 process.streams = cms.PSet( 

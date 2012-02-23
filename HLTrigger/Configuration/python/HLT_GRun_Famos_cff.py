@@ -1,8 +1,12 @@
 <<<<<<< HLT_GRun_Famos_cff.py
+# /dev/CMSSW_5_1_0/GRun/V86 (CMSSW_5_2_0_pre5_HLT7)
+=======
+<<<<<<< HLT_GRun_Famos_cff.py
 # /dev/CMSSW_5_1_0/GRun/V85 (CMSSW_5_2_0_pre5_HLT7)
 =======
 # /dev/CMSSW_5_1_0/GRun/V84 (CMSSW_5_2_0_pre5_HLT7)
 >>>>>>> 1.41
+>>>>>>> 1.42
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
@@ -10,10 +14,14 @@ from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 HLTConfigVersion = cms.PSet(
 <<<<<<< HLT_GRun_Famos_cff.py
+  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V86')
+=======
+<<<<<<< HLT_GRun_Famos_cff.py
   tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V85')
 =======
   tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V84')
 >>>>>>> 1.41
+>>>>>>> 1.42
 )
 
 hltESSBTagRecord = cms.ESSource( "EmptyESSource",
