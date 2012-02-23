@@ -53,45 +53,35 @@ RPCGeometry* RPCGeometryBuilderFromDDD::build(const DDCompactView* cview, const 
 
 RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, const MuonDDDConstants& muonConstants)
 {
-  LogDebug("RPCGeometryBuilderFromDDD") << "Building the geometry service";
-
+  LogDebug("RPCGeometryBuilderFromDDD") <<"Building the geometry service";
   RPCGeometry* geometry = new RPCGeometry();
 
-  LogDebug("RPCGeometryBuilderFromDDD") << "About to run through the RPC structure\n"
-					<< " First logical part "
-					<< fview.logicalPart().name().name();
-
+  LogDebug("RPCGeometryBuilderFromDDD") << "About to run through the RPC structure\n" 
+					<<" First logical part "
+					<<fview.logicalPart().name().name();
   bool doSubDets = fview.firstChild();
 
   LogDebug("RPCGeometryBuilderFromDDD") << "doSubDets = " << doSubDets;
-
-  while (doSubDets)
-  {
-    LogDebug("RPCGeometryBuilderFromDDD") << "start the loop";
+  while (doSubDets){
+    LogDebug("RPCGeometryBuilderFromDDD") <<"start the loop"; 
 
     // Get the Base Muon Number
     MuonDDDNumbering mdddnum(muonConstants);
-
-    LogDebug("RPCGeometryBuilderFromDDD") << "Getting the Muon base Number";
-
+    LogDebug("RPCGeometryBuilderFromDDD") <<"Getting the Muon base Number";
     MuonBaseNumber   mbn=mdddnum.geoHistoryToBaseNumber(fview.geoHistory());
-
-    LogDebug("RPCGeometryBuilderFromDDD") << "Start the Rpc Numbering Schema";
-
+    LogDebug("RPCGeometryBuilderFromDDD") <<"Start the Rpc Numbering Schema";
     // Get the The Rpc det Id 
     RPCNumberingScheme rpcnum(muonConstants);
     int detid = 0;
 
-    LogDebug("RPCGeometryBuilderFromDDD") << "Getting the Unit Number";
-
+    LogDebug("RPCGeometryBuilderFromDDD") <<"Getting the Unit Number";
     detid = rpcnum.baseNumberToUnitNumber(mbn);
-
-    LogDebug("RPCGeometryBuilderFromDDD") << "Getting the RPC det Id " << detid;
+    LogDebug("RPCGeometryBuilderFromDDD") <<"Getting the RPC det Id "<<detid;
 
     RPCDetId rpcid(detid);
     RPCDetId chid(rpcid.region(),rpcid.ring(),rpcid.station(),rpcid.sector(),rpcid.layer(),rpcid.subsector(),0);
 
-    LogDebug("RPCGeometryBuilderFromDDD") << "The RPCDetid is " << rpcid;
+    LogDebug("RPCGeometryBuilderFromDDD") <<"The RPCDetid is "<<rpcid;
 
     DDValue numbOfStrips("nStrips");
 
@@ -103,6 +93,7 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
 	nStrips=int(numbOfStrips.doubles()[0]);	
       }
     }
+
     LogDebug("RPCGeometryBuilderFromDDD") << ((nStrips == 0 ) ? ("No strip found!!") : (""));
     
     std::vector<double> dpar=fview.logicalPart().solid().parameters();
@@ -154,13 +145,11 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
       }
       
       rollspecs = new RPCRollSpecs(GeomDetEnumerators::RPCBarrel,name,pars);
-
-      LogDebug("RPCGeometryBuilderFromDDD") << "Barrel " << name
-					    << " par " << width
-					    << " " << length << " " <<thickness;
+      LogDebug("RPCGeometryBuilderFromDDD") <<"Barrel "<<name
+					    <<" par "<<width
+					    <<" "<<length<<" "<<thickness;
     }
-    else
-    {
+    else{
       float be = dpar[4]/cm;
       float te = dpar[8]/cm;
       float ap = dpar[0]/cm;
@@ -173,10 +162,10 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
       pars.push_back(dpar[0]/cm); //h/2;
       pars.push_back(numbOfStrips.doubles()[0]); //h/2;
       
-      LogDebug("RPCGeometryBuilderFromDDD") << "Forward " << name
-					    << " par " << dpar[4]/cm
-					    << " " << dpar[8]/cm << " " << dpar[3]/cm << " "
-					    << dpar[0];
+      LogDebug("RPCGeometryBuilderFromDDD") <<"Forward "<<name
+					    <<" par "<<dpar[4]/cm
+					    <<" "<<dpar[8]/cm<<" "<<dpar[3]/cm<<" "
+					    <<dpar[0];
 
       rollspecs = new RPCRollSpecs(GeomDetEnumerators::RPCEndcap,name,pars);
 
@@ -189,15 +178,12 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
       rot.rotateAxes (newX, newY,newZ);
       
     }
-
-    LogDebug("RPCGeometryBuilderFromDDD") << "   Number of strips " << nStrips;
-
-    BoundPlane::BoundPlanePointer surf = BoundPlane::build(pos, rot, bounds); 
-    delete bounds; // bounds cloned by BoundPlane, so we can delete it
-
+    LogDebug("RPCGeometryBuilderFromDDD") <<"   Number of strips "<<nStrips;
+    
+    BoundPlane* bp = new BoundPlane(pos,rot,bounds);
+    ReferenceCountingPointer<BoundPlane> surf(bp);
     RPCRoll* r=new RPCRoll(rpcid,surf,rollspecs);
     geometry->add(r);
-    
 
     std::list<RPCRoll *> rls;
     if (chids.find(chid)!=chids.end()){
@@ -214,84 +200,18 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     RPCDetId chid = ich->first;
     std::list<RPCRoll * > rls = ich->second;
 
-    // compute the overall boundplane. Distinguish between Barrel and Endcap
-
-    std::vector<GlobalPoint> allP;
-    float maxMajor=0;
-    float minMinor=99999;
-
-    RPCRoll fR=*(*rls.begin());
-
+    // compute the overall boundplane. At the moment we use just the last
+    // surface
+    BoundPlane* bp=0;
     for(std::list<RPCRoll *>::iterator rl=rls.begin();
-	rl!=rls.end(); rl++){
-
-      if ((*rl)->id().region() == 0){
-	float x=(*rl)->surface().bounds().width()/2.;
-	float y=(*rl)->surface().bounds().length()/2.;
-	float z=(*rl)->surface().bounds().thickness()/2.;
-	GlobalPoint gp1=(*rl)->toGlobal(LocalPoint(x,y,z));
-	allP.push_back(gp1);
-	GlobalPoint gp2=(*rl)->toGlobal(LocalPoint(-x,-y,-z));
-	allP.push_back(gp2);
-      }else{
-	const TrapezoidalPlaneBounds  bTrap=*(static_cast<const TrapezoidalPlaneBounds *>(&(*rl)->surface().bounds()));
-	std::vector<float> parsT=bTrap.parameters();
-	if (parsT[0] < minMinor) minMinor=parsT[0];
-	if (parsT[1] > maxMajor) maxMajor=parsT[1];
-	float y = parsT[3];
-	float z = parsT[2];
-	GlobalPoint gp1=(*rl)->toGlobal(LocalPoint(0,y,z));
-	allP.push_back(gp1);
-	GlobalPoint gp2=(*rl)->toGlobal(LocalPoint(0,-y,-z));
-	allP.push_back(gp2);
-      }
-   
+    rl!=rls.end(); rl++){
+      const BoundPlane& bps = (*rl)->surface();
+      bp = const_cast<BoundPlane *>(&bps);
     }
 
-    Surface::PositionType pos = fR.position();     
-    const Surface::RotationType rot = fR.rotation();
-    const Bounds* bounds=0;
-
-    if (chid.region()==0){
-      double minX = 0; //it is surely a negative number;
-      double maxX = 0;// it is surely a positiva number
-      double minY = 0; //it is surely a negative number;
-      double maxY = 0;// it is surely a positiva number
-      double minZ = 0; //it is surely a negative number;
-      double maxZ = 0;// it is surely a positiva number
-      for (std::vector<GlobalPoint>::iterator p=allP.begin(); p<allP.end();p++){
-	LocalPoint a = fR.toLocal(*p);
-	if (a.x() < minX) minX=a.x();
-	if (a.x() > maxX) maxX=a.x();
-	if (a.y() < minY) minY=a.y();
-	if (a.y() > maxY) maxY=a.y();
-	if (a.z() < minZ) minZ=a.z();
-	if (a.z() > maxZ) maxZ=a.z();
-      }
-      GlobalPoint pc = fR.toGlobal(LocalPoint((maxX+minX)/2.,(maxY+minY)/2.,(maxZ+minZ)/2.));
-      pos = Surface::PositionType(pc);
-      bounds = new RectangularPlaneBounds((maxX-minX)/2.,(maxY-minY)/2.,(maxZ-minZ)/2.);
-    }else{
-      double minY = 9999999; //it is surely a negative number;
-      double maxY = 0;// it is surely a positiva number
-      double minZ = 9999999; //it is surely a negative number;
-      double maxZ = 0;// it is surely a positiva number
-      for (std::vector<GlobalPoint>::iterator p=allP.begin(); p<allP.end();p++){
-	LocalPoint a = fR.toLocal(*p);
-	if (a.y() < minY) minY=a.y();
-	if (a.y() > maxY) maxY=a.y();
-	if (a.z() < minZ) minZ=a.z();
-	if (a.z() > maxZ) maxZ=a.z();
-      }
-      GlobalPoint pc = fR.toGlobal(LocalPoint(0,(maxY+minY)/2.,(maxZ+minZ)/2.));
-      pos = Surface::PositionType(pc);
-      bounds = new TrapezoidalPlaneBounds(minMinor,maxMajor,(maxY-minY)/2.,(maxZ-minZ)/2.);
-    }
-    
-    
-    BoundPlane::BoundPlanePointer surf = BoundPlane::build(pos, rot, bounds); 
-    RPCChamber* ch = new RPCChamber (chid, surf);     
- 
+    ReferenceCountingPointer<BoundPlane> surf(bp);
+    // Create the chamber 
+    RPCChamber* ch = new RPCChamber (chid, surf); 
     // Add the rolls to rhe chamber
     for(std::list<RPCRoll *>::iterator rl=rls.begin();
     rl!=rls.end(); rl++){
@@ -299,7 +219,6 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     }
     // Add the chamber to the geometry
     geometry->add(ch);
-    delete bounds; 
- } 
+  } 
   return geometry;
 }
