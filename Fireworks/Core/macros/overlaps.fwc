@@ -64,25 +64,25 @@
  <config name="GUI" version="1">
   <config name="main window" version="3">
    <config name="x" version="0">
-     <string>166</string>
+     <string>62</string>
    </config>
    <config name="y" version="0">
-     <string>44</string>
+     <string>101</string>
    </config>
    <config name="width" version="0">
-     <string>909</string>
+     <string>1142</string>
    </config>
    <config name="height" version="0">
-     <string>683</string>
+     <string>772</string>
    </config>
    <config name="summaryWeight" version="0">
      <string>0.220997</string>
    </config>
    <config name="leftWeight" version="0">
-     <string>0.747305</string>
+     <string>1.09036</string>
    </config>
    <config name="rightWeight" version="0">
-     <string>1.25269</string>
+     <string>0.90963</string>
    </config>
   </config>
   <config name="views" version="1">
@@ -178,22 +178,22 @@
       <string>1</string>
     </config>
     <config name="cameraMatrix0Plain3D" version="0">
-      <string>0.925261</string>
+      <string>0.388846</string>
     </config>
     <config name="cameraMatrix1Plain3D" version="0">
-      <string>-0.378874</string>
+      <string>-0.889889</string>
     </config>
     <config name="cameraMatrix2Plain3D" version="0">
-      <string>-0.0186158</string>
+      <string>0.23853</string>
     </config>
     <config name="cameraMatrix3Plain3D" version="0">
       <string>0</string>
     </config>
     <config name="cameraMatrix4Plain3D" version="0">
-      <string>0.37894</string>
+      <string>0.916339</string>
     </config>
     <config name="cameraMatrix5Plain3D" version="0">
-      <string>0.925421</string>
+      <string>0.400404</string>
     </config>
     <config name="cameraMatrix6Plain3D" version="0">
       <string>0</string>
@@ -202,25 +202,25 @@
       <string>0</string>
     </config>
     <config name="cameraMatrix8Plain3D" version="0">
-      <string>0.0172274</string>
+      <string>-0.0955083</string>
     </config>
     <config name="cameraMatrix9Plain3D" version="0">
-      <string>-0.00705426</string>
+      <string>0.218574</string>
     </config>
     <config name="cameraMatrix10Plain3D" version="0">
-      <string>0.999827</string>
+      <string>0.971135</string>
     </config>
     <config name="cameraMatrix11Plain3D" version="0">
       <string>0</string>
     </config>
     <config name="cameraMatrix12Plain3D" version="0">
-      <string>1111.09</string>
+      <string>1282.68</string>
     </config>
     <config name="cameraMatrix13Plain3D" version="0">
-      <string>-454.967</string>
+      <string>-3124.43</string>
     </config>
     <config name="cameraMatrix14Plain3D" version="0">
-      <string>-22.3546</string>
+      <string>713.391</string>
     </config>
     <config name="cameraMatrix15Plain3D" version="0">
       <string>1</string>
@@ -274,12 +274,24 @@
       <string>1</string>
     </config>
     <config name="Plain3D FOV" version="0">
-      <string>87.48</string>
+      <string>30</string>
     </config>
    </config>
    <config name="Overlap Table" version="1">
     <config name="TopNodeIndex" version="0">
       <string>1791211</string>
+    </config>
+    <config name="ExpandList:" version="0">
+      <string>1</string>
+    </config>
+    <config name="EnableHighlight" version="0">
+      <string>1</string>
+    </config>
+    <config name="Path:" version="0">
+      <string>/cms:World_1/cms:CMSE_1</string>
+    </config>
+    <config name="Precision" version="0">
+      <string>0.05</string>
     </config>
     <config name="Overlap" version="0">
       <string>1</string>
@@ -302,7 +314,7 @@
   <config name="view area" version="3">
    <config name="3D Tower" version="3">
     <config name="weight" version="0">
-      <string>0.747305</string>
+      <string>1.09036</string>
     </config>
     <config name="undocked" version="0">
       <string>0</string>
@@ -319,5 +331,274 @@
   </config>
   <config name="controllers" version="1">
   </config>
+ </config>
+ <config name="L1TriggerTables" version="1">
+ </config>
+ <config name="Tables" version="1">
+  <config name="CaloRecHit" version="1">
+    <string>id</string>
+    <string>detid.rawId</string>
+    <string>0</string>
+    <string>energy</string>
+    <string>energy</string>
+    <string>3</string>
+    <string>time</string>
+    <string>time</string>
+    <string>3</string>
+    <string>flags</string>
+    <string>flags</string>
+    <string>0</string>
+  </config>
+  <config name="CaloTower" version="1">
+    <string>emEt</string>
+    <string>emEt</string>
+    <string>1</string>
+    <string>hadEt</string>
+    <string>hadEt</string>
+    <string>1</string>
+    <string>et</string>
+    <string>Et</string>
+    <string>1</string>
+    <string>eta</string>
+    <string>eta</string>
+    <string>3</string>
+    <string>phi</string>
+    <string>phi</string>
+    <string>3</string>
+  </config>
+  <config name="reco::CaloJet" version="1">
+    <string>pT</string>
+    <string>pt</string>
+    <string>1</string>
+    <string>eta</string>
+    <string>eta</string>
+    <string>3</string>
+    <string>phi</string>
+    <string>phi</string>
+    <string>3</string>
+    <string>ECAL</string>
+    <string>p4().E() * emEnergyFraction()</string>
+    <string>1</string>
+    <string>HCAL</string>
+    <string>p4().E() * energyFractionHadronic()</string>
+    <string>1</string>
+    <string>emf</string>
+    <string>emEnergyFraction()</string>
+    <string>3</string>
+  </config>
+  <config name="reco::GenParticle" version="1">
+    <string>pT</string>
+    <string>pt</string>
+    <string>1</string>
+    <string>eta</string>
+    <string>eta</string>
+    <string>3</string>
+    <string>phi</string>
+    <string>phi</string>
+    <string>3</string>
+    <string>status</string>
+    <string>status</string>
+    <string>0</string>
+    <string>pdgId</string>
+    <string>pdgId</string>
+    <string>0</string>
+  </config>
+  <config name="reco::GsfElectron" version="1">
+    <string>q</string>
+    <string>charge</string>
+    <string>0</string>
+    <string>pT</string>
+    <string>pt</string>
+    <string>1</string>
+    <string>eta</string>
+    <string>eta</string>
+    <string>3</string>
+    <string>phi</string>
+    <string>phi</string>
+    <string>3</string>
+    <string>E/p</string>
+    <string>eSuperClusterOverP</string>
+    <string>3</string>
+    <string>H/E</string>
+    <string>hadronicOverEm</string>
+    <string>3</string>
+    <string>fbrem</string>
+    <string>(trackMomentumAtVtx().R() - trackMomentumOut().R()) / trackMomentumAtVtx().R()</string>
+    <string>3</string>
+    <string>dei</string>
+    <string>deltaEtaSuperClusterTrackAtVtx()</string>
+    <string>3</string>
+    <string>dpi</string>
+    <string>deltaPhiSuperClusterTrackAtVtx()</string>
+    <string>3</string>
+  </config>
+  <config name="reco::Jet" version="1">
+    <string>pT</string>
+    <string>pt</string>
+    <string>1</string>
+    <string>eta</string>
+    <string>eta</string>
+    <string>3</string>
+    <string>phi</string>
+    <string>phi</string>
+    <string>3</string>
+  </config>
+  <config name="reco::MET" version="1">
+    <string>et</string>
+    <string>et</string>
+    <string>1</string>
+    <string>phi</string>
+    <string>phi</string>
+    <string>3</string>
+    <string>sumEt</string>
+    <string>sumEt</string>
+    <string>1</string>
+    <string>mEtSig</string>
+    <string>mEtSig</string>
+    <string>3</string>
+  </config>
+  <config name="reco::Muon" version="1">
+    <string>q</string>
+    <string>charge</string>
+    <string>0</string>
+    <string>pT</string>
+    <string>pt</string>
+    <string>1</string>
+    <string>global</string>
+    <string>isGlobalMuon</string>
+    <string>-2</string>
+    <string>tracker</string>
+    <string>isTrackerMuon</string>
+    <string>-2</string>
+    <string>SA</string>
+    <string>isStandAloneMuon</string>
+    <string>-2</string>
+    <string>calo</string>
+    <string>isCaloMuon</string>
+    <string>-2</string>
+    <string>tr pt</string>
+    <string>track().pt()</string>
+    <string>1</string>
+    <string>eta</string>
+    <string>eta</string>
+    <string>3</string>
+    <string>phi</string>
+    <string>phi</string>
+    <string>3</string>
+    <string>matches</string>
+    <string>numberOfMatches('SegmentArbitration')</string>
+    <string>0</string>
+    <string>d0</string>
+    <string>track().d0()</string>
+    <string>3</string>
+    <string>d0 / d0Err</string>
+    <string>track().d0() / track().d0Error()</string>
+    <string>3</string>
+  </config>
+  <config name="reco::Photon" version="1">
+    <string>pT</string>
+    <string>pt</string>
+    <string>1</string>
+    <string>eta</string>
+    <string>eta</string>
+    <string>3</string>
+    <string>phi</string>
+    <string>phi</string>
+    <string>3</string>
+    <string>H/E</string>
+    <string>hadronicOverEm</string>
+    <string>3</string>
+  </config>
+  <config name="reco::Track" version="1">
+    <string>q</string>
+    <string>charge</string>
+    <string>0</string>
+    <string>pT</string>
+    <string>pt</string>
+    <string>1</string>
+    <string>eta</string>
+    <string>eta</string>
+    <string>3</string>
+    <string>phi</string>
+    <string>phi</string>
+    <string>3</string>
+    <string>d0</string>
+    <string>d0</string>
+    <string>5</string>
+    <string>d0Err</string>
+    <string>d0Error</string>
+    <string>5</string>
+    <string>dz</string>
+    <string>dz</string>
+    <string>5</string>
+    <string>dzErr</string>
+    <string>dzError</string>
+    <string>5</string>
+    <string>vx</string>
+    <string>vx</string>
+    <string>5</string>
+    <string>vy</string>
+    <string>vy</string>
+    <string>5</string>
+    <string>vz</string>
+    <string>vz</string>
+    <string>5</string>
+    <string>pixel hits</string>
+    <string>hitPattern().numberOfValidPixelHits()</string>
+    <string>0</string>
+    <string>strip hits</string>
+    <string>hitPattern().numberOfValidStripHits()</string>
+    <string>0</string>
+    <string>chi2</string>
+    <string>chi2</string>
+    <string>3</string>
+    <string>ndof</string>
+    <string>ndof</string>
+    <string>0</string>
+  </config>
+  <config name="reco::Vertex" version="1">
+    <string>x</string>
+    <string>x</string>
+    <string>5</string>
+    <string>xError</string>
+    <string>xError</string>
+    <string>5</string>
+    <string>y</string>
+    <string>y</string>
+    <string>5</string>
+    <string>yError</string>
+    <string>yError</string>
+    <string>5</string>
+    <string>z</string>
+    <string>z</string>
+    <string>5</string>
+    <string>zError</string>
+    <string>zError</string>
+    <string>5</string>
+    <string>tracks</string>
+    <string>tracksSize</string>
+    <string>0</string>
+    <string>chi2</string>
+    <string>chi2</string>
+    <string>3</string>
+    <string>ndof</string>
+    <string>ndof</string>
+    <string>3</string>
+  </config>
+  <config name="typeNames" version="1">
+    <string>CaloRecHit</string>
+    <string>CaloTower</string>
+    <string>reco::CaloJet</string>
+    <string>reco::GenParticle</string>
+    <string>reco::GsfElectron</string>
+    <string>reco::Jet</string>
+    <string>reco::MET</string>
+    <string>reco::Muon</string>
+    <string>reco::Photon</string>
+    <string>reco::Track</string>
+    <string>reco::Vertex</string>
+  </config>
+ </config>
+ <config name="TriggerTables" version="1">
  </config>
 </config>
