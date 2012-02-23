@@ -390,6 +390,7 @@ FWGeometryTableViewBase::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, I
    }
    else if (iColumn == 0)
    {
+      setColumnSelected(idx);
       m_eveTopNode->popupMenu(x, y);
    }
 }
