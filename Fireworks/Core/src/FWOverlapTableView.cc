@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:06:35 CET 2012
-// $Id: FWOverlapTableView.cc,v 1.2 2012/02/22 03:46:00 amraktad Exp $
+// $Id: FWOverlapTableView.cc,v 1.3 2012/02/22 21:00:31 amraktad Exp $
 //
 
 // system include files
@@ -325,7 +325,7 @@ void FWOverlapTableView::refreshTable3D()
    int cnt = 0;
   
    //   std::cout << "WOverlapTableView::refreshTable3D() "<< std::endl;
-   int n0 =  m_topNodeIdx.value();
+   int n0 =  getTopNodeIdx();
    int nd = 0; 
     m_tableManager->getNNodesTotal(m_tableManager->refEntries().at(n0).m_node, nd);
    int n1 = n0+nd; 
