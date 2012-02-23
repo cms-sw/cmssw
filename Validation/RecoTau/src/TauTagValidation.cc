@@ -15,7 +15,7 @@
 //
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  October 8, 2008
-// $Id: TauTagValidation.cc,v 1.30 2012/02/03 09:48:24 perchall Exp $
+// $Id: TauTagValidation.cc,v 1.31 2012/02/23 09:59:38 mverzett Exp $
 //
 //
 // user include files
@@ -34,8 +34,17 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
-TauTagValidation::TauTagValidation(const edm::ParameterSet& iConfig)
-{
+TauTagValidation::TauTagValidation(const edm::ParameterSet& iConfig) {
+  moduleLabel_ = iConfig.getParameter<std::string>("@module_label");
+  edm::ParameterSet GenericTriggerSelection;
+  if (iConfig.exists("GenericTriggerSelection")) {
+    std::cout<<"--> GenericTriggerSelection parameters found in "<<moduleLabel_<<"."<<std::endl;//move to LogDebug
+    GenericTriggerSelection = iConfig.getParameter<edm::ParameterSet>("GenericTriggerSelection");
+    genericTriggerEventFlag_ = new GenericTriggerEventFlag(GenericTriggerSelection);
+  } else {
+    genericTriggerEventFlag_ = 0;
+    std::cout<<"--> GenericTriggerSelection not found in "<<moduleLabel_<<"."<<std::endl;//move to LogDebug to keep track of modules that fail and pass
+  }
   // What do we want to use as source Leptons or Jets (the only difference is the matching criteria)
   dataType_ = iConfig.getParameter<string>("DataType");
   
@@ -105,10 +114,201 @@ TauTagValidation::TauTagValidation(const edm::ParameterSet& iConfig)
   iConfig.getParameter<bool>("chainCuts") : true;
   
 }
+TauTagValidation::~TauTagValidation() {
+  if (genericTriggerEventFlag_) delete genericTriggerEventFlag_;
+}
 
-// ------------ method called once each job just before starting event loop  ------------
-void TauTagValidation::beginJob()
-{
+void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  if (genericTriggerEventFlag_) {
+    if (!genericTriggerEventFlag_->on()) std::cout<<"TauTagValidation::analyze: No working genericTriggerEventFlag. Did you specify a valid globaltag?"<<std::endl;//move to LogDebug?
+    if ( genericTriggerEventFlag_->on() && !genericTriggerEventFlag_->accept(iEvent, iSetup) ) {
+//      std::cout<<"genericTriggerEventFlag rejected this event in "<<moduleLabel_<<std::endl;
+      return;
+    } else {
+//      std::cout<<"--> genericTriggerEventFlag accepted this event in "<<moduleLabel_<<std::endl;//REMOVE ME
+    }
+  }
+  
+  numEvents_++;
+  double matching_criteria = -1.0;
+  
+  typedef edm::View<reco::Candidate> genCandidateCollection;
+  //  typedef edm::Vector<reco::PFTau> pfCandidateCollection;
+  //  typedef edm::Vector<reco::CaloTau> caloCandidateCollection;
+  
+  //  std::cout << "--------------------------------------------------------------"<<endl;
+  //std::cout << " RunNumber: " << iEvent.id().run() << ", EventNumber: " << iEvent.id().event() << std:: endl;
+  //std::cout << "Event number: " << ++numEvents_ << endl;
+  //std::cout << "--------------------------------------------------------------"<<endl;
+  
+  // ----------------------- Reference product -----------------------------------------------------------------------
+  
+  Handle<genCandidateCollection> ReferenceCollection;
+  bool isGen = iEvent.getByLabel(refCollectionInputTag_, ReferenceCollection);    // get the product from the event
+  
+  Handle<VertexCollection> pvHandle;
+  iEvent.getByLabel(PrimaryVertexCollection_,pvHandle);
+  
+  if (!isGen) {
+    std::cerr << " Reference collection: " << refCollection_ << " not found while running TauTagValidation.cc " << std::endl;
+    return;
+  }
+  
+  if(dataType_ == "Leptons"){
+    matching_criteria = matchDeltaR_Leptons_;
+  }
+  else
+  {
+    matching_criteria = matchDeltaR_Jets_;
+  }
+  
+  // ------------------------------ PFTauCollection Matched and other discriminators ---------------------------------------------------------
+  
+  if ( TauProducer_.find("PFTau") != string::npos || TauProducer_.find("hpsTancTaus") != string::npos )
+  {
+    Handle<PFTauCollection> thePFTauHandle;
+    iEvent.getByLabel(TauProducerInputTag_,thePFTauHandle);
+    
+    const PFTauCollection  *pfTauProduct;
+    pfTauProduct = thePFTauHandle.product();
+    
+    PFTauCollection::size_type thePFTauClosest;
+    
+    std::map<std::string,  MonitorElement *>::const_iterator element = plotMap_.end();
+    
+    for (genCandidateCollection::const_iterator RefJet= ReferenceCollection->begin() ; RefJet != ReferenceCollection->end(); RefJet++ ){
+      
+      ptTauVisibleMap.find(refCollection_)->second->Fill(RefJet->pt());
+      etaTauVisibleMap.find(refCollection_)->second->Fill(RefJet->eta());
+      phiTauVisibleMap.find(refCollection_)->second->Fill(RefJet->phi()*180.0/TMath::Pi());
+      pileupTauVisibleMap.find(refCollection_)->second->Fill(pvHandle->size());
+      
+      const reco::Candidate *gen_particle = &(*RefJet);
+      
+      double delta=TMath::Pi();
+      
+      thePFTauClosest = pfTauProduct->size();
+      
+      for (PFTauCollection::size_type iPFTau=0 ; iPFTau <  pfTauProduct->size() ; iPFTau++)
+      {
+        if (algo_->deltaR(gen_particle, & pfTauProduct->at(iPFTau)) < delta){
+          delta = algo_->deltaR(gen_particle, & pfTauProduct->at(iPFTau));
+          thePFTauClosest = iPFTau;
+        }
+      }
+      
+      // Skip if there is no reconstructed Tau matching the Reference
+      if (thePFTauClosest == pfTauProduct->size()) continue;
+      
+      double deltaR = algo_->deltaR(gen_particle, & pfTauProduct->at(thePFTauClosest));
+      
+      // Skip if the delta R difference is larger than the required criteria
+      if (deltaR > matching_criteria && matching_criteria != -1.0) continue;
+      
+      ptTauVisibleMap.find( TauProducer_+"Matched")->second->Fill(RefJet->pt());
+      etaTauVisibleMap.find( TauProducer_+"Matched" )->second->Fill(RefJet->eta());
+      phiTauVisibleMap.find( TauProducer_+"Matched" )->second->Fill(RefJet->phi()*180.0/TMath::Pi());
+      pileupTauVisibleMap.find(  TauProducer_+"Matched")->second->Fill(pvHandle->size());
+      
+      PFTauRef thePFTau(thePFTauHandle, thePFTauClosest);
+      
+      Handle<PFTauDiscriminator> currentDiscriminator;
+      
+      
+      //filter the candidates
+      if(thePFTau->pt() < TauPtCut_ ) continue;//almost deprecated, since recoCuts_ provides more flexibility
+                                               //reco
+      StringCutObjectSelector<PFTauRef> selectReco(recoCuts_);
+      bool pass = selectReco( thePFTau );
+      if( !pass ) continue;
+      //gen
+      StringCutObjectSelector<reco::Candidate> selectGen(genCuts_);
+      pass = selectGen( *gen_particle );
+      if( !pass ) continue;
+      //printf("TauTagValidation::analyze:selectGen: values: %f, %f\n", gen_particle->pt(), gen_particle->eta());
+      
+      
+      for ( std::vector< edm::ParameterSet >::iterator it = discriminators_.begin(); it!= discriminators_.end();  it++)
+      {
+        string currentDiscriminatorLabel = it->getParameter<string>("discriminator");
+        iEvent.getByLabel(currentDiscriminatorLabel, currentDiscriminator);
+        
+        if ((*currentDiscriminator)[thePFTau] >= it->getParameter<double>("selectionCut")){
+          ptTauVisibleMap.find(  currentDiscriminatorLabel )->second->Fill(RefJet->pt());
+          etaTauVisibleMap.find(  currentDiscriminatorLabel )->second->Fill(RefJet->eta());
+          phiTauVisibleMap.find(  currentDiscriminatorLabel )->second->Fill(RefJet->phi()*180.0/TMath::Pi());
+          pileupTauVisibleMap.find(  currentDiscriminatorLabel )->second->Fill(pvHandle->size());
+          
+          //fill the momentum resolution plots
+          double tauPtRes = thePFTau->pt()/gen_particle->pt();//WARNING: use only the visible parts!
+          plotMap_.find( currentDiscriminatorLabel + "_pTRatio_allHadronic" )->second->Fill(tauPtRes);
+          
+          //is there a better way than casting the candidate?
+          const reco::GenJet *tauGenJet = dynamic_cast<const reco::GenJet*>(gen_particle);
+          if(tauGenJet!=0){
+            std::string genTauDecayMode =  JetMCTagUtils::genTauDecayMode(*tauGenJet); // gen_particle is the tauGenJet matched to the reconstructed tau
+            element = plotMap_.find( currentDiscriminatorLabel + "_pTRatio_" + genTauDecayMode );
+            if( element != plotMap_.end() ) element->second->Fill(tauPtRes);
+            //        else LogInfo("TauTagValidation") << "No plot required for decay mode "<<genTauDecayMode.c_str()<<".";
+            //        else printf("No plot for decay mode %s required.\n", genTauDecayMode.c_str());
+          }else{
+            LogInfo("TauTagValidation") << " Failed to cast the MC candidate.";
+          }
+          
+          //fill: size and sumPt within tau isolation
+          std::string plotType = "_Size_";
+          element = plotMap_.find( currentDiscriminatorLabel + plotType + "signalPFCands" );
+          if( element != plotMap_.end() ) element->second->Fill( thePFTau->signalPFCands().size() );
+          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFCands" );
+          if( element != plotMap_.end() ) element->second->Fill( thePFTau->isolationPFCands().size() );
+          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFChargedHadrCands" );
+          if( element != plotMap_.end() ) element->second->Fill( thePFTau->isolationPFChargedHadrCands().size() );
+          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFNeutrHadrCands" );
+          if( element != plotMap_.end() ) element->second->Fill( thePFTau->isolationPFNeutrHadrCands().size() );
+          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFGammaCands" );
+          if( element != plotMap_.end() ) element->second->Fill( thePFTau->isolationPFGammaCands().size() );
+          
+          plotType = "_SumPt_";
+          element = plotMap_.find( currentDiscriminatorLabel + plotType + "signalPFCands" );
+          if( element != plotMap_.end() ) element->second->Fill( getSumPt( thePFTau->signalPFCands() ) );
+          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFCands" );
+          if( element != plotMap_.end() ) element->second->Fill( getSumPt( thePFTau->isolationPFCands() ) );
+          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFChargedHadrCands" );
+          if( element != plotMap_.end() ) element->second->Fill( getSumPt( thePFTau->isolationPFChargedHadrCands() ) );
+          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFNeutrHadrCands" );
+          if( element != plotMap_.end() ) element->second->Fill( getSumPt( thePFTau->isolationPFNeutrHadrCands() ) );
+          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFGammaCands" );
+          if( element != plotMap_.end() ) element->second->Fill( getSumPt( thePFTau->isolationPFGammaCands() ) );
+          
+          
+          //deprecated
+          
+          if( TauProducer_.find("PFTau") != string::npos ){
+            if ( currentDiscriminatorLabel.find("LeadingTrackPtCut") != string::npos){
+              nPFJet_LeadingChargedHadron_ChargedHadronsSignal_->Fill((*thePFTau).signalPFChargedHadrCands().size());
+              nPFJet_LeadingChargedHadron_ChargedHadronsIsolAnnulus_->Fill((*thePFTau).isolationPFChargedHadrCands().size());
+              nPFJet_LeadingChargedHadron_GammasSignal_->Fill((*thePFTau).signalPFGammaCands().size());
+              nPFJet_LeadingChargedHadron_GammasIsolAnnulus_->Fill((*thePFTau).isolationPFGammaCands().size());
+              nPFJet_LeadingChargedHadron_NeutralHadronsSignal_->Fill((*thePFTau).signalPFNeutrHadrCands().size());
+              nPFJet_LeadingChargedHadron_NeutralHadronsIsolAnnulus_->Fill((*thePFTau).isolationPFNeutrHadrCands().size());
+            }
+            else if ( currentDiscriminatorLabel.find("ByIsolation") != string::npos ){
+              nIsolated_NoChargedNoGammas_ChargedHadronsSignal_->Fill((*thePFTau).signalPFChargedHadrCands().size());
+              nIsolated_NoChargedNoGammas_GammasSignal_->Fill((*thePFTau).signalPFGammaCands().size());
+              nIsolated_NoChargedNoGammas_NeutralHadronsSignal_->Fill((*thePFTau).signalPFNeutrHadrCands().size());
+              nIsolated_NoChargedNoGammas_NeutralHadronsIsolAnnulus_->Fill((*thePFTau).isolationPFNeutrHadrCands().size());
+            }
+          }
+        }
+        else {
+          if (chainCuts_)
+            break;
+        }
+      }
+    }
+  }
+}
+void TauTagValidation::beginJob() {
   
   dbeTau_ = &*edm::Service<DQMStore>();
   
@@ -289,203 +489,23 @@ void TauTagValidation::beginJob()
   
   //     }
 }
-
-// -- method called to produce fill all the histograms --------------------
-void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-  
-  numEvents_++;
-  double matching_criteria = -1.0;
-  
-  typedef edm::View<reco::Candidate> genCandidateCollection;
-  //  typedef edm::Vector<reco::PFTau> pfCandidateCollection;
-  //  typedef edm::Vector<reco::CaloTau> caloCandidateCollection;
-  
-  //  std::cout << "--------------------------------------------------------------"<<endl;
-  //std::cout << " RunNumber: " << iEvent.id().run() << ", EventNumber: " << iEvent.id().event() << std:: endl;
-  //std::cout << "Event number: " << ++numEvents_ << endl;
-  //std::cout << "--------------------------------------------------------------"<<endl;
-  
-  // ----------------------- Reference product -----------------------------------------------------------------------
-  
-  Handle<genCandidateCollection> ReferenceCollection;
-  bool isGen = iEvent.getByLabel(refCollectionInputTag_, ReferenceCollection);    // get the product from the event
-  
-  Handle<VertexCollection> pvHandle;
-  iEvent.getByLabel(PrimaryVertexCollection_,pvHandle);
-  
-  if (!isGen) {
-    std::cerr << " Reference collection: " << refCollection_ << " not found while running TauTagValidation.cc " << std::endl;
-    return;
-  }
-  
-  if(dataType_ == "Leptons"){
-    matching_criteria = matchDeltaR_Leptons_;
-  }
-  else
-  {
-    matching_criteria = matchDeltaR_Jets_;
-  }
-  
-  // ------------------------------ PFTauCollection Matched and other discriminators ---------------------------------------------------------
-  
-  if ( TauProducer_.find("PFTau") != string::npos || TauProducer_.find("hpsTancTaus") != string::npos )
-  {
-    Handle<PFTauCollection> thePFTauHandle;
-    iEvent.getByLabel(TauProducerInputTag_,thePFTauHandle);
-    
-    const PFTauCollection  *pfTauProduct;
-    pfTauProduct = thePFTauHandle.product();
-    
-    PFTauCollection::size_type thePFTauClosest;
-    
-    std::map<std::string,  MonitorElement *>::const_iterator element = plotMap_.end();
-    
-    for (genCandidateCollection::const_iterator RefJet= ReferenceCollection->begin() ; RefJet != ReferenceCollection->end(); RefJet++ ){
-      
-      ptTauVisibleMap.find(refCollection_)->second->Fill(RefJet->pt());
-      etaTauVisibleMap.find(refCollection_)->second->Fill(RefJet->eta());
-      phiTauVisibleMap.find(refCollection_)->second->Fill(RefJet->phi()*180.0/TMath::Pi());
-      pileupTauVisibleMap.find(refCollection_)->second->Fill(pvHandle->size());
-      
-      const reco::Candidate *gen_particle = &(*RefJet);
-      
-      double delta=TMath::Pi();
-      
-      thePFTauClosest = pfTauProduct->size();
-      
-      for (PFTauCollection::size_type iPFTau=0 ; iPFTau <  pfTauProduct->size() ; iPFTau++)
-      {
-        if (algo_->deltaR(gen_particle, & pfTauProduct->at(iPFTau)) < delta){
-          delta = algo_->deltaR(gen_particle, & pfTauProduct->at(iPFTau));
-          thePFTauClosest = iPFTau;
-        }
-      }
-      
-      // Skip if there is no reconstructed Tau matching the Reference
-      if (thePFTauClosest == pfTauProduct->size()) continue;
-      
-      double deltaR = algo_->deltaR(gen_particle, & pfTauProduct->at(thePFTauClosest));
-      
-      // Skip if the delta R difference is larger than the required criteria
-      if (deltaR > matching_criteria && matching_criteria != -1.0) continue;
-      
-      ptTauVisibleMap.find( TauProducer_+"Matched")->second->Fill(RefJet->pt());
-      etaTauVisibleMap.find( TauProducer_+"Matched" )->second->Fill(RefJet->eta());
-      phiTauVisibleMap.find( TauProducer_+"Matched" )->second->Fill(RefJet->phi()*180.0/TMath::Pi());
-      pileupTauVisibleMap.find(  TauProducer_+"Matched")->second->Fill(pvHandle->size());
-      
-      PFTauRef thePFTau(thePFTauHandle, thePFTauClosest);
-      
-      Handle<PFTauDiscriminator> currentDiscriminator;
-      
-      
-      //filter the candidates
-      if(thePFTau->pt() < TauPtCut_ ) continue;//almost deprecated, since recoCuts_ provides more flexibility
-      //reco
-      StringCutObjectSelector<PFTauRef> selectReco(recoCuts_);
-      bool pass = selectReco( thePFTau );
-      if( !pass ) continue;
-      //gen
-      StringCutObjectSelector<reco::Candidate> selectGen(genCuts_);
-      pass = selectGen( *gen_particle );
-      if( !pass ) continue;
-      //printf("TauTagValidation::analyze:selectGen: values: %f, %f\n", gen_particle->pt(), gen_particle->eta());
-      
-      
-      for ( std::vector< edm::ParameterSet >::iterator it = discriminators_.begin(); it!= discriminators_.end();  it++)
-      {
-        string currentDiscriminatorLabel = it->getParameter<string>("discriminator");
-        iEvent.getByLabel(currentDiscriminatorLabel, currentDiscriminator);
-        
-        if ((*currentDiscriminator)[thePFTau] >= it->getParameter<double>("selectionCut")){
-          ptTauVisibleMap.find(  currentDiscriminatorLabel )->second->Fill(RefJet->pt());
-          etaTauVisibleMap.find(  currentDiscriminatorLabel )->second->Fill(RefJet->eta());
-          phiTauVisibleMap.find(  currentDiscriminatorLabel )->second->Fill(RefJet->phi()*180.0/TMath::Pi());
-          pileupTauVisibleMap.find(  currentDiscriminatorLabel )->second->Fill(pvHandle->size());
-          
-          //fill the momentum resolution plots
-          double tauPtRes = thePFTau->pt()/gen_particle->pt();//WARNING: use only the visible parts!
-          plotMap_.find( currentDiscriminatorLabel + "_pTRatio_allHadronic" )->second->Fill(tauPtRes);
-          
-          //is there a better way than casting the candidate?
-          const reco::GenJet *tauGenJet = dynamic_cast<const reco::GenJet*>(gen_particle);
-          if(tauGenJet!=0){
-            std::string genTauDecayMode =  JetMCTagUtils::genTauDecayMode(*tauGenJet); // gen_particle is the tauGenJet matched to the reconstructed tau
-            element = plotMap_.find( currentDiscriminatorLabel + "_pTRatio_" + genTauDecayMode );
-            if( element != plotMap_.end() ) element->second->Fill(tauPtRes);
-            //        else LogInfo("TauTagValidation") << "No plot required for decay mode "<<genTauDecayMode.c_str()<<".";
-            //        else printf("No plot for decay mode %s required.\n", genTauDecayMode.c_str());
-          }else{
-            LogInfo("TauTagValidation") << " Failed to cast the MC candidate.";
-          }
-          
-          //fill: size and sumPt within tau isolation
-          std::string plotType = "_Size_";
-          element = plotMap_.find( currentDiscriminatorLabel + plotType + "signalPFCands" );
-          if( element != plotMap_.end() ) element->second->Fill( thePFTau->signalPFCands().size() );
-          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFCands" );
-          if( element != plotMap_.end() ) element->second->Fill( thePFTau->isolationPFCands().size() );
-          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFChargedHadrCands" );
-          if( element != plotMap_.end() ) element->second->Fill( thePFTau->isolationPFChargedHadrCands().size() );
-          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFNeutrHadrCands" );
-          if( element != plotMap_.end() ) element->second->Fill( thePFTau->isolationPFNeutrHadrCands().size() );
-          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFGammaCands" );
-          if( element != plotMap_.end() ) element->second->Fill( thePFTau->isolationPFGammaCands().size() );
-
-          plotType = "_SumPt_";
-          element = plotMap_.find( currentDiscriminatorLabel + plotType + "signalPFCands" );
-          if( element != plotMap_.end() ) element->second->Fill( getSumPt( thePFTau->signalPFCands() ) );
-          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFCands" );
-          if( element != plotMap_.end() ) element->second->Fill( getSumPt( thePFTau->isolationPFCands() ) );
-          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFChargedHadrCands" );
-          if( element != plotMap_.end() ) element->second->Fill( getSumPt( thePFTau->isolationPFChargedHadrCands() ) );
-          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFNeutrHadrCands" );
-          if( element != plotMap_.end() ) element->second->Fill( getSumPt( thePFTau->isolationPFNeutrHadrCands() ) );
-          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFGammaCands" );
-          if( element != plotMap_.end() ) element->second->Fill( getSumPt( thePFTau->isolationPFGammaCands() ) );
-          
-          
-          //deprecated
-          
-          if( TauProducer_.find("PFTau") != string::npos ){
-            if ( currentDiscriminatorLabel.find("LeadingTrackPtCut") != string::npos){
-              nPFJet_LeadingChargedHadron_ChargedHadronsSignal_->Fill((*thePFTau).signalPFChargedHadrCands().size());
-              nPFJet_LeadingChargedHadron_ChargedHadronsIsolAnnulus_->Fill((*thePFTau).isolationPFChargedHadrCands().size());
-              nPFJet_LeadingChargedHadron_GammasSignal_->Fill((*thePFTau).signalPFGammaCands().size());
-              nPFJet_LeadingChargedHadron_GammasIsolAnnulus_->Fill((*thePFTau).isolationPFGammaCands().size());
-              nPFJet_LeadingChargedHadron_NeutralHadronsSignal_->Fill((*thePFTau).signalPFNeutrHadrCands().size());
-              nPFJet_LeadingChargedHadron_NeutralHadronsIsolAnnulus_->Fill((*thePFTau).isolationPFNeutrHadrCands().size());
-            }
-            else if ( currentDiscriminatorLabel.find("ByIsolation") != string::npos ){
-              nIsolated_NoChargedNoGammas_ChargedHadronsSignal_->Fill((*thePFTau).signalPFChargedHadrCands().size());
-              nIsolated_NoChargedNoGammas_GammasSignal_->Fill((*thePFTau).signalPFGammaCands().size());
-              nIsolated_NoChargedNoGammas_NeutralHadronsSignal_->Fill((*thePFTau).signalPFNeutrHadrCands().size());
-              nIsolated_NoChargedNoGammas_NeutralHadronsIsolAnnulus_->Fill((*thePFTau).isolationPFNeutrHadrCands().size());
-            }
-          }
-        }
-        else {
-          if (chainCuts_)
-            break;
-        }
-      }
-    }
-  }
-}
-
-
-
-
-// ---------------------------------------------------------------------------  endJob -----------------------------------------------------------------------
-
-void TauTagValidation::endJob(){
+void TauTagValidation::endJob() {
   //store the output
   if (!outPutFile_.empty() && &*edm::Service<DQMStore>() && saveoutputhistograms_) dbeTau_->save (outPutFile_);
 }
+void TauTagValidation::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
+  if (genericTriggerEventFlag_) {
+    if (genericTriggerEventFlag_->on()) genericTriggerEventFlag_->initRun(iRun, iSetup);
+  }
+}
+void TauTagValidation::endRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
+}
+void TauTagValidation::beginLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::EventSetup const& iSetup) {
+}
+void TauTagValidation::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::EventSetup const& iSetup) {
+}
 
-
-double TauTagValidation::getSumPt(const reco::PFCandidateRefVector & 	candidates){
+double TauTagValidation::getSumPt(const reco::PFCandidateRefVector & 	candidates) {
   double sumPt = 0.;
   for (reco::PFCandidateRefVector::const_iterator candidate = candidates.begin(); candidate!=candidates.end(); ++candidate) {
     sumPt += (*candidate)->pt();
@@ -493,9 +513,7 @@ double TauTagValidation::getSumPt(const reco::PFCandidateRefVector & 	candidates
 
   return sumPt;
 }
-
-
-bool TauTagValidation::stripDiscriminatorLabel(const std::string& discriminatorLabel, std::string & newLabel){
+bool TauTagValidation::stripDiscriminatorLabel(const std::string& discriminatorLabel, std::string & newLabel) {
   std::string separatorString = "DiscriminationBy";
   std::string::size_type separator = discriminatorLabel.find(separatorString);
   if(separator==std::string::npos){
@@ -516,4 +534,3 @@ bool TauTagValidation::stripDiscriminatorLabel(const std::string& discriminatorL
   
   return true;  
 }
-
