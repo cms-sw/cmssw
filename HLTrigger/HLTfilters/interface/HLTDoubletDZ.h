@@ -16,7 +16,7 @@
 // class declaration
 //
 
-template<typename T1, int Tid1, typename T2, int Tid2>
+template<typename T1, typename T2>
 class HLTDoubletDZ : public HLTFilter {
 
    public:

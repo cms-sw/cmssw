@@ -17,14 +17,14 @@
 //
 // constructors and destructor
 //
-template<typename T1, int Tid1, typename T2, int Tid2>
-HLTDoubletDZ<T1,Tid1,T2,Tid2>::HLTDoubletDZ(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
-  originTag1_(edm::InputTag("")),
-  originTag2_(edm::InputTag("")),
+template<typename T1, typename T2>
+HLTDoubletDZ<T1,T2>::HLTDoubletDZ(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
+  originTag1_(iConfig.template getParameter<edm::InputTag>("originTag1")),
+  originTag2_(iConfig.template getParameter<edm::InputTag>("originTag2")),
   inputTag1_(iConfig.template getParameter<edm::InputTag>("inputTag1")),
   inputTag2_(iConfig.template getParameter<edm::InputTag>("inputTag2")),
-  triggerType1_(Tid1),
-  triggerType2_(Tid2),
+  triggerType1_(iConfig.template getParameter<int>("triggerType1")),
+  triggerType2_(iConfig.template getParameter<int>("triggerType2")),
   minDR_ (iConfig.template getParameter<double>("MinDR")),
   maxDZ_ (iConfig.template getParameter<double>("MaxDZ")),
   min_N_    (iConfig.template getParameter<int>("MinN")),
@@ -36,32 +36,32 @@ HLTDoubletDZ<T1,Tid1,T2,Tid2>::HLTDoubletDZ(const edm::ParameterSet& iConfig) : 
    same_ = (inputTag1_.encode()==inputTag2_.encode());
 }
 
-template<typename T1, int Tid1, typename T2, int Tid2>
-HLTDoubletDZ<T1,Tid1,T2,Tid2>::~HLTDoubletDZ()
+template<typename T1, typename T2>
+HLTDoubletDZ<T1,T2>::~HLTDoubletDZ()
 {
 }
 
-template<typename T1, int Tid1, typename T2, int Tid2>
+template<typename T1, typename T2>
 void
-HLTDoubletDZ<T1,Tid1,T2,Tid2>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+HLTDoubletDZ<T1,T2>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("originTag1",edm::InputTag("hltOriginal1"));
   desc.add<edm::InputTag>("originTag2",edm::InputTag("hltOriginal2"));
   desc.add<edm::InputTag>("inputTag1",edm::InputTag("hltFiltered1"));
   desc.add<edm::InputTag>("inputTag2",edm::InputTag("hltFiltered2"));
-  desc.add<int>("triggerType1",Tid1);
-  desc.add<int>("triggerType2",Tid2);
+  desc.add<int>("triggerType1",0);
+  desc.add<int>("triggerType2",0);
   desc.add<double>("MinDR",-1.0);
   desc.add<double>("MaxDZ",0.2);
   desc.add<int>("MinN",1);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTDoubletDZ<T1,Tid1,T2,Tid2>).name()),desc);
+  descriptions.add(std::string("hlt")+std::string(typeid(HLTDoubletDZ<T1,T2>).name()),desc);
 }
 
 // ------------ method called to produce the data  ------------
-template<typename T1, int Tid1, typename T2, int Tid2>
+template<typename T1, typename T2>
 bool
-HLTDoubletDZ<T1,Tid1,T2,Tid2>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTDoubletDZ<T1,T2>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
    using namespace std;
    using namespace edm;

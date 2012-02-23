@@ -92,25 +92,26 @@ typedef HLTGlobalSums<MET    ,TriggerTHT> HLTGlobalSumsMET    ;
 
 #include "HLTrigger/HLTfilters/interface/HLTDoublet.h"
 #include "HLTrigger/HLTfilters/src/HLTDoublet.cc"
-typedef HLTDoublet<CaloJet,TriggerJet,CaloJet,TriggerJet> HLT2CaloJetCaloJet;
-typedef HLTDoublet<CaloJet,TriggerJet,CaloMET,TriggerMET> HLT2CaloJetCaloMET;
-typedef HLTDoublet<CaloJet,TriggerJet,    MET,TriggerMHT> HLT2CaloJetMETMHT;
-typedef HLTDoublet<CaloJet,TriggerJet,    MET,TriggerTHT> HLT2CaloJetMETTHT;
+typedef HLTDoublet<CaloJet,CaloJet> HLT2CaloJetCaloJet;
+typedef HLTDoublet<CaloJet,CaloMET> HLT2CaloJetCaloMET;
+typedef HLTDoublet<CaloJet,    MET> HLT2CaloJetMETMHT;
+typedef HLTDoublet<CaloJet,    MET> HLT2CaloJetMETTHT;
+typedef HLTDoublet<CaloJet,    MET> HLT2CaloJetMET;
 
-typedef HLTDoublet<Electron,TriggerElectron,CaloJet,TriggerTau> HLT2ElectronTau;
-typedef HLTDoublet<RecoChargedCandidate,TriggerMuon,CaloJet,TriggerTau> HLT2MuonTau;
-typedef HLTDoublet<Electron,TriggerElectron,CaloTau,TriggerTau> HLT2ElectronCaloTau;
-typedef HLTDoublet<RecoChargedCandidate,TriggerMuon,CaloTau,TriggerTau> HLT2MuonCaloTau;
-typedef HLTDoublet<Electron,TriggerElectron,HLTTau,TriggerTau> HLT2ElectronHLTTau;
-typedef HLTDoublet<RecoChargedCandidate,TriggerMuon,HLTTau,TriggerTau> HLT2MuonHLTTau;
-typedef HLTDoublet<Electron,TriggerElectron,PFTau,TriggerTau> HLT2ElectronPFTau;
-typedef HLTDoublet<RecoChargedCandidate,TriggerMuon,PFTau,TriggerTau> HLT2MuonPFTau;
+typedef HLTDoublet<Electron            ,CaloJet> HLT2ElectronTau;
+typedef HLTDoublet<RecoChargedCandidate,CaloJet> HLT2MuonTau;
+typedef HLTDoublet<Electron            ,CaloTau> HLT2ElectronCaloTau;
+typedef HLTDoublet<RecoChargedCandidate,CaloTau> HLT2MuonCaloTau;
+typedef HLTDoublet<Electron            ,HLTTau>  HLT2ElectronHLTTau;
+typedef HLTDoublet<RecoChargedCandidate,HLTTau>  HLT2MuonHLTTau;
+typedef HLTDoublet<Electron            ,PFTau>   HLT2ElectronPFTau;
+typedef HLTDoublet<RecoChargedCandidate,PFTau>   HLT2MuonPFTau;
 
 #include "HLTrigger/HLTfilters/interface/HLTDoubletDZ.h"
 #include "HLTrigger/HLTfilters/src/HLTDoubletDZ.cc"
-typedef HLTDoubletDZ<Electron,TriggerElectron,Electron,TriggerElectron>                 HLT2ElectronElectronDZ;
-typedef HLTDoubletDZ<RecoChargedCandidate,TriggerMuon,RecoChargedCandidate,TriggerMuon> HLT2MuonMuonDZ;
-typedef HLTDoubletDZ<Electron,TriggerElectron,RecoChargedCandidate,TriggerMuon>         HLT2ElectronMuonDZ;
+typedef HLTDoubletDZ<Electron            ,Electron>             HLT2ElectronElectronDZ;
+typedef HLTDoubletDZ<RecoChargedCandidate,RecoChargedCandidate> HLT2MuonMuonDZ;
+typedef HLTDoubletDZ<Electron            ,RecoChargedCandidate> HLT2ElectronMuonDZ;
 
 DEFINE_FWK_MODULE(HLTBool);
 DEFINE_FWK_MODULE(HLTFiltCand);
@@ -121,6 +122,7 @@ DEFINE_FWK_MODULE(HLT2CaloJetCaloJet);
 DEFINE_FWK_MODULE(HLT2CaloJetCaloMET);
 DEFINE_FWK_MODULE(HLT2CaloJetMETMHT);
 DEFINE_FWK_MODULE(HLT2CaloJetMETTHT);
+DEFINE_FWK_MODULE(HLT2CaloJetMET);
 DEFINE_FWK_MODULE(HLT2ElectronTau);
 DEFINE_FWK_MODULE(HLT2MuonTau);
 //DEFINE_FWK_MODULE(HLT2ElectronCaloTau);

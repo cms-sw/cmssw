@@ -12,8 +12,8 @@
  *  single-object-type filters so that the access is thorugh
  *  RefToBases and polymorphic.
  *
- *  $Date: 2012/02/09 06:13:44 $
- *  $Revision: 1.6 $
+ *  $Date: 2012/02/23 08:58:32 $
+ *  $Revision: 1.7 $
  *
  *  \author Martin Grunewald
  *
@@ -29,7 +29,7 @@
 // class declaration
 //
 
-template<typename T1, int Tid1, typename T2, int Tid2>
+template<typename T1, typename T2>
 class HLTDoublet : public HLTFilter {
 
    public:
