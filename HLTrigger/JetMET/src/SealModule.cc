@@ -18,6 +18,7 @@
 #include "HLTrigger/JetMET/interface/PFJetsMatchedToFilteredCaloJetsProducer.h"
 #include "HLTrigger/JetMET/interface/HLTNVFilter.h"
 #include "HLTrigger/JetMET/interface/HLTJetIDProducer.h"
+#include "HLTrigger/JetMET/interface/HLTPFJetIDProducer.h"
 
 //Work with all jet collections without changing the module name
 #include "HLTrigger/JetMET/interface/HLTHtMhtProducer.h"
@@ -135,6 +136,7 @@ DEFINE_FWK_MODULE(HLTHtMhtFilter);
 DEFINE_FWK_MODULE(HLTMhtFilter);
 DEFINE_FWK_MODULE(HLTHPDFilter);
 DEFINE_FWK_MODULE(HLTJetIDProducer);
+DEFINE_FWK_MODULE(HLTPFJetIDProducer);
 DEFINE_FWK_MODULE(HLTHcalMETNoiseFilter);
 DEFINE_FWK_MODULE(HLTHcalMETNoiseCleaner);
 DEFINE_FWK_MODULE(HLTHcalTowerNoiseCleaner);
