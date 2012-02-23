@@ -306,12 +306,36 @@ FWGeometryTableViewBase::selectView(int idx)
 //==============================================================================
 
 void 
+FWGeometryTableViewBase::setColumnSelected(int idx)
+{
+   // printf("cell clicled top node %p\n", (void*)m_eveTopNode);
+   if (gEve->GetSelection()->HasChild( m_eveTopNode))
+      gEve->GetSelection()->RemoveElement( m_eveTopNode);
+
+   if (gEve->GetHighlight()->HasChild( m_eveTopNode))
+      gEve->GetHighlight()->RemoveElement( m_eveTopNode);
+
+   // reset bits and sets for old selected table entry
+   m_eveTopNode->UnSelected();
+   m_eveTopNode->UnHighlighted();
+
+
+   if (m_eveTopNode->selectPhysicalFromTable(idx))
+      gEve->GetSelection()->AddElement(m_eveTopNode);
+
+   getTableManager()->refEntry(idx).setBit(FWGeometryTableManagerBase::kSelected);
+   getTableManager()->redrawTable();
+   gEve->Redraw3D();
+}
+//______________________________________________________________________________
+
+void 
 FWGeometryTableViewBase::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t iKeyMod, Int_t x, Int_t y)
 {
-   // getTableManager()->setSelection(iRow, iColumn, iButton);
    int idx = getTableManager()->rowToIndex()[iRow];
    FWGeometryTableManagerBase::NodeInfo& ni = getTableManager()->refEntries()[idx];
 
+   bool elementChanged = false;
    if (iButton == kButton1) 
    {
       if (iColumn == 0)
@@ -320,29 +344,8 @@ FWGeometryTableViewBase::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, I
          Int_t xLoc,yLoc;
          gVirtualX->TranslateCoordinates(gClient->GetDefaultRoot()->GetId(), m_tableWidget->GetId(),  x, y, xLoc, yLoc, wdummy);
 
-         bool sel = getTableManager()->firstColumnClicked(iRow, xLoc);
-
-         if (sel) {
-            int idx =getTableManager()->rowToIndex()[iRow];
-	          // printf("cell clicled top node %p\n", (void*)m_eveTopNode);
-            if (gEve->GetSelection()->HasChild( m_eveTopNode))
-               gEve->GetSelection()->RemoveElement( m_eveTopNode);
-
-            if (gEve->GetHighlight()->HasChild( m_eveTopNode))
-               gEve->GetHighlight()->RemoveElement( m_eveTopNode);
-
-            // reset bits and sets for old selected table entry
-            m_eveTopNode->UnSelected();
-            m_eveTopNode->UnHighlighted();
-
-
-            if (m_eveTopNode->selectPhysicalFromTable(idx))
-               gEve->GetSelection()->AddElement(m_eveTopNode);
-
-            ni.setBit(FWGeometryTableManagerBase::kSelected);
-            getTableManager()->redrawTable();
-            gEve->Redraw3D();
-	 }
+         if (getTableManager()->firstColumnClicked(iRow, xLoc))
+            setColumnSelected(idx);
       }
       else if (iColumn == 1)
       { 
@@ -360,34 +363,30 @@ FWGeometryTableViewBase::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, I
          m_colorPopup->PlacePopup(x, y, m_colorPopup->GetDefaultWidth(), m_colorPopup->GetDefaultHeight());
          return;
       }
-      else
+      else if (iColumn == 2)
       {
-         bool elementChanged = false;
-         if (iColumn == 2)
-         {
-            ni.switchBit(FWGeometryTableManagerBase::kVisNodeSelf);
-            elementChanged = true;
-         }
-         else if (iColumn == 3)
-         { 
-            ni.switchBit(FWGeometryTableManagerBase::kVisNodeChld); 
-            elementChanged = true;
-         }
-         else if (iColumn == 5)
-         {
-            // used in overlaps for RnrMarker column
-            ni.switchBit(BIT(5));
-            elementChanged = true;
-         }
-
-         if (elementChanged)
-         {
-            refreshTable3D();
-         }
+         ni.switchBit(FWGeometryTableManagerBase::kVisNodeSelf);
+         elementChanged = true;
+      }
+      else if (iColumn == 3)
+      { 
+         ni.switchBit(FWGeometryTableManagerBase::kVisNodeChld); 
+         elementChanged = true;
+      }
+      else if (iColumn == 5)
+      {
+         // used in overlaps for RnrMarker column
+         ni.switchBit(BIT(5));
+         elementChanged = true;
+      }
+      else
+      {setColumnSelected(idx);
       }
 
-      getTableManager()->dataChanged();
-
+      if (elementChanged) {
+         refreshTable3D();
+         // getTableManager()->dataChanged();
+      }
    }
    else if (iColumn == 0)
    {

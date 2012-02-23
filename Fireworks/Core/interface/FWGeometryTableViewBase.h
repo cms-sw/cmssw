@@ -146,7 +146,7 @@ private:
 
    FWGeometryTableViewBase(const FWGeometryTableViewBase&);                  // stop default
    const FWGeometryTableViewBase& operator=(const FWGeometryTableViewBase&); // stop default
-
+   void setColumnSelected(int idx);
    ClassDef(FWGeometryTableViewBase, 0);
 };
 
