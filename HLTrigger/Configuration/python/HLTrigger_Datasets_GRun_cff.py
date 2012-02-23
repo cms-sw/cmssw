@@ -1,4 +1,4 @@
-# /dev/CMSSW_5_1_0/GRun/V88
+# /dev/CMSSW_5_1_0/GRun/V89
 
 import FWCore.ParameterSet.Config as cms
 
@@ -111,7 +111,21 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetJet_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetJet_selector.l1tResults = cms.InputTag('')
 streamA_datasetJet_selector.throw      = cms.bool(False)
-streamA_datasetJet_selector.triggerConditions = cms.vstring('HLT_MonoCentralPFJet80L1FastJet_PFMHTWOM95_NHEF95_v1')
+streamA_datasetJet_selector.triggerConditions = cms.vstring('HLT_DiPFJetAve140_v1', 
+    'HLT_DiPFJetAve200_v1', 
+    'HLT_DiPFJetAve260_v1', 
+    'HLT_DiPFJetAve320_v1', 
+    'HLT_DiPFJetAve400_v1', 
+    'HLT_DiPFJetAve40_v1', 
+    'HLT_DiPFJetAve80_v1', 
+    'HLT_MonoCentralPFJet80L1FastJet_PFMHTWOM95_NHEF95_v1', 
+    'HLT_PFJet140_v1', 
+    'HLT_PFJet200_v1', 
+    'HLT_PFJet260_v1', 
+    'HLT_PFJet320_v1', 
+    'HLT_PFJet400_v1', 
+    'HLT_PFJet40_v1', 
+    'HLT_PFJet80_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetLogMonitor_selector
 streamA_datasetLogMonitor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')

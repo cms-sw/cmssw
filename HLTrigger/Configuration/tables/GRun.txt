@@ -361,20 +361,20 @@ HLT_Ele17_CaloIdL_CaloIsoVL_v*                  #sr126493, kept from 2011
 #HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v*			#sr126497, still to get integrated
 #HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v*			#sr126497, still to get integrated
 
-#HLT_PFJet40_v*				#sr126501, still to get integrated
-#HLT_PFJet80_v*				#sr126501, still to get integrated
-#HLT_PFJet140_v*			#sr126501, still to get integrated
-#HLT_PFJet200_v*			#sr126501, still to get integrated
-#HLT_PFJet260_v*			#sr126501, still to get integrated
-#HLT_PFJet320_v*			#sr126501, still to get integrated
-#HLT_PFJet400_v*			#sr126501, still to get integrated
-#HLT_DiPFJetAve40_v*			#sr126501, still to get integrated
-#HLT_DiPFJetAve80_v*			#sr126501, still to get integrated
-#HLT_DiPFJetAve140_v*			#sr126501, still to get integrated
-#HLT_DiPFJetAve200_v*			#sr126501, still to get integrated
-#HLT_DiPFJetAve260_v*			#sr126501, still to get integrated
-#HLT_DiPFJetAve320_v*			#sr126501, still to get integrated
-#HLT_DiPFJetAve400_v*			#sr126501, still to get integrated
+HLT_PFJet40_v*				#sr126501, 126484
+HLT_PFJet80_v*				#sr126501, 126484
+HLT_PFJet140_v*				#sr126501, 126484
+HLT_PFJet200_v*				#sr126501, 126484
+HLT_PFJet260_v*				#sr126501, 126484
+HLT_PFJet320_v*				#sr126501, 126484
+HLT_PFJet400_v*				#sr126501, 126484
+HLT_DiPFJetAve40_v*			#sr126501, 126484
+HLT_DiPFJetAve80_v*			#sr126501, 126484
+HLT_DiPFJetAve140_v*			#sr126501, 126484
+HLT_DiPFJetAve200_v*			#sr126501, 126484
+HLT_DiPFJetAve260_v*			#sr126501, 126484
+HLT_DiPFJetAve320_v*			#sr126501, 126484
+HLT_DiPFJetAve400_v*			#sr126501, 126484
 
 HLT_DoublePhoton43_HEVT_v*					#sr126541
 HLT_DoublePhoton48_HEVT_v*					#sr126541
