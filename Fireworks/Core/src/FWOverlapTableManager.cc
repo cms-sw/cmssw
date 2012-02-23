@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 20:31:32 CET 2012
-// $Id: FWOverlapTableManager.cc,v 1.2 2012/02/22 03:45:59 amraktad Exp $
+// $Id: FWOverlapTableManager.cc,v 1.3 2012/02/22 23:03:47 amraktad Exp $
 //
 
 // system include files
@@ -186,7 +186,7 @@ void FWOverlapTableManager::importOverlaps(std::string iPath, double iPrecision)
   
    topVol->SelectVolume(kTRUE);
    geom->SetCheckingOverlaps(kFALSE);
-   geom->SortOverlaps();
+   //   geom->SortOverlaps();
    TObjArray *overlaps = geom->GetListOfOverlaps();
    Int_t novlps = overlaps->GetEntriesFast();     
    TNamed *obj;
@@ -346,16 +346,20 @@ void FWOverlapTableManager::printOverlaps(int idx) const
 void FWOverlapTableManager::getOverlapTitles(int idx, TString& txt) const
 {
   
-  TEveGeoManagerHolder gmgr( FWGeometryTableViewManager::getGeoMangeur());
-  std::pair<std::multimap<int, int>::const_iterator, std::multimap<int, int>::const_iterator> ppp;
-  ppp = m_mapNodeOverlaps.equal_range(idx);
-  for (std::multimap<int, int>::const_iterator it2 = ppp.first;it2 != ppp.second;++it2) {
-    const TGeoOverlap* ovl = (const TGeoOverlap*) gGeoManager->GetListOfOverlaps()->At((*it2).second);
-    {
-      txt += "\n";
+   TEveGeoManagerHolder gmgr( FWGeometryTableViewManager::getGeoMangeur());
+   std::pair<std::multimap<int, int>::const_iterator, std::multimap<int, int>::const_iterator> ppp;
+   ppp = m_mapNodeOverlaps.equal_range(idx);
+   for (std::multimap<int, int>::const_iterator it2 = ppp.first;it2 != ppp.second;++it2) {
+      const TGeoOverlap* ovl = (const TGeoOverlap*) gGeoManager->GetListOfOverlaps()->At((*it2).second);
+      {
+         txt += "\n";
 
-    if (ovl) txt += ovl->GetTitle();    }
-  }    
+         if (ovl) {
+            txt += Form("%s: %g, ", ovl->IsOverlap() ? "Ovl" : "Extr",  ovl->GetOverlap());
+            txt += ovl->GetTitle();    
+         }
+      }
+   }    
 }
 //______________________________________________________________________________
 /*
