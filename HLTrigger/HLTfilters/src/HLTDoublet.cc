@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2012/01/21 14:56:59 $
- *  $Revision: 1.17 $
+ *  $Date: 2012/02/09 06:13:45 $
+ *  $Revision: 1.18 $
  *
  *  \author Martin Grunewald
  *
@@ -28,8 +28,12 @@
 //
 template<typename T1, int Tid1, typename T2, int Tid2>
 HLTDoublet<T1,Tid1,T2,Tid2>::HLTDoublet(const edm::ParameterSet& iConfig) : HLTFilter(iConfig), 
+  originTag1_(edm::InputTag("")),
+  originTag2_(edm::InputTag("")),
   inputTag1_(iConfig.template getParameter<edm::InputTag>("inputTag1")),
   inputTag2_(iConfig.template getParameter<edm::InputTag>("inputTag2")),
+  triggerType1_(Tid1),
+  triggerType2_(Tid2),
   min_Dphi_ (iConfig.template getParameter<double>("MinDphi")),
   max_Dphi_ (iConfig.template getParameter<double>("MaxDphi")),
   min_Deta_ (iConfig.template getParameter<double>("MinDeta")),
@@ -39,9 +43,11 @@ HLTDoublet<T1,Tid1,T2,Tid2>::HLTDoublet(const edm::ParameterSet& iConfig) : HLTF
   min_DelR_ (iConfig.template getParameter<double>("MinDelR")),
   max_DelR_ (iConfig.template getParameter<double>("MaxDelR")),
   min_N_    (iConfig.template getParameter<int>("MinN")),
+  label_    (iConfig.getParameter<std::string>("@module_label")),
   coll1_(),
   coll2_()
 {
+
    // same collections to be compared?
    same_ = (inputTag1_.encode()==inputTag2_.encode());
 
@@ -67,12 +73,15 @@ HLTDoublet<T1,Tid1,T2,Tid2>::~HLTDoublet()
 }
 template<typename T1, int Tid1, typename T2, int Tid2>
 void
-HLTDoublet<T1,Tid1,T2,Tid2>::fillDescriptions(edm::ConfigurationDescriptions& descriptions \
-				    ) {
+HLTDoublet<T1,Tid1,T2,Tid2>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
-  desc.add<edm::InputTag>("inputTag1",edm::InputTag("hltCollection1"));
-  desc.add<edm::InputTag>("inputTag2",edm::InputTag("hltCollection2"));
+  desc.add<edm::InputTag>("originTag1",edm::InputTag("hltOriginal1"));
+  desc.add<edm::InputTag>("originTag2",edm::InputTag("hltOriginal2"));
+  desc.add<edm::InputTag>("inputTag1",edm::InputTag("hltFiltered1"));
+  desc.add<edm::InputTag>("inputTag2",edm::InputTag("hltFiltered22"));
+  desc.add<int>("triggerType1",Tid1);
+  desc.add<int>("triggerType2",Tid2);
   desc.add<double>("MinDphi",+1.0);
   desc.add<double>("MaxDphi",-1.0);
   desc.add<double>("MinDeta",+1.0);
@@ -109,10 +118,10 @@ HLTDoublet<T1,Tid1,T2,Tid2>::hltFilter(edm::Event& iEvent, const edm::EventSetup
    Handle<TriggerFilterObjectWithRefs> coll1,coll2;
    if (iEvent.getByLabel (inputTag1_,coll1) && iEvent.getByLabel (inputTag2_,coll2)) {
      coll1_.clear();
-     coll1->getObjects(Tid1,coll1_);
+     coll1->getObjects(triggerType1_,coll1_);
      const size_type n1(coll1_.size());
      coll2_.clear();
-     coll2->getObjects(Tid2,coll2_);
+     coll2->getObjects(triggerType2_,coll2_);
      const size_type n2(coll2_.size());
 
      if (saveTags()) {
@@ -171,8 +180,8 @@ HLTDoublet<T1,Tid1,T2,Tid2>::hltFilter(edm::Event& iEvent, const edm::EventSetup
 	      ( (!cutminv_) || ((min_Minv_<=Minv) && (Minv<=max_Minv_)) ) &&
               ( (!cutdelr_) || ((min_DelR_<=DelR) && (DelR<=max_DelR_)) ) ) {
 	   n++;
-	   filterproduct.addObject(Tid1,r1);
-	   filterproduct.addObject(Tid2,r2);
+	   filterproduct.addObject(triggerType1_,r1);
+	   filterproduct.addObject(triggerType2_,r2);
 	 }
 	 
        }

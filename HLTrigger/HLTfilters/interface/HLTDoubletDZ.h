@@ -9,6 +9,7 @@
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include<string>
 #include<vector>
 
 //
@@ -27,12 +28,18 @@ class HLTDoubletDZ : public HLTFilter {
 
    private:
       // configuration
-      edm::InputTag inputTag1_;   // input tag identifying 1st product
-      edm::InputTag inputTag2_;   // input tag identifying 2nd product
+      edm::InputTag originTag1_;  // input tag identifying original 1st product
+      edm::InputTag originTag2_;  // input tag identifying original 2nd product
+      edm::InputTag inputTag1_;   // input tag identifying filtered 1st product
+      edm::InputTag inputTag2_;   // input tag identifying filtered 2nd product
+      int triggerType1_;
+      int triggerType2_;
       double minDR_;              // minimum dR between two objects to be considered a pair
       double maxDZ_;              // number of pairs passing cuts required
       bool   same_;               // 1st and 2nd product are one and the same
       int    min_N_;              // number of pairs passing cuts required
+
+      std:: string label_;        // module label
 
       typedef std::vector<T1> T1Collection;
       typedef edm::Ref<T1Collection> T1Ref;

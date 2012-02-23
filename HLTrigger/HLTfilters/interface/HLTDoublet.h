@@ -12,8 +12,8 @@
  *  single-object-type filters so that the access is thorugh
  *  RefToBases and polymorphic.
  *
- *  $Date: 2012/01/21 14:56:58 $
- *  $Revision: 1.5 $
+ *  $Date: 2012/02/09 06:13:44 $
+ *  $Revision: 1.6 $
  *
  *  \author Martin Grunewald
  *
@@ -22,6 +22,7 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include<string>
 #include<vector>
 
 //
@@ -40,8 +41,12 @@ class HLTDoublet : public HLTFilter {
 
    private:
       // configuration
-      edm::InputTag inputTag1_;   // input tag identifying 1st product
-      edm::InputTag inputTag2_;   // input tag identifying 2nd product
+      edm::InputTag originTag1_;  // input tag identifying original 1st product
+      edm::InputTag originTag2_;  // input tag identifying original 2nd product
+      edm::InputTag inputTag1_;   // input tag identifying filtered 1st product
+      edm::InputTag inputTag2_;   // input tag identifying filtered 2nd product
+      int triggerType1_;
+      int triggerType2_;
       double min_Dphi_,max_Dphi_; // Delta phi window
       double min_Deta_,max_Deta_; // Delta eta window
       double min_Minv_,max_Minv_; // Minv(1,2) window
@@ -51,6 +56,8 @@ class HLTDoublet : public HLTFilter {
       // calculated from configuration in c'tor
       bool   same_;                      // 1st and 2nd product are one and the same
       bool   cutdphi_,cutdeta_,cutminv_,cutdelr_; // cuts are on=true or off=false
+
+      std::string label_;         // module label
 
       //
       typedef std::vector<T1> T1Collection;

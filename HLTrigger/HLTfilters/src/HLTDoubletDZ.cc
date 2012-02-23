@@ -19,11 +19,16 @@
 //
 template<typename T1, int Tid1, typename T2, int Tid2>
 HLTDoubletDZ<T1,Tid1,T2,Tid2>::HLTDoubletDZ(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
+  originTag1_(edm::InputTag("")),
+  originTag2_(edm::InputTag("")),
   inputTag1_(iConfig.template getParameter<edm::InputTag>("inputTag1")),
   inputTag2_(iConfig.template getParameter<edm::InputTag>("inputTag2")),
+  triggerType1_(Tid1),
+  triggerType2_(Tid2),
   minDR_ (iConfig.template getParameter<double>("MinDR")),
   maxDZ_ (iConfig.template getParameter<double>("MaxDZ")),
   min_N_    (iConfig.template getParameter<int>("MinN")),
+  label_    (iConfig.getParameter<std::string>("@module_label")),
   coll1_(),
   coll2_()
 {
@@ -41,8 +46,12 @@ void
 HLTDoubletDZ<T1,Tid1,T2,Tid2>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
-  desc.add<edm::InputTag>("inputTag1",edm::InputTag(""));
-  desc.add<edm::InputTag>("inputTag2",edm::InputTag(""));
+  desc.add<edm::InputTag>("originTag1",edm::InputTag("hltOriginal1"));
+  desc.add<edm::InputTag>("originTag2",edm::InputTag("hltOriginal2"));
+  desc.add<edm::InputTag>("inputTag1",edm::InputTag("hltFiltered1"));
+  desc.add<edm::InputTag>("inputTag2",edm::InputTag("hltFiltered2"));
+  desc.add<int>("triggerType1",Tid1);
+  desc.add<int>("triggerType2",Tid2);
   desc.add<double>("MinDR",-1.0);
   desc.add<double>("MaxDZ",0.2);
   desc.add<int>("MinN",1);
@@ -69,10 +78,10 @@ HLTDoubletDZ<T1,Tid1,T2,Tid2>::hltFilter(edm::Event& iEvent, const edm::EventSet
    Handle<TriggerFilterObjectWithRefs> coll1,coll2;
    if (iEvent.getByLabel (inputTag1_,coll1) && iEvent.getByLabel (inputTag2_,coll2)) {
      coll1_.clear();
-     coll1->getObjects(Tid1,coll1_);
+     coll1->getObjects(triggerType1_,coll1_);
      const size_type n1(coll1_.size());
      coll2_.clear();
-     coll2->getObjects(Tid2,coll2_);
+     coll2->getObjects(triggerType2_,coll2_);
      const size_type n2(coll2_.size());
 
      if (saveTags()) {
@@ -116,10 +125,10 @@ HLTDoubletDZ<T1,Tid1,T2,Tid2>::hltFilter(edm::Event& iEvent, const edm::EventSet
 	 r2=coll2_[i2];
 	 const reco::Candidate& candidate2(*r2);
 	 if ( reco::deltaR(candidate1, candidate2) < minDR_ ) continue;
-	 if ( fabs(candidate1.vz()-candidate2.vz()) > maxDZ_ ) continue;
+	 if ( std::abs(candidate1.vz()-candidate2.vz()) > maxDZ_ ) continue;
 	 n++;
-	 filterproduct.addObject(Tid1,r1);
-	 filterproduct.addObject(Tid2,r2);
+	 filterproduct.addObject(triggerType1_,r1);
+	 filterproduct.addObject(triggerType2_,r2);
        }
      }
      // filter decision
