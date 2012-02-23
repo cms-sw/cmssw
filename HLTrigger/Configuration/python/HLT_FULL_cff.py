@@ -1,26 +1,10 @@
-<<<<<<< HLT_FULL_cff.py
 # /dev/CMSSW_5_1_0/HLT/V130 (CMSSW_5_2_0_pre5_HLT7)
-=======
-<<<<<<< HLT_FULL_cff.py
-# /dev/CMSSW_5_1_0/HLT/V130 (CMSSW_5_2_0_pre5_HLT7)
-=======
-# /dev/CMSSW_5_1_0/HLT/V129 (CMSSW_5_2_0_pre5_HLT7)
->>>>>>> 1.772
->>>>>>> 1.773
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-<<<<<<< HLT_FULL_cff.py
   tableName = cms.string('/dev/CMSSW_5_1_0/HLT/V130')
-=======
-<<<<<<< HLT_FULL_cff.py
-  tableName = cms.string('/dev/CMSSW_5_1_0/HLT/V130')
-=======
-  tableName = cms.string('/dev/CMSSW_5_1_0/HLT/V129')
->>>>>>> 1.772
->>>>>>> 1.773
 )
 
 streams = cms.PSet( 

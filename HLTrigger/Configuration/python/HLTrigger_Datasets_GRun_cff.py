@@ -1,12 +1,4 @@
-<<<<<<< HLTrigger_Datasets_GRun_cff.py
 # /dev/CMSSW_5_1_0/GRun/V86
-=======
-<<<<<<< HLTrigger_Datasets_GRun_cff.py
-# /dev/CMSSW_5_1_0/GRun/V85
-=======
-# /dev/CMSSW_5_1_0/GRun/V84
->>>>>>> 1.26
->>>>>>> 1.27
 
 import FWCore.ParameterSet.Config as cms
 
