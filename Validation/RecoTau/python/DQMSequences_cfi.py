@@ -2,6 +2,12 @@ from Validation.RecoTau.dataTypes.ValidateTausOnRealData_cff import *
 from Validation.RecoTau.dataTypes.ValidateTausOnRealElectronsData_cff import *
 from Validation.RecoTau.dataTypes.ValidateTausOnRealMuonsData_cff import *
 
+dqmInfoTauV = cms.EDAnalyzer(
+    "DQMEventInfo",
+    subSystemFolder = cms.untracked.string('RecoTauV')
+    )
+
+
 produceDenoms = cms.Sequence(
     produceDenominatorRealData+
     produceDenominatorRealElectronsData+
@@ -11,7 +17,8 @@ produceDenoms = cms.Sequence(
 pfTauRunDQMValidation = cms.Sequence(
     TauValNumeratorAndDenominatorRealData+
     TauValNumeratorAndDenominatorRealElectronsData+
-    TauValNumeratorAndDenominatorRealMuonsData
+    TauValNumeratorAndDenominatorRealMuonsData+
+    dqmInfoTauV
     )
 
 runTauEff = cms.Sequence(
@@ -37,14 +44,21 @@ produceDenomsTauPlusX = produceDenomsDoubleElectron
 #Main modules according to dataset
 pfTauRunDQMValidationMu = cms.Sequence(
     TauValNumeratorAndDenominatorRealData+
-    TauValNumeratorAndDenominatorRealMuonsData
+    TauValNumeratorAndDenominatorRealMuonsData+
+    dqmInfoTauV
     )
 pfTauRunDQMValidationSingleMu = pfTauRunDQMValidationMu
 
-pfTauRunDQMValidationJet = TauValNumeratorAndDenominatorRealData
+pfTauRunDQMValidationJet = cms.Sequence(
+    TauValNumeratorAndDenominatorRealData+
+    dqmInfoTauV
+    )
 pfTauRunDQMValidationMultiJet = pfTauRunDQMValidationJet
 
-pfTauRunDQMValidationDoubleElectron = TauValNumeratorAndDenominatorRealElectronsData
+pfTauRunDQMValidationDoubleElectron = cms.Sequence(
+    TauValNumeratorAndDenominatorRealElectronsData+
+    dqmInfoTauV
+    )
 pfTauRunDQMValidationTauPlusX = pfTauRunDQMValidationDoubleElectron
 
 #Efficiencies production according to dataset
