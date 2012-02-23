@@ -5893,7 +5893,6 @@ void OHltTree::CheckOpenHlt(
 	}
     }//end trigger
 
-  //TO BE UPDATED FOR CaloIsoVT and TrkIsoVT
   else if (triggerName.CompareTo("HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_Ele8_Mass50_v1") == 0)
     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
@@ -5982,8 +5981,6 @@ void OHltTree::CheckOpenHlt(
 	}
     }//end trigger
 
-
-  //TO BE UPDATED FOR CaloIsoVT and TrkIsoVT
   else if (triggerName.CompareTo("HLT_Ele20_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC4_Mass50_v1") == 0)
     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
@@ -5995,12 +5992,12 @@ void OHltTree::CheckOpenHlt(
 										   0, // ET, L1isolation  
 										   999.,
 										   999., // Track iso barrel, Track iso endcap  
-										   0.125,
-										   0.075, // Track/pT iso barrel, Track/pT iso endcap  
-										   0.1,
-										   0.03, // H/ET iso barrel, H/ET iso endcap  
-										   0.06,
-										   0.035, // E/ET iso barrel, E/ET iso endcap  
+										   0.05,
+										   0.05, // Track/pT iso barrel, Track/pT iso endcap  
+										   0.05,
+										   0.05, // H/ET iso barrel, H/ET iso endcap  
+										   0.05,
+										   0.05, // E/ET iso barrel, E/ET iso endcap  
 										   0.005,
 										   0.02, // H/E barrel, H/E endcap  
 										   0.011,
