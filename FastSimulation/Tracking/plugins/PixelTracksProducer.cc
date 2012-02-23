@@ -20,6 +20,7 @@
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilterFactory.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/TracksWithHits.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
