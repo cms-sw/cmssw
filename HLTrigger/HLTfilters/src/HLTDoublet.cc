@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2012/02/23 08:58:33 $
- *  $Revision: 1.19 $
+ *  $Date: 2012/02/23 11:48:34 $
+ *  $Revision: 1.20 $
  *
  *  \author Martin Grunewald
  *
@@ -58,6 +58,7 @@ HLTDoublet<T1,T2>::HLTDoublet(const edm::ParameterSet& iConfig) : HLTFilter(iCon
 
    LogDebug("") << "InputTags and cuts : " 
 		<< inputTag1_.encode() << " " << inputTag2_.encode()
+		<< triggerType1_ << " " << triggerType2_
 		<< " Dphi [" << min_Dphi_ << " " << max_Dphi_ << "]"
                 << " Deta [" << min_Deta_ << " " << max_Deta_ << "]"
                 << " Minv [" << min_Minv_ << " " << max_Minv_ << "]"

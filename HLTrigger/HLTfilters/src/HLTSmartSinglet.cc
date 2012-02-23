@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2012/01/21 14:56:59 $
- *  $Revision: 1.10 $
+ *  $Date: 2012/02/01 14:30:02 $
+ *  $Revision: 1.11 $
  *
  *  \author Martin Grunewald
  *
@@ -26,12 +26,17 @@
 //
 template<typename T, int Tid>
 HLTSmartSinglet<T,Tid>::HLTSmartSinglet(const edm::ParameterSet& iConfig) : HLTFilter(iConfig), 
-  inputTag_ (iConfig.template getParameter<edm::InputTag>("inputTag")),
+  inputTag_    (iConfig.template getParameter<edm::InputTag>("inputTag")),
+  triggerType_ (iConfig.template getParameter<int>("triggerType")),
   cut_      (iConfig.template getParameter<std::string>  ("cut"     )),
   min_N_    (iConfig.template getParameter<int>          ("MinN"    )),
   select_   (cut_                                                    )
 {
-   LogDebug("") << "Input/cut/ncut : " << inputTag_.encode() << " " << cut_<< " " << min_N_ ;
+  LogDebug("") << "Input/tyre/cut/ncut : "
+	       << inputTag_.encode() << " "
+	       << triggerType_ << " "
+	       << cut_<< " "
+	       << min_N_ ;
 }
 
 template<typename T, int Tid>
@@ -45,6 +50,7 @@ HLTSmartSinglet<T,Tid>::fillDescriptions(edm::ConfigurationDescriptions& descrip
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputTag",edm::InputTag("hltCollection"));
+  desc.add<int>("triggerType",Tid);
   desc.add<std::string>("cut","1>0");
   desc.add<int>("MinN",1);
   descriptions.add(std::string("hlt")+std::string(typeid(HLTSmartSinglet<T,Tid>).name()),desc);
@@ -88,7 +94,7 @@ HLTSmartSinglet<T,Tid>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
      if (select_(*i)) {
        n++;
        ref=TRef(objects,distance(objects->begin(),i));
-       filterproduct.addObject(Tid,ref);
+       filterproduct.addObject(triggerType_,ref);
      }
    }
 

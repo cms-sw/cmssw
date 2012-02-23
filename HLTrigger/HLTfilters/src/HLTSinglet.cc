@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2012/01/21 14:56:59 $
- *  $Revision: 1.12 $
+ *  $Date: 2012/02/01 14:30:01 $
+ *  $Revision: 1.13 $
  *
  *  \author Martin Grunewald
  *
@@ -76,7 +76,8 @@ trigger::TriggerObjectType getObjectType(const l1extra::L1JetParticle & candidat
 //
 template<typename T, int Tid>
 HLTSinglet<T,Tid>::HLTSinglet(const edm::ParameterSet& iConfig) : HLTFilter(iConfig), 
-  inputTag_ (iConfig.template getParameter<edm::InputTag>("inputTag")),
+  inputTag_    (iConfig.template getParameter<edm::InputTag>("inputTag")),
+  triggerType_ (iConfig.template getParameter<int>("triggerType")),
   min_E_    (iConfig.template getParameter<double>       ("MinE"    )),
   min_Pt_   (iConfig.template getParameter<double>       ("MinPt"   )),
   min_Mass_ (iConfig.template getParameter<double>       ("MinMass" )),
@@ -100,6 +101,7 @@ HLTSinglet<T,Tid>::fillDescriptions(edm::ConfigurationDescriptions& descriptions
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputTag",edm::InputTag("hltCollection"));
+  desc.add<int>("triggerType",Tid);
   desc.add<double>("MinE",-1.0);
   desc.add<double>("MinPt",-1.0);
   desc.add<double>("MinMass",-1.0);

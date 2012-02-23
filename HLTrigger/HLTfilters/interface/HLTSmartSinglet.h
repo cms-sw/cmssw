@@ -10,8 +10,8 @@
  *  variables relating to both the base class T and the derived actual
  *  class
  *
- *  $Date: 2012/01/21 14:56:58 $
- *  $Revision: 1.8 $
+ *  $Date: 2012/02/01 14:30:01 $
+ *  $Revision: 1.9 $
  *
  *  \author Martin Grunewald
  *
@@ -40,6 +40,7 @@ class HLTSmartSinglet : public HLTFilter {
 
    private:
       edm::InputTag inputTag_; // input tag identifying product
+      int triggerType_;        // triggerType
       std::string   cut_;      // smart cut
       int           min_N_;    // number of objects passing cuts required
 

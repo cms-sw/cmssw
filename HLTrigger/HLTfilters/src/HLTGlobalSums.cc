@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/05/01 14:41:36 $
- *  $Revision: 1.12 $
+ *  $Date: 2012/01/21 14:56:59 $
+ *  $Revision: 1.13 $
  *
  *  \author Martin Grunewald
  *
@@ -27,44 +27,60 @@
 template<typename T, int Tid>
 HLTGlobalSums<T,Tid>::HLTGlobalSums(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
   inputTag_   (iConfig.template getParameter<edm::InputTag>("inputTag")),
+  triggerType_(iConfig.template getParameter<int>("triggerType")),
   observable_ (iConfig.template getParameter<std::string>("observable")),
   min_        (iConfig.template getParameter<double>("Min")),
   max_        (iConfig.template getParameter<double>("Max")),
   min_N_      (iConfig.template getParameter<int>("MinN")),
-  tid_()
+  tid_(triggerType_)
 {
    LogDebug("") << "InputTags and cuts : " 
-		<< inputTag_.encode() << " " << observable_
+		<< inputTag_.encode() << " "
+		<< triggerType_ << " "
+		<< observable_
 		<< " Range [" << min_ << " " << max_ << "]"
-                << " MinN =" << min_N_
-     ;
+                << " MinN =" << min_N_ ;
 
    if (observable_=="sumEt") {
-     tid_=Tid;
+     tid_=triggerType_;
    } else if (observable_=="mEtSig") {
-     if (Tid==trigger::TriggerTET) {
+     if (triggerType_==trigger::TriggerTET) {
        tid_=trigger::TriggerMETSig;
-     } else if (Tid==trigger::TriggerTHT) {
+     } else if (triggerType_==trigger::TriggerTHT) {
        tid_=trigger::TriggerMHTSig;
      } else {
        tid_=Tid;
      }
    } else if (observable_=="e_longitudinal") {
-     if (Tid==trigger::TriggerTET) {
+     if (triggerType_==trigger::TriggerTET) {
        tid_=trigger::TriggerELongit;
-     } else if (Tid==trigger::TriggerTHT) {
+     } else if (triggerType_==trigger::TriggerTHT) {
        tid_=trigger::TriggerHLongit;
      } else {
-       tid_=Tid;
+       tid_=triggerType_;
      }
    } else {
-     tid_=Tid;
+     tid_=triggerType_;
    }
 }
 
 template<typename T, int Tid>
 HLTGlobalSums<T,Tid>::~HLTGlobalSums()
 {
+}
+
+template<typename T, int Tid>
+void
+HLTGlobalSums<T,Tid>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("inputTag",edm::InputTag("hltCollection"));
+  desc.add<int>("triggerType",Tid);
+  desc.add<std::string>("observable","");
+  desc.add<double>("Min",-1e125);
+  desc.add<double>("Max",+1e125);
+  desc.add<int>("MinN",1);
+  descriptions.add(std::string("hlt")+std::string(typeid(HLTGlobalSums<T,Tid>).name()),desc);
 }
 
 //
