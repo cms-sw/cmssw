@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2012/02/23 11:48:34 $
- *  $Revision: 1.20 $
+ *  $Date: 2012/02/23 12:21:51 $
+ *  $Revision: 1.21 $
  *
  *  \author Martin Grunewald
  *
@@ -42,6 +42,8 @@ HLTDoublet<T1,T2>::HLTDoublet(const edm::ParameterSet& iConfig) : HLTFilter(iCon
   max_Minv_ (iConfig.template getParameter<double>("MaxMinv")),
   min_DelR_ (iConfig.template getParameter<double>("MinDelR")),
   max_DelR_ (iConfig.template getParameter<double>("MaxDelR")),
+  min_Pt_   (iConfig.template getParameter<double>("MinPt")),
+  max_Pt_   (iConfig.template getParameter<double>("MaxPt")),
   min_N_    (iConfig.template getParameter<int>("MinN")),
   label_    (iConfig.getParameter<std::string>("@module_label")),
   coll1_(),
@@ -55,6 +57,7 @@ HLTDoublet<T1,T2>::HLTDoublet(const edm::ParameterSet& iConfig) : HLTFilter(iCon
    cutdeta_ = (min_Deta_ <= max_Deta_); // cut active?
    cutminv_ = (min_Minv_ <= max_Minv_); // cut active?
    cutdelr_ = (min_DelR_ <= max_DelR_); // cut active?
+   cutpt_   = (min_Pt_   <= max_Pt_  ); // cut active?
 
    LogDebug("") << "InputTags and cuts : " 
 		<< inputTag1_.encode() << " " << inputTag2_.encode()
@@ -63,9 +66,11 @@ HLTDoublet<T1,T2>::HLTDoublet(const edm::ParameterSet& iConfig) : HLTFilter(iCon
                 << " Deta [" << min_Deta_ << " " << max_Deta_ << "]"
                 << " Minv [" << min_Minv_ << " " << max_Minv_ << "]"
                 << " DelR [" << min_DelR_ << " " << max_DelR_ << "]"
+                << " Pt   [" << min_Pt_   << " " << max_Pt_   << "]"
                 << " MinN =" << min_N_
-		<< " same/dphi/deta/minv/delr "
-		<< same_ << cutdphi_ << cutdeta_ << cutminv_ << cutdelr_;
+		<< " same/dphi/deta/minv/delr/pt "
+		<< same_
+		<< cutdphi_ << cutdeta_ << cutminv_ << cutdelr_ << cutpt_;
 }
 
 template<typename T1, typename T2>
@@ -91,6 +96,8 @@ HLTDoublet<T1,T2>::fillDescriptions(edm::ConfigurationDescriptions& descriptions
   desc.add<double>("MaxMinv",-1.0);
   desc.add<double>("MinDelR",+1.0);
   desc.add<double>("MaxDelR",-1.0);
+  desc.add<double>("MinPt"  ,+1.0);
+  desc.add<double>("MaxPt"  ,-1.0);
   desc.add<int>("MinN",1);
   descriptions.add(std::string("hlt")+std::string(typeid(HLTDoublet<T1,T2>).name()),desc);
 }
@@ -173,13 +180,15 @@ HLTDoublet<T1,T2>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
 	 
 	 p=p1+p2;
 	 double Minv(std::abs(p.mass()));
+	 double Pt(p.pt());
 
 	 double DelR(sqrt(Dphi*Dphi+Deta*Deta));
 	 
 	 if ( ( (!cutdphi_) || ((min_Dphi_<=Dphi) && (Dphi<=max_Dphi_)) ) &&
 	      ( (!cutdeta_) || ((min_Deta_<=Deta) && (Deta<=max_Deta_)) ) &&
 	      ( (!cutminv_) || ((min_Minv_<=Minv) && (Minv<=max_Minv_)) ) &&
-              ( (!cutdelr_) || ((min_DelR_<=DelR) && (DelR<=max_DelR_)) ) ) {
+              ( (!cutdelr_) || ((min_DelR_<=DelR) && (DelR<=max_DelR_)) ) &&
+              ( (!cutpt_  ) || ((min_Pt_  <=Pt  ) && (Pt  <=max_Pt_  )) ) ) {
 	   n++;
 	   filterproduct.addObject(triggerType1_,r1);
 	   filterproduct.addObject(triggerType2_,r2);
@@ -188,7 +197,7 @@ HLTDoublet<T1,T2>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
        }
      }
      // filter decision
-     accept = accept || (n>=min_N_);
+     accept = (n>=min_N_);
    }
 
    return accept;
