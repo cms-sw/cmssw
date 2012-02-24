@@ -11,7 +11,7 @@ from Configuration.PyReleaseValidation.MatrixInjector import MatrixInjector
 def showRaw(opt):
 
     mrd = MatrixReader(opt)
-    mrd.showRaw(opt.useInput, opt.refRel, opt.fromScratch, opt.raw, opt.step1Only, selected=opt.testList, profile=opt.profile)
+    mrd.showRaw(opt.useInput, opt.refRel, opt.fromScratch, opt.raw, opt.step1Only, selected=opt.testList)
 
     return 0
         
@@ -20,7 +20,7 @@ def showRaw(opt):
 def runSelected(opt):
 
     mrd = MatrixReader(opt)
-    mrd.prepare(opt.useInput, opt.refRel, opt.fromScratch, opt.profile)
+    mrd.prepare(opt.useInput, opt.refRel, opt.fromScratch)
 
     ret = 0
     if opt.show:
@@ -113,10 +113,11 @@ if __name__ == '__main__':
                       dest='wmcontrol',
                       default=None,
                       )
-    parser.add_option('--profile',
-                      help="add the IgprofService with the parameter provided PROFILER:START:STEP:PEREVENOUTPUTFORMAT:ENDOFJOBOUTPUTFORMAT",
-                      dest='profile',
-                      default=None)
+    parser.add_option('--command',
+                      help='provide a way to add additional command to all of the cmsDriver commands in the matrix',
+                      dest='command',
+                      default=None
+                      )
     
     opt,args = parser.parse_args()
     if opt.testList: opt.testList = map(float,opt.testList.split(','))

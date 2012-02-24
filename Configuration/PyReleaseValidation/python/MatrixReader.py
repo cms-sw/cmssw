@@ -20,6 +20,7 @@ class MatrixReader(object):
         self.reset(opt.what)
 
         self.wm=opt.wmcontrol
+        self.addCommand=opt.command
         
         return
 
@@ -71,7 +72,7 @@ class MatrixReader(object):
             cmd += ' ' + k + ' ' + str(v)
         return cfg, input, cmd
     
-    def readMatrix(self, fileNameIn, useInput=None, refRel=None, fromScratch=None, profile=None):
+    def readMatrix(self, fileNameIn, useInput=None, refRel=None, fromScratch=None):
         
         prefix = self.filesPrefMap[fileNameIn]
         
@@ -157,8 +158,8 @@ class MatrixReader(object):
                         cmd  = 'cmsDriver.py step'+str(stepIndex+1)+' '+opts
                     if self.wm:
                         cmd+=' --io %s.io --python %s.py'%(stepName,stepName)
-                    if profile:
-                      cmd += ' --profile %s' % profile
+                    if self.addCommand:
+                        cmd +=' '+self.addCommand
                 commands.append(cmd)
                 ranStepList.append(stepName)
                 stepIndex+=1
@@ -168,7 +169,7 @@ class MatrixReader(object):
         return
 
 
-    def showRaw(self, useInput, refRel=None, fromScratch=None, what='all',step1Only=False,selected=None, profile=None):
+    def showRaw(self, useInput, refRel=None, fromScratch=None, what='all',step1Only=False,selected=None):
 
         if selected:
             selected=map(float,selected)
@@ -181,7 +182,7 @@ class MatrixReader(object):
                 continue
 
             try:
-                self.readMatrix(matrixFile, useInput, refRel, fromScratch, profile)
+                self.readMatrix(matrixFile, useInput, refRel, fromScratch)
             except Exception, e:
                 print "ERROR reading file:", matrixFile, str(e)
                 raise
@@ -228,7 +229,7 @@ class MatrixReader(object):
                         #pad with set
                         for p in range(len(indexAndSteps),i+2):
                             indexAndSteps.append(set())
-                        indexAndSteps[i+1].add(c)
+                        indexAndSteps[i+1].add((c,commands[i+1]))
 
                 if inputInfo :
                     #skip the samples from INPUT when step1Only is on
@@ -252,9 +253,8 @@ class MatrixReader(object):
             if step1Only: continue
 
             for (index,s) in enumerate(indexAndSteps):
-                for stepName in s:
+                for (stepName,cmd) in s:
                     stepIndex=index+1
-                    cfg,input,cmd = self.makeCmd(self.relvalModule.steps[stepName])
                     if 'dbsquery.log' in cmd: continue
                     line = 'STEP%d ++ '%(stepIndex,) +stepName + ' @@@ cmsDriver.py step%d '%(stepIndex,) +cmd
                     line=line.replace('DQMROOT','DQM')
@@ -328,7 +328,7 @@ class MatrixReader(object):
 
         return
 
-    def prepare(self, useInput=None, refRel='', fromScratch=None, profile=None):
+    def prepare(self, useInput=None, refRel='', fromScratch=None):
         
         for matrixFile in self.files:
             if self.what != 'all' and self.what not in matrixFile:
@@ -336,7 +336,7 @@ class MatrixReader(object):
                 continue
 
             try:
-                self.readMatrix(matrixFile, useInput, refRel, fromScratch, profile)
+                self.readMatrix(matrixFile, useInput, refRel, fromScratch)
             except Exception, e:
                 print "ERROR reading file:", matrixFile, str(e)
                 raise
