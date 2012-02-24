@@ -115,6 +115,8 @@ public:
    Float_t recoHTCal;
    Float_t recoHTCalPhi;
    Float_t recoHTCalSum;
+   Int_t NohTauL2;
+   Float_t ohTauL2Pt[5000]; //[NohTauL2]
    Int_t NohTau;
    Float_t ohTauEta[5000]; //[NohTau]
    Float_t ohTauPhi[5000]; //[NohTau]
@@ -306,6 +308,7 @@ public:
    Float_t ohEleR9[8000]; //[NohEle] 
    Float_t ohEleHforHoverE[8000]; //[NohEle] 
    Float_t ohEleEiso[8000]; //[NohEle] 
+   Float_t ohEleVtxZ[8000]; //[NohEle]
 
    Int_t NohHFEle;
    Float_t ohHFElePt[10000]; //[NohHFEle]
@@ -8037,6 +8040,8 @@ public:
    TBranch *b_recoHTCal; //!
    TBranch *b_recoHTCalPhi; //!
    TBranch *b_recoHTCalSum; //!
+   TBranch *b_NohTauL2; //!
+   TBranch *b_ohTauL2Pt; 
    TBranch *b_NohTau; //!
    TBranch *b_ohTauEta; //!
    TBranch *b_ohTauPhi; //!
@@ -8208,6 +8213,7 @@ public:
    TBranch *b_ohEleR9; //! 
    TBranch *b_ohEleHforHoverE; //! 
    TBranch *b_ohEleEiso; //!  
+   TBranch *b_ohEleVtxZ;
 
    TBranch *b_NohHFEle; // !
    TBranch *b_ohHFElePt; //!
@@ -17599,6 +17605,8 @@ void OHltTree::Init(TTree *tree)
    fChain->SetBranchAddress("recoHTCal", &recoHTCal, &b_recoHTCal);
    fChain->SetBranchAddress("recoHTCalPhi", &recoHTCalPhi, &b_recoHTCalPhi);
    fChain->SetBranchAddress("recoHTCalSum", &recoHTCalSum, &b_recoHTCalSum);
+   fChain->SetBranchAddress("NohTauL2", &NohTauL2, &b_NohTauL2);
+   fChain->SetBranchAddress("ohTauL2Pt", ohTauL2Pt, &b_ohTauL2Pt);
    fChain->SetBranchAddress("NohTau", &NohTau, &b_NohTau);
    fChain->SetBranchAddress("ohTauEta", ohTauEta, &b_ohTauEta);
    fChain->SetBranchAddress("ohTauPhi", ohTauPhi, &b_ohTauPhi);
@@ -17745,6 +17753,7 @@ void OHltTree::Init(TTree *tree)
    fChain->SetBranchAddress("ohEleR9", ohEleR9, &b_ohEleR9);
    fChain->SetBranchAddress("ohEleHforHoverE", ohEleHforHoverE, &b_ohEleHforHoverE);
    fChain->SetBranchAddress("ohEleEiso", ohEleEiso, &b_ohEleEiso);
+   fChain->SetBranchAddress("ohEleVtxZ", ohEleVtxZ, &b_ohEleVtxZ);
 	
    fChain->SetBranchAddress("NohHFEle", &NohHFEle, &b_NohHFEle);
    fChain->SetBranchAddress("ohHFElePt", ohHFElePt, &b_ohHFElePt);

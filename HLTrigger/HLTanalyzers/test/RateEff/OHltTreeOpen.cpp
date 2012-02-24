@@ -14651,14 +14651,13 @@ int OHltTree::OpenHltLooseIsoPFTauPassed(float Et, float eta, float LTpT, float 
   
   // L1 seed
   if(L1Met < L1_ETMThr) return count; 
-/*
   // L2 taus
   bool l2taufound = false;
   for (int i = 0; i < NohTauL2; i++){
     if (ohTauL2Pt[i] >= L2TauEtThr) l2taufound = true;
   }
   if(!l2taufound) return count;
-*/
+
   // L25 taus
   for (int i = 0; i < NohpfTau; i++){
     if (ohpfTauPt[i] >= Et){                               // min ET
