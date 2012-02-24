@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_1_0/GRun/V92 (CMSSW_5_2_0_pre5_HLT8)
+# /dev/CMSSW_5_1_0/GRun/V93 (CMSSW_5_2_0_pre5_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V92')
+  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V93')
 )
 
 process.streams = cms.PSet( 
@@ -17847,7 +17847,7 @@ process.hltPFTauLooseIsolationDiscriminator = cms.EDProducer( "PFRecoTauDiscrimi
     applyRelativeSumPtCut = cms.bool( False ),
     customOuterCone = cms.double( -1.0 ),
     deltaBetaPUTrackPtCutOverride = cms.double( 0.5 ),
-    storeRawSumPt = cms.bool( True )
+    storeRawSumPt = cms.bool( False )
 )
 process.hltSelectedPFTausTrackFinding = cms.EDFilter( "PFTauSelector",
     discriminators = cms.VPSet( 
