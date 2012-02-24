@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_1_0/HLT/V133 (CMSSW_5_2_0_pre5_HLT8)
+# /dev/CMSSW_5_1_0/HLT/V134 (CMSSW_5_2_0_pre5_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/HLT/V133')
+  tableName = cms.string('/dev/CMSSW_5_1_0/HLT/V134')
 )
 
 streams = cms.PSet( 
@@ -39479,7 +39479,7 @@ hltAlCaPhiSymStream = cms.EDFilter( "HLTEcalPhiSymFilter",
 )
 hltL1sAlCaRPC = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleMu7 OR L1_SingleMu10 OR L1_SingleMu12 OR L1_SingleMu16 OR L1_SingleMu20" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleMu7 OR L1_SingleMu14er OR L1_SingleMu16er" ),
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
     L1UseL1TriggerObjectMaps = cms.bool( True ),
     L1UseAliasesForSeeding = cms.bool( True ),

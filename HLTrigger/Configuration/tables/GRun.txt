@@ -170,11 +170,6 @@ HLT_Ele27_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_HFT15_v*					#sr126316
 HLT_Ele23_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_HFT30_v*					#sr126316
 HLT_Ele22_CaloIdL_CaloIsoVL_v*								#sr126316
 
-#AlCa_EcalEtaEBonly_v*							#sr126320 -> Already in the AlCa section
-#AlCa_EcalEtaEEonly_v*							#sr126320
-#AlCa_EcalPi0EBonly_v*							#sr126320
-#AlCa_EcalPi0EEonly_v*							#sr126320
-
 HLT_Mu40_eta2p1_Track50_dEdx3p6_v* 				#sr126412
 HLT_Mu40_eta2p1_Track60_dEdx3p7_v* 				#sr126412
 HLT_MET80_Track50_dEdx3p6_v* 					#sr126412
@@ -269,22 +264,6 @@ HLT_DiPFJet40L1FastJet_PFMHTWOM65_M600VBF_LEADINGJETS_v*	#sr126471, still to get
 #HLT_Photon90_CaloIdVL_v*					#sr126475, still to get integrated
 #already in sr126541 -> #HLT_DoublePhoton43_HEVT_v*					#sr126475, still to get integrated
 #already in sr126541 -> #HLT_DoublePhoton48_HEVT_v*					#sr126475, still to get integrated
-
-#HLT_PFJet40					#sr126484, still to get integrated
-#HLT_PFJet80					#sr126484, still to get integrated
-#HLT_PFJet140					#sr126484, still to get integrated
-#HLT_PFJet200					#sr126484, still to get integrated
-#HLT_PFJet260					#sr126484, still to get integrated
-#HLT_PFJet320					#sr126484, still to get integrated
-#HLT_PFJet400					#sr126484, still to get integrated
-#HLT_DiPFJetAve40					#sr126484, still to get integrated
-#HLT_DiPFJetAve80					#sr126484, still to get integrated
-#HLT_DiPFJetAve140					#sr126484, still to get integrated
-#HLT_DiPFJetAve200					#sr126484, still to get integrated
-#HLT_DiPFJetAve260					#sr126484, still to get integrated
-#HLT_DiPFJetAve320					#sr126484, still to get integrated
-#HLT_DiPFJetAve400					#sr126484, still to get integrated
-
 
 HLT_Mu13_Mu8_v*					#sr126489
 HLT_L1SingleMu12_v*					#sr126489
@@ -419,9 +398,9 @@ AlCa_EcalPi0EEonly_v*                                                           
 AlCa_EcalEtaEBonly_v*                                                                           #added in Feb 2012 5e33 menu (sr #126320)
 AlCa_EcalEtaEEonly_v*                                                                           #added in Feb 2012 5e33 menu (sr #126320)
 AlCa_EcalPhiSym_v*
-#AlCa_RPCMuonNoTriggers_v*                  # some L1 seeds no longer available
-#AlCa_RPCMuonNoHits_v*                      # some L1 seeds no longer available
-#AlCa_RPCMuonNormalisation_v*               # some L1 seeds no longer available
+AlCa_RPCMuonNoTriggers_v*									#sr126621
+AlCa_RPCMuonNoHits_v*										#sr126621
+AlCa_RPCMuonNormalisation_v*									#sr126621
 AlCa_LumiPixels_v*
 
 DQM_FEDIntegrity_v*
