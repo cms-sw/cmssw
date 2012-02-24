@@ -216,12 +216,12 @@ HLT_Dimuon8_Upsilon_v*			#sr126442
 HLT_Dimuon9_PsiPrime_v*			#sr126442
 HLT_Dimuon9_Jpsi_v*			#sr126442
 
-#HLT_Mu18_eta2p1_LooseIsoPFTau20_v*					#sr126461, still to get integrated	
-#HLT_IsoMu18_eta2p1_LooseIsoPFTau20_v*					#sr126461, still to get integrated
-#HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_LooseIsoPFTau20L1Jet_v*	#sr126461, still to get integrated
-#HLT_Ele20_CaloIdVT_TrkIdT_LooseIsoPFTau20_v*				#sr126461, still to get integrated
-#HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v*	#sr126461, still to get integrated
-#HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_v*			#sr126461, still to get integrated
+HLT_Mu18_eta2p1_LooseIsoPFTau20_v*					#sr126461
+HLT_IsoMu18_eta2p1_LooseIsoPFTau20_v*					#sr126461
+HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_LooseIsoPFTau20L1Jet_v*	#sr126461
+HLT_Ele20_CaloIdVT_TrkIdT_LooseIsoPFTau20_v*				#sr126461
+HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v*	#sr126461
+HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_v*			#sr126461
 
 #HLT_QuadJet80_L1FastJet_v*			#sr126462, still to get integrated
 #HLT_SixJet45_L1FastJet_v*			#sr126462, still to get integrated
