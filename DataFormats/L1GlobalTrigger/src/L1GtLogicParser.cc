@@ -1557,25 +1557,26 @@ const L1GtLogicParser::OperationRule* L1GtLogicParser::getRuleFromType(Operation
 }
 
 
-// add spaces before and after parantheses - make separation easier
+// add spaces before and after parentheses - make separation easier
 void L1GtLogicParser::addBracketSpaces(const std::string& srcExpression,
-                                       std::string& dstExpression)
-{
+        std::string& dstExpression) {
 
-    static const std::string brackets="()"; // the brackets to be found
+    static const std::string brackets = "()"; // the brackets to be found
 
-    dstExpression = srcExpression;  // copy the string
+    dstExpression = srcExpression; // copy the string
 
     size_t position = 0;
-    while ( (position = dstExpression.find_first_of(brackets, position)) != std::string::npos ) {
+    while ((position = dstExpression.find_first_of(brackets, position))
+            != std::string::npos) {
 
         // add space after if none is there
-        if (dstExpression[position + 1] != ' ') {
+        if (((position + 1) != std::string::npos) && (dstExpression[position
+                + 1] != ' ')) {
             dstExpression.insert(position + 1, " ");
         }
 
         // add space before if none is there
-        if (dstExpression[position - 1] != ' ') {
+        if ((position != 0) && (dstExpression[position - 1] != ' ')) {
             dstExpression.insert(position, " ");
             position++;
         }
