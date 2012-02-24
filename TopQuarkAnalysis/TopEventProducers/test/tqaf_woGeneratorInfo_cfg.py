@@ -8,14 +8,13 @@ process.MessageLogger.cerr.threshold = 'INFO'
 
 ## define input
 from Configuration.AlCa.autoCond import autoCond
-condition = 'com10'
-globalTag = autoCond[ condition ][ : -5 ]
 from PhysicsTools.PatAlgos.tools.cmsswVersionTools import pickRelValInputFiles
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(pickRelValInputFiles( relVal      = 'SingleMu'
-                                                          , dataTier    = 'RECO'
-                                                          , globalTag   = 'GR_R_52_V2_RelVal_mu2011A' #'%s_RelVal_mu2011A'%( globalTag )
-                                                          , maxVersions = 1 ))
+    fileNames = cms.untracked.vstring(pickRelValInputFiles( cmsswVersion  = 'CMSSW_5_0_0'
+                                                          , relVal        = 'SingleMu'
+                                                          , dataTier      = 'RECO'
+                                                          , globalTag     = 'GR_R_50_V6_RelVal_mu2011B'
+                                                          , maxVersions   = 3 ))
 )
 ## define maximal number of events to loop over
 process.maxEvents = cms.untracked.PSet(
@@ -30,7 +29,7 @@ process.options = cms.untracked.PSet(
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = autoCond[ condition ]
+process.GlobalTag.globaltag = autoCond[ 'com10' ]
 
 #-------------------------------------------------
 # PAT and TQAF configuration
