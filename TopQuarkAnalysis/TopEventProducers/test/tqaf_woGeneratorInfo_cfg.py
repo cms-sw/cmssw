@@ -14,7 +14,7 @@ from PhysicsTools.PatAlgos.tools.cmsswVersionTools import pickRelValInputFiles
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(pickRelValInputFiles( relVal      = 'SingleMu'
                                                           , dataTier    = 'RECO'
-                                                          , globalTag   = '%s_RelVal_mu2011A'%( globalTag )
+                                                          , globalTag   = 'GR_R_52_V2_RelVal_mu2011A' #'%s_RelVal_mu2011A'%( globalTag )
                                                           , maxVersions = 1 ))
 )
 ## define maximal number of events to loop over
