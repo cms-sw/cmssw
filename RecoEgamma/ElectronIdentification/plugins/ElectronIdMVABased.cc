@@ -13,7 +13,7 @@
 //
 // Original Author:  Zablocki Jakub
 //         Created:  Thu Feb  9 10:47:50 CST 2012
-// $Id: ElectronIdMVABased.cc,v 1.2 2012/02/20 18:21:29 benedet Exp $
+// $Id: ElectronIdMVABased.cc,v 1.3 2012/02/20 18:51:57 benedet Exp $
 //
 //
 
@@ -56,6 +56,8 @@ class ElectronIdMVABased : public edm::EDFilter {
                 string path_mvaWeightFileEleID;
 		double thresholdBarrel;
 		double thresholdEndcap;
+                double thresholdIsoBarrel;
+                double thresholdIsoEndcap;
 
 		ElectronMVAEstimator *mvaID_;
 };
@@ -77,6 +79,8 @@ ElectronIdMVABased::ElectronIdMVABased(const edm::ParameterSet& iConfig) {
 	mvaWeightFileEleID = iConfig.getParameter<string>("HZZmvaWeightFile");
 	thresholdBarrel = iConfig.getParameter<double>("thresholdBarrel");
 	thresholdEndcap = iConfig.getParameter<double>("thresholdEndcap");
+	thresholdIsoBarrel = iConfig.getParameter<double>("thresholdIsoDR03Barrel");
+	thresholdIsoEndcap = iConfig.getParameter<double>("thresholdIsoDR03Endcap");
 
 	produces<reco::GsfElectronCollection>();
 	path_mvaWeightFileEleID = edm::FileInPath ( mvaWeightFileEleID.c_str() ).fullPath();
@@ -124,14 +128,15 @@ bool ElectronIdMVABased::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 	const reco::GsfElectronCollection egCandidates = (*egCollection.product());
 	for ( reco::GsfElectronCollection::const_iterator egIter = egCandidates.begin(); egIter != egCandidates.end(); ++egIter) {
 	  double mvaVal = mvaID_->mva( *egIter, nVtx );
+	  double isoDr03 = egIter->dr03TkSumPt() + egIter->dr03EcalRecHitSumEt() + egIter->dr03HcalTowerSumEt();
 	  double eleEta = fabs(egIter->eta());
-	  if (eleEta <= 1.485 && mvaVal > thresholdBarrel) {
+	  if (eleEta <= 1.485 && mvaVal > thresholdBarrel && isoDr03 < thresholdIsoBarrel) {
 	    mvaElectrons->push_back( *egIter );
 	    reco::GsfElectron::MvaOutput myMvaOutput;
 	    myMvaOutput.mva = mvaVal;
 	    mvaElectrons->back().setMvaOutput(myMvaOutput);
 	  }
-	  else if (eleEta > 1.485 && mvaVal > thresholdEndcap) {
+	  else if (eleEta > 1.485 && mvaVal > thresholdEndcap  && isoDr03 < thresholdIsoEndcap) {
 	    mvaElectrons->push_back( *egIter );
 	    reco::GsfElectron::MvaOutput myMvaOutput;
 	    myMvaOutput.mva = mvaVal;
