@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2011/06/29 20:36:10 $
+// last change    : $Date: 2011/08/08 21:55:48 $
 // by             : $Author: flucke $
 #ifndef COMPAREMILLEPEDE_H
 #define COMPAREMILLEPEDE_H
@@ -25,6 +25,9 @@ class CompareMillePede
   void DrawNumHits(Option_t *opt="");//"add": keep old canvas
 
   void DrawAbsPos(Option_t *opt="");//"start": at start (else end), "add": keep old canvas
+  void DrawSurfaceDeformations(Option_t *option, const TString &whichOne,// = "result", 
+			       unsigned int firstPar = 0, unsigned int lastPar = 11
+			       ); //"add": keep old canvases; "result"||"start"||"diff"
 
   bool IsConsistent(); // check correct order of alignables, if false draw some hists
   TString DeltaPar(UInt_t iPar) const; // par_2 - par_1

@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2011/06/29 20:36:10 $
+// last change    : $Date: 2011/08/08 21:55:48 $
 // by             : $Author: flucke $
 
 #include "CompareMillePede.h"
@@ -69,7 +69,10 @@ void CompareMillePede::DrawPedeParam(Option_t *option, unsigned int nNonRigidPar
                                += m->ToMumMuRadPede(iPar));
     const TString deltaName(m->Unique(Form("deltaPedePar%d", iPar)));
     TH1 *h = fPlotMp1->CreateHist(deltaPedePar, sel, deltaName);
-    if (0. == h->GetEntries()) continue;
+    if (0. == h->GetEntries()) {
+      delete h;
+      continue;
+    }
 
     const TString diff(Form("%s_{2}-%s_{1}", m->NamePede(iPar).Data(), m->NamePede(iPar).Data()));
     h->SetTitle(diff + titleAdd + ";" + diff + m->UnitPede(iPar) +=";#parameters");
@@ -107,7 +110,10 @@ void CompareMillePede::DrawPedeParamVsLocation(Option_t *option, unsigned int nN
     const TString deltaNameR(fPlotMp1->Unique(Form("deltaPedePar%dR", iPar))); // 
     TH2 *hDr = fPlotMp1->CreateHist2D(fPlotMp1->RPos(fPlotMp1->OrgPosT()), deltaPedePar, sel,
                                       deltaNameR, "BOX");
-    if (0. == hDr->GetEntries()) continue;
+    if (0. == hDr->GetEntries()) {
+      delete hDr;
+      continue;
+    }
 
     const TString deltaNamePhi(fPlotMp1->Unique(Form("deltaPedePar%dPhi", iPar))); // 
     TH2 *hDphi = fPlotMp1->CreateHist2D(fPlotMp1->Phi(fPlotMp1->OrgPosT()), deltaPedePar, sel,
@@ -214,7 +220,10 @@ void CompareMillePede::DrawParam(Option_t *option)
     const TString deltaPar(m->Parenth(this->DeltaPar(iPar)) += m->ToMumMuRad(iPar));
     const TString deltaName(m->Unique(Form("deltaPar%d", iPar))); // 
     TH1 *hD = fPlotMp1->CreateHist(deltaPar, sel, deltaName);
-    if (0. == hD->GetEntries()) continue;
+    if (0. == hD->GetEntries()) {
+      delete hD;
+      continue;
+    }
 
     const TString deltaBySi1(this->DeltaParBySigma(iPar, fPlotMp1));
     const TString deltaBySiName1(m->Unique(Form("deltaPar%dRel1", iPar))); // 
@@ -268,7 +277,10 @@ void CompareMillePede::DrawParamVsLocation(Option_t *option)
     const TString deltaNameR(fPlotMp1->Unique(Form("deltaPar%dR", iPar))); // 
     TH2 *hDr = fPlotMp1->CreateHist2D(fPlotMp1->RPos(fPlotMp1->OrgPosT()), deltaPar, sel,
                                       deltaNameR, "BOX");
-    if (0. == hDr->GetEntries()) continue;
+    if (0. == hDr->GetEntries()) {
+      delete hDr;
+      continue;
+    }
 
     const TString deltaNamePhi(fPlotMp1->Unique(Form("deltaPar%dPhi", iPar))); // 
     TH2 *hDphi = fPlotMp1->CreateHist2D(fPlotMp1->Phi(fPlotMp1->OrgPosT()), deltaPar, sel,
@@ -367,7 +379,10 @@ void CompareMillePede::DrawParamDeltaMis(Option_t *option)
     const TString deltaMisPar(m->Parenth(this->DeltaMisPar(iPar)) += m->ToMumMuRad(iPar));
     const TString deltaName(m->Unique(Form("deltaMisPar%d", iPar))); // 
     TH1 *hD = fPlotMp1->CreateHist(deltaMisPar, sel, deltaName);
-    if (0. == hD->GetEntries()) continue;
+    if (0. == hD->GetEntries()) {
+      delete hD;
+      continue;
+    }
 
     const TString deltaMisBySi1(this->DeltaMisParBySigma(iPar, fPlotMp1));
     const TString deltaBySiName1(m->Unique(Form("deltaMisPar%dRel1", iPar))); // 
@@ -427,8 +442,10 @@ void CompareMillePede::DrawParamDeltaMisVsLoc(Option_t *option)
     const TString deltaNameR(m->Unique(Form("deltaMisPar%dR", iPar))); // 
     TH2 *hDr = fPlotMp1->CreateHist2D(fPlotMp1->RPos(fPlotMp1->OrgPosT()), deltaMisPar, sel,
                                       deltaNameR, "BOX");
-    if (0. == hDr->GetEntries()) continue;
-    
+    if (0. == hDr->GetEntries()) {
+      delete hDr;
+      continue;
+    }
     const TString deltaNamePhi(m->Unique(Form("deltaMisPar%dPhi", iPar))); // 
     TH2 *hDphi = fPlotMp1->CreateHist2D(fPlotMp1->Phi(fPlotMp1->OrgPosT()), deltaMisPar, sel,
 					deltaNamePhi, "BOX");
@@ -698,7 +715,10 @@ void CompareMillePede::DrawAbsPos(Option_t *option)
     const TString deltaName(m->Unique(Form("deltaPos%d", iPos))); // 
     //const TString deltaName(m->Unique("deltaPos" + posName)); // 
     TH1 *h = fPlotMp1->CreateHist(m->DelPos(iPos, tree2, tree1), sel, deltaName);
-    if (0. == h->GetEntries()) continue;
+    if (0. == h->GetEntries()) {
+      delete h;
+      continue;
+    }
 
     const TString diff(Form("%s_{2}-%s_{1}", m->NamePos(iPos).Data(), m->NamePos(iPos).Data()));
     h->SetTitle(diff + titleAdd + ";" + diff + " [cm];#alignables");
@@ -708,6 +728,59 @@ void CompareMillePede::DrawAbsPos(Option_t *option)
   }
 
   fHistManager->Draw();
+}
+
+//_______________________________________________________________________________
+void CompareMillePede::DrawSurfaceDeformations(Option_t *option, const TString &whichOne,
+ 					       unsigned int firstPar, unsigned int lastPar)
+{
+   const TString opt(option);
+
+   const Int_t layer = this->PrepareAdd(opt.Contains("add", TString::kIgnoreCase));
+   const TString titleAdd = this->TitleAdd();
+   const PlotMillePede *m = fPlotMp1;
+
+   for (UInt_t iPar = firstPar; iPar <= lastPar; ++iPar) { // 
+     TString sel("");
+     fPlotMp1->AddBasicSelection(sel);
+     fPlotMp2->AddBasicSelection(sel);
+     sel += m->AndL() += m->Parenth(fPlotMp1->NumDeformValues(whichOne) += Form(">%u", iPar))
+       += m->AndL() += m->Parenth(fPlotMp2->NumDeformValues(whichOne) += Form(">%u", iPar));
+
+     const TString deform1(fPlotMp1->DeformValue(iPar, whichOne));
+     const TString deform2(fPlotMp2->DeformValue(iPar, whichOne));
+     const TString diff(m->Parenth(deform2 + m->Min() += deform1)
+			+= m->ToMumMuRadSurfDef(iPar));
+     const TString hNameDiff(m->Unique(Form("hSurf%s%u", whichOne.Data(), iPar))
+			     += Form("(101,-%f,%f)", m->GetMaxDev(), m->GetMaxDev()));
+     // delta plot
+     TH1 *hDiff = fPlotMp1->CreateHist(diff, sel, hNameDiff);
+     if (0. == hDiff->GetEntries()) {
+       delete hDiff;
+       continue;
+     }
+
+     // 2D vs plot
+     const TString hNameVs(m->Unique(Form("hSurfVs%s%u", whichOne.Data(), iPar)));
+     //                    += Form("(101,-%f,%f)", m->GetMaxDev(), m->GetMaxDev()));
+     TH2 *hVs = fPlotMp1->CreateHist2D(deform1 + m->ToMumMuRadSurfDef(iPar),
+				       deform2 + m->ToMumMuRadSurfDef(iPar), sel,
+				       hNameDiff, "BOX");
+     // titles
+     const TString diffTit(m->NameSurfDef(iPar) += "_{2}-"
+			   + m->NameSurfDef(iPar) += "_{1}");
+     hDiff->SetTitle(diffTit + titleAdd + ";"
+		     + diffTit + m->UnitSurfDef(iPar) +=";#parameters");
+
+     hVs->SetTitle(m->NameSurfDef(iPar) += titleAdd + ";"
+		   + m->NameSurfDef(iPar) += "_{1}" + m->UnitSurfDef(iPar) +=";"
+		   + m->NameSurfDef(iPar) += "_{2}" + m->UnitSurfDef(iPar));
+     
+     fHistManager->AddHist(hDiff, layer);
+     fHistManager->AddHist(hVs, layer + 1);
+   }
+   
+   fHistManager->Draw();
 }
 //_________________________________________________________________________________________________
 //_________________________________________________________________________________________________
