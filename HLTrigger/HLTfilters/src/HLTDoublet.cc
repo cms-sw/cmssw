@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2012/02/23 12:21:51 $
- *  $Revision: 1.21 $
+ *  $Date: 2012/02/24 13:34:20 $
+ *  $Revision: 1.22 $
  *
  *  \author Martin Grunewald
  *
@@ -122,6 +122,8 @@ HLTDoublet<T1,T2>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
 
    bool accept(false);
 
+   LogVerbatim("HLTDoublet") << " XXX " << label_ << " 0 " << std::endl;
+
    // get hold of pre-filtered object collections
    Handle<TriggerFilterObjectWithRefs> coll1,coll2;
    if (iEvent.getByLabel (inputTag1_,coll1) && iEvent.getByLabel (inputTag2_,coll2)) {
@@ -144,6 +146,7 @@ HLTDoublet<T1,T2>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
 	 if (tagOld.encode()!=tagNew.encode()) {
 	   filterproduct.addCollectionTag(tagNew);
 	   tagOld=tagNew;
+	   LogVerbatim("HLTDoublet") << " XXX " << label_ << " 1 " << tagNew.encode() << std::endl;
 	 }
        }
        tagOld=InputTag();
@@ -156,6 +159,7 @@ HLTDoublet<T1,T2>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
 	 if (tagOld.encode()!=tagNew.encode()) {
 	   filterproduct.addCollectionTag(tagNew);
 	   tagOld=tagNew;
+	   LogVerbatim("HLTDoublet") << " XXX " << label_ << " 2 " << tagNew.encode() << std::endl;
 	 }
        }
      }

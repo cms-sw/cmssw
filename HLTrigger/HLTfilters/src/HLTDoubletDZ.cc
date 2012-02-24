@@ -74,6 +74,8 @@ HLTDoubletDZ<T1,T2>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup
 
    bool accept(false);
 
+   LogVerbatim("HLTDoubletDZ") << " XXX " << label_ << " 0 " << std::endl;
+
    // get hold of pre-filtered object collections
    Handle<TriggerFilterObjectWithRefs> coll1,coll2;
    if (iEvent.getByLabel (inputTag1_,coll1) && iEvent.getByLabel (inputTag2_,coll2)) {
@@ -96,6 +98,7 @@ HLTDoubletDZ<T1,T2>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup
 	 if (tagOld.encode()!=tagNew.encode()) {
 	   filterproduct.addCollectionTag(tagNew);
 	   tagOld=tagNew;
+           LogVerbatim("HLTDoubletDZ") << " XXX " << label_ << " 1 " << tagNew.encode() << std::endl;
 	 }
        }
        tagOld=InputTag();
@@ -108,6 +111,7 @@ HLTDoubletDZ<T1,T2>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup
 	 if (tagOld.encode()!=tagNew.encode()) {
 	   filterproduct.addCollectionTag(tagNew);
 	   tagOld=tagNew;
+           LogVerbatim("HLTDoubletDZ") << " XXX " << label_ << " 2 " << tagNew.encode() << std::endl;
 	 }
        }
      }
