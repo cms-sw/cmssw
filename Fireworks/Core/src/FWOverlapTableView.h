@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:06:31 CET 2012
-// $Id: FWOverlapTableView.h,v 1.2 2012/02/22 03:46:00 amraktad Exp $
+// $Id: FWOverlapTableView.h,v 1.3 2012/02/22 21:00:31 amraktad Exp $
 //
 
 #include "Fireworks/Core/interface/FWGeometryTableViewBase.h"
@@ -28,6 +28,7 @@ class FWEveOverlap;
 //class FWGUIValidatingTextEntry;
 //class FWGeoPathValidator;
 class TGNumberEntry;
+class RGTextButton;
 
 class FWOverlapTableView : public FWGeometryTableViewBase
 {
@@ -45,8 +46,12 @@ public:
    virtual void setFrom(const FWConfiguration&);
    virtual void populateController(ViewerParameterGUI&) const;
 
+   virtual void cdTop();
+   virtual void cdUp();
+
    void drawPoints();
    void pointSize();
+
 
    virtual void chosenItem(int x);
 
@@ -57,16 +62,19 @@ private:
   
    FWOverlapTableView(const FWOverlapTableView&); // stop default
    const FWOverlapTableView& operator=(const FWOverlapTableView&); // stop default
-  
+   
+   void setCheckerState(bool);
+   TGTextButton* m_applyButton;  
+
 public:
    // ---------- member data --------------------------------
 
    FWOverlapTableManager *m_tableManager;
-
-   //   FWGUIValidatingTextEntry* m_pathEntry;
-   // FWGeoPathValidator*       m_pathValidator;
    TGNumberEntry*  m_numEntry;
-virtual void    refreshTable3D();
+
+   bool            m_runChecker;
+   virtual void    refreshTable3D();
+
    std::vector<float>  m_markerVertices;
    std::vector<int>    m_markerIndices;
   
@@ -79,6 +87,7 @@ virtual void    refreshTable3D();
 
    FWBoolParameter         m_drawPoints;
    FWLongParameter         m_pointSize;
+
    
 #endif
    ClassDef(FWOverlapTableView, 0);

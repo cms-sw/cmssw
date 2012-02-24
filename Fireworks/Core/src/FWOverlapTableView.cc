@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:06:35 CET 2012
-// $Id: FWOverlapTableView.cc,v 1.4 2012/02/23 01:32:30 amraktad Exp $
+// $Id: FWOverlapTableView.cc,v 1.5 2012/02/23 02:41:46 amraktad Exp $
 //
 
 // system include files
@@ -50,6 +50,7 @@
 #include "TGButton.h"
 #include "TEveViewer.h"
 #include "TGeoOverlap.h"
+#include "TGClient.h"
 
 static const std::string sUpdateMsg = "Please press Apply button to update overlaps.\n";
 
@@ -58,6 +59,7 @@ FWOverlapTableView::FWOverlapTableView(TEveWindowSlot* iParent, FWColorManager* 
    FWGeometryTableViewBase(iParent, FWViewType::kOverlapTable, colMng),
    m_tableManager(0),
    m_numEntry(0),
+   m_runChecker(true),
    m_path(this,"Path:", std::string("/cms:World_1/cms:CMSE_1")),
    m_precision(this, "Precision", 0.05, 0.000001, 10),
    m_rnrOverlap(this, "Overlap", true),
@@ -91,9 +93,9 @@ FWOverlapTableView::FWOverlapTableView(TEveWindowSlot* iParent, FWColorManager* 
       m_numEntry->Connect("ValueSet(Long_t)","FWOverlapTableView",this,"precisionCallback(Long_t)");
    }
    {
-      TGTextButton* rb = new TGTextButton (hp, "Apply");
-      hp->AddFrame(rb, new TGLayoutHints(kLHintsNormal, 2, 2, 0, 0));
-      rb->Connect("Clicked()","FWOverlapTableView",this,"recalculate()");
+      m_applyButton = new TGTextButton (hp, "Apply");
+      hp->AddFrame( m_applyButton, new TGLayoutHints(kLHintsNormal, 2, 2, 0, 0));
+       m_applyButton->Connect("Clicked()","FWOverlapTableView",this,"recalculate()");
    }
    m_frame->AddFrame(hp,new TGLayoutHints(kLHintsLeft|kLHintsExpandX, 4, 2, 2, 0));
    m_tableManager = new FWOverlapTableManager(this);
@@ -152,6 +154,7 @@ TEveElement* FWOverlapTableView::getEveGeoElement() const
 void FWOverlapTableView::precisionCallback(Long_t )
 {
    // std::cout << " ----------------------------- PRECISION \n" <<  m_numEntry->GetNumber();
+   setCheckerState(true);
    m_precision.set( m_numEntry->GetNumber());
    std::cout << sUpdateMsg;
 }
@@ -163,9 +166,11 @@ void FWOverlapTableView::recalculate()
    //  m_precision.set(m_numEntry->GetNumber());
    // std::cout << "                             $$$$ " << m_path.value() << std::endl;
    m_tableManager->importOverlaps(m_path.value(), m_precision.value());
-  checkExpandLevel();
-  getTableManager()->setLevelOffset(getTableManager()->refEntries().at(getTopNodeIdx()).m_level);
+   checkExpandLevel();
+   getTableManager()->setLevelOffset(getTableManager()->refEntries().at(getTopNodeIdx()).m_level);
    refreshTable3D();
+
+   setCheckerState(false);
 }
 
 
@@ -216,6 +221,29 @@ void FWOverlapTableView::pointSize()
    m_marker->ElementChanged();
    gEve->Redraw3D();
 }
+
+//______________________________________________________________________________
+void FWOverlapTableView::cdUp()
+{
+   setCheckerState(true);
+   FWGeometryTableViewBase::cdUp();
+}
+//______________________________________________________________________________
+void FWOverlapTableView::cdTop()
+{
+   if (m_topNodeIdx.value() == -1) return;
+
+   setCheckerState(true);
+   FWGeometryTableViewBase::cdTop();
+}
+//______________________________________________________________________________
+void FWOverlapTableView::setCheckerState(bool x)
+{
+   m_runChecker = x;
+   m_applyButton->SetForegroundColor(x ? 0xff0000 : 0x000000);
+   gClient->NeedRedraw(m_applyButton);
+
+}
 //______________________________________________________________________________
 
 void FWOverlapTableView::chosenItem(int menuIdx)
@@ -239,31 +267,6 @@ void FWOverlapTableView::chosenItem(int menuIdx)
             refreshTable3D();
             break;
 
-
-            /*
-         case FWEveOverlap::kOvlVisOff:
-            // std::cout << "VIS OFF \n";
-            for (FWGeometryTableManagerBase::Entries_i i = m_tableManager->refEntries().begin(); i !=  m_tableManager->refEntries().end(); ++i)
-            {
-               i->resetBit(FWGeometryTableManagerBase::kVisNodeSelf);
-               i->resetBit(FWOverlapTableManager::kVisMarker);
-
-            }
-            break;
-         case FWEveOverlap::kOvlVisOnOvl:
-            // std::cout << "VIS ON ovl \n";
-            for (FWGeometryTableManagerBase::Entries_i i = m_tableManager->refEntries().begin(); i !=  m_tableManager->refEntries().end(); ++i)
-            {
-               if (i->m_parent > 0 )i->setBit(FWGeometryTableManagerBase::kVisNodeSelf);
-               i->setBit(FWOverlapTableManager::kVisMarker);
-            }
-            break;
-         case FWEveOverlap::kOvlVisOnAllMother:
-            // std::cout << "VIS On mOTH \n";
-            for (FWGeometryTableManagerBase::Entries_i i = m_tableManager->refEntries().begin(); i !=  m_tableManager->refEntries().end(); ++i)
-               if (i->m_parent == 0 )i->setBit(FWGeometryTableManagerBase::kVisNodeSelf);
-            break;
-            */
          case FWEveOverlap::kOvlSetTopNode:
             if (m_topNodeIdx.value() > selectedIdx )
             {
