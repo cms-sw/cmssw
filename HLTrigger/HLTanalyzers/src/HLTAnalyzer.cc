@@ -284,7 +284,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     edm::Handle<reco::VertexCollection>               dimuvtxcands3;
     edm::Handle<reco::MuonCollection>                 trkmucands;
     edm::Handle<edm::ValueMap<bool> >                 isoMap2,  isoMap3, isoTrk10Map3;
-    edm::Handle<reco::HLTTauCollection>               l2taus;
+    edm::Handle<reco::CaloJetCollection>              l2taus;
     edm::Handle<reco::HLTTauCollection>               taus;
     edm::Handle<reco::PFTauCollection>                pftaus;
     edm::Handle<reco::PFTauCollection>                pftausTightCone;

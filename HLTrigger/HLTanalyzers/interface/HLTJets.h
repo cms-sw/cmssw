@@ -82,7 +82,7 @@ public:
                  const edm::Handle<reco::CaloMETCollection>      & rmets,
                  const edm::Handle<reco::GenMETCollection>       & gmets,
                  const edm::Handle<reco::METCollection>          & ht,                
-                 const edm::Handle<reco::HLTTauCollection>       & myHLTL2Tau,
+                 const edm::Handle<reco::CaloJetCollection>      & myHLTL2Tau,
                  const edm::Handle<reco::HLTTauCollection>       & myHLTTau,
                  const edm::Handle<reco::PFTauCollection>        & myHLTPFTau,
                  const edm::Handle<reco::PFTauCollection>        & myHLTPFTauTightCone,

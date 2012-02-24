@@ -408,7 +408,7 @@ void HLTJets::analyze(edm::Event const& iEvent,
                       const edm::Handle<reco::CaloMETCollection>      & recmets,
                       const edm::Handle<reco::GenMETCollection>       & genmets,
                       const edm::Handle<reco::METCollection>          & ht,
-                      const edm::Handle<reco::HLTTauCollection>       & l2taujets,
+                      const edm::Handle<reco::CaloJetCollection>      & l2taujets,
                       const edm::Handle<reco::HLTTauCollection>       & taujets,
                       const edm::Handle<reco::PFTauCollection>        & pfTaus,
                       const edm::Handle<reco::PFTauCollection>        & pfTausTightCone,
@@ -691,14 +691,14 @@ void HLTJets::analyze(edm::Event const& iEvent,
     /////////////////////////////// Open-HLT Taus ///////////////////////////////
     if (l2taujets.isValid()) {
         nohl2tau = l2taujets->size();
-        reco::HLTTauCollection l2taus = *l2taujets;
-        std::sort(l2taus.begin(),l2taus.end(),GetPtGreater());
+        reco::CaloJetCollection l2taus = *l2taujets;
+        std::sort(l2taus.begin(),l2taus.end(),GetPFPtGreater());
         int itau=0;
-        for(reco::HLTTauCollection::const_iterator i = l2taus.begin();
+        for(reco::CaloJetCollection::const_iterator i = l2taus.begin(); 
                                                    i!= l2taus.end(); ++i){
-            l2tauPt[itau]  = i->getPt();
-            l2tauEta[itau] = i->getEta();
-            l2tauPhi[itau] = i->getPhi();
+            l2tauPt[itau]  = i->pt();
+            l2tauEta[itau] = i->eta();
+            l2tauPhi[itau] = i->phi();
             itau++;
         }
     }else{
