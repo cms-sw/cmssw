@@ -1,4 +1,4 @@
-# /dev/CMSSW_5_1_0/GRun/V90
+# /dev/CMSSW_5_1_0/GRun/V91
 
 import FWCore.ParameterSet.Config as cms
 
@@ -71,7 +71,10 @@ streamA_datasetElectronHad_selector.triggerConditions = cms.vstring('HLT_Ele25_C
     'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TriCentralPFJet30_v4', 
     'HLT_Ele25_CaloIdVT_TrkIdT_QuadCentralPFJet30_v4', 
     'HLT_Ele25_CaloIdVT_TrkIdT_TriCentralPFJet30_v4', 
+    'HLT_Ele27_WP80_CentralPFJet30_CentralPFJet25_PFMHT20_v1', 
+    'HLT_Ele27_WP80_CentralPFJet30_CentralPFJet25_v1', 
     'HLT_Ele27_WP80_CentralPFJet80_v1', 
+    'HLT_Ele27_WP80_PFJet30_PFJet25_Deta3_v1', 
     'HLT_Ele30_CaloIdVT_TrkIdT_PFJet100_PFJet25_v1', 
     'HLT_Ele30_CaloIdVT_TrkIdT_PFJet150_PFJet25_v1', 
     'HLT_MET80_Track50_dEdx3p6_v1', 
@@ -169,9 +172,14 @@ streamA_datasetMuHad_selector.triggerConditions = cms.vstring('HLT_DoubleDisplac
     'HLT_Iso10Mu20_eta2p1_QuadCentralPFJet30_v1', 
     'HLT_Iso10Mu20_eta2p1_TriCentralPFJet30_v1', 
     'HLT_IsoMu20_eta2p1_CentralPFJet80_v1', 
+    'HLT_IsoMu24_eta2p1_CentralPFJet30_CentralPFJet25_PFMHT20_v1', 
+    'HLT_IsoMu24_eta2p1_CentralPFJet30_CentralPFJet25_v1', 
+    'HLT_IsoMu24_eta2p1_PFJet30_PFJet25_Deta3_v1', 
     'HLT_L2TripleMu10_0_0_NoVertex_PFJet40Neutral_L1FastJet_v1', 
     'HLT_Mu20_eta2p1_QuadCentralPFJet30_v1', 
-    'HLT_Mu20_eta2p1_TriCentralPFJet30_v1')
+    'HLT_Mu20_eta2p1_TriCentralPFJet30_v1', 
+    'HLT_Mu24_eta2p1_CentralPFJet30_CentralPFJet25_v1', 
+    'HLT_Mu24_eta2p1_PFJet30_PFJet25_Deta3_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMuOnia_selector
 streamA_datasetMuOnia_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')

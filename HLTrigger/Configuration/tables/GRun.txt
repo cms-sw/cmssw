@@ -183,14 +183,14 @@ HLT_MET80_v*							#sr126412
 #HLT_HT650_Track50_dEdx3p6_v* 					#sr126412, still to get integrated 
 #HLT_HT650_Track60_dEdx3p7_v* 					#sr126412, still to get integrated 
 
-#HLT_Ele27_WP80_CentralPFJet30_CentralPFJet25_PFMHT20_v*	#sr126441, still to get integrated
-#HLT_Ele27_WP80_PFJet30_PFJet25_Deta3_v*			#sr126441, still to get integrated
-#HLT_IsoMu24_eta2p1_CentralPFJet30_CentralPFJet25_PFMHT20_v*	#sr126441, still to get integrated
-#HLT_IsoMu24_eta2p1_PFJet30_PFJet25_Deta3_v*			#sr126441, still to get integrated
-#HLT_Ele27_WP80_CentralPFJet30_CentralPFJet25_v*		#sr126441, still to get integrated
-#HLT_IsoMu24_eta2p1_CentralPFJet30_CentralPFJet25_v*		#sr126441, still to get integrated
-#HLT_Mu24_eta2p1_CentralPFJet30_CentralPFJet25_v*		#sr126441, still to get integrated
-#HLT_Mu24_eta2p1_PFJet30_PFJet25_Deta3_v*			#sr126441, still to get integrated
+HLT_Ele27_WP80_CentralPFJet30_CentralPFJet25_PFMHT20_v*	#sr126441
+HLT_Ele27_WP80_PFJet30_PFJet25_Deta3_v*			#sr126441
+HLT_Ele27_WP80_CentralPFJet30_CentralPFJet25_v*		#sr126441
+HLT_IsoMu24_eta2p1_CentralPFJet30_CentralPFJet25_PFMHT20_v*	#sr126441
+HLT_IsoMu24_eta2p1_PFJet30_PFJet25_Deta3_v*			#sr126441
+HLT_IsoMu24_eta2p1_CentralPFJet30_CentralPFJet25_v*		#sr126441
+HLT_Mu24_eta2p1_CentralPFJet30_CentralPFJet25_v*		#sr126441
+HLT_Mu24_eta2p1_PFJet30_PFJet25_Deta3_v*			#sr126441
 
 
 HLT_Dimuon3p5_SameSign_v*		#sr126442
