@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hltJetID = cms.EDProducer("HLTJetIDProducer",
+hltPFJetIDProducer = cms.EDProducer("HLTPFJetIDProducer",
     jetsInput = cms.InputTag("hltAntiKT5PFJets"),
     min_NHEF = cms.double(-999.),
     max_NHEF = cms.double(999.),
