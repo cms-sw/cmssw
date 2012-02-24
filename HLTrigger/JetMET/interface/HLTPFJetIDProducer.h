@@ -5,11 +5,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 class HLTPFJetIDProducer : public edm::EDProducer {
  public:
   explicit HLTPFJetIDProducer(const edm::ParameterSet&);
   ~HLTPFJetIDProducer();
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   virtual void beginJob() ; 
   virtual void produce(edm::Event &, const edm::EventSetup&);
  private:

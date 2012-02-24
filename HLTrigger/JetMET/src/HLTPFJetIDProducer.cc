@@ -3,6 +3,7 @@
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 HLTPFJetIDProducer::HLTPFJetIDProducer(const edm::ParameterSet& iConfig) :
   jetsInput_   (iConfig.getParameter<edm::InputTag>("jetsInput")),
@@ -17,6 +18,21 @@ HLTPFJetIDProducer::HLTPFJetIDProducer(const edm::ParameterSet& iConfig) :
   min_pt_       (iConfig.getParameter<double>("min_pt"))
 {
   produces< reco::PFJetCollection > ();
+}
+
+void HLTPFJetIDProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("jetsInput",edm::InputTag("hltAntiKT5PFJets"));
+  desc.add<double>("min_NHEF",-999.0);
+  desc.add<double>("max_NHEF",999.0);
+  desc.add<double>("min_NEMF",-999.0);
+  desc.add<double>("max_NEMF",999.0);
+  desc.add<double>("min_CEMF",-999.0);
+  desc.add<double>("max_CEMF",999.0);
+  desc.add<double>("min_CHEF",-999.0);
+  desc.add<double>("max_CHEF",999.0);
+  desc.add<double>("min_pt",30.0);
+  descriptions.add("hltPFJetIDProducer", desc);
 }
 
 void HLTPFJetIDProducer::beginJob()
