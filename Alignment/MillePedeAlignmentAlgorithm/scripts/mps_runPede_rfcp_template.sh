@@ -124,6 +124,17 @@ if [ $? -eq 0 ]; then
     rm $RUNDIR/../job???/millePedeMonitor*.root
 fi
 
+# Macro creating chi2ndfperbinary.eps with pede chi2/ndf information hists:
+if [ -e $CMSSW_BASE/src/Alignment/MillePedeAlignmentAlgorithm/macros/createChi2ndfplot.C ] ; then
+    # Checked out version if existing:
+    cp $CMSSW_BASE/src/Alignment/MillePedeAlignmentAlgorithm/macros/createChi2ndfplot.C .
+else
+    # If nothing checked out, take from release:
+    cp $CMSSW_RELEASE_BASE/src/Alignment/MillePedeAlignmentAlgorithm/macros/createChi2ndfplot.C .
+fi
+mps_parse_pedechi2hist.pl $RUNDIR/../../mps.db millepede.his the.cfg
+root -l -x -b -q 'createChi2ndfplot.C+("chi2pedehis.txt")'
+
 # Macro creating millepede.his.ps with pede information hists:
 if [ -e $CMSSW_BASE/src/Alignment/MillePedeAlignmentAlgorithm/macros/readPedeHists.C ] ; then
     # Checked out version if existing:
@@ -146,7 +157,7 @@ cmscond_list_iov -c sqlite_file:alignments_MP.db -t Deformations
 
 #split the IOVs
 aligncond_split_iov -s sqlite_file:alignments_MP.db -i Alignments -d sqlite_file:alignments_split_MP.db -t Alignments
-aligncond_split_iov -s sqlite_file:alignments_MP.db -i Deformations -d sqlite_file:alignments_deformations_split_MP.db -t Deformations
+aligncond_split_iov -s sqlite_file:alignments_MP.db -i Deformations -d sqlite_file:alignments_split_MP.db -t Deformations
 
 echo "\nDirectory content after running cmsRun, zipping log file and merging histogram files:"
 ls -lh
@@ -155,3 +166,5 @@ ls -lh
 cp -p *.root $RUNDIR
 cp -p *.gz $RUNDIR
 cp -p *.db $RUNDIR
+cp -p *.eps $RUNDIR
+cp -p chi2ndfperbinary.C $RUNDIR
