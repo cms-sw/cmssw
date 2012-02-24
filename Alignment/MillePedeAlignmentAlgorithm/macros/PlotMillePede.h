@@ -1,7 +1,7 @@
 #ifndef PLOTMILLEPEDE_H
 #define PLOTMILLEPEDE_H
 // Original Author: Gero Flucke
-// last change    : $Date: 2011/11/14 10:37:25 $
+// last change    : $Date: 2012/02/10 12:31:36 $
 // by             : $Author: flucke $
 //
 // PlotMillePede is a class to interprete the content of the ROOT
@@ -169,7 +169,8 @@ class PlotMillePede : public MillePedeTrees
   void DrawCheck();
   TString Unique(const char *name) const;
 
-  Float_t SetMaxDev(Float_t maxDev); // set x-axis range for result plots
+  Float_t SetMaxDev(Float_t maxDev); // set x-axis range for some result plots
+  Float_t GetMaxDev() const {return fMaxDev;}  // x-axis range for some result plots
   const TArrayI* GetSubDetIds() const { return &fSubDetIds;} // selected subdets
   void SetSubDetId(Int_t subDetId); // 1-6 are TPB, TPE, TIB, TID, TOB, TEC, -1 means: take all
   void AddSubDetId(Int_t subDetId); // 1-6 are TPB, TPE, TIB, TID, TOB, TEC
