@@ -76,8 +76,8 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     nTrackIsoForEgammaSC = cms.uint32(2),                          
     coneTrackIsoForEgammaSC = cms.double(0.3),
     useEGammaElectrons = cms.bool(True),                                 
-    egammaElectrons = cms.InputTag('electronsCiCLoose'),                             
- #   egammaElectrons = cms.InputTag('mvaElectrons'),                              
+ #   egammaElectrons = cms.InputTag('electronsCiCLoose'),                             
+    egammaElectrons = cms.InputTag('mvaElectrons'),                              
 
     # Input displaced vertices
     # It is strongly adviced to keep usePFNuclearInteractions = bCorrect                       
