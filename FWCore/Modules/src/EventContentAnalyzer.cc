@@ -298,6 +298,7 @@ namespace edm {
     listContent_(iConfig.getUntrackedParameter("listContent", true)){
      //now do what ever initialization is needed
      sort_all(moduleLabels_);
+     sort_all(getModuleLabels_);
   }
 
   EventContentAnalyzer::~EventContentAnalyzer() {
