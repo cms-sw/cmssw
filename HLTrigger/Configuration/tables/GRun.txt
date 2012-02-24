@@ -242,28 +242,26 @@ HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_v*			#sr126461
 HLT_DiPFJet40L1FastJet_PFMHTWOM65_M800VBF_ALLJETS_v*		#sr126471, still to get integrated
 HLT_DiPFJet40L1FastJet_PFMHTWOM65_M600VBF_LEADINGJETS_v*	#sr126471, still to get integrated
 
-#HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_v*					#sr126475, still to get integrated
-#HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass60_v*	#sr126475, still to get integrated
-#HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_v*					#sr126475, still to get integrated
-#HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v*		#sr126475, still to get integrated
-#HLT_Photon26_CaloId10_Iso50_Photon18_R9Id85_Mass60_v*					#sr126475, still to get integrated
-#HLT_Photon26_CaloId10_Iso50_Photon18_CaloId10_Iso50_Mass60_v*					#sr126475, still to get integrated
-#HLT_Photon26_R9Id85_Photon18_CaloId10_Iso50_Mass60_v*					#sr126475, still to get integrated
-#HLT_Photon26_R9Id85_Photon18_R9Id85_Mass60_v*					#sr126475, still to get integrated
-#HLT_Photon36_CaloId10_Iso50_Photon22_R9Id85_v*					#sr126475, still to get integrated
-#HLT_Photon36_CaloId10_Iso50_Photon22_CaloId10_Iso50_v*					#sr126475, still to get integrated
-#HLT_Photon36_R9Id85_Photon22_CaloId10_Iso50_v*					#sr126475, still to get integrated
-#HLT_Photon36_R9Id85_Photon22_R9Id85_v*					#sr126475, still to get integrated
-#HLT_Photon26_Photon18_v*					#sr126475, still to get integrated
-#HLT_Photon36_Photon22_v*					#sr126475, still to get integrated
-#HLT_Photon20_R9Id_Photon18_R9Id_v*				#sr126475, still to get integrated
-#HLT_Photon26_CaloIdXL_IsoXL_Photon18_v*			#sr126475, still to get integrated
-#HLT_Photon30_CaloIdVL_v*					#sr126475, still to get integrated
-#HLT_Photon50_CaloIdVL_v*					#sr126475, still to get integrated
-#HLT_Photon75_CaloIdVL_v*					#sr126475, still to get integrated
-#HLT_Photon90_CaloIdVL_v*					#sr126475, still to get integrated
-#already in sr126541 -> #HLT_DoublePhoton43_HEVT_v*					#sr126475, still to get integrated
-#already in sr126541 -> #HLT_DoublePhoton48_HEVT_v*					#sr126475, still to get integrated
+HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_v*					#sr126475
+HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass60_v*	#sr126475
+HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_v*					#sr126475
+HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v*		#sr126475
+HLT_Photon26_CaloId10_Iso50_Photon18_R9Id85_Mass60_v*					#sr126475
+HLT_Photon26_CaloId10_Iso50_Photon18_CaloId10_Iso50_Mass60_v*				#sr126475
+HLT_Photon26_R9Id85_Photon18_CaloId10_Iso50_Mass60_v*					#sr126475
+HLT_Photon26_R9Id85_Photon18_R9Id85_Mass60_v*						#sr126475
+HLT_Photon36_CaloId10_Iso50_Photon22_R9Id85_v*						#sr126475
+HLT_Photon36_CaloId10_Iso50_Photon22_CaloId10_Iso50_v*					#sr126475
+HLT_Photon36_R9Id85_Photon22_CaloId10_Iso50_v*						#sr126475
+HLT_Photon36_R9Id85_Photon22_R9Id85_v*							#sr126475
+HLT_Photon26_Photon18_v*								#sr126475
+HLT_Photon36_Photon22_v*								#sr126475
+HLT_Photon20_R9Id_Photon18_R9Id_v*							#sr126475
+HLT_Photon26_CaloIdXL_IsoXL_Photon18_v*							#sr126475
+HLT_Photon30_CaloIdVL_v*								#sr126475
+HLT_Photon50_CaloIdVL_v*								#sr126475
+HLT_Photon75_CaloIdVL_v*								#sr126475
+HLT_Photon90_CaloIdVL_v*								#sr126475
 
 HLT_Mu13_Mu8_v*					#sr126489
 HLT_L1SingleMu12_v*					#sr126489

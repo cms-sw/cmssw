@@ -1,4 +1,4 @@
-# /dev/CMSSW_5_1_0/GRun/V93
+# /dev/CMSSW_5_1_0/GRun/V94
 
 import FWCore.ParameterSet.Config as cms
 
@@ -234,9 +234,29 @@ streamA_datasetPhoton_selector.triggerConditions = cms.vstring('HLT_DoubleEle33_
     'HLT_Photon135_v3', 
     'HLT_Photon150_v1', 
     'HLT_Photon160_v1', 
+    'HLT_Photon20_R9Id_Photon18_R9Id_v8', 
     'HLT_Photon250_NoHE_v1', 
+    'HLT_Photon26_CaloId10_Iso50_Photon18_CaloId10_Iso50_Mass60_v1', 
+    'HLT_Photon26_CaloId10_Iso50_Photon18_R9Id85_Mass60_v1', 
+    'HLT_Photon26_CaloIdXL_IsoXL_Photon18_v5', 
+    'HLT_Photon26_Photon18_v8', 
+    'HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass60_v1', 
+    'HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_v1', 
+    'HLT_Photon26_R9Id85_Photon18_CaloId10_Iso50_Mass60_v1', 
+    'HLT_Photon26_R9Id85_Photon18_R9Id85_Mass60_v1', 
     'HLT_Photon300_NoHE_v1', 
-    'HLT_Photon90_CaloIdVL_IsoL_v8')
+    'HLT_Photon30_CaloIdVL_v9', 
+    'HLT_Photon36_CaloId10_Iso50_Photon22_CaloId10_Iso50_v1', 
+    'HLT_Photon36_CaloId10_Iso50_Photon22_R9Id85_v1', 
+    'HLT_Photon36_Photon22_v2', 
+    'HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v1', 
+    'HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_v1', 
+    'HLT_Photon36_R9Id85_Photon22_CaloId10_Iso50_v1', 
+    'HLT_Photon36_R9Id85_Photon22_R9Id85_v1', 
+    'HLT_Photon50_CaloIdVL_v5', 
+    'HLT_Photon75_CaloIdVL_v8', 
+    'HLT_Photon90_CaloIdVL_IsoL_v8', 
+    'HLT_Photon90_CaloIdVL_v5')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetPhotonHad_selector
 streamA_datasetPhotonHad_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
