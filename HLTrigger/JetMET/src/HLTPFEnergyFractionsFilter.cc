@@ -3,6 +3,9 @@
 *
 *  \author Srimanobhas Phat
 *
+*  Please see the description of this class in
+*  "HLTrigger/JetMET/interface/HLTPFEnergyFractionsFilter.h"
+*
 */
 
 #include "HLTrigger/JetMET/interface/HLTPFEnergyFractionsFilter.h"
@@ -78,43 +81,43 @@ HLTPFEnergyFractionsFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup&
   iEvent.getByLabel(inputPFJetTag_,recopfjets);
 
   //Checking
-  int n(0); 
-
-  if(recopfjets->size() >= nJet_){
-    unsigned int countJet(0);
-    PFJetRef JetRef1; 
-    
-    //PF information
-    for(PFJetCollection::const_iterator i = recopfjets->begin(); i != recopfjets->end(); ++i ){
-      if(countJet==0){
-	JetRef1 = PFJetRef(recopfjets,distance(recopfjets->begin(),i));
-      }
-      if(countJet<nJet_){
-	if(i->chargedEmEnergyFraction()<min_CEEF_) n = -1;
-	if(i->chargedEmEnergyFraction()>max_CEEF_) n = -1;
-	//
-	if(i->neutralEmEnergyFraction()<min_NEEF_) n = -1;
-	if(i->neutralEmEnergyFraction()>max_NEEF_) n = -1;
-	//
-	if(i->chargedHadronEnergyFraction()<min_CHEF_) n = -1;
-	if(i->chargedHadronEnergyFraction()>max_CHEF_) n = -1;
-	//
-	if(i->neutralHadronEnergyFraction()<min_NHEF_) n = -1;
-	if(i->neutralHadronEnergyFraction()>max_NHEF_) n = -1;
-      }
-      countJet++;
-      if(countJet>=nJet_) break;
-    }
-    if(n==0) n++;
-    
-    //Store only 1st pt jet which pass conditions
-    if(n>0){
-      filterproduct.addObject(triggerType_,JetRef1);
-    }
-  }
+  bool accept(false); 
   
-  // filter decision
-  bool accept(n>0); 
+  if(recopfjets->size() >= nJet_){
+    accept = true;
+    unsigned int countJet(0);
+    //PF information
+    PFJetCollection::const_iterator i (recopfjets->begin());
+    for(; i != recopfjets->end(); ++i ){
+      if(countJet>nJet_) break;
+      //
+      if(i->chargedEmEnergyFraction()<min_CEEF_) accept = false;
+      if(i->chargedEmEnergyFraction()>max_CEEF_) accept = false;
+      //
+      if(i->neutralEmEnergyFraction()<min_NEEF_) accept = false;
+      if(i->neutralEmEnergyFraction()>max_NEEF_) accept = false;
+      //
+      if(i->chargedHadronEnergyFraction()<min_CHEF_) accept = false;
+      if(i->chargedHadronEnergyFraction()>max_CHEF_) accept = false;
+      //
+      if(i->neutralHadronEnergyFraction()<min_NHEF_) accept = false;
+      if(i->neutralHadronEnergyFraction()>max_NHEF_) accept = false;
+      //
+      if(accept==false) break;
+      countJet++;
+    }
+    
+    //Store NJet_ jets
+    if(accept==true){ 
+      countJet = 0; 
+      PFJetCollection::const_iterator i (recopfjets->begin());
+      for(; i != recopfjets->end(); ++i ){
+	if(countJet>nJet_) break;
+	filterproduct.addObject(triggerType_,PFJetRef(recopfjets,distance(recopfjets->begin(),i)));
+	countJet++;
+      }
+    }
+  }// End of (recopfjets->size() >= nJet_)
   
   return accept;
 }

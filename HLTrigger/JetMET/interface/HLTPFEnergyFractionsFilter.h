@@ -5,6 +5,15 @@
  *
  *  \author Srimanobhas Phat
  *
+ *  This filter is used to filter the PFJet collection using JetID.
+ *  If you want to work with general PFJet collection, please use PFJetIDProducer instead.
+ *
+ *  This filter will reject event in 2 cases, 
+ *   (1) No. of jets < NJet_ threshold. The default is 1 (You really need to be careful this setting).
+ *   (2) One or more first NJet_ jets has PFEFs out of thresholds.
+ *
+ *  Just to warn you that, analyzers need to understand well their signals and percentage of loss if you apply this cut.
+ *
  */
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
