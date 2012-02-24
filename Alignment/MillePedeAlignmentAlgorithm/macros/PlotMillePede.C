@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2011/11/14 10:37:25 $
+// last change    : $Date: 2012/02/10 12:31:36 $
 // by             : $Author: flucke $
 
 #include "PlotMillePede.h"
@@ -777,17 +777,14 @@ void PlotMillePede::DrawOrigPos(bool addPlots, const TString &sel)
   TString aSel(sel);
   this->AddBasicSelection(aSel);
 
-  TH1 *hPhi = this->CreateHist(Phi(OrgPosT()), aSel, this->Unique("orgPhi"));
-  TH1 *hR = this->CreateHist(RPos(OrgPosT()), aSel, this->Unique("orgR"));
-  TH1 *hZ = this->CreateHist(OrgPosT() += ZPos(), aSel, this->Unique("orgZ"));
-
-  hPhi->SetTitle("original position #phi" + titleAdd + ";#phi;#alignables"); 
-  hR->SetTitle("original position r[cm]" + titleAdd + ";r;#alignables"); 
-  hZ->SetTitle("original position z[cm]" + titleAdd + ";z;#alignables"); 
-
-  fHistManager->AddHist(hPhi, layer);
-  fHistManager->AddHist(hR, layer);
-  fHistManager->AddHist(hZ, layer);
+  const TString posNames[] = {"phi", "r", "x", "y", "z"};
+  for (UInt_t iPos = 0; iPos < sizeof(posNames)/sizeof(posNames[0]); ++iPos) {
+    const TString &pos = posNames[iPos];
+    TH1 *h = this->CreateHist(OrgPos(pos), aSel, this->Unique("org_"+pos));
+    h->SetTitle("original position " + Name(pos) + titleAdd + ";"
+		+ Name(pos) + ";#alignables"); 
+    fHistManager->AddHist(h, layer);
+  }
 
   fHistManager->Draw();
 }
