@@ -536,3 +536,8 @@ def SetValidationExtention(module, extension):
 def setBinning(module,pset):
     if module._TypedParameterizable__type == 'TauTagValidation':
         module.histoSettings = pset
+
+def setTrigger(module,pset):
+   if hasattr(module,'_TypedParameterizable__type') and module._TypedParameterizable__type == 'TauTagValidation':
+      for item in pset.parameters_().items():
+         setattr(module.GenericTriggerSelection,item[0],item[1])
