@@ -15,7 +15,7 @@
 //
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  October 8, 2008
-// $Id: TauTagValidation.cc,v 1.31 2012/02/23 09:59:38 mverzett Exp $
+// $Id: TauTagValidation.cc,v 1.32 2012/02/23 16:39:25 perchall Exp $
 //
 //
 // user include files
@@ -34,41 +34,35 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
-TauTagValidation::TauTagValidation(const edm::ParameterSet& iConfig) {
-  moduleLabel_ = iConfig.getParameter<std::string>("@module_label");
-  edm::ParameterSet GenericTriggerSelection;
-  if (iConfig.exists("GenericTriggerSelection")) {
-    std::cout<<"--> GenericTriggerSelection parameters found in "<<moduleLabel_<<"."<<std::endl;//move to LogDebug
-    GenericTriggerSelection = iConfig.getParameter<edm::ParameterSet>("GenericTriggerSelection");
-    genericTriggerEventFlag_ = new GenericTriggerEventFlag(GenericTriggerSelection);
-  } else {
-    genericTriggerEventFlag_ = 0;
-    std::cout<<"--> GenericTriggerSelection not found in "<<moduleLabel_<<"."<<std::endl;//move to LogDebug to keep track of modules that fail and pass
-  }
+TauTagValidation::TauTagValidation(const edm::ParameterSet& iConfig):
+  moduleLabel_(iConfig.getParameter<std::string>("@module_label")),
   // What do we want to use as source Leptons or Jets (the only difference is the matching criteria)
-  dataType_ = iConfig.getParameter<string>("DataType");
-  
+  dataType_( iConfig.getParameter<string>("DataType") ),
   // We need different matching criteria if we talk about leptons or jets
-  matchDeltaR_Leptons_ = iConfig.getParameter<double>("MatchDeltaR_Leptons");
-  matchDeltaR_Jets_    = iConfig.getParameter<double>("MatchDeltaR_Jets");
-  TauPtCut_     = iConfig.getParameter<double>("TauPtCut");
-  
+  matchDeltaR_Leptons_( iConfig.getParameter<double>("MatchDeltaR_Leptons")),
+  matchDeltaR_Jets_( iConfig.getParameter<double>("MatchDeltaR_Jets")),
+  TauPtCut_( iConfig.getParameter<double>("TauPtCut")),
   //flexible cut interface to filter reco and gen collection. use an empty string to select all.
-  recoCuts_ = iConfig.getParameter<std::string>( "recoCuts" );
-  genCuts_ = iConfig.getParameter<std::string>( "genCuts" );
-  
+  recoCuts_( iConfig.getParameter<std::string>( "recoCuts" )),
+  genCuts_( iConfig.getParameter<std::string>( "genCuts" )),
   // The output histograms can be stored or not
-  saveoutputhistograms_ = iConfig.getParameter<bool>("SaveOutputHistograms");
-  
+  saveoutputhistograms_( iConfig.getParameter<bool>("SaveOutputHistograms")),
   // Here it can be pretty much anything either a lepton or a jet
-  refCollectionInputTag_ = iConfig.getParameter<InputTag>("RefCollection");
-  refCollection_ = refCollectionInputTag_.label();
-  
+  refCollectionInputTag_( iConfig.getParameter<InputTag>("RefCollection")),
   // The extension name has information about the Reference collection used
-  extensionName_ = iConfig.getParameter<string>("ExtensionName");
-  
+  extensionName_( iConfig.getParameter<string>("ExtensionName")),
   // Here is the reconstructed product of interest.
-  TauProducerInputTag_ = iConfig.getParameter<InputTag>("TauProducer");
+  TauProducerInputTag_( iConfig.getParameter<InputTag>("TauProducer")),
+  // Get the discriminators and their cuts
+  discriminators_( iConfig.getParameter< std::vector<edm::ParameterSet> >( "discriminators" ))
+{
+  genericTriggerEventFlag_ = (iConfig.exists("GenericTriggerSelection")) ? new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("GenericTriggerSelection")) : NULL;
+  if(genericTriggerEventFlag_ != NULL)  std::cout<<"--> GenericTriggerSelection parameters found in "<<moduleLabel_<<"."<<std::endl;//move to LogDebug
+  else std::cout<<"--> GenericTriggerSelection not found in "<<moduleLabel_<<"."<<std::endl;//move to LogDebug to keep track of modules that fail and pass
+
+
+  //InputTag to strings  
+  refCollection_ = refCollectionInputTag_.label();
   TauProducer_ = TauProducerInputTag_.label();
   
   histoSettings_= (iConfig.exists("histoSettings")) ? iConfig.getParameter<edm::ParameterSet>("histoSettings") : edm::ParameterSet();
@@ -78,9 +72,6 @@ TauTagValidation::TauTagValidation(const edm::ParameterSet& iConfig) {
   
   // The cut on the Discriminators
   //  TauDiscriminatorCuts_ = iConfig.getUntrackedParameter<std::vector<double> > ("TauDiscriminatorCuts");
-  
-  // Get the discriminators and their cuts
-  discriminators_ = iConfig.getParameter< std::vector<edm::ParameterSet> >( "discriminators" );
   
   //  cout << " RefCollection: " << refCollection_.label() << " "<< refCollection_ << endl;
   
