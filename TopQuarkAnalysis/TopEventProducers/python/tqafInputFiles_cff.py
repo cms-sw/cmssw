@@ -5,6 +5,6 @@ relValTTbar = pickRelValInputFiles(cmsswVersion  = 'CMSSW_5_0_0',
                                    relVal        = 'RelValProdTTbar',
                                    globalTag     = 'START50_V8',
                                    dataTier      = 'AODSIM',
-                                   maxVersions   = 1
+                                   maxVersions   = 3
                                    )
 
