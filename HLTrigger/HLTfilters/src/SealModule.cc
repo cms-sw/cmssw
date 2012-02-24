@@ -109,8 +109,8 @@ typedef HLTDoublet<RecoChargedCandidate,PFTau>   HLT2MuonPFTau;
 
 typedef HLTDoublet<Electron            ,CaloMET> HLT2ElectronCaloMET;
 typedef HLTDoublet<RecoChargedCandidate,CaloMET> HLT2MuonCaloMET;
-typedef HLTDoublet<Electron            ,MET>     HLT2ElectronMET;
-typedef HLTDoublet<RecoChargedCandidate,MET>     HLT2MuonMET;
+typedef HLTDoublet<Electron            ,    MET> HLT2ElectronMET;
+typedef HLTDoublet<RecoChargedCandidate,    MET> HLT2MuonMET;
 
 #include "HLTrigger/HLTfilters/interface/HLTDoubletDZ.h"
 #include "HLTrigger/HLTfilters/src/HLTDoubletDZ.cc"
@@ -136,6 +136,11 @@ DEFINE_FWK_MODULE(HLT2MuonTau);
 //DEFINE_FWK_MODULE(HLT2MuonHLTTau);
 DEFINE_FWK_MODULE(HLT2ElectronPFTau);
 DEFINE_FWK_MODULE(HLT2MuonPFTau);
+DEFINE_FWK_MODULE(HLT2ElectronCaloMET);
+DEFINE_FWK_MODULE(HLT2MuonCaloMET);
+DEFINE_FWK_MODULE(HLT2ElectronMET);
+DEFINE_FWK_MODULE(HLT2MuonMET);
+
 
 DEFINE_FWK_MODULE(HLT1Electron);
 DEFINE_FWK_MODULE(HLT1Photon);
