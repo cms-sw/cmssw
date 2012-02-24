@@ -8,9 +8,8 @@
 #include <DataFormats/SiStripDigi/interface/SiStripProcessedRawDigi.h>
 #include <FWCore/Framework/interface/EventSetup.h> 
 #include <FWCore/Framework/interface/EventSetupRecord.h> 
-#include <FWCore/MessageLogger/interface/MessageLogger.h> 
 
-#include <Alignment/LaserAlignment/interface/LASGlobalLoop.h>
+//#include <Alignment/LaserAlignment/interface/LASGlobalLoop.h>
 //#include <Alignment/LaserAlignment/interface/LASGlobalDataLoop.h>
 
 #include "TFile.h"
@@ -32,7 +31,7 @@ RawDataConverter::RawDataConverter( const edm::ParameterSet& iConfig ) :
   
 {
   output_filename = iConfig.getUntrackedParameter<std::string>( "OutputFileName" );
-  theOutputFile = new TFile("TemporaryFile" , "RECREATE" );
+  theOutputFile = new TFile("/tmp/aperiean/TemporaryFile" , "RECREATE" );
   //theOutputFile = new TFile( iConfig.getUntrackedParameter<std::string>( "OutputFileName" ).c_str() , "RECREATE" );
   theOutputFile->cd();
   theOutputTree = new TTree( "lasRawDataTree", "lasRawDataTree" );
@@ -96,8 +95,10 @@ RawDataConverter::DigiType RawDataConverter::GetValidLabels( const edm::Event& i
   std::ostringstream search_message;
   search_message << "Searching for SiStripDigis\n";
   // Loop through Module and instance labels that were defined in the configuration
-  for( std::vector<std::string>::iterator moduleLabel = theDigiModuleLabels.begin(); moduleLabel != theDigiModuleLabels.end(); ++moduleLabel ) {
-    for( std::vector<std::string>::iterator instanceLabel = theProductInstanceLabels.begin(); instanceLabel != theProductInstanceLabels.end(); ++instanceLabel ) {
+  for( std::vector<std::string>::iterator moduleLabel = theDigiModuleLabels.begin(); 
+       moduleLabel != theDigiModuleLabels.end(); ++moduleLabel ) {
+    for( std::vector<std::string>::iterator instanceLabel = theProductInstanceLabels.begin(); 
+	 instanceLabel != theProductInstanceLabels.end(); ++instanceLabel ) {
 
       search_message << "Checking for Module " << *moduleLabel << " Instance " << *instanceLabel << "\n";
 
@@ -150,7 +151,7 @@ void RawDataConverter::analyze( const edm::Event& iEvent, const edm::EventSetup&
   edm::Handle<SiStripEventSummary> summary;
   //iEvent.getByLabel( digiProducer, summary );
   iEvent.getByLabel( "siStripDigis", summary );
-  latency = static_cast<int32_t>( summary->latency() );
+  latency = 0.;//static_cast<int32_t>( summary->latency() );
   eventnumber = iEvent.id().event();
   runnumber = iEvent.run();
   lumiBlock = iEvent.luminosityBlock();
