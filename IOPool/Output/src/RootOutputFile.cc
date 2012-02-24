@@ -716,7 +716,7 @@ namespace edm {
           // Add a null product.
           TClass* cp = gROOT->GetClass(i->branchDescription_->wrappedName().c_str());
           product = cp->New();
-          dummies.push_back(std::make_pair(cp, product));
+          dummies.emplace_back(cp, product);
         }
         i->product_ = product;
       }

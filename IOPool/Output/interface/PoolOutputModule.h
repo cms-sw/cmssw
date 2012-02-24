@@ -10,8 +10,9 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#include <array>
+#include <memory>
 #include <string>
-#include "boost/scoped_ptr.hpp"
 #include "boost/shared_ptr.hpp"
 
 #include "IOPool/Common/interface/RootServiceChecker.h"
@@ -29,6 +30,8 @@ namespace edm {
     enum DropMetaData { DropNone, DropDroppedPrior, DropPrior, DropAll };
     explicit PoolOutputModule(ParameterSet const& ps);
     virtual ~PoolOutputModule();
+    PoolOutputModule(PoolOutputModule const&) = delete; // Disallow copying and moving
+    PoolOutputModule& operator=(PoolOutputModule const&) = delete; // Disallow copying and moving
     std::string const& fileName() const {return fileName_;}
     std::string const& logicalFileName() const {return logicalFileName_;}
     int const& compressionLevel() const {return compressionLevel_;}
@@ -57,7 +60,7 @@ namespace edm {
       ~AuxItem() {}
       int basketSize_;
     };
-    typedef boost::array<AuxItem, NumBranchTypes> AuxItemArray;
+    typedef std::array<AuxItem, NumBranchTypes> AuxItemArray;
     AuxItemArray const& auxItems() const {return auxItems_;}
 
     struct OutputItem {
@@ -90,7 +93,7 @@ namespace edm {
 
     typedef std::vector<OutputItem> OutputItemList;
 
-    typedef boost::array<OutputItemList, NumBranchTypes> OutputItemListArray;
+    typedef std::array<OutputItemList, NumBranchTypes> OutputItemListArray;
 
     OutputItemListArray const& selectedOutputItemList() const {return selectedOutputItemList_;}
 
@@ -148,7 +151,7 @@ namespace edm {
     unsigned int childIndex_;
     unsigned int numberOfDigitsInIndex_;
     bool overrideInputFileSplitLevels_;
-    boost::scoped_ptr<RootOutputFile> rootOutputFile_;
+    std::unique_ptr<RootOutputFile> rootOutputFile_;
     std::string statusFileName_;
   };
 }

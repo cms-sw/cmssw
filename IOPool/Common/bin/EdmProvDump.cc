@@ -27,7 +27,6 @@
 #include "TTree.h"
 
 #include "boost/program_options.hpp"
-#include "boost/scoped_ptr.hpp"
 
 #include <assert.h>
 #include <iostream>
@@ -194,7 +193,7 @@ void HistoryNode::printEventSetupHistory(ParameterSetMap const& iPSM,
                                                    processConfig,
                                                    itH->processName());
         if(iFindMatch.empty() or retValue.find(iFindMatch) != std::string::npos) {
-          sourceStrings.push_back(retValue);
+          moduleStrings.push_back(std::move(retValue));
         }
       }
       //get the modules
@@ -205,7 +204,7 @@ void HistoryNode::printEventSetupHistory(ParameterSetMap const& iPSM,
                                                    processConfig,
                                                    itH->processName());
         if(iFindMatch.empty() or retValue.find(iFindMatch) != std::string::npos) {
-          moduleStrings.push_back(retValue);
+          moduleStrings.push_back(std::move(retValue));
         }
       }
       if(sort_) {
@@ -258,7 +257,7 @@ void HistoryNode::printOtherModulesHistory(ParameterSetMap const& iPSM,
                                                     processConfig,
                                                     itH->processName()));
           if(iFindMatch.empty() or retValue.find(iFindMatch) != std::string::npos) {
-            moduleStrings.push_back(retValue);
+            moduleStrings.push_back(std::move(retValue));
           }
         }
       }
@@ -273,7 +272,7 @@ void HistoryNode::printOtherModulesHistory(ParameterSetMap const& iPSM,
 }
 
 namespace {
-  std::auto_ptr<TFile>
+  std::unique_ptr<TFile>
   makeTFileWithLookup(std::string const& filename) {
     // See if it is a logical file name.
     std::auto_ptr<edm::SiteLocalConfig> slcptr(new edm::service::SiteLocalConfigService(edm::ParameterSet()));
@@ -289,7 +288,7 @@ namespace {
         << "File " << filename << " was not found or could not be opened.\n";
     }
     // filename is a valid LFN.
-    std::auto_ptr<TFile> result(TFile::Open(catalog.fileNames()[0].c_str()));
+    std::unique_ptr<TFile> result(TFile::Open(catalog.fileNames()[0].c_str()));
     if(!result.get()) {
       throw cms::Exception("FileNotFound", "RootFile::RootFile()")
         << "File " << fileNames[0] << " was not found or could not be opened.\n";
@@ -298,13 +297,13 @@ namespace {
   }
 
   // Open the input file, returning the TFile object that represents it.
-  // The returned auto_ptr will not be null. The argument must not be null.
+  // The returned unique_ptr will not be null. The argument must not be null.
   // We first try the file name as a PFN, so that the catalog and related
   // services are not loaded unless needed.
-  std::auto_ptr<TFile>
+  std::unique_ptr<TFile>
   makeTFile(std::string const& filename) {
     gErrorIgnoreLevel = kFatal;
-    std::auto_ptr<TFile> result(TFile::Open(filename.c_str()));
+    std::unique_ptr<TFile> result(TFile::Open(filename.c_str()));
     gErrorIgnoreLevel = kError;
     if(!result.get()) {
       // Try again with catalog.
@@ -370,7 +369,7 @@ static std::ostream& prettyPrint(std::ostream& oStream, edm::ParameterSet const&
 }
 
 
-class ProvenanceDumper : private boost::noncopyable {
+class ProvenanceDumper {
 public:
   // It is illegal to call this constructor with a null pointer; a
   // legal C-style string is required.
@@ -380,6 +379,9 @@ public:
                    bool showAllModules,
                    std::string const& findMatch);
 
+  ProvenanceDumper(ProvenanceDumper const&) = delete; // Disallow copying and moving
+  ProvenanceDumper& operator=(ProvenanceDumper const&) = delete; // Disallow copying and moving
+
   // Write the provenenace information to the given stream.
   void dump();
   void printErrors(std::ostream& os);
@@ -387,7 +389,7 @@ public:
 
 private:
   std::string              filename_;
-  boost::scoped_ptr<TFile> inputFile_;
+  std::unique_ptr<TFile>   inputFile_;
   int                      exitCode_;
   std::stringstream        errorLog_;
   int                      errorCount_;

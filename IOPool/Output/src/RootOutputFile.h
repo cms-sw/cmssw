@@ -9,11 +9,11 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#include <array>
 #include <map>
 #include <string>
 #include <vector>
 
-#include "boost/array.hpp"
 #include "boost/shared_ptr.hpp"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -41,7 +41,7 @@ namespace edm {
   public:
     typedef PoolOutputModule::OutputItem OutputItem;
     typedef PoolOutputModule::OutputItemList OutputItemList;
-    typedef boost::array<RootOutputTree*, NumBranchTypes> RootOutputTreePtrArray;
+    typedef std::array<RootOutputTree*, NumBranchTypes> RootOutputTreePtrArray;
     explicit RootOutputFile(PoolOutputModule* om, std::string const& fileName,
                             std::string const& logicalFileName);
     ~RootOutputFile() {}

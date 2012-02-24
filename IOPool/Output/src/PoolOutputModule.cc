@@ -184,7 +184,7 @@ namespace edm {
         splitLevel = (prod.splitLevel() == BranchDescription::invalidSplitLevel ? splitLevel_ : prod.splitLevel());
         basketSize = (prod.basketSize() == BranchDescription::invalidBasketSize ? basketSize_ : prod.basketSize());
       }
-      outputItemList.push_back(OutputItem(&prod, splitLevel, basketSize));
+      outputItemList.emplace_back(&prod, splitLevel, basketSize);
     }
 
     // Sort outputItemList to allow fast copying.

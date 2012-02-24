@@ -22,6 +22,8 @@ namespace edm {
   public:
     explicit TimeoutPoolOutputModule(ParameterSet const& ps);
     virtual ~TimeoutPoolOutputModule(){};
+    TimeoutPoolOutputModule(TimeoutPoolOutputModule const&) = delete; // Disallow copying and moving
+    TimeoutPoolOutputModule& operator=(TimeoutPoolOutputModule const&) = delete; // Disallow copying and moving
   protected:
     virtual bool shouldWeCloseFile() const;
     virtual void write(EventPrincipal const& e);

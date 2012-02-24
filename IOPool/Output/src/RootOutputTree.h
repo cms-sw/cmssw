@@ -11,7 +11,6 @@ RootOutputTree.h // used by ROOT output modules
 #include <vector>
 
 #include "boost/shared_ptr.hpp"
-#include "boost/utility.hpp"
 
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Utilities/interface/BranchType.h"
@@ -23,7 +22,7 @@ class TBranch;
 
 namespace edm {
   class WrapperInterfaceBase;
-  class RootOutputTree : private boost::noncopyable {
+  class RootOutputTree {
   public:
     RootOutputTree(boost::shared_ptr<TFile> filePtr,
                    BranchType const& branchType,
@@ -31,6 +30,9 @@ namespace edm {
                    int treeMaxVirtualSize);
 
     ~RootOutputTree() {}
+
+    RootOutputTree(RootOutputTree const&) = delete; // Disallow copying and moving
+    RootOutputTree& operator=(RootOutputTree const&) = delete; // Disallow copying and moving
 
     template <typename T>
     void
