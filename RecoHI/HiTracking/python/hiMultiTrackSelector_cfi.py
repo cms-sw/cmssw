@@ -33,6 +33,7 @@ hiLooseMTS = cms.PSet(
     minNumberLayers = cms.uint32(0),
     minNumber3DLayers = cms.uint32(0),
     maxNumberLostLayers = cms.uint32(999),
+    minHitsToBypassChecks = cms.uint32(20),
 
     # Absolute cuts in case of no PV. If yes, please define also max_d0NoPV and max_z0NoPV
     applyAbsCutsIfNoPV = cms.bool(False),
