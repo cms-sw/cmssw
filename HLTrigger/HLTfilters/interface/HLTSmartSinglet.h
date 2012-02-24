@@ -10,8 +10,8 @@
  *  variables relating to both the base class T and the derived actual
  *  class
  *
- *  $Date: 2012/02/01 14:30:01 $
- *  $Revision: 1.9 $
+ *  $Date: 2012/02/23 12:21:51 $
+ *  $Revision: 1.10 $
  *
  *  \author Martin Grunewald
  *
@@ -28,7 +28,7 @@
 // class declaration
 //
 
-template<typename T, int Tid>
+template<typename T>
 class HLTSmartSinglet : public HLTFilter {
 
    public:

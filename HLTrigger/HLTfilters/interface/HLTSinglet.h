@@ -8,8 +8,8 @@
  *  trigger for single objects of the same physics type, cutting on
  *  variables relating to their 4-momentum representation
  *
- *  $Date: 2012/02/01 14:30:01 $
- *  $Revision: 1.7 $
+ *  $Date: 2012/02/23 12:21:51 $
+ *  $Revision: 1.8 $
  *
  *  \author Martin Grunewald
  *
@@ -24,7 +24,7 @@
 // class declaration
 //
 
-template<typename T, int Tid>
+template<typename T>
 class HLTSinglet : public HLTFilter {
 
    public:
@@ -35,12 +35,13 @@ class HLTSinglet : public HLTFilter {
 
    private:
       edm::InputTag inputTag_;  // input tag identifying product
-      int    triggerType_ ;     // triggerType
+      int    triggerType_ ;     // triggerType configured
       double min_E_;            // energy threshold in GeV 
       double min_Pt_;           // pt threshold in GeV 
       double min_Mass_;         // mass threshold in GeV 
       double max_Eta_;          // eta range (symmetric)
       int    min_N_;            // number of objects passing cuts required
+      int    tid_;              // actual triggerType
 };
 
 #endif // HLTSinglet_h

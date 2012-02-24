@@ -43,51 +43,51 @@ using namespace trigger;
 #include "HLTrigger/HLTfilters/src/HLTSinglet.cc"
 
 // filter for HLT candidates
-typedef HLTSinglet<RecoEcalCandidate   ,TriggerPhoton  > HLT1Photon   ;
-typedef HLTSinglet<Electron            ,TriggerElectron> HLT1Electron ;
-typedef HLTSinglet<RecoChargedCandidate,TriggerMuon    > HLT1Muon     ;
-typedef HLTSinglet<CaloJet             ,TriggerTau     > HLT1Tau      ;
-typedef HLTSinglet<CaloJet             ,TriggerJet     > HLT1CaloJet  ;
-typedef HLTSinglet<CaloJet             ,TriggerBJet    > HLT1CaloBJet ;
-typedef HLTSinglet<CompositeCandidate  ,0              > HLT1Composite;
-typedef HLTSinglet<CaloMET             ,TriggerMET     > HLT1CaloMET  ;
-typedef HLTSinglet<MET                 ,TriggerMET     > HLT1MET      ;
-typedef HLTSinglet<RecoChargedCandidate,TriggerTrack   > HLT1Track    ;
-typedef HLTSinglet<RecoEcalCandidate   ,TriggerCluster > HLT1Cluster  ;
-typedef HLTSinglet<PFTau               ,TriggerTau     > HLT1PFTau    ;
-typedef HLTSinglet<PFJet               ,TriggerJet     > HLT1PFJet    ;
-typedef HLTSinglet<PFJet               ,TriggerBJet    > HLT1PFBJet   ;
+typedef HLTSinglet<RecoEcalCandidate   > HLT1Photon   ;
+typedef HLTSinglet<Electron            > HLT1Electron ;
+typedef HLTSinglet<RecoChargedCandidate> HLT1Muon     ;
+typedef HLTSinglet<CaloJet             > HLT1Tau      ;
+typedef HLTSinglet<CaloJet             > HLT1CaloJet  ;
+typedef HLTSinglet<CaloJet             > HLT1CaloBJet ;
+typedef HLTSinglet<CompositeCandidate  > HLT1Composite;
+typedef HLTSinglet<CaloMET             > HLT1CaloMET  ;
+typedef HLTSinglet<MET                 > HLT1MET      ;
+typedef HLTSinglet<RecoChargedCandidate> HLT1Track    ;
+typedef HLTSinglet<RecoEcalCandidate   > HLT1Cluster  ;
+typedef HLTSinglet<PFTau               > HLT1PFTau    ;
+typedef HLTSinglet<PFJet               > HLT1PFJet    ;
+typedef HLTSinglet<PFJet               > HLT1PFBJet   ;
 
 // filters for L1 candidates
-typedef HLTSinglet<l1extra::L1EmParticle    ,TriggerL1NoIsoEG> HLTLevel1EG;     // the actual type is ovrridden object-by-object (TriggerL1IsoEG or TriggerL1NoIsoEG)
-typedef HLTSinglet<l1extra::L1EtMissParticle,TriggerL1ETM>     HLTLevel1MET;    // the actual type is ovrridden object-by-object (TriggerL1ETM or TriggerL1HTM)
-typedef HLTSinglet<l1extra::L1JetParticle   ,TriggerJet>       HLTLevel1Jet;    // the actual type is ovrridden object-by-object (TriggerL1CenJet, TriggerL1ForJet or TriggerL1TauJet)
-typedef HLTSinglet<l1extra::L1MuonParticle  ,TriggerMuon>      HLTLevel1Muon;   
+typedef HLTSinglet<l1extra::L1EmParticle    > HLTLevel1EG;     // the actual type is ovrridden object-by-object (TriggerL1IsoEG or TriggerL1NoIsoEG)
+typedef HLTSinglet<l1extra::L1EtMissParticle> HLTLevel1MET;    // the actual type is ovrridden object-by-object (TriggerL1ETM or TriggerL1HTM)
+typedef HLTSinglet<l1extra::L1JetParticle   > HLTLevel1Jet;    // the actual type is ovrridden object-by-object (TriggerL1CenJet, TriggerL1ForJet or TriggerL1TauJet)
+typedef HLTSinglet<l1extra::L1MuonParticle  > HLTLevel1Muon;   
 
 #include "HLTrigger/HLTfilters/interface/HLTSmartSinglet.h"
 #include "HLTrigger/HLTfilters/src/HLTSmartSinglet.cc"
 
-typedef HLTSmartSinglet<RecoEcalCandidate   ,TriggerPhoton  > HLT1SmartPhoton   ;
-typedef HLTSmartSinglet<Electron            ,TriggerElectron> HLT1SmartElectron ;
-typedef HLTSmartSinglet<RecoChargedCandidate,TriggerMuon    > HLT1SmartMuon     ;
-typedef HLTSmartSinglet<CaloJet             ,TriggerTau     > HLT1SmartTau      ;
-typedef HLTSmartSinglet<CaloJet             ,TriggerJet     > HLT1SmartCaloJet  ;
-typedef HLTSmartSinglet<CaloJet             ,TriggerBJet    > HLT1SmartCaloBJet ;
-typedef HLTSmartSinglet<CompositeCandidate  ,0              > HLT1SmartComposite;
-typedef HLTSmartSinglet<CaloMET             ,TriggerMET     > HLT1SmartCaloMET  ;
-typedef HLTSmartSinglet<MET                 ,TriggerMET     > HLT1SmartMET      ;
-typedef HLTSmartSinglet<RecoChargedCandidate,TriggerTrack   > HLT1SmartTrack    ;
-typedef HLTSmartSinglet<RecoEcalCandidate   ,TriggerCluster > HLT1SmartCluster  ;
-typedef HLTSmartSinglet<PFTau               ,TriggerTau     > HLT1SmartPFTau    ;
-typedef HLTSmartSinglet<PFJet               ,TriggerJet     > HLT1SmartPFJet    ;
-typedef HLTSmartSinglet<PFJet               ,TriggerBJet    > HLT1SmartPFBJet   ;
+typedef HLTSmartSinglet<RecoEcalCandidate   > HLT1SmartPhoton   ;
+typedef HLTSmartSinglet<Electron            > HLT1SmartElectron ;
+typedef HLTSmartSinglet<RecoChargedCandidate> HLT1SmartMuon     ;
+typedef HLTSmartSinglet<CaloJet             > HLT1SmartTau      ;
+typedef HLTSmartSinglet<CaloJet             > HLT1SmartCaloJet  ;
+typedef HLTSmartSinglet<CaloJet             > HLT1SmartCaloBJet ;
+typedef HLTSmartSinglet<CompositeCandidate  > HLT1SmartComposite;
+typedef HLTSmartSinglet<CaloMET             > HLT1SmartCaloMET  ;
+typedef HLTSmartSinglet<MET                 > HLT1SmartMET      ;
+typedef HLTSmartSinglet<RecoChargedCandidate> HLT1SmartTrack    ;
+typedef HLTSmartSinglet<RecoEcalCandidate   > HLT1SmartCluster  ;
+typedef HLTSmartSinglet<PFTau               > HLT1SmartPFTau    ;
+typedef HLTSmartSinglet<PFJet               > HLT1SmartPFJet    ;
+typedef HLTSmartSinglet<PFJet               > HLT1SmartPFBJet   ;
 
 
 #include "HLTrigger/HLTfilters/interface/HLTGlobalSums.h"
 #include "HLTrigger/HLTfilters/src/HLTGlobalSums.cc"
 
-typedef HLTGlobalSums<CaloMET,TriggerTET> HLTGlobalSumsCaloMET;
-typedef HLTGlobalSums<MET    ,TriggerTHT> HLTGlobalSumsMET    ;
+typedef HLTGlobalSums<CaloMET> HLTGlobalSumsCaloMET;
+typedef HLTGlobalSums<MET    > HLTGlobalSumsMET    ;
 
 
 #include "HLTrigger/HLTfilters/interface/HLTDoublet.h"

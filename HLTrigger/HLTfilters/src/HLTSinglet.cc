@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2012/02/01 14:30:01 $
- *  $Revision: 1.13 $
+ *  $Date: 2012/02/23 12:21:51 $
+ *  $Revision: 1.14 $
  *
  *  \author Martin Grunewald
  *
@@ -24,40 +24,40 @@
 #include <typeinfo>
 
 // extract the candidate type
-template<typename T, int Tid>
-trigger::TriggerObjectType getObjectType(const T &) {
-  return static_cast<trigger::TriggerObjectType>(Tid);
+template<typename T>
+int getObjectType(const T &) {
+  return 0;
 }
 
 // specialize for type l1extra::L1EmParticle
-template<int Tid>
-trigger::TriggerObjectType getObjectType(const l1extra::L1EmParticle & candidate) {
+template<typename T>
+int getObjectType(const l1extra::L1EmParticle & candidate) {
   switch (candidate.type()) {
     case l1extra::L1EmParticle::kIsolated:
       return trigger::TriggerL1IsoEG;
     case l1extra::L1EmParticle::kNonIsolated:
       return trigger::TriggerL1NoIsoEG;
     default:
-      return static_cast<trigger::TriggerObjectType>(Tid);
+      return 0;
   }
 }
 
 // specialize for type l1extra::L1EtMissParticle
-template<int Tid>
-trigger::TriggerObjectType getObjectType(const l1extra::L1EtMissParticle & candidate) {
+template<typename T>
+int getObjectType(const l1extra::L1EtMissParticle & candidate) {
   switch (candidate.type()) {
     case l1extra::L1EtMissParticle::kMET:
       return trigger::TriggerL1ETM;
     case l1extra::L1EtMissParticle::kMHT:
       return trigger::TriggerL1HTM;
     default:
-      return static_cast<trigger::TriggerObjectType>(Tid);
+      return 0;
   }
 }
 
 // specialize for type l1extra::L1JetParticle
-template<int Tid>
-trigger::TriggerObjectType getObjectType(const l1extra::L1JetParticle & candidate) {
+template<typename T>
+int getObjectType(const l1extra::L1JetParticle & candidate) {
   switch (candidate.type()) {
     case l1extra::L1JetParticle::kCentral:
       return trigger::TriggerL1CenJet;
@@ -66,7 +66,7 @@ trigger::TriggerObjectType getObjectType(const l1extra::L1JetParticle & candidat
     case l1extra::L1JetParticle::kTau:
       return trigger::TriggerL1TauJet;
     default:
-      return static_cast<trigger::TriggerObjectType>(Tid);
+      return 0;
   }
 }
 
@@ -74,15 +74,16 @@ trigger::TriggerObjectType getObjectType(const l1extra::L1JetParticle & candidat
 //
 // constructors and destructor
 //
-template<typename T, int Tid>
-HLTSinglet<T,Tid>::HLTSinglet(const edm::ParameterSet& iConfig) : HLTFilter(iConfig), 
+template<typename T>
+HLTSinglet<T>::HLTSinglet(const edm::ParameterSet& iConfig) : HLTFilter(iConfig), 
   inputTag_    (iConfig.template getParameter<edm::InputTag>("inputTag")),
   triggerType_ (iConfig.template getParameter<int>("triggerType")),
   min_E_    (iConfig.template getParameter<double>       ("MinE"    )),
   min_Pt_   (iConfig.template getParameter<double>       ("MinPt"   )),
   min_Mass_ (iConfig.template getParameter<double>       ("MinMass" )),
   max_Eta_  (iConfig.template getParameter<double>       ("MaxEta"  )),
-  min_N_    (iConfig.template getParameter<int>          ("MinN"    ))
+  min_N_    (iConfig.template getParameter<int>          ("MinN"    )),
+  tid_ (triggerType_)
 {
    LogDebug("") << "Input/ptcut/etacut/ncut : "
 		<< inputTag_.encode() << " "
@@ -90,24 +91,24 @@ HLTSinglet<T,Tid>::HLTSinglet(const edm::ParameterSet& iConfig) : HLTFilter(iCon
 		<< max_Eta_ << " " << min_N_ ;
 }
 
-template<typename T, int Tid>
-HLTSinglet<T,Tid>::~HLTSinglet()
+template<typename T>
+HLTSinglet<T>::~HLTSinglet()
 {
 }
 
-template<typename T, int Tid>
+template<typename T>
 void
-HLTSinglet<T,Tid>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+HLTSinglet<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputTag",edm::InputTag("hltCollection"));
-  desc.add<int>("triggerType",Tid);
+  desc.add<int>("triggerType",0);
   desc.add<double>("MinE",-1.0);
   desc.add<double>("MinPt",-1.0);
   desc.add<double>("MinMass",-1.0);
   desc.add<double>("MaxEta",-1.0);
   desc.add<int>("MinN",1);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTSinglet<T,Tid>).name()),desc);
+  descriptions.add(std::string("hlt")+std::string(typeid(HLTSinglet<T>).name()),desc);
 }
 
 //
@@ -115,9 +116,9 @@ HLTSinglet<T,Tid>::fillDescriptions(edm::ConfigurationDescriptions& descriptions
 //
 
 // ------------ method called to produce the data  ------------
-template<typename T, int Tid> 
+template<typename T> 
 bool
-HLTSinglet<T,Tid>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTSinglet<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
    using namespace std;
    using namespace edm;
@@ -152,7 +153,9 @@ HLTSinglet<T,Tid>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
 	  ( (max_Eta_ < 0.0) || (std::abs(i->eta()) <= max_Eta_) ) ) {
        n++;
        ref=TRef(objects,distance(objects->begin(),i));
-       filterproduct.addObject(getObjectType<T, Tid>(*i),ref);
+       tid_=getObjectType<T>(*i);
+       if (tid_==0) tid_=triggerType_;
+       filterproduct.addObject(tid_,ref);
      }
    }
 

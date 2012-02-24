@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2012/02/01 14:30:02 $
- *  $Revision: 1.11 $
+ *  $Date: 2012/02/23 12:21:51 $
+ *  $Revision: 1.12 $
  *
  *  \author Martin Grunewald
  *
@@ -24,8 +24,8 @@
 //
 // constructors and destructor
 //
-template<typename T, int Tid>
-HLTSmartSinglet<T,Tid>::HLTSmartSinglet(const edm::ParameterSet& iConfig) : HLTFilter(iConfig), 
+template<typename T>
+HLTSmartSinglet<T>::HLTSmartSinglet(const edm::ParameterSet& iConfig) : HLTFilter(iConfig), 
   inputTag_    (iConfig.template getParameter<edm::InputTag>("inputTag")),
   triggerType_ (iConfig.template getParameter<int>("triggerType")),
   cut_      (iConfig.template getParameter<std::string>  ("cut"     )),
@@ -39,21 +39,21 @@ HLTSmartSinglet<T,Tid>::HLTSmartSinglet(const edm::ParameterSet& iConfig) : HLTF
 	       << min_N_ ;
 }
 
-template<typename T, int Tid>
-HLTSmartSinglet<T,Tid>::~HLTSmartSinglet()
+template<typename T>
+HLTSmartSinglet<T>::~HLTSmartSinglet()
 {
 }
 
-template<typename T, int Tid> 
+template<typename T> 
 void
-HLTSmartSinglet<T,Tid>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+HLTSmartSinglet<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputTag",edm::InputTag("hltCollection"));
-  desc.add<int>("triggerType",Tid);
+  desc.add<int>("triggerType",0);
   desc.add<std::string>("cut","1>0");
   desc.add<int>("MinN",1);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTSmartSinglet<T,Tid>).name()),desc);
+  descriptions.add(std::string("hlt")+std::string(typeid(HLTSmartSinglet<T>).name()),desc);
 }
 
 //
@@ -61,9 +61,9 @@ HLTSmartSinglet<T,Tid>::fillDescriptions(edm::ConfigurationDescriptions& descrip
 //
 
 // ------------ method called to produce the data  ------------
-template<typename T, int Tid> 
+template<typename T> 
 bool
-HLTSmartSinglet<T,Tid>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTSmartSinglet<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
    using namespace std;
    using namespace edm;

@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2012/01/21 14:56:59 $
- *  $Revision: 1.13 $
+ *  $Date: 2012/02/23 12:21:51 $
+ *  $Revision: 1.14 $
  *
  *  \author Martin Grunewald
  *
@@ -24,8 +24,8 @@
 //
 // constructors and destructor
 //
-template<typename T, int Tid>
-HLTGlobalSums<T,Tid>::HLTGlobalSums(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
+template<typename T>
+HLTGlobalSums<T>::HLTGlobalSums(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
   inputTag_   (iConfig.template getParameter<edm::InputTag>("inputTag")),
   triggerType_(iConfig.template getParameter<int>("triggerType")),
   observable_ (iConfig.template getParameter<std::string>("observable")),
@@ -49,7 +49,7 @@ HLTGlobalSums<T,Tid>::HLTGlobalSums(const edm::ParameterSet& iConfig) : HLTFilte
      } else if (triggerType_==trigger::TriggerTHT) {
        tid_=trigger::TriggerMHTSig;
      } else {
-       tid_=Tid;
+       tid_=triggerType_;
      }
    } else if (observable_=="e_longitudinal") {
      if (triggerType_==trigger::TriggerTET) {
@@ -64,23 +64,23 @@ HLTGlobalSums<T,Tid>::HLTGlobalSums(const edm::ParameterSet& iConfig) : HLTFilte
    }
 }
 
-template<typename T, int Tid>
-HLTGlobalSums<T,Tid>::~HLTGlobalSums()
+template<typename T>
+HLTGlobalSums<T>::~HLTGlobalSums()
 {
 }
 
-template<typename T, int Tid>
+template<typename T>
 void
-HLTGlobalSums<T,Tid>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+HLTGlobalSums<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputTag",edm::InputTag("hltCollection"));
-  desc.add<int>("triggerType",Tid);
+  desc.add<int>("triggerType",0);
   desc.add<std::string>("observable","");
   desc.add<double>("Min",-1e125);
   desc.add<double>("Max",+1e125);
   desc.add<int>("MinN",1);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTGlobalSums<T,Tid>).name()),desc);
+  descriptions.add(std::string("hlt")+std::string(typeid(HLTGlobalSums<T>).name()),desc);
 }
 
 //
@@ -88,9 +88,9 @@ HLTGlobalSums<T,Tid>::fillDescriptions(edm::ConfigurationDescriptions& descripti
 //
 
 // ------------ method called to produce the data  ------------
-template<typename T, int Tid> 
+template<typename T> 
 bool
-HLTGlobalSums<T,Tid>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTGlobalSums<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
    using namespace std;
    using namespace edm;
