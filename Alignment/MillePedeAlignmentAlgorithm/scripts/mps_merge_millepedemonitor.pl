@@ -12,18 +12,18 @@ $path =~ s/\/$//;
 if(!defined $ARGV[0] || !defined $ARGV[1])
   {
     print "The location of the mps.db file and the path to the jobData directory has to be provided.\n";
-    exit(-1);
+    exit 0;
   }
 
 unless(-e "$db")
   {
     print "Could not find mps.db file: $db\n";
-    exit(-1);
+    exit 0;
   }
 unless(-d "$path")
   {
     print "Could not find jobData/ directory: $path\n";
-    exit(-1);
+    exit 0;
   }
 
 open IN, "< $db" || die "error when opening mps.db file: $!";
@@ -48,7 +48,7 @@ foreach (@adb)
     if($nrow != 13)
       {
         print "There seems to be a problem reading the file mps.db. The number of fields per row is $nrow but it should be equal to 13.\n";
-        exit(-1);
+        exit 0;
       }
     next if(!defined $row[0] || !defined $row[1]);
     next if($row[0] =~ /\D/g);
@@ -78,7 +78,7 @@ for(my $i = 1; $i<= $lastid; $i++)
     if(!$found)
       {
         print "Problem parsing the mps.db file. Could not find job $i.\n";
-        exit(-1);
+        exit 0;
       }
     else
       {
@@ -96,7 +96,7 @@ for(my $i = 1; $i<= $lastid; $i++)
         if($foundfile1 && $foundfile2)
           {
             print "Both files were found. This should never happen: $filename1 and $filename2\n";
-            exit(-1);
+            exit 0;
           }
         if(!$foundfile1 && !$foundfile2)
           {
