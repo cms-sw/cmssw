@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_1_0/GRun/V95 (CMSSW_5_2_0_pre5_HLT8)
+# /dev/CMSSW_5_1_0/GRun/V96 (CMSSW_5_2_0_pre5_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V95')
+  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V96')
 )
 
 process.streams = cms.PSet( 
@@ -13822,7 +13822,7 @@ process.hltEG18CaloId10ClusterShapeFilterUnseeded = cms.EDFilter( "HLTEgammaGene
     thrOverE2EE = cms.double( -1.0 )
 )
 process.hltActivityPhotonEcalIsol = cms.EDProducer( "EgammaHLTEcalRecIsolationProducer",
-    etMinEndcap = cms.double( 0.1 ),
+    etMinEndcap = cms.double( 0.11 ),
     tryBoth = cms.bool( True ),
     ecalBarrelRecHitProducer = cms.InputTag( "hltEcalRecHitAll" ),
     rhoMax = cms.double( 9.9999999E7 ),
@@ -13835,7 +13835,7 @@ process.hltActivityPhotonEcalIsol = cms.EDProducer( "EgammaHLTEcalRecIsolationPr
     useIsolEt = cms.bool( True ),
     ecalBarrelRecHitCollection = cms.InputTag( "EcalRecHitsEB" ),
     recoEcalCandidateProducer = cms.InputTag( "hltRecoEcalSuperClusterActivityCandidate" ),
-    eMinBarrel = cms.double( 0.08 ),
+    eMinBarrel = cms.double( 0.095 ),
     effectiveAreaEndcap = cms.double( 0.046 ),
     ecalEndcapRecHitProducer = cms.InputTag( "hltEcalRecHitAll" ),
     extRadius = cms.double( 0.3 ),
@@ -14047,7 +14047,7 @@ process.hltEG26CaloId10ClusterShapeFilter = cms.EDFilter( "HLTEgammaGenericFilte
     thrOverE2EE = cms.double( -1.0 )
 )
 process.hltL1SeededPhotonEcalIsol = cms.EDProducer( "EgammaHLTEcalRecIsolationProducer",
-    etMinEndcap = cms.double( 0.1 ),
+    etMinEndcap = cms.double( 0.11 ),
     tryBoth = cms.bool( True ),
     ecalBarrelRecHitProducer = cms.InputTag( "hltEcalRegionalEgammaRecHit" ),
     rhoMax = cms.double( 9.9999999E7 ),
@@ -14060,7 +14060,7 @@ process.hltL1SeededPhotonEcalIsol = cms.EDProducer( "EgammaHLTEcalRecIsolationPr
     useIsolEt = cms.bool( True ),
     ecalBarrelRecHitCollection = cms.InputTag( "EcalRecHitsEB" ),
     recoEcalCandidateProducer = cms.InputTag( "hltL1SeededRecoEcalCandidate" ),
-    eMinBarrel = cms.double( 0.08 ),
+    eMinBarrel = cms.double( 0.095 ),
     effectiveAreaEndcap = cms.double( 0.046 ),
     ecalEndcapRecHitProducer = cms.InputTag( "hltEcalRegionalEgammaRecHit" ),
     extRadius = cms.double( 0.3 ),
@@ -19544,6 +19544,7 @@ process.hltOverlapFilterMu18LooseIsoPFTau20 = cms.EDFilter( "HLT2MuonPFTau",
     MinMinv = cms.double( 0.0 ),
     originTag2 = cms.InputTag( "hltOriginal2" ),
     MinDelR = cms.double( 0.3 ),
+    MinPt = cms.double( 1.0 ),
     MinN = cms.int32( 1 ),
     originTag1 = cms.InputTag( "hltOriginal1" ),
     triggerType1 = cms.int32( 83 ),
@@ -19555,6 +19556,7 @@ process.hltOverlapFilterMu18LooseIsoPFTau20 = cms.EDFilter( "HLT2MuonPFTau",
     inputTag2 = cms.InputTag( "hltPFTau20TrackLooseIso" ),
     MaxDphi = cms.double( -1.0 ),
     MaxDeta = cms.double( -1.0 ),
+    MaxPt = cms.double( -1.0 ),
     MinDphi = cms.double( 0.0 )
 )
 process.hltPreIsoMu18eta2p1LooseIsoPFTau20 = cms.EDFilter( "HLTPrescaler",
@@ -19601,6 +19603,7 @@ process.hltOverlapFilterIsoMu18LooseIsoPFTau20 = cms.EDFilter( "HLT2MuonPFTau",
     MinMinv = cms.double( 0.0 ),
     originTag2 = cms.InputTag( "hltOriginal2" ),
     MinDelR = cms.double( 0.3 ),
+    MinPt = cms.double( 1.0 ),
     MinN = cms.int32( 1 ),
     originTag1 = cms.InputTag( "hltOriginal1" ),
     triggerType1 = cms.int32( 83 ),
@@ -19612,6 +19615,7 @@ process.hltOverlapFilterIsoMu18LooseIsoPFTau20 = cms.EDFilter( "HLT2MuonPFTau",
     inputTag2 = cms.InputTag( "hltPFTau20TrackLooseIso" ),
     MaxDphi = cms.double( -1.0 ),
     MaxDeta = cms.double( -1.0 ),
+    MaxPt = cms.double( -1.0 ),
     MinDphi = cms.double( 0.0 )
 )
 process.hltL1sL1SingleEG18erJetCCen28Tau20dPhi1 = cms.EDFilter( "HLTLevel1GTSeed",
@@ -19674,7 +19678,7 @@ process.hltEle20CaloIdVTL1JetClusterShapeFilter = cms.EDFilter( "HLTEgammaGeneri
     thrOverE2EE = cms.double( -1.0 )
 )
 process.hltL1SeededPhotonEcalIsolRhoCorr = cms.EDProducer( "EgammaHLTEcalRecIsolationProducer",
-    etMinEndcap = cms.double( 0.1 ),
+    etMinEndcap = cms.double( 0.11 ),
     tryBoth = cms.bool( True ),
     ecalBarrelRecHitProducer = cms.InputTag( "hltEcalRegionalEgammaRecHit" ),
     rhoMax = cms.double( 9.9999999E7 ),
@@ -19687,7 +19691,7 @@ process.hltL1SeededPhotonEcalIsolRhoCorr = cms.EDProducer( "EgammaHLTEcalRecIsol
     useIsolEt = cms.bool( True ),
     ecalBarrelRecHitCollection = cms.InputTag( "EcalRecHitsEB" ),
     recoEcalCandidateProducer = cms.InputTag( "hltL1SeededRecoEcalCandidate" ),
-    eMinBarrel = cms.double( 0.08 ),
+    eMinBarrel = cms.double( 0.095 ),
     effectiveAreaEndcap = cms.double( 0.115 ),
     ecalEndcapRecHitProducer = cms.InputTag( "hltEcalRegionalEgammaRecHit" ),
     extRadius = cms.double( 0.3 ),
@@ -19847,6 +19851,7 @@ process.hltOverlapFilterIsoEle18CaloJet5L1Jet = cms.EDFilter( "HLT2ElectronTau",
     MinMinv = cms.double( 0.0 ),
     originTag2 = cms.InputTag( "hltOriginal2" ),
     MinDelR = cms.double( 0.3 ),
+    MinPt = cms.double( 1.0 ),
     MinN = cms.int32( 1 ),
     originTag1 = cms.InputTag( "hltOriginal1" ),
     triggerType1 = cms.int32( 82 ),
@@ -19858,6 +19863,7 @@ process.hltOverlapFilterIsoEle18CaloJet5L1Jet = cms.EDFilter( "HLT2ElectronTau",
     inputTag2 = cms.InputTag( "hltTauJet5" ),
     MaxDphi = cms.double( 9999.0 ),
     MaxDeta = cms.double( 9999.0 ),
+    MaxPt = cms.double( -1.0 ),
     MinDphi = cms.double( 0.0 )
 )
 process.hltIsoElePFTauL1JetVertexFinder = cms.EDFilter( "PFTauVertexSelector",
@@ -19918,7 +19924,9 @@ process.hltOverlapFilterIsoEle20LooseIsoPFTau20L1Jet = cms.EDFilter( "HLT2Electr
     inputTag2 = cms.InputTag( "hltL1MatchedLooseIsoPFTau20" ),
     MaxDphi = cms.double( -1.0 ),
     MaxDeta = cms.double( -1.0 ),
-    MinDphi = cms.double( 0.0 )
+    MinDphi = cms.double( 0.0 ),
+    MinPt = cms.double( 1.0 ),
+    MaxPt = cms.double( -1.0 )
 )
 process.hltPreEle20CaloIdVTTrkIdTLooseIsoPFTau20 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -20002,6 +20010,7 @@ process.hltOverlapFilterEle18CaloJet5 = cms.EDFilter( "HLT2ElectronTau",
     MinMinv = cms.double( 0.0 ),
     originTag2 = cms.InputTag( "hltOriginal2" ),
     MinDelR = cms.double( 0.3 ),
+    MinPt = cms.double( 1.0 ),
     MinN = cms.int32( 1 ),
     originTag1 = cms.InputTag( "hltOriginal1" ),
     triggerType1 = cms.int32( 82 ),
@@ -20013,6 +20022,7 @@ process.hltOverlapFilterEle18CaloJet5 = cms.EDFilter( "HLT2ElectronTau",
     inputTag2 = cms.InputTag( "hltTauJet5" ),
     MaxDphi = cms.double( 9999.0 ),
     MaxDeta = cms.double( 9999.0 ),
+    MaxPt = cms.double( -1.0 ),
     MinDphi = cms.double( 0.0 )
 )
 process.hltElePFTauVertexFinder = cms.EDFilter( "PFTauVertexSelector",
@@ -20058,7 +20068,9 @@ process.hltOverlapFilterEle20LooseIsoPFTau20L1Jet = cms.EDFilter( "HLT2ElectronP
     inputTag2 = cms.InputTag( "hltL1MatchedLooseIsoPFTau20" ),
     MaxDphi = cms.double( -1.0 ),
     MaxDeta = cms.double( -1.0 ),
-    MinDphi = cms.double( 0.0 )
+    MinDphi = cms.double( 0.0 ),
+    MinPt = cms.double( 1.0 ),
+    MaxPt = cms.double( -1.0 )
 )
 process.hltL1sL1SingleIsoEG18erOREG20 = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( True ),
@@ -20250,6 +20262,7 @@ process.hltOverlapFilterIsoEle18CaloJet5 = cms.EDFilter( "HLT2ElectronTau",
     MinMinv = cms.double( 0.0 ),
     originTag2 = cms.InputTag( "hltOriginal2" ),
     MinDelR = cms.double( 0.3 ),
+    MinPt = cms.double( 1.0 ),
     MinN = cms.int32( 1 ),
     originTag1 = cms.InputTag( "hltOriginal1" ),
     triggerType1 = cms.int32( 82 ),
@@ -20261,6 +20274,7 @@ process.hltOverlapFilterIsoEle18CaloJet5 = cms.EDFilter( "HLT2ElectronTau",
     inputTag2 = cms.InputTag( "hltTauJet5" ),
     MaxDphi = cms.double( 9999.0 ),
     MaxDeta = cms.double( 9999.0 ),
+    MaxPt = cms.double( -1.0 ),
     MinDphi = cms.double( 0.0 )
 )
 process.hltIsoElePFTauVertexFinder = cms.EDFilter( "PFTauVertexSelector",
@@ -20306,7 +20320,9 @@ process.hltOverlapFilterIsoEle20LooseIsoPFTau20 = cms.EDFilter( "HLT2ElectronPFT
     inputTag2 = cms.InputTag( "hltPFTau20TrackLooseIso" ),
     MaxDphi = cms.double( -1.0 ),
     MaxDeta = cms.double( -1.0 ),
-    MinDphi = cms.double( 0.0 )
+    MinDphi = cms.double( 0.0 ),
+    MinPt = cms.double( 1.0 ),
+    MaxPt = cms.double( -1.0 )
 )
 process.hltL1sL1SingleEG18er = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( True ),
