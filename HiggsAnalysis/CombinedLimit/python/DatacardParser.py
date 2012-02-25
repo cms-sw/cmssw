@@ -14,6 +14,8 @@ class Datacard():
         self.flatParamNuisances = {}
 
 def parseCard(file, options):
+    if type(file) == type("str"):
+        raise RuntimeError, "You should pass as argument to parseCards a file object, stream or a list of lines, not a string"
     ret = Datacard()
     #
     nbins      = -1; 
