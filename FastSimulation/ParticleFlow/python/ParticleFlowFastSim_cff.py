@@ -13,7 +13,9 @@ from RecoParticleFlow.PFTracking.trackerDrivenElectronSeeds_cff import *
 from RecoParticleFlow.PFTracking.mergedElectronSeeds_cfi import *
 from FastSimulation.ParticleFlow.FSparticleFlow_cfi import *
 from RecoParticleFlow.PFProducer.pfLinker_cff import *
-from RecoParticleFlow.PFProducer.pfGsfElectronCiCSelector_cff import *
+# the following is replaced by the mva-based 
+#from RecoParticleFlow.PFProducer.pfGsfElectronCiCSelector_cff import *
+from RecoParticleFlow.PFProducer.pfGsfElectronMVASelector_cff import *
 
 particleFlowSimParticle.sim = 'famosSimHits'
 
@@ -45,7 +47,8 @@ famosParticleFlowSequence = cms.Sequence(
     caloTowersRec+
 #    pfTrackElec+
     particleFlowTrackWithDisplacedVertex+
-    pfGsfElectronCiCSelectionSequence+
+#    pfGsfElectronCiCSelectionSequence+
+    pfGsfElectronMVASelectionSequence+
     particleFlowBlock+
     particleFlowTmp+
     FSparticleFlow+
