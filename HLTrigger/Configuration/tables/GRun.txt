@@ -130,37 +130,37 @@ HLT_L2Mu30_NoVertex_NoBPTX3BX_NoHalo_v*			#sr126302
 #HLT_Mu12_RsqMR30_Rsq0p04_MR200_v*					#sr126304, still to get integrated
 #HLT_Mu12_RsqMR40_Rsq0p04_MR200_v*					#sr126304, still to get integrated
 #HLT_Mu12_DoubleCentralJet65_v*					#sr126304, still to get integrated
-#HLT_Ele12_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_RsqMR30_Rsq0p04_MR200_v*					#sr126304, still to get integrated
-#HLT_Ele12_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_RsqMR40_Rsq0p04_MR200_v*					#sr126304, still to get integrated
-#HLT_Ele12_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_DoubleCentralJet65_v*					#sr126304, still to get integrated
-#HLT_Photon40_CaloIdL_RsqMR35_Rsq0p09_MR150_v*					#sr126304, still to get integrated
-#HLT_Photon40_CaloIdL_RsqMR40_Rsq0p09_MR150_v*					#sr126304, still to get integrated
-#HLT_DoublePhoton40_CaloIdL_Rsq0p035_v*					#sr126304, still to get integrated
-#HLT_DoublePhoton40_CaloIdL_Rsq0p06_v*					#sr126304, still to get integrated
-#HLT_Mu22_Photon22_CaloIdL_v*					#sr126304, still to get integrated
-#HLT_DoubleMu5_Ele8_CaloIdT_TrkIdVL_v*					#sr126304, still to get integrated
-#HLT_DoubleMu5_Ele8_CaloIdT_TrkIdT_v*						#sr126304, still to get integrated
-#HLT_Mu8_DoubleEle8_CaloIdT_TrkIdVL_v*						#sr126304, still to get integrated
-#HLT_Mu8_Ele8_CaloIdT_TrkIdVL_Ele8_CaloIdL_TrkIdVL_v*				#sr126304, still to get integrated
-#HLT_DoubleMu14_Mass8_PFMHT40_v*						#sr126304, still to get integrated
-#HLT_DoubleMu14_Mass8_PFMHT50_v*						#sr126304, still to get integrated
-#HLT_DoubleEle14_CaloIdT_TrkIdVL_Mass8_PFMHT40_v*				#sr126304, still to get integrated
-#HLT_DoubleEle14_CaloIdT_TrkIdVL_Mass8_PFMHT50_v*				#sr126304, still to get integrated
-#HLT_Mu14_Ele14_CaloIdT_TrkIdVL_Mass8_PFMHT40_v*				#sr126304, still to get integrated
-#HLT_Mu14_Ele14_CaloIdT_TrkIdVL_Mass8_PFMHT50_v*				#sr126304, still to get integrated
-#HLT_PFHT350_PFMET100_v*							#sr126304, still to get integrated
-#HLT_PFHT400_PFMET100_v*							#sr126304, still to get integrated
-#HLT_CleanPFHT350_Ele5_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_PFMET45_v*		#sr126304, still to get integrated
-#HLT_CleanPFHT350_Ele5_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_PFMET50_v*		#sr126304, still to get integrated
-#HLT_CleanPFHT300_Ele15_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_PFMET45_v*		#sr126304, still to get integrated
-#HLT_CleanPFHT300_Ele15_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_PFMET50_v*		#sr126304, still to get integrated
-#HLT_CleanPFHT300_Ele40_CaloIdVT_TrkIdT_v*					#sr126304, still to get integrated
-#HLT_CleanPFHT300_Ele60_CaloIdVT_TrkIdT_v*					#sr126304, still to get integrated
-#HLT_Photon20_CaloIdVL_IsoL_v*					#sr126304, already in the menu
-#HLT_Photon30_CaloIdVL_IsoL_v*					#sr126304, already in the menu
-#HLT_Photon50_CaloIdVL_IsoL_v*					#sr126304, already in the menu
-#HLT_Photon75_CaloIdVL_IsoL_v*					#sr126304, already in the menu
-#HLT_Photon90_CaloIdVL_IsoL_v*					#sr126304, already in the menu
+#HLT_Ele12_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_RsqMR30_Rsq0p04_MR200_v*			#sr126304, still to get integrated
+#HLT_Ele12_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_RsqMR40_Rsq0p04_MR200_v*			#sr126304, still to get integrated
+#HLT_Ele12_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_DoubleCentralJet65_v*			#sr126304, still to get integrated
+#HLT_Photon40_CaloIdL_RsqMR35_Rsq0p09_MR150_v*						#sr126304, still to get integrated
+#HLT_Photon40_CaloIdL_RsqMR40_Rsq0p09_MR150_v*						#sr126304, still to get integrated
+#HLT_DoublePhoton40_CaloIdL_Rsq0p035_v*							#sr126304, still to get integrated
+#HLT_DoublePhoton40_CaloIdL_Rsq0p06_v*							#sr126304, still to get integrated
+#HLT_Mu22_Photon22_CaloIdL_v*								#sr126304, still to get integrated
+#HLT_DoubleMu5_Ele8_CaloIdT_TrkIdVL_v*							#sr126304, still to get integrated
+#HLT_DoubleMu5_Ele8_CaloIdT_TrkIdT_v*							#sr126304, still to get integrated
+#HLT_Mu8_DoubleEle8_CaloIdT_TrkIdVL_v*							#sr126304, still to get integrated
+#HLT_Mu8_Ele8_CaloIdT_TrkIdVL_Ele8_CaloIdL_TrkIdVL_v*					#sr126304, still to get integrated
+#HLT_DoubleMu14_Mass8_PFMHT40_v*							#sr126304, still to get integrated
+#HLT_DoubleMu14_Mass8_PFMHT50_v*							#sr126304, still to get integrated
+#HLT_DoubleEle14_CaloIdT_TrkIdVL_Mass8_PFMHT40_v*					#sr126304, still to get integrated
+#HLT_DoubleEle14_CaloIdT_TrkIdVL_Mass8_PFMHT50_v*					#sr126304, still to get integrated
+#HLT_Mu14_Ele14_CaloIdT_TrkIdVL_Mass8_PFMHT40_v*					#sr126304, still to get integrated
+#HLT_Mu14_Ele14_CaloIdT_TrkIdVL_Mass8_PFMHT50_v*					#sr126304, still to get integrated
+#HLT_PFHT350_PFMET100_v*								#sr126304, still to get integrated
+#HLT_PFHT400_PFMET100_v*								#sr126304, still to get integrated
+#HLT_CleanPFHT350_Ele5_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_PFMET45_v*			#sr126304, still to get integrated
+#HLT_CleanPFHT350_Ele5_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_PFMET50_v*			#sr126304, still to get integrated
+#HLT_CleanPFHT300_Ele15_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_PFMET45_v*			#sr126304, still to get integrated
+#HLT_CleanPFHT300_Ele15_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_PFMET50_v*			#sr126304, still to get integrated
+#HLT_CleanPFHT300_Ele40_CaloIdVT_TrkIdT_v*						#sr126304, still to get integrated
+#HLT_CleanPFHT300_Ele60_CaloIdVT_TrkIdT_v*						#sr126304, still to get integrated
+#HLT_Photon20_CaloIdVL_IsoL_v*								#sr126304, already in the menu
+#HLT_Photon30_CaloIdVL_IsoL_v*								#sr126304, already in the menu
+#HLT_Photon50_CaloIdVL_IsoL_v*								#sr126304, already in the menu
+#HLT_Photon75_CaloIdVL_IsoL_v*								#sr126304, already in the menu
+#HLT_Photon90_CaloIdVL_IsoL_v*								#sr126304, already in the menu
 
 
 HLT_IsoMu20_eta2p1_CentralPFJet80_v*							#sr126316
@@ -170,77 +170,77 @@ HLT_Ele27_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_HFT15_v*					#sr126316
 HLT_Ele23_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_HFT30_v*					#sr126316
 HLT_Ele22_CaloIdL_CaloIsoVL_v*								#sr126316
 
-HLT_Mu40_eta2p1_Track50_dEdx3p6_v* 				#sr126412
-HLT_Mu40_eta2p1_Track60_dEdx3p7_v* 				#sr126412
-HLT_MET80_Track50_dEdx3p6_v* 					#sr126412
-HLT_MET80_Track60_dEdx3p7_v* 					#sr126412
-HLT_MET80_v*							#sr126412
-#HLT_L1EG20_Track5_dEdx5p0_v* 					#sr126412, still to get integrated 
-#HLT_L1EG20_Track6_dEdx6p0_v* 					#sr126412, still to get integrated 
-#HLT_L1EG20_Track7_dEdx6p5_v* 					#sr126412, still to get integrated 
-#HLT_L2Mu70_eta2p1_PFMHT65_v* 					#sr126412, still to get integrated 
-#HLT_L2Mu80_eta2p1_PFMHT70_v* 					#sr126412, still to get integrated 
-#HLT_HT650_Track50_dEdx3p6_v* 					#sr126412, still to get integrated 
-#HLT_HT650_Track60_dEdx3p7_v* 					#sr126412, still to get integrated 
+HLT_Mu40_eta2p1_Track50_dEdx3p6_v*							#sr126412
+HLT_Mu40_eta2p1_Track60_dEdx3p7_v*							#sr126412
+HLT_MET80_Track50_dEdx3p6_v*								#sr126412
+HLT_MET80_Track60_dEdx3p7_v*								#sr126412
+HLT_MET80_v*										#sr126412
+#HLT_L1EG20_Track5_dEdx5p0_v*								#sr126412, still to get integrated 
+#HLT_L1EG20_Track6_dEdx6p0_v*								#sr126412, still to get integrated 
+#HLT_L1EG20_Track7_dEdx6p5_v*								#sr126412, still to get integrated 
+#HLT_L2Mu70_eta2p1_PFMHT65_v*								#sr126412, still to get integrated 
+#HLT_L2Mu80_eta2p1_PFMHT70_v*								#sr126412, still to get integrated 
+#HLT_HT650_Track50_dEdx3p6_v*								#sr126412, still to get integrated 
+#HLT_HT650_Track60_dEdx3p7_v*								#sr126412, still to get integrated 
 
-HLT_Ele27_WP80_CentralPFJet30_CentralPFJet25_PFMHT20_v*	#sr126441
-HLT_Ele27_WP80_PFJet30_PFJet25_Deta3_v*			#sr126441
-HLT_Ele27_WP80_CentralPFJet30_CentralPFJet25_v*		#sr126441
-HLT_IsoMu24_eta2p1_CentralPFJet30_CentralPFJet25_PFMHT20_v*	#sr126441
-HLT_IsoMu24_eta2p1_PFJet30_PFJet25_Deta3_v*			#sr126441
-HLT_IsoMu24_eta2p1_CentralPFJet30_CentralPFJet25_v*		#sr126441
-HLT_Mu24_eta2p1_CentralPFJet30_CentralPFJet25_v*		#sr126441
-HLT_Mu24_eta2p1_PFJet30_PFJet25_Deta3_v*			#sr126441
+HLT_Ele27_WP80_CentralPFJet30_CentralPFJet25_PFMHT20_v*					#sr126441
+HLT_Ele27_WP80_PFJet30_PFJet25_Deta3_v*							#sr126441
+HLT_Ele27_WP80_CentralPFJet30_CentralPFJet25_v*						#sr126441
+HLT_IsoMu24_eta2p1_CentralPFJet30_CentralPFJet25_PFMHT20_v*				#sr126441
+HLT_IsoMu24_eta2p1_PFJet30_PFJet25_Deta3_v*						#sr126441
+HLT_IsoMu24_eta2p1_CentralPFJet30_CentralPFJet25_v*					#sr126441
+HLT_Mu24_eta2p1_CentralPFJet30_CentralPFJet25_v*					#sr126441
+HLT_Mu24_eta2p1_PFJet30_PFJet25_Deta3_v*						#sr126441
 
 
-HLT_Dimuon3p5_SameSign_v*		#sr126442
-HLT_Tau2Mu_RegPixTrack_v*		#sr126442
-HLT_DoubleMu4_JpsiTk_Displaced_v*	#sr126442
-HLT_DoubleMu4_Jpsi_Displaced_v*		#sr126442
-HLT_DoubleMu4_Dimuon4_Bs_Barrel_v*	#sr126442
-HLT_DoubleMu4_Dimuon6_Bs_v*		#sr126442
-HLT_DoubleMu3p5_LowMass_Displaced_v*	#sr126442
-HLT_Dimuon0_Jpsi_NoVertexing_v*		#sr126442
-HLT_Dimuon5_Upsilon_v*			#sr126442
-HLT_Dimuon5_PsiPrime_v*			#sr126442
-HLT_Dimuon0_PsiPrime_v*			#sr126442
-HLT_Dimuon5_Jpsi_v*			#sr126442
-#HLT_Dimuon0_Jpsi_Muon_v*		#sr126442 - L1 seed problem
-#HLT_Dimuon0_Upsilon_Muon_v*		#sr126442 - L1 seed problem
-HLT_Mu5_L2Mu3_Jpsi_v*			#sr126442
-HLT_Mu5_Track3p5_Jpsi_v*		#sr126442
-HLT_Mu5_Track2_Jpsi_v*			#sr126442
-HLT_Dimuon0_Jpsi_v*			#sr126442
-HLT_Dimuon0_Upsilon_v*			#sr126442
-HLT_Dimuon8_Upsilon_v*			#sr126442
-HLT_Dimuon9_PsiPrime_v*			#sr126442
-HLT_Dimuon9_Jpsi_v*			#sr126442
+HLT_Dimuon3p5_SameSign_v*								#sr126442
+HLT_Tau2Mu_RegPixTrack_v*								#sr126442
+HLT_DoubleMu4_JpsiTk_Displaced_v*							#sr126442
+HLT_DoubleMu4_Jpsi_Displaced_v*								#sr126442
+HLT_DoubleMu4_Dimuon4_Bs_Barrel_v*							#sr126442
+HLT_DoubleMu4_Dimuon6_Bs_v*								#sr126442
+HLT_DoubleMu3p5_LowMass_Displaced_v*							#sr126442
+HLT_Dimuon0_Jpsi_NoVertexing_v*								#sr126442
+HLT_Dimuon5_Upsilon_v*									#sr126442
+HLT_Dimuon5_PsiPrime_v*									#sr126442
+HLT_Dimuon0_PsiPrime_v*									#sr126442
+HLT_Dimuon5_Jpsi_v*									#sr126442
+#HLT_Dimuon0_Jpsi_Muon_v*								#sr126442 - L1 seed problem
+#HLT_Dimuon0_Upsilon_Muon_v*								#sr126442 - L1 seed problem
+HLT_Mu5_L2Mu3_Jpsi_v*									#sr126442
+HLT_Mu5_Track3p5_Jpsi_v*								#sr126442
+HLT_Mu5_Track2_Jpsi_v*									#sr126442
+HLT_Dimuon0_Jpsi_v*									#sr126442
+HLT_Dimuon0_Upsilon_v*									#sr126442
+HLT_Dimuon8_Upsilon_v*									#sr126442
+HLT_Dimuon9_PsiPrime_v*									#sr126442
+HLT_Dimuon9_Jpsi_v*									#sr126442
 
-HLT_Mu18_eta2p1_LooseIsoPFTau20_v*					#sr126461
-HLT_IsoMu18_eta2p1_LooseIsoPFTau20_v*					#sr126461
-HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_LooseIsoPFTau20L1Jet_v*	#sr126461
-HLT_Ele20_CaloIdVT_TrkIdT_LooseIsoPFTau20_v*				#sr126461
-HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v*	#sr126461
-HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_v*			#sr126461
+HLT_Mu18_eta2p1_LooseIsoPFTau20_v*							#sr126461
+HLT_IsoMu18_eta2p1_LooseIsoPFTau20_v*							#sr126461
+HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_LooseIsoPFTau20L1Jet_v*			#sr126461
+HLT_Ele20_CaloIdVT_TrkIdT_LooseIsoPFTau20_v*						#sr126461
+HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v*			#sr126461
+HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_v*					#sr126461
 
-#HLT_QuadJet80_L1FastJet_v*			#sr126462, still to get integrated
-#HLT_SixJet45_L1FastJet_v*			#sr126462, still to get integrated
-#HLT_EightJet35_L1FastJet_v*			#sr126462, still to get integrated
-#HLT_HT750_v*					#sr126462, still to get integrated
-#HLT_EightJet40_L1FastJet_v*			#sr126462, still to get integrated
-#HLT_QuadJet70_L1FastJet_v*			#sr126462, still to get integrated
-#HLT_SixJet35_L1FastJet_v*			#sr126462, still to get integrated
-#HLT_QuadJet90_L1FastJet_v*			#sr126462, still to get integrated
-#HLT_SixJet50_L1FastJet_v*			#sr126462, still to get integrated
+HLT_QuadJet80_L1FastJet_v*								#sr126462
+HLT_SixJet45_L1FastJet_v*								#sr126462
+HLT_EightJet35_L1FastJet_v*								#sr126462
+HLT_HT750_v*										#sr126462
+HLT_EightJet40_L1FastJet_v*								#sr126462
+HLT_QuadJet70_L1FastJet_v*								#sr126462
+HLT_SixJet35_L1FastJet_v*								#sr126462
+HLT_QuadJet90_L1FastJet_v*								#sr126462
+HLT_SixJet50_L1FastJet_v*								#sr126462
 
-#HLT_LooseIsoPFTau35_Trk20_v*				#sr126469, still to get integrated
-#HLT_LooseIsoPFTau35_Trk20_MET70_v*			#sr126469, still to get integrated
-#HLT_LooseIsoPFTau35_Trk20_MET75_v*			#sr126469, still to get integrated
-#HLT_IsoMu15_eta2p1_LooseIsoPFTau35_Trk20_L1ETM20_v*	#sr126469, still to get integrated
-#HLT_DoubleLooseIsoPFTau45_Trk5_eta2p1_v*		#sr126469, still to get integrated
+#HLT_LooseIsoPFTau35_Trk20_v*								#sr126469, still to get integrated
+#HLT_LooseIsoPFTau35_Trk20_MET70_v*							#sr126469, still to get integrated
+#HLT_LooseIsoPFTau35_Trk20_MET75_v*							#sr126469, still to get integrated
+#HLT_IsoMu15_eta2p1_LooseIsoPFTau35_Trk20_L1ETM20_v*					#sr126469, still to get integrated
+#HLT_DoubleLooseIsoPFTau45_Trk5_eta2p1_v*						#sr126469, still to get integrated
 
-HLT_DiPFJet40L1FastJet_PFMHTWOM65_M800VBF_ALLJETS_v*		#sr126471, still to get integrated
-HLT_DiPFJet40L1FastJet_PFMHTWOM65_M600VBF_LEADINGJETS_v*	#sr126471, still to get integrated
+HLT_DiPFJet40L1FastJet_PFMHTWOM65_M800VBF_ALLJETS_v*					#sr126471
+HLT_DiPFJet40L1FastJet_PFMHTWOM65_M600VBF_LEADINGJETS_v*				#sr126471
 
 HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_v*					#sr126475
 HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass60_v*	#sr126475
@@ -257,7 +257,7 @@ HLT_Photon36_R9Id85_Photon22_R9Id85_v*							#sr126475
 HLT_Photon26_Photon18_v*								#sr126475
 HLT_Photon36_Photon22_v*								#sr126475
 HLT_Photon20_R9Id_Photon18_R9Id_v*							#sr126475
-#HLT_Photon26_CaloIdXL_IsoXL_Photon18_v*							#sr126475
+#HLT_Photon26_CaloIdXL_IsoXL_Photon18_v*							#sr126475  needs updated L1 seed
 HLT_Photon30_CaloIdVL_v*								#sr126475
 HLT_Photon50_CaloIdVL_v*								#sr126475
 HLT_Photon75_CaloIdVL_v*								#sr126475

@@ -1,4 +1,4 @@
-# /dev/CMSSW_5_1_0/GRun/V96
+# /dev/CMSSW_5_1_0/GRun/V97
 
 import FWCore.ParameterSet.Config as cms
 
@@ -100,7 +100,8 @@ streamA_datasetHT_selector.throw      = cms.bool(False)
 streamA_datasetHT_selector.triggerConditions = cms.vstring('HLT_HT250_L1FastJet_DoubleDisplacedPFJet60_ChgFraction10_v1', 
     'HLT_HT250_L1FastJet_DoubleDisplacedPFJet60_v1', 
     'HLT_HT250_L1FastJet_SingleDisplacedPFJet60_ChgFraction10_v1', 
-    'HLT_HT250_L1FastJet_SingleDisplacedPFJet60_v1')
+    'HLT_HT250_L1FastJet_SingleDisplacedPFJet60_v1', 
+    'HLT_HT750_v4')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHcalHPDNoise_selector
 streamA_datasetHcalHPDNoise_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -121,7 +122,6 @@ streamA_datasetJet_selector.triggerConditions = cms.vstring('HLT_DiPFJetAve140_v
     'HLT_DiPFJetAve400_v1', 
     'HLT_DiPFJetAve40_v1', 
     'HLT_DiPFJetAve80_v1', 
-    'HLT_MonoCentralPFJet80L1FastJet_PFMHTWOM95_NHEF95_v1', 
     'HLT_PFJet140_v1', 
     'HLT_PFJet200_v1', 
     'HLT_PFJet260_v1', 
@@ -140,7 +140,10 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetMET_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMET_selector.l1tResults = cms.InputTag('')
 streamA_datasetMET_selector.throw      = cms.bool(False)
-streamA_datasetMET_selector.triggerConditions = cms.vstring('HLT_IsoMu15_eta2p1_L1ETM20_v1', 
+streamA_datasetMET_selector.triggerConditions = cms.vstring('HLT_DiPFJet40L1FastJet_PFMHTWOM65_M600VBF_LEADINGJETS_v1', 
+    'HLT_DiPFJet40L1FastJet_PFMHTWOM65_M800VBF_ALLJETS_v1', 
+    'HLT_IsoMu15_eta2p1_L1ETM20_v1', 
+    'HLT_MonoCentralPFJet80L1FastJet_PFMHTWOM95_NHEF95_v1', 
     'HLT_Mu15_eta2p1_L1ETM20_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMinimumBias_selector
@@ -212,14 +215,20 @@ streamA_datasetMultiJet_selector.l1tResults = cms.InputTag('')
 streamA_datasetMultiJet_selector.throw      = cms.bool(False)
 streamA_datasetMultiJet_selector.triggerConditions = cms.vstring('HLT_DiJet40Eta2p6_L1FastJet_BTagIP3D_v1', 
     'HLT_DiJet80Eta2p6_L1FastJet_BTagIP3DLoose_v1', 
-    'HLT_DiPFJet40L1FastJet_PFMHTWOM65_M600VBF_LEADINGJETS_v1', 
-    'HLT_DiPFJet40L1FastJet_PFMHTWOM65_M800VBF_ALLJETS_v1', 
+    'HLT_EightJet35_L1FastJet_v3', 
+    'HLT_EightJet40_L1FastJet_v3', 
     'HLT_ExclDiJet80_HFAND_v1', 
     'HLT_Jet160Eta2p4_Jet120Eta2p4_L1FastJet_DiBTagIP3DLoose_v1', 
     'HLT_Jet60Eta1p7_Jet53Eta1p7_L1FastJet_DiBTagIP3D_v1', 
     'HLT_Jet80Eta1p7_Jet70Eta1p7_L1FastJet_DiBTagIP3D_v1', 
     'HLT_L1DoubleJet36Central_v5', 
-    'HLT_QuadL1FastJet_BTagIP_VBF_v1')
+    'HLT_QuadJet70_L1FastJet_v1', 
+    'HLT_QuadJet80_L1FastJet_v3', 
+    'HLT_QuadJet90_L1FastJet_v1', 
+    'HLT_QuadL1FastJet_BTagIP_VBF_v1', 
+    'HLT_SixJet35_L1FastJet_v1', 
+    'HLT_SixJet45_L1FastJet_v3', 
+    'HLT_SixJet50_L1FastJet_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetPhoton_selector
 streamA_datasetPhoton_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
