@@ -89,7 +89,7 @@ HLTPFEnergyFractionsFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup&
     //PF information
     PFJetCollection::const_iterator i (recopfjets->begin());
     for(; i != recopfjets->end(); ++i ){
-      if(countJet>nJet_) break;
+      if(countJet>=nJet_) break;
       //
       if(i->chargedEmEnergyFraction()<min_CEEF_) accept = false;
       if(i->chargedEmEnergyFraction()>max_CEEF_) accept = false;
