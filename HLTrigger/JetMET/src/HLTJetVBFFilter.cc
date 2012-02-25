@@ -1,6 +1,6 @@
 /** \class HLTJetVBFFilter
  *
- * $Id: HLTJetVBFFilter.cc,v 1.15 2012/02/12 12:23:23 gruen Exp $
+ * $Id: HLTJetVBFFilter.cc,v 1.16 2012/02/13 15:51:25 srimanob Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -107,20 +107,25 @@ HLTJetVBFFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup,
     double etajet2 = 0.;
     
     // loop on all jets
+    int countJet1(0);
+    int countJet2(0);
     typename TCollection::const_iterator jet1 ( objects->begin() );
     for (; jet1!=objects->end(); jet1++) {
-      if( leadingJetOnly_==true  && jet1->pt()<minPtHigh_ ) break;
-      if( leadingJetOnly_==false && jet1->pt()<minPtHigh_ ) continue;
-      if( leadingJetOnly_==true  && maxEta_>=0.0 && std::abs(jet1->eta())>maxEta_ ) break;
-      if( leadingJetOnly_==false && maxEta_>=0.0 && std::abs(jet1->eta())>maxEta_ ) continue;
-
+      countJet1++;
+      if( leadingJetOnly_==true && countJet1>2) break;
+      //
+      if( jet1->pt()<minPtHigh_ ) continue;
+      if( std::abs(jet1->eta())>maxEta_ ) continue;      
+      //
+      countJet2 = countJet1-1;
       typename TCollection::const_iterator jet2 ( jet1+1 );
       for (; jet2!=objects->end(); jet2++) {
-        if( leadingJetOnly_==true  && jet2->pt() < minPtLow_ ) break;
-	if( leadingJetOnly_==false && jet2->pt() < minPtLow_ ) continue;
-	if( leadingJetOnly_==true  && maxEta_>=0.0 && std::abs(jet2->eta())>maxEta_ ) break;
-	if( leadingJetOnly_==false && maxEta_>=0.0 && std::abs(jet2->eta())>maxEta_ ) continue;
-        
+	countJet2++;
+	if( leadingJetOnly_==true && countJet2>2) break;
+	//
+        if( jet2->pt() < minPtLow_ ) break;
+	if( maxEta_>=0.0 && std::abs(jet2->eta())>maxEta_ ) break;
+	//
         ejet1   = jet1->energy();
         pxjet1  = jet1->px();
         pyjet1  = jet1->py();
@@ -134,7 +139,7 @@ HLTJetVBFFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup,
         pzjet2  = jet2->pz();
         ptjet2  = jet2->pt();
         etajet2 = jet2->eta();
-        
+        //
         float deltaetajet = etajet1 - etajet2;
         float invmassjet = sqrt( (ejet1  + ejet2)  * (ejet1  + ejet2) - 
       	                         (pxjet1 + pxjet2) * (pxjet1 + pxjet2) - 
@@ -154,10 +159,8 @@ HLTJetVBFFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup,
           filterproduct.addObject(triggerType_,ref2);
         }// VBF cuts
 	if(n>=1) break;
-	if( leadingJetOnly_==true ) break;
       }
       if(n>=1) break;
-      if( leadingJetOnly_==true ) break;
     }// loop on all jets 
   }// events with two or more jets
   
