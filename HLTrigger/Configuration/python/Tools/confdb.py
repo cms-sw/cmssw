@@ -76,7 +76,11 @@ class HLTProcess(object):
     "HLT_Tau2Mu_RegPixTrack_v*",
     "HLT_QuadL1FastJet_BTagIP_VBF_v*",
     "HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v*",
-  )
+    "HLT_MET120_HBHENoiseCleaned_v*",
+    "HLT_MET200_HBHENoiseCleaned_v*",
+    "HLT_MET300_HBHENoiseCleaned_v*",
+    "HLT_MET400_HBHENoiseCleaned_v*",
+    )
 
   def __init__(self, configuration):
     self.config = configuration
