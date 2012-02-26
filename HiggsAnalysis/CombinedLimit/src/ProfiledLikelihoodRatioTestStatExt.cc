@@ -342,7 +342,7 @@ double ProfiledLikelihoodTestStatOpt::minNLL(bool constrained, RooRealVar *r)
 {
     CascadeMinimizer::Mode mode(constrained ? CascadeMinimizer::Constrained : CascadeMinimizer::Unconstrained);
     CascadeMinimizer minim(*nll_, mode, r);
-    minim.minimize(verbosity_);
+    minim.minimize(verbosity_-2);
     return nll_->getVal();
 }
 
