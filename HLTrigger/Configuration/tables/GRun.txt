@@ -76,15 +76,15 @@ HLT_L2Mu20_NoVertex_NoBPTX3BX_NoHalo_v*			#sr126302
 HLT_L2Mu30_NoVertex_NoBPTX3BX_NoHalo_v*			#sr126302
 
 # SUSY list to be remade, because it keeps changing...
-#HLT_HT250_AlphaT0p55_v1					#sr126304, still to get integrated
-#HLT_HT300_AlphaT0p54_v1					#sr126304, still to get integrated
-#HLT_HT350_AlphaT0p53_v1					#sr126304, still to get integrated
-#HLT_HT400_AlphaT0p52_v1					#sr126304, still to get integrated
-#HLT_HT450_AlphaT0p51_v1					#sr126304, still to get integrated
-#HLT_HT300_AlphaT0p53_v1					#sr126304, still to get integrated
-#HLT_HT350_AlphaT0p52_v1					#sr126304, still to get integrated
-#HLT_HT400_AlphaT0p51_v1					#sr126304, still to get integrated
-#HLT_HT200_AlphaT0p57_v1					#sr126304, still to get integrated
+#HLT_HT250_AlphaT0p55_v*					#sr126304, still to get integrated
+#HLT_HT300_AlphaT0p54_v*					#sr126304, still to get integrated
+#HLT_HT350_AlphaT0p53_v*					#sr126304, still to get integrated
+#HLT_HT400_AlphaT0p52_v*					#sr126304, still to get integrated
+#HLT_HT450_AlphaT0p51_v*					#sr126304, still to get integrated
+#HLT_HT300_AlphaT0p53_v*					#sr126304, still to get integrated
+#HLT_HT350_AlphaT0p52_v*					#sr126304, still to get integrated
+#HLT_HT400_AlphaT0p51_v*					#sr126304, still to get integrated
+#HLT_HT200_AlphaT0p57_v*					#sr126304, still to get integrated
 #HLT_HT200_L1FastJet_v*					#sr126304, still to get integrated
 #HLT_HT250_L1FastJet_v*					#sr126304, still to get integrated
 #HLT_HT300_L1FastJet_v*					#sr126304, still to get integrated
@@ -156,6 +156,7 @@ HLT_L2Mu30_NoVertex_NoBPTX3BX_NoHalo_v*			#sr126302
 #HLT_CleanPFHT300_Ele15_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_PFMET50_v*			#sr126304, still to get integrated
 #HLT_CleanPFHT300_Ele40_CaloIdVT_TrkIdT_v*						#sr126304, still to get integrated
 #HLT_CleanPFHT300_Ele60_CaloIdVT_TrkIdT_v*						#sr126304, still to get integrated
+#HLT_Iso10Mu17_eta2p1_TriCentralPFJet30_v*						#sr126304, still to get integrated
 #HLT_Photon20_CaloIdVL_IsoL_v*								#sr126304, already in the menu
 #HLT_Photon30_CaloIdVL_IsoL_v*								#sr126304, already in the menu
 #HLT_Photon50_CaloIdVL_IsoL_v*								#sr126304, already in the menu
