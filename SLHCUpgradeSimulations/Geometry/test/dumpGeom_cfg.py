@@ -1,9 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DUMP")
-# Stole the basics from Fireworks/Geometry/python/
+# Stole the basics from Fireworks/Geometry/python/ 
 # This will create a geometry root file that cmsShow can read in.
-# Edit RecoFull_Fullsim_Phase1_cfg to keep everything you want to show
+# You will need to addpkg 'Fireworks/Geometry' and 'scram b'
+# You will need to copy cmsRecoGeom1.root into the Fireworks/Geometry/data/ directory for cmsShow to find it
+# Run RecoFull_Fullsim_Phase1_cfg to reconstruct the events that you want to show
 # cmsShow -g cmsRecoGeom1.root reco.root
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.PyReleaseValidation.autoCond import autoCond
