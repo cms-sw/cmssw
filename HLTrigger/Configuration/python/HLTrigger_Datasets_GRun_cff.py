@@ -1,4 +1,4 @@
-# /dev/CMSSW_5_1_0/GRun/V98
+# /dev/CMSSW_5_1_0/GRun/V100
 
 import FWCore.ParameterSet.Config as cms
 
@@ -143,8 +143,18 @@ streamA_datasetMET_selector.throw      = cms.bool(False)
 streamA_datasetMET_selector.triggerConditions = cms.vstring('HLT_DiPFJet40L1FastJet_PFMHTWOM65_M600VBF_LEADINGJETS_v1', 
     'HLT_DiPFJet40L1FastJet_PFMHTWOM65_M800VBF_ALLJETS_v1', 
     'HLT_IsoMu15_eta2p1_L1ETM20_v1', 
+    'HLT_MET120_HBHENoiseCleaned_v1', 
+    'HLT_MET120_v8', 
+    'HLT_MET200_HBHENoiseCleaned_v1', 
+    'HLT_MET200_v8', 
+    'HLT_MET300_HBHENoiseCleaned_v1', 
+    'HLT_MET300_v1', 
+    'HLT_MET400_HBHENoiseCleaned_v1', 
+    'HLT_MET400_v3', 
     'HLT_MonoCentralPFJet80L1FastJet_PFMHTWOM95_NHEF95_v1', 
-    'HLT_Mu15_eta2p1_L1ETM20_v1')
+    'HLT_Mu15_eta2p1_L1ETM20_v1', 
+    'HLT_PFMHT150_v18', 
+    'HLT_PFMHT180_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMinimumBias_selector
 streamA_datasetMinimumBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
