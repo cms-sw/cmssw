@@ -112,7 +112,7 @@ HLTPFEnergyFractionsFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup&
       countJet = 0; 
       PFJetCollection::const_iterator i (recopfjets->begin());
       for(; i != recopfjets->end(); ++i ){
-	if(countJet>nJet_) break;
+	if(countJet>=nJet_) break;
 	filterproduct.addObject(triggerType_,PFJetRef(recopfjets,distance(recopfjets->begin(),i)));
 	countJet++;
       }
