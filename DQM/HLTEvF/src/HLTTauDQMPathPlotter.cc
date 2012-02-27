@@ -97,7 +97,7 @@ void HLTTauDQMPathPlotter::analyze( const edm::Event& iEvent, const edm::EventSe
                 refLeptons.push_back(*lvi);
             }
         }
-        if ( filterObjs_.back().leptonId() == 11 && highPtElectrons < refNTriggeredLeptons_ ) leptons_ok = false;
+        if ( filterObjs_.size() > 0 && filterObjs_.back().leptonId() == 11 && highPtElectrons < refNTriggeredLeptons_ ) leptons_ok = false;
         
         //Muon reference
         iref = refC.find(13);
@@ -109,7 +109,7 @@ void HLTTauDQMPathPlotter::analyze( const edm::Event& iEvent, const edm::EventSe
                 refLeptons.push_back(*lvi);
             }
         }
-        if ( filterObjs_.back().leptonId() == 13 && highPtMuons < refNTriggeredLeptons_ ) leptons_ok = false;
+        if ( filterObjs_.size() > 0 && filterObjs_.back().leptonId() == 13 && highPtMuons < refNTriggeredLeptons_ ) leptons_ok = false;
         
         if ( tau_ok && leptons_ok ) {
             accepted_events_matched->Fill(0.5);
