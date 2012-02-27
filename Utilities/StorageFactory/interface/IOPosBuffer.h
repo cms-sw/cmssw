@@ -15,6 +15,10 @@ public:
   void *	data (void) const;
   IOSize	size (void) const;
 
+  void          set_offset (IOOffset new_offset);
+  void          set_data (void * new_buffer);
+  void          set_size (IOSize new_size);
+
 private:
   IOOffset	m_offset;	//< File offset.
   void		*m_data;	//< Data
@@ -59,5 +63,20 @@ IOPosBuffer::data (void) const
 inline IOSize
 IOPosBuffer::size (void) const
 { return m_length; }
+
+/** Update the file offset */
+inline void
+IOPosBuffer::set_offset(IOOffset new_offset)
+{ m_offset = new_offset; }
+
+/** Update the buffer's data area */
+inline void
+IOPosBuffer::set_data(void * new_data)
+{ m_data = new_data; }
+
+/** Update the buffer's size */
+inline void
+IOPosBuffer::set_size(IOSize new_length)
+{ m_length = new_length; }
 
 #endif // STORAGE_FACTORY_IO_POS_BUFFER_H
