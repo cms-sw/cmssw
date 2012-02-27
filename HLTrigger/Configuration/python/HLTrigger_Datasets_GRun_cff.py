@@ -1,4 +1,4 @@
-# /dev/CMSSW_5_1_0/GRun/V107
+# /dev/CMSSW_5_1_0/GRun/V108
 
 import FWCore.ParameterSet.Config as cms
 
@@ -73,10 +73,10 @@ streamA_datasetElectronHad_selector.triggerConditions = cms.vstring('HLT_DoubleE
     'HLT_Ele12_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_RsqMR40_Rsq0p04_MR200_v1', 
     'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFJet30_BTagIPIter_v1', 
     'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFJet30_v4', 
+    'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFJet50_Jet40_Jet30_v1', 
     'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_DiCentralPFJet30_v4', 
-    'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_QuadCentralPFJet30_v4', 
     'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TriCentralPFJet30_v4', 
-    'HLT_Ele25_CaloIdVT_TrkIdT_QuadCentralPFJet30_v4', 
+    'HLT_Ele25_CaloIdVT_TrkIdT_CentralPFJet50_Jet40_Jet30_v1', 
     'HLT_Ele25_CaloIdVT_TrkIdT_TriCentralPFJet30_v4', 
     'HLT_Ele27_WP80_CentralPFJet30_CentralPFJet25_PFMHT20_v1', 
     'HLT_Ele27_WP80_CentralPFJet30_CentralPFJet25_v1', 
@@ -239,8 +239,8 @@ streamA_datasetMuHad_selector.triggerConditions = cms.vstring('HLT_DoubleDisplac
     'HLT_Iso10Mu17_eta2p1_TriCentralPFJet30_v1', 
     'HLT_Iso10Mu20_eta2p1_CentralPFJet30_BTagIPIter_v1', 
     'HLT_Iso10Mu20_eta2p1_CentralPFJet30_v1', 
+    'HLT_Iso10Mu20_eta2p1_CentralPFJet50_Jet40_Jet30_v1', 
     'HLT_Iso10Mu20_eta2p1_DiCentralPFJet30_v1', 
-    'HLT_Iso10Mu20_eta2p1_QuadCentralPFJet30_v1', 
     'HLT_Iso10Mu20_eta2p1_TriCentralPFJet30_v1', 
     'HLT_IsoMu17_eta2p1_DiCentralPFJet30_PFHT350_PFMHT40_v1', 
     'HLT_IsoMu20_eta2p1_CentralPFJet80_v1', 
@@ -253,7 +253,8 @@ streamA_datasetMuHad_selector.triggerConditions = cms.vstring('HLT_DoubleDisplac
     'HLT_Mu12_RsqMR40_Rsq0p04_MR200_v1', 
     'HLT_Mu14_Ele14_CaloIdT_TrkIdVL_Mass8_PFMET40_v1', 
     'HLT_Mu14_Ele14_CaloIdT_TrkIdVL_Mass8_PFMET50_v1', 
-    'HLT_Mu20_eta2p1_QuadCentralPFJet30_v1', 
+    'HLT_Mu20_eta2p1_CentralPFJet30_BTagIPIter_v1', 
+    'HLT_Mu20_eta2p1_CentralPFJet50_Jet40_Jet30_v1', 
     'HLT_Mu20_eta2p1_TriCentralPFJet30_v1', 
     'HLT_Mu24_eta2p1_CentralPFJet30_CentralPFJet25_v1', 
     'HLT_Mu24_eta2p1_PFJet30_PFJet25_Deta3_v1', 

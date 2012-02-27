@@ -41,18 +41,22 @@ HLT_L2TripleMu10_0_0_NoVertex_PFJet40Neutral_L1FastJet_v*	#sr126258
 HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFJet30_v*		#sr126286
 HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TriCentralPFJet30_v*		#sr126286
 HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_DiCentralPFJet30_v*		#sr126286
-HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_QuadCentralPFJet30_v*	#sr126286
+#HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_QuadCentralPFJet30_v*	#sr126286, removed in sr126618
 HLT_Ele25_CaloIdVT_TrkIdT_TriCentralPFJet30_v*				#sr126286
-HLT_Ele25_CaloIdVT_TrkIdT_QuadCentralPFJet30_v*				#sr126286
+#HLT_Ele25_CaloIdVT_TrkIdT_QuadCentralPFJet30_v*			#sr126286, removed in sr126618
 HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFJet30_BTagIPIter_v*	#sr126286
+HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFJet50_Jet40_Jet30_v1 #sr126618
+HLT_Ele25_CaloIdVT_TrkIdT_CentralPFJet50_Jet40_Jet30_v1			 #sr126618
 HLT_Iso10Mu20_eta2p1_CentralPFJet30_BTagIPIter_v*			#sr126286
 HLT_Iso10Mu20_eta2p1_CentralPFJet30_v*					#sr126286
 HLT_Iso10Mu20_eta2p1_DiCentralPFJet30_v*				#sr126286
-HLT_Iso10Mu20_eta2p1_QuadCentralPFJet30_v*				#sr126286
+#HLT_Iso10Mu20_eta2p1_QuadCentralPFJet30_v*				#sr126286, removed in sr126618
 HLT_Iso10Mu20_eta2p1_TriCentralPFJet30_v*				#sr126286
-HLT_Mu20_eta2p1_QuadCentralPFJet30_v*					#sr126286
+HLT_Iso10Mu20_eta2p1_CentralPFJet50_Jet40_Jet30_v1			#sr126618
+#HLT_Mu20_eta2p1_QuadCentralPFJet30_v*					#sr126286, removed in sr126618
 HLT_Mu20_eta2p1_TriCentralPFJet30_v*					#sr126286
-
+HLT_Mu20_eta2p1_CentralPFJet50_Jet40_Jet30_v1				#sr126618
+HLT_Mu20_eta2p1_CentralPFJet30_BTagIPIter_v1				#sr126618
 
 HLT_Ele30_CaloIdVT_TrkIdT_PFJet100_PFJet25_v*		#sr126292
 HLT_Ele30_CaloIdVT_TrkIdT_PFJet150_PFJet25_v*		#sr126292
@@ -285,7 +289,7 @@ HLT_Mu50_eta2p1_v*					#sr126489
 HLT_IsoMu24_eta2p1_v*					#sr126489
 HLT_Mu24_eta2p1_v*					#sr126489
 HLT_Mu15_eta2p1_v*					#sr126489
-HLT_IsoMu20_eta2p1_v*					#sr126489
+HLT_IsoMu20_eta2p1_v*					#sr126489, 126618
 
 
 #HLT_DiCentralJet20_BTagIP_MET65_v*			#sr126490, still to get integrated
