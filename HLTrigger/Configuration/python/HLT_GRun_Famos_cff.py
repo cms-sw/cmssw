@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_1_0/GRun/V105 (CMSSW_5_2_0_pre5_HLT9)
+# /dev/CMSSW_5_1_0/GRun/V106 (CMSSW_5_2_0_pre5_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V105')
+  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V106')
 )
 
 hltESSBTagRecord = cms.ESSource( "EmptyESSource",
@@ -19503,7 +19503,7 @@ hltPFMET50 = cms.EDFilter( "HLTHtMhtFilter",
 )
 hltL1sL1DoubleEG137ORL1DoubleEG155 = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_DoubleEG_13_7 OR L1_DoubleEG_15_5" ),
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleEG_13_7" ),
     L1MuonCollectionTag = cms.InputTag( "l1extraParticles" ),
     L1UseL1TriggerObjectMaps = cms.bool( True ),
     L1UseAliasesForSeeding = cms.bool( True ),
