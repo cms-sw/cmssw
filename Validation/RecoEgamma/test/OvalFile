@@ -1,16 +1,18 @@
 
-The TEST_* variables are basic values which will be reused all
-along the validation suite.
+<var name="TEST_COMMENT" value="redo from reco with Jean-Roch seeds">
+<var name="TEST_NEW" value="5_0_1_SeedsRemaker3">
+<var name="TEST_REF" value="5_0_1">
 
-<var name="TEST_COMMENT" value="new energy correction parameters for barrel">
-<var name="TEST_NEW" value="5_2_0_pre4_Damir_1">
-<var name="TEST_REF" value="5_2_0_pre4">
+<var name="TAG_STARTUP" value="START52_V1">
+<var name="TAG_IDEAL" value="MC_43_V4">
+<var name="DATA_VERSION" value="v1">
 
-<var name="TEST_STARTUP_TAG" value="START52_V1">
-<var name="TEST_IDEAL_TAG" value="MC_43_V4">
-<var name="TEST_DATA_VERSION" value="v1">
+<var name="STORE_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Store/${TEST_NEW}">
+<var name="STORE_REF" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Store/${TEST_REF}">
 
 <var name="WEB_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Dev">
+<!--var name="WEB_DIR" value="/afs/cern.ch/user/c/chamont/www/validation"-->
+<!--var name="WEB_URL" value="https://chamont.web.cern.ch/chamont/validation"-->
 
 The value of OVAL_ENVNAME is automatically set by Oval to the name
 of the current environment, before running any executable. Using it below,
@@ -27,37 +29,6 @@ and receive as a result the corresponding list of input data files.
 
 <var name="DD_SOURCE" value="das">
 <var name="DD_RELEASE" value="${CMSSW_VERSION}">
-<var name="DD_TIER" value="*RECO*">
-<var name="DD_COND" value="${TEST_GLOBAL_TAG}-${TEST_DATA_VERSION}">
-
-The STORE_* variables controls where the produced histograms will be stored.
-
-<var name="STORE_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Store/${TEST_NEW}">
-<var name="STORE_REF" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Store/${TEST_REF}">
-<var name="STORE_COMMENT" value="${TEST_COMMENT}">
-
-
-The VAL_* variables are configuration variables for electronValidation.csh,
-which compares two sets of histograms. electronValidation.csh relies
-on the ROOT script electronValidation.C.
-
-
-
-
-
-<var name="VAL_NEW_RELEASE" value="${STORE_SUB_DIR}">
-<var name="VAL_REF_RELEASE" value="5_2_0_pre4">
-<var name="VAL_COMMENT" value="${STORE_COMMENT}">
-
-<!--var name="VAL_WEB" value="/afs/cern.ch/user/c/chamont/www/validation"-->
-<!--var name="VAL_URL" value="https://chamont.web.cern.ch/chamont/validation"-->
-<var name="VAL_WEB" value="/afs/cern.ch/cms/Physics/egamma/www/validation">
-<var name="VAL_URL" value="http://cmsdoc.cern.ch/Physics/egamma/www/validation">
-<var name="STORE_RELEASE" value="${STORE_SUB_DIR}">
-<var name="STORE_WEB" value="${VAL_WEB}">
-
-
-
 
 Oval is able to check the output channel of an execution and compare it with a reference output.
 The tags below are defining which are lines to be compared. The currently specification is a
@@ -77,7 +48,7 @@ first draft, and we do not yet check the differences that Oval could raise.
 The file defined below is used by the script electronDataDiscovery.py when we want to analyze
 some RelVal reco files which have been regenerated locally.
 
-<var name="TEST_AFS_DIR" value="/afs/cern.ch/cms/CAF/CMSPHYS/PHYS_EGAMMA/electrons/chamont/ReleaseValidationTmp/Damir1">
+<var name="TEST_AFS_DIR" value="/afs/cern.ch/cms/CAF/CMSPHYS/PHYS_EGAMMA/electrons/chamont/ReleaseValidationTmp/SeedsRemaker3">
 <file name="electronInputDataFiles.txt">
 file:${TEST_AFS_DIR}/RelValSingleElectronPt10-IDEAL-RECO.root
 file:${TEST_AFS_DIR}/RelValSingleElectronPt35-IDEAL-RECO.root
@@ -107,8 +78,10 @@ FullSim
 
 <environment name="FullSimStdStats">
 
-This set of targets is currently used for the validation of electrons.
+  This set of targets is currently used for the validation of electrons.
 
+  <var name="DD_TIER" value="*RECO*">
+  
   <var name="VAL_HISTOS" value="ElectronMcSignalHistos.txt">
   <var name="VAL_ANALYZER" value="ElectronMcSignalValidator">
   <var name="VAL_POST_ANALYZER" value="ElectronMcSignalPostValidator">
@@ -123,15 +96,16 @@ This set of targets is currently used for the validation of electrons.
   The tags below are to be used when you want to process some files
   made with a modified code, and generated locally, thanks to the
   targets RedoFrom% defined later on.
+
   <!--var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}"-->
   <var name="DD_SOURCE" value="electronInputDataFiles.txt">
   <var name="DD_COND" value="STARTUP">
     
   <environment name="FullSimStdStatsStartup">
   
-    <var name="TEST_GLOBAL_TAG" value="${TEST_STARTUP_TAG}">
+    <var name="TEST_GLOBAL_TAG" value="${TAG_STARTUP}">
     <var name="TEST_GLOBAL_AUTOCOND" value="startup">
-    <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${TEST_DATA_VERSION}">
+    <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${DATA_VERSION}">
     
     <environment name="FullPt35Startup">
   
@@ -233,9 +207,9 @@ This set of targets is currently used for the validation of electrons.
   
   <environment name="FullSimStdStatsIdeal">
 
-    <var name="TEST_GLOBAL_TAG" value="${TEST_IDEAL_TAG}">
+    <var name="TEST_GLOBAL_TAG" value="${TAG_IDEAL}">
     <var name="TEST_GLOBAL_AUTOCOND" value="mc">
-    <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${TEST_DATA_VERSION}">
+    <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${DATA_VERSION}">
     <!--var name="DD_COND" value="IDEAL"-->
       
     <environment name="FullPt35Ideal">
@@ -336,15 +310,15 @@ This set of targets is currently used for the validation of electrons.
   
     <environment name="OldFullPt35Ideal">
       <var name="DD_RELEASE" value="CMSSW_3_9_7">
-      <var name="TEST_GLOBAL_TAG" value="${TEST_IDEAL_TAG}">
+      <var name="TEST_GLOBAL_TAG" value="${TAG_IDEAL}">
       <var name="TEST_GLOBAL_AUTOCOND" value="mc">
       <var name="DD_COND" value="MC_39Y_V7-v1">
       <var name="DD_SAMPLE" value="RelValSingleElectronPt35">
       <executable name="electronDataDiscovery.py">
       <executable name="cmsRun" args="${VAL_CONFIGURATION}.py">
-      <var name="VAL_REF_RELEASE" value="397">
+      <var name="TEST_REF" value="397">
       <var name="VAL_REF_FILE" value="${VAL_WEB}/397/Electrons/data/cmsRun.FullPt35.olog.electronHistos.root">
-      <var name="VAL_COMMENT" value="Check backward compatibility with 397.">
+      <var name="TEST_COMMENT" value="Check backward compatibility with 397.">
       
       <executable name="electronStore.csh" args="${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
       <executable name="electronStoreForce.csh" args="${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
@@ -358,9 +332,11 @@ This set of targets is currently used for the validation of electrons.
 
 <environment name="FullSimHighStatsIdeal">
 
-  <var name="TEST_GLOBAL_TAG" value="${TEST_IDEAL_TAG}">
+  <var name="DD_TIER" value="*RECO*">
+
+  <var name="TEST_GLOBAL_TAG" value="${TAG_IDEAL}">
   <var name="TEST_GLOBAL_AUTOCOND" value="mc">
-  <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${TEST_DATA_VERSION}">
+  <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${DATA_VERSION}">
   <!--var name="DD_COND" value="*"-->
 
   <environment name="HighFlatPt5To100Ideal">
@@ -383,6 +359,8 @@ FastSim
 
 <environment name="FastSim">
 
+  <var name="DD_TIER" value="*RECO*">
+
   <var name="VAL_ANALYZER" value="ElectronMcSignalValidator">
   <var name="VAL_POST_ANALYZER" value="ElectronMcSignalPostValidator">
   <var name="VAL_CONFIGURATION" value="ElectronMcSignalValidation_cfg">
@@ -393,9 +371,9 @@ FastSim
 
     <environment name="FastAnalysisStartup">
 
-      <var name="TEST_GLOBAL_TAG" value="${TEST_STARTUP_TAG}">
+      <var name="TEST_GLOBAL_TAG" value="${TAG_STARTUP}">
       <var name="TEST_GLOBAL_AUTOCOND" value="startup">
-      <var name="DD_COND" value="${TEST_GLOBAL_TAG}*FastSim*-${TEST_DATA_VERSION}">
+      <var name="DD_COND" value="${TEST_GLOBAL_TAG}*FastSim*-${DATA_VERSION}">
 
       <environment name="FastTTbarStartup">
       
@@ -435,9 +413,9 @@ FastSim
   
     <environment name="FastAnalysisIdeal">
 
-      <var name="TEST_GLOBAL_TAG" value="${TEST_IDEAL_TAG}">
+      <var name="TEST_GLOBAL_TAG" value="${TAG_IDEAL}">
       <var name="TEST_GLOBAL_AUTOCOND" value="mc">
-      <var name="DD_COND" value="${TEST_GLOBAL_TAG}*FastSim*-${TEST_DATA_VERSION}">
+      <var name="DD_COND" value="${TEST_GLOBAL_TAG}*FastSim*-${DATA_VERSION}">
       
       <environment name="FastTTbarIdeal">
       
@@ -481,9 +459,9 @@ FastSim
   
     <environment name="FastVsFastStart">
     
-      <var name="TEST_GLOBAL_TAG" value="${TEST_STARTUP_TAG}">
+      <var name="TEST_GLOBAL_TAG" value="${TAG_STARTUP}">
       <var name="TEST_GLOBAL_AUTOCOND" value="startup">
-      <var name="DD_COND" value="${TEST_GLOBAL_TAG}*FastSim*-${TEST_DATA_VERSION}">
+      <var name="DD_COND" value="${TEST_GLOBAL_TAG}*FastSim*-${DATA_VERSION}">
 
       <environment name="FastVsFastTTbarStartup">
         <var name="DD_SAMPLE" value="RelValTTbar">
@@ -501,9 +479,9 @@ FastSim
   
     <environment name="FastVsFastIdeal">
     
-      <var name="TEST_GLOBAL_TAG" value="${TEST_IDEAL_TAG}">
+      <var name="TEST_GLOBAL_TAG" value="${TAG_IDEAL}">
       <var name="TEST_GLOBAL_AUTOCOND" value="mc">
-      <var name="DD_COND" value="${TEST_GLOBAL_TAG}*FastSim*-${TEST_DATA_VERSION}">
+      <var name="DD_COND" value="${TEST_GLOBAL_TAG}*FastSim*-${DATA_VERSION}">
       
       <environment name="FastVsFastTTbarIdeal">
         <var name="DD_SAMPLE" value="RelValTTbar">
@@ -525,9 +503,9 @@ FastSim
   
     <environment name="FastVsFullStartup">
     
-      <var name="TEST_GLOBAL_TAG" value="${TEST_STARTUP_TAG}">
+      <var name="TEST_GLOBAL_TAG" value="${TAG_STARTUP}">
       <var name="TEST_GLOBAL_AUTOCOND" value="startup">
-      <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${TEST_DATA_VERSION}">
+      <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${DATA_VERSION}">
 
       <environment name="FastVsFullTTbarStartup">
         <var name="DD_SAMPLE" value="RelValTTbar">
@@ -547,9 +525,9 @@ FastSim
     
     <environment name="FastVsFullIdeal">
     
-      <var name="TEST_GLOBAL_TAG" value="${TEST_IDEAL_TAG}">
+      <var name="TEST_GLOBAL_TAG" value="${TAG_IDEAL}">
       <var name="TEST_GLOBAL_AUTOCOND" value="mc">
-      <var name="DD_COND" value="${TEST_GLOBAL_TAG}*FastSim*-${TEST_DATA_VERSION}">
+      <var name="DD_COND" value="${TEST_GLOBAL_TAG}*FastSim*-${DATA_VERSION}">
       
       <environment name="FastVsFullTTbarIdeal">
         <var name="DD_SAMPLE" value="RelValTTbar">
@@ -583,17 +561,17 @@ with the local modified code.
 
   <environment name="SeedsRemaker">
 
-    <var name="TEST_GLOBAL_TAG" value="${TEST_STARTUP_TAG}">
+    <var name="TEST_GLOBAL_TAG" value="${TAG_STARTUP}">
     <var name="TEST_GLOBAL_AUTOCOND" value="startup">
-    <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${TEST_DATA_VERSION}">
+    <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${DATA_VERSION}">
     <var name="DD_SAMPLE" value="RelValSingleElectronPt10">
-    <var name="TEST_HISTOS_FILE" value="${TEST_AFS_DIR}/${DD_SAMPLE}-STARTUP-RECO.root">
       
     <environment name="SeedsRemakerStep1">
 
       <var name="DD_TIER" value="*RAW*">
+      <var name="TEST_HISTOS_FILE" value="${TEST_AFS_DIR}/${DD_SAMPLE}-STARTUP-FIRST-RECO.root">
 
-      <target name="cfg" cmd="cmsDriver.py reco -n -1 --geometry DB -s RAW2DIGI,L1Reco,RECO --conditions auto:startup --datatier GEN-SIM-RECO --eventcontent RECOSIM --filein=Dummy-STARTUP-RAW.root --fileout=Dummy-STARTUP-RECO.root --customise reseed.storeseed --python_filename=ElectronRedoFromRawStartup_driver_cfg.py --no_exec">
+      <target name="cfg" cmd="cmsDriver.py step3 -n -1 -s RAW2DIGI,L1Reco,RECO,VALIDATION,DQM --conditions auto:startup --datatier GEN-SIM-RECO,DQM --eventcontent RECOSIM,DQM --filein=Dummy-STARTUP-RAW.root --fileout=Dummy-STARTUP-RECO.root --customise reseed.storeseed --python_filename=ElectronRedoFromRawStartup_driver_cfg.py --no_exec">
       <target name="dd" cmd="electronDataDiscovery.py">
       <target name="reco" cmd="cmsRun ElectronRedoFromRawStartup_cfg.py">
       
@@ -601,11 +579,15 @@ with the local modified code.
   
     <environment name="SeedsRemakerStep2">
     
-      <var name="DD_TIER" value="*RECO*">
+      <var name="DD_TIER" value="*FIRST-RECO*">
       <var name="DD_SOURCE" value="electronInputDataFiles.txt">
       <var name="DD_COND" value="STARTUP">
+      <file name="electronInputDataFiles.txt">
+      file:${TEST_AFS_DIR}/RelValSingleElectronPt10-STARTUP-FIRST-RECO.root
+      </file>
+      <var name="TEST_HISTOS_FILE" value="${TEST_AFS_DIR}/${DD_SAMPLE}-STARTUP-RECO.root">
       
-      <target name="cfg" cmd="cmsDriver.py reco -n -1 --process reRECO --filtername RECOfromRECO -s RECO:reconstruction_fromRECO_noTrackingTest --conditions auto:startup --datatier GEN-SIM-RECO --eventcontent RECOSIM --filein=Dummy-STARTUP-RECO.root --fileout=Dummy-STARTUP-RECO.root --customise reseed.reseed+regenseed+reconv --python_filename=SeedsRemaker_driver_cfg.py --no_exec">
+      <target name="cfg" cmd="cmsDriver.py step3 -n -1 --process reRECO --filtername RECOfromRECO -s RECO:reconstruction_fromRECO_noTrackingTest --conditions auto:startup --datatier GEN-SIM-RECO --eventcontent RECOSIM --filein=Dummy-STARTUP-RECO.root --fileout=Dummy-STARTUP-RECO.root --customise reseed.reseed+regenseed+reconv --python_filename=SeedsRemaker_driver_cfg.py --no_exec">
       <target name="dd" cmd="electronDataDiscovery.py">
       <target name="redo" cmd="cmsRun SeedsRemaker_cfg.py">
       
@@ -644,9 +626,9 @@ with the local modified code.
 
     <environment name="RedoFromCoreStartup">
   
-      <var name="TEST_GLOBAL_TAG" value="${TEST_STARTUP_TAG}">
+      <var name="TEST_GLOBAL_TAG" value="${TAG_STARTUP}">
       <var name="TEST_GLOBAL_AUTOCOND" value="startup">
-      <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${TEST_DATA_VERSION}">
+      <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${DATA_VERSION}">
 
       <environment name="RedoFromCoreZEEStartup">
         <var name="DD_SAMPLE" value="RelValZEE">
@@ -659,9 +641,9 @@ with the local modified code.
     
     <environment name="RedoFromCoreIdeal">
   
-      <var name="TEST_GLOBAL_TAG" value="${TEST_IDEAL_TAG}">
+      <var name="TEST_GLOBAL_TAG" value="${TAG_IDEAL}">
       <var name="TEST_GLOBAL_AUTOCOND" value="mc">
-      <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${TEST_DATA_VERSION}">
+      <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${DATA_VERSION}">
 
       <environment name="RedoFromCorePt35Ideal">
         <var name="DD_SAMPLE" value="RelValSingleElectronPt35">
@@ -718,9 +700,9 @@ with the local modified code.
 
     <environment name="RedoFromRawStartup">
 
-      <var name="TEST_GLOBAL_TAG" value="${TEST_STARTUP_TAG}">
+      <var name="TEST_GLOBAL_TAG" value="${TAG_STARTUP}">
       <var name="TEST_GLOBAL_AUTOCOND" value="startup">
-      <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${TEST_DATA_VERSION}">
+      <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${DATA_VERSION}">
       <!--var name="DD_COND" value="STARTUP"-->
 
       <target name="cfg" cmd="cmsDriver.py reco -s RAW2DIGI,RECO -n -1 --conditions auto:startup --datatier GEN-SIM-RECO --eventcontent RECOSIM --filein=Dummy-RAW.root --fileout=Dummy-STARTUP-RECO.root --python_filename=ElectronRedoFromRawStartup_driver_cfg.py --no_exec">
@@ -757,12 +739,12 @@ with the local modified code.
 
     <environment name="RedoFromRawIdeal">
     
-      <var name="TEST_GLOBAL_TAG" value="${TEST_IDEAL_TAG}">
+      <var name="TEST_GLOBAL_TAG" value="${TAG_IDEAL}">
       <var name="TEST_GLOBAL_AUTOCOND" value="mc">
-      <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${TEST_DATA_VERSION}">
+      <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${DATA_VERSION}">
       <!--var name="DD_COND" value="IDEAL"-->
 
-      <target name="cfg" cmd="cmsDriver.py reco -s RAW2DIGI,RECO -n -1 --geometry DB --conditions FrontierConditions_GlobalTag,${TEST_IDEAL_TAG}::All --datatier GEN-SIM-RECO --eventcontent RECOSIM --filein=Dummy-RAW.root --fileout=Dummy-IDEAL-RECO.root --python_filename=ElectronRedoFromRaw_driver_cfg.py --no_exec">
+      <target name="cfg" cmd="cmsDriver.py reco -s RAW2DIGI,RECO -n -1 --geometry DB --conditions FrontierConditions_GlobalTag,${TAG_IDEAL}::All --datatier GEN-SIM-RECO --eventcontent RECOSIM --filein=Dummy-RAW.root --fileout=Dummy-IDEAL-RECO.root --python_filename=ElectronRedoFromRaw_driver_cfg.py --no_exec">
  
       <environment name="RedoFromRawPt35Ideal">
         <var name="DD_SAMPLE" value="RelValSingleElectronPt35">
