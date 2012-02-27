@@ -143,7 +143,7 @@ class Reco(Scenario):
         """
         options = defaultOptions
         options.scenario = self.cbSc
-        options.step = "HARVESTING:"+'+'.join(args['dqmSeq']) if ('dqmSeq' in args) else 'dqmHarvesting'
+        options.step = "HARVESTING:"+('+'.join(args['dqmSeq']) if ('dqmSeq' in args) else 'dqmHarvesting')
         options.name = "EDMtoMEConvert"
         options.conditions = globalTag
  
