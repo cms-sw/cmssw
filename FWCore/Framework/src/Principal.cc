@@ -216,6 +216,8 @@ namespace edm {
   void
   Principal::deleteProduct(BranchID const& id) {
     Group* g = getExistingGroup(id);
+    auto itFound = productPtrs_.find(g->product().get());
+    productPtrs_.erase(itFound);
     g->deleteProduct();
   }
   
