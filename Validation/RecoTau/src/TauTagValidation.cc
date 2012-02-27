@@ -15,7 +15,7 @@
 //
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  October 8, 2008
-// $Id: TauTagValidation.cc,v 1.32 2012/02/23 16:39:25 perchall Exp $
+// $Id: TauTagValidation.cc,v 1.33 2012/02/24 16:48:44 mverzett Exp $
 //
 //
 // user include files
@@ -56,7 +56,8 @@ TauTagValidation::TauTagValidation(const edm::ParameterSet& iConfig):
   // Get the discriminators and their cuts
   discriminators_( iConfig.getParameter< std::vector<edm::ParameterSet> >( "discriminators" ))
 {
-  genericTriggerEventFlag_ = (iConfig.exists("GenericTriggerSelection")) ? new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("GenericTriggerSelection")) : NULL;
+  turnOnTrigger_ = iConfig.exists("turnOnTrigger") && iConfig.getParameter<bool>("turnOnTrigger");
+  genericTriggerEventFlag_ = (iConfig.exists("GenericTriggerSelection") && turnOnTrigger_) ? new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("GenericTriggerSelection")) : NULL;
   if(genericTriggerEventFlag_ != NULL)  std::cout<<"--> GenericTriggerSelection parameters found in "<<moduleLabel_<<"."<<std::endl;//move to LogDebug
   else std::cout<<"--> GenericTriggerSelection not found in "<<moduleLabel_<<"."<<std::endl;//move to LogDebug to keep track of modules that fail and pass
 

@@ -105,7 +105,7 @@ private:
   std::string recoCuts_, genCuts_;
 
   // output histograms
-  bool saveoutputhistograms_;
+  bool saveoutputhistograms_, turnOnTrigger_;
 
  // Reference Collection
   edm::InputTag refCollectionInputTag_;
