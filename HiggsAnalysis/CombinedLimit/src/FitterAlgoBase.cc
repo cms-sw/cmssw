@@ -107,12 +107,12 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, RooArgList
         if (!robustFit_) {
             if (do95_) {
                 minim.setErrorLevel(1.92);
-                minim.minimize(verbose-1);
+                minim.improve(verbose-1);
                 if (minim.minimizer().minos(RooArgSet(r)) != -1) {
                     rf.setRange("err95", r.getVal() + r.getAsymErrorLo(), r.getVal() + r.getAsymErrorHi());
                 }
                 minim.setErrorLevel(0.5);
-                minim.minimize(verbose-1);
+                minim.improve(verbose-1);
             }
             if (minim.minimizer().minos(RooArgSet(r)) != -1) {
                 rf.setRange("err68", r.getVal() + r.getAsymErrorLo(), r.getVal() + r.getAsymErrorHi());
@@ -164,7 +164,7 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
     bool ok = false;
     {
         CloseCoutSentry sentry(verbose < 3);    
-        ok = minim.minimize(verbose-1);
+        ok = minim.improve(verbose-1);
         checkpoint.reset(minim.save());
     }
     if (!ok) { std::cout << "Error: minimization failed at " << r.GetName() << " = " << rStart << std::endl; return NAN; }
@@ -183,7 +183,7 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
             ok = false;
         } else {
             CloseCoutSentry sentry(verbose < 3);    
-            ok = minim.minimize(verbose-1);
+            ok = minim.improve(verbose-1);
         }
         if (!ok) { 
             nfail++;

@@ -15,6 +15,7 @@
 #include "../interface/ProfiledLikelihoodRatioTestStatExt.h"
 #include "../interface/ToyMCSamplerOpt.h"
 #include "../interface/ProfileLikelihood.h"
+#include "../interface/CascadeMinimizer.h"
 #include "../interface/utils.h"
 #include "../interface/AsimovUtils.h"
 
@@ -121,10 +122,9 @@ bool Asymptotic::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats
   {
     CloseCoutSentry sentry(verbose < 3);
     *params_ = snapGlobalObsData;
-    RooMinimizer minim(*nllD_);
+    CascadeMinimizer minim(*nllD_, CascadeMinimizer::Unconstrained, r);
     minim.setStrategy(minimizerStrategy_);
-    minim.setPrintLevel(-1);
-    nllutils::robustMinimize(*nllD_, minim, verbose-1);
+    minim.minimize(verbose-2);
     fitFreeD_.reset(minim.save());
   }
   if (verbose > 0) std::cout << "NLL at global minimum of data: " << fitFreeD_->minNll() << " (" << r->GetName() << " = " << r->getVal() << ")" << std::endl;
@@ -136,10 +136,9 @@ bool Asymptotic::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats
   {
     CloseCoutSentry sentry(verbose < 3);
     *params_ = snapGlobalObsAsimov;
-    RooMinimizer minim(*nllA_);
+    CascadeMinimizer minim(*nllA_, CascadeMinimizer::Unconstrained, r);
     minim.setStrategy(minimizerStrategy_);
-    minim.setPrintLevel(-1);
-    nllutils::robustMinimize(*nllA_, minim, verbose-1);
+    minim.minimize(verbose-2);
     fitFreeA_.reset(minim.save());
   }
   if (verbose > 0) std::cout << "NLL at global minimum of asimov: " << fitFreeA_->minNll() << " (" << r->GetName() << " = " << r->getVal() << ")" << std::endl;
@@ -196,16 +195,17 @@ double Asymptotic::getCLs(RooRealVar &r, double rVal) {
   r.setConstant(true);
 
   CloseCoutSentry sentry(verbose < 3);
-  RooMinimizer minimD(*nllD_), minimA(*nllA_);
-  minimD.setStrategy(minimizerStrategy_); minimD.setPrintLevel(-1); 
-  minimA.setStrategy(minimizerStrategy_); minimA.setPrintLevel(-1);
+  CascadeMinimizer minimD(*nllD_, CascadeMinimizer::Constrained, &r);
+  CascadeMinimizer minimA(*nllA_, CascadeMinimizer::Constrained, &r);
+  minimD.setStrategy(minimizerStrategy_);  
+  minimA.setStrategy(minimizerStrategy_); 
 
   *params_ = fitFixD_.get() ? fitFixD_->floatParsFinal() : fitFreeD_->floatParsFinal();
   *params_ = snapGlobalObsData;
   r.setVal(rVal);
   r.setConstant(true);
   if (hasFloatParams_) {
-      if (!nllutils::robustMinimize(*nllD_, minimD, verbose-1) && picky_) return -999;
+      if (!minimD.improve(verbose-2) && picky_) return -999;
       fitFixD_.reset(minimD.save());
       if (verbose >= 2) fitFixD_->Print("V");
   }
@@ -216,7 +216,7 @@ double Asymptotic::getCLs(RooRealVar &r, double rVal) {
   r.setVal(rVal);
   r.setConstant(true);
   if (hasFloatParams_) {
-      if (!nllutils::robustMinimize(*nllA_, minimA, verbose-1) && picky_) return -999;
+      if (!minimA.improve(verbose-2) && picky_) return -999;
       fitFixA_.reset(minimA.save());
       if (verbose >= 2) fitFixA_->Print("V");
   }
@@ -269,13 +269,12 @@ std::vector<std::pair<float,float> > Asymptotic::runLimitExpected(RooWorkspace *
     //r->removeMax();
     
     std::auto_ptr<RooAbsReal> nll(mc_s->GetPdf()->createNLL(*asimov, RooFit::Constrain(*mc_s->GetNuisanceParameters())));
-    RooMinimizer minim(*nll);
+    CascadeMinimizer minim(*nll, CascadeMinimizer::Unconstrained, r);
     minim.setStrategy(minimizerStrategy_);
-    minim.setPrintLevel(-1);
     minim.setErrorLevel(0.5*pow(ROOT::Math::normal_quantile(1-0.5*(1-cl),1.0), 2)); // the 0.5 is because qmu is -2*NLL
                         // eventually if cl = 0.95 this is the usual 1.92!
     CloseCoutSentry sentry(verbose < 3);    
-    nllutils::robustMinimize(*nll, minim, verbose-1);
+    minim.minimize(verbose-2);
     sentry.clear();
     if (verbose > 1) {
         std::cout << "Fit to asimov dataset:" << std::endl;
@@ -286,26 +285,25 @@ std::vector<std::pair<float,float> > Asymptotic::runLimitExpected(RooWorkspace *
     if (minosAlgo_ == "minos") {
         //CloseCoutSentry sentry2(verbose < 3);
         for (int tries = 0; tries < 3; ++tries) {
-            minosStat = minim.minos(RooArgSet(*r));
+            minosStat = minim.minimizer().minos(RooArgSet(*r));
             if (minosStat != -1) {
                 while ((minosStat != -1) && (r->getVal()+r->getAsymErrorHi())/r->getMax() > 0.9) {
                     if (r->getMax() >= 100*rMax0) { minosStat = -1; break; }
                     r->setMax(2*r->getMax());
-                    RooMinimizer minim2(*nll);
+                    CascadeMinimizer minim2(*nll, CascadeMinimizer::Unconstrained, r);
                     minim2.setStrategy(minimizerStrategy_);
-                    minim2.setPrintLevel(-1);
                     minim2.setErrorLevel(0.5*pow(ROOT::Math::normal_quantile(1-0.5*(1-cl),1.0), 2)); 
-                    nllutils::robustMinimize(*nll, minim2, verbose-1);
-                    minosStat = minim2.minos(RooArgSet(*r));
+                    minim2.minimize(verbose-2);
+                    minosStat = minim2.minimizer().minos(RooArgSet(*r));
                 }
                 break;
             }
             minim.setStrategy(2);
             if (tries == 1) { 
                 if (minimizerAlgo_.find("Minuit2") != std::string::npos) {
-                    minim.minimize("Minuit","minimize");
+                    minim.minimizer().minimize("Minuit","minimize");
                 } else {
-                    minim.minimize("Minuit2","minmize");
+                    minim.minimizer().minimize("Minuit2","minmize");
                 }
             }
         }
@@ -319,16 +317,15 @@ std::vector<std::pair<float,float> > Asymptotic::runLimitExpected(RooWorkspace *
         double rMin = r->getVal(), rMax = r->getMax();
         double rCross = 0.5*(rMin+rMax), rErr = 0.5*(rMax-rMin);
         r->setVal(rCross); r->setConstant(true);
-        RooMinimizer minim2(*nll);
+        CascadeMinimizer minim2(*nll, CascadeMinimizer::Constrained);
         minim2.setStrategy(minimizerStrategy_);
-        minim2.setPrintLevel(-1);
         if (minosAlgo_ == "bisection") {
             if (verbose > 1) printf("Will search for NLL crossing by bisection\n");
             while (rErr > std::max(rRelAccuracy_*rCross, rAbsAccuracy_)) {
                 bool ok = true;
                 { 
                     CloseCoutSentry sentry2(verbose < 3);
-                    ok = nllutils::robustMinimize(*nll, minim2, verbose-1);
+                    ok = minim2.improve(verbose-2);
                 }
                 if (!ok && picky_) break; else minosStat = 0;
                 double here = nll->getVal();
@@ -347,7 +344,7 @@ std::vector<std::pair<float,float> > Asymptotic::runLimitExpected(RooWorkspace *
                 bool ok = true;
                 { 
                     CloseCoutSentry sentry2(verbose < 3);
-                    ok = nllutils::robustMinimize(*nll, minim2, verbose-1);
+                    ok = minim2.improve(verbose-2);
                 }
                 if (!ok && picky_) break; else minosStat = 0;
                 double here = nll->getVal();
