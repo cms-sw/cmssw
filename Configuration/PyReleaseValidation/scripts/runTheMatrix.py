@@ -118,6 +118,12 @@ if __name__ == '__main__':
                       dest='command',
                       default=None
                       )
+    parser.add_option('--workflow',
+                      help='define a workflow to be created or altered from the matrix',
+                      action='append',
+                      dest='workflow',
+                      default=None
+                      )
     
     opt,args = parser.parse_args()
     if opt.testList: opt.testList = map(float,opt.testList.split(','))
