@@ -41,7 +41,7 @@
 typedef SingleObjectSelector< reco::PFJetCollection      , StringCutObjectSelector<reco::PFJet> >          TauValPFJetSelector;
 //typedef SingleObjectSelector< std::vector<reco::Jet>     , StringCutObjectSelector<reco::Jet> >          TauValJetSelector;
 typedef SingleObjectSelector< reco::MuonCollection       , StringCutObjectSelector<reco::Muon> >           TauValMuonSelector;
-typedef SingleObjectSelector< reco::GsfElectronCollection   , StringCutObjectSelector<reco::GsfElectron> > TauValElectronSelector;
+typedef SingleObjectSelector< edm::View<reco::GsfElectron>, StringCutObjectSelector<reco::GsfElectron>, reco::GsfElectronCollection > TauValElectronSelector;
 typedef SingleObjectSelector< reco::GenParticleCollection, StringCutObjectSelector<reco::GenParticle> >    TauValGenPSelector;
 typedef SingleObjectSelector< reco::GenParticleRefVector, StringCutObjectSelector<reco::GenParticleRef> >    TauValGenPRefSelector;
 
