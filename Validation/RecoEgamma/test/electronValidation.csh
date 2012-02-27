@@ -39,6 +39,7 @@
 # DD_COND : expression for the current conditions tag ; used to build the subdirectory
 #   where the web pages will be stored ($VAL_WEB_SUB_DIR) unless it was given as the
 #   3rd command line argument.
+#
 #=========================================================================================
 
 
@@ -50,7 +51,7 @@ setenv VAL_ORIGINAL_DIR $cwd
 
 # those must have a value
 #setenv VAL_WEB ...
-#setenv VAL_WEB_URL ...
+#setenv VAL_URL ...
 #setenv VAL_NEW_RELEASE ...
 #setenv VAL_REF_RELEASE ...
 # those either have a value, or will receive a default below
@@ -169,4 +170,4 @@ root -b -l -q electronValidation.C
 echo "You can access the files here:"
 echo "${VAL_WEB}/${VAL_NEW_RELEASE}/Electrons/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/"
 echo "You can browse your validation plots here:"
-echo "${VAL_WEB_URL}/${VAL_NEW_RELEASE}/Electrons/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/"
+echo "${VAL_URL}/${VAL_NEW_RELEASE}/Electrons/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/"

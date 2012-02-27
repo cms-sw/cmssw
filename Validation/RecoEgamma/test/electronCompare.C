@@ -89,27 +89,18 @@ void RenderHisto( TObject * obj, TCanvas * canvas )
  }
 
 
-int electronValidation()
+int electronCompare()
  {
-  TString DBS_SAMPLE = gSystem->Getenv("DD_SAMPLE") ;
-  TString DBS_COND = gSystem->Getenv("DD_COND") ;
-
-  TString val_ref_file_name = gSystem->Getenv("VAL_REF_FILE") ;
-  TString val_new_file_name = gSystem->Getenv("VAL_NEW_FILE") ;
-  TString val_ref_release = gSystem->Getenv("VAL_REF_RELEASE") ;
-  TString val_new_release = gSystem->Getenv("VAL_NEW_RELEASE") ;
-  TString val_analyzer = gSystem->Getenv("VAL_ANALYZER") ;
-  TString val_configuration = gSystem->Getenv("VAL_CONFIGURATION") ;
-  TString val_comment = gSystem->Getenv("VAL_COMMENT") ;
-
-  TString val_web = gSystem->Getenv("VAL_WEB") ;
-  TString val_web_sub_dir = gSystem->Getenv("VAL_WEB_SUB_DIR") ;
-  TString val_web_url = gSystem->Getenv("VAL_URL") ;
-
-  std::string val_web_path = val_web+"/"+val_new_release+"/Electrons/vs"+val_ref_release+"/"+val_web_sub_dir ;
-  std::string val_web_url_path = val_web_url+"/"+val_new_release+"/Electrons/vs"+val_ref_release+"/"+val_web_sub_dir ;
-  std::string histos_path = val_web_path+"/histos.txt" ;
-  std::string index_path = val_web_path+"/index.html" ;
+  TString CMP_DIR          = gSystem->Getenv( "CMP_DIR"          ) ;
+  TString CMP_URL          = gSystem->Getenv( "CMP_URL"          ) ;
+  TString CMP_TITLE        = gSystem->Getenv( "CMP_TITLE"        ) ;
+  TString CMP_RED_FILE     = gSystem->Getenv( "CMP_RED_FILE"     ) ;
+  TString CMP_BLUE_FILE    = gSystem->Getenv( "CMP_BLUE_FILE"    ) ;
+  TString CMP_RED_NAME     = gSystem->Getenv( "CMP_RED_NAME"     ) ;
+  TString CMP_BLUE_NAME    = gSystem->Getenv( "CMP_BLUE_NAME"    ) ;
+  TString CMP_RED_COMMENT  = gSystem->Getenv( "CMP_RED_COMMENT"  ) ;
+  TString CMP_BLUE_COMMENT = gSystem->Getenv( "CMP_BLUE_COMMENT" ) ;
+  TString CMP_CONFIG       = gSystem->Getenv( "CMP_CONFIG"       ) ;
 
   // style:
   TStyle *eleStyle = new TStyle("eleStyle","Style for electron validation");
@@ -156,21 +147,14 @@ int electronValidation()
   TString internal_path("DQMData/Run 1/EgammaV/Run summary/") ;
   TString old_internal_path("DQMData/EgammaV/") ;
 
-  TString val_ref_file_url ;
   TString file_ref_dir ;
   TFile * file_ref = 0 ;
-  if ( val_ref_file_name != "" )
+  if ( CMP_BLUE_FILE != "" )
    {
-    file_ref = TFile::Open(val_ref_file_name) ;
+    file_ref = TFile::Open(CMP_BLUE_FILE) ;
     if (file_ref!=0)
      {
-      std::cout<<"open "<<val_ref_file_name<<std::endl ;
-      if (val_ref_file_name.BeginsWith(val_web)==kTRUE)
-       {
-        val_ref_file_url = val_ref_file_name ;
-        val_ref_file_url.Remove(0,val_web.Length()) ;
-        val_ref_file_url.Prepend(val_web_url) ;
-       }
+      std::cout<<"open "<<CMP_BLUE_FILE<<std::endl ;
       if (file_ref->cd(internal_path)==kTRUE)
        {
         std::cerr<<"cd "<<internal_path<<std::endl ;
@@ -190,24 +174,17 @@ int electronValidation()
        }
      }
     else
-     { std::cerr<<"Failed to open: "<<val_ref_file_name<<std::endl ; }
+     { std::cerr<<"Failed to open: "<<CMP_BLUE_FILE<<std::endl ; }
    }
 
-  TString val_new_file_url ;
   TString file_new_dir = internal_path  ;
   TFile * file_new = 0 ;
-  if ( val_new_file_name != "" )
+  if ( CMP_RED_FILE != "" )
    {
-    file_new = TFile::Open(val_new_file_name) ;
+    file_new = TFile::Open(CMP_RED_FILE) ;
     if (file_new!=0)
      {
-      std::cout<<"open "<<val_new_file_name<<std::endl ;
-      if (val_new_file_name.BeginsWith(val_web)==kTRUE)
-       {
-        val_new_file_url = val_new_file_name ;
-        val_new_file_url.Remove(0,val_web.Length()) ;
-        val_new_file_url.Prepend(val_web_url) ;
-       }
+      std::cout<<"open "<<CMP_RED_FILE<<std::endl ;
       if (file_new->cd(internal_path)==kTRUE)
        {
         std::cerr<<"cd "<<internal_path<<std::endl ;
@@ -227,53 +204,53 @@ int electronValidation()
        }
      }
     else
-     { std::cerr<<"Failed to open: "<<val_new_file_name<<std::endl ; }
+     { std::cerr<<"Failed to open: "<<CMP_RED_FILE<<std::endl ; }
    }
 
   TCanvas * canvas ;
   TH1 * histo_ref, * histo_new ;
   TPaveStats * st_ref, * st_new ;
 
-  std::ofstream web_page(index_path.c_str()) ;
+  std::ofstream web_page(CMP_DIR+"/index.html") ;
 
   web_page
     <<"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3.2 Final//EN\">\n"
     <<"<html>\n"
     <<"<head>\n"
     <<"<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\" />\n"
-    <<"<title>"<<val_new_release<<" vs "<<val_ref_release<<" / "<<DBS_SAMPLE<<" / "<<DBS_COND<<"</title>\n"
+    <<"<title>"<<CMP_TITLE<<"</title>\n"
     <<"</head>\n"
-    <<"<h1><a href=\"../\"><img border=0 width=\"22\" height=\"22\" src=\"../../../../img/up.gif\" alt=\"Up\"/></a>&nbsp;"<<val_new_release<<" vs "<<val_ref_release<<" / "<<DBS_SAMPLE<<" / "<<DBS_COND<<"</h1>\n" ;
+    <<"<h1><a href=\"../\"><img border=0 width=\"22\" height=\"22\" src=\"../../../../img/up.gif\" alt=\"Up\"/></a>&nbsp;"<<CMP_TITLE<<"</h1>\n" ;
 
-  web_page<<"<p>"<<val_comment ;
   if (file_ref==0)
    {
     web_page
-     <<" In all plots below"
-     <<", there was no "<<val_ref_release<<" histograms to compare with"
-       <<", and the <a href=\""<<val_new_file_url<<"\">"<<val_new_release<<" histograms</a> are in red"
-     <<"." ;
+     <<"<p>In all plots below"
+     <<", there was no reference histograms to compare with"
+     <<", and the "<<CMP_RED_NAME<<" histograms are in red." ;
    }
   else
    {
     web_page
-     <<" In all plots below"
-       <<", the <a href=\""<<val_new_file_url<<"\">"<<val_new_release<<" histograms</a> are in red"
-     <<", and the <a href=\""<<val_ref_file_url<<"\">"<<val_ref_release<<" histograms</a> are in blue"
-     <<"." ;
+     <<"<p>In all plots below"
+     <<", the "<<CMP_RED_NAME<<" histograms are in red"
+     <<", and the "<<CMP_BLUE_NAME<<" histograms are in blue." ;
    }
-  web_page
-    <<" They were made using analyzer "
-    <<"<a href=\"http://cmslxr.fnal.gov/lxr/source/Validation/RecoEgamma/plugins/"<<val_analyzer<<".h\">"
-    <<"Validation/RecoEgamma/plugins/"<<val_analyzer<<".h"
-    <<"</a> and configuration "
-    <<"<a href=\"http://cmslxr.fnal.gov/lxr/source/Validation/RecoEgamma/test/"<<val_configuration<<"\">"
-    <<"Validation/RecoEgamma/test/"<<val_configuration
-    <<"</a>, with dataset "<<DBS_SAMPLE<<" as input." ;
-  web_page
+
+  std::ifstream red_comment_file(CMP_RED_COMMENT) ;
+  std::string red_comment ;
+  std::getline(red_comment_file,red_comment) ;
+  red_comment_file.close() ;
+
+  std::ifstream blue_comment_file(CMP_BLUE_COMMENT) ;
+  std::string blue_comment ;
+  std::getline(blue_comment_file,blue_comment) ;
+  blue_comment_file.close() ;
+
+  web_page<<" "<<red_comment<<" "<<blue_comment
     <<" Some more details"
-    <<": <a href=\"electronValidation.C\">script</a> used to make the plots"
-    <<", <a href=\"histos.txt\">specification</a> of histograms"
+    <<": <a href=\"electronCompare.C\">script</a> used to make the plots"
+    <<", <a href=\""<<CMP_CONFIG<<"\">specification</a> of histograms"
     <<", <a href=\"gifs/\">images</a> of histograms"
     <<"." ;
   web_page<<"</p>\n" ;
@@ -292,7 +269,7 @@ int electronValidation()
   int eoc ; // enf of category
   double rescale_factor = 0. ;
 
-  std::ifstream histo_file1(histos_path.c_str()) ;
+  std::ifstream histo_file1(CMP_CONFIG) ;
 
   web_page
     <<"<br><table border=\"1\" cellpadding=\"5\" width=\"100%\">"
@@ -376,8 +353,8 @@ int electronValidation()
   web_page<<"<br></td></tr></table>\n" ;
   histo_file1.close() ;
 
-  web_page<<"<br><br><table cellpadding=\"5\"><tr valign=\"top\"><td><a href=\""<<val_web_url_path<<"\"><img width=\"18\" height=\"18\" border=\"0\" align=\"middle\" src=\"../../../../img/up.gif\" alt=\"Top\"/></a></td><td>\n" ;
-  std::ifstream histo_file2(histos_path.c_str()) ;
+  web_page<<"<br><br><table cellpadding=\"5\"><tr valign=\"top\"><td><a href=\""<<CMP_URL<<"/\"><img width=\"18\" height=\"18\" border=\"0\" align=\"middle\" src=\"../../../../img/up.gif\" alt=\"Top\"/></a></td><td>\n" ;
+  std::ifstream histo_file2(CMP_CONFIG) ;
 
   n_ele_charge = 0 ;
   cat = "" ;
@@ -409,7 +386,7 @@ int electronValidation()
     short_histo_name.Remove(0,2) ;
 
     gif_name = "gifs/" ; gif_name += histo_name ; gif_name += ".gif" ;
-    gif_path = val_web_path ; gif_path += "/" ; gif_path += gif_name ;
+    gif_path = CMP_DIR ; gif_path += "/" ; gif_path += gif_name ;
     canvas_name = "c" ; canvas_name += histo_name ;
     canvas = new TCanvas(canvas_name) ;
     canvas->SetFillColor(10) ;
@@ -432,7 +409,7 @@ int electronValidation()
        }
       else
        {
-        web_page<<"No <b>"<<histo_path<<"</b> for "<<val_ref_release<<".<br>" ;
+        web_page<<"No <b>"<<histo_path<<"</b> for "<<CMP_BLUE_NAME<<".<br>" ;
        }
      }
 
@@ -460,7 +437,7 @@ int electronValidation()
 
     if (histo_new==0)
      {
-      web_page<<"No <b>"<<histo_path<<"</b> for "<<val_new_release<<".<br>" ;
+      web_page<<"No <b>"<<histo_path<<"</b> for "<<CMP_RED_NAME<<".<br>" ;
      }
     else
      {
@@ -543,7 +520,7 @@ int electronValidation()
 //     }
 
     if (eol)
-     { web_page<<"</td></tr>\n<tr valign=\"top\"><td><a href=\""<<val_web_url_path<<"\"><img width=\"18\" height=\"18\" border=\"0\" align=\"middle\" src=\"../../../../img/up.gif\" alt=\"Top\"/></a></td><td>" ; }
+     { web_page<<"</td></tr>\n<tr valign=\"top\"><td><a href=\""<<CMP_URL<<"/\"><img width=\"18\" height=\"18\" border=\"0\" align=\"middle\" src=\"../../../../img/up.gif\" alt=\"Top\"/></a></td><td>" ; }
     else
      { web_page<<"</td><td>" ; }
     if (eoc)
