@@ -256,7 +256,16 @@ void SiStripLatency::printSummary(std::stringstream & ss) const
     std::vector<uint16_t> allModesVector;
     allModes(allModesVector);
     if( allModesVector.size() > 1 ) {
-      ss << "There is more than one mode in the Tracker" << std::endl;
+      // In all even modes the module is off. Count only the odd modes
+      if( std::count_if( allModesVector.begin(), allModesVector.end(),
+			 [] (uint16_t num) {return num % 2 != 0;} ) == 1 ) {
+	auto it = std::find_if( allModesVector.begin(), allModesVector.end(),
+				[] (uint16_t num) {return num % 2 != 0;} );
+	ss << "Some of the modules are off. All modules ON have the same mode = " << *it  << std::endl;
+      }
+      else {
+	ss << "There is more than one mode in the Tracker" << std::endl;
+      }
     }
     else {
       ss << "Mode value is " << mode << " that means invalid" << std::endl;
