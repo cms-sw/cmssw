@@ -2148,13 +2148,13 @@ void PixelFEDCard::setChannel(unsigned int iChannel, bool mode){
     mask=mask&bit;
   }
   mask=~mask;
-  Ncntrl=mask & 0x1ffLL;
+  Ncntrl=(Ncntrl&  0xffff0000LL) | (mask&  0x1ffLL);
   mask=mask>>9;
-  NCcntrl=mask & 0x1ffLL;
+  NCcntrl=(NCcntrl&  0xffff0000LL) | (mask&  0x1ffLL);
   mask=mask>>9;
-  SCcntrl=mask & 0x1ffLL;
+  SCcntrl=(SCcntrl&  0xffff0000LL) | (mask&  0x1ffLL);
   mask=mask>>9;
-  Scntrl=mask & 0x1ffLL;
+  Scntrl=(Scntrl&  0xffff0000LL) | (mask&  0x1ffLL);
  
 }  
 
