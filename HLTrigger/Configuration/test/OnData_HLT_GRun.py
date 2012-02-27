@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_1_0/GRun/V101 (CMSSW_5_2_0_pre5_HLT9)
+# /dev/CMSSW_5_1_0/GRun/V102 (CMSSW_5_2_0_pre5_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V101')
+  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V102')
 )
 
 process.streams = cms.PSet( 
@@ -22410,7 +22410,7 @@ process.hltPreMu30Ele30CaloIdL = cms.EDFilter( "HLTPrescaler",
 process.hltL1Mu3p5EG12L1Filtered3p5 = cms.EDFilter( "HLTMuonL1Filter",
     saveTags = cms.bool( False ),
     CSCTFtag = cms.InputTag( "unused" ),
-    PreviousCandTag = cms.InputTag( "hltL1sL1MuOpenEG12" ),
+    PreviousCandTag = cms.InputTag( "hltL1sL1Mu3p5EG12" ),
     MinPt = cms.double( 3.5 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
@@ -22467,7 +22467,7 @@ process.hltEGRegionalL1Mu3p5EG12 = cms.EDFilter( "HLTEgammaL1MatchFilterRegional
     candIsolatedTag = cms.InputTag( "hltL1SeededRecoEcalCandidate" ),
     region_phi_size = cms.double( 1.044 ),
     region_eta_size = cms.double( 0.522 ),
-    L1SeedFilterTag = cms.InputTag( "hltL1sL1MuOpenEG12" ),
+    L1SeedFilterTag = cms.InputTag( "hltL1sL1Mu3p5EG12" ),
     ncandcut = cms.int32( 1 ),
     doIsolated = cms.bool( False ),
     candNonIsolatedTag = cms.InputTag( "" ),
@@ -25820,18 +25820,6 @@ process.hltRsq0p06 = cms.EDFilter( "HLTRFilter",
     doMuonCorrection = cms.bool( False ),
     minMR = cms.double( 0.0 ),
     minR = cms.double( 0.245 )
-)
-process.hltL1sL1MuOpenEG12 = cms.EDFilter( "HLTLevel1GTSeed",
-    saveTags = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_MuOpen_EG12" ),
-    L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
-    L1UseL1TriggerObjectMaps = cms.bool( True ),
-    L1UseAliasesForSeeding = cms.bool( True ),
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
-    L1NrBxInEvent = cms.int32( 3 ),
-    L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
-    L1TechTriggerSeeding = cms.bool( False )
 )
 process.hltPreMu22Photon22CaloIdL = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -32091,7 +32079,7 @@ process.HLT_Photon40_CaloIdL_RsqMR35_Rsq0p09_MR150_v1 = cms.Path( process.HLTBeg
 process.HLT_Photon40_CaloIdL_RsqMR40_Rsq0p09_MR150_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleEG24 + process.hltPrePhoton40CaloIdLRsqMR40Rsq0p09MR150 + process.HLTSinglePhoton40CaloIdLSequence + process.HLTRSequenceL1FastJetDiJet40 + process.hltRsqMR40Rsq0p09MR150 + process.HLTEndSequence )
 process.HLT_DoublePhoton40_CaloIdL_Rsq0p035_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleEG24 + process.hltPreDoublePhoton40CaloIdLRsq0p035 + process.HLTDoublePhoton40CaloIdLSequence + process.HLTRSequenceL1FastJetDiJet40 + process.hltRsq0p035 + process.HLTEndSequence )
 process.HLT_DoublePhoton40_CaloIdL_Rsq0p06_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleEG24 + process.hltPreDoublePhoton40CaloIdLRsq0p06 + process.HLTDoublePhoton40CaloIdLSequence + process.HLTRSequenceL1FastJetDiJet40 + process.hltRsq0p06 + process.HLTEndSequence )
-process.HLT_Mu22_Photon22_CaloIdL_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1MuOpenEG12 + process.hltPreMu22Photon22CaloIdL + process.hltL1Mu3p5EG12L1Filtered3p5 + process.HLTL2muonrecoSequence + process.hltL1Mu3p5EG12L2Filtered12 + process.HLTL3muonrecoSequence + process.hltL1Mu3p5EG12L3Filtered22 + process.HLTDoEGammaStartupSequence + process.hltEGRegionalL1Mu3p5EG12 + process.hltEG22EtFilterL1Mu3p5EG12 + process.HLTDoEgammaClusterShapeSequence + process.hltMu22Photon22CaloIdLClusterShapeFilter + process.HLTDoEGammaHESequence + process.hltMu22Photon22CaloIdLHEFilter + process.HLTEndSequence )
+process.HLT_Mu22_Photon22_CaloIdL_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1Mu3p5EG12 + process.hltPreMu22Photon22CaloIdL + process.hltL1Mu3p5EG12L1Filtered3p5 + process.HLTL2muonrecoSequence + process.hltL1Mu3p5EG12L2Filtered12 + process.HLTL3muonrecoSequence + process.hltL1Mu3p5EG12L3Filtered22 + process.HLTDoEGammaStartupSequence + process.hltEGRegionalL1Mu3p5EG12 + process.hltEG22EtFilterL1Mu3p5EG12 + process.HLTDoEgammaClusterShapeSequence + process.hltMu22Photon22CaloIdLClusterShapeFilter + process.HLTDoEGammaHESequence + process.hltMu22Photon22CaloIdLHEFilter + process.HLTEndSequence )
 process.HLT_Mu8_DoubleEle8_CaloIdT_TrkIdVL_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1Mu5DoubleEG5 + process.hltPreMu8DoubleEle8CaloIdTTrkIdVL + process.hltL1Mu5DoubleEG5L1Filtered0 + process.HLTL2muonrecoSequence + process.hltL2Mu5DoubleEG5L2Filtered5 + process.HLTL3muonrecoSequence + process.hltMu5DoubleEG5L3Filtered8 + process.HLTMu5DoubleEle8CaloIdTTrkIdVLSequence + process.HLTEndSequence )
 process.HLT_Mu8_Ele8_CaloIdT_TrkIdVL_Ele8_CaloIdL_TrkIdVL_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1Mu5DoubleEG5 + process.hltPreMu8Ele8CaloIdTTrkIdVLEle8CaloIdLTrkIdVL + process.hltL1Mu5DoubleEG5L1Filtered0 + process.HLTL2muonrecoSequence + process.hltL2Mu5DoubleEG5L2Filtered5 + process.HLTL3muonrecoSequence + process.hltMu5DoubleEG5L3Filtered8 + process.HLTMu5Ele8CaloIdLTrkIdVLEle8CaloIdTTrkIdVLSequence + process.HLTEndSequence )
 process.HLT_DoubleMu14_Mass8_PFMET40_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMu10MuOpenORDoubleMu103p5 + process.hltPreDoubleMu14Mass8PFMET40 + process.hltL1DoubleMu10MuOpenORDoubleMu103p5L1DiMuFiltered0 + process.HLTL2muonrecoSequence + process.hltL1DoubleMu10MuOpenORDoubleMu103p5L2DiMuFiltered0 + process.HLTL3muonrecoSequence + process.hltL1DoubleMu10MuOpenORDoubleMu103p5L3DiMu14Mass8Filtered + process.HLTPFReconstructionSequence + process.hltPFHTMET + process.hltPFMET40 + process.HLTEndSequence )
