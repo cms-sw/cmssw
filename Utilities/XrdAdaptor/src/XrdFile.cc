@@ -424,10 +424,17 @@ XrdFile::write (const void *from, IOSize n, IOOffset pos)
 bool
 XrdFile::prefetch (const IOPosBuffer *what, IOSize n)
 {
-  XReqErrorType r = kOK;
-  for (IOSize i = 0; i < n && r == kOK; ++i)
-    r = m_client->Read_Async(what[i].offset(), what[i].size());
-  return r == kOK;
+  std::vector<long long> offsets; offsets.resize(n);
+  std::vector<int> lens; lens.resize(n);
+  kXR_int64 total = 0;
+  for (IOSize i = 0; i < n; ++i) {
+    offsets[i] = what[i].offset();
+    lens[i] = what[i].size();
+    total += what[i].size();
+  }
+
+  kXR_int64 r = m_client->ReadV(NULL, &offsets[0], &lens[0], n);
+  return r == total;
 }
 
 //////////////////////////////////////////////////////////////////////
