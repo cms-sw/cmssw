@@ -368,10 +368,10 @@ HLT_BeamGas_HF_Beam2_v*
 HLT_BeamHalo_v*
 #HLT_L1_PreCollisions_v*         # L1 seed L1_PreCollisions no longer available
 #HLT_L1_Interbunch_BSC_v*       # L1 seed L1_InterBunch_Bsc no longer available
-HLT_IsoTrackHE_v*
-HLT_IsoTrackHB_v*
-#HLT_HcalPhiSym_v*                          # some L1 seeds no longer available
-#HLT_HcalNZS_v*                             # some L1 seeds no longer available
+HLT_IsoTrackHE_v*               # sr #126680
+HLT_IsoTrackHB_v*               # sr #126680
+#HLT_HcalPhiSym_v*              # sr #126680 some L1 seeds no longer available
+#HLT_HcalNZS_v*                 # sr #126680 some L1 seeds no longer available
 HLT_GlobalRunHPDNoise_v*
 HLT_L1Tech_HBHEHO_totalOR_v*
 HLT_L1Tech_HCAL_HF_single_channel_v*
