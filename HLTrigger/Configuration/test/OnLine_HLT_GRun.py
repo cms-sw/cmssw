@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_1_0/GRun/V106 (CMSSW_5_2_0_pre5_HLT9)
+# /dev/CMSSW_5_1_0/GRun/V107 (CMSSW_5_2_0_pre5_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V106')
+  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V107')
 )
 
 process.streams = cms.PSet( 
@@ -26528,7 +26528,7 @@ process.hltPreDoubleEle14CaloIdTTrkIdVLMass8PFMET50 = cms.EDFilter( "HLTPrescale
 )
 process.hltL1sL1Mu12EG6ORL1MuOpenEG12 = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_Mu12_EG6 OR L1_MuOpen_EG12" ),
+    L1SeedsLogicalExpression = cms.string( "L1_Mu12_EG7 OR L1_MuOpen_EG12" ),
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
     L1UseL1TriggerObjectMaps = cms.bool( True ),
     L1UseAliasesForSeeding = cms.bool( True ),
