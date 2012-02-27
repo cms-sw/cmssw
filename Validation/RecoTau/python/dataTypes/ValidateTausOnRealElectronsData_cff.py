@@ -20,21 +20,21 @@ import PhysicsTools.PatAlgos.tools.helpers as helpers
 # )
 
 selectedElectrons = cms.EDFilter(
-    "ElectronSelector",
+    "TauValElectronSelector",
     src = cms.InputTag('gsfElectrons'),
     cut = cms.string("pt > 25.0 && abs(eta) < 2.4 && isElectron && abs(gsfTrack.dxy) < 2. && abs(gsfTrack.dz) < 24."),
     filter = cms.bool(False)
 	)
 
 idElectrons = cms.EDFilter(
-    "ElectronSelector",
+    "TauValElectronSelector",
     src = cms.InputTag('selectedElectrons'),
     cut = cms.string('ecalDrivenSeed & isGsfCtfScPixChargeConsistent & isGsfScPixChargeConsistent & isGsfCtfChargeConsistent & !isEBEEGap & (isEB & sigmaIetaIeta<0.01 & abs(deltaPhiSuperClusterTrackAtVtx)<0.06 & abs(deltaEtaSuperClusterTrackAtVtx)<0.006 & hadronicOverEm<0.04 | isEE & sigmaIetaIeta<0.03 & abs(deltaPhiSuperClusterTrackAtVtx)<0.04 & abs(deltaEtaSuperClusterTrackAtVtx)<0.007 & hadronicOverEm<0.025)'),
     filter = cms.bool(False)
 )
 
 trackElectrons = cms.EDFilter(
-    "ElectronSelector",
+    "TauValElectronSelector",
     src = cms.InputTag('idElectrons'),
     cut = cms.string('gsfTrack.isNonnull  && 0.7 < eSuperClusterOverP < 1.5'),
 #    cut = cms.string('gsfTrack.isNonnull && gsfTrack.trackerExpectedHitsInner.numberOfHits = 0 && 0.7 < eSuperClusterOverP < 1.5'),
@@ -42,7 +42,7 @@ trackElectrons = cms.EDFilter(
 )
 
 isolatedElectrons = cms.EDFilter(
-    "ElectronSelector",
+    "TauValElectronSelector",
     src = cms.InputTag('trackElectrons'),
     cut = cms.string("(isEB & (dr04TkSumPt/pt + max(0.,dr04EcalRecHitSumEt-2.)/pt + dr04HcalTowerSumEt/pt < 0.10)) | (isEE & (dr04TkSumPt/pt + dr04EcalRecHitSumEt/pt + dr04HcalTowerSumEt/pt < 0.09))"),
     filter = cms.bool(False)
