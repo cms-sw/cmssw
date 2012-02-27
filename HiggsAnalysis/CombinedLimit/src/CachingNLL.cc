@@ -199,7 +199,8 @@ cacheutils::CachingPdf::realFill_(const RooAbsData &data, std::vector<Double_t> 
 cacheutils::CachingAddNLL::CachingAddNLL(const char *name, const char *title, RooAbsPdf *pdf, RooAbsData *data) :
     RooAbsReal(name, title),
     pdf_(pdf),
-    params_("params","parameters",this)
+    params_("params","parameters",this),
+    zeroPoint_(0)
 {
     if (pdf == 0) throw std::invalid_argument(std::string("Pdf passed to ")+name+" is null");
     setData(*data);
@@ -209,7 +210,8 @@ cacheutils::CachingAddNLL::CachingAddNLL(const char *name, const char *title, Ro
 cacheutils::CachingAddNLL::CachingAddNLL(const CachingAddNLL &other, const char *name) :
     RooAbsReal(name ? name : (TString("nll_")+other.pdf_->GetName()).Data(), ""),
     pdf_(other.pdf_),
-    params_("params","parameters",this)
+    params_("params","parameters",this),
+    zeroPoint_(0)
 {
     setData(*other.data_);
     setup_();
@@ -367,6 +369,7 @@ cacheutils::CachingAddNLL::evaluate() const
     }
     //ret += expectedEvents - UInt_t(sumWeights_) * log(expectedEvents); // no, doesn't work with Asimov dataset
     ret += expectedEvents - sumWeights_ * log(expectedEvents);
+    ret += zeroPoint_;
     // std::cout << "     plus extended term: " << ret << std::endl;
     return ret;
 }
@@ -464,6 +467,7 @@ cacheutils::CachingSimNLL::setup_()
         //constrainPdfs_.push_back(new RooProdPdf("constraints","constraints", constraints));
         for (int i = 0, n = constraints.getSize(); i < n; ++i) {
             constrainPdfs_.push_back(dynamic_cast<RooAbsPdf*>(constraints.at(i)));
+            constrainZeroPoints_.push_back(0);
             //std::cout << "Constraint pdf: " << constraints.at(i)->GetName() << std::endl;
         }
     } else {
@@ -535,7 +539,8 @@ cacheutils::CachingSimNLL::evaluate() const
         #ifdef SIMNLL_KAHAN_SUM
         compensation = 0;
         #endif
-        for (std::vector<RooAbsPdf *>::const_iterator it = constrainPdfs_.begin(), ed = constrainPdfs_.end(); it != ed; ++it) { 
+        std::vector<double>::const_iterator itz = constrainZeroPoints_.begin();
+        for (std::vector<RooAbsPdf *>::const_iterator it = constrainPdfs_.begin(), ed = constrainPdfs_.end(); it != ed; ++it, ++itz) { 
             double pdfval = (*it)->getVal(nuis_);
             if (!isnormal(pdfval) || pdfval <= 0) {
                 if (!noDeepLEE_) logEvalError((std::string("Constraint pdf ")+(*it)->GetName()+" evaluated to zero, negative or error").c_str());
@@ -550,10 +555,10 @@ cacheutils::CachingSimNLL::evaluate() const
                 compensation = kahan_d - kahan_y;
                 ret  = kahan_t;
             } else {
-                ret -= log(pdfval);
+                ret -= (log(pdfval) + *itz);
             }
             #else
-            ret -= log(pdfval);
+            ret -= (log(pdfval) + *itz);
             #endif
         }
     }
@@ -604,6 +609,27 @@ void cacheutils::CachingSimNLL::splitWithWeights(const RooAbsData &data, const R
         //std::cout << "Event " << i << " of weight " << data.weight() << " is in bin " << ib << " label " << cat->getLabel() << std::endl;
         if (data.weight() > 0) datasets_[ib]->add(obs, data.weight());
     }
+}
+
+void cacheutils::CachingSimNLL::setZeroPoint() {
+    for (std::vector<CachingAddNLL*>::const_iterator it = pdfs_.begin(), ed = pdfs_.end(); it != ed; ++it) {
+        if (*it != 0) (*it)->setZeroPoint();
+    }
+    std::vector<RooAbsPdf *>::const_iterator it = constrainPdfs_.begin(), ed = constrainPdfs_.end();
+    std::vector<double>::iterator itz = constrainZeroPoints_.begin();
+    for (std::vector<RooAbsPdf *>::const_iterator it = constrainPdfs_.begin(), ed = constrainPdfs_.end(); it != ed; ++it, ++itz) {
+        double pdfval = (*it)->getVal(nuis_);
+        if (isnormal(pdfval) || pdfval > 0) *itz = -log(pdfval);
+    }
+    setValueDirty();
+}
+
+void cacheutils::CachingSimNLL::clearZeroPoint() {
+    for (std::vector<CachingAddNLL*>::const_iterator it = pdfs_.begin(), ed = pdfs_.end(); it != ed; ++it) {
+        if (*it != 0) (*it)->clearZeroPoint();
+    }
+    std::fill(constrainZeroPoints_.begin(), constrainZeroPoints_.end(), 0.0);
+    setValueDirty();
 }
 
 RooArgSet* 

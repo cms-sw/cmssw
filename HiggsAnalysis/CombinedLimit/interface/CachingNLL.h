@@ -82,6 +82,8 @@ class CachingAddNLL : public RooAbsReal {
         virtual RooArgSet* getParameters(const RooArgSet* depList, Bool_t stripDisconnected = kTRUE) const ;
         double  sumWeights() const { return sumWeights_; }
         const RooAbsPdf *pdf() const { return pdf_; }
+        void setZeroPoint() { zeroPoint_ = -this->getVal(); setValueDirty(); }
+        void clearZeroPoint() { zeroPoint_ = 0.0; setValueDirty();  }
     private:
         void setup_();
         RooAbsPdf *pdf_;
@@ -94,6 +96,7 @@ class CachingAddNLL : public RooAbsReal {
         mutable std::vector<RooAbsReal*> integrals_;
         mutable std::vector<Double_t> partialSum_;
         mutable bool isRooRealSum_;
+        double zeroPoint_;
 };
 
 class CachingSimNLL  : public RooAbsReal {
@@ -109,6 +112,8 @@ class CachingSimNLL  : public RooAbsReal {
         virtual RooArgSet* getParameters(const RooArgSet* depList, Bool_t stripDisconnected = kTRUE) const ;
         void splitWithWeights(const RooAbsData &data, const RooAbsCategory& splitCat, Bool_t createEmptyDataSets) ;
         static void setNoDeepLogEvalError(bool noDeep) { noDeepLEE_ = noDeep; }
+        void setZeroPoint() ; 
+        void clearZeroPoint() ;
         friend class CachingAddNLL;
     private:
         void setup_();
@@ -124,6 +129,7 @@ class CachingSimNLL  : public RooAbsReal {
         std::vector<RooDataSet *>       datasets_;
         static bool noDeepLEE_;
         static bool hasError_;
+        std::vector<double> constrainZeroPoints_;
 };
 
 }
