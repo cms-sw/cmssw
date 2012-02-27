@@ -8,12 +8,16 @@ class RooRealVar;
 #include <RooArgSet.h>
 #include <RooMinimizer.h>
 #include <boost/program_options.hpp>
+#include "../interface/SequentialMinimizer.h"
 
 class CascadeMinimizer {
     public:
         enum Mode { Constrained, Unconstrained };
         CascadeMinimizer(RooAbsReal &nll, Mode mode, RooRealVar *poi=0, int initialStrategy=0) ;
-        bool minimize(int verbose=0);
+        // do a new minimization, assuming the initial state is random
+        bool minimize(int verbose=0, bool cascade=true);
+        // do a new minimization, assuming a plausible initial state
+        bool improve(int verbose=0, bool cascade=true);
         RooMinimizer & minimizer() { return minimizer_; }
         RooFitResult *save() { return minimizer().save(); }
         void  setStrategy(int strategy) { strategy_ = strategy; }
@@ -24,6 +28,7 @@ class CascadeMinimizer {
     private:
         RooAbsReal & nll_;
         RooMinimizer minimizer_;
+        std::auto_ptr<SequentialMinimizer> seqmin_; 
         Mode         mode_;
         int          strategy_;
         RooRealVar * poi_; 
@@ -38,10 +43,14 @@ class CascadeMinimizer {
         };
         /// list of algorithms to run if the default one fails
         static std::vector<Algo> fallbacks_;
+        /// do a pre-scan
+        static bool preScan_;
         /// do first a fit of only the POI
         static bool poiOnlyFit_;
         /// do first a minimization of each nuisance individually 
         static bool singleNuisFit_;
+        /// do first a fit of only the POI
+        static bool setZeroPoint_;
 };
 
 #endif

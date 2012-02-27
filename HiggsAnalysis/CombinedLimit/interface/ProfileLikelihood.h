@@ -37,6 +37,8 @@ protected:
   static float       minimizerTolerance_, minimizerToleranceForBF_;
 
   static bool useMinos_, bruteForce_;
+  static std::string bfAlgo_;
+  static int  points_;
 
   // ----- options for handling cases where the likelihood fit misbihaves ------
   /// compute the limit N times
@@ -56,6 +58,7 @@ protected:
   static bool reportPVal_;
 
   static float signalForSignificance_;
+  static float mass_;
 
   static std::string plot_;
 
@@ -65,6 +68,7 @@ protected:
   double upperLimitWithMinos(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &poi, double tolerance, double cl) const ;
   std::pair<double,double> upperLimitBruteForce(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &poi, const RooArgSet *nuisances, double tolerance, double cl) const ;
   double significanceBruteForce(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &poi, const RooArgSet *nuisances, double tolerance) const ;
+  double significanceFromScan(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &poi, const RooArgSet *nuisances, double tolerance, int npoints) const ;
 };
 
 #endif
