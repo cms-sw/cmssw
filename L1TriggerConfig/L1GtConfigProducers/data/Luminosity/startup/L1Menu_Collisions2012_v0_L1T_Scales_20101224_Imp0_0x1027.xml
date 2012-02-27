@@ -2,10 +2,10 @@
 <def>
 <header>
     <MenuInterface>L1Menu_Collisions2012_v0</MenuInterface>
-    <MenuInterface_CreationDate>2011-09-07</MenuInterface_CreationDate>
+    <MenuInterface_CreationDate>2012-02-21</MenuInterface_CreationDate>
     <MenuInterface_CreationAuthor>Vasile Mihai Ghete</MenuInterface_CreationAuthor>
     <MenuInterface_Description>L1 menu for pp data taking 2012</MenuInterface_Description>
-    <Menu_CreationDate>2012-02-01</Menu_CreationDate>
+    <Menu_CreationDate>2012-02-26</Menu_CreationDate>
     <Menu_CreationAuthor>Vasile Mihai Ghete</Menu_CreationAuthor>
     <Menu_Description>L1 menu for pp data taking 2012</Menu_Description>
     <AlgImplementation>Imp0</AlgImplementation>
@@ -13,6 +13,14 @@
 </header>
   <condition_chip_1>
     <prealgos>
+      <L1_DoubleEG3_FwdVeto algAlias="L1_DoubleEG3_FwdVeto">
+        ( DoubleIsoEG_0x03 OR DoubleNoIsoEG_0x03 OR ( SingleIsoEG_0x03 AND SingleNoIsoEG_0x03 ) ) AND ( NOT HfBitCounts_Ind0_0x01 ) AND ( NOT HfBitCounts_Ind1_0x01 ) AND ( NOT HfBitCounts_Ind2_0x01 ) AND ( NOT HfBitCounts_Ind3_0x01 )
+        <output_pin nr="16" pin="a" />
+      </L1_DoubleEG3_FwdVeto>
+      <L1_DoubleForJet16_EtaOpp algAlias="L1_DoubleForJet16_EtaOpp">
+        DoubleForJet_0x04_EtaOpp
+        <output_pin nr="15" pin="a" />
+      </L1_DoubleForJet16_EtaOpp>
       <L1_DoubleJet36_Central algAlias="L1_DoubleJetC36">
         DoubleCenJet_0x09 OR DoubleTauJet_0x09 OR ( SingleCenJet_0x09 AND SingleTauJet_0x09 )
         <output_pin nr="5" pin="a" />
@@ -25,6 +33,18 @@
         DoubleCenJet_0x0E OR DoubleTauJet_0x0E OR ( SingleCenJet_0x0E AND SingleTauJet_0x0E )
         <output_pin nr="1" pin="a" />
       </L1_DoubleJetC56>
+      <L1_DoubleMu_12_5 algAlias="L1_DoubleMu_12_5">
+        DoubleMu_0x0E_0x09
+        <output_pin nr="29" pin="a" />
+      </L1_DoubleMu_12_5>
+      <L1_ETT140 algAlias="L1_ETT140">
+        ETT_0x118
+        <output_pin nr="4" pin="a" />
+      </L1_ETT140>
+      <L1_MuOpen_EG5 algAlias="L1_MuOpen_EG5">
+        SingleMu_0x01_Open AND ( SingleIsoEG_0x05 OR SingleNoIsoEG_0x05 )
+        <output_pin nr="28" pin="a" />
+      </L1_MuOpen_EG5>
       <L1_QuadJetC32 algAlias="L1_QuadJetC32">
         QuadCenJet_0x08 OR QuadTauJet_0x08 OR ( TripleCenJet_0x08 AND SingleTauJet_0x08 ) OR ( TripleTauJet_0x08 AND SingleCenJet_0x08 ) OR ( DoubleCenJet_0x08 AND DoubleTauJet_0x08 )
         <output_pin nr="14" pin="a" />
@@ -37,11 +57,19 @@
         QuadCenJet_0x0A OR QuadTauJet_0x0A OR ( TripleCenJet_0x0A AND SingleTauJet_0x0A ) OR ( TripleTauJet_0x0A AND SingleCenJet_0x0A ) OR ( DoubleCenJet_0x0A AND DoubleTauJet_0x0A )
         <output_pin nr="11" pin="a" />
       </L1_QuadJetC40>
+      <L1_SingleForJet16 algAlias="L1_SingleForJet16">
+        SingleForJet_0x04
+        <output_pin nr="19" pin="a" />
+      </L1_SingleForJet16>
+      <L1_SingleJet16_FwdVeto5 algAlias="L1_SingleJet16_FwdVeto5">
+        ( SingleCenJet_0x04 OR SingleForJet_0x04 OR SingleTauJet_0x04 ) AND ( NOT HfBitCounts_Ind0_0x05 ) AND ( NOT HfBitCounts_Ind1_0x05 ) AND ( NOT HfBitCounts_Ind2_0x05 ) AND ( NOT HfBitCounts_Ind3_0x05 )
+        <output_pin nr="18" pin="a" />
+      </L1_SingleJet16_FwdVeto5>
       <L1_SingleJet20_Central_NotBptxOR algAlias="L1_SingleJetC20_NotBptxOR">
         ( SingleCenJet_0x05 OR SingleTauJet_0x05 ) AND ( NOT ( BPTX_plus.v0 OR BPTX_minus.v0 ) )
         <output_pin nr="17" pin="a" />
       </L1_SingleJet20_Central_NotBptxOR>
-      <L1_SingleJet36_FwdVeto5 algAlias="L1_SingleJet36_FwdVeto">
+      <L1_SingleJet36_FwdVeto5 algAlias="L1_SingleJet36_FwdVeto5">
         ( SingleCenJet_0x09 OR SingleForJet_0x09 OR SingleTauJet_0x09 ) AND ( NOT HfBitCounts_Ind0_0x05 ) AND ( NOT HfBitCounts_Ind1_0x05 ) AND ( NOT HfBitCounts_Ind2_0x05 ) AND ( NOT HfBitCounts_Ind3_0x05 )
         <output_pin nr="7" pin="a" />
       </L1_SingleJet36_FwdVeto5>
@@ -49,10 +77,10 @@
         TripleIsoEG_0x07 OR TripleNoIsoEG_0x07 OR ( DoubleIsoEG_0x07 AND SingleNoIsoEG_0x07 ) OR ( DoubleNoIsoEG_0x07 AND SingleIsoEG_0x07 )
         <output_pin nr="30" pin="a" />
       </L1_TripleEG7>
-      <L1_TripleJet28_Central algAlias="L1_TripleJetC28">
-        TripleCenJet_0x07 OR TripleTauJet_0x07 OR ( DoubleCenJet_0x07 AND SingleTauJet_0x07 ) OR ( DoubleTauJet_0x07 AND SingleCenJet_0x07 )
+      <L1_TripleJetC_52_28_28 algAlias="L1_TripleJetC_52_28_28">
+        TripleCenJet_0x0D_0x07_0x07 OR TripleTauJet_0x0D_0x07_0x07 OR ( DoubleCenJet_0x07 AND SingleTauJet_0x0D ) OR ( DoubleTauJet_0x07 AND SingleCenJet_0x0D ) OR ( DoubleCenJet_0x0D_0x07 AND SingleTauJet_0x07 ) OR ( DoubleTauJet_0x0D_0x07 AND SingleCenJet_0x07 )
         <output_pin nr="13" pin="a" />
-      </L1_TripleJet28_Central>
+      </L1_TripleJetC_52_28_28>
       <L1_TripleJet_64_44_24_VBF algAlias="L1_TripleJet_64_44_24_VBF">
         TripleCenJet_0x10_0x0B_0x06 OR TripleTauJet_0x10_0x0B_0x06 OR ( ( DoubleCenJet_0x0B_0x06 OR DoubleTauJet_0x0B_0x06 OR ( SingleCenJet_0x0B AND SingleTauJet_0x06 ) OR ( SingleTauJet_0x0B AND SingleCenJet_0x06 ) ) AND SingleForJet_0x10 ) OR ( ( DoubleCenJet_0x10_0x06 OR DoubleTauJet_0x10_0x06 OR ( SingleCenJet_0x10 AND SingleTauJet_0x06 ) OR ( SingleTauJet_0x10 AND SingleCenJet_0x06 ) ) AND SingleForJet_0x0B )
         <output_pin nr="8" pin="a" />
@@ -61,6 +89,18 @@
         TripleCenJet_0x10_0x0C_0x07 OR TripleTauJet_0x10_0x0C_0x07 OR ( ( DoubleCenJet_0x0C_0x07 OR DoubleTauJet_0x0C_0x07 OR ( SingleCenJet_0x0C AND SingleTauJet_0x07 ) OR ( SingleTauJet_0x0C AND SingleCenJet_0x07 ) ) AND SingleForJet_0x10 ) OR ( ( DoubleCenJet_0x10_0x07 OR DoubleTauJet_0x10_0x07 OR ( SingleCenJet_0x10 AND SingleTauJet_0x07 ) OR ( SingleTauJet_0x10 AND SingleCenJet_0x07 ) ) AND SingleForJet_0x0C )
         <output_pin nr="9" pin="a" />
       </L1_TripleJet_64_48_28_VBF>
+      <L1_TripleJet_68_48_32_VBF algAlias="L1_TripleJet_68_48_32_VBF">
+        TripleCenJet_0x11_0x0C_0x08 OR TripleTauJet_0x11_0x0C_0x08 OR ( ( DoubleCenJet_0x0C_0x08 OR DoubleTauJet_0x0C_0x08 OR ( SingleCenJet_0x0C AND SingleTauJet_0x08 ) OR ( SingleTauJet_0x0C AND SingleCenJet_0x08 ) ) AND SingleForJet_0x11 ) OR ( ( DoubleCenJet_0x11_0x08 OR DoubleTauJet_0x11_0x08 OR ( SingleCenJet_0x11 AND SingleTauJet_0x08 ) OR ( SingleTauJet_0x11 AND SingleCenJet_0x08 ) ) AND SingleForJet_0x0C )
+        <output_pin nr="10" pin="a" />
+      </L1_TripleJet_68_48_32_VBF>
+      <L1_TripleMu0_HighQ algAlias="L1_TripleMu0_HighQ">
+        TripleMu_0x01_HighQ
+        <output_pin nr="2" pin="a" />
+      </L1_TripleMu0_HighQ>
+      <L1_TripleMu_5_5_0 algAlias="L1_TripleMu_5_5_0">
+        TripleMu_0x09_0x09_0x01
+        <output_pin nr="3" pin="a" />
+      </L1_TripleMu_5_5_0>
     </prealgos>
     <conditions>
     <DoubleCenJet_0x07 condition="calo" particle="jet" type="2_s">
@@ -237,6 +277,64 @@
       </value>
       </phi>
     </DoubleCenJet_0x0C_0x07>
+    <DoubleCenJet_0x0C_0x08 condition="calo" particle="jet" type="2_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        0c
+      </value>
+      <value>
+        08
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        7F7F
+      </value>
+      <value>
+        7F7F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </DoubleCenJet_0x0C_0x08>
+    <DoubleCenJet_0x0D_0x07 condition="calo" particle="jet" type="2_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        0d
+      </value>
+      <value>
+        07
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        7F7F
+      </value>
+      <value>
+        7F7F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </DoubleCenJet_0x0D_0x07>
     <DoubleCenJet_0x0E condition="calo" particle="jet" type="2_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -324,6 +422,93 @@
       </value>
       </phi>
     </DoubleCenJet_0x10_0x07>
+    <DoubleCenJet_0x11_0x08 condition="calo" particle="jet" type="2_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        11
+      </value>
+      <value>
+        08
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        7F7F
+      </value>
+      <value>
+        7F7F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </DoubleCenJet_0x11_0x08>
+    <DoubleForJet_0x04_EtaOpp condition="calo" particle="fwdjet" type="2_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        04
+      </value>
+      <value>
+        04
+      </value>
+      </et_threshold>
+      <eta max="0f0f" min="0000">
+      <value>
+        000F
+      </value>
+      <value>
+        0F00
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </DoubleForJet_0x04_EtaOpp>
+    <DoubleIsoEG_0x03 condition="calo" particle="ieg" type="2_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        03
+      </value>
+      <value>
+        03
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        7F7F
+      </value>
+      <value>
+        7F7F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </DoubleIsoEG_0x03>
     <DoubleIsoEG_0x07 condition="calo" particle="ieg" type="2_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -353,6 +538,101 @@
       </value>
       </phi>
     </DoubleIsoEG_0x07>
+    <DoubleMu_0x0E_0x09 condition="muon" particle="muon" type="2_s">
+      <pt_h_threshold max="1f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        0e
+      </value>
+      <value>
+        09
+      </value>
+      </pt_h_threshold>
+      <pt_l_threshold max="1f" min="00">
+      <value>0e<en_mip mode="bit">0</en_mip>
+            <en_iso mode="bit">
+        0
+      </en_iso>
+      <request_iso mode="bit">
+        0
+      </request_iso>
+      </value>
+      <value>09<en_mip mode="bit">0</en_mip>
+            <en_iso mode="bit">
+        0
+      </en_iso>
+      <request_iso mode="bit">
+        0
+      </request_iso>
+      </value>
+      </pt_l_threshold>
+            <eta max="ffffffffffffffff" min="0000000000000000">
+      <value>
+        FFFFFFFFFFFFFFFF
+      </value>
+      <value>
+        FFFFFFFFFFFFFFFF
+      </value>
+      </eta>
+            <phi_h max="8f" min="00">
+      <value>
+        8f
+      </value>
+      <value>
+        8f
+      </value>
+      </phi_h>
+            <phi_l max="ffffffffffffffff" min="0000000000000000">
+      <value>
+        00
+      </value>
+      <value>
+        00
+      </value>
+      </phi_l>
+      <charge_correlation max="7" min="1">
+      1
+      </charge_correlation>
+            <quality max="ff" min="00">
+      <value>
+        e8
+      </value>
+      <value>
+        e8
+      </value>
+      </quality>
+    </DoubleMu_0x0E_0x09>
+    <DoubleNoIsoEG_0x03 condition="calo" particle="eg" type="2_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        03
+      </value>
+      <value>
+        03
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        7F7F
+      </value>
+      <value>
+        7F7F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </DoubleNoIsoEG_0x03>
     <DoubleNoIsoEG_0x07 condition="calo" particle="eg" type="2_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -556,6 +836,64 @@
       </value>
       </phi>
     </DoubleTauJet_0x0C_0x07>
+    <DoubleTauJet_0x0C_0x08 condition="calo" particle="tau" type="2_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        0c
+      </value>
+      <value>
+        08
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        7F7F
+      </value>
+      <value>
+        7F7F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </DoubleTauJet_0x0C_0x08>
+    <DoubleTauJet_0x0D_0x07 condition="calo" particle="tau" type="2_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        0d
+      </value>
+      <value>
+        07
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        7F7F
+      </value>
+      <value>
+        7F7F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </DoubleTauJet_0x0D_0x07>
     <DoubleTauJet_0x0E condition="calo" particle="tau" type="2_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -643,6 +981,35 @@
       </value>
       </phi>
     </DoubleTauJet_0x10_0x07>
+    <DoubleTauJet_0x11_0x08 condition="calo" particle="tau" type="2_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        11
+      </value>
+      <value>
+        08
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        7F7F
+      </value>
+      <value>
+        7F7F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </DoubleTauJet_0x11_0x08>
     <ETM_0x03C condition="esums" particle="etm" type="etm">
       <et_threshold max="fff" min="000">
       <ge_eq mode="bit">
@@ -661,6 +1028,34 @@
       </value>
       </phi>
     </ETM_0x03C>
+    <ETT_0x118 condition="esums" particle="ett" type="ett">
+      <et_threshold max="fff" min="000">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <en_overflow mode="bit">
+        0
+      </en_overflow>
+      <value>
+        118
+      </value>
+      </et_threshold>
+            <phi max="ffffffffffffffffff" min="000000000000000000">
+      <value>
+        00
+      </value>
+      </phi>
+    </ETT_0x118>
+    <HfBitCounts_Ind0_0x01 condition="CondHfBitCounts" particle="HfBitCounts" type="0">
+      <et_threshold max="7" min="0">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        1
+      </value>
+      </et_threshold>
+    </HfBitCounts_Ind0_0x01>
     <HfBitCounts_Ind0_0x05 condition="CondHfBitCounts" particle="HfBitCounts" type="0">
       <et_threshold max="7" min="0">
       <ge_eq mode="bit">
@@ -671,6 +1066,16 @@
       </value>
       </et_threshold>
     </HfBitCounts_Ind0_0x05>
+    <HfBitCounts_Ind1_0x01 condition="CondHfBitCounts" particle="HfBitCounts" type="1">
+      <et_threshold max="7" min="0">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        1
+      </value>
+      </et_threshold>
+    </HfBitCounts_Ind1_0x01>
     <HfBitCounts_Ind1_0x05 condition="CondHfBitCounts" particle="HfBitCounts" type="1">
       <et_threshold max="7" min="0">
       <ge_eq mode="bit">
@@ -681,6 +1086,16 @@
       </value>
       </et_threshold>
     </HfBitCounts_Ind1_0x05>
+    <HfBitCounts_Ind2_0x01 condition="CondHfBitCounts" particle="HfBitCounts" type="2">
+      <et_threshold max="7" min="0">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        1
+      </value>
+      </et_threshold>
+    </HfBitCounts_Ind2_0x01>
     <HfBitCounts_Ind2_0x05 condition="CondHfBitCounts" particle="HfBitCounts" type="2">
       <et_threshold max="7" min="0">
       <ge_eq mode="bit">
@@ -691,6 +1106,16 @@
       </value>
       </et_threshold>
     </HfBitCounts_Ind2_0x05>
+    <HfBitCounts_Ind3_0x01 condition="CondHfBitCounts" particle="HfBitCounts" type="3">
+      <et_threshold max="7" min="0">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        1
+      </value>
+      </et_threshold>
+    </HfBitCounts_Ind3_0x01>
     <HfBitCounts_Ind3_0x05 condition="CondHfBitCounts" particle="HfBitCounts" type="3">
       <et_threshold max="7" min="0">
       <ge_eq mode="bit">
@@ -983,6 +1408,26 @@
       </value>
       </phi>
     </QuadTauJet_0x0A>
+    <SingleCenJet_0x04 condition="calo" particle="jet" type="1_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        04
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        7F7F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </SingleCenJet_0x04>
     <SingleCenJet_0x05 condition="calo" particle="jet" type="1_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -1143,6 +1588,26 @@
       </value>
       </phi>
     </SingleCenJet_0x0C>
+    <SingleCenJet_0x0D condition="calo" particle="jet" type="1_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        0d
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        7F7F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </SingleCenJet_0x0D>
     <SingleCenJet_0x0E condition="calo" particle="jet" type="1_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -1183,6 +1648,46 @@
       </value>
       </phi>
     </SingleCenJet_0x10>
+    <SingleCenJet_0x11 condition="calo" particle="jet" type="1_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        11
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        7F7F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </SingleCenJet_0x11>
+    <SingleForJet_0x04 condition="calo" particle="fwdjet" type="1_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        04
+      </value>
+      </et_threshold>
+      <eta max="0f0f" min="0000">
+      <value>
+        0F0F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </SingleForJet_0x04>
     <SingleForJet_0x09 condition="calo" particle="fwdjet" type="1_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -1263,6 +1768,66 @@
       </value>
       </phi>
     </SingleForJet_0x10>
+    <SingleForJet_0x11 condition="calo" particle="fwdjet" type="1_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        11
+      </value>
+      </et_threshold>
+      <eta max="0f0f" min="0000">
+      <value>
+        0F0F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </SingleForJet_0x11>
+    <SingleIsoEG_0x03 condition="calo" particle="ieg" type="1_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        03
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        7F7F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </SingleIsoEG_0x03>
+    <SingleIsoEG_0x05 condition="calo" particle="ieg" type="1_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        05
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        7F7F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </SingleIsoEG_0x05>
     <SingleIsoEG_0x07 condition="calo" particle="ieg" type="1_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -1283,6 +1848,89 @@
       </value>
       </phi>
     </SingleIsoEG_0x07>
+    <SingleMu_0x01_Open condition="muon" particle="muon" type="1_s">
+      <pt_h_threshold max="1f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        01
+      </value>
+      </pt_h_threshold>
+      <pt_l_threshold max="1f" min="00">
+      <value>01<en_mip mode="bit">0</en_mip>
+            <en_iso mode="bit">
+        0
+      </en_iso>
+      <request_iso mode="bit">
+        0
+      </request_iso>
+      </value>
+      </pt_l_threshold>
+            <eta max="ffffffffffffffff" min="0000000000000000">
+      <value>
+        FFFFFFFFFFFFFFFF
+      </value>
+      </eta>
+            <phi_h max="8f" min="00">
+      <value>
+        8f
+      </value>
+      </phi_h>
+            <phi_l max="ffffffffffffffff" min="0000000000000000">
+      <value>
+        00
+      </value>
+      </phi_l>
+      <charge_correlation max="7" min="1">
+      1
+      </charge_correlation>
+            <quality max="ff" min="00">
+      <value>
+        fc
+      </value>
+      </quality>
+    </SingleMu_0x01_Open>
+    <SingleNoIsoEG_0x03 condition="calo" particle="eg" type="1_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        03
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        7F7F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </SingleNoIsoEG_0x03>
+    <SingleNoIsoEG_0x05 condition="calo" particle="eg" type="1_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        05
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        7F7F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </SingleNoIsoEG_0x05>
     <SingleNoIsoEG_0x07 condition="calo" particle="eg" type="1_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -1303,6 +1951,26 @@
       </value>
       </phi>
     </SingleNoIsoEG_0x07>
+    <SingleTauJet_0x04 condition="calo" particle="tau" type="1_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        04
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        7F7F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </SingleTauJet_0x04>
     <SingleTauJet_0x05 condition="calo" particle="tau" type="1_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -1463,6 +2131,26 @@
       </value>
       </phi>
     </SingleTauJet_0x0C>
+    <SingleTauJet_0x0D condition="calo" particle="tau" type="1_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        0d
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        7F7F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </SingleTauJet_0x0D>
     <SingleTauJet_0x0E condition="calo" particle="tau" type="1_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -1503,28 +2191,16 @@
       </value>
       </phi>
     </SingleTauJet_0x10>
-    <TripleCenJet_0x07 condition="calo" particle="jet" type="3">
+    <SingleTauJet_0x11 condition="calo" particle="tau" type="1_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
         1
       </ge_eq>
       <value>
-        07
-      </value>
-      <value>
-        07
-      </value>
-      <value>
-        07
+        11
       </value>
       </et_threshold>
       <eta max="7F7F" min="0000">
-      <value>
-        7F7F
-      </value>
-      <value>
-        7F7F
-      </value>
       <value>
         7F7F
       </value>
@@ -1533,14 +2209,8 @@
       <value>
         3ffff
       </value>
-      <value>
-        3ffff
-      </value>
-      <value>
-        3ffff
-      </value>
       </phi>
-    </TripleCenJet_0x07>
+    </SingleTauJet_0x11>
     <TripleCenJet_0x08 condition="calo" particle="jet" type="3">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -1655,6 +2325,44 @@
       </value>
       </phi>
     </TripleCenJet_0x0A>
+    <TripleCenJet_0x0D_0x07_0x07 condition="calo" particle="jet" type="3">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        0d
+      </value>
+      <value>
+        07
+      </value>
+      <value>
+        07
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        7F7F
+      </value>
+      <value>
+        7F7F
+      </value>
+      <value>
+        7F7F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      <value>
+        3ffff
+      </value>
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </TripleCenJet_0x0D_0x07_0x07>
     <TripleCenJet_0x10_0x0B_0x06 condition="calo" particle="jet" type="3">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -1731,6 +2439,44 @@
       </value>
       </phi>
     </TripleCenJet_0x10_0x0C_0x07>
+    <TripleCenJet_0x11_0x0C_0x08 condition="calo" particle="jet" type="3">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        11
+      </value>
+      <value>
+        0c
+      </value>
+      <value>
+        08
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        7F7F
+      </value>
+      <value>
+        7F7F
+      </value>
+      <value>
+        7F7F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      <value>
+        3ffff
+      </value>
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </TripleCenJet_0x11_0x0C_0x08>
     <TripleIsoEG_0x07 condition="calo" particle="ieg" type="3">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -1769,6 +2515,184 @@
       </value>
       </phi>
     </TripleIsoEG_0x07>
+    <TripleMu_0x01_HighQ condition="muon" particle="muon" type="3">
+      <pt_h_threshold max="1f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        01
+      </value>
+      <value>
+        01
+      </value>
+      <value>
+        01
+      </value>
+      </pt_h_threshold>
+      <pt_l_threshold max="1f" min="00">
+      <value>01<en_mip mode="bit">0</en_mip>
+            <en_iso mode="bit">
+        0
+      </en_iso>
+      <request_iso mode="bit">
+        0
+      </request_iso>
+      </value>
+      <value>01<en_mip mode="bit">0</en_mip>
+            <en_iso mode="bit">
+        0
+      </en_iso>
+      <request_iso mode="bit">
+        0
+      </request_iso>
+      </value>
+      <value>01<en_mip mode="bit">0</en_mip>
+            <en_iso mode="bit">
+        0
+      </en_iso>
+      <request_iso mode="bit">
+        0
+      </request_iso>
+      </value>
+      </pt_l_threshold>
+            <eta max="ffffffffffffffff" min="0000000000000000">
+      <value>
+        FFFFFFFFFFFFFFFF
+      </value>
+      <value>
+        FFFFFFFFFFFFFFFF
+      </value>
+      <value>
+        FFFFFFFFFFFFFFFF
+      </value>
+      </eta>
+            <phi_h max="8f" min="00">
+      <value>
+        8f
+      </value>
+      <value>
+        8f
+      </value>
+      <value>
+        8f
+      </value>
+      </phi_h>
+            <phi_l max="ffffffffffffffff" min="0000000000000000">
+      <value>
+        00
+      </value>
+      <value>
+        00
+      </value>
+      <value>
+        00
+      </value>
+      </phi_l>
+      <charge_correlation max="7" min="1">
+      1
+      </charge_correlation>
+            <quality max="ff" min="00">
+      <value>
+        e0
+      </value>
+      <value>
+        e0
+      </value>
+      <value>
+        e0
+      </value>
+      </quality>
+    </TripleMu_0x01_HighQ>
+    <TripleMu_0x09_0x09_0x01 condition="muon" particle="muon" type="3">
+      <pt_h_threshold max="1f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        09
+      </value>
+      <value>
+        09
+      </value>
+      <value>
+        01
+      </value>
+      </pt_h_threshold>
+      <pt_l_threshold max="1f" min="00">
+      <value>09<en_mip mode="bit">0</en_mip>
+            <en_iso mode="bit">
+        0
+      </en_iso>
+      <request_iso mode="bit">
+        0
+      </request_iso>
+      </value>
+      <value>09<en_mip mode="bit">0</en_mip>
+            <en_iso mode="bit">
+        0
+      </en_iso>
+      <request_iso mode="bit">
+        0
+      </request_iso>
+      </value>
+      <value>01<en_mip mode="bit">0</en_mip>
+            <en_iso mode="bit">
+        0
+      </en_iso>
+      <request_iso mode="bit">
+        0
+      </request_iso>
+      </value>
+      </pt_l_threshold>
+            <eta max="ffffffffffffffff" min="0000000000000000">
+      <value>
+        FFFFFFFFFFFFFFFF
+      </value>
+      <value>
+        FFFFFFFFFFFFFFFF
+      </value>
+      <value>
+        FFFFFFFFFFFFFFFF
+      </value>
+      </eta>
+            <phi_h max="8f" min="00">
+      <value>
+        8f
+      </value>
+      <value>
+        8f
+      </value>
+      <value>
+        8f
+      </value>
+      </phi_h>
+            <phi_l max="ffffffffffffffff" min="0000000000000000">
+      <value>
+        00
+      </value>
+      <value>
+        00
+      </value>
+      <value>
+        00
+      </value>
+      </phi_l>
+      <charge_correlation max="7" min="1">
+      1
+      </charge_correlation>
+            <quality max="ff" min="00">
+      <value>
+        e8
+      </value>
+      <value>
+        e8
+      </value>
+      <value>
+        e8
+      </value>
+      </quality>
+    </TripleMu_0x09_0x09_0x01>
     <TripleNoIsoEG_0x07 condition="calo" particle="eg" type="3">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -1807,44 +2731,6 @@
       </value>
       </phi>
     </TripleNoIsoEG_0x07>
-    <TripleTauJet_0x07 condition="calo" particle="tau" type="3">
-      <et_threshold max="3f" min="00">
-      <ge_eq mode="bit">
-        1
-      </ge_eq>
-      <value>
-        07
-      </value>
-      <value>
-        07
-      </value>
-      <value>
-        07
-      </value>
-      </et_threshold>
-      <eta max="7F7F" min="0000">
-      <value>
-        7F7F
-      </value>
-      <value>
-        7F7F
-      </value>
-      <value>
-        7F7F
-      </value>
-      </eta>
-      <phi max="3ffff" min="00000">
-      <value>
-        3ffff
-      </value>
-      <value>
-        3ffff
-      </value>
-      <value>
-        3ffff
-      </value>
-      </phi>
-    </TripleTauJet_0x07>
     <TripleTauJet_0x08 condition="calo" particle="tau" type="3">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -1959,6 +2845,44 @@
       </value>
       </phi>
     </TripleTauJet_0x0A>
+    <TripleTauJet_0x0D_0x07_0x07 condition="calo" particle="tau" type="3">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        0d
+      </value>
+      <value>
+        07
+      </value>
+      <value>
+        07
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        7F7F
+      </value>
+      <value>
+        7F7F
+      </value>
+      <value>
+        7F7F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      <value>
+        3ffff
+      </value>
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </TripleTauJet_0x0D_0x07_0x07>
     <TripleTauJet_0x10_0x0B_0x06 condition="calo" particle="tau" type="3">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -2035,6 +2959,44 @@
       </value>
       </phi>
     </TripleTauJet_0x10_0x0C_0x07>
+    <TripleTauJet_0x11_0x0C_0x08 condition="calo" particle="tau" type="3">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        11
+      </value>
+      <value>
+        0c
+      </value>
+      <value>
+        08
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        7F7F
+      </value>
+      <value>
+        7F7F
+      </value>
+      <value>
+        7F7F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      <value>
+        3ffff
+      </value>
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </TripleTauJet_0x11_0x0C_0x08>
       <BPTX_minus.v0 condition="CondExternal" particle="GtExternal" type="TypeExternal"></BPTX_minus.v0>
       <BPTX_plus.v0 condition="CondExternal" particle="GtExternal" type="TypeExternal"></BPTX_plus.v0>
     </conditions>
@@ -2053,26 +3015,42 @@
         ( ( BPTX_minus.v0 AND NOT BPTX_plus.v0 ) OR ( BPTX_plus.v0 AND NOT BPTX_minus.v0 ) ) AND ( BSC_halo_beam1_inner.v0 OR BSC_halo_beam1_outer.v0 OR BSC_halo_beam2_inner.v0 OR BSC_halo_beam2_outer.v0 )
         <output_pin nr="9" pin="a" />
       </L1_BeamHalo>
+      <L1_DoubleEG5 algAlias="L1_DoubleEG5">
+        DoubleIsoEG_0x05 OR DoubleNoIsoEG_0x05 OR ( SingleIsoEG_0x05 AND SingleNoIsoEG_0x05 )
+        <output_pin nr="83" pin="a" />
+      </L1_DoubleEG5>
       <L1_DoubleEG6_HTT100 algAlias="L1_DoubleEG6_HTT100">
         ( DoubleIsoEG_0x06 OR DoubleNoIsoEG_0x06 OR ( SingleIsoEG_0x06 AND SingleNoIsoEG_0x06 ) ) AND HTT_0x0C8
         <output_pin nr="22" pin="a" />
       </L1_DoubleEG6_HTT100>
+      <L1_DoubleEG6_HTT125 algAlias="L1_DoubleEG6_HTT125">
+        ( DoubleIsoEG_0x06 OR DoubleNoIsoEG_0x06 OR ( SingleIsoEG_0x06 AND SingleNoIsoEG_0x06 ) ) AND HTT_0x0FA
+        <output_pin nr="23" pin="a" />
+      </L1_DoubleEG6_HTT125>
       <L1_DoubleEG_13_7 algAlias="L1_DoubleEG_13_7">
         DoubleIsoEG_0x0D_0x07 OR DoubleNoIsoEG_0x0D_0x07 OR ( SingleIsoEG_0x0D AND SingleNoIsoEG_0x07 ) OR ( SingleIsoEG_0x07 AND SingleNoIsoEG_0x0D )
         <output_pin nr="39" pin="a" />
       </L1_DoubleEG_13_7>
-      <L1_DoubleEG_15_5 algAlias="L1_DoubleEG_15_5">
-        DoubleIsoEG_0x0F_0x05 OR DoubleNoIsoEG_0x0F_0x05 OR ( SingleIsoEG_0x0F AND SingleNoIsoEG_0x05 ) OR ( SingleIsoEG_0x05 AND SingleNoIsoEG_0x0F )
-        <output_pin nr="47" pin="a" />
-      </L1_DoubleEG_15_5>
+      <L1_DoubleJet52_Central algAlias="L1_DoubleJetC52">
+        DoubleCenJet_0x0D OR DoubleTauJet_0x0D OR ( SingleCenJet_0x0D AND SingleTauJet_0x0D )
+        <output_pin nr="42" pin="a" />
+      </L1_DoubleJet52_Central>
       <L1_DoubleJet64_Central algAlias="L1_DoubleJetC64">
         DoubleCenJet_0x10 OR DoubleTauJet_0x10 OR ( SingleCenJet_0x10 AND SingleTauJet_0x10 )
         <output_pin nr="77" pin="a" />
       </L1_DoubleJet64_Central>
+      <L1_DoubleJetC44_ETM30 algAlias="L1_DoubleJetC44_ETM30">
+        ( DoubleCenJet_0x0B OR DoubleTauJet_0x0B OR ( SingleCenJet_0x0B AND SingleTauJet_0x0B ) ) AND ETM_0x03C
+        <output_pin nr="29" pin="a" />
+      </L1_DoubleJetC44_ETM30>
       <L1_DoubleJetC44_Eta1p74_WdEta4 algAlias="L1_DoubleJetC44_Eta1p74_WdEta4">
         DoubleCenJet_wsc_0x0B_WdEta4 OR DoubleTauJet_wsc_0x0B_WdEta4 OR Corr_CenJet_TauJet_0x0B_WdEta4
         <output_pin nr="36" pin="a" />
       </L1_DoubleJetC44_Eta1p74_WdEta4>
+      <L1_DoubleJetC56_Eta1p74_WdEta4 algAlias="L1_DoubleJetC56_Eta1p74_WdEta4">
+        DoubleCenJet_wsc_0x0E_WdEta4 OR DoubleTauJet_wsc_0x0E_WdEta4 OR Corr_CenJet_TauJet_0x0E_WdEta4
+        <output_pin nr="37" pin="a" />
+      </L1_DoubleJetC56_Eta1p74_WdEta4>
       <L1_DoubleMu0 algAlias="L1_DoubleMu0">
         DoubleMu_0x01
         <output_pin nr="93" pin="a" />
@@ -2081,10 +3059,18 @@
         DoubleMu_0x01_HighQ_EtaCuts
         <output_pin nr="27" pin="a" />
       </L1_DoubleMu0_HighQ_EtaCuts>
+      <L1_DoubleMu3er_HighQ_WdEta22 algAlias="L1_DoubleMu3er_HighQ_WdEta22">
+        DoubleMu_wsc_0x05_HighQ_Eta2p1_WdEta22
+        <output_pin nr="55" pin="a" />
+      </L1_DoubleMu3er_HighQ_WdEta22>
       <L1_DoubleMu3p5_EG5 algAlias="L1_DoubleMu3p5_EG5">
         DoubleMu_0x06 AND ( SingleIsoEG_0x05 OR SingleNoIsoEG_0x05 )
         <output_pin nr="25" pin="a" />
       </L1_DoubleMu3p5_EG5>
+      <L1_DoubleMu5_EG5 algAlias="L1_DoubleMu5_EG5">
+        DoubleMu_0x09_v1 AND ( SingleIsoEG_0x05 OR SingleNoIsoEG_0x05 )
+        <output_pin nr="26" pin="a" />
+      </L1_DoubleMu5_EG5>
       <L1_DoubleMu5_v1 algAlias="L1_DoubleMu5">
         DoubleMu_0x09_v1
         <output_pin nr="96" pin="a" />
@@ -2097,6 +3083,10 @@
         DoubleMu_0x0D_0x01
         <output_pin nr="45" pin="a" />
       </L1_DoubleMu_10_Open>
+      <L1_DoubleMu_5er_0er_HighQ_WdEta22 algAlias="L1_DoubleMu_5er_0er_HighQ_WdEta22">
+        DoubleMu_wsc_0x09_HighQ_Eta2p1_0x01_HighQ_Eta2p1_WdEta22
+        <output_pin nr="59" pin="a" />
+      </L1_DoubleMu_5er_0er_HighQ_WdEta22>
       <L1_DoubleTauJet44_Eta2p17 algAlias="L1_DoubleTauJet44er">
         DoubleTauJet_0x0B_Eta2p17
         <output_pin nr="38" pin="a" />
@@ -2105,10 +3095,10 @@
         Corr_IsoEG_CenJet_0x12_Eta2p17_0x07_dPhi1 OR Corr_IsoEG_TauJet_0x12_Eta2p17_0x05_dPhi1 OR Corr_NoIsoEG_CenJet_0x12_Eta2p17_0x07_dPhi1 OR Corr_NoIsoEG_TauJet_0x12_Eta2p17_0x05_dPhi1
         <output_pin nr="88" pin="a" />
       </L1_EG18er_JetC_Cen28_Tau20_dPhi1>
-      <L1_EG18er_JetC_Cen32_Tau24_dPhi1 algAlias="L1_EG18er_JetC_Cen32_Tau24_dPhi1">
-        Corr_IsoEG_CenJet_0x12_Eta2p17_0x08_dPhi1 OR Corr_IsoEG_TauJet_0x12_Eta2p17_0x06_dPhi1 OR Corr_NoIsoEG_CenJet_0x12_Eta2p17_0x08_dPhi1 OR Corr_NoIsoEG_TauJet_0x12_Eta2p17_0x06_dPhi1
-        <output_pin nr="89" pin="a" />
-      </L1_EG18er_JetC_Cen32_Tau24_dPhi1>
+      <L1_EG18er_JetC_Cen36_Tau28_dPhi1 algAlias="L1_EG18er_JetC_Cen36_Tau28_dPhi1">
+        Corr_IsoEG_CenJet_0x12_Eta2p17_0x09_dPhi1 OR Corr_IsoEG_TauJet_0x12_Eta2p17_0x07_dPhi1 OR Corr_NoIsoEG_CenJet_0x12_Eta2p17_0x09_dPhi1 OR Corr_NoIsoEG_TauJet_0x12_Eta2p17_0x07_dPhi1
+        <output_pin nr="85" pin="a" />
+      </L1_EG18er_JetC_Cen36_Tau28_dPhi1>
       <L1_EG22_ForJet24 algAlias="L1_EG22_ForJet24">
         ( SingleIsoEG_0x16 OR SingleNoIsoEG_0x16 ) AND SingleForJet_0x06
         <output_pin nr="34" pin="a" />
@@ -2149,6 +3139,10 @@
         ETT_0x258
         <output_pin nr="70" pin="a" />
       </L1_ETT300>
+      <L1_ETT80 algAlias="L1_ETT80">
+        ETT_0x0A0
+        <output_pin nr="47" pin="a" />
+      </L1_ETT80>
       <L1_HTT100 algAlias="L1_HTT100">
         HTT_0x0C8
         <output_pin nr="71" pin="a" />
@@ -2173,6 +3167,14 @@
         ( NOT BPTX_plus_OR_minus.v0 )
         <output_pin nr="6" pin="a" />
       </L1_InterBunch_Bptx>
+      <L1_IsoEG18er_JetC_Cen32_Tau24_dPhi1 algAlias="L1_IsoEG18er_JetC_Cen32_Tau24_dPhi1">
+        Corr_IsoEG_CenJet_0x12_Eta2p17_0x08_dPhi1 OR Corr_IsoEG_TauJet_0x12_Eta2p17_0x06_dPhi1
+        <output_pin nr="89" pin="a" />
+      </L1_IsoEG18er_JetC_Cen32_Tau24_dPhi1>
+      <L1_IsoEG18er_JetC_Cen36_Tau28_dPhi1 algAlias="L1_IsoEG18er_JetC_Cen36_Tau28_dPhi1">
+        Corr_IsoEG_CenJet_0x12_Eta2p17_0x09_dPhi1 OR Corr_IsoEG_TauJet_0x12_Eta2p17_0x07_dPhi1
+        <output_pin nr="84" pin="a" />
+      </L1_IsoEG18er_JetC_Cen36_Tau28_dPhi1>
       <L1_Mu0_HTT100 algAlias="L1_Mu0_HTT100">
         SingleMu_0x01 AND HTT_0x0C8
         <output_pin nr="82" pin="a" />
@@ -2185,14 +3187,18 @@
         ( Corr_Mu_CenJet_0x0Der_0x03_WdEtaPhi1 OR Corr_Mu_TauJet_0x0Der_0x03_WdEtaPhi1 ) AND ( DoubleCenJet_0x05_0x03 OR DoubleTauJet_0x05_0x03 OR ( SingleCenJet_0x05 AND SingleTauJet_0x03 ) OR ( SingleCenJet_0x03 AND SingleTauJet_0x05 ) )
         <output_pin nr="75" pin="a" />
       </L1_Mu10er_JetC12_WdEtaPhi1_DoubleJetC_20_12>
+      <L1_Mu10er_JetC12_WdEtaPhi1_DoubleJetC_32_12 algAlias="L1_Mu10er_JetC12_WdEtaPhi1_DoubleJetC_32_12">
+        ( Corr_Mu_CenJet_0x0Der_0x03_WdEtaPhi1 OR Corr_Mu_TauJet_0x0Der_0x03_WdEtaPhi1 ) AND ( DoubleCenJet_0x08_0x03 OR DoubleTauJet_0x08_0x03 OR ( SingleCenJet_0x08 AND SingleTauJet_0x03 ) OR ( SingleCenJet_0x03 AND SingleTauJet_0x08 ) )
+        <output_pin nr="78" pin="a" />
+      </L1_Mu10er_JetC12_WdEtaPhi1_DoubleJetC_32_12>
       <L1_Mu10er_JetC32 algAlias="L1_Mu10er_JetC32">
         SingleMu_0x0D_Eta2p1 AND ( SingleCenJet_0x08 OR SingleTauJet_0x08 )
         <output_pin nr="76" pin="a" />
       </L1_Mu10er_JetC32>
-      <L1_Mu12_EG6 algAlias="L1_Mu12_EG6">
-        SingleMu_0x0E AND ( SingleIsoEG_0x06 OR SingleNoIsoEG_0x06 )
+      <L1_Mu12_EG7 algAlias="L1_Mu12_EG7">
+        SingleMu_0x0E AND ( SingleIsoEG_0x07 OR SingleNoIsoEG_0x07 )
         <output_pin nr="15" pin="a" />
-      </L1_Mu12_EG6>
+      </L1_Mu12_EG7>
       <L1_Mu12er_ETM20 algAlias="L1_Mu12er_ETM20">
         SingleMu_0x0E_Eta2p1 AND ETM_0x028
         <output_pin nr="13" pin="a" />
@@ -2205,10 +3211,22 @@
         Corr_Mu_CenJet_0x05_0x0D_WdEtaPhi2 OR Corr_Mu_TauJet_0x05_0x0D_WdEtaPhi2
         <output_pin nr="31" pin="a" />
       </L1_Mu3_JetC52_WdEtaPhi2>
-      <L1_Mu3p5_DoubleEG5 algAlias="L1_Mu3p5_DoubleEG5">
-        SingleMu_0x06 AND ( DoubleIsoEG_0x05 OR DoubleNoIsoEG_0x05 OR ( SingleIsoEG_0x05 AND SingleNoIsoEG_0x05 ) )
-        <output_pin nr="29" pin="a" />
-      </L1_Mu3p5_DoubleEG5>
+      <L1_Mu3p5_EG12 algAlias="L1_Mu3p5_EG12">
+        SingleMu_0x06 AND ( SingleIsoEG_0x0C OR SingleNoIsoEG_0x0C )
+        <output_pin nr="12" pin="a" />
+      </L1_Mu3p5_EG12>
+      <L1_Mu4_HTT125 algAlias="L1_Mu4_HTT125">
+        SingleMu_0x07 AND HTT_0x0FA
+        <output_pin nr="11" pin="a" />
+      </L1_Mu4_HTT125>
+      <L1_Mu5_DoubleEG5 algAlias="L1_Mu5_DoubleEG5">
+        SingleMu_0x09 AND ( DoubleIsoEG_0x05 OR DoubleNoIsoEG_0x05 OR ( SingleIsoEG_0x05 AND SingleNoIsoEG_0x05 ) )
+        <output_pin nr="24" pin="a" />
+      </L1_Mu5_DoubleEG5>
+      <L1_Mu5_DoubleEG6 algAlias="L1_Mu5_DoubleEG6">
+        SingleMu_0x09 AND ( DoubleIsoEG_0x06 OR DoubleNoIsoEG_0x06 OR ( SingleIsoEG_0x06 AND SingleNoIsoEG_0x06 ) )
+        <output_pin nr="28" pin="a" />
+      </L1_Mu5_DoubleEG6>
       <L1_Mu8_DoubleJetC20 algAlias="L1_Mu8_DoubleJetC20">
         SingleMu_0x0C AND ( DoubleCenJet_0x05 OR DoubleTauJet_0x05 OR ( SingleCenJet_0x05 AND SingleTauJet_0x05 ) )
         <output_pin nr="91" pin="a" />
@@ -2245,10 +3263,18 @@
         SingleNoIsoEG_0x05 OR SingleIsoEG_0x05
         <output_pin nr="48" pin="a" />
       </L1_SingleEG5>
+      <L1_SingleEG7 algAlias="L1_SingleEG7">
+        SingleIsoEG_0x07 OR SingleNoIsoEG_0x07
+        <output_pin nr="32" pin="a" />
+      </L1_SingleEG7>
       <L1_SingleIsoEG18er algAlias="L1_SingleIsoEG18er">
         SingleIsoEG_0x12_Eta2p17
         <output_pin nr="44" pin="a" />
       </L1_SingleIsoEG18er>
+      <L1_SingleIsoEG20er algAlias="L1_SingleIsoEG20er">
+        SingleIsoEG_0x14_Eta2p17
+        <output_pin nr="33" pin="a" />
+      </L1_SingleIsoEG20er>
       <L1_SingleJet128 algAlias="L1_SingleJet128">
         SingleCenJet_0x20 OR SingleForJet_0x20 OR SingleTauJet_0x20
         <output_pin nr="21" pin="a" />
@@ -2321,10 +3347,10 @@
         SingleMu_0x01_Open
         <output_pin nr="56" pin="a" />
       </L1_SingleMuOpen>
-      <L1_TripleEG_10_7_5 algAlias="L1_TripleEG_10_7_5">
-        TripleIsoEG_0x0A_0x07_0x05 OR TripleNoIsoEG_0x0A_0x07_0x05 OR ( DoubleIsoEG_0x0A_0x07 AND SingleNoIsoEG_0x05 ) OR ( DoubleNoIsoEG_0x0A_0x07 AND SingleIsoEG_0x05 ) OR ( DoubleIsoEG_0x0A_0x05 AND SingleNoIsoEG_0x07 ) OR ( DoubleNoIsoEG_0x0A_0x05 AND SingleIsoEG_0x07 ) OR ( DoubleIsoEG_0x07_0x05 AND SingleNoIsoEG_0x0A ) OR ( DoubleNoIsoEG_0x07_0x05 AND SingleIsoEG_0x0A )
+      <L1_TripleEG_12_7_5 algAlias="L1_TripleEG_12_7_5">
+        TripleIsoEG_0x0C_0x07_0x05 OR TripleNoIsoEG_0x0C_0x07_0x05 OR ( DoubleIsoEG_0x0C_0x07 AND SingleNoIsoEG_0x05 ) OR ( DoubleNoIsoEG_0x0C_0x07 AND SingleIsoEG_0x05 ) OR ( DoubleIsoEG_0x0C_0x05 AND SingleNoIsoEG_0x07 ) OR ( DoubleNoIsoEG_0x0C_0x05 AND SingleIsoEG_0x07 ) OR ( DoubleIsoEG_0x07_0x05 AND SingleNoIsoEG_0x0C ) OR ( DoubleNoIsoEG_0x07_0x05 AND SingleIsoEG_0x0C )
         <output_pin nr="40" pin="a" />
-      </L1_TripleEG_10_7_5>
+      </L1_TripleEG_12_7_5>
       <L1_TripleMu0 algAlias="L1_TripleMu0">
         TripleMu_0x01
         <output_pin nr="10" pin="a" />
@@ -2389,6 +3415,56 @@
       3FF
     </value>
     </delta_phi>    </Corr_CenJet_TauJet_0x0B_WdEta4>
+    <Corr_CenJet_TauJet_0x0E_WdEta4 condition="CondCorrelation" particle="CenJet:TauJet" type="Type2cor">
+    <Corr_CenJet_TauJet_0x0E_WdEta4_CenJet condition="calo" particle="jet" type="1_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        0e
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        1F1F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </Corr_CenJet_TauJet_0x0E_WdEta4_CenJet>
+    <Corr_CenJet_TauJet_0x0E_WdEta4_TauJet condition="calo" particle="tau" type="1_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        0e
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        1F1F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </Corr_CenJet_TauJet_0x0E_WdEta4_TauJet>
+    <delta_eta max="3fff" min="0000">
+    <value>
+      001F
+    </value>
+    </delta_eta>    <delta_phi max="3ff" min="000">
+    <value>
+      3FF
+    </value>
+    </delta_phi>    </Corr_CenJet_TauJet_0x0E_WdEta4>
     <Corr_IsoEG_CenJet_0x12_Eta2p17_0x07_dPhi1 condition="CondCorrelation" particle="IsoEG:CenJet" type="Type2cor">
     <Corr_IsoEG_CenJet_0x12_Eta2p17_0x07_dPhi1_IsoEG condition="calo" particle="ieg" type="1_s">
       <et_threshold max="3f" min="00">
@@ -2489,6 +3565,56 @@
       3FC
     </value>
     </delta_phi>    </Corr_IsoEG_CenJet_0x12_Eta2p17_0x08_dPhi1>
+    <Corr_IsoEG_CenJet_0x12_Eta2p17_0x09_dPhi1 condition="CondCorrelation" particle="IsoEG:CenJet" type="Type2cor">
+    <Corr_IsoEG_CenJet_0x12_Eta2p17_0x09_dPhi1_IsoEG condition="calo" particle="ieg" type="1_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        12
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        3F3F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </Corr_IsoEG_CenJet_0x12_Eta2p17_0x09_dPhi1_IsoEG>
+    <Corr_IsoEG_CenJet_0x12_Eta2p17_0x09_dPhi1_CenJet condition="calo" particle="jet" type="1_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        09
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        7F7F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </Corr_IsoEG_CenJet_0x12_Eta2p17_0x09_dPhi1_CenJet>
+    <delta_eta max="3fff" min="0000">
+    <value>
+      3FFF
+    </value>
+    </delta_eta>    <delta_phi max="3ff" min="000">
+    <value>
+      3FC
+    </value>
+    </delta_phi>    </Corr_IsoEG_CenJet_0x12_Eta2p17_0x09_dPhi1>
     <Corr_IsoEG_TauJet_0x12_Eta2p17_0x05_dPhi1 condition="CondCorrelation" particle="IsoEG:TauJet" type="Type2cor">
     <Corr_IsoEG_TauJet_0x12_Eta2p17_0x05_dPhi1_IsoEG condition="calo" particle="ieg" type="1_s">
       <et_threshold max="3f" min="00">
@@ -2589,6 +3715,56 @@
       3FC
     </value>
     </delta_phi>    </Corr_IsoEG_TauJet_0x12_Eta2p17_0x06_dPhi1>
+    <Corr_IsoEG_TauJet_0x12_Eta2p17_0x07_dPhi1 condition="CondCorrelation" particle="IsoEG:TauJet" type="Type2cor">
+    <Corr_IsoEG_TauJet_0x12_Eta2p17_0x07_dPhi1_IsoEG condition="calo" particle="ieg" type="1_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        12
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        3F3F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </Corr_IsoEG_TauJet_0x12_Eta2p17_0x07_dPhi1_IsoEG>
+    <Corr_IsoEG_TauJet_0x12_Eta2p17_0x07_dPhi1_TauJet condition="calo" particle="tau" type="1_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        07
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        7F7F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </Corr_IsoEG_TauJet_0x12_Eta2p17_0x07_dPhi1_TauJet>
+    <delta_eta max="3fff" min="0000">
+    <value>
+      3FFF
+    </value>
+    </delta_eta>    <delta_phi max="3ff" min="000">
+    <value>
+      3FC
+    </value>
+    </delta_phi>    </Corr_IsoEG_TauJet_0x12_Eta2p17_0x07_dPhi1>
     <Corr_Mu_CenJet_0x05_0x04_WdEtaPhi2 condition="CondCorrelation" particle="Mu:CenJet" type="Type2cor">
     <Corr_Mu_CenJet_0x05_0x04_WdEtaPhi2_Mu condition="muon" particle="muon" type="1_s">
       <pt_h_threshold max="1f" min="00">
@@ -3077,8 +4253,8 @@
       3FC
     </value>
     </delta_phi>    </Corr_NoIsoEG_CenJet_0x12_Eta2p17_0x07_dPhi1>
-    <Corr_NoIsoEG_CenJet_0x12_Eta2p17_0x08_dPhi1 condition="CondCorrelation" particle="NoIsoEG:CenJet" type="Type2cor">
-    <Corr_NoIsoEG_CenJet_0x12_Eta2p17_0x08_dPhi1_NoIsoEG condition="calo" particle="eg" type="1_s">
+    <Corr_NoIsoEG_CenJet_0x12_Eta2p17_0x09_dPhi1 condition="CondCorrelation" particle="NoIsoEG:CenJet" type="Type2cor">
+    <Corr_NoIsoEG_CenJet_0x12_Eta2p17_0x09_dPhi1_NoIsoEG condition="calo" particle="eg" type="1_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
         1
@@ -3097,14 +4273,14 @@
         3ffff
       </value>
       </phi>
-    </Corr_NoIsoEG_CenJet_0x12_Eta2p17_0x08_dPhi1_NoIsoEG>
-    <Corr_NoIsoEG_CenJet_0x12_Eta2p17_0x08_dPhi1_CenJet condition="calo" particle="jet" type="1_s">
+    </Corr_NoIsoEG_CenJet_0x12_Eta2p17_0x09_dPhi1_NoIsoEG>
+    <Corr_NoIsoEG_CenJet_0x12_Eta2p17_0x09_dPhi1_CenJet condition="calo" particle="jet" type="1_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
         1
       </ge_eq>
       <value>
-        08
+        09
       </value>
       </et_threshold>
       <eta max="7F7F" min="0000">
@@ -3117,7 +4293,7 @@
         3ffff
       </value>
       </phi>
-    </Corr_NoIsoEG_CenJet_0x12_Eta2p17_0x08_dPhi1_CenJet>
+    </Corr_NoIsoEG_CenJet_0x12_Eta2p17_0x09_dPhi1_CenJet>
     <delta_eta max="3fff" min="0000">
     <value>
       3FFF
@@ -3126,7 +4302,7 @@
     <value>
       3FC
     </value>
-    </delta_phi>    </Corr_NoIsoEG_CenJet_0x12_Eta2p17_0x08_dPhi1>
+    </delta_phi>    </Corr_NoIsoEG_CenJet_0x12_Eta2p17_0x09_dPhi1>
     <Corr_NoIsoEG_TauJet_0x12_Eta2p17_0x05_dPhi1 condition="CondCorrelation" particle="NoIsoEG:TauJet" type="Type2cor">
     <Corr_NoIsoEG_TauJet_0x12_Eta2p17_0x05_dPhi1_NoIsoEG condition="calo" particle="eg" type="1_s">
       <et_threshold max="3f" min="00">
@@ -3177,8 +4353,8 @@
       3FC
     </value>
     </delta_phi>    </Corr_NoIsoEG_TauJet_0x12_Eta2p17_0x05_dPhi1>
-    <Corr_NoIsoEG_TauJet_0x12_Eta2p17_0x06_dPhi1 condition="CondCorrelation" particle="NoIsoEG:TauJet" type="Type2cor">
-    <Corr_NoIsoEG_TauJet_0x12_Eta2p17_0x06_dPhi1_NoIsoEG condition="calo" particle="eg" type="1_s">
+    <Corr_NoIsoEG_TauJet_0x12_Eta2p17_0x07_dPhi1 condition="CondCorrelation" particle="NoIsoEG:TauJet" type="Type2cor">
+    <Corr_NoIsoEG_TauJet_0x12_Eta2p17_0x07_dPhi1_NoIsoEG condition="calo" particle="eg" type="1_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
         1
@@ -3197,14 +4373,14 @@
         3ffff
       </value>
       </phi>
-    </Corr_NoIsoEG_TauJet_0x12_Eta2p17_0x06_dPhi1_NoIsoEG>
-    <Corr_NoIsoEG_TauJet_0x12_Eta2p17_0x06_dPhi1_TauJet condition="calo" particle="tau" type="1_s">
+    </Corr_NoIsoEG_TauJet_0x12_Eta2p17_0x07_dPhi1_NoIsoEG>
+    <Corr_NoIsoEG_TauJet_0x12_Eta2p17_0x07_dPhi1_TauJet condition="calo" particle="tau" type="1_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
         1
       </ge_eq>
       <value>
-        06
+        07
       </value>
       </et_threshold>
       <eta max="7F7F" min="0000">
@@ -3217,7 +4393,7 @@
         3ffff
       </value>
       </phi>
-    </Corr_NoIsoEG_TauJet_0x12_Eta2p17_0x06_dPhi1_TauJet>
+    </Corr_NoIsoEG_TauJet_0x12_Eta2p17_0x07_dPhi1_TauJet>
     <delta_eta max="3fff" min="0000">
     <value>
       3FFF
@@ -3226,7 +4402,7 @@
     <value>
       3FC
     </value>
-    </delta_phi>    </Corr_NoIsoEG_TauJet_0x12_Eta2p17_0x06_dPhi1>
+    </delta_phi>    </Corr_NoIsoEG_TauJet_0x12_Eta2p17_0x07_dPhi1>
     <DoubleCenJet_0x05 condition="calo" particle="jet" type="2_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -3285,6 +4461,93 @@
       </value>
       </phi>
     </DoubleCenJet_0x05_0x03>
+    <DoubleCenJet_0x08_0x03 condition="calo" particle="jet" type="2_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        08
+      </value>
+      <value>
+        03
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        7F7F
+      </value>
+      <value>
+        7F7F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </DoubleCenJet_0x08_0x03>
+    <DoubleCenJet_0x0B condition="calo" particle="jet" type="2_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        0b
+      </value>
+      <value>
+        0b
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        7F7F
+      </value>
+      <value>
+        7F7F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </DoubleCenJet_0x0B>
+    <DoubleCenJet_0x0D condition="calo" particle="jet" type="2_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        0d
+      </value>
+      <value>
+        0d
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        7F7F
+      </value>
+      <value>
+        7F7F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </DoubleCenJet_0x0D>
     <DoubleCenJet_0x10 condition="calo" particle="jet" type="2_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -3353,6 +4616,45 @@
       </value>
       </delta_phi>
     </DoubleCenJet_wsc_0x0B_WdEta4>
+    <DoubleCenJet_wsc_0x0E_WdEta4 condition="calo" particle="jet" type="2_wsc">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        0e
+      </value>
+      <value>
+        0e
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        1F1F
+      </value>
+      <value>
+        1F1F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      <value>
+        3ffff
+      </value>
+      </phi>
+            <delta_eta max="3fff" min="0000">
+      <value>
+        001f
+      </value>
+      </delta_eta>
+            <delta_phi max="3ff" min="000">
+      <value>
+        3ff
+      </value>
+      </delta_phi>
+    </DoubleCenJet_wsc_0x0E_WdEta4>
     <DoubleIsoEG_0x05 condition="calo" particle="ieg" type="2_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -3440,13 +4742,13 @@
       </value>
       </phi>
     </DoubleIsoEG_0x07_0x05>
-    <DoubleIsoEG_0x0A_0x05 condition="calo" particle="ieg" type="2_s">
+    <DoubleIsoEG_0x0C_0x05 condition="calo" particle="ieg" type="2_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
         1
       </ge_eq>
       <value>
-        0a
+        0c
       </value>
       <value>
         05
@@ -3468,14 +4770,14 @@
         3ffff
       </value>
       </phi>
-    </DoubleIsoEG_0x0A_0x05>
-    <DoubleIsoEG_0x0A_0x07 condition="calo" particle="ieg" type="2_s">
+    </DoubleIsoEG_0x0C_0x05>
+    <DoubleIsoEG_0x0C_0x07 condition="calo" particle="ieg" type="2_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
         1
       </ge_eq>
       <value>
-        0a
+        0c
       </value>
       <value>
         07
@@ -3497,7 +4799,7 @@
         3ffff
       </value>
       </phi>
-    </DoubleIsoEG_0x0A_0x07>
+    </DoubleIsoEG_0x0C_0x07>
     <DoubleIsoEG_0x0D_0x07 condition="calo" particle="ieg" type="2_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -3527,35 +4829,6 @@
       </value>
       </phi>
     </DoubleIsoEG_0x0D_0x07>
-    <DoubleIsoEG_0x0F_0x05 condition="calo" particle="ieg" type="2_s">
-      <et_threshold max="3f" min="00">
-      <ge_eq mode="bit">
-        1
-      </ge_eq>
-      <value>
-        0f
-      </value>
-      <value>
-        05
-      </value>
-      </et_threshold>
-      <eta max="7F7F" min="0000">
-      <value>
-        7F7F
-      </value>
-      <value>
-        7F7F
-      </value>
-      </eta>
-      <phi max="3ffff" min="00000">
-      <value>
-        3ffff
-      </value>
-      <value>
-        3ffff
-      </value>
-      </phi>
-    </DoubleIsoEG_0x0F_0x05>
     <DoubleMu_0x01 condition="muon" particle="muon" type="2_s">
       <pt_h_threshold max="1f" min="00">
       <ge_eq mode="bit">
@@ -3952,6 +5225,158 @@
       </value>
       </quality>
     </DoubleMu_0x0D_0x06>
+    <DoubleMu_wsc_0x05_HighQ_Eta2p1_WdEta22 condition="muon" particle="muon" type="2_wsc">
+      <pt_h_threshold max="1f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        05
+      </value>
+      <value>
+        05
+      </value>
+      </pt_h_threshold>
+      <pt_l_threshold max="1f" min="00">
+      <value>05<en_mip mode="bit">0</en_mip>
+            <en_iso mode="bit">
+        0
+      </en_iso>
+      <request_iso mode="bit">
+        0
+      </request_iso>
+      </value>
+      <value>05<en_mip mode="bit">0</en_mip>
+            <en_iso mode="bit">
+        0
+      </en_iso>
+      <request_iso mode="bit">
+        0
+      </request_iso>
+      </value>
+      </pt_l_threshold>
+            <eta max="ffffffffffffffff" min="0000000000000000">
+      <value>
+        1FFFFFF01FFFFFF
+      </value>
+      <value>
+        1FFFFFF01FFFFFF
+      </value>
+      </eta>
+            <phi_h max="8f" min="00">
+      <value>
+        8f
+      </value>
+      <value>
+        8f
+      </value>
+      </phi_h>
+            <phi_l max="ffffffffffffffff" min="0000000000000000">
+      <value>
+        00
+      </value>
+      <value>
+        00
+      </value>
+      </phi_l>
+      <charge_correlation max="7" min="1">
+      1
+      </charge_correlation>
+            <quality max="ff" min="00">
+      <value>
+        e0
+      </value>
+      <value>
+        e0
+      </value>
+      </quality>
+            <delta_eta max="3fff" min="0000">
+      <value>
+        00000000007fffff
+      </value>
+      </delta_eta>
+            <delta_phi max="3ff" min="000">
+      <value>
+        1ffffffffffffffffff
+      </value>
+      </delta_phi>
+    </DoubleMu_wsc_0x05_HighQ_Eta2p1_WdEta22>
+    <DoubleMu_wsc_0x09_HighQ_Eta2p1_0x01_HighQ_Eta2p1_WdEta22 condition="muon" particle="muon" type="2_wsc">
+      <pt_h_threshold max="1f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        09
+      </value>
+      <value>
+        01
+      </value>
+      </pt_h_threshold>
+      <pt_l_threshold max="1f" min="00">
+      <value>09<en_mip mode="bit">0</en_mip>
+            <en_iso mode="bit">
+        0
+      </en_iso>
+      <request_iso mode="bit">
+        0
+      </request_iso>
+      </value>
+      <value>01<en_mip mode="bit">0</en_mip>
+            <en_iso mode="bit">
+        0
+      </en_iso>
+      <request_iso mode="bit">
+        0
+      </request_iso>
+      </value>
+      </pt_l_threshold>
+            <eta max="ffffffffffffffff" min="0000000000000000">
+      <value>
+        1FFFFFF01FFFFFF
+      </value>
+      <value>
+        1FFFFFF01FFFFFF
+      </value>
+      </eta>
+            <phi_h max="8f" min="00">
+      <value>
+        8f
+      </value>
+      <value>
+        8f
+      </value>
+      </phi_h>
+            <phi_l max="ffffffffffffffff" min="0000000000000000">
+      <value>
+        00
+      </value>
+      <value>
+        00
+      </value>
+      </phi_l>
+      <charge_correlation max="7" min="1">
+      1
+      </charge_correlation>
+            <quality max="ff" min="00">
+      <value>
+        e0
+      </value>
+      <value>
+        e0
+      </value>
+      </quality>
+            <delta_eta max="3fff" min="0000">
+      <value>
+        00000000007fffff
+      </value>
+      </delta_eta>
+            <delta_phi max="3ff" min="000">
+      <value>
+        1ffffffffffffffffff
+      </value>
+      </delta_phi>
+    </DoubleMu_wsc_0x09_HighQ_Eta2p1_0x01_HighQ_Eta2p1_WdEta22>
     <DoubleNoIsoEG_0x05 condition="calo" particle="eg" type="2_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -4039,13 +5464,13 @@
       </value>
       </phi>
     </DoubleNoIsoEG_0x07_0x05>
-    <DoubleNoIsoEG_0x0A_0x05 condition="calo" particle="eg" type="2_s">
+    <DoubleNoIsoEG_0x0C_0x05 condition="calo" particle="eg" type="2_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
         1
       </ge_eq>
       <value>
-        0a
+        0c
       </value>
       <value>
         05
@@ -4067,14 +5492,14 @@
         3ffff
       </value>
       </phi>
-    </DoubleNoIsoEG_0x0A_0x05>
-    <DoubleNoIsoEG_0x0A_0x07 condition="calo" particle="eg" type="2_s">
+    </DoubleNoIsoEG_0x0C_0x05>
+    <DoubleNoIsoEG_0x0C_0x07 condition="calo" particle="eg" type="2_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
         1
       </ge_eq>
       <value>
-        0a
+        0c
       </value>
       <value>
         07
@@ -4096,7 +5521,7 @@
         3ffff
       </value>
       </phi>
-    </DoubleNoIsoEG_0x0A_0x07>
+    </DoubleNoIsoEG_0x0C_0x07>
     <DoubleNoIsoEG_0x0D_0x07 condition="calo" particle="eg" type="2_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -4126,35 +5551,6 @@
       </value>
       </phi>
     </DoubleNoIsoEG_0x0D_0x07>
-    <DoubleNoIsoEG_0x0F_0x05 condition="calo" particle="eg" type="2_s">
-      <et_threshold max="3f" min="00">
-      <ge_eq mode="bit">
-        1
-      </ge_eq>
-      <value>
-        0f
-      </value>
-      <value>
-        05
-      </value>
-      </et_threshold>
-      <eta max="7F7F" min="0000">
-      <value>
-        7F7F
-      </value>
-      <value>
-        7F7F
-      </value>
-      </eta>
-      <phi max="3ffff" min="00000">
-      <value>
-        3ffff
-      </value>
-      <value>
-        3ffff
-      </value>
-      </phi>
-    </DoubleNoIsoEG_0x0F_0x05>
     <DoubleTauJet_0x05 condition="calo" particle="tau" type="2_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -4213,6 +5609,64 @@
       </value>
       </phi>
     </DoubleTauJet_0x05_0x03>
+    <DoubleTauJet_0x08_0x03 condition="calo" particle="tau" type="2_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        08
+      </value>
+      <value>
+        03
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        7F7F
+      </value>
+      <value>
+        7F7F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </DoubleTauJet_0x08_0x03>
+    <DoubleTauJet_0x0B condition="calo" particle="tau" type="2_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        0b
+      </value>
+      <value>
+        0b
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        7F7F
+      </value>
+      <value>
+        7F7F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </DoubleTauJet_0x0B>
     <DoubleTauJet_0x0B_Eta2p17 condition="calo" particle="tau" type="2_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -4242,6 +5696,35 @@
       </value>
       </phi>
     </DoubleTauJet_0x0B_Eta2p17>
+    <DoubleTauJet_0x0D condition="calo" particle="tau" type="2_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        0d
+      </value>
+      <value>
+        0d
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        7F7F
+      </value>
+      <value>
+        7F7F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </DoubleTauJet_0x0D>
     <DoubleTauJet_0x10 condition="calo" particle="tau" type="2_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -4310,6 +5793,45 @@
       </value>
       </delta_phi>
     </DoubleTauJet_wsc_0x0B_WdEta4>
+    <DoubleTauJet_wsc_0x0E_WdEta4 condition="calo" particle="tau" type="2_wsc">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        0e
+      </value>
+      <value>
+        0e
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        1F1F
+      </value>
+      <value>
+        1F1F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      <value>
+        3ffff
+      </value>
+      </phi>
+            <delta_eta max="3fff" min="0000">
+      <value>
+        001f
+      </value>
+      </delta_eta>
+            <delta_phi max="3ff" min="000">
+      <value>
+        3ff
+      </value>
+      </delta_phi>
+    </DoubleTauJet_wsc_0x0E_WdEta4>
     <ETM_0x028 condition="esums" particle="etm" type="etm">
       <et_threshold max="fff" min="000">
       <ge_eq mode="bit">
@@ -4436,6 +5958,24 @@
       </value>
       </phi>
     </ETM_0x0C8>
+    <ETT_0x0A0 condition="esums" particle="ett" type="ett">
+      <et_threshold max="fff" min="000">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <en_overflow mode="bit">
+        0
+      </en_overflow>
+      <value>
+        0a0
+      </value>
+      </et_threshold>
+            <phi max="ffffffffffffffffff" min="000000000000000000">
+      <value>
+        00
+      </value>
+      </phi>
+    </ETT_0x0A0>
     <ETT_0x258 condition="esums" particle="ett" type="ett">
       <et_threshold max="fff" min="000">
       <ge_eq mode="bit">
@@ -4742,6 +6282,26 @@
       </value>
       </phi>
     </SingleCenJet_0x09>
+    <SingleCenJet_0x0B condition="calo" particle="jet" type="1_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        0b
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        7F7F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </SingleCenJet_0x0B>
     <SingleCenJet_0x0D condition="calo" particle="jet" type="1_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -5082,26 +6642,6 @@
       </value>
       </phi>
     </SingleIsoEG_0x08>
-    <SingleIsoEG_0x0A condition="calo" particle="ieg" type="1_s">
-      <et_threshold max="3f" min="00">
-      <ge_eq mode="bit">
-        1
-      </ge_eq>
-      <value>
-        0a
-      </value>
-      </et_threshold>
-      <eta max="7F7F" min="0000">
-      <value>
-        7F7F
-      </value>
-      </eta>
-      <phi max="3ffff" min="00000">
-      <value>
-        3ffff
-      </value>
-      </phi>
-    </SingleIsoEG_0x0A>
     <SingleIsoEG_0x0C condition="calo" particle="ieg" type="1_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -5142,26 +6682,6 @@
       </value>
       </phi>
     </SingleIsoEG_0x0D>
-    <SingleIsoEG_0x0F condition="calo" particle="ieg" type="1_s">
-      <et_threshold max="3f" min="00">
-      <ge_eq mode="bit">
-        1
-      </ge_eq>
-      <value>
-        0f
-      </value>
-      </et_threshold>
-      <eta max="7F7F" min="0000">
-      <value>
-        7F7F
-      </value>
-      </eta>
-      <phi max="3ffff" min="00000">
-      <value>
-        3ffff
-      </value>
-      </phi>
-    </SingleIsoEG_0x0F>
     <SingleIsoEG_0x12_Eta2p17 condition="calo" particle="ieg" type="1_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -5202,6 +6722,26 @@
       </value>
       </phi>
     </SingleIsoEG_0x14>
+    <SingleIsoEG_0x14_Eta2p17 condition="calo" particle="ieg" type="1_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        14
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        3F3F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </SingleIsoEG_0x14_Eta2p17>
     <SingleIsoEG_0x16 condition="calo" particle="ieg" type="1_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -5434,6 +6974,92 @@
       </value>
       </quality>
     </SingleMu_0x06>
+    <SingleMu_0x07 condition="muon" particle="muon" type="1_s">
+      <pt_h_threshold max="1f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        07
+      </value>
+      </pt_h_threshold>
+      <pt_l_threshold max="1f" min="00">
+      <value>07<en_mip mode="bit">0</en_mip>
+            <en_iso mode="bit">
+        0
+      </en_iso>
+      <request_iso mode="bit">
+        0
+      </request_iso>
+      </value>
+      </pt_l_threshold>
+            <eta max="ffffffffffffffff" min="0000000000000000">
+      <value>
+        FFFFFFFFFFFFFFFF
+      </value>
+      </eta>
+            <phi_h max="8f" min="00">
+      <value>
+        8f
+      </value>
+      </phi_h>
+            <phi_l max="ffffffffffffffff" min="0000000000000000">
+      <value>
+        00
+      </value>
+      </phi_l>
+      <charge_correlation max="7" min="1">
+      1
+      </charge_correlation>
+            <quality max="ff" min="00">
+      <value>
+        f0
+      </value>
+      </quality>
+    </SingleMu_0x07>
+    <SingleMu_0x09 condition="muon" particle="muon" type="1_s">
+      <pt_h_threshold max="1f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        09
+      </value>
+      </pt_h_threshold>
+      <pt_l_threshold max="1f" min="00">
+      <value>09<en_mip mode="bit">0</en_mip>
+            <en_iso mode="bit">
+        0
+      </en_iso>
+      <request_iso mode="bit">
+        0
+      </request_iso>
+      </value>
+      </pt_l_threshold>
+            <eta max="ffffffffffffffff" min="0000000000000000">
+      <value>
+        FFFFFFFFFFFFFFFF
+      </value>
+      </eta>
+            <phi_h max="8f" min="00">
+      <value>
+        8f
+      </value>
+      </phi_h>
+            <phi_l max="ffffffffffffffff" min="0000000000000000">
+      <value>
+        00
+      </value>
+      </phi_l>
+      <charge_correlation max="7" min="1">
+      1
+      </charge_correlation>
+            <quality max="ff" min="00">
+      <value>
+        f0
+      </value>
+      </quality>
+    </SingleMu_0x09>
     <SingleMu_0x0A condition="muon" particle="muon" type="1_s">
       <pt_h_threshold max="1f" min="00">
       <ge_eq mode="bit">
@@ -6030,26 +7656,6 @@
       </value>
       </phi>
     </SingleNoIsoEG_0x08>
-    <SingleNoIsoEG_0x0A condition="calo" particle="eg" type="1_s">
-      <et_threshold max="3f" min="00">
-      <ge_eq mode="bit">
-        1
-      </ge_eq>
-      <value>
-        0a
-      </value>
-      </et_threshold>
-      <eta max="7F7F" min="0000">
-      <value>
-        7F7F
-      </value>
-      </eta>
-      <phi max="3ffff" min="00000">
-      <value>
-        3ffff
-      </value>
-      </phi>
-    </SingleNoIsoEG_0x0A>
     <SingleNoIsoEG_0x0C condition="calo" particle="eg" type="1_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -6090,26 +7696,6 @@
       </value>
       </phi>
     </SingleNoIsoEG_0x0D>
-    <SingleNoIsoEG_0x0F condition="calo" particle="eg" type="1_s">
-      <et_threshold max="3f" min="00">
-      <ge_eq mode="bit">
-        1
-      </ge_eq>
-      <value>
-        0f
-      </value>
-      </et_threshold>
-      <eta max="7F7F" min="0000">
-      <value>
-        7F7F
-      </value>
-      </eta>
-      <phi max="3ffff" min="00000">
-      <value>
-        3ffff
-      </value>
-      </phi>
-    </SingleNoIsoEG_0x0F>
     <SingleNoIsoEG_0x12_Eta2p17 condition="calo" particle="eg" type="1_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -6310,6 +7896,26 @@
       </value>
       </phi>
     </SingleTauJet_0x09>
+    <SingleTauJet_0x0B condition="calo" particle="tau" type="1_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        0b
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        7F7F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </SingleTauJet_0x0B>
     <SingleTauJet_0x0D condition="calo" particle="tau" type="1_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -6410,13 +8016,13 @@
       </value>
       </phi>
     </SingleTauJet_0x20>
-    <TripleIsoEG_0x0A_0x07_0x05 condition="calo" particle="ieg" type="3">
+    <TripleIsoEG_0x0C_0x07_0x05 condition="calo" particle="ieg" type="3">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
         1
       </ge_eq>
       <value>
-        0a
+        0c
       </value>
       <value>
         07
@@ -6447,7 +8053,7 @@
         3ffff
       </value>
       </phi>
-    </TripleIsoEG_0x0A_0x07_0x05>
+    </TripleIsoEG_0x0C_0x07_0x05>
     <TripleMu_0x01 condition="muon" particle="muon" type="3">
       <pt_h_threshold max="1f" min="00">
       <ge_eq mode="bit">
@@ -6537,13 +8143,13 @@
       </value>
       </quality>
     </TripleMu_0x01>
-    <TripleNoIsoEG_0x0A_0x07_0x05 condition="calo" particle="eg" type="3">
+    <TripleNoIsoEG_0x0C_0x07_0x05 condition="calo" particle="eg" type="3">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
         1
       </ge_eq>
       <value>
-        0a
+        0c
       </value>
       <value>
         07
@@ -6574,7 +8180,7 @@
         3ffff
       </value>
       </phi>
-    </TripleNoIsoEG_0x0A_0x07_0x05>
+    </TripleNoIsoEG_0x0C_0x07_0x05>
       <BPTX_minus.v0 condition="CondExternal" particle="GtExternal" type="TypeExternal"></BPTX_minus.v0>
       <BPTX_minus_postQuiet.v0 condition="CondExternal" particle="GtExternal" type="TypeExternal"></BPTX_minus_postQuiet.v0>
       <BPTX_plus.v0 condition="CondExternal" particle="GtExternal" type="TypeExternal"></BPTX_plus.v0>
@@ -6803,22 +8409,53 @@
 <!--TTCablingFkL1TechTrigCabling_2011_Jun_16-->
 <!--ExtCondCablingFkL1ExternalConditionsCabling_2011_Sep_07-->
 <!--AlgoDBLock
+L1_DoubleJet52_Central
+L1_DoubleJet44_Central
+L1_DoubleEG5
+L1_DoubleEG3
+L1_DoubleEG2_FwdVeto
+L1_MuOpen_EG5
 AlgoDBLockEnd-->
 <!--CondDBLock
+DoubleCenJet_0x0B:DoubleCenJet_0x0B
+DoubleCenJet_0x0D:DoubleCenJet_0x0D
+DoubleIsoEG_0x03:DoubleIsoEG_0x03
+DoubleIsoEG_0x05:DoubleIsoEG_0x05
 DoubleMu_0x06:DoubleMu_0x06
+DoubleNoIsoEG_0x03:DoubleNoIsoEG_0x03
+DoubleNoIsoEG_0x05:DoubleNoIsoEG_0x05
+DoubleTauJet_0x0B:DoubleTauJet_0x0B
+DoubleTauJet_0x0D:DoubleTauJet_0x0D
 ETM_0x03C:ETM_0x03C
+HfBitCounts_Ind0_0x01:HfBitCounts_Ind0_0x01
+HfBitCounts_Ind1_0x01:HfBitCounts_Ind1_0x01
+HfBitCounts_Ind2_0x01:HfBitCounts_Ind2_0x01
+HfBitCounts_Ind3_0x01:HfBitCounts_Ind3_0x01
+SingleCenJet_0x04:SingleCenJet_0x04
 SingleCenJet_0x06:SingleCenJet_0x06
 SingleCenJet_0x08:SingleCenJet_0x08
+SingleCenJet_0x0B:SingleCenJet_0x0B
+SingleCenJet_0x0D:SingleCenJet_0x0D
 SingleCenJet_0x10:SingleCenJet_0x10
+SingleForJet_0x04:SingleForJet_0x04
 SingleForJet_0x06:SingleForJet_0x06
 SingleForJet_0x08:SingleForJet_0x08
+SingleIsoEG_0x03:SingleIsoEG_0x03
+SingleIsoEG_0x05:SingleIsoEG_0x05
 SingleIsoEG_0x07:SingleIsoEG_0x07
 SingleIsoEG_0x18:SingleIsoEG_0x18
+SingleMu_0x01_Open:SingleMu_0x01_Open
+SingleMu_0x09:SingleMu_0x09
 SingleMu_0x0D_Eta2p1:SingleMu_0x0D_Eta2p1
+SingleNoIsoEG_0x03:SingleNoIsoEG_0x03
+SingleNoIsoEG_0x05:SingleNoIsoEG_0x05
 SingleNoIsoEG_0x07:SingleNoIsoEG_0x07
 SingleNoIsoEG_0x08:SingleNoIsoEG_0x08
 SingleNoIsoEG_0x18:SingleNoIsoEG_0x18
+SingleTauJet_0x04:SingleTauJet_0x04
 SingleTauJet_0x06:SingleTauJet_0x06
 SingleTauJet_0x08:SingleTauJet_0x08
+SingleTauJet_0x0B:SingleTauJet_0x0B
+SingleTauJet_0x0D:SingleTauJet_0x0D
 SingleTauJet_0x10:SingleTauJet_0x10
 CondDBLockEnd-->
