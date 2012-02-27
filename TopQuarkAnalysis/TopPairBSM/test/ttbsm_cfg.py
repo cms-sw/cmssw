@@ -27,17 +27,17 @@ options.register ('writeFat',
                   VarParsing.varType.int,
                   "Output tracks and PF candidates (and GenParticles for MC)")
 
+options.register ('writeSimpleInputs',
+                  False,
+                  VarParsing.multiplicity.singleton,
+                  VarParsing.varType.int,
+                  "Write four-vector and ID of PF candidates")
+
 options.register ('writeGenParticles',
                   False,
                   VarParsing.multiplicity.singleton,
                   VarParsing.varType.int,
                   "Output GenParticles collection")
-
-options.register ('use41x',
-                  False,
-                  VarParsing.multiplicity.singleton,
-                  VarParsing.varType.int,
-                  "Use the 41x options")
 
 options.register ('forceCheckClosestZVertex',
                   False,
@@ -56,39 +56,23 @@ options.parseArguments()
 
 
 if not options.useData :
-    inputJetCorrLabel = ('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'])
+	inputJetCorrLabel = ('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'])
 
-    if options.use41x:
-        process.source.fileNames = [
-            '/store/relval/CMSSW_4_1_5/RelValTTbar/GEN-SIM-RECO/START311_V2-v1/0037/20A7B6E4-8F6C-E011-9E6B-003048678FE4.root',
-            ]
-    else :
 	if not options.useSusyFilter :
 		process.source.fileNames = [
 			'/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/9AF32315-EC97-E011-8B25-0026189438B3.root',
 			'/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/18F1D3EA-E597-E011-8452-00304867BFBC.root'
-			]
+		]
 	else :
 		process.source.fileNames = [
 			'/store/mc/Summer11/SMS-T2tt_Mstop-225to1200_mLSP-50to1025_7TeV-Pythia6Z/AODSIM/PU_START42_V11_FastSim-v1/0059/00A9721F-44CB-E011-A65A-002618943869.root',
 			'/store/mc/Summer11/SMS-T2tt_Mstop-225to1200_mLSP-50to1025_7TeV-Pythia6Z/AODSIM/PU_START42_V11_FastSim-v1/0060/0001CFBE-E5CB-E011-B98A-00261894398B.root'
 		]    
 else :
-    if options.use41x :
-        inputJetCorrLabel = ('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'])
-        process.source.fileNames = [
-            '/store/data/Run2011A/Jet/AOD/PromptReco-v2/000/163/738/70A9D7BA-D974-E011-8DD6-003048F118D2.root',
-            '/store/data/Run2011A/Jet/AOD/PromptReco-v2/000/163/738/8A283D5E-D874-E011-B07B-0030487CD6B4.root',
-            '/store/data/Run2011A/Jet/AOD/PromptReco-v2/000/163/738/A6773B09-0075-E011-B535-001D09F2423B.root',
-            '/store/data/Run2011A/Jet/AOD/PromptReco-v2/000/163/738/C2A81E5B-D874-E011-9CC1-00304879FA4A.root',
-            '/store/data/Run2011A/Jet/AOD/PromptReco-v2/000/163/738/EAE095DA-DB74-E011-9B0C-003048F1183E.root'
-
-            ]
-    else :
-        inputJetCorrLabel = ('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'])
-        process.source.fileNames = [
-            '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/FE6792BA-9A70-E011-940A-002618943970.root',
-            '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/FE0F23C8-9A70-E011-97A2-002618943821.root',
+	inputJetCorrLabel = ('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'])
+	process.source.fileNames = [
+	    '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/FE6792BA-9A70-E011-940A-002618943970.root',
+	    '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/FE0F23C8-9A70-E011-97A2-002618943821.root',
             '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/FA7403C3-9A70-E011-BFE1-001A92810AA0.root',
             '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/F4886DC3-9A70-E011-BCD1-003048679000.root',
             '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/F232B0F1-9A70-E011-BA4E-003048678FE4.root',
@@ -103,7 +87,7 @@ else :
             '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/CCFCF4BD-9A70-E011-B72A-0018F3D096B4.root',
             '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/C68BFCEB-9A70-E011-A4BC-003048678B12.root',
             '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/C04521C3-9A70-E011-9DC8-001A928116BC.root'
-            ]
+	    ]
 
 #process.source.eventsToProcess = cms.untracked.VEventRange( ['1:86747'] )
 
@@ -122,22 +106,13 @@ import sys
 ###############################
 
 
-if not options.use41x :
-    # 4.2.x configuration
-    fileTag = '42x'
-    if options.useData :
-        process.GlobalTag.globaltag = cms.string( 'GR_R_42_V19::All' )
-    else :
-        process.GlobalTag.globaltag = cms.string( 'START42_V13::All' )
 
+# 4.2.x configuration
+fileTag = '42x'
+if options.useData :
+    process.GlobalTag.globaltag = cms.string( 'GR_R_42_V19::All' )
 else :
-    # 4.1.x configuration
-    fileTag = '41x'
-    if options.useData :
-        process.GlobalTag.globaltag = cms.string('GR_R_41_V0::All')
-    else :
-        process.GlobalTag.globaltag = cms.string('START41_V0::All')
-
+    process.GlobalTag.globaltag = cms.string( 'START42_V13::All' )
 
 
 # require scraping filter
@@ -167,10 +142,6 @@ process.HBHENoiseFilter.minIsolatedNoiseSumEt = cms.double(999999.)
 ###############################
 
 pvSrc = 'offlinePrimaryVertices'
-if options.use41x :
-    # redo DAF vertices
-    process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi")
-    
 
 process.primaryVertexFilter = cms.EDFilter("GoodVertexFilter",
                                            vertexCollection = cms.InputTag("goodOfflinePrimaryVertices"),
@@ -259,7 +230,7 @@ process.pfJetsPFlow.doRhoFastjet = False
 process.patJetCorrFactorsPFlow.payload = inputJetCorrLabel[0]
 process.patJetCorrFactorsPFlow.levels = inputJetCorrLabel[1]
 process.patJetCorrFactorsPFlow.rho = cms.InputTag("kt6PFJetsPFlow", "rho")
-if not options.use41x and not options.forceCheckClosestZVertex :
+if not options.forceCheckClosestZVertex :
     process.pfPileUpPFlow.checkClosestZVertex = False
 
 
@@ -433,34 +404,22 @@ process.ca8PFJetsPFlow = ca4PFJets.clone(
 
 
 # Pruned PF Jets
-process.caPrunedPFlow = cms.EDProducer(
-    "SubJetProducer",
-    PFJetParameters.clone( src = cms.InputTag('pfNoElectron'+postfix),
-                           doAreaFastjet = cms.bool(True),
-                           doRhoFastjet = cms.bool(False)
-                           ),
-    AnomalousCellParameters,
-    SubJetParameters,
-    jetAlgorithm = cms.string("CambridgeAachen"),
-    rParam = cms.double(0.8),
-    jetCollInstanceName=cms.string("subjets")
-    )
-
-process.caPrunedPFlow.nSubjets = cms.int32(2)
+from RecoJets.JetProducers.ak5PFJetsPruned_cfi import ak5PFJetsPruned
+process.caPrunedPFlow = ak5PFJetsPruned.clone(
+	src = cms.InputTag('pfNoElectron'+postfix),
+	jetAlgorithm = cms.string("CambridgeAachen"),
+	rParam       = cms.double(0.8),
+	doAreaFastjet = cms.bool(True)
+)
 
 
-process.caPrunedGen =  cms.EDProducer(
-    "SubJetProducer",
-    GenJetParameters.clone(src = cms.InputTag("genParticlesForJetsNoNu"),
-                           doAreaFastjet = cms.bool(False),
-                           doRhoFastjet = cms.bool(False)
-                           ),
-    AnomalousCellParameters,
-    SubJetParameters,
-    jetAlgorithm = cms.string("CambridgeAachen"),
-    rParam = cms.double(0.8),
-    jetCollInstanceName=cms.string("subjets")
-    )
+process.caPrunedGen = process.ca8GenJetsNoNu.clone(
+	SubJetParameters,
+	usePruning = cms.bool(True),
+	useExplicitGhosts = cms.bool(True),
+	writeCompound = cms.bool(True),
+	jetCollInstanceName=cms.string("SubJets")
+)
 
 
 ###############################
@@ -472,13 +431,14 @@ process.caPrunedGen =  cms.EDProducer(
 process.caTopTagPFlow = cms.EDProducer(
     "CATopJetProducer",
     PFJetParameters.clone( src = cms.InputTag('pfNoElectron'+postfix),
-                           doAreaFastjet = cms.bool(False),
+                           doAreaFastjet = cms.bool(True),
                            doRhoFastjet = cms.bool(False),                       
                            ),
     AnomalousCellParameters,
     CATopJetParameters,
     jetAlgorithm = cms.string("CambridgeAachen"),
-    rParam = cms.double(0.8)
+    rParam = cms.double(0.8),
+    writeCompound = cms.bool(True)
     )
 
 process.CATopTagInfosPFlow = cms.EDProducer("CATopJetTagger",
@@ -504,7 +464,8 @@ process.caTopTagGen = cms.EDProducer(
     AnomalousCellParameters,
     CATopJetParameters,
     jetAlgorithm = cms.string("CambridgeAachen"),
-    rParam = cms.double(0.8)
+    rParam = cms.double(0.8),
+    writeCompound = cms.bool(True)
     )
 
 process.CATopTagInfosGen = cms.EDProducer("CATopJetTagger",
@@ -709,6 +670,37 @@ process.goodPatJetsCATopTagPF = cms.EDFilter("PFJetIDSelectionFunctorFilter",
                                              src = cms.InputTag("selectedPatJetsCATopTagPF")
                                              )
 
+
+if options.writeSimpleInputs :
+	process.pfInputs = cms.EDProducer(
+	    "CandViewNtpProducer", 
+	    src = cms.InputTag('pfNoElectron'+postfix),
+	    lazyParser = cms.untracked.bool(True),
+	    eventInfo = cms.untracked.bool(False),
+	    variables = cms.VPSet(
+		cms.PSet(
+		    tag = cms.untracked.string("px"),
+		    quantity = cms.untracked.string("px")
+		    ),
+		cms.PSet(
+		    tag = cms.untracked.string("py"),
+		    quantity = cms.untracked.string("py")
+		    ),
+		cms.PSet(
+		    tag = cms.untracked.string("pz"),
+		    quantity = cms.untracked.string("pz")
+		    ),
+		cms.PSet(
+		    tag = cms.untracked.string("energy"),
+		    quantity = cms.untracked.string("energy")
+		    ),
+		cms.PSet(
+		    tag = cms.untracked.string("pdgId"),
+		    quantity = cms.untracked.string("pdgId")
+		    )
+		)
+	)
+
 # let it run
 
 process.patseq = cms.Sequence(
@@ -734,16 +726,9 @@ process.patseq = cms.Sequence(
     )
 
 
-if options.use41x :
-
-    process.patseq.replace( process.goodOfflinePrimaryVertices,
-                            process.offlinePrimaryVertices*
-                            process.goodOfflinePrimaryVertices *
-                            process.eidCiCSequence )
-else :
-    process.patseq.replace( process.goodOfflinePrimaryVertices,
-                            process.goodOfflinePrimaryVertices *
-                            process.eidCiCSequence )
+process.patseq.replace( process.goodOfflinePrimaryVertices,
+		        process.goodOfflinePrimaryVertices *
+		        process.eidCiCSequence )
 
 if options.useData == True :
     process.patseq.remove( process.genParticlesForJetsNoNu )
@@ -755,7 +740,8 @@ if options.useData == True :
     process.patseq.remove( process.CATopTagInfosGen )
     process.patseq.remove( process.prunedGenParticles )
 
-
+if options.writeSimpleInputs :
+	process.patseq *= cms.Sequence(process.pfInputs)
 
 if options.useSusyFilter :
 	process.patseq.remove( process.HBHENoiseFilter )
@@ -773,6 +759,10 @@ else :
 	process.p0 = cms.Path(
 		process.patseq
 	)
+
+
+
+
 
 process.out.SelectEvents.SelectEvents = cms.vstring('p0')
 
@@ -834,6 +824,7 @@ process.out.outputCommands = [
     'keep *_ca8GenJetsNoNu_*_*',
     'keep *_caPrunedGen_*_*',
     'keep *_caTopTagPFlow_*_*',
+    'keep *_caPrunedPFlow_*_*',
     'keep *_CATopTagInfosPFlow_*_*',
     'keep *_prunedGenParticles_*_*',
     'drop recoPFCandidates_selectedPatJets*_*_*',
@@ -868,5 +859,12 @@ if options.writeFat or options.writeGenParticles :
         process.out.outputCommands += [
             'keep *_genParticles_*_*'
             ]
+
+
+if options.writeSimpleInputs :
+	process.out.outputCommands += [
+		'keep *_pfInputs_*_*'
+		]
+
 
 open('junk.py','w').write(process.dumpPython())
