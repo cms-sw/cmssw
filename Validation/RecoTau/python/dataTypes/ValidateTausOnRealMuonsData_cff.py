@@ -82,12 +82,12 @@ newProcAttributes = filter( lambda x: (x not in procAttributes) and (x.find('Rea
 for newAttr in newProcAttributes:
     locals()[newAttr] = getattr(proc,newAttr)
 
-produceDenominatorRealMuonsData = cms.Sequence( ( ( selectedMuons * selectedMuonsIso ) +
-                                                ( goodTracks * trackCands ) ) *
-						                        ZmmCandMuonTrack *
-						                        BestZ *
-						                        ZLegs 
-						                      )
+produceDenominatorRealMuonsData = cms.Sequence(
+	( ( selectedMuons * selectedMuonsIso ) + ( goodTracks * trackCands ) ) *
+	ZmmCandMuonTrack *
+	BestZ *
+	ZLegs 
+	)
 
 #################################    
 # produceDenominatorRealMuonsData = cms.Sequence(
