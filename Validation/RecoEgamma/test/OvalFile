@@ -1,16 +1,16 @@
 
-<var name="TEST_COMMENT" value="redo from reco with Jean-Roch seeds">
-<var name="TEST_NEW" value="5_0_1_SeedsRemaker3">
-<var name="TEST_REF" value="5_0_1">
+<var name="TEST_COMMENT" value="">
+<var name="TEST_NEW" value="5_2_0_pre6">
+<var name="TEST_REF" value="5_2_0_pre4">
 
-<var name="TAG_STARTUP" value="START52_V1">
+<var name="TAG_STARTUP" value="START52_V2">
 <var name="TAG_IDEAL" value="MC_43_V4">
-<var name="DATA_VERSION" value="v1">
+<var name="DATA_VERSION" value="v3">
 
 <var name="STORE_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Store/${TEST_NEW}">
 <var name="STORE_REF" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Store/${TEST_REF}">
 
-<var name="WEB_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Dev">
+<var name="WEB_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Releases">
 <!--var name="WEB_DIR" value="/afs/cern.ch/user/c/chamont/www/validation"-->
 <!--var name="WEB_URL" value="https://chamont.web.cern.ch/chamont/validation"-->
 
@@ -98,8 +98,8 @@ FullSim
   targets RedoFrom% defined later on.
 
   <!--var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}"-->
-  <var name="DD_SOURCE" value="electronInputDataFiles.txt">
-  <var name="DD_COND" value="STARTUP">
+  <!--var name="DD_SOURCE" value="electronInputDataFiles.txt"-->
+  <!--var name="DD_COND" value="STARTUP"-->
     
   <environment name="FullSimStdStatsStartup">
   
@@ -511,14 +511,14 @@ FastSim
         <var name="DD_SAMPLE" value="RelValTTbar">
         <var name="BLUE_FILE" value="electronHistos.FullTTbarStartup.root">
         <var name="RED_FILE" value="electronHistos.FastTTbarStartup.root">
-        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r FastSim -b FullSim -t "Fast vs Full / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${VAL_RED_FILE} ${STORE_REF}/${VAL_BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/vsFastSim/FastSim_${DD_SAMPLE}_Startup'>
+        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r FastSim -b FullSim -t "Fast vs Full / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${RED_FILE} ${STORE_DIR}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/vsFastSim/FastSim_${DD_SAMPLE}_Startup'>
       </environment>
       
       <environment name="FastVsFullZEEStartup">
         <var name="DD_SAMPLE" value="RelValZEE">
         <var name="BLUE_FILE" value="electronHistos.FullZEEStartup.root">
         <var name="RED_FILE" value="electronHistos.FastZEEStartup.root">
-        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r FastSim -b FullSim -t "Fast vs Full / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${VAL_RED_FILE} ${STORE_REF}/${VAL_BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/vsFastSim/FastSim_${DD_SAMPLE}_Startup'>
+        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r FastSim -b FullSim -t "Fast vs Full / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${RED_FILE} ${STORE_DIR}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/vsFastSim/FastSim_${DD_SAMPLE}_Startup'>
       </environment>
       
     </environment>
@@ -533,14 +533,14 @@ FastSim
         <var name="DD_SAMPLE" value="RelValTTbar">
         <var name="BLUE_FILE" value="electronHistos.FullTTbar.root">
         <var name="RED_FILE" value="electronHistos.FastTTbar.root">
-        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r FastSim -b FullSim -t "Fast vs Full / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${VAL_RED_FILE} ${STORE_REF}/${VAL_BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/vsFastSim/FastSim_${DD_SAMPLE}_Ideal'>
+        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r FastSim -b FullSim -t "Fast vs Full / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${RED_FILE} ${STORE_DIR}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/vsFastSim/FastSim_${DD_SAMPLE}_Ideal'>
       </environment>
       
       <environment name="FastVsFullZEEIdeal">
         <var name="DD_SAMPLE" value="RelValZEE">
         <var name="BLUE_FILE" value="electronHistos.FullZEEIdeal.root">
         <var name="RED_FILE" value="electronHistos.FastZEEIdeal.root">
-        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r FastSim -b FullSim -t "Fast vs Full / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${VAL_RED_FILE} ${STORE_REF}/${VAL_BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/vsFastSim/FastSim_${DD_SAMPLE}_Ideal'>
+        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r FastSim -b FullSim -t "Fast vs Full / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${RED_FILE} ${STORE_DIR}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/vsFastSim/FastSim_${DD_SAMPLE}_Ideal'>
       </environment>
       
     </environment>
