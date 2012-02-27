@@ -8,5 +8,6 @@ DefaultClusterizer = cms.PSet(
     MaxSequentialHoles = cms.uint32(0),
     MaxSequentialBad = cms.uint32(1),
     MaxAdjacentBad = cms.uint32(0),
-    QualityLabel = cms.string("")
+    QualityLabel = cms.string(""),
+    RemoveApvShots     = cms.bool(False)
     )
