@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_1_0/GRun/V103 (CMSSW_5_2_0_pre5_HLT9)
+# /dev/CMSSW_5_1_0/GRun/V105 (CMSSW_5_2_0_pre5_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V103')
+  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V105')
 )
 
 hltESSBTagRecord = cms.ESSource( "EmptyESSource",
@@ -15555,7 +15555,7 @@ hltMu202p1QuadCentralPFJet30MuCleaned = cms.EDFilter( "HLTPFJetCollectionsFilter
 )
 hltL1sL1Mu3p5EG12 = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_MuOpen_EG12" ),
+    L1SeedsLogicalExpression = cms.string( "L1_Mu3p5_EG12" ),
     L1MuonCollectionTag = cms.InputTag( "l1extraParticles" ),
     L1UseL1TriggerObjectMaps = cms.bool( True ),
     L1UseAliasesForSeeding = cms.bool( True ),
@@ -19018,7 +19018,7 @@ hltMu22Photon22CaloIdLHEFilter = cms.EDFilter( "HLTEgammaGenericFilter",
 )
 hltL1sL1Mu5DoubleEG5 = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_Mu3p5_DoubleEG5" ),
+    L1SeedsLogicalExpression = cms.string( "L1_Mu5_DoubleEG5" ),
     L1MuonCollectionTag = cms.InputTag( "l1extraParticles" ),
     L1UseL1TriggerObjectMaps = cms.bool( True ),
     L1UseAliasesForSeeding = cms.bool( True ),
