@@ -1,4 +1,4 @@
-# /dev/CMSSW_5_1_0/GRun/V116
+# /dev/CMSSW_5_1_0/GRun/V117
 
 import FWCore.ParameterSet.Config as cms
 
@@ -24,6 +24,10 @@ streamA_datasetCommissioning_selector.triggerConditions = cms.vstring('HLT_Activ
     'HLT_BeamGas_HF_Beam2_v3', 
     'HLT_IsoTrackHB_v10', 
     'HLT_IsoTrackHE_v11', 
+    'HLT_L1ETM100_v1', 
+    'HLT_L1ETM30_v1', 
+    'HLT_L1ETM40_v1', 
+    'HLT_L1ETM70_v1', 
     'HLT_L1SingleMuOpen_v5', 
     'HLT_L1Tech_DT_GlobalOR_v2')
 
@@ -193,7 +197,11 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetMET_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMET_selector.l1tResults = cms.InputTag('')
 streamA_datasetMET_selector.throw      = cms.bool(False)
-streamA_datasetMET_selector.triggerConditions = cms.vstring('HLT_DiCentralPFJet50_PFMHT80_v2', 
+streamA_datasetMET_selector.triggerConditions = cms.vstring('HLT_CentralCaloJet50PFJet80_CaloMET50PFMHT80_HBHENoiseFiltered_dPhi1_v1', 
+    'HLT_DiCentralJet20_BTagIP_MET65_v12', 
+    'HLT_DiCentralPFJet30_CaloMET50_PFMHT80_HBHENoiseFiltered_dPhi1_v1', 
+    'HLT_DiCentralPFJet30_PFMHT80_v2', 
+    'HLT_DiCentralPFJet50_PFMHT80_v2', 
     'HLT_DiPFJet40L1FastJet_PFMHTWOM65_M600VBF_LEADINGJETS_v1', 
     'HLT_DiPFJet40L1FastJet_PFMHTWOM65_M800VBF_ALLJETS_v1', 
     'HLT_IsoMu15_eta2p1_L1ETM20_v1', 
