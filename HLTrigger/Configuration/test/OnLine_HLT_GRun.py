@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_1_0/GRun/V111 (CMSSW_5_2_0_pre5_HLT9)
+# /dev/CMSSW_5_1_0/GRun/V112 (CMSSW_5_2_0_pre5_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V111')
+  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V112')
 )
 
 process.streams = cms.PSet( 
@@ -28491,7 +28491,7 @@ process.hltPreL1DoubleJet36Central = cms.EDFilter( "HLTPrescaler",
 )
 process.hltL1sAlCaEcalPi0Eta = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG5 OR L1_SingleEG12 OR L1_SingleEG20 OR L1_SingleEG22 OR L1_SingleEG24 OR L1_SingleEG30 OR L1_TripleJet_64_44_24_VBF OR L1_TripleJet_64_48_28_VBF OR L1_TripleJetC28 OR L1_QuadJetC32 OR L1_QuadJetC36 OR L1_QuadJetC40 OR L1_DoubleEG_15_5 OR L1_DoubleEG_13_7 OR L1_TripleEG7 OR L1_TripleEG_10_7_5 OR L1_DoubleEG6_HTT100 OR L1_EG8_DoubleJetC20 OR L1_Mu12_EG6 OR L1_MuOpen_EG12 OR L1_DoubleMu3p5_EG5" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG5" ),
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
     L1UseL1TriggerObjectMaps = cms.bool( True ),
     L1UseAliasesForSeeding = cms.bool( True ),
