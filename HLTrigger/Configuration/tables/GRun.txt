@@ -363,6 +363,15 @@ HLT_Photon90EBOnly_CaloIdVL_IsoL_TriPFJet25_v*			#sr126541
 HLT_Photon90EBOnly_CaloIdVL_IsoL_TriPFJet30_v*			#sr126541
 HLT_Photon90_CaloIdVL_IsoL_v*					#sr126541 
 
+HLT_Mu12_eta2p1_DiCentralL1FastJet_40_20_DiBTagIP3D1stTrack_v*            #sr126638
+HLT_Mu12_eta2p1_DiCentralL1FastJet_40_20_v*                               #sr126638
+HLT_Mu12_eta2p1_DiCentralL1FastJet_40_20_BTagIP3D1stTrack_v*              #sr126638
+HLT_Mu12_eta2p1_DiCentralL1FastJet_20_v*                                  #sr126638
+HLT_Mu12_eta2p1_v*                                                        #sr126638
+HLT_Mu15_eta2p1_TriCentralL1FastJet_40_20_20_DiBTagIP3D1stTrack_v*        #sr126638
+HLT_Mu15_eta2p1_TriCentralL1FastJet_40_20_20_BTagIP3D1stTrack_v*          #sr126638
+HLT_Mu15_eta2p1_TriCentralL1FastJet_40_20_20_v*                           #sr126638
+
 
 #HLT_PixelTracks_Multiplicity80_v*		# What about those?
 #HLT_PixelTracks_Multiplicity100_v*		# What about those?

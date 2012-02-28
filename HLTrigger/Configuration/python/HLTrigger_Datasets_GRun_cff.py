@@ -1,4 +1,4 @@
-# /dev/CMSSW_5_1_0/GRun/V115
+# /dev/CMSSW_5_1_0/GRun/V116
 
 import FWCore.ParameterSet.Config as cms
 
@@ -258,8 +258,16 @@ streamA_datasetMuHad_selector.triggerConditions = cms.vstring('HLT_DoubleDisplac
     'HLT_Mu12_DoubleCentralJet65_v1', 
     'HLT_Mu12_RsqMR30_Rsq0p04_MR200_v1', 
     'HLT_Mu12_RsqMR40_Rsq0p04_MR200_v1', 
+    'HLT_Mu12_eta2p1_DiCentralL1FastJet_20_v1', 
+    'HLT_Mu12_eta2p1_DiCentralL1FastJet_40_20_BTagIP3D1stTrack_v1', 
+    'HLT_Mu12_eta2p1_DiCentralL1FastJet_40_20_DiBTagIP3D1stTrack_v1', 
+    'HLT_Mu12_eta2p1_DiCentralL1FastJet_40_20_v1', 
+    'HLT_Mu12_eta2p1_v1', 
     'HLT_Mu14_Ele14_CaloIdT_TrkIdVL_Mass8_PFMET40_v1', 
     'HLT_Mu14_Ele14_CaloIdT_TrkIdVL_Mass8_PFMET50_v1', 
+    'HLT_Mu15_eta2p1_TriCentralL1FastJet_40_20_20_BTagIP3D1stTrack_v1', 
+    'HLT_Mu15_eta2p1_TriCentralL1FastJet_40_20_20_DiBTagIP3D1stTrack_v1', 
+    'HLT_Mu15_eta2p1_TriCentralL1FastJet_40_20_20_v1', 
     'HLT_Mu20_eta2p1_CentralPFJet30_BTagIPIter_v1', 
     'HLT_Mu20_eta2p1_CentralPFJet50_Jet40_Jet30_v1', 
     'HLT_Mu20_eta2p1_TriCentralPFJet30_v1', 
