@@ -1,4 +1,4 @@
-# /dev/CMSSW_5_1_0/GRun/V108
+# /dev/CMSSW_5_1_0/GRun/V110
 
 import FWCore.ParameterSet.Config as cms
 
@@ -153,6 +153,13 @@ streamA_datasetHcalHPDNoise_selector.throw      = cms.bool(False)
 streamA_datasetHcalHPDNoise_selector.triggerConditions = cms.vstring('HLT_GlobalRunHPDNoise_v6', 
     'HLT_L1Tech_HBHEHO_totalOR_v4', 
     'HLT_L1Tech_HCAL_HF_single_channel_v2')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHcalNZS_selector
+streamA_datasetHcalNZS_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetHcalNZS_selector.l1tResults = cms.InputTag('')
+streamA_datasetHcalNZS_selector.throw      = cms.bool(False)
+streamA_datasetHcalNZS_selector.triggerConditions = cms.vstring('HLT_HcalNZS_v8', 
+    'HLT_HcalPhiSym_v9')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetJet_selector
 streamA_datasetJet_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
