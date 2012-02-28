@@ -167,6 +167,7 @@ int16_t SiStripLatency::singleReadOutMode() const
     allModes(allModesVector);
     std::vector<uint16_t>::const_iterator it = allModesVector.begin();
     for( ; it != allModesVector.end(); ++it ) {
+      if( (*it) % 2 == 0 ) continue;
       if( ((*it) & READMODEMASK) == READMODEMASK ) allInDecoMode = false;
       if( ((*it) & READMODEMASK) == 0 ) allInPeakMode = false;
     }
