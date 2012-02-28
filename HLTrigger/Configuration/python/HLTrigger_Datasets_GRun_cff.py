@@ -1,4 +1,4 @@
-# /dev/CMSSW_5_1_0/GRun/V117
+# /dev/CMSSW_5_1_0/GRun/V118
 
 import FWCore.ParameterSet.Config as cms
 
@@ -91,6 +91,8 @@ streamA_datasetElectronHad_selector.triggerConditions = cms.vstring('HLT_DoubleE
     'HLT_Ele8_CaloIdT_TrkIdT_DiJet30_v10', 
     'HLT_Ele8_CaloIdT_TrkIdT_QuadJet30_v10', 
     'HLT_Ele8_CaloIdT_TrkIdT_TriJet30_v10', 
+    'HLT_HT650_Track50_dEdx3p6_v1', 
+    'HLT_HT650_Track60_dEdx3p7_v1', 
     'HLT_MET80_Track50_dEdx3p6_v1', 
     'HLT_MET80_Track60_dEdx3p7_v1', 
     'HLT_MET80_v1')
@@ -426,6 +428,8 @@ streamA_datasetSingleMu_selector.triggerConditions = cms.vstring('HLT_IsoMu20_et
     'HLT_L2Mu20_NoVertex_NoBPTX3BX_NoHalo_v1', 
     'HLT_L2Mu20_eta2p1_NoVertex_v1', 
     'HLT_L2Mu30_NoVertex_NoBPTX3BX_NoHalo_v1', 
+    'HLT_L2Mu70_eta2p1_PFMHT65_v1', 
+    'HLT_L2Mu80_eta2p1_PFMHT70_v1', 
     'HLT_Mu12_v13', 
     'HLT_Mu15_eta2p1_v1', 
     'HLT_Mu17_v1', 
