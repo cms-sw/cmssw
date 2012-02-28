@@ -60,8 +60,8 @@ class SequentialMinimizer {
     public:
         SequentialMinimizer(RooAbsReal *nll, RooRealVar *poi=0) ;
        
-        bool minimize(double ytol=0, int bigsteps=1000, int smallsteps=5);
-        bool improve(double ytol=0,  int bigsteps=1000, int smallsteps=5);
+        bool minimize(double ytol=0, int bigsteps=0, int smallsteps=5);
+        bool improve(double ytol=0,  int bigsteps=0, int smallsteps=5);
     private:
         enum State { Cleared, Ready, Active, Done };
         struct Worker : public OneDimMinimizer {
@@ -71,8 +71,6 @@ class SequentialMinimizer {
             State state;     
         };
         RooAbsReal *nll_;
-        bool                hasPoi_;
-        Worker              poiWorker_;
-        std::vector<Worker> nuisWorkers_;
+        std::vector<Worker> workers_;
 };
 #endif

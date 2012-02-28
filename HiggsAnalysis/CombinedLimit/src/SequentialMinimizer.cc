@@ -3,6 +3,7 @@
 #include <cmath>
 #include <memory>
 #include <algorithm>
+#include <limits>
 #include "RooRealVar.h"
 #include "RooAbsReal.h"
 #include "RooLinkedListIter.h"
@@ -14,6 +15,7 @@
 namespace { 
     const double GOLD_R1 = 0.61803399 ;
     const double GOLD_R2 = 1-0.61803399 ;
+    const double XTOL    = 10*std::sqrt(std::numeric_limits<double>::epsilon());
 }
 
 bool OneDimMinimizer::minimize(int steps, double ytol, double xtol) 
@@ -35,6 +37,7 @@ OneDimMinimizer::ImproveRet OneDimMinimizer::improve(int steps, double ytol, dou
     yi_[1] = y0;
     yi_[0] = eval(xi_[0]);
     yi_[2] = eval(xi_[2]);
+    if (xtol == 0) xtol = (xi_[1]+XTOL)*XTOL;
 
     printf("ODM: start of improve %s x = [%.4f, %.4f, %.4f], y = [%.4f, %.4f, %.4f]\n", var_->GetName(), xi_[0], xi_[1], xi_[2], yi_[0], yi_[1], yi_[2]);
 
@@ -44,6 +47,7 @@ OneDimMinimizer::ImproveRet OneDimMinimizer::improve(int steps, double ytol, dou
             if (!force || parabolaStep()) return Unchanged;
         }
         if (xtol > 0 && (xi_[2] - xi_[0]) < xtol) {
+            printf("ODM: immediate xtol for %s: xmin %.8f, xmax %.8f, diff %.8f\n", var_->GetName(), xi_[0], xi_[2], xi_[2] - xi_[0]);
             if (!force || parabolaStep()) return Unchanged;
         }
     } else {
@@ -201,70 +205,80 @@ double OneDimMinimizer::eval(double x)
 }
 
 SequentialMinimizer::SequentialMinimizer(RooAbsReal *nll, RooRealVar *poi) :
-    nll_(nll),
-    hasPoi_(poi != 0),
-    poiWorker_(nll, poi)
+    nll_(nll)
 {
     std::auto_ptr<RooArgSet> args(nll->getParameters((const RooArgSet *)0));
-    nuisWorkers_.reserve(args->getSize());
+    workers_.reserve(args->getSize());
+    if (poi != 0) workers_.push_back(Worker(nll,poi));
     std::auto_ptr<TIterator> iter(args->createIterator());
     for (RooAbsArg *a = (RooAbsArg*) iter->Next(); a != 0; a = (RooAbsArg*) iter->Next()) {
         RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
         if (rrv != 0 && !rrv->isConstant() && rrv != poi) {
-            nuisWorkers_.push_back(Worker(nll,rrv));
+            workers_.push_back(Worker(nll,rrv));
         }
     }
 }
 
 bool SequentialMinimizer::minimize(double ytol, int bigsteps, int smallsteps) 
 {
-    foreach(Worker &nuis, nuisWorkers_) {
-       nuis.minimize(1); 
-       nuis.state = Ready; 
-    }
-    if (hasPoi_) {
-        poiWorker_.minimize(1);
-        poiWorker_.state = Active; 
+    foreach(Worker &w, workers_) {
+       w.minimize(1); 
+       w.state = Ready; 
     }
     return improve(ytol, bigsteps, smallsteps);
 }
 
 bool SequentialMinimizer::improve(double ytol, int bigsteps, int smallsteps)
 {
-    if (ytol == 0) ytol = ROOT::Math::MinimizerOptions::DefaultTolerance();
+    if (ytol == 0) ytol = ROOT::Math::MinimizerOptions::DefaultTolerance()/sqrt(workers_.size());
+    if (bigsteps == 0) bigsteps = 100 * (workers_.size());
     State state = Active;
+    std::list<Worker*> doneWorkers;
+    foreach(Worker &w, workers_) {
+        if (w.state == Done) doneWorkers.push_back(&w);
+    }
     for (int i = 0; i < bigsteps; ++i) {
         printf("Start of loop. State is %s\n",(state == Done ? "DONE" : "ACTIVE"));
         State newstate = Done;
-        if (hasPoi_) {
-            if (poiWorker_.minimize(smallsteps, ytol) != OneDimMinimizer::Unchanged) {
-                printf("\tMinimized %s: Changed. NLL = %.8f\n", poiWorker_.var().GetName(), nll_->getVal());
-                newstate = Active;
-            } else {
-                printf("\tMinimized %s: Unchanged. NLL = %.8f\n", poiWorker_.var().GetName(), nll_->getVal());
-            }
-        }
-        foreach(Worker &nuis, nuisWorkers_) {
+        foreach(Worker &w, workers_) {
             OneDimMinimizer::ImproveRet iret = OneDimMinimizer::Unchanged;
-            if (nuis.state == Done) {
-                if (state == Active) continue;
-                else iret = nuis.improve(smallsteps,ytol,0,/*force=*/true);
-            } else {
-                iret = nuis.improve(smallsteps,ytol);
-            }
+            if (w.state == Done) continue;
+            iret = w.improve(smallsteps,ytol);
             if (iret == OneDimMinimizer::Unchanged) {
-                printf("\tMinimized %s:  Unchanged. NLL = %.8f\n", nuis.var().GetName(), nll_->getVal());
-                nuis.state = Done;
+                printf("\tMinimized %s:  Unchanged. NLL = %.8f\n", w.var().GetName(), nll_->getVal());
+                w.state = Done;
+                doneWorkers.push_front(&w);
             } else {
-                printf("\tMinimized %s:  Changed. NLL = %.8f\n", nuis.var().GetName(), nll_->getVal());
-                nuis.state = Active;
+                printf("\tMinimized %s:  Changed. NLL = %.8f\n", w.var().GetName(), nll_->getVal());
+                w.state = Active;
                 newstate   = Active;
             }
         }
+        if (newstate == Done) {
+            std::list<Worker*>::iterator it = doneWorkers.begin();
+            while( it != doneWorkers.end()) {
+                Worker &w = **it;
+                OneDimMinimizer::ImproveRet iret = w.improve(smallsteps,ytol,0,/*force=*/true);
+                if (iret == OneDimMinimizer::Unchanged) {
+                    printf("\tMinimized %s:  Unchanged. NLL = %.8f\n", w.var().GetName(), nll_->getVal());
+                    ++it;
+                } else {
+                    printf("\tMinimized %s:  Changed. NLL = %.8f\n", w.var().GetName(), nll_->getVal());
+                    w.state = Active;
+                    newstate = Active;
+                    it = doneWorkers.erase(it);
+                    break;
+                }
+            }
+        }
         printf("End of loop. New state is %s\n",(newstate == Done ? "DONE" : "ACTIVE"));
-        if (state == Done && newstate == Done) return true;
+        if (state == Done && newstate == Done) {
+            std::cout << "Converged after " << i << " big steps" << std::endl;
+            return true;
+        }
         state = newstate;
     }
+    std::cout << "Did not converge after " << bigsteps << " big steps" << std::endl;
     return false;
 }
 
