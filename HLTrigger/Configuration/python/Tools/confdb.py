@@ -426,52 +426,39 @@ if 'PrescaleService' in %(dict)s:
   def overrideGlobalTag(self):
     # overwrite GlobalTag
     # the logic is:
-    #   - for running online, do nothing, unless a globaltag has been specified on the command line
-    #   - for running offline on data, only add the pfnPrefix
-    #   - for running offline on mc, take the GT from the command line of the configuration.type
+    #   - always set the correct connection string and pfnPrefix
+    #   - if a GlobalTag is specified on the command line:
+    #      - override the global tag
     #      - if the GT is "auto:...", insert the code to read it from Configuration.AlCa.autoCond
-    text = ''
-    if self.config.online:
-      if self.config.globaltag:
-        # override the GlobalTag connection string and pfnPrefix
-        text += """
-# override the GlobalTag
-if 'GlobalTag' in %%(dict)s:
-    %%(process)sGlobalTag.connect   = '%%(connect)s/CMS_COND_31X_GLOBALTAG'
-    %%(process)sGlobalTag.pfnPrefix = cms.untracked.string('%%(connect)s/')
-    %%(process)sGlobalTag.globaltag = '%(globaltag)s'
-"""
+    #   - if a GlobalTag is NOT  specified on the command line:
+    #      - when running on data, do nothing, and keep the global tag in the menu
+    #      - when running on mc, take the GT from the configuration.type
 
-    else:
-      # override the GlobalTag connection string and pfnPrefix
-      text += """
+    # override the GlobalTag connection string and pfnPrefix
+    text = """
 # override the GlobalTag, connection string and pfnPrefix
 if 'GlobalTag' in %%(dict)s:
     %%(process)sGlobalTag.connect   = '%%(connect)s/CMS_COND_31X_GLOBALTAG'
     %%(process)sGlobalTag.pfnPrefix = cms.untracked.string('%%(connect)s/')
 """
 
-      if self.config.data:
-        # do not override the GlobalTag unless one was specified on the command line
-        pass
+    # when running on MC, override the global tag even if not specified on the command line
+    if not self.config.data and not self.config.globaltag:
+      if self.config.type in globalTag:
+        self.config.globaltag = globalTag[self.config.type]
       else:
-        # check if a specific GlobalTag was specified on the command line, or choose one from the configuration.type
-        if not self.config.globaltag:
-          if self.config.type in globalTag:
-            self.config.globaltag = globalTag[self.config.type]
-          else:
-            self.config.globaltag = globalTag['GRun']
+        self.config.globaltag = globalTag['GRun']
 
-      # check if the GlobalTag is an autoCond or an explicit tag
-      if not self.config.globaltag:
-        # when running on data, do not override the GlobalTag unless one was specified on the command line
-        pass
-      elif self.config.globaltag.startswith('auto:'):
-        self.config.menuGlobalTagAuto = self.config.globaltag[5:]
-        text += "    from Configuration.AlCa.autoCond import autoCond\n"
-        text += "    %%(process)sGlobalTag.globaltag = autoCond['%(menuGlobalTagAuto)s']\n"
-      else:
-        text += "    %%(process)sGlobalTag.globaltag = '%(globaltag)s'\n"
+    # check if the GlobalTag is an autoCond or an explicit tag
+    if not self.config.globaltag:
+      # skip the cases with no override
+      pass
+    elif self.config.globaltag.startswith('auto:'):
+      self.config.menuGlobalTagAuto = self.config.globaltag[5:]
+      text += "    from Configuration.AlCa.autoCond import autoCond\n"
+      text += "    %%(process)sGlobalTag.globaltag = autoCond['%(menuGlobalTagAuto)s']\n"
+    else:
+      text += "    %%(process)sGlobalTag.globaltag = '%(globaltag)s'\n"
 
     self.data += text % self.config.__dict__
 
