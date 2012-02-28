@@ -1,4 +1,4 @@
-# /dev/CMSSW_5_1_0/GRun/V110
+# /dev/CMSSW_5_1_0/GRun/V111
 
 import FWCore.ParameterSet.Config as cms
 
@@ -279,9 +279,11 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetMuOnia_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMuOnia_selector.l1tResults = cms.InputTag('')
 streamA_datasetMuOnia_selector.throw      = cms.bool(False)
-streamA_datasetMuOnia_selector.triggerConditions = cms.vstring('HLT_Dimuon0_Jpsi_NoVertexing_v8', 
+streamA_datasetMuOnia_selector.triggerConditions = cms.vstring('HLT_Dimuon0_Jpsi_Muon_v12', 
+    'HLT_Dimuon0_Jpsi_NoVertexing_v8', 
     'HLT_Dimuon0_Jpsi_v11', 
     'HLT_Dimuon0_PsiPrime_v1', 
+    'HLT_Dimuon0_Upsilon_Muon_v12', 
     'HLT_Dimuon0_Upsilon_v11', 
     'HLT_Dimuon3p5_SameSign_v1', 
     'HLT_Dimuon5_Jpsi_v1', 
@@ -339,6 +341,7 @@ streamA_datasetPhoton_selector.triggerConditions = cms.vstring('HLT_DoubleEle33_
     'HLT_Photon250_NoHE_v1', 
     'HLT_Photon26_CaloId10_Iso50_Photon18_CaloId10_Iso50_Mass60_v1', 
     'HLT_Photon26_CaloId10_Iso50_Photon18_R9Id85_Mass60_v1', 
+    'HLT_Photon26_CaloIdXL_IsoXL_Photon18_v5', 
     'HLT_Photon26_Photon18_v8', 
     'HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass60_v1', 
     'HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_v1', 

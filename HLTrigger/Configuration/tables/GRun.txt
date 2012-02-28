@@ -209,8 +209,8 @@ HLT_Dimuon5_Upsilon_v*									#sr126442
 HLT_Dimuon5_PsiPrime_v*									#sr126442
 HLT_Dimuon0_PsiPrime_v*									#sr126442
 HLT_Dimuon5_Jpsi_v*									#sr126442
-#HLT_Dimuon0_Jpsi_Muon_v*								#sr126442 - L1 seed problem
-#HLT_Dimuon0_Upsilon_Muon_v*								#sr126442 - L1 seed problem
+HLT_Dimuon0_Jpsi_Muon_v*								#sr126442 - L1 seed problem
+HLT_Dimuon0_Upsilon_Muon_v*								#sr126442 - L1 seed problem
 HLT_Mu5_L2Mu3_Jpsi_v*									#sr126442
 HLT_Mu5_Track3p5_Jpsi_v*								#sr126442
 HLT_Mu5_Track2_Jpsi_v*									#sr126442
@@ -261,7 +261,7 @@ HLT_Photon36_R9Id85_Photon22_R9Id85_v*							#sr126475
 HLT_Photon26_Photon18_v*								#sr126475
 HLT_Photon36_Photon22_v*								#sr126475
 HLT_Photon20_R9Id_Photon18_R9Id_v*							#sr126475
-#HLT_Photon26_CaloIdXL_IsoXL_Photon18_v*							#sr126475  needs updated L1 seed
+HLT_Photon26_CaloIdXL_IsoXL_Photon18_v*							#sr126475
 HLT_Photon30_CaloIdVL_v*								#sr126475
 HLT_Photon50_CaloIdVL_v*								#sr126475
 HLT_Photon75_CaloIdVL_v*								#sr126475
