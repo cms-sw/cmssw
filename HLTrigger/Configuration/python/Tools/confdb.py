@@ -80,6 +80,11 @@ class HLTProcess(object):
     "HLT_MET200_HBHENoiseCleaned_v*",
     "HLT_MET300_HBHENoiseCleaned_v*",
     "HLT_MET400_HBHENoiseCleaned_v*",
+    "HLT_Mu12_eta2p1_DiCentralL1FastJet_40_20_DiBTagIP3D1stTrack_v*",
+    "HLT_Mu12_eta2p1_DiCentralL1FastJet_40_20_BTagIP3D1stTrack_v*",
+    "HLT_Mu15_eta2p1_TriCentralL1FastJet_40_20_20_DiBTagIP3D1stTrack_v*",
+    "HLT_Mu15_eta2p1_TriCentralL1FastJet_40_20_20_BTagIP3D1stTrack_v*",
+    
     )
 
   def __init__(self, configuration):
