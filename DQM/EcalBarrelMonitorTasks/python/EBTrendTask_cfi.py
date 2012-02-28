@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 ecalBarrelTrendTask = cms.EDAnalyzer("EBTrendTask",
-    prefixME = cms.untracked.string('EcalBarrel'),
+    prefixME = cms.untracked.string('Ecal'),
     enableCleanup = cms.untracked.bool(False),
     mergeRuns = cms.untracked.bool(False),
     verbose = cms.untracked.bool(False),

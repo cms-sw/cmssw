@@ -4,8 +4,8 @@
 /*
  * \file EERawDataTask.h
  *
- * $Date: 2011/10/30 15:01:27 $
- * $Revision: 1.9 $
+ * $Date: 2011/11/01 20:44:55 $
+ * $Revision: 1.10 $
  * \author E. Di Marco
  *
 */
@@ -75,6 +75,7 @@ edm::InputTag FEDRawDataCollection_;
 edm::InputTag EcalRawDataCollection_;
 
 MonitorElement* meEECRCErrors_;
+MonitorElement* meEEEventType_;
 MonitorElement* meEEEventTypePreCalibrationBX_;
 MonitorElement* meEEEventTypeCalibrationBX_;
 MonitorElement* meEEEventTypePostCalibrationBX_;
@@ -94,6 +95,8 @@ MonitorElement* meEEL1ASRPErrors_;
 MonitorElement* meEEBunchCrossingSRPErrors_;
 
 MonitorElement* meEESynchronizationErrorsByLumi_;
+
+MonitorElement* meEvtType_[18];
 
 bool init_;
 

@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2011/10/28 14:15:47 $
- * $Revision: 1.62 $
+ * $Date: 2011/11/01 20:44:55 $
+ * $Revision: 1.63 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -97,6 +97,8 @@ EESelectiveReadoutTask::EESelectiveReadoutTask(const edm::ParameterSet& ps){
   for(int i=20; i<133; i++) ybins[i] = ZSthreshold * (i-19);
   for(int i=0; i<=18; i++) xbins[i] = i+1;
 
+  settings_ = 0;
+
 }
 
 EESelectiveReadoutTask::~EESelectiveReadoutTask() {
@@ -108,8 +110,8 @@ void EESelectiveReadoutTask::beginJob(void) {
   ievt_ = 0;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/EESelectiveReadoutTask");
-    dqmStore_->rmdir(prefixME_ + "/EESelectiveReadoutTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "/SelectiveReadout");
+    dqmStore_->rmdir(prefixME_ + "/SelectiveReadout");
   }
 
 }
@@ -239,212 +241,122 @@ void EESelectiveReadoutTask::setup(void) {
   init_ = true;
 
   std::string name;
+  std::string subdet[2] = {"EE-", "EE+"};
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/EESelectiveReadoutTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "/SelectiveReadout");
 
-    name = "EESRT tower event size EE -";
-    EETowerSize_[0] = dqmStore_->bookProfile2D(name, name, 20, 0., 20., 20, 0., 20., 100, 0., 200., "s");
-    EETowerSize_[0]->setAxisTitle("jx", 1);
-    EETowerSize_[0]->setAxisTitle("jy", 2);
+    for(int iSubdet(0); iSubdet < 2; iSubdet++){
+      name = "SRTask tower event size " + subdet[iSubdet];
+      EETowerSize_[iSubdet] = dqmStore_->bookProfile2D(name, name, 20, 0., 100., 20, 0., 100., 100, 0., 200., "s");
+      EETowerSize_[iSubdet]->setAxisTitle("jx", 1);
+      EETowerSize_[iSubdet]->setAxisTitle("jy", 2);
 
-    name = "EESRT tower event size EE +";
-    EETowerSize_[1] = dqmStore_->bookProfile2D(name, name, 20, 0., 20., 20, 0., 20., 100, 0., 200., "s");
-    EETowerSize_[1]->setAxisTitle("jx", 1);
-    EETowerSize_[1]->setAxisTitle("jy", 2);
+      name = "SRTask TT flag mismatch " + subdet[iSubdet];
+      EETTFMismatch_[iSubdet] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
+      EETTFMismatch_[iSubdet]->setAxisTitle("jx", 1);
+      EETTFMismatch_[iSubdet]->setAxisTitle("jy", 2);
+    }
 
-    name = "EESRT TT flag mismatch EE -";
-    EETTFMismatch_[0] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
-    EETTFMismatch_[0]->setAxisTitle("jx", 1);
-    EETTFMismatch_[0]->setAxisTitle("jy", 2);
-
-    name = "EESRT TT flag mismatch EE +";
-    EETTFMismatch_[1] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
-    EETTFMismatch_[1]->setAxisTitle("jx", 1);
-    EETTFMismatch_[1]->setAxisTitle("jy", 2);
-
-    name = "EESRT DCC event size";
+    name = "SRTask DCC event size EE";
     EEDccEventSize_ = dqmStore_->bookProfile(name, name, 18, 1, 19, 100, 0., 200., "s");
     EEDccEventSize_->setAxisTitle("event size (kB)", 2);
     for (int i = 0; i < 18; i++) {
       EEDccEventSize_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
-    name = "EESRT event size vs DCC";
+    name = "SRTask event size vs DCC EE";
     EEDccEventSizeMap_ = dqmStore_->book2D(name, name, 18, xbins, 132, ybins);
     EEDccEventSizeMap_->setAxisTitle("event size (kB)", 2);
     for (int i = 0; i < 18; i++) {
       EEDccEventSizeMap_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
-    name = "EESRT readout unit with SR forced EE -";
-    EEReadoutUnitForcedBitMap_[0] = dqmStore_->book2D(name, name, 20, 0., 20., 20, 0., 20.);
-    EEReadoutUnitForcedBitMap_[0]->setAxisTitle("jx", 1);
-    EEReadoutUnitForcedBitMap_[0]->setAxisTitle("jy", 2);
-    EEReadoutUnitForcedBitMap_[0]->setAxisTitle("rate", 3);
+    for(int iSubdet(0); iSubdet < 2; iSubdet++){
+      name = "SRTask readout unit with SR forced " + subdet[iSubdet];
+      EEReadoutUnitForcedBitMap_[iSubdet] = dqmStore_->book2D(name, name, 20, 0., 100., 20, 0., 100.);
+      EEReadoutUnitForcedBitMap_[iSubdet]->setAxisTitle("jx", 1);
+      EEReadoutUnitForcedBitMap_[iSubdet]->setAxisTitle("jy", 2);
+      EEReadoutUnitForcedBitMap_[iSubdet]->setAxisTitle("rate", 3);
 
-    name = "EESRT readout unit with SR forced EE +";
-    EEReadoutUnitForcedBitMap_[1] = dqmStore_->book2D(name, name, 20, 0., 20., 20, 0., 20.);
-    EEReadoutUnitForcedBitMap_[1]->setAxisTitle("jx", 1);
-    EEReadoutUnitForcedBitMap_[1]->setAxisTitle("jy", 2);
-    EEReadoutUnitForcedBitMap_[1]->setAxisTitle("rate", 3);
+      name = "SRTask full readout SR Flags " + subdet[iSubdet];
+      EEFullReadoutSRFlagMap_[iSubdet] = dqmStore_->book2D(name, name, 20, 0., 100., 20, 0., 100.);
+      EEFullReadoutSRFlagMap_[iSubdet]->setAxisTitle("jx", 1);
+      EEFullReadoutSRFlagMap_[iSubdet]->setAxisTitle("jy", 2);
+      EEFullReadoutSRFlagMap_[iSubdet]->setAxisTitle("rate", 3);
 
-    name = "EESRT full readout SR Flags EE -";
-    EEFullReadoutSRFlagMap_[0] = dqmStore_->book2D(name, name, 20, 0., 20., 20, 0., 20.);
-    EEFullReadoutSRFlagMap_[0]->setAxisTitle("jx", 1);
-    EEFullReadoutSRFlagMap_[0]->setAxisTitle("jy", 2);
-    EEFullReadoutSRFlagMap_[0]->setAxisTitle("rate", 3);
+      name = "SRTask full readout SR Flags Number " + subdet[iSubdet];
+      EEFullReadoutSRFlagCount_[iSubdet] = dqmStore_->book1D(name, name, 200, 0., 200.);
+      EEFullReadoutSRFlagCount_[iSubdet]->setAxisTitle("Readout Units number", 1);
 
-    name = "EESRT full readout SR Flags EE +";
-    EEFullReadoutSRFlagMap_[1] = dqmStore_->book2D(name, name, 20, 0., 20., 20, 0., 20.);
-    EEFullReadoutSRFlagMap_[1]->setAxisTitle("jx", 1);
-    EEFullReadoutSRFlagMap_[1]->setAxisTitle("jy", 2);
-    EEFullReadoutSRFlagMap_[1]->setAxisTitle("rate", 3);
+      name = "SRTask zero suppression 1 SR Flags " + subdet[iSubdet];
+      EEZeroSuppression1SRFlagMap_[iSubdet] = dqmStore_->book2D(name, name, 20, 0., 100., 20, 0., 100.);
+      EEZeroSuppression1SRFlagMap_[iSubdet]->setAxisTitle("jx", 1);
+      EEZeroSuppression1SRFlagMap_[iSubdet]->setAxisTitle("jy", 2);
+      EEZeroSuppression1SRFlagMap_[iSubdet]->setAxisTitle("rate", 3);
 
-    name = "EESRT full readout SR Flags Number EE -";
-    EEFullReadoutSRFlagCount_[0] = dqmStore_->book1D(name, name, 200, 0., 200.);
-    EEFullReadoutSRFlagCount_[0]->setAxisTitle("Readout Units number", 1);
+      name = "SRTask high interest TT Flags " + subdet[iSubdet];
+      EEHighInterestTriggerTowerFlagMap_[iSubdet] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
+      EEHighInterestTriggerTowerFlagMap_[iSubdet]->setAxisTitle("jx", 1);
+      EEHighInterestTriggerTowerFlagMap_[iSubdet]->setAxisTitle("jy", 2);
+      EEHighInterestTriggerTowerFlagMap_[iSubdet]->setAxisTitle("rate", 3);
 
-    name = "EESRT full readout SR Flags Number EE +";
-    EEFullReadoutSRFlagCount_[1] = dqmStore_->book1D(name, name, 200, 0., 200.);
-    EEFullReadoutSRFlagCount_[1]->setAxisTitle("Fully readout RU number", 1);
+      name = "SRTask medium interest TT Flags " + subdet[iSubdet];
+      EEMediumInterestTriggerTowerFlagMap_[iSubdet] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
+      EEMediumInterestTriggerTowerFlagMap_[iSubdet]->setAxisTitle("jx", 1);
+      EEMediumInterestTriggerTowerFlagMap_[iSubdet]->setAxisTitle("jy", 2);
+      EEMediumInterestTriggerTowerFlagMap_[iSubdet]->setAxisTitle("rate", 3);
 
-    name = "EESRT zero suppression 1 SR Flags EE -";
-    EEZeroSuppression1SRFlagMap_[0] = dqmStore_->book2D(name, name, 20, 0., 20., 20, 0., 20.);
-    EEZeroSuppression1SRFlagMap_[0]->setAxisTitle("jx", 1);
-    EEZeroSuppression1SRFlagMap_[0]->setAxisTitle("jy", 2);
-    EEZeroSuppression1SRFlagMap_[0]->setAxisTitle("rate", 3);
+      name = "SRTask low interest TT Flags " + subdet[iSubdet];
+      EELowInterestTriggerTowerFlagMap_[iSubdet] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
+      EELowInterestTriggerTowerFlagMap_[iSubdet]->setAxisTitle("jx", 1);
+      EELowInterestTriggerTowerFlagMap_[iSubdet]->setAxisTitle("jy", 2);
+      EELowInterestTriggerTowerFlagMap_[iSubdet]->setAxisTitle("rate", 3);
 
-    name = "EESRT zero suppression 1 SR Flags EE +";
-    EEZeroSuppression1SRFlagMap_[1] = dqmStore_->book2D(name, name, 20, 0., 20., 20, 0., 20.);
-    EEZeroSuppression1SRFlagMap_[1]->setAxisTitle("jx", 1);
-    EEZeroSuppression1SRFlagMap_[1]->setAxisTitle("jy", 2);
-    EEZeroSuppression1SRFlagMap_[1]->setAxisTitle("rate", 3);
+      name = "SRTask TT Flags " + subdet[iSubdet];
+      EETTFlags_[iSubdet] = dqmStore_->book1D(name, name, 8, 0., 8.);
+      EETTFlags_[iSubdet]->setAxisTitle("TT Flag value", 1);
 
-    name = "EESRT high interest TT Flags EE -";
-    EEHighInterestTriggerTowerFlagMap_[0] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
-    EEHighInterestTriggerTowerFlagMap_[0]->setAxisTitle("jx", 1);
-    EEHighInterestTriggerTowerFlagMap_[0]->setAxisTitle("jy", 2);
-    EEHighInterestTriggerTowerFlagMap_[0]->setAxisTitle("rate", 3);
+      name = "SRTask ZS Flagged Fully Readout " + subdet[iSubdet];
+      EECompleteZSMap_[iSubdet] = dqmStore_->book2D(name, name, 20, 0., 100., 20, 0., 100.);
+      EECompleteZSMap_[iSubdet]->setAxisTitle("jphi", 1);
+      EECompleteZSMap_[iSubdet]->setAxisTitle("jeta", 2);
+      EECompleteZSMap_[iSubdet]->setAxisTitle("rate", 3);
 
-    name = "EESRT high interest TT Flags EE +";
-    EEHighInterestTriggerTowerFlagMap_[1] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
-    EEHighInterestTriggerTowerFlagMap_[1]->setAxisTitle("jx", 1);
-    EEHighInterestTriggerTowerFlagMap_[1]->setAxisTitle("jy", 2);
-    EEHighInterestTriggerTowerFlagMap_[1]->setAxisTitle("rate", 3);
+      name = "SRTask ZS Flagged Fully Readout Number " + subdet[iSubdet];
+      EECompleteZSCount_[iSubdet] = dqmStore_->book1D(name, name, 20, 0., 20.);
+      EECompleteZSCount_[iSubdet]->setAxisTitle("Readout Units number", 1);
 
-    name = "EESRT medium interest TT Flags EE -";
-    EEMediumInterestTriggerTowerFlagMap_[0] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
-    EEMediumInterestTriggerTowerFlagMap_[0]->setAxisTitle("jx", 1);
-    EEMediumInterestTriggerTowerFlagMap_[0]->setAxisTitle("jy", 2);
-    EEMediumInterestTriggerTowerFlagMap_[0]->setAxisTitle("rate", 3);
+      name = "SRTask FR Flagged Dropped Readout " + subdet[iSubdet];
+      EEDroppedFRMap_[iSubdet] = dqmStore_->book2D(name, name, 20, 0., 100., 20, 0., 100.);
+      EEDroppedFRMap_[iSubdet]->setAxisTitle("jphi", 1);
+      EEDroppedFRMap_[iSubdet]->setAxisTitle("jeta", 2);
+      EEDroppedFRMap_[iSubdet]->setAxisTitle("rate", 3);
 
-    name = "EESRT medium interest TT Flags EE +";
-    EEMediumInterestTriggerTowerFlagMap_[1] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
-    EEMediumInterestTriggerTowerFlagMap_[1]->setAxisTitle("jx", 1);
-    EEMediumInterestTriggerTowerFlagMap_[1]->setAxisTitle("jy", 2);
-    EEMediumInterestTriggerTowerFlagMap_[1]->setAxisTitle("rate", 3);
+      name = "SRTask FR Flagged Dropped Readout Number " + subdet[iSubdet];
+      EEDroppedFRCount_[iSubdet] = dqmStore_->book1D(name, name, 20, 0., 20.);
+      EEDroppedFRCount_[iSubdet]->setAxisTitle("Readout Units number", 1);
 
-    name = "EESRT low interest TT Flags EE -";
-    EELowInterestTriggerTowerFlagMap_[0] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
-    EELowInterestTriggerTowerFlagMap_[0]->setAxisTitle("jx", 1);
-    EELowInterestTriggerTowerFlagMap_[0]->setAxisTitle("jy", 2);
-    EELowInterestTriggerTowerFlagMap_[0]->setAxisTitle("rate", 3);
+      name = "SRTask event size " + subdet[iSubdet];
+      EEEventSize_[iSubdet] = dqmStore_->book1D(name, name, 100, 0, 200);
+      EEEventSize_[iSubdet]->setAxisTitle("event size (kB)",1);
 
-    name = "EESRT low interest TT Flags EE +";
-    EELowInterestTriggerTowerFlagMap_[1] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
-    EELowInterestTriggerTowerFlagMap_[1]->setAxisTitle("jx", 1);
-    EELowInterestTriggerTowerFlagMap_[1]->setAxisTitle("jy", 2);
-    EELowInterestTriggerTowerFlagMap_[1]->setAxisTitle("rate", 3);
+      name = "SRTask high interest payload " + subdet[iSubdet];
+      EEHighInterestPayload_[iSubdet] =  dqmStore_->book1D(name, name, 100, 0, 200);
+      EEHighInterestPayload_[iSubdet]->setAxisTitle("event size (kB)",1);
 
-    name = "EESRT TT Flags EE -";
-    EETTFlags_[0] = dqmStore_->book1D(name, name, 8, 0., 8.);
-    EETTFlags_[0]->setAxisTitle("TT Flag value", 1);
+      name = "SRTask low interest payload " + subdet[iSubdet];
+      EELowInterestPayload_[iSubdet] =  dqmStore_->book1D(name, name, 100, 0, 200);
+      EELowInterestPayload_[iSubdet]->setAxisTitle("event size (kB)",1);
 
-    name = "EESRT TT Flags EE +";
-    EETTFlags_[1] = dqmStore_->book1D(name, name, 8, 0., 8.);
-    EETTFlags_[1]->setAxisTitle("TT Flag value", 1);
+      name = "SRTask high interest ZS filter output " + subdet[iSubdet];
+      EEHighInterestZsFIR_[iSubdet] = dqmStore_->book1D(name, name, 60, -30, 30);
+      EEHighInterestZsFIR_[iSubdet]->setAxisTitle("ADC counts*4",1);
 
-    name = "EESRT ZS Flagged Fully Readout EE -";
-    EECompleteZSMap_[0] = dqmStore_->book2D(name, name, 20, 0., 20., 20, 0., 20.);
-    EECompleteZSMap_[0]->setAxisTitle("jphi", 1);
-    EECompleteZSMap_[0]->setAxisTitle("jeta", 2);
-    EECompleteZSMap_[0]->setAxisTitle("rate", 3);
-
-    name = "EESRT ZS Flagged Fully Readout EE +";
-    EECompleteZSMap_[1] = dqmStore_->book2D(name, name, 20, 0., 20., 20, 0., 20.);
-    EECompleteZSMap_[1]->setAxisTitle("jphi", 1);
-    EECompleteZSMap_[1]->setAxisTitle("jeta", 2);
-    EECompleteZSMap_[1]->setAxisTitle("rate", 3);
-
-    name = "EESRT ZS Flagged Fully Readout Number EE -";
-    EECompleteZSCount_[0] = dqmStore_->book1D(name, name, 20, 0., 20.);
-    EECompleteZSCount_[0]->setAxisTitle("Readout Units number", 1);
-
-    name = "EESRT ZS Flagged Fully Readout Number EE +";
-    EECompleteZSCount_[1] = dqmStore_->book1D(name, name, 20, 0., 20.);
-    EECompleteZSCount_[1]->setAxisTitle("Readout Units number", 1);
-
-    name = "EESRT FR Flagged Dropped Readout EE -";
-    EEDroppedFRMap_[0] = dqmStore_->book2D(name, name, 20, 0., 20., 20, 0., 20.);
-    EEDroppedFRMap_[0]->setAxisTitle("jphi", 1);
-    EEDroppedFRMap_[0]->setAxisTitle("jeta", 2);
-    EEDroppedFRMap_[0]->setAxisTitle("rate", 3);
-
-    name = "EESRT FR Flagged Dropped Readout EE +";
-    EEDroppedFRMap_[1] = dqmStore_->book2D(name, name, 20, 0., 20., 20, 0., 20.);
-    EEDroppedFRMap_[1]->setAxisTitle("jphi", 1);
-    EEDroppedFRMap_[1]->setAxisTitle("jeta", 2);
-    EEDroppedFRMap_[1]->setAxisTitle("rate", 3);
-
-    name = "EESRT FR Flagged Dropped Readout Number EE -";
-    EEDroppedFRCount_[0] = dqmStore_->book1D(name, name, 20, 0., 20.);
-    EEDroppedFRCount_[0]->setAxisTitle("Readout Units number", 1);
-
-    name = "EESRT FR Flagged Dropped Readout Number EE +";
-    EEDroppedFRCount_[1] = dqmStore_->book1D(name, name, 20, 0., 20.);
-    EEDroppedFRCount_[1]->setAxisTitle("Readout Units number", 1);
-
-    name = "EESRT event size EE -";
-    EEEventSize_[0] = dqmStore_->book1D(name, name, 100, 0, 200);
-    EEEventSize_[0]->setAxisTitle("event size (kB)",1);
-
-    name = "EESRT event size EE +";
-    EEEventSize_[1] = dqmStore_->book1D(name, name, 100, 0, 200);
-    EEEventSize_[1]->setAxisTitle("event size (kB)",1);
-
-    name = "EESRT high interest payload EE -";
-    EEHighInterestPayload_[0] =  dqmStore_->book1D(name, name, 100, 0, 200);
-    EEHighInterestPayload_[0]->setAxisTitle("event size (kB)",1);
-
-    name = "EESRT high interest payload EE +";
-    EEHighInterestPayload_[1] =  dqmStore_->book1D(name, name, 100, 0, 200);
-    EEHighInterestPayload_[1]->setAxisTitle("event size (kB)",1);
-
-    name = "EESRT low interest payload EE -";
-    EELowInterestPayload_[0] =  dqmStore_->book1D(name, name, 100, 0, 200);
-    EELowInterestPayload_[0]->setAxisTitle("event size (kB)",1);
-
-    name = "EESRT low interest payload EE +";
-    EELowInterestPayload_[1] =  dqmStore_->book1D(name, name, 100, 0, 200);
-    EELowInterestPayload_[1]->setAxisTitle("event size (kB)",1);
-
-    name = "EESRT high interest ZS filter output EE -";
-    EEHighInterestZsFIR_[0] = dqmStore_->book1D(name, name, 60, -30, 30);
-    EEHighInterestZsFIR_[0]->setAxisTitle("ADC counts*4",1);
-
-    name = "EESRT high interest ZS filter output EE +";
-    EEHighInterestZsFIR_[1] = dqmStore_->book1D(name, name, 60, -30, 30);
-    EEHighInterestZsFIR_[1]->setAxisTitle("ADC counts*4",1);
-
-    name = "EESRT low interest ZS filter output EE -";
-    EELowInterestZsFIR_[0] = dqmStore_->book1D(name, name, 60, -30, 30);
-    EELowInterestZsFIR_[0]->setAxisTitle("ADC counts*4",1);
-
-    name = "EESRT low interest ZS filter output EE +";
-    EELowInterestZsFIR_[1] = dqmStore_->book1D(name, name, 60, -30, 30);
-    EELowInterestZsFIR_[1]->setAxisTitle("ADC counts*4",1);
-
+      name = "SRTask low interest ZS filter output " + subdet[iSubdet];
+      EELowInterestZsFIR_[iSubdet] = dqmStore_->book1D(name, name, 60, -30, 30);
+      EELowInterestZsFIR_[iSubdet]->setAxisTitle("ADC counts*4",1);
+    }
   }
 
 }
@@ -454,120 +366,119 @@ void EESelectiveReadoutTask::cleanup(void){
   if ( ! init_ ) return;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/EESelectiveReadoutTask");
 
-    if ( EETowerSize_[0] ) dqmStore_->removeElement( EETowerSize_[0]->getName() );
+    if ( EETowerSize_[0] ) dqmStore_->removeElement( EETowerSize_[0]->getFullname() );
     EETowerSize_[0] = 0;
 
-    if ( EETowerSize_[1] ) dqmStore_->removeElement( EETowerSize_[1]->getName() );
+    if ( EETowerSize_[1] ) dqmStore_->removeElement( EETowerSize_[1]->getFullname() );
     EETowerSize_[1] = 0;
 
-    if ( EETTFMismatch_[0] ) dqmStore_->removeElement( EETTFMismatch_[0]->getName() );
+    if ( EETTFMismatch_[0] ) dqmStore_->removeElement( EETTFMismatch_[0]->getFullname() );
     EETTFMismatch_[0] = 0;
 
-    if ( EETTFMismatch_[1] ) dqmStore_->removeElement( EETTFMismatch_[1]->getName() );
+    if ( EETTFMismatch_[1] ) dqmStore_->removeElement( EETTFMismatch_[1]->getFullname() );
     EETTFMismatch_[1] = 0;
 
-    if ( EEDccEventSize_ ) dqmStore_->removeElement( EEDccEventSize_->getName() );
+    if ( EEDccEventSize_ ) dqmStore_->removeElement( EEDccEventSize_->getFullname() );
     EEDccEventSize_ = 0;
 
-    if ( EEDccEventSizeMap_ ) dqmStore_->removeElement( EEDccEventSizeMap_->getName() );
+    if ( EEDccEventSizeMap_ ) dqmStore_->removeElement( EEDccEventSizeMap_->getFullname() );
     EEDccEventSizeMap_ = 0;
 
-    if ( EEReadoutUnitForcedBitMap_[0] ) dqmStore_->removeElement( EEReadoutUnitForcedBitMap_[0]->getName() );
+    if ( EEReadoutUnitForcedBitMap_[0] ) dqmStore_->removeElement( EEReadoutUnitForcedBitMap_[0]->getFullname() );
     EEReadoutUnitForcedBitMap_[0] = 0;
 
-    if ( EEReadoutUnitForcedBitMap_[1] ) dqmStore_->removeElement( EEReadoutUnitForcedBitMap_[1]->getName() );
+    if ( EEReadoutUnitForcedBitMap_[1] ) dqmStore_->removeElement( EEReadoutUnitForcedBitMap_[1]->getFullname() );
     EEReadoutUnitForcedBitMap_[1] = 0;
 
-    if ( EEFullReadoutSRFlagMap_[0] ) dqmStore_->removeElement( EEFullReadoutSRFlagMap_[0]->getName() );
+    if ( EEFullReadoutSRFlagMap_[0] ) dqmStore_->removeElement( EEFullReadoutSRFlagMap_[0]->getFullname() );
     EEFullReadoutSRFlagMap_[0] = 0;
 
-    if ( EEFullReadoutSRFlagMap_[1] ) dqmStore_->removeElement( EEFullReadoutSRFlagMap_[1]->getName() );
+    if ( EEFullReadoutSRFlagMap_[1] ) dqmStore_->removeElement( EEFullReadoutSRFlagMap_[1]->getFullname() );
     EEFullReadoutSRFlagMap_[1] = 0;
 
-    if ( EEFullReadoutSRFlagCount_[0] ) dqmStore_->removeElement( EEFullReadoutSRFlagCount_[0]->getName() );
+    if ( EEFullReadoutSRFlagCount_[0] ) dqmStore_->removeElement( EEFullReadoutSRFlagCount_[0]->getFullname() );
     EEFullReadoutSRFlagCount_[0] = 0;
 
-    if ( EEFullReadoutSRFlagCount_[1] ) dqmStore_->removeElement( EEFullReadoutSRFlagCount_[1]->getName() );
+    if ( EEFullReadoutSRFlagCount_[1] ) dqmStore_->removeElement( EEFullReadoutSRFlagCount_[1]->getFullname() );
     EEFullReadoutSRFlagCount_[1] = 0;
 
-    if ( EEZeroSuppression1SRFlagMap_[0] ) dqmStore_->removeElement( EEZeroSuppression1SRFlagMap_[0]->getName() );
+    if ( EEZeroSuppression1SRFlagMap_[0] ) dqmStore_->removeElement( EEZeroSuppression1SRFlagMap_[0]->getFullname() );
     EEZeroSuppression1SRFlagMap_[0] = 0;
 
-    if ( EEZeroSuppression1SRFlagMap_[1] ) dqmStore_->removeElement( EEZeroSuppression1SRFlagMap_[1]->getName() );
+    if ( EEZeroSuppression1SRFlagMap_[1] ) dqmStore_->removeElement( EEZeroSuppression1SRFlagMap_[1]->getFullname() );
     EEZeroSuppression1SRFlagMap_[1] = 0;
 
-    if ( EEHighInterestTriggerTowerFlagMap_[0] ) dqmStore_->removeElement( EEHighInterestTriggerTowerFlagMap_[0]->getName() );
+    if ( EEHighInterestTriggerTowerFlagMap_[0] ) dqmStore_->removeElement( EEHighInterestTriggerTowerFlagMap_[0]->getFullname() );
     EEHighInterestTriggerTowerFlagMap_[0] = 0;
 
-    if ( EEHighInterestTriggerTowerFlagMap_[1] ) dqmStore_->removeElement( EEHighInterestTriggerTowerFlagMap_[1]->getName() );
+    if ( EEHighInterestTriggerTowerFlagMap_[1] ) dqmStore_->removeElement( EEHighInterestTriggerTowerFlagMap_[1]->getFullname() );
     EEHighInterestTriggerTowerFlagMap_[1] = 0;
 
-    if ( EELowInterestTriggerTowerFlagMap_[0] ) dqmStore_->removeElement( EELowInterestTriggerTowerFlagMap_[0]->getName() );
+    if ( EELowInterestTriggerTowerFlagMap_[0] ) dqmStore_->removeElement( EELowInterestTriggerTowerFlagMap_[0]->getFullname() );
     EELowInterestTriggerTowerFlagMap_[0] = 0;
 
-    if ( EELowInterestTriggerTowerFlagMap_[1] ) dqmStore_->removeElement( EELowInterestTriggerTowerFlagMap_[1]->getName() );
+    if ( EELowInterestTriggerTowerFlagMap_[1] ) dqmStore_->removeElement( EELowInterestTriggerTowerFlagMap_[1]->getFullname() );
     EELowInterestTriggerTowerFlagMap_[1] = 0;
 
-    if ( EETTFlags_[0] ) dqmStore_->removeElement( EETTFlags_[0]->getName() );
+    if ( EETTFlags_[0] ) dqmStore_->removeElement( EETTFlags_[0]->getFullname() );
     EETTFlags_[0] = 0;
 
-    if ( EETTFlags_[1] ) dqmStore_->removeElement( EETTFlags_[1]->getName() );
+    if ( EETTFlags_[1] ) dqmStore_->removeElement( EETTFlags_[1]->getFullname() );
     EETTFlags_[1] = 0;
 
-    if ( EECompleteZSMap_[0] ) dqmStore_->removeElement( EECompleteZSMap_[0]->getName() );
+    if ( EECompleteZSMap_[0] ) dqmStore_->removeElement( EECompleteZSMap_[0]->getFullname() );
     EECompleteZSMap_[0] = 0;
 
-    if ( EECompleteZSMap_[1] ) dqmStore_->removeElement( EECompleteZSMap_[1]->getName() );
+    if ( EECompleteZSMap_[1] ) dqmStore_->removeElement( EECompleteZSMap_[1]->getFullname() );
     EECompleteZSMap_[1] = 0;
 
-    if ( EECompleteZSCount_[0] ) dqmStore_->removeElement( EECompleteZSCount_[0]->getName() );
+    if ( EECompleteZSCount_[0] ) dqmStore_->removeElement( EECompleteZSCount_[0]->getFullname() );
     EECompleteZSCount_[0] = 0;
 
-    if ( EECompleteZSCount_[1] ) dqmStore_->removeElement( EECompleteZSCount_[1]->getName() );
+    if ( EECompleteZSCount_[1] ) dqmStore_->removeElement( EECompleteZSCount_[1]->getFullname() );
     EECompleteZSCount_[1] = 0;
 
-    if ( EEDroppedFRMap_[0] ) dqmStore_->removeElement( EEDroppedFRMap_[0]->getName() );
+    if ( EEDroppedFRMap_[0] ) dqmStore_->removeElement( EEDroppedFRMap_[0]->getFullname() );
     EEDroppedFRMap_[0] = 0;
 
-    if ( EEDroppedFRMap_[1] ) dqmStore_->removeElement( EEDroppedFRMap_[1]->getName() );
+    if ( EEDroppedFRMap_[1] ) dqmStore_->removeElement( EEDroppedFRMap_[1]->getFullname() );
     EEDroppedFRMap_[1] = 0;
 
-    if ( EEDroppedFRCount_[0] ) dqmStore_->removeElement( EEDroppedFRCount_[0]->getName() );
+    if ( EEDroppedFRCount_[0] ) dqmStore_->removeElement( EEDroppedFRCount_[0]->getFullname() );
     EEDroppedFRCount_[0] = 0;
 
-    if ( EEDroppedFRCount_[1] ) dqmStore_->removeElement( EEDroppedFRCount_[1]->getName() );
+    if ( EEDroppedFRCount_[1] ) dqmStore_->removeElement( EEDroppedFRCount_[1]->getFullname() );
     EEDroppedFRCount_[1] = 0;
 
-    if ( EEEventSize_[0] ) dqmStore_->removeElement( EEEventSize_[0]->getName() );
+    if ( EEEventSize_[0] ) dqmStore_->removeElement( EEEventSize_[0]->getFullname() );
     EEEventSize_[0] = 0;
 
-    if ( EEEventSize_[1] ) dqmStore_->removeElement( EEEventSize_[1]->getName() );
+    if ( EEEventSize_[1] ) dqmStore_->removeElement( EEEventSize_[1]->getFullname() );
     EEEventSize_[1] = 0;
 
-    if ( EEHighInterestPayload_[0] ) dqmStore_->removeElement( EEHighInterestPayload_[0]->getName() );
+    if ( EEHighInterestPayload_[0] ) dqmStore_->removeElement( EEHighInterestPayload_[0]->getFullname() );
     EEHighInterestPayload_[0] = 0;
 
-    if ( EEHighInterestPayload_[1] ) dqmStore_->removeElement( EEHighInterestPayload_[1]->getName() );
+    if ( EEHighInterestPayload_[1] ) dqmStore_->removeElement( EEHighInterestPayload_[1]->getFullname() );
     EEHighInterestPayload_[1] = 0;
 
-    if ( EELowInterestPayload_[0] ) dqmStore_->removeElement( EELowInterestPayload_[0]->getName() );
+    if ( EELowInterestPayload_[0] ) dqmStore_->removeElement( EELowInterestPayload_[0]->getFullname() );
     EELowInterestPayload_[0] = 0;
 
-    if ( EELowInterestPayload_[1] ) dqmStore_->removeElement( EELowInterestPayload_[1]->getName() );
+    if ( EELowInterestPayload_[1] ) dqmStore_->removeElement( EELowInterestPayload_[1]->getFullname() );
     EELowInterestPayload_[1] = 0;
 
-    if ( EEHighInterestZsFIR_[0] ) dqmStore_->removeElement( EEHighInterestZsFIR_[0]->getName() );
+    if ( EEHighInterestZsFIR_[0] ) dqmStore_->removeElement( EEHighInterestZsFIR_[0]->getFullname() );
     EEHighInterestZsFIR_[0] = 0;
 
-    if ( EEHighInterestZsFIR_[1] ) dqmStore_->removeElement( EEHighInterestZsFIR_[1]->getName() );
+    if ( EEHighInterestZsFIR_[1] ) dqmStore_->removeElement( EEHighInterestZsFIR_[1]->getFullname() );
     EEHighInterestZsFIR_[1] = 0;
 
-    if ( EELowInterestZsFIR_[0] ) dqmStore_->removeElement( EELowInterestZsFIR_[0]->getName() );
+    if ( EELowInterestZsFIR_[0] ) dqmStore_->removeElement( EELowInterestZsFIR_[0]->getFullname() );
     EELowInterestZsFIR_[0] = 0;
 
-    if ( EELowInterestZsFIR_[1] ) dqmStore_->removeElement( EELowInterestZsFIR_[1]->getName() );
+    if ( EELowInterestZsFIR_[1] ) dqmStore_->removeElement( EELowInterestZsFIR_[1]->getFullname() );
     EELowInterestZsFIR_[1] = 0;
 
   }
@@ -684,11 +595,8 @@ void EESelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
 
             double towerSize =  nCrySC[ix][iy][iz] * bytesPerCrystal;
 
-            float xix = ix;
-            if ( iz == 0 ) xix = 19 - xix;
-            xix += 0.5;
-
-            float xiy = iy+0.5;
+            float xix = ix * 5 + 2;
+            float xiy = iy * 5 + 2.;
 
             EETowerSize_[iz]->Fill(xix, xiy, towerSize);
 
@@ -769,11 +677,8 @@ void EESelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
 
         if( nEvtAnyReadout[ix][iy][iz] ) {
 
-          float xix = ix;
-          if ( iz == 0 ) xix = 19 - xix;
-          xix += 0.5;
-
-          float xiy = iy+0.5;
+          float xix = ix * 5 + 2.;
+          float xiy = iy * 5 + 2.;
 
           float fraction = float(nEvtFullReadout[ix][iy][iz]) / float(nEvtAnyReadout[ix][iy][iz]);
           float error = sqrt(fraction*(1-fraction)/float(nEvtAnyReadout[ix][iy][iz]));
@@ -898,7 +803,6 @@ void EESelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
         if ( (TPdigi->ttFlag() & 0x3) == 3 ) nEvtHighInterest[ix-1][iy-1][iz]++;
 
         float xix = ix-0.5;
-        if ( iz == 0 ) xix = 100 - xix;
         float xiy = iy-0.5;
 
         if ( ((TPdigi->ttFlag() & 0x3) == 1 || (TPdigi->ttFlag() & 0x3) == 3)

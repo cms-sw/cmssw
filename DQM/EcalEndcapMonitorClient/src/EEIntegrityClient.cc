@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2011/08/30 09:29:44 $
- * $Revision: 1.113 $
+ * $Date: 2011/09/02 13:55:02 $
+ * $Revision: 1.114 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -36,13 +36,21 @@
 #endif
 
 #include "DQM/EcalCommon/interface/Masks.h"
-
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/EcalScDetId.h"
+#include "DataFormats/EcalDetId/interface/EcalElectronicsId.h"
+
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 
 #include "DQM/EcalEndcapMonitorClient/interface/EEIntegrityClient.h"
+
+#include "TString.h"
+#include "TObjString.h"
+#include "TPRegexp.h"
+#include "TObjArray.h"
 
 EEIntegrityClient::EEIntegrityClient(const edm::ParameterSet& ps) {
 
@@ -99,6 +107,10 @@ EEIntegrityClient::EEIntegrityClient(const edm::ParameterSet& ps) {
 
   threshCry_ = 0.01;
 
+  ievt_ = 0;
+  jevt_ = 0;
+  dqmStore_ = 0;
+
 }
 
 EEIntegrityClient::~EEIntegrityClient() {
@@ -146,21 +158,22 @@ void EEIntegrityClient::setup(void) {
 
   std::string name;
 
-  dqmStore_->setCurrentFolder( prefixME_ + "/EEIntegrityClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/IntegrityErrors" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/IntegrityErrors/Quality" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
-    name = "EEIT data integrity quality " + Numbers::sEE(ism);
+    if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getFullname() );
+    name = "IntegrityClient data integrity quality " + Numbers::sEE(ism);
     meg01_[ism-1] = dqmStore_->book2D(name, name, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
     meg01_[ism-1]->setAxisTitle("ix", 1);
     if ( ism >= 1 && ism <= 9 ) meg01_[ism-1]->setAxisTitle("101-ix", 1);
     meg01_[ism-1]->setAxisTitle("iy", 2);
 
-    if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getName() );
-    name = "EEIT data integrity quality MEM " + Numbers::sEE(ism);
+    if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getFullname() );
+    name = "IntegrityClient data integrity quality MEM " + Numbers::sEE(ism);
     meg02_[ism-1] = dqmStore_->book2D(name, name, 10, 0., 10., 5, 0.,5.);
     meg02_[ism-1]->setAxisTitle("pseudo-strip", 1);
     meg02_[ism-1]->setAxisTitle("channel", 2);
@@ -253,16 +266,14 @@ void EEIntegrityClient::cleanup(void) {
 
   }
 
-  dqmStore_->setCurrentFolder( prefixME_ + "/EEIntegrityClient" );
-
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
+    if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getFullname() );
     meg01_[ism-1] = 0;
 
-    if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getName() );
+    if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getFullname() );
     meg02_[ism-1] = 0;
 
   }
@@ -288,6 +299,8 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
+    int zside = ism <= 9 ? -1 : 1;
+    int idcc = ism <= 9 ? ism : ism + 36;
 
     if ( h00_ && h00_->GetBinContent(ism) != 0 ) {
       std::cerr << std::endl;
@@ -295,20 +308,20 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
       std::cerr << std::endl;
     }
 
-    if ( verbose_ ) {
-      std::cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
-      std::cout << std::endl;
-      UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1], true);
-      UtilsClient::printBadChannels(meg01_[ism-1], h02_[ism-1], true);
-      UtilsClient::printBadChannels(meg01_[ism-1], h03_[ism-1], true);
-      UtilsClient::printBadChannels(meg01_[ism-1], h04_[ism-1], true);
-      UtilsClient::printBadChannels(meg01_[ism-1], h05_[ism-1], true);
+//     if ( verbose_ ) {
+//       std::cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+//       std::cout << std::endl;
+//       UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1], true);
+//       UtilsClient::printBadChannels(meg01_[ism-1], h02_[ism-1], true);
+//       UtilsClient::printBadChannels(meg01_[ism-1], h03_[ism-1], true);
+//       UtilsClient::printBadChannels(meg01_[ism-1], h04_[ism-1], true);
+//       UtilsClient::printBadChannels(meg01_[ism-1], h05_[ism-1], true);
 
-      UtilsClient::printBadChannels(meg02_[ism-1], h06_[ism-1], true);
-      UtilsClient::printBadChannels(meg02_[ism-1], h07_[ism-1], true);
-      UtilsClient::printBadChannels(meg02_[ism-1], h08_[ism-1], true);
-      UtilsClient::printBadChannels(meg02_[ism-1], h09_[ism-1], true);
-    }
+//       UtilsClient::printBadChannels(meg02_[ism-1], h06_[ism-1], true);
+//       UtilsClient::printBadChannels(meg02_[ism-1], h07_[ism-1], true);
+//       UtilsClient::printBadChannels(meg02_[ism-1], h08_[ism-1], true);
+//       UtilsClient::printBadChannels(meg02_[ism-1], h09_[ism-1], true);
+//     }
 
     float num00;
 
@@ -320,6 +333,8 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
       num00 = h00_->GetBinContent(ism);
       if ( num00 > 0 ) update0 = true;
     }
+
+    std::map<uint32_t, float>::iterator mapItr;
 
     float num01, num02, num03;
 
@@ -341,20 +356,22 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( h_[ism-1] ) numTot = h_[ism-1]->GetBinContent(ix, iy);
 
-        if ( h01_[ism-1] ) {
-          num01  = h01_[ism-1]->GetBinContent(ix, iy);
-          if ( num01 > 0 ) update1 = true;
-        }
+	uint32_t id(EEDetId(jx, jy, zside).rawId());
 
-        if ( h02_[ism-1] ) {
-          num02  = h02_[ism-1]->GetBinContent(ix, iy);
-          if ( num02 > 0 ) update1 = true;
-        }
+	if((mapItr = gain_.find(id)) != gain_.end()){
+	  num01 = mapItr->second;
+	  if(num01 > 0) update1 = true;
+	}
 
-        if ( h03_[ism-1] ) {
-          num03  = h03_[ism-1]->GetBinContent(ix, iy);
-          if ( num03 > 0 ) update1 = true;
-        }
+	if((mapItr = chid_.find(id)) != chid_.end()){
+	  num02 = mapItr->second;
+	  if(num02 > 0) update1 = true;
+	}
+
+	if((mapItr = gainswitch_.find(id)) != gainswitch_.end()){
+	  num03 = mapItr->second;
+	  if(num03 > 0) update1 = true;
+	}
 
         if ( update0 || update1 ) {
 
@@ -413,67 +430,56 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
     for ( int ixt = 1; ixt <= 10; ixt++ ) {
       for ( int iyt = 1; iyt <= 10; iyt++ ) {
 
-        int jxt = Numbers::ix0EE(ism) + 1 + 5*(ixt-1);
-        int jyt = Numbers::iy0EE(ism) + 1 + 5*(iyt-1);
+        int jxt = ixt + Numbers::ix0EE(ism) / 5;
+        int jyt = iyt + Numbers::iy0EE(ism) / 5;
 
-        if ( ism >= 1 && ism <= 9 ) jxt = 101 - jxt;
+        if ( ism >= 1 && ism <= 9 ) jxt = 21 - jxt;
+
+	if(jxt <= 0 || jxt > 20 || jyt <= 0 || jyt > 20 || !EcalScDetId::validDetId(jxt, jyt, zside)) continue;
 
         num04 = num05 = 0.;
 
         bool update1 = false;
 
         float numTot = -1.;
+	float nCrystals(0.);
 
         if ( h_[ism-1] ) {
           numTot = 0.;
           for ( int ix = 1 + 5*(ixt-1); ix <= 5*ixt; ix++ ) {
             for ( int iy = 1 + 5*(iyt-1); iy <= 5*iyt; iy++ ) {
-              int jx = ix + Numbers::ix0EE(ism);
-              int jy = iy + Numbers::iy0EE(ism);
-              if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
-              if ( ! Numbers::validEE(ism, jx, jy) ) continue;
+              if ( ! Numbers::validEE(ism, ix, iy) ) continue;
+	      nCrystals += 1.;
               numTot += h_[ism-1]->GetBinContent(ix, iy);
             }
           }
         }
 
-        if ( h04_[ism-1] ) {
-          for ( int ix = 1 + 5*(ixt-1); ix <= 5*ixt; ix++ ) {
-            for ( int iy = 1 + 5*(iyt-1); iy <= 5*iyt; iy++ ) {
-              int jx = ix + Numbers::ix0EE(ism);
-              int jy = iy + Numbers::iy0EE(ism);
-              if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
-              if ( ! Numbers::validEE(ism, jx, jy) ) continue;
-              num04  = h04_[ism-1]->GetBinContent(ix, iy);
-              if ( num04 > 0 ) update1 = true;
-            }
-          }
-        }
+	EcalScDetId scid(jxt, jyt, zside);
+	std::pair<int, int> dccsc(Numbers::getElectronicsMapping()->getDCCandSC(scid));
+	uint32_t id(EcalElectronicsId(dccsc.first, dccsc.second, 1, 1).rawId());
 
-        if ( h05_[ism-1] ) {
-          for ( int ix = 1 + 5*(ixt-1); ix <= 5*ixt; ix++ ) {
-            for ( int iy = 1 + 5*(iyt-1); iy <= 5*iyt; iy++ ) {
-              int jx = ix + Numbers::ix0EE(ism);
-              int jy = iy + Numbers::iy0EE(ism);
-              if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
-              if ( ! Numbers::validEE(ism, jx, jy) ) continue;
-              num05  = h05_[ism-1]->GetBinContent(ix, iy);
-              if ( num05 > 0 ) update1 = true;
-            }
-          }
-        }
+	if((mapItr = ttid_.find(id)) != ttid_.end()){
+	  num04 = mapItr->second * nCrystals;
+	  if(num04 > 0) update1 = true;
+	}
+
+	if((mapItr = ttblocksize_.find(id)) != ttblocksize_.end()){
+	  num05 = mapItr->second * nCrystals;
+	  if(num05 > 0) update1 = true;
+	}
 
         if ( update0 || update1 ) {
 
-          if ( Numbers::iSC(ism, EcalEndcap, jxt, jyt) == 1 ) {
+//           if ( Numbers::iSC(ism, EcalEndcap, jxt, jyt) == 1 ) {
 
-            if ( verbose_ ) {
-              std::cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
-              std::cout << "(" << 1+(Numbers::ix0EE(ism)+1+5*(ixt-1))/5 << "," << 1+(Numbers::iy0EE(ism)+1+5*(iyt-1))/5 << ") " << num00 << " " << num04 << " " << num05 << std::endl;
-              std::cout << std::endl;
-            }
+//             if ( verbose_ ) {
+//               std::cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+//               std::cout << "(" << 1+(Numbers::ix0EE(ism)+1+5*(ixt-1))/5 << "," << 1+(Numbers::iy0EE(ism)+1+5*(iyt-1))/5 << ") " << num00 << " " << num04 << " " << num05 << std::endl;
+//               std::cout << std::endl;
+//             }
 
-          }
+//           }
 
           c2.setProcessedEvents(int(numTot));
           c2.setProblematicEvents(int(num04+num05));
@@ -500,12 +506,8 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           }
           c2.setTaskStatus(val);
 
-          int itt = Numbers::iSC(ism, EcalEndcap, jxt, jyt);
-
-          if ( itt == -1 ) continue;
-
           if ( econn ) {
-            ecid = LogicID::getEcalLogicID("EE_readout_tower", Numbers::iSM(ism, EcalEndcap), itt);
+            ecid = LogicID::getEcalLogicID("EE_readout_tower", Numbers::iSM(ism, EcalEndcap), dccsc.second);
             dataset2[ecid] = c2;
           }
 
@@ -518,74 +520,73 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
     float num06, num07;
 
-    for ( int ix = 1; ix <= 10; ix++ ) {
-      for ( int iy = 1; iy <= 5; iy++ ) {
+    for(int ife(0); ife < 2; ife++){
+      float numTotMem[5] = {-1., -1., -1., -1., -1.};
+      for ( int ixtal = 1; ixtal <= 5; ixtal++ ) {
+	if ( hmem_[ism-1] ) numTotMem[ixtal - 1] = hmem_[ism-1]->GetBinContent(ife * 5 + ixtal, 1);
+      }
 
-        num06 = num07 = 0.;
+      for ( int ixtal = 1; ixtal <= 5; ixtal++ ) {
+	for ( int istrip = 1; istrip <= 5; istrip++ ) {
 
-        bool update1 = false;
+	  num06 = num07 = 0.;
 
-        float numTot = -1.;
+	  bool update1 = false;
 
-        if ( hmem_[ism-1] ) numTot = hmem_[ism-1]->GetBinContent(ix, iy);
+	  float numTot;
+	  if(istrip % 2 == 1) numTot = numTotMem[ixtal - 1];
+	  else numTot = numTotMem[6 - ixtal];
 
-        if ( h06_[ism-1] ) {
-          num06  = h06_[ism-1]->GetBinContent(ix, iy);
-          if ( num06 > 0 ) update1 = true;
-        }
+	  uint32_t id(EcalElectronicsId(idcc, ife + 68, istrip, ixtal).rawId());
 
-        if ( h07_[ism-1] ) {
-          num07  = h07_[ism-1]->GetBinContent(ix, iy);
-          if ( num07 > 0 ) update1 = true;
-        }
+	  if((mapItr = memchid_.find(id)) != memchid_.end()){
+	    num06 = mapItr->second;
+	    if ( num06 > 0 ) update1 = true;
+	  }
 
-        if ( update0 || update1 ) {
+	  if((mapItr = memgain_.find(id)) != memgain_.end()){
+	    num07 = mapItr->second;
+	    if ( num07 > 0 ) update1 = true;
+	  }
 
-          if ( ix ==1 && iy == 1 ) {
+	  if ( update0 || update1 ) {
 
-            if ( verbose_ ) {
-              std::cout << "Preparing dataset for mem of SM=" << ism << std::endl;
-              std::cout << "(" << ix << "," << iy << ") " << num06 << " " << num07 << std::endl;
-              std::cout << std::endl;
-            }
+	    c3.setProcessedEvents( int (numTot));
+	    c3.setProblematicEvents(int (num06+num07));
+	    c3.setProblemsID(int (num06) );
+	    c3.setProblemsGainZero(int (num07));
+	    // c3.setProblemsGainSwitch(int prob);
 
-          }
+	    bool val;
 
-          c3.setProcessedEvents( int (numTot));
-          c3.setProblematicEvents(int (num06+num07));
-          c3.setProblemsID(int (num06) );
-          c3.setProblemsGainZero(int (num07));
-          // c3.setProblemsGainSwitch(int prob);
+	    val = false;
+	    if ( numTot > 0 ) {
+	      float errorRate1 = num00 / ( numTot + num06 + num07 );
+	      if ( errorRate1 > threshCry_ )
+		val = true;
+	      errorRate1 = ( num06 + num07 ) / ( numTot + num06 + num07 ) / 2.;
+	      if ( errorRate1 > threshCry_ )
+		val = true;
+	    } else {
+	      if ( num00 > 0 )
+		val = true;
+	      if ( ( num06 + num07 ) > 0 )
+		val = true;
+	    }
+	    c3. setTaskStatus(val);
 
-          bool val;
+	    int ic = EEIntegrityClient::chNum[istrip - 1][ixtal - 1] + 25 * ife;
 
-          val = false;
-          if ( numTot > 0 ) {
-            float errorRate1 = num00 / ( numTot + num06 + num07 );
-            if ( errorRate1 > threshCry_ )
-              val = true;
-            errorRate1 = ( num06 + num07 ) / ( numTot + num06 + num07 ) / 2.;
-            if ( errorRate1 > threshCry_ )
-              val = true;
-          } else {
-            if ( num00 > 0 )
-             val = true;
-            if ( ( num06 + num07 ) > 0 )
-              val = true;
-          }
-          c3. setTaskStatus(val);
+	    if ( econn ) {
+	      ecid = LogicID::getEcalLogicID("EE_mem_channel", Numbers::iSM(ism, EcalEndcap), ic);
+	      dataset3[ecid] = c3;
+	    }
 
-          int ic = EEIntegrityClient::chNum[ (ix-1)%5 ][ (iy-1) ] + (ix-1)/5 * 25;
+	    status = status && !val;
 
-          if ( econn ) {
-            ecid = LogicID::getEcalLogicID("EE_mem_channel", Numbers::iSM(ism, EcalEndcap), ic);
-            dataset3[ecid] = c3;
-          }
+	  }
 
-          status = status && !val;
-
-        }
-
+	}
       }
     }
 
@@ -602,20 +603,20 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
       if ( hmem_[ism-1] ) {
         numTot = 0.;
         for ( int ix = 1 + 5*(ixt-1); ix <= 5*ixt; ix++ ) {
-          for ( int iy = 1 ; iy <= 5; iy++ ) {
-            numTot += hmem_[ism-1]->GetBinContent(ix, iy);
-          }
+	  numTot += hmem_[ism-1]->GetBinContent(ix, 1);
         }
       }
 
-      if ( h08_[ism-1] ) {
-        num08  = h08_[ism-1]->GetBinContent(ixt, 1);
-        if ( num08 > 0 ) update1 = true;
+      uint32_t id(EcalElectronicsId(idcc, ixt + 68, 1, 1).rawId());
+
+      if((mapItr = memttid_.find(id)) != memttid_.end()){
+	num08 = mapItr->second;
+	if ( num08 > 0 ) update1 = true;
       }
 
-      if ( h09_[ism-1] ) {
-        num09  = h09_[ism-1]->GetBinContent(ixt, 1);
-        if ( num09 > 0 ) update1 = true;
+      if((mapItr = memblocksize_.find(id)) != memblocksize_.end()){
+	num09 = mapItr->second;
+	if ( num09 > 0 ) update1 = true;
       }
 
       if ( update0 || update1 ) {
@@ -705,45 +706,172 @@ void EEIntegrityClient::analyze(void) {
 
   MonitorElement* me;
 
-  me = dqmStore_->get( prefixME_ + "/EEIntegrityTask/EEIT DCC size error" );
+  gain_.clear();
+  chid_.clear();
+  gainswitch_.clear();
+  ttid_.clear();
+  ttblocksize_.clear();
+  memchid_.clear();
+  memgain_.clear();
+  memttid_.clear();
+  memblocksize_.clear();
+
+  std::vector<MonitorElement *> vme;
+  TString name;
+  TPRegexp reDetId("IntegrityTask [a-zA-Z ]+ EE ([0-9+-]+) ([0-9]+)");
+  TPRegexp reEleId("IntegrityTask [a-zA-Z ]+ FE ([0-9]+) ([0-9]+)( ([0-9]+) ([0-9]+)|)");
+  TObjArray* matches(0);
+  int ix, iy, zside, idcc, iccu, istrip, ixtal;
+
+  vme = dqmStore_->getContents(prefixME_ + "/IntegrityErrors/Gain");
+  for(std::vector<MonitorElement *>::iterator meItr(vme.begin()); meItr != vme.end(); ++meItr){
+    if(!(*meItr)) continue;
+    name = (*meItr)->getName().c_str();
+    matches = reDetId.MatchS(name);
+    if(matches->GetEntries() != 3) continue;
+    ix = static_cast<TObjString*>(matches->At(1))->GetString().Atoi();
+    iy = static_cast<TObjString*>(matches->At(2))->GetString().Atoi();
+    if(ix < 0){
+      zside = -1;
+      ix = -ix;
+    }else{
+      zside = 1;
+    }
+    EEDetId id(ix, iy, zside);
+    gain_[id.rawId()] = (*meItr)->getBinContent(1);
+  }
+
+  vme = dqmStore_->getContents(prefixME_ + "/IntegrityErrors/ChId");
+  for(std::vector<MonitorElement *>::iterator meItr(vme.begin()); meItr != vme.end(); ++meItr){
+    if(!(*meItr)) continue;
+    name = (*meItr)->getName().c_str();
+    matches = reDetId.MatchS(name);
+    if(matches->GetEntries() != 3) continue;
+    ix = static_cast<TObjString*>(matches->At(1))->GetString().Atoi();
+    iy = static_cast<TObjString*>(matches->At(2))->GetString().Atoi();
+    if(ix < 0){
+      zside = -1;
+      ix = -ix;
+    }else{
+      zside = 1;
+    }
+    EEDetId id(ix, iy, zside);
+    chid_[id.rawId()] = (*meItr)->getBinContent(1);
+  }
+
+  vme = dqmStore_->getContents(prefixME_ + "/IntegrityErrors/GainSwitch");
+  for(std::vector<MonitorElement *>::iterator meItr(vme.begin()); meItr != vme.end(); ++meItr){
+    if(!(*meItr)) continue;
+    name = (*meItr)->getName().c_str();
+    matches = reDetId.MatchS(name);
+    if(matches->GetEntries() != 3) continue;
+    ix = static_cast<TObjString*>(matches->At(1))->GetString().Atoi();
+    iy = static_cast<TObjString*>(matches->At(2))->GetString().Atoi();
+    if(ix < 0){
+      zside = -1;
+      ix = -ix;
+    }else{
+      zside = 1;
+    }
+    EEDetId id(ix, iy, zside);
+    gainswitch_[id.rawId()] = (*meItr)->getBinContent(1);
+  }
+
+  vme = dqmStore_->getContents(prefixME_ + "/IntegrityErrors/TowerId");
+  for(std::vector<MonitorElement *>::iterator meItr(vme.begin()); meItr != vme.end(); ++meItr){
+    if(!(*meItr)) continue;
+    name = (*meItr)->getName().c_str();
+    matches = reEleId.MatchS(name);
+    if(matches->GetEntries() != 4) continue;
+    idcc = static_cast<TObjString*>(matches->At(1))->GetString().Atoi();
+    iccu = static_cast<TObjString*>(matches->At(2))->GetString().Atoi();
+    if(idcc >= 10 && idcc <= 45) continue;
+    EcalElectronicsId id(idcc, iccu, 1, 1);
+    ttid_[id.rawId()] = (*meItr)->getBinContent(1);
+  }
+
+  vme = dqmStore_->getContents(prefixME_ + "/IntegrityErrors/BlockSize");
+  for(std::vector<MonitorElement *>::iterator meItr(vme.begin()); meItr != vme.end(); ++meItr){
+    if(!(*meItr)) continue;
+    name = (*meItr)->getName().c_str();
+    matches = reEleId.MatchS(name);
+    if(matches->GetEntries() != 4) continue;
+    idcc = static_cast<TObjString*>(matches->At(1))->GetString().Atoi();
+    iccu = static_cast<TObjString*>(matches->At(2))->GetString().Atoi();
+    if(idcc >= 10 && idcc <= 45) continue;
+    EcalElectronicsId id(idcc, iccu, 1, 1);
+    ttblocksize_[id.rawId()] = (*meItr)->getBinContent(1);
+  }
+
+  vme = dqmStore_->getContents(prefixME_ + "/IntegrityErrors/MEMBlockSize");
+  for(std::vector<MonitorElement *>::iterator meItr(vme.begin()); meItr != vme.end(); ++meItr){
+    if(!(*meItr)) continue;
+    name = (*meItr)->getName().c_str();
+    matches = reEleId.MatchS(name);
+    if(matches->GetEntries() != 4) continue;
+    idcc = static_cast<TObjString*>(matches->At(1))->GetString().Atoi();
+    iccu = static_cast<TObjString*>(matches->At(2))->GetString().Atoi();
+    if(idcc >= 10 && idcc <= 45) continue;
+    EcalElectronicsId id(idcc, iccu, 1, 1);
+    memblocksize_[id.rawId()] = (*meItr)->getBinContent(1);
+  }
+
+  vme = dqmStore_->getContents(prefixME_ + "/IntegrityErrors/MEMTowerId");
+  for(std::vector<MonitorElement *>::iterator meItr(vme.begin()); meItr != vme.end(); ++meItr){
+    if(!(*meItr)) continue;
+    name = (*meItr)->getName().c_str();
+    matches = reEleId.MatchS(name);
+    if(matches->GetEntries() != 4) continue;
+    idcc = static_cast<TObjString*>(matches->At(1))->GetString().Atoi();
+    iccu = static_cast<TObjString*>(matches->At(2))->GetString().Atoi();
+    if(idcc >= 10 && idcc <= 45) continue;
+    EcalElectronicsId id(idcc, iccu, 1, 1);
+    memttid_[id.rawId()] = (*meItr)->getBinContent(1);
+  }
+
+  vme = dqmStore_->getContents(prefixME_ + "/IntegrityErrors/MEMChId");
+  for(std::vector<MonitorElement *>::iterator meItr(vme.begin()); meItr != vme.end(); ++meItr){
+    if(!(*meItr)) continue;
+    name = (*meItr)->getName().c_str();
+    matches = reEleId.MatchS(name);
+    if(matches->GetEntries() != 6) continue;
+    idcc = static_cast<TObjString*>(matches->At(1))->GetString().Atoi();
+    iccu = static_cast<TObjString*>(matches->At(2))->GetString().Atoi();
+    istrip = static_cast<TObjString*>(matches->At(4))->GetString().Atoi();
+    ixtal = static_cast<TObjString*>(matches->At(5))->GetString().Atoi();
+    if(idcc >= 10 && idcc <= 45) continue;
+    EcalElectronicsId id(idcc, iccu, istrip, ixtal);
+    memchid_[id.rawId()] = (*meItr)->getBinContent(1);
+  }
+
+  vme = dqmStore_->getContents(prefixME_ + "/IntegrityErrors/MEMGain");
+  for(std::vector<MonitorElement *>::iterator meItr(vme.begin()); meItr != vme.end(); ++meItr){
+    if(!(*meItr)) continue;
+    name = (*meItr)->getName().c_str();
+    matches = reEleId.MatchS(name);
+    if(matches->GetEntries() != 6) continue;
+    idcc = static_cast<TObjString*>(matches->At(1))->GetString().Atoi();
+    iccu = static_cast<TObjString*>(matches->At(2))->GetString().Atoi();
+    istrip = static_cast<TObjString*>(matches->At(4))->GetString().Atoi();
+    ixtal = static_cast<TObjString*>(matches->At(5))->GetString().Atoi();
+    if(idcc >= 10 && idcc <= 45) continue;
+    EcalElectronicsId id(idcc, iccu, istrip, ixtal);
+    memgain_[id.rawId()] = (*meItr)->getBinContent(1);
+  }
+
+
+  me = dqmStore_->get( prefixME_ + "/IntegrityErrors/IntegrityTask DCC size error EE" );
   h00_ = UtilsClient::getHisto( me, cloneME_, h00_ );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    me = dqmStore_->get( prefixME_ + "/EEOccupancyTask/EEOT digi occupancy " + Numbers::sEE(ism) );
+    me = dqmStore_->get( prefixME_ + "/Occupancy/Digi/OccupancyTask digi occupancy " + Numbers::sEE(ism) );
     h_[ism-1] = UtilsClient::getHisto( me, cloneME_, h_[ism-1] );
 
-    me = dqmStore_->get( prefixME_ + "/EEOccupancyTask/EEOT MEM digi occupancy " + Numbers::sEE(ism) );
+    me = dqmStore_->get( prefixME_ + "/Occupancy/MEMDigi/OccupancyTask MEM digi occupancy " + Numbers::sEE(ism) );
     hmem_[ism-1] = UtilsClient::getHisto( me, cloneME_, hmem_[ism-1] );
-
-    me = dqmStore_->get( prefixME_ + "/EEIntegrityTask/Gain/EEIT gain " + Numbers::sEE(ism) );
-    h01_[ism-1] = UtilsClient::getHisto( me, cloneME_, h01_[ism-1] );
-
-    me = dqmStore_->get( prefixME_ + "/EEIntegrityTask/ChId/EEIT ChId " + Numbers::sEE(ism) );
-    h02_[ism-1] = UtilsClient::getHisto( me, cloneME_, h02_[ism-1] );
-
-    me = dqmStore_->get( prefixME_ + "/EEIntegrityTask/GainSwitch/EEIT gain switch " + Numbers::sEE(ism) );
-    h03_[ism-1] = UtilsClient::getHisto( me, cloneME_, h03_[ism-1] );
-
-    me = dqmStore_->get( prefixME_ + "/EEIntegrityTask/TTId/EEIT TTId " + Numbers::sEE(ism) );
-    h04_[ism-1] = UtilsClient::getHisto( me, cloneME_, h04_[ism-1] );
-
-    me = dqmStore_->get( prefixME_ + "/EEIntegrityTask/TTBlockSize/EEIT TTBlockSize " + Numbers::sEE(ism) );
-    h05_[ism-1] = UtilsClient::getHisto( me, cloneME_, h05_[ism-1] );
-
-    me = dqmStore_->get( prefixME_ + "/EEIntegrityTask/MemChId/EEIT MemChId " + Numbers::sEE(ism) );
-    h06_[ism-1] = UtilsClient::getHisto( me, cloneME_, h06_[ism-1] );
-
-    me = dqmStore_->get( prefixME_ + "/EEIntegrityTask/MemGain/EEIT MemGain " + Numbers::sEE(ism) );
-    h07_[ism-1] = UtilsClient::getHisto( me, cloneME_, h07_[ism-1] );
-
-    me = dqmStore_->get( prefixME_ + "/EEIntegrityTask/MemTTId/EEIT MemTTId " + Numbers::sEE(ism) );
-    h08_[ism-1] = UtilsClient::getHisto( me, cloneME_, h08_[ism-1] );
-
-    me = dqmStore_->get( prefixME_ + "/EEIntegrityTask/MemSize/EEIT MemSize " + Numbers::sEE(ism) );
-    h09_[ism-1] = UtilsClient::getHisto( me, cloneME_, h09_[ism-1] );
 
     float num00;
 
@@ -763,12 +891,21 @@ void EEIntegrityClient::analyze(void) {
 
     float num01, num02, num03, num04, num05;
 
+    std::map<uint32_t, float>::iterator mapItr;
+
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
 
         num01 = num02 = num03 = num04 = num05 = 0.;
 
         if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, 6. );
+
+	int jx = ix + Numbers::ix0EE(ism);
+	int jy = iy + Numbers::iy0EE(ism);
+	int zside = ism <= 9 ? -1 : 1;
+	if(zside < 0) jx = 101 - jx;
+
+	if(!EEDetId::validDetId(jx, jy, zside)) continue;
 
         bool update1 = false;
         bool update2 = false;
@@ -777,30 +914,34 @@ void EEIntegrityClient::analyze(void) {
 
         if ( h_[ism-1] ) numTot = h_[ism-1]->GetBinContent(ix, iy);
 
-        if ( h01_[ism-1] ) {
-          num01  = h01_[ism-1]->GetBinContent(ix, iy);
-          update1 = true;
-        }
+	uint32_t eeid(EEDetId(jx, jy, zside).rawId());
+	EcalElectronicsId tmpEid(Numbers::getElectronicsMapping()->getElectronicsId(DetId(eeid)));
+	uint32_t eid(EcalElectronicsId(tmpEid.dccId(), tmpEid.towerId(), 1, 1).rawId());
 
-        if ( h02_[ism-1] ) {
-          num02  = h02_[ism-1]->GetBinContent(ix, iy);
-          update1 = true;
-        }
+	if((mapItr = gain_.find(eeid)) != gain_.end()){
+	  num01 = mapItr->second;
+	  update1 = true;
+	}
 
-        if ( h03_[ism-1] ) {
-          num03  = h03_[ism-1]->GetBinContent(ix, iy);
-          update1 = true;
-        }
+	if((mapItr = chid_.find(eeid)) != chid_.end()){
+	  num02 = mapItr->second;
+	  update1 = true;
+	}
 
-        if ( h04_[ism-1] ) {
-          num04  = h04_[ism-1]->GetBinContent(ix, iy);
-          update2 = true;
-        }
+	if((mapItr = gainswitch_.find(eeid)) != gainswitch_.end()){
+	  num03 = mapItr->second;
+	  update1 = true;
+	}
 
-        if ( h05_[ism-1] ) {
-          num05  = h05_[ism-1]->GetBinContent(ix, iy);
-          update2 = true;
-        }
+	if((mapItr = ttid_.find(eid)) != ttid_.end()){
+	  num04 = mapItr->second;
+	  update2 = true;
+	}
+
+	if((mapItr = ttblocksize_.find(eid)) != ttblocksize_.end()){
+	  num05 = mapItr->second;
+	  update2 = true;
+	}
 
         if ( update0 || update1 || update2 ) {
 
@@ -867,30 +1008,32 @@ void EEIntegrityClient::analyze(void) {
 
         float numTotmem = -1.;
 
-        if ( hmem_[ism-1] ) numTotmem = hmem_[ism-1]->GetBinContent(ie, ip);
+        if ( hmem_[ism-1] ) numTotmem = hmem_[ism-1]->GetBinContent(ie, 1);
 
-        if ( h06_[ism-1] ) {
-          num06  = h06_[ism-1]->GetBinContent(ie, ip);
-          update1 = true;
-        }
+	uint32_t towerid(EcalElectronicsId(ism + 9, 69 + (ie - 1) / 5, 1, 1).rawId());
+	istrip = (ie - 1) % 5 + 1;
+	ixtal = (ie % 2) ? ip : 6 - ip;
+	uint32_t memid(EcalElectronicsId(ism + 9, 69 + (ie - 1) / 5, istrip, ixtal).rawId());
 
-        if ( h07_[ism-1] ) {
-          num07  = h07_[ism-1]->GetBinContent(ie, ip);
-          update1 = true;
-        }
+	if((mapItr = memchid_.find(memid)) != memchid_.end()){
+	  num06 = mapItr->second;
+	  update1 = true;
+	}
 
-        int iet = 1 + ((ie-1)/5);
-        int ipt = 1;
+	if((mapItr = memgain_.find(memid)) != memgain_.end()){
+	  num07 = mapItr->second;
+	  update1 = true;
+	}
 
-        if ( h08_[ism-1] ) {
-          num08  = h08_[ism-1]->GetBinContent(iet, ipt);
-          update2 = true;
-        }
+	if((mapItr = memttid_.find(towerid)) != memttid_.end()){
+	  num08 = mapItr->second;
+	  update2 = true;
+	}
 
-        if ( h09_[ism-1] ) {
-          num09  = h09_[ism-1]->GetBinContent(iet, ipt);
-          update2 = true;
-        }
+	if((mapItr = memblocksize_.find(towerid)) != memblocksize_.end()){
+	  num08 = mapItr->second;
+	  update2 = true;
+	}
 
         if ( update0 || update1 || update2 ) {
 

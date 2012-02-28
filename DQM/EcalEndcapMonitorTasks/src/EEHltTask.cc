@@ -1,8 +1,8 @@
 /*
  * \file EEHltTask.cc
  *
- * $Date: 2010/08/11 14:57:35 $
- * $Revision: 1.16 $
+ * $Date: 2011/08/30 09:28:42 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  *
 */
@@ -63,6 +63,7 @@ EEHltTask::EEHltTask(const edm::ParameterSet& ps){
 
   map = 0;
 
+  ievt_ = 0;
 }
 
 EEHltTask::~EEHltTask(){

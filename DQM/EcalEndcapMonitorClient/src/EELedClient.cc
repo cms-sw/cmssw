@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2011/09/02 13:55:02 $
- * $Revision: 1.129 $
+ * $Date: 2011/10/07 17:21:20 $
+ * $Revision: 1.130 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -165,6 +165,10 @@ EELedClient::EELedClient(const edm::ParameterSet& ps) {
   pedPnRMSThreshold_[0] = 10.;
   pedPnRMSThreshold_[1] = 10.;
 
+  ievt_ = 0;
+  jevt_ = 0;
+  dqmStore_ = 0;
+
 }
 
 EELedClient::~EELedClient() {
@@ -212,23 +216,25 @@ void EELedClient::setup(void) {
 
   std::string name;
 
-  dqmStore_->setCurrentFolder( prefixME_ + "/EELedClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/LED" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
-      if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
-      name = "EELDT led quality L1 " + Numbers::sEE(ism);
+      dqmStore_->setCurrentFolder( prefixME_ + "/LED/LED1/Quality" );
+      if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getFullname() );
+      name = "LEDClient led quality L1 " + Numbers::sEE(ism);
       meg01_[ism-1] = dqmStore_->book2D(name, name, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
       meg01_[ism-1]->setAxisTitle("ix", 1);
       if ( ism >= 1 && ism <= 9 ) meg01_[ism-1]->setAxisTitle("101-ix", 1);
       meg01_[ism-1]->setAxisTitle("iy", 2);
     }
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
-      if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getName() );
-      name = "EELDT led quality L2 " + Numbers::sEE(ism);
+      dqmStore_->setCurrentFolder( prefixME_ + "/LED/LED2/Quality" );
+      if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getFullname() );
+      name = "LEDClient led quality L2 " + Numbers::sEE(ism);
       meg02_[ism-1] = dqmStore_->book2D(name, name, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
       meg02_[ism-1]->setAxisTitle("ix", 1);
       if ( ism >= 1 && ism <= 9 ) meg02_[ism-1]->setAxisTitle("101-ix", 1);
@@ -236,146 +242,159 @@ void EELedClient::setup(void) {
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
-      if ( meg05_[ism-1] ) dqmStore_->removeElement( meg05_[ism-1]->getName() );
-      name = "EELDT led quality L1 PNs G01 " + Numbers::sEE(ism);
+      dqmStore_->setCurrentFolder( prefixME_ + "/LED/LED1/PN/Gain01/Quality" );
+      if ( meg05_[ism-1] ) dqmStore_->removeElement( meg05_[ism-1]->getFullname() );
+      name = "LEDClient led PN quality L1 G01 " + Numbers::sEE(ism);
       meg05_[ism-1] = dqmStore_->book2D(name, name, 10, 0., 10., 1, 0., 5.);
       meg05_[ism-1]->setAxisTitle("pseudo-strip", 1);
       meg05_[ism-1]->setAxisTitle("channel", 2);
     }
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
-      if ( meg06_[ism-1] ) dqmStore_->removeElement( meg06_[ism-1]->getName() );
-      name = "EELDT led quality L2 PNs G01 " + Numbers::sEE(ism);
+      dqmStore_->setCurrentFolder( prefixME_ + "/LED/LED2/PN/Gain01/Quality" );
+      if ( meg06_[ism-1] ) dqmStore_->removeElement( meg06_[ism-1]->getFullname() );
+      name = "LEDClient led PN quality L2 G01 " + Numbers::sEE(ism);
       meg06_[ism-1] = dqmStore_->book2D(name, name, 10, 0., 10., 1, 0., 5.);
       meg06_[ism-1]->setAxisTitle("pseudo-strip", 1);
       meg06_[ism-1]->setAxisTitle("channel", 2);
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
-      if ( meg09_[ism-1] ) dqmStore_->removeElement( meg09_[ism-1]->getName() );
-      name = "EELDT led quality L1 PNs G16 " + Numbers::sEE(ism);
+      dqmStore_->setCurrentFolder( prefixME_ + "/LED/LED1/PN/Gain16/Quality" );
+      if ( meg09_[ism-1] ) dqmStore_->removeElement( meg09_[ism-1]->getFullname() );
+      name = "LEDClient led PN quality L1 G16 " + Numbers::sEE(ism);
       meg09_[ism-1] = dqmStore_->book2D(name, name, 10, 0., 10., 1, 0., 5.);
       meg09_[ism-1]->setAxisTitle("pseudo-strip", 1);
       meg09_[ism-1]->setAxisTitle("channel", 2);
     }
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
-      if ( meg10_[ism-1] ) dqmStore_->removeElement( meg10_[ism-1]->getName() );
-      name = "EELDT led quality L2 PNs G16 " + Numbers::sEE(ism);
+      dqmStore_->setCurrentFolder( prefixME_ + "/LED/LED2/PN/Gain16/Quality" );
+      if ( meg10_[ism-1] ) dqmStore_->removeElement( meg10_[ism-1]->getFullname() );
+      name = "LEDClient led PN quality L2  G16 " + Numbers::sEE(ism);
       meg10_[ism-1] = dqmStore_->book2D(name, name, 10, 0., 10., 1, 0., 5.);
       meg10_[ism-1]->setAxisTitle("pseudo-strip", 1);
       meg10_[ism-1]->setAxisTitle("channel", 2);
     }
 
-    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
-      if ( mea01_[ism-1] ) dqmStore_->removeElement( mea01_[ism-1]->getName() );;
-      name = "EELDT amplitude L1 " + Numbers::sEE(ism);
-      mea01_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
-      mea01_[ism-1]->setAxisTitle("channel", 1);
-      mea01_[ism-1]->setAxisTitle("amplitude", 2);
-    }
-    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
-      if ( mea02_[ism-1] ) dqmStore_->removeElement( mea02_[ism-1]->getName() );
-      name = "EELDT amplitude L2 " + Numbers::sEE(ism);
-      mea02_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
-      mea02_[ism-1]->setAxisTitle("channel", 1);
-      mea02_[ism-1]->setAxisTitle("amplitude", 2);
-    }
+//     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
+//       if ( mea01_[ism-1] ) dqmStore_->removeElement( mea01_[ism-1]->getFullname() );;
+//       name = "LEDClient amplitude L1 " + Numbers::sEE(ism);
+//       mea01_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
+//       mea01_[ism-1]->setAxisTitle("channel", 1);
+//       mea01_[ism-1]->setAxisTitle("amplitude", 2);
+//     }
+//     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
+//       if ( mea02_[ism-1] ) dqmStore_->removeElement( mea02_[ism-1]->getFullname() );
+//       name = "LEDClient amplitude L2 " + Numbers::sEE(ism);
+//       mea02_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
+//       mea02_[ism-1]->setAxisTitle("channel", 1);
+//       mea02_[ism-1]->setAxisTitle("amplitude", 2);
+//     }
+
+//     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
+//       if ( met01_[ism-1] ) dqmStore_->removeElement( met01_[ism-1]->getFullname() );
+//       name = "LEDClient led timing L1 " + Numbers::sEE(ism);
+//       met01_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
+//       met01_[ism-1]->setAxisTitle("channel", 1);
+//       met01_[ism-1]->setAxisTitle("jitter", 2);
+//     }
+//     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
+//       if ( met02_[ism-1] ) dqmStore_->removeElement( met02_[ism-1]->getFullname() );
+//       name = "LEDClient led timing L2 " + Numbers::sEE(ism);
+//       met02_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
+//       met02_[ism-1]->setAxisTitle("channel", 1);
+//       met02_[ism-1]->setAxisTitle("jitter", 2);
+//     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
-      if ( met01_[ism-1] ) dqmStore_->removeElement( met01_[ism-1]->getName() );
-      name = "EELDT led timing L1 " + Numbers::sEE(ism);
-      met01_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
-      met01_[ism-1]->setAxisTitle("channel", 1);
-      met01_[ism-1]->setAxisTitle("jitter", 2);
-    }
-    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
-      if ( met02_[ism-1] ) dqmStore_->removeElement( met02_[ism-1]->getName() );
-      name = "EELDT led timing L2 " + Numbers::sEE(ism);
-      met02_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
-      met02_[ism-1]->setAxisTitle("channel", 1);
-      met02_[ism-1]->setAxisTitle("jitter", 2);
-    }
-
-    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
-      if ( metav01_[ism-1] ) dqmStore_->removeElement( metav01_[ism-1]->getName() );
-      name = "EELDT led timing mean L1 " + Numbers::sEE(ism);
+      dqmStore_->setCurrentFolder( prefixME_ + "/LED/LED1/Timing1D" );
+      if ( metav01_[ism-1] ) dqmStore_->removeElement( metav01_[ism-1]->getFullname() );
+      name = "LEDClient led timing mean L1 " + Numbers::sEE(ism);
       metav01_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       metav01_[ism-1]->setAxisTitle("mean", 1);
     }
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
-      if ( metav02_[ism-1] ) dqmStore_->removeElement( metav02_[ism-1]->getName() );
-      name = "EELDT led timing mean L2 " + Numbers::sEE(ism);
+      dqmStore_->setCurrentFolder( prefixME_ + "/LED/LED2/Timing1D" );
+      if ( metav02_[ism-1] ) dqmStore_->removeElement( metav02_[ism-1]->getFullname() );
+      name = "LEDClient led timing mean L2 " + Numbers::sEE(ism);
       metav02_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       metav02_[ism-1]->setAxisTitle("mean", 1);
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
-      if ( metrms01_[ism-1] ) dqmStore_->removeElement( metrms01_[ism-1]->getName() );
-      name = "EELDT led timing rms L1 " + Numbers::sEE(ism);
+      dqmStore_->setCurrentFolder( prefixME_ + "/LED/LED1/Timing1D" );
+      if ( metrms01_[ism-1] ) dqmStore_->removeElement( metrms01_[ism-1]->getFullname() );
+      name = "LEDClient led timing rms L1 " + Numbers::sEE(ism);
       metrms01_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 0.5);
       metrms01_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
-      if ( metrms02_[ism-1] ) dqmStore_->removeElement( metrms02_[ism-1]->getName() );
-      name = "EELDT led timing rms L2 " + Numbers::sEE(ism);
+      dqmStore_->setCurrentFolder( prefixME_ + "/LED/LED2/Timing1D" );
+      if ( metrms02_[ism-1] ) dqmStore_->removeElement( metrms02_[ism-1]->getFullname() );
+      name = "LEDClient led timing rms L2 " + Numbers::sEE(ism);
       metrms02_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 0.5);
       metrms02_[ism-1]->setAxisTitle("rms", 1);
     }
 
-    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
-      if ( meaopn01_[ism-1] ) dqmStore_->removeElement( meaopn01_[ism-1]->getName() );
-      name = "EELDT amplitude over PN L1 " + Numbers::sEE(ism);
-      meaopn01_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
-      meaopn01_[ism-1]->setAxisTitle("channel", 1);
-      meaopn01_[ism-1]->setAxisTitle("amplitude/PN", 2);
-    }
-    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
-      if ( meaopn02_[ism-1] ) dqmStore_->removeElement( meaopn02_[ism-1]->getName() );
-      name = "EELDT amplitude over PN L2 " + Numbers::sEE(ism);
-      meaopn02_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
-      meaopn02_[ism-1]->setAxisTitle("channel", 1);
-      meaopn02_[ism-1]->setAxisTitle("amplitude/PN", 2);
-    }
+//     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
+//       if ( meaopn01_[ism-1] ) dqmStore_->removeElement( meaopn01_[ism-1]->getFullname() );
+//       name = "LEDClient amplitude over PN L1 " + Numbers::sEE(ism);
+//       meaopn01_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
+//       meaopn01_[ism-1]->setAxisTitle("channel", 1);
+//       meaopn01_[ism-1]->setAxisTitle("amplitude/PN", 2);
+//     }
+//     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
+//       dqmStore_->setCurrentFolder( prefixME_ + "/LED/LED2/AOverP" );
+//       if ( meaopn02_[ism-1] ) dqmStore_->removeElement( meaopn02_[ism-1]->getFullname() );
+//       name = "LEDClient amplitude over PN L2 " + Numbers::sEE(ism);
+//       meaopn02_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
+//       meaopn02_[ism-1]->setAxisTitle("channel", 1);
+//       meaopn02_[ism-1]->setAxisTitle("amplitude/PN", 2);
+//     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
-      if ( mepnprms01_[ism-1] ) dqmStore_->removeElement( mepnprms01_[ism-1]->getName() );
-      name = "EELDT PNs pedestal rms " + Numbers::sEE(ism) + " G01 L1";
+      dqmStore_->setCurrentFolder( prefixME_ + "/LED/LED1/PN/Gain01/Presample1D" );
+      if ( mepnprms01_[ism-1] ) dqmStore_->removeElement( mepnprms01_[ism-1]->getFullname() );
+      name = "LEDClient PN presample rms L1 G01 " + Numbers::sEE(ism);
       mepnprms01_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       mepnprms01_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
-      if ( mepnprms02_[ism-1] ) dqmStore_->removeElement( mepnprms02_[ism-1]->getName() );
-      name = "EELDT PNs pedestal rms " + Numbers::sEE(ism) + " G01 L2";
+      dqmStore_->setCurrentFolder( prefixME_ + "/LED/LED2/PN/Gain01/Presample1D" );
+      if ( mepnprms02_[ism-1] ) dqmStore_->removeElement( mepnprms02_[ism-1]->getFullname() );
+      name = "LEDClient PN presample rms L2 G01 " + Numbers::sEE(ism);
       mepnprms02_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       mepnprms02_[ism-1]->setAxisTitle("rms", 1);
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
-      if ( mepnprms05_[ism-1] ) dqmStore_->removeElement( mepnprms05_[ism-1]->getName() );
-      name = "EELDT PNs pedestal rms " + Numbers::sEE(ism) + " G16 L1";
+      dqmStore_->setCurrentFolder( prefixME_ + "/LED/LED1/PN/Gain16/Presample1D" );
+      if ( mepnprms05_[ism-1] ) dqmStore_->removeElement( mepnprms05_[ism-1]->getFullname() );
+      name = "LEDClient PN presample rms L1 G16 " + Numbers::sEE(ism);
       mepnprms05_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       mepnprms05_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
-      if ( mepnprms06_[ism-1] ) dqmStore_->removeElement( mepnprms06_[ism-1]->getName() );
-      name = "EELDT PNs pedestal rms " + Numbers::sEE(ism) + " G16 L2";
+      dqmStore_->setCurrentFolder( prefixME_ + "/LED/LED2/PN/Gain16/Presample1D" );
+      if ( mepnprms06_[ism-1] ) dqmStore_->removeElement( mepnprms06_[ism-1]->getFullname() );
+      name = "LEDClient PN presample rms L2 G16 " + Numbers::sEE(ism);
       mepnprms06_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       mepnprms06_[ism-1]->setAxisTitle("rms", 1);
     }
 
-    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
-      if ( me_hs01_[ism-1] ) dqmStore_->removeElement( me_hs01_[ism-1]->getName() );
-      name = "EELDT led shape L1 " + Numbers::sEE(ism);
-      me_hs01_[ism-1] = dqmStore_->book1D(name, name, 10, 0., 10.);
-      me_hs01_[ism-1]->setAxisTitle("sample", 1);
-      me_hs01_[ism-1]->setAxisTitle("amplitude", 2);
-    }
-    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
-      if ( me_hs02_[ism-1] ) dqmStore_->removeElement( me_hs02_[ism-1]->getName() );
-      name = "EELDT led shape L2 " + Numbers::sEE(ism);
-      me_hs02_[ism-1] = dqmStore_->book1D(name, name, 10, 0., 10.);
-      me_hs02_[ism-1]->setAxisTitle("sample", 1);
-      me_hs02_[ism-1]->setAxisTitle("amplitude", 2);
-    }
+//     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
+//       if ( me_hs01_[ism-1] ) dqmStore_->removeElement( me_hs01_[ism-1]->getFullname() );
+//       name = "LEDClient led shape L1 " + Numbers::sEE(ism);
+//       me_hs01_[ism-1] = dqmStore_->book1D(name, name, 10, 0., 10.);
+//       me_hs01_[ism-1]->setAxisTitle("sample", 1);
+//       me_hs01_[ism-1]->setAxisTitle("amplitude", 2);
+//     }
+//     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
+//       if ( me_hs02_[ism-1] ) dqmStore_->removeElement( me_hs02_[ism-1]->getFullname() );
+//       name = "LEDClient led shape L2 " + Numbers::sEE(ism);
+//       me_hs02_[ism-1] = dqmStore_->book1D(name, name, 10, 0., 10.);
+//       me_hs02_[ism-1]->setAxisTitle("sample", 1);
+//       me_hs02_[ism-1]->setAxisTitle("amplitude", 2);
+//     }
 
   }
 
@@ -523,59 +542,59 @@ void EELedClient::cleanup(void) {
 
     dqmStore_->setCurrentFolder( prefixME_ + "/EELedClient" );
 
-    if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
+    if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getFullname() );
     meg01_[ism-1] = 0;
-    if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getName() );
+    if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getFullname() );
     meg02_[ism-1] = 0;
 
-    if ( meg05_[ism-1] ) dqmStore_->removeElement( meg05_[ism-1]->getName() );
+    if ( meg05_[ism-1] ) dqmStore_->removeElement( meg05_[ism-1]->getFullname() );
     meg05_[ism-1] = 0;
-    if ( meg06_[ism-1] ) dqmStore_->removeElement( meg06_[ism-1]->getName() );
+    if ( meg06_[ism-1] ) dqmStore_->removeElement( meg06_[ism-1]->getFullname() );
     meg06_[ism-1] = 0;
 
-    if ( meg09_[ism-1] ) dqmStore_->removeElement( meg09_[ism-1]->getName() );
+    if ( meg09_[ism-1] ) dqmStore_->removeElement( meg09_[ism-1]->getFullname() );
     meg09_[ism-1] = 0;
-    if ( meg10_[ism-1] ) dqmStore_->removeElement( meg10_[ism-1]->getName() );
+    if ( meg10_[ism-1] ) dqmStore_->removeElement( meg10_[ism-1]->getFullname() );
     meg10_[ism-1] = 0;
 
-    if ( mea01_[ism-1] ) dqmStore_->removeElement( mea01_[ism-1]->getName() );
+    if ( mea01_[ism-1] ) dqmStore_->removeElement( mea01_[ism-1]->getFullname() );
     mea01_[ism-1] = 0;
-    if ( mea02_[ism-1] ) dqmStore_->removeElement( mea02_[ism-1]->getName() );
+    if ( mea02_[ism-1] ) dqmStore_->removeElement( mea02_[ism-1]->getFullname() );
     mea02_[ism-1] = 0;
 
-    if ( met01_[ism-1] ) dqmStore_->removeElement( met01_[ism-1]->getName() );
+    if ( met01_[ism-1] ) dqmStore_->removeElement( met01_[ism-1]->getFullname() );
     met01_[ism-1] = 0;
-    if ( met02_[ism-1] ) dqmStore_->removeElement( met02_[ism-1]->getName() );
+    if ( met02_[ism-1] ) dqmStore_->removeElement( met02_[ism-1]->getFullname() );
     met02_[ism-1] = 0;
 
-    if ( metav01_[ism-1] ) dqmStore_->removeElement( metav01_[ism-1]->getName() );
+    if ( metav01_[ism-1] ) dqmStore_->removeElement( metav01_[ism-1]->getFullname() );
     metav01_[ism-1] = 0;
-    if ( metav02_[ism-1] ) dqmStore_->removeElement( metav02_[ism-1]->getName() );
+    if ( metav02_[ism-1] ) dqmStore_->removeElement( metav02_[ism-1]->getFullname() );
     metav02_[ism-1] = 0;
 
-    if ( metrms01_[ism-1] ) dqmStore_->removeElement( metrms01_[ism-1]->getName() );
+    if ( metrms01_[ism-1] ) dqmStore_->removeElement( metrms01_[ism-1]->getFullname() );
     metrms01_[ism-1] = 0;
-    if ( metrms02_[ism-1] ) dqmStore_->removeElement( metrms02_[ism-1]->getName() );
+    if ( metrms02_[ism-1] ) dqmStore_->removeElement( metrms02_[ism-1]->getFullname() );
     metrms02_[ism-1] = 0;
 
-    if ( meaopn01_[ism-1] ) dqmStore_->removeElement( meaopn01_[ism-1]->getName() );
+    if ( meaopn01_[ism-1] ) dqmStore_->removeElement( meaopn01_[ism-1]->getFullname() );
     meaopn01_[ism-1] = 0;
-    if ( meaopn02_[ism-1] ) dqmStore_->removeElement( meaopn02_[ism-1]->getName() );
+    if ( meaopn02_[ism-1] ) dqmStore_->removeElement( meaopn02_[ism-1]->getFullname() );
     meaopn02_[ism-1] = 0;
 
-    if ( mepnprms01_[ism-1] ) dqmStore_->removeElement( mepnprms01_[ism-1]->getName() );
+    if ( mepnprms01_[ism-1] ) dqmStore_->removeElement( mepnprms01_[ism-1]->getFullname() );
     mepnprms01_[ism-1] = 0;
-    if ( mepnprms02_[ism-1] ) dqmStore_->removeElement( mepnprms02_[ism-1]->getName() );
+    if ( mepnprms02_[ism-1] ) dqmStore_->removeElement( mepnprms02_[ism-1]->getFullname() );
     mepnprms02_[ism-1] = 0;
 
-    if ( mepnprms05_[ism-1] ) dqmStore_->removeElement( mepnprms05_[ism-1]->getName() );
+    if ( mepnprms05_[ism-1] ) dqmStore_->removeElement( mepnprms05_[ism-1]->getFullname() );
     mepnprms05_[ism-1] = 0;
-    if ( mepnprms06_[ism-1] ) dqmStore_->removeElement( mepnprms06_[ism-1]->getName() );
+    if ( mepnprms06_[ism-1] ) dqmStore_->removeElement( mepnprms06_[ism-1]->getFullname() );
     mepnprms06_[ism-1] = 0;
 
-    if ( me_hs01_[ism-1] ) dqmStore_->removeElement( me_hs01_[ism-1]->getName() );
+    if ( me_hs01_[ism-1] ) dqmStore_->removeElement( me_hs01_[ism-1]->getFullname() );
     me_hs01_[ism-1] = 0;
-    if ( me_hs02_[ism-1] ) dqmStore_->removeElement( me_hs02_[ism-1]->getName() );
+    if ( me_hs02_[ism-1] ) dqmStore_->removeElement( me_hs02_[ism-1]->getFullname() );
     me_hs02_[ism-1] = 0;
 
   }
@@ -1051,104 +1070,104 @@ void EELedClient::analyze(void) {
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELedTask/Led1/EELDT amplitude " + Numbers::sEE(ism) + " L1" );
+      me = dqmStore_->get( prefixME_ + "/LED/LED1/Amplitude/LEDTask amplitude L1 " + Numbers::sEE(ism) );
       h01_[ism-1] = UtilsClient::getHisto( me, cloneME_, h01_[ism-1] );
 
-      me = dqmStore_->get( prefixME_ + "/EELedTask/Led1/EELDT amplitude over PN " + Numbers::sEE(ism) + " L1" );
+      me = dqmStore_->get( prefixME_ + "/LED/LED1/AOverP/LEDTask APD over PN L1 " + Numbers::sEE(ism) );
       h02_[ism-1] = UtilsClient::getHisto( me, cloneME_, h02_[ism-1] );
 
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELedTask/Led2/EELDT amplitude " + Numbers::sEE(ism) + " L2" );
+      me = dqmStore_->get( prefixME_ + "/LED/LED2/Amplitude/LEDTask amplitude L2 " + Numbers::sEE(ism) );
       h03_[ism-1] = UtilsClient::getHisto( me, cloneME_, h03_[ism-1] );
 
-      me = dqmStore_->get( prefixME_ + "/EELedTask/Led2/EELDT amplitude over PN " + Numbers::sEE(ism) + " L2" );
+      me = dqmStore_->get( prefixME_ + "/LED/LED2/AOverP/LEDTask APD over PN L2 " + Numbers::sEE(ism) );
       h04_[ism-1] = UtilsClient::getHisto( me, cloneME_, h04_[ism-1] );
 
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELedTask/Led1/EELDT timing " + Numbers::sEE(ism) + " L1" );
+      me = dqmStore_->get( prefixME_ + "/LED/LED1/Timing/LEDTask timing L1 " + Numbers::sEE(ism) );
       h09_[ism-1] = UtilsClient::getHisto( me, cloneME_, h09_[ism-1] );
 
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELedTask/Led2/EELDT timing " + Numbers::sEE(ism) + " L2" );
+      me = dqmStore_->get( prefixME_ + "/LED/LED2/Timing/LEDTask timing L2 " + Numbers::sEE(ism) );
       h10_[ism-1] = UtilsClient::getHisto( me, cloneME_, h10_[ism-1] );
 
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELedTask/Led1/EELDT shape " + Numbers::sEE(ism) + " L1" );
+      me = dqmStore_->get( prefixME_ + "/LED/LED1/Shape/LEDTask shape L1 " + Numbers::sEE(ism) );
       hs01_[ism-1] = UtilsClient::getHisto( me, cloneME_, hs01_[ism-1] );
 
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELedTask/Led2/EELDT shape " + Numbers::sEE(ism) + " L2" );
+      me = dqmStore_->get( prefixME_ + "/LED/LED2/Shape/LEDTask shape L2 " + Numbers::sEE(ism) );
       hs02_[ism-1] = UtilsClient::getHisto( me, cloneME_, hs02_[ism-1] );
 
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELedTask/Led1/PN/Gain01/EELDT PNs amplitude " + Numbers::sEE(ism) + " G01 L1" );
+      me = dqmStore_->get( prefixME_ + "/LED/LED1/PN/Gain01/Amplitude/LEDTask PN amplitude L1 G01 " + Numbers::sEE(ism) );
       i01_[ism-1] = UtilsClient::getHisto( me, cloneME_, i01_[ism-1] );
 
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELedTask/Led2/PN/Gain01/EELDT PNs amplitude " + Numbers::sEE(ism) + " G01 L2" );
+      me = dqmStore_->get( prefixME_ + "/LED/LED2/PN/Gain01/Amplitude/LEDTask PN amplitude L2 G01 " + Numbers::sEE(ism) );
       i02_[ism-1] = UtilsClient::getHisto( me, cloneME_, i02_[ism-1] );
 
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELedTask/Led1/PN/Gain01/EELDT PNs pedestal " + Numbers::sEE(ism) + " G01 L1" );
+      me = dqmStore_->get( prefixME_ + "/LED/LED1/PN/Gain01/Presample/LEDTask PN presample L1 G01 " + Numbers::sEE(ism) );
       i05_[ism-1] = UtilsClient::getHisto( me, cloneME_, i05_[ism-1] );
 
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELedTask/Led2/PN/Gain01/EELDT PNs pedestal " + Numbers::sEE(ism) + " G01 L2" );
+      me = dqmStore_->get( prefixME_ + "/LED/LED2/PN/Gain01/Presample/LEDTask PN presample L2 G01 " + Numbers::sEE(ism) );
       i06_[ism-1] = UtilsClient::getHisto( me, cloneME_, i06_[ism-1] );
 
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELedTask/Led1/PN/Gain16/EELDT PNs amplitude " + Numbers::sEE(ism) + " G16 L1" );
+      me = dqmStore_->get( prefixME_ + "/LED/LED1/PN/Gain16/Amplitude/LEDTask PN amplitude L1 G16 " + Numbers::sEE(ism) );
       i09_[ism-1] = UtilsClient::getHisto( me, cloneME_, i09_[ism-1] );
 
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELedTask/Led2/PN/Gain16/EELDT PNs amplitude " + Numbers::sEE(ism) + " G16 L2" );
+      me = dqmStore_->get( prefixME_ + "/LED/LED2/PN/Gain16/Amplitude/LEDTask PN amplitude L2 G16 " + Numbers::sEE(ism) );
       i10_[ism-1] = UtilsClient::getHisto( me, cloneME_, i10_[ism-1] );
 
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELedTask/Led1/PN/Gain16/EELDT PNs pedestal " + Numbers::sEE(ism) + " G16 L1" );
+      me = dqmStore_->get( prefixME_ + "/LED/LED1/PN/Gain16/Presample/LEDTask PN presample L1 G16 " + Numbers::sEE(ism) );
       i13_[ism-1] = UtilsClient::getHisto( me, cloneME_, i13_[ism-1] );
 
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELedTask/Led2/PN/Gain16/EELDT PNs pedestal " + Numbers::sEE(ism) + " G16 L2" );
+      me = dqmStore_->get( prefixME_ + "/LED/LED2/PN/Gain16/Presample/LEDTask PN presample L2 G16 " + Numbers::sEE(ism) );
       i14_[ism-1] = UtilsClient::getHisto( me, cloneME_, i14_[ism-1] );
 
     }

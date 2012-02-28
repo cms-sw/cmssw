@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 ecalBarrelLaserTask = cms.EDAnalyzer("EBLaserTask",
-    prefixME = cms.untracked.string('EcalBarrel'),
+    prefixME = cms.untracked.string('EcalCalibration'),
     enableCleanup = cms.untracked.bool(False),
     mergeRuns = cms.untracked.bool(False),    
     EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),

@@ -4,8 +4,8 @@
 /*
  * \file EEIntegrityClient.h
  *
- * $Date: 2010/02/14 14:35:46 $
- * $Revision: 1.29 $
+ * $Date: 2010/02/14 20:56:24 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -107,6 +107,8 @@ MonitorElement* meg02_[18];
 
 TH2F* h_[18];
 TH2F* hmem_[18];
+
+ std::map<uint32_t, float> gain_, chid_, gainswitch_, ttid_, ttblocksize_, memchid_, memgain_, memttid_, memblocksize_;
 
 // Quality criteria for data integrity
 

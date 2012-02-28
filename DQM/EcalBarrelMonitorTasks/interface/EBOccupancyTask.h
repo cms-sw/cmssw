@@ -4,8 +4,8 @@
 /*
  * \file EBOccupancyTask.h
  *
- * $Date: 2009/12/08 10:34:44 $
- * $Revision: 1.24 $
+ * $Date: 2010/03/12 11:36:29 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  *
 */
@@ -76,16 +76,18 @@ enum runClassification { notdata, physics, testpulse, laser, pedestal };
 MonitorElement* meEvent_[36];
 MonitorElement* meOccupancy_[36];
 MonitorElement* meOccupancyMem_[36];
-MonitorElement* meEBRecHitEnergy_[36];
-MonitorElement* meSpectrum_[36];
 
-MonitorElement* meEBRecHitSpectrum_;
+ MonitorElement *meDCCOccupancy_;
 MonitorElement* meEBDigiOccupancy_;
 MonitorElement* meEBDigiOccupancyProjEta_;
 MonitorElement* meEBDigiOccupancyProjPhi_;
+ MonitorElement* meEBDigiNumber_;
+ MonitorElement* meEBDigiNumberPerFED_;
 MonitorElement* meEBRecHitOccupancy_;
 MonitorElement* meEBRecHitOccupancyProjEta_;
 MonitorElement* meEBRecHitOccupancyProjPhi_;
+MonitorElement* meEBRecHitNumber_;
+MonitorElement* meEBRecHitNumberPerFED_;
 MonitorElement* meEBRecHitOccupancyThr_;
 MonitorElement* meEBRecHitOccupancyProjEtaThr_;
 MonitorElement* meEBRecHitOccupancyProjPhiThr_;
@@ -95,9 +97,6 @@ MonitorElement* meEBTrigPrimDigiOccupancyProjPhi_;
 MonitorElement* meEBTrigPrimDigiOccupancyThr_;
 MonitorElement* meEBTrigPrimDigiOccupancyProjEtaThr_;
 MonitorElement* meEBTrigPrimDigiOccupancyProjPhiThr_;
-MonitorElement* meEBTestPulseDigiOccupancy_;
-MonitorElement* meEBLaserDigiOccupancy_;
-MonitorElement* meEBPedestalDigiOccupancy_;
 
 float recHitEnergyMin_;
 float trigPrimEtMin_;

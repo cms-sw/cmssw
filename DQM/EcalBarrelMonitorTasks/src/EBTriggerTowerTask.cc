@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2011/10/28 14:15:46 $
- * $Revision: 1.107 $
+ * $Date: 2011/11/01 20:44:55 $
+ * $Revision: 1.108 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -19,10 +19,6 @@
 
 #include "DQM/EcalBarrelMonitorTasks/interface/EBTriggerTowerTask.h"
 #include "FWCore/Common/interface/TriggerNames.h"
-
-const int EBTriggerTowerTask::nTTEta = 17;
-const int EBTriggerTowerTask::nTTPhi = 4;
-const int EBTriggerTowerTask::nSM = 36;
 
 EBTriggerTowerTask::EBTriggerTowerTask(const edm::ParameterSet& ps) {
 
@@ -43,7 +39,6 @@ EBTriggerTowerTask::EBTriggerTowerTask(const edm::ParameterSet& ps) {
   meOccupancyBxReal_ = 0;
   meTCCTimingCalo_ = 0;
   meTCCTimingMuon_ = 0;
-  meEmulMatchIndex1D_ = 0;
   meEmulMatchMaxIndex1D_ = 0;
 
   reserveArray(meEtMapReal_);
@@ -67,6 +62,7 @@ EBTriggerTowerTask::EBTriggerTowerTask(const edm::ParameterSet& ps) {
   LogDebug("EBTriggerTowerTask") << "REAL     digis: " << realCollection_;
   LogDebug("EBTriggerTowerTask") << "EMULATED digis: " << emulCollection_;
 
+  ievt_ = 0;
 }
 
 EBTriggerTowerTask::~EBTriggerTowerTask(){
@@ -75,8 +71,7 @@ EBTriggerTowerTask::~EBTriggerTowerTask(){
 
 void EBTriggerTowerTask::reserveArray( array1& array ) {
 
-  array.reserve( nSM );
-  array.resize( nSM, static_cast<MonitorElement*>(0) );
+  array.resize( 36, static_cast<MonitorElement*>(0) );
 
 }
 
@@ -85,8 +80,8 @@ void EBTriggerTowerTask::beginJob(void){
   ievt_ = 0;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/EBTriggerTowerTask");
-    dqmStore_->rmdir(prefixME_ + "/EBTriggerTowerTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "/TriggerPrimitives");
+    dqmStore_->rmdir(prefixME_ + "/TriggerPrimitives");
   }
 
 }
@@ -112,7 +107,6 @@ void EBTriggerTowerTask::reset(void) {
   if ( meOccupancyBxReal_ ) meOccupancyBxReal_->Reset();
   if ( meTCCTimingCalo_ ) meTCCTimingCalo_->Reset();
   if ( meTCCTimingMuon_ ) meTCCTimingMuon_->Reset();
-  if ( meEmulMatchIndex1D_ ) meEmulMatchIndex1D_->Reset();
   if ( meEmulMatchMaxIndex1D_ ) meEmulMatchMaxIndex1D_->Reset();
 
   for (int i = 0; i < 36; i++) {
@@ -134,119 +128,90 @@ void EBTriggerTowerTask::setup(void){
   init_ = true;
 
   if ( dqmStore_ ) {
-    setup( "Real Digis",
-           prefixME_ + "/EBTriggerTowerTask", false );
 
-    setup( "Emulated Digis",
-           prefixME_ + "/EBTriggerTowerTask/Emulated", true);
-  }
-  else {
-    edm::LogError("EBTriggerTowerTask") << "Bad DQMStore, cannot book MonitorElements.";
-  }
-}
+    dqmStore_->setCurrentFolder(prefixME_ + "/TriggerPrimitives");
 
-void EBTriggerTowerTask::setup( std::string const &nameext,
-                                std::string const &folder,
-                                bool emulated ) {
+    std::string name;
 
-  array1*  meEtMap = &meEtMapReal_;
+    dqmStore_->setCurrentFolder(prefixME_ + "/TriggerPrimitives/Et");
 
-  if ( emulated ) {
-    meEtMap = &meEtMapEmul_;
-  }
-
-  dqmStore_->setCurrentFolder(folder);
-
-  std::string name;
-
-  if (!emulated) {
-    name = "EBTTT Et spectrum " + nameext;
+    name = "TrigPrimTask Et 1D EB";
     meEtSpectrumReal_ = dqmStore_->book1D(name, name, 256, 0., 256.);
     meEtSpectrumReal_->setAxisTitle("energy (ADC)", 1);
 
-    name = "EBTTT TP matching index";
-    meEmulMatchIndex1D_ = dqmStore_->book1D(name, name, 7, -1., 6.);
-    meEmulMatchIndex1D_->setAxisTitle("TP data matching emulator", 1);
+    for (int i = 0; i < 36; i++) {
+      name = "TrigPrimTask Et " + Numbers::sEB(i+1);
+      meEtMapReal_[i] = dqmStore_->bookProfile2D(name, name, 17, 0, 85, 4, 0, 20, 256, 0, 256.);
+      meEtMapReal_[i]->setAxisTitle("ieta'", 1);
+      meEtMapReal_[i]->setAxisTitle("iphi'", 2);
+      dqmStore_->tag(meEtMapReal_[i], i+1);
+    }
 
-    name = "EBTTT max TP matching index";
-    meEmulMatchMaxIndex1D_ = dqmStore_->book1D(name, name, 7, -1., 6.);
-    meEmulMatchMaxIndex1D_->setAxisTitle("Max TP data matching emulator", 1);
-
-    double xbins[51];
-    for ( int i=0; i<=11; i++ ) xbins[i] = i-1;  // begin of orbit
-    // abort gap in presence of calibration: [3381-3500]
-    // abort gap in absence of calibration: [3444-3500]
-    // using the wider abort gap always, start finer binning at bx=3371
-    for ( int i=12; i<=22; i++) xbins[i] = 3371+i-12;
-    // use 29 bins for the abort gap
-    for ( int i=23; i<=50; i++) xbins[i] = 3382+(i-23)*6;
-
-    name = "EBTTT Et vs bx " + nameext;
-    meEtBxReal_ = dqmStore_->bookProfile(name, name, 50, xbins, 256, 0, 256);
+    double binEdges[] = {1., 271., 541., 892., 1162., 1432., 1783., 2053., 2323., 2674., 2944., 3214., 3446., 3490., 3491., 3565.};
+    int nBXbins(sizeof(binEdges)/sizeof(double) - 1);
+    name = "TrigPrimTask Et vs BX EB";
+    meEtBxReal_ = dqmStore_->bookProfile(name, name, nBXbins, binEdges, 256, 0, 256);
     meEtBxReal_->setAxisTitle("bunch crossing", 1);
     meEtBxReal_->setAxisTitle("energy (ADC)", 2);
 
-    name = "EBTTT TP occupancy vs bx " + nameext;
-    meOccupancyBxReal_ = dqmStore_->bookProfile(name, name, 50, xbins, 2448, 0, 2448);
-    meOccupancyBxReal_->setAxisTitle("bunch crossing", 1);
-    meOccupancyBxReal_->setAxisTitle("TP number", 2);
+    dqmStore_->setCurrentFolder(prefixME_ + "/TriggerPrimitives/Et/Emulation");
 
-    if ( HLTCaloHLTBit_ != "" ) {
-      name = "EBTTT TCC timing calo triggers " + nameext;
-      meTCCTimingCalo_ = dqmStore_->book2D(name, name, 36, 37, 73, 7, -1., 6.);
-      meTCCTimingCalo_->setAxisTitle("nTCC", 1);
-      meTCCTimingCalo_->setAxisTitle("TP data matching emulator", 2);
-    }
-
-    if ( HLTMuonHLTBit_ != "" ) {
-      name = "EBTTT TCC timing muon triggers " + nameext;
-      meTCCTimingMuon_ = dqmStore_->book2D(name, name, 36, 37, 73, 7, -1., 6.);
-      meTCCTimingMuon_->setAxisTitle("nTCC", 1);
-      meTCCTimingMuon_->setAxisTitle("TP data matching emulator", 2);
-    }
-
-  } else {
-    name = "EBTTT Et spectrum " + nameext;
+    name = "TrigPrimTask emul Et 1D EB";
     meEtSpectrumEmul_ = dqmStore_->book1D(name, name, 256, 0., 256.);
     meEtSpectrumEmul_->setAxisTitle("energy (ADC)", 1);
 
-    name = "EBTTT Et spectrum " + nameext + " max";
+    name = "TrigPrimTask emul max Et 1D EB";
     meEtSpectrumEmulMax_ = dqmStore_->book1D(name, name, 256, 0., 256.);
     meEtSpectrumEmulMax_->setAxisTitle("energy (ADC)", 1);
-  }
 
-  for (int i = 0; i < 36; i++) {
-
-    name = "EBTTT Et map " + nameext + " " + Numbers::sEB(i+1);
-    (*meEtMap)[i] = dqmStore_->bookProfile2D(name, name, nTTEta, 0, nTTEta, nTTPhi, 0, nTTPhi, 256, 0, 256.);
-    (*meEtMap)[i]->setAxisTitle("ieta'", 1);
-    (*meEtMap)[i]->setAxisTitle("iphi'", 2);
-    dqmStore_->tag((*meEtMap)[i], i+1);
-
-    if (!emulated) {
-
-      name = "EBTTT EmulError " + Numbers::sEB(i+1);
-      meEmulError_[i] = dqmStore_->book2D(name, name, nTTEta, 0., nTTEta, nTTPhi, 0., nTTPhi );
-      meEmulError_[i]->setAxisTitle("ieta'", 1);
-      meEmulError_[i]->setAxisTitle("iphi'", 2);
-      dqmStore_->tag(meEmulError_[i], i+1);
-
-      name = "EBTTT EmulMatch " + Numbers::sEB(i+1);
-      meEmulMatch_[i] = dqmStore_->book3D(name, name, nTTEta, 0., nTTEta, nTTPhi, 0., nTTPhi, 6, 0., 6.);
-      meEmulMatch_[i]->setAxisTitle("ieta'", 1);
-      meEmulMatch_[i]->setAxisTitle("iphi'", 2);
-      meEmulMatch_[i]->setAxisTitle("TP timing", 3);
-      dqmStore_->tag(meEmulMatch_[i], i+1);
-
-      name ="EBTTT EmulFineGrainVetoError " + Numbers::sEB(i+1);
-      meVetoEmulError_[i] = dqmStore_->book2D(name, name, nTTEta, 0., nTTEta, nTTPhi, 0., nTTPhi);
-      meVetoEmulError_[i]->setAxisTitle("ieta'", 1);
-      meVetoEmulError_[i]->setAxisTitle("iphi'", 2);
-      dqmStore_->tag(meVetoEmulError_[i], i+1);
-
+    for (int i = 0; i < 36; i++) {
+      name = "TrigPrimTask emul Et " +  Numbers::sEB(i+1);
+      meEtMapEmul_[i] = dqmStore_->bookProfile2D(name, name, 17, 0, 85, 4, 0, 20, 256, 0, 256.);
+      meEtMapEmul_[i]->setAxisTitle("ieta'", 1);
+      meEtMapEmul_[i]->setAxisTitle("iphi'", 2);
+      dqmStore_->tag(meEtMapEmul_[i], i+1);
     }
-  }
 
+    dqmStore_->setCurrentFolder(prefixME_ + "/TriggerPrimitives/EmulMatching");
+
+    name = "TrigPrimTask emul max Et index EB";
+    meEmulMatchMaxIndex1D_ = dqmStore_->book1D(name, name, 7, -1., 6.);
+    meEmulMatchMaxIndex1D_->setAxisTitle("Max data matching emulator", 1);
+
+    for (int i = 0; i < 36; i++) {
+      name = "TrigPrimTask matching index " + Numbers::sEB(i+1);
+      meEmulMatch_[i] = dqmStore_->book2D(name, name, 68, 0., 68., 7, -1., 6.);
+      meEmulMatch_[i]->setAxisTitle("itt", 1);
+      meEmulMatch_[i]->setAxisTitle("TP index matching emulator", 2);
+      dqmStore_->tag(meEmulMatch_[i], i+1);
+    }
+
+    if ( HLTCaloHLTBit_ != "" ) {
+      name = "TrigPrimTask matching index calo triggers EB";
+      meTCCTimingCalo_ = dqmStore_->book2D(name, name, 36, 37, 73, 7, -1., 6.);
+      meTCCTimingCalo_->setAxisTitle("itcc", 1);
+      meTCCTimingCalo_->setAxisTitle("TP index matching emulator", 2);
+    }
+
+    if ( HLTMuonHLTBit_ != "" ) {
+      name = "TrigPrimTask matching index muon triggers EB";
+      meTCCTimingMuon_ = dqmStore_->book2D(name, name, 36, 37, 73, 7, -1., 6.);
+      meTCCTimingMuon_->setAxisTitle("itcc", 1);
+      meTCCTimingMuon_->setAxisTitle("TP index matching emulator", 2);
+    }
+
+    dqmStore_->setCurrentFolder(prefixME_ + "/TriggerPrimitives");
+
+    name = "TrigPrimTask TP number vs BX EB";
+    meOccupancyBxReal_ = dqmStore_->bookProfile(name, name, nBXbins, binEdges, 2448, 0, 2448);
+    meOccupancyBxReal_->setAxisTitle("bunch crossing", 1);
+    meOccupancyBxReal_->setAxisTitle("TP number", 2);
+
+    dqmStore_->setCurrentFolder(prefixME_ + "/TriggerPrimitives/EmulationErrors");
+
+  } else {
+    edm::LogError("EBTriggerTowerTask") << "Bad DQMStore, cannot book MonitorElements.";
+  }
 }
 
 void EBTriggerTowerTask::cleanup(void) {
@@ -257,7 +222,7 @@ void EBTriggerTowerTask::cleanup(void) {
 
     if ( !outputFile_.empty() ) dqmStore_->save( outputFile_ );
 
-    dqmStore_->rmdir( prefixME_ + "/EBTriggerTowerTask" );
+    dqmStore_->rmdir( prefixME_ + "/TriggerPrimitives" );
 
   }
 
@@ -394,6 +359,10 @@ EBTriggerTowerTask::processDigis( const edm::Event& e, const edm::Handle<EcalTri
 
   }
 
+  std::stringstream ss;
+  std::string dir, name;
+  MonitorElement *me(0);
+
   for ( EcalTrigPrimDigiCollection::const_iterator tpdigiItr = digis->begin(); tpdigiItr != digis->end(); ++tpdigiItr ) {
 
     if ( Numbers::subDet( tpdigiItr->id() ) != EcalBarrel ) continue;
@@ -411,9 +380,6 @@ EBTriggerTowerTask::processDigis( const edm::Event& e, const edm::Handle<EcalTri
 
     // phi_tower: SM-local phi runs opposite to global in EB+
     if ( tpdigiItr->id().zside() > 0 ) ipt = 5 - ipt;
-
-    float xiet = iet-0.5;
-    float xipt = ipt-0.5;
 
     int itt = Numbers::iTT( tpdigiItr->id() );
     int itcc = Numbers::iTCC( tpdigiItr->id() );
@@ -487,9 +453,8 @@ EBTriggerTowerTask::processDigis( const edm::Event& e, const edm::Handle<EcalTri
 
               int index = ( j==0 ) ? -1 : j;
 
-              meEmulMatchIndex1D_->Fill(index+0.5);
+              meEmulMatch_[ismt-1]->Fill(itt - 0.5, index+0.5);
 
-              meEmulMatch_[ismt-1]->Fill(xiet, xipt, j+0.5);
               if ( meTCCTimingCalo_ && caloTrg ) meTCCTimingCalo_->Fill( itcc, index+0.5 );
               if ( meTCCTimingMuon_ && muonTrg ) meTCCTimingMuon_->Fill( itcc, index+0.5 );
 
@@ -504,13 +469,34 @@ EBTriggerTowerTask::processDigis( const edm::Event& e, const edm::Handle<EcalTri
       }
 
       if (!good ) {
-        if ( meEmulError_[ismt-1] ) meEmulError_[ismt-1]->Fill(xiet, xipt);
+	ss.str("");
+	ss << "TT " << itcc << " " << itt;
+	dir = prefixME_ + "/TriggerPrimitives/EmulationErrors/Et/";
+	name = "TrigPrimTask emulation Et mismatch " + ss.str();
+	me = dqmStore_->get(dir + name);
+	if(!me) {
+	  dqmStore_->setCurrentFolder(dir);
+	  me = dqmStore_->book1D(name, name, 1, 0., 1.);
+	}
+	if(me) me->Fill(0.5);
       }
       if (!goodVeto) {
-        if ( meVetoEmulError_[ismt-1] ) meVetoEmulError_[ismt-1]->Fill(xiet, xipt);
+	ss.str("");
+	ss << "TT " << itcc << " " << itt;
+	dir = prefixME_ + "/TriggerPrimitives/EmulationErrors/FineGrainBit/";
+	name = "TrigPrimTask emulation FGbit mismatch " + ss.str();
+	me = dqmStore_->get(dir + name);
+	if(!me) {
+	  dqmStore_->setCurrentFolder(dir);
+	  me = dqmStore_->book1D(name, name, 1, 0., 1.);
+	}
+	if(me) me->Fill(0.5);
       }
 
     } // compDigis.isValid
+
+    float xiet = iet * 5 - 2;
+    float xipt = ipt * 5 - 2;
 
     if ( meEtMap[ismt-1] ) meEtMap[ismt-1]->Fill(xiet, xipt, xvalEt);
     if ( meVeto[ismt-1] ) meVeto[ismt-1]->Fill(xiet, xipt, xvalVeto);

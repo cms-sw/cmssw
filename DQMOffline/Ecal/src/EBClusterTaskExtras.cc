@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTaskExtras.cc
  *
- * $Date: 2009/12/14 21:14:08 $
- * $Revision: 1.8 $
+ * $Date: 2012/01/30 08:47:21 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -133,8 +133,8 @@ void EBClusterTaskExtras::beginJob(){
    ievt_ = 0;
 
    if ( dqmStore_ ) {
-      dqmStore_->setCurrentFolder(prefixME_ + "/EBClusterTaskExtras");
-      dqmStore_->rmdir(prefixME_ + "/EBClusterTaskExtras");
+      dqmStore_->setCurrentFolder(prefixME_ + "/ClusterExtras");
+      dqmStore_->rmdir(prefixME_ + "/ClusterExtras");
    }
 
 }
@@ -211,313 +211,320 @@ void EBClusterTaskExtras::setup(void){
 
    init_ = true;
 
-   char histo[200];
+   std::string histo;
 
    if ( dqmStore_ ) {
-      dqmStore_->setCurrentFolder(prefixME_ + "/EBClusterTaskExtras");
+      dqmStore_->setCurrentFolder(prefixME_ + "/ClusterExtras");
 
 #ifndef EBCLUSTERTASKEXTRAS_DQMOFFLINE
       // Cluster hists
-      sprintf(histo, "EBCLTE SC size (crystal)");
+      histo = "ClusterExTask SC size (crystal) EB";
       meSCSizCrystal_ = dqmStore_->book1D(histo,histo,150,0,150);
       meSCSizCrystal_->setAxisTitle("super cluster size (crystal)", 1);
 
-      sprintf(histo, "EBCLTE SC size (basic clusters)");
+      histo = "ClusterExTask SC size (basic clusters) EB";
       meSCSizBC_ = dqmStore_->book1D(histo,histo,20,0,20);
       meSCSizBC_->setAxisTitle("super cluster size (basic clusters)", 1);
 
-      sprintf(histo, "EBCLTE SC size in basic clusters vs phi");
+      histo = "ClusterExTask SC size in basic clusters vs phi EB";
       meSCSizPhi_ = dqmStore_->bookProfile(histo,histo,360/5,-3.14159,3.14159,20,0,20);
       meSCSizPhi_->setAxisTitle("phi", 1);
       meSCSizPhi_->setAxisTitle("super cluster size (basic clusters)", 2);
 
-      sprintf(histo, "EBCLTE SC seed crystal energy");
+      histo = "ClusterExTask SC seed crystal energy EB";
       meSCSeedEne_ = dqmStore_->book1D(histo,histo,200,0,1.8);
       meSCSeedEne_->setAxisTitle("seed crystal energy (GeV)", 1);
 
-      sprintf(histo, "EBCLTE SC seed e2");
+      histo = "ClusterExTask SC seed e2 EB";
       meSCEne2_ = dqmStore_->book1D(histo,histo,200,0,1.8);
       meSCEne2_->setAxisTitle("seed + highest neighbor crystal energy (GeV)", 1);
 
-      sprintf(histo, "EBCLTE SC energy low scale");
+      histo = "ClusterExTask SC energy low scale EB";
       meSCEneLow_ = dqmStore_->book1D(histo,histo,200,0,1.8);
       meSCEneLow_->setAxisTitle("energy (GeV)", 1);
 
-      sprintf(histo, "EBCLTE SC energy high scale");
+      histo = "ClusterExTask SC energy high scale EB";
       meSCEneHigh_ = dqmStore_->book1D(histo,histo,200,0,200);
       meSCEneHigh_->setAxisTitle("energy (GeV)", 1);
 
-      sprintf(histo, "EBCLTE SC single crystal energy (GeV)");
+      histo = "ClusterExTask SC single crystal energy (GeV) EB";
       meSCEneSingleCrystal_ = dqmStore_->book1D(histo,histo,200,0,200);
       meSCEneSingleCrystal_->setAxisTitle("energy (GeV)", 1);
 
-      sprintf(histo, "EBCLTE SC seed occupancy map trigger tower binned");
+      histo = "ClusterExTask SC seed occupancy map trigger tower binned EB";
       meSCSeedMapOccTT_ = dqmStore_->book2D(histo,histo,72,0,360,34,-85,85);
       meSCSeedMapOccTT_->setAxisTitle("jphi", 1);
       meSCSeedMapOccTT_->setAxisTitle("jeta", 2);
 
-      sprintf(histo, "EBCLTE SC seed occupancy map (high energy clusters) (crystal binned)");
+      histo = "ClusterExTask SC seed occupancy map (high energy clusters) (crystal binned) EB";
       meSCSeedMapOccHighEne_ = dqmStore_->book2D(histo,histo,360,0,360,170,-85,85);
       meSCSeedMapOccHighEne_->setAxisTitle("jphi", 1);
       meSCSeedMapOccHighEne_->setAxisTitle("jeta", 2);
 
-      sprintf(histo, "EBCLTE SC single crystal cluster occupancy map");
+      histo = "ClusterExTask SC single crystal cluster occupancy map EB";
       meSCSeedMapOccSingleCrystal_ = dqmStore_->book2D(histo,histo,360,0,360,170,-85,85);
       meSCSeedMapOccSingleCrystal_->setAxisTitle("jphi", 1);
       meSCSeedMapOccSingleCrystal_->setAxisTitle("jeta", 2);
 
-      sprintf(histo, "EBCLTE SC seed crystal timing");
+      histo = "ClusterExTask SC seed crystal timing EB";
       meSCSeedTime_ = dqmStore_->book1D(histo,histo,78,0.,10.);
       meSCSeedTime_->setAxisTitle("seed crystal timing");
 
-      sprintf(histo, "EBCLTE SC seed crystal timing map trigger tower binned");
+      histo = "ClusterExTask SC seed crystal timing map trigger tower binned EB";
       meSCSeedMapTimeTT_ = dqmStore_->bookProfile2D(histo,histo,72,0,360,34,-85,85,78,0.,10.,"s");
       meSCSeedMapTimeTT_->setAxisTitle("jphi", 1);
       meSCSeedMapTimeTT_->setAxisTitle("jeta", 2);
 
-      sprintf(histo, "EBCLTE SC seed crystal timing map module binned");
+      histo = "ClusterExTask SC seed crystal timing map module binned EB";
       meSCSeedMapTimeMod_ = dqmStore_->bookProfile2D(histo,histo,18,0,360,8,-85,85,78,0.,10.,"s");
       meSCSeedMapTimeMod_->setAxisTitle("jphi",1);
       meSCSeedMapTimeMod_->setAxisTitle("jeta",2);
 
-      sprintf(histo, "EBCLTE SC seed crystal timing vs phi");
+      histo = "ClusterExTask SC seed crystal timing vs phi EB";
       meSCSeedTimeVsPhi_ = dqmStore_->bookProfile(histo, histo, 72, 0, 360, 78, -7, 7);
       meSCSeedTimeVsPhi_->setAxisTitle("jphi",1);
       meSCSeedTimeVsPhi_->setAxisTitle("seed crystal timing",2);
 
-      sprintf(histo, "EBCLTE SC seed crystal energy vs relative timing");
+      histo = "ClusterExTask SC seed crystal energy vs relative timing EB";
       meSCSeedTimeVsAmp_ = dqmStore_->bookProfile(histo, histo, 78, -7, 7, 200, 0, 1.8);
       meSCSeedTimeVsAmp_->setAxisTitle("seed crystal timing", 1);
       meSCSeedTimeVsAmp_->setAxisTitle("seed crystal energy (GeV)", 2);
 
-      sprintf(histo, "EBCLTE SC seed crystal timing EB -");
+      histo = "ClusterExTask SC seed crystal timing EB -";
       meSCSeedTimeEBM_ = dqmStore_->book1D(histo,histo,78,0.,10.);
       meSCSeedTimeEBM_->setAxisTitle("seed crystal timing");
 
-      sprintf(histo, "EBCLTE SC seed crystal timing EB +");
+      histo = "ClusterExTask SC seed crystal timing EB +";
       meSCSeedTimeEBP_ = dqmStore_->book1D(histo,histo,78,0.,10.);
       meSCSeedTimeEBP_->setAxisTitle("seed crystal timing");
 
-      sprintf(histo, "EBCLTE SC seed crystal timing EB - top");
+      histo = "ClusterExTask SC seed crystal timing EB - top";
       meSCSeedTimeEBMTop_ = dqmStore_->book1D(histo,histo,78,0.,10.);
       meSCSeedTimeEBMTop_->setAxisTitle("seed crystal timing", 1);
 
-      sprintf(histo, "EBCLTE SC seed crystal timing EB + top");
+      histo = "ClusterExTask SC seed crystal timing EB + top";
       meSCSeedTimeEBPTop_ = dqmStore_->book1D(histo,histo,78,0.,10.);
       meSCSeedTimeEBPTop_->setAxisTitle("seed crystal timing", 1);
 
-      sprintf(histo, "EBCLTE SC seed crystal timing EB - bottom");
+      histo = "ClusterExTask SC seed crystal timing EB - bottom";
       meSCSeedTimeEBMBot_ = dqmStore_->book1D(histo,histo,78,0.,10.);
       meSCSeedTimeEBMBot_->setAxisTitle("seed crystal timing", 1);
 
-      sprintf(histo, "EBCLTE SC seed crystal timing EB + bottom");
+      histo = "ClusterExTask SC seed crystal timing EB + bottom";
       meSCSeedTimeEBPBot_ = dqmStore_->book1D(histo,histo,78,0.,10.);
       meSCSeedTimeEBPBot_->setAxisTitle("seed crystal timing", 1);
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/EBClusterTaskExtras/EBCLTE seed crystal timing per super module");
+      std::stringstream ss;
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/ClusterExtras/ClusterExTask seed crystal timing per super module");
       for(int i=0;i!=36;++i) {
-	 if((i+1) <= 18)
-	    sprintf(histo, "EBCLTE SC seed crystal timing EB - %i",i+1);
-	 else
-	    sprintf(histo, "EBCLTE SC seed crystal timing EB + %i",i+1-18);
+	ss.str("");
+	if((i+1) <= 18){
+	  ss << "ClusterExTask SC seed crystal timing EB - " << i+1;
+	  histo = ss.str();
+	}
+	else{
+	  ss << "ClusterExTask SC seed crystal timing EB + " << i+1-18;
+	  histo = ss.str();
+	}
 	 meSCSeedTimePerFed_[i] = dqmStore_->book1D(histo,histo,78,0.,10.);
 	 meSCSeedTimePerFed_[i]->setAxisTitle("seed crystal timing", 1);
       }
 
       dqmStore_->setCurrentFolder(prefixME_ + "/EBClusterTaskExtras");
 
-      sprintf(histo, "EBCLTE SC seed occupancy map (CSC exclusive triggered)");
+      histo = "ClusterExTask SC seed occupancy map (CSC exclusive triggered) EB";
       meSCSeedMapOccTrgExcl_[0] = dqmStore_->book2D(histo,histo,360,0,360,170,-85,85);
       meSCSeedMapOccTrgExcl_[0]->setAxisTitle("jphi", 1);
       meSCSeedMapOccTrgExcl_[0]->setAxisTitle("jeta", 2);
 
-      sprintf(histo, "EBCLTE SC seed occupancy map (DT exclusive triggered)");
+      histo = "ClusterExTask SC seed occupancy map (DT exclusive triggered) EB";
       meSCSeedMapOccTrgExcl_[1] = dqmStore_->book2D(histo,histo,360,0,360,170,-85,85);
       meSCSeedMapOccTrgExcl_[1]->setAxisTitle("jphi", 1);
       meSCSeedMapOccTrgExcl_[1]->setAxisTitle("jeta", 2);
 
-      sprintf(histo, "EBCLTE SC seed occupancy map (ECAL exclusive triggered)");
+      histo = "ClusterExTask SC seed occupancy map (ECAL exclusive triggered) EB";
       meSCSeedMapOccTrgExcl_[2] = dqmStore_->book2D(histo,histo,360,0,360,170,-85,85);
       meSCSeedMapOccTrgExcl_[2]->setAxisTitle("jphi", 1);
       meSCSeedMapOccTrgExcl_[2]->setAxisTitle("jeta", 2);
 
-      sprintf(histo, "EBCLTE SC seed occupancy map (HCAL exclusive triggered)");
+      histo = "ClusterExTask SC seed occupancy map (HCAL exclusive triggered) EB";
       meSCSeedMapOccTrgExcl_[3] = dqmStore_->book2D(histo,histo,360,0,360,170,-85,85);
       meSCSeedMapOccTrgExcl_[3]->setAxisTitle("jphi", 1);
       meSCSeedMapOccTrgExcl_[3]->setAxisTitle("jeta", 2);
 
-      sprintf(histo, "EBCLTE SC seed occupancy map (RPC exclusive triggered)");
+      histo = "ClusterExTask SC seed occupancy map (RPC exclusive triggered) EB";
       meSCSeedMapOccTrgExcl_[4] = dqmStore_->book2D(histo,histo,360,0,360,170,-85,85);
       meSCSeedMapOccTrgExcl_[4]->setAxisTitle("jphi", 1);
       meSCSeedMapOccTrgExcl_[4]->setAxisTitle("jeta", 2);
 
-      sprintf(histo, "EBCLTE SC seed occupancy map (CSC triggered)");
+      histo = "ClusterExTask SC seed occupancy map (CSC triggered) EB";
       meSCSeedMapOccTrg_[0] = dqmStore_->book2D(histo,histo,360,0,360,170,-85,85);
       meSCSeedMapOccTrg_[0]->setAxisTitle("jphi", 1);
       meSCSeedMapOccTrg_[0]->setAxisTitle("jeta", 2);
 
-      sprintf(histo, "EBCLTE SC seed occupancy map (DT triggered)");
+      histo = "ClusterExTask SC seed occupancy map (DT triggered) EB";
       meSCSeedMapOccTrg_[1] = dqmStore_->book2D(histo,histo,360,0,360,170,-85,85);
       meSCSeedMapOccTrg_[1]->setAxisTitle("jphi", 1);
       meSCSeedMapOccTrg_[1]->setAxisTitle("jeta", 2);
 
-      sprintf(histo, "EBCLTE SC seed occupancy map (ECAL triggered)");
+      histo = "ClusterExTask SC seed occupancy map (ECAL triggered) EB";
       meSCSeedMapOccTrg_[2] = dqmStore_->book2D(histo,histo,360,0,360,170,-85,85);
       meSCSeedMapOccTrg_[2]->setAxisTitle("jphi", 1);
       meSCSeedMapOccTrg_[2]->setAxisTitle("jeta", 2);
 
-      sprintf(histo, "EBCLTE SC seed occupancy map (HCAL triggered)");
+      histo = "ClusterExTask SC seed occupancy map (HCAL triggered) EB";
       meSCSeedMapOccTrg_[3] = dqmStore_->book2D(histo,histo,360,0,360,170,-85,85);
       meSCSeedMapOccTrg_[3]->setAxisTitle("jphi", 1);
       meSCSeedMapOccTrg_[3]->setAxisTitle("jeta", 2);
 
-      sprintf(histo, "EBCLTE SC seed occupancy map (RPC triggered)");
+      histo = "ClusterExTask SC seed occupancy map (RPC triggered) EB";
       meSCSeedMapOccTrg_[4] = dqmStore_->book2D(histo,histo,360,0,360,170,-85,85);
       meSCSeedMapOccTrg_[4]->setAxisTitle("jphi", 1);
       meSCSeedMapOccTrg_[4]->setAxisTitle("jeta", 2);
 
-      sprintf(histo, "EBCLTE SC seed crystal timing map (CSC triggered) module binned");
+      histo = "ClusterExTask SC seed crystal timing map (CSC triggered) module binned EB";
       meSCSeedMapTimeTrgMod_[0] = dqmStore_->bookProfile2D(histo,histo,72,0,360,34,-85,85,78,0.,10.,"s");
       meSCSeedMapTimeTrgMod_[0]->setAxisTitle("jphi", 1);
       meSCSeedMapTimeTrgMod_[0]->setAxisTitle("jeta", 2);
 
-      sprintf(histo, "EBCLTE SC seed crystal timing map (DT triggered) module binned");
+      histo = "ClusterExTask SC seed crystal timing map (DT triggered) module binned EB";
       meSCSeedMapTimeTrgMod_[1] = dqmStore_->bookProfile2D(histo,histo,72,0,360,34,-85,85,78,0.,10.,"s");
       meSCSeedMapTimeTrgMod_[1]->setAxisTitle("jphi", 1);
       meSCSeedMapTimeTrgMod_[1]->setAxisTitle("jeta", 2);
 
-      sprintf(histo, "EBCLTE SC seed crystal timing map (ECAL triggered) module binned");
+      histo = "ClusterExTask SC seed crystal timing map (ECAL triggered) module binned EB";
       meSCSeedMapTimeTrgMod_[2] = dqmStore_->bookProfile2D(histo,histo,72,0,360,34,-85,85,78,0.,10.,"s");
       meSCSeedMapTimeTrgMod_[2]->setAxisTitle("jphi", 1);
       meSCSeedMapTimeTrgMod_[2]->setAxisTitle("jeta", 2);
 
-      sprintf(histo, "EBCLTE SC seed crystal timing map (HCAL triggered) module binned");
+      histo = "ClusterExTask SC seed crystal timing map (HCAL triggered) module binned EB";
       meSCSeedMapTimeTrgMod_[3] = dqmStore_->bookProfile2D(histo,histo,72,0,360,34,-85,85,78,0.,10.,"s");
       meSCSeedMapTimeTrgMod_[3]->setAxisTitle("jphi", 1);
       meSCSeedMapTimeTrgMod_[3]->setAxisTitle("jeta", 2);
 
-      sprintf(histo, "EBCLTE SC seed crystal timing map (RPC triggered) module binned");
+      histo = "ClusterExTask SC seed crystal timing map (RPC triggered) module binned EB";
       meSCSeedMapTimeTrgMod_[4] = dqmStore_->bookProfile2D(histo,histo,72,0,360,34,-85,85,78,0.,10.,"s");
       meSCSeedMapTimeTrgMod_[4]->setAxisTitle("jphi", 1);
       meSCSeedMapTimeTrgMod_[4]->setAxisTitle("jeta", 2);
 
 #endif
 
-      sprintf(histo, "EBCLTE SC size (crystal) vs energy (GeV)");
+      histo = "ClusterExTask SC size (crystal) vs energy (GeV) EB";
       meSCSizCrystalVsEne_ = dqmStore_->bookProfile(histo,histo,200,0.,10.,150,0,150);
       meSCSizCrystalVsEne_->setAxisTitle("energy (GeV)", 1);
       meSCSizCrystalVsEne_->setAxisTitle("super cluster size (crystal)", 2);
 
-      sprintf(histo, "EBCLTE SC seed occupancy map");
+      histo = "ClusterExTask SC seed occupancy map EB";
       meSCSeedMapOcc_ = dqmStore_->book2D(histo,histo,360,0,360,170,-85,85);
       meSCSeedMapOcc_->setAxisTitle("jphi", 1);
       meSCSeedMapOcc_->setAxisTitle("jeta", 2);
 
-      sprintf(histo, "EBCLTE SC seed occupancy map (high energy clusters) trigger tower binned");
+      histo = "ClusterExTask SC seed occupancy map (high energy clusters) trigger tower binned EB";
       meSCSeedMapOccHighEneTT_ = dqmStore_->book2D(histo,histo,72,0,360,34,-85,85);
       meSCSeedMapOccHighEneTT_->setAxisTitle("jphi", 1);
       meSCSeedMapOccHighEneTT_->setAxisTitle("jeta", 2);
 
-      sprintf(histo, "EBCLTE SC seed occupancy map (CSC triggered) trigger tower binned");
+      histo = "ClusterExTask SC seed occupancy map (CSC triggered) trigger tower binned EB";
       meSCSeedMapOccTrgTT_[0] = dqmStore_->book2D(histo,histo,72,0,360,34,-85,85);
       meSCSeedMapOccTrgTT_[0]->setAxisTitle("jphi", 1);
       meSCSeedMapOccTrgTT_[0]->setAxisTitle("jeta", 2);
 
-      sprintf(histo, "EBCLTE SC seed occupancy map (DT triggered) trigger tower binned");
+      histo = "ClusterExTask SC seed occupancy map (DT triggered) trigger tower binned EB";
       meSCSeedMapOccTrgTT_[1] = dqmStore_->book2D(histo,histo,72,0,360,34,-85,85);
       meSCSeedMapOccTrgTT_[1]->setAxisTitle("jphi", 1);
       meSCSeedMapOccTrgTT_[1]->setAxisTitle("jeta", 2);
 
-      sprintf(histo, "EBCLTE SC seed occupancy map (ECAL triggered) trigger tower binned");
+      histo = "ClusterExTask SC seed occupancy map (ECAL triggered) trigger tower binned EB";
       meSCSeedMapOccTrgTT_[2] = dqmStore_->book2D(histo,histo,72,0,360,34,-85,85);
       meSCSeedMapOccTrgTT_[2]->setAxisTitle("jphi", 1);
       meSCSeedMapOccTrgTT_[2]->setAxisTitle("jeta", 2);
 
-      sprintf(histo, "EBCLTE SC seed occupancy map (HCAL triggered) trigger tower binned");
+      histo = "ClusterExTask SC seed occupancy map (HCAL triggered) trigger tower binned EB";
       meSCSeedMapOccTrgTT_[3] = dqmStore_->book2D(histo,histo,72,0,360,34,-85,85);
       meSCSeedMapOccTrgTT_[3]->setAxisTitle("jphi", 1);
       meSCSeedMapOccTrgTT_[3]->setAxisTitle("jeta", 2);
 
-      sprintf(histo, "EBCLTE SC seed occupancy map (RPC triggered) trigger tower binned");
+      histo = "ClusterExTask SC seed occupancy map (RPC triggered) trigger tower binned EB";
       meSCSeedMapOccTrgTT_[4] = dqmStore_->book2D(histo,histo,72,0,360,34,-85,85);
       meSCSeedMapOccTrgTT_[4]->setAxisTitle("jphi", 1);
       meSCSeedMapOccTrgTT_[4]->setAxisTitle("jeta", 2);
 
-      sprintf(histo, "EBCLTE SC seed occupancy map (CSC exclusive triggered) trigger tower binned");
+      histo = "ClusterExTask SC seed occupancy map (CSC exclusive triggered) trigger tower binned EB";
       meSCSeedMapOccTrgExclTT_[0] = dqmStore_->book2D(histo,histo,72,0,360,34,-85,85);
       meSCSeedMapOccTrgExclTT_[0]->setAxisTitle("jphi", 1);
       meSCSeedMapOccTrgExclTT_[0]->setAxisTitle("jeta", 2);
 
-      sprintf(histo, "EBCLTE SC seed occupancy map (DT exclusive triggered) trigger tower binned");
+      histo = "ClusterExTask SC seed occupancy map (DT exclusive triggered) trigger tower binned EB";
       meSCSeedMapOccTrgExclTT_[1] = dqmStore_->book2D(histo,histo,72,0,360,34,-85,85);
       meSCSeedMapOccTrgExclTT_[1]->setAxisTitle("jphi", 1);
       meSCSeedMapOccTrgExclTT_[1]->setAxisTitle("jeta", 2);
 
-      sprintf(histo, "EBCLTE SC seed occupancy map (ECAL exclusive triggered) trigger tower binned");
+      histo = "ClusterExTask SC seed occupancy map (ECAL exclusive triggered) trigger tower binned EB";
       meSCSeedMapOccTrgExclTT_[2] = dqmStore_->book2D(histo,histo,72,0,360,34,-85,85);
       meSCSeedMapOccTrgExclTT_[2]->setAxisTitle("jphi", 1);
       meSCSeedMapOccTrgExclTT_[2]->setAxisTitle("jeta", 2);
 
-      sprintf(histo, "EBCLTE SC seed occupancy map (HCAL exclusive triggered) trigger tower binned");
+      histo = "ClusterExTask SC seed occupancy map (HCAL exclusive triggered) trigger tower binned EB";
       meSCSeedMapOccTrgExclTT_[3] = dqmStore_->book2D(histo,histo,72,0,360,34,-85,85);
       meSCSeedMapOccTrgExclTT_[3]->setAxisTitle("jphi", 1);
       meSCSeedMapOccTrgExclTT_[3]->setAxisTitle("jeta", 2);
 
-      sprintf(histo, "EBCLTE SC seed occupancy map (RPC exclusive triggered) trigger tower binned");
+      histo = "ClusterExTask SC seed occupancy map (RPC exclusive triggered) trigger tower binned EB";
       meSCSeedMapOccTrgExclTT_[4] = dqmStore_->book2D(histo,histo,72,0,360,34,-85,85);
       meSCSeedMapOccTrgExclTT_[4]->setAxisTitle("jphi", 1);
       meSCSeedMapOccTrgExclTT_[4]->setAxisTitle("jeta", 2);
 
-      sprintf(histo, "EBCLTE SC seed crystal timing map (CSC exclusive triggered) trigger tower binned");
+      histo = "ClusterExTask SC seed crystal timing map (CSC exclusive triggered) trigger tower binned EB";
       meSCSeedMapTimeTrgTT_[0] = dqmStore_->bookProfile2D(histo,histo,72,0,360,34,-85,85,78,0.,10.,"s");
       meSCSeedMapTimeTrgTT_[0]->setAxisTitle("jphi", 1);
       meSCSeedMapTimeTrgTT_[0]->setAxisTitle("jeta", 2);
 
-      sprintf(histo, "EBCLTE SC seed crystal timing map (DT exclusive triggered) trigger tower binned");
+      histo = "ClusterExTask SC seed crystal timing map (DT exclusive triggered) trigger tower binned EB";
       meSCSeedMapTimeTrgTT_[1] = dqmStore_->bookProfile2D(histo,histo,72,0,360,34,-85,85,78,0.,10.,"s");
       meSCSeedMapTimeTrgTT_[1]->setAxisTitle("jphi", 1);
       meSCSeedMapTimeTrgTT_[1]->setAxisTitle("jeta", 2);
 
-      sprintf(histo, "EBCLTE SC seed crystal timing map (ECAL exclusive triggered) trigger tower binned");
+      histo = "ClusterExTask SC seed crystal timing map (ECAL exclusive triggered) trigger tower binned EB";
       meSCSeedMapTimeTrgTT_[2] = dqmStore_->bookProfile2D(histo,histo,72,0,360,34,-85,85,78,0.,10.,"s");
       meSCSeedMapTimeTrgTT_[2]->setAxisTitle("jphi", 1);
       meSCSeedMapTimeTrgTT_[2]->setAxisTitle("jeta", 2);
 
-      sprintf(histo, "EBCLTE SC seed crystal timing map (HCAL exclusive triggered) trigger tower binned");
+      histo = "ClusterExTask SC seed crystal timing map (HCAL exclusive triggered) trigger tower binned EB";
       meSCSeedMapTimeTrgTT_[3] = dqmStore_->bookProfile2D(histo,histo,72,0,360,34,-85,85,78,0.,10.,"s");
       meSCSeedMapTimeTrgTT_[3]->setAxisTitle("jphi", 1);
       meSCSeedMapTimeTrgTT_[3]->setAxisTitle("jeta", 2);
 
-      sprintf(histo, "EBCLTE SC seed crystal timing map (RPC exclusive triggered) trigger tower binned");
+      histo = "ClusterExTask SC seed crystal timing map (RPC exclusive triggered) trigger tower binned EB";
       meSCSeedMapTimeTrgTT_[4] = dqmStore_->bookProfile2D(histo,histo,72,0,360,34,-85,85,78,0.,10.,"s");
       meSCSeedMapTimeTrgTT_[4]->setAxisTitle("jphi", 1);
       meSCSeedMapTimeTrgTT_[4]->setAxisTitle("jeta", 2);
 
-      sprintf(histo, "EBCLTE SC seed crystal timing (CSC triggered)");
+      histo = "ClusterExTask SC seed crystal timing (CSC triggered) EB";
       meSCSeedTimeTrg_[0] = dqmStore_->book1D(histo,histo,78,0.,10.);
       meSCSeedTimeTrg_[0]->setAxisTitle("seed crystal timing",1);
 
-      sprintf(histo, "EBCLTE SC seed crystal timing (DT triggered)");
+      histo = "ClusterExTask SC seed crystal timing (DT triggered) EB";
       meSCSeedTimeTrg_[1] = dqmStore_->book1D(histo,histo,78,0.,10.);
       meSCSeedTimeTrg_[1]->setAxisTitle("seed crystal timing",1);
 
-      sprintf(histo, "EBCLTE SC seed crystal timing (ECAL triggered)");
+      histo = "ClusterExTask SC seed crystal timing (ECAL triggered) EB";
       meSCSeedTimeTrg_[2] = dqmStore_->book1D(histo,histo,78,0.,10.);
       meSCSeedTimeTrg_[2]->setAxisTitle("seed crystal timing",1);
 
-      sprintf(histo, "EBCLTE SC seed crystal timing (HCAL triggered)");
+      histo = "ClusterExTask SC seed crystal timing (HCAL triggered) EB";
       meSCSeedTimeTrg_[3] = dqmStore_->book1D(histo,histo,78,0.,10.);
       meSCSeedTimeTrg_[3]->setAxisTitle("seed crystal timing",1);
 
-      sprintf(histo, "EBCLTE SC seed crystal timing (RPC triggered)");
+      histo = "ClusterExTask SC seed crystal timing (RPC triggered) EB";
       meSCSeedTimeTrg_[4] = dqmStore_->book1D(histo,histo,78,0.,10.);
       meSCSeedTimeTrg_[4]->setAxisTitle("seed crystal timing",1);
 
-      sprintf(histo, "EBCLTE triggers");
+      histo = "ClusterExTask triggers EB";
       meTrg_ = dqmStore_->book1D(histo, histo, 5, 0, 5);
       meTrg_->setAxisTitle("triggers");
 
-      sprintf(histo, "EBCLTE exclusive triggers");
+      histo = "ClusterExTask exclusive triggers EB";
       meTrgExcl_ = dqmStore_->book1D(histo, histo, 5, 0, 5);
       meTrgExcl_->setAxisTitle("triggers");
 
@@ -530,7 +537,7 @@ void EBClusterTaskExtras::cleanup(void){
    if ( ! init_ ) return;
 
    if ( dqmStore_ ) {
-      dqmStore_->setCurrentFolder(prefixME_ + "/EBClusterTaskExtras");
+      dqmStore_->setCurrentFolder(prefixME_ + "/ClusterExtras");
 
 #ifndef EBCLUSTERTASKEXTRAS_DQMOFFLINE
       if ( meSCSizCrystal_ ) dqmStore_->removeElement( meSCSizCrystal_->getName() );
@@ -566,12 +573,12 @@ void EBClusterTaskExtras::cleanup(void){
       if ( meSCSeedMapOccSingleCrystal_ ) dqmStore_->removeElement( meSCSeedMapOccSingleCrystal_->getName() );
       meSCSeedMapOccSingleCrystal_ = 0;
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/EBClusterTaskExtras/EBCLTE seed crystal timing per super module");
+      dqmStore_->setCurrentFolder(prefixME_ + "/ClusterExtras/ClusterExTask seed crystal timing per super module");
       for(int i=0; i!=36; ++i) {
 	 if( meSCSeedTimePerFed_[i] ) dqmStore_->removeElement( meSCSeedTimePerFed_[i]->getName() );
 	 meSCSeedTimePerFed_[i] = 0;
       }
-      dqmStore_->setCurrentFolder(prefixME_ + "/EBClusterTaskExtras");
+      dqmStore_->setCurrentFolder(prefixME_ + "/ClusterExtras");
 
       if ( meSCSeedTime_ ) dqmStore_->removeElement( meSCSeedTime_->getName() );
       meSCSeedTime_ = 0;

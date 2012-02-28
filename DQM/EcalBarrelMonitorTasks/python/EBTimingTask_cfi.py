@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 ecalBarrelTimingTask = cms.EDAnalyzer("EBTimingTask",
-    prefixME = cms.untracked.string('EcalBarrel'),
+    prefixME = cms.untracked.string('Ecal'),
     enableCleanup = cms.untracked.bool(False),
     mergeRuns = cms.untracked.bool(False),
     useBeamStatus = cms.untracked.bool(False),

@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2011/08/30 09:29:45 $
- * $Revision: 1.113 $
+ * $Date: 2011/09/02 13:55:02 $
+ * $Revision: 1.114 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -83,6 +83,10 @@ EEPedestalOnlineClient::EEPedestalOnlineClient(const edm::ParameterSet& ps) {
   RMSThreshold_ = 4.0;
   RMSThresholdInternal_ = 8.0;
 
+  ievt_ = 0;
+  jevt_ = 0;
+  dqmStore_ = 0;
+
 }
 
 EEPedestalOnlineClient::~EEPedestalOnlineClient() {
@@ -130,26 +134,29 @@ void EEPedestalOnlineClient::setup(void) {
 
   std::string name;
 
-  dqmStore_->setCurrentFolder( prefixME_ + "/EEPedestalOnlineClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/Pedestal/Presample" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
+    dqmStore_->setCurrentFolder( prefixME_ + "/Pedestal/Presample/Quality" );
     if ( meg03_[ism-1] ) dqmStore_->removeElement( meg03_[ism-1]->getName() );
-    name = "EEPOT pedestal quality G12 " + Numbers::sEE(ism);
+    name = "PedestalClient presample quality G12 " + Numbers::sEE(ism);
     meg03_[ism-1] = dqmStore_->book2D(name, name, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
     meg03_[ism-1]->setAxisTitle("ix", 1);
     if ( ism >= 1 && ism <= 9 ) meg03_[ism-1]->setAxisTitle("101-ix", 1);
     meg03_[ism-1]->setAxisTitle("iy", 2);
 
+    dqmStore_->setCurrentFolder( prefixME_ + "/Pedestal/Presample/Mean" );
     if ( mep03_[ism-1] ) dqmStore_->removeElement( mep03_[ism-1]->getName() );
-    name = "EEPOT pedestal mean G12 " + Numbers::sEE(ism);
+    name = "PedestalClient presample mean G12 " + Numbers::sEE(ism);
     mep03_[ism-1] = dqmStore_->book1D(name, name, 100, 150., 250.);
     mep03_[ism-1]->setAxisTitle("mean", 1);
 
+    dqmStore_->setCurrentFolder( prefixME_ + "/Pedestal/Presample/RMS" );
     if ( mer03_[ism-1] ) dqmStore_->removeElement( mer03_[ism-1]->getName() );
-    name = "EEPOT pedestal rms G12 " + Numbers::sEE(ism);
+    name = "PedestalClient presample rms G12 " + Numbers::sEE(ism);
     mer03_[ism-1] = dqmStore_->book1D(name, name, 100, 0.,  10.);
     mer03_[ism-1]->setAxisTitle("rms", 1);
 
@@ -330,7 +337,7 @@ void EEPedestalOnlineClient::analyze(void) {
 
     int ism = superModules_[i];
 
-    me = dqmStore_->get( prefixME_ + "/EEPedestalOnlineTask/Gain12/EEPOT pedestal " + Numbers::sEE(ism) + " G12" );
+    me = dqmStore_->get( prefixME_ + "/Pedestal/Presample/PedestalTask presample G12 " + Numbers::sEE(ism) );
     h03_[ism-1] = UtilsClient::getHisto( me, cloneME_, h03_[ism-1] );
 
     if ( meg03_[ism-1] ) meg03_[ism-1]->Reset();

@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQM.EcalBarrelMonitorTasks.EBBeamCaloTask_cfi import *
-from DQM.EcalBarrelMonitorTasks.EBBeamHodoTask_cfi import *
 from DQM.EcalBarrelMonitorTasks.EBClusterTask_cfi import *
 from DQM.EcalBarrelMonitorTasks.EBCosmicTask_cfi import *
 from DQM.EcalBarrelMonitorTasks.EBIntegrityTask_cfi import *
@@ -29,9 +27,6 @@ ecalBarrelTestPulseTask.enableCleanup = True
 
 ecalBarrelTriggerTowerTask.enableCleanup = True
 ecalBarrelTimingTask.enableCleanup = True
-
-ecalBarrelBeamHodoTask.enableCleanup = True
-ecalBarrelBeamCaloTask.enableCleanup = True
 
 ecalBarrelClusterTask.enableCleanup = True
 

@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineTask.cc
  *
- * $Date: 2011/08/23 00:25:32 $
- * $Revision: 1.46.4.1 $
+ * $Date: 2011/08/30 09:30:32 $
+ * $Revision: 1.47 $
  * \author G. Della Ricca
  *
 */
@@ -43,6 +43,7 @@ EBPedestalOnlineTask::EBPedestalOnlineTask(const edm::ParameterSet& ps){
     mePedMapG12_[i] = 0;
   }
 
+  ievt_ = 0;
 }
 
 EBPedestalOnlineTask::~EBPedestalOnlineTask(){
@@ -54,8 +55,8 @@ void EBPedestalOnlineTask::beginJob(void){
   ievt_ = 0;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalOnlineTask");
-    dqmStore_->rmdir(prefixME_ + "/EBPedestalOnlineTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "/Pedestal/Presample");
+    dqmStore_->rmdir(prefixME_ + "/Pedestal/Presample");
   }
 
 }
@@ -87,11 +88,10 @@ void EBPedestalOnlineTask::setup(void){
   std::string name;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalOnlineTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "/Pedestal/Presample");
 
-    dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalOnlineTask/Gain12");
     for (int i = 0; i < 36; i++) {
-      name = "EBPOT pedestal " + Numbers::sEB(i+1) + " G12";
+      name = "PedestalTask presample G12 " + Numbers::sEB(i+1);
       mePedMapG12_[i] = dqmStore_->bookProfile2D(name, name, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
       mePedMapG12_[i]->setAxisTitle("ieta", 1);
       mePedMapG12_[i]->setAxisTitle("iphi", 2);
@@ -107,11 +107,8 @@ void EBPedestalOnlineTask::cleanup(void){
   if ( ! init_ ) return;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalOnlineTask");
-
-    dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalOnlineTask/Gain12");
     for ( int i = 0; i < 36; i++ ) {
-      if ( mePedMapG12_[i] ) dqmStore_->removeElement( mePedMapG12_[i]->getName() );
+      if ( mePedMapG12_[i] ) dqmStore_->removeElement( mePedMapG12_[i]->getFullname() );
       mePedMapG12_[i] = 0;
     }
 

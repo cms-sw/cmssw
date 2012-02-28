@@ -1,8 +1,8 @@
 /*
  * \file EBDataCertificationTask.cc
  *
- * $Date: 2011/08/30 09:30:32 $
- * $Revision: 1.29 $
+ * $Date: 2011/09/02 14:03:33 $
+ * $Revision: 1.30 $
  * \author E. Di Marco
  *
 */
@@ -42,7 +42,9 @@ EBDataCertificationTask::EBDataCertificationTask(const edm::ParameterSet& ps) {
   meEBDataCertificationSummaryMap_ = 0;
   for (int i = 0; i < 36; i++) {
     meEBDataCertification_[i] = 0;
+    meEBReportSummaryContents_[i] = 0;
   }
+  meEBReportSummary_ = 0;
 
   hDQM_ = 0;
   hDAQ_ = 0;
@@ -65,12 +67,11 @@ void EBDataCertificationTask::beginJob(void){
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo");
 
-    name = "CertificationSummary";
+    name = "CertificationSummary EB";
     meEBDataCertificationSummary_ = dqmStore_->bookFloat(name);
     meEBDataCertificationSummary_->Fill(-1.0);
 
-    name = "CertificationSummaryMap";
-    meEBDataCertificationSummaryMap_ = dqmStore_->book2D(name, name, 72, 0., 72., 34, 0., 34.);
+    meEBDataCertificationSummaryMap_ = dqmStore_->book2D("CertificationSummaryMap EB", "Ecal Data Certification Summary Map EB", 72, 0., 72., 34, 0., 34.);
     meEBDataCertificationSummaryMap_->setAxisTitle("jphi", 1);
     meEBDataCertificationSummaryMap_->setAxisTitle("jeta", 2);
 
@@ -108,13 +109,13 @@ void EBDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
     DQMVal[i] = -1.;
   }
 
-  me = dqmStore_->get(prefixME_ + "/EBIntegrityTask/EBIT weighted integrity errors by lumi");
+  me = dqmStore_->get(prefixME_ + "/IntegrityErrors/IntegrityTask errors by lumi EB");
   hIntegrityByLumi_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hIntegrityByLumi_ );
 
-  me = dqmStore_->get(prefixME_ + "/EBStatusFlagsTask/FEStatus/EBSFT weighted frontend errors by lumi");
+  me = dqmStore_->get(prefixME_ + "/FEStatus/StatusFlagsTask errors by lumi EB");
   hFrontendByLumi_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hFrontendByLumi_ );
 
-  me = dqmStore_->get(prefixME_ + "/EBRawDataTask/EBRDT FE synchronization errors by lumi");
+  me = dqmStore_->get(prefixME_ + "/RawData/RawDataTask sync errors by lumi EB");
   hSynchronizationByLumi_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hSynchronizationByLumi_ );
 
   if( hIntegrityByLumi_ && hFrontendByLumi_ && hSynchronizationByLumi_ ) {

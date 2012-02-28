@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 ecalEndcapTestPulseTask = cms.EDAnalyzer("EETestPulseTask",
-    prefixME = cms.untracked.string('EcalEndcap'),
+    prefixME = cms.untracked.string('EcalCalibration'),
     enableCleanup = cms.untracked.bool(False),
     mergeRuns = cms.untracked.bool(False),    
     EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),

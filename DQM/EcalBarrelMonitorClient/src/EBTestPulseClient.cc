@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2011/09/02 13:55:01 $
- * $Revision: 1.236 $
+ * $Date: 2011/10/28 14:15:45 $
+ * $Revision: 1.237 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -127,6 +127,12 @@ EBTestPulseClient::EBTestPulseClient(const edm::ParameterSet& ps) {
   pedPnRMSThreshold_[0] = 999.;
   pedPnRMSThreshold_[1] = 999.;
 
+
+  ievt_ = 0;
+  jevt_ = 0;
+  dqmStore_ = 0;
+
+
 }
 
 EBTestPulseClient::~EBTestPulseClient() {
@@ -174,105 +180,112 @@ void EBTestPulseClient::setup(void) {
 
   std::string name;
 
-  dqmStore_->setCurrentFolder( prefixME_ + "/EBTestPulseClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/TestPulse" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
+      dqmStore_->setCurrentFolder( prefixME_ + "/TestPulse/Gain01/Quality" );
       if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
-      name = "EBTPT test pulse quality G01 " + Numbers::sEB(ism);
+      name = "TestPulseClient test pulse quality G01 " + Numbers::sEB(ism);
       meg01_[ism-1] = dqmStore_->book2D(name, name, 85, 0., 85., 20, 0., 20.);
       meg01_[ism-1]->setAxisTitle("ieta", 1);
       meg01_[ism-1]->setAxisTitle("iphi", 2);
     }
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
+      dqmStore_->setCurrentFolder( prefixME_ + "/TestPulse/Gain06/Quality" );
       if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getName() );
-      name = "EBTPT test pulse quality G06 " + Numbers::sEB(ism);
+      name = "TestPulseClient test pulse quality G06 " + Numbers::sEB(ism);
       meg02_[ism-1] = dqmStore_->book2D(name, name, 85, 0., 85., 20, 0., 20.);
       meg02_[ism-1]->setAxisTitle("ieta", 1);
       meg02_[ism-1]->setAxisTitle("iphi", 2);
     }
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
+      dqmStore_->setCurrentFolder( prefixME_ + "/TestPulse/Gain12/Quality" );
       if ( meg03_[ism-1] ) dqmStore_->removeElement( meg03_[ism-1]->getName() );
-      name = "EBTPT test pulse quality G12 " + Numbers::sEB(ism);
+      name = "TestPulseClient test pulse quality G12 " + Numbers::sEB(ism);
       meg03_[ism-1] = dqmStore_->book2D(name, name, 85, 0., 85., 20, 0., 20.);
       meg03_[ism-1]->setAxisTitle("ieta", 1);
       meg03_[ism-1]->setAxisTitle("iphi", 2);
     }
 
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
+      dqmStore_->setCurrentFolder( prefixME_ + "/TestPulse/PN/Gain01/Quality" );
       if ( meg04_[ism-1] ) dqmStore_->removeElement( meg04_[ism-1]->getName() );
-      name = "EBTPT test pulse quality PNs G01 " + Numbers::sEB(ism);
+      name = "TestPulseClient PN test pulse quality G01 " + Numbers::sEB(ism);
       meg04_[ism-1] = dqmStore_->book2D(name, name, 10, 0., 10., 1, 0., 5.);
       meg04_[ism-1]->setAxisTitle("pseudo-strip", 1);
       meg04_[ism-1]->setAxisTitle("channel", 2);
     }
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 16) != MGPAGainsPN_.end() ) {
+      dqmStore_->setCurrentFolder( prefixME_ + "/TestPulse/PN/Gain16/Quality" );
       if ( meg05_[ism-1] ) dqmStore_->removeElement( meg05_[ism-1]->getName() );
-      name = "EBTPT test pulse quality PNs G16 " + Numbers::sEB(ism);
+      name = "TestPulseClient PN test pulse quality G16 " + Numbers::sEB(ism);
       meg05_[ism-1] = dqmStore_->book2D(name, name, 10, 0., 10., 1, 0., 5.);
       meg05_[ism-1]->setAxisTitle("pseudo-strip", 1);
       meg05_[ism-1]->setAxisTitle("channel", 2);
     }
 
-    if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
-      if ( mea01_[ism-1] ) dqmStore_->removeElement( mea01_[ism-1]->getName() );
-      name = "EBTPT test pulse amplitude G01 " + Numbers::sEB(ism);
-      mea01_[ism-1] = dqmStore_->book1D(name, name, 1700, 0., 1700.);
-      mea01_[ism-1]->setAxisTitle("channel", 1);
-      mea01_[ism-1]->setAxisTitle("amplitude", 2);
-    }
-    if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
-      if ( mea02_[ism-1] ) dqmStore_->removeElement( mea02_[ism-1]->getName() );
-      name = "EBTPT test pulse amplitude G06 " + Numbers::sEB(ism);
-      mea02_[ism-1] = dqmStore_->book1D(name, name, 1700, 0., 1700.);
-      mea02_[ism-1]->setAxisTitle("channel", 1);
-      mea02_[ism-1]->setAxisTitle("amplitude", 2);
-    }
-    if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
-      if ( mea03_[ism-1] ) dqmStore_->removeElement( mea03_[ism-1]->getName() );
-      name = "EBTPT test pulse amplitude G12 " + Numbers::sEB(ism);
-      mea03_[ism-1] = dqmStore_->book1D(name, name, 1700, 0., 1700.);
-      mea03_[ism-1]->setAxisTitle("channel", 1);
-      mea03_[ism-1]->setAxisTitle("amplitude", 2);
-    }
+//     if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
+//       if ( mea01_[ism-1] ) dqmStore_->removeElement( mea01_[ism-1]->getName() );
+//       name = "TestPulseClient test pulse amplitude G01 " + Numbers::sEB(ism);
+//       mea01_[ism-1] = dqmStore_->book1D(name, name, 1700, 0., 1700.);
+//       mea01_[ism-1]->setAxisTitle("channel", 1);
+//       mea01_[ism-1]->setAxisTitle("amplitude", 2);
+//     }
+//     if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
+//       if ( mea02_[ism-1] ) dqmStore_->removeElement( mea02_[ism-1]->getName() );
+//       name = "TestPulseClient test pulse amplitude G06 " + Numbers::sEB(ism);
+//       mea02_[ism-1] = dqmStore_->book1D(name, name, 1700, 0., 1700.);
+//       mea02_[ism-1]->setAxisTitle("channel", 1);
+//       mea02_[ism-1]->setAxisTitle("amplitude", 2);
+//     }
+//     if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
+//       if ( mea03_[ism-1] ) dqmStore_->removeElement( mea03_[ism-1]->getName() );
+//       name = "TestPulseClient test pulse amplitude G12 " + Numbers::sEB(ism);
+//       mea03_[ism-1] = dqmStore_->book1D(name, name, 1700, 0., 1700.);
+//       mea03_[ism-1]->setAxisTitle("channel", 1);
+//       mea03_[ism-1]->setAxisTitle("amplitude", 2);
+//     }
 
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
+      dqmStore_->setCurrentFolder( prefixME_ + "/TestPulse/PN/Gain01/Presample1D" );
       if ( mer04_[ism-1] ) dqmStore_->removeElement( mer04_[ism-1]->getName() );
-      name = "EBTPT PNs pedestal rms " + Numbers::sEB(ism) + " G01";
+      name = "TestPulseClient PN presample rms G01 " + Numbers::sEB(ism);
       mer04_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       mer04_[ism-1]->setAxisTitle("rms", 1);
     }
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 16) != MGPAGainsPN_.end() ) {
+      dqmStore_->setCurrentFolder( prefixME_ + "/TestPulse/PN/Gain16/Presample1D" );
       if ( mer05_[ism-1] ) dqmStore_->removeElement( mer05_[ism-1]->getName() );
-      name = "EBTPT PNs pedestal rms " + Numbers::sEB(ism) + " G16";
+      name = "TestPulseClient PN presample rms G16 " + Numbers::sEB(ism);
       mer05_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       mer05_[ism-1]->setAxisTitle("rms", 1);
     }
 
-    if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
-      if ( me_hs01_[ism-1] ) dqmStore_->removeElement( me_hs01_[ism-1]->getName() );
-      name = "EBTPT test pulse shape G01 " + Numbers::sEB(ism);
-      me_hs01_[ism-1] = dqmStore_->book1D(name, name, 10, 0., 10.);
-      me_hs01_[ism-1]->setAxisTitle("sample", 1);
-      me_hs01_[ism-1]->setAxisTitle("amplitude", 2);
-    }
-    if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
-      if ( me_hs02_[ism-1] ) dqmStore_->removeElement( me_hs02_[ism-1]->getName() );
-      name = "EBTPT test pulse shape G06 " + Numbers::sEB(ism);
-      me_hs02_[ism-1] = dqmStore_->book1D(name, name, 10, 0., 10.);
-      me_hs02_[ism-1]->setAxisTitle("sample", 1);
-      me_hs02_[ism-1]->setAxisTitle("amplitude", 2);
-    }
-    if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
-      if ( me_hs03_[ism-1] ) dqmStore_->removeElement( me_hs03_[ism-1]->getName() );
-      name = "EBTPT test pulse shape G12 " + Numbers::sEB(ism);
-      me_hs03_[ism-1] = dqmStore_->book1D(name, name, 10, 0., 10.);
-      me_hs03_[ism-1]->setAxisTitle("sample", 1);
-      me_hs03_[ism-1]->setAxisTitle("amplitude", 2);
-    }
+//     if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
+//       if ( me_hs01_[ism-1] ) dqmStore_->removeElement( me_hs01_[ism-1]->getName() );
+//       name = "TestPulseClient test pulse shape G01 " + Numbers::sEB(ism);
+//       me_hs01_[ism-1] = dqmStore_->book1D(name, name, 10, 0., 10.);
+//       me_hs01_[ism-1]->setAxisTitle("sample", 1);
+//       me_hs01_[ism-1]->setAxisTitle("amplitude", 2);
+//     }
+//     if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
+//       if ( me_hs02_[ism-1] ) dqmStore_->removeElement( me_hs02_[ism-1]->getName() );
+//       name = "TestPulseClient test pulse shape G06 " + Numbers::sEB(ism);
+//       me_hs02_[ism-1] = dqmStore_->book1D(name, name, 10, 0., 10.);
+//       me_hs02_[ism-1]->setAxisTitle("sample", 1);
+//       me_hs02_[ism-1]->setAxisTitle("amplitude", 2);
+//     }
+//     if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
+//       if ( me_hs03_[ism-1] ) dqmStore_->removeElement( me_hs03_[ism-1]->getName() );
+//       name = "TestPulseClient test pulse shape G12 " + Numbers::sEB(ism);
+//       me_hs03_[ism-1] = dqmStore_->book1D(name, name, 10, 0., 10.);
+//       me_hs03_[ism-1]->setAxisTitle("sample", 1);
+//       me_hs03_[ism-1]->setAxisTitle("amplitude", 2);
+//     }
 
   }
 
@@ -361,37 +374,35 @@ void EBTestPulseClient::cleanup(void) {
 
     int ism = superModules_[i];
 
-    dqmStore_->setCurrentFolder( prefixME_ + "/EBTestPulseClient" );
-
-    if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
+    if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getFullname() );
     meg01_[ism-1] = 0;
-    if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getName() );
+    if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getFullname() );
     meg02_[ism-1] = 0;
-    if ( meg03_[ism-1] ) dqmStore_->removeElement( meg03_[ism-1]->getName() );
+    if ( meg03_[ism-1] ) dqmStore_->removeElement( meg03_[ism-1]->getFullname() );
     meg03_[ism-1] = 0;
 
-    if ( meg04_[ism-1] ) dqmStore_->removeElement( meg04_[ism-1]->getName() );
+    if ( meg04_[ism-1] ) dqmStore_->removeElement( meg04_[ism-1]->getFullname() );
     meg04_[ism-1] = 0;
-    if ( meg05_[ism-1] ) dqmStore_->removeElement( meg05_[ism-1]->getName() );
+    if ( meg05_[ism-1] ) dqmStore_->removeElement( meg05_[ism-1]->getFullname() );
     meg05_[ism-1] = 0;
 
-    if ( mea01_[ism-1] ) dqmStore_->removeElement( mea01_[ism-1]->getName() );
+    if ( mea01_[ism-1] ) dqmStore_->removeElement( mea01_[ism-1]->getFullname() );
     mea01_[ism-1] = 0;
-    if ( mea02_[ism-1] ) dqmStore_->removeElement( mea02_[ism-1]->getName() );
+    if ( mea02_[ism-1] ) dqmStore_->removeElement( mea02_[ism-1]->getFullname() );
     mea02_[ism-1] = 0;
-    if ( mea03_[ism-1] ) dqmStore_->removeElement( mea03_[ism-1]->getName() );
+    if ( mea03_[ism-1] ) dqmStore_->removeElement( mea03_[ism-1]->getFullname() );
     mea03_[ism-1] = 0;
 
-    if ( mer04_[ism-1] ) dqmStore_->removeElement( mer04_[ism-1]->getName() );
+    if ( mer04_[ism-1] ) dqmStore_->removeElement( mer04_[ism-1]->getFullname() );
     mer04_[ism-1] = 0;
-    if ( mer05_[ism-1] ) dqmStore_->removeElement( mer05_[ism-1]->getName() );
+    if ( mer05_[ism-1] ) dqmStore_->removeElement( mer05_[ism-1]->getFullname() );
     mer05_[ism-1] = 0;
 
-    if ( me_hs01_[ism-1] ) dqmStore_->removeElement( me_hs01_[ism-1]->getName() );
+    if ( me_hs01_[ism-1] ) dqmStore_->removeElement( me_hs01_[ism-1]->getFullname() );
     me_hs01_[ism-1] = 0;
-    if ( me_hs02_[ism-1] ) dqmStore_->removeElement( me_hs02_[ism-1]->getName() );
+    if ( me_hs02_[ism-1] ) dqmStore_->removeElement( me_hs02_[ism-1]->getFullname() );
     me_hs02_[ism-1] = 0;
-    if ( me_hs03_[ism-1] ) dqmStore_->removeElement( me_hs03_[ism-1]->getName() );
+    if ( me_hs03_[ism-1] ) dqmStore_->removeElement( me_hs03_[ism-1]->getFullname() );
     me_hs03_[ism-1] = 0;
 
   }
@@ -478,77 +489,75 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
             UtilsClient::getBinQuality(meg02_[ism-1], ie, ip) &&
             UtilsClient::getBinQuality(meg03_[ism-1], ie, ip);
 
-          if ( Numbers::icEB(ism, ie, ip) == 1 ) {
-
-            std::vector<float> sample01, sample02, sample03;
-
-            sample01.clear();
-            sample02.clear();
-            sample03.clear();
-
-            if ( me_hs01_[ism-1] ) {
-              for ( int i = 1; i <= 10; i++ ) {
-                sample01.push_back(int(me_hs01_[ism-1]->getBinContent(i)));
-              }
-            } else {
-              for ( int i = 1; i <= 10; i++ ) { sample01.push_back(-1.); }
-            }
-
-            if ( me_hs02_[ism-1] ) {
-              for ( int i = 1; i <= 10; i++ ) {
-                sample02.push_back(int(me_hs02_[ism-1]->getBinContent(i)));
-              }
-            } else {
-              for ( int i = 1; i <= 10; i++ ) { sample02.push_back(-1.); }
-            }
-
-            if ( me_hs03_[ism-1] ) {
-              for ( int i = 1; i <= 10; i++ ) {
-                sample03.push_back(int(me_hs03_[ism-1]->getBinContent(i)));
-              }
-            } else {
-              for ( int i = 1; i <= 10; i++ ) { sample03.push_back(-1.); }
-            }
-
-            if ( verbose_ ) {
-              std::cout << "sample01 = " << std::flush;
-              for ( unsigned int i = 0; i < sample01.size(); i++ ) {
-                std::cout << sample01[i] << " " << std::flush;
-              }
-              std::cout << std::endl;
-
-              std::cout << "sample02 = " << std::flush;
-              for ( unsigned int i = 0; i < sample02.size(); i++ ) {
-                std::cout << sample02[i] << " " << std::flush;
-              }
-              std::cout << std::endl;
-
-              std::cout << "sample03 = " << std::flush;
-              for ( unsigned int i = 0; i < sample03.size(); i++ ) {
-                std::cout << sample03[i] << " " << std::flush;
-              }
-              std::cout << std::endl;
-            }
-
-            if ( verbose_ ) std::cout << std::endl;
-
-            shape.setSamples(sample01,  1);
-            shape.setSamples(sample02,  6);
-            shape.setSamples(sample03, 12);
-
-          }
-
           int ic = Numbers::indexEB(ism, ie, ip);
 
           if ( econn ) {
             ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
             dataset1[ecid] = adc;
-            if ( Numbers::icEB(ism, ie, ip) == 1 ) dataset2[ecid] = shape;
           }
 
         }
 
       }
+    }
+
+    std::vector<float> sample01(10, 0.), sample02(10, 0.), sample03(10, 0.);
+    float ntower01(0.), ntower02(0.), ntower03(0.);
+
+    for(int itt(1); itt <= 68; itt++){
+
+      if(hs01_[ism-1] && hs01_[ism-1]->GetBinEntries(hs01_[ism-1]->GetBin(itt, 1))){
+	ntower01 += 1.;
+	for ( int i = 1; i <= 10; i++ ) sample01[i-1] += hs01_[ism-1]->GetBinContent(itt, i);
+      }
+
+      if(hs02_[ism-1] && hs02_[ism-1]->GetBinEntries(hs01_[ism-1]->GetBin(itt, 1))){
+	ntower02 += 1.;
+	for ( int i = 1; i <= 10; i++ ) sample02[i-1] += hs02_[ism-1]->GetBinContent(itt, i);
+      }
+
+      if(hs03_[ism-1] && hs03_[ism-1]->GetBinEntries(hs01_[ism-1]->GetBin(itt, 1))){
+	ntower03 += 1.;
+	for ( int i = 1; i <= 10; i++ ) sample03[i-1] += hs03_[ism-1]->GetBinContent(itt, i);
+      }
+
+    }
+
+    for ( int i = 0; i < 10; i++ ){
+      sample01[i] /= ntower01;
+      sample02[i] /= ntower02;
+      sample03[i] /= ntower03;
+    }
+
+    if ( verbose_ ) {
+      std::cout << "sample01 = " << std::flush;
+      for ( unsigned int i = 0; i < sample01.size(); i++ ) {
+	std::cout << sample01[i] << " " << std::flush;
+      }
+      std::cout << std::endl;
+
+      std::cout << "sample02 = " << std::flush;
+      for ( unsigned int i = 0; i < sample02.size(); i++ ) {
+	std::cout << sample02[i] << " " << std::flush;
+      }
+      std::cout << std::endl;
+
+      std::cout << "sample03 = " << std::flush;
+      for ( unsigned int i = 0; i < sample03.size(); i++ ) {
+	std::cout << sample03[i] << " " << std::flush;
+      }
+      std::cout << std::endl;
+    }
+
+    if ( verbose_ ) std::cout << std::endl;
+
+    shape.setSamples(sample01,  1);
+    shape.setSamples(sample02,  6);
+    shape.setSamples(sample03, 12);
+
+    if ( econn ) {
+      ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), 1);
+      dataset2[ecid] = shape;
     }
 
   }
@@ -700,49 +709,49 @@ void EBTestPulseClient::analyze(void) {
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EBTestPulseTask/Gain01/EBTPT amplitude " + Numbers::sEB(ism) + " G01" );
+      me = dqmStore_->get( prefixME_ + "/TestPulse/Gain01/Amplitude/TestPulseTask amplitude G01 " + Numbers::sEB(ism));
       ha01_[ism-1] = UtilsClient::getHisto( me, cloneME_, ha01_[ism-1] );
 
     }
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EBTestPulseTask/Gain06/EBTPT amplitude " + Numbers::sEB(ism) + " G06" );
+      me = dqmStore_->get( prefixME_ + "/TestPulse/Gain06/Amplitude/TestPulseTask amplitude G06 " + Numbers::sEB(ism));
       ha02_[ism-1] = UtilsClient::getHisto( me, cloneME_, ha02_[ism-1] );
 
     }
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EBTestPulseTask/Gain12/EBTPT amplitude " + Numbers::sEB(ism) + " G12" );
+      me = dqmStore_->get( prefixME_ + "/TestPulse/Gain12/Amplitude/TestPulseTask amplitude G12 " + Numbers::sEB(ism));
       ha03_[ism-1] = UtilsClient::getHisto( me, cloneME_, ha03_[ism-1] );
 
     }
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EBTestPulseTask/Gain01/EBTPT shape " + Numbers::sEB(ism) + " G01" );
+      me = dqmStore_->get( prefixME_ + "/TestPulse/Gain01/Shape/TestPulseTask shape G01 " + Numbers::sEB(ism));
       hs01_[ism-1] = UtilsClient::getHisto( me, cloneME_, hs01_[ism-1] );
 
     }
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EBTestPulseTask/Gain06/EBTPT shape " + Numbers::sEB(ism) + " G06" );
+      me = dqmStore_->get( prefixME_ + "/TestPulse/Gain06/Shape/TestPulseTask shape G06 " + Numbers::sEB(ism));
       hs02_[ism-1] = UtilsClient::getHisto( me, cloneME_, hs02_[ism-1] );
 
     }
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EBTestPulseTask/Gain12/EBTPT shape " + Numbers::sEB(ism) + " G12" );
+      me = dqmStore_->get( prefixME_ + "/TestPulse/Gain12/Shape/TestPulseTask shape G12 " + Numbers::sEB(ism));
       hs03_[ism-1] = UtilsClient::getHisto( me, cloneME_, hs03_[ism-1] );
 
     }
 
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EBTestPulseTask/PN/Gain01/EBTPT PNs amplitude " + Numbers::sEB(ism) + " G01" );
+      me = dqmStore_->get( prefixME_ + "/TestPulse/PN/Gain01/Amplitude/TestPulseTask PN amplitude G01 " + Numbers::sEB(ism));
       i01_[ism-1] = UtilsClient::getHisto( me, cloneME_, i01_[ism-1] );
 
     }
@@ -750,21 +759,21 @@ void EBTestPulseClient::analyze(void) {
 
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 16) != MGPAGainsPN_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EBTestPulseTask/PN/Gain16/EBTPT PNs amplitude " + Numbers::sEB(ism) + " G16" );
+      me = dqmStore_->get( prefixME_ + "/TestPulse/PN/Gain16/Amplitude/TestPulseTask PN amplitude G16 " + Numbers::sEB(ism));
       i02_[ism-1] = UtilsClient::getHisto( me, cloneME_, i02_[ism-1] );
 
     }
 
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EBTestPulseTask/PN/Gain01/EBTPT PNs pedestal " + Numbers::sEB(ism) + " G01" );
+      me = dqmStore_->get( prefixME_ + "/TestPulse/PN/Gain01/Presample/TestPulseTask PN presample G01 " + Numbers::sEB(ism));
       i03_[ism-1] = UtilsClient::getHisto( me, cloneME_, i03_[ism-1] );
 
     }
 
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 16) != MGPAGainsPN_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EBTestPulseTask/PN/Gain16/EBTPT PNs pedestal " + Numbers::sEB(ism) + " G16" );
+      me = dqmStore_->get( prefixME_ + "/TestPulse/PN/Gain16/Presample/TestPulseTask PN presample G16 " + Numbers::sEB(ism));
       i04_[ism-1] = UtilsClient::getHisto( me, cloneME_, i04_[ism-1] );
 
     }

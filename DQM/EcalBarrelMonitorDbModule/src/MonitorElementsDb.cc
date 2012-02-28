@@ -1,11 +1,11 @@
-// $Id: MonitorElementsDb.cc,v 1.22 2010/08/08 08:46:03 dellaric Exp $
+// $Id: MonitorElementsDb.cc,v 1.23 2011/09/15 21:00:17 yiiyama Exp $
 
 /*!
   \file MonitorElementsDb.cc
   \brief Generate a Monitor Element from DB data
   \author B. Gobbo
-  \version $Revision: 1.22 $
-  \date $Date: 2010/08/08 08:46:03 $
+  \version $Revision: 1.23 $
+  \date $Date: 2011/09/15 21:00:17 $
 */
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -51,10 +51,12 @@ MonitorElementsDb::MonitorElementsDb( const edm::ParameterSet& ps, std::string& 
     try {
       parser_->load();
     } catch( const std::runtime_error e ) {
+      delete parser_;
+      parser_ = 0;
       std::cerr << "Error loading parser: " << e.what() << std::endl;
     }
 
-    MEinfo_ = parser_->getDB_ME();
+    if(parser_) MEinfo_ = parser_->getDB_ME();
 
     for( unsigned int i=0; i< MEinfo_.size(); i++ ) {
 
@@ -81,6 +83,8 @@ MonitorElementsDb::MonitorElementsDb( const edm::ParameterSet& ps, std::string& 
     }
 
   }
+
+  ievt_ = 0;
 
 }
 

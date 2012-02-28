@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityClient.h
  *
- * $Date: 2010/02/14 14:35:44 $
- * $Revision: 1.75 $
+ * $Date: 2010/02/14 20:56:22 $
+ * $Revision: 1.76 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -13,6 +13,7 @@
 
 #include <vector>
 #include <string>
+#include <map>
 
 #include "TROOT.h"
 #include "TProfile2D.h"
@@ -92,21 +93,13 @@ DQMStore* dqmStore_;
 
 TH1F* h00_;
 
-TH2F* h01_[36];
-TH2F* h02_[36];
-TH2F* h03_[36];
-TH2F* h04_[36];
-TH2F* h05_[36];
-TH2F* h06_[36];
-TH2F* h07_[36];
-TH2F* h08_[36];
-TH2F* h09_[36];
-
 MonitorElement* meg01_[36];
 MonitorElement* meg02_[36];
 
 TH2F* h_[36];
 TH2F* hmem_[36];
+
+ std::map<uint32_t, float> gain_, chid_, gainswitch_, ttid_, ttblocksize_, memchid_, memgain_, memttid_, memblocksize_;
 
 // Quality criteria for data integrity
 

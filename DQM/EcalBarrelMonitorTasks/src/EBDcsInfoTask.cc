@@ -1,8 +1,8 @@
 /*
  * \file EBDcsInfoTask.cc
  *
- * $Date: 2011/08/23 00:25:31 $
- * $Revision: 1.17.4.1 $
+ * $Date: 2011/08/30 09:30:32 $
+ * $Revision: 1.18 $
  * \author E. Di Marco
  *
 */
@@ -54,12 +54,11 @@ void EBDcsInfoTask::beginJob(void){
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo");
 
-    name = "DCSSummary";
+    name = "DCSSummary EB";
     meEBDcsFraction_ = dqmStore_->bookFloat(name);
     meEBDcsFraction_->Fill(0.0);
 
-    name = "DCSSummaryMap";
-    meEBDcsActiveMap_ = dqmStore_->book2D(name, name, 72, 0., 72., 34, 0., 34.);
+    meEBDcsActiveMap_ = dqmStore_->book2D("DCSSummaryMap EB", "Ecal DCS Summary Map EB", 72, 0., 72., 34, 0., 34.);
     meEBDcsActiveMap_->setAxisTitle("jphi", 1);
     meEBDcsActiveMap_->setAxisTitle("jeta", 2);
 

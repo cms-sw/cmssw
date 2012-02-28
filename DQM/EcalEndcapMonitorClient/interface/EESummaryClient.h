@@ -4,8 +4,8 @@
 /*
  * \file EESummaryClient.h
  *
- * $Date: 2011/09/15 21:02:09 $
- * $Revision: 1.50 $
+ * $Date: 2011/10/30 15:01:26 $
+ * $Revision: 1.51 $
  * \author G. Della Ricca
  *
 */
@@ -94,6 +94,8 @@ std::vector<int> laserWavelengths_;
 std::vector<int> ledWavelengths_;
 std::vector<int> MGPAGains_;
 std::vector<int> MGPAGainsPN_;
+
+ std::vector<std::string> enabledClients_;
 
 std::vector<EEClient*> clients_;
 

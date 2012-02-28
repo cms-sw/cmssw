@@ -1,8 +1,8 @@
 /*
  * \file EETrendTask.cc
  *
- * $Date: 2010/08/11 15:01:53 $
- * $Revision: 1.12 $
+ * $Date: 2011/08/30 09:28:42 $
+ * $Revision: 1.13 $
  * \author Dongwook Jang, Soon Yung Jun
  *
 */
@@ -84,8 +84,7 @@ EETrendTask::EETrendTask(const edm::ParameterSet& ps){
   nSuperClusterMinutely_ = 0;
   nSuperClusterSizeMinutely_ = 0;
   nIntegrityErrorMinutely_ = 0;
-  nFEDEEminusRawDataMinutely_ = 0;
-  nFEDEEplusRawDataMinutely_ = 0;
+  nFEDEERawDataMinutely_ = 0;
   nEESRFlagMinutely_ = 0;
 
   nEEDigiHourly_ = 0;
@@ -97,9 +96,14 @@ EETrendTask::EETrendTask(const edm::ParameterSet& ps){
   nSuperClusterHourly_ = 0;
   nSuperClusterSizeHourly_ = 0;
   nIntegrityErrorHourly_ = 0;
-  nFEDEEminusRawDataHourly_ = 0;
-  nFEDEEplusRawDataHourly_ = 0;
+  nFEDEERawDataHourly_ = 0;
   nEESRFlagHourly_ = 0;
+
+  current_time_ = 0;
+  start_time_ = 0;
+  last_time_ = 0;
+
+  ievt_ = 0;
 }
 
 
@@ -112,8 +116,8 @@ void EETrendTask::beginJob(void){
   ievt_ = 0;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/EETrendTask");
-    dqmStore_->rmdir(prefixME_ + "/EETrendTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "/Trend");
+    dqmStore_->rmdir(prefixME_ + "/Trend");
   }
 
 }
@@ -146,8 +150,7 @@ void EETrendTask::reset(void) {
   if(nSuperClusterMinutely_) nSuperClusterMinutely_->Reset();
   if(nSuperClusterSizeMinutely_) nSuperClusterSizeMinutely_->Reset();
   if(nIntegrityErrorMinutely_) nIntegrityErrorMinutely_->Reset();
-  if(nFEDEEminusRawDataMinutely_) nFEDEEminusRawDataMinutely_->Reset();
-  if(nFEDEEplusRawDataMinutely_) nFEDEEplusRawDataMinutely_->Reset();
+  if(nFEDEERawDataMinutely_) nFEDEERawDataMinutely_->Reset();
   if(nEESRFlagMinutely_) nEESRFlagMinutely_->Reset();
 
   if(nEEDigiHourly_) nEEDigiHourly_->Reset();
@@ -159,8 +162,7 @@ void EETrendTask::reset(void) {
   if(nSuperClusterHourly_) nSuperClusterHourly_->Reset();
   if(nSuperClusterSizeHourly_) nSuperClusterSizeHourly_->Reset();
   if(nIntegrityErrorHourly_) nIntegrityErrorHourly_->Reset();
-  if(nFEDEEminusRawDataHourly_) nFEDEEminusRawDataHourly_->Reset();
-  if(nFEDEEplusRawDataHourly_) nFEDEEplusRawDataHourly_->Reset();
+  if(nFEDEERawDataHourly_) nFEDEERawDataHourly_->Reset();
   if(nEESRFlagHourly_) nEESRFlagHourly_->Reset();
 
 }
@@ -171,134 +173,131 @@ void EETrendTask::setup(void){
   init_ = true;
 
   std::string name;
+  std::string binning;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/EETrendTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "/Trend");
 
     // minutely
+    dqmStore_->setCurrentFolder(prefixME_ + "/Trend/ShortTerm");
 
-    name = "AverageNumberOfEEDigiVs5Minutes";
-    nEEDigiMinutely_ = dqmStore_->bookProfile(name, name, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
+    binning = "5 min bin EE";
+
+    name = "TrendTask num digis " + binning;
+    nEEDigiMinutely_ = dqmStore_->bookProfile(name, name, 24, 0.0, 120.0, 0.0, 1.0e6, "s");
     nEEDigiMinutely_->setAxisTitle("Minutes", 1);
     nEEDigiMinutely_->setAxisTitle("Average Number of EEDigi / 5 minutes", 2);
 
-    name = "AverageNumberOfEcalPnDiodeDigiVs5Minutes";
-    nEcalPnDiodeDigiMinutely_ = dqmStore_->bookProfile(name, name, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
+    name = "TrendTask num PN digis " + binning;
+    nEcalPnDiodeDigiMinutely_ = dqmStore_->bookProfile(name, name, 24, 0.0, 120.0, 0.0, 1.0e6, "s");
     nEcalPnDiodeDigiMinutely_->setAxisTitle("Minutes", 1);
     nEcalPnDiodeDigiMinutely_->setAxisTitle("Average Number of EcalPnDiodeDigi / 5 minutes", 2);
 
-    name = "AverageNumberOfEcalRecHitVs5Minutes";
-    nEcalRecHitMinutely_ = dqmStore_->bookProfile(name, name, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
+    name = "TrendTask num rec hits " + binning;
+    nEcalRecHitMinutely_ = dqmStore_->bookProfile(name, name, 24, 0.0, 120.0, 0.0, 1.0e6, "s");
     nEcalRecHitMinutely_->setAxisTitle("Minutes", 1);
     nEcalRecHitMinutely_->setAxisTitle("Average Number of EcalRecHit / 5 minutes", 2);
 
-    name = "AverageNumberOfEcalTrigPrimDigiVs5Minutes";
-    nEcalTrigPrimDigiMinutely_ = dqmStore_->bookProfile(name, name, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
+    name = "TrendTask num TP digis " + binning;
+    nEcalTrigPrimDigiMinutely_ = dqmStore_->bookProfile(name, name, 24, 0.0, 120.0, 0.0, 1.0e6, "s");
     nEcalTrigPrimDigiMinutely_->setAxisTitle("Minutes", 1);
     nEcalTrigPrimDigiMinutely_->setAxisTitle("Average Number of EcalTrigPrimDigi / 5 minutes", 2);
 
-    name = "AverageNumberOfBasicClusterVs5Minutes";
-    nBasicClusterMinutely_ = dqmStore_->bookProfile(name, name, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
+    name = "TrendTask num BCs " + binning;
+    nBasicClusterMinutely_ = dqmStore_->bookProfile(name, name, 24, 0.0, 120.0, 0.0, 1.0e6, "s");
     nBasicClusterMinutely_->setAxisTitle("Minutes", 1);
     nBasicClusterMinutely_->setAxisTitle("Average Number of BasicClusters / 5 minutes", 2);
 
-    name = "AverageNumberOfBasicClusterSizeVs5Minutes";
-    nBasicClusterSizeMinutely_ = dqmStore_->bookProfile(name, name, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
+    name = "TrendTask BC size " + binning;
+    nBasicClusterSizeMinutely_ = dqmStore_->bookProfile(name, name, 24, 0.0, 120.0, 0.0, 1.0e6, "s");
     nBasicClusterSizeMinutely_->setAxisTitle("Minutes", 1);
     nBasicClusterSizeMinutely_->setAxisTitle("Average Size of BasicClusters / 5 minutes", 2);
 
-    name = "AverageNumberOfSuperClusterVs5Minutes";
-    nSuperClusterMinutely_ = dqmStore_->bookProfile(name, name, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
+    name = "TrendTask num SCs " + binning;
+    nSuperClusterMinutely_ = dqmStore_->bookProfile(name, name, 24, 0.0, 120.0, 0.0, 1.0e6, "s");
     nSuperClusterMinutely_->setAxisTitle("Minutes", 1);
     nSuperClusterMinutely_->setAxisTitle("Average Number of SuperClusters / 5 minutes", 2);
 
-    name = "AverageNumberOfSuperClusterSizeVs5Minutes";
-    nSuperClusterSizeMinutely_ = dqmStore_->bookProfile(name, name, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
+    name = "TrendTask SC size " + binning;
+    nSuperClusterSizeMinutely_ = dqmStore_->bookProfile(name, name, 24, 0.0, 120.0, 0.0, 1.0e6, "s");
     nSuperClusterSizeMinutely_->setAxisTitle("Minutes", 1);
     nSuperClusterSizeMinutely_->setAxisTitle("Average Size of SuperClusters / 5 minutes", 2);
 
-    name = "AverageNumberOfIntegrityErrorVs5Minutes";
-    nIntegrityErrorMinutely_ = dqmStore_->bookProfile(name, name, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
+    name = "TrendTask num integrity errors " + binning;
+    nIntegrityErrorMinutely_ = dqmStore_->bookProfile(name, name, 24, 0.0, 120.0, 0.0, 1.0e6, "s");
     nIntegrityErrorMinutely_->setAxisTitle("Minutes", 1);
     nIntegrityErrorMinutely_->setAxisTitle("Average IntegrityErrors / 5 minutes", 2);
 
-    name = "AverageNumberOfFEDEEminusRawDataVs5Minutes";
-    nFEDEEminusRawDataMinutely_ = dqmStore_->bookProfile(name, name, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
-    nFEDEEminusRawDataMinutely_->setAxisTitle("Minutes", 1);
-    nFEDEEminusRawDataMinutely_->setAxisTitle("Average Number of FEDRawData in EE- / 5 minutes", 2);
+    name = "TrendTask DCC event size " + binning;
+    nFEDEERawDataMinutely_ = dqmStore_->bookProfile(name, name, 24, 0.0, 120.0, 0.0, 1.0e6, "s");
+    nFEDEERawDataMinutely_->setAxisTitle("Minutes", 1);
+    nFEDEERawDataMinutely_->setAxisTitle("Average Number of FEDRawData in EE / 5 minutes", 2);
 
-    name = "AverageNumberOfFEDEEplusRawDataVs5Minutes";
-    nFEDEEplusRawDataMinutely_ = dqmStore_->bookProfile(name, name, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
-    nFEDEEplusRawDataMinutely_->setAxisTitle("Minutes", 1);
-    nFEDEEplusRawDataMinutely_->setAxisTitle("Average Number of FEDRawData in EE+ / 5 minutes", 2);
-
-    name = "AverageNumberOfEESRFlagVs5Minutes";
-    nEESRFlagMinutely_ = dqmStore_->bookProfile(name, name, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
+    name = "TrendTask num SR flags " + binning;
+    nEESRFlagMinutely_ = dqmStore_->bookProfile(name, name, 24, 0.0, 120.0, 0.0, 1.0e6, "s");
     nEESRFlagMinutely_->setAxisTitle("Minutes", 1);
     nEESRFlagMinutely_->setAxisTitle("Average Number of EESRFlag / 5 minutes", 2);
 
 
     // hourly
+    dqmStore_->setCurrentFolder(prefixME_ + "/Trend/LongTerm");
 
-    name = "AverageNumberOfEEDigiVs1Hour";
-    nEEDigiHourly_ = dqmStore_->bookProfile(name, name, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
+    binning = "20 min bin EB";
+
+    name = "TrendTask num digis " + binning;
+    nEEDigiHourly_ = dqmStore_->bookProfile(name, name, 24, 0.0, 480.0, 0.0, 1.0e6, "s");
     nEEDigiHourly_->setAxisTitle("Hours", 1);
-    nEEDigiHourly_->setAxisTitle("Average Number of EEDigi / hour", 2);
+    nEEDigiHourly_->setAxisTitle("Average Number of EEDigi / 20 minutes", 2);
 
-    name = "AverageNumberOfEcalPnDiodeDigiVs1Hour";
-    nEcalPnDiodeDigiHourly_ = dqmStore_->bookProfile(name, name, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
+    name = "TrendTask num PN digis " + binning;
+    nEcalPnDiodeDigiHourly_ = dqmStore_->bookProfile(name, name, 24, 0.0, 480.0, 0.0, 1.0e6, "s");
     nEcalPnDiodeDigiHourly_->setAxisTitle("Hours", 1);
-    nEcalPnDiodeDigiHourly_->setAxisTitle("Average Number of EcalPnDiodeDigi / hour", 2);
+    nEcalPnDiodeDigiHourly_->setAxisTitle("Average Number of EcalPnDiodeDigi / 20 minutes", 2);
 
-    name = "AverageNumberOfEcalRecHitVs1Hour";
-    nEcalRecHitHourly_ = dqmStore_->bookProfile(name, name, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
+    name = "TrendTask num rec hits " + binning;
+    nEcalRecHitHourly_ = dqmStore_->bookProfile(name, name, 24, 0.0, 480.0, 0.0, 1.0e6, "s");
     nEcalRecHitHourly_->setAxisTitle("Hours", 1);
-    nEcalRecHitHourly_->setAxisTitle("Average Number of EcalRecHit / hour", 2);
+    nEcalRecHitHourly_->setAxisTitle("Average Number of EcalRecHit / 20 minutes", 2);
 
-    name = "AverageNumberOfEcalTrigPrimDigiVs1Hour";
-    nEcalTrigPrimDigiHourly_ = dqmStore_->bookProfile(name, name, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
+    name = "TrendTask num TP digis " + binning;
+    nEcalTrigPrimDigiHourly_ = dqmStore_->bookProfile(name, name, 24, 0.0, 480.0, 0.0, 1.0e6, "s");
     nEcalTrigPrimDigiHourly_->setAxisTitle("Hours", 1);
-    nEcalTrigPrimDigiHourly_->setAxisTitle("Average Number of EcalTrigPrimDigi / hour", 2);
+    nEcalTrigPrimDigiHourly_->setAxisTitle("Average Number of EcalTrigPrimDigi / 20 minutes", 2);
 
-    name = "AverageNumberOfBasicClusterVs1Hour";
-    nBasicClusterHourly_ = dqmStore_->bookProfile(name, name, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
+    name = "TrendTask num BCs " + binning;
+    nBasicClusterHourly_ = dqmStore_->bookProfile(name, name, 24, 0.0, 480.0, 0.0, 1.0e6, "s");
     nBasicClusterHourly_->setAxisTitle("Hours", 1);
-    nBasicClusterHourly_->setAxisTitle("Average Number of BasicClusters / hour", 2);
+    nBasicClusterHourly_->setAxisTitle("Average Number of BasicClusters / 20 minutes", 2);
 
-    name = "AverageNumberOfBasicClusterSizeVs1Hour";
-    nBasicClusterSizeHourly_ = dqmStore_->bookProfile(name, name, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
+    name = "TrendTask BC size " + binning;
+    nBasicClusterSizeHourly_ = dqmStore_->bookProfile(name, name, 24, 0.0, 480.0, 0.0, 1.0e6, "s");
     nBasicClusterSizeHourly_->setAxisTitle("Hours", 1);
-    nBasicClusterSizeHourly_->setAxisTitle("Average Size of BasicClusters / hour", 2);
+    nBasicClusterSizeHourly_->setAxisTitle("Average Size of BasicClusters / 20 minutes", 2);
 
-    name = "AverageNumberOfSuperClusterVs1Hour";
-    nSuperClusterHourly_ = dqmStore_->bookProfile(name, name, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
+    name = "TrendTask num SCs " + binning;
+    nSuperClusterHourly_ = dqmStore_->bookProfile(name, name, 24, 0.0, 480.0, 0.0, 1.0e6, "s");
     nSuperClusterHourly_->setAxisTitle("Hours", 1);
-    nSuperClusterHourly_->setAxisTitle("Average Number of SuperClusters / hour", 2);
+    nSuperClusterHourly_->setAxisTitle("Average Number of SuperClusters / 20 minutes", 2);
 
-    name = "AverageNumberOfSuperClusterSizeVs1Hour";
-    nSuperClusterSizeHourly_ = dqmStore_->bookProfile(name, name, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
+    name = "TrendTask SC size " + binning;
+    nSuperClusterSizeHourly_ = dqmStore_->bookProfile(name, name, 24, 0.0, 480.0, 0.0, 1.0e6, "s");
     nSuperClusterSizeHourly_->setAxisTitle("Hours", 1);
-    nSuperClusterSizeHourly_->setAxisTitle("Average Size of SuperClusters / hour", 2);
+    nSuperClusterSizeHourly_->setAxisTitle("Average Size of SuperClusters / 20 minutes", 2);
 
-    name = "AverageNumberOfIntegrityErrorVs1Hour";
-    nIntegrityErrorHourly_ = dqmStore_->bookProfile(name, name, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
+    name = "TrendTask num integrity errors " + binning;
+    nIntegrityErrorHourly_ = dqmStore_->bookProfile(name, name, 24, 0.0, 480.0, 0.0, 1.0e6, "s");
     nIntegrityErrorHourly_->setAxisTitle("Hours", 1);
-    nIntegrityErrorHourly_->setAxisTitle("Average IntegrityErrors / hour", 2);
+    nIntegrityErrorHourly_->setAxisTitle("Average IntegrityErrors / 20 minutes", 2);
 
-    name = "AverageNumberOfFEDEEminusRawDataVs1Hour";
-    nFEDEEminusRawDataHourly_ = dqmStore_->bookProfile(name, name, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
-    nFEDEEminusRawDataHourly_->setAxisTitle("Hours", 1);
-    nFEDEEminusRawDataHourly_->setAxisTitle("Average Number of FEDRawData in EE- / hour", 2);
+    name = "TrendTask DCC event size " + binning;
+    nFEDEERawDataHourly_ = dqmStore_->bookProfile(name, name, 24, 0.0, 480.0, 0.0, 1.0e6, "s");
+    nFEDEERawDataHourly_->setAxisTitle("Hours", 1);
+    nFEDEERawDataHourly_->setAxisTitle("Average Number of FEDRawData in EE / 20 minutes", 2);
 
-    name = "AverageNumberOfFEDEEplusRawDataVs1Hour";
-    nFEDEEplusRawDataHourly_ = dqmStore_->bookProfile(name, name, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
-    nFEDEEplusRawDataHourly_->setAxisTitle("Hours", 1);
-    nFEDEEplusRawDataHourly_->setAxisTitle("Average Number of FEDRawData in EE+ / hour", 2);
-
-    name = "AverageNumberOfEESRFlagVs1Hour";
-    nEESRFlagHourly_ = dqmStore_->bookProfile(name, name, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
+    name = "TrendTask num SR flags " + binning;
+    nEESRFlagHourly_ = dqmStore_->bookProfile(name, name, 24, 0.0, 480.0, 0.0, 1.0e6, "s");
     nEESRFlagHourly_->setAxisTitle("Hours", 1);
-    nEESRFlagHourly_->setAxisTitle("Average Number of EESRFlag / hour", 2);
+    nEESRFlagHourly_->setAxisTitle("Average Number of EESRFlag / 20 minutes", 2);
 
   }
 
@@ -310,56 +309,52 @@ void EETrendTask::cleanup(void){
   if ( ! init_ ) return;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/EETrendTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "/Trend");
 
-    if(nEEDigiMinutely_) dqmStore_->removeElement( nEEDigiMinutely_->getName());
+    if(nEEDigiMinutely_) dqmStore_->removeElement( nEEDigiMinutely_->getFullname());
     nEEDigiMinutely_ = 0;
-    if(nEcalPnDiodeDigiMinutely_) dqmStore_->removeElement( nEcalPnDiodeDigiMinutely_->getName());
+    if(nEcalPnDiodeDigiMinutely_) dqmStore_->removeElement( nEcalPnDiodeDigiMinutely_->getFullname());
     nEcalPnDiodeDigiMinutely_ = 0;
-    if(nEcalRecHitMinutely_) dqmStore_->removeElement( nEcalRecHitMinutely_->getName());
+    if(nEcalRecHitMinutely_) dqmStore_->removeElement( nEcalRecHitMinutely_->getFullname());
     nEcalRecHitMinutely_ = 0;
-    if(nEcalTrigPrimDigiMinutely_) dqmStore_->removeElement( nEcalTrigPrimDigiMinutely_->getName());
+    if(nEcalTrigPrimDigiMinutely_) dqmStore_->removeElement( nEcalTrigPrimDigiMinutely_->getFullname());
     nEcalTrigPrimDigiMinutely_ = 0;
-    if(nBasicClusterMinutely_) dqmStore_->removeElement( nBasicClusterMinutely_->getName());
+    if(nBasicClusterMinutely_) dqmStore_->removeElement( nBasicClusterMinutely_->getFullname());
     nBasicClusterMinutely_ = 0;
-    if(nBasicClusterSizeMinutely_) dqmStore_->removeElement( nBasicClusterSizeMinutely_->getName());
+    if(nBasicClusterSizeMinutely_) dqmStore_->removeElement( nBasicClusterSizeMinutely_->getFullname());
     nBasicClusterSizeMinutely_ = 0;
-    if(nSuperClusterMinutely_) dqmStore_->removeElement( nSuperClusterMinutely_->getName());
+    if(nSuperClusterMinutely_) dqmStore_->removeElement( nSuperClusterMinutely_->getFullname());
     nSuperClusterMinutely_ = 0;
-    if(nSuperClusterSizeMinutely_) dqmStore_->removeElement( nSuperClusterSizeMinutely_->getName());
+    if(nSuperClusterSizeMinutely_) dqmStore_->removeElement( nSuperClusterSizeMinutely_->getFullname());
     nSuperClusterSizeMinutely_ = 0;
-    if(nIntegrityErrorMinutely_) dqmStore_->removeElement( nIntegrityErrorMinutely_->getName());
+    if(nIntegrityErrorMinutely_) dqmStore_->removeElement( nIntegrityErrorMinutely_->getFullname());
     nIntegrityErrorMinutely_ = 0;
-    if(nFEDEEminusRawDataMinutely_) dqmStore_->removeElement( nFEDEEminusRawDataMinutely_->getName());
-    nFEDEEminusRawDataMinutely_ = 0;
-    if(nFEDEEplusRawDataMinutely_) dqmStore_->removeElement( nFEDEEplusRawDataMinutely_->getName());
-    nFEDEEplusRawDataMinutely_ = 0;
-    if(nEESRFlagMinutely_) dqmStore_->removeElement( nEESRFlagMinutely_->getName());
+    if(nFEDEERawDataMinutely_) dqmStore_->removeElement( nFEDEERawDataMinutely_->getFullname());
+    nFEDEERawDataMinutely_ = 0;
+    if(nEESRFlagMinutely_) dqmStore_->removeElement( nEESRFlagMinutely_->getFullname());
     nEESRFlagMinutely_ = 0;
 
-    if(nEEDigiHourly_) dqmStore_->removeElement( nEEDigiHourly_->getName());
+    if(nEEDigiHourly_) dqmStore_->removeElement( nEEDigiHourly_->getFullname());
     nEEDigiHourly_ = 0;
-    if(nEcalPnDiodeDigiHourly_) dqmStore_->removeElement( nEcalPnDiodeDigiHourly_->getName());
+    if(nEcalPnDiodeDigiHourly_) dqmStore_->removeElement( nEcalPnDiodeDigiHourly_->getFullname());
     nEcalPnDiodeDigiHourly_ = 0;
-    if(nEcalRecHitHourly_) dqmStore_->removeElement( nEcalRecHitHourly_->getName());
+    if(nEcalRecHitHourly_) dqmStore_->removeElement( nEcalRecHitHourly_->getFullname());
     nEcalRecHitHourly_ = 0;
-    if(nEcalTrigPrimDigiHourly_) dqmStore_->removeElement( nEcalTrigPrimDigiHourly_->getName());
+    if(nEcalTrigPrimDigiHourly_) dqmStore_->removeElement( nEcalTrigPrimDigiHourly_->getFullname());
     nEcalTrigPrimDigiHourly_ = 0;
-    if(nBasicClusterHourly_) dqmStore_->removeElement( nBasicClusterHourly_->getName());
+    if(nBasicClusterHourly_) dqmStore_->removeElement( nBasicClusterHourly_->getFullname());
     nBasicClusterHourly_ = 0;
-    if(nBasicClusterSizeHourly_) dqmStore_->removeElement( nBasicClusterSizeHourly_->getName());
+    if(nBasicClusterSizeHourly_) dqmStore_->removeElement( nBasicClusterSizeHourly_->getFullname());
     nBasicClusterSizeHourly_ = 0;
-    if(nSuperClusterHourly_) dqmStore_->removeElement( nSuperClusterHourly_->getName());
+    if(nSuperClusterHourly_) dqmStore_->removeElement( nSuperClusterHourly_->getFullname());
     nSuperClusterHourly_ = 0;
-    if(nSuperClusterSizeHourly_) dqmStore_->removeElement( nSuperClusterSizeHourly_->getName());
+    if(nSuperClusterSizeHourly_) dqmStore_->removeElement( nSuperClusterSizeHourly_->getFullname());
     nSuperClusterSizeHourly_ = 0;
-    if(nIntegrityErrorHourly_) dqmStore_->removeElement( nIntegrityErrorHourly_->getName());
+    if(nIntegrityErrorHourly_) dqmStore_->removeElement( nIntegrityErrorHourly_->getFullname());
     nIntegrityErrorHourly_ = 0;
-    if(nFEDEEminusRawDataHourly_) dqmStore_->removeElement( nFEDEEminusRawDataHourly_->getName());
-    nFEDEEminusRawDataHourly_ = 0;
-    if(nFEDEEplusRawDataHourly_) dqmStore_->removeElement( nFEDEEplusRawDataHourly_->getName());
-    nFEDEEplusRawDataHourly_ = 0;
-    if(nEESRFlagHourly_) dqmStore_->removeElement( nEESRFlagHourly_->getName());
+    if(nFEDEERawDataHourly_) dqmStore_->removeElement( nFEDEERawDataHourly_->getFullname());
+    nFEDEERawDataHourly_ = 0;
+    if(nEESRFlagHourly_) dqmStore_->removeElement( nEESRFlagHourly_->getFullname());
     nEESRFlagHourly_ = 0;
 
   }
@@ -396,7 +391,7 @@ void EETrendTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   long int hourBinDiff = -1;
   long int hourDiff = -1;
-  ecaldqm::calcBins(1,3600,start_time_,last_time_,current_time_,hourBinDiff,hourDiff);
+  ecaldqm::calcBins(20,60,start_time_,last_time_,current_time_,hourBinDiff,hourDiff);
 
 
   // --------------------------------------------------
@@ -629,8 +624,7 @@ void EETrendTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   // --------------------------------------------------
   // FEDRawDataCollection
   // --------------------------------------------------
-  int nfedEEminus = 0;
-  int nfedEEplus  = 0;
+  float fedSize = 0.;
 
   // Barrel FEDs : 610 - 645
   // Endcap FEDs : 601-609 (EE-) and 646-654 (EE+)
@@ -644,23 +638,18 @@ void EETrendTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   if ( e.getByLabel(FEDRawDataCollection_, allFedRawData) ) {
     for ( int iDcc = eem1; iDcc <= eep2; ++iDcc ) {
       int sizeInKB = allFedRawData->FEDData(iDcc).size()/kByte;
-      if(iDcc >= eem1 && iDcc <= eem2) nfedEEminus += sizeInKB;
-      if(iDcc >= eep1 && iDcc <= eep2) nfedEEplus += sizeInKB;
+      if((iDcc >= eem1 && iDcc <= eem2) || (iDcc >= eep1 && iDcc <= eep2)) fedSize += sizeInKB;
     }
   }
   else edm::LogWarning("EETrendTask") << FEDRawDataCollection_ << " is not available";
 
-  ecaldqm::shift2Right(nFEDEEminusRawDataMinutely_->getTProfile(), minuteBinDiff);
-  nFEDEEminusRawDataMinutely_->Fill(minuteDiff,nfedEEminus);
+  fedSize /= (eem2 - eem1 + 1 + eep2 - eep1 + 1);
 
-  ecaldqm::shift2Right(nFEDEEplusRawDataMinutely_->getTProfile(), minuteBinDiff);
-  nFEDEEplusRawDataMinutely_->Fill(minuteDiff,nfedEEplus);
+  ecaldqm::shift2Right(nFEDEERawDataMinutely_->getTProfile(), minuteBinDiff);
+  nFEDEERawDataMinutely_->Fill(minuteDiff,fedSize);
 
-  ecaldqm::shift2Right(nFEDEEminusRawDataHourly_->getTProfile(), hourBinDiff);
-  nFEDEEminusRawDataHourly_->Fill(hourDiff,nfedEEminus);
-
-  ecaldqm::shift2Right(nFEDEEplusRawDataHourly_->getTProfile(), hourBinDiff);
-  nFEDEEplusRawDataHourly_->Fill(hourDiff,nfedEEplus);
+  ecaldqm::shift2Right(nFEDEERawDataHourly_->getTProfile(), hourBinDiff);
+  nFEDEERawDataHourly_->Fill(hourDiff,fedSize);
 
   // --------------------------------------------------
   // EESRFlagCollection

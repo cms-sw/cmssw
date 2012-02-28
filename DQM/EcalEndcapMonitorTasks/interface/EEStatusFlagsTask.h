@@ -4,8 +4,8 @@
 /*
  * \file EEStatusFlagsTask.h
  *
- * $Date: 2009/10/26 17:33:51 $
- * $Revision: 1.9 $
+ * $Date: 2010/03/05 18:22:18 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -72,8 +72,6 @@ bool enableCleanup_;
 bool mergeRuns_;
 
 edm::InputTag EcalRawDataCollection_;
-
-MonitorElement* meEvtType_[18];
 
 MonitorElement* meFEchErrors_[18][3];
 MonitorElement* meFEchErrorsByLumi_;

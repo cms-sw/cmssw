@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2011/09/02 13:55:02 $
- * $Revision: 1.142 $
+ * $Date: 2011/10/07 17:21:19 $
+ * $Revision: 1.143 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -202,6 +202,10 @@ EELaserClient::EELaserClient(const edm::ParameterSet& ps) {
   pedPnRMSThreshold_[0] = 999.;
   pedPnRMSThreshold_[1] = 999.;
 
+  ievt_ = 0;
+  jevt_ = 0;
+  dqmStore_ = 0;
+
 }
 
 EELaserClient::~EELaserClient() {
@@ -249,315 +253,343 @@ void EELaserClient::setup(void) {
 
   std::string name;
 
-  dqmStore_->setCurrentFolder( prefixME_ + "/EELaserClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/Laser" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-      if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
-      name = "EELT laser quality L1 " + Numbers::sEE(ism);
+      dqmStore_->setCurrentFolder( prefixME_ + "/Laser/Laser1/Quality" );
+      if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getFullname() );
+      name = "LaserClient laser quality L1 " + Numbers::sEE(ism);
       meg01_[ism-1] = dqmStore_->book2D(name, name, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
       meg01_[ism-1]->setAxisTitle("ix", 1);
       if ( ism >= 1 && ism <= 9 ) meg01_[ism-1]->setAxisTitle("101-ix", 1);
       meg01_[ism-1]->setAxisTitle("iy", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-      if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getName() );
-      name = "EELT laser quality L2 " + Numbers::sEE(ism);
+      dqmStore_->setCurrentFolder( prefixME_ + "/Laser/Laser2/Quality" );
+      if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getFullname() );
+      name = "LaserClient laser quality L2 " + Numbers::sEE(ism);
       meg02_[ism-1] = dqmStore_->book2D(name, name, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
       meg02_[ism-1]->setAxisTitle("ix", 1);
       if ( ism >= 1 && ism <= 9 ) meg02_[ism-1]->setAxisTitle("101-ix", 1);
       meg02_[ism-1]->setAxisTitle("iy", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-      if ( meg03_[ism-1] ) dqmStore_->removeElement( meg03_[ism-1]->getName() );
-      name = "EELT laser quality L3 " + Numbers::sEE(ism);
+      dqmStore_->setCurrentFolder( prefixME_ + "/Laser/Laser3/Quality" );
+      if ( meg03_[ism-1] ) dqmStore_->removeElement( meg03_[ism-1]->getFullname() );
+      name = "LaserClient laser quality L3 " + Numbers::sEE(ism);
       meg03_[ism-1] = dqmStore_->book2D(name, name, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
       meg03_[ism-1]->setAxisTitle("ix", 1);
       if ( ism >= 1 && ism <= 9 ) meg03_[ism-1]->setAxisTitle("101-ix", 1);
       meg03_[ism-1]->setAxisTitle("iy", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-      if ( meg04_[ism-1] ) dqmStore_->removeElement( meg04_[ism-1]->getName() );
-      name = "EELT laser quality L4 " + Numbers::sEE(ism);
+      dqmStore_->setCurrentFolder( prefixME_ + "/Laser/Laser4/Quality" );
+      if ( meg04_[ism-1] ) dqmStore_->removeElement( meg04_[ism-1]->getFullname() );
+      name = "LaserClient laser quality L4 " + Numbers::sEE(ism);
       meg04_[ism-1] = dqmStore_->book2D(name, name, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
       meg04_[ism-1]->setAxisTitle("ix", 1);
       if ( ism >= 1 && ism <= 9 ) meg04_[ism-1]->setAxisTitle("101-ix", 1);
       meg04_[ism-1]->setAxisTitle("iy", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-      if ( meg05_[ism-1] ) dqmStore_->removeElement( meg05_[ism-1]->getName() );
-      name = "EELT laser quality L1 PNs G01 " + Numbers::sEE(ism);
+      dqmStore_->setCurrentFolder( prefixME_ + "/Laser/Laser1/PN/Gain01/Quality" );
+      if ( meg05_[ism-1] ) dqmStore_->removeElement( meg05_[ism-1]->getFullname() );
+      name = "LaserClient laser PN quality L1 G01 " + Numbers::sEE(ism);
       meg05_[ism-1] = dqmStore_->book2D(name, name, 10, 0., 10., 1, 0., 5.);
       meg05_[ism-1]->setAxisTitle("pseudo-strip", 1);
       meg05_[ism-1]->setAxisTitle("channel", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-      if ( meg06_[ism-1] ) dqmStore_->removeElement( meg06_[ism-1]->getName() );
-      name = "EELT laser quality L2 PNs G01 " + Numbers::sEE(ism);
+      dqmStore_->setCurrentFolder( prefixME_ + "/Laser/Laser2/PN/Gain01/Quality" );
+      if ( meg06_[ism-1] ) dqmStore_->removeElement( meg06_[ism-1]->getFullname() );
+      name = "LaserClient laser PN quality L2 G01 " + Numbers::sEE(ism);
       meg06_[ism-1] = dqmStore_->book2D(name, name, 10, 0., 10., 1, 0., 5.);
       meg06_[ism-1]->setAxisTitle("pseudo-strip", 1);
       meg06_[ism-1]->setAxisTitle("channel", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-      if ( meg07_[ism-1] ) dqmStore_->removeElement( meg07_[ism-1]->getName() );
-      name = "EELT laser quality L3 PNs G01 " + Numbers::sEE(ism);
+      dqmStore_->setCurrentFolder( prefixME_ + "/Laser/Laser3/PN/Gain01/Quality" );
+      if ( meg07_[ism-1] ) dqmStore_->removeElement( meg07_[ism-1]->getFullname() );
+      name = "LaserClient laser PN quality L3 G01 " + Numbers::sEE(ism);
       meg07_[ism-1] = dqmStore_->book2D(name, name, 10, 0., 10., 1, 0., 5.);
       meg07_[ism-1]->setAxisTitle("pseudo-strip", 1);
       meg07_[ism-1]->setAxisTitle("channel", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-      if ( meg08_[ism-1] ) dqmStore_->removeElement( meg08_[ism-1]->getName() );
-      name = "EELT laser quality L4 PNs G01 " + Numbers::sEE(ism);
+      dqmStore_->setCurrentFolder( prefixME_ + "/Laser/Laser4/PN/Gain01/Quality" );
+      if ( meg08_[ism-1] ) dqmStore_->removeElement( meg08_[ism-1]->getFullname() );
+      name = "LaserClient laser PN quality L4 G01 " + Numbers::sEE(ism);
       meg08_[ism-1] = dqmStore_->book2D(name, name, 10, 0., 10., 1, 0., 5.);
       meg08_[ism-1]->setAxisTitle("pseudo-strip", 1);
       meg08_[ism-1]->setAxisTitle("channel", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-      if ( meg09_[ism-1] ) dqmStore_->removeElement( meg09_[ism-1]->getName() );
-      name = "EELT laser quality L1 PNs G16 " + Numbers::sEE(ism);
+      dqmStore_->setCurrentFolder( prefixME_ + "/Laser/Laser1/PN/Gain16/Quality" );
+      if ( meg09_[ism-1] ) dqmStore_->removeElement( meg09_[ism-1]->getFullname() );
+      name = "LaserClient laser PN quality L1 G16 " + Numbers::sEE(ism);
       meg09_[ism-1] = dqmStore_->book2D(name, name, 10, 0., 10., 1, 0., 5.);
       meg09_[ism-1]->setAxisTitle("pseudo-strip", 1);
       meg09_[ism-1]->setAxisTitle("channel", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-      if ( meg10_[ism-1] ) dqmStore_->removeElement( meg10_[ism-1]->getName() );
-      name = "EELT laser quality L2 PNs G16 " + Numbers::sEE(ism);
+      dqmStore_->setCurrentFolder( prefixME_ + "/Laser/Laser2/PN/Gain16/Quality" );
+      if ( meg10_[ism-1] ) dqmStore_->removeElement( meg10_[ism-1]->getFullname() );
+      name = "LaserClient laser PN quality L2 G16 " + Numbers::sEE(ism);
       meg10_[ism-1] = dqmStore_->book2D(name, name, 10, 0., 10., 1, 0., 5.);
       meg10_[ism-1]->setAxisTitle("pseudo-strip", 1);
       meg10_[ism-1]->setAxisTitle("channel", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-      if ( meg11_[ism-1] ) dqmStore_->removeElement( meg11_[ism-1]->getName() );
-      name = "EELT laser quality L3 PNs G16 " + Numbers::sEE(ism);
+      dqmStore_->setCurrentFolder( prefixME_ + "/Laser/Laser3/PN/Gain16/Quality" );
+      if ( meg11_[ism-1] ) dqmStore_->removeElement( meg11_[ism-1]->getFullname() );
+      name = "LaserClient laser PN quality L3 G16 " + Numbers::sEE(ism);
       meg11_[ism-1] = dqmStore_->book2D(name, name, 10, 0., 10., 1, 0., 5.);
       meg11_[ism-1]->setAxisTitle("pseudo-strip", 1);
       meg11_[ism-1]->setAxisTitle("channel", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-      if ( meg12_[ism-1] ) dqmStore_->removeElement( meg12_[ism-1]->getName() );
-      name = "EELT laser quality L4 PNs G16 " + Numbers::sEE(ism);
+      dqmStore_->setCurrentFolder( prefixME_ + "/Laser/Laser4/PN/Gain16/Quality" );
+      if ( meg12_[ism-1] ) dqmStore_->removeElement( meg12_[ism-1]->getFullname() );
+      name = "LaserClient laser PN quality L4 G16 " + Numbers::sEE(ism);
       meg12_[ism-1] = dqmStore_->book2D(name, name, 10, 0., 10., 1, 0., 5.);
       meg12_[ism-1]->setAxisTitle("pseudo-strip", 1);
       meg12_[ism-1]->setAxisTitle("channel", 2);
     }
 
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-      if ( mea01_[ism-1] ) dqmStore_->removeElement( mea01_[ism-1]->getName() );;
-      name = "EELT amplitude L1 " + Numbers::sEE(ism);
-      mea01_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
-      mea01_[ism-1]->setAxisTitle("channel", 1);
-      mea01_[ism-1]->setAxisTitle("amplitude", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-      if ( mea02_[ism-1] ) dqmStore_->removeElement( mea02_[ism-1]->getName() );
-      name = "EELT amplitude L2 " + Numbers::sEE(ism);
-      mea02_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
-      mea02_[ism-1]->setAxisTitle("channel", 1);
-      mea02_[ism-1]->setAxisTitle("amplitude", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-      if ( mea03_[ism-1] ) dqmStore_->removeElement( mea03_[ism-1]->getName() );
-      name = "EELT amplitude L3 " + Numbers::sEE(ism);
-      mea03_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
-      mea03_[ism-1]->setAxisTitle("channel", 1);
-      mea03_[ism-1]->setAxisTitle("amplitude", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-      if ( mea04_[ism-1] ) dqmStore_->removeElement( mea04_[ism-1]->getName() );
-      name = "EELT amplitude L4 " + Numbers::sEE(ism);
-      mea04_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
-      mea04_[ism-1]->setAxisTitle("channel", 1);
-      mea04_[ism-1]->setAxisTitle("amplitude", 2);
-    }
+//     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
+//       if ( mea01_[ism-1] ) dqmStore_->removeElement( mea01_[ism-1]->getFullname() );;
+//       name = "LaserClient amplitude L1 " + Numbers::sEE(ism);
+//       mea01_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
+//       mea01_[ism-1]->setAxisTitle("channel", 1);
+//       mea01_[ism-1]->setAxisTitle("amplitude", 2);
+//     }
+//     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
+//       if ( mea02_[ism-1] ) dqmStore_->removeElement( mea02_[ism-1]->getFullname() );
+//       name = "LaserClient amplitude L2 " + Numbers::sEE(ism);
+//       mea02_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
+//       mea02_[ism-1]->setAxisTitle("channel", 1);
+//       mea02_[ism-1]->setAxisTitle("amplitude", 2);
+//     }
+//     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
+//       if ( mea03_[ism-1] ) dqmStore_->removeElement( mea03_[ism-1]->getFullname() );
+//       name = "LaserClient amplitude L3 " + Numbers::sEE(ism);
+//       mea03_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
+//       mea03_[ism-1]->setAxisTitle("channel", 1);
+//       mea03_[ism-1]->setAxisTitle("amplitude", 2);
+//     }
+//     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
+//       if ( mea04_[ism-1] ) dqmStore_->removeElement( mea04_[ism-1]->getFullname() );
+//       name = "LaserClient amplitude L4 " + Numbers::sEE(ism);
+//       mea04_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
+//       mea04_[ism-1]->setAxisTitle("channel", 1);
+//       mea04_[ism-1]->setAxisTitle("amplitude", 2);
+//     }
+
+//     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
+//       if ( met01_[ism-1] ) dqmStore_->removeElement( met01_[ism-1]->getFullname() );
+//       name = "LaserClient laser timing L1 " + Numbers::sEE(ism);
+//       met01_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
+//       met01_[ism-1]->setAxisTitle("channel", 1);
+//       met01_[ism-1]->setAxisTitle("jitter", 2);
+//     }
+//     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
+//       if ( met02_[ism-1] ) dqmStore_->removeElement( met02_[ism-1]->getFullname() );
+//       name = "LaserClient laser timing L2 " + Numbers::sEE(ism);
+//       met02_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
+//       met02_[ism-1]->setAxisTitle("channel", 1);
+//       met02_[ism-1]->setAxisTitle("jitter", 2);
+//     }
+//     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
+//       if ( met03_[ism-1] ) dqmStore_->removeElement( met03_[ism-1]->getFullname() );
+//       name = "LaserClient laser timing L3 " + Numbers::sEE(ism);
+//       met03_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
+//       met03_[ism-1]->setAxisTitle("channel", 1);
+//       met03_[ism-1]->setAxisTitle("jitter", 2);
+//     }
+//     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
+//       if ( met04_[ism-1] ) dqmStore_->removeElement( met04_[ism-1]->getFullname() );
+//       name = "LaserClient laser timing L4 " + Numbers::sEE(ism);
+//       met04_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
+//       met04_[ism-1]->setAxisTitle("channel", 1);
+//       met04_[ism-1]->setAxisTitle("jitter", 2);
+//     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-      if ( met01_[ism-1] ) dqmStore_->removeElement( met01_[ism-1]->getName() );
-      name = "EELT laser timing L1 " + Numbers::sEE(ism);
-      met01_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
-      met01_[ism-1]->setAxisTitle("channel", 1);
-      met01_[ism-1]->setAxisTitle("jitter", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-      if ( met02_[ism-1] ) dqmStore_->removeElement( met02_[ism-1]->getName() );
-      name = "EELT laser timing L2 " + Numbers::sEE(ism);
-      met02_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
-      met02_[ism-1]->setAxisTitle("channel", 1);
-      met02_[ism-1]->setAxisTitle("jitter", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-      if ( met03_[ism-1] ) dqmStore_->removeElement( met03_[ism-1]->getName() );
-      name = "EELT laser timing L3 " + Numbers::sEE(ism);
-      met03_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
-      met03_[ism-1]->setAxisTitle("channel", 1);
-      met03_[ism-1]->setAxisTitle("jitter", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-      if ( met04_[ism-1] ) dqmStore_->removeElement( met04_[ism-1]->getName() );
-      name = "EELT laser timing L4 " + Numbers::sEE(ism);
-      met04_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
-      met04_[ism-1]->setAxisTitle("channel", 1);
-      met04_[ism-1]->setAxisTitle("jitter", 2);
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-      if ( metav01_[ism-1] ) dqmStore_->removeElement( metav01_[ism-1]->getName() );
-      name = "EELT laser timing mean L1 " + Numbers::sEE(ism);
+      dqmStore_->setCurrentFolder( prefixME_ + "/Laser/Laser1/Timing1D" );
+      if ( metav01_[ism-1] ) dqmStore_->removeElement( metav01_[ism-1]->getFullname() );
+      name = "LaserClient laser timing mean L1 " + Numbers::sEE(ism);
       metav01_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       metav01_[ism-1]->setAxisTitle("mean", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-      if ( metav02_[ism-1] ) dqmStore_->removeElement( metav02_[ism-1]->getName() );
-      name = "EELT laser timing mean L2 " + Numbers::sEE(ism);
+      dqmStore_->setCurrentFolder( prefixME_ + "/Laser/Laser2/Timing1D" );
+      if ( metav02_[ism-1] ) dqmStore_->removeElement( metav02_[ism-1]->getFullname() );
+      name = "LaserClient laser timing mean L2 " + Numbers::sEE(ism);
       metav02_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       metav02_[ism-1]->setAxisTitle("mean", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-      if ( metav03_[ism-1] ) dqmStore_->removeElement( metav03_[ism-1]->getName() );
-      name = "EELT laser timing mean L3 " + Numbers::sEE(ism);
+      dqmStore_->setCurrentFolder( prefixME_ + "/Laser/Laser3/Timing1D" );
+      if ( metav03_[ism-1] ) dqmStore_->removeElement( metav03_[ism-1]->getFullname() );
+      name = "LaserClient laser timing mean L3 " + Numbers::sEE(ism);
       metav03_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       metav03_[ism-1]->setAxisTitle("mean", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-      if ( metav04_[ism-1] ) dqmStore_->removeElement( metav04_[ism-1]->getName() );
-      name = "EELT laser timing mean L4 " + Numbers::sEE(ism);
+      dqmStore_->setCurrentFolder( prefixME_ + "/Laser/Laser4/Timing1D" );
+      if ( metav04_[ism-1] ) dqmStore_->removeElement( metav04_[ism-1]->getFullname() );
+      name = "LaserClient laser timing mean L4 " + Numbers::sEE(ism);
       metav04_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       metav04_[ism-1]->setAxisTitle("mean", 1);
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-      if ( metrms01_[ism-1] ) dqmStore_->removeElement( metrms01_[ism-1]->getName() );
-      name = "EELT laser timing rms L1 " + Numbers::sEE(ism);
+      dqmStore_->setCurrentFolder( prefixME_ + "/Laser/Laser1/Timing1D" );
+      if ( metrms01_[ism-1] ) dqmStore_->removeElement( metrms01_[ism-1]->getFullname() );
+      name = "LaserClient laser timing rms L1 " + Numbers::sEE(ism);
       metrms01_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 0.5);
       metrms01_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-      if ( metrms02_[ism-1] ) dqmStore_->removeElement( metrms02_[ism-1]->getName() );
-      name = "EELT laser timing rms L2 " + Numbers::sEE(ism);
+      dqmStore_->setCurrentFolder( prefixME_ + "/Laser/Laser2/Timing1D" );
+      if ( metrms02_[ism-1] ) dqmStore_->removeElement( metrms02_[ism-1]->getFullname() );
+      name = "LaserClient laser timing rms L2 " + Numbers::sEE(ism);
       metrms02_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 0.5);
       metrms02_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-      if ( metrms03_[ism-1] ) dqmStore_->removeElement( metrms03_[ism-1]->getName() );
-      name = "EELT laser timing rms L3 " + Numbers::sEE(ism);
+      dqmStore_->setCurrentFolder( prefixME_ + "/Laser/Laser3/Timing1D" );
+      if ( metrms03_[ism-1] ) dqmStore_->removeElement( metrms03_[ism-1]->getFullname() );
+      name = "LaserClient laser timing rms L3 " + Numbers::sEE(ism);
       metrms03_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 0.5);
       metrms03_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-      if ( metrms04_[ism-1] ) dqmStore_->removeElement( metrms04_[ism-1]->getName() );
-      name = "EELT laser timing rms L4 " + Numbers::sEE(ism);
+      dqmStore_->setCurrentFolder( prefixME_ + "/Laser/Laser4/Timing1D" );
+      if ( metrms04_[ism-1] ) dqmStore_->removeElement( metrms04_[ism-1]->getFullname() );
+      name = "LaserClient laser timing rms L4 " + Numbers::sEE(ism);
       metrms04_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 0.5);
       metrms04_[ism-1]->setAxisTitle("rms", 1);
     }
 
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-      if ( meaopn01_[ism-1] ) dqmStore_->removeElement( meaopn01_[ism-1]->getName() );
-      name = "EELT amplitude over PN L1 " + Numbers::sEE(ism);
-      meaopn01_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
-      meaopn01_[ism-1]->setAxisTitle("channel", 1);
-      meaopn01_[ism-1]->setAxisTitle("amplitude/PN", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-      if ( meaopn02_[ism-1] ) dqmStore_->removeElement( meaopn02_[ism-1]->getName() );
-      name = "EELT amplitude over PN L2 " + Numbers::sEE(ism);
-      meaopn02_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
-      meaopn02_[ism-1]->setAxisTitle("channel", 1);
-      meaopn02_[ism-1]->setAxisTitle("amplitude/PN", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-      if ( meaopn03_[ism-1] ) dqmStore_->removeElement( meaopn03_[ism-1]->getName() );
-      name = "EELT amplitude over PN L3 " + Numbers::sEE(ism);
-      meaopn03_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
-      meaopn03_[ism-1]->setAxisTitle("channel", 1);
-      meaopn03_[ism-1]->setAxisTitle("amplitude/PN", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-      if ( meaopn04_[ism-1] ) dqmStore_->removeElement( meaopn04_[ism-1]->getName() );
-      name = "EELT amplitude over PN L4 " + Numbers::sEE(ism);
-      meaopn04_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
-      meaopn04_[ism-1]->setAxisTitle("channel", 1);
-      meaopn04_[ism-1]->setAxisTitle("amplitude/PN", 2);
-    }
+//     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
+//       if ( meaopn01_[ism-1] ) dqmStore_->removeElement( meaopn01_[ism-1]->getFullname() );
+//       name = "LaserClient amplitude over PN L1 " + Numbers::sEE(ism);
+//       meaopn01_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
+//       meaopn01_[ism-1]->setAxisTitle("channel", 1);
+//       meaopn01_[ism-1]->setAxisTitle("amplitude/PN", 2);
+//     }
+//     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
+//       if ( meaopn02_[ism-1] ) dqmStore_->removeElement( meaopn02_[ism-1]->getFullname() );
+//       name = "LaserClient amplitude over PN L2 " + Numbers::sEE(ism);
+//       meaopn02_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
+//       meaopn02_[ism-1]->setAxisTitle("channel", 1);
+//       meaopn02_[ism-1]->setAxisTitle("amplitude/PN", 2);
+//     }
+//     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
+//       if ( meaopn03_[ism-1] ) dqmStore_->removeElement( meaopn03_[ism-1]->getFullname() );
+//       name = "LaserClient amplitude over PN L3 " + Numbers::sEE(ism);
+//       meaopn03_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
+//       meaopn03_[ism-1]->setAxisTitle("channel", 1);
+//       meaopn03_[ism-1]->setAxisTitle("amplitude/PN", 2);
+//     }
+//     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
+//       if ( meaopn04_[ism-1] ) dqmStore_->removeElement( meaopn04_[ism-1]->getFullname() );
+//       name = "LaserClient amplitude over PN L4 " + Numbers::sEE(ism);
+//       meaopn04_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
+//       meaopn04_[ism-1]->setAxisTitle("channel", 1);
+//       meaopn04_[ism-1]->setAxisTitle("amplitude/PN", 2);
+//     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-      if ( mepnprms01_[ism-1] ) dqmStore_->removeElement( mepnprms01_[ism-1]->getName() );
-      name = "EELT PNs pedestal rms " + Numbers::sEE(ism) + " G01 L1";
+      dqmStore_->setCurrentFolder( prefixME_ + "/Laser/Laser1/PN/Gain01/Presample1D" );
+      if ( mepnprms01_[ism-1] ) dqmStore_->removeElement( mepnprms01_[ism-1]->getFullname() );
+      name = "LaserClient PN presample rms L1 G01 " + Numbers::sEE(ism);
       mepnprms01_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       mepnprms01_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-      if ( mepnprms02_[ism-1] ) dqmStore_->removeElement( mepnprms02_[ism-1]->getName() );
-      name = "EELT PNs pedestal rms " + Numbers::sEE(ism) + " G01 L2";
+      dqmStore_->setCurrentFolder( prefixME_ + "/Laser/Laser2/PN/Gain01/Presample1D" );
+      if ( mepnprms02_[ism-1] ) dqmStore_->removeElement( mepnprms02_[ism-1]->getFullname() );
+      name = "LaserClient PN presample rms L2 G01 " + Numbers::sEE(ism);
       mepnprms02_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       mepnprms02_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-      if ( mepnprms03_[ism-1] ) dqmStore_->removeElement( mepnprms03_[ism-1]->getName() );
-      name = "EELT PNs pedestal rms " + Numbers::sEE(ism) + " G01 L3";
+      dqmStore_->setCurrentFolder( prefixME_ + "/Laser/Laser3/PN/Gain01/Presample1D" );
+      if ( mepnprms03_[ism-1] ) dqmStore_->removeElement( mepnprms03_[ism-1]->getFullname() );
+      name = "LaserClient PN presample rms L3 G01 " + Numbers::sEE(ism);
       mepnprms03_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       mepnprms03_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-      if ( mepnprms04_[ism-1] ) dqmStore_->removeElement( mepnprms04_[ism-1]->getName() );
-      name = "EELT PNs pedestal rms " + Numbers::sEE(ism) + " G01 L4";
+      dqmStore_->setCurrentFolder( prefixME_ + "/Laser/Laser4/PN/Gain01/Presample1D" );
+      if ( mepnprms04_[ism-1] ) dqmStore_->removeElement( mepnprms04_[ism-1]->getFullname() );
+      name = "LaserClient PN presample rms L4 G01 " + Numbers::sEE(ism);
       mepnprms04_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       mepnprms04_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-      if ( mepnprms05_[ism-1] ) dqmStore_->removeElement( mepnprms05_[ism-1]->getName() );
-      name = "EELT PNs pedestal rms " + Numbers::sEE(ism) + " G16 L1";
+      dqmStore_->setCurrentFolder( prefixME_ + "/Laser/Laser1/PN/Gain16/Presample1D" );
+      if ( mepnprms05_[ism-1] ) dqmStore_->removeElement( mepnprms05_[ism-1]->getFullname() );
+      name = "LaserClient PN presample rms L1 G16 " + Numbers::sEE(ism);
       mepnprms05_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       mepnprms05_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-      if ( mepnprms06_[ism-1] ) dqmStore_->removeElement( mepnprms06_[ism-1]->getName() );
-      name = "EELT PNs pedestal rms " + Numbers::sEE(ism) + " G16 L2";
+      dqmStore_->setCurrentFolder( prefixME_ + "/Laser/Laser2/PN/Gain16/Presample1D" );
+      if ( mepnprms06_[ism-1] ) dqmStore_->removeElement( mepnprms06_[ism-1]->getFullname() );
+      name = "LaserClient PN presample rms L2 G16 " + Numbers::sEE(ism);
       mepnprms06_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       mepnprms06_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-      if ( mepnprms07_[ism-1] ) dqmStore_->removeElement( mepnprms07_[ism-1]->getName() );
-      name = "EELT PNs pedestal rms " + Numbers::sEE(ism) + " G16 L3";
+      dqmStore_->setCurrentFolder( prefixME_ + "/Laser/Laser3/PN/Gain16/Presample1D" );
+      if ( mepnprms07_[ism-1] ) dqmStore_->removeElement( mepnprms07_[ism-1]->getFullname() );
+      name = "LaserClient PN presample rms L3 G16 " + Numbers::sEE(ism);
       mepnprms07_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       mepnprms07_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-      if ( mepnprms08_[ism-1] ) dqmStore_->removeElement( mepnprms08_[ism-1]->getName() );
-      name = "EELT PNs pedestal rms " + Numbers::sEE(ism) + " G16 L4";
+      dqmStore_->setCurrentFolder( prefixME_ + "/Laser/Laser4/PN/Gain16/Presample1D" );
+      if ( mepnprms08_[ism-1] ) dqmStore_->removeElement( mepnprms08_[ism-1]->getFullname() );
+      name = "LaserClient PN presample rms L4 G16 " + Numbers::sEE(ism);
       mepnprms08_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       mepnprms08_[ism-1]->setAxisTitle("rms", 1);
     }
 
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-      if ( me_hs01_[ism-1] ) dqmStore_->removeElement( me_hs01_[ism-1]->getName() );
-      name = "EELT laser shape L1 " + Numbers::sEE(ism);
-      me_hs01_[ism-1] = dqmStore_->book1D(name, name, 10, 0., 10.);
-      me_hs01_[ism-1]->setAxisTitle("sample", 1);
-      me_hs01_[ism-1]->setAxisTitle("amplitude", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-      if ( me_hs02_[ism-1] ) dqmStore_->removeElement( me_hs02_[ism-1]->getName() );
-      name = "EELT laser shape L2 " + Numbers::sEE(ism);
-      me_hs02_[ism-1] = dqmStore_->book1D(name, name, 10, 0., 10.);
-      me_hs02_[ism-1]->setAxisTitle("sample", 1);
-      me_hs02_[ism-1]->setAxisTitle("amplitude", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-      if ( me_hs03_[ism-1] ) dqmStore_->removeElement( me_hs03_[ism-1]->getName() );
-      name = "EELT laser shape L3 " + Numbers::sEE(ism);
-      me_hs03_[ism-1] = dqmStore_->book1D(name, name, 10, 0., 10.);
-      me_hs03_[ism-1]->setAxisTitle("sample", 1);
-      me_hs03_[ism-1]->setAxisTitle("amplitude", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-      if ( me_hs04_[ism-1] ) dqmStore_->removeElement( me_hs04_[ism-1]->getName() );
-      name = "EELT laser shape L4 " + Numbers::sEE(ism);
-      me_hs04_[ism-1] = dqmStore_->book1D(name, name, 10, 0., 10.);
-      me_hs04_[ism-1]->setAxisTitle("sample", 1);
-      me_hs04_[ism-1]->setAxisTitle("amplitude", 2);
-    }
+//     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
+//       if ( me_hs01_[ism-1] ) dqmStore_->removeElement( me_hs01_[ism-1]->getFullname() );
+//       name = "LaserClient laser shape L1 " + Numbers::sEE(ism);
+//       me_hs01_[ism-1] = dqmStore_->book1D(name, name, 10, 0., 10.);
+//       me_hs01_[ism-1]->setAxisTitle("sample", 1);
+//       me_hs01_[ism-1]->setAxisTitle("amplitude", 2);
+//     }
+//     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
+//       if ( me_hs02_[ism-1] ) dqmStore_->removeElement( me_hs02_[ism-1]->getFullname() );
+//       name = "LaserClient laser shape L2 " + Numbers::sEE(ism);
+//       me_hs02_[ism-1] = dqmStore_->book1D(name, name, 10, 0., 10.);
+//       me_hs02_[ism-1]->setAxisTitle("sample", 1);
+//       me_hs02_[ism-1]->setAxisTitle("amplitude", 2);
+//     }
+//     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
+//       if ( me_hs03_[ism-1] ) dqmStore_->removeElement( me_hs03_[ism-1]->getFullname() );
+//       name = "LaserClient laser shape L3 " + Numbers::sEE(ism);
+//       me_hs03_[ism-1] = dqmStore_->book1D(name, name, 10, 0., 10.);
+//       me_hs03_[ism-1]->setAxisTitle("sample", 1);
+//       me_hs03_[ism-1]->setAxisTitle("amplitude", 2);
+//     }
+//     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
+//       if ( me_hs04_[ism-1] ) dqmStore_->removeElement( me_hs04_[ism-1]->getFullname() );
+//       name = "LaserClient laser shape L4 " + Numbers::sEE(ism);
+//       me_hs04_[ism-1] = dqmStore_->book1D(name, name, 10, 0., 10.);
+//       me_hs04_[ism-1]->setAxisTitle("sample", 1);
+//       me_hs04_[ism-1]->setAxisTitle("amplitude", 2);
+//     }
 
   }
 
@@ -763,101 +795,101 @@ void EELaserClient::cleanup(void) {
 
     dqmStore_->setCurrentFolder( prefixME_ + "/EELaserClient" );
 
-    if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
+    if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getFullname() );
     meg01_[ism-1] = 0;
-    if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getName() );
+    if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getFullname() );
     meg02_[ism-1] = 0;
-    if ( meg03_[ism-1] ) dqmStore_->removeElement( meg03_[ism-1]->getName() );
+    if ( meg03_[ism-1] ) dqmStore_->removeElement( meg03_[ism-1]->getFullname() );
     meg03_[ism-1] = 0;
-    if ( meg04_[ism-1] ) dqmStore_->removeElement( meg04_[ism-1]->getName() );
+    if ( meg04_[ism-1] ) dqmStore_->removeElement( meg04_[ism-1]->getFullname() );
     meg04_[ism-1] = 0;
 
-    if ( meg05_[ism-1] ) dqmStore_->removeElement( meg05_[ism-1]->getName() );
+    if ( meg05_[ism-1] ) dqmStore_->removeElement( meg05_[ism-1]->getFullname() );
     meg05_[ism-1] = 0;
-    if ( meg06_[ism-1] ) dqmStore_->removeElement( meg06_[ism-1]->getName() );
+    if ( meg06_[ism-1] ) dqmStore_->removeElement( meg06_[ism-1]->getFullname() );
     meg06_[ism-1] = 0;
-    if ( meg07_[ism-1] ) dqmStore_->removeElement( meg07_[ism-1]->getName() );
+    if ( meg07_[ism-1] ) dqmStore_->removeElement( meg07_[ism-1]->getFullname() );
     meg07_[ism-1] = 0;
-    if ( meg08_[ism-1] ) dqmStore_->removeElement( meg08_[ism-1]->getName() );
+    if ( meg08_[ism-1] ) dqmStore_->removeElement( meg08_[ism-1]->getFullname() );
     meg08_[ism-1] = 0;
-    if ( meg09_[ism-1] ) dqmStore_->removeElement( meg09_[ism-1]->getName() );
+    if ( meg09_[ism-1] ) dqmStore_->removeElement( meg09_[ism-1]->getFullname() );
     meg09_[ism-1] = 0;
-    if ( meg10_[ism-1] ) dqmStore_->removeElement( meg10_[ism-1]->getName() );
+    if ( meg10_[ism-1] ) dqmStore_->removeElement( meg10_[ism-1]->getFullname() );
     meg10_[ism-1] = 0;
-    if ( meg11_[ism-1] ) dqmStore_->removeElement( meg11_[ism-1]->getName() );
+    if ( meg11_[ism-1] ) dqmStore_->removeElement( meg11_[ism-1]->getFullname() );
     meg11_[ism-1] = 0;
-    if ( meg12_[ism-1] ) dqmStore_->removeElement( meg12_[ism-1]->getName() );
+    if ( meg12_[ism-1] ) dqmStore_->removeElement( meg12_[ism-1]->getFullname() );
     meg12_[ism-1] = 0;
 
-    if ( mea01_[ism-1] ) dqmStore_->removeElement( mea01_[ism-1]->getName() );
+    if ( mea01_[ism-1] ) dqmStore_->removeElement( mea01_[ism-1]->getFullname() );
     mea01_[ism-1] = 0;
-    if ( mea02_[ism-1] ) dqmStore_->removeElement( mea02_[ism-1]->getName() );
+    if ( mea02_[ism-1] ) dqmStore_->removeElement( mea02_[ism-1]->getFullname() );
     mea02_[ism-1] = 0;
-    if ( mea03_[ism-1] ) dqmStore_->removeElement( mea03_[ism-1]->getName() );
+    if ( mea03_[ism-1] ) dqmStore_->removeElement( mea03_[ism-1]->getFullname() );
     mea03_[ism-1] = 0;
-    if ( mea04_[ism-1] ) dqmStore_->removeElement( mea04_[ism-1]->getName() );
+    if ( mea04_[ism-1] ) dqmStore_->removeElement( mea04_[ism-1]->getFullname() );
     mea04_[ism-1] = 0;
 
-    if ( met01_[ism-1] ) dqmStore_->removeElement( met01_[ism-1]->getName() );
+    if ( met01_[ism-1] ) dqmStore_->removeElement( met01_[ism-1]->getFullname() );
     met01_[ism-1] = 0;
-    if ( met02_[ism-1] ) dqmStore_->removeElement( met02_[ism-1]->getName() );
+    if ( met02_[ism-1] ) dqmStore_->removeElement( met02_[ism-1]->getFullname() );
     met02_[ism-1] = 0;
-    if ( met03_[ism-1] ) dqmStore_->removeElement( met03_[ism-1]->getName() );
+    if ( met03_[ism-1] ) dqmStore_->removeElement( met03_[ism-1]->getFullname() );
     met03_[ism-1] = 0;
-    if ( met04_[ism-1] ) dqmStore_->removeElement( met04_[ism-1]->getName() );
+    if ( met04_[ism-1] ) dqmStore_->removeElement( met04_[ism-1]->getFullname() );
     met04_[ism-1] = 0;
 
-    if ( metav01_[ism-1] ) dqmStore_->removeElement( metav01_[ism-1]->getName() );
+    if ( metav01_[ism-1] ) dqmStore_->removeElement( metav01_[ism-1]->getFullname() );
     metav01_[ism-1] = 0;
-    if ( metav02_[ism-1] ) dqmStore_->removeElement( metav02_[ism-1]->getName() );
+    if ( metav02_[ism-1] ) dqmStore_->removeElement( metav02_[ism-1]->getFullname() );
     metav02_[ism-1] = 0;
-    if ( metav03_[ism-1] ) dqmStore_->removeElement( metav03_[ism-1]->getName() );
+    if ( metav03_[ism-1] ) dqmStore_->removeElement( metav03_[ism-1]->getFullname() );
     metav03_[ism-1] = 0;
-    if ( metav04_[ism-1] ) dqmStore_->removeElement( metav04_[ism-1]->getName() );
+    if ( metav04_[ism-1] ) dqmStore_->removeElement( metav04_[ism-1]->getFullname() );
     metav04_[ism-1] = 0;
 
-    if ( metrms01_[ism-1] ) dqmStore_->removeElement( metrms01_[ism-1]->getName() );
+    if ( metrms01_[ism-1] ) dqmStore_->removeElement( metrms01_[ism-1]->getFullname() );
     metrms01_[ism-1] = 0;
-    if ( metrms02_[ism-1] ) dqmStore_->removeElement( metrms02_[ism-1]->getName() );
+    if ( metrms02_[ism-1] ) dqmStore_->removeElement( metrms02_[ism-1]->getFullname() );
     metrms02_[ism-1] = 0;
-    if ( metrms03_[ism-1] ) dqmStore_->removeElement( metrms03_[ism-1]->getName() );
+    if ( metrms03_[ism-1] ) dqmStore_->removeElement( metrms03_[ism-1]->getFullname() );
     metrms03_[ism-1] = 0;
-    if ( metrms04_[ism-1] ) dqmStore_->removeElement( metrms04_[ism-1]->getName() );
+    if ( metrms04_[ism-1] ) dqmStore_->removeElement( metrms04_[ism-1]->getFullname() );
     metrms04_[ism-1] = 0;
 
-    if ( meaopn01_[ism-1] ) dqmStore_->removeElement( meaopn01_[ism-1]->getName() );
+    if ( meaopn01_[ism-1] ) dqmStore_->removeElement( meaopn01_[ism-1]->getFullname() );
     meaopn01_[ism-1] = 0;
-    if ( meaopn02_[ism-1] ) dqmStore_->removeElement( meaopn02_[ism-1]->getName() );
+    if ( meaopn02_[ism-1] ) dqmStore_->removeElement( meaopn02_[ism-1]->getFullname() );
     meaopn02_[ism-1] = 0;
-    if ( meaopn03_[ism-1] ) dqmStore_->removeElement( meaopn03_[ism-1]->getName() );
+    if ( meaopn03_[ism-1] ) dqmStore_->removeElement( meaopn03_[ism-1]->getFullname() );
     meaopn03_[ism-1] = 0;
-    if ( meaopn04_[ism-1] ) dqmStore_->removeElement( meaopn04_[ism-1]->getName() );
+    if ( meaopn04_[ism-1] ) dqmStore_->removeElement( meaopn04_[ism-1]->getFullname() );
     meaopn04_[ism-1] = 0;
 
-    if ( mepnprms01_[ism-1] ) dqmStore_->removeElement( mepnprms01_[ism-1]->getName() );
+    if ( mepnprms01_[ism-1] ) dqmStore_->removeElement( mepnprms01_[ism-1]->getFullname() );
     mepnprms01_[ism-1] = 0;
-    if ( mepnprms02_[ism-1] ) dqmStore_->removeElement( mepnprms02_[ism-1]->getName() );
+    if ( mepnprms02_[ism-1] ) dqmStore_->removeElement( mepnprms02_[ism-1]->getFullname() );
     mepnprms02_[ism-1] = 0;
-    if ( mepnprms03_[ism-1] ) dqmStore_->removeElement( mepnprms03_[ism-1]->getName() );
+    if ( mepnprms03_[ism-1] ) dqmStore_->removeElement( mepnprms03_[ism-1]->getFullname() );
     mepnprms03_[ism-1] = 0;
-    if ( mepnprms04_[ism-1] ) dqmStore_->removeElement( mepnprms04_[ism-1]->getName() );
+    if ( mepnprms04_[ism-1] ) dqmStore_->removeElement( mepnprms04_[ism-1]->getFullname() );
     mepnprms04_[ism-1] = 0;
-    if ( mepnprms05_[ism-1] ) dqmStore_->removeElement( mepnprms05_[ism-1]->getName() );
+    if ( mepnprms05_[ism-1] ) dqmStore_->removeElement( mepnprms05_[ism-1]->getFullname() );
     mepnprms05_[ism-1] = 0;
-    if ( mepnprms06_[ism-1] ) dqmStore_->removeElement( mepnprms06_[ism-1]->getName() );
+    if ( mepnprms06_[ism-1] ) dqmStore_->removeElement( mepnprms06_[ism-1]->getFullname() );
     mepnprms06_[ism-1] = 0;
-    if ( mepnprms07_[ism-1] ) dqmStore_->removeElement( mepnprms07_[ism-1]->getName() );
+    if ( mepnprms07_[ism-1] ) dqmStore_->removeElement( mepnprms07_[ism-1]->getFullname() );
     mepnprms07_[ism-1] = 0;
-    if ( mepnprms08_[ism-1] ) dqmStore_->removeElement( mepnprms08_[ism-1]->getName() );
+    if ( mepnprms08_[ism-1] ) dqmStore_->removeElement( mepnprms08_[ism-1]->getFullname() );
     mepnprms08_[ism-1] = 0;
 
-    if ( me_hs01_[ism-1] ) dqmStore_->removeElement( me_hs01_[ism-1]->getName() );
+    if ( me_hs01_[ism-1] ) dqmStore_->removeElement( me_hs01_[ism-1]->getFullname() );
     me_hs01_[ism-1] = 0;
-    if ( me_hs02_[ism-1] ) dqmStore_->removeElement( me_hs02_[ism-1]->getName() );
+    if ( me_hs02_[ism-1] ) dqmStore_->removeElement( me_hs02_[ism-1]->getFullname() );
     me_hs02_[ism-1] = 0;
-    if ( me_hs03_[ism-1] ) dqmStore_->removeElement( me_hs03_[ism-1]->getName() );
+    if ( me_hs03_[ism-1] ) dqmStore_->removeElement( me_hs03_[ism-1]->getFullname() );
     me_hs03_[ism-1] = 0;
-    if ( me_hs04_[ism-1] ) dqmStore_->removeElement( me_hs04_[ism-1]->getName() );
+    if ( me_hs04_[ism-1] ) dqmStore_->removeElement( me_hs04_[ism-1]->getFullname() );
     me_hs04_[ism-1] = 0;
 
   }
@@ -1614,208 +1646,208 @@ void EELaserClient::analyze(void) {
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser1/EELT amplitude " + Numbers::sEE(ism) + " L1" );
+      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser1/Amplitude/LaserTask amplitude L1 " + Numbers::sEE(ism) );
       h01_[ism-1] = UtilsClient::getHisto( me, cloneME_, h01_[ism-1] );
 
-      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser1/EELT amplitude over PN " + Numbers::sEE(ism) + " L1" );
+      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser1/AOverP/LaserTask APD over PN L1 " + Numbers::sEE(ism) );
       h02_[ism-1] = UtilsClient::getHisto( me, cloneME_, h02_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser2/EELT amplitude " + Numbers::sEE(ism) + " L2" );
+      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser2/Amplitude/LaserTask amplitude L2 " + Numbers::sEE(ism) );
       h03_[ism-1] = UtilsClient::getHisto( me, cloneME_, h03_[ism-1] );
 
-      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser2/EELT amplitude over PN " + Numbers::sEE(ism) + " L2" );
+      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser2/AOverP/LaserTask APD over PN L2 " + Numbers::sEE(ism) );
       h04_[ism-1] = UtilsClient::getHisto( me, cloneME_, h04_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser3/EELT amplitude " + Numbers::sEE(ism) + " L3" );
+      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser3/Amplitude/LaserTask amplitude L3 " + Numbers::sEE(ism) );
       h05_[ism-1] = UtilsClient::getHisto( me, cloneME_, h05_[ism-1] );
 
-      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser3/EELT amplitude over PN " + Numbers::sEE(ism) + " L3" );
+      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser3/AOverP/LaserTask APD over PN L3 " + Numbers::sEE(ism) );
       h06_[ism-1] = UtilsClient::getHisto( me, cloneME_, h06_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser4/EELT amplitude " + Numbers::sEE(ism) + " L4" );
+      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser4/Amplitude/LaserTask amplitude L4 " + Numbers::sEE(ism) );
       h07_[ism-1] = UtilsClient::getHisto( me, cloneME_, h07_[ism-1] );
 
-      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser4/EELT amplitude over PN " + Numbers::sEE(ism) + " L4" );
+      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser4/AOverP/LaserTask APD over PN L4 " + Numbers::sEE(ism) );
       h08_[ism-1] = UtilsClient::getHisto( me, cloneME_, h08_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser1/EELT timing " + Numbers::sEE(ism) + " L1" );
+      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser1/Timing/LaserTask timing L1 " + Numbers::sEE(ism) );
       h09_[ism-1] = UtilsClient::getHisto( me, cloneME_, h09_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser2/EELT timing " + Numbers::sEE(ism) + " L2" );
+      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser2/Timing/LaserTask timing L2 " + Numbers::sEE(ism) );
       h10_[ism-1] = UtilsClient::getHisto( me, cloneME_, h10_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser3/EELT timing " + Numbers::sEE(ism) + " L3" );
+      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser3/Timing/LaserTask timing L3 " + Numbers::sEE(ism) );
       h11_[ism-1] = UtilsClient::getHisto( me, cloneME_, h11_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser4/EELT timing " + Numbers::sEE(ism) + " L4" );
+      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser4/Timing/LaserTask timing L4 " + Numbers::sEE(ism) );
       h12_[ism-1] = UtilsClient::getHisto( me, cloneME_, h12_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser1/EELT shape " + Numbers::sEE(ism) + " L1" );
+      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser1/Shape/LaserTask shape L1 " + Numbers::sEE(ism) );
       hs01_[ism-1] = UtilsClient::getHisto( me, cloneME_, hs01_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser2/EELT shape " + Numbers::sEE(ism) + " L2" );
+      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser2/Shape/LaserTask shape L2 " + Numbers::sEE(ism) );
       hs02_[ism-1] = UtilsClient::getHisto( me, cloneME_, hs02_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser3/EELT shape " + Numbers::sEE(ism) + " L3" );
+      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser3/Shape/LaserTask shape L3 " + Numbers::sEE(ism) );
       hs03_[ism-1] = UtilsClient::getHisto( me, cloneME_, hs03_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser4/EELT shape " + Numbers::sEE(ism) + " L4" );
+      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser4/Shape/LaserTask shape L4 " + Numbers::sEE(ism) );
       hs04_[ism-1] = UtilsClient::getHisto( me, cloneME_, hs04_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser1/PN/Gain01/EELT PNs amplitude " + Numbers::sEE(ism) + " G01 L1" );
+      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser1/PN/Gain01/Amplitude/LaserTask PN amplitude L1 G01 " + Numbers::sEE(ism) );
       i01_[ism-1] = UtilsClient::getHisto( me, cloneME_, i01_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser2/PN/Gain01/EELT PNs amplitude " + Numbers::sEE(ism) + " G01 L2" );
+      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser2/PN/Gain01/Amplitude/LaserTask PN amplitude L2 G01 " + Numbers::sEE(ism) );
       i02_[ism-1] = UtilsClient::getHisto( me, cloneME_, i02_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser3/PN/Gain01/EELT PNs amplitude " + Numbers::sEE(ism) + " G01 L3" );
+      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser3/PN/Gain01/Amplitude/LaserTask PN amplitude L3 G01 " + Numbers::sEE(ism) );
       i03_[ism-1] = UtilsClient::getHisto( me, cloneME_, i03_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser4/PN/Gain01/EELT PNs amplitude " + Numbers::sEE(ism) + " G01 L4" );
+      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser4/PN/Gain01/Amplitude/LaserTask PN amplitude L4 G01 " + Numbers::sEE(ism) );
       i04_[ism-1] = UtilsClient::getHisto( me, cloneME_, i04_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser1/PN/Gain01/EELT PNs pedestal " + Numbers::sEE(ism) + " G01 L1" );
+      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser1/PN/Gain01/Presample/LaserTask PN presample L1 G01 " + Numbers::sEE(ism) );
       i05_[ism-1] = UtilsClient::getHisto( me, cloneME_, i05_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser2/PN/Gain01/EELT PNs pedestal " + Numbers::sEE(ism) + " G01 L2" );
+      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser2/PN/Gain01/Presample/LaserTask PN presample L2 G01 " + Numbers::sEE(ism) );
       i06_[ism-1] = UtilsClient::getHisto( me, cloneME_, i06_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser3/PN/Gain01/EELT PNs pedestal " + Numbers::sEE(ism) + " G01 L3" );
+      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser3/PN/Gain01/Presample/LaserTask PN presample L3 G01 " + Numbers::sEE(ism) );
       i07_[ism-1] = UtilsClient::getHisto( me, cloneME_, i07_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser4/PN/Gain01/EELT PNs pedestal " + Numbers::sEE(ism) + " G01 L4" );
+      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser4/PN/Gain01/Presample/LaserTask PN presample L4 G01 " + Numbers::sEE(ism) );
       i08_[ism-1] = UtilsClient::getHisto( me, cloneME_, i08_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser1/PN/Gain16/EELT PNs amplitude " + Numbers::sEE(ism) + " G16 L1" );
+      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser1/PN/Gain16/Amplitude/LaserTask PN amplitude L1 G16 " + Numbers::sEE(ism) );
       i09_[ism-1] = UtilsClient::getHisto( me, cloneME_, i09_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser2/PN/Gain16/EELT PNs amplitude " + Numbers::sEE(ism) + " G16 L2" );
+      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser2/PN/Gain16/Amplitude/LaserTask PN amplitude L2 G16 " + Numbers::sEE(ism) );
       i10_[ism-1] = UtilsClient::getHisto( me, cloneME_, i10_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser3/PN/Gain16/EELT PNs amplitude " + Numbers::sEE(ism) + " G16 L3" );
+      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser3/PN/Gain16/Amplitude/LaserTask PN amplitude L3 G16 " + Numbers::sEE(ism) );
       i11_[ism-1] = UtilsClient::getHisto( me, cloneME_, i11_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser4/PN/Gain16/EELT PNs amplitude " + Numbers::sEE(ism) + " G16 L4" );
+      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser4/PN/Gain16/Amplitude/LaserTask PN amplitude L4 G16 " + Numbers::sEE(ism) );
       i12_[ism-1] = UtilsClient::getHisto( me, cloneME_, i12_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser1/PN/Gain16/EELT PNs pedestal " + Numbers::sEE(ism) + " G16 L1" );
+      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser1/PN/Gain16/Presample/LaserTask PN presample L1 G16 " + Numbers::sEE(ism) );
       i13_[ism-1] = UtilsClient::getHisto( me, cloneME_, i13_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser2/PN/Gain16/EELT PNs pedestal " + Numbers::sEE(ism) + " G16 L2" );
+      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser2/PN/Gain16/Presample/LaserTask PN presample L2 G16 " + Numbers::sEE(ism) );
       i14_[ism-1] = UtilsClient::getHisto( me, cloneME_, i14_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser3/PN/Gain16/EELT PNs pedestal " + Numbers::sEE(ism) + " G16 L3" );
+      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser3/PN/Gain16/Presample/LaserTask PN presample L3 G16 " + Numbers::sEE(ism) );
       i15_[ism-1] = UtilsClient::getHisto( me, cloneME_, i15_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
 
-      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser4/PN/Gain16/EELT PNs pedestal " + Numbers::sEE(ism) + " G16 L4" );
+      me = dqmStore_->get( prefixME_ + "/EELaserTask/Laser4/PN/Gain16/Presample/LaserTask PN presample L4 G16 " + Numbers::sEE(ism) );
       i16_[ism-1] = UtilsClient::getHisto( me, cloneME_, i16_[ism-1] );
 
     }

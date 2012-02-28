@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 ecalEndcapPedestalTask = cms.EDAnalyzer("EEPedestalTask",
-    prefixME = cms.untracked.string('EcalEndcap'),
+    prefixME = cms.untracked.string('EcalCalibration'),
     mergeRuns = cms.untracked.bool(False),    
     enableCleanup = cms.untracked.bool(False),
     EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),

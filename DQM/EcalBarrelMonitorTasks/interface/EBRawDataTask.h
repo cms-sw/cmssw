@@ -4,8 +4,8 @@
 /*
  * \file EBRawDataTask.h
  *
- * $Date: 2010/08/06 17:35:40 $
- * $Revision: 1.8 $
+ * $Date: 2011/11/01 20:44:54 $
+ * $Revision: 1.9 $
  * \author E. Di Marco
  *
 */
@@ -75,6 +75,7 @@ edm::InputTag FEDRawDataCollection_;
 edm::InputTag EcalRawDataCollection_;
 
 MonitorElement* meEBCRCErrors_;
+MonitorElement* meEBEventType_;
 MonitorElement* meEBEventTypePreCalibrationBX_;
 MonitorElement* meEBEventTypeCalibrationBX_;
 MonitorElement* meEBEventTypePostCalibrationBX_;
@@ -84,7 +85,7 @@ MonitorElement* meEBTriggerTypeErrors_;
 MonitorElement* meEBCalibrationEventErrors_;
 MonitorElement* meEBL1ADCCErrors_;
 MonitorElement* meEBBunchCrossingDCCErrors_;
-// temporal measure to avoid dead link in EE layout (map will be for EE+ & EE-) -> remove 1D error histo once transition is done
+// temporary measure to avoid dead link in EE layout (map will be for EE+ & EE-) -> remove 1D error histo once transition is done
 MonitorElement* meEBL1AFEErrors_;
 MonitorElement* meEBL1AFEErrorsMap_;
 MonitorElement* meEBBunchCrossingFEErrors_;
@@ -94,6 +95,8 @@ MonitorElement* meEBL1ASRPErrors_;
 MonitorElement* meEBBunchCrossingSRPErrors_;
 
 MonitorElement* meEBSynchronizationErrorsByLumi_;
+
+MonitorElement* meEvtType_[36];
 
 bool init_;
 
