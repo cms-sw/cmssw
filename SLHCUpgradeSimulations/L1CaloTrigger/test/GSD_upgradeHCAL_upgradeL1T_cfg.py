@@ -19,12 +19,12 @@ process.options = cms.untracked.PSet( Rethrow = cms.untracked.vstring('ProductNo
 ### ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ###
 #   detector configuration
 ### ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ###
-process.load('SLHCUpgradeSimulations.Geometry.Phase1_R39F16_HCal_cmsSimIdealGeometryXML_cff')
+process.load('SLHCUpgradeSimulations.Geometry.Phase1_R30F12_HCal_cmsSimIdealGeometryXML_cff')
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 #process.load("Configuration.StandardSequences.FakeConditions_cff")
-process.GlobalTag.globaltag = 'DESIGN42_V11::All'
-process.load("SLHCUpgradeSimulations.Geometry.fakeConditions_Phase1_R39F16_cff")
+process.GlobalTag.globaltag = 'DESIGN42_V17::All'
+process.load("SLHCUpgradeSimulations.Geometry.fakeConditions_Phase1_R30F12_cff")
 
 
 
@@ -44,9 +44,9 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("Configuration.StandardSequences.Sim_cff")
 
 #process.load("Configuration.StandardSequences.Digi_cff")
-process.load('SLHCUpgradeSimulations.Geometry.Digi_Phase1_R39F16_HCal_cff')
+process.load('SLHCUpgradeSimulations.Geometry.Digi_Phase1_R30F12_HCal_cff')
 
-process.load('SLHCUpgradeSimulations.Configuration.mixLowLumPU_Phase1_R39F16_HCal_cff')
+process.load('SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R30F12_HCal_cff')
 process.mix.input.nbPileupEvents = cms.PSet(
             averageNumber = cms.double(0.0)
 )
@@ -62,7 +62,7 @@ process.source = cms.Source("EmptySource")
 process.generator = cms.EDProducer(
     "FlatRandomEGunProducer",
     PGunParameters = cms.PSet(
-        PartID = cms.vint32(11), # 11=e-, -211=pi-
+        PartID = cms.vint32(13, 211, 15, 11, 22),
 
         MinEta = cms.double(-2.0), ## in radians
         MaxEta = cms.double(2.0), ## in radians
