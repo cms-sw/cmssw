@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_1_0/GRun/V113 (CMSSW_5_2_0_pre5_HLT9)
+# /dev/CMSSW_5_1_0/GRun/V114 (CMSSW_5_2_0_pre5_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V113')
+  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V114')
 )
 
 process.streams = cms.PSet( 
@@ -26982,7 +26982,7 @@ process.hltEle14CaloIdTClusterShapeFilter = cms.EDFilter( "HLTEgammaGenericFilte
     useEt = cms.bool( False ),
     ncandcut = cms.int32( 1 ),
     isoTag = cms.InputTag( "hltL1SeededHLTClusterShape" ),
-    candTag = cms.InputTag( "hltEG14EtFilterL1Mu12EG6ORL1MuOpenEG12" ),
+    candTag = cms.InputTag( "hltEG14EtFilterL1Mu12EG7ORL1MuOpenEG12" ),
     thrOverE2EE = cms.double( -1.0 )
 )
 process.hltEle14CaloIdTHEFilter = cms.EDFilter( "HLTEgammaGenericFilter",
