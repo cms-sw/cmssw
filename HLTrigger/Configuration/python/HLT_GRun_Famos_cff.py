@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_1_0/GRun/V114 (CMSSW_5_2_0_pre5_HLT9)
+# /dev/CMSSW_5_1_0/GRun/V115 (CMSSW_5_2_0_pre5_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V114')
+  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V115')
 )
 
 hltESSBTagRecord = cms.ESSource( "EmptyESSource",
@@ -20162,7 +20162,7 @@ hltMu14Ele14CaloIdTTrkIdVLMass8Filter = cms.EDFilter( "HLTElectronMuonInvMassFil
     electronRelaxed = cms.untracked.bool( True ),
     MuonCand = cms.InputTag( "hltL3MuonCandidates" ),
     ElectronL1NonIsoCand = cms.InputTag( "hltPixelMatchElectronsActivity" ),
-    muonPrevCandTag = cms.InputTag( "hltL1Mu12EG6ORMuOpenEG12L3MuFiltered14" ),
+    muonPrevCandTag = cms.InputTag( "hltL1Mu12EG7ORL1MuOpenEG12L3MuFiltered14" ),
     ncandcut = cms.int32( 1 ),
     upperMassCut = cms.double( 999999.0 ),
     elePrevCandTag = cms.InputTag( "hltEle14CaloIdTTrkIdVLDphiFilter" )
