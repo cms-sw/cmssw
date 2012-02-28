@@ -18,7 +18,7 @@ from the configuration file, the DB is not implemented yet)
 //                   David Dagenhart
 //       
 //         Created:  Tue Jun 12 00:47:28 CEST 2007
-// $Id: LumiProducer.cc,v 1.23 2011/11/16 10:46:28 xiezhen Exp $
+// $Id: LumiProducer.cc,v 1.24 2012/02/28 11:39:30 xiezhen Exp $
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -250,7 +250,7 @@ LumiProducer::LumiProducer(const edm::ParameterSet& iConfig):m_cachedrun(0),m_is
   // set up cache
   std::string connectStr=iConfig.getParameter<std::string>("connect");
   m_cachesize=iConfig.getUntrackedParameter<unsigned int>("ncacheEntries",5);
-  m_lumiversion=iConfig.getUntrackedParameter<std::string>("lumiversion");
+  m_lumiversion="v2"; /*iConfig.getUntrackedParameter<std::string>("lumiversion");*/
   const std::string fproto("frontier://");
   //test if need frontier servlet site-local translation  
   if(connectStr.substr(0,fproto.length())==fproto){
