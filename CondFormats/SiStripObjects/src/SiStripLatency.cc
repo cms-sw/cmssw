@@ -258,27 +258,22 @@ void SiStripLatency::printSummary(std::stringstream & ss) const
     allModes(allModesVector);
     if( allModesVector.size() > 1 ) {
       // In all even modes the module is off. Count only the odd modes
-      std::vector<uint16_t>::const_iterator it = allModesVector.begin();
-      uint16_t temp_num = 0;
-      uint16_t last_mode = 0;
-      bool mixed = false;
-      for( ; it != allModesVector.end(); ++it ) {
-	if( (*it) % 2 == 0 ) {
-	  ss << "Some of the modules are off " << std::endl; 
-	  continue;
-	}
-	temp_num++;
-	if (last_mode!=0){
-	  if ((*it) != last_mode)  mixed = true;
-	  last_mode = (*it);
-	}
+      if( std::count_if( allModesVector.begin(), allModesVector.end(),
+			 [] (uint16_t num) {return num % 2 != 0;} ) == 1 ) {
+	auto it = std::find_if( allModesVector.begin(), allModesVector.end(),
+				[] (uint16_t num) {return num % 2 != 0;} );
+	ss << "Some of the modules are off. All modules ON have the same mode = " << *it  << std::endl;
       }
-      if (!mixed) ss << "All modules ON have the same mode = " << last_mode  << std::endl;
-      else ss << "There is more than one mode in the Tracker" << std::endl;
+      else {
+	ss << "There is more than one mode in the Tracker" << std::endl;
+      }
+    }
+    else {
+      ss << "Mode value is " << mode << " that means invalid" << std::endl;
     }
   }
-  ss << "Total number of ranges = " << latencies_.size() << std::endl;
-  
+
+  ss << "Total number of ranges = " << latencies_.size() << std::endl; 
 }
 
 void SiStripLatency::printDebug(std::stringstream & ss) const
