@@ -15,7 +15,9 @@
 \section desc Description
 <!-- Short description of what this package is supposed to provide -->
 
-(THE PACKAGE ADMINISTATOR SHOULD REPLACE THIS SENTENCE WITH HAND-WRITTEN DOCUMENTATION SAYING WHAT THE PACKAGE DOES.)
+The package provides custom components of Geant4 Physics List constructors and 
+CMS Physics Lists. Any CMS Physics List includes local components or 
+components provided by Geant4.   
 
 \subsection interface Public interface
 <!-- List the classes that are provided for use in other packages (if any) -->
