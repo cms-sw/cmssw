@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.365 $"
+__version__ = "$Revision: 1.366 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -53,8 +53,8 @@ defaultOptions.datatier = None
 defaultOptions.inlineEventContent = True
 defaultOptions.inlineObjets =''
 defaultOptions.hideGen=False
-from Configuration.StandardSequences.VtxSmeared import VtxSmearedDefaultKey
-defaultOptions.beamspot=VtxSmearedDefaultKey
+from Configuration.StandardSequences.VtxSmeared import VtxSmearedDefaultKey,VtxSmearedHIDefaultKey
+defaultOptions.beamspot=None
 defaultOptions.outputDefinition =''
 defaultOptions.inputCommands = None
 defaultOptions.inputEventContent = ''
@@ -869,6 +869,9 @@ class ConfigBuilder(object):
                 self.EVTCONTDefaultCFF = "FastSimulation/Configuration/EventContent_cff"
                 self.VALIDATIONDefaultCFF = "FastSimulation.Configuration.Validation_cff"
 
+	if not self._options.beamspot:
+		self._options.beamspot=VtxSmearedDefaultKey
+		
         # if its MC then change the raw2digi
         if self._options.isMC==True:
                 self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_cff"
@@ -877,7 +880,7 @@ class ConfigBuilder(object):
                 self.ALCADefaultCFF="Configuration/StandardSequences/AlCaRecoStreamsMC_cff"
 	else:
 		self._options.beamspot = None
-		
+	
 	#patch for gen, due to backward incompatibility
 	if 'reGEN' in self.stepMap:
 		self.GENDefaultSeq='fixGenInfo'
@@ -903,6 +906,8 @@ class ConfigBuilder(object):
                 self._options.scenario='HeavyIons'
 
         if self._options.scenario=='HeavyIons':
+	    if not self._options.beamspot:
+		    self._options.beamspot=VtxSmearedHIDefaultKey
             self.HLTDefaultSeq = 'HIon'
             if not self._options.himix:
                     self.GENDefaultSeq='pgen_hi'
@@ -1674,7 +1679,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.365 $"),
+                                            (version=cms.untracked.string("$Revision: 1.366 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
