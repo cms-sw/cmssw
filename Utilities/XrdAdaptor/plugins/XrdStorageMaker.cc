@@ -14,6 +14,12 @@ public:
 			 const std::string &path,
 			 int mode)
   {
+    // The important part here is not the cache size (which will get
+    // auto-adjusted), but the fact the cache is set to something non-zero.
+    // If we don't do this before creating the XrdFile object, caching will be
+    // completely disabled, resulting in poor performance.
+    EnvPutInt(NAME_READCACHESIZE, 20*1024*1024);
+
     std::string fullpath(proto + ":" + path);
     return new XrdFile (fullpath, mode);
   }
