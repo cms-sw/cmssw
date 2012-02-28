@@ -5,17 +5,46 @@ import copy
 from RecoJets.Configuration.RecoPFJets_cff import *
 import PhysicsTools.PatAlgos.tools.helpers as helpers
 
-kinematicSelectedTauValDenominatorRealData = cms.EDFilter( ##FIXME: this should be a filter
-   "TauValPFJetSelector", #"GenJetSelector"
-   src = cms.InputTag("ak5PFJets"),
-   cut = kinematicSelectedTauValDenominatorCut,#cms.string('pt > 5. && abs(eta) < 2.5'), #Defined: Validation.RecoTau.RecoTauValidation_cfi 
-   filter = cms.bool(False)
+# kinematicSelectedTauValDenominatorRealData = cms.EDFilter( ##FIXME: this should be a filter
+#    "TauValPFJetSelector", #"GenJetSelector"
+#    src = cms.InputTag("ak5PFJets"),
+#    cut = kinematicSelectedTauValDenominatorCut,#cms.string('pt > 5. && abs(eta) < 2.5'), #Defined: Validation.RecoTau.RecoTauValidation_cfi 
+#    filter = cms.bool(False)
+# )
+
+kinematicSelectedPFJets = cms.EDFilter(
+    "TauValPFJetSelector",
+    src = cms.InputTag('ak5PFJets'),
+    cut = cms.string("pt > 15 & abs(eta) < 2.5"),
+    filter = cms.bool(False)
+	)
+
+####### this module would be nicer but crashes when reading a void collection (i.e. when no jet passes the kinematic selection)
+#
+# from RecoJets.JetProducers.ak5JetID_cfi import *
+# 
+# process.PFJetsId = cms.EDProducer("PFJetIdSelector",
+#     src     = cms.InputTag( "kinematicSelectedPFJets" ),
+#     idLevel = cms.string("LOOSE"),
+# )
+
+PFJetsId = cms.EDFilter(
+    "TauValPFJetSelector",
+    src = cms.InputTag('kinematicSelectedPFJets'),
+    cut = cms.string("chargedHadronEnergyFraction > 0.0 & neutralHadronEnergyFraction < 0.99 & neutralHadronEnergyFraction < 0.99 & chargedEmEnergyFraction < 0.99 & chargedEmEnergyFraction < 0.99 & neutralEmEnergyFraction < 0.99 & chargedMultiplicity > 0 & nConstituents > 1"),
+    filter = cms.bool(False)
+	)
+
+CleanedPFJets = cms.EDProducer("TauValJetViewCleaner",
+    srcObject            = cms.InputTag( "kinematicSelectedPFJets" ),
+    srcObjectsToRemove   = cms.VInputTag( cms.InputTag("muons"), cms.InputTag("gsfElectrons") ),
+    deltaRMin            = cms.double(0.15)
 )
 
 procAttributes = dir(proc) #Takes a snapshot of what there in the process
 helpers.cloneProcessingSnippet( proc, proc.TauValNumeratorAndDenominator, 'RealData') #clones the sequence inside the process with RealData postfix
 helpers.cloneProcessingSnippet( proc, proc.TauEfficiencies, 'RealData') #clones the sequence inside the process with RealData postfix
-helpers.massSearchReplaceAnyInputTag(proc.TauValNumeratorAndDenominatorRealData, 'kinematicSelectedTauValDenominator', 'kinematicSelectedTauValDenominatorRealData') #sets the correct input tag
+helpers.massSearchReplaceAnyInputTag(proc.TauValNumeratorAndDenominatorRealData, 'kinematicSelectedTauValDenominator', 'CleanedPFJets') #sets the correct input tag
 
 #adds to TauValNumeratorAndDenominator modules in the sequence RealData to the extention name
 zttLabeler = lambda module : SetValidationExtention(module, 'RealData')
@@ -45,7 +74,10 @@ for newAttr in newProcAttributes:
 
 
 produceDenominatorRealData = cms.Sequence(
-      kinematicSelectedTauValDenominatorRealData
+      kinematicSelectedPFJets * 
+      PFJetsId * 
+      CleanedPFJets
+      #kinematicSelectedTauValDenominatorRealData
       )
 
 produceDenominator = produceDenominatorRealData
