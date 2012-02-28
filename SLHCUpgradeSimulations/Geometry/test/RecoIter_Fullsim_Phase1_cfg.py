@@ -23,7 +23,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.18 $'),
+    version = cms.untracked.string('$Revision: 1.19 $'),
     annotation = cms.untracked.string('step2 nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -37,7 +37,7 @@ process.options = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-       'file:FourMuPt_1_50_cfi_GEN_SIM.root'
+       '/store/mc/Summer12/FourMuPt_1_200/GEN-SIM/DESIGN42_V17_SLHCTk-v1/0000/42F9905F-C55D-E111-9457-00A0D1EEDFEC.root' 
     )
 )
 # Output definition
@@ -64,7 +64,7 @@ process.output.outputCommands = cms.untracked.vstring('drop *','keep *_MEtoEDMCo
 
 # Other statements
 #process.GlobalTag.globaltag = 'MC_42_V10::All'
-process.GlobalTag.globaltag = 'DESIGN42_V11::All'
+process.GlobalTag.globaltag = 'DESIGN42_V17::All'
 
 ### PhaseI Geometry and modifications ###############################################
 process.Timing =  cms.Service("Timing")

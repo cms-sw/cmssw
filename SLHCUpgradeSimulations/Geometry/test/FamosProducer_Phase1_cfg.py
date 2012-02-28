@@ -56,7 +56,7 @@ process.simSiPixelDigis.ROUList =  ['famosSimHitsTrackerHits']
 #            10 - high-lumi inefficiency added
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'DESIGN42_V11::All'
+process.GlobalTag.globaltag = 'DESIGN42_V17::All'
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load('Configuration.StandardSequences.EndOfProcess_cff')

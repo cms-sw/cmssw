@@ -26,7 +26,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.12 $'),
+    version = cms.untracked.string('$Revision: 1.13 $'),
     annotation = cms.untracked.string('step2 nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -40,7 +40,11 @@ process.options = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-       'file:TTbar_Tauola_14TeV_cfi_GEN_SIM.root'
+       '/store/mc/Summer12/TTbar_Tauola_14TeV/GEN-SIM/DESIGN42_V17_SLHCTk-v1/0000/4815ECA9-255E-E111-A0C9-00151796D774.root',
+       '/store/mc/Summer12/TTbar_Tauola_14TeV/GEN-SIM/DESIGN42_V17_SLHCTk-v1/0000/56C5D376-CC5D-E111-8393-0024E86E8D9A.root',
+       '/store/mc/Summer12/TTbar_Tauola_14TeV/GEN-SIM/DESIGN42_V17_SLHCTk-v1/0000/74EC88AA-E45D-E111-AD1A-0026B94E27FD.root',
+       '/store/mc/Summer12/TTbar_Tauola_14TeV/GEN-SIM/DESIGN42_V17_SLHCTk-v1/0000/8C2D3998-155E-E111-B75C-00266CF2454C.root',
+       '/store/mc/Summer12/TTbar_Tauola_14TeV/GEN-SIM/DESIGN42_V17_SLHCTk-v1/0000/B6409F8D-DC5D-E111-8DDB-0026B94D1B16.root'
     )
 )
 # Output definition
@@ -67,7 +71,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 # Additional output definition
 
 # Other statements
-process.GlobalTag.globaltag = 'DESIGN42_V11::All'
+process.GlobalTag.globaltag = 'DESIGN42_V17::All'
 
 ### PhaseI Geometry and modifications ###############################################
 process.Timing =  cms.Service("Timing")

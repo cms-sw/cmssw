@@ -7,7 +7,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("SLHCUpgradeSimulations.Geometry.Longbarrel_cmsSimIdealGeometryXML_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'DESIGN42_V11::All'
+process.GlobalTag.globaltag = 'DESIGN42_V17::All'
 process.siPixelFakeGainOfflineESSource = cms.ESSource("SiPixelFakeGainOfflineESSource",
     file = cms.FileInPath('SLHCUpgradeSimulations/Geometry/data/longbarrel/PixelSkimmedGeometry.txt')
 )

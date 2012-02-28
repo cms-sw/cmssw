@@ -131,7 +131,7 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('SLHCUpgradeSimulations/Configuration/python/FourMuPt_1_50_cfi.py nevts:10'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -152,7 +152,7 @@ process.output.outputCommands = cms.untracked.vstring('drop *','keep *_MEtoEDMCo
 # Additional output definition
 
 # Other statements
-process.GlobalTag.globaltag = 'DESIGN42_V11::All'
+process.GlobalTag.globaltag = 'DESIGN42_V17::All'
 
 process.famosSimHits.SimulateCalorimetry = True
 process.famosSimHits.SimulateTracking = True

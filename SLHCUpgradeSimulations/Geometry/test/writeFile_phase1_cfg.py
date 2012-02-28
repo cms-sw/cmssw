@@ -10,7 +10,7 @@ process.load('SLHCUpgradeSimulations.Geometry.Phase1_R30F12_cmsSimIdealGeometryX
 
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'DESIGN42_V11::All'
+process.GlobalTag.globaltag = 'DESIGN42_V17::All'
 #process.GlobalTag.globaltag = 'MC_42_V10::All'
 process.TrackerDigiGeometryESModule.applyAlignment = False
 print process.TrackerGeometricDetESModule.fromDDD
