@@ -49,15 +49,18 @@ import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 electronCkfTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
 electronCkfTrackCandidates.src = cms.InputTag('electronMergedSeeds')
 electronCkfTrackCandidates.TrajectoryBuilder = 'TrajectoryBuilderForElectrons'
-electronCkfTrackCandidates.TrajectoryCleaner = 'TrajectoryCleanerBySharedHits'
+#electronCkfTrackCandidates.TrajectoryCleaner = 'TrajectoryCleanerBySharedHits'
 electronCkfTrackCandidates.NavigationSchool = 'SimpleNavigationSchool'
 electronCkfTrackCandidates.RedundantSeedCleaner = 'CachingSeedCleanerBySharedInput'
 
-
-
-
-
-
+from TrackingTools.TrajectoryCleaning.TrajectoryCleanerBySharedHits_cfi import trajectoryCleanerBySharedHits
+electronTrajectoryCleanerBySharedHits = trajectoryCleanerBySharedHits.clone(
+    ComponentName = cms.string('electronTrajectoryCleanerBySharedHits'),
+    ValidHitBonus = cms.double(1000.0),
+    MissingHitPenalty = cms.double(0.0)
+    )
+electronCkfTrackCandidates.TrajectoryCleaner = 'electronTrajectoryCleanerBySharedHits'
+            
 
 # "backward" propagator for electrons
 from TrackingTools.GsfTracking.bwdGsfElectronPropagator_cff import *
