@@ -55,6 +55,7 @@ class HcalRecHitsMaker
   unsigned det_;
   std::vector<double> threshold_;
   std::vector<double> noise_;
+  std::vector<double> corrfac_;
   std::vector<double> hcalHotFraction_;
   unsigned nnoise_;
 
