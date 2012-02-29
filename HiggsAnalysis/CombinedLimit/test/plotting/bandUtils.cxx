@@ -17,7 +17,7 @@
 #include <Math/QuantFuncMathCore.h>
 
 double band_safety_crop = 0; 
-bool use_precomputed_quantiles = false; 
+bool use_precomputed_quantiles = false, precomputed_median_only = false; 
 bool zero_is_valid = false;
 bool seed_is_channel = false;
 bool halfint_masses  = false; // find the halfling!
@@ -150,11 +150,14 @@ TGraphAsymmErrors *theBand(TFile *file, int doSyst, int whichChannel, BandType t
         double mean = 0; for (int j = 0; j < nd; ++j) mean += data[j]; mean /= nd;
         double summer68 = data[floor(nd * 0.5*(1-width)+0.5)], winter68 =  data[std::min(int(floor(nd * 0.5*(1+width)+0.5)), nd-1)];
         if (use_precomputed_quantiles && type == Median) {
-            if (data.size() != 3) { 
+            if (precomputed_median_only && data.size() == 1) {
+                mean = median = summer68 = winter68 = data[0];
+            } else if (data.size() != 3) { 
                 std::cerr << "Error for expected quantile for mass " << it->first << ": size of data is " << data.size() << std::endl; 
                 continue; 
+            } else {
+                mean = median = data[1]; summer68 = data[0]; winter68 = data[2];
             }
-            mean = median = data[1]; summer68 = data[0]; winter68 = data[2];
         }
         double x = mean;
         switch (type) {
@@ -164,7 +167,7 @@ TGraphAsymmErrors *theBand(TFile *file, int doSyst, int whichChannel, BandType t
             case Median: x = median; break;
             case CountToys: x = summer68 = winter68 = nd; break;
             case Asimov: // mean (in case we did it more than once), with no band
-                x = summer68 = winter68 = mean;
+                x = summer68 = winter68 = (obs_avg_mode == mean ? mean : median);
                 break;
             case Observed:
                 x = mean;
@@ -495,6 +498,20 @@ void significanceToPVal(TDirectory *bands, TString inName, TString outName) {
     b2->SetName(outName);
     bands->WriteTObject(b2, outName);
 }
+void testStatToPVal(TDirectory *bands, TString inName, TString outName) {
+    TGraphAsymmErrors *b1 = (TGraphAsymmErrors *) bands->Get(inName);
+    if (b1 == 0 || b1->GetN() == 0) return;
+    int n = b1->GetN();
+    TGraphAsymmErrors *b2 = new TGraphAsymmErrors(n);
+    for (int i = 0; i < n; ++i) {
+        double x = b1->GetX()[i], s = b1->GetY()[i];
+        double pval = ROOT::Math::normal_cdf_c(s > 0 ? sqrt(s) : 0);
+        b2->SetPoint(i, x, pval);
+        b2->SetPointError(i, b1->GetErrorXlow(i), b1->GetErrorXhigh(i), 0, 0);
+    }
+    b2->SetName(outName);
+    bands->WriteTObject(b2, outName);
+}
 
 void significanceToPVals(TDirectory *bands, TString inName, TString outName) {
     significanceToPVal(bands, inName+"_obs",   outName+"_obs");
@@ -511,6 +528,22 @@ void significanceToPVals(TDirectory *bands, TString inName, TString outName) {
     significanceToPVal(bands, inName+"_nosyst_asimov",    outName+"_nosyst_asimov");
     significanceToPVal(bands, inName+"_nosyst_ntoys",     outName+"_nosyst_ntoys");
 }
+void testStatToPVals(TDirectory *bands, TString inName, TString outName) {
+    testStatToPVal(bands, inName+"_obs",   outName+"_obs");
+    testStatToPVal(bands, inName+"_mean",   outName+"_mean");
+    testStatToPVal(bands, inName+"_median", outName+"_median");
+    testStatToPVal(bands, inName+"_mean_95",   outName+"_mean_95");
+    testStatToPVal(bands, inName+"_median_95", outName+"_median_95");
+    testStatToPVal(bands, inName+"_asimov",    outName+"_asimov");
+
+    testStatToPVal(bands, inName+"_nosyst_obs",   outName+"_nosyst_obs");
+    testStatToPVal(bands, inName+"_nosyst_mean",   outName+"_nosyst_mean");
+    testStatToPVal(bands, inName+"_nosyst_median", outName+"_nosyst_median");
+    testStatToPVal(bands, inName+"_nosyst_mean_95",   outName+"_nosyst_mean_95");
+    testStatToPVal(bands, inName+"_nosyst_asimov",    outName+"_nosyst_asimov");
+    testStatToPVal(bands, inName+"_nosyst_ntoys",     outName+"_nosyst_ntoys");
+}
+
 
 void cutBand(TDirectory *bands, TString inName, TString outName, float mMin, float mMax) {
     TGraphAsymmErrors *b1 = (TGraphAsymmErrors *) bands->Get(inName);
