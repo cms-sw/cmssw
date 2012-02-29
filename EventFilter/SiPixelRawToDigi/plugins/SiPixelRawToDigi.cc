@@ -43,11 +43,13 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
 {
 
   includeErrors = config_.getParameter<bool>("IncludeErrors");
-  makeOverflowList = config_.getParameter<bool>("OverflowList");
   useQuality = config_.getParameter<bool>("UseQualityInfo");
   useCablingTree_ = config_.getUntrackedParameter<bool>("UseCablingTree",true);
   if (config_.exists("ErrorList")) {
-    errorList = config_.getParameter<std::vector<int> > ("ErrorList");
+    tkerrorlist = config_.getParameter<std::vector<int> > ("Errorlist");
+  }
+  if (config_.exists("UserErrorList")) {
+    usererrorlist = config_.getParameter<std::vector<int> > ("UserErrorList");
   }
 
   //start counters
@@ -58,8 +60,8 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
   produces< edm::DetSetVector<PixelDigi> >();
   if(includeErrors){
     produces< edm::DetSetVector<SiPixelRawDataError> >();
-    produces<DetIdCollection>("ErrorModules");
-    if(makeOverflowList) produces<DetIdCollection>("OverflowModules");
+    produces<DetIdCollection>();
+    produces<DetIdCollection>("UserErrorModules");
   }
 
   // Timing
@@ -135,8 +137,8 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
 // create product (digis & errors)
   std::auto_ptr< edm::DetSetVector<PixelDigi> > collection( new edm::DetSetVector<PixelDigi> );
   std::auto_ptr< edm::DetSetVector<SiPixelRawDataError> > errorcollection( new edm::DetSetVector<SiPixelRawDataError> );
-  std::auto_ptr< DetIdCollection > error_detidcollection(new DetIdCollection());
-  std::auto_ptr< DetIdCollection > overflow_detidcollection(new DetIdCollection());
+  std::auto_ptr< DetIdCollection > tkerror_detidcollection(new DetIdCollection());
+  std::auto_ptr< DetIdCollection > usererror_detidcollection(new DetIdCollection());
 
   PixelDataFormatter formatter(cabling_);
   formatter.setErrorStatus(includeErrors);
@@ -182,20 +184,23 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
 	  // in the configurable error list in the job option cfi.
 	  // Code needs to be here, because there can be a set of errors for each 
 	  // entry in the for loop over PixelDataFormatter::Errors
-	  if(!errorList.empty() || makeOverflowList){
+	  if(!tkerrorlist.empty() || !usererrorlist.empty()){
 	    DetId errorDetId(errordetid);
 	    edm::DetSet<SiPixelRawDataError>::const_iterator itPixelError=errorDetSet.begin();
             for(; itPixelError!=errorDetSet.end(); ++itPixelError){
               // fill list of detIds to be turned off by tracking
-              if(!errorList.empty()) {
-	        std::vector<int>::iterator it_find = find(errorList.begin(), errorList.end(), itPixelError->getType());
-	        if(it_find != errorList.end()){
-		  error_detidcollection->push_back(errordetid);
+              if(!tkerrorlist.empty()) {
+	        std::vector<int>::iterator it_find = find(tkerrorlist.begin(), tkerrorlist.end(), itPixelError->getType());
+	        if(it_find != tkerrorlist.end()){
+		  tkerror_detidcollection->push_back(errordetid);
 	        }
 	      }
-              // fill list of detIds with overflow errors
-	      if(makeOverflowList && itPixelError->getType()==40){
-                overflow_detidcollection->push_back(errordetid);
+              // fill list of detIds with errors to be studied
+              if(!usererrorlist.empty()) {
+	        std::vector<int>::iterator it_find = find(usererrorlist.begin(), usererrorlist.end(), itPixelError->getType());
+	        if(it_find != usererrorlist.end()){
+		  usererror_detidcollection->push_back(errordetid);
+	        }
 	      }
 	    }
 	  }
@@ -225,7 +230,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   ev.put( collection );
   if(includeErrors){
     ev.put( errorcollection );
-    ev.put( error_detidcollection );
-    if(makeOverflowList) ev.put( overflow_detidcollection );
+    ev.put( tkerror_detidcollection );
+    ev.put( usererror_detidcollection, "UserErrorModules" );
   }
 }

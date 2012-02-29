@@ -1,29 +1,31 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("Demo")
+process = cms.Process("RECO")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 # DQM services
-process.load("DQMServices.Core.DQM_cfg")
+#process.load("DQMServices.Core.DQM_cfg")
 
 # Database configuration
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
+#process.load("CondCore.DBCommon.CondDBCommon_cfi")
+#process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
 # conditions
 process.load("Configuration.StandardSequences.Geometry_cff")
+process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = "GR_R_52_V2::All"
-process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
+#process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 #--- SiPixelRawToDigi ---#
 process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
-#process.siPixelDigis.InputLabel = "source"
-process.siPixelDigis.InputLabel = "rawDataCollector"
+process.siPixelDigis.InputLabel = "source"
+#process.siPixelDigis.InputLabel = "rawDataCollector"
 process.siPixelDigis.Timing = True
 process.siPixelDigis.UseQualityInfo = False
 process.siPixelDigis.IncludeErrors = True
-process.siPixelDigis.OverflowList = True
+process.siPixelDigis.ErrorList = [29]
+process.siPixelDigis.UserErrorList = [40]
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
@@ -48,25 +50,27 @@ process.source = cms.Source("PoolSource",
         #'/store/relval/CMSSW_3_8_5/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START38_V12-v1/0039/AE8DDE1D-E7D1-DF11-B0F5-002618943877.root',
         #'/store/relval/CMSSW_3_8_5/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START38_V12-v1/0039/70803B9E-E6D1-DF11-91FE-0026189438F3.root'
 
-        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/440/F4FE5D06-EB3B-DF11-8D16-0030487D0D3A.root',
-        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/440/DEE7E9A9-FC3B-DF11-8BF8-001D09F23D1D.root',
-        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/440/D01A79A5-FC3B-DF11-BC0F-001D09F23174.root',
-        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/440/C0A5D466-EC3B-DF11-BDF4-000423D9A2AE.root',
-        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/440/A8EAADF9-073C-DF11-B618-000423D94700.root',
-        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/440/9CFF1A58-E83B-DF11-9AF2-0030487A322E.root',
-        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/440/7E6AA362-083C-DF11-85EC-001D09F2516D.root',
-        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/440/66CBD22E-003C-DF11-BD9E-001D09F2905B.root',
-        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/440/5CA00C93-053C-DF11-924A-0030487A3C9A.root',
-        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/440/32E33210-FE3B-DF11-A8D8-001D09F26C5C.root',
-        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/440/1E2AA3C3-1A3C-DF11-AF37-0030487CD6D2.root',
-        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/440/10CD830F-FA3B-DF11-997D-0030487C8E02.root',
-        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/442/A2674AF9-173C-DF11-8166-000423D98DD4.root',
-        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/442/86B38B5B-123C-DF11-8D59-0030487CD7C6.root',
-        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/442/6688948C-0F3C-DF11-B0DB-000423D990CC.root',
-        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/442/44947723-153C-DF11-915D-0030487C60AE.root',
-        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/442/28C8B312-133C-DF11-9EF8-000423D6006E.root',
-        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/442/1EDF60D5-0E3C-DF11-9245-0030487CD6DA.root',
-        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/442/14349126-153C-DF11-A00B-0030487C608C.root'
+#        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/440/F4FE5D06-EB3B-DF11-8D16-0030487D0D3A.root',
+#        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/440/DEE7E9A9-FC3B-DF11-8BF8-001D09F23D1D.root',
+#        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/440/D01A79A5-FC3B-DF11-BC0F-001D09F23174.root',
+#        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/440/C0A5D466-EC3B-DF11-BDF4-000423D9A2AE.root',
+#        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/440/A8EAADF9-073C-DF11-B618-000423D94700.root',
+#        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/440/9CFF1A58-E83B-DF11-9AF2-0030487A322E.root',
+#        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/440/7E6AA362-083C-DF11-85EC-001D09F2516D.root',
+#        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/440/66CBD22E-003C-DF11-BD9E-001D09F2905B.root',
+#        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/440/5CA00C93-053C-DF11-924A-0030487A3C9A.root',
+#        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/440/32E33210-FE3B-DF11-A8D8-001D09F26C5C.root',
+#        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/440/1E2AA3C3-1A3C-DF11-AF37-0030487CD6D2.root',
+#        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/440/10CD830F-FA3B-DF11-997D-0030487C8E02.root',
+#        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/442/A2674AF9-173C-DF11-8166-000423D98DD4.root',
+#        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/442/86B38B5B-123C-DF11-8D59-0030487CD7C6.root',
+#        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/442/6688948C-0F3C-DF11-B0DB-000423D990CC.root',
+#        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/442/44947723-153C-DF11-915D-0030487C60AE.root',
+#        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/442/28C8B312-133C-DF11-9EF8-000423D6006E.root',
+#        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/442/1EDF60D5-0E3C-DF11-9245-0030487CD6DA.root',
+#        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/442/14349126-153C-DF11-A00B-0030487C608C.root'
+
+        'file:/tmp/andrewdc/temp/CMSSW_5_2_X_2012-02-28-1400/src/5E591B51-40F5-E011-BEAE-E0CB4E55365D.root'
   )
 )
 
