@@ -57,6 +57,7 @@ HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p, int det,
 {
   edm::ParameterSet RecHitsParameters=p.getParameter<edm::ParameterSet>("HCAL");
   noise_ = RecHitsParameters.getParameter<std::vector<double> >("Noise");
+  corrfac_ = RecHitsParameters.getParameter<std::vector<double> >("NoiseCorrectionFactor");
   threshold_ = RecHitsParameters.getParameter<std::vector<double> >("Threshold");
   doSaturation_ = RecHitsParameters.getParameter<bool>("EnableSaturation");
     
@@ -708,7 +709,7 @@ double HcalRecHitsMaker::noiseInfCfromDB(const HcalDbService * conditions,const 
 
   // correction factors (hb,he,ho,hf)
   //  static float corrfac[4]={1.39,1.32,1.17,3.76};
-  static float corrfac[4]={0.93,0.88,1.17,2.51}; // divided HB, HE, HF by 1.5 (to take into account the halving of the number of time slices), HO did not change
+  //  static float corrfac[4]={0.93,0.88,1.17,2.51}; // divided HB, HE, HF by 1.5 (to take into account the halving of the number of time slices), HO did not change
 
   int sub   = detId.subdet();
 
@@ -736,7 +737,29 @@ double HcalRecHitsMaker::noiseInfCfromDB(const HcalDbService * conditions,const 
   //  else          noise_rms_fC = RMS4;
   noise_rms_fC = RMS4;
 
-  noise_rms_fC *= corrfac[sub-1];
+  // correction factors between Full and Fast Sim when noise is taken from database
+  double corrfac = 1.;
+  switch(detId.subdet())
+    {
+    case HcalBarrel: 
+      {	if(det_==4) corrfac = corrfac_[0]; }
+      break;
+    case HcalEndcap: 
+      {	if(det_==4) corrfac = corrfac_[1]; }
+      break;
+    case HcalOuter: 
+      { if(det_==5) corrfac = corrfac_[0]; }
+      break;		     
+    case HcalForward: 
+      { if(det_==6) corrfac = corrfac_[0]; }
+      break;
+    default:
+      edm::LogWarning("CaloRecHitsProducer") << "RecHit not registered\n";
+      ;
+    }
+
+  //  noise_rms_fC *= corrfac[sub-1];
+  noise_rms_fC *= corrfac; 
 
   // to convert from above fC to GeV - multiply by gain (GeV/fC)        
   //  const HcalGain*  gain = conditions->getGain(detId); 
