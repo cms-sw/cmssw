@@ -40,10 +40,22 @@ process.source = cms.Source("EmptySource")
 
 
 # define modules
-process.psHLT1 = cms.EDFilter("HLTPrescaler")
-process.psHLT2 = cms.EDFilter("HLTPrescaler")
-process.psHLT3 = cms.EDFilter("HLTPrescaler")
-process.psHLT4 = cms.EDFilter("HLTPrescaler")
+process.psHLT1 = cms.EDFilter("HLTPrescaler", 
+    L1GtReadoutRecordTag = cms.InputTag('source')
+)
+
+process.psHLT2 = cms.EDFilter("HLTPrescaler", 
+    L1GtReadoutRecordTag = cms.InputTag('source')
+)
+
+process.psHLT3 = cms.EDFilter("HLTPrescaler", 
+    L1GtReadoutRecordTag = cms.InputTag('source')
+)
+
+process.psHLT4 = cms.EDFilter("HLTPrescaler", 
+    L1GtReadoutRecordTag = cms.InputTag('source')
+)
+
 
 
 # define paths
