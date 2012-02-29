@@ -10,7 +10,7 @@ import os
 import sys
 
 from Configuration.DataProcessing.Scenario import Scenario
-from Configuration.DataProcessing.Utils import stepALCAPRODUCER,addMonitoring,dictIO,dqmIOSource,harvestingMode
+from Configuration.DataProcessing.Utils import stepALCAPRODUCER,addMonitoring,dictIO,dqmIOSource,harvestingMode,dqmSeq
 import FWCore.ParameterSet.Config as cms
 from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder
 from Configuration.PyReleaseValidation.ConfigBuilder import Options
@@ -38,7 +38,7 @@ class Reco(Scenario):
 
         """
         step = stepALCAPRODUCER(args['skims'])
-        dqmStep= ':'+'+'.join(args['dqmSeq']) if ('dqmSeq' in args) else ''
+        dqmStep= dqmSeq(args,'')
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = self.cbSc
@@ -68,7 +68,7 @@ class Reco(Scenario):
 
         """
         step = stepALCAPRODUCER(args['skims'])
-        dqmStep= ':'+'+'.join(args['dqmSeq']) if ('dqmSeq' in args) else ''
+        dqmStep= dqmSeq(args,'')
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = self.cbSc
@@ -143,7 +143,7 @@ class Reco(Scenario):
         """
         options = defaultOptions
         options.scenario = self.cbSc
-        options.step = "HARVESTING:"+('+'.join(args['dqmSeq']) if ('dqmSeq' in args) else 'dqmHarvesting')
+        options.step = "HARVESTING"+dqmSeq(args,':dqmHarvesting')
         options.name = "EDMtoMEConvert"
         options.conditions = globalTag
  

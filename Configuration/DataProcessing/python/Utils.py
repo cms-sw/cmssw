@@ -112,3 +112,10 @@ def dictIO(options,args):
         writeTiers = args.get('writeTiers', [])
         options.eventcontent = ','.join(writeTiers)
         options.datatier = ','.join(writeTiers)
+
+def dqmSeq(args,default):
+    if 'dqmSeq' in args and len(args['dqmSeq'])!=0:
+        return ':'+('+'.join(args['dqmSeq']))
+    else:
+        return default
+            
