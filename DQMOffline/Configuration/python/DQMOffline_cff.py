@@ -89,14 +89,12 @@ DQMOfflineJetMET = cms.Sequence( jetMETDQMOfflineSource )
 
 DQMStepOne_Common = cms.Sequence( DQMOfflineCommon )
 
-DQMStepOne_Common_Muon = cms.Sequence( DQMOfflineCommon *
-                                       DQMOfflineMuon
-                                     )
+DQMStepOne_Common_Muon = cms.Sequence( DQMOfflineCommon*DQMOfflineMuon)
 
 DQMStepOne_Common_Hcal_JetMET = cms.Sequence(DQMOfflineCommon*DQMOfflineHcal*DQMOfflineJetMET)
 
 DQMStepOne_Common_Ecal = cms.Sequence(DQMOfflineCommon*DQMOfflineEcal)
 
-DQMStepOne_Common_Ecal_Hcal = cms.Sequence(DQMOfflineCommon*DQMOfflineEcal*DQMOfflineHcal)
+DQMStepOne_Common_Ecal_Hcal_Muon = cms.Sequence(DQMOfflineCommon*DQMOfflineEcal*DQMOfflineHcal*DQMOfflineMuon)
                                    
 DQMStepOne_Common_Muon_JetMET = cms.Sequence(DQMOfflineCommon*DQMOfflineMuon*DQMOfflineJetMET)
