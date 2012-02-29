@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.366 $"
+__version__ = "$Revision: 1.367 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -1575,26 +1575,21 @@ class ConfigBuilder(object):
 
         # decide which HARVESTING paths to use
         harvestingList = sequence.split("+")
-        for name in harvestingConfig.__dict__:
-            harvestingstream = getattr(harvestingConfig,name)
-            if name in harvestingList and isinstance(harvestingstream,cms.Path):
-               self.schedule.append(harvestingstream)
-               harvestingList.remove(name)
-            if name in harvestingList and isinstance(harvestingstream,cms.Sequence):
-                    setattr(self.process,name+"_step",cms.Path(harvestingstream))
-                    self.schedule.append(getattr(self.process,name+"_step"))
-                    harvestingList.remove(name)
-            if isinstance(harvestingstream,cms.Path):
-                    self.blacklist_paths.append(harvestingstream)
+	if len(set(harvestingList))!=len(harvestingList):
+		harvestingList=list(set(harvestingList))
+		print "Duplicate entries for HARVESTING, using",harvestingList
 
-
-        # This if statment must disappears once some config happens in the alca harvesting step
-        if 'alcaHarvesting' in harvestingList:
-            harvestingList.remove('alcaHarvesting')
-
-        if len(harvestingList) != 0 and 'dummyHarvesting' not in harvestingList :
-            print "The following harvesting could not be found : ", harvestingList
-            raise Exception("The following harvesting could not be found : "+str(harvestingList))
+	for name in harvestingList:
+		if not name in harvestingConfig.__dict__:
+			print name,"is not a possible harvesting type. Available are",harvestingConfig.__dict__.keys()
+			continue
+		harvestingstream = getattr(harvestingConfig,name)
+		if isinstance(harvestingstream,cms.Path):
+			self.schedule.append(harvestingstream)
+			self.blacklist_paths.append(harvestingstream)
+		if isinstance(harvestingstream,cms.Sequence):
+			setattr(self.process,name+"_step",cms.Path(harvestingstream))
+			self.schedule.append(getattr(self.process,name+"_step"))
 
         self.scheduleSequence('DQMSaver','dqmsave_step')
 	return
@@ -1679,7 +1674,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.366 $"),
+                                            (version=cms.untracked.string("$Revision: 1.367 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
