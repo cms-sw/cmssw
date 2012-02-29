@@ -31,7 +31,7 @@ prescaleTable = cms.VPSet(
 process.load("FWCore.PrescaleService.PrescaleService_cfi")
 process.PrescaleService.prescaleTable = prescaleTable
 process.PrescaleService.lvl1Labels = cms.vstring('10E30','10E31','10E32')
-process.PrescaleService.lvl1DefaultLabel = cms.untracked.string('10E31')
+process.PrescaleService.lvl1DefaultLabel = cms.string('10E31')
 
 
 # empty source for testing
