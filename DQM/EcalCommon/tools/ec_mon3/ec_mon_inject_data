@@ -76,7 +76,7 @@ foreach $file ( @files ) {
             print "Removing $file.dat: " if ( $opts{'debug'} );
 
             my $status = 0;
-            $status = system("rm -f $path/$file.dat $path/$file.ind") unless ( $opts{'norun'} );
+            $status = system("rm -f $path/$file.dat") unless ( $opts{'norun'} );
             if ( ! $status ) {
               print "done\n" if ( $opts{'debug'} );
             } else {
@@ -144,8 +144,11 @@ foreach $file ( @files ) {
 #      my $appversion = "CMSSW_2_1_9";
 #      my $setuplabel = "PrivEcal219";
 
-      my $appversion = "CMSSW_3_3_0";
-      my $setuplabel = "PrivEcal330";
+#      my $appversion = "CMSSW_3_3_0";
+#      my $setuplabel = "PrivEcal330";
+
+      my $appversion = "CMSSW_5_0_1";
+      my $setuplabel = "PrivEcal501";
 
       my $stream = "A";
       my $producer = "ECAL_LOCAL_DAQ";

@@ -110,17 +110,17 @@ if ( @done_runs == 0 ) {
 
           if ( ( time() - $update ) > $move_timeout ) {
 
-            print "Moving $config{'ec_mon_master_rundir'}/daq-data/$run.dat and $config{'ec_mon_master_rundir'}/daq-data/$run.ind to $config{'ec_mon_master_rundir'}/daq-data/trash/: " if ( $opts{'debug'} );
+            print "Moving $config{'ec_mon_master_rundir'}/daq-data/$run.dat to $config{'ec_mon_master_rundir'}/daq-data/trash/: " if ( $opts{'debug'} );
 
             $status = 0;
-            $status = system("mv -f $config{'ec_mon_master_rundir'}/daq-data/$run.dat $config{'ec_mon_master_rundir'}/daq-data/$run.ind $config{'ec_mon_master_rundir'}/daq-data/trash/") unless ( $opts{'norun'} );
+            $status = system("mv -f $config{'ec_mon_master_rundir'}/daq-data/$run.dat $config{'ec_mon_master_rundir'}/daq-data/trash/") unless ( $opts{'norun'} );
 
             if ( ! $status ) {
 
               print "done\n" if ( $opts{'debug'} );
 
               open LOGFILE, ">>$config{'ec_mon_master_rundir'}/dqm-data/$config{'ec_mon_master_log'}";
-              print LOGFILE localtime()." - ec_mon_archive: moved $config{'ec_mon_master_rundir'}/daq-data/$run.dat and $config{'ec_mon_master_rundir'}/daq-data/$run.ind to $config{'ec_mon_master_rundir'}/daq-data/trash/\n";
+              print LOGFILE localtime()." - ec_mon_archive: moved $config{'ec_mon_master_rundir'}/daq-data/$run.dat to $config{'ec_mon_master_rundir'}/daq-data/trash/\n";
               close LOGFILE;
 
             } else {
@@ -128,7 +128,7 @@ if ( @done_runs == 0 ) {
               print "failed\n" if ( $opts{'debug'} );
 
               open LOGFILE, ">>$config{'ec_mon_master_rundir'}/dqm-data/$config{'ec_mon_master_log'}";
-              print LOGFILE localtime()." - ec_mon_archive: problems moving $config{'ec_mon_master_rundir'}/daq-data/$run.dat and $config{'ec_mon_master_rundir'}/daq-data/$run.ind to $config{'ec_mon_master_rundir'}/daq-data/trash/\n";
+              print LOGFILE localtime()." - ec_mon_archive: problems moving $config{'ec_mon_master_rundir'}/daq-data/$run.dat to $config{'ec_mon_master_rundir'}/daq-data/trash/\n";
               close LOGFILE;
 
               system("rm $config{'ec_mon_master_rundir'}/dqm-data/.ec_mon_master_archive_lock$config{'ec_mon_master_name'}");
@@ -157,17 +157,17 @@ if ( @done_runs == 0 ) {
 
           print "Run $run needs to be saved\n" if ( $opts{'debug'} );
 
-          print "Transferring $config{'ec_mon_master_rundir'}/daq-data/$run.dat and $config{'ec_mon_master_rundir'}/daq-data/$run.ind to $config{'ec_mon_archive_dir'}/\n" if ( $opts{'debug'} );
+          print "Transferring $config{'ec_mon_master_rundir'}/daq-data/$run.dat to $config{'ec_mon_archive_dir'}/\n" if ( $opts{'debug'} );
 
           $status = 0;
-          $status = system("scp -p -o StrictHostKeyChecking=no $config{'ec_mon_master_rundir'}/daq-data/$run.dat $config{'ec_mon_master_rundir'}/daq-data/$run.ind $config{'ec_mon_archive_dir'}/ >> /dev/null 2>&1") unless ( $opts{'norun'} );
+          $status = system("scp -p -o StrictHostKeyChecking=no $config{'ec_mon_master_rundir'}/daq-data/$run.dat $config{'ec_mon_archive_dir'}/ >> /dev/null 2>&1") unless ( $opts{'norun'} );
 
           if ( $status ) {
 
-            print "Problems with the transfer of $config{'ec_mon_master_rundir'}/daq-data/$run.dat and $config{'ec_mon_master_rundir'}/daq-data/$run.ind\n";
+            print "Problems with the transfer of $config{'ec_mon_master_rundir'}/daq-data/$run.dat\n";
 
             open LOGFILE, ">>$config{'ec_mon_master_rundir'}/dqm-data/$config{'ec_mon_master_log'}";
-            print LOGFILE localtime()." - ec_mon_archive: problems with the transfer of $config{'ec_mon_master_rundir'}/daq-data/$run.dat and $config{'ec_mon_master_rundir'}/daq-data/$run.ind\n";
+            print LOGFILE localtime()." - ec_mon_archive: problems with the transfer of $config{'ec_mon_master_rundir'}/daq-data/$run.dat\n";
             close LOGFILE;
 
             system("rm $config{'ec_mon_master_rundir'}/dqm-data/.ec_mon_master_archive_lock$config{'ec_mon_master_name'}");
@@ -184,11 +184,9 @@ if ( @done_runs == 0 ) {
           }
 
           print "Archived $config{'ec_mon_master_rundir'}/daq-data/$run.dat as $config{'ec_mon_archive_dir'}/$run.dat\n" if ( $opts{'debug'} );
-          print "Archived $config{'ec_mon_master_rundir'}/daq-data/$run.ind as $config{'ec_mon_archive_dir'}/$run.ind\n" if ( $opts{'debug'} );
 
           open LOGFILE, ">>$config{'ec_mon_master_rundir'}/dqm-data/$config{'ec_mon_master_log'}";
           print LOGFILE localtime()." - ec_mon_archive: archived $config{'ec_mon_master_rundir'}/daq-data/$run.dat as $config{'ec_mon_archive_dir'}/$run.dat\n";
-          print LOGFILE localtime()." - ec_mon_archive: archived $config{'ec_mon_master_rundir'}/daq-data/$run.ind as $config{'ec_mon_archive_dir'}/$run.ind\n";
           close LOGFILE;
 
           if ( -e "$config{'ec_mon_master_rundir'}/dqm-data/status/.$loc.$num.$lun.$out.$fun.$fil.$ful.LASER-STD.mon_done" ) {
@@ -292,7 +290,7 @@ if ( @failed_runs == 0 ) {
           print "Failed run $run needs to be removed: " if ( $opts{'debug'} );
 
           $status = 0;
-          $status = system("rm -f $config{'ec_mon_master_rundir'}/daq-data/$run.dat $config{'ec_mon_master_rundir'}/daq-data/$run.ind $config{'ec_mon_master_rundir'}/dqm-data/status/.$run.*") unless ( $opts{'norun'} );
+          $status = system("rm -f $config{'ec_mon_master_rundir'}/daq-data/$run.dat $config{'ec_mon_master_rundir'}/dqm-data/status/.$run.*") unless ( $opts{'norun'} );
 
           if ( ! $status ) {
 
