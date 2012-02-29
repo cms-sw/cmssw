@@ -16692,6 +16692,8 @@ public:
    
    int OpenHltCorDiJetAvePassed(double pt);
 
+   int OpenHltDiPFJetAvePassed(double pt);
+
    int OpenHltQuadJetPassed(double pt);
    
    int OpenHltQuadJetCORPassedPlusTauPFIdNewIso(double pt, double etaJet, double ptTau);

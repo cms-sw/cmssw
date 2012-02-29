@@ -465,6 +465,47 @@ bool isDiJetAveXTrigger(TString triggerName, vector<double> &thresholds)
     return false;
 }
 
+//ccla
+bool isCaloJetX_DiPFJetAveTrigger(TString triggerName, vector<double> &thresholds)
+{
+	
+  TString pattern = "(OpenHLT_CaloJet([0-9]+)_DiPFJetAve([0-9]+))$";
+  TPRegexp matchThreshold(pattern);
+	
+  if (matchThreshold.MatchB(triggerName))
+    {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+
+      double thresholdCaloJet  = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdDiPFJet    = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      thresholds.push_back(thresholdCaloJet);
+      thresholds.push_back(thresholdDiPFJet);
+      delete subStrL;
+      return true;
+    }
+  else
+    return false;
+}
+
+bool isDiPFJetAveXTrigger(TString triggerName, vector<double> &thresholds)
+{
+	
+  TString pattern = "(OpenHLT_DiPFJetAve([0-9]+)){1}$";
+  TPRegexp matchThreshold(pattern);
+	
+  if (matchThreshold.MatchB(triggerName))
+    {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+
+      double thresholdDiPFJet    = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      thresholds.push_back(thresholdDiPFJet);
+      delete subStrL;
+      return true;
+    }
+  else
+    return false;
+}
+
 
 bool isMeffXUTrigger(TString triggerName, vector<double> &thresholds)
 {
@@ -3003,9 +3044,36 @@ void OHltTree::CheckOpenHlt(
 	    }
 	}
     }
-	
-	
-	
+  //ccla 
+  else if (isCaloJetX_DiPFJetAveTrigger(triggerName, thresholds))
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+	      if (OpenHlt1CorJetPassed(thresholds[0])>=1)
+		{
+		  if (OpenHltDiPFJetAvePassed(thresholds[1])>=1)
+		    {
+		      triggerBit[it] = true;
+		    }
+		}
+	    }
+	}
+    }
+  else if (isDiPFJetAveXTrigger(triggerName, thresholds))
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+	      if (OpenHltDiPFJetAvePassed(thresholds[0])>=1)
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
+    } 
 	
   /* Forward & MultiJet */
   else if (triggerName.CompareTo("OpenHLT_FwdJet20U") == 0)
@@ -14069,7 +14137,7 @@ else if (triggerName.CompareTo("OpenHLT_Ele32_WP70_PFMT50_v1")  == 0)
     {
       if (prescaleResponse(menu, cfg, rcounter, it))
       {
-        if  ( OpenHltNPFJetPassed(1, thresholds[0], 2.6) )
+        if  ( OpenHltNPFJetPassed(1, thresholds[0], 5.1) )
         {
           triggerBit[it] = true;
         }
@@ -19798,6 +19866,16 @@ int OHltTree::OpenHlt1PFJetPassed(double pt, double etamax)
     } 
   return rc; 
 
+}
+
+int OHltTree::OpenHltDiPFJetAvePassed(double pt)
+{
+  int rc = 0;
+  if (NohPFJet<2) return rc;
+  if ((pfJetPt[0]+pfJetPt[1])/2.0 > pt){
+    rc=1;
+  }
+  return rc;
 }
 
 int OHltTree::OpenHltDiJetAvePassed(double pt)
