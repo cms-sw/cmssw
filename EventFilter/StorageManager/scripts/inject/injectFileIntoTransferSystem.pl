@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: injectFileIntoTransferSystem.pl,v 1.46 2010/02/08 13:51:15 gbauer Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.47 2010/06/23 08:37:36 babar Exp $
 
 use strict;
 use DBI;
@@ -518,12 +518,12 @@ if ( $filename =~ /\.dat$/ && !$index ) {
         $index     = $indfile;
         $indexsize = -s "$pathname/$index";
     }
-    elsif ( $type eq 'streamer' ) {
-        print
-"Index file required for streamer files, not found in usual place please specify. Exiting!\n";
-        usage();
-        exit 1;
-    }
+#    elsif ( $type eq 'streamer' ) {
+#        print
+#"Index file required for streamer files, not found in usual place please specify. Exiting!\n";
+#        usage();
+#        exit 1;
+#    }
 }
 
 # create inserts into FILES_CREATED and FILES_INJECTED
