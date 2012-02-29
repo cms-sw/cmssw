@@ -224,11 +224,13 @@ def trgForRange(schema,inputRange,trgbitname=None,trgbitnamepattern=None,withL1C
                 deadtimecount=trgdata[1][cmslsnum][0]
                 bitzerocount=trgdata[1][cmslsnum][1]
                 bitzeroprescale=trgdata[1][cmslsnum][2]
-                if float(bitzerocount)*float(bitzeroprescale)==0.0:
+                #if float(bitzerocount)*float(bitzeroprescale)==0.0:
+                #    deadfrac=1.0
+                #else:
+                #    deadfrac=float(deadtimecount)/(float(bitzerocount)*float(bitzeroprescale))
+                deadfrac=trgdata[1][cmslsnum][3]
+                if deadfrac<0 or deadfrac>1.0:
                     deadfrac=1.0
-                else:
-                    deadfrac=float(deadtimecount)/(float(bitzerocount)*float(bitzeroprescale))
-                #deadfrac=trgdata[1][cmslsnum][3]
                 allbitsinfo=trgdata[1][cmslsnum][4]
                 lsdata.append(cmslsnum)
                 lsdata.append(deadfrac)
@@ -626,12 +628,15 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
                     deadcount=trgdata[cmslsnum][0] ##subject to change !!
                     bitzerocount=trgdata[cmslsnum][1]
                     bitzeroprescale=trgdata[cmslsnum][2]
-                    if float(bitzerocount)*float(bitzeroprescale)==0.0:
+                    deadfrac=trgdata[cmslsnum][3]
+                    if deadfrac<0 or deadfrac>1.0:
                         deadfrac=1.0
-                    else:
-                        deadfrac=float(deadcount)/(float(bitzerocount)*float(bitzeroprescale))
-                    if deadfrac>1.0:
-                        deadfrac=1.0  #artificial correction in case of deadfrac>1
+                    #if float(bitzerocount)*float(bitzeroprescale)==0.0:
+                    #    deadfrac=1.0
+                    #else:
+                    #    deadfrac=float(deadcount)/(float(bitzerocount)*float(bitzeroprescale))
+                    #if deadfrac>1.0:
+                    #    deadfrac=1.0  #artificial correction in case of deadfrac>1
                     recordedlumi=deliveredlumi*(1.0-deadfrac)
                     del trgdata[cmslsnum][:]
             bxdata=None
@@ -800,12 +805,15 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
                     deadcount=trgdata[cmslsnum][0] ##subject to change !!
                     bitzerocount=trgdata[cmslsnum][1]
                     bitzeroprescale=trgdata[cmslsnum][2]
-                    if float(bitzerocount)*float(bitzeroprescale)==0.0:
+                    deadfrac=trgdata[cmslsnum][3]
+                    if deadfrac<0 or deadfrac>1.0:
                         deadfrac=1.0
-                    else:
-                        deadfrac=float(deadcount)/(float(bitzerocount)*float(bitzeroprescale))
-                    if deadfrac>1.0:
-                        deadfrac=1.0  #artificial correction in case of deadfrac>1
+                    #if float(bitzerocount)*float(bitzeroprescale)==0.0:
+                    #    deadfrac=1.0
+                    #else:
+                    #    deadfrac=float(deadcount)/(float(bitzerocount)*float(bitzeroprescale))
+                    #if deadfrac>1.0:
+                    #    deadfrac=1.0  #artificial correction in case of deadfrac>1
                     recordedlumi=deliveredlumi*(1.0-deadfrac)
                     l1bitinfo=trgdata[cmslsnum][4]
                     if l1bitinfo:
