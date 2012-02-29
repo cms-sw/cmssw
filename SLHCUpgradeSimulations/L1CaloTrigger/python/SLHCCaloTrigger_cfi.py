@@ -45,6 +45,13 @@ L1CaloJetExpander = cms.EDProducer("L1CaloJetExpander",
 )
 
 
+L1TowerJetProducer = cms.EDProducer("L1TowerJetProducer",
+    src = cms.InputTag("L1CaloTowerProducer"),
+	JetSize = cms.uint32(9),
+	JetShape = cms.string("circle")
+)
+
+
 rawSLHCL1ExtraParticles = cms.EDProducer("L1ExtraTranslator",
                                   Clusters = cms.InputTag("L1CaloClusterIsolator"),
                                   Jets = cms.InputTag("L1CaloJetExpander"),

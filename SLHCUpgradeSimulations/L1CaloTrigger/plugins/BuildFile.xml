@@ -20,4 +20,5 @@
 	<use   name="root"/>
 	<use   name="rootrflx"/>
 	<use   name="rootcore"/>
+	<use   name="rootinteractive"/>
 </library>
