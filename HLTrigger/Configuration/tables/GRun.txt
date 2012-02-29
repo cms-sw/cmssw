@@ -209,8 +209,8 @@ HLT_Dimuon5_Upsilon_v*									#sr126442
 HLT_Dimuon5_PsiPrime_v*									#sr126442
 HLT_Dimuon0_PsiPrime_v*									#sr126442
 HLT_Dimuon5_Jpsi_v*									#sr126442
-HLT_Dimuon0_Jpsi_Muon_v*								#sr126442 - L1 seed problem
-HLT_Dimuon0_Upsilon_Muon_v*								#sr126442 - L1 seed problem
+HLT_Dimuon0_Jpsi_Muon_v*								#sr126442
+HLT_Dimuon0_Upsilon_Muon_v*								#sr126442
 HLT_Mu5_L2Mu3_Jpsi_v*									#sr126442
 HLT_Mu5_Track3p5_Jpsi_v*								#sr126442
 HLT_Mu5_Track2_Jpsi_v*									#sr126442
@@ -375,11 +375,11 @@ HLT_Mu15_eta2p1_TriCentralL1FastJet_40_20_20_v*                           #sr126
 #HLT_PixelTracks_Multiplicity80_v*		# What about those?
 #HLT_PixelTracks_Multiplicity100_v*		# What about those?
 
-HLT_BeamGas_HF_Beam1_v*
-HLT_BeamGas_HF_Beam2_v*
+HLT_BeamGas_HF_Beam1_v*				#sr126174				
+HLT_BeamGas_HF_Beam2_v*				#sr126174
 HLT_BeamHalo_v*
-#HLT_L1_PreCollisions_v*         # L1 seed L1_PreCollisions no longer available
-#HLT_L1_Interbunch_BSC_v*       # L1 seed L1_InterBunch_Bsc no longer available
+#HLT_L1_PreCollisions_v*	# L1 seed L1_PreCollisions no longer available
+#HLT_L1_Interbunch_BSC_v*	# L1 seed L1_InterBunch_Bsc no longer available
 HLT_IsoTrackHE_v*               # sr #126680
 HLT_IsoTrackHB_v*               # sr #126680
 HLT_HcalPhiSym_v*               # sr #126680
