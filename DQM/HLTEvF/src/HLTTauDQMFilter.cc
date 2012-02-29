@@ -316,9 +316,11 @@ std::map<int,std::string> HLTTauDQMFilter::interestingModules( HLTConfigProvider
         }
     }
     if ( alias_ != "" ) {
-        for ( std::map<int,std::string>::iterator iter = modules.begin(); iter != modules.end(); ++iter ) {
-            if ( HLTCP.moduleType(iter->second) != "HLT1Tau" && HLTCP.moduleType(iter->second) != "HLT1SmartTau" ) {
-                modules.erase(iter);
+        for ( std::map<int,std::string>::iterator iter = modules.begin(); iter != modules.end(); ) {
+            std::map<int,std::string>::iterator tempItr = iter++;
+            std::string const& value = HLTCP.moduleType(tempItr->second);
+            if ( value != "HLT1Tau" && value != "HLT1SmartTau" ) {
+                modules.erase(tempItr);
             }
         }
     }
