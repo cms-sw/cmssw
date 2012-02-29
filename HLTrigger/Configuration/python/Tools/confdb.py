@@ -403,7 +403,7 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
       self.data += """
 # remove the HLT prescales
 if 'PrescaleService' in %(dict)s:
-    %(process)sPrescaleService.lvl1DefaultLabel = cms.untracked.string( '0' )
+    %(process)sPrescaleService.lvl1DefaultLabel = cms.string( '0' )
     %(process)sPrescaleService.lvl1Labels       = cms.vstring( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' )
     %(process)sPrescaleService.prescaleTable    = cms.VPSet( )
 """

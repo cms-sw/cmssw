@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/05/01 10:32:16 $
- *  $Revision: 1.15 $
+ *  $Date: 2011/09/06 14:01:48 $
+ *  $Revision: 1.16 $
  *
  *  \author Martin Grunewald
  *
@@ -176,7 +176,7 @@ void HLTConfigData::extract()
      hltPrescaleTable_=HLTPrescaleTable();
    } else {
      const ParameterSet& iPS(processPSet_->getParameterSet(prescaleName));
-     string defaultLabel(iPS.getUntrackedParameter<string>("lvl1DefaultLabel",""));
+     string defaultLabel(iPS.getParameter<string>("lvl1DefaultLabel"));
      vector<string> labels;
      if (iPS.existsAs<vector<string> >("lvl1Labels",true)) {
        labels = iPS.getParameter<vector<string> >("lvl1Labels");
