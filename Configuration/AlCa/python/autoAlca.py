@@ -35,3 +35,4 @@ autoAlca = { 'allForPrompt'         : buildList(['MinimumBias', 'Commissioning',
              'allForExpress'        : buildList(['StreamExpress'], AlCaRecoMatrix),
              'allForPromptCosmics'  : buildList(['Cosmics'], AlCaRecoMatrix),
              'allForExpressCosmics' : buildList(['ExpressCosmics'], AlCaRecoMatrix) }
+autoAlca.update(AlCaRecoMatrix)
