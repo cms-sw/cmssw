@@ -58,7 +58,7 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
   produces< edm::DetSetVector<PixelDigi> >();
   if(includeErrors){
     produces< edm::DetSetVector<SiPixelRawDataError> >();
-    produces<DetIdCollection>();
+    produces<DetIdCollection>("ErrorModules");
     if(makeOverflowList) produces<DetIdCollection>("OverflowModules");
   }
 
