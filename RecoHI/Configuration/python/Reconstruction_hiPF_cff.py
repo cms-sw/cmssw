@@ -19,6 +19,7 @@ particleFlowBlock.useNuclear = cms.bool(False)
 particleFlowBlock.useConversions = cms.bool(False)
 particleFlowBlock.RecMuons = 'muons'
 
+particleFlowTmp.postMuonCleaning = cms.bool(False)
 particleFlowTmp.vertexCollection = cms.InputTag("hiSelectedVertex")
 particleFlowTmp.usePFElectrons = cms.bool(True)
 particleFlowTmp.muons = cms.InputTag("muons")
