@@ -46,7 +46,7 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
   useQuality = config_.getParameter<bool>("UseQualityInfo");
   useCablingTree_ = config_.getUntrackedParameter<bool>("UseCablingTree",true);
   if (config_.exists("ErrorList")) {
-    tkerrorlist = config_.getParameter<std::vector<int> > ("Errorlist");
+    tkerrorlist = config_.getParameter<std::vector<int> > ("ErrorList");
   }
   if (config_.exists("UserErrorList")) {
     usererrorlist = config_.getParameter<std::vector<int> > ("UserErrorList");
