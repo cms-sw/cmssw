@@ -82,7 +82,7 @@ hiSecondPixelTripletTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTraject
     trajectoryFilterName = 'hiSecondPixelTripletTrajectoryFilter',
     clustersToSkip = cms.InputTag('hiSecondPixelTripletClusters'),
     maxCand = 3,
-    estimator = cms.string('hiSecondPixelTripletChi2Est')
+    #estimator = cms.string('hiSecondPixelTripletChi2Est')
     )
 
 
