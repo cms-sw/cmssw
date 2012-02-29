@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_1_0/HLT/V188 (CMSSW_5_2_0_pre5_HLT9)
+# /dev/CMSSW_5_1_0/HLT/V190 (CMSSW_5_2_0_pre5_HLT10)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/HLT/V188')
+  tableName = cms.string('/dev/CMSSW_5_1_0/HLT/V190')
 )
 
 streams = cms.PSet( 
@@ -21894,7 +21894,7 @@ hltPhoton20CaloIdVLIsoLHEFilter = cms.EDFilter( "HLTEgammaGenericFilter",
 hltL1SeededPhotonHcalIsol = cms.EDProducer( "EgammaHLTHcalIsolationProducersRegional",
     eMinHE = cms.double( 0.8 ),
     hbheRecHitProducer = cms.InputTag( "hltHbhereco" ),
-    effectiveAreaBarrel = cms.double( 0.021 ),
+    effectiveAreaBarrel = cms.double( 0.105 ),
     outerCone = cms.double( 0.29 ),
     eMinHB = cms.double( 0.7 ),
     innerCone = cms.double( 0.16 ),
@@ -21903,7 +21903,7 @@ hltL1SeededPhotonHcalIsol = cms.EDProducer( "EgammaHLTHcalIsolationProducersRegi
     rhoProducer = cms.InputTag( 'hltKT6CaloJets','rho' ),
     depth = cms.int32( -1 ),
     doRhoCorrection = cms.bool( False ),
-    effectiveAreaEndcap = cms.double( 0.04 ),
+    effectiveAreaEndcap = cms.double( 0.17 ),
     recoEcalCandidateProducer = cms.InputTag( "hltL1SeededRecoEcalCandidate" ),
     rhoMax = cms.double( 9.9999999E7 ),
     rhoScale = cms.double( 1.0 ),
@@ -22064,7 +22064,7 @@ hltDoubleIsoEG18EtFilterUnseeded = cms.EDFilter( "HLTEgammaEtFilter",
 hltActivityPhotonHcalForHE = cms.EDProducer( "EgammaHLTHcalIsolationProducersRegional",
     eMinHE = cms.double( 0.8 ),
     hbheRecHitProducer = cms.InputTag( "hltHbhereco" ),
-    effectiveAreaBarrel = cms.double( 0.021 ),
+    effectiveAreaBarrel = cms.double( 0.105 ),
     outerCone = cms.double( 0.14 ),
     eMinHB = cms.double( 0.7 ),
     innerCone = cms.double( 0.0 ),
@@ -22073,7 +22073,7 @@ hltActivityPhotonHcalForHE = cms.EDProducer( "EgammaHLTHcalIsolationProducersReg
     rhoProducer = cms.InputTag( 'hltKT6CaloJets','rho' ),
     depth = cms.int32( -1 ),
     doRhoCorrection = cms.bool( False ),
-    effectiveAreaEndcap = cms.double( 0.04 ),
+    effectiveAreaEndcap = cms.double( 0.17 ),
     recoEcalCandidateProducer = cms.InputTag( "hltRecoEcalSuperClusterActivityCandidate" ),
     rhoMax = cms.double( 9.9999999E7 ),
     rhoScale = cms.double( 1.0 ),
@@ -22349,7 +22349,7 @@ hltEle8CaloIdLCaloIsoVLNoL1SeedHEFilter = cms.EDFilter( "HLTEgammaGenericFilter"
 hltActivityPhotonHcalIsol = cms.EDProducer( "EgammaHLTHcalIsolationProducersRegional",
     eMinHE = cms.double( 0.8 ),
     hbheRecHitProducer = cms.InputTag( "hltHbhereco" ),
-    effectiveAreaBarrel = cms.double( 0.021 ),
+    effectiveAreaBarrel = cms.double( 0.105 ),
     outerCone = cms.double( 0.29 ),
     eMinHB = cms.double( 0.7 ),
     innerCone = cms.double( 0.16 ),
@@ -22358,7 +22358,7 @@ hltActivityPhotonHcalIsol = cms.EDProducer( "EgammaHLTHcalIsolationProducersRegi
     rhoProducer = cms.InputTag( 'hltKT6CaloJets','rho' ),
     depth = cms.int32( -1 ),
     doRhoCorrection = cms.bool( False ),
-    effectiveAreaEndcap = cms.double( 0.04 ),
+    effectiveAreaEndcap = cms.double( 0.17 ),
     recoEcalCandidateProducer = cms.InputTag( "hltRecoEcalSuperClusterActivityCandidate" ),
     rhoMax = cms.double( 9.9999999E7 ),
     rhoScale = cms.double( 1.0 ),

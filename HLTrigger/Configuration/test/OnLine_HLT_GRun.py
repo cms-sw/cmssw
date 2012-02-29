@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_1_0/GRun/V120 (CMSSW_5_2_0_pre5_HLT9)
+# /dev/CMSSW_5_1_0/GRun/V121 (CMSSW_5_2_0_pre5_HLT10)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V120')
+  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V121')
 )
 
 process.streams = cms.PSet( 
@@ -3785,6 +3785,7 @@ process.MicroStateService = cms.Service( "MicroStateService",
 process.ModuleWebRegistry = cms.Service( "ModuleWebRegistry",
 )
 process.PrescaleService = cms.Service( "PrescaleService",
+    forceDefault = cms.bool( False ),
     prescaleTable = cms.VPSet(  *(
       cms.PSet(  pathName = cms.string( "HLT_Activity_Ecal_SC7_v9" ),
         prescales = cms.vuint32( 150, 100, 75, 75, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 )
@@ -4828,6 +4829,7 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100 )
       )
 ) ),
+    lvl1DefaultLabel = cms.string( "3e33" ),
     lvl1Labels = cms.vstring( '5e33',
       '4e33',
       '3e33',
@@ -4843,8 +4845,7 @@ process.PrescaleService = cms.Service( "PrescaleService",
       'EM1',
       'EM2',
       'Cosmics',
-      'Cosmics + High Random' ),
-    lvl1DefaultLabel = cms.untracked.string( "3e33" )
+      'Cosmics + High Random' )
 )
 process.UpdaterService = cms.Service( "UpdaterService",
 )
@@ -16334,7 +16335,7 @@ process.hltPhoton20CaloIdVLIsoLHEFilter = cms.EDFilter( "HLTEgammaGenericFilter"
 process.hltL1SeededPhotonHcalIsol = cms.EDProducer( "EgammaHLTHcalIsolationProducersRegional",
     eMinHE = cms.double( 0.8 ),
     hbheRecHitProducer = cms.InputTag( "hltHbhereco" ),
-    effectiveAreaBarrel = cms.double( 0.021 ),
+    effectiveAreaBarrel = cms.double( 0.105 ),
     outerCone = cms.double( 0.29 ),
     eMinHB = cms.double( 0.7 ),
     innerCone = cms.double( 0.16 ),
@@ -16343,7 +16344,7 @@ process.hltL1SeededPhotonHcalIsol = cms.EDProducer( "EgammaHLTHcalIsolationProdu
     rhoProducer = cms.InputTag( 'hltKT6CaloJets','rho' ),
     depth = cms.int32( -1 ),
     doRhoCorrection = cms.bool( False ),
-    effectiveAreaEndcap = cms.double( 0.04 ),
+    effectiveAreaEndcap = cms.double( 0.17 ),
     recoEcalCandidateProducer = cms.InputTag( "hltL1SeededRecoEcalCandidate" ),
     rhoMax = cms.double( 9.9999999E7 ),
     rhoScale = cms.double( 1.0 ),
@@ -16504,7 +16505,7 @@ process.hltDoubleIsoEG18EtFilterUnseeded = cms.EDFilter( "HLTEgammaEtFilter",
 process.hltActivityPhotonHcalForHE = cms.EDProducer( "EgammaHLTHcalIsolationProducersRegional",
     eMinHE = cms.double( 0.8 ),
     hbheRecHitProducer = cms.InputTag( "hltHbhereco" ),
-    effectiveAreaBarrel = cms.double( 0.021 ),
+    effectiveAreaBarrel = cms.double( 0.105 ),
     outerCone = cms.double( 0.14 ),
     eMinHB = cms.double( 0.7 ),
     innerCone = cms.double( 0.0 ),
@@ -16513,7 +16514,7 @@ process.hltActivityPhotonHcalForHE = cms.EDProducer( "EgammaHLTHcalIsolationProd
     rhoProducer = cms.InputTag( 'hltKT6CaloJets','rho' ),
     depth = cms.int32( -1 ),
     doRhoCorrection = cms.bool( False ),
-    effectiveAreaEndcap = cms.double( 0.04 ),
+    effectiveAreaEndcap = cms.double( 0.17 ),
     recoEcalCandidateProducer = cms.InputTag( "hltRecoEcalSuperClusterActivityCandidate" ),
     rhoMax = cms.double( 9.9999999E7 ),
     rhoScale = cms.double( 1.0 ),
@@ -16978,7 +16979,7 @@ process.hltEG18CaloId10Iso50EcalIsolFilterUnseeded = cms.EDFilter( "HLTEgammaGen
 process.hltActivityPhotonHcalIsol = cms.EDProducer( "EgammaHLTHcalIsolationProducersRegional",
     eMinHE = cms.double( 0.8 ),
     hbheRecHitProducer = cms.InputTag( "hltHbhereco" ),
-    effectiveAreaBarrel = cms.double( 0.021 ),
+    effectiveAreaBarrel = cms.double( 0.105 ),
     outerCone = cms.double( 0.29 ),
     eMinHB = cms.double( 0.7 ),
     innerCone = cms.double( 0.16 ),
@@ -16987,7 +16988,7 @@ process.hltActivityPhotonHcalIsol = cms.EDProducer( "EgammaHLTHcalIsolationProdu
     rhoProducer = cms.InputTag( 'hltKT6CaloJets','rho' ),
     depth = cms.int32( -1 ),
     doRhoCorrection = cms.bool( False ),
-    effectiveAreaEndcap = cms.double( 0.04 ),
+    effectiveAreaEndcap = cms.double( 0.17 ),
     recoEcalCandidateProducer = cms.InputTag( "hltRecoEcalSuperClusterActivityCandidate" ),
     rhoMax = cms.double( 9.9999999E7 ),
     rhoScale = cms.double( 1.0 ),
@@ -33827,7 +33828,7 @@ process.es_prefer_l1GtParameters = cms.ESPrefer('L1GtTriggerMenuXmlProducer','l1
 
 # remove the HLT prescales
 if 'PrescaleService' in process.__dict__:
-    process.PrescaleService.lvl1DefaultLabel = cms.untracked.string( '0' )
+    process.PrescaleService.lvl1DefaultLabel = cms.string( '0' )
     process.PrescaleService.lvl1Labels       = cms.vstring( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' )
     process.PrescaleService.prescaleTable    = cms.VPSet( )
 

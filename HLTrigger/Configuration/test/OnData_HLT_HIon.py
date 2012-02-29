@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_1_0/HIon/V120 (CMSSW_5_2_0_pre5_HLT9)
+# /dev/CMSSW_5_1_0/HIon/V121 (CMSSW_5_2_0_pre5_HLT10)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/HIon/V120')
+  tableName = cms.string('/dev/CMSSW_5_1_0/HIon/V121')
 )
 
 process.streams = cms.PSet( 
@@ -2753,6 +2753,7 @@ process.MicroStateService = cms.Service( "MicroStateService",
 process.ModuleWebRegistry = cms.Service( "ModuleWebRegistry",
 )
 process.PrescaleService = cms.Service( "PrescaleService",
+    forceDefault = cms.bool( False ),
     prescaleTable = cms.VPSet( 
       cms.PSet(  pathName = cms.string( "HLT_HIMET120_v1" ),
         prescales = cms.vuint32( 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
@@ -2998,6 +2999,7 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100 )
       )
     ),
+    lvl1DefaultLabel = cms.string( "3e33" ),
     lvl1Labels = cms.vstring( '5e33',
       '4e33',
       '3e33',
@@ -3013,8 +3015,7 @@ process.PrescaleService = cms.Service( "PrescaleService",
       'EM1',
       'EM2',
       'Cosmics',
-      'Cosmics + High Random' ),
-    lvl1DefaultLabel = cms.untracked.string( "3e33" )
+      'Cosmics + High Random' )
 )
 process.UpdaterService = cms.Service( "UpdaterService",
 )
@@ -8359,7 +8360,7 @@ if 'hltHfreco' in process.__dict__:
 
 # remove the HLT prescales
 if 'PrescaleService' in process.__dict__:
-    process.PrescaleService.lvl1DefaultLabel = cms.untracked.string( '0' )
+    process.PrescaleService.lvl1DefaultLabel = cms.string( '0' )
     process.PrescaleService.lvl1Labels       = cms.vstring( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' )
     process.PrescaleService.prescaleTable    = cms.VPSet( )
 
