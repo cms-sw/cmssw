@@ -36,21 +36,6 @@ bool SiStripLatency::put( const uint32_t detId, const uint16_t apv, const uint16
 
 void SiStripLatency::compress()
 {
-  // std::cout << "Starting compression" << std::endl;
-  // std::cout << "Total number of elements before compression = " << latencies_.size() << std::endl;
-
-  // int i = 0;
-  // for( latIt it = latencies_.begin(); it != latencies_.end(); ++it, ++i ) {
-  //   std::cout << "latency["<<i<<"] = " << it->latency << ", mode["<<i<<"] = " << (int)it->mode << " for detIdAndApv = " << it->detIdAndApv << std::endl;;
-  // }
-  // Remove latency duplicates. Note that unique is stable.
-  // CANNOT USE THIS: it will leave one element, but you do not know which one.
-  // unique(latencies_.begin(), latencies_.end(), EqualByLatency());
-  // Cannot use lower_bound or upper_bound with latencies because the vector is sorted in detIdAndApvs and not in latencies
-  // For the same reason cannot use equal_range.
-
-  // Go through the elements one by one and remove the current one if it has the same latency as the next one
-  // for( latIt lat = latencies_.begin(); lat != latencies_.end(); ++lat ) {
   latIt lat = latencies_.begin();
   while( lat != latencies_.end() ) {
     // If it is not the last and it has the same latency and mode as the next one remove it
@@ -61,23 +46,7 @@ void SiStripLatency::compress()
       ++lat;
     }
   }
-  // std::cout << "Total number of elements after compression = " << latencies_.size() << std::endl;
-  // i = 0;
-  // for( latIt it = latencies_.begin(); it != latencies_.end(); ++it, ++i ) {
-  //   std::cout << "latency["<<i<<"] = " << it->latency << ", mode["<<i<<"] = " << (int)it->mode  << ", for detIdAndApv = " << it->detIdAndApv << std::endl;;
-  // }
 }
-
-// const latConstIt SiStripLatency::position(const uint32_t detId, const uint16_t apv) const
-// {
-//   if( latencies_.empty() ) {
-//     // std::cout << "SiStripLatency: Error, range is empty" << std::endl;
-//     return latencies_.end();
-//   }
-//   uint32_t detIdAndApv = (detId << 2) | apv;
-//   latConstIt pos = lower_bound(latencies_.begin(), latencies_.end(), detIdAndApv, OrderByDetIdAndApv());
-//   return pos;
-// }
 
 uint16_t SiStripLatency::latency(const uint32_t detId, const uint16_t apv) const
 {
@@ -177,36 +146,9 @@ int16_t SiStripLatency::singleReadOutMode() const
   return -1;
 }
 
-// bool SiStripLatency::allPeak() const
-// {
-//   if( (singleMode() & 8) == 8 ) return true;
-//   // If we are here the Tracker is not in single mode. Check if it is in single Read-out mode.
-//   bool allInPeakMode = true;
-//   std::vector<uint16_t> allModesVector;
-//   allModes(allModesVector);
-//   std::vector<uint16_t>::const_iterator it = allModesVector.begin();
-//   for( ; it != allModesVector.end(); ++it ) {
-//     if( ((*it) & 8) == 0 ) allInPeakMode = false;
-//   }
-//   return allInPeakMode;
-// }
 
 void SiStripLatency::allLatencies(std::vector<uint16_t> & allLatenciesVector) const
 {
-//   if( !(latencies_.empty()) ) {
-//     allLatenciesVector.push_back(latencies_[0].latency);
-//     if( latencies_.size() > 1 ) {
-//       for( latConstIt it = latencies_.begin()+1; it != latencies_.end(); ++it ) {
-//         if( it->latency != (it-1)->latency) {
-//           allLatenciesVector.push_back(it->latency);
-//           std::cout << "Saved latency = " << short(it->latency) << std::endl;
-//         }
-//       }
-//       // The Latencies are sorted by DetIdAndApv, we need to sort the latencies again
-//       std::sort( allLatenciesVector.begin(), allLatenciesVector.end() );
-//       allLatenciesVector.erase( unique( allLatenciesVector.begin(), allLatenciesVector.end() ) );
-//     }
-//   }
 
   for( latConstIt it = latencies_.begin(); it != latencies_.end(); ++it ) {
     allLatenciesVector.push_back(it->latency);
@@ -216,13 +158,6 @@ void SiStripLatency::allLatencies(std::vector<uint16_t> & allLatenciesVector) co
   allLatenciesVector.erase( unique( allLatenciesVector.begin(), allLatenciesVector.end() ), allLatenciesVector.end() );
 }
 
-// pair<uint16_t, uint16_t> SiStripLatency::singleLatencyAndMode() const
-// {
-//   if( latencies_.size() == 1 ) {
-//     return make_pair(latencies_[0].latency, latencies_[0].mode);
-//   }
-//   return make_pair(-1, 0);
-// }
 
 std::vector<SiStripLatency::Latency> SiStripLatency::allUniqueLatencyAndModes()
 {
@@ -234,12 +169,13 @@ std::vector<SiStripLatency::Latency> SiStripLatency::allUniqueLatencyAndModes()
 
 void SiStripLatency::printSummary(std::stringstream & ss) const
 {
+  ss << std::endl;
   if(singleReadOutMode()==1){
-  ss << "SingleReadOut = PEAK" << std::endl;
+     ss << "SingleReadOut = PEAK" << std::endl;
   }else if(singleReadOutMode()==0){
-  ss << "SingleReadOut = DECO" << std::endl;
+    ss << "SingleReadOut = DECO" << std::endl;
   }else{
-  ss << "SingleReadOut = MIXED" << std::endl;
+    ss << "SingleReadOut = MIXED" << std::endl;
   }
   uint16_t lat = singleLatency();
   uint16_t mode = singleMode();
@@ -256,36 +192,10 @@ void SiStripLatency::printSummary(std::stringstream & ss) const
       ss << "Latency value is " << lat << " that means invalid" << std::endl;
     }
   }
-
-  if( mode != 0 ) {
-    ss << "All the Tracker has the same mode = " << mode << std::endl;  
-  }
-  else {
-    std::vector<uint16_t> allModesVector;
-    allModes(allModesVector);
-    if( allModesVector.size() > 1 ) {
-      // In all even modes the module is off. Count only the odd modes
-      std::vector<uint16_t>::const_iterator it = allModesVector.begin();
-      uint16_t temp_num = 0;
-      uint16_t last_mode = 999;
-      bool mixed = false;
-      for( ; it != allModesVector.end(); ++it ) {
-	if( (*it) % 2 == 0 ) {
-	  ss << "HERE Some of the modules are off " << std::endl; 
-	  continue;
-	}
-	temp_num++;
-	if (last_mode!=999){
-	  if ((*it) != last_mode)  mixed = true;
-	  last_mode = (*it);
-	} else  last_mode = (*it);
-      }
-      if (!mixed) ss << "All modules ON have the same mode = " << last_mode  << std::endl;
-      else ss << "There is more than one mode in the Tracker" << std::endl;
-    }
-  }
   ss << "Total number of ranges = " << latencies_.size() << std::endl;
+  printDebug(ss);
 }
+
 
 void SiStripLatency::printDebug(std::stringstream & ss) const
 {
