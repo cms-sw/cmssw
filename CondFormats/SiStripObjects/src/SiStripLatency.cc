@@ -135,10 +135,13 @@ int16_t SiStripLatency::singleReadOutMode() const
     std::vector<uint16_t> allModesVector;
     allModes(allModesVector);
     std::vector<uint16_t>::const_iterator it = allModesVector.begin();
-    for( ; it != allModesVector.end(); ++it ) {
-      if( (*it) % 2 == 0 ) continue;
-      if( ((*it) & READMODEMASK) == READMODEMASK ) allInDecoMode = false;
-      if( ((*it) & READMODEMASK) == 0 ) allInPeakMode = false;
+    if (allModesVector.size() == 1 && allModesVector[0] == 0) allInPeakMode = false;
+    else{
+      for( ; it != allModesVector.end(); ++it ) {
+	if( (*it) % 2 == 0 ) continue;
+	if( ((*it) & READMODEMASK) == READMODEMASK ) allInDecoMode = false;
+	if( ((*it) & READMODEMASK) == 0 ) allInPeakMode = false;
+      }
     }
     if( allInPeakMode ) return 1;
     if( allInDecoMode ) return 0;
@@ -178,7 +181,6 @@ void SiStripLatency::printSummary(std::stringstream & ss) const
     ss << "SingleReadOut = MIXED" << std::endl;
   }
   uint16_t lat = singleLatency();
-  uint16_t mode = singleMode();
   if( lat != 255 ) {
     ss << "All the Tracker has the same latency = " << lat << std::endl;
   }
