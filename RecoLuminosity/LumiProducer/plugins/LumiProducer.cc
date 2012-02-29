@@ -18,7 +18,7 @@ from the configuration file, the DB is not implemented yet)
 //                   David Dagenhart
 //       
 //         Created:  Tue Jun 12 00:47:28 CEST 2007
-// $Id: LumiProducer.cc,v 1.24 2012/02/28 11:39:30 xiezhen Exp $
+// $Id: LumiProducer.cc,v 1.25 2012/02/28 15:07:18 xiezhen Exp $
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -314,11 +314,11 @@ LumiProducer::getLumiDataId(const coral::ISchema& schema,unsigned int runnumber)
   lumiQuery->setCondition("RUNNUM=:runnum",bindVariables);
   lumiQuery->defineOutput(lumiidOutput);
   coral::ICursor& lumicursor=lumiQuery->execute();
-  unsigned int rowcounter=0;
   while( lumicursor.next() ){
     const coral::AttributeList& row=lumicursor.currentRow();
-    lumidataid=row["lumidataid"].data<unsigned long long>();
-    ++rowcounter;
+    if(!row["lumidataid"].isNull()){
+      lumidataid=row["lumidataid"].data<unsigned long long>();
+    }
   }
   delete lumiQuery;
   return lumidataid;
@@ -340,11 +340,11 @@ LumiProducer::getTrgDataId(const coral::ISchema& schema,unsigned int runnumber){
   trgQuery->setCondition("RUNNUM=:runnum",bindVariables);
   trgQuery->defineOutput(trgidOutput);
   coral::ICursor& trgcursor=trgQuery->execute();
-  unsigned int rowcounter=0;
   while( trgcursor.next() ){
     const coral::AttributeList& row=trgcursor.currentRow();
-    trgdataid=row["trgdataid"].data<unsigned long long>();
-    ++rowcounter;
+    if(!row["trgdataid"].isNull()){
+      trgdataid=row["trgdataid"].data<unsigned long long>();
+    }
   }
   delete trgQuery;
   return trgdataid;
@@ -366,11 +366,11 @@ LumiProducer::getHltDataId(const coral::ISchema& schema,unsigned int runnumber){
   hltQuery->setCondition("RUNNUM=:runnum",bindVariables);
   hltQuery->defineOutput(hltidOutput);
   coral::ICursor& hltcursor=hltQuery->execute();
-  unsigned int rowcounter=0;
   while( hltcursor.next() ){
     const coral::AttributeList& row=hltcursor.currentRow();
-    hltdataid=row["hltdataid"].data<unsigned long long>();
-    ++rowcounter;
+    if(!row["hltdataid"].isNull()){
+      hltdataid=row["hltdataid"].data<unsigned long long>();
+    }
   }
   delete hltQuery;
   return hltdataid;
