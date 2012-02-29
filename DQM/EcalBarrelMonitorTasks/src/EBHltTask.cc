@@ -1,8 +1,8 @@
 /*
  * \file EBHltTask.cc
  *
- * $Date: 2011/08/30 09:30:32 $
- * $Revision: 1.17 $
+ * $Date: 2012/02/28 16:38:13 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  *
 */
@@ -37,7 +37,10 @@ EBHltTask::EBHltTask(const edm::ParameterSet& ps){
 
   dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
+  // workaround Feb 29 2012
+  bool forcePrefixME(ps.getUntrackedParameter<bool>("forcePrefixME", false));
+
+  prefixME_ = forcePrefixME ? ps.getUntrackedParameter<std::string>("prefixME", "Ecal") : "Ecal";
 
   folderName_ = ps.getUntrackedParameter<std::string>("folderName", "FEDIntegrity");
 
@@ -48,9 +51,6 @@ EBHltTask::EBHltTask(const edm::ParameterSet& ps){
   EBDetIdCollection1_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection1");
   EBDetIdCollection2_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection2");
   EBDetIdCollection3_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection3");
-  EEDetIdCollection1_ =  ps.getParameter<edm::InputTag>("EEDetIdCollection1");
-  EEDetIdCollection2_ =  ps.getParameter<edm::InputTag>("EEDetIdCollection2");
-  EEDetIdCollection3_ =  ps.getParameter<edm::InputTag>("EEDetIdCollection3");
   EcalElectronicsIdCollection1_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection1");
   EcalElectronicsIdCollection2_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection2");
   EcalElectronicsIdCollection3_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection3");
@@ -229,7 +229,7 @@ void EBHltTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   edm::Handle<EEDetIdCollection> eeIds1;
 
-  if ( e.getByLabel(EEDetIdCollection1_, eeIds1) ) {
+  if ( e.getByLabel(EBDetIdCollection1_, eeIds1) ) {
 
     for ( EEDetIdCollection::const_iterator idItr = eeIds1->begin(); idItr != eeIds1->end(); ++idItr ) {
 
@@ -242,7 +242,7 @@ void EBHltTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EEHltTask") << EEDetIdCollection1_ << " not available";
+    edm::LogWarning("EEHltTask") << EBDetIdCollection1_ << " not available";
 
   }
 
@@ -266,7 +266,7 @@ void EBHltTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   edm::Handle<EEDetIdCollection> eeIds2;
 
-  if ( e.getByLabel(EEDetIdCollection2_, eeIds2) ) {
+  if ( e.getByLabel(EBDetIdCollection2_, eeIds2) ) {
 
     for ( EEDetIdCollection::const_iterator idItr = eeIds2->begin(); idItr != eeIds2->end(); ++idItr ) {
 
@@ -279,7 +279,7 @@ void EBHltTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EEHltTask") << EEDetIdCollection2_ << " not available";
+    edm::LogWarning("EEHltTask") << EBDetIdCollection2_ << " not available";
 
   }
 
@@ -304,7 +304,7 @@ void EBHltTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   edm::Handle<EEDetIdCollection> eeIds3;
 
-  if ( e.getByLabel(EEDetIdCollection3_, eeIds3) ) {
+  if ( e.getByLabel(EBDetIdCollection3_, eeIds3) ) {
 
     for ( EEDetIdCollection::const_iterator idItr = eeIds3->begin(); idItr != eeIds3->end(); ++idItr ) {
 
@@ -317,7 +317,7 @@ void EBHltTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EEHltTask") << EEDetIdCollection3_ << " not available";
+    edm::LogWarning("EEHltTask") << EBDetIdCollection3_ << " not available";
 
   }
 

@@ -189,8 +189,3 @@ ecalBarrelHltTask.EcalElectronicsIdCollection3 = 'ecalDigis:EcalIntegrityMemTtId
 ecalBarrelHltTask.EcalElectronicsIdCollection4 = 'ecalDigis:EcalIntegrityMemBlockSizeErrors'
 ecalBarrelHltTask.EcalElectronicsIdCollection5 = 'ecalDigis:EcalIntegrityMemChIdErrors'
 ecalBarrelHltTask.EcalElectronicsIdCollection6 = 'ecalDigis:EcalIntegrityMemGainErrors'
-
-ecalBarrelHltTask.EEDetIdCollection0 = 'ecalDigis:EcalIntegrityDCCSizeErrors'
-ecalBarrelHltTask.EEDetIdCollection1 = 'ecalDigis:EcalIntegrityGainErrors'
-ecalBarrelHltTask.EEDetIdCollection2 = 'ecalDigis:EcalIntegrityChIdErrors'
-ecalBarrelHltTask.EEDetIdCollection3 = 'ecalDigis:EcalIntegrityGainSwitchErrors'

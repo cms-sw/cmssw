@@ -4,8 +4,8 @@
 /*
  * \file EBHltTask.h
  *
- * $Date: 2010/03/26 11:24:49 $
- * $Revision: 1.6 $
+ * $Date: 2012/02/28 16:38:10 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
@@ -88,10 +88,6 @@ edm::InputTag EBDetIdCollection1_;
 edm::InputTag EBDetIdCollection2_;
 edm::InputTag EBDetIdCollection3_;
 edm::InputTag EBDetIdCollection4_;
-edm::InputTag EEDetIdCollection1_;
-edm::InputTag EEDetIdCollection2_;
-edm::InputTag EEDetIdCollection3_;
-edm::InputTag EEDetIdCollection4_;
 edm::InputTag EcalElectronicsIdCollection1_;
 edm::InputTag EcalElectronicsIdCollection2_;
 edm::InputTag EcalElectronicsIdCollection3_;
