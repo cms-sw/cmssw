@@ -43,6 +43,7 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
 {
 
   includeErrors = config_.getParameter<bool>("IncludeErrors");
+  makeOverflowList = config_.getParameter<bool>("OverflowList");
   useQuality = config_.getParameter<bool>("UseQualityInfo");
   useCablingTree_ = config_.getUntrackedParameter<bool>("UseCablingTree",true);
   if (config_.exists("ErrorList")) {
@@ -58,6 +59,7 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
   if(includeErrors){
     produces< edm::DetSetVector<SiPixelRawDataError> >();
     produces<DetIdCollection>();
+    if(makeOverflowList) produces<DetIdCollection>("OverflowModules");
   }
 
   // Timing
@@ -134,9 +136,11 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   std::auto_ptr< edm::DetSetVector<PixelDigi> > collection( new edm::DetSetVector<PixelDigi> );
   std::auto_ptr< edm::DetSetVector<SiPixelRawDataError> > errorcollection( new edm::DetSetVector<SiPixelRawDataError> );
   std::auto_ptr< DetIdCollection > error_detidcollection(new DetIdCollection());
+  std::auto_ptr< DetIdCollection > overflow_detidcollection(new DetIdCollection());
 
   PixelDataFormatter formatter(cabling_);
   formatter.setErrorStatus(includeErrors);
+
   if (useQuality) formatter.setQualityStatus(useQuality, badPixelInfo_);
 
   if (theTimer) theTimer->start();
@@ -178,13 +182,20 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
 	  // in the configurable error list in the job option cfi.
 	  // Code needs to be here, because there can be a set of errors for each 
 	  // entry in the for loop over PixelDataFormatter::Errors
-	  if(!errorList.empty()){
+	  if(!errorList.empty() || makeOverflowList){
 	    DetId errorDetId(errordetid);
 	    edm::DetSet<SiPixelRawDataError>::const_iterator itPixelError=errorDetSet.begin();
-	    for(; itPixelError!=errorDetSet.end(); ++itPixelError){
-	      std::vector<int>::iterator it_find = find(errorList.begin(), errorList.end(), itPixelError->getType());
-	      if(it_find != errorList.end()){
-		error_detidcollection->push_back(errordetid);
+            for(; itPixelError!=errorDetSet.end(); ++itPixelError){
+              // fill list of detIds to be turned off by tracking
+              if(!errorList.empty()) {
+	        std::vector<int>::iterator it_find = find(errorList.begin(), errorList.end(), itPixelError->getType());
+	        if(it_find != errorList.end()){
+		  error_detidcollection->push_back(errordetid);
+	        }
+	      }
+              // fill list of detIds with overflow errors
+	      if(makeOverflowList && itPixelError->getType()==40){
+                overflow_detidcollection->push_back(errordetid);
 	      }
 	    }
 	  }
@@ -215,5 +226,6 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   if(includeErrors){
     ev.put( errorcollection );
     ev.put( error_detidcollection );
+    if(makeOverflowList) ev.put( overflow_detidcollection );
   }
 }

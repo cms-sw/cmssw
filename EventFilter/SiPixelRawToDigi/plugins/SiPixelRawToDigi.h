@@ -45,6 +45,7 @@ private:
   TH1D *hCPU, *hDigi;
   R2DTimerObserver * theTimer;
   bool includeErrors;
+  bool makeOverflowList;
   bool useQuality;
   bool debug;
   std::vector<int> errorList;
