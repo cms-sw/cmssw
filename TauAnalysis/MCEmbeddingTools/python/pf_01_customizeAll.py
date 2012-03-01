@@ -164,7 +164,7 @@ def customise(process):
     if hasattr(sys, "argv") == True:
       if not sys.argv[0].endswith('cmsDriver.py'):
         options.parseArguments()
-  else
+  else:
     print "CL parsing disabled!"
 
   print "Setting mdtau to ", options.mdtau
