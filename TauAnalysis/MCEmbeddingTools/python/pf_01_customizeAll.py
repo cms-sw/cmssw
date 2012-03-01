@@ -159,11 +159,13 @@ def customise(process):
 #                     "original processName")
 
 
-
-  import sys
-  if hasattr(sys, "argv") == True:
-    if not sys.argv[0].endswith('cmsDriver.py'):
-      options.parseArguments()
+  if not hasattr(process,"doNotParse"):
+    import sys
+    if hasattr(sys, "argv") == True:
+      if not sys.argv[0].endswith('cmsDriver.py'):
+        options.parseArguments()
+  else
+    print "CL parsing disabled!"
 
   print "Setting mdtau to ", options.mdtau
   process.generator.ZTauTau.TauolaOptions.InputCards.mdtau = options.mdtau 
@@ -321,13 +323,43 @@ def customise(process):
       pth.replace(process.gsfElectrons, process.gsfElectronsORG*process.gsfElectrons)
       #print p, dir(pth.moduleNames())
 
-
+  # xxx
   process.gsfElectrons = cms.EDProducer("GSFElectronsMixer",
       col1 = cms.InputTag("gsfElectronsORG"),
-      col2 = cms.InputTag("gsfElectrons","","RECO"),
+      col2 = cms.InputTag("gsfElectrons","","HLT"),
   )
   #'''
   process.schedule.remove(process.DQM_FEDIntegrity_v3)
+
+  skimEnabled = False
+  if hasattr(process,"doZmumuSkim"):
+      print "Enabling Zmumu skim"
+      skimEnabled = True
+      #process.load("TauAnalysis/Skimming/goldenZmmSelectionVBTFrelPFIsolation_cfi")
+      process.load("TauAnalysis/MCEmbeddingTools/ZmumuStandalonSelection_cff")
+      process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
+
+      # we are allready selecting events from generation step, so following way is ok
+      for path in process.paths:
+          getattr(process,path)._seq = process.goldenZmumuSelectionSequence * getattr(process,path)._seq
+
+      #process.options = cms.untracked.PSet(
+      #  wantSummary = cms.untracked.bool(True)
+      #)
+
+
+  if not skimEnabled:
+      print "Zmumu skim not enabled"
+
+
+  print "# ######################################################################################"
+  print "  Following parameters can be added before customize function "
+  print "  call in order to controll process  customization: "
+  print "     process.doNotParse =  cms.PSet() # disables CL parsing for crab compat"
+  print "     process.doZmumuSkim = cms.PSet() # adds Zmumu skimming before embedding is run"
+  print "# ######################################################################################"
+
+
 
 
   print "#############################################################"
