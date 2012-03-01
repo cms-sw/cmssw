@@ -1,4 +1,4 @@
-# /dev/CMSSW_5_1_0/GRun/V125
+# /dev/CMSSW_5_1_0/GRun/V126
 
 import FWCore.ParameterSet.Config as cms
 
@@ -44,6 +44,7 @@ streamA_datasetDoubleElectron_selector.hltResults = cms.InputTag('TriggerResults
 streamA_datasetDoubleElectron_selector.l1tResults = cms.InputTag('')
 streamA_datasetDoubleElectron_selector.throw      = cms.bool(False)
 streamA_datasetDoubleElectron_selector.triggerConditions = cms.vstring('HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v1', 
+    'HLT_Ele15_Ele8_Ele5_CaloIdL_TrkIdVL_v1', 
     'HLT_Ele17_CaloIdL_CaloIsoVL_v11', 
     'HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v11', 
     'HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v1', 
