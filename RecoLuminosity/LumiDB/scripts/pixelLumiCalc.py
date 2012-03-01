@@ -84,7 +84,7 @@ if __name__ == '__main__':
     #
     #optional args to filter *runs*, they do not select on LS level.
     #    
-    parser.add_argument('--fill',dest='fillnum',action='store',
+    parser.add_argument('-f','--fill',dest='fillnum',action='store',
                         default=None,required=False,
                         help='fill number (optional) ')
     
@@ -142,7 +142,7 @@ if __name__ == '__main__':
     iresults=[]
     if options.runnumber: # if runnumber specified, do not go through other run selection criteria
         irunlsdict[options.runnumber]=None
-    elif options.inputfile:
+    else:
         reqTrg=False
         reqHlt=False
         if options.action=='recorded':
@@ -157,9 +157,6 @@ if __name__ == '__main__':
         else:
             for run in runlist:
                 irunlsdict[run]=None
-    else:
-        print '-i or -r option is required'
-        exit(-1)
     if options.verbose:
         print 'Selected run:ls'
         for run in sorted(irunlsdict):

@@ -94,7 +94,7 @@ if __name__ == '__main__':
                         choices=beamModeChoices,
                         required=False,
                         help='beam mode choices [stable] (optional)')
-    parser.add_argument('--fill',dest='fillnum',action='store',
+    parser.add_argument('-f','--fill',dest='fillnum',action='store',
                         default=None,required=False,
                         help='fill number (optional) ')
     parser.add_argument('--amodetag',dest='amodetag',action='store',
