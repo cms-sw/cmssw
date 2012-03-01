@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import FWCore.ParameterSet.Config as cms
-
+import os
 
 def customise(process):
    
@@ -427,7 +427,16 @@ def customise(process):
       print "Enabling Zmumu skim"
       skimEnabled = True
       #process.load("TauAnalysis/Skimming/goldenZmmSelectionVBTFrelPFIsolation_cfi")
-      process.load("TauAnalysis/MCEmbeddingTools/ZmumuStandalonSelection_cff")
+
+      
+      cmssw_ver = os.environ["CMSSW_VERSION"]
+      if cmssw_ver.find("CMSSW_4_2") != -1:
+        print
+        print "Using legacy version of Zmumu skim. Note, that muon isolation is disabled"
+        print
+        process.load("TauAnalysis/MCEmbeddingTools/ZmumuStandalonSelectionLegacy_cff")
+      else:
+        process.load("TauAnalysis/MCEmbeddingTools/ZmumuStandalonSelection_cff")
       process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
 
       # we are allready selecting events from generation step, so following way is ok
