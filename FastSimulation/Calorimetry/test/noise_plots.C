@@ -105,13 +105,7 @@ void noise_plots(char* newFile="DQM_fastsim.root",char* refFile="DQM_fullsim.roo
   TH1F * r[5]={rh1,rh2,rh3,rh4,rh5};
   TH1F * s[5]={sh1,sh2,sh3,sh4,sh5};
   plotBuilding(canvas,s, r,5,
-	       te,"UU",-1, 1, true, 0);
-  /*
-  TH1F * r[1]={rh1};
-  TH1F * s[1]={sh1};
-  plotBuilding(canvas,s, r,1,
-	       te,"UU",-1, 1, true, 0);
-  */
+	       te,"UU",-1);//, 1, true, 0);
 
   canvas->cd();
   l = new TLegend(0.50,0.14,0.90,0.19);
@@ -150,8 +144,8 @@ void plotBuilding(TCanvas *canvas, TH1F **s, TH1F **r, int n,TText* te,
     TPad *pad=canvas->cd(i+1);
     setStats(s[i],r[i], -1, 0, fit);
     if((logx>>i)&1)pad->SetLogx();
-    r[i]->Draw();
-    s[i]->Draw("sames");
+    r[i]->Draw("lpf");
+    s[i]->Draw("sameslpf");
   }
 
 }
