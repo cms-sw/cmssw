@@ -29,6 +29,9 @@ class HLTForwardBackwardJetsFilter : public HLTFilter {
       double minPt_;
       double minEta_;
       double maxEta_;
+      unsigned int nNeg_;
+      unsigned int nPos_;
+      unsigned int nTot_;
       int    triggerType_;
 };
 
