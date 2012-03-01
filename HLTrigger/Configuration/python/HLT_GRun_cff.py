@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_1_0/GRun/V123 (CMSSW_5_2_0_pre5_HLT10)
+# /dev/CMSSW_5_1_0/GRun/V124 (CMSSW_5_2_0_pre5_HLT10)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V123')
+  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V124')
 )
 
 streams = cms.PSet( 
@@ -21039,7 +21039,7 @@ hltEle27WP70TrackIsoFilter = cms.EDFilter( "HLTElectronGenericFilter",
     thrTimesPtEB = cms.double( -1.0 ),
     saveTags = cms.bool( True ),
     thrRegularEE = cms.double( -1.0 ),
-    L1IsoCand = cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
+    L1IsoCand = cms.InputTag( "hltPixelMatchCleanElectronsL1Seeded" ),
     thrRegularEB = cms.double( -1.0 ),
     lessThan = cms.bool( True ),
     ncandcut = cms.int32( 1 ),
