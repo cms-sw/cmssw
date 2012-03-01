@@ -30,10 +30,7 @@ class cosmics(Reco):
 
         """
         if not 'skims' in args:
-            args['skims']= ['TkAlCosmics0T',
-                            'MuAlGlobalCosmics',
-                            'HcalCalHOCosmics',
-                            'DtCalibCosmics']
+            args['skims']= ['@allForPromptCosmics']
         process = Reco.promptReco(self,globalTag, **args)
 
         customiseCosmicData(process)  
@@ -49,8 +46,7 @@ class cosmics(Reco):
         """
 
         if not 'skims' in args:
-            args['skims']= ['SiStripCalZeroBias',
-                            'TkAlCosmics0T']
+            args['skims']= ['@allForExpressCosmics']
         process = Reco.expressProcessing(self,globalTag, **args)
 
         customiseCosmicData(process)  
