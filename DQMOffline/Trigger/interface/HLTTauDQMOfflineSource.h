@@ -89,6 +89,12 @@ private:
     //Helper function to retrieve data from the parameter set
     void processPSet( const edm::ParameterSet& pset );
     
+    //Count parameters
+    unsigned int countParameters( const edm::ParameterSet& pset );
+    
+    //search event content
+    void searchEventContent(std::vector<edm::InputTag>& eventContent, const edm::ParameterSet& pset);
+
     //Define Dummy vectors of Plotters
     std::vector<HLTTauDQML1Plotter*> l1Plotters;
     std::vector<HLTTauDQMCaloPlotter*> caloPlotters;
