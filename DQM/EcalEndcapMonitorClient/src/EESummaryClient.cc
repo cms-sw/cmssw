@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2011/11/01 11:08:31 $
- * $Revision: 1.217 $
+ * $Date: 2012/02/28 16:38:16 $
+ * $Revision: 1.218 $
  * \author G. Della Ricca
  *
  */
@@ -1876,7 +1876,7 @@ void EESummaryClient::analyze(void) {
 	  if ( eetttc ) {
 
 	    float mean01 = 0;
-	    bool hadNonZeroInterest = false;
+	    //bool hadNonZeroInterest = false;
 
 	    if ( httt01_[ism-1] ) {
 
@@ -1904,7 +1904,7 @@ void EESummaryClient::analyze(void) {
 		} else {
 		  meTriggerTowerTiming_[1]->setBinContent( jx, jy, xval );
 		}
-		hadNonZeroInterest = true;
+		//hadNonZeroInterest = true;
 	      }
 
 	    }
