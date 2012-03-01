@@ -19,7 +19,7 @@ def buildList(pdList, matrix):
     """Takes a list of primary datasets (PDs) and the AlCaRecoMatrix (a dictinary) and returns a string with all the AlCaRecos for the selected PDs separated by the '+' character without duplicates."""
     alCaRecoList = []
     for pd in pdList:
-        alCaRecoList.append(matrix[pd])
+        alCaRecoList.extend(matrix[pd].split("+"))
     # remove duplicates converting to a set
     alCaRecoList = set(alCaRecoList)
     stringList = ''
