@@ -34,6 +34,10 @@
  <class name="l1slhc::L1CaloJetCollection"/>
  <class name="edm::Wrapper<l1slhc::L1CaloJetCollection>"/>
 
+ <class name="l1slhc::L1TowerJet"/>
+ <class name="std::vector<l1slhc::L1TowerJet>"/>
+ <class name="l1slhc::L1TowerJetCollection"/>
+ <class name="edm::Wrapper<l1slhc::L1TowerJetCollection>"/>
 
 <!-- ========================================================================================= -->
 <!-- ========================================================================================= -->

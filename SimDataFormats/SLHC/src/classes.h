@@ -14,6 +14,9 @@
 #include "SimDataFormats/SLHC/interface/L1CaloRegion.h"
 #include "SimDataFormats/SLHC/interface/L1CaloRegionFwd.h"
 
+#include "SimDataFormats/SLHC/interface/L1TowerJet.h"
+#include "SimDataFormats/SLHC/interface/L1TowerJetFwd.h"
+
 #include "SimDataFormats/SLHC/interface/EtaPhiContainer.h"
 
 
@@ -49,7 +52,12 @@ namespace {
 
     edm::Wrapper<l1slhc::L1CaloRegionCollection>        wcaloregionC;
     edm::Wrapper<l1slhc::L1CaloRegionRefVector>         qaloregionRefC;
-   
+  
+
+    l1slhc::L1TowerJet                     towerjet;
+    std::vector<l1slhc::L1TowerJet>       l1towerjetvec;
+ 	l1slhc::L1TowerJetCollection		  l1towerjetcoll;
+    edm::Wrapper< l1slhc::L1TowerJetCollection >   wl1towerjetcol; 
 
 
   }
