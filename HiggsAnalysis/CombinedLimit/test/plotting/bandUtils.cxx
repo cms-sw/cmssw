@@ -488,7 +488,7 @@ void significanceToPVal(TDirectory *bands, TString inName, TString outName) {
     TGraphAsymmErrors *b2 = new TGraphAsymmErrors(n);
     for (int i = 0; i < n; ++i) {
         double x = b1->GetX()[i], s = b1->GetY()[i];
-        double slo = s + b1->GetErrorYlow(i), shi = s + b1->GetErrorYhigh(i);
+        double slo = s - b1->GetErrorYlow(i), shi = s + b1->GetErrorYhigh(i);
         double pval = ROOT::Math::normal_cdf_c(s);
         double phi  = ROOT::Math::normal_cdf_c(slo);
         double plo  = ROOT::Math::normal_cdf_c(shi);
@@ -505,9 +505,16 @@ void testStatToPVal(TDirectory *bands, TString inName, TString outName) {
     TGraphAsymmErrors *b2 = new TGraphAsymmErrors(n);
     for (int i = 0; i < n; ++i) {
         double x = b1->GetX()[i], s = b1->GetY()[i];
-        double pval = ROOT::Math::normal_cdf_c(s > 0 ? sqrt(s) : 0);
+        double slo = s - b1->GetErrorYlow(i), shi = s + b1->GetErrorYhigh(i);
+        s   = (s   > 0 ? sqrt(s  ) : 0);
+        slo = (slo > 0 ? sqrt(slo) : 0);
+        shi = (shi > 0 ? sqrt(shi) : 0);
+        double pval = ROOT::Math::normal_cdf_c(s);
+        double phi  = ROOT::Math::normal_cdf_c(slo);
+        double plo  = ROOT::Math::normal_cdf_c(shi);
         b2->SetPoint(i, x, pval);
-        b2->SetPointError(i, b1->GetErrorXlow(i), b1->GetErrorXhigh(i), 0, 0);
+        b2->SetPointError(i, b1->GetErrorXlow(i), b1->GetErrorXhigh(i), pval - plo, phi - pval);
+
     }
     b2->SetName(outName);
     bands->WriteTObject(b2, outName);
