@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWVertexProxyBuilder.cc,v 1.9 2012/02/29 07:05:10 amraktad Exp $
+// $Id: FWVertexProxyBuilder.cc,v 1.10 2012/03/01 05:11:52 amraktad Exp $
 //
 // user include files// user include files
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
@@ -45,7 +45,7 @@ public:
       {
          iItem->getConfig()->assertParam("Draw Tracks", false);
          iItem->getConfig()->assertParam("Draw Ellipse", false);
-         iItem->getConfig()->assertParam("Scale Ellipse", 1l, 1l, 100l);
+         iItem->getConfig()->assertParam("Scale Ellipse", 3l, 1l, 100l);
       }
    }
    
