@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.369 $"
+__version__ = "$Revision: 1.370 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -1545,7 +1545,7 @@ class ConfigBuilder(object):
 				    seqList.extend(mappedTo.split('+'))
 				    break;
 	    if level==maxLevel:
-		    raise Exception("Could not fully expand "+repr(seqlist)+" from "+repr(mapping))
+		    raise Exception("Could not fully expand "+repr(seqList)+" from "+repr(mapping))
 	    
     def prepare_DQM(self, sequence = 'DQMOffline'):
         # this one needs replacement
@@ -1690,7 +1690,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.369 $"),
+                                            (version=cms.untracked.string("$Revision: 1.370 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
