@@ -36,12 +36,6 @@ process.options = cms.untracked.PSet(
 
 )
 
-# Production Info
-process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
-    annotation = cms.untracked.string('SingleMuPt10_cfi.py nevts:10'),
-    name = cms.untracked.string('PyReleaseValidation')
-)
 
 # Output definition
 
