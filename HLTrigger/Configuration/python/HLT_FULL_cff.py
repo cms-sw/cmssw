@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_1_0/HLT/V197 (CMSSW_5_2_0_pre5_HLT10)
+# /dev/CMSSW_5_1_0/HLT/V198 (CMSSW_5_2_0_pre5_HLT11)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/HLT/V197')
+  tableName = cms.string('/dev/CMSSW_5_1_0/HLT/V198')
 )
 
 streams = cms.PSet( 
@@ -10059,7 +10059,10 @@ hltDoubleJet30ForwardBackward = cms.EDFilter( "HLTForwardBackwardCaloJetsFilter"
     maxEta = cms.double( 5.1 ),
     minEta = cms.double( 3.0 ),
     inputTag = cms.InputTag( "hltCaloJetCorrected" ),
-    triggerType = cms.int32( 85 )
+    nTot = cms.uint32( 0 ),
+    nPos = cms.uint32( 1 ),
+    triggerType = cms.int32( 85 ),
+    nNeg = cms.uint32( 1 )
 )
 hltPreDoubleJet60ForwardBackward = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -10071,7 +10074,10 @@ hltDoubleJet60ForwardBackward = cms.EDFilter( "HLTForwardBackwardCaloJetsFilter"
     maxEta = cms.double( 5.1 ),
     minEta = cms.double( 3.0 ),
     inputTag = cms.InputTag( "hltCaloJetCorrected" ),
-    triggerType = cms.int32( 85 )
+    nTot = cms.uint32( 0 ),
+    nPos = cms.uint32( 1 ),
+    triggerType = cms.int32( 85 ),
+    nNeg = cms.uint32( 1 )
 )
 hltPreDoubleJet70ForwardBackward = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -10083,7 +10089,10 @@ hltDoubleJet70ForwardBackward = cms.EDFilter( "HLTForwardBackwardCaloJetsFilter"
     maxEta = cms.double( 5.1 ),
     minEta = cms.double( 3.0 ),
     inputTag = cms.InputTag( "hltCaloJetCorrected" ),
-    triggerType = cms.int32( 85 )
+    nTot = cms.uint32( 0 ),
+    nPos = cms.uint32( 1 ),
+    triggerType = cms.int32( 85 ),
+    nNeg = cms.uint32( 1 )
 )
 hltL1sL1DoubleForJet44EtaOpp = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( True ),
@@ -10107,7 +10116,10 @@ hltDoubleJet80ForwardBackward = cms.EDFilter( "HLTForwardBackwardCaloJetsFilter"
     maxEta = cms.double( 5.1 ),
     minEta = cms.double( 3.0 ),
     inputTag = cms.InputTag( "hltCaloJetCorrected" ),
-    triggerType = cms.int32( 85 )
+    nTot = cms.uint32( 0 ),
+    nPos = cms.uint32( 1 ),
+    triggerType = cms.int32( 85 ),
+    nNeg = cms.uint32( 1 )
 )
 hltL1sL1QuadJetC32ORL1QuadJetC36ORQuadJetC40 = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( True ),
