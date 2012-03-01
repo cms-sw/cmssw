@@ -50,12 +50,22 @@ namespace egHLT {
       float r9;
     };
     
-    
+public:
+    //helper struct to store reco approximations of variables made by HLT
+    struct HLTDataPho {
+      //const math::XYZTLorentzVector p4() const;
+      float HLTeta;
+      float HLTphi;
+      float HLTeT;
+    };    
+
+
   private:
     const reco::Photon* pho_; //pointers to the underlying phoctron (we do not own this)
 
     ClusShapeData clusShapeData_;
     IsolData isolData_;
+    HLTDataPho hltDataPho_;
     
     //these are bit-packed words telling me which cuts the photon fail (ie 0x0 is passed all cuts) 
     int cutCode_;
@@ -124,6 +134,12 @@ namespace egHLT {
     float hltIsolHad()const{return isolData_.hltHad;}
     float hltIsolTrks()const{return isolData_.hltTrks;}
     float hltIsolEm()const{return isolData_.hltEm;}
+
+    //hlt position - not a reco approximation, taken from triggerobject
+    //const math::XYZTLorentzVector& HLTp4()const{return hltDataPho_.p4();}
+    float hltPhi()const{return hltDataPho_.HLTphi;}
+    float hltEta()const{return hltDataPho_.HLTeta;}
+    float hltEt()const{return hltDataPho_.HLTeT;}
 
     //selection cuts
     int cutCode()const{return cutCode_;}

@@ -20,6 +20,9 @@ void MonElemFuncs::initStdEleHists(std::vector<MonElemManagerBase<OffEle>*>& his
   addStdHist<OffEle,float>(histVec,baseName+"_hOverE",baseName+" H/E; H/E",bins.hOverE,&OffEle::hOverE);
   //----Morse
   addStdHist<OffEle,float>(histVec,baseName+"_maxr9",baseName+" MAXR9 ; MAXR9",bins.maxr9,&OffEle::r9);
+  addStdHist<OffEle,float>(histVec,baseName+"_HLTet",baseName+" E_{T};E_{T} (GeV)",bins.HLTet,&OffEle::hltEt); 
+  addStdHist<OffEle,float>(histVec,baseName+"_HLTeta",baseName+" HLT #eta;HLT #eta",bins.HLTeta,&OffEle::hltEta);		
+  addStdHist<OffEle,float>(histVec,baseName+"_HLTphi",baseName+" HLT #phi;HLT #phi (rad)",bins.HLTphi,&OffEle::hltPhi);
   //-------
   addStdHist<OffEle,float>(histVec,baseName+"_dPhiIn",baseName+" #Delta #phi_{in}; #Delta #phi_{in}",bins.dPhiIn,&OffEle::dPhiIn);
   addStdHist<OffEle,float>(histVec,baseName+"_dEtaIn",baseName+" #Delta #eta_{in}; #Delta #eta_{in}",bins.dEtaIn,&OffEle::dEtaIn);

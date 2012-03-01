@@ -58,11 +58,15 @@ namespace egHLT {
     };
     
   public:
-    //helper struct to store reco approximations of variables made by HLT
+    //helper struct to store reco approximations of variables made by HLT - and HLT p4 to get eta,phi
     struct HLTData {
       float dEtaIn;
       float dPhiIn;  
       float invEInvP;
+      //math::XYZTLorentzVector p4;
+      float HLTeta;
+      float HLTphi;
+      float HLTeT;
     };
     
   public:
@@ -122,7 +126,7 @@ namespace egHLT {
     float phiSC()const{return gsfEle_->superCluster()->phi();}
     float zVtx()const{return gsfEle_->TrackPositionAtVtx().z();}
     const math::XYZTLorentzVector& p4()const{return gsfEle_->p4();}
-    
+
     //classification (couldnt they have just named it 'type')
     int classification()const{return gsfEle_->classification();}
     bool isGap()const{return gsfEle_->isEBGap() || gsfEle_->isEEGap() || gsfEle_->isEBEEGap();}
@@ -175,6 +179,11 @@ namespace egHLT {
     float hltDEtaIn()const{return hltData_.dEtaIn;}
     float hltDPhiIn()const{return hltData_.dPhiIn;}
     float hltInvEInvP()const{return hltData_.invEInvP;}
+    //hlt position - not a reco approximation, taken from triggerobject
+    //const math::XYZTLorentzVector& HLTp4()const{return hltData_.p4;}
+    float hltPhi()const{return hltData_.HLTphi;}
+    float hltEta()const{return hltData_.HLTeta;}
+    float hltEt()const{return hltData_.HLTeT;}
 
     //ctf track accessor and validatity checker
     reco::TrackRef ctfTrack()const{return gsfEle_->closestCtfTrackRef();} //in theory lightweight (if they follow good design),return by value

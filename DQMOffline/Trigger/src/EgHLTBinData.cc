@@ -20,6 +20,9 @@ void egHLT::BinData::setup(const edm::ParameterSet& conf)
   //r9.setup(conf.getParameter<edm::ParameterSet>("r9")); 
   minr9.setup(conf.getParameter<edm::ParameterSet>("minr9")); 
   maxr9.setup(conf.getParameter<edm::ParameterSet>("maxr9")); 
+  HLTet.setup(conf.getParameter<edm::ParameterSet>("HLTet")); 
+  HLTeta.setup(conf.getParameter<edm::ParameterSet>("HLTeta")); 
+  HLTphi.setup(conf.getParameter<edm::ParameterSet>("HLTphi")); 
   //--------
   isolEm.setup(conf.getParameter<edm::ParameterSet>("isolEm")); 
   isolHad.setup(conf.getParameter<edm::ParameterSet>("isolHad")); 
