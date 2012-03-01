@@ -15,7 +15,7 @@ from DQM.HLTEvF.HLTMonMuonBits_cfi import *
 # Photon
 #from DQM.HLTEvF.HLTMonPhotonBits_cfi import *
 # Tau
-from DQM.HLTEvF.HLTMonTau_cfi import *
+#from DQM.HLTEvF.HLTMonTau_cfi import *
 # BTag
 #from DQM.HLTEvF.hltMonBTagIPSource_cfi import *
 #from DQM.HLTEvF.hltMonBTagMuSource_cfi import *
@@ -31,7 +31,7 @@ dqmEnvHLTOnline = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
 dqmEnvHLTOnline.subSystemFolder = 'HLT'
 
 #onlineHLTSource = cms.Sequence(EcalPi0Mon*EcalPhiSymMon*hltMonEleBits*hltMonMuBits*hltMonTauReco*hltMonBTagIPSource*hltMonBTagMuSource*dqmEnvHLTOnline)
-onlineHLTSource = cms.Sequence(EcalPi0Mon*EcalPhiSymMon*hltMonMuBits*hltMonTauReco*dqmEnvHLTOnline)
+onlineHLTSource = cms.Sequence(EcalPi0Mon*EcalPhiSymMon*hltMonMuBits*dqmEnvHLTOnline)
 
 
 # HLT Offline -----------------------------------

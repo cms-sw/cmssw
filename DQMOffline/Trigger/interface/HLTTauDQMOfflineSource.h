@@ -18,14 +18,14 @@
 #include "FWCore/Utilities/interface/Digest.h"
 
 //Plotters
-#include "DQM/HLTEvF/interface/HLTTauDQML1Plotter.h"
-#include "DQM/HLTEvF/interface/HLTTauDQMCaloPlotter.h"
-#include "DQM/HLTEvF/interface/HLTTauDQMTrkPlotter.h"
-#include "DQM/HLTEvF/interface/HLTTauDQMPathPlotter.h"
-#include "DQM/HLTEvF/interface/HLTTauDQMLitePathPlotter.h"
+#include "DQMOffline/Trigger/interface/HLTTauDQML1Plotter.h"
+#include "DQMOffline/Trigger/interface/HLTTauDQMCaloPlotter.h"
+#include "DQMOffline/Trigger/interface/HLTTauDQMTrkPlotter.h"
+#include "DQMOffline/Trigger/interface/HLTTauDQMPathPlotter.h"
+#include "DQMOffline/Trigger/interface/HLTTauDQMLitePathPlotter.h"
 
 //Automatic Configuration
-#include "DQM/HLTEvF/interface/HLTTauDQMAutomation.h"
+#include "DQMOffline/Trigger/interface/HLTTauDQMAutomation.h"
 
 //
 // class declaration
