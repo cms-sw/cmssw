@@ -15,7 +15,7 @@ process.GlobalTag.globaltag = 'START44_V9B::All'
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    output = cms.untracked.int32(10)
 )
 
 # Input source

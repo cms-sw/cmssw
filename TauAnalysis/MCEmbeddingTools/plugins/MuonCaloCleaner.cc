@@ -199,9 +199,9 @@ void MuonCaloCleaner::fillMap(const TrackDetMatchInfo & info,
   TMyStore todo;
   todo["ecal"] = &(info.crossedEcalIds);	
   todo["hcal"] = &(info.crossedHcalIds);
-  //todo["ho"] = &(info.crossedHOIds);
+  todo["ho"] = &(info.crossedHOIds);
   //todo["towers"] = &(info.crossedTowerIds);
-  //todo["es"] = &(info.crossedPreshowerIds);
+  todo["es"] = &(info.crossedPreshowerIds);
     
     
   BOOST_FOREACH( TMyStore::value_type &entry, todo ){
@@ -215,6 +215,12 @@ void MuonCaloCleaner::fillMap(const TrackDetMatchInfo & info,
     } else if (entry.first=="hcal") {
       it = trackAssociator_.cachedTrajectory_.getHcalTrajectory().begin();
       itE = trackAssociator_.cachedTrajectory_.getHcalTrajectory().end();
+    } else if (entry.first=="ho") {
+      it = trackAssociator_.cachedTrajectory_.getHOTrajectory().begin();
+      itE =  trackAssociator_.cachedTrajectory_.getHOTrajectory().end();
+    } else if (entry.first=="es") {
+      it = trackAssociator_.cachedTrajectory_.getPreshowerTrajectory().begin();
+      itE = trackAssociator_.cachedTrajectory_.getPreshowerTrajectory().end();
     } else {
       std::cout << "Unsupportted type !\n";
       throw "XXX";

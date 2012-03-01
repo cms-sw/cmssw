@@ -15,5 +15,8 @@
   <use   name="DataFormats/ParticleFlowCandidate"/>
   <use   name="DataFormats/EcalRecHit"/>
   <use   name="DataFormats/HcalRecHit"/>
+  <use   name="pythia6"/>
+  <use   name="GeneratorInterface/Core"/>
+  <use   name="GeneratorInterface/Pythia6Interface"/>
   <flags CXXFLAGS="-O0 -g3 -fno-inline"/> 
 </library>

@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Fri Apr  9 12:15:56 CEST 2010
-// $Id: CaloRecHitMixer.h,v 1.1 2012/02/07 15:48:49 fruboes Exp $
+// $Id: CaloRecHitMixer.h,v 1.2 2012/02/07 15:56:18 fruboes Exp $
 //
 //
 
@@ -177,11 +177,29 @@ CaloRecHitMixer<TMyType>::produce(edm::Event& iEvent, const edm::EventSetup& iSe
             if ( detIdPresentInMap ) {
                throw cms::Exception("Whooops! Rechit allready in map!\n");
             }
-            myMap[rawId]=*itT;
+            float en = caloCleaner_->cleanRH(rawId, itT->energy()  );
+            // xxx temporary ugly hack
+	    if ( en ==  0){  // not crossed by muon
+              myMap[rawId]=*itT;
+            }  else {
+              //std::cout << "XXX rechit evaporated. " << rawId << " " <<  itT->energy() << std::endl;
+            }
+             
+            // do cleaning here !
+
           // TODO: do similar xcheck to above: given rh should be present in collection only once
           } else {  // this is tautau collection
             if (!detIdPresentInMap) myMap[rawId]=*itT; // given detId not in map, add new entry
             else {    // merge two rechits
+                    /*
+                    edm::Provenance prov=iEvent.getProvenance(it->id());
+ 
+		    std::cout
+		     << " Me thinks tautau comes from " << prov.moduleLabel()
+		     << " " <<  prov.productInstanceName()
+		     << " " <<  prov.processName()
+		     << std::endl;*/
+
                 myMap[rawId] = merge(myMap[rawId], *itT );      
             }
 
@@ -249,7 +267,10 @@ TMyType CaloRecHitMixer<TMyType>::merge(const TMyType & rh1, const TMyType & rh2
 
 
   // is time calculation good this way?
-  TMyType rhRet( rh1.detid(), rh1.energy()+rh2.energy(), rh2.time() );
+  // xxx
+  //TMyType rhRet( rh1.detid(), rh1.energy()+rh2.energy(), rh2.time() );
+  //std::cout << "XXX generic " << rh1.energy() << " " << rh2.energy() << std::endl;
+  TMyType rhRet(rh2);
   return rhRet;
 }
 
@@ -262,9 +283,14 @@ EcalRecHit CaloRecHitMixer<EcalRecHit>::merge(const EcalRecHit & rhZmumu, const 
   // is time calculation good this way?
   // 
   //
-  EcalRecHit rhRet(rhZmumu.detid(), rhZmumu.energy()+rhTauTau.energy(), rhTauTau.time(), rhZmumu.flags(), rhZmumu.checkFlagMask(0xFFFF) );
-  return rhRet;
 
+  //*
+  EcalRecHit rhRet(rhZmumu.detid(), rhZmumu.energy()+rhTauTau.energy(), rhTauTau.time(), rhTauTau.flags(), rhTauTau.checkFlagMask(0xFFFF) );
+  return rhRet;
+  // */
+  // std::cout << "XXX ecal " << rhZmumu.energy() << " " << rhTauTau.energy() << std::endl;
+  //EcalRecHit rhRet(rhTauTau);
+  //return rhRet;
 }
 
 
@@ -272,15 +298,19 @@ EcalRecHit CaloRecHitMixer<EcalRecHit>::merge(const EcalRecHit & rhZmumu, const 
 template < typename TMyType >
 TMyType CaloRecHitMixer<TMyType>::mergeHCAL(const TMyType & rhZmumu, const TMyType & rhTauTau){
 
+  
+  //*
   TMyType rhRet(rhZmumu.detid(), rhZmumu.energy()+rhTauTau.energy(), rhTauTau.time());
 
   // for now - take flags from Zmumu (data), since it is more likely to show problems than MC
-  rhRet.setFlags(rhZmumu.flags());
+  rhRet.setFlags(rhTauTau.flags());
 
   rhRet.setAux(rhTauTau.aux()); // 4_2_6 - aux seems not to be used anywere (LXR search), 
                                 // only in  Validation/HcalRecHits/src/HcalRecHitsValidation.cc
                                 // same for 5_0_0
-
+  // */
+  //TMyType rhRet(rhTauTau);
+  //std::cout << "XXX hcal " << rhZmumu.energy() << " " << rhTauTau.energy() << std::endl;
   return rhRet;
 
 
