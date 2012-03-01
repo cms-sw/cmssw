@@ -16,9 +16,9 @@ GeometryConf={
     'ExtendedInflated10TIBFlange'             : 'ExtendedInflated10TIBFlange,Reco',
     'ExtendedInflated10TIBTIDMargherita'      : 'ExtendedInflated10TIBTIDMargherita,Reco',
     'ExtendedInflated10TIBTIDServiceCylinder' : 'ExtendedInflated10TIBTIDServiceCylinder,Reco',
-    'All' : 'Configuration/Geometry/GeometrySimAll_cff,Reco',
-    'ECALHCAL' : 'Configuration/Geometry/GeometrySimECALHCAL_cff,Configuration/Geometry/GeometryRecoECALHCAL_cff',
-    'TrackerOnly' : 'Configuration/Geometry/GeometrySimTracker_cff,Configuration/Geometry/GeometryRecoTracker_cff',
-    'HCal' : 'DB:Extended,HCAL',
-    'IdealAPD1' : 'Configuration/StandardSequences/GeometryIdealAPD1_cff,Configuration/StandardSequences/GeometryIdeal_cff'
+    'All'         : 'Configuration.Geometry.GeometrySimAll_cff,Reco',
+    'ECALHCAL'    : 'Configuration.Geometry.GeometrySimECALHCAL_cff,Configuration.Geometry.GeometryRecoECALHCAL_cff',
+    'TrackerOnly' : 'Configuration.Geometry.GeometrySimTracker_cff,Configuration.Geometry.GeometryRecoTracker_cff',
+    'HCal'        : 'DB:Extended,HCAL',
+    'IdealAPD1'   : 'Configuration/StandardSequences/GeometryIdealAPD1_cff,Configuration/StandardSequences/GeometryIdeal_cff'
     }
