@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_1_0/HLT/V200 (CMSSW_5_2_0_pre5_HLT11)
+# /dev/CMSSW_5_1_0/HLT/V201 (CMSSW_5_2_0_pre5_HLT11)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/HLT/V200')
+  tableName = cms.string('/dev/CMSSW_5_1_0/HLT/V201')
 )
 
 streams = cms.PSet( 
@@ -28167,7 +28167,7 @@ hltEle17TightIdLooseIsoEle8TightIdLooseIsoDphiFilter = cms.EDFilter( "HLTElectro
 )
 hltEle17TightIdLooseIsoEle8TightIdLooseIsoTrackIsolFilter = cms.EDFilter( "HLTElectronGenericFilter",
     doIsolated = cms.bool( True ),
-    nonIsoTag = cms.InputTag( "hltL1NonIso3HitElectronTrackIsol" ),
+    nonIsoTag = cms.InputTag( "" ),
     L1NonIsoCand = cms.InputTag( "" ),
     thrTimesPtEB = cms.double( -1.0 ),
     saveTags = cms.bool( True ),
@@ -32244,12 +32244,12 @@ hltL1NonIsoHLTNonIsoTripleElectronEt5PixelMatchFilter = cms.EDFilter( "HLTElectr
     candTag = cms.InputTag( "hltL1NonIsoHLTNonIsoTripleElectronEt5HEFilter" ),
     L1IsoPixelSeedsTag = cms.InputTag( "hltL1SeededStartUpElectronPixelSeeds" )
 )
-hltDoubleEG8EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
+hltDoubleEG8ForTripleElectronEtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     saveTags = cms.bool( False ),
     L1NonIsoCand = cms.InputTag( "" ),
     relaxed = cms.untracked.bool( False ),
     L1IsoCand = cms.InputTag( "hltL1SeededRecoEcalCandidate" ),
-    inputTag = cms.InputTag( "hltEGRegionalL1MuOpenDoubleEG5" ),
+    inputTag = cms.InputTag( "hltL1NonIsoHLTNonIsoTripleElectronEt5PixelMatchFilter" ),
     etcutEB = cms.double( 8.0 ),
     ncandcut = cms.int32( 2 ),
     etcutEE = cms.double( 8.0 )
@@ -35123,6 +35123,16 @@ hltEGRegionalL1MuOpenDoubleEG5 = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
     doIsolated = cms.bool( False ),
     candNonIsolatedTag = cms.InputTag( "" ),
     l1NonIsolatedTag = cms.InputTag( 'hltL1extraParticles','NonIsolated' )
+)
+hltDoubleEG8EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
+    saveTags = cms.bool( False ),
+    L1NonIsoCand = cms.InputTag( "" ),
+    relaxed = cms.untracked.bool( False ),
+    L1IsoCand = cms.InputTag( "hltL1SeededRecoEcalCandidate" ),
+    inputTag = cms.InputTag( "hltEGRegionalL1MuOpenDoubleEG5" ),
+    etcutEB = cms.double( 8.0 ),
+    ncandcut = cms.int32( 2 ),
+    etcutEE = cms.double( 8.0 )
 )
 hltMu5DoubleEG8CaloIdTClusterShapeFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     doIsolated = cms.bool( True ),
@@ -51770,7 +51780,7 @@ HLTEle33CaloIdTSequence = cms.Sequence( HLTDoRegionalEgammaEcalSequence + HLTL1S
 HLTDoubleEle33CaloIdTUnseededLegSequence = cms.Sequence( HLTEcalActivitySequence + hltDoubleEG33EtDoubleFilter + hltActivityPhotonHcalForHE + hltDoubleEG33HEDoubleFilter + hltDoubleEG33CaloIdTHEDoubleFilter + hltActivityPhotonClusterShape + hltDoubleEG33CaloIdTClusterShapeDoubleFilter + HLTActivityPixelMatchSequence + hltDiEle33CaloIdTPixelMatchDoubleFilter )
 HLTPhoton45Sequence = cms.Sequence( HLTDoRegionalEgammaEcalSequence + HLTL1SeededEcalClustersSequence + hltL1SeededRecoEcalCandidate + hltEGRegionalL1SingleEG20 + hltEG45EtFilter + HLTDoLocalHcalWithoutHOSequence + hltL1SeededPhotonHcalForHE + hltEG45HEFilter )
 HLTDoublePhoton45UnseededLegSequence = cms.Sequence( HLTEcalActivitySequence + hltDoubleEG45EtDoubleFilter + hltActivityPhotonHcalForHE + hltDoubleEG45HEDoubleFilter )
-HLTTripleElectronEt15Et8Et5L1NonIsoHLTNonIsoSequence = cms.Sequence( HLTDoEGammaStartupSequence + hltEGRegionalL1EG12EG7EG5 + hltTripleEG5EtFilter + HLTDoEGammaHESequence + hltL1NonIsoHLTNonIsoTripleElectronEt5HEFilter + HLTDoEGammaPixelSequence + hltL1NonIsoHLTNonIsoTripleElectronEt5PixelMatchFilter + hltDoubleEG8EtFilter + hltSingleEG15EtFilter )
+HLTTripleElectronEt15Et8Et5L1NonIsoHLTNonIsoSequence = cms.Sequence( HLTDoEGammaStartupSequence + hltEGRegionalL1EG12EG7EG5 + hltTripleEG5EtFilter + HLTDoEGammaHESequence + hltL1NonIsoHLTNonIsoTripleElectronEt5HEFilter + HLTDoEGammaPixelSequence + hltL1NonIsoHLTNonIsoTripleElectronEt5PixelMatchFilter + hltDoubleEG8ForTripleElectronEtFilter + hltSingleEG15EtFilter )
 HLTCaloTausCreatorRegionalSequence = cms.Sequence( HLTDoRegionalJetEcalSequence + HLTDoLocalHcalSequence + hltTowerMakerForJets + hltCaloTowersTau1Regional + hltIconeTau1Regional + hltCaloTowersTau2Regional + hltIconeTau2Regional + hltCaloTowersTau3Regional + hltIconeTau3Regional + hltCaloTowersTau4Regional + hltIconeTau4Regional + hltCaloTowersCentral1Regional + hltIconeCentral1Regional + hltCaloTowersCentral2Regional + hltIconeCentral2Regional + hltCaloTowersCentral3Regional + hltIconeCentral3Regional + hltCaloTowersCentral4Regional + hltIconeCentral4Regional )
 HLTL2TauJetsSequence = cms.Sequence( HLTCaloTausCreatorRegionalSequence + hltL2TauJets )
 HLTPFTauMediumIsoSequence = cms.Sequence( hltPFTauJetTracksAssociator + hltPFTauTagInfo + hltPFTausMediumIso + hltPFTauMediumIsoTrackFindingDiscriminator + hltPFTauMediumIsoIsolationDiscriminator + hltSelectedPFTausMediumIsoTrackFinding + hltSelectedPFTausMediumIsoTrackFindingIsolation + hltConvPFTausMediumIsoTrackFinding + hltConvPFTausMediumIsoTrackFindingIsolation + hltConvPFTausMediumIso )

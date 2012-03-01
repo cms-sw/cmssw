@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_1_0/GRun/V126 (CMSSW_5_2_0_pre5_HLT11)
+# /dev/CMSSW_5_1_0/GRun/V127 (CMSSW_5_2_0_pre5_HLT11)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V126')
+  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V127')
 )
 
 streams = cms.PSet( 
@@ -19230,7 +19230,7 @@ hltEle17TightIdLooseIsoEle8TightIdLooseIsoDphiFilter = cms.EDFilter( "HLTElectro
 )
 hltEle17TightIdLooseIsoEle8TightIdLooseIsoTrackIsolFilter = cms.EDFilter( "HLTElectronGenericFilter",
     doIsolated = cms.bool( True ),
-    nonIsoTag = cms.InputTag( "hltL1NonIso3HitElectronTrackIsol" ),
+    nonIsoTag = cms.InputTag( "" ),
     L1NonIsoCand = cms.InputTag( "" ),
     thrTimesPtEB = cms.double( -1.0 ),
     saveTags = cms.bool( True ),
@@ -22549,12 +22549,12 @@ hltL1NonIsoHLTNonIsoTripleElectronEt5PixelMatchFilter = cms.EDFilter( "HLTElectr
     candTag = cms.InputTag( "hltL1NonIsoHLTNonIsoTripleElectronEt5HEFilter" ),
     L1IsoPixelSeedsTag = cms.InputTag( "hltL1SeededStartUpElectronPixelSeeds" )
 )
-hltDoubleEG8EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
+hltDoubleEG8ForTripleElectronEtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     saveTags = cms.bool( False ),
     L1NonIsoCand = cms.InputTag( "" ),
     relaxed = cms.untracked.bool( False ),
     L1IsoCand = cms.InputTag( "hltL1SeededRecoEcalCandidate" ),
-    inputTag = cms.InputTag( "hltEGRegionalL1MuOpenDoubleEG5" ),
+    inputTag = cms.InputTag( "hltL1NonIsoHLTNonIsoTripleElectronEt5PixelMatchFilter" ),
     etcutEB = cms.double( 8.0 ),
     ncandcut = cms.int32( 2 ),
     etcutEE = cms.double( 8.0 )
@@ -28931,6 +28931,16 @@ hltEGRegionalL1MuOpenDoubleEG5 = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
     candNonIsolatedTag = cms.InputTag( "" ),
     l1NonIsolatedTag = cms.InputTag( 'hltL1extraParticles','NonIsolated' )
 )
+hltDoubleEG8EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
+    saveTags = cms.bool( False ),
+    L1NonIsoCand = cms.InputTag( "" ),
+    relaxed = cms.untracked.bool( False ),
+    L1IsoCand = cms.InputTag( "hltL1SeededRecoEcalCandidate" ),
+    inputTag = cms.InputTag( "hltEGRegionalL1MuOpenDoubleEG5" ),
+    etcutEB = cms.double( 8.0 ),
+    ncandcut = cms.int32( 2 ),
+    etcutEE = cms.double( 8.0 )
+)
 hltMu5DoubleEG8CaloIdTClusterShapeFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     doIsolated = cms.bool( True ),
     nonIsoTag = cms.InputTag( "" ),
@@ -31878,7 +31888,7 @@ HLTDoubleEle33CaloIdTUnseededLegSequence = cms.Sequence( HLTEcalActivitySequence
 HLTDoEGammaStartupSequence = cms.Sequence( HLTDoRegionalEgammaEcalSequence + HLTL1SeededEcalClustersSequence + hltL1SeededRecoEcalCandidate )
 HLTDoEGammaHESequence = cms.Sequence( HLTDoLocalHcalWithoutHOSequence + hltL1SeededPhotonHcalForHE )
 HLTDoEGammaPixelSequence = cms.Sequence( HLTDoLocalPixelSequence + HLTDoLocalStripSequence + hltL1SeededStartUpElectronPixelSeeds )
-HLTTripleElectronEt15Et8Et5L1NonIsoHLTNonIsoSequence = cms.Sequence( HLTDoEGammaStartupSequence + hltEGRegionalL1EG12EG7EG5 + hltTripleEG5EtFilter + HLTDoEGammaHESequence + hltL1NonIsoHLTNonIsoTripleElectronEt5HEFilter + HLTDoEGammaPixelSequence + hltL1NonIsoHLTNonIsoTripleElectronEt5PixelMatchFilter + hltDoubleEG8EtFilter + hltSingleEG15EtFilter )
+HLTTripleElectronEt15Et8Et5L1NonIsoHLTNonIsoSequence = cms.Sequence( HLTDoEGammaStartupSequence + hltEGRegionalL1EG12EG7EG5 + hltTripleEG5EtFilter + HLTDoEGammaHESequence + hltL1NonIsoHLTNonIsoTripleElectronEt5HEFilter + HLTDoEGammaPixelSequence + hltL1NonIsoHLTNonIsoTripleElectronEt5PixelMatchFilter + hltDoubleEG8ForTripleElectronEtFilter + hltSingleEG15EtFilter )
 HLTDoEgammaClusterShapeSequence = cms.Sequence( hltL1SeededHLTClusterShape )
 HLTDoElectronDetaDphiSequence = cms.Sequence( hltElectronL1SeededDetaDphi )
 HLTCaloTausCreatorRegionalSequence = cms.Sequence( HLTDoRegionalJetEcalSequence + HLTDoLocalHcalSequence + hltTowerMakerForJets + hltCaloTowersTau1Regional + hltIconeTau1Regional + hltCaloTowersTau2Regional + hltIconeTau2Regional + hltCaloTowersTau3Regional + hltIconeTau3Regional + hltCaloTowersTau4Regional + hltIconeTau4Regional + hltCaloTowersCentral1Regional + hltIconeCentral1Regional + hltCaloTowersCentral2Regional + hltIconeCentral2Regional + hltCaloTowersCentral3Regional + hltIconeCentral3Regional + hltCaloTowersCentral4Regional + hltIconeCentral4Regional )

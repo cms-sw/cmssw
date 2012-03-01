@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_1_0/GRun/V126 (CMSSW_5_2_0_pre5_HLT11)
+# /dev/CMSSW_5_1_0/GRun/V127 (CMSSW_5_2_0_pre5_HLT11)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V126')
+  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V127')
 )
 
 process.streams = cms.PSet( 
@@ -20732,7 +20732,7 @@ process.hltEle17TightIdLooseIsoEle8TightIdLooseIsoDphiFilter = cms.EDFilter( "HL
 )
 process.hltEle17TightIdLooseIsoEle8TightIdLooseIsoTrackIsolFilter = cms.EDFilter( "HLTElectronGenericFilter",
     doIsolated = cms.bool( True ),
-    nonIsoTag = cms.InputTag( "hltL1NonIso3HitElectronTrackIsol" ),
+    nonIsoTag = cms.InputTag( "" ),
     L1NonIsoCand = cms.InputTag( "" ),
     thrTimesPtEB = cms.double( -1.0 ),
     saveTags = cms.bool( True ),
@@ -24051,12 +24051,12 @@ process.hltL1NonIsoHLTNonIsoTripleElectronEt5PixelMatchFilter = cms.EDFilter( "H
     candTag = cms.InputTag( "hltL1NonIsoHLTNonIsoTripleElectronEt5HEFilter" ),
     L1IsoPixelSeedsTag = cms.InputTag( "hltL1SeededStartUpElectronPixelSeeds" )
 )
-process.hltDoubleEG8EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
+process.hltDoubleEG8ForTripleElectronEtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     saveTags = cms.bool( False ),
     L1NonIsoCand = cms.InputTag( "" ),
     relaxed = cms.untracked.bool( False ),
     L1IsoCand = cms.InputTag( "hltL1SeededRecoEcalCandidate" ),
-    inputTag = cms.InputTag( "hltEGRegionalL1MuOpenDoubleEG5" ),
+    inputTag = cms.InputTag( "hltL1NonIsoHLTNonIsoTripleElectronEt5PixelMatchFilter" ),
     etcutEB = cms.double( 8.0 ),
     ncandcut = cms.int32( 2 ),
     etcutEE = cms.double( 8.0 )
@@ -30433,6 +30433,16 @@ process.hltEGRegionalL1MuOpenDoubleEG5 = cms.EDFilter( "HLTEgammaL1MatchFilterRe
     candNonIsolatedTag = cms.InputTag( "" ),
     l1NonIsolatedTag = cms.InputTag( 'hltL1extraParticles','NonIsolated' )
 )
+process.hltDoubleEG8EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
+    saveTags = cms.bool( False ),
+    L1NonIsoCand = cms.InputTag( "" ),
+    relaxed = cms.untracked.bool( False ),
+    L1IsoCand = cms.InputTag( "hltL1SeededRecoEcalCandidate" ),
+    inputTag = cms.InputTag( "hltEGRegionalL1MuOpenDoubleEG5" ),
+    etcutEB = cms.double( 8.0 ),
+    ncandcut = cms.int32( 2 ),
+    etcutEE = cms.double( 8.0 )
+)
 process.hltMu5DoubleEG8CaloIdTClusterShapeFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     doIsolated = cms.bool( True ),
     nonIsoTag = cms.InputTag( "" ),
@@ -36563,7 +36573,7 @@ process.HLTDoubleEle33CaloIdTUnseededLegSequence = cms.Sequence( process.HLTEcal
 process.HLTDoEGammaStartupSequence = cms.Sequence( process.HLTDoRegionalEgammaEcalSequence + process.HLTL1SeededEcalClustersSequence + process.hltL1SeededRecoEcalCandidate )
 process.HLTDoEGammaHESequence = cms.Sequence( process.HLTDoLocalHcalWithoutHOSequence + process.hltL1SeededPhotonHcalForHE )
 process.HLTDoEGammaPixelSequence = cms.Sequence( process.HLTDoLocalPixelSequence + process.HLTDoLocalStripSequence + process.hltL1SeededStartUpElectronPixelSeeds )
-process.HLTTripleElectronEt15Et8Et5L1NonIsoHLTNonIsoSequence = cms.Sequence( process.HLTDoEGammaStartupSequence + process.hltEGRegionalL1EG12EG7EG5 + process.hltTripleEG5EtFilter + process.HLTDoEGammaHESequence + process.hltL1NonIsoHLTNonIsoTripleElectronEt5HEFilter + process.HLTDoEGammaPixelSequence + process.hltL1NonIsoHLTNonIsoTripleElectronEt5PixelMatchFilter + process.hltDoubleEG8EtFilter + process.hltSingleEG15EtFilter )
+process.HLTTripleElectronEt15Et8Et5L1NonIsoHLTNonIsoSequence = cms.Sequence( process.HLTDoEGammaStartupSequence + process.hltEGRegionalL1EG12EG7EG5 + process.hltTripleEG5EtFilter + process.HLTDoEGammaHESequence + process.hltL1NonIsoHLTNonIsoTripleElectronEt5HEFilter + process.HLTDoEGammaPixelSequence + process.hltL1NonIsoHLTNonIsoTripleElectronEt5PixelMatchFilter + process.hltDoubleEG8ForTripleElectronEtFilter + process.hltSingleEG15EtFilter )
 process.HLTDoEgammaClusterShapeSequence = cms.Sequence( process.hltL1SeededHLTClusterShape )
 process.HLTDoElectronDetaDphiSequence = cms.Sequence( process.hltElectronL1SeededDetaDphi )
 process.HLTCaloTausCreatorRegionalSequence = cms.Sequence( process.HLTDoRegionalJetEcalSequence + process.HLTDoLocalHcalSequence + process.hltTowerMakerForJets + process.hltCaloTowersTau1Regional + process.hltIconeTau1Regional + process.hltCaloTowersTau2Regional + process.hltIconeTau2Regional + process.hltCaloTowersTau3Regional + process.hltIconeTau3Regional + process.hltCaloTowersTau4Regional + process.hltIconeTau4Regional + process.hltCaloTowersCentral1Regional + process.hltIconeCentral1Regional + process.hltCaloTowersCentral2Regional + process.hltIconeCentral2Regional + process.hltCaloTowersCentral3Regional + process.hltIconeCentral3Regional + process.hltCaloTowersCentral4Regional + process.hltIconeCentral4Regional )
