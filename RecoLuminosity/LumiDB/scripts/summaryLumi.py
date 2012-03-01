@@ -43,7 +43,7 @@ if __name__ == '__main__':
     parser.add_argument('-P',dest='authpath',action='store',required=True,help='authentication.xml dir')
     parser.add_argument('-i',dest='inputdir',action='store',required=False,help='output dir',default='.')
     parser.add_argument('-o',dest='outputdir',action='store',required=False,help='output dir',default='.')
-    parser.add_argument('-f',dest='fillnum',action='store',required=False,help='specific fill',default=None)
+    parser.add_argument('-f','--fill',dest='fillnum',action='store',required=False,help='specific fill',default=None)
     parser.add_argument('--norm',dest='norm',action='store',required=False,help='norm',default='pp7TeV')
     parser.add_argument('--minfill',dest='minfill',action='store',required=False,help='minimal fillnumber ',default=None)
     parser.add_argument('--maxfill',dest='maxfill',action='store',required=False,help='maximum fillnumber ',default=MAXFILL)

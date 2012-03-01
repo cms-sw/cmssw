@@ -354,7 +354,7 @@ if __name__ == '__main__':
                         required=False,
                         help='output dir',
                         default='.')
-    parser.add_argument('-f',dest='fillnum',
+    parser.add_argument('-f','--fill',dest='fillnum',
                         action='store',
                         required=False,
                         help='specific fill',
