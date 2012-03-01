@@ -53,7 +53,7 @@ pixelLessStepSeedLayers = cms.ESProducer("SeedingLayersESProducer",
 import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
 pixelLessStepSeeds = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone()
 pixelLessStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'pixelLessStepSeedLayers'
-pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.6
+pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.7
 pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 10.0
 pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 2.0
 
@@ -71,7 +71,7 @@ pixelLessStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilt
     ComponentName = 'pixelLessStepTrajectoryFilter',
     filterPset = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.filterPset.clone(
     maxLostHits = 0,
-    minimumNumberOfHits = 6,
+    minimumNumberOfHits = 4,
     minPt = 0.1
     )
     )
@@ -118,39 +118,39 @@ pixelLessStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.m
             name = 'pixelLessStepLoose',
             chi2n_par = 0.5,
             res_par = ( 0.003, 0.001 ),
-            minNumberLayers = 5,
+            minNumberLayers = 4,
             maxNumberLostLayers = 1,
             minNumber3DLayers = 3,
-            d0_par1 = ( 1.5, 4.0 ),
-            dz_par1 = ( 1.5, 4.0 ),
-            d0_par2 = ( 1.5, 4.0 ),
-            dz_par2 = ( 1.5, 4.0 )
+            d0_par1 = ( 1.3, 4.0 ),
+            dz_par1 = ( 1.3, 4.0 ),
+            d0_par2 = ( 1.3, 4.0 ),
+            dz_par2 = ( 1.3, 4.0 )
             ),
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
             name = 'pixelLessStepTight',
             preFilterName = 'pixelLessStepLoose',
             chi2n_par = 0.35,
             res_par = ( 0.003, 0.001 ),
-            minNumberLayers = 5,
+            minNumberLayers = 4,
             maxNumberLostLayers = 0,
             minNumber3DLayers = 3,
-            d0_par1 = ( 1.2, 4.0 ),
-            dz_par1 = ( 1.2, 4.0 ),
-            d0_par2 = ( 1.2, 4.0 ),
-            dz_par2 = ( 1.2, 4.0 )
+            d0_par1 = ( 1.1, 4.0 ),
+            dz_par1 = ( 1.1, 4.0 ),
+            d0_par2 = ( 1.1, 4.0 ),
+            dz_par2 = ( 1.1, 4.0 )
             ),
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
             name = 'pixelLessStep',
             preFilterName = 'pixelLessStepTight',
-            chi2n_par = 0.25,
+            chi2n_par = 0.2,
             res_par = ( 0.003, 0.001 ),
-            minNumberLayers = 5,
+            minNumberLayers = 4,
             maxNumberLostLayers = 0,
             minNumber3DLayers = 3,
-            d0_par1 = ( 1., 4.0 ),
-            dz_par1 = ( 1., 4.0 ),
-            d0_par2 = ( 1., 4.0 ),
-            dz_par2 = ( 1., 4.0 )
+            d0_par1 = ( 0.9, 4.0 ),
+            dz_par1 = ( 0.9, 4.0 ),
+            d0_par2 = ( 0.9, 4.0 ),
+            dz_par2 = ( 0.9, 4.0 )
             ),
         ) #end of vpset
     ) #end of clone
