@@ -1,4 +1,4 @@
-# /dev/CMSSW_5_1_0/GRun/V122
+# /dev/CMSSW_5_1_0/GRun/V123
 
 import FWCore.ParameterSet.Config as cms
 
@@ -313,16 +313,19 @@ streamA_datasetMuOnia_selector.triggerConditions = cms.vstring('HLT_Dimuon0_Jpsi
     'HLT_Dimuon0_PsiPrime_v1', 
     'HLT_Dimuon0_Upsilon_Muon_v12', 
     'HLT_Dimuon0_Upsilon_v11', 
+    'HLT_Dimuon10_Jpsi_v1', 
+    'HLT_Dimuon11_Upsilon_v1', 
     'HLT_Dimuon3p5_SameSign_v1', 
-    'HLT_Dimuon5_Jpsi_v1', 
     'HLT_Dimuon5_PsiPrime_v1', 
     'HLT_Dimuon5_Upsilon_v1', 
+    'HLT_Dimuon7_Upsilon_v1', 
+    'HLT_Dimuon8_Jpsi_v1', 
     'HLT_Dimuon8_Upsilon_v1', 
-    'HLT_Dimuon9_Jpsi_v1', 
     'HLT_Dimuon9_PsiPrime_v6', 
+    'HLT_DoubleMu3p5_LowMassNonResonant_Displaced_v1', 
     'HLT_DoubleMu3p5_LowMass_Displaced_v1', 
-    'HLT_DoubleMu4_Dimuon4_Bs_Barrel_v6', 
-    'HLT_DoubleMu4_Dimuon6_Bs_v6', 
+    'HLT_DoubleMu4_Dimuon6_Bs_Barrel_v1', 
+    'HLT_DoubleMu4_Dimuon7p5_Bs_v1', 
     'HLT_DoubleMu4_JpsiTk_Displaced_v1', 
     'HLT_DoubleMu4_Jpsi_Displaced_v6', 
     'HLT_Mu5_L2Mu3_Jpsi_v1', 

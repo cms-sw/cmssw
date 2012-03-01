@@ -197,28 +197,54 @@ HLT_Mu24_eta2p1_CentralPFJet30_CentralPFJet25_v*					#sr126441
 HLT_Mu24_eta2p1_PFJet30_PFJet25_Deta3_v*						#sr126441
 
 
-HLT_Dimuon3p5_SameSign_v*								#sr126442
-HLT_Tau2Mu_RegPixTrack_v*								#sr126442
-HLT_DoubleMu4_JpsiTk_Displaced_v*							#sr126442
-HLT_DoubleMu4_Jpsi_Displaced_v*								#sr126442
-HLT_DoubleMu4_Dimuon4_Bs_Barrel_v*							#sr126442
-HLT_DoubleMu4_Dimuon6_Bs_v*								#sr126442
-HLT_DoubleMu3p5_LowMass_Displaced_v*							#sr126442
-HLT_Dimuon0_Jpsi_NoVertexing_v*								#sr126442
-HLT_Dimuon5_Upsilon_v*									#sr126442
-HLT_Dimuon5_PsiPrime_v*									#sr126442
-HLT_Dimuon0_PsiPrime_v*									#sr126442
-HLT_Dimuon5_Jpsi_v*									#sr126442
-HLT_Dimuon0_Jpsi_Muon_v*								#sr126442
-HLT_Dimuon0_Upsilon_Muon_v*								#sr126442
-HLT_Mu5_L2Mu3_Jpsi_v*									#sr126442
-HLT_Mu5_Track3p5_Jpsi_v*								#sr126442
-HLT_Mu5_Track2_Jpsi_v*									#sr126442
-HLT_Dimuon0_Jpsi_v*									#sr126442
-HLT_Dimuon0_Upsilon_v*									#sr126442
-HLT_Dimuon8_Upsilon_v*									#sr126442
-HLT_Dimuon9_PsiPrime_v*									#sr126442
-HLT_Dimuon9_Jpsi_v*									#sr126442
+#HLT_Dimuon3p5_SameSign_v*								#sr126442 -> Superseeded by #sr126726
+#HLT_Tau2Mu_RegPixTrack_v*								#sr126442 -> Superseeded by #sr126726
+#HLT_DoubleMu4_JpsiTk_Displaced_v*							#sr126442 -> Superseeded by #sr126726
+#HLT_DoubleMu4_Jpsi_Displaced_v*							#sr126442 -> Superseeded by #sr126726
+#HLT_DoubleMu4_Dimuon4_Bs_Barrel_v*							#sr126442 -> Superseeded by #sr126726
+#HLT_DoubleMu4_Dimuon6_Bs_v*								#sr126442 -> Superseeded by #sr126726
+#HLT_DoubleMu3p5_LowMass_Displaced_v*							#sr126442 -> Superseeded by #sr126726
+#HLT_Dimuon0_Jpsi_NoVertexing_v*							#sr126442 -> Superseeded by #sr126726
+#HLT_Dimuon5_Upsilon_v*									#sr126442 -> Superseeded by #sr126726
+#HLT_Dimuon5_PsiPrime_v*								#sr126442 -> Superseeded by #sr126726
+#HLT_Dimuon0_PsiPrime_v*								#sr126442 -> Superseeded by #sr126726
+#HLT_Dimuon5_Jpsi_v*									#sr126442 -> Superseeded by #sr126726
+#HLT_Dimuon0_Jpsi_Muon_v*								#sr126442 -> Superseeded by #sr126726
+#HLT_Dimuon0_Upsilon_Muon_v*								#sr126442 -> Superseeded by #sr126726
+#HLT_Mu5_L2Mu3_Jpsi_v*									#sr126442 -> Superseeded by #sr126726
+#HLT_Mu5_Track3p5_Jpsi_v*								#sr126442 -> Superseeded by #sr126726
+#HLT_Mu5_Track2_Jpsi_v*									#sr126442 -> Superseeded by #sr126726
+#HLT_Dimuon0_Jpsi_v*									#sr126442 -> Superseeded by #sr126726
+#HLT_Dimuon0_Upsilon_v*									#sr126442 -> Superseeded by #sr126726
+#HLT_Dimuon8_Upsilon_v*									#sr126442 -> Superseeded by #sr126726
+#HLT_Dimuon9_PsiPrime_v*								#sr126442 -> Superseeded by #sr126726
+#HLT_Dimuon9_Jpsi_v*									#sr126442 -> Superseeded by #sr126726
+
+HLT_Dimuon3p5_SameSign_v*							#sr126726
+HLT_Tau2Mu_RegPixTrack_v*							#sr126726
+HLT_DoubleMu4_JpsiTk_Displaced_v*						#sr126726
+HLT_DoubleMu4_Jpsi_Displaced_v*							#sr126726
+HLT_DoubleMu4_Dimuon6_Bs_Barrel_v*						#sr126726
+HLT_DoubleMu4_Dimuon7p5_Bs_v*							#sr126726
+HLT_DoubleMu3p5_LowMass_Displaced_v*						#sr126726
+HLT_Dimuon0_Jpsi_NoVertexing_v*							#sr126726
+HLT_Dimuon5_Upsilon_v*								#sr126726
+HLT_Dimuon5_PsiPrime_v*								#sr126726
+HLT_Dimuon0_PsiPrime_v*								#sr126726
+HLT_Dimuon8_Jpsi_v*								#sr126726
+HLT_Dimuon0_Jpsi_Muon_v*							#sr126726
+HLT_Dimuon0_Upsilon_Muon_v*							#sr126726
+HLT_Mu5_L2Mu3_Jpsi_v*								#sr126726
+HLT_Mu5_Track3p5_Jpsi_v*							#sr126726
+HLT_Mu5_Track2_Jpsi_v*								#sr126726
+HLT_Dimuon0_Jpsi_v*								#sr126726
+HLT_Dimuon0_Upsilon_v*								#sr126726
+HLT_Dimuon8_Upsilon_v*								#sr126726
+HLT_Dimuon11_Upsilon_v*								#sr126726
+HLT_Dimuon7_Upsilon_v*								#sr126726
+HLT_Dimuon9_PsiPrime_v*								#sr126726
+HLT_Dimuon10_Jpsi_v*								#sr126726
+HLT_DoubleMu3p5_LowMassNonResonant_Displaced_v*					#sr126726
 
 HLT_Mu18_eta2p1_LooseIsoPFTau20_v*							#sr126461
 HLT_IsoMu18_eta2p1_LooseIsoPFTau20_v*							#sr126461

@@ -1,4 +1,4 @@
-# /dev/CMSSW_5_1_0/HIon/V122
+# /dev/CMSSW_5_1_0/HIon/V123
 
 import FWCore.ParameterSet.Config as cms
 
