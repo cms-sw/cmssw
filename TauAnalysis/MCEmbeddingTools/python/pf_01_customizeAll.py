@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import FWCore.ParameterSet.Config as cms
+import os
 
 from FWCore.ParameterSet.Modules import _Module
 # Searches for self.lookFor module in cms.Path. When found, next and prev module is stored
@@ -159,53 +160,55 @@ def customise(process):
 #                     "original processName")
 
 
+  setFromCL = False
   if not hasattr(process,"doNotParse"):
     import sys
     if hasattr(sys, "argv") == True:
       if not sys.argv[0].endswith('cmsDriver.py'):
         options.parseArguments()
+        setFromCL = True
   else:
     print "CL parsing disabled!"
+  if setFromCL:
+    print "Setting mdtau to ", options.mdtau
+    process.generator.ZTauTau.TauolaOptions.InputCards.mdtau = options.mdtau 
+    process.newSource.ZTauTau.TauolaOptions.InputCards.mdtau = options.mdtau
+    process.generator.ParticleGun.ExternalDecays.Tauola.InputCards.mdtau = options.mdtau 
+    process.newSource.ParticleGun.ExternalDecays.Tauola.InputCards.mdtau = options.mdtau 
 
-  print "Setting mdtau to ", options.mdtau
-  process.generator.ZTauTau.TauolaOptions.InputCards.mdtau = options.mdtau 
-  process.newSource.ZTauTau.TauolaOptions.InputCards.mdtau = options.mdtau
-  process.generator.ParticleGun.ExternalDecays.Tauola.InputCards.mdtau = options.mdtau 
-  process.newSource.ParticleGun.ExternalDecays.Tauola.InputCards.mdtau = options.mdtau 
+    print "Setting minVisibleTransverseMomentum to ", options.minVisibleTransverseMomentum
+    process.newSource.ZTauTau.minVisibleTransverseMomentum = cms.untracked.string(options.minVisibleTransverseMomentum)
+    process.generator.ZTauTau.minVisibleTransverseMomentum = cms.untracked.string(options.minVisibleTransverseMomentum)
 
-  print "Setting minVisibleTransverseMomentum to ", options.minVisibleTransverseMomentum
-  process.newSource.ZTauTau.minVisibleTransverseMomentum = cms.untracked.string(options.minVisibleTransverseMomentum)
-  process.generator.ZTauTau.minVisibleTransverseMomentum = cms.untracked.string(options.minVisibleTransverseMomentum)
+    print "Setting transformationMode to ", options.transformationMode
+    process.generator.ZTauTau.transformationMode = cms.untracked.int32(options.transformationMode)
+    process.newSource.ZTauTau.transformationMode = cms.untracked.int32(options.transformationMode)
 
-  print "Setting transformationMode to ", options.transformationMode
-  process.generator.ZTauTau.transformationMode = cms.untracked.int32(options.transformationMode)
-  process.newSource.ZTauTau.transformationMode = cms.untracked.int32(options.transformationMode)
-
-  print "options.overrideBeamSpot", options.overrideBeamSpot
-  if options.overrideBeamSpot != 0:
-    bs = cms.string("BeamSpotObjects_2009_LumiBased_SigmaZ_v21_offline") # 42x data PR gt
-    # bs = cms.string("BeamSpotObjects_2009_LumiBased_SigmaZ_v18_offline") # 41x data PR gt
-    # bs = cms.string("BeamSpotObjects_2009_LumiBased_v17_offline") # 38x data gt
-    #bs = cms.string("BeamSpotObjects_2009_v14_offline") # 36x data gt
-    #  tag = cms.string("Early10TeVCollision_3p8cm_31X_v1_mc_START"), # 35 default
-    #  tag = cms.string("Realistic900GeVCollisions_10cm_STARTUP_v1_mc"), # 36 default
-    process.GlobalTag.toGet = cms.VPSet(
-      cms.PSet(record = cms.string("BeamSpotObjectsRcd"),
+    print "options.overrideBeamSpot", options.overrideBeamSpot
+    if options.overrideBeamSpot != 0:
+      bs = cms.string("BeamSpotObjects_2009_LumiBased_SigmaZ_v21_offline") # 42x data PR gt
+      # bs = cms.string("BeamSpotObjects_2009_LumiBased_SigmaZ_v18_offline") # 41x data PR gt
+      # bs = cms.string("BeamSpotObjects_2009_LumiBased_v17_offline") # 38x data gt
+      #bs = cms.string("BeamSpotObjects_2009_v14_offline") # 36x data gt
+      #  tag = cms.string("Early10TeVCollision_3p8cm_31X_v1_mc_START"), # 35 default
+      #  tag = cms.string("Realistic900GeVCollisions_10cm_STARTUP_v1_mc"), # 36 default
+      process.GlobalTag.toGet = cms.VPSet(
+        cms.PSet(record = cms.string("BeamSpotObjectsRcd"),
            tag = bs,
            connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_BEAMSPOT")
+        )
       )
-    )
-    print "BeamSpot in globaltag set to ", bs 
-  else:
-    print "BeamSpot in globaltag not changed"
+      print "BeamSpot in globaltag set to ", bs 
+    else:
+      print "BeamSpot in globaltag not changed"
 
-  if options.useJson !=  0:
-    print "Enabling json usage"
-    import PhysicsTools.PythonAnalysis.LumiList as LumiList
-    import FWCore.ParameterSet.Types as CfgTypes
-    myLumis = LumiList.LumiList(filename = 'my.json').getCMSSWString().split(',')
-    process.source.lumisToProcess = CfgTypes.untracked(CfgTypes.VLuminosityBlockRange())
-    process.source.lumisToProcess.extend(myLumis)
+    if options.useJson !=  0:
+      print "Enabling json usage"
+      import PhysicsTools.PythonAnalysis.LumiList as LumiList
+      import FWCore.ParameterSet.Types as CfgTypes
+      myLumis = LumiList.LumiList(filename = 'my.json').getCMSSWString().split(',')
+      process.source.lumisToProcess = CfgTypes.untracked(CfgTypes.VLuminosityBlockRange())
+      process.source.lumisToProcess.extend(myLumis)
 
 # -*- coding: utf-8 -*-
 
@@ -335,8 +338,17 @@ def customise(process):
   if hasattr(process,"doZmumuSkim"):
       print "Enabling Zmumu skim"
       skimEnabled = True
+
+      cmssw_ver = os.environ["CMSSW_VERSION"]
+      if cmssw_ver.find("CMSSW_4_2") != -1:
+        print
+        print "Using legacy version of Zmumu skim. Note, that muon isolation is disabled"
+        print
+        process.load("TauAnalysis/MCEmbeddingTools/ZmumuStandalonSelectionLegacy_cff")
+      else:
+        process.load("TauAnalysis/MCEmbeddingTools/ZmumuStandalonSelection_cff")
+
       #process.load("TauAnalysis/Skimming/goldenZmmSelectionVBTFrelPFIsolation_cfi")
-      process.load("TauAnalysis/MCEmbeddingTools/ZmumuStandalonSelection_cff")
       process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
 
       # we are allready selecting events from generation step, so following way is ok
