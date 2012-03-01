@@ -1012,9 +1012,9 @@ void importLandS(TDirectory *bands, TString name, TFile *file, bool doObserved=t
             }
         }
     }
-    if (obs->GetN()) { bands->WriteTObject(obs); std::cout << " imported " << obs->GetName() << " with " << obs->GetN() << " points." << std::endl; }
-    if (median->GetN()) { bands->WriteTObject(median); std::cout << " imported " << median->GetName() << " with " << median->GetN() << " points." << std::endl; }
-    if (median_95->GetN()) { bands->WriteTObject(median_95); std::cout << " imported " << median_95->GetName() << " with " << median_95->GetN() << " points." << std::endl; }
+    if (obs->GetN()) { obs->Sort(); bands->WriteTObject(obs); std::cout << " imported " << obs->GetName() << " with " << obs->GetN() << " points." << std::endl; }
+    if (median->GetN()) { median->Sort(); bands->WriteTObject(median); std::cout << " imported " << median->GetName() << " with " << median->GetN() << " points." << std::endl; }
+    if (median_95->GetN()) { median_95->Sort(); bands->WriteTObject(median_95); std::cout << " imported " << median_95->GetName() << " with " << median_95->GetN() << " points." << std::endl; }
 }
 void importLandS(TDirectory *bands, TString name, TString fileName, bool doObserved=true, bool doExpected=true) {
     TFile *in = TFile::Open(fileName);
