@@ -277,8 +277,9 @@ std::map<int,std::string> HLTTauDQMFilter::interestingModules( HLTConfigProvider
         boost::regex rePFTau(".*PFTau.*");
         boost::regex rePFIsoTau(".*PFIsoTau.*");
         
-        for ( std::vector<std::string>::const_iterator imodule = HLTCP.moduleLabels(name_).begin(); imodule != HLTCP.moduleLabels(name_).end(); ++imodule ) {
-            int idx = imodule - HLTCP.moduleLabels(name_).begin();
+        const std::vector<std::string>& moduleLabels = HLTCP.moduleLabels(name_);
+        for ( std::vector<std::string>::const_iterator imodule = moduleLabels.begin(); imodule != moduleLabels.end(); ++imodule ) {
+            int idx = imodule - moduleLabels.begin();
             
             if ( HLTCP.moduleType(*imodule) == "HLTLevel1GTSeed" ) {
                 insertUniqueValue(modules, std::make_pair(idx,*imodule));
@@ -291,10 +292,10 @@ std::map<int,std::string> HLTTauDQMFilter::interestingModules( HLTConfigProvider
                     insertUniqueValue(modules, std::make_pair(idx,*imodule));
                     
                     std::string input1 = HLTCP.modulePSet(*imodule).getParameter<edm::InputTag>("inputTag1").label();
-                    int idx1 = std::find(HLTCP.moduleLabels(name_).begin(), HLTCP.moduleLabels(name_).end(), input1) - HLTCP.moduleLabels(name_).begin();
+                    int idx1 = std::find(moduleLabels.begin(), moduleLabels.end(), input1) - moduleLabels.begin();
                     
                     std::string input2 = HLTCP.modulePSet(*imodule).getParameter<edm::InputTag>("inputTag2").label();
-                    int idx2 = std::find(HLTCP.moduleLabels(name_).begin(), HLTCP.moduleLabels(name_).end(), input2) - HLTCP.moduleLabels(name_).begin();                            
+                    int idx2 = std::find(moduleLabels.begin(), moduleLabels.end(), input2) - moduleLabels.begin();                            
                     
                     if ( HLTCP.moduleType(input1) == "HLT1Tau" || HLTCP.moduleType(input1) == "HLT1SmartTau" ) {
                         if ( boost::regex_match(input1, rePFTau) || boost::regex_match(input1, rePFIsoTau) ) {

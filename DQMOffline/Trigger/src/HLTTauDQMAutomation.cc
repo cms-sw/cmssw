@@ -19,7 +19,8 @@ void HLTTauDQMAutomation::AutoCompleteConfig( std::vector<edm::ParameterSet>& co
     boost::regex reTau(".*Tau.*");
     std::map<std::string,HLTTauDQMFilter> filters;
     if ( HLTCP.inited() ) {
-        for ( std::vector<std::string>::const_iterator ipath = HLTCP.triggerNames().begin(); ipath != HLTCP.triggerNames().end(); ++ipath ) {
+        const std::vector<std::string>& triggerNames = HLTCP.triggerNames();
+        for ( std::vector<std::string>::const_iterator ipath = triggerNames.begin(); ipath != triggerNames.end(); ++ipath ) {
             if ( boost::regex_match(*ipath, reTau) && HLTCP.prescaleValue(0,*ipath) > 0 ) {
                 HLTTauDQMFilter tmp(*ipath, HLTCP.prescaleValue(0,*ipath), hltProcessName_, L1MatchDr_, HLTMatchDr_);
                 selectHLTTauDQMFilter(filters, tmp);
@@ -108,7 +109,8 @@ void HLTTauDQMAutomation::AutoCompleteMatching( edm::ParameterSet& config, HLTCo
     boost::regex reTau(".*Tau.*");
     std::map<std::string,HLTTauDQMFilter> filters;
     if ( HLTCP.inited() ) {
-        for ( std::vector<std::string>::const_iterator ipath = HLTCP.triggerNames().begin(); ipath != HLTCP.triggerNames().end(); ++ipath ) {
+        const std::vector<std::string>& triggerNames = HLTCP.triggerNames();
+        for ( std::vector<std::string>::const_iterator ipath = triggerNames.begin(); ipath != triggerNames.end(); ++ipath ) {
             if ( boost::regex_match(*ipath, reTau) && HLTCP.prescaleValue(0,*ipath) > 0 ) {
                 HLTTauDQMFilter tmp(*ipath, HLTCP.prescaleValue(0,*ipath), hltProcessName_, L1MatchDr_, HLTMatchDr_);
                 selectHLTTauDQMFilter(filters, tmp);
@@ -129,8 +131,9 @@ void HLTTauDQMAutomation::AutoCompleteMatching( edm::ParameterSet& config, HLTCo
                         boost::regex exprEle(moduleType);
                         std::string selectedModule = "";
                         for ( std::map<int,std::string>::const_iterator imodule = modules.begin(); imodule != modules.end(); ++imodule ) {
-                            std::string::const_iterator start = HLTCP.moduleType(imodule->second).begin();
-                            std::string::const_iterator end = HLTCP.moduleType(imodule->second).end();
+                            const std::string& mType = HLTCP.moduleType(imodule->second);
+                            std::string::const_iterator start = mType.begin();
+                            std::string::const_iterator end = mType.end();
                             if ( boost::regex_match(start, end, exprEle) ) {
                                 selectedModule = imodule->second;
                                 break;
