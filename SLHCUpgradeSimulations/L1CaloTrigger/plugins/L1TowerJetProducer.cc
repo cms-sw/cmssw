@@ -26,7 +26,7 @@ public L1CaloAlgoBase < l1slhc::L1CaloTowerCollection, l1slhc::L1TowerJetCollect
 	void calculateJetPosition( l1slhc::L1TowerJet & lJet );
 
 	//some helpful members
-	int mJetSize;
+	int mJetDiameter;
 	l1slhc::L1TowerJet::tJetShape mJetShape;
 
 	std::vector< std::pair< int , int > > mJetShapeMap;
@@ -35,9 +35,9 @@ public L1CaloAlgoBase < l1slhc::L1CaloTowerCollection, l1slhc::L1TowerJetCollect
 
 L1TowerJetProducer::L1TowerJetProducer( const edm::ParameterSet & aConfig ):L1CaloAlgoBase < l1slhc::L1CaloTowerCollection, l1slhc::L1TowerJetCollection > ( aConfig )
 {
-	mJetSize = aConfig.getParameter<unsigned>("JetSize");
-	mPhiOffset = -mJetSize;
-	mEtaOffset = -mJetSize;
+	mJetDiameter = aConfig.getParameter<unsigned>("JetDiameter");
+	mPhiOffset = -mJetDiameter;
+	mEtaOffset = -mJetDiameter;
 	// mPhiIncrement = 1;
 	// mEtaIncrement = 1;
 
@@ -52,20 +52,20 @@ L1TowerJetProducer::L1TowerJetProducer( const edm::ParameterSet & aConfig ):L1Ca
 		mJetShape = l1slhc::L1TowerJet::circle;
 
 
-		double lCentre( (mJetSize-1) / 2.0 );
+		double lCentre( (mJetDiameter-1) / 2.0 );
 		double lDelta;
 
 		std::vector<double> lDeltaSquare;
-		for( int i = 0 ; i != mJetSize ; ++i ){
+		for( int i = 0 ; i != mJetDiameter ; ++i ){
 			lDelta = double(i) - lCentre;
 			lDeltaSquare.push_back( lDelta*lDelta );
 		}
 
 		double lDeltaRSquare;
-		double lDeltaRSquareMax( (mJetSize*mJetSize) / 4.0 );
+		double lDeltaRSquareMax( (mJetDiameter*mJetDiameter) / 4.0 );
 
-		for( int x = 0 ; x != mJetSize ; ++x ){
-			for( int y = 0 ; y != mJetSize ; ++y ){
+		for( int x = 0 ; x != mJetDiameter ; ++x ){
+			for( int y = 0 ; y != mJetDiameter ; ++y ){
 				lDeltaRSquare = lDeltaSquare[x] + lDeltaSquare[y];
 				if( lDeltaRSquare <= lDeltaRSquareMax ){
 					mJetShapeMap.push_back( std::make_pair( x , y ) );
@@ -81,8 +81,8 @@ L1TowerJetProducer::L1TowerJetProducer( const edm::ParameterSet & aConfig ):L1Ca
 
 		mJetShape = l1slhc::L1TowerJet::square;
 
-		for( int x = 0 ; x != mJetSize ; ++x ){
-			for( int y = 0 ; y != mJetSize ; ++y ){
+		for( int x = 0 ; x != mJetDiameter ; ++x ){
+			for( int y = 0 ; y != mJetDiameter ; ++y ){
 				mJetShapeMap.push_back( std::make_pair( x , y ) );
 			}
 		}
@@ -108,7 +108,7 @@ void L1TowerJetProducer::algorithm( const int &aEta, const int &aPhi )
 	std::pair < int, int > lTowerEtaPhi = mCaloTriggerSetup->getTowerEtaPhi( lTowerIndex );
 
 
-	l1slhc::L1TowerJet lJet( mJetSize, mJetShape , lTowerEtaPhi.first , lTowerEtaPhi.second );
+	l1slhc::L1TowerJet lJet( mJetDiameter, mJetShape , lTowerEtaPhi.first , lTowerEtaPhi.second );
 
 	for ( std::vector< std::pair< int , int > >::const_iterator lJetShapeMapIt = mJetShapeMap.begin() ; lJetShapeMapIt != mJetShapeMap.end() ; ++lJetShapeMapIt )
 	{
@@ -140,9 +140,9 @@ void L1TowerJetProducer::calculateJetPosition( l1slhc::L1TowerJet & lJet )
 	double eta;		
 	double halfTowerOffset = 0.0435;
 
-	double halfJetSize = double(lJet.JetSize()) / 2.0;
+	double JetSize = double(lJet.JetSize()) / 2.0;
 
-	int abs_eta = abs( lJet.iEta(  ) + int(halfJetSize) );
+	int abs_eta = abs( lJet.iEta(  ) + int(JetSize) );
 
 	if ( abs_eta < 21 )
 	{
@@ -169,22 +169,28 @@ void L1TowerJetProducer::calculateJetPosition( l1slhc::L1TowerJet & lJet )
 //			eta += endcapEta[i];
 //		}
 //		eta -= endcapEta[abs_eta] / 2.;
+//		if( lJet.JetSize() % 2 == 1 ){
+//			eta += endcapEta[i] / 2.;
+//		}
 
 		for ( int i = 0; i != abs_eta; ++i )
 		{
 			eta += endcapEta[i];
 		}
+
 		if( lJet.JetSize() % 2 == 0 ){
 			eta += endcapEta[abs_eta] / 2.;
+		}else{
+			eta += endcapEta[abs_eta];
 		}
 
 
 	}
 
-	if ( lJet.iEta(  ) < -halfJetSize )
+	if ( lJet.iEta(  ) < -JetSize )
 		eta = -eta;
 
-	double phi = ( ( lJet.iPhi(  ) + halfJetSize ) * 0.087 ) - halfTowerOffset;
+	double phi = ( ( lJet.iPhi(  ) + JetSize ) * 0.087 ) - halfTowerOffset;
 	double Et = double( lJet.E(  ) ) / 2.;
 
 	lJet.setP4( math::PtEtaPhiMLorentzVector( Et, eta, phi, 0. ) );

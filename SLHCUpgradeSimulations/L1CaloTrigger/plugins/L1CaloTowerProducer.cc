@@ -6,7 +6,7 @@
    Modified Andrew W. Rose Imperial College, London */
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-//#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
 // Includes for the Calo Scales
 #include "CondFormats/DataRecord/interface/L1CaloEcalScaleRcd.h"
@@ -28,7 +28,7 @@
 #include "DataFormats/HcalDigi/interface/HcalTriggerPrimitiveDigi.h"
 
 // added to allow use of Upgrade HCAL - AWR 12/05/2011
-//#include "DataFormats/HcalDigi/interface/HcalUpgradeTriggerPrimitiveDigi.h"
+#include "DataFormats/HcalDigi/interface/HcalUpgradeTriggerPrimitiveDigi.h"
 
 #include "SimDataFormats/SLHC/interface/L1CaloTower.h"
 #include "SimDataFormats/SLHC/interface/L1CaloTowerFwd.h"
@@ -71,10 +71,9 @@ class L1CaloTowerProducer:public edm::EDProducer
 
 L1CaloTowerProducer::L1CaloTowerProducer( const edm::ParameterSet & aConfig ):
 mCaloTowers( NULL ), 
-mEcalDigiInputTag( aConfig.getParameter < edm::InputTag > ( "ECALDigis" ) ) /*
- mHcalDigiInputTag( aConfig.getParameter < edm::InputTag > ( "HCALDigis" ) ), 
-   mUseupgradehcal( aConfig.getParameter < bool > ( "UseUpgradeHCAL" ) )	
-									    */
+mEcalDigiInputTag( aConfig.getParameter < edm::InputTag > ( "ECALDigis" ) ),
+mHcalDigiInputTag( aConfig.getParameter < edm::InputTag > ( "HCALDigis" ) ), 
+mUseupgradehcal( aConfig.getParameter < bool > ( "UseUpgradeHCAL" ) )	
 {
 	// Register Product
 	produces < l1slhc::L1CaloTowerCollection > (  );
@@ -87,7 +86,7 @@ L1CaloTowerProducer::~L1CaloTowerProducer(  )
 }
 
 
-/*
+
 void L1CaloTowerProducer::addHcal( const int &aCompressedEt, const int &aIeta,
 								   const int &aIphi, const bool & aFG )
 {
@@ -113,7 +112,7 @@ void L1CaloTowerProducer::addHcal( const int &aCompressedEt, const int &aIeta,
 		}
 	}
 }
-*/
+
 
 void L1CaloTowerProducer::addEcal( const int &aCompressedEt, const int &aIeta,
 								   const int &aIphi, const bool & aFG )
@@ -167,7 +166,7 @@ void L1CaloTowerProducer::produce( edm::Event & aEvent,
 
 	for ( EcalTrigPrimDigiCollection::const_iterator lEcalTPItr = lEcalDigiHandle->begin(  ); lEcalTPItr != lEcalDigiHandle->end(  ); ++lEcalTPItr )
 		addEcal( lEcalTPItr->compressedEt(  ), lEcalTPItr->id(  ).ieta(  ), lEcalTPItr->id(  ).iphi(  ), lEcalTPItr->fineGrain(  ) );
-	/*
+	
 	if ( !mUseupgradehcal )
 	{
 		//getting data from event takes 3 orders of magnitude longer than anything else in the program : O(10-100ms) cf O(10-100us)
@@ -186,7 +185,7 @@ void L1CaloTowerProducer::produce( edm::Event & aEvent,
 		for ( HcalUpgradeTrigPrimDigiCollection::const_iterator lHcalTPItr = lHcalDigiHandle->begin(  ); lHcalTPItr != lHcalDigiHandle->end(  ); ++lHcalTPItr )
 			addHcal( lHcalTPItr->SOI_compressedEt(  ), lHcalTPItr->id(  ).ieta(  ), lHcalTPItr->id(  ).iphi(  ), lHcalTPItr->SOI_fineGrain(  ) );
 	}
-	*/
+	
 	aEvent.put( mCaloTowers );
 }
 

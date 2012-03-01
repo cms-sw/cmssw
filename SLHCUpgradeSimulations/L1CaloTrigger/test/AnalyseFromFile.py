@@ -6,7 +6,7 @@ process = cms.Process("L1Tproducer")
 
 # Number of events to be generated
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(10)
 )
 
 process.load("L1Trigger.L1ExtraFromDigis.l1extraParticles_cff")
@@ -19,11 +19,17 @@ process.L1CaloTriggerSetup.InputXMLFile=cms.FileInPath('SLHCUpgradeSimulations/L
 #process.L1CaloTowerProducer.HCALDigis = cms.InputTag("simHcalUpgradeTriggerPrimitiveDigis")
 #process.L1CaloTowerProducer.UseUpgradeHCAL = cms.bool(True)
 
-process.L1TowerJetProducer.JetSize = cms.uint32(9)
-process.L1TowerJetProducer.JetShape = cms.string("circle")
+process.L1RingSubtractionProducer.RingSubtractionType = cms.string("mean") # "mean", "median" or "constant"
+
+#process.L1TowerJetProducer.src = cms.InputTag("L1CaloTowerProducer")
+process.L1TowerJetProducer.src = cms.InputTag("L1RingSubtractionProducer")
+process.L1TowerJetProducer.JetDiameter = cms.uint32(9)
+process.L1TowerJetProducer.JetShape = cms.string("circle") # "circle" or "square"
+
 
 process.p1 = cms.Path(
 				process.L1CaloTowerProducer+
+				process.L1RingSubtractionProducer+
                 process.L1TowerJetProducer
 			)
 

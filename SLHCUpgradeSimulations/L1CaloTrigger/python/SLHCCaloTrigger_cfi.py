@@ -16,8 +16,13 @@ L1CaloTowerProducer = cms.EDProducer("L1CaloTowerProducer",
     UseUpgradeHCAL = cms.bool(False) #added to allow use of Upgrade HCAL - AWR 12/05/2011
 )
 
+L1RingSubtractionProducer = cms.EDProducer("L1RingSubtractionProducer",
+    src = cms.InputTag("L1CaloTowerProducer"),
+	RingSubtractionType = cms.string("median") # "mean", "median" or "constant"
+)
+
 L1CaloRegionProducer = cms.EDProducer("L1CaloRegionProducer",
-                                      src = cms.InputTag("L1CaloTowerProducer")
+    src = cms.InputTag("L1CaloTowerProducer")
 )                                      
 
 L1CaloClusterProducer = cms.EDProducer("L1CaloClusterProducer",
@@ -47,8 +52,8 @@ L1CaloJetExpander = cms.EDProducer("L1CaloJetExpander",
 
 L1TowerJetProducer = cms.EDProducer("L1TowerJetProducer",
     src = cms.InputTag("L1CaloTowerProducer"),
-	JetSize = cms.uint32(9),
-	JetShape = cms.string("circle")
+	JetDiameter = cms.uint32(9),
+	JetShape = cms.string("circle") # "circle" or "square"
 )
 
 

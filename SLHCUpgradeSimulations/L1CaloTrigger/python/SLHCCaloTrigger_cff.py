@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from SLHCUpgradeSimulations.L1CaloTrigger.SLHCCaloTrigger_cfi import *
 
 SLHCCaloTrigger  = cms.Sequence(L1CaloTowerProducer+
+                                L1RingSubtractionProducer+
                                 L1CaloRegionProducer+
                                 L1CaloClusterProducer+
                                 L1CaloClusterFilter+
