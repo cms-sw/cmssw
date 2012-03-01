@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.368 $"
+__version__ = "$Revision: 1.369 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -1298,6 +1298,12 @@ class ConfigBuilder(object):
                 else:
                         self.loadAndRemember('%s/Configuration/HLT_%s_cff' % (loadDir, sequence))
 
+	if self._options.name!='HLT':
+		self.additionalCommands.append('from HLTrigger.Configuration.CustomConfigs import ProcessName')
+		self.additionalCommands.append('process=ProcessName(process)')
+		from HLTrigger.Configuration.CustomConfigs import ProcessName
+		self.process=ProcessName(self.process)
+		
         self.schedule.append(self.process.HLTSchedule)
         [self.blacklist_paths.append(path) for path in self.process.HLTSchedule if isinstance(path,(cms.Path,cms.EndPath))]
         if (fastSim and 'HLT' in self.stepMap.keys()):
@@ -1684,7 +1690,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.368 $"),
+                                            (version=cms.untracked.string("$Revision: 1.369 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
