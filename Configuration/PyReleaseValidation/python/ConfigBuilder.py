@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.367 $"
+__version__ = "$Revision: 1.368 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -1093,15 +1093,7 @@ class ConfigBuilder(object):
 	maxLevel=0
 	from Configuration.AlCa.autoAlca import autoAlca
 	# support @X from autoAlca.py, and recursion support: i.e T0:@Mu+@EG+...
-	while '@' in repr(alcaList) and maxLevel<10:
-		maxLevel+=1
-		for specifiedCommand in alcaList:
-			if specifiedCommand[0]=="@":
-				location=specifiedCommand[1:]
-				alcaSequence = autoAlca[location]
-				alcaList.remove(specifiedCommand)
-				alcaList.extend(alcaSequence.split('+'))
-				break
+	self.expandMapping(alcaList,autoAlca)
 	
         for name in alcaConfig.__dict__:
             alcastream = getattr(alcaConfig,name)
@@ -1354,18 +1346,10 @@ class ConfigBuilder(object):
         skimConfig = self.loadDefaultOrSpecifiedCFF(sequence,self.SKIMDefaultCFF)
         sequence = sequence.split('.')[-1]
 
-        skimlist=[]
+        skimlist=sequence.split('+')
         ## support @Mu+DiJet+@Electron configuration via autoSkim.py
-        for specifiedCommand in sequence.split('+'):
-                if specifiedCommand[0]=="@":
-                        from Configuration.Skimming.autoSkim import autoSkim
-                        location=specifiedCommand[1:]
-			if not location in autoSkim:
-				raise Exception('@'+location+' is not a valid SKIM argument. Availables are: '+','.join(autoSkim.keys()))
-                        skimSequence = autoSkim[location]
-                        skimlist.extend(skimSequence.split('+'))
-                else:
-                        skimlist.append(specifiedCommand)
+	from Configuration.Skimming.autoSkim import autoSkim
+	self.expandMapping(skimlist,autoSkim)
 
         #print "dictionnary for skims:",skimConfig.__dict__
         for skim in skimConfig.__dict__:
@@ -1538,15 +1522,38 @@ class ConfigBuilder(object):
             self.additionalCommands.append('process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("%s", "%s", whitelist = ("subSystemFolder",)))'% (sequence,HLTprocess, proc))
 
 
+    def expandMapping(self,seqList,mapping,index=None):
+	    maxLevel=20
+	    level=0
+	    while '@' in repr(seqList) and level<maxLevel:
+		    level+=1
+		    for specifiedCommand in seqList:
+			    if specifiedCommand.startswith('@'):
+				    location=specifiedCommand[1:]
+				    if not location in mapping:
+					    raise Exception("Impossible to map "+location+" from "+repr(mapping))
+				    mappedTo=mapping[location]
+				    if index!=None:
+					    mappedTo=mappedTo[index]
+				    seqList.remove(specifiedCommand)
+				    seqList.extend(mappedTo.split('+'))
+				    break;
+	    if level==maxLevel:
+		    raise Exception("Could not fully expand "+repr(seqlist)+" from "+repr(mapping))
+	    
     def prepare_DQM(self, sequence = 'DQMOffline'):
         # this one needs replacement
 
         self.loadDefaultOrSpecifiedCFF(sequence,self.DQMOFFLINEDefaultCFF)
         sequenceList=sequence.split('.')[-1].split('+')
+	from DQMOffline.Configuration.autoDQM import autoDQM
+	self.expandMapping(sequenceList,autoDQM,index=0)
+	
 	if len(set(sequenceList))!=len(sequenceList):
 		sequenceList=list(set(sequenceList))
 		print "Duplicate entries for DQM:, using",sequenceList
 	pathName='dqmoffline_step'
+	
 	for (i,sequence) in enumerate(sequenceList):
 		if (i!=0):
 			pathName='dqmoffline_%d_step'%(i)
@@ -1575,6 +1582,9 @@ class ConfigBuilder(object):
 
         # decide which HARVESTING paths to use
         harvestingList = sequence.split("+")
+	from DQMOffline.Configuration.autoDQM import autoDQM
+	self.expandMapping(harvestingList,autoDQM,index=1)
+	
 	if len(set(harvestingList))!=len(harvestingList):
 		harvestingList=list(set(harvestingList))
 		print "Duplicate entries for HARVESTING, using",harvestingList
@@ -1674,7 +1684,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.367 $"),
+                                            (version=cms.untracked.string("$Revision: 1.368 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
