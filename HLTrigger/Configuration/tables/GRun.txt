@@ -312,20 +312,20 @@ HLT_MET200_HBHENoiseCleaned_v*									#sr126491
 HLT_MET300_HBHENoiseCleaned_v*									#sr126491
 HLT_MET400_HBHENoiseCleaned_v*									#sr126491
 
-#HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v*	#sr126493, still to get integrated
-#HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_Ele8_Mass50_v*					#sr126493, still to get integrated
-#HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v*						#sr126493, still to get integrated
-#HLT_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v*							#sr126493, still to get integrated
-#HLT_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Jet30_v*						#sr126493, still to get integrated
-#HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Jet30_v*						#sr126493, still to get integrated
-#HLT_Ele20_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC4_Mass50_v*					#sr126493, still to get integrated
-#HLT_Ele32_CaloIdT_CaloIsoT_TrkIdT_TrkIsoT_SC17_Mass						#sr126493, still to get integrated50_v*
-#HLT_Photon36_R9Id90_HE10_Iso40_v*			#sr126493, still to get integrated
-#HLT_Photon50_R9Id90_HE10_Iso40_v*			#sr126493, still to get integrated
-#HLT_Photon75_R9Id90_HE10_Iso40_v*			#sr126493, still to get integrated
-#HLT_Photon90_R9Id90_HE10_Iso40_v*			#sr126493, still to get integrated
-#HLT_Ele27_WP70_v*					#sr126493, still to get integrated
-#HLT_Ele27_WP80_v*					#sr126493, still to get integrated
+HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v*	  #sr126493
+HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_Ele8_Mass50_v*  #sr126493
+HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v*              #sr126493
+HLT_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v*               #sr126493
+HLT_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Jet30_v*         #sr126493
+HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Jet30_v*        #sr126493
+HLT_Ele20_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC4_Mass50_v*   #sr126493
+HLT_Ele32_CaloIdT_CaloIsoT_TrkIdT_TrkIsoT_SC17_Mass50_v*     #sr126493
+HLT_Photon36_R9Id90_HE10_Iso40_v*                            #sr126493
+HLT_Photon50_R9Id90_HE10_Iso40_v*                            #sr126493
+HLT_Photon75_R9Id90_HE10_Iso40_v*                            #sr126493
+HLT_Photon90_R9Id90_HE10_Iso40_v*                            #sr126493
+HLT_Ele27_WP70_v*                                            #sr126493
+HLT_Ele27_WP80_v*                                            #sr126493
 HLT_Ele27_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v*	#sr126493, kept from 2011
 HLT_Ele32_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v*	#sr126493, kept from 2011
 HLT_Ele65_CaloIdVT_TrkIdT_v*			#sr126493, kept from 2011
@@ -338,8 +338,8 @@ HLT_Ele32_WP70_PFMT50_v*			#sr126493, kept from 2011
 HLT_Ele8_CaloIdL_CaloIsoVL_v*                   #sr126493, kept from 2011
 HLT_Ele17_CaloIdL_CaloIsoVL_v*                  #sr126493, kept from 2011
 
-#HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v*			#sr126497, still to get integrated
-#HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v*			#sr126497, still to get integrated
+HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v*       #sr126497
+HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v*       #sr126497
 
 HLT_PFJet40_v*				#sr126501, 126484
 HLT_PFJet80_v*				#sr126501, 126484
