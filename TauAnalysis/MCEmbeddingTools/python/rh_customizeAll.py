@@ -125,8 +125,8 @@ def customise(process):
     import sys
     if hasattr(sys, "argv") == True:
       if not sys.argv[0].endswith('cmsDriver.py'):
-      options.parseArguments()
-      setFromCL = True
+        options.parseArguments()
+        setFromCL = True
   else :
     print "CL parsing disabled!"
 
