@@ -73,7 +73,7 @@ int* supportedDataFormatsVersion()
 
 bool acceptDataFormatsVersion(TString& n)
 {
-   int v[3];
+   int v[] = {0, 0, 0};
    getDecomposedVersion(n, v);
    return v[0] == supportedDataFormatsVersion()[0];
 }
