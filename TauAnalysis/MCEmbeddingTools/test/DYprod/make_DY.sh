@@ -19,6 +19,7 @@ f2=Configuration/GenProduction/python/DYToTauTau_M_20_TuneZ2_7TeV_pythia6_tauola
 if [ ! -f $f2 ]; then
   cvs co -r 1.1 $f2
 fi
+scramv1 b
 
 cd -
 
