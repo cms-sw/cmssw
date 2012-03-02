@@ -50,10 +50,15 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
 #include "DQM/SiPixelMonitorTrack/interface/SiPixelHitEfficiencySource.h"
+#include "TrackingTools/DetLayers/interface/DetLayer.h"
+#include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
+#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
 
 
 using namespace std;
@@ -282,6 +287,17 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::Ev
         std::cout << "isFpixtrack : " << isFpixtrack << std::endl;
       }
       
+      ESHandle<MeasurementTracker> measurementTrackerHandle;
+      iSetup.get<CkfComponentsRecord>().get(measurementTrackerHandle);
+      
+      //edm::ESHandle<Chi2MeasurementEstimatorBase> est;
+      //iSetup.get<TrackingComponentsRecord>().get("Chi2",est);
+      
+      edm::ESHandle<Propagator> prop;
+      iSetup.get<TrackingComponentsRecord>().get("PropagatorWithMaterial",prop);
+      Propagator* thePropagator = prop.product()->clone();
+      thePropagator->setPropagationDirection(oppositeToMomentum);
+      
       
       //std::cout<<"This track has so many hits: "<<tmeasColl.size()<<std::endl;
       // This is the main part, looping over the trajectory from the outside in:
@@ -348,18 +364,18 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::Ev
 	// extrapolate L2 hits to L1 to reconstruct missing hits, which are not stored by default:
         std::vector<TrajectoryMeasurement> expTrajMeasurements; // for Layer1 only this gets recorded; will be filled because we first loop over L2 hits...
         int imeas=0;
-	int realHitFound=0;
+	//int realHitFound=0;
         double glx=tsos.globalPosition().x();
 	double gly=tsos.globalPosition().y();
 	double glz=tsos.globalPosition().z();
-	LocalPoint chklp=chkPredTrajState.localPosition();
+	LocalPoint chklp=tsos.localPosition();
         if(isBarrel && layer==1){
 	  // Pick a L1 hit; compare with extrapolated hit from L2; if they match in position, remove L1 hit from extrapolated hit
 	  // list, because it's a valid hit! Whatever hits are remaining in the end in the extrapolated list, are the missing hits 
 	  // in L1!
 	  size_t imatch=0;
 	  double glmatch=9999.;
-	  int explayer=0; bool expisHalfModule=false; int expladder=0; int expmodule=0;
+	  int explayer=0; int expladder=0; int expmodule=0;
 	  int dladder=9999; int dmodule=9999;
 	  for(size_t iexp=0; iexp<expTrajMeasurements.size(); iexp++){
 	    const DetId & exphit_detId = expTrajMeasurements[iexp].recHit()->geographicalId();
@@ -418,7 +434,7 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::Ev
 	  }
 	}
 	// found the matching last valid hit in L2 that was extrapolated into L1:
-	if(lastValidL2){
+	/*if(lastValidL2){
 	  std::vector< BarrelDetLayer*> pxbLayers = measurementTrackerHandle->geometricSearchTracker()->pixelBarrelLayers();
 	  const DetLayer* pxb1 = pxbLayers[0];
 	  const MeasurementEstimator* estimator = est.product();
@@ -443,11 +459,11 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::Ev
 	      module = PixelEndcapName(pxb1Hit->geographicalId()).plaquetteName();
 	    }
 	  }
-	}
+	}*/
 	imeas++;
-	correctHitTypeAssignment(meas, recHit); // Needs to have meas.mod_on set correctly
-        if(recHit->getType()==TrackingRecHit::valid){ isHitValid=true; isHitMissing=false; }
-        if(recHit->getType()==TrackingRecHit::missing){ isHitMissing=true; isHitValid=false; }
+	//correctHitTypeAssignment(meas, recHit); // Needs to have meas.mod_on set correctly
+        //if(recHit->getType()==TrackingRecHit::valid){ isHitValid=true; isHitMissing=false; }
+        //if(recHit->getType()==TrackingRecHit::missing){ isHitMissing=true; isHitValid=false; }
         // Exceptions:
         // One full module on layer 1 is out. Need to fix classification here, because
         // the trajectory propagation does not include this
@@ -593,10 +609,9 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::Ev
 	if(pxd!=theSiPixelStructure.end() && passedFiducial && (isHitValid || isHitMissing))
 	  (*pxd).second->fill(ltp, isHitValid, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn); 	
 	  
-      }//end of else 
-    }//end for (all traj measurements of pixeltrack)
-  }//end if (is pixeltrack)
-}//end loop on map entries
+      }//end for (all traj measurements of pixeltrack)
+    }//end if (is pixeltrack)
+  }//end loop on map entries
 }
 
 
