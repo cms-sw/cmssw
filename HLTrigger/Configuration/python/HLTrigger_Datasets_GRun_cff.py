@@ -1,4 +1,4 @@
-# /dev/CMSSW_5_1_0/GRun/V128
+# /dev/CMSSW_5_1_0/GRun/V129
 
 import FWCore.ParameterSet.Config as cms
 
@@ -64,6 +64,7 @@ streamA_datasetDoubleMu_selector.throw      = cms.bool(False)
 streamA_datasetDoubleMu_selector.triggerConditions = cms.vstring('HLT_DoubleMu5_IsoMu5_v13', 
     'HLT_L2DoubleMu23_NoVertex_2Cha_Angle2p5_v1', 
     'HLT_L2DoubleMu23_NoVertex_v9', 
+    'HLT_L2DoubleMu38_NoVertex_2Cha_Angle2p5_v1', 
     'HLT_Mu13_Mu8_v12', 
     'HLT_Mu17_Mu8_v12', 
     'HLT_Mu17_TkMu8_v5', 

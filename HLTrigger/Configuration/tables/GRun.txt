@@ -33,6 +33,7 @@ HLT_ExclDiJet80_HFAND_v*                                                        
 
 HLT_L2DoubleMu23_NoVertex_v*                                                                    #sr126251
 HLT_L2DoubleMu23_NoVertex_2Cha_Angle2p5_v*                                                      #sr126251
+HLT_L2DoubleMu38_NoVertex_2Cha_Angle2p5_v*                                                      #sr126251
 
 HLT_DoubleDisplacedMu4_DiPFJet40Neutral_L1FastJet_v*                                            #sr126258
 HLT_L2TripleMu10_0_0_NoVertex_PFJet40Neutral_L1FastJet_v*                                       #sr126258
