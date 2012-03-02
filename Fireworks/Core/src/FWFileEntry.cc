@@ -18,6 +18,7 @@
 
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/fwLog.h"
+#include "Fireworks/Core/interface/fwPaths.h"
 
 FWFileEntry::FWFileEntry(const std::string& name, bool checkVersion) :
    m_name(name), m_file(0), m_eventTree(0), m_event(0),
@@ -63,29 +64,27 @@ void FWFileEntry::openFile(bool checkVersion)
       provList *x = 0;
       b->SetAddress(&x);
       b->GetEntry(0);
-      char rel[4] = { 0, 0, 0, 0 };
       for (provList::iterator i = x->begin(); i != x->end(); ++i)
       {
          // std::cout << i->releaseVersion() << "  " << i->processName() << std::endl;
-         if (i->releaseVersion().size() > 11)
+         TString v=  i->releaseVersion();
+         if (fireworks::acceptDataFormatsVersion(v))
          {
-            rel[0] = i->releaseVersion()[7];
-            rel[1] = i->releaseVersion()[9];
-            rel[2] = i->releaseVersion()[11];
-            int relInt = atoi(rel);
-            if (relInt >= 420)
-            {
-               pass = true;
-               break;
-            }
+            pass = true;
+            break;
          }
+         
       }
 
       b->SetAddress(0);
 
       if (!pass)
       {
-         throw std::runtime_error("Incompatible data file. Process with version CMSSW_4_2_X or more required.\nUse --no-version-check option if you still want to view the file.\n");                                   
+         int* di = (fireworks::supportedDataFormatsVersion());
+         TString msg = Form("incompatible data: Process version does not mactch major data formats version. File %s produced with %s. Data formats version \"CMSSW_%d_%d_%d\".\n", 
+                            m_name.c_str(),  x->begin()->releaseVersion().c_str(), di[0], di[1], di[2]);
+         msg += "Use --no-version-check option if you still want to view the file.\n";
+         throw std::runtime_error(msg.Data());
       }
    }
 
