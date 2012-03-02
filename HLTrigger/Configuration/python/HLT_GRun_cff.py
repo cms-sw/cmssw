@@ -32345,10 +32345,3 @@ es_prefer_l1GtParameters = cms.ESPrefer('L1GtTriggerMenuXmlProducer','l1GtTrigge
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 
-# dummyfy hltGetConditions in cff's
-if 'hltGetConditions' in locals() and 'HLTriggerFirstPath' in locals() :
-    hltDummyConditions = cms.EDFilter( "HLTBool",
-        result = cms.bool( True )
-    )
-    HLTriggerFirstPath.replace(hltGetConditions,hltDummyConditions)
-

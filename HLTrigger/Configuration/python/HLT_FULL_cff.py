@@ -52686,10 +52686,3 @@ HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_Activity_Ecal_SC7_v9, HLT_
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 
-# dummyfy hltGetConditions in cff's
-if 'hltGetConditions' in locals() and 'HLTriggerFirstPath' in locals() :
-    hltDummyConditions = cms.EDFilter( "HLTBool",
-        result = cms.bool( True )
-    )
-    HLTriggerFirstPath.replace(hltGetConditions,hltDummyConditions)
-
