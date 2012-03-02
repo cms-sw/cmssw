@@ -1,0 +1,6 @@
+<use   name="DataFormats/L1GlobalTrigger"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="DataFormats/Provenance"/>
+
+<bin   file="L1GlobalTriggerObjectMaps_t.cc">
+</bin>
