@@ -1,5 +1,5 @@
 //
-// $Id: PATTriggerProducer.cc,v 1.31 2011/11/30 12:00:27 vadler Exp $
+// $Id: PATTriggerProducer.cc,v 1.32 2011/11/30 12:36:40 vadler Exp $
 //
 
 
@@ -9,15 +9,18 @@
 #include <map>
 #include <utility>
 #include <cassert>
+#include <string>
 
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMaps.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 
 #include "DataFormats/PatCandidates/interface/TriggerAlgorithm.h"
@@ -48,7 +51,7 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
   onlyStandAlone_( iConfig.getParameter< bool >( "onlyStandAlone" ) ),
   // L1 configuration parameters
   addL1Algos_( false ),
-  tagL1GlobalTriggerObjectMapRecord_( "hltL1GtObjectMap" ),
+  tagL1GlobalTriggerObjectMaps_( "hltL1GtObjectMap" ),
   tagL1ExtraMu_(),
   tagL1ExtraNoIsoEG_(),
   tagL1ExtraIsoEG_(),
@@ -81,7 +84,7 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
 
   // L1 configuration parameters
   if ( iConfig.exists( "addL1Algos" ) ) addL1Algos_ = iConfig.getParameter< bool >( "addL1Algos" );
-  if ( iConfig.exists( "l1GlobalTriggerObjectMapRecord" ) ) tagL1GlobalTriggerObjectMapRecord_ = iConfig.getParameter< InputTag >( "l1GlobalTriggerObjectMapRecord" );
+  if ( iConfig.exists( "l1GlobalTriggerObjectMaps" ) ) tagL1GlobalTriggerObjectMaps_ = iConfig.getParameter< InputTag >( "l1GlobalTriggerObjectMaps" );
   if ( iConfig.exists( "l1ExtraMu" ) ) {
     tagL1ExtraMu_ = iConfig.getParameter< InputTag >( "l1ExtraMu" );
     if ( tagL1ExtraMu_.process() == "*" ) {
@@ -765,10 +768,10 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
         l1GtConditions.insert( l1GtConditionsVector.at( iCv ).begin(), l1GtConditionsVector.at( iCv ).end() );
       }
       triggerAlgos->reserve( l1GtAlgorithms.size() + l1GtTechTriggers.size() );
-      Handle< L1GlobalTriggerObjectMapRecord > handleL1GlobalTriggerObjectMapRecord;
-      iEvent.getByLabel( tagL1GlobalTriggerObjectMapRecord_, handleL1GlobalTriggerObjectMapRecord );
-      if( ! handleL1GlobalTriggerObjectMapRecord.isValid() ) {
-        LogWarning( "l1ObjectMap" ) << "L1GlobalTriggerObjectMapRecord product with InputTag '" << tagL1GlobalTriggerObjectMapRecord_.encode() << "' not in event\n"
+      Handle< L1GlobalTriggerObjectMaps > handleL1GlobalTriggerObjectMaps;
+      iEvent.getByLabel( tagL1GlobalTriggerObjectMaps_, handleL1GlobalTriggerObjectMaps );
+      if( ! handleL1GlobalTriggerObjectMaps.isValid() ) {
+        LogWarning( "l1ObjectMap" ) << "L1GlobalTriggerObjectMaps product with InputTag '" << tagL1GlobalTriggerObjectMaps_.encode() << "' not in event\n"
                                     << "No L1 objects and GTL results available for physics algorithms";
       }
       // physics algorithms
@@ -804,58 +807,71 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
         TriggerAlgorithm triggerAlgo( algoName, iAlgo->second.algoAlias(), category == L1GtUtils::TechnicalTrigger, (unsigned)bit, (unsigned)prescale, (bool)mask, decisionBeforeMask, decisionAfterMask );
         triggerAlgo.setLogicalExpression( iAlgo->second.algoLogicalExpression() );
         // GTL result and used conditions in physics algorithm
-        if( ! handleL1GlobalTriggerObjectMapRecord.isValid() ) {
+        if( ! handleL1GlobalTriggerObjectMaps.isValid() ) {
           triggerAlgos->push_back( triggerAlgo );
           continue; // LogWarning already earlier (before loop)
         }
-        const L1GlobalTriggerObjectMap * l1ObjectMap( handleL1GlobalTriggerObjectMapRecord->getObjectMap( algoName ) );
-        if ( ! l1ObjectMap ) {
-          LogError( "l1ObjectMap" ) << "L1 physics algorithm '" << algoName << "' is missing in L1GlobalTriggerObjectMapRecord\n"
+        if ( ! handleL1GlobalTriggerObjectMaps->algorithmExists(bit)) {
+          LogError( "l1ObjectMap" ) << "L1 physics algorithm '" << algoName << "' is missing in L1GlobalTriggerObjectMaps\n"
                                     << "Skipping conditions and GTL result";
           triggerAlgos->push_back( triggerAlgo );
           continue;
         }
-//         if ( ( l1ObjectMap->algoGtlResult() != decisionBeforeMask ) && ( decisionBeforeMask == true || prescale == 1 ) ) {
-        if ( ( l1ObjectMap->algoGtlResult() != decisionBeforeMask ) && ( decisionBeforeMask == true ) ) { // FIXME: understand the difference for un-prescaled algos 118, 119, 123
+        bool algorithmResult = handleL1GlobalTriggerObjectMaps->algorithmResult(bit);
+//         if ( ( algorithmResult != decisionBeforeMask ) && ( decisionBeforeMask == true || prescale == 1 ) ) {
+        if ( ( algorithmResult != decisionBeforeMask ) && ( decisionBeforeMask == true ) ) { // FIXME: understand the difference for un-prescaled algos 118, 119, 123
           LogInfo( "l1ObjectMap" ) << "L1 physics algorithm '" << algoName << "' with different decisions in\n"
-                                   << "L1GlobalTriggerObjectMapRecord (GTL result)        : " << l1ObjectMap->algoGtlResult() << "\n"
+                                   << "L1GlobalTriggerObjectMaps (GTL result)        : " << algorithmResult << "\n"
                                    << "L1GlobalTriggerReadoutRecord (decision before mask): " << decisionBeforeMask;
         }
-        triggerAlgo.setGtlResult( l1ObjectMap->algoGtlResult() );
+        triggerAlgo.setGtlResult( algorithmResult );
         // conditions in algorithm
-        const std::vector< L1GtLogicParser::OperandToken > & tokens( l1ObjectMap->operandTokenVector() );
-        for ( size_t iT = 0; iT < tokens.size(); ++iT ) {
-          const L1GtLogicParser::OperandToken & token( tokens.at( iT ) );
+
+        edm::pset::Registry* psetRegistry = edm::pset::Registry::instance();
+        edm::ParameterSet const* pset = psetRegistry->getMapped(handleL1GlobalTriggerObjectMaps->namesParameterSetID());
+        if (pset == 0 || !pset->exists(algoName)) {
+          LogError( "l1ObjectMap" ) << "L1 physics algorithm names not available in ParameterSet registry\n"
+                                    << "Skipping conditions";
+          triggerAlgos->push_back( triggerAlgo );
+          continue;
+        }
+
+        std::vector<std::string> conditionNames;
+        conditionNames = pset->getParameter<std::vector<std::string> >(algoName);
+
+        for ( unsigned iT = 0; iT < conditionNames.size(); ++iT ) {
           size_t key( triggerConditions->size() );
           for ( size_t iC = 0; iC < triggerConditions->size(); ++iC ) {
-            if ( token.tokenName == triggerConditions->at( iC ).name() ) {
+            if ( conditionNames.at(iT) == triggerConditions->at( iC ).name() ) {
               key = iC;
               break;
             }
           }
           if ( key == triggerConditions->size() ) {
-            TriggerCondition triggerCond( token.tokenName, token.tokenResult );
+            L1GlobalTriggerObjectMaps::ConditionsInAlgorithm conditions = handleL1GlobalTriggerObjectMaps->getConditionsInAlgorithm(bit);
+            TriggerCondition triggerCond( conditionNames[iT], conditions.getConditionResult(iT) );
             if ( l1GtConditions.find( triggerCond.name() ) != l1GtConditions.end() ) {
               triggerCond.setCategory( l1GtConditions[ triggerCond.name() ]->condCategory() );
               triggerCond.setType( l1GtConditions[ triggerCond.name() ]->condType() );
               const std::vector< L1GtObject > l1ObjectTypes( l1GtConditions[ triggerCond.name() ]->objectType() );
-              for ( size_t iT = 0 ; iT < l1ObjectTypes.size(); ++iT ) {
-                triggerCond.addTriggerObjectType( mapObjectTypes[ l1ObjectTypes.at( iT ) ] );
+              for ( size_t iType = 0 ; iType < l1ObjectTypes.size(); ++iType ) {
+                triggerCond.addTriggerObjectType( mapObjectTypes[ l1ObjectTypes.at( iType ) ] );
               }
               // objects in condition
-              CombinationsInCond combis( l1ObjectMap->combinationVector().at( token.tokenNumber ) );
-              for ( size_t iVV = 0; iVV < combis.size(); ++iVV ) {
-                SingleCombInCond combi( combis.at( iVV ) );
-                for ( size_t iV = 0; iV < combi.size(); ++iV ) {
+              L1GlobalTriggerObjectMaps::CombinationsInCondition combinations = handleL1GlobalTriggerObjectMaps->getCombinationsInCondition(bit, iT);
+              for ( size_t iVV = 0; iVV < combinations.nCombinations(); ++iVV ) {
+                for ( size_t iV = 0; iV < combinations.nObjectsPerCombination(); ++iV ) {
+
+                  unsigned objectIndex = combinations.getObjectIndex(iVV, iV);
                   if ( iV >= l1ObjectTypes.size() ) {
                     LogError( "l1CondMap" ) << "Index " << iV << " in combinations vector overshoots size " << l1ObjectTypes.size() << " of types vector in conditions map\n"
                                             << "Skipping object key in condition " << triggerCond.name();
                   } else if ( l1ObjectTypeMap.find( l1ObjectTypes.at( iV ) ) != l1ObjectTypeMap.end() ) {
-                    if ( combi.at( iV ) >= int( l1ObjectTypeMap[ l1ObjectTypes.at( iV ) ].size() ) ) {
-                      LogError( "l1CondMap" ) << "Index " << combi.at( iV ) << " in combination overshoots number " << l1ObjectTypeMap[ l1ObjectTypes.at( iV ) ].size() << "of according trigger objects\n"
+                    if ( objectIndex >= l1ObjectTypeMap[ l1ObjectTypes.at( iV ) ].size() ) {
+                      LogError( "l1CondMap" ) << "Index " << objectIndex << " in combination overshoots number " << l1ObjectTypeMap[ l1ObjectTypes.at( iV ) ].size() << "of according trigger objects\n"
                                               << "Skipping object key in condition " << triggerCond.name();
                     }
-                    const unsigned objectKey( l1ObjectTypeMap[ l1ObjectTypes.at( iV ) ].at( combi.at( iV ) ) );
+                    const unsigned objectKey( l1ObjectTypeMap[ l1ObjectTypes.at( iV ) ].at( objectIndex ) );
                     triggerCond.addObjectKey( objectKey );
                     // add current condition and algorithm also to the according stand-alone trigger object
                     triggerObjectsStandAlone->at( objectKey ).addAlgorithmName( triggerAlgo.name(), ( triggerAlgo.decision() && triggerCond.wasAccept() ) );
