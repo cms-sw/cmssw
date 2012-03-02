@@ -220,7 +220,12 @@ def customise(process):
 
   process.offlinePrimaryVerticesWithBS.TrackLabel = cms.InputTag("tmfTracks")
   process.offlinePrimaryVertices.TrackLabel = cms.InputTag("tmfTracks")
-  process.muons.TrackExtractorPSet.inputTrackCollection = cms.InputTag("tmfTracks")
+  if hasattr(process.muons, "TrackExtractorPSet"):
+    process.muons.TrackExtractorPSet.inputTrackCollection = cms.InputTag("tmfTracks")
+  elif hasattr(process, "muons1stStep") and hasattr(process.muons1stStep, "TrackExtractorPSet"):
+    process.muons1stStep.TrackExtractorPSet.inputTrackCollection = cms.InputTag("tmfTracks")
+  else:
+    raise "Problem with muons"
   # it should be the best solution to take the original beam spot for the
   # reconstruction of the new primary vertex
   # use the  one produced earlier, do not produce your own
@@ -244,12 +249,11 @@ def customise(process):
     pass
 
 
-  if  hasattr(process,"iterativeTracking" ) :
-    process.iterativeTracking.__iadd__(process.tmfTracks)
-  elif hasattr(process,"trackCollectionMerging" ) :
-    process.trackCollectionMerging.__iadd__(process.tmfTracks)
-  else :
-    raise "Cannot find tracking sequence"
+  for p in process.paths:
+    pth = getattr(process,p)
+    if "generalTracks" in pth.moduleNames():
+      pth.replace(process.generalTracks, process.generalTracks*process.tmfTracks)
+
 
   process.particleFlowORG = process.particleFlow.clone()
   if hasattr(process,"famosParticleFlowSequence"):
@@ -332,7 +336,9 @@ def customise(process):
       col2 = cms.InputTag("gsfElectrons","","HLT"),
   )
   #'''
-  process.schedule.remove(process.DQM_FEDIntegrity_v3)
+
+  if hasattr(process, "DQM_FEDIntegrity_v3"):
+    process.schedule.remove(process.DQM_FEDIntegrity_v3)
 
   skimEnabled = False
   if hasattr(process,"doZmumuSkim"):
