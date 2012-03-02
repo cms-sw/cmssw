@@ -33,7 +33,6 @@ HLT_ExclDiJet80_HFAND_v*                                                        
 
 HLT_L2DoubleMu23_NoVertex_v*                                                                    #sr126251
 HLT_L2DoubleMu23_NoVertex_2Cha_Angle2p5_v*                                                      #sr126251
-HLT_L2DoubleMu23_NoVertex_2Cha_Angle2p5_v*                                                      #sr126251
 
 HLT_DoubleDisplacedMu4_DiPFJet40Neutral_L1FastJet_v*                                            #sr126258
 HLT_L2TripleMu10_0_0_NoVertex_PFJet40Neutral_L1FastJet_v*                                       #sr126258
@@ -45,7 +44,7 @@ HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_DiCentralPFJet30_v*                  
 HLT_Ele25_CaloIdVT_TrkIdT_TriCentralPFJet30_v*                                                  #sr126286
 #HLT_Ele25_CaloIdVT_TrkIdT_QuadCentralPFJet30_v*                                                #sr126286, removed in sr126618
 HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFJet30_BTagIPIter_v*                         #sr126286
-HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFJet50_Jet40_Jet30_v* #sr126618
+HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFJet50_Jet40_Jet30_v*                        #sr126618
 HLT_Ele25_CaloIdVT_TrkIdT_CentralPFJet50_Jet40_Jet30_v*                                         #sr126618
 HLT_Iso10Mu20_eta2p1_CentralPFJet30_BTagIPIter_v*                                               #sr126286
 HLT_Iso10Mu20_eta2p1_CentralPFJet30_v*                                                          #sr126286
@@ -166,7 +165,6 @@ HLT_Photon50_CaloIdVL_IsoL_v*                                                   
 HLT_Photon75_CaloIdVL_IsoL_v*                                                                   #sr126304
 HLT_Photon90_CaloIdVL_IsoL_v*                                                                   #sr126304
 
-
 HLT_IsoMu20_eta2p1_CentralPFJet80_v*                                                            #sr126316
 HLT_Ele27_WP80_CentralPFJet80_v*                                                                #sr126316
 HLT_Ele27_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele15_CaloIdT_CaloIsoVL_trackless_v*               #sr126316
@@ -195,7 +193,6 @@ HLT_IsoMu24_eta2p1_PFJet30_PFJet25_Deta3_v*                                     
 HLT_IsoMu24_eta2p1_CentralPFJet30_CentralPFJet25_v*                                             #sr126441
 HLT_Mu24_eta2p1_CentralPFJet30_CentralPFJet25_v*                                                #sr126441
 HLT_Mu24_eta2p1_PFJet30_PFJet25_Deta3_v*                                                        #sr126441
-
 
 #HLT_Dimuon3p5_SameSign_v*                                                                      #sr126442 -> Superseeded by #sr126726
 #HLT_Tau2Mu_RegPixTrack_v*                                                                      #sr126442 -> Superseeded by #sr126726
@@ -317,7 +314,6 @@ HLT_Mu24_eta2p1_v*                                                              
 HLT_Mu15_eta2p1_v*                                                                              #sr126489
 HLT_IsoMu20_eta2p1_v*                                                                           #sr126489, 126618
 
-
 HLT_DiCentralJet20_BTagIP_MET65_v*                                                              #sr126490
 HLT_DiCentralPFJet30_PFMHT80_v*                                                                 #sr126490
 HLT_DiCentralPFJet30_CaloMET50_PFMHT80_HBHENoiseFiltered_dPhi1_v*                               #sr126490
@@ -357,7 +353,6 @@ HLT_Ele32_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v*                                 
 HLT_Ele65_CaloIdVT_TrkIdT_v*                                                                    #sr126493, kept from 2011
 HLT_Ele80_CaloIdVT_TrkIdT_v*                                                                    #sr126493, kept from 2011
 HLT_Ele100_CaloIdVT_TrkIdT_v*                                                                   #sr126493, kept from 2011
-HLT_Ele27_WP80_v*                                                                               #sr126493, kept from 2011
 HLT_Ele27_WP80_PFMT50_v*                                                                        #sr126493, kept from 2011
 HLT_Ele32_WP70_v*                                                                               #sr126493, kept from 2011
 HLT_Ele32_WP70_PFMT50_v*                                                                        #sr126493, kept from 2011
@@ -388,7 +383,6 @@ HLT_DoublePhoton43_HEVT_v*                                                      
 HLT_DoublePhoton48_HEVT_v*                                                                      #sr126541
 HLT_Photon90EBOnly_CaloIdVL_IsoL_TriPFJet25_v*                                                  #sr126541
 HLT_Photon90EBOnly_CaloIdVL_IsoL_TriPFJet30_v*                                                  #sr126541
-HLT_Photon90_CaloIdVL_IsoL_v*                                                                   #sr126541 
 
 HLT_Mu12_eta2p1_DiCentralL1FastJet_40_20_DiBTagIP3D1stTrack_v*                                  #sr126638
 HLT_Mu12_eta2p1_DiCentralL1FastJet_40_20_v*                                                     #sr126638
@@ -398,7 +392,6 @@ HLT_Mu12_eta2p1_v*                                                              
 HLT_Mu15_eta2p1_TriCentralL1FastJet_40_20_20_DiBTagIP3D1stTrack_v*                              #sr126638
 HLT_Mu15_eta2p1_TriCentralL1FastJet_40_20_20_BTagIP3D1stTrack_v*                                #sr126638
 HLT_Mu15_eta2p1_TriCentralL1FastJet_40_20_20_v*                                                 #sr126638
-
 
 #HLT_PixelTracks_Multiplicity80_v*                                                              # What about those?
 #HLT_PixelTracks_Multiplicity100_v*                                                             # What about those?
