@@ -1,8 +1,9 @@
 /** \class HLTJetVBFFilter
  *
- * $Id: HLTJetVBFFilter.cc,v 1.16 2012/02/13 15:51:25 srimanob Exp $
+ * $Id: HLTJetVBFFilter.cc,v 1.17 2012/02/25 20:32:30 srimanob Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
+ *  \modifier Phst Srimanobhas (srimanob@mail.cern.ch)
  *
  */
 
@@ -114,8 +115,8 @@ HLTJetVBFFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup,
       countJet1++;
       if( leadingJetOnly_==true && countJet1>2) break;
       //
-      if( jet1->pt()<minPtHigh_ ) continue;
-      if( std::abs(jet1->eta())>maxEta_ ) continue;      
+      if( jet1->pt() < minPtHigh_ ) break; //No need to go to the next jet (lower PT)
+      if( std::abs(jet1->eta()) > maxEta_ ) continue;      
       //
       countJet2 = countJet1-1;
       typename TCollection::const_iterator jet2 ( jet1+1 );
@@ -123,8 +124,8 @@ HLTJetVBFFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup,
 	countJet2++;
 	if( leadingJetOnly_==true && countJet2>2) break;
 	//
-        if( jet2->pt() < minPtLow_ ) break;
-	if( maxEta_>=0.0 && std::abs(jet2->eta())>maxEta_ ) break;
+        if( jet2->pt() < minPtLow_ ) break; //No need to go to the next jet (lower PT)
+	if( std::abs(jet2->eta()) > maxEta_ ) continue;
 	//
         ejet1   = jet1->energy();
         pxjet1  = jet1->px();
