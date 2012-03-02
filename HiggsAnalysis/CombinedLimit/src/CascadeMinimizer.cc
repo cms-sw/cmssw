@@ -13,6 +13,7 @@ bool CascadeMinimizer::preScan_;
 bool CascadeMinimizer::poiOnlyFit_;
 bool CascadeMinimizer::singleNuisFit_;
 bool CascadeMinimizer::setZeroPoint_;
+bool CascadeMinimizer::oldFallback_ = true;
 
 CascadeMinimizer::CascadeMinimizer(RooAbsReal &nll, Mode mode, RooRealVar *poi, int initialStrategy) :
     nll_(nll),
@@ -27,25 +28,17 @@ bool CascadeMinimizer::improve(int verbose, bool cascade)
 {
     if (setZeroPoint_) {
         cacheutils::CachingSimNLL *simnll = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_);
-        if (simnll) simnll->setZeroPoint();
+        if (simnll) { 
+            simnll->setZeroPoint();
+        }
     }
     minimizer_.setPrintLevel(verbose-2);  
     minimizer_.setStrategy(strategy_);
-    std::string nominalType(ROOT::Math::MinimizerOptions::DefaultMinimizerType());
-    std::string nominalAlgo(ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo());
-    float       nominalTol(ROOT::Math::MinimizerOptions::DefaultTolerance());
-    bool outcome = false;
-    if (nominalType == "Sequential") {
-        if (seqmin_.get() == 0) {
-            seqmin_.reset(new SequentialMinimizer(& nll_, mode_ == Unconstrained ? poi_ : 0));
-            seqmin_->minimize(nominalTol);
-        } else {
-            seqmin_->improve(nominalTol);
-        }
-    } else {
-        outcome = nllutils::robustMinimize(nll_, minimizer_, verbose);
-    }
+    bool outcome = improveOnce(verbose-2);
     if (cascade && !outcome && !fallbacks_.empty()) {
+        std::string nominalType(ROOT::Math::MinimizerOptions::DefaultMinimizerType());
+        std::string nominalAlgo(ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo());
+        float       nominalTol(ROOT::Math::MinimizerOptions::DefaultTolerance());
         if (verbose > 0) std::cerr << "Failed minimization with " << nominalType << "," << nominalAlgo << " and tolerance " << nominalTol << std::endl;
         for (std::vector<Algo>::const_iterator it = fallbacks_.begin(), ed = fallbacks_.end(); it != ed; ++it) {
             ProfileLikelihood::MinimizerSentry minimizerConfig(it->algo, it->tolerance != -1.f ? it->tolerance : nominalTol);
@@ -53,7 +46,7 @@ bool CascadeMinimizer::improve(int verbose, bool cascade)
                 nominalAlgo != ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo() ||
                 nominalTol  != ROOT::Math::MinimizerOptions::DefaultTolerance()) {
                 if (verbose > 0) std::cerr << "Will fallback to minimization using " << it->algo << " and tolerance " << it->tolerance << std::endl;
-                outcome = nllutils::robustMinimize(nll_, minimizer_, verbose);
+                outcome = improveOnce(verbose-2);
                 if (outcome) break;
             }
         }
@@ -61,6 +54,28 @@ bool CascadeMinimizer::improve(int verbose, bool cascade)
     if (setZeroPoint_) {
         cacheutils::CachingSimNLL *simnll = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_);
         if (simnll) simnll->clearZeroPoint();
+    }
+    return outcome;
+}
+
+bool CascadeMinimizer::improveOnce(int verbose) 
+{
+    std::string myType(ROOT::Math::MinimizerOptions::DefaultMinimizerType());
+    std::string myAlgo(ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo());
+    float       myTol(ROOT::Math::MinimizerOptions::DefaultTolerance());
+    bool outcome = false;
+    if (myType == "Sequential") {
+        if (seqmin_.get() == 0) {
+            seqmin_.reset(new SequentialMinimizer(& nll_, mode_ == Unconstrained ? poi_ : 0));
+            outcome = seqmin_->minimize(myTol);
+        } else {
+            outcome = seqmin_->improve(myTol);
+        }
+    } else if (oldFallback_){
+        outcome = nllutils::robustMinimize(nll_, minimizer_, verbose);
+    } else {
+        int status = minimizer_.minimize(myType.c_str(), myAlgo.c_str());
+        outcome = (status == 0);
     }
     return outcome;
 }
@@ -86,6 +101,7 @@ void CascadeMinimizer::initOptions()
         ("cminSingleNuisFit", "Do first a minimization of each nuisance parameter individually")
         ("cminFallbackAlgo", boost::program_options::value<std::vector<std::string> >(), "Fallback algorithms if the default minimizer fails (can use multiple ones). Syntax is algo[,subalgo][:tolerance]")
         ("cminSetZeroPoint", "Change the reference point of the NLL to be zero during minimization")
+        ("cminOldRobustMinimize", boost::program_options::value<bool>(&oldFallback_)->default_value(oldFallback_), "Use the old 'robustMinimize' logic in addition to the cascade")
         ;
 }
 

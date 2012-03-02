@@ -9,13 +9,22 @@
 #include "RooLinkedListIter.h"
 #include <Math/MinimizerOptions.h>
 #include <boost/foreach.hpp>
+#include "../interface/ProfilingTools.h"
 #define foreach BOOST_FOREACH
 
+//#define DEBUG_SMD
+#ifdef DEBUG_SMD
+#define printf if (RT_DEBUG_SMD) printf
+#else
 #define printf if (0) printf
+#endif
 namespace { 
     const double GOLD_R1 = 0.61803399 ;
     const double GOLD_R2 = 1-0.61803399 ;
     const double XTOL    = 10*std::sqrt(std::numeric_limits<double>::epsilon());
+#ifdef DEBUG_SMD
+    bool RT_DEBUG_SMD = 0;
+#endif
 }
 
 bool OneDimMinimizer::minimize(int steps, double ytol, double xtol) 
@@ -32,8 +41,16 @@ bool OneDimMinimizer::minimize(int steps, double ytol, double xtol)
 
 OneDimMinimizer::ImproveRet OneDimMinimizer::improve(int steps, double ytol, double xtol, bool force) 
 {
-    double x0 = var_->getVal(), y0 = nll_->getVal();
-    xi_[1] = x0;
+    double x0 = var_->getVal();
+    if (x0 < xi_[0] || x0 > xi_[2]) {
+        // could happen if somebody outside this loop modifies some parameters
+        printf("ODM: ALERT: variable %s outside bounds x = [%.4f, %.4f, %.4f], x0 = %.4f\n", var_->GetName(), xi_[0], xi_[1], xi_[2], x0);
+        x0 = xi_[1]; 
+        var_->setVal(x0);
+    } else {
+        xi_[1] = x0;
+    }
+    double y0 = nll_->getVal();
     yi_[1] = y0;
     yi_[0] = eval(xi_[0]);
     yi_[2] = eval(xi_[2]);
@@ -54,10 +71,24 @@ OneDimMinimizer::ImproveRet OneDimMinimizer::improve(int steps, double ytol, dou
         reseek();
     }
 
+    //post-condition: always a sorted interval
+    assert(xi_[0] < xi_[2]);
+    assert(xi_[0] <= xi_[1] && xi_[1] <= xi_[2]);
+    // if midpoint is not not one of the extremes, it's not higher than that extreme
+    assert(xi_[1] == xi_[0] || yi_[1] <= yi_[0]); 
+    assert(xi_[1] == xi_[2] || yi_[1] <= yi_[2]);
 
     bool done = doloop(steps,ytol,xtol);
     parabolaStep(); 
-    
+
+    //post-condition: always a sorted interval
+    assert(xi_[0] < xi_[2]);
+    assert(xi_[0] <= xi_[1] && xi_[1] <= xi_[2]);
+    // if midpoint is not not one of the extremes, it's not higher than that extreme
+    assert(xi_[1] == xi_[0] || yi_[1] <= yi_[0]); 
+    assert(xi_[1] == xi_[2] || yi_[1] <= yi_[2]);
+
+
     if (ytol > 0 && fabs(yi_[1] - y0) < ytol) {
         printf("ODM: final ytol for %s: ymin(old) %.8f, ymin(new) %.8f, diff %.8f\n", var_->GetName(), y0, yi_[1], y0 -yi_[1]);
         if (!force) var_->setVal(x0);
@@ -69,7 +100,7 @@ OneDimMinimizer::ImproveRet OneDimMinimizer::improve(int steps, double ytol, dou
         return Unchanged;
     }
     printf("ODM: doloop for %s is %s\n", var_->GetName(), done ? "Done" : "NotDone");
-    printf("ODM: start of improve %s x = [%.4f, %.4f, %.4f], y = [%.4f, %.4f, %.4f]\n", var_->GetName(), xi_[0], xi_[1], xi_[2], yi_[0], yi_[1], yi_[2]);
+    printf("ODM: end of improve %s x = [%.4f, %.4f, %.4f], y = [%.4f, %.4f, %.4f]\n", var_->GetName(), xi_[0], xi_[1], xi_[2], yi_[0], yi_[1], yi_[2]);
     var_->setVal(xi_[1]);
     var_->setError(xi_[2] - xi_[0]);
     return done ? Done : NotDone; 
@@ -116,6 +147,7 @@ void OneDimMinimizer::reseek()
     xi_[2] = std::min(xmax, xi_[1]+xerr);
     yi_[2] = (xi_[2] == xi_[1] ? yi_[1] : eval(xi_[2]));
     assert(xi_[0] < xi_[2]);
+    assert(xi_[0] <= xi_[1] && xi_[1] <= xi_[2]);
 
     for (;;) {
         //printf("ODM: bracketing %s in x = [%.4f, %.4f, %.4f], y = [%.4f, %.4f, %.4f]\n", var_->GetName(), xi_[0], xi_[1], xi_[2], yi_[0], yi_[1], yi_[2]);
@@ -136,16 +168,37 @@ void OneDimMinimizer::reseek()
         xerr *= 2;
     }
     //printf("ODM: bracketed minimum of %s in [%.4f, %.4f, %.4f]\n", var_->GetName(), xi_[0], xi_[1], xi_[2]);
+    //post-condition: always a sorted interval
     assert(xi_[0] < xi_[2]);
+    assert(xi_[0] <= xi_[1] && xi_[1] <= xi_[2]);
+    // if midpoint is not not one of the extremes, it's not higher than that extreme
+    assert(xi_[1] == xi_[0] || yi_[1] <= yi_[0]); 
+    assert(xi_[1] == xi_[2] || yi_[1] <= yi_[2]);
     var_->setError(xerr);
 }
 
 void OneDimMinimizer::goldenBisection() 
 {
+    //pre-condition: always a sorted interval
     assert(xi_[0] < xi_[2]);
+    assert(xi_[0] <= xi_[1] && xi_[1] <= xi_[2]);
+    // if midpoint is not not one of the extremes, it's not higher than that extreme
+    assert(xi_[1] == xi_[0] || yi_[1] <= yi_[0]); 
+    assert(xi_[1] == xi_[2] || yi_[1] <= yi_[2]);
     if (xi_[0] == xi_[1] || xi_[1] == xi_[2]) {
+        int isame = (xi_[0] == xi_[1] ? 0 : 2);
+        /// pre-condition: the endpoint equal to x1 is not the highest
+        assert(yi_[isame] <= yi_[2-isame]);
         xi_[1] = 0.5*(xi_[0]+xi_[2]);
         yi_[1] = eval(xi_[1]);
+        if (yi_[1] < yi_[isame]) {
+            // maximum is in the interval-
+            // leave as is, next bisection steps will find it
+        } else {
+            // maximum remains on the boundary, leave both points there
+            assign(2-isame, 1);
+            assign(1, isame); 
+        }
     } else {
         int inear = 2, ifar = 0;
         if (xi_[2]-xi_[1] > xi_[1] - xi_[0]) {
@@ -164,13 +217,19 @@ void OneDimMinimizer::goldenBisection()
             xi_[ifar] = xc; yi_[ifar] = yc;
         }
     }
+    //post-condition: always a sorted interval
     assert(xi_[0] < xi_[2]);
+    assert(xi_[0] <= xi_[1] && xi_[1] <= xi_[2]);
+    // if midpoint is not not one of the extremes, it's not higher than that extreme
+    assert(xi_[1] == xi_[0] || yi_[1] <= yi_[0]); 
+    assert(xi_[1] == xi_[2] || yi_[1] <= yi_[2]);
+
 }
 
 double OneDimMinimizer::parabolaFit() 
 {
     if (xi_[0] == xi_[1] || xi_[1] == xi_[2]) { 
-        return 0.5*(xi_[1]+xi_[2]);
+        return xi_[1]; 
     }
     double dx0 = xi_[1] - xi_[0], dx2 = xi_[1] - xi_[2];
     double dy0 = yi_[1] - yi_[0], dy2 = yi_[1] - yi_[2];
@@ -189,9 +248,15 @@ bool OneDimMinimizer::parabolaStep() {
     double xc = parabolaFit();
     if (xc != xi_[1]) {
         double yc = eval(xc);
-        if (yc < xi_[1]) {
+        if (yc < yi_[1]) {
             xi_[1] = xc; 
             yi_[1] = yc;
+            //post-condition: always a sorted interval
+            assert(xi_[0] < xi_[2]);
+            assert(xi_[0] <= xi_[1] && xi_[1] <= xi_[2]);
+            // if midpoint is not not one of the extremes, it's not higher than that extreme
+            assert(xi_[1] == xi_[0] || yi_[1] <= yi_[0]); 
+            assert(xi_[1] == xi_[2] || yi_[1] <= yi_[2]);
             return true;
         }
     }
@@ -200,13 +265,20 @@ bool OneDimMinimizer::parabolaStep() {
 
 double OneDimMinimizer::eval(double x) 
 {
+    double x0 = var_->getVal();
     var_->setVal(x); 
-    return nll_->getVal();
+    double y = nll_->getVal();
+    var_->setVal(x0);
+    return y;
 }
 
 SequentialMinimizer::SequentialMinimizer(RooAbsReal *nll, RooRealVar *poi) :
-    nll_(nll)
+    nll_(nll),
+    state_(Cleared)
 {
+#ifdef DEBUG_SMD
+    RT_DEBUG_SMD = runtimedef::get("DEBUG_SMD");
+#endif
     std::auto_ptr<RooArgSet> args(nll->getParameters((const RooArgSet *)0));
     workers_.reserve(args->getSize());
     if (poi != 0) workers_.push_back(Worker(nll,poi));
@@ -222,27 +294,42 @@ SequentialMinimizer::SequentialMinimizer(RooAbsReal *nll, RooRealVar *poi) :
 bool SequentialMinimizer::minimize(double ytol, int bigsteps, int smallsteps) 
 {
     foreach(Worker &w, workers_) {
-       w.minimize(1); 
-       w.state = Ready; 
+        if (w.var().isConstant()) {
+            w.state = Fixed;
+        } else {
+            w.minimize(1); 
+            w.state = Ready; 
+        }
     }
+    state_ = Ready;
     return improve(ytol, bigsteps, smallsteps);
 }
 
 bool SequentialMinimizer::improve(double ytol, int bigsteps, int smallsteps)
 {
+    // catch improve before minimize case
+    if (state_ == Cleared) return minimize(ytol,bigsteps,smallsteps);
+
+    // setup default tolerances and steps
     if (ytol == 0) ytol = ROOT::Math::MinimizerOptions::DefaultTolerance()/sqrt(workers_.size());
     if (bigsteps == 0) bigsteps = 100 * (workers_.size());
-    State state = Active;
+
+    // list of done workers (latest-done on top)
     std::list<Worker*> doneWorkers;
+
+    // start with active workers, for all except constants
     foreach(Worker &w, workers_) {
-        if (w.state == Done) doneWorkers.push_back(&w);
+        if (w.var().isConstant()) w.state = Fixed;
+        else w.state = Active;
     }
+
+    state_ = Active;
     for (int i = 0; i < bigsteps; ++i) {
-        printf("Start of loop. State is %s\n",(state == Done ? "DONE" : "ACTIVE"));
+        printf("Start of loop. State is %s\n",(state_ == Done ? "DONE" : "ACTIVE"));
         State newstate = Done;
         foreach(Worker &w, workers_) {
             OneDimMinimizer::ImproveRet iret = OneDimMinimizer::Unchanged;
-            if (w.state == Done) continue;
+            if (w.state == Done || w.state == Fixed) continue;
             iret = w.improve(smallsteps,ytol);
             if (iret == OneDimMinimizer::Unchanged) {
                 printf("\tMinimized %s:  Unchanged. NLL = %.8f\n", w.var().GetName(), nll_->getVal());
@@ -251,7 +338,7 @@ bool SequentialMinimizer::improve(double ytol, int bigsteps, int smallsteps)
             } else {
                 printf("\tMinimized %s:  Changed. NLL = %.8f\n", w.var().GetName(), nll_->getVal());
                 w.state = Active;
-                newstate   = Active;
+                newstate = Active;
             }
         }
         if (newstate == Done) {
@@ -272,13 +359,13 @@ bool SequentialMinimizer::improve(double ytol, int bigsteps, int smallsteps)
             }
         }
         printf("End of loop. New state is %s\n",(newstate == Done ? "DONE" : "ACTIVE"));
-        if (state == Done && newstate == Done) {
-            std::cout << "Converged after " << i << " big steps" << std::endl;
+        if (state_ == Done && newstate == Done) {
+            //std::cout << "Converged after " << i << " big steps" << std::endl;
             return true;
         }
-        state = newstate;
+        state_ = newstate;
     }
-    std::cout << "Did not converge after " << bigsteps << " big steps" << std::endl;
+    //std::cout << "Did not converge after " << bigsteps << " big steps" << std::endl;
     return false;
 }
 

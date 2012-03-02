@@ -33,6 +33,8 @@ class CascadeMinimizer {
         int          strategy_;
         RooRealVar * poi_; 
 
+        bool improveOnce(int verbose);
+        
         /// options configured from command line
         static boost::program_options::options_description options_;
         /// compact information about an algorithm
@@ -51,6 +53,8 @@ class CascadeMinimizer {
         static bool singleNuisFit_;
         /// do first a fit of only the POI
         static bool setZeroPoint_;
+        /// don't do old fallback using robustMinimize 
+        static bool oldFallback_;
 };
 
 #endif

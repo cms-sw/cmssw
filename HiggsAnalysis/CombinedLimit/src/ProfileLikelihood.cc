@@ -386,7 +386,7 @@ double ProfileLikelihood::significanceBruteForce(RooAbsPdf &pdf, RooAbsData &dat
     }
     poi.setConstant(true);
     CascadeMinimizer minim(*nll, CascadeMinimizer::Constrained);
-    if (!minim.improve(verbose-2)) {
+    if (!minim.minimize(verbose-2)) {
         std::cerr << "Initial minimization failed. Aborting." << std::endl;
         return -1;
     } else if (verbose > 0) {
@@ -396,10 +396,14 @@ double ProfileLikelihood::significanceBruteForce(RooAbsPdf &pdf, RooAbsData &dat
     std::auto_ptr<RooFitResult> start(minim.save());
     double minnll = nll->getVal(), thisnll = minnll, lastnll = thisnll;
     double rbest = poi.getVal(), rval = rbest;
+    TGraph *points = 0;
     if (verbose) {
         printf("  %-6s  delta(NLL)\n", poi.GetName());
         printf("%8.5f  %8.5f\n", rval, 0.);
         fflush(stdout);
+        points = new TGraph(1); 
+        points->SetName(Form("nll_scan_%g", mass_));
+        points->SetPoint(0, rval, 0);
     }
     while (rval >= tolerance * poi.getMax()) {
         rval *= 0.8;
@@ -412,7 +416,11 @@ double ProfileLikelihood::significanceBruteForce(RooAbsPdf &pdf, RooAbsData &dat
             std::cerr << "Minimization failed at " << poi.getVal() <<". exiting the loop" << std::endl;
             return -1;
         } 
-        if (verbose) {  printf("%8.5f  %8.5f\n", rval, thisnll-minnll); fflush(stdout);  }
+        if (verbose) {  
+            printf("%8.5f  %8.5f\n", rval, thisnll-minnll); fflush(stdout);  
+            points->Set(points->GetN()+1);
+            points->SetPoint(points->GetN()-1, rval, thisnll - minnll);
+        }
         if (fabs(lastnll - thisnll) < 7*minimizerToleranceForBF_) {
             std::cout << "This is enough." << std::endl;
             if (thisnll < lastnll) {
@@ -438,6 +446,7 @@ double ProfileLikelihood::significanceBruteForce(RooAbsPdf &pdf, RooAbsData &dat
         }
 #endif
    }
+    if (points) outputFile->WriteTObject(points);
    return (thisnll - minnll);
 }
 

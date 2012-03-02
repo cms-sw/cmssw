@@ -14,7 +14,7 @@
 #include "../interface/ProfilingTools.h"
 
 //---- Uncomment this and run with --perfCounters to get statistics of successful and failed fits
-//#define DEBUG_FIT_STATUS
+#define DEBUG_FIT_STATUS
 #ifdef DEBUG_FIT_STATUS
 #define  COUNT_ONE(x) PerfCounter::add(x);
 #else
@@ -147,6 +147,7 @@ ProfiledLikelihoodTestStatOpt::ProfiledLikelihoodTestStatOpt(
 Double_t ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& /*nullPOI*/)
 {
     bool do_debug = runtimedef::get("DEBUG_PLTSO");
+    //static bool do_rescan = runtimedef::get("PLTSO_FULL_RESCAN");
     DBG(DBG_PLTestStat_main, (std::cout << "Being evaluated on " << data.GetName() << std::endl))
 
     // Take snapshot of initial state, to restore it at the end 
@@ -207,6 +208,19 @@ Double_t ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& /*
                 thisNLL = nullNLL;
             }
         }
+        /* This piece of debug code was added to see if we were finding a local minimum at zero instead of the global minimum.
+           It doesn't seem to be the case, however  
+        if (do_rescan && fabs(thisNLL - nullNLL) < 0.2 && initialR == 0) {
+            if (do_debug) printf("Doing full rescan. best fit r = %.4f, -lnQ = %.5f\n", bestFitR, thisNLL-nullNLL);
+            for (double rx = 0; rx <= 5; rx += 0.01) {
+                r->setVal(rx); double y = nll_->getVal();
+                if (y < nullNLL) {
+                    printf("%4.2f\t%8.5f\t<<==== ALERT\n", rx, y - nullNLL);
+                } else {
+                    printf("%4.2f\t%8.5f\n", rx, y - nullNLL);
+                }
+            }
+        } */
         if (bestFitR > initialR && oneSided_ == signFlipDef) {
             DBG(DBG_PLTestStat_main, (printf("   fitted signal %7.4f > %7.4f, test statistics will be negative.\n", bestFitR, initialR)))
             std::swap(thisNLL, nullNLL);
