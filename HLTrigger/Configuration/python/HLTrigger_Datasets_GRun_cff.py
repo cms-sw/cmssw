@@ -1,4 +1,4 @@
-# /dev/CMSSW_5_1_0/GRun/V129
+# /dev/CMSSW_5_1_0/GRun/V130
 
 import FWCore.ParameterSet.Config as cms
 
@@ -43,7 +43,8 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetDoubleElectron_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetDoubleElectron_selector.l1tResults = cms.InputTag('')
 streamA_datasetDoubleElectron_selector.throw      = cms.bool(False)
-streamA_datasetDoubleElectron_selector.triggerConditions = cms.vstring('HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v1', 
+streamA_datasetDoubleElectron_selector.triggerConditions = cms.vstring('HLT_DoubleEle10_CaloIdL_TrkIdVL_Ele10_CaloIdT_TrkIdVL_v6', 
+    'HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v1', 
     'HLT_Ele15_Ele8_Ele5_CaloIdL_TrkIdVL_v1', 
     'HLT_Ele17_CaloIdL_CaloIsoVL_v11', 
     'HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v11', 
@@ -55,7 +56,8 @@ streamA_datasetDoubleElectron_selector.triggerConditions = cms.vstring('HLT_Doub
     'HLT_Ele27_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_HFT15_v1', 
     'HLT_Ele32_CaloIdT_CaloIsoT_TrkIdT_TrkIsoT_SC17_Mass50_v1', 
     'HLT_Ele8_CaloIdL_CaloIsoVL_v11', 
-    'HLT_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v9')
+    'HLT_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v9', 
+    'HLT_TripleEle10_CaloIdL_TrkIdVL_v12')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetDoubleMu_selector
 streamA_datasetDoubleMu_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -80,6 +82,7 @@ streamA_datasetElectronHad_selector.triggerConditions = cms.vstring('HLT_DoubleE
     'HLT_DoubleEle14_CaloIdT_TrkIdVL_Mass8_PFMET50_v1', 
     'HLT_DoubleEle8_CaloIdT_TrkIdVL_Mass8_PFHT175_v1', 
     'HLT_DoubleEle8_CaloIdT_TrkIdVL_Mass8_PFHT225_v1', 
+    'HLT_DoubleEle8_CaloIdT_TrkIdVL_v6', 
     'HLT_Ele12_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_DoubleCentralJet65_v1', 
     'HLT_Ele12_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_RsqMR30_Rsq0p04_MR200_v1', 
     'HLT_Ele12_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_RsqMR40_Rsq0p04_MR200_v1', 
@@ -298,8 +301,11 @@ streamA_datasetMuHad_selector.triggerConditions = cms.vstring('HLT_DoubleDisplac
     'HLT_Mu40_FJHT200_v1', 
     'HLT_Mu40_PFHT350_v1', 
     'HLT_Mu60_PFHT350_v1', 
+    'HLT_Mu8_DiJet30_v1', 
     'HLT_Mu8_Ele8_CaloIdT_TrkIdVL_Mass8_PFHT175_v1', 
     'HLT_Mu8_Ele8_CaloIdT_TrkIdVL_Mass8_PFHT225_v1', 
+    'HLT_Mu8_QuadJet30_v1', 
+    'HLT_Mu8_TriJet30_v1', 
     'HLT_PFHT350_Mu15_PFMET45_v1', 
     'HLT_PFHT350_Mu15_PFMET50_v1', 
     'HLT_PFHT400_Mu5_PFMET45_v1', 

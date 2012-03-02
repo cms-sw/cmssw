@@ -165,6 +165,12 @@ HLT_Photon30_CaloIdVL_IsoL_v*                                                   
 HLT_Photon50_CaloIdVL_IsoL_v*                                                                   #sr126304
 HLT_Photon75_CaloIdVL_IsoL_v*                                                                   #sr126304
 HLT_Photon90_CaloIdVL_IsoL_v*                                                                   #sr126304
+HLT_TripleEle10_CaloIdL_TrkIdVL_v*								#sr126304
+HLT_DoubleEle10_CaloIdL_TrkIdVL_Ele10_CaloIdT_TrkIdVL_v*					#sr126304
+HLT_DoubleEle8_CaloIdT_TrkIdVL_v*								#sr126304
+HLT_Mu8_DiJet30_v*										#sr126304
+HLT_Mu8_TriJet30_v*										#sr126304
+HLT_Mu8_QuadJet30_v*										#sr126304
 
 HLT_IsoMu20_eta2p1_CentralPFJet80_v*                                                            #sr126316
 HLT_Ele27_WP80_CentralPFJet80_v*                                                                #sr126316
