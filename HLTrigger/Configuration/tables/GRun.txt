@@ -442,7 +442,7 @@ AlCa_RPCMuonNormalisation_v*                                                    
 AlCa_LumiPixels_v*
 
 DQM_FEDIntegrity_v*
-HLTriggerFirstPath                                                                              # only in 'GRun', not in 'online'
+HLTriggerFirstPath
 HLTriggerFinalPath
 HLTAnalyzerEndpath                                                                              # only in 'GRun', not in 'online'
 AForPPOutput

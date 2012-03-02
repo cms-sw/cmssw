@@ -444,7 +444,7 @@ AlCa_LumiPixels_v*
 DQM_FEDIntegrity_v*
 HLTriggerFirstPath
 HLTriggerFinalPath
-HLTAnalyzerEndpath                                                                              # only in 'GRun', not in 'online'
+#HLTAnalyzerEndpath                                                                              # only in 'GRun', not in 'online'
 AForPPOutput
 ALCAP0Output
 ALCAPHISYMOutput
@@ -452,7 +452,7 @@ ALCALUMIPIXELSOutput
 CalibrationOutput
 DQMForPPOutput
 EcalCalibrationOutput
-ExpressForCosmicsOutput                                                                         # only in 'GRun' and 'cosmics', not in 'online'
+#ExpressForCosmicsOutput                                                                         # only in 'GRun' and 'cosmics', not in 'online'
 ExpressForPPOutput
 HLTDQMOutput
 HLTDQMResultsOutput
