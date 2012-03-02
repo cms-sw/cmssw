@@ -14,7 +14,7 @@
 //
 // Original Author:  Josh Bendavid
 //         Created:  Tue Nov  8 22:26:45 CET 2011
-// $Id: GBRWrapperMaker.cc,v 1.1 2011/11/16 17:32:28 bendavid Exp $
+// $Id: GBRWrapperMaker.cc,v 1.5 2011/12/14 20:16:56 bendavid Exp $
 //
 //
 
@@ -31,7 +31,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TFile.h"
-#include "CondFormats/EgammaObjects/interface/GBRWrapper.h"
+#include "CondFormats/EgammaObjects/interface/GBRForest.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 //#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 //#include "CondCore/DBCommon/interface/CoralServiceManager.h"
@@ -117,7 +117,7 @@ GBRWrapperMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 //    iSetup.get<SetupRecord>().get(pSetup);
 // #endif
 //from Josh:
-  TFile *infile = new TFile("/afs/cern.ch/user/b/bendavid/cmspublic/regweights/gbrph.root","READ");
+  TFile *infile = new TFile("/afs/cern.ch/user/b/bendavid/cmspublic/gbrv3ph.root","READ");
 
   printf("load forest\n");
 
@@ -127,17 +127,9 @@ GBRWrapperMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   GBRForest *gbree = (GBRForest*)infile->Get("EECorrection");
   GBRForest *gbreevar = (GBRForest*)infile->Get("EEUncertainty");
 
-  printf("make wrapper\n");
 
-  GBRWrapper *wgbreb = new GBRWrapper(*gbreb);
-  GBRWrapper *wgbrebvar = new GBRWrapper(*gbrebvar);
-  GBRWrapper *wgbree = new GBRWrapper(*gbree);
-  GBRWrapper *wgbreevar = new GBRWrapper(*gbreevar);
 
-//   GBRWrapper *wgbreb = new GBRWrapper();
-//   GBRWrapper *wgbrebvar = new GBRWrapper();
-//   GBRWrapper *wgbree = new GBRWrapper();
-//   GBRWrapper *wgbreevar = new GBRWrapper();
+
 //from Rishi
   
   TFile *infile_PFLC = new TFile("/afs/cern.ch/user/r/rpatel/ConvXml/TMVARegression_BDTG_PFClusterCorr.root","READ");
@@ -149,29 +141,26 @@ GBRWrapperMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   GBRForest *gbrRes = (GBRForest*)infile_PFRes->Get("GBRForest");
   
   
-  GBRWrapper *wgbrLC = new GBRWrapper(*gbrLC);
-  GBRWrapper *wgbrGC = new GBRWrapper(*gbrGC);
-  GBRWrapper *wgbrRes = new GBRWrapper(*gbrRes);
   
   
   printf("made objects\n");
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable()) {
        
- poolDbService->writeOne( wgbreb, poolDbService->beginOfTime(),
+ poolDbService->writeOne( gbreb, poolDbService->beginOfTime(),
                                                 "wgbrph_EBCorrection"  );
-    poolDbService->writeOne( wgbrebvar, poolDbService->beginOfTime(),
+    poolDbService->writeOne( gbrebvar, poolDbService->beginOfTime(),
                                                 "wgbrph_EBUncertainty"  );
-    poolDbService->writeOne( wgbree, poolDbService->beginOfTime(),
+    poolDbService->writeOne( gbree, poolDbService->beginOfTime(),
                                               "wgbrph_EECorrection"  );
-    poolDbService->writeOne( wgbreevar, poolDbService->beginOfTime(),
+    poolDbService->writeOne( gbreevar, poolDbService->beginOfTime(),
                                                 "wgbrph_EEUncertainty"  );
     
-    poolDbService->writeOne( wgbrLC, poolDbService->beginOfTime(),
+    poolDbService->writeOne( gbrLC, poolDbService->beginOfTime(),
 			     "wgbrph_PFLCCorrection"  );
-    poolDbService->writeOne( wgbrGC, poolDbService->beginOfTime(),
+    poolDbService->writeOne( gbrGC, poolDbService->beginOfTime(),
 			     "wgbrph_PFGlobalCorrection"  );
-    poolDbService->writeOne( wgbrRes, poolDbService->beginOfTime(),
+    poolDbService->writeOne( gbrRes, poolDbService->beginOfTime(),
 			     "wgbrph_PFResolution"  );
   
   }

@@ -52,6 +52,8 @@ namespace edm
       virtual ~MixingModule();
 
       virtual void beginJob() {}
+      
+      virtual void reload(const edm::EventSetup &);
  
     private:
       virtual void branchesActivate(const std::string &friendlyName, const std::string &subdet, InputTag &tag, std::string &label);

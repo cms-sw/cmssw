@@ -27,7 +27,7 @@ process.gbrwrappermaker = cms.EDAnalyzer('GBRWrapperMaker'
 
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 # output database (in this case local sqlite file)
-process.CondDBCommon.connect = 'sqlite_file:/tmp/rpatel/GBRWrapper.db'
+process.CondDBCommon.connect = 'sqlite_file:GBRWrapper.db'
 
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",

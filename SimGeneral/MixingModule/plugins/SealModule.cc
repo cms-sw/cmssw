@@ -9,6 +9,7 @@
 #include "InputAnalyzer.h"
 #include "SecSourceAnalyzer.h"
 #include "TestMixedSource.h"
+#include "Mixing2DB.h"
 
   using edm::MixingModule;
   using edm::TestMix;
@@ -24,3 +25,4 @@ DEFINE_FWK_MODULE(CFWriter);
 DEFINE_FWK_MODULE(InputAnalyzer);
 DEFINE_FWK_MODULE(SecSourceAnalyzer);
 DEFINE_FWK_MODULE(TestMixedSource);
+DEFINE_FWK_MODULE(Mixing2DB);

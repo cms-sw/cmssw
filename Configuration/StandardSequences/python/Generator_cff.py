@@ -67,3 +67,5 @@ pgen_hi = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+Vert
 from SimGeneral.MixingModule.MatchVtx_cfi import *
 
 pgen_himix = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+matchVtx+hiGenParticles+hiGenJets)
+
+fixGenInfo = cms.Sequence(GeneInfo * genJetMET)

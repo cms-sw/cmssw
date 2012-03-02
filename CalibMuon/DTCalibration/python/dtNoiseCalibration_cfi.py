@@ -7,8 +7,8 @@ dtNoiseCalibration = cms.EDAnalyzer("DTNoiseCalibration",
     rootFileName = cms.untracked.string('dtNoiseCalib.root'),
     # Trigger mode
     useTimeWindow = cms.bool(True),
-    # The trigger width (ns) (full window used if useTimeWindow = False)
-    triggerWidth = cms.double(2000),
+    # The trigger width(ns) (full window used if useTimeWindow = False)
+    triggerWidth = cms.int32(2000),
     # Time window defined as tTrig - offset (TDC counts). If defaultTtrig not set reads from DB.
     #defaultTtrig = cms.int32(322),
     timeWindowOffset = cms.int32(100),

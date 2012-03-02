@@ -19,8 +19,6 @@ var CSCCounters="csc_counters.js";
 var DQMReport="No Summary Report";
 var TextReport="dqm_report.txt";
 var JSONReport="dqm_report.js";
-var Canvas2IDList = "canvas2id_list.js";
-
 var reportWindow = "";
 
 var imgFormat=".png";
@@ -47,7 +45,6 @@ var MU_LIST=false;
 var RESULTS_FOLDERS=false;
 var CSC_COUNTERS=false;
 var TESTS_MAP=false;
-var CANVAS2ID_LIST=false;
 
 var Log=new Array();
 var logLevel="all";
@@ -57,7 +54,6 @@ var isIE = false;
 //var fNewDDUMap = true;
 
 var selectedObjectList=new Array();
-var boldIDsList=new Array();
 
 var testsShowLists = new Array();
 testsShowLists["Custom"] = new Array();
@@ -876,7 +872,7 @@ function showRunsList(r_list)
 			//	"\";getTestsList();getCSCCounters();getSystemsList(\""+run_num+
 			//	"\");return false;'>"+run_num+"</a></td><td>"+run_time+"</td></tr>";
 			out += "<tr><td><a href='' id='"+run_num+
-				"' onClick='RunNumber=\""+run_num+"\";getTestsList();getCanvas2IDList();getSystemsList(\""+run_num+"\");return false;'>"
+				"' onClick='RunNumber=\""+run_num+"\";getTestsList();getSystemsList(\""+run_num+"\");return false;'>"
 				+run_num+"</a></td><td>"+run_time+"</td></tr>";
 		}
 	}
@@ -892,13 +888,22 @@ function showRunsList(r_list)
 function getRunsList()
 {
 	var fullUrl = ResultsFolder + RunsList;
-
+	
+	
 	var req=false;
 	if (window.XMLHttpRequest) { 
+		/*
+		 * try {
+		 * netscape.security.PrivilegeManager.enablePrivilege("UniversalBrowserRead
+		 * UniversalBrowserWrite"); } catch (e) { alert("Permission
+		 * UniversalBrowserRead denied."); }
+		 */
 		req = new XMLHttpRequest();
 	} 
 	else if (window.ActiveXObject) {
+		// req = new ActiveXObject("Microsoft.XMLDOM");
 		req = new ActiveXObject((navigator.userAgent.toLowerCase().indexOf('msie 5') != -1) ? "Microsoft.XMLHTTP" : "Msxml2.XMLHTTP");
+		// var req = new ActiveXObject("Microsoft.XMLHTTP");
 	}
 	req.open("GET",fullUrl,true); // true= asynch, false=wait until loaded
 	
@@ -963,11 +968,13 @@ function showTestsList(r_list, id)
 					t_folder = th_folder;
 				}
 
-				if (!t_map[t_folder])        t_map[t_folder] = new Array();
-				if (!t_map[t_folder][t_id])  t_map[t_folder][t_id] = t_name;
+				if (!t_map[t_folder])
+					t_map[t_folder] = new Array();
+				if (!t_map[t_folder][t_id])
+					t_map[t_folder][t_id] = t_name;
 			}
 			for (var list in t_map) {
-				if ( list != th_folder || list == "CSC" || list == "DT") {
+				if ((list != th_folder) || (list == "CSC") || (list == "DT")) {
 					out += "<fieldset>";
 					out += "<legend class='t_hdr'><a class='test_hdr2' href='#' onClick='showHide(\"id_"+list+"\");'>"+list+"</a></legend>";
 					out += "<div class='t_div' id='id_"+list+"' style='overflow: hidden;'>";
@@ -975,18 +982,12 @@ function showTestsList(r_list, id)
 				out += "<table class='tests_table'>";
 				folder = t_map[list];
 				for (var entry in folder) {
-					if (list=="Extras") {
-					out += "<tr><td id =\""+entry+"\"></a><a class='test_item' href='' "+
-						"onClick='Canvas=\""+entry+"\";Scope=\""+scope+"\";boldenCanvasIDs();openCanvasInWindow(\"\");return false'>"+
-						folder[entry]+"</a></td></tr>";
-					continue;
-					}
 					// <td><input type=checkbox id='cb_"+entry+"'></td>
 					// <a class='test_help' href='' onClick='showTestHelp(\""+folder[entry]+"\"); return false;'>[?]</a>
 					out += "<tr><td id =\""+entry+"\"><a class='add_to_list' href='' "+
 						"onClick='addToTestsShowList(\"Custom\",\""+entry+"\",\""+folder[entry]+"\" ,\""+scope+"\");return false;'>[+]</a>"+
 						"</a><a class='test_item' href='' "+
-						"onClick='Canvas=\""+entry+"\";Scope=\""+scope+"\";boldenCanvasIDs();return updateBrowserPage(\""+entry+"\",false,3)'>"+
+						"onClick='Canvas=\""+entry+"\";Scope=\""+scope+"\";return updateBrowserPage(\""+entry+"\",false,3)'>"+
 					folder[entry]+"</a></td></tr>";
 					if (scope=="CSC" ) addToTestsShowList("All CSC Tests", entry, folder[entry], scope);
 					if (scope=="DT" ) addToTestsShowList("All DT Tests", entry, folder[entry], scope);
@@ -1025,7 +1026,7 @@ function getTestsList()
 				reply = reply.replace(/,]/g,"]");
 				reply = reply.replace("var ","");
 				window.eval(reply);
-				showTestsList(CANVASES_LIST, "tests_div");
+				showTestsList (CANVASES_LIST, "tests_div");
 				// addlog(reply, 'debug');
 				updateBrowserPage(Canvas,false,3);				
 				// updateBrowserPage(id,false,2);
@@ -1035,80 +1036,6 @@ function getTestsList()
 		}
 	}
 	req.send(null);	
-	return false;
-}
-
-
-function getCanvas2IDList()
-{
-	var fullUrl = ResultsFolder+RunNumber+".plots/" + Canvas2IDList;
-	var req=false;
-	if (window.XMLHttpRequest) { 
-		req = new XMLHttpRequest();
-	}
-	else if (window.ActiveXObject) {
-		req = new ActiveXObject((navigator.userAgent.toLowerCase().indexOf('msie 5') != -1) ? "Microsoft.XMLHTTP" : "Msxml2.XMLHTTP");
-	}
-	req.open("GET",fullUrl,true); // true= asynch, false=wait until loaded
-	
-	req.onreadystatechange = function() {
-		if (req.readyState == 4) {
-			if (req.status==200) {
-				var reply = req.responseText;
-				// Need to strip malformed array string to satisfy IE7
-				reply = reply.replace(/,]/g,"]");
-				reply = reply.replace("var ","");
-				window.eval(reply);
-				//addlog (CANVAS2ID_LIST, 'debug');
-				// addlog(reply, 'debug');
-			} else if (req.status==404) {
-				addlog("Can not load " + fullUrl, 'error');
-			}
-		}
-	}
-	req.send(null);	
-	return false;
-}
-
-
-function boldenCanvasIDs() {
-	if (CANVAS2ID_LIST==false) return false;
-	var ids = CANVAS2ID_LIST[Canvas];
-	if (!ids) return false;
-	extraprefix=""
-	if (Scope=="CSC") extraprefix = "csc_";
-	if (Scope=="DT") extraprefix = "dt_";
-	if (boldIDsList.length>0) { // un-bold previous ones 
-		for (var id in boldIDsList) {
-			var obj = get_element(boldIDsList[id]);
-			if (obj) {
-				obj.style.fontWeight = 'normal';
-				obj.style.fontSize = "100%";
-			}
-			obj = get_element(extraprefix+boldIDsList[id]);
-			if (obj) {
-				obj.style.fontWeight = 'normal';
-				obj.style.fontSize = "100%";
-			}
-		}
-		boldIDsList.length = 0;
-	}
-	if (Canvas.substr(-10)=="extras.php") return false;
-	
-	for (var id in ids) {
-		var obj = get_element(ids[id]);
-		if (obj) {
-			boldIDsList.push(ids[id])
-			obj.style.fontWeight = 'bold';
-			obj.style.fontSize = "115%";
-		}
-		obj = get_element(extraprefix+ids[id]);
-		if (obj) {
-			boldIDsList.push(extraprefix+ids[id])
-			obj.style.fontWeight = 'bold';
-			//obj.style.fontSize = "115%";
-		}
-	}
 	return false;
 }
 
@@ -1314,25 +1241,9 @@ function openReportInWindow()
 		generator.document.close();
 		reportWindow=generator;
 	} 
-	catch (exc){}
-}
-
-
-//var extrasWindow = "";
-function openCanvasInWindow(id)
-{
-	if (CANVAS2ID_LIST==false) return false;
-	var ids = CANVAS2ID_LIST[Canvas];
-	if (ids.length < 1) return false;
-
-	var fullUrl = ResultsFolder+RunNumber+".plots/" + ids[0];
-	//var title = "DQM Summary Report for Run: " + RunNumber;
-	try {
-		var generator=window.open(fullUrl, id +" extra plots","height=900,width=1100,left=300,resizable=1,scrollbars=1,location=1,status=0");
-		if (window.focus) {generator.focus()}
-		//extrasWindow = generator;
-	} 
-	catch (exc){}
+	catch (exc){
+	}
+	
 }
 
 
@@ -1417,8 +1328,7 @@ function setTestsStatus(id)
 							}
 						}
 						//out += "<tr><td class='SEVERITY_"+sev_name+"'>" + sev_str+ "</td><td>"+ descr_str + "</td></tr>";
-						out += "<tr><td class='SEVERITY' style='background-color:"+DQM_SEVERITY[sev_idx].hex+"'>" + 
-							sev_str+ "</td><td>"+ descr_str + "</td></tr>";
+						out += "<tr><td class='SEVERITY' style='background-color:"+DQM_SEVERITY[sev_idx].hex+"'>" + sev_str+ "</td><td>"+ descr_str + "</td></tr>";
 					}
 				}
 			}
@@ -1657,7 +1567,7 @@ function selectChamberFolder(sys, id)
 
 function selectTest(id, b_select)
 {
-	isFolderValid=true;
+	isFolderValid=true;	
 	selectObject(id, b_select, 3);
 	// addlog(selected_list[idx].id, "debug");
 	// showPlot();
@@ -1667,7 +1577,7 @@ function selectTest(id, b_select)
 
 function updateBrowserPage(id, f_select, idx)
 {
-	isFolderValid=true;
+	isFolderValid=true;		
 	selectObject(id, f_select, idx);
 	// addlog(selected_list[idx].id, "debug");
 	var fIter_old = fIter;
@@ -1754,8 +1664,7 @@ function selectObject(id, f_deselect, idx) {
 			selectedObjectList[idx] = obj;
 			if (o_olditem) selectObject(o_olditem.id, true, idx);
 		}
-		var hasToBeBold = (boldIDsList.indexOf(id.slice(4))!=-1)||(boldIDsList.indexOf(id.slice(3))!=-1);
-		if (!hasToBeBold) obj.style.fontWeight = f_deselect ? 'normal' : 'bold';
+		obj.style.fontWeight = f_deselect ? 'normal' : 'bold';
 		obj.style.color = f_deselect ? '#000000' : '#0000ff';
 		obj.style.border = f_deselect ? 'none':'1px solid blue';
 	} 

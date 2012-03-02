@@ -17,9 +17,14 @@ if errorUserOptions == True :
     print '\nError returned by UserOptions_cff\n'
     sys.exit()
 
-# L1 menu selection via L1Trigger_custom
-from L1Trigger.Configuration.L1Trigger_custom import customiseL1Menu
-process=customiseL1Menu(process)
+# L1 menu selection via L1Trigger_custom - expert choice, do it only if you know what you do
+# if True, modify correspondingly L1Trigger_custom
+
+customL1Menu = False
+
+if customL1Menu == True :
+    from L1Trigger.Configuration.L1Trigger_custom import customiseL1Menu
+    process=customiseL1Menu(process)
 
 
 # source according to data type
@@ -45,7 +50,7 @@ process.maxEvents = cms.untracked.PSet(
 process.load('Configuration.StandardSequences.Geometry_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-process.GlobalTag.globaltag = useGlobalTag+'::All'
+process.GlobalTag.globaltag = useGlobalTag
 
 # processes to be run
 

@@ -19,15 +19,11 @@ bool cond::IOVSchemaUtility::createIOVContainerIfNecessary(){
   if( !db.exists() ){
     if(m_log) *m_log << "INFO: Creating condition database in "<<db.connectionString()<<std::endl;
     db.create(cond::DbSession::COND_SCHEMA_VERSION);
-    db.setAccessPermission(cond::DbSession::CONDITIONS_GENERAL_READER, false );
-    db.setAccessPermission( cond::DbSession::CONDITIONS_GENERAL_WRITER, true );
   } 
   std::set<std::string> conts = db.containers();
   if( conts.find( cond::IOVNames::container() )==conts.end() ){
     if(m_log) *m_log << "INFO: Creating container \"" << cond::IOVNames::container() << "\" in "<<db.connectionString()<<std::endl;
-    ora::Container c = db.createContainer( cond::IOVNames::container(), cond::IOVNames::container() );
-    c.setAccessPermission( cond::DbSession::CONDITIONS_GENERAL_READER, false );
-    c.setAccessPermission( cond::DbSession::CONDITIONS_GENERAL_WRITER, true );
+    db.createContainer( cond::IOVNames::container(), cond::IOVNames::container() );
     return true;
   }
   if(m_log) *m_log << "INFO: container \"" << cond::IOVNames::container() << "\" already exists in the database "<<db.connectionString()<<std::endl;
@@ -52,9 +48,7 @@ void cond::IOVSchemaUtility::createPayloadContainer( const std::string& payloadN
   std::set<std::string> conts = db.containers();
   if( conts.find( payloadName ) != conts.end()) throw cond::Exception("Container \""+payloadName+"\" already exists.");
   if(m_log) *m_log << "INFO: Creating container \"" << payloadName << "\" in "<<db.connectionString()<<std::endl;
-  ora::Container c = db.createContainer( payloadTypeName, payloadName );
-  c.setAccessPermission( cond::DbSession::CONDITIONS_GENERAL_READER, false );
-  c.setAccessPermission( cond::DbSession::CONDITIONS_GENERAL_WRITER, true );
+  db.createContainer( payloadTypeName, payloadName );
 }
 
 void cond::IOVSchemaUtility::dropPayloadContainer( const std::string& payloadName ){

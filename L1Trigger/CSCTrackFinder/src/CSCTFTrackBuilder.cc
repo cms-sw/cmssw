@@ -92,7 +92,14 @@ void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts,
         s <= CSCTriggerNumbering::maxTriggerSectorId(); ++s)
       {
          CSCTriggerContainer<csctf::TrackStub> current_e_s = stub_list.get(e, s);
-         if(my_SPs[e-1][s-1]->run(current_e_s))
+	 int spReturnValue = my_SPs[e-1][s-1]->run(current_e_s);
+	 if(spReturnValue == -1) //Major Error, returning with empty Coll's
+	 {
+	   trkcoll->clear();
+	   stubs_to_dt->clear();
+	   return;
+	 }
+         else if(spReturnValue)
          {
            std::vector<csc::L1Track> theTracks = my_SPs[e-1][s-1]->tracks().get();
            trks.insert(trks.end(), theTracks.begin(), theTracks.end());

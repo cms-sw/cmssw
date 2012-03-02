@@ -139,9 +139,9 @@ void ContainmentCorrectionAnalyzer::analyze( const Event& evt, const EventSetup&
 
     // barrel
     if(std::fabs(etaTrue) < 1.479) {
-      double etaCurrent; // , etaFound = 0; // UNUSED
+      double etaCurrent, etaFound = 0;
       double phiCurrent;
-      // double etCurrent,  etFound  = 0; // UNUSED
+      double etCurrent,  etFound  = 0;
       const reco::SuperCluster* nearSC = 0;
       
       double closestParticleDistance = 999;      
@@ -149,11 +149,11 @@ void ContainmentCorrectionAnalyzer::analyze( const Event& evt, const EventSetup&
 	  aClus != BarrelSuperClusters->end(); aClus++) {	    
 	etaCurrent = aClus->position().eta();
 	phiCurrent = aClus->position().phi();
-	// etCurrent  = aClus->energy()/std::cosh(etaCurrent); // UNUSED
+	etCurrent  = aClus->energy()/std::cosh(etaCurrent);
 	double deltaR = std::sqrt(std::pow(etaCurrent-etaTrue,2)+std::pow(phiCurrent-phiTrue,2));
 	if(deltaR < closestParticleDistance) {
-	  // etFound  = etCurrent; // UNUSED
-	  // etaFound = etaCurrent; // UNUSED
+	  etFound  = etCurrent;
+	  etaFound = etaCurrent;
 	  closestParticleDistance = deltaR;
 	  nearSC=&(*aClus);
 	}
@@ -178,9 +178,9 @@ void ContainmentCorrectionAnalyzer::analyze( const Event& evt, const EventSetup&
     
     // endcap
     if(std::fabs(etaTrue) >= 1.6) {
-      double etaCurrent; // , etaFound = 0; // UNUSED
+      double etaCurrent, etaFound = 0;
       double phiCurrent;
-      // double etCurrent,  etFound  = 0; // UNUSED
+      double etCurrent,  etFound  = 0;
       const reco::SuperCluster* nearSC = 0;
       
       double closestParticleDistance = 999; 
@@ -188,11 +188,11 @@ void ContainmentCorrectionAnalyzer::analyze( const Event& evt, const EventSetup&
 	  aClus != EndcapSuperClusters->end(); aClus++) {
 	etaCurrent = aClus->position().eta();
 	phiCurrent = aClus->position().phi();
-	// etCurrent  =  aClus->energy()/std::cosh(etaCurrent);
+	etCurrent  =  aClus->energy()/std::cosh(etaCurrent);
 	double deltaR = std::sqrt(std::pow(etaCurrent-etaTrue,2)+std::pow(phiCurrent-phiTrue,2));
 	if(deltaR < closestParticleDistance) {
-	  // etFound  = etCurrent; // UNUSED
-	  // etaFound = etaCurrent; // UNUSED
+	  etFound  = etCurrent;
+	  etaFound = etaCurrent;
 	  closestParticleDistance = deltaR;
 	  nearSC=&(*aClus);
 	}
@@ -294,18 +294,18 @@ std::vector<EcalSimPhotonMCTruth> ContainmentCorrectionAnalyzer::findMcTruth(std
   std::vector<EcalSimPhotonMCTruth> result;
 
   geantToIndex_.clear();
-  // int   idTrk1_[10]; // UNUSED
-  // int   idTrk2_[10]; // UNUSED
+  int   idTrk1_[10];
+  int   idTrk2_[10];
   
   // Local variables  
-  // const int SINGLE=1; // UNUSED
-  // const int DOUBLE=2; // UNUSED
-  // const int PYTHIA=3; // UNUSED
+  const int SINGLE=1;
+  const int DOUBLE=2;
+  const int PYTHIA=3;
   const int ELECTRON_FLAV=1;
   const int PIZERO_FLAV=2;
   const int PHOTON_FLAV=3;
   
-  // int ievtype=0; // UNUSED
+  int ievtype=0;
   int ievflav=0;
   std::vector<SimTrack*> photonTracks;
   std::vector<SimTrack*> pizeroTracks;
@@ -336,27 +336,27 @@ std::vector<EcalSimPhotonMCTruth> ContainmentCorrectionAnalyzer::findMcTruth(std
   int iPho=0;
   for (std::vector<SimTrack>::iterator iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk){
     if (  (*iSimTk).noVertex() ) continue;
-    // int vertexId = (*iSimTk).vertIndex(); // UNUSED
-    // SimVertex vertex = theSimVertices[vertexId]; // UNUSED
+    int vertexId = (*iSimTk).vertIndex();
+    SimVertex vertex = theSimVertices[vertexId];
     if ( (*iSimTk).vertIndex() == iPV ) {
       npv++;
       if ( (*iSimTk).type() == 22) {
 	convInd.push_back(0);
 	photonTracks.push_back( &(*iSimTk) );
-	// math::XYZTLorentzVectorD momentum = (*iSimTk).momentum(); // UNUSED
+	math::XYZTLorentzVectorD momentum = (*iSimTk).momentum();
       } 
     }
   } 
   
-  if(npv > 4) { // ievtype = PYTHIA; // UNUSED
+  if(npv > 4) { ievtype = PYTHIA;
   } else if(npv == 1) {
-    if( abs(partType1) == 11 ) { /* ievtype = SINGLE; ==UNUSED== */ ievflav = ELECTRON_FLAV; } 
-    else if(partType1 == 111)  { /* ievtype = SINGLE; ==UNUSED== */ ievflav = PIZERO_FLAV; } 
-    else if(partType1 == 22)   { /* ievtype = SINGLE; ==UNUSED== */ ievflav = PHOTON_FLAV; }
+    if( abs(partType1) == 11 ) { ievtype = SINGLE; ievflav = ELECTRON_FLAV; } 
+    else if(partType1 == 111)  { ievtype = SINGLE; ievflav = PIZERO_FLAV; } 
+    else if(partType1 == 22)   { ievtype = SINGLE; ievflav = PHOTON_FLAV; }
   } else if(npv == 2) {
-    if (  abs(partType1) == 11 && abs(partType2) == 11 ) { /* ievtype = DOUBLE; ==UNUSED== */ ievflav = ELECTRON_FLAV; } 
-    else if(partType1 == 111 && partType2 == 111)        { /* ievtype = DOUBLE; ==UNUSED== */ ievflav = PIZERO_FLAV; } 
-    else if(partType1 == 22 && partType2 == 22)          { /* ievtype = DOUBLE; ==UNUSED== */ ievflav = PHOTON_FLAV; }
+    if (  abs(partType1) == 11 && abs(partType2) == 11 ) { ievtype = DOUBLE; ievflav = ELECTRON_FLAV; } 
+    else if(partType1 == 111 && partType2 == 111)        { ievtype = DOUBLE; ievflav = PIZERO_FLAV; } 
+    else if(partType1 == 22 && partType2 == 22)          { ievtype = DOUBLE; ievflav = PHOTON_FLAV; }
   }      
   
   //  Look into converted photons  
@@ -396,14 +396,14 @@ std::vector<EcalSimPhotonMCTruth> ContainmentCorrectionAnalyzer::findMcTruth(std
 	int convVtxId =  trkFromConversion[0]->vertIndex();
 	SimVertex convVtx = theSimVertices[convVtxId];
 	math::XYZTLorentzVectorD vtxPosition = convVtx.position();
-	// math::XYZTLorentzVectorD momentum = (*iPhoTk)->momentum(); // UNUSED
+	math::XYZTLorentzVectorD momentum = (*iPhoTk)->momentum();
 	if ( nConv <= 10) {         
 	  if ( trkFromConversion.size() > 1) {
-	    // idTrk1_[iConv]= trkFromConversion[0]->trackId(); // UNUSED
-	    // idTrk2_[iConv]= trkFromConversion[1]->trackId(); // UNUSED
+	    idTrk1_[iConv]= trkFromConversion[0]->trackId();
+	    idTrk2_[iConv]= trkFromConversion[1]->trackId();
 	  } else {
-	    // idTrk1_[iConv]=trkFromConversion[0]->trackId(); // UNUSED
-	    // idTrk2_[iConv]=-1; // UNUSED
+	    idTrk1_[iConv]=trkFromConversion[0]->trackId();
+	    idTrk2_[iConv]=-1;
 	  }
 	}
 	iConv++;

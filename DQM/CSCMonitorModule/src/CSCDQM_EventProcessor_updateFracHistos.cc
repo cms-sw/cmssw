@@ -44,6 +44,7 @@ namespace cscdqm {
     calcEMUFractionHisto(h::EMU_CSC_L1A_OUT_OF_SYNC_FRACT, h::EMU_CSC_REPORTING, h::EMU_CSC_L1A_OUT_OF_SYNC);
     calcEMUFractionHisto(h::EMU_DMB_L1A_OUT_OF_SYNC_FRACT, h::EMU_DMB_REPORTING, h::EMU_DMB_L1A_OUT_OF_SYNC);
     calcEMUFractionHisto(h::EMU_FED_DDU_L1A_MISMATCH_FRACT, h::EMU_FED_ENTRIES, h::EMU_FED_DDU_L1A_MISMATCH);
+    calcEMUFractionHisto(h::EMU_FED_DDU_L1A_MISMATCH_WITH_CSC_DATA_FRACT, h::EMU_FED_ENTRIES, h::EMU_FED_DDU_L1A_MISMATCH_WITH_CSC_DATA);
 
     unsigned int iter = 0, crateId = 0, dmbId = 0;
     MonitorObject *mo = 0, *mof = 0;

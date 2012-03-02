@@ -48,14 +48,14 @@ public:
 
 private:
 
-  static void sc_nodes( int itype, vector< int >& jx, vector< int >& jy );
+  static void sc_nodes( int itype, std::vector< int >& jx, std::vector< int >& jy );
   static void set( int iX, int iY, int jx, int jy, float eta, float phioverpi );
   static void setFirstQuadrant();
 
-  static map< int, MEEEGeom::EtaPhiPoint > _pointMap;
+  static std::map< int, MEEEGeom::EtaPhiPoint > _pointMap;
 
   static void setRzXtals();
-  static map< int, TPolyLine* > _rzXtals;
+  static std::map< int, TPolyLine* > _rzXtals;
 
   static list<TObject*> _list;
   static void registerTObject( TObject* );

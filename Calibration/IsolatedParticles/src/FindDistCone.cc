@@ -103,9 +103,6 @@ namespace spr {
     } else if (id.det() == DetId::Ecal && id.subdetId() == EcalBarrel) {
       ieta = ((EBDetId)(id)).ieta();
       iphi = ((EBDetId)(id)).iphi();
-//    } else if (id.det() == DetId::Ecal && id.subdetId() == EcalEndcap) {
-//      ieta = ((EEDetId)(id)).ieta();
-//      iphi = ((EEDetId)(id)).iphi();
     } else {
       ieta = 999;
       iphi = 999;
@@ -117,9 +114,6 @@ namespace spr {
     if (id.subdetId() == EcalBarrel) {
       ieta = ((EBDetId)(id)).ieta();
       iphi = ((EBDetId)(id)).iphi();
-//    } else if (id.subdetId() == EcalEndcap) {
-//      ieta = ((EEDetId)(id)).ieta();
-//      iphi = ((EEDetId)(id)).iphi();
     } else {
       ieta = 999;
       iphi = 999;

@@ -4,8 +4,8 @@
 	<TYPE>ContentsYRange</TYPE>	
 	<PARAM name="ymin">-0.5</PARAM>
 	<PARAM name="ymax">0.5</PARAM>
-	<PARAM name="error">0.80</PARAM>
-	<PARAM name="warning">0.90</PARAM>
+	<PARAM name="error">0.30</PARAM>
+	<PARAM name="warning">0.70</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
@@ -70,12 +70,12 @@
 </QTEST>
 
 
-<LINK name="DT/DtCalib/InterChannelSynchDBValidation/*T0Difference*">
+<LINK name="*hDifference*">
 	<TestName activate="true">t0DifferenceInRange</TestName>
 </LINK>
 
 
-<LINK name="DT/DtCalib/TTrigDBValidation/Wheel*/TTrigDifference*">
+<LINK name="*htTrigDifference*">
 	<TestName activate="true">tTrigDifferenceInRange</TestName>
 </LINK>
 

@@ -32,11 +32,9 @@ HFRecoEcalCandidateProducer::HFRecoEcalCandidateProducer(edm::ParameterSet const
   algo_(conf.getParameter<bool>("Correct"),
 	conf.getParameter<double>("e9e25Cut"),
 	conf.getParameter<double>("intercept2DCut"),
-	conf.getParameter<double>("intercept2DSlope"),
 	conf.getParameter<std::vector<double> >("e1e9Cut"),
 	conf.getParameter<std::vector<double> >("eCOREe9Cut"),
-	conf.getParameter<std::vector<double> >("eSeLCut"),
-	conf.getParameter<int>("era")) {
+	conf.getParameter<std::vector<double> >("eSeLCut")) {
 
   produces<reco::RecoEcalCandidateCollection>();
 

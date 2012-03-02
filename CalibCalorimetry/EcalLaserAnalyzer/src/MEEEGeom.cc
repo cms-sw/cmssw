@@ -1,6 +1,6 @@
-#include <cassert>
+#include <assert.h>
 #include <iostream>
-#include <cstdlib>
+#include <stdlib.h>
 #include <string>
 using namespace std;
 
@@ -459,7 +459,7 @@ MEEEGeom::smFromDcc( int idcc )
 TGraph*
 MEEEGeom::getGraphBoundary(  int type, int num, int iz, int xside )
 {
-  list< pair< float, float > > l;
+  std::list< std::pair< float, float > > l;
   getBoundary( l, type, num, iz, xside );
   int n = l.size();
   if( n==0 ) return 0;
@@ -470,10 +470,10 @@ MEEEGeom::getGraphBoundary(  int type, int num, int iz, int xside )
   assert( n<1000 );
 
   int ii=0;
-  list< pair< float, float > >::const_iterator l_it;      
+  std::list< std::pair< float, float > >::const_iterator l_it;      
   for( l_it=l.begin(); l_it!=l.end(); l_it++ )
     {
-      //      cout << "[" << l_it->first << "," << l_it->second << "]" << endl;
+      //      std::cout << "[" << l_it->first << "," << l_it->second << "]" << std::endl;
       ix[ii] = l_it->first;
       iy[ii] = l_it->second;
       ii++;
@@ -483,10 +483,10 @@ MEEEGeom::getGraphBoundary(  int type, int num, int iz, int xside )
 }
 
 void
-MEEEGeom::getBoundary(  list< pair< float, float > >& l, int type, int num, int iz, int xside )
+MEEEGeom::getBoundary(  std::list< std::pair< float, float > >& l, int type, int num, int iz, int xside )
 {
   // for each iy, get first and last ix for <whatever>
-  multimap< int, pair< int, int > > map_;
+  std::multimap< int, std::pair< int, int > > map_;
 
   int iymin=1;
   int iymax=100;
@@ -553,35 +553,35 @@ MEEEGeom::getBoundary(  list< pair< float, float > >& l, int type, int num, int 
 	  else if(  in && !ok )
 	    {
 	      in = false;
-	      map_.insert( pair< int, pair<int, int> >( iy, pair<int,int>( firstix, lastix ) ) );
+	      map_.insert( std::pair< int, std::pair<int, int> >( iy, std::pair<int,int>( firstix, lastix ) ) );
 	    }
 	}
-      if( in ) map_.insert( pair< int, pair<int, int> >( iy, pair<int,int>( firstix, lastix ) ) );
+      if( in ) map_.insert( std::pair< int, std::pair<int, int> >( iy, std::pair<int,int>( firstix, lastix ) ) );
 	
     }
 
   // clean the list
   l.clear();
 
-  multimap< int, pair< int, int > >::const_iterator it;
-  multimap< int, pair< int, int > >::const_iterator lastelement;
-  list< pair< float, float > > rightl;
+  std::multimap< int, std::pair< int, int > >::const_iterator it;
+  std::multimap< int, std::pair< int, int > >::const_iterator lastelement;
+  std::list< std::pair< float, float > > rightl;
   for( int iy=1; iy<=100; iy++ )
     {
       it = map_.find(iy);
       if( it==map_.end() ) continue;
       int n_ =  map_.count( iy );
-      //      cout << "n[" << iy << "]=" << n_ << endl;
+      //      std::cout << "n[" << iy << "]=" << n_ << std::endl;
       assert( n_==1 );  // fixme !
       
       lastelement = map_.upper_bound(iy);
       for( ; it!=lastelement; ++it )
 	{
-	  pair<float,float> p_ = it->second;
-	  l.push_back(   pair<float,float>(   p_.first-0.5, iy-0.5 ) );
-	  l.push_back(   pair<float,float>(   p_.first-0.5, iy+0.5 )   );
-	  rightl.push_back( pair<float,float>(   p_.second+0.5, iy-0.5 )   );
-	  rightl.push_back( pair<float,float>(   p_.second+0.5, iy+0.5 )     );
+	  std::pair<float,float> p_ = it->second;
+	  l.push_back(   std::pair<float,float>(   p_.first-0.5, iy-0.5 ) );
+	  l.push_back(   std::pair<float,float>(   p_.first-0.5, iy+0.5 )   );
+	  rightl.push_back( std::pair<float,float>(   p_.second+0.5, iy-0.5 )   );
+	  rightl.push_back( std::pair<float,float>(   p_.second+0.5, iy+0.5 )     );
 	  
 	}
     }
@@ -589,10 +589,10 @@ MEEEGeom::getBoundary(  list< pair< float, float > >& l, int type, int num, int 
   rightl.unique();
   rightl.reverse();
 
-  list< pair< float, float > >::const_iterator rightl_it;  
+  std::list< std::pair< float, float > >::const_iterator rightl_it;  
   for( rightl_it=rightl.begin(); rightl_it!=rightl.end(); rightl_it++ )
     {
-      l.push_back( pair<float,float>( rightl_it->first, rightl_it->second ) );
+      l.push_back( std::pair<float,float>( rightl_it->first, rightl_it->second ) );
     }
   l.push_back( *l.begin() );
 
@@ -611,7 +611,7 @@ MEEEGeom::deeFromMem( int imem )
   return dee_;
 }
 
-pair< int, int > 
+std::pair< int, int > 
 MEEEGeom::pn( int dee, int ilmmod )
 {
   // table below
@@ -719,7 +719,7 @@ MEEEGeom::pn( int dee, int ilmmod )
   if( ilmmod==20 ) ilmmod=18;
   if( ilmmod==21 ) ilmmod=19;
 
-  pair<int,int> pns(0,0);
+  std::pair<int,int> pns(0,0);
 
   if( pnTheory )
     {
@@ -894,36 +894,36 @@ MEEEGeom::dee( int ilmr )
   }
   if( dee_==0 )
     {
-      cout << "ilmr=" << ilmr << endl;
+      std::cout << "ilmr=" << ilmr << std::endl;
     }
   assert( dee_!=0 );
   return dee_;
 }
 
-pair< int, int >
+std::pair< int, int >
 MEEEGeom::memFromLmr( int ilmr )
 {
-  pair< int, int > out_;
+  std::pair< int, int > out_;
   int dee_ = dee( ilmr );
   if( dee_==1 )    // EE+F
     {
-      out_.first  = 51;
-      out_.second = 50;
+      out_.first  = 50;
+      out_.second = 51;
     }
   else if( dee_==2 )  // EE+N
     {
-      out_.first  = 47;
+      out_.first  = 47;  // JM: warning -- inverted !!
       out_.second = 46;
     }
   else if( dee_==3 )  // EE-N
     {
-      out_.first   = 2;
-      out_.second  = 1;
+      out_.first   = 1;
+      out_.second  = 2;
     }
   else if( dee_==4 )
     {
-      out_.first   = 6;
-      out_.second  = 5;
+      out_.first   = 5;
+      out_.second  = 6;
     }
   return out_;
 }
@@ -944,15 +944,13 @@ MEEEGeom::side( SuperCrysCoord iX, SuperCrysCoord iY, int iz )
 
   return side;
 }
-
-
-vector<int>
+std::vector<int>
 MEEEGeom::lmmodFromLmr( int ilmr )
 {
  
-  vector<int> vec;
+  std::vector<int> vec;
  
-  pair<int, int> dccAndSide_ = ME::dccAndSide( ilmr );
+  std::pair<int, int> dccAndSide_ = ME::dccAndSide( ilmr );
   int idcc  = dccAndSide_.first;
   int iside = dccAndSide_.second;
   bool near_ = near(ilmr);
@@ -963,7 +961,7 @@ MEEEGeom::lmmodFromLmr( int ilmr )
     {}
   else
     {
-      cout << "ism/near " <<  ism << "/" << near_ << endl;
+      std::cout << "ism/near " <<  ism << "/" << near_ << std::endl;
     }
 
   if( ism==1 || ism==9 )
@@ -1081,8 +1079,6 @@ MEEEGeom::apdRefTower( int ilmr, int ilmmod )
     switch( ilmmod ){
     case  18: tower=185; break; 
     case  19: tower=172; break;
-    case  20: tower=185; break; 
-    case  21: tower=172; break;
     default:
       abort();
     }
@@ -1090,8 +1086,6 @@ MEEEGeom::apdRefTower( int ilmr, int ilmmod )
     switch( ilmmod ){
     case  18: tower=264; break; 
     case  19: tower=251; break;
-    case  20: tower=264; break; 
-    case  21: tower=251; break;
     default:
       abort();
     }
@@ -1134,31 +1128,3 @@ MEEEGeom::apdRefChannels( int ilmmod )
   return vec;
 }
 
-int 
-MEEEGeom::referenceNormalization( int ilmr, int ilmmod ){
-
-  // FIXME: code here prefered normalization
-
-  //En fait il semble que pour ces PN (45, 48, 51, autre ?)
-  //la shape en laser est différente de la shape en TP. 
-
-  // Bad PN from marc
-
-  // 601 13
-  // 646 57
-  // 646 77
-  
-  int iNorm=ME::iPNNORM;
-
-  
-  //if(ilmr==51 || ilmr==52) iNorm=ME::iPNBNORM;
-
-  if( ilmr==85 && ilmmod ==4 )  iNorm=ME::iPNBNORM;
-  if( ilmr==84 && ilmmod ==8 )  iNorm=ME::iPNBNORM;
-  if( ilmr==78 && ilmmod ==11 ) iNorm=ME::iPNBNORM;
-  if( ilmr==73 && ilmmod ==11 ) iNorm=ME::iPNBNORM;
-
-
-  return iNorm;
-
-}

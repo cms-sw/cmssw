@@ -26,8 +26,6 @@
 #include "CondCore/IOVService/interface/IOVProxy.h"
 
 #include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
-#include "CondFormats/Alignment/interface/AlignmentSurfaceDeformations.h"
 
 #include <iterator>
 #include <iostream>
@@ -39,12 +37,6 @@ namespace cond {
     AlignSplitIOV();
     ~AlignSplitIOV();
     int execute();
-
-    template<class T>
-    std::string processPayloadContainer(cond::DbSession &sourcedb,
-					cond::DbSession &destdb, 
-					const std::string &token,
-					const std::string &containerName);
   };
 }
 
@@ -75,6 +67,7 @@ int cond::AlignSplitIOV::execute()
   std::string sourceTag(destTag);
   if (hasOptionValue("sourceTag"))
     sourceTag = getOptionValue<std::string>("sourceTag");
+
   bool verbose = hasOptionValue("verbose");
   
   cond::Time_t since = std::numeric_limits<cond::Time_t>::min();
@@ -93,12 +86,13 @@ int cond::AlignSplitIOV::execute()
   sourceiovtoken = sourceMetadata.getToken(sourceTag);
   if (sourceiovtoken.empty()) 
     throw std::runtime_error(std::string("tag ") + sourceTag + std::string(" not found"));
-
+  
   if (verbose)
     std::cout << "source iov token: " << sourceiovtoken << std::endl;
 
   cond::IOVService iovmanager(sourcedb);
   sourceiovtype = iovmanager.timeType(sourceiovtoken);
+
   if (verbose)
     std::cout << "source iov type " << sourceiovtype << std::endl;
 
@@ -121,22 +115,12 @@ int cond::AlignSplitIOV::execute()
     if (verbose)
       std::cout << "\t" << ioviterator->token() << std::endl;
 
+    boost::shared_ptr<Alignments> alignments = sourcedb.getTypedObject<Alignments>(ioviterator->token());
+
     cond::DbScopedTransaction transaction(destdb);
     transaction.start(false);
-    std::string payloadContainerName = sourcedb.classNameForItem(ioviterator->token());
-    std::string objToken;
-    if (payloadContainerName=="Alignments")
-      objToken = processPayloadContainer<Alignments>(sourcedb, destdb, 
-						     ioviterator->token(), payloadContainerName);
-    else if (payloadContainerName=="AlignmentErrors")
-      objToken = processPayloadContainer<AlignmentErrors>(sourcedb, destdb,
-							  ioviterator->token(), payloadContainerName);
-    else if (payloadContainerName=="AlignmentSurfaceDeformations")
-      objToken = processPayloadContainer<AlignmentSurfaceDeformations>(sourcedb, destdb,
-								       ioviterator->token(), payloadContainerName);
-    else {
-      return 1;
-    }
+ 
+    std::string objToken = destdb.storeObject(alignments.get(), "Alignments");
 
     cond::IOVEditor editor(destdb);
     editor.create(iov.timetype(), cond::timeTypeSpecs[sourceiovtype].endValue);
@@ -157,18 +141,7 @@ int cond::AlignSplitIOV::execute()
   
   return 0;
 }
-
-template<class T>
-std::string cond::AlignSplitIOV::processPayloadContainer(cond::DbSession &sourcedb,
-							 cond::DbSession &destdb, 
-							 const std::string &token,
-							 const std::string &containerName)
-{
-  boost::shared_ptr<T> object = sourcedb.getTypedObject<T>(token);
-  destdb.createDatabase();
-  return destdb.storeObject(object.get(), containerName);
-}
-
+  
 int main( int argc, char** argv )
 {
   cond::AlignSplitIOV utilities;

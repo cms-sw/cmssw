@@ -5,8 +5,8 @@
  * 
  *  ESProducer for DTGeometry in MuonGeometryRecord
  *
- *  $Date: 2009/01/16 11:11:46 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/03/10 17:39:31 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane - CERN
  */
 
@@ -31,6 +31,7 @@ public:
 
 private:  
   void geometryCallback_( const MuonNumberingRecord& record ) ;
+  void dbGeometryCallback_( const DTRecoGeometryRcd& record ) ;
   boost::shared_ptr<DTGeometry> _dtGeometry;
 
   bool applyAlignment_; // Switch to apply alignment corrections

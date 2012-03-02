@@ -19,6 +19,7 @@
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -576,7 +577,7 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
     h1_ele_TIP_all->Fill( sqrt(d) );
     h1_ele_vertexEta_all->Fill( gsfIter->eta() );
     h1_ele_vertexPt_all->Fill( gsfIter->pt() );
-    float enrj1=gsfIter->ecalEnergy();
+    float enrj1=gsfIter->superCluster()->energy();
 
     // mee
     reco::GsfElectronCollection::const_iterator gsfIter2 ;
@@ -588,7 +589,7 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
       math::XYZTLorentzVector p12 = (*gsfIter).p4()+(*gsfIter2).p4();
       float mee2 = p12.Dot(p12) ;
       h1_ele_mee_all->Fill(sqrt(mee2)) ;
-      float enrj2=gsfIter2->ecalEnergy();
+      float enrj2=gsfIter2->superCluster()->energy();
       h2_ele_E2mnE1vsMee_all->Fill(sqrt(mee2),enrj2-enrj1);
       if (gsfIter->ecalDrivenSeed() && gsfIter2->ecalDrivenSeed())
        { h2_ele_E2mnE1vsMee_egeg_all->Fill(sqrt(mee2),enrj2-enrj1) ; }

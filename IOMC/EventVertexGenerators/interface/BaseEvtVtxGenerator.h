@@ -1,8 +1,8 @@
 #ifndef IOMC_BaseEvtVtxGenerator_H
 #define IOMC_BaseEvtVtxGenerator_H
 /*
-*   $Date: 2008/05/28 16:40:45 $
-*   $Revision: 1.7 $
+*   $Date: 2010/02/11 00:12:31 $
+*   $Revision: 1.8 $
 */
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -34,7 +34,8 @@ class BaseEvtVtxGenerator : public edm::EDProducer
    virtual ~BaseEvtVtxGenerator();
       
    virtual void produce( edm::Event&, const edm::EventSetup& );
-      
+   virtual void beginRun( edm::Run & , const edm::EventSetup&) {};
+
    //virtual CLHEP::Hep3Vector* newVertex() = 0;
    virtual HepMC::FourVector* newVertex() = 0 ;
    /** This method - and the comment - is a left-over from COBRA-OSCAR time :

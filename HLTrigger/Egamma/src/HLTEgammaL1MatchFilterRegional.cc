@@ -1,6 +1,6 @@
 /** \class HLTEgammaL1MatchFilterRegional
  *
- * $Id: HLTEgammaL1MatchFilterRegional.cc,v 1.8 2008/04/21 04:59:38 wsun Exp $
+ * $Id: HLTEgammaL1MatchFilterRegional.cc,v 1.9 2010/06/10 14:17:37 covarell Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -56,6 +56,9 @@ HLTEgammaL1MatchFilterRegional::~HLTEgammaL1MatchFilterRegional(){}
 
 
 // ------------ method called to produce the data  ------------
+//configuration:
+//doIsolated=true, only isolated superclusters are allowed to match isolated L1 seeds
+//doIsolated=false, isolated superclusters are allowed to match either iso or non iso L1 seeds, non isolated superclusters are allowed only to match non-iso seeds. If no collection name is given for non-isolated superclusters, assumes the the isolated collection contains all (both iso + non iso) seeded superclusters.
 bool
 HLTEgammaL1MatchFilterRegional::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
@@ -120,8 +123,12 @@ HLTEgammaL1MatchFilterRegional::filter(edm::Event& iEvent, const edm::EventSetup
     
   }//end loop over all isolated RecoEcalCandidates
   
-
-  if(!doIsolated_) {
+  //if doIsolated_ is false now run over the nonisolated superclusters and non isolated L1 seeds 
+  //however in the case we have a single collection of superclusters containing both iso L1 and non iso L1 seeded superclusters,
+  //we specific doIsolated=false to match to isolated superclusters to non isolated seeds in the above loop
+  //however we do not have a non isolated collection of superclusters so we have to protect against that
+  if(!doIsolated_ && !candNonIsolatedTag_.label().empty()) {
+  
     edm::Handle<reco::RecoEcalCandidateCollection> recoNonIsolecalcands;
     iEvent.getByLabel(candNonIsolatedTag_,recoNonIsolecalcands);
     

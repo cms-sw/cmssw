@@ -44,3 +44,35 @@ hltL3TrackCandidateFromL2IOHit = FastSimulation.Muons.TrackCandidateFromL2_cfi.h
 hltL3TrackCandidateFromL2IOHit.SeedProducer = "hltL3TrajSeedIOHit"
 hltL3TrackCandidateFromL2NoVtx = FastSimulation.Muons.TrackCandidateFromL2_cfi.hltL3TrackCandidateFromL2.clone()
 hltL3TrackCandidateFromL2NoVtx.SeedProducer = "hltL3TrajectorySeedNoVtx"
+
+
+
+# (Not-so) Regional Tracking - needed because the TrackCandidateProducer needs the seeds 
+from FastSimulation.Tracking.GlobalPixelTracking_cff import *
+
+# CKFTrackCandidateMaker
+import FastSimulation.Tracking.TrackCandidateProducer_cfi
+
+hltMuCkfTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
+hltMuCkfTrackCandidates.SeedProducer = cms.InputTag("hltMuTrackSeeds")
+hltMuCkfTrackCandidates.TrackProducers = []
+hltMuCkfTrackCandidates.MaxNumberOfCrossedLayers = 999
+hltMuCkfTrackCandidates.SeedCleaning = True
+hltMuCkfTrackCandidates.SplitHits = False
+
+# CTF track fit with material
+import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
+
+hltMuCtfTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
+hltMuCtfTracks.src = 'hltMuCkfTrackCandidates'
+hltMuCtfTracks.TTRHBuilder = 'WithoutRefit'
+hltMuCtfTracks.Fitter = 'KFFittingSmoother'
+hltMuCtfTracks.Propagator = 'PropagatorWithMaterial'
+
+
+#hltMuTrackSeedsSequence = cms.Sequence(globalPixelTracking+
+#                                     cms.SequencePlaceholder("hltMuTrackSeeds"))
+#
+#HLTMuTrackingSequence = cms.Sequence(hltMuCkfTrackCandidates+
+#                                     hltMuCtfTracks+
+#                                     cms.SequencePlaceholder("hltMuTracking"))

@@ -1,100 +1,54 @@
 
 
-#include "../interface/GBRTree.h"
-#include "TClass.h"
+#include "CondFormats/EgammaObjects/interface/GBRTree.h"
 
 using namespace std;
 #include "TMVA/DecisionTreeNode.h"
 #include "TMVA/DecisionTree.h"
 
-
-//ClassImp(GBRTree)
-
-
 //_______________________________________________________________________
-GBRTree::GBRTree() : 
-  fNIntermediateNodes(0),
-  fNTerminalNodes(0),
-  fCutIndices(0),
-  fCutVals(0),
-  fLeftIndices(0),
-  fRightIndices(0),
-  fResponses(0)
+GBRTree::GBRTree()
 {
 
 }
 
 //_______________________________________________________________________
-GBRTree::GBRTree(const TMVA::DecisionTree *tree) : 
-  fNIntermediateNodes(0),
-  fNTerminalNodes(0)
+GBRTree::GBRTree(const TMVA::DecisionTree *tree)
 {
   
   //printf("boostweights size = %i, forest size = %i\n",bdt->GetBoostWeights().size(),bdt->GetForest().size());
-  Int_t nIntermediate = CountIntermediateNodes((TMVA::DecisionTreeNode*)tree->GetRoot());
-  Int_t nTerminal = CountTerminalNodes((TMVA::DecisionTreeNode*)tree->GetRoot());
+  int nIntermediate = CountIntermediateNodes((TMVA::DecisionTreeNode*)tree->GetRoot());
+  int nTerminal = CountTerminalNodes((TMVA::DecisionTreeNode*)tree->GetRoot());
   
   //special case, root node is terminal
   if (nIntermediate==0) nIntermediate = 1;
   
-  fCutIndices = new UChar_t[nIntermediate];
-  fCutVals = new Float_t[nIntermediate];
-  fLeftIndices = new Int_t[nIntermediate];
-  fRightIndices = new Int_t[nIntermediate];
-  fResponses = new Float_t[nTerminal];
-  
+  fCutIndices.reserve(nIntermediate);
+  fCutVals.reserve(nIntermediate);
+  fLeftIndices.reserve(nIntermediate);
+  fRightIndices.reserve(nIntermediate);
+  fResponses.reserve(nTerminal);
+
   AddNode((TMVA::DecisionTreeNode*)tree->GetRoot());
-  
+
   //special case, root node is terminal, create fake intermediate node at root
-  if (fNIntermediateNodes==0) {
-    fCutIndices[0] = 0;
-    fCutVals[0] = 0.;
-    fLeftIndices[0] = 0;
-    fRightIndices[0] = 0;
-    ++fNIntermediateNodes;
-  }
-  
-  
-
-  
-
-}
-
-//_______________________________________________________________________
-GBRTree::GBRTree(const GBRTree &other) :
-  fNIntermediateNodes(other.fNIntermediateNodes),
-  fNTerminalNodes(other.fNTerminalNodes)
-{
-  fCutIndices = new UChar_t[fNIntermediateNodes];
-  fCutVals = new Float_t[fNIntermediateNodes];
-  fLeftIndices = new Int_t[fNIntermediateNodes];
-  fRightIndices = new Int_t[fNIntermediateNodes];
-  fResponses = new Float_t[fNTerminalNodes];
-
-  for (Int_t i=0; i<fNIntermediateNodes; ++i) {
-    fCutIndices[i]   =  other.fCutIndices[i];
-    fCutVals[i]      =  other.fCutVals[i];
-    fLeftIndices[i]  =  other.fLeftIndices[i];
-    fRightIndices[i] =  other.fRightIndices[i];
-  }
-
-  for (Int_t i=0; i<fNTerminalNodes; ++i) {
-    fResponses[i]    =  other.fResponses[i];
+  if (fCutIndices.size()==0) {
+    fCutIndices.push_back(0);
+    fCutVals.push_back(0);
+    fLeftIndices.push_back(0);
+    fRightIndices.push_back(0);
   }
 
 }
+
 
 //_______________________________________________________________________
 GBRTree::~GBRTree() {
-  delete [] fCutIndices;
-  delete [] fCutVals;
-  delete [] fLeftIndices;
-  delete [] fRightIndices;
-  delete [] fResponses;
+
 }
 
 //_______________________________________________________________________
-UInt_t GBRTree::CountIntermediateNodes(const TMVA::DecisionTreeNode *node) {
+unsigned int GBRTree::CountIntermediateNodes(const TMVA::DecisionTreeNode *node) {
   
   if (!node->GetLeft() || !node->GetRight() || node->IsTerminal()) {
     return 0;
@@ -106,7 +60,7 @@ UInt_t GBRTree::CountIntermediateNodes(const TMVA::DecisionTreeNode *node) {
 }
 
 //_______________________________________________________________________
-UInt_t GBRTree::CountTerminalNodes(const TMVA::DecisionTreeNode *node) {
+unsigned int GBRTree::CountTerminalNodes(const TMVA::DecisionTreeNode *node) {
   
   if (!node->GetLeft() || !node->GetRight() || node->IsTerminal()) {
     return 1;
@@ -122,18 +76,14 @@ UInt_t GBRTree::CountTerminalNodes(const TMVA::DecisionTreeNode *node) {
 void GBRTree::AddNode(const TMVA::DecisionTreeNode *node) {
 
   if (!node->GetLeft() || !node->GetRight() || node->IsTerminal()) {
-    fResponses[fNTerminalNodes] = node->GetResponse();
-    ++fNTerminalNodes;
+    fResponses.push_back(node->GetResponse());
     return;
   }
   else {    
-    Int_t thisindex = fNIntermediateNodes;
-    ++fNIntermediateNodes;
     
-    fCutIndices[thisindex] = node->GetSelector();
-    fCutVals[thisindex] = node->GetCutValue();
-
-    
+    fCutIndices.push_back(node->GetSelector());
+    fCutVals.push_back(node->GetCutValue());
+   
     
     TMVA::DecisionTreeNode *left;
     TMVA::DecisionTreeNode *right;
@@ -147,76 +97,21 @@ void GBRTree::AddNode(const TMVA::DecisionTreeNode *node) {
     }
     
     if (!left->GetLeft() || !left->GetRight() || left->IsTerminal()) {
-      fLeftIndices[thisindex] = -fNTerminalNodes;
+      fLeftIndices.push_back(-fResponses.size());
     }
     else {
-      fLeftIndices[thisindex] = fNIntermediateNodes;
+      fLeftIndices.push_back(fCutIndices.size());
     }
     AddNode(left);
     
     if (!right->GetLeft() || !right->GetRight() || right->IsTerminal()) {
-      fRightIndices[thisindex] = -fNTerminalNodes;
+      fRightIndices.push_back(-fResponses.size());
     }
     else {
-      fRightIndices[thisindex] = fNIntermediateNodes;
+      fRightIndices.push_back(fCutIndices.size());
     }
     AddNode(right);    
     
   }
   
-}
-
-//-------------------------------------------------------------------------------------------------
-void GBRTree::Streamer(TBuffer &b)
-{
-   // Stream all objects in the array to or from the I/O buffer.
-   // Ugly special case handling for Double32
-
-  if (b.IsReading()) {
-
-    Version_t v = b.ReadVersion(0,0,GBRTree::Class());
-
-    if (v<=1) {
-      UInt_t start=0;
-      UInt_t count=0;
-      b.ReadClassBuffer(GBRTree::Class(),this,v,start,count);
-      return;    
-    }
-
-    b >> fNIntermediateNodes;
-    b >> fNTerminalNodes;
-
-    if (fNIntermediateNodes) {
-      fCutIndices = new UChar_t[fNIntermediateNodes];
-      fCutVals = new Float_t[fNIntermediateNodes];
-      fLeftIndices = new Int_t[fNIntermediateNodes];
-      fRightIndices = new Int_t[fNIntermediateNodes];
-     
-      b.ReadFastArray(fCutIndices,fNIntermediateNodes);
-      b.ReadFastArray(fCutVals,fNIntermediateNodes);
-      b.ReadFastArray(fLeftIndices,fNIntermediateNodes);
-      b.ReadFastArray(fRightIndices,fNIntermediateNodes);
-    }
-
-    if (fNTerminalNodes) {
-      fResponses = new Float_t[fNTerminalNodes];
-      b.ReadFastArray(fResponses,fNTerminalNodes);
-    }
-
-  } else { /*writing*/
-
-    b.WriteVersion(GBRTree::Class());
-    b << fNIntermediateNodes;
-    b << fNTerminalNodes;
-
-    if (fNIntermediateNodes) {
-      b.WriteFastArray(fCutIndices,fNIntermediateNodes);
-      b.WriteFastArray(fCutVals,fNIntermediateNodes);
-      b.WriteFastArray(fLeftIndices,fNIntermediateNodes);
-      b.WriteFastArray(fRightIndices,fNIntermediateNodes);
-    }
-    if (fNTerminalNodes) {
-      b.WriteFastArray(fResponses,fNTerminalNodes);
-    }
-  }
 }

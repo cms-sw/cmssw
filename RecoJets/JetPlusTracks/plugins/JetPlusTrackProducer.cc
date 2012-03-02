@@ -13,7 +13,7 @@
 //
 // Original Author:  Olga Kodolova,40 R-A12,+41227671273,
 //         Created:  Fri Feb 19 10:14:02 CET 2010
-// $Id: JetPlusTrackProducer.cc,v 1.5 2011/04/17 11:03:49 kodolova Exp $
+// $Id: JetPlusTrackProducer.cc,v 1.6 2011/07/01 08:15:52 kodolova Exp $
 //
 //
 
@@ -124,29 +124,22 @@ JetPlusTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    double scaleJPT = 1.; 
 
    math::XYZTLorentzVector p4;
-   
+
+  jpt::MatchedTracks pions;
+  jpt::MatchedTracks muons;
+  jpt::MatchedTracks elecs;
+  bool ok=false;
+
    if ( !vectorial_ ) {
             
-   scaleJPT = mJPTalgo->correction ( corrected, *oldjet, iEvent, iSetup );
+     scaleJPT = mJPTalgo->correction ( corrected, *oldjet, iEvent, iSetup, pions, muons, elecs,ok );
    p4 = math::XYZTLorentzVector( corrected.px()*scaleJPT, 
                                  corrected.py()*scaleJPT,
                                  corrected.pz()*scaleJPT, 
                                  corrected.energy()*scaleJPT );
    } else {
-   scaleJPT = mJPTalgo->correction( corrected, *oldjet, iEvent, iSetup, p4 );
+     scaleJPT = mJPTalgo->correction( corrected, *oldjet, iEvent, iSetup, p4, pions, muons, elecs,ok );
   }         
-
-// Construct JPTJet constituent
-  jpt::MatchedTracks pions;
-  jpt::MatchedTracks muons;
-  jpt::MatchedTracks elecs;
-  
-  bool ok = mJPTalgo->matchTracks( *oldjet, 
-		                    iEvent, 
-		                    iSetup,
-		                     pions, 
-		                     muons, 
-		                     elecs );
 
    
   reco::JPTJet::Specific specific;
@@ -277,7 +270,7 @@ JetPlusTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    reco::JPTJet fJet(p4, vertex_, specific, corrected.getJetConstituents()); 
 
-  // fJet.printJet();
+   //   fJet.printJet();
 
 // Output module
     pOut->push_back(fJet); 

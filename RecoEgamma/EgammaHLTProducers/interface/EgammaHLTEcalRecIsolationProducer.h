@@ -45,6 +45,7 @@ class EgammaHLTEcalRecIsolationProducer : public edm::EDProducer {
   edm::InputTag ecalBarrelRecHitCollection_;
   edm::InputTag ecalEndcapRecHitProducer_;
   edm::InputTag ecalEndcapRecHitCollection_;
+  edm::InputTag rhoProducer_;
 
   double egIsoPtMinBarrel_; //minimum Et noise cut
   double egIsoEMinBarrel_;  //minimum E noise cut
@@ -54,6 +55,12 @@ class EgammaHLTEcalRecIsolationProducer : public edm::EDProducer {
   double egIsoConeSizeInBarrel_; //inner cone size
   double egIsoConeSizeInEndcap_; //inner cone size
   double egIsoJurassicWidth_ ; // exclusion strip width for jurassic veto
+  float effectiveAreaBarrel_;
+  float effectiveAreaEndcap_;
+
+  bool doRhoCorrection_;
+  float rhoScale_;
+  float rhoMax_;
 
   bool useIsolEt_; //switch for isolEt rather than isolE
   bool tryBoth_ ; // use rechits from barrel + endcap
@@ -61,8 +68,6 @@ class EgammaHLTEcalRecIsolationProducer : public edm::EDProducer {
   bool useNumCrystals_;// veto cones are specified in number of crystals not eta
 
   edm::ParameterSet conf_;
-
-
 };
 
 #endif

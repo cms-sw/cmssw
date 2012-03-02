@@ -11,6 +11,7 @@ mixData = cms.EDProducer("DataMixingModule",
         seed = cms.int32(1234567),
         type = cms.string('fixed'),
         sequential = cms.untracked.bool(False), 
+        sameLumiBlock = cms.untracked.bool(False),
         fileNames = cms.untracked.vstring(
             'file:DMPreProcess_RAW2DIGI.root'
         )
@@ -75,7 +76,7 @@ mixData = cms.EDProducer("DataMixingModule",
     HBHEdigiCollectionSig  = cms.InputTag("hcalDigis"),
     HOdigiCollectionSig    = cms.InputTag("hcalDigis"),
     HFdigiCollectionSig    = cms.InputTag("hcalDigis"),
-    ZDCdigiCollectionSig   = cms.InputTag("wrongTag"),
+    ZDCdigiCollectionSig   = cms.InputTag(""),
 #                         ZDCdigiCollectionSig   = cms.InputTag("hcalDigis"),          
     #
     EBPileInputTag = cms.InputTag("ecalDigis","ebDigis"),
@@ -84,7 +85,7 @@ mixData = cms.EDProducer("DataMixingModule",
     HBHEPileInputTag = cms.InputTag("hcalDigis"),                  
     HOPileInputTag   = cms.InputTag("hcalDigis"),                  
     HFPileInputTag   = cms.InputTag("hcalDigis"),                  
-    ZDCPileInputTag  = cms.InputTag("wrongTag"),
+    ZDCPileInputTag  = cms.InputTag(""),
 #                         ZDCPileInputTag  = cms.InputTag("hcalDigis"),          
     #  Signal
     CSCwiredigiCollectionSig = cms.InputTag("muonCSCDigis","MuonCSCWireDigi"),

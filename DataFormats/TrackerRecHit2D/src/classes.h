@@ -1,7 +1,6 @@
 #ifndef TrackerRecHit2D_CLASSES_H
 #define TrackerRecHit2D_CLASSES_H
 
-#include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1DCollection.h"
 #include "DataFormats/CLHEP/interface/Migration.h" 

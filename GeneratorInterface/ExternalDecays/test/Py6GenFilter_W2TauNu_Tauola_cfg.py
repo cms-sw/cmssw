@@ -31,14 +31,14 @@ process.MessageLogger.destinations = ['cerr']
 process.MessageLogger.statistics = []
 process.MessageLogger.fwkJobReports = []
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(20))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(20000))
 
 process.source = cms.Source("EmptySource")
 
 from Configuration.Generator.PythiaUESettings_cfi import *
 process.generator = cms.EDFilter("Pythia6GeneratorFilter",
     pythiaHepMCVerbosity = cms.untracked.bool(True),
-    maxEventsToPrint = cms.untracked.int32(0),
+    maxEventsToPrint = cms.untracked.int32(1),
     pythiaPylistVerbosity = cms.untracked.int32(1),
     # this shows how to turn ON some of the general Py6 printouts, like banner...
     ## --> displayPythiaBanner = cms.untracked.bool(True),
