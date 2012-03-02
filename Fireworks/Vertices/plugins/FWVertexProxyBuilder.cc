@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWVertexProxyBuilder.cc,v 1.10 2012/03/01 05:11:52 amraktad Exp $
+// $Id: FWVertexProxyBuilder.cc,v 1.11 2012/03/01 06:34:12 amraktad Exp $
 //
 // user include files// user include files
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
@@ -151,6 +151,40 @@ FWVertexProxyBuilder::buildViewType(const reco::Vertex& iData, unsigned int iInd
          t.SetPos(v.x(),v.y(),v.z());
          setupAddElement(sl, &oItemHolder);
       }
+      else if ( type == FWViewType::kRhoPhi )
+      {
+         reco::Vertex::Error e= v.error();
+         TMatrixDSym m(3);
+         for(int i=0;i<2;i++)
+            for(int j=0;j<2;j++)
+            {
+               m(i,j) = e(i,j);
+            }
+         //m.Print();
+
+         TMatrixDEigen eig(m);
+         TDecompSVD svd(m);
+         // svd.GetU().Print();
+
+         TVectorD vv ( eig.GetEigenValuesRe())   ;
+         // vv.Print();        
+
+         // build line-set
+         double erng[] = {sqrt(vv(0))*ellipseScale,sqrt(vv(1))*ellipseScale,sqrt(vv(2))*ellipseScale};
+         TEveStraightLineSet* sl = make_ellipse(&erng[0]);
+         TEveTrans & t =   sl->RefMainTrans();
+         {
+            TMatrixD mm = svd.GetU();
+            for(int i=0;i<3;i++)
+               for(int j=0;j<3;j++)
+               {
+                  t(i+1,j+1) = mm(i,j);
+               }
+         }
+         t.SetPos(v.x(),v.y(),v.z());
+         setupAddElement(sl, &oItemHolder);
+
+      }
       else 
       {
          reco::Vertex::Error e= v.error();
@@ -180,26 +214,6 @@ FWVertexProxyBuilder::buildViewType(const reco::Vertex& iData, unsigned int iInd
          TEveStraightLineSet* sl = make_ellipse(&erng[0]);
          setupAddElement(sl, &oItemHolder);
          sl->SetTransMatrix(t.Array());
-
-         // sphere commented out, problems rendering in 3D
-         /*
-         double s0 = sqrt(vv(0));
-         TGeoSphere * sphere = new TGeoSphere(0, ellipseScale*s0); //would that leak?
-         TEveGeoShape * shape = new TEveGeoShape();
-         shape->SetShape(sphere);
-         shape->SetDrawFrame(false);
-         shape->SetHighlightFrame(false);
-         shape->SetMainColor(item()->defaultDisplayProperties().color());
-         shape->SetFillColor(item()->defaultDisplayProperties().color());
-         // shape->SetMainTransparency(90);
-
-         sphere->SetBoxDimensions(s0, s0, s0); 
-         // t.Scale(1,sqrt(vv(1))/s0,sqrt(vv(2))/s0);
-         printf("%f \n", vv(0));
-         shape->SetTransMatrix(t.Array());
-         setupAddElement(shape, &oItemHolder);
-         */
-
       }
    }
    // tracks
