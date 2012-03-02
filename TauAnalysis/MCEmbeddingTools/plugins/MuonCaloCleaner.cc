@@ -204,6 +204,7 @@ void MuonCaloCleaner::fillMap(const TrackDetMatchInfo & info,
   todo["es"] = &(info.crossedPreshowerIds);
     
     
+  /*
   BOOST_FOREACH( TMyStore::value_type &entry, todo ){
     // get trajectory depending on detector type;
     std::vector<GlobalPoint> trajectory;
@@ -258,13 +259,12 @@ void MuonCaloCleaner::fillMap(const TrackDetMatchInfo & info,
 		
 		bool inside = myGeo->inside(steppingPoint);
 		if (inside) ++stepsInsideLocal;
-		/*
-		std::cout << " " << steppingX
-		    << " " << steppingY
-		    << " " << steppingZ
-		    << " " << inside
-		    << std::endl;
-		// */
+		//std::cout << " " << steppingX
+		//    << " " << steppingY
+		//    << " " << steppingZ
+		//    << " " << inside
+		//    << std::endl;
+		//
 	      }
 	      distInside += float(stepsInsideLocal)/float(steps + 1)*dist;
 	}
@@ -275,7 +275,7 @@ void MuonCaloCleaner::fillMap(const TrackDetMatchInfo & info,
     }// end detID iteration
   }// end hcal/ecal/ho iteration
     
-
+  */
   
   
 }
