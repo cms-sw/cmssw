@@ -396,7 +396,7 @@ HLT_Mu15_eta2p1_TriCentralL1FastJet_40_20_20_v*                                 
 #HLT_PixelTracks_Multiplicity80_v*                                                              # What about those?
 #HLT_PixelTracks_Multiplicity100_v*                                                             # What about those?
 
-HLT_BeamGas_HF_Beam1_v*                                                                         #sr126174                                                                                       
+HLT_BeamGas_HF_Beam1_v*                                                                         #sr126174
 HLT_BeamGas_HF_Beam2_v*                                                                         #sr126174
 HLT_BeamHalo_v*
 #HLT_L1_PreCollisions_v*                                                                        # L1 seed L1_PreCollisions no longer available
