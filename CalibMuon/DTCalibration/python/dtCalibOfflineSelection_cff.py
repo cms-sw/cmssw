@@ -11,6 +11,8 @@ hltL1SingleMuOpen = copy.deepcopy(hltHighLevel)
 hltL1SingleMuOpen.HLTPaths = ['HLT_L1SingleMuOpen_AntiBPTX_v*']
 hltDtCalibTest = copy.deepcopy(hltHighLevel)
 hltDtCalibTest.HLTPaths = ['HLT_Mu40_v*', 'HLT_IsoMu*', 'HLT_Mu13_Mu8_v*', 'HLT_Mu17_Mu8_v*']
+hltDTCalibration = copy.deepcopy(hltHighLevel)
+hltDTCalibration.HLTPaths = ['HLT_DTCalibration_v*']
 
 ALCARECODtCalibHIHLTFilter = copy.deepcopy(hltHighLevel)
 ALCARECODtCalibHIHLTFilter.throw = False
@@ -116,6 +118,7 @@ offlineSelectionCosmics = cms.Sequence(hltL1SingleMuOpen)
 offlineSelectionHI = cms.Sequence(offlineSelectionHIPt5)
 offlineSelectionHIALCARECO = cms.Sequence(offlineSelectionHIALCARECOPt5)
 offlineSelectionHIRAW = cms.Sequence(offlineSelectionHIRAWPt5)
+offlineSelectionTestEnables = cms.Sequence(hltDTCalibration)
 
 dtCalibOfflineSelectionPt15 = cms.Sequence(offlineSelectionPt15)
 dtCalibOfflineSelectionALCARECOPt15 = cms.Sequence(offlineSelectionALCARECOPt15)
@@ -133,3 +136,4 @@ dtCalibOfflineSelectionCosmics = cms.Sequence(offlineSelectionCosmics)
 dtCalibOfflineSelectionHI = cms.Sequence(offlineSelectionHI)
 dtCalibOfflineSelectionHIALCARECO = cms.Sequence(offlineSelectionHIALCARECO)
 dtCalibOfflineSelectionHIRAW = cms.Sequence(offlineSelectionHIRAW)
+dtCalibOfflineSelectionTestEnables = cms.Sequence(offlineSelectionTestEnables)

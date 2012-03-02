@@ -1,13 +1,12 @@
-#ifndef CalibMuon_DTCalibration_DTTTrigCorrection_h
-#define CalibMuon_DTCalibration_DTTTrigCorrection_h
+#ifndef CalibMuon_DTCalibration_DTT0Correction_h
+#define CalibMuon_DTCalibration_DTT0Correction_h
 
-/** \class DTTTrigCorrection
- *  Class which read a ttrig DB and correct it with
- *  the near SL (or the global average)
+/** \class DTT0Correction
+ *  Class that reads and corrects t0 DB
  *
  *  $Date: 2010/11/17 17:54:23 $
  *  $Revision: 1.8 $
- *  \author S. Maselli - INFN Torino
+ *  \author A. Vilela Pereira
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -16,19 +15,19 @@
 
 #include <string>
 
-class DTTtrig;
+class DTT0;
 class DTGeometry;
 namespace dtCalibration {
-  class DTTTrigBaseCorrection;
+  class DTT0BaseCorrection;
 }
 
-class DTTTrigCorrection : public edm::EDAnalyzer {
+class DTT0Correction : public edm::EDAnalyzer {
 public:
   /// Constructor
-  DTTTrigCorrection(const edm::ParameterSet& pset);
+  DTT0Correction(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~DTTTrigCorrection();
+  virtual ~DTT0Correction();
 
   // Operations
 
@@ -40,12 +39,10 @@ public:
 protected:
 
 private:
-  std::string dbLabel_;
 
-  const DTTtrig* tTrigMap_;
+  const DTT0* t0Map_;
   edm::ESHandle<DTGeometry> muonGeom_;
 
-  dtCalibration::DTTTrigBaseCorrection* correctionAlgo_;
+  dtCalibration::DTT0BaseCorrection* correctionAlgo_;
 };
 #endif
-

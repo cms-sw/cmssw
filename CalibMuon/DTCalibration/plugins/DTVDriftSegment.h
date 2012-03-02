@@ -5,7 +5,7 @@
  *  Concrete implementation of a DTVDriftBaseAlgo.
  *  Computes vDrift using fit result segment by segment.
  *
- *  $Revision: 1.2 $
+ *  $Revision: 1.3 $
  *  \author A. Vilela Pereira
  */
 
@@ -18,6 +18,8 @@ class DTMtime;
 class DTResidualFitter;
 class TH1F;
 class TFile;
+
+namespace dtCalibration {
 
 class DTVDriftSegment: public DTVDriftBaseAlgo {
 public:
@@ -36,4 +38,6 @@ private:
    TFile* rootFile_;
    DTResidualFitter* fitter_;
 };
+
+} // namespace
 #endif
