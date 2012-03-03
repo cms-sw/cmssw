@@ -32,7 +32,6 @@ HLTriggerAOD  = cms.PSet(
     outputCommands = cms.vstring( *(
         'drop *_hlt*_*_*',
         'keep *_hltL1GtObjectMap_*_*',
-        'drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap_*_*',
         'keep edmTriggerResults_*_*_*',
         'keep triggerTriggerEvent_*_*_*'
     ) )
