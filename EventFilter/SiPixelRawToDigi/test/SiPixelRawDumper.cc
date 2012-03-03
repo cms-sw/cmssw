@@ -479,7 +479,7 @@ void SiPixelRawDumper::analyze(const  edm::Event& ev, const edm::EventSetup& es)
   typedef uint64_t Word64;
   int status=0;
   int countPixels=0;
-  int eventId = -1;
+  // int eventId = -1;
   int countErrorsPerEvent=0;
 
   countAllEvents++;
@@ -510,7 +510,7 @@ void SiPixelRawDumper::analyze(const  edm::Event& ev, const edm::EventSetup& es)
     // check headers
     const Word64* header = reinterpret_cast<const Word64* >(rawData.data()); 
     //cout<<hex<<*header<<dec<<endl;
-    eventId = MyDecode::header(*header, fedId, printHeaders);
+    // eventId = MyDecode::header(*header, fedId, printHeaders);
     //if(fedId = fedIds.first) 
 
     const Word64* trailer = reinterpret_cast<const Word64* >(rawData.data())+(nWords-1);

@@ -5,8 +5,8 @@
  *  
  *  Class to fill Event Generator dqm monitor elements; works on HepMCProduct
  *
- *  $Date: 2010/05/25 16:50:50 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/07/02 13:34:23 $
+ *  $Revision: 1.2 $
  *
  */
 
@@ -30,6 +30,8 @@
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
+#include "Validation/EventGenerator/interface/WeightManager.h"
+
 
 class WValidation : public edm::EDAnalyzer
 {
@@ -43,6 +45,8 @@ class WValidation : public edm::EDAnalyzer
 	virtual void endRun(const edm::Run&, const edm::EventSetup&);
 
   private:
+
+  WeightManager _wmanager;
 
   edm::InputTag hepmcCollection_;
 

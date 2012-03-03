@@ -163,21 +163,21 @@ void TestTranslation::apply( Alignable* it )
 	  std::cout << "------------------------" << std::endl
 		    << " BEFORE TRANSLATION " << std::endl;
 
-	  align::GlobalPoint  pos_i  = (it)->globalPosition() ;
+	  GlobalPoint  pos_i  = (it)->globalPosition() ;
 //          RotationType dir_i  = (it)->globalRotation();
 
 	  std::cout << "x=" << pos_i.x() << ",  y=" << pos_i.y() << ",  z=" << pos_i.z() << std::endl; 
 
-	  double dx = 1.0;
-          double dy = 2.0;
-          double dz = 3.0;
-          align::GlobalVector dr( dx, dy, dz );
+	  float dx = 1.0;
+          float dy = 2.0;
+          float dz = 3.0;
+          GlobalVector dr( dx, dy, dz );
 	  it->move( dr );
 
 	  std::cout << "------------------------" << std::endl
 		    << " AFTER TRANSLATION " << std::endl;
 
-	  align::GlobalPoint  pos_f  = (it)->globalPosition() ;
+          GlobalPoint  pos_f  = (it)->globalPosition() ;
 //          RotationType dir_f = (it)->globalRotation();
 
           std::cout << "x=" << pos_f.x() << ",  y=" << pos_f.y() << ",  z=" << pos_f.z()  << std::endl ;

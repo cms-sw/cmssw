@@ -1,8 +1,8 @@
 /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2011/11/12 09:18:41 $
- * $Revision: 1.68 $
+ * $Date: 2011/10/31 17:11:20 $
+ * $Revision: 1.67 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -145,7 +145,7 @@ void DTDigiTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
   if(doStaticBooking) {  // Static histo booking
     // book the event counter
     dbe->setCurrentFolder("DT/EventInfo/Counters");
-    nEventMonitor = dbe->bookFloat(tpMode ? "nProcessedEventsDigiTP" : "nProcessedEventsDigi" );
+    nEventMonitor = dbe->bookFloat(tpMode ? "nProcessedEventsDigi" : "nProcessedEventsDigiTP");
     dbe->setCurrentFolder(topFolder());
     for(int wh = -2; wh <= 2; ++wh) { // loop over wheels
       if(doAllHitsOccupancies) bookHistos(wh,string("Occupancies"),"OccupancyAllHits");

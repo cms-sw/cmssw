@@ -5,8 +5,8 @@ import sys
 import fileinput
 import string
 
-NewRelease='CMSSW_5_0_0_pre6'
-RefRelease='CMSSW_5_0_0_pre4'
+NewRelease='CMSSW_5_0_0_pre4'
+RefRelease='CMSSW_5_0_0_pre3'
 #NewRelease='Summer09'
 #RefRelease='Summer09_pre1'
 
@@ -27,8 +27,10 @@ if (NewCondition=='MC'):
 elif (NewCondition=='STARTUP'):
 #    samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValSingleMuPt1000','RelValTTbar','RelValZMM','RelValJpsiMM']
     samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValSingleMuPt1000','RelValTTbar', 'RelValJpsiMM']
+#    samples= ['RelValTTbar','RelValZMM','RelValJpsiMM']
     if (NewFastSim|RefFastSim):
         samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValTTbar']
+#        samples= ['RelValTTbar']
 elif (NewCondition=='PILEUP'):
     samples= ['RelValTTbar']
     if (NewFastSim|RefFastSim):
@@ -56,9 +58,9 @@ DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal
 CastorRepository = '/castor/cern.ch/user/a/aperrott/ValidationRecoMuon'
 
 # These are only needed if you copy any root file from the DQM GUI:
-NewLabel='START50_V5'
+NewLabel='START50_V3'
 if (NewCondition=='MC'):
-    NewLabel='MC_50_V5'
+    NewLabel='MC_50_V3'
 RefLabel='START50_V3'
 if (RefCondition=='MC'):
     RefLabel='MC_50_V3'
@@ -260,12 +262,8 @@ for sample in samples :
                 os.system('root -b -q -l '+ seedcfgFileName+'.C'+ '>  macro.'+seedcfgFileName+'.log')
             if (ValidateISO):
                 os.system('root -b -q -l '+ isolcfgFileName+'.C'+ '>  macro.'+isolcfgFileName+'.log')
-                if (NewFastSim&RefFastSim):
-                    os.system('mv '+NewRelease+'/'+NewTag+'/'+sample+'/MuonIsolationV_inc.pdf '+NewRelease+'/'+NewTag+'/'+sample+'/MuonIsolationV_inc_FS.pdf')
             if (ValidateRECO):
                 os.system('root -b -q -l '+ recomuoncfgFileName+'.C'+ '>  macro.'+recomuoncfgFileName+'.log')
-                if (NewFastSim&RefFastSim):
-                    os.system('mv '+NewRelease+'/'+NewTag+'/'+sample+'/RecoMuonV.pdf '+NewRelease+'/'+NewTag+'/'+sample+'/RecoMuonV_FS.pdf')
 
         if(Publish):
             newdir=WebRepository+'/'+NewRelease+'/'+NewTag+'/'+sample 

@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2011/09/29 09:14:42 $
- *  $Revision: 1.6 $
+ *  $Date: 2011/10/30 09:16:22 $
+ *  $Revision: 1.7 $
  */
  
 #include "Validation/EventGenerator/interface/BasicHepMCValidation.h"
@@ -13,7 +13,8 @@
 
 using namespace edm;
 
-BasicHepMCValidation::BasicHepMCValidation(const edm::ParameterSet& iPSet):  
+BasicHepMCValidation::BasicHepMCValidation(const edm::ParameterSet& iPSet): 
+  _wmanager(iPSet),
   hepmcCollection_(iPSet.getParameter<edm::InputTag>("hepmcCollection"))
 {    
   dbe = 0;
@@ -239,17 +240,19 @@ void BasicHepMCValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
   //Get EVENT
   HepMC::GenEvent *myGenEvent = new HepMC::GenEvent(*(evt->GetEvent()));
 
-  nEvt->Fill(0.5);
+  double weight = _wmanager.weight(iEvent);
 
-  genPtclNumber->Fill(log10(myGenEvent->particles_size()));     
-  genVrtxNumber->Fill(log10(myGenEvent->vertices_size()));
+  nEvt->Fill(0.5,weight);
+
+  genPtclNumber->Fill(log10(myGenEvent->particles_size()),weight);     
+  genVrtxNumber->Fill(log10(myGenEvent->vertices_size()),weight);
 
   ///Bjorken variable from PDF
   HepMC::PdfInfo *pdf = myGenEvent->pdf_info();    
   if(pdf){
     bjorken = ((pdf->x1())/((pdf->x1())+(pdf->x2())));
   }
-  Bjorken_x->Fill(bjorken);
+  Bjorken_x->Fill(bjorken,weight);
 
   //Looping through the VERTICES in the event
   HepMC::GenEvent::vertex_const_iterator vrtxBegin = myGenEvent->vertices_begin();
@@ -258,9 +261,9 @@ void BasicHepMCValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
     {
       ///Vertices
       HepMC::GenVertex *vrtx = *vrtxIt;
-      outVrtxPtclNumber->Fill(vrtx->particles_out_size()); //std::cout << "all " << vrtx->particles_out_size() << '\n';
-      vrtxZ->Fill(vrtx->point3d().z());
-      vrtxRadius->Fill(vrtx->point3d().perp());
+      outVrtxPtclNumber->Fill(vrtx->particles_out_size(),weight); //std::cout << "all " << vrtx->particles_out_size() << '\n';
+      vrtxZ->Fill(vrtx->point3d().z(),weight);
+      vrtxRadius->Fill(vrtx->point3d().perp(),weight);
 	
       ///loop on vertex particles
       HepMC::GenVertex::particles_out_const_iterator vrtxPtclBegin = vrtx->particles_out_const_begin();
@@ -273,7 +276,7 @@ void BasicHepMCValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
             ++outVrtxStablePtclNum; //std::cout << "stable " << outVrtxStablePtclNum << '\n';
           }
         }
-      outVrtxStablePtclNumber->Fill(outVrtxStablePtclNum);
+      outVrtxStablePtclNumber->Fill(outVrtxStablePtclNum,weight);
     }//vertices
 
     
@@ -298,28 +301,28 @@ void BasicHepMCValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
 	    charge = PData->charge();
 
       ///Status statistics
-      genPtclStatus->Fill((float)status);
+      genPtclStatus->Fill((float)status,weight);
 
       ///Stable particles
       if(ptcl->status() == 1){
 	    ++stablePtclNum;
-	    stablePtclPhi->Fill(ptcl->momentum().phi()/CLHEP::degree); //std::cout << ptcl->polarization().phi() << '\n';
-	    stablePtclEta->Fill(ptcl->momentum().pseudoRapidity());
-	    stablePtclCharge->Fill(charge); // std::cout << ptclData.charge() << '\n';
-	    stablePtclp->Fill(Log_p);
-	    stablePtclpT->Fill(log10(ptcl->momentum().perp()));
+	    stablePtclPhi->Fill(ptcl->momentum().phi()/CLHEP::degree,weight); //std::cout << ptcl->polarization().phi() << '\n';
+	    stablePtclEta->Fill(ptcl->momentum().pseudoRapidity(),weight);
+	    stablePtclCharge->Fill(charge,weight); // std::cout << ptclData.charge() << '\n';
+	    stablePtclp->Fill(Log_p,weight);
+	    stablePtclpT->Fill(log10(ptcl->momentum().perp()),weight);
         if (charge != 0. && charge != 999.) ++stableChaNum;
-        if ( std::abs(Id) == 1 ) status1ShortLived->Fill(1);
-        if ( std::abs(Id) == 2 ) status1ShortLived->Fill(2);
-        if ( std::abs(Id) == 3 ) status1ShortLived->Fill(3);
-        if ( std::abs(Id) == 4 ) status1ShortLived->Fill(4);
-        if ( std::abs(Id) == 5 ) status1ShortLived->Fill(5);
-        if ( std::abs(Id) == 6 ) status1ShortLived->Fill(6);
-        if ( Id == 21 ) status1ShortLived->Fill(7);
-        if ( std::abs(Id) == 15 ) status1ShortLived->Fill(8);
-        if ( Id == 23 ) status1ShortLived->Fill(9);
-        if ( std::abs(Id) == 24 ) status1ShortLived->Fill(10);
-        if ( std::abs(Id) == 7 || std::abs(Id) == 8 || std::abs(Id) == 17 || (std::abs(Id) >= 25 && std::abs(Id) <= 99) ) status1ShortLived->Fill(11);
+        if ( std::abs(Id) == 1 ) status1ShortLived->Fill(1,weight);
+        if ( std::abs(Id) == 2 ) status1ShortLived->Fill(2,weight);
+        if ( std::abs(Id) == 3 ) status1ShortLived->Fill(3,weight);
+        if ( std::abs(Id) == 4 ) status1ShortLived->Fill(4,weight);
+        if ( std::abs(Id) == 5 ) status1ShortLived->Fill(5,weight);
+        if ( std::abs(Id) == 6 ) status1ShortLived->Fill(6,weight);
+        if ( Id == 21 ) status1ShortLived->Fill(7,weight);
+        if ( std::abs(Id) == 15 ) status1ShortLived->Fill(8,weight);
+        if ( Id == 23 ) status1ShortLived->Fill(9,weight);
+        if ( std::abs(Id) == 24 ) status1ShortLived->Fill(10,weight);
+        if ( std::abs(Id) == 7 || std::abs(Id) == 8 || std::abs(Id) == 17 || (std::abs(Id) >= 25 && std::abs(Id) <= 99) ) status1ShortLived->Fill(11,weight);
         etotal += ptcl->momentum().e(); 
         pxtotal += ptcl->momentum().px(); 
         pytotal += ptcl->momentum().py(); 
@@ -327,7 +330,7 @@ void BasicHepMCValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
       }
 
       if (abs(Id) < 6 || abs(Id) == 22){
-        ++partonNum; partonpT->Fill(Log_p);
+        ++partonNum; partonpT->Fill(Log_p,weight);
       }
 
       ///counting multiplicities and filling momentum distributions
@@ -335,215 +338,215 @@ void BasicHepMCValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
 
       case 1 : {
 		if(Id > 0) {
-          ++dNum; dMomentum->Fill(Log_p);}
+          ++dNum; dMomentum->Fill(Log_p,weight);}
 		else{
-          ++dbarNum; dbarMomentum->Fill(Log_p);}
+          ++dbarNum; dbarMomentum->Fill(Log_p,weight);}
       }
 		break;
 		//
       case 2 : {
 		if(Id > 0) {
-          ++uNum; uMomentum->Fill(Log_p);}
+          ++uNum; uMomentum->Fill(Log_p,weight);}
 		else{
-          ++ubarNum; ubarMomentum->Fill(Log_p);}
+          ++ubarNum; ubarMomentum->Fill(Log_p,weight);}
       }
 		break;
 		//
       case 3 :  {
 		if(Id > 0) {
-          ++sNum; sMomentum->Fill(Log_p);}
+          ++sNum; sMomentum->Fill(Log_p,weight);}
 		else{
-          ++sbarNum; sbarMomentum->Fill(Log_p);}
+          ++sbarNum; sbarMomentum->Fill(Log_p,weight);}
       }
 		break;
 		//
       case 4 : {
 		if(Id > 0) {
-          ++cNum; cMomentum->Fill(Log_p);}
+          ++cNum; cMomentum->Fill(Log_p,weight);}
 		else{
-          ++cbarNum; cbarMomentum->Fill(Log_p);}
+          ++cbarNum; cbarMomentum->Fill(Log_p,weight);}
       }
 		break;
 		//
       case 5 : {
 		if(Id > 0) {
-          ++bNum; bMomentum->Fill(Log_p);}
+          ++bNum; bMomentum->Fill(Log_p,weight);}
 		else{
-          ++bbarNum; bbarMomentum->Fill(Log_p);}
+          ++bbarNum; bbarMomentum->Fill(Log_p,weight);}
       }
 		break;
 		//
       case 6 : {
 		if(Id > 0) {
-          ++tNum; tMomentum->Fill(Log_p);}
+          ++tNum; tMomentum->Fill(Log_p,weight);}
 		else{
-          ++tbarNum; tbarMomentum->Fill(Log_p);}
+          ++tbarNum; tbarMomentum->Fill(Log_p,weight);}
       }
 		break;
 		//
       case 11 : {
 		if(Id > 0) {
-          ++eminusNum; eminusMomentum->Fill(Log_p);}
+          ++eminusNum; eminusMomentum->Fill(Log_p,weight);}
 		else{
-          ++eplusNum; eplusMomentum->Fill(Log_p);}
+          ++eplusNum; eplusMomentum->Fill(Log_p,weight);}
       }
 		break;
 		//
       case 12 : {
 		if(Id > 0) {
-          ++nueNum; nueMomentum->Fill(Log_p);}
+          ++nueNum; nueMomentum->Fill(Log_p, weight);}
 		else{
-          ++nuebarNum; nuebarMomentum->Fill(Log_p);}
+          ++nuebarNum; nuebarMomentum->Fill(Log_p,weight);}
       }
 		break;
 		//
       case 13 : {
 		if(Id > 0) {
-          ++muminusNum; muminusMomentum->Fill(Log_p);}
+          ++muminusNum; muminusMomentum->Fill(Log_p,weight);}
 		else{
-          ++muplusNum; muplusMomentum->Fill(Log_p);}
+          ++muplusNum; muplusMomentum->Fill(Log_p,weight);}
       }
 		break;
 		//
       case 14 : {
 		if(Id > 0) {
-          ++numuNum; numuMomentum->Fill(Log_p);}
+          ++numuNum; numuMomentum->Fill(Log_p,weight);}
 		else{
-          ++numubarNum; numubarMomentum->Fill(Log_p);}
+          ++numubarNum; numubarMomentum->Fill(Log_p,weight);}
       }
 		break;
 		//
       case 15 : {
 		if(Id > 0) {
-          ++tauminusNum; tauminusMomentum->Fill(Log_p);}
+          ++tauminusNum; tauminusMomentum->Fill(Log_p,weight);}
 		else{
-          ++tauplusNum; tauplusMomentum->Fill(Log_p);}
+          ++tauplusNum; tauplusMomentum->Fill(Log_p,weight);}
       }
 		break;
 		//
       case 16 : {
 		if(Id > 0) {
-          ++nutauNum; nutauMomentum->Fill(Log_p);}
+          ++nutauNum; nutauMomentum->Fill(Log_p,weight);}
 		else{
-          ++nutaubarNum; nutaubarMomentum->Fill(Log_p);}
+          ++nutaubarNum; nutaubarMomentum->Fill(Log_p,weight);}
       }
 		break;
 		//
 		//
       case 21 : {
-		++gluNum; gluMomentum->Fill(Log_p); 
+		++gluNum; gluMomentum->Fill(Log_p,weight); 
       }
 		break;
 		//
       case 22 : {
-		++gammaNum; gammaMomentum->Fill(Log_p);
+		++gammaNum; gammaMomentum->Fill(Log_p,weight);
       }
 		break;
 		//
       case 23 : {
-		++ZNum; ZMomentum->Fill(Log_p);
+		++ZNum; ZMomentum->Fill(Log_p,weight);
       }
 		break;
       case 24 : {
 		if(Id > 0) {
-          ++WplusNum; WplusMomentum->Fill(Log_p);}
+          ++WplusNum; WplusMomentum->Fill(Log_p,weight);}
 		else{
-          ++WminusNum; WminusMomentum->Fill(Log_p);}
+          ++WminusNum; WminusMomentum->Fill(Log_p,weight);}
       }
 		break;
 		//
 		//
       case 211 : {
 		if(Id > 0) {
-          ++piplusNum; piplusMomentum->Fill(Log_p);}
+          ++piplusNum; piplusMomentum->Fill(Log_p,weight);}
 		else{
-          ++piminusNum; piminusMomentum->Fill(Log_p);}
+          ++piminusNum; piminusMomentum->Fill(Log_p,weight);}
       }
 		break;
 		//
       case 111 : {
-		++pizeroNum; pizeroMomentum->Fill(Log_p);
+		++pizeroNum; pizeroMomentum->Fill(Log_p,weight);
       }
 		break;
 		//
       case 321 : {
 		if(Id > 0) {
-          ++KplusNum; KplusMomentum->Fill(Log_p);}
+          ++KplusNum; KplusMomentum->Fill(Log_p,weight);}
 		else{
-          ++KminusNum; KminusMomentum->Fill(Log_p);}
+          ++KminusNum; KminusMomentum->Fill(Log_p,weight);}
       }
 		break;
 		//
       case 130 : {
-        ++KlzeroNum; KlzeroMomentum->Fill(Log_p);
+        ++KlzeroNum; KlzeroMomentum->Fill(Log_p,weight);
       }
 		break;
 		//
       case 310 : {
-		++KszeroNum; KszeroMomentum->Fill(Log_p);
+		++KszeroNum; KszeroMomentum->Fill(Log_p,weight);
       }
 		break;
 		//
 		//
       case 2212 : {
 		if(Id > 0) {
-          ++pNum; pMomentum->Fill(Log_p);}
+          ++pNum; pMomentum->Fill(Log_p,weight);}
 		else{
-          ++pbarNum; pbarMomentum->Fill(Log_p);}
+          ++pbarNum; pbarMomentum->Fill(Log_p,weight);}
       }
 		break;
 		//
       case 2112 : {
 		if(Id > 0) {
-          ++nNum; nMomentum->Fill(Log_p);}
+          ++nNum; nMomentum->Fill(Log_p,weight);}
 		else{
-          ++nbarNum; nbarMomentum->Fill(Log_p);}
+          ++nbarNum; nbarMomentum->Fill(Log_p,weight);}
       }
 		break;
 		//
 		//
       case 3122 : {
 		if(Id > 0) {
-          ++l0Num; l0Momentum->Fill(Log_p);}
+          ++l0Num; l0Momentum->Fill(Log_p,weight);}
 		else{
-          ++l0barNum; l0barMomentum->Fill(Log_p);}
+          ++l0barNum; l0barMomentum->Fill(Log_p,weight);}
       }
         break;
         //
         //
       case 411 : {
 		if(Id > 0) {
-          ++DplusNum; DplusMomentum->Fill(Log_p);}
+          ++DplusNum; DplusMomentum->Fill(Log_p,weight);}
 		else{
-          ++DminusNum; DminusMomentum->Fill(Log_p);}
+          ++DminusNum; DminusMomentum->Fill(Log_p,weight);}
       }
 		break;
 		//
       case 421 : {
-		++DzeroNum; DzeroMomentum->Fill(Log_p);
+		++DzeroNum; DzeroMomentum->Fill(Log_p,weight);
       }
 		break;
 		//
       case 521 : {
 		if(Id > 0) {
-          ++BplusNum; BplusMomentum->Fill(Log_p);}
+          ++BplusNum; BplusMomentum->Fill(Log_p,weight);}
 		else{
-          ++BminusNum; BminusMomentum->Fill(Log_p);}
+          ++BminusNum; BminusMomentum->Fill(Log_p,weight);}
       }
 		break;
 		//
       case 511 : {
-        ++BzeroNum; BzeroMomentum->Fill(Log_p);
+        ++BzeroNum; BzeroMomentum->Fill(Log_p,weight);
       }
 		break;
 		//
       case 531 : {
-		++BszeroNum; BszeroMomentum->Fill(Log_p);
+		++BszeroNum; BszeroMomentum->Fill(Log_p,weight);
       }
 		break;
 		//
       default : {
-		++otherPtclNum; otherPtclMomentum->Fill(Log_p);
+		++otherPtclNum; otherPtclMomentum->Fill(Log_p,weight);
       }
       }//switch
       //	if( 0 < Id && 100 > Id) ++part_counter[Id];
@@ -555,37 +558,37 @@ void BasicHepMCValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
   if ( myGenEvent->valid_beam_particles() ) {
     ecms = myGenEvent->beam_particles().first->momentum().e()+myGenEvent->beam_particles().second->momentum().e();
   }
-  DeltaEcms->Fill(etotal-ecms);
-  DeltaPx->Fill(pxtotal);
-  DeltaPy->Fill(pytotal);
-  DeltaPz->Fill(pztotal);
+  DeltaEcms->Fill(etotal-ecms,weight);
+  DeltaPx->Fill(pxtotal,weight);
+  DeltaPy->Fill(pytotal,weight);
+  DeltaPz->Fill(pztotal,weight);
 
  
   ///filling multiplicity ME's
-  stablePtclNumber->Fill(log10(stablePtclNum+0.1)); 
-  stableChaNumber->Fill(log10(stableChaNum+0.1)); 
-  otherPtclNumber->Fill(log10(otherPtclNum+0.1));
-  unknownPDTNumber->Fill(log10(unknownPDTNum+0.1));
+  stablePtclNumber->Fill(log10(stablePtclNum+0.1),weight); 
+  stableChaNumber->Fill(log10(stableChaNum+0.1),weight); 
+  otherPtclNumber->Fill(log10(otherPtclNum+0.1),weight);
+  unknownPDTNumber->Fill(log10(unknownPDTNum+0.1),weight);
   //
-  dNumber->Fill(dNum); uNumber->Fill(uNum); sNumber->Fill(sNum); cNumber->Fill(cNum); bNumber->Fill(bNum); tNumber->Fill(tNum);  
-  dbarNumber->Fill(dbarNum); ubarNumber->Fill(ubarNum); sbarNumber->Fill(sbarNum); cbarNumber->Fill(cbarNum); bbarNumber->Fill(bbarNum); tbarNumber->Fill(tbarNum); 
-  partonNumber->Fill(partonNum);
+  dNumber->Fill(dNum,weight); uNumber->Fill(uNum,weight); sNumber->Fill(sNum,weight); cNumber->Fill(cNum,weight); bNumber->Fill(bNum,weight); tNumber->Fill(tNum,weight);  
+  dbarNumber->Fill(dbarNum,weight); ubarNumber->Fill(ubarNum,weight); sbarNumber->Fill(sbarNum,weight); cbarNumber->Fill(cbarNum,weight); bbarNumber->Fill(bbarNum,weight); tbarNumber->Fill(tbarNum,weight); 
+  partonNumber->Fill(partonNum,weight);
   //
-  eminusNumber->Fill(eminusNum); nueNumber->Fill(nueNum); muminusNumber->Fill(muminusNum); numuNumber->Fill(numuNum); tauminusNumber->Fill(tauminusNum); nutauNumber->Fill(nutauNum);  
-  eplusNumber->Fill(eplusNum); nuebarNumber->Fill(nuebarNum); muplusNumber->Fill(muplusNum); numubarNumber->Fill(numubarNum); tauplusNumber->Fill(tauplusNum); nutaubarNumber->Fill(nutaubarNum);  
+  eminusNumber->Fill(eminusNum,weight); nueNumber->Fill(nueNum,weight); muminusNumber->Fill(muminusNum,weight); numuNumber->Fill(numuNum,weight); tauminusNumber->Fill(tauminusNum,weight); nutauNumber->Fill(nutauNum,weight);  
+  eplusNumber->Fill(eplusNum,weight); nuebarNumber->Fill(nuebarNum,weight); muplusNumber->Fill(muplusNum,weight); numubarNumber->Fill(numubarNum,weight); tauplusNumber->Fill(tauplusNum,weight); nutaubarNumber->Fill(nutaubarNum,weight);  
   //
-  ZNumber->Fill(ZNum); WminusNumber->Fill(WminusNum); WplusNumber->Fill(WplusNum); 
-  gammaNumber->Fill(log10(gammaNum+0.1));
-  gluNumber->Fill(log10(gluNum+0.1));
+  ZNumber->Fill(ZNum,weight); WminusNumber->Fill(WminusNum,weight); WplusNumber->Fill(WplusNum,weight); 
+  gammaNumber->Fill(log10(gammaNum+0.1),weight);
+  gluNumber->Fill(log10(gluNum+0.1),weight);
   //
-  piplusNumber->Fill(log10(piplusNum+0.1));
-  piminusNumber->Fill(log10(piminusNum+0.1));
-  pizeroNumber->Fill(log10(pizeroNum+0.1));
-  KplusNumber->Fill(KplusNum); KminusNumber->Fill(KminusNum); KlzeroNumber->Fill(KlzeroNum); KszeroNumber->Fill(KszeroNum); 
+  piplusNumber->Fill(log10(piplusNum+0.1),weight);
+  piminusNumber->Fill(log10(piminusNum+0.1),weight);
+  pizeroNumber->Fill(log10(pizeroNum+0.1),weight);
+  KplusNumber->Fill(KplusNum,weight); KminusNumber->Fill(KminusNum,weight); KlzeroNumber->Fill(KlzeroNum,weight); KszeroNumber->Fill(KszeroNum,weight); 
   //
-  pNumber->Fill(pNum); pbarNumber->Fill(pbarNum); nNumber->Fill(nNum); nbarNumber->Fill(nbarNum); l0Number->Fill(l0Num); l0barNumber->Fill(l0barNum);    
+  pNumber->Fill(pNum,weight); pbarNumber->Fill(pbarNum,weight); nNumber->Fill(nNum,weight); nbarNumber->Fill(nbarNum,weight); l0Number->Fill(l0Num); l0barNumber->Fill(l0barNum,weight);    
   //
-  DplusNumber->Fill(DplusNum); DminusNumber->Fill(DminusNum); DzeroNumber->Fill(DzeroNum); BplusNumber->Fill(BplusNum); BminusNumber->Fill(BminusNum); BzeroNumber->Fill(BzeroNum); BszeroNumber->Fill(BszeroNum); 
+  DplusNumber->Fill(DplusNum,weight); DminusNumber->Fill(DminusNum,weight); DzeroNumber->Fill(DzeroNum,weight); BplusNumber->Fill(BplusNum,weight); BminusNumber->Fill(BminusNum,weight); BzeroNumber->Fill(BzeroNum,weight); BszeroNumber->Fill(BszeroNum,weight); 
 
   delete myGenEvent;
 }//analyze

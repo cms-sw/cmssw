@@ -20,15 +20,17 @@ namespace ora {
       //db0.configuration().setMessageVerbosity( coral::Debug );
       db0.connect( connStr );
       ora::ScopedTransaction trans0( db0.transaction() );
+      //creating database
       trans0.start( false );
       if(!db0.exists()){
 	db0.create();
       }
       std::set< std::string > conts = db0.containers();
+      //creating containers
       std::cout << "#### creating containers..."<<std::endl;
       if( conts.find( "Cont0" )== conts.end() ) db0.createContainer<int>("Cont0");
       trans0.commit();
-      //**
+      //inserting
       trans0.start( false );
       ora::Container contH0 = db0.containerHandle( "Cont0" );
       if( contH0.isLocked() ){
@@ -46,16 +48,17 @@ namespace ora {
       contH0.insert( myInt0 );
       contH0.insert( myInt1 );
       contH0.flush();
-      //::sleep(10);
       //db0.dropContainer( "Cont0" );
       trans0.commit();
       db0.disconnect();
-      ::sleep(1);
+      sleep();
+      //reading back
       db0.connect( connStr );
       ora::ScopedTransaction trans1( db0.transaction() );
       trans1.start( false );
       ora::Container cnt = db0.containerHandle( "Cont0" );
       std::cout <<"### Container \""<<cnt.name()<<"\" has got "<<cnt.size()<<" objects."<<std::endl; 
+      //clean up
       db0.drop();
       trans1.commit();
       db0.disconnect();

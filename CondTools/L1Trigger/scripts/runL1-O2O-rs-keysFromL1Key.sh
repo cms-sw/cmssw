@@ -70,7 +70,7 @@ if [ ${xflag} -eq 0 ]
 	fi
     fi
 else
-    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteRSOnline_cfg.py runNumber=${runnum} outputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T outputDBAuth=/nfshome0/popcondev/conddb_taskWriters/L1T ${overwrite} `$CMSSW_BASE/src/CondTools/L1Trigger/scripts/getKeys.sh ${rsflag} ${l1Key}` keysFromDB=0 print
+    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteRSOnline_cfg.py runNumber=${runnum} outputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T outputDBAuth=/nfshome0/popcondev/conddb ${overwrite} `$CMSSW_BASE/src/CondTools/L1Trigger/scripts/getKeys.sh ${rsflag} ${l1Key}` keysFromDB=0 print
     o2ocode=$?
     if [ ${o2ocode} -ne 0 ]
 	then

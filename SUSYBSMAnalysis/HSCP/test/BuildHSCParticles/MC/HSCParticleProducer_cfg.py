@@ -65,7 +65,6 @@ process.dedxNSHarm2.calibrationPath    = cms.string("file:Gains.root")
 process.dedxNSTru40.calibrationPath    = cms.string("file:Gains.root")
 process.dedxNPProd.calibrationPath     = cms.string("file:Gains.root")
 process.dedxNPASmi.calibrationPath     = cms.string("file:Gains.root")
-process.dedxHitInfo.calibrationPath    = cms.string("file:Gains.root")
 
 process.dedxHarm2.UseCalibration       = cms.bool(True)
 process.dedxTru40.UseCalibration       = cms.bool(True)
@@ -77,7 +76,6 @@ process.dedxNSHarm2.UseCalibration     = cms.bool(True)
 process.dedxNSTru40.UseCalibration     = cms.bool(True)
 process.dedxNPProd.UseCalibration      = cms.bool(True)
 process.dedxNPASmi.UseCalibration      = cms.bool(True)
-process.dedxHitInfo.UseCalibration     = cms.bool(True)
 
 process.dedxHarm2.MeVperADCStrip = cms.double(3.61e-06*265)
 process.dedxTru40.MeVperADCStrip = cms.double(3.61e-06*265) 
@@ -89,7 +87,6 @@ process.dedxNSHarm2.MeVperADCStrip = cms.double(3.61e-06*265)
 process.dedxNSTru40.MeVperADCStrip = cms.double(3.61e-06*265)
 process.dedxNPProd.MeVperADCStrip = cms.double(3.61e-06*265)
 process.dedxNPASmi.MeVperADCStrip = cms.double(3.61e-06*265) 
-process.dedxHitInfo.MeVperADCStrip = cms.double(3.61e-06*265)
 
 process.load("RecoLocalMuon.DTSegment.dt4DSegments_MTPatternReco4D_LinearDriftFromDBLoose_cfi")
 process.dt4DSegments.Reco4DAlgoConfig.Reco2DAlgoConfig.AlphaMaxPhi = 1.0

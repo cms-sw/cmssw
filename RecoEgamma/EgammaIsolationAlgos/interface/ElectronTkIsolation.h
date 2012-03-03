@@ -102,7 +102,8 @@ class ElectronTkIsolation {
 
   int getNumberTracks(const reco::GsfElectron*) const ;
   double getPtTracks (const reco::GsfElectron*) const ;
-  
+  std::pair<int,double>getIso(const reco::Track*) const ;
+
  private:
     
   double extRadius_ ;
@@ -118,7 +119,8 @@ class ElectronTkIsolation {
 
   int dzOption_;
 
-  std::pair<int,double>getIso(const reco::GsfElectron*) const ;
+  std::pair<int,double>getIso(const reco::GsfElectron*) const;
+  
 };
 
 #endif

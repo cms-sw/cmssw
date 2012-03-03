@@ -3,7 +3,7 @@
 
 /** \class MuonResiduals1DOFFitter
  *  $Date: Fri Apr 17 16:09:40 CDT 2009
- *  $Revision: 1.4 $ 
+ *  $Revision: 1.3 $ 
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -24,17 +24,17 @@ public:
     kNData
   };
 
-  MuonResiduals1DOFFitter(int residualsModel, int minHits, int useResiduals, bool weightAlignment=true): MuonResidualsFitter(residualsModel, minHits, useResiduals, weightAlignment) {}
+  MuonResiduals1DOFFitter(int residualsModel, int minHits, bool weightAlignment=true): MuonResidualsFitter(residualsModel, minHits, weightAlignment) {};
 
-  int type() const { return MuonResidualsFitter::k1DOF; }
+  int type() const { return MuonResidualsFitter::k1DOF; };
 
   int npar() {
     if (residualsModel() == kPureGaussian || residualsModel() == kGaussPowerTails) return kNPar - 1;
     else if (residualsModel() == kPowerLawTails) return kNPar;
     else if (residualsModel() == kROOTVoigt) return kNPar;
     else assert(false);
-  }
-  int ndata() { return kNData; }
+  };
+  int ndata() { return kNData; };
 
   double sumofweights();
   bool fit(Alignable *ali);

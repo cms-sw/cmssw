@@ -1,7 +1,7 @@
 /***********************************************/
 /* EcalCondDBInterface.h		       */
 /* 					       */
-/* $Id: EcalCondDBInterface.h,v 1.38 2011/05/27 14:37:14 organtin Exp $ 	        		       */
+/* $Id: EcalCondDBInterface.h,v 1.33 2011/02/07 10:23:33 organtin Exp $ 	        		       */
 /* 					       */
 /* Interface to the Ecal Conditions DB.	       */
 /***********************************************/
@@ -32,9 +32,6 @@
 #include "OnlineDB/EcalCondDB/interface/all_fe_config_types.h"
 #include "OnlineDB/EcalCondDB/interface/all_lmf_types.h"
 #include "OnlineDB/EcalCondDB/interface/all_od_types.h"
-
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
 
 class EcalCondDBInterface : public EcalDBConnection {
  public:
@@ -99,6 +96,7 @@ class EcalCondDBInterface : public EcalDBConnection {
     }
 
 
+
   /**
    *  Return a date handler associated with this connection
    */
@@ -122,19 +120,6 @@ class EcalCondDBInterface : public EcalDBConnection {
 			      int id3 = EcalLogicID::NULLID,
 			      std::string mapsTo = "" )
     throw(std::runtime_error);
-
-  /**
-   *  Build various reverse maps
-   *  Map an LMR, or a Ex_LM_PN into the set of components
-   */
-
-  std::vector<EcalLogicID> getEcalLogicIDMappedTo(int logic_id, std::string maps_to);
-
-  std::vector<EcalLogicID> getEcalLogicIDForLMR(int lmr_logic_id);
-  std::vector<EcalLogicID> getEcalLogicIDForLMR(const EcalLogicID &lmr_logic_id);
-  std::vector<EcalLogicID> getEcalLogicIDForLMPN(int lmr_logic_id);
-  std::vector<EcalLogicID> getEcalLogicIDForLMPN(const EcalLogicID &lmr_logic_id);
-
 
   /**
    *  Look up the database logic_id and return the EcalLogicID object which contains
@@ -198,13 +183,6 @@ class EcalCondDBInterface : public EcalDBConnection {
     throw(std::runtime_error);
 
   /**
-   *  Return run Fe Config Dat objects for a given run
-   */
-
-  std::list<ODDelaysDat> fetchFEDelaysForRun(RunIOV *iov)
-    throw(std::runtime_error);
-
-  /**
    *  Return a run IOV object for a given tag
    */
   RunIOV fetchRunIOV(RunTag* tag, run_t run)
@@ -218,9 +196,6 @@ class EcalCondDBInterface : public EcalDBConnection {
    *  so an exception is thrown if more than one result exists.
    */
   RunIOV fetchRunIOV(std::string location, run_t run)
-    throw(std::runtime_error);
-
-  RunIOV fetchRunIOV(std::string location, const Tm &t)
     throw(std::runtime_error);
 
 
@@ -684,51 +659,13 @@ class EcalCondDBInterface : public EcalDBConnection {
     datiface.terminateReadStatement();
   }
 
-  inline int getDetIdFromLogicId(int logic_id) {
-    int detid = -1;
-    if (_logicId2DetId.size() == 0) {
-      fillLogicId2DetIdMaps();
-    }
-    if (_logicId2DetId.find(logic_id) != _logicId2DetId.end()) {
-      detid = _logicId2DetId[logic_id];
-    }
-    return detid;
-  }
 
-  inline int getLogicIdFromDetId(int det_id) {
-    int logic_id = -1;
-    if (_logicId2DetId.size() == 0) {
-      fillLogicId2DetIdMaps();
-    }
-    if (_detId2LogicId.find(det_id) != _detId2LogicId.end()) {
-      logic_id = _detId2LogicId[det_id];
-    }
-    return logic_id;
-  }
 
-  inline std::map<int, int> getLogicId2DetIdMap() {
-    if (_logicId2DetId.size() == 0) {
-      fillLogicId2DetIdMaps();
-    }
-    return _logicId2DetId;
-  }
 
-  inline std::map<int, int> getDetId2LogicIdMap() {
-    if (_logicId2DetId.size() == 0) {
-      fillLogicId2DetIdMaps();
-    }
-    return _detId2LogicId;
-  }
 
   void dummy();
 
  private:
-
-  /**
-   *  Private method: fill a private map used to associate logicIds to DetIds
-   */
-  void fillLogicId2DetIdMaps();
-
 
   /*********************\
   -  private variables  -
@@ -739,8 +676,7 @@ class EcalCondDBInterface : public EcalDBConnection {
   EcalCondDBInterface();
   EcalCondDBInterface(const EcalCondDBInterface& copy);
 
-  std::map<int, int> _logicId2DetId; 
-  std::map<int, int> _detId2LogicId;
+
 };
 
 #endif

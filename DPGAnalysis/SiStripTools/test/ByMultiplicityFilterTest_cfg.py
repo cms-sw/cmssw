@@ -78,8 +78,7 @@ process.multiplicitycorr.correlationConfigurations = cms.VPSet(
             xDetSelection = cms.uint32(0), xDetLabel = cms.string("TK"), xBins = cms.uint32(3000), xMax=cms.double(100000), 
             yMultiplicityMap = cms.InputTag("spclustermultprod"),
             yDetSelection = cms.uint32(0), yDetLabel = cms.string("Pixel"), yBins = cms.uint32(1000), yMax=cms.double(30000),
-            rBins = cms.uint32(200), scaleFactor = cms.untracked.double(5.),
-            runHisto=cms.bool(False),runHistoBXProfile=cms.bool(False),runHistoBX=cms.bool(False),runHisto2D=cms.bool(False))
+            rBins = cms.uint32(200), scaleFactor = cms.untracked.double(5.))
    )
 
 process.multiplicitycorrtest1 = process.multiplicitycorr.clone()

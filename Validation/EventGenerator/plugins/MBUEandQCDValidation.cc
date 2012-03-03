@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2010/07/02 12:32:05 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/09/09 11:49:20 $
+ *  $Revision: 1.3 $
  */
  
 #include "Validation/EventGenerator/interface/MBUEandQCDValidation.h"
@@ -18,7 +18,8 @@
 
 using namespace edm;
 
-MBUEandQCDValidation::MBUEandQCDValidation(const edm::ParameterSet& iPSet):  
+MBUEandQCDValidation::MBUEandQCDValidation(const edm::ParameterSet& iPSet): 
+  _wmanager(iPSet),
   hepmcCollection_(iPSet.getParameter<edm::InputTag>("hepmcCollection")),
   genchjetCollection_(iPSet.getParameter<edm::InputTag>("genChjetsCollection")),
   genjetCollection_(iPSet.getParameter<edm::InputTag>("genjetsCollection")),
@@ -236,6 +237,9 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
   //Get HepMC EVENT
   HepMC::GenEvent *myGenEvent = new HepMC::GenEvent(*(evt->GetEvent()));
 
+  double weight = _wmanager.weight(iEvent);
+
+
   if ( verbosity_ > 0 ) { myGenEvent->print(); }
 
   double binW = 1.;
@@ -244,7 +248,7 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
   hepmcCharge.clear();
   for (unsigned int i = 0; i < eneInCell.size(); i++) { eneInCell[i] = 0.; }
 
-  nEvt->Fill(0.5);
+  nEvt->Fill(0.5,weight);
   
   //Looping through HepMC::GenParticle collection to search for status 1 particles
   double charge = 0.;
@@ -327,16 +331,16 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
   if ( nChaVtx >= 3 && nBSCm > 0 && eneHFp < 8. ) { sel7 = true; }
 
   // Fill selection histograms
-  if ( sel1 ) nEvt1->Fill(0.5);
-  if ( sel2 ) nEvt2->Fill(0.5);
-  if ( sel3 ) nNoFwdTrig->Fill(0.5);
-  if ( sel4 ) nSaFwdTrig->Fill(0.5);
-  if ( sel6 ) nHFflow->Fill(0.5);
-  if ( sel7 ) nHFSD->Fill(0.5);
+  if ( sel1 ) nEvt1->Fill(0.5,weight);
+  if ( sel2 ) nEvt2->Fill(0.5,weight);
+  if ( sel3 ) nNoFwdTrig->Fill(0.5,weight);
+  if ( sel4 ) nSaFwdTrig->Fill(0.5,weight);
+  if ( sel6 ) nHFflow->Fill(0.5,weight);
+  if ( sel7 ) nHFSD->Fill(0.5,weight);
   
-  if ( nb > 0 ) nbquark->Fill(0.5);
-  if ( nb > 0 && nc > 0 ) ncandbquark->Fill(0.5);
-  if ( nb == 0 && nc > 0 ) ncnobquark->Fill(0.5);
+  if ( nb > 0 ) nbquark->Fill(0.5,weight);
+  if ( nb > 0 && nc > 0 ) ncandbquark->Fill(0.5,weight);
+  if ( nb == 0 && nc > 0 ) ncnobquark->Fill(0.5,weight);
 
   // track analyses 
   double ptMax = 0.;
@@ -371,19 +375,19 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
         // identified charged particle
         if (std::abs(pdgId) == 2212) {
           ppbar++;
-          pPPbar->Fill(std::log10(pt));
+          pPPbar->Fill(std::log10(pt),weight);
         }
         else if (std::abs(pdgId) == 321) {
           kpm++;
-          pKpm->Fill(std::log10(pt));
+          pKpm->Fill(std::log10(pt),weight);
         }
         else if (std::abs(pdgId) == 3312) {
           xim++;
-          pXim->Fill(std::log10(pt));
+          pXim->Fill(std::log10(pt),weight);
         }
         else if (std::abs(pdgId) == 3334) {
           omega++;
-          pOmega->Fill(std::log10(pt));
+          pOmega->Fill(std::log10(pt),weight);
         }
         else if (std::abs(pdgId) == 11) {
           ele++;
@@ -398,21 +402,21 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
     else if ( sel2 && isNeutral(i) && std::fabs(eta) < 2.5 ) {
       if (std::abs(pdgId) == 310) {
         k0s++;
-        pK0s->Fill(std::log10(pt));
+        pK0s->Fill(std::log10(pt),weight);
       }
       else if (std::abs(pdgId) == 3122) {
         l0++;
-        pL0->Fill(std::log10(pt));
+        pL0->Fill(std::log10(pt),weight);
       }
     }
     else if ( sel2 && isNeutral(i) && std::fabs(eta) < 5.19 ) {
       if (std::abs(pdgId) == 2112) {
         nnbar++;
-        pNNbar->Fill(std::log10(pt));
+        pNNbar->Fill(std::log10(pt),weight);
       }
       else if (std::abs(pdgId) == 22) {
         gamma++;
-        pGamma->Fill(std::log10(pt));
+        pGamma->Fill(std::log10(pt),weight);
       }
     }
     unsigned int iBin = getHFbin(eta);
@@ -420,20 +424,20 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
       hfMB[iBin] += hepmcGPCollection[i]->momentum().rho();
     }
   }
-  nPPbar->Fill(ppbar);
-  nNNbar->Fill(nnbar);
-  nKpm->Fill(kpm);
-  nK0s->Fill(k0s);
-  nL0->Fill(l0);
-  nXim->Fill(xim);
-  nOmega->Fill(omega);
-  nGamma->Fill(gamma);
+  nPPbar->Fill(ppbar,weight);
+  nNNbar->Fill(nnbar,weight);
+  nKpm->Fill(kpm,weight);
+  nK0s->Fill(k0s,weight);
+  nL0->Fill(l0,weight);
+  nXim->Fill(xim,weight);
+  nOmega->Fill(omega,weight);
+  nGamma->Fill(gamma,weight);
 
-  if ( ele > 0 ) elePt->Fill(std::log10(hepmcGPCollection[eleMax]->momentum().perp()));
-  if ( muo > 0 ) muoPt->Fill(std::log10(hepmcGPCollection[muoMax]->momentum().perp()));
+  if ( ele > 0 ) elePt->Fill(std::log10(hepmcGPCollection[eleMax]->momentum().perp()),weight);
+  if ( muo > 0 ) muoPt->Fill(std::log10(hepmcGPCollection[muoMax]->momentum().perp()),weight);
 
-  leadTrackpt->Fill(hepmcGPCollection[iMax]->momentum().perp()); 
-  leadTracketa->Fill(hepmcGPCollection[iMax]->momentum().eta()); 
+  leadTrackpt->Fill(hepmcGPCollection[iMax]->momentum().perp(),weight); 
+  leadTracketa->Fill(hepmcGPCollection[iMax]->momentum().eta(),weight); 
 
   std::vector<double> theEtaRanges(theCalo->getEtaRanges());
 
@@ -462,9 +466,9 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
 
     }
     
-    EmpzHFm->Fill(empz);
-    ntHFm->Fill(nCellOvTh);
-    eneHFmSel->Fill(eneHFm);
+    EmpzHFm->Fill(empz,weight);
+    ntHFm->Fill(nCellOvTh,weight);
+    eneHFmSel->Fill(eneHFm,weight);
 
   }
   
@@ -497,9 +501,10 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
         }
       }
     }
-    nCha->Fill(nChaTra);
+    nCha->Fill(nChaTra,weight);
     binW = dNchdSpt->getTH1()->GetBinWidth(1);
     dNchdSpt->Fill(sptTra,1.);
+    //how do one apply weights to a profile? MonitorElement doesn't allow to 
     nChaDenLpt->Fill(hepmcGPCollection[iMax]->momentum().perp(),nChaTra/4./CLHEP::twopi);
     sptDenLpt->Fill(hepmcGPCollection[iMax]->momentum().perp(),sptTra/4./CLHEP::twopi);
     for ( unsigned int i = 0; i < nphiBin; i++ ) {
@@ -538,10 +543,10 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
       }
     }
     
-    nChj->Fill(nJets);
+    nChj->Fill(nJets,weight);
     if ( nJets > 0 && ij1 != genChJets->end() ) {
-      leadChjpt->Fill(pt1);
-      leadChjeta->Fill((*ij1).eta());
+      leadChjpt->Fill(pt1,weight);
+      leadChjeta->Fill((*ij1).eta(),weight);
       if ( nJets > 1 && ij2 != genChJets->end() ) {
         pt1pt2optotch->Fill(pt1+pt2,(pt1+pt2)/ptot);
       }
@@ -636,20 +641,20 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
       }
 
       if(jm25njets>3) {
-        _JM25njets ->Fill(jm25njets);
-        _JM25ht    ->Fill(jm25HT);
-        _JM25pt1   ->Fill(jm25pt1);
-        _JM25pt2   ->Fill(jm25pt2);
-        _JM25pt3   ->Fill(jm25pt3);
-        _JM25pt4   ->Fill(jm25pt4);
+        _JM25njets ->Fill(jm25njets,weight);
+        _JM25ht    ->Fill(jm25HT,weight);
+        _JM25pt1   ->Fill(jm25pt1,weight);
+        _JM25pt2   ->Fill(jm25pt2,weight);
+        _JM25pt3   ->Fill(jm25pt3,weight);
+        _JM25pt4   ->Fill(jm25pt4,weight);
       }
       if(jm80njets>3) {
-        _JM80njets ->Fill(jm80njets);
-        _JM80ht    ->Fill(jm80HT);
-        _JM80pt1   ->Fill(jm80pt1);
-        _JM80pt2   ->Fill(jm80pt2);
-        _JM80pt3   ->Fill(jm80pt3);
-        _JM80pt4   ->Fill(jm80pt4);
+        _JM80njets ->Fill(jm80njets,weight);
+        _JM80ht    ->Fill(jm80HT,weight);
+        _JM80pt1   ->Fill(jm80pt1,weight);
+        _JM80pt2   ->Fill(jm80pt2,weight);
+        _JM80pt3   ->Fill(jm80pt3,weight);
+        _JM80pt4   ->Fill(jm80pt4,weight);
       }
     }
     
@@ -660,10 +665,10 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
       if ( (*ij1).pt() > 25. && (*ij1).pt() > 25. ) {
         double deltaPhi = std::fabs((*ij1).phi()-(*ij2).phi())/CLHEP::degree;
         if ( deltaPhi > 180. ) deltaPhi = 360.-deltaPhi;
-        pt1pt2Dphi->Fill(deltaPhi);
+        pt1pt2Dphi->Fill(deltaPhi,weight);
         if ( std::fabs(deltaPhi) > 2.5*CLHEP::degree ) {
 
-          nDijet->Fill(0.5);
+          nDijet->Fill(0.5,weight);
 
           for (unsigned int i = 0; i < hepmcGPCollection.size(); i++ ){
             double eta = hepmcGPCollection[i]->momentum().eta();
@@ -685,10 +690,10 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
 
           double invMass = (*ij1).energy()*(*ij2).energy()-(*ij1).px()*(*ij2).px()-(*ij1).py()*(*ij2).py()-(*ij1).pz()*(*ij2).pz();
           invMass = std::sqrt(invMass);
-          pt1pt2InvM->Fill(invMass);
+          pt1pt2InvM->Fill(invMass,weight);
 
-          sumPt->Fill(sumPartPt);
-          sumChPt->Fill(sumChPartPt);
+          sumPt->Fill(sumPartPt,weight);
+          sumChPt->Fill(sumChPartPt,weight);
 
           unsigned int nSelJets = 0;
           for (reco::GenJetCollection::const_iterator iter=genJets->begin();iter!=genJets->end();++iter){
@@ -697,24 +702,24 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
             if ( std::fabs(eta) < 5. ) { 
               nSelJets++; 
               binW = dNjdeta->getTH1()->GetBinWidth(1);
-              dNjdeta->Fill(eta,1./binW);
+              dNjdeta->Fill(eta,1./binW*weight);
               binW = dNjdpt->getTH1()->GetBinWidth(1);
-              dNjdpt->Fill(pt,1./binW);
+              dNjdpt->Fill(pt,1./binW*weight);
               sumJetEt += (*iter).pt();
               jpx += (*iter).px();
               jpy += (*iter).py();
             }
           }
 
-          nj->Fill(nSelJets);
+          nj->Fill(nSelJets,weight);
           double mEt = std::sqrt(jpx*jpx+jpy*jpy);
-          sumJEt->Fill(sumJetEt);
-          missEtosumJEt->Fill(mEt/sumJetEt);
+          sumJEt->Fill(sumJetEt,weight);
+          missEtosumJEt->Fill(mEt/sumJetEt,weight);
 
-          if ( nSelJets >= 3 ) { pt3Frac->Fill((*ij3).pt()/(pt1+pt2)); }
+          if ( nSelJets >= 3 ) { pt3Frac->Fill((*ij3).pt()/(pt1+pt2),weight); }
 
           pt1pt2optot->Fill(pt1+pt2,(pt1+pt2)/sumJetEt);
-          pt1pt2balance->Fill((pt1-pt2)/(pt1+pt2));
+          pt1pt2balance->Fill((pt1-pt2)/(pt1+pt2),weight);
         }
       }      
     }
@@ -739,10 +744,10 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
   //compute jets
   fastjet::ClusterSequence cseq(vecs, fastjet::JetDefinition(fastjet::kt_algorithm, 1., fastjet::E_scheme)); 
   //access the cluster sequence and get the relevant info
-  djr10->Fill(std::log10(sqrt(cseq.exclusive_dmerge(0))));
-  djr21->Fill(std::log10(sqrt(cseq.exclusive_dmerge(1))));
-  djr32->Fill(std::log10(sqrt(cseq.exclusive_dmerge(2))));
-  djr43->Fill(std::log10(sqrt(cseq.exclusive_dmerge(3))));
+  djr10->Fill(std::log10(sqrt(cseq.exclusive_dmerge(0))),weight);
+  djr21->Fill(std::log10(sqrt(cseq.exclusive_dmerge(1))),weight);
+  djr32->Fill(std::log10(sqrt(cseq.exclusive_dmerge(2))),weight);
+  djr43->Fill(std::log10(sqrt(cseq.exclusive_dmerge(3))),weight);
   
 
   // compute sumEt for all stable particles
@@ -782,17 +787,17 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
   }
   
   if(sumEt>0.)
-    _sumEt->Fill(sumEt);
+    _sumEt->Fill(sumEt,weight);
   if(sumEt1>0.)
-    _sumEt1->Fill(sumEt1);
+    _sumEt1->Fill(sumEt1,weight);
   if(sumEt2>0.)
-    _sumEt2->Fill(sumEt2);
+    _sumEt2->Fill(sumEt2,weight);
   if(sumEt3>0.)
-    _sumEt3->Fill(sumEt3);
+    _sumEt3->Fill(sumEt3,weight);
   if(sumEt4>0.)
-    _sumEt4->Fill(sumEt4);
+    _sumEt4->Fill(sumEt4,weight);
   if(sumEt5>0.)
-    _sumEt5->Fill(sumEt5);
+    _sumEt5->Fill(sumEt5,weight);
   
   delete myGenEvent;
 }//analyze

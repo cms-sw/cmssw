@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2011/09/15 21:54:52 $
- * $Revision: 1.81 $
+ * $Date: 2011/09/15 21:03:25 $
+ * $Revision: 1.80 $
  * \author G. Della Ricca
  *
 */
@@ -23,6 +23,9 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
+
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
 #include "DQM/EcalCommon/interface/Numbers.h"
 
@@ -154,7 +157,7 @@ void EETimingTask::setup(void){
       dqmStore_->tag(meTime_[i], i+1);
 
       name = "EETMT timing " + Numbers::sEE(i+1);
-      meTimeMap_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., -25.+shiftProf2D, 25.+shiftProf2D, "s");
+      meTimeMap_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., -20.+shiftProf2D, 20.+shiftProf2D, "s");
       meTimeMap_[i]->setAxisTitle("ix", 1);
       if ( i+1 >= 1 && i+1 <= 9 ) meTimeMap_[i]->setAxisTitle("101-ix", 1);
       meTimeMap_[i]->setAxisTitle("iy", 2);
@@ -187,13 +190,13 @@ void EETimingTask::setup(void){
     meTimeSummary1D_[1]->setAxisTitle("time (ns)", 1);
 
     name = "EETMT timing map EE -";
-    meTimeSummaryMap_[0] = dqmStore_->bookProfile2D(name, name, 20, 0., 100., 20, 0., 100., -7.+shiftProf2D, 7.+shiftProf2D, "s");
+    meTimeSummaryMap_[0] = dqmStore_->bookProfile2D(name, name, 20, 0., 100., 20, 0., 100., -20.+shiftProf2D, 20.+shiftProf2D, "s");
     meTimeSummaryMap_[0]->setAxisTitle("ix'", 1);
     meTimeSummaryMap_[0]->setAxisTitle("101-iy'", 2);
     meTimeSummaryMap_[0]->setAxisTitle("time (ns)", 3);
 
     name = "EETMT timing map EE +";
-    meTimeSummaryMap_[1] = dqmStore_->bookProfile2D(name, name, 20, 0., 100., 20, 0., 100., -7.+shiftProf2D, 7.+shiftProf2D, "s");
+    meTimeSummaryMap_[1] = dqmStore_->bookProfile2D(name, name, 20, 0., 100., 20, 0., 100., -20.+shiftProf2D, 20.+shiftProf2D, "s");
     meTimeSummaryMap_[1]->setAxisTitle("ix'", 1);
     meTimeSummaryMap_[1]->setAxisTitle("iy'", 2);
     meTimeSummaryMap_[1]->setAxisTitle("time (ns)", 3);
@@ -324,6 +327,9 @@ void EETimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   float sumTime_hithr[2] = {0.,0.};
   int n_hithr[2] = {0,0};
 
+  edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
+  c.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
+
   edm::Handle<EcalRecHitCollection> hits;
 
   if ( e.getByLabel(EcalRecHitCollection_, hits) ) {
@@ -368,16 +374,14 @@ void EETimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       float xval = hitItr->energy();
       float yval = hitItr->time();
 
-      // it's no use to use severitylevel to detect spikes (SeverityLevelAlgo simply uses RecHit flag for spikes)
-      uint32_t mask = 0xffffffff ^ ((0x1 << EcalRecHit::kGood) | (0x1 << EcalRecHit::kOutOfTime));
+      uint32_t flag = hitItr->recoFlag();
 
-      float energyThreshold = std::abs( Numbers::eta(id) ) < 2.4 ? energyThreshold_ : 2.*energyThreshold_;
+      uint32_t sev = sevlv->severityLevel(id, *hits );
 
-      // allow only kGood or kOutOfTime hits
-      if( !hitItr->checkFlagMask(mask) ){
+      if ( (flag == EcalRecHit::kGood || flag == EcalRecHit::kOutOfTime) && sev != EcalSeverityLevel::kWeird ) {
         if ( meTimeAmpli ) meTimeAmpli->Fill(xval, yval);
         if ( meTimeAmpliSummary_[iz] ) meTimeAmpliSummary_[iz]->Fill(xval, yval);
-        if ( hitItr->energy() > energyThreshold ) {
+        if ( hitItr->energy() > energyThreshold_ ) {
           if ( meTimeMap ) meTimeMap->Fill(xix, xiy, yval+shiftProf2D);
           if ( meTime ) meTime->Fill(yval);
           if ( meTimeSummary1D_[iz] ) meTimeSummary1D_[iz]->Fill(yval);

@@ -21,6 +21,7 @@
 namespace edm
 {
   class MixingModule;
+  class EventSetup;
 
   /*! This class allows MixingModule to store a vector of
    *  MixingWorkers, which are templated.
@@ -45,6 +46,7 @@ namespace edm
       virtual void setSourceOffset(const unsigned int s)=0;
       virtual void setTof()=0;
       virtual void put(edm::Event &e) =0;
+      virtual void reload(const edm::EventSetup & setup){};
     };
 }//edm
 

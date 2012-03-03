@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/10/15 22:44:31 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/01/10 09:42:27 $
+ *  $Revision: 1.2 $
  *
  *  \author Mika Huhtinen
  *
@@ -99,8 +99,8 @@ bool HLTPixlMBForAlignmentFilter::filter(edm::Event& iEvent, const edm::EventSet
        const double& etatrk1 = ipixl->momentum().eta();
        const double& phitrk1 = ipixl->momentum().phi();
        const double& pttrk1 = ipixl->pt();
-       zvtxfit  = zvtxfit  + ztrk1;
-       zvtxfit2 = zvtxfit2 + ztrk1 * ztrk1;
+       zvtxfit = zvtxfit + ztrk1;
+       zvtxfit2 = zvtxfit2 + ztrk1*ztrk1;
        if (pttrk1 > min_Pt_) {
 //       the *store-vectors store the tracks above pt-cut
 //       itstore is the position in the original collection
@@ -111,12 +111,10 @@ bool HLTPixlMBForAlignmentFilter::filter(edm::Event& iEvent, const edm::EventSet
        }
        itrk++;
      }
-     if (itrk > 0) {
-//     implement proper vertex fit here ?
-       zvtxfit  = zvtxfit  / itrk;
-       zvtxfit2 = zvtxfit2 / itrk;
-       zvtxfit2 = sqrt(zvtxfit2 - zvtxfit*zvtxfit);
-     }
+//   implement proper vertex fit here ?
+     zvtxfit = zvtxfit/itrk;
+     zvtxfit2 = zvtxfit2/itrk;
+     zvtxfit2 = sqrt(zvtxfit2 - zvtxfit*zvtxfit);
 //   locisol is the position in the *store vectors
      vector<int> locisol;
      if (itstore.size() > 1) {

@@ -130,7 +130,7 @@ void HcalDetDiagTimingMonitor::setup()
      str="HO Timing (HO SelfTrigger tech bit 11)";      HOTimeHO  = dbe_->book1D(str,str,100,0,10); 
      
      str="HB Timing (GCT Trigger alg bit 15 16 17 18)"; HBTimeGCT  =dbe_->book1D(str,str,100,0,10); 
-     str="HO Timing (GCT Trigger alg bit 15 16 17 18)"; HOTimeGCT  =dbe_->book1D(str,str,100,0,10); 
+     str="HB Timing (GCT Trigger alg bit 15 16 17 18)"; HOTimeGCT  =dbe_->book1D(str,str,100,0,10); 
      
      str="HEP Timing (CSC Trigger)";                    HETimeCSCp =dbe_->book1D(str,str,100,0,10); 
      str="HEM Timing (CSC Trigger)";                    HETimeCSCm =dbe_->book1D(str,str,100,0,10);

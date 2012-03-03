@@ -5,8 +5,8 @@
  *  
  *  Class to fill Event Generator dqm monitor elements; works on HepMCProduct
  *
- *  $Date: 2010/05/25 16:50:50 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/07/02 13:34:22 $
+ *  $Revision: 1.2 $
  *
  */
 
@@ -34,6 +34,7 @@
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
+#include "Validation/EventGenerator/interface/WeightManager.h"
 
 class BasicGenParticleValidation : public edm::EDAnalyzer
 {
@@ -49,6 +50,8 @@ class BasicGenParticleValidation : public edm::EDAnalyzer
     bool matchParticles(const HepMC::GenParticle*&, const reco::GenParticle*&); 
 
     private:
+
+    WeightManager _wmanager;
 
     edm::InputTag hepmcCollection_;
     edm::InputTag genparticleCollection_;

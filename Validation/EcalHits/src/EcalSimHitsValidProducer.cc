@@ -239,7 +239,7 @@ EcalSimHitsValidProducer::update(const EndOfEvent* evt){
      }
 
    // the direction of momentum of primary particles
-    double pInit =0; // etaInit =0, phiInit =0, // UNUSED
+    double etaInit =0, phiInit =0, pInit =0;
      if ( thePrim != 0){
           double  px = thePrim -> GetPx();
           double  py = thePrim -> GetPy();
@@ -252,11 +252,12 @@ EcalSimHitsValidProducer::update(const EndOfEvent* evt){
                   <<" Primary has p = 0 ; ";
           else {
                   theMomentum.SetE(pInit);
-                  // double costheta  = pz/pInit; // UNUSED
-                  // double theta = acos(std::min(std::max(costheta, -1.),1.)); // UNUSED
-                  // etaInit = -log(tan(theta/2)); // UNUSED
+                  double costheta  = pz/pInit;
+                  double theta = acos(std::min(std::max(costheta, -1.),1.));
+                  etaInit = -log(tan(theta/2));
 
-                  // if ( px != 0 || py != 0) phiInit = atan2(py,px); // UNUSED
+                  if ( px != 0 || py != 0)
+                          phiInit = atan2(py,px);
           }
 
           thePID = thePrim->GetPDGcode();

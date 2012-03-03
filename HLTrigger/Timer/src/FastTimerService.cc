@@ -153,17 +153,18 @@ void FastTimerService::postBeginJob() {
       // etc.
 
       // assume the path to be relative, and to have at least an item
-      boost::filesystem::path::iterator item = m_dqm_path.begin();
+      boost::filesystem::path dqm_path(m_dqm_path);
+      boost::filesystem::path::iterator item = dqm_path.begin();
       boost::filesystem::path path = * item++;
       path /= "EventInfo";
-      while (item != m_dqm_path.end())
+      while (item != dqm_path.end())
         path /= * item++;
-      m_dqm_path = path;
+      m_dqm_path = path.generic_string();
     }
 
     // book MonitorElement's
     int bins = (int) std::ceil(m_dqm_time_range / m_dqm_time_resolution);
-    m_dqms->setCurrentFolder(m_dqm_path.generic_string());
+    m_dqms->setCurrentFolder(m_dqm_path);
     m_dqm_event         = m_dqms->book1D("event",        "Event",    bins, 0., m_dqm_time_range)->getTH1F();
     m_dqm_event         ->StatOverflows(true);
     m_dqm_source        = m_dqms->book1D("source",       "Source",   bins, 0., m_dqm_time_range)->getTH1F();
@@ -172,9 +173,25 @@ void FastTimerService::postBeginJob() {
     m_dqm_all_paths     ->StatOverflows(true);
     m_dqm_all_endpaths  = m_dqms->book1D("all_endpaths", "EndPaths", bins, 0., m_dqm_time_range)->getTH1F();
     m_dqm_all_endpaths  ->StatOverflows(true);
+    // these are actually filled in the harvesting step - but that may happen in a separate step, which no longer has all the information about the endpaths
+    size_t size_p = tns.getTrigPaths().size();
+    size_t size_e = tns.getEndPaths().size();
+    size_t size = size_p + size_e;
+    TH1F * path_active_time = m_dqms->book1D("path_active_time", "Additional time spent in each path", size, -0.5, size-0.5)->getTH1F();
+    TH1F * path_total_time  = m_dqms->book1D("path_total_time",  "Total time spent in each path",      size, -0.5, size-0.5)->getTH1F();
+    for (size_t i = 0; i < size_p; ++i) {
+      std::string const & label = tns.getTrigPath(i);
+      path_active_time->GetXaxis()->SetBinLabel(i + 1, label.c_str());
+      path_total_time ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
+    }
+    for (size_t i = 0; i < size_e; ++i) {
+      std::string const & label = tns.getEndPath(i);
+      path_active_time->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
+      path_total_time ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
+    }
 
     if (m_enable_timing_paths) {
-      m_dqms->setCurrentFolder((m_dqm_path / "Paths").generic_string());
+      m_dqms->setCurrentFolder((m_dqm_path + "/Paths"));
       BOOST_FOREACH(PathMap<PathInfo>::value_type & keyval, m_paths) {
         std::string const & pathname = keyval.first;
         PathInfo          & pathinfo = keyval.second;
@@ -184,7 +201,7 @@ void FastTimerService::postBeginJob() {
     }
 
     if (m_enable_timing_modules) {
-      m_dqms->setCurrentFolder((m_dqm_path / "Modules").generic_string());
+      m_dqms->setCurrentFolder((m_dqm_path + "/Modules"));
       BOOST_FOREACH(ModuleMap<ModuleInfo>::value_type & keyval, m_modules) {
         std::string const & label  = keyval.first->moduleLabel();
         ModuleInfo        & module = keyval.second;
@@ -194,7 +211,7 @@ void FastTimerService::postBeginJob() {
     }
 
     if (m_enable_timing_paths and m_enable_timing_modules) {
-      m_dqms->setCurrentFolder((m_dqm_path / "Paths").generic_string());
+      m_dqms->setCurrentFolder((m_dqm_path + "/Paths"));
       BOOST_FOREACH(PathMap<PathInfo>::value_type & keyval, m_paths) {
         std::string const & pathname = keyval.first;
         PathInfo          & pathinfo = keyval.second;
@@ -381,14 +398,18 @@ void FastTimerService::postSource() {
 void FastTimerService::prePathBeginRun(std::string const & path ) {
   // cache the pointers to the names of the first and last path and endpath
   edm::service::TriggerNamesService & tns = * edm::Service<edm::service::TriggerNamesService>();
-  if (path == tns.getTrigPaths().front())
-    m_first_path = & path;
-  if (path == tns.getTrigPaths().back())
-    m_last_path = & path;
-  if (path == tns.getEndPaths().front())
-    m_first_endpath = & path;
-  if (path == tns.getEndPaths().back())
-    m_last_endpath = & path;
+  if (not tns.getTrigPaths().empty()) {
+    if (path == tns.getTrigPaths().front())
+      m_first_path = & path;
+    if (path == tns.getTrigPaths().back())
+      m_last_path = & path;
+  }
+  if (not tns.getEndPaths().empty()) {
+    if (path == tns.getEndPaths().front())
+      m_first_endpath = & path;
+    if (path == tns.getEndPaths().back())
+      m_last_endpath = & path;
+  }
 }
 
 void FastTimerService::preProcessPath(std::string const & path ) {
@@ -466,6 +487,8 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
           total   += module->time_active;
         }
       }
+      if (status.accept())
+        pathinfo.dqm_module_counter->Fill(pathinfo.modules.size());
 
       if (m_is_first_module) {
         // no modules were active duruing this path, account all the time as overhead
@@ -634,7 +657,3 @@ void FastTimerService::fillPathMap(std::string const & name, std::vector<std::st
     }
   }
 }
-
-// declare FastTimerService as a framework Service
-#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
-DEFINE_FWK_SERVICE(FastTimerService);

@@ -42,7 +42,6 @@ if ($dependency eq "")
 {
   if (!defined $ruleFile)
   {
-    my $releaseTop = &SCRAMGenUtils::getFromEnvironmentFile("RELEASETOP",$release);
     $ruleFile = "${release}/src/${defaultRuleFile}";
     if (!-f $ruleFile)
     {
@@ -339,6 +338,7 @@ sub readPkgInfo ()
   my $class=$c->{CLASS};
   my $name=$c->{NAME};
   my $c1=$c->{RAWDATA}{content};
+  $d=~s/^LCG\///;
   if($class=~/^(LIBRARY|CLASSLIB|SEAL_PLATFORM)$/o){&addProd($t,$name,dirname($d),$cache,$c1);}
   elsif($class eq "PACKAGE"){&addProd($t,$name,$d,$cache,$c1);}
   elsif($class=~/^(TEST|BIN|PLUGINS|BINARY)$/o){&addProds($t,$d,$cache,$c1);}
@@ -388,6 +388,7 @@ sub addDirectDeps()
   my ($uses,$c,$cache)=@_;
   foreach my $u (@{$uses})
   {
+    $u=~s/^LCG\///;
     my $p=$u;
     my $t=lc($u);
     if (exists $cache->{Caches}{TOOLS}{SETUP}{$t}){$p=$t;}

@@ -58,7 +58,6 @@ public:
 
   static int sc_type(     SuperCrysCoord iX, SuperCrysCoord iY         );
 
-  static int referenceNormalization( int ilmr, int ilmmod );
   virtual ~MEEEGeom() {}
 
 protected:

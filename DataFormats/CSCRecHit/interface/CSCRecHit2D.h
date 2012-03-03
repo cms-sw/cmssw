@@ -2,7 +2,7 @@
 #define DataFormats_CSCRecHit2D_H
 
 /**
- * \class CSCRecHit2D
+ * \class CSCRecHit2D  
  * Describes a 2-dim reconstructed hit in one layer of an Endcap Muon CSC.
  *
  * \author Tim Cox et al.
@@ -25,7 +25,6 @@ public:
   enum SharedInputType {all = TrackingRecHit::all, some = TrackingRecHit::some, allWires, someWires, allStrips, someStrips};
 
   static const unsigned int MAXSTRIPS=3;
-  static const unsigned int MAXWIRES=5;
   static const unsigned int MAXTIMEBINS=4;
   static const unsigned int N_ADC=MAXSTRIPS*MAXTIMEBINS;
   CSCRecHit2D();
@@ -52,24 +51,17 @@ public:
   LocalError localPositionError() const { return theLocalError; }
   CSCDetId cscDetId() const { return geographicalId(); }
 
-  /// Container of the L1A+Channels comprising the rechit
-  int channelsTotal(unsigned int i) const { return theStrips_[i]; } /// L1A
-
   /// Extracting strip channel numbers comprising the rechit - low
-  int channels(unsigned int i) const { return theStrips_[i] & 0x000000FF; } /// L1A
+  int channels(unsigned int i) const { return theStrips_[i]; }
   unsigned int nStrips() const {return nStrips_;}
 
   /// Extract the L1A phase bits from the StripChannelContainer - high
-  int channelsl1a(unsigned int i) const { return theStrips_[i] & 0x0000FF00; } /// L1A
-
-  /// The BX + wire group number
-  int wgroupsBXandWire(unsigned int i) const { return theWireGroups_[i]; }
-
-  /// The BX number
-  int wgroupsBX(unsigned int i) const { return (theWireGroups_[i] >> 16) & 0x0000FFFF; }
+  int channelsl1a(unsigned int i) const { return theL1APhaseBits_[i]; } /// L1A
 
   /// Container of wire groups comprising the rechit
-  int wgroups(unsigned int i) const { return theWireGroups_[i] & 0x0000FFFF;  }
+  short int hitWire() const { return hitWire_;}
+  short int wgroupsBX() const {return theWGroupsBX_;}
+
   unsigned int nWireGroups() const {return nWireGroups_;}
 
   /// Map of strip ADCs for strips comprising the rechit
@@ -124,19 +116,22 @@ private:
   float theTpeak;
   float thePositionWithinStrip; 
   float theErrorWithinStrip;
+  float theEnergyDeposit;
   int theQuality;
   int theScaledWireTime;
+  short int hitWire_;
+  short int theWGroupsBX_;
   short int theBadStrip;
   short int theBadWireGroup;
 
   unsigned char nStrips_, nWireGroups_, nTimeBins_;
-  int theStrips_[MAXSTRIPS];
-  int theWireGroups_[MAXWIRES];
+
+  unsigned char theL1APhaseBits_[MAXSTRIPS];
+  unsigned char theStrips_[MAXSTRIPS];
   float theADCs_[N_ADC];
 
   LocalPoint theLocalPosition;
   LocalError theLocalError;
-  float theEnergyDeposit;
 
 };
 

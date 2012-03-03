@@ -17,6 +17,7 @@ workflows[1002]=['RRD',['RunMinBias2011A','RECOD']]#,'RECODFROMRAWRECO']]
 ## MC production test
 #workflows[1100] = [ '',[]]
 
+workflows[1100]=['',['OldGenSimINPUT','REDIGIPU','RERECOPU1']]
 workflows[1102]=['RR', ['TTbar','DIGI','RECO','RECOFROMRECO']]
 workflows[1103]=['RR', ['OldTTbarINPUT','RECOFROMRECOSt2']]
 

@@ -2,8 +2,8 @@
  *  
  *  Class to monitor duplication of events
  *
- *  $Date: 2010/05/19 13:05:17 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/05/25 16:50:50 $
+ *  $Revision: 1.1 $
  *
  */
  
@@ -12,7 +12,8 @@
 using namespace edm;
 
 DuplicationChecker::DuplicationChecker(const edm::ParameterSet& iPSet):
-  generatedCollection_(iPSet.getParameter<edm::InputTag>("generatedCollection")),
+  _wmanager(iPSet),
+  generatedCollection_(iPSet.getParameter<edm::InputTag>("hepmcCollection")),
   searchForLHE_(iPSet.getParameter<bool>("searchForLHE"))
 {    
   dbe = 0;
@@ -41,7 +42,9 @@ void DuplicationChecker::analyze(const edm::Event& iEvent,const edm::EventSetup&
 {
     
   double bjorken = 0;
-    
+  
+  double weight = _wmanager.weight(iEvent);
+
   if (searchForLHE_) {
 
     Handle<LHEEventProduct> evt;
@@ -59,7 +62,7 @@ void DuplicationChecker::analyze(const edm::Event& iEvent,const edm::EventSetup&
 
     edm::Handle<HepMCProduct> evt;
     iEvent.getByLabel(generatedCollection_, evt);
-    
+
     const HepMC::PdfInfo *pdf = evt->GetEvent()->pdf_info();    
     if(pdf){
       bjorken = ((pdf->x1())/((pdf->x1())+(pdf->x2())));
@@ -69,7 +72,7 @@ void DuplicationChecker::analyze(const edm::Event& iEvent,const edm::EventSetup&
 
   xBjorkenHistory.insert(std::pair<double,edm::EventID>(bjorken,iEvent.id()));
 
-  xBjorkenME->Fill(bjorken);
+  xBjorkenME->Fill(bjorken,weight);
 
 }//analyze
 

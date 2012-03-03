@@ -49,16 +49,19 @@ ElectronTkIsolation::ElectronTkIsolation (double extRadius,
 }
 
 ElectronTkIsolation::~ElectronTkIsolation ()
-{
+{}
+
+std::pair<int,double> ElectronTkIsolation::getIso(const reco::GsfElectron* electron) const {
+  return getIso(&(*(electron->gsfTrack())));
 }
 
 // unified acces to isolations
-std::pair<int,double> ElectronTkIsolation::getIso(const reco::GsfElectron* electron) const  
+std::pair<int,double> ElectronTkIsolation::getIso(const reco::Track* tmpTrack) const  
 {
   int counter  =0 ;
   double ptSum =0.;
   //Take the electron track
-  reco::GsfTrackRef tmpTrack = electron->gsfTrack() ;
+  //reco::GsfTrackRef tmpTrack = electron->gsfTrack() ;
   math::XYZVector tmpElectronMomentumAtVtx = (*tmpTrack).momentum () ; 
   double tmpElectronEtaAtVertex = (*tmpTrack).eta();
 

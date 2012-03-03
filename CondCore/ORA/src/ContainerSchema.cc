@@ -221,12 +221,14 @@ const Reflex::Type& ora::ContainerSchema::type(){
 ora::MappingTree& ora::ContainerSchema::mapping( bool writeEnabled ){
   initClassDict();
   if(!m_loaded ){
-    if( !m_session.mappingDatabase().getMappingForContainer( m_classDict, m_containerId, m_mapping ) ){
+    std::string classVersion = MappingDatabase::versionOfClass( m_classDict );
+    if( !m_session.mappingDatabase().getMappingForContainer( m_className, classVersion, m_containerId, m_mapping ) ){
       // if enabled, invoke the evolution
       if( writeEnabled && m_session.configuration().properties().getFlag( Configuration::automaticSchemaEvolution() )){
         evolve();
       } else {
-	throwException( "No mapping available for the current class version.",
+	std::string msg( "No mapping available for the class=\""+m_className+"\"  version=\""+classVersion+"\"." );
+	throwException( msg,
 			"ContainerSchema::mapping");
       }
     } else {
@@ -243,13 +245,16 @@ ora::MappingTree& ora::ContainerSchema::mapping( bool writeEnabled ){
 
 bool ora::ContainerSchema::loadMappingForDependentClass( const Reflex::Type& dependentClassDict ){
   if( !dependentClassDict ) throwException("The dependent class has not been found in the dictionary.",
-                                    "ContainerSchema::loadMappingForDependentClass");
+					   "ContainerSchema::loadMappingForDependentClass");
   std::string className = dependentClassDict.Name(Reflex::SCOPED);
   std::map<std::string,MappingTree*>::iterator iDep = m_dependentMappings.find( className );
   if( iDep ==  m_dependentMappings.end() ){
     // not in cache, search the database...
     iDep = m_dependentMappings.insert( std::make_pair( className, new MappingTree ) ).first;
-    if( ! m_session.mappingDatabase().getMappingForContainer( dependentClassDict, m_containerId, *iDep->second ) ){
+    if( ! m_session.mappingDatabase().getMappingForContainer( className, 
+							      MappingDatabase::versionOfClass( dependentClassDict ), 
+							      m_containerId, 
+							      *iDep->second ) ){
       m_dependentMappings.erase( className );
       return false;
     }

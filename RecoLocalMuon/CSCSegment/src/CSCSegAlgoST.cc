@@ -583,8 +583,7 @@ bool CSCSegAlgoST::isGoodToMerge(bool isME11a, ChamberHitContainer & newChain, C
     int layer_new = newChain[iRH_new]->cscDetId().layer()-1;     
     int middleStrip_new = newChain[iRH_new]->nStrips()/2;
     int centralStrip_new = newChain[iRH_new]->channels(middleStrip_new);
-    int middleWire_new = newChain[iRH_new]->nWireGroups()/2;
-    int centralWire_new = newChain[iRH_new]->wgroups(middleWire_new);
+    int centralWire_new = newChain[iRH_new]->hitWire();
     bool layerRequirementOK = false;
     bool stripRequirementOK = false;
     bool wireRequirementOK = false;
@@ -593,8 +592,7 @@ bool CSCSegAlgoST::isGoodToMerge(bool isME11a, ChamberHitContainer & newChain, C
       int layer_old = oldChain[iRH_old]->cscDetId().layer()-1;
       int middleStrip_old = oldChain[iRH_old]->nStrips()/2;
       int centralStrip_old = oldChain[iRH_old]->channels(middleStrip_old);
-      int middleWire_old = oldChain[iRH_old]->nWireGroups()/2;
-      int centralWire_old = oldChain[iRH_old]->wgroups(middleWire_old);
+      int centralWire_old = oldChain[iRH_old]->hitWire();
 
       // to be chained, two hits need to be in neighbouring layers...
       // or better allow few missing layers (upto 3 to avoid inefficiencies);

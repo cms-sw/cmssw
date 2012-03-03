@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     08-Oct-2007
 #     A. Parenti, DESY Hamburg    16-Apr-2008
-#     $Revision: 1.25 $
-#     $Date: 2011/11/18 12:15:55 $
+#     $Revision: 1.22 $
+#     $Date: 2009/07/15 15:05:47 $
 #
 #  Setup local mps database
 #  
@@ -28,7 +28,6 @@
 #  -M pedeMem  The memory (MB) to be allocated for pede (min: 1024 MB).
 #              If not given, it is evinced from the pede executable name.
 #              Finally, it is set 2560 MB if neither of the two are available.
-#  -N name     The name to be assigned to the jobs. Whitespaces and colons are not allowed.
 
 BEGIN {
 use File::Basename;
@@ -48,26 +47,11 @@ $mssDirPool = "";
 $mssDir = "";
 $append = 0;
 
-my $confname = "";
-
 # parse the arguments
 while (@ARGV) {
-  my $arg = shift(ARGV);
+  $arg = shift(ARGV);
   if ($arg =~ /\A-/) {  # check for option 
-    if ($arg =~ /-N/g) {
-      $confname = $arg;
-      $confname =~ s/-N//; # Strips away the "-N"
-      if (length($confname) == 0) {
-         $confname = shift(ARGV);
-       }
-      $confname =~ s/\s//g;
-      if($confname =~ /\:/)
-        {
-          $confname =~ s/\://g;
-          print "colons were removed in configuration name: $confname\n";
-        }
-    }
-    elsif ($arg =~ "h") {
+    if ($arg =~ "h") {
       $helpwanted = 1;
     }
     elsif ($arg =~ "d") {
@@ -82,7 +66,7 @@ while (@ARGV) {
     }
     elsif ($arg =~ "a" && -r "mps.db") {
       $append = 1;
-      print "option sets mode to append\n";
+      print "option sets mode to append\n";    
     }
     elsif ($arg =~ "-M") {
       $pedeMem = $arg;
@@ -132,7 +116,6 @@ if ($nJobs eq 0 or $helpwanted != 0 ) {
   print "  \n -M pedeMem  The memory (MB) to be allocated for pede (min: 1024 MB).";
   print "  \n             If not given, it is evinced from the pede executable name.";
   print "  \n             Finally, it is set 2560 MB if neither of the two are available.";
-  print "  \n -N name     Some arbitrary name assigned to the jobs.";
   print "\n";
   exit 1;
 }
@@ -176,8 +159,7 @@ if ($mssDir ne "") {
     $mssDir =~ s/^.+?://; # Remove all the precedes ":"
   }
 
-  #$testMssDir = `nsls -d $mssDir`;
-  $testMssDir = `cmsLs -d $mssDir`;
+  $testMssDir = `nsls -d $mssDir`;
   chomp $testMssDir;
   if ($testMssDir eq "") {
     print "Bad MSS directory name $mssDir\n";
@@ -294,7 +276,7 @@ for ($j = 1; $j <= $nJobs; ++$j) {
   push @JOBREMARK,"";
   push @JOBSP1,"";
   push @JOBSP2,"";
-  push @JOBSP3,"$confname";
+  push @JOBSP3,"";
   # create the split card files
   print "mps_split.pl $infiList $j $nJobs >jobData/$theJobDir/theSplit\n";
   system "mps_split.pl $infiList $j $nJobs >jobData/$theJobDir/theSplit";

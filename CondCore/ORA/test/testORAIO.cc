@@ -26,16 +26,17 @@ namespace ora {
       db.connect( connStr );
       ora::ScopedTransaction trans0( db.transaction() );
       trans0.start( false );
-      //
+      //creating source database
       if(!db.exists()){
 	db.create();
       }
       std::set< std::string > conts = db.containers();
       if( conts.find( "Cont0" )!= conts.end() ) db.dropContainer( "Cont0" );
       if( conts.find( "testORA::IOV" )!= conts.end() ) db.dropContainer( "testORA::IOV" );
-      //
+      //creating containers in the source db
       ora::Container contIOV = db.createContainer<IOV>();
       ora::Container contH0 = db.createContainer<ArrayClass>("Cont0");
+      //inserting into the source db
       for( int j = 0; j!= 2; j++ ){
 	IOV iov;
 	oids.push_back( contIOV.insert( iov ) );
@@ -46,10 +47,10 @@ namespace ora {
 	}
 	contIOV.flush();
       }
-      //
+      //disconnecting from source db
       trans0.commit();
       db.disconnect();
-      ::sleep(1);
+      sleep();
       // opening dest db
       std::cout << "** creating dest db"<<std::endl;
       ora::Database db2;
@@ -57,6 +58,7 @@ namespace ora {
       std::string connStr2( "sqlite_file:test.db" );
       db2.connect( connStr2 );
       ora::ScopedTransaction trans2( db2.transaction() );
+      //creating dest fb
       trans2.start( false );
       if(!db2.exists()){
 	db2.create();
@@ -64,9 +66,10 @@ namespace ora {
       conts = db2.containers();
       if( conts.find( "Cont0" )!= conts.end() ) db2.dropContainer( "Cont0" );
       if( conts.find( "testORA::IOV" )!= conts.end() ) db2.dropContainer( "testORA::IOV" );
+      //creating containers in dest db
       ora::Container contH2 = db2.createContainer<ArrayClass>("Cont0");
       ora::Container contIOV2 = db2.createContainer<IOV>();
-      // reading back...
+      // reading back from source db and inserting into dest db
       std::cout << "** exporting in dest db"<<std::endl;
       db.connect( connStr );
       trans0.start( true );
@@ -89,6 +92,7 @@ namespace ora {
       trans2.commit();
       db2.disconnect();
       std::cout << "** disconnecting dest db"<<std::endl;
+      //dropping source db
       trans0.start( false );
       std::cout << "** dropping source db"<<std::endl;
       db.drop();
