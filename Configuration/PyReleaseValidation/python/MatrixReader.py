@@ -292,7 +292,7 @@ class MatrixReader(object):
                     if i==0:
                         print fmt1 % (wf.numId, stepNames, (str(s)+' ')[:maxLen])
                     else:
-                        print fmt2 % ( ' ', 2, (str(s)+' ')[:maxLen])
+                        print fmt2 % ( ' ', i+1, (str(s)+' ')[:maxLen])
                 else:
                     print "%-6s %-35s "% (wf.numId, stepNames)
                     break
