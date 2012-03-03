@@ -133,8 +133,8 @@ if __name__ == '__main__':
                        25, #MC ttbar
                        4.22, #cosmic data
                        4.291, #hlt data
-                       134, #alca special PCL
                        1000, #data+prompt
+                       1001, #data+express
                        4.53, #HI data
                        40, #HI MC
                        ]
