@@ -128,10 +128,20 @@ if __name__ == '__main__':
     opt,args = parser.parse_args()
     if opt.testList: opt.testList = map(float,opt.testList.split(','))
     if opt.restricted:
+        limitedMatrix=[5.1, #FastSim ttbar
+                       8, #BH/Cosmic MC
+                       25, #MC ttbar
+                       4.22, #cosmic data
+                       4.291, #hlt data
+                       134, #alca special PCL
+                       1000, #data+prompt
+                       4.53, #HI data
+                       40, #HI MC
+                       ]
         if opt.testList:
-            opt.testList.extend([5.2,7,8,25,121,123.3])
+            opt.testList.extend(limitedMatrix)
         else:
-            opt.testList=[5.2,7,8,25,121,123.3]
+            opt.testList=limitedMatrix
     if opt.useInput: opt.useInput = opt.useInput.split(',')
     if opt.fromScratch: opt.fromScratch = opt.fromScratch.split(',')
     if opt.nThreads: opt.nThreads=int(opt.nThreads)
