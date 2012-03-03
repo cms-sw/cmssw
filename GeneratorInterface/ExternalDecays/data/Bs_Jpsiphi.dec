@@ -1,4 +1,4 @@
-# $Id: Bs_Jpsiphi.dec,v 1.1 2011/09/16 12:51:45 ursl Exp $
+# $Id: Bs_Jpsiphi.dec,v 1.1 2012/02/16 23:04:25 drell Exp $
 #
 # This is the decay file for the decay BS0 -> PSI(-> MU+ MU-) PHI(-> K+ K-)
 #
@@ -20,6 +20,8 @@ Define Hm 0.4
 Define pHp 2.50
 Define pHz 0.0
 Define pHm -0.17
+# Overriding dgammas to zero for Giacomo Fedi's analysis
+Define dgammas 0
 #
 Alias      MyB_s0   B_s0
 Alias      Myanti-B_s0   anti-B_s0
