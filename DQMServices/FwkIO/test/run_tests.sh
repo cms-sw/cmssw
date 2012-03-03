@@ -151,6 +151,18 @@ pushd ${LOCAL_TMP_DIR}
   echo ${checkFile}  ${fileToCheck} ------------------------------------------------------------
   python ${LOCAL_TEST_DIR}/${checkFile} ${fileToCheck} || die "python ${checkFile} ${fileToCheck}" $?
 
+# empty
+  testConfig=create_empty_file_cfg.py
+  rm -f dqm_empty.root
+  echo ${testConfig} ------------------------------------------------------------
+  cmsRun -p ${LOCAL_TEST_DIR}/${testConfig} || die "cmsRun ${testConfig}" $?
+
+  stat dqm_empty.root && die "file created by cmsRun ${testConfig}" $?
+
+  testConfig=read_missing_file_cfg.py
+  echo ${testConfig} ------------------------------------------------------------
+  cmsRun -p ${LOCAL_TEST_DIR}/${testConfig} && die "cmsRun ${testConfig}" $?
+  
 popd
 
 exit 0
