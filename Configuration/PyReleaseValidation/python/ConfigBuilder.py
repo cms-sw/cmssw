@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.371 $"
+__version__ = "$Revision: 1.372 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -20,7 +20,7 @@ defaultOptions.isData=True
 defaultOptions.step=''
 defaultOptions.pileup=MixingDefaultKey
 defaultOptions.pileup_input = None
-defaultOptions.geometry = 'DB'
+defaultOptions.geometry = 'SimDB'
 defaultOptions.geometryExtendedOptions = ['ExtendedGFlash','Extended','NoCastor']
 defaultOptions.magField = '38T'
 defaultOptions.conditions = None
@@ -606,6 +606,10 @@ class ConfigBuilder(object):
         try:
 		if len(self.stepMap):
 			self.loadAndRemember(self.GeometryCFF)
+			if 'SIM' in self.stepMap:
+				self.loadAndRemember(self.SimGeometryCFF)
+				if self.geometryDBLabel:
+					self.executeAndRemember('process.XMLFromDBSource.label = cms.string("%s")'%(self.geometryDBLabel))
         except ImportError:
                 print "Geometry option",self._options.geometry,"unknown."
                 raise
@@ -824,10 +828,6 @@ class ConfigBuilder(object):
         self.CFWRITERDefaultCFF = "Configuration/StandardSequences/CrossingFrameWriter_cff"
         self.REPACKDefaultCFF="Configuration/StandardSequences/DigiToRaw_Repack_cff"
 
-        # synchronize the geometry configuration and the FullSimulation sequence to be used
-        if self._options.geometry not in defaultOptions.geometryExtendedOptions:
-            self.SIMDefaultCFF="Configuration/StandardSequences/SimIdeal_cff"
-
         if "DATAMIX" in self.stepMap.keys():
             self.DATAMIXDefaultCFF="Configuration/StandardSequences/DataMixer"+self._options.datamix+"_cff"
             self.DIGIDefaultCFF="Configuration/StandardSequences/DigiDM_cff"
@@ -941,21 +941,49 @@ class ConfigBuilder(object):
         self.magFieldCFF = self.magFieldCFF.replace("__",'_')
 
         # the geometry
-	if self._options.isData and 'HLT' in self.stepMap:
-		## temporary solution for HLT on data and pre-loading conditions. Should be solved with Geometry migration
-		self._options.geometry = 'RecoDB'
-		
+	self.GeometryCFF='Configuration/StandardSequences/GeometryRecoDB_cff'
+	self.geometryDBLabel=None
+	simGeometry=''
         if 'FASTSIM' in self.stepMap:
                 if 'start' in self._options.conditions.lower():
                         self.GeometryCFF='FastSimulation/Configuration/Geometries_START_cff'
                 else:
                         self.GeometryCFF='FastSimulation/Configuration/Geometries_MC_cff'
         else:
-                if self._options.gflash==True:
-                        self.GeometryCFF='Configuration/StandardSequences/Geometry'+self._options.geometry+'GFlash_cff'
-                else:
-                        self.GeometryCFF='Configuration/StandardSequences/Geometry'+self._options.geometry+'_cff'
+		def inGeometryKeys(opt):
+			from Configuration.StandardSequences.GeometryConf import GeometryConf
+			if opt in GeometryConf:
+				return GeometryConf[opt]
+			else:
+				return opt
 
+		geoms=self._options.geometry.split(',')
+		if len(geoms)==1: geoms=inGeometryKeys(geoms[0]).split(',')
+		if len(geoms)==2:
+			#may specify the reco geometry
+			if '/' in geoms[1] or '_cff' in geoms[1]:
+				self.GeometryCFF=geoms[1]
+			else:
+				self.GeometryCFF='Configuration/StandardSequences/Geometry'+geoms[1]+'_cff'
+
+		if (geoms[0].startswith('DB:')):
+			self.SimGeometryCFF='Configuration/StandardSequences/GeometrySimDB_cff'
+			self.geometryDBLabel=geoms[0][3:]
+			print "with DB:"
+		else:
+			if '/' in geoms[0] or '_cff' in geoms[0]:
+								self.SimGeometryCFF=geoms[0]
+			else:
+				simGeometry=geoms[0]
+				if self._options.gflash==True:
+					self.SimGeometryCFF='Configuration/StandardSequences/Geometry'+geoms[0]+'GFlash_cff'
+				else:
+					self.SimGeometryCFF='Configuration/StandardSequences/Geometry'+geoms[0]+'_cff'
+
+	# synchronize the geometry configuration and the FullSimulation sequence to be used
+        if simGeometry not in defaultOptions.geometryExtendedOptions:
+		self.SIMDefaultCFF="Configuration/StandardSequences/SimIdeal_cff"
+	    
         # Mixing
 	#not driven by a default cff anymore
 	if self._options.isData:
@@ -969,7 +997,7 @@ class ConfigBuilder(object):
 
 	if self._options.slhc:
 		if 'stdgeom' not in self._options.slhc:
-			self.GeometryCFF='SLHCUpgradeSimulations.Geometry.%s_cmsSimIdealGeometryXML_cff'%(self._options.slhc,)
+			self.SimGeometryCFF='SLHCUpgradeSimulations.Geometry.%s_cmsSimIdealGeometryXML_cff'%(self._options.slhc,)
 		self.DIGIDefaultCFF='SLHCUpgradeSimulations/Geometry/Digi_%s_cff'%(self._options.slhc,)
 		if self._options.pileup!=defaultOptions.pileup:
 			self._options.pileup='SLHC_%s_%s'%(self._options.pileup,self._options.slhc)
@@ -1694,7 +1722,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.371 $"),
+                                            (version=cms.untracked.string("$Revision: 1.372 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )

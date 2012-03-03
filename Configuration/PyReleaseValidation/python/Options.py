@@ -121,7 +121,7 @@ expertSettings.add_option("--filtername",
                           dest="filtername")
 
 expertSettings.add_option("--geometry",
-                          help="What geometry to use. Default="+defaultOptions.geometry,
+                          help="What simulation geometry to use. Default="+defaultOptions.geometry+". Coma separated SimGeometry,RecoGeometry is supported.",
                           default=defaultOptions.geometry,
                           dest="geometry")
 
