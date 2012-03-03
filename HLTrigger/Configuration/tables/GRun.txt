@@ -407,6 +407,19 @@ HLT_PixelTracks_Multiplicity70_v*								#sr126810
 HLT_PixelTracks_Multiplicity80_v*								#sr126810
 HLT_PixelTracks_Multiplicity90_v*								#sr126810
 
+HLT_Jet20_v*											#sr126817
+HLT_Jet50_v*											#sr126817
+HLT_DoubleJet20_ForwardBackward_v*								#sr126817
+HLT_DoublePhoton5_IsoVL_CEP_v*									#sr126817
+HLT_Photon50_CaloIdVL_IsoL_v*									#sr126817
+HLT_SingleJetC5_v*										#sr126817
+HLT_ZeroBias_v*											#sr126817
+HLT_SingleForJet25_v*										#sr126817
+HLT_SingleForJet15_v*										#sr126817
+HLT_ExclDijet35_HFOR_v*										#sr126817
+HLT_ExclDijet35_HFAND_v*									#sr126817
+HLT_ZeroBiasPixel_SingleTrack_v*								#sr126817
+
 HLT_BeamGas_HF_Beam1_v*                                                                         #sr126174
 HLT_BeamGas_HF_Beam2_v*                                                                         #sr126174
 HLT_BeamHalo_v*
