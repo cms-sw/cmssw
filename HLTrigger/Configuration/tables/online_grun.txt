@@ -403,8 +403,9 @@ HLT_Mu15_eta2p1_TriCentralL1FastJet_40_20_20_DiBTagIP3D1stTrack_v*              
 HLT_Mu15_eta2p1_TriCentralL1FastJet_40_20_20_BTagIP3D1stTrack_v*                                #sr126638
 HLT_Mu15_eta2p1_TriCentralL1FastJet_40_20_20_v*                                                 #sr126638
 
-#HLT_PixelTracks_Multiplicity80_v*                                                              # What about those?
-#HLT_PixelTracks_Multiplicity100_v*                                                             # What about those?
+HLT_PixelTracks_Multiplicity70_v*								#sr126810
+HLT_PixelTracks_Multiplicity80_v*								#sr126810
+HLT_PixelTracks_Multiplicity90_v*								#sr126810
 
 HLT_BeamGas_HF_Beam1_v*                                                                         #sr126174
 HLT_BeamGas_HF_Beam2_v*                                                                         #sr126174
@@ -418,8 +419,8 @@ HLT_HcalNZS_v*                                                                  
 HLT_GlobalRunHPDNoise_v*
 HLT_L1Tech_HBHEHO_totalOR_v*
 HLT_L1Tech_HCAL_HF_single_channel_v*
-HLT_L1Tech_CASTOR_HaloMuon_v*                                                                   # only in 'GRun' and 'cosmics', not in 'online'
-HLT_L1Tech_DT_GlobalOR_v*                                                                       # only in 'GRun' and 'cosmics', not in 'online'
+#HLT_L1Tech_CASTOR_HaloMuon_v*                                                                   # only in 'GRun' and 'cosmics', not in 'online'
+#HLT_L1Tech_DT_GlobalOR_v*                                                                       # only in 'GRun' and 'cosmics', not in 'online'
 HLT_ZeroBias_v*
 HLT_Physics_v*
 DST_Physics_v*
