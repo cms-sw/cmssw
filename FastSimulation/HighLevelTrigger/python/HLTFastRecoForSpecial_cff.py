@@ -10,7 +10,9 @@ import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 pixelTripletSeedsForMinBias = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
 import FastSimulation.Tracking.HLTPixelTracksProducer_cfi
 hltPixelTracksForMinBias = FastSimulation.Tracking.HLTPixelTracksProducer_cfi.hltPixelTracks.clone()
+hltPixelTracksForMinBias.FilterPSet.ptMin = 0.4
 hltPixelTracksForHighMult = FastSimulation.Tracking.HLTPixelTracksProducer_cfi.hltPixelTracks.clone()
+hltPixelTracksForHighMult.FilterPSet.ptMin = 0.4
 from FastSimulation.Tracking.PixelTracksProducer_cfi import *
 #import HLTrigger.HLTfilters.hltBool_cfi
 #hltFilterTriggerType = HLTrigger.HLTfilters.hltBool_cfi.hltBool.clone()
@@ -23,17 +25,4 @@ hltSiStripRegFED = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.c
 hltEcalRegFED = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltSubdetFED = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hcalFED = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
-HLTPixelTrackingForMinBiasSequence = cms.Sequence(pixelTripletSeedsForMinBias*hltPixelTracksForMinBias)
-pixelTripletSeedsForMinBias.numberOfHits = [3]
-pixelTripletSeedsForMinBias.firstHitSubDetectorNumber = [2]
-pixelTripletSeedsForMinBias.firstHitSubDetectors = [1, 2]
-pixelTripletSeedsForMinBias.secondHitSubDetectorNumber = [2]
-pixelTripletSeedsForMinBias.secondHitSubDetectors = [1, 2]
-pixelTripletSeedsForMinBias.thirdHitSubDetectorNumber = [2]
-pixelTripletSeedsForMinBias.thirdHitSubDetectors = [1, 2]
-pixelTripletSeedsForMinBias.seedingAlgo = ['PixelTriplet']
-pixelTripletSeedsForMinBias.originpTMin = [0.2]
-pixelTripletSeedsForMinBias.pTMin = [0.2]
-hltPixelTracksForMinBias.SeedProducer = cms.InputTag("pixelTripletSeedsForMinBias","PixelTriplet")
-
 
