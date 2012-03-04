@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_1_0/GRun/V135 (CMSSW_5_2_0_pre5_HLT11)
+# /dev/CMSSW_5_1_0/GRun/V136 (CMSSW_5_2_0_pre5_HLT12)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V135')
+  tableName = cms.string('/dev/CMSSW_5_1_0/GRun/V136')
 )
 
 hltESSBTagRecord = cms.ESSource( "EmptyESSource",
@@ -2283,7 +2283,7 @@ hltAntiKT5CaloJets = cms.EDProducer( "FastjetJetProducer",
     sumRecHits = cms.bool( False ),
     DxyTrVtxMax = cms.double( 0.0 )
 )
-hltCaloJetIDPassed = cms.EDProducer( "HLTJetIDProducer",
+hltCaloJetIDPassed = cms.EDProducer( "HLTCaloJetIDProducer",
     min_N90 = cms.int32( -2 ),
     min_N90hits = cms.int32( 2 ),
     min_EMF = cms.double( 1.0E-6 ),
@@ -4150,7 +4150,7 @@ hltCaloJetL1MatchedRegional = cms.EDProducer( "HLTCaloJetL1MatchProducer",
     L1TauJets = cms.InputTag( 'l1extraParticles','Tau' ),
     jetsInput = cms.InputTag( "hltAntiKT5CaloJetsRegional" )
 )
-hltCaloJetIDPassedRegional = cms.EDProducer( "HLTJetIDProducer",
+hltCaloJetIDPassedRegional = cms.EDProducer( "HLTCaloJetIDProducer",
     min_N90 = cms.int32( -2 ),
     min_N90hits = cms.int32( 2 ),
     min_EMF = cms.double( 1.0E-6 ),

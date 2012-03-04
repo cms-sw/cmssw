@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_1_0/HLT/V215 (CMSSW_5_2_0_pre5_HLT11)
+# /dev/CMSSW_5_1_0/HLT/V216 (CMSSW_5_2_0_pre5_HLT12)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/HLT/V215')
+  tableName = cms.string('/dev/CMSSW_5_1_0/HLT/V216')
 )
 
 streams = cms.PSet( 
@@ -5940,7 +5940,7 @@ hltAntiKT5CaloJets = cms.EDProducer( "FastjetJetProducer",
     sumRecHits = cms.bool( False ),
     DxyTrVtxMax = cms.double( 0.0 )
 )
-hltCaloJetIDPassed = cms.EDProducer( "HLTJetIDProducer",
+hltCaloJetIDPassed = cms.EDProducer( "HLTCaloJetIDProducer",
     min_N90 = cms.int32( -2 ),
     min_N90hits = cms.int32( 2 ),
     min_EMF = cms.double( 1.0E-6 ),
@@ -9256,7 +9256,7 @@ hltCaloJetL1MatchedRegional = cms.EDProducer( "HLTCaloJetL1MatchProducer",
     L1TauJets = cms.InputTag( 'hltL1extraParticles','Tau' ),
     jetsInput = cms.InputTag( "hltAntiKT5CaloJetsRegional" )
 )
-hltCaloJetIDPassedRegional = cms.EDProducer( "HLTJetIDProducer",
+hltCaloJetIDPassedRegional = cms.EDProducer( "HLTCaloJetIDProducer",
     min_N90 = cms.int32( -2 ),
     min_N90hits = cms.int32( 2 ),
     min_EMF = cms.double( 1.0E-6 ),
@@ -10428,7 +10428,7 @@ hltPreCentralJet80MET80 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
-hltCaloJetIDPassedRegionalHF = cms.EDProducer( "HLTJetIDProducer",
+hltCaloJetIDPassedRegionalHF = cms.EDProducer( "HLTCaloJetIDProducer",
     min_N90 = cms.int32( -2 ),
     min_N90hits = cms.int32( 2 ),
     min_EMF = cms.double( 0.01 ),
@@ -51062,7 +51062,7 @@ hltPreHIJet55 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
-hltHICaloJetIDPassed = cms.EDProducer( "HLTJetIDProducer",
+hltHICaloJetIDPassed = cms.EDProducer( "HLTCaloJetIDProducer",
     min_N90 = cms.int32( -2 ),
     min_N90hits = cms.int32( -2 ),
     min_EMF = cms.double( 1.0E-6 ),

@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_1_0/HIon/V135 (CMSSW_5_2_0_pre5_HLT11)
+# /dev/CMSSW_5_1_0/HIon/V136 (CMSSW_5_2_0_pre5_HLT12)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_1_0/HIon/V135')
+  tableName = cms.string('/dev/CMSSW_5_1_0/HIon/V136')
 )
 
 streams = cms.PSet( 
@@ -5395,7 +5395,7 @@ hltIterativeCone5PileupSubtractionCaloJets = cms.EDProducer( "FastjetJetProducer
     sumRecHits = cms.bool( False ),
     DxyTrVtxMax = cms.double( 0.0 )
 )
-hltHICaloJetIDPassed = cms.EDProducer( "HLTJetIDProducer",
+hltHICaloJetIDPassed = cms.EDProducer( "HLTCaloJetIDProducer",
     min_N90 = cms.int32( -2 ),
     min_N90hits = cms.int32( -2 ),
     min_EMF = cms.double( 1.0E-6 ),
