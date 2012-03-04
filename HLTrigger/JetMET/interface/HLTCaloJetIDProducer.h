@@ -1,5 +1,5 @@
-#ifndef HLTJetIDProducer_h
-#define HLTJetIDProducer_h
+#ifndef HLTCaloJetIDProducer_h
+#define HLTCaloJetIDProducer_h
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -7,10 +7,10 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "RecoJets/JetProducers/interface/JetIDHelper.h"
 
-class HLTJetIDProducer : public edm::EDProducer {
+class HLTCaloJetIDProducer : public edm::EDProducer {
  public:
-  explicit HLTJetIDProducer(const edm::ParameterSet&);
-  ~HLTJetIDProducer();
+  explicit HLTCaloJetIDProducer(const edm::ParameterSet&);
+  ~HLTCaloJetIDProducer();
   virtual void beginJob() ; 
   virtual void produce(edm::Event &, const edm::EventSetup&);
  private:

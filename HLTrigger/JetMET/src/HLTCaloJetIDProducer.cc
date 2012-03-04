@@ -1,9 +1,9 @@
-#include "HLTrigger/JetMET/interface/HLTJetIDProducer.h"
+#include "HLTrigger/JetMET/interface/HLTCaloJetIDProducer.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-HLTJetIDProducer::HLTJetIDProducer(const edm::ParameterSet& iConfig) :
+HLTCaloJetIDProducer::HLTCaloJetIDProducer(const edm::ParameterSet& iConfig) :
   jetsInput_   (iConfig.getParameter<edm::InputTag>("jetsInput")),
   min_EMF_     (iConfig.getParameter<double>("min_EMF")),
   max_EMF_     (iConfig.getParameter<double>("max_EMF")),
@@ -11,21 +11,21 @@ HLTJetIDProducer::HLTJetIDProducer(const edm::ParameterSet& iConfig) :
   min_N90hits_ (iConfig.getParameter<int>("min_N90hits")),
   jetID_       (iConfig.getParameter<edm::ParameterSet>("JetIDParams"))
 {
-  //  produces< reco::CaloJetCollection > ( "hltJetIDCollection" );
+  //  produces< reco::CaloJetCollection > ( "hltCaloJetIDCollection" );
   produces< reco::CaloJetCollection > ();
 }
 
-void HLTJetIDProducer::beginJob()
+void HLTCaloJetIDProducer::beginJob()
 {
 
 }
 
-HLTJetIDProducer::~HLTJetIDProducer()
+HLTCaloJetIDProducer::~HLTCaloJetIDProducer()
 {
 
 }
 
-void HLTJetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void HLTCaloJetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
   edm::Handle<reco::CaloJetCollection> calojets;
@@ -46,7 +46,7 @@ void HLTJetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     }
   } // calojetc
 
-  //iEvent.put( result, "hltJetIDCollection");
+  //iEvent.put( result, "hltCaloJetIDCollection");
   iEvent.put( result);
 
 }
