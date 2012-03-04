@@ -64,6 +64,9 @@
 #include "HLTrigger/JetMET/interface/HLTJetVBFFilter.h"
 #include "HLTrigger/JetMET/src/HLTJetVBFFilter.cc"
 //
+#include "HLTrigger/JetMET/interface/HLTMhtHtFilter.h"
+#include "HLTrigger/JetMET/src/HLTMhtHtFilter.cc"
+//
 #include "HLTrigger/JetMET/interface/HLTForwardBackwardJetsFilter.h"
 #include "HLTrigger/JetMET/src/HLTForwardBackwardJetsFilter.cc"
 //
@@ -108,6 +111,9 @@ typedef HLTJetCollectionsVBFFilter<  PFJet> HLTPFJetCollectionsVBFFilter;
 
 typedef HLTJetVBFFilter<CaloJet> HLTCaloJetVBFFilter;
 typedef HLTJetVBFFilter<  PFJet> HLTPFJetVBFFilter;
+
+typedef HLTMhtHtFilter<CaloJet> HLTCaloMhtHtFilter;
+typedef HLTMhtHtFilter<  PFJet> HLTPFMhtHtFilter;
 
 typedef HLTForwardBackwardJetsFilter<CaloJet> HLTForwardBackwardCaloJetsFilter;
 typedef HLTForwardBackwardJetsFilter<  PFJet> HLTForwardBackwardPFJetsFilter;
@@ -175,6 +181,9 @@ DEFINE_FWK_MODULE(HLTPFJetL1MatchProducer);
 
 DEFINE_FWK_MODULE(HLTCaloJetVBFFilter);
 DEFINE_FWK_MODULE(HLTPFJetVBFFilter);
+
+DEFINE_FWK_MODULE(HLTCaloMhtHtFilter);
+DEFINE_FWK_MODULE(HLTPFMhtHtFilter);
 
 DEFINE_FWK_MODULE(HLTForwardBackwardCaloJetsFilter);
 DEFINE_FWK_MODULE(HLTForwardBackwardPFJetsFilter);
