@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  3 11:13:47 CDT 2011
-// $Id: DQMRootSource.cc,v 1.26 2011/11/16 13:44:48 rovere Exp $
+// $Id: DQMRootSource.cc,v 1.27 2012/03/03 21:39:22 chrjones Exp $
 //
 
 // system include files
@@ -854,7 +854,7 @@ DQMRootSource::setupFile(unsigned int iIndex)
     std::vector<edm::ProcessConfiguration> configs;
     configs.reserve(5);
     for(unsigned int i=0; i != processHistoryTree->GetEntries(); ++i) {
-      processHistoryTree->GetEntry();
+      processHistoryTree->GetEntry(i);
       if(phIndex==0) {
         if(not configs.empty()) {
           edm::ProcessHistory ph(configs);
