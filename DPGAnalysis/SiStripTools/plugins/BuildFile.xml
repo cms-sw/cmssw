@@ -28,6 +28,8 @@
 <use   name="RecoLocalTracker/SiStripClusterizer"/>
 <use   name="DataFormats/TrackerRecHit2D"/>
 <use   name="HLTrigger/HLTcore"/>
+<use   name="Geometry/TrackerGeometryBuilder"/>
+<use   name="Geometry/Records"/>
 
 <library   file="*.cc" name="DPGAnalysisSiStripToolsPlugins">
   <flags   EDM_PLUGIN="1"/>
