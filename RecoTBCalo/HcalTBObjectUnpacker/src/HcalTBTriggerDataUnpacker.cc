@@ -54,7 +54,7 @@ typedef struct newExtendedTrgMsgBlkStruct {
 
 namespace hcaltb {
 
-  void HcalTBTriggerDataUnpacker::unpack(const FEDRawData& raw, HcalTBTriggerData& htbtd) {
+  void HcalTBTriggerDataUnpacker::unpack(const FEDRawData& raw, HcalTBTriggerData& htbtd) const {
 
     // Use the size to determine which format we have received:
     //

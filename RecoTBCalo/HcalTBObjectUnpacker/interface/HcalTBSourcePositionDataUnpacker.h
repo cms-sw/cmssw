@@ -11,7 +11,7 @@ namespace hcaltb {
     HcalTBSourcePositionDataUnpacker(void) { }
 
     void unpack(const FEDRawData& raw,
-		HcalSourcePositionData& hspd);
+		HcalSourcePositionData& hspd) const;
   };
 }
 

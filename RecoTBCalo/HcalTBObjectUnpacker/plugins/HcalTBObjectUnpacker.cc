@@ -6,7 +6,7 @@ using namespace std;
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBEventPosition.h"
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBTiming.h"
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBBeamCounters.h"
-#include "RecoTBCalo/HcalTBObjectUnpacker/interface/HcalTBObjectUnpacker.h"
+#include "RecoTBCalo/HcalTBObjectUnpacker/plugins/HcalTBObjectUnpacker.h"
 #include "DataFormats/Common/interface/EDCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Selector.h"
@@ -200,3 +200,8 @@ void HcalTBObjectUnpacker::parseCalib(){
   infile.close();
   return;
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(HcalTBObjectUnpacker);

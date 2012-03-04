@@ -32,7 +32,7 @@ struct xdaqSourcePositionDataFormat {
 namespace hcaltb {
   
   void HcalTBSourcePositionDataUnpacker::unpack(const FEDRawData&  raw,
-						HcalSourcePositionData&    hspd) {
+						HcalSourcePositionData&    hspd) const {
     
     const struct xdaqSourcePositionDataFormat* sp =
       (const struct xdaqSourcePositionDataFormat*)(raw.data());
