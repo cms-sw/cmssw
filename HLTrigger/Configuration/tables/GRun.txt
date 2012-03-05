@@ -398,7 +398,8 @@ HLT_Mu12_eta2p1_DiCentralL1FastJet_40_20_DiBTagIP3D1stTrack_v*                  
 HLT_Mu12_eta2p1_DiCentralL1FastJet_40_20_v*                                                     #sr126638
 HLT_Mu12_eta2p1_DiCentralL1FastJet_40_20_BTagIP3D1stTrack_v*                                    #sr126638
 HLT_Mu12_eta2p1_DiCentralL1FastJet_20_v*                                                        #sr126638
-HLT_Mu12_eta2p1_v*                                                                              #sr126638
+HLT_Mu12_eta2p1_L1Mu10erJetC12WdEtaPhi1DiJetsC_v*
+                 #sr126638
 HLT_Mu15_eta2p1_TriCentralL1FastJet_40_20_20_DiBTagIP3D1stTrack_v*                              #sr126638
 HLT_Mu15_eta2p1_TriCentralL1FastJet_40_20_20_BTagIP3D1stTrack_v*                                #sr126638
 HLT_Mu15_eta2p1_TriCentralL1FastJet_40_20_20_v*                                                 #sr126638
