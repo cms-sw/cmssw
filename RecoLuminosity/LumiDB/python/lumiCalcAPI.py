@@ -1,5 +1,5 @@
 import os,coral,datetime,fnmatch,time
-from RecoLuminosity.LumiDB import nameDealer,revisionDML,dataDML,lumiTime,CommonUtil,selectionParser,hltTrgSeedMapper,lumiCorrections
+from RecoLuminosity.LumiDB import nameDealer,revisionDML,dataDML,lumiTime,CommonUtil,selectionParser,hltTrgSeedMapper,lumiCorrections,lumiParameters
 
 #internal functions
 #
@@ -52,17 +52,6 @@ def runList(schema,fillnum=None,runmin=None,runmax=None,startT=None,stopT=None,l
     output: [runnumber,...]
     '''
     return dataDML.runList(schema,fillnum,runmin,runmax,startT,stopT,l1keyPattern,hltkeyPattern,amodetag,nominalEnergy,energyFlut,requiretrg,requirehlt,lumitype)
-
-def lslengthsec(numorbit, numbx):
-    '''
-    input:
-       numorbit : number of orbit in the lumi section
-       numbx : number of orbits
-    output:
-       lumi section length in sec
-    '''
-    l = numorbit * numbx * 25.0e-09
-    return l
 
 def hltpathsForRange(schema,runlist,hltpathname=None,hltpathpattern=None):
     '''
@@ -458,6 +447,7 @@ def deliveredLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=N
            result {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),calibratedlumierr(6),(bxvalues,bxerrs)(7),(bxidx,b1intensities,b2intensities)(8)]}
            avg lumi unit: 1/ub
     '''
+    lumip=lumiParameters.ParametersObject()
     result = {}
     normval=None
     perbunchnormval=None
@@ -500,8 +490,8 @@ def deliveredLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=N
                 calibratedlumi=finecorrections[run]*calibratedlumi
             calibratedlumierr=perlsdata[6]*normval
             numorbit=perlsdata[8]
-            numbx=3564
-            lslen=lslengthsec(numorbit,numbx)
+            numbx=lumip.NBX
+            lslen=lumip.lslengthsec()
             deliveredlumi=calibratedlumi*lslen
             calibratedbxdata=None
             beamdata=None
@@ -539,6 +529,7 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
         raise ValueError('unknown lumitype '+lumitype)
     #if branchName is None:
     #    branchName='DATA'
+    lumip=lumiParameters.ParametersObject()
     lumitableName=''
     lumilstableName=''
     if lumitype=='HF':
@@ -547,7 +538,7 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
     else:
         lumitableName=nameDealer.pixellumidataTableName()
         lumilstableName=nameDealer.pixellumisummaryv2TableName()
-    numbx=3564
+    numbx=lumip.NBX
     result = {}
     normval=None
     perbunchnormval=None
@@ -617,7 +608,7 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
             numorbit=perlsdata[6]
             startorbit=perlsdata[7]
             timestamp=c.OrbitToTime(startTimeStr,startorbit,0)
-            lslen=lslengthsec(numorbit,numbx)
+            lslen=lumip.lslengthsec()
             deliveredlumi=calibratedlumi*lslen
             recordedlumi=0.0
             if triggeredls!=0:
@@ -792,7 +783,7 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
             numorbit=perlsdata[6]
             startorbit=perlsdata[7]
             timestamp=c.OrbitToUTCTimestamp(startTimeStr,startorbit,0)
-            lslen=lslengthsec(numorbit,numbx)
+            lslen=lumip.lslengthsec()
             deliveredlumi=calibratedlumi*lslen
             recordedlumi=0.0
             trgprescalemap={}#trgprescalemap for this ls
