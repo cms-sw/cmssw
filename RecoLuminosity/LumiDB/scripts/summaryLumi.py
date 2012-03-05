@@ -3,7 +3,7 @@
 import os,os.path,sys,math,array,datetime,time,re
 import coral
 
-from RecoLuminosity.LumiDB import argparse,lumiTime,CommonUtil,lumiCalcAPI,lumiCorrections,sessionManager
+from RecoLuminosity.LumiDB import argparse,lumiTime,CommonUtil,lumiCalcAPI,lumiCorrections,sessionManager,lumiParameters
 MINFILL=1800
 MAXFILL=9999
 allfillname='allfills.txt'
@@ -54,7 +54,6 @@ if __name__ == '__main__':
     options=parser.parse_args()
     if options.minfill:
         MINFILL=int(options.minfill)
-    allfillsFromFile=[]
     fillstoprocess=[]
     maxfillnum=options.maxfill
     summaryfilenameTMP='_summary_CMS.txt'
@@ -86,8 +85,8 @@ if __name__ == '__main__':
     if len(fillstoprocess)==0:
         print 'no fill to process, exit '
         exit(0)
-
-    lslength=23.357
+    lumip=lumiParameters.ParametersObject()
+    lslength=lumip.lslengthsec()
     import commands,os,RecoLuminosity.LumiDB.lumiTime,datetime,time
     for fillnum in fillstoprocess:
         clineElements=['lumiCalc2.py','lumibyls','-c',dbname,'-P',authdir,'-f',str(fillnum),'-o','tmp.out']

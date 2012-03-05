@@ -9,7 +9,7 @@
 import os,os.path,sys,math,array,datetime,time,calendar,re
 import coral
 
-from RecoLuminosity.LumiDB import argparse,sessionManager,lumiTime,CommonUtil,lumiCalcAPI,lumiCorrections
+from RecoLuminosity.LumiDB import argparse,sessionManager,lumiTime,CommonUtil,lumiCalcAPI,lumiCorrections,lumiParameters
 MINFILL=1800
 MAXFILL=9999
 allfillname='allfills.txt'
@@ -221,13 +221,14 @@ def specificlumiTofile(fillnum,filldata,outdir):
    
     summarylstimes=summaryls.keys()
     summarylstimes.sort()
+    lumip=lumiParameters.ParametersObject()
     for bts in summarylstimes:
         startts=bts
         tsdatainseg=summaryls[bts]
         #print 'tsdatainseg ',tsdatainseg
         stopts=tsdatainseg[-1][0]
         plu=max(CommonUtil.transposed(tsdatainseg,0.0)[1])
-        lui=sum(CommonUtil.transposed(tsdatainseg,0.0)[1])*23.357
+        lui=sum(CommonUtil.transposed(tsdatainseg,0.0)[1])*lumip.lslengthsec()
         print >>f,'%d\t%d\t%e\t%e'%(startts,stopts,plu,lui)
     f.close()
 
@@ -240,12 +241,9 @@ def getSpecificLumi(schema,fillnum,inputdir,xingMinLum=0.0,norm='pp7TeV',withcor
     20800119.0 1 -0.889948 0.00475996848729 0.249009 0.005583287562 -0.68359 6.24140208607 0.0 0.0 0.0 0.0 0.0 0.0 0.0383576 0.00430892097862 0.0479095 0.00430892097862 66.6447 4.41269758764 0.0 0.0 0.0
     result [(time,beamstatusfrac,lumi,lumierror,speclumi,speclumierror)]
     '''
-    runtimesInFill=getFillFromFile(fillnum,inputdir)#{runnum:starttimestr}
-    #print runtimesInFill
     t=lumiTime.lumiTime()
     fillbypos={}#{bxidx:[[ts,beamstatusfrac,lumi,lumierror,spec1,specerror],[]]}
-    if fillnum and len(runtimesInFill)==0:
-        runtimesInFill=getFillFromDB(schema,fillnum)#{runnum:starttimestr}
+    runtimesInFill=getFillFromDB(schema,fillnum)#{runnum:starttimestr}
     runlist=runtimesInFill.keys()
     if not runlist: return fillbypos
     irunlsdict=dict(zip(runlist,[None]*len(runlist)))
@@ -268,7 +266,6 @@ def getSpecificLumi(schema,fillnum,inputdir,xingMinLum=0.0,norm='pp7TeV',withcor
             driftcorrections=None
     lumidetails=lumiCalcAPI.instCalibratedLumiForRange(schema,irunlsdict,beamstatus=None,amodetag=amodetag,withBXInfo=True,withBeamIntensity=True,bxAlgo=bxAlgo,xingMinLum=xingMinLum,norm=norm,finecorrections=finecorrections,driftcorrections=driftcorrections,usecorrectionv2=(usecorrectionv2 or usecorrectionv3 ))
     session.transaction().commit()
-    print 'done with db'
     #
     #output: {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),calibratedlumi(5),calibratedlumierr(6),startorbit(7),numorbit(8),(bxvalues,bxerrs)(9),(bxidx,b1intensities,b2intensities)(10)]}}
     #
@@ -320,7 +317,6 @@ def getSpecificLumi(schema,fillnum,inputdir,xingMinLum=0.0,norm='pp7TeV',withcor
                 speclumi=calculateSpecificLumi(bxvalue,bxerror,b1intensity,0.0,b2intensity,0.0)
                 fillbypos.setdefault(bxidx,[]).append([ts,beamstatusfrac,bxvalue,bxerror,speclumi[0],speclumi[1]])
     return fillbypos
-
 
 
 ##############################
@@ -419,7 +415,6 @@ if __name__ == '__main__':
     svc=sessionManager.sessionManager(options.connect,authpath=options.authpath,debugON=options.debug)
     session=svc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
 
-    allfillsFromFile=[]
     fillstoprocess=[]
     maxfillnum=options.maxfill
     minfillnum=options.minfill
