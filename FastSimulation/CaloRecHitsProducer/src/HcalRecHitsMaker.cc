@@ -556,7 +556,6 @@ unsigned HcalRecHitsMaker::createVectorOfSubdetectorCells(const CaloGeometry& cg
 // Takes a hit (from a PSimHit) and fills a map 
 void HcalRecHitsMaker::Fill(int id, float energy, std::vector<int>& theHits,float noise,float correctionfactor)
 {
-  std::cout << "correctionfactor = " << correctionfactor << std::endl;
   if(doMiscalib_) 
     energy*=miscalib_[id];
 
@@ -733,35 +732,6 @@ double HcalRecHitsMaker::noiseInfCfromDB(const HcalDbService * conditions,const 
   //  else          noise_rms_fC = RMS4;
   noise_rms_fC = RMS4;
 
-  // correction factors between Full and Fast Sim when noise is taken from database
-  /*
-  double corrfac = 1.;
-  std::cout << "detId.subdet() = " << detId.subdet() << std::endl;
-  switch(detId.subdet())
-    {
-    case HcalBarrel: 
-      //      {	if(det_==4) corrfac = corrfac_[0]; }
-      corrfac = corrfac_[0]; 
-      break;
-    case HcalEndcap: 
-      //      {	if(det_==4) corrfac = corrfac_[1]; }
-      corrfac = corrfac_[1]; 
-      break;
-    case HcalOuter: 
-      //      { if(det_==5) corrfac = corrfac_[0]; }
-      corrfac = 2.*corrfac_[0]; 
-      break;		     
-    case HcalForward: 
-      //      { if(det_==6) corrfac = corrfac_[0]; }
-      corrfac = 2.*corrfac_[0]; 
-      break;
-    default:
-      edm::LogWarning("CaloRecHitsProducer") << "RecHit not registered\n";
-      ;
-    }
-  //  noise_rms_fC *= corrfac[sub-1];
-  noise_rms_fC *= corrfac; 
-  */
 
   // to convert from above fC to GeV - multiply by gain (GeV/fC)        
   //  const HcalGain*  gain = conditions->getGain(detId); 
