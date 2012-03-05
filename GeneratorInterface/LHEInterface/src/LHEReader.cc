@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -11,8 +12,10 @@
 #include <xercesc/sax2/Attributes.hpp>
 #include <xercesc/dom/DOM.hpp>
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/TimeOfDay.h"
 
 #include "GeneratorInterface/LHEInterface/interface/LHEReader.h"
 #include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
@@ -27,6 +30,12 @@
 XERCES_CPP_NAMESPACE_USE
 
 namespace lhef {
+
+  static void logFileAction(char const* msg, std::string const& fileName) {
+    edm::LogAbsolute("fileAction") << std::setprecision(0) << edm::TimeOfDay() << msg << fileName;
+    edm::FlushMessageLog();
+  }
+
 
 class LHEReader::Source {
     public:
@@ -338,10 +347,17 @@ LHEReader::~LHEReader()
 
     while(curDoc.get() || curIndex < fileURLs.size() || (fileURLs.size() == 0 && strName != "" ) ) {
       if (!curDoc.get()) {
-        if ( fileURLs.size() > 0 ) 
-          curSource.reset(new FileSource(fileURLs[curIndex++]));
-        else if ( strName != "" ) 
+        if ( fileURLs.size() > 0 ) {
+          logFileAction("  Initiating request to open LHE file ", fileURLs[curIndex]);
+          curSource.reset(new FileSource(fileURLs[curIndex]));
+          if(curIndex != 0) {
+            logFileAction("  Closed LHE file ", fileURLs[curIndex - 1]);
+          }
+          logFileAction("  Successfully opened LHE file ", fileURLs[curIndex]);
+          ++curIndex;
+        } else if ( strName != "" ) {
           curSource.reset(new StringSource(strName));
+        }
         handler->reset();
         curDoc.reset(curSource->createReader(*handler));
         curRunInfo.reset();
