@@ -54,7 +54,7 @@ coral::IConnectionServiceConfiguration& ora::ConnectionPool::configuration(){
 }
 
 ora::SharedSession ora::ConnectionPool::connect( const std::string& connectionString,
-                                                  coral::AccessMode accessMode ){
+						 coral::AccessMode accessMode ){
   bool valid = false;
   boost::shared_ptr<coral::ISessionProxy> session;
   std::map<std::string,boost::weak_ptr<coral::ISessionProxy> >::iterator iS = m_sessions.find( lookupString( connectionString, accessMode ) );
@@ -74,10 +74,33 @@ ora::SharedSession ora::ConnectionPool::connect( const std::string& connectionSt
   return SharedSession( session );
 }
 
+ora::SharedSession ora::ConnectionPool::connect( const std::string& connectionString,
+						 const std::string& asRole,
+						 coral::AccessMode accessMode ){
+  bool valid = false;
+  boost::shared_ptr<coral::ISessionProxy> session;
+  std::map<std::string,boost::weak_ptr<coral::ISessionProxy> >::iterator iS = m_sessions.find( lookupString( connectionString, asRole, accessMode ) );
+  if( iS != m_sessions.end() ){
+    if( !iS->second.expired() ){
+      session = iS->second.lock();
+      valid = true;
+    } 
+  } else {
+    iS = m_sessions.insert(std::make_pair( lookupString( connectionString, asRole, accessMode ),boost::weak_ptr<coral::ISessionProxy>())).first;
+  }
+  if(!valid){
+    session.reset(m_connectionService.connect( connectionString, asRole, accessMode ));
+    boost::weak_ptr<coral::ISessionProxy> tmp(session);
+    iS->second.swap( tmp );
+  }
+  return SharedSession( session );
+}
+
+
 std::string ora::ConnectionPool::lookupString( const std::string& connectionString,
                                                coral::AccessMode accessMode ){
   std::stringstream lookupString;
-  lookupString << connectionString << "_";
+  lookupString << "["<<connectionString << "]_";
   if(accessMode == coral::ReadOnly){
     lookupString << "R";
   } else {
@@ -86,3 +109,9 @@ std::string ora::ConnectionPool::lookupString( const std::string& connectionStri
   return lookupString.str();
 }
 
+std::string ora::ConnectionPool::lookupString( const std::string& connectionString,
+					       const std::string& role,
+                                               coral::AccessMode accessMode ){
+  std::string rolePrefix(role);
+  return rolePrefix+lookupString( connectionString, accessMode );
+}

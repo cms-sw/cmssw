@@ -93,6 +93,12 @@ bool ora::Database::connect( const std::string& connectionString,
   return m_impl->m_session->connect( connectionString, readOnly );
 }
 
+bool ora::Database::connect( const std::string& connectionString,
+			     const std::string& asRole,
+                             bool readOnly ){
+  return m_impl->m_session->connect( connectionString, asRole, readOnly );
+}
+
 void ora::Database::disconnect(){
   m_impl->m_session->disconnect();
 }

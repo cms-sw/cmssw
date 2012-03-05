@@ -41,10 +41,12 @@ namespace ora {
     coral::IConnectionServiceConfiguration& configuration();
 
     SharedSession connect( const std::string& connectionString, coral::AccessMode accessMode );
+    SharedSession connect( const std::string& connectionString, const std::string& asRole, coral::AccessMode accessMode );
 
     private:
 
     static std::string lookupString( const std::string& connectionString, coral::AccessMode accessMode );
+    static std::string lookupString( const std::string& connectionString, const std::string& role, coral::AccessMode accessMode );
 
     private:
     

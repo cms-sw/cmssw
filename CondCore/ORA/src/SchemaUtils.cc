@@ -74,27 +74,27 @@ void ora::Serializer::lock( const std::string& connectionString ){
     if(!schema.existsTable( tableName() )){
       coral::TableDescription descr( "OraDb" );
       descr.setName( tableName() );
-      descr.insertColumn( "LOCK",
+      descr.insertColumn( "P_LOCK",
 			  coral::AttributeSpecification::typeNameForType<int>() );
-      descr.setNotNullConstraint( "LOCK" );
-      descr.setPrimaryKey( std::vector<std::string>( 1, "LOCK" ) );
+      descr.setNotNullConstraint( "P_LOCK" );
+      descr.setPrimaryKey( std::vector<std::string>( 1, "P_LOCK" ) );
       coral::ITable& table = schema.createTable( descr );
       table.privilegeManager().grantToPublic( coral::ITablePrivilegeManager::Select );
     }
     coral::ITable& table = schema.tableHandle( tableName() );
-    std::string condition("LOCK = 1");
+    std::string condition("P_LOCK = 1");
     std::auto_ptr<coral::IQuery> query( table.newQuery() );
-    query->addToOutputList( "LOCK" );
-    query->defineOutputType( "LOCK", coral::AttributeSpecification::typeNameForType<int>());
+    query->addToOutputList( "P_LOCK" );
+    query->defineOutputType( "P_LOCK", coral::AttributeSpecification::typeNameForType<int>());
     query->setCondition( condition, coral::AttributeList() );
     query->setForUpdate();
     coral::ICursor& cursor = query->execute();
     coral::AttributeList data;
-    data.extend<int>( "LOCK" );
-    data["LOCK"].data<int>() = 1;
+    data.extend<int>( "P_LOCK" );
+    data["P_LOCK"].data<int>() = 1;
     if( cursor.next() ){
       // row found. will be locked by the DB if some other session owns the transaction...
-      std::string setCLause = "LOCK = :LOCK";
+      std::string setCLause = "P_LOCK = :P_LOCK";
       table.dataEditor().updateRows( setCLause, condition , data );
     } else {
       // no row found... no lock!

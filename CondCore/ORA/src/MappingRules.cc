@@ -506,6 +506,12 @@ ora::MappingRules::columnNameForPosition()
   return std::string("POS");
 }
 
+std::string 
+ora::MappingRules::columnNameForBlobMetadata( const std::string& dataColumnName ){
+  std::string prefix("M");
+  return prefix + dataColumnName.substr(1);
+}
+
 std::string
 ora::MappingRules::fkNameForIdentity( const std::string& tableName, int index )
 {

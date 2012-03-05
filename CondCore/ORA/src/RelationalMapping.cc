@@ -158,7 +158,15 @@ namespace ora {
       i++;
     }
     tableRegister.insertColumn(parentElement.tableName(),columnName);
-    me.setColumnNames( std::vector< std::string >( 1, columnName ) );
+    std::vector<std::string> cols;
+    cols.push_back( columnName );
+    // add metadata column for blobs 
+    if( elementType == ora::MappingElement::blobMappingElementType() ){
+      std::string metaDataColumnName = ora::MappingRules::columnNameForBlobMetadata( columnName );
+      tableRegister.insertColumn(parentElement.tableName(),metaDataColumnName );
+      cols.push_back( metaDataColumnName );      
+    }
+    me.setColumnNames( cols );
   }
 }
 

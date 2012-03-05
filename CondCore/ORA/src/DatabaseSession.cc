@@ -86,6 +86,19 @@ bool ora::DatabaseSession::connect( const std::string& connectionString,
   return isConnected();
 }
 
+bool ora::DatabaseSession::connect( const std::string& connectionString,
+				    const std::string& asRole,
+                                    bool readOnly ){
+  m_dbSession = m_connectionPool->connect( connectionString, asRole, readOnly?coral::ReadOnly:coral::Update );
+  if(m_dbSession.isValid()) {
+    m_connectionString = connectionString;
+    if( ora::Monitoring::isEnabled() ){
+      m_monitoring = ora::Monitoring::get().startSession( connectionString );
+    }
+  }
+  return isConnected();
+}
+
 void ora::DatabaseSession::clearTransaction(){
   m_transactionCache.reset();
   m_mappingDb.reset();
