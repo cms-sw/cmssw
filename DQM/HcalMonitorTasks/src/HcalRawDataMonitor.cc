@@ -522,9 +522,10 @@ void HcalRawDataMonitor::analyze(const edm::Event& e, const edm::EventSetup& s){
   
   // try to get die Data
   edm::Handle<FEDRawDataCollection> rawraw;
-  if (!(e.getByLabel(FEDRawDataCollection_,rawraw)))
+  //if (!(e.getByLabel(FEDRawDataCollection_,rawraw)))
+  if (!(e.getByType(rawraw)))
     {
-      edm::LogWarning("HcalRawDataMonitor")<<" raw data with label "<<FEDRawDataCollection_ <<" not available";
+      edm::LogWarning("HcalRawDataMonitor")<<" raw data with label "<<FEDRawDataCollection_ <<" not available by type";
       return;
     }
   edm::Handle<HcalUnpackerReport> report;  
@@ -784,10 +785,10 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
     }
   }
   
-  unsigned char HTRErrorList=0; 
-  for(int j=0; j<HcalDCCHeader::SPIGOT_COUNT; j++) {
-    HTRErrorList=dccHeader->getSpigotErrorBits(j);    
-  }
+  //unsigned char HTRErrorList=0; 
+  //for(int j=0; j<HcalDCCHeader::SPIGOT_COUNT; j++) {
+  //  HTRErrorList=dccHeader->getSpigotErrorBits(j);    
+  //}
 
   // These will be used in FED-vs-spigot 2D Histograms
   const int fed3offset = 1 + (4*dcc_); //3 bins, plus one of margin, each DCC
@@ -1081,11 +1082,11 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
 	} 
       }
     }
-
+ 
     // Fish out Front-End Errors from the precision channels
     const short unsigned int* daq_first, *daq_last, *tp_first, *tp_last;
     const HcalQIESample* qie_begin, *qie_end, *qie_work;
-
+    
     // get pointers
     htr.dataPointers(&daq_first,&daq_last,&tp_first,&tp_last);
     qie_begin=(HcalQIESample*)daq_first;
@@ -1094,74 +1095,89 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
     //TESTME_HCALRAWDATA//if (dccid==715 && spigot==5 && tevt_%3==0)
     //TESTME_HCALRAWDATA//  Chann_DataIntegrityCheck_[dcc_][16][spg2offset]++;    
 
-    int lastcapid=-1;
-    int samplecounter=-1;
-    int htrchan=-1; // Valid: [1,24]
-    int chn2offset=0; 
-    int NTS = htr.getNDD(); //number time slices, in precision channels
+    /// branch point between 2006-2011 data format and 2012+ data format
+    if (htr.getFormatVersion() < 6 ) { //HcalHTRData::FORMAT_VERSION_COMPACT_DATA is 6
 
-    ChannSumm_DataIntegrityCheck_  [fed2offset-1][spg2offset+0]=-NTS;//For normalization by client - NB! negative!
-    // Run over DAQ words for this spigot
-    for (qie_work=qie_begin; qie_work!=qie_end; qie_work++) {
-      if (qie_work->raw()==0xFFFF)  // filler word
-	continue;
-      //Beginning a channel's samples?
-      if (( 1 + ( 3* (qie_work->fiber()-1) ) + qie_work->fiberChan() )  != htrchan) { //new channel starting
-	// A fiber [1..8] carries three fiber channels, each is [0..2]. Make htrchan [1..24]
-	htrchan= (3* (qie_work->fiber()-1) ) + qie_work->fiberChan(); 
-	chn2offset = (htrchan*3)+1;
-	--ChannSumm_DataIntegrityCheck_  [fed2offset-1][spg2offset-1];//event tally -- NB! negative!
-	--Chann_DataIntegrityCheck_[dcc_][chn2offset-1][spg2offset-1];//event tally -- NB! negative!
-	if (samplecounter !=-1) { //Wrap up the previous channel if there is one
-	  //Check the previous digi for number of timeslices
-	  if (((samplecounter != NTS) &&
-	       (samplecounter != 1)             )
-	      //||
-	      //((htrchan==5) && (spigot==5) && (dcc_==5))
-	      )
-	    { //Wrong DigiSize
-	      ++ChannSumm_DataIntegrityCheck_  [fed2offset+0][spg2offset+0];
-	      ++Chann_DataIntegrityCheck_[dcc_][chn2offset+0][spg2offset+0];
-	      mapChannproblem(dcc_,spigot,htrchan);
-	      if (debug_)std::cout <<"mapChannelProblem:  Wrong Digi Size"<<std::endl;
-	    } 
-	} 	
-	//set up for this new channel
-	lastcapid=qie_work->capid();
-	samplecounter=1;} // fi (qie_work->fiberAndChan() != lastfibchan)
-      else { //precision samples not the first timeslice
-	int hope = lastcapid +1;// What capid would we hope for here?
-	if (hope==4) hope = 0;  // What capid would we hope for here?
-	if (qie_work->capid() != hope){
-	  ++ChannSumm_DataIntegrityCheck_  [fed2offset+1][spg2offset+0];
-	  ++Chann_DataIntegrityCheck_[dcc_][chn2offset+1][spg2offset+0];
-	  mapChannproblem(dcc_,spigot,htrchan);
-	  if (debug_)std::cout <<"mapChannelProblem:  Wrong Cap ID"<<std::endl;
+      int lastcapid=-1;
+      int samplecounter=-1;
+      int htrchan=-1; // Valid: [1,24]
+      int chn2offset=0; 
+      int NTS = htr.getNDD(); //number time slices, in precision channels
+
+      ChannSumm_DataIntegrityCheck_  [fed2offset-1][spg2offset+0]=-NTS;//For normalization by client - NB! negative!
+      // Run over DAQ words for this spigot
+      for (qie_work=qie_begin; qie_work!=qie_end; qie_work++) {
+	if (qie_work->raw()==0xFFFF)  // filler word
+	  continue;
+	//Beginning a channel's samples?
+	if (( 1 + ( 3* (qie_work->fiber()-1) ) + qie_work->fiberChan() )  != htrchan) { //new channel starting
+	  // A fiber [1..8] carries three fiber channels, each is [0..2]. Make htrchan [1..24]
+	  htrchan= (3* (qie_work->fiber()-1) ) + qie_work->fiberChan(); 
+	  chn2offset = (htrchan*3)+1;
+	  --ChannSumm_DataIntegrityCheck_  [fed2offset-1][spg2offset-1];//event tally -- NB! negative!
+	  --Chann_DataIntegrityCheck_[dcc_][chn2offset-1][spg2offset-1];//event tally -- NB! negative!
+	  if (samplecounter !=-1) { //Wrap up the previous channel if there is one
+	    //Check the previous digi for number of timeslices
+	    if (((samplecounter != NTS) &&
+		 (samplecounter != 1)             )
+		//||
+		//((htrchan==5) && (spigot==5) && (dcc_==5))
+		)
+	      { //Wrong DigiSize
+		++ChannSumm_DataIntegrityCheck_  [fed2offset+0][spg2offset+0];
+		++Chann_DataIntegrityCheck_[dcc_][chn2offset+0][spg2offset+0];
+		mapChannproblem(dcc_,spigot,htrchan);
+		if (debug_)std::cout <<"mapChannelProblem:  Wrong Digi Size"<<std::endl;
+	      } 
+	  } 	
+	  //set up for this new channel
+	  lastcapid=qie_work->capid();
+	  samplecounter=1;} // fi (qie_work->fiberAndChan() != lastfibchan)
+	else { //precision samples not the first timeslice
+	  int hope = lastcapid +1;// What capid would we hope for here?
+	  if (hope==4) hope = 0;  // What capid would we hope for here?
+	  if (qie_work->capid() != hope){
+	    ++ChannSumm_DataIntegrityCheck_  [fed2offset+1][spg2offset+0];
+	    ++Chann_DataIntegrityCheck_[dcc_][chn2offset+1][spg2offset+0];
+	    mapChannproblem(dcc_,spigot,htrchan);
+	    if (debug_)std::cout <<"mapChannelProblem:  Wrong Cap ID"<<std::endl;
+	  }
+	  lastcapid=qie_work->capid();
+	  samplecounter++;}
+	//For every sample, whether the first of the channel or not, !DV, Er
+	if (!(qie_work->dv())){
+	  ++ChannSumm_DataIntegrityCheck_  [fed2offset+0][spg2offset+1];
+	  ++Chann_DataIntegrityCheck_[dcc_][chn2offset+0][spg2offset+1];
 	}
-	lastcapid=qie_work->capid();
-	samplecounter++;}
-      //For every sample, whether the first of the channel or not, !DV, Er
-      if (!(qie_work->dv())){
-	++ChannSumm_DataIntegrityCheck_  [fed2offset+0][spg2offset+1];
-	++Chann_DataIntegrityCheck_[dcc_][chn2offset+0][spg2offset+1];
-      }
-      if (qie_work->er()) {      // FEE - Front End Error
-	++ChannSumm_DataIntegrityCheck_  [fed2offset+1][spg2offset+1];
-	++Chann_DataIntegrityCheck_[dcc_][chn2offset+1][spg2offset+1]; 
+	if (qie_work->er()) {      // FEE - Front End Error
+	  ++ChannSumm_DataIntegrityCheck_  [fed2offset+1][spg2offset+1];
+	  ++Chann_DataIntegrityCheck_[dcc_][chn2offset+1][spg2offset+1]; 
+	  mapChannproblem(dcc_,spigot,htrchan);
+	  if (debug_)std::cout <<"mapChannelProblem:  FE Error"<<std::endl;	
+	}
+      } // for (qie_work = qie_begin;...)  end loop over all timesamples in this spigot
+      //Wrap up the last channel
+      //Check the last digi for number of timeslices
+      if ((samplecounter != NTS) &&
+	  (samplecounter != 1)            &&
+	  (samplecounter !=-1)             ) { //Wrong DigiSize (unexpected num. timesamples)
+	++ChannSumm_DataIntegrityCheck_  [fed2offset+0][spg2offset+0];
+	++Chann_DataIntegrityCheck_[dcc_][chn2offset+0][spg2offset+0];
 	mapChannproblem(dcc_,spigot,htrchan);
-	if (debug_)std::cout <<"mapChannelProblem:  FE Error"<<std::endl;	
+	if (debug_)std::cout <<"mapChannelProblem:  Wrong Digi Size (last digi)"<<std::endl;
       }
-    } // for (qie_work = qie_begin;...)  end loop over all timesamples in this spigot
-    //Wrap up the last channel
-    //Check the last digi for number of timeslices
-    if ((samplecounter != NTS) &&
-	(samplecounter != 1)            &&
-	(samplecounter !=-1)             ) { //Wrong DigiSize (unexpected num. timesamples)
-      ++ChannSumm_DataIntegrityCheck_  [fed2offset+0][spg2offset+0];
-      ++Chann_DataIntegrityCheck_[dcc_][chn2offset+0][spg2offset+0];
-      mapChannproblem(dcc_,spigot,htrchan);
-      if (debug_)std::cout <<"mapChannelProblem:  Wrong Digi Size (last digi)"<<std::endl;
-    } 
+    }//} else { // this is the branch for unpacking the compact data format with per-channel headers
+    //  const unsigned short* ptr_header=daq_first;
+    //  const unsigned short* ptr_end=daq_last+1;
+    //  int flavor, error_flags, capid0, channelid;
+    //
+    //  while (ptr_header!=ptr_end) {
+    //	if (*ptr_header==0xFFFF) { // impossible filler word
+    //	  ptr_header++;
+    //	  continue;
+    //	}
+    //  }
+    //}
     unsigned int fib1BCN = htr.getFib1OrbMsgBCN();
     unsigned int fib2BCN = htr.getFib2OrbMsgBCN();
     unsigned int fib3BCN = htr.getFib3OrbMsgBCN();
@@ -1187,6 +1203,7 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
     meFib6OrbMsgBCN_->Fill(slotnum, cratenum, fib6BCN);
     meFib7OrbMsgBCN_->Fill(slotnum, cratenum, fib7BCN);
     meFib8OrbMsgBCN_->Fill(slotnum, cratenum, fib8BCN);
+    
   } //  loop over spigots 
   return;
 } // loop over DCCs void HcalRawDataMonitor::unpack(
