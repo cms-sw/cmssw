@@ -13,13 +13,14 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.h,v 1.22 2009/05/28 22:19:06 dlange Exp $
+// $Id: SiPixelGainCalibrationAnalysis.h,v 1.23 2009/07/07 15:52:36 rougny Exp $
 //
 //
 
 
 // system include files
 #include <memory>
+#include <vector>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -65,6 +66,8 @@ private:
   void fillDatabase();
   void printSummary();
   std::vector<float> CalculateAveragePerColumn(uint32_t detid, std::string label);
+  void save_pixel(int status, uint32_t detid, std::vector<SiPixelCalibDigi>::const_iterator ipix , int nallpoints, double* xvalsall , double* yvalsall);
+  
   // ----------member data --------------------------- 
   edm::ParameterSet conf_;
   // more class members used to keep track of the histograms
@@ -99,6 +102,9 @@ private:
   bool filldb_;
   bool writeSummary_;
   
+  std::vector<int> n_histo_per_status;
+  int n_histo_max_;
+  
   // parameters for database output  
   std::string  recordName_;
   bool appendMode_;
@@ -119,6 +125,6 @@ private:
   //Summary
   ofstream summary_;
   uint32_t currentDetID_;
-  int* statusNumbers_;
+  std::vector<int> statusNumbers_;
   
 };
