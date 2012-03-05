@@ -350,9 +350,6 @@ LHEReader::~LHEReader()
         if ( fileURLs.size() > 0 ) {
           logFileAction("  Initiating request to open LHE file ", fileURLs[curIndex]);
           curSource.reset(new FileSource(fileURLs[curIndex]));
-          if(curIndex != 0) {
-            logFileAction("  Closed LHE file ", fileURLs[curIndex - 1]);
-          }
           logFileAction("  Successfully opened LHE file ", fileURLs[curIndex]);
           ++curIndex;
         } else if ( strName != "" ) {
@@ -374,8 +371,10 @@ LHEReader::~LHEReader()
       
       switch(event) {
       case XMLHandler::kNone:
-        if (!curDoc->parse())
+        if (!curDoc->parse()) {
           curDoc.reset();
+          logFileAction("  Closed LHE file ", fileURLs[curIndex - 1]);
+        }
         break;
         
       case XMLHandler::kHeader:
