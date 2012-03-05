@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
       TString hltTableFileName= TString("hlt_DS_Table_") + sEnergy + "TeV_"
             + sLumi + TString("_") + ocfg->versionTag;
       // 		printf("About to call printHLTDatasets\n"); //RR
-      //    rprint->printHLTDatasets(ocfg,omenu,hltDatasets,hltTableFileName,3);
+      rprint->printHLTDatasets(ocfg,omenu,hltDatasets,hltTableFileName,3);
    }
    /* **** */
    // Calculate Efficiencies
