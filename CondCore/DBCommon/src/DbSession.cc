@@ -54,8 +54,9 @@ namespace cond {
         close();
       }
     
-      void open( const std::string& connectionString,
-                 bool readOnly ){
+    void open( const std::string& connectionString, 
+	       const std::string& role,
+	       bool readOnly ){
         close();
         if( connection.get() ){
           if(!connection->isOpen()){
@@ -72,7 +73,7 @@ namespace cond {
           // open the db connection
           technologyProxy = buildTechnologyProxy(connectionString, *connection);
           std::string connStr = (*technologyProxy).getRealConnectString();
-          database->connect( connStr, readOnly );
+          database->connect( connStr, role, readOnly );
           transaction.reset( new cond::DbTransaction( database->transaction() ) );
           isOpen = true;
         }
@@ -119,7 +120,13 @@ cond::DbSession& cond::DbSession::operator=( const cond::DbSession& rhs ){
 
 void cond::DbSession::open( const std::string& connectionString, bool readOnly )
 {
-  m_implementation->open( connectionString, readOnly );
+  std::string emptyRole("");
+  m_implementation->open( connectionString, emptyRole, readOnly );
+}
+
+void cond::DbSession::open( const std::string& connectionString, const std::string& asRole, bool readOnly )
+{
+  m_implementation->open( connectionString, asRole, readOnly );
 }
 
 void cond::DbSession::close()
