@@ -53,6 +53,7 @@ class TagCollector(object):
 		username = raw_input('Username: ')
 		password = getpass.getpass()
 		self.signIn(username, password)
+		return username
 
 	def signOut(self):
 		"""Sign out of TagCollector."""
@@ -176,4 +177,11 @@ class TagCollector(object):
 		By default, it only returns the latest 10 IBs.
 		Optionally, filter by name."""
 		return self._openjson('py_getIBs', {'filt': filt, 'limit': limit})
-
+	
+	def createRelease(self, base_release_name, new_release_name, new_state, new_private, new_type, new_description, release_managers, copy_queues, tags):
+		"""Create a new release.
+		Requirement: Signed in as a release manager."""
+		if self.login:
+		    self._open('copyRelease', {'release_name': base_release_name, 'new_release_name': new_release_name, 'new_state': new_state, 'new_private': new_private, 'new_type': new_type, 'new_description': new_description, 'release_managers': release_managers, 'copy_queues': copy_queues, 'tags': tags})
+		else:
+			raise Exception("Error: Not logged in?!")

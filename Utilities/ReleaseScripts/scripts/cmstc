@@ -30,6 +30,9 @@ Common commands:
                 addpkg does not read from stdin, use "-f" instead).
                 Optional parameter: '-m' ('--multiple').
                    Allows multiple tags for a single package.
+                   
+   createrel    Creates a new release queue. The command is using mandatory
+                parameters. Type 'cmstc createrel --help' for more information
 
 Integration Build commands:
    ibs          Prints the list of latest IBs for active releases
@@ -128,6 +131,8 @@ Examples:
 
    cmstc cmsdisttags   CMSSW_4_1_0_pre1
    cmstc cmsdistdiff   CMSSW_4_1_0_pre1 CMSSW_4_1_0_pre2
+   
+   cmstc createrel -r CMSSW_5_0_0_pre2 --private -b CMSSW_5_0_0_pre1 -d "adding new release queue" -a "CalibCalorimetry/CaloMiscalibTools V00-02-23, DQM/BeamMonitor V00-04-25" -m "muzaffar,eulisse"
 """
 
 __author__ = "Miguel Ojeda"
@@ -490,6 +495,53 @@ def cmd_cmsdisttags(cvstags):
 
 def cmd_cmsdistdiff(cvstags):
   printTags(getCMSDISTs(cvstags, True), 20)
+
+def cmd_createrel(args):
+  usage = "usage: %prog createrel [option1] arg1 [option2] arg2 ... [optionN] argN"
+  parser = optparse.OptionParser(usage=usage)
+  parser.add_option("-c", "--copyQueues", action="store_true", dest="copyQueues", default=False, help="Copy queues")
+  parser.add_option("-p", "--private", action="store_true", dest="isPrivate", default=False, help="Is private release?")
+  parser.add_option("-r", "--release", dest="release", help="New release name")
+  parser.add_option("-b", "--baseRelease", dest="baseRelease", help="Base release name", default="")
+  parser.add_option("-s", "--state", dest="state", help="New release state: [Open, Closed, Finished, Announced, Deprecated]", default="Open")
+  parser.add_option("-t", "--type", dest="type", help="New release type: [Development, Analysis, Integration Build, Production]", default="Development")
+  parser.add_option("-d", "--description", dest="description", help="New release description, please use more than 4 letters", default="New release is added")
+  parser.add_option("-m", "--managers", dest="managers", help="New release managers besides the one used for logging in TC", default="")
+  parser.add_option("-a", "--tags", dest="tags", help="New release tags", default="")
+  (opts, args) = parser.parse_args(args)
+  
+  if opts.release == None:
+      raise Exception("Error: No release name?!")
+  
+  if opts.baseRelease == None:
+      raise Exception("Error: No base release name?!")
+  
+  tc = cmstc.TagCollector()
+  username = tc.signInInteractive()
+  
+  if opts.managers == "":
+      opts.managers = username
+  else:
+      opts.managers = username + "," + opts.managers
+  packages = cmstc.TagCollector().getPackagesPendingApproval()
+  
+  if opts.isPrivate:
+      opts.isPrivate = "true"
+  else:
+      opts.isPrivate = "false"
+  if opts.copyQueues:
+      opts.copyQueues = "true"
+  else:
+      opts.copyQueues = "false"
+      
+  if not opts.tags == "":
+      tags = opts.tags.split(",")
+      opts.tags = ""
+      for tag in tags:
+          opts.tags += tag.strip() + "\n"
+  tc.createRelease(opts.baseRelease, opts.release, opts.state, opts.isPrivate, opts.type, opts.description, opts.managers, opts.copyQueues, opts.tags)
+  tc.signOut()
+  print "The release " + opts.release + " is successfully created!"
 
 def main():
   try:
