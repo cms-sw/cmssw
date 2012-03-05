@@ -141,6 +141,32 @@ class Fraction(BaseMetric):
         B = T-s
         return ( s/T if T else 0,
                  sqrt( s*s*B + B*B*s ) / (T*T) if s and B else 1/T if T else 0)
+    
+class FractionInBin(BaseMetric):
+    def __init__(self, bin):
+        self.__bin = bin
+
+    def calculate(self, histo):
+        from math import sqrt
+        s = histo.GetBinContent(self.__bin)
+        T = histo.GetEntries()
+        return ( s/T if T else 0,
+                 sqrt(1/T + 1/s)*s/T if T else 0)
+    
+class FractionInBinArray(BaseMetric):
+    def __init__(self, binsnum, binsden):
+        self.__binsnum = binsnum
+        self.__binsden = binsden
+        
+    def calculate(self, histo):
+        from math import sqrt
+        num=float(0.0)
+        den=float(0.0)
+        
+        for bn in self.__binsnum : num+=histo.GetBinContent(bn)
+        for bd in self.__binsden : den+=histo.GetBinContent(bd)
+        return ( num/den if den else 0,
+                 sqrt(1/num + 1/den)*num/den if den and num else 0)    
 
 class Quantile(BaseMetric):
     def __init__(self,  frac = 0.95):
