@@ -20,25 +20,25 @@ def lumiUnitForPrint(t):
     denomitor=1.0
     if t>=1.0e3 and t<1.0e06:
         denomitor=1.0e3
-        unitstring='1/nb'
+        unitstring='/nb'
     elif t>=1.0e6 and t<1.0e9:
         denomitor=1.0e6
-        unitstring='1/pb'
+        unitstring='/pb'
     elif t>=1.0e9 and t<1.0e12:
         denomitor=1.0e9
-        unitstring='1/fb'
+        unitstring='/fb'
     elif t>=1.0e12 and t<1.0e15:
         denomitor=1.0e12
-        unitstring='1/ab'
+        unitstring='/ab'
     elif t<1.0 and t>=1.0e-3: #left direction
         denomitor=1.0e-03
-        unitstring='1/mb'
+        unitstring='/mb'
     elif t<1.0e-03 and t>=1.0e-06:
         denomitor=1.0e-06
-        unitstring='1/b'
+        unitstring='/b'
     elif t<1.0e-06 and t>=1.0e-09:
         denomitor=1.0e-9
-        unitstring='1/kb'
+        unitstring='/kb'
     return (unitstring,denomitor)
 def guessUnit(inverseubval):
     '''
