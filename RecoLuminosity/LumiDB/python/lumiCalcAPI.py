@@ -243,7 +243,7 @@ def instLumiForRange(schema,inputRange,beamstatusfilter=None,withBXInfo=False,bx
            withBeamIntensity: get beam intensity info (optional)
            branchName: data version
     output:
-           result {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),instlumi(5),instlumierr(6),startorbit(7),numorbit(8),(bxidx,bxvalues,bxerrs)(9),(bxidx,b1intensities,b2intensities)(10)]}}
+           result {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),instlumi(5),instlumierr(6),startorbit(7),numorbit(8),(bxidx,bxvalues,bxerrs)(9),(bxidx,b1intensities,b2intensities)(10),fillnum(11)]}}
            lumi unit: HZ/ub
     '''
     if lumitype not in ['HF','PIXEL']:
@@ -267,6 +267,7 @@ def instLumiForRange(schema,inputRange,beamstatusfilter=None,withBXInfo=False,bx
         if len(runsummary)==0:#if run not found in runsummary
             result[run]=None
             continue
+        fillnum=runsummary[4]
         runstarttimeStr=runsummary[6]
         lumidataid=dataDML.guessLumiDataIdByRun(schema,run,lumitableName)
         if lumidataid is None: #if run not found in lumidata
@@ -323,12 +324,12 @@ def instLumiForRange(schema,inputRange,beamstatusfilter=None,withBXInfo=False,bx
                     del beam1intensityarray[:]
                     del beam2intensityarray[:]                    
                 beamdata=(bxindexlist,b1intensitylist,b2intensitylist)
-            lsresult.append([lumilsnum,cmslsnum,orbittime,beamstatus,beamenergy,instlumi,instlumierr,startorbit,numorbit,bxdata,beamdata])         
+            lsresult.append([lumilsnum,cmslsnum,orbittime,beamstatus,beamenergy,instlumi,instlumierr,startorbit,numorbit,bxdata,beamdata,fillnum])         
             del perlsdata[:]
         result[run]=lsresult
     return result
 
-def instCalibratedLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withBXInfo=False,bxAlgo=None,xingMinLum=0.0,withBeamIntensity=False,norm=None,finecorrections=None,driftcorrections=None,usecorrectionv2=False,lumitype='HF',branchName=None,):
+def instCalibratedLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withBXInfo=False,bxAlgo=None,xingMinLum=0.0,withBeamIntensity=False,norm=None,finecorrections=None,driftcorrections=None,usecorrectionv2=False,lumitype='HF',branchName=None):
     '''
     Inst luminosity after calibration, not time integrated
     input:
@@ -347,7 +348,7 @@ def instCalibratedLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,e
            finecorrections: const and non-linear corrections
            driftcorrections: driftcorrections
     output:
-           result {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),calibratedlumi(5),calibratedlumierr(6),startorbit(7),numorbit(8),(bxidx,bxvalues,bxerrs)(9),(bxidx,b1intensities,b2intensities)(10)]}}
+           result {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),calibratedlumi(5),calibratedlumierr(6),startorbit(7),numorbit(8),(bxidx,bxvalues,bxerrs)(9),(bxidx,b1intensities,b2intensities)(10),fillnum(11)]}}
            lumi unit: HZ/ub
     '''
     result = {}
@@ -378,6 +379,7 @@ def instCalibratedLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,e
             timestamp=perlsdata[2]
             bs=perlsdata[3]
             beamenergy=perlsdata[4]
+            fillnum=perlsdata[11]
             avglumi=perlsdata[5]*normval
             calibratedlumi=avglumi
             bxdata=perlsdata[9]
@@ -424,7 +426,7 @@ def instCalibratedLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,e
             calibratedbxdata=(bxidxlistResult,bxvaluelistResult,bxerrorlistResult)
             if withBeamIntensity:
                 beamdata=perlsdata[10]                
-            result[run].append([lumilsnum,cmslsnum,timestamp,bs,beamenergy,calibratedlumi,calibratedlumierr,startorbit,numorbit,calibratedbxdata,beamdata])
+            result[run].append([lumilsnum,cmslsnum,timestamp,bs,beamenergy,calibratedlumi,calibratedlumierr,startorbit,numorbit,calibratedbxdata,beamdata,fillnum])
             del perlsdata[:]
     return result
          
@@ -444,7 +446,7 @@ def deliveredLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=N
            norm: norm factor name to use: if float, apply directly, if str search norm by name (optional)
            branchName: data version or branch name
     output:
-           result {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),calibratedlumierr(6),(bxvalues,bxerrs)(7),(bxidx,b1intensities,b2intensities)(8)]}
+           result {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),calibratedlumierr(6),(bxvalues,bxerrs)(7),(bxidx,b1intensities,b2intensities)(8),fillnum(9)]}
            avg lumi unit: 1/ub
     '''
     lumip=lumiParameters.ParametersObject()
@@ -478,6 +480,7 @@ def deliveredLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=N
             bs=perlsdata[3]
             beamenergy=perlsdata[4]
             calibratedlumi=perlsdata[5]*normval#inst lumi
+            fillnum=perlsdata[11]
             if lumitype=='HF' and finecorrections and finecorrections[run]:
                 if usecorrectionv2:
                     if driftcorrections and driftcorrections[run]:
@@ -503,7 +506,7 @@ def deliveredLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=N
                 del bxdata[2][:]
             if withBeamIntensity:
                 beamdata=perlsdata[10]             
-            result[run].append([lumilsnum,cmslsnum,timestamp,bs,beamenergy,deliveredlumi,calibratedlumierr,calibratedbxdata,beamdata])
+            result[run].append([lumilsnum,cmslsnum,timestamp,bs,beamenergy,deliveredlumi,calibratedlumierr,calibratedbxdata,beamdata,fillnum])
             del perlsdata[:]
     return result
                        
@@ -522,7 +525,7 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
            normname: norm factor name to use (optional)
            branchName: data version
     output:
-           result {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),recordedlumi(6),calibratedlumierror(7),(bxidx,bxvalues,bxerrs)(8),(bxidx,b1intensities,b2intensities)(9)]}
+           result {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),recordedlumi(6),calibratedlumierror(7),(bxidx,bxvalues,bxerrs)(8),(bxidx,b1intensities,b2intensities)(9),fillnum(10)]}
            lumi unit: 1/ub
     '''
     if lumitype not in ['HF','PIXEL']:
@@ -559,6 +562,7 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
             result[run]=None
             continue
         startTimeStr=cmsrunsummary[6]
+        fillnum=cmsrunsummary[4]
         lumidataid=None
         trgdataid=None
         lumidataid=dataDML.guessLumiDataIdByRun(schema,run,lumitableName)
@@ -678,7 +682,7 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
                     del beam1intensityarray[:]
                     del beam2intensityarray[:]
                 beamdata=(bxindexlist,b1intensitylist,b2intensitylist)
-            perrunresult.append([lumilsnum,triggeredls,timestamp,bstatus,begev,deliveredlumi,recordedlumi,calibratedlumierror,bxdata,beamdata])
+            perrunresult.append([lumilsnum,triggeredls,timestamp,bstatus,begev,deliveredlumi,recordedlumi,calibratedlumierror,bxdata,beamdata,fillnum])
             del perlsdata[:]
         result[run]=perrunresult    
     return result
@@ -698,7 +702,7 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
            normname: norm factor name to use (optional)
            branchName: data version
     output:
-    result {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),recordedlumi(6),calibratedlumierror(7),{hltpath:[l1name,l1prescale,hltprescale,efflumi]},bxdata,beamdata]}
+    result {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),recordedlumi(6),calibratedlumierror(7),{hltpath:[l1name,l1prescale,hltprescale,efflumi]},bxdata,beamdata,fillnum]}
            lumi unit: 1/ub
     '''
     if lumitype not in ['HF','PIXEL']:
@@ -724,6 +728,7 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
         normval=_decidenormFromContext(schema,amodetag,egev)
         perbunchnormval=float(normval)/float(1000)
     c=lumiTime.lumiTime()
+    lumip=lumiParameters.ParametersObject()
     for run in inputRange.keys():
         lslist=inputRange[run]
         if lslist is not None and len(lslist)==0:#no selected ls, do nothing for this run
@@ -734,6 +739,7 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
             result[run]=None
             continue
         startTimeStr=cmsrunsummary[6]
+        fillnum=cmsrunsummary[4]
         lumidataid=None
         trgdataid=None
         hltdataid=None
@@ -888,7 +894,7 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
                     del beam2intensityarray[:]
                 beamdata=(bxindexlist,b1intensitylist,b2intensitylist)
 #            print cmslsnum,deliveredlumi,recordedlumi,efflumidict
-            perrunresult.append([lumilsnum,triggeredls,timestamp,bstatus,begev,deliveredlumi,recordedlumi,calibratedlumierror,efflumidict,bxdata,beamdata])
+            perrunresult.append([lumilsnum,triggeredls,timestamp,bstatus,begev,deliveredlumi,recordedlumi,calibratedlumierror,efflumidict,bxdata,beamdata,fillnum])
             del perlsdata[:]
         result[run]=perrunresult
     #print result
