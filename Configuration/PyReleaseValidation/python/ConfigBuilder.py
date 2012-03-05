@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.372 $"
+__version__ = "$Revision: 1.373 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -14,11 +14,10 @@ class Options:
 # the canonical defaults
 defaultOptions = Options()
 defaultOptions.datamix = 'DataOnSim'
-from Configuration.StandardSequences.Mixing import MixingDefaultKey
 defaultOptions.isMC=False
 defaultOptions.isData=True
 defaultOptions.step=''
-defaultOptions.pileup=MixingDefaultKey
+defaultOptions.pileup='NoPileUp'
 defaultOptions.pileup_input = None
 defaultOptions.geometry = 'SimDB'
 defaultOptions.geometryExtendedOptions = ['ExtendedGFlash','Extended','NoCastor']
@@ -985,6 +984,13 @@ class ConfigBuilder(object):
 		self.SIMDefaultCFF="Configuration/StandardSequences/SimIdeal_cff"
 	    
         # Mixing
+	if self._options.pileup=='default':
+		from Configuration.StandardSequences.Mixing import MixingDefaultKey,MixingFSDefaultKey
+		if 'FASTSIM' in self.stepMap:
+			self._options.pileup=MixingFSDefaultKey
+		else:
+			self._options.pileup=MixingDefaultKey
+			
 	#not driven by a default cff anymore
 	if self._options.isData:
 		self._options.pileup=None
@@ -1722,7 +1728,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.372 $"),
+                                            (version=cms.untracked.string("$Revision: 1.373 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )

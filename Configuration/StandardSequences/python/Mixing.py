@@ -105,7 +105,8 @@ addMixingScenario("SLHC_LowLumiPileUp_Phase1_R34F16_smpx",{'file':'SLHCUpgradeSi
 addMixingScenario("SLHC_LowLumiPileUp_stdgeom",{'file':'SLHCUpgradeSimulations.Geometry.mixLowLumPU_stdgeom_cff'})
 addMixingScenario("SLHC_LowLumiPileUp_Phase1_R39F16_HCal",{'file':'SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R39F16_HCal_cff'})
 
-MixingDefaultKey = 'NoPileUp'
+MixingDefaultKey = 'E7TeV_FlatDist10_2011EarlyData_50ns_PoissonOOT'
+MixingFSDefaultKey = 'FlatDist10_2011EarlyData_50ns'
 
 def printMe():
     global Mixing
