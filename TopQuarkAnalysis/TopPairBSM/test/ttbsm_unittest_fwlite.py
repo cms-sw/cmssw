@@ -4,7 +4,8 @@ import ROOT
 import sys
 from DataFormats.FWLite import Events, Handle
 
-files = ["dcap:///pnfs/cms/WAX/11/store/user/lpctlbsm/srappocc/QCD_Pt-15to3000_TuneZ2_Flat_7TeV_pythia6/ttbsm_v8_Summer11-PU_S3_-START42_V11-v2/d870fa9b0dd695e8eb649b7e725d070f/ttbsm_42x_mc_74_2_Bzl.root"]
+files = ["ttbsm_42x_mc.root"]
+printGen = True
 events = Events (files)
 handle1  = Handle ("std::vector<pat::Jet>")
 handle2  = Handle ("std::vector<pat::Jet>")
@@ -72,7 +73,16 @@ for event in events:
                "currLevel = {11:s}").format(
             ijet, jet.pt(), jet.eta(), jet.phi(), jet.mass(), jet.numberOfDaughters(), jet.userFloat('secvtxMass'),
             jet.jetArea(), jet.jecFactor("L1FastJet"), jet.jecFactor("L2Relative"), jet.jecFactor("L3Absolute"), jet.currentJECLevel()
-            )
+            ),
+        if printGen :
+            genPt = 0.
+            if jet.genJetFwdRef().isNonnull() and jet.genJetFwdRef().isAvailable() :
+                genPt = jet.genJetFwdRef().pt()
+            else :
+                genPt = -1.0
+            print (", gen pt = {0:6.2f}").format( genPt )
+        else :
+            print ''
         ijet += 1
 
 
