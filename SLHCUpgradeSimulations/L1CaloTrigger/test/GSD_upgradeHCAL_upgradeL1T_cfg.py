@@ -69,7 +69,7 @@ process.generator = cms.EDProducer(
 
         MinPhi = cms.double(-3.14159265359), ## in radians
         MaxPhi = cms.double(3.14159265359), ## in radians
- 
+
         MinE = cms.double(energy), # in GeV
         MaxE = cms.double(energy) # in GeV
         ),
@@ -93,16 +93,16 @@ process.mix.mixObjects = cms.PSet( mixCH = cms.PSet( mixCaloHits ) )
 
 
 ### ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ###
-#   configure HCAL 
+#   configure HCAL
 ### ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ###
 #from SimCalorimetry/HcalTrigPrimProducers/test/exampleUpgradeTPG_cfg.py
 # use hardcoded HCAL conditions values
 process.es_hardcode.toGet.extend(['Gains', 'Pedestals', 'PedestalWidths', 'QIEData', 'ElectronicsMap','ChannelQuality','RespCorrs','ZSThresholds','L1TriggerObjects','TimeCorrs','PFCorrs','LUTCorrs'])
 
 # Use text file for the LutMetadata
-process.es_ascii = cms.ESSource("HcalTextCalibrations", 
-                                input = cms.VPSet ( 
-        cms.PSet ( 
+process.es_ascii = cms.ESSource("HcalTextCalibrations",
+                                input = cms.VPSet (
+        cms.PSet (
             object = cms.string ('LutMetadata'),
             file = cms.FileInPath('SLHCUpgradeSimulations/L1CaloTrigger/data/HcalLutMetadataLSB50.txt')
             )
@@ -110,7 +110,7 @@ process.es_ascii = cms.ESSource("HcalTextCalibrations",
 )
 
 # ESPrefers
-process.es_prefer_hcalAscii    = cms.ESPrefer("HcalTextCalibrations"    , "es_ascii") 
+process.es_prefer_hcalAscii    = cms.ESPrefer("HcalTextCalibrations"    , "es_ascii")
 process.es_prefer_hcalHardcode = cms.ESPrefer("HcalHardcodeCalibrations", "es_hardcode")
 
 #Set SLHC modes
@@ -191,20 +191,18 @@ process.L1CaloTowerProducer.UseUpgradeHCAL = cms.bool(True)
 ### ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ###
 #   Analysis
 ### ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ###
-"""
 process.TFileService = cms.Service( "TFileService" , fileName = cms.string("histograms.root") )
 process.load("SLHCUpgradeSimulations.L1CaloTrigger.SLHCCaloTriggerAnalysis_cfi")
 
 process.analysisSequence = cms.Sequence(
-				process.SLHCelectrons*
-                                process.SLHCisoElectrons*
-                                process.SLHCphotons*
-                                process.SLHCisoPhotons*
-                                process.SLHCTaus*
-                                process.SLHCisoTaus*
-                                process.SLHCjets
-			)
-"""
+    process.SLHCelectrons*
+    process.SLHCisoElectrons*
+    process.SLHCphotons*
+    process.SLHCisoPhotons*
+    process.SLHCTaus*
+    process.SLHCisoTaus*
+    process.SLHCjets
+)
 
 
 
@@ -212,15 +210,17 @@ process.analysisSequence = cms.Sequence(
 ### ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ###
 #   Processing path
 ### ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ###
-process.p = cms.Path(	process.pgen
-			+process.psim
-			+process.randomEngineStateProducer
-			+process.mix
-			+process.simHcalUnsuppressedDigis+process.simHcalDigis
-			+process.simHcalUpgradeTriggerPrimitiveDigis
-			+process.simEcalUnsuppressedDigis
-			+process.simEcalTriggerPrimitiveDigis
-			+process.SLHCCaloTrigger
+process.p = cms.Path(
+    process.pgen
+    +process.psim
+    +process.randomEngineStateProducer
+    +process.mix
+    +process.simHcalUnsuppressedDigis+process.simHcalDigis
+    +process.simHcalUpgradeTriggerPrimitiveDigis
+    +process.simEcalUnsuppressedDigis
+    +process.simEcalTriggerPrimitiveDigis
+    +process.SLHCCaloTrigger
+    +process.analysisSequence
 )
 
 
@@ -231,10 +231,11 @@ process.p = cms.Path(	process.pgen
 #   Event output
 ### ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ###
 process.load("Configuration.EventContent.EventContent_cff")
-process.o1 = cms.OutputModule("PoolOutputModule",
+process.o1 = cms.OutputModule(
+    "PoolOutputModule",
     outputCommands = cms.untracked.vstring(
-						'keep *_*_*_*'
-	),
+        'keep *_*_*_*'
+    ),
     fileName = cms.untracked.string('UpgradeHcal.root')
 )
 process.outpath = cms.EndPath(process.o1)
@@ -245,6 +246,6 @@ process.outpath = cms.EndPath(process.o1)
 ### ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ###
 #   Random stuff
 ### ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ###
-# special treatment in case of production filter sequence  
-for path in process.paths: 
+# special treatment in case of production filter sequence
+for path in process.paths:
     getattr(process,path)._seq = process.generator*getattr(process,path)._seq
