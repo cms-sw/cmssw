@@ -35,5 +35,5 @@
 </bin>
 <bin   file="cmscond_schema_logdb.cpp" name="cmscond_schema_logdb">
 </bin>
-<bin   file="cmscond_authentication_manager.cpp" name="cmscond_authentication_manager.cpp">
+<bin   file="cmscond_authentication_manager.cpp" name="cmscond_authentication_manager">
 </bin>
