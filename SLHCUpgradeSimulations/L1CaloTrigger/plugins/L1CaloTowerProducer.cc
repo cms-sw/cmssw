@@ -27,9 +27,6 @@
 #include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h"
 #include "DataFormats/HcalDigi/interface/HcalTriggerPrimitiveDigi.h"
 
-// added to allow use of Upgrade HCAL - AWR 12/05/2011
-#include "DataFormats/HcalDigi/interface/HcalUpgradeTriggerPrimitiveDigi.h"
-
 #include "SimDataFormats/SLHC/interface/L1CaloTower.h"
 #include "SimDataFormats/SLHC/interface/L1CaloTowerFwd.h"
 #include "SimDataFormats/SLHC/interface/L1CaloTriggerSetup.h"
@@ -70,13 +67,13 @@ class L1CaloTowerProducer:public edm::EDProducer
 
 
 L1CaloTowerProducer::L1CaloTowerProducer( const edm::ParameterSet & aConfig ):
-mCaloTowers( NULL ), 
-mEcalDigiInputTag( aConfig.getParameter < edm::InputTag > ( "ECALDigis" ) ),
-mHcalDigiInputTag( aConfig.getParameter < edm::InputTag > ( "HCALDigis" ) ), 
-mUseupgradehcal( aConfig.getParameter < bool > ( "UseUpgradeHCAL" ) )	
+  mCaloTowers( NULL ),
+  mEcalDigiInputTag( aConfig.getParameter < edm::InputTag > ( "ECALDigis" ) ),
+  mHcalDigiInputTag( aConfig.getParameter < edm::InputTag > ( "HCALDigis" ) ),
+  mUseupgradehcal( aConfig.getParameter < bool > ( "UseUpgradeHCAL" ) )
 {
-	// Register Product
-	produces < l1slhc::L1CaloTowerCollection > (  );
+  // Register Product
+  produces < l1slhc::L1CaloTowerCollection > (  );
 }
 
 
@@ -84,8 +81,6 @@ L1CaloTowerProducer::~L1CaloTowerProducer(  )
 {
 
 }
-
-
 
 void L1CaloTowerProducer::addHcal( const int &aCompressedEt, const int &aIeta,
 								   const int &aIphi, const bool & aFG )
@@ -113,7 +108,6 @@ void L1CaloTowerProducer::addHcal( const int &aCompressedEt, const int &aIeta,
 	}
 }
 
-
 void L1CaloTowerProducer::addEcal( const int &aCompressedEt, const int &aIeta,
 								   const int &aIphi, const bool & aFG )
 {
@@ -131,11 +125,6 @@ void L1CaloTowerProducer::addEcal( const int &aCompressedEt, const int &aIeta,
 
 	}
 }
-
-
-
-
-
 
 void L1CaloTowerProducer::produce( edm::Event & aEvent,
 								   const edm::EventSetup & aSetup )
@@ -166,7 +155,7 @@ void L1CaloTowerProducer::produce( edm::Event & aEvent,
 
 	for ( EcalTrigPrimDigiCollection::const_iterator lEcalTPItr = lEcalDigiHandle->begin(  ); lEcalTPItr != lEcalDigiHandle->end(  ); ++lEcalTPItr )
 		addEcal( lEcalTPItr->compressedEt(  ), lEcalTPItr->id(  ).ieta(  ), lEcalTPItr->id(  ).iphi(  ), lEcalTPItr->fineGrain(  ) );
-	
+
 	if ( !mUseupgradehcal )
 	{
 		//getting data from event takes 3 orders of magnitude longer than anything else in the program : O(10-100ms) cf O(10-100us)
@@ -178,14 +167,26 @@ void L1CaloTowerProducer::produce( edm::Event & aEvent,
 	}
 	else
 	{
+          // Detect if the upgrade HCAL header file is included
+#ifdef DIGIHCAL_HCALUPGRADETRIGGERPRIMITIVEDIGI_H
+#warning Not really a warning: just letting you know that Im enabling upgrade HCAL digis
 		//getting data from event takes 3 orders of magnitude longer than anything else in the program : O(10-100ms) cf O(10-100us)
 		edm::Handle < HcalUpgradeTrigPrimDigiCollection > lHcalDigiHandle;
 		aEvent.getByLabel( mHcalDigiInputTag, lHcalDigiHandle );
 
 		for ( HcalUpgradeTrigPrimDigiCollection::const_iterator lHcalTPItr = lHcalDigiHandle->begin(  ); lHcalTPItr != lHcalDigiHandle->end(  ); ++lHcalTPItr )
 			addHcal( lHcalTPItr->SOI_compressedEt(  ), lHcalTPItr->id(  ).ieta(  ), lHcalTPItr->id(  ).iphi(  ), lHcalTPItr->SOI_fineGrain(  ) );
+#else
+#warning Not really a warning: just letting you know that Im NOT enabling upgrade HCAL digis
+                // If the user tries to specify this option, but it isn't
+                // available, throw an exception.
+                throw cms::Exception("NotImplmented") <<
+                  "You requested to use the upgrade HCAL digis.  However the "
+                  << "L1CaloTowerProducer.cc module was not compiled with "
+                  << "support for them.  "
+                  << "Please edit SLHCUpSims/L1CaloTrig/plugins/L1CaloTowerProducer.cc" << std::endl;
+#endif
 	}
-	
 	aEvent.put( mCaloTowers );
 }
 
