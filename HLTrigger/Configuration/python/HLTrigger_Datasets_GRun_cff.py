@@ -1,4 +1,4 @@
-# /dev/CMSSW_5_1_0/GRun/V140
+# /dev/CMSSW_5_1_0/GRun/V141
 
 import FWCore.ParameterSet.Config as cms
 
@@ -63,7 +63,8 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetDoubleMu_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetDoubleMu_selector.l1tResults = cms.InputTag('')
 streamA_datasetDoubleMu_selector.throw      = cms.bool(False)
-streamA_datasetDoubleMu_selector.triggerConditions = cms.vstring('HLT_DoubleMu5_IsoMu5_v13', 
+streamA_datasetDoubleMu_selector.triggerConditions = cms.vstring('HLT_DoubleMu4_Acoplanarity03_v1', 
+    'HLT_DoubleMu5_IsoMu5_v13', 
     'HLT_L2DoubleMu23_NoVertex_2Cha_Angle2p5_v1', 
     'HLT_L2DoubleMu23_NoVertex_v9', 
     'HLT_L2DoubleMu38_NoVertex_2Cha_Angle2p5_v1', 
@@ -251,7 +252,6 @@ streamA_datasetMinimumBias_selector.triggerConditions = cms.vstring('HLT_JetE30_
     'HLT_PixelTracks_Multiplicity80_v9', 
     'HLT_PixelTracks_Multiplicity90_v1', 
     'HLT_Random_v1', 
-    'HLT_ZeroBiasPixel_SingleTrack_v1', 
     'HLT_ZeroBias_v5')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMuEG_selector
@@ -263,6 +263,7 @@ streamA_datasetMuEG_selector.triggerConditions = cms.vstring('HLT_DoubleMu5_Ele8
     'HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v1', 
     'HLT_Mu22_Photon22_CaloIdL_v1', 
     'HLT_Mu30_Ele30_CaloIdL_v1', 
+    'HLT_Mu7_Ele7_CaloIdT_CaloIsoVL_v1', 
     'HLT_Mu8_DoubleEle8_CaloIdT_TrkIdVL_v1', 
     'HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v1', 
     'HLT_Mu8_Ele8_CaloIdT_TrkIdVL_Ele8_CaloIdL_TrkIdVL_v1')
