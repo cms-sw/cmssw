@@ -6,7 +6,7 @@ process = cms.Process("L1Tproducer")
 
 # Number of events to be generated
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(-1)
 )
 
 process.load("L1Trigger.L1ExtraFromDigis.l1extraParticles_cff")
@@ -38,6 +38,19 @@ process.source = cms.Source("PoolSource",
                                         'file:EventData.root'
                                 )
                         )
+
+
+# To write out events
+process.load("FastSimulation.Configuration.EventContent_cff")
+process.o1 = cms.OutputModule("PoolOutputModule",
+                              outputCommands = cms.untracked.vstring('drop *_*_*_*',
+                                                                     'keep *_L1CaloTower*_*_*',
+                                                                     'keep *_L1RingSubtraction*_*_*',
+                                                                     'keep *_L1TowerJet*_*_*',
+                                                                      ),
+    fileName = cms.untracked.string('TowerJet.root')
+)
+process.outpath = cms.EndPath(process.o1)
 
 
 # Keep the logging output to a nice level #
