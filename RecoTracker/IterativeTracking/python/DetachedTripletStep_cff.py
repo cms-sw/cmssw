@@ -76,13 +76,18 @@ detachedTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajecto
     clustersToSkip = cms.InputTag('detachedTripletStepClusters'),
     maxCand = 2,
     alwaysUseInvalidHits = False,
-    estimator = cms.string('detachedTripletStepChi2Est')
+    estimator = cms.string('detachedTripletStepChi2Est'),
+    maxPtForLooperReconstruction = cms.double(0.9) 
     )
 
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 detachedTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('detachedTripletStepSeeds'),
+    ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
+    numHitsForSeedCleaner = cms.int32(50),
+    onlyPixelHitsForSeedCleaner = cms.bool(True),
+
     TrajectoryBuilder = 'detachedTripletStepTrajectoryBuilder',
     doSeedingRegionRebuilding = True,
     useHitsSplitting = True
