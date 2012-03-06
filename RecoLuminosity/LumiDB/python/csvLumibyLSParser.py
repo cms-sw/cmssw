@@ -23,13 +23,17 @@ class csvLumibyLSParser(object):
         lastLumi = 0
         for row in csvReader:
             field0=str(row[0]).strip()
+            fieldsplit=re.split(':',field0)
+            runstring = fieldsplit[0]
             try:
-                lsstring=str(row[1]).strip()
+                field1=str(row[1]).strip()
+                fieldsplit=re.split(':',field1)
+                lsstring = fieldsplit[0]
             except Exception,e:
                 lsstring='1' # for list with run number only, fake lsnum
-            if not is_intstr(field0) or not  is_intstr(lsstring):
+            if not is_intstr(runstring) or not  is_intstr(lsstring):
                 continue
-            runnumber=int(field0)
+            runnumber=int(runstring)
             lsnumber=int(lsstring)
 
             if runnumber != oldRun:
@@ -43,7 +47,7 @@ class csvLumibyLSParser(object):
                     oldRun = runnumber
 
             try:
-                delivered, recorded = float( row[6] ), float( row[7] )
+                delivered, recorded = float( row[3] ), float( row[4] )
             except:
                 print 'Record not parsed, Run = %d, LS = %d' % (runnumber, lsnumber)                
 
