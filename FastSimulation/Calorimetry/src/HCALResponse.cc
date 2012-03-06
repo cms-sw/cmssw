@@ -92,12 +92,12 @@ HCALResponse::HCALResponse(const edm::ParameterSet& pset,
 				        1.09, 1.08, 1.08};     
   double forwardCorrectionEtaDependent[maxHDeta];
   for (unsigned int j=0;j<maxHDeta;j++){
-    if (j<30) forwardCorrectionEtaDependent[j]=0.;
-    if (j>=30 && j<35) forwardCorrectionEtaDependent[j]=0.98;
-    if (j==35 || j==36) forwardCorrectionEtaDependent[j]=0.95;
-    if (j==37 || j==38) forwardCorrectionEtaDependent[j]=0.94;
-    if (j==39) forwardCorrectionEtaDependent[j]=0.92;
-    if (j>=40) forwardCorrectionEtaDependent[j]=0.86;
+    if (j<30) forwardCorrectionEtaDependent[j]=1.;
+    if (j>=30 && j<43) forwardCorrectionEtaDependent[j]=0.98;
+    if (j>=43 || j<46) forwardCorrectionEtaDependent[j]=0.95;
+    if (j==46 || j==47) forwardCorrectionEtaDependent[j]=0.94;
+    if (j==48) forwardCorrectionEtaDependent[j]=0.92;
+    if (j>=49) forwardCorrectionEtaDependent[j]=0.86;
   }
 
   // MEAN energy response for (1) all (2) MIP in ECAL (3) non-MIP in ECAL 
