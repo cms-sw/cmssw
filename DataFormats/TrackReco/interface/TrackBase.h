@@ -46,7 +46,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer, Juan Alcaraz
  *
- * \version $Id: TrackBase.h,v 1.80 2011/02/10 17:51:27 vlimant Exp $
+ * \version $Id: TrackBase.h,v 1.81 2011/04/06 20:26:32 venturia Exp $
  *
  */
 
@@ -104,11 +104,11 @@ namespace reco {
     /// virtual destructor   
     ~TrackBase();
     /// chi-squared of the fit
-    double chi2() const { return chi2_; }
+    double chi2() const { return fabs(chi2_); }
     /// number of degrees of freedom of the fit
     double ndof() const { return ndof_; }
     /// chi-squared divided by n.d.o.f. (or chi-squared * 1e6 if n.d.o.f. is zero)
-    double normalizedChi2() const { return ndof_ != 0 ? chi2_ / ndof_ : chi2_ * 1e6; }
+    double normalizedChi2() const { return ndof_ != 0 ? chi2() / ndof_ : chi2() * 1e6; }
     /// track electric charge
     int charge() const { return charge_; }
     /// q/p 
@@ -284,8 +284,16 @@ namespace reco {
 
     int qualityMask() const { return quality_; }
     void setQualityMask(int qualMask) {quality_ = qualMask;}
+
+    void setLooper(bool value){ if(value) chi2_=-1.*fabs(chi2_); else chi2_=1.*fabs(chi2_);}
+
+    bool isLooper() const { return chi2_ <= 0 ? true : false ;}
   private:
+
     /// chi-squared
+    /** NB: the sign of the chi2 (only the data member) is used to store the 
+	information about the track being reconstructed as a looper
+     **/
     float chi2_;
     /// number of degrees of freedom
     float ndof_;
@@ -308,6 +316,7 @@ namespace reco {
     uint8_t algorithm_;
     /// track quality
     uint8_t quality_;
+
 
   };
 
