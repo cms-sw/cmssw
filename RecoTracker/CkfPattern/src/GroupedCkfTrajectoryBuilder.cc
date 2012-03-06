@@ -351,9 +351,12 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
 					      TempTrajectoryContainer& result) const
 {
   std::pair<TSOS,std::vector<const DetLayer*> > stateAndLayers = findStateAndLayers(traj);
-  if(maxPtForLooperReconstruction>0 && inOut){
-    if(traj.lastLayer()->location()==0 && 
-       stateAndLayers.first.globalMomentum().perp()<maxPtForLooperReconstruction)
+  if(maxPtForLooperReconstruction>0){
+    if(
+       //stateAndLayers.second.size()==0 &&
+       traj.lastLayer()->location()==0 && 
+       stateAndLayers.first.globalMomentum().perp()<maxPtForLooperReconstruction &&
+       stateAndLayers.first.globalMomentum().perp()>0.2)
       stateAndLayers.second.push_back(traj.lastLayer());
   }
 
@@ -431,6 +434,7 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
 	  stateToUse = extrapolator.extrapolate(stateToUse, target, *propagator);
 	  //dPhiCacheForLoopersReconstruction = fabs(target1.phi()-target2.phi())*2.;
 	  dPhiCacheForLoopersReconstruction = fabs(tmpDphi);
+	  traj.setIsLooper(true);
 	}else{
 	  continue;
 	}
@@ -721,6 +725,7 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(TempTrajectory& startingTraj,
     // Refit - keep existing trajectory in case fit is not possible
     // or fails
     //
+
     backwardFit(*it,nSeed,fitter,reFitted,seedHits);
     if ( reFitted.size()!=1 ) {
       rebuiltTrajectories.push_back(*it);
@@ -834,6 +839,7 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const std::vector<const Tracki
     // construct final trajectory in the right order
     //
     TempTrajectory reversedTrajectory(it->seed(),it->seed().direction());
+    reversedTrajectory.setIsLooper(it->isLooper());
     for (TempTrajectory::DataContainer::const_iterator im=newMeasurements.rbegin(), ed = newMeasurements.rend();
 	  im != ed; --im ) {
       reversedTrajectory.push(*im);
@@ -862,9 +868,9 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const std::vector<const Tracki
 
 void
 GroupedCkfTrajectoryBuilder::backwardFit (TempTrajectory& candidate, unsigned int nSeed,
-						    const TrajectoryFitter& fitter,
-						    TempTrajectoryContainer& fittedTracks,
-						    std::vector<const TrackingRecHit*>& remainingHits) const
+					  const TrajectoryFitter& fitter,
+					  TempTrajectoryContainer& fittedTracks,
+					  std::vector<const TrackingRecHit*>& remainingHits) const
 {
   //
   // clear array of non-fitted hits
@@ -911,6 +917,7 @@ GroupedCkfTrajectoryBuilder::backwardFit (TempTrajectory& candidate, unsigned in
   // create input trajectory for backward fit
   //
   Trajectory fwdTraj(candidate.seed(),oppositeDirection(candidate.direction()));
+  fwdTraj.setIsLooper(candidate.isLooper());
   //const TrajectorySeed seed = TrajectorySeed(PTrajectoryStateOnDet(), TrajectorySeed::recHitContainer(), oppositeDirection(candidate.direction()));
   //Trajectory fwdTraj(seed, oppositeDirection(candidate.direction()));
   std::vector<const DetLayer*> bwdDetLayer; 
@@ -962,6 +969,7 @@ GroupedCkfTrajectoryBuilder::backwardFit (TempTrajectory& candidate, unsigned in
   if (bwdFitted.size()){
     LogDebug("CkfPattern")<<"Obtained " << bwdFitted.size() << " bwdFitted trajectories with measurement size " << bwdFitted.front().measurements().size();
 	TempTrajectory fitted(fwdTraj.seed(), fwdTraj.direction());
+	fitted.setIsLooper(fwdTraj.isLooper());
         vector<TM> tmsbf = bwdFitted.front().measurements();
 	int iDetLayer=0;
 	//this is ugly but the TM in the fitted track do not contain the DetLayer.
