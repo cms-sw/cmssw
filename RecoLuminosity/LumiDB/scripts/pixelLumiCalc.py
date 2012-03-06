@@ -45,7 +45,7 @@ def parseInputFiles(inputfilename,dbrunlist,optaction):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description = "Lumi Calculation Based on Pixel",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    allowedActions = ['overview', 'delivered', 'recorded', 'lumibyls']
+    allowedActions = ['overview', 'delivered', 'recorded', 'lumibyls','checkforupdate']
     #amodetagChoices = [ "PROTPHYS","IONPHYS",'PAPHYS' ]
     #
     # parse arguments
@@ -128,7 +128,13 @@ if __name__ == '__main__':
                         help='debug')
     
     options=parser.parse_args()
-    
+    if options.action=='checkforupdate':
+        from RecoLuminosity.LumiDB import checkforupdate
+        cmsswWorkingBase=os.environ['CMSSW_BASE']
+        c=checkforupdate.checkforupdate('pixeltagstatus.txt')
+        workingversion=c.runningVersion(cmsswWorkingBase,'pixelLumiCalc.py')
+        c.checkforupdate(workingversion)
+        exit(0)
     if options.authpath:
         os.environ['CORAL_AUTH_PATH'] = options.authpath
         
