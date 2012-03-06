@@ -40,6 +40,7 @@ protected:
     if (!theChargeSignificanceTrajectoryFilter->qualityFilter(traj)) return false;            
     if (!theMinHitsTrajectoryFilter->qualityFilter(traj)) return false;
     if (!theMinPtTrajectoryFilter->qualityFilter(traj)) return false;
+    if (traj.isLooper() && traj.foundHits()<12) return false;
     return true;}
 
   template <class T> bool TBC(T& traj) const{
