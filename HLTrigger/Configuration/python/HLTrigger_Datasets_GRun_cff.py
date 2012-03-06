@@ -1,4 +1,4 @@
-# /dev/CMSSW_5_1_0/GRun/V144
+# /dev/CMSSW_5_1_0/GRun/V145
 
 import FWCore.ParameterSet.Config as cms
 
@@ -136,6 +136,7 @@ streamA_datasetHT_selector.triggerConditions = cms.vstring('HLT_CleanPFHT300_Ele
     'HLT_HT200_AlphaT0p57_v1', 
     'HLT_HT200_L1FastJet_v1', 
     'HLT_HT250_AlphaT0p55_v1', 
+    'HLT_HT250_AlphaT0p57_v1', 
     'HLT_HT250_L1FastJet_DoubleDisplacedPFJet60_ChgFraction10_v1', 
     'HLT_HT250_L1FastJet_DoubleDisplacedPFJet60_v1', 
     'HLT_HT250_L1FastJet_SingleDisplacedPFJet60_ChgFraction10_v1', 
@@ -222,7 +223,7 @@ streamA_datasetMET_selector.triggerConditions = cms.vstring('HLT_CentralCaloJet5
     'HLT_DiCentralJet20_BTagIP_MET65_v12', 
     'HLT_DiCentralPFJet30_CaloMET50_PFMHT80_HBHENoiseFiltered_dPhi1_v1', 
     'HLT_DiCentralPFJet30_PFMHT80_v2', 
-    'HLT_DiCentralPFJet50_PFMHT80_v2', 
+    'HLT_DiCentralPFJet50_PFMET80_v1', 
     'HLT_DiPFJet40L1FastJet_PFMHTWOM65_M600VBF_LEADINGJETS_v1', 
     'HLT_DiPFJet40L1FastJet_PFMHTWOM65_M800VBF_ALLJETS_v1', 
     'HLT_IsoMu15_eta2p1_L1ETM20_v1', 

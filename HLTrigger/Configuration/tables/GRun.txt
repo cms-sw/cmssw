@@ -80,6 +80,7 @@ HLT_L2Mu20_NoVertex_NoBPTX3BX_NoHalo_v*                                         
 HLT_L2Mu30_NoVertex_NoBPTX3BX_NoHalo_v*                                                         #sr126302
 
 HLT_HT250_AlphaT0p55_v*                                                                         #sr126304
+HLT_HT250_AlphaT0p57_v*                                                                         #sr126304
 HLT_HT300_AlphaT0p54_v*                                                                         #sr126304
 HLT_HT350_AlphaT0p53_v*                                                                         #sr126304
 HLT_HT400_AlphaT0p52_v*                                                                         #sr126304
@@ -114,7 +115,7 @@ HLT_Mu60_PFHT350_v*                                                             
 HLT_Mu40_FJHT200_v*                                                                             #sr126304
 HLT_DoubleEle8_CaloIdT_TrkIdVL_Mass8_PFHT175_v*                                                 #sr126304
 HLT_DoubleEle8_CaloIdT_TrkIdVL_Mass8_PFHT225_v*                                                 #sr126304
-HLT_DiCentralPFJet50_PFMHT80_v*                                                                 #sr126304
+HLT_DiCentralPFJet50_PFMET80_v*                                                                 #sr126304
 HLT_Photon70_CaloIdXL_FJHT400_v*                                                                #sr126304
 HLT_Photon70_CaloIdXL_FJHT500_v*                                                                #sr126304
 HLT_Photon70_CaloIdXL_MHT100_v*                                                                 #sr126304
@@ -267,8 +268,8 @@ HLT_SixJet35_L1FastJet_v*                                                       
 HLT_QuadJet90_L1FastJet_v*                                                                      #sr126462
 HLT_SixJet50_L1FastJet_v*                                                                       #sr126462
 
-HLT_HT750_L1FastJet_v*										#sr126816
-HLT_HT650_L1FastJet_v*										#sr126816
+HLT_HT750_L1FastJet_v*                                                                          #sr126816
+HLT_HT650_L1FastJet_v*                                                                          #sr126816
 
 HLT_LooseIsoPFTau35_Trk20_v*                                                                    #sr126469
 HLT_LooseIsoPFTau35_Trk20_MET70_v*                                                              #sr126469
@@ -398,8 +399,7 @@ HLT_Mu12_eta2p1_DiCentralL1FastJet_40_20_DiBTagIP3D1stTrack_v*                  
 HLT_Mu12_eta2p1_DiCentralL1FastJet_40_20_v*                                                     #sr126638
 HLT_Mu12_eta2p1_DiCentralL1FastJet_40_20_BTagIP3D1stTrack_v*                                    #sr126638
 HLT_Mu12_eta2p1_DiCentralL1FastJet_20_v*                                                        #sr126638
-HLT_Mu12_eta2p1_L1Mu10erJetC12WdEtaPhi1DiJetsC_v*
-                 #sr126638
+HLT_Mu12_eta2p1_L1Mu10erJetC12WdEtaPhi1DiJetsC_v*						#sr126638
 HLT_Mu15_eta2p1_TriCentralL1FastJet_40_20_20_DiBTagIP3D1stTrack_v*                              #sr126638
 HLT_Mu15_eta2p1_TriCentralL1FastJet_40_20_20_BTagIP3D1stTrack_v*                                #sr126638
 HLT_Mu15_eta2p1_TriCentralL1FastJet_40_20_20_v*                                                 #sr126638
