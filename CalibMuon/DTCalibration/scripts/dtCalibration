@@ -15,6 +15,7 @@ if __name__ == '__main__':
     parser.add_option("--preselection", dest="preselection", help="configuration fragment and sequence name, separated by a ':', defining a pre-selection filter")
     parser.add_option("--inputVDriftDB", dest="inputVDriftDB", help="uses local SQLITE vDrift DB (instead of using the one in the GT)")
     parser.add_option("--inputTTrigDB", dest="inputTTrigDB", help="uses local SQLITE tTrig DB (instead of using the one in the GT)")
+    parser.add_option("--inputT0DB", dest="inputT0DB", help="uses local SQLITE t0 DB (instead of using the one in the GT)")
     parser.add_option("--inputDBTag", dest="inputDBTag", help="uses custom ORCOFF tag (instead of using the one in the GT)")
     parser.add_option("--inputDBRcd", dest="inputDBRcd", help="record for custom ORCOFF tag")
     parser.add_option("--connect", dest="connectStrDBTag", default='frontier://FrontierProd/CMS_COND_31X_DT', help="connect string (default: 'frontier://FrontierProd/CMS_COND_31X_DT')")
@@ -115,6 +116,7 @@ if __name__ == '__main__':
     config.runselection = runselection
     if hasattr(input,'inputVDriftDB') and input.inputVDriftDB: config.inputVDriftDB = os.path.abspath(input.inputVDriftDB)
     if hasattr(input,'inputTTrigDB') and input.inputTTrigDB: config.inputTTrigDB = os.path.abspath(input.inputTTrigDB)
+    if hasattr(input,'inputT0DB') and input.inputT0DB: config.inputT0DB = os.path.abspath(input.inputT0DB)
     if hasattr(input,'inputDBTag') and input.inputDBTag:
         config.inputDBTag = input.inputDBTag
         config.inputDBRcd = input.inputDBRcd 
