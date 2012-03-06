@@ -1,9 +1,9 @@
 /** \class EcalRecalibRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecalibRecHitProducer.cc,v 1.4 2010/02/25 00:32:27 wmtan Exp $
- *  $Date: 2010/02/25 00:32:27 $
- *  $Revision: 1.4 $
+ *  $Id: EcalRecalibRecHitProducer.cc,v 1.5 2011/09/22 17:32:18 meridian Exp $
+ *  $Date: 2011/09/22 17:32:18 $
+ *  $Revision: 1.5 $
  *  \author Federico Ferri, University of Milano Bicocca and INFN
  *
  **/
@@ -45,6 +45,10 @@ EcalRecalibRecHitProducer::EcalRecalibRecHitProducer(const edm::ParameterSet& ps
    doEnergyScale_             = ps.getParameter<bool>("doEnergyScale");
    doIntercalib_              = ps.getParameter<bool>("doIntercalib");
    doLaserCorrections_        = ps.getParameter<bool>("doLaserCorrections");
+
+   doEnergyScaleInverse_             = ps.getParameter<bool>("doEnergyScaleInverse");
+   doIntercalibInverse_ = ps.getParameter<bool>("doIntercalibInverse");
+   doLaserCorrectionsInverse_        = ps.getParameter<bool>("doLaserCorrectionsInverse");
 
    EBalgo_ = new EcalRecHitSimpleAlgo();
    EEalgo_ = new EcalRecHitSimpleAlgo();
@@ -147,6 +151,17 @@ void EcalRecalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& 
 
                         // make the rechit and put in the output collection
                         // must implement op= for EcalRecHit
+
+			if(doEnergyScaleInverse_){
+			  agc_eb = 1.0/agc_eb;
+			}
+			if(doIntercalibInverse_){
+			  icalconst = 1.0/icalconst;
+			}
+			if (doLaserCorrectionsInverse_){
+			  lasercalib = 1.0/lasercalib;
+			}
+
                         EcalRecHit aHit( (*it).id(), (*it).energy() * agc_eb * icalconst * lasercalib, (*it).time() );
                         EBRecalibRecHits->push_back( aHit );
                 }
@@ -178,6 +193,17 @@ void EcalRecalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& 
                         // make the rechit and put in the output collection
                         // must implement op= for EcalRecHit
                         //EcalRecHit aHit( EEalgo_->makeRecHit(*it, icalconst * lasercalib) );
+
+			if(doEnergyScaleInverse_){
+			  agc_ee = 1.0/agc_ee;
+			}
+			if(doIntercalibInverse_){
+			  icalconst = 1.0/icalconst;
+			}
+			if (doLaserCorrectionsInverse_){
+			  lasercalib = 1.0/lasercalib;
+			}
+			
                         EcalRecHit aHit( (*it).id(), (*it).energy() * agc_ee * icalconst * lasercalib, (*it).time() );
                         EERecalibRecHits->push_back( aHit );
                 }
