@@ -9,3 +9,6 @@ from TrackingTools.TrackFitters.KFTrajectorySmootherESProducer_cfi import *
 from TrackingTools.TrackFitters.RungeKuttaFitters_cff import *
 from TrackingTools.TrackFitters.RungeKutta1DFitters_cff import *
 
+from TrackingTools.TrackFitters.LooperFitters_cff import *
+from TrackingTools.TrackFitters.FlexibleKFFittingSmoother_cfi import *
+
