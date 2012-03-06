@@ -50,6 +50,8 @@ class MTVHistoProducerAlgo{
 				     	     math::XYZPoint bsPosition,
 				     	     bool isMatched,
 				     	     bool isSigMatched,
+				     	     bool isChargeMatched,
+                             int numAssocRecoTracks,
                          	             int numVertices, 
                          		     int tpbunchcrossing,
 				             int nSimHits,

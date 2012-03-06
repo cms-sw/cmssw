@@ -49,8 +49,10 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
 				     math::XYZPoint bsPosition,
 				     bool isMatched,
 				     bool isSigMatched,
-                      		     int numVertices,
-	                     	     int tpbunchcrossing,
+				     bool isChargeMatched,
+                     int numAssocRecoTracks,
+                     int numVertices,
+	                 int tpbunchcrossing,
 				     int nSimHits,
 				     double sharedFraction);
 
@@ -133,7 +135,7 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   
   //1D
   std::vector<MonitorElement*> h_tracks, h_fakes, h_hits, h_charge;
-  std::vector<MonitorElement*> h_effic,  h_fakerate, h_recoeta, h_assoceta, h_assoc2eta, h_simuleta;
+  std::vector<MonitorElement*> h_effic,  h_fakerate, h_recoeta, h_assoceta, h_assoc2eta, h_simuleta, h_loopereta, h_misideta, h_looprate, h_misidrate;
   std::vector<MonitorElement*> h_efficPt, h_fakeratePt, h_recopT, h_assocpT, h_assoc2pT, h_simulpT;
   std::vector<MonitorElement*> h_effic_vs_hit, h_fake_vs_hit, h_recohit, h_assochit, h_assoc2hit, h_simulhit;
   std::vector<MonitorElement*> h_effic_vs_phi, h_fake_vs_phi, h_recophi, h_assocphi, h_assoc2phi, h_simulphi;
@@ -206,7 +208,7 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   std::vector< std::vector<double> > vertposintervals;
   std::vector< std::vector<double> > zposintervals;
   std::vector< std::vector<double> > vertcountintervals;
-  std::vector< std::vector<int> > totSIMeta,totRECeta,totASSeta,totASS2eta,totASS2etaSig;
+  std::vector< std::vector<int> > totSIMeta,totRECeta,totASSeta,totASS2eta,totloopeta,totmisideta,totASS2etaSig;
   std::vector< std::vector<int> > totSIMpT,totRECpT,totASSpT,totASS2pT;
   std::vector< std::vector<int> > totSIM_hit,totREC_hit,totASS_hit,totASS2_hit;
   std::vector< std::vector<int> > totSIM_phi,totREC_phi,totASS_phi,totASS2_phi;

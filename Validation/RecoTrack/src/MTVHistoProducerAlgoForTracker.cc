@@ -149,7 +149,7 @@ void MTVHistoProducerAlgoForTracker::setUpVectors(){
   std::vector<double> vertposintervalsv;
   std::vector<double> zposintervalsv;
   std::vector<double> vertcountintervalsv;
-  std::vector<int>    totSIMveta,totASSveta,totASS2veta,totASS2vetaSig,totRECveta;
+  std::vector<int>    totSIMveta,totASSveta,totASS2veta,totloopveta,totmisidveta,totASS2vetaSig,totRECveta;
   std::vector<int>    totSIMvpT,totASSvpT,totASS2vpT,totRECvpT;
   std::vector<int>    totSIMv_hit,totASSv_hit,totASS2v_hit,totRECv_hit;
   std::vector<int>    totSIMv_phi,totASSv_phi,totASS2v_phi,totRECv_phi;
@@ -168,6 +168,8 @@ void MTVHistoProducerAlgoForTracker::setUpVectors(){
     totSIMveta.push_back(0);
     totASSveta.push_back(0);
     totASS2veta.push_back(0);
+    totloopveta.push_back(0);
+    totmisidveta.push_back(0);
     totASS2vetaSig.push_back(0);
     totRECveta.push_back(0);
   }   
@@ -176,6 +178,8 @@ void MTVHistoProducerAlgoForTracker::setUpVectors(){
   totCONeta.push_back(totASSveta);
   totASSeta.push_back(totASSveta);
   totASS2eta.push_back(totASS2veta);
+  totloopeta.push_back(totloopveta);
+  totmisideta.push_back(totmisidveta);
   totASS2etaSig.push_back(totASS2vetaSig);
   totRECeta.push_back(totRECveta);
   totFOMT_eta.push_back(totASSveta);
@@ -370,6 +374,8 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(){
   h_recoeta.push_back( dbe_->book1D("num_reco_eta","N of reco track vs eta",nintEta,minEta,maxEta) );
   h_assoceta.push_back( dbe_->book1D("num_assoc(simToReco)_eta","N of associated tracks (simToReco) vs eta",nintEta,minEta,maxEta) );
   h_assoc2eta.push_back( dbe_->book1D("num_assoc(recoToSim)_eta","N of associated (recoToSim) tracks vs eta",nintEta,minEta,maxEta) );
+  h_loopereta.push_back( dbe_->book1D("num_looper_eta","N of associated (recoToSim) looper tracks vs eta",nintEta,minEta,maxEta) );
+  h_misideta.push_back( dbe_->book1D("num_misid_eta","N of associated (recoToSim) charge misIDed tracks vs eta",nintEta,minEta,maxEta) );
   h_simuleta.push_back( dbe_->book1D("num_simul_eta","N of simulated tracks vs eta",nintEta,minEta,maxEta) );
   h_recopT.push_back( dbe_->book1D("num_reco_pT","N of reco track vs pT",nintPt,minPt,maxPt) );
   h_assocpT.push_back( dbe_->book1D("num_assoc(simToReco)_pT","N of associated tracks (simToReco) vs pT",nintPt,minPt,maxPt) );
@@ -627,6 +633,8 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistosForStandaloneRunning(){
   h_effic_vertz_fwdpos.push_back( dbe_->book1D("effic_vertz_fwdpos","efficiency in endcap(+) vs z of primary interaction vertex",nintZpos,minZpos,maxZpos) );
   h_effic_vertz_fwdneg.push_back( dbe_->book1D("effic_vertz_fwdneg","efficiency in endcap(-) vs z of primary interaction vertex",nintZpos,minZpos,maxZpos) );
 
+  h_looprate.push_back( dbe_->book1D("looprate","loop rate vs #eta",nintEta,minEta,maxEta) );
+  h_misidrate.push_back( dbe_->book1D("misidrate","misid rate vs #eta",nintEta,minEta,maxEta) );
   h_fakerate.push_back( dbe_->book1D("fakerate","fake rate vs #eta",nintEta,minEta,maxEta) );
   h_fakeratePt.push_back( dbe_->book1D("fakeratePt","fake rate vs pT",nintPt,minPt,maxPt) );
   h_fake_vs_hit.push_back( dbe_->book1D("fakerate_vs_hit","fake rate vs hit",nintHit,minHit,maxHit) );
@@ -951,6 +959,8 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
 								   math::XYZPoint bsPosition,
 								   bool isMatched,
 								   bool isSigMatched,
+								   bool isChargeMatched,
+                                   int numAssocRecoTracks,
                                    int numVertices,
                                    int tpbunchcrossing, int nSimHits,
 				   double sharedFraction){
@@ -967,6 +977,8 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
       totRECeta[count][f]++;
       if (isMatched) {
 	totASS2eta[count][f]++;
+        if (!isChargeMatched) totmisideta[count][f]++;
+        if (numAssocRecoTracks>1) totloopeta[count][f]++;
         if (tpbunchcrossing==0) totASS2_itpu_eta_entire[count][f]++;
         if (tpbunchcrossing!=0) totASS2_ootpu_eta_entire[count][f]++;
         nrecHit_vs_nsimHit_rec2sim[count]->Fill( track.numberOfValidHits(),nSimHits);
@@ -1379,6 +1391,8 @@ void MTVHistoProducerAlgoForTracker::finalHistoFits(int counter){
 
   fillPlotFromVectors(h_effic[counter],totASSeta[counter],totSIMeta[counter],"effic");
   fillPlotFromVectors(h_fakerate[counter],totASS2eta[counter],totRECeta[counter],"fakerate");
+  fillPlotFromVectors(h_looprate[counter],totloopeta[counter],totRECeta[counter],"effic");
+  fillPlotFromVectors(h_misidrate[counter],totmisideta[counter],totRECeta[counter],"effic");
   fillPlotFromVectors(h_efficPt[counter],totASSpT[counter],totSIMpT[counter],"effic");
   fillPlotFromVectors(h_fakeratePt[counter],totASS2pT[counter],totRECpT[counter],"fakerate");
   fillPlotFromVectors(h_effic_vs_hit[counter],totASS_hit[counter],totSIM_hit[counter],"effic");
@@ -1460,6 +1474,8 @@ void MTVHistoProducerAlgoForTracker::fillHistosFromVectors(int counter){
   fillPlotFromVector(h_simuleta[counter],totSIMeta[counter]);
   fillPlotFromVector(h_assoceta[counter],totASSeta[counter]);
   fillPlotFromVector(h_assoc2eta[counter],totASS2eta[counter]);
+  fillPlotFromVector(h_loopereta[counter],totloopeta[counter]);
+  fillPlotFromVector(h_misideta[counter],totmisideta[counter]);
   
   fillPlotFromVector(h_recopT[counter],totRECpT[counter]);
   fillPlotFromVector(h_simulpT[counter],totSIMpT[counter]);
