@@ -14,9 +14,13 @@ hltGetConfiguration $HLT                                              --cff  --o
 hltGetConfiguration $HLT                                              --cff  --offline --mc                                        > ../python/HLT_GRun_cff.py
 diff -C0 ../python/HLT_GRun_data_cff.py ../python/HLT_GRun_cff.py
 
+# FastSim 'cff' dump - in CVS
+hltGetConfiguration $HLT                                              --fastsim                                                    > ../python/HLT_GRun_Famos_cff.py
+
 # standard 'cfg' dumps - in CVS
 hltGetConfiguration $HLT --process HLTGRun --globaltag auto:hltonline --full --offline --data --unprescale --l1 $L1T               > OnData_HLT_GRun.py
 hltGetConfiguration $HLT --process HLTGRun --globaltag auto:startup   --full --offline --mc   --unprescale --l1 $L1T               > OnLine_HLT_GRun.py 
+
 
 {
   TABLE=$(echo $HLT | cut -d: -f2)
