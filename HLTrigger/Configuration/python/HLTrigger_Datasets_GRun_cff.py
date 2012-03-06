@@ -1,4 +1,4 @@
-# /dev/CMSSW_5_2_0/GRun/V1
+# /dev/CMSSW_5_2_0/GRun/V2
 
 import FWCore.ParameterSet.Config as cms
 
@@ -362,9 +362,9 @@ streamA_datasetMultiJet_selector.triggerConditions = cms.vstring('HLT_DiJet40Eta
     'HLT_DoubleJet20_ForwardBackward_v1', 
     'HLT_EightJet35_L1FastJet_v4', 
     'HLT_EightJet40_L1FastJet_v4', 
+    'HLT_ExclDiJet35_HFAND_v1', 
+    'HLT_ExclDiJet35_HFOR_v1', 
     'HLT_ExclDiJet80_HFAND_v1', 
-    'HLT_ExclDijet35_HFAND_v1', 
-    'HLT_ExclDijet35_HFOR_v1', 
     'HLT_Jet160Eta2p4_Jet120Eta2p4_L1FastJet_DiBTagIP3DLoose_v1', 
     'HLT_Jet60Eta1p7_Jet53Eta1p7_L1FastJet_DiBTagIP3D_v1', 
     'HLT_Jet80Eta1p7_Jet70Eta1p7_L1FastJet_DiBTagIP3D_v1', 

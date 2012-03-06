@@ -417,8 +417,8 @@ HLT_SingleJetC5_v*										#sr126817
 HLT_ZeroBias_v*											#sr126817
 HLT_SingleForJet25_v*										#sr126817
 HLT_SingleForJet15_v*										#sr126817
-HLT_ExclDijet35_HFOR_v*										#sr126817
-HLT_ExclDijet35_HFAND_v*									#sr126817
+HLT_ExclDiJet35_HFOR_v*										#sr126817
+HLT_ExclDiJet35_HFAND_v*									#sr126817
 #HLT_ZeroBiasPixel_SingleTrack_v*								#sr126817 (removed by sr #126853)
 
 HLT_ZeroBiasPixel_DoubleTrack_v*								#sr126853

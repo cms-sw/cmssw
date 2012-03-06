@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_0/GRun/V1 (CMSSW_5_2_0_pre5_HLT12)
+# /dev/CMSSW_5_2_0/GRun/V2 (CMSSW_5_2_0_pre5_HLT12)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_0/GRun/V1')
+  tableName = cms.string('/dev/CMSSW_5_2_0/GRun/V2')
 )
 
 process.streams = cms.PSet( 
@@ -333,9 +333,9 @@ process.datasets = cms.PSet(
     'HLT_DoubleJet20_ForwardBackward_v1',
     'HLT_EightJet35_L1FastJet_v4',
     'HLT_EightJet40_L1FastJet_v4',
+    'HLT_ExclDiJet35_HFAND_v1',
+    'HLT_ExclDiJet35_HFOR_v1',
     'HLT_ExclDiJet80_HFAND_v1',
-    'HLT_ExclDijet35_HFAND_v1',
-    'HLT_ExclDijet35_HFOR_v1',
     'HLT_Jet160Eta2p4_Jet120Eta2p4_L1FastJet_DiBTagIP3DLoose_v1',
     'HLT_Jet60Eta1p7_Jet53Eta1p7_L1FastJet_DiBTagIP3D_v1',
     'HLT_Jet80Eta1p7_Jet70Eta1p7_L1FastJet_DiBTagIP3D_v1',
@@ -490,9 +490,9 @@ process.datasets = cms.PSet(
     'HLT_Ele8_CaloIdT_TrkIdT_DiJet30_v11',
     'HLT_Ele8_CaloIdT_TrkIdT_QuadJet30_v11',
     'HLT_Ele8_CaloIdT_TrkIdT_TriJet30_v11',
+    'HLT_ExclDiJet35_HFAND_v1',
+    'HLT_ExclDiJet35_HFOR_v1',
     'HLT_ExclDiJet80_HFAND_v1',
-    'HLT_ExclDijet35_HFAND_v1',
-    'HLT_ExclDijet35_HFOR_v1',
     'HLT_GlobalRunHPDNoise_v7',
     'HLT_HT200_AlphaT0p57_v1',
     'HLT_HT200_L1FastJet_v1',
@@ -876,9 +876,9 @@ process.datasets = cms.PSet(
     'HLT_Ele8_CaloIdT_TrkIdT_DiJet30_v11',
     'HLT_Ele8_CaloIdT_TrkIdT_QuadJet30_v11',
     'HLT_Ele8_CaloIdT_TrkIdT_TriJet30_v11',
+    'HLT_ExclDiJet35_HFAND_v1',
+    'HLT_ExclDiJet35_HFOR_v1',
     'HLT_ExclDiJet80_HFAND_v1',
-    'HLT_ExclDijet35_HFAND_v1',
-    'HLT_ExclDijet35_HFOR_v1',
     'HLT_GlobalRunHPDNoise_v7',
     'HLT_HT200_AlphaT0p57_v1',
     'HLT_HT200_L1FastJet_v1',
@@ -1255,9 +1255,9 @@ process.datasets = cms.PSet(
     'HLT_Ele8_CaloIdT_TrkIdT_DiJet30_v11',
     'HLT_Ele8_CaloIdT_TrkIdT_QuadJet30_v11',
     'HLT_Ele8_CaloIdT_TrkIdT_TriJet30_v11',
+    'HLT_ExclDiJet35_HFAND_v1',
+    'HLT_ExclDiJet35_HFOR_v1',
     'HLT_ExclDiJet80_HFAND_v1',
-    'HLT_ExclDijet35_HFAND_v1',
-    'HLT_ExclDijet35_HFOR_v1',
     'HLT_GlobalRunHPDNoise_v7',
     'HLT_HT200_AlphaT0p57_v1',
     'HLT_HT200_L1FastJet_v1',
@@ -4095,10 +4095,10 @@ process.PrescaleService = cms.Service( "PrescaleService",
       cms.PSet(  pathName = cms.string( "HLT_EightJet40_L1FastJet_v4" ),
         prescales = cms.vuint32( 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 )
       ),
-      cms.PSet(  pathName = cms.string( "HLT_ExclDijet35_HFOR_v1" ),
+      cms.PSet(  pathName = cms.string( "HLT_ExclDiJet35_HFOR_v1" ),
         prescales = cms.vuint32( 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 )
       ),
-      cms.PSet(  pathName = cms.string( "HLT_ExclDijet35_HFAND_v1" ),
+      cms.PSet(  pathName = cms.string( "HLT_ExclDiJet35_HFAND_v1" ),
         prescales = cms.vuint32( 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_ExclDiJet80_HFAND_v1" ),
@@ -13334,7 +13334,7 @@ process.hltL1sL1Mu10erJetC20JetC12Corr1OrL1Mu10erJetC32OrMu10erJetC32JetC12Corr1
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1TechTriggerSeeding = cms.bool( False )
 )
-process.hltPreMu12eta2p1 = cms.EDFilter( "HLTPrescaler",
+process.hltPreMu12eta2p1L1Mu10erJetC12WdEtaPhi1DiJetsC = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
@@ -34936,8 +34936,8 @@ process.hltPreDQMForPPOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_SixJet50_L1FastJet_v1',
       'HLT_EightJet35_L1FastJet_v4',
       'HLT_EightJet40_L1FastJet_v4',
-      'HLT_ExclDijet35_HFOR_v1',
-      'HLT_ExclDijet35_HFAND_v1',
+      'HLT_ExclDiJet35_HFOR_v1',
+      'HLT_ExclDiJet35_HFAND_v1',
       'HLT_ExclDiJet80_HFAND_v1',
       'HLT_JetE30_NoBPTX_v10',
       'HLT_JetE30_NoBPTX3BX_NoHalo_v12',
@@ -35367,8 +35367,8 @@ process.hltPreHLTDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_SixJet50_L1FastJet_v1',
       'HLT_EightJet35_L1FastJet_v4',
       'HLT_EightJet40_L1FastJet_v4',
-      'HLT_ExclDijet35_HFOR_v1',
-      'HLT_ExclDijet35_HFAND_v1',
+      'HLT_ExclDiJet35_HFOR_v1',
+      'HLT_ExclDiJet35_HFAND_v1',
       'HLT_ExclDiJet80_HFAND_v1',
       'HLT_JetE30_NoBPTX_v10',
       'HLT_JetE30_NoBPTX3BX_NoHalo_v12',
@@ -35777,8 +35777,8 @@ process.hltPreHLTMONOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_SixJet50_L1FastJet_v1',
       'HLT_EightJet35_L1FastJet_v4',
       'HLT_EightJet40_L1FastJet_v4',
-      'HLT_ExclDijet35_HFOR_v1',
-      'HLT_ExclDijet35_HFAND_v1',
+      'HLT_ExclDiJet35_HFOR_v1',
+      'HLT_ExclDiJet35_HFAND_v1',
       'HLT_ExclDiJet80_HFAND_v1',
       'HLT_JetE30_NoBPTX_v10',
       'HLT_JetE30_NoBPTX3BX_NoHalo_v12',
@@ -36280,9 +36280,9 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
   'HLT_Ele8_CaloIdT_TrkIdT_DiJet30_v11',
   'HLT_Ele8_CaloIdT_TrkIdT_QuadJet30_v11',
   'HLT_Ele8_CaloIdT_TrkIdT_TriJet30_v11',
+  'HLT_ExclDiJet35_HFAND_v1',
+  'HLT_ExclDiJet35_HFOR_v1',
   'HLT_ExclDiJet80_HFAND_v1',
-  'HLT_ExclDijet35_HFAND_v1',
-  'HLT_ExclDijet35_HFOR_v1',
   'HLT_GlobalRunHPDNoise_v7',
   'HLT_HT200_AlphaT0p57_v1',
   'HLT_HT200_L1FastJet_v1',
@@ -36735,9 +36735,9 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_Ele8_CaloIdT_TrkIdT_DiJet30_v11',
   'HLT_Ele8_CaloIdT_TrkIdT_QuadJet30_v11',
   'HLT_Ele8_CaloIdT_TrkIdT_TriJet30_v11',
+  'HLT_ExclDiJet35_HFAND_v1',
+  'HLT_ExclDiJet35_HFOR_v1',
   'HLT_ExclDiJet80_HFAND_v1',
-  'HLT_ExclDijet35_HFAND_v1',
-  'HLT_ExclDijet35_HFOR_v1',
   'HLT_GlobalRunHPDNoise_v7',
   'HLT_HT200_AlphaT0p57_v1',
   'HLT_HT200_L1FastJet_v1',
@@ -37191,9 +37191,9 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_Ele8_CaloIdT_TrkIdT_DiJet30_v11',
   'HLT_Ele8_CaloIdT_TrkIdT_QuadJet30_v11',
   'HLT_Ele8_CaloIdT_TrkIdT_TriJet30_v11',
+  'HLT_ExclDiJet35_HFAND_v1',
+  'HLT_ExclDiJet35_HFOR_v1',
   'HLT_ExclDiJet80_HFAND_v1',
-  'HLT_ExclDijet35_HFAND_v1',
-  'HLT_ExclDijet35_HFOR_v1',
   'HLT_GlobalRunHPDNoise_v7',
   'HLT_HT200_AlphaT0p57_v1',
   'HLT_HT200_L1FastJet_v1',
@@ -37765,9 +37765,9 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
   'HLT_Ele8_CaloIdT_TrkIdT_DiJet30_v11',
   'HLT_Ele8_CaloIdT_TrkIdT_QuadJet30_v11',
   'HLT_Ele8_CaloIdT_TrkIdT_TriJet30_v11',
+  'HLT_ExclDiJet35_HFAND_v1',
+  'HLT_ExclDiJet35_HFOR_v1',
   'HLT_ExclDiJet80_HFAND_v1',
-  'HLT_ExclDijet35_HFAND_v1',
-  'HLT_ExclDijet35_HFOR_v1',
   'HLT_GlobalRunHPDNoise_v7',
   'HLT_HT200_AlphaT0p57_v1',
   'HLT_HT200_L1FastJet_v1',
@@ -38469,8 +38469,8 @@ process.HLT_SixJet45_L1FastJet_v4 = cms.Path( process.HLTBeginSequence + process
 process.HLT_SixJet50_L1FastJet_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1HTT150ORL1HTT175 + process.hltPreSixJet50L1FastJet + process.HLTRecoJetSequenceAK5L1FastJetCorrected + process.hltExaJet50L1FastJet + process.HLTEndSequence )
 process.HLT_EightJet35_L1FastJet_v4 = cms.Path( process.HLTBeginSequence + process.hltL1sL1HTT150ORL1HTT175 + process.hltPreEightJet35L1FastJet + process.HLTRecoJetSequenceAK5L1FastJetCorrected + process.hltEightJet35L1FastJet + process.HLTEndSequence )
 process.HLT_EightJet40_L1FastJet_v4 = cms.Path( process.HLTBeginSequence + process.hltL1sL1HTT150ORL1HTT175 + process.hltPreEightJet40L1FastJet + process.HLTRecoJetSequenceAK5L1FastJetCorrected + process.hltEightJet40L1FastJet + process.HLTEndSequence )
-process.HLT_ExclDijet35_HFOR_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet16 + process.hltPreExclDiJet35HFOR + process.HLTRecoJetSequenceAK5Corrected + process.hltExclDiJet35HFOR + process.HLTEndSequence )
-process.HLT_ExclDijet35_HFAND_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet16FwdVeto5 + process.hltPreExclDiJet35HFAND + process.HLTRecoJetSequenceAK5Corrected + process.hltExclDiJet35HFAND + process.HLTEndSequence )
+process.HLT_ExclDiJet35_HFOR_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet16 + process.hltPreExclDiJet35HFOR + process.HLTRecoJetSequenceAK5Corrected + process.hltExclDiJet35HFOR + process.HLTEndSequence )
+process.HLT_ExclDiJet35_HFAND_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet16FwdVeto5 + process.hltPreExclDiJet35HFAND + process.HLTRecoJetSequenceAK5Corrected + process.hltExclDiJet35HFAND + process.HLTEndSequence )
 process.HLT_ExclDiJet80_HFAND_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleJetC56 + process.hltPreExclDiJet80HFAND + process.HLTRecoJetSequenceAK5Corrected + process.hltExclDiJet80HFAND + process.HLTEndSequence )
 process.HLT_JetE30_NoBPTX_v10 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet20CentralNoBPTX + process.hltPreJetE30NoBPTX + process.HLTStoppedHSCPLocalHcalReco + process.HLTStoppedHSCPJetSequence + process.hltStoppedHSCP1CaloJetEnergy30 + process.HLTEndSequence )
 process.HLT_JetE30_NoBPTX3BX_NoHalo_v12 = cms.Path( process.HLTBeginSequenceAntiBPTX + process.hltL1sL1SingleJet20CentralNoBPTXNoHalo + process.hltL1BeamHaloAntiCoincidence3BX + process.hltPreJetE30NoBPTX3BXNoHalo + process.HLTStoppedHSCPLocalHcalReco + process.hltStoppedHSCPHpdFilter + process.HLTStoppedHSCPJetSequence + process.hltStoppedHSCP1CaloJetEnergy30 + process.HLTEndSequence )
@@ -38539,7 +38539,7 @@ process.HLT_Mu5_v16 = cms.Path( process.HLTBeginSequence + process.hltL1sL1Singl
 process.HLT_Mu8_v14 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleMu3 + process.hltPreMu8 + process.hltL1fL1sMu3L1Filtered0 + process.HLTL2muonrecoSequence + process.hltL2fL1sMu3L2Filtered3 + process.HLTL3muonrecoSequence + process.hltL3fL1sMu3L3Filtered8 + process.HLTEndSequence )
 process.HLT_Mu12_v14 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleMu7 + process.hltPreMu12 + process.hltL1fL1sMu7L1Filtered0 + process.HLTL2muonrecoSequence + process.hltL2fL1sMu7L2Filtered7 + process.HLTL3muonrecoSequence + process.hltL3fL1sMu7L3Filtered12 + process.HLTEndSequence )
 process.HLT_Mu17_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleMu12 + process.hltPreMu17 + process.hltL1fL1sMu12L1Filtered0 + process.HLTL2muonrecoSequence + process.hltL2fL1sMu12L2Filtered12 + process.HLTL3muonrecoSequence + process.hltL3fL1sMu12L3Filtered17 + process.HLTEndSequence )
-process.HLT_Mu12_eta2p1_L1Mu10erJetC12WdEtaPhi1DiJetsC_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1Mu10erJetC20JetC12Corr1OrL1Mu10erJetC32OrMu10erJetC32JetC12Corr1 + process.hltPreMu12eta2p1 + process.hltL1Mu10erJetC20JetC12Corr1OrL1Mu10erJetC32OrMu10erJetC32JetC12Corr1L1MuFiltered0Eta2p1 + process.HLTL2muonrecoSequence + process.hltL2L1Mu10erJetC20JetC12Corr1OrL1Mu10erJetC32OrMu10erJetC32JetC12Corr1L2MuFiltered10Eta2p1 + process.HLTL3muonrecoSequence + process.hltL3L1Mu10erJetC20JetC12Corr1OrL1Mu10erJetC32OrMu10erJetC32JetC12Corr1L3Mufiltered12Eta2p1 + process.HLTEndSequence )
+process.HLT_Mu12_eta2p1_L1Mu10erJetC12WdEtaPhi1DiJetsC_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1Mu10erJetC20JetC12Corr1OrL1Mu10erJetC32OrMu10erJetC32JetC12Corr1 + process.hltPreMu12eta2p1L1Mu10erJetC12WdEtaPhi1DiJetsC + process.hltL1Mu10erJetC20JetC12Corr1OrL1Mu10erJetC32OrMu10erJetC32JetC12Corr1L1MuFiltered0Eta2p1 + process.HLTL2muonrecoSequence + process.hltL2L1Mu10erJetC20JetC12Corr1OrL1Mu10erJetC32OrMu10erJetC32JetC12Corr1L2MuFiltered10Eta2p1 + process.HLTL3muonrecoSequence + process.hltL3L1Mu10erJetC20JetC12Corr1OrL1Mu10erJetC32OrMu10erJetC32JetC12Corr1L3Mufiltered12Eta2p1 + process.HLTEndSequence )
 process.HLT_Mu15_eta2p1_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleMu7 + process.hltPreMu15eta2p1 + process.hltL1fL1sMu7L1FilteredEta2p1Filtered0 + process.HLTL2muonrecoSequence + process.hltL2fL1sMu7L1fEta2p1L2FilteredEta2p1Filtered7 + process.HLTL3muonrecoSequence + process.hltL3fL1sMu7L1fEta2p1L2fEta2p1f7L3FilteredEta2p1Filtered15 + process.HLTEndSequence )
 process.HLT_Mu24_eta2p1_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sMu16Eta2p1 + process.hltPreMu24eta2p1 + process.hltL1fL1sMu16Eta2p1L1Filtered0 + process.HLTL2muonrecoSequence + process.hltL2fL1sMu16Eta2p1L1f0L2Filtered16Q + process.HLTL3muonrecoSequence + process.hltL3fL1sMu16Eta2p1L1f0L2f16QL3Filtered24Q + process.HLTEndSequence )
 process.HLT_Mu30_eta2p1_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sMu16Eta2p1 + process.hltPreMu30eta2p1 + process.hltL1fL1sMu16Eta2p1L1Filtered0 + process.HLTL2muonrecoSequence + process.hltL2fL1sMu16Eta2p1L1f0L2Filtered16Q + process.HLTL3muonrecoSequence + process.hltL3fL1sMu16Eta2p1L1f0L2f16QL3Filtered30Q + process.HLTEndSequence )
@@ -38854,19 +38854,6 @@ process.source = cms.Source( "PoolSource",
 if 'hltHfreco' in process.__dict__:
     process.hltHfreco.setNoiseFlags = cms.bool( True )
 
-# override the L1 menu from an Xml file
-process.l1GtTriggerMenuXml = cms.ESProducer("L1GtTriggerMenuXmlProducer",
-  TriggerMenuLuminosity = cms.string('startup'),
-  DefXmlFile = cms.string('L1Menu_Collisions2012_v0_L1T_Scales_20101224_Imp0_0x1027.xml'),
-  VmeXmlFile = cms.string('')
-)
-process.L1GtTriggerMenuRcdSource = cms.ESSource("EmptyESSource",
-  recordName = cms.string('L1GtTriggerMenuRcd'),
-  iovIsRunNotTime = cms.bool(True),
-  firstValid = cms.vuint32(1)
-)
-process.es_prefer_l1GtParameters = cms.ESPrefer('L1GtTriggerMenuXmlProducer','l1GtTriggerMenuXml') 
-
 # remove the HLT prescales
 if 'PrescaleService' in process.__dict__:
     process.PrescaleService.lvl1DefaultLabel = cms.string( '0' )
@@ -38929,17 +38916,16 @@ if 'GlobalTag' in process.__dict__:
     from Configuration.AlCa.autoCond import autoCond
     process.GlobalTag.globaltag = autoCond['hltonline']
 
-# customize the L1 emulator to run customiseL1GtEmulatorFromRaw with HLT to switchToSimGtDigis
-process.load( 'Configuration.StandardSequences.RawToDigi_Data_cff' )
-process.load( 'Configuration.StandardSequences.SimL1Emulator_cff' )
-import L1Trigger.Configuration.L1Trigger_custom
-process = L1Trigger.Configuration.L1Trigger_custom.customiseL1GtEmulatorFromRaw( process )
-process = L1Trigger.Configuration.L1Trigger_custom.customiseResetPrescalesAndMasks( process )
-
-# customize the HLT to use the emulated results
-import HLTrigger.Configuration.customizeHLTforL1Emulator
-process = HLTrigger.Configuration.customizeHLTforL1Emulator.switchToL1Emulator( process )
-process = HLTrigger.Configuration.customizeHLTforL1Emulator.switchToSimGtDigis( process )
+# override the L1 menu
+if 'GlobalTag' in process.__dict__:
+    process.GlobalTag.toGet.append(
+        cms.PSet(
+            record  = cms.string( 'L1GtTriggerMenuRcd' ),
+            tag     = cms.string( 'L1GtTriggerMenu_L1Menu_Collisions2011_v6_mc' ),
+            label   = cms.untracked.string( '' ),
+            connect = cms.untracked.string( 'frontier://FrontierProd/CMS_COND_31X_L1T' )
+        )
+    )
 
 if 'MessageLogger' in process.__dict__:
     process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
