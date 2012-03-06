@@ -1,6 +1,6 @@
 /** \class HLTEgammaDoubleEtPhiFilter
  *
- * $Id: HLTEgammaDoubleEtPhiFilter.cc,v 1.4 2007/12/07 14:41:33 ghezzi Exp $
+ * $Id: HLTEgammaDoubleEtPhiFilter.cc,v 1.5 2012/01/21 14:56:57 fwyzard Exp $
  *
  *  \author Jonathan Hollar (LLNL)
  *
@@ -54,7 +54,7 @@ HLTEgammaDoubleEtPhiFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup&
   
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> >  mysortedrecoecalcands;
   PrevFilterOutput->getObjects(TriggerCluster,  mysortedrecoecalcands);
-  
+  if(mysortedrecoecalcands.empty()) PrevFilterOutput->getObjects(TriggerCluster,mysortedrecoecalcands);  //we dont know if its type trigger cluster or trigger photon
   // Sort the list
   std::sort(mysortedrecoecalcands.begin(), mysortedrecoecalcands.end(), EgammaHLTEtSortCriterium());
   edm::Ref<reco::RecoEcalCandidateCollection> ref1, ref2;
