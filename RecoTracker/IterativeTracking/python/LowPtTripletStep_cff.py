@@ -89,7 +89,8 @@ lowPtTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.
 import RecoTracker.TrackProducer.TrackProducer_cfi
 lowPtTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'lowPtTripletStepTrackCandidates',
-    AlgorithmName = cms.string('iter1')
+    AlgorithmName = cms.string('iter1'),
+    Fitter = cms.string('FlexibleKFFittingSmoother')
     )
 
 

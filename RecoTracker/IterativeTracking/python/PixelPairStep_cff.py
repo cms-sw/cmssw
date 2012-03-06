@@ -101,7 +101,8 @@ pixelPairStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckf
 import RecoTracker.TrackProducer.TrackProducer_cfi
 pixelPairStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     AlgorithmName = cms.string('iter2'),
-    src = 'pixelPairStepTrackCandidates'
+    src = 'pixelPairStepTrackCandidates',
+    Fitter = cms.string('FlexibleKFFittingSmoother')
     )
 
 # Final selection

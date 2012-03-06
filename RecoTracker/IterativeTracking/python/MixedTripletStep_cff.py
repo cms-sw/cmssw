@@ -180,7 +180,8 @@ mixedTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.
 import RecoTracker.TrackProducer.TrackProducer_cfi
 mixedTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     AlgorithmName = cms.string('iter4'),
-    src = 'mixedTripletStepTrackCandidates'
+    src = 'mixedTripletStepTrackCandidates',
+    Fitter = cms.string('FlexibleKFFittingSmoother')
 )
 
 # TRACK SELECTION AND QUALITY FLAG SETTING.
