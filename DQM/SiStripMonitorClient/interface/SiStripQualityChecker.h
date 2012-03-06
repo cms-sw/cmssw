@@ -82,6 +82,7 @@ class SiStripQualityChecker {
   bool bookedStripStatus_;
   bool bookedTrackingStatus_;
   int globalStatusFilling_;
+  bool useGoodTracks_;
 
   TkDetMap* tkDetMap_;
  
