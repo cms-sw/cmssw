@@ -123,6 +123,7 @@ def CreateTheShellFile(argv):
 	        shell_file.write('   gSystem->Load("libDataFormatsVertexReco.so");\n')
 	        shell_file.write('   gSystem->Load("libDataFormatsHepMCCandidate.so");\n')
                 shell_file.write('   gSystem->Load("libPhysicsToolsUtilities.so");\n')
+                shell_file.write('   gSystem->Load("libdcap.so");\n')
                 shell_file.write('   .x %s+' % argv[1] + function_argument + '\n')
 	        shell_file.write('   .q\n')
 	        shell_file.write('EOF\n\n')
