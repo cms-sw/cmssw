@@ -116,6 +116,16 @@ void SiStripApvShotCleaner::subtractCM(){
   //order by charge
   stable_sort(apvDigis.begin(),apvDigis.end(),orderingByCharge());
 
+  //ignore case where 64th strip is 0ADC
+  if(apvDigis[stripsForMedian].adc()==0){
+#ifdef DEBUGME 
+        std::stringstream ss;
+	ss << "case with strip64=0 --> detid= "<<cacheDetId<< "\n";
+        edm::LogInfo("ApvShot") << ss.str();
+#endif
+     return;
+  }
+
   //Find the Median
   float CM = .5*(apvDigis[stripsForMedian].adc()+apvDigis[stripsForMedian-1].adc());
   
