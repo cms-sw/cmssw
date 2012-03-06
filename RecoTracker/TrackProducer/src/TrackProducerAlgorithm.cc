@@ -39,7 +39,7 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
 						 float ndof,
 						 const reco::BeamSpot& bs,
 						 SeedRef seedRef,
-						 int qualityMask)						 
+						 int qualityMask,bool isLooper)						 
 {
   //variable declarations
   std::vector<Trajectory> trajVec;
@@ -48,13 +48,15 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
   PropagationDirection seedDir = seed.direction();
       
   //perform the fit: the result's size is 1 if it succeded, 0 if fails
-  trajVec = theFitter->fit(seed, hits, theTSOS);
+  if(isLooper)
+    trajVec = theFitter->fit(seed, hits, theTSOS,TrajectoryFitter::looper);
+  else
+    trajVec = theFitter->fit(seed, hits, theTSOS,TrajectoryFitter::standard);
   
   LogDebug("TrackProducer") <<" FITTER FOUND "<< trajVec.size() << " TRAJECTORIES" <<"\n";
   TrajectoryStateOnSurface innertsos;
   
   if (trajVec.size() != 0){
-
     theTraj = new Trajectory( trajVec.front() );
     theTraj->setSeedRef(seedRef);
     
@@ -105,7 +107,8 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
 			       algo_);
    
     theTrack->setQualityMask(qualityMask);
-    
+    theTrack->setLooper(isLooper);
+
     LogDebug("TrackProducer") << "theTrack->pt()=" << theTrack->pt();
 
     LogDebug("TrackProducer") <<"track done\n";
@@ -128,7 +131,7 @@ TrackProducerAlgorithm<reco::GsfTrack>::buildTrack (const TrajectoryFitter * the
 						    float ndof,
 						    const reco::BeamSpot& bs,
 						    SeedRef seedRef,
-						    int qualityMask)
+						    int qualityMask,bool isLooper)
 {
   //variable declarations
   std::vector<Trajectory> trajVec;
@@ -137,8 +140,13 @@ TrackProducerAlgorithm<reco::GsfTrack>::buildTrack (const TrajectoryFitter * the
   PropagationDirection seedDir = seed.direction();
       
   //perform the fit: the result's size is 1 if it succeded, 0 if fails
-  trajVec = theFitter->fit(seed, hits, theTSOS);
+  if(isLooper)
+    trajVec = theFitter->fit(seed, hits, theTSOS,TrajectoryFitter::looper);
+  else
+    trajVec = theFitter->fit(seed, hits, theTSOS,TrajectoryFitter::standard);
+
   
+
   LogDebug("GsfTrackProducer") <<" FITTER FOUND "<< trajVec.size() << " TRAJECTORIES" <<"\n";
   
   TrajectoryStateOnSurface innertsos;
