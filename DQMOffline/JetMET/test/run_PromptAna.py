@@ -24,7 +24,7 @@ print 'jobname (default=test) = '+str(jobname)
 #
 # --- [number of events (default=1000)]
 nevents = int(os.environ.get('NEVENTS','1000'))
-print 'nevents (default=1000)  = '+str(nevents)
+print 'nevents (default=1000) = '+str(nevents)
 #
 # --- [turn on all histograms (default=True)?]
 allhist = (os.environ.get('ALL_HISTS','True'))

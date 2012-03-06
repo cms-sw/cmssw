@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for Calo Jets
  *
- *  $Date: 2011/03/11 15:14:37 $
- *  $Revision: 1.14 $
+ *  $Date: 2011/07/20 13:59:17 $
+ *  $Revision: 1.15 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -34,6 +34,10 @@
 
 #include <string>
 
+
+#include "GlobalVariables.h"
+
+
 class JetAnalyzer : public JetAnalyzerBase {
  public:
 
@@ -52,7 +56,8 @@ class JetAnalyzer : public JetAnalyzerBase {
 
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&, 
-	       const reco::CaloJetCollection& caloJets);
+	       const reco::CaloJetCollection& caloJets,
+	       const int numPV);
 
   void setSource(std::string source) {
     _source = source;
@@ -252,5 +257,18 @@ class JetAnalyzer : public JetAnalyzerBase {
   //dijet analysis quantities
   MonitorElement* mDijetBalance;
   MonitorElement* mDijetAsymmetry;
+
+
+  // NPV binned
+  //----------------------------------------------------------------------------
+  MonitorElement* mNJets_npv[_npvRanges];
+  MonitorElement* mPt_npv[_npvRanges];
+  MonitorElement* mEta_npv[_npvRanges];
+  MonitorElement* mPhi_npv[_npvRanges];
+  MonitorElement* mConstituents_npv[_npvRanges];
+  MonitorElement* mHFrac_npv[_npvRanges];
+  MonitorElement* mEFrac_npv[_npvRanges];
 };
+
+
 #endif

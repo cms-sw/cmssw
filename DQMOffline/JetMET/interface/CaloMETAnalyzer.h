@@ -5,8 +5,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2011/10/10 13:45:58 $
- *  $Revision: 1.29 $
+ *  $Date: 2011/10/10 14:43:38 $
+ *  $Revision: 1.30 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -46,6 +46,10 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "DQMOffline/JetMET/interface/JetMETDQMDCSFilter.h"
+
+
+#include "GlobalVariables.h"
+
 
 class CaloMETAnalyzer : public CaloMETAnalyzerBase {
  public:
@@ -170,6 +174,7 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   double _lowMETThreshold;
 
   // Et threshold for MET plots
+  int _numPV;
   double _etThreshold;
 
   // JetID helper
@@ -288,6 +293,23 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   MonitorElement* hCaloMExCorrection;
   MonitorElement* hCaloMEyCorrection;
   MonitorElement* hCaloMuonCorrectionFlag;
-  
+
+
+  //NPV Binned plots
+  MonitorElement* hCaloMEx_npv[_npvRanges];
+  MonitorElement* hCaloMEy_npv[_npvRanges];
+  //MonitorElement* hCaloEz_npv[_npvRanges];
+  //MonitorElement* hCaloMETSig_npv[_npvRanges];
+  MonitorElement* hCaloMET_npv[_npvRanges];
+  //MonitorElement* hCaloMET1_npv[_npvRanges];
+  //MonitorElement* hCaloMETPhi_npv[_npvRanges];
+  MonitorElement* hCaloSumET_npv[_npvRanges];
+
+  MonitorElement* hCaloMET_logx_npv[_npvRanges];
+  MonitorElement* hCaloSumET_logx_npv[_npvRanges];
+
+  MonitorElement* hCaloEtFractionHadronic_npv[_npvRanges];
+  MonitorElement* hCaloEmEtFraction_npv[_npvRanges];
+
 };
 #endif

@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for PFlow Jets
  *
- *  $Date: 2011/03/11 15:14:41 $
- *  $Revision: 1.8 $
+ *  $Date: 2011/07/20 13:59:17 $
+ *  $Revision: 1.9 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -26,6 +26,8 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 
 
+#include "GlobalVariables.h"
+
 
 class PFJetAnalyzer : public PFJetAnalyzerBase {
  public:
@@ -43,7 +45,7 @@ class PFJetAnalyzer : public PFJetAnalyzerBase {
   void endJob();
 
   /// Get the analysis
-  void analyze(const edm::Event&, const edm::EventSetup&, const reco::PFJetCollection& pfJets);
+  void analyze(const edm::Event&, const edm::EventSetup&, const reco::PFJetCollection& pfJets, const int numPV);
   //
   void setSource(std::string source) {
     _source = source;
@@ -180,15 +182,15 @@ class PFJetAnalyzer : public PFJetAnalyzerBase {
   MonitorElement* mPhEn_highPt_Barrel;
   MonitorElement* mElEn_highPt_Barrel;
   MonitorElement* mMuEn_highPt_Barrel;
-  MonitorElement*   mChMultiplicity_lowPt_Barrel;
-  MonitorElement*   mNeuMultiplicity_lowPt_Barrel;
-  MonitorElement*   mMuMultiplicity_lowPt_Barrel;
-  MonitorElement*   mChMultiplicity_mediumPt_Barrel;
-  MonitorElement*   mNeuMultiplicity_mediumPt_Barrel;
-  MonitorElement*   mMuMultiplicity_mediumPt_Barrel;
-  MonitorElement*   mChMultiplicity_highPt_Barrel;
-  MonitorElement*   mNeuMultiplicity_highPt_Barrel;
-  MonitorElement*   mMuMultiplicity_highPt_Barrel;
+  MonitorElement* mChMultiplicity_lowPt_Barrel;
+  MonitorElement* mNeuMultiplicity_lowPt_Barrel;
+  MonitorElement* mMuMultiplicity_lowPt_Barrel;
+  MonitorElement* mChMultiplicity_mediumPt_Barrel;
+  MonitorElement* mNeuMultiplicity_mediumPt_Barrel;
+  MonitorElement* mMuMultiplicity_mediumPt_Barrel;
+  MonitorElement* mChMultiplicity_highPt_Barrel;
+  MonitorElement* mNeuMultiplicity_highPt_Barrel;
+  MonitorElement* mMuMultiplicity_highPt_Barrel;
 
   MonitorElement*  mCHFracVSpT_Barrel;
   MonitorElement*  mNHFracVSpT_Barrel;
@@ -375,5 +377,27 @@ class PFJetAnalyzer : public PFJetAnalyzerBase {
   //dijet analysis quantities
   MonitorElement* mDijetBalance;
   MonitorElement* mDijetAsymmetry;
+
+
+  // NPV binned
+  //----------------------------------------------------------------------------
+  MonitorElement* mNJets_npv       [_npvRanges];
+  MonitorElement* mPt_npv          [_npvRanges];
+  MonitorElement* mEta_npv         [_npvRanges];
+  MonitorElement* mPhi_npv         [_npvRanges];
+  MonitorElement* mConstituents_npv[_npvRanges];
+  MonitorElement* mHFrac_npv       [_npvRanges];
+  MonitorElement* mEFrac_npv       [_npvRanges];
+
+  MonitorElement* mChargedHadronEnergy_npv[_npvRanges];
+  MonitorElement* mNeutralHadronEnergy_npv[_npvRanges];
+  MonitorElement* mChargedEmEnergy_npv    [_npvRanges];
+  MonitorElement* mChargedMuEnergy_npv    [_npvRanges];
+  MonitorElement* mNeutralEmEnergy_npv    [_npvRanges];
+  MonitorElement* mChargedMultiplicity_npv[_npvRanges];
+  MonitorElement* mNeutralMultiplicity_npv[_npvRanges];
+  MonitorElement* mMuonMultiplicity_npv   [_npvRanges];
 };
+
+
 #endif

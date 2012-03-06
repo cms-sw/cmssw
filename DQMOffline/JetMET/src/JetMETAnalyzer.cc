@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/10/10 14:43:31 $
- *  $Revision: 1.76 $
+ *  $Date: 2012/02/24 16:26:23 $
+ *  $Revision: 1.77 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -614,7 +614,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   if(theJetAnalyzerFlag){
     theAKJetAnalyzer->setJetHiPass(JetHiPass);
     theAKJetAnalyzer->setJetLoPass(JetLoPass);
-    theAKJetAnalyzer->analyze(iEvent, iSetup, *caloJets);
+    theAKJetAnalyzer->analyze(iEvent, iSetup, *caloJets, _numPV);
   }
   if(theJetPtAnalyzerFlag){
     LogTrace(metname)<<"[JetMETAnalyzer] Call to the Jet Pt anti-Kt analyzer";
@@ -628,7 +628,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   if(theJetCleaningFlag){
     theCleanedAKJetAnalyzer->setJetHiPass(JetHiPass);
     theCleanedAKJetAnalyzer->setJetLoPass(JetLoPass);
-    theCleanedAKJetAnalyzer->analyze(iEvent, iSetup, *caloJets);
+    theCleanedAKJetAnalyzer->analyze(iEvent, iSetup, *caloJets, _numPV);
   }
   if(theJetPtCleaningFlag){
     LogTrace(metname)<<"[JetMETAnalyzer] Call to the Cleaned Jet Pt anti-Kt analyzer";
@@ -640,7 +640,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   if(caloJets.isValid() && bJetCleanup){
   if(DCSFilterCalo->filter(iEvent, iSetup)){
     if(theDiJetSelectionFlag){
-    theDiJetAnalyzer->analyze(iEvent, iSetup, *caloJets);
+      theDiJetAnalyzer->analyze(iEvent, iSetup, *caloJets, _numPV);
     }
   } // DCS
   } // caloJets.isValid()
@@ -669,7 +669,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       if(theJetAnalyzerFlag){
 	theSCJetAnalyzer->setJetHiPass(JetHiPass);
 	theSCJetAnalyzer->setJetLoPass(JetLoPass);
-	theSCJetAnalyzer->analyze(iEvent, iSetup, *caloJets);
+	theSCJetAnalyzer->analyze(iEvent, iSetup, *caloJets, _numPV);
       }
       if(theJetPtAnalyzerFlag){
 	LogTrace(metname)<<"[JetMETAnalyzer] Call to the Jet Pt SisCone analyzer";
@@ -682,7 +682,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       if(theJetCleaningFlag){
 	theCleanedSCJetAnalyzer->setJetHiPass(JetHiPass);
 	theCleanedSCJetAnalyzer->setJetLoPass(JetLoPass);
-	theCleanedSCJetAnalyzer->analyze(iEvent, iSetup, *caloJets);
+	theCleanedSCJetAnalyzer->analyze(iEvent, iSetup, *caloJets, _numPV);
       }
       if(theJetPtCleaningFlag){
 	LogTrace(metname)<<"[JetMETAnalyzer] Call to the Cleaned Jet Pt SisCone analyzer";
@@ -698,7 +698,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       if(theJetAnalyzerFlag){
 	theICJetAnalyzer->setJetHiPass(JetHiPass);
 	theICJetAnalyzer->setJetLoPass(JetLoPass);
-	theICJetAnalyzer->analyze(iEvent, iSetup, *caloJets);	
+	theICJetAnalyzer->analyze(iEvent, iSetup, *caloJets, _numPV);	
       }
       if(theJetPtAnalyzerFlag){
 	LogTrace(metname)<<"[JetMETAnalyzer] Call to the Jet Pt ICone analyzer";
@@ -711,7 +711,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       if(theJetCleaningFlag){
 	theCleanedICJetAnalyzer->setJetHiPass(JetHiPass);
 	theCleanedICJetAnalyzer->setJetLoPass(JetLoPass);
-	theCleanedICJetAnalyzer->analyze(iEvent, iSetup, *caloJets);
+	theCleanedICJetAnalyzer->analyze(iEvent, iSetup, *caloJets, _numPV);
       }
       if(theJetPtCleaningFlag){
 	LogTrace(metname)<<"[JetMETAnalyzer] Call to the Cleaned Jet Pt ICone analyzer";
@@ -727,14 +727,14 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   if(jptJets.isValid() && theJPTJetAnalyzerFlag){
     //theJPTJetAnalyzer->setJetHiPass(JetHiPass);
     //theJPTJetAnalyzer->setJetLoPass(JetLoPass);
-    theJPTJetAnalyzer->analyze(iEvent, iSetup, *jptJets);
+    theJPTJetAnalyzer->analyze(iEvent, iSetup, *jptJets, _numPV);
   }
   
   if(jptJets.isValid() && bJetCleanup && theJPTJetCleaningFlag){
     if(DCSFilterJPT->filter(iEvent, iSetup)){
     //theCleanedJPTJetAnalyzer->setJetHiPass(JetHiPass);
     //theCleanedJPTJetAnalyzer->setJetLoPass(JetLoPass);
-    theCleanedJPTJetAnalyzer->analyze(iEvent, iSetup, *jptJets);
+      theCleanedJPTJetAnalyzer->analyze(iEvent, iSetup, *jptJets, _numPV);
     }
   }
   
@@ -747,18 +747,18 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       thePFJetAnalyzer->setJetHiPass(JetHiPass);
       thePFJetAnalyzer->setJetLoPass(JetLoPass);
       LogTrace(metname)<<"[JetMETAnalyzer] Call to the PFJet analyzer";
-      thePFJetAnalyzer->analyze(iEvent, iSetup, *pfJets);
+      thePFJetAnalyzer->analyze(iEvent, iSetup, *pfJets, _numPV);
       }
     if(thePFJetCleaningFlag){
-    if(DCSFilterPF->filter(iEvent, iSetup)){
-      theCleanedPFJetAnalyzer->setJetHiPass(JetHiPass);
-      theCleanedPFJetAnalyzer->setJetLoPass(JetLoPass);
-      LogTrace(metname)<<"[JetMETAnalyzer] Call to the Cleaned PFJet analyzer";
-      theCleanedPFJetAnalyzer->analyze(iEvent, iSetup, *pfJets);
-      if(theDiJetSelectionFlag){
-	thePFDiJetAnalyzer->analyze(iEvent, iSetup, *pfJets);
-      }
-    } // DCS
+      if(DCSFilterPF->filter(iEvent, iSetup)){
+	theCleanedPFJetAnalyzer->setJetHiPass(JetHiPass);
+	theCleanedPFJetAnalyzer->setJetLoPass(JetLoPass);
+	LogTrace(metname)<<"[JetMETAnalyzer] Call to the Cleaned PFJet analyzer";
+	theCleanedPFJetAnalyzer->analyze(iEvent, iSetup, *pfJets, _numPV);
+	if(theDiJetSelectionFlag){
+	  thePFDiJetAnalyzer->analyze(iEvent, iSetup, *pfJets, _numPV);
+	}
+      } // DCS
     }  
   } else {
     if (DEBUG) LogTrace(metname)<<"[JetMETAnalyzer] pfjets NOT VALID!!";

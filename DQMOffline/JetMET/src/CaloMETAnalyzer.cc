@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/10/10 13:45:50 $
- *  $Revision: 1.61 $
+ *  $Date: 2011/10/10 14:43:31 $
+ *  $Revision: 1.62 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -365,6 +365,42 @@ void CaloMETAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=
     hCaloMExCorrection       = _dbe->book1D("METTask_CaloMExCorrection", "METTask_CaloMExCorrection", 100, -500.0,500.0);
     hCaloMEyCorrection       = _dbe->book1D("METTask_CaloMEyCorrection", "METTask_CaloMEyCorrection", 100, -500.0,500.0);
     hCaloMuonCorrectionFlag  = _dbe->book1D("METTask_CaloCorrectionFlag","METTask_CaloCorrectionFlag", 5, -0.5, 4.5);
+  }
+
+
+  // NPV binned
+  //----------------------------------------------------------------------------
+  for (int bin=0; bin<_npvRanges; ++bin) {
+
+    hCaloMEx_npv[bin]                = _dbe->book1D(Form("METTask_CaloMEx_npvBin%d",bin),   "METTask_CaloMEx"+_npvs[bin]   ,100,-500,500);
+    hCaloMEx_npv[bin]->setAxisTitle("MEx [GeV]",1);
+    hCaloMEy_npv[bin]                = _dbe->book1D(Form("METTask_CaloMEy_npvBin%d",bin),   "METTask_CaloMEy"+_npvs[bin]   ,100,-500,500); 
+    hCaloMEy_npv[bin]->setAxisTitle("MEy [GeV]",1);
+    //hCaloMETSig_npv[bin]             = _dbe->book1D(Form("METTask_CaloMETSig_npvBin%d",bin),"METTask_CaloMETSig"+_npvs[bin],51,0,51);
+    //hCaloMETSig_npv[bin]->setAxisTitle("METSig",1);
+    hCaloMET_npv[bin]                = _dbe->book1D(Form("METTask_CaloMET_npvBin%d",bin),   "METTask_CaloMET"+_npvs[bin]   ,100,0,1000); 
+    hCaloMET_npv[bin]->setAxisTitle("MET [GeV]",1);
+    //hCaloMET1_npv[bin]               = _dbe->book1D(Form("METTask_CaloMET1_npvBin%d",bin),  "METTask_CaloMET1"+_npvs[bin]  ,40,0,200);
+    //meCaloMET_npv[bin]->getTH1F()->SetStats(111111);
+    //meCaloMET_npv[bin]->getTH1F()->SetOption("logy");
+    //hCaloMETPhi_npv[bin]             = _dbe->book1D(Form("METTask_CaloMETPhi_npvBin%d",bin),"METTask_CaloMETPhi"+_npvs[bin],60,-TMath::Pi(),TMath::Pi()); 
+    //hCaloMETPhi_npv[bin]->setAxisTitle("METPhi [rad]",1);
+    hCaloSumET_npv[bin]              = _dbe->book1D(Form("METTask_CaloSumET_npvBin%d",bin), "METTask_CaloSumET"+_npvs[bin] ,400,0,2000); 
+    hCaloSumET_npv[bin]->setAxisTitle("SumET [GeV]",1);
+    
+    hCaloMET_logx_npv[bin]           = _dbe->book1D(Form("METTask_CaloMET_logx_npvBin%d",bin),   "METTask_CaloMET_logx"+_npvs[bin]   ,40,-1.,7.);
+    hCaloMET_logx_npv[bin]->setAxisTitle("log(MET) [GeV]",1);
+    hCaloSumET_logx_npv[bin]         = _dbe->book1D(Form("METTask_CaloSumET_logx_npvBin%d",bin), "METTask_CaloSumET_logx"+_npvs[bin] ,40,-1.,7.);
+    hCaloSumET_logx_npv[bin]->setAxisTitle("log(SumET) [GeV]",1);
+
+    if (_allhist){
+      hCaloEtFractionHadronic_npv[bin] = _dbe->book1D(Form("METTask_CaloEtFractionHadronic_npvBin%d",bin),"METTask_CaloEtFractionHadronic"+_npvs[bin],100,0,1);
+      hCaloEtFractionHadronic_npv[bin]->setAxisTitle("Hadronic Et Fraction",1);
+      hCaloEmEtFraction_npv[bin]       = _dbe->book1D(Form("METTask_CaloEmEtFraction_npvBin%d",bin),      "METTask_CaloEmEtFraction"+_npvs[bin]      ,100,0,1);
+      hCaloEmEtFraction_npv[bin]->setAxisTitle("EM Et Fraction",1);
+      
+    }
+   
   }
 
 }
@@ -805,6 +841,7 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   // ==========================================================
   //Vertex information
   
+  _numPV = 0;
   bool bPrimaryVertex = true;
   if(_doPVCheck){
     bPrimaryVertex = false;
@@ -831,8 +868,10 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	      && vertex_number>=_nvtx_min
 	      && vertex_ndof   >_vtxndof_min
 	      && vertex_chi2   <_vtxchi2_max
-	      && fabs(vertex_Z)<_vtxz_max ) 
+	      && fabs(vertex_Z)<_vtxz_max ) {
 	  bPrimaryVertex = true;
+	  ++_numPV;
+	}
       }
     }
   }
@@ -1160,6 +1199,7 @@ void CaloMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string D
     hCaloMETSig = _dbe->get(DirName+"/"+"METTask_CaloMETSig"); if (hCaloMETSig  && hCaloMETSig->getRootObject() ) hCaloMETSig->Fill(caloMETSig);
     //hCaloEz     = _dbe->get(DirName+"/"+"METTask_CaloEz");     if (hCaloEz      && hCaloEz->getRootObject() )     hCaloEz->Fill(caloEz);
 
+
     hCaloMET_logx   = _dbe->get(DirName+"/"+"METTask_CaloMET_logx");      if (hCaloMET_logx    && hCaloMET_logx->getRootObject() )   hCaloMET_logx->Fill(log10(caloMET));
     hCaloSumET_logx = _dbe->get(DirName+"/"+"METTask_CaloSumET_logx");    if (hCaloSumET_logx  && hCaloSumET_logx->getRootObject() ) hCaloSumET_logx->Fill(log10(caloSumET));
 
@@ -1230,6 +1270,55 @@ void CaloMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string D
  	hCaloMuonCorrectionFlag = _dbe->get(DirName+"/"+"METTask_CaloMuonCorrectionFlag");  if (hCaloMuonCorrectionFlag && hCaloMuonCorrectionFlag->getRootObject())  hCaloMuonCorrectionFlag-> Fill(muCorrData.type());
       }
     }    
+
+
+    // NPV binned
+    //--------------------------------------------------------------------------
+    int npvbin = -1;
+    if (_numPV < 5)
+      npvbin = 0;
+    else if (_numPV < 10)
+      npvbin = 1;
+    else if (_numPV < 15)
+      npvbin = 2;
+    else if (_numPV < 25)
+      npvbin = 3;
+    //else if (_numPV < 50)
+    else
+      npvbin = 4;
+
+    hCaloMEx_npv[npvbin]    = _dbe->get(Form("%s/METTask_CaloMEx_npvBin%d",DirName.c_str(),npvbin));    if (hCaloMEx_npv[npvbin]     && hCaloMEx_npv[npvbin]->getRootObject() )    hCaloMEx_npv[npvbin]->Fill(caloMEx);
+    hCaloMEy_npv[npvbin]    = _dbe->get(Form("%s/METTask_CaloMEy_npvBin%d",DirName.c_str(),npvbin));    if (hCaloMEy_npv[npvbin]     && hCaloMEy_npv[npvbin]->getRootObject() )    hCaloMEy_npv[npvbin]->Fill(caloMEy);
+    hCaloMET_npv[npvbin]    = _dbe->get(Form("%s/METTask_CaloMET_npvBin%d",DirName.c_str(),npvbin));    if (hCaloMET_npv[npvbin]     && hCaloMET_npv[npvbin]->getRootObject() )    hCaloMET_npv[npvbin]->Fill(caloMET);
+    //hCaloMET1_npv[npvbin]   = _dbe->get(Form("%s/METTask_CaloMET1_npvBin%d",DirName.c_str(),npvbin));   if (hCaloMET1_npv[npvbin]    && hCaloMET1_npv[npvbin]->getRootObject() )   hCaloMET1_npv[npvbin]->Fill(caloMET);
+    //hCaloMETPhi_npv[npvbin] = _dbe->get(Form("%s/METTask_CaloMETPhi_npvBin%d",DirName.c_str(),npvbin)); if (hCaloMETPhi_npv[npvbin]  && hCaloMETPhi_npv[npvbin]->getRootObject() ) hCaloMETPhi_npv[npvbin]->Fill(caloMETPhi);
+    hCaloSumET_npv[npvbin]  = _dbe->get(Form("%s/METTask_CaloSumET_npvBin%d",DirName.c_str(),npvbin));  if (hCaloSumET_npv[npvbin]   && hCaloSumET_npv[npvbin]->getRootObject() )  hCaloSumET_npv[npvbin]->Fill(caloSumET);
+    //hCaloMETSig_npv[npvbin] = _dbe->get(Form("%s/METTask_CaloMETSig_npvBin%d",DirName.c_str(),npvbin)); if (hCaloMETSig_npv[npvbin]  && hCaloMETSig_npv[npvbin]->getRootObject() ) hCaloMETSig_npv[npvbin]->Fill(caloMETSig);
+    //hCaloEz     = _dbe->get(Form("%s/METTask_CaloEz_npvBin%d",DirName.c_str(),npvbin));     if (hCaloEz      && hCaloEz_npv[npvbin]->getRootObject() )     hCaloEz_npv[npvbin]->Fill(caloEz);
+    
+    hCaloMET_logx_npv[npvbin]   = _dbe->get(Form("%s/METTask_CaloMET_logx_npvBin%d",DirName.c_str(),npvbin));      if (hCaloMET_logx_npv[npvbin]    && hCaloMET_logx_npv[npvbin]->getRootObject() )   hCaloMET_logx_npv[npvbin]->Fill(log10(caloMET));
+    hCaloSumET_logx_npv[npvbin] = _dbe->get(Form("%s/METTask_CaloSumET_logx_npvBin%d",DirName.c_str(),npvbin));    if (hCaloSumET_logx_npv[npvbin]  && hCaloSumET_logx_npv[npvbin]->getRootObject() ) hCaloSumET_logx_npv[npvbin]->Fill(log10(caloSumET));
+
+    if (_allhist) {
+      hCaloEtFractionHadronic_npv[npvbin] = _dbe->get(Form("%s/METTask_CaloEtFractionHadronic_npvBin%d",DirName.c_str(),npvbin)); if (hCaloEtFractionHadronic_npv[npvbin] && hCaloEtFractionHadronic_npv[npvbin]->getRootObject())  hCaloEtFractionHadronic_npv[npvbin]->Fill(caloEtFractionHadronic);
+      hCaloEmEtFraction_npv[npvbin]       = _dbe->get(Form("%s/METTask_CaloEmEtFraction_npvBin%d",DirName.c_str(),npvbin));       if (hCaloEmEtFraction_npv[npvbin]       && hCaloEmEtFraction_npv[npvbin]->getRootObject())        hCaloEmEtFraction_npv[npvbin]->Fill(caloEmEtFraction);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   } // et threshold cut
 
 }

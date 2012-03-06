@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/07/20 13:59:00 $
- *  $Revision: 1.19 $
+ *  $Date: 2011/08/12 15:37:16 $
+ *  $Revision: 1.20 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -112,6 +112,21 @@ void PFJetAnalyzer::beginJob(DQMStore * dbe) {
   mConstituents            = dbe->book1D("Constituents", "# of Constituents", 50, 0, 100);
   mHFrac                   = dbe->book1D("HFrac", "HFrac", 120, -0.1, 1.1);
   mEFrac                   = dbe->book1D("EFrac", "EFrac", 120, -0.1, 1.1);
+
+
+  // NPV binned
+  //----------------------------------------------------------------------------
+  for (int bin=0; bin<_npvRanges; ++bin) {
+
+    mPt_npv          [bin] = dbe->book1D(Form("Pt_npvBin%d",           bin), "Pt"                + _npvs[bin],  ptBin,  ptMin,  ptMax);
+    mEta_npv         [bin] = dbe->book1D(Form("Eta_npvBin%d",          bin), "Eta"               + _npvs[bin], etaBin, etaMin, etaMax);
+    mPhi_npv         [bin] = dbe->book1D(Form("Phi_npvBin%d",          bin), "Phi"               + _npvs[bin], phiBin, phiMin, phiMax);
+    mConstituents_npv[bin] = dbe->book1D(Form("Constituents_npvBin%d", bin), "# of constituents" + _npvs[bin],     50,      0,    100);
+    mHFrac_npv       [bin] = dbe->book1D(Form("HFrac_npvBin%d",        bin), "HFrac"             + _npvs[bin],    120,   -0.1,    1.1);
+    mEFrac_npv       [bin] = dbe->book1D(Form("EFrac_npvBin%d",        bin), "EFrac"             + _npvs[bin],    120,   -0.1,    1.1);
+  }
+
+
   //
   //mE                       = dbe->book1D("E", "E", eBin, eMin, eMax);
   //mP                       = dbe->book1D("P", "P", pBin, pMin, pMax);
@@ -342,6 +357,26 @@ void PFJetAnalyzer::beginJob(DQMStore * dbe) {
   mChargedMultiplicity = dbe->book1D("mChargedMultiplicity ", "mChargedMultiplicity ", 100, 0, 100);
   mNeutralMultiplicity = dbe->book1D(" mNeutralMultiplicity", "mNeutralMultiplicity", 100, 0, 100);
   mMuonMultiplicity    = dbe->book1D("mMuonMultiplicity", "mMuonMultiplicity", 100, 0, 100);
+
+  
+  // NPV binned
+  //----------------------------------------------------------------------------
+  for (int bin=0; bin<_npvRanges; ++bin) {
+    
+    mChargedHadronEnergy_npv[bin] = dbe->book1D(Form("mChargedHadronEnergy_npvBin%d",  bin), "mChargedHadronEnergy" + _npvs[bin], 100, 0, 100);
+    mNeutralHadronEnergy_npv[bin] = dbe->book1D(Form("mNeutralHadronEnergy_npvBin%d",  bin), "mNeutralHadronEnergy" + _npvs[bin], 100, 0, 100);
+    mChargedEmEnergy_npv    [bin] = dbe->book1D(Form("mChargedEmEnergy_npvBin%d",      bin), "mChargedEmEnergy"     + _npvs[bin], 100, 0, 100);
+    mChargedMuEnergy_npv    [bin] = dbe->book1D(Form("mChargedMuEnergy_npvBin%d",      bin), "mChargedMuEnergy"     + _npvs[bin], 100, 0, 100);
+    mNeutralEmEnergy_npv    [bin] = dbe->book1D(Form("mNeutralEmEnergy_npvBin%d",      bin), "mNeutralEmEnergy"     + _npvs[bin], 100, 0, 100);
+    mChargedMultiplicity_npv[bin] = dbe->book1D(Form("mChargedMultiplicity _npvBin%d", bin), "mChargedMultiplicity" + _npvs[bin], 100, 0, 100);
+    mNeutralMultiplicity_npv[bin] = dbe->book1D(Form("mNeutralMultiplicity_npvBin%d",  bin), "mNeutralMultiplicity" + _npvs[bin], 100, 0, 100);
+    mMuonMultiplicity_npv   [bin] = dbe->book1D(Form("mMuonMultiplicity_npvBin%d",     bin), "mMuonMultiplicity"    + _npvs[bin], 100, 0, 100);
+
+    if (makedijetselection != 1)
+      mNJets_npv[bin] = dbe->book1D(Form("mNJets_npvBin%d", bin), "mNJets" + _npvs[bin], 100, 0, 100);
+  }
+
+
   //__________________________________________________
   mNeutralFraction     = dbe->book1D("NeutralFraction","Neutral Fraction",100,0,1);
   //}
@@ -366,8 +401,11 @@ void PFJetAnalyzer::endJob() {
   
 }
 
-void PFJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::PFJetCollection& pfJets) {
-
+void PFJetAnalyzer::analyze(const edm::Event&            iEvent,
+			    const edm::EventSetup&       iSetup,
+			    const reco::PFJetCollection& pfJets,
+			    const int                    numPV)
+{
   int numofjets=0;
   double  fstPhi=0.;
   double  sndPhi=0.;
@@ -383,6 +421,15 @@ void PFJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   bool TightCHFcleaned=false;
 
   srand( iEvent.id().event() % 10000);
+
+
+  int npvbin = -1;
+  if      (numPV <  5) npvbin = 0;
+  else if (numPV < 10) npvbin = 1;
+  else if (numPV < 15) npvbin = 2;
+  else if (numPV < 25) npvbin = 3;
+  else                 npvbin = 4;
+
 
   if(makedijetselection==1){
     //Dijet selection - careful: the pT is uncorrected!
@@ -484,6 +531,7 @@ void PFJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	      //_______________________________________________________
 	      if (mNeutralFraction) mNeutralFraction->Fill (pfJets.at(0).neutralMultiplicity()/pfJets.at(0).nConstituents());
 
+
 	      //Filling variables for second jet
 	      if (mPt)   mPt->Fill (pfJets.at(1).pt());
 	      if (mEta)  mEta->Fill (pfJets.at(1).eta());
@@ -508,6 +556,29 @@ void PFJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	      if (mMuonMultiplicity )mMuonMultiplicity->Fill (pfJets.at(1). muonMultiplicity());
 	      //_______________________________________________________
 	      if (mNeutralFraction) mNeutralFraction->Fill (pfJets.at(1).neutralMultiplicity()/pfJets.at(1).nConstituents());
+
+
+	      //NPV binned
+	      //----------------------------------------------------------------
+	      for (int iJet=0; iJet<2; iJet++) {
+
+		if (mPt_npv          [npvbin]) mPt_npv          [npvbin]->Fill(pfJets.at(iJet).pt());
+		if (mEta_npv         [npvbin]) mEta_npv         [npvbin]->Fill(pfJets.at(iJet).eta());
+		if (mPhi_npv         [npvbin]) mPhi_npv         [npvbin]->Fill(pfJets.at(iJet).phi());
+		if (mConstituents_npv[npvbin]) mConstituents_npv[npvbin]->Fill(pfJets.at(iJet).nConstituents());
+		if (mHFrac_npv       [npvbin]) mHFrac_npv       [npvbin]->Fill(pfJets.at(iJet).chargedHadronEnergyFraction() + pfJets.at(iJet).neutralHadronEnergyFraction());
+		if (mEFrac_npv       [npvbin]) mEFrac_npv       [npvbin]->Fill(pfJets.at(iJet).chargedEmEnergyFraction()     + pfJets.at(iJet).neutralEmEnergyFraction());
+	      
+		if (mChargedHadronEnergy_npv[npvbin]) mChargedHadronEnergy_npv[npvbin]->Fill(pfJets.at(iJet).chargedHadronEnergy());
+		if (mNeutralHadronEnergy_npv[npvbin]) mNeutralHadronEnergy_npv[npvbin]->Fill(pfJets.at(iJet).neutralHadronEnergy());
+		if (mChargedEmEnergy_npv    [npvbin]) mChargedEmEnergy_npv    [npvbin]->Fill(pfJets.at(iJet).chargedEmEnergy());
+		if (mChargedMuEnergy_npv    [npvbin]) mChargedMuEnergy_npv    [npvbin]->Fill(pfJets.at(iJet).chargedMuEnergy());
+		if (mNeutralEmEnergy_npv    [npvbin]) mNeutralEmEnergy_npv    [npvbin]->Fill(pfJets.at(iJet).neutralEmEnergy());
+		if (mChargedMultiplicity_npv[npvbin]) mChargedMultiplicity_npv[npvbin]->Fill(pfJets.at(iJet).chargedMultiplicity());
+		if (mNeutralMultiplicity_npv[npvbin]) mNeutralMultiplicity_npv[npvbin]->Fill(pfJets.at(iJet).neutralMultiplicity());
+		if (mMuonMultiplicity_npv   [npvbin]) mMuonMultiplicity_npv   [npvbin]->Fill(pfJets.at(iJet).muonMultiplicity());
+	      }
+
 
 	    }// loose cleaned jets 1 and 2
 	  }// fabs dphi < 2.1
@@ -926,5 +997,10 @@ void PFJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     } // PF jet loop
     if (mNJets)   mNJets->Fill (numofjets);
     if (mDPhi)    mDPhi->Fill (dphi);
+
+
+    if (mNJets_npv[npvbin]) mNJets_npv[npvbin]->Fill(numofjets);
+
+
   } // non dijet selection
 }

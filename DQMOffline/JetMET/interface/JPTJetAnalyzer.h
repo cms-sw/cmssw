@@ -5,8 +5,8 @@
  *
  *  DQM monitoring source for JPT Jets
  *
- *  $Date: 2010/03/02 09:31:19 $
- *  $Revision: 1.9 $
+ *  $Date: 2010/03/22 09:11:46 $
+ *  $Revision: 1.10 $
  *  \author N. Cripps - Imperial
  */
 
@@ -18,6 +18,11 @@
 #include "DataFormats/JetReco/interface/JPTJet.h"
 #include "DataFormats/JetReco/interface/JPTJetCollection.h"
 #include <memory>
+
+
+#include "GlobalVariables.h"
+
+
 // forward declare classes which do not need to be defined for interface
 class DQMStore;
 namespace reco {
@@ -51,8 +56,8 @@ class JPTJetAnalyzer : public JetAnalyzerBase {
   void beginJob(DQMStore * dbe);
   
   /// Do the analysis
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup, const reco::JPTJet& jptJet, double& pt1, double& pt2, double& pt3);
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup, const reco::JPTJetCollection& jptJets);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup, const reco::JPTJet& jptJet, double& pt1, double& pt2, double& pt3, const int numPV);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup, const reco::JPTJetCollection& jptJets, const int numPV);
   
   /// Finish up a job
   virtual void endJob();
@@ -172,7 +177,15 @@ class JPTJetAnalyzer : public JetAnalyzerBase {
   TrackHistograms allPionHistograms_, inCaloInVertexPionHistograms_, inCaloOutVertexPionHistograms_, outCaloInVertexPionHistograms_;
   TrackHistograms allMuonHistograms_, inCaloInVertexMuonHistograms_, inCaloOutVertexMuonHistograms_, outCaloInVertexMuonHistograms_;
   TrackHistograms allElectronHistograms_, inCaloInVertexElectronHistograms_, inCaloOutVertexElectronHistograms_, outCaloInVertexElectronHistograms_;
-  
+
+
+  // NPV binned
+  //----------------------------------------------------------------------------
+  MonitorElement* JetPt_npv [_npvRanges];
+  MonitorElement* JetEta_npv[_npvRanges];
+  MonitorElement* JetPhi_npv[_npvRanges];
+
+
   ///DQMStore. Used to write out to file
   DQMStore* dqm_;
 };
