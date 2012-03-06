@@ -1166,18 +1166,50 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
 	mapChannproblem(dcc_,spigot,htrchan);
 	if (debug_)std::cout <<"mapChannelProblem:  Wrong Digi Size (last digi)"<<std::endl;
       }
-    }//} else { // this is the branch for unpacking the compact data format with per-channel headers
-    //  const unsigned short* ptr_header=daq_first;
-    //  const unsigned short* ptr_end=daq_last+1;
-    //  int flavor, error_flags, capid0, channelid;
-    //
-    //  while (ptr_header!=ptr_end) {
-    //	if (*ptr_header==0xFFFF) { // impossible filler word
-    //	  ptr_header++;
-    //	  continue;
-    //	}
-    //  }
-    //}
+    } else { // this is the branch for unpacking the compact data format with per-channel headers
+      const unsigned short* ptr_header=daq_first;
+      const unsigned short* ptr_end=daq_last+1;
+      int flavor, error_flags, capid0, channelid;
+      int samplecounter=-1;
+      int htrchan=-1; // Valid: [1,24]
+      int chn2offset=0; 
+      int NTS = htr.getNDD(); //number time slices, in precision channels
+      int Nchan = 3; // 3 channels per fiber
+      while (ptr_header!=ptr_end) {
+    	if (*ptr_header==0xFFFF) { // impossible filler word
+    	  ptr_header++;
+    	  continue;
+    	}
+	// unpack the header word
+	bool isheader=HcalHTRData::unpack_per_channel_header(*ptr_header,flavor,error_flags,capid0,channelid);
+	if (!isheader) {
+	  ptr_header++;
+	  continue;
+	}
+	// A fiber [1..8] carries three fiber channels, each is [0..2]. Make htrchan [1..24]
+	int fiber = 1 + ((channelid & 0x1C) >> 2); //Mask and shift to get bits [2:4]
+	int chan = channelid & 0x2; //bits [0:1]
+	htrchan = (fiber * Nchan) + chan;  //ta-dah!
+	//std::cout << std::hex << *ptr_header <<"  "<<flavor<<" "<<error_flags<<" "<<capid0<<"  "<<channelid<<"  and "<<fiber<< std::endl;
+	chn2offset = (htrchan*3)+1; //For placing the errors on the histogram
+	ChannSumm_DataIntegrityCheck_  [fed2offset-1][spg2offset-1] -= NTS;//event tally -- NB: negative!
+	Chann_DataIntegrityCheck_[dcc_][chn2offset-1][spg2offset-1] -= NTS;//event tally -- NB: negative!
+	if (error_flags & 2) { //a CapId violation (non correct rotation)
+	  ++ChannSumm_DataIntegrityCheck_  [fed2offset+1][spg2offset+0];
+	  ++Chann_DataIntegrityCheck_[dcc_][chn2offset+1][spg2offset+0];
+	  mapChannproblem(dcc_,spigot,htrchan);
+	}
+	if (error_flags & 1) { //an asserted Link-Error (Er)
+	  ++ChannSumm_DataIntegrityCheck_  [fed2offset+1][spg2offset+1];
+	  ++Chann_DataIntegrityCheck_[dcc_][chn2offset+1][spg2offset+1]; 
+	  mapChannproblem(dcc_,spigot,htrchan);
+	}
+
+	for (ptr_header++;
+	     ptr_header!=ptr_end && !HcalHTRData::is_channel_header(*ptr_header);
+	     ptr_header++);      
+      }
+    }
     unsigned int fib1BCN = htr.getFib1OrbMsgBCN();
     unsigned int fib2BCN = htr.getFib2OrbMsgBCN();
     unsigned int fib3BCN = htr.getFib3OrbMsgBCN();
