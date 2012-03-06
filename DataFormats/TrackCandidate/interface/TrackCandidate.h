@@ -26,23 +26,25 @@ public:
   typedef RecHitContainer::const_iterator const_iterator;
   typedef std::pair<const_iterator,const_iterator> range;
   
-  TrackCandidate(): rh_(),  seed_(), state_(), seedRef_() {}
+ TrackCandidate(): rh_(),  seed_(), state_(), seedRef_(), isLooper_(false) {}
   virtual ~TrackCandidate(){}
 
   TrackCandidate(RecHitContainer & rh) :
-    rh_(),  seed_(), state_(), seedRef_() {rh_.swap(rh);}
+  rh_(),  seed_(), state_(), seedRef_(), isLooper_(false) {rh_.swap(rh);}
   
   TrackCandidate(RecHitContainer & rh,
 		 TrajectorySeed const & s,
-		 PTrajectoryStateOnDet const & st):
-    rh_(), seed_(s), state_(st), seedRef_() {rh_.swap(rh);}
+		 PTrajectoryStateOnDet const & st,
+		 bool isLooper=false):
+    rh_(), seed_(s), state_(st), seedRef_(),isLooper_(isLooper) {rh_.swap(rh);}
 
   
   TrackCandidate(RecHitContainer & rh,
 		 TrajectorySeed const & s,
 		 PTrajectoryStateOnDet const & st,
-		 const edm::RefToBase<TrajectorySeed> & seedRef) :
-    rh_(), seed_(s), state_(st), seedRef_(seedRef) {rh_.swap(rh);}
+		 const edm::RefToBase<TrajectorySeed> & seedRef,
+		 bool isLooper=false) :
+    rh_(), seed_(s), state_(st), seedRef_(seedRef),isLooper_(isLooper) {rh_.swap(rh);}
 
 
 
@@ -53,6 +55,9 @@ public:
   
   TrajectorySeed const & seed() const {return seed_;}
  
+  void setIsLooper(bool value) {isLooper_=value;}
+  bool isLooper() const {return isLooper_;}
+
   /**  return the edm::reference to the trajectory seed in the original
    *   seeds collection. If the collection has been dropped from the
    *   Event, the reference may be invalid. Its validity should be tested,
@@ -67,5 +72,6 @@ private:
   TrajectorySeed seed_;
   PTrajectoryStateOnDet state_;
   edm::RefToBase<TrajectorySeed> seedRef_;
+  bool isLooper_;
 };
 #endif
