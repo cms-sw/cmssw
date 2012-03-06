@@ -6,7 +6,6 @@
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/METReco/interface/BoundaryInformation.h"
-#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 //using namespace edm;
