@@ -32,7 +32,17 @@ Common commands:
                    Allows multiple tags for a single package.
                    
    createrel    Creates a new release queue. The command is using mandatory
-                parameters. Type 'cmstc createrel --help' for more information
+                switches. Type 'cmstc createrel --help' for more information
+                regarding the command's switches
+   
+   requestcib   Requests a new Custom IB for the specified architectures and tags.
+                Type 'cmstc requestcib --help' for more information regarding the
+                command's switches
+   
+   relarch      Outputs release architectures. The command can take one parameter - 
+                release name to see all the available architectures or two parameters - 
+                the release name and filter either 'prod' or 'dev' to see all the 
+                production or development architectures respectively
 
 Integration Build commands:
    ibs          Prints the list of latest IBs for active releases
@@ -132,7 +142,13 @@ Examples:
    cmstc cmsdisttags   CMSSW_4_1_0_pre1
    cmstc cmsdistdiff   CMSSW_4_1_0_pre1 CMSSW_4_1_0_pre2
    
-   cmstc createrel -r CMSSW_5_0_0_pre2 --private -b CMSSW_5_0_0_pre1 -d "adding new release queue" -a "CalibCalorimetry/CaloMiscalibTools V00-02-23, DQM/BeamMonitor V00-04-25" -m "muzaffar,eulisse"
+   cmstc createrel     -r CMSSW_5_0_0_pre2 --private -b CMSSW_5_0_0_pre1 -d "adding new release queue" -a "CalibCalorimetry/CaloMiscalibTools V00-02-23, DQM/BeamMonitor V00-04-25" -m "muzaffar,eulisse"
+   
+   cmstc relarch       CMSSW_5_2_X
+   cmstc relarch       CMSSW_5_2_X prod
+   
+   cmstc requestcib    -r CMSSW_5_0_X -t "CalibCalorimetry/CaloMiscalibTools V00-02-23, DQM/BeamMonitor V00-04-25" -a "slc5_amd64_gcc434,slc5_amd64_gcc451"
+   
 """
 
 __author__ = "Miguel Ojeda"
@@ -542,7 +558,86 @@ def cmd_createrel(args):
   tc.createRelease(opts.baseRelease, opts.release, opts.state, opts.isPrivate, opts.type, opts.description, opts.managers, opts.copyQueues, opts.tags)
   tc.signOut()
   print "The release " + opts.release + " is successfully created!"
+  
+def cmd_requestcib(args):
+  usage = "usage: %prog requestcib [option1] arg1 [option2] arg2 ... [optionN] argN"
+  parser = optparse.OptionParser(usage=usage)
+  parser.add_option("-r", "--release", dest="release", help="Release name")
+  parser.add_option("-a", "--architectures", dest="architectures", help="The architectures for custom ib")
+  parser.add_option("-t", "--tags", dest="tags", help="Tags to apply into custom ib")
+  (opts, args) = parser.parse_args(args)
+  
+  if opts.release == None:
+      raise Exception("Error: No release name?!")
+  
+  if opts.architectures == None:
+      raise Exception("Error: No architectures?!")
+  
+  if opts.tags == None:
+      raise Exception("Error: No tags?!")
+  
+  tc = cmstc.TagCollector()
+  tc.signInInteractive()
+      
+  if not opts.tags == "":
+      tags = opts.tags.split(",")
+      opts.tags = ""
+      for tag in tags:
+          opts.tags += tag.strip() + "\n"
+  
+  relarchs = tc.getReleaseArchitectures(opts.release)
+  architectures = opts.architectures.split(',')
+  opts.architectures = '['
+  isFirst = True
+  for arch in architectures:
+      if not _isArchInRelease(arch, relarchs):
+          raise Exception("Error: the architecture " + arch + " is not present in the release " + opts.release + ". Type 'cmstc relarch " + opts.release + "' to see the available architectures.")
+      if not isFirst:
+          opts.architectures += ','
+      else:
+          isFirst = False
+      opts.architectures += '"'+arch.strip()+'"'
+  opts.architectures += ']'
+  tc.requestCustomIB(opts.release, opts.architectures, opts.tags)
+  tc.signOut()
+  print "The Custom IB is successfully requested!"
+  
+def _isArchInRelease(arch, relarchs):
+    for relarch in relarchs:
+        if relarch[0] == arch:
+            return True
+    return False
 
+def cmd_relarch(args):
+    release = None
+    filter = None
+    if len(args) == 1:
+        release = args[0]
+    elif len(args) == 2:
+        release = args[0]
+        filter = args[1]
+        if (not filter == "prod") and (not filter == "dev"):
+            raise Exception("Error: filter can be either 'prod' or 'dev', you've specified: " + filter)
+    else:
+        raise Exception( """Error: please specify only one parameter - name release name to see all the architectures or
+        two parameters - the release name and filter 'prod' or 'dev' to see all the production or development architectures respectively""")
+    tc = cmstc.TagCollector()
+    data = tc.getReleaseArchitectures(release)
+    if filter == None:
+        print "The release " + release + " architectures:"
+        for unit in data:
+            type = ""
+            if unit[1]:
+                type = " - production"
+            print unit[0] + type
+    else:
+        print "The release " + release + " architectures for the filter '" + filter + "':"
+        for unit in data:
+            if unit[1] and filter == "prod":
+                print unit[0]
+            elif not unit[1] and filter == "dev":
+                print unit[0]
+        
 def main():
   try:
     args = sys.argv[1:]

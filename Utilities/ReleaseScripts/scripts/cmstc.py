@@ -185,3 +185,15 @@ class TagCollector(object):
 		    self._open('copyRelease', {'release_name': base_release_name, 'new_release_name': new_release_name, 'new_state': new_state, 'new_private': new_private, 'new_type': new_type, 'new_description': new_description, 'release_managers': release_managers, 'copy_queues': copy_queues, 'tags': tags})
 		else:
 			raise Exception("Error: Not logged in?!")
+		
+	def requestCustomIB(self, release_name, architectures, tags):
+		"""Request a CustomIB.
+		Requirement: Signed in."""
+		if self.login:
+		    self._open('requestCustomIB', {'release_name': release_name, 'architecture_names': architectures, 'tags': tags})
+		else:
+			raise Exception("Error: Not logged in?!")
+		
+	def getReleaseArchitectures(self, release, default='0'):
+		"""Returns release architectures."""
+		return self._openjson('py_getReleaseArchitectures', {'release': release, 'default': default})
