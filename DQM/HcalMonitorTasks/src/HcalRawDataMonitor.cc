@@ -1170,7 +1170,7 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
       const unsigned short* ptr_header=daq_first;
       const unsigned short* ptr_end=daq_last+1;
       int flavor, error_flags, capid0, channelid;
-      int samplecounter=-1;
+      // int samplecounter=-1;  // for a digisize check
       int htrchan=-1; // Valid: [1,24]
       int chn2offset=0; 
       int NTS = htr.getNDD(); //number time slices, in precision channels
@@ -1180,6 +1180,7 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
     	  ptr_header++;
     	  continue;
     	}
+	error_flags = capid0 = channelid = 0;
 	// unpack the header word
 	bool isheader=HcalHTRData::unpack_per_channel_header(*ptr_header,flavor,error_flags,capid0,channelid);
 	if (!isheader) {
@@ -1188,9 +1189,8 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
 	}
 	// A fiber [1..8] carries three fiber channels, each is [0..2]. Make htrchan [1..24]
 	int fiber = 1 + ((channelid & 0x1C) >> 2); //Mask and shift to get bits [2:4]
-	int chan = channelid & 0x2; //bits [0:1]
+	int chan = channelid & 0x3; //bits [0:1]
 	htrchan = (fiber * Nchan) + chan;  //ta-dah!
-	//std::cout << std::hex << *ptr_header <<"  "<<flavor<<" "<<error_flags<<" "<<capid0<<"  "<<channelid<<"  and "<<fiber<< std::endl;
 	chn2offset = (htrchan*3)+1; //For placing the errors on the histogram
 	ChannSumm_DataIntegrityCheck_  [fed2offset-1][spg2offset-1] -= NTS;//event tally -- NB: negative!
 	Chann_DataIntegrityCheck_[dcc_][chn2offset-1][spg2offset-1] -= NTS;//event tally -- NB: negative!
