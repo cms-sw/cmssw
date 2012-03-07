@@ -997,6 +997,11 @@ if 'GlobalTag' in %%(dict)s:
       self.options['sequences'].append( "-HLTIterativeTracking" )
       self.options['sequences'].append( "-HLTRegionalCKFTracksForL3Isolation" )
 
+      # remove HLTAnalyzerEndpath from fastsim cff's
+      if self.config.fragment:
+        self.options['paths'].append( "-HLTAnalyzerEndpath" )
+
+
   def build_source(self):
     if self.config.input:
       # if a dataset or a list of input files was given, use it
