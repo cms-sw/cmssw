@@ -93,7 +93,7 @@ class LumiScalers
   unsigned int numOrbits() const           { return(numOrbits_);}
 
   float pileup() const                     { return(pileup_);}
-  float spare() const                      { return(spare_);}
+  float pileupRMS() const                  { return(pileupRMS_);}
 
   /// equality operator
   int operator==(const LumiScalers& e) const { return false; }
@@ -146,7 +146,7 @@ protected:
   unsigned int numOrbits_;
 
   float pileup_;
-  float spare_;
+  float pileupRMS_;
 };
 
 
