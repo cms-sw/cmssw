@@ -147,7 +147,6 @@ void HcalDetDiagTimingMonitor::analyze(const edm::Event& iEvent, const edm::Even
   if (LumiInOrder(iEvent.luminosityBlock())==false) return;
   HcalBaseDQMonitor::analyze(iEvent, iSetup);
   
-  
   int eta,phi,depth,nTS,BXinEVENT=1,TRIGGER=0;
   
   if(!dbe_) return;
@@ -161,7 +160,6 @@ void HcalDetDiagTimingMonitor::analyze(const edm::Event& iEvent, const edm::Even
     if ( fedData.size() < 24 ) continue ;
     if(((const HcalDCCHeader*)(fedData.data()))->getCalibType()!=hc_Null) return;
   }
-   
   /////////////////////////////////////////////////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////
   bool GCTTrigger1=false,GCTTrigger2=false,GCTTrigger3=false,GCTTrigger4=false,GCTTrigger5=false,HOselfTrigger=false;
@@ -169,17 +167,21 @@ void HcalDetDiagTimingMonitor::analyze(const edm::Event& iEvent, const edm::Even
   edm::Handle< L1GlobalTriggerReadoutRecord > gtRecord;
   iEvent.getByLabel(L1ADataLabel_, gtRecord);
   if(gtRecord.isValid()){
+
     const TechnicalTriggerWord tWord = gtRecord->technicalTriggerWord();
     const DecisionWord         dWord = gtRecord->decisionWord();
     //bool HFselfTrigger   = tWord.at(9);
-    HOselfTrigger    = tWord.at(11);
-	
-    GCTTrigger1      = dWord.at(GCTTriggerBit1_);     
-    GCTTrigger2      = dWord.at(GCTTriggerBit2_);     
-    GCTTrigger3      = dWord.at(GCTTriggerBit3_);     
-    GCTTrigger4      = dWord.at(GCTTriggerBit4_);     
-    GCTTrigger5      = dWord.at(GCTTriggerBit5_);     
-   
+    if (!tWord.empty()) HOselfTrigger    = tWord.at(11);
+
+    if (!dWord.empty()) 
+      {
+	GCTTrigger1      = dWord.at(GCTTriggerBit1_);     
+	GCTTrigger2      = dWord.at(GCTTriggerBit2_);     
+	GCTTrigger3      = dWord.at(GCTTriggerBit3_);     
+	GCTTrigger4      = dWord.at(GCTTriggerBit4_);     
+	GCTTrigger5      = dWord.at(GCTTriggerBit5_);     
+      }
+
     // define trigger trigger source (example from GMT group)
     edm::Handle<L1MuGMTReadoutCollection> gmtrc_handle; 
     iEvent.getByLabel(L1ADataLabel_,gmtrc_handle);
