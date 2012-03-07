@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 VERSION='1.00'
 import os,os.path,sys,datetime,time,csv
-from RecoLuminosity.LumiDB import lumiTime,argparse,CommonUtil,matplotRender,sessionManager,lumiCalcAPI,lumiCorrections,dataDML,lumiParameters
+from RecoLuminosity.LumiDB import lumiTime,argparse,matplotRender,sessionManager,lumiCalcAPI,lumiCorrections,lumiParameters
 import matplotlib
 from matplotlib.figure import Figure
 def parseInputFiles(inputfilename,dbrunlist,optaction):
@@ -62,7 +62,7 @@ if __name__=='__main__':
             pass
     allowedscales=['linear','log','both']
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),
-                                     description="Plot integrated luminosity as function of the time variable of choice",
+                                     description="Plot luminosity as function of the time variable of choice",
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-c',
                         dest='connect',
@@ -139,7 +139,7 @@ if __name__=='__main__':
                         dest='yscale',
                         action='store',
                         default='linear',
-                        help='y_scale')
+                        help='y_scale[linear,log,both]')
     ####switches
     parser.add_argument('--with-annotation',
                         dest='withannotation',
@@ -148,7 +148,7 @@ if __name__=='__main__':
     parser.add_argument('--interactive',
                         dest='interactive',
                         action='store_true',
-                        help='graphical mode to draw plot in a TK pannel.')
+                        help='graphical mode to draw plot in a QT pannel.')
     parser.add_argument('--without-correction',
                         dest='withoutCorrection',
                         action='store_true',
@@ -170,6 +170,7 @@ if __name__=='__main__':
                         action='store_true',
                         help='verbose mode, print result also to screen')
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
+    parser.add_argument('--verbose',dest='verbose',action='store_true',help='verbose')
     parser.add_argument('action',choices=['run','time','fill','perday','instpeakperday','inst'],help='type of plots')
     options=parser.parse_args()
     if options.yscale=='both' and options.interactive:
@@ -201,7 +202,7 @@ if __name__=='__main__':
         pbeammode='STABLE BEAMS'
     resultlines=[]
     #
-    ##process old plot csv files,if any
+    ##process old plot csv files,if any, skipping #commentlines
     #
     if options.inplot:
         inplot=options.inplot
@@ -210,7 +211,7 @@ if __name__=='__main__':
             f=open(ip,'r')
             reader=csv.reader(f,delimiter=',')
             for row in reader:
-                if not row[0].isdigit():continue
+                if '#' in row[0]:continue
                 resultlines.append(row)
     #
     ##find runs need to read from DB
@@ -305,14 +306,26 @@ if __name__=='__main__':
             rundata=lumibyls[run]            
             rawdata.setdefault('Delivered',[]).append((run,sum([t[5] for t in rundata])))
             rawdata.setdefault('Recorded',[]).append((run,sum([t[6] for t in rundata])))
-        m.plotSumX_Run(rawdata,resultlines,textoutput=outtextfilename)
+        if options.yscale=='linear':
+            m.plotSumX_Run(rawdata,resultlines,textoutput=outtextfilename,yscale='linear')
+        elif options.yscale=='log':
+            m.plotSumX_Run(rawdata,resultlines,textoutput=outtextfilename,yscale='log')
+        else:
+            m.plotSumX_Run(rawdata,resultlines,textoutput=outtextfilename,yscale='linear')
+            m.plotSumX_Run(rawdata,resultlines,textoutput=outtextfilename,yscale='log')
     if options.action=='fill':
         for fill in sorted(fillrunMap):
             for run in fillrunMap[fill]:
                 rundata=lumibyls[run]
                 rawdata.setdefault('Delivered',[]).append((fill,run,sum([t[5] for t in rundata])))
                 rawdata.setdefault('Recorded',[]).append((fill,run,sum([t[6] for t in rundata])))
-        m.plotSumX_Fill(rawdata,resultlines,textoutput=outtextfilename)
+        if options.yscale=='linear':
+            m.plotSumX_Fill(rawdata,resultlines,textoutput=outtextfilename,yscale='linear')
+        elif options.yscale=='log':
+            m.plotSumX_Fill(rawdata,resultlines,textoutput=outtextfilename,yscale='log')
+        else:
+            m.plotSumX_Fill(rawdata,resultlines,textoutput=outtextfilename,yscale='linear')
+            m.plotSumX_Fill(rawdata,resultlines,textoutput=outtextfilename,yscale='log')
     if options.action=='time':
         for run in sorted(lumibyls):
             rundata=lumibyls[run]
@@ -346,8 +359,13 @@ if __name__=='__main__':
             rawdata.setdefault('Delivered',[]).append((day,daybeg,dayend,daydel))
             rawdata.setdefault('Recorded',[]).append((day,daybeg,dayend,dayrec))
         #print 'rawdata ',rawdata
-        m.plotPerdayX_Time(rawdata,resultlines,minTime=begtime,maxTime=endtime,textoutput=outtextfilename,yscale='linear')
-        mlog.plotPerdayX_Time(rawdata,resultlines,minTime=begtime,maxTime=endtime,textoutput=outtextfilename,yscale='log')
+        if options.yscale=='linear':
+            m.plotPerdayX_Time(rawdata,resultlines,minTime=begtime,maxTime=endtime,textoutput=outtextfilename,yscale='linear')
+        elif options.yscale=='log':
+            mlog.plotPerdayX_Time(rawdata,resultlines,minTime=begtime,maxTime=endtime,textoutput=outtextfilename,yscale='log')
+        else:
+            m.plotPerdayX_Time(rawdata,resultlines,minTime=begtime,maxTime=endtime,textoutput=outtextfilename,yscale='linear')
+            mlog.plotPerdayX_Time(rawdata,resultlines,minTime=begtime,maxTime=endtime,textoutput=outtextfilename,yscale='log')
     if options.action=='instpeakperday':
         daydict={}#{daynumber:[(runnumber,lumilsnum,inst),..]}
         for run in sorted(lumibyls):
@@ -369,8 +387,13 @@ if __name__=='__main__':
                     daymax_run=datatp[0]
                     daymax_ls=datatp[1]
             rawdata.setdefault('Delivered',[]).append((day,daymax_run,daymax_ls,daymax_val))
-        m.plotPeakPerday_Time(rawdata,resultlines,minTime=begtime,maxTime=endtime,textoutput=outtextfilename,yscale='linear')
-        mlog.plotPeakPerday_Time(rawdata,resultlines,minTime=begtime,maxTime=endtime,textoutput=outtextfilename,yscale='log')
+        if options.yscale=='linear':
+            m.plotPeakPerday_Time(rawdata,resultlines,minTime=begtime,maxTime=endtime,textoutput=outtextfilename,yscale='linear')
+        elif options.yscale=='log':
+            mlog.plotPeakPerday_Time(rawdata,resultlines,minTime=begtime,maxTime=endtime,textoutput=outtextfilename,yscale='log')
+        else:
+            m.plotPeakPerday_Time(rawdata,resultlines,minTime=begtime,maxTime=endtime,textoutput=outtextfilename,yscale='linear')
+            mlog.plotPeakPerday_Time(rawdata,resultlines,minTime=begtime,maxTime=endtime,textoutput=outtextfilename,yscale='log')
     if options.action=='inst':
         thisfillnumber=fillrunMap.keys()[0]
         starttime=0
