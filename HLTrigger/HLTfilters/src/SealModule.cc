@@ -50,8 +50,8 @@ typedef HLTSinglet<CaloJet             > HLT1CaloJet  ;
 typedef HLTSinglet<CompositeCandidate  > HLT1Composite;
 typedef HLTSinglet<CaloMET             > HLT1CaloMET  ;
 typedef HLTSinglet<MET                 > HLT1MET      ;
-typedef HLTSinglet<RecoChargedCandidate> HLT1Track    ;
-typedef HLTSinglet<RecoEcalCandidate   > HLT1Cluster  ;
+//typedef HLTSinglet<RecoChargedCandidate> HLT1Track    ;
+//typedef HLTSinglet<RecoEcalCandidate   > HLT1Cluster  ;
 typedef HLTSinglet<PFTau               > HLT1PFTau    ;
 typedef HLTSinglet<PFJet               > HLT1PFJet    ;
 
@@ -71,8 +71,8 @@ typedef HLTSmartSinglet<CaloJet             > HLT1SmartCaloJet  ;
 typedef HLTSmartSinglet<CompositeCandidate  > HLT1SmartComposite;
 typedef HLTSmartSinglet<CaloMET             > HLT1SmartCaloMET  ;
 typedef HLTSmartSinglet<MET                 > HLT1SmartMET      ;
-typedef HLTSmartSinglet<RecoChargedCandidate> HLT1SmartTrack    ;
-typedef HLTSmartSinglet<RecoEcalCandidate   > HLT1SmartCluster  ;
+//typedef HLTSmartSinglet<RecoChargedCandidate> HLT1SmartTrack    ;
+//typedef HLTSmartSinglet<RecoEcalCandidate   > HLT1SmartCluster  ;
 typedef HLTSmartSinglet<PFTau               > HLT1SmartPFTau    ;
 typedef HLTSmartSinglet<PFJet               > HLT1SmartPFJet    ;
 
@@ -139,8 +139,8 @@ DEFINE_FWK_MODULE(HLT1CaloJet);
 DEFINE_FWK_MODULE(HLT1Composite);
 DEFINE_FWK_MODULE(HLT1CaloMET);
 DEFINE_FWK_MODULE(HLT1MET);
-DEFINE_FWK_MODULE(HLT1Track);
-DEFINE_FWK_MODULE(HLT1Cluster);
+//DEFINE_FWK_MODULE(HLT1Track);
+//DEFINE_FWK_MODULE(HLT1Cluster);
 DEFINE_FWK_MODULE(HLT1PFTau);
 DEFINE_FWK_MODULE(HLT1PFJet);
 
@@ -157,8 +157,8 @@ DEFINE_FWK_MODULE(HLT1SmartCaloJet);
 DEFINE_FWK_MODULE(HLT1SmartComposite);
 DEFINE_FWK_MODULE(HLT1SmartCaloMET);
 DEFINE_FWK_MODULE(HLT1SmartMET);
-DEFINE_FWK_MODULE(HLT1SmartTrack);
-DEFINE_FWK_MODULE(HLT1SmartCluster);
+//DEFINE_FWK_MODULE(HLT1SmartTrack);
+//DEFINE_FWK_MODULE(HLT1SmartCluster);
 DEFINE_FWK_MODULE(HLT1SmartPFTau);
 DEFINE_FWK_MODULE(HLT1SmartPFJet);
 */
