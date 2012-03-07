@@ -1190,8 +1190,9 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
 	// A fiber [1..8] carries three fiber channels, each is [0..2]. Make htrchan [1..24]
 	int fiber = 1 + ((channelid & 0x1C) >> 2); //Mask and shift to get bits [2:4]
 	int chan = channelid & 0x3; //bits [0:1]
-	htrchan = (fiber * Nchan) + chan;  //ta-dah!
-	chn2offset = (htrchan*3)+1; //For placing the errors on the histogram
+	htrchan = ((fiber -1) * Nchan) + chan + 1;  //ta-dah! I really wish everything counted from zero...
+	chn2offset = ((htrchan-1)*3)+1; //For placing the errors on the histogram. Also very tidy. Sorry.
+	//debug// if (error_flags) std::cout<<fiber<<","<<chan<<" = "<<htrchan<<"   @"<<chn2offset<<std::endl;
 	ChannSumm_DataIntegrityCheck_  [fed2offset-1][spg2offset-1] -= NTS;//event tally -- NB: negative!
 	Chann_DataIntegrityCheck_[dcc_][chn2offset-1][spg2offset-1] -= NTS;//event tally -- NB: negative!
 	if (error_flags & 2) { //a CapId violation (non correct rotation)
