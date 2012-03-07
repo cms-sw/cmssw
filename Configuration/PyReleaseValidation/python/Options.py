@@ -82,7 +82,7 @@ parser.add_option("--no_exec",
 # expert settings
 expertSettings.add_option("--beamspot",
                           help="What beam spot to use (from Configuration/StandardSequences). Default depends on scenario",
-                          default=defaultOptions.beamspot,
+                          default=None,
                           dest="beamspot")
 
 expertSettings.add_option("--customise",

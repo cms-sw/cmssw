@@ -327,7 +327,7 @@ AdaptiveVertexFitter::linearizeTracks(const vector<reco::TransientTrack> & track
         = theLinTrkFactory->linearizedTrackState(linP, *i);
       lTracks.push_back(lTrData);
     } catch ( exception & e ) {
-      LogWarning("RecoVertex/AdaptiveVertexFitter") 
+      LogInfo("RecoVertex/AdaptiveVertexFitter") 
         << "Exception " << e.what() << " in ::linearizeTracks."
         << "Your future vertex has just lost a track.";
     };
@@ -360,7 +360,7 @@ AdaptiveVertexFitter::reLinearizeTracks(
               */
       lTracks.push_back(lTrData);
     } catch ( exception & e ) {
-      LogWarning("RecoVertex/AdaptiveVertexFitter") 
+      LogInfo("RecoVertex/AdaptiveVertexFitter") 
         << "Exception " << e.what() << " in ::relinearizeTracks. "
         << "Will not relinearize this track.";
       lTracks.push_back ( (**i).linearizedTrack() );
@@ -380,13 +380,13 @@ double AdaptiveVertexFitter::getWeight ( float chi2 ) const
 
   if ( weight > 1.0 )
   {
-    LogWarning("RecoVertex/AdaptiveVertexFitter") << "Weight " << weight << " > 1.0!";
+    LogInfo("RecoVertex/AdaptiveVertexFitter") << "Weight " << weight << " > 1.0!";
     weight=1.0;
   };
 
   if ( weight < 1e-20 )
   {
-    // LogWarning("RecoVertex/AdaptiveVertexFitter") << "Weight " << weight << " < 0.0!";
+    // LogInfo("RecoVertex/AdaptiveVertexFitter") << "Weight " << weight << " < 0.0!";
     weight=1e-20;
   };
   return weight;
@@ -419,8 +419,8 @@ AdaptiveVertexFitter::reWeightTracks(
     // cout << "[AdaptiveVertexFitter] /estimate " << endl;
     if (!chi2Res.first) {
       // cout << "[AdaptiveVertexFitter] aie... vertex candidate is at  " << vertex.position() << endl;
-      LogWarning("AdaptiveVertexFitter" ) << "When reweighting, chi2<0. Will add this track with w=0.";
-      // edm::LogWarning("AdaptiveVertexFitter" ) << "pt=" << (**i).track().pt();
+      LogInfo("AdaptiveVertexFitter" ) << "When reweighting, chi2<0. Will add this track with w=0.";
+      // edm::LogInfo("AdaptiveVertexFitter" ) << "pt=" << (**i).track().pt();
     }else {
       weight = getWeight ( chi2Res.second );
     }
@@ -471,7 +471,7 @@ AdaptiveVertexFitter::weightTracks(
     pair<bool, double> chi2Res = theComp->estimate ( seedvtx, *i );
     if (!chi2Res.first) {
       // cout << "[AdaptiveVertexFitter] Aiee! " << endl;
-      LogWarning ("AdaptiveVertexFitter" ) << "When weighting a track, chi2 calculation failed;"
+      LogInfo ("AdaptiveVertexFitter" ) << "When weighting a track, chi2 calculation failed;"
                                            << " will add with w=0.";
     } else {
       weight = getWeight ( chi2Res.second );
@@ -599,7 +599,7 @@ AdaptiveVertexFitter::fit( const vector<RefCountedVertexTrack> & tracks,
              nVertex.position().perp()>120.)
         {
           // were more than 100 m off!!
-          LogWarning ("AdaptiveVertexFitter" ) << "Vertex candidate just took off to " << nVertex.position()
+          LogInfo ("AdaptiveVertexFitter" ) << "Vertex candidate just took off to " << nVertex.position()
 					    << "! Will discard this update!";
 // 	    //<< "track pt was " << (**i).linearizedTrack()->track().pt()
 // 					     << "track momentum was " << (**i).linearizedTrack()->track().initialFreeState().momentum()
@@ -612,7 +612,7 @@ AdaptiveVertexFitter::fit( const vector<RefCountedVertexTrack> & tracks,
 	        fVertex = nVertex;
         }
       } else {
-        LogWarning("RecoVertex/AdaptiveVertexFitter") 
+        LogInfo("RecoVertex/AdaptiveVertexFitter") 
           << "The updator returned an invalid vertex when adding track "
           << i-globalVTracks.begin() 
 	        << ".\n Your vertex might just have lost one good track.";

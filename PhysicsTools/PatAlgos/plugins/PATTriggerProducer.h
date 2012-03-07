@@ -7,7 +7,7 @@
 // Package:    PatAlgos
 // Class:      pat::PATTriggerProducer
 //
-// $Id: PATTriggerProducer.h,v 1.15 2010/11/27 15:16:21 vadler Exp $
+// $Id: PATTriggerProducer.h,v 1.16 2011/02/22 18:29:50 vadler Exp $
 //
 /**
   \class    pat::PATTriggerProducer PATTriggerProducer.h "PhysicsTools/PatAlgos/plugins/PATTriggerProducer.h"
@@ -33,7 +33,7 @@
    https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger
 
   \author   Volker Adler
-  \version  $Id: PATTriggerProducer.h,v 1.15 2010/11/27 15:16:21 vadler Exp $
+  \version  $Id: PATTriggerProducer.h,v 1.16 2011/02/22 18:29:50 vadler Exp $
 */
 
 
@@ -70,7 +70,7 @@ namespace pat {
       // L1
       L1GtUtils     l1GtUtils_;
       bool          addL1Algos_;                        // configuration (optional with default)
-      edm::InputTag tagL1GlobalTriggerObjectMapRecord_; // configuration (optional with default)
+      edm::InputTag tagL1GlobalTriggerObjectMaps_;      // configuration (optional with default)
       edm::InputTag tagL1ExtraMu_;                      // configuration (optional)
       edm::InputTag tagL1ExtraNoIsoEG_;                 // configuration (optional)
       edm::InputTag tagL1ExtraIsoEG_;                   // configuration (optional)

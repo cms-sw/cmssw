@@ -156,6 +156,16 @@ bool ErrorChecker::checkROC(bool& errorsInEvent, int fedId, const SiPixelFrameCo
  };
 
  if(includeErrors) {
+   // check to see if overflow error for type 30, change type to 40 if so
+   if(errorType==30) {
+     int StateMach_bits      = 4;
+     int StateMach_shift     = 8;
+     uint32_t StateMach_mask = ~(~uint32_t(0) << StateMach_bits);
+     int StateMach = (errorWord >> StateMach_shift) & StateMach_mask;
+     if( StateMach==4 || StateMach==9 ) errorType = 40;
+   }
+
+   // store error
    SiPixelRawDataError error(errorWord, errorType, fedId);
    cms_uint32_t detId;
    detId = errorDetId(converter, errorType, errorWord);
@@ -220,7 +230,7 @@ cms_uint32_t ErrorChecker::errorDetId(const SiPixelFrameConverter* converter,
   ElectronicIndex cabling;
 
   switch (errorType) {
-    case  25 : case  30 : case  31 : case  36 : {
+    case  25 : case  30 : case  31 : case  36 : case 40 : {
       // set dummy values for cabling just to get detId from link if in Barrel
       cabling.dcol = 0;
       cabling.pxid = 2;

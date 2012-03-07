@@ -4,9 +4,7 @@
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/FIPConfiguration.h"
 #include "DetectorDescription/Core/src/DDCheck.h"
-#include "DetectorDescription/Core/interface/DDConstant.h"
-#include "DetectorDescription/Core/interface/DDVector.h"
-//#include "DetectorDescription/Core/interface/DDD.h"
+#include "DetectorDescription/Core/interface/DDD.h"
 //#include "FWCore/PluginManager/interface/PluginManager.h"
 //#include "FWCore/PluginManager/interface/standard.h"
 // DDD Interface in CARF
@@ -65,44 +63,33 @@ int main(int argc, char *argv[])
 
     // C.  Manufacture a configuration and establish it.
     std::string config =
-	"import FWCore.ParameterSet.Config as cms\n\n"
-	"from FWCore.MessageLogger.MessageLogger_cfi import *\n"
-	"process = cms.Process(\"DDTEST\")\n"
-	"process.source = cms.Source(\"EmptySource\")\n";
-//       " process.MessageLogger = cms.Service(\"MessageLogger\",\n"
-//       "                  cout = cms.untracked.PSet(\n"
-//       "             threshold = cms.untracked.string(\"ERROR\")\n"
-//       "             ),\n"
-//       " destinations = cms.untracked.vstring(\"cout\")\n"
-//       ")";
-    
-//       "process x = {"
-//       "service = MessageLogger {"
-//         "untracked vstring destinations = {'infos.mlog','warnings.mlog'}"
-//         "untracked PSet infos = {"
-//           "untracked string threshold = 'INFO'"
-//           "untracked PSet default = {untracked int32 limit = 1000000}"
-//           "untracked PSet FwkJob = {untracked int32 limit = 0}"
-//         "}"
-//         "untracked PSet warnings = {"
-//           "untracked string threshold = 'WARNING'"
-//           "untracked PSet default = {untracked int32 limit = 1000000}"
-//         "}"
-//         "untracked vstring fwkJobReports = {'FrameworkJobReport.xml'}"
-//         "untracked vstring categories = {'FwkJob'}"
-//         "untracked PSet FrameworkJobReport.xml = {"
-//           "untracked PSet default = {untracked int32 limit = 0}"
-//           "untracked PSet FwkJob = {untracked int32 limit = 10000000}"
-//         "}"
-//       "}"
-//       "service = JobReportService{}"
-//       "service = SiteLocalConfigService{}"
-//       "}";
+      "process x = {"
+      "service = MessageLogger {"
+        "untracked vstring destinations = {'infos.mlog','warnings.mlog'}"
+        "untracked PSet infos = {"
+          "untracked string threshold = 'INFO'"
+          "untracked PSet default = {untracked int32 limit = 1000000}"
+          "untracked PSet FwkJob = {untracked int32 limit = 0}"
+        "}"
+        "untracked PSet warnings = {"
+          "untracked string threshold = 'WARNING'"
+          "untracked PSet default = {untracked int32 limit = 1000000}"
+        "}"
+        "untracked vstring fwkJobReports = {'FrameworkJobReport.xml'}"
+        "untracked vstring categories = {'FwkJob'}"
+        "untracked PSet FrameworkJobReport.xml = {"
+          "untracked PSet default = {untracked int32 limit = 0}"
+          "untracked PSet FwkJob = {untracked int32 limit = 10000000}"
+        "}"
+      "}"
+      "service = JobReportService{}"
+      "service = SiteLocalConfigService{}"
+      "}";
 
 
     boost::shared_ptr<std::vector<edm::ParameterSet> > pServiceSets;
     boost::shared_ptr<edm::ParameterSet>          params_;
-    edm::makeParameterSets(config, params_);
+    edm::makeParameterSets(config, params_, pServiceSets);
 
     // D.  Create the services.
     edm::ServiceToken tempToken(edm::ServiceRegistry::createSet(*pServiceSets.get()));
@@ -133,8 +120,7 @@ int main(int argc, char *argv[])
     // Initialize a DDL Schema aware parser for DDL-documents
     // (DDL ... Detector Description Language)
     cout << "initialize DDL parser" << endl;
-    DDCompactView cpv;
-    DDLParser myP(cpv);// = DDLParser::instance();
+    DDLParser* myP = DDLParser::instance();
 
     //     cout << "about to set configuration" << endl;
     /* The configuration file tells the parser what to parse.
@@ -152,10 +138,9 @@ int main(int argc, char *argv[])
       configfile = argv[1];
     }
     //    GeometryConfiguration documentProvider("configuration.xml");
-    //    FIPConfiguration fp;
-    FIPConfiguration fp(cpv);
+    FIPConfiguration fp;
     fp.readConfig(configfile);
-    int parserResult = myP.parse(fp);
+    int parserResult = myP->parse(fp);
     cout << "done parsing" << std::endl;
     cout.flush();
     if (parserResult != 0) {
@@ -166,18 +151,18 @@ int main(int argc, char *argv[])
   
     cout << endl << endl << "Start checking!" << endl << endl;
  
-    DDErrorDetection ed(cpv);
-    //ed.scan();
-    ed.report( cpv, std::cout);//cout);
+    DDErrorDetection ed;
+    ed.scan();
+    ed.report(cout);
 
-    DDConstant::createConstantsFromEvaluator();  // DDConstants are not being created by anyone... it confuses me!
-    DDConstant::iterator<DDConstant> cit(DDConstant::begin()), ced(DDConstant::end());
+    Constant::createConstantsFromEvaluator();  // DDConstants are not being created by anyone... it confuses me!
+    Constant::iterator<Constant> cit(Constant::begin()), ced(Constant::end());
     for(; cit != ced; ++cit) {
       cout << *cit << endl;
     }
 
-    DDVector::iterator<DDVector> vit;
-    DDVector::iterator<DDVector> ved(DDVector::end());
+    Vector::iterator<Vector> vit;
+    Vector::iterator<Vector> ved(Vector::end());
     if ( vit == ved ) std::cout << "No DDVectors found." << std::endl;
     for (; vit != ved; ++vit) {
       if (vit->isDefined().second) {

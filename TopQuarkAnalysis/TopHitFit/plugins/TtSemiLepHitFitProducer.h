@@ -18,12 +18,12 @@
 
 template <typename LeptonCollection>
 class TtSemiLepHitFitProducer : public edm::EDProducer {
-  
+
  public:
-  
+
   explicit TtSemiLepHitFitProducer(const edm::ParameterSet&);
   ~TtSemiLepHitFitProducer();
-  
+
  private:
   // produce
   virtual void produce(edm::Event&, const edm::EventSetup&);
@@ -31,12 +31,12 @@ class TtSemiLepHitFitProducer : public edm::EDProducer {
   edm::InputTag jets_;
   edm::InputTag leps_;
   edm::InputTag mets_;
-  
+
   /// maximal number of jets (-1 possible to indicate 'all')
   int maxNJets_;
   /// maximal number of combinations to be written to the event
   int maxNComb_;
-  
+
   /// maximum eta value for muons, needed to limited range in which resolutions are provided
   double maxEtaMu_;
   /// maximum eta value for electrons, needed to limited range in which resolutions are provided
@@ -56,10 +56,10 @@ class TtSemiLepHitFitProducer : public edm::EDProducer {
   /// constraints
   double mW_;
   double mTop_;
-  
+
   /// jet correction level
   std::string jetCorrectionLevel_;
-  
+
   /// jet energy scale
   double jes_;
   double jesB_;
@@ -79,21 +79,21 @@ class TtSemiLepHitFitProducer : public edm::EDProducer {
     std::vector<int> JetCombi;
     bool operator< (const FitResult& rhs) { return Chi2 < rhs.Chi2; };
   };
-  
+
   typedef hitfit::RunHitFit<pat::Electron,pat::Muon,pat::Jet,pat::MET> PatHitFit;
-  
+
   edm::FileInPath hitfitDefault_;
   edm::FileInPath hitfitElectronResolution_;
   edm::FileInPath hitfitMuonResolution_;
   edm::FileInPath hitfitUdscJetResolution_;
   edm::FileInPath hitfitBJetResolution_;
   edm::FileInPath hitfitMETResolution_;
-  
+
   hitfit::LeptonTranslatorBase<pat::Electron> electronTranslator_;
   hitfit::LeptonTranslatorBase<pat::Muon>     muonTranslator_;
   hitfit::JetTranslatorBase<pat::Jet>         jetTranslator_;
   hitfit::METTranslatorBase<pat::MET>         metTranslator_;
-  
+
   PatHitFit* HitFit;
 };
 
@@ -113,7 +113,7 @@ TtSemiLepHitFitProducer<LeptonCollection>::TtSemiLepHitFitProducer(const edm::Pa
   jetCorrectionLevel_      (cfg.getParameter<std::string>  ("jetCorrectionLevel"  )),
   jes_                     (cfg.getParameter<double>       ("jes"                 )),
   jesB_                    (cfg.getParameter<double>       ("jesB"                )),
-  
+
   // The following five initializers read the config parameters for the
   // ASCII text files which contains the physics object resolutions.
   hitfitDefault_           (cfg.getUntrackedParameter<edm::FileInPath>(std::string("hitfitDefault"),
@@ -149,16 +149,16 @@ TtSemiLepHitFitProducer<LeptonCollection>::TtSemiLepHitFitProducer(const edm::Pa
 
   maxEtaMu_  = 2.4;
   maxEtaEle_ = 2.5;
-  maxEtaJet_ = 3.0;
+  maxEtaJet_ = 2.5;
 
-  edm::LogVerbatim( "TopHitFit" ) 
+  edm::LogVerbatim( "TopHitFit" )
     << "\n"
     << "+++++++++++ TtSemiLepHitFitProducer ++++++++++++ \n"
-    << " Due to the eta ranges for which resolutions     \n" 
+    << " Due to the eta ranges for which resolutions     \n"
     << " are provided in                                 \n"
-    << " TopQuarkAnalysis/TopHitFit/data/resolution/     \n" 
-    << " so far, the following cuts are currently        \n" 
-    << " implemented in the TtSemiLepHitFitProducer:     \n" 
+    << " TopQuarkAnalysis/TopHitFit/data/resolution/     \n"
+    << " so far, the following cuts are currently        \n"
+    << " implemented in the TtSemiLepHitFitProducer:     \n"
     << " |eta(muons    )| <= " << maxEtaMu_  <<        " \n"
     << " |eta(electrons)| <= " << maxEtaEle_ <<        " \n"
     << " |eta(jets     )| <= " << maxEtaJet_ <<        " \n"
@@ -215,7 +215,7 @@ void TtSemiLepHitFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
   // skip events with no appropriate lepton candidate in
   // or empty MET or less jets than partons
   // -----------------------------------------------------
-  
+
   const unsigned int nPartons = 4;
 
   // Clear the internal state
@@ -258,7 +258,7 @@ void TtSemiLepHitFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
     pNeutrinos  ->push_back( pat::Particle() );
     // indices referring to the jet combination
     std::vector<int> invalidCombi;
-    for(unsigned int i = 0; i < nPartons; ++i) 
+    for(unsigned int i = 0; i < nPartons; ++i)
       invalidCombi.push_back( -1 );
     pCombi->push_back( invalidCombi );
     // chi2
@@ -287,7 +287,7 @@ void TtSemiLepHitFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
   }
 
   std::list<FitResult> FitResultList;
- 
+
   //
   // BEGIN DECLARATION OF VARIABLES FROM KINEMATIC FIT
   //
@@ -309,9 +309,9 @@ void TtSemiLepHitFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
   //
   // Run the kinematic fit and get how many permutations are possible
   // in the fit
-  
+
   nHitFit         = HitFit->FitAllPermutation();
-  
+
   //
   // BEGIN PART WHICH EXTRACTS INFORMATION FROM HITFIT
   //
@@ -327,7 +327,7 @@ void TtSemiLepHitFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
 
       // Get the event after the fit
       hitfit::Lepjets_Event fittedEvent = hitFitResult[fit].ev();
-      
+
       /*
         Get jet permutation according to TQAF convention
         11 : leptonic b
@@ -338,7 +338,7 @@ void TtSemiLepHitFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
       std::vector<int> hitCombi(4);
       for (size_t jet = 0 ; jet != nHitFitJet ; ++jet) {
           int jet_type = fittedEvent.jet(jet).type();
-          
+
           switch(jet_type) {
             case 11: hitCombi[TtSemiLepEvtPartons::LepB     ] = jet;
               break;
@@ -352,13 +352,13 @@ void TtSemiLepHitFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
       }
 
       // Store the kinematic quantities in the corresponding containers.
-     
+
       hitfit::Lepjets_Event_Jet hadP_ = fittedEvent.jet(hitCombi[TtSemiLepEvtPartons::LightQ   ]);
       hitfit::Lepjets_Event_Jet hadQ_ = fittedEvent.jet(hitCombi[TtSemiLepEvtPartons::LightQBar]);
       hitfit::Lepjets_Event_Jet hadB_ = fittedEvent.jet(hitCombi[TtSemiLepEvtPartons::HadB     ]);
       hitfit::Lepjets_Event_Jet lepB_ = fittedEvent.jet(hitCombi[TtSemiLepEvtPartons::LepB     ]);
       hitfit::Lepjets_Event_Lep lepL_ = fittedEvent.lep(0);
-      
+
       /*
   /// input tag for b-tagging algorithm
   std::string bTagAlgo_;
@@ -369,7 +369,7 @@ void TtSemiLepHitFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
   /// switch to tell whether to use b-tagging or not
   bool useBTag_;
       */
-      
+
       if (   hitFitResult[fit].chisq() > 0    // only take into account converged fits
           && (!useBTag_ || (   useBTag_       // use btag information if chosen
                             && jets->at(hitCombi[TtSemiLepEvtPartons::LightQ   ]).bDiscriminator(bTagAlgo_) < maxBTagValueNonBJet_
@@ -378,7 +378,7 @@ void TtSemiLepHitFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
                             && jets->at(hitCombi[TtSemiLepEvtPartons::LepB     ]).bDiscriminator(bTagAlgo_) > minBTagValueBJet_
                             )
              )
-          ) { 
+          ) {
         FitResult result;
         result.Status = 0;
         result.Chi2 = hitFitResult[fit].chisq();
@@ -412,7 +412,7 @@ void TtSemiLepHitFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
 
   // sort results w.r.t. chi2 values
   FitResultList.sort();
-  
+
   // -----------------------------------------------------
   // feed out result
   // starting with the JetComb having the smallest chi2
@@ -427,7 +427,7 @@ void TtSemiLepHitFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
     pNeutrinos  ->push_back( pat::Particle() );
     // indices referring to the jet combination
     std::vector<int> invalidCombi;
-    for(unsigned int i = 0; i < nPartons; ++i) 
+    for(unsigned int i = 0; i < nPartons; ++i)
       invalidCombi.push_back( -1 );
     pCombi->push_back( invalidCombi );
     // chi2

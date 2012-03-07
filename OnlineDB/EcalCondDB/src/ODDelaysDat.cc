@@ -63,26 +63,22 @@ void ODDelaysDat::writeDB(const ODDelaysDat* item, ODFEDelaysInfo* iov )
   }
 }
 
-void ODDelaysDat::fetchData(std::vector< ODDelaysDat >* p, ODFEDelaysInfo* iov)
-  throw(std::runtime_error) {
-  iov->setConnection(m_env, m_conn);
-  int iovID = iov->fetchID();
-  fetchData(p, iovID);
-}
 
-void ODDelaysDat::fetchData(std::vector< ODDelaysDat >* p, int iovID)
+
+void ODDelaysDat::fetchData(std::vector< ODDelaysDat >* p, ODFEDelaysInfo* iov)
   throw(std::runtime_error)
 {
   this->checkConnection();
 
+  iov->setConnection(m_env, m_conn);
+  int iovID = iov->fetchID();
   if (!iovID) { 
     //  throw(std::runtime_error("ODDelaysDat::writeDB:  IOV not in DB")); 
     return;
   }
 
   try {
-    m_readStmt = m_conn->createStatement();
-    m_readStmt->setSQL("SELECT * FROM " + getTable() + " WHERE rec_id = :rec_id order by sm_id, fed_id, tt_id");
+    m_readStmt->setSQL("SELECT * FROM " + getTable() + "WHERE rec_id = :rec_id order by sm_id, fed_id, tt_id ");
     m_readStmt->setInt(1, iovID);
     ResultSet* rset = m_readStmt->executeQuery();
     

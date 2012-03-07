@@ -21,6 +21,7 @@ class MatrixReader(object):
 
         self.wm=opt.wmcontrol
         self.addCommand=opt.command
+        self.commandLineWf=opt.workflow
         
         return
 
@@ -256,7 +257,7 @@ class MatrixReader(object):
                 for (stepName,cmd) in s:
                     stepIndex=index+1
                     if 'dbsquery.log' in cmd: continue
-                    line = 'STEP%d ++ '%(stepIndex,) +stepName + ' @@@ cmsDriver.py step%d '%(stepIndex,) +cmd
+                    line = 'STEP%d ++ '%(stepIndex,) +stepName + ' @@@ '+cmd
                     line=line.replace('DQMROOT','DQM')
                     outFile.write(line+'\n')
                 outFile.write('\n'+'\n')
@@ -291,7 +292,7 @@ class MatrixReader(object):
                     if i==0:
                         print fmt1 % (wf.numId, stepNames, (str(s)+' ')[:maxLen])
                     else:
-                        print fmt2 % ( ' ', 2, (str(s)+' ')[:maxLen])
+                        print fmt2 % ( ' ', i+1, (str(s)+' ')[:maxLen])
                 else:
                     print "%-6s %-35s "% (wf.numId, stepNames)
                     break

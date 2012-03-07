@@ -3,13 +3,14 @@
 central place for all the table names
 '''
 def schemaV2Tables():
-       return ['REVISIONS','LUMIDATA','PIXELLUMIDATA','LUMISUMMARYV2','LUMINORMS','TRGDATA','LSTRG', 'HLTDATA', 'LSHLT','INTGLUMI','PIXELLUMISUMMARYV2']
+       return ['REVISIONS','LUMIDATA','LUMISUMMARYV2','LUMINORMS','TRGDATA','LSTRG', 'HLTDATA', 'LSHLT']
 def schemaV1Tables():
        return [ 'LUMISUMMARY','LUMIDETAIL','TRG','HLT']
 def commonTables():
        return [ 'CMSRUNSUMMARY','TRGHLTMAP','LUMIVALIDATION','FILLSCHEME']
 def revisionTableName():
        return 'REVISIONS'
+
 def fillschemeTableName():
 	return 'FILLSCHEME'
 
@@ -19,24 +20,15 @@ def cmsrunsummaryTableName():
 def lumidataTableName():
 	return 'LUMIDATA'
 
-def pixellumidataTableName():
-	return 'PIXELLUMIDATA'
-
 def lumisummaryTableName():
 	return 'LUMISUMMARY'
 
 def lumisummaryv2TableName():
 	return 'LUMISUMMARYV2'
- 
-def pixellumisummaryv2TableName():
-       return 'PIXELLUMISUMMARYV2'
-
 def lumidetailTableName():
 	return 'LUMIDETAIL'
- 
 def luminormTableName():
        return 'LUMINORMS'
-
 def trgdataTableName():
        return 'TRGDATA'
 
@@ -67,9 +59,6 @@ def lumihltresultTableName():
 def lumivalidationTableName():
        return 'LUMIVALIDATION'
 
-def intglumiTableName():
-       return 'INTGLUMI'
-       
 def idTableName( dataTableName ):
 	return dataTableName+"_ID"
 

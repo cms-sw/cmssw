@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoLuminosity.LumiProducer.lumiProducer_cff import *
+from L1Trigger.GlobalTrigger.convertObjectMapRecord_cff import *
 from RecoLocalMuon.Configuration.RecoLocalMuon_cff import *
 from RecoLocalCalo.Configuration.RecoLocalCalo_cff import *
 from RecoTracker.Configuration.RecoTracker_cff import *
@@ -46,7 +47,8 @@ localreco_HcalNZS = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalrecoNZS
 from RecoLocalCalo.Castor.Castor_cff import *
 from RecoLocalCalo.Configuration.hcalGlobalReco_cff import *
 
-globalreco = cms.Sequence(offlineBeamSpot*
+globalreco = cms.Sequence(convertObjectMapRecords*
+                          offlineBeamSpot*
                           recopixelvertexing*
                           trackingGlobalReco*
                           hcalGlobalRecoSequence*

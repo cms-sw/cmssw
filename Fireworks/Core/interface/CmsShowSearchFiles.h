@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Fri Jun 27 11:23:31 EDT 2008
-// $Id: CmsShowSearchFiles.h,v 1.4 2010/11/10 20:07:07 amraktad Exp $
+// $Id: CmsShowSearchFiles.h,v 1.5 2010/11/11 19:45:49 amraktad Exp $
 //
 
 // system include files
@@ -57,7 +57,10 @@ public:
    ClassDef(CmsShowSearchFiles, 0);
 
 private:
-   void sendToWebBrowser(const char* iWebFile);
+   void sendToWebBrowser(std::string& iWebFile);
+   void readInfo();
+   void readError();
+
    TGTextButton* m_choosePrefix;
    TGPopupMenu* m_prefixMenu;
    TGTextEntry* m_file; 

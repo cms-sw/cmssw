@@ -6,13 +6,6 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 DDAngular::DDAngular( void )
-  : m_n( 1 ),
-    m_startCopyNo( 1 ),
-    m_incrCopyNo( 1 ),
-    m_startAngle( 0. ),
-    m_rangeAngle( 360*deg ),
-    m_radius( 0. ),
-    m_delta( 0. )
 {
   LogDebug( "DDAlgorithm" ) << "DDAngular: Creating an instance.";
 }

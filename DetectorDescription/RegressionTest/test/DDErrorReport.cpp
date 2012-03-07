@@ -7,22 +7,13 @@
 #include "DetectorDescription/RegressionTest/interface/DDErrorDetection.h"
 
 #include <boost/program_options.hpp>
-#include <boost/exception/diagnostic_information.hpp>
 
 #include <string>
 #include <iostream>
 
 int main(int argc, char *argv[])
 {
-  try
-  {
     edmplugin::PluginManager::configure(edmplugin::standard::config());
-  }
-  catch (cms::Exception& e)
-  {
-    edm::LogInfo("DDErrorReport") << "Attempting to configure the plugin manager. Exception message: " << e.what();
-    return 1;
-  }
 
     // Process the command line arguments
     std::string descString("DDErrorReport");
@@ -57,18 +48,11 @@ int main(int argc, char *argv[])
 
     bool fullPath = false;
     std::string configfile("DetectorDescription/RegressionTest/test/configuration.xml");
-    try {
-      if (vm.count("file")) {
-	configfile = vm["file"].as<std::string>();
-	if (vm.count("path")) {
-	  fullPath = true;
-	}
+    if (vm.count("file")) {
+      configfile = vm["file"].as<std::string>();
+      if (vm.count("path")) {
+        fullPath = true;
       }
-    }
-    catch(boost::exception& e)
-    {
-      edm::LogInfo("DDErrorReport") << "Attempting to parse the options. Exception message: " << boost::diagnostic_information(e);
-      return 1;
     }
 
     DDCompactView cpv;
@@ -85,16 +69,7 @@ int main(int argc, char *argv[])
 
     // Use the File-In-Path configuration document provider.
     FIPConfiguration fp(cpv);
-    try
-    {
-      fp.readConfig(configfile, fullPath);
-    }
-    catch (cms::Exception& e)
-    {
-      edm::LogInfo("DDErrorReport") << "Attempting to read config. Exception message: " << e.what();
-      return 1;
-    }
-     
+    fp.readConfig(configfile, fullPath);
     int parserResult = myP.parse(fp);
     if (parserResult != 0) {
       std::cout << " problem encountered during parsing. exiting ... " << std::endl;

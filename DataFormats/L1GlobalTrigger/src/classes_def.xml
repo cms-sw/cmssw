@@ -59,6 +59,21 @@
   </class>
   <class name="edm::Wrapper<L1GlobalTriggerObjectMapRecord>" splitLevel="0"/>
 
+  <class name="L1GlobalTriggerObjectMaps::AlgorithmResult" ClassVersion="10">
+   <version ClassVersion="10" checksum="3647962944"/>
+  </class>
+  <class name="std::vector<L1GlobalTriggerObjectMaps::AlgorithmResult>"/>
+
+  <class name="L1GlobalTriggerObjectMaps::ConditionResult" ClassVersion="10">
+   <version ClassVersion="10" checksum="3470739114"/>
+  </class>
+  <class name="std::vector<L1GlobalTriggerObjectMaps::ConditionResult>"/>
+
+  <class name="L1GlobalTriggerObjectMaps" ClassVersion="10">
+   <version ClassVersion="10" checksum="3817566121"/>
+  </class>
+  <class name="edm::Wrapper<L1GlobalTriggerObjectMaps>"/>
+
   <class name="L1GlobalTriggerRecord" ClassVersion="10">
    <version ClassVersion="10" checksum="3463234758"/>
   </class>

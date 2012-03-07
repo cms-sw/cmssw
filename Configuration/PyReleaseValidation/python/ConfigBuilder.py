@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.365 $"
+__version__ = "$Revision: 1.371 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -53,8 +53,8 @@ defaultOptions.datatier = None
 defaultOptions.inlineEventContent = True
 defaultOptions.inlineObjets =''
 defaultOptions.hideGen=False
-from Configuration.StandardSequences.VtxSmeared import VtxSmearedDefaultKey
-defaultOptions.beamspot=VtxSmearedDefaultKey
+from Configuration.StandardSequences.VtxSmeared import VtxSmearedDefaultKey,VtxSmearedHIDefaultKey
+defaultOptions.beamspot=None
 defaultOptions.outputDefinition =''
 defaultOptions.inputCommands = None
 defaultOptions.inputEventContent = ''
@@ -869,6 +869,9 @@ class ConfigBuilder(object):
                 self.EVTCONTDefaultCFF = "FastSimulation/Configuration/EventContent_cff"
                 self.VALIDATIONDefaultCFF = "FastSimulation.Configuration.Validation_cff"
 
+	if not self._options.beamspot:
+		self._options.beamspot=VtxSmearedDefaultKey
+		
         # if its MC then change the raw2digi
         if self._options.isMC==True:
                 self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_cff"
@@ -877,7 +880,7 @@ class ConfigBuilder(object):
                 self.ALCADefaultCFF="Configuration/StandardSequences/AlCaRecoStreamsMC_cff"
 	else:
 		self._options.beamspot = None
-		
+	
 	#patch for gen, due to backward incompatibility
 	if 'reGEN' in self.stepMap:
 		self.GENDefaultSeq='fixGenInfo'
@@ -903,6 +906,8 @@ class ConfigBuilder(object):
                 self._options.scenario='HeavyIons'
 
         if self._options.scenario=='HeavyIons':
+	    if not self._options.beamspot:
+		    self._options.beamspot=VtxSmearedHIDefaultKey
             self.HLTDefaultSeq = 'HIon'
             if not self._options.himix:
                     self.GENDefaultSeq='pgen_hi'
@@ -936,6 +941,10 @@ class ConfigBuilder(object):
         self.magFieldCFF = self.magFieldCFF.replace("__",'_')
 
         # the geometry
+	if self._options.isData and 'HLT' in self.stepMap:
+		## temporary solution for HLT on data and pre-loading conditions. Should be solved with Geometry migration
+		self._options.geometry = 'RecoDB'
+		
         if 'FASTSIM' in self.stepMap:
                 if 'start' in self._options.conditions.lower():
                         self.GeometryCFF='FastSimulation/Configuration/Geometries_START_cff'
@@ -1088,15 +1097,7 @@ class ConfigBuilder(object):
 	maxLevel=0
 	from Configuration.AlCa.autoAlca import autoAlca
 	# support @X from autoAlca.py, and recursion support: i.e T0:@Mu+@EG+...
-	while '@' in repr(alcaList) and maxLevel<10:
-		maxLevel+=1
-		for specifiedCommand in alcaList:
-			if specifiedCommand[0]=="@":
-				location=specifiedCommand[1:]
-				alcaSequence = autoAlca[location]
-				alcaList.remove(specifiedCommand)
-				alcaList.extend(alcaSequence.split('+'))
-				break
+	self.expandMapping(alcaList,autoAlca)
 	
         for name in alcaConfig.__dict__:
             alcastream = getattr(alcaConfig,name)
@@ -1301,6 +1302,12 @@ class ConfigBuilder(object):
                 else:
                         self.loadAndRemember('%s/Configuration/HLT_%s_cff' % (loadDir, sequence))
 
+	if self._options.name!='HLT':
+		self.additionalCommands.append('from HLTrigger.Configuration.CustomConfigs import ProcessName')
+		self.additionalCommands.append('process=ProcessName(process)')
+		from HLTrigger.Configuration.CustomConfigs import ProcessName
+		self.process=ProcessName(self.process)
+		
         self.schedule.append(self.process.HLTSchedule)
         [self.blacklist_paths.append(path) for path in self.process.HLTSchedule if isinstance(path,(cms.Path,cms.EndPath))]
         if (fastSim and 'HLT' in self.stepMap.keys()):
@@ -1349,18 +1356,10 @@ class ConfigBuilder(object):
         skimConfig = self.loadDefaultOrSpecifiedCFF(sequence,self.SKIMDefaultCFF)
         sequence = sequence.split('.')[-1]
 
-        skimlist=[]
+        skimlist=sequence.split('+')
         ## support @Mu+DiJet+@Electron configuration via autoSkim.py
-        for specifiedCommand in sequence.split('+'):
-                if specifiedCommand[0]=="@":
-                        from Configuration.Skimming.autoSkim import autoSkim
-                        location=specifiedCommand[1:]
-			if not location in autoSkim:
-				raise Exception('@'+location+' is not a valid SKIM argument. Availables are: '+','.join(autoSkim.keys()))
-                        skimSequence = autoSkim[location]
-                        skimlist.extend(skimSequence.split('+'))
-                else:
-                        skimlist.append(specifiedCommand)
+	from Configuration.Skimming.autoSkim import autoSkim
+	self.expandMapping(skimlist,autoSkim)
 
         #print "dictionnary for skims:",skimConfig.__dict__
         for skim in skimConfig.__dict__:
@@ -1533,15 +1532,38 @@ class ConfigBuilder(object):
             self.additionalCommands.append('process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("%s", "%s", whitelist = ("subSystemFolder",)))'% (sequence,HLTprocess, proc))
 
 
+    def expandMapping(self,seqList,mapping,index=None):
+	    maxLevel=20
+	    level=0
+	    while '@' in repr(seqList) and level<maxLevel:
+		    level+=1
+		    for specifiedCommand in seqList:
+			    if specifiedCommand.startswith('@'):
+				    location=specifiedCommand[1:]
+				    if not location in mapping:
+					    raise Exception("Impossible to map "+location+" from "+repr(mapping))
+				    mappedTo=mapping[location]
+				    if index!=None:
+					    mappedTo=mappedTo[index]
+				    seqList.remove(specifiedCommand)
+				    seqList.extend(mappedTo.split('+'))
+				    break;
+	    if level==maxLevel:
+		    raise Exception("Could not fully expand "+repr(seqList)+" from "+repr(mapping))
+	    
     def prepare_DQM(self, sequence = 'DQMOffline'):
         # this one needs replacement
 
         self.loadDefaultOrSpecifiedCFF(sequence,self.DQMOFFLINEDefaultCFF)
         sequenceList=sequence.split('.')[-1].split('+')
+	from DQMOffline.Configuration.autoDQM import autoDQM
+	self.expandMapping(sequenceList,autoDQM,index=0)
+	
 	if len(set(sequenceList))!=len(sequenceList):
 		sequenceList=list(set(sequenceList))
 		print "Duplicate entries for DQM:, using",sequenceList
 	pathName='dqmoffline_step'
+	
 	for (i,sequence) in enumerate(sequenceList):
 		if (i!=0):
 			pathName='dqmoffline_%d_step'%(i)
@@ -1570,26 +1592,24 @@ class ConfigBuilder(object):
 
         # decide which HARVESTING paths to use
         harvestingList = sequence.split("+")
-        for name in harvestingConfig.__dict__:
-            harvestingstream = getattr(harvestingConfig,name)
-            if name in harvestingList and isinstance(harvestingstream,cms.Path):
-               self.schedule.append(harvestingstream)
-               harvestingList.remove(name)
-            if name in harvestingList and isinstance(harvestingstream,cms.Sequence):
-                    setattr(self.process,name+"_step",cms.Path(harvestingstream))
-                    self.schedule.append(getattr(self.process,name+"_step"))
-                    harvestingList.remove(name)
-            if isinstance(harvestingstream,cms.Path):
-                    self.blacklist_paths.append(harvestingstream)
+	from DQMOffline.Configuration.autoDQM import autoDQM
+	self.expandMapping(harvestingList,autoDQM,index=1)
+	
+	if len(set(harvestingList))!=len(harvestingList):
+		harvestingList=list(set(harvestingList))
+		print "Duplicate entries for HARVESTING, using",harvestingList
 
-
-        # This if statment must disappears once some config happens in the alca harvesting step
-        if 'alcaHarvesting' in harvestingList:
-            harvestingList.remove('alcaHarvesting')
-
-        if len(harvestingList) != 0 and 'dummyHarvesting' not in harvestingList :
-            print "The following harvesting could not be found : ", harvestingList
-            raise Exception("The following harvesting could not be found : "+str(harvestingList))
+	for name in harvestingList:
+		if not name in harvestingConfig.__dict__:
+			print name,"is not a possible harvesting type. Available are",harvestingConfig.__dict__.keys()
+			continue
+		harvestingstream = getattr(harvestingConfig,name)
+		if isinstance(harvestingstream,cms.Path):
+			self.schedule.append(harvestingstream)
+			self.blacklist_paths.append(harvestingstream)
+		if isinstance(harvestingstream,cms.Sequence):
+			setattr(self.process,name+"_step",cms.Path(harvestingstream))
+			self.schedule.append(getattr(self.process,name+"_step"))
 
         self.scheduleSequence('DQMSaver','dqmsave_step')
 	return
@@ -1674,7 +1694,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.365 $"),
+                                            (version=cms.untracked.string("$Revision: 1.371 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )

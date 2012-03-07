@@ -1,23 +1,11 @@
 #!/usr/bin/env python
 VERSION='2.00'
-import os,sys,time,re
+import os,sys,time
 import coral
+#import optparse
 from RecoLuminosity.LumiDB import sessionManager,lumiTime,inputFilesetParser,csvSelectionParser,selectionParser,csvReporter,argparse,CommonUtil,lumiCalcAPI,lumiReport,lumiCorrections
 
-class RegexValidator(object):
-    def __init__(self, pattern, statement=None):
-        self.pattern = re.compile(pattern)
-        self.statement = statement
-        if not self.statement:
-            self.statement = "must match pattern %s" % self.pattern
-
-    def __call__(self, string):
-        match = self.pattern.search(string)
-        if not match:
-            raise ValueError(self.statement)
-        return string 
-        
-beamChoices=['PROTPHYS','IONPHYS','PAPHYS']
+beamChoices=['PROTPHYS','IONPHYS']
 
 def parseInputFiles(inputfilename,dbrunlist,optaction):
     '''
@@ -39,6 +27,24 @@ def parseInputFiles(inputfilename,dbrunlist,optaction):
             selectedrunlsInDB[runinfile]=runlsbyfile[runinfile]
     return (selectedrunlsInDB,resultlines)
 
+def getValidationData(dbsession,run=None,cmsls=None):
+    '''retrieve validation data per run or all
+    input: runnum, if not runnum, retrive all
+    output: {run:[[cmslsnum,flag,comment]]}
+    '''
+    try:
+        dbsession.transaction().start(True)
+        schema=dbsession.nominalSchema()
+        queryHandle=dbsession.nominalSchema().newQuery()
+        result=lumiQueryAPI.validation(queryHandle,run,cmsls)
+        del queryHandle
+        dbsession.transaction().commit()
+    except Exception, e:
+        dbsession.transaction().rollback()
+        del dbsession
+        raise Exception, 'lumiValidate.getValidationData:'+str(e)
+    return result
+
 ##############################
 ## ######################## ##
 ## ## ################## ## ##
@@ -49,9 +55,9 @@ def parseInputFiles(inputfilename,dbrunlist,optaction):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description = "Lumi Calculation",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    allowedActions = ['overview', 'delivered', 'recorded', 'lumibyls','lumibylsXing','status','checkforupdate']
+    allowedActions = ['overview', 'delivered', 'recorded', 'lumibyls','lumibylsXing','status']
     beamModeChoices = [ "stable", "quiet", "either"]
-    amodetagChoices = [ "PROTPHYS","IONPHYS",'PAPHYS' ]
+    amodetagChoices = [ "PROTPHYS","IONPHYS" ]
     xingAlgoChoices =[ "OCC1","OCC2","ET"]
     #
     # parse arguments
@@ -84,7 +90,7 @@ if __name__ == '__main__':
     #
     #optional arg to select exact hltpath or pattern
     #
-    parser.add_argument('--hltpath',dest='hltpath',action='store',
+    parser.add_argument('-hltpath',dest='hltpath',action='store',
                         default=None,required=False,
                         help='specific hltpath or hltpath pattern to calculate the effectived luminosity (optional)')
     #
@@ -94,55 +100,49 @@ if __name__ == '__main__':
                         choices=beamModeChoices,
                         required=False,
                         help='beam mode choices [stable] (optional)')
-    parser.add_argument('--fill',dest='fillnum',action='store',
+    parser.add_argument('-fill',dest='fillnum',action='store',
                         default=None,required=False,
                         help='fill number (optional) ')
-    parser.add_argument('--amodetag',dest='amodetag',action='store',
+    parser.add_argument('-amodetag',dest='amodetag',action='store',
                         choices=amodetagChoices,
                         required=False,
-                        help='specific accelerator mode choices [PROTOPHYS,IONPHYS,PAPHYS] (optional)')
-    parser.add_argument('--beamenergy',dest='beamenergy',action='store',
+                        help='specific accelerator mode choices [PROTOPHYS,IONPHYS] (optional)')
+    parser.add_argument('-beamenergy',dest='beamenergy',action='store',
                         type=float,
                         default=None,
                         help='nominal beam energy in GeV')
-    parser.add_argument('--beamfluctuation',dest='beamfluctuation',
+    parser.add_argument('-beamfluctuation',dest='beamfluctuation',
                         type=float,action='store',
                         default=0.2,
                         required=False,
-                        help='fluctuation in fraction allowed to nominal beam energy, default 0.2, to be used together with -beamenergy  (optional)'
-                        )
-    parser.add_argument('--begin',dest='begin',action='store',
+                        help='fluctuation in fraction allowed to nominal beam energy, default 0.2, to be used together with -beamenergy  (optional)')
+    parser.add_argument('-begin',dest='begin',action='store',
                         default=None,
                         required=False,
-                        type=RegexValidator("^\d\d/\d\d/\d\d \d\d:\d\d:\d\d$","must be form mm/dd/yy hh:mm:ss"),
-                        help='min run start time, mm/dd/yy hh:mm:ss (optional)'
-                        )
-    parser.add_argument('--end',dest='end',action='store',
-                        default=None,
-                        required=False,
-                        type=RegexValidator("^\d\d/\d\d/\d\d \d\d:\d\d:\d\d$","must be form mm/dd/yy hh:mm:ss"),
-                        help='max run start time, mm/dd/yy hh:mm:ss (optional)'
-                        )    
+                        help='min run start time, mm/dd/yy hh:mm:ss (optional)')
+    parser.add_argument('-end',dest='end',action='store',
+                        default=None,required=False,
+                        help='max run start time, mm/dd/yy hh:mm:ss (optional)')    
     #
     #optional args to filter ls
     #
-    parser.add_argument('--xingMinLum', dest = 'xingMinLum',
+    parser.add_argument('-xingMinLum', dest = 'xingMinLum',
                         type=float,
                         default=1e-03,
                         required=False,
                         help='Minimum luminosity considered for lumibylsXing action, default=1e-03')
-    parser.add_argument('--xingAlgo', dest = 'xingAlgo',
+    parser.add_argument('-xingAlgo', dest = 'xingAlgo',
                         default='OCC1',
                         required=False,
                         help='algorithm name for per-bunch lumi ')
     #
     #optional args for data and normalization version control
     #
-    parser.add_argument('--lumiversion',dest='lumiversion',action='store',
+    parser.add_argument('-lumiversion',dest='lumiversion',action='store',
                         default=None,
                         required=False,
                         help='data version, optional')
-    parser.add_argument('--norm',dest='normfactor',action='store',
+    parser.add_argument('-norm',dest='normfactor',action='store',
                         default=None,
                         required=False,
                         help='use specify the name or the value of the normalization to use,optional')
@@ -154,7 +154,7 @@ if __name__ == '__main__':
     #
     #command configuration 
     #
-    parser.add_argument('--siteconfpath',dest='siteconfpath',action='store',
+    parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',
                         default=None,
                         required=False,
                         help='specific path to site-local-config.xml file, optional. If path undefined, fallback to cern proxy&server')
@@ -163,10 +163,6 @@ if __name__ == '__main__':
     #
     parser.add_argument('--without-correction',dest='withoutFineCorrection',action='store_true',
                         help='without fine correction on calibration' )
-    parser.add_argument('--correctionv2',dest='correctionv2',action='store_true',
-                        help='apply correction v2' )
-    parser.add_argument('--correctionv3',dest='correctionv3',action='store_true',
-                        help='apply correction v3' )
     parser.add_argument('--verbose',dest='verbose',action='store_true',
                         help='verbose mode for printing' )
     parser.add_argument('--nowarning',dest='nowarning',action='store_true',
@@ -175,13 +171,6 @@ if __name__ == '__main__':
                         help='debug')
     
     options=parser.parse_args()
-    if options.action=='checkforupdate':
-        from RecoLuminosity.LumiDB import checkforupdate
-        cmsswWorkingBase=os.environ['CMSSW_BASE']
-        c=checkforupdate.checkforupdate()
-        workingversion=c.runningVersion(cmsswWorkingBase,'lumiCalc2.py')
-        c.checkforupdate(workingversion)
-        exit(0)
     if options.authpath:
         os.environ['CORAL_AUTH_PATH'] = options.authpath
         
@@ -196,7 +185,7 @@ if __name__ == '__main__':
         print '\tlumi data version: ',options.lumiversion
         print '\tsiteconfpath: ',options.siteconfpath
         print '\toutputfile: ',options.outputfile
-        print '\tscalefactor: ',options.scalefactor        
+        print '\tscalefactor: ',options.scalefactor
         if options.action=='recorded' and options.hltpath:
             print 'Action: effective luminosity in hltpath: ',options.hltpath
         else:
@@ -224,10 +213,7 @@ if __name__ == '__main__':
         if options.action=='lumibylsXing':
             print '\tLS filter for lumibylsXing xingMinLum: ',options.xingMinLum
         
-    svc=sessionManager.sessionManager(options.connect,
-                                      authpath=options.authpath,
-                                      siteconfpath=options.siteconfpath,
-                                      debugON=options.debug)
+    svc=sessionManager.sessionManager(options.connect,authpath=options.authpath,debugON=options.debug)
     session=svc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
     
     irunlsdict={}
@@ -237,9 +223,10 @@ if __name__ == '__main__':
     else:
         reqTrg=False
         reqHlt=False
-        if options.action=='recorded':
+        if options.action!='delivered' and  options.action!='status':
             reqTrg=True
-            reqHlt=True
+            if options.action=='recorded':
+                reqHlt=True
         session.transaction().start(True)
         schema=session.nominalSchema()
         runlist=lumiCalcAPI.runList(schema,options.fillnum,runmin=None,runmax=None,startT=options.begin,stopT=options.end,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt)
@@ -258,32 +245,16 @@ if __name__ == '__main__':
                 print '\t%d : all'%run
 
     finecorrections=None
-    driftcorrections=None
     if not options.withoutFineCorrection:
         rruns=irunlsdict.keys()
         schema=session.nominalSchema()
         session.transaction().start(True)
-        
-        if options.correctionv2:
-            cterms=lumiCorrections.nonlinearV2()
-            finecorrections=lumiCorrections.correctionsForRangeV2(schema,rruns,cterms)#constant+nonlinear corrections
-            driftcorrections=lumiCorrections.driftcorrectionsForRange(schema,rruns,cterms)
-        elif options.correctionv3:
-            cterms=lumiCorrections.nonlinearV3()
-            finecorrections=lumiCorrections.correctionsForRangeV2(schema,rruns,cterms)#constant+nonlinear corrections
-            driftcorrections=lumiCorrections.driftcorrectionsForRange(schema,rruns,cterms)            
-        else:#default
-            cterms=lumiCorrections.nonlinearSingle()
-            finecorrections=lumiCorrections.correctionsForRange(schema,rruns,cterms)
-            driftcorrections=None
-        if options.verbose:
-            print finecorrections,driftcorrections    
+        finecorrections=lumiCorrections.correctionsForRange(schema,rruns)
         session.transaction().commit()
         
     if options.action == 'delivered':
         session.transaction().start(True)
-        #print irunlsdict
-        result=lumiCalcAPI.deliveredLumiForRange(session.nominalSchema(),irunlsdict,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,finecorrections=finecorrections,driftcorrections=driftcorrections,usecorrectionv2=(options.correctionv2 or options.correctionv3))
+        result=lumiCalcAPI.deliveredLumiForRange(session.nominalSchema(),irunlsdict,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,finecorrections=finecorrections)
         session.transaction().commit()
         if not options.outputfile:
             lumiReport.toScreenTotDelivered(result,iresults,options.scalefactor,options.verbose)
@@ -291,7 +262,7 @@ if __name__ == '__main__':
             lumiReport.toCSVTotDelivered(result,options.outputfile,iresults,options.scalefactor,options.verbose)           
     if options.action == 'overview':
        session.transaction().start(True)
-       result=lumiCalcAPI.lumiForRange(session.nominalSchema(),irunlsdict,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,finecorrections=finecorrections,driftcorrections=driftcorrections,usecorrectionv2=(options.correctionv2 or options.correctionv3))
+       result=lumiCalcAPI.lumiForRange(session.nominalSchema(),irunlsdict,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,finecorrections=finecorrections)
        session.transaction().commit()
        if not options.outputfile:
            lumiReport.toScreenOverview(result,iresults,options.scalefactor,options.verbose)
@@ -300,7 +271,7 @@ if __name__ == '__main__':
     if options.action == 'lumibyls':
        if not options.hltpath:
            session.transaction().start(True)
-           result=lumiCalcAPI.lumiForRange(session.nominalSchema(),irunlsdict,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,finecorrections=finecorrections,driftcorrections=driftcorrections,usecorrectionv2=(options.correctionv2 or options.correctionv3))
+           result=lumiCalcAPI.lumiForRange(session.nominalSchema(),irunlsdict,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,finecorrections=finecorrections)
            session.transaction().commit()
            if not options.outputfile:
                lumiReport.toScreenLumiByLS(result,iresults,options.scalefactor,options.verbose)
@@ -315,7 +286,7 @@ if __name__ == '__main__':
               hltpat=hltname
               hltname=None
            session.transaction().start(True)
-           result=lumiCalcAPI.effectiveLumiForRange(session.nominalSchema(),irunlsdict,hltpathname=hltname,hltpathpattern=hltpat,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,finecorrections=finecorrections,driftcorrections=driftcorrections,usecorrectionv2=(options.correctionv2 or options.correctionv3))
+           result=lumiCalcAPI.effectiveLumiForRange(session.nominalSchema(),irunlsdict,hltpathname=hltname,hltpathpattern=hltpat,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,finecorrections=finecorrections)
            session.transaction().commit()
            if not options.outputfile:
                lumiReport.toScreenLSEffective(result,iresults,options.scalefactor,options.verbose)
@@ -331,7 +302,7 @@ if __name__ == '__main__':
           elif 1 in [c in hltname for c in '*?[]']: #is a fnmatch pattern
               hltpat=hltname
               hltname=None
-       result=lumiCalcAPI.effectiveLumiForRange(session.nominalSchema(),irunlsdict,hltpathname=hltname,hltpathpattern=hltpat,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,finecorrections=finecorrections,driftcorrections=driftcorrections,usecorrectionv2=(options.correctionv2 or options.correctionv3))
+       result=lumiCalcAPI.effectiveLumiForRange(session.nominalSchema(),irunlsdict,hltpathname=hltname,hltpathpattern=hltpat,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,finecorrections=finecorrections)
        session.transaction().commit()
        if not options.outputfile:
            lumiReport.toScreenTotEffective(result,iresults,options.scalefactor,options.verbose)
@@ -339,7 +310,7 @@ if __name__ == '__main__':
            lumiReport.toCSVTotEffective(result,options.outputfile,iresults,options.scalefactor,options.verbose)
     if options.action == 'lumibylsXing':
        session.transaction().start(True)
-       result=lumiCalcAPI.lumiForRange(session.nominalSchema(),irunlsdict,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,xingMinLum=options.xingMinLum,withBeamIntensity=False,withBXInfo=True,bxAlgo=options.xingAlgo,finecorrections=finecorrections,driftcorrections=driftcorrections,usecorrectionv2=(options.correctionv2 or options.correctionv3))
+       result=lumiCalcAPI.lumiForRange(session.nominalSchema(),irunlsdict,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,xingMinLum=options.xingMinLum,withBeamIntensity=False,withBXInfo=True,bxAlgo=options.xingAlgo,finecorrections=finecorrections)
        session.transaction().commit()           
        if not options.outputfile:
            lumiReport.toScreenLumiByLS(result,iresults,options.scalefactor,options.verbose)

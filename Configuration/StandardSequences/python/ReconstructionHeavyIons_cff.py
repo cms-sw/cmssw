@@ -20,7 +20,9 @@ from RecoLocalCalo.CastorReco.CastorSimpleReconstructor_cfi import *
 
 # Muons
 from RecoLocalMuon.Configuration.RecoLocalMuon_cff import *
+
 from RecoLuminosity.LumiProducer.lumiProducer_cff import *
+from L1Trigger.GlobalTrigger.convertObjectMapRecord_cff import *
 
 #--------------------------------------------------------------------------
 # HIGH LEVEL RECO
@@ -46,10 +48,10 @@ localReco_HcalNZS = cms.Sequence(offlineBeamSpot*muonReco*caloRecoNZS)
 #--------------------------------------------------------------------------
 # Main Sequence
 
-reconstruct_PbPb = cms.Sequence(localReco*globalRecoPbPb*CastorFullReco)
+reconstruct_PbPb = cms.Sequence(localReco*globalRecoPbPb*CastorFullReco*convertObjectMapRecords)
 reconstructionHeavyIons = cms.Sequence(reconstruct_PbPb)
 
-reconstructionHeavyIons_HcalNZS = cms.Sequence(localReco_HcalNZS*globalRecoPbPb)
+reconstructionHeavyIons_HcalNZS = cms.Sequence(localReco_HcalNZS*globalRecoPbPb*convertObjectMapRecords)
 
 reconstructionHeavyIons_withPF = cms.Sequence(reconstructionHeavyIons)
 reconstructionHeavyIons_HcalNZS_withPF = cms.Sequence(reconstructionHeavyIons_HcalNZS)

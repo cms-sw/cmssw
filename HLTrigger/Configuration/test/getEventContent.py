@@ -53,6 +53,19 @@ def buildPSetWithoutRAWs(blocks):
   return makePSet(statements)
 
 
+# customisation of AOD event content, requested by David Dagenhart
+def dropL1GlobalTriggerObjectMapRecord(block):
+  """drop the old L1GlobalTriggerObjectMapRecord data format from the block (meant for the AOD data tier)"""
+  try:
+    # look for the hltL1GtObjectMap keep statement
+    position = block.outputCommands.index('keep *_hltL1GtObjectMap_*_*')
+  except ValueError:
+    pass
+  else:
+    # add just after it a drop statement for the old data format
+    block.outputCommands.insert(position  + 1, 'drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap_*_*')
+
+
 # extract the HLT layer event content
 extractBlocks( config )
 import hltOutputA_cff
@@ -113,6 +126,7 @@ HLTriggerAOD = cms.PSet(
     outputCommands = cms.vstring()
 )
 HLTriggerAOD.outputCommands.extend(hltDefaultOutputContent.outputCommands)
+dropL1GlobalTriggerObjectMapRecord(HLTriggerAOD)
 
 # HLTDEBUG RAW event content
 HLTDebugRAW = cms.PSet(

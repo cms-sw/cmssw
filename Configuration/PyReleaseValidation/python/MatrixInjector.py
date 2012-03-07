@@ -8,18 +8,22 @@ class MatrixInjector(object):
 
     def __init__(self,mode='init'):
         self.count=1040
-        self.testMode=(mode!='submit')
+        self.testMode=((mode!='submit') and (mode!='force'))
         self.version ='v1'
 
+        #wagemt stuff
+        self.wmagent=os.getenv('WMAGENT_REQMGR')
+        if not self.wmagent:
+            self.wmagent = 'cmsweb.cern.ch'
+            
         #couch stuff
-        self.couch = 'https://cmsweb.cern.ch/couchdb'
+        self.couch = 'https://'+self.wmagent+'/couchdb'
         self.couchDB = 'reqmgr_config_cache'
         self.user = os.getenv('USER')
         self.group = 'ppd'
         self.label = 'RelValSet_'+os.getenv('CMSSW_VERSION').replace('-','')+'_'+self.version
 
-        #wagemt stuff
-        self.wmagent = 'cmsweb.cern.ch'
+
 
         if not os.getenv('WMCORE_ROOT'):
             print '\n\twmclient is not setup properly. Will not be able to upload or submit requests.\n'

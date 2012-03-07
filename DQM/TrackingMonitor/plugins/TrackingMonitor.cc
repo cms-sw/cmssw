@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/02/18 13:33:23 $
- *  $Revision: 1.32 $
+ *  $Date: 2012/02/17 15:32:27 $
+ *  $Revision: 1.31 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -192,7 +192,7 @@ void TrackingMonitor::beginJob(void)
    
  
     if ( doProfilesVsLS_ || doAllPlots) {
-      if (doGoodTrackPlots_ || doAllPlots ){
+      if (doGoodTrackPlots_){
 	histname = "GoodTracksFractionVsLS_"+ CategoryName;
 	GoodTracksFractionVsLS = dqmStore_->bookProfile(histname,histname, LSBin,LSMin,LSMax,0,1.1,"");
 	GoodTracksFractionVsLS->getTH1()->SetBit(TH1::kCanRebin);
@@ -361,7 +361,7 @@ void TrackingMonitor::beginJob(void)
 	NumberOfTrkVsClusters[i]->setAxisTitle(title, 1);
 	NumberOfTrkVsClusters[i]->setAxisTitle("Number of Seeds", 2);
 
-	if (doGoodTrackPlots_ || doAllPlots ) {
+	if (doGoodTrackPlots_) {
 
 	  dqmStore_->setCurrentFolder(MEFolderName+"/HitProperties/GoodTracks");
 

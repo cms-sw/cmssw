@@ -480,12 +480,12 @@ steps['RECOHID10']['--datatier']+=',RAW'
 steps['RECOHID10']['--eventcontent']+=',REPACKRAW'
 
 steps['TIER0']=merge([{'--customise':'Configuration/DataProcessing/RecoTLR.customisePrompt',
-                       '-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:@AllForPrompt,DQM,ENDJOB',
+                       '-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:@allForPrompt,DQM,ENDJOB',
                        '--datatier':'RECO,AOD,ALCARECO,DQMROOT',
                        '--eventcontent':'RECO,AOD,ALCARECO,DQMROOT',
                        '--process':'RECO'
                        },dataReco])
-steps['TIER0EXP']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:@StreamExpress,DQM,ENDJOB',
+steps['TIER0EXP']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:@allForExpress,DQM,ENDJOB',
                           '--datatier':'ALCARECO,DQM',
                           '--eventcontent':'ALCARECO,DQM',
                           '--customise':'Configuration/DataProcessing/RecoTLR.customiseExpress',
@@ -520,10 +520,8 @@ steps['RECODst3']=merge([{'--hltProcess':'reHLT'},steps['RECOD']])
 steps['RECO']=merge([step3Defaults])
 #steps['RECO2']=merge([stCond,step3Defaults])
 steps['RECOPROD1']=merge([{ '-s' : 'RAW2DIGI,L1Reco,RECO', '--datatier' : 'GEN-SIM-RECO,AODSIM', '--eventcontent' : 'RECOSIM,AODSIM'},step3Defaults])
-steps['RECOMU']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:@Mu,VALIDATION,DQM'},stCond,step3Defaults])
 steps['RECOCOS']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu,DQM','--scenario':'cosmics'},stCond,step3Defaults])
 steps['RECOMIN']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiStripCalMinBias+EcalCalPhiSym+EcalCalPi0Calib+EcalCalEtaCalib,VALIDATION,DQM'},stCond,step3Defaults])
-steps['RECOQCD']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:@QCD,VALIDATION,DQM'},stCond,step3Defaults])
 
 steps['RECOPU1']=merge([steps['RECO'],PU])
 steps['RERECOPU1']=merge([{'--hltProcess':'REDIGI'},steps['RECOPU1']])
@@ -553,6 +551,10 @@ steps['ALCAPROMPT']={'-s':'ALCA:PromptCalibProd',
                      '--conditions':'auto:com10',
                      '--datatier':'ALCARECO',
                      '--eventcontent':'ALCARECO'}
+steps['ALCAEXP']={'-s':'ALCA:PromptCalibProd',
+                  '--conditions':'auto:com10',
+                  '--datatier':'ALCARECO',
+                  '--eventcontent':'ALCARECO'}
 
 steps['HARVESTD']={'-s':'HARVESTING:dqmHarvesting',
                    '--conditions':'auto:com10',
@@ -580,7 +582,7 @@ steps['ALCACOS']=merge([{'-s':'ALCA:TkAlCosmics0T+MuAlGlobalCosmics+HcalCalHOCos
 steps['ALCABH']=merge([{'-s':'ALCA:TkAlBeamHalo+MuAlBeamHaloOverlaps+MuAlBeamHalo'},stCond,step4Defaults])
 steps['ALCAELE']=merge([{'-s':'ALCA:EcalCalElectron'},stCond,step4Defaults])
 
-steps['ALCAHARVD']={'-s':'ALCAHARVEST:BeamSpotByRun+BeamSpotByLumi',
+steps['ALCAHARVD']={'-s':'ALCAHARVEST:BeamSpotByRun+BeamSpotByLumi+SiStripQuality',
                     '--conditions':'auto:com10',
                     '--scenario':'pp',
                     '--data':'',
@@ -600,7 +602,7 @@ steps['HARVEST']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--conditions':'auto:startup',
                    '--mc':'',
                    '--scenario':'pp'}
-steps['ALCASPLIT']={'-s':'ALCAOUTPUT:@AllForPrompt',
+steps['ALCASPLIT']={'-s':'ALCAOUTPUT:@allForPrompt',
                     '--conditions':'auto:com10',
                     '--scenario':'pp',
                     '--data':'',

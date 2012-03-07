@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/02/19 12:17:47 $
- *  $Revision: 1.22 $
+ *  $Date: 2012/02/18 13:33:23 $
+ *  $Revision: 1.21 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -243,7 +243,7 @@ void TrackAnalyzer::beginJob(DQMStore * dqmStore_)
       NumberOfLayersPerTrack->setAxisTitle("Number of Layers of each Track", 1);
       NumberOfLayersPerTrack->setAxisTitle("Number of Tracks", 2);
       
-      if ( doRecHitVsPhiVsEtaPerTrack_ || doAllPlots_ ){
+      if ( doRecHitVsPhiVsEtaPerTrack_ ){
 	
 	histname = "NumberOfRecHitVsPhiVsEtaPerTrack_";
 	NumberOfRecHitVsPhiVsEtaPerTrack = dqmStore_->bookProfile2D(histname+CatagoryName, histname+CatagoryName, 
@@ -251,7 +251,7 @@ void TrackAnalyzer::beginJob(DQMStore * dqmStore_)
 	NumberOfRecHitVsPhiVsEtaPerTrack->setAxisTitle("Track #eta ", 1);
 	NumberOfRecHitVsPhiVsEtaPerTrack->setAxisTitle("Track #phi ", 2);
       }
-      if ( doLayersVsPhiVsEtaPerTrack_ || doAllPlots_ ){
+      if ( doLayersVsPhiVsEtaPerTrack_ ){
 	
 	histname = "NumberOfLayersVsPhiVsEtaPerTrack_";
 	NumberOfLayersVsPhiVsEtaPerTrack = dqmStore_->bookProfile2D(histname+CatagoryName, histname+CatagoryName, 
@@ -492,7 +492,7 @@ void TrackAnalyzer::beginJob(DQMStore * dqmStore_)
       GoodTrackNumberOfFoundRecHitsPerTrack->setAxisTitle("Number of found RecHits of each Good Track");
       GoodTrackNumberOfFoundRecHitsPerTrack->setAxisTitle("Number of Good Tracks", 2);
       
-      if ( doGoodTrackRecHitVsPhiVsEtaPerTrack_ || doAllPlots_ ){
+      if ( doGoodTrackRecHitVsPhiVsEtaPerTrack_ ){
 	
 	histname = "GoodTrackNumberOfRecHitVsPhiVsEtaPerTrack_";
 	GoodTrackNumberOfRecHitVsPhiVsEtaPerTrack = dqmStore_->bookProfile2D(histname+CatagoryName, histname+CatagoryName, 
@@ -501,7 +501,7 @@ void TrackAnalyzer::beginJob(DQMStore * dqmStore_)
 	GoodTrackNumberOfRecHitVsPhiVsEtaPerTrack->setAxisTitle("Good Track #phi ", 2);
       }
       
-      if ( doGoodTrackLayersVsPhiVsEtaPerTrack_ || doAllPlots_ ){
+      if ( doGoodTrackLayersVsPhiVsEtaPerTrack_ ){
 	
 	histname = "GoodTrackNumberOfLayersVsPhiVsEtaPerTrack_";
 	GoodTrackNumberOfLayersVsPhiVsEtaPerTrack = dqmStore_->bookProfile2D(histname+CatagoryName, histname+CatagoryName, 
@@ -548,13 +548,13 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     NumberOfRecHitsLostPerTrack->Fill(track.numberOfLostHits());
 
     // 2D plots    
-    if ( doRecHitVsPhiVsEtaPerTrack_ || doAllPlots_ )
+    if ( doRecHitVsPhiVsEtaPerTrack_ )
       NumberOfRecHitVsPhiVsEtaPerTrack->Fill(track.eta(),track.phi(),track.hitPattern().numberOfHits());    
 
     // layers
     NumberOfLayersPerTrack->Fill(track.hitPattern().trackerLayersWithMeasurement());
     // 2D plots    
-    if ( doLayersVsPhiVsEtaPerTrack_ || doAllPlots_ )
+    if ( doLayersVsPhiVsEtaPerTrack_ )
       NumberOfLayersVsPhiVsEtaPerTrack->Fill(track.eta(),track.phi(),track.hitPattern().trackerLayersWithMeasurement());
 
 
@@ -672,10 +672,10 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
         GoodTrackNumberOfRecHitsPerTrackVsPhiProfile->Fill(track.phi(),track.hitPattern().numberOfHits());
         GoodTrackNumberOfRecHitsPerTrackVsEtaProfile->Fill(track.eta(),track.hitPattern().numberOfHits());
 
-	if ( doGoodTrackRecHitVsPhiVsEtaPerTrack_ || doAllPlots_ ) 
+	if ( doGoodTrackRecHitVsPhiVsEtaPerTrack_  ) 
 	  GoodTrackNumberOfRecHitVsPhiVsEtaPerTrack->Fill(track.eta(),track.phi(),track.hitPattern().numberOfHits());
 
-	if ( doGoodTrackLayersVsPhiVsEtaPerTrack_ || doAllPlots_ ) 
+	if ( doGoodTrackLayersVsPhiVsEtaPerTrack_  ) 
 	  GoodTrackNumberOfLayersVsPhiVsEtaPerTrack->Fill(track.eta(),track.phi(),track.hitPattern().trackerLayersWithMeasurement());
       }
     }
@@ -965,7 +965,7 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore * dqmStore_)
     tkmes.NumberOfLayersPerTrackVsEtaProfile->setAxisTitle("Track #eta",1);
     tkmes.NumberOfLayersPerTrackVsEtaProfile->setAxisTitle("Number of Layers of each Track",2);
 
-    if ( doGoodTrackPlots_ || doAllPlots_ ) {
+    if ( doGoodTrackPlots_ ) {
 
       dqmStore_->setCurrentFolder(MEFolderName+"/GeneralProperties/GoodTracks");
 
@@ -1136,7 +1136,7 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
 
         }
 
-	if ( doGoodTrackPlots_ || doAllPlots_ ) {
+	if ( doGoodTrackPlots_ ) {
 	  if ( isHighPurity && pt > 1. ) {
 	    tkmes.GoodTrackPt->Fill(pt);
 	    tkmes.GoodTrackEta->Fill(eta);
@@ -1361,7 +1361,7 @@ void TrackAnalyzer::doTrackerSpecificInitialization(DQMStore * dqmStore_)
 
 
     // PixBarrel hits properties
-    dqmStore_->setCurrentFolder(MEFolderName+"/HitProperties/PixBarrel");
+    dqmStore_->setCurrentFolder(MEFolderName+"/HitProperties/PixEndcap");
 
     histname = "NumberOfPixBarrelRecHitsPerTrack_" + CatagoryName;
     NumberOfPixBarrelRecHitsPerTrack = dqmStore_->book1D(histname, histname, PXBHitBin, PXBHitMin, PXBHitMax);
@@ -1395,7 +1395,7 @@ void TrackAnalyzer::doTrackerSpecificInitialization(DQMStore * dqmStore_)
 
 
     // PixEndcap hits profiles
-    dqmStore_->setCurrentFolder(MEFolderName+"/HitProperties/PixEndcap");
+    dqmStore_->setCurrentFolder(MEFolderName+"/HitProperties/PixBarrel");
 
     histname = "NumberOfPixEndcapRecHitsPerTrack_" + CatagoryName;
     NumberOfPixEndcapRecHitsPerTrack = dqmStore_->book1D(histname, histname, PXFHitBin, PXFHitMin, PXFHitMax);

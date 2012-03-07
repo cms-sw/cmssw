@@ -20,8 +20,7 @@
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsMCRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
-#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
+
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 
 #include "CLHEP/GenericFunctions/Erf.hh"
@@ -114,7 +113,7 @@ void EcalEndcapRecHitsMaker::loadEcalEndcapRecHits(edm::Event &iEvent,EERecHitCo
   loadPCaloHits(iEvent);
 
   unsigned nhit=theFiredCells_.size();
-  unsigned gain, adc, ped;
+  unsigned gain, adc;
   ecalDigis.reserve(nhit);
   ecalHits.reserve(nhit);
   for(unsigned ihit=0;ihit<nhit;++ihit)
@@ -128,13 +127,9 @@ void EcalEndcapRecHitsMaker::loadEcalEndcapRecHits(edm::Event &iEvent,EERecHitCo
 	   EEDataFrame myDataFrame( ecalDigis.back() );
 	   // myDataFrame.setSize(1); // now useless - by construction fixed at 1 frame - FIXME
 	   //  The real work is in the following line
-
-	  // put energy +pedestal in sample 1
-	  geVtoGainAdc(theCalorimeterHits_[icell],icell,gain,adc,ped);
-	  // put the pedestal in sample 0
-	  myDataFrame.setSample(0,EcalMGPASample(ped,gain));
-	  myDataFrame.setSample(1,EcalMGPASample(adc,gain));
-
+	   geVtoGainAdc(theCalorimeterHits_[icell],gain,adc);
+	   myDataFrame.setSample(0,EcalMGPASample(adc,gain));
+	   //ecalDigis.push_back(myDataFrame);
 	}
 
       // If the energy+noise is below the threshold, a hit is nevertheless created, otherwise, there is a risk that a "noisy" hit 
@@ -362,11 +357,6 @@ void EcalEndcapRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
   edm::ESHandle<EcalADCToGeVConstant> agc;
   es.get<EcalADCToGeVConstantRcd>().get(agc);
 
-  edm::ESHandle<EcalPedestals> theEcalPedestals_handle;
-  es.get<EcalPedestalsRcd>().get(theEcalPedestals_handle);
-  const EcalPedestals * pedestals = theEcalPedestals_handle.product();
-  thePedestals_ = &(pedestals->endcapItems());
-
   adcToGeV_=   agc->getEEValue() ; // ~0.06 
   minAdc_ = 200;
   maxAdc_ = 4085;
@@ -526,30 +516,26 @@ void EcalEndcapRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
 }
 
 
-void EcalEndcapRecHitsMaker::geVtoGainAdc(float e,unsigned index,unsigned & gain, unsigned &adc, unsigned & ped) const
+void EcalEndcapRecHitsMaker::geVtoGainAdc(float e,unsigned & gain, unsigned &adc) const
 {
-  if (e<0.) e=0.;
   if(e<t1_)
     {
       gain = 1; // x1 
       //      std::cout << " E " << e << std::endl;
-      ped = (*thePedestals_)[index].mean_x1;
-      adc = ped + (unsigned)(e*geVToAdc1_);
+      adc = minAdc_ + (unsigned)(e*geVToAdc1_);
       //      std::cout << " e*geVtoAdc1_ " << e*geVToAdc1_ << " " <<(unsigned)(e*geVToAdc1_) << std::endl;
     } 
   else if (e<t2_)
     {
       gain = 2; // x6
-      ped  = (*thePedestals_)[index].mean_x6;
-      adc = ped + (unsigned)(e*geVToAdc2_);
+      adc = minAdc_ + (unsigned)(e*geVToAdc2_);
     }
   else 
     {
       gain = 3; // x12
-      ped = (*thePedestals_)[index].mean_x12;
-      adc = std::min(((int)ped+(unsigned)(e*geVToAdc3_)),maxAdc_);
+      adc = std::min(minAdc_+(unsigned)(e*geVToAdc3_),maxAdc_);
     }
-}  
+}
 
 bool EcalEndcapRecHitsMaker::isHighInterest(const EEDetId& detid)
 {

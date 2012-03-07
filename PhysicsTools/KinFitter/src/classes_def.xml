@@ -1,6 +1,0 @@
-<lcgdict>
-   <class name="TKinFitter"/>
-   <class name="TFitParticleEtEtaPhi"/>
-   <class name="TFitConstraintM"/>
-   <class name="TFitConstraintEp"/>
-</lcgdict>

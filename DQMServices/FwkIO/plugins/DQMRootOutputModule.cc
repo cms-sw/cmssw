@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Apr 29 13:26:29 CDT 2011
-// $Id: DQMRootOutputModule.cc,v 1.12 2011/11/16 13:44:48 rovere Exp $
+// $Id: DQMRootOutputModule.cc,v 1.13 2011/12/12 20:22:24 chrjones Exp $
 //
 
 // system include files
@@ -182,6 +182,10 @@ private:
   virtual void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&);
   virtual void writeRun(edm::RunPrincipal const&);
   virtual void beginRun(edm::RunPrincipal const& r);
+  virtual bool isFileOpen() const;
+  virtual void openFile(edm::FileBlock const&);
+
+
   virtual void startEndFile();
   virtual void finishEndFile();
   std::string m_fileName;
@@ -264,6 +268,41 @@ m_filterOnRun(pset.getUntrackedParameter<unsigned int>("filterOnRun",0)),
 m_fullNameBufferPtr(&m_fullNameBuffer),
 m_indicesTree(0)
 {
+}
+
+// DQMRootOutputModule::DQMRootOutputModule(const DQMRootOutputModule& rhs)
+// {
+//    // do actual copying here;
+// }
+
+DQMRootOutputModule::~DQMRootOutputModule()
+{
+}
+
+//
+// assignment operators
+//
+// const DQMRootOutputModule& DQMRootOutputModule::operator=(const DQMRootOutputModule& rhs)
+// {
+//   //An exception safe implementation is
+//   DQMRootOutputModule temp(rhs);
+//   swap(rhs);
+//
+//   return *this;
+// }
+
+//
+// member functions
+//
+bool 
+DQMRootOutputModule::isFileOpen() const
+{
+  return nullptr!=m_file.get();
+}
+
+void 
+DQMRootOutputModule::openFile(edm::FileBlock const&)
+{
   //NOTE: I need to also set the I/O performance settings
   
   m_file = std::auto_ptr<TFile>(new TFile(m_fileName.c_str(),"RECREATE",
@@ -276,7 +315,7 @@ m_indicesTree(0)
                                    m_logicalFileName,
                                    std::string(),
                                    "DQMRootOutputModule",
-                                   pset.getParameter<std::string>("@module_label"),
+                                   description().moduleLabel(),
                                    m_file->GetUUID().AsString(),
                                    std::string(),
                                    branchHash.digest().toString(),
@@ -319,30 +358,7 @@ m_indicesTree(0)
   m_dqmKindToTypeIndex[MonitorElement::DQM_KIND_TPROFILE2D]=kTProfile2DIndex;
 }
 
-// DQMRootOutputModule::DQMRootOutputModule(const DQMRootOutputModule& rhs)
-// {
-//    // do actual copying here;
-// }
 
-DQMRootOutputModule::~DQMRootOutputModule()
-{
-}
-
-//
-// assignment operators
-//
-// const DQMRootOutputModule& DQMRootOutputModule::operator=(const DQMRootOutputModule& rhs)
-// {
-//   //An exception safe implementation is
-//   DQMRootOutputModule temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
-
-//
-// member functions
-//
 void 
 DQMRootOutputModule::write(edm::EventPrincipal const& ){
   

@@ -5,7 +5,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.78 2011/11/01 15:53:32 fiori Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.77 2011/09/28 21:28:17 fiori Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -153,7 +153,6 @@ SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig) :
   clustertkhistomapon = conf_.getParameter<bool>("TkHistoMap_On");
   createTrendMEs = conf_.getParameter<bool>("CreateTrendMEs");
   Mod_On_ = conf_.getParameter<bool>("Mod_On");
-  ClusterHisto_ = conf_.getParameter<bool>("ClusterHisto");
 
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
 
@@ -382,32 +381,6 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es){
       StripNoise3Cycle->setAxisTitle("APV Cycle");
     }
 
-    if (ClusterHisto_){
-      dqmStore_->setCurrentFolder(topFolderName_+"/MechanicalView/");
-      edm::ParameterSet PixelCluster =  conf_.getParameter<edm::ParameterSet>("TH1NClusPx");
-      std::string HistoName = "NumberOfClustersInPixel";
-      NumberOfPixelClus = dqmStore_->book1D(HistoName, HistoName, 
-					    PixelCluster.getParameter<int32_t>("Nbinsx"),
-					    PixelCluster.getParameter<double>("xmin"),
-					    PixelCluster.getParameter<double>("xmax"));
-      NumberOfPixelClus->setAxisTitle("# of Clusters in Pixel", 1);
-      NumberOfPixelClus->setAxisTitle("Number of Events", 2);
-      //
-      edm::ParameterSet StripCluster =  conf_.getParameter<edm::ParameterSet>("TH1NClusStrip");
-      HistoName = "NumberOfClustersInStrip";
-      NumberOfStripClus = dqmStore_->book1D(HistoName, HistoName, 
-					    StripCluster.getParameter<int32_t>("Nbinsx"),
-					    StripCluster.getParameter<double>("xmin"),
-					    StripCluster.getParameter<double>("xmax"));
-      NumberOfStripClus->setAxisTitle("# of Clusters in Strip", 1);
-      NumberOfStripClus->setAxisTitle("Number of Events", 2);
-      //
-      HistoName = "RatioOfPixelAndStripClusters";
-      RatioOfPixelAndStripClus = dqmStore_->book1D(HistoName, HistoName, 80, 0.0, 1.6);
-      RatioOfPixelAndStripClus->setAxisTitle("ArcTan(5*PixelCluster/StripClusters)", 1);
-      RatioOfPixelAndStripClus->setAxisTitle("Number of Events", 2);
-    }
-
  
   }//end of if
 }//end of method
@@ -448,6 +421,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
   
   const edmNew::DetSetVector<SiStripCluster> * StrC= cluster_detsetvektor.product();
   NStripClusters= StrC->data().size(); 
+
   
   if (cluster_detsetvektor_pix.isValid()){
     const edmNew::DetSetVector<SiPixelCluster> * PixC= cluster_detsetvektor_pix.product();
@@ -457,16 +431,9 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     if (globalswitchcstripvscpix) GlobalCStripVsCpix->Fill(NStripClusters,NPixClusters);
     if (globalswitchmaindiagonalposition) GlobalMainDiagonalPosition->Fill(atan(NPixClusters/(k0*NStripClusters)));
     if (globalswitchMultiRegions) PixVsStripMultiplicityRegions->Fill(MultiplicityRegion);
-   
-    if (ClusterHisto_){
-      double ratio = 0.0;
-      NumberOfPixelClus->Fill(NPixClusters);
-      NumberOfStripClus->Fill(NStripClusters);
-      if ( NPixClusters > 0) ratio = atan(5*NPixClusters/NStripClusters);
-      RatioOfPixelAndStripClus->Fill(ratio);
-
-    }
+    
   }
+
   // initialise # of clusters to zero
   for (std::map<std::string, SubDetMEs>::iterator iSubdet  = SubDetMEsMap.begin();
        iSubdet != SubDetMEsMap.end(); iSubdet++) {

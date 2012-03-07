@@ -1,6 +1,7 @@
 import os,coral,datetime,fnmatch,time
 from RecoLuminosity.LumiDB import nameDealer,revisionDML,dataDML,lumiTime,CommonUtil,selectionParser,hltTrgSeedMapper,lumiCorrections
 
+
 #internal functions
 #
 #to decide on the norm value to use
@@ -25,33 +26,17 @@ def _decidenormForRun(schema,run):
     normresult=dataDML.luminormById(schema,normdataid)
     return normresult[2]
 #public functions
-def runsummary(schema,irunlsdict):
-    '''
-    output  [[run,l1key,amodetag,egev,hltkey,fillnum,sequence,starttime,stoptime]]
-    '''
-    result=[]
-    for run in sorted(irunlsdict):
-        runinfo=dataDML.runsummary(schema,run)
-        runinfo.insert(0,run)
-        result.append(runinfo)
-    return result
-def fillInRange(schema,fillmin=1000,fillmax=9999,amodetag='PROTPHYS',startT=None,stopT=None):
-    '''
-    output [fill]
-    '''
-    fills=dataDML.fillInRange(schema,fillmin,fillmax,amodetag,startT,stopT)
-    return fills
 def fillrunMap(schema,fillnum=None,runmin=None,runmax=None,startT=None,stopT=None,l1keyPattern=None,hltkeyPattern=None,amodetag=None):
     '''
     output: {fill:[runnum,...]}
     '''
     return dataDML.fillrunMap(schema,fillnum=fillnum,runmin=runmin,runmax=runmax,startT=startT,stopT=stopT,l1keyPattern=l1keyPattern,hltkeyPattern=hltkeyPattern,amodetag=amodetag)
              
-def runList(schema,fillnum=None,runmin=None,runmax=None,startT=None,stopT=None,l1keyPattern=None,hltkeyPattern=None,amodetag=None,nominalEnergy=None,energyFlut=0.2,requiretrg=True,requirehlt=True,lumitype='HF'):
+def runList(schema,fillnum=None,runmin=None,runmax=None,startT=None,stopT=None,l1keyPattern=None,hltkeyPattern=None,amodetag=None,nominalEnergy=None,energyFlut=0.2,requiretrg=True,requirehlt=True):
     '''
     output: [runnumber,...]
     '''
-    return dataDML.runList(schema,fillnum,runmin,runmax,startT,stopT,l1keyPattern,hltkeyPattern,amodetag,nominalEnergy,energyFlut,requiretrg,requirehlt,lumitype)
+    return dataDML.runList(schema,fillnum,runmin,runmax,startT,stopT,l1keyPattern,hltkeyPattern,amodetag,nominalEnergy,energyFlut,requiretrg,requirehlt)
 
 def lslengthsec(numorbit, numbx):
     '''
@@ -101,23 +86,19 @@ def trgbitsForRange(schema,runlist,datatag=None):
         result[run].extend([datasource,bitzeroname,bitnames])
     return result
 
-def beamForRange(schema,inputRange,withBeamIntensity=False,minIntensity=0.1,tableName=None,branchName=None):
+def beamForRange(schema,inputRange,withBeamIntensity=False,minIntensity=0.1):
     '''
     input:
            inputRange: {run:[cmsls]} (required)
     output : {runnumber:[(lumicmslnum,cmslsnum,beamenergy,beamstatus,[(ibx,b1,b2)])...](4)}
     '''
-    if tableName is None:
-        tableName=nameDealer.lumidataTableName()
-    if branchName is None:
-        branchName='DATA'
     result={}
     for run in inputRange.keys():
         lslist=inputRange[run]
         if lslist is not None and len(lslist)==0:
             result[run]=[]#if no LS is selected for a run
             continue
-        lumidataid=dataDML.guessLumiDataIdByRun(schema,run,tableName)
+        lumidataid=dataDML.guessLumiDataIdByRun(schema,run)
         if lumidataid is None:
             result[run]=None
             continue #run non exist
@@ -141,19 +122,15 @@ def beamForRange(schema,inputRange,withBeamIntensity=False,minIntensity=0.1,tabl
             result[run].append((lumilsnum,cmslsnum,beamstatus,beamenergy,beamintInfolist))        
     return result
 
-def hltForRange(schema,inputRange,hltpathname=None,hltpathpattern=None,withL1Pass=False,withHLTAccept=False,tableName=None,branchName=None):
+def hltForRange(schema,inputRange,hltpathname=None,hltpathpattern=None,withL1Pass=False,withHLTAccept=False, datatag=None):
     '''
     input:
            inputRange: {run:[cmsls]} (required)
            hltpathname: exact match hltpathname  (optional) 
            hltpathpattern: regex match hltpathpattern (optional)
-           branchName : data version
+           datatag : data version
     output: {runnumber:[(cmslsnum,[(hltpath,hltprescale,l1pass,hltaccept),...]),(cmslsnum,[])})}
     '''
-    #if tableName is None:
-    #    tableName=nameDealer.hltdataTableName()
-    #if branchName is None:
-    #    branchName='DATA'
     result={}
     for run in inputRange.keys():
         lslist=inputRange[run]
@@ -185,21 +162,16 @@ def hltForRange(schema,inputRange,hltpathname=None,hltpathpattern=None,withL1Pas
                 result[run].append((cmslsnum,lsdata))
     return result
 
-def trgForRange(schema,inputRange,trgbitname=None,trgbitnamepattern=None,withL1Count=False,withPrescale=False,tableName=None,branchName=None):
+def trgForRange(schema,inputRange,trgbitname=None,trgbitnamepattern=None,withL1Count=False,withPrescale=False,datatag=None):
     '''
     input :
             inputRange  {run:[cmsls]} (required)
             trgbitname exact match  trgbitname (optional)
             trgbitnamepattern match trgbitname (optional)
-            tableName : trgdata table name
-            branchName : data version
+            datatag : data version
     output
             result {run:[cmslsnum,deadfrac,deadtimecount,bitzero_count,bitzero_prescale,[(bitname,prescale,counts)]]}
     '''
-    #if tableName is None:
-    #    tableName=nameDealer.trgdataTableName()
-    #if branchName is None:
-    #    branchName='DATA'
     result={}
     withprescaleblob=True
     withtrgblob=True    
@@ -208,7 +180,7 @@ def trgForRange(schema,inputRange,trgbitname=None,trgbitnamepattern=None,withL1C
         if lslist is not None and len(lslist)==0:
             result[run]=[]#if no LS is selected for a run
             continue
-        trgdataid=dataDML.guessTrgDataIdByRunInBranch(schema,run)
+        trgdataid=dataDML.guessTrgDataIdByRun(schema,run)
         if trgdataid is None:
             result[run]=None
             continue #run non exist
@@ -239,7 +211,7 @@ def trgForRange(schema,inputRange,trgbitname=None,trgbitnamepattern=None,withL1C
                 result[run].append(lsdata)
     return result
 
-def instLumiForRange(schema,inputRange,beamstatusfilter=None,withBXInfo=False,bxAlgo=None,xingMinLum=0.0,withBeamIntensity=False,lumitype='HF',branchName=None):
+def instLumiForRange(schema,inputRange,beamstatusfilter=None,withBXInfo=False,bxAlgo=None,xingMinLum=0.0,withBeamIntensity=False,datatag=None):
     '''
     DIRECTLY FROM ROOT FIME NO CORRECTION AT ALL 
     lumi raw data. beofore normalization and time integral
@@ -250,22 +222,11 @@ def instLumiForRange(schema,inputRange,beamstatusfilter=None,withBXInfo=False,bx
            bxAlgo: algoname for bx values (optional) ['OCC1','OCC2','ET']
            xingMinLum: cut on bx lumi value (optional)
            withBeamIntensity: get beam intensity info (optional)
-           branchName: data version
+           datatag: data version
     output:
-           result {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),instlumi(5),instlumierr(6),startorbit(7),numorbit(8),(bxidx,bxvalues,bxerrs)(9),(bxidx,b1intensities,b2intensities)(10)]}}
+           result {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),instlumi(5),instlumierr(6),startorbit(7),numorbit(8),(bxvalues,bxerrs)(9),(bxidx,b1intensities,b2intensities)(10)]}}
            lumi unit: HZ/ub
     '''
-    if lumitype not in ['HF','PIXEL']:
-        raise ValueError('unknown lumitype '+lumitype)
-    lumitableName=''
-    lumilstableName=''
-    if lumitype=='HF':
-        lumitableName=nameDealer.lumidataTableName()
-        lumilstableName=nameDealer.lumisummaryv2TableName()
-    else:
-        lumitableName=nameDealer.pixellumidataTableName()
-        lumilstableName=nameDealer.pixellumisummaryv2TableName()
-        
     result={}
     for run in inputRange.keys():
         lslist=inputRange[run]
@@ -277,18 +238,18 @@ def instLumiForRange(schema,inputRange,beamstatusfilter=None,withBXInfo=False,bx
             result[run]=None
             continue
         runstarttimeStr=runsummary[6]
-        lumidataid=dataDML.guessLumiDataIdByRun(schema,run,lumitableName)
+        lumidataid=dataDML.guessLumiDataIdByRun(schema,run)
         if lumidataid is None: #if run not found in lumidata
             result[run]=None
             continue
-        (lumirunnum,perlsresult)=dataDML.lumiLSById(schema,lumidataid,beamstatusfilter,withBXInfo=withBXInfo,bxAlgo=bxAlgo,withBeamIntensity=withBeamIntensity,tableName=lumilstableName)
+        perlsresult=dataDML.lumiLSById(schema,lumidataid,beamstatusfilter,withBXInfo=withBXInfo,bxAlgo=bxAlgo,withBeamIntensity=withBeamIntensity)[1]
         lsresult=[]
         c=lumiTime.lumiTime()
-        for lumilsnum in perlsresult.keys():
-            perlsdata=perlsresult[lumilsnum]
+        for lumilsnum,perlsdata in perlsresult.items():
             cmslsnum=perlsdata[0]
             if lslist is not None and lumilsnum not in lslist:
                 cmslsnum=0
+                recordedlumi=0.0
             numorbit=perlsdata[6]
             startorbit=perlsdata[7]
             orbittime=c.OrbitToTime(runstarttimeStr,startorbit,0)
@@ -321,7 +282,7 @@ def instLumiForRange(schema,inputRange,beamstatusfilter=None,withBXInfo=False,bx
                 bxindexlist=[]
                 b1intensitylist=[]
                 b2intensitylist=[]
-                if beaminfo[0] and beaminfo[1] and beaminfo[2]:
+                if beaminfo:
                     bxindexarray=beaminfo[0]
                     beam1intensityarray=beaminfo[1]
                     beam2intensityarray=beaminfo[2]                    
@@ -337,7 +298,7 @@ def instLumiForRange(schema,inputRange,beamstatusfilter=None,withBXInfo=False,bx
         result[run]=lsresult
     return result
 
-def instCalibratedLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withBXInfo=False,bxAlgo=None,xingMinLum=0.0,withBeamIntensity=False,norm=None,finecorrections=None,driftcorrections=None,usecorrectionv2=False,lumitype='HF',branchName=None,):
+def instCalibratedLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withBXInfo=False,bxAlgo=None,xingMinLum=0.0,withBeamIntensity=False,norm=None,datatag=None,finecorrections=None):
     '''
     Inst luminosity after calibration, not time integrated
     input:
@@ -351,12 +312,9 @@ def instCalibratedLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,e
            xingMinLum: cut on bx lumi value (optional)
            withBeamIntensity: get beam intensity info (optional)
            norm: if norm is a float, use it directly; if it is a string, consider it norm factor name to use (optional)
-           lumitype : HF or PIXEL
-           branchName: data version
-           finecorrections: const and non-linear corrections
-           driftcorrections: driftcorrections
+           datatag: data version
     output:
-           result {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),calibratedlumi(5),calibratedlumierr(6),startorbit(7),numorbit(8),(bxidx,bxvalues,bxerrs)(9),(bxidx,b1intensities,b2intensities)(10)]}}
+           result {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),calibratedlumi(5),calibratedlumierr(6),startorbit(7),numorbit(8),(bxvalues,bxerrs)(9),(bxidx,b1intensities,b2intensities)(10)]}}
            lumi unit: HZ/ub
     '''
     result = {}
@@ -368,7 +326,7 @@ def instCalibratedLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,e
     elif amodetag and egev:
         normval=_decidenormFromContex(schema,amodetag,egev)
         perbunchnormval=float(normval)/float(1000)
-    instresult=instLumiForRange(schema,inputRange,beamstatusfilter=beamstatus,withBXInfo=withBXInfo,bxAlgo=bxAlgo,xingMinLum=xingMinLum,withBeamIntensity=withBeamIntensity,lumitype=lumitype,branchName=branchName)
+    instresult=instLumiForRange(schema,inputRange,beamstatusfilter=beamstatus,withBXInfo=withBXInfo,bxAlgo=bxAlgo,xingMinLum=xingMinLum,withBeamIntensity=withBeamIntensity,datatag=datatag)
     for run,perrundata in instresult.items():
         if perrundata is None:
             result[run]=None
@@ -387,57 +345,27 @@ def instCalibratedLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,e
             timestamp=perlsdata[2]
             bs=perlsdata[3]
             beamenergy=perlsdata[4]
-            avglumi=perlsdata[5]*normval
-            calibratedlumi=avglumi
-            bxdata=perlsdata[9]
-            if lumitype=='HF' and finecorrections and finecorrections[run]:
-                if usecorrectionv2:
-                    if driftcorrections and driftcorrections[run]:
-                        calibratedlumi=lumiCorrections.applyfinecorrectionV2(avglumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],driftcorrections[run])
-                    else:
-                        calibratedlumi=lumiCorrections.applyfinecorrectionV2(avglumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],1.0)
-                else:
-                    calibratedlumi=lumiCorrections.applyfinecorrection(avglumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])
-            if lumitype=='PIXEL' and finecorrections is not None:
-                calibratedlumi=finecorrections[run]*avglumi
+            calibratedlumi=perlsdata[5]*normval
+            if finecorrections and finecorrections[run]:
+                calibratedlumi=lumiCorrections.applyfinecorrection(calibratedlumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])           
             calibratedlumierr=perlsdata[6]*normval
             startorbit=perlsdata[7]
             numorbit=perlsdata[8]
-            bxidxlistResult=[]
-            bxvaluelistResult=[]
-            bxerrorlistResult=[]
             calibratedbxdata=None
             beamdata=None
             if withBXInfo:
+                bxdata=perlsdata[9]
                 if bxdata:
-                    bxidxlist=bxdata[0]
-                    bxvaluelist=bxdata[1]
-                    #avglumiBX=sum(bxvaluelist)*normval*1.0e-03
-                    bxlumierrlist=bxdata[2]
-                    for idx,bxidx in enumerate(bxidxlist):
-                        bxval=bxvaluelist[idx]
-                        bxlumierr=bxlumierrlist[idx]
-                        if finecorrections and finecorrections[run]:
-                            if usecorrectionv2:
-                                if driftcorrections and driftcorrections[run]:
-                                    mybxval=lumiCorrections.applyfinecorrectionBXV2(bxval,avglumi,perbunchnormval,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],driftcorrections[run])
-                                else:
-                                    mybxval=lumiCorrections.applyfinecorrectionBXV2(bxval,avglumi,perbunchnormval,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],1.0)
-                            else:
-                                mybxval=lumiCorrections.applyfinecorrectionBX(bxval,avglumi,perbunchnormval,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])
-                        bxidxlistResult.append(bxidx)
-                        bxvaluelistResult.append(mybxval)
-                        bxerrorlistResult.append(bxlumierr*perbunchnormval)#no correciton on errors
+                    calibratedbxdata=([x*perbunchnormval for x in bxdata[0]],[x*perbunchnormval for x in bxdata[1]])
+                    del bxdata[0][:]
                     del bxdata[1][:]
-                    del bxdata[2][:]
-            calibratedbxdata=(bxidxlistResult,bxvaluelistResult,bxerrorlistResult)
             if withBeamIntensity:
                 beamdata=perlsdata[10]                
             result[run].append([lumilsnum,cmslsnum,timestamp,bs,beamenergy,calibratedlumi,calibratedlumierr,startorbit,numorbit,calibratedbxdata,beamdata])
             del perlsdata[:]
     return result
          
-def deliveredLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withBXInfo=False,bxAlgo=None,xingMinLum=0.0,withBeamIntensity=False,norm=None,datatag='DATA',finecorrections=None,driftcorrections=None,usecorrectionv2=False,lumitype='HF',branchName=None):
+def deliveredLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withBXInfo=False,bxAlgo=None,xingMinLum=0.0,withBeamIntensity=False,norm=None,datatag=None,finecorrections=None):
     '''
     delivered lumi (including calibration,time integral)
     input:
@@ -451,7 +379,7 @@ def deliveredLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=N
            xingMinLum: cut on bx lumi value (optional)
            withBeamIntensity: get beam intensity info (optional)
            norm: norm factor name to use: if float, apply directly, if str search norm by name (optional)
-           branchName: data version or branch name
+           datatag: data version
     output:
            result {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),calibratedlumierr(6),(bxvalues,bxerrs)(7),(bxidx,b1intensities,b2intensities)(8)]}
            avg lumi unit: 1/ub
@@ -465,7 +393,7 @@ def deliveredLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=N
     elif amodetag and egev:
         normval=_decidenormFromContext(schema,amodetag,egev)
         perbunchnormval=float(normval)/float(1000)
-    instresult=instLumiForRange(schema,inputRange,beamstatusfilter=beamstatus,withBXInfo=withBXInfo,bxAlgo=bxAlgo,xingMinLum=xingMinLum,withBeamIntensity=withBeamIntensity,lumitype=lumitype,branchName=branchName)
+    instresult=instLumiForRange(schema,inputRange,beamstatusfilter=beamstatus,withBXInfo=withBXInfo,bxAlgo=bxAlgo,xingMinLum=xingMinLum,withBeamIntensity=withBeamIntensity,datatag=datatag)
     #instLumiForRange should have aleady handled the selection,unpackblob    
     for run,perrundata in instresult.items():
         if perrundata is None:
@@ -485,17 +413,9 @@ def deliveredLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=N
             timestamp=perlsdata[2]
             bs=perlsdata[3]
             beamenergy=perlsdata[4]
-            calibratedlumi=perlsdata[5]*normval#inst lumi
-            if lumitype=='HF' and finecorrections and finecorrections[run]:
-                if usecorrectionv2:
-                    if driftcorrections and driftcorrections[run]:
-                        calibratedlumi=lumiCorrections.applyfinecorrectionV2(calibratedlumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],driftcorrections[run])
-                    else:
-                        calibratedlumi=lumiCorrections.applyfinecorrectionV2(calibratedlumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],1.0)
-                else:
-                    calibratedlumi=lumiCorrections.applyfinecorrection(calibratedlumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])
-            if lumitype=='PIXEL' and finecorrections is not None:
-                calibratedlumi=finecorrections[run]*calibratedlumi
+            calibratedlumi=perlsdata[5]*normval
+            if finecorrections and finecorrections[run]:
+                calibratedlumi=lumiCorrections.applyfinecorrection(calibratedlumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])    
             calibratedlumierr=perlsdata[6]*normval
             numorbit=perlsdata[8]
             numbx=3564
@@ -506,16 +426,16 @@ def deliveredLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=N
             if withBXInfo:
                 bxdata=perlsdata[9]
                 if bxdata:
-                    calibratedbxdata=(bxdata[0],[x*perbunchnormval for x in bxdata[1]],[x*perbunchnormval for x in bxdata[2]])
+                    calibratedbxdata=([x*perbunchnormval for x in bxdata[0]],[x*perbunchnormval for x in bxdata[1]])
+                del bxdata[0][:]
                 del bxdata[1][:]
-                del bxdata[2][:]
             if withBeamIntensity:
                 beamdata=perlsdata[10]             
             result[run].append([lumilsnum,cmslsnum,timestamp,bs,beamenergy,deliveredlumi,calibratedlumierr,calibratedbxdata,beamdata])
             del perlsdata[:]
     return result
                        
-def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withBXInfo=False,bxAlgo=None,xingMinLum=0.0,withBeamIntensity=False,norm=None,datatag='DATA',finecorrections=None,driftcorrections=None,usecorrectionv2=False,lumitype='HF',branchName=None):
+def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withBXInfo=False,bxAlgo=None,xingMinLum=0.0,withBeamIntensity=False,norm=None,datatag=None,finecorrections=None):
     '''
     delivered/recorded lumi
     input:
@@ -528,23 +448,11 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
            xingMinLum: cut on bx lumi value (optional)
            withBeamIntensity: get beam intensity info (optional)
            normname: norm factor name to use (optional)
-           branchName: data version
+           datatag: data version
     output:
-           result {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),recordedlumi(6),calibratedlumierror(7),(bxidx,bxvalues,bxerrs)(8),(bxidx,b1intensities,b2intensities)(9)]}
+           result {run:[lumilsnum,cmslsnum,timestamp,beamstatus,beamenergy,deliveredlumi,recordedlumi,calibratedlumierror,(bxidx,bxvalues,bxerrs),(bxidx,b1intensities,b2intensities)]}
            lumi unit: 1/ub
     '''
-    if lumitype not in ['HF','PIXEL']:
-        raise ValueError('unknown lumitype '+lumitype)
-    #if branchName is None:
-    #    branchName='DATA'
-    lumitableName=''
-    lumilstableName=''
-    if lumitype=='HF':
-        lumitableName=nameDealer.lumidataTableName()
-        lumilstableName=nameDealer.lumisummaryv2TableName()
-    else:
-        lumitableName=nameDealer.pixellumidataTableName()
-        lumilstableName=nameDealer.pixellumisummaryv2TableName()
     numbx=3564
     result = {}
     normval=None
@@ -568,12 +476,12 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
         startTimeStr=cmsrunsummary[6]
         lumidataid=None
         trgdataid=None
-        lumidataid=dataDML.guessLumiDataIdByRun(schema,run,lumitableName)
+        lumidataid=dataDML.guessLumiDataIdByRun(schema,run)
         if lumidataid is None :
             result[run]=None
             continue
         trgdataid=dataDML.guessTrgDataIdByRun(schema,run)
-        (lumirunnum,lumidata)=dataDML.lumiLSById(schema,lumidataid,beamstatus=beamstatus,withBXInfo=withBXInfo,bxAlgo=bxAlgo,withBeamIntensity=withBeamIntensity,tableName=lumilstableName)
+        (lumirunnum,lumidata)=dataDML.lumiLSById(schema,lumidataid,beamstatus=beamstatus,withBXInfo=withBXInfo,bxAlgo=bxAlgo,withBeamIntensity=withBeamIntensity)
         if trgdataid is None :
             trgdata={}
         else:
@@ -588,6 +496,7 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
             print '[Warning] using default normalization '+str(normval)
         
         perrunresult=[]
+        #print 'run,lslist ',run,lslist
         for lumilsnum,perlsdata in lumidata.items():
             cmslsnum=perlsdata[0]
             triggeredls=perlsdata[0]
@@ -599,16 +508,8 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
             instlumierror=perlsdata[2]
             avglumi=instlumi*normval
             calibratedlumi=avglumi
-            if lumitype=='HF' and finecorrections and finecorrections[run]:
-                if usecorrectionv2:
-                    if driftcorrections and driftcorrections[run]:
-                        calibratedlumi=lumiCorrections.applyfinecorrectionV2(avglumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],driftcorrections[run])
-                    else:
-                        calibratedlumi=lumiCorrections.applyfinecorrectionV2(avglumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],1.0)
-                else:
-                    calibratedlumi=lumiCorrections.applyfinecorrection(avglumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])
-            if lumitype=='PIXEL' and finecorrections is not None:
-                calibratedlumi=finecorrections[run]*avglumi
+            if finecorrections and finecorrections[run]:
+                calibratedlumi=lumiCorrections.applyfinecorrection(avglumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])
             calibratedlumierror=instlumierror*normval
             bstatus=perlsdata[4]
             begev=perlsdata[5]
@@ -647,15 +548,9 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
                     bxerrArray=bxinfo[1]
                     #if cmslsnum==1:
                     #    print 'bxvalueArray ',bxvalueArray
-                    for idx,bxval in enumerate(bxvalueArray):                    
+                    for idx,bxval in enumerate(bxvalueArray):
                         if finecorrections and finecorrections[run]:
-                            if usecorrectionv2:
-                                if driftcorrections and driftcorrections[run]:
-                                    mybxval=lumiCorrections.applyfinecorrectionBXV2(bxval,avglumi,perbunchnormval,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],driftcorrections[run])
-                                else:
-                                    mybxval=lumiCorrections.applyfinecorrectionBXV2(bxval,avglumi,perbunchnormval,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],1.0)
-                            else:
-                                mybxval=lumiCorrections.applyfinecorrectionBX(bxval,avglumi,perbunchnormval,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])
+                            mybxval=lumiCorrections.applyfinecorrectionBX(bxval,avglumi,perbunchnormval,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])
                         else:
                             mybxval=bxval*perbunchnormval
                         if mybxval>xingMinLum:
@@ -687,7 +582,7 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
         result[run]=perrunresult    
     return result
        
-def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None,amodetag=None,beamstatus=None,egev=None,withBXInfo=False,xingMinLum=0.0,bxAlgo=None,withBeamIntensity=False,norm=None,finecorrections=None,driftcorrections=None,usecorrectionv2=False,lumitype='HF',branchName=None):
+def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None,amodetag=None,beamstatus=None,egev=None,withBXInfo=False,xingMinLum=0.0,bxAlgo=None,withBeamIntensity=False,norm=None,datatag=None,finecorrections=None):
     '''
     input:
            inputRange  {run:[cmsls]} (required)
@@ -700,23 +595,11 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
            xingMinLum: cut on bx lumi value (optional)
            withBeamIntensity: get beam intensity info (optional)
            normname: norm factor name to use (optional)
-           branchName: data version
+           datatag: data version
     output:
     result {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),recordedlumi(6),calibratedlumierror(7),{hltpath:[l1name,l1prescale,hltprescale,efflumi]},bxdata,beamdata]}
            lumi unit: 1/ub
     '''
-    if lumitype not in ['HF','PIXEL']:
-        raise ValueError('unknown lumitype '+lumitype)
-    if branchName is None:
-        branchName='DATA'
-    lumitableName=''
-    lumilstableName=''
-    if lumitype=='HF':
-        lumitableName=nameDealer.lumidataTableName()
-        lumilstableName=nameDealer.lumisummaryv2TableName()
-    else:
-        lumitableName=nameDealer.pixellumidataTableName()
-        lumilstableName=nameDealer.pixellumisummaryv2TableName()
     numbx=3564
     result = {}
     normval=None
@@ -741,13 +624,11 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
         lumidataid=None
         trgdataid=None
         hltdataid=None
-        lumidataid=dataDML.guessLumiDataIdByRun(schema,run,lumitableName)
-        trgdataid=dataDML.guessTrgDataIdByRun(schema,run)
-        hltdataid=dataDML.guessHltDataIdByRun(schema,run)
+        (lumidataid,trgdataid,hltdataid)=dataDML.guessAllDataIdByRun(schema,run)
         if lumidataid is None or trgdataid is None or hltdataid is None:
             result[run]=None
             continue
-        (lumirunnum,lumidata)=dataDML.lumiLSById(schema,lumidataid,beamstatus,tableName=lumilstableName)
+        (lumirunnum,lumidata)=dataDML.lumiLSById(schema,lumidataid,beamstatus)
         (trgrunnum,trgdata)=dataDML.trgLSById(schema,trgdataid,withPrescale=True)
         (hltrunnum,hltdata)=dataDML.hltLSById(schema,hltdataid,hltpathname=hltpathname,hltpathpattern=hltpathpattern)
         hlttrgmap=dataDML.hlttrgMappingByrun(schema,run)
@@ -769,18 +650,9 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
                 recordedlumi=0.0
             instlumi=perlsdata[1]
             instlumierror=perlsdata[2]
-            avglumi=instlumi*normval
-            calibratedlumi=avglumi 
-            if lumitype=='HF' and finecorrections and finecorrections[run]:
-                if usecorrectionv2:
-                    if driftcorrections and driftcorrections[run]:
-                        calibratedlumi=lumiCorrections.applyfinecorrectionV2(avglumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],driftcorrections[run])
-                    else:
-                        calibratedlumi=lumiCorrections.applyfinecorrectionV2(avglumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],1.0)
-                else:
-                    calibratedlumi=lumiCorrections.applyfinecorrection(avglumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])
-            if lumitype=='PIXEL' and finecorrections is not None:
-                calibratedlumi=finecorrections[run]*avglumi
+            calibratedlumi=instlumi*normval
+            if finecorrections and finecorrections[run]:
+                calibratedlumi=lumiCorrections.applyfinecorrection(calibratedlumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])
             calibratedlumierror=instlumierror*normval
             bstatus=perlsdata[4]
             begev=perlsdata[5]
@@ -835,14 +707,10 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
                                 if l1bitname :
                                     l1prescale=trgprescalemap[l1bitname]#need to match double quoted string!
                             except KeyError:
-                                l1prescale=None                           
-                        if l1prescale and thisprescale :#normal both prescaled
+                                l1prescale=None
+                        if l1prescale and thisprescale:
                             efflumi=recordedlumi/(float(l1prescale)*float(thisprescale))
                             efflumidict[thispathname]=[l1bitname,l1prescale,thisprescale,efflumi]
-                        elif l1prescale and thisprescale==0: #hltpath in menu but masked
-                            efflumi=0.0
-                            efflumidict[thispathname]=[l1bitname,l1prescale,thisprescale,efflumi]
-                
             bxvaluelist=[]
             bxerrorlist=[]
             bxdata=None
@@ -855,17 +723,7 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
                     bxvalueArray=bxinfo[0]
                     bxerrArray=bxinfo[1]
                     for idx,bxval in enumerate(bxvalueArray):
-                        if finecorrections and finecorrections[run]:
-                            if usecorrectionv2:
-                                if driftcorrections and driftcorrections[run]:
-                                    mybxval=lumiCorrections.applyfinecorrectionBXV2(bxval,avglumi,perbunchnormval,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],driftcorrections[run])
-                                else:
-                                    mybxval=lumiCorrections.applyfinecorrectionBXV2(bxval,avglumi,perbunchnormval,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2],finecorrections[run][3],finecorrections[run][4],1.0)
-                            else:
-                                mybxval=lumiCorrections.applyfinecorrectionBX(bxval,avglumi,perbunchnormval,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])
-                        else:
-                            mybxval=bxval*perbunchnormval
-                        if mybxval>xingMinLum:
+                        if bxval>xingMinLum:
                             bxidxlist.append(idx)
                             bxvaluelist.append(bxval)
                             bxerrorlist.append(bxerrArray[idx])
@@ -894,52 +752,6 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
         result[run]=perrunresult
     #print result
     return result
-
-def validation(schema,run=None,cmsls=None):
-    '''retrieve validation data per run or all
-    input: run. if not run, retrive all; if cmslsnum selection list pesent, filter out unselected result
-    output: {run:[[cmslsnum,status,comment]]}
-    '''
-    result={}
-    qHandle=schema.newQuery()
-    queryHandle.addToTableList(nameDealer.lumivalidationTableName())
-    queryHandle.addToOutputList('RUNNUM','runnum')
-    queryHandle.addToOutputList('CMSLSNUM','cmslsnum')
-    queryHandle.addToOutputList('FLAG','flag')
-    queryHandle.addToOutputList('COMMENT','comment')
-    if run:
-        queryCondition='RUNNUM=:runnum'
-        queryBind=coral.AttributeList()
-        queryBind.extend('runnum','unsigned int')
-        queryBind['runnum'].setData(run)
-        queryHandle.setCondition(queryCondition,queryBind)
-    queryResult=coral.AttributeList()
-    queryResult.extend('runnum','unsigned int')
-    queryResult.extend('cmslsnum','unsigned int')
-    queryResult.extend('flag','string')
-    queryResult.extend('comment','string')
-    queryHandle.defineOutput(queryResult)
-    cursor=queryHandle.execute()
-    while cursor.next():
-        runnum=cursor.currentRow()['runnum'].data()
-        if not result.has_key(runnum):
-            result[runnum]=[]
-        cmslsnum=cursor.currentRow()['cmslsnum'].data()
-        flag=cursor.currentRow()['flag'].data()
-        comment=cursor.currentRow()['comment'].data()
-        result[runnum].append([cmslsnum,flag,comment])
-    if run and cmsls and len(cmsls)!=0:
-        selectedresult={}
-        for runnum,perrundata in result.items():
-            for lsdata in perrundata:
-                if lsdata[0] not in cmsls:
-                    continue
-                if not selectedresult.has_key(runnum):
-                    selectedresult[runnum]=[]
-                selectedresult[runnum].append(lsdata)
-        return selectedresult
-    else:
-        return result
 ##===printers
     
 

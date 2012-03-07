@@ -18,7 +18,7 @@ from the configuration file, the DB is not implemented yet)
 //                   David Dagenhart
 //       
 //         Created:  Tue Jun 12 00:47:28 CEST 2007
-// $Id: LumiProducer.cc,v 1.22 2011/05/05 14:58:59 vlimant Exp $
+// $Id: LumiProducer.cc,v 1.25 2012/02/28 15:07:18 xiezhen Exp $
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -52,13 +52,16 @@ from the configuration file, the DB is not implemented yet)
 #include "RecoLuminosity/LumiProducer/interface/LumiNames.h"
 #include "RecoLuminosity/LumiProducer/interface/Exception.h"
 #include "RecoLuminosity/LumiProducer/interface/ConstantDef.h"
+#include <iostream>
 #include <sstream>
 #include <string>
 #include <memory>
 #include <algorithm>
 #include <vector>
 #include <cstring>
-
+#include <iterator>
+#include <boost/foreach.hpp>
+#include <boost/tokenizer.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/util/PlatformUtils.hpp>
@@ -66,6 +69,7 @@ from the configuration file, the DB is not implemented yet)
 
 #include "boost/filesystem/path.hpp"
 #include "boost/filesystem/operations.hpp"
+
 namespace edm {
   class EventSetup;
 }
@@ -78,20 +82,22 @@ class LumiProducer : public edm::EDProducer {
 public:
 
   struct HLTData{
-    unsigned int pathnum;
+    std::string pathname;
     unsigned int prescale;
     unsigned int l1passcount;
     unsigned int acceptcount;
   };
   struct L1Data{
-    unsigned int bitnum;
+    std::string bitname;
     unsigned int prescale;
     unsigned int ratecount;
   };
   struct PerRunData{
-    std::map<unsigned int, unsigned int> TRGBitNumToIndex;
-    std::vector<std::string>             TRGBitNames;
-    std::vector<std::string>             HLTPathNames;
+    std::string bitzeroname;//norm bit name
+    std::map<std::string, unsigned int> TRGBitNameToIndex;
+    std::map<std::string, unsigned int> HLTPathNameToIndex;
+    std::vector<std::string>            TRGBitNames;
+    std::vector<std::string>            HLTPathNames;
   };
   struct PerLSData{
     float lumivalue;
@@ -100,6 +106,8 @@ public:
     unsigned long long deadcount;
     unsigned int numorbit;
     unsigned int startorbit;
+    unsigned int bitzerocount;
+    unsigned int bitzeroprescale;
     std::vector< HLTData > hltdata;
     std::vector< L1Data > l1data;
     std::vector< std::pair<std::string, std::vector<float> > > bunchlumivalue;
@@ -126,20 +134,25 @@ private:
 
   virtual void endRun(edm::Run&, edm::EventSetup const &);
 
-  //void fillDefaultLumi(edm::LuminosityBlock & iLBlock);
   bool fillLumi(edm::LuminosityBlock & iLBlock);
-  void fillRunCache(unsigned int runnumber);
+  void fillRunCache(const coral::ISchema& schema,unsigned int runnumber);
   void fillLSCache(unsigned int luminum);
   void writeProductsForEntry(edm::LuminosityBlock & iLBlock,unsigned int runnumber,unsigned int luminum);
   const std::string servletTranslation(const std::string& servlet) const;
   std::string x2s(const XMLCh* input)const;
   XMLCh* s2x(const std::string& input)const;
   std::string toParentString(const xercesc::DOMNode &nodeToConvert)const;
+  unsigned long long getLumiDataId(const coral::ISchema& schema,unsigned int runnumber);
+  unsigned long long getTrgDataId(const coral::ISchema& schema,unsigned int runnumber);
+  unsigned long long getHltDataId(const coral::ISchema& schema,unsigned int runnumber);
 
   std::string m_connectStr;
   std::string m_lumiversion;
   std::string m_siteconfpath;
   unsigned int m_cachedrun;
+  unsigned long long m_cachedlumidataid;
+  unsigned long long m_cachedtrgdataid;
+  unsigned long long m_cachedhltdataid;
   PerRunData  m_runcache;
   std::map< unsigned int,PerLSData > m_lscache;
   bool m_isNullRun;
@@ -237,7 +250,7 @@ LumiProducer::LumiProducer(const edm::ParameterSet& iConfig):m_cachedrun(0),m_is
   // set up cache
   std::string connectStr=iConfig.getParameter<std::string>("connect");
   m_cachesize=iConfig.getUntrackedParameter<unsigned int>("ncacheEntries",5);
-  m_lumiversion=iConfig.getUntrackedParameter<std::string>("lumiversion");
+  m_lumiversion="v2"; /*iConfig.getUntrackedParameter<std::string>("lumiversion");*/
   const std::string fproto("frontier://");
   //test if need frontier servlet site-local translation  
   if(connectStr.substr(0,fproto.length())==fproto){
@@ -283,18 +296,123 @@ LumiProducer::~LumiProducer(){
 void LumiProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
 { 
 }
-
-void LumiProducer::beginRun(edm::Run& run,edm::EventSetup const &iSetup)
+unsigned long long 
+LumiProducer::getLumiDataId(const coral::ISchema& schema,unsigned int runnumber){ 
+  //
+  //select max(data_id) from lumidata where runnum=:runnum
+  //
+  //std::count<<"entering getLumiDataId "<<std::endl;
+  unsigned long long lumidataid=0;
+  coral::AttributeList bindVariables;
+  bindVariables.extend("runnum",typeid(unsigned int));
+  bindVariables["runnum"].data<unsigned int>()=runnumber;
+  coral::AttributeList lumiidOutput;
+  lumiidOutput.extend("lumidataid",typeid(unsigned long long));
+  coral::IQuery* lumiQuery=schema.newQuery();
+  lumiQuery->addToTableList(lumi::LumiNames::lumidataTableName());
+  lumiQuery->addToOutputList("MAX(DATA_ID)","lumidataid");
+  lumiQuery->setCondition("RUNNUM=:runnum",bindVariables);
+  lumiQuery->defineOutput(lumiidOutput);
+  coral::ICursor& lumicursor=lumiQuery->execute();
+  while( lumicursor.next() ){
+    const coral::AttributeList& row=lumicursor.currentRow();
+    if(!row["lumidataid"].isNull()){
+      lumidataid=row["lumidataid"].data<unsigned long long>();
+    }
+  }
+  delete lumiQuery;
+  return lumidataid;
+}
+unsigned long long 
+LumiProducer::getTrgDataId(const coral::ISchema& schema,unsigned int runnumber){
+  //
+  //select max(data_id) from trgdata where runnum=:runnum
+  //
+  unsigned long long trgdataid=0;
+  coral::AttributeList bindVariables;
+  bindVariables.extend("runnum",typeid(unsigned int));
+  bindVariables["runnum"].data<unsigned int>()=runnumber;
+  coral::AttributeList trgidOutput;
+  trgidOutput.extend("trgdataid",typeid(unsigned long long));
+  coral::IQuery* trgQuery=schema.newQuery();
+  trgQuery->addToTableList(lumi::LumiNames::trgdataTableName());
+  trgQuery->addToOutputList("MAX(DATA_ID)","trgdataid");
+  trgQuery->setCondition("RUNNUM=:runnum",bindVariables);
+  trgQuery->defineOutput(trgidOutput);
+  coral::ICursor& trgcursor=trgQuery->execute();
+  while( trgcursor.next() ){
+    const coral::AttributeList& row=trgcursor.currentRow();
+    if(!row["trgdataid"].isNull()){
+      trgdataid=row["trgdataid"].data<unsigned long long>();
+    }
+  }
+  delete trgQuery;
+  return trgdataid;
+}
+unsigned long long 
+LumiProducer::getHltDataId(const coral::ISchema& schema,unsigned int runnumber){
+  //
+  //select max(data_id) from hltdata where runnum=:runnum
+  //
+  unsigned long long hltdataid=0;
+  coral::AttributeList bindVariables;
+  bindVariables.extend("runnum",typeid(unsigned int));
+  bindVariables["runnum"].data<unsigned int>()=runnumber;
+  coral::AttributeList hltidOutput;
+  hltidOutput.extend("hltdataid",typeid(unsigned long long));
+  coral::IQuery* hltQuery=schema.newQuery();
+  hltQuery->addToTableList(lumi::LumiNames::hltdataTableName());
+  hltQuery->addToOutputList("MAX(DATA_ID)","hltdataid");
+  hltQuery->setCondition("RUNNUM=:runnum",bindVariables);
+  hltQuery->defineOutput(hltidOutput);
+  coral::ICursor& hltcursor=hltQuery->execute();
+  while( hltcursor.next() ){
+    const coral::AttributeList& row=hltcursor.currentRow();
+    if(!row["hltdataid"].isNull()){
+      hltdataid=row["hltdataid"].data<unsigned long long>();
+    }
+  }
+  delete hltQuery;
+  return hltdataid;
+}
+void 
+LumiProducer::beginRun(edm::Run& run,edm::EventSetup const &iSetup)
 {
   unsigned int runnumber=run.run();
-  m_cachedrun=runnumber;
-  fillRunCache(runnumber);
+  if(m_cachedrun!=runnumber){
+    //queries once per run
+    m_cachedrun=runnumber;
+    edm::Service<lumi::service::DBService> mydbservice;
+    if( !mydbservice.isAvailable() ){
+      throw cms::Exception("Non existing service lumi::service::DBService");
+    }
+    coral::ISessionProxy* session=mydbservice->connectReadOnly(m_connectStr);
+    try{
+      session->transaction().start(true);
+      m_cachedlumidataid=getLumiDataId(session->nominalSchema(),runnumber);
+      if(m_cachedlumidataid!=0){//if no lumi, do not bother other info
+	m_cachedtrgdataid=getTrgDataId(session->nominalSchema(),runnumber);
+	m_cachedhltdataid=getHltDataId(session->nominalSchema(),runnumber);
+	fillRunCache(session->nominalSchema(),runnumber);
+      }else{
+	m_isNullRun=true;
+      }
+      session->transaction().commit();
+    }catch(const coral::Exception& er){
+      session->transaction().rollback();
+      mydbservice->disconnect(session);
+      throw cms::Exception("DatabaseError ")<<er.what();
+    }
+    mydbservice->disconnect(session);
+  }
+  //std::cout<<"end of beginRun "<<runnumber<<std::endl;
 }
 
 void LumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::EventSetup const &iSetup)
 {
   unsigned int runnumber=iLBlock.run();
   unsigned int luminum=iLBlock.luminosityBlock();
+  //std::cout<<"beg of beginLuminosityBlock "<<luminum<<std::endl;
   //if is null run, fill empty values and return
   if(m_isNullRun){
     std::auto_ptr<LumiSummary> pOut1;
@@ -314,122 +432,85 @@ void LumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::Even
   //here the presence of ls is guaranteed
   writeProductsForEntry(iLBlock,runnumber,luminum); 
 }
-
-void LumiProducer::endLuminosityBlock(edm::LuminosityBlock & iLBlock, edm::EventSetup const& iSetup)
+void 
+LumiProducer::endLuminosityBlock(edm::LuminosityBlock & iLBlock, edm::EventSetup const& iSetup)
 {
 }
-
-void LumiProducer::endRun(edm::Run& run,edm::EventSetup const &iSetup)
+void 
+LumiProducer::endRun(edm::Run& run,edm::EventSetup const &iSetup)
 {
   std::auto_ptr<LumiSummaryRunHeader> lsrh(new LumiSummaryRunHeader());
   lsrh->swapL1Names(m_runcache.TRGBitNames);
   lsrh->swapHLTNames(m_runcache.HLTPathNames);
   run.put(lsrh);
-
-  m_runcache.TRGBitNumToIndex.clear();
+  m_runcache.TRGBitNameToIndex.clear();
+  m_runcache.HLTPathNameToIndex.clear();
 }
-
 void 
-LumiProducer::fillRunCache(unsigned int runnumber){
-  //queries once per run
-  edm::Service<lumi::service::DBService> mydbservice;
-  if( !mydbservice.isAvailable() ){
-    throw cms::Exception("Non existing service lumi::service::DBService");
-  }
-  //std::cout<<"in fillRunCache "<<runnumber<<std::endl;
-  coral::ISessionProxy* session=mydbservice->connectReadOnly(m_connectStr);
-  try{
-    session->transaction().start(true);
-    coral::ISchema& schema=session->nominalSchema();
-    //
-    //select bitnum,bitname from trg where runnum=:runnum and cmslsnum=:1 order by bitnum;
-    //
-    //std::cout<<"got schema handle "<<std::endl;
-    m_cachedrun=runnumber;
+LumiProducer::fillRunCache(const coral::ISchema& schema,unsigned int runnumber){
+  if(m_cachedtrgdataid!=0){
     coral::AttributeList trgBindVariables;
-    trgBindVariables.extend("runnum",typeid(unsigned int));
-    trgBindVariables.extend("cmslsnum",typeid(unsigned int));
-    trgBindVariables["runnum"].data<unsigned int>()=runnumber;
-    trgBindVariables["cmslsnum"].data<unsigned int>()=1;
+    trgBindVariables.extend("trgdataid",typeid(unsigned long long));
+    trgBindVariables["trgdataid"].data<unsigned long long>()=m_cachedtrgdataid;
+    //std::cout<<"cached trgdataid "<<m_cachedtrgdataid<<std::endl;
     coral::AttributeList trgOutput;
-    trgOutput.extend("bitnum",typeid(unsigned int));
-    trgOutput.extend("bitname",typeid(std::string));
+    trgOutput.extend("bitzeroname",typeid(std::string));
+    trgOutput.extend("bitnameclob",typeid(std::string));
     coral::IQuery* trgQuery=schema.newQuery();
-    trgQuery->addToTableList(lumi::LumiNames::trgTableName());
-    trgQuery->addToOutputList("BITNUM");
-    trgQuery->addToOutputList("BITNAME");
-    trgQuery->setCondition("RUNNUM=:runnum AND CMSLSNUM=:cmslsnum",trgBindVariables);
+    trgQuery->addToTableList(lumi::LumiNames::trgdataTableName());
+    trgQuery->addToOutputList("BITZERONAME");
+    trgQuery->addToOutputList("BITNAMECLOB");
+    trgQuery->setCondition("DATA_ID=:trgdataid",trgBindVariables);
     trgQuery->defineOutput(trgOutput);
     coral::ICursor& trgcursor=trgQuery->execute();
-    unsigned int rowcounter=0;
-    // Note, Matevz Tadel, 2011-02-18:
-    // Here we fill bitnumber - index map used later to determine index into the trigger-name
-    // vector. This is not needed if the triggers are always returned in ascending order with
-    // no gaps.
-    // This seemed to be the case on two files I have tested but I do not know if this
-    // is true in general.
     while( trgcursor.next() ){
       const coral::AttributeList& row=trgcursor.currentRow();
-      m_runcache.TRGBitNames.push_back(row["bitname"].data<std::string>());
-      m_runcache.TRGBitNumToIndex.insert(std::make_pair(row["bitnum"].data<unsigned int>(), rowcounter));
-      ++rowcounter;
+      m_runcache.bitzeroname=row["bitzeroname"].data<std::string>();
+      //std::cout<<"bitzeroname "<<m_runcache.bitzeroname<<std::endl;
+      std::string bitnames=row["bitnameclob"].data<std::string>();
+      boost::char_separator<char> sep(",");
+      boost::tokenizer<boost::char_separator<char> > tokens(bitnames,sep);
+      for(boost::tokenizer<boost::char_separator<char> >::iterator tok_it=tokens.begin();tok_it!=tokens.end();++tok_it){
+	m_runcache.TRGBitNames.push_back(*tok_it);
+      }
+      for(unsigned int i=0;i<m_runcache.TRGBitNames.size();++i){
+	m_runcache.TRGBitNameToIndex.insert(std::make_pair(m_runcache.TRGBitNames.at(i),i) );
+      }      
     }
     delete trgQuery;
-    if (rowcounter==0){
-      m_isNullRun=true;
-      session->transaction().commit();
-      mydbservice->disconnect(session);
-      return;
-    }
-    /*
-      printf("Dumping bitnum -> dborder mapping!\n");
-    for (std::map<unsigned int, unsigned int>::iterator i = m_runcache.TRGBitNumToIndex.begin();
-	 i != m_runcache.TRGBitNumToIndex.end(); ++i)
-    {
-      printf("  %3u -- %3u\n", i->first, i->second);
-    }
-    */
+  }
+  if(m_cachedhltdataid!=0){
     //
-    //select pathname from from hlt where  runnum=:runnum and cmslsnum=:1 order by pathname;
+    //select pathnameclob from hltdata where data_id=:hltdataid
     //
     coral::AttributeList hltBindVariables;
-    hltBindVariables.extend("runnum",typeid(unsigned int));
-    hltBindVariables.extend("cmslsnum",typeid(unsigned int));
-    hltBindVariables["runnum"].data<unsigned int>()=runnumber;
-    hltBindVariables["cmslsnum"].data<unsigned int>()=1;
+    hltBindVariables.extend("hltdataid",typeid(unsigned long long));
+    hltBindVariables["hltdataid"].data<unsigned long long>()=m_cachedhltdataid;
     coral::AttributeList hltOutput;
-    hltOutput.extend("pathname",typeid(std::string));
+    hltOutput.extend("PATHNAMECLOB",typeid(std::string));
     coral::IQuery* hltQuery=schema.newQuery();
-    hltQuery->addToTableList(lumi::LumiNames::hltTableName());
-    hltQuery->addToOutputList("PATHNAME");
-    hltQuery->setCondition("RUNNUM=:runnum AND CMSLSNUM=:cmslsnum",hltBindVariables);
-    hltQuery->addToOrderList("PATHNAME");
+    hltQuery->addToTableList(lumi::LumiNames::hltdataTableName());
+    hltQuery->addToOutputList("PATHNAMECLOB");
+    hltQuery->setCondition("DATA_ID=:hltdataid",hltBindVariables);
     hltQuery->defineOutput(hltOutput);
     coral::ICursor& hltcursor=hltQuery->execute();
-    rowcounter=0;
     while( hltcursor.next() ){
       const coral::AttributeList& row=hltcursor.currentRow();
-      m_runcache.HLTPathNames.push_back(row["pathname"].data<std::string>());
-      ++rowcounter;
+      std::string pathnames=row["PATHNAMECLOB"].data<std::string>();
+      boost::char_separator<char> sep(",");
+      boost::tokenizer<boost::char_separator<char> > tokens(pathnames,sep);
+      for(boost::tokenizer<boost::char_separator<char> >::iterator tok_it=tokens.begin();tok_it!=tokens.end();++tok_it){
+	m_runcache.HLTPathNames.push_back(*tok_it);
+      }
+      for(unsigned int i=0;i<m_runcache.HLTPathNames.size();++i){
+	m_runcache.HLTPathNameToIndex.insert(std::make_pair(m_runcache.HLTPathNames.at(i),i));
+      }     
     }
     delete hltQuery;   
-    if (rowcounter==0){
-      m_isNullRun=true;
-      session->transaction().commit();
-      mydbservice->disconnect(session);
-      return;
-    }
-    session->transaction().commit();
-  }catch(const coral::Exception& er){
-    session->transaction().rollback();
-    mydbservice->disconnect(session);
-    throw cms::Exception("DatabaseError ")<<er.what();
   }
-  mydbservice->disconnect(session);
 }
 void
 LumiProducer::fillLSCache(unsigned int luminum){
-  //std::cout<<"in fillLSCache "<<luminum<<std::endl;
   //initialize cache
   if(m_isNullRun) return;
   m_lscache.clear();
@@ -446,7 +527,7 @@ LumiProducer::fillLSCache(unsigned int luminum){
   }
   //queries once per cache refill
   //
-  //select cmslsnum,instlumi,instlumierror,lumiquality,startorbit,numorbit,bxindex,beam1intensity,beam2intensity from lumisummary where cmslsnum>=:lsmin and cmslsnum<:lsmax and runnum=:runnumber ;
+  //select cmslsnum,instlumi,startorbit,numorbit,bxindex,beam1intensity,beam2intensity,bxlumivalue_occ1,bxlumivalue_occ2,bxlumivalue_et from lumisummaryv2 where cmslsnum>=:lsmin and cmslsnum<:lsmax and data_id=:lumidataid;
   //
   edm::Service<lumi::service::DBService> mydbservice;
   if( !mydbservice.isAvailable() ){
@@ -457,73 +538,100 @@ LumiProducer::fillLSCache(unsigned int luminum){
     session->transaction().start(true);
     coral::ISchema& schema=session->nominalSchema();
     coral::AttributeList lumisummaryBindVariables;
-    lumisummaryBindVariables.extend("runnum",typeid(unsigned int));
     lumisummaryBindVariables.extend("lsmin",typeid(unsigned int));
     lumisummaryBindVariables.extend("lsmax",typeid(unsigned int));
-  
-    lumisummaryBindVariables["runnum"].data<unsigned int>()=m_cachedrun;
+    lumisummaryBindVariables.extend("lumidataid",typeid(unsigned long long));
+    lumisummaryBindVariables["lumidataid"].data<unsigned long long>()=m_cachedlumidataid;
     lumisummaryBindVariables["lsmin"].data<unsigned int>()=luminum;
     lumisummaryBindVariables["lsmax"].data<unsigned int>()=luminum+m_cachesize;
     coral::AttributeList lumisummaryOutput;
-    lumisummaryOutput.extend("cmslsnum",typeid(unsigned int));
-    lumisummaryOutput.extend("instlumi",typeid(float));
-    lumisummaryOutput.extend("instlumierror",typeid(float));
-    lumisummaryOutput.extend("instlumiquality",typeid(short));
-    lumisummaryOutput.extend("startorbit",typeid(unsigned int));
-    lumisummaryOutput.extend("numorbit",typeid(unsigned int));
-    lumisummaryOutput.extend("bxindexBlob",typeid(coral::Blob));
-    lumisummaryOutput.extend("beam1intensityBlob",typeid(coral::Blob));
-    lumisummaryOutput.extend("beam2intensityBlob",typeid(coral::Blob));
-    
+    lumisummaryOutput.extend("CMSLSNUM",typeid(unsigned int));
+    lumisummaryOutput.extend("INSTLUMI",typeid(float));
+    lumisummaryOutput.extend("STARTORBIT",typeid(unsigned int));
+    lumisummaryOutput.extend("NUMORBIT",typeid(unsigned int));
+    lumisummaryOutput.extend("CMSBXINDEXBLOB",typeid(coral::Blob));
+    lumisummaryOutput.extend("BEAMINTENSITYBLOB_1",typeid(coral::Blob));
+    lumisummaryOutput.extend("BEAMINTENSITYBLOB_2",typeid(coral::Blob));
+    lumisummaryOutput.extend("BXLUMIVALUE_OCC1",typeid(coral::Blob));
+    lumisummaryOutput.extend("BXLUMIVALUE_OCC2",typeid(coral::Blob));
+    lumisummaryOutput.extend("BXLUMIVALUE_ET",typeid(coral::Blob));
     coral::IQuery* lumisummaryQuery=schema.newQuery();
-    lumisummaryQuery->addToTableList(lumi::LumiNames::lumisummaryTableName());
-    lumisummaryQuery->addToOutputList("CMSLSNUM","cmslsnum");
-    lumisummaryQuery->addToOutputList("INSTLUMI","instlumi");
-    lumisummaryQuery->addToOutputList("INSTLUMIERROR","instlumierror");
-    lumisummaryQuery->addToOutputList("INSTLUMIQUALITY","instlumiquality");
-    lumisummaryQuery->addToOutputList("STARTORBIT","startorbit");
-    lumisummaryQuery->addToOutputList("NUMORBIT","numorbit");
-    lumisummaryQuery->addToOutputList("CMSBXINDEXBLOB","bxindexBlob");
-    lumisummaryQuery->addToOutputList("BEAMINTENSITYBLOB_1","beam1intensityBlob");
-    lumisummaryQuery->addToOutputList("BEAMINTENSITYBLOB_2","beam2intensityBlob");
-    lumisummaryQuery->setCondition("RUNNUM=:runnum AND CMSLSNUM>=:lsmin AND CMSLSNUM<:lsmax",lumisummaryBindVariables);
+    lumisummaryQuery->addToTableList(lumi::LumiNames::lumisummaryv2TableName());
+    lumisummaryQuery->addToOutputList("CMSLSNUM");
+    lumisummaryQuery->addToOutputList("INSTLUMI");
+    lumisummaryQuery->addToOutputList("STARTORBIT");
+    lumisummaryQuery->addToOutputList("NUMORBIT");
+    lumisummaryQuery->addToOutputList("CMSBXINDEXBLOB");
+    lumisummaryQuery->addToOutputList("BEAMINTENSITYBLOB_1");
+    lumisummaryQuery->addToOutputList("BEAMINTENSITYBLOB_2");
+    lumisummaryQuery->addToOutputList("BXLUMIVALUE_OCC1");
+    lumisummaryQuery->addToOutputList("BXLUMIVALUE_OCC2");
+    lumisummaryQuery->addToOutputList("BXLUMIVALUE_ET");
+    lumisummaryQuery->setCondition("CMSLSNUM>=:lsmin AND CMSLSNUM<:lsmax AND DATA_ID=:lumidataid",lumisummaryBindVariables);
     lumisummaryQuery->defineOutput(lumisummaryOutput);
     coral::ICursor& lumisummarycursor=lumisummaryQuery->execute();
     unsigned int rowcounter=0;
     while( lumisummarycursor.next() ){
       const coral::AttributeList& row=lumisummarycursor.currentRow();
-      unsigned int cmslsnum=row["cmslsnum"].data<unsigned int>();
+      unsigned int cmslsnum=row["CMSLSNUM"].data<unsigned int>();
       //std::cout<<"cmslsnum "<<cmslsnum<<std::endl;
       PerLSData& lsdata=m_lscache[cmslsnum];
-      lsdata.lumivalue=row["instlumi"].data<float>();
-      lsdata.lumierror=row["instlumierror"].data<float>();
-      lsdata.lumiquality=row["instlumiquality"].data<short>();
-      lsdata.startorbit=row["startorbit"].data<unsigned int>();
-      lsdata.numorbit=row["numorbit"].data<unsigned int>();
+      lsdata.lumivalue=row["INSTLUMI"].data<float>();
+      lsdata.lumierror=0.0;
+      lsdata.lumiquality=0;
+      lsdata.startorbit=row["STARTORBIT"].data<unsigned int>();
+      lsdata.numorbit=row["NUMORBIT"].data<unsigned int>();
       
-      if(!row["bxindexBlob"].isNull()){
-	const coral::Blob& bxindexBlob=row["bxindexBlob"].data<coral::Blob>();
+      if(!row["CMSBXINDEXBLOB"].isNull() && !row["BXLUMIVALUE_OCC1"].isNull() ){
+	const coral::Blob& bxindexBlob=row["CMSBXINDEXBLOB"].data<coral::Blob>();
 	const void* bxindex_StartAddress=bxindexBlob.startingAddress();
 	short* bxindex=(short*)::malloc(bxindexBlob.size());
-	const coral::Blob& beam1intensityBlob=row["beam1intensityBlob"].data<coral::Blob>();
+	const coral::Blob& beam1intensityBlob=row["BEAMINTENSITYBLOB_1"].data<coral::Blob>();
 	const void* beam1intensityBlob_StartAddress=beam1intensityBlob.startingAddress();
 	float* beam1intensity=(float*)::malloc(beam1intensityBlob.size());
-	const coral::Blob& beam2intensityBlob=row["beam2intensityBlob"].data<coral::Blob>();
+	const coral::Blob& beam2intensityBlob=row["BEAMINTENSITYBLOB_2"].data<coral::Blob>();
 	const void* beam2intensityBlob_StartAddress=beam2intensityBlob.startingAddress();
 	float* beam2intensity=(float*)::malloc(beam2intensityBlob.size());
 	std::memmove(bxindex,bxindex_StartAddress,bxindexBlob.size());
 	std::memmove(beam1intensity,beam1intensityBlob_StartAddress,beam1intensityBlob.size());
 	std::memmove(beam2intensity,beam2intensityBlob_StartAddress,beam2intensityBlob.size());
-	//std::cout<<"lsnum,pos,bxidx,beam1intensity,beam2intensity "<<std::endl;
 	for(unsigned int i=0;i<bxindexBlob.size()/sizeof(short);++i){
 	  unsigned int idx=bxindex[i];
 	  lsdata.beam1intensity.at(idx)=beam1intensity[i];
 	  lsdata.beam2intensity.at(idx)=beam2intensity[i];
-	  //std::cout<<cmslsnum<<","<<i<<","<<idx<<","<<beam1intensity[i]<<","<<beam2intensity[i]<<std::endl;
 	}
 	::free(bxindex);
 	::free(beam1intensity);
 	::free(beam2intensity);
+
+	const coral::Blob& bxlumivalBlob_occ1=row["BXLUMIVALUE_OCC1"].data<coral::Blob>();
+	const void* bxlumival_occ1_StartAddress=bxlumivalBlob_occ1.startingAddress();
+	float* bxlumival_occ1=(float*)::malloc(bxlumivalBlob_occ1.size());
+	std::memmove(bxlumival_occ1,bxlumival_occ1_StartAddress,bxlumivalBlob_occ1.size());
+	std::vector<float> bxlumivalVec_occ1(bxlumival_occ1,bxlumival_occ1+bxlumivalBlob_occ1.size()/sizeof(float));
+	::free(bxlumival_occ1);
+	lsdata.bunchlumivalue.push_back(std::make_pair(std::string("OCC1"),bxlumivalVec_occ1));
+	lsdata.bunchlumierror.push_back(std::make_pair(std::string("OCC1"),std::vector<float>(3564)));
+	lsdata.bunchlumiquality.push_back(std::make_pair(std::string("OCC1"),std::vector<short>(3564)));
+	const coral::Blob& bxlumivalBlob_occ2=row["BXLUMIVALUE_OCC2"].data<coral::Blob>();
+	const void* bxlumival_occ2_StartAddress=bxlumivalBlob_occ2.startingAddress();
+	float* bxlumival_occ2=(float*)::malloc(bxlumivalBlob_occ2.size());
+	std::memmove(bxlumival_occ2,bxlumival_occ2_StartAddress,bxlumivalBlob_occ2.size());
+	std::vector<float> bxlumivalVec_occ2(bxlumival_occ2,bxlumival_occ2+bxlumivalBlob_occ1.size()/sizeof(float));
+	::free(bxlumival_occ2);
+	lsdata.bunchlumivalue.push_back(std::make_pair(std::string("OCC2"),bxlumivalVec_occ2));
+	lsdata.bunchlumierror.push_back(std::make_pair(std::string("OCC2"),std::vector<float>(3564)));
+	lsdata.bunchlumiquality.push_back(std::make_pair(std::string("OCC2"),std::vector<short>(3564)));
+
+	const coral::Blob& bxlumivalBlob_et=row["BXLUMIVALUE_ET"].data<coral::Blob>();
+	const void* bxlumival_et_StartAddress=bxlumivalBlob_et.startingAddress();
+	float* bxlumival_et=(float*)::malloc(bxlumivalBlob_et.size());
+	std::memmove(bxlumival_et,bxlumival_et_StartAddress,bxlumivalBlob_et.size());	
+	std::vector<float> bxlumivalVec_et(bxlumival_et,bxlumival_et+bxlumivalBlob_et.size()/sizeof(float));
+	::free(bxlumival_et);
+	lsdata.bunchlumivalue.push_back(std::make_pair(std::string("ET"),bxlumivalVec_et));
+	lsdata.bunchlumierror.push_back(std::make_pair(std::string("ET"),std::vector<float>(3564)));
+	lsdata.bunchlumiquality.push_back(std::make_pair(std::string("ET"),std::vector<short>(3564)));
       }
       ++rowcounter;
     }
@@ -534,151 +642,114 @@ LumiProducer::fillLSCache(unsigned int luminum){
     delete lumisummaryQuery;
     
     //
-    //select lumisummary.cmslsnum,lumidetail.bxlumivalue,lumidetail.bxlumierror,lumidetail.bxlumiquality,lumidetail.algoname from lumisummary,lumidetail where lumisummary.lumisummary_id=lumidetail.lumisummary_id and lumisummary.runnum=:runnum and lumisummary.cmslsnum>=:luminum and lumisummary.cmslsnum<:luminum+cachesize order by lumidetail.algoname,lumisummary.cmslsnum
-    //
-    coral::AttributeList lumidetailBindVariables;
-    lumidetailBindVariables.extend("runnum",typeid(unsigned int));
-    lumidetailBindVariables.extend("lsmin",typeid(unsigned int));
-    lumidetailBindVariables.extend("lsmax",typeid(unsigned int));
-    
-    lumidetailBindVariables["runnum"].data<unsigned int>()=m_cachedrun;
-    lumidetailBindVariables["lsmin"].data<unsigned int>()=luminum;
-    lumidetailBindVariables["lsmax"].data<unsigned int>()=luminum+m_cachesize;
-    coral::AttributeList lumidetailOutput;
-    
-    lumidetailOutput.extend("cmslsnum",typeid(unsigned int));
-    lumidetailOutput.extend("bxlumivalue",typeid(coral::Blob));
-    lumidetailOutput.extend("bxlumierror",typeid(coral::Blob));
-    lumidetailOutput.extend("bxlumiquality",typeid(coral::Blob));
-    lumidetailOutput.extend("algoname",typeid(std::string));
-
-    coral::IQuery* lumidetailQuery=schema.newQuery();
-    lumidetailQuery->addToTableList(lumi::LumiNames::lumisummaryTableName());
-    lumidetailQuery->addToTableList(lumi::LumiNames::lumidetailTableName());
-    lumidetailQuery->addToOutputList(lumi::LumiNames::lumisummaryTableName()+".CMSLSNUM","cmslsnum");
-    lumidetailQuery->addToOutputList(lumi::LumiNames::lumidetailTableName()+".BXLUMIVALUE","bxlumivalue");
-    lumidetailQuery->addToOutputList(lumi::LumiNames::lumidetailTableName()+".BXLUMIERROR","bxlumierror");
-    lumidetailQuery->addToOutputList(lumi::LumiNames::lumidetailTableName()+".BXLUMIQUALITY","instlumiquality");
-    lumidetailQuery->addToOutputList(lumi::LumiNames::lumidetailTableName()+".ALGONAME","algoname");
-    lumidetailQuery->setCondition(lumi::LumiNames::lumisummaryTableName()+".LUMISUMMARY_ID="+lumi::LumiNames::lumidetailTableName()+".LUMISUMMARY_ID AND "+lumi::LumiNames::lumisummaryTableName()+".RUNNUM=:runnum AND "+lumi::LumiNames::lumisummaryTableName()+".CMSLSNUM>=:lsmin AND "+lumi::LumiNames::lumisummaryTableName()+".CMSLSNUM<:lsmax",lumidetailBindVariables);
-    lumidetailQuery->addToOrderList(lumi::LumiNames::lumidetailTableName()+".ALGONAME");
-    lumidetailQuery->addToOrderList(lumi::LumiNames::lumisummaryTableName()+".CMSLSNUM");
-    lumidetailQuery->defineOutput(lumidetailOutput);
-    coral::ICursor& lumidetailcursor=lumidetailQuery->execute();
-    while( lumidetailcursor.next() ){
-      const coral::AttributeList& row=lumidetailcursor.currentRow();
-      unsigned int cmslsnum=row["cmslsnum"].data<unsigned int>();
-      std::string algoname=row["algoname"].data<std::string>();
-      //std::cout<<"cmslsnum "<<cmslsnum<<" "<<algoname<<std::endl;
-      PerLSData& lsdata=m_lscache[cmslsnum];
-      if( !row["bxlumivalue"].isNull() && !row["bxlumierror"].isNull() && !row["bxlumiquality"].isNull() ){
-	const coral::Blob& bxlumivalueBlob=row["bxlumivalue"].data<coral::Blob>();
-	const coral::Blob& bxlumierrorBlob=row["bxlumierror"].data<coral::Blob>();
-	const coral::Blob& bxlumiqualityBlob=row["bxlumiquality"].data<coral::Blob>();
-	const void* bxlumivalueBlob_StartAddress=bxlumivalueBlob.startingAddress();
-	const void* bxlumierrorBlob_StartAddress=bxlumierrorBlob.startingAddress();
-	const void* bxlumiqualityBlob_StartAddress=bxlumiqualityBlob.startingAddress();
-	float* bxlumivalue=(float*)::malloc(bxlumivalueBlob.size());
-	float* bxlumierror=(float*)::malloc(bxlumierrorBlob.size());
-	short* bxlumiquality=(short*)::malloc(bxlumiqualityBlob.size());
-	std::memmove(bxlumivalue,bxlumivalueBlob_StartAddress,bxlumivalueBlob.size());
-	std::memmove(bxlumierror,bxlumierrorBlob_StartAddress,bxlumierrorBlob.size());
-	std::memmove(bxlumiquality,bxlumiqualityBlob_StartAddress,bxlumiqualityBlob.size());
-	std::vector<float> bxlumivalueVec(bxlumivalue,bxlumivalue+bxlumivalueBlob.size()/sizeof(float));
-	::free(bxlumivalue);
-	lsdata.bunchlumivalue.push_back(std::make_pair(algoname,bxlumivalueVec));
-	std::vector<float> bxlumierrorVec(bxlumierror,bxlumierror+bxlumierrorBlob.size()/sizeof(float));
-	::free(bxlumierror);
-	lsdata.bunchlumierror.push_back(std::make_pair(algoname,bxlumierrorVec));
-	std::vector<short> bxlumiqualityVec(bxlumiquality,bxlumiquality+bxlumiqualityBlob.size()/sizeof(short));
-	lsdata.bunchlumiquality.push_back(std::make_pair(algoname,bxlumiqualityVec));
-	::free(bxlumiquality);
-      }
-    }
-    delete lumidetailQuery;
-    //
-    //select cmslsnum,bitnum,deadtime,prescale,trgcount from trg where cmslsnum >=:luminum and cmslsnum<:luminum+cachesize AND runnum=:runnum order by cmslsnum,bitnum
+    //select cmslsnum,deadtimecount,bitzerocount,bitzeroprescale,prescaleblob,trgcountblob from lstrg where cmslsnum >=:luminum and cmslsnum<:luminum+cachesize AND data_id=:trgdataid;
     //
     coral::AttributeList trgBindVariables;
-    trgBindVariables.extend("runnum",typeid(unsigned int));
     trgBindVariables.extend("lsmin",typeid(unsigned int));
     trgBindVariables.extend("lsmax",typeid(unsigned int));
-    trgBindVariables["runnum"].data<unsigned int>()=m_cachedrun;
+    trgBindVariables.extend("trgdataid",typeid(unsigned long long));
     trgBindVariables["lsmin"].data<unsigned int>()=luminum;
     trgBindVariables["lsmax"].data<unsigned int>()=luminum+m_cachesize;
+    trgBindVariables["trgdataid"].data<unsigned long long>()=m_cachedtrgdataid;
     coral::AttributeList trgOutput;
-    trgOutput.extend("cmslsnum",typeid(unsigned int));
-    trgOutput.extend("bitnum",typeid(unsigned int));
-    trgOutput.extend("deadtime",typeid(unsigned long long));
-    trgOutput.extend("prescale",typeid(unsigned int));
-    trgOutput.extend("trgcount",typeid(unsigned int));
-    
+    trgOutput.extend("CMSLSNUM",typeid(unsigned int));
+    trgOutput.extend("DEADTIMECOUNT",typeid(unsigned long long));
+    trgOutput.extend("BITZEROCOUNT",typeid(unsigned int));
+    trgOutput.extend("BITZEROPRESCALE",typeid(unsigned int));
+    trgOutput.extend("PRESCALEBLOB",typeid(coral::Blob));
+    trgOutput.extend("TRGCOUNTBLOB",typeid(coral::Blob));
+
     coral::IQuery* trgQuery=schema.newQuery();
-    trgQuery->addToTableList(lumi::LumiNames::trgTableName());
-    trgQuery->addToOutputList("CMSLSNUM","cmslsnum");
-    trgQuery->addToOutputList("BITNUM","bitnum");
-    trgQuery->addToOutputList("DEADTIME","deadtime");
-    trgQuery->addToOutputList("PRESCALE","prescale");
-    trgQuery->addToOutputList("TRGCOUNT","trgcount");
-    trgQuery->setCondition("CMSLSNUM>=:lsmin AND CMSLSNUM<:lsmax AND RUNNUM=:runnum ",trgBindVariables);
-    trgQuery->addToOrderList("CMSLSNUM");
-    trgQuery->addToOrderList("BITNUM");
+    trgQuery->addToTableList(lumi::LumiNames::lstrgTableName());
+    trgQuery->addToOutputList("CMSLSNUM");
+    trgQuery->addToOutputList("DEADTIMECOUNT");
+    trgQuery->addToOutputList("BITZEROCOUNT");
+    trgQuery->addToOutputList("BITZEROPRESCALE");
+    trgQuery->addToOutputList("PRESCALEBLOB");
+    trgQuery->addToOutputList("TRGCOUNTBLOB");
+    trgQuery->setCondition("CMSLSNUM>=:lsmin AND CMSLSNUM<:lsmax AND DATA_ID=:trgdataid",trgBindVariables);
     trgQuery->defineOutput(trgOutput);
     coral::ICursor& trgcursor=trgQuery->execute();
     while( trgcursor.next() ){
       const coral::AttributeList& row=trgcursor.currentRow();
-      unsigned int cmslsnum=row["cmslsnum"].data<unsigned int>();
+      unsigned int cmslsnum=row["CMSLSNUM"].data<unsigned int>();
       PerLSData& lsdata=m_lscache[cmslsnum];
-      lsdata.deadcount=row["deadtime"].data<unsigned long long>();
-      L1Data l1tmp;
-      l1tmp.bitnum=row["bitnum"].data<unsigned int>();
-      l1tmp.prescale=row["prescale"].data<unsigned int>();
-      l1tmp.ratecount=row["trgcount"].data<unsigned int>();
-      lsdata.l1data.push_back(l1tmp);
+      lsdata.deadcount=row["DEADTIMECOUNT"].data<unsigned long long>();
+      lsdata.bitzerocount=row["BITZEROCOUNT"].data<unsigned int>();
+      lsdata.bitzeroprescale=row["BITZEROPRESCALE"].data<unsigned int>();
+      if(!row["PRESCALEBLOB"].isNull()){
+	const coral::Blob& prescaleblob=row["PRESCALEBLOB"].data<coral::Blob>();
+	const void* prescaleblob_StartAddress=prescaleblob.startingAddress();
+	unsigned int* prescales=(unsigned int*)::malloc(prescaleblob.size());
+	std::memmove(prescales,prescaleblob_StartAddress,prescaleblob.size());
+	const coral::Blob& trgcountblob=row["TRGCOUNTBLOB"].data<coral::Blob>();
+	const void* trgcountblob_StartAddress=trgcountblob.startingAddress();
+	unsigned int* trgcounts=(unsigned int*)::malloc(trgcountblob.size());
+	std::memmove(trgcounts,trgcountblob_StartAddress,trgcountblob.size());
+	for(unsigned int i=0;i<sizeof(trgcounts)/sizeof(unsigned int);++i){
+	  L1Data l1tmp;
+	  l1tmp.bitname=m_runcache.TRGBitNames[i];
+	  l1tmp.prescale=prescales[i];
+	  l1tmp.ratecount=trgcounts[i];
+	  lsdata.l1data.push_back(l1tmp);
+	}
+	::free(prescales);
+	::free(trgcounts);
+      }
     }
     delete trgQuery;
     //
-    //select cmslsnum,inputcount,acceptcount,prescale from hlt where cmslsnum >=:luminum and cmslsnum<=:luminum+cachesize and runnum=:runnumber order by cmslsum,pathname
+    //select cmslsnum,hltcountblob,hltacceptblob,prescaleblob from hlt where cmslsnum >=:luminum and cmslsnum<=:luminum+cachesize and data_id=:hltdataid 
     //
     coral::AttributeList hltBindVariables;
-    hltBindVariables.extend("runnum",typeid(unsigned int));
     hltBindVariables.extend("lsmin",typeid(unsigned int));
     hltBindVariables.extend("lsmax",typeid(unsigned int));
-    hltBindVariables["runnum"].data<unsigned int>()=m_cachedrun;
+    hltBindVariables.extend("hltdataid",typeid(unsigned long long));
     hltBindVariables["lsmin"].data<unsigned int>()=luminum;
     hltBindVariables["lsmax"].data<unsigned int>()=luminum+m_cachesize;
+    hltBindVariables["hltdataid"].data<unsigned long long>()=m_cachedhltdataid;
     coral::AttributeList hltOutput;
-    hltOutput.extend("cmslsnum",typeid(unsigned int));
-    hltOutput.extend("inputcount",typeid(unsigned int));
-    hltOutput.extend("acceptcount",typeid(unsigned int));
-    hltOutput.extend("prescale",typeid(unsigned int));
+    hltOutput.extend("CMSLSNUM",typeid(unsigned int));
+    hltOutput.extend("HLTCOUNTBLOB",typeid(coral::Blob));
+    hltOutput.extend("HLTACCEPTBLOB",typeid(coral::Blob));
+    hltOutput.extend("PRESCALEBLOB",typeid(coral::Blob));
     coral::IQuery* hltQuery=schema.newQuery();
-    hltQuery->addToTableList(lumi::LumiNames::hltTableName());
-    hltQuery->addToOutputList("CMSLSNUM","cmslsnum");
-    hltQuery->addToOutputList("INPUTCOUNT","inputcount");
-    hltQuery->addToOutputList("ACCEPTCOUNT","acceptcount");
-    hltQuery->addToOutputList("PRESCALE","prescale");
-    hltQuery->setCondition("CMSLSNUM>=:lsmin AND CMSLSNUM<:lsmax AND RUNNUM=:runnum",hltBindVariables);
-    hltQuery->addToOrderList("CMSLSNUM");
-    hltQuery->addToOrderList("PATHNAME");
+    hltQuery->addToTableList(lumi::LumiNames::lshltTableName());
+    hltQuery->addToOutputList("CMSLSNUM");
+    hltQuery->addToOutputList("HLTCOUNTBLOB");
+    hltQuery->addToOutputList("HLTACCEPTBLOB");
+    hltQuery->addToOutputList("PRESCALEBLOB");
+    hltQuery->setCondition("CMSLSNUM>=:lsmin AND CMSLSNUM<:lsmax AND DATA_ID=:hltdataid",hltBindVariables);
     hltQuery->defineOutput(hltOutput);
     coral::ICursor& hltcursor=hltQuery->execute();
-    unsigned int npaths=m_runcache.HLTPathNames.size();
-    unsigned int pathcount=0;
     while( hltcursor.next() ){
       const coral::AttributeList& row=hltcursor.currentRow();   
-      unsigned int cmslsnum=row["cmslsnum"].data<unsigned int>();
+      unsigned int cmslsnum=row["CMSLSNUM"].data<unsigned int>();
       PerLSData& lsdata=m_lscache[cmslsnum];
-      HLTData hlttmp;
-      hlttmp.pathnum=pathcount;
-      hlttmp.prescale=row["prescale"].data<unsigned int>();
-      hlttmp.l1passcount=row["inputcount"].data<unsigned int>();
-      hlttmp.acceptcount=row["acceptcount"].data<unsigned int>();
-      lsdata.hltdata.push_back(hlttmp);
-      if(pathcount!=npaths){
-	++pathcount;
-      }else{
-	pathcount=0;
+      if(!row["PRESCALEBLOB"].isNull()){
+	const coral::Blob& hltprescaleblob=row["PRESCALEBLOB"].data<coral::Blob>();
+	const void* hltprescaleblob_StartAddress=hltprescaleblob.startingAddress();
+	unsigned int* hltprescales=(unsigned int*)::malloc(hltprescaleblob.size());
+	std::memmove(hltprescales,hltprescaleblob_StartAddress,hltprescaleblob.size());
+	const coral::Blob& hltcountblob=row["HLTCOUNTBLOB"].data<coral::Blob>();
+	const void* hltcountblob_StartAddress=hltcountblob.startingAddress();
+	unsigned int* hltcounts=(unsigned int*)::malloc(hltcountblob.size());
+	std::memmove(hltcounts,hltcountblob_StartAddress,hltcountblob.size());
+	const coral::Blob& hltacceptblob=row["HLTACCEPTBLOB"].data<coral::Blob>();
+	const void* hltacceptblob_StartAddress=hltacceptblob.startingAddress();
+	unsigned int* hltaccepts=(unsigned int*)::malloc(hltacceptblob.size());
+	std::memmove(hltaccepts,hltacceptblob_StartAddress,hltacceptblob.size());
+	for(unsigned int i=0;i<sizeof(hltaccepts)/sizeof(unsigned int);++i){
+	  HLTData hlttmp;
+	  hlttmp.pathname=m_runcache.HLTPathNames[i];
+	  hlttmp.prescale=hltprescales[i];
+	  hlttmp.l1passcount=hltcounts[i];
+	  hlttmp.acceptcount=hltaccepts[i];
+	  lsdata.hltdata.push_back(hlttmp);
+	}
+	::free(hltprescales);
+	::free(hltcounts);
+	::free(hltaccepts);
       }
     }
     delete hltQuery;
@@ -692,6 +763,7 @@ LumiProducer::fillLSCache(unsigned int luminum){
 }
 void
 LumiProducer::writeProductsForEntry(edm::LuminosityBlock & iLBlock,unsigned int runnumber,unsigned int luminum){
+  //std::cout<<"writing runnumber,luminum "<<runnumber<<" "<<luminum<<std::endl;
   std::auto_ptr<LumiSummary> pOut1;
   std::auto_ptr<LumiDetails> pOut2;
   LumiSummary* pIn1=new LumiSummary;
@@ -709,25 +781,24 @@ LumiProducer::writeProductsForEntry(edm::LuminosityBlock & iLBlock,unsigned int 
   pIn1->setLumiData(lsdata.lumivalue,lsdata.lumierror,lsdata.lumiquality);
   pIn1->setDeadCount(lsdata.deadcount);
   if(!lsdata.l1data.empty()){
-    pIn1->setBitZeroCount((unsigned long long)lsdata.l1data.front().ratecount*
-			  (unsigned long long)lsdata.l1data.front().prescale);
+    //std::cout<<"bitzerocount "<<lsdata.bitzerocount<<std::endl;
+    //std::cout<<"bitzeroprescale "<<lsdata.bitzeroprescale<<std::endl;
+    //std::cout<<"product "<<lsdata.bitzerocount*lsdata.bitzeroprescale<<std::endl;
+    pIn1->setBitZeroCount(lsdata.bitzerocount*lsdata.bitzeroprescale);
   }
   pIn1->setlsnumber(luminum);
   pIn1->setOrbitData(lsdata.startorbit,lsdata.numorbit);
   std::vector<LumiSummary::L1> l1temp;
   for(std::vector< L1Data >::iterator it=lsdata.l1data.begin();it!=lsdata.l1data.end();++it){
     LumiSummary::L1 trgtmp;
-    // trgtmp.ratecount=it->ratecount;
-    trgtmp.triggernameidx=m_runcache.TRGBitNumToIndex[it->bitnum];
+    trgtmp.triggernameidx=m_runcache.TRGBitNameToIndex[it->bitname];
     trgtmp.prescale=it->prescale;
     l1temp.push_back(trgtmp);
   }
   std::vector<LumiSummary::HLT> hlttemp;
   for(std::vector< HLTData >::iterator it=lsdata.hltdata.begin();it!=lsdata.hltdata.end();++it){
     LumiSummary::HLT hlttmp;
-    // hlttmp.ratecount=it->acceptcount;
-    // hlttmp.inputcount=it->l1passcount;
-    hlttmp.pathnameidx=it->pathnum;
+    hlttmp.pathnameidx=m_runcache.HLTPathNameToIndex[it->pathname];;
     hlttmp.prescale=it->prescale;
     hlttemp.push_back(hlttmp);
   }

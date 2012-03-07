@@ -14,13 +14,13 @@
 #include "SimG4CMS/FP420/interface/FP420NumberingScheme.h"
 #include "DataFormats/FP420Digi/interface/DigiCollectionFP420.h"
 #include "DataFormats/FP420Cluster/interface/ClusterCollectionFP420.h"
+#include "RecoRomanPot/RecoFP420/interface/ClusterNoiseFP420.h"
 #include "DataFormats/FP420Cluster/interface/ClusterFP420.h"
-// #include "RecoRomanPot/RecoFP420/interface/ClusterNoiseFP420.h"
 #include <iostream>
 #include <vector>
 
 
-// class ClusterNoiseFP420;
+class ClusterNoiseFP420;
 class ClusterProducerFP420;
 
 class FP420ClusterMain 
@@ -28,8 +28,7 @@ class FP420ClusterMain
  public:
   
 
- //   FP420ClusterMain(const edm::ParameterSet& conf, int dn, int sn, int pn, int rn, int dh, int sh, int ph, int rh);
-    FP420ClusterMain(const edm::ParameterSet& conf, int , int , int , int , int , int , int , int );
+    FP420ClusterMain(const edm::ParameterSet& conf, int dn, int sn, int pn, int rn);
   //  FP420ClusterMain();
 
   ~FP420ClusterMain();
@@ -41,77 +40,63 @@ class FP420ClusterMain
 //       	   const std::vector<ClusterNoiseFP420>& noise 
 //     	   );
     void run(edm::Handle<DigiCollectionFP420> &input,
-       	   std::auto_ptr<ClusterCollectionFP420> &soutput);
+       	   std::auto_ptr<ClusterCollectionFP420> &soutput,
+       	   std::vector<ClusterNoiseFP420>& noise 
+     	   );
 
  private:
 
 
-  ClusterProducerFP420 *threeThresholdFP420_;
-
-  ClusterProducerFP420 *threeThresholdHPS240_;
-
-  std::string clusterModeFP420;
-  std::string clusterModeHPS240;
+  ClusterProducerFP420 *threeThreshold_;
+  std::string clusterMode_;
 
   //std::vector<HDigiFP420> collector;
   edm::ParameterSet conf_;
 
+
+  bool validClusterizer_;
+  double ElectronPerADC_;
+  double ENC_;
+  double BadElectrodeProbability_;
+  bool UseNoiseBadElectrodeFlagFromDB_;
+
   FP420NumberingScheme * theFP420NumberingScheme;
+  
+  double ChannelThreshold;
+  double SeedThreshold;
+  double ClusterThreshold;
+  int MaxVoidsInCluster;	
 
-
-//  double pitchX;          // pitchX
-//  double pitchY;          // pitchY
-//  double pitch;          // pitch automatic
-
+  double ldriftX;
+  double ldriftY;
+  double ldrift;
+  double pitchX;          // pitchX
+  double pitchY;          // pitchY
+  double pitch;          // pitch automatic
   float moduleThicknessX; // plate thicknessX 
   float moduleThicknessY; // plate thicknessY 
   float moduleThickness; // plate thickness 
-
-  int numFP420StripsX, numFP420StripsXW;    // number of strips in the moduleX
-  int numFP420StripsY, numFP420StripsYW;    // number of strips in the moduleY
-  int numHPS240StripsX, numHPS240StripsXW;    // number of strips in the moduleX
-  int numHPS240StripsY, numHPS240StripsYW;    // number of strips in the moduleY
-
-  int numFP420Strips;    // number of strips in the module
-  int numHPS240Strips;    // number of strips in the module
+  int numStripsX, numStripsXW;    // number of strips in the moduleX
+  int numStripsY, numStripsYW;    // number of strips in the moduleY
+  int numStrips;    // number of strips in the module
 
   float Thick300;
 
- // Number of Detectors/Stations/planes/sensors:
-  int dn0, sn0, pn0, rn0;
-  int dh0, sh0, ph0, rh0;
-
+ // Number of Detectors:
+   int dn0;
+ // Number of Stations:
+   int sn0;
+ // Number of planes:
+   int pn0;
+ // Number of sensors:
+   int rn0;
  // Type of planes:
    int xytype;
 
    int verbosity;
 
- //float sigma1;
- //float sigma2;
-
-// FP420
-  double ElectronPerADCFP420;
-  double ChannelThresholdFP420;
-  double SeedThresholdFP420;
-  double ClusterThresholdFP420;
-  int MaxVoidsInClusterFP420;	
-
-  bool validClusterizerFP420;
-  double ENCFP420;
-  double BadElectrodeProbabilityFP420;
-  bool UseNoiseBadElectrodeFlagFromDBFP420;
-// HPS240
-  double ElectronPerADCHPS240;
-  double ChannelThresholdHPS240;
-  double SeedThresholdHPS240;
-  double ClusterThresholdHPS240;
-  int MaxVoidsInClusterHPS240;	
-
-  bool validClusterizerHPS240;
-  double ENCHPS240;
-  double BadElectrodeProbabilityHPS240;
-  bool UseNoiseBadElectrodeFlagFromDBHPS240;
-
+ //float sigma1_;
+ //float sigma2_;
 
 };
 

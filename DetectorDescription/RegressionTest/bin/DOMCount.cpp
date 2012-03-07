@@ -55,7 +55,7 @@
  */
 
 /*
- * $Id: DOMCount.cpp,v 1.6 2011/09/29 08:54:51 yana Exp $
+ * $Id: DOMCount.cpp,v 1.5 2011/01/26 15:39:16 yana Exp $
  */
 
 // ---------------------------------------------------------------------------
@@ -251,7 +251,7 @@ int main(int argC, char* argV[])
          else if (!strncmp(argV[argInd], "-locale=", 8))
         {
 	  // Get out the end of line
-	  strncat(localeStr, &(argV[argInd][8]), 64);
+	  strncpy(localeStr, &(argV[argInd][8]), 64);
         }			
          else
         {

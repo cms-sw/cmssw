@@ -8,8 +8,11 @@
 #
 import os,os.path,sys
 import coral
-from RecoLuminosity.LumiDB import argparse,sessionManager,lumiCalcAPI
-
+from RecoLuminosity.LumiDB import argparse,lumiQueryAPI
+#
+#lumiQueryAPI.runsByFillrange 
+#lumiQueryAPI.allfills
+#
 allfillname='allfills.txt'
 
 def tofiles(allfills,runsperfill,runtimes,outdir):
@@ -30,40 +33,43 @@ if __name__ == '__main__':
     parser.add_argument('-c',dest='connect',action='store',required=False,help='connect string to lumiDB,optional',default='frontier://LumiCalc/CMS_LUMI_PROD')
     parser.add_argument('-P',dest='authpath',action='store',help='path to authentication file,optional')
     parser.add_argument('-o',dest='outputdir',action='store',required=False,help='output dir',default='.')
-    parser.add_argument('-amodetag',dest='amodetag',action='store',required=False,help='amodetag',default='PROTPHYS')
     parser.add_argument('-f',dest='fillnum',action='store',required=False,help='specific full',default=None)
     parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',help='specific path to site-local-config.xml file, optional. If path undefined, fallback to cern proxy&server')
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
     options=parser.parse_args()
     if options.authpath:
         os.environ['CORAL_AUTH_PATH'] = options.authpath
-    svc=sessionManager.sessionManager(options.connect,authpath=options.authpath,debugON=options.debug)
-    session=svc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
-        
+    parameters = lumiQueryAPI.ParametersObject()
+    session,svc =  lumiQueryAPI.setupSession (options.connect or \
+                                              'frontier://LumiCalc/CMS_LUMI_PROD',
+                                               options.siteconfpath,parameters,options.debug)
     session.transaction().start(True)
-    allfills=lumiCalcAPI.fillInRange(session.nominalSchema(),amodetag=options.amodetag)
+    q=session.nominalSchema().newQuery()
+    allfills=lumiQueryAPI.allfills(q)
+    del q
     allfills.sort()
     runsperfill={}
     runtimes={}
-    irunlsdict={}
     if options.fillnum:
         if int(options.fillnum) in allfills:
-            runsperfill=lumiCalcAPI.fillrunMap(session.nominalSchema(),fillnum=int(options.fillnum))
-            allruns=runsperfill[ int(options.fillnum) ]
-            allls=[None]*len(allruns)
-            irunlsdict=dict(zip(allruns,allls))
-            runresults=lumiCalcAPI.runsummary(session.nominalSchema(),irunlsdict)
-            for r in runresults:
-                runtimes[r[0]]=r[7]
+            q=session.nominalSchema().newQuery()
+            runsperfill=lumiQueryAPI.runsByfillrange(q,int(options.fillnum),int(options.fillnum))
+            del q
+            for run in runsperfill[int(options.fillnum)]:
+                q=session.nominalSchema().newQuery()
+                runtimes[run]=lumiQueryAPI.runsummaryByrun(q,run)[3]
+                del q
     else:
-        runsperfill=lumiCalcAPI.fillrunMap(session.nominalSchema(),min(allfills),max(allfills))
+        q=session.nominalSchema().newQuery()
+        runsperfill=lumiQueryAPI.runsByfillrange(q,min(allfills),max(allfills))
+        del q
         runs=runsperfill.values()#list of lists
         allruns=[item for sublist in runs for item in sublist]
-        allls=[None]*len(allruns)
-        irunlsdict=dict(zip(allruns,allls))
-        runresults=lumiCalcAPI.runsummary(session.nominalSchema(),irunlsdict)
-        for r in runresults:
-            runtimes[r[0]]=r[7]
+        allruns.sort()
+        for run in allruns:
+            q=session.nominalSchema().newQuery()
+            runtimes[run]=lumiQueryAPI.runsummaryByrun(q,run)[3]
+            del q
     session.transaction().commit()
     #print runsperfill
     tofiles(allfills,runsperfill,runtimes,options.outputdir)

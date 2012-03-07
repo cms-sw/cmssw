@@ -81,7 +81,7 @@ hiPixelPairTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilde
         trajectoryFilterName = 'hiPixelPairTrajectoryFilter',
         clustersToSkip = cms.InputTag('hiPixelPairClusters'),
         maxCand = 3,
-        estimator = cms.string('hiPixelPairChi2Est')
+        #estimator = cms.string('hiPixelPairChi2Est')
         )
 
 # MAKING OF TRACK CANDIDATES

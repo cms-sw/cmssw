@@ -4,7 +4,7 @@
 #include "TH2F.h"
 #include "TDirectory.h"
 #include "TROOT.h"
-#include "FitWithRooFit.cc"
+#include "/home/destroyar/Desktop/MuScleFit/RooFitTest/Macros/FitWithRooFit.cc"
 
 /**
  * Fit the mass distribution with the given function using RooFit.

@@ -57,11 +57,15 @@ from DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi import *
 SiStripMonitorTrack.TrackProducer = 'generalTracks'
 SiStripMonitorTrack.Mod_On        = False
 SiStripMonitorTrack.andOr         = cms.bool( False )
-SiStripMonitorTrack.dbLabel       = cms.string("SiStripDQMTrigger")
 SiStripMonitorTrack.l1DBKey       = cms.string( 'SiStripDQM_L1' )
 SiStripMonitorTrack.l1Algorithms  = cms.vstring(
 #                  'L1Tech_BSC_minBias_threshold2.v0 OR L1_BscMinBiasOR_BptxPlusORMinus' # Tech BIT41 OR Algo Bit 124
-)
+                   'NOT L1Tech_BSC_halo_beam2_inner.v0' # NOT 36
+                 , 'NOT L1Tech_BSC_halo_beam2_outer.v0' # NOT 37
+                 , 'NOT L1Tech_BSC_halo_beam1_inner.v0' # NOT 38
+                 , 'NOT L1Tech_BSC_halo_beam1_outer.v0' # NOT 39
+                 , 'NOT (L1Tech_BSC_splash_beam1.v0 AND NOT L1Tech_BSC_splash_beam2.v0)'   # NOT (42 AND NOT 43)
+                 , 'NOT (L1Tech_BSC_splash_beam2.v0 AND NOT L1Tech_BSC_splash_beam1.v0)')  # NOT (43 AND NOT 42)
 SiStripMonitorTrack.andOrL1       = cms.bool( False )
 SiStripMonitorTrack.errorReplyL1  = cms.bool( True )
 
@@ -71,11 +75,15 @@ MonitorTrackResiduals.trajectoryInput = 'generalTracks'
 MonitorTrackResiduals.OutputMEsInRootFile = False
 MonitorTrackResiduals.Mod_On        = False
 MonitorTrackResiduals.andOr         = cms.bool( False )
-MonitorTrackResiduals.dbLabel       = cms.string("SiStripDQMTrigger")
 MonitorTrackResiduals.l1DBKey       = cms.string( 'SiStripDQM_L1' )
 MonitorTrackResiduals.l1Algorithms  = cms.vstring(
 #                  'L1Tech_BSC_minBias_threshold2.v0 OR L1_BscMinBiasOR_BptxPlusORMinus' # Tech BIT41 OR Algo Bit 124  
-)
+                   'NOT L1Tech_BSC_halo_beam2_inner.v0' # NOT 36
+                 , 'NOT L1Tech_BSC_halo_beam2_outer.v0' # NOT 37
+                 , 'NOT L1Tech_BSC_halo_beam1_inner.v0' # NOT 38
+                 , 'NOT L1Tech_BSC_halo_beam1_outer.v0' # NOT 39
+                 , 'NOT (L1Tech_BSC_splash_beam1.v0 AND NOT L1Tech_BSC_splash_beam2.v0)'   # NOT (42 AND NOT 43)
+                 , 'NOT (L1Tech_BSC_splash_beam2.v0 AND NOT L1Tech_BSC_splash_beam1.v0)')  # NOT (43 AND NOT 42)
 MonitorTrackResiduals.andOrL1       = cms.bool( False )
 MonitorTrackResiduals.errorReplyL1  = cms.bool( True )
 
@@ -88,11 +96,15 @@ TrackerCollisionTrackMon.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
 TrackerCollisionTrackMon.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29)
 TrackerCollisionTrackMon.andOrDcs      = cms.bool( False )
 TrackerCollisionTrackMon.errorReplyDcs = cms.bool( True )
-TrackerCollisionTrackMon.dbLabel       = cms.string("SiStripDQMTrigger")
 TrackerCollisionTrackMon.l1DBKey       = cms.string( 'SiStripDQM_L1' )
 TrackerCollisionTrackMon.l1Algorithms  = cms.vstring(
 #                  'L1Tech_BSC_minBias_threshold2.v0 OR L1_BscMinBiasOR_BptxPlusORMinus' # Tech BIT41 OR Algo Bit 124     
-)
+                   'NOT L1Tech_BSC_halo_beam2_inner.v0' # NOT 36
+                 , 'NOT L1Tech_BSC_halo_beam2_outer.v0' # NOT 37
+                 , 'NOT L1Tech_BSC_halo_beam1_inner.v0' # NOT 38
+                 , 'NOT L1Tech_BSC_halo_beam1_outer.v0' # NOT 39
+                 , 'NOT (L1Tech_BSC_splash_beam1.v0 AND NOT L1Tech_BSC_splash_beam2.v0)'   # NOT (42 AND NOT 43)
+                 , 'NOT (L1Tech_BSC_splash_beam2.v0 AND NOT L1Tech_BSC_splash_beam1.v0)')  # NOT (43 AND NOT 42)
 TrackerCollisionTrackMon.andOrL1       = cms.bool( False )
 TrackerCollisionTrackMon.errorReplyL1  = cms.bool( True )
 

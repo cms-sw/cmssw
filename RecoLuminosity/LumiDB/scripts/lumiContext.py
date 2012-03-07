@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 VERSION='2.00'
 import os,sys,time
-from RecoLuminosity.LumiDB import sessionManager,lumiTime,inputFilesetParser,csvSelectionParser,csvReporter,argparse,CommonUtil,lumiCalcAPI,lumiReport,lumiTime
+from RecoLuminosity.LumiDB import sessionManager,lumiTime,inputFilesetParser,csvSelectionParser,csvReporter,argparse,CommonUtil,lumiCalcAPI,lumiReport
 
 def parseInputFiles(inputfilename,dbrunlist,optaction):
     '''
@@ -31,7 +31,7 @@ def parseInputFiles(inputfilename,dbrunlist,optaction):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description = "Additional information needed in the lumi calculation",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    allowedActions = ['hltbyls','hltconf','trgconf','trgbyls', 'beambyls','runsummary']
+    allowedActions = ['hltbyls','hltconf','trgconf','trgbyls', 'beambyls']
     amodetagChoices = [ "PROTPHYS","IONPHYS" ]
     beamModeChoices = ["stable"]
     #
@@ -62,7 +62,7 @@ if __name__ == '__main__':
     parser.add_argument('-i',dest='inputfile',action='store',
                         required=False,
                         help='run/ls selection file (optional)')
-    parser.add_argument('--name',dest='name',action='store',
+    parser.add_argument('-name',dest='name',action='store',
                        help='hltpath/l1bit name/pattern'
                        )
     #
@@ -72,32 +72,32 @@ if __name__ == '__main__':
                         choices=beamModeChoices,
                         required=False,
                         help='beam mode choices [stable] (optional)')
-    parser.add_argument('--fill',dest='fillnum',action='store',
+    parser.add_argument('-fill',dest='fillnum',action='store',
                         default=None,required=False,
                         help='fill number (optional) ')
-    parser.add_argument('--amodetag',dest='amodetag',action='store',
+    parser.add_argument('-amodetag',dest='amodetag',action='store',
                         choices=amodetagChoices,
                         required=False,
                         help='specific accelerator mode choices [PROTOPHYS,IONPHYS] (optional)')
-    parser.add_argument('--beamenergy',dest='beamenergy',action='store',
+    parser.add_argument('-beamenergy',dest='beamenergy',action='store',
                         type=float,
                         default=None,
                         help='nominal beam energy in GeV')
-    parser.add_argument('--beamfluctuation',dest='beamfluctuation',
+    parser.add_argument('-beamfluctuation',dest='beamfluctuation',
                         type=float,action='store',
                         default=0.2,
                         required=False,
                         help='fluctuation in fraction allowed to nominal beam energy, default 0.2, to be used together with -beamenergy  (optional)')
-    parser.add_argument('--minintensity',dest='minintensity',
+    parser.add_argument('-minintensity',dest='minintensity',
                         type=float,action='store',
                         default=0.1,
                         required=False,
                         help='filter on beam intensity , effective with --with-beamintensity (optional)')
-    parser.add_argument('--begin',dest='begin',action='store',
+    parser.add_argument('-begin',dest='begin',action='store',
                         default=None,
                         required=False,
                         help='min run start time, mm/dd/yy hh:mm:ss (optional)')
-    parser.add_argument('--end',dest='end',action='store',
+    parser.add_argument('-end',dest='end',action='store',
                         default=None,required=False,
                         help='max run start time, mm/dd/yy hh:mm:ss (optional)')
     
@@ -105,7 +105,7 @@ if __name__ == '__main__':
     #
     #command configuration 
     #
-    parser.add_argument('--siteconfpath',dest='siteconfpath',action='store',
+    parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',
                         default=None,
                         required=False,
                         help='specific path to site-local-config.xml file, optional. If path undefined, fallback to cern proxy&server')
@@ -238,29 +238,5 @@ if __name__ == '__main__':
             lumiReport.toScreenLSBeam(result,iresults=iresults,dumpIntensity=False)
         else:
             lumiReport.toCSVLSBeam(result,options.outputfile,resultlines=iresults,dumpIntensity=options.withbeamintensity,isverbose=options.verbose)
-    if options.action == 'runsummary':
-        session.transaction().start(True)
-        result=lumiCalcAPI.runsummary(session.nominalSchema(),irunlsdict)
-        session.transaction().commit()
-        c=lumiTime.lumiTime()
-        for r in result:
-            run=r[0]
-            fill='n/a'
-            if r[5]:
-                fill=str(r[5])
-            starttime=c.StrToDatetime(r[7])
-            starttime=starttime.strftime('%m/%d/%y %H:%M:%S')
-            stoptime=c.StrToDatetime(r[8])
-            stoptime=stoptime.strftime('%m/%d/%y %H:%M:%S')
-            l1key=r[1]
-            hltkey=r[4]
-            amodetag=r[2]
-            egev='n/a'
-            if r[3]:
-                egev=str(r[3])
-            sequence=r[6]
-            print 'Run ',str(run),' Fill ',fill,' Amodetag ',amodetag,' egev ',egev
-            print '\tStart '+starttime,'                  ',' Stop ',stoptime
-            print '\tL1key ',l1key,' HLTkey ',hltkey
     del session
     del svc 

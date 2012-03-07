@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2011/10/28 14:15:47 $
- * $Revision: 1.62 $
+ * $Date: 2011/08/30 09:28:42 $
+ * $Revision: 1.61 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -267,14 +267,14 @@ void EESelectiveReadoutTask::setup(void) {
     EEDccEventSize_ = dqmStore_->bookProfile(name, name, 18, 1, 19, 100, 0., 200., "s");
     EEDccEventSize_->setAxisTitle("event size (kB)", 2);
     for (int i = 0; i < 18; i++) {
-      EEDccEventSize_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
+      EEDccEventSize_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
     name = "EESRT event size vs DCC";
     EEDccEventSizeMap_ = dqmStore_->book2D(name, name, 18, xbins, 132, ybins);
     EEDccEventSizeMap_->setAxisTitle("event size (kB)", 2);
     for (int i = 0; i < 18; i++) {
-      EEDccEventSizeMap_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
+      EEDccEventSizeMap_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
     name = "EESRT readout unit with SR forced EE -";

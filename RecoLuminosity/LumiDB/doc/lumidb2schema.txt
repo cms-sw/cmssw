@@ -219,12 +219,3 @@ lumiTagCommit tagname -m comment
 lumiTagCopy -sourcetag a -desttag b -m comment  
 lumiTagDescribe tagname -datatype 'lumi,trg,hlt,norm' --verbose
 
-Other tables:
-
-create table INTGLUMI(
-  intglumi_id uint64 PK,    
-  runnum uint32 not null,
-  startrun uint32,
-  intglumi float
-)
-create table INTGLUMI(RUNNUM NUMBER(10),STARTRUN NUMBER(10), INTGLUMI BINARY_FLOAT , constraint PK_INTGLUMI primary key(RUNNUM,STARTRUN));

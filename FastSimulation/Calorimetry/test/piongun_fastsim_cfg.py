@@ -1,7 +1,7 @@
 # Useful for HCAL validation
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process('HLT')
+process = cms.Process('TEST')
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -28,19 +28,14 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
 #			        firstEvent = cms.untracked.uint32(XXXXX),
 			        firstEvent = cms.untracked.uint32(0),
-			        fileNames = cms.untracked.vstring('file:mc.root')
+#			        fileNames = cms.untracked.vstring('file:mc.root')
+      			        fileNames = cms.untracked.vstring('file:/afs/cern.ch/cms/data/CMSSW/Validation/HcalHits/data/3_1_X/mc_pi50_eta05.root')
 			    )
 
 process.options = cms.untracked.PSet(
 
 )
 
-# Production Info
-process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.357 $'),
-    annotation = cms.untracked.string('SingleMuPt10_cfi.py nevts:10'),
-    name = cms.untracked.string('PyReleaseValidation')
-)
 
 # Output definition
 
