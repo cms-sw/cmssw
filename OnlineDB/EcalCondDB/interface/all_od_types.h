@@ -60,6 +60,12 @@
 #include "OnlineDB/EcalCondDB/interface/ODWeightsSamplesDat.h"
 
 
+#include "OnlineDB/EcalCondDB/interface/ODTowersToByPassInfo.h"
+#include "OnlineDB/EcalCondDB/interface/ODTowersToByPassDat.h"
+#include "OnlineDB/EcalCondDB/interface/ODGolBiasCurrentInfo.h"
+#include "OnlineDB/EcalCondDB/interface/ODGolBiasCurrentDat.h"
+#include "OnlineDB/EcalCondDB/interface/ODVfeToRejectInfo.h"
+#include "OnlineDB/EcalCondDB/interface/ODVfeToRejectDat.h"
 #endif
 
 

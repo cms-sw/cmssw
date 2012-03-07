@@ -23,6 +23,7 @@ ODRunConfigInfo::ODRunConfigInfo()
   m_defaults=0;
   m_trigger_mode=""; 
   m_num_events=0;
+  m_usage_status="";
 }
 
 
@@ -306,10 +307,11 @@ void ODRunConfigInfo::fetchData(ODRunConfigInfo * result)
   this->checkConnection();
   DateHandler dh(m_env, m_conn);
   //  result->clear();
+  int idid=0;
 
   if(result->getId()==0){
     //throw(std::runtime_error("FEConfigMainInfo::fetchData(): no Id defined for this FEConfigMainInfo "));
-    result->fetchID();
+    idid=result->fetchID();
   }
   try {
     m_readStmt->setSQL("SELECT config_id, tag, version, run_type_def_id, run_mode_def_id, \
