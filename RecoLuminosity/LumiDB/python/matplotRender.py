@@ -2,7 +2,6 @@
 This module is graphical API using pymatplotlib.
 Specs:
 -- We use matplotlib OO class level api, we do not use its high-level helper modules. Favor endured stability over simplicity. 
--- use TkAgg for interactive mode. Beaware of Tk,pyTk installation defects in various cern distributions.
 -- PNG as default batch file format
 -- we support http mode by sending string buf via meme type image/png. Sending a premade static plot to webserver is considered a uploading process instead of http dynamic graphical mode. Therefore covered in this module.
 '''
@@ -175,6 +174,8 @@ class matplotRender():
         withannotation: wheather the boundary points should be annotated
         textoutput: text output file name. 
         '''
+        if yscale not in ['linear','log']:
+            raise RunTimeError('unsupported yscale ',yscale)
         ytotal={}
         ypoints={}
         for r in resultlines: #parse old text data
@@ -326,12 +327,8 @@ class matplotRender():
             csvreport.writeRows([list(t) for t in rows])
         
         ax=self.__fig.add_subplot(111)
-        if yscale=='linear':
-            ax.set_yscale('linear')
-        elif yscale=='log':
-            ax.set_yscale('log')
-        else:
-            raise 'unsupported yscale ',yscale
+        
+        ax.set_yscale(yscale)
         yearStrMin=minTime.strftime('%Y')
         yearStrMax=maxTime.strftime('%Y')
         if yearStrMin==yearStrMax:

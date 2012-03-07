@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 VERSION='1.00'
-import os,sys,datetime,time,commands,csv
+import os,os.path,sys,datetime,time,csv
 from RecoLuminosity.LumiDB import lumiTime,argparse,CommonUtil,matplotRender,sessionManager,lumiCalcAPI,lumiCorrections,dataDML,lumiParameters
+import matplotlib
 from matplotlib.figure import Figure
 def parseInputFiles(inputfilename,dbrunlist,optaction):
     '''
@@ -33,6 +34,32 @@ def parseInputFiles(inputfilename,dbrunlist,optaction):
 ##############################
 
 if __name__=='__main__':
+    currentdir=os.getcwd()
+    rcparamfile='.lumiplotrc'
+    mplrcdir=matplotlib.get_configdir()
+    mpllumiconfig=os.path.join(mplrcdir,rcparamfile)
+    locallumiconfig=os.path.join(currentdir,rcparamfile)
+    figureparams={'sizex':7.5,'sizey':5.7,'dpi':135}
+    if os.path.exists(locallumiconfig):
+        import ConfigParser
+        try:
+            config=ConfigParser.RawConfigParser()
+            config.read(locallumiconfig)
+            figureparams['sizex']=config.getfloat('sizex')
+            figureparams['sizey']=config.getfloat('sizey')
+            figureparams['dpi']=config.getint('dpi')
+        except ConfigParser.NoOptionError:
+            pass
+    elif os.path.exists(mpllumiconfig):
+        import ConfigParser
+        try:
+            config=ConfigParser.RawConfigParser()
+            config.read(mpllumiconfig)
+            figureparams['sizex']=config.getfloat('sizex')
+            figureparams['sizey']=config.getfloat('sizey')
+            figureparams['dpi']=config.getint('dpi')
+        except ConfigParser.NoOptionError:
+            pass
     allowedscales=['linear','log','both']
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),
                                      description="Plot integrated luminosity as function of the time variable of choice",
@@ -100,11 +127,11 @@ if __name__=='__main__':
                         help='specific path to site-local-config.xml file, default to $CMS_PATH/SITECONF/local/JobConfig, if path undefined, fallback to cern proxy&server')
     
     ####plot options
-    parser.add_argument('--inplot',
+    parser.add_argument('--inplotdata',
                         dest='inplot',
                         action='store',
                         help='existing base plot(s) in text format')
-    parser.add_argument('--outplot',
+    parser.add_argument('--outplotdata',
                         dest='outplot',
                         action='store',
                         help='output plot. By default, a text dump of the plot is produced.')
@@ -143,8 +170,12 @@ if __name__=='__main__':
                         action='store_true',
                         help='verbose mode, print result also to screen')
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
-    parser.add_argument('action',choices=['run','fill','time','perday','instpeakperday','inst'],help='type of plots')
+    parser.add_argument('action',choices=['run','time','fill','perday','instpeakperday','inst'],help='type of plots')
     options=parser.parse_args()
+    if options.yscale=='both' and options.interactive:
+        print '--interactive mode can draw either yscale log or linear at a time'
+        exit(0)
+    
     actiontofilebasemap={'time':'lumivstime','run':'lumivsrun','fill':'lumivsfill','perday':'lumiperday','instpeakperday':'lumipeak','inst':'inst'}
     outplotfilename = options.outplot
     if not outplotfilename:
@@ -230,9 +261,9 @@ if __name__=='__main__':
         print 'runs needed from db ',runlist
     filllist=[]
     #print irunlsdict            
-    fig=Figure(figsize=(7.2,5.4),dpi=120)
+    fig=Figure(figsize=(figureparams['sizex'],figureparams['sizey']),dpi=figureparams['dpi'])
     m=matplotRender.matplotRender(fig)
-    logfig=Figure(figsize=(7.5,5.7),dpi=135)
+    logfig=Figure(figsize=(figureparams['sizex'],figureparams['sizey']),dpi=figureparams['dpi'])
     mlog=matplotRender.matplotRender(logfig)
 
     if len(irunlsdict)==0:
@@ -288,7 +319,13 @@ if __name__=='__main__':
             if len(rundata)!=0:
                 rawdata.setdefault('Delivered',[]).append((run,rundata[0][2],rundata[-1][2],sum([t[5] for t in rundata])))
                 rawdata.setdefault('Recorded',[]).append((run,rundata[0][2],rundata[-1][2],sum([t[6] for t in rundata])))
-        m.plotSumX_Time(rawdata,resultlines,minTime=begtime,maxTime=endtime,textoutput=outtextfilename)
+        if options.yscale=='linear':
+            m.plotSumX_Time(rawdata,resultlines,minTime=begtime,maxTime=endtime,textoutput=outtextfilename,yscale='linear')
+        elif options.yscale=='log':
+            mlog.plotSumX_Time(rawdata,resultlines,minTime=begtime,maxTime=endtime,textoutput=outtextfilename,yscale='log')
+        else:
+            m.plotSumX_Time(rawdata,resultlines,minTime=begtime,maxTime=endtime,textoutput=outtextfilename,yscale='linear')
+            mlog.plotSumX_Time(rawdata,resultlines,minTime=begtime,maxTime=endtime,textoutput=outtextfilename,yscale='log')
     if options.action=='perday':
         daydict={}
         for run in sorted(lumibyls):
@@ -309,7 +346,8 @@ if __name__=='__main__':
             rawdata.setdefault('Delivered',[]).append((day,daybeg,dayend,daydel))
             rawdata.setdefault('Recorded',[]).append((day,daybeg,dayend,dayrec))
         #print 'rawdata ',rawdata
-        m.plotPerdayX_Time(rawdata,resultlines,minTime=begtime,maxTime=endtime,textoutput=outtextfilename)
+        m.plotPerdayX_Time(rawdata,resultlines,minTime=begtime,maxTime=endtime,textoutput=outtextfilename,yscale='linear')
+        mlog.plotPerdayX_Time(rawdata,resultlines,minTime=begtime,maxTime=endtime,textoutput=outtextfilename,yscale='log')
     if options.action=='instpeakperday':
         daydict={}#{daynumber:[(runnumber,lumilsnum,inst),..]}
         for run in sorted(lumibyls):
@@ -331,7 +369,8 @@ if __name__=='__main__':
                     daymax_run=datatp[0]
                     daymax_ls=datatp[1]
             rawdata.setdefault('Delivered',[]).append((day,daymax_run,daymax_ls,daymax_val))
-        m.plotPeakPerday_Time(rawdata,resultlines,minTime=begtime,maxTime=endtime,textoutput=outtextfilename)
+        m.plotPeakPerday_Time(rawdata,resultlines,minTime=begtime,maxTime=endtime,textoutput=outtextfilename,yscale='linear')
+        mlog.plotPeakPerday_Time(rawdata,resultlines,minTime=begtime,maxTime=endtime,textoutput=outtextfilename,yscale='log')
     if options.action=='inst':
         thisfillnumber=fillrunMap.keys()[0]
         starttime=0
@@ -357,18 +396,19 @@ if __name__=='__main__':
                 rawydata.setdefault('Recorded',[]).append(reclumi)
             rawxdata=[run,thisfillnumber,starttime,stoptime,totlumils,totcmsls]
         m.plotInst_RunLS(rawxdata,rawydata,textoutput=None)
-
-    if options.interactive:
-        if options.yscale=='linear':
+    
+    if options.yscale=='linear':
+        if options.interactive:
             m.drawInteractive()
             exit(0)
-        if options.yscale=='log':
+        else:
+            m.drawPNG(outplotfilename+'.png')
+    elif options.yscale=='log':
+        if options.interactive:
             mlog.drawInteractive()
             exit(0)
-    if options.yscale=='linear':
-        m.drawPNG(outplotfilename+'.png')
-    elif options.yscale=='log':
-        mlog.drawPNG(outplotfilename+'_log.png')
+        else:
+            mlog.drawPNG(outplotfilename+'_log.png')
     else:
         m.drawPNG(outplotfilename+'.png')            
         mlog.drawPNG(outplotfilename+'_log.png')
