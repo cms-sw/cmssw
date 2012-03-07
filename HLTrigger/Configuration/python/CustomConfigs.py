@@ -27,6 +27,9 @@ def Base(process):
     process.MessageLogger.categories.append('L1GtTrigReport')
     process.MessageLogger.categories.append('HLTrigReport')
 
+    if 'convertObjectMapRecords' in process.__dict__:
+        process.globalReplace('convertObjectMapRecords',cms.Sequence())
+
     process=ProcessName(process)
 
     return(process)
