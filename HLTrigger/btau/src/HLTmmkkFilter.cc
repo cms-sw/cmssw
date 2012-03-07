@@ -397,7 +397,7 @@ int HLTmmkkFilter::overlap(const reco::Candidate &a, const reco::Candidate &b) {
   double deta = a.eta() - b.eta(); 
   deta *= deta; 
 
-  if ((dpt + dphi + deta) < eps) {
+  if ((dphi + deta) < eps) {
     return 1;
   } 
 
