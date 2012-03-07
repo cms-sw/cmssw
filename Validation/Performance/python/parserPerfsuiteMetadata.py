@@ -699,7 +699,8 @@ class parserPerfsuiteMetadata:
 					info["castor_file_url"] = url
 					break
 				print "Please enter a valid CASTOR url: has to start with /castor/ and should point to the tarball"
-				url = sys.stdin.readline()
+				if os.isatty(0): url = sys.stdin.readline()
+				else: raise IOError("stdin is closed.")
 
 
 		return info
