@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_0/HLT/V3 (CMSSW_5_2_0_pre5_HLT12)
+# /dev/CMSSW_5_2_0/HLT/V4 (CMSSW_5_2_0_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_0/HLT/V3')
+  tableName = cms.string('/dev/CMSSW_5_2_0/HLT/V4')
 )
 
 streams = cms.PSet( 
@@ -6666,11 +6666,12 @@ hltL2MuonCandidates = cms.EDProducer( "L2MuonCandidateProducer",
 hltSiPixelDigis = cms.EDProducer( "SiPixelRawToDigi",
     UseQualityInfo = cms.bool( False ),
     CheckPixelOrder = cms.bool( False ),
-    InputLabel = cms.InputTag( "rawDataCollector" ),
-    UseCablingTree = cms.untracked.bool( True ),
     IncludeErrors = cms.bool( False ),
+    UseCablingTree = cms.untracked.bool( True ),
+    InputLabel = cms.InputTag( "rawDataCollector" ),
     ErrorList = cms.vint32(  ),
-    Timing = cms.untracked.bool( False )
+    Timing = cms.untracked.bool( False ),
+    UserErrorList = cms.vint32(  )
 )
 hltSiPixelClusters = cms.EDProducer( "SiPixelClusterProducer",
     src = cms.InputTag( "hltSiPixelDigis" ),
@@ -7464,6 +7465,7 @@ hltL3MuonCandidates = cms.EDProducer( "L3MuonCandidateProducer",
     MuonPtOption = cms.string( "Tracker" )
 )
 hltPixelTracks = cms.EDProducer( "PixelTrackProducer",
+    useFilterWithES = cms.bool( False ),
     FilterPSet = cms.PSet( 
       chi2 = cms.double( 1000.0 ),
       nSigmaTipMaxTolerance = cms.double( 0.0 ),
@@ -7472,7 +7474,6 @@ hltPixelTracks = cms.EDProducer( "PixelTrackProducer",
       ptMin = cms.double( 0.1 ),
       tipMax = cms.double( 1.0 )
     ),
-    useFilterWithES = cms.bool( False ),
     passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
     FitterPSet = cms.PSet( 
       ComponentName = cms.string( "PixelFitterByHelixProjections" ),
@@ -15080,6 +15081,7 @@ hlt2CaloJetMETMHTdPhi1 = cms.EDFilter( "HLT2CaloJetMET",
     MinMinv = cms.double( 1.0 ),
     originTag2 = cms.InputTag( "hltOriginal2" ),
     MinDelR = cms.double( 1.0 ),
+    MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     originTag1 = cms.InputTag( "hltOriginal1" ),
     triggerType1 = cms.int32( 85 ),
@@ -15091,9 +15093,8 @@ hlt2CaloJetMETMHTdPhi1 = cms.EDFilter( "HLT2CaloJetMET",
     inputTag2 = cms.InputTag( "hltPFMHT80HT60" ),
     MaxDphi = cms.double( 0.39 ),
     MaxDeta = cms.double( -1.0 ),
-    MinDphi = cms.double( 0.0 ),
-    MinPt = cms.double( 0.0 ),
-    MaxPt = cms.double( 0.0 )
+    MaxPt = cms.double( 0.0 ),
+    MinDphi = cms.double( 0.0 )
 )
 hltPreDiCentralPFJet50PFMHT80 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -15141,6 +15142,7 @@ hlt2BoostedCaloJet80METMHT80dPhi1 = cms.EDFilter( "HLT2CaloJetMET",
     MinMinv = cms.double( 1.0 ),
     originTag2 = cms.InputTag( "hltOriginal2" ),
     MinDelR = cms.double( 1.0 ),
+    MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     originTag1 = cms.InputTag( "hltOriginal1" ),
     triggerType1 = cms.int32( 85 ),
@@ -15152,9 +15154,8 @@ hlt2BoostedCaloJet80METMHT80dPhi1 = cms.EDFilter( "HLT2CaloJetMET",
     inputTag2 = cms.InputTag( "hltPFMHT80HT80" ),
     MaxDphi = cms.double( 0.39 ),
     MaxDeta = cms.double( -1.0 ),
-    MinDphi = cms.double( 0.0 ),
-    MinPt = cms.double( 0.0 ),
-    MaxPt = cms.double( 0.0 )
+    MaxPt = cms.double( 0.0 ),
+    MinDphi = cms.double( 0.0 )
 )
 hltL1sL1ETM36 = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( True ),
@@ -20718,6 +20719,7 @@ hltDisplacedmumuFilterTauTo2Mu = cms.EDFilter( "HLTDisplacedmumuFilter",
     MinLxySignificance = cms.double( 1.0 )
 )
 hltRegionalPixelTracks = cms.EDProducer( "PixelTrackProducer",
+    useFilterWithES = cms.bool( False ),
     FilterPSet = cms.PSet( 
       chi2 = cms.double( 1000.0 ),
       nSigmaTipMaxTolerance = cms.double( 0.0 ),
@@ -20726,7 +20728,6 @@ hltRegionalPixelTracks = cms.EDProducer( "PixelTrackProducer",
       ptMin = cms.double( 0.1 ),
       tipMax = cms.double( 1.0 )
     ),
-    useFilterWithES = cms.bool( False ),
     passLabel = cms.string( "pixelTracksL2Tau" ),
     FitterPSet = cms.PSet( 
       ComponentName = cms.string( "PixelFitterByHelixProjections" ),
@@ -34510,6 +34511,7 @@ hltOverlapFilterMu5PFTau10 = cms.EDFilter( "HLT2MuonTau",
     MinMinv = cms.double( 0.0 ),
     originTag2 = cms.InputTag( "hltOriginal2" ),
     MinDelR = cms.double( 0.0 ),
+    MinPt = cms.double( 1.0 ),
     MinN = cms.int32( 1 ),
     originTag1 = cms.InputTag( "hltOriginal1" ),
     triggerType1 = cms.int32( 83 ),
@@ -34521,9 +34523,8 @@ hltOverlapFilterMu5PFTau10 = cms.EDFilter( "HLT2MuonTau",
     inputTag2 = cms.InputTag( "hlt2PFTau10Track3TightIso" ),
     MaxDphi = cms.double( 1000.0 ),
     MaxDeta = cms.double( 1000.0 ),
-    MinDphi = cms.double( 0.0 ),
-    MinPt = cms.double( 1.0 ),
-    MaxPt = cms.double( -1.0 )
+    MaxPt = cms.double( -1.0 ),
+    MinDphi = cms.double( 0.0 )
 )
 hltPreHT400DoubleIsoPFTau10Trk3PFMHT50 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -37686,6 +37687,7 @@ hltOverlapFilterMu15IsoPFTau15 = cms.EDFilter( "HLT2MuonTau",
     MinMinv = cms.double( 0.0 ),
     originTag2 = cms.InputTag( "hltOriginal2" ),
     MinDelR = cms.double( 0.3 ),
+    MinPt = cms.double( 1.0 ),
     MinN = cms.int32( 1 ),
     originTag1 = cms.InputTag( "hltOriginal1" ),
     triggerType1 = cms.int32( 83 ),
@@ -37697,9 +37699,8 @@ hltOverlapFilterMu15IsoPFTau15 = cms.EDFilter( "HLT2MuonTau",
     inputTag2 = cms.InputTag( "hltPFTau15TrackLooseIso" ),
     MaxDphi = cms.double( 1000.0 ),
     MaxDeta = cms.double( 1000.0 ),
-    MinDphi = cms.double( 0.0 ),
-    MinPt = cms.double( 1.0 ),
-    MaxPt = cms.double( -1.0 )
+    MaxPt = cms.double( -1.0 ),
+    MinDphi = cms.double( 0.0 )
 )
 hltPreMu17eta2p1CentralPFJet30 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -40015,6 +40016,7 @@ hltOverlapFilterIsoMu15IsoPFTau20 = cms.EDFilter( "HLT2MuonTau",
     MinMinv = cms.double( 0.0 ),
     originTag2 = cms.InputTag( "hltOriginal2" ),
     MinDelR = cms.double( 0.3 ),
+    MinPt = cms.double( 1.0 ),
     MinN = cms.int32( 1 ),
     originTag1 = cms.InputTag( "hltOriginal1" ),
     triggerType1 = cms.int32( 83 ),
@@ -40026,9 +40028,8 @@ hltOverlapFilterIsoMu15IsoPFTau20 = cms.EDFilter( "HLT2MuonTau",
     inputTag2 = cms.InputTag( "hltPFTau20TrackLooseIso" ),
     MaxDphi = cms.double( 1000.0 ),
     MaxDeta = cms.double( 1000.0 ),
-    MinDphi = cms.double( 0.0 ),
-    MinPt = cms.double( 1.0 ),
-    MaxPt = cms.double( -1.0 )
+    MaxPt = cms.double( -1.0 ),
+    MinDphi = cms.double( 0.0 )
 )
 hltPreIsoMu15eta2p1MediumIsoPFTau20 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -40069,6 +40070,7 @@ hltOverlapFilterIsoMu15MediumIsoPFTau20 = cms.EDFilter( "HLT2MuonTau",
     MinMinv = cms.double( 0.0 ),
     originTag2 = cms.InputTag( "hltOriginal2" ),
     MinDelR = cms.double( 0.3 ),
+    MinPt = cms.double( 1.0 ),
     MinN = cms.int32( 1 ),
     originTag1 = cms.InputTag( "hltOriginal1" ),
     triggerType1 = cms.int32( 83 ),
@@ -40080,9 +40082,8 @@ hltOverlapFilterIsoMu15MediumIsoPFTau20 = cms.EDFilter( "HLT2MuonTau",
     inputTag2 = cms.InputTag( "hltPFTauMediumIso20TrackMediumIso" ),
     MaxDphi = cms.double( 1000.0 ),
     MaxDeta = cms.double( 1000.0 ),
-    MinDphi = cms.double( 0.0 ),
-    MinPt = cms.double( 1.0 ),
-    MaxPt = cms.double( -1.0 )
+    MaxPt = cms.double( -1.0 ),
+    MinDphi = cms.double( 0.0 )
 )
 hltPreIsoMu15eta2p1TightIsoPFTau20 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -40123,6 +40124,7 @@ hltOverlapFilterIsoMu15TightIsoPFTau20 = cms.EDFilter( "HLT2MuonTau",
     MinMinv = cms.double( 0.0 ),
     originTag2 = cms.InputTag( "hltOriginal2" ),
     MinDelR = cms.double( 0.3 ),
+    MinPt = cms.double( 1.0 ),
     MinN = cms.int32( 1 ),
     originTag1 = cms.InputTag( "hltOriginal1" ),
     triggerType1 = cms.int32( 83 ),
@@ -40134,9 +40136,8 @@ hltOverlapFilterIsoMu15TightIsoPFTau20 = cms.EDFilter( "HLT2MuonTau",
     inputTag2 = cms.InputTag( "hltPFTauTightIso20TrackTightIso" ),
     MaxDphi = cms.double( 1000.0 ),
     MaxDeta = cms.double( 1000.0 ),
-    MinDphi = cms.double( 0.0 ),
-    MinPt = cms.double( 1.0 ),
-    MaxPt = cms.double( -1.0 )
+    MaxPt = cms.double( -1.0 ),
+    MinDphi = cms.double( 0.0 )
 )
 hltPreIsoMu17eta2p1CentralJet30 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -40887,6 +40888,7 @@ hltOverlapFilterIsoEle20LooseIsoPFTau20L1Jet = cms.EDFilter( "HLT2ElectronPFTau"
     MinMinv = cms.double( 0.0 ),
     originTag2 = cms.InputTag( "hltOriginal2" ),
     MinDelR = cms.double( 0.3 ),
+    MinPt = cms.double( 1.0 ),
     MinN = cms.int32( 1 ),
     originTag1 = cms.InputTag( "hltOriginal1" ),
     triggerType1 = cms.int32( 82 ),
@@ -40898,9 +40900,8 @@ hltOverlapFilterIsoEle20LooseIsoPFTau20L1Jet = cms.EDFilter( "HLT2ElectronPFTau"
     inputTag2 = cms.InputTag( "hltL1MatchedLooseIsoPFTau20" ),
     MaxDphi = cms.double( -1.0 ),
     MaxDeta = cms.double( -1.0 ),
-    MinDphi = cms.double( 0.0 ),
-    MinPt = cms.double( 1.0 ),
-    MaxPt = cms.double( -1.0 )
+    MaxPt = cms.double( -1.0 ),
+    MinDphi = cms.double( 0.0 )
 )
 hltPreEle20CaloIdVTTrkIdTLooseIsoPFTau20 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -41031,6 +41032,7 @@ hltOverlapFilterEle20LooseIsoPFTau20L1Jet = cms.EDFilter( "HLT2ElectronPFTau",
     MinMinv = cms.double( 0.0 ),
     originTag2 = cms.InputTag( "hltOriginal2" ),
     MinDelR = cms.double( 0.3 ),
+    MinPt = cms.double( 1.0 ),
     MinN = cms.int32( 1 ),
     originTag1 = cms.InputTag( "hltOriginal1" ),
     triggerType1 = cms.int32( 82 ),
@@ -41042,9 +41044,8 @@ hltOverlapFilterEle20LooseIsoPFTau20L1Jet = cms.EDFilter( "HLT2ElectronPFTau",
     inputTag2 = cms.InputTag( "hltL1MatchedLooseIsoPFTau20" ),
     MaxDphi = cms.double( -1.0 ),
     MaxDeta = cms.double( -1.0 ),
-    MinDphi = cms.double( 0.0 ),
-    MinPt = cms.double( 1.0 ),
-    MaxPt = cms.double( -1.0 )
+    MaxPt = cms.double( -1.0 ),
+    MinDphi = cms.double( 0.0 )
 )
 hltL1sL1SingleIsoEG18erOREG20 = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( True ),
@@ -41283,6 +41284,7 @@ hltOverlapFilterIsoEle20LooseIsoPFTau20 = cms.EDFilter( "HLT2ElectronPFTau",
     MinMinv = cms.double( 0.0 ),
     originTag2 = cms.InputTag( "hltOriginal2" ),
     MinDelR = cms.double( 0.3 ),
+    MinPt = cms.double( 1.0 ),
     MinN = cms.int32( 1 ),
     originTag1 = cms.InputTag( "hltOriginal1" ),
     triggerType1 = cms.int32( 82 ),
@@ -41294,9 +41296,8 @@ hltOverlapFilterIsoEle20LooseIsoPFTau20 = cms.EDFilter( "HLT2ElectronPFTau",
     inputTag2 = cms.InputTag( "hltPFTau20TrackLooseIso" ),
     MaxDphi = cms.double( -1.0 ),
     MaxDeta = cms.double( -1.0 ),
-    MinDphi = cms.double( 0.0 ),
-    MinPt = cms.double( 1.0 ),
-    MaxPt = cms.double( -1.0 )
+    MaxPt = cms.double( -1.0 ),
+    MinDphi = cms.double( 0.0 )
 )
 hltL1sL1SingleEG18er = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( True ),
@@ -47464,6 +47465,7 @@ hltPrePixelTracksMultiplicity70 = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 hltPixelTracksForHighMult = cms.EDProducer( "PixelTrackProducer",
+    useFilterWithES = cms.bool( False ),
     FilterPSet = cms.PSet( 
       chi2 = cms.double( 1000.0 ),
       nSigmaTipMaxTolerance = cms.double( 0.0 ),
@@ -47472,7 +47474,6 @@ hltPixelTracksForHighMult = cms.EDProducer( "PixelTrackProducer",
       ptMin = cms.double( 0.4 ),
       tipMax = cms.double( 1.0 )
     ),
-    useFilterWithES = cms.bool( False ),
     passLabel = cms.string( "Pixel triplet tracks for vertexing" ),
     FitterPSet = cms.PSet( 
       ComponentName = cms.string( "PixelFitterByHelixProjections" ),
@@ -47820,6 +47821,7 @@ hltPreIsoTrackHE = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 hltHITPixelTracksHB = cms.EDProducer( "PixelTrackProducer",
+    useFilterWithES = cms.bool( False ),
     FilterPSet = cms.PSet( 
       chi2 = cms.double( 1000.0 ),
       nSigmaTipMaxTolerance = cms.double( 0.0 ),
@@ -47828,7 +47830,6 @@ hltHITPixelTracksHB = cms.EDProducer( "PixelTrackProducer",
       ptMin = cms.double( 0.7 ),
       tipMax = cms.double( 1.0 )
     ),
-    useFilterWithES = cms.bool( False ),
     passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
     FitterPSet = cms.PSet( 
       ComponentName = cms.string( "PixelFitterByConformalMappingAndLine" ),
@@ -47863,6 +47864,7 @@ hltHITPixelTracksHB = cms.EDProducer( "PixelTrackProducer",
     )
 )
 hltHITPixelTracksHE = cms.EDProducer( "PixelTrackProducer",
+    useFilterWithES = cms.bool( False ),
     FilterPSet = cms.PSet( 
       chi2 = cms.double( 1000.0 ),
       nSigmaTipMaxTolerance = cms.double( 0.0 ),
@@ -47871,7 +47873,6 @@ hltHITPixelTracksHE = cms.EDProducer( "PixelTrackProducer",
       ptMin = cms.double( 0.35 ),
       tipMax = cms.double( 1.0 )
     ),
-    useFilterWithES = cms.bool( False ),
     passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
     FitterPSet = cms.PSet( 
       ComponentName = cms.string( "PixelFitterByConformalMappingAndLine" ),
@@ -48285,6 +48286,7 @@ hltPreZeroBiasPixelSingleTrack = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 hltPixelTracksForMinBias = cms.EDProducer( "PixelTrackProducer",
+    useFilterWithES = cms.bool( False ),
     FilterPSet = cms.PSet( 
       chi2 = cms.double( 1000.0 ),
       nSigmaTipMaxTolerance = cms.double( 0.0 ),
@@ -48293,7 +48295,6 @@ hltPixelTracksForMinBias = cms.EDProducer( "PixelTrackProducer",
       ptMin = cms.double( 0.4 ),
       tipMax = cms.double( 1.0 )
     ),
-    useFilterWithES = cms.bool( False ),
     passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
     FitterPSet = cms.PSet( 
       ComponentName = cms.string( "PixelFitterByHelixProjections" ),
@@ -49551,6 +49552,7 @@ hltHIPixelClusterVertices = cms.EDProducer( "HIPixelClusterVtxProducer",
     pixelRecHits = cms.string( "hltHISiPixelRecHits" )
 )
 hltPixelTracksForHITrackTrigger = cms.EDProducer( "PixelTrackProducer",
+    useFilterWithES = cms.bool( False ),
     FilterPSet = cms.PSet( 
       doVariablePtMin = cms.bool( True ),
       beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
@@ -49560,7 +49562,6 @@ hltPixelTracksForHITrackTrigger = cms.EDProducer( "PixelTrackProducer",
       siPixelRecHits = cms.InputTag( "hltHISiPixelRecHits" ),
       tipMax = cms.double( 1.0 )
     ),
-    useFilterWithES = cms.bool( False ),
     passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
     FitterPSet = cms.PSet( 
       ComponentName = cms.string( "PixelFitterByHelixProjections" ),
@@ -49810,6 +49811,7 @@ hltHIPixelClusterVerticesForHITrackTrigger = cms.EDProducer( "HIPixelClusterVtxP
     pixelRecHits = cms.string( "hltHISiPixelRecHits" )
 )
 hltHIPixel3ProtoTracks = cms.EDProducer( "PixelTrackProducer",
+    useFilterWithES = cms.bool( False ),
     FilterPSet = cms.PSet( 
       chi2 = cms.double( 1000.0 ),
       ComponentName = cms.string( "HIProtoTrackFilter" ),
@@ -49819,7 +49821,6 @@ hltHIPixel3ProtoTracks = cms.EDProducer( "PixelTrackProducer",
       beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
       siPixelRecHits = cms.InputTag( "hltHISiPixelRecHits" )
     ),
-    useFilterWithES = cms.bool( False ),
     passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
     FitterPSet = cms.PSet( 
       ComponentName = cms.string( "PixelFitterByHelixProjections" ),
@@ -49918,6 +49919,7 @@ hltHISelectedVertex = cms.EDProducer( "HIBestVertexProducer",
     medianVertexCollection = cms.InputTag( "hltHIPixelMedianVertex" )
 )
 hltHIPixel3PrimTracks = cms.EDProducer( "PixelTrackProducer",
+    useFilterWithES = cms.bool( True ),
     FilterPSet = cms.PSet( 
       chi2 = cms.double( 1000.0 ),
       ComponentName = cms.string( "HIPixelTrackFilter" ),
@@ -49929,7 +49931,6 @@ hltHIPixel3PrimTracks = cms.EDProducer( "PixelTrackProducer",
       nSigmaLipMaxTolerance = cms.double( 0.0 ),
       lipMax = cms.double( 0.3 )
     ),
-    useFilterWithES = cms.bool( True ),
     passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
     FitterPSet = cms.PSet( 
       ComponentName = cms.string( "PixelFitterByHelixProjections" ),
