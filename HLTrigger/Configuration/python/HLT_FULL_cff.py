@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_0/HLT/V4 (CMSSW_5_2_0_HLT1)
+# /dev/CMSSW_5_2_0/HLT/V5 (CMSSW_5_2_0_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_0/HLT/V4')
+  tableName = cms.string('/dev/CMSSW_5_2_0/HLT/V5')
 )
 
 streams = cms.PSet( 
@@ -6712,7 +6712,8 @@ hltSiStripRawToClustersFacility = cms.EDProducer( "SiStripRawToClusters",
       QualityLabel = cms.string( "" ),
       SeedThreshold = cms.double( 3.0 ),
       ClusterThreshold = cms.double( 5.0 ),
-      setDetId = cms.bool( True )
+      setDetId = cms.bool( True ),
+      RemoveApvShots = cms.bool( False )
     )
 )
 hltSiStripClusters = cms.EDProducer( "MeasurementTrackerSiStripRefGetterProducer",
@@ -50289,7 +50290,8 @@ hltHISiStripRawToClustersFacility = cms.EDProducer( "SiStripRawToClusters",
       QualityLabel = cms.string( "" ),
       SeedThreshold = cms.double( 3.0 ),
       ClusterThreshold = cms.double( 5.0 ),
-      setDetId = cms.bool( True )
+      setDetId = cms.bool( True ),
+      RemoveApvShots = cms.bool( False )
     )
 )
 hltHISiStripClusters = cms.EDProducer( "MeasurementTrackerSiStripRefGetterProducer",
