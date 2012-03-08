@@ -3,13 +3,13 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 ## switch to RECO input
 process.source.fileNames = cms.untracked.vstring(
-    pickRelValInputFiles( cmsswVersion  = 'CMSSW_5_0_0'
-                          , relVal        = 'RelValProdTTbar'
-                          , globalTag     = 'START50_V8'
-                          , dataTier      = 'GEN-SIM-RECO'
-                          , maxVersions   = 3
-                          , numberOfFiles = 1
-                          )
+    pickRelValInputFiles( cmsswVersion  = 'CMSSW_5_2_0_pre6'
+                        , relVal        = 'RelValProdTTbar'
+                        , globalTag     = 'START52_V2'
+                        , dataTier      = 'GEN-SIM-RECO'
+                        , maxVersions   = 3
+                        , numberOfFiles = 1
+                        )
     )
 
 ## add inFlightMuons
@@ -52,6 +52,6 @@ process.out.outputCommands.append('keep *_inFlightMuons_*_*')
 ## let it run
 process.p = cms.Path(
     #process.content +
-    process.inFlightMuons + 
-    process.patDefaultSequence  
+    process.inFlightMuons +
+    process.patDefaultSequence
 )
