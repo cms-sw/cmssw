@@ -66,14 +66,21 @@ def setupPFIso(process, leptonCollection, particleName, newpostfix='PFIso'):
     return ganew('std{lepton}Sequence'.format(lepton=particleName))
 
 
+
 def setupPFMuonIso(process, muonCollection, postfix='PFIso' ):
     '''Set up particle-based isolation for the muons in muonCollection.
     '''
     return setupPFIso( process, muonCollection, 'Muon', postfix)
 
+
+
 def setupPFElectronIso(process, electronCollection, postfix='PFIso' ):
     '''Set up particle-based isolation for the electrons in electronCollection
     '''
+    print 'WARNING!!! the vetoes are the ones defined for the PF e-s (no veto...).'
+    print 'Vetoes should be applied in the endcaps when doing particle-based isolation on gsfElectrons.'
+    print 'Need a volunteer to implement that.'
     return setupPFIso( process, electronCollection, 'Electron', postfix)
 
+    
 
