@@ -107,7 +107,7 @@ addMixingScenario("SLHC_LowLumiPileUp_stdgeom",{'file':'SLHCUpgradeSimulations.G
 addMixingScenario("SLHC_LowLumiPileUp_Phase1_R39F16_HCal",{'file':'SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R39F16_HCal_cff'})
 
 MixingDefaultKey = '2012_Startup_50ns_PoissonOOTPU'
-MixingFSDefaultKey = 'FS_2012_Startup_inTimeOnly'
+MixingFSDefaultKey = '2012_Startup_inTimeOnly'
 
 def printMe():
     global Mixing
