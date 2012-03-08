@@ -7,9 +7,9 @@ from PhysicsTools.PatAlgos.tools.helpers import cloneProcessingSnippet
 from RecoTauTag.RecoTau.TauDiscriminatorTools import *
 
 def redoPFTauDiscriminators(process,
-                            oldPFTauLabel = cms.InputTag('shrinkingConePFTauProducer'),
-                            newPFTauLabel = cms.InputTag('shrinkingConePFTauProducer'),
-                            tauType = 'shrinkingConePFTau', postfix = ""):
+                            oldPFTauLabel = cms.InputTag('hpsPFTauProducer'),
+                            newPFTauLabel = cms.InputTag('hpsPFTauProducer'),
+                            tauType = 'hpsPFTau', postfix = ""):
     print 'Tau discriminators: ', oldPFTauLabel, '->', newPFTauLabel
     print 'Tau type: ', tauType
     #oldPFTauLabel.setModuleLabel(oldPFTauLabel.getModuleLabel()+postfix)
@@ -72,7 +72,7 @@ def redoPFTauDiscriminators(process,
 
 # switch to CaloTau collection
 def switchToCaloTau(process,
-                    pfTauLabelOld = cms.InputTag('shrinkingConePFTauProducer'),
+                    pfTauLabelOld = cms.InputTag('hpsPFTauProducer'),
                     pfTauLabelNew = cms.InputTag('caloRecoTauProducer'),
                     patTauLabel = "",
                     postfix = ""):
@@ -100,8 +100,8 @@ def switchToCaloTau(process,
     applyPostfix(process, "patTaus" + patTauLabel, postfix).userIsolation = cms.PSet()
 
     ## no tau-jet energy corrections determined for CaloTaus yet
-    # applyPostfix(process, "patTauJetCorrFactors" + patTauLabel, postfix).src = caloTauLabel
-    applyPostfix(process, "patTaus" + patTauLabel, postfix).addTauJetCorrFactors = cms.bool(False)
+#    applyPostfix(process, "patTauJetCorrFactors" + patTauLabel, postfix).src = caloTauLabel
+#    applyPostfix(process, "patTaus" + patTauLabel, postfix).addTauJetCorrFactors = cms.bool(False)
 
     ## adapt cleanPatTaus
     if hasattr(process, "cleanPatTaus" + patTauLabel + postfix):
@@ -139,12 +139,12 @@ def _switchToPFTau(process,
     applyPostfix(process, "tauIsoDepositPFGammas" + patTauLabel, postfix).src = pfTauLabelNew
     applyPostfix(process, "tauIsoDepositPFGammas" + patTauLabel, postfix).ExtractorPSet.tauSource = pfTauLabelNew
 
-    #applyPostfix(process, "patTauJetCorrFactors" + patTauLabel, postfix).src = pfTauLabelNew
-    #if len(jecLevels) > 0:
-    #    applyPostfix(process, "patTaus" + patTauLabel, postfix).addTauJetCorrFactors = cms.bool(True)
-    #    applyPostfix(process, "patTauJetCorrFactors" + patTauLabel, postfix).parameters = jecPayloadMapping
-    #else:
-    #    applyPostfix(process, "patTaus" + patTauLabel, postfix).addTauJetCorrFactors = cms.bool(False)
+#    applyPostfix(process, "patTauJetCorrFactors" + patTauLabel, postfix).src = pfTauLabelNew
+#    if len(jecLevels) > 0:
+#        applyPostfix(process, "patTaus" + patTauLabel, postfix).addTauJetCorrFactors = cms.bool(True)
+#        applyPostfix(process, "patTauJetCorrFactors" + patTauLabel, postfix).parameters = jecPayloadMapping
+#    else:
+#        applyPostfix(process, "patTaus" + patTauLabel, postfix).addTauJetCorrFactors = cms.bool(False)
 
     applyPostfix(process, "patTaus" + patTauLabel, postfix).tauSource = pfTauLabelNew
     applyPostfix(process, "patTaus" + patTauLabel, postfix).tauIDSources = _buildIDSourcePSet(pfTauType, idSources, postfix)
@@ -250,7 +250,7 @@ pfTauJECpayloadMapping = cms.VPSet(
 
 # switch to PFTau collection produced for fixed dR = 0.07 signal cone size
 def switchToPFTauFixedCone(process,
-                           pfTauLabelOld = cms.InputTag('shrinkingConePFTauProducer'),
+                           pfTauLabelOld = cms.InputTag('hpsPFTauProducer'),
                            pfTauLabelNew = cms.InputTag('fixedConePFTauProducer'),
                            patTauLabel = "",
                            jecLevels = [],
@@ -266,7 +266,7 @@ def switchToPFTauFixedCone(process,
 
 # switch to PFTau collection produced for shrinking signal cone of size dR = 5.0/Et(PFTau)
 def switchToPFTauShrinkingCone(process,
-                               pfTauLabelOld = cms.InputTag('shrinkingConePFTauProducer'),
+                               pfTauLabelOld = cms.InputTag('hpsPFTauProducer'),
                                pfTauLabelNew = cms.InputTag('shrinkingConePFTauProducer'),
                                patTauLabel = "",
                                jecLevels = [],
@@ -284,7 +284,7 @@ def switchToPFTauShrinkingCone(process,
 
 # switch to hadron-plus-strip(s) (HPS) PFTau collection
 def switchToPFTauHPS(process,
-                     pfTauLabelOld = cms.InputTag('shrinkingConePFTauProducer'),
+                     pfTauLabelOld = cms.InputTag('hpsPFTauProducer'),
                      pfTauLabelNew = cms.InputTag('hpsPFTauProducer'),
                      patTauLabel = "",
                      jecLevels = [],
@@ -304,7 +304,7 @@ def switchToPFTauHPS(process,
 
 # switch to hadron-plus-strip(s) (HPS) PFTau collection
 def switchToPFTauHPSpTaNC(process,
-                          pfTauLabelOld = cms.InputTag('shrinkingConePFTauProducer'),
+                          pfTauLabelOld = cms.InputTag('hpsPFTauProducer'),
                           pfTauLabelNew = cms.InputTag('hpsTancTaus'),
                           patTauLabel = "",
                           jecLevels = [],
@@ -326,7 +326,7 @@ def switchToPFTauHPSpTaNC(process,
 def switchToPFTauByType(process,
                         pfTauType = None,
                         pfTauLabelNew = None,
-                        pfTauLabelOld = cms.InputTag('shrinkingConePFTauProducer'),
+                        pfTauLabelOld = cms.InputTag('hpsPFTauProducer'),
                         patTauLabel = "",
                         jecLevels = [],
                         postfix = "" ):
@@ -358,7 +358,7 @@ class AddTauCollection(ConfigToolBase):
         self.addParameter(self._defaultParameters, 'tauCollection',
                           self._defaultValue, 'Input tau collection', cms.InputTag)
         self.addParameter(self._defaultParameters, 'algoLabel',
-                          self._defaultValue, "label to indicate the tau algorithm (e.g.'shrinkingCone')", str)
+                          self._defaultValue, "label to indicate the tau algorithm (e.g.'hps')", str)
         self.addParameter(self._defaultParameters, 'typeLabel',
                           self._defaultValue, "label to indicate the type of constituents (either 'PFTau' or 'Tau')", str)
         self.addParameter(self._defaultParameters, 'doPFIsoDeposits',
@@ -369,7 +369,7 @@ class AddTauCollection(ConfigToolBase):
         self.addParameter(self._defaultParameters, 'jetCorrLabel',
                           None, "payload and list of new jet correction labels", tuple, acceptNoneValue = True)
         self.addParameter(self._defaultParameters, 'standardAlgo',
-                          "shrinkingCone", "standard algorithm label of the collection from which the clones " \
+                          "hps", "standard algorithm label of the collection from which the clones " \
                          + "for the new tau collection will be taken from " \
                          + "(note that this tau collection has to be available in the event before hand)")
         self.addParameter(self._defaultParameters, 'standardType',
@@ -504,11 +504,11 @@ class AddTauCollection(ConfigToolBase):
             addPFIsoDepositClone('tauIsoDepositPFNeutralHadrons', src = tauCollection)
             addPFIsoDepositClone('tauIsoDepositPFGammas', src = tauCollection)
 
-        #if jetCorrLabel:
-        #    addClone('patTauJetCorrFactors', src = tauCollection)
-        #    getattr(process,newLabel('patTauJetCorrFactors')).payload = jetCorrLabel[0]
-        #    getattr(process,newLabel('patTauJetCorrFactors')).levels = jetCorrLabel[1]
-        #    getattr(process, newLabel('patTaus')).tauJetCorrFactorsSource = cms.VInputTag(cms.InputTag(newLabel('patTauJetCorrFactors')))
+        if jetCorrLabel:
+            addClone('patTauJetCorrFactors', src = tauCollection)
+            getattr(process,newLabel('patTauJetCorrFactors')).payload = jetCorrLabel[0]
+            getattr(process,newLabel('patTauJetCorrFactors')).levels = jetCorrLabel[1]
+            getattr(process, newLabel('patTaus')).tauJetCorrFactorsSource = cms.VInputTag(cms.InputTag(newLabel('patTauJetCorrFactors')))
 
         ## fix label for input tag
         def fixInputTag(x): x.setModuleLabel(newLabel(x.moduleLabel))
