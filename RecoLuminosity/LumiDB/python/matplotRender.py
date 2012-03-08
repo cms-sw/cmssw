@@ -145,12 +145,19 @@ class matplotRender():
         keylist=ypoints.keys()
         keylist.sort()
         legendlist=[]
+        textsummaryhead=['#TotalRun']
+        textsummaryline=['#'+str(len(xpoints))]
         for ylabel in keylist:
             cl='k'
             if self.colormap.has_key(ylabel):
                 cl=self.colormap[ylabel]
             ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl,drawstyle='steps')
             legendlist.append(ylabel+' '+'%.3f'%(ytotal[ylabel])+' '+unitstring)
+            textsummaryhead.append('Total'+ylabel)
+            textsummaryline.append('%.3f'%(ytotal[ylabel])+' '+unitstring)
+        if textoutput:
+            csvreport.writeRow(textsummaryhead)
+            csvreport.writeRow(textsummaryline)
         #font=FontProperties(size='medium',weight='demibold')
         #legend
         ax.legend(tuple(legendlist),loc='upper left')
@@ -218,7 +225,6 @@ class matplotRender():
             flat.insert(1,allruns)
             rows=zip(*flat)
             csvreport.writeRows([list(t) for t in rows])
-        
         ax=self.__fig.add_subplot(111)
         ax.set_xlabel(r'LHC Fill Number',position=(0.84,0))
         ax.set_ylabel(r'L '+unitstring,position=(0,0.9))
@@ -240,12 +246,19 @@ class matplotRender():
         keylist=ypoints.keys()
         keylist.sort()
         legendlist=[]
+        textsummaryhead=['#TotalFill']
+        textsummaryline=['#'+str(len(xpoints))]
         for ylabel in keylist:
             cl='k'
             if self.colormap.has_key(ylabel):
                 cl=self.colormap[ylabel]
             ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl,drawstyle='steps')
             legendlist.append(ylabel+' '+'%.3f'%(ytotal[ylabel])+' '+unitstring)
+            textsummaryhead.append('Total'+ylabel)
+            textsummaryline.append('%.3f'%(ytotal[ylabel])+' '+unitstring)
+        if textoutput:
+            csvreport.writeRow(textsummaryhead)
+            csvreport.writeRow(textsummaryline)
         #font=FontProperties(size='medium',weight='demibold')
         #annotations
         if withannotation:
@@ -274,7 +287,7 @@ class matplotRender():
         ytotal={}
         lut=lumiTime.lumiTime()
         if not minTime:
-            minTime='001/10 00:00:00'
+            minTime='03/01/10 00:00:00'
         minTime=lut.StrToDatetime(minTime,customfm='%m/%d/%y %H:%M:%S')
         if not maxTime:
             maxTime=datetime.datetime.utcnow()
@@ -315,7 +328,7 @@ class matplotRender():
         xpoints=[matplotlib.dates.date2num(t[1]) for t in rawdata[referenceLabel]]
         if textoutput:
             csvreport=csvReporter.csvReporter(textoutput)
-            head=['#fill','run','delivered','recorded']
+            head=['#run','starttime','stoptime','delivered','recorded']
             csvreport.writeRow(head)
             allruns=[int(t[0]) for t in rawdata[referenceLabel]]
             allstarts=[ t[1] for t in rawdata[referenceLabel]]
@@ -325,7 +338,6 @@ class matplotRender():
             flat.insert(2,allstops)
             rows=zip(*flat)
             csvreport.writeRows([list(t) for t in rows])
-        
         ax=self.__fig.add_subplot(111)
         
         ax.set_yscale(yscale)
@@ -350,12 +362,19 @@ class matplotRender():
         keylist=ypoints.keys()
         keylist.sort()
         legendlist=[]
+        textsummaryhead=['#TotalRun']
+        textsummaryline=['#'+str(len(xpoints))]
         for ylabel in keylist:
             cl='k'
             if self.colormap.has_key(ylabel):
                 cl=self.colormap[ylabel]
             ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl,drawstyle='steps')
             legendlist.append(ylabel+' '+'%.3f'%(ytotal[ylabel])+' '+unitstring)
+            textsummaryhead.append('Total'+ylabel)
+            textsummaryline.append('%.3f'%(ytotal[ylabel])+' '+unitstring)
+        if textoutput:
+            csvreport.writeRow(textsummaryhead)
+            csvreport.writeRow(textsummaryline)
         #annotations
         trans=matplotlib.transforms.BlendedGenericTransform(ax.transData,ax.transAxes)
         #print 'run boundary ',runs[0],runs[-1]
@@ -487,13 +506,20 @@ class matplotRender():
             tx.set_horizontalalignment('right')
         ax.grid(True)
         legendlist=[]
-        ax.set_ylabel(r'L '+unitstring,position=(0,0.9))    
+        ax.set_ylabel(r'L '+unitstring,position=(0,0.9))
+        textsummaryhead=['#TotalDays']
+        textsummaryline=['#'+str(len(xpoints))]
         for ylabel in labels:
             cl='k'
             if self.colormap.has_key(ylabel):
                 cl=self.colormap[ylabel]
             ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl,drawstyle='steps')
             legendlist.append(ylabel+' Max '+'%.3f'%(ymax[ylabel])+' '+unitstring)
+            textsummaryhead.append('Max'+ylabel)
+            textsummaryline.append('%.3f'%(ymax[ylabel])+' '+unitstring)
+        if textoutput:
+            csvreport.writeRow(textsummaryhead)
+            csvreport.writeRow(textsummaryline)
         ax.legend(tuple(legendlist),loc='upper left')
         ax.set_xbound(lower=matplotlib.dates.date2num(minTime),upper=matplotlib.dates.date2num(maxTime))
         #if withannotation:
@@ -623,12 +649,19 @@ class matplotRender():
             tx.set_horizontalalignment('right')
         ax.grid(True)
         cl=self.colormap['Max Inst']
+        textsummaryhead=['#TotalDays']
+        textsummaryline=['#'+str(len(xpoints))]
         for ylabel in labels:
             cl='k'
             if self.colormap.has_key(ylabel):
                 cl=self.colormap[ylabel]
             ax.plot(xpoints,ypoints[ylabel],label='Max Inst',color=cl,drawstyle='steps')
             legendlist.append('Max Inst %.3f'%(ymax[ylabel])+' '+unitstring)
+            textsummaryhead.append('Max Inst'+ylabel)
+            textsummaryline.append('%.3f'%(ymax[ylabel])+' '+unitstring)
+        if textoutput:
+            csvreport.writeRow(textsummaryhead)
+            csvreport.writeRow(textsummaryline)
         ax.legend(tuple(legendlist),loc='upper left')
         ax.set_xbound(lower=matplotlib.dates.date2num(minTime),upper=matplotlib.dates.date2num(maxTime))
         if withannotation:
