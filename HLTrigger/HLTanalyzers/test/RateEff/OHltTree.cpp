@@ -303,7 +303,9 @@ void OHltTree::Loop(
                || st.BeginsWith("OpenL1_") )
          {
             // Prefixes reserved for Standard HLT&L1	
-            if (map_L1BitOfStandardHLTPath.find(st)->second>0)
+	   //            if (map_L1BitOfStandardHLTPath.find(st)->second>0)
+	   // JH - workaround for running on L1 skimmed re-HLT samples without L1 decisions saved
+	   if(1)
             {
                if (prescaleResponse(menu, cfg, rc, i))
                {
