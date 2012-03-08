@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 VERSION='1.00'
 import os,os.path,sys,datetime,time,csv
-from RecoLuminosity.LumiDB import lumiTime,argparse,matplotRender,sessionManager,lumiCalcAPI,lumiCorrections,lumiParameters
+from RecoLuminosity.LumiDB import lumiTime,argparse,matplotRender,sessionManager,lumiCalcAPI,lumiCorrections,lumiParameters,inputFilesetParser
 import matplotlib
 from matplotlib.figure import Figure
 def parseInputFiles(inputfilename,dbrunlist,optaction):
@@ -87,7 +87,7 @@ if __name__=='__main__':
                         action='store',
                         type=int,
                         help='run number')
-    #parser.add_argument('-f',dest='fillnum',action='store',help='specific fill',default=None)
+    #parser.add_argument('-f','--fill',dest='fillnum',action='store',help='specific fill',default=None)
     parser.add_argument('-b',
                         dest='beamstatus',
                         action='store',
@@ -112,12 +112,12 @@ if __name__=='__main__':
                         dest='hltpath',
                         action='store',
                         help='specific hltpath to calculate the recorded luminosity. If specified aoverlays the recorded luminosity for the hltpath on the plot')
-    parser.add_argument('--beginTime',
+    parser.add_argument('--begin',
                         dest='begintime',
                         action='store',
                         default='03/01/10 00:00:00',
                         help='min run start time,mm/dd/yy hh:mm:ss')
-    parser.add_argument('--endTime',
+    parser.add_argument('--end',
                         dest='endtime',
                         action='store',
                         help='max run start time,mm/dd/yy hh:mm:ss')
@@ -170,7 +170,6 @@ if __name__=='__main__':
                         action='store_true',
                         help='verbose mode, print result also to screen')
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
-    parser.add_argument('--verbose',dest='verbose',action='store_true',help='verbose')
     parser.add_argument('action',choices=['run','time','fill','perday','instpeakperday','inst'],help='type of plots')
     options=parser.parse_args()
     if options.yscale=='both' and options.interactive:
