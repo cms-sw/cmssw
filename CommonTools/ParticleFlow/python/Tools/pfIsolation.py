@@ -3,7 +3,7 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.tools.helpers import cloneProcessingSnippet
 
-def getattrGenerator( process, postfix ):
+def _getattrGenerator( process, postfix ):
     '''A function generator to simplify the getattr syntax'''
     def fun(name):
         return getattr(process, name+postfix)
@@ -12,7 +12,7 @@ def getattrGenerator( process, postfix ):
 
 _PFBRECO_loaded = False
 
-def loadPFBRECO(process):
+def _loadPFBRECO(process):
     '''The particle-flow based reconstruction sequence should be loaded once in the process.
     Not optimal, should load it only if it is not detected (hasattr)'''
     global _PFBRECO_loaded
@@ -38,13 +38,13 @@ def setupPFIso(process, leptonCollection, particleName, newpostfix='PFIso'):
     else:
         raise ValueError('particleName should be equal to "Electron" or "Muon"')
     
-    loadPFBRECO(process)
+    _loadPFBRECO(process)
 
     postfix = ''
     # ADD VETOES IN ENDCAPS!
     fullpostfix = postfix+newpostfix
-    ga = getattrGenerator( process, postfix )
-    ganew = getattrGenerator( process, fullpostfix )
+    ga = _getattrGenerator( process, postfix )
+    ganew = _getattrGenerator( process, fullpostfix )
 
     leptonSeq = cms.Sequence(
         ga('pf{lepton}IsolationSequence'.format(lepton=particleName))  
@@ -69,13 +69,17 @@ def setupPFIso(process, leptonCollection, particleName, newpostfix='PFIso'):
 
 def setupPFMuonIso(process, muonCollection, postfix='PFIso' ):
     '''Set up particle-based isolation for the muons in muonCollection.
+
+    Calls setupPFIso.
     '''
     return setupPFIso( process, muonCollection, 'Muon', postfix)
 
 
 
 def setupPFElectronIso(process, electronCollection, postfix='PFIso' ):
-    '''Set up particle-based isolation for the electrons in electronCollection
+    '''Set up particle-based isolation for the electrons in electronCollection.
+
+    Calls setupPFIso.
     '''
     print 'WARNING!!! the vetoes are the ones defined for the PF e-s (no veto...).'
     print 'Vetoes should be applied in the endcaps when doing particle-based isolation on gsfElectrons.'
