@@ -10,7 +10,7 @@ import FWCore.ParameterSet.Config as cms
 #    'file:../../../GeneratorInterface/Pythia6Interface/test/ttbar_5flavours_xqcut20_10TeV.lhe')
 #)
 
-from Configuration.Generator.PythiaUESettings_cfi import *
+from Configuration.Generator.PythiaUEZ2starSettings_cfi import *
 generator = cms.EDFilter("Pythia6HadronizerFilter",
     pythiaHepMCVerbosity = cms.untracked.bool(False),
     maxEventsToPrint = cms.untracked.int32(0),

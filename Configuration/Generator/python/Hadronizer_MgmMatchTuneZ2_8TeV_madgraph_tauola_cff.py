@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Generator.PythiaUEZ2Settings_cfi import *
+from Configuration.Generator.PythiaUEZ2starSettings_cfi import *
 from GeneratorInterface.ExternalDecays.TauolaSettings_cff import *
 
 generator = cms.EDFilter("Pythia6HadronizerFilter",

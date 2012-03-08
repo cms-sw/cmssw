@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 source = cms.Source("EmptySource")
 
-from Configuration.Generator.PythiaUEZ2Settings_cfi import *
+from Configuration.Generator.PythiaUEZ2starSettings_cfi import *
 from GeneratorInterface.ExternalDecays.TauolaSettings_cff import *
 generator = cms.EDFilter("Pythia6GeneratorFilter",
     pythiaHepMCVerbosity = cms.untracked.bool(False),
