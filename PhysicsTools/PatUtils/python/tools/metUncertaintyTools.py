@@ -93,6 +93,7 @@ class RunMEtUncertainties(ConfigToolBase):
 
         smearedJets = cms.EDProducer("SmearedPATJetProducer",
             src = cms.InputTag(jetCollection),
+            dRmaxGenJetMatch = cms.string('TMath::Min(0.5, 0.1 + 0.3*TMath::Exp(-0.05*genJetPt - 10.))'),                         
             inputFileName = cms.FileInPath(jetSmearFileName),
             lutName = cms.string(jetSmearHistogram),
             jetResolutions = jetResolutions.METSignificance_params,
@@ -116,7 +117,8 @@ class RunMEtUncertainties(ConfigToolBase):
             skipJetSelection = cms.string(
                 'jecSetsAvailable & abs(energy - correctedP4("Uncorrected").energy) > (5.*min(energy, correctedP4("Uncorrected").energy))'
             ),
-            skipJetPtThreshold = cms.double(1.e-2)                        
+            skipRawJetPtThreshold = cms.double(10.), # GeV
+            skipCorrJetPtThreshold = cms.double(1.e-2)                         
         )
         if shiftBy is not None:
             setattr(smearedJets, "shiftBy", cms.double(shiftBy*varyByNsigmas))
@@ -267,6 +269,12 @@ class RunMEtUncertainties(ConfigToolBase):
         outputModule = self._parameters['outputModule'].value
 
         process.metUncertaintySequence = cms.Sequence()
+
+        # add kt6PFJets module with 'rho' computation enabled
+        # (needed for computing L1Fastjet corrections)
+        if not hasattr(process, 'producePatPFMETCorrections'):
+            process.load("PhysicsTools.PatUtils.patPFMETCorrections_cff")
+        process.metUncertaintySequence += process.kt6PFJets
 
         collectionsToKeep = []
 
@@ -501,9 +509,7 @@ class RunMEtUncertainties(ConfigToolBase):
         # propagate shifted jet energies to MET
         #--------------------------------------------------------------------------------------------
 
-        # add "nominal" (unshifted) pat::MET collections
-        if not hasattr(process, 'producePatPFMETCorrections'):
-            process.load("PhysicsTools.PatUtils.patPFMETCorrections_cff")
+        # add "nominal" (unshifted) pat::MET collections        
         process.pfCandsNotInJet.bottomCollection = pfCandCollection        
         process.selectedPatJetsForMETtype1p2Corr.src = lastJetCollection
         process.selectedPatJetsForMETtype2Corr.src = lastJetCollection
