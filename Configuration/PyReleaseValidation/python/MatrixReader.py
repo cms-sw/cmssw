@@ -236,7 +236,7 @@ class MatrixReader(object):
                     #skip the samples from INPUT when step1Only is on
                     if step1Only: continue
                     line += ' ++ REALDATA: '+inputInfo.dataSet
-                    if inputInfo.run!=[]: line += ', RUN:'+','.join(map(str,inputInfo.run))
+                    if inputInfo.run!=[]: line += ', RUN:'+'|'.join(map(str,inputInfo.run))
                     line += ', FILES: ' +str(inputInfo.files)
                     line += ', EVENTS: '+str(inputInfo.events)
                     if inputInfo.label!='':
