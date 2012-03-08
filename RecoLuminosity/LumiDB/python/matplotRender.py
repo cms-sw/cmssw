@@ -114,14 +114,6 @@ class matplotRender():
                 ypoints[label].append(sum(lumivals[0:i+1])/denomitor)#integrated lumi
             ytotal[label]=sum(lumivals)/denomitor
         xpoints=[t[0] for t in rawdata[referenceLabel]]
-        if textoutput:
-            csvreport=csvReporter.csvReporter(textoutput)
-            head=['#run','delivered','recorded']
-            csvreport.writeRow(head)
-            allruns=[int(t[0]) for t in rawdata[referenceLabel]]
-            flat.insert(0,allruns)
-            rows=zip(*flat)
-            csvreport.writeRows([list(t) for t in rows])
         ax=self.__fig.add_subplot(111)
         if yscale=='linear':
             ax.set_yscale('linear')
@@ -144,7 +136,9 @@ class matplotRender():
         ax.grid(True)
         keylist=ypoints.keys()
         keylist.sort()
+        keylist.insert(0,keylist.pop(keylist.index(referenceLabel)))#move refereceLabel to front from now on
         legendlist=[]
+        head=['#Run']
         textsummaryhead=['#TotalRun']
         textsummaryline=['#'+str(len(xpoints))]
         for ylabel in keylist:
@@ -155,7 +149,14 @@ class matplotRender():
             legendlist.append(ylabel+' '+'%.3f'%(ytotal[ylabel])+' '+unitstring)
             textsummaryhead.append('Total'+ylabel)
             textsummaryline.append('%.3f'%(ytotal[ylabel])+' '+unitstring)
+            head.append(ylabel)
         if textoutput:
+            csvreport=csvReporter.csvReporter(textoutput)
+            csvreport.writeRow(head)
+            allruns=[int(t[0]) for t in rawdata[referenceLabel]]
+            flat.insert(0,allruns)
+            rows=zip(*flat)
+            csvreport.writeRows([list(t) for t in rows])
             csvreport.writeRow(textsummaryhead)
             csvreport.writeRow(textsummaryline)
         #font=FontProperties(size='medium',weight='demibold')
@@ -326,20 +327,7 @@ class matplotRender():
                 ypoints[label].append(sum(lumivals[0:i+1])/denomitor)
             ytotal[label]=sum(lumivals)/denomitor
         xpoints=[matplotlib.dates.date2num(t[1]) for t in rawdata[referenceLabel]]
-        if textoutput:
-            csvreport=csvReporter.csvReporter(textoutput)
-            head=['#run','starttime','stoptime','delivered','recorded']
-            csvreport.writeRow(head)
-            allruns=[int(t[0]) for t in rawdata[referenceLabel]]
-            allstarts=[ t[1] for t in rawdata[referenceLabel]]
-            allstops=[ t[2] for t in rawdata[referenceLabel]]
-            flat.insert(0,allruns)
-            flat.insert(1,allstarts)
-            flat.insert(2,allstops)
-            rows=zip(*flat)
-            csvreport.writeRows([list(t) for t in rows])
         ax=self.__fig.add_subplot(111)
-        
         ax.set_yscale(yscale)
         yearStrMin=minTime.strftime('%Y')
         yearStrMax=maxTime.strftime('%Y')
@@ -361,7 +349,9 @@ class matplotRender():
         ax.grid(True)
         keylist=ypoints.keys()
         keylist.sort()
+        keylist.insert(0,keylist.pop(keylist.index(referenceLabel)))#move refereceLabel to front from now on
         legendlist=[]
+        head=['#Run','StartTime','StopTime']
         textsummaryhead=['#TotalRun']
         textsummaryline=['#'+str(len(xpoints))]
         for ylabel in keylist:
@@ -372,7 +362,18 @@ class matplotRender():
             legendlist.append(ylabel+' '+'%.3f'%(ytotal[ylabel])+' '+unitstring)
             textsummaryhead.append('Total'+ylabel)
             textsummaryline.append('%.3f'%(ytotal[ylabel])+' '+unitstring)
+            head.append(ylabel)
         if textoutput:
+            csvreport=csvReporter.csvReporter(textoutput)
+            csvreport.writeRow(head)
+            allruns=[int(t[0]) for t in rawdata[referenceLabel]]
+            allstarts=[ t[1] for t in rawdata[referenceLabel]]
+            allstops=[ t[2] for t in rawdata[referenceLabel]]
+            flat.insert(0,allruns)
+            flat.insert(1,allstarts)
+            flat.insert(2,allstops)
+            rows=zip(*flat)
+            csvreport.writeRows([list(t) for t in rows])
             csvreport.writeRow(textsummaryhead)
             csvreport.writeRow(textsummaryline)
         #annotations
