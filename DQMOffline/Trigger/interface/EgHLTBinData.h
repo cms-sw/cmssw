@@ -51,6 +51,7 @@ namespace egHLT {
     Data1D HLTet;
     Data1D HLTphi;
     Data1D HLTeta;
+    Data1D deltaEt;
     //-----------
     Data1D isolEm;
     Data1D isolHad;

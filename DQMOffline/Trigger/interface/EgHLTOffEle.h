@@ -184,6 +184,8 @@ namespace egHLT {
     float hltPhi()const{return hltData_.HLTphi;}
     float hltEta()const{return hltData_.HLTeta;}
     float hltEt()const{return hltData_.HLTeT;}
+    //Diference between HLT Et and reco SC Et
+    float DeltaEt()const{return (hltData_.HLTeT - etSC());}
 
     //ctf track accessor and validatity checker
     reco::TrackRef ctfTrack()const{return gsfEle_->closestCtfTrackRef();} //in theory lightweight (if they follow good design),return by value

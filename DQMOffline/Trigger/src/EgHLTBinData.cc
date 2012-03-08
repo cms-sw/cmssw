@@ -23,6 +23,7 @@ void egHLT::BinData::setup(const edm::ParameterSet& conf)
   HLTet.setup(conf.getParameter<edm::ParameterSet>("HLTet")); 
   HLTeta.setup(conf.getParameter<edm::ParameterSet>("HLTeta")); 
   HLTphi.setup(conf.getParameter<edm::ParameterSet>("HLTphi")); 
+  deltaEt.setup(conf.getParameter<edm::ParameterSet>("deltaEt"));
   //--------
   isolEm.setup(conf.getParameter<edm::ParameterSet>("isolEm")); 
   isolHad.setup(conf.getParameter<edm::ParameterSet>("isolHad")); 

@@ -140,6 +140,8 @@ public:
     float hltPhi()const{return hltDataPho_.HLTphi;}
     float hltEta()const{return hltDataPho_.HLTeta;}
     float hltEt()const{return hltDataPho_.HLTeT;}
+    //Diference between HLT Et and reco SC Et
+    float DeltaEt()const{return (hltDataPho_.HLTeT - etSC());}
 
     //selection cuts
     int cutCode()const{return cutCode_;}
