@@ -18,7 +18,7 @@ egHLTOffDQMClient = cms.EDAnalyzer("EgHLTOfflineClient",
                                  #                         'hltIsoltrksEle'),
                                  eleN1EffVars=cms.vstring('dEtaIn','dPhiIn','hOverE','sigmaIEtaIEta',
                                                           'hltIsolEm','hltIsolHad','hltIsoltrksEle'),
-                                   eleHLTvOfflineVars=cms.vstring('et','eta','phi'),
+                                 eleHLTvOfflineVars=cms.vstring('eta','phi'),#'et'),
                                  #-------------------
                                  eleSingleEffVars=cms.vstring('dEtaIn','dPhiIn','hOverE','sigmaIEtaIEta',
                                                               'hltIsolEm','hltIsolHad','hltIsoltrksEle'),

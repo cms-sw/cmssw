@@ -192,7 +192,19 @@ void EgHLTOfflineClient::runClient_()
 }
 
 void EgHLTOfflineClient::createHLTvsOfflineHists(const std::string& filterName,const std::string& baseName,const std::string& region,const std::vector<std::string>& varNames){
-
+  //need to do Et manually to get SC Et
+  MonitorElement* numer = dbe_->get(dirName_+"/Source_Histos/"+filterName+"/"+baseName+"_HLTet"+"_"+region);
+  MonitorElement* denom = dbe_->get(dirName_+"/Source_Histos/"+filterName+"/"+baseName+"_etSC"+"_"+region);
+  if(numer!=NULL && denom!=NULL){
+    std::string effHistName(baseName+"_HLToverOfflineSC_et_"+region);//std::cout<<"hltVSoffline:  "<<effHistName<<std::endl;
+    std::string effHistTitle(effHistName);
+    if(region=="eb" || region=="ee"){
+      if(region=="eb") effHistTitle = "Barrel "+baseName+" HLToverOfflineSC E_{T}";
+      if(region=="ee") effHistTitle = "Endcap "+baseName+" HLToverOfflineSC E_{T}";
+      FillHLTvsOfflineHist(filterName,effHistName,effHistTitle,numer,denom);	
+    }
+  }//end Et
+  //now eta, phi automatically
   for(size_t varNr=0;varNr<varNames.size();varNr++){
     MonitorElement* numer = dbe_->get(dirName_+"/Source_Histos/"+filterName+"/"+baseName+"_HLT"+varNames[varNr]+"_"+region);
     MonitorElement* denom = dbe_->get(dirName_+"/Source_Histos/"+filterName+"/"+baseName+"_"+varNames[varNr]+"_"+region);
