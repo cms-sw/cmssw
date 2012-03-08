@@ -14,6 +14,7 @@ from CalibMuon.DTCalibration.Workflow.DTDQMMerge import DTDQMMerge
 from CalibMuon.DTCalibration.Workflow.DTDQMHarvesting import DTDQMHarvesting
 from CalibMuon.DTCalibration.Workflow.DTDqm import DTDqm
 from CalibMuon.DTCalibration.Workflow.DTT0DBValidation import DTT0DBValidation
+from CalibMuon.DTCalibration.Workflow.DTAnalysisResiduals import DTAnalysisResiduals
 from CalibMuon.DTCalibration.Workflow.CrabWatch import CrabWatch
 from CalibMuon.DTCalibration.Workflow.tools import listFilesInCastor,haddInCastor,listFilesLocal,haddLocal,copyFilesFromCastor,copyFilesLocal,parseInput,getDatasetStr
 import sys,os,time,optparse
@@ -34,6 +35,7 @@ class DTCalibrationWorker:
 	elif type == 'noise':        self.runNoiseWorkflow(mode,refRun,config,execute)
 	elif type == 't0':           self.runT0Workflow(mode,refRun,config,execute)
 	elif type == 'validation':   self.runValidationWorkflow(mode,refRun,config,execute)
+	elif type == 'analysis':     self.runAnalysisWorkflow(mode,refRun,config,execute)
 	elif type == 'dbvalidation':
             inputFiles = []
             if config.dbFiles: inputFiles = config.dbFiles
@@ -137,6 +139,40 @@ class DTCalibrationWorker:
 		haddInCastor(castor_dir,result_file,'residuals','rfio://castorcms/','?svcClass=cmscafuser')
 
 	    return project_residualCalib
+
+	return None
+
+    def runAnalysisResiduals(self,run,runselection,trial,label,result_file,config,runStep=True):
+
+	print "Processing residuals analysis"
+	datasetstr = getDatasetStr(config.datasetpath)
+	config.userdircaf = 'DTCalibration/' + datasetstr + '/Run' + str(run) + '/AnalysisResiduals/' + label + '/' + 'v' + str(trial)
+	
+	task_dir = config.base_dir + '/' + label
+	dtAnalysisResiduals = DTAnalysisResiduals(run=run,
+				                  dir=task_dir,
+					          config=config) 
+	dtAnalysisResiduals.writeCfg()
+
+	if runStep:
+	    project_analysisResiduals = dtAnalysisResiduals.run()
+
+	    print "Sent jobs with project",project_analysisResiduals
+	    print "%.0f%% of jobs are required to finish" % config.jobsFinishedThreshold
+
+	    crabAnalysisResiduals = CrabWatch(project_analysisResiduals)
+	    crabAnalysisResiduals.setThreshold(config.jobsFinishedThreshold)
+	    crabAnalysisResiduals.start()
+	    crabAnalysisResiduals.join()
+
+	    if config.stageOutLocal:
+		output_dir = project_analysisResiduals + "/res"
+		haddLocal(output_dir,result_file,'residuals')
+	    elif config.stageOutCAF:
+		castor_dir = config.castorpath + "/" + config.userdircaf
+		haddInCastor(castor_dir,result_file,'residuals','rfio://castorcms/','?svcClass=cmscafuser')
+
+	    return project_analysisResiduals
 
 	return None
 
@@ -666,6 +702,30 @@ class DTCalibrationWorker:
 	    # Run harvesting from merged DQM file 
 	    dqm_merge_dir = os.path.abspath(result_dir)
 	    self.runDQMHarvesting(run,dqm_merge_dir,config)
+
+	return 0
+
+    ############################################################ 
+    # Analysis workflow
+    ############################################################ 
+    def runAnalysisWorkflow(self,mode,run,config,execute=True):
+	print "Processing analysis workflow"
+	trial = config.trial
+	runselection = config.runselection
+	result_dir = config.result_dir
+	if mode == 'residuals':
+	    residualsFile = os.path.abspath(result_dir + '/' + 'DTResiduals_' + run + '.root')
+
+	    if not execute:
+		print "Writing configuration files.."
+		self.runAnalysisResiduals(run,runselection,trial,'Residuals',residualsFile,config,False)
+
+		sys.exit(0)
+
+	    # Produce residuals
+	    if not os.path.exists(residualsFile):
+		self.runAnalysisResiduals(run,runselection,trial,'Residuals',residualsFile,config) 
+	    if not os.path.exists(residualsFile): raise RuntimeError,'Could not produce %s' % residualsFile
 
 	return 0
 

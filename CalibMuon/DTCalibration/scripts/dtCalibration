@@ -61,7 +61,7 @@ if __name__ == '__main__':
  
     (input, args) = parser.parse_args()
 
-    allowedTypes = ('ttrig','vdrift','noise','t0','validation','dbvalidation')
+    allowedTypes = ('ttrig','vdrift','noise','t0','validation','analysis','dbvalidation')
     input.workflowType = 'ttrig'
     if len(args) > 0: 
         if args[0] not in allowedTypes: parser.error('option "%s" not allowed' % args[0])
@@ -69,13 +69,17 @@ if __name__ == '__main__':
  
     allowedTTrigModes = ('timeboxes','residuals','validation')
     allowedVDriftModes = ('segment','meantimer')
+    allowedAnalysisModes = ('residuals')
     input.workflowMode = None
     if input.workflowType == 'ttrig': input.workflowMode = 'residuals'
     elif input.workflowType == 'vdrift': input.workflowMode = 'segment'
+    elif input.workflowType == 'analysis': input.workflowMode = 'residuals'
     if len(args) > 1:
         if input.workflowType == 'ttrig' and args[1] not in allowedTTrigModes:
             parser.error('option "%s" not allowed' % args[1])
         if input.workflowType == 'vdrift' and args[1] not in allowedVDriftModes:
+            parser.error('option "%s" not allowed' % args[1])
+        if input.workflowType == 'analysis' and args[1] not in allowedAnalysisModes:
             parser.error('option "%s" not allowed' % args[1])
         input.workflowMode = args[1]  
    
@@ -86,6 +90,7 @@ if __name__ == '__main__':
     requiredFields['noise'] = requiredFieldsDef
     requiredFields['t0'] = requiredFieldsDef
     requiredFields['validation'] = requiredFieldsDef
+    requiredFields['analysis'] = requiredFieldsDef
     requiredFields['dbvalidation'] = ('run','datasetpath')
     for item in requiredFields[input.workflowType]:
         if not getattr(input,item):
@@ -200,6 +205,7 @@ if __name__ == '__main__':
     elif input.workflowType == 'noise': base_label = 'Noise'
     elif input.workflowType == 't0': base_label = 'T0'
     elif input.workflowType == 'validation': base_label = 'Valid' 
+    elif input.workflowType == 'analysis': base_label = 'Analysis' 
     elif input.workflowType == 'dbvalidation': base_label = 'DBValid' 
     
     base_dir = ''
