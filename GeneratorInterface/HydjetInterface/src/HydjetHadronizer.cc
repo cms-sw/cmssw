@@ -1,5 +1,5 @@
 /*
- * $Id: HydjetHadronizer.cc,v 1.10 2011/02/17 20:54:45 yarba Exp $
+ * $Id: HydjetHadronizer.cc,v 1.11 2011/10/04 16:12:01 lenzip Exp $
  *
  * Interface to the HYDJET generator, produces HepMC events
  *
@@ -25,7 +25,7 @@
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Declarations.h"
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
 
-#include "HepMC/PythiaWrapper6_4.h"
+#include "HepMC/PythiaWrapper6_2.h"
 #include "HepMC/GenEvent.h"
 #include "HepMC/HeavyIon.h"
 #include "HepMC/SimpleVector.h"
