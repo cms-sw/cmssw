@@ -188,6 +188,11 @@ if __name__=='__main__':
                         action='store',
                         default='linear',
                         help='y_scale[linear,log,both]')
+    parser.add_argument('--lastpointfromdb',
+                        dest='lastpointfromdb',
+                        action='store_true',
+                        help='the last point in the plot is always recaculated from current values in LumiDB')
+    
     ####correction switches
     parser.add_argument('--without-correction',
                         dest='withoutCorrection',
@@ -257,7 +262,6 @@ if __name__=='__main__':
     ##find runs need to read from DB
     #
     irunlsdict={}#either from -i or from other selection options
-    ilumibyls=[]
     reqTrg=True
     reqHlt=False
     if options.hltpath:
@@ -265,25 +269,21 @@ if __name__=='__main__':
     session.transaction().start(True)
     schema=session.nominalSchema()
     if options.inputfile:
-        #
-        ##if no -i selection file,we use all the mesures to get candidate run list
-        #
-        #runlist=lumiCalcAPI.runList(schema,options.fillnum,runmin=None,runmax=None,startT=begtime,stopT=endtime,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt)
-        #session.transaction().commit()
-        #for run in runlist:
-        #    irunlsdict[run]=None
-         #else: 
-        #
-        ##otherwise, we only listen to the selection file
-        #
         irunlsdict=parseInputFiles(options.inputfile)
 
     fillrunMap={}
+    finecorrections=None
+    runlsfromDB={}#run/ls need to fetch from db
+    runsnotdrawn=[]
+    lastDrawnRun=None
+    maxDrawnDay=None
+    lastDrawnFill=None
+    newFirstDay=None
+    newFirstRun=None
+    newFirstFill=None
+
     session.transaction().start(True)
     schema=session.nominalSchema()
-    finecorrections=None
-    runlsfromDB={}#runs need to fetch from db
-    runsnotdrawn=[]
     if options.action=='perday' or options.action=='instpeakperday':
         maxDrawnDay=int(lut.StrToDatetime(begtime,customfm='%m/%d/%y %H:%M:%S').date().toordinal())
         if resultlines:
@@ -291,26 +291,35 @@ if __name__=='__main__':
                 if drawnDay>maxDrawnDay:
                     maxDrawnDay=drawnDay
         #print maxDrawnDay
+        newFirstDay=maxDrawnDay+1
+        if options.lastpointfromdb:
+            newFirstDay=maxDrawnDay
         midnight=datetime.time()
-        begT=datetime.datetime.combine(datetime.date.fromordinal(maxDrawnDay),midnight)
+        begT=datetime.datetime.combine(datetime.date.fromordinal(newFirstDay),midnight)
         begTStr=lut.DatetimeToStr(begT,customfm='%m/%d/%y %H:%M:%S')
         #find runs not in old plot
         runsnotdrawn=lumiCalcAPI.runList(schema,options.fillnum,runmin=None,runmax=None,startT=begTStr,stopT=endtime,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt)
         
     if options.action=='run' or options.action=='time':
-        lastDrawnRun=None
+        lastDrawnRun=132000
         if resultlines:#if there's old plot, start to count runs only after that
             lastDrawnRun=max([int(t[0]) for t in resultlines])
-        runsnotdrawn=lumiCalcAPI.runList(schema,options.fillnum,runmin=lastDrawnRun,runmax=None,startT=begtime,stopT=endtime,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt)
-
+        newFirstRun=lastDrawnRun+1
+        if options.lastpointfromdb:
+            newFirstRun=lastDrawnRun
+        runsnotdrawn=lumiCalcAPI.runList(schema,options.fillnum,runmin=newFirstRun,runmax=None,startT=begtime,stopT=endtime,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt)
+        
     if options.action=='fill':
-        lastDrawnFill=None
-        lastDrawnRun=None
+        lastDrawnFill=1000
+        lastDrawnRun=132000
         if resultlines:
             lastDrawnFill=max([int(t[0]) for t in resultlines])        
             lastDrawnRun=min([int(t[1]) for t in resultlines if int(t[0])==lastDrawnFill])
-        runsnotdrawn=lumiCalcAPI.runList(schema,runmin=lastDrawnRun,runmax=None,startT=begtime,stopT=endtime,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt)
-        fillrunMap=lumiCalcAPI.fillrunMap(schema,runmin=lastDrawnRun,runmax=None,startT=begtime,stopT=endtime)
+        newFirstRun=lastDrawnRun+1
+        if options.lastpointfromdb:
+            newFirstRun=lastDrawnRun
+        runsnotdrawn=lumiCalcAPI.runList(schema,runmin=newFirstRun,runmax=None,startT=begtime,stopT=endtime,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt)
+        fillrunMap=lumiCalcAPI.fillrunMap(schema,runmin=newFirstRun,runmax=None,startT=begtime,stopT=endtime)
     session.transaction().commit()
     for r in runsnotdrawn:
         if irunlsdict:
@@ -322,8 +331,12 @@ if __name__=='__main__':
                 
     if options.verbose:
         print 'runs read from db: ',runlsfromDB
-        print 'last run in old plot: ',lastDrawnRun
-       
+        if lastDrawnRun:
+            print '[INFO] last run in old plot: ',lastDrawnRun
+            print '[INFO] first run from DB in fresh plot: ',newFirstRun
+        if maxDrawnDay:
+            print '[INFO] last day in old plot: ',maxDrawnDay
+            print '[INFO] first day from DB in fresh plot: ',newFirstDay
     fig=Figure(figsize=(figureparams['sizex'],figureparams['sizey']),dpi=figureparams['dpi'])
     m=matplotRender.matplotRender(fig)
     logfig=Figure(figsize=(figureparams['sizex'],figureparams['sizey']),dpi=figureparams['dpi'])
