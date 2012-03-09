@@ -20,4 +20,7 @@
 <use   name="GeneratorInterface/Pythia6Interface"/>
 <use   name="GeneratorInterface/Core"/>
 <flags CXXFLAGS="-O0 -g3 -fno-inline"/> 
-<flags   EDM_PLUGIN="1"/>
+<export>
+  <lib   name="1"/>
+</export>
+
