@@ -16,26 +16,12 @@ class RegexValidator(object):
         match = self.pattern.search(string)
         if not match:
             raise ValueError(self.statement)
-        return string 
-def parseInputFiles(inputfilename,dbrunlist,optaction):
-    '''
-    output ({run:[cmsls,cmsls,...]},[[resultlines]])
-    '''
-    selectedrunlsInDB={}
-    resultlines=[]
+        return string
+    
+def parseInputFiles(inputfilename):
     p=inputFilesetParser.inputFilesetParser(inputfilename)
     runlsbyfile=p.runsandls()
-    selectedProcessedRuns=p.selectedRunsWithresult()
-    selectedNonProcessedRuns=p.selectedRunsWithoutresult()
-    resultlines=p.resultlines()
-    for runinfile in selectedNonProcessedRuns:
-        if runinfile not in dbrunlist:
-            continue
-        if optaction=='delivered':#for delivered we care only about selected runs
-            selectedrunlsInDB[runinfile]=None
-        else:
-            selectedrunlsInDB[runinfile]=runlsbyfile[runinfile]
-    return (selectedrunlsInDB,resultlines)
+    return runlsbyfile
 
 ##############################
 ## ######################## ##
@@ -132,11 +118,6 @@ if __name__=='__main__':
     #
     #optional args to filter *runs*, they do not select on LS level.
     #
-    parser.add_argument('-r',
-                        dest='runnumber',
-                        action='store',
-                        type=int,
-                        help='run number')
     parser.add_argument('-f','--fill',
                         dest='fillnum',
                         action='store',
@@ -259,11 +240,12 @@ if __name__=='__main__':
     if options.beamstatus=='stable':
         pbeammode='STABLE BEAMS'
     resultlines=[]
+    inplots=[]
     #
     ##process old plot csv files,if any, skipping #commentlines
     #
-    if options.inplot:
-        inplot=options.inplot
+    inplot=options.inplot
+    if inplot:
         inplots=inplot.split('+')
         for ip in inplots:
             f=open(ip,'r')
@@ -274,35 +256,34 @@ if __name__=='__main__':
     #
     ##find runs need to read from DB
     #
-    irunlsdict={}
+    irunlsdict={}#either from -i or from other selection options
     ilumibyls=[]
-    if options.runnumber:
-        irunlsdict[options.runnumber]=None
-    else:
-        reqTrg=True
-        reqHlt=False
-        if options.hltpath:
-            reqHlt=True
-        session.transaction().start(True)
-        schema=session.nominalSchema()
+    reqTrg=True
+    reqHlt=False
+    if options.hltpath:
+        reqHlt=True
+    session.transaction().start(True)
+    schema=session.nominalSchema()
+    if options.inputfile:
         #
-        #get candidate run list
+        ##if no -i selection file,we use all the mesures to get candidate run list
         #
-        runlist=lumiCalcAPI.runList(schema,options.fillnum,runmin=None,runmax=None,startT=begtime,stopT=endtime,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt)
-        session.transaction().commit()
+        #runlist=lumiCalcAPI.runList(schema,options.fillnum,runmin=None,runmax=None,startT=begtime,stopT=endtime,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt)
+        #session.transaction().commit()
+        #for run in runlist:
+        #    irunlsdict[run]=None
+         #else: 
         #
-        #parse -i selection file if any,else process all candiate runs 
+        ##otherwise, we only listen to the selection file
         #
-        if options.inputfile:
-            (irunlsdict,iresults)=parseInputFiles(options.inputfile,runlist,'isnotdelivered')
-        else:
-            for run in runlist:
-                irunlsdict[run]=None
-    runsinrange=[]
+        irunlsdict=parseInputFiles(options.inputfile)
+
     fillrunMap={}
     session.transaction().start(True)
     schema=session.nominalSchema()
     finecorrections=None
+    runlsfromDB={}#runs need to fetch from db
+    runsnotdrawn=[]
     if options.action=='perday' or options.action=='instpeakperday':
         maxDrawnDay=int(lut.StrToDatetime(begtime,customfm='%m/%d/%y %H:%M:%S').date().toordinal())
         if resultlines:
@@ -313,41 +294,42 @@ if __name__=='__main__':
         midnight=datetime.time()
         begT=datetime.datetime.combine(datetime.date.fromordinal(maxDrawnDay),midnight)
         begTStr=lut.DatetimeToStr(begT,customfm='%m/%d/%y %H:%M:%S')
-        runsinrange=lumiCalcAPI.runList(schema,options.fillnum,runmin=None,runmax=None,startT=begTStr,stopT=endtime,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt)
+        #find runs not in old plot
+        runsnotdrawn=lumiCalcAPI.runList(schema,options.fillnum,runmin=None,runmax=None,startT=begTStr,stopT=endtime,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt)
+        
     if options.action=='run' or options.action=='time':
         lastDrawnRun=None
-        if resultlines:
+        if resultlines:#if there's old plot, start to count runs only after that
             lastDrawnRun=max([int(t[0]) for t in resultlines])
-        runsinrange=lumiCalcAPI.runList(schema,options.fillnum,runmin=lastDrawnRun,runmax=None,startT=begtime,stopT=endtime,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt)
+        runsnotdrawn=lumiCalcAPI.runList(schema,options.fillnum,runmin=lastDrawnRun,runmax=None,startT=begtime,stopT=endtime,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt)
 
     if options.action=='fill':
+        lastDrawnFill=None
         lastDrawnRun=None
-        startrun=None
-        stoprun=None
         if resultlines:
             lastDrawnFill=max([int(t[0]) for t in resultlines])        
-            startrun=min([int(t[1]) for t in resultlines if int(t[0])==lastDrawnFill])
-        elif irunlsdict:
-            startrun=min(irunlsdict.keys())
-            stoprun=max(irunlsdict.keys())
-        runsinrange=lumiCalcAPI.runList(schema,runmin=startrun,runmax=stoprun,startT=begtime,stopT=endtime,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt)
-        fillrunMap=lumiCalcAPI.fillrunMap(schema,runmin=startrun,runmax=stoprun,startT=begtime,stopT=endtime)
-    #if options.action=='inst':##temporaryly mask inst
-    #    runsinrange.append(options.runnumber)
+            lastDrawnRun=min([int(t[1]) for t in resultlines if int(t[0])==lastDrawnFill])
+        runsnotdrawn=lumiCalcAPI.runList(schema,runmin=lastDrawnRun,runmax=None,startT=begtime,stopT=endtime,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt)
+        fillrunMap=lumiCalcAPI.fillrunMap(schema,runmin=lastDrawnRun,runmax=None,startT=begtime,stopT=endtime)
     session.transaction().commit()
-    
-    runlist=irunlsdict.keys()
-    runlist.sort()
+    for r in runsnotdrawn:
+        if irunlsdict:
+            if not irunlsdict.has_key(r):
+                continue                
+            runlsfromDB[r]=irunlsdict[r]
+        else:
+            runlsfromDB[r]=None
+                
     if options.verbose:
-        print 'runs needed from db ',runlist
-        print 'runlsdict',irunlsdict            
-    filllist=[]
+        print 'runs read from db: ',runlsfromDB
+        print 'last run in old plot: ',lastDrawnRun
+       
     fig=Figure(figsize=(figureparams['sizex'],figureparams['sizey']),dpi=figureparams['dpi'])
     m=matplotRender.matplotRender(fig)
     logfig=Figure(figsize=(figureparams['sizex'],figureparams['sizey']),dpi=figureparams['dpi'])
     mlog=matplotRender.matplotRender(logfig)
 
-    if len(irunlsdict)==0:
+    if len(runlsfromDB)==0:
         if len(resultlines)!=0:
             print '[INFO] drawing all from old plot data'
         else:
@@ -357,7 +339,7 @@ if __name__=='__main__':
     finecorrections=None
     driftcorrections=None
     if not options.withoutCorrection:
-        rruns=irunlsdict.keys()
+        rruns=runlsfromDB.keys()
         session.transaction().start(True)
         schema=session.nominalSchema()
         if options.correctionv2:
@@ -375,7 +357,7 @@ if __name__=='__main__':
         session.transaction().commit()
     session.transaction().start(True)
     if not options.hltpath:
-        lumibyls=lumiCalcAPI.lumiForRange(session.nominalSchema(),irunlsdict,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,finecorrections=finecorrections,driftcorrections=driftcorrections,usecorrectionv2=(options.correctionv2 or options.correctionv3))
+        lumibyls=lumiCalcAPI.lumiForRange(session.nominalSchema(),runlsfromDB,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,finecorrections=finecorrections,driftcorrections=driftcorrections,usecorrectionv2=(options.correctionv2 or options.correctionv3))
     else:
         referenceLabel='Recorded'
         hltname=options.hltpath
@@ -385,7 +367,7 @@ if __name__=='__main__':
         elif 1 in [c in hltname for c in '*?[]']: #is a fnmatch pattern
             hltpat=hltname
             hltname=None
-        lumibyls=lumiCalcAPI.effectiveLumiForRange(session.nominalSchema(),irunlsdict,hltpathname=hltname,hltpathpattern=hltpat,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,finecorrections=finecorrections,driftcorrections=driftcorrections,usecorrectionv2=(options.correctionv2 or options.correctionv3))
+        lumibyls=lumiCalcAPI.effectiveLumiForRange(session.nominalSchema(),runlsfromDB,hltpathname=hltname,hltpathpattern=hltpat,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,finecorrections=finecorrections,driftcorrections=driftcorrections,usecorrectionv2=(options.correctionv2 or options.correctionv3))
     session.transaction().commit()
     rawdata={}
     #
