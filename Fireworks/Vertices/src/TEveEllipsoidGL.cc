@@ -4,8 +4,8 @@
 #include "TEveProjections.h" // AMT missing getter for projection center / beam-spot
 #undef protected
 
-#include "TEveEllipsoidGL.h"
-#include "TEveEllipsoid.h"
+#include "Fireworks/Vertices/interface/TEveEllipsoidGL.h"
+#include "Fireworks/Vertices/interface/TEveEllipsoid.h"
 #include "TEveProjectionManager.h"
 
 #include "TMath.h"
@@ -143,8 +143,6 @@ void TEveEllipsoidProjectedGL::SetBBox()
    SetAxisAlignedBBox(((TEveEllipsoidProjected*)fExternalObj)->AssertBBox());
 }
 
-
-
 //______________________________________________________________________________
 void TEveEllipsoidProjectedGL::DirectDraw(TGLRnrCtx& /*rnrCtx*/) const
 {
@@ -152,9 +150,13 @@ void TEveEllipsoidProjectedGL::DirectDraw(TGLRnrCtx& /*rnrCtx*/) const
  
    TEveProjection *proj = fM->GetManager()->GetProjection();
    
+   
    glPushAttrib(GL_ENABLE_BIT| GL_LINE_BIT | GL_POINT_BIT);
    glDisable(GL_LIGHTING);
-   glLineWidth(2);
+
+   TGLUtil::LineWidth(fE->fLineWidth);
+   TGLUtil::Color(fE->fLineColor);
+
    glPushMatrix();
    if ( proj->GetType() == TEveProjection::kPT_RPhi)
       DrawRhoPhi();

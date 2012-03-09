@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWVertexProxyBuilder.cc,v 1.12 2012/03/02 04:56:39 amraktad Exp $
+// $Id: FWVertexProxyBuilder.cc,v 1.13 2012/03/09 06:57:43 amraktad Exp $
 //
 // user include files// user include files
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
@@ -58,8 +58,9 @@ private:
    const FWVertexProxyBuilder& operator=(const FWVertexProxyBuilder&); // stop default
 
    virtual void build(const reco::Vertex& iData, unsigned int iIndex,TEveElement& oItemHolder, const FWViewContext*);
-   // virtual bool haveSingleProduct() const { return false; }
-   // virtual void buildViewType(const reco::Vertex& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*);
+
+   virtual void localModelChanges(const FWModelId& iId, TEveElement* iCompound,
+                                  FWViewType::EType viewType, const FWViewContext* vc);
 
 };
 
@@ -80,7 +81,7 @@ FWVertexProxyBuilder::build(const reco::Vertex& iData, unsigned int iIndex, TEve
    if ( item()->getConfig()->value<bool>("Draw Ellipse"))
    {
     
-      TEveEllipsoid* eveEllipsoid = new TEveEllipsoid(Form("Ellipsod %d", iIndex), "vtx"); 
+      TEveEllipsoid* eveEllipsoid = new TEveEllipsoid("Ellipsoid", Form("Ellipsoid %d", iIndex)); 
 
       eveEllipsoid->RefPos().Set(v.x(),v.y(),v.z());
 
@@ -105,8 +106,12 @@ FWVertexProxyBuilder::build(const reco::Vertex& iData, unsigned int iIndex, TEve
       TVectorD vv ( eig.GetEigenValuesRe());
       eveEllipsoid->RefExtent3D().Set(sqrt(vv(0))*ellipseScale,sqrt(vv(1))*ellipseScale,sqrt(vv(2))*ellipseScale); 
 
+      eveEllipsoid->SetFillColor(item()->defaultDisplayProperties().color());
+      eveEllipsoid->SetLineColor(item()->defaultDisplayProperties().color());
+      eveEllipsoid->SetLineWidth(2);
       setupAddElement(eveEllipsoid, &oItemHolder);
-   }
+      eveEllipsoid->SetMainTransparency(TMath::Min(100, 80 + item()->defaultDisplayProperties().transparency() / 5)); 
+    }
 
    // tracks
    if ( item()->getConfig()->value<bool>("Draw Tracks")) 
@@ -130,6 +135,13 @@ FWVertexProxyBuilder::build(const reco::Vertex& iData, unsigned int iIndex, TEve
       }
    }
   
+}
+
+void
+FWVertexProxyBuilder::localModelChanges(const FWModelId& iId, TEveElement* iCompound,
+                                     FWViewType::EType viewType, const FWViewContext* vc)
+{
+   increaseComponentTransparency(iId.index(), iCompound, "Ellipsoid", 80);
 }
 
 //
