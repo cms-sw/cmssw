@@ -30,6 +30,7 @@ HLT_JetE50_NoBPTX3BX_NoHalo_v*                                                  
 HLT_JetE70_NoBPTX3BX_NoHalo_v*                                                                  #sr126248
 
 HLT_ExclDiJet80_HFAND_v*                                                                        #sr126250
+HLT_DoubleMu11_Acoplanarity03_v*                                                                #sr126250 - added late
 
 HLT_L2DoubleMu23_NoVertex_v*                                                                    #sr126251
 HLT_L2DoubleMu23_NoVertex_2Cha_Angle2p5_v*                                                      #sr126251
@@ -250,7 +251,7 @@ HLT_Dimuon7_Upsilon_v*                                                          
 HLT_Dimuon9_PsiPrime_v*                                                                         #sr126726
 HLT_Dimuon10_Jpsi_v*                                                                            #sr126726
 HLT_DoubleMu3p5_LowMassNonResonant_Displaced_v*                                                 #sr126726
-
+HLT_Mu7_Track7_Jpsi_v*                                                                          #claimed by Higgs
 HLT_Mu18_eta2p1_LooseIsoPFTau20_v*                                                              #sr126461
 HLT_IsoMu18_eta2p1_LooseIsoPFTau20_v*                                                           #sr126461
 HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_LooseIsoPFTau20L1Jet_v*                           #sr126461
@@ -261,7 +262,7 @@ HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_v*                                
 HLT_QuadJet80_L1FastJet_v*                                                                      #sr126462
 HLT_SixJet45_L1FastJet_v*                                                                       #sr126462
 HLT_EightJet35_L1FastJet_v*                                                                     #sr126462
-HLT_HT750_v*                                                                                    #sr126462
+#HLT_HT750_v*                                                                                   #sr126462 but dropped as we have HLT_HT750_L1FastJet
 HLT_EightJet40_L1FastJet_v*                                                                     #sr126462
 HLT_QuadJet70_L1FastJet_v*                                                                      #sr126462
 HLT_SixJet35_L1FastJet_v*                                                                       #sr126462
@@ -294,7 +295,7 @@ HLT_Photon36_R9Id85_Photon22_CaloId10_Iso50_v*                                  
 HLT_Photon36_R9Id85_Photon22_R9Id85_v*                                                          #sr126475
 HLT_Photon26_Photon18_v*                                                                        #sr126475
 HLT_Photon36_Photon22_v*                                                                        #sr126475
-HLT_Photon20_R9Id_Photon18_R9Id_v*                                                              #sr126475
+#HLT_Photon20_R9Id_Photon18_R9Id_v*                                                             #sr126475 - but now dropped as per AB
 HLT_Photon26_CaloIdXL_IsoXL_Photon18_v*                                                         #sr126475
 HLT_Photon30_CaloIdVL_v*                                                                        #sr126475
 HLT_Photon50_CaloIdVL_v*                                                                        #sr126475
@@ -410,6 +411,7 @@ HLT_PixelTracks_Multiplicity90_v*								#sr126810
 
 HLT_Jet20_v*											#sr126817
 HLT_Jet50_v*											#sr126817
+HLT_Jet370_NoJetID_v*                                                                           #added in favor of HLT_Jet370
 HLT_DoubleJet20_ForwardBackward_v*								#sr126817
 HLT_DoublePhoton5_IsoVL_CEP_v*									#sr126817
 HLT_Photon50_CaloIdVL_IsoL_v*									#sr126817
@@ -444,7 +446,7 @@ HLT_L1Tech_HCAL_HF_single_channel_v*
 #HLT_L1Tech_DT_GlobalOR_v*                                                                       # only in 'GRun' and 'cosmics', not in 'online'
 HLT_ZeroBias_v*
 HLT_Physics_v*
-DST_Physics_v*
+#DST_Physics_v*                                                                                 #dropped by A.B. (email 7MAR - but keep in master)
 HLT_DTCalibration_v*
 HLT_EcalCalibration_v*
 HLT_HcalCalibration_v*
@@ -455,6 +457,11 @@ HLT_L1SingleMuOpen_AntiBPTX_v*
 HLT_L1TrackerCosmics_v*
 HLT_LogMonitor_v*
 HLT_DTErrors_v*
+
+HLT_L1SingleEG5_v*
+HLT_L1SingleEG12_v*
+HLT_L1SingleJet16_v*
+HLT_L1SingleJet36_v*
 
 AlCa_EcalPi0EBonly_v*                                                                           #added in Feb 2012 5e33 menu (sr #126320)
 AlCa_EcalPi0EEonly_v*                                                                           #added in Feb 2012 5e33 menu (sr #126320)

@@ -1,4 +1,4 @@
-# /dev/CMSSW_5_2_0/GRun/V6
+# /dev/CMSSW_5_2_0/GRun/V7
 
 import FWCore.ParameterSet.Config as cms
 
@@ -28,6 +28,10 @@ streamA_datasetCommissioning_selector.triggerConditions = cms.vstring('HLT_Activ
     'HLT_L1ETM30_v1', 
     'HLT_L1ETM40_v1', 
     'HLT_L1ETM70_v1', 
+    'HLT_L1SingleEG12_v5', 
+    'HLT_L1SingleEG5_v5', 
+    'HLT_L1SingleJet16_v6', 
+    'HLT_L1SingleJet36_v6', 
     'HLT_L1SingleMuOpen_v6', 
     'HLT_L1Tech_DT_GlobalOR_v3')
 
@@ -63,7 +67,8 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetDoubleMu_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetDoubleMu_selector.l1tResults = cms.InputTag('')
 streamA_datasetDoubleMu_selector.throw      = cms.bool(False)
-streamA_datasetDoubleMu_selector.triggerConditions = cms.vstring('HLT_DoubleMu4_Acoplanarity03_v1', 
+streamA_datasetDoubleMu_selector.triggerConditions = cms.vstring('HLT_DoubleMu11_Acoplanarity03_v1', 
+    'HLT_DoubleMu4_Acoplanarity03_v1', 
     'HLT_DoubleMu5_IsoMu5_v14', 
     'HLT_L2DoubleMu23_NoVertex_2Cha_Angle2p5_v1', 
     'HLT_L2DoubleMu23_NoVertex_v10', 
@@ -157,7 +162,6 @@ streamA_datasetHT_selector.triggerConditions = cms.vstring('HLT_CleanPFHT300_Ele
     'HLT_HT550_L1FastJet_v1', 
     'HLT_HT650_L1FastJet_v1', 
     'HLT_HT750_L1FastJet_v5', 
-    'HLT_HT750_v5', 
     'HLT_PFHT350_PFMET100_v1', 
     'HLT_PFHT350_v1', 
     'HLT_PFHT400_PFMET100_v1', 
@@ -197,6 +201,7 @@ streamA_datasetJet_selector.triggerConditions = cms.vstring('HLT_DiJet80_DiJet60
     'HLT_DiPFJetAve40_v1', 
     'HLT_DiPFJetAve80_v1', 
     'HLT_Jet20_v1', 
+    'HLT_Jet370_NoJetID_v12', 
     'HLT_Jet50_v1', 
     'HLT_PFJet140_v1', 
     'HLT_PFJet200_v1', 
@@ -351,6 +356,7 @@ streamA_datasetMuOnia_selector.triggerConditions = cms.vstring('HLT_Dimuon0_Jpsi
     'HLT_Mu5_L2Mu3_Jpsi_v1', 
     'HLT_Mu5_Track2_Jpsi_v15', 
     'HLT_Mu5_Track3p5_Jpsi_v1', 
+    'HLT_Mu7_Track7_Jpsi_v16', 
     'HLT_Tau2Mu_RegPixTrack_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMultiJet_selector
@@ -394,7 +400,6 @@ streamA_datasetPhoton_selector.triggerConditions = cms.vstring('HLT_DoubleEle33_
     'HLT_Photon150_v1', 
     'HLT_Photon160_v1', 
     'HLT_Photon20_CaloIdVL_IsoL_v11', 
-    'HLT_Photon20_R9Id_Photon18_R9Id_v9', 
     'HLT_Photon22_R9Id90_HE10_Iso40_v1', 
     'HLT_Photon250_NoHE_v1', 
     'HLT_Photon26_CaloId10_Iso50_Photon18_CaloId10_Iso50_Mass60_v1', 
