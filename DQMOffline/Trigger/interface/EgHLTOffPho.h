@@ -52,7 +52,7 @@ namespace egHLT {
     
 public:
     //helper struct to store reco approximations of variables made by HLT
-    struct HLTDataPho {
+    struct HLTData {
       //const math::XYZTLorentzVector p4() const;
       float HLTeta;
       float HLTphi;
@@ -65,7 +65,7 @@ public:
 
     ClusShapeData clusShapeData_;
     IsolData isolData_;
-    HLTDataPho hltDataPho_;
+    HLTData hltData_;
     
     //these are bit-packed words telling me which cuts the photon fail (ie 0x0 is passed all cuts) 
     int cutCode_;
@@ -82,8 +82,8 @@ public:
     
   public:
     
-    OffPho(const reco::Photon& pho,const ClusShapeData& shapeData,const IsolData& isolData):
-      pho_(&pho),clusShapeData_(shapeData),isolData_(isolData),
+    OffPho(const reco::Photon& pho,const ClusShapeData& shapeData,const IsolData& isolData,const HLTData& hltData):
+      pho_(&pho),clusShapeData_(shapeData),isolData_(isolData),hltData_(hltData),
       cutCode_(int(EgCutCodes::INVALID)),looseCutCode_(int(EgCutCodes::INVALID)){}
     ~OffPho(){}
     
@@ -137,11 +137,11 @@ public:
 
     //hlt position - not a reco approximation, taken from triggerobject
     //const math::XYZTLorentzVector& HLTp4()const{return hltDataPho_.p4();}
-    float hltPhi()const{return hltDataPho_.HLTphi;}
-    float hltEta()const{return hltDataPho_.HLTeta;}
-    float hltEt()const{return hltDataPho_.HLTeT;}
+    float hltPhi()const{return hltData_.HLTphi;}
+    float hltEta()const{return hltData_.HLTeta;}
+    float hltEt()const{return hltData_.HLTeT;}
     //Diference between HLT Et and reco SC Et
-    float DeltaEt()const{return (hltDataPho_.HLTeT - etSC());}
+    float DeltaEt()const{return (hltData_.HLTeT - etSC());}
 
     //selection cuts
     int cutCode()const{return cutCode_;}

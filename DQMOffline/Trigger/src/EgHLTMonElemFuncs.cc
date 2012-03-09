@@ -67,6 +67,9 @@ void MonElemFuncs::initStdPhoHists(std::vector<MonElemManagerBase<OffPho>*>& his
   //addStdHist<OffPho,float>(histVec,baseName+"_r9",baseName+" R9 ; R9",bins.r9,&OffPho::r9);
   //addStdHist<OffPho,float>(histVec,baseName+"_minr9",baseName+" MINR9 ; MINR9",bins.minr9,&OffPho::r9);
   addStdHist<OffPho,float>(histVec,baseName+"_maxr9",baseName+" MAXR9 ; MAXR9",bins.maxr9,&OffPho::r9);
+  addStdHist<OffPho,float>(histVec,baseName+"_HLTet",baseName+" E_{T};E_{T} (GeV)",bins.HLTet,&OffPho::hltEt); 
+  addStdHist<OffPho,float>(histVec,baseName+"_HLTeta",baseName+" HLT #eta;HLT #eta",bins.HLTeta,&OffPho::hltEta);		
+  addStdHist<OffPho,float>(histVec,baseName+"_HLTphi",baseName+" HLT #phi;HLT #phi (rad)",bins.HLTphi,&OffPho::hltPhi);
   //-------
   addStdHist<OffPho,float>(histVec,baseName+"_sigmaIEtaIEta",baseName+"#sigma_{i#etai#eta}; #sigma_{i#etai#eta}",bins.sigEtaEta,&OffPho::sigmaIEtaIEta);  
   addStdHist<OffPho,float>(histVec,baseName+"_e2x5Over5x5",baseName+"E^{2x5}/E^{5x5}; E^{2x5}/E^{5x5}",bins.e2x5,&OffPho::e2x5MaxOver5x5);
