@@ -330,7 +330,7 @@ if __name__=='__main__':
             runlsfromDB[r]=None
                 
     if options.verbose:
-        print 'runs read from db: ',runlsfromDB
+        print '[INFO] runs from db: ',runlsfromDB
         if lastDrawnRun:
             print '[INFO] last run in old plot: ',lastDrawnRun
             print '[INFO] first run from DB in fresh plot: ',newFirstRun
