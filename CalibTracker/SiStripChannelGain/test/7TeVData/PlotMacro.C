@@ -1,5 +1,3 @@
-
-
 #include "TROOT.h"
 #include "TFile.h"
 #include "TDirectory.h"
@@ -352,6 +350,24 @@ void PlotMacro_Core(string input, string moduleName, string output)
    unsigned int CountAPV_NoGainU  = 0;
    unsigned int CountAPV_LowGain  = 0;
    unsigned int CountAPV_DiffGain = 0;
+
+   pFile = fopen((output + "_MAP.txt").c_str(),"w");
+   fprintf(pFile,"#maxValue = 1.5\n");
+   fprintf(pFile,"#minValue = 0.5\n");
+   fprintf(pFile,"#defaultColor = 1.0,1.0,1.0,0.1\n");
+   printf("Looping on the Tree          :");
+   double MaxGain=0;  unsigned int previousMod=0;
+   for (unsigned int ientry = 0; ientry < t1->GetEntries(); ientry++) {
+      if(ientry%TreeStep==0){printf(".");fflush(stdout);}     
+      t1->GetEntry(ientry);
+      if(previousMod>0&&tree_APVId==0){fprintf(pFile,"%i %f\n",previousMod,MaxGain); MaxGain=1;  } 
+      previousMod = tree_DetId;
+      if(fabs(tree_Gain-MaxGain)>fabs(MaxGain-1))MaxGain=tree_Gain;
+   }printf("\n");
+   if(previousMod>0){fprintf(pFile,"%i %f\n",previousMod,MaxGain); }
+   fclose(pFile);
+
+
 
    pFile = fopen((output + "_LowResponseModule.txt").c_str(),"w");
    fprintf(pFile,"\n\nALL APVs WITH NO ENTRIES (NO RECO CLUSTER ON IT)\n--------------------------------------------\n");

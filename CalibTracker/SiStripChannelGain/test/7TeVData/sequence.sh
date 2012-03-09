@@ -28,9 +28,13 @@ EOF
 
     cat /afs/cern.ch/cms/tracker/sistrvalidation/WWW/template_index_foot.html | sed -e "s@insertDate@$LASTUPDATE@g" >> index_gain.html
 
+#http://frog.hepforge.org/Downloads/jfrog/jfrog_web.php?arg='-append$EventToDisplay%3D{0};GeomToDisplay%3D{11300000};DetValueMapFile%3D"http://frog.hepforge.org/click/Downloads/jfrog/Gain.txt";'
+
     mv -f index_gain.html index.html
 }
 # end of publication methode
+
+
 
 if [ "$#" == '0' ]; then
    cp Empty_Sqlite.db Gains_Sqlite.db;
@@ -91,5 +95,7 @@ else
    cd $DIRPATH/plots_validation
    cat $INDEXPATH/template_index_header.html | sed -e "s@insertPageName@Validation Plots --- Particle Gain Validation --- $1@g" > index_gain.html
    CreateIndex
+   cd $DIRPATH/log/
+   echo "<html><body><a href=\"http://frog.hepforge.org/Downloads/jfrog/jfrog_web.php?arg='-append\$EventToDisplay%3D{0};GeomToDisplay%3D{11300000};DetValueMapFile%3Dhttps://test-stripcalibvalidation.web.cern.ch/test-stripcalibvalidation/CalibrationValidation/ParticleGain/" + $1  + "/log/Gains_MAP.txt;'\">Show Gain in FROG</a></body></html>" > frog.html
    cd $WORKDIR
 fi

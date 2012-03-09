@@ -56,6 +56,7 @@ lastRun = run
 print "RunRange=[" + str(firstRun) + "," + str(lastRun) + "] --> NEvents=" + str(NTotalEvents/1000)+"K"
 if(automatic==True and NTotalEvents<2500000):	#ask at least 5M events to perform the calibration
 	print 'Not Enough events to run the calibration'
+        os.system('echo "Gain calibration postponed" | mail -s "Gain calibration postponed ('+str(firstRun)+' to '+str(lastRun)+') NEvents=' + str(NTotalEvents/1000)+'K" ' + mail)
 	exit(0);
 
 name = "Run_"+str(firstRun)+"_to_"+str(lastRun); 
